@@ -1058,9 +1058,9 @@ static fix seg_seg_vertex_distsum(const shared_segment &seg1, const sidenum_t si
 
 	distsum = 0;
 	auto &vcvertptr = Vertices.vcptr;
-	range_for (const unsigned secondv, xrange(4u))
+	for (const auto secondv : MAX_VERTICES_PER_SIDE)
 	{
-		const unsigned firstv = (4 - secondv + (3 - firstv1)) % 4;
+		const auto firstv = static_cast<side_relative_vertnum>((4 - underlying_value(secondv) + (3 - firstv1)) % 4);
 		distsum += vm_vec_dist(vcvertptr(seg1.verts[Side_to_verts[side1][firstv]]),vcvertptr(seg2.verts[Side_to_verts[side2][secondv]]));
 	}
 
@@ -1142,8 +1142,8 @@ int med_form_joint(const vmsegptridx_t seg1, const sidenum_t side1, const vmsegp
 		lv = seg2->verts[vi];
 
 	//	Now, for each vertex in lost_vertices, determine which vertex it maps to.
-	for (const unsigned v : xrange(4u))
-		remap_vertices[3 - ((v + bfi) % 4)] = seg1->verts[vp1[v]];
+	for (const auto v : MAX_VERTICES_PER_SIDE)
+		remap_vertices[3 - ((underlying_value(v) + bfi) % 4)] = seg1->verts[vp1[v]];
 
 	// Now, in all segments, replace all occurrences of vertices in lost_vertices with remap_vertices
 
@@ -1213,8 +1213,8 @@ int med_form_bridge_segment(const vmsegptridx_t seg1, const sidenum_t side1, con
 	// Copy vertices from seg2 into last 4 vertices of bridge segment.
 	{
 	auto &sv = Side_to_verts[side2];
-		for (const auto v : xrange(4u))
-			sbs.verts[(segment_relative_vertnum{static_cast<uint8_t>((3 - v) + 4)})] = seg2->verts[sv[v]];
+		for (const auto v : MAX_VERTICES_PER_SIDE)
+			sbs.verts[(segment_relative_vertnum{static_cast<uint8_t>((3 - underlying_value(v)) + 4)})] = seg2->verts[sv[v]];
 	}
 
 	// Copy vertices from seg1 into first 4 vertices of bridge segment.
@@ -1222,8 +1222,8 @@ int med_form_bridge_segment(const vmsegptridx_t seg1, const sidenum_t side1, con
 
 	{
 	auto &sv = Side_to_verts[side1];
-		for (const auto v : xrange(4u))
-			bs->verts[(segment_relative_vertnum{static_cast<uint8_t>((v + bfi) % 4)})] = seg1->verts[sv[v]];
+		for (const auto v : MAX_VERTICES_PER_SIDE)
+			bs->verts[(segment_relative_vertnum{static_cast<uint8_t>((underlying_value(v) + bfi) % 4)})] = seg1->verts[sv[v]];
 	}
 
 	// Form connections to children, first initialize all to unconnected.
@@ -1458,9 +1458,9 @@ static int check_seg_concavity(const shared_segment &s)
 		for (unsigned vn = 0; vn <= 4; ++vn)
 		{
 			const auto n1 = vm_vec_normal(
-				vcvertptr(s.verts[sn[vn % 4]]),
-				vcvertptr(s.verts[sn[(vn + 1) % 4]]),
-				vcvertptr(s.verts[sn[(vn + 2) % 4]]));
+				vcvertptr(s.verts[sn[static_cast<side_relative_vertnum>(vn % 4)]]),
+				vcvertptr(s.verts[sn[static_cast<side_relative_vertnum>((vn + 1) % 4)]]),
+				vcvertptr(s.verts[sn[static_cast<side_relative_vertnum>((vn + 2) % 4)]]));
 
 			//vm_vec_normalize(&n1);
 
@@ -1522,10 +1522,10 @@ void warn_if_concave_segment(const vmsegptridx_t s)
 //	If not found, return an empty optional.
 std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_adjacent_segment_side(const vmsegptridx_t sp, sidenum_t side)
 {
-	std::array<vertnum_t, 4> abs_verts;
+	enumerated_array<vertnum_t, 4, side_relative_vertnum> abs_verts;
 
 	//	Stuff abs_verts[4] array with absolute vertex indices
-	range_for (const unsigned v, xrange(4u))
+	for (const auto v : MAX_VERTICES_PER_SIDE)
 		abs_verts[v] = sp->verts[Side_to_verts[side][v]];
 
 	//	Scan all segments, looking for a segment which contains the four abs_verts

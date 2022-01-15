@@ -87,13 +87,15 @@ static int DoTexSlideLeft(int value)
 	auto &uvls = Cursegp->unique_segment::sides[Curside].uvls;
 
 	auto &vcvertptr = Vertices.vcptr;
-	dist = vm_vec_dist(vcvertptr(Cursegp->verts[vp[3]]), vcvertptr(Cursegp->verts[vp[0]]));
+	dist = vm_vec_dist(vcvertptr(Cursegp->verts[vp[side_relative_vertnum::_3]]), vcvertptr(Cursegp->verts[vp[side_relative_vertnum::_0]]));
 	dist *= value;
 	if (dist < F1_0/(64*value))
 		dist = F1_0/(64*value);
 
-	duvl03.u = fixdiv(uvls[3].u - uvls[0].u,dist);
-	duvl03.v = fixdiv(uvls[3].v - uvls[0].v,dist);
+	auto &u3 = uvls[side_relative_vertnum::_3];
+	auto &u0 = uvls[side_relative_vertnum::_0];
+	duvl03.u = fixdiv(u3.u - u0.u, dist);
+	duvl03.v = fixdiv(u3.v - u0.v, dist);
 
 	range_for (auto &v, uvls)
 	{
@@ -127,14 +129,16 @@ static int DoTexSlideUp(int value)
 	auto &uvls = Cursegp->unique_segment::sides[Curside].uvls;
 
 	auto &vcvertptr = Vertices.vcptr;
-	dist = vm_vec_dist(vcvertptr(Cursegp->verts[vp[1]]), vcvertptr(Cursegp->verts[vp[0]]));
+	dist = vm_vec_dist(vcvertptr(Cursegp->verts[vp[side_relative_vertnum::_1]]), vcvertptr(Cursegp->verts[vp[side_relative_vertnum::_0]]));
 	dist *= value;
 
 	if (dist < F1_0/(64*value))
 		dist = F1_0/(64*value);
 
-	duvl03.u = fixdiv(uvls[1].u - uvls[0].u,dist);
-	duvl03.v = fixdiv(uvls[1].v - uvls[0].v,dist);
+	auto &u1 = uvls[side_relative_vertnum::_1];
+	auto &u0 = uvls[side_relative_vertnum::_0];
+	duvl03.u = fixdiv(u1.u - u0.u, dist);
+	duvl03.v = fixdiv(u1.v - u0.v, dist);
 
 	range_for (auto &v, uvls)
 	{
@@ -169,13 +173,15 @@ static int DoTexSlideDown(int value)
 	auto &uvls = Cursegp->unique_segment::sides[Curside].uvls;
 
 	auto &vcvertptr = Vertices.vcptr;
-	dist = vm_vec_dist(vcvertptr(Cursegp->verts[vp[1]]), vcvertptr(Cursegp->verts[vp[0]]));
+	dist = vm_vec_dist(vcvertptr(Cursegp->verts[vp[side_relative_vertnum::_1]]), vcvertptr(Cursegp->verts[vp[side_relative_vertnum::_0]]));
 	dist *= value;
 	if (dist < F1_0/(64*value))
 		dist = F1_0/(64*value);
 
-	duvl03.u = fixdiv(uvls[1].u - uvls[0].u,dist);
-	duvl03.v = fixdiv(uvls[1].v - uvls[0].v,dist);
+	auto &u1 = uvls[side_relative_vertnum::_1];
+	auto &u0 = uvls[side_relative_vertnum::_0];
+	duvl03.u = fixdiv(u1.u - u0.u, dist);
+	duvl03.v = fixdiv(u1.v - u0.v, dist);
 
 	range_for (auto &v, uvls)
 	{
@@ -289,13 +295,15 @@ static int DoTexSlideRight(int value)
 	auto &uvls = Cursegp->unique_segment::sides[Curside].uvls;
 
 	auto &vcvertptr = Vertices.vcptr;
-	dist = vm_vec_dist(vcvertptr(Cursegp->verts[vp[3]]), vcvertptr(Cursegp->verts[vp[0]]));
+	dist = vm_vec_dist(vcvertptr(Cursegp->verts[vp[side_relative_vertnum::_3]]), vcvertptr(Cursegp->verts[vp[side_relative_vertnum::_0]]));
 	dist *= value;
 	if (dist < F1_0/(64*value))
 		dist = F1_0/(64*value);
 
-	duvl03.u = fixdiv(uvls[3].u - uvls[0].u,dist);
-	duvl03.v = fixdiv(uvls[3].v - uvls[0].v,dist);
+	auto &u3 = uvls[side_relative_vertnum::_3];
+	auto &u0 = uvls[side_relative_vertnum::_0];
+	duvl03.u = fixdiv(u3.u - u0.u, dist);
+	duvl03.v = fixdiv(u3.v - u0.v, dist);
 
 	range_for (auto &v, uvls)
 	{
@@ -406,12 +414,9 @@ int	TexDecreaseTiling()
 //	direction = -1 or 1 depending on direction
 static int	TexStretchCommon(int direction)
 {
-	fix	*sptr;
-
-	if ((Curedge == 0) || (Curedge == 2))
-		sptr = &Stretch_scale_x;
-	else
-		sptr = &Stretch_scale_y;
+	const auto sptr = (Curedge == side_relative_vertnum::_0 || Curedge == side_relative_vertnum::_2)
+		? &Stretch_scale_x
+		: &Stretch_scale_y;
 
 	*sptr += direction*F1_0/64;
 

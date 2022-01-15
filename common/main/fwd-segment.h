@@ -46,7 +46,6 @@ DXX_VALPTRIDX_DECLARE_SUBTYPE(dcx::, segment, segnum_t, MAX_SEGMENTS);
 
 namespace dcx {
 constexpr std::integral_constant<std::size_t, 8> MAX_VERTICES_PER_SEGMENT{};
-constexpr std::integral_constant<std::size_t, 4> MAX_VERTICES_PER_POLY{};
 
 constexpr std::size_t MAX_SEGMENTS_ORIGINAL = 900;
 constexpr std::integral_constant<std::size_t, 4 * MAX_SEGMENTS_ORIGINAL> MAX_SEGMENT_VERTICES_ORIGINAL{};
@@ -113,8 +112,10 @@ struct unique_side;
 
 struct vertex;
 enum class vertnum_t : uint32_t;
+enum class side_relative_vertnum : uint8_t;
 enum class segment_relative_vertnum : uint8_t;
 enum class segment_special : uint8_t;
+constexpr constant_xrange<side_relative_vertnum, side_relative_vertnum{0}, side_relative_vertnum{4}> MAX_VERTICES_PER_SIDE{};
 }
 
 /* `vertex` has only integer members, so wild reads are unlikely to
@@ -147,7 +148,7 @@ struct d_level_shared_vertex_state;
 struct d_level_shared_segment_state;
 struct d_level_unique_segment_state;
 
-extern const enumerated_array<std::array<segment_relative_vertnum, 4>, MAX_SIDES_PER_SEGMENT, sidenum_t>  Side_to_verts;    // Side_to_verts[my_side] is list of vertices forming side my_side.
+extern const enumerated_array<enumerated_array<segment_relative_vertnum, 4, side_relative_vertnum>, MAX_SIDES_PER_SEGMENT, sidenum_t>  Side_to_verts;    // Side_to_verts[my_side] is list of vertices forming side my_side.
 extern const enumerated_array<sidenum_t, MAX_SIDES_PER_SEGMENT, sidenum_t> Side_opposite;                                // Side_opposite[my_side] returns side opposite cube from my_side.
 
 void segment_side_wall_tmap_write(PHYSFS_File *fp, const shared_side &sside, const unique_side &uside);

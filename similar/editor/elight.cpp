@@ -42,15 +42,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // -----------------------------------------------------------------------------
 //	Return light intensity at an instance of a vertex on a side in a segment.
-static fix get_light_intensity(const unique_side &s, const uint_fast32_t vert)
+static fix get_light_intensity(const unique_side &s, const side_relative_vertnum vert)
 {
-	Assert(vert <= 3);
 	return s.uvls[vert].l;
 }
 
-static fix get_light_intensity(const unique_segment &segp, const sidenum_t sidenum, const uint_fast32_t vert)
+static fix get_light_intensity(const unique_segment &segp, const sidenum_t sidenum, const side_relative_vertnum vert)
 {
-	Assert(sidenum <= MAX_SIDES_PER_SEGMENT);
 	return get_light_intensity(segp.sides[sidenum], vert);
 }
 
@@ -65,14 +63,13 @@ static fix clamp_light_intensity(const fix intensity)
 
 // -----------------------------------------------------------------------------
 //	Set light intensity at a vertex, saturating in .5 to 15.5
-static void set_light_intensity(unique_side &s, const uint_fast32_t vert, const fix intensity)
+static void set_light_intensity(unique_side &s, const side_relative_vertnum vert, const fix intensity)
 {
-	Assert(vert <= 3);
 	s.uvls[vert].l = clamp_light_intensity(intensity);
 	Update_flags |= UF_WORLD_CHANGED;
 }
 
-static void set_light_intensity(unique_segment &segp, const sidenum_t sidenum, const uint_fast32_t vert, const fix intensity)
+static void set_light_intensity(unique_segment &segp, const sidenum_t sidenum, const side_relative_vertnum vert, const fix intensity)
 {
 	set_light_intensity(segp.sides[sidenum], vert, intensity);
 }
@@ -173,24 +170,16 @@ int LightAmbientLighting()
 // -----------------------------------------------------------------------------
 int LightSelectNextVertex(void)
 {
-	Curvert++;
-	if (Curvert >= 4)
-		Curvert = 0;
-
+	Curvert = next_side_vertex(Curvert);
 	Update_flags |= UF_WORLD_CHANGED;
-
 	return	1;
 }
 
 // -----------------------------------------------------------------------------
 int LightSelectNextEdge(void)
 {
-	Curedge++;
-	if (Curedge >= 4)
-		Curedge = 0;
-
+	Curedge = next_side_vertex(Curedge);
 	Update_flags |= UF_WORLD_CHANGED;
-
 	return	1;
 }
 
@@ -203,7 +192,7 @@ int LightCopyIntensity(void)
 	unique_segment &segp = Cursegp;
 	intensity = get_light_intensity(segp, Curside, Curvert);
 
-	range_for (const int v, xrange(4u))
+	for (const auto v : MAX_VERTICES_PER_SIDE)
 		if (v != Curvert)
 			set_light_intensity(segp, Curside, v, intensity);
 
@@ -220,7 +209,7 @@ int LightCopyIntensitySegment(void)
 	intensity = get_light_intensity(segp, Curside, Curvert);
 
 	for (const auto s : MAX_SIDES_PER_SEGMENT)
-		range_for (const int v, xrange(4u))
+		for (const auto v : MAX_VERTICES_PER_SIDE)
 			if ((s != Curside) || (v != Curvert))
 				set_light_intensity(segp, s, v, intensity);
 
@@ -249,7 +238,7 @@ int LightIncreaseLightVertex(void)
 int LightDecreaseLightSide(void)
 {
 	unique_segment &segp = Cursegp;
-	range_for (const int v, xrange(4u))
+	for (const auto v : MAX_VERTICES_PER_SIDE)
 		set_light_intensity(segp, Curside, v, get_light_intensity(segp, Curside, v) - F1_0 / NUM_LIGHTING_LEVELS);
 
 	return	1;
@@ -259,7 +248,7 @@ int LightDecreaseLightSide(void)
 int LightIncreaseLightSide(void)
 {
 	unique_segment &segp = Cursegp;
-	range_for (const int v, xrange(4u))
+	for (const auto v : MAX_VERTICES_PER_SIDE)
 		set_light_intensity(segp, Curside, v, get_light_intensity(segp, Curside, v) + F1_0 / NUM_LIGHTING_LEVELS);
 
 	return	1;
@@ -270,7 +259,7 @@ int LightDecreaseLightSegment(void)
 {
 	unique_segment &segp = Cursegp;
 	for (const auto s : MAX_SIDES_PER_SEGMENT)
-		range_for (const int v, xrange(4u))
+		for (const auto v : MAX_VERTICES_PER_SIDE)
 			set_light_intensity(segp, s, v, get_light_intensity(segp, s, v) - F1_0 / NUM_LIGHTING_LEVELS);
 
 	return	1;
@@ -281,7 +270,7 @@ int LightIncreaseLightSegment(void)
 {
 	unique_segment &segp = Cursegp;
 	for (const auto s : MAX_SIDES_PER_SEGMENT)
-		range_for (const int v, xrange(4u))
+		for (const auto v : MAX_VERTICES_PER_SIDE)
 			set_light_intensity(segp, s, v, get_light_intensity(segp, s, v) + F1_0 / NUM_LIGHTING_LEVELS);
 
 	return	1;
@@ -291,7 +280,7 @@ int LightIncreaseLightSegment(void)
 int LightSetDefault(void)
 {
 	unique_segment &segp = Cursegp;
-	range_for (const int v, xrange(4u))
+	for (const auto v : MAX_VERTICES_PER_SIDE)
 		set_light_intensity(segp, Curside, v, DEFAULT_LIGHTING);
 
 	return	1;
@@ -302,7 +291,7 @@ int LightSetDefault(void)
 int LightSetMaximum(void)
 {
 	unique_segment &segp = Cursegp;
-	range_for (const int v, xrange(4u))
+	for (const auto v : MAX_VERTICES_PER_SIDE)
 		set_light_intensity(segp, Curside, v, (NUM_LIGHTING_LEVELS - 1) * F1_0 / NUM_LIGHTING_LEVELS);
 
 	return	1;

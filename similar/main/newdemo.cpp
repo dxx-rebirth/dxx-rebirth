@@ -3217,10 +3217,10 @@ static int newdemo_read_frame_information(int rewrite)
 				w.state = wall_state{state};
 				w.cloak_value = cloak_value;
 				auto &uvl = vmsegptr(w.segnum)->unique_segment::sides[w.sidenum].uvls;
-				uvl[0].l = (static_cast<int>(l0)) << 8;
-				uvl[1].l = (static_cast<int>(l1)) << 8;
-				uvl[2].l = (static_cast<int>(l2)) << 8;
-				uvl[3].l = (static_cast<int>(l3)) << 8;
+				uvl[side_relative_vertnum::_0].l = (static_cast<int>(l0)) << 8;
+				uvl[side_relative_vertnum::_1].l = (static_cast<int>(l1)) << 8;
+				uvl[side_relative_vertnum::_2].l = (static_cast<int>(l2)) << 8;
+				uvl[side_relative_vertnum::_3].l = (static_cast<int>(l3)) << 8;
 			}
 			{
 				auto &w = *vmwallptr(back_wall_num);
@@ -3228,10 +3228,10 @@ static int newdemo_read_frame_information(int rewrite)
 				w.state = wall_state{state};
 				w.cloak_value = cloak_value;
 				auto &uvl = vmsegptr(w.segnum)->unique_segment::sides[w.sidenum].uvls;
-				uvl[0].l = (static_cast<int>(l0)) << 8;
-				uvl[1].l = (static_cast<int>(l1)) << 8;
-				uvl[2].l = (static_cast<int>(l2)) << 8;
-				uvl[3].l = (static_cast<int>(l3)) << 8;
+				uvl[side_relative_vertnum::_0].l = (static_cast<int>(l0)) << 8;
+				uvl[side_relative_vertnum::_1].l = (static_cast<int>(l1)) << 8;
+				uvl[side_relative_vertnum::_2].l = (static_cast<int>(l2)) << 8;
+				uvl[side_relative_vertnum::_3].l = (static_cast<int>(l3)) << 8;
 			}
 			break;
 		}

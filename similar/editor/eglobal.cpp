@@ -35,8 +35,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 imsegptridx_t Cursegp = segment_none;        // Pointer to current segment in mine.
 imsegptridx_t Markedsegp = segment_none;     // Marked segment, used in conjunction with *Cursegp to form joints.
 sidenum_t Curside;             // Side index in 0..MAX_SIDES_PER_SEGMENT of active side.
-int Curedge;             // Current edge on current side, in 0..3
-int Curvert;             // Current vertex on current side, in 0..3
+side_relative_vertnum Curedge;             // Current edge on current side, in 0..3
+side_relative_vertnum Curvert;             // Current vertex on current side, in 0..3
 sidenum_t AttachSide = WFRONT; // Side on segment to attach.
 sidenum_t Markedside;          // Marked side on Markedsegp.
 

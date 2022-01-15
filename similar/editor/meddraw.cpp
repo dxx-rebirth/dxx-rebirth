@@ -166,13 +166,13 @@ static void check_segment(const vmsegptridx_t seg)
 		range_for (auto &fn, Side_to_verts)
 		{
 			std::array<cg3s_point *, 3> vert_list;
-			vert_list[0] = &Segment_points[seg->verts[fn[0]]];
-			vert_list[1] = &Segment_points[seg->verts[fn[1]]];
-			vert_list[2] = &Segment_points[seg->verts[fn[2]]];
+			vert_list[0] = &Segment_points[seg->verts[fn[side_relative_vertnum::_0]]];
+			vert_list[1] = &Segment_points[seg->verts[fn[side_relative_vertnum::_1]]];
+			vert_list[2] = &Segment_points[seg->verts[fn[side_relative_vertnum::_2]]];
 			g3_check_and_draw_poly(*grd_curcanv, vert_list, color);
 
-			vert_list[1] = &Segment_points[seg->verts[fn[2]]];
-			vert_list[2] = &Segment_points[seg->verts[fn[3]]];
+			vert_list[1] = &Segment_points[seg->verts[fn[side_relative_vertnum::_2]]];
+			vert_list[2] = &Segment_points[seg->verts[fn[side_relative_vertnum::_3]]];
 			g3_check_and_draw_poly(*grd_curcanv, vert_list, color);
 		}
 		}
@@ -193,17 +193,13 @@ static void draw_seg_side(const shared_segment &seg, const sidenum_t side, const
 	auto &vcvertptr = Vertices.vcptr;
 	if (!rotate_list(vcvertptr, svp).uand)
 	{		//all off screen?
-		int i;
-
 		auto &stv = Side_to_verts[side];
-		for (i=0;i<3;i++)
-			draw_line(*grd_curcanv, svp[stv[i]], svp[stv[i+1]], color);
-
-		draw_line(*grd_curcanv, svp[stv[i]], svp[stv[0]], color);
+		for (const auto i : MAX_VERTICES_PER_SIDE)
+			draw_line(*grd_curcanv, svp[stv[i]], svp[stv[next_side_vertex(i)]], color);
 	}
 }
 
-static void draw_side_edge(const shared_segment &seg, const sidenum_t side, const unsigned edge, const color_palette_index color)
+static void draw_side_edge(const shared_segment &seg, const sidenum_t side, const side_relative_vertnum edge, const color_palette_index color)
 {
 	auto &svp = seg.verts;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -212,7 +208,7 @@ static void draw_side_edge(const shared_segment &seg, const sidenum_t side, cons
 	if (!rotate_list(vcvertptr, svp).uand)		//on screen?
 	{
 		auto &stv = Side_to_verts[side];
-		draw_line(*grd_curcanv, svp[stv[edge]], svp[stv[(edge + 1) % 4]], color);
+		draw_line(*grd_curcanv, svp[stv[edge]], svp[stv[next_side_vertex(edge)]], color);
 	}
 }
 
@@ -409,7 +405,7 @@ static void draw_trigger_side(const shared_segment &seg, const sidenum_t side, c
 	{		//all off screen?
 		// Draw diagonals
 		auto &stv = Side_to_verts[side];
-		draw_line(*grd_curcanv, svp[stv[0]], svp[stv[2]], color);
+		draw_line(*grd_curcanv, svp[stv[side_relative_vertnum::_0]], svp[stv[side_relative_vertnum::_2]], color);
 	}
 }
 
@@ -424,8 +420,8 @@ static void draw_wall_side(const shared_segment &seg, const sidenum_t side, cons
 	{		//all off screen?
 		// Draw diagonals
 		auto &stv = Side_to_verts[side];
-		draw_line(*grd_curcanv, svp[stv[0]], svp[stv[2]], color);
-		draw_line(*grd_curcanv, svp[stv[1]], svp[stv[3]], color);
+		draw_line(*grd_curcanv, svp[stv[side_relative_vertnum::_0]], svp[stv[side_relative_vertnum::_2]], color);
+		draw_line(*grd_curcanv, svp[stv[side_relative_vertnum::_1]], svp[stv[side_relative_vertnum::_3]], color);
 	}
 }
 

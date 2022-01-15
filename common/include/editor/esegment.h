@@ -18,8 +18,8 @@ extern imsegptridx_t Cursegp;				// Pointer to current segment in the mine, the 
 #define	New_segment	(Segments.back())
 
 extern sidenum_t Curside;					// Side index in 0..MAX_SIDES_PER_SEGMENT of active side.
-extern	int		Curedge;					//	Current edge on current side, in 0..3
-extern	int		Curvert;					//	Current vertex on current side, in 0..3
+extern side_relative_vertnum Curedge;					//	Current edge on current side, in 0..3
+extern side_relative_vertnum Curvert;					//	Current vertex on current side, in 0..3
 extern sidenum_t AttachSide;				//	Side on segment to attach
 extern	int		Draw_all_segments;	// Set to 1 means draw_world draws all segments in Segments, else draw only connected segments
 extern imsegptridx_t Markedsegp;			// Marked segment, used in conjunction with *Cursegp to form joints.

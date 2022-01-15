@@ -66,10 +66,10 @@ void delta_light_read(delta_light *dl, PHYSFS_File *fp)
 	dl->segnum = PHYSFSX_readShort(fp);
 	dl->sidenum = build_sidenum_from_untrusted(PHYSFSX_readByte(fp)).value_or(sidenum_t::WLEFT);
 	PHYSFSX_readByte(fp);
-	dl->vert_light[0] = PHYSFSX_readByte(fp);
-	dl->vert_light[1] = PHYSFSX_readByte(fp);
-	dl->vert_light[2] = PHYSFSX_readByte(fp);
-	dl->vert_light[3] = PHYSFSX_readByte(fp);
+	dl->vert_light[side_relative_vertnum::_0] = PHYSFSX_readByte(fp);
+	dl->vert_light[side_relative_vertnum::_1] = PHYSFSX_readByte(fp);
+	dl->vert_light[side_relative_vertnum::_2] = PHYSFSX_readByte(fp);
+	dl->vert_light[side_relative_vertnum::_3] = PHYSFSX_readByte(fp);
 }
 
 
@@ -98,10 +98,10 @@ void delta_light_write(const delta_light *dl, PHYSFS_File *fp)
 	PHYSFS_writeSLE16(fp, dl->segnum);
 	PHYSFSX_writeU8(fp, dl->sidenum);
 	PHYSFSX_writeU8(fp, 0);
-	PHYSFSX_writeU8(fp, dl->vert_light[0]);
-	PHYSFSX_writeU8(fp, dl->vert_light[1]);
-	PHYSFSX_writeU8(fp, dl->vert_light[2]);
-	PHYSFSX_writeU8(fp, dl->vert_light[3]);
+	PHYSFSX_writeU8(fp, dl->vert_light[side_relative_vertnum::_0]);
+	PHYSFSX_writeU8(fp, dl->vert_light[side_relative_vertnum::_1]);
+	PHYSFSX_writeU8(fp, dl->vert_light[side_relative_vertnum::_2]);
+	PHYSFSX_writeU8(fp, dl->vert_light[side_relative_vertnum::_3]);
 }
 
 void dl_index_write(const dl_index *di, PHYSFS_File *fp)

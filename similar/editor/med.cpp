@@ -95,6 +95,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "d_levelstate.h"
+#include "d_zip.h"
 
 //#define _MARK_ON 1
 //#include <wsample.h>		//should come after inferno.h to get mark setting //Not included here.
@@ -536,7 +537,7 @@ static void move_player_2_segment_and_rotate(const vmsegptridx_t seg, const unsi
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
-        static int edgenum=0;
+	static side_relative_vertnum edgenum;
 
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -547,8 +548,8 @@ static void move_player_2_segment_and_rotate(const vmsegptridx_t seg, const unsi
 
 	auto &sv = Side_to_verts[Curside];
 	auto &verts = Cursegp->verts;
-	const auto upvec = vm_vec_sub(vcvertptr(verts[sv[edgenum % 4]]), vcvertptr(verts[sv[(edgenum + 3) % 4]]));
-	edgenum++;
+	const auto en = std::exchange(edgenum, next_side_vertex(edgenum));
+	const auto upvec = vm_vec_sub(vcvertptr(verts[sv[en]]), vcvertptr(verts[sv[next_side_vertex(en, 3)]]));
 
 	vm_vector_2_matrix(ConsoleObject->orient,vp,&upvec,nullptr);
 //	vm_vector_2_matrix(&ConsoleObject->orient,&vp,NULL,NULL);
@@ -563,7 +564,6 @@ int SetPlayerFromCursegAndRotate()
 	return 1;
 }
 
-
 //sets the player facing curseg/curside, normal to face0 of curside, and
 //far enough away to see all of curside
 int SetPlayerFromCursegMinusOne()
@@ -573,7 +573,7 @@ int SetPlayerFromCursegMinusOne()
 	auto &vmobjptridx = Objects.vmptridx;
 	std::array<g3s_point, 4> corner_p;
 	fix max,view_dist=f1_0*10;
-        static int edgenum=0;
+	static side_relative_vertnum edgenum;
 	const auto view_vec = vm_vec_negated(Cursegp->shared_segment::sides[Curside].normals[0]);
 
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -585,8 +585,8 @@ int SetPlayerFromCursegMinusOne()
 
 	auto &sv = Side_to_verts[Curside];
 	auto &verts = Cursegp->verts;
-	const auto upvec = vm_vec_sub(vcvertptr(verts[sv[edgenum % 4]]), vcvertptr(verts[sv[(edgenum + 3) % 4]]));
-	edgenum++;
+	const auto en = std::exchange(edgenum, next_side_vertex(edgenum));
+	const auto upvec = vm_vec_sub(vcvertptr(verts[sv[en]]), vcvertptr(verts[sv[next_side_vertex(en, 3)]]));
 
 	vm_vector_2_matrix(ConsoleObject->orient,view_vec,&upvec,nullptr);
 
@@ -594,11 +594,12 @@ int SetPlayerFromCursegMinusOne()
 	g3_start_frame(*grd_curcanv);
 	g3_set_view_matrix(ConsoleObject->pos,ConsoleObject->orient,Render_zoom);
 
-	for (unsigned i = max = 0; i < 4; ++i)
+	max = 0;
+	for (auto &&[corner, vert] : zip(corner_p, sv))
 	{
-		g3_rotate_point(corner_p[i], vcvertptr(verts[sv[i]]));
-		if (labs(corner_p[i].p3_x) > max) max = labs(corner_p[i].p3_x);
-		if (labs(corner_p[i].p3_y) > max) max = labs(corner_p[i].p3_y);
+		g3_rotate_point(corner, vcvertptr(verts[vert]));
+		if (labs(corner.p3_x) > max) max = labs(corner.p3_x);
+		if (labs(corner.p3_y) > max) max = labs(corner.p3_y);
 	}
 
 	view_dist = fixmul(view_dist,fixdiv(fixdiv(max,SIDE_VIEW_FRAC),corner_p[0].p3_z));

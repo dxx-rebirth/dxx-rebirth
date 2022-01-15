@@ -53,7 +53,7 @@ struct vertex_array_list_t : std::array<segment_relative_vertnum, 6> {};
 struct vertex_vertnum_pair
 {
 	vertnum_t vertex;
-	unsigned vertnum;
+	side_relative_vertnum vertnum;
 };
 using vertex_vertnum_array_list = std::array<vertex_vertnum_pair, 6>;
 

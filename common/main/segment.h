@@ -62,6 +62,11 @@ static constexpr sidenum_t &operator++(sidenum_t &a)
 	return a = static_cast<sidenum_t>(static_cast<unsigned>(a) + 1);
 }
 
+static constexpr side_relative_vertnum &operator++(side_relative_vertnum &a)
+{
+	return a = static_cast<side_relative_vertnum>(static_cast<uint8_t>(a) + 1);
+}
+
 //Structure for storing u,v,light values.
 //NOTE: this structure should be the same as the one in 3d.h
 struct uvl
@@ -74,6 +79,14 @@ enum class side_type : uint8_t
 	quad = 1,	// render side as quadrilateral
 	tri_02 = 2,	// render side as two triangles, triangulated along edge from 0 to 2
 	tri_13 = 3,	// render side as two triangles, triangulated along edge from 1 to 3
+};
+
+enum class side_relative_vertnum : uint8_t
+{
+	_0,
+	_1,
+	_2,
+	_3,
 };
 
 enum class segment_relative_vertnum : uint8_t
@@ -199,11 +212,17 @@ static constexpr texture2_value build_texture2_value(const texture_index t, cons
 #undef TEXTURE2_ROTATION_SHIFT
 #undef TEXTURE2_ROTATION_INDEX_MASK
 
+[[nodiscard]]
+static constexpr side_relative_vertnum next_side_vertex(const side_relative_vertnum a, unsigned add = 1)
+{
+	return static_cast<side_relative_vertnum>((static_cast<uint8_t>(a) + add) & 3);
+}
+
 struct unique_side
 {
 	texture1_value tmap_num;
 	texture2_value tmap_num2;
-	std::array<uvl, 4>     uvls;
+	enumerated_array<uvl, 4, side_relative_vertnum>     uvls;
 };
 
 #ifdef dsx
@@ -340,7 +359,7 @@ struct delta_light : prohibit_void_ptr<delta_light>
 {
 	segnum_t   segnum;
 	sidenum_t  sidenum;
-	std::array<ubyte, 4>   vert_light;
+	enumerated_array<uint8_t, 4, side_relative_vertnum> vert_light;
 };
 
 // Light at segnum:sidenum casts light on count sides beginning at index (in array Delta_lights)

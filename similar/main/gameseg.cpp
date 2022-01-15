@@ -66,13 +66,13 @@ struct segment_water_depth_array : std::array<uint8_t, MAX_SEGMENTS> {};
 class abs_vertex_lists_predicate
 {
 	const enumerated_array<vertnum_t, MAX_VERTICES_PER_SEGMENT, segment_relative_vertnum> &m_vp;
-	const std::array<segment_relative_vertnum, 4> &m_sv;
+	const enumerated_array<segment_relative_vertnum, 4, side_relative_vertnum> &m_sv;
 public:
 	abs_vertex_lists_predicate(const shared_segment &seg, const sidenum_t sidenum) :
 		m_vp(seg.verts), m_sv(Side_to_verts[sidenum])
 	{
 	}
-	vertnum_t operator()(const uint_fast32_t vv) const
+	vertnum_t operator()(const side_relative_vertnum vv) const
 	{
 		return m_vp[m_sv[vv]];
 	}
@@ -82,9 +82,9 @@ class all_vertnum_lists_predicate : public abs_vertex_lists_predicate
 {
 public:
 	using abs_vertex_lists_predicate::abs_vertex_lists_predicate;
-	vertex_vertnum_pair operator()(const uint_fast32_t vv) const
+	vertex_vertnum_pair operator()(const side_relative_vertnum vv) const
 	{
-		return {this->abs_vertex_lists_predicate::operator()(vv), static_cast<unsigned>(vv)};
+		return {this->abs_vertex_lists_predicate::operator()(vv), vv};
 	}
 };
 
@@ -237,7 +237,7 @@ static uint_fast32_t create_vertex_lists_from_values(T &va, const shared_segment
 template <typename T, typename F>
 static inline uint_fast32_t create_vertex_lists_by_predicate(T &va, const shared_segment &segp, const shared_side &sidep, const F &&f)
 {
-	return create_vertex_lists_from_values(va, segp, sidep, f(0), f(1), f(2), f(3));
+	return create_vertex_lists_from_values(va, segp, sidep, f(side_relative_vertnum::_0), f(side_relative_vertnum::_1), f(side_relative_vertnum::_2), f(side_relative_vertnum::_3));
 }
 
 }
@@ -262,7 +262,7 @@ uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const share
 {
 	assert(Side_to_verts.valid_index(sidenum));
 	auto &sv = Side_to_verts[sidenum];
-	return create_vertex_lists_by_predicate(vertices, segp, sidep, [&sv](const uint_fast32_t vv) {
+	return create_vertex_lists_by_predicate(vertices, segp, sidep, [&sv](const side_relative_vertnum vv) {
 		return sv[vv];
 	});
 }
@@ -1214,11 +1214,11 @@ static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_se
 	//vm_vec_sub(&vec2, &Vertices[sp->verts[vp[2]]], &Vertices[sp->verts[vp[1]]]);
 	//vm_vec_normalize(&vec1);
 	//vm_vec_normalize(&vec2);
-	const auto vp1 = vp[1];
-	const auto vp2 = vp[2];
+	const auto vp1 = vp[side_relative_vertnum::_1];
+	const auto vp2 = vp[side_relative_vertnum::_2];
 	auto &vert1 = *vcvertptr(sp.verts[vp1]);
 	auto &vert2 = *vcvertptr(sp.verts[vp2]);
-	vm_vec_normalized_dir(vec1, vert1, vcvertptr(sp.verts[vp[0]]));
+	vm_vec_normalized_dir(vec1, vert1, vcvertptr(sp.verts[vp[side_relative_vertnum::_0]]));
 	vm_vec_normalized_dir(vec2, vert2, vert1);
 	const auto cross0 = vm_vec_cross(vec1, vec2);
 
@@ -1231,7 +1231,7 @@ static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_se
 	//vm_vec_normalize(&vec1);
 	//vm_vec_normalize(&vec2);
 	vm_vec_normalized_dir(vec1, vert2, vert1);
-	vm_vec_normalized_dir(vec2, vcvertptr(sp.verts[vp[3]]), vert2);
+	vm_vec_normalized_dir(vec2, vcvertptr(sp.verts[vp[side_relative_vertnum::_3]]), vert2);
 	const auto cross1 = vm_vec_cross(vec1, vec2);
 
 	dot = vm_vec_dot(vec_to_center, cross1);
@@ -1356,10 +1356,10 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 	if (!IS_CHILD(sp.children[sidenum]))
 	{
 		auto &verts = sp.verts;
-		auto &vvs0 = *vcvertptr(verts[vs[0]]);
-		auto &vvs1 = *vcvertptr(verts[vs[1]]);
-		auto &vvs2 = *vcvertptr(verts[vs[2]]);
-		auto &vvs3 = *vcvertptr(verts[vs[3]]);
+		auto &vvs0 = *vcvertptr(verts[vs[side_relative_vertnum::_0]]);
+		auto &vvs1 = *vcvertptr(verts[vs[side_relative_vertnum::_1]]);
+		auto &vvs2 = *vcvertptr(verts[vs[side_relative_vertnum::_2]]);
+		auto &vvs3 = *vcvertptr(verts[vs[side_relative_vertnum::_3]]);
 		const auto &&norm = vm_vec_normal(vvs0, vvs1, vvs2);
 		const auto &&vec_13 =	vm_vec_sub(vvs3, vvs1);	//	vector from vertex 1 to vertex 3
 		dot = vm_vec_dot(norm, vec_13);
@@ -1372,28 +1372,28 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 		vm_vec_normal(sidep->normals[0], vvs0, vvs1, *n0v3);
 		vm_vec_normal(sidep->normals[1], *n1v1, vvs2, vvs3);
 	} else {
-		std::array<vertnum_t, 4> v;
+		enumerated_array<vertnum_t, 4, side_relative_vertnum> v;
 
-		range_for (const unsigned i, xrange(4u))
+		for (const auto i : MAX_VERTICES_PER_SIDE)
 			v[i] = sp.verts[vs[i]];
 
-		verts_for_normal vfn{v[0], v[1], v[2], v[3]};
+		verts_for_normal vfn{v[side_relative_vertnum::_0], v[side_relative_vertnum::_1], v[side_relative_vertnum::_2], v[side_relative_vertnum::_3]};
 		get_verts_for_normal(vfn);
 
 		vertnum_t s0v2, s1v0;
-		if ((vfn.vsorted[0] == v[0]) || (vfn.vsorted[0] == v[2])) {
+		if ((vfn.vsorted[0] == v[side_relative_vertnum::_0]) || (vfn.vsorted[0] == v[side_relative_vertnum::_2])) {
 			sidep->set_type(side_type::tri_02);
 			//	Now, get vertices for normal for each triangle based on triangulation type.
-			s0v2 = v[2];
-			s1v0 = v[0];
+			s0v2 = v[side_relative_vertnum::_2];
+			s1v0 = v[side_relative_vertnum::_0];
 		} else {
 			sidep->set_type(side_type::tri_13);
 			//	Now, get vertices for normal for each triangle based on triangulation type.
-			s0v2 = v[3];
-			s1v0 = v[1];
+			s0v2 = v[side_relative_vertnum::_3];
+			s1v0 = v[side_relative_vertnum::_1];
 		}
-		assign_side_normal(vcvertptr, sidep->normals[0], v[0], v[1], s0v2);
-		assign_side_normal(vcvertptr, sidep->normals[1], s1v0, v[2], v[3]);
+		assign_side_normal(vcvertptr, sidep->normals[0], v[side_relative_vertnum::_0], v[side_relative_vertnum::_1], s0v2);
+		assign_side_normal(vcvertptr, sidep->normals[1], s1v0, v[side_relative_vertnum::_2], v[side_relative_vertnum::_3]);
 	}
 }
 
@@ -1427,10 +1427,10 @@ namespace {
 void create_walls_on_side(fvcvertptr &vcvertptr, shared_segment &sp, const sidenum_t sidenum)
 {
 	auto &vs = Side_to_verts[sidenum];
-	const auto v0 = sp.verts[vs[0]];
-	const auto v1 = sp.verts[vs[1]];
-	const auto v2 = sp.verts[vs[2]];
-	const auto v3 = sp.verts[vs[3]];
+	const auto v0 = sp.verts[vs[side_relative_vertnum::_0]];
+	const auto v1 = sp.verts[vs[side_relative_vertnum::_1]];
+	const auto v2 = sp.verts[vs[side_relative_vertnum::_2]];
+	const auto v3 = sp.verts[vs[side_relative_vertnum::_3]];
 
 	verts_for_normal vfn{v0, v1, v2, v3};
 	const auto negate_flag = get_verts_for_normal(vfn);
@@ -1758,7 +1758,8 @@ static void change_light(const d_level_shared_destructible_light_state &LevelSha
 				assert(j.sidenum < MAX_SIDES_PER_SEGMENT);
 				const auto &&segp = vmsegptr(j.segnum);
 				auto &uvls = segp->unique_segment::sides[j.sidenum].uvls;
-				range_for (const int k, xrange(4u)) {
+				for (const auto k : MAX_VERTICES_PER_SIDE)
+				{
 					auto &l = uvls[k].l;
 					const fix dl = ds * j.vert_light[k];
 					if ((l += dl) < 0)

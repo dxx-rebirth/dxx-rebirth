@@ -119,7 +119,7 @@ static void scale_vert(const shared_segment &sp, const vertnum_t vertex_ind, con
 			auto &sv = Side_to_verts[Curside];
 			const auto edge = Curedge;
 			range_for (const int v, xrange(2u))
-				if (verts[sv[(edge + v) % 4]] == vertex_ind)
+				if (verts[sv[next_side_vertex(edge, v)]] == vertex_ind)
 					scale_vert_aux(vertex_ind, vp, scale_factor);
 			break;
 		}
@@ -186,7 +186,7 @@ static void med_scale_segment_new(const shared_segment &sp, const int dimension,
 // ------------------------------------------------------------------------------------------
 //	Extract a vector from a segment.  The vector goes from the start face to the end face.
 //	The point on each face is the average of the four points forming the face.
-static void extract_vector_from_segment_side(const shared_segment &sp, const sidenum_t side, vms_vector &vp, const unsigned vla, const unsigned vlb, const unsigned vra, const unsigned vrb)
+static void extract_vector_from_segment_side(const shared_segment &sp, const sidenum_t side, vms_vector &vp, const side_relative_vertnum vla, const side_relative_vertnum vlb, const side_relative_vertnum vra, const side_relative_vertnum vrb)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -207,7 +207,7 @@ static void extract_vector_from_segment_side(const shared_segment &sp, const sid
 // to the center of the right face of the segment.
 void med_extract_right_vector_from_segment_side(const shared_segment &sp, const sidenum_t sidenum, vms_vector &vp)
 {
-	extract_vector_from_segment_side(sp, sidenum, vp, 3, 2, 0, 1);
+	extract_vector_from_segment_side(sp, sidenum, vp, side_relative_vertnum::_3, side_relative_vertnum::_2, side_relative_vertnum::_0, side_relative_vertnum::_1);
 }
 
 // ------------------------------------------------------------------------------------------
@@ -216,7 +216,7 @@ void med_extract_right_vector_from_segment_side(const shared_segment &sp, const 
 // to the center of the top face of the segment.
 void med_extract_up_vector_from_segment_side(const shared_segment &sp, const sidenum_t sidenum, vms_vector &vp)
 {
-	extract_vector_from_segment_side(sp, sidenum, vp, 1, 2, 0, 3);
+	extract_vector_from_segment_side(sp, sidenum, vp, side_relative_vertnum::_1, side_relative_vertnum::_2, side_relative_vertnum::_0, side_relative_vertnum::_3);
 }
 
 namespace {

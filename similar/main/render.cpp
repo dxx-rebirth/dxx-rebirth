@@ -802,7 +802,7 @@ constexpr fix CROSS_WIDTH = i2f(8);
 constexpr fix CROSS_HEIGHT = i2f(8);
 
 //draw outline for curside
-static void outline_seg_side(grs_canvas &canvas, const shared_segment &seg, const sidenum_t _side, const unsigned edge, const unsigned vert)
+static void outline_seg_side(grs_canvas &canvas, const shared_segment &seg, const sidenum_t _side, const side_relative_vertnum edge, const side_relative_vertnum vert)
 {
 	auto &verts = seg.verts;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -814,7 +814,7 @@ static void outline_seg_side(grs_canvas &canvas, const shared_segment &seg, cons
 
 		const uint8_t color = BM_XRGB(0, 63, 0);
 		auto &sv = Side_to_verts[_side];
-		g3_draw_line(canvas, Segment_points[verts[sv[edge]]], Segment_points[verts[sv[(edge + 1)%4]]], color);
+		g3_draw_line(canvas, Segment_points[verts[sv[edge]]], Segment_points[verts[sv[next_side_vertex(edge)]]], color);
 
 		//draw a little cross at the current vert
 
@@ -1002,7 +1002,7 @@ static std::optional<sidenum_t> find_seg_side(const shared_segment &seg, const s
 static bool compare_child(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const shared_segment &seg, const shared_segment &cseg, const sidenum_t edgeside)
 {
 	const auto &cside = cseg.sides[edgeside];
-	const auto &sv = Side_to_verts[edgeside][cside.get_type() == side_type::tri_13 ? 1 : 0];
+	const auto &sv = Side_to_verts[edgeside][cside.get_type() == side_type::tri_13 ? side_relative_vertnum::_1 : side_relative_vertnum::_0];
 	const auto &temp = vm_vec_sub(Viewer_eye, vcvertptr(seg.verts[sv]));
 	const auto &cnormal = cside.normals;
 	return vm_vec_dot(cnormal[0], temp) < 0 || vm_vec_dot(cnormal[1], temp) < 0;
