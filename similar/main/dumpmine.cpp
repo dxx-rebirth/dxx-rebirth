@@ -262,7 +262,7 @@ static void write_exit_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 		{
 			if (child_segnum == segment_exit)
 			{
-				PHYSFSX_printf(my_file, "Segment %3hu, side %" PRIuFAST32 " is an exit door.\n", segp.get_unchecked_index(), sidenum);
+				PHYSFSX_printf(my_file, "Segment %3hu, side %u is an exit door.\n", segp.get_unchecked_index(), underlying_value(sidenum));
 				count++;
 			}
 		}

@@ -149,7 +149,7 @@ static sidenum_t matt_find_connect_side(const shared_segment &seg0, const vcsegi
 	return static_cast<sidenum_t>(std::distance(children.begin(), std::find(children.begin(), children.end(), seg1)));
 }
 
-static unsigned get_tunnel_length(fvcsegptridx &vcsegptridx, const vcsegptridx_t console_seg, const unsigned exit_console_side)
+static unsigned get_tunnel_length(fvcsegptridx &vcsegptridx, const vcsegptridx_t console_seg, const sidenum_t exit_console_side)
 {
 	auto seg = console_seg;
 	auto exit_side = exit_console_side;
@@ -174,7 +174,7 @@ static unsigned get_tunnel_length(fvcsegptridx &vcsegptridx, const vcsegptridx_t
 	}
 }
 
-static vcsegidx_t get_tunnel_transition_segment(const unsigned tunnel_length, const vcsegptridx_t console_seg, const unsigned exit_console_side)
+static vcsegidx_t get_tunnel_transition_segment(const unsigned tunnel_length, const vcsegptridx_t console_seg, const sidenum_t exit_console_side)
 {
 	auto seg = console_seg;
 	auto exit_side = exit_console_side;

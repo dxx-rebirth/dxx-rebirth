@@ -613,7 +613,7 @@ static int med_copy_group(const unsigned delta_flag, const vmsegptridx_t base_se
 				if (!in_group(child_segnum, new_current_group))
 				{
 					child_segnum = segment_none;
-					validate_segment_side(vcvertptr, segp, static_cast<sidenum_t>(sidenum));					// we have converted a connection to a side so validate the segment
+					validate_segment_side(vcvertptr, segp, sidenum);					// we have converted a connection to a side so validate the segment
 				}
 			}
 	}
@@ -918,7 +918,7 @@ int rotate_segment_new(const vms_angvec &pbh)
 	int			child_save;
 	int			current_group_save;
 
-        if (!IS_CHILD(Cursegp->children[static_cast<int>(Side_opposite[Curside])]))
+        if (!IS_CHILD(Cursegp->children[Side_opposite[Curside]]))
 		// -- I don't understand this, MK, 01/25/94: if (Cursegp->children[Curside] != group_seg-Segments)
 		{
 			editor_status("Error -- unable to rotate group, Cursegp:Side_opposite[Curside] cannot be free.");

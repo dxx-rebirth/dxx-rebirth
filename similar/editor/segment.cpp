@@ -993,23 +993,19 @@ static void copy_tmaps_to_segment(segment &dstseg, const segment &srcseg)
 //	 3 = Unable to rotate because not connected to exactly 1 segment.
 int med_rotate_segment(const vmsegptridx_t seg, const vms_matrix &rotmat)
 {
-	int             newside=0;
-	int		count;
+	std::optional<sidenum_t> newside;
 
 	// Find side of attachment
-	count = 0;
 	for (const auto &&[idx, value] : enumerate(seg->children))
 		if (IS_CHILD(value))
 		{
-			count++;
+	// Return if passed in segment is connected to other than 1 segment.
+			if (newside)
+				return 3;
 			newside = idx;
 		}
 
-	// Return if passed in segment is connected to other than 1 segment.
-	if (count != 1)
-		return 3;
-
-	const auto &&destseg = seg.absolute_sibling(seg->children[newside]);
+	const auto &&destseg = seg.absolute_sibling(seg->children[*newside]);
 
 	if (Curside == WFRONT)
 		Curside = WBACK;
@@ -1255,7 +1251,7 @@ int med_form_bridge_segment(const vmsegptridx_t seg1, const sidenum_t side1, con
 		seg1->children[side1] = segment_none;
 		seg2->children[side2] = segment_none;
 		bs->children[AttachSide] = segment_none;
-                bs->children[static_cast<int>(Side_opposite[AttachSide])] = segment_none;
+		bs->children[Side_opposite[AttachSide]] = segment_none;
 		if (med_delete_segment(bs)) {
 			Int3();
 		}
@@ -1579,7 +1575,7 @@ std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_adjacent_segment_sid
 //	Find segment closest to sp:side.
 //	Return true if segment found and fill in segment in adj_sp and side in adj_side.
 //	Return false if unable to find, in which case adj_sp and adj_side are undefined.
-std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_closest_threshold_segment_side(const vmsegptridx_t sp, int side, const fix threshold)
+std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_closest_threshold_segment_side(const vmsegptridx_t sp, sidenum_t side, const fix threshold)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();

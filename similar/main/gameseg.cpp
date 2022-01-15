@@ -532,7 +532,7 @@ int check_segment_connections(void)
 					shared_segment &rseg = *seg;
 					const shared_segment &rcseg = *cseg;
 					const unsigned segi = seg.get_unchecked_index();
-					LevelError("Segment #%u side %u has asymmetric link to segment %u.  Coercing to segment_none; Segments[%u].children={%hu, %hu, %hu, %hu, %hu, %hu}, Segments[%u].children={%hu, %hu, %hu, %hu, %hu, %hu}.", segi, sidenum, csegnum, segi, rseg.children[0], rseg.children[1], rseg.children[2], rseg.children[3], rseg.children[4], rseg.children[5], csegnum, rcseg.children[0], rcseg.children[1], rcseg.children[2], rcseg.children[3], rcseg.children[4], rcseg.children[5]);
+					LevelError("Segment #%u side %u has asymmetric link to segment %u.  Coercing to segment_none; Segments[%u].children={%hu, %hu, %hu, %hu, %hu, %hu}, Segments[%u].children={%hu, %hu, %hu, %hu, %hu, %hu}.", segi, sidenum, csegnum, segi, rseg.children[sidenum_t::WLEFT], rseg.children[sidenum_t::WTOP], rseg.children[sidenum_t::WRIGHT], rseg.children[sidenum_t::WBOTTOM], rseg.children[sidenum_t::WBACK], rseg.children[sidenum_t::WFRONT], csegnum, rcseg.children[sidenum_t::WLEFT], rcseg.children[sidenum_t::WTOP], rcseg.children[sidenum_t::WRIGHT], rcseg.children[sidenum_t::WBOTTOM], rcseg.children[sidenum_t::WBACK], rcseg.children[sidenum_t::WFRONT]);
 					rseg.children[sidenum] = segment_none;
 					errors = 1;
 					continue;
@@ -619,7 +619,6 @@ static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 	int centermask;
 	std::array<fix, 6> side_dists;
 	fix biggest_val;
-	int sidenum, bit, biggest_side;
 	if (recursion_count >= LevelSharedSegmentState.Num_segments) {
 		con_puts(CON_DEBUG, "trace_segs: Segment not found");
 		return segment_none;
@@ -637,10 +636,11 @@ static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 
 	for (;;) {
 		auto &children = oldsegnum->shared_segment::children;
-		biggest_side = -1;
+		std::optional<sidenum_t> biggest_side;
 		biggest_val = 0;
-		for (sidenum = 0, bit = 1; sidenum < 6; sidenum++, bit <<= 1)
+		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
 		{
+			const auto bit = 1 << sidenum;
 			if ((centermask & bit) && IS_CHILD(children[sidenum])
 			    && side_dists[sidenum] < biggest_val) {
 				biggest_val = side_dists[sidenum];
@@ -648,12 +648,12 @@ static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 			}
 		}
 
-		if (biggest_side == -1)
+		if (!biggest_side)
 			break;
 
-		side_dists[biggest_side] = 0;
+		side_dists[*biggest_side] = 0;
 		// trace into adjacent segment:
-		const auto &&check = trace_segs(LevelSharedSegmentState, p0, oldsegnum.absolute_sibling(children[biggest_side]), recursion_count + 1, visited);
+		const auto &&check = trace_segs(LevelSharedSegmentState, p0, oldsegnum.absolute_sibling(children[*biggest_side]), recursion_count + 1, visited);
 		if (check != segment_none)		//we've found a segment
 			return check;
 	}

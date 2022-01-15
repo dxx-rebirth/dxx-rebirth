@@ -755,7 +755,7 @@ static unsigned is_door_side_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vc
 }
 
 //returns true if door is obstructed (& thus cannot close)
-static unsigned is_door_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const vcsegptridx_t seg, const unsigned side)
+static unsigned is_door_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const vcsegptridx_t seg, const sidenum_t side)
 {
 	if (const auto obstructed = is_door_side_obstructed(vcobjptridx, vcsegptr, seg, side))
 		return obstructed;

@@ -369,7 +369,7 @@ void med_propagate_tmaps_to_back_side(vmsegptridx_t base_seg, sidenum_t back_sid
 std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_adjacent_segment_side(vmsegptridx_t sp, sidenum_t side);
 
 // Finds the closest segment and side to sp:side.
-std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_closest_threshold_segment_side(vmsegptridx_t sp, int side, fix threshold);
+std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_closest_threshold_segment_side(vmsegptridx_t sp, sidenum_t side, fix threshold);
 
 // Select previous segment.
 //	If there is a connection on the side opposite to the current side, then choose that segment.
