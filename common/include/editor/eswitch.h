@@ -34,7 +34,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dsx {
 int bind_wall_to_trigger();
 
-unsigned remove_trigger(shared_segment &seg, unsigned side);
+unsigned remove_trigger(shared_segment &seg, sidenum_t side);
 int remove_trigger_num(trigger_array &Triggers, fvmwallptr &vmwallptr, trgnum_t trigger_num);
 void close_trigger_window();
 }

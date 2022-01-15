@@ -99,7 +99,7 @@ namespace {
 struct Edge_info
 {
 	std::array<vertnum_t, 2> verts;     // 8  bytes
-	std::array<uint8_t, 4> sides;     // 4  bytes
+	std::array<sidenum_t, 4> sides;     // 4  bytes
 	std::array<segnum_t, 4> segnum;    // 16 bytes  // This might not need to be stored... If you can access the normals of a side.
 	ubyte flags;        // 1  bytes  // See the EF_??? defines above.
 	color_t color;        // 1  bytes
@@ -1388,7 +1388,7 @@ static std::pair<Edge_info &, std::size_t> automap_find_edge(automap &am, const 
 	}
 }
 
-static void add_one_edge(automap &am, vertnum_t va, vertnum_t vb, const uint8_t color, const unsigned side, const segnum_t segnum, const uint8_t flags)
+static void add_one_edge(automap &am, vertnum_t va, vertnum_t vb, const uint8_t color, const sidenum_t side, const segnum_t segnum, const uint8_t flags)
 {
 	if (am.num_edges >= am.max_edges)
 	{

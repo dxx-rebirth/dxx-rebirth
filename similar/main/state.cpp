@@ -2187,7 +2187,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	//Restore tmap info (to temp values so we can use compiled-in tmap info to compute static_light
 	range_for (const auto &&segp, vmsegptridx)
 	{
-		range_for (const unsigned j, xrange(6u))
+		for (const auto j : MAX_SIDES_PER_SEGMENT)
 		{
 			const uint16_t wall_num = PHYSFSX_readSXE16(fp, swap);
 			segp->shared_segment::sides[j].wall_num = wallnum_t{wall_num};

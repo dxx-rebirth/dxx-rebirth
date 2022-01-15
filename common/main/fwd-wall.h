@@ -172,29 +172,29 @@ void wall_init();
 // Automatically checks if a there is a doorway (i.e. can fly through)
 #ifdef dsx
 namespace dsx {
-WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, cscusegment seg, const uint_fast32_t side);
+WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, cscusegment seg, sidenum_t side);
 
 // Deteriorate appearance of wall. (Changes bitmap (paste-ons))
 }
 #endif
-void wall_damage(vmsegptridx_t seg, unsigned side, fix damage);
+void wall_damage(vmsegptridx_t seg, sidenum_t side, fix damage);
 
 // Destroys a blastable wall. (So it is an opening afterwards)
-void wall_destroy(vmsegptridx_t seg, unsigned side);
+void wall_destroy(vmsegptridx_t seg, sidenum_t side);
 
 #ifdef dsx
 namespace dsx {
 
-void wall_illusion_on(fvmwallptr &, vcsegptridx_t seg, unsigned side);
-void wall_illusion_off(fvmwallptr &, vcsegptridx_t seg, unsigned side);
+void wall_illusion_on(fvmwallptr &, vcsegptridx_t seg, sidenum_t side);
+void wall_illusion_off(fvmwallptr &, vcsegptridx_t seg, sidenum_t side);
 
 // Opens a door
-void wall_open_door(vmsegptridx_t seg, unsigned side);
+void wall_open_door(vmsegptridx_t seg, sidenum_t side);
 
 #if defined(DXX_BUILD_DESCENT_I)
 #elif defined(DXX_BUILD_DESCENT_II)
 // Closes a door
-void wall_close_door(wall_array &Walls, vmsegptridx_t seg, unsigned side);
+void wall_close_door(wall_array &Walls, vmsegptridx_t seg, sidenum_t side);
 #endif
 }
 #endif
@@ -213,10 +213,10 @@ enum class wall_hit_process_t : unsigned
 #ifdef dsx
 class player_flags;
 namespace dsx {
-wall_hit_process_t wall_hit_process(player_flags, vmsegptridx_t seg, unsigned side, fix damage, unsigned playernum, const object &obj);
+wall_hit_process_t wall_hit_process(player_flags, vmsegptridx_t seg, sidenum_t side, fix damage, unsigned playernum, const object &obj);
 
 // Opens/destroys specified door.
-void wall_toggle(fvmwallptr &vmwallptr, vmsegptridx_t segnum, unsigned side);
+void wall_toggle(fvmwallptr &vmwallptr, vmsegptridx_t segnum, sidenum_t side);
 
 // Called once per frame..
 void wall_frame_process();
@@ -234,8 +234,8 @@ void wall_close_door_ref(fvmsegptridx &vmsegptridx, wall_array &Walls, const wal
 #if defined(DXX_BUILD_DESCENT_II)
 //start wall open <-> closed transitions
 namespace dsx {
-void start_wall_cloak(vmsegptridx_t seg, unsigned side);
-void start_wall_decloak(vmsegptridx_t seg, unsigned side);
+void start_wall_cloak(vmsegptridx_t seg, sidenum_t side);
+void start_wall_decloak(vmsegptridx_t seg, sidenum_t side);
 
 void cloaking_wall_read(cloaking_wall &cw, PHYSFS_File *fp);
 void cloaking_wall_write(const cloaking_wall &cw, PHYSFS_File *fp);

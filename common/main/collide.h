@@ -59,7 +59,7 @@ int apply_damage_to_robot(vmobjptridx_t robot, fix damage, objnum_t killer_objnu
 namespace dsx {
 void collide_player_and_materialization_center(vmobjptridx_t objp);
 void collide_robot_and_materialization_center(vmobjptridx_t objp);
-bool scrape_player_on_wall(vmobjptridx_t obj, vmsegptridx_t hitseg, unsigned hitwall, const vms_vector &hitpt);
+bool scrape_player_on_wall(vmobjptridx_t obj, vmsegptridx_t hitseg, sidenum_t hitwall, const vms_vector &hitpt);
 int maybe_detonate_weapon(vmobjptridx_t obj0p, object &obj, const vms_vector &pos);
 void collide_player_and_nasty_robot(vmobjptridx_t player, vmobjptridx_t robot, const vms_vector &collision_point);
 }

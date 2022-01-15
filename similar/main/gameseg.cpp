@@ -478,7 +478,7 @@ static uint8_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, c
 
 #ifndef NDEBUG
 //returns true if errors detected
-static int check_norms(const shared_segment &segp, const unsigned sidenum, const unsigned facenum, const shared_segment &csegp, const unsigned csidenum, const unsigned cfacenum)
+static int check_norms(const shared_segment &segp, const sidenum_t sidenum, const unsigned facenum, const shared_segment &csegp, const sidenum_t csidenum, const unsigned cfacenum)
 {
 	const auto &n0 = segp.sides[sidenum].normals[facenum];
 	const auto &n1 = csegp.sides[csidenum].normals[cfacenum];
@@ -1702,7 +1702,8 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vm
 	{
 		auto &Walls = LevelUniqueWallSubsystemState.Walls;
 		auto &vcwallptr = Walls.vcptr;
-		range_for (const int sidenum, xrange(6u)) {
+		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
+		{
 			if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, sidenum) & WALL_IS_DOORWAY_FLAG::rendpast)
 				apply_light_to_segment(visited, segp.absolute_sibling(segp->children[sidenum]), segment_center, light_intensity, recursion_depth+1);
 		}
@@ -1712,7 +1713,7 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vm
 
 //update the static_light field in a segment, which is used for object lighting
 //this code is copied from the editor routine calim_process_all_lights()
-static void change_segment_light(const vmsegptridx_t segp, const unsigned sidenum, const unsigned dir)
+static void change_segment_light(const vmsegptridx_t segp, const sidenum_t sidenum, const unsigned dir)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
@@ -1742,7 +1743,7 @@ static void change_segment_light(const vmsegptridx_t segp, const unsigned sidenu
 //	dir = -1 -> subtract light
 //	dir = 17 -> add 17x light
 //	dir =  0 -> you are dumb
-static void change_light(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const vmsegptridx_t segnum, const uint8_t sidenum, const int dir)
+static void change_light(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const vmsegptridx_t segnum, const sidenum_t sidenum, const int dir)
 {
 	const fix ds = dir * DL_SCALE;
 	auto &Dl_indices = LevelSharedDestructibleLightState.Dl_indices;

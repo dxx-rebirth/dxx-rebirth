@@ -196,7 +196,7 @@ void init_buddy_for_level(void)
 //	-----------------------------------------------------------------------------
 //	See if segment from curseg through sidenum is reachable.
 //	Return true if it is reachable, else return false.
-static int segment_is_reachable(const vmobjptr_t robot, const shared_segment &segp, int sidenum, const player_flags powerup_flags)
+static int segment_is_reachable(const vmobjptr_t robot, const shared_segment &segp, const sidenum_t sidenum, const player_flags powerup_flags)
 {
 	const auto wall_num = segp.sides[sidenum].wall_num;
 
@@ -257,7 +257,7 @@ std::size_t create_bfs_list(const vmobjptr_t robot, const vcsegidx_t start_seg, 
 		for (const auto &&[i, connected_seg] : enumerate(cursegp->children))
 		{
 			if (IS_CHILD(connected_seg) && (!visited[connected_seg])) {
-				if (segment_is_reachable(robot, cursegp, i, powerup_flags)) {
+				if (segment_is_reachable(robot, cursegp, static_cast<sidenum_t>(i), powerup_flags)) {
 					bfs_list[head++] = connected_seg;
 					if (head >= max_segs)
 						break;

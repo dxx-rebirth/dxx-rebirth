@@ -2110,7 +2110,8 @@ void compute_slide_segs()
 	for (const csmusegment suseg : vmsegptr)
 	{
 		uint8_t slide_textures = 0;
-		range_for (const int sidenum, xrange(6u)) {
+		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
+		{
 			const auto &uside = suseg.u.sides[sidenum];
 			const auto &ti = TmapInfo[get_texture_index(uside.tmap_num)];
 			if (!(ti.slide_u || ti.slide_v))

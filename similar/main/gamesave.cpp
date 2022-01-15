@@ -906,7 +906,7 @@ static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, co
 					return;
 				}
 				const shared_segment &vcseg = *vcsegptr(connected_seg);
-				const unsigned connected_side = find_connect_side(seg, vcseg);
+				const auto connected_side = find_connect_side(seg, vcseg);
 				const auto wn1 = vcseg.sides[connected_side].wall_num;
 				if (wn1 == wall_none)
 				{
@@ -1466,10 +1466,10 @@ int load_level(
 	{
 		shared_segment &s104 = *vmsegptr(vmsegidx_t(104));
 		auto &s104v0 = *vmvertptr(s104.verts[segment_relative_vertnum::_0]);
-		auto &s104s1 = s104.sides[1];
+		auto &s104s1 = s104.sides[sidenum_t::WTOP];
 		auto &s104s1n0 = s104s1.normals[0];
 		auto &s104s1n1 = s104s1.normals[1];
-		auto &s104s2 = s104.sides[2];
+		auto &s104s2 = s104.sides[sidenum_t::WRIGHT];
 		auto &s104s2n0 = s104s2.normals[0];
 		auto &s104s2n1 = s104s2.normals[1];
 		if (

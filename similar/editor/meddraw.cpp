@@ -363,7 +363,7 @@ static void add_edges(const shared_segment &seg)
 		for (auto &&[idx, sidep] : enumerate(seg.sides))
 		{
 			int	num_vertices;
-			const auto &&[num_faces, vertex_list] = create_all_vertex_lists(seg, sidep, static_cast<sidenum_t>(idx));
+			const auto &&[num_faces, vertex_list] = create_all_vertex_lists(seg, sidep, idx);
 			if (num_faces == 1)
 				num_vertices = 4;
 			else
@@ -564,7 +564,7 @@ static void draw_mine_all(int automap_flag)
 		{
 			for (auto &&[idx, value] : enumerate(segp->shared_segment::sides))
 				if (value.wall_num != wall_none)
-					draw_special_wall(segp, static_cast<sidenum_t>(idx));
+					draw_special_wall(segp, idx);
 			if (Search_mode)
 				check_segment(segp);
 			else {

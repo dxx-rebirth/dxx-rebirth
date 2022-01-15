@@ -132,7 +132,7 @@ static int do_light_off(const d_level_shared_destructible_light_state &LevelShar
 // Unlocks all doors linked to the switch.
 static void do_unlock_doors(fvcsegptr &vcsegptr, fvmwallptr &vmwallptr, const trigger &t)
 {
-	const auto op = [&vmwallptr](const shared_segment &segp, const unsigned sidenum) {
+	const auto op = [&vmwallptr](const shared_segment &segp, const sidenum_t sidenum) {
 		const auto wall_num = segp.sides[sidenum].wall_num;
 		if (wall_num == wall_none)
 			return;
@@ -146,7 +146,7 @@ static void do_unlock_doors(fvcsegptr &vcsegptr, fvmwallptr &vmwallptr, const tr
 // Locks all doors linked to the switch.
 static void do_lock_doors(fvcsegptr &vcsegptr, fvmwallptr &vmwallptr, const trigger &t)
 {
-	const auto op = [&vmwallptr](const shared_segment &segp, const unsigned sidenum) {
+	const auto op = [&vmwallptr](const shared_segment &segp, const sidenum_t sidenum) {
 		const auto wall_num = segp.sides[sidenum].wall_num;
 		if (wall_num == wall_none)
 			return;
@@ -170,7 +170,7 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 	auto &vmwallptr = Walls.vmptr;
 	for (unsigned i = 0; i < t.num_links; ++i)
 	{
-		uint8_t cside;
+		sidenum_t cside;
 		const auto &&segp = vmsegptridx(t.seg[i]);
 		const auto side = t.side[i];
 			imsegptridx_t csegp = segment_none;
@@ -288,7 +288,7 @@ static void do_il_off(fvcsegptridx &vcsegptridx, fvmwallptr &vmwallptr, const tr
 #elif defined(DXX_BUILD_DESCENT_II)
 static void do_il_off(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr, fvmwallptr &vmwallptr, const trigger &t)
 {
-	const auto &&op = [&vcvertptr, &vmwallptr](const vcsegptridx_t seg, const unsigned side) {
+	const auto &&op = [&vcvertptr, &vmwallptr](const vcsegptridx_t seg, const sidenum_t side) {
 		wall_illusion_off(vmwallptr, seg, side);
 		const auto &&cp = compute_center_point_on_side(vcvertptr, seg, side);
 		digi_link_sound_to_pos(SOUND_WALL_REMOVED, seg, side, cp, 0, F1_0);
@@ -524,7 +524,7 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 
 //-----------------------------------------------------------------
 // Checks for a trigger whenever an object hits a trigger side.
-window_event_result check_trigger(const vcsegptridx_t seg, const unsigned side, object &plrobj, const vcobjptridx_t objnum, int shot)
+window_event_result check_trigger(const vcsegptridx_t seg, const sidenum_t side, object &plrobj, const vcobjptridx_t objnum, int shot)
 {
 	if ((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. so this function may be called when we are not playing.
 		return window_event_result::ignored;

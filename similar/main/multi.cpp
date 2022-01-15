@@ -2093,9 +2093,11 @@ namespace {
 
 static void multi_do_door_open(fvmwallptr &vmwallptr, const uint8_t *const buf)
 {
-	ubyte side;
 	const segnum_t segnum = GET_INTEL_SHORT(&buf[1]);
-	side = buf[3];
+	const auto uside = build_sidenum_from_untrusted(buf[3]);
+	if (!uside)
+		return;
+	const auto side = *uside;
 #if defined(DXX_BUILD_DESCENT_II)
 	ubyte flag= buf[4];
 #endif

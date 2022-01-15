@@ -544,8 +544,6 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 	range_for (auto &&wp, vcwallptridx)
 	{
 		auto &w = *wp;
-		int	sidenum;
-
 		const auto i = underlying_value(wallnum_t{wp});
 		PHYSFSX_printf(my_file, "Wall %03hu: seg=%3i, side=%2i, linked_wall=%3hu, type=%s, flags=%4x, hps=%3i, trigger=%2i, clip_num=%2i, keys=%2i, state=%i\n", i, w.segnum, w.sidenum, underlying_value(wallnum_t{w.linked_wall}), Wall_names[w.type], underlying_value(w.flags), w.hps >> 16, underlying_value(w.trigger), w.clip_num, underlying_value(w.keys), underlying_value(w.state));
 
@@ -555,10 +553,10 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 #endif
 
 		auto segnum = w.segnum;
-		sidenum = w.sidenum;
+		const auto sidenum = w.sidenum;
 
 		if (Segments[segnum].shared_segment::sides[sidenum].wall_num != wp)
-			err_printf(my_file, "Error: Wall %hu points at segment %i, side %i, but that segment doesn't point back (it's wall_num = %hi)", i, segnum, sidenum, static_cast<int16_t>(Segments[segnum].shared_segment::sides[sidenum].wall_num));
+			err_printf(my_file, "Error: Wall %hu points at segment %i, side %i, but that segment doesn't point back (it's wall_num = %hi)", i, segnum, sidenum, underlying_value(Segments[segnum].shared_segment::sides[sidenum].wall_num));
 	}
 
 	wall_flags = {};
@@ -571,7 +569,7 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 			if (sidep->wall_num != wall_none)
 			{
 				if (auto &wf = wall_flags[sidep->wall_num])
-					err_printf(my_file, "Error: Wall %hu appears in two or more segments, including segment %hu, side %" PRIuFAST32 ".", static_cast<int16_t>(sidep->wall_num), static_cast<segnum_t>(segp), idx);
+					err_printf(my_file, "Error: Wall %hu appears in two or more segments, including segment %hu, side %u.", underlying_value(sidep->wall_num), segp.get_unchecked_index(), idx);
 				else
 					wf = 1;
 			}

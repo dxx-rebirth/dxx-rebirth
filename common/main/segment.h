@@ -221,7 +221,7 @@ struct shared_segment
 	/* if DXX_BUILD_DESCENT_II */
 	uint8_t s2_flags;
 	/* endif */
-	std::array<shared_side, MAX_SIDES_PER_SEGMENT> sides;
+	enumerated_array<shared_side, MAX_SIDES_PER_SEGMENT, sidenum_t> sides;
 };
 
 struct unique_segment

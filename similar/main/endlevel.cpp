@@ -1216,7 +1216,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 	if (flydata->first_time || obj->segnum != old_player_seg) {		//moved into new seg
 		fix seg_time;
-		int up_side=0;
+		sidenum_t up_side{};
 
 		sidenum_t exit_side;	//what side we leave through
 		sidenum_t entry_side{};	//what side we enter through
@@ -1234,7 +1234,8 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 		{										//find closest side to align to
 			fix d,largest_d=-f1_0;
-			range_for (const int i, xrange(6u)) {
+			for (const auto i : MAX_SIDES_PER_SEGMENT)
+			{
 				d = vm_vec_dot(pseg.sides[i].normals[0], flydata->obj->orient.uvec);
 				if (d > largest_d) {largest_d = d; up_side=i;}
 			}

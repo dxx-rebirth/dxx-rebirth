@@ -1861,7 +1861,7 @@ int ai_door_is_openable(
 #if defined(DXX_BUILD_DESCENT_II)
 	const player_flags powerup_flags,
 #endif
-	const shared_segment &segp, const unsigned sidenum)
+	const shared_segment &segp, const sidenum_t sidenum)
 {
 	if (!IS_CHILD(segp.children[sidenum]))
 		return 0;		//trap -2 (exit side)
@@ -2273,7 +2273,7 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 
 			for (const auto &&[sidenum, csegnum] : enumerate(segp.s.children))
 			{
-				const auto w = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, sidenum);
+				const auto w = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, static_cast<sidenum_t>(sidenum));
 				if ((w & WALL_IS_DOORWAY_FLAG::fly) || one_wall_hack)
 				{
 #if defined(DXX_BUILD_DESCENT_II)

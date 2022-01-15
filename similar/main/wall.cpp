@@ -219,7 +219,7 @@ static WALL_IS_DOORWAY_result_t wall_is_doorway(const GameBitmaps_array &GameBit
 
 }
 
-WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, const cscusegment seg, const uint_fast32_t side)
+WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, const cscusegment seg, const sidenum_t side)
 {
 	const auto child = seg.s.children[side];
 	if (unlikely(child == segment_none))
@@ -297,7 +297,7 @@ namespace {
 
 // -------------------------------------------------------------------------------
 //when the wall has used all its hitpoints, this will destroy it
-static void blast_blastable_wall(const vmsegptridx_t seg, const unsigned side, wall &w0)
+static void blast_blastable_wall(const vmsegptridx_t seg, const sidenum_t side, wall &w0)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -343,7 +343,7 @@ static void blast_blastable_wall(const vmsegptridx_t seg, const unsigned side, w
 
 //-----------------------------------------------------------------
 // Destroys a blastable wall.
-void wall_destroy(const vmsegptridx_t seg, const unsigned side)
+void wall_destroy(const vmsegptridx_t seg, const sidenum_t side)
 {
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vmwallptr = Walls.vmptr;
@@ -356,7 +356,7 @@ void wall_destroy(const vmsegptridx_t seg, const unsigned side)
 
 //-----------------------------------------------------------------
 // Deteriorate appearance of wall. (Changes bitmap (paste-ons))
-void wall_damage(const vmsegptridx_t seg, const unsigned side, fix damage)
+void wall_damage(const vmsegptridx_t seg, const sidenum_t side, fix damage)
 {
 	auto &WallAnims = GameSharedState.WallAnims;
 	int i;
@@ -408,7 +408,7 @@ void wall_damage(const vmsegptridx_t seg, const unsigned side, fix damage)
 //-----------------------------------------------------------------
 // Opens a door
 namespace dsx {
-void wall_open_door(const vmsegptridx_t seg, const unsigned side)
+void wall_open_door(const vmsegptridx_t seg, const sidenum_t side)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -525,7 +525,7 @@ void wall_open_door(const vmsegptridx_t seg, const unsigned side)
 #if defined(DXX_BUILD_DESCENT_II)
 //-----------------------------------------------------------------
 // start the transition from closed -> open wall
-void start_wall_cloak(const vmsegptridx_t seg, const unsigned side)
+void start_wall_cloak(const vmsegptridx_t seg, const sidenum_t side)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -604,7 +604,7 @@ void start_wall_cloak(const vmsegptridx_t seg, const unsigned side)
 
 //-----------------------------------------------------------------
 // start the transition from open -> closed wall
-void start_wall_decloak(const vmsegptridx_t seg, const unsigned side)
+void start_wall_decloak(const vmsegptridx_t seg, const sidenum_t side)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -772,7 +772,7 @@ static unsigned is_door_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegpt
 #if defined(DXX_BUILD_DESCENT_II)
 //-----------------------------------------------------------------
 // Closes a door
-void wall_close_door(wall_array &Walls, const vmsegptridx_t seg, const unsigned side)
+void wall_close_door(wall_array &Walls, const vmsegptridx_t seg, const sidenum_t side)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -869,7 +869,6 @@ static bool do_door_open(active_door &d)
 	auto &vmwallptr = Walls.vmptr;
 	for (unsigned p = 0; p < d.n_parts; ++p)
 	{
-		int side;
 		fix time_elapsed, time_total, one_frame;
 		int i;
 
@@ -878,7 +877,7 @@ static bool do_door_open(active_door &d)
 		LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, d.back_wallnum[p]);
 
 		const auto &&seg = vmsegptridx(w.segnum);
-		side = w.sidenum;
+		const auto side = w.sidenum;
 
 		if (seg->shared_segment::sides[side].wall_num == wall_none)
 		{
@@ -964,14 +963,13 @@ static bool do_door_close(active_door &d)
 	bool remove = false;
 	range_for (const auto p, partial_const_range(d.front_wallnum, d.n_parts))
 	{
-		int side;
 		fix time_elapsed, time_total, one_frame;
 		int i;
 
 		auto &wp = *vmwallptr(p);
 
 		const auto &&seg = vmsegptridx(wp.segnum);
-		side = wp.sidenum;
+		const auto side = wp.sidenum;
 
 		if (seg->shared_segment::sides[side].wall_num == wall_none) {
 			return false;
@@ -1040,7 +1038,7 @@ static bool do_door_close(active_door &d)
 	return remove;
 }
 
-static std::pair<wall *, wall *> wall_illusion_op(fvmwallptr &vmwallptr, const vcsegptridx_t seg, const unsigned side)
+static std::pair<wall *, wall *> wall_illusion_op(fvmwallptr &vmwallptr, const vcsegptridx_t seg, const sidenum_t side)
 {
 	const auto wall0 = seg->shared_segment::sides[side].wall_num;
 	if (wall0 == wall_none)
@@ -1059,7 +1057,7 @@ static std::pair<wall *, wall *> wall_illusion_op(fvmwallptr &vmwallptr, const v
 }
 
 template <typename F>
-static void wall_illusion_op(fvmwallptr &vmwallptr, const vcsegptridx_t seg, const unsigned side, const F op)
+static void wall_illusion_op(fvmwallptr &vmwallptr, const vcsegptridx_t seg, const sidenum_t side, const F op)
 {
 	const auto &&r = wall_illusion_op(vmwallptr, seg, side);
 	if (r.first)
@@ -1074,7 +1072,7 @@ static void wall_illusion_op(fvmwallptr &vmwallptr, const vcsegptridx_t seg, con
 //-----------------------------------------------------------------
 // Turns off an illusionary wall (This will be used primarily for
 //  wall switches or triggers that can turn on/off illusionary walls.)
-void wall_illusion_off(fvmwallptr &vmwallptr, const vcsegptridx_t seg, const unsigned side)
+void wall_illusion_off(fvmwallptr &vmwallptr, const vcsegptridx_t seg, const sidenum_t side)
 {
 	const auto &&op = [](wall &w) {
 		w.flags |= wall_flag::illusion_off;
@@ -1085,7 +1083,7 @@ void wall_illusion_off(fvmwallptr &vmwallptr, const vcsegptridx_t seg, const uns
 //-----------------------------------------------------------------
 // Turns on an illusionary wall (This will be used primarily for
 //  wall switches or triggers that can turn on/off illusionary walls.)
-void wall_illusion_on(fvmwallptr &vmwallptr, const vcsegptridx_t seg, const unsigned side)
+void wall_illusion_on(fvmwallptr &vmwallptr, const vcsegptridx_t seg, const sidenum_t side)
 {
 	const auto &&op = [](wall &w) {
 		w.flags &= ~wall_flag::illusion_off;
@@ -1116,7 +1114,7 @@ static int special_boss_opening_allowed(segnum_t segnum, int sidenum)
 //playernum is the number the player who hit the wall or fired the weapon,
 //or -1 if a robot fired the weapon
 namespace dsx {
-wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmsegptridx_t seg, const unsigned side, const fix damage, const unsigned playernum, const object &obj)
+wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmsegptridx_t seg, const sidenum_t side, const fix damage, const unsigned playernum, const object &obj)
 {
 	fix	show_message;
 
@@ -1210,7 +1208,7 @@ wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmse
 
 //-----------------------------------------------------------------
 // Opens doors/destroys wall/shuts off triggers.
-void wall_toggle(fvmwallptr &vmwallptr, const vmsegptridx_t segp, const unsigned side)
+void wall_toggle(fvmwallptr &vmwallptr, const vmsegptridx_t segp, const sidenum_t side)
 {
 	if (side >= MAX_SIDES_PER_SEGMENT)
 	{
@@ -1613,7 +1611,7 @@ void blast_nearby_glass_context::process_segment(const vmsegptridx_t segp, const
 	{
 		if (segnum != segment_none) {
 			if (!visited[segnum]) {
-				if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, i) & WALL_IS_DOORWAY_FLAG::fly)
+				if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, static_cast<sidenum_t>(i)) & WALL_IS_DOORWAY_FLAG::fly)
 				{
 					process_segment(segp.absolute_sibling(segnum), next_steps_remaining);
 				}

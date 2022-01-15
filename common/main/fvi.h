@@ -72,7 +72,7 @@ struct fvi_hitpoint
 struct sphere_intersects_wall_result
 {
 	const shared_segment *seg;
-	uint_fast32_t side;
+	sidenum_t side;
 };
 }
 

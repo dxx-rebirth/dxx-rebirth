@@ -743,7 +743,7 @@ int wall_restore_all()
 
 //---------------------------------------------------------------------
 //	Remove a specific side.
-int wall_remove_side(const vmsegptridx_t seg, short side)
+int wall_remove_side(const vmsegptridx_t seg, const sidenum_t side)
 {
 	const shared_segment &sseg = seg;
 	const auto seg_child = sseg.children[side];
@@ -1071,7 +1071,7 @@ int check_walls()
 				if (s.wall_num != wall_none) {
 					CountedWalls[wall_count].wallnum = s.wall_num;
 					CountedWalls[wall_count].segnum = segp;
-					CountedWalls[wall_count].sidenum = static_cast<sidenum_t>(idx);
+					CountedWalls[wall_count].sidenum = idx;
 					wall_count++;
 				}
 			}
@@ -1202,8 +1202,6 @@ static int Validate_walls=1;
 //	Make sure all wall/segment connections are valid.
 void check_wall_validity(void)
 {
-	int sidenum;
-
 	if (!Validate_walls)
 		return;
 
@@ -1213,7 +1211,7 @@ void check_wall_validity(void)
 	{
 		segnum_t	segnum;
 		segnum = w->segnum;
-		sidenum = w->sidenum;
+		const auto sidenum = w->sidenum;
 
 		if (vcwallptr(vcsegptr(segnum)->shared_segment::sides[sidenum].wall_num) != w) {
 			if (!Validate_walls)

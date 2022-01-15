@@ -101,7 +101,7 @@ static void add_light_intensity_all_verts(unique_side &s, const fix intensity)
 //		Note that it is also possible to visit the original light-casting segment, for example
 //		going from segment 0 to 2, then from 2 to 0.  This is peculiar and probably not
 //		desired, but not entirely invalid.  2 reflects some light back to 0.
-static void apply_light_intensity(const csmusegment segp, const unsigned sidenum, fix intensity, const unsigned depth)
+static void apply_light_intensity(const csmusegment segp, const sidenum_t sidenum, fix intensity, const unsigned depth)
 {
 	if (intensity == 0)
 		return;

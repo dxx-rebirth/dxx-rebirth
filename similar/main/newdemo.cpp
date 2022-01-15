@@ -2335,11 +2335,11 @@ static int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_TRIGGER:
 		{
-			int side;
+			int iside;
 			segnum_t segnum;
 			objnum_t objnum;
 			nd_read_segnum32(segnum);
-			nd_read_int(&side);
+			nd_read_int(&iside);
 			nd_read_objnum32(objnum);
 			int shot;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -2351,7 +2351,7 @@ static int newdemo_read_frame_information(int rewrite)
 			if (rewrite)
 			{
 				nd_write_int(segnum);
-				nd_write_int(side);
+				nd_write_int(iside);
 				nd_write_int(objnum);
 #if defined(DXX_BUILD_DESCENT_I)
 				break;
@@ -2361,6 +2361,7 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 
                         const auto &&segp = vmsegptridx(segnum);
+						const auto side = static_cast<sidenum_t>(iside);
                         /* Demo recording is buggy.  Descent records
                             * ND_EVENT_TRIGGER for every segment transition, even
                             * if there is no wall.
@@ -3131,19 +3132,20 @@ static int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_DOOR_OPENING: {
 			segnum_t segnum;
-			sbyte side;
+			uint8_t iside;
 
 			nd_read_segnum16(segnum);
-			nd_read_byte(&side);
+			nd_read_byte(&iside);
 			if (rewrite)
 			{
 				nd_write_short(segnum);
-				nd_write_byte(side);
+				nd_write_byte(iside);
 				break;
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				const auto &&segp = vmsegptridx(segnum);
 				const shared_segment &sseg = segp;
+				const auto side = static_cast<sidenum_t>(iside);
 				const auto &&csegp = vmsegptr(sseg.children[side]);
 				const auto &&cside = find_connect_side(segp, csegp);
 				const auto anim_num = vmwallptr(sseg.sides[side].wall_num)->clip_num;

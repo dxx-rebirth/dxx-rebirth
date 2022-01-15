@@ -79,7 +79,7 @@ static trigger_dialog *MainWindow;
 //-----------------------------------------------------------------
 // Adds a trigger to wall, and returns the trigger number. 
 // If there is a trigger already present, it returns the trigger number. (To be replaced)
-static trgnum_t add_trigger(trigger_array &Triggers, fvcvertptr &vcvertptr, wall_array &Walls, const shared_segment &seg, const unsigned side)
+static trgnum_t add_trigger(trigger_array &Triggers, fvcvertptr &vcvertptr, wall_array &Walls, const shared_segment &seg, const sidenum_t side)
 {
 	const std::underlying_type<trgnum_t>::type trigger_num = Triggers.get_count();
 
@@ -270,7 +270,7 @@ int remove_trigger_num(trigger_array &Triggers, fvmwallptr &vmwallptr, const trg
 		return 1;
 }
 
-unsigned remove_trigger(shared_segment &seg, const unsigned side)
+unsigned remove_trigger(shared_segment &seg, const sidenum_t side)
 {    	
 	const auto wall_num = seg.sides[side].wall_num;
 	if (wall_num == wall_none)

@@ -1190,9 +1190,9 @@ static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const
 					const uint_fast32_t sidemask = get_seg_masks(vcvertptr, obj->pos, vcsegptr(new_segnum), obj->size).sidemask;
 	
 					if (sidemask) {
-						int sn,sf;
-
-						for (sn=0,sf=1;sn<6;sn++,sf<<=1)
+						for (const auto sn : MAX_SIDES_PER_SEGMENT)
+						{
+							const auto sf = 1 << sn;
 							if (sidemask & sf)
 							{
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1218,6 +1218,7 @@ static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const
 								if (sidemask <= sf)
 									break;
 							}
+						}
 					}
 	
 				} while (did_migrate);

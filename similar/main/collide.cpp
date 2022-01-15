@@ -136,7 +136,7 @@ static fix64 Last_volatile_scrape_sound_time;
 //	The only reason this routine is called (as of 10/12/94) is so Brain guys can open doors.
 namespace dsx {
 namespace {
-static void collide_robot_and_wall(fvcwallptr &vcwallptr, object &robot, const vmsegptridx_t hitseg, const unsigned hitwall, const vms_vector &)
+static void collide_robot_and_wall(fvcwallptr &vcwallptr, object &robot, const vmsegptridx_t hitseg, const sidenum_t hitwall, const vms_vector &)
 {
 	const ubyte robot_id = get_robot_id(robot);
 #if defined(DXX_BUILD_DESCENT_I)
@@ -345,7 +345,7 @@ static void bump_two_objects(const vmobjptridx_t obj0,const vmobjptridx_t obj1,i
 	bump_this_object(obj0, obj1, vm_vec_negated(force), damage_flag);
 }
 
-static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hitspeed, const vmsegptridx_t hitseg, const unsigned hitwall, const vms_vector &hitpt)
+static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hitspeed, const vmsegptridx_t hitseg, const sidenum_t hitwall, const vms_vector &hitpt)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -501,7 +501,7 @@ volatile_wall_result check_volatile_wall(const vmobjptridx_t obj, const unique_s
 }
 
 //this gets called when an object is scraping along the wall
-bool scrape_player_on_wall(const vmobjptridx_t obj, const vmsegptridx_t hitseg, const unsigned hitside, const vms_vector &hitpt)
+bool scrape_player_on_wall(const vmobjptridx_t obj, const vmsegptridx_t hitseg, const sidenum_t hitside, const vms_vector &hitpt)
 {
 	if (obj->type != OBJ_PLAYER || get_player_id(obj) != Player_num)
 		return false;

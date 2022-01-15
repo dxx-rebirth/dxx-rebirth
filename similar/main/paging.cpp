@@ -251,9 +251,7 @@ static void paging_touch_object(const d_level_shared_robot_info_state::d_robot_i
 	}
 }
 
-	
-
-static void paging_touch_side(const d_eclip_array &Effects, const Textures_array &Textures, const d_vclip_array &Vclip, const cscusegment segp, int sidenum )
+static void paging_touch_side(const d_eclip_array &Effects, const Textures_array &Textures, const d_vclip_array &Vclip, const cscusegment segp, const sidenum_t sidenum)
 {
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
