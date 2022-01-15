@@ -222,7 +222,7 @@ void wall_toggle(fvmwallptr &vmwallptr, vmsegptridx_t segnum, sidenum_t side);
 void wall_frame_process();
 
 //set the tmap_num or tmap_num2 field for a wall/door
-void wall_set_tmap_num(const wclip &, vmsegptridx_t seg, unsigned side, vmsegptridx_t csegp, unsigned cside, unsigned frame_num);
+void wall_set_tmap_num(const wclip &, vmsegptridx_t seg, sidenum_t side, vmsegptridx_t csegp, sidenum_t cside, unsigned frame_num);
 void wclip_read(PHYSFS_File *, wclip &wc);
 void wall_read(PHYSFS_File *fp, wall &w);
 void wall_write(PHYSFS_File *fp, const wall &w, short version);

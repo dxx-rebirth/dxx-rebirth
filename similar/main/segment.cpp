@@ -64,7 +64,7 @@ namespace dsx {
 void delta_light_read(delta_light *dl, PHYSFS_File *fp)
 {
 	dl->segnum = PHYSFSX_readShort(fp);
-	dl->sidenum = PHYSFSX_readByte(fp);
+	dl->sidenum = build_sidenum_from_untrusted(PHYSFSX_readByte(fp)).value_or(sidenum_t::WLEFT);
 	PHYSFSX_readByte(fp);
 	dl->vert_light[0] = PHYSFSX_readByte(fp);
 	dl->vert_light[1] = PHYSFSX_readByte(fp);

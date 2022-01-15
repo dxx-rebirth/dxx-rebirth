@@ -1014,7 +1014,7 @@ static window_event_result collide_weapon_and_wall(
 
 namespace {
 
-static void collide_debris_and_wall(const vmobjptridx_t debris, const unique_segment &hitseg, const unsigned hitwall, const vms_vector &)
+static void collide_debris_and_wall(const vmobjptridx_t debris, const unique_segment &hitseg, const sidenum_t hitwall, const vms_vector &)
 {
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	if (!PERSISTENT_DEBRIS || TmapInfo[get_texture_index(hitseg.sides[hitwall].tmap_num)].damage)

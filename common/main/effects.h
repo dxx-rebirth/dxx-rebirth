@@ -70,7 +70,7 @@ struct eclip : public prohibit_void_ptr<eclip>
 	fix     dest_size;      //3d size of explosion
 	int     sound_num;      //what sound this makes
 	segnum_t     segnum;
-	uint8_t sidenum; //what seg & side, for one-shot clips
+	sidenum_t sidenum; //what seg & side, for one-shot clips
 };
 
 extern unsigned Num_effects;

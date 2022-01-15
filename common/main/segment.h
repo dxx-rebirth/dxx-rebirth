@@ -233,7 +233,7 @@ struct unique_segment
 	uint8_t slide_textures;
 	/* endif */
 	fix     static_light;
-	std::array<unique_side, MAX_SIDES_PER_SEGMENT> sides;
+	enumerated_array<unique_side, MAX_SIDES_PER_SEGMENT, sidenum_t> sides;
 };
 
 struct segment : unique_segment, shared_segment
@@ -339,7 +339,7 @@ namespace dsx {
 struct delta_light : prohibit_void_ptr<delta_light>
 {
 	segnum_t   segnum;
-	uint8_t   sidenum;
+	sidenum_t  sidenum;
 	std::array<ubyte, 4>   vert_light;
 };
 

@@ -38,9 +38,6 @@ int AssignTexture(void)
 	const auto t1 = build_texture1_value(CurrentTexture);
 	Cursegp->unique_segment::sides[Curside].tmap_num = t1;
 	New_segment.unique_segment::sides[Curside].tmap_num = t1;
-
-//	propagate_light_intensity(Cursegp, Curside, CurrentTexture, 0); 
-																					 
 	Update_flags |= UF_WORLD_CHANGED;
 
 	return 1;

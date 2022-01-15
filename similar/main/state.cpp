@@ -2412,11 +2412,10 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	// static_light should now be computed - now actually set tmap info
 	range_for (const auto &&segp, vmsegptridx)
 	{
-		range_for (const unsigned j, xrange(6u))
+		for (auto &&[uside, t1, t2] : zip(segp->unique_segment::sides, TempTmapNum[segp], TempTmapNum2[segp]))
 		{
-			auto &uside = segp->unique_segment::sides[j];
-			uside.tmap_num = TempTmapNum[segp][j];
-			uside.tmap_num2 = TempTmapNum2[segp][j];
+			uside.tmap_num = t1;
+			uside.tmap_num2 = t2;
 		}
 	}
 

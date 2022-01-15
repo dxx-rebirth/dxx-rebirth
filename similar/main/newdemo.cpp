@@ -1680,9 +1680,8 @@ static void newdemo_record_oneframeevent_update(int wallupdate)
 		range_for (const auto &&wp, vcwallptr)
 		{
 			auto &w = *wp;
-			int side;
 			auto seg = &Segments[w.segnum];
-			side = w.sidenum;
+			const auto side = w.sidenum;
 			// actually this is kinda stupid: when playing ther same tmap will be put on front and back side of the wall ... for doors this is stupid so just record the front side which will do for doors just fine ...
 			auto &uside = seg->unique_segment::sides[side];
 			if (const auto tmap_num = uside.tmap_num; tmap_num != texture1_value::None)
@@ -2820,7 +2819,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_WALL_SET_TMAP_NUM1: {
 			uint16_t seg, cseg, tmap;
-			sbyte side,cside;
+			uint8_t side, cside;
 
 			nd_read_short(&seg);
 			nd_read_byte(&side);
@@ -2837,13 +2836,13 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state != ND_STATE_PAUSED) && (Newdemo_vcr_state != ND_STATE_REWINDING) && (Newdemo_vcr_state != ND_STATE_ONEFRAMEBACKWARD))
-				vmsegptr(seg)->unique_segment::sides[side].tmap_num = vmsegptr(cseg)->unique_segment::sides[cside].tmap_num = texture1_value{tmap};
+				vmsegptr(seg)->unique_segment::sides[(sidenum_t{side})].tmap_num = vmsegptr(cseg)->unique_segment::sides[(sidenum_t{cside})].tmap_num = texture1_value{tmap};
 			break;
 		}
 
 		case ND_EVENT_WALL_SET_TMAP_NUM2: {
 			uint16_t seg, cseg, tmap;
-			sbyte side,cside;
+			uint8_t side, cside;
 
 			nd_read_short(&seg);
 			nd_read_byte(&side);
@@ -2861,8 +2860,8 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if ((Newdemo_vcr_state != ND_STATE_PAUSED) && (Newdemo_vcr_state != ND_STATE_REWINDING) && (Newdemo_vcr_state != ND_STATE_ONEFRAMEBACKWARD)) {
 				unique_segment &s0 = *vmsegptr(seg);
-				auto &tmap_num2 = s0.sides[side].tmap_num2;
-				tmap_num2 = vmsegptr(cseg)->unique_segment::sides[cside].tmap_num2 = texture2_value{tmap};
+				auto &tmap_num2 = s0.sides[(sidenum_t{side})].tmap_num2;
+				tmap_num2 = vmsegptr(cseg)->unique_segment::sides[(sidenum_t{cside})].tmap_num2 = texture2_value{tmap};
 			}
 			break;
 		}

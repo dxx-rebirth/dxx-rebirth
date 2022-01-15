@@ -48,7 +48,7 @@ static fix get_light_intensity(const unique_side &s, const uint_fast32_t vert)
 	return s.uvls[vert].l;
 }
 
-static fix get_light_intensity(const unique_segment &segp, const uint_fast32_t sidenum, const uint_fast32_t vert)
+static fix get_light_intensity(const unique_segment &segp, const sidenum_t sidenum, const uint_fast32_t vert)
 {
 	Assert(sidenum <= MAX_SIDES_PER_SEGMENT);
 	return get_light_intensity(segp.sides[sidenum], vert);
@@ -72,9 +72,8 @@ static void set_light_intensity(unique_side &s, const uint_fast32_t vert, const 
 	Update_flags |= UF_WORLD_CHANGED;
 }
 
-static void set_light_intensity(unique_segment &segp, const uint_fast32_t sidenum, const uint_fast32_t vert, const fix intensity)
+static void set_light_intensity(unique_segment &segp, const sidenum_t sidenum, const uint_fast32_t vert, const fix intensity)
 {
-	Assert(sidenum <= MAX_SIDES_PER_SEGMENT);
 	set_light_intensity(segp.sides[sidenum], vert, intensity);
 }
 
@@ -133,7 +132,7 @@ static void apply_light_intensity(const csmusegment segp, const sidenum_t sidenu
 //	the associated intensity to segp.  It calls apply_light_intensity to apply intensity/3
 //	to all neighbors.  apply_light_intensity recursively calls itself to apply light to
 //	subsequent neighbors (and forming loops, see above).
-static void propagate_light_intensity(const csmusegment segp, const unsigned sidenum)
+static void propagate_light_intensity(const csmusegment segp, const sidenum_t sidenum)
 {
 	fix		intensity;
 

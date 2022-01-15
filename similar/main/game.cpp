@@ -2153,7 +2153,8 @@ static void slide_textures(void)
 	{
 		if (const auto slide_seg = useg.slide_textures)
 		{
-			range_for (const int sidenum, xrange(6u)) {
+			for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
+			{
 				if (slide_seg & (1 << sidenum))
 				{
 					auto &side = useg.sides[sidenum];

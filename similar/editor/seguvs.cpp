@@ -630,7 +630,7 @@ static void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const sidenum_t 
 //	Since we can attach any side of a segment to any side of another segment, and do so in each case in
 //	four different rotations (for a total of 6*6*4 = 144 ways), not having this nifty function will cause
 //	great confusion.
-static std::pair<int, int> get_side_ids(const shared_segment &base_seg, const shared_segment &con_seg, int base_side, int con_side, const vertnum_t abs_id1, const vertnum_t abs_id2)
+static std::pair<sidenum_t, sidenum_t> get_side_ids(const shared_segment &base_seg, const shared_segment &con_seg, sidenum_t base_side, sidenum_t con_side, const vertnum_t abs_id1, const vertnum_t abs_id2)
 {
 	if (&base_seg == &con_seg)
 		return {base_side, con_side};
@@ -680,7 +680,7 @@ static std::pair<int, int> get_side_ids(const shared_segment &base_seg, const sh
 //	The two vertices abs_id1 and abs_id2 are the only two vertices common to the two sides.
 //	If uv_only_flag is 1, then don't assign texture map ids, only update the uv coordinates
 //	If uv_only_flag is -1, then ONLY assign texture map ids, don't update the uv coordinates
-static void propagate_tmaps_to_segment_side(const vcsegptridx_t base_seg, const int base_side, const vmsegptridx_t con_seg, const int con_side, const vertnum_t abs_id1, const vertnum_t abs_id2, const int uv_only_flag)
+static void propagate_tmaps_to_segment_side(const vcsegptridx_t base_seg, const sidenum_t base_side, const vmsegptridx_t con_seg, const sidenum_t con_side, const vertnum_t abs_id1, const vertnum_t abs_id2, const int uv_only_flag)
 {
 	Assert ((uv_only_flag == -1) || (uv_only_flag == 0) || (uv_only_flag == 1));
 
@@ -780,7 +780,7 @@ int fix_bogus_uvs_on_side(void)
 
 namespace {
 
-static void fix_bogus_uvs_on_side1(const vmsegptridx_t sp, const unsigned sidenum, const int uvonly_flag)
+static void fix_bogus_uvs_on_side1(const vmsegptridx_t sp, const sidenum_t sidenum, const int uvonly_flag)
 {
 	auto &uvls = sp->unique_segment::sides[sidenum].uvls;
 	if (uvls[0].u == 0 && uvls[1].u == 0 && uvls[2].u == 0)
@@ -794,7 +794,7 @@ static void fix_bogus_uvs_seg(const vmsegptridx_t segp)
 	for (const auto &&[idx, value] : enumerate(segp->children))
 	{
 		if (!IS_CHILD(value))
-			fix_bogus_uvs_on_side1(segp, idx, 1);
+			fix_bogus_uvs_on_side1(segp, static_cast<sidenum_t>(idx), 1);
 	}
 }
 
@@ -818,7 +818,7 @@ namespace {
 //	from that side in base_seg to the wall in con_seg.  If the wall in base_seg is not present
 //	(ie, there is another segment connected through it), follow the connection through that
 //	segment to get the wall in the connected segment which shares the edge, and get tmap_num from there.
-static void propagate_tmaps_to_segment_sides(const vcsegptridx_t base_seg, const sidenum_t base_side, const vmsegptridx_t con_seg, const int con_side, const int uv_only_flag)
+static void propagate_tmaps_to_segment_sides(const vcsegptridx_t base_seg, const sidenum_t base_side, const vmsegptridx_t con_seg, const sidenum_t con_side, const int uv_only_flag)
 {
 	int		v;
 
