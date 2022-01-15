@@ -52,6 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfs-serial.h"
 #include "d_levelstate.h"
 #include "d_underlying_value.h"
+#include "d_zip.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
@@ -689,7 +690,11 @@ static void v30_trigger_to_v31_trigger(trigger &t, const v30_trigger &trig)
 	t.num_links   = trig.num_links;
 	t.value       = trig.value;
 	t.seg = trig.seg;
-	t.side = trig.side;
+	for (auto &&[w, r] : zip(t.side, trig.side))
+	{
+		auto s = build_sidenum_from_untrusted(r);
+		w = s.value_or(sidenum_t::WLEFT);
+	}
 }
 
 static void v29_trigger_read_as_v30(PHYSFS_File *fp, v30_trigger &trig)
@@ -722,11 +727,56 @@ void v30_trigger_read_as_v31(PHYSFS_File *fp, trigger &t)
 }
 #endif
 
+namespace {
+
+template <typename array_type>
+struct serialize_wide_trigger_side_numbers
+{
+	array_type &side;
+	serialize_wide_trigger_side_numbers(array_type &t) :
+		side(t)
+	{
+	}
+};
+
+template <typename array_type>
+serial::message<std::array<uint16_t, std::tuple_size<array_type>::value>> udt_to_message(const serialize_wide_trigger_side_numbers<array_type> &);
+
+template <typename Accessor, typename array_type>
+void process_udt(Accessor &accessor, serialize_wide_trigger_side_numbers<array_type> wrapper)
+{
+	static_assert(std::is_const<array_type>::value != std::is_const<typename Accessor::value_type>::value);
+	std::array<uint16_t, MAX_WALLS_PER_LINK> a;
+	if constexpr (std::is_const<array_type>::value)
+	{
+		/* The array is constant, so it is already initialized and
+		 * should be written out.
+		 */
+		for (auto &&[w, r] : zip(a, wrapper.side))
+			w = underlying_value(r);
+		process_buffer(accessor, a);
+	}
+	else
+	{
+		/* The array is non-constant, so it is initially undefined and
+		 * should be read in.
+		 */
+		process_buffer(accessor, a);
+		for (auto &&[w, r] : zip(wrapper.side, a))
+		{
+			auto s = build_sidenum_from_untrusted(r);
+			w = s.value_or(sidenum_t::WLEFT);
+		}
+	}
+}
+
+}
+
 #if defined(DXX_BUILD_DESCENT_I)
-DEFINE_SERIAL_UDT_TO_MESSAGE(trigger, t, (serial::pad<1>(), t.flags, t.value, serial::pad<5>(), t.num_links, t.seg, t.side));
+DEFINE_SERIAL_UDT_TO_MESSAGE(trigger, t, (serial::pad<1>(), t.flags, t.value, serial::pad<5>(), t.num_links, serial::pad<1, 0>(), t.seg, serialize_wide_trigger_side_numbers{t.side}));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(trigger, 54);
 #elif defined(DXX_BUILD_DESCENT_II)
-DEFINE_SERIAL_UDT_TO_MESSAGE(trigger, t, (t.type, t.flags, t.num_links, serial::pad<1>(), t.value, serial::pad<4>(), t.seg, t.side));
+DEFINE_SERIAL_UDT_TO_MESSAGE(trigger, t, (t.type, t.flags, t.num_links, serial::pad<1>(), t.value, serial::pad<4>(), t.seg, serialize_wide_trigger_side_numbers{t.side}));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(trigger, 52);
 #endif
 

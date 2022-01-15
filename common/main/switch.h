@@ -179,15 +179,14 @@ struct trigger : public prohibit_void_ptr<trigger>
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	uint16_t flags;
-	uint16_t num_links;
 #elif defined(DXX_BUILD_DESCENT_II)
 	trigger_action type;       //what this trigger does
 	trigger_behavior_flags flags;
-	uint8_t   num_links;  //how many doors, etc. linked to this
 #endif
+	uint8_t   num_links;  //how many doors, etc. linked to this
 	fix     value;
 	std::array<segnum_t, MAX_WALLS_PER_LINK>   seg;
-	std::array<short, MAX_WALLS_PER_LINK>   side;
+	std::array<sidenum_t, MAX_WALLS_PER_LINK>  side;
 };
 
 }
