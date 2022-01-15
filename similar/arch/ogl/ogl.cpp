@@ -286,7 +286,7 @@ ogl_texture* ogl_get_free_texture(void){
 static void ogl_texture_stats(grs_canvas &canvas)
 {
 	int used = 0, usedother = 0, usedidx = 0, usedrgb = 0, usedrgba = 0;
-	int databytes = 0, truebytes = 0, datatexel = 0, truetexel = 0;
+	int databytes = 0, truebytes = 0;
 	int prio0=0,prio1=0,prio2=0,prio3=0,prioh=0;
 	GLint idx, r, g, b, a, dbl, depth;
 	int res, colorsize, depthsize;
@@ -294,8 +294,6 @@ static void ogl_texture_stats(grs_canvas &canvas)
 	{
 		if (i.handle>0){
 			used++;
-			datatexel+=i.w*i.h;
-			truetexel+=i.tw*i.th;
 			databytes+=i.bytesu;
 			truebytes+=i.bytes;
 			if (i.prio<0.299)prio0++;
