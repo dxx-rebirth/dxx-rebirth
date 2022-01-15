@@ -630,9 +630,11 @@ static void med_assign_uvs_to_side(const vmsegptridx_t con_seg, const sidenum_t 
 //	Since we can attach any side of a segment to any side of another segment, and do so in each case in
 //	four different rotations (for a total of 6*6*4 = 144 ways), not having this nifty function will cause
 //	great confusion.
-static void get_side_ids(const shared_segment &base_seg, const shared_segment &con_seg, int base_side, int con_side, const vertnum_t abs_id1, const vertnum_t abs_id2, int *base_common_side, int *con_common_side)
+static std::pair<int, int> get_side_ids(const shared_segment &base_seg, const shared_segment &con_seg, int base_side, int con_side, const vertnum_t abs_id1, const vertnum_t abs_id2)
 {
-	*base_common_side = -1;
+	if (&base_seg == &con_seg)
+		return {base_side, con_side};
+	std::optional<sidenum_t> base_common_side;
 
 	//	Find side in base segment which contains the two global vertex ids.
 	for (const auto &&[idx, base_vp] : enumerate(Side_to_verts))
@@ -644,15 +646,15 @@ static void get_side_ids(const shared_segment &base_seg, const shared_segment &c
 				if ((verts[base_vp[v0]] == abs_id1 && verts[base_vp[(v0+1) % 4]] == abs_id2) ||
 					(verts[base_vp[v0]] == abs_id2 && verts[base_vp[ (v0+1) % 4]] == abs_id1))
 				{
-					Assert(*base_common_side == -1);		// This means two different sides shared the same edge with base_side == impossible!
-					*base_common_side = idx;
+					assert(!base_common_side);		// This means two different sides shared the same edge with base_side == impossible!
+					base_common_side = idx;
 				}
 			}
 		}
 	}
 
 	// Note: For connecting segment, process vertices in reversed order.
-	*con_common_side = -1;
+	std::optional<sidenum_t> con_common_side;
 
 	//	Find side in connecting segment which contains the two global vertex ids.
 	for (const auto &&[idx, con_vp] : enumerate(Side_to_verts))
@@ -664,14 +666,13 @@ static void get_side_ids(const shared_segment &base_seg, const shared_segment &c
 				if ((verts[con_vp[(v0 + 1) % 4]] == abs_id1 && verts[con_vp[v0]] == abs_id2) ||
 					(verts[con_vp[(v0 + 1) % 4]] == abs_id2 && verts[con_vp[v0]] == abs_id1))
 				{
-					Assert(*con_common_side == -1);		// This means two different sides shared the same edge with con_side == impossible!
-					*con_common_side = idx;
+					assert(!con_common_side);		// This means two different sides shared the same edge with con_side == impossible!
+					con_common_side = idx;
 				}
 			}
 		}
 	}
-
-	Assert((*base_common_side != -1) && (*con_common_side != -1));
+	return {*base_common_side, *con_common_side};
 }
 
 // -----------------------------------------------------------------------------
@@ -681,18 +682,11 @@ static void get_side_ids(const shared_segment &base_seg, const shared_segment &c
 //	If uv_only_flag is -1, then ONLY assign texture map ids, don't update the uv coordinates
 static void propagate_tmaps_to_segment_side(const vcsegptridx_t base_seg, const int base_side, const vmsegptridx_t con_seg, const int con_side, const vertnum_t abs_id1, const vertnum_t abs_id2, const int uv_only_flag)
 {
-	int		base_common_side,con_common_side;
-
 	Assert ((uv_only_flag == -1) || (uv_only_flag == 0) || (uv_only_flag == 1));
 
 	// Set base_common_side = side in base_seg which contains edge abs_id1:abs_id2
 	// Set con_common_side = side in con_seg which contains edge abs_id1:abs_id2
-	if (base_seg != con_seg)
-		get_side_ids(base_seg, con_seg, base_side, con_side, abs_id1, abs_id2, &base_common_side, &con_common_side);
-	else {
-		base_common_side = base_side;
-		con_common_side = con_side;
-	}
+	const auto [base_common_side, con_common_side] = get_side_ids(base_seg, con_seg, base_side, con_side, abs_id1, abs_id2);
 
 	// Now, all faces in con_seg which are on side con_common_side get their tmap_num set to whatever tmap is assigned
 	// to whatever face I find which is on side base_common_side.
