@@ -168,7 +168,7 @@ static unsigned get_tunnel_length(fvcsegptridx &vcsegptridx, const vcsegptridx_t
 		const vcsegidx_t old_segidx = seg;
 		seg = vcsegptridx(child);
 		const auto entry_side = matt_find_connect_side(seg, old_segidx);
-		if (entry_side >= Side_opposite.size())
+		if (!Side_opposite.valid_index(entry_side))
 			return 0;
 		exit_side = Side_opposite[entry_side];
 	}

@@ -49,7 +49,7 @@ static vmsegptridx_t get_any_attached_segment(const vmsegptridx_t curseg_num, co
 }
 
 [[nodiscard]]
-static vmsegptridx_t get_previous_segment(const vmsegptridx_t curseg_num, const uint_fast32_t curside)
+static vmsegptridx_t get_previous_segment(const vmsegptridx_t curseg_num, const sidenum_t curside)
 {
 	const auto side_child = curseg_num->children[Side_opposite[curside]];
 	if (IS_CHILD(side_child))
@@ -63,7 +63,7 @@ static vmsegptridx_t get_previous_segment(const vmsegptridx_t curseg_num, const 
 //	If there is a connection on the side opposite to the current side, then choose that segment.
 // If there is no connecting segment on the opposite face, try any segment.
 [[nodiscard]]
-static std::pair<vmsegptridx_t, sidenum_t> get_previous_segment_side(const vmsegptridx_t curseg_num, const uint_fast32_t curside)
+static std::pair<vmsegptridx_t, sidenum_t> get_previous_segment_side(const vmsegptridx_t curseg_num, const sidenum_t curside)
 {
 	const auto &newseg_num = get_previous_segment(curseg_num, curside);
 	// Now make Curside point at the segment we just left (unless we couldn't leave it).
