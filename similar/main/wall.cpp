@@ -563,8 +563,8 @@ void start_wall_cloak(const vmsegptridx_t seg, const sidenum_t side)
 		{
 			Int3();		//ran out of cloaking wall slots
 			w->type = WALL_OPEN;
-			if (const auto &&w1 = Walls.imptr(cwall_num))
-				w1->type = WALL_OPEN;
+			if (const auto &&w1 = Walls.vmptr.check_untrusted(cwall_num))
+				(*w1)->type = WALL_OPEN;
 			return;
 		}
 		CloakingWalls.set_count(c + 1);
