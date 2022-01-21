@@ -202,6 +202,7 @@ struct kmatrix_window : window
 	}
 	grs_main_bitmap background;
 	fix64 end_time = -1;
+	fix64 last_endlevel_time = 0;
 	kmatrix_network network;
 	kmatrix_result &result;
 };
@@ -414,6 +415,13 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 #endif
 				if (playing != kmatrix_status_mode::mission_finished)
 					return window_event_result::close;
+			}
+
+			// If Control_center_destroyed is still true this is handled by do_protocol_frame
+			if (timer_query() >= last_endlevel_time + F1_0 && !LevelUniqueObjectState.ControlCenterState.Control_center_destroyed)
+			{
+				last_endlevel_time = timer_query();
+				multi::dispatch->send_endlevel_packet();
 			}
 
 			kmatrix_status_msg(*grd_curcanv, playing == kmatrix_status_mode::reactor_countdown_running ? LevelUniqueControlCenterState.Countdown_seconds_left : f2i(end_time - timer_query()), playing);
