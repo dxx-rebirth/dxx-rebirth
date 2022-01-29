@@ -1479,11 +1479,13 @@ static void terminate_handler()
 		if self.user_settings.opengles:
 			# GLES builds do not use the GL utility functions
 			return
-		if sys.platform == 'darwin':
-			# macOS provides these in a system framework, so this test always fails
-			return
-		ogllibs = self.platform_settings.ogllibs
-		self._check_system_library(context, header=['GL/glu.h'], main='''
+		else:
+			if sys.platform == 'darwin':
+				gllib_location = 'OpenGL/glu.h'
+			else:
+				gllib_location = 'GL/glu.h'
+			ogllibs = self.platform_settings.ogllibs
+			self._check_system_library(context, header=[gllib_location], main='''
 	gluPerspective(90.0,1.0,0.1,5000.0);
 	gluBuild2DMipmaps (GL_TEXTURE_2D, 0, 1, 1, 1, GL_UNSIGNED_BYTE, nullptr);
 ''', lib=ogllibs, testflags={'LIBS': ogllibs})
