@@ -835,9 +835,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
-	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	auto &vmobjptr = Objects.vmptr;
         playernum_t pnum = Player_num;
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) {
 		if ((Game_mode & GM_NETWORK) && adjust_cap)
@@ -872,18 +870,14 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 //--old-- 			segnum /= 2;
 
 		Net_create_loc = 0;
-		const auto &&objnum = call_object_create_egg(vmobjptr(vcplayerptr(pnum)->objnum), 1, powerup_type);
-
-		if (objnum == object_none)
-			return;
 
 		auto &vcvertptr = Vertices.vcptr;
 		const auto &&segnum = choose_drop_segment(LevelUniqueSegmentState.get_segments().vmptridx, vcvertptr, LevelUniqueWallSubsystemState.Walls.vcptr, pnum);
 		const auto &&new_pos = pick_random_point_in_seg(vcvertptr, segnum, std::minstd_rand(d_rand()));
+		const auto &&objnum = drop_powerup(Vclip, powerup_type, 1, {}, new_pos, segnum, true);
+		if (objnum == object_none)
+			return;
 		multi_send_create_powerup(powerup_type, segnum, objnum, new_pos);
-		objnum->pos = new_pos;
-		vm_vec_zero(objnum->mtype.phys_info.velocity);
-		obj_relink(vmobjptr, vmsegptr, objnum, segnum);
 
 		object_create_explosion(segnum, new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE );
 	}
