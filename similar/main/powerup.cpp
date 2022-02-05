@@ -381,9 +381,6 @@ int do_powerup(const vmobjptridx_t obj)
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
 	int used=0;
-#if defined(DXX_BUILD_DESCENT_I)
-	int vulcan_ammo_to_add_with_cannon;
-#endif
 	int special_used=0;		//for when hitting vulcan cannon gets vulcan ammo
 
 	if (Player_dead_state != player_dead_state::no ||
@@ -490,66 +487,35 @@ int do_powerup(const vmobjptridx_t obj)
 			break;
 
 		case	POW_VULCAN_WEAPON:
-#if defined(DXX_BUILD_DESCENT_I)
-			if ((used = pick_up_primary(player_info, primary_weapon_index_t::VULCAN_INDEX)) != 0) {
-				vulcan_ammo_to_add_with_cannon = obj->ctype.powerup_info.count;
-				if (vulcan_ammo_to_add_with_cannon < VULCAN_WEAPON_AMMO_AMOUNT) vulcan_ammo_to_add_with_cannon = VULCAN_WEAPON_AMMO_AMOUNT;
-				pick_up_vulcan_ammo(player_info, vulcan_ammo_to_add_with_cannon);
-			}
-
-//added/edited 8/3/98 by Victor Rachels to fix vulcan multi bug
-//check if multi, if so, pick up ammo w/o using, set ammo left. else, normal
-
-//killed 8/27/98 by Victor Rachels to fix vulcan ammo multiplying.  new way
-// is by spewing the current held ammo when dead.
-//-killed                        if (!used && (Game_mode & GM_MULTI))
-//-killed                        {
-//-killed                         int tempcount;                          
-//-killed                           tempcount=Players[Player_num].primary_ammo[VULCAN_INDEX];
-//-killed                            if (pick_up_ammo(CLASS_PRIMARY, VULCAN_INDEX, obj->ctype.powerup_info.count))
-//-killed                             obj->ctype.powerup_info.count -= Players[Player_num].primary_ammo[VULCAN_INDEX]-tempcount;
-//-killed                        }
-//end kill - Victor Rachels
-
-			if (!used && !(Game_mode & GM_MULTI) )
-//end addition/edit - Victor Rachels
-				used = pick_up_vulcan_ammo(player_info);
-			break;
-#elif defined(DXX_BUILD_DESCENT_II)
-		case	POW_GAUSS_WEAPON: {
-			int ammo = obj->ctype.powerup_info.count;
-
-			used = pick_up_primary(player_info, (get_powerup_id(obj) == POW_VULCAN_WEAPON)
-				? primary_weapon_index_t::VULCAN_INDEX
-				: primary_weapon_index_t::GAUSS_INDEX
+#if defined(DXX_BUILD_DESCENT_II)
+		case	POW_GAUSS_WEAPON:
+#endif
+			{
+			used = pick_up_primary(player_info,
+#if defined(DXX_BUILD_DESCENT_II)
+									(id == POW_GAUSS_WEAPON)
+				? primary_weapon_index_t::GAUSS_INDEX
+				:
+#endif
+				primary_weapon_index_t::VULCAN_INDEX
 			);
-
-			//didn't get the weapon (because we already have it), but
-			//maybe snag some of the ammo.  if single-player, grab all the ammo
-			//and remove the powerup.  If multi-player take ammo in excess of
-			//the amount in a powerup, and leave the rest.
-			if (! used)
-				if ((Game_mode & GM_MULTI) )
-					ammo -= VULCAN_AMMO_AMOUNT;	//don't let take all ammo
-
-			if (ammo > 0) {
-				int ammo_used;
-				ammo_used = pick_up_vulcan_ammo(player_info, ammo);
+			if (const auto ammo_used = pick_up_vulcan_ammo(player_info, obj->ctype.powerup_info.count))
+			{
+				/* Even if the cannon is made empty, leave `used` set to
+				 * false, so that the cannon can remain in the mine.
+				 */
 				obj->ctype.powerup_info.count -= ammo_used;
-				if (!used && ammo_used) {
+				if (!used)
+				{
 					powerup_basic(7, 14, 21, VULCAN_AMMO_SCORE, "%s!", TXT_VULCAN_AMMO);
 					special_used = 1;
 					id = POW_VULCAN_AMMO;		//set new id for making sound at end of this function
-					if (obj->ctype.powerup_info.count == 0)
-						used = 1;		//say used if all ammo taken
                                         if (Game_mode & GM_MULTI)
                                                 multi_send_vulcan_weapon_ammo_adjust(obj); // let other players know how much ammo we took.
 				}
 			}
-
 			break;
 		}
-#endif
 
 		case	POW_SPREADFIRE_WEAPON:
 			used = pick_up_primary_or_energy(player_info, primary_weapon_index_t::SPREADFIRE_INDEX);

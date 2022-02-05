@@ -3840,7 +3840,6 @@ static void multi_do_drop_weapon(fvmobjptr &vmobjptr, const playernum_t pnum, co
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
 // We collected some ammo from a vulcan/gauss cannon powerup. Now we need to let everyone else know about its new ammo count.
 void multi_send_vulcan_weapon_ammo_adjust(const vmobjptridx_t objnum)
 {
@@ -3896,6 +3895,11 @@ static void multi_do_vulcan_weapon_ammo_adjust(fvmobjptr &vmobjptr, const uint8_
 	const auto ammo = GET_INTEL_SHORT(buf + 4);
 		obj->ctype.powerup_info.count = ammo;
 }
+
+}
+
+#if defined(DXX_BUILD_DESCENT_II)
+namespace {
 
 struct multi_guided_info
 {
@@ -5768,10 +5772,10 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 		case MULTI_DROP_WEAPON:
 			multi_do_drop_weapon(vmobjptr, pnum, buf);
 			break;
-#if defined(DXX_BUILD_DESCENT_II)
 		case MULTI_VULWPN_AMMO_ADJ:
 			multi_do_vulcan_weapon_ammo_adjust(vmobjptr, buf);
 			break;
+#if defined(DXX_BUILD_DESCENT_II)
 		case MULTI_SOUND_FUNCTION:
 			multi_do_sound_function(pnum, buf); break;
 		case MULTI_MARKER:

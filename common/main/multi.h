@@ -108,7 +108,7 @@ enum class network_game_type : uint8_t
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION	static_cast<uint16_t>(12)
+#define MULTI_PROTO_VERSION	static_cast<uint16_t>(13)
 // PROTOCOL VARIABLES AND DEFINES - END
 
 // limits for Packets (i.e. positional updates) per sec
@@ -488,7 +488,6 @@ void multi_send_guided_info (const object_base &miss, char);
 void multi_send_orb_bonus(playernum_t pnum, uint8_t);
 void multi_send_got_orb(playernum_t pnum);
 void multi_send_effect_blowup(vcsegidx_t segnum, unsigned side, const vms_vector &pnt);
-void multi_send_vulcan_weapon_ammo_adjust(const vmobjptridx_t objnum);
 #ifndef RELEASE
 void multi_add_lifetime_kills(int count);
 #endif
@@ -500,6 +499,7 @@ void multi_consistency_error(int reset);
 window_event_result multi_level_sync();
 #ifdef dsx
 namespace dsx {
+void multi_send_vulcan_weapon_ammo_adjust(const vmobjptridx_t objnum);
 void multi_send_hostage_door_status(vcwallptridx_t wallnum);
 void multi_prep_level_objects(const d_powerup_info_array &Powerup_info, const d_vclip_array &Vclip);
 void multi_prep_level_player();

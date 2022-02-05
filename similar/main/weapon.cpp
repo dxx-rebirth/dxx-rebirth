@@ -1192,6 +1192,7 @@ int pick_up_vulcan_ammo(player_info &player_info, uint_fast32_t ammo_count, cons
 		: (plr_vulcan_ammo = max, amount_can_add);
 
 	if (change_weapon &&
+		plr_vulcan_ammo &&
 		!old_ammo)
 		maybe_autoselect_vulcan_weapon(player_info);
 	return used;	//return amount used
