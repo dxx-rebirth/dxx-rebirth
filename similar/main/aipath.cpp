@@ -766,8 +766,9 @@ void create_path_to_segment(const vmobjptridx_t objp, segnum_t goalseg, const un
 //			Point_segs_free_ptr				global pointer into Point_segs array
 void create_path_to_station(const vmobjptridx_t objp, int max_length)
 {
-	ai_static	*aip = &objp->ctype.ai_info;
-	ai_local		*ailp = &objp->ctype.ai_info.ail;
+	auto &obj = *objp;
+	ai_static *const aip = &obj.ctype.ai_info;
+	ai_local *const ailp = &obj.ctype.ai_info.ail;
 
 	if (max_length == -1)
 		max_length = MAX_DEPTH_TO_SEARCH_FOR_PLAYER;
@@ -775,7 +776,7 @@ void create_path_to_station(const vmobjptridx_t objp, int max_length)
 	ailp->time_player_seen = GameTime64;			//	Prevent from resetting path quickly.
 
 	segnum_t			start_seg, end_seg;
-	start_seg = objp->segnum;
+	start_seg = obj.segnum;
 	end_seg = aip->hide_segment;
 
 	if (end_seg == segment_none) {
