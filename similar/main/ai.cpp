@@ -758,35 +758,37 @@ static void ai_turn_randomly(const vms_vector &vec_to_player, object_base &obj, 
 //	NOTE: Will destructively modify *pos if *pos is outside the mine.
 player_visibility_state player_is_visible_from_object(const vmobjptridx_t objp, vms_vector &pos, const fix field_of_view, const vms_vector &vec_to_player)
 {
+	auto &obj = *objp;
 	fix			dot;
 	fvi_query	fq;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Assume that robot's gun tip is in same segment as robot's center.
-	if (objp->control_source == object::control_type::ai)
-		objp->ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_GUNSEG;
+	if (obj.control_source == object::control_type::ai)
+		obj.ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_GUNSEG;
 #endif
 
 	fq.p0						= &pos;
-	if ((pos.x != objp->pos.x) || (pos.y != objp->pos.y) || (pos.z != objp->pos.z)) {
+	if (pos.x != obj.pos.x || pos.y != obj.pos.y || pos.z != obj.pos.z)
+	{
 		auto &Segments = LevelSharedSegmentState.get_segments();
-		const auto &&segnum = find_point_seg(LevelSharedSegmentState, pos, Segments.vcptridx(objp->segnum));
+		const auto &&segnum = find_point_seg(LevelSharedSegmentState, pos, Segments.vcptridx(obj.segnum));
 		if (segnum == segment_none) {
-			fq.startseg = objp->segnum;
-			pos = objp->pos;
-			move_towards_segment_center(LevelSharedSegmentState, objp);
+			fq.startseg = obj.segnum;
+			pos = obj.pos;
+			move_towards_segment_center(LevelSharedSegmentState, obj);
 		} else
 		{
 #if defined(DXX_BUILD_DESCENT_II)
-			if (segnum != objp->segnum) {
-				if (objp->control_source == object::control_type::ai)
-					objp->ctype.ai_info.SUB_FLAGS |= SUB_FLAGS_GUNSEG;
+			if (segnum != obj.segnum) {
+				if (obj.control_source == object::control_type::ai)
+					obj.ctype.ai_info.SUB_FLAGS |= SUB_FLAGS_GUNSEG;
 			}
 #endif
 			fq.startseg = segnum;
 		}
 	} else
-		fq.startseg			= objp->segnum;
+		fq.startseg			= obj.segnum;
 	fq.p1						= &Believed_player_pos;
 	fq.rad					= F1_0/4;
 	fq.thisobjnum			= objp;
@@ -799,7 +801,7 @@ player_visibility_state player_is_visible_from_object(const vmobjptridx_t objp, 
 
 	if (Hit_type == HIT_NONE)
 	{
-		dot = vm_vec_dot(vec_to_player, objp->orient.fvec);
+		dot = vm_vec_dot(vec_to_player, obj.orient.fvec);
 		if (dot > field_of_view - (Overall_agitation << 9)) {
 			return player_visibility_state::visible_and_in_field_of_view;
 		} else {
