@@ -1857,7 +1857,7 @@ void move_towards_segment_center(const d_level_shared_segment_state &LevelShared
 //	Brains, avoid robots, companions can open doors.
 //	objp == NULL means treat as buddy.
 int ai_door_is_openable(
-	const vmobjptr_t objp,
+	object &obj,
 #if defined(DXX_BUILD_DESCENT_II)
 	const player_flags powerup_flags,
 #endif
@@ -1875,7 +1875,7 @@ int ai_door_is_openable(
 	auto &vcwallptr = Walls.vcptr;
 	auto &wall = *vcwallptr(wall_num);
 	//	The mighty console object can open all doors (for purposes of determining paths).
-	if (objp == ConsoleObject) {
+	if (&obj == ConsoleObject) {
 		const auto wt = wall.type;
 		if (wt == WALL_DOOR)
 		{
@@ -1885,7 +1885,7 @@ int ai_door_is_openable(
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
-	if ((get_robot_id(objp) == ROBOT_BRAIN) || (objp->ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM))
+	if (get_robot_id(obj) == ROBOT_BRAIN || obj.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM)
 	{
 
 		if (wall_num != wall_none)
@@ -1901,7 +1901,7 @@ int ai_door_is_openable(
 #elif defined(DXX_BUILD_DESCENT_II)
 	auto &WallAnims = GameSharedState.WallAnims;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	if (Robot_info[get_robot_id(objp)].companion)
+	if (Robot_info[get_robot_id(obj)].companion)
 	{
 		const auto wt = wall.type;
 		if (wall.flags & wall_flag::buddy_proof) {
@@ -1930,7 +1930,7 @@ int ai_door_is_openable(
 		//	If Buddy is returning to player, don't let him think he can get through triggered doors.
 		//	It's only valid to think that if the player is going to get him through.  But if he's
 		//	going to the player, the player is probably on the opposite side.
-		const ai_mode ailp_mode = objp->ctype.ai_info.ail.mode;
+		const ai_mode ailp_mode = obj.ctype.ai_info.ail.mode;
 
 		// -- if (Buddy_got_stuck) {
 		if (ailp_mode == ai_mode::AIM_GOTO_PLAYER) {
@@ -1969,7 +1969,9 @@ int ai_door_is_openable(
 				} else
 					return 1;
 		}
-	} else if ((get_robot_id(objp) == ROBOT_BRAIN) || (objp->ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM) || (objp->ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)) {
+	}
+	else if (get_robot_id(obj) == ROBOT_BRAIN || obj.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM || obj.ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
+	{
 		if (wall_num != wall_none)
 		{
 			const auto wt = wall.type;

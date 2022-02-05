@@ -191,7 +191,7 @@ void attempt_to_resume_path(vmobjptridx_t objp);
 // When a robot and a player collide, some robots attack!
 void do_ai_robot_hit_attack(vmobjptridx_t robot, vmobjptridx_t player, const vms_vector &collision_point);
 int ai_door_is_openable(
-	vmobjptr_t,
+	object &,
 #if defined(DXX_BUILD_DESCENT_II)
 	player_flags,
 #endif
