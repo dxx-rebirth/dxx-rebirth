@@ -540,7 +540,8 @@ int polish_path(const vmobjptridx_t objp, point_seg *psegs, int num_points)
 
 	//	Prevent the buddy from polishing his path twice in one tick, which can cause him to get hung up.  Pretty ugly, huh?
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	if (Robot_info[get_robot_id(objp)].companion)
+	auto &obj = *objp;
+	if (Robot_info[get_robot_id(obj)].companion)
 	{
 		if (d_tick_count == BuddyState.Last_buddy_polish_path_tick)
 			return num_points;
@@ -554,10 +555,10 @@ int polish_path(const vmobjptridx_t objp, point_seg *psegs, int num_points)
 		fvi_info		hit_data;
 		int			hit_type;
 	
-		fq.p0						= &objp->pos;
-		fq.startseg				= objp->segnum;
+		fq.p0						= &obj.pos;
+		fq.startseg				= obj.segnum;
 		fq.p1						= &psegs[i].point;
-		fq.rad					= objp->size;
+		fq.rad					= obj.size;
 		fq.thisobjnum			= objp;
 		fq.ignore_obj_list.first = nullptr;
 		fq.flags					= 0;
