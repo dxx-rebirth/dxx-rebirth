@@ -34,13 +34,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define	PARALLAX	0		//	If !0, then special debugging info for Parallax eyes only enabled.
 
-#ifdef __cplusplus
 #include "pstypes.h"
 #include "fwd-object.h"
 #include "fwd-segment.h"
 #ifdef dsx
 #include "countarray.h"
 #include "aistruct.h"
+#include "robot.h"
 #include "valptridx.h"
 #endif
 
@@ -218,7 +218,7 @@ static inline void force_dump_ai_objects_all(const char *msg)
 #endif
 
 namespace dsx {
-void start_boss_death_sequence(object &objp);
+void start_boss_death_sequence(d_level_unique_boss_state &BossUniqueState, const d_level_shared_robot_info_state::d_robot_info_array &Robot_info, object &objp);
 extern void ai_init_boss_for_ship(void);
 void init_ai_for_ship();
 
@@ -320,6 +320,4 @@ void player_follow_path(object &objp);
 void check_create_player_path();
 #endif
 }
-#endif
-
 #endif

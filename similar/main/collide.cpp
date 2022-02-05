@@ -1504,7 +1504,7 @@ int apply_damage_to_robot(const vmobjptridx_t robot, fix damage, objnum_t killer
 		}
 
 		if (robptr.boss_flag) {
-			start_boss_death_sequence(robot);	//do_controlcen_destroyed_stuff(NULL);
+			start_boss_death_sequence(LevelUniqueObjectState.BossState, LevelSharedRobotInfoState.Robot_info, robot);
 		}
 #if defined(DXX_BUILD_DESCENT_II)
 		else if (robptr.death_roll) {

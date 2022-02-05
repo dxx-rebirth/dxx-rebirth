@@ -963,7 +963,7 @@ int multi_explode_robot_sub(const vmobjptridx_t robot)
 
 	if (Robot_info[get_robot_id(robot)].boss_flag) {
 		if (!BossUniqueState.Boss_dying)
-			start_boss_death_sequence(robot);	
+			start_boss_death_sequence(LevelUniqueObjectState.BossState, LevelSharedRobotInfoState.Robot_info, robot);
 		else
 			return (0);
 	}
