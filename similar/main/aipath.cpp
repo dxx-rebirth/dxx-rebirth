@@ -656,14 +656,15 @@ void validate_all_paths(void)
 //			Point_segs_free_ptr				global pointer into Point_segs array
 void create_path_to_segment(const vmobjptridx_t objp, const unsigned max_length, const create_path_safety_flag safety_flag, const icsegidx_t goal_segment)
 {
-	ai_static	*aip = &objp->ctype.ai_info;
-	ai_local		*ailp = &objp->ctype.ai_info.ail;
+	auto &obj = *objp;
+	ai_static *const aip = &obj.ctype.ai_info;
+	ai_local *const ailp = &obj.ctype.ai_info.ail;
 
 	ailp->time_player_seen = GameTime64;			//	Prevent from resetting path quickly.
 	ailp->goal_segment = goal_segment;
 
 	segnum_t			start_seg;
-	start_seg = objp->segnum;
+	start_seg = obj.segnum;
 	const auto end_seg = goal_segment;
 
 	if (end_seg == segment_none) {
