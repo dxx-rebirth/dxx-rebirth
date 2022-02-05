@@ -531,7 +531,8 @@ static void boss_init_all_segments(const segment_array &Segments, const object &
 void init_ai_object(const vmobjptridx_t objp, ai_behavior behavior, const imsegidx_t hide_segment)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
-	ai_static	*const aip = &objp->ctype.ai_info;
+	auto &obj = *objp;
+	ai_static *const aip = &obj.ctype.ai_info;
 	ai_local		*const ailp = &aip->ail;
 
 	*ailp = {};
@@ -552,7 +553,7 @@ void init_ai_object(const vmobjptridx_t objp, ai_behavior behavior, const imsegi
 	}
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	auto &robptr = Robot_info[get_robot_id(objp)];
+	auto &robptr = Robot_info[get_robot_id(obj)];
 #if defined(DXX_BUILD_DESCENT_II)
 	if (robot_is_companion(robptr)) {
 		auto &BuddyState = LevelUniqueObjectState.BuddyState;
@@ -573,7 +574,7 @@ void init_ai_object(const vmobjptridx_t objp, ai_behavior behavior, const imsegi
 
 	// This is astonishingly stupid!  This routine gets called by matcens! KILL KILL KILL!!! Point_segs_free_ptr = Point_segs;
 
-	objp->mtype.phys_info.velocity = {};
+	obj.mtype.phys_info.velocity = {};
 	ailp->player_awareness_time = 0;
 	ailp->player_awareness_type = player_awareness_type_t::PA_NONE;
 	aip->GOAL_STATE = AIS_SRCH;
@@ -594,7 +595,7 @@ void init_ai_object(const vmobjptridx_t objp, ai_behavior behavior, const imsegi
 	else
 		aip->CLOAKED = 0;
 
-	objp->mtype.phys_info.flags |= (PF_BOUNCE | PF_TURNROLL);
+	obj.mtype.phys_info.flags |= (PF_BOUNCE | PF_TURNROLL);
 	
 	aip->REMOTE_OWNER = -1;
 
@@ -611,7 +612,7 @@ void init_ai_object(const vmobjptridx_t objp, ai_behavior behavior, const imsegi
 		)
 	{
 		BossUniqueState = {};
-		boss_init_all_segments(Segments, objp);
+		boss_init_all_segments(Segments, obj);
 	}
 }
 
