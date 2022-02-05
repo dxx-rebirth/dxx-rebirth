@@ -241,7 +241,7 @@ imsegptridx_t find_object_seg(const d_level_shared_segment_state &, d_level_uniq
 void fix_object_segs();
 
 // Drops objects contained in objp.
-imobjptridx_t object_create_robot_egg(object &objp);
+imobjptridx_t object_create_robot_egg(object_base &objp);
 imobjptridx_t object_create_robot_egg(int type, int id, int num, const vms_vector &init_vel, const vms_vector &pos, vmsegptridx_t segnum);
 
 // Interface to object_create_egg, puts count objects of type type, id

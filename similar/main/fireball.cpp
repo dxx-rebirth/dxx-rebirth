@@ -1270,7 +1270,7 @@ imobjptridx_t object_create_robot_egg(const int type, const int id, const int nu
 	return drop_robot_egg(type, id, num, init_vel, pos, segnum);
 }
 
-imobjptridx_t object_create_robot_egg(object &objp)
+imobjptridx_t object_create_robot_egg(object_base &objp)
 {
 	return object_create_robot_egg(objp.contains_type, objp.contains_id, objp.contains_count, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum));
 }
