@@ -61,6 +61,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dsx {
 static int multi_add_controlled_robot(vmobjptridx_t objnum, int agitation);
+namespace {
+void multi_drop_robot_powerups(object &objnum);
+}
 }
 static void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now);
 static void multi_send_release_robot(vmobjptridx_t objnum);
@@ -1279,13 +1282,17 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 	}
 }
 
-void multi_drop_robot_powerups(const vmobjptr_t del_obj)
+namespace dsx {
+
+namespace {
+
+void multi_drop_robot_powerups(object &del_obj)
 {
 	// Code to handle dropped robot powerups in network mode ONLY!
 
 	objnum_t egg_objnum = object_none;
 
-	if (del_obj->type != OBJ_ROBOT)
+	if (del_obj.type != OBJ_ROBOT)
 	{
 		Int3(); // dropping powerups for non-robot, Rob's fault
 		return;
@@ -1295,42 +1302,43 @@ void multi_drop_robot_powerups(const vmobjptr_t del_obj)
 
 	Net_create_loc = 0;
 
-	if (del_obj->contains_count > 0) { 
+	if (del_obj.contains_count > 0)
+	{
 		//	If dropping a weapon that the player has, drop energy instead, unless it's vulcan, in which case drop vulcan ammo.
-		if (del_obj->contains_type == OBJ_POWERUP) {
+		if (del_obj.contains_type == OBJ_POWERUP) {
 			maybe_replace_powerup_with_energy(del_obj);
-			if (!multi_powerup_is_allowed(del_obj->contains_id, Netgame.AllowedItems))
-				del_obj->contains_id=POW_SHIELD_BOOST;
+			if (!multi_powerup_is_allowed(del_obj.contains_id, Netgame.AllowedItems))
+				del_obj.contains_id = POW_SHIELD_BOOST;
 
 			// No key drops in non-coop games!
 			if (!(Game_mode & GM_MULTI_COOP)) {
-				if ((del_obj->contains_id >= POW_KEY_BLUE) && (del_obj->contains_id <= POW_KEY_GOLD))
-					del_obj->contains_count = 0;
+				if (del_obj.contains_id >= POW_KEY_BLUE && del_obj.contains_id <= POW_KEY_GOLD)
+					del_obj.contains_count = 0;
 			}
 		}
 		d_srand(1245L);
-		if (del_obj->contains_count > 0)
+		if (del_obj.contains_count > 0)
 			egg_objnum = object_create_robot_egg(del_obj);
 	}
 		
-	else if (del_obj->ctype.ai_info.REMOTE_OWNER == -1) // No random goodies for robots we weren't in control of
+	else if (del_obj.ctype.ai_info.REMOTE_OWNER == -1) // No random goodies for robots we weren't in control of
 		return;
 
 	else if (robptr.contains_count) {
 		d_srand(static_cast<fix>(timer_query()));
 		if (((d_rand() * 16) >> 15) < robptr.contains_prob) {
-			del_obj->contains_count = ((d_rand() * robptr.contains_count) >> 15) + 1;
-			del_obj->contains_type = robptr.contains_type;
-			del_obj->contains_id = robptr.contains_id;
-			if (del_obj->contains_type == OBJ_POWERUP)
+			del_obj.contains_count = ((d_rand() * robptr.contains_count) >> 15) + 1;
+			del_obj.contains_type = robptr.contains_type;
+			del_obj.contains_id = robptr.contains_id;
+			if (del_obj.contains_type == OBJ_POWERUP)
 			 {
 				maybe_replace_powerup_with_energy(del_obj);
-				if (!multi_powerup_is_allowed(del_obj->contains_id, Netgame.AllowedItems))
-					del_obj->contains_id=POW_SHIELD_BOOST;
+				if (!multi_powerup_is_allowed(del_obj.contains_id, Netgame.AllowedItems))
+					del_obj.contains_id = POW_SHIELD_BOOST;
 			 }
 		
 			d_srand(1245L);
-			if (del_obj->contains_count > 0)
+			if (del_obj.contains_count > 0)
 				egg_objnum = object_create_robot_egg(del_obj);
 		}
 	}
@@ -1341,12 +1349,13 @@ void multi_drop_robot_powerups(const vmobjptr_t del_obj)
 	}
 }
 
+}
+
 //	-----------------------------------------------------------------------------
 //	Robot *robot got whacked by player player_num and requests permission to do something about it.
 //	Note: This function will be called regardless of whether Game_mode is a multiplayer mode, so it
 //	should quick-out if not in a multiplayer mode.  On the other hand, it only gets called when a
 //	player or player weapon whacks a robot, so it happens rarely.
-namespace dsx {
 void multi_robot_request_change(const vmobjptridx_t robot, int player_num)
 {
 	if (!(Game_mode & GM_MULTI_ROBOTS))

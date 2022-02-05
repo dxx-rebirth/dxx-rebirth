@@ -59,7 +59,6 @@ namespace dsx {
 int multi_explode_robot_sub(vmobjptridx_t botnum);
 }
 #endif
-void multi_drop_robot_powerups(vmobjptr_t objnum);
 int multi_send_robot_frame(int sent);
 #ifdef dsx
 namespace dsx {
