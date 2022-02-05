@@ -13,9 +13,8 @@
 #pragma once
 
 #include "maths.h"
-
-#ifdef __cplusplus
 #include "fwd-object.h"
+#include "fwd-vclip.h"
 
 #ifdef dsx
 namespace dsx {
@@ -23,7 +22,7 @@ namespace dsx {
 static inline void detect_escort_goal_accomplished(const vmobjptridx_t &)
 {
 }
-static inline void drop_stolen_items (const vcobjptr_t &) {}
+static inline void drop_stolen_items (fvmsegptridx &, d_level_unique_object_state &, const d_vclip_array &, const object_base &) {}
 #elif defined(DXX_BUILD_DESCENT_II)
 #define GUIDEBOT_NAME_LEN 9
 struct netgame_info;
@@ -35,7 +34,7 @@ void set_escort_special_goal(d_unique_buddy_state &BuddyState, int key);
 void recreate_thief(uint8_t thief_id);
 void init_buddy_for_level(void);
 void invalidate_escort_goal(d_unique_buddy_state &);
-void drop_stolen_items (vcobjptr_t);
+void drop_stolen_items (fvmsegptridx &vmsegptridx, d_level_unique_object_state &LevelUniqueObjectState, const d_vclip_array &Vclip, const object_base &);
 unsigned check_warn_local_player_can_control_guidebot(fvcobjptr &vcobjptr, const d_unique_buddy_state &, const netgame_info &Netgame);
 
 enum escort_goal_t : uint8_t
@@ -69,6 +68,4 @@ enum escort_goal_t : uint8_t
 };
 #endif
 }
-#endif
-
 #endif

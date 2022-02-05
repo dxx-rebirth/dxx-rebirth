@@ -959,7 +959,7 @@ int multi_explode_robot_sub(const vmobjptridx_t robot)
 		multi_drop_robot_powerups(robot);
 	}
 	if (robot_is_thief(Robot_info[get_robot_id(robot)]))
-		drop_stolen_items(robot);
+		drop_stolen_items(vmsegptridx, LevelUniqueObjectState, Vclip, robot);
 
 	if (Robot_info[get_robot_id(robot)].boss_flag) {
 		if (!BossUniqueState.Boss_dying)

@@ -1842,15 +1842,15 @@ void init_thief_for_level(void)
 }
 
 // --------------------------------------------------------------------------------------------------------------
-void drop_stolen_items(const vcobjptr_t objp)
+void drop_stolen_items(fvmsegptridx &vmsegptridx, d_level_unique_object_state &LevelUniqueObjectState, const d_vclip_array &Vclip, const object_base &objp)
 {
 	auto &ThiefUniqueState = LevelUniqueObjectState.ThiefState;
-	const auto &&segp = vmsegptridx(objp->segnum);
+	const auto &&segp = vmsegptridx(objp.segnum);
 	range_for (auto &i, ThiefUniqueState.Stolen_items)
 	{
 		if (i != 255)
 		{
-			drop_powerup(Vclip, std::exchange(i, 255), 1, objp->mtype.phys_info.velocity, objp->pos, segp, true);
+			drop_powerup(Vclip, std::exchange(i, 255), 1, objp.mtype.phys_info.velocity, objp.pos, segp, true);
 		}
 	}
 
