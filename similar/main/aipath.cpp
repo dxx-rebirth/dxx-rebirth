@@ -285,7 +285,9 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 	validate_all_paths();
 #endif
 
-if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM)) {
+	auto &obj = *objp;
+	if (obj.type == OBJ_ROBOT && obj.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM)
+	{
 	random_flag = create_path_random_flag::random;
 	avoid_seg = ConsoleObject->segnum;
 	// Int3();
@@ -366,7 +368,7 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 #define AI_DOOR_OPENABLE_PLAYER_FLAGS	player_info.powerup_flags,
 			auto &player_info = get_local_plrobj().ctype.player_info;
 #endif
-			if ((WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, snum) & WALL_IS_DOORWAY_FLAG::fly) || ai_door_is_openable(objp, AI_DOOR_OPENABLE_PLAYER_FLAGS segp, snum))
+			if ((WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, snum) & WALL_IS_DOORWAY_FLAG::fly) || ai_door_is_openable(obj, AI_DOOR_OPENABLE_PLAYER_FLAGS segp, snum))
 #undef AI_DOOR_OPENABLE_PLAYER_FLAGS
 			{
 				const auto this_seg = segp.s.children[snum];
@@ -379,10 +381,10 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == ai_behavior::A
 	
 					const auto &&center_point = compute_center_point_on_side(vcvertptr, segp, snum);
 
-					fq.p0						= &objp->pos;
-					fq.startseg				= objp->segnum;
+					fq.p0						= &obj.pos;
+					fq.startseg				= obj.segnum;
 					fq.p1						= &center_point;
-					fq.rad					= objp->size;
+					fq.rad					= obj.size;
 					fq.thisobjnum			= objp;
 					fq.ignore_obj_list.first = nullptr;
 					fq.flags					= 0;
@@ -506,8 +508,8 @@ cpp_done1: ;
 //	into a new segment.  It is not necessarily bad, but it makes it hard to track down actual
 //	discontinuity problems.
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	if (objp->type == OBJ_ROBOT)
-		if (Robot_info[get_robot_id(objp)].companion)
+	if (obj.type == OBJ_ROBOT)
+		if (Robot_info[get_robot_id(obj)].companion)
 			move_towards_outside(LevelSharedSegmentState, original_psegs, l_num_points, objp, create_path_random_flag::nonrandom);
 #endif
 
