@@ -817,17 +817,18 @@ void create_path_to_station(const vmobjptridx_t objp, int max_length)
 //	Create a path of length path_length for an object, stuffing info in ai_info field.
 void create_n_segment_path(const vmobjptridx_t objp, unsigned path_length, const imsegidx_t avoid_seg)
 {
-	ai_static	*aip=&objp->ctype.ai_info;
-	ai_local		*ailp = &objp->ctype.ai_info.ail;
+	auto &obj = *objp;
+	ai_static *const aip = &obj.ctype.ai_info;
+	ai_local *const ailp = &obj.ctype.ai_info.ail;
 
-	const auto &&cr0 = create_path_points(objp, objp->segnum, segment_exit, Point_segs_free_ptr, path_length, create_path_random_flag::random, create_path_safety_flag::unsafe, avoid_seg);
+	const auto &&cr0 = create_path_points(objp, obj.segnum, segment_exit, Point_segs_free_ptr, path_length, create_path_random_flag::random, create_path_safety_flag::unsafe, avoid_seg);
 	aip->path_length = cr0.second;
 	if (cr0.first == create_path_result::early)
 	{
 		Point_segs_free_ptr += aip->path_length;
 		for (;;)
 		{
-			const auto &&crf = create_path_points(objp, objp->segnum, segment_exit, Point_segs_free_ptr, --path_length, create_path_random_flag::random, create_path_safety_flag::unsafe, segment_none);
+			const auto &&crf = create_path_points(objp, obj.segnum, segment_exit, Point_segs_free_ptr, --path_length, create_path_random_flag::random, create_path_safety_flag::unsafe, segment_none);
 			aip->path_length = crf.second;
 			if (crf.first != create_path_result::early)
 				break;
