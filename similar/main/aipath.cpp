@@ -958,17 +958,17 @@ static void create_path(const vmobjptridx_t objp)
 //	Optimization: If current velocity will take robot near goal, don't change velocity
 void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state player_visibility, const vms_vector *const vec_to_player)
 {
-	ai_static		*aip = &objp->ctype.ai_info;
+	auto &obj = *objp;
+	ai_static *const aip = &obj.ctype.ai_info;
 
 	vms_vector	goal_point, new_goal_point;
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	auto &robptr = Robot_info[get_robot_id(objp)];
+	auto &robptr = Robot_info[get_robot_id(obj)];
 #endif
 	int			forced_break, original_dir, original_index;
-	ai_local		*ailp = &objp->ctype.ai_info.ail;
-
+	ai_local *const ailp = &obj.ctype.ai_info.ail;
 
 	if ((aip->hide_index == -1) || (aip->path_length == 0))
 	{
@@ -1003,7 +1003,7 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 		if ((aip->behavior == ai_behavior::AIB_SNIPE) || (ailp->mode == ai_mode::AIM_RUN_FROM_OBJECT))
 #endif
 		{
-			create_n_segment_path(objp, AVOID_SEG_LENGTH, ConsoleObject->segnum == objp->segnum ? segment_none : ConsoleObject->segnum);			//	Can't avoid segment player is in, robot is already in it! (That's what the -1 is for)
+			create_n_segment_path(objp, AVOID_SEG_LENGTH, ConsoleObject->segnum == obj.segnum ? segment_none : ConsoleObject->segnum);			//	Can't avoid segment player is in, robot is already in it! (That's what the -1 is for)
 				//--Int3_if((aip->path_length != 0));
 #if defined(DXX_BUILD_DESCENT_II)
 			if (aip->behavior == ai_behavior::AIB_SNIPE) {
@@ -1039,7 +1039,7 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 #endif
 
 	goal_point = Point_segs[aip->hide_index + aip->cur_path_index].point;
-	auto dist_to_goal = vm_vec_dist_quick(goal_point, objp->pos);
+	auto dist_to_goal = vm_vec_dist_quick(goal_point, obj.pos);
 
 	//	If running from player, only run until can't be seen.
 	if (ailp->mode == ai_mode::AIM_RUN_FROM_OBJECT) {
@@ -1051,7 +1051,7 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 			if (vel_scale < F1_0/2)
 				vel_scale = F1_0/2;
 
-			vm_vec_scale(objp->mtype.phys_info.velocity, vel_scale);
+			vm_vec_scale(obj.mtype.phys_info.velocity, vel_scale);
 
 			return;
 		} else
@@ -1067,7 +1067,7 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 			//	This is probably being done every frame, which is wasteful.
 			for (i=aip->cur_path_index; i<aip->path_length; i++) {
 				if (curpsp[i].segnum == player_segnum) {
-					create_n_segment_path(objp, AVOID_SEG_LENGTH, player_segnum != objp->segnum ? player_segnum : segment_none);
+					create_n_segment_path(objp, AVOID_SEG_LENGTH, player_segnum != obj.segnum ? player_segnum : segment_none);
 #if defined(DXX_BUILD_DESCENT_I)
 					Assert(aip->path_length != 0);
 #endif
@@ -1103,7 +1103,7 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 	forced_break = 0;		//	Gets set for short paths.
 	original_dir = aip->PATH_DIR;
 	original_index = aip->cur_path_index;
-	const vm_distance threshold_distance{fixmul(vm_vec_mag_quick(objp->mtype.phys_info.velocity), FrameTime)*2 + F1_0*2};
+	const vm_distance threshold_distance{fixmul(vm_vec_mag_quick(obj.mtype.phys_info.velocity), FrameTime)*2 + F1_0*2};
 
 #if defined(DXX_BUILD_DESCENT_II)
 	new_goal_point = Point_segs[aip->hide_index + aip->cur_path_index].point;
@@ -1134,8 +1134,8 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 						return;
 					} else {
 						ailp->mode = ai_mode::AIM_WANDER;	//	Special buddy mode.
-						vm_vec_zero(objp->mtype.phys_info.velocity);
-						vm_vec_zero(objp->mtype.phys_info.rotvel);
+						obj.mtype.phys_info.velocity = {};
+						obj.mtype.phys_info.rotvel = {};
 						//!!Assert((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length));
 						return;
 					}
@@ -1211,10 +1211,10 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 
 				opposite_end_point = &Point_segs[aip->hide_index + opposite_end_index].point;
 
-				fq.p0						= &objp->pos;
-				fq.startseg				= objp->segnum;
+				fq.p0						= &obj.pos;
+				fq.startseg				= obj.segnum;
 				fq.p1						= opposite_end_point;
-				fq.rad					= objp->size;
+				fq.rad					= obj.size;
 				fq.thisobjnum			= objp;
 				fq.ignore_obj_list.first = nullptr;
 				fq.flags					= 0; 				//what about trans walls???
@@ -1236,7 +1236,7 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 		} else {
 			new_goal_point = Point_segs[aip->hide_index + aip->cur_path_index].point;
 			goal_point = new_goal_point;
-			dist_to_goal = vm_vec_dist_quick(goal_point, objp->pos);
+			dist_to_goal = vm_vec_dist_quick(goal_point, obj.pos);
 		}
 
 		//	If went all the way around to original point, in same direction, then get out of here!
