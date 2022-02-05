@@ -917,14 +917,14 @@ void create_n_segment_path_to_door(const vmobjptridx_t objp, const unsigned path
 //			Point_segs_free_ptr				global pointer into Point_segs array
 #if defined(DXX_BUILD_DESCENT_I)
 namespace {
+
 static void create_path(const vmobjptridx_t objp)
 {
-	ai_static	*aip = &objp->ctype.ai_info;
-	ai_local		*ailp = &objp->ctype.ai_info.ail;
-	segnum_t			start_seg, end_seg;
+	auto &obj = *objp;
+	ai_static *const aip = &obj.ctype.ai_info;
 
-	start_seg = objp->segnum;
-	end_seg = ailp->goal_segment;
+	const auto start_seg = obj.segnum;
+	const auto end_seg = obj.ctype.ai_info.ail.goal_segment;
 
 	if (end_seg == segment_none)
 		create_n_segment_path(objp, 3, segment_none);
