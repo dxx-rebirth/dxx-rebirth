@@ -1180,16 +1180,21 @@ int pick_up_vulcan_ammo(player_info &player_info, uint_fast32_t ammo_count, cons
 	if (old_ammo >= max)
 		return 0;
 
-	plr_vulcan_ammo += ammo_count;
+	const auto amount_can_add = max - old_ammo;
+	/* If the amount available will not exceed maximum, then add
+	 * everything and report the entire amount as used.
+	 * If the amount available would exceed maximum, set player's count
+	 * to maximum and report as used the delta between maximum and the
+	 * player's previous count (`old_ammo`).
+	 */
+	const auto used = (ammo_count < amount_can_add)
+		? (plr_vulcan_ammo += ammo_count, ammo_count)
+		: (plr_vulcan_ammo = max, amount_can_add);
 
-	if (plr_vulcan_ammo > max) {
-		ammo_count += (max - plr_vulcan_ammo);
-		plr_vulcan_ammo = max;
-	}
 	if (change_weapon &&
 		!old_ammo)
 		maybe_autoselect_vulcan_weapon(player_info);
-	return ammo_count;	//return amount used
+	return used;	//return amount used
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
