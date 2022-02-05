@@ -616,10 +616,6 @@ int do_powerup(const vmobjptridx_t obj)
 #endif
 		case	POW_VULCAN_AMMO:
 			used = pick_up_vulcan_ammo(player_info);
-#if defined(DXX_BUILD_DESCENT_I)
-			if (!used && !(Game_mode & GM_MULTI) )
-				used = pick_up_vulcan_ammo(player_info);
-#endif
 			break;
 		case	POW_HOMING_AMMO_1:
 			used = pick_up_secondary(player_info, HOMING_INDEX, 1, Controls);
