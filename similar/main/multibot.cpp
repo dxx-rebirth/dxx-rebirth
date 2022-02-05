@@ -112,7 +112,8 @@ int multi_can_move_robot(const vmobjptridx_t objnum, int agitation)
 	if (Player_dead_state == player_dead_state::exploded)
 		return 0;
 
-	if (objnum->type != OBJ_ROBOT)
+	auto &objrobot = *objnum;
+	if (objrobot.type != OBJ_ROBOT)
 	{
 #ifndef NDEBUG
 		Int3();
@@ -121,11 +122,11 @@ int multi_can_move_robot(const vmobjptridx_t objnum, int agitation)
 	}
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	if (Robot_info[get_robot_id(objnum)].boss_flag && BossUniqueState.Boss_dying)
+	if (Robot_info[get_robot_id(objrobot)].boss_flag && BossUniqueState.Boss_dying)
 		return 0;
-	else if (objnum->ctype.ai_info.REMOTE_OWNER == Player_num) // Already my robot!
+	else if (objrobot.ctype.ai_info.REMOTE_OWNER == Player_num) // Already my robot!
 	{
-		const auto slot_num = objnum->ctype.ai_info.REMOTE_SLOT_NUM;
+		const auto slot_num = objrobot.ctype.ai_info.REMOTE_SLOT_NUM;
 
       if ((slot_num < 0) || (slot_num >= MAX_ROBOTS_CONTROLLED))
 		 {
@@ -141,7 +142,7 @@ int multi_can_move_robot(const vmobjptridx_t objnum, int agitation)
 			return 1;
 		}
 	}
-	else if ((objnum->ctype.ai_info.REMOTE_OWNER != -1) || (agitation < MIN_TO_ADD))
+	else if (objrobot.ctype.ai_info.REMOTE_OWNER != -1 || agitation < MIN_TO_ADD)
 	{
 		if (agitation == ROBOT_FIRE_AGITATION) // Special case for firing at non-player
 		{
@@ -256,14 +257,15 @@ int multi_add_controlled_robot(const vmobjptridx_t objnum, int agitation)
 
 	// Try to add a new robot to the controlled list, return 1 if added, 0 if not.
 
+	auto &objrobot = *objnum;
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-   if (Robot_info[get_robot_id(objnum)].boss_flag) // this is a boss, so make sure he gets a slot
+   if (Robot_info[get_robot_id(objrobot)].boss_flag) // this is a boss, so make sure he gets a slot
 		agitation=(agitation*3)+Player_num;  
 #endif
-	if (objnum->ctype.ai_info.REMOTE_SLOT_NUM > 0)
+	if (objrobot.ctype.ai_info.REMOTE_SLOT_NUM > 0)
 	{
-		objnum->ctype.ai_info.REMOTE_SLOT_NUM -= 1;
+		objrobot.ctype.ai_info.REMOTE_SLOT_NUM -= 1;
 		return 0;
 	}
 
@@ -313,8 +315,8 @@ int multi_add_controlled_robot(const vmobjptridx_t objnum, int agitation)
 	multi_send_claim_robot(objnum);
 	robot_controlled[i] = objnum;
 	robot_agitation[i] = agitation;
-	objnum->ctype.ai_info.REMOTE_OWNER = Player_num;
-	objnum->ctype.ai_info.REMOTE_SLOT_NUM = i;
+	objrobot.ctype.ai_info.REMOTE_OWNER = Player_num;
+	objrobot.ctype.ai_info.REMOTE_SLOT_NUM = i;
 	robot_controlled_time[i] = GameTime64;
 	robot_last_send_time[i] = robot_last_message_time[i] = GameTime64;
 	return(1);
@@ -334,14 +336,15 @@ void multi_delete_controlled_robot(const vmobjptridx_t objnum)
 	if (i == MAX_ROBOTS_CONTROLLED)
 		return;
 
-	if (objnum->ctype.ai_info.REMOTE_SLOT_NUM != i)
+	auto &objrobot = *objnum;
+	if (objrobot.ctype.ai_info.REMOTE_SLOT_NUM != i)
 	 {
 	  Int3();  // can't release this bot!
 	  return;
 	 }
 
-	objnum->ctype.ai_info.REMOTE_OWNER = -1;
-	objnum->ctype.ai_info.REMOTE_SLOT_NUM = 0;
+	objrobot.ctype.ai_info.REMOTE_OWNER = -1;
+	objrobot.ctype.ai_info.REMOTE_SLOT_NUM = 0;
 	robot_controlled[i] = object_none;
 	robot_send_pending[i] = 0;
 	robot_fired[i] = 0;
@@ -929,11 +932,12 @@ int multi_explode_robot_sub(const vmobjptridx_t robot)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	if (robot->type != OBJ_ROBOT) { // Object is robot?
+	auto &objrobot = *robot;
+	if (objrobot.type != OBJ_ROBOT) { // Object is robot?
 		return 0;
 	}
 
-	if (robot->flags & OF_EXPLODING) { // Object not already exploding
+	if (objrobot.flags & OF_EXPLODING) { // Object not already exploding
 		return 0;
 	}
 
@@ -945,37 +949,37 @@ int multi_explode_robot_sub(const vmobjptridx_t robot)
 	}
 
 	// Drop non-random KEY powerups locally only!
-	if ((robot->contains_count > 0) && (robot->contains_type == OBJ_POWERUP) && (Game_mode & GM_MULTI_COOP) && (robot->contains_id >= POW_KEY_BLUE) && (robot->contains_id <= POW_KEY_GOLD))
+	if (objrobot.contains_count > 0 && objrobot.contains_type == OBJ_POWERUP && (Game_mode & GM_MULTI_COOP) && objrobot.contains_id >= POW_KEY_BLUE && objrobot.contains_id <= POW_KEY_GOLD)
 	{
-		object_create_robot_egg(robot);
+		object_create_robot_egg(objrobot);
 	}
-	else if (robot->ctype.ai_info.REMOTE_OWNER == Player_num) 
+	else if (objrobot.ctype.ai_info.REMOTE_OWNER == Player_num)
 	{
 		multi_drop_robot_powerups(robot);
 		multi_delete_controlled_robot(robot);
 	}
-	else if (robot->ctype.ai_info.REMOTE_OWNER == -1 && multi_i_am_master()) 
+	else if (objrobot.ctype.ai_info.REMOTE_OWNER == -1 && multi_i_am_master())
 	{
 		multi_drop_robot_powerups(robot);
 	}
-	if (robot_is_thief(Robot_info[get_robot_id(robot)]))
+	const auto robot_id = get_robot_id(objrobot);
+	if (robot_is_thief(Robot_info[robot_id]))
 		drop_stolen_items(vmsegptridx, LevelUniqueObjectState, Vclip, robot);
-
-	if (Robot_info[get_robot_id(robot)].boss_flag) {
+	else if (Robot_info[robot_id].boss_flag)
+	{
 		if (!BossUniqueState.Boss_dying)
 			start_boss_death_sequence(LevelUniqueObjectState.BossState, LevelSharedRobotInfoState.Robot_info, robot);
 		else
 			return (0);
 	}
 #if defined(DXX_BUILD_DESCENT_II)
-	else if (Robot_info[get_robot_id(robot)].death_roll) {
+	else if (Robot_info[robot_id].death_roll) {
 		start_robot_death_sequence(robot);
 	}
 #endif
 	else
 	{
 #if defined(DXX_BUILD_DESCENT_II)
-		const auto robot_id = get_robot_id(robot);
 		if (robot_id == SPECIAL_REACTOR_ROBOT)
 			special_reactor_stuff();
 		if (Robot_info[robot_id].kamikaze)
@@ -1360,16 +1364,17 @@ void multi_robot_request_change(const vmobjptridx_t robot, int player_num)
 {
 	if (!(Game_mode & GM_MULTI_ROBOTS))
 		return;
+	auto &objrobot = *robot;
 #if defined(DXX_BUILD_DESCENT_I)
-	if (robot->ctype.ai_info.REMOTE_OWNER != Player_num)
+	if (objrobot.ctype.ai_info.REMOTE_OWNER != Player_num)
 		return;
 #endif
 
-	const auto slot = robot->ctype.ai_info.REMOTE_SLOT_NUM;
+	const auto slot = objrobot.ctype.ai_info.REMOTE_SLOT_NUM;
 
 	if (slot == HANDS_OFF_PERIOD)
 	{
-		con_printf(CON_DEBUG, "Suppressing debugger trap for hands off robot %hu with player %i", static_cast<vmobjptridx_t::integral_type>(robot), player_num);
+		con_printf(CON_DEBUG, "Suppressing debugger trap for hands off robot %hu with player %i", robot.get_unchecked_index(), player_num);
 		return;
 	}
 	if ((slot < 0) || (slot >= MAX_ROBOTS_CONTROLLED)) {
@@ -1388,7 +1393,7 @@ void multi_robot_request_change(const vmobjptridx_t robot, int player_num)
 		if (robot_send_pending[slot])
 			multi_send_robot_position(rcrobot, -1);
 		multi_send_release_robot(rcrobot);
-		robot->ctype.ai_info.REMOTE_SLOT_NUM = HANDS_OFF_PERIOD;  // Hands-off period
+		objrobot.ctype.ai_info.REMOTE_SLOT_NUM = HANDS_OFF_PERIOD;  // Hands-off period
 	}
 }
 
