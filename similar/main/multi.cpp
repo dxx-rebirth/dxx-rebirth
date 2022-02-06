@@ -379,11 +379,9 @@ owned_remote_objnum objnum_local_to_remote(objnum_t local_objnum)
 	return {owner, result};
 }
 
-void map_objnum_local_to_remote(const int local_objnum, const int remote_objnum, const int owner)
+void map_objnum_local_to_remote(const objnum_t local_objnum, const int remote_objnum, const int owner)
 {
 	// Add a mapping from a network remote object number to a local one
-
-	Assert(local_objnum > -1);
 	Assert(local_objnum < MAX_OBJECTS);
 	Assert(remote_objnum > -1);
 	Assert(remote_objnum < MAX_OBJECTS);
@@ -3830,12 +3828,11 @@ static void multi_do_drop_weapon(fvmobjptr &vmobjptr, const playernum_t pnum, co
 	remote_objnum = GET_INTEL_SHORT(buf + 2);
 	ammo = GET_INTEL_SHORT(buf + 4);
 	seed = GET_INTEL_INT(buf + 6);
-	const auto objnum = spit_powerup(Vclip, vmobjptr(vcplayerptr(pnum)->objnum), powerup_id, seed);
-
+	const auto &&objnum = spit_powerup(Vclip, vmobjptr(vcplayerptr(pnum)->objnum), powerup_id, seed);
+	if (objnum == object_none)
+		return;
+	objnum->ctype.powerup_info.count = ammo;
 	map_objnum_local_to_remote(objnum, remote_objnum, pnum);
-
-	if (objnum!=object_none)
-		objnum->ctype.powerup_info.count = ammo;
 }
 
 }
@@ -4484,7 +4481,6 @@ static void DropOrb ()
 	seed = d_rand();
 
 	const auto &&objnum = spit_powerup(Vclip, vmobjptr(ConsoleObject), POW_HOARD_ORB, seed);
-
 	if (objnum == object_none)
 		return;
 
@@ -4570,7 +4566,9 @@ static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 
 	const auto &&objp = vmobjptr(vcplayerptr(pnum)->objnum);
 
-	imobjidx_t objnum = spit_powerup(Vclip, objp, powerup_id, seed);
+	const imobjidx_t objnum = spit_powerup(Vclip, objp, powerup_id, seed);
+	if (objnum == object_none)
+		return;
 
 	map_objnum_local_to_remote(objnum, remote_objnum, pnum);
 	if (!game_mode_hoard())
