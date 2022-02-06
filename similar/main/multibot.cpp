@@ -1265,12 +1265,9 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 	Net_create_loc = 0;
 	d_srand(1245L);
 
-	const auto &&egg_objnum = object_create_robot_egg(contains_type, contains_id, contains_count, velocity, pos, vmsegptridx(segnum));
-
-	if (egg_objnum == object_none)
+	if (!object_create_robot_egg(contains_type, contains_id, contains_count, velocity, pos, vmsegptridx(segnum)))
 		return; // Object buffer full
 
-//	Assert(egg_objnum > -1);
 	Assert((Net_create_loc > 0) && (Net_create_loc <= MAX_ROBOT_POWERUPS));
 
 	range_for (const auto i, partial_const_range(Net_create_objnums, Net_create_loc))
@@ -1293,9 +1290,6 @@ namespace {
 void multi_drop_robot_powerups(object &del_obj)
 {
 	// Code to handle dropped robot powerups in network mode ONLY!
-
-	objnum_t egg_objnum = object_none;
-
 	if (del_obj.type != OBJ_ROBOT)
 	{
 		Int3(); // dropping powerups for non-robot, Rob's fault
@@ -1306,6 +1300,7 @@ void multi_drop_robot_powerups(object &del_obj)
 
 	Net_create_loc = 0;
 
+	bool created = false;
 	if (del_obj.contains_count > 0)
 	{
 		//	If dropping a weapon that the player has, drop energy instead, unless it's vulcan, in which case drop vulcan ammo.
@@ -1322,7 +1317,7 @@ void multi_drop_robot_powerups(object &del_obj)
 		}
 		d_srand(1245L);
 		if (del_obj.contains_count > 0)
-			egg_objnum = object_create_robot_egg(del_obj);
+			created = object_create_robot_egg(del_obj);
 	}
 		
 	else if (del_obj.ctype.ai_info.REMOTE_OWNER == -1) // No random goodies for robots we weren't in control of
@@ -1343,14 +1338,12 @@ void multi_drop_robot_powerups(object &del_obj)
 		
 			d_srand(1245L);
 			if (del_obj.contains_count > 0)
-				egg_objnum = object_create_robot_egg(del_obj);
+				created = object_create_robot_egg(del_obj);
 		}
 	}
-
-	if (egg_objnum != object_none) {
+	if (created)
 		// Transmit the object creation to the other players	 	
 		multi_send_create_robot_powerups(del_obj);
-	}
 }
 
 }
