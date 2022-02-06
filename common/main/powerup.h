@@ -109,7 +109,7 @@ constexpr std::integral_constant<unsigned, 29> MAX_POWERUP_TYPES{};
 constexpr std::integral_constant<unsigned, 50> MAX_POWERUP_TYPES{};
 #endif
 #define VULCAN_WEAPON_AMMO_AMOUNT   196
-#define VULCAN_AMMO_AMOUNT          (49*2)
+constexpr uint16_t VULCAN_AMMO_AMOUNT = 49*2;
 
 #if DXX_USE_EDITOR
 using powerup_names_array = std::array<std::array<char, POWERUP_NAME_LENGTH>, MAX_POWERUP_TYPES>;

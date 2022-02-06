@@ -81,6 +81,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 using std::min;
 
+#if defined(DXX_BUILD_DESCENT_I)
+constexpr auto HAS_VULCAN_AND_GAUSS_FLAGS = HAS_VULCAN_FLAG;
+#elif defined(DXX_BUILD_DESCENT_II)
+constexpr auto HAS_VULCAN_AND_GAUSS_FLAGS = HAS_VULCAN_FLAG | HAS_GAUSS_FLAG;
+#endif
+
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 namespace {
@@ -1891,6 +1897,34 @@ static void maybe_drop_secondary_weapon_egg(const object_base &playerobj, const 
 			call_object_create_egg(playerobj, 1, powerup_num);
 }
 
+static void maybe_drop_primary_vulcan_based_weapon(const object &playerobj, const primary_weapon_index_t weapon_index, const uint16_t ammo)
+{
+	const auto objnum = maybe_drop_primary_weapon_egg(playerobj, weapon_index);
+	if (objnum != object_none)
+		//make sure gun has at least as much as a powerup
+		objnum->ctype.powerup_info.count = std::max(ammo, VULCAN_AMMO_AMOUNT);
+}
+
+static void maybe_drop_primary_vulcan_weapons(const object &playerobj)
+{
+	auto &player_info = playerobj.ctype.player_info;
+	const auto total_vulcan_ammo = player_info.vulcan_ammo;
+	auto vulcan_ammo = total_vulcan_ammo;
+#if defined(DXX_BUILD_DESCENT_II)
+	auto gauss_ammo = vulcan_ammo;
+	if ((player_info.primary_weapon_flags & HAS_VULCAN_AND_GAUSS_FLAGS) == HAS_VULCAN_AND_GAUSS_FLAGS)
+	{
+		//if both vulcan & gauss, each gets half
+		vulcan_ammo /= 2;
+		gauss_ammo -= vulcan_ammo;
+	}
+#endif
+	maybe_drop_primary_vulcan_based_weapon(playerobj, primary_weapon_index_t::VULCAN_INDEX, vulcan_ammo);
+#if defined(DXX_BUILD_DESCENT_II)
+	maybe_drop_primary_vulcan_based_weapon(playerobj, primary_weapon_index_t::GAUSS_INDEX, gauss_ammo);
+#endif
+}
+
 static void drop_missile_1_or_4(const object &playerobj, const secondary_weapon_index_t missile_index)
 {
 	unsigned num_missiles = playerobj.ctype.player_info.secondary_ammo[missile_index];
@@ -2029,24 +2063,7 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 #endif
 
 		//Drop the vulcan, gauss, and ammo
-		auto vulcan_ammo = playerobj->ctype.player_info.vulcan_ammo;
-#if defined(DXX_BUILD_DESCENT_I)
-		const auto HAS_VULCAN_AND_GAUSS_FLAGS = HAS_VULCAN_FLAG;
-#elif defined(DXX_BUILD_DESCENT_II)
-		const auto HAS_VULCAN_AND_GAUSS_FLAGS = HAS_VULCAN_FLAG | HAS_GAUSS_FLAG;
-		if ((player_info.primary_weapon_flags & HAS_VULCAN_AND_GAUSS_FLAGS) == HAS_VULCAN_AND_GAUSS_FLAGS)
-			vulcan_ammo /= 2;		//if both vulcan & gauss, each gets half
-#endif
-		if (vulcan_ammo < VULCAN_AMMO_AMOUNT)
-			vulcan_ammo = VULCAN_AMMO_AMOUNT;	//make sure gun has at least as much as a powerup
-		auto objnum = maybe_drop_primary_weapon_egg(playerobj, primary_weapon_index_t::VULCAN_INDEX);
-		if (objnum!=object_none)
-			objnum->ctype.powerup_info.count = vulcan_ammo;
-#if defined(DXX_BUILD_DESCENT_II)
-		objnum = maybe_drop_primary_weapon_egg(playerobj, primary_weapon_index_t::GAUSS_INDEX);
-		if (objnum!=object_none)
-			objnum->ctype.powerup_info.count = vulcan_ammo;
-#endif
+		maybe_drop_primary_vulcan_weapons(playerobj);
 
 		//	Drop the rest of the primary weapons
 		maybe_drop_primary_weapon_egg(playerobj, primary_weapon_index_t::SPREADFIRE_INDEX);
@@ -2057,8 +2074,7 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 		maybe_drop_primary_weapon_egg(playerobj, primary_weapon_index_t::HELIX_INDEX);
 		maybe_drop_primary_weapon_egg(playerobj, primary_weapon_index_t::PHOENIX_INDEX);
 
-		objnum = maybe_drop_primary_weapon_egg(playerobj, primary_weapon_index_t::OMEGA_INDEX);
-		if (objnum!=object_none)
+		if (const auto objnum = maybe_drop_primary_weapon_egg(playerobj, primary_weapon_index_t::OMEGA_INDEX); objnum != object_none)
 			objnum->ctype.powerup_info.count = (get_player_id(playerobj) == Player_num) ? playerobj->ctype.player_info.Omega_charge : MAX_OMEGA_CHARGE;
 #endif
 
