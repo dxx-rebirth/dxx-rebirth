@@ -341,7 +341,7 @@ netplayer_info::player_rank GetMyNetRanking()
 //  Functions that replace what used to be macros
 //
 
-objnum_t objnum_remote_to_local(uint16_t remote_objnum, int8_t owner)
+objnum_t objnum_remote_to_local(const uint16_t remote_objnum, const int8_t owner)
 {
 	if (owner == owner_none)
 		return(remote_objnum);
@@ -2221,7 +2221,6 @@ static void multi_do_play_sound(object_array &Objects, const playernum_t pnum, c
 	const uint8_t once = buf[3];
 	const fix volume = GET_INTEL_INT(&buf[4]);
 
-	assert(plr.objnum <= Highest_object_index);
 	const auto objnum = plr.objnum;
 	digi_link_sound_to_object(sound_num, vcobjptridx(objnum), 0, volume, static_cast<sound_stack>(once));
 }

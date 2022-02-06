@@ -1713,7 +1713,7 @@ static int save_game_data(
 
 #define WRITE_HEADER_ENTRY(t, n) do { PHYSFS_writeSLE32(SaveFile, -1); PHYSFS_writeSLE32(SaveFile, n); PHYSFS_writeSLE32(SaveFile, sizeof(t)); } while(0)
 
-	WRITE_HEADER_ENTRY(object, Highest_object_index + 1);
+	WRITE_HEADER_ENTRY(object, Objects.get_count());
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	WRITE_HEADER_ENTRY(wall, Walls.get_count());
 	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;

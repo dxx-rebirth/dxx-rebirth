@@ -668,7 +668,7 @@ void write_game_text_file(const char *filename)
 	say_totals(vcobjptridx, my_file, filename);
 
 	PHYSFSX_printf(my_file, "\nNumber of segments:   %4i\n", Highest_segment_index+1);
-	PHYSFSX_printf(my_file, "Number of objects:    %4i\n", Highest_object_index+1);
+	PHYSFSX_printf(my_file, "Number of objects:    %4i\n", Objects.get_count());
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptridx = Walls.vcptridx;
 	PHYSFSX_printf(my_file, "Number of walls:      %4i\n", Walls.get_count());

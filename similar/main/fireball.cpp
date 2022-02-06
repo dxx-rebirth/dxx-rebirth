@@ -621,17 +621,12 @@ void explode_badass_player(const vmobjptridx_t objp)
 
 static void object_create_debris(fvmsegptridx &vmsegptridx, const object_base &parent, int subobj_num)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
 	Assert(parent.type == OBJ_ROBOT || parent.type == OBJ_PLAYER);
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const auto &&obj = obj_create(OBJ_DEBRIS, 0, vmsegptridx(parent.segnum), parent.pos, &parent.orient, Polygon_models[parent.rtype.pobj_info.model_num].submodel_rads[subobj_num],
 				object::control_type::debris, object::movement_type::physics, RT_POLYOBJ);
 
-	if ((obj == object_none ) && (Highest_object_index >= MAX_OBJECTS-1)) {
-//		Int3(); // this happens often and is normal :-)
-		return;
-	}
 	if ( obj == object_none )
 		return;				// Not enough debris slots!
 
