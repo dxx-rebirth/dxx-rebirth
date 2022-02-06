@@ -1837,18 +1837,18 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 	{
 		// Player is new to this game
 
-		if ( !(Netgame.game_flag.closed) && (N_players < Netgame.max_numplayers))
+		if (Netgame.game_flag.closed)
+		{
+			// Slots are open but game is closed
+			multi::udp::dispatch->kick_player(their->player.protocol.udp.addr, DUMP_CLOSED);
+			return;
+		}
+		if (N_players < Netgame.max_numplayers)
 		{
 			// Add player in an open slot, game not full yet
 
 			player_num = N_players;
 			Network_player_added = 1;
-		}
-		else if (Netgame.game_flag.closed)
-		{
-			// Slots are open but game is closed
-			multi::udp::dispatch->kick_player(their->player.protocol.udp.addr, DUMP_CLOSED);
-			return;
 		}
 		else
 		{
