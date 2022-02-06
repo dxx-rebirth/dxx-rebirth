@@ -1465,41 +1465,38 @@ imobjptridx_t spit_powerup(const d_vclip_array &Vclip, const object_base &spitte
 		}
 	}
 
-	const auto &&obj = obj_create(OBJ_POWERUP, id, vmsegptridx(spitter.segnum), new_pos, &vmd_identity_matrix, Powerup_info[id].size, object::control_type::powerup, object::movement_type::physics, RT_POWERUP);
+	const auto &&objp = obj_create(OBJ_POWERUP, id, vmsegptridx(spitter.segnum), new_pos, &vmd_identity_matrix, Powerup_info[id].size, object::control_type::powerup, object::movement_type::physics, RT_POWERUP);
 
-	if (obj == object_none)
-	{
-		Int3();
-		return object_none;
-	}
-	obj->mtype.phys_info.velocity = new_velocity;
-	obj->mtype.phys_info.drag = 512;	//1024;
-	obj->mtype.phys_info.mass = F1_0;
+	if (objp == object_none)
+		return objp;
+	auto &obj = *objp;
+	obj.mtype.phys_info.velocity = new_velocity;
+	obj.mtype.phys_info.drag = 512;	//1024;
+	obj.mtype.phys_info.mass = F1_0;
 
-	obj->mtype.phys_info.flags = PF_BOUNCE;
+	obj.mtype.phys_info.flags = PF_BOUNCE;
 
-	obj->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(obj)].vclip_num;
-	obj->rtype.vclip_info.frametime = Vclip[obj->rtype.vclip_info.vclip_num].frame_time;
-	obj->rtype.vclip_info.framenum = 0;
+	obj.rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(obj)].vclip_num;
+	obj.rtype.vclip_info.frametime = Vclip[obj.rtype.vclip_info.vclip_num].frame_time;
+	obj.rtype.vclip_info.framenum = 0;
 
 	if (&spitter == ConsoleObject)
-		obj->ctype.powerup_info.flags |= PF_SPAT_BY_PLAYER;
+		obj.ctype.powerup_info.flags |= PF_SPAT_BY_PLAYER;
 
-	switch (get_powerup_id(obj)) {
+	switch (id)
+	{
 		case POW_MISSILE_1:
 		case POW_MISSILE_4:
 		case POW_SHIELD_BOOST:
 		case POW_ENERGY:
-			obj->lifeleft = (d_rand() + F1_0*3) * 64;		//	Lives for 3 to 3.5 binary minutes (a binary minute is 64 seconds)
+			obj.lifeleft = (d_rand() + F1_0*3) * 64;		//	Lives for 3 to 3.5 binary minutes (a binary minute is 64 seconds)
 			if (Game_mode & GM_MULTI)
-				obj->lifeleft /= 2;
+				obj.lifeleft /= 2;
 			break;
 		default:
-			//if (Game_mode & GM_MULTI)
-			//	obj->lifeleft = (d_rand() + F1_0*3) * 64;		//	Lives for 5 to 5.5 binary minutes (a binary minute is 64 seconds)
 			break;
 	}
-	return obj;
+	return objp;
 }
 
 void DropCurrentWeapon (player_info &player_info)

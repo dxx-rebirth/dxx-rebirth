@@ -1884,7 +1884,7 @@ static imobjptridx_t maybe_drop_primary_weapon_egg(const object &playerobj, cons
 	const auto powerup_num = Primary_weapon_to_powerup[weapon_index];
 	auto &player_info = playerobj.ctype.player_info;
 	if (player_info.primary_weapon_flags & weapon_flag)
-		return call_object_create_egg(playerobj, 1, powerup_num);
+		return call_object_create_egg(playerobj, powerup_num);
 	else
 		return object_none;
 }
@@ -1894,7 +1894,7 @@ static void maybe_drop_secondary_weapon_egg(const object_base &playerobj, const 
 	const auto powerup_num = Secondary_weapon_to_powerup[weapon_index];
 		int max_count = min(count, 3);
 		for (int i=0; i<max_count; i++)
-			call_object_create_egg(playerobj, 1, powerup_num);
+			call_object_create_egg(playerobj, powerup_num);
 }
 
 static void maybe_drop_primary_vulcan_based_weapon(const object &playerobj, const primary_weapon_index_t weapon_index, const uint16_t ammo)
@@ -2025,32 +2025,32 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 
 		//	Drop quad laser if appropos
 		if (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS)
-			call_object_create_egg(playerobj, 1, POW_QUAD_FIRE);
+			call_object_create_egg(playerobj, POW_QUAD_FIRE);
 
 		if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)
-			call_object_create_egg(playerobj, 1, POW_CLOAK);
+			call_object_create_egg(playerobj, POW_CLOAK);
 
 #if defined(DXX_BUILD_DESCENT_II)
 		if (player_info.powerup_flags & PLAYER_FLAGS_MAP_ALL)
-			call_object_create_egg(playerobj, 1, POW_FULL_MAP);
+			call_object_create_egg(playerobj, POW_FULL_MAP);
 
 		if (player_info.powerup_flags & PLAYER_FLAGS_AFTERBURNER)
-			call_object_create_egg(playerobj, 1, POW_AFTERBURNER);
+			call_object_create_egg(playerobj, POW_AFTERBURNER);
 
 		if (player_info.powerup_flags & PLAYER_FLAGS_AMMO_RACK)
-			call_object_create_egg(playerobj, 1, POW_AMMO_RACK);
+			call_object_create_egg(playerobj, POW_AMMO_RACK);
 
 		if (player_info.powerup_flags & PLAYER_FLAGS_CONVERTER)
-			call_object_create_egg(playerobj, 1, POW_CONVERTER);
+			call_object_create_egg(playerobj, POW_CONVERTER);
 
 		if (player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT)
-			call_object_create_egg(playerobj, 1, POW_HEADLIGHT);
+			call_object_create_egg(playerobj, POW_HEADLIGHT);
 
 		// drop the other enemies flag if you have it
 
 		if (game_mode_capture_flag() && (player_info.powerup_flags & PLAYER_FLAGS_FLAG))
 		{
-			call_object_create_egg(playerobj, 1, get_team(get_player_id(playerobj)) == TEAM_RED ? POW_FLAG_BLUE : POW_FLAG_RED);
+			call_object_create_egg(playerobj, get_team(get_player_id(playerobj)) == TEAM_RED ? POW_FLAG_BLUE : POW_FLAG_RED);
 		}
 
 
@@ -2058,7 +2058,7 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 		{
 			// Drop hoard orbs
 			for (unsigned max_count = std::min<uint8_t>(player_info.hoard.orbs, player_info.max_hoard_orbs); max_count--;)
-				call_object_create_egg(playerobj, 1, POW_HOARD_ORB);
+				call_object_create_egg(playerobj, POW_HOARD_ORB);
 		}
 #endif
 
@@ -2112,7 +2112,7 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 			if (amount)
 				for (;;)
 			{
-				call_object_create_egg(playerobj, 1, POW_VULCAN_AMMO);
+				call_object_create_egg(playerobj, POW_VULCAN_AMMO);
 				if (amount <= VULCAN_AMMO_AMOUNT)
 					break;
 				amount -= VULCAN_AMMO_AMOUNT;
@@ -2121,8 +2121,8 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 
 		//	Always drop a shield and energy powerup.
 		if (Game_mode & GM_MULTI) {
-			call_object_create_egg(playerobj, 1, POW_SHIELD_BOOST);
-			call_object_create_egg(playerobj, 1, POW_ENERGY);
+			call_object_create_egg(playerobj, POW_SHIELD_BOOST);
+			call_object_create_egg(playerobj, POW_ENERGY);
 		}
 	}
 }

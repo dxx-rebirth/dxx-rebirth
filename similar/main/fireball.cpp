@@ -874,7 +874,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 		auto &vcvertptr = Vertices.vcptr;
 		const auto &&segnum = choose_drop_segment(LevelUniqueSegmentState.get_segments().vmptridx, vcvertptr, LevelUniqueWallSubsystemState.Walls.vcptr, pnum);
 		const auto &&new_pos = pick_random_point_in_seg(vcvertptr, segnum, std::minstd_rand(d_rand()));
-		const auto &&objnum = drop_powerup(Vclip, powerup_type, 1, {}, new_pos, segnum, true);
+		const auto &&objnum = drop_powerup(Vclip, powerup_type, {}, new_pos, segnum, true);
 		if (objnum == object_none)
 			return;
 		multi_send_create_powerup(powerup_type, segnum, objnum, new_pos);
@@ -1034,12 +1034,8 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 	}
 }
 
-imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum, const bool player)
+imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum, const bool player)
 {
-	imobjptridx_t	objnum = object_none;
-	unsigned count;
-
-			for (count=0; count<num; count++) {
 				int	rand_scale;
 				const auto old_mag = vm_vec_mag_quick(init_vel);
 
@@ -1064,27 +1060,23 @@ imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, const unsigned nu
 					 return object_none;
 #endif
 				}
-				const auto &&obj = obj_create(OBJ_POWERUP, id, segnum, pos, &vmd_identity_matrix, Powerup_info[id].size, object::control_type::powerup, object::movement_type::physics, RT_POWERUP);
-				objnum = obj;
+				const auto &&objp = obj_create(OBJ_POWERUP, id, segnum, pos, &vmd_identity_matrix, Powerup_info[id].size, object::control_type::powerup, object::movement_type::physics, RT_POWERUP);
 
-				if (objnum == object_none)
-				{
-					Int3();
-					return object_none;
-				}
+				if (objp == object_none)
+					return objp;
+				auto &obj = *objp;
 #if defined(DXX_BUILD_DESCENT_II)
 				if (player)
-					obj->flags |= OF_PLAYER_DROPPED;
+					obj.flags |= OF_PLAYER_DROPPED;
 #endif
 
 				if (Game_mode & GM_MULTI)
 				{
-					Net_create_objnums[Net_create_loc++] = objnum;
+					Net_create_objnums[Net_create_loc++] = objp;
 				}
 
 				// Give keys zero velocity so they can be tracked better in multi
-
-				auto &object_velocity = obj->mtype.phys_info.velocity;
+				auto &object_velocity = obj.mtype.phys_info.velocity;
 				if ((Game_mode & GM_MULTI) && (id >= POW_KEY_BLUE) && (id <= POW_KEY_GOLD))
 					object_velocity = {};
 				else
@@ -1098,42 +1090,56 @@ imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, const unsigned nu
 					object_velocity.z += random_velocity_adjustment();
 				}
 
-				obj->mtype.phys_info.drag = 512;	//1024;
-				obj->mtype.phys_info.mass = F1_0;
+				obj.mtype.phys_info.drag = 512;	//1024;
+				obj.mtype.phys_info.mass = F1_0;
 
-				obj->mtype.phys_info.flags = PF_BOUNCE;
+				obj.mtype.phys_info.flags = PF_BOUNCE;
 
-				obj->rtype.vclip_info.vclip_num = Powerup_info[get_powerup_id(obj)].vclip_num;
-				obj->rtype.vclip_info.frametime = Vclip[obj->rtype.vclip_info.vclip_num].frame_time;
-				obj->rtype.vclip_info.framenum = 0;
+				obj.rtype.vclip_info.vclip_num = Powerup_info[id].vclip_num;
+				obj.rtype.vclip_info.frametime = Vclip[obj.rtype.vclip_info.vclip_num].frame_time;
+				obj.rtype.vclip_info.framenum = 0;
 
-				switch (get_powerup_id(obj)) {
+				switch (id)
+				{
 					case POW_MISSILE_1:
 					case POW_MISSILE_4:
 					case POW_SHIELD_BOOST:
 					case POW_ENERGY:
-						obj->lifeleft = (d_rand() + F1_0*3) * 64;		//	Lives for 3 to 3.5 binary minutes (a binary minute is 64 seconds)
+						obj.lifeleft = (d_rand() + F1_0*3) * 64;		//	Lives for 3 to 3.5 binary minutes (a binary minute is 64 seconds)
 						if (Game_mode & GM_MULTI)
-							obj->lifeleft /= 2;
+							obj.lifeleft /= 2;
 						break;
 #if defined(DXX_BUILD_DESCENT_II)
 					case POW_OMEGA_WEAPON:
 						if (!player)
-							obj->ctype.powerup_info.count = MAX_OMEGA_CHARGE;
+							obj.ctype.powerup_info.count = MAX_OMEGA_CHARGE;
 						break;
 					case POW_GAUSS_WEAPON:
 #endif
 					case POW_VULCAN_WEAPON:
 						if (!player)
-							obj->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
+							obj.ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
 						break;
 					default:
-//						if (Game_mode & GM_MULTI)
-//							obj->lifeleft = (d_rand() + F1_0*3) * 64;		//	Lives for 5 to 5.5 binary minutes (a binary minute is 64 seconds)
 						break;
 				}
-			}
-	return objnum;
+	return objp;
+}
+
+bool drop_powerup(const d_vclip_array &Vclip, int id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum, const bool player)
+{
+	bool created = false;
+	for (const auto i : xrange(num))
+	{
+		(void)i;
+		const auto obj = drop_powerup(Vclip, id, init_vel, pos, segnum, player);
+		if (obj == object_none)
+			/* If one drop failed, assume every additional drop will also fail.
+			 */
+			break;
+		created = true;
+	}
+	return created;
 }
 
 static bool drop_robot_egg(const int type, const int id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum)
@@ -1150,12 +1156,12 @@ static bool drop_robot_egg(const int type, const int id, const unsigned num, con
 			con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "ignoring invalid object type; expected OBJ_POWERUP or OBJ_ROBOT, got type=%i, id=%i"), type, id);
 			return false;
 	}
-	imobjptridx_t	objnum = object_none;
-	unsigned count;
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	bool created = false;
-			for (count=0; count<num; count++) {
+	for (const auto count : xrange(num))
+	{
+		(void)count;
 				int	rand_scale;
 				auto new_velocity = vm_vec_normalized_quick(init_vel);
 				const auto old_mag = vm_vec_mag_quick(init_vel);
@@ -1184,17 +1190,14 @@ static bool drop_robot_egg(const int type, const int id, const unsigned num, con
 				const auto robot_id = id;
 #endif
 				const auto &&obj = robot_create(id, segnum, new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[robot_id].model_num].rad, ai_behavior::AIB_NORMAL);
-
-				objnum = obj;
-				if (objnum == object_none)
-					break;
+				if (obj == object_none)
+					return obj;
 				created = true;
-
 				++LevelUniqueObjectState.accumulated_robots;
 				++GameUniqueState.accumulated_robots;
 				if (Game_mode & GM_MULTI)
 				{
-					Net_create_objnums[Net_create_loc++] = objnum;
+					Net_create_objnums[Net_create_loc++] = obj;
 				}
 				//Set polygon-object-specific data
 
@@ -1225,7 +1228,7 @@ static bool drop_robot_egg(const int type, const int id, const unsigned num, con
 			// sometimes drop shields.
 			if (d_rand() > 16384)
 			{
-				const auto &&objp = drop_powerup(Vclip, POW_SHIELD_BOOST, 1, init_vel, pos, segnum, false);
+				const auto &&objp = drop_powerup(Vclip, POW_SHIELD_BOOST, init_vel, pos, segnum, false);
 				if (objp != object_none)
 					created = true;
 			}
@@ -1280,13 +1283,16 @@ bool object_create_robot_egg(object_base &objp)
 //	-------------------------------------------------------------------------------------------------------
 //	Put count objects of type type (eg, powerup), id = id (eg, energy) into *objp, then drop them!  Yippee!
 //	Returns created object number.
-imobjptridx_t call_object_create_egg(const object_base &objp, const unsigned count, const int id)
+imobjptridx_t call_object_create_egg(const object_base &objp, const int id)
+{
+	return drop_powerup(Vclip, id, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum), true);
+}
+
+void call_object_create_egg(const object_base &objp, const unsigned count, const int id)
 {
 	if (count > 0) {
-		return drop_powerup(Vclip, id, count, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum), true);
+		drop_powerup(Vclip, id, count, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum), true);
 	}
-
-	return object_none;
 }
 
 //what vclip does this explode with?
