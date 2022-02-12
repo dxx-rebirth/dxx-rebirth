@@ -2491,34 +2491,20 @@ static void net_udp_add_player(UDP_sequence_packet *p)
 
 // One of the players decided not to join the game
 
-static void net_udp_remove_player(UDP_sequence_packet *p)
+static void net_udp_remove_player(const UDP_sequence_packet *const p)
 {
-	int pn;
-	
-	pn = -1;
-	for (int i=0; i<N_players; i++ )
+	const auto &&ngp_range = partial_range(Netgame.players, N_players);
+	for (auto &&iter = ngp_range.begin(), &&end = ngp_range.end(); iter != end; ++iter)
 	{
-		if (Netgame.players[i].protocol.udp.addr == p->player.protocol.udp.addr)
-		{
-			pn = i;
-			break;
-		}
-	}
-	
-	if (pn < 0 )
+		auto &ngp = *iter;
+		if (ngp.protocol.udp.addr != p->player.protocol.udp.addr)
+			continue;
+		std::move(std::next(iter), end, iter);
+		--N_players;
+		Netgame.numplayers = N_players;
+		net_udp_send_netgame_update();
 		return;
-
-	for (int i=pn; i<N_players-1; i++ )
-	{
-		Netgame.players[i].callsign = Netgame.players[i+1].callsign;
-		Netgame.players[i].protocol.udp.addr = Netgame.players[i+1].protocol.udp.addr;
-		Netgame.players[i].rank=Netgame.players[i+1].rank;
 	}
-		
-	N_players--;
-	Netgame.numplayers = N_players;
-
-	net_udp_send_netgame_update();
 }
 
 namespace dsx {
