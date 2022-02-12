@@ -26,7 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include "dxxsconf.h"
-#include "fwd-event.h"
+#include "fwd-inferno.h"
 #include "dsx-ns.h"
 #include "ntstring.h"
 #include "player-callsign.h"
@@ -46,12 +46,6 @@ namespace dcx {
 
 //	How close two points must be in all dimensions to be considered the same point.
 #define	FIX_EPSILON	10
-
-// the maximum length of a filename
-constexpr std::integral_constant<std::size_t, 13> FILENAME_LEN{};
-
-// Default event handler for everything except the editor
-window_event_result standard_handler(const d_event &event);
 
 // a filename, useful for declaring arrays of filenames
 struct d_fname : ntstring<FILENAME_LEN - 1>
@@ -77,14 +71,10 @@ struct d_interface_unique_state
 	void update_window_title();
 };
 
-extern d_interface_unique_state InterfaceUniqueState;
-
 struct d_game_view_unique_state
 {
 	uint8_t Death_sequence_aborted;
 };
-
-extern d_game_view_unique_state GameViewUniqueState;
 
 }
 

@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include <cstddef>
+#include "fwd-inferno.h"
 #include "fwd-player.h"
 #include "fwd-object.h"
 #include "fwd-vclip.h"
