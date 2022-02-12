@@ -3363,24 +3363,24 @@ static int newdemo_read_frame_information(int rewrite)
 	if (nd_playback_v_dead)
 	{
 		Rear_view = 0;
-		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
-			select_cockpit(CM_LETTERBOX);
+		if (PlayerCfg.CockpitMode[1] != cockpit_mode_t::letterbox)
+			select_cockpit(cockpit_mode_t::letterbox);
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	else if (nd_playback_v_guided)
 	{
 		Rear_view = 0;
-		if (PlayerCfg.CockpitMode[1] != CM_FULL_SCREEN || PlayerCfg.CockpitMode[1] != CM_STATUS_BAR)
+		if (PlayerCfg.CockpitMode[1] != cockpit_mode_t::full_screen || PlayerCfg.CockpitMode[1] != cockpit_mode_t::status_bar)
 		{
-			select_cockpit((PlayerCfg.CockpitMode[0] == CM_FULL_SCREEN)?CM_FULL_SCREEN:CM_STATUS_BAR);
+			select_cockpit((PlayerCfg.CockpitMode[0] == cockpit_mode_t::full_screen) ? cockpit_mode_t::full_screen : cockpit_mode_t::status_bar);
 		}
 	}
 #endif
 	else if (nd_playback_v_rear)
 	{
 		Rear_view = nd_playback_v_rear;
-		if (PlayerCfg.CockpitMode[0] == CM_FULL_COCKPIT)
-			select_cockpit(CM_REAR_VIEW);
+		if (PlayerCfg.CockpitMode[0] == cockpit_mode_t::full_cockpit)
+			select_cockpit(cockpit_mode_t::rear_view);
 	}
 	else
 	{

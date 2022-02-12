@@ -2097,8 +2097,9 @@ void bm_read_some_file(d_vclip_array &Vclip, int skip)
 	case bm_type::cockpit:	{
 		bitmap_index bitmap;
 		bitmap = bm_load_sub(skip, arg);
-		Assert( Num_cockpits < N_COCKPIT_BITMAPS );
-		cockpit_bitmap[Num_cockpits++] = bitmap;
+		if (Num_cockpits >= N_COCKPIT_BITMAPS)
+			throw std::runtime_error("too many cockpit bitmaps");
+		cockpit_bitmap[static_cast<cockpit_mode_t>(Num_cockpits++)] = bitmap;
 #if defined(DXX_BUILD_DESCENT_II)
 		return;
 #endif

@@ -83,9 +83,10 @@ struct hli
 	uint8_t LevelNum;
 };
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 #include "kconfig.h"
 #include "multi.h"
+#include "fwd-game.h"
 #include "fwd-weapon.h"
 #include "d_array.h"
 

@@ -549,7 +549,7 @@ static window_event_result HandleEndlevelKey(int key)
 			return window_event_result::handled;
 
 		case KEY_ESC:
-			last_drawn_cockpit=-1;
+			last_drawn_cockpit = cockpit_mode_t{UINT8_MAX};
 			return stop_endlevel_sequence();
 	}
 

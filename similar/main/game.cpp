@@ -218,7 +218,7 @@ void init_stereo()
 		}
 		VR_eye_width = (F1_0 * 7) / 10;	// Descent 1.5 defaults
 		VR_sync_width = (20 * SHEIGHT) / 480;
-		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
+		PlayerCfg.CockpitMode[1] = cockpit_mode_t::full_screen;
 	}
 	else {
 		VR_stereo = StereoFormat::None;
@@ -236,7 +236,7 @@ void init_cockpit()
 		return;
 
 	if ( Screen_mode == SCREEN_EDITOR )
-		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
+		PlayerCfg.CockpitMode[1] = cockpit_mode_t::full_screen;
 
 #if !DXX_USE_OGL
 	if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
@@ -255,26 +255,30 @@ void init_cockpit()
 	auto &canvas = *grd_curcanv;
 
 	switch( PlayerCfg.CockpitMode[1] ) {
-		case CM_FULL_COCKPIT:
+		case cockpit_mode_t::full_cockpit:
 			game_init_render_sub_buffers(canvas, 0, 0, SWIDTH, (SHEIGHT*2)/3);
 			break;
 
-		case CM_REAR_VIEW:
+		case cockpit_mode_t::rear_view:
 		{
 			unsigned x1 = 0, y1 = 0, x2 = SWIDTH, y2 = (SHEIGHT*2)/3;
-			int mode = PlayerCfg.CockpitMode[1];
+			const auto mode =
 #if defined(DXX_BUILD_DESCENT_II)
-			mode += (HIRESMODE?(Num_cockpits/2):0);
+				HIRESMODE
+				? static_cast<cockpit_mode_t>(static_cast<uint8_t>(cockpit_mode_t::rear_view) + (Num_cockpits / 2))
+				:
 #endif
+				cockpit_mode_t::rear_view;
 
-			PIGGY_PAGE_IN(cockpit_bitmap[mode]);
-			auto &bm = GameBitmaps[cockpit_bitmap[mode].index];
+			auto &cb = cockpit_bitmap[mode];
+			PIGGY_PAGE_IN(cb);
+			auto &bm = GameBitmaps[cb.index];
 			gr_bitblt_find_transparent_area(bm, x1, y1, x2, y2);
 			game_init_render_sub_buffers(canvas, x1 * (static_cast<float>(SWIDTH) / bm.bm_w), y1 * (static_cast<float>(SHEIGHT) / bm.bm_h), (x2 - x1 + 1) * (static_cast<float>(SWIDTH) / bm.bm_w), (y2 - y1 + 2) * (static_cast<float>(SHEIGHT) / bm.bm_h));
 			break;
 		}
 
-		case CM_FULL_SCREEN:
+		case cockpit_mode_t::full_screen:
 			{
 				unsigned w = SWIDTH;
 				unsigned h = SHEIGHT;
@@ -305,11 +309,11 @@ void init_cockpit()
 			}
 			break;
 
-		case CM_STATUS_BAR:
+		case cockpit_mode_t::status_bar:
 			game_init_render_sub_buffers(canvas, 0, 0, SWIDTH, (HIRESMODE?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72));
 			break;
 
-		case CM_LETTERBOX:	{
+		case cockpit_mode_t::letterbox:	{
 			const unsigned gsm_height = grd_curscreen->get_screen_height();
 			const unsigned w = grd_curscreen->get_screen_width();
 			const unsigned h = (gsm_height * 3) / 4; // true letterbox size (16:9)
@@ -332,10 +336,10 @@ void init_cockpit()
 }
 
 //selects a given cockpit (or lack of one).  See types in game.h
-void select_cockpit(cockpit_mode_t mode)
+void select_cockpit(const cockpit_mode_t mode)
 {
 	// skip switching cockpit views while stereo viewport active
-	if (VR_stereo != StereoFormat::None && mode != CM_FULL_SCREEN)
+	if (VR_stereo != StereoFormat::None && mode != cockpit_mode_t::full_screen)
 		return;
 
 	if (mode != PlayerCfg.CockpitMode[1]) {		//new mode
@@ -350,7 +354,7 @@ namespace dcx {
 void reset_cockpit()
 {
 	force_cockpit_redraw=1;
-	last_drawn_cockpit = -1;
+	last_drawn_cockpit = cockpit_mode_t{UINT8_MAX};
 }
 
 void game_init_render_sub_buffers(grs_canvas &canvas, const int x, const int y, const int w, const int h)
@@ -1591,7 +1595,7 @@ static leave_type leave_mode;
 static void end_rear_view()
 {
 	Rear_view = 0;
-	if (PlayerCfg.CockpitMode[1] == CM_REAR_VIEW)
+	if (PlayerCfg.CockpitMode[1] == cockpit_mode_t::rear_view)
 		select_cockpit(PlayerCfg.CockpitMode[0]);
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_restore_rearview();
@@ -1629,8 +1633,8 @@ void check_rear_view(control_info &Controls)
 				Rear_view = 1;
 				leave_mode = leave_type::maybe_on_release;		//means wait for another key
 				entry_time = timer_query();
-				if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
-					select_cockpit(CM_REAR_VIEW);
+				if (PlayerCfg.CockpitMode[1] == cockpit_mode_t::full_cockpit)
+					select_cockpit(cockpit_mode_t::rear_view);
 				if (Newdemo_state == ND_STATE_RECORDING)
 					newdemo_record_rearview();
 			}
@@ -1698,7 +1702,7 @@ game_window *game_setup()
 {
 
 	PlayerCfg.CockpitMode[1] = PlayerCfg.CockpitMode[0];
-	last_drawn_cockpit = -1;	// Force cockpit to redraw next time a frame renders.
+	last_drawn_cockpit = cockpit_mode_t{UINT8_MAX};	// Force cockpit to redraw next time a frame renders.
 	Endlevel_sequence = 0;
 
 	auto game_wind = window_create<game_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);

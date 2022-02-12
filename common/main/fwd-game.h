@@ -58,6 +58,7 @@ extern int d_tick_step;  // true once in interval of DESIGNATED_GAME_FRAMETIME
 enum class gauge_inset_window_view : unsigned;
 enum class game_mode_flag : uint16_t;
 enum class game_mode_flags : uint16_t;
+enum class cockpit_mode_t : uint8_t;
 
 // The following bits define the game modes.
 #define GM_NETWORK		game_mode_flag::network       // You are in network mode
@@ -101,7 +102,7 @@ extern int  VR_sync_width;
 extern grs_subcanvas VR_hud_left;
 extern grs_subcanvas VR_hud_right;
 
-extern int last_drawn_cockpit;
+extern cockpit_mode_t last_drawn_cockpit;
 
 class pause_game_world_time;
 
@@ -255,7 +256,6 @@ extern int Slew_on;                 // in slew or sim mode?
 
 #endif
 
-enum cockpit_mode_t : int;
 extern int Rear_view;           // if true, looking back.
 
 // selects a given cockpit (or lack of one).

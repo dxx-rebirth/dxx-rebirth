@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <physfs.h>
 #include "maths.h"
 #include "fwd-vclip.h"
+#include "fwd-game.h"
 #include "d_array.h"
 #include "inferno.h"
 
@@ -116,7 +117,6 @@ extern unsigned Num_cockpits;
 }
 
 namespace dsx {
-extern std::array<bitmap_index, N_COCKPIT_BITMAPS> cockpit_bitmap;
 #if DXX_USE_EDITOR
 using tmap_xlate_table_array = std::array<short, MAX_TEXTURES>;
 extern tmap_xlate_table_array tmap_xlate_table;
@@ -190,6 +190,7 @@ extern int First_multi_bitmap_num;
 void compute_average_rgb(grs_bitmap *bm, std::array<fix, 3> &rgb);
 
 namespace dsx {
+extern enumerated_array<bitmap_index, N_COCKPIT_BITMAPS, cockpit_mode_t> cockpit_bitmap;
 void load_robot_replacements(const d_fname &level_name);
 // Initializes all bitmaps from BITMAPS.TBL file.
 int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware);

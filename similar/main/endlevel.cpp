@@ -954,7 +954,7 @@ window_event_result do_endlevel_frame()
 
 					Viewer = endlevel_camera = objnum;
 
-					select_cockpit(CM_LETTERBOX);
+					select_cockpit(cockpit_mode_t::letterbox);
 
 					fly_objects[1] = fly_objects[0];
 					fly_objects[1].obj = endlevel_camera;

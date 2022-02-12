@@ -195,17 +195,17 @@ public:
 	~pause_game_world_time();
 };
 
-}
-
-enum cockpit_mode_t : int
+enum class cockpit_mode_t : uint8_t
 {
 //valid modes for cockpit
-	CM_FULL_COCKPIT,   // normal screen with cockpit
-	CM_REAR_VIEW,   // looking back with bitmap
-	CM_STATUS_BAR,   // small status bar, w/ reticle
-	CM_FULL_SCREEN,   // full screen, no cockpit (w/ reticle)
-	CM_LETTERBOX   // half-height window (for cutscenes)
+	full_cockpit,   // normal screen with cockpit
+	rear_view,   // looking back with bitmap
+	status_bar,   // small status bar, w/ reticle
+	full_screen,   // full screen, no cockpit (w/ reticle)
+	letterbox   // half-height window (for cutscenes)
 };
+
+}
 
 #ifdef dsx
 #if defined(DXX_BUILD_DESCENT_I)

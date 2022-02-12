@@ -1860,9 +1860,9 @@ struct hud_style_config_menu_items
 {
 #define DXX_HUD_STYLE_MENU(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "View style:", opt_viewstyle_label)	\
-	DXX_MENUITEM(VERB, RADIO, "Cockpit", opt_viewstyle_cockpit, PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT, optgrp_viewstyle)	\
-	DXX_MENUITEM(VERB, RADIO, "Status bar", opt_viewstyle_bar, PlayerCfg.CockpitMode[1] == CM_STATUS_BAR, optgrp_viewstyle)	\
-	DXX_MENUITEM(VERB, RADIO, "Full screen", opt_viewstyle_fullscreen, PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN, optgrp_viewstyle)	\
+	DXX_MENUITEM(VERB, RADIO, "Cockpit", opt_viewstyle_cockpit, PlayerCfg.CockpitMode[1] == cockpit_mode_t::full_cockpit, optgrp_viewstyle)	\
+	DXX_MENUITEM(VERB, RADIO, "Status bar", opt_viewstyle_bar, PlayerCfg.CockpitMode[1] == cockpit_mode_t::status_bar, optgrp_viewstyle)	\
+	DXX_MENUITEM(VERB, RADIO, "Full screen", opt_viewstyle_fullscreen, PlayerCfg.CockpitMode[1] == cockpit_mode_t::full_screen, optgrp_viewstyle)	\
 	DXX_MENUITEM(VERB, TEXT, "HUD style:", opt_hudstyle_label)	\
 	DXX_MENUITEM(VERB, RADIO, "Standard", opt_hudstyle_standard, PlayerCfg.HudMode == HudType::Standard, optgrp_hudstyle)	\
 	DXX_MENUITEM(VERB, RADIO, "Alternate #1", opt_hudstyle_alt1, PlayerCfg.HudMode == HudType::Alternate1, optgrp_hudstyle)	\
@@ -1899,11 +1899,11 @@ window_event_result hud_style_config_menu::event_handler(const d_event &event)
 	{
 		case EVENT_WINDOW_CLOSE:
 		{
-			enum cockpit_mode_t new_mode = m[opt_viewstyle_cockpit].value
-				? CM_FULL_COCKPIT
+			const auto new_mode = m[opt_viewstyle_cockpit].value
+				? cockpit_mode_t::full_cockpit
 				: m[opt_viewstyle_bar].value
-					? CM_STATUS_BAR
-					: CM_FULL_SCREEN;
+					? cockpit_mode_t::status_bar
+					: cockpit_mode_t::full_screen;
 			select_cockpit(new_mode);
 			PlayerCfg.CockpitMode[0] = new_mode;
 			PlayerCfg.HudMode = m[opt_hudstyle_standard].value

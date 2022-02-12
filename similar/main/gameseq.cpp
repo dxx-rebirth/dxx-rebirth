@@ -1397,7 +1397,7 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 
-	last_drawn_cockpit = -1;
+	last_drawn_cockpit = cockpit_mode_t{UINT8_MAX};
 
 	if (Newdemo_state == ND_STATE_PAUSED)
 		Newdemo_state = ND_STATE_RECORDING;
@@ -1665,7 +1665,7 @@ window_event_result PlayerFinishedLevel(int secret_flag)
 	if (Game_mode & GM_NETWORK)
 		get_local_player().connected = CONNECT_WAITING; // Finished but did not die
 
-	last_drawn_cockpit = -1;
+	last_drawn_cockpit = cockpit_mode_t{UINT8_MAX};
 
 	auto result = AdvanceLevel(secret_flag);				//now go on to the next one (if one)
 
@@ -1884,7 +1884,7 @@ window_event_result DoPlayerDead()
 			result = AdvanceLevel(0);			//if finished, go on to next level
 
 			init_player_stats_new_ship(Player_num);
-			last_drawn_cockpit = -1;
+			last_drawn_cockpit = cockpit_mode_t{UINT8_MAX};
 			if (g)
 				g->set_visible(1);
 		}
@@ -1938,7 +1938,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	if (!(Game_mode & GM_MULTI)) {
-		last_drawn_cockpit = -1;
+		last_drawn_cockpit = cockpit_mode_t{UINT8_MAX};
 	}
 #if defined(DXX_BUILD_DESCENT_I)
 	static constexpr std::integral_constant<secret_restore, secret_restore::none> secret_flag{};

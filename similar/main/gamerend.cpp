@@ -67,6 +67,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 int netplayerinfo_on;
+cockpit_mode_t last_drawn_cockpit = cockpit_mode_t{UINT8_MAX};
 }
 
 namespace dsx {
@@ -128,13 +129,13 @@ static void show_framerate(grs_canvas &canvas)
 	unsigned line_displacement;
 	switch (PlayerCfg.CockpitMode[1])
 	{
-		case CM_FULL_COCKPIT:
+		case cockpit_mode_t::full_cockpit:
 			line_displacement = line_spacing * 2;
 			break;
-		case CM_STATUS_BAR:
+		case cockpit_mode_t::status_bar:
 			line_displacement = line_spacing;
 			break;
-		case CM_FULL_SCREEN:
+		case cockpit_mode_t::full_screen:
 			switch (PlayerCfg.HudMode)
 			{
 				case HudType::Standard:
@@ -153,8 +154,8 @@ static void show_framerate(grs_canvas &canvas)
 					return;
 			}
 			break;
-		case CM_LETTERBOX:
-		case CM_REAR_VIEW:
+		case cockpit_mode_t::letterbox:
+		case cockpit_mode_t::rear_view:
 		default:
 			return;
 	}
@@ -420,7 +421,8 @@ static void game_draw_hud_stuff(grs_canvas &canvas, const control_info &Controls
 
 	game_draw_marker_message(canvas);
 
-	if (((Newdemo_state == ND_STATE_PLAYBACK) || (Newdemo_state == ND_STATE_RECORDING)) && (PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)) {
+	if ((Newdemo_state == ND_STATE_PLAYBACK || Newdemo_state == ND_STATE_RECORDING) && PlayerCfg.CockpitMode[1] != cockpit_mode_t::rear_view)
+	{
 		int y;
 
 		auto &game_font = *GAME_FONT;
@@ -429,7 +431,7 @@ static void game_draw_hud_stuff(grs_canvas &canvas, const control_info &Controls
 
 		y = canvas.cv_bitmap.bm_h - (LINE_SPACING(*canvas.cv_font, *GAME_FONT) * 2);
 
-		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
+		if (PlayerCfg.CockpitMode[1] == cockpit_mode_t::full_cockpit)
 			y = canvas.cv_bitmap.bm_h / 1.2 ;
 		if (Newdemo_state == ND_STATE_PLAYBACK) {
 			if (Newdemo_show_percentage) {
@@ -442,7 +444,7 @@ static void game_draw_hud_stuff(grs_canvas &canvas, const control_info &Controls
 
 	render_countdown_gauge(canvas);
 
-	if (CGameCfg.FPSIndicator && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
+	if (CGameCfg.FPSIndicator && PlayerCfg.CockpitMode[1] != cockpit_mode_t::rear_view)
 		show_framerate(canvas);
 
 	auto previous_game_mode = Game_mode;
@@ -789,11 +791,11 @@ void game_render_frame_mono(const control_info &Controls)
 	{
 		const auto viewer_save = Viewer;
 
-		if (PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_REAR_VIEW)
+		if (PlayerCfg.CockpitMode[1] == cockpit_mode_t::full_cockpit || PlayerCfg.CockpitMode[1] == cockpit_mode_t::rear_view)
 		{
 			 BigWindowSwitch=1;
 			 force_cockpit_redraw=1;
-			 PlayerCfg.CockpitMode[1]=CM_STATUS_BAR;
+			 PlayerCfg.CockpitMode[1] = cockpit_mode_t::status_bar;
 			 return;
 		}
 
@@ -832,7 +834,7 @@ void game_render_frame_mono(const control_info &Controls)
 		if (BigWindowSwitch)
 		{
 			force_cockpit_redraw=1;
-			PlayerCfg.CockpitMode[1]=(Rear_view?CM_REAR_VIEW:CM_FULL_COCKPIT);
+			PlayerCfg.CockpitMode[1] = (Rear_view ? cockpit_mode_t::rear_view : cockpit_mode_t::full_cockpit);
 			BigWindowSwitch=0;
 			return;
 		}
@@ -852,7 +854,7 @@ void game_render_frame_mono(const control_info &Controls)
 	auto &canvas = *grd_curcanv;
 	update_cockpits(canvas);
 
-	if (PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)
+	if (PlayerCfg.CockpitMode[1] == cockpit_mode_t::full_cockpit || PlayerCfg.CockpitMode[1] == cockpit_mode_t::status_bar)
 		render_gauges(canvas, Newdemo_state == ND_STATE_PLAYBACK ? Newdemo_game_mode : Game_mode);
 	}
 
@@ -882,24 +884,24 @@ void game_render_frame_mono(const control_info &Controls)
 
 void toggle_cockpit()
 {
-	enum cockpit_mode_t new_mode=CM_FULL_SCREEN;
-
 	if (Rear_view || Player_dead_state != player_dead_state::no || VR_stereo != StereoFormat::None)
 		return;
 
+	auto new_mode = cockpit_mode_t::full_screen;
+
 	switch (PlayerCfg.CockpitMode[1])
 	{
-		case CM_FULL_COCKPIT:
-			new_mode = CM_STATUS_BAR;
+		case cockpit_mode_t::full_cockpit:
+			new_mode = cockpit_mode_t::status_bar;
 			break;
-		case CM_STATUS_BAR:
-			new_mode = CM_FULL_SCREEN;
+		case cockpit_mode_t::status_bar:
+			new_mode = cockpit_mode_t::full_screen;
 			break;
-		case CM_FULL_SCREEN:
-			new_mode = CM_FULL_COCKPIT;
+		case cockpit_mode_t::full_screen:
+			new_mode = cockpit_mode_t::full_cockpit;
 			break;
-		case CM_REAR_VIEW:
-		case CM_LETTERBOX:
+		case cockpit_mode_t::rear_view:
+		case cockpit_mode_t::letterbox:
 			break;
 	}
 
@@ -909,10 +911,6 @@ void toggle_cockpit()
 	write_player_file();
 }
 
-namespace dcx {
-int last_drawn_cockpit = -1;
-}
-
 namespace dsx {
 namespace {
 
@@ -920,14 +918,18 @@ namespace {
 static void update_cockpits(grs_canvas &canvas)
 {
 	grs_bitmap *bm;
-	int mode = PlayerCfg.CockpitMode[1];
+	const auto raw_cockpit_mode = PlayerCfg.CockpitMode[1];
+	auto mode =
 #if defined(DXX_BUILD_DESCENT_II)
-	mode += (HIRESMODE?(Num_cockpits/2):0);
+		HIRESMODE
+			? static_cast<cockpit_mode_t>(underlying_value(raw_cockpit_mode) + (Num_cockpits / 2))
+			:
 #endif
+		raw_cockpit_mode;
 
 	switch( PlayerCfg.CockpitMode[1] )	{
-		case CM_FULL_COCKPIT:
-		case CM_REAR_VIEW:
+		case cockpit_mode_t::full_cockpit:
+		case cockpit_mode_t::rear_view:
 			PIGGY_PAGE_IN(cockpit_bitmap[mode]);
 			bm=&GameBitmaps[cockpit_bitmap[mode].index];
 #if DXX_USE_OGL
@@ -937,10 +939,10 @@ static void update_cockpits(grs_canvas &canvas)
 #endif
 			break;
 	
-		case CM_FULL_SCREEN:
+		case cockpit_mode_t::full_screen:
 			break;
 	
-		case CM_STATUS_BAR:
+		case cockpit_mode_t::status_bar:
 			PIGGY_PAGE_IN(cockpit_bitmap[mode]);
 			bm=&GameBitmaps[cockpit_bitmap[mode].index];
 #if DXX_USE_OGL
@@ -950,7 +952,7 @@ static void update_cockpits(grs_canvas &canvas)
 #endif
 			break;
 	
-		case CM_LETTERBOX:
+		case cockpit_mode_t::letterbox:
 			break;
 	}
 	if (PlayerCfg.CockpitMode[1] != last_drawn_cockpit)
@@ -958,7 +960,7 @@ static void update_cockpits(grs_canvas &canvas)
 	else
 		return;
 
-	if (PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)
+	if (PlayerCfg.CockpitMode[1] == cockpit_mode_t::full_cockpit || PlayerCfg.CockpitMode[1] == cockpit_mode_t::status_bar)
 		init_gauges();
 
 }

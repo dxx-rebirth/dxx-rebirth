@@ -1584,7 +1584,7 @@ static void start_player_death_sequence(object &player)
 		Dead_player_camera = ConsoleObject;
 	}
 
-	select_cockpit(CM_LETTERBOX);
+	select_cockpit(cockpit_mode_t::letterbox);
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_letterbox();
 
