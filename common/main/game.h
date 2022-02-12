@@ -25,54 +25,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#include <physfs.h>
-#include "maths.h"
+#include "fwd-game.h"
 
-#include <chrono>
-#include <cstdint>
 #include "pack.h"
-#include "fwd-object.h"
-#include "fwd-player.h"
 #include "fwd-segment.h"
 #include "window.h"
-#include "d_array.h"
-#include "kconfig.h"
 #include "wall.h"
 #include "d_underlying_value.h"
-
-#define DESIGNATED_GAME_FPS 30 // assuming the original intended Framerate was 30
-#define DESIGNATED_GAME_FRAMETIME (F1_0/DESIGNATED_GAME_FPS) 
-
-#ifdef NDEBUG
-#define MINIMUM_FPS DESIGNATED_GAME_FPS
-#define MAXIMUM_FPS 200
-#else
-#define MINIMUM_FPS 1
-#define MAXIMUM_FPS 1000
-#endif
-
-// from mglobal.c
-namespace dcx {
-using d_time_fix = std::chrono::duration<uint32_t, std::ratio<1, F1_0>>;
-extern fix FrameTime;           // time in seconds since last frame
-extern fix64 GameTime64;            // time in game (sum of FrameTime)
-extern int d_tick_count; // increments according to DESIGNATED_GAME_FRAMETIME
-extern int d_tick_step;  // true once in interval of DESIGNATED_GAME_FRAMETIME
-enum class gauge_inset_window_view : unsigned;
-
-}
-
-#if defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
-extern struct object *Missile_viewer;
-extern object_signature_t Missile_viewer_sig;
-
-extern enumerated_array<unsigned, 2, gauge_inset_window_view> Coop_view_player;     // left & right
-extern enumerated_array<game_marker_index, 2, gauge_inset_window_view> Marker_viewer_num;    // left & right
-}
-#endif
-
-#define NDL 5       // Number of difficulty levels.
 
 namespace dcx {
 
@@ -106,52 +65,10 @@ enum class game_mode_flags : uint16_t
 	/* endif */
 };
 
-// The following bits define the game modes.
-#define GM_NETWORK		game_mode_flag::network       // You are in network mode
-#define GM_MULTI_ROBOTS	game_mode_flag::multi_robots       // You are in a multiplayer mode with robots.
-#define GM_MULTI_COOP	game_mode_flag::multi_coop      // You are in a multiplayer mode and can't hurt other players.
-#define GM_UNKNOWN		game_mode_flag::unknown      // You are not in any mode, kind of dangerous...
-#define GM_TEAM			game_mode_flag::team     // Team mode for network play
-#define GM_BOUNTY		game_mode_flag::bounty     // New bounty mode by Matt1360
-#define GM_CAPTURE		game_mode_flag::capture     // Capture the flag mode for D2
-#define GM_HOARD		game_mode_flag::hoard    // New hoard mode for D2 Christmas
-#define GM_NORMAL		game_mode_flags::normal       // You are in normal play mode, no multiplayer stuff
-#define GM_MULTI        GM_NETWORK     // You are in some type of multiplayer game	(GM_NETWORK /* | GM_SERIAL | GM_MODEM */)
-extern game_mode_flags Game_mode;
-extern game_mode_flags Newdemo_game_mode;
-extern screen_mode Game_screen_mode;
-
 static constexpr auto operator&(const game_mode_flags game_mode, const game_mode_flag f)
 {
 	return underlying_value(game_mode) & underlying_value(f);
 }
-
-}
-
-#ifndef NDEBUG      // if debugging, these are variables
-
-extern int Slew_on;                 // in slew or sim mode?
-
-#else               // if not debugging, these are constants
-
-#define Slew_on             0       // no slewing in real game
-
-#endif
-
-// Suspend flags
-
-#define SUSP_ROBOTS     1           // Robot AI doesn't move
-
-#define	SHOW_EXIT_PATH	1
-
-
-// from game.c
-void close_game(void);
-void calc_frame_time(void);
-namespace dcx {
-void calc_d_tick();
-
-extern int Game_suspended;          // if non-zero, nothing moves but player
 
 /* This must be a signed type.  Some sites, such as `bump_this_object`,
  * use Difficulty_level_type in arithmetic expressions, and those
@@ -217,12 +134,9 @@ struct d_game_unique_state
 	}
 };
 
-extern int Global_missile_firing_count;
-
-extern int PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
-
 // Stereo viewport formats
-enum class StereoFormat : uint8_t {
+enum class StereoFormat : uint8_t
+{
 	None = 0,
 	AboveBelow,
 	SideBySideFullHeight,
@@ -231,17 +145,9 @@ enum class StereoFormat : uint8_t {
 	HighestFormat = AboveBelowSync
 };
 
-extern StereoFormat VR_stereo;
-extern fix  VR_eye_width;
-extern int  VR_eye_offset;
-extern int  VR_sync_width;
-extern grs_subcanvas VR_hud_left;
-extern grs_subcanvas VR_hud_right;
 }
 
-#define MAX_PALETTE_ADD 30
-
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 namespace dsx {
 
 struct game_window : window
@@ -249,13 +155,6 @@ struct game_window : window
 	using window::window;
 	virtual window_event_result event_handler(const d_event &) override;
 };
-extern game_window *Game_wind;
-
-void game();
-void init_game();
-void init_stereo();
-void init_cockpit();
-extern void PALETTE_FLASH_ADD(int dr, int dg, int db);
 
 struct d_game_shared_state : ::dcx::d_game_shared_state
 {
@@ -282,23 +181,12 @@ struct d_level_unique_seismic_state
 	fix Seismic_tremor_magnitude;
 	std::array<fix64, 4> Earthshaker_detonate_times;
 };
-
-extern d_level_shared_seismic_state LevelSharedSeismicState;
-extern d_level_unique_seismic_state LevelUniqueSeismicState;
 #endif
 
-extern d_game_shared_state GameSharedState;
-extern d_game_unique_state GameUniqueState;
-void game_render_frame(const control_info &Controls);
 }
 #endif
 
-//sets the rgb values for palette flash
-#define PALETTE_FLASH_SET(_r,_g,_b) PaletteRedAdd=(_r), PaletteGreenAdd=(_g), PaletteBlueAdd=(_b)
-
 namespace dcx {
-
-extern int last_drawn_cockpit;
 
 class pause_game_world_time
 {
@@ -307,26 +195,9 @@ public:
 	~pause_game_world_time();
 };
 
-void stop_time();
-void start_time();
-void reset_time();       // called when starting level
 }
 
-#if DXX_USE_SCREENSHOT
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-namespace dcx {
-
-// If automap_flag == 1, then call automap routine to write message.
-#if DXX_USE_SCREENSHOT_FORMAT_LEGACY
-void write_bmp(PHYSFS_File *, unsigned w, unsigned h);
-#endif
-extern void save_screen_shot(int automap_flag);
-
-}
-#endif
-#endif
-
-enum cockpit_mode_t
+enum cockpit_mode_t : int
 {
 //valid modes for cockpit
 	CM_FULL_COCKPIT,   // normal screen with cockpit
@@ -336,59 +207,13 @@ enum cockpit_mode_t
 	CM_LETTERBOX   // half-height window (for cutscenes)
 };
 
-extern int Rear_view;           // if true, looking back.
-
 #ifdef dsx
-namespace dsx {
-void game_flush_respawn_inputs(control_info &Controls);
-void game_flush_inputs(control_info &Controls);    // clear all inputs
-// initalize flying
-}
-#endif
-
-// selects a given cockpit (or lack of one).
-void select_cockpit(cockpit_mode_t mode);
-
-// force cockpit redraw next time. call this if you've trashed the screen
-namespace dcx {
-void fly_init(object_base &obj);
-void reset_cockpit();       // called if you've trashed the screen
-
-// functions to save, clear, and resture palette flash effects
-void reset_palette_add(void);
-}
-#ifdef dsx
-namespace dsx {
-void palette_restore(void);
-void show_help();
-void show_netgame_help();
-
-// put up the help message
-void show_newdemo_help();
-}
-#endif
 #if defined(DXX_BUILD_DESCENT_I)
-void palette_save();
 static inline void full_palette_save(void)
 {
 	palette_save();
 }
 #endif
-
-// show a message in a nice little box
-void show_boxed_message(grs_canvas &, const char *msg);
-
-// turns off rear view & rear view cockpit
-void reset_rear_view(void);
-
-namespace dcx {
-void game_init_render_sub_buffers(grs_canvas &, int x, int y, int w, int h);
-// Sets up the canvases we will be rendering to
-
-extern int netplayerinfo_on;
-}
-
-#ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static inline int game_mode_capture_flag()
@@ -400,7 +225,6 @@ static inline int game_mode_hoard()
 	return 0;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-void full_palette_save();	// all of the above plus gr_palette_load(gr_palette)
 static inline int game_mode_capture_flag()
 {
 	return (Game_mode & GM_CAPTURE);
@@ -425,39 +249,16 @@ struct d_flickering_light_state
 	unsigned Num_flickering_lights;
 	Flickering_light_array_t Flickering_lights;
 };
-
-extern d_flickering_light_state Flickering_light_state;
-
-extern int BigWindowSwitch;
-void compute_slide_segs();
-
-// turn flickering off (because light has been turned off)
-void disable_flicker(d_flickering_light_state &fls, vmsegidx_t segnum, unsigned sidenum);
-
-// turn flickering off (because light has been turned on)
-void enable_flicker(d_flickering_light_state &fls, vmsegidx_t segnum, unsigned sidenum);
-
-/*
- * reads a flickering_light structure from a PHYSFS_File
- */
-void flickering_light_read(flickering_light &fl, PHYSFS_File *fp);
-void flickering_light_write(const flickering_light &fl, PHYSFS_File *fp);
 #endif
 
-void game_render_frame_mono(const control_info &Controls);
 static inline void game_render_frame_mono(int skip_flip, const control_info &Controls)
 {
 	game_render_frame_mono(Controls);
 	if (!skip_flip)
 		gr_flip();
 }
-}
-#endif
-void game_leave_menus(void);
 
 //Cheats
-#ifdef dsx
-namespace dsx {
 struct game_cheats : prohibit_void_ptr<game_cheats>
 {
 	int enabled;
@@ -491,38 +292,6 @@ struct game_cheats : prohibit_void_ptr<game_cheats>
 	int buddyangry;
 #endif
 };
-extern game_cheats cheats;
 
-game_window *game_setup();
-window_event_result ReadControls(const d_event &event, control_info &Controls);
-bool allowed_to_fire_laser(const player_info &);
-void reset_globals_for_new_game();
-void check_rear_view(control_info &Controls);
-int create_special_path();
 }
-#endif
-int cheats_enabled();
-void game_disable_cheats();
-void toggle_cockpit(void);
-extern fix Show_view_text_timer;
-extern d_time_fix ThisLevelTime;
-namespace dcx {
-extern int force_cockpit_redraw;
-}
-#if defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
-extern ubyte DemoDoingRight,DemoDoingLeft;
-extern fix64	Time_flash_last_played;
-
-playernum_t get_marker_owner(game_mode_flags, game_marker_index, unsigned max_numplayers);
-}
-#endif
-
-#if DXX_USE_EDITOR
-#ifdef dsx
-namespace dsx {
-void dump_used_textures_all();
-void move_player_2_segment(vmsegptridx_t seg, unsigned side);
-}
-#endif
 #endif
