@@ -128,9 +128,9 @@ void newdemo_record_multi_score(unsigned pnum, int score);
 extern void newdemo_record_primary_ammo(int new_ammo);
 extern void newdemo_record_secondary_ammo(int new_ammo);
 void newdemo_record_door_opening(segnum_t segnum, int side);
-void newdemo_record_laser_level(laser_level old_level, laser_level new_level);
 
 #ifdef dsx
+void newdemo_record_laser_level(laser_level old_level, laser_level new_level);
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 void newdemo_record_player_afterburner(fix afterburner);

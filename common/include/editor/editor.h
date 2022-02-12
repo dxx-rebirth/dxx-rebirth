@@ -31,7 +31,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ui.h"
 #include "fmtcheck.h"
 
-#ifdef __cplusplus
 #include "fwd-window.h"
 #include "fwd-segment.h"
 #include "objnum.h"
@@ -558,5 +557,3 @@ extern void close_all_windows(void);
 //	Amount to stretch a texture map by.
 //	The two different ones are for the two dimensions of a texture map.
 extern fix Stretch_scale_x, Stretch_scale_y;
-
-#endif

@@ -27,7 +27,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "pstypes.h"
 
-#ifdef __cplusplus
 #include <cstddef>
 #include "fwd-segment.h"
 #include "dxxsconf.h"
@@ -42,7 +41,6 @@ namespace dsx {
 void do_automap();
 void automap_clear_visited(d_level_unique_automap_state &LevelUniqueAutomapState);
 }
-#endif
 
 #if defined(DXX_BUILD_DESCENT_II)
 #include "object.h"
@@ -50,6 +48,7 @@ void automap_clear_visited(d_level_unique_automap_state &LevelUniqueAutomapState
 #include "d_array.h"
 #include "d_range.h"
 #include "fwd-event.h"
+#include "fwd-game.h"
 #include "segment.h"
 
 namespace dsx {
@@ -91,5 +90,4 @@ extern marker_message_text_t Marker_input;
 extern d_marker_state MarkerState;
 }
 #endif
-
 #endif

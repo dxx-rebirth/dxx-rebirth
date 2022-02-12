@@ -25,7 +25,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#ifdef __cplusplus
 #include "pack.h"
 #include "pstypes.h"
 #include "maths.h"
@@ -36,12 +35,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "fwd-powerup.h"
 
+#ifdef dsx
 #if defined(DXX_BUILD_DESCENT_II)
 #define LASER_HELIX_MASK        7   // must match number of bits in flags
 #define MAX_SUPER_LASER_LEVEL   laser_level::_6   // Note, laser levels are numbered from 0.
 #endif
-
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 
 struct PHYSFS_File;
 #if 0
@@ -219,9 +217,7 @@ extern void smega_rock_stuff(void);
 extern void init_smega_detonates(void);
 #endif
 }
-#endif
 
-#ifdef dsx
 namespace dsx {
 void InitWeaponOrdering();
 void CyclePrimary(player_info &);
@@ -237,6 +233,4 @@ void do_seismic_stuff();
 void DropCurrentWeapon(player_info &);
 void DropSecondaryWeapon(player_info &);
 }
-#endif
-
 #endif

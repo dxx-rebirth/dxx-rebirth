@@ -10,6 +10,7 @@
 #include "object.h"
 #include "morph.h"
 
+#ifdef dsx
 namespace dcx {
 
 struct d_level_unique_morph_object_state
@@ -58,3 +59,4 @@ struct d_level_unique_object_state
 extern d_level_unique_object_state LevelUniqueObjectState;
 
 }
+#endif

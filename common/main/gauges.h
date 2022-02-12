@@ -31,6 +31,7 @@ struct bitmap_index;
 
 #include "fwd-object.h"
 #include "kconfig.h"
+#include "game.h"
 
 //from gauges.c
 

@@ -28,6 +28,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _SOUNDS_H
 
 #include <array>
+#include <cstdint>
+#include <type_traits>
+#include "dsx-ns.h"
 
 #ifdef dsx
 #if defined(DXX_BUILD_DESCENT_I)

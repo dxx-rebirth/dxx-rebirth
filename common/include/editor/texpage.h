@@ -28,8 +28,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "ui.h"
 
-#ifdef __cplusplus
 #include "fwd-event.h"
+#include "fwd-segment.h"
 
 extern int TextureLights;
 extern int TextureEffects;
@@ -43,7 +43,5 @@ int texpage_goto_first();
 void texpage_init( UI_DIALOG * dlg );
 void texpage_close();
 int texpage_do(const d_event &event);
-
-#endif
 
 #endif

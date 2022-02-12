@@ -11,7 +11,6 @@
 #include <type_traits>
 #include <physfs.h>
 #include "piggy.h"
-#include "maths.h"
 #include "textures.h"
 #include "fwd-object.h"
 #include "fwd-segment.h"

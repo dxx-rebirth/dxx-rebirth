@@ -32,7 +32,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-partial_range.h"
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include <array>
 
 #ifdef dsx
 namespace dsx {
@@ -114,7 +113,6 @@ constexpr std::integral_constant<unsigned, 2620> MAX_BITMAP_FILES{};
 #define MAX_SOUND_FILES     MAX_SOUNDS
 
 
-#ifdef dsx
 namespace dsx {
 extern void piggy_bitmap_page_in( bitmap_index bmp );
 void piggy_bitmap_page_out_all();
@@ -129,10 +127,7 @@ static inline void _piggy_page_in(bitmap_index bmp) {
         piggy_bitmap_page_in( bmp );
     }
 }
-}
-#endif
 
-namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 void piggy_read_sounds(int pc_shareware);
 #elif defined(DXX_BUILD_DESCENT_II)
