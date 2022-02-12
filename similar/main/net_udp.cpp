@@ -446,7 +446,7 @@ public:
 	}
 };
 
-static const char *dxx_ntop(const _sockaddr &sa, std::array<char, _sockaddr::presentation_buffer_size> &dbuf)
+static const char *dxx_ntop(const _sockaddr &sa, typename _sockaddr::presentation_buffer &dbuf)
 {
 #ifdef WIN32
 #ifdef DXX_HAVE_INET_NTOP
@@ -902,7 +902,7 @@ static int udp_open_socket(RAIIsocket &sock, int port)
 	// close stale socket
 	struct _sockaddr sAddr;   // my address information
 
-	sock = RAIIsocket(sAddr.address_family(), SOCK_DGRAM, 0);
+	sock = RAIIsocket(sAddr.address_family, SOCK_DGRAM, 0);
 	if (!sock)
 	{
 		con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)", port);
@@ -910,7 +910,7 @@ static int udp_open_socket(RAIIsocket &sock, int port)
 		return -1;
 	}
 	sAddr = {};
-	sAddr.sa.sa_family = sAddr.address_family();
+	sAddr.sa.sa_family = sAddr.address_family;
 #if DXX_USE_IPv6
 	sAddr.sin6.sin6_port = htons (port); // short, network byte order
 	sAddr.sin6.sin6_addr = IN6ADDR_ANY_INIT; // automatically fill with my IP
@@ -1127,7 +1127,7 @@ static int net_udp_game_connect(direct_join *const dj)
 	if (timer_query() >= dj->start_time + (F1_0*10))
 	{
 		dj->connecting = direct_join::connect_type::idle;
-		std::array<char, _sockaddr::presentation_buffer_size> dbuf;
+		typename _sockaddr::presentation_buffer dbuf;
 		const auto port =
 #if DXX_USE_IPv6
 			dj->host_addr.sa.sa_family == AF_INET6
