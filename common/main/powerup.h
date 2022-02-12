@@ -24,13 +24,24 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #pragma once
+#include "fwd-powerup.h"
+#include "pack.h"
 
-#include "dxxsconf.h"
-#include "fwd-vclip.h"
-#include "fmtcheck.h"
-#include "fwd-object.h"
+namespace dcx {
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+struct powerup_type_info : public prohibit_void_ptr<powerup_type_info>
+{
+	int vclip_num;
+	int hit_sound;
+	fix size;       // 3d size of longest dimension
+	fix light;      // amount of light cast by this powerup, set in bitmaps.tbl
+};
+
+}
+
+#ifdef dsx
+namespace dsx {
+
 enum powerup_type_t : uint8_t
 {
 	POW_EXTRA_LIFE = 0,
@@ -93,63 +104,7 @@ enum powerup_type_t : uint8_t
 #endif
 };
 
-#ifdef dsx
-namespace dcx {
-constexpr std::integral_constant<unsigned, 16> POWERUP_NAME_LENGTH{};
-}
-
-namespace dsx {
-#if defined(DXX_BUILD_DESCENT_I)
-#define VULCAN_AMMO_MAX             (392u*2)
-constexpr std::integral_constant<unsigned, 29> MAX_POWERUP_TYPES{};
-#elif defined(DXX_BUILD_DESCENT_II)
-#define VULCAN_AMMO_MAX             (392u*4)
-#define GAUSS_WEAPON_AMMO_AMOUNT    392
-
-constexpr std::integral_constant<unsigned, 50> MAX_POWERUP_TYPES{};
-#endif
-#define VULCAN_WEAPON_AMMO_AMOUNT   196
-constexpr uint16_t VULCAN_AMMO_AMOUNT = 49*2;
-
-#if DXX_USE_EDITOR
-using powerup_names_array = std::array<std::array<char, POWERUP_NAME_LENGTH>, MAX_POWERUP_TYPES>;
-extern powerup_names_array Powerup_names;
-#endif
-
-}
-#endif
-
-namespace dcx {
-
-struct powerup_type_info : public prohibit_void_ptr<powerup_type_info>
-{
-	int vclip_num;
-	int hit_sound;
-	fix size;       // 3d size of longest dimension
-	fix light;      // amount of light cast by this powerup, set in bitmaps.tbl
-};
-
-void powerup_type_info_read(PHYSFS_File *fp, powerup_type_info &pti);
-void powerup_type_info_write(PHYSFS_File *fp, const powerup_type_info &pti);
-
-extern unsigned N_powerup_types;
-
-}
-
-//returns true if powerup consumed
-#ifdef dsx
-namespace dsx {
-void draw_powerup(const d_vclip_array &Vclip, grs_canvas &, const object_base &obj);
 using d_powerup_info_array = std::array<powerup_type_info, MAX_POWERUP_TYPES>;
 extern d_powerup_info_array Powerup_info;
-int do_powerup(vmobjptridx_t obj);
-
-//process (animate) a powerup for one frame
-void do_powerup_frame(const d_vclip_array &Vclip, vmobjptridx_t obj);
-
-void do_megawow_powerup(object &plrobj, int quantity);
-
-void powerup_basic_str(int redadd, int greenadd, int blueadd, int score, const char *str) __attribute_nonnull();
 }
-#endif
 #endif

@@ -25,11 +25,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <cassert>
 #include <cstddef>
-#include <stdio.h>
-#include "dxxsconf.h"
+#include <cstdio>
 #include "dsx-ns.h"
-#include <assert.h>
+#include "fmtcheck.h"
 
 namespace dcx {
 

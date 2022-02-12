@@ -34,11 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kconfig.h"
 #include "weapon_id.h"
 
-#include "fwd-object.h"
-#include "fwd-vclip.h"
-#include <array>
-
-enum powerup_type_t : uint8_t;
+#include "fwd-powerup.h"
 
 #if defined(DXX_BUILD_DESCENT_II)
 #define LASER_HELIX_MASK        7   // must match number of bits in flags

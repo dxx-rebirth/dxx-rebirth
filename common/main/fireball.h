@@ -27,15 +27,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <physfs.h>
 
-#ifdef __cplusplus
 #include "maths.h"
-#include "fwd-object.h"
+#include "fwd-powerup.h"
 #include "fwd-segment.h"
 #include "fwd-vecmat.h"
 #include "fwd-wall.h"
 #include "pack.h"
-
-enum powerup_type_t : uint8_t;
 
 namespace dcx {
 extern unsigned Num_exploding_walls;
@@ -107,6 +104,4 @@ extern fix	Flash_effect;
 
 vmsegidx_t choose_thief_recreation_segment(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, const vcsegidx_t plrseg);
 }
-#endif
-
 #endif
