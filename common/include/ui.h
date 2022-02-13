@@ -272,9 +272,6 @@ typedef cstring_tie<10> ui_messagebox_tie;
 int ui_messagebox( short xc, short yc, const char * text, const ui_messagebox_tie &Button );
 #define ui_messagebox(X,Y,N,T,...)	((ui_messagebox)((X),(Y),(T), ui_messagebox_tie(__VA_ARGS__)))
 
-class unused_ui_userdata_t;
-constexpr unused_ui_userdata_t *unused_ui_userdata = nullptr;
-
 void ui_dialog_set_current_canvas(UI_DIALOG &dlg);
 void ui_close_dialog(UI_DIALOG &dlg);
 
