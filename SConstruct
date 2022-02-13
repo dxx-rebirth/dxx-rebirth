@@ -400,11 +400,13 @@ class ConfigureTests(_ConfigureTests):
 			else:
 				Display("%s: reading %s settings from %s\n" % (message, display_name, cmd))
 				try:
+					out = StaticSubprocess.pcall(cmd).out
 					flags = {
-						k:v for k,v in context.env.ParseFlags(' ' + StaticSubprocess.pcall(cmd).out.decode()).items()
+						k:v for k,v in context.env.ParseFlags(' ' + out.decode()).items()
 							if v and (k[0] in 'CL')
 					}
 					Display("%s: %s settings: %r\n" % (message, display_name, flags))
+					context.Log("%s: %s settings full output: %r\n" % (message, display_name, out))
 				except OSError as o:
 					Display("%s: failed with error %s; using default flags for '%s': %r\n" % (message, repr(o.message) if o.errno is None else ('%u ("%s")' % (o.errno, o.strerror)), pkgconfig_name, guess_flags))
 					flags = guess_flags
