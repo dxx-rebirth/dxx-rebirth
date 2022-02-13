@@ -4593,6 +4593,9 @@ class DXXArchive(DXXCommon):
 	target = 'dxx-common'
 	RuntimeTest = DXXCommon.RuntimeTest
 	runtime_test_boost_tests = (
+		RuntimeTest('test-enumerate', (
+			'common/unittest/enumerate.cpp',
+			)),
 		RuntimeTest('test-serial', (
 			'common/unittest/serial.cpp',
 			)),

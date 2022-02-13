@@ -59,13 +59,14 @@ typename std::remove_reference<typename std::remove_reference<T>::type::index_ty
 
 }
 
-template <typename index_type, typename range_iterator_type, typename iterator_dereference_type>
+template <typename range_index_type, typename range_iterator_type, typename iterator_dereference_type>
 class enumerated_iterator
 {
 	range_iterator_type m_iter;
-	index_type m_idx;
-	using adjust_iterator_dereference_type = d_enumerate::detail::adjust_iterator_dereference_type<index_type, iterator_dereference_type>;
+	range_index_type m_idx;
+	using adjust_iterator_dereference_type = d_enumerate::detail::adjust_iterator_dereference_type<range_index_type, iterator_dereference_type>;
 public:
+	using index_type = range_index_type;
 	using iterator_category = std::forward_iterator_tag;
 	using value_type = typename adjust_iterator_dereference_type::value_type;
 	using difference_type = std::ptrdiff_t;
@@ -108,18 +109,19 @@ public:
 	}
 };
 
-template <typename range_iterator_type, typename index_type>
-class enumerate : partial_range_t<range_iterator_type>
+template <typename range_iterator_type, typename range_index_type>
+class enumerate : partial_range_t<range_iterator_type, range_index_type>
 {
-	using base_type = partial_range_t<range_iterator_type>;
+	using base_type = partial_range_t<range_iterator_type, range_index_type>;
 	using iterator_dereference_type = decltype(*std::declval<range_iterator_type>());
 	using enumerated_iterator_type = enumerated_iterator<
-		index_type,
+		range_index_type,
 		range_iterator_type,
 		typename std::remove_cv<iterator_dereference_type>::type>;
-	const index_type m_idx;
+	const range_index_type m_idx;
 public:
 	using range_owns_iterated_storage = std::false_type;
+	using typename base_type::index_type;
 	enumerate(const range_iterator_type b, const range_iterator_type e, const index_type i) :
 		base_type(b, e), m_idx(i)
 	{
