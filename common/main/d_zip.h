@@ -117,7 +117,7 @@ index_type range_index_type(std::tuple<range_type...> *);
 	}
 
  */
-template <typename range0_iterator_type, typename... rangeN_iterator_type>
+template <typename range_index_type, typename range0_iterator_type, typename... rangeN_iterator_type>
 class zip_iterator : std::tuple<range0_iterator_type, rangeN_iterator_type...>
 {
 	using base_type = std::tuple<range0_iterator_type, rangeN_iterator_type...>;
@@ -143,21 +143,22 @@ protected:
 		{
 			return zip_iterator(e0, this->template end_construct_ignored_element<N, typename std::tuple_element<N, base_type>::type>()...);
 		}
-	using index_type = std::make_index_sequence<1 + sizeof...(rangeN_iterator_type)>;
+	using index_sequence_type = std::make_index_sequence<1 + sizeof...(rangeN_iterator_type)>;
 public:
 	using difference_type = typename std::iterator_traits<range0_iterator_type>::difference_type;
-	using value_type = decltype(d_zip::detail::dereference_iterator(std::declval<base_type>(), index_type()));
+	using index_type = range_index_type;
+	using value_type = decltype(d_zip::detail::dereference_iterator(std::declval<base_type>(), index_sequence_type()));
 	using pointer = value_type *;
 	using reference = value_type &;
 	using iterator_category = std::forward_iterator_tag;
 	using base_type::base_type;
 	auto operator*() const
 	{
-		return d_zip::detail::dereference_iterator(*this, index_type());
+		return d_zip::detail::dereference_iterator(*this, index_sequence_type());
 	}
 	zip_iterator &operator++()
 	{
-		d_zip::detail::increment_iterator(*this, index_type());
+		d_zip::detail::increment_iterator(*this, index_sequence_type());
 		return *this;
 	}
 	difference_type operator-(const zip_iterator &i) const
@@ -175,13 +176,13 @@ public:
 };
 
 template <typename range_index_type, typename range0_iterator_type, typename... rangeN_iterator_type>
-class zip : zip_iterator<range0_iterator_type, rangeN_iterator_type...>
+class zip : zip_iterator<range_index_type, range0_iterator_type, rangeN_iterator_type...>
 {
 	range0_iterator_type m_end;
 public:
 	using range_owns_iterated_storage = std::false_type;
-	using iterator = zip_iterator<range0_iterator_type, rangeN_iterator_type...>;
-	using index_type = range_index_type;
+	using iterator = zip_iterator<range_index_type, range0_iterator_type, rangeN_iterator_type...>;
+	using typename iterator::index_type;
 	template <typename range0, typename... rangeN>
 		constexpr zip(range0 &&r0, rangeN &&... rN) :
 			iterator(std::begin(r0), std::begin(rN)...), m_end(std::end(r0))
@@ -207,7 +208,7 @@ public:
 	[[nodiscard]]
 	iterator end() const
 	{
-		return this->end_internal(m_end, typename iterator::index_type());
+		return this->end_internal(m_end, typename iterator::index_sequence_type());
 	}
 };
 
