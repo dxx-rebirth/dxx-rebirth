@@ -48,7 +48,7 @@ struct event_gadget : d_event
 	}
 };
 
-template <UI_GADGET *UI_GADGET::*step>
+template <UI_GADGET *const UI_GADGET::*step>
 UI_GADGET &ui_gadget_get_step(UI_GADGET &gadget)
 {
 	auto tmp = gadget.*step;
@@ -66,24 +66,6 @@ UI_GADGET &ui_gadget_get_prev(UI_GADGET &gadget)
 
 void ui_gadget_add(UI_DIALOG &dlg, short x1, short y1, short x2, short y2, UI_GADGET &gadget)
 {
-	if (dlg.gadget == NULL)
-	{
-		dlg.gadget = &gadget;
-		gadget.prev = &gadget;
-		gadget.next = &gadget;
-	} else {
-		dlg.gadget->prev->next = &gadget;
-		gadget.next = dlg.gadget;
-		gadget.prev = dlg.gadget->prev;
-		dlg.gadget->prev = &gadget;
-	}
-
-	gadget.when_tab = nullptr;
-	gadget.when_btab = nullptr;
-	gadget.when_up = nullptr;
-	gadget.when_down = nullptr;
-	gadget.when_left = nullptr;
-	gadget.when_right = nullptr;
 	if (x1 == 0 && x2 == 0 && y1 == 0 && y2 == 0)
 		gadget.canvas.reset();
 	else
@@ -92,8 +74,6 @@ void ui_gadget_add(UI_DIALOG &dlg, short x1, short y1, short x2, short y2, UI_GA
 	gadget.y1 = gadget.canvas->cv_bitmap.bm_y;
 	gadget.x2 = gadget.canvas->cv_bitmap.bm_x + x2 - x1 + 1;
 	gadget.y2 = gadget.canvas->cv_bitmap.bm_y + y2 - y1 + 1;
-	gadget.parent = nullptr;
-	gadget.hotkey = -1;
 }
 
 
@@ -207,7 +187,7 @@ window_event_result ui_dialog_do_gadgets(UI_DIALOG &dlg, const d_event &event)
 	if (dlg.keyboard_focus_gadget)
 	{
 		[&]{
-		UI_GADGET *UI_GADGET::*when;
+		UI_GADGET *const UI_GADGET::*when;
 		switch (keypress )
 		{
 			case (KEY_TAB):
@@ -278,6 +258,11 @@ void ui_gadget_calc_keys(UI_DIALOG &dlg)
 
 		tmp = tmp->next;
 	} while(tmp != dlg.gadget);
+}
+
+UI_GADGET::UI_GADGET(UI_GADGET *&link, const uint8_t kind) :
+	kind(kind), prev(link ? link->prev : this), next(link ? (link->prev->next = this, link->prev = this, link) : (link = this))
+{
 }
 
 }

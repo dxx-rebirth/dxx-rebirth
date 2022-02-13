@@ -67,19 +67,20 @@ struct UI_EVENT
 struct UI_GADGET
 {
 	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &) = 0;
-	uint8_t           kind;
+	const uint8_t kind;
 	short           x1,y1,x2,y2;
-	int             hotkey;
+	int hotkey = -1;
 	struct UI_GADGET  * prev;     \
 	struct UI_GADGET  * next;     \
-	struct UI_GADGET  * when_tab;  \
-	struct UI_GADGET  * when_btab; \
-	struct UI_GADGET  * when_up;    \
-	struct UI_GADGET  * when_down;   \
-	struct UI_GADGET  * when_left;   \
-	struct UI_GADGET  * when_right;  \
-	struct UI_GADGET  * parent;    \
+	struct UI_GADGET *when_tab = nullptr;
+	struct UI_GADGET *when_btab = nullptr;
+	struct UI_GADGET *when_up = nullptr;
+	struct UI_GADGET *when_down = nullptr;
+	struct UI_GADGET *when_left = nullptr;
+	struct UI_GADGET *when_right = nullptr;
+	struct UI_GADGET *parent = nullptr;
 	grs_subcanvas_ptr canvas;     \
+	UI_GADGET(UI_GADGET *&link, uint8_t kind);
 protected:
 	~UI_GADGET() = default;
 };
@@ -87,6 +88,7 @@ protected:
 struct UI_GADGET_USERBOX final : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 7>{};
+	using UI_GADGET::UI_GADGET;
 	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
 	short           width, height;
 	short           b1_held_down;
@@ -105,6 +107,7 @@ struct UI_GADGET_USERBOX final : UI_GADGET
 struct UI_GADGET_BUTTON final : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 1>{};
+	using UI_GADGET::UI_GADGET;
 	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
 	std::string  text;
 	short           width, height;
@@ -120,6 +123,7 @@ struct UI_GADGET_BUTTON final : UI_GADGET
 struct UI_GADGET_INPUTBOX final : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 6>{};
+	using UI_GADGET::UI_GADGET;
 	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
 	std::unique_ptr<char[]> text;
 	short           width, height;
@@ -133,6 +137,7 @@ struct UI_GADGET_INPUTBOX final : UI_GADGET
 struct UI_GADGET_RADIO final : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 4>{};
+	using UI_GADGET::UI_GADGET;
 	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
 	RAIIdmem<char[]>  text;
 	short           width, height;
@@ -146,6 +151,7 @@ struct UI_GADGET_RADIO final : UI_GADGET
 struct UI_GADGET_ICON final : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 9>{};
+	using UI_GADGET::UI_GADGET;
 	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
 	RAIIdmem<char[]>  text;
 	short 		    width, height;
@@ -160,6 +166,7 @@ struct UI_GADGET_ICON final : UI_GADGET
 struct UI_GADGET_CHECKBOX final : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 5>{};
+	using UI_GADGET::UI_GADGET;
 	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
 	RAIIdmem<char[]>  text;
 	short           width, height;
@@ -173,6 +180,7 @@ struct UI_GADGET_CHECKBOX final : UI_GADGET
 struct UI_GADGET_SCROLLBAR final : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 3>{};
+	using UI_GADGET::UI_GADGET;
 	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
 	short           horz;
 	short           width, height;
@@ -194,6 +202,7 @@ struct UI_GADGET_SCROLLBAR final : UI_GADGET
 struct UI_GADGET_LISTBOX final : UI_GADGET
 {
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 2>{};
+	using UI_GADGET::UI_GADGET;
 	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
 	const char            *const *list;
 	short           width, height;
@@ -277,8 +286,7 @@ template <typename T>
 [[nodiscard]]
 static std::unique_ptr<T> ui_gadget_add(UI_DIALOG &dlg, short x1, short y1, short x2, short y2)
 {
-	auto t = std::make_unique<T>();
-	t->kind = T::s_kind;
+	auto t = std::make_unique<T>(dlg.gadget, T::s_kind);
 	ui_gadget_add(dlg, x1, y1, x2, y2, *t);
 	return t;
 }
