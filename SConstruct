@@ -122,16 +122,6 @@ class ToolchainInformation(StaticSubprocess):
 			f("{}: ${}: {!r}{}".format(msgprefix, v, penv.get(v, None), append_newline))
 
 class Git(StaticSubprocess):
-	__git_archive_export_commit = '$Format:%H$'
-	if len(__git_archive_export_commit) == 40:
-		# If the length is 40, then `git archive` has rewritten the
-		# string to be a commit ID.  Use that commit ID as a guessed
-		# default when Git is not available to resolve a current commit
-		# ID.
-		__git_archive_export_commit = 'archive_{}'.format(__git_archive_export_commit)
-	else:
-		# Otherwise, assume that this is a checked-in copy.
-		__git_archive_export_commit = None
 	class ComputedExtraVersion:
 		__slots__ = ('describe', 'status', 'diffstat_HEAD', 'revparse_HEAD')
 		def __init__(self,describe,status,diffstat_HEAD,revparse_HEAD):
@@ -141,7 +131,13 @@ class Git(StaticSubprocess):
 			self.revparse_HEAD = revparse_HEAD
 		def __repr__(self):
 			return 'ComputedExtraVersion(%r,%r,%r,%r)' % (self.describe, self.status, self.diffstat_HEAD, self.revparse_HEAD)
-	UnknownExtraVersion = ComputedExtraVersion(None, None, None, __git_archive_export_commit)
+	UnknownExtraVersion = ComputedExtraVersion(None, None, None,
+		# If the string is alphanumeric, then `git archive` has rewritten the
+		# string to be a commit ID.  Use that commit ID as a guessed default
+		# when Git is not available to resolve a current commit ID.
+		'archive_$Format:%H$' if '$Format:%H$'.isalnum() else
+		# Otherwise, assume that this is a checked-in copy.
+		None)
 	# None when unset.  Instance of ComputedExtraVersion once cached.
 	__computed_extra_version = None
 	__path_git = None
