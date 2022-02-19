@@ -251,8 +251,51 @@ static bool operator!=(const vms_vector &a, const vms_vector &b)
 	return a.x != b.x || a.y != b.y || a.z != b.z;
 }
 
+constexpr constant_xrange<sidenum_t, sidenum_t::WRIGHT, sidenum_t::WFRONT> displacement_sides{};
+static_assert(WBACK + 1 == WFRONT, "side ordering error");
+
+static unsigned generate_extra_starts_by_copying(object_array &Objects, valptridx<player>::array_managed_type &Players, segment_array &Segments, const xrange<unsigned, std::integral_constant<unsigned, 0>> preplaced_start_range, const std::array<uint8_t, MAX_PLAYERS> &player_init_segment_capacity_flag, const unsigned total_required_num_starts, unsigned synthetic_player_idx)
+{
+	for (const auto side : displacement_sides)
+	{
+		for (const auto old_player_idx : preplaced_start_range)
+		{
+			auto &old_player_ref = *Players.vcptr(old_player_idx);
+			const auto &&old_player_ptridx = Objects.vcptridx(old_player_ref.objnum);
+			auto &old_player_obj = *old_player_ptridx;
+			if (player_init_segment_capacity_flag[old_player_idx] & (1 << side))
+			{
+				auto &&segp = Segments.vmptridx(old_player_obj.segnum);
+				/* Copy the start exactly.  The next loop in the caller will
+				 * fix the collisions caused by placing the clone on top of the
+				 * original.
+				 *
+				 * Currently, there is no handling for the case that the
+				 * level author already put two players too close together.
+				 * If this is a problem, more logic can be added to suppress
+				 * cloning in that case.
+				 */
+				const auto &&extra_player_ptridx = obj_create_copy(old_player_obj, segp);
+				if (extra_player_ptridx == object_none)
+				{
+					con_printf(CON_URGENT, "%s:%u: warning: failed to copy start object %hu", __FILE__, __LINE__, old_player_ptridx.get_unchecked_index());
+					continue;
+				}
+				Players.vmptr(synthetic_player_idx)->objnum = extra_player_ptridx;
+				auto &extra_player_obj = *extra_player_ptridx;
+				set_player_id(extra_player_obj, synthetic_player_idx);
+				con_printf(CON_NORMAL, "Copied player %u (object %hu at {%i, %i, %i}) to create player %u (object %hu).", old_player_idx, old_player_ptridx.get_unchecked_index(), old_player_obj.pos.x, old_player_obj.pos.y, old_player_obj.pos.z, synthetic_player_idx, extra_player_ptridx.get_unchecked_index());
+				if (++ synthetic_player_idx >= total_required_num_starts)
+					return synthetic_player_idx;
+			}
+		}
+	}
+	return synthetic_player_idx;
+}
+
 static unsigned generate_extra_starts_by_displacement_within_segment(const unsigned preplaced_starts, const unsigned total_required_num_starts)
 {
+	const auto &&preplaced_start_range = xrange(preplaced_starts);
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -274,7 +317,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 	constexpr fix size_scalar = 0x18000;	// 1.5 in fixed point
 	unsigned segments_with_spare_capacity = 0;
 	auto &vcvertptr = Vertices.vcptr;
-	for (unsigned i = 0; i < preplaced_starts; ++i)
+	for (const auto i : preplaced_start_range)
 	{
 		/* For each existing Player_init, compute whether the segment is
 		 * large enough in each dimension to support adding more ships.
@@ -299,40 +342,12 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 			++segments_with_spare_capacity;
 	}
 	if (!segments_with_spare_capacity)
+		/* Every segment checked was too small to add an extra start.  Give up
+		 * early.
+		 */
 		return preplaced_starts;
-	unsigned k = preplaced_starts;
-	for (unsigned old_player_idx = -1, side = WRIGHT; ++ old_player_idx != preplaced_starts || (old_player_idx = 0, side ++ != WBACK);)
-	{
-		auto &old_player_ref = *Players.vcptr(old_player_idx);
-		const auto &&old_player_ptridx = Objects.vcptridx(old_player_ref.objnum);
-		auto &old_player_obj = *old_player_ptridx;
-		if (player_init_segment_capacity_flag[old_player_idx] & (1 << side))
-		{
-			auto &&segp = vmsegptridx(old_player_obj.segnum);
-			/* Copy the start exactly.  The next loop will fix the
-			 * collisions caused by placing the clone on top of the
-			 * original.
-			 *
-			 * Currently, there is no handling for the case that the
-			 * level author already put two players too close together.
-			 * If this is a problem, more logic can be added to suppress
-			 * cloning in that case.
-			 */
-			const auto &&extra_player_ptridx = obj_create_copy(old_player_obj, segp);
-			if (extra_player_ptridx == object_none)
-			{
-				con_printf(CON_URGENT, "%s:%u: warning: failed to copy start object %hu", __FILE__, __LINE__, old_player_ptridx.get_unchecked_index());
-				continue;
-			}
-			Players.vmptr(k)->objnum = extra_player_ptridx;
-			auto &extra_player_obj = *extra_player_ptridx;
-			set_player_id(extra_player_obj, k);
-			con_printf(CON_NORMAL, "Copied player %u (object %hu at {%i, %i, %i}) to create player %u (object %hu).", old_player_idx, old_player_ptridx.get_unchecked_index(), old_player_obj.pos.x, old_player_obj.pos.y, old_player_obj.pos.z, k, extra_player_ptridx.get_unchecked_index());
-			if (++ k >= total_required_num_starts)
-				break;
-		}
-	}
-	for (unsigned old_player_idx = 0; old_player_idx < preplaced_starts; ++old_player_idx)
+	unsigned k = generate_extra_starts_by_copying(Objects, Players, Segments, preplaced_start_range, player_init_segment_capacity_flag, total_required_num_starts, preplaced_starts);
+	for (const auto old_player_idx : preplaced_start_range)
 	{
 		auto &old_player_init = Player_init[old_player_idx];
 		const auto old_player_pos = old_player_init.pos;
@@ -344,18 +359,15 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 		 * the center of that side and the reference player's start
 		 * point.  This will be used in the next loop.
 		 */
-		for (unsigned side = WRIGHT; side != WBACK + 1; ++side)
+		for (auto &&[side, displacement] : zip(displacement_sides, vec_displacement))
 		{
 			const auto &&center_on_side = compute_center_point_on_side(vcvertptr, seg, side);
-			const auto &&vec_pos_to_center_on_side = vm_vec_sub(center_on_side, old_player_init.pos);
-			const unsigned idxside = side - WRIGHT;
-			assert(idxside < vec_displacement.size());
-			vec_displacement[idxside] = vec_pos_to_center_on_side;
+			displacement = vm_vec_sub(center_on_side, old_player_init.pos);
 		}
 		const auto displace_player = [&](const unsigned plridx, object_base &plrobj, const unsigned displacement_direction) {
 			vms_vector disp{};
 			unsigned dimensions = 0;
-			for (unsigned i = 0, side = WRIGHT; side != WBACK + 1; ++side, ++i)
+			for (const auto &&[i, side] : enumerate(displacement_sides))
 			{
 				if (!(player_init_segment_capacity_flag[old_player_idx] & (1 << side)))
 				{
