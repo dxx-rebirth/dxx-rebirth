@@ -917,17 +917,17 @@ namespace {
 //given an edge specified by two verts, give the two sides on that edge
 constexpr std::array<
 	std::array<
-		std::array<int_fast8_t, 2>,
+		std::array<sidenum_t, 2>,
 		8>,
 	8> Edge_to_sides = {{
-	{{  {{side_none,side_none}},	 {{2,5}},	 {{side_none,side_none}},	 {{1,5}},	 {{1,2}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}}	}},
-	{{  {{2,5}},	 {{side_none,side_none}},	 {{3,5}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{2,3}},	 {{side_none,side_none}},	 {{side_none,side_none}}	}},
-	{{  {{side_none,side_none}},	 {{3,5}},	 {{side_none,side_none}},	 {{0,5}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{0,3}},	 {{side_none,side_none}}	}},
-	{{  {{1,5}},	 {{side_none,side_none}},	 {{0,5}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{0,1}}	}},
-	{{  {{1,2}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{2,4}},	 {{side_none,side_none}},	 {{1,4}}	}},
-	{{  {{side_none,side_none}},	 {{2,3}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{2,4}},	 {{side_none,side_none}},	 {{3,4}},	 {{side_none,side_none}}	}},
-	{{  {{side_none,side_none}},	 {{side_none,side_none}},	 {{0,3}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{3,4}},	 {{side_none,side_none}},	 {{0,4}}	}},
-	{{  {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{0,1}},	 {{1,4}},	 {{side_none,side_none}},	 {{0,4}},	 {{side_none,side_none}}	}},
+	{{  {{side_none,side_none}},	 {{sidenum_t::WRIGHT,sidenum_t::WFRONT}},	 {{side_none,side_none}},	 {{sidenum_t::WTOP,sidenum_t::WFRONT}},	 {{sidenum_t::WTOP,sidenum_t::WRIGHT}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}}	}},
+	{{  {{sidenum_t::WRIGHT,sidenum_t::WFRONT}},	 {{side_none,side_none}},	 {{sidenum_t::WBOTTOM,sidenum_t::WFRONT}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{sidenum_t::WRIGHT,sidenum_t::WBOTTOM}},	 {{side_none,side_none}},	 {{side_none,side_none}}	}},
+	{{  {{side_none,side_none}},	 {{sidenum_t::WBOTTOM,sidenum_t::WFRONT}},	 {{side_none,side_none}},	 {{sidenum_t::WLEFT,sidenum_t::WFRONT}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{sidenum_t::WLEFT,sidenum_t::WBOTTOM}},	 {{side_none,side_none}}	}},
+	{{  {{sidenum_t::WTOP,sidenum_t::WFRONT}},	 {{side_none,side_none}},	 {{sidenum_t::WLEFT,sidenum_t::WFRONT}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{sidenum_t::WLEFT,sidenum_t::WTOP}}	}},
+	{{  {{sidenum_t::WTOP,sidenum_t::WRIGHT}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{sidenum_t::WRIGHT,sidenum_t::WBACK}},	 {{side_none,side_none}},	 {{sidenum_t::WTOP,sidenum_t::WBACK}}	}},
+	{{  {{side_none,side_none}},	 {{sidenum_t::WRIGHT,sidenum_t::WBOTTOM}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{sidenum_t::WRIGHT,sidenum_t::WBACK}},	 {{side_none,side_none}},	 {{sidenum_t::WBOTTOM,sidenum_t::WBACK}},	 {{side_none,side_none}}	}},
+	{{  {{side_none,side_none}},	 {{side_none,side_none}},	 {{sidenum_t::WLEFT,sidenum_t::WBOTTOM}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{sidenum_t::WBOTTOM,sidenum_t::WBACK}},	 {{side_none,side_none}},	 {{sidenum_t::WLEFT,sidenum_t::WBACK}}	}},
+	{{  {{side_none,side_none}},	 {{side_none,side_none}},	 {{side_none,side_none}},	 {{sidenum_t::WLEFT,sidenum_t::WTOP}},	 {{sidenum_t::WTOP,sidenum_t::WBACK}},	 {{side_none,side_none}},	 {{sidenum_t::WLEFT,sidenum_t::WBACK}},	 {{side_none,side_none}}	}},
 }};
 
 //@@//perform simple check on tables
