@@ -1255,29 +1255,21 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 		//offset object sideways
 		if (flydata->offset_frac) {
-			int s0=-1,s1=0;
-			fix dist;
-
+			std::array<vms_vector, 2> sp;
+			auto isp = sp.begin();
 			for (const auto i : MAX_SIDES_PER_SEGMENT)
 				if (i!=entry_side && i!=exit_side && i!=up_side && i!=Side_opposite[up_side])
 				 {
-					if (s0==-1)
-						s0 = i;
-					else
-						s1 = i;
+					 compute_center_point_on_side(vcvertptr, *isp, pseg, i);
+					 ++ isp;
+					 if (isp == sp.end())
+						 break;
 				 }
 
-			const auto &&s0p = compute_center_point_on_side(vcvertptr, pseg, s0);
-			const auto &&s1p = compute_center_point_on_side(vcvertptr, pseg, s1);
-			dist = fixmul(vm_vec_dist(s0p,s1p),flydata->offset_frac);
-
-			if (dist-flydata->offset_dist > MAX_SLIDE_PER_SEGMENT)
-				dist = flydata->offset_dist + MAX_SLIDE_PER_SEGMENT;
-
+			const fix dist = std::min(fixmul(vm_vec_dist(sp[0], sp[1]), flydata->offset_frac), flydata->offset_dist + MAX_SLIDE_PER_SEGMENT);
 			flydata->offset_dist = dist;
 
 			vm_vec_scale_add2(dest_point,obj->orient.rvec,dist);
-
 		}
 
 		vm_vec_sub(flydata->step,dest_point,obj->pos);
