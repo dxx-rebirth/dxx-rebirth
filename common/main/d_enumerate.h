@@ -59,12 +59,11 @@ typename std::remove_reference<typename std::remove_reference<T>::type::index_ty
 
 }
 
-template <typename range_index_type, typename range_iterator_type, typename iterator_dereference_type>
+template <typename range_index_type, typename range_iterator_type, typename adjust_iterator_dereference_type>
 class enumerated_iterator
 {
 	range_iterator_type m_iter;
 	range_index_type m_idx;
-	using adjust_iterator_dereference_type = d_enumerate::detail::adjust_iterator_dereference_type<range_index_type, iterator_dereference_type>;
 public:
 	using index_type = range_index_type;
 	using iterator_category = std::forward_iterator_tag;
@@ -117,7 +116,7 @@ class enumerate : partial_range_t<range_iterator_type, range_index_type>
 	using enumerated_iterator_type = enumerated_iterator<
 		range_index_type,
 		range_iterator_type,
-		typename std::remove_cv<iterator_dereference_type>::type>;
+		d_enumerate::detail::adjust_iterator_dereference_type<range_index_type, typename std::remove_cv<iterator_dereference_type>::type>>;
 	const range_index_type m_idx;
 public:
 	using range_owns_iterated_storage = std::false_type;
@@ -130,6 +129,11 @@ public:
 		enumerate(range_type &&t, const index_type i = index_type{}) :
 			base_type(std::forward<range_type>(t)), m_idx(i)
 	{
+		/* Block using `enumerate` on an ephemeral range, since the storage
+		 * owned by the range must exist until the `enumerate` object is
+		 * fully consumed.  If `range_type &&` is an ephemeral range, then its
+		 * storage may cease to exist after this constructor returns.
+		 */
 		static_assert(!any_ephemeral_range<range_type &&>::value, "cannot enumerate storage of ephemeral ranges");
 		static_assert(std::is_rvalue_reference<range_type &&>::value || std::is_lvalue_reference<iterator_dereference_type>::value, "lvalue range must produce lvalue reference enumerated_value");
 	}
