@@ -907,6 +907,12 @@ static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, co
 				}
 				const shared_segment &vcseg = *vcsegptr(connected_seg);
 				const auto connected_side = find_connect_side(seg, vcseg);
+				if (connected_side == side_none)
+				{
+					rwn0 = wall_none;
+					LevelError("segment %u side %u wall %u has child segment %u side %u, but child segment does not link back; removing orphan wall.", seg.get_unchecked_index(), sidenum, underlying_value(wn0), connected_seg, connected_side);
+					return;
+				}
 				const auto wn1 = vcseg.sides[connected_side].wall_num;
 				if (wn1 == wall_none)
 				{

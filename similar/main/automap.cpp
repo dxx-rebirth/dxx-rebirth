@@ -1456,15 +1456,13 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 #endif
-	ubyte	color;
-	
 	for (const auto sn : MAX_SIDES_PER_SEGMENT)
 	{
 		uint8_t hidden_flag = 0;
 		uint8_t is_grate = 0;
 		uint8_t no_fade = 0;
 
-		color = 255;
+		uint8_t color = 255;
 		if (seg->shared_segment::children[sn] == segment_none) {
 			color = am.wall_normal_color;
 		}
@@ -1516,6 +1514,8 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 					if (connected_seg != segment_none) {
 						const shared_segment &vcseg = *vcsegptr(connected_seg);
 						const auto &connected_side = find_connect_side(seg, vcseg);
+						if (connected_side == side_none)
+							break;
 						auto &wall = *vcwallptr(vcseg.sides[connected_side].wall_num);
 						switch (wall.keys)
 						{
