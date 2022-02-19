@@ -314,7 +314,7 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
 
-	std::array<sidenum_t, MAX_SIDES_PER_SEGMENT> side_traversal_translation;
+	std::array<sidenum_t, static_cast<std::size_t>(MAX_SIDES_PER_SEGMENT.value)> side_traversal_translation;
 	std::iota(side_traversal_translation.begin(), side_traversal_translation.end(), sidenum_t{});
 #if defined(DXX_BUILD_DESCENT_I)
 	/* Descent 1 can only shuffle once, before the loop begins.

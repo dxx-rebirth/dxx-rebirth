@@ -531,8 +531,7 @@ int fuelcen_delete_from_curseg() {
 //determine how from from the center of the window the farthest point will be
 #define SIDE_VIEW_FRAC (f1_0*8/10)	//80%
 
-
-static void move_player_2_segment_and_rotate(const vmsegptridx_t seg, const unsigned side)
+static void move_player_2_segment_and_rotate(const vmsegptridx_t seg, const sidenum_t side)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;

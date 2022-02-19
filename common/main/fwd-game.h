@@ -237,7 +237,7 @@ extern enumerated_array<game_marker_index, 2, gauge_inset_window_view> Marker_vi
 
 #if DXX_USE_EDITOR
 void dump_used_textures_all();
-void move_player_2_segment(vmsegptridx_t seg, unsigned side);
+void move_player_2_segment(vmsegptridx_t seg, sidenum_t side);
 #endif
 }
 

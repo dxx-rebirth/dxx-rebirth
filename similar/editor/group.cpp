@@ -371,7 +371,7 @@ static inline vms_matrix med_create_group_rotation_matrix(const unsigned delta_f
 
 // -----------------------------------------------------------------------------------------
 // Rotate all vertices and objects in group.
-static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type_t &group_seglist, const shared_segment &first_seg, const unsigned first_side)
+static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type_t &group_seglist, const shared_segment &first_seg, const sidenum_t first_side)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;

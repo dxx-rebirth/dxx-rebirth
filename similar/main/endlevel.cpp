@@ -301,7 +301,7 @@ static sidenum_t find_exit_side(const d_level_shared_segment_state &LevelSharedS
 
 		if (child != segment_none)
 		{
-			auto sidevec = compute_center_point_on_side(vcvertptr, pseg, static_cast<sidenum_t>(i));
+			auto sidevec = compute_center_point_on_side(vcvertptr, pseg, i);
 			vm_vec_normalized_dir_quick(sidevec,sidevec,segcenter);
 			d = vm_vec_dot(sidevec,prefvec);
 

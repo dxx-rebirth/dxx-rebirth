@@ -1426,7 +1426,7 @@ void newdemo_record_player_weapon(int weapon_type, int weapon_num)
 	);
 }
 
-void newdemo_record_effect_blowup(segnum_t segment, int side, const vms_vector &pnt)
+void newdemo_record_effect_blowup(segnum_t segment, sidenum_t side, const vms_vector &pnt)
 {
 	pause_game_world_time p;
 	nd_write_byte (ND_EVENT_EFFECT_BLOWUP);

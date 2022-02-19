@@ -100,7 +100,7 @@ void do_special_effects()
 					ec.flags &= ~EF_ONE_SHOT;
 					unique_segment &seg = *vmsegptr(ec.segnum);
 					ec.segnum = segment_none;		//done with this
-					assert(ec.sidenum < 6);
+					assert(seg.sides.valid_index(ec.sidenum));
 					auto &side = seg.sides[ec.sidenum];
 					assert(ec.dest_bm_num != 0 && side.tmap_num2 != texture2_value::None);
 					side.tmap_num2 = build_texture2_value(ec.dest_bm_num, get_texture_rotation_high(side.tmap_num2));		//replace with destroyed

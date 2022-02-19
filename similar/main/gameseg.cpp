@@ -152,9 +152,9 @@ static void get_side_verts(side_vertnum_list_t &vertlist, const enumerated_array
 // ------------------------------------------------------------------------------------------
 // Compute the center point of a side of a segment.
 //	The center point is defined to be the average of the 4 points defining the side.
-void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &vp, const shared_segment &sp, const unsigned side)
+void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &vp, const shared_segment &sp, const sidenum_t side)
 {
-	compute_center_point_on_side(vcvertptr, vp, sp.verts, static_cast<sidenum_t>(side));
+	compute_center_point_on_side(vcvertptr, vp, sp.verts, side);
 }
 
 // ------------------------------------------------------------------------------------------

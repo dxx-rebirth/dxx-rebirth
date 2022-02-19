@@ -796,7 +796,7 @@ static window_event_result collide_weapon_and_wall(
 	if (keyd_pressed[KEY_LAPOSTRO])
 		if (weapon->ctype.laser_info.parent_num == get_local_player().objnum) {
 			//	MK: Real pain when you need to know a seg:side and you've got quad lasers.
-			HUD_init_message(HM_DEFAULT, "Hit at segment = %hu, side = %i", static_cast<vmsegptridx_t::integral_type>(hitseg), hitwall);
+			HUD_init_message(HM_DEFAULT, "Hit at segment = %hu, side = %i", static_cast<vmsegptridx_t::integral_type>(hitseg), underlying_value(hitwall));
 #if defined(DXX_BUILD_DESCENT_II)
 			if (get_weapon_id(weapon) < 4)
 				subtract_light(LevelSharedDestructibleLightState, hitseg, hitwall);

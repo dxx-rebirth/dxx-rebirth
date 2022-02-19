@@ -563,7 +563,7 @@ v1_control_center_triggers::v1_control_center_triggers(const control_center_trig
 	num_links(cct.num_links), seg(cct.seg)
 {
 	for (auto &&[w, r] : zip(side, cct.side))
-		w = r;
+		w = underlying_value(r);
 }
 
 /*

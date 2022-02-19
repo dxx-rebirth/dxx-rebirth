@@ -498,7 +498,7 @@ void digi_link_sound_to_pos(const unsigned soundnum, const vcsegptridx_t segnum,
 }
 
 //if soundnum==-1, kill any sound
-void digi_kill_sound_linked_to_segment(const vmsegidx_t segnum, const unsigned sidenum, int soundnum)
+void digi_kill_sound_linked_to_segment(const vmsegidx_t segnum, const sidenum_t sidenum, int soundnum)
 {
 	if (soundnum != -1)
 		soundnum = digi_xlat_sound(soundnum);

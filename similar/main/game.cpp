@@ -647,7 +647,7 @@ void calc_frame_time()
 namespace dsx {
 
 #if DXX_USE_EDITOR
-void move_player_2_segment(const vmsegptridx_t seg, const unsigned side)
+void move_player_2_segment(const vmsegptridx_t seg, const sidenum_t side)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;

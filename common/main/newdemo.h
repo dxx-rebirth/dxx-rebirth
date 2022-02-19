@@ -100,7 +100,7 @@ extern void newdemo_record_player_energy(int);
 extern void newdemo_record_player_shields(int);
 extern void newdemo_record_player_flags(unsigned);
 extern void newdemo_record_player_weapon(int, int);
-void newdemo_record_effect_blowup(segnum_t, int, const vms_vector &);
+void newdemo_record_effect_blowup(segnum_t, sidenum_t, const vms_vector &);
 extern void newdemo_record_homing_distance(fix);
 extern void newdemo_record_letterbox(void);
 extern void newdemo_record_rearview(void);

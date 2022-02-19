@@ -132,6 +132,16 @@ struct shared_side
 	std::array<vms_vector, 2> normals;  // 2 normals, if quadrilateral, both the same.
 };
 
+enum sidenum_t : uint8_t
+{
+	WLEFT = 0,
+	WTOP = 1,
+	WRIGHT = 2,
+	WBOTTOM = 3,
+	WBACK = 4,
+	WFRONT = 5
+};
+
 enum class sidemask_t : uint8_t
 {
 	left =	1u << static_cast<uint8_t>(sidenum_t::WLEFT),
@@ -257,7 +267,7 @@ struct shared_segment
 	segnum_t   segnum;     // segment number, not sure what it means
 	short   group;      // group number to which the segment belongs.
 #endif
-	enumerated_array<segnum_t, MAX_SIDES_PER_SEGMENT, sidenum_t> children;    // indices of 6 children segments, front, left, top, right, bottom, back
+	enumerated_array<segnum_t, static_cast<std::size_t>(MAX_SIDES_PER_SEGMENT.value), sidenum_t> children;    // indices of 6 children segments, front, left, top, right, bottom, back
 	enumerated_array<vertnum_t, MAX_VERTICES_PER_SEGMENT, segment_relative_vertnum> verts;    // vertex ids of 4 front and 4 back vertices
 	segment_special special;    // what type of center this is
 	materialization_center_number matcen_num; // which center segment is associated with.
@@ -265,7 +275,7 @@ struct shared_segment
 	/* if DXX_BUILD_DESCENT_II */
 	uint8_t s2_flags;
 	/* endif */
-	enumerated_array<shared_side, MAX_SIDES_PER_SEGMENT, sidenum_t> sides;
+	enumerated_array<shared_side, static_cast<std::size_t>(MAX_SIDES_PER_SEGMENT.value), sidenum_t> sides;
 };
 
 struct unique_segment
@@ -277,7 +287,7 @@ struct unique_segment
 	sidemask_t slide_textures;
 	/* endif */
 	fix     static_light;
-	enumerated_array<unique_side, MAX_SIDES_PER_SEGMENT, sidenum_t> sides;
+	enumerated_array<unique_side, static_cast<std::size_t>(MAX_SIDES_PER_SEGMENT.value), sidenum_t> sides;
 };
 
 struct segment : unique_segment, shared_segment
