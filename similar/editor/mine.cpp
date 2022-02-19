@@ -519,11 +519,11 @@ static void dump_fix_as_ushort( fix value, int nbits, PHYSFS_File *SaveFile )
 	PHYSFS_writeULE16(SaveFile, short_value);
 }
 
-static void write_children(const shared_segment &seg, const unsigned bit_mask, PHYSFS_File *const SaveFile)
+static void write_children(const shared_segment &seg, const sidemask_t bit_mask, PHYSFS_File *const SaveFile)
 {
 	for (const auto &&[bit, child] : enumerate(seg.children))
 	{
-		if (bit_mask & (1 << bit))
+		if (bit_mask & build_sidemask(bit))
 			PHYSFS_writeSLE16(SaveFile, child);
 	}
 }
@@ -534,9 +534,9 @@ static void write_verts(const shared_segment &seg, PHYSFS_File *const SaveFile)
 		PHYSFS_writeSLE16(SaveFile, static_cast<uint16_t>(i));
 }
 
-static void write_special(const shared_segment &seg, const unsigned bit_mask, PHYSFS_File *const SaveFile)
+static void write_special(const shared_segment &seg, const sidemask_t bit_mask, PHYSFS_File *const SaveFile)
 {
-	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT))
+	if (bit_mask & build_sidemask(MAX_SIDES_PER_SEGMENT))
 	{
 		PHYSFSX_writeU8(SaveFile, underlying_value(seg.special));
 		PHYSFSX_writeU8(SaveFile, underlying_value(seg.matcen_num));
@@ -558,7 +558,6 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	ubyte 	version = COMPILED_MINE_VERSION;
-	ubyte		bit_mask = 0;
 
 	med_compress_mine();
 	warn_if_concave_segments();
@@ -597,19 +596,21 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 	for (segnum_t segnum = 0; segnum < Num_segments; segnum++)
 	{
 		const cscusegment &&seg = vcsegptr(segnum);
+		{
+		sidemask_t bit_mask{};
 		for (const auto &&[sidenum, child] : enumerate(seg.s.children))
 		{
 			if (child != segment_none)
-				bit_mask |= (1 << sidenum);
+				bit_mask |= build_sidemask(sidenum);
 		}
 
 		if (seg.s.special != segment_special::nothing || seg.s.matcen_num != materialization_center_number::None || seg.s.station_idx != station_number::None)
-			bit_mask |= (1 << MAX_SIDES_PER_SEGMENT);
+			bit_mask |= build_sidemask(MAX_SIDES_PER_SEGMENT);
 
 		if (New_file_format_save)
-			PHYSFSX_writeU8(SaveFile, bit_mask);
+			PHYSFSX_writeU8(SaveFile, underlying_value(bit_mask));
 		else
-			bit_mask = 0x7F;
+			bit_mask = sidemask_t{0x7f};
 
 		if (Gamesave_current_version == 5)	// d2 SHAREWARE level
 		{
@@ -627,25 +628,26 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 
 		if (Gamesave_current_version <= 5) // descent 1 thru d2 SHAREWARE level
 			dump_fix_as_ushort(seg.u.static_light, 4, SaveFile);
-	
+		}
+
 		// Write the walls as a 6 byte array
-		bit_mask = 0;
+		{
+		sidemask_t bit_mask{};
 		for (const auto &&[sidenum, side] : enumerate(seg.s.sides))
 		{
 			if (side.wall_num != wall_none)
-			{
-				bit_mask |= (1 << sidenum);
-			}
+				bit_mask |= build_sidemask(sidenum);
 		}
 		if (New_file_format_save)
-			PHYSFSX_writeU8(SaveFile, bit_mask);
+			PHYSFSX_writeU8(SaveFile, underlying_value(bit_mask));
 		else
-			bit_mask = 0x3F;
+			bit_mask = sidemask_t{0x3f};
 
 		for (const auto &&[sidenum, side] : enumerate(seg.s.sides))
 		{
-			if (bit_mask & (1 << sidenum))
+			if (bit_mask & build_sidemask(sidenum))
 				PHYSFSX_writeU8(SaveFile, underlying_value(side.wall_num));
+		}
 		}
 
 		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)

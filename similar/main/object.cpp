@@ -1122,7 +1122,7 @@ imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptrid
 		return object_none;
 
 	auto &vcvertptr = Vertices.vcptr;
-	if (get_seg_masks(vcvertptr, pos, segnum, 0).centermask != 0)
+	if (get_seg_masks(vcvertptr, pos, segnum, 0).centermask != sidemask_t{})
 	{
 		const auto &&p = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos, segnum);
 		if (p == segment_none) {
@@ -1932,11 +1932,11 @@ static window_event_result object_move_one(const vmobjptridx_t obj, control_info
 			auto &playing = obj->ctype.player_info.lavafall_hiss_playing;
 			const auto &&segp = vcsegptr(obj->segnum);
 			auto &vcvertptr = Vertices.vcptr;
-			if (const auto sidemask = get_seg_masks(vcvertptr, obj->pos, segp, obj->size).sidemask)
+			if (const auto sidemask = get_seg_masks(vcvertptr, obj->pos, segp, obj->size).sidemask; sidemask != sidemask_t{})
 			{
 				for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
 				{
-					if (!(sidemask & (1 << sidenum)))
+					if (!(sidemask & build_sidemask(sidenum)))
 						continue;
 					const auto wall_num = segp->shared_segment::sides[sidenum].wall_num;
 					if (wall_num != wall_none && vcwallptr(wall_num)->type == WALL_ILLUSION)

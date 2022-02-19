@@ -132,6 +132,31 @@ struct shared_side
 	std::array<vms_vector, 2> normals;  // 2 normals, if quadrilateral, both the same.
 };
 
+enum class sidemask_t : uint8_t
+{
+	left =	1u << static_cast<uint8_t>(sidenum_t::WLEFT),
+	top =	1u << static_cast<uint8_t>(sidenum_t::WTOP),
+	right =	1u << static_cast<uint8_t>(sidenum_t::WRIGHT),
+	bottom =	1u << static_cast<uint8_t>(sidenum_t::WBOTTOM),
+	back =	1u << static_cast<uint8_t>(sidenum_t::WBACK),
+	front =	1u << static_cast<uint8_t>(sidenum_t::WFRONT),
+};
+
+static constexpr uint8_t operator&(const sidemask_t a, const sidemask_t b)
+{
+	return static_cast<uint8_t>(a) & static_cast<uint8_t>(b);
+}
+
+static constexpr sidemask_t &operator|=(sidemask_t &a, const sidemask_t b)
+{
+	return a = static_cast<sidemask_t>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+}
+
+static constexpr sidemask_t build_sidemask(const sidenum_t s)
+{
+	return static_cast<sidemask_t>(1u << static_cast<uint8_t>(s));
+}
+
 enum class texture1_value : uint16_t
 {
 	None,
@@ -249,7 +274,7 @@ struct unique_segment
 	//      If bit n (1 << n) is set, then side #n in segment has had light subtracted from original (editor-computed) value.
 	uint8_t light_subtracted;
 	/* if DXX_BUILD_DESCENT_II */
-	uint8_t slide_textures;
+	sidemask_t slide_textures;
 	/* endif */
 	fix     static_light;
 	enumerated_array<unique_side, MAX_SIDES_PER_SEGMENT, sidenum_t> sides;

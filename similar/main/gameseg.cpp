@@ -297,7 +297,7 @@ segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const sh
 	int facebit = 1;
 	for (const auto sn : MAX_SIDES_PER_SEGMENT)
 	{
-		const auto sidebit = 1 << sn;
+		const auto sidebit = build_sidemask(sn);
 		auto &s = seg.sides[sn];
 		
 		// Get number of faces on this side, and at vertex_list, store vertices.
@@ -383,20 +383,17 @@ namespace {
 //this was converted from get_seg_masks()...it fills in an array of 6
 //elements for the distace behind each side, or zero if not behind
 //only gets centermask, and assumes zero rad
-static uint8_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, const shared_segment &segnum, std::array<fix, 6> &side_dists)
+static sidemask_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, const shared_segment &segnum, std::array<fix, 6> &side_dists)
 {
-	ubyte			mask;
+	sidemask_t mask{};
 	auto &sides = segnum.sides;
 
 	//check point against each side of segment. return bitmask
-
-	mask = 0;
-
 	side_dists = {};
 	int facebit = 1;
 	for (const auto sn : MAX_SIDES_PER_SEGMENT)
 	{
-		const auto sidebit = 1 << sn;
+		const auto sidebit = build_sidemask(sn);
 		auto &s = sides[sn];
 
 		// Get number of faces on this side, and at vertex_list, store vertices.
@@ -616,7 +613,6 @@ namespace {
 // returns segment number, or -1 if can't find segment
 static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedSegmentState, const vms_vector &p0, const vcsegptridx_t oldsegnum, const unsigned recursion_count, visited_segment_bitarray_t &visited)
 {
-	int centermask;
 	std::array<fix, 6> side_dists;
 	fix biggest_val;
 	if (recursion_count >= LevelSharedSegmentState.Num_segments) {
@@ -630,8 +626,8 @@ static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	centermask = get_side_dists(Vertices.vcptr, p0, oldsegnum, side_dists);		//check old segment
-	if (centermask == 0) // we are in the old segment
+	const auto centermask = get_side_dists(Vertices.vcptr, p0, oldsegnum, side_dists);		//check old segment
+	if (centermask == sidemask_t{}) // we are in the old segment
 		return oldsegnum; //..say so
 
 	for (;;) {
@@ -640,7 +636,7 @@ static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 		biggest_val = 0;
 		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
 		{
-			const auto bit = 1 << sidenum;
+			const auto bit = build_sidemask(sidenum);
 			if ((centermask & bit) && IS_CHILD(children[sidenum])
 			    && side_dists[sidenum] < biggest_val) {
 				biggest_val = side_dists[sidenum];
@@ -693,7 +689,7 @@ icsegptridx_t find_point_seg(const d_level_shared_segment_state &LevelSharedSegm
 		auto &Vertices = LevelSharedVertexState.get_vertices();
 		range_for (const auto &&segp, Segments.vmptridx)
 		{
-			if (get_seg_masks(Vertices.vcptr, p, segp, 0).centermask == 0)
+			if (get_seg_masks(Vertices.vcptr, p, segp, 0).centermask == sidemask_t{})
 				return segp;
 		}
 	}

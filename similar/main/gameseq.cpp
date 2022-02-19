@@ -254,7 +254,7 @@ static bool operator!=(const vms_vector &a, const vms_vector &b)
 constexpr constant_xrange<sidenum_t, sidenum_t::WRIGHT, sidenum_t::WFRONT> displacement_sides{};
 static_assert(WBACK + 1 == WFRONT, "side ordering error");
 
-static unsigned generate_extra_starts_by_copying(object_array &Objects, valptridx<player>::array_managed_type &Players, segment_array &Segments, const xrange<unsigned, std::integral_constant<unsigned, 0>> preplaced_start_range, const std::array<uint8_t, MAX_PLAYERS> &player_init_segment_capacity_flag, const unsigned total_required_num_starts, unsigned synthetic_player_idx)
+static unsigned generate_extra_starts_by_copying(object_array &Objects, valptridx<player>::array_managed_type &Players, segment_array &Segments, const xrange<unsigned, std::integral_constant<unsigned, 0>> preplaced_start_range, const std::array<sidemask_t, MAX_PLAYERS> &player_init_segment_capacity_flag, const unsigned total_required_num_starts, unsigned synthetic_player_idx)
 {
 	for (const auto side : displacement_sides)
 	{
@@ -263,7 +263,7 @@ static unsigned generate_extra_starts_by_copying(object_array &Objects, valptrid
 			auto &old_player_ref = *Players.vcptr(old_player_idx);
 			const auto &&old_player_ptridx = Objects.vcptridx(old_player_ref.objnum);
 			auto &old_player_obj = *old_player_ptridx;
-			if (player_init_segment_capacity_flag[old_player_idx] & (1 << side))
+			if (player_init_segment_capacity_flag[old_player_idx] & build_sidemask(side))
 			{
 				auto &&segp = Segments.vmptridx(old_player_obj.segnum);
 				/* Copy the start exactly.  The next loop in the caller will
@@ -301,13 +301,13 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
-	std::array<uint8_t, MAX_PLAYERS> player_init_segment_capacity_flag{};
+	std::array<sidemask_t, MAX_PLAYERS> player_init_segment_capacity_flag{};
 	DXX_MAKE_VAR_UNDEFINED(player_init_segment_capacity_flag);
 	static_assert(WRIGHT + 1 == WBOTTOM, "side ordering error");
 	static_assert(WBOTTOM + 1 == WBACK, "side ordering error");
-	constexpr uint8_t capacity_x = 1 << WRIGHT;
-	constexpr uint8_t capacity_y = 1 << WBOTTOM;
-	constexpr uint8_t capacity_z = 1 << WBACK;
+	constexpr auto capacity_x = build_sidemask(WRIGHT);
+	constexpr auto capacity_y = build_sidemask(WBOTTOM);
+	constexpr auto capacity_z = build_sidemask(WBACK);
 	/* When players are displaced, they are moved by their size
 	 * multiplied by this constant.  Larger values provide more
 	 * separation between the player starts, but increase the chance
@@ -329,7 +329,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 		auto &old_player_obj = *vcobjptr(plr.objnum);
 		const vm_distance_squared size2(fixmul64(old_player_obj.size * old_player_obj.size, size_scalar));
 		auto &v0 = *vcvertptr(seg.verts[segment_relative_vertnum::_0]);
-		uint8_t capacity_flag = 0;
+		sidemask_t capacity_flag{};
 		if (vm_vec_dist2(v0, vcvertptr(seg.verts[segment_relative_vertnum::_1])) > size2)
 			capacity_flag |= capacity_x;
 		if (vm_vec_dist2(v0, vcvertptr(seg.verts[segment_relative_vertnum::_3])) > size2)
@@ -337,8 +337,8 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 		if (vm_vec_dist2(v0, vcvertptr(seg.verts[segment_relative_vertnum::_4])) > size2)
 			capacity_flag |= capacity_z;
 		player_init_segment_capacity_flag[i] = capacity_flag;
-		con_printf(CON_NORMAL, "Original player %u has size %u, starts in segment #%hu, and has segment capacity flags %x.", i, old_player_obj.size, static_cast<segnum_t>(segnum), capacity_flag);
-		if (capacity_flag)
+		con_printf(CON_NORMAL, "Original player %u has size %u, starts in segment #%hu, and has segment capacity flags %x.", i, old_player_obj.size, static_cast<segnum_t>(segnum), underlying_value(capacity_flag));
+		if (capacity_flag != sidemask_t{})
 			++segments_with_spare_capacity;
 	}
 	if (!segments_with_spare_capacity)
@@ -369,7 +369,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 			unsigned dimensions = 0;
 			for (const auto &&[i, side] : enumerate(displacement_sides))
 			{
-				if (!(player_init_segment_capacity_flag[old_player_idx] & (1 << side)))
+				if (!(player_init_segment_capacity_flag[old_player_idx] & build_sidemask(side)))
 				{
 					con_printf(CON_NORMAL, "Cannot displace player %u at {%i, %i, %i}: not enough room in dimension %u.", plridx, plrobj.pos.x, plrobj.pos.y, plrobj.pos.z, side);
 					continue;
@@ -385,9 +385,9 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 			vm_vec_normalize(disp);
 			vm_vec_scale(disp, fixmul(old_player_obj.size, size_scalar >> 1));
 			const auto target_position = vm_vec_add(Player_init[plridx].pos, disp);
-			if (const auto sidemask = get_seg_masks(vcvertptr, target_position, vcsegptr(plrobj.segnum), 1).sidemask)
+			if (const auto sidemask = get_seg_masks(vcvertptr, target_position, vcsegptr(plrobj.segnum), 1).sidemask; sidemask != sidemask_t{})
 			{
-				con_printf(CON_NORMAL, "Cannot displace player %u at {%i, %i, %i} to {%i, %i, %i}: would be outside segment for sides %x.", plridx, plrobj.pos.x, plrobj.pos.y, plrobj.pos.z, target_position.x, target_position.y, target_position.z, sidemask);
+				con_printf(CON_NORMAL, "Cannot displace player %u at {%i, %i, %i} to {%i, %i, %i}: would be outside segment for sides %x.", plridx, plrobj.pos.x, plrobj.pos.y, plrobj.pos.z, target_position.x, target_position.y, target_position.z, underlying_value(sidemask));
 				return;
 			}
 			con_printf(CON_NORMAL, "Displace player %u at {%i, %i, %i} by {%i, %i, %i} to {%i, %i, %i}.", plridx, plrobj.pos.x, plrobj.pos.y, plrobj.pos.z, disp.x, disp.y, disp.z, target_position.x, target_position.y, target_position.z);

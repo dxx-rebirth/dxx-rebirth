@@ -2113,7 +2113,7 @@ void compute_slide_segs()
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	for (const csmusegment suseg : vmsegptr)
 	{
-		uint8_t slide_textures = 0;
+		sidemask_t slide_textures{};
 		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
 		{
 			const auto &uside = suseg.u.sides[sidenum];
@@ -2127,7 +2127,7 @@ void compute_slide_segs()
 				 * walls.
 				 */
 				continue;
-			slide_textures |= 1 << sidenum;
+			slide_textures |= build_sidemask(sidenum);
 		}
 		suseg.u.slide_textures = slide_textures;
 	}
@@ -2155,11 +2155,11 @@ static void slide_textures(void)
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	for (unique_segment &useg : vmsegptr)
 	{
-		if (const auto slide_seg = useg.slide_textures)
+		if (const auto slide_seg = useg.slide_textures; slide_seg != sidemask_t{})
 		{
 			for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
 			{
-				if (slide_seg & (1 << sidenum))
+				if (slide_seg & build_sidemask(sidenum))
 				{
 					auto &side = useg.sides[sidenum];
 					const auto &ti = TmapInfo[get_texture_index(side.tmap_num)];

@@ -659,7 +659,7 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 
 	auto &vcvertptr = Vertices.vcptr;
 	// Viewer is not in segment as claimed, so say there is no hit.
-	if(!(get_seg_masks(vcvertptr, *fq.p0, vcsegptr(fq.startseg), 0).centermask == 0))
+	if (get_seg_masks(vcvertptr, *fq.p0, vcsegptr(fq.startseg), 0).centermask != sidemask_t{})
 	{
 
 		hit_data.hit_type = HIT_BAD_P0;
@@ -685,14 +685,14 @@ int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 	const vms_vector *wall_norm = nullptr;	//surface normal of hit wall
 	hit_type = fvi_sub(hit_pnt, hit_seg2, *fq.p0, vcsegptridx(fq.startseg), *fq.p1, fq.rad, imobjptridx(fq.thisobjnum), fq.ignore_obj_list, fq.flags, hit_data.seglist, segment_exit, visited, fvi_hit_side, fvi_hit_side_seg, fvi_nest_count, fvi_hit_pt_seg, wall_norm, fvi_hit_object);
 	segnum_t hit_seg;
-	if (hit_seg2 != segment_none && !get_seg_masks(vcvertptr, hit_pnt, vcsegptr(hit_seg2), 0).centermask)
+	if (hit_seg2 != segment_none && get_seg_masks(vcvertptr, hit_pnt, vcsegptr(hit_seg2), 0).centermask == sidemask_t{})
 		hit_seg = hit_seg2;
 	else
 		hit_seg = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, hit_pnt, imsegptridx(fq.startseg));
 
 //MATT: TAKE OUT THIS HACK AND FIX THE BUGS!
 	if (hit_type == HIT_WALL && hit_seg==segment_none)
-		if (fvi_hit_pt_seg != segment_none && get_seg_masks(vcvertptr, hit_pnt, vcsegptr(fvi_hit_pt_seg), 0).centermask == 0)
+		if (fvi_hit_pt_seg != segment_none && get_seg_masks(vcvertptr, hit_pnt, vcsegptr(fvi_hit_pt_seg), 0).centermask == sidemask_t{})
 			hit_seg = fvi_hit_pt_seg;
 
 	if (hit_seg == segment_none) {
@@ -810,7 +810,6 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 	auto &vcobjptridx = Objects.vcptridx;
 	int startmask,endmask;	//mask of faces
 	//@@int sidemask;				//mask of sides - can be on back of face but not side
-	int centermask;			//where the center point is
 	vms_vector closest_hit_point{}; 	//where we hit
 	auto closest_d = vm_distance_squared::maximum_value();					//distance to hit point
 	int hit_type=HIT_NONE;							//what sort of hit
@@ -897,9 +896,10 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 	const auto &&masks = get_seg_masks(vcvertptr, p1, startseg, rad);    //on back of which faces?
 	endmask = masks.facemask;
 	//@@sidemask = masks.sidemask;
-	centermask = masks.centermask;
+	const auto centermask = masks.centermask;			//where the center point is
 
-	if (centermask==0) hit_none_seg = startseg;
+	if (centermask == sidemask_t{})
+		hit_none_seg = startseg;
 
 	if (endmask != 0) {                             //on the back of at least one face
 
@@ -1026,7 +1026,7 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 									closest_hit_point = hit_point;
 									hit_type = HIT_WALL;
 									wall_norm = &startseg->shared_segment::sides[side].normals[face];
-									if (get_seg_masks(vcvertptr, hit_point, startseg, rad).centermask == 0)
+									if (get_seg_masks(vcvertptr, hit_point, startseg, rad).centermask == sidemask_t{})
 										hit_seg = startseg;             //hit in this segment
 									else
 										fvi_hit_pt_seg = startseg;

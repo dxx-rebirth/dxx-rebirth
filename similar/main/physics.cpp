@@ -493,7 +493,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 			obj_relink(vmobjptr, Segments.vmptr, obj, obj_segp);
 
 		//if start point not in segment, move object to center of segment
-		if (get_seg_masks(vcvertptr, obj->pos, Segments.vcptr(obj->segnum), 0).centermask != 0)
+		if (get_seg_masks(vcvertptr, obj->pos, Segments.vcptr(obj->segnum), 0).centermask != sidemask_t{})
 		{
 			auto n = find_object_seg(LevelSharedSegmentState, LevelUniqueSegmentState, obj);
 			if (n == segment_none)
@@ -773,7 +773,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 
 //--WE ALWYS WANT THIS IN, MATT AND MIKE DECISION ON 12/10/94, TWO MONTHS AFTER FINAL 	#ifndef NDEBUG
 	//if end point not in segment, move object to last pos, or segment center
-	if (get_seg_masks(vcvertptr, obj->pos, vcsegptr(obj->segnum), 0).centermask != 0)
+	if (get_seg_masks(vcvertptr, obj->pos, vcsegptr(obj->segnum), 0).centermask != sidemask_t{})
 	{
 		if (find_object_seg(LevelSharedSegmentState, LevelUniqueSegmentState, obj) == segment_none)
 		{

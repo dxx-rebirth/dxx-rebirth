@@ -719,12 +719,12 @@ namespace dcx {
 
 namespace {
 
-static unsigned check_poke(fvcvertptr &vcvertptr, const object_base &obj, const shared_segment &seg, const unsigned side)
+static unsigned check_poke(fvcvertptr &vcvertptr, const object_base &obj, const shared_segment &seg, const sidenum_t side)
 {
 	//note: don't let objects with zero size block door
 	if (!obj.size)
 		return 0;
-	return get_seg_masks(vcvertptr, obj.pos, seg, obj.size).sidemask & (1 << side);		//pokes through side!
+	return get_seg_masks(vcvertptr, obj.pos, seg, obj.size).sidemask & build_sidemask(side);		//pokes through side!
 }
 
 }
@@ -735,7 +735,7 @@ namespace dsx {
 
 namespace {
 
-static unsigned is_door_side_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const cscusegment seg, const unsigned side)
+static unsigned is_door_side_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const cscusegment seg, const sidenum_t side)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();

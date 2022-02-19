@@ -470,7 +470,8 @@ static int move_object_within_mine(fvmobjptr &vmobjptr, segment_array &Segments,
 {
 	range_for (const auto &&segp, Segments.vmptridx)
 	{
-		if (get_seg_masks(vcvertptr, obj->pos, segp, 0).centermask == 0) {
+		if (get_seg_masks(vcvertptr, obj->pos, segp, 0).centermask == sidemask_t{})
+		{
 			int	fate;
 			fvi_info	hit_info;
 			fvi_query fq;
