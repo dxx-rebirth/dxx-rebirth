@@ -1630,9 +1630,9 @@ int create_new_mine(void)
 	LevelSharedSegmentState.Num_segments = 0;		// Number of segments in global array, will get increased in med_create_segment
 	Segments.set_count(1);
 	Cursegp = imsegptridx(segment_first);	// Say current segment is the only segment.
-	Curside = WBACK;		// The active side is the back side
+	Curside = sidenum_t::WBACK;		// The active side is the back side
 	Markedsegp = segment_none;		// Say there is no marked segment.
-	Markedside = WBACK;	//	Shouldn't matter since Markedsegp == 0, but just in case...
+	Markedside = sidenum_t::WBACK;	//	Shouldn't matter since Markedsegp == 0, but just in case...
 	for (int s=0;s<MAX_GROUPS+1;s++) {
 		GroupList[s].clear();
 		Groupsegp[s] = NULL;

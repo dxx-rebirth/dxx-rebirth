@@ -160,18 +160,18 @@ static void med_scale_segment_new(const shared_segment &sp, const int dimension,
 	sidenum_t side0, side1;
 	switch (dimension) {
 		case XDIM:
-			side0 = WLEFT;
-			side1 = WRIGHT;
+			side0 = sidenum_t::WLEFT;
+			side1 = sidenum_t::WRIGHT;
 			vec = &mat.rvec;
 			break;
 		case YDIM:
-			side0 = WBOTTOM;
-			side1 = WTOP;
+			side0 = sidenum_t::WBOTTOM;
+			side1 = sidenum_t::WTOP;
 			vec = &mat.uvec;
 			break;
 		case ZDIM:
-			side0 = WFRONT;
-			side1 = WBACK;
+			side0 = sidenum_t::WFRONT;
+			side1 = sidenum_t::WBACK;
 			vec = &mat.fvec;
 			break;
 		default:

@@ -37,7 +37,7 @@ imsegptridx_t Markedsegp = segment_none;     // Marked segment, used in conjunct
 sidenum_t Curside;             // Side index in 0..MAX_SIDES_PER_SEGMENT of active side.
 side_relative_vertnum Curedge;             // Current edge on current side, in 0..3
 side_relative_vertnum Curvert;             // Current vertex on current side, in 0..3
-sidenum_t AttachSide = WFRONT; // Side on segment to attach.
+sidenum_t AttachSide = sidenum_t::WFRONT; // Side on segment to attach.
 sidenum_t Markedside;          // Marked side on Markedsegp.
 
 int Draw_all_segments;   // Set to 1 means draw_world draws all segments in Segments, else draw only connected segments

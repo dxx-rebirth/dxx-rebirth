@@ -391,7 +391,7 @@ int AttachSegment()
 			set_view_target_from_segment(vcvertptr, Cursegp);
 		}
 		vm_angvec_make(&Seg_orientation,0,0,0);
-		Curside = WBACK;
+		Curside = sidenum_t::WBACK;
 		Update_flags |= UF_WORLD_CHANGED;
 	   autosave_mine(mine_filename);
 		undo_status[Autosave_count] = "Attach Segment UNDONE.";

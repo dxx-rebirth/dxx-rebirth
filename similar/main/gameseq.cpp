@@ -252,7 +252,7 @@ static bool operator!=(const vms_vector &a, const vms_vector &b)
 }
 
 constexpr constant_xrange<sidenum_t, sidenum_t::WRIGHT, sidenum_t::WFRONT> displacement_sides{};
-static_assert(WBACK + 1 == WFRONT, "side ordering error");
+static_assert(static_cast<uint8_t>(sidenum_t::WBACK) + 1 == static_cast<uint8_t>(sidenum_t::WFRONT), "side ordering error");
 
 static unsigned generate_extra_starts_by_copying(object_array &Objects, valptridx<player>::array_managed_type &Players, segment_array &Segments, const xrange<unsigned, std::integral_constant<unsigned, 0>> preplaced_start_range, const std::array<sidemask_t, MAX_PLAYERS> &player_init_segment_capacity_flag, const unsigned total_required_num_starts, unsigned synthetic_player_idx)
 {
@@ -303,11 +303,11 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 	auto &vmobjptr = Objects.vmptr;
 	std::array<sidemask_t, MAX_PLAYERS> player_init_segment_capacity_flag{};
 	DXX_MAKE_VAR_UNDEFINED(player_init_segment_capacity_flag);
-	static_assert(WRIGHT + 1 == WBOTTOM, "side ordering error");
-	static_assert(WBOTTOM + 1 == WBACK, "side ordering error");
-	constexpr auto capacity_x = build_sidemask(WRIGHT);
-	constexpr auto capacity_y = build_sidemask(WBOTTOM);
-	constexpr auto capacity_z = build_sidemask(WBACK);
+	static_assert(static_cast<uint8_t>(sidenum_t::WRIGHT) + 1 == static_cast<uint8_t>(sidenum_t::WBOTTOM), "side ordering error");
+	static_assert(static_cast<uint8_t>(sidenum_t::WBOTTOM) + 1 == static_cast<uint8_t>(sidenum_t::WBACK), "side ordering error");
+	constexpr auto capacity_x = build_sidemask(sidenum_t::WRIGHT);
+	constexpr auto capacity_y = build_sidemask(sidenum_t::WBOTTOM);
+	constexpr auto capacity_z = build_sidemask(sidenum_t::WBACK);
 	/* When players are displaced, they are moved by their size
 	 * multiplied by this constant.  Larger values provide more
 	 * separation between the player starts, but increase the chance

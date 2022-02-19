@@ -215,7 +215,7 @@ int CopySegToMarked()
 
 int SelectBottom()
 {
-	Curside = WBOTTOM;
+	Curside = sidenum_t::WBOTTOM;
 	Update_flags |= UF_ED_STATE_CHANGED;
 	mine_changed = 1;
 	return 1;
@@ -223,7 +223,7 @@ int SelectBottom()
 
 int SelectFront()
 {
-	Curside = WFRONT;
+	Curside = sidenum_t::WFRONT;
 	Update_flags |= UF_ED_STATE_CHANGED;
 	mine_changed = 1;
 	return 1;
@@ -231,7 +231,7 @@ int SelectFront()
 
 int SelectTop()
 {
-	Curside = WTOP;
+	Curside = sidenum_t::WTOP;
 	Update_flags |= UF_ED_STATE_CHANGED;
 	mine_changed = 1;
 	return 1;
@@ -239,7 +239,7 @@ int SelectTop()
 
 int SelectBack()
 {
-	Curside = WBACK;
+	Curside = sidenum_t::WBACK;
 	Update_flags |= UF_ED_STATE_CHANGED;
 	mine_changed = 1;
 	return 1;
@@ -247,7 +247,7 @@ int SelectBack()
 
 int SelectLeft()
 {
-	Curside = WLEFT;
+	Curside = sidenum_t::WLEFT;
 	Update_flags |= UF_ED_STATE_CHANGED;
 	mine_changed = 1;
 	return 1;
@@ -255,7 +255,7 @@ int SelectLeft()
 
 int SelectRight()
 {
-	Curside = WRIGHT;
+	Curside = sidenum_t::WRIGHT;
 	Update_flags |= UF_ED_STATE_CHANGED;
 	mine_changed = 1;
 	return 1;

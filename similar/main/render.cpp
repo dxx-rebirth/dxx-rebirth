@@ -355,7 +355,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const si
 	}
 
 #if DXX_USE_EDITOR
-	if ((Render_only_bottom) && (sidenum == WBOTTOM))
+	if (Render_only_bottom && sidenum == sidenum_t::WBOTTOM)
 		g3_draw_tmap(canvas, nv, pointlist, uvl_copy, dyn_light, GameBitmaps[Textures[Bottom_bitmap_num].index]);
 	else
 #endif

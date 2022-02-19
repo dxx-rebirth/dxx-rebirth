@@ -388,32 +388,32 @@ void update_matrix_based_on_side(vms_matrix &rotmat,int destside)
         vms_angvec      rotvec;
 
 	switch (destside) {
-		case WLEFT:
+		case sidenum_t::WLEFT:
                         vm_angvec_make(&rotvec,0,0,-16384);
 			rotmat = vm_matrix_x_matrix(rotmat, vm_angles_2_matrix(rotvec));
 			break;
 
-		case WTOP:
+		case sidenum_t::WTOP:
                         vm_angvec_make(&rotvec,-16384,0,0);
 			rotmat = vm_matrix_x_matrix(rotmat, vm_angles_2_matrix(rotvec));
 			break;
 
-		case WRIGHT:
+		case sidenum_t::WRIGHT:
                         vm_angvec_make(&rotvec,0,0,16384);
 			rotmat = vm_matrix_x_matrix(rotmat, vm_angles_2_matrix(rotvec));
 			break;
 
-		case WBOTTOM:
+		case sidenum_t::WBOTTOM:
                         vm_angvec_make(&rotvec,+16384,-32768,0);        // bank was -32768, but I think that was an erroneous compensation
 			rotmat = vm_matrix_x_matrix(rotmat, vm_angles_2_matrix(rotvec));
 			break;
 
-		case WFRONT:
+		case sidenum_t::WFRONT:
                         vm_angvec_make(&rotvec,0,0,-32768);
 			rotmat = vm_matrix_x_matrix(rotmat, vm_angles_2_matrix(rotvec));
 			break;
 
-		case WBACK:
+		case sidenum_t::WBACK:
 			break;
 	}
 }
@@ -1007,8 +1007,8 @@ int med_rotate_segment(const vmsegptridx_t seg, const vms_matrix &rotmat)
 
 	const auto &&destseg = seg.absolute_sibling(seg->children[*newside]);
 
-	if (Curside == WFRONT)
-		Curside = WBACK;
+	if (Curside == sidenum_t::WFRONT)
+		Curside = sidenum_t::WBACK;
 
 	// Before deleting the segment, copy its texture maps to New_segment
 	copy_tmaps_to_segment(vmsegptr(&New_segment), seg);

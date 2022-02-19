@@ -147,24 +147,24 @@ int generate_curve(const fix r1scale, const fix r4scale)
 	compute_center_point_on_side(vcvertptr, p1, cursegp, Curside);
 
     switch( Curside ) {
-        case WLEFT:
+		case sidenum_t::WLEFT:
             extract_right_vector_from_segment(vcvertptr, cursegp, r1);
             vm_vec_scale(r1, -F1_0 );
             break;
-        case WTOP:
+		case sidenum_t::WTOP:
             extract_up_vector_from_segment(vcvertptr, cursegp, r1);
             break;
-        case WRIGHT:
+		case sidenum_t::WRIGHT:
             extract_right_vector_from_segment(vcvertptr, cursegp, r1);
             break;
-        case WBOTTOM:
+		case sidenum_t::WBOTTOM:
             extract_up_vector_from_segment(vcvertptr, cursegp, r1);
             vm_vec_scale(r1, -F1_0 );
             break;
-        case WBACK:
+		case sidenum_t::WBACK:
             extract_forward_vector_from_segment(vcvertptr, cursegp, r1);
             break;
-        case WFRONT:
+		case sidenum_t::WFRONT:
             extract_forward_vector_from_segment(vcvertptr, cursegp, r1);
             vm_vec_scale(r1, -F1_0 );
             break;
@@ -174,31 +174,31 @@ int generate_curve(const fix r1scale, const fix r4scale)
 	compute_center_point_on_side(vcvertptr, p4, markedsegp, Markedside);
 
     switch( Markedside ) {
-        case WLEFT:
+		case sidenum_t::WLEFT:
             extract_right_vector_from_segment(vcvertptr, markedsegp, r4);
             extract_up_vector_from_segment(vcvertptr, markedsegp, r4t);
             break;
-        case WTOP:
+		case sidenum_t::WTOP:
             extract_up_vector_from_segment(vcvertptr, markedsegp, r4);
             vm_vec_scale(r4, -F1_0 );
             extract_forward_vector_from_segment(vcvertptr, markedsegp, r4t);
             vm_vec_scale(r4t, -F1_0 );
             break;
-        case WRIGHT:
+		case sidenum_t::WRIGHT:
             extract_right_vector_from_segment(vcvertptr, markedsegp, r4);
             vm_vec_scale(r4, -F1_0 );
             extract_up_vector_from_segment(vcvertptr, markedsegp, r4t);
             break;
-        case WBOTTOM:
+		case sidenum_t::WBOTTOM:
             extract_up_vector_from_segment(vcvertptr, markedsegp, r4);
             extract_forward_vector_from_segment(vcvertptr, markedsegp, r4t);
             break;
-        case WBACK:
+		case sidenum_t::WBACK:
             extract_forward_vector_from_segment(vcvertptr, markedsegp, r4);
             vm_vec_scale(r4, -F1_0 );
             extract_up_vector_from_segment(vcvertptr, markedsegp, r4t);
             break;
-        case WFRONT:
+		case sidenum_t::WFRONT:
             extract_forward_vector_from_segment(vcvertptr, markedsegp, r4);
             extract_up_vector_from_segment(vcvertptr, markedsegp, r4t);
             break;
