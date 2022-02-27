@@ -1253,7 +1253,10 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 			}
 			break;
 	}
-	
+}
+
+void kconfig_end_loop(control_info &Controls, const fix frametime)
+{
 #if DXX_MAX_AXES_PER_JOYSTICK
 	for (int i = 0; i < JOY_MAX_AXES; i++) {
 		convert_raw_joy_axis(Controls, dxx_kconfig_ui_kc_joystick_turn, player_config_joystick_index::turn_lr, i); // Turn L/R

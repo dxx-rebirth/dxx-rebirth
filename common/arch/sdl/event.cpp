@@ -64,6 +64,11 @@ static void event_notify_begin_loop()
 	event_send(event);
 }
 
+static void event_notify_end_loop()
+{
+	event_send(d_event_end_loop{});
+}
+
 window_event_result event_poll()
 {
 	event_poll_state state;
@@ -102,6 +107,7 @@ window_event_result event_poll()
 #endif
 	}
 	mouse_cursor_autohide();
+	event_notify_end_loop();
 	return state.highest_result;
 }
 
@@ -183,12 +189,6 @@ void event_flush()
 		if (peep != events.size())
 			break;
 	}
-}
-
-int event_init()
-{
-	// We should now be active and responding to events.
-	return 0;
 }
 
 window_event_result call_default_handler(const d_event &event)

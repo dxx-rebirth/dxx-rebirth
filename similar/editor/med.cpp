@@ -1092,6 +1092,9 @@ window_event_result editor_dialog::callback_handler(const d_event &event)
 			case EVENT_LOOP_BEGIN_LOOP:
 				kconfig_begin_loop(Controls);
 				break;
+			case EVENT_LOOP_END_LOOP:
+				kconfig_end_loop(Controls, FrameTime);
+				break;
 
 			default:
 				break;

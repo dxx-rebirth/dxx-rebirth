@@ -140,6 +140,8 @@ struct control_info : ::dcx::control_info,
 
 extern control_info Controls;
 
+void kconfig_end_loop(control_info &, const fix frametime);
+
 }
 #endif
 

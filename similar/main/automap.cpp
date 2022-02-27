@@ -1201,6 +1201,9 @@ window_event_result automap::event_handler(const d_event &event)
 		case EVENT_LOOP_BEGIN_LOOP:
 			kconfig_begin_loop(controls);
 			break;
+		case EVENT_LOOP_END_LOOP:
+			kconfig_end_loop(controls, FrameTime);
+			break;
 
 		default:
 			return window_event_result::ignored;

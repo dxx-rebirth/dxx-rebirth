@@ -54,6 +54,7 @@ enum event_type : unsigned
 	EVENT_NEWMENU_SELECTED,				// user chose something - pressed enter/clicked on it
 
 	EVENT_LOOP_BEGIN_LOOP,
+	EVENT_LOOP_END_LOOP,
 
 	EVENT_UI_DIALOG_DRAW,				// draw after the dialog stuff is drawn (e.g. spinning robots)
 	EVENT_UI_GADGET_PRESSED,				// user 'pressed' a gadget
@@ -125,6 +126,14 @@ struct d_event_begin_loop : d_event
 {
 	d_event_begin_loop() :
 		d_event{EVENT_LOOP_BEGIN_LOOP}
+	{
+	}
+};
+
+struct d_event_end_loop : d_event
+{
+	d_event_end_loop() :
+		d_event{EVENT_LOOP_END_LOOP}
 	{
 	}
 };
