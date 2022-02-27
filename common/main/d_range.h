@@ -196,6 +196,17 @@ protected:
 	}
 public:
 	using range_owns_iterated_storage = std::false_type;
+	/* If the endpoints are both integral constants, then they will have a
+	 * default constructor that this explicitly defaulted default constructor
+	 * can call.  They will have no non-static data members, so their default
+	 * constructors will produce reasonable values.
+	 *
+	 * Otherwise, the endpoints will not have a default constructor, and this
+	 * default constructor will fail to compile.  That is desirable, since such
+	 * an endpoint would have a non-static data member that would not be
+	 * initialized by a default constructor.
+	 */
+	constexpr xrange() = default;
 	constexpr xrange(B b, E e) :
 		begin_type(init_begin(std::move(b), e)), end_type(std::move(e))
 	{

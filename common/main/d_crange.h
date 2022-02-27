@@ -9,13 +9,4 @@
 #include "d_range.h"
 
 template <typename index_type, index_type begin_value, index_type end_value>
-struct constant_xrange : xrange<index_type, std::integral_constant<index_type, begin_value>, std::integral_constant<index_type, end_value>>
-{
-	using base_type = xrange<index_type, std::integral_constant<index_type, begin_value>, std::integral_constant<index_type, end_value>>;
-	using base_type::end_type::value;
-	using base_type::end_type::operator index_type;
-	constexpr constant_xrange() :
-		base_type({}, {})
-	{
-	}
-};
+using constant_xrange = xrange<index_type, std::integral_constant<index_type, begin_value>, std::integral_constant<index_type, end_value>>;
