@@ -1192,7 +1192,7 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 			const auto &axis = av.axis;
 			auto value = av.value;
 
-			if (axis == PlayerCfg.KeySettings.Joystick[dxx_kconfig_ui_kc_joystick_pitch]) // Pitch U/D Deadzone
+			if (axis == PlayerCfg.KeySettings.Joystick[dxx_kconfig_ui_kc_joystick_pitch_ud]) // Pitch U/D Deadzone
 				joy_null_value = PlayerCfg.JoystickDead[1]*8;
 			else if (axis == PlayerCfg.KeySettings.Joystick[dxx_kconfig_ui_kc_joystick_turn]) // Turn L/R Deadzone
 				joy_null_value = PlayerCfg.JoystickDead[0]*8;
@@ -1257,7 +1257,7 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 #if DXX_MAX_AXES_PER_JOYSTICK
 	for (int i = 0; i < JOY_MAX_AXES; i++) {
 		convert_raw_joy_axis(Controls, dxx_kconfig_ui_kc_joystick_turn, 0, i); // Turn L/R
-		convert_raw_joy_axis(Controls, dxx_kconfig_ui_kc_joystick_pitch, 1, i); // Pitch U/D
+		convert_raw_joy_axis(Controls, dxx_kconfig_ui_kc_joystick_pitch_ud, 1, i); // Pitch U/D
 		convert_raw_joy_axis(Controls, dxx_kconfig_ui_kc_joystick_slide_lr, 2, i); // Slide L/R
 		convert_raw_joy_axis(Controls, dxx_kconfig_ui_kc_joystick_slide_ud, 3, i); // Slide U/D
 		convert_raw_joy_axis(Controls, dxx_kconfig_ui_kc_joystick_bank, 4, i); // Bank
@@ -1274,12 +1274,12 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 		adjust_ramped_keyboard_field(plus, key_pitch_forward, Controls.pitch_time, PlayerCfg.KeyboardSens[1], speed_factor, 2);
 		adjust_ramped_keyboard_field(minus, key_pitch_backward, Controls.pitch_time, PlayerCfg.KeyboardSens[1], speed_factor, 2);
 		// From joystick...
-#ifdef dxx_kconfig_ui_kc_joystick_pitch
-		adjust_axis_field(Controls.pitch_time, Controls.joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_pitch].value, kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_pitch].value, PlayerCfg.JoystickSens[1]);
+#ifdef dxx_kconfig_ui_kc_joystick_pitch_ud
+		adjust_axis_field(Controls.pitch_time, Controls.joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_pitch_ud].value, kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_pitch].value, PlayerCfg.JoystickSens[1]);
 #endif
 		// From mouse...
-#ifdef dxx_kconfig_ui_kc_mouse_pitch
-		adjust_axis_field(Controls.pitch_time, Controls.mouse_axis, kcm_mouse[dxx_kconfig_ui_kc_mouse_pitch].value, kcm_mouse[dxx_kconfig_ui_kc_mouse_invert_pitch].value, PlayerCfg.MouseSens[1]);
+#ifdef dxx_kconfig_ui_kc_mouse_pitch_ud
+		adjust_axis_field(Controls.pitch_time, Controls.mouse_axis, kcm_mouse[dxx_kconfig_ui_kc_mouse_pitch_ud].value, kcm_mouse[dxx_kconfig_ui_kc_mouse_invert_pitch].value, PlayerCfg.MouseSens[1]);
 #endif
 	}
 	else Controls.pitch_time = 0;
@@ -1293,11 +1293,11 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 		adjust_ramped_keyboard_field(minus, key_pitch_backward, Controls.vertical_thrust_time, PlayerCfg.KeyboardSens[3], speed_factor);
 		// From joystick...
 		// NOTE: Use Slide U/D invert setting
-#if defined(dxx_kconfig_ui_kc_joystick_pitch) && defined(dxx_kconfig_ui_kc_joystick_slide_ud)
-		adjust_axis_field(Controls.vertical_thrust_time, Controls.joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_pitch].value, !kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_slide_ud].value, PlayerCfg.JoystickSens[3]);
+#if defined(dxx_kconfig_ui_kc_joystick_pitch_ud) && defined(dxx_kconfig_ui_kc_joystick_slide_ud)
+		adjust_axis_field(Controls.vertical_thrust_time, Controls.joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_pitch_ud].value, !kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_slide_ud].value, PlayerCfg.JoystickSens[3]);
 #endif
 		// From mouse...
-		adjust_axis_field(Controls.vertical_thrust_time, Controls.mouse_axis, kcm_mouse[dxx_kconfig_ui_kc_mouse_pitch].value, kcm_mouse[dxx_kconfig_ui_kc_mouse_invert_slide_ud].value, PlayerCfg.MouseSens[3]);
+		adjust_axis_field(Controls.vertical_thrust_time, Controls.mouse_axis, kcm_mouse[dxx_kconfig_ui_kc_mouse_pitch_ud].value, kcm_mouse[dxx_kconfig_ui_kc_mouse_invert_slide_ud].value, PlayerCfg.MouseSens[3]);
 	}
 	// From keyboard...
 	adjust_ramped_keyboard_field(plus, key_slide_up, Controls.vertical_thrust_time, PlayerCfg.KeyboardSens[3], speed_factor);
