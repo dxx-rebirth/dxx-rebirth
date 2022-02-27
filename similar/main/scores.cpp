@@ -534,7 +534,7 @@ window_event_result scores_menu::event_handler(const d_event &event)
 
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
-			if (event_mouse_get_button(event) == MBTN_LEFT || event_mouse_get_button(event) == MBTN_RIGHT)
+			if (event_mouse_get_button(event) == mbtn::left || event_mouse_get_button(event) == mbtn::right)
 			{
 				return window_event_result::close;
 			}

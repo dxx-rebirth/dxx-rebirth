@@ -129,7 +129,7 @@ window_event_result title_screen::event_handler(const d_event &event)
 	switch (event.type)
 	{
 		case EVENT_MOUSE_BUTTON_DOWN:
-			if (event_mouse_get_button(event) != 0)
+			if (event_mouse_get_button(event) != mbtn::left)
 				return window_event_result::ignored;
 			else
 			{
@@ -1526,7 +1526,7 @@ window_event_result briefing::event_handler(const d_event &event)
 			break;
 
 		case EVENT_MOUSE_BUTTON_DOWN:
-			if (event_mouse_get_button(event) == 0)
+			if (event_mouse_get_button(event) == mbtn::left)
 			{
 				if (this->new_screen)
 				{

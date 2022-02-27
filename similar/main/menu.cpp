@@ -760,7 +760,7 @@ window_event_result main_menu::event_handler(const d_event &event)
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
 			// Don't allow mousebutton-closing in main menu.
-			if (event_mouse_get_button(event) == MBTN_RIGHT)
+			if (event_mouse_get_button(event) == mbtn::right)
 				return window_event_result::ignored;
 			break;
 

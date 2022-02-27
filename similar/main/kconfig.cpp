@@ -720,7 +720,7 @@ window_event_result kc_menu::event_handler(const d_event &event)
 				return window_event_result::handled;
 			}
 
-			if (event_mouse_get_button(event) == MBTN_RIGHT)
+			if (event_mouse_get_button(event) == mbtn::right)
 			{
 				if (!changing)
 				{
@@ -728,7 +728,7 @@ window_event_result kc_menu::event_handler(const d_event &event)
 				}
 				return window_event_result::handled;
 			}
-			else if (event_mouse_get_button(event) != MBTN_LEFT)
+			else if (event_mouse_get_button(event) != mbtn::left)
 				return window_event_result::ignored;
 
 			mouse_state = (event.type == EVENT_MOUSE_BUTTON_DOWN);
@@ -913,12 +913,8 @@ static void kc_change_joybutton( kc_menu &menu,const d_event &event, kc_mitem &m
 
 static void kc_change_mousebutton( kc_menu &menu,const d_event &event, kc_mitem &mitem)
 {
-	int button;
-
-	Assert(event.type == EVENT_MOUSE_BUTTON_DOWN || event.type == EVENT_MOUSE_BUTTON_UP);
-	button = event_mouse_get_button(event);
-
-	kc_set_exclusive_binding(menu, mitem, BT_MOUSE_BUTTON, button);
+	const auto button = event_mouse_get_button(event);
+	kc_set_exclusive_binding(menu, mitem, BT_MOUSE_BUTTON, underlying_value(button));
 }
 
 #if DXX_MAX_AXES_PER_JOYSTICK
@@ -1158,9 +1154,8 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 			if (!(PlayerCfg.ControlType & CONTROL_USING_MOUSE))
 				break;
 			{
-				const auto &&button = event_mouse_get_button(event);
-				if (button < 255)
-				{
+				const auto mb = event_mouse_get_button(event);
+				const auto button = underlying_value(mb);
 					for (auto &&[kc, kcm] : zip(kc_mouse, kcm_mouse))
 					{
 						if (kc.type == BT_MOUSE_BUTTON && kcm.value == button)
@@ -1173,7 +1168,6 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 						Controls.state.select_weapon = j+1;
 						break;
 					}
-				}
 			}
 			break;
 #if DXX_MAX_AXES_PER_JOYSTICK

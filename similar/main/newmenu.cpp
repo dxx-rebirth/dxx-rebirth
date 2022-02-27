@@ -824,14 +824,14 @@ static void check_apply_mouse_scroll(newmenu *const menu, const grs_canvas &canv
 	}
 }
 
-static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, int button)
+static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, const mbtn button)
 {
 	int old_choice, mx=0, my=0, mz=0, x1 = 0, x2, y1, y2, changed = 0;
 	grs_canvas &menu_canvas = menu->w_canv;
 
 	switch (button)
 	{
-		case MBTN_LEFT:
+		case mbtn::left:
 		{
 			auto &canvas = menu_canvas;
 
@@ -999,7 +999,7 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 			}
 			break;
 		}
-		case MBTN_RIGHT:
+		case mbtn::right:
 			if (menu->mouse_state)
 			{
 				if (!(menu->citem > -1))
@@ -1017,13 +1017,15 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, in
 				}
 			}
 			break;
-		case MBTN_Z_UP:
+		case mbtn::z_up:
 			if (menu->mouse_state)
 				newmenu_scroll(menu, -1);
 			break;
-		case MBTN_Z_DOWN:
+		case mbtn::z_down:
 			if (menu->mouse_state)
 				newmenu_scroll(menu, 1);
+			break;
+		default:
 			break;
 	}
 
@@ -1606,8 +1608,8 @@ window_event_result newmenu::event_handler(const d_event &event)
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
 		{
-			int button = event_mouse_get_button(event);
 			mouse_state = event.type == EVENT_MOUSE_BUTTON_DOWN;
+			const auto button = event_mouse_get_button(event);
 			return newmenu_mouse(event, this, button);
 		}
 
@@ -1747,11 +1749,11 @@ static void update_scroll_position(listbox_layout &lb)
 		lb.first_item = 0;
 }
 
-static window_event_result listbox_mouse(const d_event &event, listbox *lb, int button)
+static window_event_result listbox_mouse(const d_event &event, listbox *lb, const mbtn button)
 {
 	switch (button)
 	{
-		case MBTN_LEFT:
+		case mbtn::left:
 		{
 			if (lb->mouse_state)
 			{
@@ -1806,7 +1808,7 @@ static window_event_result listbox_mouse(const d_event &event, listbox *lb, int 
 			}
 			break;
 		}
-		case MBTN_RIGHT:
+		case mbtn::right:
 		{
 			if (lb->allow_abort_flag && lb->mouse_state) {
 				lb->citem = -1;
@@ -1814,7 +1816,7 @@ static window_event_result listbox_mouse(const d_event &event, listbox *lb, int 
 			}
 			break;
 		}
-		case MBTN_Z_UP:
+		case mbtn::z_up:
 		{
 			if (lb->mouse_state)
 			{
@@ -1823,7 +1825,7 @@ static window_event_result listbox_mouse(const d_event &event, listbox *lb, int 
 			}
 			break;
 		}
-		case MBTN_Z_DOWN:
+		case mbtn::z_down:
 		{
 			if (lb->mouse_state)
 			{
@@ -2126,7 +2128,7 @@ window_event_result listbox::event_handler(const d_event &event)
 		case EVENT_IDLE:
 			if (!(Game_mode & GM_MULTI && Game_wind))
 				timer_delay2(CGameArg.SysMaxFPS);
-			return listbox_mouse(event, this, -1);
+			return window_event_result::ignored;
 		case EVENT_WINDOW_DRAW:
 			return listbox_draw(this);
 		case EVENT_WINDOW_CLOSE:

@@ -22,6 +22,8 @@
 #include "args.h"
 #include "gr.h"
 
+#include "d_underlying_value.h"
+
 namespace dcx {
 
 namespace {
@@ -37,14 +39,14 @@ struct mouseinfo : flushable_mouseinfo
 	int    x,y;
 	int    cursor_enabled;
 	fix64  cursor_time;
-	std::array<fix64, MOUSE_MAX_BUTTONS> time_lastpressed;
+	enumerated_array<fix64, MOUSE_MAX_BUTTONS, mbtn> time_lastpressed;
 };
 
 }
 
 static mouseinfo Mouse;
 
-d_event_mousebutton::d_event_mousebutton(const event_type etype, const unsigned b) :
+d_event_mousebutton::d_event_mousebutton(const event_type etype, const mbtn b) :
 	d_event{etype}, button(b)
 {
 }
@@ -59,16 +61,16 @@ void mouse_close(void)
 	SDL_ShowCursor(SDL_ENABLE);
 }
 
-static window_event_result maybe_send_z_move(const unsigned button)
+static window_event_result maybe_send_z_move(const mbtn button)
 {
 	short dz;
-	if (button == MBTN_Z_UP)
+	if (button == mbtn::z_up)
 	{
 		Mouse.delta_z += Z_SENSITIVITY;
 		Mouse.z += Z_SENSITIVITY;
 		dz = Z_SENSITIVITY;
 	}
-	else if (button == MBTN_Z_DOWN)
+	else if (button == mbtn::z_down)
 	{
 		Mouse.delta_z -= Z_SENSITIVITY;
 		Mouse.z -= Z_SENSITIVITY;
@@ -80,15 +82,15 @@ static window_event_result maybe_send_z_move(const unsigned button)
 	return event_send(event);
 }
 
-static window_event_result send_singleclick(const bool pressed, const unsigned button)
+static window_event_result send_singleclick(const bool pressed, const mbtn button)
 {
 	const d_event_mousebutton event{pressed ? EVENT_MOUSE_BUTTON_DOWN : EVENT_MOUSE_BUTTON_UP, button};
 	con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_BUTTON_%s, button %d, coords %d,%d,%d",
-			   pressed ? "DOWN" : "UP", event.button, Mouse.x, Mouse.y, Mouse.z);
+			   pressed ? "DOWN" : "UP", underlying_value(event.button), Mouse.x, Mouse.y, Mouse.z);
 	return event_send(event);
 }
 
-static window_event_result maybe_send_doubleclick(const fix64 now, const unsigned button)
+static window_event_result maybe_send_doubleclick(const fix64 now, const mbtn button)
 {
 	auto &when = Mouse.time_lastpressed[button];
 	const auto then = when;
@@ -96,7 +98,7 @@ static window_event_result maybe_send_doubleclick(const fix64 now, const unsigne
 	if (now > then + F1_0/5)
 		return window_event_result::ignored;
 	const d_event_mousebutton event{EVENT_MOUSE_DOUBLE_CLICKED, button};
-	con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_DOUBLE_CLICKED, button %d, coords %d,%d", button, Mouse.x, Mouse.y);
+	con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_DOUBLE_CLICKED, button %d, coords %d,%d", underlying_value(button), Mouse.x, Mouse.y);
 	return event_send(event);
 }
 
@@ -108,24 +110,24 @@ window_event_result mouse_button_handler(const SDL_MouseButtonEvent *const mbe)
 		return window_event_result::ignored;
 	// to bad, SDL buttons use a different mapping as descent expects,
 	// this is at least true and tested for the first three buttons 
-	static const std::array<int, 17> button_remap{{
-		MBTN_LEFT,
-		MBTN_MIDDLE,
-		MBTN_RIGHT,
-		MBTN_Z_UP,
-		MBTN_Z_DOWN,
-		MBTN_PITCH_BACKWARD,
-		MBTN_PITCH_FORWARD,
-		MBTN_BANK_LEFT,
-		MBTN_BANK_RIGHT,
-		MBTN_HEAD_LEFT,
-		MBTN_HEAD_RIGHT,
-		MBTN_11,
-		MBTN_12,
-		MBTN_13,
-		MBTN_14,
-		MBTN_15,
-		MBTN_16
+	static constexpr std::array<mbtn, 17> button_remap{{
+		mbtn::left,
+		mbtn::middle,
+		mbtn::right,
+		mbtn::z_up,
+		mbtn::z_down,
+		mbtn::pitch_backward,
+		mbtn::pitch_forward,
+		mbtn::bank_left,
+		mbtn::bank_right,
+		mbtn::head_left,
+		mbtn::head_right,
+		mbtn::_11,
+		mbtn::_12,
+		mbtn::_13,
+		mbtn::_14,
+		mbtn::_15,
+		mbtn::_16,
 	}};
 	const unsigned button_idx = mbe->button - 1; // -1 since SDL seems to start counting at 1
 	if (unlikely(button_idx >= button_remap.size()))

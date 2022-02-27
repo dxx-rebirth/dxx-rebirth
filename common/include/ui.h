@@ -247,9 +247,9 @@ public:
 	virtual window_event_result callback_handler(const d_event &) = 0;
 };
 
-#define B1_JUST_PRESSED     (event.type == EVENT_MOUSE_BUTTON_DOWN && event_mouse_get_button(event) == 0)
-#define B1_JUST_RELEASED    (event.type == EVENT_MOUSE_BUTTON_UP && event_mouse_get_button(event) == 0)
-#define B1_DOUBLE_CLICKED   (event.type == EVENT_MOUSE_DOUBLE_CLICKED && event_mouse_get_button(event) == 0)
+#define B1_JUST_PRESSED     (event.type == EVENT_MOUSE_BUTTON_DOWN && event_mouse_get_button(event) == mbtn::left)
+#define B1_JUST_RELEASED    (event.type == EVENT_MOUSE_BUTTON_UP && event_mouse_get_button(event) == mbtn::left)
+#define B1_DOUBLE_CLICKED   (event.type == EVENT_MOUSE_DOUBLE_CLICKED && event_mouse_get_button(event) == mbtn::left)
 
 extern grs_font_ptr ui_small_font;
 

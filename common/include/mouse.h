@@ -25,25 +25,30 @@ struct SDL_MouseMotionEvent;
 
 namespace dcx {
 
-#define MOUSE_MAX_BUTTONS       16
+#define MOUSE_MAX_BUTTONS       17
 #define Z_SENSITIVITY		100
-#define MBTN_LEFT		0
-#define MBTN_RIGHT		1
-#define MBTN_MIDDLE		2
-#define MBTN_Z_UP		3
-#define MBTN_Z_DOWN		4
-#define MBTN_PITCH_BACKWARD	5
-#define MBTN_PITCH_FORWARD	6
-#define MBTN_BANK_LEFT		7
-#define MBTN_BANK_RIGHT		8
-#define MBTN_HEAD_LEFT		9
-#define MBTN_HEAD_RIGHT		10
-#define MBTN_11			11
-#define MBTN_12			12
-#define MBTN_13			13
-#define MBTN_14			14
-#define MBTN_15			15
-#define MBTN_16			16
+
+enum class mbtn : uint8_t
+{
+	left = 0,
+	right = 1,
+	middle = 2,
+	z_up = 3,
+	z_down = 4,
+	pitch_backward = 5,
+	pitch_forward = 6,
+	bank_left = 7,
+	bank_right = 8,
+	head_left = 9,
+	head_right = 10,
+	_11 = 11,
+	_12 = 12,
+	_13 = 13,
+	_14 = 14,
+	_15 = 15,
+	_16 = 16,
+};
+
 #define MOUSE_LBTN		1
 #define MOUSE_RBTN		2
 #define MOUSE_MBTN		4
@@ -63,8 +68,8 @@ void mouse_cursor_autohide();
 class d_event_mousebutton : public d_event
 {
 public:
-	d_event_mousebutton(event_type type, unsigned b);
-	const unsigned button;
+	d_event_mousebutton(event_type type, mbtn b);
+	const mbtn button;
 };
 
 class d_event_mouse_moved : public d_event
@@ -84,7 +89,7 @@ public:
 #undef SDL_MOUSE_MOVE_INT_TYPE
 };
 
-static inline int event_mouse_get_button(const d_event &event)
+static inline mbtn event_mouse_get_button(const d_event &event)
 {
 	auto &e = static_cast<const d_event_mousebutton &>(event);
 	assert(e.type == EVENT_MOUSE_BUTTON_DOWN || e.type == EVENT_MOUSE_BUTTON_UP);

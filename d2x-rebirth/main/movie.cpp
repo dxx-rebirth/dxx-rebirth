@@ -269,7 +269,7 @@ window_event_result movie_pause_window::event_handler(const d_event &event)
 	switch (event.type)
 	{
 		case EVENT_MOUSE_BUTTON_DOWN:
-			if (event_mouse_get_button(event) != 0)
+			if (event_mouse_get_button(event) != mbtn::left)
 				return window_event_result::ignored;
 			[[fallthrough]];
 		case EVENT_KEY_COMMAND:
