@@ -234,14 +234,35 @@ void new_player_config()
 	PlayerCfg.NHighestLevels = 1;
 	PlayerCfg.HighestLevels[0].Shortname[0] = 0; //no name for mission 0
 	PlayerCfg.HighestLevels[0].LevelNum = 1; //was highest level in old struct
-	PlayerCfg.KeyboardSens[0] = PlayerCfg.KeyboardSens[1] = PlayerCfg.KeyboardSens[2] = PlayerCfg.KeyboardSens[3] = PlayerCfg.KeyboardSens[4] = 16;
-	PlayerCfg.JoystickSens[0] = PlayerCfg.JoystickSens[1] = PlayerCfg.JoystickSens[2] = PlayerCfg.JoystickSens[3] = PlayerCfg.JoystickSens[4] = PlayerCfg.JoystickSens[5] = 8;
-	PlayerCfg.JoystickDead[0] = PlayerCfg.JoystickDead[1] = PlayerCfg.JoystickDead[2] = PlayerCfg.JoystickDead[3] = PlayerCfg.JoystickDead[4] = PlayerCfg.JoystickDead[5] = 0;
-	PlayerCfg.JoystickLinear[0] = PlayerCfg.JoystickLinear[1] = PlayerCfg.JoystickLinear[2] = PlayerCfg.JoystickLinear[3] = PlayerCfg.JoystickLinear[4] = PlayerCfg.JoystickLinear[5] = 0;
-	PlayerCfg.JoystickSpeed[0] = PlayerCfg.JoystickSpeed[1] = PlayerCfg.JoystickSpeed[2] = PlayerCfg.JoystickSpeed[3] = PlayerCfg.JoystickSpeed[4] = PlayerCfg.JoystickSpeed[5] = 16;
+	{
+		auto &k = PlayerCfg.KeyboardSens;
+		k[player_config_keyboard_index::turn_lr] = k[player_config_keyboard_index::pitch_ud] = k[player_config_keyboard_index::slide_lr] = k[player_config_keyboard_index::slide_ud] = k[player_config_keyboard_index::bank_lr] = 16;
+	}
+	{
+		auto &j = PlayerCfg.JoystickSens;
+		j[player_config_joystick_index::turn_lr] = j[player_config_joystick_index::pitch_ud] = j[player_config_joystick_index::slide_lr] = j[player_config_joystick_index::slide_ud] = j[player_config_joystick_index::bank_lr] = j[player_config_joystick_index::throttle] = 8;
+	}
+	{
+		auto &j = PlayerCfg.JoystickDead;
+		j[player_config_joystick_index::turn_lr] = j[player_config_joystick_index::pitch_ud] = j[player_config_joystick_index::slide_lr] = j[player_config_joystick_index::slide_ud] = j[player_config_joystick_index::bank_lr] = j[player_config_joystick_index::throttle] = 0;
+	}
+	{
+		auto &j = PlayerCfg.JoystickLinear;
+		j[player_config_joystick_index::turn_lr] = j[player_config_joystick_index::pitch_ud] = j[player_config_joystick_index::slide_lr] = j[player_config_joystick_index::slide_ud] = j[player_config_joystick_index::bank_lr] = j[player_config_joystick_index::throttle] = 0;
+	}
+	{
+		auto &j = PlayerCfg.JoystickSpeed;
+		j[player_config_joystick_index::turn_lr] = j[player_config_joystick_index::pitch_ud] = j[player_config_joystick_index::slide_lr] = j[player_config_joystick_index::slide_ud] = j[player_config_joystick_index::bank_lr] = j[player_config_joystick_index::throttle] = 16;
+	}
 	PlayerCfg.MouseFlightSim = 0;
-	PlayerCfg.MouseSens[0] = PlayerCfg.MouseSens[1] = PlayerCfg.MouseSens[2] = PlayerCfg.MouseSens[3] = PlayerCfg.MouseSens[4] = PlayerCfg.MouseSens[5] = 8;
-        PlayerCfg.MouseOverrun[0] = PlayerCfg.MouseOverrun[1] = PlayerCfg.MouseOverrun[2] = PlayerCfg.MouseOverrun[3] = PlayerCfg.MouseOverrun[4] = PlayerCfg.MouseOverrun[5] = 0;
+	{
+		auto &m = PlayerCfg.MouseSens;
+		m[player_config_mouse_index::turn_lr] = m[player_config_mouse_index::pitch_ud] = m[player_config_mouse_index::slide_lr] = m[player_config_mouse_index::slide_ud] = m[player_config_mouse_index::bank_lr] = m[player_config_mouse_index::throttle] = 8;
+	}
+	{
+		auto &m = PlayerCfg.MouseOverrun;
+		m[player_config_mouse_index::turn_lr] = m[player_config_mouse_index::pitch_ud] = m[player_config_mouse_index::slide_lr] = m[player_config_mouse_index::slide_ud] = m[player_config_mouse_index::bank_lr] = m[player_config_mouse_index::throttle] = 0;
+	}
 	PlayerCfg.MouseFSDead = 0;
 	PlayerCfg.MouseFSIndicator = 1;
 	PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = cockpit_mode_t::full_cockpit;

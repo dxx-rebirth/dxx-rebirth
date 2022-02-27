@@ -46,6 +46,7 @@ struct enumerated_array : std::array<T, N>
 	{
 		return this->base_type::operator[](static_cast<std::size_t>(position));
 	}
+	const_reference operator[](std::size_t) const = delete;
 	[[nodiscard]]
 	static constexpr bool valid_index(std::size_t s)
 	{

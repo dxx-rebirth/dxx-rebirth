@@ -1376,7 +1376,11 @@ template <typename XRange, typename MenuItems, typename... CopyParameters>
 void copy_sensitivity_from_menu_to_cfg2(XRange &&r, const MenuItems &menuitems, const CopyParameters ... cn)
 {
 	for (const auto i : r)
-		(((PlayerCfg.*(cn.pmf.value))[i] = menuitems[1 + i + cn.offset].value), ...);
+		(((PlayerCfg.*(cn.pmf.value))[
+			(typename std::remove_reference<
+				decltype(PlayerCfg.*(cn.pmf.value))
+				>::type::index_type{i})
+		] = menuitems[1 + i + cn.offset].value), ...);
 }
 
 template <typename MenuItems, typename CopyParameter0, typename... CopyParameterN>
@@ -1385,16 +1389,16 @@ void copy_sensitivity_from_menu_to_cfg(const MenuItems &menuitems, const CopyPar
 	copy_sensitivity_from_menu_to_cfg2(xrange(std::size(PlayerCfg.*(c0.pmf.value))), menuitems, c0, cn...);
 }
 
-#define DXX_INPUT_SENSITIVITY(VERB,OPT,VAL)	\
-	DXX_MENUITEM(VERB, SLIDER, TXT_TURN_LR, opt_##OPT##_turn_lr, VAL[0], 0, 16)	\
-	DXX_MENUITEM(VERB, SLIDER, TXT_PITCH_UD, opt_##OPT##_pitch_ud, VAL[1], 0, 16)	\
-	DXX_MENUITEM(VERB, SLIDER, TXT_SLIDE_LR, opt_##OPT##_slide_lr, VAL[2], 0, 16)	\
-	DXX_MENUITEM(VERB, SLIDER, TXT_SLIDE_UD, opt_##OPT##_slide_ud, VAL[3], 0, 16)	\
-	DXX_MENUITEM(VERB, SLIDER, TXT_BANK_LR, opt_##OPT##_bank_lr, VAL[4], 0, 16)	\
+#define DXX_INPUT_SENSITIVITY(VERB,OPT,VAL,VALUE_INDEX_ENUM_SCOPE)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_TURN_LR, opt_##OPT##_turn_lr, VAL[VALUE_INDEX_ENUM_SCOPE::turn_lr], 0, 16)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_PITCH_UD, opt_##OPT##_pitch_ud, VAL[VALUE_INDEX_ENUM_SCOPE::pitch_ud], 0, 16)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_SLIDE_LR, opt_##OPT##_slide_lr, VAL[VALUE_INDEX_ENUM_SCOPE::slide_lr], 0, 16)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_SLIDE_UD, opt_##OPT##_slide_ud, VAL[VALUE_INDEX_ENUM_SCOPE::slide_ud], 0, 16)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_BANK_LR, opt_##OPT##_bank_lr, VAL[VALUE_INDEX_ENUM_SCOPE::bank_lr], 0, 16)	\
 
 #define DXX_INPUT_CONFIG_MENU(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "Keyboard Sensitivity:", opt_label_kb)	\
-	DXX_INPUT_SENSITIVITY(VERB,kb,PlayerCfg.KeyboardSens)	             \
+	DXX_INPUT_SENSITIVITY(VERB,kb,PlayerCfg.KeyboardSens,player_config_keyboard_index)	             \
 
 namespace keyboard_sensitivity {
 
@@ -1445,23 +1449,23 @@ static void input_config_keyboard()
 	(void)menu;
 }
 
-#define DXX_INPUT_SENSITIVITY(VERB,OPT,VAL)	                           \
-	DXX_MENUITEM(VERB, SLIDER, TXT_TURN_LR, opt_##OPT##_turn_lr, VAL[0], 0, 16)	\
-	DXX_MENUITEM(VERB, SLIDER, TXT_PITCH_UD, opt_##OPT##_pitch_ud, VAL[1], 0, 16)	\
-	DXX_MENUITEM(VERB, SLIDER, TXT_SLIDE_LR, opt_##OPT##_slide_lr, VAL[2], 0, 16)	\
-	DXX_MENUITEM(VERB, SLIDER, TXT_SLIDE_UD, opt_##OPT##_slide_ud, VAL[3], 0, 16)	\
-	DXX_MENUITEM(VERB, SLIDER, TXT_BANK_LR, opt_##OPT##_bank_lr, VAL[4], 0, 16)	\
+#define DXX_INPUT_SENSITIVITY(VERB,OPT,VAL,VALUE_INDEX_ENUM_SCOPE)	                           \
+	DXX_MENUITEM(VERB, SLIDER, TXT_TURN_LR, opt_##OPT##_turn_lr, VAL[VALUE_INDEX_ENUM_SCOPE::turn_lr], 0, 16)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_PITCH_UD, opt_##OPT##_pitch_ud, VAL[VALUE_INDEX_ENUM_SCOPE::pitch_ud], 0, 16)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_SLIDE_LR, opt_##OPT##_slide_lr, VAL[VALUE_INDEX_ENUM_SCOPE::slide_lr], 0, 16)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_SLIDE_UD, opt_##OPT##_slide_ud, VAL[VALUE_INDEX_ENUM_SCOPE::slide_ud], 0, 16)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_BANK_LR, opt_##OPT##_bank_lr, VAL[VALUE_INDEX_ENUM_SCOPE::bank_lr], 0, 16)	\
 
-#define DXX_INPUT_THROTTLE_SENSITIVITY(VERB,OPT,VAL)	\
-	DXX_INPUT_SENSITIVITY(VERB,OPT,VAL)	\
-	DXX_MENUITEM(VERB, SLIDER, TXT_THROTTLE, opt_##OPT##_throttle, VAL[5], 0, 16)	\
+#define DXX_INPUT_THROTTLE_SENSITIVITY(VERB,OPT,VAL,VALUE_INDEX_ENUM_SCOPE)	\
+	DXX_INPUT_SENSITIVITY(VERB,OPT,VAL,VALUE_INDEX_ENUM_SCOPE)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_THROTTLE, opt_##OPT##_throttle, VAL[VALUE_INDEX_ENUM_SCOPE::throttle], 0, 16)	\
 
 #define DXX_INPUT_CONFIG_MENU(VERB)	                                   \
 	DXX_MENUITEM(VERB, TEXT, "Mouse Sensitivity:", opt_label_ms)	             \
-	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,ms,PlayerCfg.MouseSens)	\
+	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,ms,PlayerCfg.MouseSens,player_config_mouse_index)	\
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_ms)	\
 	DXX_MENUITEM(VERB, TEXT, "Mouse Overrun Buffer:", opt_label_mo)	\
-	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,mo,PlayerCfg.MouseOverrun)	\
+	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,mo,PlayerCfg.MouseOverrun,player_config_mouse_index)	\
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_mo)	\
 	DXX_MENUITEM(VERB, TEXT, "Mouse FlightSim Deadzone:", opt_label_mfsd)	\
 	DXX_MENUITEM(VERB, SLIDER, "X/Y", opt_mfsd_deadzone, PlayerCfg.MouseFSDead, 0, 16)	\
@@ -1523,16 +1527,16 @@ namespace joystick_sensitivity {
 
 #define DXX_INPUT_CONFIG_MENU(VERB)	                                   \
 	DXX_MENUITEM(VERB, TEXT, "Joystick Sensitivity:", opt_label_js)	          \
-	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,js,PlayerCfg.JoystickSens)	\
+	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,js,PlayerCfg.JoystickSens,player_config_joystick_index)	\
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_js)	\
 	DXX_MENUITEM(VERB, TEXT, "Joystick Linearity:", opt_label_jl)	\
-	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jl,PlayerCfg.JoystickLinear)	  \
+	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jl,PlayerCfg.JoystickLinear,player_config_joystick_index)	  \
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_jl)	\
 	DXX_MENUITEM(VERB, TEXT, "Joystick Linear Speed:", opt_label_jp)	\
-	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jp,PlayerCfg.JoystickSpeed)	   \
+	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jp,PlayerCfg.JoystickSpeed,player_config_joystick_index)	   \
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_jp)	\
 	DXX_MENUITEM(VERB, TEXT, "Joystick Deadzone:", opt_label_jd)	\
-	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jd,PlayerCfg.JoystickDead)	    \
+	DXX_INPUT_THROTTLE_SENSITIVITY(VERB,jd,PlayerCfg.JoystickDead,player_config_joystick_index)	    \
 
 	class menu_items
 	{
