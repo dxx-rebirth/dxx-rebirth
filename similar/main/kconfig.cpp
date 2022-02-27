@@ -57,9 +57,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "screens.h"
 
 #include "d_array.h"
+#include "d_enumerate.h"
 #include "d_range.h"
 #include "d_zip.h"
-#include "partial_range.h"
 
 using std::min;
 using std::max;
@@ -1039,20 +1039,14 @@ static void clamp_symmetric_value(fix& value, const fix& bound)
 }
 
 #if DXX_MAX_AXES_PER_JOYSTICK
-static void convert_raw_joy_axis(control_info::joystick_axis_values &Controls, const player_config_joystick_index player_cfg_index, const uint_fast32_t i)
-{
-	const auto raw_joy_axis = Controls.raw_joy_axis[i];
-	const auto joy_axis = (abs(raw_joy_axis) <= (128 * PlayerCfg.JoystickLinear[player_cfg_index]) / 16)
-		? (raw_joy_axis * (FrameTime * PlayerCfg.JoystickSpeed[player_cfg_index]) / 16)
-		: (raw_joy_axis * FrameTime);
-	Controls.joy_axis[i] = joy_axis / 128;
-}
-
-static void convert_raw_joy_axis(control_info::joystick_axis_values &Controls, const dxx_kconfig_ui_kc_joystick kcm_index, const player_config_joystick_index player_cfg_index, const uint_fast32_t i)
+static void convert_raw_joy_axis(fix &result, const fix raw_joy_axis, const dxx_kconfig_ui_kc_joystick kcm_index, const player_config_joystick_index player_cfg_index, const uint_fast32_t i)
 {
 	if (i != kcm_joystick[kcm_index].value)
 		return;
-	convert_raw_joy_axis(Controls, player_cfg_index, i);
+	const auto joy_axis = (abs(raw_joy_axis) <= (128 * PlayerCfg.JoystickLinear[player_cfg_index]) / 16)
+		? (raw_joy_axis * (FrameTime * PlayerCfg.JoystickSpeed[player_cfg_index]) / 16)
+		: (raw_joy_axis * FrameTime);
+	result = joy_axis / 128;
 }
 #endif
 
@@ -1258,13 +1252,15 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 void kconfig_end_loop(control_info &Controls, const fix frametime)
 {
 #if DXX_MAX_AXES_PER_JOYSTICK
-	for (int i = 0; i < JOY_MAX_AXES; i++) {
-		convert_raw_joy_axis(Controls, dxx_kconfig_ui_kc_joystick_turn, player_config_joystick_index::turn_lr, i); // Turn L/R
-		convert_raw_joy_axis(Controls, dxx_kconfig_ui_kc_joystick_pitch_ud, player_config_joystick_index::pitch_ud, i); // Pitch U/D
-		convert_raw_joy_axis(Controls, dxx_kconfig_ui_kc_joystick_slide_lr, player_config_joystick_index::slide_lr, i); // Slide L/R
-		convert_raw_joy_axis(Controls, dxx_kconfig_ui_kc_joystick_slide_ud, player_config_joystick_index::slide_ud, i); // Slide U/D
-		convert_raw_joy_axis(Controls, dxx_kconfig_ui_kc_joystick_bank, player_config_joystick_index::bank_lr, i); // Bank
-		convert_raw_joy_axis(Controls, dxx_kconfig_ui_kc_joystick_throttle, player_config_joystick_index::throttle, i); // Throttle
+	std::array<fix, JOY_MAX_AXES> joy_axis{};
+	for (auto &&[i, o, raw_joy_axis] : enumerate(zip(joy_axis, Controls.raw_joy_axis)))
+	{
+		convert_raw_joy_axis(o, raw_joy_axis, dxx_kconfig_ui_kc_joystick_turn, player_config_joystick_index::turn_lr, i); // Turn L/R
+		convert_raw_joy_axis(o, raw_joy_axis, dxx_kconfig_ui_kc_joystick_pitch_ud, player_config_joystick_index::pitch_ud, i); // Pitch U/D
+		convert_raw_joy_axis(o, raw_joy_axis, dxx_kconfig_ui_kc_joystick_slide_lr, player_config_joystick_index::slide_lr, i); // Slide L/R
+		convert_raw_joy_axis(o, raw_joy_axis, dxx_kconfig_ui_kc_joystick_slide_ud, player_config_joystick_index::slide_ud, i); // Slide U/D
+		convert_raw_joy_axis(o, raw_joy_axis, dxx_kconfig_ui_kc_joystick_bank, player_config_joystick_index::bank_lr, i); // Bank
+		convert_raw_joy_axis(o, raw_joy_axis, dxx_kconfig_ui_kc_joystick_throttle, player_config_joystick_index::throttle, i); // Throttle
 	}
 #endif
 
@@ -1278,7 +1274,7 @@ void kconfig_end_loop(control_info &Controls, const fix frametime)
 		adjust_ramped_keyboard_field(minus, key_pitch_backward, Controls.pitch_time, PlayerCfg.KeyboardSens[player_config_keyboard_index::pitch_ud], speed_factor, 2);
 		// From joystick...
 #ifdef dxx_kconfig_ui_kc_joystick_pitch_ud
-		adjust_axis_field(Controls.pitch_time, Controls.joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_pitch_ud].value, kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_pitch].value, PlayerCfg.JoystickSens[player_config_joystick_index::pitch_ud]);
+		adjust_axis_field(Controls.pitch_time, joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_pitch_ud].value, kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_pitch].value, PlayerCfg.JoystickSens[player_config_joystick_index::pitch_ud]);
 #endif
 		// From mouse...
 #ifdef dxx_kconfig_ui_kc_mouse_pitch_ud
@@ -1297,7 +1293,7 @@ void kconfig_end_loop(control_info &Controls, const fix frametime)
 		// From joystick...
 		// NOTE: Use Slide U/D invert setting
 #if defined(dxx_kconfig_ui_kc_joystick_pitch_ud) && defined(dxx_kconfig_ui_kc_joystick_slide_ud)
-		adjust_axis_field(Controls.vertical_thrust_time, Controls.joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_pitch_ud].value, !kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_slide_ud].value, PlayerCfg.JoystickSens[player_config_joystick_index::slide_ud]);
+		adjust_axis_field(Controls.vertical_thrust_time, joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_pitch_ud].value, !kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_slide_ud].value, PlayerCfg.JoystickSens[player_config_joystick_index::slide_ud]);
 #endif
 		// From mouse...
 		adjust_axis_field(Controls.vertical_thrust_time, Controls.mouse_axis, kcm_mouse[dxx_kconfig_ui_kc_mouse_pitch_ud].value, kcm_mouse[dxx_kconfig_ui_kc_mouse_invert_slide_ud].value, PlayerCfg.MouseSens[player_config_mouse_index::slide_ud]);
@@ -1309,7 +1305,7 @@ void kconfig_end_loop(control_info &Controls, const fix frametime)
 	adjust_button_time(Controls.vertical_thrust_time, Controls.state.btn_slide_up, Controls.state.btn_slide_down, speed_factor);
 	// From joystick...
 #ifdef dxx_kconfig_ui_kc_joystick_slide_ud
-	adjust_axis_field(Controls.vertical_thrust_time, Controls.joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_slide_ud].value, !kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_slide_ud].value, PlayerCfg.JoystickSens[player_config_joystick_index::slide_ud]);
+	adjust_axis_field(Controls.vertical_thrust_time, joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_slide_ud].value, !kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_slide_ud].value, PlayerCfg.JoystickSens[player_config_joystick_index::slide_ud]);
 #endif
 	// From mouse...
 	adjust_axis_field(Controls.vertical_thrust_time, Controls.mouse_axis, kcm_mouse[dxx_kconfig_ui_kc_mouse_slide_ud].value, !kcm_mouse[dxx_kconfig_ui_kc_mouse_invert_slide_ud].value, PlayerCfg.MouseSens[player_config_mouse_index::slide_ud]);
@@ -1322,7 +1318,7 @@ void kconfig_end_loop(control_info &Controls, const fix frametime)
 		adjust_ramped_keyboard_field(minus, key_heading_left, Controls.heading_time, PlayerCfg.KeyboardSens[player_config_keyboard_index::turn_lr], speed_factor);
 		// From joystick...
 #ifdef dxx_kconfig_ui_kc_joystick_turn
-		adjust_axis_field(Controls.heading_time, Controls.joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_turn].value, !kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_turn].value, PlayerCfg.JoystickSens[player_config_joystick_index::turn_lr]);
+		adjust_axis_field(Controls.heading_time, joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_turn].value, !kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_turn].value, PlayerCfg.JoystickSens[player_config_joystick_index::turn_lr]);
 #endif
 		// From mouse...
 		adjust_axis_field(Controls.heading_time, Controls.mouse_axis, kcm_mouse[dxx_kconfig_ui_kc_mouse_turn].value, !kcm_mouse[dxx_kconfig_ui_kc_mouse_invert_turn].value, PlayerCfg.MouseSens[player_config_mouse_index::turn_lr]);
@@ -1337,7 +1333,7 @@ void kconfig_end_loop(control_info &Controls, const fix frametime)
 		adjust_ramped_keyboard_field(minus, key_heading_left, Controls.sideways_thrust_time, PlayerCfg.KeyboardSens[player_config_keyboard_index::slide_lr], speed_factor);
 		// From joystick...
 #if defined(dxx_kconfig_ui_kc_joystick_turn) && defined(dxx_kconfig_ui_kc_joystick_slide_lr)
-		adjust_axis_field(Controls.sideways_thrust_time, Controls.joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_turn].value, !kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_slide_lr].value, PlayerCfg.JoystickSens[player_config_joystick_index::slide_lr]);
+		adjust_axis_field(Controls.sideways_thrust_time, joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_turn].value, !kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_slide_lr].value, PlayerCfg.JoystickSens[player_config_joystick_index::slide_lr]);
 #endif
 		// From mouse...
 		adjust_axis_field(Controls.sideways_thrust_time, Controls.mouse_axis, kcm_mouse[dxx_kconfig_ui_kc_mouse_turn].value, !kcm_mouse[dxx_kconfig_ui_kc_mouse_invert_slide_lr].value, PlayerCfg.MouseSens[player_config_mouse_index::slide_lr]);
@@ -1349,7 +1345,7 @@ void kconfig_end_loop(control_info &Controls, const fix frametime)
 	adjust_button_time(Controls.sideways_thrust_time, Controls.state.btn_slide_right, Controls.state.btn_slide_left, speed_factor);
 	// From joystick...
 #ifdef dxx_kconfig_ui_kc_joystick_slide_lr
-	adjust_axis_field(Controls.sideways_thrust_time, Controls.joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_slide_lr].value, !kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_slide_lr].value, PlayerCfg.JoystickSens[player_config_joystick_index::slide_lr]);
+	adjust_axis_field(Controls.sideways_thrust_time, joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_slide_lr].value, !kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_slide_lr].value, PlayerCfg.JoystickSens[player_config_joystick_index::slide_lr]);
 #endif
 	// From mouse...
 	adjust_axis_field(Controls.sideways_thrust_time, Controls.mouse_axis, kcm_mouse[dxx_kconfig_ui_kc_mouse_slide_lr].value, !kcm_mouse[dxx_kconfig_ui_kc_mouse_invert_slide_lr].value, PlayerCfg.MouseSens[player_config_mouse_index::slide_lr]);
@@ -1362,7 +1358,7 @@ void kconfig_end_loop(control_info &Controls, const fix frametime)
 		adjust_ramped_keyboard_field(minus, key_heading_right, Controls.bank_time, PlayerCfg.KeyboardSens[player_config_keyboard_index::bank_lr], speed_factor);
 		// From joystick...
 #if defined(dxx_kconfig_ui_kc_joystick_turn) && defined(dxx_kconfig_ui_kc_joystick_bank)
-		adjust_axis_field(Controls.bank_time, Controls.joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_turn].value, kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_bank].value, PlayerCfg.JoystickSens[player_config_joystick_index::bank_lr]);
+		adjust_axis_field(Controls.bank_time, joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_turn].value, kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_bank].value, PlayerCfg.JoystickSens[player_config_joystick_index::bank_lr]);
 #endif
 		// From mouse...
 		adjust_axis_field(Controls.bank_time, Controls.mouse_axis, kcm_mouse[dxx_kconfig_ui_kc_mouse_turn].value, !kcm_mouse[dxx_kconfig_ui_kc_mouse_invert_bank].value, PlayerCfg.MouseSens[player_config_mouse_index::bank_lr]);
@@ -1374,7 +1370,7 @@ void kconfig_end_loop(control_info &Controls, const fix frametime)
 	adjust_button_time(Controls.bank_time, Controls.state.btn_bank_left, Controls.state.btn_bank_right, speed_factor);
 	// From joystick...
 #ifdef dxx_kconfig_ui_kc_joystick_bank
-	adjust_axis_field(Controls.bank_time, Controls.joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_bank].value, kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_bank].value, PlayerCfg.JoystickSens[player_config_joystick_index::bank_lr]);
+	adjust_axis_field(Controls.bank_time, joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_bank].value, kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_bank].value, PlayerCfg.JoystickSens[player_config_joystick_index::bank_lr]);
 #endif
 	// From mouse...
 	adjust_axis_field(Controls.bank_time, Controls.mouse_axis, kcm_mouse[dxx_kconfig_ui_kc_mouse_bank].value, !kcm_mouse[dxx_kconfig_ui_kc_mouse_invert_bank].value, PlayerCfg.MouseSens[player_config_mouse_index::bank_lr]);
@@ -1384,7 +1380,7 @@ void kconfig_end_loop(control_info &Controls, const fix frametime)
 	adjust_button_time(Controls.forward_thrust_time, Controls.state.accelerate, Controls.state.reverse, speed_factor);
 	// From joystick...
 #ifdef dxx_kconfig_ui_kc_joystick_throttle
-	adjust_axis_field(Controls.forward_thrust_time, Controls.joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_throttle].value, kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_throttle].value, PlayerCfg.JoystickSens[player_config_joystick_index::throttle]);
+	adjust_axis_field(Controls.forward_thrust_time, joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_throttle].value, kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_throttle].value, PlayerCfg.JoystickSens[player_config_joystick_index::throttle]);
 #endif
 	// From mouse...
 	adjust_axis_field(Controls.forward_thrust_time, Controls.mouse_axis, kcm_mouse[dxx_kconfig_ui_kc_mouse_throttle].value, kcm_mouse[dxx_kconfig_ui_kc_mouse_invert_throttle].value, PlayerCfg.MouseSens[player_config_mouse_index::throttle]);

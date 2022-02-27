@@ -80,7 +80,7 @@ struct control_info
 #if DXX_MAX_AXES_PER_JOYSTICK
 	struct joystick_axis_values
 	{
-		std::array<fix, JOY_MAX_AXES> joy_axis, raw_joy_axis;
+		std::array<fix, JOY_MAX_AXES> raw_joy_axis;
 	};
 #endif
 	ramp_controls_t<float> down_time; // to scale movement depending on how long the key is pressed
