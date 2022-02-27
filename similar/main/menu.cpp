@@ -1365,28 +1365,24 @@ void screen_resolution_menu::apply_resolution(const screen_mode new_mode) const
 	game_init_render_sub_buffers(*grd_curcanv, 0, 0, SM_W(Game_screen_mode), SM_H(Game_screen_mode));
 }
 
-template <typename PMF>
+template <std::size_t Offset, auto PMF>
 struct copy_sensitivity
 {
-	const std::size_t offset;
-	const PMF pmf;
-	copy_sensitivity(std::size_t offset, const PMF pmf) :
-		offset(offset), pmf(pmf)
-	{
-	}
+	static constexpr std::integral_constant<std::size_t, Offset> offset{};
+	static constexpr std::integral_constant<decltype(PMF), PMF> pmf{};
 };
 
 template <typename XRange, typename MenuItems, typename... CopyParameters>
 void copy_sensitivity_from_menu_to_cfg2(XRange &&r, const MenuItems &menuitems, const CopyParameters ... cn)
 {
 	for (const auto i : r)
-		(((PlayerCfg.*(cn.pmf))[i] = menuitems[1 + i + cn.offset].value), ...);
+		(((PlayerCfg.*(cn.pmf.value))[i] = menuitems[1 + i + cn.offset].value), ...);
 }
 
 template <typename MenuItems, typename CopyParameter0, typename... CopyParameterN>
 void copy_sensitivity_from_menu_to_cfg(const MenuItems &menuitems, const CopyParameter0 c0, const CopyParameterN ... cn)
 {
-	copy_sensitivity_from_menu_to_cfg2(xrange(std::size(PlayerCfg.*(c0.pmf))), menuitems, c0, cn...);
+	copy_sensitivity_from_menu_to_cfg2(xrange(std::size(PlayerCfg.*(c0.pmf.value))), menuitems, c0, cn...);
 }
 
 #define DXX_INPUT_SENSITIVITY(VERB,OPT,VAL)	\
@@ -1430,7 +1426,7 @@ window_event_result menu::event_handler(const d_event &event)
 	switch (event.type)
 	{
 		case EVENT_WINDOW_CLOSE:
-			copy_sensitivity_from_menu_to_cfg(m, copy_sensitivity(opt_label_kb, &player_config::KeyboardSens));
+			copy_sensitivity_from_menu_to_cfg(m, copy_sensitivity<opt_label_kb, &player_config::KeyboardSens>());
 			break;
 		default:
 			break;
@@ -1503,8 +1499,8 @@ window_event_result menu::event_handler(const d_event &event)
 		case EVENT_WINDOW_CLOSE:
 			PlayerCfg.MouseFSDead = m[opt_mfsd_deadzone].value;
 			copy_sensitivity_from_menu_to_cfg(m,
-				copy_sensitivity(opt_label_ms, &player_config::MouseSens),
-				copy_sensitivity(opt_label_mo, &player_config::MouseOverrun)
+				copy_sensitivity<opt_label_ms, &player_config::MouseSens>(),
+				copy_sensitivity<opt_label_mo, &player_config::MouseOverrun>()
 			);
 			break;
 		default:
@@ -1569,10 +1565,10 @@ window_event_result menu::event_handler(const d_event &event)
 	{
 		case EVENT_WINDOW_CLOSE:
 			copy_sensitivity_from_menu_to_cfg(m,
-				copy_sensitivity(opt_label_js, &player_config::JoystickSens),
-				copy_sensitivity(opt_label_jl, &player_config::JoystickLinear),
-				copy_sensitivity(opt_label_jp, &player_config::JoystickSpeed),
-				copy_sensitivity(opt_label_jd, &player_config::JoystickDead)
+				copy_sensitivity<opt_label_js, &player_config::JoystickSens>(),
+				copy_sensitivity<opt_label_jl, &player_config::JoystickLinear>(),
+				copy_sensitivity<opt_label_jp, &player_config::JoystickSpeed>(),
+				copy_sensitivity<opt_label_jd, &player_config::JoystickDead>()
 			);
 			break;
 		default:
