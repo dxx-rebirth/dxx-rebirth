@@ -81,17 +81,6 @@ struct xrange_check_constant_endpoints<std::integral_constant<Tb, b>, std::integ
 	static_assert((step > 0 ? ((e - b) % step) : ((b - e) % -step)) == 0, "step size will overstep end value");
 };
 
-template <typename step_type>
-static constexpr bool get_xrange_ascending()
-{
-	if constexpr (std::is_same<step_type, xrange_ascending>::value)
-		return true;
-	else if constexpr (std::is_same<step_type, xrange_descending>::value)
-		return false;
-	else
-		return step_type::value > 0;
-}
-
 }
 
 /* For the general case, store a `const`-qualified copy of the value,
@@ -183,12 +172,22 @@ protected:
 	{
 		if constexpr (std::is_convertible<E, B>::value)
 		{
-			constexpr bool ascending = detail::get_xrange_ascending<step_type>();
+			if constexpr (std::is_same<step_type, xrange_ascending>::value || (!std::is_same<step_type, xrange_descending>::value && step_type::value > 0))
+			{
 #ifdef DXX_CONSTANT_TRUE
-			(DXX_CONSTANT_TRUE(!(ascending ? b < e : e < b)) && (DXX_ALWAYS_ERROR_FUNCTION(xrange_is_always_empty, "begin never less than end"), 0));
+				(DXX_CONSTANT_TRUE(!(b < e)) && (DXX_ALWAYS_ERROR_FUNCTION(xrange_is_always_empty, "begin never less than end"), 0));
 #endif
-			if (!(ascending ? b < e : e < b))
-				return e;
+				if (!(b < e))
+					return e;
+			}
+			else
+			{
+#ifdef DXX_CONSTANT_TRUE
+				(DXX_CONSTANT_TRUE(!(e < b)) && (DXX_ALWAYS_ERROR_FUNCTION(xrange_is_always_empty, "end never less than begin"), 0));
+#endif
+				if (!(e < b))
+					return e;
+			}
 		}
 		else
 			(void)e;
