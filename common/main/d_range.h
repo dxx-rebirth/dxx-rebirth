@@ -90,12 +90,13 @@ template <typename T, bool begin>
 class xrange_endpoint
 {
 public:
-	const T value;
-	constexpr xrange_endpoint(T v) :
+	using value_type = T;
+	const value_type value;
+	constexpr xrange_endpoint(value_type v) :
 		value(std::move(v))
 	{
 	}
-	constexpr operator T() const
+	constexpr operator value_type() const
 	{
 		return value;
 	}
@@ -154,8 +155,8 @@ public:
  */
 template <typename index_type, typename B = index_type, typename E = index_type, typename step_type = xrange_ascending>
 class xrange :
-	public xrange_endpoint<B, true>,
-	public xrange_endpoint<E, false>
+	protected xrange_endpoint<B, true>,
+	protected xrange_endpoint<E, false>
 {
 protected:
 	using begin_type = xrange_endpoint<B, true>;
@@ -194,6 +195,8 @@ protected:
 		return b;
 	}
 public:
+	using end_type::value;
+	using end_type::operator typename end_type::value_type;
 	using range_owns_iterated_storage = std::false_type;
 	/* If the endpoints are both integral constants, then they will have a
 	 * default constructor that this explicitly defaulted default constructor
