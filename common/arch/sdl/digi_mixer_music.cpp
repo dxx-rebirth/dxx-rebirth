@@ -139,7 +139,7 @@ enum class CurrentMusicType
 
 static CurrentMusicType current_music_type = CurrentMusicType::None;
 
-static CurrentMusicType load_mus_data(const uint8_t *data, size_t size);
+static CurrentMusicType load_mus_data(const uint8_t *data, size_t size, int loop, void (*const hook_finished_track)());
 static CurrentMusicType load_mus_file(const char *filename);
 
 }
@@ -166,7 +166,9 @@ int mix_play_file(const char *filename, int loop, void (*const entry_hook_finish
 	if (!d_stricmp(fptr, ".hmp"))
 	{
 		hmp2mid(filename, current_music_hndlbuf);
-		current_music_type = load_mus_data(current_music_hndlbuf.data(), current_music_hndlbuf.size());
+		current_music_type = load_mus_data(current_music_hndlbuf.data(), current_music_hndlbuf.size(), loop, hook_finished_track);
+		if (current_music_type != CurrentMusicType::None)
+			return 1;
 	}
 
 	// try loading music via given filename
@@ -205,7 +207,9 @@ int mix_play_file(const char *filename, int loop, void (*const entry_hook_finish
 			unsigned len = PHYSFS_fileLength(filehandle);
 			current_music_hndlbuf.resize(len);
 			bufsize = PHYSFS_read(filehandle, &current_music_hndlbuf[0], sizeof(char), len);
-			current_music_type = load_mus_data(current_music_hndlbuf.data(), bufsize*sizeof(char));
+			current_music_type = load_mus_data(current_music_hndlbuf.data(), bufsize, loop, hook_finished_track);
+			if (current_music_type != CurrentMusicType::None)
+				return 1;
 		}
 	}
 
@@ -287,22 +291,27 @@ void mix_pause_resume_music()
 
 namespace {
 
-static CurrentMusicType load_mus_data(const uint8_t *data, size_t size)
+static CurrentMusicType load_mus_data(const uint8_t *data, size_t size, int loop, void (*const hook_finished_track)())
 {
-	CurrentMusicType type = CurrentMusicType::None;
 #if DXX_USE_ADLMIDI
 	const auto adlmidi = get_adlmidi();
 	if (adlmidi && adl_openData(adlmidi, data, size) == 0)
-		type = CurrentMusicType::ADLMIDI;
+	{
+		mix_set_music_type_adl(loop, hook_finished_track);
+		return CurrentMusicType::ADLMIDI;
+	}
 	else
 #endif
 	{
 		const auto rw = SDL_RWFromConstMem(data, size);
 		current_music.reset(Mix_LoadMUS_RW(rw DXX_SDL_MIXER_Mix_LoadMUS_MANAGE_RWOPS) DXX_SDL_MIXER_Mix_LoadMUS_PASS_RWOPS(rw));
 		if (current_music)
-			type = CurrentMusicType::SDLMixer;
+		{
+			mix_set_music_type_sdlmixer(loop, hook_finished_track);
+			return CurrentMusicType::SDLMixer;
+		}
 	}
-	return type;
+	return CurrentMusicType::None;
 }
 
 static CurrentMusicType load_mus_file(const char *filename)
