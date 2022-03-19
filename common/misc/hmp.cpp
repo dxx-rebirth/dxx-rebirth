@@ -26,6 +26,7 @@
 #include "dsx-ns.h"
 #include "compiler-range_for.h"
 #include "d_range.h"
+#include "d_underlying_value.h"
 #include "partial_range.h"
 #include <memory>
 
@@ -49,71 +50,68 @@ hmp_file::~hmp_file()
 #endif
 }
 
-std::unique_ptr<hmp_file> hmp_open(const char *filename) {
-	int data, tempo;
-	auto fp = PHYSFSX_openReadBuffered(filename).first;
+hmp_open_result hmp_open(const char *const filename)
+{
+	int tempo;
+	const auto fpe = PHYSFSX_openReadBuffered(filename);
 
-	if (!fp)
-		return NULL;
+	if (!fpe.first)
+		return {nullptr, hmp_open_error::physfs_open, fpe.second};
+	auto &fp = fpe.first;
 
-	std::unique_ptr<hmp_file> hmp(new hmp_file{});
 	char buf[8];
-	if ((PHYSFS_read(fp, buf, 1, 8) != 8) || (memcmp(buf, "HMIMIDIP", 8)))
-	{
-		return NULL;
-	}
+	const auto physfs_error = [](hmp_open_error e) {
+		return hmp_open_result{nullptr, e, PHYSFS_getLastErrorCode()};
+	};
+	const auto data_error = [](hmp_open_error e) {
+		return hmp_open_result{nullptr, e, PHYSFS_ErrorCode{}};
+	};
+	if (PHYSFS_read(fp, buf, 1, 8) != 8)
+		return physfs_error(hmp_open_error::physfs_read_header);
+	if (memcmp(buf, "HMIMIDIP", 8))
+		return data_error(hmp_open_error::content_header);
 
-	if (PHYSFSX_fseek(fp, 0x30, SEEK_SET))
-	{
-		return NULL;
-	}
+	if (!PHYSFS_seek(fp, 0x30))
+		return physfs_error(hmp_open_error::physfs_seek0);
 
 	unsigned num_tracks;
 	if (PHYSFS_read(fp, &num_tracks, 4, 1) != 1)
-	{
-		return NULL;
-	}
+		return physfs_error(hmp_open_error::physfs_read_tracks);
 
 	if ((num_tracks < 1) || (num_tracks > HMP_TRACKS))
-	{
-		return NULL;
-	}
+		return data_error(hmp_open_error::track_count);
+	std::unique_ptr<hmp_file> hmp(new hmp_file{});
 	hmp->num_trks = num_tracks;
 
-	if (PHYSFSX_fseek(fp, 0x38, SEEK_SET))
-	{
-		return NULL;
-	}
+	if (!PHYSFS_seek(fp, 0x38))
+		return physfs_error(hmp_open_error::physfs_seek1);
 	if (PHYSFS_read(fp, &tempo, 4, 1) != 1)
-	{
-		return NULL;
-	}
+		return physfs_error(hmp_open_error::physfs_read_tempo);
 	hmp->tempo = INTEL_INT(tempo);
 
-	if (PHYSFSX_fseek(fp, 0x308, SEEK_SET))
-	{
-		return NULL;
-	}
+	if (!PHYSFS_seek(fp, 0x308))
+		return physfs_error(hmp_open_error::physfs_seek2);
 
 	range_for (auto &i, partial_range(hmp->trks, num_tracks))
 	{
-		if ((PHYSFSX_fseek(fp, 4, SEEK_CUR)) || (PHYSFS_read(fp, &data, 4, 1) != 1))
-		{
-			return NULL;
-		}
+		std::array<int, 3> tdata;
+		/* Discard tdata[0] and tdata[2].  They are read to avoid needing a
+		 * seek operation to skip them.
+		 */
+		if (PHYSFS_read(fp, tdata.data(), sizeof(tdata[0]), tdata.size()) != tdata.size())
+			return physfs_error(hmp_open_error::physfs_read_track_length);
 
+		int data = tdata[1];
 		data -= 12;
 		i.len = data;
 		i.data = std::make_unique<uint8_t[]>(data);
 		/* finally, read track data */
-		if ((PHYSFSX_fseek(fp, 4, SEEK_CUR)) || (PHYSFS_read(fp, i.data.get(), data, 1) != 1))
-		{
-			return NULL;
-		}
+		if (PHYSFS_read(fp, i.data.get(), data, 1) != 1)
+			return physfs_error(hmp_open_error::physfs_read_track_data);
 		i.loop_set = 0;
 	}
 	hmp->filesize = PHYSFS_fileLength(fp);
-	return hmp;
+	return {std::move(hmp), hmp_open_error::None, PHYSFS_ErrorCode{}};
 }
 
 #ifdef _WIN32
@@ -693,13 +691,20 @@ struct midhdr
 
 DEFINE_SERIAL_CONST_UDT_TO_MESSAGE(midhdr, m, (magic_header, m.num_trks, m.time_div, tempo));
 
-void hmp2mid(const char *hmp_name, std::vector<uint8_t> &midbuf)
+hmpmid_result hmp2mid(const char *hmp_name)
 {
-	std::unique_ptr<hmp_file> hmp = hmp_open(hmp_name);
+	auto &&[hmp, hoe, pec] = hmp_open(hmp_name);
 	if (!hmp)
-		return;
+	{
+		if (underlying_value(hoe) <= static_cast<unsigned>(hmp_open_error::physfs_read_track_data))
+			con_printf(CON_CRITICAL, "Failed to read HMP music %s: hmp_open_error=%u; PHYSFS_ErrorCode=%u/%s", hmp_name, underlying_value(hoe), pec, PHYSFS_getErrorByCode(pec));
+		else
+			con_printf(CON_CRITICAL, "Failed to read HMP music %s: hmp_open_error=%u", hmp_name, underlying_value(hoe));
+		return {std::vector<uint8_t>{}, hoe};
+	}
 
 	const midhdr mh(hmp.get());
+	std::vector<uint8_t> midbuf;
 	// write MIDI-header
 	midbuf.resize(serial::message_type<decltype(mh)>::maximum_size);
 	be_bytebuffer_t bb(&midbuf[0]);
@@ -716,6 +721,7 @@ void hmp2mid(const char *hmp_name, std::vector<uint8_t> &midbuf)
 		be_bytebuffer_t bbmi(&midbuf[midtrklenpos]);
 		serial::process_buffer(bbmi, static_cast<int32_t>(size_after - size_before));
 	}
+	return {midbuf, hmp_open_error::None};
 }
 
 }

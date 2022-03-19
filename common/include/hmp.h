@@ -8,6 +8,7 @@
 #define __HMP_H
 
 #include <memory>
+#include <tuple>
 #include <vector>
 #ifdef _WIN32
 #include <windows.h>
@@ -92,8 +93,35 @@ struct hmp_file
 	unsigned int midi_division;
 };
 
-std::unique_ptr<hmp_file> hmp_open(const char *filename);
-void hmp2mid(const char *hmp_name, std::vector<uint8_t> &midbuf);
+enum class hmp_open_error : uint8_t
+{
+	None,
+	/* All PhysFS errors must be before any non-PhysFS errors.  The error
+	 * printing code relies on this to determine which error numbers are
+	 * physfs_* and which are not.
+	 */
+	physfs_open,
+	physfs_read_header,
+	physfs_seek0,
+	physfs_read_tracks,
+	physfs_seek1,
+	physfs_read_tempo,
+	physfs_seek2,
+	physfs_read_track_length,
+	physfs_read_track_data,
+	/* Non-PhysFS reasons start here */
+	content_header,
+	track_count,
+};
+
+/* PHYSFS_ErrorCode member is only meaningful if hmp_open_error is a
+ * hmp_open_error::physfs_* code.  Otherwise, it is formally undefined.
+ * Informally, it is 0. */
+using hmp_open_result = std::tuple<std::unique_ptr<hmp_file>, hmp_open_error, PHYSFS_ErrorCode>;
+using hmpmid_result = std::tuple<std::vector<uint8_t>, hmp_open_error>;
+
+hmp_open_result hmp_open(const char *filename);
+hmpmid_result hmp2mid(const char *hmp_name);
 #ifdef _WIN32
 void hmp_setvolume(hmp_file *hmp, int volume);
 int hmp_play(hmp_file *hmp, int bLoop);

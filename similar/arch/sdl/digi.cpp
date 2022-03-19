@@ -262,8 +262,10 @@ int digi_win32_play_midi_song( const char * filename, int loop )
 	if (filename == NULL)
 		return 0;
 
-	if ((cur_hmp = hmp_open(filename)))
+	if (auto &&[cur_hmp, hoe, pec] = hmp_open(filename); cur_hmp)
 	{
+		(void)hoe;
+		(void)pec;
 		/* 
 		 * FIXME: to be implemented as soon as we have some kind or checksum function - replacement for ugly hack in hmp.c for descent.hmp
 		 * if (***filesize check*** && ***CRC32 or MD5 check***)

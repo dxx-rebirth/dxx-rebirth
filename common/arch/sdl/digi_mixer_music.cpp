@@ -159,10 +159,16 @@ int mix_play_file(const char *filename, int loop, void (*const entry_hook_finish
 	// It's a .hmp!
 	if (const auto fptr = strrchr(filename, '.'); fptr && !d_stricmp(fptr, ".hmp"))
 	{
-		hmp2mid(filename, current_music_hndlbuf);
-		current_music_type = load_mus_data(current_music_hndlbuf.data(), current_music_hndlbuf.size(), loop, hook_finished_track);
-		if (current_music_type != CurrentMusicType::None)
-			return 1;
+		if (auto &&[v, hoe] = hmp2mid(filename); hoe == hmp_open_error::None)
+		{
+			current_music_hndlbuf = std::move(v);
+			current_music_type = load_mus_data(current_music_hndlbuf.data(), current_music_hndlbuf.size(), loop, hook_finished_track);
+			if (current_music_type != CurrentMusicType::None)
+				return 1;
+		}
+		else
+			/* hmp2mid printed an error message, so there is no need for another one here */
+			return 0;
 	}
 
 	// try loading music via given filename
