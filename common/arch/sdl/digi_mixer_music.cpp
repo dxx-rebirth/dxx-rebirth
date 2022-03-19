@@ -193,14 +193,6 @@ int mix_play_file(const char *filename, int loop, void (*const entry_hook_finish
 			return 1;
 	}
 
-	// no luck. so it might be in Searchpath. So try to build absolute path
-	if (PHYSFSX_getRealPath(filename, full_path))
-	{
-		current_music_type = load_mus_file(full_path.data(), loop, hook_finished_track);
-		if (current_music_type != CurrentMusicType::None)
-			return 1;
-	}
-
 	// still nothin'? Let's open via PhysFS in case it's located inside an archive
 	{
 		if (RAIIPHYSFS_File filehandle{PHYSFS_openRead(filename)})
