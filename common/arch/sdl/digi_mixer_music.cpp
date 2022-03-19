@@ -37,14 +37,6 @@ namespace {
 #define DXX_SDL_MIXER_MANAGES_RWOPS	0
 #endif
 
-#if DXX_SDL_MIXER_MANAGES_RWOPS
-#define	DXX_SDL_MIXER_Mix_LoadMUS_MANAGE_RWOPS	, SDL_TRUE
-#define DXX_SDL_MIXER_Mix_LoadMUS_PASS_RWOPS(rw)
-#else
-#define DXX_SDL_MIXER_Mix_LoadMUS_MANAGE_RWOPS
-#define DXX_SDL_MIXER_Mix_LoadMUS_PASS_RWOPS(rw)	, rw
-#endif
-
 struct Music_delete
 {
 	void operator()(Mix_Music *m) const
@@ -55,31 +47,9 @@ struct Music_delete
 
 class current_music_t : std::unique_ptr<Mix_Music, Music_delete>
 {
-#if !DXX_SDL_MIXER_MANAGES_RWOPS
-	using rwops_pointer = std::unique_ptr<SDL_RWops, RWops_delete>;
-	rwops_pointer m_ops;
-#endif
 	using music_pointer = std::unique_ptr<Mix_Music, Music_delete>;
 public:
-#if DXX_SDL_MIXER_MANAGES_RWOPS
 	using music_pointer::reset;
-#else
-	void reset(
-		Mix_Music *const music = nullptr
-		, SDL_RWops *const rwops = nullptr
-		) noexcept
-	{
-		/* Clear music first in case it needs the old ops
-		 * Clear old ops
-		 * If no new music, clear new ops immediately.  This only
-		 * happens if the new music fails to load.
-		 */
-		this->music_pointer::reset(music);
-		m_ops.reset(rwops);
-		if (!music)
-			m_ops.reset();
-	}
-#endif
 	using music_pointer::operator bool;
 	using music_pointer::get;
 };
@@ -275,7 +245,7 @@ static CurrentMusicType load_mus_data(const uint8_t *data, size_t size, int loop
 #endif
 	{
 		const auto rw = SDL_RWFromConstMem(data, size);
-		current_music.reset(Mix_LoadMUS_RW(rw DXX_SDL_MIXER_Mix_LoadMUS_MANAGE_RWOPS) DXX_SDL_MIXER_Mix_LoadMUS_PASS_RWOPS(rw));
+		current_music.reset(Mix_LoadMUSType_RW(rw, MUS_NONE, SDL_TRUE));
 		if (current_music)
 		{
 			mix_set_music_type_sdlmixer(loop, hook_finished_track);
