@@ -166,7 +166,6 @@ int mix_play_file(const char *filename, int loop, void (*const entry_hook_finish
 	}
 
 	// try loading music via given filename
-	if (current_music_type == CurrentMusicType::None)
 	{
 		current_music_type = load_mus_file(filename, loop, hook_finished_track);
 		if (current_music_type != CurrentMusicType::None)
@@ -175,7 +174,7 @@ int mix_play_file(const char *filename, int loop, void (*const entry_hook_finish
 
 	// allow the shell convention tilde character to mean the user's home folder
 	// chiefly used for default jukebox level song music referenced in 'descent.m3u' for Mac OS X
-	if (current_music_type == CurrentMusicType::None && *filename == '~')
+	if (*filename == '~')
 	{
 		const auto sep = PHYSFS_getDirSeparator();
 		const auto lensep = strlen(sep);
@@ -189,16 +188,14 @@ int mix_play_file(const char *filename, int loop, void (*const entry_hook_finish
 	}
 
 	// no luck. so it might be in Searchpath. So try to build absolute path
-	if (current_music_type == CurrentMusicType::None)
+	if (PHYSFSX_getRealPath(filename, full_path))
 	{
-		PHYSFSX_getRealPath(filename, full_path);
 		current_music_type = load_mus_file(full_path.data(), loop, hook_finished_track);
 		if (current_music_type != CurrentMusicType::None)
 			return 1;
 	}
 
 	// still nothin'? Let's open via PhysFS in case it's located inside an archive
-	if (current_music_type == CurrentMusicType::None)
 	{
 		if (RAIIPHYSFS_File filehandle{PHYSFS_openRead(filename)})
 		{
