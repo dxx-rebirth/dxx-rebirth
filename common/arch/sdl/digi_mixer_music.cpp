@@ -151,19 +151,13 @@ static CurrentMusicType load_mus_file(const char *filename, int loop, void (*con
 int mix_play_file(const char *filename, int loop, void (*const entry_hook_finished_track)())
 {
 	std::array<char, PATH_MAX> full_path;
-	const char *fptr;
 	unsigned int bufsize = 0;
 
 	mix_free_music();	// stop and free what we're already playing, if anything
 
-	fptr = strrchr(filename, '.');
-
-	if (fptr == NULL)
-		return 0;
-
 	const auto hook_finished_track = entry_hook_finished_track ? entry_hook_finished_track : mix_free_music;
 	// It's a .hmp!
-	if (!d_stricmp(fptr, ".hmp"))
+	if (const auto fptr = strrchr(filename, '.'); fptr && !d_stricmp(fptr, ".hmp"))
 	{
 		hmp2mid(filename, current_music_hndlbuf);
 		current_music_type = load_mus_data(current_music_hndlbuf.data(), current_music_hndlbuf.size(), loop, hook_finished_track);
