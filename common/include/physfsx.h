@@ -445,6 +445,7 @@ PHYSFS_ErrorCode PHYSFSX_addRelToSearchPath(const char *relname, std::array<char
 void PHYSFSX_removeRelFromSearchPath(const char *relname);
 extern int PHYSFSX_fsize(const char *hogname);
 extern void PHYSFSX_listSearchPathContent();
+[[nodiscard]]
 int PHYSFSX_getRealPath(const char *stdPath, std::array<char, PATH_MAX> &realPath);
 
 class PHYSFS_unowned_storage_mount_deleter

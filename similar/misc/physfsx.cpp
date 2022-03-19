@@ -473,8 +473,8 @@ int PHYSFSX_getRealPath(const char *stdPath, std::array<char, PATH_MAX> &realPat
 int PHYSFSX_rename(const char *oldpath, const char *newpath)
 {
 	std::array<char, PATH_MAX> old, n;
-	PHYSFSX_getRealPath(oldpath, old);
-	PHYSFSX_getRealPath(newpath, n);
+	if (!PHYSFSX_getRealPath(oldpath, old) || !PHYSFSX_getRealPath(newpath, n))
+		return -1;
 	return (rename(old.data(), n.data()) == 0);
 }
 
@@ -583,8 +583,7 @@ void PHYSFSX_addArchiveContent()
 	range_for (const auto i, list)
 	{
 		std::array<char, PATH_MAX> realfile;
-		PHYSFSX_getRealPath(i,realfile);
-		if (PHYSFS_mount(realfile.data(), nullptr, 0))
+		if (PHYSFSX_getRealPath(i, realfile) && PHYSFS_mount(realfile.data(), nullptr, 0))
 		{
 			con_printf(CON_DEBUG, "PHYSFS: Added %s to Search Path",realfile.data());
 			content_updated = 1;
@@ -600,8 +599,7 @@ void PHYSFSX_addArchiveContent()
 		char demofile[PATH_MAX];
 		snprintf(demofile, sizeof(demofile), DEMO_DIR "%s", i);
 		std::array<char, PATH_MAX> realfile;
-		PHYSFSX_getRealPath(demofile,realfile);
-		if (PHYSFS_mount(realfile.data(), DEMO_DIR, 0))
+		if (PHYSFSX_getRealPath(demofile, realfile) && PHYSFS_mount(realfile.data(), DEMO_DIR, 0))
 		{
 			con_printf(CON_DEBUG, "PHYSFS: Added %s to " DEMO_DIR, realfile.data());
 			content_updated = 1;
@@ -626,8 +624,8 @@ void PHYSFSX_removeArchiveContent()
 	range_for (const auto i, list)
 	{
 		std::array<char, PATH_MAX> realfile;
-		PHYSFSX_getRealPath(i, realfile);
-		PHYSFS_unmount(realfile.data());
+		if (PHYSFSX_getRealPath(i, realfile))
+			PHYSFS_unmount(realfile.data());
 	}
 	list.reset();
 	// find files in DEMO_DIR ...
@@ -638,8 +636,8 @@ void PHYSFSX_removeArchiveContent()
 		char demofile[PATH_MAX];
 		snprintf(demofile, sizeof(demofile), DEMO_DIR "%s", i);
 		std::array<char, PATH_MAX> realfile;
-		PHYSFSX_getRealPath(demofile,realfile);
-		PHYSFS_unmount(realfile.data());
+		if (PHYSFSX_getRealPath(demofile, realfile))
+			PHYSFS_unmount(realfile.data());
 	}
 }
 

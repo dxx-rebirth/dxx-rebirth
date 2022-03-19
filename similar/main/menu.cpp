@@ -255,7 +255,8 @@ static int select_file_recursive(const menu_title title, const std::array<char, 
 
 static window_event_result get_absolute_path(ntstring<PATH_MAX - 1> &full_path, const char *rel_path)
 {
-	PHYSFSX_getRealPath(rel_path, full_path);
+	if (!PHYSFSX_getRealPath(rel_path, full_path))
+		full_path.front() = 0;
 	return window_event_result::close;
 }
 
@@ -2358,11 +2359,8 @@ static int select_file_recursive(const menu_title title, const std::array<char, 
 	std::array<char, PATH_MAX> new_path;
 
 	// Check for a PhysicsFS path first, saves complication!
-	if (strncmp(orig_path, sep, strlen(sep)) && PHYSFSX_exists(orig_path,0))
-	{
-		PHYSFSX_getRealPath(orig_path, new_path);
+	if (strncmp(orig_path, sep, strlen(sep)) && PHYSFSX_exists(orig_path, 0) && PHYSFSX_getRealPath(orig_path, new_path))
 		orig_path = new_path.data();
-	}
 
 	try {
 		auto b = window_create<browser>(orig_path, title, ext_range, select_dir, sep, userdata);
