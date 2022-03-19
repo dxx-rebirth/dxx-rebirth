@@ -291,15 +291,13 @@ static color_palette_index get_console_color_by_priority(const int priority)
 	return gr_find_closest_color(r, g, b);
 }
 
-static void con_draw(void)
+static void con_draw(grs_canvas &canvas)
 {
 	int i = 0, y = 0;
 
 	if (con_size <= 0)
 		return;
 
-	gr_set_default_canvas();
-	auto &canvas = *grd_curcanv;
 	auto &game_font = *GAME_FONT;
 	gr_set_curfont(canvas, game_font);
 	const uint8_t color = BM_XRGB(0, 0, 0);
@@ -427,7 +425,7 @@ window_event_result console_window::event_handler(const d_event &event)
 						con_state = CON_STATE_CLOSED;
 				}
 			}
-			con_draw();
+			con_draw(grd_curscreen->sc_canvas);
 			if (con_state == CON_STATE_CLOSED)
 			{
 				return window_event_result::close;
