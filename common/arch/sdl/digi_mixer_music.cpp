@@ -140,7 +140,7 @@ enum class CurrentMusicType
 static CurrentMusicType current_music_type = CurrentMusicType::None;
 
 static CurrentMusicType load_mus_data(const uint8_t *data, size_t size, int loop, void (*const hook_finished_track)());
-static CurrentMusicType load_mus_file(const char *filename);
+static CurrentMusicType load_mus_file(const char *filename, int loop, void (*const hook_finished_track)());
 
 }
 
@@ -173,7 +173,11 @@ int mix_play_file(const char *filename, int loop, void (*const entry_hook_finish
 
 	// try loading music via given filename
 	if (current_music_type == CurrentMusicType::None)
-		current_music_type = load_mus_file(filename);
+	{
+		current_music_type = load_mus_file(filename, loop, hook_finished_track);
+		if (current_music_type != CurrentMusicType::None)
+			return 1;
+	}
 
 	// allow the shell convention tilde character to mean the user's home folder
 	// chiefly used for default jukebox level song music referenced in 'descent.m3u' for Mac OS X
@@ -185,18 +189,18 @@ int mix_play_file(const char *filename, int loop, void (*const entry_hook_finish
 				 &filename[1 + (!strncmp(&filename[1], sep, lensep)
 			? lensep
 			: 0)]);
-		current_music_type = load_mus_file(full_path.data());
+		current_music_type = load_mus_file(full_path.data(), loop, hook_finished_track);
 		if (current_music_type != CurrentMusicType::None)
-			filename = full_path.data();	// used later for possible error reporting
+			return 1;
 	}
 
 	// no luck. so it might be in Searchpath. So try to build absolute path
 	if (current_music_type == CurrentMusicType::None)
 	{
 		PHYSFSX_getRealPath(filename, full_path);
-		current_music_type = load_mus_file(full_path.data());
+		current_music_type = load_mus_file(full_path.data(), loop, hook_finished_track);
 		if (current_music_type != CurrentMusicType::None)
-			filename = full_path.data();	// used later for possible error reporting
+			return 1;
 	}
 
 	// still nothin'? Let's open via PhysFS in case it's located inside an archive
@@ -213,30 +217,8 @@ int mix_play_file(const char *filename, int loop, void (*const entry_hook_finish
 		}
 	}
 
-	switch (current_music_type)
-	{
-
-#if DXX_USE_ADLMIDI
-	case CurrentMusicType::ADLMIDI:
-	{
-		mix_set_music_type_adl(loop, hook_finished_track);
-		return 1;
-	}
-#endif
-
-	case CurrentMusicType::SDLMixer:
-	{
-		mix_set_music_type_sdlmixer(loop, hook_finished_track);
-		return 1;
-	}
-
-	default:
-	{
-		con_printf(CON_CRITICAL,"Music %s could not be loaded: %s", filename, Mix_GetError());
-		mix_stop_music();
-	}
-
-	}
+	con_printf(CON_CRITICAL, "Music %s could not be loaded: %s", filename, Mix_GetError());
+	mix_stop_music();
 
 	return 0;
 }
@@ -314,19 +296,25 @@ static CurrentMusicType load_mus_data(const uint8_t *data, size_t size, int loop
 	return CurrentMusicType::None;
 }
 
-static CurrentMusicType load_mus_file(const char *filename)
+static CurrentMusicType load_mus_file(const char *filename, int loop, void (*const hook_finished_track)())
 {
 	CurrentMusicType type = CurrentMusicType::None;
 #if DXX_USE_ADLMIDI
 	const auto adlmidi = get_adlmidi();
 	if (adlmidi && adl_openFile(adlmidi, filename) == 0)
-		type = CurrentMusicType::ADLMIDI;
+	{
+		mix_set_music_type_adl(loop, hook_finished_track);
+		return CurrentMusicType::ADLMIDI;
+	}
 	else
 #endif
 	{
 		current_music.reset(Mix_LoadMUS(filename));
 		if (current_music)
-			type = CurrentMusicType::SDLMixer;
+		{
+			mix_set_music_type_sdlmixer(loop, hook_finished_track);
+			return CurrentMusicType::SDLMixer;
+		}
 	}
 	return type;
 }
