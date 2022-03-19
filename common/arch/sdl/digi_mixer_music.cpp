@@ -50,9 +50,31 @@ class current_music_t : std::unique_ptr<Mix_Music, Music_delete>
 	using music_pointer = std::unique_ptr<Mix_Music, Music_delete>;
 public:
 	using music_pointer::reset;
+	void reset(SDL_RWops *rw);
 	using music_pointer::operator bool;
 	using music_pointer::get;
 };
+
+void current_music_t::reset(SDL_RWops *const rw)
+{
+	if (!rw)
+	{
+		/* As a special case, exit early if rw is nullptr.  SDL is
+		 * guaranteed to fail in this case, but will set an error message
+		 * when it does so.  The error message about a nullptr SDL_RWops
+		 * will replace any prior error message, which might have been more
+		 * useful.
+		 */
+		reset();
+		return;
+	}
+	reset(Mix_LoadMUSType_RW(rw, MUS_NONE, SDL_TRUE));
+	if (!*this)
+		/* If the underlying resource failed to load, then SDL does not
+		 * free the RWops structure.  Free it here.
+		 */
+		SDL_RWclose(rw);
+}
 
 static current_music_t current_music;
 static std::vector<uint8_t> current_music_hndlbuf;
@@ -245,7 +267,7 @@ static CurrentMusicType load_mus_data(const uint8_t *data, size_t size, int loop
 #endif
 	{
 		const auto rw = SDL_RWFromConstMem(data, size);
-		current_music.reset(Mix_LoadMUSType_RW(rw, MUS_NONE, SDL_TRUE));
+		current_music.reset(rw);
 		if (current_music)
 		{
 			mix_set_music_type_sdlmixer(loop, hook_finished_track);
@@ -268,7 +290,8 @@ static CurrentMusicType load_mus_file(const char *filename, int loop, void (*con
 	else
 #endif
 	{
-		current_music.reset(Mix_LoadMUS(filename));
+		const auto rw = SDL_RWFromFile(filename, "rb");
+		current_music.reset(rw);
 		if (current_music)
 		{
 			mix_set_music_type_sdlmixer(loop, hook_finished_track);
