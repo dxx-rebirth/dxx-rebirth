@@ -84,10 +84,14 @@ public:
 	using music_pointer::get;
 };
 
-}
-
 static current_music_t current_music;
 static std::vector<uint8_t> current_music_hndlbuf;
+
+static void mix_set_music_type_sdlmixer(int loop, void (*const hook_finished_track)())
+{
+	Mix_PlayMusic(current_music.get(), (loop ? -1 : 1));
+	Mix_HookMusicFinished(hook_finished_track);
+}
 
 #if DXX_USE_ADLMIDI
 static ADL_MIDIPlayer_t current_adlmidi;
@@ -114,6 +118,14 @@ static ADL_MIDIPlayer *get_adlmidi()
 }
 
 static void mix_adlmidi(void *udata, Uint8 *stream, int len);
+
+static void mix_set_music_type_adl(int loop, void (*const hook_finished_track)())
+{
+	ADL_MIDIPlayer *adlmidi = get_adlmidi();
+	adl_setLoopEnabled(adlmidi, loop);
+	Mix_HookMusic(&mix_adlmidi, nullptr);
+	Mix_HookMusicFinished(hook_finished_track);
+}
 #endif
 
 enum class CurrentMusicType
@@ -130,11 +142,13 @@ static CurrentMusicType current_music_type = CurrentMusicType::None;
 static CurrentMusicType load_mus_data(const uint8_t *data, size_t size);
 static CurrentMusicType load_mus_file(const char *filename);
 
+}
+
 /*
  *  Plays a music file from an absolute path or a relative path
  */
 
-int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
+int mix_play_file(const char *filename, int loop, void (*const entry_hook_finished_track)())
 {
 	std::array<char, PATH_MAX> full_path;
 	const char *fptr;
@@ -147,6 +161,7 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 	if (fptr == NULL)
 		return 0;
 
+	const auto hook_finished_track = entry_hook_finished_track ? entry_hook_finished_track : mix_free_music;
 	// It's a .hmp!
 	if (!d_stricmp(fptr, ".hmp"))
 	{
@@ -200,18 +215,14 @@ int mix_play_file(const char *filename, int loop, void (*hook_finished_track)())
 #if DXX_USE_ADLMIDI
 	case CurrentMusicType::ADLMIDI:
 	{
-		ADL_MIDIPlayer *adlmidi = get_adlmidi();
-		adl_setLoopEnabled(adlmidi, loop);
-		Mix_HookMusic(&mix_adlmidi, nullptr);
-		Mix_HookMusicFinished(hook_finished_track ? hook_finished_track : mix_free_music);
+		mix_set_music_type_adl(loop, hook_finished_track);
 		return 1;
 	}
 #endif
 
 	case CurrentMusicType::SDLMixer:
 	{
-		Mix_PlayMusic(current_music.get(), (loop ? -1 : 1));
-		Mix_HookMusicFinished(hook_finished_track ? hook_finished_track : mix_free_music);
+		mix_set_music_type_sdlmixer(loop, hook_finished_track);
 		return 1;
 	}
 
@@ -274,6 +285,8 @@ void mix_pause_resume_music()
 		Mix_PauseMusic();
 }
 
+namespace {
+
 static CurrentMusicType load_mus_data(const uint8_t *data, size_t size)
 {
 	CurrentMusicType type = CurrentMusicType::None;
@@ -289,7 +302,6 @@ static CurrentMusicType load_mus_data(const uint8_t *data, size_t size)
 		if (current_music)
 			type = CurrentMusicType::SDLMixer;
 	}
-
 	return type;
 }
 
@@ -307,7 +319,6 @@ static CurrentMusicType load_mus_file(const char *filename)
 		if (current_music)
 			type = CurrentMusicType::SDLMixer;
 	}
-
 	return type;
 }
 
@@ -335,5 +346,7 @@ static void mix_adlmidi(void *, Uint8 *stream, int len)
 	std::transform(samples, samples + sampleCount, samples, amplify);
 }
 #endif
+
+}
 
 }
