@@ -1249,14 +1249,14 @@ struct mission_menu : listbox
 	const unique_menu_tagged_string<menu_title_tag> title;
 	const callback_type when_selected;
 	virtual window_event_result callback_handler(const d_event &, window_event_result) override;
-	mission_menu(const mission_list_type &rml, std::unique_ptr<const char *[]> &&name_pointer_strings, const char *const message, callback_type when_selected, mission_menu *const parent, const int default_item, grs_canvas &canvas) :
-		mission_menu(rml, std::move(name_pointer_strings), prepare_title(message, rml), when_selected, parent, default_item, canvas)
+	mission_menu(const mission_list_type &rml, const std::size_t count_name_pointer_strings, std::unique_ptr<const char *[]> &&name_pointer_strings, const char *const message, callback_type when_selected, mission_menu *const parent, const int default_item, grs_canvas &canvas) :
+		mission_menu(rml, count_name_pointer_strings, std::move(name_pointer_strings), prepare_title(message, rml), when_selected, parent, default_item, canvas)
 	{
 	}
 protected:
 	mission_menu *parent = nullptr;
-	mission_menu(const mission_list_type &rml, std::unique_ptr<const char *[]> &&name_pointer_strings, unique_menu_tagged_string<menu_title_tag> title_parameter, callback_type when_selected, mission_menu *const parent, const int default_item, grs_canvas &canvas) :
-		listbox(default_item, rml.size(), name_pointer_strings.get(), title_parameter, canvas, 1),
+	mission_menu(const mission_list_type &rml, const std::size_t count_name_pointer_strings, std::unique_ptr<const char *[]> &&name_pointer_strings, unique_menu_tagged_string<menu_title_tag> title_parameter, callback_type when_selected, mission_menu *const parent, const int default_item, grs_canvas &canvas) :
+		listbox(default_item, count_name_pointer_strings, name_pointer_strings.get(), title_parameter, canvas, 1),
 		ml(rml), listbox_strings(std::move(name_pointer_strings)),
 		title(std::move(title_parameter)),
 		when_selected(when_selected), parent(parent)
@@ -1290,7 +1290,7 @@ struct toplevel_mission_menu : toplevel_mission_menu_storage, mission_menu
 public:
 	toplevel_mission_menu(mission_list_type &&rml, std::unique_ptr<const char *[]> &&name_pointer_strings, const char *const message, callback_type when_selected, const int default_item, grs_canvas &canvas) :
 		toplevel_mission_menu_storage(std::move(rml)),
-		mission_menu(mission_list_storage, std::move(name_pointer_strings), message, when_selected, nullptr /* no parent for toplevel menu */, default_item, canvas)
+		mission_menu(mission_list_storage, mission_list_storage.size(), std::move(name_pointer_strings), message, when_selected, nullptr /* no parent for toplevel menu */, default_item, canvas)
 	{
 	}
 };
@@ -1345,13 +1345,17 @@ window_event_result mission_menu::callback_handler(const d_event &event, window_
 				auto &mli = ml[citem];
 				if (!mli.directory.empty())
 				{
-					auto listbox_strings = std::make_unique<const char *[]>(mli.directory.size() + 1);
+					/* Increment by 1 to allow the pseudo-entry
+					 * `listbox_go_up`.
+					 */
+					const std::size_t count_name_pointer_strings = mli.directory.size() + 1;
+					auto listbox_strings = std::make_unique<const char *[]>(count_name_pointer_strings);
 					listbox_strings[0] = listbox_go_up;
 					const auto a = [](const mle &m) -> const char * {
 						return m.mission_name;
 					};
 					std::transform(mli.directory.begin(), mli.directory.end(), &listbox_strings[1], a);
-					auto submm = window_create<subdirectory_mission_menu>(mli.directory, std::move(listbox_strings), mli.path.c_str(), when_selected, this, 0, grd_curscreen->sc_canvas);
+					auto submm = window_create<subdirectory_mission_menu>(mli.directory, count_name_pointer_strings, std::move(listbox_strings), mli.path.c_str(), when_selected, this, 0, grd_curscreen->sc_canvas);
 					(void)submm;
 					return window_event_result::handled;
 				}
@@ -1384,9 +1388,11 @@ window_event_result mission_menu::callback_handler(const d_event &event, window_
 
 namespace {
 
-using mission_menu_create_state_ptr = std::unique_ptr<mission_menu_create_state>;
+/* Reserve an element to allow the pseudo-entry `listbox_go_up`.
+ */
+constexpr std::integral_constant<std::size_t, 1> mission_subdirectory_extra_strings{};
 
-static mission_menu_create_state_ptr prepare_mission_menu_state(const mission_list_type &mission_list, const char *const LastMission, const std::size_t extra_strings)
+static std::unique_ptr<mission_menu_create_state> prepare_mission_menu_state(const mission_list_type &mission_list, const char *const LastMission, const std::size_t extra_strings)
 {
 	auto mission_name_to_select = LastMission;
 	auto p = std::make_unique<mission_menu_create_state>(mission_list.size() + extra_strings);
@@ -1399,11 +1405,25 @@ static mission_menu_create_state_ptr prepare_mission_menu_state(const mission_li
 		const char *const mission_name = mli.mission_name;
 		*listbox_strings++ = mission_name;
 		if (!mission_name_to_select)
+			/* Once the mission to select has been found, copy subsequent
+			 * mission names, but skip all the other logic.  There is no need
+			 * to examine subdirectories, because that examination is only for
+			 * finding the mission to select.
+			 */
 			continue;
 		if (!mli.directory.empty())
 		{
-			auto &&substate = prepare_mission_menu_state(mli.directory, mission_name_to_select, 1);
+			/* If this entry represents a subdirectory, prepare a corresponding
+			 * inner state for it.
+			 */
+			auto &&substate = prepare_mission_menu_state(mli.directory, mission_name_to_select, mission_subdirectory_extra_strings);
 			if (substate->initial_selection == UINT_MAX)
+				/* If the subdirectory did not contain the target mission, then
+				 * discard the subdirectory state.  State is only needed and
+				 * maintained for the directories that must be traversed on the
+				 * path to the target mission, because only those directories
+				 * will be automatically opened in the mission choosing dialog.
+				 */
 				continue;
 			substate->listbox_strings[0] = mission_menu::listbox_go_up;
 			create_state.submenu = std::move(substate);
@@ -1449,7 +1469,7 @@ int select_mission(const mission_filter_mode mission_filter, const menu_title me
 			if (parent_initial_selection >= parent_mission_list_size)
 				break;
 			const auto &substate_mission_list = parent_mission_menu->ml[parent_initial_selection];
-			auto submm = window_create<subdirectory_mission_menu>(substate_mission_list.directory, std::move(substate->listbox_strings), substate_mission_list.path.c_str(), when_selected, parent_mission_menu, 0, grd_curscreen->sc_canvas);
+			auto submm = window_create<subdirectory_mission_menu>(substate_mission_list.directory, substate_mission_list.directory.size() + mission_subdirectory_extra_strings, std::move(substate->listbox_strings), substate_mission_list.path.c_str(), when_selected, parent_mission_menu, 0, grd_curscreen->sc_canvas);
 			parent_mission_menu = submm;
 		}
     }
