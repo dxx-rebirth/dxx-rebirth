@@ -3577,10 +3577,7 @@ class DXXCommon(LazyObjectConstructor):
 					# Mix in CRC of CXXFLAGS to get reasonable uniqueness
 					# when flags are changed.  A full hash is
 					# unnecessary here.
-					crc = binascii.crc32(compiler_flags.encode())
-					if crc < 0:
-						crc = crc + 0x100000000
-					fields.append('{:08x}'.format(crc))
+					fields.append('{:08x}'.format(binascii.crc32(compiler_flags.encode())))
 				if self.pch:
 					fields.append('p%u' % self.pch)
 				elif self.syspch:
@@ -3657,9 +3654,6 @@ class DXXCommon(LazyObjectConstructor):
 			except AttributeError:
 				# Freeze the results into a tuple, to prevent accidental
 				# modification later.
-				#
-				# In Python 2, this is merely a safety feature and could
-				# be skipped.
 				#
 				# In Python 3, filter returns an iterable that is
 				# exhausted after one full traversal.  Since this object
