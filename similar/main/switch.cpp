@@ -645,7 +645,7 @@ extern void v30_trigger_read(v30_trigger *t, PHYSFS_File *fp)
 	t->num_links = PHYSFSX_readByte(fp);
 	t->pad = PHYSFSX_readByte(fp);
 	t->value = PHYSFSX_readFix(fp);
-	t->time = PHYSFSX_readFix(fp);
+	PHYSFSX_readFix(fp);
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
 		t->seg[i] = PHYSFSX_readShort(fp);
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
@@ -705,7 +705,6 @@ static void v29_trigger_read_as_v30(PHYSFS_File *fp, v30_trigger &trig)
 	// skip trig29.link_num. v30_trigger does not need it
 	trig.num_links	= trig29.num_links;
 	trig.value	= trig29.value;
-	trig.time	= trig29.time;
 	trig.seg = trig29.seg;
 	trig.side = trig29.side;
 }
