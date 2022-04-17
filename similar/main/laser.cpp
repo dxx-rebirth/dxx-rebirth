@@ -1895,7 +1895,6 @@ void do_laser_firing_player(object &plrobj)
 //	or other players) often enough for things like the vulcan cannon.
 int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level, int flags, vms_vector shot_orientation, const icobjidx_t Network_laser_track)
 {
-	const unsigned nfires = 1;
 	switch (weapon_num) {
 		case primary_weapon_index_t::LASER_INDEX: {
 			weapon_id_type weapon_type;
@@ -1942,12 +1941,6 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level,
 			//if (d_rand() > 24576)
 			//	make_sound = 1;
 			Laser_player_fire_spread(objp, weapon_id_type::VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, make_sound, shot_orientation, object_none);
-			if (nfires > 1) {
-				Laser_player_fire_spread(objp, weapon_id_type::VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, 0, shot_orientation, object_none);
-				if (nfires > 2) {
-					Laser_player_fire_spread(objp, weapon_id_type::VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, 0, shot_orientation, object_none);
-				}
-			}
 			break;
 		}
 		case primary_weapon_index_t::SPREADFIRE_INDEX:
@@ -1966,10 +1959,6 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level,
 		case primary_weapon_index_t::PLASMA_INDEX:
 			Laser_player_fire(objp, weapon_id_type::PLASMA_ID, 0, 1, shot_orientation, object_none);
 			Laser_player_fire(objp, weapon_id_type::PLASMA_ID, 1, 0, shot_orientation, object_none);
-			if (nfires > 1) {
-				Laser_player_fire_spread_delay(vmsegptridx, objp, weapon_id_type::PLASMA_ID, 0, 0, 0, FrameTime/2, 1, shot_orientation, object_none);
-				Laser_player_fire_spread_delay(vmsegptridx, objp, weapon_id_type::PLASMA_ID, 1, 0, 0, FrameTime/2, 0, shot_orientation, object_none);
-			}
 			break;
 
 		case primary_weapon_index_t::FUSION_INDEX: {
@@ -2004,12 +1993,6 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level,
 			//	make_sound = 1;
 
 			Laser_player_fire_spread(objp, weapon_id_type::GAUSS_ID, 6, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, make_sound, shot_orientation, object_none);
-			if (nfires > 1) {
-				Laser_player_fire_spread(objp, weapon_id_type::GAUSS_ID, 6, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, 0, shot_orientation, object_none);
-				if (nfires > 2) {
-					Laser_player_fire_spread(objp, weapon_id_type::GAUSS_ID, 6, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, 0, shot_orientation, object_none);
-				}
-			}
 			break;
 		}
 		case primary_weapon_index_t::HELIX_INDEX: {
@@ -2044,10 +2027,6 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level,
 		case primary_weapon_index_t::PHOENIX_INDEX:
 			Laser_player_fire(objp, weapon_id_type::PHOENIX_ID, 0, 1, shot_orientation, object_none);
 			Laser_player_fire(objp, weapon_id_type::PHOENIX_ID, 1, 0, shot_orientation, object_none);
-			if (nfires > 1) {
-				Laser_player_fire_spread_delay(vmsegptridx, objp, weapon_id_type::PHOENIX_ID, 0, 0, 0, FrameTime/2, 1, shot_orientation, object_none);
-				Laser_player_fire_spread_delay(vmsegptridx, objp, weapon_id_type::PHOENIX_ID, 1, 0, 0, FrameTime/2, 0, shot_orientation, object_none);
-			}
 			break;
 
 		case primary_weapon_index_t::OMEGA_INDEX:
@@ -2064,8 +2043,7 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level,
 	//  one shooting
 	if ((Game_mode & GM_MULTI) && objp == get_local_player().objnum)
 		multi_send_fire(weapon_num, level, flags, Network_laser_track, object_none);
-
-	return nfires;
+	return 1;
 }
 
 }
