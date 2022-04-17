@@ -902,12 +902,14 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 			const auto this_seg = segp.s.children[snum];
 			if (!IS_CHILD(this_seg))
 				continue;
+			auto &&v = visited[this_seg];
+			if (v)
+				continue;
 			if (!wid_flag.value || (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, snum) & wid_flag))
 			{
-				if (!visited[this_seg]) {
+				v = true;
 					seg_queue[qtail].start = cur_seg;
 					seg_queue[qtail].end = this_seg;
-					visited[this_seg] = true;
 					depth[qtail++] = cur_depth+1;
 					if (max_depth != -1) {
 						if (depth[qtail-1] == max_depth) {
@@ -918,8 +920,6 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 					} else if (this_seg == seg1) {
 						goto fcd_done1;
 					}
-				}
-
 			}
 		}	//	for (sidenum...
 
