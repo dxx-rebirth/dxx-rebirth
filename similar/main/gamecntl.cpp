@@ -976,6 +976,11 @@ static window_event_result HandleSystemKey(int key)
 #endif
 
 #if DXX_USE_OGL
+#if 0
+			/* These conflict with the drop-primary and drop-secondary
+			 * keybindings.  Dropping items is more common than using VR, so
+			 * disable these.
+			 */
 		case KEY_SHIFTED + KEY_F5:
 			VR_eye_offset -= 1;
 			reset_cockpit();
@@ -984,6 +989,7 @@ static window_event_result HandleSystemKey(int key)
 			VR_eye_offset += 1;
 			reset_cockpit();
 			break;
+#endif
 		case KEY_SHIFTED + KEY_ALTED + KEY_F5:
 			VR_eye_width -= (F1_0/10); //*= 10/11;
 			reset_cockpit();
