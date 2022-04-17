@@ -489,50 +489,53 @@ public:
 template <typename... Args>
 message(Args &&... args) -> message<Args && ...>;
 
-#define SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_BUILTIN(HBITS,BITS)	\
-	static constexpr uint##BITS##_t bswap(const uint##BITS##_t &u)	\
-	{	\
-		return __builtin_bswap##BITS(u);	\
-	}
-
-#define SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_EXPLICIT(HBITS,BITS)	\
-	static constexpr uint##BITS##_t bswap(const uint##BITS##_t &u)	\
-	{	\
-		return (static_cast<uint##BITS##_t>(bswap(static_cast<uint##HBITS##_t>(u))) << HBITS) |	\
-			static_cast<uint##BITS##_t>(bswap(static_cast<uint##HBITS##_t>(u >> HBITS)));	\
-	}
-
-#define SERIAL_DEFINE_SIZE_SPECIFIC_BSWAP(HBITS,BITS)	\
-	SERIAL_DEFINE_SIZE_SPECIFIC_USWAP(HBITS,BITS);	\
-	static constexpr int##BITS##_t bswap(const int##BITS##_t &i) \
-	{	\
-		return bswap(static_cast<uint##BITS##_t>(i));	\
-	}
-
-static constexpr uint8_t bswap(const uint8_t &u)
+template <typename T>
+static constexpr T bswap(const T u)
 {
-	return u;
-}
-
-static constexpr int8_t bswap(const int8_t &u)
-{
-	return u;
-}
-
+	if constexpr (std::is_same<T, int8_t>::value || std::is_same<T, uint8_t>::value)
+		/* Swapping a byte-sized value is a no-op.  This is permitted here so
+		 * that callers can swap without checking the size of the value.
+		 */
+		return u;
+	if constexpr (std::is_same<T, int16_t>::value || std::is_same<T, uint16_t>::value)
+	{
 #ifdef DXX_HAVE_BUILTIN_BSWAP
-#define SERIAL_DEFINE_SIZE_SPECIFIC_USWAP SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_BUILTIN
+		return __builtin_bswap16(u);
 #else
-#define SERIAL_DEFINE_SIZE_SPECIFIC_USWAP SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_EXPLICIT
+		return (static_cast<T>(static_cast<uint8_t>(u)) << 8) | static_cast<T>(static_cast<uint8_t>(u >> 8));
 #endif
+	}
+	if constexpr (std::is_same<T, int32_t>::value || std::is_same<T, uint32_t>::value)
+	{
+#ifdef DXX_HAVE_BUILTIN_BSWAP
+		return __builtin_bswap32(u);
+#else
+		return (static_cast<T>(bswap(static_cast<uint16_t>(u))) << 16) | static_cast<T>(bswap(static_cast<uint16_t>(u >> 16)));
+#endif
+	}
+	if constexpr (std::is_same<T, int64_t>::value || std::is_same<T, uint64_t>::value)
+	{
+#ifdef DXX_HAVE_BUILTIN_BSWAP
+		return __builtin_bswap64(u);
+#else
+		return (static_cast<T>(bswap(static_cast<uint32_t>(u))) << 32) | static_cast<T>(bswap(static_cast<uint32_t>(u >> 32)));
+#endif
+	}
+	/* Unsupported type.  Fall off the end of the function and trigger a
+	 * compile error due to the missing `return` statement.
+	 */
+}
 
-SERIAL_DEFINE_SIZE_SPECIFIC_BSWAP(8, 16);
-SERIAL_DEFINE_SIZE_SPECIFIC_BSWAP(16, 32);
-SERIAL_DEFINE_SIZE_SPECIFIC_BSWAP(32, 64);
+assert_equal(bswap(static_cast<uint8_t>(1)), 1, "");
 
-#undef SERIAL_DEFINE_SIZE_SPECIFIC_BSWAP
-#undef SERIAL_DEFINE_SIZE_SPECIFIC_USWAP
-#undef SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_BUILTIN
-#undef SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_EXPLICIT
+assert_equal(bswap(static_cast<uint16_t>(0x12)), 0x1200, "");
+assert_equal(bswap(static_cast<uint16_t>(0x92)), 0x9200, "");
+assert_equal(bswap(static_cast<uint16_t>(0x9200)), 0x92, "");
+assert_equal(bswap(static_cast<uint16_t>(0x102)), 0x201, "");
+
+assert_equal(bswap(static_cast<uint32_t>(0x102)), 0x2010000, "");
+
+assert_equal(bswap(static_cast<uint64_t>(0x102)), 0x201000000000000ull, "");
 
 namespace reader {
 
