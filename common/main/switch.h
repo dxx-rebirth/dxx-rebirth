@@ -200,7 +200,6 @@ struct d_level_unique_trigger_state
 
 constexpr std::integral_constant<trgnum_t, trgnum_t::None> trigger_none{};
 
-extern void trigger_init();
 namespace dsx {
 window_event_result check_trigger(vcsegptridx_t seg, sidenum_t side, object &plrobj, vcobjptridx_t objnum, int shot);
 window_event_result check_trigger_sub(object &, trgnum_t trigger_num, playernum_t player_num, unsigned shot);

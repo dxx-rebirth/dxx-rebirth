@@ -1649,7 +1649,8 @@ int create_new_mine(void)
 	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
 	ActiveDoors.set_count(0);
 	wall_init();
-	trigger_init();
+	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
+	Triggers.set_count(0);
 	
 	// Create New_segment, which is the segment we will be adding at each instance.
 	med_create_new_segment({DEFAULT_X_SIZE, DEFAULT_Y_SIZE, DEFAULT_Z_SIZE});		// New_segment = Segments[0];

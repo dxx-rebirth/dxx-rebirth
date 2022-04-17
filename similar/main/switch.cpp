@@ -56,16 +56,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
-#if DXX_USE_EDITOR
-//-----------------------------------------------------------------
-// Initializes all the switches.
-void trigger_init()
-{
-	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
-	Triggers.set_count(0);
-}
-#endif
-
 template <typename SF, typename O, typename... Oa>
 static inline void trigger_wall_op(const trigger &t, SF &segment_factory, const O &op, Oa &&... oargs)
 {
