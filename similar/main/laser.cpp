@@ -1925,7 +1925,12 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level,
 					/* Invalid laser level.  Cancel the shot. */
 					return 0;
 			}
-			Laser_player_fire(objp, weapon_type, 0, 1, shot_orientation, object_none);
+			if (Laser_player_fire(objp, weapon_type, 0, 1, shot_orientation, object_none) == object_none)
+				/* If the first one fails, assume all will fail.  Tell the
+				 * caller that no shots were fired, so that the player is not
+				 * charged for the shot.
+				 */
+				return 0;
 			Laser_player_fire(objp, weapon_type, 1, 0, shot_orientation, object_none);
 
 			if (flags & LASER_QUAD) {
@@ -1936,11 +1941,9 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level,
 			break;
 		}
 		case primary_weapon_index_t::VULCAN_INDEX: {
-			//	Only make sound for 1/4 of vulcan bullets.
 			int	make_sound = 1;
-			//if (d_rand() > 24576)
-			//	make_sound = 1;
-			Laser_player_fire_spread(objp, weapon_id_type::VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, make_sound, shot_orientation, object_none);
+			if (Laser_player_fire_spread(objp, weapon_id_type::VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, make_sound, shot_orientation, object_none) == object_none)
+				return 0;
 			break;
 		}
 		case primary_weapon_index_t::SPREADFIRE_INDEX:
@@ -1950,21 +1953,23 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level,
 					spreadr0 = F1_0 / 16, spreadr1 = -F1_0 / 16, spreadu0 = spreadu1 = 0;
 				else
 					spreadu0 = F1_0 / 16, spreadu1 = -F1_0 / 16, spreadr0 = spreadr1 = 0;
-				Laser_player_fire_spread(objp, weapon_id_type::SPREADFIRE_ID, 6, spreadr0, spreadu0, 0, shot_orientation, object_none);
+				if (Laser_player_fire_spread(objp, weapon_id_type::SPREADFIRE_ID, 6, spreadr0, spreadu0, 0, shot_orientation, object_none) == object_none)
+					return 0;
 				Laser_player_fire_spread(objp, weapon_id_type::SPREADFIRE_ID, 6, spreadr1, spreadu1, 0, shot_orientation, object_none);
 				Laser_player_fire_spread(objp, weapon_id_type::SPREADFIRE_ID, 6, 0, 0, 1, shot_orientation, object_none);
 			}
 			break;
 
 		case primary_weapon_index_t::PLASMA_INDEX:
-			Laser_player_fire(objp, weapon_id_type::PLASMA_ID, 0, 1, shot_orientation, object_none);
+			if (Laser_player_fire(objp, weapon_id_type::PLASMA_ID, 0, 1, shot_orientation, object_none) == object_none)
+				return 0;
 			Laser_player_fire(objp, weapon_id_type::PLASMA_ID, 1, 0, shot_orientation, object_none);
 			break;
 
 		case primary_weapon_index_t::FUSION_INDEX: {
 			vms_vector	force_vec;
 
-			Laser_player_fire(objp, weapon_id_type::FUSION_ID, 0, 1, shot_orientation, object_none);
+			auto &&weapon_obj = Laser_player_fire(objp, weapon_id_type::FUSION_ID, 0, 1, shot_orientation, object_none);
 			Laser_player_fire(objp, weapon_id_type::FUSION_ID, 1, 1, shot_orientation, object_none);
 
 			assert(objp->type == OBJ_PLAYER);
@@ -1972,6 +1977,12 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level,
 			flags = static_cast<int8_t>(Fusion_charge >> 12);
 
 			Fusion_charge = 0;
+			if (weapon_obj == object_none)
+				/* Clear the fusion charge even if the shot fails.  This is bad
+				 * for the player, but it is safer than leaving Fusion_charge
+				 * set while the cannon is not charging.
+				 */
+				return 0;
 
 			force_vec.x = -(objp->orient.fvec.x << 7);
 			force_vec.y = -(objp->orient.fvec.y << 7);
@@ -1987,12 +1998,9 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level,
 			break;
 #if defined(DXX_BUILD_DESCENT_II)
 		case primary_weapon_index_t::GAUSS_INDEX: {
-			//	Only make sound for 1/4 of vulcan bullets.
 			int	make_sound = 1;
-			//if (d_rand() > 24576)
-			//	make_sound = 1;
-
-			Laser_player_fire_spread(objp, weapon_id_type::GAUSS_ID, 6, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, make_sound, shot_orientation, object_none);
+			if (Laser_player_fire_spread(objp, weapon_id_type::GAUSS_ID, 6, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, make_sound, shot_orientation, object_none) == object_none)
+				return 0;
 			break;
 		}
 		case primary_weapon_index_t::HELIX_INDEX: {
@@ -2016,7 +2024,8 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level,
 			}
 			else
 				break;
-			Laser_player_fire_spread(objp, weapon_id_type::HELIX_ID, 6,  0,  0, 1, shot_orientation, object_none);
+			if (Laser_player_fire_spread(objp, weapon_id_type::HELIX_ID, 6,  0,  0, 1, shot_orientation, object_none) == object_none)
+				return 0;
 			Laser_player_fire_spread(objp, weapon_id_type::HELIX_ID, 6,  spreadr,  spreadu, 0, shot_orientation, object_none);
 			Laser_player_fire_spread(objp, weapon_id_type::HELIX_ID, 6, -spreadr, -spreadu, 0, shot_orientation, object_none);
 			Laser_player_fire_spread(objp, weapon_id_type::HELIX_ID, 6,  spreadr*2,  spreadu*2, 0, shot_orientation, object_none);
@@ -2025,18 +2034,21 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level,
 		}
 
 		case primary_weapon_index_t::PHOENIX_INDEX:
-			Laser_player_fire(objp, weapon_id_type::PHOENIX_ID, 0, 1, shot_orientation, object_none);
+			if (Laser_player_fire(objp, weapon_id_type::PHOENIX_ID, 0, 1, shot_orientation, object_none) == object_none)
+				return 0;
 			Laser_player_fire(objp, weapon_id_type::PHOENIX_ID, 1, 0, shot_orientation, object_none);
 			break;
 
 		case primary_weapon_index_t::OMEGA_INDEX:
-			Laser_player_fire(objp, weapon_id_type::OMEGA_ID, 1, 1, shot_orientation, Network_laser_track);
+			if (Laser_player_fire(objp, weapon_id_type::OMEGA_ID, 1, 1, shot_orientation, Network_laser_track) == object_none)
+				return 0;
 			break;
 
 		case primary_weapon_index_t::SUPER_LASER_INDEX:
 #endif
 		default:
 			Int3();	//	Contact Yuan: Unknown Primary weapon type, setting to 0.
+			return 0;
 	}
 
 	// Set values to be recognized during comunication phase, if we are the
@@ -2305,29 +2317,27 @@ void do_missile_firing(int drop_bomb)
 		return;
 	if (auto &secondary_weapon_ammo = player_info.secondary_ammo[weapon])
 	{
-
-		int weapon_gun;
-
 		const auto weapon_index = Secondary_weapon_to_weapon_info[weapon];
-
+		const auto base_weapon_gun = Secondary_weapon_to_gun_num[weapon];
+		auto weapon_gun = base_weapon_gun;
+		auto &plrobj = get_local_plrobj();
+		auto &Missile_gun = plrobj.ctype.player_info.missile_gun;
+		if (base_weapon_gun == 4)
+			weapon_gun += (gun_flag = (Missile_gun & 1));
+		const auto &&objnum = Laser_player_fire(vmobjptridx(ConsoleObject), weapon_index, weapon_gun, 1, plrobj.orient.fvec, object_none);
+		if (objnum == object_none)
+			return;
+		if (base_weapon_gun == 4)		//alternate left/right
+		{
+			Missile_gun++;
+		}
 		if (!cheats.rapidfire)
 			Next_missile_fire_time = GameTime64 + Weapon_info[weapon_index].fire_wait - fire_frame_overhead;
 		else
 			Next_missile_fire_time = GameTime64 + (F1_0/25) - fire_frame_overhead;
 
-		weapon_gun = Secondary_weapon_to_gun_num[weapon];
-
-		if (weapon_gun==4) {		//alternate left/right
-			auto &Missile_gun = get_local_plrobj().ctype.player_info.missile_gun;
-			weapon_gun += (gun_flag = (Missile_gun & 1));
-			Missile_gun++;
-		}
-
-		const auto &&objnum = Laser_player_fire(vmobjptridx(ConsoleObject), weapon_index, weapon_gun, 1, get_local_plrobj().orient.fvec, object_none);
-		if (objnum != object_none)
-			-- secondary_weapon_ammo;
-
-                if (weapon != CONCUSSION_INDEX)
+		-- secondary_weapon_ammo;
+		if (weapon != CONCUSSION_INDEX)
 			maybe_drop_net_powerup(Secondary_weapon_to_powerup[weapon], 1, 0);
 
 #if defined(DXX_BUILD_DESCENT_I)
