@@ -236,7 +236,7 @@ WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const GameBitmaps_array &GameBitmaps, c
 #if DXX_USE_EDITOR
 //-----------------------------------------------------------------
 // Initializes all the walls (in other words, no special walls)
-void wall_init()
+void wall_init(d_level_unique_wall_subsystem_state &LevelUniqueWallSubsystemState)
 {
 	init_exploding_walls();
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;

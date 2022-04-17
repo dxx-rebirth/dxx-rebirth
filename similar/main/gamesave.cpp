@@ -1646,9 +1646,7 @@ int create_new_mine(void)
 	Groupside = {};
 	
 	LevelSharedRobotcenterState.Num_robot_centers = 0;
-	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
-	ActiveDoors.set_count(0);
-	wall_init();
+	wall_init(LevelUniqueWallSubsystemState);
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	Triggers.set_count(0);
 	
