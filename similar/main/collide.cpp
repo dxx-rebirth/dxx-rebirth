@@ -2002,6 +2002,11 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 			if (newseg != segment_none)
 			{
 				-- mines;
+				/* As a special case, decrease the count of mines regardless of
+				 * whether the object creation succeeds.  These mines will be
+				 * lost at the end of the death sequence if they are not
+				 * dropped here, so there is no need to count them accurately.
+				 */
 				Laser_create_new(randvec, tvec, newseg, playerobj, id, 0);
 			}
 		}

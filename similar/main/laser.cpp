@@ -1294,10 +1294,6 @@ static imobjptridx_t Laser_player_fire_spread_delay(fvmsegptridx &vmsegptridx, c
 	fvi_info		hit_data;
 	vms_vector	*pnt;
 
-#if defined(DXX_BUILD_DESCENT_II)
-	create_awareness_event(obj, player_awareness_type_t::PA_WEAPON_WALL_COLLISION, LevelUniqueRobotAwarenessState);
-#endif
-
 	// Find the initial position of the laser
 	pnt = &Player_ship->gun_points[gun_num];
 
@@ -1362,6 +1358,8 @@ static imobjptridx_t Laser_player_fire_spread_delay(fvmsegptridx &vmsegptridx, c
 		return object_none;
 
 #if defined(DXX_BUILD_DESCENT_II)
+	create_awareness_event(obj, player_awareness_type_t::PA_WEAPON_WALL_COLLISION, LevelUniqueRobotAwarenessState);
+
 	//	Omega cannon is a hack, not surprisingly.  Don't want to do the rest of this stuff.
 	if (laser_type == weapon_id_type::OMEGA_ID)
 		return objnum;
