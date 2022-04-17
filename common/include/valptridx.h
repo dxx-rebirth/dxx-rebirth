@@ -210,9 +210,28 @@ typename valptridx<managed_type>::index_type valptridx<managed_type>::check_inde
 		si = static_cast<std::size_t>(i);
 	else
 		si = i;
-	const std::size_t ss = si;
-	DXX_VALPTRIDX_CHECK(Compare<std::size_t>()(ss, array_size), handle_index_range_error, "invalid index used in array subscript", a, ss);
+	check_index_range_size<handle_index_range_error, Compare>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS si, a);
 	return i;
+}
+
+template <typename managed_type>
+template <typename handle_index_range_error, template <typename> class Compare>
+typename valptridx<managed_type>::index_type valptridx<managed_type>::check_index_range_size(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const std::size_t s, const array_managed_type *const a)
+{
+	DXX_VALPTRIDX_CHECK(Compare<std::size_t>()(s, array_size), handle_index_range_error, "invalid index used in array subscript", a, s);
+	/* This cast will truncate the value to fit in index_type, which is
+	 * normally smaller than std::size_t.  However, truncation is legal
+	 * here, because (1) DXX_VALPTRIDX_CHECK would trap on an index that
+	 * was outside the array size and (2) index_type can represent any
+	 * valid size in the array.  Thus, if DXX_VALPTRIDX_CHECK did not
+	 * trap[1], the truncation cannot change the value of the index.
+	 *
+	 * [1] If valptridx was built without index validation, then no trap
+	 * would be issued even for invalid data.  Validation-disabled builds
+	 * are permitted to exhibit undefined behavior in cases where the
+	 * validation-enabled build would have trapped.
+	 */
+	return static_cast<index_type>(s);
 }
 
 template <typename managed_type>
@@ -241,7 +260,7 @@ template <typename handle_index_mismatch, typename handle_index_range_error>
 void valptridx<managed_type>::check_explicit_index_range_ref(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_reference_type &r, std::size_t i, const array_managed_type &a)
 {
 	check_index_match<handle_index_mismatch>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS r, i, a);
-	check_index_range<handle_index_range_error>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, &a);
+	check_index_range_size<handle_index_range_error>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, &a);
 }
 
 template <typename managed_type>

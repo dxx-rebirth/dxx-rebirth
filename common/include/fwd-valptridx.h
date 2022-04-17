@@ -108,6 +108,11 @@ protected:
 		template <typename> class Compare = std::less
 		>
 	static inline index_type check_index_range(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS index_type, const array_managed_type *);
+	template <
+		typename handle_index_range_error,
+		template <typename> class Compare = std::less
+		>
+	static inline index_type check_index_range_size(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS std::size_t, const array_managed_type *);
 	template <typename handle_index_mismatch, typename handle_index_range_error>
 	static inline void check_explicit_index_range_ref(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_reference_type, std::size_t, const array_managed_type &);
 	template <typename handle_index_mismatch, typename handle_index_range_error>
