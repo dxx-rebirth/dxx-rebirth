@@ -85,6 +85,9 @@ using std::min;
 using std::max;
 
 namespace dsx {
+
+namespace {
+
 static void obj_detach_all(object_array &Objects, object_base &parent);
 static void obj_detach_one(object_array &Objects, object &sub);
 
@@ -99,6 +102,8 @@ static int is_proximity_bomb_or_any_smart_mine(const weapon_id_type id)
 		return 1;
 #endif
 	return r;
+}
+
 }
 
 /*
@@ -584,6 +589,8 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 namespace dcx {
 objnum_t	Player_fired_laser_this_frame=object_none;
 
+namespace {
+
 static bool predicate_debris(const object_base &o)
 {
 	return o.type == OBJ_DEBRIS;
@@ -601,9 +608,11 @@ static bool predicate_nonflare_weapon(const object_base &o)
 
 }
 
-
+}
 
 namespace dsx {
+
+namespace {
 
 static bool predicate_fireball(const object &o)
 {
@@ -630,6 +639,8 @@ static void set_robot_location_info(object &objp)
 			objp.ctype.ai_info.danger_laser_signature = vcobjptr(Player_fired_laser_this_frame)->signature;
 		}
 	}
+}
+
 }
 
 //	------------------------------------------------------------------------------------------------------------------
@@ -855,7 +866,6 @@ void reset_player_object()
 	ConsoleObject->flags = 0;
 }
 
-
 //make object0 the player, setting all relevant fields
 void init_player_object()
 {
@@ -919,6 +929,8 @@ void special_reset_objects(d_level_unique_object_state &LevelUniqueObjectState)
 	LevelUniqueObjectState.num_objects = num_objects;
 }
 
+namespace {
+
 //link the object into the list for its segment
 void obj_link(fvmobjptr &vmobjptr, const vmobjptridx_t obj, const vmsegptridx_t segnum)
 {
@@ -926,6 +938,8 @@ void obj_link(fvmobjptr &vmobjptr, const vmobjptridx_t obj, const vmsegptridx_t 
 	assert(obj->next == object_none);
 	assert(obj->prev == object_none);
 	obj_link_unchecked(vmobjptr, obj, segnum);
+}
+
 }
 
 void obj_link_unchecked(fvmobjptr &vmobjptr, const vmobjptridx_t obj, const vmsegptridx_t segnum)
@@ -990,6 +1004,8 @@ imobjptridx_t obj_allocate(d_level_unique_object_state &LevelUniqueObjectState)
 	assert(r->type == OBJ_NONE);
 	return r;
 }
+
+namespace {
 
 //frees up an object.  Generally, obj_delete() should be called to get
 //rid of an object.  This function deallocates the object entry after
@@ -1103,6 +1119,8 @@ static void free_object_slots(uint_fast32_t num_used)
 
 	if (l(predicate_nonflare_weapon))
 		return;
+}
+
 }
 
 //-----------------------------------------------------------------------------
@@ -1317,6 +1335,7 @@ unsigned laser_parent_is_matching_signature(const laser_parent &l, const object_
 }
 
 namespace dsx {
+
 //	------------------------------------------------------------------------------------------------------------------
 void dead_player_end(void)
 {
@@ -1344,6 +1363,8 @@ void dead_player_end(void)
 	player_info.powerup_flags &= ~PLAYER_FLAGS_INVULNERABLE;
 	player_info.Player_eggs_dropped = false;
 }
+
+namespace {
 
 //	------------------------------------------------------------------------------------------------------------------
 //	Camera is less than size of player away from
@@ -1392,6 +1413,8 @@ static void set_camera_pos(vms_vector &camera_pos, const vcobjptridx_t objp)
 			}
 		}
 	}
+}
+
 }
 
 //	------------------------------------------------------------------------------------------------------------------
@@ -1511,6 +1534,8 @@ window_event_result dead_player_frame()
 	return window_event_result::handled;
 }
 
+namespace {
+
 //	------------------------------------------------------------------------------------------------------------------
 static void start_player_death_sequence(object &player)
 {
@@ -1628,6 +1653,8 @@ static void obj_delete_all_that_should_be_dead()
 	}
 }
 
+}
+
 //when an object has moved into a new segment, this function unlinks it
 //from its old segment, and links it into the new segment
 void obj_relink(fvmobjptr &vmobjptr, fvmsegptr &vmsegptr, const vmobjptridx_t objnum, const vmsegptridx_t newsegnum)
@@ -1657,6 +1684,8 @@ void obj_relink_all(void)
 	}
 }
 
+namespace {
+
 //process a continuously-spinning object
 static void spin_object(object_base &obj)
 {
@@ -1671,6 +1700,8 @@ static void spin_object(object_base &obj)
 	const auto &&rotmat = vm_angles_2_matrix(rotangs);
 	obj.orient = vm_matrix_x_matrix(obj.orient, rotmat);
 	check_and_fix_matrix(obj.orient);
+}
+
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1732,6 +1763,8 @@ int Drop_afterburner_blob_flag;		//ugly hack
 //see if wall is volatile, and if so, cause damage to player
 //returns true if player is in lava
 #endif
+
+namespace {
 
 //--------------------------------------------------------------------
 //move an object for the current frame
@@ -2059,6 +2092,8 @@ static window_event_result object_move_all()
 	return result;
 }
 
+}
+
 window_event_result game_move_all_objects()
 {
 	LevelUniqueObjectState.last_console_player_position = ConsoleObject->pos;
@@ -2272,6 +2307,8 @@ void fix_object_segs()
 //--unused-- 	
 //--unused-- }
 
+namespace {
+
 #if defined(DXX_BUILD_DESCENT_I)
 #define object_is_clearable_weapon(W,a,b)	object_is_clearable_weapon(a,b)
 #endif
@@ -2287,6 +2324,8 @@ static unsigned object_is_clearable_weapon(const weapon_info_array &Weapon_info,
 	if (clear_all)
 		return clear_all;
 	return !is_proximity_bomb_or_player_smart_mine(weapon_id);
+}
+
 }
 
 //delete objects, such as weapons & explosions, that shouldn't stay between levels
@@ -2332,8 +2371,10 @@ void obj_attach(object_array &Objects, const vmobjptridx_t parent, const vmobjpt
 	Assert(sub->ctype.expl_info.prev_attach != sub);
 }
 
-//dettaches one object
-void obj_detach_one(object_array &Objects, object &sub)
+namespace {
+
+//detaches one object
+static void obj_detach_one(object_array &Objects, object &sub)
 {
 	Assert(sub.flags & OF_ATTACHED);
 	Assert(sub.ctype.expl_info.attach_parent != object_none);
@@ -2360,7 +2401,6 @@ void obj_detach_one(object_array &Objects, object &sub)
 
 	sub.ctype.expl_info.next_attach = object_none;
 	sub.flags &= ~OF_ATTACHED;
-
 }
 
 //dettaches all objects from this object
@@ -2368,6 +2408,8 @@ static void obj_detach_all(object_array &Objects, object_base &parent)
 {
 	while (parent.attached_obj != object_none)
 		obj_detach_one(Objects, Objects.vmptr(parent.attached_obj));
+}
+
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
