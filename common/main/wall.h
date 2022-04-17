@@ -141,9 +141,9 @@ enum class wall_flag : uint8_t
 	door_auto = 1u << 4,	// Door automatically closes after time.
 	illusion_off = 1u << 5,	// Illusionary wall is shut off.
 	exploding = 1u << 6,
-#if defined(DXX_BUILD_DESCENT_II)
+	/* if DXX_BUILD_DESCENT_II */
 	buddy_proof = 1u << 7,	// Buddy assumes he cannot get through this wall.
-#endif
+	/* endif */
 };
 
 enum class wall_flags : uint8_t;
