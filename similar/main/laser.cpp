@@ -1486,7 +1486,7 @@ void Flare_create(const vmobjptridx_t obj)
 		}
 
 		if (Game_mode & GM_MULTI)
-			multi_send_fire(FLARE_ADJUST, laser_level::_1	/* unused */, 0, 1, object_none, object_none);
+			multi_send_fire(FLARE_ADJUST, laser_level::_1	/* unused */, 0, object_none, object_none);
 	}
 
 }
@@ -1776,7 +1776,6 @@ void do_laser_firing_player(object &plrobj)
 	auto &vmobjptridx = Objects.vmptridx;
 	int		ammo_used;
 	int		rval = 0;
-	int 		nfires = 1;
 
 	if (Player_dead_state != player_dead_state::no)
 		return;
@@ -1848,7 +1847,7 @@ void do_laser_firing_player(object &plrobj)
 #endif
 			}
 
-			const auto shot_fired = do_laser_firing(vmobjptridx(get_local_player().objnum), Primary_weapon, laser_level, flags, nfires, plrobj.orient.fvec, object_none);
+			const auto shot_fired = do_laser_firing(vmobjptridx(get_local_player().objnum), Primary_weapon, laser_level, flags, plrobj.orient.fvec, object_none);
 			rval += shot_fired;
 
 			if (!shot_fired)
@@ -1894,8 +1893,9 @@ void do_laser_firing_player(object &plrobj)
 //	Returns number of times a weapon was fired.  This is typically 1, but might be more for low frame rates.
 //	More than one shot is fired with a pseudo-delay so that players on slow machines can fire (for themselves
 //	or other players) often enough for things like the vulcan cannon.
-int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level, int flags, int nfires, vms_vector shot_orientation, const icobjidx_t Network_laser_track)
+int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level, int flags, vms_vector shot_orientation, const icobjidx_t Network_laser_track)
 {
+	const unsigned nfires = 1;
 	switch (weapon_num) {
 		case primary_weapon_index_t::LASER_INDEX: {
 			weapon_id_type weapon_type;
@@ -1923,7 +1923,8 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level,
 					break;
 #endif
 				default:
-					return nfires;
+					/* Invalid laser level.  Cancel the shot. */
+					return 0;
 			}
 			Laser_player_fire(objp, weapon_type, 0, 1, shot_orientation, object_none);
 			Laser_player_fire(objp, weapon_type, 1, 0, shot_orientation, object_none);
@@ -2062,7 +2063,7 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level,
 	// Set values to be recognized during comunication phase, if we are the
 	//  one shooting
 	if ((Game_mode & GM_MULTI) && objp == get_local_player().objnum)
-		multi_send_fire(weapon_num, level, flags, nfires, Network_laser_track, object_none);
+		multi_send_fire(weapon_num, level, flags, Network_laser_track, object_none);
 
 	return nfires;
 }
@@ -2373,7 +2374,7 @@ void do_missile_firing(int drop_bomb)
 
 		if (Game_mode & GM_MULTI)
 		{
-			multi_send_fire(weapon+MISSILE_ADJUST, laser_level::_1	/* unused */, gun_flag, 1, objnum == object_none ? object_none : objnum->ctype.laser_info.track_goal, weapon_index_is_player_bomb(weapon) ? objnum : object_none);
+			multi_send_fire(weapon+MISSILE_ADJUST, laser_level::_1	/* unused */, gun_flag, objnum == object_none ? object_none : objnum->ctype.laser_info.track_goal, weapon_index_is_player_bomb(weapon) ? objnum : object_none);
 		}
 
 		// don't autoselect if dropping prox and prox not current weapon

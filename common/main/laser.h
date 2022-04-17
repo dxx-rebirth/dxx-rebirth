@@ -91,7 +91,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 // Returns the number of shots actually fired, which will typically be
 // 1, but could be higher for low frame rates when rapidfire weapons,
 // such as vulcan or plasma are fired.
-int do_laser_firing(vmobjptridx_t objnum, int weapon_id, laser_level level, int flags, int nfires, vms_vector shot_orientation, icobjidx_t Network_laser_track);
+int do_laser_firing(vmobjptridx_t objnum, int weapon_id, laser_level level, int flags, vms_vector shot_orientation, icobjidx_t Network_laser_track);
 
 // Easier to call than Laser_create_new because it determines the
 // segment containing the firing point and deals with it being stuck

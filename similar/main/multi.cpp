@@ -1601,7 +1601,7 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 				powerup_flags &= ~PLAYER_FLAGS_QUAD_LASERS;
 		}
 
-		do_laser_firing(obj, weapon, laser_level{buf[3]}, flags, static_cast<int>(buf[5]), shot_orientation, Network_laser_track);
+		do_laser_firing(obj, weapon, laser_level{buf[3]}, flags, shot_orientation, Network_laser_track);
 	}
 }
 
@@ -2490,7 +2490,7 @@ void multi_process_bigdata(const playernum_t pnum, const uint8_t *const buf, con
 //          players of something we did.
 //
 
-void multi_send_fire(int laser_gun, const laser_level level, int laser_flags, int laser_fired, objnum_t laser_track, const imobjptridx_t is_bomb_objnum)
+void multi_send_fire(int laser_gun, const laser_level level, int laser_flags, objnum_t laser_track, const imobjptridx_t is_bomb_objnum)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -2518,7 +2518,7 @@ void multi_send_fire(int laser_gun, const laser_level level, int laser_flags, in
 	multibuf[2] = static_cast<char>(laser_gun);
 	multibuf[3] = static_cast<uint8_t>(level);
 	multibuf[4] = static_cast<char>(laser_flags);
-	multibuf[5] = static_cast<char>(laser_fired);
+	multibuf[5] = 1;	/* was laser_fired; TODO: remove this in next revision of network protocol */
 
 	const auto &ownship = get_local_plrobj();
 	PUT_INTEL_INT(multibuf+6 , ownship.orient.fvec.x);
