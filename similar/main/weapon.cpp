@@ -1619,7 +1619,7 @@ void DropSecondaryWeapon (player_info &player_info)
 	auto &secondary_ammo = player_info.secondary_ammo[Secondary_weapon];
 	if (secondary_ammo == 0)
 	{
-		HUD_init_message_literal(HM_DEFAULT, "No secondary weapon to drop!");
+		HUD_init_message(HM_DEFAULT, "Cannot drop %s: you have none to drop!", SECONDARY_WEAPON_NAMES(Secondary_weapon));
 		return;
 	}
 
@@ -1652,7 +1652,7 @@ void DropSecondaryWeapon (player_info &player_info)
 #endif
 			if (secondary_ammo < 4)
 			{
-				HUD_init_message_literal(HM_DEFAULT, "You need at least 4 to drop!");
+				HUD_init_message(HM_DEFAULT, "Cannot drop %s: You need at least 4 to drop, but have only %u!", SECONDARY_WEAPON_NAMES(Secondary_weapon), secondary_ammo);
 				return;
 			}
 			else
@@ -1707,22 +1707,25 @@ void DropSecondaryWeapon (player_info &player_info)
 			break;
 	}
 
-	HUD_init_message(HM_DEFAULT, "%s dropped!",SECONDARY_WEAPON_NAMES(Secondary_weapon));
-#if defined(DXX_BUILD_DESCENT_II)
-	digi_play_sample (SOUND_DROP_WEAPON,F1_0);
-#endif
-
 	seed = d_rand();
 
 	auto objnum = spit_powerup(Vclip, vmobjptr(ConsoleObject), weapon_drop_id, seed);
 
+	const auto weapon_name = SECONDARY_WEAPON_NAMES(Secondary_weapon);
 	if (objnum == object_none)
+	{
+		HUD_init_message(HM_DEFAULT, "Failed to drop %s%s!", weapon_name, sub_ammo > 1 ? "s" : "");
 		return;
+	}
+#if defined(DXX_BUILD_DESCENT_II)
+	digi_play_sample(SOUND_DROP_WEAPON, F1_0);
+#endif
 
 	if (Game_mode & GM_MULTI)
 		multi_send_drop_weapon(objnum,seed);
 
 	secondary_ammo -= sub_ammo;
+	HUD_init_message(HM_DEFAULT, "Dropped %s%s, leaving %u on board!", weapon_name, sub_ammo > 1 ? "s" : "", secondary_ammo);
 
 	if (secondary_ammo == 0)
 	{
