@@ -764,8 +764,6 @@ icsegptridx_t find_point_seg(const d_level_shared_segment_state &LevelSharedSegm
 
 }
 
-#define	MAX_LOC_POINT_SEGS	64
-
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void add_to_fcd_cache(int seg0, int seg1, int depth, vm_distance dist)
@@ -841,16 +839,19 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 	short		depth[MAX_SEGMENTS];
 	int		cur_depth;
 	int		num_points;
-	point_seg	point_segs[MAX_LOC_POINT_SEGS];
+	struct point_seg
+	{
+		vms_vector point;
+	};
+	std::array<point_seg, 64> point_segs;
 
 	//	If > this, will overrun point_segs buffer
 #ifdef WINDOWS
 	if (max_depth == -1) max_depth = 200;
 #endif	
 
-	if (max_depth > MAX_LOC_POINT_SEGS-2) {
-		max_depth = MAX_LOC_POINT_SEGS-2;
-	}
+	if (const auto s = std::size(point_segs) - 2u; max_depth > s)
+		max_depth = s;
 
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
@@ -949,7 +950,6 @@ fcd_done1: ;
 
 		this_seg = seg_queue[qtail].end;
 		parent_seg = seg_queue[qtail].start;
-		point_segs[num_points].segnum = this_seg;
 		compute_segment_center(vcvertptr, point_segs[num_points].point, vcsegptr(this_seg));
 		num_points++;
 
@@ -960,7 +960,6 @@ fcd_done1: ;
 			Assert(qtail >= 0);
 	}
 
-	point_segs[num_points].segnum = seg0;
 	compute_segment_center(vcvertptr, point_segs[num_points].point,seg0);
 	num_points++;
 
