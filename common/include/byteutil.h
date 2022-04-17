@@ -40,7 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static constexpr uint16_t SWAPSHORT(const uint16_t &x)
 {
-#ifdef DXX_HAVE_BUILTIN_BSWAP16
+#ifdef DXX_HAVE_BUILTIN_BSWAP
 	return __builtin_bswap16(x);
 #else
 	return (x << 8) | (x >> 8);

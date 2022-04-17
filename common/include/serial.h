@@ -391,7 +391,7 @@ union endian_skip_byteswap_u
 	}
 };
 
-static inline constexpr uint8_t endian_skip_byteswap(const uint16_t &endian)
+static constexpr uint8_t endian_skip_byteswap(const uint16_t &endian)
 {
 	return endian_skip_byteswap_u{endian}.c[0];
 }
@@ -490,13 +490,13 @@ template <typename... Args>
 message(Args &&... args) -> message<Args && ...>;
 
 #define SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_BUILTIN(HBITS,BITS)	\
-	static inline constexpr uint##BITS##_t bswap(const uint##BITS##_t &u)	\
+	static constexpr uint##BITS##_t bswap(const uint##BITS##_t &u)	\
 	{	\
 		return __builtin_bswap##BITS(u);	\
 	}
 
 #define SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_EXPLICIT(HBITS,BITS)	\
-	static inline constexpr uint##BITS##_t bswap(const uint##BITS##_t &u)	\
+	static constexpr uint##BITS##_t bswap(const uint##BITS##_t &u)	\
 	{	\
 		return (static_cast<uint##BITS##_t>(bswap(static_cast<uint##HBITS##_t>(u))) << HBITS) |	\
 			static_cast<uint##BITS##_t>(bswap(static_cast<uint##HBITS##_t>(u >> HBITS)));	\
@@ -504,29 +504,20 @@ message(Args &&... args) -> message<Args && ...>;
 
 #define SERIAL_DEFINE_SIZE_SPECIFIC_BSWAP(HBITS,BITS)	\
 	SERIAL_DEFINE_SIZE_SPECIFIC_USWAP(HBITS,BITS);	\
-	static inline constexpr int##BITS##_t bswap(const int##BITS##_t &i) \
+	static constexpr int##BITS##_t bswap(const int##BITS##_t &i) \
 	{	\
 		return bswap(static_cast<uint##BITS##_t>(i));	\
 	}
 
-static inline constexpr uint8_t bswap(const uint8_t &u)
+static constexpr uint8_t bswap(const uint8_t &u)
 {
 	return u;
 }
 
-static inline constexpr int8_t bswap(const int8_t &u)
+static constexpr int8_t bswap(const int8_t &u)
 {
 	return u;
 }
-
-#ifdef DXX_HAVE_BUILTIN_BSWAP16
-#define SERIAL_DEFINE_SIZE_SPECIFIC_USWAP SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_BUILTIN
-#else
-#define SERIAL_DEFINE_SIZE_SPECIFIC_USWAP SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_EXPLICIT
-#endif
-
-SERIAL_DEFINE_SIZE_SPECIFIC_BSWAP(8, 16);
-#undef SERIAL_DEFINE_SIZE_SPECIFIC_USWAP
 
 #ifdef DXX_HAVE_BUILTIN_BSWAP
 #define SERIAL_DEFINE_SIZE_SPECIFIC_USWAP SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_BUILTIN
@@ -534,6 +525,7 @@ SERIAL_DEFINE_SIZE_SPECIFIC_BSWAP(8, 16);
 #define SERIAL_DEFINE_SIZE_SPECIFIC_USWAP SERIAL_DEFINE_SIZE_SPECIFIC_USWAP_EXPLICIT
 #endif
 
+SERIAL_DEFINE_SIZE_SPECIFIC_BSWAP(8, 16);
 SERIAL_DEFINE_SIZE_SPECIFIC_BSWAP(16, 32);
 SERIAL_DEFINE_SIZE_SPECIFIC_BSWAP(32, 64);
 
