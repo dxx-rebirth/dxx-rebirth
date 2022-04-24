@@ -4195,7 +4195,7 @@ class DXXCommon(LazyObjectConstructor):
 			# every env.Textfile created by this block is whitelisted.
 			c._dxx_node_header_target_set.add(check_header_includes[0])
 		if not __shared_header_file_list:
-			headers = Git.pcall(['ls-files', '-z', '--', '*.h']).out.decode()
+			headers = Git.pcall(['ls-files', '-z', '--', '*.h']).out
 			if not headers:
 				g = Git.pcall(['--version'], stderr=subprocess.STDOUT)
 				raise SCons.Errors.StopError(
@@ -4210,7 +4210,7 @@ class DXXCommon(LazyObjectConstructor):
 				'common/arch/cocoa/',
 				'common/arch/carbon/',
 			)
-			__shared_header_file_list.extend([h for h in headers.split('\0') if h and not h.startswith(excluded_directories)])
+			__shared_header_file_list.extend([h for h in headers.decode().split('\0') if h and not h.startswith(excluded_directories)])
 			if not __shared_header_file_list:
 				raise SCons.Errors.StopError("`git ls-files` found headers, but none can be checked.")
 		subbuilddir = builddir.Dir(self.srcdir, 'chi')
