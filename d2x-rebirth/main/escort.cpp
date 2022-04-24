@@ -1731,9 +1731,7 @@ static int maybe_steal_primary_weapon(object &playerobj, const primary_weapon_in
 //	updating Stolen_items information, deselecting, etc.
 static int attempt_to_steal_item_3(object &thief, object &player_num)
 {
-	if (thief.ctype.ai_info.ail.mode != ai_mode::AIM_THIEF_ATTACK)
-		return 0;
-
+	(void)thief;
 	//	First, try to steal equipped items.
 
 	if (auto r = maybe_steal_flag_item(player_num, PLAYER_FLAGS_INVULNERABLE))
@@ -1810,26 +1808,31 @@ static int attempt_to_steal_item_2(object &thief, object &player_num)
 //	If a item successfully stolen, returns true, else returns false.
 //	If a wapon successfully stolen, do everything, removing it from player,
 //	updating Stolen_items information, deselecting, etc.
-int attempt_to_steal_item(const vmobjptridx_t objp, object &player_num)
+int attempt_to_steal_item(const vmobjptridx_t thiefp, object &player_num)
 {
 	int	rval = 0;
 
-	if (objp->ctype.ai_info.dying_start_time)
+	auto &thief = *thiefp;
+	if (thief.ctype.ai_info.dying_start_time)
 		return 0;
 
-	rval += attempt_to_steal_item_2(objp, player_num);
-
-	range_for (const int i, xrange(3u)) {
+	if (thief.ctype.ai_info.ail.mode == ai_mode::AIM_THIEF_ATTACK)
+	{
+		static constexpr constant_xrange<unsigned, 0, 3> retry_count{};
+		rval += attempt_to_steal_item_2(thief, player_num);
+		for (const auto i : retry_count)
+		{
 		(void)i;
 		if (!rval || (d_rand() < 11000)) {	//	about 1/3 of time, steal another item
-			rval += attempt_to_steal_item_2(objp, player_num);
+				rval += attempt_to_steal_item_2(thief, player_num);
 		} else
 			break;
+		}
 	}
-	create_n_segment_path(objp, 10, ConsoleObject->segnum);
-	ai_local		*ailp = &objp->ctype.ai_info.ail;
-	ailp->next_action_time = Thief_wait_times[GameUniqueState.Difficulty_level] / 2;
-	ailp->mode = ai_mode::AIM_THIEF_RETREAT;
+	create_n_segment_path(thiefp, 10, ConsoleObject->segnum);
+	auto &ailp = thief.ctype.ai_info.ail;
+	ailp.next_action_time = Thief_wait_times[GameUniqueState.Difficulty_level] / 2;
+	ailp.mode = ai_mode::AIM_THIEF_RETREAT;
 	if (rval) {
 		PALETTE_FLASH_ADD(30, 15, -20);
                 if (Game_mode & GM_NETWORK)
