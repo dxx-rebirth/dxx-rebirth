@@ -836,7 +836,6 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 	segnum_t		cur_seg;
 	int		qtail = 0, qhead = 0;
 	seg_seg	seg_queue[MAX_SEGMENTS];
-	short		depth[MAX_SEGMENTS];
 	int		cur_depth;
 	int		num_points;
 	struct point_seg
@@ -888,8 +887,8 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 
 	num_points = 0;
 
+	std::array<uint16_t, MAX_SEGMENTS> depth{};
 	visited_segment_bitarray_t visited;
-	memset(depth, 0, sizeof(depth[0]) * (Highest_segment_index+1));
 
 	cur_seg = seg0;
 	visited[cur_seg] = true;
