@@ -649,7 +649,7 @@ static int is_laser_weapon_type(const weapon_id_type weapon_type)
 // ---------------------------------------------------------------------------------
 // Initializes a laser after Fire is pressed
 //	Returns object number.
-imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &position, const vmsegptridx_t segnum, const vmobjptridx_t parent, weapon_id_type weapon_type, int make_sound )
+imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &position, const vmsegptridx_t segnum, const vmobjptridx_t parent, weapon_id_type weapon_type, const weapon_sound_flag make_sound)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -798,7 +798,8 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 
 	if (weapon_info.flash_sound > -1)
 	{
-		if (make_sound)	{
+		if (make_sound != weapon_sound_flag::silent)
+		{
 			if (parent == Viewer)
 			{
 				// Make your own vulcan gun  1/2 as loud.
@@ -879,7 +880,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Calls Laser_create_new, but takes care of the segment and point computation for you.
-imobjptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector &position, const vmobjptridx_t parent, weapon_id_type weapon_type, int make_sound )
+imobjptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector &position, const vmobjptridx_t parent, weapon_id_type weapon_type, const weapon_sound_flag make_sound)
 {
 	fvi_query	fq;
 	fvi_info		hit_data;
@@ -1286,7 +1287,7 @@ static imobjptridx_t track_track_goal(fvcobjptr &vcobjptr, const imobjptridx_t t
 
 //-------------- Initializes a laser after Fire is pressed -----------------
 
-static imobjptridx_t Laser_player_fire_spread_delay(fvmsegptridx &vmsegptridx, const vmobjptridx_t obj, const weapon_id_type laser_type, const int gun_num, const fix spreadr, const fix spreadu, const fix delay_time, const int make_sound, const vms_vector &shot_orientation, const icobjidx_t Network_laser_track)
+static imobjptridx_t Laser_player_fire_spread_delay(fvmsegptridx &vmsegptridx, const vmobjptridx_t obj, const weapon_id_type laser_type, const int gun_num, const fix spreadr, const fix spreadu, const fix delay_time, const weapon_sound_flag make_sound, const vms_vector &shot_orientation, const icobjidx_t Network_laser_track)
 {
 	int			Fate;
 	vms_vector	LaserDir;
@@ -1417,7 +1418,7 @@ static imobjptridx_t Laser_player_fire_spread_delay(fvmsegptridx &vmsegptridx, c
 #endif
 
 	//	If this weapon is supposed to be silent, set that bit!
-	if (!make_sound)
+	if (make_sound == weapon_sound_flag::silent)
 		objnum->flags |= OF_SILENT;
 
 	//	If the object firing the laser is the player, then indicate the laser object so robots can dodge.
@@ -1444,14 +1445,14 @@ static imobjptridx_t Laser_player_fire_spread_delay(fvmsegptridx &vmsegptridx, c
 }
 
 //	-----------------------------------------------------------------------------------------------------------
-static imobjptridx_t Laser_player_fire_spread(const vmobjptridx_t obj, const weapon_id_type laser_type, const int gun_num, const fix spreadr, const fix spreadu, const int make_sound, const vms_vector &shot_orientation, const icobjidx_t Network_laser_track)
+static imobjptridx_t Laser_player_fire_spread(const vmobjptridx_t obj, const weapon_id_type laser_type, const int gun_num, const fix spreadr, const fix spreadu, const weapon_sound_flag make_sound, const vms_vector &shot_orientation, const icobjidx_t Network_laser_track)
 {
 	return Laser_player_fire_spread_delay(vmsegptridx, obj, laser_type, gun_num, spreadr, spreadu, 0, make_sound, shot_orientation, Network_laser_track);
 }
 
 
 //	-----------------------------------------------------------------------------------------------------------
-imobjptridx_t Laser_player_fire(const vmobjptridx_t obj, const weapon_id_type laser_type, const int gun_num, const int make_sound, const vms_vector &shot_orientation, const icobjidx_t Network_laser_track)
+imobjptridx_t Laser_player_fire(const vmobjptridx_t obj, const weapon_id_type laser_type, const int gun_num, const weapon_sound_flag make_sound, const vms_vector &shot_orientation, const icobjidx_t Network_laser_track)
 {
 	return Laser_player_fire_spread(obj, laser_type, gun_num, 0, 0, make_sound, shot_orientation, Network_laser_track);
 }
@@ -1472,7 +1473,7 @@ void Flare_create(const vmobjptridx_t obj)
 	if (energy > 0)
 #endif
 	{
-		const auto &&flare = Laser_player_fire(obj, weapon_id_type::FLARE_ID, 6, 1, get_local_plrobj().orient.fvec, object_none);
+		const auto &&flare = Laser_player_fire(obj, weapon_id_type::FLARE_ID, 6, weapon_sound_flag::audible, get_local_plrobj().orient.fvec, object_none);
 		if (flare == object_none)
 			return;
 		energy -= energy_usage;
@@ -1925,24 +1926,23 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level,
 					/* Invalid laser level.  Cancel the shot. */
 					return 0;
 			}
-			if (Laser_player_fire(objp, weapon_type, 0, 1, shot_orientation, object_none) == object_none)
+			if (Laser_player_fire(objp, weapon_type, 0, weapon_sound_flag::audible, shot_orientation, object_none) == object_none)
 				/* If the first one fails, assume all will fail.  Tell the
 				 * caller that no shots were fired, so that the player is not
 				 * charged for the shot.
 				 */
 				return 0;
-			Laser_player_fire(objp, weapon_type, 1, 0, shot_orientation, object_none);
+			Laser_player_fire(objp, weapon_type, 1, weapon_sound_flag::silent, shot_orientation, object_none);
 
 			if (flags & LASER_QUAD) {
 				//	hideous system to make quad laser 1.5x powerful as normal laser, make every other quad laser bolt harmless
-				Laser_player_fire(objp, weapon_type, 2, 0, shot_orientation, object_none);
-				Laser_player_fire(objp, weapon_type, 3, 0, shot_orientation, object_none);
+				Laser_player_fire(objp, weapon_type, 2, weapon_sound_flag::silent, shot_orientation, object_none);
+				Laser_player_fire(objp, weapon_type, 3, weapon_sound_flag::silent, shot_orientation, object_none);
 			}
 			break;
 		}
 		case primary_weapon_index_t::VULCAN_INDEX: {
-			int	make_sound = 1;
-			if (Laser_player_fire_spread(objp, weapon_id_type::VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, make_sound, shot_orientation, object_none) == object_none)
+			if (Laser_player_fire_spread(objp, weapon_id_type::VULCAN_ID, 6, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, weapon_sound_flag::audible, shot_orientation, object_none) == object_none)
 				return 0;
 			break;
 		}
@@ -1953,24 +1953,24 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level,
 					spreadr0 = F1_0 / 16, spreadr1 = -F1_0 / 16, spreadu0 = spreadu1 = 0;
 				else
 					spreadu0 = F1_0 / 16, spreadu1 = -F1_0 / 16, spreadr0 = spreadr1 = 0;
-				if (Laser_player_fire_spread(objp, weapon_id_type::SPREADFIRE_ID, 6, spreadr0, spreadu0, 0, shot_orientation, object_none) == object_none)
+				if (Laser_player_fire_spread(objp, weapon_id_type::SPREADFIRE_ID, 6, spreadr0, spreadu0, weapon_sound_flag::silent, shot_orientation, object_none) == object_none)
 					return 0;
-				Laser_player_fire_spread(objp, weapon_id_type::SPREADFIRE_ID, 6, spreadr1, spreadu1, 0, shot_orientation, object_none);
-				Laser_player_fire_spread(objp, weapon_id_type::SPREADFIRE_ID, 6, 0, 0, 1, shot_orientation, object_none);
+				Laser_player_fire_spread(objp, weapon_id_type::SPREADFIRE_ID, 6, spreadr1, spreadu1, weapon_sound_flag::silent, shot_orientation, object_none);
+				Laser_player_fire_spread(objp, weapon_id_type::SPREADFIRE_ID, 6, 0, 0, weapon_sound_flag::audible, shot_orientation, object_none);
 			}
 			break;
 
 		case primary_weapon_index_t::PLASMA_INDEX:
-			if (Laser_player_fire(objp, weapon_id_type::PLASMA_ID, 0, 1, shot_orientation, object_none) == object_none)
+			if (Laser_player_fire(objp, weapon_id_type::PLASMA_ID, 0, weapon_sound_flag::audible, shot_orientation, object_none) == object_none)
 				return 0;
-			Laser_player_fire(objp, weapon_id_type::PLASMA_ID, 1, 0, shot_orientation, object_none);
+			Laser_player_fire(objp, weapon_id_type::PLASMA_ID, 1, weapon_sound_flag::silent, shot_orientation, object_none);
 			break;
 
 		case primary_weapon_index_t::FUSION_INDEX: {
 			vms_vector	force_vec;
 
-			auto &&weapon_obj = Laser_player_fire(objp, weapon_id_type::FUSION_ID, 0, 1, shot_orientation, object_none);
-			Laser_player_fire(objp, weapon_id_type::FUSION_ID, 1, 1, shot_orientation, object_none);
+			auto &&weapon_obj = Laser_player_fire(objp, weapon_id_type::FUSION_ID, 0, weapon_sound_flag::audible, shot_orientation, object_none);
+			Laser_player_fire(objp, weapon_id_type::FUSION_ID, 1, weapon_sound_flag::audible, shot_orientation, object_none);
 
 			assert(objp->type == OBJ_PLAYER);
 			auto &Fusion_charge = objp->ctype.player_info.Fusion_charge;
@@ -1998,8 +1998,7 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level,
 			break;
 #if defined(DXX_BUILD_DESCENT_II)
 		case primary_weapon_index_t::GAUSS_INDEX: {
-			int	make_sound = 1;
-			if (Laser_player_fire_spread(objp, weapon_id_type::GAUSS_ID, 6, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, make_sound, shot_orientation, object_none) == object_none)
+			if (Laser_player_fire_spread(objp, weapon_id_type::GAUSS_ID, 6, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, weapon_sound_flag::audible, shot_orientation, object_none) == object_none)
 				return 0;
 			break;
 		}
@@ -2024,23 +2023,23 @@ int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level,
 			}
 			else
 				break;
-			if (Laser_player_fire_spread(objp, weapon_id_type::HELIX_ID, 6,  0,  0, 1, shot_orientation, object_none) == object_none)
+			if (Laser_player_fire_spread(objp, weapon_id_type::HELIX_ID, 6,  0,  0, weapon_sound_flag::audible, shot_orientation, object_none) == object_none)
 				return 0;
-			Laser_player_fire_spread(objp, weapon_id_type::HELIX_ID, 6,  spreadr,  spreadu, 0, shot_orientation, object_none);
-			Laser_player_fire_spread(objp, weapon_id_type::HELIX_ID, 6, -spreadr, -spreadu, 0, shot_orientation, object_none);
-			Laser_player_fire_spread(objp, weapon_id_type::HELIX_ID, 6,  spreadr*2,  spreadu*2, 0, shot_orientation, object_none);
-			Laser_player_fire_spread(objp, weapon_id_type::HELIX_ID, 6, -spreadr*2, -spreadu*2, 0, shot_orientation, object_none);
+			Laser_player_fire_spread(objp, weapon_id_type::HELIX_ID, 6,  spreadr,  spreadu, weapon_sound_flag::silent, shot_orientation, object_none);
+			Laser_player_fire_spread(objp, weapon_id_type::HELIX_ID, 6, -spreadr, -spreadu, weapon_sound_flag::silent, shot_orientation, object_none);
+			Laser_player_fire_spread(objp, weapon_id_type::HELIX_ID, 6,  spreadr*2,  spreadu*2, weapon_sound_flag::silent, shot_orientation, object_none);
+			Laser_player_fire_spread(objp, weapon_id_type::HELIX_ID, 6, -spreadr*2, -spreadu*2, weapon_sound_flag::silent, shot_orientation, object_none);
 			break;
 		}
 
 		case primary_weapon_index_t::PHOENIX_INDEX:
-			if (Laser_player_fire(objp, weapon_id_type::PHOENIX_ID, 0, 1, shot_orientation, object_none) == object_none)
+			if (Laser_player_fire(objp, weapon_id_type::PHOENIX_ID, 0, weapon_sound_flag::audible, shot_orientation, object_none) == object_none)
 				return 0;
-			Laser_player_fire(objp, weapon_id_type::PHOENIX_ID, 1, 0, shot_orientation, object_none);
+			Laser_player_fire(objp, weapon_id_type::PHOENIX_ID, 1, weapon_sound_flag::silent, shot_orientation, object_none);
 			break;
 
 		case primary_weapon_index_t::OMEGA_INDEX:
-			if (Laser_player_fire(objp, weapon_id_type::OMEGA_ID, 1, 1, shot_orientation, Network_laser_track) == object_none)
+			if (Laser_player_fire(objp, weapon_id_type::OMEGA_ID, 1, weapon_sound_flag::audible, shot_orientation, Network_laser_track) == object_none)
 				return 0;
 			break;
 
@@ -2101,7 +2100,7 @@ namespace dsx {
 
 //	-------------------------------------------------------------------------------------------
 //	if goal_obj == -1, then create random vector
-static imobjptridx_t create_homing_missile(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, const imobjptridx_t goal_obj, weapon_id_type objtype, int make_sound)
+static imobjptridx_t create_homing_missile(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, const imobjptridx_t goal_obj, weapon_id_type objtype, const weapon_sound_flag make_sound)
 {
 	vms_vector	vector_to_goal;
 	//vms_vector	goal_pos;
@@ -2235,7 +2234,7 @@ static void create_smart_children(object_array &Objects, const vmobjptridx_t obj
 					? objlist[0]
 					: get_random_different_object())
 				: object_none;
-			create_homing_missile(vmsegptridx, objp, sel_objnum, blob_id, (i==0)?1:0);
+			create_homing_missile(vmsegptridx, objp, sel_objnum, blob_id, (i==0) ? weapon_sound_flag::audible : weapon_sound_flag::silent);
 		}
 	}
 }
@@ -2324,7 +2323,7 @@ void do_missile_firing(int drop_bomb)
 		auto &Missile_gun = plrobj.ctype.player_info.missile_gun;
 		if (base_weapon_gun == 4)
 			weapon_gun += (gun_flag = (Missile_gun & 1));
-		const auto &&objnum = Laser_player_fire(vmobjptridx(ConsoleObject), weapon_index, weapon_gun, 1, plrobj.orient.fvec, object_none);
+		const auto &&objnum = Laser_player_fire(vmobjptridx(ConsoleObject), weapon_index, weapon_gun, weapon_sound_flag::audible, plrobj.orient.fvec, object_none);
 		if (objnum == object_none)
 			return;
 		if (base_weapon_gun == 4)		//alternate left/right

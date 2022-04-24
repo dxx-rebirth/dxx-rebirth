@@ -923,7 +923,7 @@ void multi_do_robot_fire(const uint8_t *const buf)
 #endif
 			weapon_id_type::PROXIMITY_ID)
 		: pt_weapon(calc_gun_point(botp, gun_num), get_robot_weapon(Robot_info[get_robot_id(botp)], 1));
-	Laser_create_new_easy(fire, pw.first, botp, pw.second, 1);
+	Laser_create_new_easy(fire, pw.first, botp, pw.second, weapon_sound_flag::audible);
 }
 }
 

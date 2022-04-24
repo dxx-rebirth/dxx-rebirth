@@ -1258,7 +1258,7 @@ player_led: ;
 
 	const auto weapon_type = get_robot_weapon(robptr, gun_num);
 
-	Laser_create_new_easy( fire_vec, fire_point, obj, weapon_type, 1);
+	Laser_create_new_easy( fire_vec, fire_point, obj, weapon_type, weapon_sound_flag::audible);
 
 	if (Game_mode & GM_MULTI)
 	{
@@ -3779,7 +3779,7 @@ _exit_cheat:
 
 		if (guidebot_should_fire_flare(vcobjptr, vcsegptr, vcwallptr, BuddyState, robptr, *obj))
 		{
-				Laser_create_new_easy( obj->orient.fvec, obj->pos, obj, weapon_id_type::FLARE_ID, 1);
+				Laser_create_new_easy( obj->orient.fvec, obj->pos, obj, weapon_id_type::FLARE_ID, weapon_sound_flag::audible);
 				ailp.next_fire = F1_0/2;
 				if (!BuddyState.Buddy_allowed_to_talk) // If buddy not talking, make him fire flares less often.
 					ailp.next_fire += d_rand()*4;
@@ -3795,7 +3795,7 @@ _exit_cheat:
 			if (openable_door_on_near_path(vmsegptr, vcwallptr, *obj, *aip))
 			{
 				// @mk, 05/08/95: Firing flare from center of object, this is dumb...
-				Laser_create_new_easy( obj->orient.fvec, obj->pos, obj, weapon_id_type::FLARE_ID, 1);
+				Laser_create_new_easy( obj->orient.fvec, obj->pos, obj, weapon_id_type::FLARE_ID, weapon_sound_flag::audible);
 				ailp.next_fire = F1_0/2;
 				if (LevelUniqueObjectState.ThiefState.Stolen_item_index == 0)     // If never stolen an item, fire flares less often (bad: Stolen_item_index wraps, but big deal)
 					ailp.next_fire += d_rand()*4;
@@ -3952,7 +3952,7 @@ _exit_cheat:
 					:
 #endif
 					weapon_id_type::PROXIMITY_ID;
-				Laser_create_new_easy(fire_vec, fire_pos, obj, weapon_id, 1);
+				Laser_create_new_easy(fire_vec, fire_pos, obj, weapon_id, weapon_sound_flag::audible);
 
 				if (Game_mode & GM_MULTI)
 				{

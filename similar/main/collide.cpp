@@ -2007,7 +2007,7 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 				 * lost at the end of the death sequence if they are not
 				 * dropped here, so there is no need to count them accurately.
 				 */
-				Laser_create_new(randvec, tvec, newseg, playerobj, id, 0);
+				Laser_create_new(randvec, tvec, newseg, playerobj, id, weapon_sound_flag::silent);
 			}
 		}
 		};

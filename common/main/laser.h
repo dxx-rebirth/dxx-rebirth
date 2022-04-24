@@ -67,22 +67,28 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef dsx
+namespace dcx {
+
+enum class weapon_sound_flag : uint8_t
+{
+	silent,
+	audible,
+};
+
+}
+
 namespace dsx {
 #ifdef NEWHOMER
 void calc_d_homer_tick();
 #endif
 void Laser_render(grs_canvas &, const object_base &obj);
-imobjptridx_t Laser_player_fire(vmobjptridx_t obj, weapon_id_type laser_type, int gun_num, int make_sound, const vms_vector &shot_orientation, icobjidx_t Network_laser_track);
+imobjptridx_t Laser_player_fire(vmobjptridx_t obj, weapon_id_type laser_type, int gun_num, weapon_sound_flag make_sound, const vms_vector &shot_orientation, icobjidx_t Network_laser_track);
 void Laser_do_weapon_sequence(vmobjptridx_t obj);
 void Flare_create(vmobjptridx_t obj);
 bool laser_are_related(vcobjptridx_t o1, vcobjptridx_t o2);
 
 void do_laser_firing_player(object &);
 extern void do_missile_firing(int drop_bomb);
-}
-
-namespace dsx {
-imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &position, vmsegptridx_t segnum, vmobjptridx_t parent, weapon_id_type type, int make_sound);
 
 // Fires a laser-type weapon (a Primary weapon)
 // Fires from object objnum, weapon type weapon_id.
@@ -93,6 +99,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 // such as vulcan or plasma are fired.
 int do_laser_firing(vmobjptridx_t objnum, int weapon_id, laser_level level, int flags, vms_vector shot_orientation, icobjidx_t Network_laser_track);
 
+imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &position, vmsegptridx_t segnum, vmobjptridx_t parent, weapon_id_type type, weapon_sound_flag make_sound);
 // Easier to call than Laser_create_new because it determines the
 // segment containing the firing point and deals with it being stuck
 // in an object or through a wall.
@@ -100,7 +107,7 @@ int do_laser_firing(vmobjptridx_t objnum, int weapon_id, laser_level level, int 
 // direction "direction" from the position "position"
 // Returns object number of laser fired or -1 if not possible to fire
 // laser.
-imobjptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector &position, vmobjptridx_t parent, weapon_id_type weapon_type, int make_sound);
+imobjptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector &position, vmobjptridx_t parent, weapon_id_type weapon_type, weapon_sound_flag make_sound);
 
 #if defined(DXX_BUILD_DESCENT_II)
 // give up control of the guided missile

@@ -1565,7 +1565,7 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 		multi_make_ghost_player(pnum);
 
 	if (untrusted_raw_weapon == FLARE_ADJUST)
-		Laser_player_fire(obj, weapon_id_type::FLARE_ID, 6, 1, shot_orientation, object_none);
+		Laser_player_fire(obj, weapon_id_type::FLARE_ID, 6, weapon_sound_flag::audible, shot_orientation, object_none);
 	else if (const uint8_t untrusted_missile_adjusted_weapon = untrusted_raw_weapon - MISSILE_ADJUST; untrusted_missile_adjusted_weapon < MAX_SECONDARY_WEAPONS)
 	{
 		const auto weapon = secondary_weapon_index_t{untrusted_missile_adjusted_weapon};
@@ -1579,7 +1579,7 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 		}
 #endif
 
-		const auto &&objnum = Laser_player_fire(obj, weapon_id, weapon_gun, 1, shot_orientation, Network_laser_track);
+		const auto &&objnum = Laser_player_fire(obj, weapon_id, weapon_gun, weapon_sound_flag::audible, shot_orientation, Network_laser_track);
 		if (buf[0] == MULTI_FIRE_BOMB)
 		{
 			const auto remote_objnum = GET_INTEL_SHORT(buf + 18);
@@ -2164,7 +2164,7 @@ static void multi_do_controlcen_fire(const ubyte *buf)
 	if (!uobj)
 		return;
 	const auto &&objp = *uobj;
-	Laser_create_new_easy(to_target, objp->ctype.reactor_info.gun_pos[gun_num], objp, weapon_id_type::CONTROLCEN_WEAPON_NUM, 1);
+	Laser_create_new_easy(to_target, objp->ctype.reactor_info.gun_pos[gun_num], objp, weapon_id_type::CONTROLCEN_WEAPON_NUM, weapon_sound_flag::audible);
 }
 
 static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t pnum, const uint8_t *const buf)
