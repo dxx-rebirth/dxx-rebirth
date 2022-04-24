@@ -193,10 +193,12 @@ void init_buddy_for_level(void)
 	BuddyState.Buddy_objnum = find_escort(vmobjptridx, Robot_info);
 }
 
+namespace {
+
 //	-----------------------------------------------------------------------------
 //	See if segment from curseg through sidenum is reachable.
 //	Return true if it is reachable, else return false.
-static int segment_is_reachable(const vmobjptr_t robot, const shared_segment &segp, const sidenum_t sidenum, const player_flags powerup_flags)
+static int segment_is_reachable(const object &robot, const shared_segment &segp, const sidenum_t sidenum, const player_flags powerup_flags)
 {
 	const auto wall_num = segp.sides[sidenum].wall_num;
 
@@ -234,6 +236,7 @@ static int segment_is_reachable(const vmobjptr_t robot, const shared_segment &se
 
 }
 
+}
 
 //	-----------------------------------------------------------------------------
 //	Create a breadth-first list of segments reachable from current segment.
@@ -244,7 +247,7 @@ static int segment_is_reachable(const vmobjptr_t robot, const shared_segment &se
 //	Output:
 //		bfs_list:	array of shorts, each reachable segment.  Includes start segment.
 //		length:		number of elements in bfs_list
-std::size_t create_bfs_list(const vmobjptr_t robot, const vcsegidx_t start_seg, const player_flags powerup_flags, segnum_t *const bfs_list, std::size_t max_segs)
+std::size_t create_bfs_list(const object &robot, const vcsegidx_t start_seg, const player_flags powerup_flags, segnum_t *const bfs_list, std::size_t max_segs)
 {
 	std::size_t head = 0, tail = 0;
 	visited_segment_bitarray_t visited;
@@ -269,6 +272,8 @@ std::size_t create_bfs_list(const vmobjptr_t robot, const vcsegidx_t start_seg, 
 	}
 	return head;
 }
+
+namespace {
 
 //	-----------------------------------------------------------------------------
 //	Return true if ok for buddy to talk, else return false.
@@ -339,6 +344,8 @@ static void record_escort_goal_accomplished()
 		BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 		BuddyState.Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;
 	}
+}
+
 }
 
 //	--------------------------------------------------------------------------------------------
@@ -414,6 +421,8 @@ void change_guidebot_name()
 	(void)menu;
 }
 
+namespace {
+
 //	-----------------------------------------------------------------------------
 static uint8_t show_buddy_message()
 {
@@ -464,6 +473,8 @@ static void buddy_message_ignore_time(const char *const fmt, ...)
 	va_end(args);
 }
 
+}
+
 void (buddy_message)(const char * format, ... )
 {
 	if (!show_buddy_message())
@@ -482,6 +493,8 @@ void buddy_message_str(const char *str)
 		return;
 	buddy_message_force_str(str);
 }
+
+namespace {
 
 //	-----------------------------------------------------------------------------
 static void thief_message_str(const char * str) __attribute_nonnull();
@@ -517,6 +530,8 @@ static int marker_exists_in_mine(const game_marker_index id)
 				return 1;
 	}
 	return 0;
+}
+
 }
 
 //	-----------------------------------------------------------------------------
@@ -1561,12 +1576,14 @@ void do_thief_frame(const vmobjptridx_t objp, const fix dist_to_player, const pl
 
 }
 
+namespace {
+
 //	----------------------------------------------------------------------------
 //	Return true if this item (whose presence is indicated by Players[player_num].flags) gets stolen.
-static int maybe_steal_flag_item(const vmobjptr_t playerobjp, const PLAYER_FLAG flagval)
+static int maybe_steal_flag_item(object &playerobj, const PLAYER_FLAG flagval)
 {
 	auto &ThiefUniqueState = LevelUniqueObjectState.ThiefState;
-	auto &plr_flags = playerobjp->ctype.player_info.powerup_flags;
+	auto &plr_flags = playerobj.ctype.player_info.powerup_flags;
 	if (plr_flags & flagval)
 	{
 		if (d_rand() < THIEF_PROBABILITY) {
@@ -1617,10 +1634,10 @@ static int maybe_steal_flag_item(const vmobjptr_t playerobjp, const PLAYER_FLAG 
 }
 
 //	----------------------------------------------------------------------------
-static int maybe_steal_secondary_weapon(const vmobjptr_t playerobjp, const secondary_weapon_index_t weapon_num)
+static int maybe_steal_secondary_weapon(object &playerobj, const secondary_weapon_index_t weapon_num)
 {
 	auto &ThiefUniqueState = LevelUniqueObjectState.ThiefState;
-	auto &player_info = playerobjp->ctype.player_info;
+	auto &player_info = playerobj.ctype.player_info;
 	if (auto &secondary_ammo = player_info.secondary_ammo[weapon_num])
 		if (d_rand() < THIEF_PROBABILITY) {
 			if (weapon_index_is_player_bomb(weapon_num))
@@ -1643,10 +1660,10 @@ static int maybe_steal_secondary_weapon(const vmobjptr_t playerobjp, const secon
 }
 
 //	----------------------------------------------------------------------------
-static int maybe_steal_primary_weapon(const vmobjptr_t playerobjp, const primary_weapon_index_t weapon_num)
+static int maybe_steal_primary_weapon(object &playerobj, const primary_weapon_index_t weapon_num)
 {
 	auto &ThiefUniqueState = LevelUniqueObjectState.ThiefState;
-	auto &player_info = playerobjp->ctype.player_info;
+	auto &player_info = playerobj.ctype.player_info;
 	bool is_energy_weapon = true;
 	switch (static_cast<primary_weapon_index_t>(weapon_num))
 	{
@@ -1707,17 +1724,14 @@ static int maybe_steal_primary_weapon(const vmobjptr_t playerobjp, const primary
 	return 0;
 }
 
-
-
 //	----------------------------------------------------------------------------
 //	Called for a thief-type robot.
 //	If a item successfully stolen, returns true, else returns false.
 //	If a wapon successfully stolen, do everything, removing it from player,
 //	updating Stolen_items information, deselecting, etc.
-static int attempt_to_steal_item_3(const vmobjptr_t objp, const vmobjptr_t player_num)
+static int attempt_to_steal_item_3(object &thief, object &player_num)
 {
-	ai_local		*ailp = &objp->ctype.ai_info.ail;
-	if (ailp->mode != ai_mode::AIM_THIEF_ATTACK)
+	if (thief.ctype.ai_info.ail.mode != ai_mode::AIM_THIEF_ATTACK)
 		return 0;
 
 	//	First, try to steal equipped items.
@@ -1726,7 +1740,7 @@ static int attempt_to_steal_item_3(const vmobjptr_t objp, const vmobjptr_t playe
 		return r;
 
 	//	If primary weapon = laser, first try to rip away those nasty quad lasers!
-	const auto Primary_weapon = player_num->ctype.player_info.Primary_weapon;
+	const auto Primary_weapon = player_num.ctype.player_info.Primary_weapon;
 	if (Primary_weapon == primary_weapon_index_t::LASER_INDEX)
 		if (auto r = maybe_steal_flag_item(player_num, PLAYER_FLAGS_QUAD_LASERS))
 			return r;
@@ -1739,7 +1753,7 @@ static int attempt_to_steal_item_3(const vmobjptr_t objp, const vmobjptr_t playe
 			return r;
 	}
 
-	if (auto r = maybe_steal_secondary_weapon(player_num, player_num->ctype.player_info.Secondary_weapon))
+	if (auto r = maybe_steal_secondary_weapon(player_num, player_num.ctype.player_info.Secondary_weapon))
 		return r;
 
 	//	See what the player has and try to snag something.
@@ -1772,10 +1786,10 @@ static int attempt_to_steal_item_3(const vmobjptr_t objp, const vmobjptr_t playe
 }
 
 //	----------------------------------------------------------------------------
-static int attempt_to_steal_item_2(const vmobjptr_t objp, const vmobjptr_t player_num)
+static int attempt_to_steal_item_2(object &thief, object &player_num)
 {
 	auto &ThiefUniqueState = LevelUniqueObjectState.ThiefState;
-	const auto rval = attempt_to_steal_item_3(objp, player_num);
+	const auto rval = attempt_to_steal_item_3(thief, player_num);
 	if (rval) {
 		digi_play_sample_once(SOUND_WEAPON_STOLEN, F1_0);
 		auto i = ThiefUniqueState.Stolen_item_index;
@@ -1789,12 +1803,14 @@ static int attempt_to_steal_item_2(const vmobjptr_t objp, const vmobjptr_t playe
 	return rval;
 }
 
+}
+
 //	----------------------------------------------------------------------------
 //	Called for a thief-type robot.
 //	If a item successfully stolen, returns true, else returns false.
 //	If a wapon successfully stolen, do everything, removing it from player,
 //	updating Stolen_items information, deselecting, etc.
-int attempt_to_steal_item(const vmobjptridx_t objp, const vmobjptr_t player_num)
+int attempt_to_steal_item(const vmobjptridx_t objp, object &player_num)
 {
 	int	rval = 0;
 

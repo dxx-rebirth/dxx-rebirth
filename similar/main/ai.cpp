@@ -1860,7 +1860,7 @@ void move_towards_segment_center(const d_level_shared_segment_state &LevelShared
 //	Brains, avoid robots, companions can open doors.
 //	objp == NULL means treat as buddy.
 int ai_door_is_openable(
-	object &obj,
+	const object &obj,
 #if defined(DXX_BUILD_DESCENT_II)
 	const player_flags powerup_flags,
 #endif
@@ -3056,7 +3056,7 @@ namespace {
 // ----------------------------------------------------------------------------
 // Make a robot near the player snipe.
 #define	MNRS_SEG_MAX	70
-static void make_nearby_robot_snipe(fvmsegptr &vmsegptr, const vmobjptr_t robot, const player_flags powerup_flags)
+static void make_nearby_robot_snipe(fvmsegptr &vmsegptr, const object &robot, const player_flags powerup_flags)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;

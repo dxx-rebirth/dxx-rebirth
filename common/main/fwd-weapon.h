@@ -205,7 +205,7 @@ int pick_up_vulcan_ammo(player_info &player_info, uint_fast32_t ammo_count, bool
 imobjptridx_t spit_powerup(const d_vclip_array &Vclip, const object_base &spitter, unsigned id, unsigned seed);
 
 #if defined(DXX_BUILD_DESCENT_II)
-int attempt_to_steal_item(vmobjptridx_t objp, vmobjptr_t playerobjp);
+int attempt_to_steal_item(vmobjptridx_t objp, object &playerobjp);
 
 #define SMEGA_ID    40
 

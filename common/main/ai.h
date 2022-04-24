@@ -191,7 +191,7 @@ void attempt_to_resume_path(vmobjptridx_t objp);
 // When a robot and a player collide, some robots attack!
 void do_ai_robot_hit_attack(vmobjptridx_t robot, vmobjptridx_t player, const vms_vector &collision_point);
 int ai_door_is_openable(
-	object &,
+	const object &,
 #if defined(DXX_BUILD_DESCENT_II)
 	player_flags,
 #endif
@@ -252,11 +252,11 @@ imobjptridx_t boss_spew_robot(const object_base &objp, const vms_vector &pos);
 void init_ai_frame(player_flags, const control_info &Controls);
 
 [[nodiscard]]
-std::size_t create_bfs_list(vmobjptr_t robot, vcsegidx_t start_seg, player_flags, segnum_t *bfs_list, std::size_t max_segs);
+std::size_t create_bfs_list(const object &robot, vcsegidx_t start_seg, player_flags, segnum_t *bfs_list, std::size_t max_segs);
 
 template <std::size_t N>
 	[[nodiscard]]
-std::size_t create_bfs_list(const vmobjptr_t &robot, const vcsegidx_t &start_seg, const player_flags powerup_flags, std::array<segnum_t, N> &bfs_list)
+std::size_t create_bfs_list(const object &robot, const vcsegidx_t &start_seg, const player_flags powerup_flags, std::array<segnum_t, N> &bfs_list)
 {
 	return create_bfs_list(robot, start_seg, powerup_flags, bfs_list.data(), N);
 }
