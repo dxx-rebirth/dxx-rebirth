@@ -72,7 +72,7 @@ static PHYSFSX_counted_list file_getdirlist(const char *dir)
 		list.release();
 		list.reset(r);
 		std::move_backward(r, r + NumDirs, r + NumDirs + 1);
-		list[0] = d_strdup("..");
+		list[0] = strdup("..");
 	}
 	list.set_count(NumDirs);
 	return list;

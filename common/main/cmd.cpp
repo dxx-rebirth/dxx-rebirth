@@ -95,8 +95,8 @@ namespace {
 struct cmd_queue_t
 {
 	RAIIdmem<char[]> command_line;
-	explicit cmd_queue_t(char *p) :
-		command_line(p)
+	explicit cmd_queue_t(RAIIdmem<char[]> p) :
+		command_line(std::move(p))
 	{
 	}
 };
@@ -348,7 +348,7 @@ static void cmd_alias(unsigned long argc, const char *const *const argv)
 		alias->name[sizeof(alias->name) - 1] = 0;
 		strncpy(alias->name, argv[1], sizeof(alias->name) - 1);
 	}
-	alias->value.reset(d_strdup(buf));
+	alias->value = d_strdup(buf);
 }
 
 

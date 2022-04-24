@@ -109,15 +109,23 @@ void d_strupr(std::array<char, PATH_MAX> &out, const std::array<char, PATH_MAX> 
 #endif
 
 #ifdef DEBUG_MEMORY_ALLOCATIONS
-char *(d_strdup)(const char *str, const char *var, const char *file, unsigned line)
+RAIIdmem<char[]> (d_strdup)(const char *str, const char *var, const char *file, unsigned line)
+#else
+RAIIdmem<char[]> (d_strdup)(const char *str)
+#endif
 {
-	char *newstr;
+	RAIIdmem<char[]> newstr;
+#ifndef DEBUG_MEMORY_ALLOCATIONS
+	const auto var = nullptr;
+	const auto file = nullptr;
+	const unsigned line = 0;
+#endif
 
 	const auto len = strlen(str) + 1;
-	MALLOC<char>(newstr, len, var, file, line);
-	return static_cast<char *>(memcpy(newstr, str, len));
+	MALLOC<char[]>(newstr, len, var, file, line);
+	memcpy(newstr.get(), str, len);
+	return newstr;
 }
-#endif
 
 // remove extension from filename
 void removeext(const char *const filename, std::array<char, 20> &out)

@@ -300,7 +300,7 @@ static void nm_string(grs_canvas &canvas, const grs_font &cv_font, const int w1,
 		RAIIdmem<char[]> s2;
 		if (w1 > 0 && (p = strchr(s, '\t')))
 		{
-			s2.reset(d_strdup(s));
+			s2 = d_strdup(s);
 			s1 = s2.get();
 			*std::next(s2.get(), std::distance(s, p)) = '\0';
 		}

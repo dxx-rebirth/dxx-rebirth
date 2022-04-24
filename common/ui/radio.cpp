@@ -71,7 +71,7 @@ void ui_draw_radio(UI_DIALOG &dlg, UI_GADGET_RADIO &radio)
 std::unique_ptr<UI_GADGET_RADIO> ui_add_gadget_radio(UI_DIALOG &dlg, short x, short y, short w, short h, short group, const char *const text)
 {
 	auto radio = ui_gadget_add<UI_GADGET_RADIO>(dlg, x, y, x + w - 1, y + h - 1);
-	radio->text = RAIIdmem<char[]>(d_strdup(text));
+	radio->text = d_strdup(text);
 	radio->width = w;
 	radio->height = h;
 	radio->position = 0;

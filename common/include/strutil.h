@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <cstring>
 #include "dxxsconf.h"
+#include "u_mem.h"
 #include "dsx-ns.h"
 #include <array>
 #include <vector>
@@ -39,11 +40,10 @@ int d_strnicmp(const char *s1, const char *s2, uint_fast32_t n);
 #endif
 extern void d_strlwr( char *s1 );
 #ifdef DEBUG_MEMORY_ALLOCATIONS
-char *d_strdup(const char *str, const char *, const char *, unsigned) __attribute_malloc();
+RAIIdmem<char[]> d_strdup(const char *str, const char *, const char *, unsigned);
 #define d_strdup(str)	(d_strdup(str, #str, __FILE__,__LINE__))
 #else
-#include <cstring>
-#define d_strdup strdup
+RAIIdmem<char[]> d_strdup(const char *str);
 #endif
 
 #if DXX_USE_EDITOR
