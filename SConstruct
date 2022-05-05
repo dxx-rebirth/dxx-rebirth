@@ -4273,7 +4273,10 @@ class DXXCommon(LazyObjectConstructor):
 		# `directory` as the directory of the `SConstruct` file.
 		# Calls to `str` are necessary here to coerce SCons.Node objects
 		# into strings that `json.dumps` can handle.
-		relative_file_path = str(source)
+		# Prefer $DXX_EFFECTIVE_SOURCE if available, so that entries written
+		# for check_header_includes=1 will name the specific header being
+		# checked, not the dummy file `check_header_includes.cpp`.
+		relative_file_path = str(kwargs.get('DXX_EFFECTIVE_SOURCE', source))
 		# clang documentation is silent on whether this must be
 		# absolute, but `clang-check` refuses to find files when this is
 		# relative.
