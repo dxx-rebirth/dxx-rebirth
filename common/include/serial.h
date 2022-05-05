@@ -113,11 +113,6 @@ public:
 	typedef std::integral_constant<uint16_t, 255> little_endian_type;
 	typedef std::integral_constant<uint16_t, 256> big_endian_type;
 	typedef std::integral_constant<uint16_t, 257> native_endian_type;
-
-	static constexpr auto foreign_endian = foreign_endian_type{};
-	static constexpr auto little_endian = little_endian_type{};
-	static constexpr auto big_endian = big_endian_type{};
-	static constexpr auto native_endian = native_endian_type{};
 };
 
 	/* Implementation details - avoid namespace pollution */

@@ -668,7 +668,7 @@ static void hmptrk2mid(ubyte* data, int size, std::vector<uint8_t> &midbuf)
 struct be_bytebuffer_t : serial::writer::bytebuffer_t
 {
 	be_bytebuffer_t(pointer u) : bytebuffer_t(u) {}
-	static uint16_t endian() { return big_endian; }
+	static constexpr bytebuffer_t::big_endian_type endian{};
 };
 
 const std::array<uint8_t, 10> magic_header{{
