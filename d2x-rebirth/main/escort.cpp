@@ -1808,13 +1808,13 @@ static int attempt_to_steal_item_2(object &thief, object &player_num)
 //	If a item successfully stolen, returns true, else returns false.
 //	If a wapon successfully stolen, do everything, removing it from player,
 //	updating Stolen_items information, deselecting, etc.
-int attempt_to_steal_item(const vmobjptridx_t thiefp, object &player_num)
+void attempt_to_steal_item(const vmobjptridx_t thiefp, object &player_num)
 {
 	int	rval = 0;
 
 	auto &thief = *thiefp;
 	if (thief.ctype.ai_info.dying_start_time)
-		return 0;
+		return;
 
 	if (thief.ctype.ai_info.ail.mode == ai_mode::AIM_THIEF_ATTACK)
 	{
@@ -1838,7 +1838,6 @@ int attempt_to_steal_item(const vmobjptridx_t thiefp, object &player_num)
                 if (Game_mode & GM_NETWORK)
                  multi_send_stolen_items();
 	}
-	return rval;
 }
 
 // --------------------------------------------------------------------------------------------------------------
