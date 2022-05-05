@@ -4146,13 +4146,12 @@ class DXXCommon(LazyObjectConstructor):
 		builddir = self.builddir
 		check_header_includes = __shared_cpp_dict.get(builddir)
 		if check_header_includes is None:
-			check_header_includes = builddir.File('check_header_includes.cpp')
 			# Generate the list once, on first use.  Any other targets
 			# will reuse it.
 			#
-			# Touch the file into existence.  It is always empty, but
+			# Touch the file into existence.  It contains only a comment, but
 			# must exist and have an extension of '.cpp'.
-			check_header_includes = env.Textfile(target=check_header_includes, source=env.Value('''
+			check_header_includes = env.Textfile(target=builddir.File('check_header_includes.cpp'), source=env.Value('''
 /* This file is always empty.  It is only present to act as the source
  * file for SCons targets that test individual headers.
  */
@@ -4210,10 +4209,14 @@ class DXXCommon(LazyObjectConstructor):
 				'common/arch/cocoa/',
 				'common/arch/carbon/',
 			)
+			# Use `.extend()` instead of assignment because
+			# `__shared_header_file_list` is shared among all invocations of
+			# this function.  An assignment would redirect the name
+			# `__shared_header_file_list` to a non-shared copy of the list,
+			# forcing future calls to generate their own list.
 			__shared_header_file_list.extend([h for h in headers.decode().split('\0') if h and not h.startswith(excluded_directories)])
 			if not __shared_header_file_list:
 				raise SCons.Errors.StopError("`git ls-files` found headers, but none can be checked.")
-		subbuilddir = builddir.Dir(self.srcdir, 'chi')
 		Depends = env.Depends
 		StaticObject = env.StaticObject
 		CPPFLAGS_template = env['CPPFLAGS']
@@ -4221,7 +4224,10 @@ class DXXCommon(LazyObjectConstructor):
 		CPPFLAGS_with_sconf = ['-include', 'dxxsconf.h'] + CPPFLAGS_no_sconf
 		CXXCOMSTR = env.__header_check_output_COMSTR
 		CXXFLAGS = env['CXXFLAGS']
-		target = os.path.join('%s/${DXX_EFFECTIVE_SOURCE}%s' % (subbuilddir, env['OBJSUFFIX']))
+		target = os.path.join(
+				str(builddir.Dir(self.srcdir).Dir('check_header_includes')),
+				'${DXX_EFFECTIVE_SOURCE}%s' % (env['OBJSUFFIX'],)
+				)
 		for name in __shared_header_file_list:
 			if not name:
 				continue
