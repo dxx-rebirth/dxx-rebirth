@@ -28,24 +28,23 @@ struct callsign_t
 	{
 		return std::tolower(static_cast<unsigned>(c));
 	}
-	callsign_t &zero_terminate(array_t::iterator i)
-	{
-		std::fill(i, end(a), 0);
-		return *this;
-	}
 	callsign_t &copy(const char *s, std::size_t N)
 	{
-		return zero_terminate(std::copy_n(s, std::min(a.size() - 1, N), begin(a)));
+		a = {};
+		std::copy_n(s, std::min(a.size() - 1, N), begin(a));
+		return *this;
 	}
 	callsign_t &copy_lower(const char *s, std::size_t N)
 	{
-		return zero_terminate(std::transform(s, std::next(s, std::min(a.size() - 1, N)), begin(a), lower_predicate));
+		a = {};
+		std::transform(s, std::next(s, std::min(a.size() - 1, N)), begin(a), lower_predicate);
+		return *this;
 	}
 	void lower()
 	{
 		auto ba = begin(a);
-		std::transform(ba, std::prev(end(a)), ba, lower_predicate);
 		a.back() = 0;
+		std::transform(ba, std::prev(end(a)), ba, lower_predicate);
 	}
 	[[nodiscard]]
 	elements_t &buffer()
