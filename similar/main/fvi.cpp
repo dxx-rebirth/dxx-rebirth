@@ -47,8 +47,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 using std::min;
 
-#define face_type_num(nfaces,face_num,tri_edge) ((nfaces==1)?0:(tri_edge*2 + face_num))
-
 namespace {
 
 //find the point on the specified plane where the line intersects
@@ -89,10 +87,12 @@ struct vec2d {
 };
 
 //intersection types
-#define IT_NONE 0       //doesn't touch face at all
-#define IT_FACE 1       //touches face
-#define IT_EDGE 2       //touches edge of face
-#define IT_POINT        3       //touches vertex
+enum class intersection_type : uint8_t
+{
+	None,	//doesn't touch face at all
+	Face,	//touches face
+	Edge,	//touches edge of face
+};
 
 struct ij_pair
 {
@@ -168,7 +168,7 @@ static unsigned check_point_to_face(const vms_vector &checkp, const vms_vector &
 
 //check if a sphere intersects a face
 [[nodiscard]]
-static int check_sphere_to_face(const vms_vector &pnt, const vms_vector &normal, const unsigned facenum, const unsigned nv, const fix rad, const vertnum_array_list_t &vertex_list)
+static intersection_type check_sphere_to_face(const vms_vector &pnt, const vms_vector &normal, const unsigned facenum, const unsigned nv, const fix rad, const vertnum_array_list_t &vertex_list)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -182,11 +182,10 @@ static int check_sphere_to_face(const vms_vector &pnt, const vms_vector &normal,
 	//we've gone through all the sides, are we inside?
 
 	if (edgemask == 0)
-		return IT_FACE;
+		return intersection_type::Face;
 	else {
 		vms_vector edgevec;            //this time, real 3d vectors
 		vms_vector closest_point;
-		int itype;
 		int edgenum;
 
 		//get verts for edge we're behind
@@ -206,30 +205,27 @@ static int check_sphere_to_face(const vms_vector &pnt, const vms_vector &normal,
 
 		const auto d = vm_vec_dot(edgevec,checkvec);
 		if (d < 0)
-			return IT_NONE;
+			return intersection_type::None;
 		else if (d > edgelen)
-			return IT_NONE;
+			return intersection_type::None;
 
-		if (d+rad < 0) return IT_NONE;                  //too far behind start point
+		if (d+rad < 0)
+			return intersection_type::None;                  //too far behind start point
 
-		if (d-rad > edgelen) return IT_NONE;    //too far part end point
+		if (d-rad > edgelen)
+			return intersection_type::None;    //too far part end point
 
 		//find closest point on edge to check point
 
 		else {
-			itype = IT_EDGE;
-
-			//vm_vec_scale(&edgevec,d);
-			//vm_vec_add(&closest_point,v0,&edgevec);
-
 			vm_vec_scale_add(closest_point,v0,edgevec,d);
 		}
 
 		const auto dist = vm_vec_dist2(checkp,closest_point);
 		const fix64 rad64 = rad;
 		if (dist > vm_distance_squared{rad64 * rad64})
-			return IT_NONE;
-		return itype;
+			return intersection_type::None;
+		return intersection_type::Edge;
 	}
 
 
@@ -240,7 +236,7 @@ static int check_sphere_to_face(const vms_vector &pnt, const vms_vector &normal,
 //facenum determines which of four possible faces we have
 //note: the seg parm is temporary, until the face itself has a point field
 [[nodiscard]]
-static int check_line_to_face(vms_vector &newp, const vms_vector &p0, const vms_vector &p1, const shared_segment &seg, const sidenum_t side, const unsigned facenum, const unsigned nv, const fix rad)
+static intersection_type check_line_to_face(vms_vector &newp, const vms_vector &p0, const vms_vector &p1, const shared_segment &seg, const sidenum_t side, const unsigned facenum, const unsigned nv, const fix rad)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -262,7 +258,8 @@ static int check_line_to_face(vms_vector &newp, const vms_vector &p0, const vms_
 	auto &vcvertptr = Vertices.vcptr;
 	auto pli = find_plane_line_intersection(newp, vcvertptr(vertnum), norm, p0, p1, rad);
 
-	if (!pli) return IT_NONE;
+	if (!pli)
+		return intersection_type::None;
 
 	auto checkp = newp;
 
@@ -315,7 +312,7 @@ static int check_line_to_line(fix *t1,fix *t2,const vms_vector &p1,const vms_vec
 //the plane of a side.  In this case, we must do checks against the edge
 //of faces
 [[nodiscard]]
-static int special_check_line_to_face(vms_vector &newp, const vms_vector &p0, const vms_vector &p1, const shared_segment &seg, const sidenum_t side, const unsigned facenum, const unsigned nv, const fix rad)
+static intersection_type special_check_line_to_face(vms_vector &newp, const vms_vector &p0, const vms_vector &p1, const shared_segment &seg, const sidenum_t side, const unsigned facenum, const unsigned nv, const fix rad)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -356,7 +353,7 @@ static int special_check_line_to_face(vms_vector &newp, const vms_vector &p0, co
 
 	//make sure t values are in valid range
 	if (move_t<0 || move_t>move_len+rad)
-		return IT_NONE;
+		return intersection_type::None;
 
 	if (move_t > move_len)
 		move_t2 = move_len;
@@ -390,13 +387,10 @@ static int special_check_line_to_face(vms_vector &newp, const vms_vector &p0, co
 		//now figure out where we hit
 
 		vm_vec_scale_add(newp,p0,move_vec,move_t-rad);
-
-		return IT_EDGE;
-
+		return intersection_type::Edge;
 	}
 	else
-		return IT_NONE;			//no hit
-
+		return intersection_type::None;			//no hit
 }
 
 //maybe this routine should just return the distance and let the caller
@@ -918,8 +912,7 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 			for (face=0;face<2;face++,bit<<=1) {
 
 				if (endmask & bit) {            //on the back of this face
-					int face_hit_type;      //in what way did we hit the face?
-
+					intersection_type face_hit_type;      //in what way did we hit the face?
 
 					const auto child_segnum = startseg->shared_segment::children[side];
 					if (child_segnum == entry_seg)
@@ -940,8 +933,8 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 										face,
 										nv,rad);
 
-	
-					if (face_hit_type) {            //through this wall/door
+					if (face_hit_type != intersection_type::None)
+					{            //through this wall/door
 						auto &Walls = LevelUniqueWallSubsystemState.Walls;
 						auto &vcwallptr = Walls.vcptr;
 						auto wid_flag = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, startseg, side);
@@ -1260,16 +1253,16 @@ static sphere_intersects_wall_result sphere_intersects_wall(fvcsegptridx &vcsegp
 			for (face=0;face<2;face++,bit<<=1) {
 
 				if (facemask & bit) {            //on the back of this face
-					int face_hit_type;      //in what way did we hit the face?
-
 					//did we go through this wall/door?
 					auto &sidep = sseg.sides[side];
 					const auto &&[num_faces, vertex_list] = create_abs_vertex_lists(sseg, sidep, side);
 
-					face_hit_type = check_sphere_to_face(pnt, sidep.normals[face],
+					//in what way did we hit the face?
+					const auto face_hit_type = check_sphere_to_face(pnt, sidep.normals[face],
 										face,((num_faces==1)?4:3),rad,vertex_list);
 
-					if (face_hit_type) {            //through this wall/door
+					if (face_hit_type != intersection_type::None)
+					{            //through this wall/door
 						//if what we have hit is a door, check the adjoining seg
 
 						const auto child = sseg.children[side];
