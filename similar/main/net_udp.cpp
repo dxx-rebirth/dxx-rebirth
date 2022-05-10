@@ -364,7 +364,7 @@ class RAIIsocket
 {
 #ifndef _WIN32
 	typedef int SOCKET;
-	int closesocket(SOCKET fd)
+	static int closesocket(SOCKET fd)
 	{
 		return close(fd);
 	}
