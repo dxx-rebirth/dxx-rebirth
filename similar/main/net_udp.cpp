@@ -407,26 +407,27 @@ public:
 };
 
 #ifdef DXX_HAVE_GETADDRINFO
-class RAIIaddrinfo
+struct addrinfo_deleter
 {
-	struct deleter
+	void operator()(addrinfo *p) const
 	{
-		void operator()(addrinfo *p) const
-		{
-			freeaddrinfo(p);
-		}
-	};
-	std::unique_ptr<addrinfo, deleter> result;
+		freeaddrinfo(p);
+	}
+};
+
+class RAIIaddrinfo : std::unique_ptr<addrinfo, addrinfo_deleter>
+{
+	using base_type = std::unique_ptr<addrinfo, addrinfo_deleter>;
 public:
 	int getaddrinfo(const char *node, const char *service, const addrinfo *hints)
 	{
 		addrinfo *p = nullptr;
 		int r = ::getaddrinfo(node, service, hints, &p);
-		result.reset(p);
+		reset(p);
 		return r;
 	}
-	addrinfo *get() { return result.get(); }
-	addrinfo *operator->() { return result.operator->(); }
+	using base_type::get;
+	using base_type::operator->;
 };
 #endif
 
