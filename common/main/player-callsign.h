@@ -28,17 +28,15 @@ struct callsign_t
 	{
 		return std::tolower(static_cast<unsigned>(c));
 	}
-	callsign_t &copy(const char *s, std::size_t N)
+	void copy(const char *s, std::size_t N)
 	{
 		a = {};
 		std::copy_n(s, std::min(a.size() - 1, N), begin(a));
-		return *this;
 	}
-	callsign_t &copy_lower(const char *s, std::size_t N)
+	void copy_lower(const char *s, std::size_t N)
 	{
 		a = {};
 		std::transform(s, std::next(s, std::min(a.size() - 1, N)), begin(a), lower_predicate);
-		return *this;
 	}
 	void lower()
 	{
@@ -52,16 +50,16 @@ struct callsign_t
 		return *reinterpret_cast<elements_t *>(a.data());
 	}
 	template <std::size_t N>
-		callsign_t &operator=(const char (&s)[N])
+		void operator=(const char (&s)[N])
 		{
 			static_assert(N <= array_length, "string too long");
-			return copy(s, N);
+			copy(s, N);
 		}
 	template <std::size_t N>
 		void copy_lower(const char (&s)[N])
 		{
 			static_assert(N <= array_length, "string too long");
-			return copy_lower(s, N);
+			copy_lower(s, N);
 		}
 	void fill(char c) { a.fill(c); }
 	const char &operator[](std::size_t i) const
