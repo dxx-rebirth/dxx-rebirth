@@ -285,7 +285,8 @@ static fix calc_det_value(const vms_matrix *det)
 
 //computes the parameters of closest approach of two lines
 //fill in two parameters, t0 & t1.  returns 0 if lines are parallel, else 1
-static int check_line_to_line(fix *t1,fix *t2,const vms_vector &p1,const vms_vector &v1,const vms_vector &p2,const vms_vector &v2)
+[[nodiscard]]
+static std::optional<std::pair<fix, fix>> check_line_to_line(const vms_vector &p1, const vms_vector &v1, const vms_vector &p2, const vms_vector &v2)
 {
 	vms_matrix det;
 	fix d,cross_mag2;		//mag squared cross product
@@ -294,18 +295,17 @@ static int check_line_to_line(fix *t1,fix *t2,const vms_vector &p1,const vms_vec
 	cross_mag2 = vm_vec_dot(det.fvec,det.fvec);
 
 	if (cross_mag2 == 0)
-		return 0;			//lines are parallel
+		return std::nullopt;			//lines are parallel
 
 	vm_vec_sub(det.rvec,p2,p1);
 	det.uvec = v2;
 	d = calc_det_value(&det);
-	*t1 = fixdiv(d,cross_mag2);
+	const auto t1 = fixdiv(d, cross_mag2);
 
 	det.uvec = v1;
 	d = calc_det_value(&det);
-	*t2 = fixdiv(d,cross_mag2);
-
-	return 1;		//found point
+	const auto t2 = fixdiv(d, cross_mag2);
+	return std::pair(t1, t2);		//found point
 }
 
 //this version is for when the start and end positions both poke through
@@ -316,7 +316,7 @@ static intersection_type special_check_line_to_face(vms_vector &newp, const vms_
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	fix edge_t=0,move_t=0,edge_t2=0,move_t2=0;
+	fix edge_t2 = 0, move_t2 = 0;
 	int edgenum;
 	auto &s = seg.sides[side];
 
@@ -349,7 +349,10 @@ static intersection_type special_check_line_to_face(vms_vector &newp, const vms_
 	const auto edge_len = vm_vec_normalize(edge_vec);
 	const auto move_len = vm_vec_normalize(move_vec);
 
-	check_line_to_line(&edge_t,&move_t,edge_v0,edge_vec,p0,move_vec);
+	const auto &cll = check_line_to_line(edge_v0,edge_vec,p0,move_vec);
+	if (!cll)
+		return intersection_type::None;
+	auto &&[edge_t, move_t] = *cll;
 
 	//make sure t values are in valid range
 	if (move_t<0 || move_t>move_len+rad)
@@ -966,8 +969,8 @@ static int fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const
 
 							newsegnum = child_segnum;
 
-							if (!visited[newsegnum]) {                //haven't visited here yet
-								visited[newsegnum] = true;
+							if (auto &&v = visited[newsegnum]; !v) {                //haven't visited here yet
+								v = true;
 								++ visited.count;
 
 								if (visited.count >= MAX_SEGS_VISITED)
