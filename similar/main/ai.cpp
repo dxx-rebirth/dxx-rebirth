@@ -1107,7 +1107,6 @@ static void ai_fire_laser_at_player(const d_level_shared_segment_state &LevelSha
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(obj)];
 	vms_vector	fire_vec;
-	vms_vector	bpp_diff;
 
 	Assert(robptr.attack_type == 0);	//	We should never be coming here for the green guy, as he has no laser!
 
@@ -1149,9 +1148,11 @@ static void ai_fire_laser_at_player(const d_level_shared_segment_state &LevelSha
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)LevelSharedSegmentState;
 	//	Set position to fire at based on difficulty level.
-	bpp_diff.x = Believed_player_pos.x + (d_rand()-16384) * (NDL-Difficulty_level-1) * 4;
-	bpp_diff.y = Believed_player_pos.y + (d_rand()-16384) * (NDL-Difficulty_level-1) * 4;
-	bpp_diff.z = Believed_player_pos.z + (d_rand()-16384) * (NDL-Difficulty_level-1) * 4;
+	vms_vector bpp_diff = Believed_player_pos;
+	const auto m = (NDL - Difficulty_level - 1) * 4;
+	bpp_diff.x += (d_rand() - 16384) * m;
+	bpp_diff.y += (d_rand() - 16384) * m;
+	bpp_diff.z += (d_rand() - 16384) * m;
 
 	//	Half the time fire at the player, half the time lead the player.
         if (d_rand() > 16384) {
@@ -1224,12 +1225,7 @@ static void ai_fire_laser_at_player(const d_level_shared_segment_state &LevelSha
 	//	Robots aim more poorly during seismic disturbance.
 	if (const auto Seismic_tremor_magnitude = LevelUniqueSeismicState.Seismic_tremor_magnitude)
 	{
-		fix	temp;
-		temp = F1_0 - abs(Seismic_tremor_magnitude);
-		if (temp < F1_0/2)
-			temp = F1_0/2;
-
-		aim = fixmul(aim, temp);
+		aim = fixmul(aim, std::max(F1_0 - abs(Seismic_tremor_magnitude), F1_0 / 2));
 	}
 
 	//	Lead the player half the time.
@@ -1243,10 +1239,12 @@ static void ai_fire_laser_at_player(const d_level_shared_segment_state &LevelSha
 	{
 	fix dot = 0;
 	unsigned count = 0;			//	Don't want to sit in this loop forever...
+	const auto m = (NDL - Difficulty_level - 1) * 4;
 	while ((count < 4) && (dot < F1_0/4)) {
-		bpp_diff.x = believed_player_pos.x + fixmul((d_rand()-16384) * (NDL-Difficulty_level-1) * 4, aim);
-		bpp_diff.y = believed_player_pos.y + fixmul((d_rand()-16384) * (NDL-Difficulty_level-1) * 4, aim);
-		bpp_diff.z = believed_player_pos.z + fixmul((d_rand()-16384) * (NDL-Difficulty_level-1) * 4, aim);
+		vms_vector bpp_diff = believed_player_pos;
+		bpp_diff.x += fixmul((d_rand() - 16384) * m, aim);
+		bpp_diff.y += fixmul((d_rand() - 16384) * m, aim);
+		bpp_diff.z += fixmul((d_rand() - 16384) * m, aim);
 
 		vm_vec_normalized_dir_quick(fire_vec, bpp_diff, fire_point);
 		dot = vm_vec_dot(obj->orient.fvec, fire_vec);
