@@ -351,9 +351,15 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 	// Debug Options
 
 		else if (!d_stricmp(p, "-debug"))
-			CGameArg.DbgVerbose 	= CON_DEBUG;
+		{
+			if (CGameArg.DbgVerbose < CON_DEBUG)
+				CGameArg.DbgVerbose = CON_DEBUG;
+		}
 		else if (!d_stricmp(p, "-verbose"))
-			CGameArg.DbgVerbose 	= CON_VERBOSE;
+		{
+			if (CGameArg.DbgVerbose < CON_VERBOSE)
+				CGameArg.DbgVerbose = CON_VERBOSE;
+		}
 
 		else if (!d_stricmp(p, "-no-grab"))
 			CGameArg.DbgForbidConsoleGrab = true;
