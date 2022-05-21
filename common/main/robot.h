@@ -156,6 +156,11 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	std::array<std::array<jointlist, N_ANIM_STATES>, MAX_GUNS+1> anim_states;
 	int     always_0xabcd;      // debugging
 };
+
+#if defined(DXX_BUILD_DESCENT_II)
+void attempt_to_steal_item(vmobjptridx_t objp, const robot_info &robptr, object &playerobjp);
+#endif
+
 }
 
 constexpr auto weapon_none = weapon_id_type::unspecified;

@@ -109,7 +109,6 @@ extern const object *Ai_last_missile_camera;
 namespace dsx {
 void create_awareness_event(object &objp, player_awareness_type_t type, d_level_unique_robot_awareness_state &LevelUniqueRobotAwarenessState);         // object *objp can create awareness of player, amount based on "type"
 ai_mode ai_behavior_to_mode(ai_behavior behavior);
-void do_ai_robot_hit(vmobjptridx_t robot, player_awareness_type_t type);
 void init_ai_object(vmobjptridx_t objp, ai_behavior initial_mode, imsegidx_t hide_segment);
 }
 
@@ -153,7 +152,7 @@ void do_ai_frame_all();
 }
 extern void create_all_paths(void);
 namespace dsx {
-void create_path_to_station(vmobjptridx_t objp, int max_length);
+void create_path_to_station(vmobjptridx_t objp, const robot_info &robptr, int max_length);
 #if defined(DXX_BUILD_DESCENT_I)
 #define ai_follow_path(o,pv,vec)	ai_follow_path(o,pv)
 #else
@@ -162,8 +161,8 @@ void create_path_to_station(vmobjptridx_t objp, int max_length);
 void ai_follow_path(vmobjptridx_t objp, const player_visibility_state player_visibility, const vms_vector *vec_to_player);
 void ai_turn_towards_vector(const vms_vector &vec_to_player, object_base &obj, fix rate);
 extern void init_ai_objects(void);
-void create_n_segment_path(vmobjptridx_t objp, unsigned path_length, imsegidx_t avoid_seg);
-void create_n_segment_path_to_door(vmobjptridx_t objp, unsigned path_length);
+void create_n_segment_path(vmobjptridx_t objp, const robot_info &robptr, unsigned path_length, imsegidx_t avoid_seg);
+void create_n_segment_path_to_door(vmobjptridx_t objp, const robot_info &robptr, unsigned path_length);
 }
 #endif
 namespace dcx {
@@ -191,7 +190,7 @@ void attempt_to_resume_path(vmobjptridx_t objp);
 // When a robot and a player collide, some robots attack!
 void do_ai_robot_hit_attack(vmobjptridx_t robot, vmobjptridx_t player, const vms_vector &collision_point);
 int ai_door_is_openable(
-	const object &,
+	const object &, const robot_info *,
 #if defined(DXX_BUILD_DESCENT_II)
 	player_flags,
 #endif
@@ -202,9 +201,9 @@ int ai_multiplayer_awareness(vmobjptridx_t objp, int awareness_level);
 
 #if defined(DXX_BUILD_DESCENT_II)
 // In escort.c
-void do_escort_frame(vmobjptridx_t objp, const object &plrobj, player_visibility_state player_visibility);
-void do_snipe_frame(vmobjptridx_t objp, fix dist_to_player, player_visibility_state player_visibility, const vms_vector &vec_to_player);
-void do_thief_frame(vmobjptridx_t objp, fix dist_to_player, player_visibility_state player_visibility, const vms_vector &vec_to_player);
+void do_escort_frame(vmobjptridx_t objp, const robot_info &robptr, const object &plrobj, player_visibility_state player_visibility);
+void do_snipe_frame(vmobjptridx_t objp, const robot_info &robptr, fix dist_to_player, player_visibility_state player_visibility, const vms_vector &vec_to_player);
+void do_thief_frame(vmobjptridx_t objp, const robot_info &robptr, fix dist_to_player, player_visibility_state player_visibility, const vms_vector &vec_to_player);
 #endif
 }
 
@@ -252,13 +251,13 @@ imobjptridx_t boss_spew_robot(const object_base &objp, const vms_vector &pos);
 void init_ai_frame(player_flags, const control_info &Controls);
 
 [[nodiscard]]
-std::size_t create_bfs_list(const object &robot, vcsegidx_t start_seg, player_flags, segnum_t *bfs_list, std::size_t max_segs);
+std::size_t create_bfs_list(const object &robot, const robot_info &robptr, vcsegidx_t start_seg, player_flags, segnum_t *bfs_list, std::size_t max_segs);
 
 template <std::size_t N>
 	[[nodiscard]]
-std::size_t create_bfs_list(const object &robot, const vcsegidx_t &start_seg, const player_flags powerup_flags, std::array<segnum_t, N> &bfs_list)
+std::size_t create_bfs_list(const object &robot, const robot_info &robptr, const vcsegidx_t &start_seg, const player_flags powerup_flags, std::array<segnum_t, N> &bfs_list)
 {
-	return create_bfs_list(robot, start_seg, powerup_flags, bfs_list.data(), N);
+	return create_bfs_list(robot, robptr, start_seg, powerup_flags, bfs_list.data(), N);
 }
 extern void init_thief_for_level();
 
@@ -303,14 +302,21 @@ enum class create_path_result : uint8_t
 
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_II)
-void create_path_to_segment(vmobjptridx_t objp, segnum_t goalseg, unsigned max_length, create_path_safety_flag safety_flag);
+constexpr const robot_info *create_path_unused_robot_info = nullptr;
+
+#if defined(DXX_BUILD_DESCENT_I)
+#define do_ai_robot_hit(robot,robptr,type)	do_ai_robot_hit(robot,type)
+#elif defined(DXX_BUILD_DESCENT_II)
+#undef do_ai_robot_hit
+void create_path_to_segment(vmobjptridx_t objp, const robot_info &robptr, segnum_t goalseg, unsigned max_length, create_path_safety_flag safety_flag);
 #endif
 
-void create_path_to_segment(vmobjptridx_t objp, unsigned max_length, create_path_safety_flag safety_flag, icsegidx_t);
-void create_path_to_believed_player_segment(vmobjptridx_t objp, unsigned max_length, create_path_safety_flag safety_flag);
-void create_path_to_guidebot_player_segment(vmobjptridx_t objp, unsigned max_length, create_path_safety_flag safety_flag);
-std::pair<create_path_result, unsigned> create_path_points(vmobjptridx_t objp, vcsegidx_t start_seg, icsegidx_t end_seg, point_seg_array_t::iterator point_segs, unsigned max_depth, create_path_random_flag random_flag, create_path_safety_flag safety_flag, icsegidx_t avoid_seg);
+void do_ai_robot_hit(vmobjptridx_t robot, const robot_info &robptr, player_awareness_type_t type);
+
+void create_path_to_segment(vmobjptridx_t objp, const robot_info &robptr, unsigned max_length, create_path_safety_flag safety_flag, icsegidx_t);
+void create_path_to_believed_player_segment(vmobjptridx_t objp, const robot_info &robptr, unsigned max_length, create_path_safety_flag safety_flag);
+void create_path_to_guidebot_player_segment(vmobjptridx_t objp, const robot_info &robptr, unsigned max_length, create_path_safety_flag safety_flag);
+std::pair<create_path_result, unsigned> create_path_points(vmobjptridx_t objp, const robot_info *robptr, vcsegidx_t start_seg, icsegidx_t end_seg, point_seg_array_t::iterator point_segs, unsigned max_depth, create_path_random_flag random_flag, create_path_safety_flag safety_flag, icsegidx_t avoid_seg);
 
 int ai_save_state(PHYSFS_File * fp);
 int ai_restore_state(PHYSFS_File *fp, int version, int swap);

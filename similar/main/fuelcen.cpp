@@ -299,17 +299,18 @@ imobjptridx_t create_morph_robot(const vmsegptridx_t segp, const vms_vector &obj
 {
 	ai_behavior default_behavior;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
+	auto &robptr = Robot_info[object_id];
 #if defined(DXX_BUILD_DESCENT_I)
 	default_behavior = ai_behavior::AIB_NORMAL;
 	if (object_id == 10)						//	This is a toaster guy!
 		default_behavior = ai_behavior::AIB_RUN_FROM;
 #elif defined(DXX_BUILD_DESCENT_II)
-	default_behavior = Robot_info[object_id].behavior;
+	default_behavior = robptr.behavior;
 #endif
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	auto obj = robot_create(object_id, segp, object_pos,
-				&vmd_identity_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
+				&vmd_identity_matrix, Polygon_models[robptr.model_num].rad,
 				default_behavior);
 
 	if (obj == object_none)
@@ -322,19 +323,19 @@ imobjptridx_t create_morph_robot(const vmsegptridx_t segp, const vms_vector &obj
 	++GameUniqueState.accumulated_robots;
 	//Set polygon-object-specific data
 
-	obj->rtype.pobj_info.model_num = Robot_info[get_robot_id(obj)].model_num;
+	obj->rtype.pobj_info.model_num = robptr.model_num;
 	obj->rtype.pobj_info.subobj_flags = 0;
 
 	//set Physics info
 
-	obj->mtype.phys_info.mass = Robot_info[get_robot_id(obj)].mass;
-	obj->mtype.phys_info.drag = Robot_info[get_robot_id(obj)].drag;
+	obj->mtype.phys_info.mass = robptr.mass;
+	obj->mtype.phys_info.drag = robptr.drag;
 
 	obj->mtype.phys_info.flags |= (PF_LEVELLING);
 
-	obj->shields = Robot_info[get_robot_id(obj)].strength;
+	obj->shields = robptr.strength;
 
-	create_n_segment_path(obj, 6, segment_none);		//	Create a 6 segment path from creation point.
+	create_n_segment_path(obj, robptr, 6, segment_none);		//	Create a 6 segment path from creation point.
 
 #if defined(DXX_BUILD_DESCENT_I)
 	if (default_behavior == ai_behavior::AIB_RUN_FROM)

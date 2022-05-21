@@ -2393,7 +2393,7 @@ static int mark_player_path_to_segment(const d_vclip_array &Vclip, fvmobjptridx 
 	LevelUniqueObjectState.Level_path_created = 1;
 
 	auto objp = vmobjptridx(ConsoleObject);
-	const auto &&cr = create_path_points(objp, objp->segnum, segnum, Point_segs_free_ptr, 100, create_path_random_flag::nonrandom, create_path_safety_flag::unsafe, segment_none);
+	const auto &&cr = create_path_points(objp, create_path_unused_robot_info, objp->segnum, segnum, Point_segs_free_ptr, 100, create_path_random_flag::nonrandom, create_path_safety_flag::unsafe, segment_none);
 	const unsigned player_path_length = cr.second;
 	if (cr.first == create_path_result::early)
 		return 0;

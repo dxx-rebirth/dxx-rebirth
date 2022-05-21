@@ -1642,7 +1642,7 @@ static void do_firing_stuff(object &obj, const player_flags powerup_flags, const
 
 // --------------------------------------------------------------------------------------------------------------------
 //	If a hiding robot gets bumped or hit, he decides to find another hiding place.
-void do_ai_robot_hit(const vmobjptridx_t objp, player_awareness_type_t type)
+void do_ai_robot_hit(const vmobjptridx_t objp, const robot_info &robptr, player_awareness_type_t type)
 {
 	if (objp->control_source == object::control_type::ai)
 	{
@@ -1665,12 +1665,12 @@ void do_ai_robot_hit(const vmobjptridx_t objp, player_awareness_type_t type)
 					//	1/8 time, charge player, 1/4 time create path, rest of time, do nothing
 					ai_local		*ailp = &objp->ctype.ai_info.ail;
 					if (r < 4096) {
-						create_path_to_believed_player_segment(objp, 10, create_path_safety_flag::safe);
+						create_path_to_believed_player_segment(objp, robptr, 10, create_path_safety_flag::safe);
 						objp->ctype.ai_info.behavior = ai_behavior::AIB_STATION;
 						objp->ctype.ai_info.hide_segment = objp->segnum;
 						ailp->mode = ai_mode::AIM_CHASE_OBJECT;
 					} else if (r < 4096+8192) {
-						create_n_segment_path(objp, d_rand()/8192 + 2, segment_none);
+						create_n_segment_path(objp, robptr, d_rand() / 8192 + 2, segment_none);
 						ailp->mode = ai_mode::AIM_FOLLOW_PATH;
 					}
 					break;
@@ -1858,7 +1858,7 @@ void move_towards_segment_center(const d_level_shared_segment_state &LevelShared
 //	Brains, avoid robots, companions can open doors.
 //	objp == NULL means treat as buddy.
 int ai_door_is_openable(
-	const object &obj,
+	const object &obj, const robot_info *const robptr,
 #if defined(DXX_BUILD_DESCENT_II)
 	const player_flags powerup_flags,
 #endif
@@ -1884,6 +1884,8 @@ int ai_door_is_openable(
 			return wt;
 		}
 	}
+	if (!robptr)
+		return 0;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	if (get_robot_id(obj) == ROBOT_BRAIN || obj.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM)
@@ -1901,8 +1903,7 @@ int ai_door_is_openable(
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	auto &WallAnims = GameSharedState.WallAnims;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	if (Robot_info[get_robot_id(obj)].companion)
+	if (robptr->companion)
 	{
 		const auto wt = wall.type;
 		if (wall.flags & wall_flag::buddy_proof) {
@@ -3054,7 +3055,7 @@ namespace {
 // ----------------------------------------------------------------------------
 // Make a robot near the player snipe.
 #define	MNRS_SEG_MAX	70
-static void make_nearby_robot_snipe(fvmsegptr &vmsegptr, const object &robot, const player_flags powerup_flags)
+static void make_nearby_robot_snipe(fvmsegptr &vmsegptr, const object &robot, const robot_info &robptr, const player_flags powerup_flags)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -3064,7 +3065,7 @@ static void make_nearby_robot_snipe(fvmsegptr &vmsegptr, const object &robot, co
 	 * open.  However, passing powerup_flags here maintains the
 	 * semantics that past versions used.
 	 */
-	const auto bfs_length = create_bfs_list(robot, ConsoleObject->segnum, powerup_flags, bfs_list);
+	const auto bfs_length = create_bfs_list(robot, robptr, ConsoleObject->segnum, powerup_flags, bfs_list);
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	range_for (auto &i, partial_const_range(bfs_list, bfs_length)) {
@@ -3464,7 +3465,7 @@ _exit_cheat:
 		if (Overall_agitation > 70) {
 			if ((dist_to_player < F1_0*200) && (d_rand() < FrameTime/4)) {
 				if (d_rand() * (Overall_agitation - 40) > F1_0*5) {
-					create_path_to_believed_player_segment(obj, 4 + Overall_agitation/8 + Difficulty_level, create_path_safety_flag::safe);
+					create_path_to_believed_player_segment(obj, robptr, 4 + Overall_agitation/8 + Difficulty_level, create_path_safety_flag::safe);
 					return;
 				}
 			}
@@ -3486,14 +3487,14 @@ _exit_cheat:
 #if defined(DXX_BUILD_DESCENT_II)
 				case ai_mode::AIM_GOTO_PLAYER:
 					move_towards_segment_center(LevelSharedSegmentState, obj);
-					create_path_to_guidebot_player_segment(obj, 100, create_path_safety_flag::safe);
+					create_path_to_guidebot_player_segment(obj, robptr, 100, create_path_safety_flag::safe);
 					break;
 				case ai_mode::AIM_GOTO_OBJECT:
 					BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 					break;
 #endif
 				case ai_mode::AIM_CHASE_OBJECT:
-					create_path_to_believed_player_segment(obj, 4 + Overall_agitation/8 + Difficulty_level, create_path_safety_flag::safe);
+					create_path_to_believed_player_segment(obj, robptr, 4 + Overall_agitation/8 + Difficulty_level, create_path_safety_flag::safe);
 					break;
 				case ai_mode::AIM_STILL:
 #if defined(DXX_BUILD_DESCENT_I)
@@ -3514,7 +3515,7 @@ _exit_cheat:
 				case ai_mode::AIM_RUN_FROM_OBJECT:
 					move_towards_segment_center(LevelSharedSegmentState, obj);
 					obj->mtype.phys_info.velocity = {};
-					create_n_segment_path(obj, 5, segment_none);
+					create_n_segment_path(obj, robptr, 5, segment_none);
 					ailp.mode = ai_mode::AIM_RUN_FROM_OBJECT;
 					break;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -3522,9 +3523,9 @@ _exit_cheat:
 					move_towards_segment_center(LevelSharedSegmentState, obj);
 					obj->mtype.phys_info.velocity = {};
 					if (Overall_agitation > (50 - Difficulty_level*4))
-						create_path_to_believed_player_segment(obj, 4 + Overall_agitation/8, create_path_safety_flag::safe);
+						create_path_to_believed_player_segment(obj, robptr, 4 + Overall_agitation/8, create_path_safety_flag::safe);
 					else {
-						create_n_segment_path(obj, 5, segment_none);
+						create_n_segment_path(obj, robptr, 5, segment_none);
 					}
 					break;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -3543,7 +3544,7 @@ _exit_cheat:
 					break;
 #endif
 				case ai_mode::AIM_OPEN_DOOR:
-					create_n_segment_path_to_door(obj, 5);
+					create_n_segment_path_to_door(obj, robptr, 5);
 					break;
 				case ai_mode::AIM_FOLLOW_PATH_2:
 					Int3(); // Should never happen!
@@ -3608,9 +3609,9 @@ _exit_cheat:
 #endif
 					{
 						if (dist_to_player < F1_0*30)
-							create_n_segment_path(obj, 5, segment_none);
+							create_n_segment_path(obj, robptr, 5, segment_none);
 						else
-							create_path_to_believed_player_segment(obj, 20, create_path_safety_flag::safe);
+							create_path_to_believed_player_segment(obj, robptr, 20, create_path_safety_flag::safe);
 					}
 			}
 		}
@@ -3699,7 +3700,7 @@ _exit_cheat:
 				{
 					if (!ai_multiplayer_awareness(obj, 50))
 						return;
-					create_n_segment_path_to_door(obj, 8+Difficulty_level);     // third parameter is avoid_seg, -1 means avoid nothing.
+					create_n_segment_path_to_door(obj, robptr, 8 + Difficulty_level);
 					ai_multi_send_robot_position(obj, -1);
 				}
 
@@ -3710,7 +3711,7 @@ _exit_cheat:
 					if (player_is_visible(player_visibility.visibility))
 					{
 						const auto powerup_flags = player_info.powerup_flags;
-						make_nearby_robot_snipe(vmsegptr, obj, powerup_flags);
+						make_nearby_robot_snipe(vmsegptr, obj, robptr, powerup_flags);
 						ailp.next_action_time = (NDL - Difficulty_level) * 2*F1_0;
 					}
 				}
@@ -3721,7 +3722,7 @@ _exit_cheat:
 				{
 					if (!ai_multiplayer_awareness(obj, 50))
 						return;
-					create_n_segment_path_to_door(obj, 8+Difficulty_level);     // third parameter is avoid_seg, -1 means avoid nothing.
+					create_n_segment_path_to_door(obj, robptr, 8 + Difficulty_level);
 					ai_multi_send_robot_position(obj, -1);
 				}
 			}
@@ -3748,7 +3749,7 @@ _exit_cheat:
 					ailp.mode = ai_mode::AIM_SNIPE_ATTACK;
 
 			if (!robot_is_thief(robptr) && ailp.mode != ai_mode::AIM_STILL)
-				do_snipe_frame(obj, dist_to_player, player_visibility.visibility, vec_to_player);
+				do_snipe_frame(obj, robptr, dist_to_player, player_visibility.visibility, vec_to_player);
 		} else if (!robot_is_thief(robptr) && !robot_is_companion(robptr))
 			return;
 	}
@@ -3762,7 +3763,7 @@ _exit_cheat:
 		if (player_controlling_guidebot.objnum != object_none)
 		{
 			auto &plrobj_controlling_guidebot = *Objects.vcptr(player_controlling_guidebot.objnum);
-			do_escort_frame(obj, plrobj_controlling_guidebot, player_visibility.visibility);
+			do_escort_frame(obj, robptr, plrobj_controlling_guidebot, player_visibility.visibility);
 		}
 
 		if (obj->ctype.ai_info.danger_laser_num != object_none) {
@@ -3787,7 +3788,7 @@ _exit_cheat:
 	if (robot_is_thief(robptr)) {
 
 		compute_vis_and_vec(obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
-		do_thief_frame(obj, dist_to_player, player_visibility.visibility, vec_to_player);
+		do_thief_frame(obj, robptr, dist_to_player, player_visibility.visibility, vec_to_player);
 
 		if (ready_to_fire_any_weapon(robptr, ailp, 0)) {
 			if (openable_door_on_near_path(vmsegptr, vcwallptr, *obj, *aip))
@@ -3822,7 +3823,7 @@ _exit_cheat:
 						ai_do_actual_firing_stuff(vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 					return;
 				}
-				create_path_to_believed_player_segment(obj, 8, create_path_safety_flag::safe);
+				create_path_to_believed_player_segment(obj, robptr, 8, create_path_safety_flag::safe);
 				ai_multi_send_robot_position(obj, -1);
 			} else if (!player_is_visible(player_visibility.visibility) && dist_to_player > F1_0 * 80 && !(Game_mode & GM_MULTI))
 			{
@@ -3831,11 +3832,11 @@ _exit_cheat:
 				// This has one desirable benefit of avoiding physics retries.
 				if (aip->behavior == ai_behavior::AIB_STATION) {
 					ailp.goal_segment = aip->hide_segment;
-					create_path_to_station(obj, 15);
+					create_path_to_station(obj, robptr, 15);
 				} // -- this looks like a dumb thing to do...robots following paths far away from you! else create_n_segment_path(obj, 5, -1);
 #if defined(DXX_BUILD_DESCENT_I)
 				else
-					create_n_segment_path(obj, 5, segment_none);
+					create_n_segment_path(obj, robptr, 5, segment_none);
 #endif
 				break;
 			}
@@ -3872,7 +3873,7 @@ _exit_cheat:
 					return;
 				}
 #if defined(DXX_BUILD_DESCENT_I)
-				create_path_to_believed_player_segment(obj, 10, create_path_safety_flag::safe);
+				create_path_to_believed_player_segment(obj, robptr, 10, create_path_safety_flag::safe);
 				ai_multi_send_robot_position(obj, -1);
 #endif
 			} else if ((aip->CURRENT_STATE != AIS_REST) && (aip->GOAL_STATE != AIS_REST)) {
@@ -4181,7 +4182,7 @@ _exit_cheat:
 					// This has one desirable benefit of avoiding physics retries.
 					if (aip->behavior == ai_behavior::AIB_STATION) {
 						ailp.goal_segment = aip->hide_segment;
-						create_path_to_station(obj, 15);
+						create_path_to_station(obj, robptr, 15);
 					}
 					break;
 				}

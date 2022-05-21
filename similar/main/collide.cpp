@@ -1075,7 +1075,7 @@ static void collide_robot_and_player(const vmobjptridx_t robot, const vmobjptrid
 			if (ailp->mode == ai_mode::AIM_THIEF_ATTACK)
 			{
 				Last_thief_hit_time = GameTime64;
-				attempt_to_steal_item(robot, playerobj);
+				attempt_to_steal_item(robot, robptr, playerobj);
 				steal_attempt = 1;
 			} else if (GameTime64 - Last_thief_hit_time < F1_0*2)
 				return;		//	ZOUNDS!  BRILLIANT!  Thief not collide with player if not stealing!
@@ -1087,7 +1087,7 @@ static void collide_robot_and_player(const vmobjptridx_t robot, const vmobjptrid
 
 		create_awareness_event(playerobj, player_awareness_type_t::PA_PLAYER_COLLISION, LevelUniqueRobotAwarenessState);			// object robot can attract attention to player
 		do_ai_robot_hit_attack(robot, playerobj, collision_point);
-		do_ai_robot_hit(robot, player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);
+		do_ai_robot_hit(robot, robptr, player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);
 	}
 	else
 	{
@@ -1759,7 +1759,7 @@ static void collide_robot_and_weapon(const vmobjptridx_t  robot, const vmobjptri
 	{
 		if (weapon->ctype.laser_info.parent_num == get_local_player().objnum) {
 			create_awareness_event(weapon, player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION, LevelUniqueRobotAwarenessState);			// object "weapon" can attract attention to player
-			do_ai_robot_hit(robot, player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);
+			do_ai_robot_hit(robot, robptr, player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION);
 		}
 	       	else
 			multi_robot_request_change(robot, get_player_id(vcobjptr(weapon->ctype.laser_info.parent_num)));

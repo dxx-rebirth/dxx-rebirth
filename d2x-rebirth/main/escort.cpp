@@ -198,7 +198,7 @@ namespace {
 //	-----------------------------------------------------------------------------
 //	See if segment from curseg through sidenum is reachable.
 //	Return true if it is reachable, else return false.
-static int segment_is_reachable(const object &robot, const shared_segment &segp, const sidenum_t sidenum, const player_flags powerup_flags)
+static int segment_is_reachable(const object &robot, const robot_info &robptr, const shared_segment &segp, const sidenum_t sidenum, const player_flags powerup_flags)
 {
 	const auto wall_num = segp.sides[sidenum].wall_num;
 
@@ -206,7 +206,7 @@ static int segment_is_reachable(const object &robot, const shared_segment &segp,
 	if (wall_num == wall_none)
 		return 1;
 
-	return ai_door_is_openable(robot, powerup_flags, segp, sidenum);
+	return ai_door_is_openable(robot, &robptr, powerup_flags, segp, sidenum);
 
 // -- MK, 10/17/95 -- 
 // -- MK, 10/17/95 -- 	//	Hmm, a closed wall.  I think this mean not reachable.
@@ -247,7 +247,7 @@ static int segment_is_reachable(const object &robot, const shared_segment &segp,
 //	Output:
 //		bfs_list:	array of shorts, each reachable segment.  Includes start segment.
 //		length:		number of elements in bfs_list
-std::size_t create_bfs_list(const object &robot, const vcsegidx_t start_seg, const player_flags powerup_flags, segnum_t *const bfs_list, std::size_t max_segs)
+std::size_t create_bfs_list(const object &robot, const robot_info &robptr, const vcsegidx_t start_seg, const player_flags powerup_flags, segnum_t *const bfs_list, std::size_t max_segs)
 {
 	std::size_t head = 0, tail = 0;
 	visited_segment_bitarray_t visited;
@@ -260,7 +260,7 @@ std::size_t create_bfs_list(const object &robot, const vcsegidx_t start_seg, con
 		for (const auto &&[i, connected_seg] : enumerate(cursegp->children))
 		{
 			if (IS_CHILD(connected_seg) && (!visited[connected_seg])) {
-				if (segment_is_reachable(robot, cursegp, static_cast<sidenum_t>(i), powerup_flags)) {
+				if (segment_is_reachable(robot, robptr, cursegp, static_cast<sidenum_t>(i), powerup_flags)) {
 					bfs_list[head++] = connected_seg;
 					if (head >= max_segs)
 						break;
@@ -669,11 +669,14 @@ static icobjidx_t exists_in_mine_2(const unique_segment &segp, const int objtype
 static std::pair<icsegidx_t, d_unique_buddy_state::Escort_goal_reachability> exists_fuelcen_in_mine(const vcsegidx_t start_seg, const player_flags powerup_flags)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &vmobjptr = Objects.vmptr;
 	std::array<segnum_t, MAX_SEGMENTS> bfs_list;
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	const auto Buddy_objnum = BuddyState.Buddy_objnum;
-	const auto length = create_bfs_list(vmobjptr(Buddy_objnum), start_seg, powerup_flags, bfs_list);
+	const auto &&Buddy_objp = vmobjptr(Buddy_objnum);
+	auto &robptr = Robot_info[get_robot_id(Buddy_objp)];
+	const auto length = create_bfs_list(Buddy_objp, robptr, start_seg, powerup_flags, bfs_list);
 	{
 		const auto &&predicate = [](const segnum_t &s) {
 			return vcsegptr(s)->special == segment_special::fuelcen;
@@ -702,11 +705,14 @@ static std::pair<icsegidx_t, d_unique_buddy_state::Escort_goal_reachability> exi
 static std::pair<icobjidx_t, d_unique_buddy_state::Escort_goal_reachability> exists_in_mine(const vcsegidx_t start_seg, const int objtype, const int objid, const int special, const player_flags powerup_flags)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &vmobjptr = Objects.vmptr;
 	std::array<segnum_t, MAX_SEGMENTS> bfs_list;
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	const auto Buddy_objnum = BuddyState.Buddy_objnum;
-	const auto length = create_bfs_list(vmobjptr(Buddy_objnum), start_seg, powerup_flags, bfs_list);
+	const auto &&Buddy_objp = vmobjptr(Buddy_objnum);
+	auto &robptr = Robot_info[get_robot_id(Buddy_objp)];
+	const auto length = create_bfs_list(Buddy_objp, robptr, start_seg, powerup_flags, bfs_list);
 
 	range_for (const auto segnum, partial_const_range(bfs_list, length))
 	{
@@ -832,11 +838,11 @@ static void escort_goal_unreachable(const escort_goal_t goal)
 	clear_escort_goals();
 }
 
-static void escort_go_to_goal(const vmobjptridx_t objp, ai_static *const aip, const segnum_t goal_seg)
+static void escort_go_to_goal(const vmobjptridx_t objp, const robot_info &robptr, ai_static *const aip, const segnum_t goal_seg)
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	auto &Objects = LevelUniqueObjectState.Objects;
-	create_path_to_segment(objp, goal_seg, Max_escort_length, create_path_safety_flag::safe);	//	MK!: Last parm (safety_flag) used to be 1!!
+	create_path_to_segment(objp, robptr, goal_seg, Max_escort_length, create_path_safety_flag::safe);	//	MK!: Last parm (safety_flag) used to be 1!!
 	if (aip->path_length > 3)
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 	if ((aip->path_length > 0) && (Point_segs[aip->hide_index + aip->path_length - 1].segnum != goal_seg)) {
@@ -852,9 +858,9 @@ static void escort_go_to_goal(const vmobjptridx_t objp, ai_static *const aip, co
 		const auto goal_segment = plrobj.segnum;
 		const fix dist_to_player = find_connected_distance(objp->pos, vmsegptridx(objp->segnum), plrobj.pos, vmsegptridx(goal_segment), 100, WALL_IS_DOORWAY_FLAG::fly);
 		if (dist_to_player > MIN_ESCORT_DISTANCE)
-			create_path_to_segment(objp, Max_escort_length, create_path_safety_flag::safe, goal_segment);
+			create_path_to_segment(objp, robptr, Max_escort_length, create_path_safety_flag::safe, goal_segment);
 		else {
-			create_n_segment_path(objp, 8 + d_rand() * 8, segment_none);
+			create_n_segment_path(objp, robptr, 8 + d_rand() * 8, segment_none);
 			aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 		}
 	}
@@ -880,7 +886,7 @@ static void set_escort_goal_non_object(d_unique_buddy_state &BuddyState)
 	BuddyState.Escort_goal_reachable = d_unique_buddy_state::Escort_goal_reachability::unreachable;
 }
 
-static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_info &player_info)
+static void escort_create_path_to_goal(const vmobjptridx_t objp, const robot_info &robptr, const player_info &player_info)
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -919,7 +925,7 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_in
 				else if (goal_seg == segment_exit)
 					escort_goal_unreachable(ESCORT_GOAL_EXIT);
 				else
-					escort_go_to_goal(objp, aip, goal_seg);
+					escort_go_to_goal(objp, robptr, aip, goal_seg);
 				return;
 			case ESCORT_GOAL_ENERGY:
 				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, POW_ENERGY, powerup_flags);
@@ -929,7 +935,7 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_in
 					const auto &&ef = exists_fuelcen_in_mine(objp->segnum, powerup_flags);
 					set_escort_goal_non_object(BuddyState);
 				if (ef.second != d_unique_buddy_state::Escort_goal_reachability::unreachable)
-					escort_go_to_goal(objp, aip, ef.first);
+					escort_go_to_goal(objp, robptr, aip, ef.first);
 				else if (ef.first == segment_none)
 					escort_goal_does_not_exist(ESCORT_GOAL_ENERGYCEN);
 				else
@@ -975,7 +981,7 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_in
 				[[fallthrough]];
 			case ESCORT_GOAL_SCRAM:
 				set_escort_goal_non_object(BuddyState);
-				create_n_segment_path(objp, 16 + d_rand() * 16, segment_none);
+				create_n_segment_path(objp, robptr, 16 + d_rand() * 16, segment_none);
 				aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 				ailp->mode = ai_mode::AIM_GOTO_OBJECT;
 				say_escort_goal(Escort_goal_object);
@@ -991,7 +997,7 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const player_in
 			escort_goal_unreachable(Escort_goal_object);
 		}
 	} else {
-		escort_go_to_goal(objp, aip, goal_seg);
+		escort_go_to_goal(objp, robptr, aip, goal_seg);
 		ailp->mode = ai_mode::AIM_GOTO_OBJECT;
 		say_escort_goal(Escort_goal_object);
 	}
@@ -1192,7 +1198,7 @@ static void do_buddy_dude_stuff(void)
 	}
 }
 
-static void escort_set_goal_toward_controlling_player(d_unique_buddy_state &BuddyState, fvcobjptr &vcobjptr, const vmobjptridx_t buddy_obj)
+static void escort_set_goal_toward_controlling_player(d_unique_buddy_state &BuddyState, fvcobjptr &vcobjptr, const vmobjptridx_t buddy_obj, const robot_info &robptr)
 {
 	auto &aip = buddy_obj->ctype.ai_info;
 	aip.path_length = polish_path(buddy_obj, &Point_segs[aip.hide_index], aip.path_length);
@@ -1202,7 +1208,7 @@ static void escort_set_goal_toward_controlling_player(d_unique_buddy_state &Budd
 		{
 			auto &plrobj = *vcobjptr(plr.objnum);
 			if (plrobj.type == OBJ_PLAYER)
-				create_n_segment_path(buddy_obj, 5, plrobj.segnum);
+				create_n_segment_path(buddy_obj, robptr, 5, plrobj.segnum);
 		}
 	}
 	aip.ail.mode = ai_mode::AIM_GOTO_OBJECT;
@@ -1212,7 +1218,7 @@ static void escort_set_goal_toward_controlling_player(d_unique_buddy_state &Budd
 
 //	-----------------------------------------------------------------------------
 //	Called every frame (or something).
-void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, const player_visibility_state player_visibility)
+void do_escort_frame(const vmobjptridx_t objp, const robot_info &robptr, const object &plrobj, const player_visibility_state player_visibility)
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1261,7 +1267,7 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, const playe
 	if (ailp->mode == ai_mode::AIM_WANDER)
 		if (player_is_visible(player_visibility))
 		{
-			create_n_segment_path(objp, 16 + d_rand() * 16, segment_none);
+			create_n_segment_path(objp, robptr, 16 + d_rand() * 16, segment_none);
 			aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 		}
 
@@ -1275,7 +1281,7 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, const playe
 		if (player_is_visible(player_visibility))
 			if (BuddyState.Escort_last_path_created + F1_0*3 < GameTime64) {
 				BuddyState.Escort_last_path_created = GameTime64;
-				create_n_segment_path(objp, 10 + d_rand() * 16, plrobj.segnum);
+				create_n_segment_path(objp, robptr, 10 + d_rand() * 16, plrobj.segnum);
 			}
 
 		return;
@@ -1310,7 +1316,7 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, const playe
 		max_len = Max_escort_length;
 		if (!BuddyState.Buddy_allowed_to_talk)
 			max_len = 3;
-		create_path_to_segment(objp, max_len, create_path_safety_flag::safe, Believed_player_seg);	//	MK!: Last parm used to be 1!
+		create_path_to_segment(objp, robptr, max_len, create_path_safety_flag::safe, Believed_player_seg);	//	MK!: Last parm used to be 1!
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 		ailp->mode = ai_mode::AIM_GOTO_PLAYER;
 	}
@@ -1321,16 +1327,16 @@ void do_escort_frame(const vmobjptridx_t objp, const object &plrobj, const playe
 	} else if ((ailp->mode == ai_mode::AIM_GOTO_PLAYER) && (dist_to_player < MIN_ESCORT_DISTANCE)) {
 		BuddyState.Escort_goal_object = escort_set_goal_object(player_info.powerup_flags);
 		ailp->mode = ai_mode::AIM_GOTO_OBJECT;		//	May look stupid to be before path creation, but ai_door_is_openable uses mode to determine what doors can be got through
-		escort_create_path_to_goal(objp, player_info);
-		escort_set_goal_toward_controlling_player(BuddyState, vcobjptr, objp);
+		escort_create_path_to_goal(objp, robptr, player_info);
+		escort_set_goal_toward_controlling_player(BuddyState, vcobjptr, objp, robptr);
 	}
 	else if (BuddyState.Escort_goal_object == ESCORT_GOAL_UNSPECIFIED)
 	{
 		if ((ailp->mode != ai_mode::AIM_GOTO_PLAYER) || (dist_to_player < MIN_ESCORT_DISTANCE)) {
 			BuddyState.Escort_goal_object = escort_set_goal_object(player_info.powerup_flags);
 			ailp->mode = ai_mode::AIM_GOTO_OBJECT;		//	May look stupid to be before path creation, but ai_door_is_openable uses mode to determine what doors can be got through
-			escort_create_path_to_goal(objp, player_info);
-			escort_set_goal_toward_controlling_player(BuddyState, vcobjptr, objp);
+			escort_create_path_to_goal(objp, robptr, player_info);
+			escort_set_goal_toward_controlling_player(BuddyState, vcobjptr, objp, robptr);
 		}
 	}
 }
@@ -1341,7 +1347,7 @@ void invalidate_escort_goal(d_unique_buddy_state &BuddyState)
 }
 
 //	-------------------------------------------------------------------------------------------------
-void do_snipe_frame(const vmobjptridx_t objp, const fix dist_to_player, const player_visibility_state player_visibility, const vms_vector &vec_to_player)
+void do_snipe_frame(const vmobjptridx_t objp, const robot_info &robptr, const fix dist_to_player, const player_visibility_state player_visibility, const vms_vector &vec_to_player)
 {
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	fix			connected_distance;
@@ -1358,7 +1364,7 @@ void do_snipe_frame(const vmobjptridx_t objp, const fix dist_to_player, const pl
 
 			connected_distance = find_connected_distance(objp->pos, vmsegptridx(objp->segnum), Believed_player_pos, vmsegptridx(Believed_player_seg), 30, WALL_IS_DOORWAY_FLAG::fly);
 			if (connected_distance < F1_0*500) {
-				create_path_to_believed_player_segment(objp, 30, create_path_safety_flag::safe);
+				create_path_to_believed_player_segment(objp, robptr, 30, create_path_safety_flag::safe);
 				ailp->mode = ai_mode::AIM_SNIPE_ATTACK;
 				ailp->next_action_time = SNIPE_ATTACK_TIME;	//	have up to 10 seconds to find player.
 			}
@@ -1398,7 +1404,7 @@ void do_snipe_frame(const vmobjptridx_t objp, const fix dist_to_player, const pl
 		case ai_mode::AIM_SNIPE_FIRE:
 			if (ailp->next_action_time < 0) {
 				ai_static	*aip = &objp->ctype.ai_info;
-				create_n_segment_path(objp, 10 + d_rand()/2048, ConsoleObject->segnum);
+				create_n_segment_path(objp, robptr, 10 + d_rand()/2048, ConsoleObject->segnum);
 				aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 				if (d_rand() < 8192)
 					ailp->mode = ai_mode::AIM_SNIPE_RETREAT_BACKWARDS;
@@ -1444,10 +1450,9 @@ constexpr enumerated_array<fix, NDL, Difficulty_level_type> Thief_wait_times = {
 }}};
 
 //	-------------------------------------------------------------------------------------------------
-void do_thief_frame(const vmobjptridx_t objp, const fix dist_to_player, const player_visibility_state player_visibility, const vms_vector &vec_to_player)
+void do_thief_frame(const vmobjptridx_t objp, const robot_info &robptr, const fix dist_to_player, const player_visibility_state player_visibility, const vms_vector &vec_to_player)
 {
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	fix			connected_distance;
 
@@ -1467,14 +1472,14 @@ void do_thief_frame(const vmobjptridx_t objp, const fix dist_to_player, const pl
 		case ai_mode::AIM_THIEF_WAIT:
 			if (ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION) {
 				ailp->player_awareness_type = player_awareness_type_t::PA_NONE;
-				create_path_to_believed_player_segment(objp, 30, create_path_safety_flag::safe);
+				create_path_to_believed_player_segment(objp, robptr, 30, create_path_safety_flag::safe);
 				ailp->mode = ai_mode::AIM_THIEF_ATTACK;
 				ailp->next_action_time = THIEF_ATTACK_TIME/2;
 				return;
 			}
 			else if (player_is_visible(player_visibility))
 			{
-				create_n_segment_path(objp, 15, ConsoleObject->segnum);
+				create_n_segment_path(objp, robptr, 15, ConsoleObject->segnum);
 				ailp->mode = ai_mode::AIM_THIEF_RETREAT;
 				return;
 			}
@@ -1486,7 +1491,7 @@ void do_thief_frame(const vmobjptridx_t objp, const fix dist_to_player, const pl
 
 			connected_distance = find_connected_distance(objp->pos, vmsegptridx(objp->segnum), Believed_player_pos, vmsegptridx(Believed_player_seg), 30, WALL_IS_DOORWAY_FLAG::fly);
 			if (connected_distance < F1_0*500) {
-				create_path_to_believed_player_segment(objp, 30, create_path_safety_flag::safe);
+				create_path_to_believed_player_segment(objp, robptr, 30, create_path_safety_flag::safe);
 				ailp->mode = ai_mode::AIM_THIEF_ATTACK;
 				ailp->next_action_time = THIEF_ATTACK_TIME;	//	have up to 10 seconds to find player.
 			}
@@ -1505,15 +1510,15 @@ void do_thief_frame(const vmobjptridx_t objp, const fix dist_to_player, const pl
 					ai_static	*aip = &objp->ctype.ai_info;
 					if (((aip->cur_path_index <=1) && (aip->PATH_DIR == -1)) || ((aip->cur_path_index >= aip->path_length-1) && (aip->PATH_DIR == 1))) {
 						ailp->player_awareness_type = player_awareness_type_t::PA_NONE;
-						create_n_segment_path(objp, 10, ConsoleObject->segnum);
+						create_n_segment_path(objp, robptr, 10, ConsoleObject->segnum);
 
 						//	If path is real short, try again, allowing to go through player's segment
 						if (aip->path_length < 4) {
-							create_n_segment_path(objp, 10, segment_none);
-						} else if (objp->shields* 4 < Robot_info[get_robot_id(objp)].strength) {
+							create_n_segment_path(objp, robptr, 10, segment_none);
+						} else if (objp->shields* 4 < robptr.strength) {
 							//	If robot really low on hits, will run through player with even longer path
 							if (aip->path_length < 8) {
-								create_n_segment_path(objp, 10, segment_none);
+								create_n_segment_path(objp, robptr, 10, segment_none);
 							}
 						}
 
@@ -1533,14 +1538,14 @@ void do_thief_frame(const vmobjptridx_t objp, const fix dist_to_player, const pl
 			if (ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION) {
 				ailp->player_awareness_type = player_awareness_type_t::PA_NONE;
 				if (d_rand() > 8192) {
-					create_n_segment_path(objp, 10, ConsoleObject->segnum);
+					create_n_segment_path(objp, robptr, 10, ConsoleObject->segnum);
 					ailp->next_action_time = Thief_wait_times[Difficulty_level]/2;
 					ailp->mode = ai_mode::AIM_THIEF_RETREAT;
 				}
 			} else if (ailp->next_action_time < 0) {
 				//	This forces him to create a new path every second.
 				ailp->next_action_time = F1_0;
-				create_path_to_believed_player_segment(objp, 100, create_path_safety_flag::unsafe);
+				create_path_to_believed_player_segment(objp, robptr, 100, create_path_safety_flag::unsafe);
 				ailp->mode = ai_mode::AIM_THIEF_ATTACK;
 			} else {
 				if (player_is_visible(player_visibility) && dist_to_player < F1_0*100)
@@ -1550,7 +1555,7 @@ void do_thief_frame(const vmobjptridx_t objp, const fix dist_to_player, const pl
 					if (dist_to_player > F1_0*60) {
 						fix	dot = vm_vec_dot(vec_to_player, ConsoleObject->orient.fvec);
 						if (dot < -F1_0/2) {	//	Looking at least towards thief, so thief will run!
-							create_n_segment_path(objp, 10, ConsoleObject->segnum);
+							create_n_segment_path(objp, robptr, 10, ConsoleObject->segnum);
 							ailp->next_action_time = Thief_wait_times[Difficulty_level]/2;
 							ailp->mode = ai_mode::AIM_THIEF_RETREAT;
 						}
@@ -1808,7 +1813,7 @@ static int attempt_to_steal_item_2(object &thief, object &player_num)
 //	If a item successfully stolen, returns true, else returns false.
 //	If a wapon successfully stolen, do everything, removing it from player,
 //	updating Stolen_items information, deselecting, etc.
-void attempt_to_steal_item(const vmobjptridx_t thiefp, object &player_num)
+void attempt_to_steal_item(const vmobjptridx_t thiefp, const robot_info &robptr, object &player_num)
 {
 	int	rval = 0;
 
@@ -1829,7 +1834,7 @@ void attempt_to_steal_item(const vmobjptridx_t thiefp, object &player_num)
 			break;
 		}
 	}
-	create_n_segment_path(thiefp, 10, ConsoleObject->segnum);
+	create_n_segment_path(thiefp, robptr, 10, ConsoleObject->segnum);
 	auto &ailp = thief.ctype.ai_info.ail;
 	ailp.next_action_time = Thief_wait_times[GameUniqueState.Difficulty_level] / 2;
 	ailp.mode = ai_mode::AIM_THIEF_RETREAT;
