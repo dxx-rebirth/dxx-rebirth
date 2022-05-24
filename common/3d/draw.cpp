@@ -262,9 +262,10 @@ void g3_draw_sphere(grs_canvas &canvas, cg3s_point &pnt, const fix rad, const ui
 		if (! (pnt.p3_codes & PF_OVERFLOW)) {
 			const auto r2 = fixmul(rad, Matrix_scale.x);
 #ifndef __powerc
-			fix t;
-			if (!checkmuldiv(&t, r2, Canv_w2, pnt.p3_z))
+			const auto ot = checkmuldiv(r2, Canv_w2, pnt.p3_z);
+			if (!ot)
 				return;
+			const auto t = *ot;
 #else
 			if (pnt.p3_z == 0)
 				return;

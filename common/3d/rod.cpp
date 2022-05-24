@@ -135,14 +135,14 @@ void g3_draw_bitmap(grs_canvas &canvas, const vms_vector &pos, fix width, fix he
 	if (pnt.p3_flags & PF_OVERFLOW)
 		return;
 #ifndef __powerc
-	fix t;
-	if (checkmuldiv(&t,width,Canv_w2,pnt.p3_z))
-		w = fixmul(t,Matrix_scale.x);
+	const auto pz = pnt.p3_z;
+	if (const auto ox = checkmuldiv(width, Canv_w2, pz))
+		w = fixmul(*ox, Matrix_scale.x);
 	else
 		return;
 
-	if (checkmuldiv(&t,height,Canv_h2,pnt.p3_z))
-		h = fixmul(t,Matrix_scale.y);
+	if (const auto oy = checkmuldiv(height, Canv_h2, pz))
+		h = fixmul(*oy, Matrix_scale.y);
 	else
 		return;
 #else

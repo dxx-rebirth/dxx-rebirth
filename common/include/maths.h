@@ -9,6 +9,7 @@
 #pragma once
 
 #include <cstdint>
+#include <optional>
 #include <stdlib.h>
 #include "pstypes.h"
 
@@ -185,7 +186,7 @@ fixang fix_acos (fix v);
 fixang fix_atan2 (fix cos, fix sin);
 
 [[nodiscard]]
-int checkmuldiv(fix *r,fix a,fix b,fix c);
+std::optional<int32_t> checkmuldiv(fix a, fix b, fix divisor);
 
 extern const std::array<ubyte, 256> guess_table;
 extern const std::array<int16_t, 256> sincos_table;

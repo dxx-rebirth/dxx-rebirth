@@ -51,7 +51,7 @@ ubyte g3_rotate_point(g3s_point &dest,const vms_vector &src)
 
 //checks for overflow & divides if ok, fillig in r
 //returns true if div is ok, else false
-int checkmuldiv(fix *r,fix a,fix b,fix c)
+std::optional<int32_t> checkmuldiv(fix a,fix b,fix c)
 {
 	const int64_t a64 = a;
 	const int64_t b64 = b;
@@ -74,16 +74,15 @@ int checkmuldiv(fix *r,fix a,fix b,fix c)
 
 		const auto result = q.q / static_cast<int64_t>(c);
 		if (static_cast<int32_t>(result) != result)
-			return 0;
+			return std::nullopt;
 
 		 * because that would always perform the division, before determining
 		 * whether the division is valid.
 		 */
-		return 0;
+		return std::nullopt;
 	else {
 		const int64_t c64 = c;
-		*r = static_cast<int32_t>(product / c64);
-		return 1;
+		return static_cast<int32_t>(product / c64);
 	}
 }
 
@@ -91,14 +90,16 @@ int checkmuldiv(fix *r,fix a,fix b,fix c)
 void g3_project_point(g3s_point &p)
 {
 #ifndef __powerc
-	fix tx,ty;
-
 	if ((p.p3_flags & PF_PROJECTED) || (p.p3_codes & CC_BEHIND))
 		return;
 
-	if (checkmuldiv(&tx,p.p3_x,Canv_w2,p.p3_z) && checkmuldiv(&ty,p.p3_y,Canv_h2,p.p3_z)) {
-		p.p3_sx = Canv_w2 + tx;
-		p.p3_sy = Canv_h2 - ty;
+	const auto pz = p.p3_z;
+	const auto otx = checkmuldiv(p.p3_x, Canv_w2, pz);
+	std::optional<int32_t> oty;
+	if (otx && (oty = checkmuldiv(p.p3_y, Canv_h2, pz)))
+	{
+		p.p3_sx = Canv_w2 + *otx;
+		p.p3_sy = Canv_h2 - *oty;
 		p.p3_flags |= PF_PROJECTED;
 	}
 	else
