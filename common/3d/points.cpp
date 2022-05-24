@@ -53,22 +53,36 @@ ubyte g3_rotate_point(g3s_point &dest,const vms_vector &src)
 //returns true if div is ok, else false
 int checkmuldiv(fix *r,fix a,fix b,fix c)
 {
-	quadint q,qt;
-	q.q = 0;
-	fixmulaccum(&q,a,b);
+	const int64_t a64 = a;
+	const int64_t b64 = b;
+	/* product will be negative if and only if the sign bits of the input
+	 * values require it.  Storing the result in a 64-bit value ensures that
+	 * overflow cannot occur, and so the sign bit cannot be incorrectly set as
+	 * a side effect of overflow.
+	 */
+	const int64_t product = a64 * b64;
+	/* absolute_product will be positive, because the only negative number that
+	 * remains negative after negation is too large to be produced by the
+	 * multiplication of 2 32-bit signed inputs.
+	 */
+	const auto absolute_product = (product < 0) ? -product : product;
+	if ((absolute_product >> 31) >= c)
+		/* If this branch is taken, then the division would produce a value
+		 * that cannot be correctly represented in `int32_t`.  Return a failure
+		 * code, rather than returning an incorrect result.  This case is
+		 * tested explicitly, rather than the clearer construct of:
 
-	qt = q;
-	if (qt.high < 0)
-		fixquadnegate(&qt);
+		const auto result = q.q / static_cast<int64_t>(c);
+		if (static_cast<int32_t>(result) != result)
+			return 0;
 
-	qt.high *= 2;
-	if (qt.low > 0x7fff)
-		qt.high++;
-
-	if (qt.high >= c)
+		 * because that would always perform the division, before determining
+		 * whether the division is valid.
+		 */
 		return 0;
 	else {
-		*r = static_cast<int32_t>(q.q / static_cast<int64_t>(c));
+		const int64_t c64 = c;
+		*r = static_cast<int32_t>(product / c64);
 		return 1;
 	}
 }
