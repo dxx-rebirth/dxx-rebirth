@@ -165,7 +165,6 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 						{
 							fvi_query	fq;
 							fvi_info		hit_data;
-							int			fate;
 
 							const auto tvec = vm_vec_scale_add(obj.pos, obj.orient.fvec, F1_0*200);
 
@@ -177,8 +176,8 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 							fq.ignore_obj_list.first = nullptr;
 							fq.flags					= FQ_TRANSWALL;
 
-							fate = find_vector_intersection(fq, hit_data);
-							if (fate != HIT_NONE)
+							const auto fate = find_vector_intersection(fq, hit_data);
+							if (fate != fvi_hit_type::None)
 								max_headlight_dist = vm_vec_mag_quick(vm_vec_sub(hit_data.hit_pnt, obj.pos)) + F1_0*4;
 						}
 					}

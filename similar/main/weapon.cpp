@@ -1374,7 +1374,7 @@ static bool immediate_detonate_smart_mine(const vcobjptridx_t smart_mine, const 
 	fq.p1						= &target->pos;
 	fq.thisobjnum			= smart_mine;
 	auto fate = find_vector_intersection(fq, hit_data);
-	return fate != HIT_WALL;
+	return fate != fvi_hit_type::Wall;
 }
 
 }

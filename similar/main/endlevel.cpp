@@ -917,7 +917,7 @@ window_event_result do_endlevel_frame()
 
 			find_vector_intersection(fq, hit_data);
 
-			if (hit_data.hit_type==HIT_WALL && hit_data.hit_seg!=segment_none)
+			if (hit_data.hit_type == fvi_hit_type::Wall && hit_data.hit_seg != segment_none)
 				object_create_explosion(vmsegptridx(hit_data.hit_seg), hit_data.hit_pnt, i2f(3) + d_rand() * 6, VCLIP_SMALL_EXPLOSION);
 
 			explosion_wait2 = (0xa00 + d_rand()/8)/2;

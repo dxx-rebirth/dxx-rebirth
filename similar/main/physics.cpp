@@ -320,7 +320,6 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 	auto &vmobjptr = Objects.vmptr;
 	ignore_objects_array_t ignore_obj_list;
 	int try_again;
-	int fate=0;
 	vms_vector ipos;		//position after this frame
 	segnum_t WallHitSeg;
 	sidenum_t WallHitSide;
@@ -410,6 +409,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 	auto &vcvertptr = Vertices.vcptr;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
+	auto fate = fvi_hit_type::None;
 	do {
 		try_again = 0;
 
@@ -441,7 +441,8 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 
 		fate = find_vector_intersection(fq, hit_info);
 		//	Matt: Mike's hack.
-		if (fate == HIT_OBJECT) {
+		if (fate == fvi_hit_type::Object)
+		{
 			auto &objp = *vcobjptr(hit_info.hit_object);
 
 			if ((objp.type == OBJ_WEAPON && is_proximity_bomb_or_player_smart_mine(get_weapon_id(objp))) ||
@@ -450,9 +451,8 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 		}
 
 #ifndef NDEBUG
-		if (fate == HIT_BAD_P0) {
+		if (fate == fvi_hit_type::BadP0)
 			Int3();
-		}
 #endif
 
 		if (phys_segs && !hit_info.seglist.empty())
@@ -480,7 +480,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 			break;
 		}
 
-		Assert(!((fate==HIT_WALL) && ((WallHitSeg == segment_none) || (WallHitSeg > Highest_segment_index))));
+		assert(!(fate == fvi_hit_type::Wall && (WallHitSeg == segment_none || WallHitSeg > Highest_segment_index)));
 
 		save_pos = obj->pos;			//save the object's position
 		auto save_seg = obj->segnum;
@@ -520,7 +520,8 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 			vms_vector moved_vec_n;
 			const auto actual_dist = vm_vec_normalized_dir(moved_vec_n,obj->pos,save_pos);
 
-			if (fate==HIT_WALL && vm_vec_dot(moved_vec_n,frame_vec) < 0) {		//moved backwards
+			if (fate == fvi_hit_type::Wall && vm_vec_dot(moved_vec_n,frame_vec) < 0)
+			{		//moved backwards
 
 				//don't change position or sim_time
 
@@ -551,7 +552,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 
 		switch( fate )		{
 
-			case HIT_WALL:		{
+			case fvi_hit_type::Wall:		{
 				fix hit_speed=0,wall_part=0;
 
 				// Find hit speed	
@@ -656,7 +657,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 				break;
 			}
 
-			case HIT_OBJECT:		{
+			case fvi_hit_type::Object:		{
 				vms_vector old_vel;
 
 				// Mark the hit object so that on a retry the fvi code
@@ -696,18 +697,14 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 
 				break;
 			}	
-			case HIT_NONE:		
+			case fvi_hit_type::None:
 				break;
 
+			case fvi_hit_type::BadP0:
 #ifndef NDEBUG
-			case HIT_BAD_P0:
 				Int3();		// Unexpected collision type: start point not in specified segment.
-				break;
-			default:
-				// Unknown collision type returned from find_vector_intersection!!
-				Int3();
-				break;
 #endif
+				break;
 		}
 	} while ( try_again );
 
@@ -726,7 +723,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 	// After collision with objects and walls, set velocity from actual movement
 	if (!obj_stopped && !bounced 
 		&& ((obj->type == OBJ_PLAYER) || (obj->type == OBJ_ROBOT) || (obj->type == OBJ_DEBRIS)) 
-		&& ((fate == HIT_WALL) || (fate == HIT_OBJECT) || (fate == HIT_BAD_P0))
+		&& (fate == fvi_hit_type::Wall || fate == fvi_hit_type::Object || fate == fvi_hit_type::BadP0)
 		)
 	{	
 		const auto moved_vec = vm_vec_sub(obj->pos,start_pos);

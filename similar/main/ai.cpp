@@ -265,7 +265,6 @@ static int ai_evaded;
 // These globals are set by a call to find_vector_intersection, which is a slow routine,
 // so we don't want to call it again (for this object) unless we have to.
 static vms_vector  Hit_pos;
-static int         Hit_type;
 static fvi_info    Hit_data;
 
 namespace dcx {
@@ -795,11 +794,11 @@ player_visibility_state player_is_visible_from_object(const vmobjptridx_t objp, 
 	fq.ignore_obj_list.first = nullptr;
 	fq.flags					= FQ_TRANSWALL; // -- Why were we checking objects? | FQ_CHECK_OBJS;		//what about trans walls???
 
-	Hit_type = find_vector_intersection(fq, Hit_data);
+	const auto Hit_type = find_vector_intersection(fq, Hit_data);
 
 	Hit_pos = Hit_data.hit_pnt;
 
-	if (Hit_type == HIT_NONE)
+	if (Hit_type == fvi_hit_type::None)
 	{
 		dot = vm_vec_dot(vec_to_player, obj.orient.fvec);
 		if (dot > field_of_view - (Overall_agitation << 9)) {
@@ -1200,7 +1199,6 @@ static void ai_fire_laser_at_player(const d_level_shared_segment_state &LevelSha
 			//	Well, they are not directly connected, so use find_vector_intersection to see if they are unobstructed.
 			fvi_query	fq;
 			fvi_info		hit_data;
-			int			fate;
 
 			fq.startseg				= obj->segnum;
 			fq.p0						= &obj->pos;
@@ -1210,8 +1208,9 @@ static void ai_fire_laser_at_player(const d_level_shared_segment_state &LevelSha
 			fq.ignore_obj_list.first = nullptr;
 			fq.flags					= FQ_TRANSWALL;
 
-			fate = find_vector_intersection(fq, hit_data);
-			if (fate != HIT_NONE) {
+			const auto fate = find_vector_intersection(fq, hit_data);
+			if (fate != fvi_hit_type::None)
+			{
 				Int3();		//	This bot's gun is poking through a wall, so don't fire.
 				move_towards_segment_center(LevelSharedSegmentState, obj);		//	And decrease chances it will happen again.
 				return;
@@ -1820,7 +1819,7 @@ static void compute_buddy_vis_vec(const vmobjptridx_t buddy_obj, const vms_vecto
 	const auto hit_type = find_vector_intersection(fq, hit_data);
 
 	auto &ailp = buddy_obj->ctype.ai_info.ail;
-	player_visibility.visibility = (hit_type == HIT_NONE)
+	player_visibility.visibility = (hit_type == fvi_hit_type::None)
 		? ((ailp.time_player_seen = GameTime64, vm_vec_dot(player_visibility.vec_to_player, buddy_obj->orient.fvec) > robptr.field_of_view[GameUniqueState.Difficulty_level])
 		   ? player_visibility_state::visible_and_in_field_of_view
 		   : player_visibility_state::visible_not_in_field_of_view

@@ -209,7 +209,6 @@ static void move_towards_outside(const d_level_shared_segment_state &LevelShared
 		while (count) {
 			fvi_query	fq;
 			fvi_info		hit_data;
-			int			hit_type;
 	
 			fq.p0						= &psegs[i].point;
 			fq.startseg				= psegs[i].segnum;
@@ -219,12 +218,12 @@ static void move_towards_outside(const d_level_shared_segment_state &LevelShared
 			fq.ignore_obj_list.first = nullptr;
 			fq.flags					= 0;
 	
-			hit_type = find_vector_intersection(fq, hit_data);
+			const auto hit_type = find_vector_intersection(fq, hit_data);
 	
-			if (hit_type == HIT_NONE)
+			if (hit_type == fvi_hit_type::None)
 				count = 0;
 			else {
-				if ((count == 3) && (hit_type == HIT_BAD_P0))
+				if (count == 3 && hit_type == fvi_hit_type::BadP0)
 					Int3();
 				goal_pos.x = (fq.p0->x + hit_data.hit_pnt.x)/2;
 				goal_pos.y = (fq.p0->y + hit_data.hit_pnt.y)/2;
@@ -377,7 +376,6 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 				if (((cur_seg == avoid_seg) || (this_seg == avoid_seg)) && (ConsoleObject->segnum == avoid_seg)) {
 					fvi_query	fq;
 					fvi_info		hit_data;
-					int			hit_type;
 	
 					const auto &&center_point = compute_center_point_on_side(vcvertptr, segp, snum);
 
@@ -389,8 +387,9 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 					fq.ignore_obj_list.first = nullptr;
 					fq.flags					= 0;
 
-					hit_type = find_vector_intersection(fq, hit_data);
-					if (hit_type != HIT_NONE) {
+					const auto hit_type = find_vector_intersection(fq, hit_data);
+					if (hit_type != fvi_hit_type::None)
+					{
 						goto dont_add;
 					}
 				}
@@ -553,7 +552,6 @@ int polish_path(const vmobjptridx_t objp, point_seg *psegs, int num_points)
 	for (i=0; i<2; i++) {
 		fvi_query	fq;
 		fvi_info		hit_data;
-		int			hit_type;
 	
 		fq.p0						= &obj.pos;
 		fq.startseg				= obj.segnum;
@@ -563,9 +561,9 @@ int polish_path(const vmobjptridx_t objp, point_seg *psegs, int num_points)
 		fq.ignore_obj_list.first = nullptr;
 		fq.flags					= 0;
 
-		hit_type = find_vector_intersection(fq, hit_data);
+		const auto hit_type = find_vector_intersection(fq, hit_data);
 	
-		if (hit_type == HIT_NONE)
+		if (hit_type == fvi_hit_type::None)
 			first_point = i+1;
 		else
 			break;		
@@ -1197,7 +1195,6 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 				int			opposite_end_index;
 				vms_vector	*opposite_end_point;
 				fvi_info		hit_data;
-				int			fate;
 				fvi_query	fq;
 
 				// See which end we're nearer and look at the opposite end point.
@@ -1219,9 +1216,9 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 				fq.ignore_obj_list.first = nullptr;
 				fq.flags					= 0; 				//what about trans walls???
 
-				fate = find_vector_intersection(fq, hit_data);
-
-				if (fate != HIT_WALL) {
+				const auto fate = find_vector_intersection(fq, hit_data);
+				if (fate != fvi_hit_type::Wall)
+				{
 					//	We can be circular!  Do it!
 					//	Path direction is unchanged.
 					aip->cur_path_index = opposite_end_index;

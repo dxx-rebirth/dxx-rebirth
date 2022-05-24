@@ -55,6 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "d_levelstate.h"
+#include "d_underlying_value.h"
 #include "partial_range.h"
 
 #ifdef NEWHOMER
@@ -608,7 +609,6 @@ static void do_omega_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t parent
 	if (lock_objnum == object_none) {
 		fvi_query	fq;
 		fvi_info		hit_data;
-		int			fate;
 		const auto &&perturbed_fvec = vm_vec_scale_add(parent_objp->orient.fvec, make_random_vector(), F1_0/16);
 		vm_vec_scale_add(goal_pos, firing_pos, perturbed_fvec, MAX_OMEGA_DIST);
 		fq.startseg = firing_segnum;
@@ -622,8 +622,9 @@ static void do_omega_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t parent
 		fq.ignore_obj_list.first = nullptr;
 		fq.flags					= FQ_IGNORE_POWERUPS | FQ_TRANSPOINT | FQ_CHECK_OBJS;		//what about trans walls???
 
-		fate = find_vector_intersection(fq, hit_data);
-		if (fate != HIT_NONE) {
+		const auto fate = find_vector_intersection(fq, hit_data);
+		if (fate != fvi_hit_type::None)
+		{
 			Assert(hit_data.hit_seg != segment_none);		//	How can this be?  We went from inside the mine to outside without hitting anything?
 			goal_pos = hit_data.hit_pnt;
 		}
@@ -884,7 +885,6 @@ imobjptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vecto
 {
 	fvi_query	fq;
 	fvi_info		hit_data;
-	int			fate;
 
 	//	Find segment containing laser fire position.  If the robot is straddling a segment, the position from
 	//	which it fires may be in a different segment, which is bad news for find_vector_intersection.  So, cast
@@ -901,8 +901,9 @@ imobjptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vecto
 	fq.ignore_obj_list.first = nullptr;
 	fq.flags					= FQ_TRANSWALL | FQ_CHECK_OBJS;		//what about trans walls???
 
-	fate = find_vector_intersection(fq, hit_data);
-	if (fate != HIT_NONE  || hit_data.hit_seg==segment_none) {
+	const auto fate = find_vector_intersection(fq, hit_data);
+	if (fate != fvi_hit_type::None || hit_data.hit_seg == segment_none)
+	{
 		return object_none;
 	}
 
@@ -960,12 +961,12 @@ int object_to_object_visibility(const vcobjptridx_t obj1, const object_base &obj
 
 	switch(const auto fate = find_vector_intersection(fq, hit_data))
 	{
-		case HIT_NONE:
+		case fvi_hit_type::None:
 			return 1;
-		case HIT_WALL:
+		case fvi_hit_type::Wall:
 			return 0;
 		default:
-			con_printf(CON_VERBOSE, "object_to_object_visibility: fate=%u for object %hu{%hu/%i,%i,%i} to {%i,%i,%i}", fate, static_cast<vcobjptridx_t::integral_type>(obj1), obj1->segnum, obj1->pos.x, obj1->pos.y, obj1->pos.z, obj2.pos.x, obj2.pos.y, obj2.pos.z);
+			con_printf(CON_VERBOSE, "object_to_object_visibility: fate=%u for object %hu{%hu/%i,%i,%i} to {%i,%i,%i}", underlying_value(fate), static_cast<vcobjptridx_t::integral_type>(obj1), obj1->segnum, obj1->pos.x, obj1->pos.y, obj1->pos.z, obj2.pos.x, obj2.pos.y, obj2.pos.z);
 		// Int3();		//	Contact Mike: Oops, what happened?  What is fate?
 						// 2 = hit object (impossible), 3 = bad starting point (bad)
 			break;
@@ -1293,7 +1294,6 @@ static imobjptridx_t track_track_goal(fvcobjptr &vcobjptr, const imobjptridx_t t
 
 static imobjptridx_t Laser_player_fire_spread_delay(fvmsegptridx &vmsegptridx, const vmobjptridx_t obj, const weapon_id_type laser_type, const int gun_num, const fix spreadr, const fix spreadu, const fix delay_time, const weapon_sound_flag make_sound, const vms_vector &shot_orientation, const icobjidx_t Network_laser_track)
 {
-	int			Fate;
 	vms_vector	LaserDir;
 	fvi_query	fq;
 	fvi_info		hit_data;
@@ -1326,7 +1326,7 @@ static imobjptridx_t Laser_player_fire_spread_delay(fvmsegptridx &vmsegptridx, c
 	fq.flags					= FQ_CHECK_OBJS | FQ_IGNORE_POWERUPS;
 #endif
 
-	Fate = find_vector_intersection(fq, hit_data);
+	const auto Fate = find_vector_intersection(fq, hit_data);
 
 	auto LaserSeg = hit_data.hit_seg;
 
@@ -1337,11 +1337,11 @@ static imobjptridx_t Laser_player_fire_spread_delay(fvmsegptridx &vmsegptridx, c
 	if ( vm_vec_dist_quick(LaserPos, obj->pos) > 0x50000 )
 		return object_none;
 
-	if (Fate==HIT_WALL) {
+	if (Fate == fvi_hit_type::Wall)
 		return object_none;
-	}
 
-	if (Fate==HIT_OBJECT) {
+	if (Fate == fvi_hit_type::Object)
+	{
 //		if ( Objects[hit_data.hit_object].type == OBJ_ROBOT )
 //			Objects[hit_data.hit_object].flags |= OF_SHOULD_BE_DEAD;
 //		if ( Objects[hit_data.hit_object].type != OBJ_POWERUP )

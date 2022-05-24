@@ -34,10 +34,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "countarray.h"
 
 //return values for find_vector_intersection() - what did we hit?
-#define HIT_NONE		0		//we hit nothing
-#define HIT_WALL		1		//we hit - guess - a wall
-#define HIT_OBJECT	2		//we hit an object - which one?  no way to tell...
-#define HIT_BAD_P0	3		//start point not is specified segment
+enum class fvi_hit_type : uint8_t
+{
+	None,	//we hit nothing
+	Wall,	//we hit a wall
+	Object,	//we hit an object - which one?  no way to tell...
+	BadP0,	//start point not is specified segment
+};
 
 #define MAX_FVI_SEGS 100
 
@@ -45,9 +48,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct fvi_info : prohibit_void_ptr<fvi_info>
 {
 	struct segment_array_t : public count_array_t<segnum_t, MAX_FVI_SEGS> {};
-	int hit_type;					//what sort of intersection
 	vms_vector hit_pnt;			//where we hit
 	segnum_t hit_seg;					//what segment hit_pnt is in
+	fvi_hit_type hit_type;					//what sort of intersection
 	sidenum_t hit_side;					//if hit wall, which side
 	segnum_t hit_side_seg;				//what segment the hit side is in
 	objnum_t hit_object;				//if object hit, which object
@@ -98,7 +101,7 @@ struct fvi_query : prohibit_void_ptr<fvi_query>
 //  ingore_obj_list	NULL, or ptr to a list of objnums to ignore, terminated with -1
 //  check_obj_flag	determines whether collisions with objects are checked
 //Returns the hit_data->hit_type
-int find_vector_intersection(const fvi_query &fq, fvi_info &hit_data);
+fvi_hit_type find_vector_intersection(const fvi_query &fq, fvi_info &hit_data);
 
 //finds the uv coords of the given point on the given seg & side
 //fills in u & v. if l is non-NULL fills it in also

@@ -3491,7 +3491,6 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas, const ga
 static int see_object(fvcobjptridx &vcobjptridx, const vcobjptridx_t objnum)
 {
 	fvi_query fq;
-	int hit_type;
 	fvi_info hit_data;
 
 	//see if we can see this player
@@ -3504,9 +3503,8 @@ static int see_object(fvcobjptridx &vcobjptridx, const vcobjptridx_t objnum)
 	fq.startseg				= Viewer->segnum;
 	fq.ignore_obj_list.first = nullptr;
 
-	hit_type = find_vector_intersection(fq, hit_data);
-
-	return (hit_type == HIT_OBJECT && hit_data.hit_object == objnum);
+	const auto hit_type = find_vector_intersection(fq, hit_data);
+	return hit_type == fvi_hit_type::Object && hit_data.hit_object == objnum;
 }
 
 }

@@ -897,7 +897,8 @@ fix	Magical_light_constant = (F1_0*16);
 namespace {
 
 struct hash_info {
-	sbyte			flag, hit_type;
+	sbyte flag;
+	fvi_hit_type hit_type;
 	vms_vector	vector;
 };
 
@@ -990,7 +991,7 @@ static void cast_light_from_side(const vmsegptridx_t segp, const sidenum_t light
 								light_at_point = fixmul(light_at_point, Magical_light_constant);
 								if (light_at_point >= 0) {
 									fvi_info	hit_data;
-									int		hit_type;
+									fvi_hit_type hit_type;
 
 									const auto r_vector_to_center = vm_vec_sub(r_segment_center, vert_location);
 									const auto inverse_segment_magnitude = fixdiv(F1_0/3, vm_vec_mag(r_vector_to_center));
@@ -1033,20 +1034,20 @@ static void cast_light_from_side(const vmsegptridx_t segp, const sidenum_t light
 											}
 										}
 									} else
-										hit_type = HIT_NONE;
+										hit_type = fvi_hit_type::None;
 									switch (hit_type) {
-										case HIT_NONE:
+										case fvi_hit_type::None:
 											light_at_point = fixmul(light_at_point, light_intensity);
 											urside.uvls[vertnum].l += light_at_point;
 											if (urside.uvls[vertnum].l > F1_0)
 												urside.uvls[vertnum].l = F1_0;
 											break;
-										case HIT_WALL:
+										case fvi_hit_type::Wall:
 											break;
-										case HIT_OBJECT:
+										case fvi_hit_type::Object:
 											Int3();	// Hit object, should be ignoring objects!
 											break;
-										case HIT_BAD_P0:
+										case fvi_hit_type::BadP0:
 											Int3();	//	Ugh, this thing again, what happened, what does it mean?
 											break;
 									}
@@ -1112,7 +1113,7 @@ static void cast_light_from_side_to_center(const vmsegptridx_t segp, const siden
 					light_at_point = Magical_light_constant;
 
 				if (light_at_point >= 0) {
-					int		hit_type;
+					fvi_hit_type hit_type;
 
 					if (!quick_light) {
 						fvi_query fq;
@@ -1129,10 +1130,10 @@ static void cast_light_from_side_to_center(const vmsegptridx_t segp, const siden
 						hit_type = find_vector_intersection(fq, hit_data);
 					}
 					else
-						hit_type = HIT_NONE;
+						hit_type = fvi_hit_type::None;
 
 					switch (hit_type) {
-						case HIT_NONE:
+						case fvi_hit_type::None:
 							light_at_point = fixmul(light_at_point, light_intensity);
 							if (light_at_point >= F1_0)
 								light_at_point = F1_0-1;
@@ -1143,12 +1144,12 @@ static void cast_light_from_side_to_center(const vmsegptridx_t segp, const siden
 									static_light = 0;
 							}
 							break;
-						case HIT_WALL:
+						case fvi_hit_type::Wall:
 							break;
-						case HIT_OBJECT:
+						case fvi_hit_type::Object:
 							Int3();	// Hit object, should be ignoring objects!
 							break;
-						case HIT_BAD_P0:
+						case fvi_hit_type::BadP0:
 							Int3();	//	Ugh, this thing again, what happened, what does it mean?
 							break;
 					}

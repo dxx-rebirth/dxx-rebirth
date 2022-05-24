@@ -472,7 +472,6 @@ static int move_object_within_mine(fvmobjptr &vmobjptr, segment_array &Segments,
 	{
 		if (get_seg_masks(vcvertptr, obj->pos, segp, 0).centermask == sidemask_t{})
 		{
-			int	fate;
 			fvi_info	hit_info;
 			fvi_query fq;
 
@@ -485,9 +484,9 @@ static int move_object_within_mine(fvmobjptr &vmobjptr, segment_array &Segments,
 			fq.ignore_obj_list.first = nullptr;
 			fq.flags					= 0;
 
-			fate = find_vector_intersection(fq, hit_info);
-
-			if (fate != HIT_WALL) {
+			const auto fate = find_vector_intersection(fq, hit_info);
+			if (fate != fvi_hit_type::Wall)
+			{
 				if (segp != obj->segnum)
 					obj_relink(vmobjptr, Segments.vmptr, obj, segp);
 				obj->pos = newpos;
@@ -752,7 +751,6 @@ static void move_object_to_position(const vmobjptridx_t objp, const vms_vector &
 		objp->pos = newpos;
 	} else {
 		if (verify_object_seg(vmobjptr, Segments, vcvertptr, objp, newpos)) {
-			int		fate;
 			object	temp_viewer_obj;
 			fvi_query fq;
 			fvi_info	hit_info;
@@ -813,9 +811,9 @@ static void move_object_to_position(const vmobjptridx_t objp, const vms_vector &
 			fq.ignore_obj_list.first = nullptr;
 			fq.flags					= 0;
 
-			fate = find_vector_intersection(fq, hit_info);
-			if (fate == HIT_WALL) {
-
+			const auto fate = find_vector_intersection(fq, hit_info);
+			if (fate == fvi_hit_type::Wall)
+			{
 				objp->pos = hit_info.hit_pnt;
 				const auto &&segp = find_object_seg(LevelSharedSegmentState, LevelUniqueSegmentState, objp);
 				if (segp != segment_none)
