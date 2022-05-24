@@ -37,13 +37,7 @@ typedef int16_t fixang;		//angles
 
 typedef struct quadint // integer 64 bit, previously called "quad"
   {
-	  union {
-		  struct {
-    uint32_t low;
-    int32_t high;
-		  };
 		  int64_t q;
-	  };
   }
 quadint;
 
@@ -132,12 +126,6 @@ static inline fix fixquadadjust (const quadint *q)
 	return static_cast<fix>(q->q >> 16);
 }
 
-//negate a quadint
-static inline void fixquadnegate (quadint * q)
-{
-	q->q = -q->q;
-}
-
 //computes the square root of a long, returning a short
 [[nodiscard]]
 ushort long_sqrt (int32_t a);
@@ -188,7 +176,7 @@ fixang fix_atan2 (fix cos, fix sin);
 [[nodiscard]]
 std::optional<int32_t> checkmuldiv(fix a, fix b, fix divisor);
 
-extern const std::array<ubyte, 256> guess_table;
+extern const std::array<uint8_t, 256> guess_table;
 extern const std::array<int16_t, 256> sincos_table;
 extern const std::array<ushort, 258> asin_table;
 extern const std::array<ushort, 258> acos_table;

@@ -105,8 +105,8 @@ static unsigned fixdivquadlongu(quadint n, uint64_t d)
 
 uint32_t quad_sqrt(const quadint iq)
 {
-	const uint32_t low = iq.low;
-	const int32_t high = iq.high;
+	const uint32_t low = static_cast<uint32_t>(iq.q);
+	const int32_t high = static_cast<int32_t>(iq.q >> 32);
 	int i, cnt;
 	uint32_t r,old_r,t;
 

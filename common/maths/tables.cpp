@@ -15,7 +15,7 @@
 
 namespace dcx {
 
-const std::array<ubyte, 256> guess_table{{
+constexpr std::array<uint8_t, 256> guess_table{{
 	1,
 	1,1,1,
 	2,2,2,2,2,
