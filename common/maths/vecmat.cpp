@@ -160,7 +160,6 @@ fix vm_vec_dot(const vms_vector &v0,const vms_vector &v1)
 	return vm_vec_dot3(v0.x, v0.y, v0.z, v1);
 }
 
-//returns magnitude of a vector
 vm_magnitude_squared vm_vec_mag2(const vms_vector &v)
 {
 	const int64_t x = v.x;
@@ -172,7 +171,7 @@ vm_magnitude_squared vm_vec_mag2(const vms_vector &v)
 vm_magnitude vm_vec_mag(const vms_vector &v)
 {
 	quadint q;
-	q.q = vm_vec_mag2(v).d2;
+	q.q = static_cast<uint64_t>(vm_vec_mag2(v));
 	return vm_magnitude{quad_sqrt(q)};
 }
 

@@ -417,10 +417,10 @@ static vm_distance_squared check_vector_to_sphere_1(vms_vector &intp,const vms_v
 	if (mag_d == 0) {
 		const auto int_dist = vm_vec_mag2(w);
 		intp = p0;
-		if (int_dist.d2 < sphere_rad)
+		if (int_dist < sphere_rad)
 			return int_dist;
 		const fix64 sphere_rad64 = sphere_rad;
-		if (int_dist < vm_distance_squared{sphere_rad64 * sphere_rad64})
+		if (int_dist < vm_magnitude_squared{static_cast<uint64_t>(sphere_rad64 * sphere_rad64)})
 			return int_dist;
 		return vm_distance_squared::minimum_value();
 	}

@@ -1105,16 +1105,20 @@ imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjp
 	}
 
 	const fix64 HOMING_MAX_TRACKABLE_DIST = F1_0*250;
-	vm_distance_squared max_trackable_dist{HOMING_MAX_TRACKABLE_DIST * HOMING_MAX_TRACKABLE_DIST};
-	fix min_trackable_dot = HOMING_MIN_TRACKABLE_DOT;
-
+	const auto max_trackable_dist =
 #if defined(DXX_BUILD_DESCENT_II)
-	if (tracker_id == weapon_id_type::OMEGA_ID)
-	{
-		max_trackable_dist = OMEGA_MAX_TRACKABLE_DIST * OMEGA_MAX_TRACKABLE_DIST;
-		min_trackable_dot = OMEGA_MIN_TRACKABLE_DOT;
-	}
+		(tracker_id == weapon_id_type::OMEGA_ID)
+		? vm_distance_squared{(OMEGA_MAX_TRACKABLE_DIST * OMEGA_MAX_TRACKABLE_DIST)}
+		:
 #endif
+		vm_distance_squared{HOMING_MAX_TRACKABLE_DIST * HOMING_MAX_TRACKABLE_DIST};
+	const auto min_trackable_dot =
+#if defined(DXX_BUILD_DESCENT_II)
+		(tracker_id == weapon_id_type::OMEGA_ID)
+		? OMEGA_MIN_TRACKABLE_DOT
+		:
+#endif
+		HOMING_MIN_TRACKABLE_DOT;
 
 	imobjptridx_t	best_objnum = object_none;
 	range_for (const auto &&curobjp, vmobjptridx)

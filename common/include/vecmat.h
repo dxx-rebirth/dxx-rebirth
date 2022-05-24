@@ -132,6 +132,10 @@ public:
 		d2(f2)
 	{
 	}
+	constexpr vm_distance_squared(vm_magnitude_squared m) :
+		d2{static_cast<int64_t>(static_cast<uint64_t>(m))}
+	{
+	}
 	constexpr bool operator<(const vm_distance_squared &rhs) const
 	{
 		return d2 < rhs.d2;
@@ -171,18 +175,19 @@ public:
 	}
 };
 
-class vm_magnitude_squared : public vm_distance_squared
-{
-public:
-	constexpr explicit vm_magnitude_squared(const uint64_t &f2) :
-		vm_distance_squared(static_cast<fix64>(f2))
-	{
-	}
-};
-
 constexpr vm_distance_squared vm_distance::operator*(const vm_distance &rhs) const
 {
 	return vm_distance_squared{static_cast<fix64>(static_cast<fix>(*this)) * static_cast<fix64>(static_cast<fix>(rhs))};
+}
+
+constexpr bool operator<(const vm_magnitude_squared a, const fix &b)
+{
+	return static_cast<uint64_t>(a) < b;
+}
+
+constexpr bool operator<(const vm_magnitude_squared a, const vm_distance_squared b)
+{
+	return static_cast<uint64_t>(a) < static_cast<uint64_t>(b.operator fix64());
 }
 
 #define DEFINE_SERIAL_VMS_VECTOR_TO_MESSAGE()	\
