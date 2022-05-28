@@ -889,10 +889,7 @@ void piggy_new_pigfile(char *pigname)
 				}
 			
 				for (fnum=0;fnum<nframes; fnum++)       {
-					char tempname[20];
 					int SuperX;
-
-					snprintf(tempname, sizeof(tempname), "%s#%u", basename, fnum);
 
 					//SuperX = (GameBitmaps[i+fnum].bm_flags&BM_FLAG_SUPER_TRANSPARENT)?254:-1;
 					SuperX = (GameBitmapFlags[i+fnum]&BM_FLAG_SUPER_TRANSPARENT)?254:-1;
