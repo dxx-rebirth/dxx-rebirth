@@ -370,7 +370,7 @@ game_marker_index convert_player_marker_index_to_game_marker_index(const game_mo
 		return static_cast<game_marker_index>((player_num * MAX_DROP_MULTI_COOP) + static_cast<unsigned>(player_marker_num));
 	if (game_mode & GM_MULTI)
 		return static_cast<game_marker_index>((player_num * MAX_DROP_MULTI_COMPETITIVE) + static_cast<unsigned>(player_marker_num));
-	return game_marker_index{player_marker_num};
+	return static_cast<game_marker_index>(player_marker_num);
 }
 
 unsigned d_marker_state::get_markers_per_player(const game_mode_flags game_mode, const unsigned max_numplayers)
