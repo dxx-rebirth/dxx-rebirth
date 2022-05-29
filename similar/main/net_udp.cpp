@@ -5490,10 +5490,13 @@ void net_udp_send_mdata(int needack, fix64 time)
 
 void net_udp_process_mdata(uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr, int needack)
 {
-	int pnum = data[1], dataoffset = (needack?6:2);
+	const unsigned pnum = data[1];
+	const unsigned dataoffset = needack ? 6 : 2;
 
 	// Check if packet might be bogus
-	if ((pnum < 0) || (data_len > sizeof(UDP_mdata_info)))
+	if (pnum >= MAX_PLAYERS)
+		return;
+	if (data_len > sizeof(UDP_mdata_info))
 		return;
 
 	// Check if it came from valid IP
