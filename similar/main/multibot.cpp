@@ -965,7 +965,7 @@ int multi_explode_robot_sub(const vmobjptridx_t robot)
 	const auto robot_id = get_robot_id(objrobot);
 	if (robot_is_thief(Robot_info[robot_id]))
 		drop_stolen_items(vmsegptridx, LevelUniqueObjectState, Vclip, robot);
-	else if (Robot_info[robot_id].boss_flag)
+	if (Robot_info[robot_id].boss_flag)
 	{
 		if (!BossUniqueState.Boss_dying)
 			start_boss_death_sequence(LevelUniqueObjectState.BossState, LevelSharedRobotInfoState.Robot_info, robot);
