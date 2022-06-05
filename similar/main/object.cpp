@@ -1385,10 +1385,10 @@ static void set_camera_pos(vms_vector &camera_pos, const vcobjptridx_t objp)
 		if ((player_camera_vec.x == 0) && (player_camera_vec.y == 0) && (player_camera_vec.z == 0))
 			player_camera_vec.x += F1_0/16;
 
-		hit_data.hit_type = fvi_hit_type::Wall;
+		auto hit_type = fvi_hit_type::Wall;
 		far_scale = F1_0;
 
-		while (hit_data.hit_type != fvi_hit_type::None && count++ < 6)
+		while (hit_type != fvi_hit_type::None && count++ < 6)
 		{
 			vm_vec_normalize_quick(player_camera_vec);
 			vm_vec_scale(player_camera_vec, Camera_to_player_dist_goal);
@@ -1404,9 +1404,8 @@ static void set_camera_pos(vms_vector &camera_pos, const vcobjptridx_t objp)
 			fq.thisobjnum = objp;
 			fq.ignore_obj_list.first = nullptr;
 			fq.flags = 0;
-			find_vector_intersection(fq, hit_data);
-
-			if (hit_data.hit_type == fvi_hit_type::None)
+			hit_type = find_vector_intersection(fq, hit_data);
+			if (hit_type == fvi_hit_type::None)
 			{
 				camera_pos = closer_p1;
 			} else {

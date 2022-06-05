@@ -644,28 +644,23 @@ fvi_hit_type find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 	if(fq.startseg > Highest_segment_index)
 	{
 		Assert(fq.startseg <= Highest_segment_index);
-		hit_data.hit_type = fvi_hit_type::BadP0;
 		hit_data.hit_pnt = *fq.p0;
 		hit_data.hit_seg = hit_data.hit_object = 0;
 		hit_data.hit_side = side_none;
 		hit_data.hit_side_seg = segment_none;
-
-		return hit_data.hit_type;
+		return fvi_hit_type::BadP0;
 	}
 
 	auto &vcvertptr = Vertices.vcptr;
 	// Viewer is not in segment as claimed, so say there is no hit.
 	if (get_seg_masks(vcvertptr, *fq.p0, vcsegptr(fq.startseg), 0).centermask != sidemask_t{})
 	{
-
-		hit_data.hit_type = fvi_hit_type::BadP0;
 		hit_data.hit_pnt = *fq.p0;
 		hit_data.hit_seg = fq.startseg;
 		hit_data.hit_side = side_none;
 		hit_data.hit_object = 0;
 		hit_data.hit_side_seg = segment_none;
-
-		return hit_data.hit_type;
+		return fvi_hit_type::BadP0;
 	}
 
 	fvi_segments_visited_t visited;
@@ -711,6 +706,12 @@ fvi_hit_type find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 	if (hit_seg!=segment_none && (fq.flags & FQ_GET_SEGLIST))
 	{
 		fvi_info::segment_array_t::iterator i = hit_data.seglist.find(hit_seg), e = hit_data.seglist.end();
+		/* If `hit_seg` is present in `seglist`, truncate `seglist` such that
+		 * `seglist.back()` == `hit_seg`.
+		 *
+		 * Otherwise, `hit_seg` is not present in `seglist`.  If there is space
+		 * to add it, then add it.
+		 */
 		if (i != e)
 			hit_data.seglist.erase(++i);
 		else if (hit_data.seglist.size() < hit_data.seglist.max_size())
@@ -749,7 +750,6 @@ fvi_hit_type find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 
 	assert(!(hit_type == fvi_hit_type::Object && fvi_hit_object == object_none));
 
-	hit_data.hit_type		= hit_type;
 	hit_data.hit_pnt 		= hit_pnt;
 	hit_data.hit_seg 		= hit_seg;
 	hit_data.hit_side 		= fvi_hit_side;	//looks at global
@@ -767,7 +767,6 @@ fvi_hit_type find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 //		Int3();
 
 	return hit_type;
-
 }
 
 namespace {
