@@ -662,7 +662,9 @@ window_event_result start_endlevel_sequence()
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &vmobjptr = Objects.vmptr;
-	reset_rear_view(); //turn off rear view if set - NOTE: make sure this happens before we pause demo recording!!
+	const auto dead = Player_dead_state != player_dead_state::no || (ConsoleObject->flags & OF_SHOULD_BE_DEAD);
+	if (!dead)
+		reset_rear_view(); //turn off rear view if set - NOTE: make sure this happens before we pause demo recording!!
 
 	if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
 		Newdemo_state = ND_STATE_PAUSED;
@@ -681,8 +683,7 @@ window_event_result start_endlevel_sequence()
 		return window_event_result::ignored;
 	}
 
-	if (Player_dead_state != player_dead_state::no ||
-		(ConsoleObject->flags & OF_SHOULD_BE_DEAD))
+	if (dead)
 		return window_event_result::ignored;				//don't start if dead!
 	con_puts(CON_NORMAL, "You have escaped the mine!");
 
