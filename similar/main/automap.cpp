@@ -418,11 +418,6 @@ xrange<game_marker_index> get_game_marker_range(const game_mode_flags game_mode,
 }
 #endif
 
-# define automap_draw_line g3_draw_line
-#if DXX_USE_OGL
-#define DrawMarkerNumber(C,a,b,c,d)	DrawMarkerNumber(a,b,c,d)
-#endif
-
 // -------------------------------------------------------------
 
 namespace {
@@ -494,6 +489,7 @@ static void DrawMarkerNumber(grs_canvas &canvas, const automap &am, const game_m
 	static constexpr enumerated_array<uint_fast8_t, 9, player_marker_index> NumOfPoints = {{{3, 5, 4, 3, 5, 5, 2, 5, 4}}};
 
 	const auto color = (gmi == MarkerState.HighlightMarker ? am.white_63 : am.blue_48);
+	const g3_draw_line_context text_line_context{canvas, color};
 	const auto scale_x = Matrix_scale.x;
 	const auto scale_y = Matrix_scale.y;
 	range_for (const auto &i, unchecked_partial_range(sArray[pmi], NumOfPoints[pmi]))
@@ -512,7 +508,7 @@ static void DrawMarkerNumber(grs_canvas &canvas, const automap &am, const game_m
 		g3_code_point(ToPoint);
 		g3_project_point(FromPoint);
 		g3_project_point(ToPoint);
-		automap_draw_line(canvas, FromPoint, ToPoint, color);
+		g3_draw_line(text_line_context, FromPoint, ToPoint);
 	}
 }
 
@@ -640,31 +636,31 @@ void automap_clear_visited(d_level_unique_automap_state &LevelUniqueAutomapState
 
 namespace {
 
-static void draw_player(grs_canvas &canvas, const object_base &obj, const uint8_t color)
+static void draw_player(const g3_draw_line_context &context, const object_base &obj)
 {
 	// Draw Console player -- shaped like a ellipse with an arrow.
 	auto sphere_point = g3_rotate_point(obj.pos);
 	const auto obj_size = obj.size;
-	g3_draw_sphere(canvas, sphere_point, obj_size, color);
+	g3_draw_sphere(context.canvas, sphere_point, obj_size, context.color);
 
 	// Draw shaft of arrow
 	const auto &&head_pos = vm_vec_scale_add(obj.pos, obj.orient.fvec, obj_size * 2);
 	{
 	auto &&arrow_point = g3_rotate_point(vm_vec_scale_add(obj.pos, obj.orient.fvec, obj_size * 3));
-	automap_draw_line(canvas, sphere_point, arrow_point, color);
+	g3_draw_line(context, sphere_point, arrow_point);
 
 	// Draw right head of arrow
 	{
 		const auto &&rhead_pos = vm_vec_scale_add(head_pos, obj.orient.rvec, obj_size);
 		auto head_point = g3_rotate_point(rhead_pos);
-		automap_draw_line(canvas, arrow_point, head_point, color);
+		g3_draw_line(context, arrow_point, head_point);
 	}
 
 	// Draw left head of arrow
 	{
 		const auto &&lhead_pos = vm_vec_scale_add(head_pos, obj.orient.rvec, -obj_size);
 		auto head_point = g3_rotate_point(lhead_pos);
-		automap_draw_line(canvas, arrow_point, head_point, color);
+		g3_draw_line(context, arrow_point, head_point);
 	}
 	}
 
@@ -672,7 +668,7 @@ static void draw_player(grs_canvas &canvas, const object_base &obj, const uint8_
 	{
 		const auto &&arrow_pos = vm_vec_scale_add(obj.pos, obj.orient.uvec, obj_size * 2);
 	auto arrow_point = g3_rotate_point(arrow_pos);
-		automap_draw_line(canvas, sphere_point, arrow_point, color);
+		g3_draw_line(context, sphere_point, arrow_point);
 	}
 }
 
@@ -875,7 +871,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 	// Draw player...
 	const auto &self_ship_rgb = player_rgb[get_player_or_team_color(Player_num)];
 	const auto closest_color = BM_XRGB(self_ship_rgb.r, self_ship_rgb.g, self_ship_rgb.b);
-	draw_player(canvas, vcobjptr(get_local_player().objnum), closest_color);
+	draw_player(g3_draw_line_context{canvas, closest_color}, vcobjptr(get_local_player().objnum));
 
 #if defined(DXX_BUILD_DESCENT_II)
 	DrawMarkers(vcobjptr, canvas, am);
@@ -897,7 +893,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 				if (objp.type == OBJ_PLAYER)
 				{
 					const auto &other_ship_rgb = player_rgb[get_player_or_team_color(i)];
-					draw_player(canvas, objp, BM_XRGB(other_ship_rgb.r, other_ship_rgb.g, other_ship_rgb.b));
+					draw_player(g3_draw_line_context{canvas, BM_XRGB(other_ship_rgb.r, other_ship_rgb.g, other_ship_rgb.b)}, objp);
 				}
 			}
 		}
@@ -1277,9 +1273,7 @@ namespace {
 
 void draw_all_edges(automap &am)
 {
-#if !DXX_USE_OGL
-	grs_canvas &canvas = am.automap_view;
-#endif
+	auto &canvas = am.automap_view;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	int j;
@@ -1326,7 +1320,7 @@ void draw_all_edges(automap &am)
 					const uint8_t color = (e->flags & EF_NO_FADE)
 						? e->color
 						: gr_fade_table[(gr_fade_level{8})][e->color];
-					g3_draw_line(canvas, Segment_points[e->verts[0]], Segment_points[e->verts[1]], color);
+					g3_draw_line(g3_draw_line_context{canvas, color}, Segment_points[e->verts[0]], Segment_points[e->verts[1]]);
 				} 	else {
 					am.drawingListBright[nbright++] = e;
 				}
@@ -1357,7 +1351,7 @@ void draw_all_edges(automap &am)
 		const auto color = (e->flags & EF_NO_FADE)
 			? e->color
 			: gr_fade_table[static_cast<gr_fade_level>(f2i((F1_0 - fixdiv(dist, am.farthest_dist)) * 31))][e->color];	
-		g3_draw_line(canvas, *p1, *p2, color);
+		g3_draw_line(g3_draw_line_context{canvas, color}, *p1, *p2);
 	}
 }
 

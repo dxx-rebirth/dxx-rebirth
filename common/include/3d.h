@@ -275,6 +275,19 @@ void g3_draw_rod_tmap(grs_canvas &, grs_bitmap &bitmap, const g3s_point &bot_poi
 //returns 1 if off screen, 0 if drew
 void g3_draw_bitmap(grs_canvas &, const vms_vector &pos, fix width, fix height, grs_bitmap &bm);
 
+class g3_draw_line_context
+{
+public:
+	grs_canvas &canvas;
+	const color_palette_index color;
+	g3_draw_line_context(grs_canvas &canvas, color_palette_index color) :
+		canvas(canvas), color(color)
+	{
+	}
+	g3_draw_line_context(const g3_draw_line_context &) = delete;
+	g3_draw_line_context &operator=(const g3_draw_line_context &) = delete;
+};
+
 //specifies 2d drawing routines to use instead of defaults.  Passing
 //NULL for either or both restores defaults
 #if DXX_USE_OGL
@@ -303,9 +316,8 @@ public:
 			return type != t;
 		}
 };
-#define g3_draw_line(C,P0,P1,c)	g3_draw_line(P0,P1,c)
 #else
-void g3_draw_line(grs_canvas &, cg3s_point &p0, cg3s_point &p1, uint8_t color, temporary_points_t &);
+void g3_draw_line(const g3_draw_line_context &, cg3s_point &p0, cg3s_point &p1, temporary_points_t &);
 constexpr std::integral_constant<std::size_t, 100> MAX_POINTS_IN_POLY{};
 
 using tmap_drawer_type = void (*)(grs_canvas &, const grs_bitmap &bm, uint_fast32_t nv, const g3s_point *const *vertlist);
@@ -314,7 +326,7 @@ using tmap_drawer_type = void (*)(grs_canvas &, const grs_bitmap &bm, uint_fast3
 //	(ie, avoids cracking) edge/delta computation.
 void gr_upoly_tmap(grs_canvas &, uint_fast32_t nverts, const std::array<fix, MAX_POINTS_IN_POLY * 2> &vert, uint8_t color);
 #endif
-void g3_draw_line(grs_canvas &canvas, cg3s_point &p0, cg3s_point &p1, uint8_t color);
+void g3_draw_line(const g3_draw_line_context &context, cg3s_point &p0, cg3s_point &p1);
 
 void g3_set_special_render(tmap_drawer_type tmap_drawer);
 

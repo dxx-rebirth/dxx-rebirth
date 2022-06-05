@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <type_traits>
 
 #include "3d.h"
 #include "dxxerror.h"
@@ -93,14 +94,19 @@ static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const in
 	uvl_list1[2].u = (i+1)*f1_0/4;   uvl_list1[2].v = (j)*f1_0/4;
 
 	g3_check_and_draw_tmap(canvas, pointlist, uvl_list1, lrgb_list1, *terrain_bm);
-	if (terrain_outline) {
+	std::aligned_union<0, g3_draw_line_context>::type outline_context;
+	static_assert(std::is_trivially_destructible<g3_draw_line_context>::value);
+	const auto draw_terrain_outline = terrain_outline;
+	if (draw_terrain_outline)
+	{
+		const uint8_t color = BM_XRGB(31, 0, 0);
 #if !DXX_USE_OGL
 		const int lsave = Lighting_on;
 		Lighting_on=0;
 #endif
-		const uint8_t color = BM_XRGB(31, 0, 0);
-		g3_draw_line(canvas, *pointlist[0],*pointlist[1], color);
-		g3_draw_line(canvas, *pointlist[2],*pointlist[0], color);
+		auto context = new(&outline_context) g3_draw_line_context(canvas, color);
+		g3_draw_line(*context, *pointlist[0], *pointlist[1]);
+		g3_draw_line(*context, *pointlist[2], *pointlist[0]);
 #if !DXX_USE_OGL
 		Lighting_on=lsave;
 #endif
@@ -119,15 +125,16 @@ static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const in
 	uvl_list2[2].u = (i+1)*f1_0/4;   uvl_list2[2].v = (j)*f1_0/4;
 
 	g3_check_and_draw_tmap(canvas, pointlist, uvl_list2, lrgb_list2, *terrain_bm);
-	if (terrain_outline) {
+	if (draw_terrain_outline)
+	{
 #if !DXX_USE_OGL
 		const int lsave = Lighting_on;
 		Lighting_on=0;
 #endif
-		const uint8_t color = BM_XRGB(31, 0, 0);
-		g3_draw_line(canvas, *pointlist[0],*pointlist[1], color);
-		g3_draw_line(canvas, *pointlist[1],*pointlist[2], color);
-		g3_draw_line(canvas, *pointlist[2],*pointlist[0], color);
+		auto &context = *reinterpret_cast<g3_draw_line_context *>(&outline_context);
+		g3_draw_line(context, *pointlist[0], *pointlist[1]);
+		g3_draw_line(context, *pointlist[1], *pointlist[2]);
+		g3_draw_line(context, *pointlist[2], *pointlist[0]);
 #if !DXX_USE_OGL
 		Lighting_on=lsave;
 #endif

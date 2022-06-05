@@ -140,18 +140,13 @@ int toggle_outline_mode(void)
 #endif
 
 #ifndef NDEBUG
-#if DXX_USE_OGL
-#define draw_outline(C,a,b)	draw_outline(a,b)
-#endif
 namespace {
-static void draw_outline(grs_canvas &canvas, const unsigned nverts, cg3s_point *const *const pointlist)
+static void draw_outline(const g3_draw_line_context &context, const unsigned nverts, cg3s_point *const *const pointlist)
 {
-	const uint8_t color = BM_XRGB(63, 63, 63);
-
 	const unsigned e = nverts - 1;
 	range_for (const unsigned i, xrange(e))
-		g3_draw_line(canvas, *pointlist[i], *pointlist[i + 1], color);
-	g3_draw_line(canvas, *pointlist[e], *pointlist[0], color);
+		g3_draw_line(context, *pointlist[i], *pointlist[i + 1]);
+	g3_draw_line(context, *pointlist[e], *pointlist[0]);
 }
 }
 #endif
@@ -371,7 +366,12 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const si
 		gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal); // revert any transparency / blending setting back to normal
 
 #ifndef NDEBUG
-	if (Outline_mode) draw_outline(canvas, nv, &pointlist[0]);
+	if (Outline_mode)
+	{
+		const uint8_t color = BM_XRGB(63, 63, 63);
+		g3_draw_line_context context{canvas, color};
+		draw_outline(context, nv, &pointlist[0]);
+	}
 #endif
 }
 }
@@ -814,7 +814,7 @@ static void outline_seg_side(grs_canvas &canvas, const shared_segment &seg, cons
 
 		const uint8_t color = BM_XRGB(0, 63, 0);
 		auto &sv = Side_to_verts[_side];
-		g3_draw_line(canvas, Segment_points[verts[sv[edge]]], Segment_points[verts[sv[next_side_vertex(edge)]]], color);
+		g3_draw_line(g3_draw_line_context{canvas, color}, Segment_points[verts[sv[edge]]], Segment_points[verts[sv[next_side_vertex(edge)]]]);
 
 		//draw a little cross at the current vert
 

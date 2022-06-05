@@ -104,18 +104,13 @@ static void draw_seg_objects(grs_canvas &canvas, const unique_segment &seg)
 	}
 }
 
-#if DXX_USE_OGL
-#define draw_line(C,P0,P1,c)	draw_line(P0,P1,c)
-#define draw_segment(C,S,c)	draw_segment(S,c)
-#define draw_listed_segments(C,S,c)	draw_listed_segments(S,c)
-#endif
-static void draw_line(grs_canvas &canvas, const vertnum_t pnum0, const vertnum_t pnum1, const color_palette_index color)
+static void draw_line(const g3_draw_line_context &context, const vertnum_t pnum0, const vertnum_t pnum1)
 {
-	g3_draw_line(canvas, Segment_points[pnum0], Segment_points[pnum1], color);
+	g3_draw_line(context, Segment_points[pnum0], Segment_points[pnum1]);
 }
 
 // ----------------------------------------------------------------------------
-static void draw_segment(grs_canvas &canvas, const shared_segment &seg, const color_palette_index color)
+static void draw_segment(const g3_draw_line_context &context, const shared_segment &seg)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -127,16 +122,16 @@ static void draw_segment(grs_canvas &canvas, const shared_segment &seg, const co
 	if (!rotate_list(vcvertptr, svp).uand)
 	{		//all off screen?
 		for (const uint8_t i : xrange(4u))
-			draw_line(canvas, svp[(segment_relative_vertnum{i})], svp[(segment_relative_vertnum{static_cast<uint8_t>(i + 4)})], color);
+			draw_line(context, svp[(segment_relative_vertnum{i})], svp[(segment_relative_vertnum{static_cast<uint8_t>(i + 4)})]);
 
 		for (const uint8_t i : xrange(3u))
 		{
-			draw_line(canvas, svp[(segment_relative_vertnum{i})], svp[(segment_relative_vertnum{static_cast<uint8_t>(i + 1)})], color);
-			draw_line(canvas, svp[(segment_relative_vertnum{static_cast<uint8_t>(i + 4)})], svp[(segment_relative_vertnum{static_cast<uint8_t>(i + 4 + 1)})], color);
+			draw_line(context, svp[(segment_relative_vertnum{i})], svp[(segment_relative_vertnum{static_cast<uint8_t>(i + 1)})]);
+			draw_line(context, svp[(segment_relative_vertnum{static_cast<uint8_t>(i + 4)})], svp[(segment_relative_vertnum{static_cast<uint8_t>(i + 4 + 1)})]);
 		}
 
-		draw_line(canvas, svp[segment_relative_vertnum::_0], svp[segment_relative_vertnum::_3], color);
-		draw_line(canvas, svp[segment_relative_vertnum::_4], svp[segment_relative_vertnum::_7], color);
+		draw_line(context, svp[segment_relative_vertnum::_0], svp[segment_relative_vertnum::_3]);
+		draw_line(context, svp[segment_relative_vertnum::_4], svp[segment_relative_vertnum::_7]);
 	}
 }
 
@@ -194,8 +189,9 @@ static void draw_seg_side(const shared_segment &seg, const sidenum_t side, const
 	if (!rotate_list(vcvertptr, svp).uand)
 	{		//all off screen?
 		auto &stv = Side_to_verts[side];
+		g3_draw_line_context context{*grd_curcanv, color};
 		for (const auto i : MAX_VERTICES_PER_SIDE)
-			draw_line(*grd_curcanv, svp[stv[i]], svp[stv[next_side_vertex(i)]], color);
+			draw_line(context, svp[stv[i]], svp[stv[next_side_vertex(i)]]);
 	}
 }
 
@@ -208,7 +204,7 @@ static void draw_side_edge(const shared_segment &seg, const sidenum_t side, cons
 	if (!rotate_list(vcvertptr, svp).uand)		//on screen?
 	{
 		auto &stv = Side_to_verts[side];
-		draw_line(*grd_curcanv, svp[stv[edge]], svp[stv[next_side_vertex(edge)]], color);
+		draw_line(g3_draw_line_context{*grd_curcanv, color}, svp[stv[edge]], svp[stv[next_side_vertex(edge)]]);
 	}
 }
 
@@ -405,7 +401,7 @@ static void draw_trigger_side(const shared_segment &seg, const sidenum_t side, c
 	{		//all off screen?
 		// Draw diagonals
 		auto &stv = Side_to_verts[side];
-		draw_line(*grd_curcanv, svp[stv[side_relative_vertnum::_0]], svp[stv[side_relative_vertnum::_2]], color);
+		draw_line(g3_draw_line_context{*grd_curcanv, color}, svp[stv[side_relative_vertnum::_0]], svp[stv[side_relative_vertnum::_2]]);
 	}
 }
 
@@ -419,9 +415,10 @@ static void draw_wall_side(const shared_segment &seg, const sidenum_t side, cons
 	if (!rotate_list(vcvertptr, svp).uand)
 	{		//all off screen?
 		// Draw diagonals
+		g3_draw_line_context context{*grd_curcanv, color};
 		auto &stv = Side_to_verts[side];
-		draw_line(*grd_curcanv, svp[stv[side_relative_vertnum::_0]], svp[stv[side_relative_vertnum::_2]], color);
-		draw_line(*grd_curcanv, svp[stv[side_relative_vertnum::_1]], svp[stv[side_relative_vertnum::_3]], color);
+		draw_line(context, svp[stv[side_relative_vertnum::_0]], svp[stv[side_relative_vertnum::_2]]);
+		draw_line(context, svp[stv[side_relative_vertnum::_1]], svp[stv[side_relative_vertnum::_3]]);
 	}
 }
 
@@ -505,11 +502,12 @@ static void draw_mine_edges(int automap_flag)
 
 	for (type=ET_NOTUSED;type>=ET_FACING;type--) {
 		const auto color = edge_colors[type];
+		g3_draw_line_context context{*grd_curcanv, color};
 		for (i=0;i<n_used;i++) {
 			e = &edge_list[used_list[i]];
 			if (e->type == type)
 				if ((!automap_flag) || (e->face_count == 1))
-					draw_line(*grd_curcanv, e->v0, e->v1, color);
+					draw_line(context, e->v0, e->v1);
 		}
 	}
 }
@@ -574,36 +572,41 @@ static void draw_mine_all(int automap_flag)
 
 }
 
-static void draw_listed_segments(grs_canvas &canvas, count_segment_array_t &s, const uint8_t color)
+static void draw_listed_segments(g3_draw_line_context &context, count_segment_array_t &s)
 {
 	range_for (const auto &ss, s)
 	{
 		const auto &&segp = vcsegptr(ss);
 		if (segp->segnum != segment_none)
-			draw_segment(canvas, segp, color);
+			draw_segment(context, segp);
 	}
 }
 
 static void draw_selected_segments(void)
 {
-	draw_listed_segments(*grd_curcanv, Selected_segs, SELECT_COLOR);
+	g3_draw_line_context context{*grd_curcanv, SELECT_COLOR};
+	draw_listed_segments(context, Selected_segs);
 }
 
 static void draw_found_segments(void)
 {
-	draw_listed_segments(*grd_curcanv, Found_segs, FOUND_COLOR);
+	g3_draw_line_context context{*grd_curcanv, FOUND_COLOR};
+	draw_listed_segments(context, Found_segs);
 }
 
 static void draw_warning_segments(void)
 {
-	draw_listed_segments(*grd_curcanv, Warning_segs, WARNING_COLOR);
+	g3_draw_line_context context{*grd_curcanv, WARNING_COLOR};
+	draw_listed_segments(context, Warning_segs);
 }
 
 static void draw_group_segments(void)
 {
-	if (current_group > -1) {
-		draw_listed_segments(*grd_curcanv, GroupList[current_group].segments, GROUP_COLOR);
-		}
+	if (current_group > -1)
+	{
+		g3_draw_line_context context{*grd_curcanv, GROUP_COLOR};
+		draw_listed_segments(context, GroupList[current_group].segments);
+	}
 }
 
 
@@ -630,7 +633,8 @@ static void draw_special_segments(void)
 					continue;
 			}
 			const auto color = gr_find_closest_color(r, g, b);
-			draw_segment(*grd_curcanv, segp, color);
+			g3_draw_line_context context{*grd_curcanv, color};
+			draw_segment(context, segp);
 		}
 	}
 }
@@ -732,24 +736,25 @@ static void draw_coordinate_axes(void)
 	rotate_list(vcvertptr, Axes_verts);
 
 	const color_palette_index color = AXIS_COLOR;
+	g3_draw_line_context context{*grd_curcanv, color};
 
-	draw_line(*grd_curcanv, Axes_verts[0], Axes_verts[1], color);
-	draw_line(*grd_curcanv, Axes_verts[0], Axes_verts[2], color);
-	draw_line(*grd_curcanv, Axes_verts[0], Axes_verts[3], color);
+	draw_line(context, Axes_verts[0], Axes_verts[1]);
+	draw_line(context, Axes_verts[0], Axes_verts[2]);
+	draw_line(context, Axes_verts[0], Axes_verts[3]);
 
 	// draw the letter X
-	draw_line(*grd_curcanv, Axes_verts[4], Axes_verts[5], color);
-	draw_line(*grd_curcanv, Axes_verts[6], Axes_verts[7], color);
+	draw_line(context, Axes_verts[4], Axes_verts[5]);
+	draw_line(context, Axes_verts[6], Axes_verts[7]);
 
 	// draw the letter Y
-	draw_line(*grd_curcanv, Axes_verts[8], Axes_verts[9], color);
-	draw_line(*grd_curcanv, Axes_verts[8], Axes_verts[10], color);
-	draw_line(*grd_curcanv, Axes_verts[8], Axes_verts[11], color);
+	draw_line(context, Axes_verts[8], Axes_verts[9]);
+	draw_line(context, Axes_verts[8], Axes_verts[10]);
+	draw_line(context, Axes_verts[8], Axes_verts[11]);
 
 	// draw the letter Z
-	draw_line(*grd_curcanv, Axes_verts[12], Axes_verts[13], color);
-	draw_line(*grd_curcanv, Axes_verts[13], Axes_verts[14], color);
-	draw_line(*grd_curcanv, Axes_verts[14], Axes_verts[15], color);
+	draw_line(context, Axes_verts[12], Axes_verts[13]);
+	draw_line(context, Axes_verts[13], Axes_verts[14]);
+	draw_line(context, Axes_verts[14], Axes_verts[15]);
 
 	range_for (auto &i, Axes_verts)
 		free_vert(i);
@@ -792,18 +797,18 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,const vmsegptridx_t min
 		// Highlight group segment and side.
 		if (current_group > -1)
 		if (Groupsegp[current_group]) {
-			draw_segment(*grd_curcanv, vcsegptr(Groupsegp[current_group]), GROUPSEG_COLOR);
+			draw_segment(g3_draw_line_context{*grd_curcanv, GROUPSEG_COLOR}, vcsegptr(Groupsegp[current_group]));
 			draw_seg_side(vcsegptr(Groupsegp[current_group]), Groupside[current_group], GROUPSIDE_COLOR);
 		}
 
 		// Highlight marked segment and side.
 		if (Markedsegp) {
-			draw_segment(*grd_curcanv, Markedsegp, MARKEDSEG_COLOR);
+			draw_segment(g3_draw_line_context{*grd_curcanv, MARKEDSEG_COLOR}, Markedsegp);
 			draw_seg_side(Markedsegp,Markedside, MARKEDSIDE_COLOR);
 		}
 
 		// Highlight current segment and current side.
-		draw_segment(*grd_curcanv, Cursegp, CURSEG_COLOR);
+		draw_segment(g3_draw_line_context{*grd_curcanv, CURSEG_COLOR}, Cursegp);
 
 		draw_seg_side(Cursegp,Curside, CURSIDE_COLOR);
 		draw_side_edge(Cursegp,Curside,Curedge, CUREDGE_COLOR);
