@@ -198,6 +198,7 @@ struct DiskSoundHeader
 
 namespace dsx {
 namespace {
+static void piggy_bitmap_page_out_all();
 #if defined(DXX_BUILD_DESCENT_II)
 #define D1_MAX_TMAP_NUM 1630 // 1621 in descent.pig Mac registered
 
@@ -1303,7 +1304,7 @@ void piggy_read_sounds(void)
 }
 #endif
 
-void piggy_bitmap_page_in( bitmap_index bitmap )
+void piggy_bitmap_page_in(GameBitmaps_array &GameBitmaps, const bitmap_index bitmap)
 {
 	grs_bitmap * bmp;
 	int i,org_i;
@@ -1463,11 +1464,10 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 //@@                    Error( "Error modifying selector base in piggy.c\n" );
 //@@    }
 //@@#endif
-
-}
 }
 
-namespace dsx {
+namespace {
+
 void piggy_bitmap_page_out_all()
 {
 	int i;
@@ -1486,6 +1486,7 @@ void piggy_bitmap_page_out_all()
 	}
 
 }
+
 }
 
 void piggy_load_level_data()
@@ -1494,7 +1495,6 @@ void piggy_load_level_data()
 	paging_touch_all(Vclip);
 }
 
-namespace dsx {
 namespace {
 #if defined(DXX_BUILD_DESCENT_II)
 #if DXX_USE_EDITOR
