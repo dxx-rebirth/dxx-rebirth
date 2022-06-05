@@ -89,7 +89,7 @@ namespace dsx {
 namespace {
 
 static void obj_detach_all(object_array &Objects, object_base &parent);
-static void obj_detach_one(object_array &Objects, object &sub);
+static objnum_t obj_detach_one(object_array &Objects, object &sub);
 
 static int is_proximity_bomb_or_any_smart_mine(const weapon_id_type id)
 {
@@ -2376,40 +2376,79 @@ void obj_attach(object_array &Objects, const vmobjptridx_t parent, const vmobjpt
 namespace {
 
 //detaches one object
-static void obj_detach_one(object_array &Objects, object &sub)
+static objnum_t obj_detach_one(object_array &Objects, object &sub)
 {
 	Assert(sub.flags & OF_ATTACHED);
 	Assert(sub.ctype.expl_info.attach_parent != object_none);
 
-	const auto &&parent_objp = Objects.vcptr(sub.ctype.expl_info.attach_parent);
-	if (parent_objp->type == OBJ_NONE || parent_objp->attached_obj == object_none)
+	/* Check for the impossible case that the parent does not exist, or does
+	 * not have any attached children.
+	 */
+	if (const auto &parent_objp = *Objects.vcptr(sub.ctype.expl_info.attach_parent); parent_objp.type == OBJ_NONE || parent_objp.attached_obj == object_none)
 	{
 		sub.flags &= ~OF_ATTACHED;
-		return;
+		return object_none;
 	}
 
+	/* If this is not the last sub-object in the list */
 	if (sub.ctype.expl_info.next_attach != object_none)
 	{
+		/* Find the prev pointer of the next object */
 		auto &a = Objects.vmptr(sub.ctype.expl_info.next_attach)->ctype.expl_info.prev_attach;
+		/* Check that sub->next->prev is `sub` */
 		assert(Objects.vcptr(a) == &sub);
+		/* Change the next object's prev pointer to point to `sub`'s
+		 * predecessor.  This is one half of the work required to remove `sub`
+		 * from the chain of sub-objects.  The other half is handled below.
+		 */
 		a = sub.ctype.expl_info.prev_attach;
 	}
 
+	/* If `sub` is the first sub-object in the chain, then `use_prev_attach` is
+	 * false and the update should target the parent object.
+	 *
+	 * If `sub` is not the first sub-object in the chain, then
+	 * `use_prev_attach` is true and the update should target the previous
+	 * object in the chain.
+	 */
 	const auto use_prev_attach = (sub.ctype.expl_info.prev_attach != object_none);
+	/* If `use_prev_attach` is true, set `o` to the previous object and change
+	 * `sub->prev` to object_none so that a future call will set
+	 * `use_prev_attach` to false.
+	 *
+	 * If `use_prev_attach` is false, set `o` to the parent object.
+	 */
 	auto &o = *Objects.vmptr(use_prev_attach ? std::exchange(sub.ctype.expl_info.prev_attach, object_none) : sub.ctype.expl_info.attach_parent);
+	/* If `use_prev_attach` is true, then update the `next` reference in the
+	 * previous object.  This is the second half of removing `sub` from a chain
+	 * of objects.
+	 *
+	 * If `use_prev_attach` is false, update `attached_obj` on the parent
+	 * object, so that the parent has no attached objects.  This assumes that
+	 * `use_prev_attach` is false if and only if `sub` is the first child of
+	 * the parent object.  If `sub` is not the first child, then `sub` should
+	 * have a back pointer (and thus `use_prev_attach` would be true) referring
+	 * to a previous child, which may or may not be the first child.
+	 */
 	auto &update_attach = use_prev_attach ? o.ctype.expl_info.next_attach : o.attached_obj;
+	/* Assert that the link that will be overwritten points to `sub`.  If the
+	 * link is from parent to child, then failure means that sub was not the
+	 * first child of the parent.  If the link is from previous to next, then
+	 * failure means that sub pointed back to an element that did not point
+	 * forward to sub.
+	 */
 	assert(Objects.vcptr(update_attach) == &sub);
-	update_attach = sub.ctype.expl_info.next_attach;
-
-	sub.ctype.expl_info.next_attach = object_none;
 	sub.flags &= ~OF_ATTACHED;
+	const auto next_attach = std::exchange(sub.ctype.expl_info.next_attach, object_none);
+	update_attach = next_attach;
+	return next_attach;
 }
 
-//dettaches all objects from this object
+//detaches all objects from this object
 static void obj_detach_all(object_array &Objects, object_base &parent)
 {
-	while (parent.attached_obj != object_none)
-		obj_detach_one(Objects, Objects.vmptr(parent.attached_obj));
+	for (auto attached_obj = parent.attached_obj; attached_obj != object_none;)
+		attached_obj = obj_detach_one(Objects, Objects.vmptr(attached_obj));
 }
 
 }
