@@ -634,7 +634,6 @@ void validate_all_paths(void)
 					{
 						Int3();	//	This path is bogus!  Who corrupted it!  Danger! Danger!
 									//	Contact Mike, he caused this mess.
-						//force_dump_ai_objects_all("Error in validate_all_paths");
 						aip.path_length=0;	//	This allows people to resume without harm...
 					}
 			}
@@ -682,7 +681,6 @@ void create_path_to_segment(const vmobjptridx_t objp, const robot_info &robptr, 
 		Point_segs_free_ptr += aip->path_length;
 		if (Point_segs_free_ptr - Point_segs + MAX_PATH_LENGTH*2 > MAX_POINT_SEGS) {
 			//Int3();	//	Contact Mike: This is stupid.  Should call maybe_ai_garbage_collect before the add.
-			//force_dump_ai_objects_all("Error in create_path_to_player");
 			ai_reset_all_paths();
 			return;
 		}
@@ -794,7 +792,6 @@ void create_path_to_station(const vmobjptridx_t objp, const robot_info &robptr, 
 		Point_segs_free_ptr += aip->path_length;
 		if (Point_segs_free_ptr - Point_segs + MAX_PATH_LENGTH*2 > MAX_POINT_SEGS) {
 			//Int3();	//	Contact Mike: Stupid.
-			//force_dump_ai_objects_all("Error in create_path_to_station");
 			ai_reset_all_paths();
 			return;
 		}
@@ -842,7 +839,6 @@ void create_n_segment_path(const vmobjptridx_t objp, const robot_info &robptr, u
 	Point_segs_free_ptr += aip->path_length;
 	if (Point_segs_free_ptr - Point_segs + MAX_PATH_LENGTH*2 > MAX_POINT_SEGS) {
 		//Int3();	//	Contact Mike: This is curious, though not deadly. /eip++;g
-		//force_dump_ai_objects_all("Error in crete_n_segment_path 2");
 		ai_reset_all_paths();
 	}
 
@@ -939,7 +935,6 @@ static void create_path(const vmobjptridx_t objp, const robot_info &robptr)
 		Point_segs_free_ptr += aip->path_length;
 		if (Point_segs_free_ptr - Point_segs + MAX_PATH_LENGTH*2 > MAX_POINT_SEGS) {
 			//Int3();	//	Contact Mike: This is curious, though not deadly. /eip++;g
-			//force_dump_ai_objects_all("Error in create_path");
 			ai_reset_all_paths();
 		}
 		aip->PATH_DIR = 1;		//	Initialize to moving forward.
@@ -1374,9 +1369,6 @@ void ai_path_garbage_collect()
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
 	auto &vmobjptridx = Objects.vmptridx;
-#ifndef NDEBUG
-	force_dump_ai_objects_all("***** Start ai_path_garbage_collect *****");
-#endif
 
 	Last_tick_garbage_collected = d_tick_count;
 
@@ -1421,8 +1413,6 @@ void ai_path_garbage_collect()
 
 #ifndef NDEBUG
 	{
-	force_dump_ai_objects_all("***** Finish ai_path_garbage_collect *****");
-
 	auto &vcobjptr = Objects.vcptr;
 	range_for (const auto &&objp, vcobjptr)
 	{

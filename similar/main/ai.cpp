@@ -329,34 +329,6 @@ static void move_toward_vector_component_add(fix vms_vector::*const p, const vms
 #define	AIS_MAX	8
 #define	AIE_MAX	4
 
-#ifndef NDEBUG
-#if PARALLAX
-#if defined(DXX_BUILD_DESCENT_I)
-// Index into this array with ailp->mode
-constexpr char mode_text[][16] = {
-	"STILL",
-	"WANDER",
-	"FOL_PATH",
-	"CHASE_OBJ",
-	"RUN_FROM",
-	"HIDE",
-	"FOL_PATH2",
-	"OPEN_DOOR",
-};
-
-//	Index into this array with aip->behavior
-constexpr std::array<char[9], 6> behavior_text{
-	"STILL   ",
-	"NORMAL  ",
-	"HIDE    ",
-	"RUN_FROM",
-	"FOLPATH ",
-	"STATION "
-};
-#endif
-#endif
-#endif
-
 // Current state indicates where the robot current is, or has just done.
 // Transition table between states for an AI object.
 // First dimension is trigger event.
@@ -4588,87 +4560,6 @@ static void set_player_awareness_all(fvmobjptr &vmobjptr, fvcsegptridx &vcsegptr
 
 }
 
-}
-
-#ifndef NDEBUG
-#if PARALLAX
-int Ai_dump_enable = 0;
-
-FILE *Ai_dump_file = NULL;
-
-char Ai_error_message[128] = "";
-
-// ----------------------------------------------------------------------------------
-namespace dsx {
-namespace {
-static void dump_ai_objects_all()
-{
-#if defined(DXX_BUILD_DESCENT_I)
-	int	total=0;
-	time_t	time_of_day;
-
-	time_of_day = time(NULL);
-
-	if (!Ai_dump_enable)
-		return;
-
-	if (Ai_dump_file == NULL)
-		Ai_dump_file = fopen("ai.out","a+t");
-
-	fprintf(Ai_dump_file, "\nnum: seg distance __mode__ behav.    [velx vely velz] (Tick = %i)\n", d_tick_count);
-	fprintf(Ai_dump_file, "Date & Time = %s\n", ctime(&time_of_day));
-
-	if (Ai_error_message[0])
-		fprintf(Ai_dump_file, "Error message: %s\n", Ai_error_message);
-
-	range_for (const auto &&objp, vcobjptridx)
-	{
-		ai_static	*aip = &objp->ctype.ai_info;
-		ai_local		*ailp = &objp->ctype.ai_info.ail;
-		fix			dist_to_player;
-
-		dist_to_player = vm_vec_dist(objp->pos, ConsoleObject->pos);
-
-		if (objp->control_source == object::control_type::ai)
-		{
-			fprintf(Ai_dump_file, "%3i: %3i %8.3f %8s %8s [%3i %4i]\n",
-				static_cast<uint16_t>(objp), objp->segnum, f2fl(dist_to_player), mode_text[ailp->mode], behavior_text[aip->behavior-0x80], aip->hide_index, aip->path_length);
-			if (aip->path_length)
-				total += aip->path_length;
-		}
-	}
-
-	fprintf(Ai_dump_file, "Total path length = %4i\n", total);
-#endif
-}
-}
-}
-
-void force_dump_ai_objects_all(const char *msg)
-{
-	int tsave;
-
-	tsave = Ai_dump_enable;
-
-	Ai_dump_enable = 1;
-
-	sprintf(Ai_error_message, "%s\n", msg);
-	dump_ai_objects_all();
-	Ai_error_message[0] = 0;
-
-	Ai_dump_enable = tsave;
-}
-
-// ----------------------------------------------------------------------------------
-#else
-static inline void dump_ai_objects_all()
-{
-}
-#endif
-#endif
-
-namespace dsx {
-
 // ----------------------------------------------------------------------------------
 // Do things which need to get done for all AI objects each frame.
 // This includes:
@@ -4677,9 +4568,6 @@ void do_ai_frame_all(void)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-#ifndef NDEBUG
-	dump_ai_objects_all();
-#endif
 
 	set_player_awareness_all(vmobjptr, vcsegptridx, LevelUniqueRobotAwarenessState);
 
