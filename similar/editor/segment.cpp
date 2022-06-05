@@ -486,83 +486,90 @@ static void compress_segments(void)
 	if (Highest_segment_index == LevelSharedSegmentState.Num_segments - 1)
 		return;
 
-	segnum_t		hole,seg;
-	seg = Highest_segment_index;
-
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vmwallptr = Walls.vmptr;
-	for (hole=0; hole < seg; hole++)
-		if (Segments[hole].segnum == segment_none) {
+	auto holep = Segments.vmptridx.begin();
+	auto segp = Segments.vmptridx.end();
+	for (; holep != segp; ++holep)
+	{
+		const vmsegptridx_t hole = *holep;
+		const msmusegment suhole = hole;
+		if (suhole.s.segnum != segment_none)
+			continue;
 			// found an unused segment which is a hole if a used segment follows (not necessarily immediately) it.
-			for ( ; (seg>hole) && (Segments[seg].segnum == segment_none); seg--)
-				;
-
-			if (seg > hole) {
+		for (; holep != --segp && segp.base()->segnum == segment_none;)
+		{
+		}
+		if (holep == segp)
+			break;
 				// Ok, hole is the index of a hole, seg is the index of a segment which follows it.
 				// Copy seg into hole, update pointers to it, update Cursegp, Markedsegp if necessary.
-				Segments[hole] = Segments[seg];
-				Segments[seg].segnum = segment_none;
-
-				if (Cursegp == &Segments[seg])
-					Cursegp = imsegptridx(hole);
-
-				if (Markedsegp == &Segments[seg])
-					Markedsegp = imsegptridx(hole);
-
+		const vmsegptridx_t seg = *segp;
+		const msmusegment suseg = seg;
+		suhole.s = std::move(suseg.s);
+		suhole.u = std::move(suseg.u);
+		/* As a debugging measure, reset the expired segment to default values.
+		 * Nothing should access this segment until it is reallocated and
+		 * reinitialized, so any values should be safe to write here.
+		 */
+		suseg.u = {};
+		suseg.s = {};
+		suseg.s.segnum = segment_none;
+		if (Cursegp == seg)
+			Cursegp = hole;
+		if (Markedsegp == seg)
+			Markedsegp = hole;
 				// Fix segments in groups
-				range_for (auto &g, partial_range(GroupList, num_groups))
-					g.segments.replace(seg, hole);
+		for (auto &g : partial_range(GroupList, num_groups))
+			g.segments.replace(seg, hole);
 
 				// Fix walls
-				range_for (const auto &&w, vmwallptr)
-					if (w->segnum == seg)
-						w->segnum = hole;
+		for (wall &w : vmwallptr)
+			if (auto &s = w.segnum; s == seg)
+				s = hole;
 
 				// Fix fuelcenters, robotcens, and triggers... added 2/1/95 -Yuan
-				range_for (auto &f, partial_range(LevelUniqueFuelcenterState.Station, LevelUniqueFuelcenterState.Num_fuelcenters))
-					if (f.segnum == seg)
-						f.segnum = hole;
+		for (auto &f : partial_range(LevelUniqueFuelcenterState.Station, LevelUniqueFuelcenterState.Num_fuelcenters))
+			if (auto &s = f.segnum; s == seg)
+				s = hole;
 
-				range_for (auto &f, partial_range(RobotCenters, LevelSharedRobotcenterState.Num_robot_centers))
-					if (f.segnum == seg)
-						f.segnum = hole;
+		for (auto &r : partial_range(RobotCenters, LevelSharedRobotcenterState.Num_robot_centers))
+			if (auto &s = r.segnum; s == seg)
+				s = hole;
 
-				auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
-				auto &vmtrgptr = Triggers.vmptr;
-				range_for (const auto vt, vmtrgptr)
+		auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
+		auto &vmtrgptr = Triggers.vmptr;
+		for (trigger &t : vmtrgptr)
+		{
+			for (auto &l : partial_range(t.seg, t.num_links))
+				if (l == seg)
+					l = hole;
+		}
+
+		for (auto &s : suhole.s.children)
+		{
+			if (IS_CHILD(s))
+			{
+				// Find out on what side the segment connection to the former seg is on in *csegp.
+				shared_segment &ss = vmsegptr(s);
+				for (auto &t : ss.children)
 				{
-					auto &t = *vt;
-					range_for (auto &l, partial_range(t.seg, t.num_links))
-						if (l == seg)
-							l = hole;
-				}
-
-				auto &sp = *vmsegptr(hole);
-				range_for (auto &s, sp.children)
-				{
-					if (IS_CHILD(s)) {
-						// Find out on what side the segment connection to the former seg is on in *csegp.
-						range_for (auto &t, vmsegptr(s)->children)
-						{
-							if (t == seg) {
-								t = hole;					// It used to be connected to seg, so make it connected to hole
-							}
-						}	// end for t
-					}	// end if
-				}	// end for s
+					if (t == seg) {
+						t = hole;					// It used to be connected to seg, so make it connected to hole
+						break;
+					}
+				}	// end for t
+			}	// end if
+		}	// end for s
 
 				//Update object segment pointers
-				range_for (const auto objp, objects_in(sp, vmobjptridx, vmsegptr))
-				{
-					Assert(objp->segnum == seg);
-					objp->segnum = hole;
-				}
-
-				seg--;
-
-			}	// end if (seg > hole)
-		}	// end if
+		for (object_base &objp : objects_in(suhole.u, vmobjptridx, vmsegptr))
+		{
+			assert(objp.segnum == seg);
+			objp.segnum = hole;
+		}
+	}
 
 	Segments.set_count(LevelSharedSegmentState.Num_segments);
 	med_create_new_segment_from_cursegp();

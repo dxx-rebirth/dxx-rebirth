@@ -75,6 +75,10 @@ public:
 		this->T::operator++();
 		return result;
 	}
+	self_return_iterator &operator--()
+	{
+		return static_cast<self_return_iterator &>(this->T::operator--());
+	}
 	/* Since `T` is inherited privately, the base class `operator==` and
 	 * `operator!=` cannot implicitly convert `rhs` to `T`.  Define
 	 * comparison operators to perform the conversion explicitly.

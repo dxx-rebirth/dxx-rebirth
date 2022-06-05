@@ -454,6 +454,14 @@ protected:
 			++ m_idx;
 		return *this;
 	}
+	idx &operator--()
+	{
+		if constexpr (std::is_enum<index_type>::value)
+			m_idx = static_cast<index_type>(static_cast<typename std::underlying_type<index_type>::type>(m_idx) - 1u);
+		else
+			-- m_idx;
+		return *this;
+	}
 };
 
 template <typename managed_type>
@@ -655,6 +663,11 @@ protected:
 		++ m_ptr;
 		return *this;
 	}
+	ptr &operator--()
+	{
+		-- m_ptr;
+		return *this;
+	}
 	ptr(const allow_none_construction *) :
 		m_ptr(nullptr)
 	{
@@ -809,6 +822,12 @@ protected:
 	{
 		vptr_type::operator++();
 		vidx_type::operator++();
+		return *this;
+	}
+	ptridx &operator--()
+	{
+		vptr_type::operator--();
+		vidx_type::operator--();
 		return *this;
 	}
 	template <typename rpolicy>
