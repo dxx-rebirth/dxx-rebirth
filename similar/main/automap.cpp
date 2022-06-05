@@ -1466,9 +1466,11 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 
 		switch( seg->special )	{
 			case segment_special::nothing:
-			case segment_special::repaircen:
 			case segment_special::goal_blue:
 			case segment_special::goal_red:
+				break;
+			case segment_special::repaircen:
+				color = BM_XRGB(0, 0, 26);
 				break;
 			case segment_special::fuelcen:
 			color = BM_XRGB( 29, 27, 13 );
