@@ -335,7 +335,7 @@ static void verify_object(const d_vclip_array &Vclip, object &obj, const savegam
 		//Assert(obj == Player);
 
 		if (&obj == ConsoleObject)
-			init_player_object();
+			init_player_object(LevelSharedPolygonModelState, obj);
 		else
 			if (obj.render_type == RT_POLYOBJ)	//recover from Matt's pof file matchup bug
 				obj.rtype.pobj_info.model_num = Player_ship->model_num;

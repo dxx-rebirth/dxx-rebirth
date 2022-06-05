@@ -206,7 +206,7 @@ static inline void editor_slew_init()
 	auto &vmobjptr = Objects.vmptr;
 	Viewer = ConsoleObject;
 	slew_init(vmobjptr(ConsoleObject));
-	init_player_object();
+	init_player_object(LevelSharedPolygonModelState, *ConsoleObject);
 }
 
 int DropIntoDebugger()

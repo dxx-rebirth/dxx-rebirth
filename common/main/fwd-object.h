@@ -16,6 +16,7 @@
 #include "fwd-segment.h"
 #include "fwd-window.h"
 #include "fwd-valptridx.h"
+#include "polyobj.h"
 #include <array>
 
 struct bitmap_index;
@@ -219,7 +220,7 @@ window_event_result endlevel_move_all_objects();
 void object_goto_next_viewer();
 
 // make object0 the player, setting all relevant fields
-void init_player_object();
+void init_player_object(const d_level_shared_polygon_model_state &LevelSharedPolygonModelState, object_base &console);
 
 // check if object is in object->segnum.  if not, check the adjacent
 // segs.  if not any of these, returns false, else sets obj->segnum &

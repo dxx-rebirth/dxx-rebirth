@@ -867,20 +867,17 @@ void reset_player_object(object_base &ConsoleObject)
 }
 
 //make object0 the player, setting all relevant fields
-void init_player_object()
+void init_player_object(const d_level_shared_polygon_model_state &LevelSharedPolygonModelState, object_base &console)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptr = Objects.vmptr;
-	const auto &&console = vmobjptr(ConsoleObject);
-	console->type = OBJ_PLAYER;
+	console.type = OBJ_PLAYER;
 	set_player_id(console, 0);					//no sub-types for player
-	console->signature = object_signature_t{0};
+	console.signature = object_signature_t{0};
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	console->size = Polygon_models[Player_ship->model_num].rad;
-	console->control_source = object::control_type::slew;			//default is player slewing
-	console->movement_source = object::movement_type::physics;		//change this sometime
-	console->lifeleft = IMMORTAL_TIME;
-	console->attached_obj = object_none;
+	console.size = Polygon_models[Player_ship->model_num].rad;
+	console.control_source = object::control_type::slew;			//default is player slewing
+	console.movement_source = object::movement_type::physics;		//change this sometime
+	console.lifeleft = IMMORTAL_TIME;
+	console.attached_obj = object_none;
 	reset_player_object(console);
 }
 
@@ -902,7 +899,7 @@ void init_objects()
 
 	Viewer = ConsoleObject = &Objects.front();
 
-	init_player_object();
+	init_player_object(LevelSharedPolygonModelState, *ConsoleObject);
 	obj_link_unchecked(Objects.vmptr, Objects.vmptridx(ConsoleObject), Segments.vmptridx(segment_first));	//put in the world in segment 0
 	LevelUniqueObjectState.num_objects = 1;						//just the player
 	Objects.set_count(1);
