@@ -4312,6 +4312,17 @@ class DXXCommon(LazyObjectConstructor):
 			{
 				'command' : env.Override(kwargs).subst(env['LINKCOM'], target=[o], source=source),
 				'directory' : directory,
+				# The `'file'` key is mandatory.
+				# `clang/lib/Tooling/JSONCompilationDatabase.cpp` will reject a
+				# database that has any entries which lack a `'file'` key.  The
+				# `'file'` key does not make sense for an output executable, so
+				# invent a plausible looking string.  This should be safe,
+				# since clang cannot usefully target an output executable, so
+				# it should never need to interpret this `'file'` value.  This
+				# dictionary entry is only present as a convenience to other
+				# tools which may want to use the compilation database to know
+				# the link flags.
+				'file' : str(list(map(repr, source))),
 				'output' : str(o),
 				}
 			for o in objects])
