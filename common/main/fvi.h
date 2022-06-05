@@ -25,13 +25,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include "dsx-ns.h"
 #include "vecmat.h"
 
-#ifdef __cplusplus
-#include "dxxsconf.h"
 #include "fwd-object.h"
 #include "pack.h"
 #include "countarray.h"
+#include "fwd-segment.h"
+#include "objnum.h"
 
 //return values for find_vector_intersection() - what did we hit?
 enum class fvi_hit_type : uint8_t
@@ -110,6 +111,4 @@ fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const cscusegment seg, side
 
 //Returns true if the object is through any walls
 sphere_intersects_wall_result sphere_intersects_wall(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr, const vms_vector &pnt, vcsegptridx_t seg, fix rad);
-#endif
-
 #endif
