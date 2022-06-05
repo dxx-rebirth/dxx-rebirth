@@ -383,7 +383,7 @@ void med_extract_matrix_from_segment(const shared_segment &sp, vms_matrix &rotma
 // ------------------------------------------------------------------------------------------
 //	Given a rotation matrix *rotmat which describes the orientation of a segment
 //	and a side destside, return the rotation matrix which describes the orientation for the side.
-void update_matrix_based_on_side(vms_matrix &rotmat,int destside)
+void update_matrix_based_on_side(vms_matrix &rotmat, const sidenum_t destside)
 {
         vms_angvec      rotvec;
 
@@ -1021,12 +1021,9 @@ int med_rotate_segment(const vmsegptridx_t seg, const vms_matrix &rotmat)
 
 	//	Save tmap_num on each side to restore after call to med_propagate_tmaps_to_segments and _back_side
 	//	which will change the tmap nums.
-	std::array<texture1_value, MAX_SIDES_PER_SEGMENT> side_tmaps;
-	range_for (const auto &&z, zip(side_tmaps, seg->unique_segment::sides))
-	{
-		const unique_side &us = std::get<1>(z);
-		std::get<0>(z) = us.tmap_num;
-	}
+	per_side_array<texture1_value> side_tmaps;
+	for (auto &&[tm, us] : zip(side_tmaps, seg->unique_segment::sides))
+		tm = us.tmap_num;
 
 	auto back_side = Side_opposite[find_connect_side(destseg, seg)];
 
@@ -1368,7 +1365,7 @@ void med_create_new_segment(const vms_vector &scale)
 		child = segment_none;
 		ss.wall_num = wall_none;
 		create_walls_on_side(vcvertptr, sp, static_cast<sidenum_t>(s));
-		us.tmap_num = build_texture1_value(s + 1);					// assign some stupid old tmap to this side.
+		us.tmap_num = build_texture1_value(1);					// assign some stupid old tmap to this side.
 		us.tmap_num2 = texture2_value::None;
 	}
 

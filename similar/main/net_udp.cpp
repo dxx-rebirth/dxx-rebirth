@@ -5734,7 +5734,7 @@ static void net_udp_send_smash_lights (const playernum_t pnum)
 	range_for (const auto &&segp, vmsegptridx)
 	{
 		unique_segment &useg = segp;
-		if (const auto light_subtracted = useg.light_subtracted)
+		if (const auto light_subtracted = useg.light_subtracted; light_subtracted != sidemask_t{})
 			multi_send_light_specific(pnum, segp, light_subtracted);
 	}
  }

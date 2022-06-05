@@ -198,10 +198,10 @@ extern int BigWindowSwitch;
 void compute_slide_segs();
 
 // turn flickering off (because light has been turned off)
-void disable_flicker(d_flickering_light_state &fls, vmsegidx_t segnum, unsigned sidenum);
+void disable_flicker(d_flickering_light_state &fls, vmsegidx_t segnum, sidenum_t sidenum);
 
 // turn flickering off (because light has been turned on)
-void enable_flicker(d_flickering_light_state &fls, vmsegidx_t segnum, unsigned sidenum);
+void enable_flicker(d_flickering_light_state &fls, vmsegidx_t segnum, sidenum_t sidenum);
 
 /*
  * reads a flickering_light structure from a PHYSFS_File

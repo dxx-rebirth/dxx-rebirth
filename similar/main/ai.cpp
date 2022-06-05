@@ -2122,7 +2122,7 @@ static imobjptridx_t create_gated_robot(const d_vclip_array &Vclip, fvcobjptr &v
 #endif
 
 	object_create_explosion(segp, object_pos, i2f(10), VCLIP_MORPHING_ROBOT );
-	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, segp, 0, object_pos, 0 , F1_0);
+	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, segp, sidenum_t::WLEFT, object_pos, 0 , F1_0);
 	morph_start(LevelUniqueMorphObjectState, LevelSharedPolygonModelState, objp);
 
 	BossUniqueState.Last_gate_time = GameTime64;
@@ -2356,7 +2356,7 @@ static void teleport_boss(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx,
 	const auto boss_dir = vm_vec_sub(target_pos, objp->pos);
 	vm_vector_2_matrix(objp->orient, boss_dir, nullptr, nullptr);
 
-	digi_link_sound_to_pos(Vclip[VCLIP_MORPHING_ROBOT].sound_num, rand_segp, 0, objp->pos, 0, F1_0);
+	digi_link_sound_to_pos(Vclip[VCLIP_MORPHING_ROBOT].sound_num, rand_segp, sidenum_t::WLEFT, objp->pos, 0, F1_0);
 	digi_kill_sound_linked_to_object( objp);
 
 	//	After a teleport, boss can fire right away.

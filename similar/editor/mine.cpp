@@ -421,16 +421,16 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 	mine_editor.newsegment_size     =   sizeof(segment);
 
 	// Next 3 vars added 10/07 by JAS
-	mine_editor.Curside             =   Curside;
+	mine_editor.Curside             =   underlying_value(Curside);
 	if (Markedsegp)
 		mine_editor.Markedsegp      =   Markedsegp;
 	else									  
 		mine_editor.Markedsegp       =   -1;
-	mine_editor.Markedside          =   Markedside;
+	mine_editor.Markedside          =   underlying_value(Markedside);
 	range_for (const int i, xrange(10u))
 		mine_editor.Groupsegp[i]	  =	vmsegptridx(Groupsegp[i]);
 	range_for (const int i, xrange(10u))
-		mine_editor.Groupside[i]     =	Groupside[i];
+		mine_editor.Groupside[i] = underlying_value(Groupside[i]);
 
 	if (editor_offset != PHYSFS_tell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );

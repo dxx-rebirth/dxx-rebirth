@@ -407,7 +407,7 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 #elif defined(DXX_BUILD_DESCENT_II)
 			obj_rw->ctype.ai_info.flags[4] = obj.ctype.ai_info.SUB_FLAGS;
 #endif
-			obj_rw->ctype.ai_info.flags[5] = obj.ctype.ai_info.GOALSIDE;
+			obj_rw->ctype.ai_info.flags[5] = underlying_value(obj.ctype.ai_info.GOALSIDE);
 			obj_rw->ctype.ai_info.flags[6] = obj.ctype.ai_info.CLOAKED;
 			obj_rw->ctype.ai_info.flags[7] = obj.ctype.ai_info.SKIP_AI_COUNT;
 			obj_rw->ctype.ai_info.flags[8] = obj.ctype.ai_info.REMOTE_OWNER;
@@ -1643,7 +1643,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 			: (light_subtracted_original = {}, MAX_SEGMENTS_ORIGINAL);
 		auto j = light_subtracted.begin();
 		for (const unique_segment &useg : r)
-			*j++ = useg.light_subtracted;
+			*j++ = underlying_value(useg.light_subtracted);
 		PHYSFS_write(fp, light_subtracted.data(), sizeof(uint8_t), count);
 	}
 	PHYSFS_write(fp, &First_secret_visit, sizeof(First_secret_visit), 1);
@@ -1806,8 +1806,8 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	int current_level;
 	char id[5];
 	fix tmptime32 = 0;
-	std::array<std::array<texture1_value, MAX_SIDES_PER_SEGMENT>, MAX_SEGMENTS> TempTmapNum;
-	std::array<std::array<texture2_value, MAX_SIDES_PER_SEGMENT>, MAX_SEGMENTS> TempTmapNum2;
+	std::array<per_side_array<texture1_value>, MAX_SEGMENTS> TempTmapNum;
+	std::array<per_side_array<texture2_value>, MAX_SEGMENTS> TempTmapNum2;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	static constexpr std::integral_constant<secret_restore, secret_restore::none> secret{};
@@ -2378,7 +2378,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		apply_all_changed_light(LevelSharedDestructibleLightState, Segments.vmptridx);
 	} else {
 		for (unique_segment &useg : vmsegptr)
-			useg.light_subtracted = 0;
+			useg.light_subtracted = {};
 	}
 
 	if (secret == secret_restore::none)

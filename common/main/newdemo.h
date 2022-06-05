@@ -90,9 +90,9 @@ void newdemo_record_morph_frame(vcobjptridx_t);
 void newdemo_record_sound_3d_once( int soundno, sound_pan angle, int volume );
 extern void newdemo_record_sound_once( int soundno );
 extern void newdemo_record_sound( int soundno );
-void newdemo_record_wall_hit_process( segnum_t segnum, int side, int damage, int playernum );
+void newdemo_record_wall_hit_process(segnum_t segnum, sidenum_t side, int damage, int playernum);
 extern void newdemo_record_player_stats(int shields, int energy, int score );
-void newdemo_record_wall_toggle(segnum_t segnum, int side );
+void newdemo_record_wall_toggle(segnum_t segnum, sidenum_t side);
 extern void newdemo_record_control_center_destroyed();
 extern void newdemo_record_hud_message(const char *s);
 extern void newdemo_record_palette_effect(short r, short g, short b);
@@ -105,14 +105,12 @@ extern void newdemo_record_homing_distance(fix);
 extern void newdemo_record_letterbox(void);
 extern void newdemo_record_rearview(void);
 extern void newdemo_record_restore_cockpit(void);
-#ifdef dsx
-void newdemo_record_wall_set_tmap_num1(vcsegidx_t seg, unsigned side, vcsegidx_t cseg, unsigned cside, texture1_value tmap);
-void newdemo_record_wall_set_tmap_num2(vcsegidx_t seg, unsigned side, vcsegidx_t cseg, unsigned cside, texture2_value tmap);
-#endif
 extern void newdemo_record_multi_cloak(int pnum);
 extern void newdemo_record_multi_decloak(int pnum);
 #ifdef dsx
 namespace dsx {
+void newdemo_record_wall_set_tmap_num1(vcsegidx_t seg, sidenum_t side, vcsegidx_t cseg, sidenum_t cside, texture1_value tmap);
+void newdemo_record_wall_set_tmap_num2(vcsegidx_t seg, sidenum_t side, vcsegidx_t cseg, sidenum_t cside, texture2_value tmap);
 extern void newdemo_set_new_level(int level_num);
 }
 #endif
@@ -127,7 +125,7 @@ extern void newdemo_record_player_score(int score);
 void newdemo_record_multi_score(unsigned pnum, int score);
 extern void newdemo_record_primary_ammo(int new_ammo);
 extern void newdemo_record_secondary_ammo(int new_ammo);
-void newdemo_record_door_opening(segnum_t segnum, int side);
+void newdemo_record_door_opening(segnum_t segnum, sidenum_t side);
 
 #ifdef dsx
 void newdemo_record_laser_level(laser_level old_level, laser_level new_level);
@@ -138,7 +136,7 @@ void newdemo_record_cloaking_wall(wallnum_t front_wall_num, wallnum_t back_wall_
 void newdemo_record_guided_start();
 void newdemo_record_guided_end();
 void newdemo_record_secret_exit_blown(int truth);
-void newdemo_record_trigger(vcsegidx_t segnum, unsigned side, objnum_t objnum, unsigned shot);
+void newdemo_record_trigger(vcsegidx_t segnum, sidenum_t side, objnum_t objnum, unsigned shot);
 #endif
 }
 #endif

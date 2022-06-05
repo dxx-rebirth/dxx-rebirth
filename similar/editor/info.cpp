@@ -251,9 +251,9 @@ static void info_display_default(grs_canvas &canvas, const grs_font &cv_font)
 	//--------------- Current_side_number -------------
 
 	{
-		gr_uprintf(canvas, cv_font, 0, 48, "Cursegp/side: %3hu/%1d", static_cast<segnum_t>(Cursegp), Curside);
 		unique_segment &useg = *Cursegp;
 		auto &uside = useg.sides[Curside];
+		gr_uprintf(canvas, cv_font, 0, 48, "Cursegp/side: %3hu/%1d", Cursegp.get_unchecked_index(), underlying_value(Curside));
 		gr_uprintf(canvas, cv_font, 0, 128, " tmap1,2,o: %3d/%3dx%1u", get_texture_index(uside.tmap_num), get_texture_index(uside.tmap_num2), static_cast<unsigned>(get_texture_rotation_low(uside.tmap_num2)));
 	}
 

@@ -113,7 +113,7 @@ struct v29_trigger : prohibit_void_ptr<v29_trigger>
 	sbyte   link_num;
 	short   num_links;
 	std::array<segnum_t, MAX_WALLS_PER_LINK>   seg;
-	std::array<short, MAX_WALLS_PER_LINK>   side;
+	std::array<sidenum_t, MAX_WALLS_PER_LINK>  side;
 };
 
 struct v30_trigger : prohibit_void_ptr<v30_trigger>
@@ -123,7 +123,7 @@ struct v30_trigger : prohibit_void_ptr<v30_trigger>
 	sbyte   pad;                        //keep alignment
 	fix     value;
 	std::array<segnum_t, MAX_WALLS_PER_LINK>   seg;
-	std::array<short, MAX_WALLS_PER_LINK>   side;
+	std::array<sidenum_t, MAX_WALLS_PER_LINK>   side;
 };
 #endif
 

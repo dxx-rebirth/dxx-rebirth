@@ -132,7 +132,7 @@ struct shared_side
 	std::array<vms_vector, 2> normals;  // 2 normals, if quadrilateral, both the same.
 };
 
-enum sidenum_t : uint8_t
+enum class sidenum_t : uint8_t
 {
 	WLEFT = 0,
 	WTOP = 1,
@@ -155,6 +155,11 @@ enum class sidemask_t : uint8_t
 static constexpr uint8_t operator&(const sidemask_t a, const sidemask_t b)
 {
 	return static_cast<uint8_t>(a) & static_cast<uint8_t>(b);
+}
+
+static constexpr sidemask_t operator~(const sidemask_t a)
+{
+	return static_cast<sidemask_t>(~static_cast<uint8_t>(a));
 }
 
 static constexpr sidemask_t &operator|=(sidemask_t &a, const sidemask_t b)
@@ -267,7 +272,7 @@ struct shared_segment
 	segnum_t   segnum;     // segment number, not sure what it means
 	short   group;      // group number to which the segment belongs.
 #endif
-	enumerated_array<segnum_t, static_cast<std::size_t>(MAX_SIDES_PER_SEGMENT.value), sidenum_t> children;    // indices of 6 children segments, front, left, top, right, bottom, back
+	per_side_array<segnum_t> children;    // indices of 6 children segments, front, left, top, right, bottom, back
 	enumerated_array<vertnum_t, MAX_VERTICES_PER_SEGMENT, segment_relative_vertnum> verts;    // vertex ids of 4 front and 4 back vertices
 	segment_special special;    // what type of center this is
 	materialization_center_number matcen_num; // which center segment is associated with.
@@ -275,19 +280,19 @@ struct shared_segment
 	/* if DXX_BUILD_DESCENT_II */
 	uint8_t s2_flags;
 	/* endif */
-	enumerated_array<shared_side, static_cast<std::size_t>(MAX_SIDES_PER_SEGMENT.value), sidenum_t> sides;
+	per_side_array<shared_side> sides;
 };
 
 struct unique_segment
 {
 	objnum_t objects;    // pointer to objects in this segment
 	//      If bit n (1 << n) is set, then side #n in segment has had light subtracted from original (editor-computed) value.
-	uint8_t light_subtracted;
+	sidemask_t light_subtracted;
 	/* if DXX_BUILD_DESCENT_II */
 	sidemask_t slide_textures;
 	/* endif */
 	fix     static_light;
-	enumerated_array<unique_side, static_cast<std::size_t>(MAX_SIDES_PER_SEGMENT.value), sidenum_t> sides;
+	per_side_array<unique_side> sides;
 };
 
 struct segment : unique_segment, shared_segment
@@ -390,7 +395,7 @@ struct delta_light : prohibit_void_ptr<delta_light>
 // Light at segnum:sidenum casts light on count sides beginning at index (in array Delta_lights)
 struct dl_index {
 	segnum_t   segnum;
-	uint8_t   sidenum;
+	sidenum_t  sidenum;
 	uint8_t count;
 	uint16_t index;
 	bool operator<(const dl_index &rhs) const

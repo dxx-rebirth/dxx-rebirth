@@ -1478,7 +1478,7 @@ void do_explosion_sequence(object &obj)
 
 		auto &robptr = Robot_info[get_robot_id(del_obj)];
 		if (robptr.exp2_sound_num > -1)
-			digi_link_sound_to_pos(robptr.exp2_sound_num, vmsegptridx(del_obj->segnum), 0, spawn_pos, 0, F1_0);
+			digi_link_sound_to_pos(robptr.exp2_sound_num, vmsegptridx(del_obj->segnum), sidenum_t::WLEFT, spawn_pos, 0, F1_0);
 			//PLAY_SOUND_3D( Robot_info[del_obj->id].exp2_sound_num, spawn_pos, del_obj->segnum  );
 
 		obj.ctype.expl_info.spawn_time = -1;
@@ -1700,7 +1700,7 @@ void expl_wall_read_n_swap(fvmwallptr &vmwallptr, PHYSFS_File *const fp, const i
 			auto &w = *wp;
 			if (w.segnum != dseg)
 				continue;
-			if (w.sidenum != d.sidenum)
+			if (underlying_value(w.sidenum) != d.sidenum)
 				continue;
 			w.flags |= wall_flag::exploding;
 			w.explode_time_elapsed = d.time;
@@ -1722,7 +1722,7 @@ void expl_wall_write(fvcwallptr &vcwallptr, PHYSFS_File *const fp)
 			continue;
 		disk_expl_wall d;
 		d.segnum = e.segnum;
-		d.sidenum = e.sidenum;
+		d.sidenum = underlying_value(e.sidenum);
 		d.time = e.explode_time_elapsed;
 		PHYSFS_write(fp, &d, sizeof(d), 1);
 	}

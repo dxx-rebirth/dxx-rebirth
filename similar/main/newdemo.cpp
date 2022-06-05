@@ -1276,12 +1276,12 @@ void newdemo_record_kill_sound_linked_to_object(const vcobjptridx_t objp)
 }
 }
 
-void newdemo_record_wall_hit_process( segnum_t segnum, int side, int damage, int playernum )
+void newdemo_record_wall_hit_process(const segnum_t segnum, const sidenum_t side, int damage, int playernum)
 {
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_WALL_HIT_PROCESS );
 	nd_write_int( segnum );
-	nd_write_int( side );
+	nd_write_int(underlying_value(side));
 	nd_write_int( damage );
 	nd_write_int( playernum );
 }
@@ -1306,12 +1306,12 @@ void newdemo_record_secret_exit_blown(int truth)
 	nd_write_int( truth );
 }
 
-void newdemo_record_trigger(const vcsegidx_t segnum, const unsigned side, const objnum_t objnum, const unsigned shot)
+void newdemo_record_trigger(const vcsegidx_t segnum, const sidenum_t side, const objnum_t objnum, const unsigned shot)
 {
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_TRIGGER );
 	nd_write_int( segnum );
-	nd_write_int( side );
+	nd_write_int(underlying_value(side));
 	nd_write_int( objnum );
 	nd_write_int(shot);
 }
@@ -1328,12 +1328,12 @@ void newdemo_record_morph_frame(const vcobjptridx_t obj)
 
 }
 
-void newdemo_record_wall_toggle( segnum_t segnum, int side )
+void newdemo_record_wall_toggle(segnum_t segnum, sidenum_t side)
 {
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_WALL_TOGGLE );
 	nd_write_int( segnum );
-	nd_write_int( side );
+	nd_write_int(underlying_value(side));
 }
 
 void newdemo_record_control_center_destroyed()
@@ -1468,26 +1468,30 @@ void newdemo_record_restore_rearview(void)
 	nd_write_byte(ND_EVENT_RESTORE_REARVIEW);
 }
 
-void newdemo_record_wall_set_tmap_num1(const vcsegidx_t seg, const unsigned side, const vcsegidx_t cseg, const unsigned cside, const texture1_value tmap)
+namespace dsx {
+
+void newdemo_record_wall_set_tmap_num1(const vcsegidx_t seg, const sidenum_t side, const vcsegidx_t cseg, const sidenum_t cside, const texture1_value tmap)
 {
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_WALL_SET_TMAP_NUM1);
 	nd_write_short(seg);
-	nd_write_byte(side);
+	nd_write_byte(underlying_value(side));
 	nd_write_short(cseg);
-	nd_write_byte(cside);
+	nd_write_byte(underlying_value(cside));
 	nd_write_short(static_cast<uint16_t>(tmap));
 }
 
-void newdemo_record_wall_set_tmap_num2(const vcsegidx_t seg, const unsigned side, const vcsegidx_t cseg, const unsigned cside, const texture2_value tmap)
+void newdemo_record_wall_set_tmap_num2(const vcsegidx_t seg, const sidenum_t side, const vcsegidx_t cseg, const sidenum_t cside, const texture2_value tmap)
 {
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_WALL_SET_TMAP_NUM2);
 	nd_write_short(seg);
-	nd_write_byte(side);
+	nd_write_byte(underlying_value(side));
 	nd_write_short(cseg);
-	nd_write_byte(cside);
+	nd_write_byte(underlying_value(cside));
 	nd_write_short(static_cast<uint16_t>(tmap));
+}
+
 }
 
 void newdemo_record_multi_cloak(int pnum)
@@ -1588,12 +1592,12 @@ void newdemo_record_secondary_ammo(int new_ammo)
 	nd_write_short(static_cast<short>(nd_record_v_secondary_ammo = new_ammo));
 }
 
-void newdemo_record_door_opening(segnum_t segnum, int side)
+void newdemo_record_door_opening(segnum_t segnum, sidenum_t side)
 {
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_DOOR_OPENING);
 	nd_write_short(segnum);
-	nd_write_byte(static_cast<int8_t>(side));
+	nd_write_byte(underlying_value(side));
 }
 
 void newdemo_record_laser_level(const laser_level old_level, const laser_level new_level)
@@ -2462,7 +2466,7 @@ static int newdemo_read_frame_information(int rewrite)
 			if (rewrite)
 			{
 				nd_write_int(segnum);
-				nd_write_int(side);
+				nd_write_int(underlying_value(side));
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)

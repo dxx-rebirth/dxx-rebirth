@@ -295,7 +295,7 @@ int med_form_bridge_segment(vmsegptridx_t seg1, sidenum_t side1, vmsegptridx_t s
 //	they are properly updated.
 extern	void med_compress_mine(void);
 
-void update_matrix_based_on_side(vms_matrix &rotmat,int destside);
+void update_matrix_based_on_side(vms_matrix &rotmat, sidenum_t destside);
 
 // Curves stuff.
 

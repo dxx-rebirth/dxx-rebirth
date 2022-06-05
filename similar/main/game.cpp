@@ -2223,7 +2223,7 @@ static void flicker_lights(const d_level_shared_destructible_light_state &LevelS
 }
 
 //returns ptr to flickering light structure, or NULL if can't find
-static std::pair<d_flickering_light_state::Flickering_light_array_t::iterator, d_flickering_light_state::Flickering_light_array_t::iterator> find_flicker(d_flickering_light_state &fls, const vmsegidx_t segnum, const unsigned sidenum)
+static std::pair<d_flickering_light_state::Flickering_light_array_t::iterator, d_flickering_light_state::Flickering_light_array_t::iterator> find_flicker(d_flickering_light_state &fls, const vmsegidx_t segnum, const sidenum_t sidenum)
 {
 	//see if there's already an entry for this seg/side
 	const auto &&pr = partial_range(fls.Flickering_lights, fls.Num_flickering_lights);
@@ -2234,7 +2234,7 @@ static std::pair<d_flickering_light_state::Flickering_light_array_t::iterator, d
 	return {std::find_if(pr.begin(), pe, predicate), pe};
 }
 
-static void update_flicker(d_flickering_light_state &fls, const vmsegidx_t segnum, const unsigned sidenum, const fix timer)
+static void update_flicker(d_flickering_light_state &fls, const vmsegidx_t segnum, const sidenum_t sidenum, const fix timer)
 {
 	const auto &&i = find_flicker(fls, segnum, sidenum);
 	if (i.first != i.second)
@@ -2244,13 +2244,13 @@ static void update_flicker(d_flickering_light_state &fls, const vmsegidx_t segnu
 }
 
 //turn flickering off (because light has been turned off)
-void disable_flicker(d_flickering_light_state &fls, const vmsegidx_t segnum, const unsigned sidenum)
+void disable_flicker(d_flickering_light_state &fls, const vmsegidx_t segnum, const sidenum_t sidenum)
 {
 	update_flicker(fls, segnum, sidenum, flicker_timer_disabled);
 }
 
 //turn flickering off (because light has been turned on)
-void enable_flicker(d_flickering_light_state &fls, const vmsegidx_t segnum, const unsigned sidenum)
+void enable_flicker(d_flickering_light_state &fls, const vmsegidx_t segnum, const sidenum_t sidenum)
 {
 	update_flicker(fls, segnum, sidenum, 0);
 }
@@ -2473,7 +2473,7 @@ void flickering_light_read(flickering_light &fl, PHYSFS_File *fp)
 void flickering_light_write(const flickering_light &fl, PHYSFS_File *fp)
 {
 	PHYSFS_writeSLE16(fp, fl.segnum);
-	PHYSFS_writeSLE16(fp, fl.sidenum);
+	PHYSFS_writeSLE16(fp, underlying_value(fl.sidenum));
 	PHYSFS_writeULE32(fp, fl.mask);
 	PHYSFSX_writeFix(fp, fl.timer);
 	PHYSFSX_writeFix(fp, fl.delay);

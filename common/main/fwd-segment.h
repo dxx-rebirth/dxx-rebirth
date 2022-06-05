@@ -70,7 +70,8 @@ namespace dcx {
 enum class materialization_center_number : uint8_t;
 enum class station_number : uint8_t;
 
-enum sidenum_t : uint8_t;
+enum class sidenum_t : uint8_t;
+enum class sidemask_t : uint8_t;
 
 [[nodiscard]]
 std::optional<sidenum_t> build_sidenum_from_untrusted(uint8_t untrusted);
@@ -140,8 +141,10 @@ struct d_level_shared_vertex_state;
 struct d_level_shared_segment_state;
 struct d_level_unique_segment_state;
 
-extern const enumerated_array<enumerated_array<segment_relative_vertnum, 4, side_relative_vertnum>, static_cast<std::size_t>(MAX_SIDES_PER_SEGMENT.value), sidenum_t>  Side_to_verts;    // Side_to_verts[my_side] is list of vertices forming side my_side.
-extern const enumerated_array<sidenum_t, static_cast<std::size_t>(MAX_SIDES_PER_SEGMENT.value), sidenum_t> Side_opposite;                                // Side_opposite[my_side] returns side opposite cube from my_side.
+template <typename T>
+	using per_side_array = enumerated_array<T, static_cast<std::size_t>(MAX_SIDES_PER_SEGMENT.value), sidenum_t>;
+extern const per_side_array<enumerated_array<segment_relative_vertnum, 4, side_relative_vertnum>>  Side_to_verts; // Side_to_verts[my_side] is list of vertices forming side my_side.
+extern const per_side_array<sidenum_t> Side_opposite; // Side_opposite[my_side] returns side opposite cube from my_side.
 
 void segment_side_wall_tmap_write(PHYSFS_File *fp, const shared_side &sside, const unique_side &uside);
 }

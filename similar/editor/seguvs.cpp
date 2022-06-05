@@ -370,7 +370,7 @@ static void assign_uvs_to_side(fvcvertptr &vcvertptr, const vmsegptridx_t segp, 
 	mag01 = fixmul(mag01, (va == side_relative_vertnum::_0 || va == side_relative_vertnum::_2) ? Stretch_scale_x : Stretch_scale_y);
 
 	if (unlikely(mag01 < F1_0/1024))
-		editor_status_fmt("U, V bogosity in segment #%hu, probably on side #%i.  CLEAN UP YOUR MESS!", segp.get_unchecked_index(), sidenum);
+		editor_status_fmt("U, V bogosity in segment #%hu, probably on side #%i.  CLEAN UP YOUR MESS!", segp.get_unchecked_index(), underlying_value(sidenum));
 	else {
 		struct frvec {
 			vms_vector fvec, rvec;

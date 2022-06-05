@@ -371,12 +371,12 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 			{
 				if (!(player_init_segment_capacity_flag[old_player_idx] & build_sidemask(side)))
 				{
-					con_printf(CON_NORMAL, "Cannot displace player %u at {%i, %i, %i}: not enough room in dimension %u.", plridx, plrobj.pos.x, plrobj.pos.y, plrobj.pos.z, side);
+					con_printf(CON_NORMAL, "Cannot displace player %u at {%i, %i, %i}: not enough room in dimension %u.", plridx, plrobj.pos.x, plrobj.pos.y, plrobj.pos.z, underlying_value(side));
 					continue;
 				}
 				const auto &v = vec_displacement[i];
 				const auto &va = (displacement_direction & (1 << i)) ? v : vm_vec_negated(v);
-				con_printf(CON_NORMAL, "Add displacement of {%i, %i, %i} for dimension %u for player %u.", va.x, va.y, va.z, side, plridx);
+				con_printf(CON_NORMAL, "Add displacement of {%i, %i, %i} for dimension %u for player %u.", va.x, va.y, va.z, underlying_value(side), plridx);
 				++ dimensions;
 				vm_vec_add2(disp, va);
 			}
@@ -892,7 +892,7 @@ void create_player_appearance_effect(const d_vclip_array &Vclip, const object_ba
 
 		const auto sound_num = Vclip[VCLIP_PLAYER_APPEARANCE].sound_num;
 		if (sound_num > -1)
-			digi_link_sound_to_pos(sound_num, seg, 0, effect_obj->pos, 0, F0_5);
+			digi_link_sound_to_pos(sound_num, seg, sidenum_t::WLEFT, effect_obj->pos, 0, F0_5);
 	}
 }
 }

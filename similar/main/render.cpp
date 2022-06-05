@@ -951,11 +951,8 @@ constexpr std::array<
 }
 
 //given an edge, tell what side is on that edge
-static std::optional<sidenum_t> find_seg_side(const shared_segment &seg, const std::array<vertnum_t, 2> &verts, const unsigned notside)
+static std::optional<sidenum_t> find_seg_side(const shared_segment &seg, const std::array<vertnum_t, 2> &verts, const sidenum_t notside)
 {
-	if (notside >= MAX_SIDES_PER_SEGMENT)
-		throw std::logic_error("invalid notside");
-
 	const auto v0 = verts[0];
 	const auto v1 = verts[1];
 
@@ -1041,7 +1038,7 @@ static bool compare_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye
 
 //short the children of segment to render in the correct order
 //returns non-zero if swaps were made
-using sort_child_array_t = std::array<sidenum_t, MAX_SIDES_PER_SEGMENT>;
+using sort_child_array_t = per_side_array<sidenum_t>;
 static void sort_seg_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const vcsegptridx_t seg, const partial_range_t<sort_child_array_t::iterator> &r)
 {
 	//for each child,  compare with other children and see if order matters
@@ -1374,7 +1371,8 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 			//tricky code to look at sides in correct order follows
 
 			sort_child_array_t child_list;		//list of ordered sides to process
-			uint_fast32_t n_children = 0;							//how many sides in child_list
+			const auto child_begin = child_list.begin();
+			auto child_iter = child_begin;
 			for (const auto &&[c, sv] : enumerate(Side_to_verts))
 			{		//build list of sides
 				const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, c);
@@ -1387,14 +1385,14 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 						if (codes_and)
 							continue;
 					}
-					child_list[n_children++] = static_cast<sidenum_t>(c);
+					*child_iter++ = c;
 				}
 			}
-			if (!n_children)
+			if (child_iter == child_begin)
 				continue;
 
 			//now order the sides in some magical way
-			const auto &&child_range = partial_range(child_list, n_children);
+			const auto &&child_range = partial_range_t(child_begin, child_iter);
 			sort_seg_children(vcvertptr, Viewer_eye, seg, child_range);
 			project_list(seg->verts);
 			range_for (const auto siden, child_range)

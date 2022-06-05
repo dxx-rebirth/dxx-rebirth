@@ -594,7 +594,7 @@ static void do_omega_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t parent
 	if ( parent_objp == Viewer )
 		digi_play_sample(flash_sound, F1_0);
 	else
-		digi_link_sound_to_pos(flash_sound, vmsegptridx(weapon_objp->segnum), 0, weapon_objp->pos, 0, F1_0);
+		digi_link_sound_to_pos(flash_sound, vmsegptridx(weapon_objp->segnum), sidenum_t::WLEFT, weapon_objp->pos, 0, F1_0);
 	}
 
 	// -- if ((Last_omega_muzzle_flash_time + F1_0/4 < GameTime) || (Last_omega_muzzle_flash_time > GameTime)) {
@@ -806,7 +806,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 				// Make your own vulcan gun  1/2 as loud.
 				digi_play_sample(weapon_info.flash_sound, weapon_type == weapon_id_type::VULCAN_ID ? (F0_5 / 2) : F0_5);
 			} else {
-				digi_link_sound_to_pos(weapon_info.flash_sound, segnum.absolute_sibling(obj->segnum), 0, obj->pos, 0, F0_5);
+				digi_link_sound_to_pos(weapon_info.flash_sound, segnum.absolute_sibling(obj->segnum), sidenum_t::WLEFT, obj->pos, 0, F0_5);
 			}
 		}
 	}

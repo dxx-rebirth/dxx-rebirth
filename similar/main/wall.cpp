@@ -39,7 +39,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //	Special door on boss level which is locked if not in multiplayer...sorry for this awful solution --MK.
 #define	BOSS_LOCKED_DOOR_LEVEL	7
 #define	BOSS_LOCKED_DOOR_SEG		595
-#define	BOSS_LOCKED_DOOR_SIDE	5
+#define	BOSS_LOCKED_DOOR_SIDE	sidenum_t::WFRONT
 
 namespace dcx {
 unsigned Num_wall_anims;
@@ -478,7 +478,7 @@ void wall_open_door(const vmsegptridx_t seg, const sidenum_t side)
 		d->front_wallnum[0] = seg->shared_segment::sides[side].wall_num;
 	}
 	else
-		con_printf(CON_URGENT, "Illegal Connectside %i in wall_open_door. Trying to hop over. Please check your level!", side);
+		con_printf(CON_URGENT, "Illegal Connectside %i in wall_open_door on segment %hu. Trying to hop over. Please check your level!", underlying_value(side), seg.get_unchecked_index());
 
 	if (Newdemo_state == ND_STATE_RECORDING) {
 		newdemo_record_door_opening(seg, side);
@@ -881,7 +881,7 @@ static bool do_door_open(active_door &d)
 
 		if (seg->shared_segment::sides[side].wall_num == wall_none)
 		{
-			con_printf(CON_URGENT, "Trying to do_door_open on illegal wall %i. Please check your level!",side);
+			con_printf(CON_URGENT, "Trying to do_door_open on illegal wall %i. Please check your level!", underlying_value(side));
 			continue;
 		}
 
@@ -1097,7 +1097,7 @@ namespace {
 
 //	-----------------------------------------------------------------------------
 //	Allowed to open the normally locked special boss door if in multiplayer mode.
-static int special_boss_opening_allowed(segnum_t segnum, int sidenum)
+static int special_boss_opening_allowed(const segnum_t segnum, const sidenum_t sidenum)
 {
 	if (Game_mode & GM_MULTI)
 		return (Current_level_num == BOSS_LOCKED_DOOR_LEVEL) && (segnum == BOSS_LOCKED_DOOR_SEG) && (sidenum == BOSS_LOCKED_DOOR_SIDE);
@@ -1213,14 +1213,14 @@ void wall_toggle(fvmwallptr &vmwallptr, const vmsegptridx_t segp, const sidenum_
 	if (side >= MAX_SIDES_PER_SEGMENT)
 	{
 #ifndef NDEBUG
-		Warning("Can't toggle side %u of segment %d (%u)!\n", side, static_cast<segnum_t>(segp), Highest_segment_index);
+		Warning("Can't toggle side %u of segment %d (%u)!\n", underlying_value(side), segp.get_unchecked_index(), Highest_segment_index);
 #endif
 		return;
 	}
 	const auto wall_num = segp->shared_segment::sides[side].wall_num;
 	if (wall_num == wall_none)
 	{
-		LevelError("Ignoring attempt to toggle wall in segment %hu, side %u: no wall exists there.", segp.get_unchecked_index(), side);
+		LevelError("Ignoring attempt to toggle wall in segment %hu, side %u: no wall exists there.", segp.get_unchecked_index(), underlying_value(side));
 		return;
 	}
 

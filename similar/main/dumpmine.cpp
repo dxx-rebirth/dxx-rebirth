@@ -236,7 +236,7 @@ static void write_exit_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 				if (w->trigger == i)
 				{
 					count2++;
-					PHYSFSX_printf(my_file, "Exit trigger %i is in segment %i, on side %i, bound to wall %hu\n", underlying_value(i), w->segnum, w->sidenum, underlying_value(wallnum_t{w}));
+					PHYSFSX_printf(my_file, "Exit trigger %i is in segment %i, on side %i, bound to wall %hu\n", underlying_value(i), w->segnum, underlying_value(w->sidenum), underlying_value(wallnum_t{w}));
 				}
 			}
 			if (count2 == 0)
@@ -288,7 +288,7 @@ class key_stat
 	const char *const label;
 	unsigned wall_count = 0, powerup_count = 0;
 	segnum_t seg = segment_none;
-	uint8_t side = 0;
+	sidenum_t side{};
 public:
 	key_stat(const char *const p) :
 		label(p)
@@ -299,7 +299,7 @@ public:
 		auto &w = *wpi;
 		if (!(w.keys & key))
 			return;
-		PHYSFSX_printf(fp, "Wall %hu (seg=%i, side=%i) is keyed to the %s key.\n", underlying_value(wallnum_t{wpi}), w.segnum, w.sidenum, label);
+		PHYSFSX_printf(fp, "Wall %hu (seg=%i, side=%i) is keyed to the %s key.\n", underlying_value(wallnum_t{wpi}), w.segnum, underlying_value(w.sidenum), label);
 		if (seg == segment_none)
 		{
 			seg = w.segnum;
@@ -310,7 +310,7 @@ public:
 			const auto &&connect_side = find_connect_side(segments.vcptridx(w.segnum), segments.vcptr(seg));
 			if (connect_side == side)
 				return;
-			warning_printf(fp, "Warning: This door at seg %i, is different than the one at seg %i, side %i", w.segnum, seg, side);
+			warning_printf(fp, "Warning: This door at seg %i, is different than the one at seg %i, side %i", w.segnum, seg, underlying_value(side));
 		}
 		++wall_count;
 	}
@@ -545,7 +545,7 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 	{
 		auto &w = *wp;
 		const auto i = underlying_value(wallnum_t{wp});
-		PHYSFSX_printf(my_file, "Wall %03hu: seg=%3i, side=%2i, linked_wall=%3hu, type=%s, flags=%4x, hps=%3i, trigger=%2i, clip_num=%2i, keys=%2i, state=%i\n", i, w.segnum, w.sidenum, underlying_value(wallnum_t{w.linked_wall}), Wall_names[w.type], underlying_value(w.flags), w.hps >> 16, underlying_value(w.trigger), w.clip_num, underlying_value(w.keys), underlying_value(w.state));
+		PHYSFSX_printf(my_file, "Wall %03hu: seg=%3i, side=%2i, linked_wall=%3hu, type=%s, flags=%4x, hps=%3i, trigger=%2i, clip_num=%2i, keys=%2i, state=%i\n", i, w.segnum, underlying_value(w.sidenum), underlying_value(wallnum_t{w.linked_wall}), Wall_names[w.type], underlying_value(w.flags), w.hps >> 16, underlying_value(w.trigger), w.clip_num, underlying_value(w.keys), underlying_value(w.state));
 
 #if defined(DXX_BUILD_DESCENT_II)
 		if (const auto utw = underlying_value(w.trigger); utw >= Triggers.get_count())
@@ -555,8 +555,8 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 		auto segnum = w.segnum;
 		const auto sidenum = w.sidenum;
 
-		if (Segments[segnum].shared_segment::sides[sidenum].wall_num != wp)
-			err_printf(my_file, "Error: Wall %hu points at segment %i, side %i, but that segment doesn't point back (it's wall_num = %hi)", i, segnum, sidenum, underlying_value(Segments[segnum].shared_segment::sides[sidenum].wall_num));
+		if (const auto actual_wall_num = Segments[segnum].shared_segment::sides[sidenum].wall_num; actual_wall_num != wp)
+			err_printf(my_file, "Error: Wall %hu points at segment %i, side %i, but that segment doesn't point back (it's wall_num = %hi)", i, segnum, underlying_value(sidenum), underlying_value(actual_wall_num));
 	}
 
 	wall_flags = {};
@@ -569,7 +569,7 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 			if (sidep->wall_num != wall_none)
 			{
 				if (auto &wf = wall_flags[sidep->wall_num])
-					err_printf(my_file, "Error: Wall %hu appears in two or more segments, including segment %hu, side %u.", underlying_value(sidep->wall_num), segp.get_unchecked_index(), idx);
+					err_printf(my_file, "Error: Wall %hu appears in two or more segments, including segment %hu, side %u.", underlying_value(sidep->wall_num), segp.get_unchecked_index(), underlying_value(idx));
 				else
 					wf = 1;
 			}
@@ -621,8 +621,8 @@ static void write_trigger_text(PHYSFS_File *my_file)
 			static_cast<uint8_t>(t->type), static_cast<uint8_t>(t->flags), t->value, 0, t->num_links);
 #endif
 
-		for (unsigned j = 0; j < t->num_links; ++j)
-			PHYSFSX_printf(my_file, "[%03i:%i] ", t->seg[j], t->side[j]);
+		for (const auto &&[seg, side] : zip(partial_range(t->seg, t->num_links), t->side))
+			PHYSFSX_printf(my_file, "[%03i:%i] ", seg, underlying_value(side));
 
 		//	Find which wall this trigger is connected to.
 		const auto &&we = vcwallptr.end();
@@ -632,7 +632,7 @@ static void write_trigger_text(PHYSFS_File *my_file)
 		else
 		{
 			const auto &&w = *wi;
-			PHYSFSX_printf(my_file, "Attached to seg:side = %i:%i, wall %hi\n", w->segnum, w->sidenum, static_cast<int16_t>(vcsegptr(w->segnum)->shared_segment::sides[w->sidenum].wall_num));
+			PHYSFSX_printf(my_file, "Attached to seg:side = %i:%i, wall %hi\n", w->segnum, underlying_value(w->sidenum), underlying_value(vcsegptr(w->segnum)->shared_segment::sides[w->sidenum].wall_num));
 		}
 	}
 }

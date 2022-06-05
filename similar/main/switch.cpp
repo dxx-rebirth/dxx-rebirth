@@ -182,7 +182,7 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 				w0p = *uw0p;
 			else
 			{
-				LevelError("trigger %p link %u tried to open segment %hu, side %u which is an invalid wall; ignoring.", std::addressof(t), i, static_cast<segnum_t>(segp), side);
+				LevelError("trigger %p link %u tried to open segment %hu, side %u which is an invalid wall; ignoring.", std::addressof(t), i, static_cast<segnum_t>(segp), underlying_value(side));
 				continue;
 			}
 			auto &wall0 = *w0p;
@@ -639,7 +639,7 @@ extern void v30_trigger_read(v30_trigger *t, PHYSFS_File *fp)
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
 		t->seg[i] = PHYSFSX_readShort(fp);
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
-		t->side[i] = PHYSFSX_readShort(fp);
+		t->side[i] = build_sidenum_from_untrusted(PHYSFSX_readShort(fp)).value_or(sidenum_t::WLEFT);
 }
 
 namespace {
@@ -682,8 +682,7 @@ static void v30_trigger_to_v31_trigger(trigger &t, const v30_trigger &trig)
 	t.seg = trig.seg;
 	for (auto &&[w, r] : zip(t.side, trig.side))
 	{
-		auto s = build_sidenum_from_untrusted(r);
-		w = s.value_or(sidenum_t::WLEFT);
+		w = r;
 	}
 }
 
@@ -844,8 +843,8 @@ void v29_trigger_write(PHYSFS_File *fp, const trigger &rt)
 
 	for (unsigned i = 0; i < MAX_WALLS_PER_LINK; i++)
 		PHYSFS_writeSLE16(fp, t->seg[i]);
-	for (unsigned i = 0; i < MAX_WALLS_PER_LINK; i++)
-		PHYSFS_writeSLE16(fp, t->side[i]);
+	for (const auto i : xrange(MAX_WALLS_PER_LINK))
+		PHYSFS_writeSLE16(fp, underlying_value(t->side[i]));
 }
 }
 
@@ -935,8 +934,8 @@ void v30_trigger_write(PHYSFS_File *fp, const trigger &rt)
 
 	for (unsigned i = 0; i < MAX_WALLS_PER_LINK; i++)
 		PHYSFS_writeSLE16(fp, t->seg[i]);
-	for (unsigned i = 0; i < MAX_WALLS_PER_LINK; i++)
-		PHYSFS_writeSLE16(fp, t->side[i]);
+	for (const auto i : xrange(MAX_WALLS_PER_LINK))
+		PHYSFS_writeSLE16(fp, underlying_value(t->side[i]));
 }
 }
 
@@ -979,7 +978,7 @@ void v31_trigger_write(PHYSFS_File *fp, const trigger &rt)
 
 	for (unsigned i = 0; i < MAX_WALLS_PER_LINK; i++)
 		PHYSFS_writeSLE16(fp, t->seg[i]);
-	for (unsigned i = 0; i < MAX_WALLS_PER_LINK; i++)
-		PHYSFS_writeSLE16(fp, t->side[i]);
+	for (const auto i : xrange(MAX_WALLS_PER_LINK))
+		PHYSFS_writeSLE16(fp, underlying_value(t->side[i]));
 }
 }

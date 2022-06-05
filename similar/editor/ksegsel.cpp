@@ -35,7 +35,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_range.h"
 
 [[nodiscard]]
-static vmsegptridx_t get_any_attached_segment(const vmsegptridx_t curseg_num, const uint_fast32_t skipside)
+static vmsegptridx_t get_any_attached_segment(const vmsegptridx_t curseg_num, const sidenum_t skipside)
 {
 	for (const auto s : MAX_SIDES_PER_SEGMENT)
 	{

@@ -79,7 +79,7 @@ void delta_light_read(delta_light *dl, PHYSFS_File *fp)
 void dl_index_read(dl_index *di, PHYSFS_File *fp)
 {
 	di->segnum = PHYSFSX_readShort(fp);
-	di->sidenum = PHYSFSX_readByte(fp);
+	di->sidenum = build_sidenum_from_untrusted(PHYSFSX_readByte(fp)).value_or(sidenum_t::WLEFT);
 	di->count = PHYSFSX_readByte(fp);
 	di->index = PHYSFSX_readShort(fp);
 }
@@ -96,7 +96,7 @@ void segment2_write(const cscusegment s2, PHYSFS_File *fp)
 void delta_light_write(const delta_light *dl, PHYSFS_File *fp)
 {
 	PHYSFS_writeSLE16(fp, dl->segnum);
-	PHYSFSX_writeU8(fp, dl->sidenum);
+	PHYSFSX_writeU8(fp, underlying_value(dl->sidenum));
 	PHYSFSX_writeU8(fp, 0);
 	PHYSFSX_writeU8(fp, dl->vert_light[side_relative_vertnum::_0]);
 	PHYSFSX_writeU8(fp, dl->vert_light[side_relative_vertnum::_1]);
@@ -107,7 +107,7 @@ void delta_light_write(const delta_light *dl, PHYSFS_File *fp)
 void dl_index_write(const dl_index *di, PHYSFS_File *fp)
 {
 	PHYSFS_writeSLE16(fp, di->segnum);
-	PHYSFSX_writeU8(fp, di->sidenum);
+	PHYSFSX_writeU8(fp, underlying_value(di->sidenum));
 	PHYSFSX_writeU8(fp, di->count);
 	PHYSFS_writeSLE16(fp, di->index);
 }

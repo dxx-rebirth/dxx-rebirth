@@ -1057,7 +1057,7 @@ void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, c
 	if (const auto &&obj = object_create_explosion(robotcen_segp, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT))
 		extract_orient_from_segment(vcvertptr, obj->orient, robotcen_segp);
 	if (Vclip[VCLIP_MORPHING_ROBOT].sound_num > -1)
-		digi_link_sound_to_pos(Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen_segp, 0, cur_object_loc, 0, F1_0);
+		digi_link_sound_to_pos(Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen_segp, sidenum_t::WLEFT, cur_object_loc, 0, F1_0);
 
 	const auto &&obj = create_morph_robot(robotcen_segp, cur_object_loc, type);
 	if (obj == object_none)
@@ -1132,7 +1132,7 @@ void multi_do_boss_teleport(const d_vclip_array &Vclip, const playernum_t pnum, 
 	const auto boss_dir = vm_vec_sub(vcobjptr(vcplayerptr(pnum)->objnum)->pos, boss_obj->pos);
 	vm_vector_2_matrix(boss_obj->orient, boss_dir, nullptr, nullptr);
 
-	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, teleport_segnum, 0, boss_obj->pos, 0 , F1_0);
+	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, teleport_segnum, sidenum_t::WLEFT, boss_obj->pos, 0 , F1_0);
 	digi_kill_sound_linked_to_object( boss_obj);
 	boss_link_see_sound(boss_obj);
 	ai_local		*ailp = &boss_obj->ctype.ai_info.ail;

@@ -80,7 +80,7 @@ int d_tick_step = 0;  // true once every 33.33ms
 
 //	Translate table to get opposite side of a face on a segment.
 
-constexpr enumerated_array<sidenum_t, MAX_SIDES_PER_SEGMENT, sidenum_t> Side_opposite{{{
+constexpr per_side_array<sidenum_t> Side_opposite{{{
 	sidenum_t::WRIGHT,
 	sidenum_t::WBOTTOM,
 	sidenum_t::WLEFT,
@@ -91,7 +91,7 @@ constexpr enumerated_array<sidenum_t, MAX_SIDES_PER_SEGMENT, sidenum_t> Side_opp
 
 #define TOLOWER(c) ((((c)>='A') && ((c)<='Z'))?((c)+('a'-'A')):(c))
 
-const enumerated_array<enumerated_array<segment_relative_vertnum, 4, side_relative_vertnum>, MAX_SIDES_PER_SEGMENT, sidenum_t> Side_to_verts{{{
+const per_side_array<enumerated_array<segment_relative_vertnum, 4, side_relative_vertnum>> Side_to_verts{{{
 	{{{segment_relative_vertnum::_7, segment_relative_vertnum::_6, segment_relative_vertnum::_2, segment_relative_vertnum::_3}}}, 			// left
 	{{{segment_relative_vertnum::_0, segment_relative_vertnum::_4, segment_relative_vertnum::_7, segment_relative_vertnum::_3}}}, 			// top
 	{{{segment_relative_vertnum::_0, segment_relative_vertnum::_1, segment_relative_vertnum::_5, segment_relative_vertnum::_4}}}, 			// right

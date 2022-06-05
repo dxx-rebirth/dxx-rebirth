@@ -83,7 +83,7 @@ struct sound_object
 		}
 		struct {
 			segnum_t			segnum;				// Used if SOF_LINK_TO_POS field is used
-			uint8_t sidenum;
+			sidenum_t sidenum;
 			vms_vector	position;
 		} pos;
 		struct {
@@ -453,7 +453,7 @@ void digi_link_sound_to_object(const unsigned soundnum, const vcobjptridx_t objn
 	digi_link_sound_to_object2(soundnum, objnum, forever, max_volume, once, vm_distance{256*F1_0});
 }
 
-static void digi_link_sound_to_pos2(fvcobjptr &vcobjptr, const int org_soundnum, const vcsegptridx_t segnum, const unsigned sidenum, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance)
+static void digi_link_sound_to_pos2(fvcobjptr &vcobjptr, const int org_soundnum, const vcsegptridx_t segnum, const sidenum_t sidenum, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance)
 {
 	const auto &&viewer = vcobjptr(Viewer);
 	int soundnum;
@@ -490,7 +490,7 @@ static void digi_link_sound_to_pos2(fvcobjptr &vcobjptr, const int org_soundnum,
 	digi_link_sound_common(viewer, so, pos, forever, max_volume, max_distance, soundnum, segnum);
 }
 
-void digi_link_sound_to_pos(const unsigned soundnum, const vcsegptridx_t segnum, const unsigned sidenum, const vms_vector &pos, const int forever, const fix max_volume)
+void digi_link_sound_to_pos(const unsigned soundnum, const vcsegptridx_t segnum, const sidenum_t sidenum, const vms_vector &pos, const int forever, const fix max_volume)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;

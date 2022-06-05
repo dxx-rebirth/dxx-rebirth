@@ -758,7 +758,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 #elif defined(DXX_BUILD_DESCENT_II)
 			ai_info_flags[4] = obj.ctype.ai_info.SUB_FLAGS;
 #endif
-			ai_info_flags[5] = obj.ctype.ai_info.GOALSIDE;
+			ai_info_flags[5] = underlying_value(obj.ctype.ai_info.GOALSIDE);
 			ai_info_flags[6] = obj.ctype.ai_info.CLOAKED;
 			ai_info_flags[7] = obj.ctype.ai_info.SKIP_AI_COUNT;
 			ai_info_flags[8] = obj.ctype.ai_info.REMOTE_OWNER;
@@ -902,7 +902,7 @@ static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, co
 				if (connected_seg == segment_none)
 				{
 					rwn0 = wall_none;
-					LevelError("segment %u side %u wall %u has no child segment; removing orphan wall.", seg.get_unchecked_index(), sidenum, static_cast<unsigned>(wn0));
+					LevelError("segment %u side %u wall %u has no child segment; removing orphan wall.", seg.get_unchecked_index(), underlying_value(sidenum), static_cast<unsigned>(wn0));
 					return;
 				}
 				const shared_segment &vcseg = *vcsegptr(connected_seg);
@@ -910,14 +910,14 @@ static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, co
 				if (connected_side == side_none)
 				{
 					rwn0 = wall_none;
-					LevelError("segment %u side %u wall %u has child segment %u side %u, but child segment does not link back; removing orphan wall.", seg.get_unchecked_index(), sidenum, underlying_value(wn0), connected_seg, connected_side);
+					LevelError("segment %u side %u wall %u has child segment %u side %u, but child segment does not link back; removing orphan wall.", seg.get_unchecked_index(), underlying_value(sidenum), underlying_value(wn0), connected_seg, underlying_value(connected_side));
 					return;
 				}
 				const auto wn1 = vcseg.sides[connected_side].wall_num;
 				if (wn1 == wall_none)
 				{
 					rwn0 = wall_none;
-					LevelError("segment %u side %u wall %u has child segment %u side %u, but no wall; removing orphan wall.", seg.get_unchecked_index(), sidenum, static_cast<unsigned>(wn0), connected_seg, connected_side);
+					LevelError("segment %u side %u wall %u has child segment %u side %u, but no wall; removing orphan wall.", seg.get_unchecked_index(), underlying_value(sidenum), static_cast<unsigned>(wn0), connected_seg, underlying_value(connected_side));
 					return;
 				}
 			}
@@ -1281,7 +1281,7 @@ static int load_game_data(
 						(*uwall)->controlling_trigger = t;
 					else
 					{
-						LevelError("trigger %u link %u type %u references segment %hu, side %u which is an invalid wall; ignoring.", underlying_value(t.get_unchecked_index()), l, static_cast<unsigned>(tr.type), seg_num, side_num);
+						LevelError("trigger %u link %u type %u references segment %hu, side %u which is an invalid wall; ignoring.", underlying_value(t.get_unchecked_index()), l, static_cast<unsigned>(tr.type), seg_num, underlying_value(side_num));
 					}
 				}
 #endif

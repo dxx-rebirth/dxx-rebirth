@@ -100,6 +100,13 @@ struct verts_for_normal
 constexpr vm_distance fcd_abort_cache_value{F1_0 * 1000};
 constexpr vm_distance fcd_abort_return_value{-1};
 
+#if defined(DXX_BUILD_DESCENT_II)
+static constexpr sidemask_t &operator&=(sidemask_t &a, const sidemask_t b)
+{
+	return a = static_cast<sidemask_t>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
+}
+#endif
+
 }
 
 namespace dcx {
@@ -379,7 +386,7 @@ namespace {
 //this was converted from get_seg_masks()...it fills in an array of 6
 //elements for the distace behind each side, or zero if not behind
 //only gets centermask, and assumes zero rad
-static sidemask_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, const shared_segment &segnum, std::array<fix, 6> &side_dists)
+static sidemask_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, const shared_segment &segnum, per_side_array<fix> &side_dists)
 {
 	sidemask_t mask{};
 	auto &sides = segnum.sides;
@@ -525,7 +532,7 @@ int check_segment_connections(void)
 					shared_segment &rseg = *seg;
 					const shared_segment &rcseg = *cseg;
 					const unsigned segi = seg.get_unchecked_index();
-					LevelError("Segment #%u side %u has asymmetric link to segment %u.  Coercing to segment_none; Segments[%u].children={%hu, %hu, %hu, %hu, %hu, %hu}, Segments[%u].children={%hu, %hu, %hu, %hu, %hu, %hu}.", segi, sidenum, csegnum, segi, rseg.children[sidenum_t::WLEFT], rseg.children[sidenum_t::WTOP], rseg.children[sidenum_t::WRIGHT], rseg.children[sidenum_t::WBOTTOM], rseg.children[sidenum_t::WBACK], rseg.children[sidenum_t::WFRONT], csegnum, rcseg.children[sidenum_t::WLEFT], rcseg.children[sidenum_t::WTOP], rcseg.children[sidenum_t::WRIGHT], rcseg.children[sidenum_t::WBOTTOM], rcseg.children[sidenum_t::WBACK], rcseg.children[sidenum_t::WFRONT]);
+					LevelError("Segment #%u side %u has asymmetric link to segment %u.  Coercing to segment_none; Segments[%u].children={%hu, %hu, %hu, %hu, %hu, %hu}, Segments[%u].children={%hu, %hu, %hu, %hu, %hu, %hu}.", segi, underlying_value(sidenum), csegnum, segi, rseg.children[sidenum_t::WLEFT], rseg.children[sidenum_t::WTOP], rseg.children[sidenum_t::WRIGHT], rseg.children[sidenum_t::WBOTTOM], rseg.children[sidenum_t::WBACK], rseg.children[sidenum_t::WFRONT], csegnum, rcseg.children[sidenum_t::WLEFT], rcseg.children[sidenum_t::WTOP], rcseg.children[sidenum_t::WRIGHT], rcseg.children[sidenum_t::WBOTTOM], rcseg.children[sidenum_t::WBACK], rcseg.children[sidenum_t::WFRONT]);
 					rseg.children[sidenum] = segment_none;
 					errors = 1;
 					continue;
@@ -535,7 +542,7 @@ int check_segment_connections(void)
 				const auto &&[con_num_faces, con_vertex_list] = create_abs_vertex_lists(cseg, csidenum);
 
 				if (con_num_faces != num_faces) {
-					LevelError("Segment #%u side %u: wrong faces: con_num_faces=%" PRIuFAST32 " num_faces=%" PRIuFAST32 ".", seg.get_unchecked_index(), sidenum, con_num_faces, num_faces);
+					LevelError("Segment #%u side %u: wrong faces: con_num_faces=%" PRIuFAST32 " num_faces=%" PRIuFAST32 ".", seg.get_unchecked_index(), underlying_value(sidenum), con_num_faces, num_faces);
 					errors = 1;
 				}
 				else
@@ -549,7 +556,7 @@ int check_segment_connections(void)
 							 vertex_list[1] != con_vertex_list[(t+3)%4] ||
 							 vertex_list[2] != con_vertex_list[(t+2)%4] ||
 							 vertex_list[3] != con_vertex_list[(t+1)%4]) {
-							LevelError("Segment #%u side %u: bad vertices.", seg.get_unchecked_index(), sidenum);
+							LevelError("Segment #%u side %u: bad vertices.", seg.get_unchecked_index(), underlying_value(sidenum));
 							errors = 1;
 						}
 						else
@@ -609,7 +616,6 @@ namespace {
 // returns segment number, or -1 if can't find segment
 static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedSegmentState, const vms_vector &p0, const vcsegptridx_t oldsegnum, const unsigned recursion_count, visited_segment_bitarray_t &visited)
 {
-	std::array<fix, 6> side_dists;
 	fix biggest_val;
 	if (recursion_count >= LevelSharedSegmentState.Num_segments) {
 		con_puts(CON_DEBUG, "trace_segs: Segment not found");
@@ -622,6 +628,7 @@ static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
+	per_side_array<fix> side_dists;
 	const auto centermask = get_side_dists(Vertices.vcptr, p0, oldsegnum, side_dists);		//check old segment
 	if (centermask == sidemask_t{}) // we are in the old segment
 		return oldsegnum; //..say so
@@ -1530,7 +1537,7 @@ Levels 9-end: unchecked
 	const auto old_tmap_num = uside.tmap_num;
 	if (const auto old_tmap_idx = get_texture_index(old_tmap_num); old_tmap_idx >= NumTextures)
 		uside.tmap_num = build_texture1_value((
-			LevelErrorV(PLAYING_BUILTIN_MISSION ? CON_VERBOSE : CON_URGENT, "segment #%hu side #%i has invalid tmap %u (NumTextures=%u).", static_cast<segnum_t>(sp), sidenum, old_tmap_idx, NumTextures),
+			LevelErrorV(PLAYING_BUILTIN_MISSION ? CON_VERBOSE : CON_URGENT, "segment #%hu side #%i has invalid tmap %u (NumTextures=%u).", sp.get_unchecked_index(), underlying_value(sidenum), old_tmap_idx, NumTextures),
 			(sside.wall_num == wall_none)
 		));
 
@@ -1771,7 +1778,7 @@ int subtract_light(const d_level_shared_destructible_light_state &LevelSharedDes
 {
 	unique_segment &useg = segnum;
 	auto &light_subtracted = useg.light_subtracted;
-	const auto mask = 1u << sidenum;
+	const auto mask = build_sidemask(sidenum);
 	if (light_subtracted & mask)
 		return 0;
 	light_subtracted |= mask;
@@ -1785,7 +1792,7 @@ int subtract_light(const d_level_shared_destructible_light_state &LevelSharedDes
 // returns 1 if lights actually added, else 0
 int add_light(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const vmsegptridx_t segnum, sidenum_t sidenum)
 {
-	const auto mask = 1u << sidenum;
+	const auto mask = build_sidemask(sidenum);
 	unique_segment &useg = segnum;
 	auto &light_subtracted = useg.light_subtracted;
 	if (!(light_subtracted & mask))
@@ -1803,7 +1810,7 @@ void apply_all_changed_light(const d_level_shared_destructible_light_state &Leve
 		for (const auto j : MAX_SIDES_PER_SEGMENT)
 		{
 			unique_segment &useg = segp;
-			if (useg.light_subtracted & (1 << j))
+			if (useg.light_subtracted & build_sidemask(j))
 				change_light(LevelSharedDestructibleLightState, segp, j, -1);
 		}
 	}
@@ -1815,7 +1822,7 @@ void apply_all_changed_light(const d_level_shared_destructible_light_state &Leve
 void clear_light_subtracted(void)
 {
 	for (unique_segment &useg : vmsegptr)
-		useg.light_subtracted = 0;
+		useg.light_subtracted = {};
 }
 
 #define	AMBIENT_SEGMENT_DEPTH		5

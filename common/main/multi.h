@@ -35,6 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "powerup.h"
 #include "fwd-object.h"
+#include "fwd-segment.h"
 #include "fwd-wall.h"
 #include "window.h"
 #include "game.h"
@@ -373,7 +374,7 @@ static inline laser_level map_granted_flags_to_laser_level(const packed_spawn_gr
 player_flags map_granted_flags_to_player_flags(packed_spawn_granted_items grant);
 uint_fast32_t map_granted_flags_to_primary_weapon_flags(packed_spawn_granted_items grant);
 uint16_t map_granted_flags_to_vulcan_ammo(packed_spawn_granted_items grant);
-void multi_digi_link_sound_to_pos(int soundnum, vcsegptridx_t segnum, unsigned sidenum, const vms_vector &pos, int forever, fix max_volume);
+void multi_digi_link_sound_to_pos(int soundnum, vcsegptridx_t segnum, sidenum_t sidenum, const vms_vector &pos, int forever, fix max_volume);
 void multi_object_to_object_rw(const object &obj, object_rw *obj_rw);
 void multi_object_rw_to_object(const object_rw *obj_rw, object &obj);
 
@@ -397,7 +398,7 @@ void multi_send_destroy_controlcen(objnum_t objnum, playernum_t player);
 void multi_send_position(object &objnum);
 void multi_send_kill(vmobjptridx_t objnum);
 void multi_send_remobj(vmobjidx_t objnum);
-void multi_send_door_open(vcsegidx_t segnum, unsigned side, wall_flags flag);
+void multi_send_door_open(vcsegidx_t segnum, sidenum_t side, wall_flags flag);
 void multi_send_drop_weapon(vmobjptridx_t objnum,int seed);
 void multi_reset_player_object(object &objp);
 }
@@ -478,7 +479,7 @@ void multi_send_markers();
 void multi_send_guided_info (const object_base &miss, char);
 void multi_send_orb_bonus(playernum_t pnum, uint8_t);
 void multi_send_got_orb(playernum_t pnum);
-void multi_send_effect_blowup(vcsegidx_t segnum, unsigned side, const vms_vector &pnt);
+void multi_send_effect_blowup(vcsegidx_t segnum, sidenum_t side, const vms_vector &pnt);
 #ifndef RELEASE
 void multi_add_lifetime_kills(int count);
 #endif
@@ -709,9 +710,9 @@ void multi_check_for_killgoal_winner();
 namespace dsx {
 extern void multi_send_stolen_items();
 void multi_send_trigger_specific(playernum_t pnum, trgnum_t trig);
-void multi_send_door_open_specific(playernum_t pnum, vcsegidx_t segnum, unsigned side, wall_flags flag);
+void multi_send_door_open_specific(playernum_t pnum, vcsegidx_t segnum, sidenum_t side, wall_flags flag);
 void multi_send_wall_status_specific(playernum_t pnum, wallnum_t wallnum, uint8_t type, wall_flags flags, wall_state state);
-void multi_send_light_specific (playernum_t pnum, vcsegptridx_t segnum, uint8_t val);
+void multi_send_light_specific (playernum_t pnum, vcsegptridx_t segnum, sidemask_t val);
 void multi_send_capture_bonus (playernum_t pnum);
 int multi_all_players_alive(const fvcobjptr &, partial_range_t<const player *>);
 void multi_send_seismic(fix);

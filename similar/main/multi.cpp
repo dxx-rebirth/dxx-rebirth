@@ -2100,12 +2100,6 @@ static void multi_do_door_open(fvmwallptr &vmwallptr, const uint8_t *const buf)
 	ubyte flag= buf[4];
 #endif
 
-	if (side > 5)
-	{
-		Int3();
-		return;
-	}
-
 	const auto &&useg = vmsegptridx.check_untrusted(segnum);
 	if (!useg)
 		return;
@@ -2875,12 +2869,12 @@ void multi_send_decloak()
 
 namespace dsx {
 
-void multi_send_door_open(const vcsegidx_t segnum, const unsigned side, const wall_flags flag)
+void multi_send_door_open(const vcsegidx_t segnum, const sidenum_t side, const wall_flags flag)
 {
 	multi_command<MULTI_DOOR_OPEN> multibuf;
 	// When we open a door make sure everyone else opens that door
 	PUT_INTEL_SHORT(&multibuf[1], segnum );
-	multibuf[3] = static_cast<int8_t>(side);
+	multibuf[3] = underlying_value(side);
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)flag;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -2890,7 +2884,7 @@ void multi_send_door_open(const vcsegidx_t segnum, const unsigned side, const wa
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void multi_send_door_open_specific(const playernum_t pnum, const vcsegidx_t segnum, const unsigned side, const wall_flags flag)
+void multi_send_door_open_specific(const playernum_t pnum, const vcsegidx_t segnum, const sidenum_t side, const wall_flags flag)
 {
 	// For sending doors only to a specific person (usually when they're joining)
 
@@ -3027,7 +3021,7 @@ void multi_digi_play_sample(int soundnum, fix max_volume)
 
 namespace dsx {
 
-void multi_digi_link_sound_to_pos(const int soundnum, const vcsegptridx_t segnum, const unsigned sidenum, const vms_vector &pos, const int forever, const fix max_volume)
+void multi_digi_link_sound_to_pos(const int soundnum, const vcsegptridx_t segnum, const sidenum_t sidenum, const vms_vector &pos, const int forever, const fix max_volume)
 {
 	if (Game_mode & GM_MULTI)
 		multi_send_play_sound(soundnum, max_volume, sound_stack::allow_stacking);
@@ -3087,7 +3081,7 @@ void multi_send_trigger(const trgnum_t triggernum)
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
-void multi_send_effect_blowup(const vcsegidx_t segnum, const unsigned side, const vms_vector &pnt)
+void multi_send_effect_blowup(const vcsegidx_t segnum, const sidenum_t side, const vms_vector &pnt)
 {
 	// We blew up something connected to a trigger. Send this blowup result to other players shortly before MULTI_TRIGGER.
 	// NOTE: The reason this is now a separate packet is to make sure trigger-connected switches/monitors are in sync with MULTI_TRIGGER.
@@ -4129,7 +4123,7 @@ static void multi_do_seismic (const ubyte *buf)
 
 }
 
-void multi_send_light_specific (const playernum_t pnum, const vcsegptridx_t segnum, const uint8_t val)
+void multi_send_light_specific (const playernum_t pnum, const vcsegptridx_t segnum, const sidemask_t val)
 {
 	int count=1;
 
@@ -4139,7 +4133,7 @@ void multi_send_light_specific (const playernum_t pnum, const vcsegptridx_t segn
 	multi_command<MULTI_LIGHT> multibuf;
 	PUT_INTEL_SHORT(&multibuf[count], segnum);
 	count += sizeof(uint16_t);
-	multibuf[count] = val; count++;
+	multibuf[count] = underlying_value(val); count++;
 
 	range_for (auto &i, segnum->unique_segment::sides)
 	{
@@ -4163,11 +4157,11 @@ static void multi_do_light (const ubyte *buf)
 	auto &side_array = segp->unique_segment::sides;
 	for (const auto i : MAX_SIDES_PER_SEGMENT)
 	{
-		if ((sides & (1<<i)))
+		if (sides & underlying_value(build_sidemask(i)))
 		{
 			auto &LevelSharedDestructibleLightState = LevelSharedSegmentState.DestructibleLights;
 			subtract_light(LevelSharedDestructibleLightState, segp, i);
-			const auto tmap_num2 = texture2_value{GET_INTEL_SHORT(&buf[4 + (2 * i)])};
+			const auto tmap_num2 = texture2_value{GET_INTEL_SHORT(&buf[4 + (2 * underlying_value(i))])};
 			if (get_texture_index(tmap_num2) >= Textures.size())
 				continue;
 			side_array[i].tmap_num2 = tmap_num2;
@@ -6003,7 +5997,7 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 #elif defined(DXX_BUILD_DESCENT_II)
 			obj_rw->ctype.ai_info.flags[4] = obj.ctype.ai_info.SUB_FLAGS;
 #endif
-			obj_rw->ctype.ai_info.flags[5] = obj.ctype.ai_info.GOALSIDE;
+			obj_rw->ctype.ai_info.flags[5] = underlying_value(obj.ctype.ai_info.GOALSIDE);
 			obj_rw->ctype.ai_info.flags[6] = obj.ctype.ai_info.CLOAKED;
 			obj_rw->ctype.ai_info.flags[7] = obj.ctype.ai_info.SKIP_AI_COUNT;
 			obj_rw->ctype.ai_info.flags[8] = obj.ctype.ai_info.REMOTE_OWNER;

@@ -1107,7 +1107,7 @@ window_event_result editor_dialog::callback_handler(const d_event &event)
 
 		if (Gameview_lockstep) {
 			static segment *old_cursegp=NULL;
-			static int old_curside=-1;
+			static sidenum_t old_curside = side_none;
 
 			if (old_cursegp!=Cursegp || old_curside!=Curside) {
 				SetPlayerFromCursegMinusOne();
