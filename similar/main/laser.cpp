@@ -399,11 +399,10 @@ int ok_to_do_omega_damage(const object &weapon)
 }
 
 // ---------------------------------------------------------------------------------
-static void create_omega_blobs(const imsegptridx_t firing_segnum, const vms_vector &firing_pos, const vms_vector &goal_pos, const vmobjptridx_t parent_objp)
+static bool create_omega_blobs(const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const weapon_info_array &Weapon_info, const Difficulty_level_type Difficulty_level, const imsegptridx_t firing_segnum, const vms_vector &firing_pos, const vms_vector &goal_pos, const vmobjptridx_t parent_objp)
 {
 	imobjptridx_t  last_created_objnum = object_none;
 	fix		dist_to_goal = 0, omega_blob_dist = 0;
-	std::array<fix, MAX_OMEGA_BLOBS> perturb_array{};
 
 	auto vec_to_goal = vm_vec_sub(goal_pos, firing_pos);
 	dist_to_goal = vm_vec_normalize_quick(vec_to_goal);
@@ -426,16 +425,17 @@ static void create_omega_blobs(const imsegptridx_t firing_segnum, const vms_vect
 		}
 	}
 
-	vms_vector omega_delta_vector, blob_pos;
-	omega_delta_vector = vec_to_goal;
+	auto omega_delta_vector = vec_to_goal;
 	vm_vec_scale(omega_delta_vector, omega_blob_dist);
 
 	//	Now, create all the blobs
-	blob_pos = firing_pos;
+	auto blob_pos = firing_pos;
 	auto last_segnum = firing_segnum;
 
 	//	If nearby, don't perturb vector.  If not nearby, start halfway out.
+	std::array<fix, MAX_OMEGA_BLOBS> perturb_array;
 	if (dist_to_goal < MIN_OMEGA_DIST*4) {
+		perturb_array = {};
 	} else {
 		vm_vec_scale_add2(blob_pos, omega_delta_vector, F1_0/2);	//	Put first blob half way out.
 		for (int i=0; i<num_omega_blobs/2; i++) {
@@ -450,7 +450,6 @@ static void create_omega_blobs(const imsegptridx_t firing_segnum, const vms_vect
 
 	Doing_lighting_hack_flag = 1;	//	Ugly, but prevents blobs which are probably outside the mine from killing framerate.
 
-	const auto &Difficulty_level = GameUniqueState.Difficulty_level;
 	for (int i=0; i<num_omega_blobs; i++) {
 		//	This will put the last blob right at the destination object, causing damage.
 		if (i == num_omega_blobs-1)
@@ -492,13 +491,15 @@ static void create_omega_blobs(const imsegptridx_t firing_segnum, const vms_vect
 		vm_vec_add2(blob_pos, omega_delta_vector);
 	}
 
+	Doing_lighting_hack_flag = 0;
+
 	//	Make last one move faster, but it's already moving at speed = F1_0*4.
 	if (last_created_objnum != object_none) {
 		vm_vec_scale(last_created_objnum->mtype.phys_info.velocity, Weapon_info[weapon_id_type::OMEGA_ID].speed[Difficulty_level]/4);
 		last_created_objnum->movement_source = object::movement_type::physics;
+		return true;
 	}
-
-	Doing_lighting_hack_flag = 0;
+	return false;
 }
 
 #define	MIN_OMEGA_CHARGE	(MAX_OMEGA_CHARGE/8)
@@ -563,21 +564,17 @@ void omega_charge_frame(player_info &player_info)
 static void do_omega_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t parent_objp, const vms_vector &firing_pos, const vmobjptridx_t weapon_objp)
 {
 	vms_vector	goal_pos;
+	player_info *pl_info = nullptr;
 	if (parent_objp->type == OBJ_PLAYER && get_player_id(parent_objp) == Player_num)
 	{
 		//	If charge >= min, or (some charge and zero energy), allow to fire.
 		auto &player_info = parent_objp->ctype.player_info;
-		auto &Omega_charge = player_info.Omega_charge;
-		if (!((Omega_charge >= MIN_OMEGA_CHARGE) || (Omega_charge && !player_info.energy))) {
+		if (!(player_info.Omega_charge >= MIN_OMEGA_CHARGE || (player_info.Omega_charge && !player_info.energy)))
+		{
 			obj_delete(LevelUniqueObjectState, Segments, weapon_objp);
 			return;
 		}
-
-		Omega_charge -= OMEGA_BASE_TIME;
-		if (Omega_charge < 0)
-			Omega_charge = 0;
-
-		player_info.Omega_recharge_delay = F1_0 / 3;
+		pl_info = &player_info;
 	}
 
 	weapon_objp->ctype.laser_info.parent_type = parent_objp->type;
@@ -587,15 +584,6 @@ static void do_omega_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t parent
 	const auto &&lock_objnum = find_homing_object(firing_pos, weapon_objp);
 
 	const auto &&firing_segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, firing_pos, Segments.vmptridx(parent_objp->segnum));
-
-	//	Play sound.
-	{
-		const auto flash_sound = Weapon_info[get_weapon_id(weapon_objp)].flash_sound;
-	if ( parent_objp == Viewer )
-		digi_play_sample(flash_sound, F1_0);
-	else
-		digi_link_sound_to_pos(flash_sound, vmsegptridx(weapon_objp->segnum), sidenum_t::WLEFT, weapon_objp->pos, 0, F1_0);
-	}
 
 	// -- if ((Last_omega_muzzle_flash_time + F1_0/4 < GameTime) || (Last_omega_muzzle_flash_time > GameTime)) {
 	// -- 	do_muzzle_stuff(firing_segnum, firing_pos);
@@ -632,8 +620,25 @@ static void do_omega_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t parent
 		goal_pos = lock_objnum->pos;
 
 	//	This is where we create a pile of omega blobs!
-	create_omega_blobs(firing_segnum, firing_pos, goal_pos, parent_objp);
+	if (!create_omega_blobs(LevelSharedSegmentState, LevelUniqueSegmentState, Weapon_info, GameUniqueState.Difficulty_level, firing_segnum, firing_pos, goal_pos, parent_objp))
+		return;
 
+	//	Play sound.
+	{
+		const auto flash_sound = Weapon_info[get_weapon_id(weapon_objp)].flash_sound;
+		if (parent_objp == Viewer)
+			digi_play_sample(flash_sound, F1_0);
+		else
+			digi_link_sound_to_pos(flash_sound, vmsegptridx(weapon_objp->segnum), sidenum_t::WLEFT, weapon_objp->pos, 0, F1_0);
+	}
+	if (pl_info)
+	{
+		if (auto &Omega_charge = pl_info->Omega_charge; Omega_charge > OMEGA_BASE_TIME)
+			Omega_charge -= OMEGA_BASE_TIME;
+		else
+			Omega_charge = 0;
+		pl_info->Omega_recharge_delay = F1_0 / 3;
+	}
 }
 
 static int is_laser_weapon_type(const weapon_id_type weapon_type)
