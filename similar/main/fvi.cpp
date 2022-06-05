@@ -288,23 +288,21 @@ static fix calc_det_value(const std::pair<vms_vector, vms_vector> &rfvec, const 
 [[nodiscard]]
 static std::optional<std::pair<fix, fix>> check_line_to_line(const vms_vector &p1, const vms_vector &v1, const vms_vector &p2, const vms_vector &v2)
 {
-	vms_matrix det;
-	fix d,cross_mag2;		//mag squared cross product
-
-	vm_vec_cross(det.fvec,v1,v2);
-	cross_mag2 = vm_vec_dot(det.fvec,det.fvec);
+	std::pair<vms_vector, vms_vector> rfvec;
+	auto &detf = rfvec.second;
+	vm_vec_cross(detf, v1, v2);
+	const auto cross_mag2 = vm_vec_dot(detf, detf);
 
 	if (cross_mag2 == 0)
 		return std::nullopt;			//lines are parallel
 
-	vm_vec_sub(det.rvec,p2,p1);
-	det.uvec = v2;
-	d = calc_det_value({det.rvec, det.fvec}, det.uvec);
-	const auto t1 = fixdiv(d, cross_mag2);
+	auto &detr = rfvec.first;
+	vm_vec_sub(detr, p2, p1);
+	const auto dv2 = calc_det_value(rfvec, v2);
+	const auto dv1 = calc_det_value(rfvec, v1);
 
-	det.uvec = v1;
-	d = calc_det_value({det.rvec, det.fvec}, det.uvec);
-	const auto t2 = fixdiv(d, cross_mag2);
+	const auto t1 = fixdiv(dv2, cross_mag2);
+	const auto t2 = fixdiv(dv1, cross_mag2);
 	return std::pair(t1, t2);		//found point
 }
 
