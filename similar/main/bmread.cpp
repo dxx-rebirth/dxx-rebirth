@@ -76,6 +76,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 #include "d_enumerate.h"
 #include "d_range.h"
+#include "d_zip.h"
 
 using std::min;
 
@@ -2044,28 +2045,38 @@ void bm_read_player_ship(void)
 	//calc player gun positions
 
 	{
-		polymodel *pm;
-		robot_info *r;
-		vms_vector pnt;
-		int mn;				//submodel number
-		int gun_num;
+		const auto &r = ri;
+		const auto &pm = Polygon_models[Player_ship->model_num];
 
-		r = &ri;
-		pm = &Polygon_models[Player_ship->model_num];
-
-		for (gun_num=0;gun_num<r->n_guns;gun_num++) {
-
-			pnt = r->gun_points[gun_num];
-			mn = r->gun_submodels[gun_num];
-
+		/* Binding to the zip iterator produces references.  For r.gun_points
+		 * and r.gun_submodels, a mutable local is desired instead.
+		 *
+		 * If there are no submodels, copy directly from `r.gun_points` to
+		 * `plr_gun_point` (bound to an element of `Player_ship->gun_points`).
+		 *
+		 * If there are submodels:
+		 * - Copy the submodel index into a local `mn`
+		 * - Copy the r.gun_points vector into a local `pnt`
+		 * - Redirect `ppnt` to the local.
+		 * - Update the local as needed from the polygon models.
+		 * - Copy that local to `plr_gun_point`.
+		 *
+		 * This minimizes unnecessary copying.
+		 */
+		for (auto &&[rpnt, rmn, plr_gun_point] : zip(partial_range(r.gun_points, r.n_guns), r.gun_submodels, Player_ship->gun_points))
+		{
+			auto ppnt = &rpnt;
+			/* Create a local copy to be modified by the `while` loop. */
+			vms_vector pnt;
+			if (auto mn = rmn)
+			{
 			//instance up the tree for this gun
-			while (mn != 0) {
-				vm_vec_add2(pnt,pm->submodel_offsets[mn]);
-				mn = pm->submodel_parents[mn];
+				pnt = rpnt;
+				ppnt = &pnt;
+				for (; mn && mn < std::size(pm.submodel_offsets); mn = pm.submodel_parents[mn])
+					vm_vec_add2(pnt, pm.submodel_offsets[mn]);
 			}
-
-			Player_ship->gun_points[gun_num] = pnt;
-
+			plr_gun_point = *ppnt;
 		}
 	}
 }
