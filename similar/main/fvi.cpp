@@ -273,14 +273,14 @@ static intersection_type check_line_to_face(vms_vector &newp, const vms_vector &
 
 //returns the value of a determinant
 [[nodiscard]]
-static fix calc_det_value(const vms_matrix *det)
+static fix calc_det_value(const std::pair<vms_vector, vms_vector> &rfvec, const vms_vector &uvec)
 {
-	return 	fixmul(det->rvec.x,fixmul(det->uvec.y,det->fvec.z)) -
-			 	fixmul(det->rvec.x,fixmul(det->uvec.z,det->fvec.y)) -
-			 	fixmul(det->rvec.y,fixmul(det->uvec.x,det->fvec.z)) +
-			 	fixmul(det->rvec.y,fixmul(det->uvec.z,det->fvec.x)) +
-			 	fixmul(det->rvec.z,fixmul(det->uvec.x,det->fvec.y)) -
-			 	fixmul(det->rvec.z,fixmul(det->uvec.y,det->fvec.x));
+	return fixmul(rfvec.first.x, fixmul(uvec.y, rfvec.second.z)) -
+				fixmul(rfvec.first.x, fixmul(uvec.z, rfvec.second.y)) -
+				fixmul(rfvec.first.y, fixmul(uvec.x, rfvec.second.z)) +
+				fixmul(rfvec.first.y, fixmul(uvec.z, rfvec.second.x)) +
+				fixmul(rfvec.first.z, fixmul(uvec.x, rfvec.second.y)) -
+				fixmul(rfvec.first.z, fixmul(uvec.y, rfvec.second.x));
 }
 
 //computes the parameters of closest approach of two lines
@@ -299,11 +299,11 @@ static std::optional<std::pair<fix, fix>> check_line_to_line(const vms_vector &p
 
 	vm_vec_sub(det.rvec,p2,p1);
 	det.uvec = v2;
-	d = calc_det_value(&det);
+	d = calc_det_value({det.rvec, det.fvec}, det.uvec);
 	const auto t1 = fixdiv(d, cross_mag2);
 
 	det.uvec = v1;
-	d = calc_det_value(&det);
+	d = calc_det_value({det.rvec, det.fvec}, det.uvec);
 	const auto t2 = fixdiv(d, cross_mag2);
 	return std::pair(t1, t2);		//found point
 }
