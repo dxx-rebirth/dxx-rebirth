@@ -72,6 +72,8 @@
 
 namespace {
 
+void net_udp_send_netgame_update();
+
 // player position packet structure
 struct UDP_frame_info : prohibit_void_ptr<UDP_frame_info>
 {
@@ -262,25 +264,33 @@ window_event_result net_udp_select_teams_menu::event_handler(const d_event &even
 }
 
 // Prototypes
+namespace {
 static void net_udp_init();
 static void net_udp_close();
 static void net_udp_listen();
+}
 namespace dsx {
 namespace multi {
 namespace udp {
 const dispatch_table dispatch{};
 }
 }
+namespace {
 static int net_udp_do_join_game();
-}
-static void net_udp_flush();
-namespace dsx {
-static void net_udp_update_netgame(void);
+static void net_udp_update_netgame();
 static void net_udp_send_objects(void);
 static void net_udp_send_rejoin_sync(unsigned player_num);
 static void net_udp_do_refuse_stuff (UDP_sequence_packet *their);
 static void net_udp_read_sync_packet(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr);
+static void net_udp_send_extras();
+static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &game_addr, int lite_info, uint16_t TrackerGameID = 0);
+#if DXX_USE_TRACKER
+static int udp_tracker_register();
+static int udp_tracker_reqgames();
+#endif
 }
+}
+namespace {
 static void net_udp_ping_frame(fix64 time);
 static void net_udp_process_ping(const uint8_t *data, const _sockaddr &sender_addr);
 static void net_udp_process_pong(const uint8_t *data, const _sockaddr &sender_addr);
@@ -293,17 +303,11 @@ static void net_udp_read_pdata_packet(UDP_frame_info *pd);
 static void net_udp_timeout_check(fix64 time);
 static int net_udp_get_new_player_num ();
 static void net_udp_noloss_got_ack(const uint8_t *data, uint_fast32_t data_len);
-static void net_udp_noloss_init_mdata_queue(void);
+static void net_udp_noloss_init_mdata_queue();
 static void net_udp_noloss_clear_mdata_trace(ubyte player_num);
 static void net_udp_noloss_process_queue(fix64 time);
-namespace dsx {
-static void net_udp_send_extras ();
-}
-static void net_udp_broadcast_game_info(ubyte info_upid);
-namespace dsx {
-static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &game_addr, int lite_info, uint16_t TrackerGameID = 0);
-}
-static int net_udp_start_game(void);
+static void net_udp_broadcast_game_info(uint8_t info_upid);
+static int net_udp_start_game();
 
 // Variables
 static int UDP_num_sendto, UDP_len_sendto, UDP_num_recvfrom, UDP_len_recvfrom;
@@ -339,16 +343,13 @@ static TrackerAckState TrackerAckStatus;
 static fix64 TrackerAckTime;
 static int udp_tracker_init();
 static int udp_tracker_unregister();
-namespace dsx {
-static int udp_tracker_register();
-static int udp_tracker_reqgames();
-}
-static int udp_tracker_process_game( ubyte *data, int data_len, const _sockaddr &sender_addr );
-static void udp_tracker_process_ack( ubyte *data, int data_len, const _sockaddr &sender_addr );
+static int udp_tracker_process_game(const uint8_t *data, int data_len, const _sockaddr &sender_addr );
+static void udp_tracker_process_ack(const uint8_t *data, int data_len, const _sockaddr &sender_addr );
 static void udp_tracker_verify_ack_timeout();
 static void udp_tracker_request_holepunch( uint16_t TrackerGameID );
-static void udp_tracker_process_holepunch(uint8_t *data, unsigned data_len, const _sockaddr &sender_addr );
+static void udp_tracker_process_holepunch(uint8_t *data, unsigned data_len, const _sockaddr &sender_addr);
 #endif
+}
 
 #ifndef _WIN32
 constexpr std::integral_constant<int, -1> INVALID_SOCKET{};
@@ -530,7 +531,12 @@ uint8_t get_effective_netgame_status(const d_level_unique_control_center_state &
 
 }
 
+namespace dcx {
+namespace {
+
 static std::array<RAIIsocket, 2> UDP_Socket;
+
+void net_udp_flush(std::array<RAIIsocket, 2> &UDP_Socket);
 
 static bool operator==(const _sockaddr &l, const _sockaddr &r)
 {
@@ -572,6 +578,11 @@ static void reset_UDP_MyPort()
 	UDP_MyPort = CGameArg.MplUdpMyPort >= 1024 ? CGameArg.MplUdpMyPort : UDP_PORT_DEFAULT;
 }
 
+}
+}
+
+namespace {
+
 static bool convert_text_portstring(const std::array<char, 6> &portstring, uint16_t &outport, bool allow_privileged, bool silent)
 {
 	char *porterror;
@@ -586,8 +597,6 @@ static bool convert_text_portstring(const std::array<char, 6> &portstring, uint1
 		outport = myport;
 	return true;
 }
-
-namespace {
 
 #if DXX_USE_IPv6
 /* Returns true if kernel allows specifying sizeof(sockaddr_in6) for
@@ -752,8 +761,6 @@ ssize_t dxx_recvfrom_t::apply(int sockfd, void *buf, size_t len, int flags, sock
 constexpr csockaddr_dispatch_t<socket_array_dispatch_t<dxx_sendto_t>> dxx_sendto{};
 constexpr sockaddr_dispatch_t<dxx_recvfrom_t> dxx_recvfrom{};
 
-}
-
 static void udp_traffic_stat()
 {
 	static fix64 last_traf_time = 0;
@@ -765,8 +772,6 @@ static void udp_traffic_stat()
 		UDP_num_sendto = UDP_len_sendto = UDP_num_recvfrom = UDP_len_recvfrom = 0;
 	}
 }
-
-namespace {
 
 class udp_dns_filladdr_t
 {
@@ -885,8 +890,6 @@ public:
 
 constexpr sockaddr_resolve_family_dispatch_t<passthrough_static_apply<udp_dns_filladdr_t>> udp_dns_filladdr{};
 
-}
-
 static void udp_init_broadcast_addresses()
 {
 	udp_dns_filladdr(GBcast, UDP_BCAST_ADDR, UDP_PORT_DEFAULT, true, true);
@@ -952,7 +955,7 @@ static int udp_general_packet_ready(RAIIsocket &sock)
 #endif
 
 // Gets some text. Returns 0 if nothing on there.
-static int udp_receive_packet(RAIIsocket &sock, ubyte *text, int len, struct _sockaddr *sender_addr)
+static int udp_receive_packet(RAIIsocket &sock, uint8_t *const text, int len, struct _sockaddr *sender_addr)
 {
 	if (!sock)
 		return -1;
@@ -976,8 +979,6 @@ static int udp_receive_packet(RAIIsocket &sock, ubyte *text, int len, struct _so
 	return msglen;
 }
 /* General UDP functions - END */
-
-namespace {
 
 class net_udp_request_game_info_t
 {
@@ -1115,6 +1116,7 @@ manual_join_user_inputs manual_join_menu_items::s_last_inputs;
 }
 
 namespace dsx {
+
 namespace {
 
 direct_join::connect_type net_udp_show_game_info(const netgame_info &Netgame);
@@ -1189,6 +1191,7 @@ Possible reasons:\n\
 }
 
 }
+
 }
 
 window_event_result manual_join_menu::event_handler(const d_event &event)
@@ -1266,6 +1269,8 @@ void net_udp_manual_join_game()
 	auto menu = window_create<manual_join_menu>(grd_curscreen->sc_canvas);
 	(void)menu;
 }
+
+namespace {
 
 static void copy_truncate_string(const grs_font &cv_font, const font_x_scaled_float strbound, std::array<char, 25> &out, const ntstring<25> &in)
 {
@@ -1515,6 +1520,8 @@ window_event_result netgame_list_game_menu::event_handler(const d_event &event)
 	return newmenu::event_handler(event);
 }
 
+}
+
 void net_udp_list_join_game(grs_canvas &canvas)
 {
 	net_udp_init();
@@ -1537,7 +1544,7 @@ void net_udp_list_join_game(grs_canvas &canvas)
 
 	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
 
-	net_udp_flush();
+	net_udp_flush(UDP_Socket);
 	net_udp_listen();  // Throw out old info
 
 	num_active_udp_games = 0;
@@ -1551,6 +1558,8 @@ void net_udp_list_join_game(grs_canvas &canvas)
 	(void)menu;
 }
 
+namespace {
+
 static void net_udp_send_sequence_packet(UDP_sequence_packet seq, const _sockaddr &recv_addr)
 {
 	std::array<uint8_t, UPID_SEQUENCE_SIZE> buf;
@@ -1562,7 +1571,7 @@ static void net_udp_send_sequence_packet(UDP_sequence_packet seq, const _sockadd
 	dxx_sendto(recv_addr, UDP_Socket[0], buf, 0);
 }
 
-static void net_udp_receive_sequence_packet(ubyte *data, UDP_sequence_packet *seq, const _sockaddr &sender_addr)
+static void net_udp_receive_sequence_packet(const uint8_t *const data, UDP_sequence_packet *const seq, const _sockaddr &sender_addr)
 {
 	int len = 0;
 	
@@ -1600,7 +1609,7 @@ void net_udp_init()
 	UDP_Seq.player.rank=GetMyNetRanking();	
 
 	multi_new_game();
-	net_udp_flush();
+	net_udp_flush(UDP_Socket);
 
 #if DXX_USE_TRACKER
 	// Initialize the tracker info
@@ -1614,6 +1623,8 @@ void net_udp_close()
 #ifdef _WIN32
 	WSACleanup();
 #endif
+}
+
 }
 
 namespace dsx {
@@ -2125,6 +2136,8 @@ static void net_udp_stop_resync(UDP_sequence_packet *their)
 }
 
 namespace dsx {
+namespace {
+
 void net_udp_send_objects(void)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
@@ -2253,6 +2266,8 @@ void net_udp_send_objects(void)
 		} // mode == 1;
 	} // i > Highest_object_index
 }
+
+}
 }
 
 static int net_udp_verify_objects(int remote, int local)
@@ -2276,7 +2291,7 @@ static int net_udp_verify_objects(int remote, int local)
 	return(1);
 }
 
-static void net_udp_read_object_packet( ubyte *data )
+static void net_udp_read_object_packet(uint8_t *const data)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -2350,7 +2365,7 @@ static void net_udp_read_object_packet( ubyte *data )
 				Assert(objnum < MAX_OBJECTS);
 				if constexpr (words_bigendian)
 					object_rw_swap(reinterpret_cast<object_rw *>(&data[loc]), 1);
-				multi_object_rw_to_object(reinterpret_cast<object_rw *>(&data[loc]), obj);
+				multi_object_rw_to_object(reinterpret_cast<const object_rw *>(&data[loc]), obj);
 				loc += sizeof(object_rw);
 				auto segnum = obj->segnum;
 				obj->attached_obj = object_none;
@@ -2370,6 +2385,7 @@ static void net_udp_read_object_packet( ubyte *data )
 }
 
 namespace dsx {
+namespace {
 
 void net_udp_send_rejoin_sync(const unsigned player_num)
 {
@@ -2430,6 +2446,9 @@ void net_udp_send_rejoin_sync(const unsigned player_num)
 	return;
 }
 }
+}
+
+namespace {
 
 static void net_udp_resend_sync_due_to_packet_loss()
 {
@@ -2508,6 +2527,8 @@ static void net_udp_remove_player(const UDP_sequence_packet *const p)
 	}
 }
 
+}
+
 namespace dsx {
 namespace multi {
 namespace udp {
@@ -2526,7 +2547,9 @@ void dispatch_table::kick_player(const _sockaddr &dump_addr, int why) const
 }
 }
 
-void net_udp_update_netgame(void)
+namespace {
+
+void net_udp_update_netgame()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
@@ -2578,6 +2601,8 @@ void net_udp_update_netgame(void)
 	}
 	Netgame.team_kills = team_kills;
 	Netgame.levelnum = Current_level_num;
+}
+
 }
 
 namespace multi {
@@ -2647,6 +2672,7 @@ void dispatch_table::send_endlevel_packet() const
 }
 
 namespace {
+
 static void net_udp_send_version_deny(const _sockaddr &sender_addr)
 {
 	std::array<uint8_t, UPID_VERSION_DENY_SIZE> buf;
@@ -2658,7 +2684,7 @@ static void net_udp_send_version_deny(const _sockaddr &sender_addr)
 	dxx_sendto(sender_addr, UDP_Socket[0], buf, 0);
 }
 
-static void net_udp_process_version_deny(ubyte *data, const _sockaddr &)
+static void net_udp_process_version_deny(const uint8_t *const data, const _sockaddr &)
 {
 	Netgame.protocol.udp.program_iver[0] = GET_INTEL_SHORT(&data[1]);
 	Netgame.protocol.udp.program_iver[1] = GET_INTEL_SHORT(&data[3]);
@@ -2668,7 +2694,7 @@ static void net_udp_process_version_deny(ubyte *data, const _sockaddr &)
 }
 
 // Check request for game info. Return 1 if sucessful; -1 if version mismatch; 0 if wrong game or some other error - do not process
-static int net_udp_check_game_info_request(ubyte *data, int lite)
+static int net_udp_check_game_info_request(const uint8_t *const data, int lite)
 {
 	short sender_iver[4] = { 0, 0, 0, 0 };
 	char sender_id[4] = "";
@@ -2847,14 +2873,12 @@ void net_udp_send_game_info_t::apply(const sockaddr &sender_addr, socklen_t send
 	dxx_sendto(sender_addr, senderlen, UDP_Socket[0], info, len, 0);
 }
 
-}
-
 static unsigned MouselookMPFlag(const unsigned game_is_cooperative)
 {
 	return game_is_cooperative ? MouselookMode::MPCoop : MouselookMode::MPAnarchy;
 }
 
-static void net_udp_broadcast_game_info(ubyte info_upid)
+static void net_udp_broadcast_game_info(uint8_t info_upid)
 {
 	net_udp_send_game_info(GBcast, nullptr, info_upid);
 #if DXX_USE_IPv6
@@ -2894,7 +2918,11 @@ static unsigned net_udp_send_request(void)
 	return std::distance(b, i);
 }
 
+}
+
 namespace dsx {
+namespace {
+
 static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const _sockaddr &game_addr, int lite_info, uint16_t TrackerGameID)
 {
 	uint_fast32_t len = 0;
@@ -3071,8 +3099,10 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 	}
 }
 }
+}
 
-static void net_udp_process_dump(ubyte *data, int, const _sockaddr &sender_addr)
+namespace {
+static void net_udp_process_dump(const uint8_t *data, int, const _sockaddr &sender_addr)
 {
 	// Our request for join was denied.  Tell the user why.
 	if (sender_addr != Netgame.players[0].protocol.udp.addr)
@@ -3119,7 +3149,7 @@ static void net_udp_process_request(UDP_sequence_packet *their)
 		}
 }
 
-static void net_udp_process_packet(ubyte *data, const _sockaddr &sender_addr, int length )
+static void net_udp_process_packet(uint8_t *const data, const _sockaddr &sender_addr, int length)
 {
 	UDP_sequence_packet their{};
 
@@ -3355,8 +3385,6 @@ void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_a
 		}
 	}
 }
-
-namespace {
 
 /*
  * Polling loop waiting for sync packet to start game after having sent request
@@ -4278,6 +4306,8 @@ menu_subtitle{"Rebirth now supports automatic\n"
 	return (i >= 0) ? window_event_result::close : window_event_result::handled;
 }
 
+namespace {
+
 static void net_udp_set_game_mode(const network_game_type gamemode)
 {
 	Show_kill_list = show_kill_list_mode::_1;
@@ -4312,10 +4342,8 @@ static void net_udp_set_game_mode(const network_game_type gamemode)
 	else
 		Int3();
 }
-}
 
-namespace dsx {
-void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, const _sockaddr &sender_addr)
+void net_udp_read_sync_packet(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -4409,6 +4437,8 @@ void net_udp_read_sync_packet(const uint8_t * data, uint_fast32_t data_len, cons
 	Network_status = NETSTAT_PLAYING;
 	multi_sort_kill_list();
 }
+
+}
 }
 
 static int net_udp_send_sync(void)
@@ -4465,7 +4495,7 @@ static int net_udp_send_sync(void)
 		net_udp_send_game_info(addr, &addr, UPID_SYNC);
 	}
 
-	net_udp_read_sync_packet(NULL, 0, Netgame.players[0].protocol.udp.addr); // Read it myself, as if I had sent it
+	net_udp_read_sync_packet(nullptr, 0, Netgame.players[0].protocol.udp.addr); // Read it myself, as if I had sent it
 	return 0;
 }
 
@@ -4609,7 +4639,9 @@ abort:
 }
 }
 
-static int net_udp_start_game(void)
+namespace {
+
+static int net_udp_start_game()
 {
 	int i;
 
@@ -4720,7 +4752,7 @@ static int net_udp_wait_for_requests(void)
 		newmenu_item::nm_item_text{TXT_NET_LEAVE},
 	}};
 	Network_status = NETSTAT_WAITING;
-	net_udp_flush();
+	net_udp_flush(UDP_Socket);
 
 	get_local_player().connected = CONNECT_PLAYING;
 
@@ -4755,6 +4787,8 @@ menu:
 	return 0;
 }
 
+}
+
 namespace dsx {
 namespace multi {
 namespace udp {
@@ -4766,7 +4800,7 @@ window_event_result dispatch_table::level_sync() const
 	UDP_MData = {};
 	net_udp_noloss_init_mdata_queue();
 
-	net_udp_flush(); // Flush any old packets
+	net_udp_flush(UDP_Socket); // Flush any old packets
 
 	if (N_players == 0)
 		result = net_udp_wait_for_sync();
@@ -4791,6 +4825,8 @@ window_event_result dispatch_table::level_sync() const
 }
 }
 }
+
+namespace {
 
 int net_udp_do_join_game()
 {
@@ -4912,6 +4948,8 @@ int net_udp_do_join_game()
 	return StartNewLevel(Netgame.levelnum) == window_event_result::handled;     // look ma, we're in a game!!! (If level syncing didn't fail -kreatordxx)
 }
 
+}
+
 namespace multi {
 namespace udp {
 void dispatch_table::leave_game() const
@@ -4952,12 +4990,15 @@ void dispatch_table::leave_game() const
 	write_player_file();
 #endif
 
-	net_udp_flush();
+	net_udp_flush(UDP_Socket);
 	net_udp_close();
 }
 }
 }
 }
+
+namespace dcx {
+namespace {
 
 static void net_udp_flush(RAIIsocket &s)
 {
@@ -4972,11 +5013,16 @@ static void net_udp_flush(RAIIsocket &s)
 		con_printf(CON_VERBOSE, "Flushed %u UDP packets from socket %i", i, static_cast<int>(s));
 }
 
-void net_udp_flush()
+void net_udp_flush(std::array<RAIIsocket, 2> &UDP_Socket)
 {
-	range_for (auto &s, UDP_Socket)
+	for (auto &s : UDP_Socket)
 		net_udp_flush(s);
 }
+
+}
+}
+
+namespace {
 
 static void net_udp_listen(RAIIsocket &sock)
 {
@@ -4997,6 +5043,8 @@ void net_udp_listen()
 {
 	range_for (auto &s, UDP_Socket)
 		net_udp_listen(s);
+}
+
 }
 
 void net_udp_send_data(const uint8_t *const ptr, const unsigned len, const int priority)
@@ -5025,6 +5073,8 @@ void net_udp_send_data(const uint8_t *const ptr, const unsigned len, const int p
 		net_udp_send_mdata((priority==2)?1:0, timer_query());
 }
 
+namespace {
+
 void net_udp_timeout_check(fix64 time)
 {
 	static fix64 last_timeout_time = 0;
@@ -5047,6 +5097,8 @@ void net_udp_timeout_check(fix64 time)
 		}
 		last_timeout_time = time;
 	}
+}
+
 }
 
 namespace dsx {
@@ -5134,7 +5186,7 @@ void dispatch_table::do_protocol_frame(int force, int listen) const
  * Adds a packet to our queue. Should be called when an IMPORTANT mdata packet is created.
  * player_ack is an array which should contain 0 for each player that needs to send an ACK signal.
  */
-static void net_udp_noloss_add_queue_pkt(fix64 time, const ubyte *data, ushort data_size, ubyte pnum, ubyte player_ack[MAX_PLAYERS])
+static void net_udp_noloss_add_queue_pkt(fix64 time, const uint8_t *const data, ushort data_size, ubyte pnum, uint8_t (&player_ack)[MAX_PLAYERS])
 {
 	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
@@ -5243,6 +5295,8 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, co
 		UDP_mdata_trace[sender_pnum].pkt_num_torecv = UDP_MDATA_PKT_NUM_MIN;
 	return 1;
 }
+
+namespace {
 
 /* We got an ACK by a player. Set this player slot to positive! */
 void net_udp_noloss_got_ack(const uint8_t *data, uint_fast32_t data_len)
@@ -5386,9 +5440,11 @@ void net_udp_noloss_process_queue(fix64 time)
 		UDP_mdata_queue_highest--;
 	}
 }
+
+}
 /* CODE FOR PACKET LOSS PREVENTION - END */
 
-void net_udp_send_mdata_direct(const ubyte *data, int data_len, int pnum, int needack)
+void net_udp_send_mdata_direct(const uint8_t *const data, int data_len, int pnum, int needack)
 {
 	ubyte buf[sizeof(UDP_mdata_info)];
 	ubyte pack[MAX_PLAYERS];
@@ -5428,6 +5484,8 @@ void net_udp_send_mdata_direct(const ubyte *data, int data_len, int pnum, int ne
 	if (needack)
 		net_udp_noloss_add_queue_pkt(timer_query(), data, data_len, Player_num, pack);
 }
+
+namespace {
 
 void net_udp_send_mdata(int needack, fix64 time)
 {
@@ -5488,7 +5546,7 @@ void net_udp_send_mdata(int needack, fix64 time)
 	UDP_MData.mbuf = {};
 }
 
-void net_udp_process_mdata(uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr, int needack)
+void net_udp_process_mdata(uint8_t *const data, uint_fast32_t data_len, const _sockaddr &sender_addr, int needack)
 {
 	const unsigned pnum = data[1];
 	const unsigned dataoffset = needack ? 6 : 2;
@@ -5727,7 +5785,12 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 		set_thrust_from_velocity(TheirObj);
 }
 
+}
+
 #if defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
+namespace {
+
 static void net_udp_send_smash_lights (const playernum_t pnum)
  {
   // send the lights that have been blown out
@@ -5756,7 +5819,12 @@ static void net_udp_send_player_flags()
 	for (playernum_t i=0;i<N_players;i++)
 	multi_send_flags(i);
  }
+
+}
+}
 #endif
+
+namespace {
 
 // Send the ping list in regular intervals
 void net_udp_ping_frame(fix64 time)
@@ -5838,7 +5906,11 @@ void net_udp_process_pong(const uint8_t *data, const _sockaddr &sender_addr)
 	Netgame.players[playernum].ping = result;
 }
 
+}
+
 namespace dsx {
+namespace {
+
 void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 {
 	int new_player_num;
@@ -5938,6 +6010,9 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 	}
 }
 }
+}
+
+namespace {
 
 static int net_udp_get_new_player_num ()
 {
@@ -5966,7 +6041,11 @@ static int net_udp_get_new_player_num ()
 	}
 }
 
+}
+
 namespace dsx {
+namespace {
+
 void net_udp_send_extras ()
 {
 	static fix64 last_send_time = 0;
@@ -6006,8 +6085,6 @@ void net_udp_send_extras ()
 	if (!Network_sending_extras)
 		Player_joining_extras=-1;
 }
-
-namespace {
 
 struct show_game_info_menu : std::array<newmenu_item, 2>, std::array<char, 512>, passive_newmenu
 {
@@ -6096,6 +6173,7 @@ direct_join::connect_type net_udp_show_game_info(const netgame_info &Netgame)
 
 /* Tracker stuff, begin! */
 #if DXX_USE_TRACKER
+namespace {
 
 /* Tracker initialization */
 static int udp_tracker_init()
@@ -6172,13 +6250,14 @@ static int sender_is_tracker(const _sockaddr &sender, const _sockaddr &tracker)
 static int udp_tracker_unregister()
 {
 	std::array<uint8_t, 1> pBuf;
-
 	pBuf[0] = UPID_TRACKER_REMOVE;
-
 	return dxx_sendto(TrackerSocket, UDP_Socket[0], &pBuf, 1, 0);
 }
 
+}
+
 namespace dsx {
+namespace {
 /* Register or update (i.e. keep alive) a game on the tracker */
 static int udp_tracker_register()
 {
@@ -6207,21 +6286,24 @@ static int udp_tracker_reqgames()
 	return dxx_sendto(TrackerSocket, UDP_Socket[0], &pBuf, len, 0);
 }
 }
+}
+
+namespace {
 
 /* The tracker has sent us a game.  Let's list it. */
-static int udp_tracker_process_game( ubyte *data, int data_len, const _sockaddr &sender_addr )
+static int udp_tracker_process_game(const uint8_t *const data, int data_len, const _sockaddr &sender_addr)
 {
 	// Only accept data from the tracker we specified and only when we look at the netlist (i.e. NETSTAT_BROWSING)
 	if (!sender_is_tracker(sender_addr, TrackerSocket) || (Network_status != NETSTAT_BROWSING))
 		return -1;
 
-	char *p0 = NULL, *p1 = NULL, *p2 = NULL, *p3 = NULL;
+	const char *p0 = NULL, *p1 = NULL, *p2 = NULL, *p3 = NULL;
 	char sIP[47] = {};
 	std::array<char, 6> sPort{};
 	uint16_t iPort = 0, TrackerGameID = 0;
 
 	// Get the IP
-	if ((p0 = strstr(reinterpret_cast<char *>(data), "a=")) == NULL)
+	if ((p0 = strstr(reinterpret_cast<const char *>(data), "a=")) == NULL)
 		return -1;
 	p0 +=2;
 	if ((p1 = strstr(p0, "/")) == NULL)
@@ -6244,10 +6326,10 @@ static int udp_tracker_process_game( ubyte *data, int data_len, const _sockaddr 
 	struct _sockaddr sAddr;
 	if(udp_dns_filladdr(sAddr, sIP, iPort, true, true) < 0)
 		return -1;
-	if (data_len < p2-reinterpret_cast<char *>(data)+2)
+	if (data_len < p2 - reinterpret_cast<const char *>(data) + 2)
 		return -1;
 	TrackerGameID = GET_INTEL_SHORT(p2 + 2);
-	if ((p3 = strstr(reinterpret_cast<char *>(data), "z=")) == NULL)
+	if ((p3 = strstr(reinterpret_cast<const char *>(data), "z=")) == NULL)
 		return -1;
 
 	// Now process the actual lite_game packet contained.
@@ -6258,7 +6340,7 @@ static int udp_tracker_process_game( ubyte *data, int data_len, const _sockaddr 
 }
 
 /* Process ACK's from tracker. We will get up to 5, each internal and external */
-static void udp_tracker_process_ack( ubyte *data, int data_len, const _sockaddr &sender_addr )
+static void udp_tracker_process_ack(const uint8_t *const data, int data_len, const _sockaddr &sender_addr)
 {
 	if(!Netgame.Tracker)
 		return;
@@ -6321,7 +6403,7 @@ static void udp_tracker_request_holepunch( uint16_t TrackerGameID )
 
 /* Tracker sent us an address from a client requesting hole punching.
  * We'll simply reply with another hole punch packet and wait for them to request our game info properly. */
-static void udp_tracker_process_holepunch(uint8_t *const data, const unsigned data_len, const _sockaddr &sender_addr )
+static void udp_tracker_process_holepunch(uint8_t *const data, const unsigned data_len, const _sockaddr &sender_addr)
 {
 	if (data_len == 1 && !multi_i_am_master())
 	{
@@ -6363,5 +6445,7 @@ static void udp_tracker_process_holepunch(uint8_t *const data, const unsigned da
 	std::array<uint8_t, 1> pBuf;
 	pBuf[0] = UPID_TRACKER_HOLEPUNCH;
 	dxx_sendto(sAddr, UDP_Socket[0], &pBuf, 1, 0);
+}
+
 }
 #endif /* USE_TRACKER */
