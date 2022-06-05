@@ -2024,7 +2024,6 @@ void bm_read_player_ship(void)
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	for (i=0;i<n_models;i++) {
 		int n_textures;
-		int last_model_num=0;
 
 		n_textures = first_bitmap_num[i+1] - first_bitmap_num[i];
 		const auto model_num = load_polygon_model(model_name[i], n_textures, first_bitmap_num[i], (i == 0) ? &ri : nullptr);
@@ -2032,9 +2031,7 @@ void bm_read_player_ship(void)
 		if (i==0)
 			Player_ship->model_num = model_num;
 		else
-			Polygon_models[last_model_num].simpler_model = model_num+1;
-
-		last_model_num = model_num;
+			Polygon_models[0].simpler_model = model_num+1;
 	}
 
 	if ( model_name_dying ) {
