@@ -5926,15 +5926,6 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 
 	if (!WaitForRefuseAnswer)
 	{
-		for (unsigned i = 0; i < MAX_PLAYERS; ++i)
-		{
-			if (!d_stricmp(vcplayerptr(i)->callsign, their->player.callsign) && their->player.protocol.udp.addr == Netgame.players[i].protocol.udp.addr)
-			{
-				net_udp_welcome_player(their);
-				return;
-			}
-		}
-	
 #if defined(DXX_BUILD_DESCENT_I)
 		digi_play_sample (SOUND_CONTROL_CENTER_WARNING_SIREN,F1_0*2);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -5959,15 +5950,6 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 	}
 	else
 	{
-		for (unsigned i = 0; i < MAX_PLAYERS; ++i)
-		{
-			if (!d_stricmp(vcplayerptr(i)->callsign, their->player.callsign) && their->player.protocol.udp.addr == Netgame.players[i].protocol.udp.addr)
-			{
-				net_udp_welcome_player(their);
-				return;
-			}
-		}
-	
 		if (strcmp(their->player.callsign,RefusePlayerName))
 			return;
 	
