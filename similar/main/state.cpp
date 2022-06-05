@@ -1694,8 +1694,8 @@ void set_pos_from_return_segment(void)
 	auto &vcvertptr = Vertices.vcptr;
 	compute_segment_center(vcvertptr, plobjnum->pos, segp);
 	obj_relink(vmobjptr, vmsegptr, plobjnum, segp);
-	reset_player_object();
 	plobjnum->orient = LevelSharedSegmentState.Secret_return_orient;
+	reset_player_object(*plobjnum);
 }
 #endif
 

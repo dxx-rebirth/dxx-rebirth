@@ -2279,7 +2279,7 @@ static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptr
 	}
 	else {
 		// If deathmatch and not random, positions were already determined by sync packet
-		reset_player_object();
+		reset_player_object(*ConsoleObject);
 		return;
 	}
 	Assert(NewPlayer >= 0);
@@ -2287,7 +2287,7 @@ static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptr
 	ConsoleObject->pos = Player_init[NewPlayer].pos;
 	ConsoleObject->orient = Player_init[NewPlayer].orient;
 	obj_relink(vmobjptr, vmsegptr, vmobjptridx(ConsoleObject), vmsegptridx(Player_init[NewPlayer].segnum));
-	reset_player_object();
+	reset_player_object(*ConsoleObject);
 }
 
 }

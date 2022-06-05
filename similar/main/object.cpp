@@ -840,30 +840,30 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 #endif
 }
 
-void reset_player_object()
+void reset_player_object(object_base &ConsoleObject)
 {
 	//Init physics
 
-	vm_vec_zero(ConsoleObject->mtype.phys_info.velocity);
-	vm_vec_zero(ConsoleObject->mtype.phys_info.thrust);
-	vm_vec_zero(ConsoleObject->mtype.phys_info.rotvel);
-	vm_vec_zero(ConsoleObject->mtype.phys_info.rotthrust);
-	ConsoleObject->mtype.phys_info.turnroll = 0;
-	ConsoleObject->mtype.phys_info.mass = Player_ship->mass;
-	ConsoleObject->mtype.phys_info.drag = Player_ship->drag;
-	ConsoleObject->mtype.phys_info.flags = PF_TURNROLL | PF_LEVELLING | PF_WIGGLE | PF_USES_THRUST;
+	vm_vec_zero(ConsoleObject.mtype.phys_info.velocity);
+	vm_vec_zero(ConsoleObject.mtype.phys_info.thrust);
+	vm_vec_zero(ConsoleObject.mtype.phys_info.rotvel);
+	vm_vec_zero(ConsoleObject.mtype.phys_info.rotthrust);
+	ConsoleObject.mtype.phys_info.turnroll = 0;
+	ConsoleObject.mtype.phys_info.mass = Player_ship->mass;
+	ConsoleObject.mtype.phys_info.drag = Player_ship->drag;
+	ConsoleObject.mtype.phys_info.flags = PF_TURNROLL | PF_LEVELLING | PF_WIGGLE | PF_USES_THRUST;
 
 	//Init render info
 
-	ConsoleObject->render_type = RT_POLYOBJ;
-	ConsoleObject->rtype.pobj_info.model_num = Player_ship->model_num;		//what model is this?
-	ConsoleObject->rtype.pobj_info.subobj_flags = 0;		//zero the flags
-	ConsoleObject->rtype.pobj_info.tmap_override = -1;		//no tmap override!
-	ConsoleObject->rtype.pobj_info.anim_angles = {};
+	ConsoleObject.render_type = RT_POLYOBJ;
+	ConsoleObject.rtype.pobj_info.model_num = Player_ship->model_num;		//what model is this?
+	ConsoleObject.rtype.pobj_info.subobj_flags = 0;		//zero the flags
+	ConsoleObject.rtype.pobj_info.tmap_override = -1;		//no tmap override!
+	ConsoleObject.rtype.pobj_info.anim_angles = {};
 
 	// Clear misc
 
-	ConsoleObject->flags = 0;
+	ConsoleObject.flags = 0;
 }
 
 //make object0 the player, setting all relevant fields
@@ -881,7 +881,7 @@ void init_player_object()
 	console->movement_source = object::movement_type::physics;		//change this sometime
 	console->lifeleft = IMMORTAL_TIME;
 	console->attached_obj = object_none;
-	reset_player_object();
+	reset_player_object(console);
 }
 
 //sets up the free list & init player & whatever else

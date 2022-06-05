@@ -3485,7 +3485,7 @@ void multi_prep_level_player(void)
 
 	ConsoleObject->control_source = object::control_type::flying;
 
-	reset_player_object();
+	reset_player_object(*ConsoleObject);
 
 	imulti_new_game=0;
 }

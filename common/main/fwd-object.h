@@ -299,7 +299,7 @@ void fuelcen_check_for_goal(object &plrobj, const shared_segment &segp);
 imobjptridx_t obj_find_first_of_type(fvmobjptridx &, object_type_t type);
 
 void object_rw_swap(struct object_rw *obj_rw, int swap);
-void reset_player_object();
+void reset_player_object(object_base &);
 
 }
 #endif
