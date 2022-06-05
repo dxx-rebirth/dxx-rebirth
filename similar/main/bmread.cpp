@@ -2024,18 +2024,10 @@ void bm_read_player_ship(void)
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	for (i=0;i<n_models;i++) {
 		int n_textures;
-		int model_num,last_model_num=0;
+		int last_model_num=0;
 
 		n_textures = first_bitmap_num[i+1] - first_bitmap_num[i];
-
-#if defined(DXX_BUILD_DESCENT_I)
-		robot_info *pri = NULL;
-		if (i == 0)
-			pri = &ri;
-		model_num = load_polygon_model(model_name[i],n_textures,first_bitmap_num[i],pri);
-#elif defined(DXX_BUILD_DESCENT_II)
-		model_num = load_polygon_model(model_name[i],n_textures,first_bitmap_num[i],(i==0) ? &ri : nullptr);
-#endif
+		const auto model_num = load_polygon_model(model_name[i], n_textures, first_bitmap_num[i], (i == 0) ? &ri : nullptr);
 
 		if (i==0)
 			Player_ship->model_num = model_num;
