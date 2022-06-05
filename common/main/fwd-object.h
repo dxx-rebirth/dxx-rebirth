@@ -217,7 +217,7 @@ window_event_result game_move_all_objects();     // moves all objects
 window_event_result endlevel_move_all_objects();
 
 // set viewer object to next object in array
-void object_goto_next_viewer();
+void object_goto_next_viewer(const object_array &Objects, const object *&viewer);
 
 // make object0 the player, setting all relevant fields
 void init_player_object(const d_level_shared_polygon_model_state &LevelSharedPolygonModelState, object_base &console);

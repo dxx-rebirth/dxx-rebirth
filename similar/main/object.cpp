@@ -111,45 +111,40 @@ static int is_proximity_bomb_or_any_smart_mine(const weapon_id_type id)
  */
 
 object *ConsoleObject;					//the object that is the player
-}
 
-namespace dcx {
-
-//Data for objects
-
-// -- Object stuff
-
-//info on the various types of objects
-}
-
-namespace dsx {
 #ifndef RELEASE
 //set viewer object to next object in array
-void object_goto_next_viewer()
+void object_goto_next_viewer(const object_array &Objects, const object *&viewer)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vcobjptr = Objects.vcptr;
-	auto &vcobjptridx = Objects.vcptridx;
-	auto &vmobjptr = Objects.vmptr;
-	objnum_t start_obj;
-	start_obj = vcobjptridx(Viewer);		//get viewer object number
-	
-	range_for (const auto &&i, vcobjptr)
+	const auto initial_viewer = viewer;
+	const object *const oe = *Objects.vcptr.end();
+	/* Preconditions:
+	 * - There exists an integer `i` such that `i < MAX_OBJECTS` and
+	 *   `&Objects[i] == initial_viewer`.
+	 * - There exists at least one object not of type `OBJ_NONE`.
+	 * If the first precondition holds, then:
+	 * - The test for `candidate_object != initial_viewer` will always terminate the
+	 *   loop, even if there are no other objects of type other than
+	 *   `OBJ_NONE`.
+	 * If both preconditions hold, then:
+	 * - The loop will always find and return a value.
+	 */
+	unsigned limit = 0;
+	for (auto candidate_object = initial_viewer; ++candidate_object != initial_viewer && limit < MAX_OBJECTS; ++limit)
 	{
-		(void)i;
-		start_obj++;
-		if (start_obj > Highest_object_index ) start_obj = 0;
-
-		auto &objp = *vmobjptr(start_obj);
+		if (unlikely(candidate_object == oe))
+			/* Wrap around to the beginning.  This is only computed if
+			 * necessary, so if an object can be found without wrapping, then
+			 * `begin()` never needs to be called.
+			 */
+			candidate_object = *Objects.vcptr.begin();
+		auto &objp = *candidate_object;
 		if (objp.type != OBJ_NONE)
 		{
-			Viewer = &objp;
+			viewer = &objp;
 			return;
 		}
 	}
-
-	Error( "Could not find a viewer object!" );
-
 }
 #endif
 
