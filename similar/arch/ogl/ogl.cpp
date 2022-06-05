@@ -552,26 +552,15 @@ namespace dcx {
 
 void g3_draw_line(const g3_draw_line_context &context, const g3s_point &p0, const g3s_point &p1)
 {
-	GLfloat color_r, color_g, color_b;
-	GLfloat color_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-  
 	ogl_client_states<int, GL_VERTEX_ARRAY, GL_COLOR_ARRAY> cs;
 	OGL_DISABLE(TEXTURE_2D);
 	glDisable(GL_CULL_FACE);
-	const auto c = context.color;
-	color_r = PAL2Tr(c);
-	color_g = PAL2Tg(c);
-	color_b = PAL2Tb(c);
-	color_array[0] = color_array[4] = color_r;
-	color_array[1] = color_array[5] = color_g;
-	color_array[2] = color_array[6] = color_b;
-	color_array[3] = color_array[7] = 1.0;
 	std::array<GLfloat, 6> vertices = {{
 		f2glf(p0.p3_vec.x), f2glf(p0.p3_vec.y), -f2glf(p0.p3_vec.z),
 		f2glf(p1.p3_vec.x), f2glf(p1.p3_vec.y), -f2glf(p1.p3_vec.z)
 	}};
 	glVertexPointer(3, GL_FLOAT, 0, vertices.data());
-	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glColorPointer(4, GL_FLOAT, 0, context.color_array.data());
 	glDrawArrays(GL_LINES, 0, 2);
 }
 

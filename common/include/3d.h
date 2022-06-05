@@ -34,6 +34,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-gr.h"
 #include <array>
 
+#if DXX_USE_OGL
+#include <GL/gl.h>
+#endif
+
 #if DXX_USE_EDITOR
 namespace dcx {
 extern int g3d_interp_outline;      //if on, polygon models outlined in white
@@ -275,12 +279,26 @@ void g3_draw_rod_tmap(grs_canvas &, grs_bitmap &bitmap, const g3s_point &bot_poi
 //returns 1 if off screen, 0 if drew
 void g3_draw_bitmap(grs_canvas &, const vms_vector &pos, fix width, fix height, grs_bitmap &bm);
 
+#if DXX_USE_OGL
+struct g3_draw_line_colors
+{
+	const std::array<GLfloat, 8> color_array;
+	g3_draw_line_colors(color_palette_index color);
+};
+#endif
+
 class g3_draw_line_context
+#if DXX_USE_OGL
+	: public g3_draw_line_colors
+#endif
 {
 public:
 	grs_canvas &canvas;
 	const color_palette_index color;
 	g3_draw_line_context(grs_canvas &canvas, color_palette_index color) :
+#if DXX_USE_OGL
+		g3_draw_line_colors(color),
+#endif
 		canvas(canvas), color(color)
 	{
 	}

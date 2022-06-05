@@ -25,6 +25,29 @@ namespace dcx {
 
 tmap_drawer_type tmap_drawer_ptr = draw_tmap;
 
+#if DXX_USE_OGL
+namespace {
+
+const std::array<GLfloat, 8> build_color_array_from_color_palette_index(const color_palette_index color)
+{
+	auto &&rgb = PAL2T(color);
+	const GLfloat color_r = rgb.r / 63.0;
+	const GLfloat color_g = rgb.g / 63.0;
+	const GLfloat color_b = rgb.b / 63.0;
+	return {{
+		color_r, color_g, color_b, 1.0,
+		color_r, color_g, color_b, 1.0,
+	}};
+}
+
+}
+
+g3_draw_line_colors::g3_draw_line_colors(const color_palette_index color) :
+	color_array(build_color_array_from_color_palette_index(color))
+{
+}
+#endif
+
 //specifies 2d drawing routines to use instead of defaults.  Passing
 //NULL for either or both restores defaults
 void g3_set_special_render(tmap_drawer_type tmap_drawer)
