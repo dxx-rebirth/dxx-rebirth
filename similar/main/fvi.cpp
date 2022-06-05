@@ -583,11 +583,13 @@ static vm_distance_squared check_vector_to_object(vms_vector &intp, const vms_ve
 	fix size = obj.size;
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	if (obj.type == OBJ_ROBOT && Robot_info[get_robot_id(obj)].attack_type)
-		size = (size*3)/4;
-
+	if (obj.type == OBJ_ROBOT)
+	{
+		if (Robot_info[get_robot_id(obj)].attack_type)
+			size = (size*3)/4;
+	}
 	//if obj is player, and bumping into other player or a weapon of another coop player, reduce radius
-	if (obj.type == OBJ_PLAYER &&
+	else if (obj.type == OBJ_PLAYER &&
 		 	(otherobj.type == OBJ_PLAYER ||
 	 		((Game_mode & GM_MULTI_COOP) && otherobj.type == OBJ_WEAPON && otherobj.ctype.laser_info.parent_type == OBJ_PLAYER)))
 		size = size/2;
@@ -849,18 +851,18 @@ static fvi_hit_type fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &
 
 			//	If this is a robot:robot collision, only do it if both of them have attack_type != 0 (eg, green guy)
 			if (thisobjnum->type == OBJ_ROBOT)
+			{
 				if (objnum->type == OBJ_ROBOT)
 #if defined(DXX_BUILD_DESCENT_I)
 					if (!(Robot_info[get_robot_id(objnum)].attack_type && Robot_info[get_robot_id(thisobjnum)].attack_type))
 #endif
 					// -- MK: 11/18/95, 4claws glomming together...this is easy.  -- if (!(Robot_info[Objects[objnum].id].attack_type && Robot_info[Objects[thisobjnum].id].attack_type))
 						continue;
-
-			if (thisobjnum->type == OBJ_ROBOT && Robot_info[get_robot_id(thisobjnum)].attack_type)
-				fudged_rad = (rad*3)/4;
-
+				if (Robot_info[get_robot_id(thisobjnum)].attack_type)
+					fudged_rad = (rad*3)/4;
+			}
 			//if obj is player, and bumping into other player or a weapon of another coop player, reduce radius
-			if (thisobjnum->type == OBJ_PLAYER &&
+			else if (thisobjnum->type == OBJ_PLAYER &&
 					((objnum->type == OBJ_PLAYER) ||
 					((Game_mode&GM_MULTI_COOP) &&  objnum->type == OBJ_WEAPON && objnum->ctype.laser_info.parent_type == OBJ_PLAYER)))
 				fudged_rad = rad/2;	//(rad*3)/4;
