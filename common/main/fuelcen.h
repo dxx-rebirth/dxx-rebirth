@@ -77,15 +77,6 @@ fix fuelcen_give_fuel(const shared_segment &segp, fix MaxAmountCanTake);
 
 // Call once per frame.
 void fuelcen_update_all();
-
-// Called to repair an object
-//--repair-- int refuel_do_repair_effect( object * obj, int first_time, int repair_seg );
-
-namespace dsx {
-#if defined(DXX_BUILD_DESCENT_II)
-fix repaircen_give_shields(const shared_segment &segp, fix MaxAmountCanTake);
-#endif
-}
 #endif
 
 //--repair-- //do the repair center for this frame
@@ -129,6 +120,9 @@ struct d_level_unique_fuelcenter_state
 
 extern d_level_unique_fuelcenter_state LevelUniqueFuelcenterState;
 
+#ifdef dsx
+fix repaircen_give_shields(const shared_segment &segp, fix MaxAmountCanTake);
+#endif
 }
 
 #ifdef dsx

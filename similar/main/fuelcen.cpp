@@ -595,7 +595,10 @@ fix fuelcen_give_fuel(const shared_segment &segp, fix MaxAmountCanTake)
 	}
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+}
+
+namespace dcx {
+
 //-------------------------------------------------------------
 // DM/050904
 // Repair centers
@@ -624,7 +627,10 @@ fix repaircen_give_shields(const shared_segment &segp, const fix MaxAmountCanTak
 		return 0;
 	}
 }
-#endif
+
+}
+
+namespace dsx {
 
 //	--------------------------------------------------------------------------------------------
 void disable_matcens(void)

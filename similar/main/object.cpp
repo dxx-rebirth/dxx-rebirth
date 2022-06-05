@@ -1798,13 +1798,11 @@ static window_event_result object_move_one(const vmobjptridx_t obj, control_info
 		if (fuel > 0 )	{
 			energy += fuel;
 		}
-#if defined(DXX_BUILD_DESCENT_II)
-		auto &pl_shields = get_local_plrobj().shields;
+		auto &pl_shields = obj->shields;
 		const fix shields = repaircen_give_shields(segp, INITIAL_SHIELDS - pl_shields);
 		if (shields > 0) {
 			pl_shields += shields;
 		}
-#endif
 	}
 
 	{
