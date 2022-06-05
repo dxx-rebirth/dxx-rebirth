@@ -2122,10 +2122,9 @@ static unsigned net_udp_create_monitor_vector(void)
 	return(vector);
 }
 
-static void net_udp_stop_resync(UDP_sequence_packet *their)
+static void net_udp_stop_resync(const struct _sockaddr &udp_addr)
 {
-	if (UDP_sync_player.player.protocol.udp.addr == their->player.protocol.udp.addr &&
-		(!d_stricmp(UDP_sync_player.player.callsign, their->player.callsign)) )
+	if (UDP_sync_player.player.protocol.udp.addr == udp_addr)
 	{
 		Network_send_objects = 0;
 		Network_sending_extras=0;
@@ -2511,13 +2510,13 @@ static void net_udp_add_player(UDP_sequence_packet *p)
 
 // One of the players decided not to join the game
 
-static void net_udp_remove_player(const UDP_sequence_packet *const p)
+static void net_udp_remove_player(const struct _sockaddr &udp_addr)
 {
 	const auto &&ngp_range = partial_range(Netgame.players, N_players);
 	for (auto &&iter = ngp_range.begin(), &&end = ngp_range.end(); iter != end; ++iter)
 	{
 		auto &ngp = *iter;
-		if (ngp.protocol.udp.addr != p->player.protocol.udp.addr)
+		if (ngp.protocol.udp.addr != udp_addr)
 			continue;
 		std::move(std::next(iter), end, iter);
 		--N_players;
@@ -3234,13 +3233,12 @@ static void net_udp_process_packet(uint8_t *const data, const _sockaddr &sender_
 			}
 			break;
 		case UPID_QUIT_JOINING:
-			if (!multi_i_am_master() || length != UPID_SEQUENCE_SIZE)
+			if (!multi_i_am_master() || length != 1)
 				break;
-			net_udp_receive_sequence_packet(data, &their, sender_addr);
 			if (Network_status == NETSTAT_STARTING)
-				net_udp_remove_player( &their );
+				net_udp_remove_player(sender_addr);
 			else if ((Network_status == NETSTAT_PLAYING) && (Network_send_objects))
-				net_udp_stop_resync( &their );
+				net_udp_stop_resync(sender_addr);
 			break;
 		case UPID_SYNC:
 			if (multi_i_am_master() || length > UPID_GAME_INFO_SIZE_MAX || Network_status != NETSTAT_WAITING)
@@ -4709,10 +4707,9 @@ static int net_udp_wait_for_sync(void)
 
 	if (Network_status != NETSTAT_PLAYING)
 	{
-		UDP_sequence_packet me{};
-		me.type = UPID_QUIT_JOINING;
-		me.player.callsign = get_local_player().callsign;
-		net_udp_send_sequence_packet(me, Netgame.players[0].protocol.udp.addr);
+		std::array<uint8_t, 1> buf;
+		buf[0] = UPID_QUIT_JOINING;
+		dxx_sendto(Netgame.players[0].protocol.udp.addr, UDP_Socket[0], buf, 0);
 		N_players = 0;
 		Game_mode = {};
 		return(-1);     // they cancelled
