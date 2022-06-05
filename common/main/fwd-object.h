@@ -9,9 +9,9 @@
 #pragma once
 
 #include <type_traits>
-#include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "objnum.h"
+#include "fwd-piggy.h"
 #include "fwd-vecmat.h"
 #include "fwd-segment.h"
 #include "fwd-window.h"
@@ -172,13 +172,13 @@ enum class player_dead_state : uint8_t
 namespace dcx {
 extern player_dead_state Player_dead_state;          // !0 means player is dead!
 extern objnum_t Player_fired_laser_this_frame;
-
-// Draw a blob-type object, like a fireball
-void draw_object_blob(grs_canvas &, const object_base &obj, bitmap_index bitmap);
 }
 
 #ifdef dsx
 namespace dsx {
+// Draw a blob-type object, like a fireball
+void draw_object_blob(GameBitmaps_array &GameBitmaps, const object_base &Viewer, grs_canvas &, const object_base &obj, bitmap_index bitmap);
+
 // do whatever setup needs to be done
 void init_objects();
 

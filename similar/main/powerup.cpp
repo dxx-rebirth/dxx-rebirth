@@ -121,7 +121,7 @@ void do_powerup_frame(const d_vclip_array &Vclip, const vmobjptridx_t obj)
 void draw_powerup(const d_vclip_array &Vclip, grs_canvas &canvas, const object_base &obj)
 {
 	auto &vci = obj.rtype.vclip_info;
-	draw_object_blob(canvas, obj, Vclip[vci.vclip_num].frames[vci.framenum]);
+	draw_object_blob(GameBitmaps, *Viewer, canvas, obj, Vclip[vci.vclip_num].frames[vci.framenum]);
 }
 
 namespace {

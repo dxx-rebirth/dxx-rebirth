@@ -86,7 +86,7 @@ void Laser_render(grs_canvas &canvas, const object_base &obj)
 					//Laser_draw_one(obj-Objects, Weapon_info[obj->id].bitmap );
 		break;
 	case WEAPON_RENDER_BLOB:
-		draw_object_blob(canvas, obj, wi.bitmap);
+		draw_object_blob(GameBitmaps, *Viewer, canvas, obj, wi.bitmap);
 		break;
 	case WEAPON_RENDER_POLYMODEL:
 		break;

@@ -183,8 +183,12 @@ icobjidx_t laser_info::get_last_hitobj() const
 	return hitobj_values[hitobj_pos - 1];
 }
 
+}
+
+namespace dsx {
+
 //draw an object that has one bitmap & doesn't rotate
-void draw_object_blob(grs_canvas &canvas, const object_base &obj, const bitmap_index bmi)
+void draw_object_blob(GameBitmaps_array &GameBitmaps, const object_base &Viewer, grs_canvas &canvas, const object_base &obj, const bitmap_index bmi)
 {
 	auto &bm = GameBitmaps[bmi.index];
 	PIGGY_PAGE_IN( bmi );
@@ -195,7 +199,7 @@ void draw_object_blob(grs_canvas &canvas, const object_base &obj, const bitmap_i
 	if (obj.type == OBJ_FIREBALL && get_fireball_id(obj) == VCLIP_VOLATILE_WALL_HIT)
 	{
 		vms_vector offs_vec;
-		vm_vec_normalized_dir_quick(offs_vec, Viewer->pos, pos);
+		vm_vec_normalized_dir_quick(offs_vec, Viewer.pos, pos);
 		vm_vec_scale_add2(pos,offs_vec,F1_0);
 	}
 
@@ -207,10 +211,6 @@ void draw_object_blob(grs_canvas &canvas, const object_base &obj, const bitmap_i
 		: wh(fixmuldiv(osize, bm_w, bm_h), osize);
 	g3_draw_bitmap(canvas, pos, p.first, p.second, bm);
 }
-
-}
-
-namespace dsx {
 
 //draw an object that is a texture-mapped rod
 void draw_object_tmap_rod(grs_canvas &canvas, const d_level_unique_light_state *const LevelUniqueLightState, const vcobjptridx_t obj, const bitmap_index bitmapi)
