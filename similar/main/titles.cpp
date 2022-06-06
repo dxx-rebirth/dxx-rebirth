@@ -1165,10 +1165,11 @@ static void show_animated_bitmap(grs_canvas &canvas, briefing *br)
 			case briefing::animating_bitmap_type::loop:
 				if (num == EXIT_DOOR_MAX) {
 					br->door_dir = briefing::door_direction::backward;
+					br->door_div_count = 64;
 				} else if (num == 0) {
 					br->door_dir = briefing::door_direction::forward;
+					br->door_div_count = 64;
 				}
-				br->door_div_count = 64;
 				break;
 			case briefing::animating_bitmap_type::reset:
 				break;
