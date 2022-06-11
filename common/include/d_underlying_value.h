@@ -11,21 +11,11 @@
 /* Convenience function to use std::underlying_type<T> on a given value,
  * and always pick the right T for the enum being converted.
  */
-template <typename T>
-static constexpr auto underlying_value(const T e)
+template <typename T, typename R = typename std::enable_if<std::is_enum<T>::value, typename std::underlying_type<T>::type>::type>
+static constexpr R underlying_value(const T e)
 {
-	if constexpr (std::is_enum<T>::value)
-		return static_cast<typename std::underlying_type<T>::type>(e);
-	else
-	{
-		/* This path should never be executed, but has a return
-		 * statement because deducing a return type of `void` produces
-		 * worse error messages than deducing a passthrough of the
-		 * original value.  Although this function can work correctly on
-		 * a non-enum, it is unnecessary there, so any such use likely
-		 * indicates a bug.
-		 */
-		static_assert(std::is_enum<T>::value);
-		return e;
-	}
+	return static_cast<R>(e);
 }
+
+template <typename T>
+typename std::enable_if<!std::is_enum<T>::value, T>::type underlying_value(T) = delete;
