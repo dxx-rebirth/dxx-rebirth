@@ -58,7 +58,8 @@ static inline int d_strnicmp(const char *s1, const char (&s2)[N])
 
 struct splitpath_t
 {
-	const char *drive_start, *drive_end, *path_start, *path_end, *base_start, *base_end, *ext_start;
+	const char *const base_start;
+	const char *const base_end;
 };
 
 // remove extension from filename, doesn't work with paths.
@@ -67,9 +68,10 @@ void removeext(const char *filename, std::array<char, 20> &out);
 //give a filename a new extension, doesn't work with paths with no extension already there
 extern void change_filename_extension( char *dest, const char *src, const char *new_ext );
 
-// split an MS-DOS path into drive, directory path, filename without the extension (base) and extension.
-// if it's just a filename with no directory specified, this function will get 'base' and 'ext'
-void d_splitpath(const char *name, struct splitpath_t *path);
+/* Given an MS-DOS path, return pointers to the start of the basename and the
+ * start of the extension.
+ */
+splitpath_t d_splitpath(const char *name);
 
 class string_array_t
 {

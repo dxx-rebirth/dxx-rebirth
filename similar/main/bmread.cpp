@@ -268,8 +268,7 @@ static bitmap_index bm_load_sub(const int skip, const char *const filename)
 #if defined(DXX_BUILD_DESCENT_I)
 	removeext(filename, fname);
 #elif defined(DXX_BUILD_DESCENT_II)
-	struct splitpath_t path;
-	d_splitpath(  filename, &path);
+	const auto path = d_splitpath(filename);
 	if (path.base_end - path.base_start >= fname.size())
 		Error("File <%s> - bitmap error, filename too long", filename);
 	memcpy(fname.data(), path.base_start, path.base_end - path.base_start);
@@ -319,8 +318,7 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 	std::array<char, 20> fname;
 	removeext(filename, fname);
 #elif defined(DXX_BUILD_DESCENT_II)
-	struct splitpath_t path;
-	d_splitpath( filename, &path);
+	const auto path = d_splitpath(filename);
 #endif
 
 	{

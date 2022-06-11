@@ -169,34 +169,25 @@ void change_filename_extension( char *dest, const char *src, const char *ext )
 	strcpy(p+1,ext);
 }
 
-void d_splitpath(const char *name, struct splitpath_t *path)
+splitpath_t d_splitpath(const char *name)
 {
 	const char *s, *p;
 
 	p = name;
 	s = strchr(p, ':');
 	if ( s != NULL ) {
-		path->drive_start = p;
-		path->drive_end = s;
 		p = s+1;
-	} else
-		path->drive_start = path->drive_end = NULL;
+	}
 	s = strrchr(p, '\\');
 	if ( s != NULL) {
-		path->path_start = p;
-		path->path_end = s + 1;
 		p = s+1;
-	} else
-		path->path_start = path->path_end = NULL;
+	}
 
 	s = strchr(p, '.');
-	if ( s != NULL) {
-		path->base_start = p;
-		path->base_end = s;
-		p = s+1;
+	if (s != NULL) {
+		return {p, s};
 	} else
-		path->base_start = path->base_end = NULL;
-	path->ext_start = p;
+		return {};
 }
 
 int string_array_sort_func(const void *v0, const void *v1)

@@ -67,8 +67,7 @@ int load_palette(const char *name,int used_for_level,int no_change_screen)
 
 	if (used_for_level && d_stricmp(last_palette_loaded_pig,name) != 0) {
 
-		struct splitpath_t path;
-		d_splitpath(name,&path);
+		const auto path = d_splitpath(name);
 		snprintf(pigname, sizeof(pigname), "%.*s.pig", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start);
 		//if not editor, load pig first so small install message can come
 		//up in old palette.  If editor version, we must load the pig after

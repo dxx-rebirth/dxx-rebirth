@@ -198,8 +198,7 @@ static int med_save_situation(const mine_filename_type &filename)
 	}
 
 	//	Write mine name.
-	struct splitpath_t path;
-	d_splitpath(filename.data(), &path);
+	const auto path = d_splitpath(filename.data());
 	PHYSFSX_printf(SaveFile, "%.*s.min\n", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start);
 
 	//	Write player position.
