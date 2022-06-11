@@ -191,7 +191,9 @@ static void bm_read_powerup(char *&arg, int unused_flag);
 static void bm_read_hostage(char *&arg);
 static void verify_textures();
 #elif defined(DXX_BUILD_DESCENT_II)
+#if DXX_USE_EDITOR
 static void bm_read_alias(void);
+#endif
 static void bm_read_marker(void);
 static void bm_read_robot_ai(int skip);
 static void bm_read_powerup(int unused_flag);
@@ -462,6 +464,7 @@ static int get_texture(char *name)
 
 #define LINEBUF_SIZE 600
 
+#if defined(DXX_BUILD_DESCENT_I) || (defined(DXX_BUILD_DESCENT_II) && DXX_USE_EDITOR)
 //-----------------------------------------------------------------
 // Initializes all properties and bitmaps from BITMAPS.TBL file.
 // This is called when the editor is IN.
@@ -819,6 +822,7 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 
 	return 0;
 }
+#endif
 
 namespace {
 
@@ -852,7 +856,7 @@ void verify_textures()
 #endif
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II) && DXX_USE_EDITOR
 void bm_read_alias()
 {
 	char *t;

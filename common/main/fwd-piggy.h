@@ -46,8 +46,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_ALIASES 20
 
 struct alias;
+#if DXX_USE_EDITOR
 extern std::array<alias, MAX_ALIASES> alias_list;
 extern unsigned Num_aliases;
+#endif
 
 extern int Piggy_hamfile_version;
 extern int Pigfile_initialized;

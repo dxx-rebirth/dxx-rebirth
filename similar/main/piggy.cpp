@@ -81,8 +81,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAC_ICE_PIGSIZE         4923425
 #define MAC_WATER_PIGSIZE       4832403
 
+#if DXX_USE_EDITOR
 unsigned Num_aliases;
 std::array<alias, MAX_ALIASES> alias_list;
+#endif
 
 int Piggy_hamfile_version = 0;
 #endif
@@ -392,7 +394,7 @@ bitmap_index piggy_find_bitmap(const char * name)
 
 	bmp.index = 0;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II) && DXX_USE_EDITOR
 	size_t namelen;
 	const char *t;
 	if ((t=strchr(name,'#'))!=NULL)
