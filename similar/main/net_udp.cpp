@@ -319,11 +319,7 @@ static std::array<UDP_mdata_check, MAX_PLAYERS> UDP_mdata_trace;
 static UDP_sequence_packet UDP_sync_player; // For rejoin object syncing
 static std::array<UDP_netgame_info_lite, UDP_MAX_NETGAMES> Active_udp_games;
 static uint16_t UDP_MyPort;
-static sockaddr_in GBcast; // global Broadcast address clients and hosts will use for lite_info exchange over LAN
-#define UDP_BCAST_ADDR "255.255.255.255"
 #if DXX_USE_IPv6
-#define UDP_MCASTv6_ADDR "ff02::1"
-static sockaddr_in6 GMcast_v6; // same for IPv6-only
 #define dispatch_sockaddr_from	from.sin6
 #else
 #define dispatch_sockaddr_from	from.sin
@@ -358,6 +354,33 @@ namespace dcx {
 namespace {
 
 constexpr std::integral_constant<uint32_t, 0xfffffffe> network_checksum_marker_object{};
+
+constexpr sockaddr_in GBcast = { // global Broadcast address clients and hosts will use for lite_info exchange over LAN
+	.sin_family = AF_INET,
+	.sin_port = words_bigendian ? UDP_PORT_DEFAULT : SWAPSHORT(UDP_PORT_DEFAULT),
+	.sin_addr = {
+#ifdef _WIN32
+		.S_un = {
+			.S_addr = 0xffffffff
+		}
+#else
+		.s_addr = 0xffffffff
+#endif
+	},
+	.sin_zero = {}
+};
+
+#if DXX_USE_IPv6
+constexpr sockaddr_in6 GMcast_v6 = { // same for IPv6-only
+	.sin6_family = AF_INET6,
+	.sin6_port = GBcast.sin_port,
+	.sin6_flowinfo = 0,
+	.sin6_addr = {
+		{{0xff, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}}
+	},
+	.sin6_scope_id = 0,
+};
+#endif
 
 class RAIIsocket
 {
@@ -887,14 +910,6 @@ public:
 };
 
 constexpr sockaddr_resolve_family_dispatch_t<passthrough_static_apply<udp_dns_filladdr_t>> udp_dns_filladdr{};
-
-static void udp_init_broadcast_addresses()
-{
-	udp_dns_filladdr(GBcast, UDP_BCAST_ADDR, UDP_PORT_DEFAULT, true, true);
-#if DXX_USE_IPv6
-	udp_dns_filladdr(GMcast_v6, UDP_MCASTv6_ADDR, UDP_PORT_DEFAULT, true, true);
-#endif
-}
 
 // Open socket
 static int udp_open_socket(RAIIsocket &sock, int port)
@@ -1543,9 +1558,6 @@ void net_udp_list_join_game(grs_canvas &canvas)
 	if (gamemyport >= 1024 && gamemyport != UDP_PORT_DEFAULT)
 		if (udp_open_socket(UDP_Socket[1], UDP_PORT_DEFAULT) < 0)
 			nm_messagebox_str(menu_title{TXT_WARNING}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Cannot open default port!\nYou can only scan for games\nmanually."});
-
-	// prepare broadcast address to discover games
-	udp_init_broadcast_addresses();
 
 	change_playernum_to(1);
 	N_players = 0;
@@ -4665,8 +4677,6 @@ static int net_udp_start_game()
 	if (i != 0)
 		return 0;
 
-	// prepare broadcast address to announce our game
-	udp_init_broadcast_addresses();
 	d_srand(static_cast<fix>(timer_query()));
 	Netgame.protocol.udp.GameID=d_rand();
 
