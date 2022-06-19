@@ -318,7 +318,6 @@ static std::array<UDP_mdata_store, UDP_MDATA_STOR_QUEUE_SIZE> UDP_mdata_queue;
 static std::array<UDP_mdata_check, MAX_PLAYERS> UDP_mdata_trace;
 static UDP_sequence_packet UDP_sync_player; // For rejoin object syncing
 static std::array<UDP_netgame_info_lite, UDP_MAX_NETGAMES> Active_udp_games;
-static int num_active_udp_changed;
 static uint16_t UDP_MyPort;
 static sockaddr_in GBcast; // global Broadcast address clients and hosts will use for lite_info exchange over LAN
 #define UDP_BCAST_ADDR "255.255.255.255"
@@ -1108,6 +1107,7 @@ netgame_list_game_menu *netgame_list_menu;
 struct netgame_list_game_menu : netgame_list_game_menu_items, direct_join, newmenu
 {
 	unsigned num_active_udp_games = 0;
+	uint8_t num_active_udp_changed = 1;
 	netgame_list_game_menu(grs_canvas &src) :
 		newmenu(menu_title{"NETGAMES"}, menu_subtitle{nullptr}, menu_filename{nullptr}, tiny_mode_flag::tiny, tab_processing_flag::process, adjusted_citem::create(menus, 0), src)
 	{
@@ -1562,7 +1562,6 @@ void net_udp_list_join_game(grs_canvas &canvas)
 
 	gr_set_fontcolor(canvas, BM_XRGB(15, 15, 23),-1);
 
-	num_active_udp_changed = 1;
 	auto menu = window_create<netgame_list_game_menu>(canvas);
 	(void)menu;
 }
@@ -2966,7 +2965,7 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		copy_to_ntstring(data, len, recv_game.mission_name);
 		recv_game.TrackerGameID = TrackerGameID;
 	
-		num_active_udp_changed = 1;
+		menu->num_active_udp_changed = 1;
 		
 		auto r = partial_range(Active_udp_games, menu->num_active_udp_games);
 		auto i = std::find_if(r.begin(), r.end(), [&recv_game](const UDP_netgame_info_lite &g) { return !d_stricmp(g.game_name.data(), recv_game.game_name.data()) && g.GameID == recv_game.GameID; });
