@@ -89,12 +89,6 @@ static inline const rgb_t &PAL2T(const color_palette_index c)
 //inline GLfloat PAL2Tb(int c);
 }
 
-#ifdef DXX_BUILD_DESCENT_I
-namespace dsx {
-void copy_diminish_palette(palette_array_t &palette, const uint8_t *p);
-}
-#endif
-
 #endif
 
 #endif
