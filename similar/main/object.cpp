@@ -847,7 +847,11 @@ void reset_player_object(object_base &ConsoleObject)
 	ConsoleObject.mtype.phys_info.turnroll = 0;
 	ConsoleObject.mtype.phys_info.mass = Player_ship->mass;
 	ConsoleObject.mtype.phys_info.drag = Player_ship->drag;
-	ConsoleObject.mtype.phys_info.flags = PF_TURNROLL | PF_LEVELLING | PF_WIGGLE | PF_USES_THRUST;
+	ConsoleObject.mtype.phys_info.flags =
+#ifndef DXX_FEATURE_DISABLE_SHIP_WIGGLE
+		PF_WIGGLE |
+#endif
+		PF_TURNROLL | PF_LEVELLING | PF_USES_THRUST;
 
 	//Init render info
 
