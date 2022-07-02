@@ -172,8 +172,9 @@ namespace dsx {
 //	Scans the Segments array.
 segnum_t get_free_segment_number(segment_array &Segments)
 {
-	for (segnum_t segnum=0; segnum<MAX_SEGMENTS; segnum++)
-		if (Segments[segnum].segnum == segment_none) {
+	for (const auto &&[segnum, seg] : enumerate(Segments))
+		if (seg.segnum == segment_none)
+		{
 			++ LevelSharedSegmentState.Num_segments;
 			if (segnum > Highest_segment_index)
 				Segments.set_count(segnum + 1);
@@ -181,8 +182,7 @@ segnum_t get_free_segment_number(segment_array &Segments)
 		}
 
 	Assert(0);
-
-	return 0;
+	return segnum_t{};
 }
 
 // -------------------------------------------------------------------------------
@@ -936,8 +936,9 @@ int med_delete_segment(const vmsegptridx_t sp)
 
 	// If we deleted something which was not connected to anything, must now select a new current segment.
 	if (Cursegp == sp)
-		for (segnum_t s=0; s<MAX_SEGMENTS; s++)
-			if ((Segments[s].segnum != segment_none) && (s!=segnum) ) {
+		for (auto &&[s, seg] : enumerate(Segments))
+			if (seg.segnum != segment_none && s != segnum)
+			{
 				Cursegp = imsegptridx(s);
 				med_create_new_segment_from_cursegp();
 		   	break;
@@ -1283,7 +1284,7 @@ void med_create_segment(const vmsegptridx_t sp,fix cx, fix cy, fix cz, fix lengt
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	++ LevelSharedSegmentState.Num_segments;
 
-	sp->segnum = 1;						// What to put here?  I don't know.
+	sp->segnum = segnum_t{1};						// What to put here?  I don't know.
 
 	// Form connections to children, of which it has none.
 	for (auto &&[child, side] : zip(sp->children, sp->shared_segment::sides))
@@ -1349,7 +1350,7 @@ void med_create_new_segment(const vms_vector &scale)
 	width = scale.x;
 	height = scale.y;
 
-	sp->segnum = 1;						// What to put here?  I don't know.
+	sp->segnum = segnum_t{1};						// What to put here?  I don't know.
 
 	//	Create relative-to-center vertices, which are the points on the box defined by length, width, height
 	auto &verts = sp->verts;

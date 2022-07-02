@@ -479,7 +479,7 @@ struct object_rw
 	ubyte   movement_source;  // how this object moves
 	ubyte   render_type;    // how this object renders
 	ubyte   flags;          // misc flags
-	short   segnum;         // segment number containing object
+	uint16_t segnum;         // segment number containing object
 	short   attached_obj;   // number of attached fireball object
 	vms_vector pos;         // absolute x,y,z coordinate of center of object
 	vms_matrix orient;      // orientation of object in world

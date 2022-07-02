@@ -927,3 +927,8 @@ static inline unsigned get_player_or_team_color(unsigned pnum)
 		? get_team_color(get_team(pnum))
 		: get_player_color(pnum);
 }
+
+#define PUT_INTEL_SEGNUM(D,S)	( DXX_BEGIN_COMPOUND_STATEMENT {	\
+	const segnum_t PUT_INTEL_SEGNUM = S;	\
+	PUT_INTEL_SHORT(D, static_cast<uint16_t>(PUT_INTEL_SEGNUM));	\
+	} DXX_END_COMPOUND_STATEMENT )

@@ -33,7 +33,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 
-#ifdef __cplusplus
 #include <cassert>
 #include <cstdint>
 #include <stdexcept>
@@ -42,7 +41,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "valptridx.h"
 #include "objnum.h"
 #include "pack.h"
-
 
 #ifdef dsx
 namespace dsx {
@@ -120,6 +118,10 @@ enum class materialization_center_number : uint8_t
 enum class station_number : uint8_t
 {
 	None = 0xff,
+};
+
+enum segnum_t : uint16_t
+{
 };
 
 struct shared_side
@@ -338,7 +340,7 @@ struct group
 };
 
 #ifdef dsx
-#define Highest_segment_index (Segments.get_count() - 1)
+#define Highest_segment_index static_cast<segnum_t>(Segments.get_count() - 1)
 DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(segment, seg, Segments);
 #endif
 
@@ -641,5 +643,4 @@ struct d_level_shared_segment_state : ::dcx::d_level_shared_segment_state
 extern d_level_shared_segment_state LevelSharedSegmentState;
 
 }
-#endif
 #endif

@@ -4626,7 +4626,7 @@ static void state_ai_local_to_ai_local_rw(const ai_local *ail, ai_local_rw *ail_
 	ail_rw->mode                       = static_cast<uint8_t>(ail->mode);
 	ail_rw->previous_visibility        = static_cast<int8_t>(ail->previous_visibility);
 	ail_rw->rapidfire_count            = ail->rapidfire_count;
-	ail_rw->goal_segment               = ail->goal_segment;
+	ail_rw->goal_segment               = underlying_value(ail->goal_segment);
 #if defined(DXX_BUILD_DESCENT_I)
 	ail_rw->last_see_time              = 0;
 	ail_rw->last_attack_time           = 0;
@@ -4832,7 +4832,10 @@ static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_File *fp)
 		ail->mode = static_cast<ai_mode>(PHYSFSX_readByte(fp));
 		ail->previous_visibility = static_cast<player_visibility_state>(PHYSFSX_readByte(fp));
 		ail->rapidfire_count = PHYSFSX_readByte(fp);
-		ail->goal_segment = PHYSFSX_readSXE16(fp, swap);
+		{
+			const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readSXE16(fp, swap))};
+			ail->goal_segment = imsegidx_t::check_nothrow_index(s) ? s : segment_none;
+		}
 		PHYSFSX_readSXE32(fp, swap);
 		PHYSFSX_readSXE32(fp, swap);
 		ail->next_action_time = PHYSFSX_readSXE32(fp, swap);
@@ -4844,7 +4847,10 @@ static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_File *fp)
 		ail->mode = static_cast<ai_mode>(PHYSFSX_readSXE32(fp, swap));
 		ail->previous_visibility = static_cast<player_visibility_state>(PHYSFSX_readSXE32(fp, swap));
 		ail->rapidfire_count = PHYSFSX_readSXE32(fp, swap);
-		ail->goal_segment = PHYSFSX_readSXE32(fp, swap);
+		{
+			const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readSXE32(fp, swap))};
+			ail->goal_segment = imsegidx_t::check_nothrow_index(s) ? s : segment_none;
+		}
 		ail->next_action_time = PHYSFSX_readSXE32(fp, swap);
 		ail->next_fire = PHYSFSX_readSXE32(fp, swap);
 		ail->next_fire2 = PHYSFSX_readSXE32(fp, swap);
@@ -4897,7 +4903,10 @@ static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS
 		tmptime32 = PHYSFSX_readSXE32(fp, swap);
 		ci->last_time = static_cast<fix64>(tmptime32);
 #if defined(DXX_BUILD_DESCENT_II)
-		ci->last_segment = PHYSFSX_readSXE32(fp, swap);
+		{
+			const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readSXE32(fp, swap))};
+			ci->last_segment = imsegidx_t::check_nothrow_index(s) ? s : segment_none;
+		}
 #endif
 		PHYSFSX_readVectorX(fp, ci->last_position, swap);
 	}
@@ -5022,16 +5031,24 @@ int ai_restore_state(PHYSFS_File *fp, int version, int swap)
 		ai_reset_all_paths();
 
 	if (version >= 21) {
-		unsigned Num_boss_teleport_segs = PHYSFSX_readSXE32(fp, swap);
-		unsigned Num_boss_gate_segs = PHYSFSX_readSXE32(fp, swap);
+		const xrange Num_boss_teleport_segs = static_cast<unsigned>(PHYSFSX_readSXE32(fp, swap));
+		const xrange Num_boss_gate_segs = static_cast<unsigned>(PHYSFSX_readSXE32(fp, swap));
 
 		Boss_gate_segs.clear();
-		for (unsigned i = 0; i < Num_boss_gate_segs; i++)
-			Boss_gate_segs.emplace_back(PHYSFSX_readSXE16(fp, swap));
+		for (const auto i : Num_boss_gate_segs)
+		{
+			(void)i;
+			const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readSXE16(fp, swap))};
+			Boss_gate_segs.emplace_back(s);
+		}
 
 		Boss_teleport_segs.clear();
-		for (unsigned i = 0; i < Num_boss_teleport_segs; i++)
-			Boss_teleport_segs.emplace_back(PHYSFSX_readSXE16(fp, swap));
+		for (const auto i : Num_boss_teleport_segs)
+		{
+			(void)i;
+			const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readSXE16(fp, swap))};
+			Boss_teleport_segs.emplace_back(s);
+		}
 	}
 #endif
 

@@ -135,7 +135,7 @@ int SaveGameData()
 		if (Perm_player_segnum!=segment_none) {
 
 			if (save_segnum > Highest_segment_index)
-				save_segnum = 0;
+				save_segnum = {};
 
 			ConsoleObject->pos = save_pos;
 			const auto &&save_segp = vmsegptridx(save_segnum);

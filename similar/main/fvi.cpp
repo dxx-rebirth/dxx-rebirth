@@ -645,7 +645,8 @@ fvi_hit_type find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 	{
 		Assert(fq.startseg <= Highest_segment_index);
 		hit_data.hit_pnt = *fq.p0;
-		hit_data.hit_seg = hit_data.hit_object = 0;
+		hit_data.hit_seg = segnum_t{};
+		hit_data.hit_object = 0;
 		hit_data.hit_side = side_none;
 		hit_data.hit_side_seg = segment_none;
 		return fvi_hit_type::BadP0;

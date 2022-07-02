@@ -63,7 +63,10 @@ namespace dsx {
  */
 void delta_light_read(delta_light *dl, PHYSFS_File *fp)
 {
-	dl->segnum = PHYSFSX_readShort(fp);
+	{
+		const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(fp))};
+		dl->segnum = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
+	}
 	dl->sidenum = build_sidenum_from_untrusted(PHYSFSX_readByte(fp)).value_or(sidenum_t::WLEFT);
 	PHYSFSX_readByte(fp);
 	dl->vert_light[side_relative_vertnum::_0] = PHYSFSX_readByte(fp);
@@ -78,7 +81,10 @@ void delta_light_read(delta_light *dl, PHYSFS_File *fp)
  */
 void dl_index_read(dl_index *di, PHYSFS_File *fp)
 {
-	di->segnum = PHYSFSX_readShort(fp);
+	{
+		const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(fp))};
+		di->segnum = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
+	}
 	di->sidenum = build_sidenum_from_untrusted(PHYSFSX_readByte(fp)).value_or(sidenum_t::WLEFT);
 	di->count = PHYSFSX_readByte(fp);
 	di->index = PHYSFSX_readShort(fp);

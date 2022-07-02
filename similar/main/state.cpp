@@ -524,7 +524,10 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 		obj.render_type = RT_NONE;
 	}
 	obj.flags         = obj_rw->flags;
-	obj.segnum        = obj_rw->segnum;
+	{
+		const auto s = segnum_t{obj_rw->segnum};
+		obj.segnum    = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
+	}
 	obj.attached_obj  = obj_rw->attached_obj;
 	obj.pos.x         = obj_rw->pos.x;
 	obj.pos.y         = obj_rw->pos.y;
@@ -617,7 +620,10 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 			obj.ctype.ai_info.SKIP_AI_COUNT = obj_rw->ctype.ai_info.flags[7];
 			obj.ctype.ai_info.REMOTE_OWNER = obj_rw->ctype.ai_info.flags[8];
 			obj.ctype.ai_info.REMOTE_SLOT_NUM = obj_rw->ctype.ai_info.flags[9];
-			obj.ctype.ai_info.hide_segment           = obj_rw->ctype.ai_info.hide_segment;
+			{
+				const auto s = segnum_t{obj_rw->ctype.ai_info.hide_segment};
+				obj.ctype.ai_info.hide_segment = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
+			}
 			obj.ctype.ai_info.hide_index             = obj_rw->ctype.ai_info.hide_index;
 			obj.ctype.ai_info.path_length            = obj_rw->ctype.ai_info.path_length;
 			obj.ctype.ai_info.cur_path_index         = obj_rw->ctype.ai_info.cur_path_index;

@@ -1546,7 +1546,7 @@ static void test_create_all_paths(fvmobjptridx &vmobjptridx, fvcsegptridx &vcseg
 		const shared_segment &sseg0 = segp0;
 		if (sseg0.segnum != segment_none)
 		{
-			range_for (const auto &&segp1, partial_range(vcsegptridx, static_cast<segnum_t>(segp0), vcsegptridx.count()))
+			for (const auto &&segp1 : partial_range(vcsegptridx, segp0.get_unchecked_index(), vcsegptridx.count()))
 			{
 				const shared_segment &sseg1 = segp1;
 				if (sseg1.segnum != segment_none)

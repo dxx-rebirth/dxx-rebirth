@@ -115,8 +115,21 @@ protected:
 	static inline index_type check_index_range_size(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS std::size_t, const array_managed_type *);
 	template <typename handle_index_mismatch, typename handle_index_range_error>
 	static inline void check_explicit_index_range_ref(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_reference_type, std::size_t, const array_managed_type &);
+	/* Given a reference `r` to an element that should be in the array `a`,
+	 * compute the array index `i` that should refer to `r`.  Check that `i` is
+	 * within the bounds of the array, and that computing `&a[i]` yields `&r`.
+	 * The second test catches an error of the form:
+	 *
+	 * T a[3];
+	 * T *b = reinterpret_cast<char *>(&a[1]) + 1;
+	 * check_implicit_index_range_ref(*b, a);
+	 *
+	 * Use of the cast would allow the pointer to become misaligned and point
+	 * into the middle of an instance.  Such a pointer would never be correct,
+	 * so detect and trap it here.
+	 */
 	template <typename handle_index_mismatch, typename handle_index_range_error>
-	static inline void check_implicit_index_range_ref(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_reference_type, const array_managed_type &);
+	static inline void check_implicit_index_range_ref(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_reference_type r, const array_managed_type &a);
 	template <typename handle_null_pointer>
 	static inline void check_null_pointer_conversion(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_pointer_type);
 	template <typename handle_null_pointer>

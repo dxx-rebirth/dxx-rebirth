@@ -426,7 +426,10 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 	}
 	obj->flags          = PHYSFSX_readByte(f);
 
-	obj->segnum         = PHYSFSX_readShort(f);
+	{
+		const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(f))};
+		obj->segnum = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
+	}
 	obj->attached_obj   = object_none;
 
 	PHYSFSX_readVector(f, obj->pos);
@@ -496,7 +499,10 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 			obj->ctype.ai_info.SKIP_AI_COUNT = ai_info_flags[7];
 			obj->ctype.ai_info.REMOTE_OWNER = ai_info_flags[8];
 			obj->ctype.ai_info.REMOTE_SLOT_NUM = ai_info_flags[9];
-			obj->ctype.ai_info.hide_segment			= PHYSFSX_readShort(f);
+			{
+				const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(f))};
+				obj->ctype.ai_info.hide_segment = imsegidx_t::check_nothrow_index(s) ? s : segment_none;
+			}
 			obj->ctype.ai_info.hide_index			= PHYSFSX_readShort(f);
 			obj->ctype.ai_info.path_length			= PHYSFSX_readShort(f);
 			obj->ctype.ai_info.cur_path_index		= PHYSFSX_readShort(f);
@@ -902,7 +908,7 @@ static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, co
 				if (connected_seg == segment_none)
 				{
 					rwn0 = wall_none;
-					LevelError("segment %u side %u wall %u has no child segment; removing orphan wall.", seg.get_unchecked_index(), underlying_value(sidenum), static_cast<unsigned>(wn0));
+					LevelError("segment %hu side %u wall %hu has no child segment; removing orphan wall.", seg.get_unchecked_index(), underlying_value(sidenum), underlying_value(wn0));
 					return;
 				}
 				const shared_segment &vcseg = *vcsegptr(connected_seg);
@@ -910,14 +916,14 @@ static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, co
 				if (connected_side == side_none)
 				{
 					rwn0 = wall_none;
-					LevelError("segment %u side %u wall %u has child segment %u side %u, but child segment does not link back; removing orphan wall.", seg.get_unchecked_index(), underlying_value(sidenum), underlying_value(wn0), connected_seg, underlying_value(connected_side));
+					LevelError("segment %hu side %u wall %u has child segment %hu side %u, but child segment does not link back; removing orphan wall.", seg.get_unchecked_index(), underlying_value(sidenum), underlying_value(wn0), connected_seg, underlying_value(connected_side));
 					return;
 				}
 				const auto wn1 = vcseg.sides[connected_side].wall_num;
 				if (wn1 == wall_none)
 				{
 					rwn0 = wall_none;
-					LevelError("segment %u side %u wall %u has child segment %u side %u, but no wall; removing orphan wall.", seg.get_unchecked_index(), underlying_value(sidenum), static_cast<unsigned>(wn0), connected_seg, underlying_value(connected_side));
+					LevelError("segment %hu side %u wall %u has child segment %hu side %u, but no wall; removing orphan wall.", seg.get_unchecked_index(), underlying_value(sidenum), static_cast<unsigned>(wn0), connected_seg, underlying_value(connected_side));
 					return;
 				}
 			}
@@ -1136,7 +1142,7 @@ static int load_game_data(
 			matcen_info_read(LoadFile, r);
 #endif
 			//	Set links in RobotCenters to Station array
-		range_for (const shared_segment &seg, partial_const_range(Segments, Highest_segment_index + 1))
+		for (const shared_segment &seg : partial_const_range(Segments, Segments.get_count()))
 			if (seg.special == segment_special::robotmaker)
 				if (seg.matcen_num == i)
 					r.fuelcen_num = seg.station_idx;
@@ -1187,7 +1193,7 @@ static int load_game_data(
 			auto objsegnum = i.segnum;
 			if (objsegnum > Highest_segment_index)		//bogus object
 			{
-				Warning("Object %p is in non-existent segment %i, highest=%i", &i, objsegnum, Highest_segment_index);
+				Warning("Object %p is in non-existent segment %hu, highest=%hu", &i, objsegnum, Highest_segment_index);
 				i.type = OBJ_NONE;
 			}
 			else {
@@ -1437,7 +1443,10 @@ int load_level(
 		Secret_return_orient.uvec.y = 0;
 		Secret_return_orient.uvec.z = F1_0;
 	} else {
-		LevelSharedSegmentState.Secret_return_segment = PHYSFSX_readInt(LoadFile);
+		{
+			const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readInt(LoadFile))};
+			LevelSharedSegmentState.Secret_return_segment = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
+		}
 		Secret_return_orient.rvec.x = PHYSFSX_readInt(LoadFile);
 		Secret_return_orient.rvec.y = PHYSFSX_readInt(LoadFile);
 		Secret_return_orient.rvec.z = PHYSFSX_readInt(LoadFile);
@@ -1470,7 +1479,7 @@ int load_level(
 	 */
 	if (Current_mission && !d_stricmp("Descent 2: Counterstrike!", Current_mission->mission_name) && !d_stricmp("d2levc-4.rl2", filename))
 	{
-		shared_segment &s104 = *vmsegptr(vmsegidx_t(104));
+		shared_segment &s104 = *vmsegptr(segnum_t{104});
 		auto &s104v0 = *vmvertptr(s104.verts[segment_relative_vertnum::_0]);
 		auto &s104s1 = s104.sides[sidenum_t::WTOP];
 		auto &s104s1n0 = s104s1.normals[0];

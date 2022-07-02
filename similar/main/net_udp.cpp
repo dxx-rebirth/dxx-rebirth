@@ -5661,7 +5661,7 @@ void net_udp_send_pdata()
 	PUT_INTEL_INT(&buf[len], qpp.pos.x);							len += 4;
 	PUT_INTEL_INT(&buf[len], qpp.pos.y);							len += 4;
 	PUT_INTEL_INT(&buf[len], qpp.pos.z);							len += 4;
-	PUT_INTEL_SHORT(&buf[len], qpp.segment);							len += 2;
+	PUT_INTEL_SEGNUM(&buf[len], qpp.segment);						len += 2;
 	PUT_INTEL_INT(&buf[len], qpp.vel.x);							len += 4;
 	PUT_INTEL_INT(&buf[len], qpp.vel.y);							len += 4;
 	PUT_INTEL_INT(&buf[len], qpp.vel.z);							len += 4;
@@ -5710,7 +5710,13 @@ void net_udp_process_pdata(const uint8_t *data, uint_fast32_t data_len, const _s
 	pd.qpp.pos.x = GET_INTEL_INT(&data[len]);						len += 4;
 	pd.qpp.pos.y = GET_INTEL_INT(&data[len]);						len += 4;
 	pd.qpp.pos.z = GET_INTEL_INT(&data[len]);						len += 4;
-	pd.qpp.segment = GET_INTEL_SHORT(&data[len]);					len += 2;
+	if (const auto s = segnum_t{GET_INTEL_SHORT(&data[len])}; vmsegidx_t::check_nothrow_index(s))
+	{
+		len += 2;
+		pd.qpp.segment = s;
+	}
+	else
+		return;
 	pd.qpp.vel.x = GET_INTEL_INT(&data[len]);						len += 4;
 	pd.qpp.vel.y = GET_INTEL_INT(&data[len]);						len += 4;
 	pd.qpp.vel.z = GET_INTEL_INT(&data[len]);						len += 4;

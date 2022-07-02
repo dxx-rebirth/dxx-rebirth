@@ -20,7 +20,7 @@
 
 namespace dcx {
 constexpr std::integral_constant<std::size_t, 9000> MAX_SEGMENTS{};
-using segnum_t = uint16_t;
+enum segnum_t : uint16_t;
 struct d_level_unique_automap_state;
 }
 #ifdef dsx
@@ -54,9 +54,9 @@ constexpr std::integral_constant<std::size_t, 4 * MAX_SEGMENTS> MAX_SEGMENT_VERT
 #ifdef dsx
 DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(segment, seg);
 
-static constexpr valptridx<segment>::magic_constant<0xfffe> segment_exit{};
-static constexpr valptridx<segment>::magic_constant<0xffff> segment_none{};
-static constexpr valptridx<segment>::magic_constant<0> segment_first{};
+static constexpr valptridx<segment>::magic_constant<segnum_t{0xfffe}> segment_exit{};
+static constexpr valptridx<segment>::magic_constant<segnum_t{0xffff}> segment_none{};
+static constexpr valptridx<segment>::magic_constant<segnum_t{0}> segment_first{};
 #endif
 }
 #ifdef dsx

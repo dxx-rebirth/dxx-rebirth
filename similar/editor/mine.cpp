@@ -593,9 +593,9 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 		PHYSFSX_writeVector(SaveFile, i);
 	
 	const auto Num_segments = LevelSharedSegmentState.Num_segments;
-	for (segnum_t segnum = 0; segnum < Num_segments; segnum++)
+	auto &&segment_range = partial_const_range(Segments, Num_segments);
+	for (const cscusegment seg : segment_range)
 	{
-		const cscusegment &&seg = vcsegptr(segnum);
 		{
 		sidemask_t bit_mask{};
 		for (const auto &&[sidenum, child] : enumerate(seg.s.children))
@@ -689,8 +689,8 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Gamesave_current_version > 5)
-		for (segnum_t i = 0; i < Num_segments; i++)
-			segment2_write(vcsegptr(i), SaveFile);
+		for (auto &s : segment_range)
+			segment2_write(s, SaveFile);
 #endif
 
 	return 0;

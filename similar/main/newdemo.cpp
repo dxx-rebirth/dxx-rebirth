@@ -446,9 +446,9 @@ static void nd_read_short(uint16_t *const s)
 
 static void nd_read_segnum16(segnum_t &s)
 {
-	short i;
+	uint16_t i;
 	nd_read_short(&i);
-	s = i;
+	s = segnum_t{i};
 }
 
 static void nd_read_objnum16(objnum_t &o)
@@ -476,9 +476,9 @@ static void nd_read_int(unsigned *i)
 
 static void nd_read_segnum32(segnum_t &s)
 {
-	int i;
+	int32_t i;
 	nd_read_int(&i);
-	s = i;
+	s = segnum_t{static_cast<uint16_t>(i)};
 }
 
 static void nd_read_objnum32(objnum_t &o)
@@ -550,7 +550,7 @@ static void nd_read_shortpos(object_base &obj)
 	nd_read_short(&sp.xo);
 	nd_read_short(&sp.yo);
 	nd_read_short(&sp.zo);
-	nd_read_short(&sp.segment);
+	nd_read_segnum16(sp.segment);
 	nd_read_short(&sp.velx);
 	nd_read_short(&sp.vely);
 	nd_read_short(&sp.velz);
@@ -2162,7 +2162,7 @@ static int newdemo_read_frame_information(int rewrite)
 				// HACK HACK HACK -- the viewer to segment 0 for bogus view.
 
 				if (segnum > Highest_segment_index)
-					segnum = 0;
+					segnum = {};
 				obj_link_unchecked(Objects.vmptr, viewer_vmobj, Segments.vmptridx(segnum));
 			}
 			}
@@ -2822,12 +2822,13 @@ static int newdemo_read_frame_information(int rewrite)
 
 
 		case ND_EVENT_WALL_SET_TMAP_NUM1: {
-			uint16_t seg, cseg, tmap;
+			segnum_t seg, cseg;
+			uint16_t tmap;
 			uint8_t side, cside;
 
-			nd_read_short(&seg);
+			nd_read_segnum16(seg);
 			nd_read_byte(&side);
-			nd_read_short(&cseg);
+			nd_read_segnum16(cseg);
 			nd_read_byte(&cside);
 			nd_read_short( &tmap );
 			if (rewrite)
@@ -2845,12 +2846,13 @@ static int newdemo_read_frame_information(int rewrite)
 		}
 
 		case ND_EVENT_WALL_SET_TMAP_NUM2: {
-			uint16_t seg, cseg, tmap;
+			segnum_t seg, cseg;
+			uint16_t tmap;
 			uint8_t side, cside;
 
-			nd_read_short(&seg);
+			nd_read_segnum16(seg);
 			nd_read_byte(&side);
-			nd_read_short(&cseg);
+			nd_read_segnum16(cseg);
 			nd_read_byte(&cside);
 			nd_read_short( &tmap );
 			if (rewrite)

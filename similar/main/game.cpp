@@ -2457,7 +2457,10 @@ namespace dsx {
  */
 void flickering_light_read(flickering_light &fl, PHYSFS_File *fp)
 {
-	fl.segnum = PHYSFSX_readShort(fp);
+	{
+		const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(fp))};
+		fl.segnum = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
+	}
 	const auto sidenum = build_sidenum_from_untrusted(PHYSFSX_readShort(fp));
 	fl.mask = PHYSFSX_readInt(fp);
 	fl.timer = PHYSFSX_readFix(fp);

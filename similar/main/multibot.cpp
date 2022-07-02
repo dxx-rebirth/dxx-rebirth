@@ -478,7 +478,7 @@ void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now)
 	PUT_INTEL_INT(&multibuf[loc], qpp.pos.x);				loc += 4;
 	PUT_INTEL_INT(&multibuf[loc], qpp.pos.y);				loc += 4;
 	PUT_INTEL_INT(&multibuf[loc], qpp.pos.z);				loc += 4;
-	PUT_INTEL_SHORT(&multibuf[loc], qpp.segment);			loc += 2;
+	PUT_INTEL_SEGNUM(&multibuf[loc], qpp.segment);			loc += 2;
 	PUT_INTEL_INT(&multibuf[loc], qpp.vel.x);				loc += 4;
 	PUT_INTEL_INT(&multibuf[loc], qpp.vel.y);				loc += 4;
 	PUT_INTEL_INT(&multibuf[loc], qpp.vel.z);				loc += 4;
@@ -707,7 +707,7 @@ static void multi_send_create_robot_powerups(const object_base &del_obj)
 	multibuf[loc] = del_obj.contains_count;					loc += 1;
 	multibuf[loc] = del_obj.contains_type; 					loc += 1;
 	multibuf[loc] = del_obj.contains_id;						loc += 1;
-	PUT_INTEL_SHORT(&multibuf[loc], del_obj.segnum);		        loc += 2;
+	PUT_INTEL_SEGNUM(&multibuf[loc], del_obj.segnum);		        loc += 2;
 	if constexpr (words_bigendian)
 	{
 		vms_vector swapped_vec;
@@ -836,7 +836,7 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 	if ((robot->type != OBJ_ROBOT) || (robot->flags & OF_EXPLODING)) {
 		return;
 	}
-		
+
 	if (robot->ctype.ai_info.REMOTE_OWNER != pnum)
 	{	
 		if (robot->ctype.ai_info.REMOTE_OWNER == -1)
@@ -866,7 +866,13 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 	qpp.pos.x = GET_INTEL_INT(&buf[loc]);						loc += 4;
 	qpp.pos.y = GET_INTEL_INT(&buf[loc]);						loc += 4;
 	qpp.pos.z = GET_INTEL_INT(&buf[loc]);						loc += 4;
-	qpp.segment = GET_INTEL_SHORT(&buf[loc]);					loc += 2;
+	if (const auto s = segnum_t{GET_INTEL_SHORT(&buf[loc])}; vmsegidx_t::check_nothrow_index(s))
+	{
+		qpp.segment = s;
+		loc += 2;
+	}
+	else
+		return;
 	qpp.vel.x = GET_INTEL_INT(&buf[loc]);						loc += 4;
 	qpp.vel.y = GET_INTEL_INT(&buf[loc]);						loc += 4;
 	qpp.vel.z = GET_INTEL_INT(&buf[loc]);						loc += 4;
@@ -1250,7 +1256,9 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 	uint8_t contains_count = buf[loc];			loc += 1;
 	uint8_t contains_type = buf[loc];			loc += 1;
 	uint8_t contains_id = buf[loc]; 			loc += 1;
-	segnum_t segnum = GET_INTEL_SHORT(buf + loc);            loc += 2;
+	const auto segnum = segnum_t{GET_INTEL_SHORT(&buf[loc])};	loc += 2;
+	if (!vmsegidx_t::check_nothrow_index(segnum))
+		return;
 	vms_vector pos;
 	memcpy(&pos, &buf[loc], sizeof(pos));      loc += 12;
 	

@@ -820,8 +820,8 @@ static vmsegptridx_t choose_drop_segment(fvmsegptridx &vmsegptridx, fvcvertptr &
 	 * Give up and pick a completely random segment.  This is compatible
 	 * with retail.
 	 */
-	std::uniform_int_distribution uid(0u, Highest_segment_index);
-	return vmsegptridx(vmsegidx_t(uid(mrd)));
+	std::uniform_int_distribution<typename std::underlying_type<segnum_t>::type> uid(0u, Highest_segment_index);
+	return vmsegptridx(vmsegidx_t(segnum_t{uid(mrd)}));
 }
 
 //	------------------------------------------------------------------------------------------------------
@@ -1692,7 +1692,10 @@ void expl_wall_read_n_swap(fvmwallptr &vmwallptr, PHYSFS_File *const fp, const i
 			d.sidenum = SWAPINT(d.sidenum);
 			d.time = SWAPINT(d.time);
 		}
-		const icsegidx_t dseg = d.segnum;
+		const auto s = segnum_t{static_cast<uint16_t>(d.segnum)};
+		if (!vmsegidx_t::check_nothrow_index(s))
+			continue;
+		const icsegidx_t dseg = s;
 		if (dseg == segment_none)
 			continue;
 		range_for (auto &&wp, vmwallptr)
@@ -1756,8 +1759,9 @@ vmsegidx_t choose_thief_recreation_segment(fvcsegptr &vcsegptr, fvcwallptr &vcwa
 	 * Give up and pick a completely random segment.  This is compatible
 	 * with retail Descent 2.
 	 */
-	std::uniform_int_distribution uid(0u, Highest_segment_index);
-	return uid(mrd);
+	using distribution_type = typename std::underlying_type<segnum_t>::type;
+	std::uniform_int_distribution uid(distribution_type{0}, static_cast<distribution_type>(Highest_segment_index));
+	return segnum_t{uid(mrd)};
 }
 #endif
 }

@@ -1659,7 +1659,13 @@ static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum,
 	qpp.pos.x = GET_INTEL_INT(&buf[count]);						count += 4;
 	qpp.pos.y = GET_INTEL_INT(&buf[count]);						count += 4;
 	qpp.pos.z = GET_INTEL_INT(&buf[count]);						count += 4;
-	qpp.segment = GET_INTEL_SHORT(&buf[count]);					count += 2;
+	if (const auto s = segnum_t{GET_INTEL_SHORT(&buf[count])}; vmsegidx_t::check_nothrow_index(s))
+	{
+		qpp.segment = s;
+		count += 2;
+	}
+	else
+		return;
 	qpp.vel.x = GET_INTEL_INT(&buf[count]);						count += 4;
 	qpp.vel.y = GET_INTEL_INT(&buf[count]);						count += 4;
 	qpp.vel.z = GET_INTEL_INT(&buf[count]);						count += 4;
@@ -2091,7 +2097,6 @@ namespace {
 
 static void multi_do_door_open(fvmwallptr &vmwallptr, const uint8_t *const buf)
 {
-	const segnum_t segnum = GET_INTEL_SHORT(&buf[1]);
 	const auto uside = build_sidenum_from_untrusted(buf[3]);
 	if (!uside)
 		return;
@@ -2100,7 +2105,7 @@ static void multi_do_door_open(fvmwallptr &vmwallptr, const uint8_t *const buf)
 	ubyte flag= buf[4];
 #endif
 
-	const auto &&useg = vmsegptridx.check_untrusted(segnum);
+	const auto &&useg = vmsegptridx.check_untrusted(segnum_t{GET_INTEL_SHORT(&buf[1])});
 	if (!useg)
 		return;
 	const auto &&seg = *useg;
@@ -2173,7 +2178,11 @@ static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t
 
 	count++;
 	powerup_type = buf[count++];
-	const auto &&useg = vmsegptridx.check_untrusted(GET_INTEL_SHORT(&buf[count]));
+	/* Casting the untrusted network input to segnum_t is safe here, since it
+	 * is immediately passed to `check_untrusted`, which validates that the
+	 * index is reasonable.
+	 */
+	const auto &&useg = vmsegptridx.check_untrusted(segnum_t{GET_INTEL_SHORT(&buf[count])});
 	if (!useg)
 		return;
 	const auto &&segnum = *useg;
@@ -2278,7 +2287,7 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 
 	multi::dispatch->do_protocol_frame(1, 0); // force packets to be sent, ensuring this packet will be attached to following MULTI_TRIGGER
 
-	const auto &&useg = vmsegptridx.check_untrusted(GET_INTEL_SHORT(&buf[2]));
+	const auto &&useg = vmsegptridx.check_untrusted(segnum_t{GET_INTEL_SHORT(&buf[2])});
 	if (!useg)
 		return;
 	const auto uside = build_sidenum_from_untrusted(buf[4]);
@@ -2745,7 +2754,7 @@ void multi_send_position(object &obj)
 	PUT_INTEL_INT(&multibuf[count], qpp.pos.x);							count += 4;
 	PUT_INTEL_INT(&multibuf[count], qpp.pos.y);							count += 4;
 	PUT_INTEL_INT(&multibuf[count], qpp.pos.z);							count += 4;
-	PUT_INTEL_SHORT(&multibuf[count], qpp.segment);							count += 2;
+	PUT_INTEL_SEGNUM(&multibuf[count], qpp.segment);					count += 2;
 	PUT_INTEL_INT(&multibuf[count], qpp.vel.x);							count += 4;
 	PUT_INTEL_INT(&multibuf[count], qpp.vel.y);							count += 4;
 	PUT_INTEL_INT(&multibuf[count], qpp.vel.z);							count += 4;
@@ -2873,7 +2882,7 @@ void multi_send_door_open(const vcsegidx_t segnum, const sidenum_t side, const w
 {
 	multi_command<MULTI_DOOR_OPEN> multibuf;
 	// When we open a door make sure everyone else opens that door
-	PUT_INTEL_SHORT(&multibuf[1], segnum );
+	PUT_INTEL_SEGNUM(&multibuf[1], segnum);
 	multibuf[3] = underlying_value(side);
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)flag;
@@ -2892,7 +2901,7 @@ void multi_send_door_open_specific(const playernum_t pnum, const vcsegidx_t segn
 	//   Assert (pnum>-1 && pnum<N_players);
 
 	multi_command<MULTI_DOOR_OPEN> multibuf;
-	PUT_INTEL_SHORT(&multibuf[1], segnum);
+	PUT_INTEL_SEGNUM(&multibuf[1], segnum);
 	multibuf[3] = static_cast<int8_t>(side);
 	multibuf[4] = underlying_value(flag);
 
@@ -2966,7 +2975,7 @@ void multi_send_create_powerup(const powerup_type_t powerup_type, const vcsegidx
 	multi_command<MULTI_CREATE_POWERUP> multibuf;
 	multibuf[count] = Player_num;                                      count += 1;
 	multibuf[count] = powerup_type;                                 count += 1;
-	PUT_INTEL_SHORT(&multibuf[count], segnum );     count += 2;
+	PUT_INTEL_SEGNUM(&multibuf[count], segnum);     count += 2;
 	PUT_INTEL_SHORT(&multibuf[count], objnum );     count += 2;
 	if constexpr (words_bigendian)
 	{
@@ -3094,7 +3103,7 @@ void multi_send_effect_blowup(const vcsegidx_t segnum, const sidenum_t side, con
 	count += 1;
 	multi_command<MULTI_EFFECT_BLOWUP> multibuf;
 	multibuf[count] = Player_num;                                   count += 1;
-	PUT_INTEL_SHORT(&multibuf[count], segnum);                        count += 2;
+	PUT_INTEL_SEGNUM(&multibuf[count], segnum);                        count += 2;
 	multibuf[count] = static_cast<int8_t>(side);                                  count += 1;
 	PUT_INTEL_INT(&multibuf[count], pnt.x);                          count += 4;
 	PUT_INTEL_INT(&multibuf[count], pnt.y);                          count += 4;
@@ -4132,7 +4141,7 @@ void multi_send_light_specific (const playernum_t pnum, const vcsegptridx_t segn
 	//  Assert (pnum>-1 && pnum<N_players);
 
 	multi_command<MULTI_LIGHT> multibuf;
-	PUT_INTEL_SHORT(&multibuf[count], segnum);
+	PUT_INTEL_SEGNUM(&multibuf[count], segnum);
 	count += sizeof(uint16_t);
 	multibuf[count] = underlying_value(val); count++;
 
@@ -4150,8 +4159,7 @@ static void multi_do_light (const ubyte *buf)
 {
 	const auto sides = buf[3];
 
-	const segnum_t seg = GET_INTEL_SHORT(&buf[1]);
-	const auto &&usegp = vmsegptridx.check_untrusted(seg);
+	const auto &&usegp = vmsegptridx.check_untrusted(segnum_t{GET_INTEL_SHORT(&buf[1])});
 	if (!usegp)
 		return;
 	const auto &&segp = *usegp;
@@ -6110,7 +6118,10 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 		obj.render_type = RT_NONE;
 	}
 	obj.flags         = obj_rw->flags;
-	obj.segnum        = obj_rw->segnum;
+	{
+		const auto s = segnum_t{obj_rw->segnum};
+		obj.segnum = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
+	}
 	/* obj->attached_obj cleared by caller */
 	obj.pos         = obj_rw->pos;
 	obj.orient = obj_rw->orient;
@@ -6196,7 +6207,10 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 			obj.ctype.ai_info.SKIP_AI_COUNT = obj_rw->ctype.ai_info.flags[7];
 			obj.ctype.ai_info.REMOTE_OWNER = obj_rw->ctype.ai_info.flags[8];
 			obj.ctype.ai_info.REMOTE_SLOT_NUM = obj_rw->ctype.ai_info.flags[9];
-			obj.ctype.ai_info.hide_segment           = obj_rw->ctype.ai_info.hide_segment;
+			{
+				const auto s = segnum_t{obj_rw->ctype.ai_info.hide_segment};
+				obj.ctype.ai_info.hide_segment = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
+			}
 			obj.ctype.ai_info.hide_index             = obj_rw->ctype.ai_info.hide_index;
 			obj.ctype.ai_info.path_length            = obj_rw->ctype.ai_info.path_length;
 			obj.ctype.ai_info.cur_path_index         = obj_rw->ctype.ai_info.cur_path_index;

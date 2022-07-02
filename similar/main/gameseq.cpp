@@ -967,10 +967,10 @@ static ushort netmisc_calc_checksum()
 				do_checksum_calc(reinterpret_cast<uint8_t *>(&t), 4, &sum1, &sum2);
 			}
 		}
-		range_for (auto &j, i.s.children)
+		for (const typename std::underlying_type<segnum_t>::type j : i.s.children)
 		{
-			s = INTEL_SHORT(j);
-			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
+			const auto s = INTEL_SHORT(j);
+			do_checksum_calc(reinterpret_cast<const uint8_t *>(&s), 2, &sum1, &sum2);
 		}
 		range_for (const auto vn, i.s.verts)
 		{

@@ -97,6 +97,9 @@ public:
 class valptridx_detail::untyped_utilities::report_error_trap_terse
 {
 public:
+	/* Accept and discard any arguments, to encourage the compiler to discard
+	 * as dead any values that exist only as arguments to `report()`.
+	 */
 	[[noreturn]]
 	__attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
@@ -114,6 +117,11 @@ public:
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const void *const array, const unsigned long supplied_index, const void *const expected_pointer, const void *const actual_pointer)
 	{
+		/* Load each of the arguments into storage before executing the trap,
+		 * so that inspection of those locations in the core dump can readily
+		 * retrieve these values, even if the values would otherwise be unused
+		 * and optimized out.
+		 */
 		__asm__ __volatile__("" :: DXX_VALPTRIDX_REPORT_STANDARD_ASM_LOAD_COMMA_R_VARS "rm" (array), "rm" (supplied_index), "rm" (expected_pointer), "rm" (actual_pointer));
 		__builtin_trap();
 	}
@@ -259,8 +267,8 @@ template <typename managed_type>
 template <typename handle_index_mismatch, typename handle_index_range_error>
 void valptridx<managed_type>::check_explicit_index_range_ref(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_reference_type &r, std::size_t i, const array_managed_type &a)
 {
-	check_index_match<handle_index_mismatch>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS r, i, a);
-	check_index_range_size<handle_index_range_error>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, &a);
+	const auto ii = check_index_range_size<handle_index_range_error>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, &a);
+	check_index_match<handle_index_mismatch>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS r, ii, a);
 }
 
 template <typename managed_type>
@@ -268,7 +276,9 @@ class valptridx<managed_type>::partial_policy::require_valid
 {
 public:
 	static constexpr std::false_type allow_nullptr{};
+	[[nodiscard]]
 	static constexpr std::false_type check_allowed_invalid_index(index_type) { return {}; }
+	[[nodiscard]]
 	static constexpr bool check_nothrow_index(index_type i)
 	{
 		return std::less<std::size_t>()(static_cast<std::size_t>(i), array_size);
@@ -280,10 +290,12 @@ class valptridx<managed_type>::partial_policy::allow_invalid
 {
 public:
 	static constexpr std::true_type allow_nullptr{};
+	[[nodiscard]]
 	static constexpr bool check_allowed_invalid_index(index_type i)
 	{
 		return i == static_cast<index_type>(~0);
 	}
+	[[nodiscard]]
 	static constexpr bool check_nothrow_index(index_type i)
 	{
 		return check_allowed_invalid_index(i) || require_valid::check_nothrow_index(i);
@@ -369,11 +381,10 @@ public:
 	}
 	template <typename rpolicy, typename std::enable_if<!(policy::allow_nullptr || !rpolicy::allow_nullptr), int>::type = 0>
 		idx(const idx<rpolicy> &rhs DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) :
-			m_idx(rhs.get_unchecked_index())
-	{
 		/* If moving from allow_invalid to require_valid, check range.
 		 */
-		check_index_range<index_range_error_type<array_managed_type>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS m_idx, nullptr);
+			m_idx(check_index_range<index_range_error_type<array_managed_type>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS rhs.get_unchecked_index(), nullptr))
+	{
 	}
 	template <typename rpolicy>
 		idx(idx<rpolicy> &&rhs) :

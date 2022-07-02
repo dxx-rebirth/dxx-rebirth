@@ -247,7 +247,7 @@ struct ai_static_rw
 {
 	ubyte   behavior;               //
 	int8_t  flags[11];    // various flags, meaning defined by constants
-	short   hide_segment;           // Segment to go to for hiding.
+	uint16_t hide_segment;           // Segment to go to for hiding.
 	short   hide_index;             // Index in Path_seg_points
 	short   path_length;            // Length of hide path.
 #if defined(DXX_BUILD_DESCENT_I)

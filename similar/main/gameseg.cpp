@@ -531,8 +531,9 @@ int check_segment_connections(void)
 				{
 					shared_segment &rseg = *seg;
 					const shared_segment &rcseg = *cseg;
-					const unsigned segi = seg.get_unchecked_index();
-					LevelError("Segment #%u side %u has asymmetric link to segment %u.  Coercing to segment_none; Segments[%u].children={%hu, %hu, %hu, %hu, %hu, %hu}, Segments[%u].children={%hu, %hu, %hu, %hu, %hu, %hu}.", segi, underlying_value(sidenum), csegnum, segi, rseg.children[sidenum_t::WLEFT], rseg.children[sidenum_t::WTOP], rseg.children[sidenum_t::WRIGHT], rseg.children[sidenum_t::WBOTTOM], rseg.children[sidenum_t::WBACK], rseg.children[sidenum_t::WFRONT], csegnum, rcseg.children[sidenum_t::WLEFT], rcseg.children[sidenum_t::WTOP], rcseg.children[sidenum_t::WRIGHT], rcseg.children[sidenum_t::WBOTTOM], rcseg.children[sidenum_t::WBACK], rcseg.children[sidenum_t::WFRONT]);
+					const auto segi = underlying_value(seg.get_unchecked_index());
+					const auto csegi = underlying_value(csegnum);
+					LevelError("Segment #%hu side %u has asymmetric link to segment %hu.  Coercing to segment_none; Segments[%hu].children={%hu, %hu, %hu, %hu, %hu, %hu}, Segments[%u].children={%hu, %hu, %hu, %hu, %hu, %hu}.", segi, underlying_value(sidenum), csegi, segi, rseg.children[sidenum_t::WLEFT], rseg.children[sidenum_t::WTOP], rseg.children[sidenum_t::WRIGHT], rseg.children[sidenum_t::WBOTTOM], rseg.children[sidenum_t::WBACK], rseg.children[sidenum_t::WFRONT], csegi, rcseg.children[sidenum_t::WLEFT], rcseg.children[sidenum_t::WTOP], rcseg.children[sidenum_t::WRIGHT], rcseg.children[sidenum_t::WBOTTOM], rcseg.children[sidenum_t::WBACK], rcseg.children[sidenum_t::WFRONT]);
 					rseg.children[sidenum] = segment_none;
 					errors = 1;
 					continue;
@@ -773,7 +774,7 @@ icsegptridx_t find_point_seg(const d_level_shared_segment_state &LevelSharedSegm
 
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-static inline void add_to_fcd_cache(int seg0, int seg1, int depth, vm_distance dist)
+static inline void add_to_fcd_cache(segnum_t seg0, segnum_t seg1, int depth, vm_distance dist)
 {
 	(void)(seg0||seg1||depth||dist);
 }
@@ -806,7 +807,7 @@ void flush_fcd_cache(void)
 
 namespace {
 //	----------------------------------------------------------------------------------------------------------
-static void add_to_fcd_cache(int seg0, int seg1, int depth, vm_distance dist)
+static void add_to_fcd_cache(segnum_t seg0, segnum_t seg1, int depth, vm_distance dist)
 {
 	if (dist > MIN_CACHE_FCD_DIST) {
 		Fcd_cache[Fcd_index].seg0 = seg0;
@@ -1050,7 +1051,7 @@ void create_shortpos_little(const d_level_shared_segment_state &LevelSharedSegme
 		spp.xo = INTEL_SHORT(spp.xo);
 		spp.yo = INTEL_SHORT(spp.yo);
 		spp.zo = INTEL_SHORT(spp.zo);
-		spp.segment = INTEL_SHORT(spp.segment);
+		spp.segment = segnum_t{INTEL_SHORT(underlying_value(spp.segment))};
 		spp.velx = INTEL_SHORT(spp.velx);
 		spp.vely = INTEL_SHORT(spp.vely);
 		spp.velz = INTEL_SHORT(spp.velz);
@@ -1075,7 +1076,7 @@ void extract_shortpos_little(const vmobjptridx_t objp, const shortpos *spp)
 	objp->orient.uvec.z = *sp++ << MATRIX_PRECISION;
 	objp->orient.fvec.z = *sp++ << MATRIX_PRECISION;
 
-	const segnum_t segnum = INTEL_SHORT(spp->segment);
+	const auto segnum = segnum_t{INTEL_SHORT(underlying_value(spp->segment))};
 
 	Assert(segnum <= Highest_segment_index);
 
@@ -1586,7 +1587,7 @@ void validate_segment_all(d_level_shared_segment_state &LevelSharedSegmentState)
 	}
 
 #if DXX_USE_EDITOR
-	range_for (shared_segment &s, partial_range(Segments, Highest_segment_index + 1, Segments.size()))
+	for (shared_segment &s : partial_range(Segments, Segments.get_count(), Segments.size()))
 		s.segnum = segment_none;
 	#endif
 }

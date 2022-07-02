@@ -593,7 +593,10 @@ void v26_trigger_read(PHYSFS_File *fp, trigger &t)
 	t.value = PHYSFSX_readInt(fp);
 	PHYSFSX_readInt(fp);
 	for (unsigned i=0; i < MAX_WALLS_PER_LINK; i++ )
-		t.seg[i] = PHYSFSX_readShort(fp);
+	{
+		const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(fp))};
+		t.seg[i] = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
+	}
 	for (unsigned i=0; i < MAX_WALLS_PER_LINK; i++ )
 	{
 		auto s = build_sidenum_from_untrusted(PHYSFSX_readShort(fp));
@@ -617,7 +620,10 @@ void v29_trigger_read(v29_trigger *t, PHYSFS_File *fp)
 	PHYSFSX_readByte(fp);
 	t->num_links = PHYSFSX_readShort(fp);
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
-		t->seg[i] = PHYSFSX_readShort(fp);
+	{
+		const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(fp))};
+		t->seg[i] = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
+	}
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
 	{
 		auto s = build_sidenum_from_untrusted(PHYSFSX_readShort(fp));
@@ -637,7 +643,10 @@ extern void v30_trigger_read(v30_trigger *t, PHYSFS_File *fp)
 	t->value = PHYSFSX_readFix(fp);
 	PHYSFSX_readFix(fp);
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
-		t->seg[i] = PHYSFSX_readShort(fp);
+	{
+		const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(fp))};
+		t->seg[i] = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
+	}
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
 		t->side[i] = build_sidenum_from_untrusted(PHYSFSX_readShort(fp)).value_or(sidenum_t::WLEFT);
 }
