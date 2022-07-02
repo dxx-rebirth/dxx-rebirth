@@ -78,6 +78,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "d_range.h"
 #include "d_levelstate.h"
+#include "d_underlying_value.h"
 #include "partial_range.h"
 #include <utility>
 
@@ -1120,7 +1121,7 @@ static void free_object_slots(uint_fast32_t num_used)
 //note that segnum is really just a suggestion, since this routine actually
 //searches for the correct segment
 //returns the object number
-imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *const orient, const fix size, const typename object::control_type ctype, const typename object::movement_type mtype, const render_type_t rtype)
+imobjptridx_t obj_create(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const object_type_t type, const unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *const orient, const fix size, const typename object::control_type ctype, const typename object::movement_type mtype, const render_type_t rtype)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1208,26 +1209,34 @@ imobjptridx_t obj_create(const object_type_t type, const unsigned id, vmsegptrid
 
 	obj_link_unchecked(Objects.vmptr, obj, segnum);
 
-	//	Set (or not) persistent bit in phys_info.
-	if (obj->type == OBJ_WEAPON) {
-		assert(obj->control_source == object::control_type::weapon);
-		if (Weapon_info[get_weapon_id(obj)].persistent != weapon_info::persistence_flag::terminate_on_impact)
-			obj->mtype.phys_info.flags |= PF_PERSISTENT;
-		obj->ctype.laser_info.creation_time = GameTime64;
-		obj->ctype.laser_info.clear_hitobj();
-		obj->ctype.laser_info.multiplier = F1_0;
-#if defined(DXX_BUILD_DESCENT_II)
-		obj->ctype.laser_info.last_afterburner_time = 0;
-#endif
-	}
-
 	if (obj->control_source == object::control_type::explosion)
 		obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = object_none;
 
 	if (obj->type == OBJ_DEBRIS)
 		++ LevelUniqueObjectState.Debris_object_count;
-
 	return obj;
+}
+
+imobjptridx_t obj_weapon_create(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const weapon_info_array &Weapon_info, const unsigned id, const vmsegptridx_t segnum, const vms_vector &pos, const fix size, const render_type_t rtype)
+{
+	constexpr auto ctype = object::control_type::weapon;
+	constexpr auto mtype = object::movement_type::physics;
+	constexpr const vms_matrix *orient = nullptr;
+	const auto &&objp = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_WEAPON, id, segnum, pos, orient, size, ctype, mtype, rtype);
+	if (objp == object_none)
+		return objp;
+	auto &obj = *objp;
+	//	Set (or not) persistent bit in phys_info.
+	assert(obj.control_source == object::control_type::weapon);
+	if (Weapon_info[id].persistent != weapon_info::persistence_flag::terminate_on_impact)
+		obj.mtype.phys_info.flags |= PF_PERSISTENT;
+	obj.ctype.laser_info.creation_time = GameTime64;
+	obj.ctype.laser_info.clear_hitobj();
+	obj.ctype.laser_info.multiplier = F1_0;
+#if defined(DXX_BUILD_DESCENT_II)
+	obj.ctype.laser_info.last_afterburner_time = 0;
+#endif
+	return objp;
 }
 
 //create a copy of an object. returns new object number
@@ -1426,7 +1435,7 @@ window_event_result dead_player_frame()
 		//	If unable to create camera at time of death, create now.
 		if (Dead_player_camera == Viewer_save) {
 			const auto &player = get_local_plrobj();
-			const auto &&objnum = obj_create(OBJ_CAMERA, 0, vmsegptridx(player.segnum), player.pos, &player.orient, 0, object::control_type::None, object::movement_type::None, RT_NONE);
+			const auto &&objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_CAMERA, 0, vmsegptridx(player.segnum), player.pos, &player.orient, 0, object::control_type::None, object::movement_type::None, RT_NONE);
 
 			if (objnum != object_none)
 				Viewer = Dead_player_camera = objnum;
@@ -1593,7 +1602,7 @@ static void start_player_death_sequence(object &player)
 	vm_vec_zero(player.mtype.phys_info.rotthrust);
 	vm_vec_zero(player.mtype.phys_info.thrust);
 
-	const auto &&objnum = obj_create(OBJ_CAMERA, 0, vmsegptridx(player.segnum), player.pos, &player.orient, 0, object::control_type::None, object::movement_type::None, RT_NONE);
+	const auto &&objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_CAMERA, 0, vmsegptridx(player.segnum), player.pos, &player.orient, 0, object::control_type::None, object::movement_type::None, RT_NONE);
 	Viewer_save = Viewer;
 	if (objnum != object_none)
 		Viewer = Dead_player_camera = objnum;
@@ -2457,7 +2466,7 @@ imobjptridx_t drop_marker_object(const vms_vector &pos, const vmsegptridx_t segn
 		((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && Netgame.Allow_marker_view)
 		? object::movement_type::None
 		: object::movement_type::spinning;
-	const auto &&obj = obj_create(OBJ_MARKER, static_cast<unsigned>(marker_num), segnum, pos, &orient, Polygon_models[Marker_model_num].rad, object::control_type::None, movement_type, RT_POLYOBJ);
+	const auto &&obj = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_MARKER, underlying_value(marker_num), segnum, pos, &orient, Polygon_models[Marker_model_num].rad, object::control_type::None, movement_type, RT_POLYOBJ);
 	if (obj != object_none) {
 		auto &o = *obj;
 		o.rtype.pobj_info.model_num = Marker_model_num;

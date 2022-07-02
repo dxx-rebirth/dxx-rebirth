@@ -305,7 +305,7 @@ static imobjptridx_t create_weapon_object(int weapon_type,const vmsegptridx_t se
 
 	Assert(laser_radius != -1);
 
-	const auto &&obj = obj_create(OBJ_WEAPON, weapon_type, segnum, position, nullptr, laser_radius, object::control_type::weapon, object::movement_type::physics, rtype);
+	const auto &&obj = obj_weapon_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Weapon_info, weapon_type, segnum, position, laser_radius, rtype);
 	if (obj == object_none)
 		return object_none;
 
@@ -465,7 +465,7 @@ static bool create_omega_blobs(const d_level_shared_segment_state &LevelSharedSe
 		const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, temp_pos, last_segnum);
 		if (segnum != segment_none) {
 			last_segnum = segnum;
-			const auto &&objp = obj_create(OBJ_WEAPON, weapon_id_type::OMEGA_ID, segnum, temp_pos, nullptr, 0, object::control_type::weapon, object::movement_type::physics, RT_WEAPON_VCLIP);
+			const auto &&objp = obj_weapon_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Weapon_info, weapon_id_type::OMEGA_ID, segnum, temp_pos, 0, RT_WEAPON_VCLIP);
 			if (objp == object_none)
 				break;
 

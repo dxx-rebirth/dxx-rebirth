@@ -121,7 +121,7 @@ int place_object(const vmsegptridx_t segp, const vms_vector &object_pos, short o
 
 		case OBJ_HOSTAGE:
 		{
-			objnum = obj_create(OBJ_HOSTAGE, -1, 
+			objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_HOSTAGE, -1, 
 					segp,object_pos,&seg_matrix,HOSTAGE_SIZE,
 					object::control_type::None, object::movement_type::None,RT_HOSTAGE);
 
@@ -178,7 +178,7 @@ int place_object(const vmsegptridx_t segp, const vms_vector &object_pos, short o
 		}
 		case OBJ_POWERUP:
 		{
-			objnum = obj_create(OBJ_POWERUP, object_id,
+			objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, object_id,
 					segp, object_pos, &seg_matrix, Powerup_info[object_id].size,
 					object::control_type::powerup, object::movement_type::None, RT_POWERUP);
 
@@ -201,7 +201,7 @@ int place_object(const vmsegptridx_t segp, const vms_vector &object_pos, short o
 		}
 		case OBJ_CNTRLCEN: 
 		{
-			objnum = obj_create(OBJ_CNTRLCEN, object_id, segp, object_pos,
+			objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_CNTRLCEN, object_id, segp, object_pos,
 					&seg_matrix, Polygon_models[object_id].rad,
 					object::control_type::cntrlcen, object::movement_type::None, RT_POLYOBJ);
 
@@ -222,7 +222,7 @@ int place_object(const vmsegptridx_t segp, const vms_vector &object_pos, short o
 			break;
 		}
 		case OBJ_PLAYER:	{
-			objnum = obj_create(OBJ_PLAYER, object_id, segp, object_pos,
+			objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_PLAYER, object_id, segp, object_pos,
 				&seg_matrix, Polygon_models[Player_ship->model_num].rad,
 				object::control_type::None, object::movement_type::physics, RT_POLYOBJ);
 

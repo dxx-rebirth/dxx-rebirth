@@ -1465,7 +1465,7 @@ imobjptridx_t spit_powerup(const d_vclip_array &Vclip, const object_base &spitte
 		}
 	}
 
-	const auto &&objp = obj_create(OBJ_POWERUP, id, vmsegptridx(spitter.segnum), new_pos, &vmd_identity_matrix, Powerup_info[id].size, object::control_type::powerup, object::movement_type::physics, RT_POWERUP);
+	const auto &&objp = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, id, vmsegptridx(spitter.segnum), new_pos, &vmd_identity_matrix, Powerup_info[id].size, object::control_type::powerup, object::movement_type::physics, RT_POWERUP);
 
 	if (objp == object_none)
 		return objp;

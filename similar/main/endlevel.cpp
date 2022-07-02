@@ -945,7 +945,7 @@ window_event_result do_endlevel_frame()
 
 					Endlevel_sequence = EL_LOOKBACK;
 
-					auto objnum = obj_create(OBJ_CAMERA, 0,
+					const auto &&objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_CAMERA, 0,
 					                    vmsegptridx(ConsoleObject->segnum), ConsoleObject->pos, &ConsoleObject->orient, 0, 
 					                    object::control_type::None, object::movement_type::None, RT_NONE);
 

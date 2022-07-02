@@ -366,7 +366,7 @@ static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvm
 	auto &Objects = LevelUniqueObjectState.Objects;
 #endif
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	const auto &&obj_fireball = obj_create(OBJ_FIREBALL, vclip_type, segnum, position, &vmd_identity_matrix, size,
+	const auto &&obj_fireball = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_FIREBALL, vclip_type, segnum, position, &vmd_identity_matrix, size,
 					object::control_type::explosion, object::movement_type::None, RT_FIREBALL);
 
 	if (obj_fireball == object_none)
@@ -624,7 +624,7 @@ static void object_create_debris(fvmsegptridx &vmsegptridx, const object_base &p
 	Assert(parent.type == OBJ_ROBOT || parent.type == OBJ_PLAYER);
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	const auto &&obj = obj_create(OBJ_DEBRIS, 0, vmsegptridx(parent.segnum), parent.pos, &parent.orient, Polygon_models[parent.rtype.pobj_info.model_num].submodel_rads[subobj_num],
+	const auto &&obj = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_DEBRIS, 0, vmsegptridx(parent.segnum), parent.pos, &parent.orient, Polygon_models[parent.rtype.pobj_info.model_num].submodel_rads[subobj_num],
 				object::control_type::debris, object::movement_type::physics, RT_POLYOBJ);
 
 	if ( obj == object_none )
@@ -1055,7 +1055,7 @@ imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, const vms_vector 
 					 return object_none;
 #endif
 				}
-				const auto &&objp = obj_create(OBJ_POWERUP, id, segnum, pos, &vmd_identity_matrix, Powerup_info[id].size, object::control_type::powerup, object::movement_type::physics, RT_POWERUP);
+				const auto &&objp = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, id, segnum, pos, &vmd_identity_matrix, Powerup_info[id].size, object::control_type::powerup, object::movement_type::physics, RT_POWERUP);
 
 				if (objp == object_none)
 					return objp;
@@ -1358,7 +1358,7 @@ void explode_object(const vmobjptridx_t hitobj,fix delay_time)
 
 	if (delay_time) {		//wait a little while before creating explosion
 		//create a placeholder object to do the delay, with id==-1
-		auto obj = obj_create(OBJ_FIREBALL, -1, vmsegptridx(hitobj->segnum), hitobj->pos, &vmd_identity_matrix, 0,
+		const auto &&obj = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_FIREBALL, -1, vmsegptridx(hitobj->segnum), hitobj->pos, &vmd_identity_matrix, 0,
 						object::control_type::explosion, object::movement_type::None, RT_NONE);
 		if (obj == object_none ) {
 			maybe_delete_object(hitobj);		//no explosion, die instantly

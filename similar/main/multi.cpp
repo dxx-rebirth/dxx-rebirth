@@ -3313,7 +3313,7 @@ void update_item_state::process_powerup(const d_vclip_array &Vclip, fvmsegptridx
 	{
 		assert(o.movement_source == object::movement_type::None);
 		assert(o.render_type == RT_POWERUP);
-		const auto &&no = obj_create(OBJ_POWERUP, id, segp, vm_vec_avg(o.pos, vcvertptr(seg_verts[static_cast<segment_relative_vertnum>(i % seg_verts.size())])), &vmd_identity_matrix, o.size, object::control_type::powerup, object::movement_type::None, RT_POWERUP);
+		const auto &&no = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, id, segp, vm_vec_avg(o.pos, vcvertptr(seg_verts[static_cast<segment_relative_vertnum>(i % seg_verts.size())])), &vmd_identity_matrix, o.size, object::control_type::powerup, object::movement_type::None, RT_POWERUP);
 		if (no == object_none)
 			return;
 		m_modified.set(no);
@@ -3379,7 +3379,7 @@ void multi_prep_level_objects(const d_powerup_info_array &Powerup_info, const d_
 	{
 		if ((o->type == OBJ_HOSTAGE) && !(Game_mode & GM_MULTI_COOP))
 		{
-			const auto &&objnum = obj_create(OBJ_POWERUP, POW_SHIELD_BOOST, vmsegptridx(o->segnum), o->pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, object::control_type::powerup, object::movement_type::physics, RT_POWERUP);
+			const auto &&objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, POW_SHIELD_BOOST, vmsegptridx(o->segnum), o->pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, object::control_type::powerup, object::movement_type::physics, RT_POWERUP);
 			obj_delete(LevelUniqueObjectState, Segments, o);
 			if (objnum != object_none)
 			{

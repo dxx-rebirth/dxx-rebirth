@@ -31,6 +31,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "polyobj.h"
 #include "physfsx.h"
+#include "d_levelstate.h"
+#include "segment.h"
 
 #include "compiler-range_for.h"
 #include "partial_range.h"
@@ -197,7 +199,7 @@ namespace dsx {
 
 imobjptridx_t robot_create(const unsigned id, const vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *const orient, const fix size, const ai_behavior behavior, const imsegidx_t hide_segment)
 {
-	const auto &&objp = obj_create(OBJ_ROBOT, id, segnum, pos, orient, size, object::control_type::ai, object::movement_type::physics, RT_POLYOBJ);
+	const auto &&objp = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_ROBOT, id, segnum, pos, orient, size, object::control_type::ai, object::movement_type::physics, RT_POLYOBJ);
 	if (objp)
 		init_ai_object(objp, behavior, hide_segment);
 	return objp;

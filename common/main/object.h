@@ -608,7 +608,11 @@ namespace dsx {
 
 // initialize a new object.  adds to the list for the given segment
 // returns the object number
-imobjptridx_t obj_create(object_type_t type, unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, enum object::control_type ctype, enum object::movement_type mtype, render_type_t rtype);
+[[nodiscard]]
+imobjptridx_t obj_create(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, object_type_t type, unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, enum object::control_type ctype, enum object::movement_type mtype, render_type_t rtype);
+
+[[nodiscard]]
+imobjptridx_t obj_weapon_create(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const weapon_info_array &Weapon_info, unsigned id, vmsegptridx_t segnum, const vms_vector &pos, fix size, render_type_t rtype);
 
 #if defined(DXX_BUILD_DESCENT_II)
 

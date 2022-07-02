@@ -271,6 +271,7 @@ void clear_transient_objects(int clear_all);
 // Generally, obj_create() should be called to get an object, since it
 // fills in important fields and does the linking.  returns -1 if no
 // free objects
+[[nodiscard]]
 imobjptridx_t obj_allocate(d_level_unique_object_state &);
 
 // after calling init_object(), the network code has grabbed specific
