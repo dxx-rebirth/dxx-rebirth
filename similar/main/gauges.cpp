@@ -1162,7 +1162,7 @@ static void hud_show_keys(const hud_draw_context_mr hudctx, const hud_ar_scale_f
 		grs_bitmap *const bm;
 	public:
 		gauge_key(const unsigned key_icon, const local_multires_gauge_graphic multires_gauge_graphic) :
-			bm(&GameBitmaps[static_cast<void>(multires_gauge_graphic), PAGE_IN_GAUGE(key_icon, multires_gauge_graphic), GET_GAUGE_INDEX(key_icon)])
+			bm(&GameBitmaps[(static_cast<void>(multires_gauge_graphic), PAGE_IN_GAUGE(key_icon, multires_gauge_graphic), GET_GAUGE_INDEX(key_icon))])
 		{
 		}
 		grs_bitmap *operator->() const
