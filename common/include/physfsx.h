@@ -76,10 +76,7 @@ template <typename V>
 __attribute_always_inline()
 static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_File *file, V *v, const PHYSFS_uint32 S, const PHYSFS_uint32 C)
 {
-	if constexpr (std::is_integral<V>::value)
-		static_assert(std::is_pod<V>::value, "non-POD integral value read");
-	else
-		static_assert(std::is_pod<V>::value, "non-POD non-integral value read");
+	static_assert(std::is_standard_layout<V>::value && std::is_trivial<V>::value, "non-POD value read");
 	DXX_PHYSFS_CHECK_READ_SIZE_OBJECT_SIZE(S, C, v);
 	return PHYSFS_read(file, v, S, C);
 }
@@ -88,7 +85,7 @@ template <typename V, std::size_t N>
 __attribute_always_inline()
 static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_File *file, std::array<V, N> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
-	static_assert(std::is_pod<V>::value, "C++ array of non-POD elements read");
+	static_assert(std::is_standard_layout<V>::value && std::is_trivial<V>::value, "C++ array of non-POD elements read");
 	DXX_PHYSFS_CHECK_READ_SIZE_ARRAY_SIZE(S, C);
 	return PHYSFSX_check_read(file, &v[0], S, C);
 }
@@ -104,13 +101,9 @@ template <typename V>
 __attribute_always_inline()
 static inline PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_File *file, const V *v, const PHYSFS_uint32 S, const PHYSFS_uint32 C)
 {
+	static_assert(std::is_standard_layout<V>::value && std::is_trivial<V>::value, "non-POD value written");
 	if constexpr (std::is_integral<V>::value)
-	{
-		static_assert(std::is_pod<V>::value, "non-POD integral value written");
 		DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(S,C);
-	}
-	else
-		static_assert(std::is_pod<V>::value, "non-POD non-integral value written");
 	DXX_PHYSFS_CHECK_WRITE_SIZE_OBJECT_SIZE(S, C, v);
 	return PHYSFS_write(file, v, S, C);
 }
@@ -119,7 +112,7 @@ template <typename V, std::size_t N>
 __attribute_always_inline()
 static inline PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_File *file, const std::array<V, N> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
 {
-	static_assert(std::is_pod<V>::value, "C++ array of non-POD elements written");
+	static_assert(std::is_standard_layout<V>::value && std::is_trivial<V>::value, "C++ array of non-POD elements written");
 	DXX_PHYSFS_CHECK_WRITE_CONSTANTS(S,C);
 	return PHYSFSX_check_write(file, &v[0], S, C);
 }
