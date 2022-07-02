@@ -399,7 +399,7 @@ int ok_to_do_omega_damage(const object &weapon)
 }
 
 // ---------------------------------------------------------------------------------
-static bool create_omega_blobs(const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const weapon_info_array &Weapon_info, const Difficulty_level_type Difficulty_level, const imsegptridx_t firing_segnum, const vms_vector &firing_pos, const vms_vector &goal_pos, const vmobjptridx_t parent_objp)
+static bool create_omega_blobs(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const weapon_info_array &Weapon_info, const Difficulty_level_type Difficulty_level, const imsegptridx_t firing_segnum, const vms_vector &firing_pos, const vms_vector &goal_pos, const vmobjptridx_t parent_objp)
 {
 	imobjptridx_t  last_created_objnum = object_none;
 	fix		dist_to_goal = 0, omega_blob_dist = 0;
@@ -620,7 +620,7 @@ static void do_omega_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t parent
 		goal_pos = lock_objnum->pos;
 
 	//	This is where we create a pile of omega blobs!
-	if (!create_omega_blobs(LevelSharedSegmentState, LevelUniqueSegmentState, Weapon_info, GameUniqueState.Difficulty_level, firing_segnum, firing_pos, goal_pos, parent_objp))
+	if (!create_omega_blobs(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Weapon_info, GameUniqueState.Difficulty_level, firing_segnum, firing_pos, goal_pos, parent_objp))
 		return;
 
 	//	Play sound.
