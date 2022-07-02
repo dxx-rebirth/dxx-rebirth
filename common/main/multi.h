@@ -244,12 +244,14 @@ struct dispatch_table
 	virtual void leave_game() const = 0;
 };
 }
-}
 
 #define define_netflag_bit_enum(NAME,STR)	BIT_##NAME,
 #define define_netflag_bit_mask(NAME,STR)	NAME = (1 << BIT_##NAME),
 #define define_netflag_powerup_mask(NAME,STR)	| (NAME)
-enum { for_each_netflag_value(define_netflag_bit_enum) };
+enum netflag_bit : uint8_t
+{
+	for_each_netflag_value(define_netflag_bit_enum)
+};
 // Bitmask for netgame_info->AllowedItems to set allowed items in Netgame
 enum netflag_flag :
 #if defined(DXX_BUILD_DESCENT_I)
@@ -260,7 +262,8 @@ enum netflag_flag :
 {
 	for_each_netflag_value(define_netflag_bit_mask)
 };
-enum {
+enum netgrant_bit : uint8_t
+{
 	BIT_NETGRANT_LASER = DXX_GRANT_LASER_LEVEL_BITS - 1,
 	for_each_netgrant_value(define_netflag_bit_enum)
 	BIT_NETGRANT_MAXIMUM
@@ -276,8 +279,6 @@ enum netgrant_flag :
 };
 #undef define_netflag_bit_enum
 #undef define_netflag_bit_mask
-
-namespace dsx {
 
 struct packed_spawn_granted_items
 {

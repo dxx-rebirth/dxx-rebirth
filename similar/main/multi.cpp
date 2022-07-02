@@ -3146,7 +3146,8 @@ void multi_consistency_error(int reset)
 	multi_reset_stuff();
 }
 
-static constexpr unsigned grant_shift_helper(const packed_spawn_granted_items p, int s)
+template <netgrant_bit grant, netflag_bit flag, int s = static_cast<int>(grant) - static_cast<int>(flag)>
+static constexpr unsigned grant_shift_helper(const packed_spawn_granted_items p)
 {
 	return s > 0 ? p.mask >> s : p.mask << -s;
 }
@@ -3199,10 +3200,10 @@ namespace {
 
 static constexpr unsigned map_granted_flags_to_netflag(const packed_spawn_granted_items grant)
 {
-	return (grant_shift_helper(grant, BIT_NETGRANT_QUAD - BIT_NETFLAG_DOQUAD) & (NETFLAG_DOQUAD | NETFLAG_DOVULCAN | NETFLAG_DOSPREAD | NETFLAG_DOPLASMA | NETFLAG_DOFUSION))
+	return (grant_shift_helper<BIT_NETGRANT_QUAD, BIT_NETFLAG_DOQUAD>(grant) & (NETFLAG_DOQUAD | NETFLAG_DOVULCAN | NETFLAG_DOSPREAD | NETFLAG_DOPLASMA | NETFLAG_DOFUSION))
 #if defined(DXX_BUILD_DESCENT_II)
-		| (grant_shift_helper(grant, BIT_NETGRANT_GAUSS - BIT_NETFLAG_DOGAUSS) & (NETFLAG_DOGAUSS | NETFLAG_DOHELIX | NETFLAG_DOPHOENIX | NETFLAG_DOOMEGA))
-		| (grant_shift_helper(grant, BIT_NETGRANT_AFTERBURNER - BIT_NETFLAG_DOAFTERBURNER) & (NETFLAG_DOAFTERBURNER | NETFLAG_DOAMMORACK | NETFLAG_DOCONVERTER | NETFLAG_DOHEADLIGHT))
+		| (grant_shift_helper<BIT_NETGRANT_GAUSS, BIT_NETFLAG_DOGAUSS>(grant) & (NETFLAG_DOGAUSS | NETFLAG_DOHELIX | NETFLAG_DOPHOENIX | NETFLAG_DOOMEGA))
+		| (grant_shift_helper<BIT_NETGRANT_AFTERBURNER, BIT_NETFLAG_DOAFTERBURNER>(grant) & (NETFLAG_DOAFTERBURNER | NETFLAG_DOAMMORACK | NETFLAG_DOCONVERTER | NETFLAG_DOHEADLIGHT))
 #endif
 		;
 }
