@@ -198,10 +198,11 @@ static inline int robot_is_thief(const robot_info &robptr)
 }
 #endif
 
+using d_robot_info_array = std::array<robot_info, MAX_ROBOT_TYPES>;
+
 //the array of robots types
 struct d_level_shared_robot_info_state
 {
-	using d_robot_info_array = std::array<robot_info, MAX_ROBOT_TYPES>;
 	//how many kinds of robots
 	unsigned N_robot_types;      // Number of robot types.  We used to assume this was the same as N_polygon_models.
 	// Robot info for AI system, loaded from bitmaps.tbl.
@@ -212,7 +213,7 @@ extern d_level_shared_robot_info_state LevelSharedRobotInfoState;
 
 #if defined(DXX_BUILD_DESCENT_II)
 // returns ptr to escort robot, or NULL
-imobjptridx_t find_escort(fvmobjptridx &vmobjptridx, const d_level_shared_robot_info_state::d_robot_info_array &Robot_info);
+imobjptridx_t find_escort(fvmobjptridx &vmobjptridx, const d_robot_info_array &Robot_info);
 #endif
 
 #if DXX_USE_EDITOR
@@ -255,7 +256,7 @@ void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_
 //  On exit:
 //      Returns number of joints in list.
 //      jp_list_ptr is stuffed with a pointer to a static array of joint positions.  This pointer is valid forever.
-partial_range_t<const jointpos *> robot_get_anim_state(const d_level_shared_robot_info_state::d_robot_info_array &, const std::array<jointpos, MAX_ROBOT_JOINTS> &, unsigned robot_type, unsigned gun_num, unsigned state);
+partial_range_t<const jointpos *> robot_get_anim_state(const d_robot_info_array &, const std::array<jointpos, MAX_ROBOT_JOINTS> &, unsigned robot_type, unsigned gun_num, unsigned state);
 
 /*
  * reads n robot_info structs from a PHYSFS_File

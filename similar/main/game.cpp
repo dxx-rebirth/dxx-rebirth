@@ -1877,7 +1877,7 @@ enumerated_array<unsigned, 2, gauge_inset_window_view> Coop_view_player{
 };
 
 //returns ptr to escort robot, or NULL
-imobjptridx_t find_escort(fvmobjptridx &vmobjptridx, const d_level_shared_robot_info_state::d_robot_info_array &Robot_info)
+imobjptridx_t find_escort(fvmobjptridx &vmobjptridx, const d_robot_info_array &Robot_info)
 {
 	range_for (const auto &&o, vmobjptridx)
 	{

@@ -84,7 +84,7 @@ void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_
 
 //fills in ptr to list of joints, and returns the number of joints in list
 //takes the robot type (object id), gun number, and desired state
-partial_range_t<const jointpos *> robot_get_anim_state(const d_level_shared_robot_info_state::d_robot_info_array &robot_info, const std::array<jointpos, MAX_ROBOT_JOINTS> &robot_joints, const unsigned robot_type, const unsigned gun_num, const unsigned state)
+partial_range_t<const jointpos *> robot_get_anim_state(const d_robot_info_array &robot_info, const std::array<jointpos, MAX_ROBOT_JOINTS> &robot_joints, const unsigned robot_type, const unsigned gun_num, const unsigned state)
 {
 	auto &rirt = robot_info[robot_type];
 	assert(gun_num <= rirt.n_guns);

@@ -2344,7 +2344,7 @@ static void teleport_boss(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx,
 }
 
 //	----------------------------------------------------------------------
-void start_boss_death_sequence(d_level_unique_boss_state &BossUniqueState, const d_level_shared_robot_info_state::d_robot_info_array &Robot_info, object &objp)
+void start_boss_death_sequence(d_level_unique_boss_state &BossUniqueState, const d_robot_info_array &Robot_info, object &objp)
 {
 	auto &robptr = Robot_info[get_robot_id(objp)];
 	if (robptr.boss_flag)

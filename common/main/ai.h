@@ -208,7 +208,7 @@ void do_thief_frame(vmobjptridx_t objp, const robot_info &robptr, fix dist_to_pl
 }
 
 namespace dsx {
-void start_boss_death_sequence(d_level_unique_boss_state &BossUniqueState, const d_level_shared_robot_info_state::d_robot_info_array &Robot_info, object &objp);
+void start_boss_death_sequence(d_level_unique_boss_state &BossUniqueState, const d_robot_info_array &Robot_info, object &objp);
 extern void ai_init_boss_for_ship(void);
 void init_ai_for_ship();
 
