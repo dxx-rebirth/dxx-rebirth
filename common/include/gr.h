@@ -126,7 +126,7 @@ public:
 	}
 	grs_main_bitmap &operator=(grs_main_bitmap &&r)
 	{
-		if (this == &r)
+		if (grs_bitmap *const that = &r; this == that)
 			return *this;
 		reset();
 		grs_bitmap::operator=(std::move(static_cast<grs_bitmap &>(r)));
