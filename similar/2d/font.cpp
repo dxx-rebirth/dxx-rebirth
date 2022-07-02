@@ -179,6 +179,12 @@ static int get_centered_x(const grs_canvas &canvas, const grs_font &cv_font, con
 //function must already have orig_color var set (or they could be passed as args...)
 //perhaps some sort of recursive orig_color type thing would be better, but that would be way too much trouble for little gain
 constexpr std::integral_constant<int, 1> gr_message_color_level{};
+
+struct per_character_row_state
+{
+	uint8_t draw_full_width_as_fg_color = 0;
+};
+
 #define CHECK_EMBEDDED_COLORS() if (const char control_code = *text_ptr; control_code >= 0x01 && control_code <= 0x02) { \
 		text_ptr++; \
 		if (*text_ptr){ \
@@ -189,7 +195,7 @@ constexpr std::integral_constant<int, 1> gr_message_color_level{};
 	} \
 	else if (control_code == 0x03) \
 	{ \
-		underline = 1; \
+		state.draw_full_width_as_fg_color = 1; \
 		text_ptr++; \
 	} \
 	else if (control_code >= 0x04 && control_code <= 0x06) { \
@@ -247,9 +253,11 @@ static int gr_internal_string0_template(grs_canvas &canvas, const grs_font &cv_f
 					continue;
 				}
 
-				auto underline = unlikely(c0 == CC_UNDERLINE)
-					? ++text_ptr, r == cv_font.ft_baseline + 2 || r == cv_font.ft_baseline + 3
-					: 0;
+				per_character_row_state state{
+					(unlikely(c0 == CC_UNDERLINE)
+						? ++text_ptr, r == cv_font.ft_baseline + 2 || r == cv_font.ft_baseline + 3
+						: false),
+				};
 
 				const uint8_t c = *text_ptr;
 				const auto &result = get_char_width<int>(cv_font, c, text_ptr[1]);
@@ -283,7 +291,7 @@ static int gr_internal_string0_template(grs_canvas &canvas, const grs_font &cv_f
 				{
 					auto data = &canvas.cv_bitmap.get_bitmap_data()[VideoOffset];
 					const auto cv_font_fg_color = canvas.cv_font_fg_color;
-				if (underline)
+					if (state.draw_full_width_as_fg_color)
 				{
 					std::fill_n(data, width, cv_font_fg_color);
 				}
@@ -644,14 +652,14 @@ static void ogl_internal_string(grs_canvas &canvas, const grs_font &cv_font, con
 			const auto &result = get_char_width<int>(cv_font, c0, text_ptr[1]);
 			const auto &spacing = result.spacing;
 
-			uint8_t underline = 0;
+			per_character_row_state state;
 			if (!INFONT(letter) || c0 <= 0x06) //not in font, draw as space
 			{
 				CHECK_EMBEDDED_COLORS() else{
 					line_x += spacing;
 					text_ptr++;
 				}
-				if (underline)
+				if (state.draw_full_width_as_fg_color)
 				{
 					const auto color = canvas.cv_font_fg_color;
 					gr_rect(canvas, line_x, yy + cv_font.ft_baseline + 2, line_x + cv_font.ft_w, yy + cv_font.ft_baseline + 3, color);
@@ -1120,9 +1128,11 @@ static int gr_internal_string_clipped_template(grs_canvas &canvas, const grs_fon
 					continue;
 				}
 
-				const auto underline = unlikely(c0 == CC_UNDERLINE)
-					? ++text_ptr, r == cv_font.ft_baseline + 2 || r == cv_font.ft_baseline + 3
-					: 0;
+				per_character_row_state state{
+					(unlikely(c0 == CC_UNDERLINE)
+						? ++text_ptr, r == cv_font.ft_baseline + 2 || r == cv_font.ft_baseline + 3
+						: false),
+				};
 				const uint8_t c = *text_ptr;
 				const auto &result = get_char_width<int>(cv_font, c, text_ptr[1]);
 				const auto &width = result.width;
@@ -1138,7 +1148,7 @@ static int gr_internal_string_clipped_template(grs_canvas &canvas, const grs_fon
 				auto color = cv_font_fg_color;
 				if (width)
 				{
-				if (underline)	{
+					if (state.draw_full_width_as_fg_color)	{
 					for (uint_fast32_t i = width; i--;)
 					{
 						gr_pixel(canvas.cv_bitmap, x++, y, color);
