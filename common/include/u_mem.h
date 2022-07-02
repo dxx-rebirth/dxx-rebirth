@@ -95,7 +95,7 @@ static inline void mem_init(void)
 template <typename T>
 T *MALLOC(T *&r, std::size_t count, const char *var, const char *file, unsigned line)
 {
-	static_assert(std::is_pod<T>::value, "MALLOC cannot allocate non-POD");
+	static_assert(std::is_integral<T>::value, "MALLOC cannot allocate non-integral");
 	return r = reinterpret_cast<T *>(mem_malloc(count * sizeof(T), var, file, line));
 }
 
@@ -104,7 +104,7 @@ T *MALLOC(T *&r, std::size_t count, const char *var, const char *file, unsigned 
 template <typename T>
 static inline void d_free(T *&ptr)
 {
-	static_assert((std::is_same<T, void>::value || std::is_pod<T>::value), "d_free cannot free non-POD");
+	static_assert((std::is_same<T, void>::value || std::is_integral<T>::value), "d_free cannot free non-integral");
 	mem_free(std::exchange(ptr, nullptr));
 }
 
@@ -130,7 +130,7 @@ class RAIIdmem : public std::unique_ptr<T, RAIIdmem_deleter<T>>
 {
 	typedef std::unique_ptr<T, RAIIdmem_deleter<T>> base_ptr;
 public:
-	static_assert(std::is_pod<typename base_ptr::element_type>::value, "RAIIdmem cannot manage non-POD");
+	static_assert(std::is_integral<typename base_ptr::element_type>::value, "RAIIdmem cannot manage non-integral");
 	using base_ptr::base_ptr;
 };
 
