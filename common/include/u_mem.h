@@ -99,13 +99,6 @@ T *MALLOC(T *&r, std::size_t count, const char *var, const char *file, unsigned 
 	return r = reinterpret_cast<T *>(mem_malloc(count * sizeof(T), var, file, line));
 }
 
-template <typename T>
-T *CALLOC(T *&r, std::size_t count, const char *var, const char *file, unsigned line)
-{
-	static_assert(std::is_pod<T>::value, "CALLOC cannot allocate non-POD");
-	return r = reinterpret_cast<T *>(mem_calloc(count, sizeof(T), var, file, line));
-}
-
 #define d_malloc(size)      mem_malloc((size),"Unknown", __FILE__,__LINE__ )
 #define d_realloc(ptr,size) mem_realloc((ptr),(size),"Unknown", __FILE__,__LINE__ )
 template <typename T>
@@ -158,15 +151,7 @@ RAIIdmem<T> &MALLOC(RAIIdmem<T> &r, std::size_t count, const char *var, const ch
 	return r.reset(MALLOC<typename RAIIdmem<T>::element_type>(p, count, var, file, line)), r;
 }
 
-template <typename T>
-void CALLOC(RAIIdmem<T> &r, std::size_t count, const char *var, const char *file, unsigned line)
-{
-	typename RAIIdmem<T>::pointer p;
-	r.reset(CALLOC<typename RAIIdmem<T>::element_type>(p, count, var, file, line));
-}
-
 #define MALLOC( var, type, count )	(MALLOC<type>(var, (count),#var, __FILE__,__LINE__ ))
-#define CALLOC( var, type, count )	(CALLOC<type>(var, (count),#var, __FILE__,__LINE__ ))
 
 }
 
