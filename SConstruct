@@ -426,7 +426,7 @@ class ConfigureTests(_ConfigureTests):
 	custom_tests = _custom_test.tests
 	comment_not_supported = '/* not supported */'
 	__python_import_struct = None
-	_cxx_conformance_cxx17 = 17
+	_cxx_conformance_cxx20 = 20
 	__cxx_std_required_features = CxxRequiredFeatures([
 		Cxx17RequiredFeature('constexpr if', '''
 template <bool b>
@@ -910,37 +910,19 @@ help:assume C++ compiler works
 				if self._Compile(context, text='', msg='whether C++ compiler works with blank $CXXFLAGS', calling_function='cxx_blank_cxxflags_works'):
 					return 'C++ compiler works with blank $CXXFLAGS.  C++ compiler does not work with specified $CXXFLAGS.'
 			return 'C++ compiler does not work.'
-	implicit_tests.append(_implicit_test.RecordedTest('check_cxx17', "assume C++ compiler supports C++17"))
+	implicit_tests.append(_implicit_test.RecordedTest('check_cxx20', "assume C++ compiler supports C++20"))
 	__cxx_conformance_CXXFLAGS = [None]
 	def _check_cxx_conformance_level(self,context,_levels=(
 			# List standards in descending order of preference.
 			#
-			# C++17 is required, so list it last.
-			_cxx_conformance_cxx17,
+			# C++20 is required, so list it last.
+			_cxx_conformance_cxx20,
 		), _CXXFLAGS=__cxx_conformance_CXXFLAGS,
 		_successflags={'CXXFLAGS' : __cxx_conformance_CXXFLAGS}
 		):
 		# Testing the compiler option parser only needs Compile, even when LTO
 		# is enabled.
 		Compile = self._Compile
-		# Accepted options by version:
-		#
-		#	gcc-7 -std=gnu++1y
-		#	gcc-7 -std=gnu++14
-		#	gcc-7 -std=gnu++1z
-		#	gcc-7 -std=gnu++17
-		#
-		#	gcc-8 -std=gnu++1y
-		#	gcc-8 -std=gnu++14
-		#	gcc-8 -std=gnu++1z
-		#	gcc-8 -std=gnu++17
-		#	gcc-8 -std=gnu++2a
-		#
-		#	gcc-9 -std=gnu++1y
-		#	gcc-9 -std=gnu++14
-		#	gcc-9 -std=gnu++1z
-		#	gcc-9 -std=gnu++17
-		#	gcc-9 -std=gnu++2a
 		for level in _levels:
 			opt = '-std=gnu++%u' % level
 			_CXXFLAGS[0] = opt

@@ -9,13 +9,14 @@ The DXX-Rebirth maintainers have no control over the sites linked below.  The ma
 
 * [Python 3.x](https://www.python.org/) to run [scons](https://www.scons.org/), the processor for SConstruct scripts.
 [Python 3.9](https://www.python.org/downloads/release/python-3912/) is recommended.
-* C++ compiler with support for selected C++17 features.  One of:
+* C++ compiler with support for selected C++20 features.  One of:
     * [gcc](https://gcc.gnu.org/) 10.3
     * [clang](https://clang.llvm.org/) 13.0 or later
     * Microsoft Visual Studio is **not** supported at this time.
-	  Support for Microsoft Visual Studio will be added when it
-	  implements sufficient C++17 features for the code to build with
-	  few or no modifications.
+	  Visual Studio 2022 release notes indicate it has sufficient C++ support
+	  that it should be able to compile Rebirth.  However, due to limitations
+	  of the Visual Studio installation environment, the core team does not
+	  use, test, or support Visual Studio.
 * [SDL 1.2](https://www.libsdl.org/).
 SDL 2 is also supported, and will become the default soon.
 * [PhysicsFS](https://icculus.org/physfs/).
