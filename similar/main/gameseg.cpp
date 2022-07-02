@@ -771,11 +771,10 @@ icsegptridx_t find_point_seg(const d_level_shared_segment_state &LevelSharedSegm
 //--repair-- }
 
 #if defined(DXX_BUILD_DESCENT_I)
-static inline void add_to_fcd_cache(segnum_t seg0, segnum_t seg1, int depth, vm_distance dist)
+static inline void add_to_fcd_cache(segnum_t seg0, segnum_t seg1, vm_distance dist)
 {
 	(void)seg0;
 	(void)seg1;
-	(void)depth;
 	(void)dist;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -784,7 +783,6 @@ namespace {
 
 struct fcd_data {
 	segnum_t	seg0, seg1;
-	int csd;
 	vm_distance dist;
 };
 
@@ -792,7 +790,7 @@ fix64	Last_fcd_flush_time;
 unsigned Fcd_index;
 std::array<fcd_data, 8> Fcd_cache;
 
-static void add_to_fcd_cache(const segnum_t seg0, const segnum_t seg1, const int depth, const vm_distance dist)
+static void add_to_fcd_cache(const segnum_t seg0, const segnum_t seg1, const vm_distance dist)
 {
 	if (dist > MIN_CACHE_FCD_DIST) {
 		if (Fcd_index >= Fcd_cache.size())
@@ -800,7 +798,6 @@ static void add_to_fcd_cache(const segnum_t seg0, const segnum_t seg1, const int
 		auto &f = Fcd_cache[Fcd_index++];
 		f.seg0 = seg0;
 		f.seg1 = seg1;
-		f.csd = depth;
 		f.dist = dist;
 	} else {
 		//	If it's in the cache, remove it.
@@ -912,8 +909,7 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 					depth[qtail++] = cur_depth+1;
 					if (max_depth != -1) {
 						if (depth[qtail-1] == max_depth) {
-							constexpr auto Connected_segment_distance = 1000;
-							add_to_fcd_cache(seg0, seg1, Connected_segment_distance, fcd_abort_cache_value);
+							add_to_fcd_cache(seg0, seg1, fcd_abort_cache_value);
 							return fcd_abort_return_value;
 						}
 					} else if (this_seg == seg1) {
@@ -923,8 +919,7 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 		}	//	for (sidenum...
 
 		if (qhead >= qtail) {
-			constexpr auto Connected_segment_distance = 1000;
-			add_to_fcd_cache(seg0, seg1, Connected_segment_distance, fcd_abort_cache_value);
+			add_to_fcd_cache(seg0, seg1, fcd_abort_cache_value);
 			return fcd_abort_return_value;
 		}
 
@@ -938,8 +933,7 @@ fcd_done1: ;
 	//	Set qtail to the segment which ends at the goal.
 	while (seg_queue[--qtail].end != seg1)
 		if (qtail < 0) {
-			constexpr auto Connected_segment_distance = 1000;
-			add_to_fcd_cache(seg0, seg1, Connected_segment_distance, fcd_abort_cache_value);
+			add_to_fcd_cache(seg0, seg1, fcd_abort_cache_value);
 			return fcd_abort_return_value;
 		}
 
@@ -972,7 +966,7 @@ fcd_done1: ;
 			dist += vm_vec_dist_quick(point_segs[i].point, point_segs[i+1].point);
 		}
 
-	add_to_fcd_cache(seg0, seg1, num_points, dist);
+	add_to_fcd_cache(seg0, seg1, dist);
 
 	return dist;
 
