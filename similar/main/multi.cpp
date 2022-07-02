@@ -1836,7 +1836,7 @@ static void multi_do_kill(object_array &Objects, const uint8_t *const buf)
 	if (multi_i_am_master())
 	{
 		multi_command<MULTI_KILL_HOST> multibuf;
-		std::memcpy(multibuf.data(), buf, 5);
+		std::memcpy(std::next(multibuf.data()), std::next(buf), 4);
 		multibuf[5] = Netgame.team_vector;
 		multibuf[6] = Bounty_target;
 		
