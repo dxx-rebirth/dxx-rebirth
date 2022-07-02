@@ -770,18 +770,16 @@ icsegptridx_t find_point_seg(const d_level_shared_segment_state &LevelSharedSegm
 //--repair-- 	return ((Lsegment_highest_segment_index == Highest_segment_index) && (Lsegment_highest_vertex_index == Highest_vertex_index));
 //--repair-- }
 
-}
-
-namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void add_to_fcd_cache(segnum_t seg0, segnum_t seg1, int depth, vm_distance dist)
 {
-	(void)(seg0||seg1||depth||dist);
+	(void)seg0;
+	(void)seg1;
+	(void)depth;
+	(void)dist;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 #define	MIN_CACHE_FCD_DIST	(F1_0*80)	//	Must be this far apart for cache lookup to succeed.  Recognizes small changes in distance matter at small distances.
-#define	MAX_FCD_CACHE	8
-
 namespace {
 
 struct fcd_data {
@@ -790,46 +788,41 @@ struct fcd_data {
 	vm_distance dist;
 };
 
-}
-
-int	Fcd_index = 0;
-static std::array<fcd_data, MAX_FCD_CACHE> Fcd_cache;
 fix64	Last_fcd_flush_time;
+unsigned Fcd_index;
+std::array<fcd_data, 8> Fcd_cache;
 
-//	----------------------------------------------------------------------------------------------------------
-void flush_fcd_cache(void)
-{
-	Fcd_index = 0;
-
-	range_for (auto &i, Fcd_cache)
-		i.seg0 = segment_none;
-}
-
-namespace {
-//	----------------------------------------------------------------------------------------------------------
-static void add_to_fcd_cache(segnum_t seg0, segnum_t seg1, int depth, vm_distance dist)
+static void add_to_fcd_cache(const segnum_t seg0, const segnum_t seg1, const int depth, const vm_distance dist)
 {
 	if (dist > MIN_CACHE_FCD_DIST) {
-		Fcd_cache[Fcd_index].seg0 = seg0;
-		Fcd_cache[Fcd_index].seg1 = seg1;
-		Fcd_cache[Fcd_index].csd = depth;
-		Fcd_cache[Fcd_index].dist = dist;
-
-		Fcd_index++;
-
-		if (Fcd_index >= MAX_FCD_CACHE)
+		if (Fcd_index >= Fcd_cache.size())
 			Fcd_index = 0;
+		auto &f = Fcd_cache[Fcd_index++];
+		f.seg0 = seg0;
+		f.seg1 = seg1;
+		f.csd = depth;
+		f.dist = dist;
 	} else {
 		//	If it's in the cache, remove it.
-		range_for (auto &i, Fcd_cache)
-			if (i.seg0 == seg0)
-				if (i.seg1 == seg1) {
-					Fcd_cache[Fcd_index].seg0 = segment_none;
-					break;
-				}
+		for (auto &f : Fcd_cache)
+			if (f.seg0 == seg0 && f.seg1 == seg1)
+			{
+				f.seg0 = segment_none;
+				break;
+			}
 	}
+}
 
 }
+
+//	----------------------------------------------------------------------------------------------------------
+void flush_fcd_cache()
+{
+	Fcd_index = 0;
+	Last_fcd_flush_time = GameTime64;
+
+	for (auto &f : Fcd_cache)
+		f.seg0 = segment_none;
 }
 #endif
 
@@ -881,7 +874,6 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 	//	Periodically flush cache.
 	if ((GameTime64 - Last_fcd_flush_time > F1_0*2) || (GameTime64 < Last_fcd_flush_time)) {
 		flush_fcd_cache();
-		Last_fcd_flush_time = GameTime64;
 	}
 
 	else
