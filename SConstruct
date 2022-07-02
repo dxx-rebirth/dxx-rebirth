@@ -273,6 +273,8 @@ class ConfigureTests(_ConfigureTests):
 		std = 14
 	class Cxx17RequiredFeature(CxxRequiredFeature):
 		std = 17
+	class Cxx20RequiredFeature(CxxRequiredFeature):
+		std = 20
 	class CxxRequiredFeatures:
 		__slots__ = ('features', 'main', 'text')
 		def __init__(self,features):
@@ -428,6 +430,18 @@ class ConfigureTests(_ConfigureTests):
 	__python_import_struct = None
 	_cxx_conformance_cxx20 = 20
 	__cxx_std_required_features = CxxRequiredFeatures([
+		Cxx20RequiredFeature('explicitly defaulted operator==', '''
+struct A_%(N)s
+{
+	int a;
+	constexpr bool operator==(const A_%(N)s &) const = default;
+};
+''',
+'''
+	A_%(N)s a{0};
+	A_%(N)s b{0};
+	(void)(a == b);
+'''),
 		Cxx17RequiredFeature('constexpr if', '''
 template <bool b>
 int f_%(N)s()
