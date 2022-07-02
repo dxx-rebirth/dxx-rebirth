@@ -1136,8 +1136,6 @@ void gr_palette_load( palette_array_t &pal )
 	reset_computed_colors();
 }
 
-#define GL_BGR_EXT 0x80E0
-
 struct TGA_header
 {
       unsigned char TGAheader[12];
@@ -1151,18 +1149,12 @@ void write_bmp(PHYSFS_File *const TGAFile, const unsigned w, const unsigned h)
 {
 	TGA_header TGA;
 	GLbyte HeightH,HeightL,WidthH,WidthL;
-	RAIIdmem<uint8_t[]> buf;
 	const unsigned buffer_size_TGA = w * h * 3;
-	CALLOC(buf, uint8_t[], buffer_size_TGA);
+	const auto buf = std::make_unique<uint8_t[]>(buffer_size_TGA);
 
-	RAIIdmem<uint8_t[]> rgbaBuf;
-	CALLOC(rgbaBuf, uint8_t[], w * h * 4);
-	glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, rgbaBuf.get());
-	for(unsigned int pixel = 0; pixel < w * h; pixel++) {
-		buf[pixel * 3] = rgbaBuf[pixel * 4 + 2];
-		buf[pixel * 3 + 1] = rgbaBuf[pixel * 4 + 1];
-		buf[pixel * 3 + 2] = rgbaBuf[pixel * 4];
-	}
+	glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buf.get());
+	for (const auto pixel : xrange(w * h))
+		std::swap(buf[pixel * 3], buf[pixel * 3 + 2]);
 
 	HeightH = static_cast<GLbyte>(h / 256);
 	HeightL = static_cast<GLbyte>(h % 256);
