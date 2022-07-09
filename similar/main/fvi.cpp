@@ -816,20 +816,24 @@ static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &int
 	//first, see if vector hit any objects in this segment
 	if (fq.flags & FQ_CHECK_OBJS)
 	{
-		const auto &collision = CollisionResult[likely(fq.thisobjnum != object_none) ? fq.thisobjnum->type : 0];
+		/* A caller which enables FQ_CHECK_OBJS must provide a valid object.
+		 * Obtain a require_valid instance once, before the loop begins.
+		 */
+		const vcobjptridx_t thisobjnum = fq.thisobjnum;
+		const robot_info *const robptrthis = thisobjnum->type == OBJ_ROBOT
+			? &Robot_info[get_robot_id(fq.thisobjnum)]
+			: nullptr;
+		const auto &collision = CollisionResult[thisobjnum->type];
 		range_for (const auto objnum, objects_in(*startseg, vcobjptridx, vcsegptr))
 		{
+			if (thisobjnum == objnum)
+				continue;
 			if (objnum->flags & OF_SHOULD_BE_DEAD)
 				continue;
-			if (fq.thisobjnum != object_none)
-			{
-				if (fq.thisobjnum == objnum)
-					continue;
-				if (laser_are_related(objnum, fq.thisobjnum))
-					continue;
-				if (collision[objnum->type] == collision_result::ignore)
-					continue;
-			}
+			if (collision[objnum->type] == collision_result::ignore)
+				continue;
+			if (laser_are_related(objnum, thisobjnum))
+				continue;
 			if (obj_in_list(objnum, fq.ignore_obj_list))
 				continue;
 			int fudged_rad = rad;
@@ -842,16 +846,15 @@ static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &int
 #endif
 
 			//	If this is a robot:robot collision, only do it if both of them have attack_type != 0 (eg, green guy)
-			if (fq.thisobjnum->type == OBJ_ROBOT)
+			if (robptrthis)
 			{
-				const auto &robptrthis = Robot_info[get_robot_id(fq.thisobjnum)];
 				if (objnum->type == OBJ_ROBOT)
 #if defined(DXX_BUILD_DESCENT_I)
-					if (!(Robot_info[get_robot_id(objnum)].attack_type && robptrthis.attack_type))
+					if (!(Robot_info[get_robot_id(objnum)].attack_type && robptrthis->attack_type))
 #endif
 					// -- MK: 11/18/95, 4claws glomming together...this is easy.  -- if (!(Robot_info[Objects[objnum].id].attack_type && Robot_info[Objects[thisobjnum].id].attack_type))
 						continue;
-				if (robptrthis.attack_type)
+				if (robptrthis->attack_type)
 					fudged_rad = (rad*3)/4;
 			}
 			//if obj is player, and bumping into other player or a weapon of another coop player, reduce radius

@@ -90,6 +90,21 @@ struct fvi_query
 	const vms_vector &p1;
 	const std::pair<const vcobjidx_t *, const vcobjidx_t *> ignore_obj_list;
 	const int flags;
+	/* This member depends on the value of flags.
+	 * If (flags & FQ_CHECK_OBJS), then `thisobjnum` _must_ be a valid object.
+	 * It will be dereferenced in the course of comparing to objects in the
+	 * segment.
+	 *
+	 * If !(flags & FQ_CHECK_OBJS), then `thisobjnum` may be a valid object, or
+	 * not, depending on the caller's needs.
+	 *
+	 * If `thisobjnum` is a valid object, then regardless of whether
+	 * FQ_CHECK_OBJS is set:
+	 * - fvi_sub enables the zero-radius hack for objects that ignore wall
+	 *   collisions
+	 * - fvi_sub respects the ghostphysics cheat if `thisobjnum` is the local
+	 *   player
+	 */
 	const icobjptridx_t thisobjnum;
 };
 
