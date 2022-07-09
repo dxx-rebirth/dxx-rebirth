@@ -25,30 +25,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#include "vecmat.h"
+#include "fwd-robot.h"
 #include "game.h"
 
-#ifdef __cplusplus
 #include "pack.h"
 #include "aistruct.h"
-#include "polyobj.h"
 #include "weapon_id.h"
 #include "object.h"
 #include "fwd-partial_range.h"
 #include "d_array.h"
 #include "digi.h"
-
-#define MAX_GUNS 8      //should be multiple of 4 for ubyte array
-
-//Animation states
-#define AS_REST         0
-#define AS_ALERT        1
-#define AS_FIRE         2
-#define AS_RECOIL       3
-#define AS_FLINCH       4
-#define N_ANIM_STATES   5
-
-#define RI_CLOAKED_ALWAYS           1
 
 namespace dcx {
 
@@ -66,21 +52,16 @@ struct jointlist
 	short offset;
 };
 
-constexpr std::integral_constant<unsigned, 16> ROBOT_NAME_LENGTH{};
-
 struct d_level_shared_robot_joint_state {
 	unsigned N_robot_joints;
 };
 
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
+constexpr auto weapon_none = weapon_id_type::unspecified;
+
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_II)
-//robot info flags
-#define RIF_BIG_RADIUS  1   //pad the radius to fix robots firing through walls
-#define RIF_THIEF       2   //this guy steals!
-#endif
 
 //  Robot information
 struct robot_info : prohibit_void_ptr<robot_info>
@@ -161,18 +142,9 @@ struct robot_info : prohibit_void_ptr<robot_info>
 void attempt_to_steal_item(vmobjptridx_t objp, const robot_info &robptr, object &playerobjp);
 #endif
 
-}
-
-constexpr auto weapon_none = weapon_id_type::unspecified;
-
-namespace dsx {
 imobjptridx_t robot_create(unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, ai_behavior behavior, const imsegidx_t hide_segment = segment_none);
 
 #if defined(DXX_BUILD_DESCENT_I)
-// maximum number of robot types
-constexpr std::integral_constant<unsigned, 30> MAX_ROBOT_TYPES{};
-constexpr std::integral_constant<unsigned, 600> MAX_ROBOT_JOINTS{};
-
 static inline int robot_is_companion(const robot_info &)
 {
 	return 0;
@@ -183,10 +155,6 @@ static inline int robot_is_thief(const robot_info &)
 	return 0;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-// maximum number of robot types
-constexpr std::integral_constant<unsigned, 85> MAX_ROBOT_TYPES{};
-constexpr std::integral_constant<unsigned, 1600> MAX_ROBOT_JOINTS{};
-
 static inline int robot_is_companion(const robot_info &robptr)
 {
 	return robptr.companion;
@@ -198,8 +166,6 @@ static inline int robot_is_thief(const robot_info &robptr)
 }
 #endif
 
-using d_robot_info_array = std::array<robot_info, MAX_ROBOT_TYPES>;
-
 //the array of robots types
 struct d_level_shared_robot_info_state
 {
@@ -209,16 +175,9 @@ struct d_level_shared_robot_info_state
 	d_robot_info_array Robot_info;
 };
 
-extern d_level_shared_robot_info_state LevelSharedRobotInfoState;
-
 #if defined(DXX_BUILD_DESCENT_II)
 // returns ptr to escort robot, or NULL
 imobjptridx_t find_escort(fvmobjptridx &vmobjptridx, const d_robot_info_array &Robot_info);
-#endif
-
-#if DXX_USE_EDITOR
-using robot_names_array = std::array<std::array<char, ROBOT_NAME_LENGTH>, MAX_ROBOT_TYPES>;
-extern robot_names_array Robot_names;
 #endif
 
 /* Robot joints can be customized by hxm files, which are per-level.
@@ -228,14 +187,6 @@ struct d_level_shared_robot_joint_state : ::dcx::d_level_shared_robot_joint_stat
 	//Big array of joint positions.  All robots index into this array
 	std::array<jointpos, MAX_ROBOT_JOINTS> Robot_joints;
 };
-
-extern d_level_shared_robot_joint_state LevelSharedRobotJointState;
-}
-
-namespace dsx {
-//given an object and a gun number, return position in 3-space of gun
-//fills in gun_point
-void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_num);
 
 //  Tells joint positions for a gun to be in a specified state.
 //  A gun can have associated with it any number of joints.  In order to tell whether a gun is a certain
@@ -261,21 +212,14 @@ partial_range_t<const jointpos *> robot_get_anim_state(const d_robot_info_array 
 /*
  * reads n robot_info structs from a PHYSFS_File
  */
-void robot_info_read(PHYSFS_File *fp, robot_info &r);
 }
 #endif
 
-/*
- * reads n jointpos structs from a PHYSFS_File
- */
-void jointpos_read(PHYSFS_File *fp, jointpos &jp);
 #if 0
 void jointpos_write(PHYSFS_File *fp, const jointpos &jp);
 #endif
 #ifdef dsx
 namespace dsx {
-void robot_set_angles(robot_info *r,polymodel *pm, std::array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs);
-weapon_id_type get_robot_weapon(const robot_info &ri, const unsigned gun_num);
 
 static inline void boss_link_see_sound(const vcobjptridx_t objp)
 {
@@ -288,6 +232,4 @@ static inline void boss_link_see_sound(const vcobjptridx_t objp)
 	digi_link_sound_to_object2(soundnum, objp, 1, F1_0, sound_stack::allow_stacking, vm_distance{F1_0*512});	//	F1_0*512 means play twice as loud
 }
 }
-#endif
-
 #endif

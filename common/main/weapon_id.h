@@ -9,6 +9,7 @@
 #pragma once
 
 #include <cstdint>
+#include "dsx-ns.h"
 
 #ifdef dsx
 namespace dsx {
