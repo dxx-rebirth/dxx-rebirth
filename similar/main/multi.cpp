@@ -1549,13 +1549,13 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 	icobjidx_t Network_laser_track = object_none;
 	if (buf[0] == MULTI_FIRE_TRACK)
 	{
-		Network_laser_track = GET_INTEL_SHORT(buf + 18);
-		Network_laser_track = objnum_remote_to_local(Network_laser_track, buf[20]);
+		Network_laser_track = GET_INTEL_SHORT(&buf[17]);
+		Network_laser_track = objnum_remote_to_local(Network_laser_track, buf[19]);
 	}
 
-	shot_orientation.x = static_cast<fix>(GET_INTEL_INT(buf + 6));
-	shot_orientation.y = static_cast<fix>(GET_INTEL_INT(buf + 10));
-	shot_orientation.z = static_cast<fix>(GET_INTEL_INT(buf + 14));
+	shot_orientation.x = static_cast<fix>(GET_INTEL_INT(&buf[5]));
+	shot_orientation.y = static_cast<fix>(GET_INTEL_INT(&buf[9]));
+	shot_orientation.z = static_cast<fix>(GET_INTEL_INT(&buf[13]));
 
 	Assert (pnum < N_players);
 
@@ -1584,7 +1584,7 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 		const auto &&objnum = Laser_player_fire(LevelSharedRobotInfoState.Robot_info, obj, weapon_id, weapon_gun, weapon_sound_flag::audible, shot_orientation, Network_laser_track);
 		if (buf[0] == MULTI_FIRE_BOMB)
 		{
-			const auto remote_objnum = GET_INTEL_SHORT(buf + 18);
+			const auto remote_objnum = GET_INTEL_SHORT(&buf[17]);
 			map_objnum_local_to_remote(objnum, remote_objnum, pnum);
 		}
 	}
@@ -2523,12 +2523,11 @@ void multi_send_fire(int laser_gun, const laser_level level, int laser_flags, ob
 	multibuf[2] = static_cast<char>(laser_gun);
 	multibuf[3] = static_cast<uint8_t>(level);
 	multibuf[4] = static_cast<char>(laser_flags);
-	multibuf[5] = 1;	/* was laser_fired; TODO: remove this in next revision of network protocol */
 
 	const auto &ownship = get_local_plrobj();
-	PUT_INTEL_INT(multibuf+6 , ownship.orient.fvec.x);
-	PUT_INTEL_INT(&multibuf[10], ownship.orient.fvec.y);
-	PUT_INTEL_INT(&multibuf[14], ownship.orient.fvec.z);
+	PUT_INTEL_INT(&multibuf[5], ownship.orient.fvec.x);
+	PUT_INTEL_INT(&multibuf[9], ownship.orient.fvec.y);
+	PUT_INTEL_INT(&multibuf[13], ownship.orient.fvec.z);
 
 	/*
 	 * If we fire a bomb, it's persistent. Let others know of it's objnum so host can track it's behaviour over clients (host-authority functions, D2 chaff ability).
@@ -2538,18 +2537,18 @@ void multi_send_fire(int laser_gun, const laser_level level, int laser_flags, ob
 	if (multibuf[0] == MULTI_FIRE_BOMB)
 	{
 		map_objnum_local_to_local(is_bomb_objnum);
-		PUT_INTEL_SHORT(&multibuf[18], static_cast<objnum_t>(is_bomb_objnum));
-		multi_send_data<MULTI_FIRE_BOMB>(multibuf, 20, multiplayer_data_priority::_1);
+		PUT_INTEL_SHORT(&multibuf[17], static_cast<objnum_t>(is_bomb_objnum));
+		multi_send_data<MULTI_FIRE_BOMB>(multibuf, 19, multiplayer_data_priority::_1);
 	}
 	else if (multibuf[0] == MULTI_FIRE_TRACK)
 	{
 		const auto &&[remote_owner, remote_laser_track] = objnum_local_to_remote(laser_track);
-		PUT_INTEL_SHORT(&multibuf[18], remote_laser_track);
-		multibuf[20] = remote_owner;
-		multi_send_data<MULTI_FIRE_TRACK>(multibuf, 21, multiplayer_data_priority::_1);
+		PUT_INTEL_SHORT(&multibuf[17], remote_laser_track);
+		multibuf[19] = remote_owner;
+		multi_send_data<MULTI_FIRE_TRACK>(multibuf, 20, multiplayer_data_priority::_1);
 	}
 	else
-		multi_send_data<MULTI_FIRE>(multibuf, 18, multiplayer_data_priority::_1);
+		multi_send_data<MULTI_FIRE>(multibuf, 17, multiplayer_data_priority::_1);
 }
 
 void multi_send_destroy_controlcen(const objnum_t objnum, const playernum_t player)

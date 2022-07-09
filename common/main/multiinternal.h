@@ -24,9 +24,9 @@
 #define for_each_multiplayer_command(VALUE)	\
 	VALUE(MULTI_POSITION              , 1 + quaternionpos::packed_size::value)	\
 	VALUE(MULTI_REAPPEAR              , 4)	\
-	VALUE(MULTI_FIRE                  , 18)	\
-	VALUE(MULTI_FIRE_TRACK            , 21)	\
-	VALUE(MULTI_FIRE_BOMB             , 20)	\
+	VALUE(MULTI_FIRE                  , 17)	\
+	VALUE(MULTI_FIRE_TRACK            , 20)	\
+	VALUE(MULTI_FIRE_BOMB             , 19)	\
 	VALUE(MULTI_REMOVE_OBJECT         , 4)	\
 	VALUE(MULTI_MESSAGE               , 37)	/* (MAX_MESSAGE_LENGTH = 40) */	\
 	VALUE(MULTI_QUIT                  , 2)	\
