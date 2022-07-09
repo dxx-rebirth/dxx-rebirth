@@ -1367,13 +1367,14 @@ static bool immediate_detonate_smart_mine(const vcobjptridx_t smart_mine, const 
 	if (likely((d_tick_count ^ (static_cast<vcobjptridx_t::integral_type>(smart_mine) + static_cast<vcobjptridx_t::integral_type>(target))) % 4))
 		// Maybe next frame
 		return false;
-	fvi_query	fq{};
 	fvi_info		hit_data;
-	fq.startseg = smart_mine->segnum;
-	fq.p0						= &smart_mine->pos;
-	fq.p1						= &target->pos;
-	fq.thisobjnum			= smart_mine;
-	auto fate = find_vector_intersection(fq, hit_data);
+	auto fate = find_vector_intersection(fvi_query{
+		smart_mine->pos,
+		target->pos,
+		fvi_query::unused_ignore_obj_list,
+		0,
+		smart_mine,
+	}, smart_mine->segnum, 0, hit_data);
 	return fate != fvi_hit_type::Wall;
 }
 

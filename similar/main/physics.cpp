@@ -324,7 +324,6 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 	segnum_t WallHitSeg;
 	sidenum_t WallHitSide;
 	fvi_info hit_info;
-	fvi_query fq;
 	vms_vector save_pos;
 	fix drag;
 	fix sim_time;
@@ -425,21 +424,20 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 		if (count > 8) break; // in original code this was 3 for all non-player objects. still leave us some limit in case fvi goes apeshit.
 
 		const auto new_pos = vm_vec_add(obj->pos,frame_vec);
-		fq.p0						= &obj->pos;
-		fq.startseg				= obj->segnum;
-		fq.p1						= &new_pos;
-		fq.rad					= obj->size;
-		fq.thisobjnum			= obj;
-		fq.ignore_obj_list	= ignore_obj_list;
-		fq.flags					= FQ_CHECK_OBJS;
-
+		int flags = FQ_CHECK_OBJS;
 		if (obj->type == OBJ_WEAPON)
-			fq.flags |= FQ_TRANSPOINT;
+			flags |= FQ_TRANSPOINT;
 
 		if (phys_segs)
-			fq.flags |= FQ_GET_SEGLIST;
+			flags |= FQ_GET_SEGLIST;
 
-		fate = find_vector_intersection(fq, hit_info);
+		fate = find_vector_intersection(fvi_query{
+			obj->pos,
+			new_pos,
+			ignore_obj_list,
+			flags,
+			obj,
+		}, obj->segnum, obj->size, hit_info);
 		//	Matt: Mike's hack.
 		if (fate == fvi_hit_type::Object)
 		{

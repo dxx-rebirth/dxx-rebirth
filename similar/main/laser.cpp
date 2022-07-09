@@ -595,22 +595,18 @@ static void do_omega_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t parent
 
 	//	If couldn't lock on anything, fire straight ahead.
 	if (lock_objnum == object_none) {
-		fvi_query	fq;
 		fvi_info		hit_data;
 		const auto &&perturbed_fvec = vm_vec_scale_add(parent_objp->orient.fvec, make_random_vector(), F1_0/16);
 		vm_vec_scale_add(goal_pos, firing_pos, perturbed_fvec, MAX_OMEGA_DIST);
-		fq.startseg = firing_segnum;
-		if (fq.startseg == segment_none) {
+		if (firing_segnum == segment_none)
 			return;
-		}
-		fq.p0						= &firing_pos;
-		fq.p1						= &goal_pos;
-		fq.rad					= 0;
-		fq.thisobjnum			= parent_objp;
-		fq.ignore_obj_list.first = nullptr;
-		fq.flags					= FQ_IGNORE_POWERUPS | FQ_TRANSPOINT | FQ_CHECK_OBJS;		//what about trans walls???
-
-		const auto fate = find_vector_intersection(fq, hit_data);
+		const auto fate = find_vector_intersection(fvi_query{
+			firing_pos,
+			goal_pos,
+			fvi_query::unused_ignore_obj_list,
+			FQ_IGNORE_POWERUPS | FQ_TRANSPOINT | FQ_CHECK_OBJS,		//what about trans walls???
+			parent_objp,
+		}, firing_segnum, 0, hit_data);
 		if (fate != fvi_hit_type::None)
 		{
 			Assert(hit_data.hit_seg != segment_none);		//	How can this be?  We went from inside the mine to outside without hitting anything?
@@ -888,7 +884,6 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 //	Calls Laser_create_new, but takes care of the segment and point computation for you.
 imobjptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector &position, const vmobjptridx_t parent, weapon_id_type weapon_type, const weapon_sound_flag make_sound)
 {
-	fvi_query	fq;
 	fvi_info		hit_data;
 
 	//	Find segment containing laser fire position.  If the robot is straddling a segment, the position from
@@ -898,15 +893,13 @@ imobjptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vecto
 	//	Note that while find_vector_intersection is pretty slow, it is not terribly slow if the destination point is
 	//	in the same segment as the source point.
 
-	fq.p0						= &parent->pos;
-	fq.startseg				= parent->segnum;
-	fq.p1						= &position;
-	fq.rad					= 0;
-	fq.thisobjnum			= parent;
-	fq.ignore_obj_list.first = nullptr;
-	fq.flags					= FQ_TRANSWALL | FQ_CHECK_OBJS;		//what about trans walls???
-
-	const auto fate = find_vector_intersection(fq, hit_data);
+	const auto fate = find_vector_intersection(fvi_query{
+		parent->pos,
+		position,
+		fvi_query::unused_ignore_obj_list,
+		FQ_TRANSWALL | FQ_CHECK_OBJS,		//what about trans walls???
+		parent,
+	}, parent->segnum, 0, hit_data);
 	if (fate != fvi_hit_type::None || hit_data.hit_seg == segment_none)
 	{
 		return object_none;
@@ -953,18 +946,14 @@ namespace dsx {
 //	Calls fvi.
 int object_to_object_visibility(const vcobjptridx_t obj1, const object_base &obj2, int trans_type)
 {
-	fvi_query	fq;
 	fvi_info		hit_data;
-
-	fq.p0						= &obj1->pos;
-	fq.startseg				= obj1->segnum;
-	fq.p1						= &obj2.pos;
-	fq.rad					= 0x10;
-	fq.thisobjnum			= obj1;
-	fq.ignore_obj_list.first = nullptr;
-	fq.flags					= trans_type;
-
-	switch(const auto fate = find_vector_intersection(fq, hit_data))
+	switch(const auto fate = find_vector_intersection(fvi_query{
+		obj1->pos,
+		obj2.pos,
+		fvi_query::unused_ignore_obj_list,
+		trans_type,
+		obj1,
+	}, obj1->segnum, 0x10, hit_data))
 	{
 		case fvi_hit_type::None:
 			return 1;
@@ -1300,7 +1289,6 @@ static imobjptridx_t track_track_goal(fvcobjptr &vcobjptr, const imobjptridx_t t
 static imobjptridx_t Laser_player_fire_spread_delay(fvmsegptridx &vmsegptridx, const vmobjptridx_t obj, const weapon_id_type laser_type, const int gun_num, const fix spreadr, const fix spreadu, const fix delay_time, const weapon_sound_flag make_sound, const vms_vector &shot_orientation, const icobjidx_t Network_laser_track)
 {
 	vms_vector	LaserDir;
-	fvi_query	fq;
 	fvi_info		hit_data;
 	vms_vector	*pnt;
 
@@ -1319,19 +1307,17 @@ static imobjptridx_t Laser_player_fire_spread_delay(fvmsegptridx &vmsegptridx, c
 //	do_muzzle_stuff(obj, &Pos);
 
 	//--------------- Find LaserPos and LaserSeg ------------------
-	fq.p0						= &obj->pos;
-	fq.startseg				= obj->segnum;
-	fq.p1						= &LaserPos;
-	fq.rad					= 0x10;
-	fq.thisobjnum			= obj;
-	fq.ignore_obj_list.first = nullptr;
+	const auto Fate = find_vector_intersection(fvi_query{
+		obj->pos,
+		LaserPos,
+		fvi_query::unused_ignore_obj_list,
 #if defined(DXX_BUILD_DESCENT_I)
-	fq.flags					= FQ_CHECK_OBJS;
+		FQ_CHECK_OBJS,
 #elif defined(DXX_BUILD_DESCENT_II)
-	fq.flags					= FQ_CHECK_OBJS | FQ_IGNORE_POWERUPS;
+		FQ_CHECK_OBJS | FQ_IGNORE_POWERUPS,
 #endif
-
-	const auto Fate = find_vector_intersection(fq, hit_data);
+		obj,
+	}, obj->segnum, 0x10, hit_data);
 
 	auto LaserSeg = hit_data.hit_seg;
 

@@ -207,27 +207,24 @@ static void move_towards_outside(const d_level_shared_segment_state &LevelShared
 
 		count = 3;
 		while (count) {
-			fvi_query	fq;
 			fvi_info		hit_data;
-	
-			fq.p0						= &psegs[i].point;
-			fq.startseg				= psegs[i].segnum;
-			fq.p1						= &goal_pos;
-			fq.rad					= objp->size;
-			fq.thisobjnum			= objp;
-			fq.ignore_obj_list.first = nullptr;
-			fq.flags					= 0;
-	
-			const auto hit_type = find_vector_intersection(fq, hit_data);
+			auto &p0 = psegs[i].point;
+			const auto hit_type = find_vector_intersection(fvi_query{
+				p0,
+				goal_pos,
+				fvi_query::unused_ignore_obj_list,
+				0,
+				objp,
+			}, psegs[i].segnum, objp->size, hit_data);
 	
 			if (hit_type == fvi_hit_type::None)
 				count = 0;
 			else {
 				if (count == 3 && hit_type == fvi_hit_type::BadP0)
 					Int3();
-				goal_pos.x = (fq.p0->x + hit_data.hit_pnt.x)/2;
-				goal_pos.y = (fq.p0->y + hit_data.hit_pnt.y)/2;
-				goal_pos.z = (fq.p0->z + hit_data.hit_pnt.z)/2;
+				goal_pos.x = (p0.x + hit_data.hit_pnt.x)/2;
+				goal_pos.y = (p0.y + hit_data.hit_pnt.y)/2;
+				goal_pos.z = (p0.z + hit_data.hit_pnt.z)/2;
 				count--;
 				if (count == 0) {	//	Couldn't move towards outside, that's ok, sometimes things can't be moved.
 					goal_pos = psegs[i].point;
@@ -374,20 +371,16 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 #if defined(DXX_BUILD_DESCENT_II)
 				Assert(this_seg != segment_none);
 				if (((cur_seg == avoid_seg) || (this_seg == avoid_seg)) && (ConsoleObject->segnum == avoid_seg)) {
-					fvi_query	fq;
+					const auto &&center_point = compute_center_point_on_side(vcvertptr, segp, snum);
 					fvi_info		hit_data;
 	
-					const auto &&center_point = compute_center_point_on_side(vcvertptr, segp, snum);
-
-					fq.p0						= &obj.pos;
-					fq.startseg				= obj.segnum;
-					fq.p1						= &center_point;
-					fq.rad					= obj.size;
-					fq.thisobjnum			= objp;
-					fq.ignore_obj_list.first = nullptr;
-					fq.flags					= 0;
-
-					const auto hit_type = find_vector_intersection(fq, hit_data);
+					const auto hit_type = find_vector_intersection(fvi_query{
+						obj.pos,
+						center_point,
+						fvi_query::unused_ignore_obj_list,
+						0,
+						objp,
+					}, obj.segnum, obj.size, hit_data);
 					if (hit_type != fvi_hit_type::None)
 					{
 						goto dont_add;
@@ -550,18 +543,14 @@ int polish_path(const vmobjptridx_t objp, point_seg *psegs, int num_points)
 
 	// -- MK: 10/18/95: for (i=0; i<num_points-3; i++)
 	for (i=0; i<2; i++) {
-		fvi_query	fq;
 		fvi_info		hit_data;
-	
-		fq.p0						= &obj.pos;
-		fq.startseg				= obj.segnum;
-		fq.p1						= &psegs[i].point;
-		fq.rad					= obj.size;
-		fq.thisobjnum			= objp;
-		fq.ignore_obj_list.first = nullptr;
-		fq.flags					= 0;
-
-		const auto hit_type = find_vector_intersection(fq, hit_data);
+		const auto hit_type = find_vector_intersection(fvi_query{
+			obj.pos,
+			psegs[i].point,
+			fvi_query::unused_ignore_obj_list,
+			0,
+			objp,
+		}, obj.segnum, obj.size, hit_data);
 	
 		if (hit_type == fvi_hit_type::None)
 			first_point = i+1;
@@ -1188,9 +1177,7 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 				//	Reached end of the line.  First see if opposite end point is reachable, and if so, go there.
 				//	If not, turn around.
 				int			opposite_end_index;
-				vms_vector	*opposite_end_point;
 				fvi_info		hit_data;
-				fvi_query	fq;
 
 				// See which end we're nearer and look at the opposite end point.
 				if (abs(aip->cur_path_index - aip->path_length) < aip->cur_path_index) {
@@ -1201,17 +1188,13 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 					opposite_end_index = aip->path_length-1;
 				}
 
-				opposite_end_point = &Point_segs[aip->hide_index + opposite_end_index].point;
-
-				fq.p0						= &obj.pos;
-				fq.startseg				= obj.segnum;
-				fq.p1						= opposite_end_point;
-				fq.rad					= obj.size;
-				fq.thisobjnum			= objp;
-				fq.ignore_obj_list.first = nullptr;
-				fq.flags					= 0; 				//what about trans walls???
-
-				const auto fate = find_vector_intersection(fq, hit_data);
+				const auto fate = find_vector_intersection(fvi_query{
+					obj.pos,
+					Point_segs[aip->hide_index + opposite_end_index].point,
+					fvi_query::unused_ignore_obj_list,
+					0, 				//what about trans walls???
+					objp,
+				}, obj.segnum, obj.size, hit_data);
 				if (fate != fvi_hit_type::Wall)
 				{
 					//	We can be circular!  Do it!

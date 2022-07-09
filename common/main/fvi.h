@@ -28,7 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dsx-ns.h"
 #include "vecmat.h"
 
-#include "fwd-object.h"
+#include "object.h"
 #include "pack.h"
 #include "countarray.h"
 #include "fwd-segment.h"
@@ -77,18 +77,20 @@ struct sphere_intersects_wall_result
 	const shared_segment *seg;
 	sidenum_t side;
 };
+
 }
 
 namespace dsx {
+
 //this data contains the parms to fvi()
-struct fvi_query : prohibit_void_ptr<fvi_query>
+struct fvi_query
 {
-	const vms_vector *p0,*p1;
-	segnum_t startseg;
-	objnum_t thisobjnum;
-	fix rad;
-	std::pair<const vcobjidx_t *, const vcobjidx_t *> ignore_obj_list;
-	int flags;
+	static constexpr const std::pair<const vcobjidx_t *, const vcobjidx_t *> unused_ignore_obj_list{};
+	const vms_vector &p0;
+	const vms_vector &p1;
+	const std::pair<const vcobjidx_t *, const vcobjidx_t *> ignore_obj_list;
+	const int flags;
+	const icobjptridx_t thisobjnum;
 };
 
 //Find out if a vector intersects with anything.
@@ -101,7 +103,10 @@ struct fvi_query : prohibit_void_ptr<fvi_query>
 //  ingore_obj_list	NULL, or ptr to a list of objnums to ignore, terminated with -1
 //  check_obj_flag	determines whether collisions with objects are checked
 //Returns the hit_data->hit_type
-fvi_hit_type find_vector_intersection(const fvi_query &fq, fvi_info &hit_data);
+// Pass fvi_query by value since callers construct an anonymous instance solely
+// for this call.  Passing it by value avoids an extra indirection in the
+// called function, and has no cost since it is constructed in place.
+fvi_hit_type find_vector_intersection(fvi_query fq, segnum_t startseg, fix rad, fvi_info &hit_data);
 
 //finds the uv coords of the given point on the given seg & side
 //fills in u & v. if l is non-NULL fills it in also

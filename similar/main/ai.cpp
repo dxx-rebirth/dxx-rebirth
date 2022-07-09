@@ -731,7 +731,6 @@ player_visibility_state player_is_visible_from_object(const vmobjptridx_t objp, 
 {
 	auto &obj = *objp;
 	fix			dot;
-	fvi_query	fq;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Assume that robot's gun tip is in same segment as robot's center.
@@ -739,13 +738,13 @@ player_visibility_state player_is_visible_from_object(const vmobjptridx_t objp, 
 		obj.ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_GUNSEG;
 #endif
 
-	fq.p0						= &pos;
+	segnum_t startseg;
 	if (pos.x != obj.pos.x || pos.y != obj.pos.y || pos.z != obj.pos.z)
 	{
 		auto &Segments = LevelSharedSegmentState.get_segments();
 		const auto &&segnum = find_point_seg(LevelSharedSegmentState, pos, Segments.vcptridx(obj.segnum));
 		if (segnum == segment_none) {
-			fq.startseg = obj.segnum;
+			startseg = obj.segnum;
 			pos = obj.pos;
 			move_towards_segment_center(LevelSharedSegmentState, obj);
 		} else
@@ -756,17 +755,17 @@ player_visibility_state player_is_visible_from_object(const vmobjptridx_t objp, 
 					obj.ctype.ai_info.SUB_FLAGS |= SUB_FLAGS_GUNSEG;
 			}
 #endif
-			fq.startseg = segnum;
+			startseg = segnum;
 		}
 	} else
-		fq.startseg			= obj.segnum;
-	fq.p1						= &Believed_player_pos;
-	fq.rad					= F1_0/4;
-	fq.thisobjnum			= objp;
-	fq.ignore_obj_list.first = nullptr;
-	fq.flags					= FQ_TRANSWALL; // -- Why were we checking objects? | FQ_CHECK_OBJS;		//what about trans walls???
-
-	const auto Hit_type = find_vector_intersection(fq, Hit_data);
+		startseg			= obj.segnum;
+	const auto Hit_type = find_vector_intersection(fvi_query{
+		pos,
+		Believed_player_pos,
+		fvi_query::unused_ignore_obj_list,
+		FQ_TRANSWALL, // -- Why were we checking objects? | FQ_CHECK_OBJS;		//what about trans walls???
+		objp,
+	}, startseg, F1_0 / 4, Hit_data);
 
 	Hit_pos = Hit_data.hit_pnt;
 
@@ -1169,18 +1168,15 @@ static void ai_fire_laser_at_player(const d_level_shared_segment_state &LevelSha
 			}
 		} else {
 			//	Well, they are not directly connected, so use find_vector_intersection to see if they are unobstructed.
-			fvi_query	fq;
 			fvi_info		hit_data;
 
-			fq.startseg				= obj->segnum;
-			fq.p0						= &obj->pos;
-			fq.p1						= &fire_point;
-			fq.rad					= 0;
-			fq.thisobjnum			= obj;
-			fq.ignore_obj_list.first = nullptr;
-			fq.flags					= FQ_TRANSWALL;
-
-			const auto fate = find_vector_intersection(fq, hit_data);
+			const auto fate = find_vector_intersection(fvi_query{
+				obj->pos,
+				fire_point,
+				fvi_query::unused_ignore_obj_list,
+				FQ_TRANSWALL,
+				obj,
+			}, obj->segnum, 0, hit_data);
 			if (fate != fvi_hit_type::None)
 			{
 				Int3();		//	This bot's gun is poking through a wall, so don't fire.
@@ -1779,16 +1775,14 @@ static void compute_buddy_vis_vec(const vmobjptridx_t buddy_obj, const vms_vecto
 	if (player_visibility.vec_to_player.x == 0 && player_visibility.vec_to_player.y == 0 && player_visibility.vec_to_player.z == 0)
 		player_visibility.vec_to_player.x = F1_0;
 
-	fvi_query fq;
-	fq.p0 = &buddy_pos;
-	fq.startseg = buddy_obj->segnum;
-	fq.p1 = &plrobj.pos;
-	fq.rad = F1_0/4;
-	fq.thisobjnum = buddy_obj;
-	fq.ignore_obj_list.first = nullptr;
-	fq.flags = FQ_TRANSWALL;
 	fvi_info hit_data;
-	const auto hit_type = find_vector_intersection(fq, hit_data);
+	const auto hit_type = find_vector_intersection(fvi_query{
+		buddy_pos,
+		plrobj.pos,
+		fvi_query::unused_ignore_obj_list,
+		FQ_TRANSWALL,
+		buddy_obj,
+	}, buddy_obj->segnum, F1_0 / 4, hit_data);
 
 	auto &ailp = buddy_obj->ctype.ai_info.ail;
 	player_visibility.visibility = (hit_type == fvi_hit_type::None)

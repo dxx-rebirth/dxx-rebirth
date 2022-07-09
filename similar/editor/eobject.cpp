@@ -472,18 +472,15 @@ static int move_object_within_mine(fvmobjptr &vmobjptr, segment_array &Segments,
 		if (get_seg_masks(vcvertptr, obj->pos, segp, 0).centermask == sidemask_t{})
 		{
 			fvi_info	hit_info;
-			fvi_query fq;
 
 			//	See if the radius pokes through any wall.
-			fq.p0						= &obj->pos;
-			fq.startseg				= obj->segnum;
-			fq.p1						= &newpos;
-			fq.rad					= obj->size;
-			fq.thisobjnum			= object_none;
-			fq.ignore_obj_list.first = nullptr;
-			fq.flags					= 0;
-
-			const auto fate = find_vector_intersection(fq, hit_info);
+			const auto fate = find_vector_intersection(fvi_query{
+				obj->pos,
+				newpos,
+				fvi_query::unused_ignore_obj_list,
+				0,
+				object_none,
+			}, obj->segnum, obj->size, hit_info);
 			if (fate != fvi_hit_type::Wall)
 			{
 				if (segp != obj->segnum)
@@ -751,7 +748,6 @@ static void move_object_to_position(const vmobjptridx_t objp, const vms_vector &
 	} else {
 		if (verify_object_seg(vmobjptr, Segments, vcvertptr, objp, newpos)) {
 			object	temp_viewer_obj;
-			fvi_query fq;
 			fvi_info	hit_info;
 
 			temp_viewer_obj = *Viewer;
@@ -802,15 +798,13 @@ static void move_object_to_position(const vmobjptridx_t objp, const vms_vector &
 #endif
 			}
 
-			fq.p0						= &temp_viewer_obj.pos;
-			fq.startseg				= temp_viewer_obj.segnum;
-			fq.p1						= &newpos;
-			fq.rad					= temp_viewer_obj.size;
-			fq.thisobjnum			= object_none;
-			fq.ignore_obj_list.first = nullptr;
-			fq.flags					= 0;
-
-			const auto fate = find_vector_intersection(fq, hit_info);
+			const auto fate = find_vector_intersection(fvi_query{
+				temp_viewer_obj.pos,
+				newpos,
+				fvi_query::unused_ignore_obj_list,
+				0,
+				object_none,
+			}, temp_viewer_obj.segnum, temp_viewer_obj.size, hit_info);
 			if (fate == fvi_hit_type::Wall)
 			{
 				objp->pos = hit_info.hit_pnt;

@@ -571,8 +571,6 @@ static vm_distance_squared check_vector_to_sphere_1(vms_vector &intp,const vms_v
 //$$}
 */
 
-
-
 //determine if a vector intersects with an object
 //if no intersects, returns 0, else fills in intp and returns dist
 [[nodiscard]]
@@ -605,8 +603,6 @@ struct fvi_segments_visited_t : public fvi_segment_visit_count_t, public visited
 {
 };
 
-//these vars are used to pass vars from fvi_sub() to find_vector_intersection()
-
 }
 
 namespace dsx {
@@ -626,12 +622,10 @@ static fvi_hit_type fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &
 //  ingore_obj			ignore collisions with this object
 //  check_obj_flag	determines whether collisions with objects are checked
 //Returns the hit_data->hit_type
-fvi_hit_type find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
+fvi_hit_type find_vector_intersection(const fvi_query fq, const segnum_t startseg, const fix rad, fvi_info &hit_data)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
-	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	auto &imobjptridx = Objects.imptridx;
 	segnum_t hit_seg2;
 	vms_vector hit_pnt;
 
@@ -641,10 +635,10 @@ fvi_hit_type find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 	//Assert(check_point_in_seg(p0,startseg,0).centermask==0);	//start point not in seg
 
 	// invalid segnum, so say there is no hit.
-	if(fq.startseg > Highest_segment_index)
+	if (startseg > Highest_segment_index)
 	{
-		Assert(fq.startseg <= Highest_segment_index);
-		hit_data.hit_pnt = *fq.p0;
+		assert(startseg <= Highest_segment_index);
+		hit_data.hit_pnt = fq.p0;
 		hit_data.hit_seg = segnum_t{};
 		hit_data.hit_object = 0;
 		hit_data.hit_side = side_none;
@@ -654,10 +648,10 @@ fvi_hit_type find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 
 	auto &vcvertptr = Vertices.vcptr;
 	// Viewer is not in segment as claimed, so say there is no hit.
-	if (get_seg_masks(vcvertptr, *fq.p0, vcsegptr(fq.startseg), 0).centermask != sidemask_t{})
+	if (get_seg_masks(vcvertptr, fq.p0, vcsegptr(startseg), 0).centermask != sidemask_t{})
 	{
-		hit_data.hit_pnt = *fq.p0;
-		hit_data.hit_seg = fq.startseg;
+		hit_data.hit_pnt = fq.p0;
+		hit_data.hit_seg = startseg;
 		hit_data.hit_side = side_none;
 		hit_data.hit_object = 0;
 		hit_data.hit_side_seg = segment_none;
@@ -665,7 +659,7 @@ fvi_hit_type find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 	}
 
 	fvi_segments_visited_t visited;
-	visited[fq.startseg] = true;
+	visited[startseg] = true;
 
 	sidenum_t fvi_hit_side;
 	icsegidx_t fvi_hit_side_seg = segment_none;	// what seg the hitside is in
@@ -675,12 +669,12 @@ fvi_hit_type find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 	hit_seg2 = segment_none;
 
 	const vms_vector *wall_norm = nullptr;	//surface normal of hit wall
-	const auto hit_type = fvi_sub(hit_pnt, hit_seg2, *fq.p0, vcsegptridx(fq.startseg), *fq.p1, fq.rad, imobjptridx(fq.thisobjnum), fq.ignore_obj_list, fq.flags, hit_data.seglist, segment_exit, visited, fvi_hit_side, fvi_hit_side_seg, fvi_nest_count, fvi_hit_pt_seg, wall_norm, fvi_hit_object);
+	const auto hit_type = fvi_sub(hit_pnt, hit_seg2, fq.p0, vcsegptridx(startseg), fq.p1, rad, fq.thisobjnum, fq.ignore_obj_list, fq.flags, hit_data.seglist, segment_exit, visited, fvi_hit_side, fvi_hit_side_seg, fvi_nest_count, fvi_hit_pt_seg, wall_norm, fvi_hit_object);
 	segnum_t hit_seg;
 	if (hit_seg2 != segment_none && get_seg_masks(vcvertptr, hit_pnt, vcsegptr(hit_seg2), 0).centermask == sidemask_t{})
 		hit_seg = hit_seg2;
 	else
-		hit_seg = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, hit_pnt, imsegptridx(fq.startseg));
+		hit_seg = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, hit_pnt, imsegptridx(startseg));
 
 //MATT: TAKE OUT THIS HACK AND FIX THE BUGS!
 	if (hit_type == fvi_hit_type::Wall && hit_seg == segment_none)
@@ -694,7 +688,7 @@ fvi_hit_type find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 		//because of code that deal with object with non-zero radius has
 		//problems, try using zero radius and see if we hit a wall
 
-		const auto new_hit_type = fvi_sub(new_hit_pnt, new_hit_seg2, *fq.p0, vcsegptridx(fq.startseg), *fq.p1, 0, imobjptridx(fq.thisobjnum), fq.ignore_obj_list, fq.flags, hit_data.seglist, segment_exit, visited, fvi_hit_side, fvi_hit_side_seg, fvi_nest_count, fvi_hit_pt_seg, wall_norm, fvi_hit_object);
+		const auto new_hit_type = fvi_sub(new_hit_pnt, new_hit_seg2, fq.p0, vcsegptridx(startseg), fq.p1, 0, fq.thisobjnum, fq.ignore_obj_list, fq.flags, hit_data.seglist, segment_exit, visited, fvi_hit_side, fvi_hit_side_seg, fvi_nest_count, fvi_hit_pt_seg, wall_norm, fvi_hit_object);
 		(void)new_hit_type; // FIXME! This should become hit_type, right?
 
 		if (new_hit_seg2 != segment_none) {

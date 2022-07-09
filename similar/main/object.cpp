@@ -1383,7 +1383,6 @@ static void set_camera_pos(vms_vector &camera_pos, const vcobjptridx_t objp)
 
 	if (camera_player_dist < Camera_to_player_dist_goal) {
 		//	Camera is too close to player object, so move it away.
-		fvi_query	fq;
 		fvi_info		hit_data;
 
 		auto player_camera_vec = vm_vec_sub(camera_pos, objp->pos);
@@ -1398,18 +1397,17 @@ static void set_camera_pos(vms_vector &camera_pos, const vcobjptridx_t objp)
 			vm_vec_normalize_quick(player_camera_vec);
 			vm_vec_scale(player_camera_vec, Camera_to_player_dist_goal);
 
-			fq.p0 = &objp->pos;
 			const auto closer_p1 = vm_vec_add(objp->pos, player_camera_vec);		//	This is the actual point we want to put the camera at.
 			vm_vec_scale(player_camera_vec, far_scale);						//	...but find a point 50% further away...
 			const auto local_p1 = vm_vec_add(objp->pos, player_camera_vec);		//	...so we won't have to do as many cuts.
 
-			fq.p1 = &local_p1;
-			fq.startseg = objp->segnum;
-			fq.rad = 0;
-			fq.thisobjnum = objp;
-			fq.ignore_obj_list.first = nullptr;
-			fq.flags = 0;
-			hit_type = find_vector_intersection(fq, hit_data);
+			hit_type = find_vector_intersection(fvi_query{
+				objp->pos,
+				local_p1,
+				fvi_query::unused_ignore_obj_list,
+				0,
+				objp,
+			}, objp->segnum, 0, hit_data);
 			if (hit_type == fvi_hit_type::None)
 			{
 				camera_pos = closer_p1;

@@ -892,7 +892,6 @@ window_event_result do_endlevel_frame()
 	//do little explosions on walls
 	if (Endlevel_sequence >= EL_FLYTHROUGH && Endlevel_sequence < EL_OUTSIDE)
 		if ((explosion_wait2-=FrameTime) < 0) {
-			fvi_query fq;
 			fvi_info hit_data;
 
 			//create little explosion on wall
@@ -908,15 +907,13 @@ window_event_result do_endlevel_frame()
 
 			//find hit point on wall
 
-			fq.p0 = &ConsoleObject->pos;
-			fq.p1 = &tpnt;
-			fq.startseg = ConsoleObject->segnum;
-			fq.rad = 0;
-			fq.thisobjnum = object_first;
-			fq.ignore_obj_list.first = nullptr;
-			fq.flags = 0;
-
-			const auto hit_type = find_vector_intersection(fq, hit_data);
+			const auto hit_type = find_vector_intersection(fvi_query{
+				ConsoleObject->pos,
+				tpnt,
+				fvi_query::unused_ignore_obj_list,
+				0,
+				Objects.icptridx(object_first),
+			}, ConsoleObject->segnum, 0, hit_data);
 
 			if (hit_type == fvi_hit_type::Wall && hit_data.hit_seg != segment_none)
 				object_create_explosion(vmsegptridx(hit_data.hit_seg), hit_data.hit_pnt, i2f(3) + d_rand() * 6, VCLIP_SMALL_EXPLOSION);
