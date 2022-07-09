@@ -3664,7 +3664,7 @@ void draw_hud(const d_robot_info_array &Robot_info, grs_canvas &canvas, const ob
 		return;
 
 	// Cruise speed
-	if (Viewer->type == OBJ_PLAYER && get_player_id(vcobjptr(Viewer)) == Player_num && PlayerCfg.CockpitMode[1] != cockpit_mode_t::rear_view)
+	if (auto &viewer = *Viewer; viewer.type == OBJ_PLAYER && get_player_id(viewer) == Player_num && PlayerCfg.CockpitMode[1] != cockpit_mode_t::rear_view)
 	{
 		int	x = FSPACX(1);
 		int	y = canvas.cv_bitmap.bm_h;

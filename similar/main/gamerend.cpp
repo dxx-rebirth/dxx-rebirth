@@ -343,7 +343,7 @@ static void draw_window_label(object_array &Objects, grs_canvas &canvas)
 			case OBJ_FIREBALL:	viewer_name = "Fireball"; break;
 			case OBJ_ROBOT:		viewer_name = "Robot";
 #if DXX_USE_EDITOR
-				viewer_id = Robot_names[get_robot_id(Objects.vcptr(Viewer))].data();
+				viewer_id = Robot_names[get_robot_id(*Viewer)].data();
 #endif
 				break;
 			case OBJ_HOSTAGE:		viewer_name = "Hostage"; break;
@@ -352,7 +352,7 @@ static void draw_window_label(object_array &Objects, grs_canvas &canvas)
 			case OBJ_CAMERA:		viewer_name = "Camera"; break;
 			case OBJ_POWERUP:		viewer_name = "Powerup";
 #if DXX_USE_EDITOR
-				viewer_id = Powerup_names[get_powerup_id(Objects.vcptr(Viewer))].data();
+				viewer_id = Powerup_names[get_powerup_id(*Viewer)].data();
 #endif
 				break;
 			case OBJ_DEBRIS:		viewer_name = "Debris"; break;
@@ -372,7 +372,7 @@ static void draw_window_label(object_array &Objects, grs_canvas &canvas)
 
 		gr_set_fontcolor(canvas, BM_XRGB(31, 0, 0),-1);
 		auto &game_font = *GAME_FONT;
-		gr_printf(canvas, game_font, 0x8000, (SHEIGHT / 10), "%hu: %s [%s] View - %s", static_cast<objnum_t>(vcobjptridx(Viewer)), viewer_name, viewer_id, control_name);
+		gr_printf(canvas, game_font, 0x8000, (SHEIGHT / 10), "%hu: %s [%s] View - %s", vcobjptridx(Viewer).get_unchecked_index(), viewer_name, viewer_id, control_name);
 
 	}
 }

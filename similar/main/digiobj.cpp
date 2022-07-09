@@ -430,9 +430,7 @@ static void digi_link_sound_common(const object_base &viewer, sound_object &so, 
 
 void digi_link_sound_to_object3(const unsigned org_soundnum, const vcobjptridx_t objnum, const uint8_t forever, const fix max_volume, const sound_stack once, const vm_distance max_distance, const int loop_start, const int loop_end)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vcobjptr = Objects.vcptr;
-	const auto &&viewer = vcobjptr(Viewer);
+	auto &viewer = *Viewer;
 	int soundnum;
 
 	soundnum = digi_xlat_sound(org_soundnum);
@@ -451,7 +449,7 @@ void digi_link_sound_to_object3(const unsigned org_soundnum, const vcobjptridx_t
 	if ( Newdemo_state == ND_STATE_RECORDING )		{
 		if ( !forever ) { // forever flag is not recorded, use original limited sound objects hack for demo recording
 			auto segnum = vcsegptridx(objnum->segnum);
-			const auto &&[volume, pan] = digi_get_sound_loc(viewer->orient, viewer->pos, segnum.absolute_sibling(viewer->segnum),
+			const auto &&[volume, pan] = digi_get_sound_loc(viewer.orient, viewer.pos, segnum.absolute_sibling(viewer.segnum),
 			       objnum->pos, segnum, max_volume,
 			       max_distance);
 			newdemo_record_sound_3d_once( org_soundnum, pan, volume );
@@ -483,9 +481,9 @@ void digi_link_sound_to_object(const unsigned soundnum, const vcobjptridx_t objn
 
 namespace {
 
-static void digi_link_sound_to_pos2(fvcobjptr &vcobjptr, const int org_soundnum, const vcsegptridx_t segnum, const sidenum_t sidenum, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance)
+static void digi_link_sound_to_pos2(const int org_soundnum, const vcsegptridx_t segnum, const sidenum_t sidenum, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance)
 {
-	const auto &&viewer = vcobjptr(Viewer);
+	auto &viewer = *Viewer;
 	int soundnum;
 
 	soundnum = digi_xlat_sound(org_soundnum);
@@ -503,7 +501,7 @@ static void digi_link_sound_to_pos2(fvcobjptr &vcobjptr, const int org_soundnum,
 	if (!forever)
 	{
 		// Hack to keep sounds from building up...
-		const auto &&[volume, pan] = digi_get_sound_loc(viewer->orient, viewer->pos, segnum.absolute_sibling(viewer->segnum), pos, segnum, max_volume, max_distance);
+		const auto &&[volume, pan] = digi_get_sound_loc(viewer.orient, viewer.pos, segnum.absolute_sibling(viewer.segnum), pos, segnum, max_volume, max_distance);
 		digi_play_sample_3d(org_soundnum, pan, volume);
 		return;
 	}
@@ -524,9 +522,7 @@ static void digi_link_sound_to_pos2(fvcobjptr &vcobjptr, const int org_soundnum,
 
 void digi_link_sound_to_pos(const unsigned soundnum, const vcsegptridx_t segnum, const sidenum_t sidenum, const vms_vector &pos, const int forever, const fix max_volume)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vcobjptr = Objects.vcptr;
-	digi_link_sound_to_pos2(vcobjptr, soundnum, segnum, sidenum, pos, forever, max_volume, vm_distance{F1_0 * 256});
+	digi_link_sound_to_pos2(soundnum, segnum, sidenum, pos, forever, max_volume, vm_distance{F1_0 * 256});
 }
 
 //if soundnum==-1, kill any sound
@@ -596,7 +592,7 @@ void digi_sync_sounds()
 		return;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
-	const auto &&viewer = vcobjptr(Viewer);
+	const auto viewer = Viewer;
 	range_for (auto &s, SoundObjects)
 	{
 		if (s.flags & SOF_USED)

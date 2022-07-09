@@ -748,10 +748,9 @@ static void move_object_to_position(const vmobjptridx_t objp, const vms_vector &
 		objp->pos = newpos;
 	} else {
 		if (verify_object_seg(vmobjptr, Segments, vcvertptr, objp, newpos)) {
-			object	temp_viewer_obj;
 			fvi_info	hit_info;
 
-			temp_viewer_obj = *Viewer;
+			auto temp_viewer_obj = *Viewer;
 			auto viewer_segnum = find_object_seg(LevelSharedSegmentState, LevelUniqueSegmentState, *Viewer);
 			temp_viewer_obj.segnum = viewer_segnum;
 
