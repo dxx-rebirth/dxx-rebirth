@@ -330,6 +330,23 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t data_le
 static int udp_tracker_register();
 static int udp_tracker_reqgames();
 #endif
+
+template <uint8_t id>
+constexpr std::array<uint8_t, UPID_GAME_INFO_REQ_SIZE> udp_request_game_info_template{{
+	id,
+	UDP_REQ_ID[0],
+	UDP_REQ_ID[1],
+	UDP_REQ_ID[2],
+	UDP_REQ_ID[3],
+#define DXX_CONST_INIT_LE16(V)	\
+	static_cast<uint8_t>(V),	\
+	static_cast<uint8_t>(V >> 8)
+	DXX_CONST_INIT_LE16(DXX_VERSION_MAJORi),
+	DXX_CONST_INIT_LE16(DXX_VERSION_MINORi),
+	DXX_CONST_INIT_LE16(DXX_VERSION_MICROi),
+	DXX_CONST_INIT_LE16(MULTI_PROTO_VERSION),
+}};
+
 }
 }
 namespace {
@@ -713,16 +730,6 @@ static void copy_to_ntstring(const uint8_t *const buf, uint_fast32_t &len, ntstr
 	len += c;
 }
 
-static void net_udp_prepare_request_game_info(std::array<uint8_t, UPID_GAME_INFO_REQ_SIZE> &buf, int lite)
-{
-	buf[0] = lite ? UPID_GAME_INFO_LITE_REQ : UPID_GAME_INFO_REQ;
-	memcpy(&buf[1], UDP_REQ_ID, 4);
-	PUT_INTEL_SHORT(&buf[5], DXX_VERSION_MAJORi);
-	PUT_INTEL_SHORT(&buf[7], DXX_VERSION_MINORi);
-	PUT_INTEL_SHORT(&buf[9], DXX_VERSION_MICROi);
-	PUT_INTEL_SHORT(&buf[11], MULTI_PROTO_VERSION);
-}
-
 static void reset_UDP_MyPort()
 {
 	UDP_MyPort = CGameArg.MplUdpMyPort >= 1024 ? CGameArg.MplUdpMyPort : UDP_PORT_DEFAULT;
@@ -945,13 +952,6 @@ static ssize_t udp_receive_packet(RAIIsocket &sock, const socket_data_buffer msg
 }
 /* General UDP functions - END */
 
-void net_udp_request_game_info(const csockaddr_ref game_addr, int lite)
-{
-	std::array<uint8_t, UPID_GAME_INFO_REQ_SIZE> buf;
-	net_udp_prepare_request_game_info(buf, lite);
-	dxx_sendto(UDP_Socket[0], buf, 0, game_addr);
-}
-
 struct direct_join
 {
 	enum class connect_type : uint8_t
@@ -1082,8 +1082,13 @@ void net_udp_send_game_info(csockaddr_ref sender_addr, const _sockaddr *player_a
 }
 
 namespace dsx {
-
 namespace {
+
+void net_udp_request_game_info(const csockaddr_ref game_addr, int lite)
+{
+	auto &buf = lite ? udp_request_game_info_template<UPID_GAME_INFO_LITE_REQ> : udp_request_game_info_template<UPID_GAME_INFO_REQ>;
+	dxx_sendto(UDP_Socket[0], buf, 0, game_addr);
+}
 
 direct_join::connect_type net_udp_show_game_info(const netgame_info &Netgame);
 
