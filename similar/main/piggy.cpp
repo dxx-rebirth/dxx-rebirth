@@ -453,7 +453,7 @@ static void piggy_close_file()
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-int properties_init()
+int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	int sbytes = 0;
 	std::array<char, 13> temp_name;
@@ -541,7 +541,7 @@ int properties_init()
 		retval = PIGGY_PC_SHAREWARE;	// run gamedata_read_tbl in shareware mode
 	else if (GameArg.EdiNoBm || (!PHYSFSX_exists("BITMAPS.TBL",1) && !PHYSFSX_exists("BITMAPS.BIN",1)))
 	{
-		properties_read_cmp(Vclip, Piggy_fp);	// Note connection to above if!!!
+		properties_read_cmp(LevelSharedRobotInfoState, Vclip, Piggy_fp);	// Note connection to above if!!!
 		range_for (auto &i, GameBitmapXlat)
 		{
 			i = PHYSFSX_readShort(Piggy_fp);
@@ -996,7 +996,7 @@ void piggy_new_pigfile(char *pigname)
 #define SNDFILE_ID              MAKE_SIG('D','N','S','D') //DSND
 #define SNDFILE_VERSION 1
 
-int read_hamfile()
+int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	int ham_id;
 	int sound_offset = 0;
@@ -1049,7 +1049,7 @@ int read_hamfile()
 
 	#if 1 //ndef EDITOR
 	{
-		bm_read_all(Vclip, ham_fp);
+		bm_read_all(LevelSharedRobotInfoState, Vclip, ham_fp);
 		//PHYSFS_read( ham_fp, GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1 );
 		range_for (auto &i, GameBitmapXlat)
 		{
@@ -1153,7 +1153,7 @@ void read_sndfile(const int required)
 	SoundBits = std::make_unique<ubyte[]>(sbytes + 16);
 }
 
-int properties_init(void)
+int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	int ham_ok=0,snd_ok=0;
 	for (unsigned i = 0; i < MAX_SOUND_FILES; ++i)
@@ -1188,7 +1188,7 @@ int properties_init(void)
 		GameBitmapOffset[0] = pig_bitmap_offset::None;
 	}
 
-	snd_ok = ham_ok = read_hamfile();
+	snd_ok = ham_ok = read_hamfile(LevelSharedRobotInfoState);
 
 	if (Piggy_hamfile_version >= 3)
 	{

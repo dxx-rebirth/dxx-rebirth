@@ -1129,7 +1129,7 @@ static int maybe_buddy_fire_mega(const vmobjptridx_t objp)
 
 	buddy_message("GAHOOGA!");
 
-	const imobjptridx_t weapon_objnum = Laser_create_new_easy( buddy_objp->orient.fvec, buddy_objp->pos, objp, weapon_id_type::MEGA_ID, weapon_sound_flag::audible);
+	const imobjptridx_t weapon_objnum = Laser_create_new_easy(LevelSharedRobotInfoState.Robot_info, buddy_objp->orient.fvec, buddy_objp->pos, objp, weapon_id_type::MEGA_ID, weapon_sound_flag::audible);
 
 	if (weapon_objnum != object_none)
 		bash_buddy_weapon_info(BuddyState, Objects.vmptridx, weapon_objnum);
@@ -1156,7 +1156,7 @@ static int maybe_buddy_fire_smart(const vmobjptridx_t objp)
 
 	buddy_message("WHAMMO!");
 
-	const imobjptridx_t weapon_objnum = Laser_create_new_easy( buddy_objp->orient.fvec, buddy_objp->pos, objp, weapon_id_type::SMART_ID, weapon_sound_flag::audible);
+	const imobjptridx_t weapon_objnum = Laser_create_new_easy(LevelSharedRobotInfoState.Robot_info, buddy_objp->orient.fvec, buddy_objp->pos, objp, weapon_id_type::SMART_ID, weapon_sound_flag::audible);
 
 	if (weapon_objnum != object_none)
 		bash_buddy_weapon_info(BuddyState, Objects.vmptridx, weapon_objnum);
@@ -1378,7 +1378,7 @@ void do_snipe_frame(const vmobjptridx_t objp, const robot_info &robptr, const fi
 			}
 			else if (player_visibility == player_visibility_state::no_line_of_sight || ailp->next_action_time > SNIPE_ABORT_RETREAT_TIME)
 			{
-				ai_follow_path(objp, player_visibility, &vec_to_player);
+				ai_follow_path(LevelSharedRobotInfoState.Robot_info, objp, player_visibility, &vec_to_player);
 				ailp->mode = ai_mode::AIM_SNIPE_RETREAT_BACKWARDS;
 			} else {
 				ailp->mode = ai_mode::AIM_SNIPE_FIRE;
@@ -1391,7 +1391,7 @@ void do_snipe_frame(const vmobjptridx_t objp, const robot_info &robptr, const fi
 				ailp->mode = ai_mode::AIM_SNIPE_RETREAT;
 				ailp->next_action_time = SNIPE_WAIT_TIME;
 			} else {
-				ai_follow_path(objp, player_visibility, &vec_to_player);
+				ai_follow_path(LevelSharedRobotInfoState.Robot_info, objp, player_visibility, &vec_to_player);
 				if (player_is_visible(player_visibility))
 				{
 					ailp->mode = ai_mode::AIM_SNIPE_FIRE;
@@ -1427,7 +1427,7 @@ void do_snipe_frame(const vmobjptridx_t objp, const robot_info &robptr, const fi
 static fix64	Re_init_thief_time = 0x3f000000;
 
 //	----------------------------------------------------------------------
-void recreate_thief(const uint8_t thief_id)
+void recreate_thief(const d_robot_info_array &Robot_info, const uint8_t thief_id)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -1436,7 +1436,7 @@ void recreate_thief(const uint8_t thief_id)
 	auto &vcvertptr = Vertices.vcptr;
 	const auto &&center_point = compute_segment_center(vcvertptr, segp);
 
-	const auto &&new_obj = create_morph_robot(segp, center_point, thief_id);
+	const auto &&new_obj = create_morph_robot(Robot_info, segp, center_point, thief_id);
 	if (new_obj == object_none)
 		return;
 	Re_init_thief_time = GameTime64 + F1_0*10;		//	In 10 seconds, re-initialize thief.
@@ -1505,7 +1505,7 @@ void do_thief_frame(const vmobjptridx_t objp, const robot_info &robptr, const fi
 			}
 			else if (dist_to_player < F1_0 * 100 || player_is_visible(player_visibility) || ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION)
 			{
-				ai_follow_path(objp, player_visibility, &vec_to_player);
+				ai_follow_path(LevelSharedRobotInfoState.Robot_info, objp, player_visibility, &vec_to_player);
 				if ((dist_to_player < F1_0*100) || (ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION)) {
 					ai_static	*aip = &objp->ctype.ai_info;
 					if (((aip->cur_path_index <=1) && (aip->PATH_DIR == -1)) || ((aip->cur_path_index >= aip->path_length-1) && (aip->PATH_DIR == 1))) {
@@ -1561,12 +1561,12 @@ void do_thief_frame(const vmobjptridx_t objp, const robot_info &robptr, const fi
 						}
 					} 
 					ai_turn_towards_vector(vec_to_player, objp, F1_0/4);
-					move_towards_player(objp, vec_to_player);
+					move_towards_player(LevelSharedRobotInfoState.Robot_info, objp, vec_to_player);
 				} else {
 					ai_static	*aip = &objp->ctype.ai_info;
 					//	If path length == 0, then he will keep trying to create path, but he is probably stuck in his closet.
 					if ((aip->path_length > 1) || ((d_tick_count & 0x0f) == 0)) {
-						ai_follow_path(objp, player_visibility, &vec_to_player);
+						ai_follow_path(LevelSharedRobotInfoState.Robot_info, objp, player_visibility, &vec_to_player);
 						ailp->mode = ai_mode::AIM_THIEF_ATTACK;
 					}
 				}

@@ -138,12 +138,6 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	int     always_0xabcd;      // debugging
 };
 
-#if defined(DXX_BUILD_DESCENT_II)
-void attempt_to_steal_item(vmobjptridx_t objp, const robot_info &robptr, object &playerobjp);
-#endif
-
-imobjptridx_t robot_create(unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, ai_behavior behavior, const imsegidx_t hide_segment = segment_none);
-
 #if defined(DXX_BUILD_DESCENT_I)
 static inline int robot_is_companion(const robot_info &)
 {
@@ -179,6 +173,21 @@ struct d_level_shared_robot_info_state
 // returns ptr to escort robot, or NULL
 imobjptridx_t find_escort(fvmobjptridx &vmobjptridx, const d_robot_info_array &Robot_info);
 #endif
+
+imobjptridx_t robot_create(const d_robot_info_array &Robot_info, unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, ai_behavior behavior, const imsegidx_t hide_segment = segment_none);
+void recreate_thief(const d_robot_info_array &Robot_info, uint8_t thief_id);
+
+// Drops objects contained in objp.
+bool object_create_robot_egg(const d_robot_info_array &Robot_info, object_base &objp);
+bool object_create_robot_egg(const d_robot_info_array &Robot_info, int type, int id, unsigned num, const vms_vector &init_vel, const vms_vector &pos, vmsegptridx_t segnum);
+
+// Create a matcen robot
+imobjptridx_t create_morph_robot(const d_robot_info_array &Robot_info, vmsegptridx_t segp, const vms_vector &object_pos, unsigned object_id);
+
+// do whatever this thing does in a frame
+void do_controlcen_frame(const d_robot_info_array &Robot_info, vmobjptridx_t obj);
+
+window_event_result multi_message_input_sub(const d_robot_info_array &Robot_info, int key, control_info &Controls);
 
 /* Robot joints can be customized by hxm files, which are per-level.
  */
@@ -221,12 +230,12 @@ void jointpos_write(PHYSFS_File *fp, const jointpos &jp);
 #ifdef dsx
 namespace dsx {
 
-static inline void boss_link_see_sound(const vcobjptridx_t objp)
+static inline void boss_link_see_sound(const d_robot_info_array &Robot_info, const vcobjptridx_t objp)
 {
 #if defined(DXX_BUILD_DESCENT_I)
+	(void)Robot_info;
 	constexpr unsigned soundnum = SOUND_BOSS_SHARE_SEE;
 #elif defined(DXX_BUILD_DESCENT_II)
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	const unsigned soundnum = Robot_info[get_robot_id(objp)].see_sound;
 #endif
 	digi_link_sound_to_object2(soundnum, objp, 1, F1_0, sound_stack::allow_stacking, vm_distance{F1_0*512});	//	F1_0*512 means play twice as loud

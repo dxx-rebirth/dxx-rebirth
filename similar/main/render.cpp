@@ -1536,7 +1536,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 		build_object_lists(Objects, vcsegptr, Viewer_eye, rstate);
 
 	if (eye_offset<=0) // Do for left eye or zero.
-		set_dynamic_light(rstate);
+		set_dynamic_light(LevelSharedRobotInfoState.Robot_info, rstate);
 
 	if (reversed_render_range.empty())
 		/* Impossible, but later code has undefined behavior if this

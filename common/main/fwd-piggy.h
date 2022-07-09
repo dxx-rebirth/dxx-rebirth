@@ -73,7 +73,6 @@ namespace dsx {
 struct digi_sound;
 extern digi_sound bogus_sound;
 
-int properties_init();
 void piggy_close();
 bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const char * name, int in_file);
 int piggy_register_sound( digi_sound * snd, const char * name, int in_file );
@@ -113,7 +112,6 @@ void load_d1_bitmap_replacements();
  * Find and load the named bitmap from descent.pig
  */
 grs_bitmap *read_extra_bitmap_d1_pig(const char *name, grs_bitmap &out);
-int read_hamfile();
 void read_sndfile(int required);
 #endif
 }

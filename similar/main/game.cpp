@@ -140,7 +140,7 @@ game_window *Game_wind;
 
 namespace {
 
-static window_event_result GameProcessFrame(void);
+static window_event_result GameProcessFrame(const d_level_shared_robot_info_state &);
 static bool FireLaser(player_info &, const control_info &Controls);
 static void powerup_grab_cheat_all();
 
@@ -1053,7 +1053,7 @@ namespace dsx {
 namespace {
 
 //	------------------------------------------------------------------------------------
-static void do_cloak_stuff(void)
+static void do_cloak_stuff()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -1785,13 +1785,13 @@ window_event_result game_window::event_handler(const d_event &event)
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
 		case EVENT_IDLE:
-			return ReadControls(event, Controls);
+			return ReadControls(LevelSharedRobotInfoState, event, Controls);
 
 		case EVENT_WINDOW_DRAW:
 			if (!time_paused)
 			{
 				calc_frame_time();
-				result = GameProcessFrame();
+				result = GameProcessFrame(LevelSharedRobotInfoState);
 			}
 
 			if (!Automap_active)		// efficiency hack
@@ -1800,7 +1800,7 @@ window_event_result game_window::event_handler(const d_event &event)
 					init_cockpit();
 					force_cockpit_redraw=0;
 				}
-				game_render_frame(Controls);
+				game_render_frame(LevelSharedRobotInfoState.Robot_info, Controls);
 			}
 			break;
 
@@ -1933,7 +1933,7 @@ namespace dsx {
 
 namespace {
 
-window_event_result GameProcessFrame()
+window_event_result GameProcessFrame(const d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1993,12 +1993,12 @@ window_event_result GameProcessFrame()
 		if (Netgame.PlayTimeAllowed.count())
 		{
 			if (ThisLevelTime >= Netgame.PlayTimeAllowed)
-				multi_check_for_killgoal_winner();
+				multi_check_for_killgoal_winner(LevelSharedRobotInfoState.Robot_info);
 			ThisLevelTime += d_time_fix(FrameTime);
 		}
 	}
 
-	result = std::max(dead_player_frame(), result);
+	result = std::max(dead_player_frame(LevelSharedRobotInfoState.Robot_info), result);
 	if (Newdemo_state != ND_STATE_PLAYBACK)
 		result = std::max(do_controlcen_dead_frame(), result);
 	if (result == window_event_result::close)
@@ -2013,7 +2013,7 @@ window_event_result GameProcessFrame()
 	digi_sync_sounds();
 
 	if (Endlevel_sequence) {
-		result = std::max(do_endlevel_frame(), result);
+		result = std::max(do_endlevel_frame(LevelSharedRobotInfoState), result);
 		powerup_grab_cheat_all();
 		do_special_effects();
 		return result;					//skip everything else
@@ -2021,7 +2021,7 @@ window_event_result GameProcessFrame()
 
 	if ((Newdemo_state != ND_STATE_PLAYBACK) || (Newdemo_vcr_state != ND_STATE_PAUSED)) {
 		do_special_effects();
-		wall_frame_process();
+		wall_frame_process(LevelSharedRobotInfoState.Robot_info);
 	}
 
 	if (LevelUniqueControlCenterState.Control_center_destroyed)
@@ -2046,15 +2046,14 @@ window_event_result GameProcessFrame()
 #ifndef NEWHOMER
 		player_info.homing_object_dist = -1; // Assume not being tracked.  Laser_do_weapon_sequence modifies this.
 #endif
-		result = std::max(game_move_all_objects(), result);
+		result = std::max(game_move_all_objects(LevelSharedRobotInfoState), result);
 		powerup_grab_cheat_all();
 
 		if (Endlevel_sequence)	//might have been started during move
 			return result;
 
-		fuelcen_update_all();
-
-		do_ai_frame_all();
+		fuelcen_update_all(LevelSharedRobotInfoState.Robot_info);
+		do_ai_frame_all(LevelSharedRobotInfoState.Robot_info);
 
 		auto laser_firing_count = FireLaser(player_info, Controls);
 		if (auto &Auto_fire_fusion_cannon_time = player_info.Auto_fire_fusion_cannon_time)

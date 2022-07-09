@@ -35,6 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "powerup.h"
 #include "fwd-object.h"
+#include "fwd-robot.h"
 #include "fwd-segment.h"
 #include "fwd-wall.h"
 #include "window.h"
@@ -497,7 +498,7 @@ void multi_send_hostage_door_status(vcwallptridx_t wallnum);
 void multi_prep_level_objects(const d_powerup_info_array &Powerup_info, const d_vclip_array &Vclip);
 void multi_prep_level_player();
 void multi_leave_game(void);
-void multi_process_bigdata(playernum_t pnum, const uint8_t *buf, uint_fast32_t len);
+void multi_process_bigdata(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, playernum_t pnum, const uint8_t *buf, uint_fast32_t len);
 void multi_make_ghost_player(playernum_t);
 void multi_make_player_ghost(playernum_t);
 }
@@ -603,7 +604,6 @@ extern fix64 RefuseTimeLimit;
 
 #ifdef dsx
 namespace dsx {
-window_event_result multi_message_input_sub(int key, control_info &Controls);
 struct bit_game_flags {
 	unsigned closed : 1;
 	unsigned : 1;
@@ -692,21 +692,16 @@ void MultiLevelInv_Recount();
 #ifdef dsx
 namespace dsx {
 extern bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type);
-}
-#endif
-extern void MultiLevelInv_Repopulate(fix frequency);
-#ifdef dsx
-namespace dsx {
 uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems);
 uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems, const unsigned SpawnGrantedItems);
 void show_netgame_info(const netgame_info &netgame);
 extern void multi_send_player_inventory(int priority);
 const char *multi_common_deny_save_game(const fvcobjptr &vcobjptr, partial_range_t<const player *> player_range);
 const char *multi_interactive_deny_save_game(const fvcobjptr &vcobjptr, partial_range_t<const player *> player_range, const d_level_unique_control_center_state &);
+void multi_check_for_killgoal_winner(const d_robot_info_array &Robot_info);
 }
 #endif
 extern void multi_send_kill_goal_counts();
-void multi_check_for_killgoal_winner();
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 extern void multi_send_stolen_items();

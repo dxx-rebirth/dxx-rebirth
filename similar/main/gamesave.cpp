@@ -196,7 +196,8 @@ using savegame_pof_names_type = std::array<char[FILENAME_LEN], MAX_POLYGON_MODEL
 #endif
 
 namespace {
-static void verify_object(const d_vclip_array &Vclip, object &obj, const savegame_pof_names_type &Save_pof_names)
+
+static void verify_object(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const d_vclip_array &Vclip, object &obj, const savegame_pof_names_type &Save_pof_names)
 {
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	obj.lifeleft = IMMORTAL_TIME;		//all loaded object are immortal, for now
@@ -1046,7 +1047,7 @@ static int load_game_data(
 		{
 			const auto &&o = vmobjptr(&i);
 			read_object(o, LoadFile, game_top_fileinfo_version);
-			verify_object(Vclip, o, Save_pof_names);
+			verify_object(LevelSharedRobotInfoState, Vclip, o, Save_pof_names);
 		}
 	}
 

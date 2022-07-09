@@ -95,9 +95,10 @@ constexpr std::integral_constant<int8_t, -1> owner_none{};
 
 namespace dsx {
 namespace {
+static void MultiLevelInv_Repopulate(fix frequency);
 void multi_new_bounty_target_with_sound(playernum_t, const char *callsign);
 static void multi_reset_object_texture(object_base &objp);
-static void multi_process_data(playernum_t pnum, const ubyte *dat, uint_fast32_t type);
+static void multi_process_data(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, playernum_t pnum, const ubyte *dat, uint_fast32_t type);
 static void multi_update_objects_for_non_cooperative();
 static void multi_restore_game(unsigned slot, unsigned id);
 static void multi_save_game(unsigned slot, unsigned id, const d_game_unique_state::savegame_description &desc);
@@ -669,11 +670,11 @@ static void print_kill_goal_tables(fvcobjptr &vcobjptr)
 	}
 }
 
-static void net_destroy_controlcen(object_array &Objects)
+static void net_destroy_controlcen(object_array &Objects, const d_robot_info_array &Robot_info)
 {
 	print_kill_goal_tables(Objects.vcptr);
 	HUD_init_message_literal(HM_MULTI, "The control center has been destroyed!");
-	net_destroy_controlcen_object(obj_find_first_of_type(Objects.vmptridx, OBJ_CNTRLCEN));
+	net_destroy_controlcen_object(Robot_info, obj_find_first_of_type(Objects.vmptridx, OBJ_CNTRLCEN));
 }
 
 }
@@ -699,7 +700,7 @@ namespace dsx {
 
 namespace {
 
-static void multi_compute_kill(const imobjptridx_t killer, object &killed)
+static void multi_compute_kill(const d_robot_info_array &Robot_info, const imobjptridx_t killer, object &killed)
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
@@ -923,7 +924,7 @@ static void multi_compute_kill(const imobjptridx_t killer, object &killed)
 				char buf[(CALLSIGN_LEN*2)+4];
 				HUD_init_message(HM_MULTI, "%s has reached the kill goal!", prepare_kill_name(killer_pnum, buf));
 			}
-			net_destroy_controlcen(Objects);
+			net_destroy_controlcen(Objects, Robot_info);
 		}
 	}
 
@@ -1264,7 +1265,7 @@ static void kick_player(const player &plr, netplayer_info &nplr)
 #endif
 }
 
-static void multi_send_message_end(fvmobjptr &vmobjptr, control_info &Controls)
+static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjptr &vmobjptr, control_info &Controls)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1423,7 +1424,7 @@ static void multi_send_message_end(fvmobjptr &vmobjptr, control_info &Controls)
 			HUD_init_message(HM_MULTI, "Only %s can kill the reactor this way!", static_cast<const char *>(Players[multi_who_is_master()].callsign));
 		else
 		{
-			net_destroy_controlcen_object(object_none);
+			net_destroy_controlcen_object(Robot_info, object_none);
 			multi_send_destroy_controlcen(object_none,Player_num);
 		}
 		multi_message_index = 0;
@@ -1468,7 +1469,7 @@ static void multi_define_macro_end(control_info &Controls)
 
 }
 
-window_event_result multi_message_input_sub(int key, control_info &Controls)
+window_event_result multi_message_input_sub(const d_robot_info_array &Robot_info, const int key, control_info &Controls)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -1491,7 +1492,7 @@ window_event_result multi_message_input_sub(int key, control_info &Controls)
 			return window_event_result::handled;
 		case KEY_ENTER:
 			if (multi_sending_message[Player_num] != msgsend_state::none)
-				multi_send_message_end(vmobjptr, Controls);
+				multi_send_message_end(Robot_info, vmobjptr, Controls);
 			else if ( multi_defining_message )
 				multi_define_macro_end(Controls);
 			game_flush_inputs(Controls);
@@ -1518,7 +1519,7 @@ window_event_result multi_message_input_sub(int key, control_info &Controls)
 							break;
 						}
 					}
-					multi_send_message_end(vmobjptr, Controls);
+					multi_send_message_end(Robot_info, vmobjptr, Controls);
 					if ( ptext )    {
 						multi_sending_message[Player_num] = msgsend_state::typing;
 						multi_send_msgsend_state(msgsend_state::typing);
@@ -1565,7 +1566,7 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 		multi_make_ghost_player(pnum);
 
 	if (untrusted_raw_weapon == FLARE_ADJUST)
-		Laser_player_fire(obj, weapon_id_type::FLARE_ID, gun_num_t::center, weapon_sound_flag::audible, shot_orientation, object_none);
+		Laser_player_fire(LevelSharedRobotInfoState.Robot_info, obj, weapon_id_type::FLARE_ID, gun_num_t::center, weapon_sound_flag::audible, shot_orientation, object_none);
 	else if (const uint8_t untrusted_missile_adjusted_weapon = untrusted_raw_weapon - MISSILE_ADJUST; untrusted_missile_adjusted_weapon < MAX_SECONDARY_WEAPONS)
 	{
 		const auto weapon = secondary_weapon_index_t{untrusted_missile_adjusted_weapon};
@@ -1582,7 +1583,7 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 		}
 #endif
 
-		const auto &&objnum = Laser_player_fire(obj, weapon_id, weapon_gun, weapon_sound_flag::audible, shot_orientation, Network_laser_track);
+		const auto &&objnum = Laser_player_fire(LevelSharedRobotInfoState.Robot_info, obj, weapon_id, weapon_gun, weapon_sound_flag::audible, shot_orientation, Network_laser_track);
 		if (buf[0] == MULTI_FIRE_BOMB)
 		{
 			const auto remote_objnum = GET_INTEL_SHORT(buf + 18);
@@ -1709,7 +1710,7 @@ static void multi_do_reappear(const playernum_t pnum, const ubyte *buf)
 	create_player_appearance_effect(Vclip, obj);
 }
 
-static void multi_do_player_deres(object_array &Objects, const playernum_t pnum, const uint8_t *const buf)
+static void multi_do_player_deres(const d_robot_info_array &Robot_info, object_array &Objects, const playernum_t pnum, const uint8_t *const buf)
 {
 	auto &vmobjptridx = Objects.vmptridx;
 	auto &vmobjptr = Objects.vmptr;
@@ -1798,7 +1799,7 @@ static void multi_do_player_deres(object_array &Objects, const playernum_t pnum,
 
 	if (buf[2] == deres_explode)
 	{
-		explode_badass_player(objp);
+		explode_badass_player(Robot_info, objp);
 
 		objp->flags &= ~OF_SHOULD_BE_DEAD;              //don't really kill player
 		multi_make_player_ghost(pnum);
@@ -1864,7 +1865,7 @@ static void multi_do_kill(object_array &Objects, const uint8_t *const buf)
 		Bounty_target = buf[6];
 	}
 
-	multi_compute_kill(Objects.imptridx(killer), Objects.vmptridx(killed));
+	multi_compute_kill(LevelSharedRobotInfoState.Robot_info, Objects.imptridx(killer), Objects.vmptridx(killed));
 
 	if (Game_mode & GM_BOUNTY && multi_i_am_master()) // update in case if needed... we could attach this to this packet but... meh...
 		multi_send_bounty();
@@ -1878,7 +1879,7 @@ namespace {
 
 //      Changed by MK on 10/20/94 to send NULL as object to net_destroy_controlcen if it got -1
 // which means not a controlcen object, but contained in another object
-static void multi_do_controlcen_destroy(fimobjptridx &imobjptridx, const uint8_t *const buf)
+static void multi_do_controlcen_destroy(const d_robot_info_array &Robot_info, fimobjptridx &imobjptridx, const uint8_t *const buf)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	objnum_t objnum = GET_INTEL_SHORT(buf + 1);
@@ -1892,7 +1893,7 @@ static void multi_do_controlcen_destroy(fimobjptridx &imobjptridx, const uint8_t
 		else
 			HUD_init_message_literal(HM_MULTI, who == Player_num ? TXT_YOU_DEST_CONTROL : TXT_CONTROL_DESTROYED);
 
-		net_destroy_controlcen_object(objnum == object_none ? object_none : imobjptridx(objnum));
+		net_destroy_controlcen_object(Robot_info, objnum == object_none ? object_none : imobjptridx(objnum));
 	}
 }
 
@@ -2166,7 +2167,7 @@ static void multi_do_controlcen_fire(const ubyte *buf)
 	if (!uobj)
 		return;
 	const auto &&objp = *uobj;
-	Laser_create_new_easy(to_target, objp->ctype.reactor_info.gun_pos[gun_num], objp, weapon_id_type::CONTROLCEN_WEAPON_NUM, weapon_sound_flag::audible);
+	Laser_create_new_easy(LevelSharedRobotInfoState.Robot_info, to_target, objp->ctype.reactor_info.gun_pos[gun_num], objp, weapon_id_type::CONTROLCEN_WEAPON_NUM, weapon_sound_flag::audible);
 }
 
 static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t pnum, const uint8_t *const buf)
@@ -2461,7 +2462,7 @@ static void multi_reset_object_texture(object_base &objp)
 
 }
 
-void multi_process_bigdata(const playernum_t pnum, const uint8_t *const buf, const uint_fast32_t len)
+void multi_process_bigdata(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const playernum_t pnum, const uint8_t *const buf, const uint_fast32_t len)
 {
 	// Takes a bunch of messages, check them for validity,
 	// and pass them to multi_process_data.
@@ -2486,7 +2487,7 @@ void multi_process_bigdata(const playernum_t pnum, const uint8_t *const buf, con
 			return;
 		}
 
-		multi_process_data(pnum, &buf[bytes_processed], type);
+		multi_process_data(LevelSharedRobotInfoState, pnum, &buf[bytes_processed], type);
 		bytes_processed += sub_len;
 	}
 }
@@ -2808,7 +2809,7 @@ void multi_send_kill(const vmobjptridx_t objnum)
 	{
 		multibufh[count] = Netgame.team_vector;	count += 1;
 		multibufh[count] = Bounty_target;	count += 1;
-		multi_compute_kill(imobjptridx(killer_objnum), objnum);
+		multi_compute_kill(LevelSharedRobotInfoState.Robot_info, imobjptridx(killer_objnum), objnum);
 		multi_send_data(multibufh, 2);
 	}
 	else
@@ -3727,7 +3728,7 @@ void multi_update_objects_for_non_cooperative()
 			// Before deleting object, if it's a robot, drop it's special powerup, if any
 			if (obj_type == OBJ_ROBOT)
 				if (objp->contains_count && (objp->contains_type == OBJ_POWERUP))
-					object_create_robot_egg(objp);
+					object_create_robot_egg(LevelSharedRobotInfoState.Robot_info, objp);
 #endif
 			obj_delete(LevelUniqueObjectState, Segments, objp);
 		}
@@ -4068,7 +4069,9 @@ static void multi_do_heartbeat (const ubyte *buf)
 
 }
 
-void multi_check_for_killgoal_winner ()
+namespace dsx {
+
+void multi_check_for_killgoal_winner(const d_robot_info_array &Robot_info)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -4110,10 +4113,8 @@ void multi_check_for_killgoal_winner ()
 	}
 	else
 		HUD_init_message(HM_MULTI, "%s has the best score with %d kills!", static_cast<const char *>(bestplr->callsign), highest_kill_goal_count);
-	net_destroy_controlcen(Objects);
+	net_destroy_controlcen(Objects, Robot_info);
 }
-
-namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
 // Sync our seismic time with other players
@@ -4328,7 +4329,7 @@ void multi_do_capture_bonus(const playernum_t pnum)
 			}
 			else
 				HUD_init_message(HM_MULTI, "%s has reached the kill goal!",static_cast<const char *>(vcplayerptr(pnum)->callsign));
-			net_destroy_controlcen(Objects);
+			net_destroy_controlcen(Objects, LevelSharedRobotInfoState.Robot_info);
 		}
 	}
 
@@ -4404,7 +4405,7 @@ void multi_do_orb_bonus(const playernum_t pnum, const uint8_t *const buf)
 			}
 			else
 				HUD_init_message(HM_MULTI, "%s has reached the kill goal!",static_cast<const char *>(vcplayerptr(pnum)->callsign));
-			net_destroy_controlcen(Objects);
+			net_destroy_controlcen(Objects, LevelSharedRobotInfoState.Robot_info);
 		}
 	}
 	multi_sort_kill_list();
@@ -5457,7 +5458,8 @@ bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type)
                 return 1;
         return 0;
 }
-}
+
+namespace {
 
 // Repopulate the level with missing items.
 void MultiLevelInv_Repopulate(fix frequency)
@@ -5483,7 +5485,7 @@ void MultiLevelInv_Repopulate(fix frequency)
         }
 }
 
-namespace dsx {
+}
 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace {
@@ -5737,7 +5739,7 @@ void save_hoard_data(void)
 
 namespace {
 
-static void multi_process_data(const playernum_t pnum, const ubyte *buf, const uint_fast32_t type)
+static void multi_process_data(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const playernum_t pnum, const ubyte *buf, const uint_fast32_t type)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &imobjptridx = Objects.imptridx;
@@ -5763,14 +5765,14 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 			multi_do_remobj(vmobjptr, buf);
 			break;
 		case MULTI_PLAYER_DERES:
-			multi_do_player_deres(Objects, pnum, buf);
+			multi_do_player_deres(LevelSharedRobotInfoState.Robot_info, Objects, pnum, buf);
 			break;
 		case MULTI_MESSAGE:
 			multi_do_message(buf); break;
 		case MULTI_QUIT:
 			multi_do_quit(buf); break;
 		case MULTI_CONTROLCEN:
-			multi_do_controlcen_destroy(imobjptridx, buf);
+			multi_do_controlcen_destroy(LevelSharedRobotInfoState.Robot_info, imobjptridx, buf);
 			break;
 		case MULTI_DROP_WEAPON:
 			multi_do_drop_weapon(vmobjptr, pnum, buf);
@@ -5840,7 +5842,8 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 		case MULTI_ROBOT_POSITION:
 			multi_do_robot_position(pnum, buf); break;
 		case MULTI_ROBOT_EXPLODE:
-			multi_do_robot_explode(buf); break;
+			multi_do_robot_explode(LevelSharedRobotInfoState.Robot_info, buf);
+			break;
 		case MULTI_ROBOT_RELEASE:
 			multi_do_release_robot(pnum, buf); break;
 		case MULTI_ROBOT_FIRE:
@@ -5849,7 +5852,8 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 			multi_do_score(vmobjptr, pnum, buf);
 			break;
 		case MULTI_CREATE_ROBOT:
-			multi_do_create_robot(Vclip, pnum, buf); break;
+			multi_do_create_robot(LevelSharedRobotInfoState.Robot_info, Vclip, pnum, buf);
+			break;
 		case MULTI_TRIGGER:
 			multi_do_trigger(pnum, buf); break;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -5868,7 +5872,8 @@ static void multi_process_data(const playernum_t pnum, const ubyte *buf, const u
 			break;
 #endif
 		case MULTI_BOSS_TELEPORT:
-			multi_do_boss_teleport(Vclip, pnum, buf); break;
+			multi_do_boss_teleport(LevelSharedRobotInfoState.Robot_info, Vclip, pnum, buf);
+			break;
 		case MULTI_BOSS_CLOAK:
 			multi_do_boss_cloak(buf); break;
 		case MULTI_BOSS_START_GATE:

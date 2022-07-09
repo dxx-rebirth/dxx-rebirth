@@ -3488,7 +3488,7 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas, const ga
 }
 
 //returns true if viewer can see object
-static int see_object(fvcobjptridx &vcobjptridx, const vcobjptridx_t objnum)
+static int see_object(const d_robot_info_array &Robot_info, fvcobjptridx &vcobjptridx, const vcobjptridx_t objnum)
 {
 	fvi_info hit_data;
 
@@ -3501,7 +3501,7 @@ static int see_object(fvcobjptridx &vcobjptridx, const vcobjptridx_t objnum)
 		/* This is only necessary if `Viewer` can be a robot.  In developer
 		 * builds, the user can view from any object, not just a player.
 		 */
-		&LevelSharedRobotInfoState.Robot_info,
+		&Robot_info,
 		FQ_TRANSWALL,
 		vcobjptridx(Viewer),
 	}, Viewer->segnum, 0, hit_data);
@@ -3512,7 +3512,7 @@ static int see_object(fvcobjptridx &vcobjptridx, const vcobjptridx_t objnum)
 
 //show names of teammates & players carrying flags
 
-void show_HUD_names(grs_canvas &canvas, const game_mode_flags Game_mode)
+void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &canvas, const game_mode_flags Game_mode)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
@@ -3554,7 +3554,7 @@ void show_HUD_names(grs_canvas &canvas, const game_mode_flags Game_mode)
 			(is_bounty_target || ((game_mode_capture_flag() || game_mode_hoard()) && (pl_flags & PLAYER_FLAGS_FLAG)));
 #endif
 
-		if ((show_name || show_typing || show_indi) && see_object(vcobjptridx, objp))
+		if ((show_name || show_typing || show_indi) && see_object(Robot_info, vcobjptridx, objp))
 		{
 			auto player_point = g3_rotate_point(objp->pos);
 			if (player_point.p3_codes == 0) //on screen
@@ -3640,7 +3640,7 @@ void show_HUD_names(grs_canvas &canvas, const game_mode_flags Game_mode)
 }
 
 //draw all the things on the HUD
-void draw_hud(grs_canvas &canvas, const object &plrobj, const control_info &Controls, const game_mode_flags Game_mode)
+void draw_hud(const d_robot_info_array &Robot_info, grs_canvas &canvas, const object &plrobj, const control_info &Controls, const game_mode_flags Game_mode)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
@@ -3706,7 +3706,7 @@ void draw_hud(grs_canvas &canvas, const object &plrobj, const control_info &Cont
 	//	Show other stuff if not in rearview or letterbox.
 	if (!Rear_view && PlayerCfg.CockpitMode[1] != cockpit_mode_t::rear_view)
 	{
-		show_HUD_names(canvas, Game_mode);
+		show_HUD_names(Robot_info, canvas, Game_mode);
 
 		if (PlayerCfg.CockpitMode[1] == cockpit_mode_t::status_bar || PlayerCfg.CockpitMode[1] == cockpit_mode_t::full_screen)
 			hud_show_homing_warning(canvas, player_info.homing_object_dist);

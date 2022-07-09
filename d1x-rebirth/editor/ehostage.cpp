@@ -92,10 +92,10 @@ static int PlaceHostage()
 
 	Assert( ctype != -1 );
 
-	if (place_object(LevelUniqueObjectState, LevelSharedPolygonModelState, LevelSharedRobotInfoState, LevelSharedSegmentState, LevelUniqueSegmentState, Cursegp, cur_object_loc, ctype, 0) == 0)
+	if (place_object(LevelUniqueObjectState, LevelSharedPolygonModelState, LevelSharedRobotInfoState.Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, Cursegp, cur_object_loc, ctype, 0) == 0)
 	{
 		Int3();		// Debug below
-		i = place_object(LevelUniqueObjectState, LevelSharedPolygonModelState, LevelSharedRobotInfoState, LevelSharedSegmentState, LevelUniqueSegmentState, Cursegp, cur_object_loc, ctype, 0);
+		i = place_object(LevelUniqueObjectState, LevelSharedPolygonModelState, LevelSharedRobotInfoState.Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, Cursegp, cur_object_loc, ctype, 0);
 		return 1;
 	}
 	return 0;

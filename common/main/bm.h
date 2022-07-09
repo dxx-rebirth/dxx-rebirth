@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "fwd-vclip.h"
 #include "fwd-game.h"
+#include "fwd-robot.h"
 #include "d_array.h"
 #include "inferno.h"
 
@@ -145,7 +146,7 @@ void init_textures();
 
 namespace dsx {
 
-int gamedata_init();
+int gamedata_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState);
 
 #if defined(DXX_BUILD_DESCENT_I)
 
@@ -194,12 +195,12 @@ extern enumerated_array<bitmap_index, N_COCKPIT_BITMAPS, cockpit_mode_t> cockpit
 void load_robot_replacements(const d_fname &level_name);
 #if defined(DXX_BUILD_DESCENT_I) || (defined(DXX_BUILD_DESCENT_II) && DXX_USE_EDITOR)
 // Initializes all bitmaps from BITMAPS.TBL file.
-int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware);
+int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_vclip_array &Vclip, int pc_shareware);
 #endif
 
-void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp);
+void bm_read_all(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_vclip_array &Vclip, PHYSFS_File * fp);
 #if defined(DXX_BUILD_DESCENT_I)
-void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp);
+void properties_read_cmp(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_vclip_array &Vclip, PHYSFS_File * fp);
 #endif
 int ds_load(int skip, const char * filename );
 int compute_average_pixel(grs_bitmap *n);

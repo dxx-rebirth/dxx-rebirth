@@ -15,6 +15,9 @@
 #include "maths.h"
 #include "fwd-object.h"
 #include "fwd-vclip.h"
+#if defined(DXX_BUILD_DESCENT_II)
+#include "fwd-robot.h"
+#endif
 
 #ifdef dsx
 namespace dsx {
@@ -31,7 +34,6 @@ extern void do_escort_menu(void);
 void detect_escort_goal_accomplished(vmobjptridx_t index);
 void detect_escort_goal_fuelcen_accomplished();
 void set_escort_special_goal(d_unique_buddy_state &BuddyState, int key);
-void recreate_thief(uint8_t thief_id);
 void init_buddy_for_level(void);
 void invalidate_escort_goal(d_unique_buddy_state &);
 void drop_stolen_items (fvmsegptridx &vmsegptridx, d_level_unique_object_state &LevelUniqueObjectState, const d_vclip_array &Vclip, const object_base &);

@@ -223,7 +223,7 @@ namespace {
 static void init_player_stats_ship(object &, fix GameTime64);
 static window_event_result AdvanceLevel(int secret_flag);
 static void StartLevel(int random_flag);
-static void copy_defaults_to_robot_all(void);
+static void copy_defaults_to_robot_all(const d_robot_info_array &Robot_info);
 
 //--------------------------------------------------------------------
 static void verify_console_object()
@@ -414,7 +414,12 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 }
 
 //added 10/12/95: delete buddy bot if coop game.  Probably doesn't really belong here. -MT
-static void gameseq_init_network_players(object_array &Objects)
+#if defined(DXX_BUILD_DESCENT_I)
+#define gameseq_init_network_players(Robot_info,Objects)	gameseq_init_network_players(Objects)
+#elif defined(DXX_BUILD_DESCENT_II)
+#undef gameseq_init_network_players
+#endif
+static void gameseq_init_network_players(const d_robot_info_array &Robot_info, object_array &Objects)
 {
 
 	// Initialize network player start locations and object numbers
@@ -426,7 +431,6 @@ static void gameseq_init_network_players(object_array &Objects)
 	const auto remove_thief = Netgame.ThiefModifierFlags & ThiefModifier::Absent;
 	const auto multiplayer = Game_mode & GM_MULTI;
 	const auto retain_guidebot = Netgame.AllowGuidebot;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 #endif
 	auto &vmobjptridx = Objects.vmptridx;
 	range_for (const auto &&o, vmobjptridx)
@@ -460,7 +464,7 @@ static void gameseq_init_network_players(object_array &Objects)
 			if ((!retain_guidebot && robot_is_companion(ri)) ||
 				(remove_thief && robot_is_thief(ri)))
 			{
-				object_create_robot_egg(o);
+				object_create_robot_egg(Robot_info, o);
 				obj_delete(LevelUniqueObjectState, Segments, o);		//kill the buddy in netgames
 			}
 		}
@@ -487,7 +491,7 @@ static void gameseq_init_network_players(object_array &Objects)
 
 }
 
-void gameseq_remove_unused_players()
+void gameseq_remove_unused_players(const d_robot_info_array &Robot_info)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -510,7 +514,6 @@ void gameseq_remove_unused_players()
 			obj_delete(LevelUniqueObjectState, Segments, vmobjptridx(i.objnum));
 		}
 #if defined(DXX_BUILD_DESCENT_II)
-		auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 		if (PlayerCfg.ThiefModifierFlags & ThiefModifier::Absent)
 		{
 			range_for (const auto &&o, vmobjptridx)
@@ -521,7 +524,7 @@ void gameseq_remove_unused_players()
 					auto &ri = Robot_info[get_robot_id(o)];
 					if (robot_is_thief(ri))
 					{
-						object_create_robot_egg(o);
+						object_create_robot_egg(Robot_info, o);
 						obj_delete(LevelUniqueObjectState, Segments, o);
 					}
 				}
@@ -1105,7 +1108,7 @@ void LoadLevel(int level_num,int page_in_textures)
 		piggy_load_level_data();
 #endif
 
-	gameseq_init_network_players(Objects);
+	gameseq_init_network_players(LevelSharedRobotInfoState.Robot_info, Objects);
 	p.restore(vmobjptr);
 }
 }
@@ -1443,7 +1446,7 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 
 	Viewer = &get_local_plrobj();
 
-	gameseq_remove_unused_players();
+	gameseq_remove_unused_players(LevelSharedRobotInfoState.Robot_info);
 
 	Game_suspended = 0;
 
@@ -1454,7 +1457,7 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 
 	if (First_secret_visit || (Newdemo_state == ND_STATE_PLAYBACK)) {
 		init_robots_for_level();
-		init_ai_objects();
+		init_ai_objects(LevelSharedRobotInfoState.Robot_info);
 		init_smega_detonates();
 		init_morphs();
 		init_all_matcens();
@@ -1479,10 +1482,10 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 	}
 
 	if (First_secret_visit) {
-		copy_defaults_to_robot_all();
+		copy_defaults_to_robot_all(LevelSharedRobotInfoState.Robot_info);
 	}
 
-	init_controlcen_for_level();
+	init_controlcen_for_level(LevelSharedRobotInfoState.Robot_info);
 
 	// Say player can use FLASH cheat to mark path to exit.
 	LevelUniqueObjectState.Level_path_created = 0;
@@ -1941,9 +1944,9 @@ window_event_result DoPlayerDead()
 //called when the player is starting a new level for normal game mode and restore state
 //	secret_flag set if came from a secret level
 #if defined(DXX_BUILD_DESCENT_I)
-window_event_result StartNewLevelSub(const int level_num, const int page_in_textures)
+window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, const int level_num, const int page_in_textures)
 #elif defined(DXX_BUILD_DESCENT_II)
-window_event_result StartNewLevelSub(const int level_num, const int page_in_textures, const secret_restore secret_flag)
+window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, const int level_num, const int page_in_textures, const secret_restore secret_flag)
 #endif
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
@@ -2017,7 +2020,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 		multi_prep_level_player();
 	}
 
-	gameseq_remove_unused_players();
+	gameseq_remove_unused_players(Robot_info);
 
 	Game_suspended = 0;
 
@@ -2029,7 +2032,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 
 	init_cockpit();
 	init_robots_for_level();
-	init_ai_objects();
+	init_ai_objects(Robot_info);
 	init_morphs();
 	init_all_matcens();
 	reset_palette_add();
@@ -2061,8 +2064,8 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 	else
 		StartLevel(0);		// Note link to above if!
 
-	copy_defaults_to_robot_all();
-	init_controlcen_for_level();
+	copy_defaults_to_robot_all(Robot_info);
+	init_controlcen_for_level(Robot_info);
 
 	//	Say player can use FLASH cheat to mark path to exit.
 	LevelUniqueObjectState.Level_path_created = 0;
@@ -2188,7 +2191,7 @@ window_event_result StartNewLevel(int level_num)
 	ShowLevelIntro(level_num);
 #endif
 
-	return StartNewLevelSub(level_num, 1, secret_restore::none);
+	return StartNewLevelSub(LevelSharedRobotInfoState.Robot_info, level_num, 1, secret_restore::none);
 
 }
 
@@ -2295,13 +2298,11 @@ static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptr
 //	-----------------------------------------------------------------------------------------------------
 //	Initialize default parameters for one robot, copying from Robot_info to *objp.
 //	What about setting size!?  Where does that come from?
-void copy_defaults_to_robot(object_base &objp)
+void copy_defaults_to_robot(const d_robot_info_array &Robot_info, object_base &objp)
 {
 	assert(objp.type == OBJ_ROBOT);
 	const unsigned objid = get_robot_id(objp);
-	assert(objid < LevelSharedRobotInfoState.N_robot_types);
 
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[objid];
 
 	//	Boost shield for Thief and Buddy based on level.
@@ -2336,14 +2337,14 @@ namespace {
 //	Copy all values from the robot info structure to all instances of robots.
 //	This allows us to change bitmaps.tbl and have these changes manifested in existing robots.
 //	This function should be called at level load time.
-static void copy_defaults_to_robot_all(void)
+static void copy_defaults_to_robot_all(const d_robot_info_array &Robot_info)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	range_for (object_base &objp, vmobjptr)
 	{
 		if (objp.type == OBJ_ROBOT)
-			copy_defaults_to_robot(objp);
+			copy_defaults_to_robot(Robot_info, objp);
 	}
 }
 

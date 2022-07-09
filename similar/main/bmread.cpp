@@ -181,8 +181,8 @@ namespace {
 //	For the sake of LINT, defining prototypes to module's functions
 #if defined(DXX_BUILD_DESCENT_I)
 static void bm_read_sound(char *&arg, int skip, int pc_shareware);
-static void bm_read_robot_ai(char *&arg, int skip);
-static void bm_read_robot(char *&arg, int skip);
+static void bm_read_robot_ai(d_robot_info_array &Robot_info, char *&arg, int skip);
+static void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, char *&arg, int skip);
 static void bm_read_object(char *&arg, int skip);
 static void bm_read_player_ship(char *&arg, int skip);
 static void bm_read_some_file(d_vclip_array &Vclip, const std::string &dest_bm, char *&arg, int skip);
@@ -195,10 +195,10 @@ static void verify_textures();
 static void bm_read_alias(void);
 #endif
 static void bm_read_marker(void);
-static void bm_read_robot_ai(int skip);
+static void bm_read_robot_ai(d_robot_info_array &Robot_info, int skip);
 static void bm_read_powerup(int unused_flag);
 static void bm_read_hostage(void);
-static void bm_read_robot(int skip);
+static void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, int skip);
 static void bm_read_weapon(int skip, int unused_flag);
 static void bm_read_reactor(void);
 static void bm_read_exitmodel(void);
@@ -469,7 +469,7 @@ static int get_texture(char *name)
 // Initializes all properties and bitmaps from BITMAPS.TBL file.
 // This is called when the editor is IN.
 // If no editor, properties_read_cmp() is called.
-int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
+int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_vclip_array &Vclip, int pc_shareware)
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
@@ -730,23 +730,23 @@ int gamedata_read_tbl(d_vclip_array &Vclip, int pc_shareware)
 			else IFTOK("blastable")	 		wall_blastable_flag = get_int() ? WCF_BLASTABLE : 0;
 			else IFTOK("hidden")	 		wall_hidden_flag = get_int() ? WCF_HIDDEN : 0;
 #if defined(DXX_BUILD_DESCENT_I)
-			else IFTOK("$ROBOT_AI") 		bm_read_robot_ai(arg, skip);
+			else IFTOK("$ROBOT_AI") 		bm_read_robot_ai(LevelSharedRobotInfoState.Robot_info, arg, skip);
 
 			else IFTOK("$POWERUP")			{bm_read_powerup(arg, 0);		continue;}
 			else IFTOK("$POWERUP_UNUSED")	{bm_read_powerup(arg, 1);		continue;}
 			else IFTOK("$HOSTAGE")			{bm_read_hostage(arg);		continue;}
-			else IFTOK("$ROBOT")				{bm_read_robot(arg, skip);			continue;}
+			else IFTOK("$ROBOT")				{bm_read_robot(LevelSharedRobotInfoState, arg, skip);			continue;}
 			else IFTOK("$WEAPON")			{bm_read_weapon(arg, skip, 0);		continue;}
 			else IFTOK("$WEAPON_UNUSED")	{bm_read_weapon(arg, skip, 1);		continue;}
 			else IFTOK("$OBJECT")			{bm_read_object(arg, skip);		continue;}
 			else IFTOK("$PLAYER_SHIP")		{bm_read_player_ship(arg, skip);	continue;}
 #elif defined(DXX_BUILD_DESCENT_II)
-			else IFTOK("$ROBOT_AI") 		bm_read_robot_ai(skip);
+			else IFTOK("$ROBOT_AI") 		bm_read_robot_ai(LevelSharedRobotInfoState.Robot_info, skip);
 
 			else IFTOK("$POWERUP")			{bm_read_powerup(0);		continue;}
 			else IFTOK("$POWERUP_UNUSED")	{bm_read_powerup(1);		continue;}
 			else IFTOK("$HOSTAGE")			{bm_read_hostage();		continue;}
-			else IFTOK("$ROBOT")				{bm_read_robot(skip);			continue;}
+			else IFTOK("$ROBOT")				{bm_read_robot(LevelSharedRobotInfoState, skip);			continue;}
 			else IFTOK("$WEAPON")			{bm_read_weapon(skip, 0);		continue;}
 			else IFTOK("$WEAPON_UNUSED")	{bm_read_weapon(skip, 1);		continue;}
 			else IFTOK("$REACTOR")			{bm_read_reactor();		continue;}
@@ -1328,9 +1328,9 @@ void bm_read_sound(int skip)
 
 // ------------------------------------------------------------------------------
 #if defined(DXX_BUILD_DESCENT_I)
-static void bm_read_robot_ai(char *&arg, const int skip)
+static void bm_read_robot_ai(d_robot_info_array &Robot_info, char *&arg, const int skip)
 #elif defined(DXX_BUILD_DESCENT_II)
-void bm_read_robot_ai(const int skip)
+void bm_read_robot_ai(d_robot_info_array &Robot_info, const int skip)
 #endif
 {
 	char			*robotnum_text;
@@ -1339,7 +1339,6 @@ void bm_read_robot_ai(const int skip)
 	robotnum_text = strtok(NULL, space_tab);
 	robotnum = atoi(robotnum_text);
 	Assert(robotnum < MAX_ROBOT_TYPES);
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[robotnum];
 
 	Assert(robotnum == Num_robot_ais);		//make sure valid number
@@ -1429,9 +1428,9 @@ static grs_bitmap *load_polymodel_bitmap(int skip, const char *name)
 
 // ------------------------------------------------------------------------------
 #if defined(DXX_BUILD_DESCENT_I)
-static void bm_read_robot(char *&arg, int skip)
+static void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, char *&arg, int skip)
 #elif defined(DXX_BUILD_DESCENT_II)
-void bm_read_robot(int skip)
+void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, int skip)
 #endif
 {
 	char			*model_name[MAX_MODEL_VARIANTS];

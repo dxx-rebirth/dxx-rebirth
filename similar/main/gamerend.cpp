@@ -409,7 +409,7 @@ static void render_countdown_gauge(grs_canvas &canvas)
 	}
 }
 
-static void game_draw_hud_stuff(grs_canvas &canvas, const control_info &Controls)
+static void game_draw_hud_stuff(const d_robot_info_array &Robot_info, grs_canvas &canvas, const control_info &Controls)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -452,7 +452,7 @@ static void game_draw_hud_stuff(grs_canvas &canvas, const control_info &Controls
 		Game_mode = Newdemo_game_mode;
 
 	auto &plrobj = get_local_plrobj();
-	draw_hud(canvas, plrobj, Controls, Game_mode);
+	draw_hud(Robot_info, canvas, plrobj, Controls, Game_mode);
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		Game_mode = previous_game_mode;
@@ -774,7 +774,7 @@ int BigWindowSwitch=0;
 #endif
 
 //render a frame for the game
-void game_render_frame_mono(const control_info &Controls)
+void game_render_frame_mono(const d_robot_info_array &Robot_info, const control_info &Controls)
 {
 	int no_draw_hud = 0;
 
@@ -811,7 +811,7 @@ void game_render_frame_mono(const control_info &Controls)
 			render_frame(canvas, 0, window);
 
 		wake_up_rendered_objects(*Viewer, window);
-		show_HUD_names(canvas, Game_mode);
+		show_HUD_names(Robot_info, canvas, Game_mode);
 
 		Viewer = viewer_save;
 
@@ -861,11 +861,11 @@ void game_render_frame_mono(const control_info &Controls)
 	if (!no_draw_hud) {
 		if (VR_stereo != StereoFormat::None)
 		{
-			game_draw_hud_stuff(VR_hud_left, Controls);
-			game_draw_hud_stuff(VR_hud_right, Controls);
+			game_draw_hud_stuff(Robot_info, VR_hud_left, Controls);
+			game_draw_hud_stuff(Robot_info, VR_hud_right, Controls);
 		}
 		else
-			game_draw_hud_stuff(Screen_3d_window, Controls);
+			game_draw_hud_stuff(Robot_info, Screen_3d_window, Controls);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -966,7 +966,7 @@ static void update_cockpits(grs_canvas &canvas)
 }
 }
 
-void game_render_frame(const control_info &Controls)
+void game_render_frame(const d_robot_info_array &Robot_info, const control_info &Controls)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -974,7 +974,7 @@ void game_render_frame(const control_info &Controls)
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	play_homing_warning(player_info);
 	gr_set_default_canvas();
-	game_render_frame_mono(Controls);
+	game_render_frame_mono(Robot_info, Controls);
 }
 
 }

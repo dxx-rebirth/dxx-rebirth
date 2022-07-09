@@ -1381,7 +1381,7 @@ bool cw_removal_predicate::operator()(cloaking_wall &d)
 
 namespace {
 
-static void process_exploding_walls()
+static void process_exploding_walls(const d_robot_info_array &Robot_info)
 {
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		return;
@@ -1394,7 +1394,7 @@ static void process_exploding_walls()
 			if (w1.flags & wall_flag::exploding)
 			{
 				assert(num_exploding_walls);
-				const auto n = do_exploding_wall_frame(w1);
+				const auto n = do_exploding_wall_frame(Robot_info, w1);
 				num_exploding_walls -= n;
 				if (!num_exploding_walls)
 					break;
@@ -1405,9 +1405,9 @@ static void process_exploding_walls()
 
 }
 
-void wall_frame_process()
+void wall_frame_process(const d_robot_info_array &Robot_info)
 {
-	process_exploding_walls();
+	process_exploding_walls(Robot_info);
 	{
 		auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
 		const auto &&r = partial_range(ActiveDoors, ActiveDoors.get_count());

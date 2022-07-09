@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-inferno.h"
 #include "fwd-player.h"
 #include "fwd-object.h"
+#include "fwd-robot.h"
 #include "fwd-vclip.h"
 #include "fwd-window.h"
 #include "powerup.h"
@@ -77,28 +78,22 @@ void init_player_stats_game(playernum_t pnum);      //clear all stats
 namespace dsx {
 window_event_result PlayerFinishedLevel(int secret_flag);
 
-}
-#endif
-namespace dsx {
 // called when the player has died
 window_event_result DoPlayerDead(void);
-}
 
 #if defined(DXX_BUILD_DESCENT_I)
+#define gameseq_remove_unused_players(Robot_info)	gameseq_remove_unused_players()
 #elif defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
+#undef gameseq_remove_unused_players
 // load just the hxm file
 void load_level_robots(int level_num);
 void load_level_robots(const d_fname &level_name);
 extern int	First_secret_visit;
 window_event_result ExitSecretLevel();
-}
 #endif
 
 // load a level off disk. level numbers start at 1.
 // Secret levels are -1,-2,-3
-#ifdef dsx
-namespace dsx {
 void LoadLevel(int level_num, int page_in_textures);
 
 }
@@ -121,8 +116,6 @@ void close_message_window(void);
 namespace dsx {
 void create_player_appearance_effect(const d_vclip_array &Vclip, const object_base &player_obj);
 void bash_to_shield(const d_powerup_info_array &Powerup_info, const d_vclip_array &Vclip, object_base &i);
-void copy_defaults_to_robot(object_base &objp);
-void gameseq_remove_unused_players();
 }
 #endif
 
@@ -142,5 +135,7 @@ void do_cloak_invul_secret_stuff(fix64 old_gametime, player_info &player_info);
 #endif
 void EnterSecretLevel(void);
 void init_player_stats_new_ship(playernum_t pnum);
+void copy_defaults_to_robot(const d_robot_info_array &Robot_info, object_base &objp);
+void gameseq_remove_unused_players(const d_robot_info_array &Robot_info);
 }
 #endif

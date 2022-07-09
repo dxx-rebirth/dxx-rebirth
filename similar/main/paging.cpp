@@ -234,7 +234,7 @@ static void paging_touch_object(const d_robot_info_array &Robot_info, const Text
 		default:
 			break;
 	case OBJ_PLAYER:	
-		v = get_explosion_vclip(obj, explosion_vclip_stage::s0);
+		v = get_explosion_vclip(LevelSharedRobotInfoState.Robot_info, obj, explosion_vclip_stage::s0);
 		if ( v > -1 )
 			paging_touch_vclip(Vclip[v]);
 		break;

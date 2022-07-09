@@ -818,7 +818,7 @@ static mission_list_type build_mission_list(const mission_filter_mode mission_fi
 
 int load_mission_ham()
 {
-	read_hamfile(); // intentionally can also read from the HOG
+	read_hamfile(LevelSharedRobotInfoState); // intentionally can also read from the HOG
 
 	if (Piggy_hamfile_version >= 3)
 	{

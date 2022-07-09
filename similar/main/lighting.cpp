@@ -277,7 +277,7 @@ const std::array<fix, 16> Obj_light_xlate{{0x1234, 0x3321, 0x2468, 0x1735,
 }};
 #if defined(DXX_BUILD_DESCENT_I)
 #define compute_player_light_emission_intensity(LevelUniqueHeadlightState, obj)	compute_player_light_emission_intensity(obj)
-#define compute_light_emission(LevelSharedRobotInfoState, LevelUniqueHeadlightState, Vclip, obj)	compute_light_emission(Vclip, obj)
+#define compute_light_emission(Robot_info, LevelUniqueHeadlightState, Vclip, obj)	compute_light_emission(Vclip, obj)
 #elif defined(DXX_BUILD_DESCENT_II)
 #undef compute_player_light_emission_intensity
 #undef compute_light_emission
@@ -311,13 +311,10 @@ static fix compute_player_light_emission_intensity(d_level_unique_headlight_stat
 }
 #endif
 
-static g3s_lrgb compute_light_emission(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_level_unique_headlight_state &LevelUniqueHeadlightState, const d_vclip_array &Vclip, const vcobjptridx_t obj)
+static g3s_lrgb compute_light_emission(const d_robot_info_array &Robot_info, d_level_unique_headlight_state &LevelUniqueHeadlightState, const d_vclip_array &Vclip, const vcobjptridx_t obj)
 {
 	int compute_color = 0;
 	fix light_intensity = 0;
-#if defined(DXX_BUILD_DESCENT_II)
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-#endif
 	const object &objp = obj;
 	switch (objp.type)
 	{
@@ -510,7 +507,7 @@ static g3s_lrgb compute_light_emission(const d_level_shared_robot_info_state &Le
 }
 
 // ----------------------------------------------------------------------------------------------
-void set_dynamic_light(render_state_t &rstate)
+void set_dynamic_light(const d_robot_info_array &Robot_info, render_state_t &rstate)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
@@ -561,7 +558,7 @@ void set_dynamic_light(render_state_t &rstate)
 		const object &objp = obj;
 		if (objp.type == OBJ_NONE)
 			continue;
-		const auto &&obj_light_emission = compute_light_emission(LevelSharedRobotInfoState, LevelUniqueLightState, Vclip, obj);
+		const auto &&obj_light_emission = compute_light_emission(Robot_info, LevelUniqueLightState, Vclip, obj);
 
 		if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
 			apply_light(vmsegptridx, obj_light_emission, vcsegptridx(objp.segnum), objp.pos, n_render_vertices, render_vertices, vert_segnum_list, obj);

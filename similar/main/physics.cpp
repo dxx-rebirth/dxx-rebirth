@@ -311,7 +311,7 @@ public:
 
 //	-----------------------------------------------------------------------------------------------------------
 //Simulate a physics object for this frame
-window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &obj_previous_position, phys_visited_seglist *const phys_segs)
+window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const vmobjptridx_t obj, const vms_vector &obj_previous_position, phys_visited_seglist *const phys_segs)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -436,7 +436,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 			new_pos,
 			ignore_obj_list,
 			&LevelUniqueObjectState,
-			&LevelSharedRobotInfoState.Robot_info,
+			&Robot_info,
 			flags,
 			obj,
 		}, obj->segnum, obj->size, hit_info);
@@ -566,7 +566,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 #if defined(DXX_BUILD_DESCENT_II)
 						LevelSharedSegmentState.DestructibleLights,
 #endif
-						obj, hit_speed, Segments.vmptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
+						Robot_info, obj, hit_speed, Segments.vmptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
 				/*
 				 * Due to the nature of this loop, it's possible that a local player may receive scrape damage multiple times in one frame.
 				 * Check if we received damage and do not apply more damage (nor produce damage sounds/flashes/bumps, etc) for the rest of the loop.
@@ -679,9 +679,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 					vm_vec_scale_add(pos_hit,ppos0,pos_hit,fixdiv(size0, size0 + size1));
 
 					old_vel = obj->mtype.phys_info.velocity;
-
-					collide_two_objects( obj, hit, pos_hit);
-
+					collide_two_objects(Robot_info, obj, hit, pos_hit);
 				}
 
 				// Let object continue its movement

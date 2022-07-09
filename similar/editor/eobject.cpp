@@ -107,7 +107,7 @@ static objnum_t get_next_object(const unique_segment &seg, objnum_t id)
 namespace dsx {
 
 //	------------------------------------------------------------------------------------
-int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_polygon_model_state &LevelSharedPolygonModelState, const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const vmsegptridx_t segp, const vms_vector &object_pos, short object_type, short object_id)
+int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_polygon_model_state &LevelSharedPolygonModelState, const d_robot_info_array &Robot_info, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const vmsegptridx_t segp, const vms_vector &object_pos, short object_type, short object_id)
 {
 	vms_matrix seg_matrix;
 
@@ -115,7 +115,6 @@ int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_le
 
 	imobjptridx_t objnum = object_none;
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	switch (object_type)
 	{
 
@@ -148,7 +147,7 @@ int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_le
 			else
 				hide_segment = segment_none;
 
-			objnum = robot_create(object_id, segp, object_pos,
+			objnum = robot_create(Robot_info, object_id, segp, object_pos,
 								&seg_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
 								Robot_info[object_id].attack_type ?
 								//	robots which lunge forward to attack cannot have behavior type still.
@@ -322,7 +321,7 @@ int ObjectPlaceObject(void)
 	const auto cur_object_loc = compute_segment_center(vcvertptr, Cursegp);
 
 	old_cur_object_index = Cur_object_index;
-	const auto rval = place_object(LevelUniqueObjectState, LevelSharedPolygonModelState, LevelSharedRobotInfoState, LevelSharedSegmentState, LevelUniqueSegmentState, Cursegp, cur_object_loc, Cur_object_type, Cur_object_id);
+	const auto rval = place_object(LevelUniqueObjectState, LevelSharedPolygonModelState, LevelSharedRobotInfoState.Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, Cursegp, cur_object_loc, Cur_object_type, Cur_object_id);
 
 	if (old_cur_object_index != Cur_object_index)
 		vmobjptr(Cur_object_index)->rtype.pobj_info.tmap_override = -1;
@@ -344,7 +343,7 @@ int ObjectPlaceObjectTmap(void)
 	const auto cur_object_loc = compute_segment_center(vcvertptr, Cursegp);
 
 	old_cur_object_index = Cur_object_index;
-	const auto rval = place_object(LevelUniqueObjectState, LevelSharedPolygonModelState, LevelSharedRobotInfoState, LevelSharedSegmentState, LevelUniqueSegmentState, Cursegp, cur_object_loc, Cur_object_type, Cur_object_id);
+	const auto rval = place_object(LevelUniqueObjectState, LevelSharedPolygonModelState, LevelSharedRobotInfoState.Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, Cursegp, cur_object_loc, Cur_object_type, Cur_object_id);
 
 	if ((Cur_object_index != old_cur_object_index) && (Objects[Cur_object_index].render_type == RT_POLYOBJ))
 		Objects[Cur_object_index].rtype.pobj_info.tmap_override = CurrentTexture;

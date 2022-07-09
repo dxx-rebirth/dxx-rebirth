@@ -1986,7 +1986,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 			LoadLevel(current_level, 1);
 		else
 #endif
-			StartNewLevelSub(current_level, 1, secret);
+			StartNewLevelSub(LevelSharedRobotInfoState.Robot_info, current_level, 1, secret);
 
 		auto &plr = get_local_player();
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2094,7 +2094,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		if (obj->type == OBJ_ROBOT && Robot_info[get_robot_id(obj)].boss_flag) {
 			fix save_shields = obj->shields;
 
-			copy_defaults_to_robot(obj);		//calculate starting shields
+			copy_defaults_to_robot(Robot_info, obj);		//calculate starting shields
 
 			//if in valid range, use loaded shield value
 			if (save_shields > 0 && save_shields <= obj->shields)
@@ -2244,7 +2244,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		LevelUniqueControlCenterState.Total_countdown_time = LevelUniqueControlCenterState.Countdown_timer / F0_5; // we do not need to know this, but it should not be 0 either...
 
 	// Restore the AI state
-	ai_restore_state( fp, version, swap );
+	ai_restore_state(LevelSharedRobotInfoState.Robot_info, fp, version, swap);
 
 	{
 		auto &Automap_visited = LevelUniqueAutomapState.Automap_visited;

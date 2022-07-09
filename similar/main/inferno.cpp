@@ -664,7 +664,7 @@ static int main(int argc, char *argv[])
 #endif
 
 	con_puts(CON_DEBUG, "Doing gamedata_init...");
-	gamedata_init();
+	gamedata_init(LevelSharedRobotInfoState);
 
 #if defined(DXX_BUILD_DESCENT_II)
 #if DXX_USE_EDITOR

@@ -21,6 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dsx-ns.h"
 #include "fwd-object.h"
+#include "fwd-segment.h"
 #include "fwd-weapon.h"
 #include "polyobj.h"
 #include "vecmat.h"

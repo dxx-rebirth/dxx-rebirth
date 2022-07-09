@@ -197,11 +197,11 @@ static void jointlist_read(PHYSFS_File *fp, std::array<jointlist, N_ANIM_STATES>
 
 namespace dsx {
 
-imobjptridx_t robot_create(const unsigned id, const vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *const orient, const fix size, const ai_behavior behavior, const imsegidx_t hide_segment)
+imobjptridx_t robot_create(const d_robot_info_array &Robot_info, const unsigned id, const vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *const orient, const fix size, const ai_behavior behavior, const imsegidx_t hide_segment)
 {
 	const auto &&objp = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_ROBOT, id, segnum, pos, orient, size, object::control_type::ai, object::movement_type::physics, RT_POLYOBJ);
 	if (objp)
-		init_ai_object(objp, behavior, hide_segment);
+		init_ai_object(Robot_info, objp, behavior, hide_segment);
 	return objp;
 }
 

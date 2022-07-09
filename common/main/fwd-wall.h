@@ -205,7 +205,7 @@ wall_hit_process_t wall_hit_process(player_flags, vmsegptridx_t seg, sidenum_t s
 void wall_toggle(fvmwallptr &vmwallptr, vmsegptridx_t segnum, sidenum_t side);
 
 // Called once per frame..
-void wall_frame_process();
+void wall_frame_process(const d_robot_info_array &Robot_info);
 
 //set the tmap_num or tmap_num2 field for a wall/door
 void wall_set_tmap_num(const wclip &, vmsegptridx_t seg, sidenum_t side, vmsegptridx_t csegp, sidenum_t cside, unsigned frame_num);

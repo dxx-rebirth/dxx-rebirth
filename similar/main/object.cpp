@@ -1424,7 +1424,7 @@ static void set_camera_pos(vms_vector &camera_pos, const vcobjptridx_t objp)
 }
 
 //	------------------------------------------------------------------------------------------------------------------
-window_event_result dead_player_frame()
+window_event_result dead_player_frame(const d_robot_info_array &Robot_info)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
@@ -1499,10 +1499,10 @@ window_event_result dead_player_frame()
 					multi_send_player_deres(deres_explode);
 				}
 
-				explode_badass_player(cobjp);
+				explode_badass_player(Robot_info, cobjp);
 
 				//is this next line needed, given the badass call above?
-				explode_object(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, cobjp, 0);
+				explode_object(LevelUniqueObjectState, Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, cobjp, 0);
 				ConsoleObject->flags &= ~OF_SHOULD_BE_DEAD;		//don't really kill player
 				ConsoleObject->render_type = RT_NONE;				//..just make him disappear
 				ConsoleObject->type = OBJ_GHOST;						//..and kill intersections
@@ -1774,7 +1774,7 @@ namespace {
 
 //--------------------------------------------------------------------
 //move an object for the current frame
-static window_event_result object_move_one(const vmobjptridx_t obj, control_info &Controls)
+static window_event_result object_move_one(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const vmobjptridx_t obj, control_info &Controls)
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -1854,14 +1854,14 @@ static window_event_result object_move_one(const vmobjptridx_t obj, control_info
 		case object::control_type::ai:
 			//NOTE LINK TO object::control_type::morph ABOVE!!!
 			if (Game_suspended & SUSP_ROBOTS) return window_event_result::ignored;
-			do_ai_frame(obj);
+			do_ai_frame(LevelSharedRobotInfoState, obj);
 			break;
 
 		case object::control_type::weapon:
-			Laser_do_weapon_sequence(obj);
+			Laser_do_weapon_sequence(LevelSharedRobotInfoState.Robot_info, obj);
 			break;
 		case object::control_type::explosion:
-			do_explosion_sequence(obj);
+			do_explosion_sequence(LevelSharedRobotInfoState.Robot_info, obj);
 			break;
 
 		case object::control_type::slew:
@@ -1884,7 +1884,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj, control_info
 //			break;
 
 		case object::control_type::debris:
-			do_debris_frame(obj);
+			do_debris_frame(LevelSharedRobotInfoState.Robot_info, obj);
 			break;
 
 		case object::control_type::light:
@@ -1894,7 +1894,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj, control_info
 			break;		//doesn't do anything
 
 		case object::control_type::cntrlcen:
-			do_controlcen_frame(obj);
+			do_controlcen_frame(LevelSharedRobotInfoState.Robot_info, obj);
 			break;
 
 		default:
@@ -1906,10 +1906,10 @@ static window_event_result object_move_one(const vmobjptridx_t obj, control_info
 	if (obj->lifeleft < 0 ) {		// We died of old age
 		obj->flags |= OF_SHOULD_BE_DEAD;
 		if ( obj->type==OBJ_WEAPON && Weapon_info[get_weapon_id(obj)].damage_radius )
-			explode_badass_weapon(obj, obj->pos);
+			explode_badass_weapon(LevelSharedRobotInfoState.Robot_info, obj, obj->pos);
 #if defined(DXX_BUILD_DESCENT_II)
 		else if ( obj->type==OBJ_ROBOT)	//make robots explode
-			explode_object(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, obj, 0);
+			explode_object(LevelUniqueObjectState, LevelSharedRobotInfoState.Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, obj, 0);
 #endif
 	}
 
@@ -1924,7 +1924,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj, control_info
 			break;				//this doesn't move
 
 		case object::movement_type::physics:	//move by physics
-			result = do_physics_sim(obj, obj_previous_position, obj->type == OBJ_PLAYER ? (prepare_seglist = true, phys_visited_segs.nsegs = 0, &phys_visited_segs) : nullptr);
+			result = do_physics_sim(LevelSharedRobotInfoState.Robot_info, obj, obj_previous_position, obj->type == OBJ_PLAYER ? (prepare_seglist = true, phys_visited_segs.nsegs = 0, &phys_visited_segs) : nullptr);
 			break;
 
 		case object::movement_type::spinning:
@@ -2066,7 +2066,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj, control_info
 
 //--------------------------------------------------------------------
 //move all objects for the current frame
-static window_event_result object_move_all()
+static window_event_result object_move_all(const d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -2086,7 +2086,7 @@ static window_event_result object_move_all()
 	range_for (const auto &&objp, vmobjptridx)
 	{
 		if ( (objp->type != OBJ_NONE) && (!(objp->flags&OF_SHOULD_BE_DEAD)) )	{
-			result = std::max(object_move_one(objp, Controls), result);
+			result = std::max(object_move_one(LevelSharedRobotInfoState, objp, Controls), result);
 		}
 	}
 
@@ -2098,15 +2098,15 @@ static window_event_result object_move_all()
 
 }
 
-window_event_result game_move_all_objects()
+window_event_result game_move_all_objects(const d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	LevelUniqueObjectState.last_console_player_position = ConsoleObject->pos;
-	return object_move_all();
+	return object_move_all(LevelSharedRobotInfoState);
 }
 
-window_event_result endlevel_move_all_objects()
+window_event_result endlevel_move_all_objects(const d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
-	return object_move_all();
+	return object_move_all(LevelSharedRobotInfoState);
 }
 
 //--unused-- // -----------------------------------------------------------

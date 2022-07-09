@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-vecmat.h"
 #include "fwd-wall.h"
 #include "pack.h"
+#include "robot.h"
 
 namespace dcx {
 extern unsigned Num_exploding_walls;
@@ -53,24 +54,24 @@ static_assert(sizeof(disk_expl_wall) == 12, "sizeof(disk_expl_wall) wrong");
 imobjptridx_t object_create_explosion(vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);
 void object_create_muzzle_flash(vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);
 
-imobjptridx_t object_create_badass_explosion(imobjptridx_t objp, vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type,
+imobjptridx_t object_create_badass_explosion(const d_robot_info_array &Robot_info, imobjptridx_t objp, vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type,
 		fix maxdamage, fix maxdistance, fix maxforce, icobjptridx_t parent);
 
 // blows up a badass weapon, creating the badass explosion
 // return the explosion object
-void explode_badass_weapon(vmobjptridx_t obj,const vms_vector &pos);
+void explode_badass_weapon(const d_robot_info_array &Robot_info, vmobjptridx_t obj,const vms_vector &pos);
 
 // blows up the player with a badass explosion
-void explode_badass_player(vmobjptridx_t obj);
+void explode_badass_player(const d_robot_info_array &Robot_info, vmobjptridx_t obj);
 
-void explode_object(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, vmobjptridx_t obj, fix delay_time);
-void do_explosion_sequence(object &obj);
-void do_debris_frame(vmobjptridx_t obj);      // deal with debris for this frame
+void explode_object(d_level_unique_object_state &LevelUniqueObjectState, const d_robot_info_array &Robot_info, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, vmobjptridx_t obj, fix delay_time);
+void do_explosion_sequence(const d_robot_info_array &Robot_info, object &obj);
+void do_debris_frame(const d_robot_info_array &Robot_info, vmobjptridx_t obj);      // deal with debris for this frame
 
 void draw_fireball(const d_vclip_array &Vclip, grs_canvas &, vcobjptridx_t obj);
 
 void explode_wall(fvcvertptr &, vcsegptridx_t, sidenum_t sidenum, wall &);
-unsigned do_exploding_wall_frame(wall &);
+unsigned do_exploding_wall_frame(const d_robot_info_array &Robot_info, wall &);
 void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool random_player);
 void maybe_replace_powerup_with_energy(object_base &del_obj);
 }
@@ -85,7 +86,7 @@ enum class explosion_vclip_stage : int
 }
 
 namespace dsx {
-int get_explosion_vclip(const object_base &obj, explosion_vclip_stage stage);
+int get_explosion_vclip(const d_robot_info_array &Robot_info, const object_base &obj, explosion_vclip_stage stage);
 
 imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, const vms_vector &init_vel, const vms_vector &pos, vmsegptridx_t segnum, bool player);
 bool drop_powerup(const d_vclip_array &Vclip, int id, unsigned num, const vms_vector &init_vel, const vms_vector &pos, vmsegptridx_t segnum, bool player);

@@ -295,10 +295,9 @@ Restart: ;
 
 #define	ROBOT_GEN_TIME (i2f(5))
 
-imobjptridx_t create_morph_robot(const vmsegptridx_t segp, const vms_vector &object_pos, const unsigned object_id)
+imobjptridx_t create_morph_robot(const d_robot_info_array &Robot_info, const vmsegptridx_t segp, const vms_vector &object_pos, const unsigned object_id)
 {
 	ai_behavior default_behavior;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[object_id];
 #if defined(DXX_BUILD_DESCENT_I)
 	default_behavior = ai_behavior::AIB_NORMAL;
@@ -309,7 +308,7 @@ imobjptridx_t create_morph_robot(const vmsegptridx_t segp, const vms_vector &obj
 #endif
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	auto obj = robot_create(object_id, segp, object_pos,
+	auto obj = robot_create(Robot_info, object_id, segp, object_pos,
 				&vmd_identity_matrix, Polygon_models[robptr.model_num].rad,
 				default_behavior);
 
@@ -349,8 +348,10 @@ imobjptridx_t create_morph_robot(const vmsegptridx_t segp, const vms_vector &obj
 
 }
 
+namespace {
+
 //	----------------------------------------------------------------------------------------------------------
-static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx, FuelCenter *const robotcen, const station_number numrobotcen)
+static void robotmaker_proc(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx, FuelCenter *const robotcen, const station_number numrobotcen)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
@@ -454,7 +455,7 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 					return;
 				}
 				if (objp->type==OBJ_ROBOT) {
-					collide_robot_and_materialization_center(objp);
+					collide_robot_and_materialization_center(Robot_info, objp);
 					robotcen->Timer = top_time/2;
 					return;
 				} else if (objp->type==OBJ_PLAYER ) {
@@ -514,7 +515,7 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 				else
 					type = legal_types[(d_rand() * num_types) / 32768];
 
-				const auto &&obj = create_morph_robot(vmsegptridx(robotcen->segnum), cur_object_loc, type );
+				const auto &&obj = create_morph_robot(Robot_info, vmsegptridx(robotcen->segnum), cur_object_loc, type );
 				if (obj != object_none) {
 					if (Game_mode & GM_MULTI)
 						multi_send_create_robot(numrobotcen, obj, type);
@@ -538,9 +539,11 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 	}
 }
 
+}
+
 //-------------------------------------------------------------
 // Called once per frame, replenishes fuel supply.
-void fuelcen_update_all()
+void fuelcen_update_all(const d_robot_info_array &Robot_info)
 {
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	for (auto &&[idx, i] : enumerate(partial_range(Station, LevelUniqueFuelcenterState.Num_fuelcenters)))
@@ -548,7 +551,7 @@ void fuelcen_update_all()
 		if (i.Type == segment_special::robotmaker)
 		{
 			if (! (Game_suspended & SUSP_ROBOTS))
-				robotmaker_proc(Vclip, vmsegptridx, &i, idx);
+				robotmaker_proc(Robot_info, Vclip, vmsegptridx, &i, idx);
 		}
 	}
 }

@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "pack.h"
 #include "fwd-segment.h"
+#include "robot.h"
 #include "window.h"
 #include "wall.h"
 #include "d_underlying_value.h"
@@ -251,13 +252,6 @@ struct d_flickering_light_state
 };
 #endif
 
-static inline void game_render_frame_mono(int skip_flip, const control_info &Controls)
-{
-	game_render_frame_mono(Controls);
-	if (!skip_flip)
-		gr_flip();
-}
-
 //Cheats
 struct game_cheats : prohibit_void_ptr<game_cheats>
 {
@@ -292,6 +286,10 @@ struct game_cheats : prohibit_void_ptr<game_cheats>
 	int buddyangry;
 #endif
 };
+
+void game_render_frame(const d_robot_info_array &Robot_info, const control_info &Controls);
+void game_render_frame_mono(const d_robot_info_array &Robot_info, const control_info &Controls);
+window_event_result ReadControls(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const d_event &event, control_info &Controls);
 
 }
 #endif

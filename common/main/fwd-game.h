@@ -175,7 +175,6 @@ extern d_level_unique_seismic_state LevelUniqueSeismicState;
 
 extern d_game_shared_state GameSharedState;
 extern d_game_unique_state GameUniqueState;
-void game_render_frame(const control_info &Controls);
 
 void game_flush_respawn_inputs(control_info &Controls);
 void game_flush_inputs(control_info &Controls);    // clear all inputs
@@ -210,14 +209,11 @@ void flickering_light_read(flickering_light &fl, PHYSFS_File *fp);
 void flickering_light_write(const flickering_light &fl, PHYSFS_File *fp);
 #endif
 
-void game_render_frame_mono(const control_info &Controls);
-
 //Cheats
 struct game_cheats;
 extern game_cheats cheats;
 
 game_window *game_setup();
-window_event_result ReadControls(const d_event &event, control_info &Controls);
 bool allowed_to_fire_laser(const player_info &);
 void reset_globals_for_new_game();
 void check_rear_view(control_info &Controls);

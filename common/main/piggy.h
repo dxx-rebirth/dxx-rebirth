@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dsx-ns.h"
 #include "fwd-inferno.h"
 #include "fwd-piggy.h"
+#include "fwd-robot.h"
 #include "gr.h"
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -60,6 +61,11 @@ static inline void _piggy_page_in(GameBitmaps_array &GameBitmaps, bitmap_index b
         piggy_bitmap_page_in(GameBitmaps, bmp);
 }
 
+int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState);
+
+#if defined(DXX_BUILD_DESCENT_II)
+int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState);
+#endif
 }
 
 #endif

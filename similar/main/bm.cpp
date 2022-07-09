@@ -148,14 +148,14 @@ static void tmap_info_read(tmap_info &ti, PHYSFS_File *fp)
 
 //-----------------------------------------------------------------
 // Initializes game properties data (including texture caching system) and sound data.
-int gamedata_init()
+int gamedata_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	int retval;
 	
 	init_polygon_models(LevelSharedPolygonModelState);
-	retval = properties_init();				// This calls properties_read_cmp if appropriate
+	retval = properties_init(LevelSharedRobotInfoState);				// This calls properties_read_cmp if appropriate
 	if (retval)
-		gamedata_read_tbl(Vclip, retval == PIGGY_PC_SHAREWARE);
+		gamedata_read_tbl(LevelSharedRobotInfoState, Vclip, retval == PIGGY_PC_SHAREWARE);
 
 	piggy_read_sounds(retval == PIGGY_PC_SHAREWARE);
 	
@@ -164,7 +164,7 @@ int gamedata_init()
 
 // Read compiled properties data from descent.pig
 // (currently only ever called if D1)
-void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
+void properties_read_cmp(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_vclip_array &Vclip, PHYSFS_File * fp)
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
@@ -288,16 +288,16 @@ static void tmap_info_read(tmap_info &ti, PHYSFS_File *fp)
 
 //-----------------------------------------------------------------
 // Initializes game properties data (including texture caching system) and sound data.
-int gamedata_init()
+int gamedata_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	init_polygon_models(LevelSharedPolygonModelState);
 
 #if DXX_USE_EDITOR
 	// The pc_shareware argument is currently unused for Descent 2,
 	// but *may* be useful for loading Descent 1 Shareware texture properties.
-	if (!gamedata_read_tbl(Vclip, 0))
+	if (!gamedata_read_tbl(LevelSharedRobotInfoState, Vclip, 0))
 #endif
-		if (!properties_init())				// This calls properties_read_cmp
+		if (!properties_init(LevelSharedRobotInfoState))				// This calls properties_read_cmp
 				Error("Cannot open ham file\n");
 
 	piggy_read_sounds();
@@ -305,7 +305,7 @@ int gamedata_init()
 	return 0;
 }
 
-void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
+void bm_read_all(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_vclip_array &Vclip, PHYSFS_File * fp)
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;

@@ -43,6 +43,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <vector>
 #include <stdexcept>
 #include "fwd-object.h"
+#include "fwd-robot.h"
 #include "fwd-weapon.h"
 #include "fwd-player.h"
 #include "powerup.h"
@@ -755,6 +756,11 @@ static inline void set_weapon_id(object_base &o, weapon_id_type id)
 	o.id = static_cast<uint8_t>(id);
 }
 
+window_event_result dead_player_frame(const d_robot_info_array &Robot_info);
+
+// move all objects for the current frame
+window_event_result game_move_all_objects(const d_level_shared_robot_info_state &LevelSharedRobotInfoState);     // moves all objects
+window_event_result endlevel_move_all_objects(const d_level_shared_robot_info_state &LevelSharedRobotInfoState);
 }
 
 namespace dcx {

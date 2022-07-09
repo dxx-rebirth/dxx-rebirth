@@ -305,7 +305,7 @@ void do_controlcen_destroyed_stuff(const imobjidx_t objp)
 
 //	-----------------------------------------------------------------------------
 //do whatever this thing does in a frame
-void do_controlcen_frame(const vmobjptridx_t obj)
+void do_controlcen_frame(const d_robot_info_array &Robot_info, const vmobjptridx_t obj)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int			best_gun_num;
@@ -349,7 +349,7 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 			auto vec_to_player = vm_vec_sub(ConsoleObject->pos, obj->pos);
 			auto dist_to_player = vm_vec_normalize_quick(vec_to_player);
 			if (dist_to_player < F1_0*200) {
-				LevelUniqueControlCenterState.Control_center_player_been_seen = player_is_visible_from_object(obj, obj->pos, 0, vec_to_player);
+				LevelUniqueControlCenterState.Control_center_player_been_seen = player_is_visible_from_object(Robot_info, obj, obj->pos, 0, vec_to_player);
 				LevelUniqueControlCenterState.Frametime_until_next_fire = 0;
 			}
 		}			
@@ -368,7 +368,7 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 			auto vec_to_player = vm_vec_sub(ConsoleObject->pos, obj->pos);
 			dist_to_player = vm_vec_normalize_quick(vec_to_player);
 			if (dist_to_player < F1_0*120) {
-				LevelUniqueControlCenterState.Control_center_player_been_seen = player_is_visible_from_object(obj, obj->pos, 0, vec_to_player);
+				LevelUniqueControlCenterState.Control_center_player_been_seen = player_is_visible_from_object(Robot_info, obj, obj->pos, 0, vec_to_player);
 				if (!player_is_visible(LevelUniqueControlCenterState.Control_center_player_been_seen))
 					LevelUniqueControlCenterState.Control_center_been_hit = 0;
 			}
@@ -412,7 +412,7 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 	
 			if (Game_mode & GM_MULTI)
 				multi_send_controlcen_fire(vec_to_goal, best_gun_num, obj);	
-			Laser_create_new_easy( vec_to_goal, obj->ctype.reactor_info.gun_pos[best_gun_num], obj, weapon_id_type::CONTROLCEN_WEAPON_NUM, weapon_sound_flag::audible);
+			Laser_create_new_easy(Robot_info, vec_to_goal, obj->ctype.reactor_info.gun_pos[best_gun_num], obj, weapon_id_type::CONTROLCEN_WEAPON_NUM, weapon_sound_flag::audible);
 
 			int count = 0;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -430,7 +430,7 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 				vm_vec_normalize_quick(vec_to_goal);
 				if (Game_mode & GM_MULTI)
 					multi_send_controlcen_fire(vec_to_goal, best_gun_num, obj);
-				Laser_create_new_easy(vec_to_goal, obj->ctype.reactor_info.gun_pos[best_gun_num], obj, weapon_id_type::CONTROLCEN_WEAPON_NUM, count == 0 ? weapon_sound_flag::audible : weapon_sound_flag::silent);
+				Laser_create_new_easy(Robot_info, vec_to_goal, obj->ctype.reactor_info.gun_pos[best_gun_num], obj, weapon_id_type::CONTROLCEN_WEAPON_NUM, count == 0 ? weapon_sound_flag::audible : weapon_sound_flag::silent);
 				count++;
 			}
 
@@ -455,14 +455,13 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 //	This must be called at the start of each level.
 //	If this level contains a boss and mode != multiplayer, don't do control center stuff.  (Ghost out control center object.)
 //	If this level contains a boss and mode == multiplayer, do control center stuff.
-void init_controlcen_for_level(void)
+void init_controlcen_for_level(const d_robot_info_array &Robot_info)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	imobjptr_t cntrlcen_objnum = nullptr, boss_objnum = nullptr;
 
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	range_for (const auto &&objp, vmobjptridx)
 	{
 		if (objp->type == OBJ_CNTRLCEN)

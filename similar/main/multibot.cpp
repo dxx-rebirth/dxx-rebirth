@@ -929,15 +929,12 @@ void multi_do_robot_fire(const uint8_t *const buf)
 #endif
 			weapon_id_type::PROXIMITY_ID)
 		: pt_weapon(calc_gun_point(botp, gun_num), get_robot_weapon(Robot_info[get_robot_id(botp)], 1));
-	Laser_create_new_easy(fire, pw.first, botp, pw.second, weapon_sound_flag::audible);
-}
+	Laser_create_new_easy(Robot_info, fire, pw.first, botp, pw.second, weapon_sound_flag::audible);
 }
 
-namespace dsx {
-int multi_explode_robot_sub(const vmobjptridx_t robot)
+int multi_explode_robot_sub(const d_robot_info_array &Robot_info, const vmobjptridx_t robot)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &objrobot = *robot;
 	if (objrobot.type != OBJ_ROBOT) { // Object is robot?
 		return 0;
@@ -957,7 +954,7 @@ int multi_explode_robot_sub(const vmobjptridx_t robot)
 	// Drop non-random KEY powerups locally only!
 	if (objrobot.contains_count > 0 && objrobot.contains_type == OBJ_POWERUP && (Game_mode & GM_MULTI_COOP) && objrobot.contains_id >= POW_KEY_BLUE && objrobot.contains_id <= POW_KEY_GOLD)
 	{
-		object_create_robot_egg(objrobot);
+		object_create_robot_egg(Robot_info, objrobot);
 	}
 	else if (objrobot.ctype.ai_info.REMOTE_OWNER == Player_num)
 	{
@@ -974,7 +971,7 @@ int multi_explode_robot_sub(const vmobjptridx_t robot)
 	if (Robot_info[robot_id].boss_flag)
 	{
 		if (!BossUniqueState.Boss_dying)
-			start_boss_death_sequence(LevelUniqueObjectState.BossState, LevelSharedRobotInfoState.Robot_info, robot);
+			start_boss_death_sequence(LevelUniqueObjectState.BossState, Robot_info, robot);
 		else
 			return (0);
 	}
@@ -989,21 +986,19 @@ int multi_explode_robot_sub(const vmobjptridx_t robot)
 		if (robot_id == SPECIAL_REACTOR_ROBOT)
 			special_reactor_stuff();
 		if (Robot_info[robot_id].kamikaze)
-			explode_object(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, robot, 1);	//	Kamikaze, explode right away, IN YOUR FACE!
+			explode_object(LevelUniqueObjectState, Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, robot, 1);	//	Kamikaze, explode right away, IN YOUR FACE!
 		else
 #endif
-			explode_object(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, robot, STANDARD_EXPL_DELAY);
+			explode_object(LevelUniqueObjectState, Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, robot, STANDARD_EXPL_DELAY);
    }
    
 	return 1;
 }
-}
 
-void multi_do_robot_explode(const uint8_t *const buf)
+void multi_do_robot_explode(const d_robot_info_array &Robot_info, const uint8_t *const buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	multi_explode_robot b;
 	multi_serialize_read(buf, b);
 	auto killer = objnum_remote_to_local(b.robj_killer, b.owner_killer);
@@ -1015,7 +1010,7 @@ void multi_do_robot_explode(const uint8_t *const buf)
 	}
 
 	const auto robot = vmobjptridx(botnum);
-	const auto rval = multi_explode_robot_sub(robot);
+	const auto rval = multi_explode_robot_sub(Robot_info, robot);
 	if (!rval)
 		return;
 
@@ -1025,9 +1020,7 @@ void multi_do_robot_explode(const uint8_t *const buf)
 		add_points_to_score(ConsoleObject->ctype.player_info, Robot_info[get_robot_id(robot)].score_value, Game_mode);
 }
 
-namespace dsx {
-
-void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, const ubyte *buf)
+void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const playernum_t pnum, const ubyte *buf)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
@@ -1065,7 +1058,7 @@ void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, c
 	if (Vclip[VCLIP_MORPHING_ROBOT].sound_num > -1)
 		digi_link_sound_to_pos(Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen_segp, sidenum_t::WLEFT, cur_object_loc, 0, F1_0);
 
-	const auto &&obj = create_morph_robot(robotcen_segp, cur_object_loc, type);
+	const auto &&obj = create_morph_robot(Robot_info, robotcen_segp, cur_object_loc, type);
 	if (obj == object_none)
 		return; // Cannot create object!
 	
@@ -1106,7 +1099,7 @@ void multi_recv_escort_goal(d_unique_buddy_state &BuddyState, const uint8_t *con
 }
 #endif
 
-void multi_do_boss_teleport(const d_vclip_array &Vclip, const playernum_t pnum, const ubyte *buf)
+void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const playernum_t pnum, const ubyte *buf)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
@@ -1114,7 +1107,6 @@ void multi_do_boss_teleport(const d_vclip_array &Vclip, const playernum_t pnum, 
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	boss_teleport b;
 	multi_serialize_read(buf, b);
 	const auto &&guarded_boss_obj = Objects.vmptridx.check_untrusted(b.objnum);
@@ -1140,7 +1132,7 @@ void multi_do_boss_teleport(const d_vclip_array &Vclip, const playernum_t pnum, 
 
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, teleport_segnum, sidenum_t::WLEFT, boss_obj->pos, 0 , F1_0);
 	digi_kill_sound_linked_to_object( boss_obj);
-	boss_link_see_sound(boss_obj);
+	boss_link_see_sound(Robot_info, boss_obj);
 	ai_local		*ailp = &boss_obj->ctype.ai_info.ail;
 	ailp->next_fire = 0;
 
@@ -1240,7 +1232,7 @@ void multi_do_boss_create_robot(const playernum_t pnum, const ubyte *buf)
 		return;
 	}
 	// Gate one in!
-	const auto &&robot = gate_in_robot(b.robot_type, vmsegptridx(b.where));
+	const auto &&robot = gate_in_robot(Robot_info, b.robot_type, vmsegptridx(b.where));
 	if (robot != object_none)
 		map_objnum_local_to_remote(robot, b.objrobot, pnum);
 }
@@ -1273,7 +1265,7 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 	Net_create_loc = 0;
 	d_srand(1245L);
 
-	if (!object_create_robot_egg(contains_type, contains_id, contains_count, velocity, pos, vmsegptridx(segnum)))
+	if (!object_create_robot_egg(LevelSharedRobotInfoState.Robot_info, contains_type, contains_id, contains_count, velocity, pos, vmsegptridx(segnum)))
 		return; // Object buffer full
 
 	Assert((Net_create_loc > 0) && (Net_create_loc <= MAX_ROBOT_POWERUPS));
@@ -1325,7 +1317,7 @@ void multi_drop_robot_powerups(object &del_obj)
 		}
 		d_srand(1245L);
 		if (del_obj.contains_count > 0)
-			created = object_create_robot_egg(del_obj);
+			created = object_create_robot_egg(LevelSharedRobotInfoState.Robot_info, del_obj);
 	}
 		
 	else if (del_obj.ctype.ai_info.REMOTE_OWNER == -1) // No random goodies for robots we weren't in control of
@@ -1346,7 +1338,7 @@ void multi_drop_robot_powerups(object &del_obj)
 		
 			d_srand(1245L);
 			if (del_obj.contains_count > 0)
-				created = object_create_robot_egg(del_obj);
+				created = object_create_robot_egg(LevelSharedRobotInfoState.Robot_info, del_obj);
 		}
 	}
 	if (created)

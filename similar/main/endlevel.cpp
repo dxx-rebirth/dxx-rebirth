@@ -800,7 +800,7 @@ window_event_result stop_endlevel_sequence()
 
 //--unused-- vms_vector upvec = {0,f1_0,0};
 
-window_event_result do_endlevel_frame()
+window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -810,11 +810,11 @@ window_event_result do_endlevel_frame()
 	static fix explosion_wait2=0;
 	static fix ext_expl_halflife;
 
-	auto result = endlevel_move_all_objects();
+	auto result = endlevel_move_all_objects(LevelSharedRobotInfoState);
 
 	if (ext_expl_playing) {
 
-		do_explosion_sequence(vmobjptr(external_explosion));
+		do_explosion_sequence(LevelSharedRobotInfoState.Robot_info, vmobjptr(external_explosion));
 
 		if (external_explosion->lifeleft < ext_expl_halflife)
 			mine_destroyed = 1;

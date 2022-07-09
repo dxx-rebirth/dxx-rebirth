@@ -83,7 +83,7 @@ struct robot_dialog : UI_DIALOG
 
 static robot_dialog *MainWindow;
 
-static void call_init_ai_object(vmobjptridx_t objp, ai_behavior behavior)
+static void call_init_ai_object(const d_robot_info_array &Robot_info, vmobjptridx_t objp, ai_behavior behavior)
 {
 	segnum_t	hide_segment;
 
@@ -96,7 +96,7 @@ static void call_init_ai_object(vmobjptridx_t objp, ai_behavior behavior)
 			hide_segment = Cursegp;
 	}
 
-	init_ai_object(objp, behavior, hide_segment);
+	init_ai_object(Robot_info, objp, behavior, hide_segment);
 }
 
 //-------------------------------------------------------------------------
@@ -122,7 +122,7 @@ static int RobotNextType()
 			//set Physics info
 			obj->mtype.phys_info.flags |= (PF_LEVELLING);
 			obj->shields = Robot_info[get_robot_id(obj)].strength;
-			call_init_ai_object(obj, ai_behavior::AIB_NORMAL);
+			call_init_ai_object(Robot_info, obj, ai_behavior::AIB_NORMAL);
 
 			Cur_object_id = get_robot_id(obj);
 		}
@@ -155,7 +155,7 @@ static int RobotPrevType()
 			//set Physics info
 			obj->mtype.phys_info.flags |= (PF_LEVELLING);
 			obj->shields = Robot_info[get_robot_id(obj)].strength;
-			call_init_ai_object(obj, ai_behavior::AIB_NORMAL);
+			call_init_ai_object(Robot_info, obj, ai_behavior::AIB_NORMAL);
 
 			Cur_object_id = get_robot_id(obj);
 		}
@@ -656,7 +656,7 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 			auto &behavior = objp->ctype.ai_info.behavior;
 			if (behavior != b) {
 				behavior = b;		// Set the ai_state to the cooresponding radio button
-				call_init_ai_object(objp, b);
+				call_init_ai_object(LevelSharedRobotInfoState.Robot_info, objp, b);
 				rval = window_event_result::handled;
 			}
 		}

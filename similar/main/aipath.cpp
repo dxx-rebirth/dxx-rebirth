@@ -63,7 +63,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dsx {
 namespace {
-static void ai_path_set_orient_and_vel(object &objp, const vms_vector &goal_point
+static void ai_path_set_orient_and_vel(const d_robot_info_array &Robot_info, object &objp, const vms_vector &goal_point
 #if defined(DXX_BUILD_DESCENT_II)
 								, player_visibility_state player_visibility, const vms_vector *vec_to_player
 #endif
@@ -944,7 +944,7 @@ static void create_path(const vmobjptridx_t objp, const robot_info &robptr)
 
 //	----------------------------------------------------------------------------------------------------------
 //	Optimization: If current velocity will take robot near goal, don't change velocity
-void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state player_visibility, const vms_vector *const vec_to_player)
+void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t objp, const player_visibility_state player_visibility, const vms_vector *const vec_to_player)
 {
 	auto &obj = *objp;
 	ai_static *const aip = &obj.ctype.ai_info;
@@ -953,7 +953,6 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 #endif
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(obj)];
 	int			forced_break, original_dir, original_index;
 	ai_local *const ailp = &obj.ctype.ai_info.ail;
@@ -1230,7 +1229,7 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 	}	//	end while
 
 	//	Set velocity (objp->mtype.phys_info.velocity) and orientation (objp->orient) for this object.
-	ai_path_set_orient_and_vel(objp, goal_point
+	ai_path_set_orient_and_vel(Robot_info, objp, goal_point
 #if defined(DXX_BUILD_DESCENT_II)
 							   , player_visibility, vec_to_player
 #endif
@@ -1267,7 +1266,7 @@ namespace {
 
 //	----------------------------------------------------------------------------------------------------------
 //	Set orientation matrix and velocity for objp based on its desire to get to a point.
-void ai_path_set_orient_and_vel(object &objp, const vms_vector &goal_point
+void ai_path_set_orient_and_vel(const d_robot_info_array &Robot_info, object &objp, const vms_vector &goal_point
 #if defined(DXX_BUILD_DESCENT_II)
 								, const player_visibility_state player_visibility, const vms_vector *const vec_to_player
 #endif
@@ -1277,7 +1276,6 @@ void ai_path_set_orient_and_vel(object &objp, const vms_vector &goal_point
 	vms_vector	cur_pos = objp.pos;
 	fix			speed_scale;
 	fix			dot;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(objp)];
 	fix			max_speed;
 
@@ -1468,11 +1466,10 @@ void ai_reset_all_paths(void)
 //	---------------------------------------------------------------------------------------------------------
 //	Probably called because a robot bashed a wall, getting a bunch of retries.
 //	Try to resume path.
-void attempt_to_resume_path(const vmobjptridx_t objp)
+void attempt_to_resume_path(const d_robot_info_array &Robot_info, const vmobjptridx_t objp)
 {
 	ai_static *aip = &objp->ctype.ai_info;
 	int new_path_index;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(objp)];
 
 	if (aip->behavior == ai_behavior::AIB_STATION
@@ -1493,7 +1490,7 @@ void attempt_to_resume_path(const vmobjptridx_t objp)
 		aip->cur_path_index = new_path_index;
 	} else {
 		// At end of line and have nowhere to go.
-		move_towards_segment_center(LevelSharedSegmentState, objp);
+		move_towards_segment_center(Robot_info, LevelSharedSegmentState, objp);
 		create_path_to_station(objp, robptr, 15);
 	}
 }

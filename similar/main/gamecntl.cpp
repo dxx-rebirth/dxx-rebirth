@@ -607,9 +607,16 @@ static void save_pr_screenshot()
 	save_screen_shot(0);
 }
 
+static inline void game_render_frame_mono(const d_robot_info_array &Robot_info, int skip_flip, const control_info &Controls)
+{
+	game_render_frame_mono(Robot_info, Controls);
+	if (!skip_flip)
+		gr_flip();
+}
+
 static void save_clean_screenshot()
 {
-	game_render_frame_mono(CGameArg.DbgNoDoubleBuffer, Controls);
+	game_render_frame_mono(LevelSharedRobotInfoState.Robot_info, CGameArg.DbgNoDoubleBuffer, Controls);
 	save_screen_shot(0);
 }
 #endif
@@ -1221,7 +1228,7 @@ static void kill_all_robots(void)
 //	Place player just outside exit.
 //	Kill all bots in mine.
 //	Yippee!!
-static void kill_and_so_forth(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx)
+static void kill_and_so_forth(const d_robot_info_array &Robot_info, fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1233,7 +1240,7 @@ static void kill_and_so_forth(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptri
 	{
 		switch (o->type) {
 			case OBJ_ROBOT:
-				apply_damage_to_robot(o, o->shields + 1, get_local_player().objnum);
+				apply_damage_to_robot(Robot_info, o, o->shields + 1, get_local_player().objnum);
 				break;
 			case OBJ_POWERUP:
 				do_powerup(o);
@@ -1328,7 +1335,7 @@ static void kill_buddy(void)
 }
 #endif
 
-static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key, control_info &Controls)
+static window_event_result HandleTestKey(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, fvmsegptridx &vmsegptridx, int key, control_info &Controls)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
@@ -1380,7 +1387,7 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key, con
 			static int i = 0;
 			const auto &&segp = vmsegptridx(ConsoleObject->segnum);
 			auto &vcvertptr = Vertices.vcptr;
-			const auto &&new_obj = create_morph_robot(segp, compute_segment_center(vcvertptr, segp), i);
+			const auto &&new_obj = create_morph_robot(LevelSharedRobotInfoState.Robot_info, segp, compute_segment_center(vcvertptr, segp), i);
 			if (new_obj != object_none)
 				morph_start(LevelUniqueMorphObjectState, LevelSharedPolygonModelState, new_obj);
 			i++;
@@ -1568,7 +1575,7 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key, con
 			if (Player_dead_state != player_dead_state::no)
 				return window_event_result::ignored;
 
-			kill_and_so_forth(vmobjptridx, vmsegptridx);
+			kill_and_so_forth(LevelSharedRobotInfoState.Robot_info, vmobjptridx, vmsegptridx);
 			break;
 		case KEY_DEBUGGED+KEY_G:
 			GameTime64 = (INT64_MAX) - (F1_0*10);
@@ -1685,7 +1692,7 @@ window_event_result levelwarp_menu::event_handler(const d_event &event)
 	}
 }
 
-static window_event_result FinalCheats()
+static window_event_result FinalCheats(const d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -1855,9 +1862,7 @@ static window_event_result FinalCheats()
 #endif
 
 	if (gotcha == &game_cheats::killreactor)
-	{
-		kill_and_so_forth(vmobjptridx, vmsegptridx);
-	}
+		kill_and_so_forth(LevelSharedRobotInfoState.Robot_info, vmobjptridx, vmsegptridx);
 
 	if (gotcha == &game_cheats::exitpath)
 	{
@@ -1932,7 +1937,7 @@ static window_event_result FinalCheats()
 	if (gotcha == &game_cheats::buddyclone)
 	{
 		HUD_init_message_literal(HM_DEFAULT, "What's this? Another buddy bot!");
-		create_buddy_bot();
+		create_buddy_bot(LevelSharedRobotInfoState);
 	}
 
 	if (gotcha == &game_cheats::buddyangry)
@@ -2128,7 +2133,7 @@ static void play_test_sound()
 
 }
 
-window_event_result ReadControls(const d_event &event, control_info &Controls)
+window_event_result ReadControls(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const d_event &event, control_info &Controls)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -2167,7 +2172,7 @@ window_event_result ReadControls(const d_event &event, control_info &Controls)
 #endif
 		if ( (Game_mode & GM_MULTI) && (multi_sending_message[Player_num] != msgsend_state::none || multi_defining_message) )
 		{
-			return multi_message_input_sub(key, Controls);
+			return multi_message_input_sub(LevelSharedRobotInfoState.Robot_info, key, Controls);
 		}
 
 #ifndef RELEASE
@@ -2191,7 +2196,7 @@ window_event_result ReadControls(const d_event &event, control_info &Controls)
 		}
 		else
 		{
-			window_event_result r = FinalCheats();
+			window_event_result r = FinalCheats(LevelSharedRobotInfoState);
 			if (r == window_event_result::ignored)
 				r = HandleSystemKey(key);
 			if (r == window_event_result::ignored)
@@ -2202,7 +2207,7 @@ window_event_result ReadControls(const d_event &event, control_info &Controls)
 
 #ifndef RELEASE
 		{
-			window_event_result r = HandleTestKey(vmsegptridx, key, Controls);
+			window_event_result r = HandleTestKey(LevelSharedRobotInfoState, vmsegptridx, key, Controls);
 			if (r != window_event_result::ignored)
 				return r;
 		}

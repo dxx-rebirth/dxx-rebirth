@@ -296,7 +296,7 @@ static void net_udp_process_ping(const uint8_t *data, const _sockaddr &sender_ad
 static void net_udp_process_pong(const uint8_t *data, const _sockaddr &sender_addr);
 static void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_addr);
 static void net_udp_send_mdata(int needack, fix64 time);
-static void net_udp_process_mdata (uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr, int needack);
+static void net_udp_process_mdata(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr, int needack);
 static void net_udp_send_pdata();
 static void net_udp_process_pdata (const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr);
 static void net_udp_read_pdata_packet(UDP_frame_info *pd);
@@ -306,7 +306,6 @@ static void net_udp_noloss_got_ack(const uint8_t *data, uint_fast32_t data_len);
 static void net_udp_noloss_init_mdata_queue();
 static void net_udp_noloss_clear_mdata_trace(ubyte player_num);
 static void net_udp_noloss_process_queue(fix64 time);
-static void net_udp_broadcast_game_info(uint8_t info_upid);
 static int net_udp_start_game();
 
 // Variables
@@ -2289,6 +2288,8 @@ void net_udp_send_objects(void)
 }
 }
 
+namespace {
+
 static int net_udp_verify_objects(int remote, int local)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -2401,6 +2402,8 @@ static void net_udp_read_object_packet(uint8_t *const data)
 			}
 		} // For a standard onbject
 	} // For each object in packet
+}
+
 }
 
 namespace dsx {
@@ -3124,6 +3127,7 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 }
 
 namespace {
+
 static void net_udp_process_dump(const uint8_t *data, int, const _sockaddr &sender_addr)
 {
 	// Our request for join was denied.  Tell the user why.
@@ -3171,7 +3175,7 @@ static void net_udp_process_request(UDP_sequence_packet *their)
 		}
 }
 
-static void net_udp_process_packet(uint8_t *const data, const _sockaddr &sender_addr, int length)
+static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, uint8_t *const data, const _sockaddr &sender_addr, int length)
 {
 	UDP_sequence_packet their{};
 
@@ -3295,10 +3299,10 @@ static void net_udp_process_packet(uint8_t *const data, const _sockaddr &sender_
 			net_udp_process_pdata( data, length, sender_addr );
 			break;
 		case UPID_MDATA_PNORM:
-			net_udp_process_mdata( data, length, sender_addr, 0 );
+			net_udp_process_mdata(LevelSharedRobotInfoState, data, length, sender_addr, 0);
 			break;
 		case UPID_MDATA_PNEEDACK:
-			net_udp_process_mdata( data, length, sender_addr, 1 );
+			net_udp_process_mdata(LevelSharedRobotInfoState, data, length, sender_addr, 1);
 			break;
 		case UPID_MDATA_ACK:
 			net_udp_noloss_got_ack(data, length);
@@ -4053,9 +4057,6 @@ struct param_opt
 	}
 };
 
-}
-
-namespace dsx {
 static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param_opt *opt )
 {
 	newmenu_item *menus = newmenu_get_items(menu);
@@ -4170,6 +4171,10 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 	
 	return 0;
 }
+
+}
+
+namespace dsx {
 
 window_event_result net_udp_setup_game()
 {
@@ -5053,7 +5058,7 @@ static void net_udp_listen(RAIIsocket &sock)
 		const int size = udp_receive_packet(sock, packet.data(), packet.size(), &sender_addr);
 		if (!(size > 0))
 			break;
-		net_udp_process_packet(packet.data(), sender_addr, size);
+		net_udp_process_packet(LevelSharedRobotInfoState, packet.data(), sender_addr, size);
 	}
 }
 
@@ -5564,7 +5569,7 @@ void net_udp_send_mdata(int needack, fix64 time)
 	UDP_MData.mbuf = {};
 }
 
-void net_udp_process_mdata(uint8_t *const data, uint_fast32_t data_len, const _sockaddr &sender_addr, int needack)
+void net_udp_process_mdata(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, uint8_t *const data, uint_fast32_t data_len, const _sockaddr &sender_addr, int needack)
 {
 	const unsigned pnum = data[1];
 	const unsigned dataoffset = needack ? 6 : 2;
@@ -5614,7 +5619,6 @@ void net_udp_process_mdata(uint8_t *const data, uint_fast32_t data_len, const _s
 					PUT_INTEL_INT(data + 2, UDP_mdata_trace[i].pkt_num_tosend);
 				}
 				dxx_sendto(Netgame.players[i].protocol.udp.addr, UDP_Socket[0], data, data_len, 0);
-				
 			}
 		}
 
@@ -5630,7 +5634,7 @@ void net_udp_process_mdata(uint8_t *const data, uint_fast32_t data_len, const _s
 
 	// Process
 
-	multi_process_bigdata(pnum, data+dataoffset, data_len-dataoffset );
+	multi_process_bigdata(LevelSharedRobotInfoState, pnum, data+dataoffset, data_len-dataoffset );
 }
 
 void net_udp_send_pdata()

@@ -31,8 +31,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "fwd-segment.h"
 #include "fwd-object.h"
+#include "fwd-player.h"
 #include "fwd-weapon.h"
 #include "weapon_id.h"
+#include "robot.h"
 
 // These are new defines for the value of 'flags' passed to do_laser_firing.
 // The purpose is to collect other flags like QUAD_LASER and Spreadfire_toggle
@@ -82,8 +84,8 @@ namespace dsx {
 void calc_d_homer_tick();
 #endif
 void Laser_render(grs_canvas &, const object_base &obj);
-imobjptridx_t Laser_player_fire(vmobjptridx_t obj, weapon_id_type laser_type, gun_num_t gun_num, weapon_sound_flag make_sound, const vms_vector &shot_orientation, icobjidx_t Network_laser_track);
-void Laser_do_weapon_sequence(vmobjptridx_t obj);
+imobjptridx_t Laser_player_fire(const d_robot_info_array &Robot_info, vmobjptridx_t obj, weapon_id_type laser_type, gun_num_t gun_num, weapon_sound_flag make_sound, const vms_vector &shot_orientation, icobjidx_t Network_laser_track);
+void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, vmobjptridx_t obj);
 void Flare_create(vmobjptridx_t obj);
 bool laser_are_related(vcobjptridx_t o1, vcobjptridx_t o2);
 
@@ -107,7 +109,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 // direction "direction" from the position "position"
 // Returns object number of laser fired or -1 if not possible to fire
 // laser.
-imobjptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vector &position, vmobjptridx_t parent, weapon_id_type weapon_type, weapon_sound_flag make_sound);
+imobjptridx_t Laser_create_new_easy(const d_robot_info_array &Robot_info, const vms_vector &direction, const vms_vector &position, vmobjptridx_t parent, weapon_id_type weapon_type, weapon_sound_flag make_sound);
 
 #if defined(DXX_BUILD_DESCENT_II)
 // give up control of the guided missile
