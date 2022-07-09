@@ -357,15 +357,8 @@ static bool can_collide(const object *const weapon_object, const object_base &it
 	}
 }
 
-static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvmobjptridx &vmobjptridx, const imobjptridx_t obj_explosion_origin, const vmsegptridx_t segnum, const vms_vector &position, const fix size, const int vclip_type, const fix maxdamage, const fix maxdistance, const fix maxforce, const icobjptridx_t parent)
+static imobjptridx_t object_create_explosion_without_damage(const d_vclip_array &Vclip, const vmsegptridx_t segnum, const vms_vector &position, const fix size, const int vclip_type)
 {
-	/* `obj_explosion_origin` may not be a weapon in some cases, though
-	 * this function originally expected it would be.
-	 */
-#if defined(DXX_BUILD_DESCENT_II)
-	auto &Objects = LevelUniqueObjectState.Objects;
-#endif
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	const auto &&obj_fireball = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_FIREBALL, vclip_type, segnum, position, &vmd_identity_matrix, size,
 					object::control_type::explosion, object::movement_type::None, RT_FIREBALL);
 
@@ -380,7 +373,21 @@ static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvm
 	obj_fireball->ctype.expl_info.spawn_time = -1;
 	obj_fireball->ctype.expl_info.delete_objnum = object_none;
 	obj_fireball->ctype.expl_info.delete_time = -1;
+	return obj_fireball;
+}
 
+static imobjptridx_t object_create_explosion_with_damage(const d_vclip_array &Vclip, fvmobjptridx &vmobjptridx, const imobjptridx_t obj_explosion_origin, const vmsegptridx_t segnum, const vms_vector &position, const fix size, const int vclip_type, const fix maxdamage, const fix maxdistance, const fix maxforce, const icobjptridx_t parent)
+{
+	/* `obj_explosion_origin` may not be a weapon in some cases, though
+	 * this function originally expected it would be.
+	 */
+	const auto &&obj_fireball = object_create_explosion_without_damage(Vclip, segnum, position, size, vclip_type);
+	if (obj_fireball == object_none)
+		return object_none;
+#if defined(DXX_BUILD_DESCENT_II)
+	auto &Objects = LevelUniqueObjectState.Objects;
+#endif
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (maxdamage > 0) {
 		fix force;
 		vms_vector pos_hit, vforce;
@@ -550,23 +557,19 @@ static imobjptridx_t object_create_explosion_sub(const d_vclip_array &Vclip, fvm
 
 void object_create_muzzle_flash(const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type )
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptridx = Objects.vmptridx;
-	object_create_explosion_sub(Vclip, vmobjptridx, object_none, segnum, position, size, vclip_type, 0, 0, 0, object_none );
+	object_create_explosion_without_damage(Vclip, segnum, position, size, vclip_type);
 }
 
 imobjptridx_t object_create_explosion(const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type )
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptridx = Objects.vmptridx;
-	return object_create_explosion_sub(Vclip, vmobjptridx, object_none, segnum, position, size, vclip_type, 0, 0, 0, object_none );
+	return object_create_explosion_without_damage(Vclip, segnum, position, size, vclip_type);
 }
 
 imobjptridx_t object_create_badass_explosion(const imobjptridx_t objp, const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const icobjptridx_t parent )
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	const imobjptridx_t rval = object_create_explosion_sub(Vclip, vmobjptridx, objp, segnum, position, size, vclip_type, maxdamage, maxdistance, maxforce, parent);
+	const imobjptridx_t rval = object_create_explosion_with_damage(Vclip, vmobjptridx, objp, segnum, position, size, vclip_type, maxdamage, maxdistance, maxforce, parent);
 
 	if ((objp != object_none) && (objp->type == OBJ_WEAPON))
 		create_weapon_smart_children(objp);
