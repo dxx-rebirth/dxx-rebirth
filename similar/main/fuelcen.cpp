@@ -67,7 +67,7 @@ constexpr fix Fuelcen_max_amount = i2f(100);
 // by this amount... when capacity gets to 0, no more morphers...
 constexpr fix EnergyToCreateOneRobot = i2f(1);
 
-static int Num_extry_robots = 15;
+constexpr std::integral_constant<int, 15> Num_extry_robots{};
 }
 namespace dsx {
 #if DXX_USE_EDITOR
@@ -99,7 +99,7 @@ void fuelcen_reset()
 }
 
 #ifndef NDEBUG		//this is sometimes called by people from the debugger
-static void reset_all_robot_centers() __attribute_used;
+__attribute_used
 static void reset_all_robot_centers()
 {
 	// Remove all materialization centers
@@ -145,6 +145,8 @@ void fuelcen_create(const vmsegptridx_t segp)
 	station.Flag = 0;
 }
 
+namespace {
+
 //------------------------------------------------------------
 // Adds a matcen that already is a special type into the Station array.
 // This function is separate from other fuelcens because we don't want values reset.
@@ -171,6 +173,8 @@ static void matcen_create(const vmsegptridx_t segp)
 	auto &robotcenter = RobotCenters[next_robot_center_idx];
 	robotcenter.fuelcen_num = next_fuelcenter_idx;
 	robotcenter.segnum = segp;
+}
+
 }
 
 //------------------------------------------------------------

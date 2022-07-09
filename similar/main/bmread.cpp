@@ -250,6 +250,8 @@ int compute_average_pixel(grs_bitmap *n)
 	return BM_XRGB(total_red/2, total_green/2, total_blue/2);
 }
 
+namespace {
+
 //---------------------------------------------------------------
 // Loads a bitmap from either the piggy file, a r64 file, or a
 // whatever extension is passed.
@@ -373,6 +375,8 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 	}
 }
 
+}
+
 int ds_load(int skip, const char * filename )	{
 	int i;
 	digi_sound n;
@@ -410,6 +414,7 @@ int ds_load(int skip, const char * filename )	{
 }
 }
 
+namespace dcx {
 namespace {
 
 //parse a float
@@ -428,6 +433,7 @@ static int get_int()
 
 	xarg = strtok( NULL, space_tab );
 	return atoi( xarg );
+}
 }
 }
 
@@ -874,6 +880,8 @@ void bm_read_alias()
 
 }
 
+namespace {
+
 static void set_lighting_flag(grs_bitmap &bmp)
 {
 	bmp.set_flag_mask(vlighting < 0, BM_FLAG_NO_LIGHTING);
@@ -885,6 +893,11 @@ static void set_texture_name(const char *name)
 	TmapInfo[texture_count].filename.copy_if(name, FILENAME_LEN);
 	REMOVE_DOTS(&TmapInfo[texture_count].filename[0u]);
 }
+
+}
+
+namespace dsx {
+namespace {
 
 #if defined(DXX_BUILD_DESCENT_I)
 static void bm_read_eclip(const std::string &dest_bm, const char *const arg, int skip)
@@ -1167,8 +1180,6 @@ static void bm_read_wclip(int skip)
 	}
 }
 
-namespace dsx {
-
 #if defined(DXX_BUILD_DESCENT_I)
 static void bm_read_vclip(d_vclip_array &Vclip, const char *const arg, int skip)
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1227,6 +1238,11 @@ static void bm_read_vclip(d_vclip_array &Vclip, int skip)
 
 }
 
+}
+
+namespace dcx {
+namespace {
+
 // ------------------------------------------------------------------------------
 static void get4fix(enumerated_array<fix, NDL, Difficulty_level_type> &fixp)
 {
@@ -1267,8 +1283,10 @@ static void adjust_field_of_view(enumerated_array<fix, NDL, Difficulty_level_typ
 	}
 }
 
-namespace dsx {
+}
+}
 
+namespace dsx {
 namespace {
 
 #if defined(DXX_BUILD_DESCENT_I)

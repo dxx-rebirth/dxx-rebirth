@@ -60,6 +60,8 @@ std::array<reactor, MAX_REACTORS> Reactors;
 unsigned Num_reactors;
 #endif
 
+namespace {
+
 static window_event_result do_countdown_frame();
 
 //	-----------------------------------------------------------------------------
@@ -76,6 +78,8 @@ static void calc_controlcen_gun_point(reactor &r, object &obj, const uint_fast32
 	vm_vec_rotate(gun_dir, r.gun_dirs[gun_num], m);
 }
 
+}
+
 void calc_controlcen_gun_point(object &obj)
 {
 	assert(obj.type == OBJ_CNTRLCEN);
@@ -84,6 +88,8 @@ void calc_controlcen_gun_point(object &obj)
 	for (uint_fast32_t i = reactor.n_guns; i--;)
 		calc_controlcen_gun_point(reactor, obj, i);
 }
+
+namespace {
 
 //	-----------------------------------------------------------------------------
 //	Look at control center guns, find best one to fire at *objp.
@@ -121,9 +127,10 @@ static int calc_best_gun(const unsigned num_guns, const object &objreactor, cons
 
 }
 
+}
+
 namespace dcx {
 control_center_triggers ControlCenterTriggers;
-
 constexpr int	D1_Alan_pavlish_reactor_times[NDL] = {50, 45, 40, 35, 30};
 }
 namespace dsx {
@@ -158,6 +165,8 @@ window_event_result do_controlcen_dead_frame()
 }
 
 #define COUNTDOWN_VOICE_TIME fl2f(12.75)
+
+namespace {
 
 window_event_result do_countdown_frame()
 {
@@ -252,6 +261,8 @@ window_event_result do_countdown_frame()
 	}
 
 	return window_event_result::handled;
+}
+
 }
 
 //	-----------------------------------------------------------------------------

@@ -30,6 +30,8 @@ PFNGLCLIENTWAITSYNCPROC glClientWaitSyncFunc = NULL;
 /* GL_EXT_texture_filter_anisotropic */
 GLfloat ogl_maxanisotropy = 0.0f;
 
+namespace {
+
 static std::array<long, 2> parse_version_str(const char *v)
 {
 	std::array<long, 2> version;
@@ -93,6 +95,8 @@ static support_mode is_supported(const char *extensions, const std::array<long, 
 	if (is_ext_supported(extensions, name))
 		return SUPPORT_EXT;
 	return NO_SUPPORT;
+}
+
 }
 
 void ogl_extensions_init()

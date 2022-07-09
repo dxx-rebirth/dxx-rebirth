@@ -40,6 +40,8 @@
 #define SDL_RWops_callback_write_position	size_t
 #endif
 
+namespace {
+
 static SDL_RWops_callback_seek_position physfsrwops_seek(SDL_RWops *rw, const SDL_RWops_callback_seek_position offset, const int whence)
 {
     PHYSFS_File *handle = reinterpret_cast<PHYSFS_File *>(rw->hidden.unknown.data1);
@@ -179,6 +181,8 @@ static std::pair<RWops_ptr, PHYSFS_ErrorCode> create_rwops(RAIIPHYSFS_File handl
 		return {std::move(retval), PHYSFS_ERR_OK};
     } /* else */
 } /* create_rwops */
+
+}
 
 std::pair<RWops_ptr, PHYSFS_ErrorCode> PHYSFSRWOPS_openRead(const char *fname)
 {

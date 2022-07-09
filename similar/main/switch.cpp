@@ -56,6 +56,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
+namespace {
+
 template <typename SF, typename O, typename... Oa>
 static inline void trigger_wall_op(const trigger &t, SF &segment_factory, const O &op, Oa &&... oargs)
 {
@@ -74,8 +76,11 @@ static void do_link(const trigger &t)
 	trigger_wall_op(t, vmsegptridx, wall_toggle, vmwallptr);
 }
 
+}
+
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
+namespace {
 //close a door
 static void do_close_door(const trigger &t)
 {
@@ -255,7 +260,11 @@ static int (print_trigger_message)(int pnum, const trigger &t, int shot)
 	return 0;
  }
 }
+
+}
 #endif
+
+namespace {
 
 static void do_matcen(const trigger &t)
 {
@@ -268,7 +277,10 @@ static void do_il_on(fvcsegptridx &vcsegptridx, fvmwallptr &vmwallptr, const tri
 	trigger_wall_op(t, vcsegptridx, wall_illusion_on, vmwallptr);
 }
 
+}
+
 namespace dsx {
+namespace {
 
 #if defined(DXX_BUILD_DESCENT_I)
 static void do_il_off(fvcsegptridx &vcsegptridx, fvmwallptr &vmwallptr, const trigger &t)
@@ -286,6 +298,8 @@ static void do_il_off(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr, fvmwallp
 	trigger_wall_op(t, vcsegptridx, op);
 }
 #endif
+
+}
 
 // Slight variation on window_event_result meaning
 // 'ignored' means we still want check_trigger to call multi_send_trigger

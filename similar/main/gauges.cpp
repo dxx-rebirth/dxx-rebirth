@@ -545,6 +545,7 @@ std::array<bitmap_index, MAX_GAUGE_BMS> Gauges,   // Array of all gauge bitmaps.
 #endif
 
 namespace dsx {
+namespace {
 static inline void PAGE_IN_GAUGE(int x, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	const auto &g =
@@ -555,11 +556,14 @@ static inline void PAGE_IN_GAUGE(int x, const local_multires_gauge_graphic multi
 	PIGGY_PAGE_IN(g[x]);
 }
 }
+}
 
+namespace {
 static int score_display;
 static fix score_time;
 static laser_level old_laser_level;
 static int invulnerable_frame;
+}
 int	Color_0_31_0 = -1;
 
 namespace dcx {
@@ -1363,6 +1367,7 @@ static void show_bomb_count(grs_canvas &canvas, const player_info &player_info, 
 }
 }
 
+namespace {
 static void draw_primary_ammo_info(const hud_draw_context_hs_mr hudctx, const unsigned ammo_count)
 {
 	int x, y;
@@ -1372,6 +1377,7 @@ static void draw_primary_ammo_info(const hud_draw_context_hs_mr hudctx, const un
 	else
 		x = PRIMARY_AMMO_X, y = PRIMARY_AMMO_Y;
 	draw_ammo_info(hudctx.canvas, hudctx.xscale(x), hudctx.yscale(y), ammo_count);
+}
 }
 
 namespace dcx {
@@ -1385,11 +1391,11 @@ constexpr rgb_t hud_rgb_gray = {6, 6, 6};
 }
 
 namespace dsx {
+namespace {
+
 #if defined(DXX_BUILD_DESCENT_II)
 constexpr rgb_t hud_rgb_yellow = {30, 30, 0};
 #endif
-
-namespace {
 
 [[nodiscard]]
 static rgb_t hud_get_primary_weapon_fontcolor(const player_info &player_info, const primary_weapon_index_t consider_weapon)
@@ -2570,6 +2576,9 @@ static void draw_numerical_display(const draw_numerical_display_draw_context hud
 
 }
 
+namespace dsx {
+namespace {
+
 void draw_keys_state::draw_all_cockpit_keys()
 {
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
@@ -2577,10 +2586,6 @@ void draw_keys_state::draw_all_cockpit_keys()
 	draw_one_key(GAUGE_GOLD_KEY_X, GAUGE_GOLD_KEY_Y, GAUGE_GOLD_KEY, PLAYER_FLAGS_GOLD_KEY);
 	draw_one_key(GAUGE_RED_KEY_X, GAUGE_RED_KEY_Y, GAUGE_RED_KEY, PLAYER_FLAGS_RED_KEY);
 }
-
-namespace dsx {
-
-namespace {
 
 static void draw_weapon_info_sub(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const int info_index, const gauge_box *const box, const int pic_x, const int pic_y, const char *const name, const int text_x, const int text_y)
 {
@@ -2733,7 +2738,6 @@ static void draw_weapon_info(const hud_draw_context_hs_mr hudctx, const player_i
 }
 
 }
-
 }
 
 namespace {
@@ -3035,7 +3039,6 @@ static void sb_draw_shield_bar(const hud_draw_context_hs_mr hudctx, const int sh
 }
 
 namespace dsx {
-
 namespace {
 
 void draw_keys_state::draw_all_statusbar_keys()
@@ -3093,7 +3096,6 @@ static void draw_invulnerable_ship(const hud_draw_context_hs_mr hudctx, const ob
 }
 
 }
-
 }
 
 const rgb_array_t player_rgb_normal{{

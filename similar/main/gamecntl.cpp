@@ -162,10 +162,6 @@ int allowed_to_fire_flare(player_info &player_info)
 	return 1;
 }
 
-}
-
-}
-
 #define key_isfunc(k) (((k&0xff)>=KEY_F1 && (k&0xff)<=KEY_F10) || (k&0xff)==KEY_F11 || (k&0xff)==KEY_F12)
 
 // Functions ------------------------------------------------------------------
@@ -175,9 +171,6 @@ int allowed_to_fire_flare(player_info &player_info)
 #define CONVERTER_SCALE  2		//2 units energy -> 1 unit shields
 
 #define CONVERTER_SOUND_DELAY (f1_0/2)		//play every half second
-
-namespace dsx {
-namespace {
 
 static void transfer_energy_to_shield(object &plrobj)
 {
@@ -212,10 +205,11 @@ static void transfer_energy_to_shield(object &plrobj)
 		last_play_time = GameTime64;
 	}
 }
+#endif
 
 }
+
 }
-#endif
 
 namespace {
 

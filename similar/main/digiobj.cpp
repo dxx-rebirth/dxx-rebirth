@@ -93,6 +93,8 @@ struct sound_object
 	} link_type;
 };
 
+namespace {
+
 using sound_objects_t = std::array<sound_object, MAX_SOUND_OBJECTS>;
 static sound_objects_t SoundObjects;
 static short next_signature=0;
@@ -147,6 +149,8 @@ static std::pair<sound_objects_t::iterator, sound_objects_t::iterator> find_soun
 
 }
 
+}
+
 namespace dsx {
 
 /* Find the sound which actually equates to a sound number */
@@ -168,6 +172,8 @@ int digi_xlat_sound(int soundno)
 
 	return Sounds[soundno];
 }
+
+namespace {
 
 static int digi_unxlat_sound(int soundno)
 {
@@ -219,6 +225,8 @@ static void digi_update_sound_loc(const vms_matrix &listener, const vms_vector &
 	so.pan = pan;
 }
 
+}
+
 void digi_play_sample_once( int soundno, fix max_volume )
 {
 	if ( Newdemo_state == ND_STATE_RECORDING )
@@ -261,9 +269,13 @@ void digi_play_sample_3d(int soundno, const sound_pan angle, int volume)
 	digi_start_sound( soundno, volume, angle, 0, -1, -1, sound_object_none);
 }
 
+namespace {
+
 static void SoundQ_init();
 static void SoundQ_process();
 static void SoundQ_pause();
+
+}
 
 void digi_init_sounds()
 {
@@ -279,6 +291,8 @@ void digi_init_sounds()
 	}
 	N_active_sound_objects = 0;
 }
+
+namespace {
 
 // plays a sample that loops forever.
 // Call digi_stop_channe(channel) to stop it.
@@ -296,6 +310,8 @@ static void digi_play_sample_looping_sub()
 {
 	if ( digi_looping_sound > -1 )
 		digi_looping_channel  = digi_start_sound( digi_looping_sound, digi_looping_volume, sound_pan{0x7fff}, 1, digi_looping_start, digi_looping_end, sound_object_none);
+}
+
 }
 
 void digi_play_sample_looping( int soundno, fix max_volume,int loop_start, int loop_end )
@@ -321,6 +337,8 @@ void digi_change_looping_volume( fix volume )
 		digi_set_channel_volume( digi_looping_channel, volume );
 }
 
+namespace {
+
 static void digi_pause_looping_sound()
 {
 	const auto c = digi_looping_channel;
@@ -331,19 +349,27 @@ static void digi_pause_looping_sound()
 	}
 }
 
+}
+
 void digi_stop_looping_sound()
 {
 	digi_looping_sound = -1;
 	digi_pause_looping_sound();
 }
 
+namespace {
+
 static void digi_unpause_looping_sound()
 {
 	digi_play_sample_looping_sub();
 }
 
+}
+
 //hack to not start object when loading level
 int Dont_start_sound_objects = 0;
+
+namespace {
 
 static void digi_start_sound_object(sound_object &s)
 {
@@ -400,6 +426,8 @@ static void digi_link_sound_common(const object_base &viewer, sound_object &so, 
 	}
 }
 
+}
+
 void digi_link_sound_to_object3(const unsigned org_soundnum, const vcobjptridx_t objnum, const uint8_t forever, const fix max_volume, const sound_stack once, const vm_distance max_distance, const int loop_start, const int loop_end)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -453,6 +481,8 @@ void digi_link_sound_to_object(const unsigned soundnum, const vcobjptridx_t objn
 	digi_link_sound_to_object2(soundnum, objnum, forever, max_volume, once, vm_distance{256*F1_0});
 }
 
+namespace {
+
 static void digi_link_sound_to_pos2(fvcobjptr &vcobjptr, const int org_soundnum, const vcsegptridx_t segnum, const sidenum_t sidenum, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance)
 {
 	const auto &&viewer = vcobjptr(Viewer);
@@ -488,6 +518,8 @@ static void digi_link_sound_to_pos2(fvcobjptr &vcobjptr, const int org_soundnum,
 	so.link_type.pos.position = pos;
 	so.loop_start = so.loop_end = -1;
 	digi_link_sound_common(viewer, so, pos, forever, max_volume, max_distance, soundnum, segnum);
+}
+
 }
 
 void digi_link_sound_to_pos(const unsigned soundnum, const vcsegptridx_t segnum, const sidenum_t sidenum, const vms_vector &pos, const int forever, const fix max_volume)
@@ -527,6 +559,8 @@ void digi_kill_sound_linked_to_object(const vcobjptridx_t objnum)
 	}
 }
 
+namespace {
+
 //	John's new function, 2/22/96.
 static void digi_record_sound_objects()
 {
@@ -541,6 +575,8 @@ static void digi_record_sound_objects()
 }
 
 static int was_recording = 0;
+
+}
 
 void digi_sync_sounds()
 {
@@ -716,6 +752,10 @@ int verify_sound_channel_free( int channel )
 }
 #endif
 
+int SoundQ_channel;
+
+namespace {
+
 struct sound_q
 {
 	fix64 time_added;
@@ -724,7 +764,6 @@ struct sound_q
 
 #define MAX_LIFE F1_0*30		// After being queued for 30 seconds, don't play it
 static int SoundQ_head, SoundQ_tail, SoundQ_num;
-int SoundQ_channel;
 static std::array<sound_q, 32> SoundQ;
 
 void SoundQ_init()
@@ -739,6 +778,8 @@ void SoundQ_pause()
 	SoundQ_channel = -1;
 }
 
+}
+
 void SoundQ_end()
 {
 	// Current playing sound is stopped, so take it off the Queue
@@ -748,6 +789,8 @@ void SoundQ_end()
 	SoundQ_num--;
 	SoundQ_channel = -1;
 }
+
+namespace {
 
 void SoundQ_process()
 {
@@ -768,6 +811,7 @@ void SoundQ_process()
 	  		SoundQ_end();
 		}
 	}
+}
 }
 
 void digi_start_sound_queued( short soundnum, fix volume )

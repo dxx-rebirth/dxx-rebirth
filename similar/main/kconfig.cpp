@@ -286,6 +286,7 @@ static void kc_set_exclusive_binding(kc_menu &menu, kc_mitem &mitem, const unsig
 }
 }
 
+namespace {
 static void kc_drawinput(grs_canvas &, const grs_font &, const kc_item &item, kc_mitem &mitem, int is_current, const char *label);
 static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem& mitem );
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
@@ -541,8 +542,9 @@ static inline int in_bounds(unsigned mx, unsigned my, unsigned x1, unsigned xw, 
 	return 1;
 }
 
-namespace dsx {
+}
 
+namespace dsx {
 namespace {
 
 static window_event_result kconfig_mouse(kc_menu &menu, const d_event &event)
@@ -601,11 +603,9 @@ static window_event_result kconfig_mouse(kc_menu &menu, const d_event &event)
 }
 
 }
-
 }
 
 namespace dcx {
-
 namespace {
 
 template <std::size_t M, std::size_t C>
@@ -687,11 +687,9 @@ static window_event_result kconfig_key_command(kc_menu &menu, const d_event &eve
 }
 
 }
-
 }
 
 namespace dsx {
-
 namespace {
 
 window_event_result kc_menu::event_handler(const d_event &event)
@@ -834,8 +832,9 @@ static void kconfig_sub(const char *litems, const kc_item (&items)[N], std::arra
 }
 
 }
-
 }
+
+namespace {
 
 static void kc_drawinput(grs_canvas &canvas, const grs_font &cv_font, const kc_item &item, kc_mitem &mitem, const int is_current, const char *const label)
 {
@@ -950,6 +949,8 @@ static void kc_change_mouseaxis( kc_menu &menu,const d_event &event, kc_mitem &m
 	kc_set_exclusive_binding(menu, mitem, BT_MOUSE_AXIS, code);
 }
 
+}
+
 void kconfig(const kconfig_type n)
 {
 	switch (n)
@@ -972,6 +973,7 @@ void kconfig(const kconfig_type n)
 }
 
 namespace dsx {
+namespace {
 
 static void input_button_matched(control_info &Controls, const kc_item& item, int down)
 {
@@ -992,9 +994,9 @@ static void input_button_matched(control_info &Controls, const kc_item& item, in
 }
 
 }
+}
 
 namespace dcx {
-
 namespace {
 
 template <template<typename> class F>
@@ -1081,7 +1083,6 @@ static unsigned allow_uncapped_turning()
 }
 
 }
-
 }
 
 namespace dsx {

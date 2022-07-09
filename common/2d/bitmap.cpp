@@ -37,9 +37,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <memory>
 
 namespace dcx {
+namespace {
 
 // Allocated a bitmap and makes its data be raw_data that is already somewhere.
 static grs_bitmap_ptr gr_create_bitmap_raw(uint16_t w, uint16_t h, RAIIdmem<uint8_t[]> raw_data);
+
+}
 
 void gr_set_bitmap_data(grs_bitmap &bm, const uint8_t *data)
 {
@@ -56,11 +59,15 @@ grs_bitmap_ptr gr_create_bitmap(uint16_t w, uint16_t h )
 	return gr_create_bitmap_raw(w, h, std::move(d));
 }
 
+namespace {
+
 grs_bitmap_ptr gr_create_bitmap_raw(const uint16_t w, const uint16_t h, RAIIdmem<uint8_t[]> raw_data)
 {
 	auto n = std::make_unique<grs_main_bitmap>();
 	gr_init_main_bitmap(*n.get(), bm_mode::linear, 0, 0, w, h, w, std::move(raw_data));
 	return n;
+}
+
 }
 
 // TODO: virtualize
@@ -147,9 +154,13 @@ void decode_data(color_palette_index *const data, uint_fast32_t num_pixels, std:
 	std::transform(data, data + num_pixels, data, a);
 }
 
+namespace {
+
 static void gr_set_super_transparent(grs_bitmap &bm, bool bOpaque)
 {
 	bm.set_flag_mask(!bOpaque, BM_FLAG_SUPER_TRANSPARENT);
+}
+
 }
 
 void build_colormap_good(const palette_array_t &palette, std::array<color_palette_index, 256> &colormap)

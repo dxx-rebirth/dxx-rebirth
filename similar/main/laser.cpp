@@ -58,6 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_underlying_value.h"
 #include "partial_range.h"
 
+namespace {
 #ifdef NEWHOMER
 #define HOMING_TRACKABLE_DOT_FRAME_TIME	HOMING_TURN_TIME
 static ubyte d_homer_tick_step = 0;
@@ -67,10 +68,13 @@ static fix d_homer_tick_count = 0;
 #endif
 
 static int Muzzle_queue_index;
+}
 
 namespace dsx {
+namespace {
 static imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjptridx_t tracker, int track_obj_type1, int track_obj_type2);
 static imobjptridx_t find_homing_object(const vms_vector &curpos, vmobjptridx_t tracker);
+}
 
 //---------------------------------------------------------------------------------
 // Called by render code.... determines if the laser is from a robot or the
@@ -136,6 +140,7 @@ void Laser_render(grs_canvas &canvas, const object_base &obj)
 //
 //}
 
+namespace {
 static bool ignore_proximity_weapon(const object &o)
 {
 	if (!is_proximity_bomb_or_player_smart_mine(get_weapon_id(o)))
@@ -168,6 +173,7 @@ static bool ignore_guided_missile_weapon(const object &o)
 	return get_weapon_id(o) == weapon_id_type::GUIDEDMISS_ID && GameTime64 > o.ctype.laser_info.creation_time + F1_0*2;
 }
 #endif
+}
 
 //	Changed by MK on 09/07/94
 //	I want you to be able to blow up your own bombs.
@@ -245,6 +251,7 @@ bool laser_are_related(const vcobjptridx_t o1, const vcobjptridx_t o2)
 }
 
 namespace dcx {
+namespace {
 
 constexpr vm_distance MAX_SMART_DISTANCE(F1_0*150);
 constexpr vm_distance_squared MAX_SMART_DISTANCE_SQUARED = MAX_SMART_DISTANCE * MAX_SMART_DISTANCE;
@@ -269,8 +276,10 @@ static void report_invalid_weapon_render_type(const int weapon_type, const weapo
 }
 
 }
+}
 
 namespace dsx {
+namespace {
 
 //creates a weapon object
 static imobjptridx_t create_weapon_object(int weapon_type,const vmsegptridx_t segnum, const vms_vector &position)
@@ -331,8 +340,10 @@ static imobjptridx_t create_weapon_object(int weapon_type,const vmsegptridx_t se
 
 	return obj;
 }
+}
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace {
 //	-------------------------------------------------------------------------------------------------------------------------------
 //	***** HEY ARTISTS!! *****
 //	Here are the constants you're looking for! --MK
@@ -380,6 +391,8 @@ static int omega_cleanup(fvcobjptr &vcobjptr, const vmobjptridx_t weapon)
 	return 0;
 }
 
+}
+
 // Return true if ok to do Omega damage. For Multiplayer games. See comment for omega_cleanup()
 int ok_to_do_omega_damage(const object &weapon)
 {
@@ -397,6 +410,8 @@ int ok_to_do_omega_damage(const object &weapon)
 
 	return 1;
 }
+
+namespace {
 
 // ---------------------------------------------------------------------------------
 static bool create_omega_blobs(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const weapon_info_array &Weapon_info, const Difficulty_level_type Difficulty_level, const imsegptridx_t firing_segnum, const vms_vector &firing_pos, const vms_vector &goal_pos, const vmobjptridx_t parent_objp)
@@ -502,6 +517,8 @@ static bool create_omega_blobs(d_level_unique_object_state &LevelUniqueObjectSta
 	return false;
 }
 
+}
+
 #define	MIN_OMEGA_CHARGE	(MAX_OMEGA_CHARGE/8)
 #define	OMEGA_CHARGE_SCALE	4			//	FrameTime / OMEGA_CHARGE_SCALE added to Omega_charge every frame.
 
@@ -555,6 +572,8 @@ void omega_charge_frame(player_info &player_info)
 	}
 
 }
+
+namespace {
 
 // -- fix	Last_omega_muzzle_flash_time;
 
@@ -647,6 +666,8 @@ static int is_laser_weapon_type(const weapon_id_type weapon_type)
 		weapon_type == weapon_id_type::LASER_ID_L4 ||
 		weapon_type == weapon_id_type::LASER_ID_L5 ||
 		weapon_type == weapon_id_type::LASER_ID_L6;
+}
+
 }
 #endif
 
@@ -918,6 +939,8 @@ namespace dcx {
 
 std::array<muzzle_info, MUZZLE_QUEUE_MAX> Muzzle_data;
 
+namespace {
+
 static fix get_weapon_energy_usage_with_difficulty(const weapon_info &wi, const Difficulty_level_type Difficulty_level)
 {
 	const auto energy_usage = wi.energy_usage;
@@ -928,7 +951,10 @@ static fix get_weapon_energy_usage_with_difficulty(const weapon_info &wi, const 
 
 }
 
+}
+
 namespace d1x {
+namespace {
 
 static fix get_scaled_min_trackable_dot()
 {
@@ -941,6 +967,7 @@ static fix get_scaled_min_trackable_dot()
 		return (HOMING_MIN_TRACKABLE_DOT);
 }
 
+}
 }
 
 namespace dsx {
@@ -973,6 +1000,8 @@ int object_to_object_visibility(const vcobjptridx_t obj1, const object_base &obj
 	}
 	return 0;
 }
+
+namespace {
 
 #if defined(DXX_BUILD_DESCENT_II)
 static fix get_scaled_min_trackable_dot()
@@ -1195,6 +1224,8 @@ imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjp
 	return best_objnum;
 }
 
+}
+
 #ifdef NEWHOMER
 // Similar to calc_d_tick but made just for the homers.
 // Causes d_homer_tick_step to be true in intervals dictated by HOMING_TURN_TIME
@@ -1221,6 +1252,8 @@ void calc_d_homer_tick()
 	timer = t;
 }
 #endif
+
+namespace {
 
 //	------------------------------------------------------------------------------------------------------------
 //	See if legal to keep tracking currently tracked object.  If not, see if another object is trackable.  If not, return -1,
@@ -1453,6 +1486,7 @@ static imobjptridx_t Laser_player_fire_spread(const d_robot_info_array &Robot_in
 	return Laser_player_fire_spread_delay(Robot_info, vmsegptridx, obj, laser_type, gun_num, spreadr, spreadu, 0, make_sound, shot_orientation, Network_laser_track);
 }
 
+}
 
 //	-----------------------------------------------------------------------------------------------------------
 imobjptridx_t Laser_player_fire(const d_robot_info_array &Robot_info, const vmobjptridx_t obj, const weapon_id_type laser_type, const gun_num_t gun_num, const weapon_sound_flag make_sound, const vms_vector &shot_orientation, const icobjidx_t Network_laser_track)
@@ -1495,6 +1529,8 @@ void Flare_create(const vmobjptridx_t obj)
 
 }
 
+namespace {
+
 #if defined(DXX_BUILD_DESCENT_I)
 #define	HOMING_MISSILE_SCALE	8
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1528,6 +1564,7 @@ static void homing_missile_turn_towards_velocity(object_base &objp, const vms_ve
 	vm_vector_2_matrix(objp.orient, new_fvec, nullptr, nullptr);
 }
 
+}
 
 //-------------------------------------------------------------------------------------------
 //sequence this laser object for this _frame_ (underscores added here to aid MK in his searching!)
@@ -1754,6 +1791,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 }
 
 namespace dcx {
+namespace {
 
 constexpr std::integral_constant<unsigned, 30> MAX_OBJDISTS{};
 
@@ -1767,6 +1805,7 @@ static inline int sufficient_ammo(int ammo_used, int uses_vulcan_ammo, ushort vu
 	return !ammo_used || (!uses_vulcan_ammo || vulcan_ammo >= ammo_used);
 }
 
+}
 }
 
 namespace dsx {
@@ -2100,6 +2139,7 @@ uint_fast8_t laser_info::test_hitobj(const vcobjidx_t o) const
 }
 
 namespace dsx {
+namespace {
 
 //	-------------------------------------------------------------------------------------------
 //	if goal_obj == -1, then create random vector
@@ -2130,15 +2170,11 @@ static imobjptridx_t create_homing_missile(fvmsegptridx &vmsegptridx, const vmob
 	return objnum;
 }
 
-namespace {
-
 struct miniparent
 {
 	short type;
 	objnum_t num;
 };
-
-}
 
 //-----------------------------------------------------------------------------
 // Create the children of a smart bomb, which is a bunch of homing missiles.
@@ -2240,6 +2276,8 @@ static void create_smart_children(object_array &Objects, const vmobjptridx_t obj
 			create_homing_missile(vmsegptridx, objp, sel_objnum, blob_id, (i==0) ? weapon_sound_flag::audible : weapon_sound_flag::silent);
 		}
 	}
+}
+
 }
 
 void create_weapon_smart_children(const vmobjptridx_t objp)

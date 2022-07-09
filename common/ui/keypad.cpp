@@ -36,6 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <memory>
 
 namespace dcx {
+namespace {
 
 #define MAX_NUM_PADS 20
 
@@ -46,6 +47,8 @@ static int active_pad;
 static int desc_x, desc_y;
 
 static std::array<int, 17> HotKey, HotKey1;
+
+}
 
 int ui_pad_get_current()
 {
@@ -62,6 +65,8 @@ void ui_pad_close()
 {
 	KeyPad = {};
 }
+
+namespace {
 
 typedef PHYSFSX_gets_line_t<100>::line_t keypad_input_line_t;
 
@@ -150,6 +155,8 @@ static std::unique_ptr<UI_GADGET_BUTTON> ui_create_pad_gadget(UI_DIALOG &dlg, ui
 	auto r = ui_add_gadget_button(dlg, x, y, w, h, nullptr, nullptr);
 	r->canvas->cv_font = &font;
 	return r;
+}
+
 }
 
 void ui_pad_activate(UI_DIALOG &dlg, uint_fast32_t x, uint_fast32_t y)
@@ -281,6 +288,8 @@ void ui_pad_draw(UI_DIALOG *dlg, int x, int y)
 	gr_ustring(canvas, *canvas.cv_font, desc_x, desc_y, KeyPad[active_pad]->description.data());
 }
 
+namespace {
+
 static void ui_pad_set_active( int n )
 {
 	int np;
@@ -310,6 +319,8 @@ static void ui_pad_set_active( int n )
 	}
 
 	active_pad = n;
+}
+
 }
 
 void ui_pad_goto(int n)

@@ -57,6 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define PM_COMPATIBLE_VERSION 6
 #define PM_OBJFILE_VERSION 8
 
+namespace {
 static unsigned Pof_file_end;
 static unsigned Pof_addr;
 
@@ -336,6 +337,7 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 		swap_polygon_model_data(pm->model_data.get());
 	return pm;
 }
+}
 
 //reads the gun information for a model
 //fills in arrays gun_points & gun_dirs, returns the number of guns read
@@ -496,6 +498,7 @@ void free_polygon_models(d_level_shared_polygon_model_state &LevelSharedPolygonM
 }
 
 namespace dcx {
+namespace {
 
 static void assign_max(fix &a, const fix &b)
 {
@@ -556,6 +559,7 @@ static void polyobj_find_min_max(polymodel *pm)
 			assign_minmax(big_mn, big_mx, vm_vec_add(v, ofs));
 		}
 	}
+}
 }
 
 void init_polygon_models(d_level_shared_polygon_model_state &LevelSharedPolygonModelState)

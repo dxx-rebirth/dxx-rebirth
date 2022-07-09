@@ -771,11 +771,13 @@ icsegptridx_t find_point_seg(const d_level_shared_segment_state &LevelSharedSegm
 //--repair-- }
 
 #if defined(DXX_BUILD_DESCENT_I)
+namespace {
 static inline void add_to_fcd_cache(segnum_t seg0, segnum_t seg1, vm_distance dist)
 {
 	(void)seg0;
 	(void)seg1;
 	(void)dist;
+}
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 #define	MIN_CACHE_FCD_DIST	(F1_0*80)	//	Must be this far apart for cache lookup to succeed.  Recognizes small changes in distance matter at small distances.

@@ -321,6 +321,8 @@ fix	Flash_effect=0;
 constexpr int	PK1=1, PK2=8;
 #endif
 
+namespace {
+
 static bool can_collide(const object *const weapon_object, const object_base &iter_object, const object *const parent_object)
 {
 	/* `weapon_object` may not be a weapon in some cases, though the
@@ -550,6 +552,8 @@ static imobjptridx_t object_create_explosion_with_damage(const d_robot_info_arra
 		}	// end for
 	}	// end if (maxdamage...
 	return obj_fireball;
+}
+
 }
 
 void object_create_muzzle_flash(const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type )

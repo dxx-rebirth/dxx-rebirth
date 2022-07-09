@@ -89,6 +89,7 @@ std::array<alias, MAX_ALIASES> alias_list;
 int Piggy_hamfile_version = 0;
 #endif
 
+namespace {
 static std::unique_ptr<ubyte[]> BitmapBits;
 static std::unique_ptr<ubyte[]> SoundBits;
 
@@ -96,6 +97,7 @@ struct SoundFile
 {
 	char    name[15];
 };
+}
 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace {
@@ -104,6 +106,7 @@ hashtable AllBitmapsNames;
 hashtable AllDigiSndNames;
 std::array<pig_bitmap_offset, MAX_BITMAP_FILES> GameBitmapOffset;
 #if defined(DXX_BUILD_DESCENT_II)
+static std::unique_ptr<uint8_t[]> Bitmap_replacement_data;
 }
 #endif
 
@@ -112,7 +115,9 @@ int Num_sound_files = 0;
 
 namespace dsx {
 std::array<digi_sound, MAX_SOUND_FILES> GameSounds;
+namespace {
 static std::array<int, MAX_SOUND_FILES> SoundOffset;
+}
 GameBitmaps_array GameBitmaps;
 }
 
@@ -121,6 +126,7 @@ GameBitmaps_array GameBitmaps;
 static
 #endif
 std::array<BitmapFile, MAX_BITMAP_FILES> AllBitmaps;
+namespace {
 static std::array<SoundFile, MAX_SOUND_FILES> AllSounds;
 
 #define DBM_FLAG_ABM    64 // animated bitmap
@@ -130,6 +136,8 @@ static int Piggy_bitmap_cache_next;
 static uint8_t *Piggy_bitmap_cache_data;
 static std::array<uint8_t, MAX_BITMAP_FILES> GameBitmapFlags;
 static std::array<uint16_t, MAX_BITMAP_FILES> GameBitmapXlat;
+static RAIIPHYSFS_File Piggy_fp;
+}
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define PIGGY_BUFFER_SIZE (2048*1024)
@@ -139,8 +147,6 @@ static std::array<uint16_t, MAX_BITMAP_FILES> GameBitmapXlat;
 #define PIGGY_BUFFER_SIZE (2400*1024)
 #endif
 #define PIGGY_SMALL_BUFFER_SIZE (1400*1024)		// size of buffer when CGameArg.SysLowMem is set
-
-static RAIIPHYSFS_File Piggy_fp;
 
 ubyte bogus_bitmap_initialized=0;
 std::array<uint8_t, 64 * 64> bogus_data;
@@ -152,12 +158,12 @@ digi_sound bogus_sound;
 grs_bitmap bogus_bitmap;
 int MacPig = 0;	// using the Macintosh pigfile?
 int PCSharePig = 0; // using PC Shareware pigfile?
+namespace {
 static std::array<int, MAX_SOUND_FILES> SoundCompressed;
+}
 #elif defined(DXX_BUILD_DESCENT_II)
 char Current_pigfile[FILENAME_LEN] = "";
 int Pigfile_initialized=0;
-
-static std::unique_ptr<ubyte[]> Bitmap_replacement_data;
 
 #define BM_FLAGS_TO_COPY (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT \
                          | BM_FLAG_NO_LIGHTING | BM_FLAG_RLE | BM_FLAG_RLE_BIG)
@@ -258,6 +264,7 @@ static int piggy_is_needed(const int soundnum)
  * reads a DiskBitmapHeader structure from a PHYSFS_File
  */
 namespace dsx {
+namespace {
 static void DiskBitmapHeader_read(DiskBitmapHeader *dbh, PHYSFS_File *fp)
 {
 	PHYSFS_read(fp, dbh->name, 8, 1);
@@ -300,6 +307,8 @@ static void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, PHYSFS_File *fp)
 	dbh->offset = PHYSFSX_readInt(fp);
 }
 #endif
+
+}
 
 void swap_0_255(grs_bitmap &bmp)
 {
@@ -441,6 +450,7 @@ int piggy_find_sound(const char *name)
 }
 
 namespace dsx {
+namespace {
 static void piggy_close_file()
 {
 	if (Piggy_fp)
@@ -450,6 +460,7 @@ static void piggy_close_file()
 		Current_pigfile[0] = 0;
 #endif
 	}
+}
 }
 
 #if defined(DXX_BUILD_DESCENT_I)

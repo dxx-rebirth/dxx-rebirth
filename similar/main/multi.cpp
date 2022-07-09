@@ -111,6 +111,7 @@ static void multi_add_lifetime_kills(int count);
 namespace {
 static void multi_send_heartbeat();
 static void multi_send_ranking(netplayer_info::player_rank);
+static void multi_send_gmode_update();
 }
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
@@ -121,9 +122,6 @@ static void multi_send_drop_flag(vmobjptridx_t objnum,int seed);
 }
 }
 #endif
-namespace {
-static void multi_send_gmode_update();
-}
 namespace dcx {
 namespace {
 static int imulti_new_game; // to prep stuff for level only when starting new game
@@ -3159,10 +3157,14 @@ void multi_consistency_error(int reset)
 	multi_reset_stuff();
 }
 
+namespace {
+
 template <netgrant_bit grant, netflag_bit flag, int s = static_cast<int>(grant) - static_cast<int>(flag)>
 static constexpr unsigned grant_shift_helper(const packed_spawn_granted_items p)
 {
 	return s > 0 ? p.mask >> s : p.mask << -s;
+}
+
 }
 
 namespace dsx {

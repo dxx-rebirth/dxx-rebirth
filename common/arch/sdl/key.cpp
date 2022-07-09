@@ -389,8 +389,6 @@ struct d_event_keycommand : d_event
 	}
 };
 
-}
-
 static int key_ismodlck(int keycode)
 {
 	switch (keycode)
@@ -411,6 +409,8 @@ static int key_ismodlck(int keycode)
 		default:
 			return 0;
 	}
+}
+
 }
 
 unsigned char key_ascii()
@@ -561,6 +561,8 @@ void key_init()
 	key_flush();
 }
 
+namespace {
+
 static void restore_sticky_key(const uint8_t *keystate, const unsigned i)
 {
 #if SDL_MAJOR_VERSION == 1
@@ -570,6 +572,8 @@ static void restore_sticky_key(const uint8_t *keystate, const unsigned i)
 #endif
 	const auto v = keystate[ki];	// do not flush status of sticky keys
 	keyd_pressed.update_pressed(i, v);
+}
+
 }
 
 void key_flush()

@@ -185,9 +185,9 @@ public:
 #undef for_each_tuple_item
 };
 
-}
-
 static std::array<d_physical_joystick, DXX_MAX_JOYSTICKS> SDL_Joysticks;
+
+}
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
 window_event_result joy_button_handler(const SDL_JoyButtonEvent *const jbe)
@@ -254,12 +254,16 @@ window_event_result joy_hat_handler(const SDL_JoyHatEvent *const jhe)
 
 #if DXX_MAX_AXES_PER_JOYSTICK
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
+namespace {
+
 static window_event_result send_axis_button_event(unsigned button, event_type e)
 {
 	Joystick.button_state[button] = (e == EVENT_JOYSTICK_BUTTON_UP) ? 0 : 1;
 	const d_event_joystickbutton event{ e, button };
 	con_printf(CON_DEBUG, "Sending event %s, button %d", (e == EVENT_JOYSTICK_BUTTON_UP) ? "EVENT_JOYSTICK_BUTTON_UP" : "EVENT_JOYSTICK_BUTTON_DOWN", event.button);
 	return event_send(event);
+}
+
 }
 
 window_event_result joy_axisbutton_handler(const SDL_JoyAxisEvent *const jae)
@@ -316,6 +320,8 @@ window_event_result joy_axis_handler(const SDL_JoyAxisEvent *const jae)
 
 /* ----------------------------------------------- */
 
+namespace {
+
 static unsigned check_warn_joy_support_limit(const unsigned n, const char *const desc, const unsigned MAX)
 {
 	if (n <= MAX)
@@ -325,6 +331,8 @@ static unsigned check_warn_joy_support_limit(const unsigned n, const char *const
 	}
 	Warning("sdl-joystick: found %d %ss, only %d supported.\n", n, desc, MAX);
 	return MAX;
+}
+
 }
 
 void joy_init()

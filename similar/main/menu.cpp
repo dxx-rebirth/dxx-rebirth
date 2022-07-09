@@ -443,6 +443,7 @@ static int MakeNewPlayerFile(int allow_abort)
 	return 1;
 }
 
+static void do_sound_menu();
 }
 
 }
@@ -1033,13 +1034,6 @@ window_event_result do_new_game_menu()
 	return window_event_result::close;	// exit mission listbox
 }
 
-}
-
-}
-
-static void do_sound_menu();
-namespace dsx {
-namespace {
 static void hud_config();
 static void graphics_config();
 static void gameplay_config();
@@ -2698,18 +2692,11 @@ window_event_result sound_menu::event_handler(const d_event &event)
 	return newmenu::event_handler(event);
 }
 
-}
-}
-
 void do_sound_menu()
 {
 	auto menu = window_create<sound_menu>(grd_curscreen->sc_canvas);
 	(void)menu;
 }
-
-namespace dsx {
-
-namespace {
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define DSX_GAME_SPECIFIC_OPTIONS(VERB)	\

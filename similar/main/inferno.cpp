@@ -124,6 +124,8 @@ uint8_t HiresGFXAvailable;
 int MacHog = 0;	// using a Mac hogfile?
 #endif
 
+namespace {
+
 //read help from a file & print to screen
 static void print_commandline_help()
 {
@@ -279,6 +281,8 @@ static void print_commandline_help()
 	VERB("\n\n")	\
 
 	printf(DXX_COMMAND_LINE_HELP(DXX_COMMAND_LINE_HELP_FMT) DXX_COMMAND_LINE_HELP(DXX_COMMAND_LINE_HELP_ARG));
+}
+
 }
 
 int Quitting = 0;
@@ -452,6 +456,8 @@ namespace dsx {
 //	DESCENT II by Parallax Software
 //	(varies based on preprocessor options)
 //		Descent Main
+
+namespace {
 
 static int main(int argc, char *argv[])
 {
@@ -767,6 +773,8 @@ static int main(int argc, char *argv[])
 	PHYSFSX_removeArchiveContent();
 
 	return(0);		//presumably successful exit
+}
+
 }
 
 }

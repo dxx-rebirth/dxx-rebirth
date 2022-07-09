@@ -88,8 +88,6 @@ unsigned Max_linear_depth = 50; // Deepest segment at which linear interpolation
 int	Clear_window_color=-1;
 int	Clear_window=2;	// 1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
 
-static uint16_t s_current_generation;
-
 // When any render function needs to know what's looking at it, it should 
 // access Viewer members.
 namespace dsx {
@@ -101,14 +99,12 @@ constexpr
 #endif
 fix Render_zoom = 0x9000;					//the player's zoom factor
 
+namespace {
+static uint16_t s_current_generation;
 #ifndef NDEBUG
 static std::bitset<MAX_OBJECTS> object_rendered;
 #endif
-
-#if DXX_USE_EDITOR
-int	Render_only_bottom=0;
-int	Bottom_bitmap_num = 9;
-#endif
+}
 
 namespace dcx {
 
@@ -118,12 +114,16 @@ int Window_clip_left,Window_clip_top,Window_clip_right,Window_clip_bot;
 }
 
 #if DXX_USE_EDITOR
+int	Render_only_bottom=0;
+int	Bottom_bitmap_num = 9;
 int _search_mode = 0;			//true if looking for curseg,side,face
 short _search_x,_search_y;	//pixel we're looking at
+namespace {
 static int found_face;
 static sidenum_t found_side;
 static segnum_t found_seg;
 static objnum_t found_obj;
+}
 #else
 constexpr int _search_mode = 0;
 #endif
@@ -948,8 +948,6 @@ constexpr std::array<
 //@@
 //@@}
 
-}
-
 //given an edge, tell what side is on that edge
 static std::optional<sidenum_t> find_seg_side(const shared_segment &seg, const std::array<vertnum_t, 2> &verts, const sidenum_t notside)
 {
@@ -1137,6 +1135,8 @@ static void sort_segment_object_list(fvcobjptr &vcobjptr, const vms_vector &View
 	render_compare_context_t context(vcobjptr, Viewer_eye, segstate);
 	auto &v = segstate.objects;
 	std::sort(v.begin(), v.end(), std::cref(context));
+}
+
 }
 
 }

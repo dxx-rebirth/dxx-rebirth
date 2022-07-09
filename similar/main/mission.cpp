@@ -1478,6 +1478,7 @@ int select_mission(const mission_filter_mode mission_filter, const menu_title me
 }
 
 #if DXX_USE_EDITOR
+namespace {
 static int write_mission(void)
 {
 	auto &msn_extension =
@@ -1546,6 +1547,7 @@ static int write_mission(void)
 #endif
 
 	return 1;
+}
 }
 
 void create_new_mission(void)

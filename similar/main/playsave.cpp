@@ -186,6 +186,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct player_config PlayerCfg;
 namespace dsx {
+namespace {
 #if defined(DXX_BUILD_DESCENT_I)
 static void plyr_read_stats();
 static std::array<saved_game_sw, N_SAVE_SLOTS> saved_games;
@@ -194,7 +195,9 @@ static inline void plyr_read_stats() {}
 static int get_lifetime_checksum (int a,int b);
 #endif
 }
+}
 
+namespace {
 template <std::size_t N>
 static void check_weapon_reorder(std::array<ubyte, N> &w)
 {
@@ -212,6 +215,7 @@ static void check_weapon_reorder(std::array<ubyte, N> &w)
 		range_for (const uint_fast32_t i, xrange(1u, N))
 			w[i] = i - 1;
 	}
+}
 }
 
 namespace dsx {
@@ -311,6 +315,7 @@ void new_player_config()
 }
 }
 
+namespace {
 static int convert_pattern_array(const char *name, std::size_t namelen, int *array, std::size_t arraylen, const char *word, const char *line)
 {
 	if (memcmp(word, name, namelen - 1))
@@ -351,8 +356,10 @@ static const char *splitword(char *line, char c)
 	}
 	return p;
 }
+}
 
 namespace dsx {
+namespace {
 static void read_player_dxx(const char *filename)
 {
 	plyr_read_stats();
@@ -575,8 +582,10 @@ static void read_player_dxx(const char *filename)
 		}
 	}
 }
+}
 
 #if defined(DXX_BUILD_DESCENT_I)
+namespace {
 constexpr char effcode1[]="d1xrocks_SKCORX!D";
 constexpr char effcode2[]="AObe)7Rn1 -+/zZ'0";
 constexpr char effcode3[]="aoeuidhtnAOEUIDH6";
@@ -659,6 +668,7 @@ static void plyr_read_stats()
 {
 	plyr_read_stats_v(&PlayerCfg.NetlifeKills,&PlayerCfg.NetlifeKilled);
 }
+}
 
 void plyr_save_stats()
 {
@@ -735,6 +745,7 @@ void plyr_save_stats()
 }
 #endif
 
+namespace {
 static int write_player_dxx(const char *filename)
 {
 	int rc=0;
@@ -856,6 +867,7 @@ static int write_player_dxx(const char *filename)
 	}
 	else
 		return errno;
+}
 }
 
 //read in the player's saved games.  returns errno (0 == no error)
@@ -1234,6 +1246,7 @@ int read_player_file()
 }
 }
 
+namespace {
 /* Given a Mission_path, return a pair of pointers.
  * - If the mission cannot be saved, both pointers are nullptr.
  * - If the mission name was previously used, return a pointer to that
@@ -1260,6 +1273,7 @@ static std::array<std::array<hli, MAX_MISSIONS>::pointer, 2> find_hli_entry(cons
 	};
 	const auto i = std::find_if(r.begin(), r.end(), a);
 	return {{&*i, r.end()}};
+}
 }
 
 //set a new highest level for player for this mission
@@ -1575,6 +1589,7 @@ void write_player_file()
 #endif
 }
 
+namespace {
 #if defined(DXX_BUILD_DESCENT_II)
 static int get_lifetime_checksum (int a,int b)
 {
@@ -1597,6 +1612,7 @@ static void convert_duplicate_powerup_integer(packed_netduplicate_items &d, cons
 	unsigned i = 0;
 	if (convert_integer(i, value) && !(i & ~((1 << width) - 1)))
 		d.set_sub_field<shift, width>(i);
+}
 }
 
 // read stored values from ngp file to netgame_info

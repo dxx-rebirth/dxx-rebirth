@@ -97,7 +97,7 @@ partial_range_t<const jointpos *> robot_get_anim_state(const d_robot_info_array 
 
 #ifndef NDEBUG
 //for test, set a robot to a specific state
-static void set_robot_state(object_base &obj, const unsigned state) __attribute_used;
+__attribute_used
 static void set_robot_state(object_base &obj, const unsigned state)
 {
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
@@ -173,6 +173,8 @@ void robot_set_angles(robot_info *r,polymodel *pm,std::array<std::array<vms_angv
 
 }
 
+namespace {
+
 /*
  * reads n jointlist structs from a PHYSFS_File
  */
@@ -193,6 +195,8 @@ static void jointlist_read(PHYSFS_File *fp, std::array<jointlist, N_ANIM_STATES>
 			 */
 			i.offset = 0;
 	}
+}
+
 }
 
 namespace dsx {

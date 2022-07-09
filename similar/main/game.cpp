@@ -118,11 +118,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 #include "segiter.h"
 
-static fix64 last_timer_value=0;
-static fix64 sync_timer_value=0;
 d_time_fix ThisLevelTime;
 
 namespace dcx {
+namespace {
+static fix64 last_timer_value;
+static fix64 sync_timer_value;
+}
 grs_subcanvas Screen_3d_window;							// The rectangle for rendering the mine to
 int	force_cockpit_redraw=0;
 int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
@@ -1109,13 +1111,13 @@ static inline void do_afterburner_stuff(object_array &)
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 ubyte	Last_afterburner_state = 0;
-static fix Last_afterburner_charge;
 fix64	Time_flash_last_played;
 
 #define AFTERBURNER_LOOP_START	((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?32027:(32027/2))		//20098
 #define AFTERBURNER_LOOP_END		((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?48452:(48452/2))		//25776
 
 namespace {
+static fix Last_afterburner_charge;
 
 static void do_afterburner_stuff(object_array &Objects)
 {
@@ -1208,6 +1210,8 @@ void PALETTE_FLASH_ADD(int _dr, int _dg, int _db)
 
 }
 
+namespace {
+
 static void diminish_palette_color_toward_zero(int& palette_color_add, const int& dec_amount)
 {
 	if (palette_color_add > 0 ) {
@@ -1221,6 +1225,8 @@ static void diminish_palette_color_toward_zero(int& palette_color_add, const int
 		else
 			palette_color_add += dec_amount;
 	}
+}
+
 }
 
 namespace dsx {

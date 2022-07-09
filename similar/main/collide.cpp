@@ -739,8 +739,6 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 #define VOLATILE_WALL_DAMAGE_FORCE	i2f(5)
 #define VOLATILE_WALL_DAMAGE_RADIUS	i2f(30)
 
-// int Show_seg_and_side = 0;
-
 namespace {
 
 static window_event_result collide_weapon_and_wall(

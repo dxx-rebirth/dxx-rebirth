@@ -1055,6 +1055,8 @@ void state_poll_autosave_game(d_game_unique_state &GameUniqueState, const d_leve
 	state_autosave_game(multiplayer);
 }
 
+namespace {
+
 /* Present a menu for selection of a savegame filename.
  * For saving, dsc should be a pre-allocated buffer into which the new
  * savegame description will be stored.
@@ -1107,6 +1109,8 @@ static d_game_unique_state::save_slot state_get_savegame_filename(grs_canvas &ca
 	return choice;
 }
 
+}
+
 d_game_unique_state::save_slot state_get_save_file(grs_canvas &canvas, d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *const dsc, const blind_save blind_save)
 {
 	return state_get_savegame_filename(canvas, fname, dsc, menu_subtitle{"Save Game"}, blind_save);
@@ -1119,6 +1123,7 @@ d_game_unique_state::save_slot state_get_restore_file(grs_canvas &canvas, d_game
 
 #if defined(DXX_BUILD_DESCENT_I)
 #elif defined(DXX_BUILD_DESCENT_II)
+namespace {
 
 //	-----------------------------------------------------------------------------------
 //	Imagine if C had a function to copy a file...
@@ -1152,6 +1157,8 @@ static int copy_file(const char *old_file, const char *new_file)
 static void format_secret_sgc_filename(std::array<char, PATH_MAX> &fname, const d_game_unique_state::save_slot filenum)
 {
 	snprintf(fname.data(), fname.size(), PLAYER_DIRECTORY_STRING("%xsecret.sgc"), static_cast<unsigned>(filenum));
+}
+
 }
 #endif
 

@@ -75,6 +75,8 @@ static void build_light_table();
 
 }
 
+namespace {
+
 // ------------------------------------------------------------------------
 static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const int i, const int j, cg3s_point &p0, cg3s_point &p1, cg3s_point &p2, cg3s_point &p3, int &mine_tiles_drawn)
 {
@@ -157,10 +159,7 @@ static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const in
 		//if (ext_expl_playing)
 		//	draw_fireball(&external_explosion);
 	}
-
 }
-
-namespace {
 
 class terrain_y_cache
 {
@@ -170,8 +169,6 @@ class terrain_y_cache
 public:
 	vms_vector &operator()(uint_fast32_t h);
 };
-
-}
 
 vms_vector &terrain_y_cache::operator()(uint_fast32_t h)
 {
@@ -186,6 +183,8 @@ vms_vector &terrain_y_cache::operator()(uint_fast32_t h)
 		g3_rotate_delta_vec(dyp,tv);
 	}
 	return dyp;
+}
+
 }
 
 void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_vector &org_point,int org_2dx,int org_2dy)

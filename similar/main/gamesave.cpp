@@ -139,6 +139,7 @@ int Gamesave_num_org_robots = 0;
 //--unused-- grs_bitmap * Gamesave_saved_bitmap = NULL;
 
 #if DXX_USE_EDITOR
+namespace {
 // Return true if this level has a name of the form "level??"
 // Note that a pathspec can appear at the beginning of the filename.
 static int is_real_level(const char *filename)
@@ -149,6 +150,7 @@ static int is_real_level(const char *filename)
 		return 0;
 
 	return !d_strnicmp(&filename[len-11], "level");
+}
 }
 #endif
 

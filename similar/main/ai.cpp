@@ -92,7 +92,6 @@ const object *Ai_last_missile_camera;
 namespace {
 static void init_boss_segments(const segment_array &segments, const object &boss_objnum, d_level_shared_boss_state::special_segment_array_t &a, int size_check, int one_wall_hack);
 static void ai_multi_send_robot_position(object &objnum, int force);
-}
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define	BOSS_DEATH_SOUND_DURATION	0x2ae14		//	2.68 seconds
@@ -123,6 +122,7 @@ constexpr std::array<std::array<int, 3>, NUM_D2_BOSSES> Spew_bots{{
 constexpr std::array<int, NUM_D2_BOSSES> Max_spew_bots{{2, 1, 2, 3, 3, 3, 3, 3}};
 static fix Dist_to_last_fired_upon_player_pos;
 #endif
+}
 }
 
 namespace dcx {
@@ -243,6 +243,8 @@ segnum_t             Believed_player_seg;
 
 namespace dcx {
 
+vms_vector      Believed_player_pos;
+
 namespace {
 
 struct robot_to_player_visibility_state
@@ -256,21 +258,12 @@ struct awareness_t : enumerated_array<player_awareness_type_t, MAX_SEGMENTS, seg
 {
 };
 
-}
-
-}
-
 static int ai_evaded;
 
 // These globals are set by a call to find_vector_intersection, which is a slow routine,
 // so we don't want to call it again (for this object) unless we have to.
 static vms_vector  Hit_pos;
 static fvi_info    Hit_data;
-
-namespace dcx {
-vms_vector      Believed_player_pos;
-
-namespace {
 
 static bool silly_animation_angle(fixang vms_angvec::*const a, const vms_angvec &jp, const vms_angvec &pobjp, const int flinch_attack_scale, vms_angvec &goal_angles, vms_angvec &delta_angles)
 {
@@ -2109,11 +2102,15 @@ imobjptridx_t gate_in_robot(const d_robot_info_array &Robot_info, const unsigned
 	return create_gated_robot(Robot_info, Vclip, vcobjptr, segnum, type, nullptr);
 }
 
+namespace {
+
 static imobjptridx_t gate_in_robot(const d_robot_info_array &Robot_info, fvmsegptridx &vmsegptridx, int type)
 {
 	auto &Boss_gate_segs = LevelSharedBossState.Gate_segs;
 	auto segnum = Boss_gate_segs[(d_rand() * Boss_gate_segs.size()) >> 15];
 	return gate_in_robot(Robot_info, type, vmsegptridx(segnum));
+}
+
 }
 
 }

@@ -269,6 +269,12 @@ static void recompute_automap_segment_visibility(const d_level_unique_automap_st
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+#ifdef RELEASE
+constexpr
+#endif
+static float MarkerScale = 2.0;
+static unsigned Marker_index;
+
 struct marker_delete_are_you_sure_menu : std::array<newmenu_item, 2>, newmenu
 {
 	using array_type = std::array<newmenu_item, 2>;
@@ -360,7 +366,6 @@ void init_automap_colors(automap &am)
 
 #if defined(DXX_BUILD_DESCENT_II)
 marker_message_text_t Marker_input;
-static float MarkerScale=2.0;
 
 d_marker_state MarkerState;
 
@@ -1690,8 +1695,6 @@ void automap_build_edge_list(automap &am, int add_all_edges)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static unsigned Marker_index;
-
 void InitMarkerInput ()
 {
 	//find free marker slot

@@ -91,8 +91,10 @@ const std::array<char[10], 7> Wall_names{{
 }};
 }
 
+namespace {
 static void dump_used_textures_level(PHYSFS_File *my_file, int level_num, const char *Gamesave_current_filename);
 static void say_totals(fvcobjptridx &vcobjptridx, PHYSFS_File *my_file, const char *level_name);
+}
 
 namespace dsx {
 namespace {
@@ -701,12 +703,13 @@ void write_game_text_file(const char *filename)
 	write_key_text(vcobjptridx, Segments, vcwallptridx, my_file);
 }
 
+namespace dsx {
+namespace {
 #if defined(DXX_BUILD_DESCENT_II)
 static int Ignore_tmap_num2_error;
 #endif
 
 // ----------------------------------------------------------------------------
-namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 #define determine_used_textures_level(load_level_flag,shareware_flag,level_num,tmap_buf,wall_buffer_type,level_tmap_buf,max_tmap)	determine_used_textures_level(load_level_flag,shareware_flag,level_num,tmap_buf,wall_buffer_type,level_tmap_buf,max_tmap)
 #endif
@@ -868,16 +871,20 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 #endif
 }
 }
+}
 
+namespace {
 // ----------------------------------------------------------------------------
 template <std::size_t N>
 static void merge_buffers(std::array<int, N> &dest, const std::array<int, N> &src)
 {
 	std::transform(dest.begin(), dest.end(), src.begin(), dest.begin(), std::plus<int>());
 }
+}
 
 // ----------------------------------------------------------------------------
 namespace dsx {
+namespace {
 static void say_used_tmaps(PHYSFS_File *const my_file, const perm_tmap_buffer_type &tb)
 {
 	int	i;
@@ -896,7 +903,6 @@ static void say_used_tmaps(PHYSFS_File *const my_file, const perm_tmap_buffer_ty
 			PHYSFSX_printf(my_file, "[%3i %8s (%4i)]\n", i, AllBitmaps[i].name.data(), tb[i]);
 		}
 #endif
-}
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -925,7 +931,6 @@ static void say_used_once_tmaps(PHYSFS_File *const my_file, const perm_tmap_buff
 #endif
 
 // ----------------------------------------------------------------------------
-namespace dsx {
 static void say_unused_tmaps(PHYSFS_File *my_file, perm_tmap_buffer_type &perm_tmap_buf)
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -967,6 +972,9 @@ static void say_unused_walls(PHYSFS_File *my_file, const wall_buffer_type &tb)
 }
 #endif
 }
+}
+
+namespace {
 
 static void say_totals(fvcobjptridx &vcobjptridx, PHYSFS_File *my_file, const char *level_name)
 {
@@ -1030,12 +1038,12 @@ static void say_totals(fvcobjptridx &vcobjptridx, PHYSFS_File *my_file, const ch
 	PHYSFSX_printf(my_file, "Total robots = %3i\n", total_robots);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
-int	First_dump_level = 0;
-#endif
+}
+
+namespace dsx {
+namespace {
 
 // ----------------------------------------------------------------------------
-namespace dsx {
 static void say_totals_all(void)
 {
 	auto &&[my_file, physfserr] = PHYSFSX_openWriteBuffered("levels.all");
@@ -1062,7 +1070,9 @@ static void say_totals_all(void)
 #endif
 }
 }
+}
 
+namespace {
 static void dump_used_textures_level(PHYSFS_File *my_file, int level_num, const char *const Gamesave_current_filename)
 {
 	perm_tmap_buffer_type temp_tmap_buf;
@@ -1074,6 +1084,7 @@ static void dump_used_textures_level(PHYSFS_File *my_file, int level_num, const 
 	determine_used_textures_level(0, 1, level_num, temp_tmap_buf, temp_wall_buf, level_tmap_buf, level_tmap_buf.size());
 	PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Gamesave_current_filename);
 	say_used_tmaps(my_file, temp_tmap_buf);
+}
 }
 
 // ----------------------------------------------------------------------------

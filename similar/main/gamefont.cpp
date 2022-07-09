@@ -39,7 +39,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
 
-const std::array<char[16], 5> Gamefont_filenames_l{{
+namespace {
+
+constexpr std::array<char[16], 5> Gamefont_filenames_l{{
 	"font1-1.fnt", // Font 0
 	"font2-1.fnt", // Font 1
 	"font2-2.fnt", // Font 2
@@ -47,7 +49,7 @@ const std::array<char[16], 5> Gamefont_filenames_l{{
 	"font3-1.fnt"  // Font 4
 }};
 
-const std::array<char[16], 5> Gamefont_filenames_h{{
+constexpr std::array<char[16], 5> Gamefont_filenames_h{{
 	"font1-1h.fnt", // Font 0
 	"font2-1h.fnt", // Font 1
 	"font2-2h.fnt", // Font 2
@@ -55,11 +57,15 @@ const std::array<char[16], 5> Gamefont_filenames_h{{
 	"font3-1h.fnt"  // Font 4
 }};
 
-std::array<grs_font_ptr, MAX_FONTS> Gamefonts;
-
 static int Gamefont_installed;
+
+}
+
+std::array<grs_font_ptr, MAX_FONTS> Gamefonts;
 font_x_scale_proportion FNTScaleX(1);
 font_y_scale_proportion FNTScaleY(1);
+
+namespace {
 
 //code to allow variable GAME_FONT, added 10/7/99 Matt Mueller - updated 11/18/99 to handle all fonts, not just GFONT_SMALL
 //	take scry into account? how/when?
@@ -101,6 +107,8 @@ static void gamefont_loadfont(grs_canvas &canvas, int gf, int fi)
 		return;
 	}
 	font_conf[gf].cur=fi;
+}
+
 }
 
 void gamefont_choose_game_font(int scrx,int scry){
@@ -150,6 +158,8 @@ void gamefont_choose_game_font(int scrx,int scry){
 	}
 }
 
+namespace {
+
 static void addfontconf(int gf, int x, int y, const char *const fn)
 {
 	if (!PHYSFSX_exists(fn,1))
@@ -169,6 +179,8 @@ static void addfontconf(int gf, int x, int y, const char *const fn)
 	font_conf[gf].font[font_conf[gf].num].y=y;
 	strcpy(font_conf[gf].font[font_conf[gf].num].f.name,fn);
 	font_conf[gf].num++;
+}
+
 }
 
 namespace dsx {

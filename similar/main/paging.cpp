@@ -56,6 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 #include "segiter.h"
 
+namespace {
 static void paging_touch_vclip(const vclip &vc, const unsigned line)
 #define paging_touch_vclip(V)	paging_touch_vclip(V, __LINE__)
 {
@@ -317,6 +318,7 @@ static void paging_touch_walls(const Textures_array &Textures, const wall_animat
 				PIGGY_PAGE_IN(Textures[j]);
 		}
 	}
+}
 }
 
 namespace dsx {

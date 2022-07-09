@@ -42,9 +42,9 @@ struct mouseinfo : flushable_mouseinfo
 	enumerated_array<fix64, MOUSE_MAX_BUTTONS, mbtn> time_lastpressed;
 };
 
-}
-
 static mouseinfo Mouse;
+
+}
 
 d_event_mousebutton::d_event_mousebutton(const event_type etype, const mbtn b) :
 	d_event{etype}, button(b)
@@ -60,6 +60,8 @@ void mouse_close(void)
 {
 	SDL_ShowCursor(SDL_ENABLE);
 }
+
+namespace {
 
 static window_event_result maybe_send_z_move(const mbtn button)
 {
@@ -100,6 +102,8 @@ static window_event_result maybe_send_doubleclick(const fix64 now, const mbtn bu
 	const d_event_mousebutton event{EVENT_MOUSE_DOUBLE_CLICKED, button};
 	con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_DOUBLE_CLICKED, button %d, coords %d,%d", underlying_value(button), Mouse.x, Mouse.y);
 	return event_send(event);
+}
+
 }
 
 window_event_result mouse_button_handler(const SDL_MouseButtonEvent *const mbe)
@@ -198,12 +202,16 @@ void mouse_get_delta( int *dx, int *dy, int *dz )
 	SDL_GetRelativeMouseState(dx, dy);
 }
 
+namespace {
+
 template <bool noactivate>
 static void mouse_change_cursor()
 {
 	Mouse.cursor_enabled = (!noactivate && !CGameArg.CtlNoMouse && !CGameArg.CtlNoCursor);
 	if (!Mouse.cursor_enabled)
 		SDL_ShowCursor(SDL_DISABLE);
+}
+
 }
 
 void mouse_enable_cursor()

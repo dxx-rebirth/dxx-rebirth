@@ -56,6 +56,8 @@ void gr_pixel(grs_bitmap &cv_bitmap, const unsigned x, const unsigned y, const c
 	gr_upixel(cv_bitmap, x, y, color);
 }
 
+namespace {
+
 #if !DXX_USE_OGL
 #define gr_bm_upixel(C,B,X,Y,C2) gr_bm_upixel(B,X,Y,C2)
 #endif
@@ -75,6 +77,8 @@ static inline void gr_bm_upixel(grs_canvas &canvas, grs_bitmap &bm, const uint_f
 		case bm_mode::ilbm:
 			break;
 	}
+}
+
 }
 
 void gr_bm_pixel(grs_canvas &canvas, grs_bitmap &bm, const uint_fast32_t x, const uint_fast32_t y, const color_palette_index color)

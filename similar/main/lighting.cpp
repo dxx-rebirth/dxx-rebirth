@@ -632,9 +632,9 @@ static g3s_lrgb compute_seg_dynamic_light(const enumerated_array<g3s_lrgb, MAX_V
 
 static std::array<g3s_lrgb, MAX_OBJECTS> object_light;
 static std::array<object_signature_t, MAX_OBJECTS> object_sig;
+static int reset_lighting_hack;
 }
 const object *old_viewer;
-static int reset_lighting_hack;
 #define LIGHT_RATE i2f(4) //how fast the light ramps up
 
 void start_lighting_frame(const object &viewer)

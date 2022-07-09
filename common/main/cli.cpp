@@ -81,9 +81,9 @@ const char CLIState::g_prompt_strings[] = {
 	g_prompt_mode_cmd,
 };
 
-}
-
 static CLIState g_cli;
+
+}
 
 /* Initializes the cli */
 void cli_init()

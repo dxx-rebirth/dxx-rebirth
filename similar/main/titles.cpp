@@ -338,8 +338,6 @@ struct briefing_screen {
 #define	ENDING_LEVEL_NUM_OEMSHARE 0x7f
 #define	ENDING_LEVEL_NUM_REGISTER 0x7e
 
-}
-
 static grs_subcanvas_ptr create_spinning_robot_sub_canvas(grs_canvas &canvas)
 {
 	return gr_create_sub_canvas(canvas, rescale_x(canvas.cv_bitmap, 138), rescale_y(canvas.cv_bitmap, 55), rescale_x(canvas.cv_bitmap, 166), rescale_y(canvas.cv_bitmap, 138));
@@ -382,6 +380,7 @@ static void get_message_name(const char *&message, std::array<char, 32> &result,
 		}
 	message = p;
 	strcpy(i, trailer);
+}
 }
 }
 
@@ -1038,6 +1037,8 @@ static void set_briefing_fontcolor(briefing &br)
 
 }
 
+namespace {
+
 static void redraw_messagestream(grs_canvas &canvas, const grs_font &cv_font, const msgstream &stream, unsigned &lastcolor)
 {
 	if (lastcolor != stream.color)
@@ -1046,6 +1047,8 @@ static void redraw_messagestream(grs_canvas &canvas, const grs_font &cv_font, co
 		gr_set_fontcolor(canvas, stream.color, -1);
 	}
 	gr_string(canvas, cv_font, stream.x + 1, stream.y, stream.ch.data());
+}
+
 }
 
 namespace dsx {
@@ -1181,6 +1184,8 @@ static void show_animated_bitmap(grs_canvas &canvas, briefing *br)
 
 }
 
+namespace {
+
 //-----------------------------------------------------------------------------
 static void show_briefing_bitmap(grs_canvas &canvas, grs_bitmap *bmp)
 {
@@ -1191,6 +1196,8 @@ static void show_briefing_bitmap(grs_canvas &canvas, grs_bitmap *bmp)
 
 	auto bitmap_canv = gr_create_sub_canvas(canvas, rescale_x(canvas.cv_bitmap, 220), rescale_y(canvas.cv_bitmap, 55), bmp->bm_w*scale, bmp->bm_h*scale);
 	show_fullscr(*bitmap_canv, *bmp);
+}
+
 }
 
 //-----------------------------------------------------------------------------

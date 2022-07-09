@@ -60,14 +60,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 
 namespace dsx {
-static int multi_add_controlled_robot(vmobjptridx_t objnum, int agitation);
 namespace {
+static int multi_add_controlled_robot(vmobjptridx_t objnum, int agitation);
 void multi_drop_robot_powerups(object &objnum);
-}
-}
 static void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now);
 static void multi_send_release_robot(vmobjptridx_t objnum);
 static void multi_delete_controlled_robot(const vmobjptridx_t objnum);
+}
+}
 
 //
 // Code for controlling robots in multiplayer games
@@ -245,6 +245,7 @@ void multi_strip_robots(const int playernum)
 }
 
 namespace dsx {
+namespace {
 int multi_add_controlled_robot(const vmobjptridx_t objnum, int agitation)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -321,7 +322,6 @@ int multi_add_controlled_robot(const vmobjptridx_t objnum, int agitation)
 	robot_last_send_time[i] = robot_last_message_time[i] = GameTime64;
 	return(1);
 }	
-}
 
 void multi_delete_controlled_robot(const vmobjptridx_t objnum)
 {
@@ -349,6 +349,8 @@ void multi_delete_controlled_robot(const vmobjptridx_t objnum)
 	robot_send_pending[i] = 0;
 	robot_fired[i] = 0;
 }
+}
+}
 
 struct multi_claim_robot
 {
@@ -367,6 +369,9 @@ void multi_send_claim_robot(const vmobjptridx_t objnum)
 	multi_serialize_write(2, multi_claim_robot{static_cast<uint8_t>(Player_num), r.owner, r.objnum});
 }
 
+namespace dsx {
+namespace {
+
 void multi_send_release_robot(const vmobjptridx_t objnum)
 {
 	multi_command<MULTI_ROBOT_RELEASE> multibuf;
@@ -384,6 +389,9 @@ void multi_send_release_robot(const vmobjptridx_t objnum)
 	PUT_INTEL_SHORT(&multibuf[2], remote_objnum);
 
 	multi_send_data(multibuf, 2);
+}
+
+}
 }
 
 #define MIN_ROBOT_COM_GAP F1_0/12
@@ -424,8 +432,8 @@ int multi_send_robot_frame(int sent)
 	return(rval);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
+#if defined(DXX_BUILD_DESCENT_II)
 /*
  * The thief bot moves around even when not controlled by a player. Due to its erratic and random behaviour, it's movement will diverge heavily between players and cause it to teleport when a player takes over.
  * To counter this, let host update positions when no one controls it OR the client which does.
@@ -455,9 +463,9 @@ void multi_send_thief_frame()
         }
 }
 
-}
 #endif
 
+namespace {
 void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now)
 {
 	multi_command<MULTI_ROBOT_POSITION> multibuf;
@@ -487,6 +495,9 @@ void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now)
 	PUT_INTEL_INT(&multibuf[loc], qpp.rotvel.z);			loc += 4; // 46 + 5 = 51
 
 	multi_send_data<MULTI_ROBOT_POSITION>(multibuf, now?1:0);
+}
+
+}
 }
 
 void multi_send_robot_position(object &obj, int force)
@@ -651,10 +662,14 @@ DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_UPDATE_BUDDY_STATE, update_buddy_state, 
 
 }
 
+namespace {
+
 template <typename T, typename... Args>
 static inline void multi_send_boss_action(objnum_t bossobjnum, Args&&... args)
 {
 	multi_serialize_write(2, T{bossobjnum, std::forward<Args>(args)...});
+}
+
 }
 
 namespace dsx {
@@ -694,6 +709,7 @@ void multi_send_boss_create_robot(vmobjidx_t bossobjnum, const vmobjptridx_t obj
 #define MAX_ROBOT_POWERUPS 4
 
 namespace dsx {
+namespace {
 
 static void multi_send_create_robot_powerups(const object_base &del_obj)
 {
@@ -743,6 +759,7 @@ static void multi_send_create_robot_powerups(const object_base &del_obj)
 	Net_create_loc = 0;
 
 	multi_send_data(multibuf, 2);
+}
 }
 }
 

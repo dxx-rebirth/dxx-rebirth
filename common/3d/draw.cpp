@@ -54,7 +54,10 @@ void g3_set_special_render(tmap_drawer_type tmap_drawer)
 {
 	tmap_drawer_ptr = tmap_drawer;
 }
+
 #if !DXX_USE_OGL
+namespace {
+
 //deal with a clipped line
 static void must_clip_line(const g3_draw_line_context &context, g3s_point *p0, g3s_point *p1, const uint8_t codes_or, temporary_points_t &tp)
 {
@@ -72,6 +75,8 @@ static void must_clip_line(const g3_draw_line_context &context, g3s_point *p0, g
 
 	if (p1->p3_flags & PF_TEMP_POINT)
 		tp.free_temp_point(p1);
+}
+
 }
 
 //draws a line. takes two points.  returns true if drew
@@ -116,6 +121,10 @@ bool do_facing_check(const std::array<cg3s_point *, 3> &vertlist)
 }
 
 #if !DXX_USE_OGL
+namespace {
+
+static void must_clip_tmap_face(grs_canvas &, int nv, g3s_codes cc, grs_bitmap &bm, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1);
+
 //deal with face that must be clipped
 static void must_clip_flat_face(grs_canvas &canvas, int nv, g3s_codes cc, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1, const uint8_t color)
 {
@@ -142,6 +151,8 @@ static void must_clip_flat_face(grs_canvas &canvas, int nv, g3s_codes cc, polygo
 	//free temp points
 free_points:
 	;
+}
+
 }
 
 //draw a flat-shaded face.
@@ -190,8 +201,6 @@ void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cg3s_point *const
 	gr_upoly_tmap(canvas, nv, Vertex_list, color);
 	//say it drew
 }
-
-static void must_clip_tmap_face(grs_canvas &, int nv, g3s_codes cc, grs_bitmap &bm, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1);
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew
@@ -246,6 +255,8 @@ void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *con
 	(*tmap_drawer_ptr)(canvas, bm, nv, bufptr);
 }
 
+namespace {
+
 static void must_clip_tmap_face(grs_canvas &canvas, int nv, g3s_codes cc, grs_bitmap &bm, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1)
 {
 	temporary_points_t tp;
@@ -271,6 +282,8 @@ free_points:
 	;
 
 //	Assert(free_point_num==0);
+}
+
 }
 
 //draw a sortof sphere - i.e., the 2d radius is proportional to the 3d

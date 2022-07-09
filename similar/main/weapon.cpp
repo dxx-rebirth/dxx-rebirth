@@ -279,6 +279,7 @@ window_event_result weapon_reorder_menu<cycle_weapon_state>::event_handler(const
 // autoselect ordering
 
 namespace dsx {
+namespace {
 #if defined(DXX_BUILD_DESCENT_I)
 constexpr std::array<uint8_t, MAX_PRIMARY_WEAPONS + 1> DefaultPrimaryOrder{{ 4, 3, 2, 1, 0, 255 }};
 constexpr std::array<uint8_t, MAX_SECONDARY_WEAPONS + 1> DefaultSecondaryOrder{{ 4, 3, 1, 0, 255, 2 }};
@@ -298,6 +299,7 @@ static primary_weapon_index_t get_mapped_weapon_index(const player_info &player_
 		return primary_weapon_index_t::SUPER_LASER_INDEX;
 #endif
 	return weapon_index;
+}
 }
 }
 
@@ -1366,9 +1368,9 @@ void smega_rock_stuff(void)
 	*least = GameTime64;
 }
 
-static int	Super_mines_yes = 1;
-
 namespace {
+
+static uint8_t Super_mines_yes = 1;
 
 static bool immediate_detonate_smart_mine(const vcobjptridx_t smart_mine, const vcobjptridx_t target)
 {

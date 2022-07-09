@@ -247,6 +247,8 @@ void draw_object_tmap_rod(grs_canvas &canvas, const d_level_unique_light_state *
 #define	CLOAK_FADEIN_DURATION_ROBOT	F1_0
 #define	CLOAK_FADEOUT_DURATION_ROBOT	F1_0
 
+namespace {
+
 //do special cloaked render
 static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, const g3s_lrgb light, glow_values_t glow, const fix64 cloak_start_time, const fix total_cloaked_time, const fix Cloak_fadein_duration, const fix Cloak_fadeout_duration)
 {
@@ -527,6 +529,8 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 
 }
 
+}
+
 //------------------------------------------------------------------------------
 // These variables are used to keep a list of the 3 closest robots to the viewer.
 // The code works like this: Every time render object is called with a polygon model,
@@ -637,6 +641,7 @@ static void set_robot_location_info(object &objp)
 	}
 }
 
+static const object *Viewer_save;
 }
 
 //	------------------------------------------------------------------------------------------------------------------
@@ -1320,15 +1325,16 @@ void obj_delete(d_level_unique_object_state &LevelUniqueObjectState, segment_arr
 #define	DEATH_SEQUENCE_LENGTH			(F1_0*5)
 #define	DEATH_SEQUENCE_EXPLODE_TIME	(F1_0*2)
 
-object	*Dead_player_camera = NULL;	//	Object index of object watching deader.
-static const object *Viewer_save;
+object *Dead_player_camera;	//	Object index of object watching deader.
 }
 namespace dcx {
 player_dead_state Player_dead_state = player_dead_state::no;			//	If !0, then player is dead, but game continues so he can watch.
+namespace {
 static int Player_flags_save;
 static fix Camera_to_player_dist_goal = F1_0*4;
 static typename object::control_type Control_type_save;
 static render_type_t Render_type_save;
+}
 
 unsigned laser_parent_is_matching_signature(const laser_parent &l, const object_base &o)
 {

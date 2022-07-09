@@ -547,13 +547,6 @@ uint8_t get_effective_netgame_status(const d_level_unique_control_center_state &
 	return Netgame.game_status;
 }
 
-}
-
-}
-
-namespace dcx {
-namespace {
-
 static std::array<RAIIsocket, 2> UDP_Socket;
 
 void net_udp_flush(std::array<RAIIsocket, 2> &UDP_Socket);
@@ -1757,6 +1750,7 @@ void dispatch_table::disconnect_player(int playernum) const
 }
 }
 
+namespace {
 static void net_udp_new_player(UDP_sequence_packet *const their)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1813,7 +1807,9 @@ static void net_udp_new_player(UDP_sequence_packet *const their)
 	net_udp_noloss_clear_mdata_trace(pnum);
 }
 }
+}
 
+namespace {
 static void net_udp_welcome_player(UDP_sequence_packet *their)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
@@ -1967,6 +1963,7 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 
 	net_udp_send_objects();
 }
+}
 
 namespace dsx {
 namespace multi {
@@ -1995,6 +1992,7 @@ int dispatch_table::objnum_is_past(const objnum_t objnum) const
 }
 }
 
+namespace {
 #if defined(DXX_BUILD_DESCENT_I)
 static void net_udp_send_door_updates(void)
 {
@@ -2029,9 +2027,11 @@ static void net_udp_send_door_updates(const playernum_t pnum)
 	}
 }
 #endif
+}
 
 }
 
+namespace {
 static void net_udp_process_monitor_vector(uint32_t vector)
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
@@ -2063,8 +2063,6 @@ static void net_udp_process_monitor_vector(uint32_t vector)
 	}
 }
 
-namespace {
-
 class blown_bitmap_array
 {
 	typedef int T;
@@ -2091,8 +2089,6 @@ public:
 		++e;
 	}
 };
-
-}
 
 static unsigned net_udp_create_monitor_vector(void)
 {
@@ -2151,6 +2147,8 @@ static void net_udp_stop_resync(const struct _sockaddr &udp_addr)
 		Player_joining_extras=-1;
 		Network_send_objnum = -1;
 	}
+}
+
 }
 
 namespace dsx {
@@ -4467,6 +4465,8 @@ void net_udp_read_sync_packet(const uint8_t *data, uint_fast32_t data_len, const
 }
 }
 
+namespace {
+
 static int net_udp_send_sync(void)
 {
 	const auto supported_start_positions_on_level = NumNetPlayerPositions;
@@ -4525,7 +4525,10 @@ static int net_udp_send_sync(void)
 	return 0;
 }
 
+}
+
 namespace dsx {
+namespace {
 static int net_udp_select_players()
 {
 	int j;
@@ -4662,6 +4665,7 @@ abort:
 		 if (run_blocking_newmenu<net_udp_select_teams_menu>(N_players, *grd_curcanv) == -1)
 			goto abort;
 	return(1);
+}
 }
 }
 
@@ -5203,6 +5207,8 @@ void dispatch_table::do_protocol_frame(int force, int listen) const
 }
 }
 
+namespace {
+
 /* CODE FOR PACKET LOSS PREVENTION - START */
 /* This code tries to make sure that packets with opcode UPID_MDATA_PNEEDACK aren't lost and sent and received in order. */
 /*
@@ -5318,8 +5324,6 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, co
 		UDP_mdata_trace[sender_pnum].pkt_num_torecv = UDP_MDATA_PKT_NUM_MIN;
 	return 1;
 }
-
-namespace {
 
 /* We got an ACK by a player. Set this player slot to positive! */
 void net_udp_noloss_got_ack(const uint8_t *data, uint_fast32_t data_len)
@@ -6178,7 +6182,6 @@ direct_join::connect_type net_udp_show_game_info(const netgame_info &Netgame)
 }
 
 }
-
 }
 
 /* Tracker stuff, begin! */

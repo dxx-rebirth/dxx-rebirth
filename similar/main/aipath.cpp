@@ -1500,6 +1500,7 @@ void attempt_to_resume_path(const d_robot_info_array &Robot_info, const vmobjptr
 //	----------------------------------------------------------------------------------------------------------
 
 #if DXX_USE_EDITOR
+namespace {
 
 __attribute_used
 static void test_create_path_many(fvmobjptridx &vmobjptridx, fimsegptridx &imsegptridx)
@@ -1550,8 +1551,6 @@ short	Player_path_length=0;
 int	Player_hide_index=-1;
 int	Player_cur_path_index=0;
 int	Player_following_path_flag=0;
-
-namespace {
 
 //	------------------------------------------------------------------------------------------------------------------
 //	Set orientation matrix and velocity for objp based on its desire to get to a point.
