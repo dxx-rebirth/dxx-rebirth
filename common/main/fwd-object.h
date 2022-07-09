@@ -30,6 +30,7 @@ struct d_level_unique_control_center_state;
 
 // Render types
 enum render_type_t : uint8_t;
+enum class gun_num_t : uint8_t;
 
 }
 

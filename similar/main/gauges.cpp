@@ -3164,7 +3164,7 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, int reticl
 	if (primary_bm_num && Primary_weapon == primary_weapon_index_t::LASER_INDEX && (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS))
 		primary_bm_num++;
 
-	if (Secondary_weapon_to_gun_num[Secondary_weapon]==7)
+	if (Secondary_weapon_to_gun_num[Secondary_weapon] == gun_num_t::_7)
 		secondary_bm_num += 3;		//now value is 0,1 or 3,4
 	else if (secondary_bm_num && !(player_info.missile_gun & 1))
 			secondary_bm_num++;

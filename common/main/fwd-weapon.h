@@ -124,7 +124,7 @@ void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *f
 //flags whether the last time we use this weapon, it was the 'super' version
 #endif
 //for each Secondary weapon, which gun it fires out of
-extern const std::array<uint8_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num;
+extern const std::array<gun_num_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num;
 }
 
 namespace dcx {

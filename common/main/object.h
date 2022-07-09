@@ -90,6 +90,17 @@ enum render_type_t : uint8_t
 	RT_WEAPON_VCLIP = 7,   // a weapon that renders as a vclip
 };
 
+enum class gun_num_t : uint8_t
+{
+	_0,
+	_1,
+	_2,
+	_3,
+	_4,
+	center = 6,
+	_7,
+};
+
 static inline bool valid_render_type(const uint8_t r)
 {
 	switch (r)

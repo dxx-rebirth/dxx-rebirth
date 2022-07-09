@@ -78,8 +78,6 @@ const enumerated_array<weapon_id_type, MAX_SECONDARY_WEAPONS, secondary_weapon_i
 	}
 }};
 
-//for each Secondary weapon, which gun it fires out of
-const std::array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num{{4,4,7,7,7}};
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 #include "fvi.h"
@@ -113,9 +111,6 @@ const enumerated_array<weapon_id_type, MAX_SECONDARY_WEAPONS, secondary_weapon_i
 		weapon_id_type::EARTHSHAKER_ID
 	}
 }};
-
-//for each Secondary weapon, which gun it fires out of
-const std::array<ubyte, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num{{4,4,7,7,7,4,4,7,4,7}};
 
 namespace {
 
@@ -161,6 +156,23 @@ static T get_alternate_weapon(const T current_weapon, const T base_weapon)
 #endif
 
 namespace dsx {
+
+//for each Secondary weapon, which gun it fires out of
+const std::array<gun_num_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num{{
+	gun_num_t::_4,
+	gun_num_t::_4,
+	gun_num_t::_7,
+	gun_num_t::_7,
+	gun_num_t::_7,
+#if defined(DXX_BUILD_DESCENT_II)
+	gun_num_t::_4,
+	gun_num_t::_4,
+	gun_num_t::_7,
+	gun_num_t::_4,
+	gun_num_t::_7
+#endif
+}};
+
 const enumerated_array<uint8_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_ammo_max{{
 	{
 		20, 10, 10, 5, 5,
