@@ -107,7 +107,7 @@ static objnum_t get_next_object(const unique_segment &seg, objnum_t id)
 namespace dsx {
 
 //	------------------------------------------------------------------------------------
-int place_object(const vmsegptridx_t segp, const vms_vector &object_pos, short object_type, short object_id)
+int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_polygon_model_state &LevelSharedPolygonModelState, const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const vmsegptridx_t segp, const vms_vector &object_pos, short object_type, short object_id)
 {
 	vms_matrix seg_matrix;
 
@@ -305,7 +305,6 @@ int ObjectPlaceObject(void)
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	int	old_cur_object_index;
-	int	rval;
 	if (Cur_object_type == OBJ_PLAYER)
 	{
 		int num_players = compute_num_players();
@@ -323,7 +322,7 @@ int ObjectPlaceObject(void)
 	const auto cur_object_loc = compute_segment_center(vcvertptr, Cursegp);
 
 	old_cur_object_index = Cur_object_index;
-	rval = place_object(Cursegp, cur_object_loc, Cur_object_type, Cur_object_id);
+	const auto rval = place_object(LevelUniqueObjectState, LevelSharedPolygonModelState, LevelSharedRobotInfoState, LevelSharedSegmentState, LevelUniqueSegmentState, Cursegp, cur_object_loc, Cur_object_type, Cur_object_id);
 
 	if (old_cur_object_index != Cur_object_index)
 		vmobjptr(Cur_object_index)->rtype.pobj_info.tmap_override = -1;
@@ -339,13 +338,13 @@ int ObjectPlaceObjectTmap(void)
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	int	rval, old_cur_object_index;
+	int	old_cur_object_index;
 	//update_due_to_new_segment();
 	auto &vcvertptr = Vertices.vcptr;
 	const auto cur_object_loc = compute_segment_center(vcvertptr, Cursegp);
 
 	old_cur_object_index = Cur_object_index;
-	rval = place_object(Cursegp, cur_object_loc, Cur_object_type, Cur_object_id);
+	const auto rval = place_object(LevelUniqueObjectState, LevelSharedPolygonModelState, LevelSharedRobotInfoState, LevelSharedSegmentState, LevelUniqueSegmentState, Cursegp, cur_object_loc, Cur_object_type, Cur_object_id);
 
 	if ((Cur_object_index != old_cur_object_index) && (Objects[Cur_object_index].render_type == RT_POLYOBJ))
 		Objects[Cur_object_index].rtype.pobj_info.tmap_override = CurrentTexture;

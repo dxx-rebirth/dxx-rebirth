@@ -30,6 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 
 #include "dxxerror.h"
+#include "d_levelstate.h"
 #include "screens.h"
 #include "editor/esegment.h"
 #include "ehostage.h"
@@ -91,9 +92,10 @@ static int PlaceHostage()
 
 	Assert( ctype != -1 );
 
-	if (place_object(Cursegp, cur_object_loc, ctype, 0 )==0)	{
+	if (place_object(LevelUniqueObjectState, LevelSharedPolygonModelState, LevelSharedRobotInfoState, LevelSharedSegmentState, LevelUniqueSegmentState, Cursegp, cur_object_loc, ctype, 0) == 0)
+	{
 		Int3();		// Debug below
-		i=place_object(Cursegp, cur_object_loc, ctype, 0 );
+		i = place_object(LevelUniqueObjectState, LevelSharedPolygonModelState, LevelSharedRobotInfoState, LevelSharedSegmentState, LevelUniqueSegmentState, Cursegp, cur_object_loc, ctype, 0);
 		return 1;
 	}
 	return 0;
