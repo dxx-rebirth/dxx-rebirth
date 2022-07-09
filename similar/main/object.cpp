@@ -1502,7 +1502,7 @@ window_event_result dead_player_frame()
 				explode_badass_player(cobjp);
 
 				//is this next line needed, given the badass call above?
-				explode_object(cobjp,0);
+				explode_object(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, cobjp, 0);
 				ConsoleObject->flags &= ~OF_SHOULD_BE_DEAD;		//don't really kill player
 				ConsoleObject->render_type = RT_NONE;				//..just make him disappear
 				ConsoleObject->type = OBJ_GHOST;						//..and kill intersections
@@ -1909,7 +1909,7 @@ static window_event_result object_move_one(const vmobjptridx_t obj, control_info
 			explode_badass_weapon(obj, obj->pos);
 #if defined(DXX_BUILD_DESCENT_II)
 		else if ( obj->type==OBJ_ROBOT)	//make robots explode
-			explode_object(obj,0);
+			explode_object(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, obj, 0);
 #endif
 	}
 

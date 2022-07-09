@@ -63,7 +63,7 @@ void explode_badass_weapon(vmobjptridx_t obj,const vms_vector &pos);
 // blows up the player with a badass explosion
 void explode_badass_player(vmobjptridx_t obj);
 
-void explode_object(vmobjptridx_t obj,fix delay_time);
+void explode_object(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, vmobjptridx_t obj, fix delay_time);
 void do_explosion_sequence(object &obj);
 void do_debris_frame(vmobjptridx_t obj);      // deal with debris for this frame
 

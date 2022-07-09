@@ -2383,7 +2383,7 @@ static void do_boss_dying_frame(const vmobjptridx_t objp)
 	{
 		BossUniqueState.Boss_dying_start_time = GameTime64; // make sure following only happens one time!
 		do_controlcen_destroyed_stuff(object_none);
-		explode_object(objp, F1_0/4);
+		explode_object(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, objp, F1_0/4);
 		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, sound_stack::allow_stacking, vm_distance{F1_0*512});
 	}
 }
@@ -2496,7 +2496,7 @@ static void do_boss_dying_frame(const vmobjptridx_t objp)
 	{
 		BossUniqueState.Boss_dying_start_time = GameTime64; // make sure following only happens one time!
 		do_controlcen_destroyed_stuff(object_none);
-		explode_object(objp, F1_0/4);
+		explode_object(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, objp, F1_0/4);
 		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, sound_stack::allow_stacking, vm_distance{F1_0*512});
 	}
 }
@@ -2513,7 +2513,7 @@ static int do_any_robot_dying_frame(const vmobjptridx_t objp)
 
 		if (rval) {
 			objp->ctype.ai_info.dying_start_time = GameTime64; // make sure following only happens one time!
-			explode_object(objp, F1_0/4);
+			explode_object(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, objp, F1_0/4);
 			digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, sound_stack::allow_stacking, vm_distance{F1_0*512});
 			if (Current_level_num < 0)
 			{

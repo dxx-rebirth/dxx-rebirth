@@ -1352,7 +1352,7 @@ static void maybe_delete_object(object_base &del_obj)
 
 //	-------------------------------------------------------------------------------------------------------
 //blow up an object.  Takes the object to destroy, and the point of impact
-void explode_object(const vmobjptridx_t hitobj,fix delay_time)
+void explode_object(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const vmobjptridx_t hitobj, const fix delay_time)
 {
 	if (hitobj->flags & OF_EXPLODING) return;
 
@@ -1411,7 +1411,7 @@ void do_debris_frame(const vmobjptridx_t obj)
 	assert(obj->control_source == object::control_type::debris);
 
 	if (obj->lifeleft < 0)
-		explode_object(obj,0);
+		explode_object(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, obj, 0);
 
 }
 

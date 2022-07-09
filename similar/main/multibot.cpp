@@ -989,10 +989,10 @@ int multi_explode_robot_sub(const vmobjptridx_t robot)
 		if (robot_id == SPECIAL_REACTOR_ROBOT)
 			special_reactor_stuff();
 		if (Robot_info[robot_id].kamikaze)
-			explode_object(robot,1);	//	Kamikaze, explode right away, IN YOUR FACE!
+			explode_object(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, robot, 1);	//	Kamikaze, explode right away, IN YOUR FACE!
 		else
 #endif
-			explode_object(robot,STANDARD_EXPL_DELAY);
+			explode_object(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, robot, STANDARD_EXPL_DELAY);
    }
    
 	return 1;

@@ -205,7 +205,7 @@ static int apply_damage_to_clutter(const vmobjptridx_t clutter, fix damage)
 	clutter->shields -= damage;
 
 	if (clutter->shields < 0) {
-		explode_object(clutter,0);
+		explode_object(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, clutter, 0);
 		return 1;
 	} else
 		return 0;
@@ -1024,7 +1024,7 @@ static void collide_debris_and_wall(const vmobjptridx_t debris, const unique_seg
 {
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	if (!PERSISTENT_DEBRIS || TmapInfo[get_texture_index(hitseg.sides[hitwall].tmap_num)].damage)
-		explode_object(debris,0);
+		explode_object(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, debris, 0);
 }
 
 //	-------------------------------------------------------------------------------------------------------------------
@@ -1132,7 +1132,7 @@ void net_destroy_controlcen_object(const imobjptridx_t controlcen)
 
 		if ((controlcen != object_none) && !(controlcen->flags&(OF_EXPLODING|OF_DESTROYED))) {
 			digi_link_sound_to_pos(SOUND_CONTROL_CENTER_DESTROYED, vmsegptridx(controlcen->segnum), sidenum_t::WLEFT, controlcen->pos, 0, F1_0);
-			explode_object(controlcen,0);
+			explode_object(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, controlcen, 0);
 		}
 	}
 }
@@ -1185,7 +1185,7 @@ void apply_damage_to_controlcen(const vmobjptridx_t controlcen, fix damage, cons
 
 		digi_link_sound_to_pos(SOUND_CONTROL_CENTER_DESTROYED, vmsegptridx(controlcen->segnum), sidenum_t::WLEFT, controlcen->pos, 0, F1_0);
 
-		explode_object(controlcen,0);
+		explode_object(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, controlcen, 0);
 	}
 }
 
@@ -1361,7 +1361,7 @@ static void collide_weapon_and_clutter(object_base &weapon, const vmobjptridx_t 
 	object_create_explosion(vmsegptridx(clutter->segnum), collision_point, ((clutter->size/3)*3)/4, exp_vclip);
 
 	if ( (clutter->shields < 0) && !(clutter->flags&(OF_EXPLODING|OF_DESTROYED)))
-		explode_object(clutter,STANDARD_EXPL_DELAY);
+		explode_object(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, clutter, STANDARD_EXPL_DELAY);
 
 	maybe_kill_weapon(weapon,clutter);
 }
@@ -1522,10 +1522,10 @@ int apply_damage_to_robot(const vmobjptridx_t robot, fix damage, objnum_t killer
 			if (get_robot_id(robot) == SPECIAL_REACTOR_ROBOT)
 				special_reactor_stuff();
 			if (robptr.kamikaze)
-				explode_object(robot,1);		//	Kamikaze, explode right away, IN YOUR FACE!
+				explode_object(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, robot, 1);		//	Kamikaze, explode right away, IN YOUR FACE!
 			else
 #endif
-				explode_object(robot,STANDARD_EXPL_DELAY);
+				explode_object(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, robot, STANDARD_EXPL_DELAY);
 		}
 		return 1;
 	} else
@@ -2481,7 +2481,7 @@ static void collide_weapon_and_debris(const vmobjptridx_t weapon, const vmobjptr
 	if ( (weapon->ctype.laser_info.parent_type==OBJ_PLAYER) && !(debris->flags & OF_EXPLODING) )	{
 		digi_link_sound_to_pos(SOUND_ROBOT_HIT, vcsegptridx(weapon->segnum), sidenum_t::WLEFT, collision_point, 0, F1_0);
 
-		explode_object(debris,0);
+		explode_object(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, debris, 0);
 		if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
 			explode_badass_weapon(weapon, collision_point);
 		maybe_kill_weapon(weapon,debris);
