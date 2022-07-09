@@ -5074,7 +5074,7 @@ void net_udp_listen()
 
 }
 
-void net_udp_send_data(const uint8_t *const ptr, const unsigned len, const int priority)
+void net_udp_send_data(const uint8_t *const ptr, const unsigned len, const multiplayer_data_priority priority)
 {
 #if DXX_HAVE_POISON_VALGRIND
 	VALGRIND_CHECK_MEM_IS_DEFINED(ptr, len);
@@ -5096,8 +5096,8 @@ void net_udp_send_data(const uint8_t *const ptr, const unsigned len, const int p
 	memcpy( &UDP_MData.mbuf[UDP_MData.mbuf_size], ptr, len );
 	UDP_MData.mbuf_size += len;
 
-	if (priority)
-		net_udp_send_mdata((priority==2)?1:0, timer_query());
+	if (priority != multiplayer_data_priority::_0)
+		net_udp_send_mdata(priority == multiplayer_data_priority::_2 ? 1 : 0, timer_query());
 }
 
 namespace {
@@ -6091,7 +6091,7 @@ void net_udp_send_extras ()
 		net_udp_send_player_flags();    
 #endif
 	if (Network_sending_extras==2)
-		multi_send_player_inventory(1);
+		multi_send_player_inventory(multiplayer_data_priority::_1);
 	if (Network_sending_extras==1 && Game_mode & GM_BOUNTY)
 		multi_send_bounty();
 

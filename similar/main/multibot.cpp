@@ -366,7 +366,7 @@ void multi_send_claim_robot(const vmobjptridx_t objnum)
 		throw std::runtime_error("claiming non-robot"); // See rob
 	// The AI tells us we should take control of this robot. 
 	auto r = objnum_local_to_remote(objnum);
-	multi_serialize_write(2, multi_claim_robot{static_cast<uint8_t>(Player_num), r.owner, r.objnum});
+	multi_serialize_write(multiplayer_data_priority::_2, multi_claim_robot{static_cast<uint8_t>(Player_num), r.owner, r.objnum});
 }
 
 namespace dsx {
@@ -388,7 +388,7 @@ void multi_send_release_robot(const vmobjptridx_t objnum)
 	multibuf[4] = obj_owner;
 	PUT_INTEL_SHORT(&multibuf[2], remote_objnum);
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 }
@@ -418,7 +418,7 @@ int multi_send_robot_frame(int sent)
 			if (robot_fired[sending])
 			{
 				robot_fired[sending] = 0;
-				multi_send_data<MULTI_ROBOT_FIRE>(robot_fire_buf[sending], 18, 1);
+				multi_send_data<MULTI_ROBOT_FIRE>(robot_fire_buf[sending], 18, multiplayer_data_priority::_1);
 			}
 
 			if (!(Game_mode & GM_NETWORK))
@@ -494,7 +494,7 @@ void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now)
 	PUT_INTEL_INT(&multibuf[loc], qpp.rotvel.y);			loc += 4;
 	PUT_INTEL_INT(&multibuf[loc], qpp.rotvel.z);			loc += 4; // 46 + 5 = 51
 
-	multi_send_data<MULTI_ROBOT_POSITION>(multibuf, now?1:0);
+	multi_send_data<MULTI_ROBOT_POSITION>(multibuf, now ? multiplayer_data_priority::_1 : multiplayer_data_priority::_0);
 }
 
 }
@@ -570,7 +570,7 @@ void multi_send_robot_fire(const vmobjptridx_t obj, int gun_num, const vms_vecto
                 robot_fired[slot] = 1;
         }
         else
-                multi_send_data(multibuf, 1); // Not our robot, send ASAP
+                multi_send_data(multibuf, multiplayer_data_priority::_1); // Not our robot, send ASAP
 }
 
 struct multi_explode_robot
@@ -590,7 +590,7 @@ void multi_send_robot_explode(const imobjptridx_t objnum, objnum_t killer)
 	const auto d = objnum_local_to_remote(objnum);
 	e.robj_killed = d.objnum;
 	e.owner_killed = d.owner;
-	multi_serialize_write(2, e);
+	multi_serialize_write(multiplayer_data_priority::_2, e);
 
 	multi_delete_controlled_robot(objnum);
 }
@@ -611,7 +611,7 @@ void multi_send_create_robot(const station_number station, const objnum_t objnum
 
 	map_objnum_local_to_local(objnum);
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 namespace {
@@ -667,7 +667,7 @@ namespace {
 template <typename T, typename... Args>
 static inline void multi_send_boss_action(objnum_t bossobjnum, Args&&... args)
 {
-	multi_serialize_write(2, T{bossobjnum, std::forward<Args>(args)...});
+	multi_serialize_write(multiplayer_data_priority::_2, T{bossobjnum, std::forward<Args>(args)...});
 }
 
 }
@@ -758,7 +758,7 @@ static void multi_send_create_robot_powerups(const object_base &del_obj)
 
 	Net_create_loc = 0;
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 }
 }
@@ -1097,7 +1097,7 @@ void multi_send_escort_goal(const d_unique_buddy_state &BuddyState)
 	b.Looking_for_marker = static_cast<uint8_t>(BuddyState.Looking_for_marker);
 	b.Escort_special_goal = BuddyState.Escort_special_goal;
 	b.Last_buddy_key = BuddyState.Last_buddy_key;
-	multi_serialize_write(2, b);
+	multi_serialize_write(multiplayer_data_priority::_2, b);
 }
 
 void multi_recv_escort_goal(d_unique_buddy_state &BuddyState, const uint8_t *const buf)

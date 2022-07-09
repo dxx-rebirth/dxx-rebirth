@@ -49,7 +49,7 @@ window_event_result net_udp_setup_game(void);
 #endif
 void net_udp_manual_join_game();
 void net_udp_list_join_game(grs_canvas &canvas);
-void net_udp_send_data(const uint8_t *ptr, unsigned len, int priority);
+void net_udp_send_data(const uint8_t *ptr, unsigned len, multiplayer_data_priority priority);
 window_event_result net_udp_level_sync();
 void net_udp_send_mdata_direct(const ubyte *data, int data_len, int pnum, int priority);
 

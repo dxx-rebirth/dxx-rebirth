@@ -975,7 +975,7 @@ window_event_result multi_do_frame()
 		// Send out inventory three times per second
 		if (timer_query() >= last_inventory_time + (F1_0/3))
 		{
-			multi_send_player_inventory(0);
+			multi_send_player_inventory(multiplayer_data_priority::_0);
 			last_inventory_time = timer_query();
 		}
 		// Repopulate the level if necessary
@@ -998,7 +998,7 @@ window_event_result multi_do_frame()
 	return multi_quit_game ? window_event_result::close : window_event_result::handled;
 }
 
-void _multi_send_data(const uint8_t *const buf, const unsigned len, const int priority)
+void _multi_send_data(const uint8_t *const buf, const unsigned len, const multiplayer_data_priority priority)
 {
 	if (Game_mode & GM_NETWORK)
 	{
@@ -1848,7 +1848,7 @@ static void multi_do_kill(object_array &Objects, const uint8_t *const buf)
 		multibuf[5] = Netgame.team_vector;
 		multibuf[6] = Bounty_target;
 		
-		multi_send_data(multibuf, 2);
+		multi_send_data(multibuf, multiplayer_data_priority::_2);
 	}
 
 	const auto killed = vcplayerptr(pnum)->objnum;
@@ -2539,17 +2539,17 @@ void multi_send_fire(int laser_gun, const laser_level level, int laser_flags, ob
 	{
 		map_objnum_local_to_local(is_bomb_objnum);
 		PUT_INTEL_SHORT(&multibuf[18], static_cast<objnum_t>(is_bomb_objnum));
-		multi_send_data<MULTI_FIRE_BOMB>(multibuf, 20, 1);
+		multi_send_data<MULTI_FIRE_BOMB>(multibuf, 20, multiplayer_data_priority::_1);
 	}
 	else if (multibuf[0] == MULTI_FIRE_TRACK)
 	{
 		const auto &&[remote_owner, remote_laser_track] = objnum_local_to_remote(laser_track);
 		PUT_INTEL_SHORT(&multibuf[18], remote_laser_track);
 		multibuf[20] = remote_owner;
-		multi_send_data<MULTI_FIRE_TRACK>(multibuf, 21, 1);
+		multi_send_data<MULTI_FIRE_TRACK>(multibuf, 21, multiplayer_data_priority::_1);
 	}
 	else
-		multi_send_data<MULTI_FIRE>(multibuf, 18, 1);
+		multi_send_data<MULTI_FIRE>(multibuf, 18, multiplayer_data_priority::_1);
 }
 
 void multi_send_destroy_controlcen(const objnum_t objnum, const playernum_t player)
@@ -2564,7 +2564,7 @@ void multi_send_destroy_controlcen(const objnum_t objnum, const playernum_t play
 	multi_command<MULTI_CONTROLCEN> multibuf;
 	PUT_INTEL_SHORT(&multibuf[1], objnum);
 	multibuf[3] = player;
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2578,7 +2578,7 @@ void multi_send_drop_marker(const unsigned player, const vms_vector &position, c
 		PUT_INTEL_INT(&multibuf[11], position.z);
 		for (const auto i : xrange(text.size()))
 			multibuf[15+i]=text[i];
-		multi_send_data<MULTI_MARKER>(multibuf, 15 + text.size(), 2);
+		multi_send_data<MULTI_MARKER>(multibuf, 15 + text.size(), multiplayer_data_priority::_2);
 }
 
 void multi_send_markers()
@@ -2615,7 +2615,7 @@ void multi_send_endlevel_start()
 	buf[2] = static_cast<uint8_t>(secret);
 #endif
 
-	multi_send_data(buf, 2);
+	multi_send_data(buf, multiplayer_data_priority::_2);
 	if (Game_mode & GM_NETWORK)
 	{
 		get_local_player().connected = CONNECT_ESCAPE_TUNNEL;
@@ -2698,7 +2698,7 @@ void multi_send_player_deres(deres_type_t type)
 		Int3(); // See Rob
 	}
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 	if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)
 		multi_send_decloak();
 	multi_strip_robots(Player_num);
@@ -2720,7 +2720,7 @@ void multi_send_message()
 		memcpy(reinterpret_cast<char *>(&multibuf[loc]), Network_message.data(), bytes_to_copy);
 		multibuf[loc + bytes_to_copy] = 0;
 		loc += MAX_MESSAGE_LEN;
-		multi_send_data<MULTI_MESSAGE>(multibuf, loc, 0);
+		multi_send_data<MULTI_MESSAGE>(multibuf, loc, multiplayer_data_priority::_0);
 		Network_message_reciever = -1;
 	}
 }
@@ -2737,7 +2737,7 @@ void multi_send_reappear()
 	multibuf[1] = static_cast<char>(Player_num);
 	PUT_INTEL_SHORT(&multibuf[2], plr.objnum);
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 namespace dsx {
@@ -2765,8 +2765,8 @@ void multi_send_position(object &obj)
 	PUT_INTEL_INT(&multibuf[count], qpp.rotvel.z);							count += 4; // 46
 
 	// send twice while first has priority so the next one will be attached to the next bigdata packet
-	multi_send_data(multibuf, 1);
-	multi_send_data(multibuf, 0);
+	multi_send_data(multibuf, multiplayer_data_priority::_1);
+	multi_send_data(multibuf, multiplayer_data_priority::_0);
 }
 
 /* 
@@ -2808,7 +2808,7 @@ void multi_send_kill(const vmobjptridx_t objnum)
 		multibufh[count] = Netgame.team_vector;	count += 1;
 		multibufh[count] = Bounty_target;	count += 1;
 		multi_compute_kill(LevelSharedRobotInfoState.Robot_info, imobjptridx(killer_objnum), objnum);
-		multi_send_data(multibufh, 2);
+		multi_send_data(multibufh, multiplayer_data_priority::_2);
 	}
 	else
 		multi_send_data_direct(multibufc, multi_who_is_master(), 2); // I am just a client so I'll only send my kill but not compute it, yet. I'll get response from host so I can compute it correctly
@@ -2828,7 +2828,7 @@ void multi_send_remobj(const vmobjidx_t objnum)
 
 	multibuf[3] = obj_owner;
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 
 	if (Network_send_objects && multi::dispatch->objnum_is_past(objnum))
 	{
@@ -2848,7 +2848,7 @@ void multi_send_quit()
 
 	multi_command<MULTI_QUIT> multibuf;
 	multibuf[1] = Player_num;
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 }
@@ -2861,7 +2861,7 @@ void multi_send_cloak()
 	const auto pnum = Player_num;
 	multibuf[1] = pnum;
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 
 	multi_strip_robots(pnum);
 }
@@ -2873,7 +2873,7 @@ void multi_send_decloak()
 	multi_command<MULTI_DECLOAK> multibuf;
 	multibuf[1] = Player_num;
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 }
@@ -2891,7 +2891,7 @@ void multi_send_door_open(const vcsegidx_t segnum, const sidenum_t side, const w
 #elif defined(DXX_BUILD_DESCENT_II)
 	multibuf[4] = underlying_value(flag);
 #endif
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2930,7 +2930,7 @@ void multi_send_create_explosion(const playernum_t pnum)
 	multibuf[count] = static_cast<int8_t>(pnum);                  count += 1;
 	//                                                                                                      -----------
 	//                                                                                                      Total size = 2
-	multi_send_data(multibuf, 0);
+	multi_send_data(multibuf, multiplayer_data_priority::_0);
 }
 
 void multi_send_controlcen_fire(const vms_vector &to_goal, int best_gun_num, objnum_t objnum)
@@ -2956,7 +2956,7 @@ void multi_send_controlcen_fire(const vms_vector &to_goal, int best_gun_num, obj
 	PUT_INTEL_SHORT(&multibuf[count], objnum );     count +=  2;
 	//                                                                                                                      ------------
 	//                                                                                                                      Total  = 16
-	multi_send_data(multibuf, 0);
+	multi_send_data(multibuf, multiplayer_data_priority::_0);
 }
 
 namespace dsx {
@@ -2995,7 +2995,7 @@ void multi_send_create_powerup(const powerup_type_t powerup_type, const vcsegidx
 	}
 	//                                                                                                            -----------
 	//                                                                                                            Total =  19
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 
 	if (Network_send_objects && multi::dispatch->objnum_is_past(objnum))
 	{
@@ -3052,7 +3052,7 @@ void multi_send_play_sound(const int sound_num, const fix volume, const sound_st
 	PUT_INTEL_INT(&multibuf[count], volume);							count += 4;
 	//                                                                                                         -----------
 	//                                                                                                         Total = 4
-	multi_send_data(multibuf, 0);
+	multi_send_data(multibuf, multiplayer_data_priority::_0);
 }
 
 void multi_send_score()
@@ -3070,7 +3070,7 @@ void multi_send_score()
 		multibuf[count] = Player_num;                           count += 1;
 		auto &player_info = get_local_plrobj().ctype.player_info;
 		PUT_INTEL_INT(&multibuf[count], player_info.mission.score);  count += 4;
-		multi_send_data(multibuf, 0);
+		multi_send_data(multibuf, multiplayer_data_priority::_0);
 	}
 }
 
@@ -3086,7 +3086,7 @@ void multi_send_trigger(const trgnum_t triggernum)
 	static_assert(sizeof(trgnum_t) == sizeof(uint8_t), "trigger number could be truncated");
 	multibuf[count] = static_cast<uint8_t>(triggernum);            count += 1;
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 namespace dsx {
@@ -3111,7 +3111,7 @@ void multi_send_effect_blowup(const vcsegidx_t segnum, const sidenum_t side, con
 	PUT_INTEL_INT(&multibuf[count], pnt.y);                          count += 4;
 	PUT_INTEL_INT(&multibuf[count], pnt.z);                          count += 4;
 
-	multi_send_data(multibuf, 0);
+	multi_send_data(multibuf, multiplayer_data_priority::_0);
 }
 #endif
 
@@ -3130,7 +3130,7 @@ void multi_send_hostage_door_status(const vcwallptridx_t w)
 	count += 2;
 	PUT_INTEL_INT(&multibuf[count], w->hps);  count += 4;
 
-	multi_send_data(multibuf, 0);
+	multi_send_data(multibuf, multiplayer_data_priority::_0);
 }
 
 }
@@ -3825,7 +3825,7 @@ void multi_send_drop_weapon(const vmobjptridx_t objp, int seed)
 
 	map_objnum_local_to_local(objp);
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 namespace {
@@ -3858,7 +3858,7 @@ void multi_send_vulcan_weapon_ammo_adjust(const vmobjptridx_t objnum)
 	const uint16_t ammo_count = objnum->ctype.powerup_info.count;
 	PUT_INTEL_SHORT(&multibuf[4], ammo_count);
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 
 	if (Network_send_objects && multi::dispatch->objnum_is_past(objnum))
 	{
@@ -3924,7 +3924,7 @@ void multi_send_guided_info(const object_base &miss, const char done)
 	gi.pnum = static_cast<uint8_t>(Player_num);
 	gi.release = done;
 	create_shortpos_little(LevelSharedSegmentState, gi.sp, miss);
-	multi_serialize_write(0, gi);
+	multi_serialize_write(multiplayer_data_priority::_0, gi);
 }
 
 namespace {
@@ -3957,7 +3957,7 @@ void multi_send_stolen_items ()
 	multi_command<MULTI_STOLEN_ITEMS> multibuf;
 	auto &Stolen_items = LevelUniqueObjectState.ThiefState.Stolen_items;
 	std::copy(Stolen_items.begin(), Stolen_items.end(), std::next(multibuf.begin()));
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 namespace {
@@ -4032,7 +4032,7 @@ void multi_send_kill_goal_counts()
 		multibuf[count] = player_info.KillGoalCount;
 		count++;
 	}
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 namespace {
@@ -4057,7 +4057,7 @@ void multi_send_heartbeat ()
 
 	multi_command<MULTI_HEARTBEAT> multibuf;
 	PUT_INTEL_INT(&multibuf[1], ThisLevelTime.count());
-	multi_send_data(multibuf, 0);
+	multi_send_data(multibuf, multiplayer_data_priority::_0);
 }
 
 static void multi_do_heartbeat (const ubyte *buf)
@@ -4125,7 +4125,7 @@ void multi_send_seismic(fix duration)
 	int count=1;
 	multi_command<MULTI_SEISMIC> multibuf;
 	PUT_INTEL_INT(&multibuf[count], duration); count += sizeof(duration);
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 namespace {
@@ -4203,7 +4203,7 @@ void multi_send_flags (const playernum_t pnum)
 	multibuf[1]=pnum;
 	PUT_INTEL_INT(&multibuf[2], vmobjptr(vcplayerptr(pnum)->objnum)->ctype.player_info.powerup_flags.get_player_flags());
  
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 void multi_send_drop_blobs (const playernum_t pnum)
@@ -4211,7 +4211,7 @@ void multi_send_drop_blobs (const playernum_t pnum)
 	multi_command<MULTI_DROP_BLOB> multibuf;
 	multibuf[1]=pnum;
 
-	multi_send_data(multibuf, 0);
+	multi_send_data(multibuf, multiplayer_data_priority::_0);
 }
 
 namespace {
@@ -4232,7 +4232,7 @@ void multi_send_sound_function (char whichfunc, char sound)
 	multibuf[1]=Player_num;             count++;
 	multibuf[2]=whichfunc;              count++;
 	multibuf[3] = sound; count++;       // this would probably work on the PC as well.  Jason?
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 #define AFTERBURNER_LOOP_START  20098
@@ -4271,7 +4271,7 @@ void multi_send_capture_bonus (const playernum_t pnum)
 
 	multibuf[1]=pnum;
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 	multi_do_capture_bonus (pnum);
 }
 
@@ -4283,7 +4283,7 @@ void multi_send_orb_bonus (const playernum_t pnum, const uint8_t hoard_orbs)
 	multibuf[1]=pnum;
 	multibuf[2] = hoard_orbs;
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 	multi_do_orb_bonus (pnum, multibuf.data());
 }
 
@@ -4423,7 +4423,7 @@ void multi_send_got_flag (const playernum_t pnum)
 
 	digi_start_sound_queued (SOUND_HUD_YOU_GOT_FLAG,F1_0*2);
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 	multi_send_flags (Player_num);
 }
 
@@ -4434,7 +4434,7 @@ void multi_send_got_orb (const playernum_t pnum)
 
 	digi_play_sample (SOUND_YOU_GOT_ORB,F1_0*2);
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 	multi_send_flags (Player_num);
 }
 
@@ -4560,7 +4560,7 @@ void multi_send_drop_flag(const vmobjptridx_t objp, int seed)
 
 	map_objnum_local_to_local(objp);
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
@@ -4682,7 +4682,7 @@ void multi_send_finish_game ()
 	multi_command<MULTI_FINISH_GAME> multibuf;
 	multibuf[1]=Player_num;
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 namespace {
@@ -4783,7 +4783,7 @@ void multi_send_ranking (const netplayer_info::player_rank newrank)
 	multibuf[1]=static_cast<char>(Player_num);
 	multibuf[2] = underlying_value(newrank);
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 static void multi_do_ranking (const playernum_t pnum, const ubyte *buf)
@@ -4862,7 +4862,7 @@ void multi_send_bounty( void )
 	multibuf[1] = static_cast<char>(Bounty_target);
 	
 	/* Send data */
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 namespace dsx {
@@ -4935,7 +4935,7 @@ static void multi_send_save_game(const d_game_unique_state::save_slot slot, cons
 	PUT_INTEL_INT(&multibuf[count], id );		count += 4; // Save id
 	memcpy(&multibuf[count], desc.data(), desc.size());
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 static void multi_send_restore_game(ubyte slot, uint id)
@@ -4947,7 +4947,7 @@ static void multi_send_restore_game(ubyte slot, uint id)
 	multibuf[count] = slot;				count += 1; // Save slot=0
 	PUT_INTEL_INT(&multibuf[count], id );		count += 4; // Save id
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 }
@@ -5109,7 +5109,7 @@ void multi_send_msgsend_state(const msgsend_state state)
 	multibuf[1] = Player_num;
 	multibuf[2] = static_cast<char>(state);
 	
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 namespace {
@@ -5125,7 +5125,7 @@ void multi_send_gmode_update()
 	multibuf[1] = Netgame.team_vector;
 	multibuf[2] = Bounty_target;
 	
-	multi_send_data(multibuf, 0);
+	multi_send_data(multibuf, multiplayer_data_priority::_0);
 }
 
 static void multi_do_gmode_update(const ubyte *buf)
@@ -5158,7 +5158,7 @@ static void multi_do_gmode_update(const ubyte *buf)
  * Could also be used to let host decide which powerups a client is allowed to collect and/or drop, anti-cheat functions (needs shield/energy update then and more frequent updates/triggers).
  */
 namespace dsx {
-void multi_send_player_inventory(int priority)
+void multi_send_player_inventory(const multiplayer_data_priority priority)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;

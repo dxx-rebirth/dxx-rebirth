@@ -97,6 +97,13 @@ enum class network_game_type : uint8_t
 	bounty,
 };
 
+enum class multiplayer_data_priority : uint8_t
+{
+	_0,
+	_1,
+	_2,
+};
+
 }
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
@@ -695,7 +702,7 @@ extern bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type);
 uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems);
 uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems, const unsigned SpawnGrantedItems);
 void show_netgame_info(const netgame_info &netgame);
-extern void multi_send_player_inventory(int priority);
+void multi_send_player_inventory(multiplayer_data_priority priority);
 const char *multi_common_deny_save_game(const fvcobjptr &vcobjptr, partial_range_t<const player *> player_range);
 const char *multi_interactive_deny_save_game(const fvcobjptr &vcobjptr, partial_range_t<const player *> player_range, const d_level_unique_control_center_state &);
 void multi_check_for_killgoal_winner(const d_robot_info_array &Robot_info);

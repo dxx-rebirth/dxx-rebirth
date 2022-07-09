@@ -107,6 +107,10 @@
 
 #include "dxxsconf.h"
 
+namespace dcx {
+enum class multiplayer_data_priority : uint8_t;
+}
+
 enum multiplayer_command_t : uint8_t
 {
 	for_each_multiplayer_command(define_multiplayer_command)
@@ -124,10 +128,10 @@ struct multi_command : public std::array<uint8_t, command_length<C>::value>
 {
 };
 
-void _multi_send_data(const uint8_t *buf, unsigned len, int priority);
+void _multi_send_data(const uint8_t *buf, unsigned len, multiplayer_data_priority priority);
 
 template <multiplayer_command_t C>
-static inline void multi_send_data(uint8_t *const buf, const unsigned len, const int priority)
+static inline void multi_send_data(uint8_t *const buf, const unsigned len, const multiplayer_data_priority priority)
 {
 	buf[0] = C;
 	constexpr unsigned expected = command_length<C>::value;
@@ -143,7 +147,7 @@ static inline void multi_send_data(uint8_t *const buf, const unsigned len, const
 }
 
 template <multiplayer_command_t C>
-static inline void multi_send_data(multi_command<C> &buf, const int priority)
+static inline void multi_send_data(multi_command<C> &buf, const multiplayer_data_priority priority)
 {
 	buf[0] = C;
 	_multi_send_data(buf.data(), buf.size(), priority);
@@ -157,7 +161,7 @@ static inline void multi_serialize_read(const uint8_t *const buf, T &t)
 }
 
 template <typename T>
-static inline void multi_serialize_write(int priority, const T &t)
+static inline void multi_serialize_write(const multiplayer_data_priority priority, const T &t)
 {
 	constexpr size_t maximum_size = serial::message_type<T>::maximum_size;
 	uint8_t buf[maximum_size];
