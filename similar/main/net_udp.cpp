@@ -433,6 +433,21 @@ constexpr sockaddr_in6 GMcast_v6 = { // same for IPv6-only
 };
 #endif
 
+enum class game_info_request_result : uint8_t
+{
+	// Valid request
+	accept,
+	/* Game type header does not match.  The request is for D1 while this
+	 * program is D2, or vice versa, or the request is not a Rebirth request at
+	 * all.
+	 */
+	id_mismatch,
+	/* Game version mismatch.  The peer is running an older or newer
+	 * multiplayer protocol than this program.
+	 */
+	version_mismatch,
+};
+
 class RAIIsocket
 {
 #ifndef _WIN32
@@ -770,6 +785,27 @@ ssize_t dxx_recvfrom(const int sockfd, const socket_data_buffer msg, const int f
 	UDP_len_recvfrom += rv;
 
 	return rv;
+}
+
+static game_info_request_result net_udp_check_game_info_request(const uint8_t *const data)
+{
+	if (const auto sender_major_version = GET_INTEL_SHORT(&(data[5])); sender_major_version != DXX_VERSION_MAJORi)
+		return game_info_request_result::version_mismatch;
+	if (const auto sender_minor_version = GET_INTEL_SHORT(&(data[7])); sender_minor_version != DXX_VERSION_MINORi)
+		return game_info_request_result::version_mismatch;
+	if (const auto sender_micro_version = GET_INTEL_SHORT(&(data[9])); sender_micro_version != DXX_VERSION_MICROi)
+		return game_info_request_result::version_mismatch;
+	return game_info_request_result::accept;
+}
+
+static game_info_request_result net_udp_check_game_info_request(const uint8_t *const data, int lite)
+{
+	if (!lite)
+	{
+		if (const auto sender_proto_version = GET_INTEL_SHORT(&data[11]); sender_proto_version != MULTI_PROTO_VERSION)
+			return game_info_request_result::version_mismatch;
+	}
+	return net_udp_check_game_info_request(data);
 }
 
 }
@@ -2434,6 +2470,14 @@ void net_udp_send_rejoin_sync(const unsigned player_num)
 
 	return;
 }
+
+static game_info_request_result net_udp_check_game_info_request(const uint8_t *const data, int lite)
+{
+	if (memcmp(&data[1], UDP_REQ_ID, 4))
+		return game_info_request_result::id_mismatch;
+	return ::dcx::net_udp_check_game_info_request(data, lite);
+}
+
 }
 }
 
@@ -2680,28 +2724,6 @@ static void net_udp_process_version_deny(const uint8_t *const data, const _socka
 	Netgame.protocol.udp.program_iver[2] = GET_INTEL_SHORT(&data[5]);
 	Netgame.protocol.udp.program_iver[3] = GET_INTEL_SHORT(&data[7]);
 	Netgame.protocol.udp.valid = -1;
-}
-
-// Check request for game info. Return 1 if sucessful; -1 if version mismatch; 0 if wrong game or some other error - do not process
-static int net_udp_check_game_info_request(const uint8_t *const data, int lite)
-{
-	short sender_iver[4] = { 0, 0, 0, 0 };
-	char sender_id[4] = "";
-
-	memcpy(&sender_id, &(data[1]), 4);
-	sender_iver[0] = GET_INTEL_SHORT(&(data[5]));
-	sender_iver[1] = GET_INTEL_SHORT(&(data[7]));
-	sender_iver[2] = GET_INTEL_SHORT(&(data[9]));
-	if (!lite)
-		sender_iver[3] = GET_INTEL_SHORT(&(data[11]));
-	
-	if (memcmp(&sender_id, UDP_REQ_ID, 4))
-		return 0;
-	
-	if ((sender_iver[0] != DXX_VERSION_MAJORi) || (sender_iver[1] != DXX_VERSION_MINORi) || (sender_iver[2] != DXX_VERSION_MICROi) || (!lite && sender_iver[3] != MULTI_PROTO_VERSION))
-		return -1;
-		
-	return 1;
 }
 
 struct game_info_light
@@ -3141,6 +3163,11 @@ static void net_udp_process_request(const UDP_sequence_request_packet &their, co
 		}
 }
 
+}
+
+namespace dsx {
+namespace {
+
 static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, uint8_t *const data, const _sockaddr &sender_addr, int length)
 {
 	switch (data[0])
@@ -3152,18 +3179,26 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 			break;
 		case UPID_GAME_INFO_REQ:
 		{
-			int result = 0;
 			static fix64 last_full_req_time = 0;
 			if (!multi_i_am_master() || length != UPID_GAME_INFO_REQ_SIZE)
 				break;
 			if (timer_query() < last_full_req_time+(F1_0/2)) // answer 2 times per second max
 				break;
 			last_full_req_time = timer_query();
-			result = net_udp_check_game_info_request(data, 0);
-			if (result == -1)
-				net_udp_send_version_deny(sender_addr);
-			else if (result == 1)
-				net_udp_send_game_info(sender_addr, &sender_addr, UPID_GAME_INFO);
+			switch (net_udp_check_game_info_request(data, 0))
+			{
+				case game_info_request_result::accept:
+					net_udp_send_game_info(sender_addr, &sender_addr, UPID_GAME_INFO);
+					break;
+				case game_info_request_result::id_mismatch:
+					/* No response - peer is not the same type of Descent, and
+					 * may not be Descent at all.
+					 */
+					break;
+				case game_info_request_result::version_mismatch:
+					net_udp_send_version_deny(sender_addr);
+					break;
+			}
 			break;
 		}
 		case UPID_GAME_INFO:
@@ -3179,8 +3214,22 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 			if (timer_query() < last_lite_req_time+(F1_0/8))// answer 8 times per second max
 				break;
 			last_lite_req_time = timer_query();
-			if (net_udp_check_game_info_request(data, 1) == 1)
-				net_udp_send_game_info(sender_addr, &sender_addr, UPID_GAME_INFO_LITE);
+			switch (net_udp_check_game_info_request(data, 1))
+			{
+				case game_info_request_result::accept:
+					net_udp_send_game_info(sender_addr, &sender_addr, UPID_GAME_INFO_LITE);
+					break;
+				case game_info_request_result::id_mismatch:
+					/* No response - peer is not the same type of Descent, and
+					 * may not be Descent at all.
+					 */
+				case game_info_request_result::version_mismatch:
+					/* No response - peer was speculatively searching for games
+					 * of the same version, and does not want to receive
+					 * responses from version-incompatible programs.
+					 */
+					break;
+			}
 			break;
 		}
 		case UPID_GAME_INFO_LITE:
@@ -3290,6 +3339,11 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 			break;
 	}
 }
+
+}
+}
+
+namespace {
 
 // Packet for end of level syncing
 void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_addr)
