@@ -214,6 +214,7 @@ static void move_towards_outside(const d_level_shared_segment_state &LevelShared
 				goal_pos,
 				fvi_query::unused_ignore_obj_list,
 				fvi_query::unused_LevelUniqueObjectState,
+				fvi_query::unused_Robot_info,
 				0,
 				objp,
 			}, psegs[i].segnum, objp->size, hit_data);
@@ -380,6 +381,7 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 						center_point,
 						fvi_query::unused_ignore_obj_list,
 						fvi_query::unused_LevelUniqueObjectState,
+						fvi_query::unused_Robot_info,
 						0,
 						objp,
 					}, obj.segnum, obj.size, hit_data);
@@ -551,6 +553,7 @@ int polish_path(const vmobjptridx_t objp, point_seg *psegs, int num_points)
 			psegs[i].point,
 			fvi_query::unused_ignore_obj_list,
 			fvi_query::unused_LevelUniqueObjectState,
+			fvi_query::unused_Robot_info,
 			0,
 			objp,
 		}, obj.segnum, obj.size, hit_data);
@@ -1196,6 +1199,7 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 					Point_segs[aip->hide_index + opposite_end_index].point,
 					fvi_query::unused_ignore_obj_list,
 					fvi_query::unused_LevelUniqueObjectState,
+					fvi_query::unused_Robot_info,
 					0, 				//what about trans walls???
 					objp,
 				}, obj.segnum, obj.size, hit_data);

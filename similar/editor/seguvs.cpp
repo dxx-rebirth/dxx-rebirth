@@ -1023,6 +1023,7 @@ static void cast_light_from_side(const vmsegptridx_t segp, const sidenum_t light
 													vert_location,
 													fvi_query::unused_ignore_obj_list,
 													fvi_query::unused_LevelUniqueObjectState,
+													fvi_query::unused_Robot_info,
 													0,
 													object_none,
 												}, segp, 0, hit_data);
@@ -1120,6 +1121,7 @@ static void cast_light_from_side_to_center(const vmsegptridx_t segp, const siden
 							r_segment_center,
 							fvi_query::unused_ignore_obj_list,
 							fvi_query::unused_LevelUniqueObjectState,
+							fvi_query::unused_Robot_info,
 							0,
 							object_none,
 						}, segp, 0, hit_data);

@@ -605,6 +605,7 @@ static void do_omega_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t parent
 			goal_pos,
 			fvi_query::unused_ignore_obj_list,
 			&LevelUniqueObjectState,
+			&LevelSharedRobotInfoState.Robot_info,
 			FQ_IGNORE_POWERUPS | FQ_TRANSPOINT,		//what about trans walls???
 			parent_objp,
 		}, firing_segnum, 0, hit_data);
@@ -899,6 +900,7 @@ imobjptridx_t Laser_create_new_easy(const vms_vector &direction, const vms_vecto
 		position,
 		fvi_query::unused_ignore_obj_list,
 		&LevelUniqueObjectState,
+		&LevelSharedRobotInfoState.Robot_info,
 		FQ_TRANSWALL,		//what about trans walls???
 		parent,
 	}, parent->segnum, 0, hit_data);
@@ -954,6 +956,7 @@ int object_to_object_visibility(const vcobjptridx_t obj1, const object_base &obj
 		obj2.pos,
 		fvi_query::unused_ignore_obj_list,
 		fvi_query::unused_LevelUniqueObjectState,
+		fvi_query::unused_Robot_info,
 		trans_type,
 		obj1,
 	}, obj1->segnum, 0x10, hit_data))
@@ -1315,6 +1318,7 @@ static imobjptridx_t Laser_player_fire_spread_delay(fvmsegptridx &vmsegptridx, c
 		LaserPos,
 		fvi_query::unused_ignore_obj_list,
 		&LevelUniqueObjectState,
+		&LevelSharedRobotInfoState.Robot_info,
 #if defined(DXX_BUILD_DESCENT_I)
 		0,
 #elif defined(DXX_BUILD_DESCENT_II)

@@ -1385,6 +1385,7 @@ static bool immediate_detonate_smart_mine(const vcobjptridx_t smart_mine, const 
 		target->pos,
 		fvi_query::unused_ignore_obj_list,
 		fvi_query::unused_LevelUniqueObjectState,
+		fvi_query::unused_Robot_info,
 		0,
 		smart_mine,
 	}, smart_mine->segnum, 0, hit_data);

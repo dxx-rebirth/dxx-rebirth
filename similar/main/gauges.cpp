@@ -3498,6 +3498,10 @@ static int see_object(fvcobjptridx &vcobjptridx, const vcobjptridx_t objnum)
 		objnum->pos,
 		fvi_query::unused_ignore_obj_list,
 		&LevelUniqueObjectState,
+		/* This is only necessary if `Viewer` can be a robot.  In developer
+		 * builds, the user can view from any object, not just a player.
+		 */
+		&LevelSharedRobotInfoState.Robot_info,
 		FQ_TRANSWALL,
 		vcobjptridx(Viewer),
 	}, Viewer->segnum, 0, hit_data);

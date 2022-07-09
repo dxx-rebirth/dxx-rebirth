@@ -1406,6 +1406,7 @@ static void set_camera_pos(vms_vector &camera_pos, const vcobjptridx_t objp)
 				local_p1,
 				fvi_query::unused_ignore_obj_list,
 				fvi_query::unused_LevelUniqueObjectState,
+				fvi_query::unused_Robot_info,
 				0,
 				objp,
 			}, objp->segnum, 0, hit_data);

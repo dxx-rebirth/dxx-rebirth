@@ -802,7 +802,6 @@ static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &int
 	segnum_t hit_seg=segment_none;
 	segnum_t hit_none_seg=segment_none;
 	fvi_info::segment_array_t hit_none_seglist;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 
 	seglist.clear();
 	if (fq.flags & FQ_GET_SEGLIST)
@@ -820,10 +819,12 @@ static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &int
 		 * Obtain a require_valid instance once, before the loop begins.
 		 */
 		const vcobjptridx_t thisobjnum = fq.thisobjnum;
-		const robot_info *const robptrthis = thisobjnum->type == OBJ_ROBOT
-			? &Robot_info[get_robot_id(fq.thisobjnum)]
-			: nullptr;
+		const auto this_is_robot = thisobjnum->type == OBJ_ROBOT;
 		const auto &collision = CollisionResult[thisobjnum->type];
+		const auto Robot_info = fq.Robot_info;
+		const robot_info *const robptrthis = this_is_robot
+			? &(assert(Robot_info != nullptr), (*Robot_info)[get_robot_id(thisobjnum)])
+			: nullptr;
 		range_for (const auto objnum, objects_in(*startseg, vcobjptridx, vcsegptr))
 		{
 			if (thisobjnum == objnum)
@@ -846,16 +847,17 @@ static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &int
 #endif
 
 			//	If this is a robot:robot collision, only do it if both of them have attack_type != 0 (eg, green guy)
-			if (robptrthis)
+			if (robptrthis && robptrthis->attack_type)
 			{
 				if (objnum->type == OBJ_ROBOT)
+				{
 #if defined(DXX_BUILD_DESCENT_I)
-					if (!(Robot_info[get_robot_id(objnum)].attack_type && robptrthis->attack_type))
+					if (!((*Robot_info)[get_robot_id(objnum)].attack_type))
 #endif
 					// -- MK: 11/18/95, 4claws glomming together...this is easy.  -- if (!(Robot_info[Objects[objnum].id].attack_type && Robot_info[Objects[thisobjnum].id].attack_type))
 						continue;
-				if (robptrthis->attack_type)
-					fudged_rad = (rad*3)/4;
+				}
+				fudged_rad = (rad * 3) / 4;
 			}
 			//if obj is player, and bumping into other player or a weapon of another coop player, reduce radius
 			else if (fq.thisobjnum->type == OBJ_PLAYER &&
@@ -864,7 +866,7 @@ static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &int
 				fudged_rad = rad/2;	//(rad*3)/4;
 
 			vms_vector hit_point;
-			const auto &&d = check_vector_to_object(&Robot_info, hit_point, fq.p0, fq.p1, fudged_rad, objnum, fq.thisobjnum);
+			const auto &&d = check_vector_to_object(Robot_info, hit_point, fq.p0, fq.p1, fudged_rad, objnum, thisobjnum);
 
 			if (d)          //we have intersection
 				if (d < closest_d) {

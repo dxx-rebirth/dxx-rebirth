@@ -436,6 +436,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 			new_pos,
 			ignore_obj_list,
 			&LevelUniqueObjectState,
+			&LevelSharedRobotInfoState.Robot_info,
 			flags,
 			obj,
 		}, obj->segnum, obj->size, hit_info);

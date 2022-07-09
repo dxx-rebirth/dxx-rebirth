@@ -32,7 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pack.h"
 #include "countarray.h"
 #include "fwd-segment.h"
-#include "objnum.h"
+#include "robot.h"
 
 //return values for find_vector_intersection() - what did we hit?
 enum class fvi_hit_type : uint8_t
@@ -86,10 +86,16 @@ struct fvi_query
 {
 	static constexpr const std::pair<const vcobjidx_t *, const vcobjidx_t *> unused_ignore_obj_list{};
 	static constexpr const d_level_unique_object_state *const unused_LevelUniqueObjectState = nullptr;
+	static constexpr const d_robot_info_array *const unused_Robot_info = nullptr;
 	const vms_vector &p0;
 	const vms_vector &p1;
 	const std::pair<const vcobjidx_t *, const vcobjidx_t *> ignore_obj_list;
 	const d_level_unique_object_state *const LevelUniqueObjectState;
+	/* This member is required when LevelUniqueObjectState != nullptr and
+	 * thisobjnum->type == OBJ_ROBOT.
+	 * Otherwise, it is ignored.
+	 */
+	const d_robot_info_array *const Robot_info;
 	const int flags;
 	/* This member depends on the value of LevelUniqueObjectState.
 	 * If LevelUniqueObjectState != nullptr, then `thisobjnum` _must_ be a
