@@ -1823,15 +1823,14 @@ void attempt_to_steal_item(const vmobjptridx_t thiefp, const robot_info &robptr,
 
 	if (thief.ctype.ai_info.ail.mode == ai_mode::AIM_THIEF_ATTACK)
 	{
-		static constexpr constant_xrange<unsigned, 0, 3> retry_count{};
-		rval += attempt_to_steal_item_2(thief, player_num);
-		for (const auto i : retry_count)
+		for (auto i = 4u;; i--)
 		{
-		(void)i;
-		if (!rval || (d_rand() < 11000)) {	//	about 1/3 of time, steal another item
-				rval += attempt_to_steal_item_2(thief, player_num);
-		} else
-			break;
+			rval += attempt_to_steal_item_2(thief, player_num);
+			if (!i)
+				break;
+			if (rval && !(d_rand() < 11000)) {	//	about 1/3 of time, steal another item
+				break;
+			}
 		}
 	}
 	create_n_segment_path(thiefp, robptr, 10, ConsoleObject->segnum);
