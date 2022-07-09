@@ -131,7 +131,7 @@ struct UDP_netgame_info_lite : public prohibit_void_ptr<UDP_netgame_info_lite>
 	network_game_type               gamemode;
 	ubyte                           RefusePlayers;
 	ubyte                           difficulty;
-	ubyte                           game_status;
+	network_state game_status;
 	ubyte                           numconnected;
 	ubyte                           max_numplayers;
 	bit_game_flags game_flag;

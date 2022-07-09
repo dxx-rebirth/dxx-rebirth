@@ -127,13 +127,6 @@ enum class multiplayer_data_priority : uint8_t
 
 #endif
 
-#define NETSTAT_MENU                0
-#define NETSTAT_PLAYING             1
-#define NETSTAT_BROWSING            2
-#define NETSTAT_WAITING             3
-#define NETSTAT_STARTING            4
-#define NETSTAT_ENDLEVEL            5
-
 #define CONNECT_DISCONNECTED        0
 #define CONNECT_PLAYING             1
 #define CONNECT_WAITING             2
@@ -539,7 +532,23 @@ void multi_send_got_flag (playernum_t);
 // Exported variables
 
 namespace dcx {
-extern int Network_status;
+
+/* These values are sent over the network.  If they are changed, the
+ * multiplayer protocol version must be updated.
+ */
+enum class network_state : uint8_t
+{
+	menu,
+	playing,
+	browsing,
+	waiting,
+	starting,
+	endlevel,
+};
+
+std::optional<network_state> build_network_state_from_untrusted(uint8_t untrusted);
+
+extern network_state Network_status;
 
 // IMPORTANT: These variables needed for player rejoining done by protocol-specific code
 extern int Network_send_objects;
@@ -821,7 +830,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>
 	Difficulty_level_type difficulty;
 	network_game_type   		gamemode;
 	ubyte   					RefusePlayers;
-	ubyte   					game_status;
+	network_state game_status;
 	ubyte   					numplayers;
 	ubyte   					max_numplayers;
 	ubyte   					numconnected;

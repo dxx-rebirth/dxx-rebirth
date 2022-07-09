@@ -709,17 +709,17 @@ static const char *dxx_ntop(const _sockaddr &sa, typename _sockaddr::presentatio
 #endif
 }
 
-uint8_t get_effective_netgame_status(const d_level_unique_control_center_state &LevelUniqueControlCenterState)
+network_state get_effective_netgame_status(const d_level_unique_control_center_state &LevelUniqueControlCenterState)
 {
-	if (Network_status == NETSTAT_ENDLEVEL)
-		return NETSTAT_ENDLEVEL;
+	if (Network_status == network_state::endlevel)
+		return network_state::endlevel;
 	if (LevelUniqueControlCenterState.Control_center_destroyed)
-		return NETSTAT_ENDLEVEL;
+		return network_state::endlevel;
 	if (Netgame.PlayTimeAllowed.count())
 	{
 		const auto TicksPlayTimeRemaining = Netgame.PlayTimeAllowed - ThisLevelTime;
 		if (TicksPlayTimeRemaining.count() < i2f(30))
-			return NETSTAT_ENDLEVEL;
+			return network_state::endlevel;
 	}
 	return Netgame.game_status;
 }
@@ -1464,7 +1464,7 @@ window_event_result netgame_list_game_menu::event_handler(const d_event &event)
 			if (!Game_wind)
 			{
 				net_udp_close();
-				Network_status = NETSTAT_MENU;	// they cancelled
+				Network_status = network_state::menu;	// they cancelled
 			}
 			return window_event_result::ignored;
 		}
@@ -1483,7 +1483,6 @@ window_event_result netgame_list_game_menu::event_handler(const d_event &event)
 	for (int i = 0; i < UDP_NETGAMES_PPAGE; i++)
 	{
 		const auto &augi = Active_udp_games[(i + (NLPage * UDP_NETGAMES_PPAGE))];
-		int game_status = augi.game_status;
 		int nplayers = 0;
 		char levelname[8];
 
@@ -1519,9 +1518,9 @@ window_event_result netgame_list_game_menu::event_handler(const d_event &event)
 		}
 
 		const char *status;
-		if (game_status == NETSTAT_STARTING)
+		if (const auto game_status = augi.game_status; game_status == network_state::starting)
 			status = "FORMING ";
-		else if (game_status == NETSTAT_PLAYING)
+		else if (game_status == network_state::playing)
 		{
 			if (augi.RefusePlayers)
 				status = "RESTRICT";
@@ -1559,7 +1558,7 @@ void net_udp_list_join_game(grs_canvas &canvas)
 	Network_sending_extras=0;
 	Network_rejoined=0;
 
-	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
+	Network_status = network_state::browsing; // We are looking at a game menu
 
 	net_udp_flush(UDP_Socket);
 	net_udp_listen();  // Throw out old info
@@ -1684,7 +1683,7 @@ int dispatch_table::end_current_level(int *secret) const
 		*secret = 0;
 #endif
 
-	Network_status = NETSTAT_ENDLEVEL; // We are between levels
+	Network_status = network_state::endlevel; // We are between levels
 	net_udp_listen();
 	dispatch->send_endlevel_packet();
 
@@ -1708,10 +1707,10 @@ namespace {
 static join_netgame_status_code net_udp_can_join_netgame(const netgame_info *const game)
 {
 	// Can this player rejoin a netgame in progress?
-	if (game->game_status == NETSTAT_STARTING)
+	if (game->game_status == network_state::starting)
 		return join_netgame_status_code::game_has_capacity;
 
-	if (game->game_status != NETSTAT_PLAYING)
+	if (game->game_status != network_state::playing)
 		return join_netgame_status_code::game_in_disallowed_state;
 
 	// Game is in progress, figure out if this guy can re-join it
@@ -1842,7 +1841,7 @@ static void net_udp_welcome_player(const UDP_sequence_request_packet &their, con
 	// Don't accept new players if we're ending this level.  Its safe to
 	// ignore since they'll request again later
 
-	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
+	if (Network_status == network_state::endlevel || LevelUniqueControlCenterState.Control_center_destroyed)
 	{
 		multi::udp::dispatch->kick_player(udp_addr, DUMP_ENDLEVEL);
 		return; 
@@ -2193,7 +2192,7 @@ void net_udp_send_objects(void)
 	Assert(player_num >= 0);
 	Assert(player_num < Netgame.max_numplayers);
 
-	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
+	if (Network_status == network_state::endlevel || LevelUniqueControlCenterState.Control_center_destroyed)
 	{
 		// Endlevel started before we finished sending the goods, we'll
 		// have to stop and try again after the level.
@@ -2371,7 +2370,7 @@ static void net_udp_read_object_packet(uint8_t *const data)
 			{
 				// Failed to sync up 
 				nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{TXT_NET_SYNC_FAILED});
-				Network_status = NETSTAT_MENU;                          
+				Network_status = network_state::menu;                          
 				return;
 			}
 		}
@@ -2434,7 +2433,7 @@ void net_udp_send_rejoin_sync(const unsigned player_num)
 	vmplayerptr(player_num)->connected = CONNECT_PLAYING; // connect the new guy
 	Netgame.players[player_num].LastPacketTime = timer_query();
 
-	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
+	if (Network_status == network_state::endlevel || LevelUniqueControlCenterState.Control_center_destroyed)
 	{
 		// Endlevel started before we finished sending the goods, we'll
 		// have to stop and try again after the level.
@@ -2625,7 +2624,7 @@ void net_udp_update_netgame()
 		}
 	}
 #endif
-	if (Network_status == NETSTAT_STARTING)
+	if (Network_status == network_state::starting)
 		return;
 
 	Netgame.numplayers = N_players;
@@ -2753,7 +2752,7 @@ static uint_fast32_t net_udp_prepare_light_game_info(game_info_light &info)
 		buf[len] = Netgame.RefusePlayers;						len++;
 		buf[len] = Netgame.difficulty;							len++;
 	const auto tmpvar = get_effective_netgame_status(LevelUniqueControlCenterState);
-		buf[len] = tmpvar;								len++;
+		buf[len] = underlying_value(tmpvar);								len++;
 		buf[len] = Netgame.numconnected;						len++;
 		buf[len] = Netgame.max_numplayers;						len++;
 		buf[len] = pack_game_flags(&Netgame.game_flag).value;							len++;
@@ -2788,7 +2787,7 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		buf[len] = Netgame.RefusePlayers;						len++;
 		buf[len] = Netgame.difficulty;							len++;
 	const auto tmpvar = get_effective_netgame_status(LevelUniqueControlCenterState);
-		buf[len] = tmpvar;								len++;
+		buf[len] = underlying_value(tmpvar);								len++;
 		buf[len] = Netgame.numplayers;							len++;
 		buf[len] = Netgame.max_numplayers;						len++;
 		buf[len] = Netgame.numconnected;						len++;
@@ -2959,7 +2958,10 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		recv_game.gamemode = network_game_type{data[len]};							len++;
 		recv_game.RefusePlayers = data[len];						len++;
 		recv_game.difficulty = data[len];						len++;
-		recv_game.game_status = data[len];						len++;
+		const auto game_status = build_network_state_from_untrusted(data[len]);
+		if (!game_status)
+			return;
+		recv_game.game_status = *game_status;						len++;
 		recv_game.numconnected = data[len];						len++;
 		recv_game.max_numplayers = data[len];						len++;
 		packed_game_flags p;
@@ -2988,14 +2990,14 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 			if (i->game_flag.hoard)
 			{
 				i->gamemode = network_game_type::hoard;
-				i->game_status=NETSTAT_PLAYING;
+				i->game_status = network_state::playing;
 				
 				if (i->game_flag.team_hoard)
 					i->gamemode = network_game_type::team_hoard;
 				if (i->game_flag.endlevel)
-					i->game_status=NETSTAT_ENDLEVEL;
+					i->game_status = network_state::endlevel;
 				if (i->game_flag.forming)
-					i->game_status=NETSTAT_STARTING;
+					i->game_status = network_state::starting;
 			}
 		}
 #endif
@@ -3032,7 +3034,10 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		Netgame.RefusePlayers = data[len];						len++;
 		Netgame.difficulty = cast_clamp_difficulty(data[len]);
 		len++;
-		Netgame.game_status = data[len];						len++;
+		const auto game_status = build_network_state_from_untrusted(data[len]);
+		if (!game_status)
+			return;
+		Netgame.game_status = *game_status;						len++;
 		Netgame.numplayers = data[len];							len++;
 		Netgame.max_numplayers = data[len];						len++;
 		Netgame.numconnected = data[len];						len++;
@@ -3145,9 +3150,9 @@ static void net_udp_process_dump(const uint8_t *data, int, const _sockaddr &send
 		default:
 			if (data[1] > DUMP_LEVEL) // invalid dump... heh
 				break;
-			Network_status = NETSTAT_MENU; // stop us from sending before message
+			Network_status = network_state::menu; // stop us from sending before message
 			nm_messagebox_str(menu_title{nullptr}, TXT_OK, menu_subtitle{NET_DUMP_STRINGS(data[1])});
-			Network_status = NETSTAT_MENU;
+			Network_status = network_state::menu;
 			multi_reset_stuff();
 			break;
 	}
@@ -3242,7 +3247,7 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 		case UPID_DUMP:
 			if (multi_i_am_master() || Netgame.players[0].protocol.udp.addr != sender_addr || length != UPID_DUMP_SIZE)
 				break;
-			if ((Network_status == NETSTAT_WAITING) || (Network_status == NETSTAT_PLAYING))
+			if (Network_status == network_state::waiting || Network_status == network_state::playing)
 				net_udp_process_dump(data, length, sender_addr);
 			break;
 		case UPID_ADDPLAYER:
@@ -3255,17 +3260,17 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 				break;
 			{
 				const auto their = UDP_sequence_request_packet::build_from_untrusted(data);
-			if (Network_status == NETSTAT_STARTING) 
+				if (Network_status == network_state::starting) 
 			{
 				// Someone wants to join our game!
 				net_udp_add_player(their, sender_addr);
 			}
-			else if (Network_status == NETSTAT_WAITING)
+				else if (Network_status == network_state::waiting)
 			{
 				// Someone is ready to recieve a sync packet
 				net_udp_process_request(their, sender_addr);
 			}
-			else if (Network_status == NETSTAT_PLAYING)
+				else if (Network_status == network_state::playing)
 			{
 				// Someone wants to join a game in progress!
 				if (Netgame.RefusePlayers)
@@ -3278,18 +3283,18 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 		case UPID_QUIT_JOINING:
 			if (!multi_i_am_master() || length != 1)
 				break;
-			if (Network_status == NETSTAT_STARTING)
+			if (Network_status == network_state::starting)
 				net_udp_remove_player(sender_addr);
-			else if ((Network_status == NETSTAT_PLAYING) && (Network_send_objects))
+			else if (Network_status == network_state::playing && Network_send_objects)
 				net_udp_stop_resync(sender_addr);
 			break;
 		case UPID_SYNC:
-			if (multi_i_am_master() || length > UPID_GAME_INFO_SIZE_MAX || Network_status != NETSTAT_WAITING)
+			if (multi_i_am_master() || length > UPID_GAME_INFO_SIZE_MAX || Network_status != network_state::waiting)
 				break;
 			net_udp_read_sync_packet(data, length, sender_addr);
 			break;
 		case UPID_OBJECT_DATA:
-			if (multi_i_am_master() || length > UPID_MAX_SIZE || Network_status != NETSTAT_WAITING)
+			if (multi_i_am_master() || length > UPID_MAX_SIZE || Network_status != network_state::waiting)
 				break;
 			net_udp_read_object_packet(data);
 			break;
@@ -3304,11 +3309,11 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 			net_udp_process_pong(data, sender_addr);
 			break;
 		case UPID_ENDLEVEL_H:
-			if ((!multi_i_am_master()) && ((Network_status == NETSTAT_ENDLEVEL) || (Network_status == NETSTAT_PLAYING)))
+			if ((!multi_i_am_master()) && (Network_status == network_state::endlevel || Network_status == network_state::playing))
 				net_udp_read_endlevel_packet(data, sender_addr);
 			break;
 		case UPID_ENDLEVEL_C:
-			if ((multi_i_am_master()) && ((Network_status == NETSTAT_ENDLEVEL) || (Network_status == NETSTAT_PLAYING)))
+			if ((multi_i_am_master()) && (Network_status == network_state::endlevel || Network_status == network_state::playing))
 				net_udp_read_endlevel_packet(data, sender_addr);
 			break;
 		case UPID_PDATA:
@@ -3369,7 +3374,7 @@ void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_a
 			multi_disconnect_player(pnum);
 		vmplayerptr(pnum)->connected = data[len];					len++;
 		tmpvar = data[len];							len++;
-		if (Network_status != NETSTAT_PLAYING && vcplayerptr(pnum)->connected == CONNECT_PLAYING && tmpvar < LevelUniqueControlCenterState.Countdown_seconds_left)
+		if (Network_status != network_state::playing && vcplayerptr(pnum)->connected == CONNECT_PLAYING && tmpvar < LevelUniqueControlCenterState.Countdown_seconds_left)
 			LevelUniqueControlCenterState.Countdown_seconds_left = tmpvar;
 		auto &objp = *vmobjptr(vcplayerptr(pnum)->objnum);
 		auto &player_info = objp.ctype.player_info;
@@ -3393,7 +3398,7 @@ void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_a
 		len++;
 
 		tmpvar = data[len];							len++;
-		if (Network_status != NETSTAT_PLAYING && tmpvar < LevelUniqueControlCenterState.Countdown_seconds_left)
+		if (Network_status != network_state::playing && tmpvar < LevelUniqueControlCenterState.Countdown_seconds_left)
 			LevelUniqueControlCenterState.Countdown_seconds_left = tmpvar;
 
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++)
@@ -3448,10 +3453,10 @@ static int net_udp_sync_poll( newmenu *,const d_event &event, const unused_newme
 	if (Netgame.players[0].connected == CONNECT_DISCONNECTED)
 		rval = -2;
 
-	if (Network_status != NETSTAT_WAITING)	// Status changed to playing, exit the menu
+	if (Network_status != network_state::waiting)	// Status changed to playing, exit the menu
 		rval = -2;
 
-	if (Network_status != NETSTAT_MENU && !Network_rejoined && (timer_query() > t1+F1_0*2))
+	if (Network_status != network_state::menu && !Network_rejoined && (timer_query() > t1+F1_0*2))
 	{
 		// Poll time expired, re-send request
 		
@@ -3469,7 +3474,7 @@ static int net_udp_start_poll(newmenu *, const d_event &event, start_poll_menu_i
 {
 	if (event.type != EVENT_WINDOW_DRAW)
 		return 0;
-	Assert(Network_status == NETSTAT_STARTING);
+	assert(Network_status == network_state::starting);
 
 	auto &menus = items->m;
 	const unsigned nitems = menus.size();
@@ -4406,7 +4411,7 @@ void net_udp_read_sync_packet(const uint8_t *data, uint_fast32_t data_len, const
 
 	if (Netgame.segments_checksum != my_segments_checksum)
 	{
-		Network_status = NETSTAT_MENU;
+		Network_status = network_state::menu;
 		net_udp_close();
 		nm_messagebox_str(menu_title{TXT_ERROR}, nm_messagebox_tie(TXT_OK), menu_subtitle{TXT_NETLEVEL_NMATCH});
 		throw multi::level_checksum_mismatch();
@@ -4424,7 +4429,7 @@ void net_udp_read_sync_packet(const uint8_t *data, uint_fast32_t data_len, const
 		{
 			if (Player_num!=MULTI_PNUM_UNDEF) {
 				Int3(); // Hey, we've found ourselves twice
-				Network_status = NETSTAT_MENU;
+				Network_status = network_state::menu;
 				return; 
 			}
 			change_playernum_to(i);
@@ -4443,7 +4448,7 @@ void net_udp_read_sync_packet(const uint8_t *data, uint_fast32_t data_len, const
 
 	if (Player_num >= MAX_PLAYERS)
 	{
-		Network_status = NETSTAT_MENU;
+		Network_status = network_state::menu;
 		throw multi::local_player_not_playing();
 	}
 
@@ -4481,7 +4486,7 @@ void net_udp_read_sync_packet(const uint8_t *data, uint_fast32_t data_len, const
 
 	get_local_plrobj().type = OBJ_PLAYER;
 
-	Network_status = NETSTAT_PLAYING;
+	Network_status = network_state::playing;
 	multi_sort_kill_list();
 }
 
@@ -4533,7 +4538,7 @@ static int net_udp_send_sync(void)
 	// Push current data into the sync packet
 
 	net_udp_update_netgame();
-	Netgame.game_status = NETSTAT_PLAYING;
+	Netgame.game_status = network_state::playing;
 	Netgame.segments_checksum = my_segments_checksum;
 
 	for (unsigned i = 0; i < N_players; ++i)
@@ -4629,7 +4634,7 @@ abort:
 		net_udp_broadcast_game_info(UPID_GAME_INFO_LITE);
 		Netgame.numplayers = save_nplayers;
 
-		Network_status = NETSTAT_MENU;
+		Network_status = network_state::menu;
 #if DXX_USE_TRACKER
 		if( Netgame.Tracker )
 			udp_tracker_unregister();
@@ -4713,10 +4718,10 @@ static int net_udp_start_game()
 	Netgame.protocol.udp.GameID=d_rand();
 
 	N_players = 0;
-	Netgame.game_status = NETSTAT_STARTING;
+	Netgame.game_status = network_state::starting;
 	Netgame.numplayers = 0;
 
-	Network_status = NETSTAT_STARTING;
+	Network_status = network_state::starting;
 
 	net_udp_set_game_mode(Netgame.gamemode);
 
@@ -4739,7 +4744,7 @@ static int net_udp_wait_for_sync(void)
 	char text[60];
 	int choice=0;
 	
-	Network_status = NETSTAT_WAITING;
+	Network_status = network_state::waiting;
 
 	std::array<newmenu_item, 2> m{{
 		newmenu_item::nm_item_text{text},
@@ -4758,7 +4763,7 @@ static int net_udp_wait_for_sync(void)
 		choice = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_WAIT}, m, net_udp_sync_poll, unused_newmenu_userdata);
 	}
 
-	if (Network_status != NETSTAT_PLAYING)
+	if (Network_status != network_state::playing)
 	{
 		std::array<uint8_t, 1> buf;
 		buf[0] = UPID_QUIT_JOINING;
@@ -4801,7 +4806,7 @@ static int net_udp_wait_for_requests(void)
 	std::array<newmenu_item, 1> m{{
 		newmenu_item::nm_item_text{TXT_NET_LEAVE},
 	}};
-	Network_status = NETSTAT_WAITING;
+	Network_status = network_state::waiting;
 	net_udp_flush(UDP_Socket);
 
 	get_local_player().connected = CONNECT_PLAYING;
@@ -4880,8 +4885,7 @@ namespace {
 
 int net_udp_do_join_game()
 {
-
-	if (Netgame.game_status == NETSTAT_ENDLEVEL)
+	if (Netgame.game_status == network_state::endlevel)
 	{
 		struct error_game_between_levels : passive_messagebox
 		{
@@ -4973,7 +4977,7 @@ int net_udp_do_join_game()
 		return 0;
 	}
 
-	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
+	Network_status = network_state::browsing; // We are looking at a game menu
 #endif
 
 	if (net_udp_can_join_netgame(&Netgame) == join_netgame_status_code::game_in_disallowed_state)
@@ -5656,7 +5660,7 @@ void net_udp_process_mdata(const d_level_shared_robot_info_state &LevelSharedRob
 	}
 
 	// Check if we are in correct state to process the packet
-	if (!((Network_status == NETSTAT_PLAYING)||(Network_status == NETSTAT_ENDLEVEL) || Network_status==NETSTAT_WAITING))
+	if (!(Network_status == network_state::playing || Network_status == network_state::endlevel || Network_status == network_state::waiting))
 		return;
 
 	// Process
@@ -5676,7 +5680,7 @@ void net_udp_send_pdata()
 	auto &plr = get_local_player();
 	if (plr.connected != CONNECT_PLAYING)
 		return;
-	if ( !( Network_status == NETSTAT_PLAYING || Network_status == NETSTAT_ENDLEVEL ) )
+	if (!(Network_status == network_state::playing || Network_status == network_state::endlevel))
 		return;
 
 	buf[len] = UPID_PDATA;									len++;
@@ -5717,7 +5721,7 @@ void net_udp_process_pdata(const uint8_t *data, uint_fast32_t data_len, const _s
 	UDP_frame_info pd;
 	int len = 0;
 
-	if ( !( Game_mode & GM_NETWORK && ( Network_status == NETSTAT_PLAYING || Network_status == NETSTAT_ENDLEVEL ) ) )
+	if (!((Game_mode & GM_NETWORK) && (Network_status == network_state::playing || Network_status == network_state::endlevel)))
 		return;
 
 	len++;
@@ -5818,7 +5822,7 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 
 	if (!multi_quit_game && (TheirPlayernum >= N_players))
 	{
-		if (Network_status!=NETSTAT_WAITING)
+		if (Network_status != network_state::waiting)
 		{
 			Int3(); // We missed an important packet!
 			multi_consistency_error(0);
@@ -6327,8 +6331,8 @@ namespace {
 /* The tracker has sent us a game.  Let's list it. */
 static int udp_tracker_process_game(const uint8_t *const data, int data_len, const _sockaddr &sender_addr)
 {
-	// Only accept data from the tracker we specified and only when we look at the netlist (i.e. NETSTAT_BROWSING)
-	if (!sender_is_tracker(sender_addr, TrackerSocket) || (Network_status != NETSTAT_BROWSING))
+	// Only accept data from the tracker we specified and only when we look at the netlist (i.e. network_state::browsing)
+	if (!sender_is_tracker(sender_addr, TrackerSocket) || Network_status != network_state::browsing)
 		return -1;
 
 	const char *p0 = NULL, *p1 = NULL, *p2 = NULL, *p3 = NULL;
@@ -6409,7 +6413,7 @@ static void udp_tracker_verify_ack_timeout()
 	if (TrackerAckStatus == TrackerAckState::TACK_NOCONNECTION)
 	{
 		TrackerAckStatus = TrackerAckState::TACK_SEQCOMPL; // set this now or we'll run into an endless loop if nm_messagebox triggers.
-		if (Network_status == NETSTAT_PLAYING)
+		if (Network_status == network_state::playing)
 			HUD_init_message(HM_MULTI, "No ACK from tracker. Please check game log.");
 		else
 			nm_messagebox_str(menu_title{TXT_WARNING}, nm_messagebox_tie(TXT_OK), menu_subtitle{"No ACK from tracker.\nPlease check game log."});

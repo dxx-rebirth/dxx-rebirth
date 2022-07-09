@@ -855,7 +855,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 				return;
 		}
 
-		if (LevelUniqueControlCenterState.Control_center_destroyed || (Network_status == NETSTAT_ENDLEVEL))
+		if (LevelUniqueControlCenterState.Control_center_destroyed || Network_status == network_state::endlevel)
 			return;
 
                 if (random_player)
@@ -1070,7 +1070,7 @@ imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, const vms_vector 
 						return object_none;
 					}
 #if defined(DXX_BUILD_DESCENT_II)
-					if ((Game_mode & GM_NETWORK) && Network_status == NETSTAT_ENDLEVEL)
+					if ((Game_mode & GM_NETWORK) && Network_status == network_state::endlevel)
 					 return object_none;
 #endif
 				}

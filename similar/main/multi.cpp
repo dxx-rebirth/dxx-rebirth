@@ -133,6 +133,23 @@ static void multi_send_quit();
 void multi_new_bounty_target(playernum_t, const char *callsign);
 }
 DEFINE_SERIAL_UDT_TO_MESSAGE(shortpos, s, (s.bytemat, s.xo, s.yo, s.zo, s.segment, s.velx, s.vely, s.velz));
+
+std::optional<network_state> build_network_state_from_untrusted(const uint8_t untrusted)
+{
+	switch (untrusted)
+	{
+		case static_cast<uint8_t>(network_state::menu):
+		case static_cast<uint8_t>(network_state::playing):
+		case static_cast<uint8_t>(network_state::browsing):
+		case static_cast<uint8_t>(network_state::waiting):
+		case static_cast<uint8_t>(network_state::starting):
+		case static_cast<uint8_t>(network_state::endlevel):
+			return network_state{untrusted};
+		default:
+			return std::nullopt;
+	}
+}
+
 }
 namespace {
 static playernum_t multi_who_is_master();
@@ -165,6 +182,7 @@ char Multi_is_guided=0;
 
 namespace dcx {
 
+network_state Network_status;
 playernum_t Bounty_target;
 
 
@@ -175,7 +193,6 @@ std::array<sbyte, MAX_OBJECTS> object_owner;   // Who created each object in my 
 
 unsigned   Net_create_loc;       // pointer into previous array
 std::array<objnum_t, MAX_NET_CREATE_OBJECTS>   Net_create_objnums; // For tracking object creation that will be sent to remote
-int   Network_status = 0;
 ntstring<MAX_MESSAGE_LEN - 1> Network_message;
 int   Network_message_reciever=-1;
 std::array<std::array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
@@ -456,7 +473,7 @@ kmatrix_result multi_endlevel_score()
 		old_connect = plr.connected;
 		if (plr.connected != CONNECT_DIED_IN_MINE)
 			plr.connected = CONNECT_END_MENU;
-		Network_status = NETSTAT_ENDLEVEL;
+		Network_status = network_state::endlevel;
 	}
 
 	// Do the actual screen we wish to show
@@ -970,7 +987,7 @@ window_event_result multi_do_frame()
 		last_gmode_time = timer_query();
 	}
 
-	if (Network_status == NETSTAT_PLAYING)
+	if (Network_status == network_state::playing)
 	{
 		// Send out inventory three times per second
 		if (timer_query() >= last_inventory_time + (F1_0/3))
@@ -1978,7 +1995,7 @@ void multi_disconnect_player(const playernum_t pnum)
 
 		multi_sending_message[pnum] = msgsend_state::none;
 
-		if (Network_status == NETSTAT_PLAYING)
+		if (Network_status == network_state::playing)
 		{
 			multi_make_player_ghost(pnum);
 			multi_strip_robots(pnum);
@@ -2175,7 +2192,7 @@ static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t
 	vms_vector new_pos;
 	char powerup_type;
 
-	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
+	if (Network_status == network_state::endlevel || LevelUniqueControlCenterState.Control_center_destroyed)
 		return;
 
 	count++;
@@ -3783,7 +3800,7 @@ int multi_all_players_alive(const fvcobjptr &vcobjptr, const partial_range_t<con
 
 const char *multi_common_deny_save_game(const fvcobjptr &vcobjptr, const partial_range_t<const player *> player_range)
 {
-	if (Network_status == NETSTAT_ENDLEVEL)
+	if (Network_status == network_state::endlevel)
 		return "Level is ending";
 	if (!multi_all_players_alive(vcobjptr, player_range))
 		return "All players must be alive and playing!";
@@ -5007,7 +5024,7 @@ void multi_initiate_restore_game()
 	auto &vcobjptr = Objects.vcptr;
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 
-	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
+	if (Network_status == network_state::endlevel || LevelUniqueControlCenterState.Control_center_destroyed)
 		return;
 
 	if (const auto reason = multi_i_am_master() ? multi_interactive_deny_save_game(vcobjptr, partial_const_range(Players, N_players), LevelUniqueControlCenterState) : "Only host is allowed to load a game!")
@@ -5043,7 +5060,7 @@ void multi_save_game(const unsigned slot, const unsigned id, const d_game_unique
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	char filename[PATH_MAX];
 
-	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
+	if (Network_status == network_state::endlevel || LevelUniqueControlCenterState.Control_center_destroyed)
 		return;
 
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.mg%x"), static_cast<const char *>(get_local_player().callsign), slot);
@@ -5058,7 +5075,7 @@ void multi_restore_game(const unsigned slot, const unsigned id)
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	d_game_unique_state::savegame_file_path filename;
 
-	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
+	if (Network_status == network_state::endlevel || LevelUniqueControlCenterState.Control_center_destroyed)
 		return;
 
 	auto &plr = get_local_player();
@@ -5439,7 +5456,7 @@ namespace dsx {
 bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
-	if ((Game_mode & GM_MULTI_COOP) || LevelUniqueControlCenterState.Control_center_destroyed || Network_status != NETSTAT_PLAYING)
+	if ((Game_mode & GM_MULTI_COOP) || LevelUniqueControlCenterState.Control_center_destroyed || Network_status != network_state::playing)
                 return 0;
 
         int req_amount = 1; // required amount of item to drop a powerup.
