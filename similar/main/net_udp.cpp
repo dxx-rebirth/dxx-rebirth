@@ -637,6 +637,14 @@ public:
 	}
 };
 
+constexpr std::array<uint8_t, UPID_VERSION_DENY_SIZE> udp_response_version_deny{{
+	UPID_VERSION_DENY,
+	DXX_CONST_INIT_LE16(DXX_VERSION_MAJORi),
+	DXX_CONST_INIT_LE16(DXX_VERSION_MINORi),
+	DXX_CONST_INIT_LE16(DXX_VERSION_MICROi),
+	DXX_CONST_INIT_LE16(MULTI_PROTO_VERSION),
+}};
+
 static const char *dxx_ntop(const _sockaddr &sa, typename _sockaddr::presentation_buffer &dbuf)
 {
 #ifdef WIN32
@@ -806,6 +814,11 @@ static game_info_request_result net_udp_check_game_info_request(const uint8_t *c
 			return game_info_request_result::version_mismatch;
 	}
 	return net_udp_check_game_info_request(data);
+}
+
+static void net_udp_send_version_deny(const _sockaddr &sender_addr)
+{
+	dxx_sendto(UDP_Socket[0], udp_response_version_deny, 0, sender_addr);
 }
 
 }
@@ -2705,17 +2718,6 @@ void dispatch_table::send_endlevel_packet() const
 }
 
 namespace {
-
-static void net_udp_send_version_deny(const _sockaddr &sender_addr)
-{
-	std::array<uint8_t, UPID_VERSION_DENY_SIZE> buf;
-	buf[0] = UPID_VERSION_DENY;
-	PUT_INTEL_SHORT(&buf[1], DXX_VERSION_MAJORi);
-	PUT_INTEL_SHORT(&buf[3], DXX_VERSION_MINORi);
-	PUT_INTEL_SHORT(&buf[5], DXX_VERSION_MICROi);
-	PUT_INTEL_SHORT(&buf[7], MULTI_PROTO_VERSION);
-	dxx_sendto(UDP_Socket[0], buf, 0, sender_addr);
-}
 
 static void net_udp_process_version_deny(const uint8_t *const data, const _sockaddr &)
 {
