@@ -478,6 +478,7 @@ static int move_object_within_mine(fvmobjptr &vmobjptr, segment_array &Segments,
 				obj->pos,
 				newpos,
 				fvi_query::unused_ignore_obj_list,
+				fvi_query::unused_LevelUniqueObjectState,
 				0,
 				object_none,
 			}, obj->segnum, obj->size, hit_info);
@@ -802,6 +803,7 @@ static void move_object_to_position(const vmobjptridx_t objp, const vms_vector &
 				temp_viewer_obj.pos,
 				newpos,
 				fvi_query::unused_ignore_obj_list,
+				fvi_query::unused_LevelUniqueObjectState,
 				0,
 				object_none,
 			}, temp_viewer_obj.segnum, temp_viewer_obj.size, hit_info);

@@ -59,7 +59,6 @@ struct fvi_info : prohibit_void_ptr<fvi_info>
 };
 
 //flags for fvi query
-#define FQ_CHECK_OBJS	1		//check against objects?
 #define FQ_TRANSWALL		2		//go through transparent walls
 #define FQ_TRANSPOINT	4		//go through trans wall if hit point is transparent
 #define FQ_GET_SEGLIST	8		//build a list of segments
@@ -86,20 +85,22 @@ namespace dsx {
 struct fvi_query
 {
 	static constexpr const std::pair<const vcobjidx_t *, const vcobjidx_t *> unused_ignore_obj_list{};
+	static constexpr const d_level_unique_object_state *const unused_LevelUniqueObjectState = nullptr;
 	const vms_vector &p0;
 	const vms_vector &p1;
 	const std::pair<const vcobjidx_t *, const vcobjidx_t *> ignore_obj_list;
+	const d_level_unique_object_state *const LevelUniqueObjectState;
 	const int flags;
-	/* This member depends on the value of flags.
-	 * If (flags & FQ_CHECK_OBJS), then `thisobjnum` _must_ be a valid object.
-	 * It will be dereferenced in the course of comparing to objects in the
-	 * segment.
+	/* This member depends on the value of LevelUniqueObjectState.
+	 * If LevelUniqueObjectState != nullptr, then `thisobjnum` _must_ be a
+	 * valid object.  It will be dereferenced in the course of comparing to
+	 * objects in the segment.
 	 *
-	 * If !(flags & FQ_CHECK_OBJS), then `thisobjnum` may be a valid object, or
-	 * not, depending on the caller's needs.
+	 * If LevelUniqueObjectState == nullptr, then `thisobjnum` may be a valid
+	 * object, or not, depending on the caller's needs.
 	 *
 	 * If `thisobjnum` is a valid object, then regardless of whether
-	 * FQ_CHECK_OBJS is set:
+	 * LevelUniqueObjectState == nullptr:
 	 * - fvi_sub enables the zero-radius hack for objects that ignore wall
 	 *   collisions
 	 * - fvi_sub respects the ghostphysics cheat if `thisobjnum` is the local
@@ -121,6 +122,7 @@ struct fvi_query
 // Pass fvi_query by value since callers construct an anonymous instance solely
 // for this call.  Passing it by value avoids an extra indirection in the
 // called function, and has no cost since it is constructed in place.
+[[nodiscard]]
 fvi_hit_type find_vector_intersection(fvi_query fq, segnum_t startseg, fix rad, fvi_info &hit_data);
 
 //finds the uv coords of the given point on the given seg & side

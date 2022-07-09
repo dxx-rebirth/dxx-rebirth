@@ -763,6 +763,7 @@ player_visibility_state player_is_visible_from_object(const vmobjptridx_t objp, 
 		pos,
 		Believed_player_pos,
 		fvi_query::unused_ignore_obj_list,
+		fvi_query::unused_LevelUniqueObjectState,
 		FQ_TRANSWALL, // -- Why were we checking objects? | FQ_CHECK_OBJS;		//what about trans walls???
 		objp,
 	}, startseg, F1_0 / 4, Hit_data);
@@ -1174,6 +1175,7 @@ static void ai_fire_laser_at_player(const d_level_shared_segment_state &LevelSha
 				obj->pos,
 				fire_point,
 				fvi_query::unused_ignore_obj_list,
+				fvi_query::unused_LevelUniqueObjectState,
 				FQ_TRANSWALL,
 				obj,
 			}, obj->segnum, 0, hit_data);
@@ -1780,6 +1782,7 @@ static void compute_buddy_vis_vec(const vmobjptridx_t buddy_obj, const vms_vecto
 		buddy_pos,
 		plrobj.pos,
 		fvi_query::unused_ignore_obj_list,
+		fvi_query::unused_LevelUniqueObjectState,
 		FQ_TRANSWALL,
 		buddy_obj,
 	}, buddy_obj->segnum, F1_0 / 4, hit_data);

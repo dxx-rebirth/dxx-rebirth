@@ -3497,7 +3497,8 @@ static int see_object(fvcobjptridx &vcobjptridx, const vcobjptridx_t objnum)
 		Viewer->pos,
 		objnum->pos,
 		fvi_query::unused_ignore_obj_list,
-		FQ_TRANSWALL | FQ_CHECK_OBJS,
+		&LevelUniqueObjectState,
+		FQ_TRANSWALL,
 		vcobjptridx(Viewer),
 	}, Viewer->segnum, 0, hit_data);
 	return hit_type == fvi_hit_type::Object && hit_data.hit_object == objnum;

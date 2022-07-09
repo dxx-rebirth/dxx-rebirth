@@ -424,7 +424,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 		if (count > 8) break; // in original code this was 3 for all non-player objects. still leave us some limit in case fvi goes apeshit.
 
 		const auto new_pos = vm_vec_add(obj->pos,frame_vec);
-		int flags = FQ_CHECK_OBJS;
+		int flags = 0;
 		if (obj->type == OBJ_WEAPON)
 			flags |= FQ_TRANSPOINT;
 
@@ -435,6 +435,7 @@ window_event_result do_physics_sim(const vmobjptridx_t obj, const vms_vector &ob
 			obj->pos,
 			new_pos,
 			ignore_obj_list,
+			&LevelUniqueObjectState,
 			flags,
 			obj,
 		}, obj->segnum, obj->size, hit_info);

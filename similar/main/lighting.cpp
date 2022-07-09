@@ -170,6 +170,7 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 								obj.pos,
 								tvec,
 								fvi_query::unused_ignore_obj_list,
+								fvi_query::unused_LevelUniqueObjectState,
 								FQ_TRANSWALL,
 								objnum,
 							}, obj_seg, 0, hit_data);

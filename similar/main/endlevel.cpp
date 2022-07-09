@@ -911,6 +911,7 @@ window_event_result do_endlevel_frame()
 				ConsoleObject->pos,
 				tpnt,
 				fvi_query::unused_ignore_obj_list,
+				fvi_query::unused_LevelUniqueObjectState,
 				0,
 				Objects.icptridx(object_first),
 			}, ConsoleObject->segnum, 0, hit_data);

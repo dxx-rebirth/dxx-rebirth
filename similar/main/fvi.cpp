@@ -793,9 +793,7 @@ namespace {
 static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &ints, const vcsegptridx_t startseg, fix rad, fvi_info::segment_array_t &seglist, segnum_t entry_seg, fvi_segments_visited_t &visited, sidenum_t &fvi_hit_side, icsegidx_t &fvi_hit_side_seg, unsigned &fvi_nest_count, icsegidx_t &fvi_hit_pt_seg, const vms_vector *&wall_norm, icobjidx_t &fvi_hit_object)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
-	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	auto &vcobjptridx = Objects.vcptridx;
 	int startmask,endmask;	//mask of faces
 	//@@int sidemask;				//mask of sides - can be on back of face but not side
 	vms_vector closest_hit_point{}; 	//where we hit
@@ -814,9 +812,11 @@ static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &int
 	fvi_nest_count++;
 
 	//first, see if vector hit any objects in this segment
-	if (fq.flags & FQ_CHECK_OBJS)
+	if (const auto LevelUniqueObjectState = fq.LevelUniqueObjectState)
 	{
-		/* A caller which enables FQ_CHECK_OBJS must provide a valid object.
+		auto &Objects = LevelUniqueObjectState->Objects;
+		auto &vcobjptridx = Objects.vcptridx;
+		/* A caller which provides LevelUniqueObjectState must provide a valid object.
 		 * Obtain a require_valid instance once, before the loop begins.
 		 */
 		const vcobjptridx_t thisobjnum = fq.thisobjnum;
