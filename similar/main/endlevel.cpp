@@ -498,7 +498,7 @@ static object *external_explosion;
 
 #define FLY_SPEED i2f(50)
 
-static void do_endlevel_flythrough(flythrough_data *flydata);
+static void do_endlevel_flythrough(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, flythrough_data *flydata);
 
 #define DEFAULT_SPEED i2f(16)
 
@@ -930,7 +930,7 @@ window_event_result do_endlevel_frame()
 
 		case EL_FLYTHROUGH: {
 
-			do_endlevel_flythrough(&fly_objects[0]);
+			do_endlevel_flythrough(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, &fly_objects[0]);
 
 			if (ConsoleObject->segnum == PlayerUniqueEndlevelState.transition_segnum)
 			{
@@ -975,8 +975,8 @@ window_event_result do_endlevel_frame()
 
 		case EL_LOOKBACK: {
 
-			do_endlevel_flythrough(&fly_objects[0]);
-			do_endlevel_flythrough(&fly_objects[1]);
+			do_endlevel_flythrough(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, &fly_objects[0]);
+			do_endlevel_flythrough(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, &fly_objects[1]);
 
 			if (timer>0) {
 
@@ -1189,14 +1189,12 @@ void render_endlevel_frame(grs_canvas &canvas, fix eye_offset)
 
 namespace {
 
-void do_endlevel_flythrough(flythrough_data *flydata)
+void do_endlevel_flythrough(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, flythrough_data *const flydata)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	auto &vmobjptr = Objects.vmptr;
-	auto &vmobjptridx = Objects.vmptridx;
-	const auto &&obj = vmobjptridx(flydata->obj);
+	const auto &&obj = Objects.vmptridx(flydata->obj);
 	
 	vcsegidx_t old_player_seg = obj->segnum;
 
@@ -1212,7 +1210,7 @@ void do_endlevel_flythrough(flythrough_data *flydata)
 
 	//check new player seg
 
-	update_object_seg(vmobjptr, LevelSharedSegmentState, LevelUniqueSegmentState, obj);
+	update_object_seg(Objects.vmptr, LevelSharedSegmentState, LevelUniqueSegmentState, obj);
 	const shared_segment &pseg = *vcsegptr(obj->segnum);
 
 	if (flydata->first_time || obj->segnum != old_player_seg) {		//moved into new seg
