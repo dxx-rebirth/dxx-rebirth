@@ -1133,9 +1133,8 @@ void net_udp_send_game_info(csockaddr_ref sender_addr, const _sockaddr *player_a
 namespace dsx {
 namespace {
 
-void net_udp_request_game_info(const csockaddr_ref game_addr, int lite)
+void net_udp_request_game_info(const csockaddr_ref game_addr, const std::array<uint8_t, UPID_GAME_INFO_REQ_SIZE> &buf = udp_request_game_info_template<UPID_GAME_INFO_LITE_REQ>)
 {
-	auto &buf = lite ? udp_request_game_info_template<UPID_GAME_INFO_LITE_REQ> : udp_request_game_info_template<UPID_GAME_INFO_REQ>;
 	dxx_sendto(UDP_Socket[0], buf, 0, game_addr);
 }
 
@@ -1178,7 +1177,7 @@ Possible reasons:\n\
 	
 	if (timer_query() >= dj->last_time + F1_0)
 	{
-		net_udp_request_game_info(dj->host_addr, 0);
+		net_udp_request_game_info(dj->host_addr, udp_request_game_info_template<UPID_GAME_INFO_REQ>);
 #if DXX_USE_TRACKER
 		if (dj->gameid)
 			if (timer_query() >= dj->start_time + (F1_0*4))
@@ -1335,9 +1334,9 @@ window_event_result netgame_list_game_menu::event_handler(const d_event &event)
 			Active_udp_games = {};
 			num_active_udp_changed = 1;
 			num_active_udp_games = 0;
-			net_udp_request_game_info(GBcast, 1);
+			net_udp_request_game_info(GBcast);
 #if DXX_USE_IPv6
-			net_udp_request_game_info(GMcast_v6, 1);
+			net_udp_request_game_info(GMcast_v6);
 #endif
 #if DXX_USE_TRACKER
 			udp_tracker_reqgames();
@@ -1384,9 +1383,9 @@ window_event_result netgame_list_game_menu::event_handler(const d_event &event)
 				num_active_udp_games = 0;
 				
 				// Request LAN games
-				net_udp_request_game_info(GBcast, 1);
+				net_udp_request_game_info(GBcast);
 #if DXX_USE_IPv6
-				net_udp_request_game_info(GMcast_v6, 1);
+				net_udp_request_game_info(GMcast_v6);
 #endif
 #if DXX_USE_TRACKER
 				udp_tracker_reqgames();
@@ -1400,10 +1399,10 @@ window_event_result netgame_list_game_menu::event_handler(const d_event &event)
 				Active_udp_games = {};
 				num_active_udp_changed = 1;
 				num_active_udp_games = 0;
-				net_udp_request_game_info(GBcast, 1);
+				net_udp_request_game_info(GBcast);
 
 #if DXX_USE_IPv6
-				net_udp_request_game_info(GMcast_v6, 1);
+				net_udp_request_game_info(GMcast_v6);
 #endif
 				break;
 			}
