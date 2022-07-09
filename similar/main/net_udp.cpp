@@ -358,11 +358,6 @@ static std::array<UDP_mdata_store, UDP_MDATA_STOR_QUEUE_SIZE> UDP_mdata_queue;
 static std::array<UDP_mdata_check, MAX_PLAYERS> UDP_mdata_trace;
 static UDP_sequence_syncplayer_packet UDP_sync_player; // For rejoin object syncing
 static uint16_t UDP_MyPort;
-#if DXX_USE_IPv6
-#define dispatch_sockaddr_from	from.sin6
-#else
-#define dispatch_sockaddr_from	from.sin
-#endif
 #if DXX_USE_TRACKER
 static _sockaddr TrackerSocket;
 enum class TrackerAckState : uint8_t
@@ -491,6 +486,108 @@ public:
 	using base_type::operator->;
 };
 #endif
+
+struct sockaddr_ref
+{
+	sockaddr &sa;
+	socklen_t len;
+	/* For bug compatibility with earlier versions, the returned socklen_t from
+	 * the kernel is ignored, and the data structure is assumed to be filled
+	 * with a value of the correct size.
+	 */
+#if DXX_USE_IPv6
+	sockaddr_ref(sockaddr_in6 &sai6) :
+		sa(reinterpret_cast<sockaddr &>(sai6)), len(sizeof(sai6))
+	{
+	}
+#else
+	sockaddr_ref(sockaddr_in &sai) :
+		sa(reinterpret_cast<sockaddr &>(sai)), len(sizeof(sai))
+	{
+	}
+#endif
+	sockaddr_ref(_sockaddr &sai_) :
+#if DXX_USE_IPv6
+		sockaddr_ref(sai_.sin6)
+#else
+		sockaddr_ref(sai_.sin)
+#endif
+	{
+	}
+};
+
+struct csockaddr_ref
+{
+	const sockaddr &sa;
+	const socklen_t len;
+	csockaddr_ref(const sockaddr_in &sai) :
+		sa(reinterpret_cast<const sockaddr &>(sai)), len(sizeof(sai))
+	{
+	}
+#if DXX_USE_IPv6
+	csockaddr_ref(const sockaddr_in6 &sai6) :
+		sa(reinterpret_cast<const sockaddr &>(sai6)),
+		len(
+			/* If the kernel allows specifying sizeof(sockaddr_in6) for a
+			 * sockaddr_in6 with sa.family == AF_INET, then always use
+			 * sizeof(sockaddr_in6).  This saves a compare+jump in application
+			 * code to pass sizeof(sockaddr_in6) and let the kernel sort it
+			 * out.
+			 */
+#if defined(__linux__)
+			/* Known to work */
+#else
+			/* Default case: not known.  Add a runtime check. */
+			sai6.sin6_family == AF_INET ? sizeof(sockaddr_in) :
+#endif
+			sizeof(sai6))
+	{
+	}
+#endif
+	csockaddr_ref(const _sockaddr &sai_) :
+#if DXX_USE_IPv6
+		csockaddr_ref(sai_.sin6)
+#else
+		csockaddr_ref(sai_.sin)
+#endif
+	{
+	}
+};
+
+template <bool const_qualified>
+struct socket_data_buffer_template
+{
+	template <typename T>
+		using cq = typename std::conditional<const_qualified, const T, T>::type;
+	cq<uint8_t> *const buf;
+	const std::size_t len;
+	socket_data_buffer_template(cq<uint8_t> *const buf, const std::size_t len) :
+		buf(buf), len(len)
+	{
+	}
+	/* Enable exactly one of these two constructors for std::array.
+	 *
+	 * Use `N &&` in the `enable_if` to force its input to be template
+	 * dependent, so that it is not resolved early.
+	 *
+	 * To permit deduction of `N`, the std::array parameter must not be wrapped
+	 * inside a template indirection.  Therefore, separate constructors are
+	 * needed for the const and non-const cases.
+	 */
+	template <std::size_t N, typename std::enable_if<N && const_qualified, int>::type = 0>
+		socket_data_buffer_template(const std::array<uint8_t, N> &a) :
+			socket_data_buffer_template(a.data(), a.size())
+	{
+	}
+	template <std::size_t N, typename std::enable_if<N && !const_qualified, int>::type = 0>
+		socket_data_buffer_template(std::array<uint8_t, N> &a) :
+			socket_data_buffer_template(a.data(), a.size())
+	{
+	}
+};
+
+using csocket_data_buffer = socket_data_buffer_template<true>;
+using socket_data_buffer = socket_data_buffer_template<false>;
 
 class start_poll_menu_items
 {
@@ -631,11 +728,6 @@ static void reset_UDP_MyPort()
 	UDP_MyPort = CGameArg.MplUdpMyPort >= 1024 ? CGameArg.MplUdpMyPort : UDP_PORT_DEFAULT;
 }
 
-}
-}
-
-namespace {
-
 static bool convert_text_portstring(const std::array<char, 6> &portstring, uint16_t &outport, bool allow_privileged, bool silent)
 {
 	char *porterror;
@@ -651,148 +743,10 @@ static bool convert_text_portstring(const std::array<char, 6> &portstring, uint1
 	return true;
 }
 
-#if DXX_USE_IPv6
-/* Returns true if kernel allows specifying sizeof(sockaddr_in6) for
- * size of a sockaddr_in.  Saves a compare+jump in application code to
- * pass sizeof(sockaddr_in6) and let kernel sort it out.
- */
-static constexpr bool kernel_accepts_extra_sockaddr_bytes()
-{
-#if defined(__linux__)
-	/* Known to work */
-	return true;
-#else
-	/* Default case: not known */
-	return false;
-#endif
-}
-#endif
-
-	/* Forward to static function to eliminate this pointer */
-template <typename F>
-class passthrough_static_apply : F
-{
-public:
-#define apply_passthrough()	this->F::apply(std::forward<Args>(args)...)
-	template <typename... Args>
-	__attribute_always_inline()
-		auto operator()(Args &&... args) const
-		{
-			return apply_passthrough();
-		}
-#undef apply_passthrough
-};
-
-template <typename F>
-class sockaddr_dispatch_t : F
-{
-public:
-#define apply_sockaddr()	this->F::operator()(reinterpret_cast<sockaddr &>(from), fromlen, std::forward<Args>(args)...)
-	template <typename... Args>
-		auto operator()(sockaddr_in &from, socklen_t &fromlen, Args &&... args) const
-		{
-			fromlen = sizeof(from);
-			return apply_sockaddr();
-		}
-#if DXX_USE_IPv6
-	template <typename... Args>
-		auto operator()(sockaddr_in6 &from, socklen_t &fromlen, Args &&... args) const
-		{
-			fromlen = sizeof(from);
-			return apply_sockaddr();
-		}
-#endif
-	template <typename... Args>
-		__attribute_always_inline()
-		auto operator()(_sockaddr &from, socklen_t &fromlen, Args &&... args) const
-		{
-			return this->sockaddr_dispatch_t<F>::operator()<Args...>(dispatch_sockaddr_from, fromlen, std::forward<Args>(args)...);
-		}
-#undef apply_sockaddr
-};
-
-template <typename F>
-class csockaddr_dispatch_t : F
-{
-public:
-#define apply_sockaddr()	this->F::operator()(to, tolen, std::forward<Args>(args)...)
-	template <typename... Args>
-		auto operator()(const sockaddr &to, socklen_t tolen, Args &&... args) const
-		{
-			return apply_sockaddr();
-		}
-#undef apply_sockaddr
-#define apply_sockaddr(to)	this->F::operator()(reinterpret_cast<const sockaddr &>(to), sizeof(to), std::forward<Args>(args)...)
-	template <typename... Args>
-		auto operator()(const sockaddr_in &to, Args &&... args) const
-		{
-			return apply_sockaddr(to);
-		}
-#if DXX_USE_IPv6
-	template <typename... Args>
-		auto operator()(const sockaddr_in6 &to, Args &&... args) const
-		{
-			return apply_sockaddr(to);
-		}
-#endif
-	template <typename... Args>
-		auto operator()(const _sockaddr &to, Args &&... args) const
-		{
-#if DXX_USE_IPv6
-			if (kernel_accepts_extra_sockaddr_bytes() || to.sin6.sin6_family == AF_INET6)
-				return apply_sockaddr(to.sin6);
-#endif
-			return apply_sockaddr(to.sin);
-		}
-#undef apply_sockaddr
-};
-
-template <typename F>
-class socket_array_dispatch_t : F
-{
-public:
-#define apply_array(B,L)	this->F::operator()(to, tolen, sock, B, L, std::forward<Args>(args)...)
-	template <typename T, typename... Args>
-		auto operator()(const sockaddr &to, socklen_t tolen, int sock, T *buf, uint_fast32_t buflen, Args &&... args) const
-		{
-			return apply_array(buf, buflen);
-		}
-	template <std::size_t N, typename... Args>
-		auto operator()(const sockaddr &to, socklen_t tolen, int sock, std::array<uint8_t, N> &buf, Args &&... args) const
-		{
-			return apply_array(buf.data(), buf.size());
-		}
-#undef apply_array
-};
-
 /* General UDP functions - START */
-class dxx_sendto_t
+ssize_t dxx_sendto(const int sockfd, const csocket_data_buffer msg, const int flags, const csockaddr_ref to)
 {
-public:
-	__attribute_always_inline()
-	ssize_t operator()(const sockaddr &to, socklen_t tolen, int sockfd, const void *msg, size_t len, int flags) const
-	{
-		/* Fix argument order */
-		return apply(sockfd, msg, len, flags, to, tolen);
-	}
-	static ssize_t apply(int sockfd, const void *msg, size_t len, int flags, const sockaddr &to, socklen_t tolen);
-};
-
-class dxx_recvfrom_t
-{
-public:
-	__attribute_always_inline()
-	ssize_t operator()(sockaddr &from, socklen_t &fromlen, int sockfd, void *msg, size_t len, int flags) const
-	{
-		/* Fix argument order */
-		return apply(sockfd, msg, len, flags, from, fromlen);
-	}
-	static ssize_t apply(int sockfd, void *msg, size_t len, int flags, sockaddr &from, socklen_t &fromlen);
-};
-
-ssize_t dxx_sendto_t::apply(int sockfd, const void *msg, size_t len, int flags, const sockaddr &to, socklen_t tolen)
-{
-	ssize_t rv = sendto(sockfd, reinterpret_cast<const char *>(msg), len, flags, &to, tolen);
+	ssize_t rv = sendto(sockfd, reinterpret_cast<const char *>(msg.buf), msg.len, flags, &to.sa, to.len);
 
 	UDP_num_sendto++;
 	if (rv > 0)
@@ -801,9 +755,9 @@ ssize_t dxx_sendto_t::apply(int sockfd, const void *msg, size_t len, int flags, 
 	return rv;
 }
 
-ssize_t dxx_recvfrom_t::apply(int sockfd, void *buf, size_t len, int flags, sockaddr &from, socklen_t &fromlen)
+ssize_t dxx_recvfrom(const int sockfd, const socket_data_buffer msg, const int flags, sockaddr_ref from)
 {
-	ssize_t rv = recvfrom(sockfd, reinterpret_cast<char *>(buf), len, flags, &from, &fromlen);
+	ssize_t rv = recvfrom(sockfd, reinterpret_cast<char *>(msg.buf), msg.len, flags, &from.sa, &from.len);
 
 	UDP_num_recvfrom++;
 	UDP_len_recvfrom += rv;
@@ -811,8 +765,10 @@ ssize_t dxx_recvfrom_t::apply(int sockfd, void *buf, size_t len, int flags, sock
 	return rv;
 }
 
-constexpr csockaddr_dispatch_t<socket_array_dispatch_t<dxx_sendto_t>> dxx_sendto{};
-constexpr sockaddr_dispatch_t<dxx_recvfrom_t> dxx_recvfrom{};
+}
+}
+
+namespace {
 
 static void udp_traffic_stat()
 {
@@ -826,14 +782,8 @@ static void udp_traffic_stat()
 	}
 }
 
-class udp_dns_filladdr_t
-{
-public:
-	static int apply(sockaddr &addr, socklen_t addrlen, int ai_family, const char *host, uint16_t port, bool numeric_only, bool silent);
-};
-
 // Resolve address
-int udp_dns_filladdr_t::apply(sockaddr &addr, socklen_t addrlen, int ai_family, const char *host, uint16_t port, bool numeric_only, bool silent)
+int udp_dns_filladdr(sockaddr_ref addr, const char *host, uint16_t port, bool numeric_only, bool silent)
 {
 #ifdef DXX_HAVE_GETADDRINFO
 	// Variables
@@ -844,7 +794,7 @@ int udp_dns_filladdr_t::apply(sockaddr &addr, socklen_t addrlen, int ai_family, 
 	snprintf(sPort, 6, "%hu", port);
 	
 	// Uncomment the following if we want ONLY what we compile for
-	hints.ai_family = ai_family;
+	hints.ai_family = _sockaddr::address_family;
 	// We are always UDP
 	hints.ai_socktype = SOCK_DGRAM;
 #ifdef AI_NUMERICSERV
@@ -864,20 +814,20 @@ int udp_dns_filladdr_t::apply(sockaddr &addr, socklen_t addrlen, int ai_family, 
 		con_printf( CON_URGENT, "udp_dns_filladdr (getaddrinfo) failed for host %s", host );
 		if (!silent)
 			nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Could not resolve address\n%s", host);
-		addr.sa_family = AF_UNSPEC;
+		addr.sa.sa_family = AF_UNSPEC;
 		return -1;
 	}
 	
-	if (result->ai_addrlen > addrlen)
+	if (result->ai_addrlen > addr.len)
 	{
 		con_printf(CON_URGENT, "Address too big for host %s", host);
 		if (!silent)
 			nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Address too big for host\n%s", host);
-		addr.sa_family = AF_UNSPEC;
+		addr.sa.sa_family = AF_UNSPEC;
 		return -1;
 	}
 	// Now copy it over
-	memcpy(&addr, result->ai_addr, addrlen = result->ai_addrlen);
+	memcpy(&addr.sa, result->ai_addr, addr.len = result->ai_addrlen);
 	
 	/* WARNING:  NERDY CONTENT
 	 *
@@ -894,8 +844,8 @@ int udp_dns_filladdr_t::apply(sockaddr &addr, socklen_t addrlen, int ai_family, 
 	// Free memory
 #else
 	(void)numeric_only;
-	sockaddr_in &sai = reinterpret_cast<sockaddr_in &>(addr);
-	if (addrlen < sizeof(sai))
+	sockaddr_in &sai = reinterpret_cast<sockaddr_in &>(addr.sa);
+	if (addr.len < sizeof(sai))
 		return -1;
 	const auto he = gethostbyname(host);
 	if (!he)
@@ -903,7 +853,7 @@ int udp_dns_filladdr_t::apply(sockaddr &addr, socklen_t addrlen, int ai_family, 
 		con_printf(CON_URGENT, "udp_dns_filladdr (gethostbyname) failed for host %s", host);
 		if (!silent)
 			nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Could not resolve IPv4 address\n%s", host);
-		addr.sa_family = AF_UNSPEC;
+		addr.sa.sa_family = AF_UNSPEC;
 		return -1;
 	}
 	sai = {};
@@ -913,35 +863,6 @@ int udp_dns_filladdr_t::apply(sockaddr &addr, socklen_t addrlen, int ai_family, 
 #endif
 	return 0;
 }
-
-template <typename F>
-class sockaddr_resolve_family_dispatch_t : sockaddr_dispatch_t<F>
-{
-public:
-#define apply_sockaddr(fromlen,family)	this->sockaddr_dispatch_t<F>::operator()(from, fromlen, family, std::forward<Args>(args)...)
-	template <typename... Args>
-		auto operator()(sockaddr_in &from, Args &&... args) const
-		{
-			socklen_t fromlen;
-			return apply_sockaddr(fromlen, AF_INET);
-		}
-#if DXX_USE_IPv6
-	template <typename... Args>
-		auto operator()(sockaddr_in6 &from, Args &&... args) const
-		{
-			socklen_t fromlen;
-			return apply_sockaddr(fromlen, AF_INET6);
-		}
-#endif
-	template <typename... Args>
-		auto operator()(_sockaddr &from, Args &&... args) const
-		{
-			return this->operator()(dispatch_sockaddr_from, std::forward<Args>(args)...);
-		}
-#undef apply_sockaddr
-};
-
-constexpr sockaddr_resolve_family_dispatch_t<passthrough_static_apply<udp_dns_filladdr_t>> udp_dns_filladdr{};
 
 // Open socket
 static int udp_open_socket(RAIIsocket &sock, int port)
@@ -1000,7 +921,7 @@ static int udp_general_packet_ready(RAIIsocket &sock)
 #endif
 
 // Gets some text. Returns 0 if nothing on there.
-static int udp_receive_packet(RAIIsocket &sock, uint8_t *const text, int len, struct _sockaddr *sender_addr)
+static ssize_t udp_receive_packet(RAIIsocket &sock, const socket_data_buffer msg, const sockaddr_ref sender_addr)
 {
 	if (!sock)
 		return -1;
@@ -1009,43 +930,27 @@ static int udp_receive_packet(RAIIsocket &sock, uint8_t *const text, int len, st
 		return 0;
 #endif
 	ssize_t msglen;
-		socklen_t clen;
 		int flags = 0;
 #ifdef MSG_DONTWAIT
 		flags |= MSG_DONTWAIT;
 #endif
-		msglen = dxx_recvfrom(*sender_addr, clen, sock, text, len, flags);
+		msglen = dxx_recvfrom(sock, msg, flags, sender_addr);
 
 		if (msglen < 0)
 			return 0;
 
-		if ((msglen >= 0) && (msglen < len))
-			text[msglen] = 0;
+	if (msglen < msg.len)
+		msg.buf[msglen] = 0;
 	return msglen;
 }
 /* General UDP functions - END */
 
-class net_udp_request_game_info_t
-{
-public:
-	static void apply(const sockaddr &to, socklen_t tolen, int lite);
-};
-
-class net_udp_send_game_info_t
-{
-public:
-	static void apply(const sockaddr &target_addr, socklen_t targetlen, const _sockaddr *sender_addr, ubyte info_upid);
-};
-
-void net_udp_request_game_info_t::apply(const sockaddr &game_addr, socklen_t addrlen, int lite)
+void net_udp_request_game_info(const csockaddr_ref game_addr, int lite)
 {
 	std::array<uint8_t, UPID_GAME_INFO_REQ_SIZE> buf;
 	net_udp_prepare_request_game_info(buf, lite);
-	dxx_sendto(game_addr, addrlen, UDP_Socket[0], buf, 0);
+	dxx_sendto(UDP_Socket[0], buf, 0, game_addr);
 }
-
-constexpr csockaddr_dispatch_t<passthrough_static_apply<net_udp_request_game_info_t>> net_udp_request_game_info{};
-constexpr csockaddr_dispatch_t<passthrough_static_apply<net_udp_send_game_info_t>> net_udp_send_game_info{};
 
 struct direct_join
 {
@@ -1171,6 +1076,8 @@ struct netgame_list_game_menu : netgame_list_game_menu_items, direct_join, newme
 };
 
 manual_join_user_inputs manual_join_menu_items::s_last_inputs;
+
+void net_udp_send_game_info(csockaddr_ref sender_addr, const _sockaddr *player_address, const uint8_t info_upid);
 
 }
 
@@ -1619,7 +1526,7 @@ static void net_udp_send_sequence_packet(const UDP_sequence_request_packet &seq,
 	memcpy(&buf[len], seq.callsign.operator const char *(), CALLSIGN_LEN+1);		len += CALLSIGN_LEN+1;
 	buf[len] = seq.Current_level_num;				len++;
 	buf[len] = underlying_value(seq.rank);					len++;
-	dxx_sendto(recv_addr, UDP_Socket[0], buf, 0);
+	dxx_sendto(UDP_Socket[0], buf, 0, recv_addr);
 }
 
 static void net_udp_send_sequence_packet(const UDP_sequence_addplayer_packet &seq, const _sockaddr &recv_addr)
@@ -1630,7 +1537,7 @@ static void net_udp_send_sequence_packet(const UDP_sequence_addplayer_packet &se
 	memcpy(&buf[len], seq.callsign.operator const char *(), CALLSIGN_LEN+1);		len += CALLSIGN_LEN+1;
 	buf[len] = seq.player_num;				len++;
 	buf[len] = underlying_value(seq.rank);					len++;
-	dxx_sendto(recv_addr, UDP_Socket[0], buf, 0);
+	dxx_sendto(UDP_Socket[0], buf, 0, recv_addr);
 }
 
 static auto build_udp_sequence_from_untrusted(const uint8_t *const untrusted)
@@ -2219,7 +2126,7 @@ void net_udp_send_objects(void)
 	auto &vmobjptr = Objects.vmptr;
 	uint8_t player_num = UDP_sync_player.player_num;
 	static int obj_count = 0;
-	int loc = 0, obj_count_frame = 0;
+	unsigned loc = 0, obj_count_frame = 0;
 	static fix64 last_send_time = 0;
 	
 	if (last_send_time + (F1_0/50) > timer_query())
@@ -2299,7 +2206,7 @@ void net_udp_send_objects(void)
 
 		Assert(loc <= UPID_MAX_SIZE);
 
-		dxx_sendto(UDP_sync_player.udp_addr, UDP_Socket[0], &object_buffer[0], loc, 0);
+		dxx_sendto(UDP_Socket[0], {&object_buffer[0], loc}, 0, UDP_sync_player.udp_addr);
 	}
 
 	if (i > Highest_object_index)
@@ -2319,7 +2226,7 @@ void net_udp_send_objects(void)
 			PUT_INTEL_INT(&object_buffer[5], network_checksum_marker_object);
 			object_buffer[9] = player_num;
 			PUT_INTEL_INT(&object_buffer[10], obj_count);
-			dxx_sendto(UDP_sync_player.udp_addr, UDP_Socket[0], &object_buffer[0], 14, 0);
+			dxx_sendto(UDP_Socket[0], {&object_buffer[0], 14}, 0, UDP_sync_player.udp_addr);
 
 			// Send sync packet which tells the player who he is and to start!
 			net_udp_send_rejoin_sync(player_num);
@@ -2615,7 +2522,7 @@ void dispatch_table::kick_player(const _sockaddr &dump_addr, int why) const
 	std::array<uint8_t, UPID_DUMP_SIZE> buf;
 	buf[0] = UPID_DUMP;
 	buf[1] = why;
-	dxx_sendto(dump_addr, UDP_Socket[0], buf, 0);
+	dxx_sendto(UDP_Socket[0], buf, 0, dump_addr);
 	if (multi_i_am_master())
 		for (playernum_t i = 1; i < N_players; i++)
 			if (dump_addr == Netgame.players[i].protocol.udp.addr)
@@ -2720,7 +2627,7 @@ void dispatch_table::send_endlevel_packet() const
 
 		for (unsigned i = 1; i < MAX_PLAYERS; ++i)
 			if (vcplayerptr(i)->connected != CONNECT_DISCONNECTED)
-				dxx_sendto(Netgame.players[i].protocol.udp.addr, UDP_Socket[0], buf, 0);
+				dxx_sendto(UDP_Socket[0], buf, 0, Netgame.players[i].protocol.udp.addr);
 	}
 	else
 	{
@@ -2741,7 +2648,7 @@ void dispatch_table::send_endlevel_packet() const
 			len += 2;
 		}
 
-		dxx_sendto(Netgame.players[0].protocol.udp.addr, UDP_Socket[0], buf, 0);
+		dxx_sendto(UDP_Socket[0], buf, 0, Netgame.players[0].protocol.udp.addr);
 	}
 }
 }
@@ -2758,7 +2665,7 @@ static void net_udp_send_version_deny(const _sockaddr &sender_addr)
 	PUT_INTEL_SHORT(&buf[3], DXX_VERSION_MINORi);
 	PUT_INTEL_SHORT(&buf[5], DXX_VERSION_MICROi);
 	PUT_INTEL_SHORT(&buf[7], MULTI_PROTO_VERSION);
-	dxx_sendto(sender_addr, UDP_Socket[0], buf, 0);
+	dxx_sendto(UDP_Socket[0], buf, 0, sender_addr);
 }
 
 static void net_udp_process_version_deny(const uint8_t *const data, const _sockaddr &)
@@ -2927,7 +2834,7 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 	return len;
 }
 
-void net_udp_send_game_info_t::apply(const sockaddr &sender_addr, socklen_t senderlen, const _sockaddr *player_address, ubyte info_upid)
+void net_udp_send_game_info(csockaddr_ref sender_addr, const _sockaddr *player_address, const uint8_t info_upid)
 {
 	// Send game info to someone who requested it
 	net_udp_update_netgame(); // Update the values in the netgame struct
@@ -2947,7 +2854,7 @@ void net_udp_send_game_info_t::apply(const sockaddr &sender_addr, socklen_t send
 		len = net_udp_prepare_heavy_game_info(player_address, info_upid, heavy);
 		info = heavy.buf.data();
 	}
-	dxx_sendto(sender_addr, senderlen, UDP_Socket[0], info, len, 0);
+	dxx_sendto(UDP_Socket[0], {info, len}, 0, sender_addr);
 }
 
 static unsigned MouselookMPFlag(const unsigned game_is_cooperative)
@@ -4794,7 +4701,7 @@ static int net_udp_wait_for_sync(void)
 	{
 		std::array<uint8_t, 1> buf;
 		buf[0] = UPID_QUIT_JOINING;
-		dxx_sendto(Netgame.players[0].protocol.udp.addr, UDP_Socket[0], buf, 0);
+		dxx_sendto(UDP_Socket[0], buf, 0, Netgame.players[0].protocol.udp.addr);
 		N_players = 0;
 		Game_mode = {};
 		return(-1);     // they cancelled
@@ -5089,7 +4996,7 @@ static void net_udp_flush(RAIIsocket &s)
 	unsigned i = 0;
 	struct _sockaddr sender_addr;
 	std::array<uint8_t, UPID_MAX_SIZE> packet;
-	while (udp_receive_packet(s, packet.data(), packet.size(), &sender_addr) > 0)
+	while (udp_receive_packet(s, packet, sender_addr) > 0)
 		++i;
 	if (i)
 		con_printf(CON_VERBOSE, "Flushed %u UDP packets from socket %i", i, static_cast<int>(s));
@@ -5114,7 +5021,7 @@ static void net_udp_listen(RAIIsocket &sock)
 	std::array<uint8_t, UPID_MAX_SIZE> packet;
 	for (;;)
 	{
-		const int size = udp_receive_packet(sock, packet.data(), packet.size(), &sender_addr);
+		const auto size = udp_receive_packet(sock, packet, sender_addr);
 		if (!(size > 0))
 			break;
 		net_udp_process_packet(LevelSharedRobotInfoState, packet.data(), sender_addr, size);
@@ -5359,7 +5266,7 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, co
                         if (pkt_num == i) // We got this packet already - need to REsend ACK
                         {
                                 con_printf(CON_VERBOSE, "P#%u: Resending MData ACK for pkt %i we already got by pnum %i",Player_num, pkt_num, sender_pnum);
-                                dxx_sendto(sender_addr, UDP_Socket[0], buf, 0);
+                                dxx_sendto(UDP_Socket[0], buf, 0, sender_addr);
                                 return 0;
                         }
                 }
@@ -5368,7 +5275,7 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, co
         }
 
 	con_printf(CON_VERBOSE, "P#%u: Sending MData ACK for pkt %i by pnum %i",Player_num, pkt_num, sender_pnum);
-	dxx_sendto(sender_addr, UDP_Socket[0], buf, 0);
+	dxx_sendto(UDP_Socket[0], buf, 0, sender_addr);
 
 	UDP_mdata_trace[sender_pnum].cur_slot++;
 	if (UDP_mdata_trace[sender_pnum].cur_slot >= UDP_MDATA_STOR_QUEUE_SIZE)
@@ -5461,20 +5368,20 @@ void net_udp_noloss_process_queue(fix64 time)
 				if (UDP_mdata_queue[queuec].pkt_timestamp[plc] + (F1_0/4) <= time)
 				{
 					ubyte buf[sizeof(UDP_mdata_info)];
-					int len = 0;
 					
 					con_printf(CON_VERBOSE, "P#%u: Resending pkt_num %i from pnum %i to pnum %i",Player_num, UDP_mdata_queue[queuec].pkt_num[plc], UDP_mdata_queue[queuec].Player_num, plc);
 					
 					UDP_mdata_queue[queuec].pkt_timestamp[plc] = time;
 					memset(&buf, 0, sizeof(UDP_mdata_info));
-					
+
+					unsigned len = 0;
 					// Prepare the packet and send it
 					buf[len] = UPID_MDATA_PNEEDACK;													len++;
 					buf[len] = UDP_mdata_queue[queuec].Player_num;								len++;
 					PUT_INTEL_INT(buf + len, UDP_mdata_queue[queuec].pkt_num[plc]);					len += 4;
 					memcpy(&buf[len], UDP_mdata_queue[queuec].data.data(), sizeof(char)*UDP_mdata_queue[queuec].data_size);
 																								len += UDP_mdata_queue[queuec].data_size;
-					dxx_sendto(Netgame.players[plc].protocol.udp.addr, UDP_Socket[0], buf, len, 0);
+					dxx_sendto(UDP_Socket[0], {buf, len}, 0, Netgame.players[plc].protocol.udp.addr);
 					total_len += len;
 				}
 				needack++;
@@ -5530,7 +5437,6 @@ void net_udp_send_mdata_direct(const uint8_t *const data, int data_len, int pnum
 {
 	ubyte buf[sizeof(UDP_mdata_info)];
 	ubyte pack[MAX_PLAYERS];
-	int len = 0;
 	
 	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
@@ -5549,6 +5455,7 @@ void net_udp_send_mdata_direct(const uint8_t *const data, int data_len, int pnum
 
 	pack[pnum] = 0;
 
+	unsigned len = 0;
 	if (needack)
 		buf[len] = UPID_MDATA_PNEEDACK;
 	else
@@ -5561,7 +5468,7 @@ void net_udp_send_mdata_direct(const uint8_t *const data, int data_len, int pnum
 	}
 	memcpy(&buf[len], data, sizeof(char)*data_len);								len += data_len;
 
-	dxx_sendto(Netgame.players[pnum].protocol.udp.addr, UDP_Socket[0], buf, len, 0);
+	dxx_sendto(UDP_Socket[0], {buf, len}, 0, Netgame.players[pnum].protocol.udp.addr);
 
 	if (needack)
 		net_udp_noloss_add_queue_pkt(timer_query(), data, data_len, Player_num, pack);
@@ -5573,7 +5480,6 @@ void net_udp_send_mdata(int needack, fix64 time)
 {
 	ubyte buf[sizeof(UDP_mdata_info)];
 	ubyte pack[MAX_PLAYERS];
-	int len = 0;
 	
 	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
@@ -5587,6 +5493,7 @@ void net_udp_send_mdata(int needack, fix64 time)
 	memset(&buf, 0, sizeof(UDP_mdata_info));
 	memset(&pack, 1, sizeof(ubyte)*MAX_PLAYERS);
 
+	unsigned len = 0;
 	if (needack)
 		buf[len] = UPID_MDATA_PNEEDACK;
 	else
@@ -5605,7 +5512,7 @@ void net_udp_send_mdata(int needack, fix64 time)
 			{
 				if (needack) // assign pkt_num
 					PUT_INTEL_INT(buf + 2, UDP_mdata_trace[i].pkt_num_tosend);
-				dxx_sendto(Netgame.players[i].protocol.udp.addr, UDP_Socket[0], buf, len, 0);
+				dxx_sendto(UDP_Socket[0], {buf, len}, 0, Netgame.players[i].protocol.udp.addr);
 				pack[i] = 0;
 			}
 		}
@@ -5614,7 +5521,7 @@ void net_udp_send_mdata(int needack, fix64 time)
 	{
 		if (needack) // assign pkt_num
 			PUT_INTEL_INT(buf + 2, UDP_mdata_trace[0].pkt_num_tosend);
-		dxx_sendto(Netgame.players[0].protocol.udp.addr, UDP_Socket[0], buf, len, 0);
+		dxx_sendto(UDP_Socket[0], {buf, len}, 0, Netgame.players[0].protocol.udp.addr);
 		pack[0] = 0;
 	}
 	
@@ -5677,7 +5584,7 @@ void net_udp_process_mdata(const d_level_shared_robot_info_state &LevelSharedRob
 					pack[i] = 0;
 					PUT_INTEL_INT(data + 2, UDP_mdata_trace[i].pkt_num_tosend);
 				}
-				dxx_sendto(Netgame.players[i].protocol.udp.addr, UDP_Socket[0], data, data_len, 0);
+				dxx_sendto(UDP_Socket[0], {data, data_len}, 0, Netgame.players[i].protocol.udp.addr);
 			}
 		}
 
@@ -5736,11 +5643,11 @@ void net_udp_send_pdata()
 	{
 		for (unsigned i = 1; i < MAX_PLAYERS; ++i)
 			if (vcplayerptr(i)->connected != CONNECT_DISCONNECTED)
-				dxx_sendto(Netgame.players[i].protocol.udp.addr, UDP_Socket[0], buf, 0);
+				dxx_sendto(UDP_Socket[0], buf, 0, Netgame.players[i].protocol.udp.addr);
 	}
 	else
 	{
-		dxx_sendto(Netgame.players[0].protocol.udp.addr, UDP_Socket[0], buf, 0);
+		dxx_sendto(UDP_Socket[0], buf, 0, Netgame.players[0].protocol.udp.addr);
 	}
 }
 
@@ -5799,7 +5706,7 @@ void net_udp_process_pdata(const uint8_t *data, uint_fast32_t data_len, const _s
 					continue;
 				auto &iplr = *vcplayerptr(i);
 				if (iplr.connected != CONNECT_DISCONNECTED && iplr.connected != CONNECT_WAITING)
-					dxx_sendto(Netgame.players[i].protocol.udp.addr, UDP_Socket[0], data, data_len, 0);
+					dxx_sendto(UDP_Socket[0], {data, data_len}, 0, Netgame.players[i].protocol.udp.addr);
 			}
 		}
 	}
@@ -5935,7 +5842,7 @@ void net_udp_ping_frame(fix64 time)
 		{
 			if (vcplayerptr(i)->connected == CONNECT_DISCONNECTED)
 				continue;
-			dxx_sendto(Netgame.players[i].protocol.udp.addr, UDP_Socket[0], buf, 0);
+			dxx_sendto(UDP_Socket[0], buf, 0, Netgame.players[i].protocol.udp.addr);
 		}
 		PingTime = time;
 	}
@@ -5962,7 +5869,7 @@ void net_udp_process_ping(const uint8_t *data, const _sockaddr &sender_addr)
 	buf[1] = Player_num;
 	memcpy(&buf[2], &host_ping_time, 8);
 	
-	dxx_sendto(sender_addr, UDP_Socket[0], buf, 0);
+	dxx_sendto(UDP_Socket[0], buf, 0, sender_addr);
 }
 
 // Got a PONG from a client. Check the time and add it to our players.
@@ -6317,7 +6224,7 @@ static int udp_tracker_unregister()
 {
 	std::array<uint8_t, 1> pBuf;
 	pBuf[0] = UPID_TRACKER_REMOVE;
-	return dxx_sendto(TrackerSocket, UDP_Socket[0], &pBuf, 1, 0);
+	return dxx_sendto(UDP_Socket[0], pBuf, 0, TrackerSocket);
 }
 
 }
@@ -6330,26 +6237,26 @@ static int udp_tracker_register()
 	net_udp_update_netgame();
 
 	game_info_light light;
-	int len = 1, light_len = net_udp_prepare_light_game_info(light);
+	unsigned len = 1, light_len = net_udp_prepare_light_game_info(light);
 	std::array<uint8_t, 2 + sizeof("b=") + sizeof(UDP_REQ_ID) + sizeof("00000.00000.00000.00000,z=") + UPID_GAME_INFO_LITE_SIZE_MAX> pBuf = {};
 
 	pBuf[0] = UPID_TRACKER_REGISTER;
 	len += snprintf(reinterpret_cast<char *>(&pBuf[1]), sizeof(pBuf)-1, "b=" UDP_REQ_ID DXX_VERSION_STR ".%hu,z=", MULTI_PROTO_VERSION );
 	memcpy(&pBuf[len], light.buf.data(), light_len);		len += light_len;
 
-	return dxx_sendto(TrackerSocket, UDP_Socket[0], &pBuf, len, 0);
+	return dxx_sendto(UDP_Socket[0], {pBuf.data(), len}, 0, TrackerSocket);
 }
 
 /* Ask the tracker to send us a list of games */
 static int udp_tracker_reqgames()
 {
 	std::array<uint8_t, 2 + sizeof(UDP_REQ_ID) + sizeof("00000.00000.00000.00000")> pBuf = {};
-	int len = 1;
+	unsigned len = 1;
 
 	pBuf[0] = UPID_TRACKER_REQGAMES;
 	len += snprintf(reinterpret_cast<char *>(&pBuf[1]), sizeof(pBuf)-1, UDP_REQ_ID DXX_VERSION_STR ".%hu", MULTI_PROTO_VERSION );
 
-	return dxx_sendto(TrackerSocket, UDP_Socket[0], &pBuf, len, 0);
+	return dxx_sendto(UDP_Socket[0], {pBuf.data(), len}, 0, TrackerSocket);
 }
 }
 }
@@ -6464,7 +6371,7 @@ static void udp_tracker_request_holepunch( uint16_t TrackerGameID )
 	PUT_INTEL_SHORT(&pBuf[1], TrackerGameID);
 
 	con_printf(CON_VERBOSE, "[Tracker] Sending hole-punch request for game [%i] to tracker.", TrackerGameID);
-	dxx_sendto(TrackerSocket, UDP_Socket[0], &pBuf, 3, 0);
+	dxx_sendto(UDP_Socket[0], pBuf, 0, TrackerSocket);
 }
 
 /* Tracker sent us an address from a client requesting hole punching.
@@ -6510,7 +6417,7 @@ static void udp_tracker_process_holepunch(uint8_t *const data, const unsigned da
 
 	std::array<uint8_t, 1> pBuf;
 	pBuf[0] = UPID_TRACKER_HOLEPUNCH;
-	dxx_sendto(sAddr, UDP_Socket[0], &pBuf, 1, 0);
+	dxx_sendto(UDP_Socket[0], pBuf, 0, sAddr);
 }
 
 }
