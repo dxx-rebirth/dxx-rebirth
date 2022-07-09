@@ -138,12 +138,6 @@ struct UDP_netgame_info_lite : public prohibit_void_ptr<UDP_netgame_info_lite>
 };
 #endif
 
-struct UDP_sequence_packet : prohibit_void_ptr<UDP_sequence_packet>
-{
-	ubyte           		type;
-	netplayer_info  		player;
-};
-
 // packet structure for multi-buffer
 struct UDP_mdata_info : prohibit_void_ptr<UDP_mdata_info>
 {

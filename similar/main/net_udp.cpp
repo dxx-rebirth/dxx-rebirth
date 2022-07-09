@@ -261,10 +261,52 @@ window_event_result net_udp_select_teams_menu::event_handler(const d_event &even
 	return newmenu::event_handler(event);
 }
 
-}
+struct UDP_sequence_packet
+{
+	const uint8_t type;
+	const netplayer_info::player_rank rank;
+	const callsign_t callsign;
+protected:
+	UDP_sequence_packet(const uint8_t type, const netplayer_info::player_rank rank, const callsign_t &callsign) :
+		type(type), rank(rank), callsign(callsign)
+	{
+	}
+};
+
+struct UDP_sequence_request_packet : UDP_sequence_packet
+{
+	const int8_t Current_level_num;
+	UDP_sequence_request_packet(const netplayer_info::player_rank rank, const callsign_t &callsign, const int8_t Current_level_num) :
+		UDP_sequence_packet(UPID_REQUEST, rank, callsign), Current_level_num(Current_level_num)
+	{
+	}
+	static UDP_sequence_request_packet build_from_untrusted(const uint8_t *);
+};
+
+struct UDP_sequence_addplayer_packet : UDP_sequence_packet
+{
+	const uint8_t player_num;
+	UDP_sequence_addplayer_packet(const netplayer_info::player_rank rank, const callsign_t &callsign, const int8_t player_num) :
+		UDP_sequence_packet(UPID_ADDPLAYER, rank, callsign), player_num(player_num)
+	{
+	}
+	static UDP_sequence_addplayer_packet build_from_untrusted(const uint8_t *);
+};
+
+struct UDP_sequence_syncplayer_packet
+{
+	uint8_t player_num;
+	netplayer_info::player_rank rank;
+	callsign_t callsign;
+	struct _sockaddr udp_addr;
+	UDP_sequence_syncplayer_packet() = default;
+	UDP_sequence_syncplayer_packet(const int8_t player_num, const netplayer_info::player_rank rank, const callsign_t &callsign, const struct _sockaddr &peer_addr) :
+		player_num(player_num), rank(rank), callsign(callsign), udp_addr(peer_addr)
+	{
+	}
+};
 
 // Prototypes
-namespace {
 static void net_udp_init();
 static void net_udp_close();
 static void net_udp_listen();
@@ -280,7 +322,7 @@ static int net_udp_do_join_game();
 static void net_udp_update_netgame();
 static void net_udp_send_objects(void);
 static void net_udp_send_rejoin_sync(unsigned player_num);
-static void net_udp_do_refuse_stuff (UDP_sequence_packet *their);
+static void net_udp_do_refuse_stuff(const UDP_sequence_request_packet &their, const struct _sockaddr &peer_addr);
 static void net_udp_read_sync_packet(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr);
 static void net_udp_send_extras();
 static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &game_addr, int lite_info, uint16_t TrackerGameID = 0);
@@ -311,11 +353,10 @@ static int net_udp_start_game();
 // Variables
 static int UDP_num_sendto, UDP_len_sendto, UDP_num_recvfrom, UDP_len_recvfrom;
 static UDP_mdata_info		UDP_MData;
-static UDP_sequence_packet UDP_Seq;
 static unsigned UDP_mdata_queue_highest;
 static std::array<UDP_mdata_store, UDP_MDATA_STOR_QUEUE_SIZE> UDP_mdata_queue;
 static std::array<UDP_mdata_check, MAX_PLAYERS> UDP_mdata_trace;
-static UDP_sequence_packet UDP_sync_player; // For rejoin object syncing
+static UDP_sequence_syncplayer_packet UDP_sync_player; // For rejoin object syncing
 static std::array<UDP_netgame_info_lite, UDP_MAX_NETGAMES> Active_udp_games;
 static uint16_t UDP_MyPort;
 #if DXX_USE_IPv6
@@ -1572,28 +1613,51 @@ void net_udp_list_join_game(grs_canvas &canvas)
 
 namespace {
 
-static void net_udp_send_sequence_packet(UDP_sequence_packet seq, const _sockaddr &recv_addr)
+static void net_udp_send_sequence_packet(const UDP_sequence_request_packet &seq, const _sockaddr &recv_addr)
 {
 	std::array<uint8_t, UPID_SEQUENCE_SIZE> buf;
 	int len = 0;
 	buf[0] = seq.type;						len++;
-	memcpy(&buf[len], seq.player.callsign.buffer(), CALLSIGN_LEN+1);		len += CALLSIGN_LEN+1;
-	buf[len] = seq.player.connected;				len++;
-	buf[len] = underlying_value(seq.player.rank);					len++;
+	memcpy(&buf[len], seq.callsign.operator const char *(), CALLSIGN_LEN+1);		len += CALLSIGN_LEN+1;
+	buf[len] = seq.Current_level_num;				len++;
+	buf[len] = underlying_value(seq.rank);					len++;
 	dxx_sendto(recv_addr, UDP_Socket[0], buf, 0);
 }
 
-static void net_udp_receive_sequence_packet(const uint8_t *const data, UDP_sequence_packet *const seq, const _sockaddr &sender_addr)
+static void net_udp_send_sequence_packet(const UDP_sequence_addplayer_packet &seq, const _sockaddr &recv_addr)
 {
+	std::array<uint8_t, UPID_SEQUENCE_SIZE> buf;
 	int len = 0;
-	
-	seq->type = data[0];						len++;
-	memcpy(seq->player.callsign.buffer(), &(data[len]), CALLSIGN_LEN+1);	len += CALLSIGN_LEN+1;
-	seq->player.connected = data[len];				len++;
-	memcpy (&(seq->player.rank),&(data[len]),1);			len++;
-	
-	if (multi_i_am_master())
-		seq->player.protocol.udp.addr = sender_addr;
+	buf[0] = seq.type;						len++;
+	memcpy(&buf[len], seq.callsign.operator const char *(), CALLSIGN_LEN+1);		len += CALLSIGN_LEN+1;
+	buf[len] = seq.player_num;				len++;
+	buf[len] = underlying_value(seq.rank);					len++;
+	dxx_sendto(recv_addr, UDP_Socket[0], buf, 0);
+}
+
+static auto build_udp_sequence_from_untrusted(const uint8_t *const untrusted)
+{
+	callsign_t callsign;
+	/* Skip over the first byte, since it is the UPID code */
+	std::size_t position = 1;
+	callsign.copy_lower(&(reinterpret_cast<const char *>(untrusted)[position]), CALLSIGN_LEN);
+	position += CALLSIGN_LEN + 1;
+	const netplayer_info::player_rank rank = build_rank_from_untrusted(untrusted[++position]);
+	return std::tuple(callsign, rank);
+}
+
+UDP_sequence_request_packet UDP_sequence_request_packet::build_from_untrusted(const uint8_t *const untrusted)
+{
+	auto &&[callsign, rank] = build_udp_sequence_from_untrusted(untrusted);
+	const int8_t Current_level_num = untrusted[1 + CALLSIGN_LEN + 1];
+	return {rank, callsign, Current_level_num};
+}
+
+UDP_sequence_addplayer_packet UDP_sequence_addplayer_packet::build_from_untrusted(const uint8_t *const untrusted)
+{
+	auto &&[callsign, rank] = build_udp_sequence_from_untrusted(untrusted);
+	const int8_t player_num = untrusted[1 + CALLSIGN_LEN + 1];
+	return {rank, callsign, player_num};
 }
 
 void net_udp_init()
@@ -1612,13 +1676,9 @@ void net_udp_init()
 #endif
 
 	Netgame = {};
-	UDP_Seq = {};
 	UDP_MData = {};
 	net_udp_noloss_init_mdata_queue();
-	UDP_Seq.type = UPID_REQUEST;
-	UDP_Seq.player.callsign = InterfaceUniqueState.PilotName;
-
-	UDP_Seq.player.rank=GetMyNetRanking();	
+	UDP_sequence_request_packet UDP_Seq{GetMyNetRanking(), InterfaceUniqueState.PilotName, 0};
 
 	multi_new_game();
 	net_udp_flush(UDP_Socket);
@@ -1751,11 +1811,12 @@ void dispatch_table::disconnect_player(int playernum) const
 }
 
 namespace {
-static void net_udp_new_player(UDP_sequence_packet *const their)
+
+static void net_udp_new_player(const UDP_sequence_addplayer_packet &their, const struct _sockaddr &peer_addr)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	unsigned pnum = their->player.connected;
+	const unsigned pnum = their.player_num;
 
 	Assert(pnum < Netgame.max_numplayers);
 	
@@ -1766,15 +1827,15 @@ static void net_udp_new_player(UDP_sequence_packet *const their)
 			new_player = 1;
 		else
 			new_player = 0;
-		newdemo_record_multi_connect(pnum, new_player, their->player.callsign);
+		newdemo_record_multi_connect(pnum, new_player, their.callsign);
 	}
 
 	auto &plr = *vmplayerptr(pnum);
-	plr.callsign = their->player.callsign;
-	Netgame.players[pnum].callsign = their->player.callsign;
-	Netgame.players[pnum].protocol.udp.addr = their->player.protocol.udp.addr;
+	plr.callsign = their.callsign;
+	Netgame.players[pnum].callsign = their.callsign;
+	Netgame.players[pnum].protocol.udp.addr = peer_addr;
 
-	Netgame.players[pnum].rank=their->player.rank;
+	Netgame.players[pnum].rank = their.rank;
 
 	plr.connected = CONNECT_PLAYING;
 	kill_matrix[pnum] = {};
@@ -1794,8 +1855,8 @@ static void net_udp_new_player(UDP_sequence_packet *const their)
 
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 
-	const auto &&rankstr = GetRankStringWithSpace(their->player.rank);
-	HUD_init_message(HM_MULTI, "%s%s'%s' %s", rankstr.first, rankstr.second, static_cast<const char *>(their->player.callsign), TXT_JOINING);
+	const auto &&rankstr = GetRankStringWithSpace(their.rank);
+	HUD_init_message(HM_MULTI, "%s%s'%s' %s", rankstr.first, rankstr.second, their.callsign.operator const char *(), TXT_JOINING);
 	
 	multi_make_ghost_player(pnum);
 
@@ -1810,7 +1871,8 @@ static void net_udp_new_player(UDP_sequence_packet *const their)
 }
 
 namespace {
-static void net_udp_welcome_player(UDP_sequence_packet *their)
+
+static void net_udp_welcome_player(const UDP_sequence_request_packet &their, const struct _sockaddr &udp_addr)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1823,7 +1885,7 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 
 	if (Network_status == NETSTAT_ENDLEVEL || LevelUniqueControlCenterState.Control_center_destroyed)
 	{
-		multi::udp::dispatch->kick_player(their->player.protocol.udp.addr, DUMP_ENDLEVEL);
+		multi::udp::dispatch->kick_player(udp_addr, DUMP_ENDLEVEL);
 		return; 
 	}
 
@@ -1840,9 +1902,9 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 		if ((UDP_MDATA_STOR_QUEUE_SIZE - UDP_mdata_queue_highest) < UDP_MDATA_STOR_MIN_FREE_2JOIN)
 			return;
 
-	if (their->player.connected != Current_level_num)
+	if (their.Current_level_num != Current_level_num)
 	{
-		multi::udp::dispatch->kick_player(their->player.protocol.udp.addr, DUMP_LEVEL);
+		multi::udp::dispatch->kick_player(udp_addr, DUMP_LEVEL);
 		return;
 	}
 
@@ -1852,8 +1914,8 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 
 	for (unsigned i = 0; i < N_players; i++)
 	{
-		if (vcplayerptr(i)->callsign == their->player.callsign &&
-			their->player.protocol.udp.addr == Netgame.players[i].protocol.udp.addr)
+		if (vcplayerptr(i)->callsign == their.callsign &&
+			udp_addr == Netgame.players[i].protocol.udp.addr)
 		{
 			player_num = i;
 			break;
@@ -1867,7 +1929,7 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 		if (Netgame.game_flag.closed)
 		{
 			// Slots are open but game is closed
-			multi::udp::dispatch->kick_player(their->player.protocol.udp.addr, DUMP_CLOSED);
+			multi::udp::dispatch->kick_player(udp_addr, DUMP_CLOSED);
 			return;
 		}
 		if (N_players < Netgame.max_numplayers)
@@ -1895,7 +1957,7 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 			if (activeplayers == Netgame.max_numplayers)
 			{
 				// Game is full.
-				multi::udp::dispatch->kick_player(their->player.protocol.udp.addr, DUMP_FULL);
+				multi::udp::dispatch->kick_player(udp_addr, DUMP_FULL);
 				return;
 			}
 
@@ -1911,7 +1973,7 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 			if (oldest_player == -1)
 			{
 				// Everyone is still connected 
-				multi::udp::dispatch->kick_player(their->player.protocol.udp.addr, DUMP_FULL);
+				multi::udp::dispatch->kick_player(udp_addr, DUMP_FULL);
 				return;
 			}
 			else
@@ -1954,9 +2016,7 @@ static void net_udp_welcome_player(UDP_sequence_packet *their)
 
 	// Send updated Objects data to the new/returning player
 
-	
-	UDP_sync_player = *their;
-	UDP_sync_player.player.connected = player_num;
+	UDP_sync_player = UDP_sequence_syncplayer_packet(player_num, their.rank, their.callsign, udp_addr);
 	Network_send_objects = 1;
 	Network_send_objnum = -1;
 	Netgame.players[player_num].LastPacketTime = timer_query();
@@ -1973,7 +2033,7 @@ int dispatch_table::objnum_is_past(const objnum_t objnum) const
 	// determine whether or not a given object number has already been sent
 	// to a re-joining player.
 	
-	int player_num = UDP_sync_player.player.connected;
+	int player_num = UDP_sync_player.player_num;
 	int obj_mode = !((object_owner[objnum] == -1) || (object_owner[objnum] == player_num));
 
 	if (!Network_send_objects)
@@ -2139,7 +2199,7 @@ static unsigned net_udp_create_monitor_vector(void)
 
 static void net_udp_stop_resync(const struct _sockaddr &udp_addr)
 {
-	if (UDP_sync_player.player.protocol.udp.addr == udp_addr)
+	if (UDP_sync_player.udp_addr == udp_addr)
 	{
 		Network_send_objects = 0;
 		Network_sending_extras=0;
@@ -2159,7 +2219,7 @@ void net_udp_send_objects(void)
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	sbyte player_num = UDP_sync_player.player.connected;
+	uint8_t player_num = UDP_sync_player.player_num;
 	static int obj_count = 0;
 	int loc = 0, obj_count_frame = 0;
 	static fix64 last_send_time = 0;
@@ -2178,7 +2238,7 @@ void net_udp_send_objects(void)
 	{
 		// Endlevel started before we finished sending the goods, we'll
 		// have to stop and try again after the level.
-		multi::udp::dispatch->kick_player(UDP_sync_player.player.protocol.udp.addr, DUMP_ENDLEVEL);
+		multi::udp::dispatch->kick_player(UDP_sync_player.udp_addr, DUMP_ENDLEVEL);
 		Network_send_objects = 0; 
 		return;
 	}
@@ -2241,7 +2301,7 @@ void net_udp_send_objects(void)
 
 		Assert(loc <= UPID_MAX_SIZE);
 
-		dxx_sendto(UDP_sync_player.player.protocol.udp.addr, UDP_Socket[0], &object_buffer[0], loc, 0);
+		dxx_sendto(UDP_sync_player.udp_addr, UDP_Socket[0], &object_buffer[0], loc, 0);
 	}
 
 	if (i > Highest_object_index)
@@ -2261,7 +2321,7 @@ void net_udp_send_objects(void)
 			PUT_INTEL_INT(&object_buffer[5], network_checksum_marker_object);
 			object_buffer[9] = player_num;
 			PUT_INTEL_INT(&object_buffer[10], obj_count);
-			dxx_sendto(UDP_sync_player.player.protocol.udp.addr, UDP_Socket[0], &object_buffer[0], 14, 0);
+			dxx_sendto(UDP_sync_player.udp_addr, UDP_Socket[0], &object_buffer[0], 14, 0);
 
 			// Send sync packet which tells the player who he is and to start!
 			net_udp_send_rejoin_sync(player_num);
@@ -2420,7 +2480,7 @@ void net_udp_send_rejoin_sync(const unsigned player_num)
 		// Endlevel started before we finished sending the goods, we'll
 		// have to stop and try again after the level.
 
-		multi::udp::dispatch->kick_player(UDP_sync_player.player.protocol.udp.addr, DUMP_ENDLEVEL);
+		multi::udp::dispatch->kick_player(UDP_sync_player.udp_addr, DUMP_ENDLEVEL);
 
 		Network_send_objects = 0; 
 		Network_sending_extras=0;
@@ -2429,14 +2489,13 @@ void net_udp_send_rejoin_sync(const unsigned player_num)
 
 	if (Network_player_added)
 	{
-		UDP_sync_player.type = UPID_ADDPLAYER;
-		UDP_sync_player.player.connected = player_num;
-		net_udp_new_player(&UDP_sync_player);
+		const UDP_sequence_addplayer_packet add(UDP_sync_player.rank, UDP_sync_player.callsign, UDP_sync_player.player_num);
+		net_udp_new_player(add, UDP_sync_player.udp_addr);
 
 		for (unsigned i = 0; i < N_players; ++i)
 		{
 			if (i != player_num && i != Player_num && vcplayerptr(i)->connected)
-				net_udp_send_sequence_packet( UDP_sync_player, Netgame.players[i].protocol.udp.addr);
+				net_udp_send_sequence_packet(add, Netgame.players[i].protocol.udp.addr);
 		}
 	}
 
@@ -2458,7 +2517,7 @@ void net_udp_send_rejoin_sync(const unsigned player_num)
 	Netgame.level_time = get_local_player().time_level;
 	Netgame.monitor_vector = net_udp_create_monitor_vector();
 
-	net_udp_send_game_info(UDP_sync_player.player.protocol.udp.addr, &UDP_sync_player.player.protocol.udp.addr, UPID_SYNC);
+	net_udp_send_game_info(UDP_sync_player.udp_addr, &UDP_sync_player.udp_addr, UPID_SYNC);
 #if defined(DXX_BUILD_DESCENT_I)
 	net_udp_send_door_updates();
 #endif
@@ -2493,16 +2552,16 @@ static void net_udp_resend_sync_due_to_packet_loss()
 	Netgame.level_time = get_local_player().time_level;
 	Netgame.monitor_vector = net_udp_create_monitor_vector();
 
-	net_udp_send_game_info(UDP_sync_player.player.protocol.udp.addr, &UDP_sync_player.player.protocol.udp.addr, UPID_SYNC);
+	net_udp_send_game_info(UDP_sync_player.udp_addr, &UDP_sync_player.udp_addr, UPID_SYNC);
 }
 
-static void net_udp_add_player(UDP_sequence_packet *p)
+static void net_udp_add_player(const UDP_sequence_request_packet &p, const struct _sockaddr &udp_addr)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	range_for (auto &i, partial_range(Netgame.players, N_players))
 	{
-		if (i.protocol.udp.addr == p->player.protocol.udp.addr)
+		if (i.protocol.udp.addr == udp_addr)
 		{
 			i.LastPacketTime = timer_query();
 			return;		// already got them
@@ -2514,9 +2573,9 @@ static void net_udp_add_player(UDP_sequence_packet *p)
 		return;		// too many of em
 	}
 
-	Netgame.players[N_players].callsign = p->player.callsign;
-	Netgame.players[N_players].protocol.udp.addr = p->player.protocol.udp.addr;
-	Netgame.players[N_players].rank=p->player.rank;
+	Netgame.players[N_players].callsign = p.callsign;
+	Netgame.players[N_players].protocol.udp.addr = udp_addr;
+	Netgame.players[N_players].rank = p.rank;
 	Netgame.players[N_players].connected = CONNECT_PLAYING;
 	auto &obj = *vmobjptr(vcplayerptr(N_players)->objnum);
 	auto &player_info = obj.ctype.player_info;
@@ -2931,9 +2990,8 @@ static unsigned net_udp_send_request(void)
 		Assert(false);
 		return std::distance(b, i);
 	}
-	UDP_Seq.type = UPID_REQUEST;
-	UDP_Seq.player.connected = Current_level_num;
-
+	int8_t l = Current_level_num;
+	const UDP_sequence_request_packet UDP_Seq{GetMyNetRanking(), InterfaceUniqueState.PilotName, l};
 	net_udp_send_sequence_packet(UDP_Seq, Netgame.players[0].protocol.udp.addr);
 	return std::distance(b, i);
 }
@@ -3161,11 +3219,11 @@ static void net_udp_process_dump(const uint8_t *data, int, const _sockaddr &send
 	}
 }
 
-static void net_udp_process_request(UDP_sequence_packet *their)
+static void net_udp_process_request(const UDP_sequence_request_packet &their, const struct _sockaddr &udp_addr)
 {
 	// Player is ready to receieve a sync packet
 	for (unsigned i = 0; i < N_players; ++i)
-		if (their->player.protocol.udp.addr == Netgame.players[i].protocol.udp.addr && !d_stricmp(their->player.callsign, Netgame.players[i].callsign))
+		if (udp_addr == Netgame.players[i].protocol.udp.addr && !d_stricmp(their.callsign, Netgame.players[i].callsign))
 		{
 			vmplayerptr(i)->connected = CONNECT_PLAYING;
 			Netgame.players[i].LastPacketTime = timer_query();
@@ -3175,8 +3233,6 @@ static void net_udp_process_request(UDP_sequence_packet *their)
 
 static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, uint8_t *const data, const _sockaddr &sender_addr, int length)
 {
-	UDP_sequence_packet their{};
-
 	switch (data[0])
 	{
 		case UPID_VERSION_DENY:
@@ -3231,30 +3287,31 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 		case UPID_ADDPLAYER:
 			if (multi_i_am_master() || Netgame.players[0].protocol.udp.addr != sender_addr || length != UPID_SEQUENCE_SIZE)
 				break;
-			net_udp_receive_sequence_packet(data, &their, sender_addr);
-			net_udp_new_player(&their);
+			net_udp_new_player(UDP_sequence_addplayer_packet::build_from_untrusted(data), sender_addr);
 			break;
 		case UPID_REQUEST:
 			if (!multi_i_am_master() || length != UPID_SEQUENCE_SIZE)
 				break;
-			net_udp_receive_sequence_packet(data, &their, sender_addr);
+			{
+				const auto their = UDP_sequence_request_packet::build_from_untrusted(data);
 			if (Network_status == NETSTAT_STARTING) 
 			{
 				// Someone wants to join our game!
-				net_udp_add_player(&their);
+				net_udp_add_player(their, sender_addr);
 			}
 			else if (Network_status == NETSTAT_WAITING)
 			{
 				// Someone is ready to recieve a sync packet
-				net_udp_process_request(&their);
+				net_udp_process_request(their, sender_addr);
 			}
 			else if (Network_status == NETSTAT_PLAYING)
 			{
 				// Someone wants to join a game in progress!
 				if (Netgame.RefusePlayers)
-					net_udp_do_refuse_stuff (&their);
+					net_udp_do_refuse_stuff(their, sender_addr);
 				else
-					net_udp_welcome_player(&their);
+					net_udp_welcome_player(their, sender_addr);
+			}
 			}
 			break;
 		case UPID_QUIT_JOINING:
@@ -4559,7 +4616,7 @@ static int net_udp_select_players()
 		Netgame.ShufflePowerupSeed = seed;
 	}
 
-	net_udp_add_player( &UDP_Seq );
+	net_udp_add_player(UDP_sequence_request_packet{GetMyNetRanking(), InterfaceUniqueState.PilotName, 0}, {});
 	start_poll_menu_items spd;
 		
 	for (int i=0; i< MAX_PLAYERS+4; i++ ) {
@@ -5943,15 +6000,15 @@ void net_udp_process_pong(const uint8_t *data, const _sockaddr &sender_addr)
 namespace dsx {
 namespace {
 
-void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
+void net_udp_do_refuse_stuff(const UDP_sequence_request_packet &their, const struct _sockaddr &peer_addr)
 {
 	int new_player_num;
 	
 	for (unsigned i = 0; i < MAX_PLAYERS; ++i)
 	{
-		if (!d_stricmp(vcplayerptr(i)->callsign, their->player.callsign) && their->player.protocol.udp.addr == Netgame.players[i].protocol.udp.addr)
+		if (!d_stricmp(vcplayerptr(i)->callsign, their.callsign) && peer_addr == Netgame.players[i].protocol.udp.addr)
 		{
-			net_udp_welcome_player(their);
+			net_udp_welcome_player(their, peer_addr);
 			return;
 		}
 	}
@@ -5964,25 +6021,25 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 		digi_play_sample (SOUND_HUD_JOIN_REQUEST,F1_0*2);
 #endif
 	
-		const auto &&rankstr = GetRankStringWithSpace(their->player.rank);
+		const auto &&rankstr = GetRankStringWithSpace(their.rank);
 		if (Game_mode & GM_TEAM)
 		{
-			HUD_init_message(HM_MULTI, "%s%s'%s' wants to join", rankstr.first, rankstr.second, static_cast<const char *>(their->player.callsign));
+			HUD_init_message(HM_MULTI, "%s%s'%s' wants to join", rankstr.first, rankstr.second, their.callsign.operator const char *());
 			HUD_init_message(HM_MULTI, "Alt-1 assigns to team %s. Alt-2 to team %s", static_cast<const char *>(Netgame.team_name[0]), static_cast<const char *>(Netgame.team_name[1]));
 		}
 		else
 		{
-			HUD_init_message(HM_MULTI, "%s%s'%s' wants to join (accept: F6)", rankstr.first, rankstr.second, static_cast<const char *>(their->player.callsign));
+			HUD_init_message(HM_MULTI, "%s%s'%s' wants to join (accept: F6)", rankstr.first, rankstr.second, their.callsign.operator const char *());
 		}
 	
-		strcpy (RefusePlayerName,their->player.callsign);
+		strcpy(RefusePlayerName, their.callsign);
 		RefuseTimeLimit=timer_query();
 		RefuseThisPlayer=0;
 		WaitForRefuseAnswer=1;
 	}
 	else
 	{
-		if (strcmp(their->player.callsign,RefusePlayerName))
+		if (strcmp(RefusePlayerName, their.callsign))
 			return;
 	
 		if (RefuseThisPlayer)
@@ -6000,12 +6057,12 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 					Netgame.team_vector &=(~(1<<new_player_num));
 				else
 					Netgame.team_vector |=(1<<new_player_num);
-				net_udp_welcome_player(their);
+				net_udp_welcome_player(their, peer_addr);
 				net_udp_send_netgame_update();
 			}
 			else
 			{
-				net_udp_welcome_player(their);
+				net_udp_welcome_player(their, peer_addr);
 			}
 			return;
 		}
@@ -6015,10 +6072,8 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 			RefuseTimeLimit=0;
 			RefuseThisPlayer=0;
 			WaitForRefuseAnswer=0;
-			if (!strcmp (their->player.callsign,RefusePlayerName))
-			{
-				multi::udp::dispatch->kick_player(their->player.protocol.udp.addr, DUMP_DORK);
-			}
+			if (!strcmp(RefusePlayerName, their.callsign))
+				multi::udp::dispatch->kick_player(peer_addr, DUMP_DORK);
 			return;
 		}
 	}
