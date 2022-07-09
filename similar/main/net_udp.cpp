@@ -357,7 +357,6 @@ static unsigned UDP_mdata_queue_highest;
 static std::array<UDP_mdata_store, UDP_MDATA_STOR_QUEUE_SIZE> UDP_mdata_queue;
 static std::array<UDP_mdata_check, MAX_PLAYERS> UDP_mdata_trace;
 static UDP_sequence_syncplayer_packet UDP_sync_player; // For rejoin object syncing
-static std::array<UDP_netgame_info_lite, UDP_MAX_NETGAMES> Active_udp_games;
 static uint16_t UDP_MyPort;
 #if DXX_USE_IPv6
 #define dispatch_sockaddr_from	from.sin6
@@ -1156,6 +1155,7 @@ struct netgame_list_game_menu : netgame_list_game_menu_items, direct_join, newme
 {
 	unsigned num_active_udp_games = 0;
 	uint8_t num_active_udp_changed = 1;
+	std::array<UDP_netgame_info_lite, UDP_MAX_NETGAMES> Active_udp_games = {};
 	netgame_list_game_menu(grs_canvas &src) :
 		newmenu(menu_title{"NETGAMES"}, menu_subtitle{nullptr}, menu_filename{nullptr}, tiny_mode_flag::tiny, tab_processing_flag::process, adjusted_citem::create(menus, 0), src)
 	{
@@ -1602,8 +1602,6 @@ void net_udp_list_join_game(grs_canvas &canvas)
 
 	net_udp_flush(UDP_Socket);
 	net_udp_listen();  // Throw out old info
-
-	Active_udp_games = {};
 
 	gr_set_fontcolor(canvas, BM_XRGB(15, 15, 23),-1);
 
@@ -3038,9 +3036,9 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 	
 		menu->num_active_udp_changed = 1;
 		
-		auto r = partial_range(Active_udp_games, menu->num_active_udp_games);
+		auto r = partial_range(menu->Active_udp_games, menu->num_active_udp_games);
 		auto i = std::find_if(r.begin(), r.end(), [&recv_game](const UDP_netgame_info_lite &g) { return !d_stricmp(g.game_name.data(), recv_game.game_name.data()) && g.GameID == recv_game.GameID; });
-		if (i == Active_udp_games.end())
+		if (i == menu->Active_udp_games.end())
 		{
 			return;
 		}
