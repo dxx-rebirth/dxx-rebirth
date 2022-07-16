@@ -1055,8 +1055,13 @@ void multi_leave_game()
 	if (!(Game_mode & GM_MULTI))
 		return;
 
-	if (Game_mode & GM_NETWORK)
+	if (!multi_i_am_master())
 	{
+		/* The host does not need to send item drops, because the game will end
+		 * when the host quits.  The multi_send_quit after this block will
+		 * cause all guests to be ejected from the game, so no players would
+		 * have time to pick up any items dropped by this block.
+		 */
 		Net_create_loc = 0;
 		const auto cobjp = vmobjptridx(get_local_player().objnum);
 		multi_send_position(cobjp);
