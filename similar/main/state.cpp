@@ -749,7 +749,7 @@ static void state_player_to_player_rw(const relocated_player_data &rpd, const pl
 	int i=0;
 	pl_rw->callsign = pl->callsign;
 	memset(pl_rw->net_address, 0, 6);
-	pl_rw->connected                 = pl->connected;
+	pl_rw->connected                 = underlying_value(pl->connected);
 	pl_rw->objnum                    = pl->objnum;
 	pl_rw->n_packets_got             = 0;
 	pl_rw->n_packets_sent            = 0;
@@ -820,7 +820,7 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player
 {
 	int i=0;
 	pl->callsign = pl_rw->callsign;
-	pl->connected                 = pl_rw->connected;
+	pl->connected                 = player_connection_status{pl_rw->connected};
 	pl->objnum                    = pl_rw->objnum;
 	pl_info.powerup_flags         = player_flags(pl_rw->flags);
 	pl_info.energy                = pl_rw->energy;
@@ -2454,7 +2454,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 			
 			// make all (previous) player objects to ghosts but store them first for later remapping
 			const auto &&obj = vmobjptr(restore_players[i].objnum);
-			if (restore_players[i].connected == CONNECT_PLAYING && obj->type == OBJ_PLAYER)
+			if (restore_players[i].connected == player_connection_status::playing && obj->type == OBJ_PLAYER)
 			{
 				obj->ctype.player_info = pl_info;
 				obj->shields = rpd.shields;
@@ -2468,7 +2468,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 			for (unsigned j = 0; j < MAX_PLAYERS; j++)
 			{
 				// map stored players to current players depending on their unique (which we made sure) callsign
-				if (vcplayerptr(i)->connected == CONNECT_PLAYING && restore_players[j].connected == CONNECT_PLAYING && vcplayerptr(i)->callsign == restore_players[j].callsign)
+				if (vcplayerptr(i)->connected == player_connection_status::playing && restore_players[j].connected == player_connection_status::playing && vcplayerptr(i)->callsign == restore_players[j].callsign)
 				{
 					auto &p = *vmplayerptr(i);
 					const auto sav_objnum = p.objnum;
@@ -2524,7 +2524,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 			Netgame.net_player_flags[i] = pi.powerup_flags;
 		}
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++) // Disconnect connected players not available in this Savegame
-			if (!coop_player_got[i] && vcplayerptr(i)->connected == CONNECT_PLAYING)
+			if (!coop_player_got[i] && vcplayerptr(i)->connected == player_connection_status::playing)
 				multi_disconnect_player(i);
 		Viewer = ConsoleObject = &get_local_plrobj(); // make sure Viewer and ConsoleObject are set up (which we skipped by not using InitPlayerObject but we need since objects changed while loading)
 		special_reset_objects(LevelUniqueObjectState); // since we juggled around with objects to remap coop players rebuild the index of free objects

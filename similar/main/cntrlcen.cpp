@@ -158,7 +158,7 @@ window_event_result do_controlcen_dead_frame()
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	if ((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)) // if out of level already there's no need for this
+	if ((Game_mode & GM_MULTI) && (get_local_player().connected != player_connection_status::playing)) // if out of level already there's no need for this
 		return window_event_result::ignored;
 
 	const auto Dead_controlcen_object_num = LevelUniqueControlCenterState.Dead_controlcen_object_num;

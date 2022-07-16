@@ -79,7 +79,7 @@ struct UDP_frame_info : prohibit_void_ptr<UDP_frame_info>
 {
 	ubyte				type;
 	ubyte				Player_num;
-	ubyte				connected;
+	player_connection_status connected;
 	quaternionpos			qpp;
 };
 
@@ -1793,7 +1793,7 @@ static void net_udp_new_player(const UDP_sequence_addplayer_packet &their, const
 
 	Netgame.players[pnum].rank = their.rank;
 
-	plr.connected = CONNECT_PLAYING;
+	plr.connected = player_connection_status::playing;
 	kill_matrix[pnum] = {};
 	auto &objp = *vmobjptr(plr.objnum);
 	auto &player_info = objp.ctype.player_info;
@@ -1907,7 +1907,7 @@ static void net_udp_welcome_player(const UDP_sequence_request_packet &their, con
 			Assert(N_players == Netgame.max_numplayers);
 
 			range_for (auto &i, partial_const_range(Netgame.players, Netgame.numplayers))
-				if (i.connected)
+				if (i.connected != player_connection_status::disconnected)
 					activeplayers++;
 
 			if (activeplayers == Netgame.max_numplayers)
@@ -1919,7 +1919,7 @@ static void net_udp_welcome_player(const UDP_sequence_request_packet &their, con
 
 			for (unsigned i = 0; i < N_players; i++)
 			{
-				if (!vcplayerptr(i)->connected && Netgame.players[i].LastPacketTime < oldest_time)
+				if (vcplayerptr(i)->connected == player_connection_status::disconnected && Netgame.players[i].LastPacketTime < oldest_time)
 				{
 					oldest_time = Netgame.players[i].LastPacketTime;
 					oldest_player = i;
@@ -1946,7 +1946,7 @@ static void net_udp_welcome_player(const UDP_sequence_request_packet &their, con
 		// Player is reconnecting
 		
 		auto &plr = *vcplayerptr(player_num);
-		if (plr.connected)
+		if (plr.connected != player_connection_status::disconnected)
 		{
 			return;
 		}
@@ -2428,7 +2428,7 @@ void net_udp_send_rejoin_sync(const unsigned player_num)
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
-	vmplayerptr(player_num)->connected = CONNECT_PLAYING; // connect the new guy
+	vmplayerptr(player_num)->connected = player_connection_status::playing;	// connect the new guy
 	Netgame.players[player_num].LastPacketTime = timer_query();
 
 	if (Network_status == network_state::endlevel || LevelUniqueControlCenterState.Control_center_destroyed)
@@ -2450,7 +2450,7 @@ void net_udp_send_rejoin_sync(const unsigned player_num)
 
 		for (unsigned i = 0; i < N_players; ++i)
 		{
-			if (i != player_num && i != Player_num && vcplayerptr(i)->connected)
+			if (i != player_num && i != Player_num && vcplayerptr(i)->connected != player_connection_status::disconnected)
 				net_udp_send_sequence_packet(add, Netgame.players[i].protocol.udp.addr);
 		}
 	}
@@ -2540,11 +2540,11 @@ static void net_udp_add_player(const UDP_sequence_request_packet &p, const struc
 	Netgame.players[N_players].callsign = p.callsign;
 	Netgame.players[N_players].protocol.udp.addr = udp_addr;
 	Netgame.players[N_players].rank = p.rank;
-	Netgame.players[N_players].connected = CONNECT_PLAYING;
+	Netgame.players[N_players].connected = player_connection_status::playing;
 	auto &obj = *vmobjptr(vcplayerptr(N_players)->objnum);
 	auto &player_info = obj.ctype.player_info;
 	player_info.KillGoalCount = 0;
-	vmplayerptr(N_players)->connected = CONNECT_PLAYING;
+	vmplayerptr(N_players)->connected = player_connection_status::playing;
 	Netgame.players[N_players].LastPacketTime = timer_query();
 	N_players++;
 	Netgame.numplayers = N_players;
@@ -2599,7 +2599,7 @@ void net_udp_update_netgame()
 	// Update the netgame struct with current game variables
 	Netgame.numconnected=0;
 	range_for (auto &i, partial_const_range(Players, N_players))
-		if (i.connected)
+		if (i.connected != player_connection_status::disconnected)
 			Netgame.numconnected++;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2667,7 +2667,7 @@ void dispatch_table::send_endlevel_packet() const
 
 		range_for (auto &i, Players)
 		{
-			buf[len] = i.connected;								len++;
+			buf[len] = underlying_value(i.connected);								len++;
 			auto &objp = *vcobjptr(i.objnum);
 			auto &player_info = objp.ctype.player_info;
 			PUT_INTEL_SHORT(&buf[len], player_info.net_kills_total);
@@ -2685,7 +2685,7 @@ void dispatch_table::send_endlevel_packet() const
 		}
 
 		for (unsigned i = 1; i < MAX_PLAYERS; ++i)
-			if (vcplayerptr(i)->connected != CONNECT_DISCONNECTED)
+			if (vcplayerptr(i)->connected != player_connection_status::disconnected)
 				dxx_sendto(UDP_Socket[0], buf, 0, Netgame.players[i].protocol.udp.addr);
 	}
 	else
@@ -2693,7 +2693,7 @@ void dispatch_table::send_endlevel_packet() const
 		std::array<uint8_t, 8 + sizeof(kill_matrix[0])> buf;
 		buf[len] = UPID_ENDLEVEL_C;											len++;
 		buf[len] = Player_num;												len++;
-		buf[len] = get_local_player().connected;							len++;
+		buf[len] = underlying_value(get_local_player().connected);							len++;
 		buf[len] = LevelUniqueControlCenterState.Countdown_seconds_left;				len++;
 		auto &player_info = get_local_plrobj().ctype.player_info;
 		PUT_INTEL_SHORT(&buf[len], player_info.net_kills_total);
@@ -2775,7 +2775,7 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		for (int i = 0; i < Netgame.players.size(); i++)
 		{
 			memcpy(&buf[len], Netgame.players[i].callsign.buffer(), CALLSIGN_LEN+1); 	len += CALLSIGN_LEN+1;
-			buf[len] = Netgame.players[i].connected;				len++;
+			buf[len] = underlying_value(Netgame.players[i].connected);				len++;
 			buf[len] = underlying_value(Netgame.players[i].rank);					len++;
 			if (addr && *addr == Netgame.players[i].protocol.udp.addr)
 				your_index = i;
@@ -2901,7 +2901,7 @@ void net_udp_send_netgame_update()
 {
 	for (unsigned i = 1; i < N_players; ++i)
 	{
-		if (vcplayerptr(i)->connected == CONNECT_DISCONNECTED)
+		if (vcplayerptr(i)->connected == player_connection_status::disconnected)
 			continue;
 		const auto &addr = Netgame.players[i].protocol.udp.addr;
 		net_udp_send_game_info(addr, &addr, UPID_GAME_INFO);
@@ -2915,7 +2915,7 @@ static unsigned net_udp_send_request(void)
 	// game, non-zero if there is some problem.
 	auto b = Netgame.players.begin();
 	auto e = Netgame.players.end();
-	auto i = std::find_if(b, e, [](const netplayer_info &ni) { return ni.connected != 0; });
+	auto i = std::find_if(b, e, [](const netplayer_info &ni) { return ni.connected != player_connection_status::disconnected; });
 	if (i == e)
 	{
 		Assert(false);
@@ -3024,7 +3024,7 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		{
 			i.callsign.copy_lower(reinterpret_cast<const char *>(&data[len]), CALLSIGN_LEN);
 			len += CALLSIGN_LEN+1;
-			i.connected = data[len];				len++;
+			i.connected = player_connection_status{data[len]};				len++;
 			i.rank = build_rank_from_untrusted(data[len]);					len++;
 		}
 		Netgame.levelnum = GET_INTEL_INT(&(data[len]));					len += 4;
@@ -3162,7 +3162,7 @@ static void net_udp_process_request(const UDP_sequence_request_packet &their, co
 	for (unsigned i = 0; i < N_players; ++i)
 		if (udp_addr == Netgame.players[i].protocol.udp.addr && !d_stricmp(their.callsign, Netgame.players[i].callsign))
 		{
-			vmplayerptr(i)->connected = CONNECT_PLAYING;
+			vmplayerptr(i)->connected = player_connection_status::playing;
 			Netgame.players[i].LastPacketTime = timer_query();
 			break;
 		}
@@ -3368,11 +3368,11 @@ void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_a
 
 		len += 2;
 
-		if (static_cast<int>(data[len]) == CONNECT_DISCONNECTED)
+		if (player_connection_status{data[len]} == player_connection_status::disconnected)
 			multi_disconnect_player(pnum);
-		vmplayerptr(pnum)->connected = data[len];					len++;
+		vmplayerptr(pnum)->connected = player_connection_status{data[len]};					len++;
 		tmpvar = data[len];							len++;
-		if (Network_status != network_state::playing && vcplayerptr(pnum)->connected == CONNECT_PLAYING && tmpvar < LevelUniqueControlCenterState.Countdown_seconds_left)
+		if (Network_status != network_state::playing && vcplayerptr(pnum)->connected == player_connection_status::playing && tmpvar < LevelUniqueControlCenterState.Countdown_seconds_left)
 			LevelUniqueControlCenterState.Countdown_seconds_left = tmpvar;
 		auto &objp = *vmobjptr(vcplayerptr(pnum)->objnum);
 		auto &player_info = objp.ctype.player_info;
@@ -3385,7 +3385,7 @@ void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_a
 		{
 			i = GET_INTEL_SHORT(&(data[len]));		len += 2;
 		}
-		if (vcplayerptr(pnum)->connected)
+		if (vcplayerptr(pnum)->connected != player_connection_status::disconnected)
 			Netgame.players[pnum].LastPacketTime = timer_query();
 	}
 	else
@@ -3407,17 +3407,17 @@ void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_a
 				continue;
 			}
 
-			if (static_cast<int>(data[len]) == CONNECT_DISCONNECTED)
+			if (player_connection_status{data[len]} == player_connection_status::disconnected)
 				multi_disconnect_player(i);
 			auto &objp = *vmobjptr(vcplayerptr(i)->objnum);
 			auto &player_info = objp.ctype.player_info;
-			vmplayerptr(i)->connected = data[len];				len++;
+			vmplayerptr(i)->connected = player_connection_status{data[len]};				len++;
 			player_info.net_kills_total = GET_INTEL_SHORT(&data[len]);
 			len += 2;
 			player_info.net_killed_total = GET_INTEL_SHORT(&data[len]);
 			len += 2;
 
-			if (vcplayerptr(i)->connected)
+			if (vcplayerptr(i)->connected != player_connection_status::disconnected)
 				Netgame.players[i].LastPacketTime = timer_query();
 		}
 
@@ -3448,7 +3448,7 @@ static int net_udp_sync_poll( newmenu *,const d_event &event, const unused_newme
 	net_udp_listen();
 
 	// Leave if Host disconnects
-	if (Netgame.players[0].connected == CONNECT_DISCONNECTED)
+	if (Netgame.players[0].connected == player_connection_status::disconnected)
 		rval = -2;
 
 	if (Network_status != network_state::waiting)	// Status changed to playing, exit the menu
@@ -4468,8 +4468,8 @@ void net_udp_read_sync_packet(const uint8_t *data, uint_fast32_t data_len, const
 	}
 
 	team_kills = Netgame.team_kills;
-	plr.connected = CONNECT_PLAYING;
-	Netgame.players[Player_num].connected = CONNECT_PLAYING;
+	plr.connected = player_connection_status::playing;
+	Netgame.players[Player_num].connected = player_connection_status::playing;
 	Netgame.players[Player_num].rank=GetMyNetRanking();
 
 	if (!Network_rejoined)
@@ -4506,7 +4506,7 @@ static int net_udp_send_sync(void)
 		Netgame.numplayers = 0;
 		for (unsigned i = 1; i < N_players; ++i)
 		{
-			if (vcplayerptr(i)->connected == CONNECT_DISCONNECTED)
+			if (vcplayerptr(i)->connected == player_connection_status::disconnected)
 				continue;
 			const auto &addr = Netgame.players[i].protocol.udp.addr;
 			multi::udp::dispatch->kick_player(addr, DUMP_ABORTED);
@@ -4519,8 +4519,8 @@ static int net_udp_send_sync(void)
 	// Randomize their starting locations...
 	d_srand(static_cast<fix>(timer_query()));
 	for (auto &plr : partial_range(Players, supported_start_positions_on_level))
-		if (auto &connected = plr.connected)
-			connected = CONNECT_PLAYING; // Get rid of endlevel connect statuses
+		if (auto &connected = plr.connected; connected != player_connection_status::disconnected)
+			connected = player_connection_status::playing; // Get rid of endlevel connect statuses
 	auto &&locations = partial_range(Netgame.locations, supported_start_positions_on_level);
 	std::iota(locations.begin(), locations.end(), 0);
 	if (!(Game_mode & GM_MULTI_COOP))
@@ -4543,7 +4543,7 @@ static int net_udp_send_sync(void)
 
 	for (unsigned i = 0; i < N_players; ++i)
 	{
-		if (!vcplayerptr(i)->connected || i == Player_num)
+		if (vcplayerptr(i)->connected == player_connection_status::disconnected || i == Player_num)
 			continue;
 		const auto &addr = Netgame.players[i].protocol.udp.addr;
 		net_udp_send_game_info(addr, &addr, UPID_SYNC);
@@ -4625,7 +4625,7 @@ abort:
 		Netgame.numplayers = 0;
 		for (unsigned i = 1; i < save_nplayers; ++i)
 		{
-			if (vcplayerptr(i)->connected == CONNECT_DISCONNECTED)
+			if (vcplayerptr(i)->connected == player_connection_status::disconnected)
 				continue;
 			const auto &addr = Netgame.players[i].protocol.udp.addr;
 			multi::udp::dispatch->kick_player(addr, DUMP_ABORTED);
@@ -4668,7 +4668,7 @@ abort:
 				Netgame.players[N_players].callsign = Netgame.players[i].callsign;
 				Netgame.players[N_players].rank=Netgame.players[i].rank;
 			}
-			vmplayerptr(N_players)->connected = CONNECT_PLAYING;
+			vmplayerptr(N_players)->connected = player_connection_status::playing;
 			N_players++;
 		}
 		else
@@ -4787,7 +4787,7 @@ static int net_udp_request_poll( newmenu *,const d_event &event, const unused_ne
 
 	range_for (auto &i, partial_const_range(Players, N_players))
 	{
-		if ((i.connected == CONNECT_PLAYING) || (i.connected == CONNECT_DISCONNECTED))
+		if (i.connected == player_connection_status::playing || i.connected == player_connection_status::disconnected)
 			num_ready++;
 	}
 
@@ -4809,7 +4809,7 @@ static int net_udp_wait_for_requests(void)
 	Network_status = network_state::waiting;
 	net_udp_flush(UDP_Socket);
 
-	get_local_player().connected = CONNECT_PLAYING;
+	get_local_player().connected = player_connection_status::playing;
 
 menu:
 	choice = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_WAIT}, m, net_udp_request_poll, unused_newmenu_userdata);
@@ -4829,7 +4829,7 @@ menu:
 		
 		for (unsigned i = 0; i < N_players; ++i)
 		{
-			if (vcplayerptr(i)->connected != CONNECT_DISCONNECTED && i != Player_num)
+			if (vcplayerptr(i)->connected != player_connection_status::disconnected && i != Player_num)
 			{
 				multi::udp::dispatch->kick_player(Netgame.players[i].protocol.udp.addr, DUMP_ABORTED);
 			}
@@ -4870,7 +4870,7 @@ window_event_result dispatch_table::level_sync() const
 
 	if (result)
 	{
-		get_local_player().connected = CONNECT_DISCONNECTED;
+		get_local_player().connected = player_connection_status::disconnected;
 		dispatch->send_endlevel_packet();
 		show_menus();
 		net_udp_close();
@@ -5025,7 +5025,7 @@ void dispatch_table::leave_game() const
 		N_players=0;
 		for (unsigned i = 1; i < nsave; ++i)
 		{
-			if (vcplayerptr(i)->connected == CONNECT_DISCONNECTED)
+			if (vcplayerptr(i)->connected == player_connection_status::disconnected)
 				continue;
 			const auto &addr = Netgame.players[i].protocol.udp.addr;
 			net_udp_send_game_info(addr, &addr, UPID_GAME_INFO);
@@ -5038,7 +5038,7 @@ void dispatch_table::leave_game() const
 #endif
 	}
 
-	get_local_player().connected = CONNECT_DISCONNECTED;
+	get_local_player().connected = player_connection_status::disconnected;
 	change_playernum_to(0);
 #if defined(DXX_BUILD_DESCENT_II)
 	write_player_file();
@@ -5137,7 +5137,7 @@ void net_udp_timeout_check(fix64 time)
 		// Check for player timeouts
 		for (playernum_t i = 0; i < N_players; i++)
 		{
-			if ((i != Player_num) && (vcplayerptr(i)->connected != CONNECT_DISCONNECTED))
+			if (i != Player_num && vcplayerptr(i)->connected != player_connection_status::disconnected)
 			{
 				if ((Netgame.players[i].LastPacketTime == 0) || (Netgame.players[i].LastPacketTime > time))
 				{
@@ -5282,7 +5282,7 @@ static void net_udp_noloss_add_queue_pkt(fix64 time, const uint8_t *const data, 
 	UDP_mdata_queue[UDP_mdata_queue_highest].pkt_initial_timestamp = time;
 	for (unsigned i = 0; i < MAX_PLAYERS; ++i)
 	{
-		if (i == Player_num || player_ack[i] || vcplayerptr(i)->connected == CONNECT_DISCONNECTED) // if player me, is not playing or does not require an ACK, do not add timestamp or increment pkt_num
+		if (i == Player_num || player_ack[i] || vcplayerptr(i)->connected == player_connection_status::disconnected)	// if player me, is not playing or does not require an ACK, do not add timestamp or increment pkt_num
 			continue;
 		
 		UDP_mdata_queue[UDP_mdata_queue_highest].pkt_timestamp[i] = time;
@@ -5424,7 +5424,7 @@ void net_udp_noloss_process_queue(fix64 time)
 		for (unsigned plc = 0; plc < MAX_PLAYERS; ++plc)
 		{
 			// If player is not playing anymore, we can remove him from list. Also remove *me* (even if that should have been done already). Also make sure Clients do not send to anyone else than Host
-			if ((vcplayerptr(plc)->connected != CONNECT_PLAYING || plc == Player_num) || (!multi_i_am_master() && plc > 0))
+			if ((vcplayerptr(plc)->connected != player_connection_status::playing || plc == Player_num) || (!multi_i_am_master() && plc > 0))
 				UDP_mdata_queue[queuec].player_ack[plc] = 1;
 
 			if (!UDP_mdata_queue[queuec].player_ack[plc])
@@ -5578,7 +5578,7 @@ void net_udp_send_mdata(int needack, fix64 time)
 	{
 		for (unsigned i = 1; i < MAX_PLAYERS; ++i)
 		{
-			if (vcplayerptr(i)->connected == CONNECT_PLAYING)
+			if (vcplayerptr(i)->connected == player_connection_status::playing)
 			{
 				if (needack) // assign pkt_num
 					PUT_INTEL_INT(buf + 2, UDP_mdata_trace[i].pkt_num_tosend);
@@ -5645,7 +5645,7 @@ void net_udp_process_mdata(const d_level_shared_robot_info_state &LevelSharedRob
 		player_acknowledgement_mask player_ack;
 		for (unsigned i = 1; i < MAX_PLAYERS; ++i)
 		{
-			if (i != pnum && vcplayerptr(i)->connected == CONNECT_PLAYING)
+			if (i != pnum && vcplayerptr(i)->connected == player_connection_status::playing)
 			{
 				if (needack)
 				{
@@ -5679,14 +5679,14 @@ void net_udp_send_pdata()
 	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
 	auto &plr = get_local_player();
-	if (plr.connected != CONNECT_PLAYING)
+	if (plr.connected != player_connection_status::playing)
 		return;
 	if (!(Network_status == network_state::playing || Network_status == network_state::endlevel))
 		return;
 
 	buf[len] = UPID_PDATA;									len++;
 	buf[len] = Player_num;									len++;
-	buf[len] = plr.connected;						len++;
+	buf[len] = underlying_value(plr.connected);						len++;
 
 	quaternionpos qpp{};
 	create_quaternionpos(qpp, vmobjptr(plr.objnum));
@@ -5708,7 +5708,7 @@ void net_udp_send_pdata()
 	if (multi_i_am_master())
 	{
 		for (unsigned i = 1; i < MAX_PLAYERS; ++i)
-			if (vcplayerptr(i)->connected != CONNECT_DISCONNECTED)
+			if (vcplayerptr(i)->connected != player_connection_status::disconnected)
 				dxx_sendto(UDP_Socket[0], buf, 0, Netgame.players[i].protocol.udp.addr);
 	}
 	else
@@ -5738,7 +5738,7 @@ void net_udp_process_pdata(const uint8_t *data, uint_fast32_t data_len, const _s
 		return;
 
 	pd.Player_num = data[len];								len++;
-	pd.connected = data[len];								len++;
+	pd.connected = player_connection_status{data[len]};								len++;
 	pd.qpp.orient.w = GET_INTEL_SHORT(&data[len]);					len += 2;
 	pd.qpp.orient.x = GET_INTEL_SHORT(&data[len]);					len += 2;
 	pd.qpp.orient.y = GET_INTEL_SHORT(&data[len]);					len += 2;
@@ -5763,7 +5763,7 @@ void net_udp_process_pdata(const uint8_t *data, uint_fast32_t data_len, const _s
 	if (multi_i_am_master()) // I am host - must relay this packet to others!
 	{
 		const unsigned ppn = pd.Player_num;
-		if (ppn > 0 && ppn <= N_players && vcplayerptr(ppn)->connected == CONNECT_PLAYING) // some checking whether this packet is legal
+		if (ppn > 0 && ppn <= N_players && vcplayerptr(ppn)->connected == player_connection_status::playing) // some checking whether this packet is legal
 		{
 			for (unsigned i = 1; i < MAX_PLAYERS; ++i)
 			{
@@ -5771,7 +5771,7 @@ void net_udp_process_pdata(const uint8_t *data, uint_fast32_t data_len, const _s
 				if (i == ppn)
 					continue;
 				auto &iplr = *vcplayerptr(i);
-				if (iplr.connected != CONNECT_DISCONNECTED && iplr.connected != CONNECT_WAITING)
+				if (iplr.connected != player_connection_status::disconnected && iplr.connected != player_connection_status::waiting)
 					dxx_sendto(UDP_Socket[0], {data, data_len}, 0, Netgame.players[i].protocol.udp.addr);
 			}
 		}
@@ -5794,16 +5794,16 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 		if ( VerifyPlayerJoined != -1 && TheirPlayernum == VerifyPlayerJoined )
 			VerifyPlayerJoined=-1;
 		// we say that guy is disconnected so we do not want him/her in game
-		if (tplr.connected == CONNECT_DISCONNECTED )
+		if (tplr.connected == player_connection_status::disconnected)
 			return;
 	}
 	else
 	{
 		// only by reading pdata a client can know if a player reconnected. So do that here.
 		// NOTE: we might do this somewhere else - maybe with a sync packet like when adding a fresh player.
-		if (tplr.connected == CONNECT_DISCONNECTED && pd->connected == CONNECT_PLAYING )
+		if (tplr.connected == player_connection_status::disconnected && pd->connected == player_connection_status::playing)
 		{
-			tplr.connected = CONNECT_PLAYING;
+			tplr.connected = player_connection_status::playing;
 
 			if (Newdemo_state == ND_STATE_RECORDING)
 				newdemo_record_multi_reconnect(TheirPlayernum);
@@ -5818,7 +5818,7 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 		}
 	}
 
-	if (vcplayerptr(TheirPlayernum)->connected != CONNECT_PLAYING || TheirPlayernum == Player_num)
+	if (vcplayerptr(TheirPlayernum)->connected != player_connection_status::playing || TheirPlayernum == Player_num)
 		return;
 
 	if (!multi_quit_game && (TheirPlayernum >= N_players))
@@ -5837,7 +5837,7 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 	Netgame.players[TheirPlayernum].LastPacketTime = timer_query();
 
 	// do not read the packet unless the level is loaded.
-	if (vcplayerptr(Player_num)->connected == CONNECT_DISCONNECTED || vcplayerptr(Player_num)->connected == CONNECT_WAITING)
+	if (vcplayerptr(Player_num)->connected == player_connection_status::disconnected || vcplayerptr(Player_num)->connected == player_connection_status::waiting)
                 return;
 	//------------ Read the player's ship's object info ----------------------
 	extract_quaternionpos(TheirObj, pd->qpp);
@@ -5906,7 +5906,7 @@ void net_udp_ping_frame(fix64 time)
 		
 		for (unsigned i = 1; i < MAX_PLAYERS; ++i)
 		{
-			if (vcplayerptr(i)->connected == CONNECT_DISCONNECTED)
+			if (vcplayerptr(i)->connected == player_connection_status::disconnected)
 				continue;
 			dxx_sendto(UDP_Socket[0], buf, 0, Netgame.players[i].protocol.udp.addr);
 		}
@@ -6071,7 +6071,7 @@ static int net_udp_get_new_player_num ()
 
 		for (unsigned i = 0; i < N_players; ++i)
 		{
-			if (!vcplayerptr(i)->connected && Netgame.players[i].LastPacketTime < oldest_time)
+			if (vcplayerptr(i)->connected == player_connection_status::disconnected && Netgame.players[i].LastPacketTime < oldest_time)
 			{
 				oldest_time = Netgame.players[i].LastPacketTime;
 				oldest_player = i;

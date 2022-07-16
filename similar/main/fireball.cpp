@@ -733,7 +733,7 @@ static vmsegptridx_t choose_drop_segment(fvmsegptridx &vmsegptridx, fvcvertptr &
 			 */
 			if (pnum == drop_pnum)
 				continue;
-			if (plr.connected == CONNECT_DISCONNECTED)
+			if (plr.connected == player_connection_status::disconnected)
 				continue;
 			if ((Game_mode & GM_TEAM) && get_team(pnum) == team_of_drop_player)
 				continue;
@@ -752,7 +752,7 @@ static vmsegptridx_t choose_drop_segment(fvmsegptridx &vmsegptridx, fvcvertptr &
 		{
 			if (pnum == drop_pnum)
 				continue;
-			if (plr.connected == CONNECT_DISCONNECTED)
+			if (plr.connected == player_connection_status::disconnected)
 				continue;
 			*r++ = pnum;
 		}
@@ -869,7 +869,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
                                         break;
                                 }
                                 failsafe_count++;
-                        } while (vcplayerptr(pnum)->connected != CONNECT_PLAYING);
+                        } while (vcplayerptr(pnum)->connected != player_connection_status::playing);
                 }
 
 //--old-- 		segnum = (d_rand() * Highest_segment_index) >> 15;

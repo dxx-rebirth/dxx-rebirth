@@ -744,7 +744,7 @@ static int select_next_window_function(const gauge_inset_window_view w)
 					}
 					if (cvp == Player_num)
 						continue;
-					if (vcplayerptr(cvp)->connected != CONNECT_PLAYING)
+					if (vcplayerptr(cvp)->connected != player_connection_status::playing)
 						continue;
 
 					if (Game_mode & GM_MULTI_COOP)

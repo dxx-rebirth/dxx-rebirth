@@ -3420,7 +3420,7 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas, const ga
 		rgb color;
 		if (Show_kill_list == show_kill_list_mode::_1 || Show_kill_list == show_kill_list_mode::efficiency)
 		{
-			if (vcplayerptr(player_num)->connected != CONNECT_PLAYING)
+			if (vcplayerptr(player_num)->connected != player_connection_status::playing)
 				color.r = color.g = color.b = 12;
 			else {
 				color = player_rgb[get_player_or_team_color(player_num)];
@@ -3521,7 +3521,7 @@ void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &canvas, co
 	auto &vcobjptridx = Objects.vcptridx;
 	for (playernum_t pnum = 0;pnum < N_players; ++pnum)
 	{
-		if (pnum == Player_num || vcplayerptr(pnum)->connected != CONNECT_PLAYING)
+		if (pnum == Player_num || vcplayerptr(pnum)->connected != player_connection_status::playing)
 			continue;
 		// ridiculusly complex to check if we want to show something... but this is readable at least.
 

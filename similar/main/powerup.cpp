@@ -405,7 +405,7 @@ int do_powerup(const vmobjptridx_t obj)
 		{
 			if (i == Player_num)
 				continue;
-			if (plr.connected != CONNECT_PLAYING)
+			if (plr.connected != player_connection_status::playing)
 				continue;
 			auto &o = *vcobjptr(plr.objnum);
 			if (o.type == OBJ_GHOST)

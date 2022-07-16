@@ -1095,7 +1095,7 @@ void newdemo_record_start_demo()
 		nd_write_byte(static_cast<int8_t>(N_players));
 		range_for (auto &i, partial_const_range(Players, N_players)) {
 			nd_write_string(static_cast<const char *>(i.callsign));
-			nd_write_byte(i.connected);
+			nd_write_byte(underlying_value(i.connected));
 
 			auto &pl_info = vcobjptr(i.objnum)->ctype.player_info;
 			if (Game_mode & GM_MULTI_COOP) {
@@ -1840,11 +1840,15 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 				DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
 				DXX_MAKE_VAR_UNDEFINED(player_info.invulnerable_time);
 				nd_read_string(i.callsign.buffer());
-				nd_read_byte(&i.connected);
+				{
+					uint8_t connected;
+					nd_read_byte(&connected);
+					i.connected = player_connection_status{connected};
+				}
 				if (purpose == PURPOSE_REWRITE)
 				{
 					nd_write_string(static_cast<const char *>(i.callsign));
-					nd_write_byte(i.connected);
+					nd_write_byte(underlying_value(i.connected));
 				}
 
 				if (Newdemo_game_mode & GM_MULTI_COOP) {
@@ -2985,7 +2989,7 @@ static int newdemo_read_frame_information(int rewrite)
 			auto &plr = *vmplayerptr(static_cast<unsigned>(pnum));
 			auto &player_info = vmobjptr(plr.objnum)->ctype.player_info;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				plr.connected = CONNECT_DISCONNECTED;
+				plr.connected = player_connection_status::disconnected;
 				if (!new_player) {
 					plr.callsign = old_callsign;
 					player_info.net_killed_total = killed_total;
@@ -2994,7 +2998,7 @@ static int newdemo_read_frame_information(int rewrite)
 					N_players--;
 				}
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				plr.connected = CONNECT_PLAYING;
+				plr.connected = player_connection_status::playing;
 				player_info.net_kills_total = 0;
 				player_info.net_killed_total = 0;
 				plr.callsign = new_callsign;
@@ -3014,9 +3018,9 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				vmplayerptr(static_cast<unsigned>(pnum))->connected = CONNECT_DISCONNECTED;
+				vmplayerptr(static_cast<unsigned>(pnum))->connected = player_connection_status::disconnected;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				vmplayerptr(static_cast<unsigned>(pnum))->connected = CONNECT_PLAYING;
+				vmplayerptr(static_cast<unsigned>(pnum))->connected = player_connection_status::playing;
 			break;
 		}
 
@@ -3031,14 +3035,14 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 #if defined(DXX_BUILD_DESCENT_I)
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				vmplayerptr(static_cast<unsigned>(pnum))->connected = CONNECT_DISCONNECTED;
+				vmplayerptr(static_cast<unsigned>(pnum))->connected = player_connection_status::disconnected;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				vmplayerptr(static_cast<unsigned>(pnum))->connected = CONNECT_PLAYING;
+				vmplayerptr(static_cast<unsigned>(pnum))->connected = player_connection_status::playing;
 #elif defined(DXX_BUILD_DESCENT_II)
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				vmplayerptr(static_cast<unsigned>(pnum))->connected = CONNECT_PLAYING;
+				vmplayerptr(static_cast<unsigned>(pnum))->connected = player_connection_status::playing;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				vmplayerptr(static_cast<unsigned>(pnum))->connected = CONNECT_DISCONNECTED;
+				vmplayerptr(static_cast<unsigned>(pnum))->connected = player_connection_status::disconnected;
 #endif
 			break;
 		}
@@ -3558,7 +3562,11 @@ window_event_result newdemo_goto_end(int to_rewrite)
 		//		nd_read_byte(&N_players);
 		range_for (auto &i, partial_range(Players, N_players)) {
 			nd_read_string(i.callsign.buffer());
-			nd_read_byte(&i.connected);
+			{
+				uint8_t connected;
+				nd_read_byte(&connected);
+				i.connected = player_connection_status{connected};
+			}
 			auto &pl_info = vmobjptr(i.objnum)->ctype.player_info;
 			if (Newdemo_game_mode & GM_MULTI_COOP) {
 				nd_read_int(&pl_info.mission.score);
@@ -4000,7 +4008,7 @@ static void newdemo_write_end()
 		range_for (auto &i, partial_const_range(Players, N_players)) {
 			nd_write_string(static_cast<const char *>(i.callsign));
 			byte_count += (strlen(static_cast<const char *>(i.callsign)) + 2);
-			nd_write_byte(i.connected);
+			nd_write_byte(underlying_value(i.connected));
 			auto &pl_info = vcobjptr(i.objnum)->ctype.player_info;
 			if (Game_mode & GM_MULTI_COOP) {
 				nd_write_int(pl_info.mission.score);

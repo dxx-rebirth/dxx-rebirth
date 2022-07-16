@@ -67,6 +67,7 @@ struct callsign_t;
 #define N_PLAYER_SHIP_TEXTURES 32
 
 namespace dcx {
+enum class player_connection_status : uint8_t;
 struct player_ship;
 
 struct player;

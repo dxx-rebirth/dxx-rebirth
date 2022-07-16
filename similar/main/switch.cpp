@@ -314,7 +314,7 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto result = window_event_result::ignored;
 
-	if ((Game_mode & GM_MULTI) && vcplayerptr(pnum)->connected != CONNECT_PLAYING) // as a host we may want to handle triggers for our clients. to do that properly we must check wether we (host) or client is actually playing.
+	if ((Game_mode & GM_MULTI) && vcplayerptr(pnum)->connected != player_connection_status::playing) // as a host we may want to handle triggers for our clients. to do that properly we must check wether we (host) or client is actually playing.
 		return window_event_result::handled;
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &vmtrgptr = Triggers.vmptr;
@@ -530,7 +530,7 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 // Checks for a trigger whenever an object hits a trigger side.
 window_event_result check_trigger(const vcsegptridx_t seg, const sidenum_t side, object &plrobj, const vcobjptridx_t objnum, int shot)
 {
-	if ((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. so this function may be called when we are not playing.
+	if ((Game_mode & GM_MULTI) && (get_local_player().connected != player_connection_status::playing)) // as a host we may want to handle triggers for our clients. so this function may be called when we are not playing.
 		return window_event_result::ignored;
 
 #if defined(DXX_BUILD_DESCENT_I)

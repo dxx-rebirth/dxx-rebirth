@@ -2120,7 +2120,7 @@ window_event_result GameProcessFrame(const d_level_shared_robot_info_state &Leve
 #endif
 
 	// Check if we have to close in-game menus for multiplayer
-	if ((Game_mode & GM_MULTI) && (get_local_player().connected == CONNECT_PLAYING))
+	if ((Game_mode & GM_MULTI) && get_local_player().connected == player_connection_status::playing)
 	{
 		if (Endlevel_sequence || Player_dead_state != player_was_dead || local_player_shields_ref < player_shields || (LevelUniqueControlCenterState.Control_center_destroyed && LevelUniqueControlCenterState.Countdown_seconds_left < 10))
                         game_leave_menus();

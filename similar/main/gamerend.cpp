@@ -239,7 +239,7 @@ static void show_netplayerinfo(grs_canvas &canvas)
 	for (unsigned i = 0; i < MAX_PLAYERS; ++i)
 	{
 		auto &plr = *vcplayerptr(i);
-		if (!plr.connected)
+		if (plr.connected == player_connection_status::disconnected)
 			continue;
 
 		y += line_spacing;
@@ -732,7 +732,7 @@ static void show_one_extra_view(grs_canvas &canvas, const gauge_inset_window_vie
 
 	         RenderingType=255; // don't handle coop stuff			
 				
-				if (player < Players.size() && vcplayerptr(player)->connected && ((Game_mode & GM_MULTI_COOP) || ((Game_mode & GM_TEAM) && (get_team(player) == get_team(Player_num)))))
+				if (player < Players.size() && vcplayerptr(player)->connected != player_connection_status::disconnected && ((Game_mode & GM_MULTI_COOP) || ((Game_mode & GM_TEAM) && (get_team(player) == get_team(Player_num)))))
 				{
 					auto &p = *vcplayerptr(player);
 					do_cockpit_window_view(canvas, w, *vcobjptr(p.objnum), 0, weapon_box_user::coop, p.callsign);

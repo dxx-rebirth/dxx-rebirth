@@ -509,7 +509,7 @@ void gameseq_remove_unused_players(const d_robot_info_array &Robot_info)
 	{
 		for (unsigned i = 0; i < NumNetPlayerPositions; ++i)
 		{
-			if ((!vcplayerptr(i)->connected) || (i >= N_players))
+			if (vcplayerptr(i)->connected == player_connection_status::disconnected || i >= N_players)
 			{
 				multi_make_player_ghost(i);
 			}
@@ -1700,7 +1700,7 @@ window_event_result (PlayerFinishedLevel)(
 	constexpr auto secret_flag = next_level_request_secret_flag::only_normal_level;
 #endif
 	if (Game_mode & GM_NETWORK)
-		get_local_player().connected = CONNECT_WAITING; // Finished but did not die
+		get_local_player().connected = player_connection_status::waiting; // Finished but did not die
 
 	last_drawn_cockpit = cockpit_mode_t{UINT8_MAX};
 
@@ -1894,7 +1894,7 @@ window_event_result DoPlayerDead()
 		player_info.mission.hostages_on_board = 0;
 		player_info.energy = 0;
 		plrobj.shields = 0;
-		plr.connected = CONNECT_DIED_IN_MINE;
+		plr.connected = player_connection_status::died_in_mine;
 
 		do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
 #if defined(DXX_BUILD_DESCENT_II)

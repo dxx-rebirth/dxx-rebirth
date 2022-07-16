@@ -1559,7 +1559,7 @@ static void start_player_death_sequence(object &player)
 	assert(&player == ConsoleObject);
 	if (Player_dead_state != player_dead_state::no ||
 		Dead_player_camera != NULL ||
-		((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)))
+		((Game_mode & GM_MULTI) && get_local_player().connected != player_connection_status::playing))
 		return;
 
 	//Assert(Dead_player_camera == NULL);

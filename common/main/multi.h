@@ -127,17 +127,6 @@ enum class multiplayer_data_priority : uint8_t
 
 #endif
 
-#define CONNECT_DISCONNECTED        0
-#define CONNECT_PLAYING             1
-#define CONNECT_WAITING             2
-#define CONNECT_DIED_IN_MINE        3
-#define CONNECT_FOUND_SECRET        4
-#define CONNECT_ESCAPE_TUNNEL       5
-#define CONNECT_END_MENU            6
-#if defined(DXX_BUILD_DESCENT_II)
-#define CONNECT_KMATRIX_WAITING     7 // Like CONNECT_WAITING but used especially in kmatrix.c to seperate "escaped" and "waiting"
-#endif
-
 // reasons for a packet with type PID_DUMP
 #define DUMP_CLOSED     0 // no new players allowed after game started
 #define DUMP_FULL       1 // player cound maxed out
@@ -785,7 +774,7 @@ struct netplayer_info : prohibit_void_ptr<netplayer_info>
 	} protocol;	
 #endif
 	callsign_t					callsign;
-	sbyte						connected;
+	player_connection_status connected;
 	player_rank					rank;
 	fix							ping;
 	fix64							LastPacketTime;

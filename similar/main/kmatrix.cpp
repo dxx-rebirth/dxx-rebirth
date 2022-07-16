@@ -132,7 +132,7 @@ static void kmatrix_draw_names(grs_canvas &canvas, const grs_font &cv_font, cons
 
 		color_t c;
 		auto &p = *vcplayerptr(sorted[j]);
-		if (p.connected==CONNECT_DISCONNECTED)
+		if (p.connected == player_connection_status::disconnected)
 			c = rgb31;
 		else
 		{
@@ -255,7 +255,7 @@ static void kmatrix_redraw(grs_canvas &canvas, kmatrix_window *const km)
 
 		for (int i=0; i<N_players; i++ )
 		{
-			if (vcplayerptr(sorted[i])->connected == CONNECT_DISCONNECTED)
+			if (vcplayerptr(sorted[i])->connected == player_connection_status::disconnected)
 				gr_set_fontcolor(canvas, gr_find_closest_color(31, 31, 31),-1);
 			else
 			{
@@ -295,7 +295,7 @@ static void kmatrix_redraw_coop(grs_canvas &canvas, fvcobjptr &vcobjptr, const f
 	{
 		auto &plr = *vcplayerptr(sorted[i]);
 		int r, g, b;
-		if (plr.connected == CONNECT_DISCONNECTED)
+		if (plr.connected == player_connection_status::disconnected)
 			r = g = b = 31;
 		else
 		{
@@ -350,7 +350,7 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 							return window_event_result::handled;
 					}
 					{
-						get_local_player().connected=CONNECT_DISCONNECTED;
+						get_local_player().connected = player_connection_status::disconnected;
 						
 						if (network != kmatrix_network::offline)
 							multi::dispatch->send_endlevel_packet();
@@ -379,8 +379,7 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 
 			// Check if all connected players are also looking at this screen ...
 			range_for (auto &i, Players)
-				if (i.connected)
-					if (i.connected != CONNECT_END_MENU && i.connected != CONNECT_DIED_IN_MINE)
+					if (i.connected != player_connection_status::disconnected && i.connected != player_connection_status::end_menu && i.connected != player_connection_status::died_in_mine)
 					{
 						playing = kmatrix_status_mode::reactor_countdown_running;
 						break;
@@ -407,7 +406,7 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 				{
 					if (Current_level_num==8)
 					{
-						get_local_player().connected=CONNECT_DISCONNECTED;
+						get_local_player().connected = player_connection_status::disconnected;
 						multi_leave_game();
 						this->result = kmatrix_result::abort;
 					}

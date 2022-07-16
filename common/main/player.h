@@ -46,6 +46,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
+enum class player_connection_status : uint8_t
+{
+	disconnected,
+	playing,
+	waiting,
+	died_in_mine,
+	found_secret,
+	escape_tunnel,
+	end_menu,
+};
+
 struct d_player_unique_endlevel_state
 {
 	segnum_t transition_segnum;
@@ -60,7 +71,7 @@ struct player : public prohibit_void_ptr<player>
 {
 	// Who am I data
 	callsign_t callsign;   // The callsign of this player, for net purposes.
-	sbyte   connected;              // Is the player connected or not?
+	player_connection_status connected;              // Is the player connected or not?
 	objnum_t     objnum;                 // What object number this player is. (made an int by mk because it's very often referenced)
 
 	//  -- make sure you're 4 byte aligned now!
@@ -93,7 +104,7 @@ struct player_rw
 	// Who am I data
 	callsign_t callsign;   // The callsign of this player, for net purposes.
 	ubyte   net_address[6];         // The network address of the player.
-	sbyte   connected;              // Is the player connected or not?
+	uint8_t connected;              // Is the player connected or not?
 	int     objnum;                 // What object number this player is. (made an int by mk because it's very often referenced)
 	int     n_packets_got;          // How many packets we got from them
 	int     n_packets_sent;         // How many packets we sent to them

@@ -442,7 +442,7 @@ void update_bounty_target()
 	const auto b = candidates.begin();
 	auto iter = b;
 	for (auto &&[idx, plr] : enumerate(Players))
-		if (plr.connected)
+		if (plr.connected != player_connection_status::disconnected)
 			*iter++ = {idx, plr.callsign};
 	const auto n = std::distance(b, iter);
 	if (!n)
@@ -464,15 +464,15 @@ kmatrix_result multi_endlevel_score()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	int old_connect = 0;
+	player_connection_status old_connect{};
 
 	// Save connect state and change to new connect state
 	if (Game_mode & GM_NETWORK)
 	{
 		auto &plr = get_local_player();
 		old_connect = plr.connected;
-		if (plr.connected != CONNECT_DIED_IN_MINE)
-			plr.connected = CONNECT_END_MENU;
+		if (plr.connected != player_connection_status::died_in_mine)
+			plr.connected = player_connection_status::end_menu;
 		Network_status = network_state::endlevel;
 	}
 
@@ -556,7 +556,7 @@ void multi_new_game()
 	for (playernum_t i = 0; i < MAX_PLAYERS; ++i)
 	{
 		sorted_kills[i] = i;
-		vmplayerptr(i)->connected = CONNECT_DISCONNECTED;
+		vmplayerptr(i)->connected = player_connection_status::disconnected;
 	}
 	multi_sending_message.fill(msgsend_state::none);
 
@@ -677,7 +677,7 @@ static void print_kill_goal_tables(fvcobjptr &vcobjptr)
 	con_printf(CON_NORMAL, "Kill goal statistics: player #%u \"%s\"", pnum, static_cast<const char *>(local_player.callsign));
 	for (auto &&[idx, i] : enumerate(Players))
 	{
-		if (!i.connected)
+		if (i.connected == player_connection_status::disconnected)
 			continue;
 		auto &plrobj = *vcobjptr(i.objnum);
 		auto &player_info = plrobj.ctype.player_info;
@@ -750,7 +750,7 @@ static void multi_compute_kill(const d_robot_info_array &Robot_info, const imobj
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (LevelUniqueControlCenterState.Control_center_destroyed)
-		vmplayerptr(killed_pnum)->connected = CONNECT_DIED_IN_MINE;
+		vmplayerptr(killed_pnum)->connected = player_connection_status::died_in_mine;
 #endif
 
 	if (killer == object_none)
@@ -969,7 +969,7 @@ window_event_result multi_do_frame()
 	if ((Game_mode & GM_NETWORK) && Netgame.PlayTimeAllowed.count() && lasttime != ThisLevelTime)
 	{
 		for (unsigned i = 0; i < N_players; ++i)
-			if (vcplayerptr(i)->connected)
+			if (vcplayerptr(i)->connected != player_connection_status::disconnected)
 			{
 				if (i==Player_num)
 				{
@@ -1166,7 +1166,7 @@ static void multi_message_feedback(void)
 		const player *const local_player = &get_local_player();
 		range_for (auto &i, partial_const_range(Players, N_players))
 		{
-			if (&i != local_player && i.connected && !d_strnicmp(static_cast<const char *>(i.callsign), Network_message.data(), colon - Network_message.data()))
+			if (&i != local_player && i.connected != player_connection_status::disconnected && !d_strnicmp(static_cast<const char *>(i.callsign), Network_message.data(), colon - Network_message.data()))
 			{
 				const char *comma = found ? ", " : "";
 				found++;
@@ -1300,7 +1300,7 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 			}
 
 			for (unsigned i = 0; i < N_players; ++i)
-				if (vcplayerptr(i)->connected && !d_strnicmp(static_cast<const char *>(vcplayerptr(i)->callsign), &Network_message[name_index], strlen(Network_message.data()) - name_index))
+				if (vcplayerptr(i)->connected != player_connection_status::disconnected && !d_strnicmp(static_cast<const char *>(vcplayerptr(i)->callsign), &Network_message[name_index], strlen(Network_message.data()) - name_index))
 				{
 #if defined(DXX_BUILD_DESCENT_II)
 					if (game_mode_capture_flag() && (vmobjptr(vcplayerptr(i)->objnum)->ctype.player_info.powerup_flags & PLAYER_FLAGS_FLAG))
@@ -1315,7 +1315,7 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 						Netgame.team_vector|=(1<<i);
 
 					range_for (auto &t, partial_const_range(Players, N_players))
-						if (t.connected)
+						if (t.connected != player_connection_status::disconnected)
 							multi_reset_object_texture(vmobjptr(t.objnum));
 					reset_cockpit();
 
@@ -1379,7 +1379,7 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 				}
 				multi_get_kill_list(players);
 				const auto i = players[listpos];
-				if (i != Player_num && vcplayerptr(i)->connected)
+				if (i != Player_num && vcplayerptr(i)->connected != player_connection_status::disconnected)
 				{
 					kick_player(*vcplayerptr(i), Netgame.players[i]);
 					return;
@@ -1397,7 +1397,7 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 		}
 
 		for (unsigned i = 0; i < N_players; i++)
-			if (i != Player_num && vcplayerptr(i)->connected && !d_strnicmp(static_cast<const char *>(vcplayerptr(i)->callsign), &Network_message[name_index], strlen(Network_message.data()) - name_index))
+			if (i != Player_num && vcplayerptr(i)->connected != player_connection_status::disconnected && !d_strnicmp(static_cast<const char *>(vcplayerptr(i)->callsign), &Network_message[name_index], strlen(Network_message.data()) - name_index))
 			{
 				kick_player(*vcplayerptr(i), Netgame.players[i]);
 				return;
@@ -1890,18 +1890,18 @@ static void multi_do_escape(fvmobjptridx &vmobjptridx, const uint8_t *const buf)
 #endif
 
 	const char *txt;
-	int connected;
+	player_connection_status connected;
 #if defined(DXX_BUILD_DESCENT_I)
 	if (buf[2] == static_cast<uint8_t>(multi_endlevel_type::secret))
 	{
 		txt = TXT_HAS_FOUND_SECRET;
-		connected = CONNECT_FOUND_SECRET;
+		connected = player_connection_status::found_secret;
 	}
 	else
 #endif
 	{
 		txt = TXT_HAS_ESCAPED;
-		connected = CONNECT_ESCAPE_TUNNEL;
+		connected = player_connection_status::escape_tunnel;
 	}
 	HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(plr.callsign), txt);
 	if (Game_mode & GM_NETWORK)
@@ -1952,10 +1952,10 @@ void multi_disconnect_player(const playernum_t pnum)
 {
 	if (!(Game_mode & GM_NETWORK))
 		return;
-	if (vcplayerptr(pnum)->connected == CONNECT_DISCONNECTED)
+	if (vcplayerptr(pnum)->connected == player_connection_status::disconnected)
 		return;
 
-	if (vcplayerptr(pnum)->connected == CONNECT_PLAYING)
+	if (vcplayerptr(pnum)->connected == player_connection_status::playing)
 	{
 		digi_play_sample( SOUND_HUD_MESSAGE, F1_0 );
 		HUD_init_message(HM_MULTI,  "%s %s", static_cast<const char *>(vcplayerptr(pnum)->callsign), TXT_HAS_LEFT_THE_GAME);
@@ -1980,8 +1980,8 @@ void multi_disconnect_player(const playernum_t pnum)
 		}
 	}
 
-	vmplayerptr(pnum)->connected = CONNECT_DISCONNECTED;
-	Netgame.players[pnum].connected = CONNECT_DISCONNECTED;
+	vmplayerptr(pnum)->connected = player_connection_status::disconnected;
+	Netgame.players[pnum].connected = player_connection_status::disconnected;
 
 	multi::dispatch->disconnect_player(pnum);
 
@@ -2007,7 +2007,7 @@ void multi_disconnect_player(const playernum_t pnum)
 
 	int n = 0;
 	range_for (auto &i, partial_const_range(Players, N_players))
-		if (i.connected)
+		if (i.connected != player_connection_status::disconnected)
 			if (++n > 1)
 				break;
 	if (n == 1)
@@ -2203,7 +2203,7 @@ static void multi_do_play_sound(object_array &Objects, const playernum_t pnum, c
 {
 	auto &vcobjptridx = Objects.vcptridx;
 	const auto &plr = *vcplayerptr(pnum);
-	if (!plr.connected)
+	if (plr.connected == player_connection_status::disconnected)
 		return;
 
 	const unsigned sound_num = buf[2];
@@ -2601,7 +2601,7 @@ void multi_send_endlevel_start()
 	multi_send_data(buf, multiplayer_data_priority::_2);
 	if (Game_mode & GM_NETWORK)
 	{
-		get_local_player().connected = CONNECT_ESCAPE_TUNNEL;
+		get_local_player().connected = player_connection_status::escape_tunnel;
 		multi::dispatch->send_endlevel_packet();
 	}
 }
@@ -3754,12 +3754,12 @@ int multi_all_players_alive(const fvcobjptr &vcobjptr, const partial_range_t<con
 	range_for (auto &plr, player_range)
 	{
 		const auto connected = plr.connected;
-		if (connected == CONNECT_PLAYING)
+		if (connected == player_connection_status::playing)
 		{
 			if (vcobjptr(plr.objnum)->type == OBJ_GHOST) // player alive?
 				return 0;
 		}
-		else if (connected != CONNECT_DISCONNECTED) // ... and actually playing?
+		else if (connected != player_connection_status::disconnected) // ... and actually playing?
 			return 0;
 	}
 	return (1);
@@ -4232,7 +4232,7 @@ static void multi_do_sound_function (const playernum_t pnum, const ubyte *buf)
 	char whichfunc;
 	int sound;
 
-	if (get_local_player().connected!=CONNECT_PLAYING)
+	if (get_local_player().connected != player_connection_status::playing)
 		return;
 
 	whichfunc=buf[2];
@@ -5052,8 +5052,8 @@ void multi_restore_game(const unsigned slot, const unsigned id)
 		multi_strip_robots(i);
 	if (multi_i_am_master()) // put all players to wait-state again so we can sync up properly
 		range_for (auto &i, Players)
-			if (i.connected == CONNECT_PLAYING && &i != &plr)
-				i.connected = CONNECT_WAITING;
+			if (i.connected == player_connection_status::playing && &i != &plr)
+				i.connected = player_connection_status::waiting;
    
 	const auto thisid = state_get_game_id(filename);
 	if (thisid!=id)
@@ -5123,7 +5123,7 @@ static void multi_do_gmode_update(const ubyte *buf)
 		{
 			Netgame.team_vector = buf[1];
 			range_for (auto &t, partial_const_range(Players, N_players))
-				if (t.connected)
+				if (t.connected != player_connection_status::disconnected)
 					multi_reset_object_texture (vmobjptr(t.objnum));
 			reset_cockpit();
 		}
@@ -5324,7 +5324,7 @@ static void MultiLevelInv_CountPlayerInventory()
 	auto &Current = MultiLevelInv.Current;
                 for (playernum_t i = 0; i < MAX_PLAYERS; i++)
                 {
-                        if (vcplayerptr(i)->connected != CONNECT_PLAYING)
+					if (vcplayerptr(i)->connected != player_connection_status::playing)
                                 continue;
 		auto &obj = *vcobjptr(vcplayerptr(i)->objnum);
 		if (obj.type == OBJ_GHOST) // Player is dead. Their items are dropped now.
