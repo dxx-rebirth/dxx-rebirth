@@ -72,7 +72,7 @@ namespace dsx {
 namespace {
 static int multi_add_controlled_robot(vmobjptridx_t objnum, int agitation);
 void multi_drop_robot_powerups(object &objnum);
-static void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now);
+static void multi_send_robot_position_sub(const vmobjptridx_t objnum, multiplayer_data_priority now);
 static void multi_send_release_robot(vmobjptridx_t objnum);
 static void multi_delete_controlled_robot(const vmobjptridx_t objnum);
 }
@@ -416,7 +416,7 @@ int multi_send_robot_frame(int sent)
 			if (auto &pending = robot_send_pending[sending]; pending != multi_send_robot_position_priority::_0)
 			{
 				const auto p = std::exchange(pending, multi_send_robot_position_priority::_0);
-				multi_send_robot_position_sub(vmobjptridx(robot_controlled[sending]), underlying_value(p) > 1);
+				multi_send_robot_position_sub(vmobjptridx(robot_controlled[sending]), underlying_value(p) > 1 ? multiplayer_data_priority::_1 : multiplayer_data_priority::_0);
 			}
 
 			if (auto &&b = robot_fired[sending])
@@ -458,9 +458,7 @@ void multi_send_thief_frame()
 			if (robot_is_thief(Robot_info[get_robot_id(objp)]))
                         {
 				if ((multi_i_am_master() && objp->ctype.ai_info.REMOTE_OWNER == -1) || objp->ctype.ai_info.REMOTE_OWNER == Player_num)
-                                {
-                                        multi_send_robot_position_sub(objp,1);
-                                }
+					multi_send_robot_position_sub(objp, multiplayer_data_priority::_1);
                                 return;
                         }
                 }
@@ -470,7 +468,7 @@ void multi_send_thief_frame()
 #endif
 
 namespace {
-void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now)
+void multi_send_robot_position_sub(const vmobjptridx_t objnum, const multiplayer_data_priority priority)
 {
 	multi_command<MULTI_ROBOT_POSITION> multibuf;
 	int loc = 0;
@@ -498,7 +496,7 @@ void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now)
 	PUT_INTEL_INT(&multibuf[loc], qpp.rotvel.y);			loc += 4;
 	PUT_INTEL_INT(&multibuf[loc], qpp.rotvel.z);			loc += 4; // 46 + 5 = 51
 
-	multi_send_data<MULTI_ROBOT_POSITION>(multibuf, now ? multiplayer_data_priority::_1 : multiplayer_data_priority::_0);
+	multi_send_data(multibuf, priority);
 }
 
 }
