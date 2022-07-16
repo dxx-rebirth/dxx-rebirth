@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <bitset>
+#include <new>
 #include <stdexcept>
 #include <random>
 #include <stdio.h>
@@ -1039,7 +1040,6 @@ namespace {
 template <multiplayer_command_t C>
 static inline void multi_send_data_direct(multi_command<C> &buf, const playernum_t pnum, const int priority)
 {
-	buf[0] = C;
 	multi::dispatch->send_data_direct(buf.data(), buf.size(), pnum, priority);
 }
 
@@ -2755,40 +2755,41 @@ void multi_send_kill(const vmobjptridx_t objnum)
 	auto &imobjptridx = Objects.imptridx;
 	auto &vmobjptr = Objects.vmptr;
 	// I died, tell the world.
-	int count = 0;
-
 	Assert(get_player_id(objnum) == Player_num);
 	const auto killer_objnum = get_local_plrobj().ctype.player_info.killer_objnum;
 
-	union {
-		multi_command<MULTI_KILL_CLIENT> multibufc;
-		multi_command<MULTI_KILL_HOST> multibufh;
+	// do it with variable since INTEL_SHORT won't work on return val from function.
+	const auto &&[remote_owner, remote_objnum] = killer_objnum != object_none
+		? objnum_local_to_remote(killer_objnum)
+		: owned_remote_objnum{static_cast<int8_t>(-1), static_cast<uint16_t>(0xffff)};
+	const auto local_is_host = multi_i_am_master();
+	union mb {
+		multi_command<MULTI_KILL_CLIENT> c;
+		multi_command<MULTI_KILL_HOST> h;
+		mb() {}
 	};
-							count += 1;
-	multibufh[count] = Player_num;			count += 1;
-
-	if (killer_objnum != object_none)
+	mb multibuf;
+	if (local_is_host)
 	{
-		const auto &&[remote_owner, remote_objnum] = objnum_local_to_remote(killer_objnum); // do it with variable since INTEL_SHORT won't work on return val from function.
-		multibufh[count+2] = remote_owner;
-		PUT_INTEL_SHORT(&multibufh[count], remote_objnum);
+		new(&multibuf.h) multi_command<MULTI_KILL_HOST>();
+		multibuf.h[5] = Netgame.team_vector;
+		multibuf.h[6] = Bounty_target;
 	}
 	else
 	{
-		multibufh[count+2] = static_cast<char>(-1);
-		PUT_INTEL_SHORT(&multibufh[count], static_cast<int16_t>(-1));
+		new(&multibuf.c) multi_command<MULTI_KILL_CLIENT>();
 	}
-	count += 3;
+	multibuf.h[1] = Player_num;
+	multibuf.h[4] = remote_owner;
+	PUT_INTEL_SHORT(&multibuf.h[2], remote_objnum);
 	// I am host - I know what's going on so attach game_mode related info which might be vital for correct kill computation
-	if (multi_i_am_master())
+	if (local_is_host)
 	{
-		multibufh[count] = Netgame.team_vector;	count += 1;
-		multibufh[count] = Bounty_target;	count += 1;
 		multi_compute_kill(LevelSharedRobotInfoState.Robot_info, imobjptridx(killer_objnum), objnum);
-		multi_send_data(multibufh, multiplayer_data_priority::_2);
+		multi_send_data(multibuf.h, multiplayer_data_priority::_2);
 	}
 	else
-		multi_send_data_direct(multibufc, multi_who_is_master(), 2); // I am just a client so I'll only send my kill but not compute it, yet. I'll get response from host so I can compute it correctly
+		multi_send_data_direct(multibuf.c, multi_who_is_master(), 2); // I am just a client so I'll only send my kill but not compute it, yet. I'll get response from host so I can compute it correctly
 
 	multi_strip_robots(Player_num);
 
