@@ -2327,12 +2327,12 @@ void release_guided_missile(d_level_unique_object_state &LevelUniqueObjectState,
 void do_missile_firing(int drop_bomb)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
 	int gun_flag=0;
 	fix fire_frame_overhead = 0;
 
-	auto &plrobj = get_local_plrobj();
+	const auto &&plrobjidx = vmobjptridx(get_local_player().objnum);
+	auto &plrobj = *plrobjidx;
 	auto &player_info = plrobj.ctype.player_info;
 	const auto bomb = which_bomb(player_info);
 	const auto weapon = drop_bomb ? bomb : player_info.Secondary_weapon;
@@ -2357,12 +2357,11 @@ void do_missile_firing(int drop_bomb)
 	{
 		const auto weapon_index = Secondary_weapon_to_weapon_info[weapon];
 		const auto base_weapon_gun = Secondary_weapon_to_gun_num[weapon];
-		auto &plrobj = get_local_plrobj();
 		auto &Missile_gun = plrobj.ctype.player_info.missile_gun;
 		const auto weapon_gun = (base_weapon_gun == gun_num_t::_4)
 			? static_cast<gun_num_t>(static_cast<uint8_t>(base_weapon_gun) + (gun_flag = (Missile_gun & 1)))
 			: base_weapon_gun;
-		const auto &&objnum = Laser_player_fire(LevelSharedRobotInfoState.Robot_info, vmobjptridx(ConsoleObject), weapon_index, weapon_gun, weapon_sound_flag::audible, plrobj.orient.fvec, object_none);
+		const auto &&objnum = Laser_player_fire(LevelSharedRobotInfoState.Robot_info, plrobjidx, weapon_index, weapon_gun, weapon_sound_flag::audible, plrobj.orient.fvec, object_none);
 		if (objnum == object_none)
 			/* If the missile was not created, return early.  Do not charge for
 			 * it, and do not report it to other players.
@@ -2387,18 +2386,19 @@ void do_missile_firing(int drop_bomb)
 		if (weapon == MEGA_INDEX || weapon == SMISSILE5_INDEX)
 #endif
 		{
-			vms_vector force_vec;
+			const vms_vector backward_vec{
+				-(plrobj.orient.fvec.x << 7),
+				-(plrobj.orient.fvec.y << 7),
+				-(plrobj.orient.fvec.z << 7)
+			};
+			phys_apply_force(plrobj, backward_vec);
 
-			const auto &&console = vmobjptr(ConsoleObject);
-			force_vec.x = -(ConsoleObject->orient.fvec.x << 7);
-			force_vec.y = -(ConsoleObject->orient.fvec.y << 7);
-			force_vec.z = -(ConsoleObject->orient.fvec.z << 7);
-			phys_apply_force(console, force_vec);
-
-			force_vec.x = (force_vec.x >> 4) + d_rand() - 16384;
-			force_vec.y = (force_vec.y >> 4) + d_rand() - 16384;
-			force_vec.z = (force_vec.z >> 4) + d_rand() - 16384;
-			phys_apply_rot(console, force_vec);
+			const vms_vector rotation_vec{
+				(backward_vec.x >> 4) + d_rand() - 16384,
+				(backward_vec.y >> 4) + d_rand() - 16384,
+				(backward_vec.z >> 4) + d_rand() - 16384
+			};
+			phys_apply_rot(plrobj, rotation_vec);
 		}
 
 		if (Game_mode & GM_MULTI)
