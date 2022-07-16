@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <bitset>
 #include "pstypes.h"
 
 #include "fwd-player.h"	// playernum_t
@@ -36,7 +37,10 @@ constexpr std::integral_constant<std::size_t, 5> MAX_ROBOTS_CONTROLLED{};
 constexpr std::integral_constant<std::size_t, MAX_ROBOTS_CONTROLLED> HANDS_OFF_PERIOD{}; // i.e. one slow above max
 
 extern std::array<objnum_t, MAX_ROBOTS_CONTROLLED> robot_controlled;
-extern std::array<int, MAX_ROBOTS_CONTROLLED> robot_agitation, robot_fired;
+namespace dcx {
+extern std::array<int, MAX_ROBOTS_CONTROLLED> robot_agitation;
+extern std::bitset<MAX_ROBOTS_CONTROLLED> robot_fired;
+}
 
 #ifdef dsx
 int multi_can_move_robot(vmobjptridx_t objnum, int agitation);

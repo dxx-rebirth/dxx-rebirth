@@ -59,6 +59,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_levelstate.h"
 #include "partial_range.h"
 
+namespace dcx {
+namespace {
+std::array<int, MAX_ROBOTS_CONTROLLED> robot_send_pending;
+}
+std::array<int, MAX_ROBOTS_CONTROLLED> robot_agitation;
+std::bitset<MAX_ROBOTS_CONTROLLED> robot_fired;
+}
 namespace dsx {
 namespace {
 static int multi_add_controlled_robot(vmobjptridx_t objnum, int agitation);
@@ -87,9 +94,6 @@ static void multi_delete_controlled_robot(const vmobjptridx_t objnum);
 #define MIN_TO_ADD	60
 
 std::array<objnum_t, MAX_ROBOTS_CONTROLLED> robot_controlled;
-std::array<int, MAX_ROBOTS_CONTROLLED> robot_agitation,
-	robot_send_pending,
-	robot_fired;
 std::array<fix64, MAX_ROBOTS_CONTROLLED> robot_controlled_time,
 	robot_last_send_time,
 	robot_last_message_time;
@@ -415,9 +419,9 @@ int multi_send_robot_frame(int sent)
 				multi_send_robot_position_sub(vmobjptridx(robot_controlled[sending]), (std::exchange(robot_send_pending[sending], 0) > 1));
 			}
 
-			if (robot_fired[sending])
+			if (auto &&b = robot_fired[sending])
 			{
-				robot_fired[sending] = 0;
+				b = 0;
 				multi_send_data<MULTI_ROBOT_FIRE>(robot_fire_buf[sending], 18, multiplayer_data_priority::_1);
 			}
 
@@ -561,13 +565,14 @@ void multi_send_robot_fire(const vmobjptridx_t obj, int gun_num, const vms_vecto
                 {
                         return;
                 }
-                if (robot_fired[slot] != 0)
+		if (auto &&b = robot_fired[slot])
                 {
                         // Int3(); // ROB!
                         return;
                 }
+		else
+			b = 1;
                 memcpy(robot_fire_buf[slot], multibuf.data(), loc);
-                robot_fired[slot] = 1;
         }
         else
                 multi_send_data(multibuf, multiplayer_data_priority::_1); // Not our robot, send ASAP
