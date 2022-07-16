@@ -1931,7 +1931,7 @@ void do_laser_firing_player(object &plrobj)
 //	Object "objnum" fires weapon "weapon_num" of level "level".  (Right now (9/24/94) level is used only for type 0 laser.
 //	Flags are the player flags.  For network mode, set to 0.
 //	It is assumed that this is a player object (as in multiplayer), and therefore the gun positions are known.
-//	Returns number of times a weapon was fired.  This is typically 1, but might be more for low frame rates.
+//	Returns whether the weapon was fired.  This is 1 on success, 0 on failure.
 //	More than one shot is fired with a pseudo-delay so that players on slow machines can fire (for themselves
 //	or other players) often enough for things like the vulcan cannon.
 int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level, int flags, vms_vector shot_orientation, const icobjidx_t Network_laser_track)
