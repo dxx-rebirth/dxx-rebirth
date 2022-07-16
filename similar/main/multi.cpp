@@ -1528,16 +1528,13 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 	const uint8_t untrusted_raw_weapon = buf[2];
 
 	flags = buf[4];
-	icobjidx_t Network_laser_track = object_none;
-	if (buf[0] == MULTI_FIRE_TRACK)
-	{
-		Network_laser_track = GET_INTEL_SHORT(&buf[17]);
-		Network_laser_track = objnum_remote_to_local(Network_laser_track, buf[19]);
-	}
 
 	shot_orientation.x = static_cast<fix>(GET_INTEL_INT(&buf[5]));
 	shot_orientation.y = static_cast<fix>(GET_INTEL_INT(&buf[9]));
 	shot_orientation.z = static_cast<fix>(GET_INTEL_INT(&buf[13]));
+	const icobjidx_t Network_laser_track = (buf[0] == MULTI_FIRE_TRACK)
+		? objnum_remote_to_local(GET_INTEL_SHORT(&buf[17]), buf[19])
+		: object_none;
 
 	Assert (pnum < N_players);
 
