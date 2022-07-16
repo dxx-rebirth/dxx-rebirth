@@ -62,6 +62,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dcx {
 namespace {
 std::array<multi_send_robot_position_priority, MAX_ROBOTS_CONTROLLED> robot_send_pending;
+std::array<multi_command<MULTI_ROBOT_FIRE>, MAX_ROBOTS_CONTROLLED> robot_fire_buf;
 }
 std::array<objnum_t, MAX_ROBOTS_CONTROLLED> robot_controlled;
 std::array<int, MAX_ROBOTS_CONTROLLED> robot_agitation;
@@ -98,7 +99,6 @@ static void multi_delete_controlled_robot(const vmobjptridx_t objnum);
 std::array<fix64, MAX_ROBOTS_CONTROLLED> robot_controlled_time,
 	robot_last_send_time,
 	robot_last_message_time;
-ubyte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];
 
 #define MULTI_ROBOT_PRIORITY(objnum, pnum) (((objnum % 4) + pnum) % N_players)
 
@@ -422,7 +422,7 @@ void multi_send_robot_frame()
 			if (auto &&b = robot_fired[sending])
 			{
 				b = 0;
-				multi_send_data<MULTI_ROBOT_FIRE>(robot_fire_buf[sending], 18, multiplayer_data_priority::_1);
+				multi_send_data(robot_fire_buf[sending], multiplayer_data_priority::_1);
 			}
 			last_sent = sending;
 		}
@@ -563,8 +563,10 @@ void multi_send_robot_fire(const vmobjptridx_t obj, int gun_num, const vms_vecto
                         return;
                 }
 		else
+		{
 			b = 1;
-                memcpy(robot_fire_buf[slot], multibuf.data(), loc);
+		}
+			robot_fire_buf[slot] = multibuf;
         }
         else
                 multi_send_data(multibuf, multiplayer_data_priority::_1); // Not our robot, send ASAP
