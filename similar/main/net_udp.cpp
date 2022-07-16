@@ -5326,7 +5326,7 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, co
         // Make sure this is the packet we are expecting!
         if (UDP_mdata_trace[sender_pnum].pkt_num_torecv != pkt_num)
         {
-                range_for (auto &i, partial_const_range(UDP_mdata_trace[sender_pnum].pkt_num, static_cast<uint32_t>(UDP_MDATA_STOR_QUEUE_SIZE)))
+                range_for (auto &i, partial_const_range(UDP_mdata_trace[sender_pnum].pkt_num, UDP_MDATA_STOR_QUEUE_SIZE))
                 {
                         if (pkt_num == i) // We got this packet already - need to REsend ACK
                         {
@@ -5487,11 +5487,18 @@ void net_udp_noloss_process_queue(fix64 time)
 	}
 
 	// Now that we are done processing the queue, actually remove all unused packets from the top of the list.
-	while (!UDP_mdata_queue[0].used && UDP_mdata_queue_highest > 0)
 	{
-		std::move(std::next(UDP_mdata_queue.begin()), UDP_mdata_queue.end(), UDP_mdata_queue.begin());
-		UDP_mdata_queue[UDP_MDATA_STOR_QUEUE_SIZE - 1] = {};
-		UDP_mdata_queue_highest--;
+		const auto b = UDP_mdata_queue.begin();
+		const auto e = std::next(b, UDP_mdata_queue_highest);
+		const auto first_used_entry = std::find_if(b, e, [](const UDP_mdata_store &m) { return m.used; });
+		if (first_used_entry != b)
+		{
+			std::move(first_used_entry, e, b);
+			const auto total_used_entries = std::distance(first_used_entry, e);
+			UDP_mdata_queue_highest = total_used_entries;
+			for (auto first_unused_entry = std::next(b, total_used_entries); first_unused_entry != e; ++first_unused_entry)
+				*first_unused_entry = {};
+		}
 	}
 }
 

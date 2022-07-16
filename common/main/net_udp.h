@@ -73,8 +73,8 @@ constexpr std::integral_constant<unsigned, 12> UDP_NETGAMES_PPAGE{}; // Netgames
 }
 #define UDP_NETGAMES_PAGES 75 // Pages available on Netlist (UDP_MAX_NETGAMES/UDP_NETGAMES_PPAGE)
 #define UDP_TIMEOUT (5*F1_0) // 5 seconds disconnect timeout
-#define UDP_MDATA_STOR_QUEUE_SIZE 1024 // Store up to 1024 MDATA packets
-#define UDP_MDATA_STOR_MIN_FREE_2JOIN 384 // have at least this many free packet slots before we let someone join the game
+#define UDP_MDATA_STOR_QUEUE_SIZE 1024u // Store up to 1024 MDATA packets
+#define UDP_MDATA_STOR_MIN_FREE_2JOIN 384u // have at least this many free packet slots before we let someone join the game
 #define UDP_MDATA_PKT_NUM_MIN 1 // start from pkt_num 1 (0 is used to initialize the trace list)
 #define UDP_MDATA_PKT_NUM_MAX (UDP_MDATA_STOR_QUEUE_SIZE*100) // the max value for pkt_num. roll over when we go any higher. this should be smaller than INT_MAX
 
