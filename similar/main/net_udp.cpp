@@ -5242,7 +5242,7 @@ namespace {
  * Adds a packet to our queue. Should be called when an IMPORTANT mdata packet is created.
  * player_ack is an array which should contain 0 for each player that needs to send an ACK signal.
  */
-static void net_udp_noloss_add_queue_pkt(fix64 time, const uint8_t *const data, ushort data_size, ubyte pnum, uint8_t (&player_ack)[MAX_PLAYERS])
+static void net_udp_noloss_add_queue_pkt(fix64 time, const uint8_t *const data, ushort data_size, ubyte pnum, const player_acknowledgement_mask &player_ack)
 {
 	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
@@ -5292,7 +5292,7 @@ static void net_udp_noloss_add_queue_pkt(fix64 time, const uint8_t *const data, 
 			UDP_mdata_trace[i].pkt_num_tosend = UDP_MDATA_PKT_NUM_MIN;
 	}
 	UDP_mdata_queue[UDP_mdata_queue_highest].Player_num = pnum;
-	memcpy( &UDP_mdata_queue[UDP_mdata_queue_highest].player_ack, player_ack, sizeof(ubyte)*MAX_PLAYERS); 
+	UDP_mdata_queue[UDP_mdata_queue_highest].player_ack = player_ack;
 	memcpy( &UDP_mdata_queue[UDP_mdata_queue_highest].data, data, sizeof(char)*data_size );
 	UDP_mdata_queue[UDP_mdata_queue_highest].data_size = data_size;
 	UDP_mdata_queue_highest++;
@@ -5505,8 +5505,6 @@ namespace udp {
 void dispatch_table::send_data_direct(const uint8_t *const data, const unsigned data_len, const playernum_t pnum, int needack) const
 {
 	ubyte buf[sizeof(UDP_mdata_info)];
-	ubyte pack[MAX_PLAYERS];
-	
 	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
 
@@ -5520,9 +5518,6 @@ void dispatch_table::send_data_direct(const uint8_t *const data, const unsigned 
 		needack = 0;
 
 	memset(&buf, 0, sizeof(UDP_mdata_info));
-	memset(&pack, 1, sizeof(ubyte)*MAX_PLAYERS);
-
-	pack[pnum] = 0;
 
 	unsigned len = 0;
 	if (needack)
@@ -5540,7 +5535,11 @@ void dispatch_table::send_data_direct(const uint8_t *const data, const unsigned 
 	dxx_sendto(UDP_Socket[0], {buf, len}, 0, Netgame.players[pnum].protocol.udp.addr);
 
 	if (needack)
-		net_udp_noloss_add_queue_pkt(timer_query(), data, data_len, Player_num, pack);
+	{
+		player_acknowledgement_mask player_ack;
+		player_ack[pnum] = 0;
+		net_udp_noloss_add_queue_pkt(timer_query(), data, data_len, Player_num, player_ack);
+	}
 }
 
 }
@@ -5552,8 +5551,6 @@ namespace {
 void net_udp_send_mdata(int needack, fix64 time)
 {
 	ubyte buf[sizeof(UDP_mdata_info)];
-	ubyte pack[MAX_PLAYERS];
-	
 	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
 
@@ -5564,7 +5561,6 @@ void net_udp_send_mdata(int needack, fix64 time)
 		needack = 0;
 
 	memset(&buf, 0, sizeof(UDP_mdata_info));
-	memset(&pack, 1, sizeof(ubyte)*MAX_PLAYERS);
 
 	unsigned len = 0;
 	if (needack)
@@ -5577,6 +5573,7 @@ void net_udp_send_mdata(int needack, fix64 time)
 	memcpy(&buf[len], UDP_MData.mbuf.data(), sizeof(char)*UDP_MData.mbuf_size);
 	len += UDP_MData.mbuf_size;
 
+	player_acknowledgement_mask player_ack;
 	if (multi_i_am_master())
 	{
 		for (unsigned i = 1; i < MAX_PLAYERS; ++i)
@@ -5586,7 +5583,7 @@ void net_udp_send_mdata(int needack, fix64 time)
 				if (needack) // assign pkt_num
 					PUT_INTEL_INT(buf + 2, UDP_mdata_trace[i].pkt_num_tosend);
 				dxx_sendto(UDP_Socket[0], {buf, len}, 0, Netgame.players[i].protocol.udp.addr);
-				pack[i] = 0;
+				player_ack[i] = 0;
 			}
 		}
 	}
@@ -5595,11 +5592,11 @@ void net_udp_send_mdata(int needack, fix64 time)
 		if (needack) // assign pkt_num
 			PUT_INTEL_INT(buf + 2, UDP_mdata_trace[0].pkt_num_tosend);
 		dxx_sendto(UDP_Socket[0], {buf, len}, 0, Netgame.players[0].protocol.udp.addr);
-		pack[0] = 0;
+		player_ack[0] = 0;
 	}
 	
 	if (needack)
-		net_udp_noloss_add_queue_pkt(time, UDP_MData.mbuf.data(), UDP_MData.mbuf_size, Player_num, pack);
+		net_udp_noloss_add_queue_pkt(time, UDP_MData.mbuf.data(), UDP_MData.mbuf_size, Player_num, player_ack);
 
 	// Clear UDP_MData except pkt_num. That one must not be deleted so we can clearly keep track of important packets.
 	UDP_MData.type = 0;
@@ -5645,16 +5642,14 @@ void net_udp_process_mdata(const d_level_shared_robot_info_state &LevelSharedRob
 	// send this to everyone else (if master)
 	if (multi_i_am_master())
 	{
-		ubyte pack[MAX_PLAYERS];
-		memset(&pack, 1, sizeof(ubyte)*MAX_PLAYERS);
-		
+		player_acknowledgement_mask player_ack;
 		for (unsigned i = 1; i < MAX_PLAYERS; ++i)
 		{
 			if (i != pnum && vcplayerptr(i)->connected == CONNECT_PLAYING)
 			{
 				if (needack)
 				{
-					pack[i] = 0;
+					player_ack[i] = 0;
 					PUT_INTEL_INT(data + 2, UDP_mdata_trace[i].pkt_num_tosend);
 				}
 				dxx_sendto(UDP_Socket[0], {data, data_len}, 0, Netgame.players[i].protocol.udp.addr);
@@ -5662,9 +5657,7 @@ void net_udp_process_mdata(const d_level_shared_robot_info_state &LevelSharedRob
 		}
 
 		if (needack)
-		{
-			net_udp_noloss_add_queue_pkt(timer_query(), data+dataoffset, data_len-dataoffset, pnum, pack);
-		}
+			net_udp_noloss_add_queue_pkt(timer_query(), data+dataoffset, data_len-dataoffset, pnum, player_ack);
 	}
 
 	// Check if we are in correct state to process the packet

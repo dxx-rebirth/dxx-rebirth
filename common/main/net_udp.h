@@ -13,11 +13,10 @@
 #pragma once
 #include "multi.h"
 #include "newmenu.h"
-
-#ifdef __cplusplus
 #include "pack.h"
 #include "ntstring.h"
 #include "fwd-window.h"
+#include "d_bitset.h"
 #include <array>
 
 // Exported functions
@@ -140,6 +139,15 @@ struct UDP_netgame_info_lite : public prohibit_void_ptr<UDP_netgame_info_lite>
 	ubyte                           max_numplayers;
 	bit_game_flags game_flag;
 };
+
+struct player_acknowledgement_mask : enumerated_bitset<MAX_PLAYERS, playernum_t>
+{
+public:
+	constexpr player_acknowledgement_mask() :
+		enumerated_bitset((1u << MAX_PLAYERS) - 1)
+	{
+	}
+};
 #endif
 
 // packet structure for multi-buffer
@@ -161,7 +169,7 @@ struct UDP_mdata_store : prohibit_void_ptr<UDP_mdata_store>
 	sbyte				used;
 	ubyte				Player_num;				// sender of this packet
 	uint16_t			data_size;
-	std::array<uint8_t, MAX_PLAYERS>		player_ack; 		// 0 if player has not ACK'd this packet, 1 if ACK'd or not connected
+	player_acknowledgement_mask player_ack;		// 0 if player has not ACK'd this packet, 1 if ACK'd or not connected
 	std::array<uint8_t, UPID_MDATA_BUF_SIZE> data;		// extra data of a packet - contains all multibuf data we don't want to loose
 };
 
@@ -173,5 +181,3 @@ struct UDP_mdata_check : public prohibit_void_ptr<UDP_mdata_check>
 	uint32_t			pkt_num_torecv; 			// the next pkt_num we await for this player
 	uint32_t			pkt_num_tosend; 			// the next pkt_num we want to send to another player
 };
-
-#endif
