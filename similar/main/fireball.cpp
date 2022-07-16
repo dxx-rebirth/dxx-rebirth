@@ -454,7 +454,7 @@ static imobjptridx_t object_create_explosion_with_damage(const d_robot_info_arra
 								}
 #endif
 
-								const auto Difficulty_level = GameUniqueState.Difficulty_level;
+								const auto Difficulty_level = underlying_value(GameUniqueState.Difficulty_level);
 								//	When a robot gets whacked by a badass force, he looks towards it because robots tend to get blasted from behind.
 								{
 									vms_vector neg_vforce;
@@ -533,7 +533,7 @@ static imobjptridx_t object_create_explosion_with_damage(const d_robot_info_arra
 								if (obj_iter->shields >= 0)
 								{
 #if defined(DXX_BUILD_DESCENT_II)
-									if (GameUniqueState.Difficulty_level == 0)
+									if (GameUniqueState.Difficulty_level == Difficulty_level_type::_0)
 									damage /= 4;
 #endif
 									apply_damage_to_player(obj_iter, killer, damage, 1 );

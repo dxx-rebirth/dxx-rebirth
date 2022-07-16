@@ -163,7 +163,7 @@ static void matcen_create(const vmsegptridx_t segp)
 	auto &station = Station.at(next_fuelcenter_idx);
 
 	station.Type = station_type;
-	station.Capacity = i2f(GameUniqueState.Difficulty_level + 3);
+	station.Capacity = i2f(underlying_value(GameUniqueState.Difficulty_level) + 3);
 	station.segnum = segp;
 	station.Timer = -1;
 	station.Flag = 0;
@@ -186,11 +186,6 @@ void fuelcen_activate(const vmsegptridx_t segp)
 	else
 		fuelcen_create( segp);
 }
-
-//	The lower this number is, the more quickly the center can be re-triggered.
-//	If it's too low, it can mean all the robots won't be put out, but for about 5
-//	robots, that's not real likely.
-#define	MATCEN_LIFE (i2f(30-2*Difficulty_level))
 
 //------------------------------------------------------------
 //	Trigger (enable) the materialization center in segment segnum
@@ -216,13 +211,17 @@ void trigger_matcen(const vmsegptridx_t segp)
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 #if defined(DXX_BUILD_DESCENT_II)
 	//	MK: 11/18/95, At insane, matcens work forever!
-	if (Difficulty_level+1 < NDL)
+	if (Difficulty_level != Difficulty_level_type::_4)
 #endif
 		robotcen->Lives--;
 
 	robotcen->Timer = F1_0*1000;	//	Make sure the first robot gets emitted right away.
 	robotcen->Enabled = 1;			//	Say this center is enabled, it can create robots.
-	robotcen->Capacity = i2f(Difficulty_level + 3);
+	robotcen->Capacity = i2f(underlying_value(Difficulty_level) + 3);
+//	The lower this number is, the more quickly the center can be re-triggered.
+//	If it's too low, it can mean all the robots won't be put out, but for about 5
+//	robots, that's not real likely.
+	const auto MATCEN_LIFE = i2f(30 - 2 * underlying_value(Difficulty_level));
 	robotcen->Disable_time = MATCEN_LIFE;
 
 	//	Create a bright object in the segment.
@@ -442,7 +441,8 @@ static void robotmaker_proc(const d_robot_info_array &Robot_info, const d_vclip_
 					if (obj.matcen_creator == biased_matcen_creator)
 						count++;
 			}
-			if (count > GameUniqueState.Difficulty_level + 3) {
+			if (count > underlying_value(GameUniqueState.Difficulty_level) + 3)
+			{
 				robotcen->Timer /= 2;
 				return;
 			}

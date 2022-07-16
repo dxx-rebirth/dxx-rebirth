@@ -50,9 +50,20 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 
 #include "compiler-range_for.h"
+#include "d_array.h"
 #include "d_levelstate.h"
 #include "partial_range.h"
 #include "d_zip.h"
+
+namespace dcx {
+namespace {
+
+constexpr enumerated_array<uint8_t, NDL, Difficulty_level_type> D1_Alan_pavlish_reactor_times = {{{
+	50, 45, 40, 35, 30
+}}};
+
+}
+}
 
 namespace dsx {
 std::array<reactor, MAX_REACTORS> Reactors;
@@ -90,6 +101,12 @@ void calc_controlcen_gun_point(object &obj)
 }
 
 namespace {
+
+#if defined(DXX_BUILD_DESCENT_II)
+constexpr enumerated_array<uint8_t, NDL, Difficulty_level_type> D2_Alan_pavlish_reactor_times = {{{
+	90, 60, 45, 35, 30
+}}};
+#endif
 
 //	-----------------------------------------------------------------------------
 //	Look at control center guns, find best one to fire at *objp.
@@ -131,12 +148,8 @@ static int calc_best_gun(const unsigned num_guns, const object &objreactor, cons
 
 namespace dcx {
 control_center_triggers ControlCenterTriggers;
-constexpr int	D1_Alan_pavlish_reactor_times[NDL] = {50, 45, 40, 35, 30};
 }
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_II)
-constexpr int	D2_Alan_pavlish_reactor_times[NDL] = {90, 60, 45, 35, 30};
-#endif
 
 //	-----------------------------------------------------------------------------
 //	Called every frame.  If control center been destroyed, then actually do something.
@@ -199,7 +212,7 @@ window_event_result do_countdown_frame()
 		};
 		fix disturb_x = get_base_disturbance(), disturb_z = get_base_disturbance();
 		//	At Trainee, decrease rocking of ship by 4x.
-		if (GameUniqueState.Difficulty_level == Difficulty_0)
+		if (GameUniqueState.Difficulty_level == Difficulty_level_type::_0)
 		{
 			disturb_x /= 4;
 			disturb_z /= 4;
@@ -298,7 +311,7 @@ void do_controlcen_destroyed_stuff(const imobjidx_t objp)
 
 	const auto Base_control_center_explosion_time = LevelSharedControlCenterState.Base_control_center_explosion_time;
 	if (Base_control_center_explosion_time != DEFAULT_CONTROL_CENTER_EXPLOSION_TIME)
-		Total_countdown_time = Base_control_center_explosion_time + Base_control_center_explosion_time * (NDL-Difficulty_level-1)/2;
+		Total_countdown_time = Base_control_center_explosion_time + Base_control_center_explosion_time * (NDL - underlying_value(Difficulty_level) - 1) / 2;
 	else if (!EMULATING_D1)
 		Total_countdown_time = D2_Alan_pavlish_reactor_times[Difficulty_level];
 	else
@@ -446,9 +459,9 @@ void do_controlcen_frame(const d_robot_info_array &Robot_info, const vmobjptridx
 			}
 
 			const auto Difficulty_level = GameUniqueState.Difficulty_level;
-			delta_fire_time = (NDL - Difficulty_level) * F1_0/4;
+			delta_fire_time = (NDL - underlying_value(Difficulty_level)) * F1_0/4;
 #if defined(DXX_BUILD_DESCENT_II)
-			if (Difficulty_level == 0)
+			if (Difficulty_level == Difficulty_level_type::_0)
 				delta_fire_time += F1_0/2;
 #endif
 
@@ -536,7 +549,7 @@ void special_reactor_stuff()
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	if (LevelUniqueControlCenterState.Control_center_destroyed) {
 		const auto Base_control_center_explosion_time = LevelSharedControlCenterState.Base_control_center_explosion_time;
-		LevelUniqueControlCenterState.Countdown_timer += i2f(Base_control_center_explosion_time + (NDL - 1 - GameUniqueState.Difficulty_level) * Base_control_center_explosion_time / (NDL - 1));
+		LevelUniqueControlCenterState.Countdown_timer += i2f(Base_control_center_explosion_time + (NDL - 1 - underlying_value(GameUniqueState.Difficulty_level)) * Base_control_center_explosion_time / (NDL - 1));
 		LevelUniqueControlCenterState.Total_countdown_time = f2i(LevelUniqueControlCenterState.Countdown_timer) + 2;	//	Will prevent "Self destruct sequence activated" message from replaying.
 	}
 }

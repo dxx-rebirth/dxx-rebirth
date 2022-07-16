@@ -211,7 +211,7 @@ static bool is_object_of_type(const object_base &o)
 
 static unsigned get_starting_concussion_missile_count()
 {
-	return 2 + NDL - GameUniqueState.Difficulty_level;
+	return 2 + NDL - underlying_value(GameUniqueState.Difficulty_level);
 }
 
 }
@@ -1215,20 +1215,30 @@ static void DoEndLevelScoreGlitz()
 
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	if (!cheats.enabled) {
-		if (Difficulty_level > 1) {
+		const auto d = underlying_value(Difficulty_level);
+		switch (Difficulty_level)
+		{
+			default:
+			case Difficulty_level_type::_0:
+			case Difficulty_level_type::_1:
+				skill_points = 0;
+				break;
+			case Difficulty_level_type::_2:
+			case Difficulty_level_type::_3:
+			case Difficulty_level_type::_4:
 #if defined(DXX_BUILD_DESCENT_I)
-			skill_points = level_points*(Difficulty_level-1)/2;
+				skill_points = level_points * (d - 1) / 2;
 #elif defined(DXX_BUILD_DESCENT_II)
-			skill_points = level_points*(Difficulty_level)/4;
+				skill_points = level_points * d / 4;
 #endif
-			skill_points -= skill_points % 100;
-		} else
-			skill_points = 0;
+				skill_points -= skill_points % 100;
+				break;
+		}
 
-		hostage_points = player_info.mission.hostages_on_board * 500 * (Difficulty_level+1);
+		hostage_points = player_info.mission.hostages_on_board * 500 * (d + 1);
 #if defined(DXX_BUILD_DESCENT_I)
-		shield_points = f2i(plrobj.shields) * 10 * (Difficulty_level+1);
-		energy_points = f2i(player_info.energy) * 5 * (Difficulty_level+1);
+		shield_points = f2i(plrobj.shields) * 10 * (d + 1);
+		energy_points = f2i(player_info.energy) * 5 * (d + 1);
 #elif defined(DXX_BUILD_DESCENT_II)
 		shield_points = f2i(plrobj.shields) * 5 * mine_level;
 		energy_points = f2i(player_info.energy) * 2 * mine_level;
@@ -1262,7 +1272,7 @@ static void DoEndLevelScoreGlitz()
 		snprintf(hostage_text, sizeof(hostage_text), "Hostages lost:    \t%u", hostages_lost);
 	else
 	{
-		all_hostage_points = hostages_on_board * 1000 * (Difficulty_level + 1);
+		all_hostage_points = hostages_on_board * 1000 * (underlying_value(Difficulty_level) + 1);
 		snprintf(hostage_text, sizeof(hostage_text), "%s%i\n", TXT_FULL_RESCUE_BONUS, all_hostage_points);
 	}
 
@@ -2316,16 +2326,22 @@ void copy_defaults_to_robot(const d_robot_info_array &Robot_info, object_base &o
 		if (robot_is_companion(robptr)) {
 			//	Now, scale guide-bot hits by skill level
 			switch (Difficulty_level) {
-				case 0:	shields = i2f(20000);	break;		//	Trainee, basically unkillable
-				case 1:	shields *= 3;				break;		//	Rookie, pretty dang hard
-				case 2:	shields *= 2;				break;		//	Hotshot, a bit tough
+				case Difficulty_level_type::_0:
+					shields = i2f(20000);
+					break;		//	Trainee, basically unkillable
+				case Difficulty_level_type::_1:
+					shields *= 3;
+					break;		//	Rookie, pretty dang hard
+				case Difficulty_level_type::_2:
+					shields *= 2;
+					break;		//	Hotshot, a bit tough
 				default:	break;
 			}
 		}
 	} else if (robptr.boss_flag)	//	MK, 01/16/95, make boss shields lower on lower diff levels.
 	{
 	//	Additional wimpification of bosses at Trainee
-		shields = shields / (NDL + 3) * (Difficulty_level ? Difficulty_level + 4 : 2);
+		shields = shields / (NDL + 3) * (Difficulty_level != Difficulty_level_type::_0 ? underlying_value(Difficulty_level) + 4 : 2);
 	}
 #endif
 	objp.shields = shields;

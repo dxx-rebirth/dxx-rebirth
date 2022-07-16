@@ -1340,7 +1340,7 @@ void ai_path_set_orient_and_vel(const d_robot_info_array &Robot_info, object &ob
 				vm_vec_negate(norm_vec_to_goal);
 		}
 #endif
-		rate = robptr.turn_time[Difficulty_4] / 2;
+		rate = robptr.turn_time[Difficulty_level_type::_4] / 2;
 	} else
 		rate = robptr.turn_time[Difficulty_level];
 	ai_turn_towards_vector(norm_vec_to_goal, objp, rate);

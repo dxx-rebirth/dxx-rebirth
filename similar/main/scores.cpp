@@ -195,7 +195,7 @@ static void scores_fill_struct(stats_info * stats)
 
 	stats->seconds = f2i(plr.time_total) + (plr.hours_total * 3600);
 
-	stats->diff_level = GameUniqueState.Difficulty_level;
+	stats->diff_level = underlying_value(GameUniqueState.Difficulty_level);
 	stats->starting_level = plr.starting_level;
 }
 
@@ -489,7 +489,8 @@ static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const 
 	gr_string(canvas, cv_font, shared_item_context.name, fspacy_y, stats.name);
 	scores_rputs(canvas, cv_font, shared_item_context.score, fspacy_y, stats.score.data());
 
-	gr_string(canvas, cv_font, shared_item_context.difficulty, fspacy_y, MENU_DIFFICULTY_TEXT(stats.diff_level));
+	if (const auto d = build_difficulty_level_from_untrusted(stats.diff_level))
+		gr_string(canvas, cv_font, shared_item_context.difficulty, fspacy_y, MENU_DIFFICULTY_TEXT(*d));
 
 	scores_rputs(canvas, cv_font, shared_item_context.levels, fspacy_y, stats.levels.data());
 	scores_rputs(canvas, cv_font, shared_item_context.time_played, fspacy_y, stats.time_played.data());

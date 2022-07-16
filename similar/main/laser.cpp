@@ -522,14 +522,12 @@ static bool create_omega_blobs(d_level_unique_object_state &LevelUniqueObjectSta
 #define	MIN_OMEGA_CHARGE	(MAX_OMEGA_CHARGE/8)
 #define	OMEGA_CHARGE_SCALE	4			//	FrameTime / OMEGA_CHARGE_SCALE added to Omega_charge every frame.
 
-#define	OMEGA_CHARGE_SCALE	4
-
 fix get_omega_energy_consumption(const fix delta_charge)
 {
 	const fix energy_used = fixmul(F1_0 * 190 / 17, delta_charge);
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
-	return Difficulty_level < 2
-		? fixmul(energy_used, i2f(Difficulty_level + 2) / 4)
+	return (Difficulty_level == Difficulty_level_type::_0 || Difficulty_level == Difficulty_level_type::_1)
+		? fixmul(energy_used, i2f(underlying_value(Difficulty_level) + 2) / 4)
 		: energy_used;
 }
 
@@ -944,8 +942,8 @@ namespace {
 static fix get_weapon_energy_usage_with_difficulty(const weapon_info &wi, const Difficulty_level_type Difficulty_level)
 {
 	const auto energy_usage = wi.energy_usage;
-	if (Difficulty_level < 2)
-		return fixmul(energy_usage, i2f(Difficulty_level + 2) / 4);
+	if (Difficulty_level == Difficulty_level_type::_0 || Difficulty_level == Difficulty_level_type::_1)
+		return fixmul(energy_usage, i2f(underlying_value(Difficulty_level) + 2) / 4);
 	return energy_usage;
 }
 

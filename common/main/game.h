@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "window.h"
 #include "wall.h"
 #include "d_underlying_value.h"
+#include <optional>
 
 namespace dcx {
 
@@ -75,21 +76,23 @@ static constexpr auto operator&(const game_mode_flags game_mode, const game_mode
  * use Difficulty_level_type in arithmetic expressions, and those
  * expressions must be signed to produce the correct result.
  */
-enum Difficulty_level_type : signed int
+enum class Difficulty_level_type : signed int
 {
-	Difficulty_0,
-	Difficulty_1,
-	Difficulty_2,
-	Difficulty_3,
-	Difficulty_4,
+	_0,
+	_1,
+	_2,
+	_3,
+	_4,
 };
 
-constexpr Difficulty_level_type DEFAULT_DIFFICULTY = Difficulty_1;
+constexpr Difficulty_level_type DEFAULT_DIFFICULTY = Difficulty_level_type::_1;
 
-static inline Difficulty_level_type cast_clamp_difficulty(const unsigned d)
+static inline Difficulty_level_type cast_clamp_difficulty(const int8_t d)
 {
-	return (d <= Difficulty_4) ? static_cast<Difficulty_level_type>(d) : Difficulty_4;
+	return (static_cast<uint8_t>(d) <= static_cast<uint8_t>(Difficulty_level_type::_4)) ? Difficulty_level_type{d} : Difficulty_level_type::_4;
 }
+
+std::optional<Difficulty_level_type> build_difficulty_level_from_untrusted(int8_t untrusted);
 
 struct d_game_shared_state
 {

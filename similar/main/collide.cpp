@@ -262,7 +262,7 @@ static void apply_force_damage(const d_robot_info_array &Robot_info, const vmobj
 
 #if defined(DXX_BUILD_DESCENT_II)
 			//	Make trainee easier.
-			if (GameUniqueState.Difficulty_level == 0)
+			if (GameUniqueState.Difficulty_level == Difficulty_level_type::_0)
 				damage /= 2;
 #endif
 
@@ -308,7 +308,7 @@ static void bump_this_object(const d_robot_info_array &Robot_info, const vmobjpt
 		} else if ((objp->type == OBJ_ROBOT) || (objp->type == OBJ_CLUTTER) || (objp->type == OBJ_CNTRLCEN)) {
 			if (!Robot_info[get_robot_id(objp)].boss_flag) {
 				vms_vector force2;
-				const auto Difficulty_level = GameUniqueState.Difficulty_level;
+				const auto Difficulty_level = underlying_value(GameUniqueState.Difficulty_level);
 				force2.x = force.x/(4 + Difficulty_level);
 				force2.y = force.y/(4 + Difficulty_level);
 				force2.z = force.z/(4 + Difficulty_level);
@@ -475,7 +475,7 @@ volatile_wall_result check_volatile_wall(const vmobjptridx_t obj, const unique_s
 				fix damage = fixmul(d,((FrameTime>DESIGNATED_GAME_FRAMETIME)?FrameTime:DESIGNATED_GAME_FRAMETIME));
 
 #if defined(DXX_BUILD_DESCENT_II)
-				if (GameUniqueState.Difficulty_level == 0)
+				if (GameUniqueState.Difficulty_level == Difficulty_level_type::_0)
 					damage /= 2;
 #endif
 
@@ -1533,7 +1533,7 @@ enum class boss_weapon_collision_result : uint8_t
 
 static inline int Boss_invulnerable_dot()
 {
-	return F1_0 / 4 - i2f(GameUniqueState.Difficulty_level) / 8;
+	return F1_0 / 4 - i2f(underlying_value(GameUniqueState.Difficulty_level)) / 8;
 }
 
 //	------------------------------------------------------------------------------------------------------
@@ -1694,7 +1694,7 @@ static void collide_robot_and_weapon(const d_robot_info_array &Robot_info, const
 			fix	probval;
 			int	num_blobs;
 
-			probval = (Difficulty_level+2) * min(weapon->shields, robot->shields);
+			probval = (underlying_value(Difficulty_level) + 2) * min(weapon->shields, robot->shields);
 			probval = robptr.energy_blobs * probval/(NDL*32);
 
 			num_blobs = probval >> 16;
@@ -1779,7 +1779,7 @@ static void collide_robot_and_weapon(const d_robot_info_array &Robot_info, const
 			//	hit, and missing a robot is what prevents the Gauss from being game-breaking.
 			if (get_weapon_id(weapon) == weapon_id_type::GAUSS_ID)
 				if (robptr.boss_flag)
-					damage = damage * (2*NDL-Difficulty_level)/(2*NDL);
+					damage = damage * (2 * NDL - underlying_value(Difficulty_level)) / (2 * NDL);
 #endif
 
 			if (!apply_damage_to_robot(Robot_info, robot, damage, weapon->ctype.laser_info.parent_num))
@@ -2264,7 +2264,7 @@ void collide_player_and_nasty_robot(const d_robot_info_array &Robot_info, const 
 
 	bump_two_objects(Robot_info, playerobj, robot, 0);	//no damage from bump
 
-	apply_damage_to_player(playerobj, robot, F1_0 * (GameUniqueState.Difficulty_level + 1), 0);
+	apply_damage_to_player(playerobj, robot, F1_0 * (underlying_value(GameUniqueState.Difficulty_level) + 1), 0);
 }
 
 namespace {

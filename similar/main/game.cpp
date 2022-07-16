@@ -132,6 +132,22 @@ int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 int	Game_suspended=0; //if non-zero, nothing moves but player
 game_mode_flags Game_mode;
 int	Global_missile_firing_count = 0;
+
+std::optional<Difficulty_level_type> build_difficulty_level_from_untrusted(const int8_t untrusted)
+{
+	switch (untrusted)
+	{
+		case static_cast<int8_t>(Difficulty_level_type::_0):
+		case static_cast<int8_t>(Difficulty_level_type::_1):
+		case static_cast<int8_t>(Difficulty_level_type::_2):
+		case static_cast<int8_t>(Difficulty_level_type::_3):
+		case static_cast<int8_t>(Difficulty_level_type::_4):
+			return Difficulty_level_type{untrusted};
+		default:
+			return std::nullopt;
+	}
+}
+
 }
 
 //	Function prototypes for GAME.C exclusively.

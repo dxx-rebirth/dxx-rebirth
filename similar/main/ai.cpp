@@ -601,7 +601,7 @@ void init_ai_objects(const d_robot_info_array &Robot_info)
 	BossUniqueState.Boss_dying_sound_playing = 0;
 	BossUniqueState.Boss_dying = 0;
 
-	const auto Difficulty_level = GameUniqueState.Difficulty_level;
+	const auto Difficulty_level = underlying_value(GameUniqueState.Difficulty_level);
 #define D1_Boss_gate_interval	F1_0*5 - Difficulty_level*F1_0/2
 #if defined(DXX_BUILD_DESCENT_I)
 	GameUniqueState.Boss_gate_interval = D1_Boss_gate_interval;
@@ -1023,10 +1023,18 @@ static int lead_player(const object_base &objp, const vms_vector &fire_point, co
 	//	At higher skill levels, don't lead as well.  Accomplish this by screwing up max_weapon_speed.
 	if (wptr->matter != weapon_info::matter_flag::energy)
 	{
-		if (Difficulty_level <= 1)
-			return 0;
-		else
-			max_weapon_speed *= (NDL-Difficulty_level);
+		switch (Difficulty_level)
+		{
+			case Difficulty_level_type::_0:
+			case Difficulty_level_type::_1:
+				return 0;
+			case Difficulty_level_type::_2:
+			case Difficulty_level_type::_3:
+				max_weapon_speed *= NDL - underlying_value(Difficulty_level);
+				break;
+			case Difficulty_level_type::_4:
+				break;
+		}
 	}
 
 	const fix projected_time = fixdiv(dist_to_player, max_weapon_speed);
@@ -1063,7 +1071,7 @@ static void ai_fire_laser_at_player(const d_robot_info_array &Robot_info, const 
 									)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
-	const auto Difficulty_level = GameUniqueState.Difficulty_level;
+	const auto Difficulty_level = underlying_value(GameUniqueState.Difficulty_level);
 	const auto powerup_flags = player_info.powerup_flags;
 	ai_local &ailp = obj->ctype.ai_info.ail;
 	auto &robptr = Robot_info[get_robot_id(obj)];
@@ -1264,7 +1272,7 @@ static void move_towards_vector(const d_robot_info_array &Robot_info, object_bas
 		move_toward_vector_component_assign(&vms_vector::z, vec_goal, frametime32, velocity);
 	} else {
 		const fix frametime64 = FrameTime * 64;
-		const fix difficulty_scale = Difficulty_level + 5;
+		const fix difficulty_scale = underlying_value(Difficulty_level) + 5;
 		move_toward_vector_component_add(&vms_vector::x, vec_goal, frametime64, difficulty_scale, velocity);
 		move_toward_vector_component_add(&vms_vector::y, vec_goal, frametime64, difficulty_scale, velocity);
 		move_toward_vector_component_add(&vms_vector::z, vec_goal, frametime64, difficulty_scale, velocity);
@@ -1676,7 +1684,7 @@ static void compute_vis_and_vec(const d_robot_info_array &Robot_info, const vmob
 			player_visibility.visibility = player_is_visible_from_object(Robot_info, objp, pos, robptr.field_of_view[Difficulty_level], player_visibility.vec_to_player);
 			if (ailp.next_misc_sound_time < GameTime64 && ready_to_fire_any_weapon(robptr, ailp, F1_0) && dist < F1_0 * 20)
 			{
-				ailp.next_misc_sound_time = GameTime64 + (d_rand() + F1_0) * (7 - Difficulty_level) / 1;
+				ailp.next_misc_sound_time = GameTime64 + (d_rand() + F1_0) * (7 - underlying_value(Difficulty_level)) / 1;
 				digi_link_sound_to_object(robptr.see_sound, objp, 0, Robot_sound_volume, sound_stack::allow_stacking);
 			}
 		} else {
@@ -1722,7 +1730,7 @@ static void compute_vis_and_vec(const d_robot_info_array &Robot_info, const vmob
 
 			if (player_visibility.visibility == player_visibility_state::visible_and_in_field_of_view && ailp.next_misc_sound_time < GameTime64)
 			{
-				ailp.next_misc_sound_time = GameTime64 + (d_rand() + F1_0) * (7 - Difficulty_level) / 2;
+				ailp.next_misc_sound_time = GameTime64 + (d_rand() + F1_0) * (7 - underlying_value(Difficulty_level)) / 2;
 				digi_link_sound_to_object(robptr.attack_sound, objp, 0, Robot_sound_volume, sound_stack::allow_stacking);
 			}
 			ailp.previous_visibility = player_visibility.visibility;
@@ -2010,11 +2018,11 @@ static imobjptridx_t create_gated_robot(const d_robot_info_array &Robot_info, co
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	const auto Gate_interval = GameUniqueState.Boss_gate_interval;
 #if defined(DXX_BUILD_DESCENT_I)
-	const unsigned maximum_gated_robots = 2*Difficulty_level + 3;
+	const unsigned maximum_gated_robots = 2 * underlying_value(Difficulty_level) + 3;
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (GameTime64 - BossUniqueState.Last_gate_time < Gate_interval)
 		return object_none;
-	const unsigned maximum_gated_robots = 2*Difficulty_level + 6;
+	const unsigned maximum_gated_robots = 2 * underlying_value(Difficulty_level) + 6;
 #endif
 
 	unsigned count = 0;
@@ -2926,7 +2934,7 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 
 		vms_vector	vec_to_last_pos;
 
-		if (d_rand()/2 < fixmul(FrameTime, (GameUniqueState.Difficulty_level << 12) + 0x4000)) {
+		if (d_rand()/2 < fixmul(FrameTime, (underlying_value(GameUniqueState.Difficulty_level) << 12) + 0x4000)) {
 		if ((!object_animates || ready_to_fire_any_weapon(robptr, ailp, 0)) && (Dist_to_last_fired_upon_player_pos < FIRE_AT_NEARBY_PLAYER_THRESHOLD)) {
 			vm_vec_normalized_dir_quick(vec_to_last_pos, Believed_player_pos, obj->pos);
 			dot = vm_vec_dot(obj->orient.fvec, vec_to_last_pos);
@@ -3419,7 +3427,7 @@ _exit_cheat:
 		if (Overall_agitation > 70) {
 			if ((dist_to_player < F1_0*200) && (d_rand() < FrameTime/4)) {
 				if (d_rand() * (Overall_agitation - 40) > F1_0*5) {
-					create_path_to_believed_player_segment(obj, robptr, 4 + Overall_agitation/8 + Difficulty_level, create_path_safety_flag::safe);
+					create_path_to_believed_player_segment(obj, robptr, 4 + Overall_agitation/8 + underlying_value(Difficulty_level), create_path_safety_flag::safe);
 					return;
 				}
 			}
@@ -3448,7 +3456,7 @@ _exit_cheat:
 					break;
 #endif
 				case ai_mode::AIM_CHASE_OBJECT:
-					create_path_to_believed_player_segment(obj, robptr, 4 + Overall_agitation/8 + Difficulty_level, create_path_safety_flag::safe);
+					create_path_to_believed_player_segment(obj, robptr, 4 + Overall_agitation/8 + underlying_value(Difficulty_level), create_path_safety_flag::safe);
 					break;
 				case ai_mode::AIM_STILL:
 #if defined(DXX_BUILD_DESCENT_I)
@@ -3476,7 +3484,7 @@ _exit_cheat:
 				case ai_mode::AIM_HIDE:
 					move_towards_segment_center(Robot_info, LevelSharedSegmentState, obj);
 					obj->mtype.phys_info.velocity = {};
-					if (Overall_agitation > (50 - Difficulty_level*4))
+					if (Overall_agitation > (50 - underlying_value(Difficulty_level) * 4))
 						create_path_to_believed_player_segment(obj, robptr, 4 + Overall_agitation/8, create_path_safety_flag::safe);
 					else {
 						create_n_segment_path(obj, robptr, 5, segment_none);
@@ -3654,7 +3662,7 @@ _exit_cheat:
 				{
 					if (!ai_multiplayer_awareness(obj, 50))
 						return;
-					create_n_segment_path_to_door(obj, robptr, 8 + Difficulty_level);
+					create_n_segment_path_to_door(obj, robptr, 8 + underlying_value(Difficulty_level));
 					ai_multi_send_robot_position(obj, -1);
 				}
 
@@ -3666,7 +3674,7 @@ _exit_cheat:
 					{
 						const auto powerup_flags = player_info.powerup_flags;
 						make_nearby_robot_snipe(vmsegptr, obj, robptr, powerup_flags);
-						ailp.next_action_time = (NDL - Difficulty_level) * 2*F1_0;
+						ailp.next_action_time = (NDL - underlying_value(Difficulty_level)) * 2*F1_0;
 					}
 				}
 #endif
@@ -3676,7 +3684,7 @@ _exit_cheat:
 				{
 					if (!ai_multiplayer_awareness(obj, 50))
 						return;
-					create_n_segment_path_to_door(obj, robptr, 8 + Difficulty_level);
+					create_n_segment_path_to_door(obj, robptr, 8 + underlying_value(Difficulty_level));
 					ai_multi_send_robot_position(obj, -1);
 				}
 			}
@@ -3899,7 +3907,7 @@ _exit_cheat:
 				ailp.next_fire = F1_0*5;		//	Drop a proximity bomb every 5 seconds.
 				const auto weapon_id =
 #elif defined(DXX_BUILD_DESCENT_II)
-				ailp.next_fire = (F1_0/2)*(NDL+5 - Difficulty_level);      // Drop a proximity bomb every 5 seconds.
+				ailp.next_fire = (F1_0 / 2) * (NDL + 5 - underlying_value(Difficulty_level));      // Drop a proximity bomb every 5 seconds.
 				const auto weapon_id = (aip->SUB_FLAGS & SUB_FLAGS_SPROX)
 					? weapon_id_type::ROBOT_SUPERPROX_ID
 					:
@@ -3993,8 +4001,8 @@ _exit_cheat:
 					ailp.mode = ai_mode::AIM_CHASE_OBJECT;
 				// This should not just be distance based, but also time-since-player-seen based.
 			}
-			else if ((dist_to_player > F1_0 * (20 * (2 * static_cast<int>(Difficulty_level) + robptr.pursuit)))
-				&& (GameTime64 - ailp.time_player_seen > (F1_0/2*(Difficulty_level + robptr.pursuit)))
+			else if ((dist_to_player > F1_0 * (20 * (2 * underlying_value(Difficulty_level) + robptr.pursuit)))
+				&& (GameTime64 - ailp.time_player_seen > (F1_0 / 2 * (underlying_value(Difficulty_level) + robptr.pursuit)))
 				&& !player_is_visible(player_visibility.visibility)
 				&& (aip->behavior == ai_behavior::AIB_NORMAL)
 				&& (ailp.mode == ai_mode::AIM_FOLLOW_PATH))

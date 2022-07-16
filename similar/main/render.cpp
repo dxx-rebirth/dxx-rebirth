@@ -191,7 +191,7 @@ void flash_frame()
 		flash_scale = fix_fastsin(flash_ang);
 		flash_scale = (flash_scale + f1_0)/2;
 #if defined(DXX_BUILD_DESCENT_II)
-		if (GameUniqueState.Difficulty_level == 0)
+		if (GameUniqueState.Difficulty_level == Difficulty_level_type::_0)
 			flash_scale = (flash_scale+F1_0*3)/4;
 #endif
 	}

@@ -2749,7 +2749,7 @@ static uint_fast32_t net_udp_prepare_light_game_info(game_info_light &info)
 		PUT_INTEL_INT(buf + len, Netgame.levelnum);					len += 4;
 		buf[len] = underlying_value(Netgame.gamemode);							len++;
 		buf[len] = Netgame.RefusePlayers;						len++;
-		buf[len] = Netgame.difficulty;							len++;
+		buf[len] = underlying_value(Netgame.difficulty);							len++;
 	const auto tmpvar = get_effective_netgame_status(LevelUniqueControlCenterState);
 		buf[len] = underlying_value(tmpvar);								len++;
 		buf[len] = Netgame.numconnected;						len++;
@@ -2784,7 +2784,7 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		PUT_INTEL_INT(buf + len, Netgame.levelnum);					len += 4;
 		buf[len] = underlying_value(Netgame.gamemode);							len++;
 		buf[len] = Netgame.RefusePlayers;						len++;
-		buf[len] = Netgame.difficulty;							len++;
+		buf[len] = underlying_value(Netgame.difficulty);							len++;
 	const auto tmpvar = get_effective_netgame_status(LevelUniqueControlCenterState);
 		buf[len] = underlying_value(tmpvar);								len++;
 		buf[len] = Netgame.numplayers;							len++;
@@ -3587,7 +3587,7 @@ constexpr std::integral_constant<unsigned, 5 * reactor_invul_time_mini_scale> re
 
 #define DXX_UDP_MENU_OPTIONS(VERB)	                                    \
 	DXX_MENUITEM(VERB, TEXT, "Game Options", game_label)	                     \
-	DXX_MENUITEM(VERB, SLIDER, get_annotated_difficulty_string(Netgame.difficulty), opt_difficulty, difficulty, Difficulty_0, Difficulty_4)	\
+	DXX_MENUITEM(VERB, SLIDER, get_annotated_difficulty_string(Netgame.difficulty), opt_difficulty, difficulty, underlying_value(Difficulty_level_type::_0), underlying_value(Difficulty_level_type::_4))	\
 	DXX_MENUITEM(VERB, SCALE_SLIDER, srinvul, opt_cinvul, Netgame.control_invul_time, 0, 10, reactor_invul_time_scale)	\
 	DXX_MENUITEM(VERB, SLIDER, PlayText, opt_playtime, PlayTimeAllowed, 0, 12)	\
 	DXX_MENUITEM(VERB, SLIDER, KillText, opt_killgoal, Netgame.KillGoal, 0, 20)	\
@@ -3727,23 +3727,24 @@ protected:
 	menu_array m;
 	static const char *get_annotated_difficulty_string(const Difficulty_level_type d)
 	{
-		static const std::array<char[20], 5> text{{
+		static constexpr enumerated_array<char[20], 5, Difficulty_level_type> text{{{
 			"Difficulty: Trainee",
 			"Difficulty: Rookie",
 			"Difficulty: Hotshot",
 			"Difficulty: Ace",
 			"Difficulty: Insane"
-		}};
+		}}};
 		switch (d)
 		{
-			case Difficulty_0:
-			case Difficulty_1:
-			case Difficulty_2:
-			case Difficulty_3:
-			case Difficulty_4:
+			case Difficulty_level_type::_0:
+			case Difficulty_level_type::_1:
+			case Difficulty_level_type::_2:
+			case Difficulty_level_type::_3:
+			case Difficulty_level_type::_4:
 				return text[d];
 			default:
-				return &text[3][16];
+				// Empty string at the end of `Ace`
+				return &text[Difficulty_level_type::_3][16];
 		}
 	}
 	static int handler(newmenu *, const d_event &event, more_game_options_menu_items *items);
@@ -3810,8 +3811,9 @@ public:
 	more_game_options_menu_items(const unsigned game_is_cooperative) :
 		game_is_cooperative(game_is_cooperative)
 	{
-		const auto difficulty = Netgame.difficulty;
-		update_difficulty_string(difficulty);
+		const auto edifficulty = Netgame.difficulty;
+		const auto difficulty = underlying_value(edifficulty);
+		update_difficulty_string(edifficulty);
 		update_packstring();
 		update_portstring();
 		update_reactor_life_string(Netgame.control_invul_time / reactor_invul_time_mini_scale);

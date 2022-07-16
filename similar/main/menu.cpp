@@ -938,24 +938,24 @@ static int do_difficulty_menu()
 	using items_type = enumerated_array<newmenu_item, NDL, Difficulty_level_type>;
 	struct difficulty_prompt_menu : items_type, passive_newmenu
 	{
-		difficulty_prompt_menu(const unsigned Difficulty_level) :
+		difficulty_prompt_menu(const Difficulty_level_type Difficulty_level) :
 			items_type{{{
-				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_0)},
-				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_1)},
-				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_2)},
-				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_3)},
-				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_4)},
+				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_level_type::_0)},
+				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_level_type::_1)},
+				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_level_type::_2)},
+				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_level_type::_3)},
+				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_level_type::_4)},
 			}}},
-			passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_DIFFICULTY_LEVEL}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), Difficulty_level), grd_curscreen->sc_canvas)
+			passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_DIFFICULTY_LEVEL}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), underlying_value(Difficulty_level)), grd_curscreen->sc_canvas)
 		{
 		}
 	};
 	auto &Difficulty_level = GameUniqueState.Difficulty_level;
 	const unsigned s = run_blocking_newmenu<difficulty_prompt_menu>(Difficulty_level);
 
-	if (s <= Difficulty_4)
+	if (const auto od = build_difficulty_level_from_untrusted(s))
 	{
-		const auto d = static_cast<Difficulty_level_type>(s);
+		const auto d = *od;
 		if (d != Difficulty_level)
 		{
 			PlayerCfg.DefaultDifficulty = d;

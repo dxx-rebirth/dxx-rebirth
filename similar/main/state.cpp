@@ -1404,7 +1404,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 // Save the difficulty level
 	{
-		const int Difficulty_level = GameUniqueState.Difficulty_level;
+		const int Difficulty_level = underlying_value(GameUniqueState.Difficulty_level);
 	PHYSFS_write(fp, &Difficulty_level, sizeof(int), 1);
 	}
 

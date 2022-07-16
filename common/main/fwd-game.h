@@ -83,7 +83,7 @@ extern int Game_suspended;          // if non-zero, nothing moves but player
  * use Difficulty_level_type in arithmetic expressions, and those
  * expressions must be signed to produce the correct result.
  */
-enum Difficulty_level_type : signed int;
+enum class Difficulty_level_type : signed int;
 
 struct d_game_shared_state;
 struct d_game_unique_state;

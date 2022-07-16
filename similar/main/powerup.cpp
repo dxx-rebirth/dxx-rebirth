@@ -199,9 +199,9 @@ static int pick_up_energy(player_info &player_info)
 	if (energy < MAX_ENERGY) {
 		fix boost;
 		const auto Difficulty_level = GameUniqueState.Difficulty_level;
-		boost = 3*F1_0 + 3*F1_0*(NDL - Difficulty_level);
+		boost = 3 * F1_0 + 3 * F1_0 * (NDL - underlying_value(Difficulty_level));
 #if defined(DXX_BUILD_DESCENT_II)
-		if (Difficulty_level == 0)
+		if (Difficulty_level == Difficulty_level_type::_0)
 			boost += boost/2;
 #endif
 		energy += boost;
@@ -433,9 +433,9 @@ int do_powerup(const vmobjptridx_t obj)
 				auto &shields = plrobj.shields;
 			if (shields < MAX_SHIELDS) {
 				const auto Difficulty_level = GameUniqueState.Difficulty_level;
-				fix boost = 3*F1_0 + 3*F1_0*(NDL - Difficulty_level);
+				fix boost = 3 * F1_0 + 3 * F1_0 * (NDL - underlying_value(Difficulty_level));
 #if defined(DXX_BUILD_DESCENT_II)
-				if (Difficulty_level == 0)
+				if (Difficulty_level == Difficulty_level_type::_0)
 					boost += boost/2;
 #endif
 				shields += boost;

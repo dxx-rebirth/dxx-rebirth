@@ -1434,7 +1434,7 @@ void write_player_file()
 	PHYSFS_writeULE16(file, SAVED_GAME_VERSION);
 	PHYSFS_writeULE16(file, PLAYER_STRUCT_VERSION);
 	PHYSFS_writeSLE32(file, PlayerCfg.NHighestLevels);
-	PHYSFS_writeSLE32(file, PlayerCfg.DefaultDifficulty);
+	PHYSFS_writeSLE32(file, underlying_value(PlayerCfg.DefaultDifficulty));
 	PHYSFS_writeSLE32(file, PlayerCfg.AutoLeveling);
 	errno_ret = EZERO;
 
@@ -1500,7 +1500,7 @@ void write_player_file()
 
 	
 	PHYSFS_seek(file,PHYSFS_tell(file)+2*(sizeof(PHYSFS_uint16))); // skip Game_window_w, Game_window_h
-	PHYSFSX_writeU8(file, PlayerCfg.DefaultDifficulty);
+	PHYSFSX_writeU8(file, underlying_value(PlayerCfg.DefaultDifficulty));
 	PHYSFSX_writeU8(file, PlayerCfg.AutoLeveling);
 	PHYSFSX_writeU8(file, PlayerCfg.ReticleType==RET_TYPE_NONE?0:1);
 	PHYSFSX_writeU8(file, underlying_value(PlayerCfg.CockpitMode[0]));
@@ -1740,7 +1740,7 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, GameNameStr "=%s\n", ng->game_name.data());
 	PHYSFSX_printf(file, GameModeStr "=%i\n", underlying_value(ng->gamemode));
 	PHYSFSX_printf(file, RefusePlayersStr "=%i\n", ng->RefusePlayers);
-	PHYSFSX_printf(file, DifficultyStr "=%i\n", ng->difficulty);
+	PHYSFSX_printf(file, DifficultyStr "=%i\n", underlying_value(ng->difficulty));
 	PHYSFSX_printf(file, GameFlagsStr "=%i\n", pack_game_flags(&ng->game_flag).value);
 	PHYSFSX_printf(file, AllowedItemsStr "=%i\n", ng->AllowedItems);
 	PHYSFSX_printf(file, SpawnGrantedItemsStr "=%i\n", ng->SpawnGrantedItems.mask);

@@ -1258,11 +1258,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 	(dxx_text_ensure_simple_expr(&(u), TXT_NET_GAME_CLOSED))	\
 	)
 #define MENU_DIFFICULTY_TEXT(u)	(	\
-	((u) == Difficulty_0) ? TXT_DIFFICULTY_1	:	\
-	((u) == Difficulty_1) ? TXT_DIFFICULTY_2	:	\
-	((u) == Difficulty_2) ? TXT_DIFFICULTY_3	:	\
-	((u) == Difficulty_3) ? TXT_DIFFICULTY_4	:	\
-	((u) == Difficulty_4) ? TXT_DIFFICULTY_5	:	\
+	((u) == Difficulty_level_type::_0) ? TXT_DIFFICULTY_1	:	\
+	((u) == Difficulty_level_type::_1) ? TXT_DIFFICULTY_2	:	\
+	((u) == Difficulty_level_type::_2) ? TXT_DIFFICULTY_3	:	\
+	((u) == Difficulty_level_type::_3) ? TXT_DIFFICULTY_4	:	\
+	((u) == Difficulty_level_type::_4) ? TXT_DIFFICULTY_5	:	\
 		 /* &u is ill-formed when u is a literal number */	\
 	(dxx_text_ensure_simple_expr(NULL, TXT_DIFFICULTY_1))	\
 	)
