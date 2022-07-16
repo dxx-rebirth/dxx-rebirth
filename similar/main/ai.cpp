@@ -2726,9 +2726,7 @@ static void do_d2_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 static void ai_multi_send_robot_position(object &obj, int force)
 {
 	if (Game_mode & GM_MULTI) 
-	{
-		multi_send_robot_position(obj, force != -1);
-	}
+		multi_send_robot_position(obj, force != -1 ? multi_send_robot_position_priority::_2 : multi_send_robot_position_priority::_1);
 	return;
 }
 

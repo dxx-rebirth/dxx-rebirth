@@ -61,11 +61,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 namespace {
-std::array<int, MAX_ROBOTS_CONTROLLED> robot_send_pending;
+std::array<multi_send_robot_position_priority, MAX_ROBOTS_CONTROLLED> robot_send_pending;
 }
+std::array<objnum_t, MAX_ROBOTS_CONTROLLED> robot_controlled;
 std::array<int, MAX_ROBOTS_CONTROLLED> robot_agitation;
 std::bitset<MAX_ROBOTS_CONTROLLED> robot_fired;
 }
+
 namespace dsx {
 namespace {
 static int multi_add_controlled_robot(vmobjptridx_t objnum, int agitation);
@@ -93,7 +95,6 @@ static void multi_delete_controlled_robot(const vmobjptridx_t objnum);
 
 #define MIN_TO_ADD	60
 
-std::array<objnum_t, MAX_ROBOTS_CONTROLLED> robot_controlled;
 std::array<fix64, MAX_ROBOTS_CONTROLLED> robot_controlled_time,
 	robot_last_send_time,
 	robot_last_message_time;
@@ -180,8 +181,8 @@ void multi_check_robot_timeout()
 					Int3(); // Non-terminal but Rob is interesting, step over please...
 					return;
 				}
-				if (robot_send_pending[i])
-					multi_send_robot_position(robot_objp, 1);
+				if (robot_send_pending[i] != multi_send_robot_position_priority::_0)
+					multi_send_robot_position(robot_objp, multi_send_robot_position_priority::_2);
 				multi_send_release_robot(robot_objp);
 //				multi_delete_controlled_robot(robot_controlled[i]);
 //				robot_controlled[i] = -1;
@@ -283,8 +284,8 @@ int multi_add_controlled_robot(const vmobjptridx_t objnum, int agitation)
 
 		if (robot_last_message_time[i] + ROBOT_TIMEOUT < GameTime64) {
 			const auto &&robot_objp = vmobjptridx(robot_controlled[i]);
-			if (robot_send_pending[i])
-				multi_send_robot_position(robot_objp, 1);
+			if (robot_send_pending[i] != multi_send_robot_position_priority::_0)
+				multi_send_robot_position(robot_objp, multi_send_robot_position_priority::_2);
 			multi_send_release_robot(robot_objp);
 			first_free_robot = i;
 			break;
@@ -307,8 +308,8 @@ int multi_add_controlled_robot(const vmobjptridx_t objnum, int agitation)
 	) // Replace some old robot with a more agitated one
 	{
 		const auto &&robot_objp = vmobjptridx(robot_controlled[lowest_agitated_bot]);
-		if (robot_send_pending[lowest_agitated_bot])
-			multi_send_robot_position(robot_objp, 1);
+		if (robot_send_pending[lowest_agitated_bot] != multi_send_robot_position_priority::_0)
+			multi_send_robot_position(robot_objp, multi_send_robot_position_priority::_2);
 		multi_send_release_robot(robot_objp);
 
 		i = lowest_agitated_bot;
@@ -350,7 +351,7 @@ void multi_delete_controlled_robot(const vmobjptridx_t objnum)
 	objrobot.ctype.ai_info.REMOTE_OWNER = -1;
 	objrobot.ctype.ai_info.REMOTE_SLOT_NUM = 0;
 	robot_controlled[i] = object_none;
-	robot_send_pending[i] = 0;
+	robot_send_pending[i] = multi_send_robot_position_priority::_0;
 	robot_fired[i] = 0;
 }
 }
@@ -398,8 +399,6 @@ void multi_send_release_robot(const vmobjptridx_t objnum)
 }
 }
 
-#define MIN_ROBOT_COM_GAP F1_0/12
-
 int multi_send_robot_frame(int sent)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -412,11 +411,12 @@ int multi_send_robot_frame(int sent)
 	for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
 	{
 		int sending = (last_sent+1+i)%MAX_ROBOTS_CONTROLLED;
-		if (robot_controlled[sending] != object_none && (robot_send_pending[sending] > sent || robot_fired[sending] > sent))
+		if (robot_controlled[sending] != object_none && (underlying_value(robot_send_pending[sending]) > sent || robot_fired[sending] > sent))
 		{
-			if (robot_send_pending[sending])
+			if (auto &pending = robot_send_pending[sending]; pending != multi_send_robot_position_priority::_0)
 			{
-				multi_send_robot_position_sub(vmobjptridx(robot_controlled[sending]), (std::exchange(robot_send_pending[sending], 0) > 1));
+				const auto p = std::exchange(pending, multi_send_robot_position_priority::_0);
+				multi_send_robot_position_sub(vmobjptridx(robot_controlled[sending]), underlying_value(p) > 1);
 			}
 
 			if (auto &&b = robot_fired[sending])
@@ -504,7 +504,7 @@ void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now)
 }
 }
 
-void multi_send_robot_position(object &obj, int force)
+void multi_send_robot_position(object &obj, const multi_send_robot_position_priority force)
 {
 	// Send robot position to other player(s).  Includes a byte
 	// value describing whether or not they fired a weapon
@@ -525,7 +525,7 @@ void multi_send_robot_position(object &obj, int force)
 
 	const auto slot = obj.ctype.ai_info.REMOTE_SLOT_NUM;
 	robot_last_send_time[slot] = GameTime64;
-	robot_send_pending[slot] = 1+force;
+	robot_send_pending[slot] = force;
 	return;
 }
 
@@ -1405,8 +1405,8 @@ void multi_robot_request_change(const vmobjptridx_t robot, int player_num)
 
 	if ( (robot_agitation[slot] < 70) || (MULTI_ROBOT_PRIORITY(remote_objnum, player_num) > MULTI_ROBOT_PRIORITY(remote_objnum, Player_num)) || (d_rand() > 0x4400))
 	{
-		if (robot_send_pending[slot])
-			multi_send_robot_position(rcrobot, -1);
+		if (robot_send_pending[slot] != multi_send_robot_position_priority::_0)
+			multi_send_robot_position(rcrobot, multi_send_robot_position_priority::_0);
 		multi_send_release_robot(rcrobot);
 		objrobot.ctype.ai_info.REMOTE_SLOT_NUM = HANDS_OFF_PERIOD;  // Hands-off period
 	}
