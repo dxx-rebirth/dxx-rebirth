@@ -64,7 +64,7 @@ void multi_send_boss_cloak(objnum_t bossobjnum);
 void multi_send_boss_start_gate(objnum_t bossobjnum);
 void multi_send_boss_stop_gate(objnum_t bossobjnum);
 void multi_send_boss_create_robot(vmobjidx_t bossobjnum, vmobjptridx_t objnum);
-int multi_send_robot_frame(int sent);
+void multi_send_robot_frame();
 namespace dsx {
 int multi_explode_robot_sub(const d_robot_info_array &Robot_info, vmobjptridx_t botnum);
 void multi_robot_request_change(vmobjptridx_t robot, int playernum);

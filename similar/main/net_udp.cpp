@@ -5184,7 +5184,7 @@ void dispatch_table::do_protocol_frame(int force, int listen) const
 	if (force || (time >= (last_mdata_time+(F1_0/10))))
 	{
 		last_mdata_time = time;
-		multi_send_robot_frame(0);
+		multi_send_robot_frame();
 		net_udp_send_mdata(0, time);
 	}
 

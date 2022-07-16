@@ -399,15 +399,15 @@ void multi_send_release_robot(const vmobjptridx_t objnum)
 }
 }
 
-int multi_send_robot_frame(int sent)
+void multi_send_robot_frame()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
 	static int last_sent = 0;
 
 	int i;
-	int rval = 0;
 
+	const unsigned sent = 0;
 	for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
 	{
 		int sending = (last_sent+1+i)%MAX_ROBOTS_CONTROLLED;
@@ -424,16 +424,10 @@ int multi_send_robot_frame(int sent)
 				b = 0;
 				multi_send_data<MULTI_ROBOT_FIRE>(robot_fire_buf[sending], 18, multiplayer_data_priority::_1);
 			}
-
-			if (!(Game_mode & GM_NETWORK))
-				sent += 1;
-
 			last_sent = sending;
-			rval++;
 		}
 	}
 	Assert((last_sent >= 0) && (last_sent <= MAX_ROBOTS_CONTROLLED));
-	return(rval);
 }
 
 namespace dsx {
