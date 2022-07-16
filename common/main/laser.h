@@ -90,7 +90,7 @@ void Flare_create(vmobjptridx_t obj);
 bool laser_are_related(vcobjptridx_t o1, vcobjptridx_t o2);
 
 void do_laser_firing_player(object &);
-extern void do_missile_firing(int drop_bomb);
+void do_missile_firing(int drop_bomb, const secondary_weapon_index_t bomb);
 
 // Fires a laser-type weapon (a Primary weapon)
 // Fires from object objnum, weapon type weapon_id.
