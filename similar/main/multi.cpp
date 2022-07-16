@@ -2553,15 +2553,14 @@ void multi_send_destroy_controlcen(const objnum_t objnum, const playernum_t play
 #if defined(DXX_BUILD_DESCENT_II)
 void multi_send_drop_marker(const unsigned player, const vms_vector &position, const player_marker_index messagenum, const marker_message_text_t &text)
 {
-		uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
+	multi_command<MULTI_MARKER> multibuf;
 		multibuf[1]=static_cast<char>(player);
 		multibuf[2] = static_cast<uint8_t>(messagenum);
 		PUT_INTEL_INT(&multibuf[3], position.x);
 		PUT_INTEL_INT(&multibuf[7], position.y);
 		PUT_INTEL_INT(&multibuf[11], position.z);
-		for (const auto i : xrange(text.size()))
-			multibuf[15+i]=text[i];
-		multi_send_data<MULTI_MARKER>(multibuf, 15 + text.size(), multiplayer_data_priority::_2);
+	std::copy(text.begin(), text.end(), std::next(multibuf.begin(), 15));
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 void multi_send_markers()
