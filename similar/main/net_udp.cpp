@@ -5498,7 +5498,11 @@ void net_udp_noloss_process_queue(fix64 time)
 }
 /* CODE FOR PACKET LOSS PREVENTION - END */
 
-void net_udp_send_mdata_direct(const uint8_t *const data, int data_len, int pnum, int needack)
+namespace dsx {
+namespace multi {
+namespace udp {
+
+void dispatch_table::send_data_direct(const uint8_t *const data, const unsigned data_len, const playernum_t pnum, int needack) const
 {
 	ubyte buf[sizeof(UDP_mdata_info)];
 	ubyte pack[MAX_PLAYERS];
@@ -5537,6 +5541,10 @@ void net_udp_send_mdata_direct(const uint8_t *const data, int data_len, int pnum
 
 	if (needack)
 		net_udp_noloss_add_queue_pkt(timer_query(), data, data_len, Player_num, pack);
+}
+
+}
+}
 }
 
 namespace {

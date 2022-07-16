@@ -1036,30 +1036,11 @@ void _multi_send_data(const uint8_t *const buf, const unsigned len, const multip
 
 namespace {
 
-static void _multi_send_data_direct(const ubyte *buf, unsigned len, const playernum_t pnum, int priority)
-{
-	if (pnum >= MAX_PLAYERS)
-		Error("multi_send_data_direct: Illegal player num: %u\n", pnum);
-
-	switch (multi_protocol)
-	{
-#if DXX_USE_UDP
-		case MULTI_PROTO_UDP:
-			net_udp_send_mdata_direct(buf, len, pnum, priority);
-			break;
-#endif
-		default:
-			(void)buf; (void)len; (void)priority;
-			Error("Protocol handling missing in multi_send_data_direct\n");
-			break;
-	}
-}
-
 template <multiplayer_command_t C>
 static inline void multi_send_data_direct(multi_command<C> &buf, const playernum_t pnum, const int priority)
 {
 	buf[0] = C;
-	_multi_send_data_direct(buf.data(), buf.size(), pnum, priority);
+	multi::dispatch->send_data_direct(buf.data(), buf.size(), pnum, priority);
 }
 
 }
