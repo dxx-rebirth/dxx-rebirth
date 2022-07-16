@@ -1056,22 +1056,6 @@ static void _multi_send_data_direct(const ubyte *buf, unsigned len, const player
 }
 
 template <multiplayer_command_t C>
-static void multi_send_data_direct(uint8_t *const buf, const unsigned len, const playernum_t pnum, const int priority)
-{
-	buf[0] = C;
-	unsigned expected = command_length<C>::value;
-#ifdef DXX_CONSTANT_TRUE
-	if (DXX_CONSTANT_TRUE(len != expected))
-		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_multi_send_data, "wrong packet size");
-#endif
-	if (len != expected)
-	{
-		Error("multi_send_data_direct: Packet type %i length: %i, expected: %i\n", C, len, expected);
-	}
-	_multi_send_data_direct(buf, len, pnum, priority);
-}
-
-template <multiplayer_command_t C>
 static inline void multi_send_data_direct(multi_command<C> &buf, const playernum_t pnum, const int priority)
 {
 	buf[0] = C;
