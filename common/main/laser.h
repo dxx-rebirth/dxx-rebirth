@@ -99,7 +99,7 @@ extern void do_missile_firing(int drop_bomb);
 // Returns the number of shots actually fired, which will typically be
 // 1, but could be higher for low frame rates when rapidfire weapons,
 // such as vulcan or plasma are fired.
-int do_laser_firing(vmobjptridx_t objnum, int weapon_id, laser_level level, int flags, vms_vector shot_orientation, icobjidx_t Network_laser_track);
+int do_laser_firing(vmobjptridx_t objnum, primary_weapon_index_t weapon_id, laser_level level, int flags, vms_vector shot_orientation, icobjidx_t Network_laser_track);
 
 imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &position, vmsegptridx_t segnum, vmobjptridx_t parent, weapon_id_type type, weapon_sound_flag make_sound);
 // Easier to call than Laser_create_new because it determines the

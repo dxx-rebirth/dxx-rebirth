@@ -1934,7 +1934,7 @@ void do_laser_firing_player(object &plrobj)
 //	Returns whether the weapon was fired.  This is 1 on success, 0 on failure.
 //	More than one shot is fired with a pseudo-delay so that players on slow machines can fire (for themselves
 //	or other players) often enough for things like the vulcan cannon.
-int do_laser_firing(vmobjptridx_t objp, int weapon_num, const laser_level level, int flags, vms_vector shot_orientation, const icobjidx_t Network_laser_track)
+int do_laser_firing(vmobjptridx_t objp, const primary_weapon_index_t weapon_num, const laser_level level, int flags, vms_vector shot_orientation, const icobjidx_t Network_laser_track)
 {
 	switch (weapon_num) {
 		case primary_weapon_index_t::LASER_INDEX: {
