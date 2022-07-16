@@ -1660,26 +1660,25 @@ namespace dsx {
 namespace multi {
 namespace udp {
 
-int dispatch_table::end_current_level(int *secret) const
+int dispatch_table::end_current_level(
+#if defined(DXX_BUILD_DESCENT_I)
+	next_level_request_secret_flag *const secret
+#endif
+	) const
 {
 	// Do whatever needs to be done between levels
-#if defined(DXX_BUILD_DESCENT_II)
-	if (EMULATING_D1)
-#endif
+#if defined(DXX_BUILD_DESCENT_I)
 	{
 		// We do not really check if a player has actually found a secret level... yeah, I am too lazy! So just go there and pretend we did!
 		range_for (const auto i, unchecked_partial_range(Current_mission->secret_level_table.get(), Current_mission->n_secret_levels))
 		{
 			if (Current_level_num == i)
 			{
-				*secret = 1;
+				*secret = next_level_request_secret_flag::use_secret;
 				break;
 			}
 		}
 	}
-#if defined(DXX_BUILD_DESCENT_II)
-	else
-		*secret = 0;
 #endif
 
 	Network_status = network_state::endlevel; // We are between levels

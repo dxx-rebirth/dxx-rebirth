@@ -241,7 +241,11 @@ struct dispatch_table
 	virtual void send_endlevel_packet() const = 0;
 	virtual void kick_player(const _sockaddr &dump_addr, int why) const = 0;
 	virtual void disconnect_player(int playernum) const = 0;
-	virtual int end_current_level(int *secret) const = 0;
+	virtual int end_current_level(
+#if defined(DXX_BUILD_DESCENT_I)
+		next_level_request_secret_flag *secret
+#endif
+		) const = 0;
 	virtual void leave_game() const = 0;
 };
 }

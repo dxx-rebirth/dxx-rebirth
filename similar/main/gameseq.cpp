@@ -115,9 +115,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace d1x {
 namespace {
 
-static int8_t find_next_level(const int secret_flag, const int current_level_num, const Mission &mission)
+static int8_t find_next_level(const next_level_request_secret_flag secret_flag, const int current_level_num, const Mission &mission)
 {
-	if (secret_flag) {			//go to secret level instead
+	if (secret_flag != next_level_request_secret_flag::only_normal_level)
+	{			//go to secret level instead
 		for (const auto &&[idx, table_entry] : enumerate(
 				unchecked_partial_range(
 					mission.secret_level_table.get(),
@@ -221,7 +222,14 @@ static unsigned get_starting_concussion_missile_count()
 namespace dsx {
 namespace {
 static void init_player_stats_ship(object &, fix GameTime64);
-static window_event_result AdvanceLevel(int secret_flag);
+static window_event_result AdvanceLevel(
+#if defined(DXX_BUILD_DESCENT_I)
+#undef AdvanceLevel
+	next_level_request_secret_flag secret_flag
+#elif defined(DXX_BUILD_DESCENT_II)
+#define AdvanceLevel(secret_flag)	((void)secret_flag,AdvanceLevel())
+#endif
+	);
 static void StartLevel(int random_flag);
 static void copy_defaults_to_robot_all(const d_robot_info_array &Robot_info);
 
@@ -1658,7 +1666,11 @@ void EnterSecretLevel(void)
 #endif
 
 //called when the player has finished a level
-window_event_result PlayerFinishedLevel(int secret_flag)
+window_event_result (PlayerFinishedLevel)(
+#if defined(DXX_BUILD_DESCENT_I)
+	const next_level_request_secret_flag secret_flag
+#endif
+	)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -1670,7 +1682,7 @@ window_event_result PlayerFinishedLevel(int secret_flag)
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	player_info.mission.hostages_rescued_total += player_info.mission.hostages_on_board;
 #if defined(DXX_BUILD_DESCENT_I)
-	if (!(Game_mode & GM_MULTI) && (secret_flag)) {
+	if (!(Game_mode & GM_MULTI) && secret_flag != next_level_request_secret_flag::only_normal_level) {
 		using items_type = std::array<newmenu_item, 1>;
 		struct message_menu : items_type, passive_newmenu
 		{
@@ -1685,7 +1697,7 @@ window_event_result PlayerFinishedLevel(int secret_flag)
 		run_blocking_newmenu<message_menu>(*grd_curcanv);
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
-	Assert(!secret_flag);
+	constexpr auto secret_flag = next_level_request_secret_flag::only_normal_level;
 #endif
 	if (Game_mode & GM_NETWORK)
 		get_local_player().connected = CONNECT_WAITING; // Finished but did not die
@@ -1762,14 +1774,16 @@ static void DoEndGame()
 //called to go to the next level (if there is one)
 //if secret_flag is true, advance to secret level, else next normal one
 //	Return true if game over.
-static window_event_result AdvanceLevel(int secret_flag)
+static window_event_result (AdvanceLevel)(
+#if defined(DXX_BUILD_DESCENT_I)
+	next_level_request_secret_flag secret_flag
+#endif
+	)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto rval = window_event_result::handled;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	Assert(!secret_flag);
-
 	// Loading a level can write over homing_flag.
 	// So for simplicity, reset the homing weapon cheat here.
 	if (cheats.homingfire)
@@ -1796,7 +1810,11 @@ static window_event_result AdvanceLevel(int secret_flag)
 	if (Game_mode & GM_MULTI)
 	{
 		int result;
-		result = multi::dispatch->end_current_level(&secret_flag); // Wait for other players to reach this point
+		result = multi::dispatch->end_current_level(
+#if defined(DXX_BUILD_DESCENT_I)
+			&secret_flag
+#endif
+			); // Wait for other players to reach this point
 		if (result) // failed to sync
 		{
 			// check if player has finished the game
@@ -1906,7 +1924,7 @@ window_event_result DoPlayerDead()
 					const auto g = Game_wind;
 					if (g)
 						g->set_visible(0);
-			result = AdvanceLevel(0);			//if finished, go on to next level
+			result = AdvanceLevel(next_level_request_secret_flag::only_normal_level);			//if finished, go on to next level
 
 			init_player_stats_new_ship(Player_num);
 			last_drawn_cockpit = cockpit_mode_t{UINT8_MAX};

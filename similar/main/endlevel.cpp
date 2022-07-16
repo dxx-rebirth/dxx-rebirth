@@ -723,8 +723,7 @@ window_event_result start_endlevel_sequence()
 	if (!(!(Game_mode & GM_MULTI) && (endlevel_movie_played == movie_play_status::skipped) && endlevel_data_loaded))
 #endif
 	{
-
-		return PlayerFinishedLevel(0);		//done with level
+		return PlayerFinishedLevel(next_level_request_secret_flag::only_normal_level);		//done with level
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	int exit_models_loaded = 0;
@@ -747,7 +746,7 @@ window_event_result start_endlevel_sequence()
 		const auto tunnel_length = get_tunnel_length(vcsegptridx, console_seg, exit_console_side);
 		if (!tunnel_length)
 		{
-				return PlayerFinishedLevel(0);		//don't do special sequence
+			return PlayerFinishedLevel(next_level_request_secret_flag::only_normal_level);		//don't do special sequence
 		}
 		//now pick transition segnum 1/3 of the way in
 
@@ -793,7 +792,7 @@ window_event_result stop_endlevel_sequence()
 	select_cockpit(PlayerCfg.CockpitMode[0]);
 
 	Endlevel_sequence = EL_OFF;
-	return PlayerFinishedLevel(0);
+	return PlayerFinishedLevel(next_level_request_secret_flag::only_normal_level);
 }
 
 #define VCLIP_BIG_PLAYER_EXPLOSION	58

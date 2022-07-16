@@ -347,7 +347,7 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 				multi_send_endlevel_start(multi_endlevel_type::secret);
 			if (Game_mode & GM_NETWORK)
 				multi::dispatch->do_protocol_frame(1, 1);
-			result = std::max(PlayerFinishedLevel(1), result);		//1 means go to secret level
+			result = std::max(PlayerFinishedLevel(next_level_request_secret_flag::use_secret), result);
 			LevelUniqueControlCenterState.Control_center_destroyed = 0;
 			return std::max(result, window_event_result::handled);
 		}
