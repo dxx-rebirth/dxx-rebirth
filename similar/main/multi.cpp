@@ -2692,17 +2692,12 @@ namespace {
 
 void multi_send_message()
 {
-	int loc = 0;
 	if (Network_message_reciever != -1)
 	{
-		uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
-		loc += 1;
-		multibuf[loc] = static_cast<char>(Player_num);                       loc += 1;
-		constexpr std::size_t bytes_to_copy = Network_message.size() - 1;
-		memcpy(reinterpret_cast<char *>(&multibuf[loc]), Network_message.data(), bytes_to_copy);
-		multibuf[loc + bytes_to_copy] = 0;
-		loc += MAX_MESSAGE_LEN;
-		multi_send_data<MULTI_MESSAGE>(multibuf, loc, multiplayer_data_priority::_0);
+		multi_command<MULTI_MESSAGE> multibuf;
+		multibuf[1] = Player_num;
+		std::copy(Network_message.begin(), Network_message.end(), std::next(multibuf.begin(), 2));
+		multi_send_data(multibuf, multiplayer_data_priority::_0);
 		Network_message_reciever = -1;
 	}
 }
