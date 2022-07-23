@@ -128,9 +128,9 @@ void MovieMemoryFree(void *p)
 	d_free(p);
 }
 
-unsigned int MovieFileRead(void *handle, void *buf, unsigned int count)
+unsigned int MovieFileRead(SDL_RWops *const handle, void *buf, unsigned int count)
 {
-	const unsigned numread = SDL_RWread(reinterpret_cast<SDL_RWops *>(handle), buf, 1, count);
+	const unsigned numread = SDL_RWread(handle, buf, 1, count);
 	return (numread == count);
 }
 
@@ -408,7 +408,6 @@ movie_play_status RunMovie(const char *const filename, const char *const subtitl
 		event_process();
 	wind = nullptr;
 
-	filehndl.reset();                           // Close Movie File
 	if (reshow)
 		show_menus();
 

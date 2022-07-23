@@ -17,23 +17,21 @@
 #include <vector>
 #include "dxxsconf.h"
 #include <array>
+#include <SDL.h>
 
 /*
  * structure for maintaining info on a MVEFILE stream
  */
 struct MVEFILE
 {
-	MVEFILE();
+	using stream_type = SDL_RWops;
+	MVEFILE() = default;
+	MVEFILE(stream_type *);
 	~MVEFILE();
-	void *stream = nullptr;
+	stream_type *stream = nullptr;
 	std::vector<uint8_t> cur_chunk;
 	std::size_t next_segment = 0;
 };
-
-/*
- * open a .MVE file
- */
-std::unique_ptr<MVEFILE> mvefile_open(void *stream);
 
 /*
  * get size of next segment in chunk (-1 if no more segments in chunk)
@@ -92,12 +90,12 @@ struct MVESTREAM_deleter_t
 };
 
 typedef std::unique_ptr<MVESTREAM, MVESTREAM_deleter_t> MVESTREAM_ptr_t;
-int  MVE_rmPrepMovie(MVESTREAM_ptr_t &, void *stream, int x, int y, int track);
+int  MVE_rmPrepMovie(MVESTREAM_ptr_t &, MVEFILE::stream_type *stream, int x, int y, int track);
 
 /*
  * open an MVE stream
  */
-MVESTREAM_ptr_t mve_open(void *stream);
+MVESTREAM_ptr_t mve_open(MVEFILE::stream_type *stream);
 
 /*
  * reset an MVE stream
@@ -118,5 +116,7 @@ void mve_set_handler_context(MVESTREAM *movie, void *context);
  * play next chunk
  */
 int mve_play_next_chunk(MVESTREAM &movie);
+
+unsigned int MovieFileRead(MVEFILE::stream_type *handle, void *buf, unsigned int count);
 
 #endif

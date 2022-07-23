@@ -7,10 +7,8 @@
 #ifndef _LIBMVE_H
 #define _LIBMVE_H
 
-#define MVE_ERR_EOF 1
-
-#ifdef __cplusplus
 #include <memory>
+#include <SDL.h>
 
 enum class MVE_StepStatus
 {
@@ -36,12 +34,9 @@ void MVE_getVideoSpec(MVE_videoSpec *vSpec);
 
 void MVE_sndInit(int x);
 
-unsigned int MovieFileRead(void *handle, void *buf, unsigned int count);
 void MovieShowFrame(const uint8_t *buf, int dstx, int dsty, int bufw, int bufh, int sw, int sh);
 void *MovieMemoryAllocate(std::size_t size);
 void MovieMemoryFree(void *p);
 void MovieSetPalette(const unsigned char *p, unsigned start, unsigned count);
-
-#endif
 
 #endif /* _LIBMVE_H */

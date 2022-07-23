@@ -31,7 +31,6 @@ static uint16_t _mve_get_ushort(const unsigned char *data);
 /*
  * private functions for mvefile
  */
-static int _mvefile_open(MVEFILE *movie, void *stream);
 static int  _mvefile_read_header(const MVEFILE *movie);
 static void _mvefile_set_buffer_size(MVEFILE *movie, std::size_t buf_size);
 static int _mvefile_fetch_next_chunk(MVEFILE *movie);
@@ -39,7 +38,6 @@ static int _mvefile_fetch_next_chunk(MVEFILE *movie);
 /*
  * private functions for mvestream
  */
-static int _mvestream_open(MVESTREAM *movie, void *stream);
 static void _mvestream_reset(MVESTREAM *movie);
 
 }
@@ -48,17 +46,17 @@ static void _mvestream_reset(MVESTREAM *movie);
  * public MVEFILE functions
  ************************************************************/
 
+namespace {
+
 /*
  * open an MVE file
  */
-std::unique_ptr<MVEFILE> mvefile_open(void *stream)
+std::unique_ptr<MVEFILE> mvefile_open(MVEFILE::stream_type *const stream)
 {
-    /* create the file */
-	auto file = std::make_unique<MVEFILE>();
-	if (! _mvefile_open(file.get(), stream))
-    {
+	if (!stream)
 		return nullptr;
-    }
+    /* create the file */
+	auto file = std::make_unique<MVEFILE>(stream);
 
     /* initialize the file */
 	_mvefile_set_buffer_size(file.get(), 1024);
@@ -74,7 +72,14 @@ std::unique_ptr<MVEFILE> mvefile_open(void *stream)
     return file;
 }
 
-namespace {
+/*
+ * open an MVESTREAM object
+ */
+static const MVEFILE *_mvestream_open(MVESTREAM *movie, MVEFILE::stream_type *const stream)
+{
+    movie->movie = mvefile_open(stream);
+    return movie->movie.get();
+}
 
 /*
  * reset a MVE file
@@ -180,7 +185,7 @@ int mvefile_fetch_next_chunk(MVEFILE *movie)
 /*
  * open an MVE stream
  */
-MVESTREAM_ptr_t mve_open(void *stream)
+MVESTREAM_ptr_t mve_open(MVEFILE::stream_type *const stream)
 {
     /* allocate */
 	auto movie = std::make_unique<MVESTREAM>();
@@ -259,7 +264,8 @@ int mve_play_next_chunk(MVESTREAM &movie)
 /*
  * allocate an MVEFILE
  */
-MVEFILE::MVEFILE()
+MVEFILE::MVEFILE(MVEFILE::stream_type *const stream) :
+	stream(stream)
 {
 }
 
@@ -271,18 +277,6 @@ MVEFILE::~MVEFILE()
 }
 
 namespace {
-
-/*
- * open the file stream in thie object
- */
-static int _mvefile_open(MVEFILE *file, void *stream)
-{
-    file->stream = stream;
-    if (! file->stream)
-        return 0;
-
-    return 1;
-}
 
 /*
  * read and verify the header of the recently opened file
@@ -384,16 +378,6 @@ MVESTREAM::~MVESTREAM()
 }
 
 namespace {
-
-/*
- * open an MVESTREAM object
- */
-static int _mvestream_open(MVESTREAM *movie, void *stream)
-{
-    movie->movie = mvefile_open(stream);
-
-    return (movie->movie == NULL) ? 0 : 1;
-}
 
 /*
  * reset an MVESTREAM
