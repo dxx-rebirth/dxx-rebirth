@@ -8,6 +8,7 @@
 
 #include <type_traits>
 #include "dxxerror.h"
+#include "net_udp.h"
 #include "object.h"
 #include "powerup.h"
 #include "serial.h"
@@ -132,12 +133,10 @@ struct multi_command : public std::array<uint8_t, command_length<C>::value>
 	}
 };
 
-void _multi_send_data(const uint8_t *buf, unsigned len, multiplayer_data_priority priority);
-
 template <multiplayer_command_t C>
 static inline void multi_send_data(const multi_command<C> &buf, const multiplayer_data_priority priority)
 {
-	_multi_send_data(buf.data(), buf.size(), priority);
+	multi::dispatch->send_data(buf.data(), buf.size(), priority);
 }
 
 template <typename T>
@@ -154,7 +153,7 @@ static inline void multi_serialize_write(const multiplayer_data_priority priorit
 	uint8_t buf[maximum_size];
 	serial::writer::bytebuffer_t b(buf);
 	serial::process_buffer(b, t);
-	_multi_send_data(buf, maximum_size, priority);
+	multi::dispatch->send_data(buf, maximum_size, priority);
 }
 
 template <multiplayer_command_t C>

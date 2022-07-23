@@ -33,7 +33,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "multibot.h"
 #include "game.h"
-#include "net_udp.h"
 #include "laser.h"
 #include "dxxerror.h"
 #include "timer.h"

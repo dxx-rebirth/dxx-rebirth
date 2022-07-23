@@ -27,6 +27,7 @@ namespace multi {
 namespace udp {
 struct dispatch_table final : multi::dispatch_table
 {
+	virtual void send_data(const uint8_t *data, unsigned data_len, multiplayer_data_priority priority) const override;
 	virtual void send_data_direct(const uint8_t *data, unsigned data_len, playernum_t pnum, int needack) const override;
 	virtual int objnum_is_past(objnum_t objnum) const override;
 	virtual void do_protocol_frame(int force, int listen) const override;
@@ -54,7 +55,6 @@ window_event_result net_udp_setup_game(void);
 #endif
 void net_udp_manual_join_game();
 void net_udp_list_join_game(grs_canvas &canvas);
-void net_udp_send_data(const uint8_t *ptr, unsigned len, multiplayer_data_priority priority);
 window_event_result net_udp_level_sync();
 
 // Some defines

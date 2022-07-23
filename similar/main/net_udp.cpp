@@ -5101,7 +5101,11 @@ void net_udp_listen()
 
 }
 
-void net_udp_send_data(const uint8_t *const ptr, const unsigned len, const multiplayer_data_priority priority)
+namespace dsx {
+namespace multi {
+namespace udp {
+
+void dispatch_table::send_data(const uint8_t *const ptr, const unsigned len, const multiplayer_data_priority priority) const
 {
 #if DXX_HAVE_POISON_VALGRIND
 	VALGRIND_CHECK_MEM_IS_DEFINED(ptr, len);
@@ -5125,6 +5129,10 @@ void net_udp_send_data(const uint8_t *const ptr, const unsigned len, const multi
 
 	if (priority != multiplayer_data_priority::_0)
 		net_udp_send_mdata(priority == multiplayer_data_priority::_2 ? 1 : 0, timer_query());
+}
+
+}
+}
 }
 
 namespace {

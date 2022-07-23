@@ -77,9 +77,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "state.h"
 #include "automap.h"
 #include "event.h"
-#if DXX_USE_UDP
-#include "net_udp.h"
-#endif
 #include "d_array.h"
 #include "d_enumerate.h"
 #include "d_levelstate.h"
@@ -1042,25 +1039,6 @@ window_event_result multi_do_frame()
 	multi::dispatch->do_protocol_frame(0, 1);
 
 	return multi_quit_game ? window_event_result::close : window_event_result::handled;
-}
-
-void _multi_send_data(const uint8_t *const buf, const unsigned len, const multiplayer_data_priority priority)
-{
-	if (Game_mode & GM_NETWORK)
-	{
-		switch (multi_protocol)
-		{
-#if DXX_USE_UDP
-			case MULTI_PROTO_UDP:
-				net_udp_send_data(buf, len, priority);
-				break;
-#endif
-			default:
-				(void)buf; (void)len; (void)priority;
-				Error("Protocol handling missing in multi_send_data\n");
-				break;
-		}
-	}
 }
 
 namespace {
