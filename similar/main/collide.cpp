@@ -2304,10 +2304,11 @@ void collide_player_and_materialization_center(const vmobjptridx_t objp)
 	bump_one_object(objp, exit_dir, 64*F1_0);
 
 #if defined(DXX_BUILD_DESCENT_I)
-	apply_damage_to_player(objp, object_none, 4*F1_0, apply_damage_player::always);
+	const auto killer = object_none;
 #elif defined(DXX_BUILD_DESCENT_II)
-	apply_damage_to_player(objp, objp, 4*F1_0, apply_damage_player::always);	//	Changed, MK, 2/19/96, make killer the player, so if you die in matcen, will say you killed yourself
+	auto &&killer = objp;	//	Changed, MK, 2/19/96, make killer the player, so if you die in matcen, will say you killed yourself
 #endif
+	apply_damage_to_player(objp, killer, 4*F1_0, apply_damage_player::always);
 }
 
 void collide_robot_and_materialization_center(const d_robot_info_array &Robot_info, const vmobjptridx_t objp)
