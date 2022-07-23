@@ -36,6 +36,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "robot.h"
 
 #ifdef dsx
+namespace dcx {
+
+enum class apply_damage_player : uint8_t
+{
+	always,
+	check_for_friendly,
+};
+
+}
+
 namespace dsx {
 void collide_two_objects(const d_robot_info_array &Robot_info, vmobjptridx_t A, vmobjptridx_t B, vms_vector &collision_point);
 window_event_result collide_object_with_wall(
@@ -43,7 +53,7 @@ window_event_result collide_object_with_wall(
 	const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
 	const d_robot_info_array &Robot_info, vmobjptridx_t A, fix hitspeed, vmsegptridx_t hitseg, sidenum_t hitwall, const vms_vector &hitpt);
-void apply_damage_to_player(object &player, icobjptridx_t killer, fix damage, uint8_t possibly_friendly);
+void apply_damage_to_player(object &player, icobjptridx_t killer, fix damage, apply_damage_player possibly_friendly);
 // Returns 1 if robot died, else 0.
 int apply_damage_to_robot(const d_robot_info_array &Robot_info, vmobjptridx_t robot, fix damage, objnum_t killer_objnum);
 

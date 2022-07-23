@@ -266,7 +266,7 @@ static void apply_force_damage(const d_robot_info_array &Robot_info, const vmobj
 				damage /= 2;
 #endif
 
-			apply_damage_to_player(obj,other_obj,damage,0);
+			apply_damage_to_player(obj,other_obj,damage, apply_damage_player::always);
 			break;
 
 		case OBJ_CLUTTER:
@@ -422,7 +422,7 @@ static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hit
 		auto &player_info = playerobj->ctype.player_info;
 		if (!(player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE))
 			if (playerobj->shields > f1_0*10 || ForceFieldHit)
-			  	apply_damage_to_player( playerobj, playerobj, damage, 0 );
+				apply_damage_to_player(playerobj, playerobj, damage, apply_damage_player::always);
 
 		// -- No point in doing this unless we compute a reasonable hitpt.  Currently it is just the player's position. --MK, 01/18/96
 		// -- if (!(TmapInfo[Segments[hitseg].unique_segment::sides[hitwall].tmap_num].flags & TMI_FORCE_FIELD)) {
@@ -479,9 +479,7 @@ volatile_wall_result check_volatile_wall(const vmobjptridx_t obj, const unique_s
 					damage /= 2;
 #endif
 
-				if (!(obj->ctype.player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE))
-					apply_damage_to_player( obj, obj, damage, 0 );
-
+				apply_damage_to_player(obj, obj, damage, apply_damage_player::always);
 				PALETTE_FLASH_ADD(f2i(damage*4), 0, 0);	//flash red
 			}
 
@@ -2117,7 +2115,7 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 	}
 }
 
-void apply_damage_to_player(object &playerobj, const icobjptridx_t killer, fix damage, ubyte possibly_friendly)
+void apply_damage_to_player(object &playerobj, const icobjptridx_t killer, const fix damage, const apply_damage_player possibly_friendly)
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
@@ -2129,7 +2127,7 @@ void apply_damage_to_player(object &playerobj, const icobjptridx_t killer, fix d
 	if (player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE)
 		return;
 
-	if (possibly_friendly && multi_maybe_disable_friendly_fire(static_cast<const object *>(killer)))
+	if (possibly_friendly != apply_damage_player::always && multi_maybe_disable_friendly_fire(static_cast<const object *>(killer)))
 		return;
 
 	if (Endlevel_sequence)
@@ -2244,7 +2242,7 @@ static void collide_player_and_weapon(const d_robot_info_array &Robot_info, cons
 //		if (weapon->id == SMART_HOMING_ID)
 //			damage /= 4;
 
-		apply_damage_to_player(playerobj, killer, damage, 1);
+		apply_damage_to_player(playerobj, killer, damage, apply_damage_player::check_for_friendly);
 	}
 
 	//	Robots become aware of you if you get hit.
@@ -2264,7 +2262,7 @@ void collide_player_and_nasty_robot(const d_robot_info_array &Robot_info, const 
 
 	bump_two_objects(Robot_info, playerobj, robot, 0);	//no damage from bump
 
-	apply_damage_to_player(playerobj, robot, F1_0 * (underlying_value(GameUniqueState.Difficulty_level) + 1), 0);
+	apply_damage_to_player(playerobj, robot, F1_0 * (underlying_value(GameUniqueState.Difficulty_level) + 1), apply_damage_player::always);
 }
 
 namespace {
@@ -2306,9 +2304,9 @@ void collide_player_and_materialization_center(const vmobjptridx_t objp)
 	bump_one_object(objp, exit_dir, 64*F1_0);
 
 #if defined(DXX_BUILD_DESCENT_I)
-	apply_damage_to_player( objp, object_none, 4*F1_0, 0);
+	apply_damage_to_player(objp, object_none, 4*F1_0, apply_damage_player::always);
 #elif defined(DXX_BUILD_DESCENT_II)
-	apply_damage_to_player( objp, objp, 4*F1_0, 0);	//	Changed, MK, 2/19/96, make killer the player, so if you die in matcen, will say you killed yourself
+	apply_damage_to_player(objp, objp, 4*F1_0, apply_damage_player::always);	//	Changed, MK, 2/19/96, make killer the player, so if you die in matcen, will say you killed yourself
 #endif
 }
 

@@ -536,7 +536,7 @@ static imobjptridx_t object_create_explosion_with_damage(const d_robot_info_arra
 									if (GameUniqueState.Difficulty_level == Difficulty_level_type::_0)
 									damage /= 4;
 #endif
-									apply_damage_to_player(obj_iter, killer, damage, 1 );
+									apply_damage_to_player(obj_iter, killer, damage, apply_damage_player::check_for_friendly);
 								}
 							}
 								break;
