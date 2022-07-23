@@ -513,8 +513,6 @@ constexpr std::array<const char, 24> movie_table{{
 }};
 static auto endlevel_movie_played = movie_play_status::skipped;
 
-#define MOVIE_REQUIRED 1
-
 //returns movie played status.  see movie.h
 static movie_play_status start_endlevel_movie()
 {
@@ -536,7 +534,7 @@ static movie_play_status start_endlevel_movie()
 
 	save_pal = gr_palette;
 
-	const auto r = PlayMovie(NULL, movie_name,(Game_mode & GM_MULTI)?0:MOVIE_REQUIRED);
+	const auto r = PlayMovie(nullptr, movie_name, (Game_mode & GM_MULTI) ? play_movie_warn_missing::verbose : play_movie_warn_missing::urgent);
 	if (Newdemo_state == ND_STATE_PLAYBACK) {
 		set_screen_mode(SCREEN_GAME);
 		gr_palette = save_pal;

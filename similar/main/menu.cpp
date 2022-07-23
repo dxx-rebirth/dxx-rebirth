@@ -783,7 +783,7 @@ window_event_result main_menu::event_handler(const d_event &event)
 #if DXX_USE_OGL
 					Screen_mode = -1;
 #endif
-					PlayMovie("intro.tex", "intro.mve",0);
+					PlayMovie("intro.tex", "intro.mve", play_movie_warn_missing::verbose);
 					songs_play_song(SONG_TITLE,1);
 					set_screen_mode(SCREEN_MENU);
 				}

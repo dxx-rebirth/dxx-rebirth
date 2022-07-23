@@ -244,7 +244,7 @@ void show_titles(void)
 
 	const auto hiresmode = HIRESMODE;
 	{       //show bundler screens
-		const auto played = PlayMovie(NULL, "pre_i.mve",0);
+		const auto played = PlayMovie(nullptr, "pre_i.mve", play_movie_warn_missing::verbose);
 		if (played == movie_play_status::skipped)
 		{
 			char filename[12];
@@ -258,14 +258,14 @@ void show_titles(void)
 		}
 	}
 
-	auto played = PlayMovie("intro.tex", "intro.mve",MOVIE_REQUIRED);
+	auto played = PlayMovie("intro.tex", "intro.mve", play_movie_warn_missing::urgent);
 
 	if (played != movie_play_status::skipped)
 		intro_played = 1;
 	else
 	{                                               //didn't get intro movie, try titles
 
-		played = PlayMovie(NULL, "titles.mve",MOVIE_REQUIRED);
+		played = PlayMovie(nullptr, "titles.mve", play_movie_warn_missing::urgent);
 
 		if (played == movie_play_status::skipped)
 		{
@@ -293,7 +293,7 @@ void show_titles(void)
 		//check if OEM movie exists, so we don't stop the music if it doesn't
 		if (RAIIPHYSFS_File{PHYSFS_openRead("oem.mve")})
 		{
-			played = PlayMovie(NULL, "oem.mve",0);
+			played = PlayMovie(nullptr, "oem.mve", play_movie_warn_missing::verbose);
 			song_playing = 0;               //movie will kill sound
 		}
 

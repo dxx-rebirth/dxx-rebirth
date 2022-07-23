@@ -1735,7 +1735,7 @@ static void DoEndGame()
 	if (PLAYING_BUILTIN_MISSION && !(Game_mode & GM_MULTI))
 	{ //only built-in mission, & not multi
 #if defined(DXX_BUILD_DESCENT_II)
-		auto played = PlayMovie(ENDMOVIE ".tex", ENDMOVIE ".mve",MOVIE_REQUIRED);
+		auto played = PlayMovie(ENDMOVIE ".tex", ENDMOVIE ".mve", play_movie_warn_missing::urgent);
 		if (played == movie_play_status::skipped)
 #endif
 		{
@@ -2160,7 +2160,7 @@ static void ShowLevelIntro(int level_num)
 					if (i.level_num == level_num)
 					{
 						Screen_mode = -1;
-						PlayMovie(NULL, i.movie_name, MOVIE_REQUIRED);
+						PlayMovie(nullptr, i.movie_name, play_movie_warn_missing::urgent);
 						break;
 					}
 				}

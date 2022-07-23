@@ -99,7 +99,7 @@ constexpr std::array<std::array<char, 8>, 3> movielib_files{{
 static RWops_ptr RoboFile;
 
 // Function Prototypes
-static movie_play_status RunMovie(const char *filename, const char *subtitles, int highres_flag, int allow_abort,int dx,int dy);
+static movie_play_status RunMovie(const char *filename, const char *subtitles, int highres_flag, play_movie_warn_missing, int dx,int dy);
 
 static void draw_subtitles(const d_loaded_subtitle_state &, int frame_num);
 
@@ -140,7 +140,7 @@ namespace dsx {
 
 //filename will actually get modified to be either low-res or high-res
 //returns status.  see values in movie.h
-movie_play_status PlayMovie(const char *subtitles, const char *const name, int must_have)
+movie_play_status PlayMovie(const char *subtitles, const char *const name, const play_movie_warn_missing must_have)
 {
 	if (GameArg.SysNoMovies)
 		return movie_play_status::skipped;
@@ -369,7 +369,7 @@ window_event_result movie::event_handler(const d_event &event)
 }
 
 //returns status.  see movie.h
-movie_play_status RunMovie(const char *const filename, const char *const subtitles, const int hires_flag, const int must_have, const int dx, const int dy)
+movie_play_status RunMovie(const char *const filename, const char *const subtitles, const int hires_flag, const play_movie_warn_missing warn_missing, const int dx, const int dy)
 {
 	int track = 0;
 #if DXX_USE_OGL
@@ -381,7 +381,7 @@ movie_play_status RunMovie(const char *const filename, const char *const subtitl
 	auto &&[filehndl, physfserr] = PHYSFSRWOPS_openRead(filename);
 	if (!filehndl)
 	{
-		con_printf(must_have ? CON_URGENT : CON_VERBOSE, "Failed to open movie <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
+		con_printf(warn_missing == play_movie_warn_missing::verbose ? CON_VERBOSE : CON_URGENT, "Failed to open movie <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
 		return movie_play_status::skipped;
 	}
 	MVESTREAM_ptr_t mvestream;

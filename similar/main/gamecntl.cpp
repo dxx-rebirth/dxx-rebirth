@@ -1443,7 +1443,7 @@ static window_event_result HandleTestKey(const d_level_shared_robot_info_state &
 		{
 			palette_array_t save_pal;
 			save_pal = gr_palette;
-			PlayMovie ("end.tex", "end.mve",MOVIE_ABORT_ON);
+			PlayMovie ("end.tex", "end.mve", play_movie_warn_missing::urgent);
 			Screen_mode = -1;
 			set_screen_mode(SCREEN_GAME);
 			reset_cockpit();

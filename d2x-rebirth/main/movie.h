@@ -31,8 +31,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dsx {
 
-#define MOVIE_ABORT_ON  1
-#define MOVIE_ABORT_OFF 0
+enum class play_movie_warn_missing : uint8_t
+{
+	verbose,
+	urgent,
+};
 
 enum class movie_play_status : uint8_t
 {
@@ -48,7 +51,7 @@ enum class movie_play_status : uint8_t
 #define MOVIE_HEIGHT static_cast<uint16_t>(!GameArg.GfxSkipHiresMovie? 480 : 200)
 #endif
 
-movie_play_status PlayMovie(const char *subtitles, const char *filename, int allow_abort);
+movie_play_status PlayMovie(const char *subtitles, const char *filename, play_movie_warn_missing);
 uint8_t InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie);
 int RotateRobot(MVESTREAM_ptr_t &pMovie);
 void DeInitRobotMovie(MVESTREAM_ptr_t &pMovie);
