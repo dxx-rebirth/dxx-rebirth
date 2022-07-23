@@ -3915,7 +3915,7 @@ static void multi_do_guided(d_level_unique_object_state &LevelUniqueObjectState,
 
 	if (b.release)
 	{
-		release_guided_missile(LevelUniqueObjectState, pnum);
+		release_remote_guided_missile(LevelUniqueObjectState, pnum);
 		return;
 	}
 

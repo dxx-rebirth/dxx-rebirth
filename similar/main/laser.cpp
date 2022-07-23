@@ -2304,20 +2304,18 @@ void create_robot_smart_children(const vmobjptridx_t objp, const uint_fast32_t n
 }
 
 //give up control of the guided missile
-void release_guided_missile(d_level_unique_object_state &LevelUniqueObjectState, const playernum_t player_num)
+void release_local_guided_missile(d_level_unique_object_state &LevelUniqueObjectState, const playernum_t player_num, object &missile)
 {
-	if (player_num == Player_num)
-	 {
-		const auto &&gimobj = LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(LevelUniqueObjectState.get_objects().vmptr, player_num);
-		if (gimobj == nullptr)
-			return;
+	Missile_viewer = &missile;
+	if (Game_mode & GM_MULTI)
+		multi_send_guided_info(missile, 1);
+	if (Newdemo_state == ND_STATE_RECORDING)
+		newdemo_record_guided_end();
+	LevelUniqueObjectState.Guided_missile.clear_player_active_guided_missile(player_num);
+}
 
-		Missile_viewer = gimobj;
-		if (Game_mode & GM_MULTI)
-			multi_send_guided_info(gimobj, 1);
-		if (Newdemo_state==ND_STATE_RECORDING)
-		 newdemo_record_guided_end();
-	 }
+void release_remote_guided_missile(d_level_unique_object_state &LevelUniqueObjectState, const playernum_t player_num)
+{
 	LevelUniqueObjectState.Guided_missile.clear_player_active_guided_missile(player_num);
 }
 #endif
@@ -2344,7 +2342,7 @@ void do_missile_firing(int drop_bomb, const secondary_weapon_index_t bomb)
 	const auto &&gimobj = LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(LevelUniqueObjectState.get_objects().vmptr, Player_num);
 	if (gimobj != nullptr)
 	{
-		release_guided_missile(LevelUniqueObjectState, Player_num);
+		release_local_guided_missile(LevelUniqueObjectState, Player_num, *gimobj);
 		Next_missile_fire_time = GameTime64 + Weapon_info[Secondary_weapon_to_weapon_info[weapon]].fire_wait - fire_frame_overhead;
 		return;
 	}

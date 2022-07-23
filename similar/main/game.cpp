@@ -2116,7 +2116,11 @@ window_event_result GameProcessFrame(const d_level_shared_robot_info_state &Leve
 
 	//if the player is taking damage, give up guided missile control
 	if (local_player_shields_ref != player_shields)
-		release_guided_missile(LevelUniqueObjectState, Player_num);
+	{
+		const auto player_num = Player_num;
+		if (const auto &&gimobj = LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(vmobjptr, player_num))
+			release_local_guided_missile(LevelUniqueObjectState, player_num, *gimobj);
+	}
 #endif
 
 	// Check if we have to close in-game menus for multiplayer
