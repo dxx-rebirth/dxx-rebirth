@@ -1872,7 +1872,7 @@ void drop_stolen_items(fvmsegptridx &vmsegptridx, d_level_unique_object_state &L
 	{
 		if (i != 255)
 		{
-			drop_powerup(Vclip, std::exchange(i, 255), objp.mtype.phys_info.velocity, objp.pos, segp, true);
+			drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, std::exchange(i, 255), objp.mtype.phys_info.velocity, objp.pos, segp, true);
 		}
 	}
 

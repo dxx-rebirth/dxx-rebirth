@@ -884,7 +884,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 		auto &vcvertptr = Vertices.vcptr;
 		const auto &&segnum = choose_drop_segment(LevelUniqueSegmentState.get_segments().vmptridx, vcvertptr, LevelUniqueWallSubsystemState.Walls.vcptr, pnum);
 		const auto &&new_pos = pick_random_point_in_seg(vcvertptr, segnum, std::minstd_rand(d_rand()));
-		const auto &&objnum = drop_powerup(Vclip, powerup_type, {}, new_pos, segnum, true);
+		const auto &&objnum = drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, powerup_type, {}, new_pos, segnum, true);
 		if (objnum == object_none)
 			return;
 		multi_send_create_powerup(powerup_type, segnum, objnum, new_pos);
@@ -1048,7 +1048,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 	}
 }
 
-imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum, const bool player)
+imobjptridx_t drop_powerup(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const d_vclip_array &Vclip, int id, const vms_vector &init_vel, const vms_vector &pos, vmsegptridx_t segnum, bool player)
 {
 				int	rand_scale;
 				const auto old_mag = vm_vec_mag_quick(init_vel);
@@ -1140,13 +1140,13 @@ imobjptridx_t drop_powerup(const d_vclip_array &Vclip, int id, const vms_vector 
 	return objp;
 }
 
-bool drop_powerup(const d_vclip_array &Vclip, int id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum, const bool player)
+bool drop_powerup(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const d_vclip_array &Vclip, int id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum, const bool player)
 {
 	bool created = false;
 	for (const auto i : xrange(num))
 	{
 		(void)i;
-		const auto obj = drop_powerup(Vclip, id, init_vel, pos, segnum, player);
+		const auto &&obj = drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, id, init_vel, pos, segnum, player);
 		if (obj == object_none)
 			/* If one drop failed, assume every additional drop will also fail.
 			 */
@@ -1165,7 +1165,7 @@ static bool drop_robot_egg(const d_robot_info_array &Robot_info, const int type,
 	switch (type)
 	{
 		case OBJ_POWERUP:
-			return drop_powerup(Vclip, id, num, init_vel, pos, segnum, false);
+			return drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, id, num, init_vel, pos, segnum, false);
 		case OBJ_ROBOT:
 			break;
 		default:
@@ -1244,7 +1244,7 @@ static bool drop_robot_egg(const d_robot_info_array &Robot_info, const int type,
 			// sometimes drop shields.
 			if (d_rand() > 16384)
 			{
-				const auto &&objp = drop_powerup(Vclip, POW_SHIELD_BOOST, init_vel, pos, segnum, false);
+				const auto &&objp = drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, POW_SHIELD_BOOST, init_vel, pos, segnum, false);
 				if (objp != object_none)
 					created = true;
 			}
@@ -1303,13 +1303,13 @@ bool object_create_robot_egg(const d_robot_info_array &Robot_info, object_base &
 //	Returns created object number.
 imobjptridx_t call_object_create_egg(const object_base &objp, const int id)
 {
-	return drop_powerup(Vclip, id, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum), true);
+	return drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, id, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum), true);
 }
 
 void call_object_create_egg(const object_base &objp, const unsigned count, const int id)
 {
 	if (count > 0) {
-		drop_powerup(Vclip, id, count, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum), true);
+		drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, id, count, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum), true);
 	}
 }
 

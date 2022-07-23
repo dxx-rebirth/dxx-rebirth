@@ -2182,12 +2182,9 @@ static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t
 		new_pos.z = SWAPINT(new_pos.z);
 	}
 
-	Net_create_loc = 0;
-	const auto &&my_objnum = drop_powerup(Vclip, powerup_type, vmd_zero_vector, new_pos, segnum, true);
-
-	if (my_objnum == object_none) {
+	const auto &&my_objnum = drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, powerup_type, vmd_zero_vector, new_pos, segnum, true);
+	if (my_objnum == object_none)
 		return;
-	}
 
 	if (Network_send_objects && multi::dispatch->objnum_is_past(my_objnum))
 	{
