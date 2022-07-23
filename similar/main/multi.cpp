@@ -3810,7 +3810,7 @@ static void multi_do_drop_weapon(fvmobjptr &vmobjptr, const playernum_t pnum, co
 	remote_objnum = GET_INTEL_SHORT(buf + 2);
 	ammo = GET_INTEL_SHORT(buf + 4);
 	seed = GET_INTEL_INT(buf + 6);
-	const auto &&objnum = spit_powerup(Vclip, vmobjptr(vcplayerptr(pnum)->objnum), powerup_id, seed);
+	const auto &&objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, vmobjptr(vcplayerptr(pnum)->objnum), powerup_id, seed);
 	if (objnum == object_none)
 		return;
 	objnum->ctype.powerup_info.count = ammo;
@@ -4461,7 +4461,7 @@ static void DropOrb ()
 
 	seed = d_rand();
 
-	const auto &&objnum = spit_powerup(Vclip, vmobjptr(ConsoleObject), POW_HOARD_ORB, seed);
+	const auto &&objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, *ConsoleObject, POW_HOARD_ORB, seed);
 	if (objnum == object_none)
 		return;
 
@@ -4502,7 +4502,7 @@ void DropFlag ()
 		return;
 	}
 	seed = d_rand();
-	const auto &&objnum = spit_powerup(Vclip, vmobjptr(ConsoleObject), get_team(Player_num) == TEAM_RED ? POW_FLAG_BLUE : POW_FLAG_RED, seed);
+	const auto &&objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, *ConsoleObject, get_team(Player_num) == TEAM_RED ? POW_FLAG_BLUE : POW_FLAG_RED, seed);
 	if (objnum == object_none)
 	{
 		HUD_init_message_literal(HM_MULTI, "Failed to drop flag!");
@@ -4547,7 +4547,7 @@ static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
 
 	const auto &&objp = vmobjptr(vcplayerptr(pnum)->objnum);
 
-	const imobjidx_t objnum = spit_powerup(Vclip, objp, powerup_id, seed);
+	const imobjidx_t objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, objp, powerup_id, seed);
 	if (objnum == object_none)
 		return;
 

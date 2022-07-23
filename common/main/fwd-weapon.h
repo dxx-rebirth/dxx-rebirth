@@ -202,7 +202,7 @@ int pick_up_secondary(player_info &, secondary_weapon_index_t weapon_index, int 
 namespace dsx {
 int pick_up_vulcan_ammo(player_info &player_info, uint_fast32_t ammo_count, bool change_weapon = true);
 //this function is for when the player intentionally drops a powerup
-imobjptridx_t spit_powerup(const d_vclip_array &Vclip, const object_base &spitter, unsigned id, unsigned seed);
+imobjptridx_t spit_powerup(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const d_vclip_array &Vclip, const object_base &spitter, unsigned id, unsigned seed);
 
 #if defined(DXX_BUILD_DESCENT_II)
 void attempt_to_steal_item(vmobjptridx_t objp, const robot_info &, object &playerobjp);

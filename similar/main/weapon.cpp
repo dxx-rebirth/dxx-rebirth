@@ -1452,7 +1452,7 @@ void process_super_mines_frame(void)
 
 //this function is for when the player intentionally drops a powerup
 //this function is based on drop_powerup()
-imobjptridx_t spit_powerup(const d_vclip_array &Vclip, const object_base &spitter, const unsigned id, const unsigned seed)
+imobjptridx_t spit_powerup(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const d_vclip_array &Vclip, const object_base &spitter, const unsigned id, const unsigned seed)
 {
 	d_srand(seed);
 
@@ -1519,7 +1519,6 @@ imobjptridx_t spit_powerup(const d_vclip_array &Vclip, const object_base &spitte
 void DropCurrentWeapon (player_info &player_info)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptr = Objects.vmptr;
 	if (LevelUniqueObjectState.num_objects >= Objects.size())
 		return;
 
@@ -1571,7 +1570,7 @@ void DropCurrentWeapon (player_info &player_info)
 	}
 
 	const auto seed = d_rand();
-	const auto objnum = spit_powerup(Vclip, vmobjptr(ConsoleObject), drop_type, seed);
+	const auto objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, *ConsoleObject, drop_type, seed);
 	if (objnum == object_none)
 	{
 		HUD_init_message(HM_DEFAULT, "Failed to drop %s!", weapon_name);
@@ -1625,7 +1624,6 @@ void DropCurrentWeapon (player_info &player_info)
 void DropSecondaryWeapon (player_info &player_info)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptr = Objects.vmptr;
 	int seed;
 	ushort sub_ammo=0;
 
@@ -1726,7 +1724,7 @@ void DropSecondaryWeapon (player_info &player_info)
 
 	seed = d_rand();
 
-	auto objnum = spit_powerup(Vclip, vmobjptr(ConsoleObject), weapon_drop_id, seed);
+	auto objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, *ConsoleObject, weapon_drop_id, seed);
 
 	const auto weapon_name = SECONDARY_WEAPON_NAMES(Secondary_weapon);
 	if (objnum == object_none)
