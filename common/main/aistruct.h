@@ -35,6 +35,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "objnum.h"
 #include "fwd-segment.h"
 
+#if defined(DXX_BUILD_DESCENT_II)
+#include "fwd-object.h"
+#include "fwd-vclip.h"
+#endif
+
 #define GREEN_GUY   1
 
 #define MAX_SEGMENTS_PER_PATH       20
@@ -329,9 +334,12 @@ struct ai_cloak_info_rw
 // Maximum number kept track of, will keep stealing, causes stolen weapons to be lost!
 struct d_thief_unique_state
 {
+	using stolen_item_storage = std::array<uint8_t, 10>;
 	unsigned Stolen_item_index;   // Used in ai.c for controlling rate of Thief flare firing.
-	std::array<uint8_t, 10> Stolen_items;
+	stolen_item_storage Stolen_items;
 };
+
+void drop_stolen_items_local(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const d_vclip_array &Vclip, vmsegptridx_t segp, const vms_vector &thief_velocity, const vms_vector &thief_position, d_thief_unique_state::stolen_item_storage &);
 
 #endif
 }

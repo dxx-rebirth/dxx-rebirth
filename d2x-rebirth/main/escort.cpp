@@ -81,6 +81,10 @@ namespace dsx {
 
 namespace {
 
+#if defined(DXX_BUILD_DESCENT_II)
+static constexpr std::integral_constant<uint8_t, UINT8_MAX> stolen_item_type_none{};
+#endif
+
 static void say_escort_goal(escort_goal_t goal_num);
 
 constexpr std::array<char[12], ESCORT_GOAL_MARKER9> Escort_goal_text = {{
@@ -1851,7 +1855,7 @@ void init_thief_for_level(void)
 	auto &ThiefUniqueState = LevelUniqueObjectState.ThiefState;
 	ThiefUniqueState.Stolen_item_index = 0;
 	auto &Stolen_items = ThiefUniqueState.Stolen_items;
-	Stolen_items.fill(255);
+	Stolen_items.fill(stolen_item_type_none);
 
 	constexpr unsigned iterations = 3;
 	static_assert (std::tuple_size<decltype(ThiefUniqueState.Stolen_items)>::value >= iterations * 2, "Stolen_items too small");	//	Oops!  Loop below will overwrite memory!
@@ -1864,15 +1868,13 @@ void init_thief_for_level(void)
 }
 
 // --------------------------------------------------------------------------------------------------------------
-void drop_stolen_items(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const d_vclip_array &Vclip, const vmsegptridx_t segp, const vms_vector &thief_velocity, const vms_vector &thief_position)
+void drop_stolen_items_local(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const d_vclip_array &Vclip, vmsegptridx_t segp, const vms_vector &thief_velocity, const vms_vector &thief_position, d_thief_unique_state::stolen_item_storage &Stolen_items)
 {
-	auto &ThiefUniqueState = LevelUniqueObjectState.ThiefState;
-	range_for (auto &i, ThiefUniqueState.Stolen_items)
+	for (auto &i : Stolen_items)
 	{
-		if (i != 255)
-			drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, std::exchange(i, 255), thief_velocity, thief_position, segp, true);
+		if (i != stolen_item_type_none)
+			drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, std::exchange(i, stolen_item_type_none), thief_velocity, thief_position, segp, true);
 	}
-
 }
 
 // --------------------------------------------------------------------------------------------------------------

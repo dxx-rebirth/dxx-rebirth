@@ -984,7 +984,7 @@ int multi_explode_robot_sub(const d_robot_info_array &Robot_info, const vmobjptr
 	const auto robot_id = get_robot_id(objrobot);
 #if defined(DXX_BUILD_DESCENT_II)
 	if (robot_is_thief(Robot_info[robot_id]))
-		drop_stolen_items(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, vmsegptridx(objrobot.segnum), objrobot.mtype.phys_info.velocity, objrobot.pos);
+		drop_stolen_items_local(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, vmsegptridx(objrobot.segnum), objrobot.mtype.phys_info.velocity, objrobot.pos, LevelUniqueObjectState.ThiefState.Stolen_items);
 #endif
 	if (Robot_info[robot_id].boss_flag)
 	{
