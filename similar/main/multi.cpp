@@ -2492,46 +2492,48 @@ void multi_send_fire(int laser_gun, const laser_level level, int laser_flags, ob
 		last_fireup_time = timer_query();
 	}
 
-	uint8_t multibuf[MAX_MULTI_MESSAGE_LEN+4];
-	multibuf[0] = static_cast<char>(MULTI_FIRE);
+	union mb {
+		multi_command<MULTI_FIRE_BOMB> multibomb;
+		multi_command<MULTI_FIRE_TRACK> multitrack;
+		multi_command<MULTI_FIRE> multifire;
+		mb() {}
+	} multibuf;
 	if (is_bomb_objnum != object_none)
-	{
-		multibuf[0] = static_cast<char>(MULTI_FIRE_BOMB);
-	}
+		new(&multibuf.multibomb) multi_command<MULTI_FIRE_BOMB>();
 	else if (laser_track != object_none)
-	{
-		multibuf[0] = static_cast<char>(MULTI_FIRE_TRACK);
-	}
-	multibuf[1] = static_cast<char>(Player_num);
-	multibuf[2] = static_cast<char>(laser_gun);
-	multibuf[3] = static_cast<uint8_t>(level);
-	multibuf[4] = static_cast<char>(laser_flags);
+		new(&multibuf.multitrack) multi_command<MULTI_FIRE_TRACK>();
+	else
+		new(&multibuf.multifire) multi_command<MULTI_FIRE>();
+	multibuf.multifire[1] = static_cast<char>(Player_num);
+	multibuf.multifire[2] = static_cast<char>(laser_gun);
+	multibuf.multifire[3] = static_cast<uint8_t>(level);
+	multibuf.multifire[4] = static_cast<char>(laser_flags);
 
 	const auto &ownship = get_local_plrobj();
-	PUT_INTEL_INT(&multibuf[5], ownship.orient.fvec.x);
-	PUT_INTEL_INT(&multibuf[9], ownship.orient.fvec.y);
-	PUT_INTEL_INT(&multibuf[13], ownship.orient.fvec.z);
+	PUT_INTEL_INT(&multibuf.multifire[5], ownship.orient.fvec.x);
+	PUT_INTEL_INT(&multibuf.multifire[9], ownship.orient.fvec.y);
+	PUT_INTEL_INT(&multibuf.multifire[13], ownship.orient.fvec.z);
 
 	/*
 	 * If we fire a bomb, it's persistent. Let others know of it's objnum so host can track it's behaviour over clients (host-authority functions, D2 chaff ability).
-	 * If we fire a tracking projectile, we should others let know abotu what we track but we have to pay attention it's mapped correctly.
+	 * If we fire a tracking projectile, we should others let know about what we track but we have to pay attention that it is mapped correctly.
 	 * If we fire something else, we make the packet as small as possible.
 	 */
-	if (multibuf[0] == MULTI_FIRE_BOMB)
+	if (multibuf.multifire[0] == MULTI_FIRE_BOMB)
 	{
 		map_objnum_local_to_local(is_bomb_objnum);
-		PUT_INTEL_SHORT(&multibuf[17], static_cast<objnum_t>(is_bomb_objnum));
-		multi_send_data<MULTI_FIRE_BOMB>(multibuf, 19, multiplayer_data_priority::_1);
+		PUT_INTEL_SHORT(&multibuf.multibomb[17], is_bomb_objnum.operator objnum_t());
+		multi_send_data(multibuf.multibomb, multiplayer_data_priority::_1);
 	}
-	else if (multibuf[0] == MULTI_FIRE_TRACK)
+	else if (multibuf.multifire[0] == MULTI_FIRE_TRACK)
 	{
 		const auto &&[remote_owner, remote_laser_track] = objnum_local_to_remote(laser_track);
-		PUT_INTEL_SHORT(&multibuf[17], remote_laser_track);
-		multibuf[19] = remote_owner;
-		multi_send_data<MULTI_FIRE_TRACK>(multibuf, 20, multiplayer_data_priority::_1);
+		PUT_INTEL_SHORT(&multibuf.multitrack[17], remote_laser_track);
+		multibuf.multitrack[19] = remote_owner;
+		multi_send_data(multibuf.multitrack, multiplayer_data_priority::_1);
 	}
 	else
-		multi_send_data<MULTI_FIRE>(multibuf, 17, multiplayer_data_priority::_1);
+		multi_send_data(multibuf.multifire, multiplayer_data_priority::_1);
 }
 
 void multi_send_destroy_controlcen(const objnum_t objnum, const playernum_t player)
