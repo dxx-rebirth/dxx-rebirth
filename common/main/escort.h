@@ -25,7 +25,6 @@ namespace dsx {
 static inline void detect_escort_goal_accomplished(const vmobjptridx_t &)
 {
 }
-static inline void drop_stolen_items (fvmsegptridx &, d_level_unique_object_state &, const d_vclip_array &, const object_base &) {}
 #elif defined(DXX_BUILD_DESCENT_II)
 #define GUIDEBOT_NAME_LEN 9
 struct netgame_info;
@@ -36,7 +35,7 @@ void detect_escort_goal_fuelcen_accomplished();
 void set_escort_special_goal(d_unique_buddy_state &BuddyState, int key);
 void init_buddy_for_level(void);
 void invalidate_escort_goal(d_unique_buddy_state &);
-void drop_stolen_items (fvmsegptridx &vmsegptridx, d_level_unique_object_state &LevelUniqueObjectState, const d_vclip_array &Vclip, const object_base &);
+void drop_stolen_items(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const d_vclip_array &Vclip, vmsegptridx_t segp, const vms_vector &velocity, const vms_vector &position);
 unsigned check_warn_local_player_can_control_guidebot(fvcobjptr &vcobjptr, const d_unique_buddy_state &, const netgame_info &Netgame);
 
 enum escort_goal_t : uint8_t

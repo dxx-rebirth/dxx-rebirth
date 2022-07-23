@@ -1491,7 +1491,7 @@ void do_explosion_sequence(const d_robot_info_array &Robot_info, object &obj)
 			}
 #if defined(DXX_BUILD_DESCENT_II)
 			if (robot_is_thief(robptr))
-				drop_stolen_items(vmsegptridx, LevelUniqueObjectState, Vclip, del_obj);
+				drop_stolen_items(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, vmsegptridx(del_obj->segnum), del_obj->mtype.phys_info.velocity, del_obj->pos);
 			else if (robot_is_companion(robptr))
 			{
 				DropBuddyMarker(del_obj);
