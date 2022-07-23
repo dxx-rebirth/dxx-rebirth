@@ -1717,7 +1717,7 @@ static void spin_object(object_base &obj)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-imobjidx_t d_guided_missile_indices::get_player_active_guided_missile(const unsigned pnum) const
+imobjidx_t d_guided_missile_indices::get_player_active_guided_missile(const playernum_t pnum) const
 {
 	return operator[](pnum);
 }
@@ -1738,7 +1738,7 @@ bool d_guided_missile_indices::debug_check_current_object(const object_base &obj
 }
 
 template <typename R, typename F>
-R d_guided_missile_indices::get_player_active_guided_missile_tmpl(F &fobjptr, const unsigned pnum) const
+R d_guided_missile_indices::get_player_active_guided_missile_tmpl(F &fobjptr, const playernum_t pnum) const
 {
 	const auto gmidx = get_player_active_guided_missile(pnum);
 	if (gmidx == object_none)
@@ -1749,23 +1749,23 @@ R d_guided_missile_indices::get_player_active_guided_missile_tmpl(F &fobjptr, co
 	return gmobj;
 }
 
-imobjptr_t d_guided_missile_indices::get_player_active_guided_missile(fvmobjptr &vmobjptr, const unsigned pnum) const
+imobjptr_t d_guided_missile_indices::get_player_active_guided_missile(fvmobjptr &vmobjptr, const playernum_t pnum) const
 {
 	return this->template get_player_active_guided_missile_tmpl<imobjptr_t>(vmobjptr, pnum);
 }
 
-imobjptridx_t d_guided_missile_indices::get_player_active_guided_missile(fvmobjptridx &vmobjptridx, const unsigned pnum) const
+imobjptridx_t d_guided_missile_indices::get_player_active_guided_missile(fvmobjptridx &vmobjptridx, const playernum_t pnum) const
 {
 	return this->template get_player_active_guided_missile_tmpl<imobjptridx_t>(vmobjptridx, pnum);
 }
 
-void d_guided_missile_indices::set_player_active_guided_missile(const vmobjidx_t obji, const unsigned pnum)
+void d_guided_missile_indices::set_player_active_guided_missile(const vmobjidx_t obji, const playernum_t pnum)
 {
 	auto &i = operator[](pnum);
 	i = obji;
 }
 
-void d_guided_missile_indices::clear_player_active_guided_missile(const unsigned pnum)
+void d_guided_missile_indices::clear_player_active_guided_missile(const playernum_t pnum)
 {
 	auto &i = operator[](pnum);
 	i = object_none;

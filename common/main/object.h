@@ -705,18 +705,18 @@ struct d_level_unique_control_center_state :
 class d_guided_missile_indices : std::array<imobjidx_t, MAX_PLAYERS>
 {
 	template <typename R, typename F>
-		R get_player_active_guided_missile_tmpl(F &fvcobj, unsigned pnum) const;
+		R get_player_active_guided_missile_tmpl(F &fvcobj, playernum_t pnum) const;
 	static bool debug_check_current_object(const object_base &);
 public:
 	constexpr d_guided_missile_indices() :
 		std::array<imobjidx_t, MAX_PLAYERS>(init_object_number_array<imobjidx_t>(std::make_index_sequence<MAX_PLAYERS>()))
 	{
 	}
-	imobjidx_t get_player_active_guided_missile(unsigned pnum) const;
-	imobjptr_t get_player_active_guided_missile(fvmobjptr &vmobjptr, unsigned pnum) const;
-	imobjptridx_t get_player_active_guided_missile(fvmobjptridx &vmobjptridx, unsigned pnum) const;
-	void set_player_active_guided_missile(vmobjidx_t, unsigned pnum);
-	void clear_player_active_guided_missile(unsigned pnum);
+	imobjidx_t get_player_active_guided_missile(playernum_t pnum) const;
+	imobjptr_t get_player_active_guided_missile(fvmobjptr &vmobjptr, playernum_t pnum) const;
+	imobjptridx_t get_player_active_guided_missile(fvmobjptridx &vmobjptridx, playernum_t pnum) const;
+	void set_player_active_guided_missile(vmobjidx_t, playernum_t pnum);
+	void clear_player_active_guided_missile(playernum_t pnum);
 };
 
 struct d_level_unique_boss_state : ::dcx::d_level_unique_boss_state

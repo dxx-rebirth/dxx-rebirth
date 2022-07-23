@@ -2304,7 +2304,7 @@ void create_robot_smart_children(const vmobjptridx_t objp, const uint_fast32_t n
 }
 
 //give up control of the guided missile
-void release_guided_missile(d_level_unique_object_state &LevelUniqueObjectState, const unsigned player_num)
+void release_guided_missile(d_level_unique_object_state &LevelUniqueObjectState, const playernum_t player_num)
 {
 	if (player_num == Player_num)
 	 {

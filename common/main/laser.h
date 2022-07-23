@@ -28,7 +28,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "vecmat.h"
 
-#ifdef __cplusplus
 #include "fwd-segment.h"
 #include "fwd-object.h"
 #include "fwd-player.h"
@@ -113,7 +112,7 @@ imobjptridx_t Laser_create_new_easy(const d_robot_info_array &Robot_info, const 
 
 #if defined(DXX_BUILD_DESCENT_II)
 // give up control of the guided missile
-void release_guided_missile(d_level_unique_object_state &, unsigned player_num);
+void release_guided_missile(d_level_unique_object_state &, playernum_t player_num);
 
 // Omega cannon stuff.
 #define MAX_OMEGA_CHARGE    (F1_0)  //  Maximum charge level for omega cannonw
@@ -175,6 +174,4 @@ static inline int is_proximity_bomb_or_player_smart_mine_or_placed_mine(const we
 }
 }
 #endif
-#endif
-
 #endif
