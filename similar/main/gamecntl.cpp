@@ -283,8 +283,8 @@ namespace {
 static void do_weapon_n_item_stuff(object_array &Objects, control_info &Controls)
 {
 	auto &vmobjptridx = Objects.vmptridx;
-	auto &vmobjptr = Objects.vmptr;
-	auto &plrobj = get_local_plrobj();
+	const auto &&plrobjidx = vmobjptridx(get_local_player().objnum);
+	auto &plrobj = *plrobjidx;
 	auto &player_info = plrobj.ctype.player_info;
 	if (Controls.state.fire_flare > 0)
 	{
@@ -301,7 +301,7 @@ static void do_weapon_n_item_stuff(object_array &Objects, control_info &Controls
 	if (Global_missile_firing_count) {
 		--Global_missile_firing_count;
 		const auto bomb = which_bomb(player_info);
-		do_missile_firing(0, bomb);
+		do_missile_firing(0, bomb, plrobjidx);
 	}
 
 	if (Controls.state.cycle_primary > 0)
@@ -339,7 +339,7 @@ static void do_weapon_n_item_stuff(object_array &Objects, control_info &Controls
 	{
 		const auto bomb = which_bomb(player_info);
 		for (uint_fast32_t i = std::exchange(Controls.state.drop_bomb, 0); i--;)
-			do_missile_firing(1, bomb);
+			do_missile_firing(1, bomb, plrobjidx);
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Controls.state.toggle_bomb > 0)

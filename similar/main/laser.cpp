@@ -2322,14 +2322,11 @@ void release_remote_guided_missile(d_level_unique_object_state &LevelUniqueObjec
 
 //	-------------------------------------------------------------------------------------------
 //changed on 31/3/10 by kreatordxx to distinguish between drop bomb and secondary fire
-void do_missile_firing(int drop_bomb, const secondary_weapon_index_t bomb)
+void do_missile_firing(int drop_bomb, const secondary_weapon_index_t bomb, const vmobjptridx_t plrobjidx)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptridx = Objects.vmptridx;
 	int gun_flag=0;
 	fix fire_frame_overhead = 0;
 
-	const auto &&plrobjidx = vmobjptridx(get_local_player().objnum);
 	auto &plrobj = *plrobjidx;
 	auto &player_info = plrobj.ctype.player_info;
 	const auto weapon = drop_bomb ? bomb : player_info.Secondary_weapon;
