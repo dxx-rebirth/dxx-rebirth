@@ -290,7 +290,7 @@ static void do_weapon_n_item_stuff(object_array &Objects, control_info &Controls
 	{
 		Controls.state.fire_flare = 0;
 		if (allowed_to_fire_flare(player_info))
-			Flare_create(vmobjptridx(ConsoleObject));
+			Flare_create(plrobjidx);
 	}
 
 	if (Controls.state.fire_secondary && allowed_to_fire_missile(player_info))
