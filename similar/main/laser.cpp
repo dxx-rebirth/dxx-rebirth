@@ -1495,20 +1495,18 @@ imobjptridx_t Laser_player_fire(const d_robot_info_array &Robot_info, const vmob
 //	-----------------------------------------------------------------------------------------------------------
 void Flare_create(const vmobjptridx_t obj)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptr = Objects.vmptr;
-
 	const auto energy_usage = get_weapon_energy_usage_with_difficulty(Weapon_info[weapon_id_type::FLARE_ID], GameUniqueState.Difficulty_level);
 
 //	MK, 11/04/95: Allowed to fire flare even if no energy.
 // -- 	if (Players[Player_num].energy >= energy_usage)
-	auto &player_info = get_local_plrobj().ctype.player_info;
+	auto &&plrobj = *obj;
+	auto &player_info = plrobj.ctype.player_info;
 	auto &energy = player_info.energy;
 #if defined(DXX_BUILD_DESCENT_I)
 	if (energy > 0)
 #endif
 	{
-		const auto &&flare = Laser_player_fire(LevelSharedRobotInfoState.Robot_info, obj, weapon_id_type::FLARE_ID, gun_num_t::center, weapon_sound_flag::audible, get_local_plrobj().orient.fvec, object_none);
+		const auto &&flare = Laser_player_fire(LevelSharedRobotInfoState.Robot_info, obj, weapon_id_type::FLARE_ID, gun_num_t::center, weapon_sound_flag::audible, plrobj.orient.fvec, object_none);
 		if (flare == object_none)
 			return;
 		energy -= energy_usage;
