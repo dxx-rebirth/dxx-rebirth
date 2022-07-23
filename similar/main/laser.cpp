@@ -2402,7 +2402,7 @@ void do_missile_firing(int drop_bomb, const secondary_weapon_index_t bomb, const
 		}
 
 		// don't autoselect if dropping prox and prox not current weapon
-		if (!drop_bomb || player_info.Secondary_weapon == bomb)
+		if (player_info.Secondary_weapon == weapon)
 			auto_select_secondary_weapon(player_info);		//select next missile, if this one out of ammo
 	}
 }
