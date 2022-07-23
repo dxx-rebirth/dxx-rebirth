@@ -479,16 +479,13 @@ void multi_send_robot_position_sub(const vmobjptridx_t objnum, const multiplayer
 	PUT_INTEL_SHORT(&multibuf[loc], qpp.orient.x);			loc += 2;
 	PUT_INTEL_SHORT(&multibuf[loc], qpp.orient.y);			loc += 2;
 	PUT_INTEL_SHORT(&multibuf[loc], qpp.orient.z);			loc += 2;
-	PUT_INTEL_INT(&multibuf[loc], qpp.pos.x);				loc += 4;
-	PUT_INTEL_INT(&multibuf[loc], qpp.pos.y);				loc += 4;
-	PUT_INTEL_INT(&multibuf[loc], qpp.pos.z);				loc += 4;
+	multi_put_vector(&multibuf[loc], qpp.pos);
+	loc += 12;
 	PUT_INTEL_SEGNUM(&multibuf[loc], qpp.segment);			loc += 2;
-	PUT_INTEL_INT(&multibuf[loc], qpp.vel.x);				loc += 4;
-	PUT_INTEL_INT(&multibuf[loc], qpp.vel.y);				loc += 4;
-	PUT_INTEL_INT(&multibuf[loc], qpp.vel.z);				loc += 4;
-	PUT_INTEL_INT(&multibuf[loc], qpp.rotvel.x);			loc += 4;
-	PUT_INTEL_INT(&multibuf[loc], qpp.rotvel.y);			loc += 4;
-	PUT_INTEL_INT(&multibuf[loc], qpp.rotvel.z);			loc += 4; // 46 + 5 = 51
+	multi_put_vector(&multibuf[loc], qpp.vel);
+	loc += 12;
+	multi_put_vector(&multibuf[loc], qpp.rotvel);
+	// 46 + 5 = 51
 
 	multi_send_data(multibuf, priority);
 }
@@ -534,18 +531,7 @@ void multi_send_robot_fire(const vmobjptridx_t obj, int gun_num, const vms_vecto
 	PUT_INTEL_SHORT(&multibuf[loc], remote_objnum);
                                                                         loc += 3;
         multibuf[loc] = gun_num;                                        loc += 1;
-        if constexpr (words_bigendian)
-        {
-                vms_vector swapped_vec;
-		swapped_vec.x = INTEL_INT(static_cast<int>(fire.x));
-		swapped_vec.y = INTEL_INT(static_cast<int>(fire.y));
-		swapped_vec.z = INTEL_INT(static_cast<int>(fire.z));
-                memcpy(&multibuf[loc], &swapped_vec, sizeof(vms_vector));
-        }
-        else
-        {
-                memcpy(&multibuf[loc], &fire, sizeof(vms_vector));
-        }
+		multi_put_vector(&multibuf[loc], fire);
                                                                         loc += sizeof(vms_vector); // 12
                                                                         // --------------------------
                                                                         //      Total = 18
@@ -723,20 +709,8 @@ static void multi_send_create_robot_powerups(const object_base &del_obj)
 	multibuf[loc] = del_obj.contains_type; 					loc += 1;
 	multibuf[loc] = del_obj.contains_id;						loc += 1;
 	PUT_INTEL_SEGNUM(&multibuf[loc], del_obj.segnum);		        loc += 2;
-	if constexpr (words_bigendian)
-	{
-		vms_vector swapped_vec;
-		swapped_vec.x = INTEL_INT(static_cast<int>(del_obj.pos.x));
-		swapped_vec.y = INTEL_INT(static_cast<int>(del_obj.pos.y));
-		swapped_vec.z = INTEL_INT(static_cast<int>(del_obj.pos.z));
-		memcpy(&multibuf[loc], &swapped_vec, sizeof(vms_vector));
-		loc += 12;
-	}
-	else
-	{
-		memcpy(&multibuf[loc], &del_obj.pos, sizeof(vms_vector));
-		loc += 12;
-	}
+	multi_put_vector(&multibuf[loc], del_obj.pos);
+	loc += 12;
 
 	memset(&multibuf[loc], -1, MAX_ROBOT_POWERUPS*sizeof(short));
 #if defined(DXX_BUILD_DESCENT_II)
@@ -879,9 +853,8 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 	qpp.orient.x = GET_INTEL_SHORT(&buf[loc]);					loc += 2;
 	qpp.orient.y = GET_INTEL_SHORT(&buf[loc]);					loc += 2;
 	qpp.orient.z = GET_INTEL_SHORT(&buf[loc]);					loc += 2;
-	qpp.pos.x = GET_INTEL_INT(&buf[loc]);						loc += 4;
-	qpp.pos.y = GET_INTEL_INT(&buf[loc]);						loc += 4;
-	qpp.pos.z = GET_INTEL_INT(&buf[loc]);						loc += 4;
+	qpp.pos = multi_get_vector(&buf[loc]);
+	loc += 12;
 	if (const auto s = segnum_t{GET_INTEL_SHORT(&buf[loc])}; vmsegidx_t::check_nothrow_index(s))
 	{
 		qpp.segment = s;
@@ -889,12 +862,9 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 	}
 	else
 		return;
-	qpp.vel.x = GET_INTEL_INT(&buf[loc]);						loc += 4;
-	qpp.vel.y = GET_INTEL_INT(&buf[loc]);						loc += 4;
-	qpp.vel.z = GET_INTEL_INT(&buf[loc]);						loc += 4;
-	qpp.rotvel.x = GET_INTEL_INT(&buf[loc]);					loc += 4;
-	qpp.rotvel.y = GET_INTEL_INT(&buf[loc]);					loc += 4;
-	qpp.rotvel.z = GET_INTEL_INT(&buf[loc]);					loc += 4;
+	qpp.vel = multi_get_vector(&buf[loc]);
+	loc += 12;
+	qpp.rotvel = multi_get_vector(&buf[loc]);
 	extract_quaternionpos(robot, qpp);
 }
 
@@ -914,15 +884,11 @@ void multi_do_robot_fire(const uint8_t *const buf)
 	int loc = 1;
 	short remote_botnum;
 	int gun_num;
-	vms_vector fire;
                                                                                         loc += 1; // pnum
 	remote_botnum = GET_INTEL_SHORT(buf + loc);
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[loc+2]);                loc += 3;
 	gun_num = static_cast<int8_t>(buf[loc]);                                                      loc += 1;
-	memcpy(&fire, buf+loc, sizeof(vms_vector));
-	fire.x = INTEL_INT(fire.x);
-	fire.y = INTEL_INT(fire.y);
-	fire.z = INTEL_INT(fire.z);
+	const auto fire = multi_get_vector(&buf[loc]);
 
 	if (botnum > Highest_object_index)
 		return;
@@ -1269,13 +1235,9 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 	const auto segnum = segnum_t{GET_INTEL_SHORT(&buf[loc])};	loc += 2;
 	if (!vmsegidx_t::check_nothrow_index(segnum))
 		return;
-	vms_vector pos;
-	memcpy(&pos, &buf[loc], sizeof(pos));      loc += 12;
-	
+	const auto pos = multi_get_vector(&buf[loc]);
+	loc += 12;
 	vms_vector velocity{};
-	pos.x = INTEL_INT(pos.x);
-	pos.y = INTEL_INT(pos.y);
-	pos.z = INTEL_INT(pos.z);
 
 	Assert(pnum < N_players);
 	Assert (pnum!=Player_num); // What? How'd we send ourselves this?

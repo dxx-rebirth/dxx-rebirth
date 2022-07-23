@@ -151,6 +151,34 @@ std::optional<network_state> build_network_state_from_untrusted(const uint8_t un
 	}
 }
 
+vms_vector multi_get_vector(const uint8_t *const buf)
+{
+	return vms_vector{
+		static_cast<int32_t>(GET_INTEL_INT(&buf[0])),
+		static_cast<int32_t>(GET_INTEL_INT(&buf[4])),
+		static_cast<int32_t>(GET_INTEL_INT(&buf[8])),
+	};
+}
+
+void multi_put_vector(uint8_t *const buf, const vms_vector &v)
+{
+	/* Copy the vms_vector into a local so that the compiler can prove that
+	 * `buf` does not alias the bytes of the vector.  Optimizing builds will
+	 * eliminate this needless copy.
+	 *
+	 * With no aliasing, the compiler can use word-sized load/store
+	 * instructions.
+	 *
+	 * With possible aliasing, the compiler uses `fix` sized load/store, since
+	 * a store to `buf` may change the result of a subsequent load from an
+	 * aliased vms_vector.
+	 */
+	const auto lv = v;
+	PUT_INTEL_INT(&buf[0], lv.x);
+	PUT_INTEL_INT(&buf[4], lv.y);
+	PUT_INTEL_INT(&buf[8], lv.z);
+}
+
 }
 namespace {
 static playernum_t multi_who_is_master();
@@ -1527,16 +1555,13 @@ namespace {
 static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, const uint8_t *const buf)
 {
 	sbyte flags;
-	vms_vector shot_orientation;
 
 	// Act out the actual shooting
 	const uint8_t untrusted_raw_weapon = buf[2];
 
 	flags = buf[4];
 
-	shot_orientation.x = static_cast<fix>(GET_INTEL_INT(&buf[5]));
-	shot_orientation.y = static_cast<fix>(GET_INTEL_INT(&buf[9]));
-	shot_orientation.z = static_cast<fix>(GET_INTEL_INT(&buf[13]));
+	const auto shot_orientation = multi_get_vector(&buf[5]);
 	const icobjidx_t Network_laser_track = (buf[0] == MULTI_FIRE_TRACK)
 		? objnum_remote_to_local(GET_INTEL_SHORT(&buf[17]), buf[19])
 		: object_none;
@@ -1642,9 +1667,8 @@ static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum,
 	qpp.orient.x = GET_INTEL_SHORT(&buf[count]);					count += 2;
 	qpp.orient.y = GET_INTEL_SHORT(&buf[count]);					count += 2;
 	qpp.orient.z = GET_INTEL_SHORT(&buf[count]);					count += 2;
-	qpp.pos.x = GET_INTEL_INT(&buf[count]);						count += 4;
-	qpp.pos.y = GET_INTEL_INT(&buf[count]);						count += 4;
-	qpp.pos.z = GET_INTEL_INT(&buf[count]);						count += 4;
+	qpp.pos = multi_get_vector(&buf[count]);
+	count += 12;
 	if (const auto s = segnum_t{GET_INTEL_SHORT(&buf[count])}; vmsegidx_t::check_nothrow_index(s))
 	{
 		qpp.segment = s;
@@ -1652,12 +1676,10 @@ static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum,
 	}
 	else
 		return;
-	qpp.vel.x = GET_INTEL_INT(&buf[count]);						count += 4;
-	qpp.vel.y = GET_INTEL_INT(&buf[count]);						count += 4;
-	qpp.vel.z = GET_INTEL_INT(&buf[count]);						count += 4;
-	qpp.rotvel.x = GET_INTEL_INT(&buf[count]);					count += 4;
-	qpp.rotvel.y = GET_INTEL_INT(&buf[count]);					count += 4;
-	qpp.rotvel.z = GET_INTEL_INT(&buf[count]);					count += 4;
+	qpp.vel = multi_get_vector(&buf[count]);
+	count += 12;
+	qpp.rotvel = multi_get_vector(&buf[count]);
+	count += 12;
 	extract_quaternionpos(obj, qpp);
 
 	if (obj->movement_source == object::movement_type::physics)
@@ -2130,18 +2152,12 @@ static void multi_do_controlcen_fire(const ubyte *buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	vms_vector to_target;
 	int gun_num;
 	objnum_t objnum;
 	int count = 1;
 
-	memcpy(&to_target, buf+count, 12);          count += 12;
-	if constexpr (words_bigendian)// swap the vector to_target
-	{
-		to_target.x = INTEL_INT(to_target.x);
-		to_target.y = INTEL_INT(to_target.y);
-		to_target.z = INTEL_INT(to_target.z);
-	}
+	const auto to_target = multi_get_vector(&buf[count]);
+	count += 12;
 	gun_num = buf[count];                       count += 1;
 	objnum = GET_INTEL_SHORT(buf + count);      count += 2;
 
@@ -2156,7 +2172,6 @@ static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int count = 1;
-	vms_vector new_pos;
 	char powerup_type;
 
 	if (Network_status == network_state::endlevel || LevelUniqueControlCenterState.Control_center_destroyed)
@@ -2174,14 +2189,8 @@ static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t
 	const auto &&segnum = *useg;
 	count += 2;
 	objnum_t objnum = GET_INTEL_SHORT(buf + count); count += 2;
-	memcpy(&new_pos, buf+count, sizeof(vms_vector)); count+=sizeof(vms_vector);
-	if constexpr (words_bigendian)
-	{
-		new_pos.x = SWAPINT(new_pos.x);
-		new_pos.y = SWAPINT(new_pos.y);
-		new_pos.z = SWAPINT(new_pos.z);
-	}
-
+	const auto new_pos = multi_get_vector(&buf[count]);
+	count+=sizeof(vms_vector);
 	const auto &&my_objnum = drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, powerup_type, vmd_zero_vector, new_pos, segnum, true);
 	if (my_objnum == object_none)
 		return;
@@ -2263,8 +2272,6 @@ namespace {
 
 static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 {
-	vms_vector hitpnt;
-
 	if (pnum >= N_players || pnum == Player_num)
 		return;
 
@@ -2277,9 +2284,7 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 	if (!uside)
 		return;
 	const auto side = *uside;
-	hitpnt.x = GET_INTEL_INT(buf + 5);
-	hitpnt.y = GET_INTEL_INT(buf + 9);
-	hitpnt.z = GET_INTEL_INT(buf + 13);
+	const auto hitpnt = multi_get_vector(&buf[5]);
 
 	//create a dummy object which will be the weapon that hits
 	//the monitor. the blowup code wants to know who the parent of the
@@ -2294,8 +2299,6 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 
 static void multi_do_drop_marker(object_array &Objects, fvmsegptridx &vmsegptridx, const playernum_t pnum, const uint8_t *const buf)
 {
-	vms_vector position;
-
 	if (pnum==Player_num)  // my marker? don't set it down cuz it might screw up the orientation
 		return;
 
@@ -2305,9 +2308,7 @@ static void multi_do_drop_marker(object_array &Objects, fvmsegptridx &vmsegptrid
 	if (mesnum >= MarkerState.get_markers_per_player(game_mode, max_numplayers))
 		return;
 
-	position.x = GET_INTEL_INT(buf + 3);
-	position.y = GET_INTEL_INT(buf + 7);
-	position.z = GET_INTEL_INT(buf + 11);
+	const auto position = multi_get_vector(&buf[3]);
 
 	const auto gmi = convert_player_marker_index_to_game_marker_index(game_mode, max_numplayers, pnum, player_marker_index{mesnum});
 	auto &marker_message = MarkerState.message[gmi];
@@ -2504,9 +2505,7 @@ void multi_send_fire(const vms_matrix &orient, int laser_gun, const laser_level 
 	multibuf.multifire[3] = static_cast<uint8_t>(level);
 	multibuf.multifire[4] = static_cast<char>(laser_flags);
 
-	PUT_INTEL_INT(&multibuf.multifire[5], orient.fvec.x);
-	PUT_INTEL_INT(&multibuf.multifire[9], orient.fvec.y);
-	PUT_INTEL_INT(&multibuf.multifire[13], orient.fvec.z);
+	multi_put_vector(&multibuf.multifire[5], orient.fvec);
 
 	/*
 	 * If we fire a bomb, it's persistent. Let others know of it's objnum so host can track it's behaviour over clients (host-authority functions, D2 chaff ability).
@@ -2551,9 +2550,7 @@ void multi_send_drop_marker(const unsigned player, const vms_vector &position, c
 	multi_command<MULTI_MARKER> multibuf;
 		multibuf[1]=static_cast<char>(player);
 		multibuf[2] = static_cast<uint8_t>(messagenum);
-		PUT_INTEL_INT(&multibuf[3], position.x);
-		PUT_INTEL_INT(&multibuf[7], position.y);
-		PUT_INTEL_INT(&multibuf[11], position.z);
+	multi_put_vector(&multibuf[3], position);
 	std::copy(text.begin(), text.end(), std::next(multibuf.begin(), 15));
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
@@ -2725,16 +2722,14 @@ void multi_send_position(object &obj)
 	PUT_INTEL_SHORT(&multibuf[count], qpp.orient.x);							count += 2;
 	PUT_INTEL_SHORT(&multibuf[count], qpp.orient.y);							count += 2;
 	PUT_INTEL_SHORT(&multibuf[count], qpp.orient.z);							count += 2;
-	PUT_INTEL_INT(&multibuf[count], qpp.pos.x);							count += 4;
-	PUT_INTEL_INT(&multibuf[count], qpp.pos.y);							count += 4;
-	PUT_INTEL_INT(&multibuf[count], qpp.pos.z);							count += 4;
+	multi_put_vector(&multibuf[count], qpp.pos);
+	count += 12;
 	PUT_INTEL_SEGNUM(&multibuf[count], qpp.segment);					count += 2;
-	PUT_INTEL_INT(&multibuf[count], qpp.vel.x);							count += 4;
-	PUT_INTEL_INT(&multibuf[count], qpp.vel.y);							count += 4;
-	PUT_INTEL_INT(&multibuf[count], qpp.vel.z);							count += 4;
-	PUT_INTEL_INT(&multibuf[count], qpp.rotvel.x);							count += 4;
-	PUT_INTEL_INT(&multibuf[count], qpp.rotvel.y);							count += 4;
-	PUT_INTEL_INT(&multibuf[count], qpp.rotvel.z);							count += 4; // 46
+	multi_put_vector(&multibuf[count], qpp.vel);
+	count += 12;
+	multi_put_vector(&multibuf[count], qpp.rotvel);
+	count += 12;
+	// 46
 
 	// send twice while first has priority so the next one will be attached to the next bigdata packet
 	multi_send_data(multibuf, multiplayer_data_priority::_1);
@@ -2912,18 +2907,7 @@ void multi_send_controlcen_fire(const vms_vector &to_goal, int best_gun_num, obj
 
 	count +=  1;
 	multi_command<MULTI_CONTROLCEN_FIRE> multibuf;
-	if constexpr (words_bigendian)
-	{
-		vms_vector swapped_vec;
-		swapped_vec.x = INTEL_INT(static_cast<int>(to_goal.x));
-		swapped_vec.y = INTEL_INT(static_cast<int>(to_goal.y));
-		swapped_vec.z = INTEL_INT(static_cast<int>(to_goal.z));
-		memcpy(&multibuf[count], &swapped_vec, 12);
-	}
-	else
-	{
-		memcpy(&multibuf[count], &to_goal, 12);
-	}
+	multi_put_vector(&multibuf[count], to_goal);
 	count += 12;
 	multibuf[count] = static_cast<char>(best_gun_num);                   count +=  1;
 	PUT_INTEL_SHORT(&multibuf[count], objnum );     count +=  2;
@@ -2952,20 +2936,8 @@ void multi_send_create_powerup(const powerup_type_t powerup_type, const vcsegidx
 	multibuf[count] = powerup_type;                                 count += 1;
 	PUT_INTEL_SEGNUM(&multibuf[count], segnum);     count += 2;
 	PUT_INTEL_SHORT(&multibuf[count], objnum );     count += 2;
-	if constexpr (words_bigendian)
-	{
-		vms_vector swapped_vec;
-		swapped_vec.x = INTEL_INT(static_cast<int>(pos.x));
-		swapped_vec.y = INTEL_INT(static_cast<int>(pos.y));
-		swapped_vec.z = INTEL_INT(static_cast<int>(pos.z));
-		memcpy(&multibuf[count], &swapped_vec, 12);
-		count += 12;
-	}
-	else
-	{
-		memcpy(&multibuf[count], &pos, sizeof(vms_vector));
-		count += sizeof(vms_vector);
-	}
+	multi_put_vector(&multibuf[count], pos);
+	count += 12;
 	//                                                                                                            -----------
 	//                                                                                                            Total =  19
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
@@ -3080,9 +3052,7 @@ void multi_send_effect_blowup(const vcsegidx_t segnum, const sidenum_t side, con
 	multibuf[count] = Player_num;                                   count += 1;
 	PUT_INTEL_SEGNUM(&multibuf[count], segnum);                        count += 2;
 	multibuf[count] = static_cast<int8_t>(side);                                  count += 1;
-	PUT_INTEL_INT(&multibuf[count], pnt.x);                          count += 4;
-	PUT_INTEL_INT(&multibuf[count], pnt.y);                          count += 4;
-	PUT_INTEL_INT(&multibuf[count], pnt.z);                          count += 4;
+	multi_put_vector(&multibuf[count], pnt);
 
 	multi_send_data(multibuf, multiplayer_data_priority::_0);
 }

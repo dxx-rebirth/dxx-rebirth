@@ -583,6 +583,10 @@ extern int multi_quit_game;
 
 extern std::array<msgsend_state, MAX_PLAYERS> multi_sending_message;
 extern int multi_defining_message;
+
+vms_vector multi_get_vector(const uint8_t *buf);
+void multi_put_vector(uint8_t *buf, const vms_vector &v);
+
 }
 extern void multi_send_message_start();
 void multi_send_msgsend_state(msgsend_state state);
