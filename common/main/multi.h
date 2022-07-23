@@ -389,7 +389,7 @@ int multi_maybe_disable_friendly_fire(const object_base *attacker);
 
 namespace dsx {
 
-void multi_send_fire(int laser_gun, laser_level, int laser_flags, objnum_t laser_track, imobjptridx_t is_bomb_objnum);
+void multi_send_fire(const vms_matrix &orient, int laser_gun, laser_level, int laser_flags, objnum_t laser_track, imobjptridx_t is_bomb_objnum);
 void multi_send_destroy_controlcen(objnum_t objnum, playernum_t player);
 void multi_send_position(object &objnum);
 void multi_send_kill(vmobjptridx_t objnum);

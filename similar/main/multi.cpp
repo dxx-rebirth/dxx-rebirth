@@ -2479,10 +2479,8 @@ void multi_process_bigdata(const d_level_shared_robot_info_state &LevelSharedRob
 //          players of something we did.
 //
 
-void multi_send_fire(int laser_gun, const laser_level level, int laser_flags, objnum_t laser_track, const imobjptridx_t is_bomb_objnum)
+void multi_send_fire(const vms_matrix &orient, int laser_gun, const laser_level level, int laser_flags, objnum_t laser_track, const imobjptridx_t is_bomb_objnum)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptr = Objects.vmptr;
 	static fix64 last_fireup_time = 0;
 
 	// provoke positional update if possible (20 times per second max. matches vulcan, the fastest firing weapon)
@@ -2509,10 +2507,9 @@ void multi_send_fire(int laser_gun, const laser_level level, int laser_flags, ob
 	multibuf.multifire[3] = static_cast<uint8_t>(level);
 	multibuf.multifire[4] = static_cast<char>(laser_flags);
 
-	const auto &ownship = get_local_plrobj();
-	PUT_INTEL_INT(&multibuf.multifire[5], ownship.orient.fvec.x);
-	PUT_INTEL_INT(&multibuf.multifire[9], ownship.orient.fvec.y);
-	PUT_INTEL_INT(&multibuf.multifire[13], ownship.orient.fvec.z);
+	PUT_INTEL_INT(&multibuf.multifire[5], orient.fvec.x);
+	PUT_INTEL_INT(&multibuf.multifire[9], orient.fvec.y);
+	PUT_INTEL_INT(&multibuf.multifire[13], orient.fvec.z);
 
 	/*
 	 * If we fire a bomb, it's persistent. Let others know of it's objnum so host can track it's behaviour over clients (host-authority functions, D2 chaff ability).

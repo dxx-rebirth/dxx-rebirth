@@ -1520,7 +1520,7 @@ void Flare_create(const vmobjptridx_t obj)
 		}
 
 		if (Game_mode & GM_MULTI)
-			multi_send_fire(FLARE_ADJUST, laser_level::_1	/* unused */, 0, object_none, object_none);
+			multi_send_fire(plrobj.orient, FLARE_ADJUST, laser_level::_1	/* unused */, 0, object_none, object_none);
 	}
 
 }
@@ -2091,7 +2091,7 @@ int do_laser_firing(vmobjptridx_t objp, const primary_weapon_index_t weapon_num,
 	// Set values to be recognized during comunication phase, if we are the
 	//  one shooting
 	if ((Game_mode & GM_MULTI) && objp == get_local_player().objnum)
-		multi_send_fire(weapon_num, level, flags, Network_laser_track, object_none);
+		multi_send_fire(objp->orient, weapon_num, level, flags, Network_laser_track, object_none);
 	return 1;
 }
 
@@ -2395,7 +2395,7 @@ void do_missile_firing(const secondary_weapon_index_t weapon, const vmobjptridx_
 		if (Game_mode & GM_MULTI)
 		{
 			const object &obj = *objnum;
-			multi_send_fire(weapon+MISSILE_ADJUST, laser_level::_1	/* unused */, gun_flag, obj.ctype.laser_info.track_goal, weapon_index_is_player_bomb(weapon) ? objnum : object_none);
+			multi_send_fire(plrobj.orient, weapon + MISSILE_ADJUST, laser_level::_1	/* unused */, gun_flag, obj.ctype.laser_info.track_goal, weapon_index_is_player_bomb(weapon) ? objnum : object_none);
 		}
 
 		// don't autoselect if dropping prox and prox not current weapon
