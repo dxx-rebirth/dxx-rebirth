@@ -2322,14 +2322,13 @@ void release_remote_guided_missile(d_level_unique_object_state &LevelUniqueObjec
 
 //	-------------------------------------------------------------------------------------------
 //changed on 31/3/10 by kreatordxx to distinguish between drop bomb and secondary fire
-void do_missile_firing(int drop_bomb, const secondary_weapon_index_t bomb, const vmobjptridx_t plrobjidx)
+void do_missile_firing(const secondary_weapon_index_t weapon, const vmobjptridx_t plrobjidx)
 {
 	int gun_flag=0;
 	fix fire_frame_overhead = 0;
 
 	auto &plrobj = *plrobjidx;
 	auto &player_info = plrobj.ctype.player_info;
-	const auto weapon = drop_bomb ? bomb : player_info.Secondary_weapon;
 	assert(weapon < MAX_SECONDARY_WEAPONS);
 	auto &Next_missile_fire_time = player_info.Next_missile_fire_time;
 	if (GameTime64 - Next_missile_fire_time <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that.

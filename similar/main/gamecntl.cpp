@@ -300,8 +300,7 @@ static void do_weapon_n_item_stuff(object_array &Objects, control_info &Controls
 
 	if (Global_missile_firing_count) {
 		--Global_missile_firing_count;
-		const auto bomb = which_bomb(player_info);
-		do_missile_firing(0, bomb, plrobjidx);
+		do_missile_firing(player_info.Secondary_weapon, plrobjidx);
 	}
 
 	if (Controls.state.cycle_primary > 0)
@@ -339,7 +338,7 @@ static void do_weapon_n_item_stuff(object_array &Objects, control_info &Controls
 	{
 		const auto bomb = which_bomb(player_info);
 		for (uint_fast32_t i = std::exchange(Controls.state.drop_bomb, 0); i--;)
-			do_missile_firing(1, bomb, plrobjidx);
+			do_missile_firing(bomb, plrobjidx);
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Controls.state.toggle_bomb > 0)
