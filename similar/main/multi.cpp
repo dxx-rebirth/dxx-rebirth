@@ -1664,7 +1664,7 @@ static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum,
 		set_thrust_from_velocity(obj);
 }
 
-static void multi_do_reappear(const playernum_t pnum, const ubyte *buf)
+static void multi_do_reappear(const playernum_t pnum, const multiplayer_rspan<MULTI_REAPPEAR> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
@@ -5679,7 +5679,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_position(vmobjptridx, pnum, multi_subspan_first<MULTI_POSITION>(data));
 			break;
 		case MULTI_REAPPEAR:
-			multi_do_reappear(pnum, buf); break;
+			multi_do_reappear(pnum, multi_subspan_first<MULTI_REAPPEAR>(data));
+			break;
 		case MULTI_FIRE:
 		case MULTI_FIRE_TRACK:
 		case MULTI_FIRE_BOMB:
