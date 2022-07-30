@@ -2142,7 +2142,7 @@ static void multi_do_controlcen_fire(const multiplayer_rspan<MULTI_CONTROLCEN_FI
 	Laser_create_new_easy(LevelSharedRobotInfoState.Robot_info, to_target, objp->ctype.reactor_info.gun_pos[gun_num], objp, weapon_id_type::CONTROLCEN_WEAPON_NUM, weapon_sound_flag::audible);
 }
 
-static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t pnum, const uint8_t *const buf)
+static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t pnum, const multiplayer_rspan<MULTI_CREATE_POWERUP> buf)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int count = 1;
@@ -2162,7 +2162,7 @@ static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t
 		return;
 	const auto &&segnum = *useg;
 	count += 2;
-	objnum_t objnum = GET_INTEL_SHORT(buf + count); count += 2;
+	objnum_t objnum = GET_INTEL_SHORT(&buf[count]); count += 2;
 	const auto new_pos = multi_get_vector(&buf[count]);
 	count+=sizeof(vms_vector);
 	const auto &&my_objnum = drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, powerup_type, vmd_zero_vector, new_pos, segnum, true);
@@ -5739,7 +5739,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_controlcen_fire(multi_subspan_first<MULTI_CONTROLCEN_FIRE>(data));
 			break;
 		case MULTI_CREATE_POWERUP:
-			multi_do_create_powerup(vmsegptridx, pnum, buf);
+			multi_do_create_powerup(vmsegptridx, pnum, multi_subspan_first<MULTI_CREATE_POWERUP>(data));
 			break;
 		case MULTI_PLAY_SOUND:
 			multi_do_play_sound(Objects, pnum, buf);
