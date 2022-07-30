@@ -1825,7 +1825,7 @@ static void multi_do_kill_host(object_array &Objects, const multiplayer_rspan<MU
 	multi_compute_kill(LevelSharedRobotInfoState.Robot_info, Objects.imptridx(killer), Objects.vmptridx(killed));
 }
 
-static void multi_do_kill_client(object_array &Objects, const uint8_t *const buf)
+static void multi_do_kill_client(object_array &Objects, const multiplayer_rspan<MULTI_KILL_CLIENT> buf)
 {
 	if (!multi_i_am_master())
 		return;
@@ -1840,7 +1840,7 @@ static void multi_do_kill_client(object_array &Objects, const uint8_t *const buf
 	// I am host, I know what's going on so take this packet, add game_mode related info which might be necessary for kill computation and send it to everyone so they can compute their kills correctly
 	{
 		multi_command<MULTI_KILL_HOST> multibuf;
-		std::memcpy(std::next(multibuf.data()), std::next(buf), 4);
+		std::memcpy(std::next(multibuf.data()), std::next(buf.data()), 4);
 		multibuf[5] = Netgame.team_vector;
 		multibuf[6] = Bounty_target;
 		
@@ -1849,8 +1849,7 @@ static void multi_do_kill_client(object_array &Objects, const uint8_t *const buf
 
 	const auto killed = vcplayerptr(pnum)->objnum;
 	count += 1;
-	objnum_t killer;
-	killer = GET_INTEL_SHORT(buf + count);
+	objnum_t killer = GET_INTEL_SHORT(&buf[count]);
 	if (killer > 0)
 		killer = objnum_remote_to_local(killer, buf[count+2]);
 
@@ -5844,7 +5843,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_kill_host(Objects, multi_subspan_first<MULTI_KILL_HOST>(data));
 			break;
 		case MULTI_KILL_CLIENT:
-			multi_do_kill_client(Objects, buf);
+			multi_do_kill_client(Objects, multi_subspan_first<MULTI_KILL_CLIENT>(data));
 			break;
 		case MULTI_PLAYER_INV:
 			multi_do_player_inventory( pnum, buf ); break;
