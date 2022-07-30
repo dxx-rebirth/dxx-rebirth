@@ -3747,13 +3747,12 @@ void multi_send_drop_weapon(const vmobjptridx_t objp, int seed)
 
 namespace {
 
-static void multi_do_drop_weapon(fvmobjptr &vmobjptr, const playernum_t pnum, const uint8_t *const buf)
+static void multi_do_drop_weapon(fvmobjptr &vmobjptr, const playernum_t pnum, const multiplayer_rspan<MULTI_DROP_WEAPON> buf)
 {
-	int ammo,remote_objnum,seed;
 	const auto powerup_id = static_cast<powerup_type_t>(buf[1]);
-	remote_objnum = GET_INTEL_SHORT(buf + 2);
-	ammo = GET_INTEL_SHORT(buf + 4);
-	seed = GET_INTEL_INT(buf + 6);
+	const objnum_t remote_objnum = GET_INTEL_SHORT(&buf[2]);
+	const uint16_t ammo = GET_INTEL_SHORT(&buf[4]);
+	const auto seed = GET_INTEL_INT(&buf[6]);
 	const auto &&objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, vmobjptr(vcplayerptr(pnum)->objnum), powerup_id, seed);
 	if (objnum == object_none)
 		return;
@@ -5697,7 +5696,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_controlcen_destroy(LevelSharedRobotInfoState.Robot_info, imobjptridx, multi_subspan_first<MULTI_CONTROLCEN>(data));
 			break;
 		case MULTI_DROP_WEAPON:
-			multi_do_drop_weapon(vmobjptr, pnum, buf);
+			multi_do_drop_weapon(vmobjptr, pnum, multi_subspan_first<MULTI_DROP_WEAPON>(data));
 			break;
 		case MULTI_VULWPN_AMMO_ADJ:
 			multi_do_vulcan_weapon_ammo_adjust(vmobjptr, buf);
