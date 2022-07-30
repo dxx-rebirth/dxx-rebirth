@@ -2308,16 +2308,16 @@ static void multi_do_drop_marker(object_array &Objects, fvmsegptridx &vmsegptrid
 
 namespace {
 
-static void multi_do_hostage_door_status(fvmsegptridx &vmsegptridx, wall_array &Walls, const uint8_t *const buf)
+static void multi_do_hostage_door_status(fvmsegptridx &vmsegptridx, wall_array &Walls, const multiplayer_rspan<MULTI_HOSTAGE_DOOR> buf)
 {
 	// Update hit point status of a door
 
 	int count = 1;
 	fix hps;
 
-	const wallnum_t wallnum{GET_INTEL_SHORT(buf + count)};
+	const wallnum_t wallnum{GET_INTEL_SHORT(&buf[count])};
 	count += 2;
-	hps = GET_INTEL_INT(buf + count);           count += 4;
+	hps = GET_INTEL_INT(&buf[count]);           count += 4;
 
 	auto &vmwallptr = Walls.vmptr;
 	auto &w = *vmwallptr(wallnum);
@@ -5820,7 +5820,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_create_robot_powerups(pnum, multi_subspan_first<MULTI_CREATE_ROBOT_POWERUPS>(data));
 			break;
 		case MULTI_HOSTAGE_DOOR:
-			multi_do_hostage_door_status(vmsegptridx, Walls, buf);
+			multi_do_hostage_door_status(vmsegptridx, Walls, multi_subspan_first<MULTI_HOSTAGE_DOOR>(data));
 			break;
 		case MULTI_SAVE_GAME:
 			multi_do_save_game(buf); break;
