@@ -3972,12 +3972,9 @@ void multi_send_heartbeat ()
 	multi_send_data(multibuf, multiplayer_data_priority::_0);
 }
 
-static void multi_do_heartbeat (const ubyte *buf)
+static void multi_do_heartbeat(const multiplayer_rspan<MULTI_HEARTBEAT> buf)
 {
-	fix num;
-
-	num = GET_INTEL_INT(buf + 1);
-
+	const fix num = GET_INTEL_INT(&buf[1]);
 	ThisLevelTime = d_time_fix(num);
 }
 
@@ -5828,7 +5825,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_restore_game(multi_subspan_first<MULTI_RESTORE_GAME>(data));
 			break;
 		case MULTI_HEARTBEAT:
-			multi_do_heartbeat (buf); break;
+			multi_do_heartbeat(multi_subspan_first<MULTI_HEARTBEAT>(data));
+			break;
 		case MULTI_KILLGOALS:
 			multi_do_kill_goal_counts(vmobjptr, buf);
 			break;
