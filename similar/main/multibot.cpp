@@ -1154,9 +1154,8 @@ void multi_do_boss_cloak(const multiplayer_rspan<MULTI_BOSS_CLOAK> buf)
 	BossUniqueState.Boss_cloak_start_time = GameTime64;
 	boss_obj->ctype.ai_info.CLOAKED = 1;
 }
-}
 
-void multi_do_boss_start_gate(const ubyte *buf)
+void multi_do_boss_start_gate(const multiplayer_rspan<MULTI_BOSS_START_GATE> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -1173,6 +1172,7 @@ void multi_do_boss_start_gate(const ubyte *buf)
 		return;
 	}
 	restart_effect(ECLIP_NUM_BOSS);
+}
 }
 
 void multi_do_boss_stop_gate(const ubyte *buf)

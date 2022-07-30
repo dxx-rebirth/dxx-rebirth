@@ -75,7 +75,6 @@ void multi_send_thief_frame();
 #endif
 
 void multi_do_create_robot_powerups(playernum_t pnum, const ubyte *buf);
-void multi_do_boss_start_gate(const ubyte *buf);
 void multi_do_boss_stop_gate(const ubyte *buf);
 void multi_do_boss_create_robot(playernum_t pnum, const ubyte *buf);
 
