@@ -1692,7 +1692,7 @@ static void multi_do_reappear(const playernum_t pnum, const multiplayer_rspan<MU
 	create_player_appearance_effect(Vclip, obj);
 }
 
-static void multi_do_player_deres(const d_robot_info_array &Robot_info, object_array &Objects, const playernum_t pnum, const uint8_t *const buf)
+static void multi_do_player_deres(const d_robot_info_array &Robot_info, object_array &Objects, const playernum_t pnum, const multiplayer_rspan<MULTI_PLAYER_DERES> buf)
 {
 	auto &vmobjptridx = Objects.vmptridx;
 	auto &vmobjptr = Objects.vmptr;
@@ -1721,7 +1721,7 @@ static void multi_do_player_deres(const d_robot_info_array &Robot_info, object_a
 #if defined(DXX_BUILD_DESCENT_I)
 #define GET_WEAPON_FLAGS(buf,count)	buf[count++]
 #elif defined(DXX_BUILD_DESCENT_II)
-#define GET_WEAPON_FLAGS(buf,count)	(count += sizeof(uint16_t), GET_INTEL_SHORT(buf + (count - sizeof(uint16_t))))
+#define GET_WEAPON_FLAGS(buf,count)	(count += sizeof(uint16_t), GET_INTEL_SHORT(&buf[(count - sizeof(uint16_t))]))
 #endif
 	const auto &&objp = vmobjptridx(vcplayerptr(pnum)->objnum);
 	auto &player_info = objp->ctype.player_info;
@@ -1747,8 +1747,8 @@ static void multi_do_player_deres(const d_robot_info_array &Robot_info, object_a
 	secondary_ammo[SMISSILE5_INDEX] = buf[count]; count++;
 #endif
 
-	player_info.vulcan_ammo = GET_INTEL_SHORT(buf + count); count += 2;
-	player_info.powerup_flags = player_flags(GET_INTEL_INT(buf + count));    count += 4;
+	player_info.vulcan_ammo = GET_INTEL_SHORT(&buf[count]); count += 2;
+	player_info.powerup_flags = player_flags(GET_INTEL_INT(&buf[count]));    count += 4;
 
 	//      objp->phys_info.velocity = *reinterpret_cast<vms_vector *>(buf+16); // 12 bytes
 	//      objp->pos = *reinterpret_cast<vms_vector *>(buf+28);                // 12 bytes
@@ -1768,7 +1768,7 @@ static void multi_do_player_deres(const d_robot_info_array &Robot_info, object_a
 	{
 		short s;
 
-		s = GET_INTEL_SHORT(buf + count);
+		s = GET_INTEL_SHORT(&buf[count]);
 
 		if ((s > 0) && (i > 0))
 			map_objnum_local_to_remote(static_cast<short>(i), s, pnum);
@@ -5135,7 +5135,7 @@ static void multi_do_player_inventory(const playernum_t pnum, const ubyte *buf)
 #if defined(DXX_BUILD_DESCENT_I)
 #define GET_WEAPON_FLAGS(buf,count)	buf[count++]
 #elif defined(DXX_BUILD_DESCENT_II)
-#define GET_WEAPON_FLAGS(buf,count)	(count += sizeof(uint16_t), GET_INTEL_SHORT(buf + (count - sizeof(uint16_t))))
+#define GET_WEAPON_FLAGS(buf,count)	(count += sizeof(uint16_t), GET_INTEL_SHORT(&buf[(count - sizeof(uint16_t))]))
 #endif
 	const auto &&objp = vmobjptridx(vcplayerptr(pnum)->objnum);
 	auto &player_info = objp->ctype.player_info;
@@ -5688,7 +5688,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_remobj(vmobjptr, multi_subspan_first<MULTI_REMOVE_OBJECT>(data));
 			break;
 		case MULTI_PLAYER_DERES:
-			multi_do_player_deres(LevelSharedRobotInfoState.Robot_info, Objects, pnum, buf);
+			multi_do_player_deres(LevelSharedRobotInfoState.Robot_info, Objects, pnum, multi_subspan_first<MULTI_PLAYER_DERES>(data));
 			break;
 		case MULTI_MESSAGE:
 			multi_do_message(buf); break;
