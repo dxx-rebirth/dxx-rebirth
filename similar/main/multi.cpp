@@ -1798,25 +1798,39 @@ static void multi_do_player_deres(const d_robot_info_array &Robot_info, object_a
 	DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
 }
 
-}
-
-}
-
-namespace {
-
 /*
  * Process can compute a kill. If I am a Client this might be my own one (see multi_send_kill()) but with more specific data so I can compute my kill correctly.
  */
-static void multi_do_kill(object_array &Objects, const uint8_t *const buf)
+static void multi_do_kill_host(object_array &Objects, const uint8_t *const buf)
 {
 	int count = 1;
-	int type = static_cast<int>(buf[0]);
 
-	if (multi_i_am_master() && type != MULTI_KILL_CLIENT)
+	if (multi_i_am_master())
 		return;
-	if (!multi_i_am_master() && type != MULTI_KILL_HOST)
+	const playernum_t pnum = buf[1];
+	if (pnum >= N_players)
+	{
+		Int3(); // Invalid player number killed
 		return;
+	}
 
+	const auto killed = vcplayerptr(pnum)->objnum;
+	count += 1;
+	objnum_t killer;
+	killer = GET_INTEL_SHORT(buf + count);
+	if (killer > 0)
+		killer = objnum_remote_to_local(killer, buf[count+2]);
+	Netgame.team_vector = buf[5];
+	Bounty_target = buf[6];
+
+	multi_compute_kill(LevelSharedRobotInfoState.Robot_info, Objects.imptridx(killer), Objects.vmptridx(killed));
+}
+
+static void multi_do_kill_client(object_array &Objects, const uint8_t *const buf)
+{
+	if (!multi_i_am_master())
+		return;
+	int count = 1;
 	const playernum_t pnum = buf[1];
 	if (pnum >= N_players)
 	{
@@ -1825,7 +1839,6 @@ static void multi_do_kill(object_array &Objects, const uint8_t *const buf)
 	}
 
 	// I am host, I know what's going on so take this packet, add game_mode related info which might be necessary for kill computation and send it to everyone so they can compute their kills correctly
-	if (multi_i_am_master())
 	{
 		multi_command<MULTI_KILL_HOST> multibuf;
 		std::memcpy(std::next(multibuf.data()), std::next(buf), 4);
@@ -1841,23 +1854,12 @@ static void multi_do_kill(object_array &Objects, const uint8_t *const buf)
 	killer = GET_INTEL_SHORT(buf + count);
 	if (killer > 0)
 		killer = objnum_remote_to_local(killer, buf[count+2]);
-	if (!multi_i_am_master())
-	{
-		Netgame.team_vector = buf[5];
-		Bounty_target = buf[6];
-	}
 
 	multi_compute_kill(LevelSharedRobotInfoState.Robot_info, Objects.imptridx(killer), Objects.vmptridx(killed));
 
-	if (Game_mode & GM_BOUNTY && multi_i_am_master()) // update in case if needed... we could attach this to this packet but... meh...
+	if (Game_mode & GM_BOUNTY) // update in case if needed... we could attach this to this packet but... meh...
 		multi_send_bounty();
 }
-
-}
-
-namespace dsx {
-
-namespace {
 
 //      Changed by MK on 10/20/94 to send NULL as object to net_destroy_controlcen if it got -1
 // which means not a controlcen object, but contained in another object
@@ -5840,10 +5842,10 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_gmode_update(multi_subspan_first<MULTI_GMODE_UPDATE>(data));
 			break;
 		case MULTI_KILL_HOST:
-			multi_do_kill(Objects, buf);
+			multi_do_kill_host(Objects, buf);
 			break;
 		case MULTI_KILL_CLIENT:
-			multi_do_kill(Objects, buf);
+			multi_do_kill_client(Objects, buf);
 			break;
 		case MULTI_PLAYER_INV:
 			multi_do_player_inventory( pnum, buf ); break;
