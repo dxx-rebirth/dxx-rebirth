@@ -4477,14 +4477,13 @@ void multi_send_drop_flag(const vmobjptridx_t objp, int seed)
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
-static void multi_do_drop_flag (const playernum_t pnum, const ubyte *buf)
+static void multi_do_drop_flag(const playernum_t pnum, const multiplayer_rspan<MULTI_DROP_FLAG> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	int remote_objnum,seed;
 	const auto powerup_id = static_cast<powerup_type_t>(buf[1]);
-	remote_objnum = GET_INTEL_SHORT(buf + 2);
-	seed = GET_INTEL_INT(buf + 6);
+	const objnum_t remote_objnum = GET_INTEL_SHORT(&buf[2]);
+	const int seed = GET_INTEL_INT(&buf[6]);
 
 	const auto &&objp = vmobjptr(vcplayerptr(pnum)->objnum);
 
@@ -5707,7 +5706,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_drop_marker(Objects, vmsegptridx, pnum, multi_subspan_first<MULTI_MARKER>(data));
 			break;
 		case MULTI_DROP_FLAG:
-			multi_do_drop_flag(pnum, buf); break;
+			multi_do_drop_flag(pnum, multi_subspan_first<MULTI_DROP_FLAG>(data));
+			break;
 		case MULTI_GUIDED:
 			multi_do_guided(LevelUniqueObjectState, pnum, buf);
 			break;
