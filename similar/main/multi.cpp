@@ -2200,7 +2200,7 @@ static void multi_do_play_sound(object_array &Objects, const playernum_t pnum, c
 
 namespace {
 
-static void multi_do_score(fvmobjptr &vmobjptr, const playernum_t pnum, const uint8_t *const buf)
+static void multi_do_score(fvmobjptr &vmobjptr, const playernum_t pnum, const multiplayer_rspan<MULTI_SCORE> buf)
 {
 	if (pnum >= N_players)
 	{
@@ -2208,13 +2208,12 @@ static void multi_do_score(fvmobjptr &vmobjptr, const playernum_t pnum, const ui
 		return;
 	}
 
+	const int score = GET_INTEL_INT(&buf[2]);
 	if (Newdemo_state == ND_STATE_RECORDING) {
-		int score;
-		score = GET_INTEL_INT(buf + 2);
 		newdemo_record_multi_score(pnum, score);
 	}
 	auto &player_info = vmobjptr(vcplayerptr(pnum)->objnum)->ctype.player_info;
-	player_info.mission.score = GET_INTEL_INT(buf + 2);
+	player_info.mission.score = score;
 	multi_sort_kill_list();
 }
 
@@ -5777,7 +5776,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_robot_fire(multi_subspan_first<MULTI_ROBOT_FIRE>(data));
 			break;
 		case MULTI_SCORE:
-			multi_do_score(vmobjptr, pnum, buf);
+			multi_do_score(vmobjptr, pnum, multi_subspan_first<MULTI_SCORE>(data));
 			break;
 		case MULTI_CREATE_ROBOT:
 			multi_do_create_robot(LevelSharedRobotInfoState.Robot_info, Vclip, pnum, multi_subspan_first<MULTI_CREATE_ROBOT>(data));
