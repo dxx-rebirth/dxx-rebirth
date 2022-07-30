@@ -1173,9 +1173,8 @@ void multi_do_boss_start_gate(const multiplayer_rspan<MULTI_BOSS_START_GATE> buf
 	}
 	restart_effect(ECLIP_NUM_BOSS);
 }
-}
 
-void multi_do_boss_stop_gate(const ubyte *buf)
+void multi_do_boss_stop_gate(const multiplayer_rspan<MULTI_BOSS_STOP_GATE> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -1192,6 +1191,7 @@ void multi_do_boss_stop_gate(const ubyte *buf)
 		return;
 	}
 	stop_effect(ECLIP_NUM_BOSS);
+}
 }
 
 void multi_do_boss_create_robot(const playernum_t pnum, const ubyte *buf)

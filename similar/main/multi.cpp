@@ -5811,7 +5811,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_boss_start_gate(multi_subspan_first<MULTI_BOSS_START_GATE>(data));
 			break;
 		case MULTI_BOSS_STOP_GATE:
-			multi_do_boss_stop_gate(buf); break;
+			multi_do_boss_stop_gate(multi_subspan_first<MULTI_BOSS_STOP_GATE>(data));
+			break;
 		case MULTI_BOSS_CREATE_ROBOT:
 			multi_do_boss_create_robot(pnum, buf); break;
 		case MULTI_CREATE_ROBOT_POWERUPS:
