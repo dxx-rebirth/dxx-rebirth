@@ -733,9 +733,8 @@ static void multi_send_create_robot_powerups(const object_base &del_obj)
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 }
-}
 
-void multi_do_claim_robot(const playernum_t pnum, const ubyte *buf)
+void multi_do_claim_robot(const playernum_t pnum, const multiplayer_rspan<MULTI_ROBOT_CLAIM> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -768,6 +767,7 @@ void multi_do_claim_robot(const playernum_t pnum, const ubyte *buf)
 
 	botp->ctype.ai_info.REMOTE_OWNER = pnum;
 	botp->ctype.ai_info.REMOTE_SLOT_NUM = 0;
+}
 }
 
 void multi_do_release_robot(const playernum_t pnum, const ubyte *buf)
