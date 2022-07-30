@@ -34,10 +34,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dsx-ns.h"
 
 #ifdef dsx
-#include "compiler-span.h"
 #include "object.h"
 #include <array>
 #include <memory>
+#include <span>
 
 namespace dcx {
 
@@ -89,9 +89,9 @@ struct morph_data : prohibit_void_ptr<morph_data>
 		n_morphing_points,       // how many active points in each part
 		submodel_startpoints;    // first point for each submodel
 	static ptr create(object_base &, const polymodel &, polymodel_idx);
-	span<fix> get_morph_times();
-	span<vms_vector> get_morph_vecs();
-	span<vms_vector> get_morph_deltas();
+	std::span<fix> get_morph_times();
+	std::span<vms_vector> get_morph_vecs();
+	std::span<vms_vector> get_morph_deltas();
 private:
 	static void *operator new(std::size_t bytes, max_vectors);
 	explicit morph_data(object_base &o, max_vectors);
