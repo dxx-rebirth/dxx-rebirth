@@ -2122,7 +2122,7 @@ static void multi_do_create_explosion(fvmobjptridx &vmobjptridx, const playernum
 	create_small_fireball_on_object(vmobjptridx(vcplayerptr(pnum)->objnum), F1_0, 1);
 }
 
-static void multi_do_controlcen_fire(const ubyte *buf)
+static void multi_do_controlcen_fire(const multiplayer_rspan<MULTI_CONTROLCEN_FIRE> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -2133,7 +2133,7 @@ static void multi_do_controlcen_fire(const ubyte *buf)
 	const auto to_target = multi_get_vector(&buf[count]);
 	count += 12;
 	gun_num = buf[count];                       count += 1;
-	objnum = GET_INTEL_SHORT(buf + count);      count += 2;
+	objnum = GET_INTEL_SHORT(&buf[count]);      count += 2;
 
 	const auto &&uobj = vmobjptridx.check_untrusted(objnum);
 	if (!uobj)
@@ -5736,7 +5736,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_create_explosion(vmobjptridx, pnum);
 			break;
 		case MULTI_CONTROLCEN_FIRE:
-			multi_do_controlcen_fire(buf); break;
+			multi_do_controlcen_fire(multi_subspan_first<MULTI_CONTROLCEN_FIRE>(data));
+			break;
 		case MULTI_CREATE_POWERUP:
 			multi_do_create_powerup(vmsegptridx, pnum, buf);
 			break;
