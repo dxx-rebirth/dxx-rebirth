@@ -4156,26 +4156,24 @@ void multi_send_sound_function (char whichfunc, char sound)
 
 namespace {
 
-static void multi_do_sound_function (const playernum_t pnum, const ubyte *buf)
+static void multi_do_sound_function(const playernum_t pnum, const multiplayer_rspan<MULTI_SOUND_FUNCTION> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
 	// for afterburner
 
-	char whichfunc;
-	int sound;
-
 	if (get_local_player().connected != player_connection_status::playing)
 		return;
 
-	whichfunc=buf[2];
-	sound=buf[3];
-
 	const auto plobj = vcobjptridx(vcplayerptr(pnum)->objnum);
+	const auto whichfunc = buf[2];
 	if (whichfunc==0)
 		digi_kill_sound_linked_to_object(plobj);
 	else if (whichfunc==3)
+	{
+		const int sound = buf[3];
 		digi_link_sound_to_object3(sound, plobj, 1, F1_0, sound_stack::allow_stacking, vm_distance{i2f(256)}, AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END);
+	}
 }
 
 }
@@ -5703,7 +5701,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			break;
 #if defined(DXX_BUILD_DESCENT_II)
 		case MULTI_SOUND_FUNCTION:
-			multi_do_sound_function(pnum, buf); break;
+			multi_do_sound_function(pnum, multi_subspan_first<MULTI_SOUND_FUNCTION>(data));
+			break;
 		case MULTI_MARKER:
 			multi_do_drop_marker(Objects, vmsegptridx, pnum, buf);
 			break;
