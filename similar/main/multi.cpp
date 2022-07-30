@@ -5817,7 +5817,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_boss_create_robot(pnum, multi_subspan_first<MULTI_BOSS_CREATE_ROBOT>(data));
 			break;
 		case MULTI_CREATE_ROBOT_POWERUPS:
-			multi_do_create_robot_powerups(pnum, buf); break;
+			multi_do_create_robot_powerups(pnum, multi_subspan_first<MULTI_CREATE_ROBOT_POWERUPS>(data));
+			break;
 		case MULTI_HOSTAGE_DOOR:
 			multi_do_hostage_door_status(vmsegptridx, Walls, buf);
 			break;

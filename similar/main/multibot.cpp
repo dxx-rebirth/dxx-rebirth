@@ -1220,9 +1220,8 @@ void multi_do_boss_create_robot(const playernum_t pnum, const multiplayer_rspan<
 	if (robot != object_none)
 		map_objnum_local_to_remote(robot, b.objrobot, pnum);
 }
-}
 
-void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
+void multi_do_create_robot_powerups(const playernum_t pnum, const multiplayer_rspan<MULTI_CREATE_ROBOT_POWERUPS> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -1255,7 +1254,7 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 	{
 		short s;
 		
-		s = GET_INTEL_SHORT(buf + loc);
+		s = GET_INTEL_SHORT(&buf[loc]);
 		if ( s != -1)
 			map_objnum_local_to_remote(i, s, pnum);
 		else
@@ -1263,8 +1262,6 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 		loc += 2;
 	}
 }
-
-namespace dsx {
 
 namespace {
 
