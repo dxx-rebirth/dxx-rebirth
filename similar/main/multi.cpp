@@ -5001,7 +5001,7 @@ void multi_restore_game(const unsigned slot, const unsigned id)
 
 namespace {
 
-static void multi_do_msgsend_state(const uint8_t *buf)
+static void multi_do_msgsend_state(const multiplayer_rspan<MULTI_TYPING_STATE> buf)
 {
 	multi_sending_message[static_cast<int>(buf[1])] = msgsend_state{buf[2]};
 }
@@ -5834,7 +5834,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_bounty(multi_subspan_first<MULTI_DO_BOUNTY>(data));
 			break;
 		case MULTI_TYPING_STATE:
-			multi_do_msgsend_state( buf ); break;
+			multi_do_msgsend_state(multi_subspan_first<MULTI_TYPING_STATE>(data));
+			break;
 		case MULTI_GMODE_UPDATE:
 			multi_do_gmode_update( buf ); break;
 		case MULTI_KILL_HOST:
