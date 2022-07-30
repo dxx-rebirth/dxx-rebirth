@@ -442,6 +442,24 @@ struct A_%(N)s
 	A_%(N)s b{0};
 	(void)(a == b);
 '''),
+		Cxx20RequiredFeature('std::span', '''
+#include <span>
+
+void sd_%(N)s(std::span<const char>);
+void ss_%(N)s(std::span<const char, 2>);
+
+void sd_%(N)s(std::span<const char>)
+{
+}
+
+void ss_%(N)s(std::span<const char, 2>)
+{
+}
+''',
+'''
+	sd_%(N)s("ab");
+	ss_%(N)s("a");
+'''),
 		Cxx17RequiredFeature('constexpr if', '''
 template <bool b>
 int f_%(N)s()
@@ -2196,7 +2214,7 @@ using namespace B;
 		# First test all the features at once.  If all work, then done.
 		# If any fail, then the configure run will stop.
 		_Compile = self.Compile
-		if _Compile(context, text=_features.text, main=_features.main, msg='for required C++11, C++14, C++17 standard features'):
+		if _Compile(context, text=_features.text, main=_features.main, msg='for required C++11, C++14, C++17, C++20 standard features'):
 			return
 		# Some failed.  Run each test separately and report to the user
 		# which ones failed.
