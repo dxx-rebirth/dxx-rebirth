@@ -2271,7 +2271,7 @@ static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
 	check_effect_blowup(LevelSharedDestructibleLightState, Vclip, *useg, side, hitpnt, laser, 0, 1);
 }
 
-static void multi_do_drop_marker(object_array &Objects, fvmsegptridx &vmsegptridx, const playernum_t pnum, const uint8_t *const buf)
+static void multi_do_drop_marker(object_array &Objects, fvmsegptridx &vmsegptridx, const playernum_t pnum, const multiplayer_rspan<MULTI_MARKER> buf)
 {
 	if (pnum==Player_num)  // my marker? don't set it down cuz it might screw up the orientation
 		return;
@@ -5704,7 +5704,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_sound_function(pnum, multi_subspan_first<MULTI_SOUND_FUNCTION>(data));
 			break;
 		case MULTI_MARKER:
-			multi_do_drop_marker(Objects, vmsegptridx, pnum, buf);
+			multi_do_drop_marker(Objects, vmsegptridx, pnum, multi_subspan_first<MULTI_MARKER>(data));
 			break;
 		case MULTI_DROP_FLAG:
 			multi_do_drop_flag(pnum, buf); break;
