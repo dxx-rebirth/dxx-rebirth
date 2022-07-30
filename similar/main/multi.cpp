@@ -4796,7 +4796,7 @@ void multi_new_bounty_target_with_sound(const playernum_t pnum, const char *cons
 	multi_new_bounty_target(pnum, callsign);
 }
 
-static void multi_do_save_game(const uint8_t *const buf)
+static void multi_do_save_game(const multiplayer_rspan<MULTI_SAVE_GAME> buf)
 {
 	int count = 1;
 	ubyte slot;
@@ -4804,7 +4804,7 @@ static void multi_do_save_game(const uint8_t *const buf)
 	d_game_unique_state::savegame_description desc;
 
 	slot = buf[count];			count += 1;
-	id = GET_INTEL_INT(buf+count);			count += 4;
+	id = GET_INTEL_INT(&buf[count]);			count += 4;
 	memcpy(desc.data(), &buf[count], desc.size());
 	desc.back() = 0;
 
@@ -5823,7 +5823,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_hostage_door_status(vmsegptridx, Walls, multi_subspan_first<MULTI_HOSTAGE_DOOR>(data));
 			break;
 		case MULTI_SAVE_GAME:
-			multi_do_save_game(buf); break;
+			multi_do_save_game(multi_subspan_first<MULTI_SAVE_GAME>(data));
+			break;
 		case MULTI_RESTORE_GAME:
 			multi_do_restore_game(buf); break;
 		case MULTI_HEARTBEAT:
