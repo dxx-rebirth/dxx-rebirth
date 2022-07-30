@@ -4817,14 +4817,13 @@ static void multi_do_save_game(const multiplayer_rspan<MULTI_SAVE_GAME> buf)
 
 namespace {
 
-static void multi_do_restore_game(const ubyte *buf)
+static void multi_do_restore_game(const multiplayer_rspan<MULTI_RESTORE_GAME> buf)
 {
 	int count = 1;
 	ubyte slot;
-	uint id;
 
 	slot = buf[count];			count += 1;
-	id = GET_INTEL_INT(buf+count);			count += 4;
+	const unsigned id = GET_INTEL_INT(&buf[count]);			count += 4;
 
 	multi_restore_game( slot, id );
 }
@@ -5826,7 +5825,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_save_game(multi_subspan_first<MULTI_SAVE_GAME>(data));
 			break;
 		case MULTI_RESTORE_GAME:
-			multi_do_restore_game(buf); break;
+			multi_do_restore_game(multi_subspan_first<MULTI_RESTORE_GAME>(data));
+			break;
 		case MULTI_HEARTBEAT:
 			multi_do_heartbeat (buf); break;
 		case MULTI_KILLGOALS:
