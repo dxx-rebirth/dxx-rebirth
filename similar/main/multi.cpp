@@ -5033,7 +5033,7 @@ void multi_send_gmode_update()
 	multi_send_data(multibuf, multiplayer_data_priority::_0);
 }
 
-static void multi_do_gmode_update(const ubyte *buf)
+static void multi_do_gmode_update(const multiplayer_rspan<MULTI_GMODE_UPDATE> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -5837,7 +5837,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_msgsend_state(multi_subspan_first<MULTI_TYPING_STATE>(data));
 			break;
 		case MULTI_GMODE_UPDATE:
-			multi_do_gmode_update( buf ); break;
+			multi_do_gmode_update(multi_subspan_first<MULTI_GMODE_UPDATE>(data));
+			break;
 		case MULTI_KILL_HOST:
 			multi_do_kill(Objects, buf);
 			break;
