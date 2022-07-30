@@ -1861,10 +1861,10 @@ namespace {
 
 //      Changed by MK on 10/20/94 to send NULL as object to net_destroy_controlcen if it got -1
 // which means not a controlcen object, but contained in another object
-static void multi_do_controlcen_destroy(const d_robot_info_array &Robot_info, fimobjptridx &imobjptridx, const uint8_t *const buf)
+static void multi_do_controlcen_destroy(const d_robot_info_array &Robot_info, fimobjptridx &imobjptridx, const multiplayer_rspan<MULTI_CONTROLCEN> buf)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
-	objnum_t objnum = GET_INTEL_SHORT(buf + 1);
+	objnum_t objnum = GET_INTEL_SHORT(&buf[1]);
 	const playernum_t who = buf[3];
 
 	if (LevelUniqueControlCenterState.Control_center_destroyed != 1)
@@ -5694,7 +5694,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_quit(multi_subspan_first<MULTI_QUIT>(data));
 			break;
 		case MULTI_CONTROLCEN:
-			multi_do_controlcen_destroy(LevelSharedRobotInfoState.Robot_info, imobjptridx, buf);
+			multi_do_controlcen_destroy(LevelSharedRobotInfoState.Robot_info, imobjptridx, multi_subspan_first<MULTI_CONTROLCEN>(data));
 			break;
 		case MULTI_DROP_WEAPON:
 			multi_do_drop_weapon(vmobjptr, pnum, buf);
