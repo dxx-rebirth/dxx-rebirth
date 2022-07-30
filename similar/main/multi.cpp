@@ -3784,10 +3784,10 @@ void multi_send_vulcan_weapon_ammo_adjust(const vmobjptridx_t objnum)
 
 namespace {
 
-static void multi_do_vulcan_weapon_ammo_adjust(fvmobjptr &vmobjptr, const uint8_t *const buf)
+static void multi_do_vulcan_weapon_ammo_adjust(fvmobjptr &vmobjptr, const multiplayer_rspan<MULTI_VULWPN_AMMO_ADJ> buf)
 {
 	// which object to update
-	const objnum_t objnum = GET_INTEL_SHORT(buf + 1);
+	const objnum_t objnum = GET_INTEL_SHORT(&buf[1]);
 	// which remote list is it entered in
 	auto obj_owner = buf[3];
 
@@ -3814,7 +3814,7 @@ static void multi_do_vulcan_weapon_ammo_adjust(fvmobjptr &vmobjptr, const uint8_
 		Network_send_objnum = -1;
 	}
 
-	const auto ammo = GET_INTEL_SHORT(buf + 4);
+	const auto ammo = GET_INTEL_SHORT(&buf[4]);
 		obj->ctype.powerup_info.count = ammo;
 }
 
@@ -5699,7 +5699,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_drop_weapon(vmobjptr, pnum, multi_subspan_first<MULTI_DROP_WEAPON>(data));
 			break;
 		case MULTI_VULWPN_AMMO_ADJ:
-			multi_do_vulcan_weapon_ammo_adjust(vmobjptr, buf);
+			multi_do_vulcan_weapon_ammo_adjust(vmobjptr, multi_subspan_first<MULTI_VULWPN_AMMO_ADJ>(data));
 			break;
 #if defined(DXX_BUILD_DESCENT_II)
 		case MULTI_SOUND_FUNCTION:
