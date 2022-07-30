@@ -1635,7 +1635,7 @@ namespace dsx {
 
 namespace {
 
-static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum, const uint8_t *const buf)
+static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum, const multiplayer_rspan<MULTI_POSITION> buf)
 {
 	const auto &&obj = vmobjptridx(vcplayerptr(pnum)->objnum);
         int count = 1;
@@ -5676,7 +5676,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 	switch (static_cast<multiplayer_command_t>(type))
 	{
 		case MULTI_POSITION:
-			multi_do_position(vmobjptridx, pnum, buf);
+			multi_do_position(vmobjptridx, pnum, multi_subspan_first<MULTI_POSITION>(data));
 			break;
 		case MULTI_REAPPEAR:
 			multi_do_reappear(pnum, buf); break;
