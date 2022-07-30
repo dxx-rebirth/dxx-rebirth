@@ -4043,7 +4043,7 @@ void multi_send_seismic(fix duration)
 
 namespace {
 
-static void multi_do_seismic (const ubyte *buf)
+static void multi_do_seismic(multiplayer_rspan<MULTI_SEISMIC> buf)
 {
 	const fix duration = GET_INTEL_INT(&buf[1]);
 	LevelUniqueSeismicState.Seismic_disturbance_end_time = GameTime64 + duration;
@@ -5715,7 +5715,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_wall_status(vmwallptr, multi_subspan_first<MULTI_WALL_STATUS>(data));
 			break;
 		case MULTI_SEISMIC:
-			multi_do_seismic (buf); break;
+			multi_do_seismic(multi_subspan_first<MULTI_SEISMIC>(data));
+			break;
 		case MULTI_LIGHT:
 			multi_do_light (buf); break;
 #endif
