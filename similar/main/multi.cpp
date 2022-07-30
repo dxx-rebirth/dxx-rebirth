@@ -2179,7 +2179,7 @@ static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t
 	object_create_explosion(segnum, new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE);
 }
 
-static void multi_do_play_sound(object_array &Objects, const playernum_t pnum, const uint8_t *const buf)
+static void multi_do_play_sound(object_array &Objects, const playernum_t pnum, const multiplayer_rspan<MULTI_PLAY_SOUND> buf)
 {
 	auto &vcobjptridx = Objects.vcptridx;
 	const auto &plr = *vcplayerptr(pnum);
@@ -5742,7 +5742,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_create_powerup(vmsegptridx, pnum, multi_subspan_first<MULTI_CREATE_POWERUP>(data));
 			break;
 		case MULTI_PLAY_SOUND:
-			multi_do_play_sound(Objects, pnum, buf);
+			multi_do_play_sound(Objects, pnum, multi_subspan_first<MULTI_PLAY_SOUND>(data));
 			break;
 #if defined(DXX_BUILD_DESCENT_II)
 		case MULTI_CAPTURE_BONUS:
