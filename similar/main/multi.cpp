@@ -2243,7 +2243,7 @@ namespace dsx {
 
 namespace {
 
-static void multi_do_effect_blowup(const playernum_t pnum, const ubyte *buf)
+static void multi_do_effect_blowup(const playernum_t pnum, const multiplayer_rspan<MULTI_EFFECT_BLOWUP> buf)
 {
 	if (pnum >= N_players || pnum == Player_num)
 		return;
@@ -5789,7 +5789,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_start_trigger(multi_subspan_first<MULTI_START_TRIGGER>(data));
 			break;
 		case MULTI_EFFECT_BLOWUP:
-			multi_do_effect_blowup(pnum, buf); break;
+			multi_do_effect_blowup(pnum, multi_subspan_first<MULTI_EFFECT_BLOWUP>(data));
+			break;
 		case MULTI_FLAGS:
 			multi_do_flags(vmobjptr, pnum, buf);
 			break;
