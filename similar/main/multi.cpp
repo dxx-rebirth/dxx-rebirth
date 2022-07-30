@@ -3949,7 +3949,7 @@ void multi_send_kill_goal_counts()
 
 namespace {
 
-static void multi_do_kill_goal_counts(fvmobjptr &vmobjptr, const uint8_t *const buf)
+static void multi_do_kill_goal_counts(fvmobjptr &vmobjptr, const multiplayer_rspan<MULTI_KILLGOALS> buf)
 {
 	int count=1;
 
@@ -5828,7 +5828,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_heartbeat(multi_subspan_first<MULTI_HEARTBEAT>(data));
 			break;
 		case MULTI_KILLGOALS:
-			multi_do_kill_goal_counts(vmobjptr, buf);
+			multi_do_kill_goal_counts(vmobjptr, multi_subspan_first<MULTI_KILLGOALS>(data));
 			break;
 		case MULTI_DO_BOUNTY:
 			multi_do_bounty( buf ); break;
