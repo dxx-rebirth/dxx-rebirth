@@ -1801,7 +1801,7 @@ static void multi_do_player_deres(const d_robot_info_array &Robot_info, object_a
 /*
  * Process can compute a kill. If I am a Client this might be my own one (see multi_send_kill()) but with more specific data so I can compute my kill correctly.
  */
-static void multi_do_kill_host(object_array &Objects, const uint8_t *const buf)
+static void multi_do_kill_host(object_array &Objects, const multiplayer_rspan<MULTI_KILL_HOST> buf)
 {
 	int count = 1;
 
@@ -1816,8 +1816,7 @@ static void multi_do_kill_host(object_array &Objects, const uint8_t *const buf)
 
 	const auto killed = vcplayerptr(pnum)->objnum;
 	count += 1;
-	objnum_t killer;
-	killer = GET_INTEL_SHORT(buf + count);
+	objnum_t killer = GET_INTEL_SHORT(&buf[count]);
 	if (killer > 0)
 		killer = objnum_remote_to_local(killer, buf[count+2]);
 	Netgame.team_vector = buf[5];
@@ -5842,7 +5841,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_gmode_update(multi_subspan_first<MULTI_GMODE_UPDATE>(data));
 			break;
 		case MULTI_KILL_HOST:
-			multi_do_kill_host(Objects, buf);
+			multi_do_kill_host(Objects, multi_subspan_first<MULTI_KILL_HOST>(data));
 			break;
 		case MULTI_KILL_CLIENT:
 			multi_do_kill_client(Objects, buf);
