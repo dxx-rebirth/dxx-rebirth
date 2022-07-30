@@ -115,7 +115,7 @@ static void multi_send_gmode_update();
 namespace dsx {
 namespace {
 static void multi_do_capture_bonus(const playernum_t pnum);
-static void multi_do_orb_bonus(const playernum_t pnum, const ubyte *buf);
+static void multi_do_orb_bonus(const playernum_t pnum, const multiplayer_rspan<MULTI_ORB_BONUS> buf);
 static void multi_send_drop_flag(vmobjptridx_t objnum,int seed);
 }
 }
@@ -4195,7 +4195,7 @@ void multi_send_orb_bonus (const playernum_t pnum, const uint8_t hoard_orbs)
 	multibuf[2] = hoard_orbs;
 
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
-	multi_do_orb_bonus (pnum, multibuf.data());
+	multi_do_orb_bonus(pnum, multibuf);
 }
 
 namespace {
@@ -4258,7 +4258,7 @@ static int GetOrbBonus (char num)
 	return (bonus);
 }
 
-void multi_do_orb_bonus(const playernum_t pnum, const uint8_t *const buf)
+void multi_do_orb_bonus(const playernum_t pnum, const multiplayer_rspan<MULTI_ORB_BONUS> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -5748,7 +5748,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 		case MULTI_CAPTURE_BONUS:
 			multi_do_capture_bonus(pnum); break;
 		case MULTI_ORB_BONUS:
-			multi_do_orb_bonus(pnum, buf); break;
+			multi_do_orb_bonus(pnum, multi_subspan_first<MULTI_ORB_BONUS>(data));
+			break;
 		case MULTI_GOT_FLAG:
 			multi_do_got_flag(pnum); break;
 		case MULTI_GOT_ORB:
