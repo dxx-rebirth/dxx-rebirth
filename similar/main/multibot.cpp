@@ -1192,9 +1192,8 @@ void multi_do_boss_stop_gate(const multiplayer_rspan<MULTI_BOSS_STOP_GATE> buf)
 	}
 	stop_effect(ECLIP_NUM_BOSS);
 }
-}
 
-void multi_do_boss_create_robot(const playernum_t pnum, const ubyte *buf)
+void multi_do_boss_create_robot(const playernum_t pnum, const multiplayer_rspan<MULTI_BOSS_CREATE_ROBOT> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -1220,6 +1219,7 @@ void multi_do_boss_create_robot(const playernum_t pnum, const ubyte *buf)
 	const auto &&robot = gate_in_robot(Robot_info, b.robot_type, vmsegptridx(b.where));
 	if (robot != object_none)
 		map_objnum_local_to_remote(robot, b.objrobot, pnum);
+}
 }
 
 void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)

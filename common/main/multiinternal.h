@@ -194,6 +194,7 @@ void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_
 void multi_do_boss_cloak(multiplayer_rspan<MULTI_BOSS_CLOAK> buf);
 void multi_do_boss_start_gate(multiplayer_rspan<MULTI_BOSS_START_GATE> buf);
 void multi_do_boss_stop_gate(multiplayer_rspan<MULTI_BOSS_STOP_GATE> buf);
+void multi_do_boss_create_robot(playernum_t pnum, multiplayer_rspan<MULTI_BOSS_CREATE_ROBOT> buf);
 
 }
 
