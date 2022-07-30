@@ -2016,10 +2016,8 @@ void multi_disconnect_player(const playernum_t pnum)
 
 namespace {
 
-static void multi_do_quit(const uint8_t *const buf)
+static void multi_do_quit(const multiplayer_rspan<MULTI_QUIT> buf)
 {
-	if (!(Game_mode & GM_NETWORK))
-		return;
 	multi_disconnect_player(static_cast<int>(buf[1]));
 }
 
@@ -5693,7 +5691,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 		case MULTI_MESSAGE:
 			multi_do_message(buf); break;
 		case MULTI_QUIT:
-			multi_do_quit(buf); break;
+			multi_do_quit(multi_subspan_first<MULTI_QUIT>(data));
+			break;
 		case MULTI_CONTROLCEN:
 			multi_do_controlcen_destroy(LevelSharedRobotInfoState.Robot_info, imobjptridx, buf);
 			break;
