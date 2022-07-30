@@ -2077,7 +2077,7 @@ namespace dsx {
 
 namespace {
 
-static void multi_do_door_open(fvmwallptr &vmwallptr, const uint8_t *const buf)
+static void multi_do_door_open(fvmwallptr &vmwallptr, const multiplayer_rspan<MULTI_DOOR_OPEN> buf)
 {
 	const auto uside = build_sidenum_from_untrusted(buf[3]);
 	if (!uside)
@@ -5730,7 +5730,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 		case MULTI_DECLOAK:
 			multi_do_decloak(pnum); break;
 		case MULTI_DOOR_OPEN:
-			multi_do_door_open(vmwallptr, buf);
+			multi_do_door_open(vmwallptr, multi_subspan_first<MULTI_DOOR_OPEN>(data));
 			break;
 		case MULTI_CREATE_EXPLOSION:
 			multi_do_create_explosion(vmobjptridx, pnum);
