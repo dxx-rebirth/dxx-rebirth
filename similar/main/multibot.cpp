@@ -875,17 +875,16 @@ static inline vms_vector calc_gun_point(const object_base &obj, unsigned gun_num
 }
 
 namespace dsx {
-void multi_do_robot_fire(const uint8_t *const buf)
+void multi_do_robot_fire(const multiplayer_rspan<MULTI_ROBOT_FIRE> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	// Send robot fire event
 	int loc = 1;
-	short remote_botnum;
 	int gun_num;
                                                                                         loc += 1; // pnum
-	remote_botnum = GET_INTEL_SHORT(buf + loc);
+	const short remote_botnum = GET_INTEL_SHORT(&buf[loc]);
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[loc+2]);                loc += 3;
 	gun_num = static_cast<int8_t>(buf[loc]);                                                      loc += 1;
 	const auto fire = multi_get_vector(&buf[loc]);
