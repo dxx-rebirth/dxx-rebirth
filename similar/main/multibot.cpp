@@ -801,7 +801,9 @@ void multi_do_release_robot(const playernum_t pnum, const ubyte *buf)
 	botp->ctype.ai_info.REMOTE_SLOT_NUM = 0;
 }
 
-void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
+namespace dsx {
+
+void multi_do_robot_position(const playernum_t pnum, const multiplayer_rspan<MULTI_ROBOT_POSITION> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -812,7 +814,7 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 
 	;										loc += 1;
 
-	remote_botnum = GET_INTEL_SHORT(buf + loc);
+	remote_botnum = GET_INTEL_SHORT(&buf[loc]);
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[loc+2]); loc += 3;
 
 	if (botnum > Highest_object_index)
@@ -865,6 +867,8 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 	loc += 12;
 	qpp.rotvel = multi_get_vector(&buf[loc]);
 	extract_quaternionpos(robot, qpp);
+}
+
 }
 
 static inline vms_vector calc_gun_point(const object_base &obj, unsigned gun_num)

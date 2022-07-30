@@ -74,7 +74,6 @@ void multi_send_thief_frame();
 }
 #endif
 
-void multi_do_robot_position(playernum_t pnum, const ubyte *buf);
 void multi_do_release_robot(playernum_t pnum, const ubyte *buf);
 #ifdef dsx
 namespace dsx {
