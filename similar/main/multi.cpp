@@ -4074,7 +4074,7 @@ void multi_send_light_specific (const playernum_t pnum, const vcsegptridx_t segn
 
 namespace {
 
-static void multi_do_light (const ubyte *buf)
+static void multi_do_light(const multiplayer_rspan<MULTI_LIGHT> buf)
 {
 	const auto sides = buf[3];
 
@@ -5718,7 +5718,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_seismic(multi_subspan_first<MULTI_SEISMIC>(data));
 			break;
 		case MULTI_LIGHT:
-			multi_do_light (buf); break;
+			multi_do_light(multi_subspan_first<MULTI_LIGHT>(data));
+			break;
 #endif
 		case MULTI_ENDLEVEL_START:
 			multi_do_escape(vmobjptridx, buf);
