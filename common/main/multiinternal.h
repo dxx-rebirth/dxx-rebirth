@@ -185,6 +185,7 @@ void multi_do_robot_explode(const d_robot_info_array &Robot_info, multiplayer_rs
 void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, playernum_t pnum, multiplayer_rspan<MULTI_CREATE_ROBOT> buf);
 void multi_do_claim_robot(playernum_t pnum, const multiplayer_rspan<MULTI_ROBOT_CLAIM> buf);
 void multi_do_robot_position(playernum_t pnum, const multiplayer_rspan<MULTI_ROBOT_POSITION> buf);
+void multi_do_release_robot(playernum_t pnum, const multiplayer_rspan<MULTI_ROBOT_RELEASE> buf);
 
 }
 

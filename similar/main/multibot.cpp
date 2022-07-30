@@ -768,15 +768,14 @@ void multi_do_claim_robot(const playernum_t pnum, const multiplayer_rspan<MULTI_
 	botp->ctype.ai_info.REMOTE_OWNER = pnum;
 	botp->ctype.ai_info.REMOTE_SLOT_NUM = 0;
 }
-}
 
-void multi_do_release_robot(const playernum_t pnum, const ubyte *buf)
+void multi_do_release_robot(const playernum_t pnum, const multiplayer_rspan<MULTI_ROBOT_RELEASE> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	short remote_botnum;
 
-	remote_botnum = GET_INTEL_SHORT(buf + 2);
+	remote_botnum = GET_INTEL_SHORT(&buf[2]);
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[4]);
 
 	if (botnum > Highest_object_index)
@@ -800,8 +799,6 @@ void multi_do_release_robot(const playernum_t pnum, const ubyte *buf)
 	botp->ctype.ai_info.REMOTE_OWNER = -1;
 	botp->ctype.ai_info.REMOTE_SLOT_NUM = 0;
 }
-
-namespace dsx {
 
 void multi_do_robot_position(const playernum_t pnum, const multiplayer_rspan<MULTI_ROBOT_POSITION> buf)
 {
