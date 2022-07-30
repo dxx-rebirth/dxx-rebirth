@@ -4620,7 +4620,7 @@ void multi_send_trigger_specific(const playernum_t pnum, const trgnum_t trig)
 
 namespace {
 
-static void multi_do_start_trigger(const uint8_t *const buf)
+static void multi_do_start_trigger(const multiplayer_rspan<MULTI_START_TRIGGER> buf)
 {
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &vmtrgptr = Triggers.vmptr;
@@ -5786,7 +5786,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			break;
 #if defined(DXX_BUILD_DESCENT_II)
 		case MULTI_START_TRIGGER:
-			multi_do_start_trigger(buf); break;
+			multi_do_start_trigger(multi_subspan_first<MULTI_START_TRIGGER>(data));
+			break;
 		case MULTI_EFFECT_BLOWUP:
 			multi_do_effect_blowup(pnum, buf); break;
 		case MULTI_FLAGS:
