@@ -1084,7 +1084,7 @@ void multi_recv_escort_goal(d_unique_buddy_state &BuddyState, const multiplayer_
 }
 #endif
 
-void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const playernum_t pnum, const ubyte *buf)
+void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const playernum_t pnum, const multiplayer_rspan<MULTI_BOSS_TELEPORT> buf)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;

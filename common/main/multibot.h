@@ -74,11 +74,6 @@ void multi_send_thief_frame();
 }
 #endif
 
-#ifdef dsx
-namespace dsx {
-void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, playernum_t pnum, const uint8_t *buf);
-}
-#endif
 void multi_do_create_robot_powerups(playernum_t pnum, const ubyte *buf);
 #ifdef dsx
 namespace dsx {
