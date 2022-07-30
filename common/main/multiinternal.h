@@ -149,6 +149,12 @@ static inline void multi_serialize_read(const uint8_t *const buf, T &t)
 	serial::process_buffer(b, t);
 }
 
+template <typename T, std::size_t Extent>
+static inline void multi_serialize_read(const std::span<const uint8_t, Extent> buf, T &t)
+{
+	multi_serialize_read(buf.data(), t);
+}
+
 template <typename T>
 static inline void multi_serialize_write(const multiplayer_data_priority priority, const T &t)
 {
@@ -175,6 +181,7 @@ static constexpr auto multi_subspan_first(const std::span<const uint8_t> &data)
 
 namespace dsx {
 
+void multi_do_robot_explode(const d_robot_info_array &Robot_info, multiplayer_rspan<MULTI_ROBOT_EXPLODE> buf);
 void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, playernum_t pnum, multiplayer_rspan<MULTI_CREATE_ROBOT> buf);
 
 }

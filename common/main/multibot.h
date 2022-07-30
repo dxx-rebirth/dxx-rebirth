@@ -79,7 +79,6 @@ void multi_do_claim_robot(playernum_t pnum, const ubyte *buf);
 void multi_do_release_robot(playernum_t pnum, const ubyte *buf);
 #ifdef dsx
 namespace dsx {
-void multi_do_robot_explode(const d_robot_info_array &Robot_info, const uint8_t *buf);
 void multi_do_robot_fire(const ubyte *buf);
 void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, playernum_t pnum, const uint8_t *buf);
 }

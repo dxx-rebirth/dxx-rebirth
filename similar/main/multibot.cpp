@@ -980,7 +980,7 @@ int multi_explode_robot_sub(const d_robot_info_array &Robot_info, const vmobjptr
 	return 1;
 }
 
-void multi_do_robot_explode(const d_robot_info_array &Robot_info, const uint8_t *const buf)
+void multi_do_robot_explode(const d_robot_info_array &Robot_info, const multiplayer_rspan<MULTI_ROBOT_EXPLODE> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;

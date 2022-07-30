@@ -5766,7 +5766,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 		case MULTI_ROBOT_POSITION:
 			multi_do_robot_position(pnum, buf); break;
 		case MULTI_ROBOT_EXPLODE:
-			multi_do_robot_explode(LevelSharedRobotInfoState.Robot_info, buf);
+			multi_do_robot_explode(LevelSharedRobotInfoState.Robot_info, multi_subspan_first<MULTI_ROBOT_EXPLODE>(data));
 			break;
 		case MULTI_ROBOT_RELEASE:
 			multi_do_release_robot(pnum, buf); break;
