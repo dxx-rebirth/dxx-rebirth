@@ -4775,7 +4775,7 @@ namespace dsx {
 
 namespace {
 
-static void multi_do_bounty( const ubyte *buf )
+static void multi_do_bounty(multiplayer_rspan<MULTI_DO_BOUNTY> buf)
 {
 	if ( multi_i_am_master() )
 		return;
@@ -5831,7 +5831,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_kill_goal_counts(vmobjptr, multi_subspan_first<MULTI_KILLGOALS>(data));
 			break;
 		case MULTI_DO_BOUNTY:
-			multi_do_bounty( buf ); break;
+			multi_do_bounty(multi_subspan_first<MULTI_DO_BOUNTY>(data));
+			break;
 		case MULTI_TYPING_STATE:
 			multi_do_msgsend_state( buf ); break;
 		case MULTI_GMODE_UPDATE:
