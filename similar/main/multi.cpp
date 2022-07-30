@@ -3878,10 +3878,10 @@ void multi_send_stolen_items ()
 
 namespace {
 
-static void multi_do_stolen_items(const uint8_t *const buf)
+static void multi_do_stolen_items(const multiplayer_rspan<MULTI_STOLEN_ITEMS> buf)
 {
 	auto &Stolen_items = LevelUniqueObjectState.ThiefState.Stolen_items;
-	std::copy_n(buf + 1, Stolen_items.size(), Stolen_items.begin());
+	std::copy_n(&buf[1], Stolen_items.size(), Stolen_items.begin());
 }
 
 }
@@ -5712,7 +5712,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_guided(LevelUniqueObjectState, pnum, multi_subspan_first<MULTI_GUIDED>(data));
 			break;
 		case MULTI_STOLEN_ITEMS:
-			multi_do_stolen_items(buf); break;
+			multi_do_stolen_items(multi_subspan_first<MULTI_STOLEN_ITEMS>(data));
+			break;
 		case MULTI_WALL_STATUS:
 			multi_do_wall_status(vmwallptr, buf);
 			break;
