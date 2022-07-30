@@ -1910,11 +1910,10 @@ static void multi_do_escape(fvmobjptridx &vmobjptridx, const uint8_t *const buf)
 	multi_make_player_ghost(buf[1]);
 }
 
-static void multi_do_remobj(fvmobjptr &vmobjptr, const uint8_t *const buf)
+static void multi_do_remobj(fvmobjptr &vmobjptr, const multiplayer_rspan<MULTI_REMOVE_OBJECT> buf)
 {
-	short objnum; // which object to remove
-
-	objnum = GET_INTEL_SHORT(buf + 1);
+	// which object to remove
+	const objnum_t objnum = GET_INTEL_SHORT(&buf[1]);
 	// which remote list is it entered in
 	auto obj_owner = buf[3];
 
@@ -1923,8 +1922,7 @@ static void multi_do_remobj(fvmobjptr &vmobjptr, const uint8_t *const buf)
 	if (objnum < 1)
 		return;
 
-	auto local_objnum = objnum_remote_to_local(objnum, obj_owner); // translate to local objnum
-
+	const auto local_objnum = objnum_remote_to_local(objnum, obj_owner); // translate to local objnum
 	if (local_objnum == object_none)
 	{
 		return;
@@ -5687,7 +5685,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_fire(vmobjptridx, pnum, buf);
 			break;
 		case MULTI_REMOVE_OBJECT:
-			multi_do_remobj(vmobjptr, buf);
+			multi_do_remobj(vmobjptr, multi_subspan_first<MULTI_REMOVE_OBJECT>(data));
 			break;
 		case MULTI_PLAYER_DERES:
 			multi_do_player_deres(LevelSharedRobotInfoState.Robot_info, Objects, pnum, buf);
