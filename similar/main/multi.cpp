@@ -96,7 +96,7 @@ namespace {
 static void MultiLevelInv_Repopulate(fix frequency);
 void multi_new_bounty_target_with_sound(playernum_t, const char *callsign);
 static void multi_reset_object_texture(object_base &objp);
-static void multi_process_data(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, playernum_t pnum, const ubyte *dat, uint_fast32_t type);
+static void multi_process_data(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, playernum_t pnum, std::span<const uint8_t> data, uint_fast32_t type);
 static void multi_update_objects_for_non_cooperative();
 static void multi_restore_game(unsigned slot, unsigned id);
 static void multi_save_game(unsigned slot, unsigned id, const d_game_unique_state::savegame_description &desc);
@@ -2445,7 +2445,7 @@ void multi_process_bigdata(const d_level_shared_robot_info_state &LevelSharedRob
 			return;
 		}
 
-		multi_process_data(LevelSharedRobotInfoState, pnum, &buf[bytes_processed], type);
+		multi_process_data(LevelSharedRobotInfoState, pnum, std::span(&buf[bytes_processed], sub_len), type);
 		bytes_processed += sub_len;
 	}
 }
@@ -5662,8 +5662,9 @@ void save_hoard_data(void)
 
 namespace {
 
-static void multi_process_data(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const playernum_t pnum, const ubyte *buf, const uint_fast32_t type)
+static void multi_process_data(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const playernum_t pnum, const std::span<const uint8_t> data, const uint_fast32_t type)
 {
+	const auto buf = data.data();
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &imobjptridx = Objects.imptridx;
 	auto &vmobjptr = Objects.vmptr;
@@ -5775,7 +5776,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_score(vmobjptr, pnum, buf);
 			break;
 		case MULTI_CREATE_ROBOT:
-			multi_do_create_robot(LevelSharedRobotInfoState.Robot_info, Vclip, pnum, buf);
+			multi_do_create_robot(LevelSharedRobotInfoState.Robot_info, Vclip, pnum, multi_subspan_first<MULTI_CREATE_ROBOT>(data));
 			break;
 		case MULTI_TRIGGER:
 			multi_do_trigger(pnum, buf); break;

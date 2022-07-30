@@ -1005,7 +1005,7 @@ void multi_do_robot_explode(const d_robot_info_array &Robot_info, const uint8_t 
 		add_points_to_score(ConsoleObject->ctype.player_info, Robot_info[get_robot_id(robot)].score_value, Game_mode);
 }
 
-void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const playernum_t pnum, const ubyte *buf)
+void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const playernum_t pnum, const multiplayer_rspan<MULTI_CREATE_ROBOT> buf)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
@@ -1015,7 +1015,7 @@ void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_a
 	int type = buf[5];
 
 	objnum_t objnum;
-	objnum = GET_INTEL_SHORT(buf + 3);
+	objnum = GET_INTEL_SHORT(&buf[3]);
 
 	if (!LevelUniqueFuelcenterState.Station.valid_index(untrusted_fuelcen_num))
 		return;

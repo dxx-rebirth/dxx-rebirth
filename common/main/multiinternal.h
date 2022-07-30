@@ -6,6 +6,7 @@
  */
 #pragma once
 
+#include <span>
 #include <type_traits>
 #include "dxxerror.h"
 #include "net_udp.h"
@@ -124,6 +125,8 @@ struct command_length;
 	struct command_length<NAME> : public std::integral_constant<unsigned, SIZE> {};
 for_each_multiplayer_command(define_command_length);
 
+namespace dcx {
+
 template <multiplayer_command_t C>
 struct multi_command : public std::array<uint8_t, command_length<C>::value>
 {
@@ -158,5 +161,22 @@ static inline void multi_serialize_write(const multiplayer_data_priority priorit
 
 template <multiplayer_command_t C>
 using multiplayer_command = serial::pad<1, static_cast<uint8_t>(C)>;
+
+template <multiplayer_command_t C>
+using multiplayer_rspan = std::span<const uint8_t, command_length<C>::value>;
+
+template <multiplayer_command_t C>
+static constexpr auto multi_subspan_first(const std::span<const uint8_t> &data)
+{
+	return data.first<command_length<C>::value>();
+}
+
+}
+
+namespace dsx {
+
+void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, playernum_t pnum, multiplayer_rspan<MULTI_CREATE_ROBOT> buf);
+
+}
 
 #endif
