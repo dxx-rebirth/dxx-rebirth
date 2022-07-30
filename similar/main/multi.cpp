@@ -3908,11 +3908,11 @@ void multi_send_wall_status_specific(const playernum_t pnum, wallnum_t wallnum, 
 
 namespace {
 
-static void multi_do_wall_status(fvmwallptr &vmwallptr, const uint8_t *const buf)
+static void multi_do_wall_status(fvmwallptr &vmwallptr, const multiplayer_rspan<MULTI_WALL_STATUS> buf)
 {
 	ubyte flag,type,state;
 
-	const wallnum_t wallnum{GET_INTEL_SHORT(buf + 1)};
+	const wallnum_t wallnum{GET_INTEL_SHORT(&buf[1])};
 	type=buf[3];
 	flag=buf[4];
 	state=buf[5];
@@ -3923,10 +3923,7 @@ static void multi_do_wall_status(fvmwallptr &vmwallptr, const uint8_t *const buf
 	w.state = wall_state{state};
 
 	if (w.type == WALL_OPEN)
-	{
 		digi_kill_sound_linked_to_segment(w.segnum, w.sidenum, SOUND_FORCEFIELD_HUM);
-		//digi_kill_sound_linked_to_segment(csegp-Segments,cside,SOUND_FORCEFIELD_HUM);
-	}
 }
 
 }
@@ -5715,7 +5712,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_stolen_items(multi_subspan_first<MULTI_STOLEN_ITEMS>(data));
 			break;
 		case MULTI_WALL_STATUS:
-			multi_do_wall_status(vmwallptr, buf);
+			multi_do_wall_status(vmwallptr, multi_subspan_first<MULTI_WALL_STATUS>(data));
 			break;
 		case MULTI_SEISMIC:
 			multi_do_seismic (buf); break;
