@@ -3845,7 +3845,7 @@ void multi_send_guided_info(const object_base &miss, const char done)
 
 namespace {
 
-static void multi_do_guided(d_level_unique_object_state &LevelUniqueObjectState, const playernum_t pnum, const uint8_t *const buf)
+static void multi_do_guided(d_level_unique_object_state &LevelUniqueObjectState, const playernum_t pnum, const multiplayer_rspan<MULTI_GUIDED> buf)
 {
 	multi_guided_info b;
 	multi_serialize_read(buf, b);
@@ -5709,7 +5709,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_drop_flag(pnum, multi_subspan_first<MULTI_DROP_FLAG>(data));
 			break;
 		case MULTI_GUIDED:
-			multi_do_guided(LevelUniqueObjectState, pnum, buf);
+			multi_do_guided(LevelUniqueObjectState, pnum, multi_subspan_first<MULTI_GUIDED>(data));
 			break;
 		case MULTI_STOLEN_ITEMS:
 			multi_do_stolen_items(buf); break;
