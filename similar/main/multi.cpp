@@ -4096,13 +4096,13 @@ static void multi_do_light(const multiplayer_rspan<MULTI_LIGHT> buf)
 	}
 }
 
-static void multi_do_flags(fvmobjptr &vmobjptr, const playernum_t pnum, const uint8_t *const buf)
+static void multi_do_flags(fvmobjptr &vmobjptr, const playernum_t pnum, const multiplayer_rspan<MULTI_FLAGS> buf)
 {
-	uint flags;
-
-	flags = GET_INTEL_INT(buf + 2);
 	if (pnum!=Player_num)
+	{
+		const uint32_t flags = GET_INTEL_INT(&buf[2]);
 		vmobjptr(vcplayerptr(pnum)->objnum)->ctype.player_info.powerup_flags = player_flags(flags);
+	}
 }
 
 }
@@ -5792,7 +5792,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_effect_blowup(pnum, multi_subspan_first<MULTI_EFFECT_BLOWUP>(data));
 			break;
 		case MULTI_FLAGS:
-			multi_do_flags(vmobjptr, pnum, buf);
+			multi_do_flags(vmobjptr, pnum, multi_subspan_first<MULTI_FLAGS>(data));
 			break;
 		case MULTI_DROP_BLOB:
 			multi_do_drop_blob(vmobjptr, pnum);
