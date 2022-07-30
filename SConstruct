@@ -442,6 +442,16 @@ struct A_%(N)s
 	A_%(N)s b{0};
 	(void)(a == b);
 '''),
+		Cxx20RequiredFeature('requires clause', '''
+template <typename T>
+requires(sizeof(T) >= 1)
+void f_%(N)s(T)
+{
+}
+''',
+'''
+	f_%(N)s('a');
+'''),
 		Cxx20RequiredFeature('std::span', '''
 #include <span>
 

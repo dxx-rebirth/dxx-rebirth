@@ -127,13 +127,15 @@ class zip_iterator : std::tuple<range0_iterator_type, rangeN_iterator_type...>
 	 * used for ignored fields are default-constructed (if possible)
 	 * instead of copy-constructed from the begin iterator.
 	 */
-	template <std::size_t I, typename T>
-		static typename std::enable_if<std::is_default_constructible<T>::value, T>::type end_construct_ignored_element()
+	template <std::size_t, typename T>
+		requires(std::is_default_constructible<T>::value)
+		static T end_construct_ignored_element()
 		{
 			return T();
 		}
 	template <std::size_t I, typename T>
-		typename std::enable_if<!std::is_default_constructible<T>::value, T>::type end_construct_ignored_element() const
+		requires(!std::is_default_constructible<T>::value)
+		T end_construct_ignored_element() const
 		{
 			return std::get<I>(*this);
 		}

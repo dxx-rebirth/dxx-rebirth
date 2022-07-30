@@ -599,19 +599,18 @@ struct socket_data_buffer_template
 	}
 	/* Enable exactly one of these two constructors for std::array.
 	 *
-	 * Use `N &&` in the `enable_if` to force its input to be template
-	 * dependent, so that it is not resolved early.
-	 *
 	 * To permit deduction of `N`, the std::array parameter must not be wrapped
 	 * inside a template indirection.  Therefore, separate constructors are
 	 * needed for the const and non-const cases.
 	 */
-	template <std::size_t N, typename std::enable_if<N && const_qualified, int>::type = 0>
+	template <std::size_t N>
+		requires(const_qualified)
 		socket_data_buffer_template(const std::array<uint8_t, N> &a) :
 			socket_data_buffer_template(a.data(), a.size())
 	{
 	}
-	template <std::size_t N, typename std::enable_if<N && !const_qualified, int>::type = 0>
+	template <std::size_t N>
+		requires(!const_qualified)
 		socket_data_buffer_template(std::array<uint8_t, N> &a) :
 			socket_data_buffer_template(a.data(), a.size())
 	{

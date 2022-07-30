@@ -78,19 +78,23 @@ template <typename T>
 using is_generic_class = typename std::conditional<is_cxx_array<T>::value, std::false_type, std::is_class<T>>::type;
 
 template <typename Accessor, typename A1>
-static inline typename std::enable_if<std::is_integral<typename std::remove_reference<A1>::type>::value, void>::type process_buffer(Accessor &&accessor, A1 &&a1)
+requires(std::is_integral<typename std::remove_reference<A1>::type>::value)
+static inline void process_buffer(Accessor &&accessor, A1 &&a1)
 {
 	process_integer(std::forward<Accessor &&>(accessor), a1);
 }
 
 template <typename Accessor, typename A1, typename A1rr = typename std::remove_reference<A1>::type>
-static inline typename std::enable_if<std::is_enum<A1rr>::value, void>::type process_buffer(Accessor &, A1 &&);
+requires(std::is_enum<A1rr>::value)
+static inline void process_buffer(Accessor &, A1 &&);
 
 template <typename Accessor, typename A1, typename A1rr = typename std::remove_reference<A1>::type>
-static inline typename std::enable_if<is_generic_class<A1rr>::value, void>::type process_buffer(Accessor &, A1 &&);
+requires(is_generic_class<A1rr>::value)
+static inline void process_buffer(Accessor &, A1 &&);
 
 template <typename Accessor, typename A1>
-static typename std::enable_if<is_cxx_array<A1>::value, void>::type process_buffer(Accessor &&, A1 &);
+requires(is_cxx_array<A1>::value)
+static void process_buffer(Accessor &&, A1 &);
 
 template <typename Accessor, typename... Args>
 static void process_buffer(Accessor &, const message<Args...> &);
@@ -125,13 +129,14 @@ using capture_type = typename std::conditional<std::is_lvalue_reference<T>::valu
 		>;
 
 template <typename T, typename Trr = typename std::remove_reference<T>::type>
-static inline auto capture_value(Trr &t) -> decltype(std::ref(t))
+static inline auto capture_value(Trr &t)
 {
 	return std::ref(t);
 }
 
 template <typename T, typename Trr = typename std::remove_reference<T>::type>
-static inline typename std::enable_if<std::is_rvalue_reference<T>::value, std::tuple<Trr>>::type capture_value(Trr &&t)
+requires(std::is_rvalue_reference<T>::value)
+static inline auto capture_value(Trr &&t)
 {
 	return std::tuple<Trr>{std::forward<T>(t)};
 }
@@ -564,7 +569,8 @@ static inline void process_integer(Accessor &buffer, A1 &a1)
 }
 
 template <typename Accessor, typename A, typename T = typename A::value_type>
-static inline typename std::enable_if<sizeof(T) == 1 && std::is_integral<T>::value, void>::type process_array(Accessor &accessor, A &a)
+requires(sizeof(T) == 1 && std::is_integral<T>::value)
+static inline void process_array(Accessor &accessor, A &a)
 {
 	using std::advance;
 	std::copy_n(static_cast<typename Accessor::pointer>(accessor), a.size(), &a[0]);
@@ -615,7 +621,8 @@ static inline void process_integer(Accessor &buffer, const A1 &a1)
 }
 
 template <typename Accessor, typename A, typename T = typename A::value_type>
-static inline typename std::enable_if<sizeof(T) == 1 && std::is_integral<T>::value, void>::type process_array(Accessor &accessor, const A &a)
+requires(sizeof(T) == 1 && std::is_integral<T>::value)
+static inline void process_array(Accessor &accessor, const A &a)
 {
 	using std::advance;
 	std::copy_n(&a[0], a.size(), static_cast<typename Accessor::pointer>(accessor));
@@ -633,7 +640,8 @@ static inline void process_udt(Accessor &&accessor, const detail::sign_extend_ty
 }
 
 template <typename Accessor, typename A1, typename A1rr>
-static inline typename std::enable_if<std::is_enum<A1rr>::value, void>::type process_buffer(Accessor &accessor, A1 &&a1)
+requires(std::is_enum<A1rr>::value)
+static inline void process_buffer(Accessor &accessor, A1 &&a1)
 {
 	using detail::check_enum;
 	process_integer(accessor, a1);
@@ -642,7 +650,8 @@ static inline typename std::enable_if<std::is_enum<A1rr>::value, void>::type pro
 }
 
 template <typename Accessor, typename A1, typename A1rr>
-static inline typename std::enable_if<is_generic_class<A1rr>::value, void>::type process_buffer(Accessor &accessor, A1 &&a1)
+requires(is_generic_class<A1rr>::value)
+static inline void process_buffer(Accessor &accessor, A1 &&a1)
 {
 	using detail::preprocess_udt;
 	using detail::process_udt;
@@ -653,14 +662,16 @@ static inline typename std::enable_if<is_generic_class<A1rr>::value, void>::type
 }
 
 template <typename Accessor, typename A, typename T = typename A::value_type>
-static typename std::enable_if<!(sizeof(T) == 1 && std::is_integral<T>::value), void>::type process_array(Accessor &accessor, A &a)
+requires(!(sizeof(T) == 1 && std::is_integral<T>::value))
+static void process_array(Accessor &accessor, A &a)
 {
 	range_for (auto &i, a)
 		process_buffer(accessor, i);
 }
 
 template <typename Accessor, typename A1>
-static typename std::enable_if<is_cxx_array<A1>::value, void>::type process_buffer(Accessor &&accessor, A1 &a1)
+requires(is_cxx_array<A1>::value)
+static void process_buffer(Accessor &&accessor, A1 &a1)
 {
 	process_array(std::forward<Accessor &&>(accessor), a1);
 }
@@ -679,7 +690,8 @@ static void process_buffer(Accessor &&accessor, const message<Args...> &m)
 
 /* Require at least two arguments to prevent self-selection */
 template <typename Accessor, typename... An>
-static typename std::enable_if<(sizeof...(An) > 1)>::type process_buffer(Accessor &&accessor, An &&... an)
+requires(sizeof...(An) > 1)
+static void process_buffer(Accessor &&accessor, An &&... an)
 {
 	(process_buffer(accessor, std::forward<An>(an)), ...);
 }

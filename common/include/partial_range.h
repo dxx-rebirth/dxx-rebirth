@@ -307,7 +307,8 @@ template <
 std::is_same<provided_index_type, range_index_type> check_range_index_type_vs_provided_index_type(std::nullptr_t);
 
 template <typename range_type, typename index_type>
-typename std::enable_if<std::is_enum<index_type>::value, std::size_t>::type cast_index_to_size(const index_type i)
+requires(std::is_enum<index_type>::value)
+std::size_t cast_index_to_size(const index_type i)
 {
 	static_assert(std::is_unsigned<typename std::underlying_type<index_type>::type>::value, "underlying_type of index_type must be unsigned");
 	/* If an enumerated index type is used, require that it be the type that
@@ -318,7 +319,8 @@ typename std::enable_if<std::is_enum<index_type>::value, std::size_t>::type cast
 }
 
 template <typename range_type, typename index_type>
-typename std::enable_if<std::is_integral<index_type>::value, std::size_t>::type cast_index_to_size(const index_type i)
+requires(std::is_integral<index_type>::value)
+std::size_t cast_index_to_size(const index_type i)
 {
 	static_assert(std::is_unsigned<index_type>::value, "integral index_type must be unsigned");
 	/* Omit enforcement of range_type::index_type vs index_type, since many

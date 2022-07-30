@@ -244,7 +244,8 @@ public:
  * change `e`, store it in a const qualified variable, which will select
  * the next overload down instead.
  */
-template <typename Tb, typename Te, typename std::enable_if<!std::is_const<Te>::value, int>::type = 0>
+template <typename Tb, typename Te>
+requires(!std::is_const<Te>::value)
 xrange(Tb &&b, Te &e) -> xrange<Tb, Tb, Te &>;	// provokes a static_assert failure in the constructor
 
 template <typename Tb, typename Te>

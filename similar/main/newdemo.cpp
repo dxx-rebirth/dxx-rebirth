@@ -290,7 +290,8 @@ static int _newdemo_read( void *buffer, int elsize, int nelem )
 }
 
 template <typename T>
-static typename std::enable_if<std::is_integral<T>::value, int>::type newdemo_read( T *buffer, int elsize, int nelem )
+requires(std::is_integral<T>::value)
+static int newdemo_read(T *buffer, int elsize, int nelem)
 {
 	return _newdemo_read(buffer, elsize, nelem);
 }
@@ -335,7 +336,8 @@ static int _newdemo_write(const void *buffer, int elsize, int nelem )
 }
 
 template <typename T>
-static typename std::enable_if<std::is_integral<T>::value, int>::type newdemo_write(const T *buffer, int elsize, int nelem )
+requires(std::is_integral<T>::value)
+static int newdemo_write(const T *buffer, int elsize, int nelem )
 {
 	return _newdemo_write(buffer, elsize, nelem);
 }

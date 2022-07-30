@@ -308,7 +308,8 @@ struct susegment
 	U &u;
 	constexpr susegment(const susegment &) = default;
 	constexpr susegment(susegment &&) = default;
-	template <typename T, typename std::enable_if<std::is_convertible<T &&, S &>::value && std::is_convertible<T &&, U &>::value, int>::type = 0>
+	template <typename T>
+		requires(std::is_convertible<T &&, S &>::value && std::is_convertible<T &&, U &>::value)
 		constexpr susegment(T &&t) :
 			s(t), u(t)
 	{
