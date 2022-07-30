@@ -2217,7 +2217,7 @@ static void multi_do_score(fvmobjptr &vmobjptr, const playernum_t pnum, const mu
 	multi_sort_kill_list();
 }
 
-static void multi_do_trigger(const playernum_t pnum, const ubyte *buf)
+static void multi_do_trigger(const playernum_t pnum, const multiplayer_rspan<MULTI_TRIGGER> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -5782,7 +5782,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_create_robot(LevelSharedRobotInfoState.Robot_info, Vclip, pnum, multi_subspan_first<MULTI_CREATE_ROBOT>(data));
 			break;
 		case MULTI_TRIGGER:
-			multi_do_trigger(pnum, buf); break;
+			multi_do_trigger(pnum, multi_subspan_first<MULTI_TRIGGER>(data));
+			break;
 #if defined(DXX_BUILD_DESCENT_II)
 		case MULTI_START_TRIGGER:
 			multi_do_start_trigger(buf); break;
