@@ -4696,7 +4696,7 @@ void multi_send_ranking (const netplayer_info::player_rank newrank)
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
-static void multi_do_ranking (const playernum_t pnum, const ubyte *buf)
+static void multi_do_ranking(const playernum_t pnum, const multiplayer_rspan<MULTI_RANK> buf)
 {
 	const auto rank = build_rank_from_untrusted(buf[2]);
 	if (rank == netplayer_info::player_rank::None)
@@ -5759,7 +5759,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			break;  // do this one regardless of endsequence
 #endif
 		case MULTI_RANK:
-			multi_do_ranking (pnum, buf); break;
+			multi_do_ranking (pnum, multi_subspan_first<MULTI_RANK>(data));
+			break;
 		case MULTI_ROBOT_CLAIM:
 			multi_do_claim_robot(pnum, buf); break;
 		case MULTI_ROBOT_POSITION:
