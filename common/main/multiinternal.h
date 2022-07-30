@@ -187,6 +187,9 @@ void multi_do_claim_robot(playernum_t pnum, const multiplayer_rspan<MULTI_ROBOT_
 void multi_do_robot_position(playernum_t pnum, const multiplayer_rspan<MULTI_ROBOT_POSITION> buf);
 void multi_do_release_robot(playernum_t pnum, const multiplayer_rspan<MULTI_ROBOT_RELEASE> buf);
 void multi_do_robot_fire(multiplayer_rspan<MULTI_ROBOT_FIRE> buf);
+#if defined(DXX_BUILD_DESCENT_II)
+void multi_recv_escort_goal(d_unique_buddy_state &, multiplayer_rspan<MULTI_UPDATE_BUDDY_STATE> buf);
+#endif
 
 }
 

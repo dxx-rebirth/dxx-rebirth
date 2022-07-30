@@ -5798,7 +5798,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_drop_blob(vmobjptr, pnum);
 			break;
 		case MULTI_UPDATE_BUDDY_STATE:
-			multi_recv_escort_goal(LevelUniqueObjectState.BuddyState, buf);
+			multi_recv_escort_goal(LevelUniqueObjectState.BuddyState, multi_subspan_first<MULTI_UPDATE_BUDDY_STATE>(data));
 			break;
 #endif
 		case MULTI_BOSS_TELEPORT:

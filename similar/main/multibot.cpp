@@ -1068,7 +1068,7 @@ void multi_send_escort_goal(const d_unique_buddy_state &BuddyState)
 	multi_serialize_write(multiplayer_data_priority::_2, b);
 }
 
-void multi_recv_escort_goal(d_unique_buddy_state &BuddyState, const uint8_t *const buf)
+void multi_recv_escort_goal(d_unique_buddy_state &BuddyState, const multiplayer_rspan<MULTI_UPDATE_BUDDY_STATE> buf)
 {
 	update_buddy_state b;
 	multi_serialize_read(buf, b);

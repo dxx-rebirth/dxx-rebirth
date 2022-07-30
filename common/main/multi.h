@@ -734,7 +734,6 @@ void multi_send_finish_game ();
 void init_hoard_data(d_vclip_array &Vclip);
 void multi_apply_goal_textures();
 void multi_send_escort_goal(const d_unique_buddy_state &);
-void multi_recv_escort_goal(d_unique_buddy_state &, const uint8_t *);
 
 int HoardEquipped();
 #if DXX_USE_EDITOR
