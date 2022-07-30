@@ -1600,9 +1600,9 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 
 namespace {
 
-static void multi_do_message(const uint8_t *const cbuf)
+static void multi_do_message(const multiplayer_rspan<MULTI_MESSAGE> cbuf)
 {
-	const auto buf = reinterpret_cast<const char *>(cbuf);
+	const auto buf = reinterpret_cast<const char *>(cbuf.data());
 	const char *colon;
 	const char *msgstart;
 	int loc = 2;
@@ -5676,7 +5676,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_player_deres(LevelSharedRobotInfoState.Robot_info, Objects, pnum, multi_subspan_first<MULTI_PLAYER_DERES>(data));
 			break;
 		case MULTI_MESSAGE:
-			multi_do_message(buf); break;
+			multi_do_message(multi_subspan_first<MULTI_MESSAGE>(data));
+			break;
 		case MULTI_QUIT:
 			multi_do_quit(multi_subspan_first<MULTI_QUIT>(data));
 			break;
