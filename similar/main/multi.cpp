@@ -5099,11 +5099,10 @@ void multi_send_player_inventory(const multiplayer_data_priority priority)
 
 	multi_send_data(multibuf, priority);
 }
-}
 
-namespace dsx {
 namespace {
-static void multi_do_player_inventory(const playernum_t pnum, const ubyte *buf)
+
+static void multi_do_player_inventory(const playernum_t pnum, const multiplayer_rspan<MULTI_PLAYER_INV> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -5144,8 +5143,8 @@ static void multi_do_player_inventory(const playernum_t pnum, const ubyte *buf)
 	secondary_ammo[SMISSILE5_INDEX] = buf[count]; count++;
 #endif
 
-	player_info.vulcan_ammo = GET_INTEL_SHORT(buf + count); count += 2;
-	player_info.powerup_flags = player_flags(GET_INTEL_INT(buf + count));    count += 4;
+	player_info.vulcan_ammo = GET_INTEL_SHORT(&buf[count]); count += 2;
+	player_info.powerup_flags = player_flags(GET_INTEL_INT(&buf[count]));    count += 4;
 }
 
 /*
@@ -5846,7 +5845,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_kill_client(Objects, multi_subspan_first<MULTI_KILL_CLIENT>(data));
 			break;
 		case MULTI_PLAYER_INV:
-			multi_do_player_inventory( pnum, buf ); break;
+			multi_do_player_inventory(pnum, multi_subspan_first<MULTI_PLAYER_INV>(data));
+			break;
 	}
 }
 
