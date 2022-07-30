@@ -1879,7 +1879,7 @@ static void multi_do_controlcen_destroy(const d_robot_info_array &Robot_info, fi
 	}
 }
 
-static void multi_do_escape(fvmobjptridx &vmobjptridx, const uint8_t *const buf)
+static void multi_do_escape(fvmobjptridx &vmobjptridx, const multiplayer_rspan<MULTI_ENDLEVEL_START> buf)
 {
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 	const playernum_t pnum = buf[1];
@@ -5722,7 +5722,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			break;
 #endif
 		case MULTI_ENDLEVEL_START:
-			multi_do_escape(vmobjptridx, buf);
+			multi_do_escape(vmobjptridx, multi_subspan_first<MULTI_ENDLEVEL_START>(data));
 			break;
 		case MULTI_CLOAK:
 			multi_do_cloak(vmobjptr, pnum);
