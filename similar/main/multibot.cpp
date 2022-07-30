@@ -1130,7 +1130,7 @@ void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_
 	boss_obj->ctype.ai_info.REMOTE_SLOT_NUM = 0; // Available immediately!
 }
 
-void multi_do_boss_cloak(const ubyte *buf)
+void multi_do_boss_cloak(const multiplayer_rspan<MULTI_BOSS_CLOAK> buf)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Objects = LevelUniqueObjectState.Objects;

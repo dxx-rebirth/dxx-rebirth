@@ -191,6 +191,7 @@ void multi_do_robot_fire(multiplayer_rspan<MULTI_ROBOT_FIRE> buf);
 void multi_recv_escort_goal(d_unique_buddy_state &, multiplayer_rspan<MULTI_UPDATE_BUDDY_STATE> buf);
 #endif
 void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, playernum_t pnum, multiplayer_rspan<MULTI_BOSS_TELEPORT> buf);
+void multi_do_boss_cloak(multiplayer_rspan<MULTI_BOSS_CLOAK> buf);
 
 }
 

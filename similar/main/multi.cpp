@@ -5805,7 +5805,8 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_boss_teleport(LevelSharedRobotInfoState.Robot_info, Vclip, pnum, multi_subspan_first<MULTI_BOSS_TELEPORT>(data));
 			break;
 		case MULTI_BOSS_CLOAK:
-			multi_do_boss_cloak(buf); break;
+			multi_do_boss_cloak(multi_subspan_first<MULTI_BOSS_CLOAK>(data));
+			break;
 		case MULTI_BOSS_START_GATE:
 			multi_do_boss_start_gate(buf); break;
 		case MULTI_BOSS_STOP_GATE:
