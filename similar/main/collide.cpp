@@ -1508,11 +1508,13 @@ int apply_damage_to_robot(const d_robot_info_array &Robot_info, const vmobjptrid
 #if defined(DXX_BUILD_DESCENT_II)
 			if (get_robot_id(robot) == SPECIAL_REACTOR_ROBOT)
 				special_reactor_stuff();
-			if (robptr.kamikaze)
-				explode_object(LevelUniqueObjectState, Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, robot, 1);		//	Kamikaze, explode right away, IN YOUR FACE!
-			else
 #endif
-				explode_object(LevelUniqueObjectState, Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, robot, STANDARD_EXPL_DELAY);
+			// Kamikaze, explode right away, IN YOUR FACE!
+			explode_object(LevelUniqueObjectState, Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, robot,
+#if defined(DXX_BUILD_DESCENT_II)
+						   robptr.kamikaze ? 1 :
+#endif
+						   STANDARD_EXPL_DELAY);
 		}
 		return 1;
 	} else
