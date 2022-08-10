@@ -153,6 +153,123 @@ void digi_mixer_close() {
 namespace dsx {
 
 /*
+ * Blackman windowed-sinc filter coefficients at 1/4 bandwidth of upsampled
+ * frequency. Chosen for linear phase and approximates ~10th order IIR
+ *
+ * MATLAB/Octave code:
+
+	N = 51;   % Num coeffs (odd)
+	B = 0.25;  % 1/4 band
+	half = (N-1)/2;
+	n = (-half:half); % the sample index
+	% Windowed sinc
+	h_ideal = 2 * B .* sinc(B*n);
+	h_win = blackman(N);
+	b = h_win .* h_ideal.';
+	% Convert to fix point to ultimately apply to signed 16-bit data
+	b_s16 = int32(round(b * (2^16 -1)));  % coeffs!
+
+ */
+#define FILTER_LEN 51
+static int32_t coeffs_quarterband[FILTER_LEN] =
+{
+		0, 0, -7, -25, -35, 0, 94, 200, 205, 0, -395, -751, -702, 0, 1178, 2127,
+		1907, 0, -3050, -5490, -5011, 0, 9275, 20326, 29311, 32767, 29311,
+		20326, 9275, 0, -5011, -5490, -3050, 0, 1907, 2127, 1178, 0, -702,
+		-751, -395, 0, 205, 200, 94, 0, -35, -25, -7, 0, 0
+};
+
+// Coefficient set for half-band (e.g. 22050 -> 44100)
+static int32_t coeffs_halfband[FILTER_LEN] =
+{
+		0, 0, -11, 0, 49, 0, -133, 0, 290, 0, -558, 0, 992, 0, -1666, 0, 2697, 0,
+		-4313, 0, 7086, 0, -13117, 0, 41452, 65535, 41452, 0, -13117, 0, 7086, 0,
+		-4313, 0, 2697, 0, -1666, 0, 992, 0, -558, 0, 290, 0, -133, 0, 49, 0, -11,
+		0, 0
+};
+
+// Fixed-point FIR filtering
+// Not optimal: consider optimization with 1/4, 1/2 band filters, and symmetric kernels
+static void filter_fir(int16_t *signal, int16_t *output, int signalLen, int32_t *coeffs, int coeffsLen)
+{
+	// A FIR filter is just a 1D convolution
+	// Keep only signalLen samples
+	for(int nn = 0; nn < signalLen; nn++)
+	{
+		// Determin start/stop indices for convolved chunk
+		int min_idx = std::max(0, nn-coeffsLen+1);
+		int max_idx = std::min(nn, signalLen-1);
+
+		int32_t cur_output = 0;  // Increase bit size for fixed point expansion
+		// Sum over each sample * coefficient in this column
+		for(int kk = min_idx; kk <= max_idx; kk++)
+		{
+			int product = int32_t(signal[kk]) * coeffs[nn-kk];
+			cur_output = cur_output + product;
+		}
+
+		// Save and fit back into int16
+		output[nn] = int16_t(cur_output >> 16);  // Arithmetic shift
+	}
+}
+
+
+static void upsample(uint8_t *input, int16_t *output, int inputLen, int factor)
+{
+	for(int ii = 0; ii < inputLen; ii++)
+	{
+		// Save input sample, convert to signed, and scale
+		output[ii*factor] = 256 * (int16_t(input[ii]) - 128);
+
+		// Pad the rest with zeros
+		for(int jj = 1; jj < factor; jj++)
+		{
+			int idx = (ii*factor) + jj;
+			output[idx] = 0;
+		}
+	}
+}
+
+
+static void replicateChannel(int16_t *input, int16_t *output, int inputLen, int chFactor)
+{
+	for(int ii = 0; ii < inputLen; ii++)
+	{
+		// Duplicate and interleave as many channels as needed
+		for(int jj = 0; jj < chFactor; jj++)
+		{
+			int idx = (ii*chFactor) + jj;
+			output[idx] = input[ii];
+		}
+	}
+}
+
+
+static void convert_audio(uint8_t *input, int16_t *output, int inputLen, int upFactor, int chFactor)
+{
+	// First upsample
+	int upsampledLen = inputLen*upFactor;
+
+	auto stage1 = std::make_unique<int16_t[]>(upsampledLen);
+	auto stage2 = std::make_unique<int16_t[]>(upsampledLen);
+
+	upsample(input, stage1.get(), inputLen, upFactor);
+
+	// We expect a 4x upscaling 11025 -> 44100
+	int32_t *coeffs = &coeffs_quarterband[0];
+	if(upFactor )  // But maybe 2x for d2x in some cases
+		coeffs = &coeffs_halfband[0];
+
+	// Apply LPF filter to smooth out upscaled points
+	// There will be some uniform amplitude loss here, but less than -3dB
+	filter_fir(stage1.get(), stage2.get(), upsampledLen, coeffs, FILTER_LEN);
+
+	// Replicate channel
+	replicateChannel(stage2.get(), output, upsampledLen, chFactor);
+}
+
+
+/*
  * Play-time conversion. Performs output conversion only once per sound effect used.
  * Once the sound sample has been converted, it is cached in SoundChunks[]
  */
@@ -161,43 +278,37 @@ static void mixdigi_convert_sound(const unsigned i)
 	if (SoundChunks[i].abuf)
 		//proceed only if not converted yet
 		return;
-	SDL_AudioCVT cvt;
+
 	Uint8 *data = GameSounds[i].data;
 	Uint32 dlen = GameSounds[i].length;
 	int freq;
 	int out_freq;
-	Uint16 out_format;
 	int out_channels;
 #if defined(DXX_BUILD_DESCENT_I)
 	out_freq = digi_sample_rate;
-	out_format = MIX_OUTPUT_FORMAT;
+	//	out_format = MIX_OUTPUT_FORMAT;
 	out_channels = MIX_OUTPUT_CHANNELS;
 	freq = GameSounds[i].freq;
 #elif defined(DXX_BUILD_DESCENT_II)
+	Uint16 out_format;
 	Mix_QuerySpec(&out_freq, &out_format, &out_channels); // get current output settings
 	freq = GameArg.SndDigiSampleRate;
 #endif
 
 	if (data)
 	{
-		if (SDL_BuildAudioCVT(&cvt, AUDIO_U8, 1, freq, out_format, out_channels, out_freq) == -1)
-		{
-			con_printf(CON_URGENT, "%s:%u: SDL_BuildAudioCVT failed: sound=%i dlen=%u freq=%i out_format=%i out_channels=%i out_freq=%i", __FILE__, __LINE__, i, dlen, freq, out_format, out_channels, out_freq);
-			return;
-		}
+		// Create output memory
+		int upFactor = out_freq / freq;  // Should be integer, 2 or 4
+		int formatFactor = 2;  // U8 -> S16 is two bytes
+		int convertedSize = dlen * upFactor * out_channels * formatFactor;
 
-		auto cvtbuf = std::make_unique<Uint8[]>(dlen * cvt.len_mult);
-		cvt.buf = cvtbuf.get();
-		cvt.len = dlen;
-		memcpy(cvt.buf, data, dlen);
-		if (SDL_ConvertAudio(&cvt))
-		{
-			con_printf(CON_URGENT, "%s:%u: SDL_ConvertAudio failed: sound=%i dlen=%u freq=%i out_format=%i out_channels=%i out_freq=%i", __FILE__, __LINE__, i, dlen, freq, out_format, out_channels, out_freq);
-			return;
-		}
+		auto cvtbuf = std::make_unique<Uint8[]>(convertedSize);
+		uint8_t *buf = cvtbuf.release();
 
-		SoundChunks[i].abuf = cvtbuf.release();
-		SoundChunks[i].alen = cvt.len_cvt;
+		convert_audio(data, reinterpret_cast<int16_t*>(buf), dlen, upFactor, out_channels);
+
+		SoundChunks[i].abuf = buf;
+		SoundChunks[i].alen = convertedSize;
 		SoundChunks[i].allocated = 1;
 		SoundChunks[i].volume = 128; // Max volume = 128
 	}
