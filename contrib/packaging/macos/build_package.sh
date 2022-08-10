@@ -6,7 +6,9 @@ export MACOSX_DEPLOYMENT_TARGET=10.14
 GIT_HASH=$(git rev-parse --short HEAD)
 
 # Get utils
-git clone https://github.com/auriamg/macdylibbundler.git
+bundler_tag="1.0.4"
+
+git clone --depth=1 --branch "$bundler_tag" https://github.com/auriamg/macdylibbundler.git
 cd macdylibbundler
 make
 cd ..
