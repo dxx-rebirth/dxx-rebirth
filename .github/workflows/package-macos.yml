@@ -1,0 +1,37 @@
+name: Package - macOS
+
+on:
+  #push:
+  #  branches: [ master ]
+
+  #pull_request:
+  #  branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:          
+  macos:
+    name: macOS Apps
+    runs-on: macos-10.15
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+       
+      - name: Prepare environment
+        run: export MACOSX_DEPLOYMENT_TARGET=10.14
+        
+      - name: Install dependencies
+        run: |
+          brew install scons sdl2 sdl2_image sdl2_mixer physfs pkg-config dylibbundler
+          
+      - name: Configure and build
+        run: scons -j2 opengl=1 sdl2=1 sdlmixer=1 macos_add_frameworks=0 macos_bundle_libs=1
+      
+      - name: Package
+        run: ./contrib/packaging/macos/build_package.sh
+        
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos
+          path: '*.zip'          
