@@ -127,15 +127,9 @@ from the Terminal.  This may need to be done after each major OS upgrade as well
 DXX-Rebirth can be built from the Terminal (via SCons) without Xcode; to build using Xcode requires Xcode to be installed.
 
 ##### [Homebrew](https://github.com/Homebrew/homebrew/)
-* **brew install
- scons
- sdl
- sdl\_image
- sdl\_mixer
- physfs
- libpng
- pkg-config
- dylibbundler**
+The project includes a Brewfile for installing all required dependencies, if you use Homebrew.  You can install them with:
+
+* **brew bundle**
 
 ### Building
 Once prerequisites are installed, run **scons** *options* to build.  By default, both D1X-Rebirth and D2X-Rebirth are built.  To build only D1X-Rebirth, run **scons d1x=1**.  To build only D2X-Rebirth, run **scons d2x=1**.
