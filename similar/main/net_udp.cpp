@@ -960,7 +960,7 @@ static int udp_open_socket(RAIIsocket &sock, int port)
 }
 
 #ifndef MSG_DONTWAIT
-static int udp_general_packet_ready(RAIIsocket &sock)
+static int udp_general_packet_ready(const SOCKET sock)
 {
 	fd_set set;
 	struct timeval tv;
