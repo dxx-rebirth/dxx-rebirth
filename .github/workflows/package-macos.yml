@@ -22,7 +22,7 @@ jobs:
         
       - name: Install dependencies
         run: |
-          brew install scons sdl2 sdl2_image sdl2_mixer jpeg physfs pkg-config dylibbundler
+          brew bundle --verbose
           
       - name: Configure and build
         run: scons -j2 opengl=1 sdl2=1 sdlmixer=1 macos_add_frameworks=0 macos_bundle_libs=1
