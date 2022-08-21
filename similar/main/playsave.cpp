@@ -81,6 +81,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define PacketsPerSecStr "PacketsPerSec"
 #define NoFriendlyFireStr "NoFriendlyFire"
 #define MouselookFlagsStr "Mouselook"
+#define PitchLockFlagsStr "PitchLockRelease"
 #define AutosaveIntervalStr	"AutosaveInterval"
 #define TrackerStr "Tracker"
 #define TrackerNATHPStr "trackernat"
@@ -173,6 +174,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TOGGLES_CLOAKINVULTIMER_NAME_TEXT "cloakinvultimer"
 #define TOGGLES_RESPAWN_ANY_KEY	"respawnkey"
 #define TOGGLES_MOUSELOOK	"mouselook"
+#define TOGGLES_PITCH_LOCK	"pitchlock"
 #define TOGGLES_THIEF_ABSENCE_SP	"thiefabsent"
 #define TOGGLES_THIEF_NO_ENERGY_WEAPONS_SP	"thiefnoenergyweapons"
 #define TOGGLES_AUTOSAVE_INTERVAL_SP	"autosaveinterval"
@@ -229,6 +231,7 @@ void new_player_config()
 	PlayerCfg.ControlType=0; // Assume keyboard
 	PlayerCfg.RespawnMode = RespawnPress::Any;
 	PlayerCfg.MouselookFlags = 0;
+	PlayerCfg.PitchLockFlags = 0;
 	PlayerCfg.KeySettings = DefaultKeySettings;
 	PlayerCfg.KeySettingsRebirth = DefaultKeySettingsRebirth;
 	kc_set_controls();
@@ -482,6 +485,7 @@ static void read_player_dxx(const char *filename)
 		else if (!strcmp(line,TOGGLES_HEADER_TEXT))
 		{
 			PlayerCfg.MouselookFlags = 0;
+			PlayerCfg.PitchLockFlags = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 			PlayerCfg.ThiefModifierFlags = 0;
 #endif
@@ -536,6 +540,8 @@ static void read_player_dxx(const char *filename)
 					PlayerCfg.RespawnMode = static_cast<RespawnPress>(atoi(value));
 				else if (!strcmp(line, TOGGLES_MOUSELOOK))
 					PlayerCfg.MouselookFlags = strtoul(value, 0, 10);
+				else if (!strcmp(line, TOGGLES_PITCH_LOCK))
+					PlayerCfg.PitchLockFlags = strtoul(value, 0, 10);
 			}
 		}
 		else if (!strcmp(line,GRAPHICS_HEADER_TEXT))
@@ -845,6 +851,7 @@ static int write_player_dxx(const char *filename)
                 PHYSFSX_printf(fout,TOGGLES_CLOAKINVULTIMER_NAME_TEXT "=%i\n",PlayerCfg.CloakInvulTimer);
 		PHYSFSX_printf(fout,TOGGLES_RESPAWN_ANY_KEY "=%i\n",static_cast<unsigned>(PlayerCfg.RespawnMode));
 		PHYSFSX_printf(fout, TOGGLES_MOUSELOOK "=%i\n", PlayerCfg.MouselookFlags);
+		PHYSFSX_printf(fout, TOGGLES_PITCH_LOCK "=%i\n", PlayerCfg.PitchLockFlags);
 		PHYSFSX_puts_literal(fout,
 							END_TEXT "\n"
 							GRAPHICS_HEADER_TEXT "\n"
@@ -1713,6 +1720,8 @@ void read_netgame_profile(netgame_info *ng)
 			convert_integer(ng->NoFriendlyFire, value);
 		else if (cmp(lb, eq, MouselookFlagsStr))
 			convert_integer(ng->MouselookFlags, value);
+		else if (cmp(lb, eq, PitchLockFlagsStr))
+			convert_integer(ng->PitchLockFlags, value);
 		else if (cmp(lb, eq, AutosaveIntervalStr))
 		{
 			uint16_t AutosaveInterval;
@@ -1764,6 +1773,7 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, PacketsPerSecStr "=%i\n", ng->PacketsPerSec);
 	PHYSFSX_printf(file, NoFriendlyFireStr "=%i\n", ng->NoFriendlyFire);
 	PHYSFSX_printf(file, MouselookFlagsStr "=%i\n", ng->MouselookFlags);
+	PHYSFSX_printf(file, PitchLockFlagsStr "=%i\n", ng->PitchLockFlags);
 	PHYSFSX_printf(file, AutosaveIntervalStr "=%i\n", ng->MPGameplayOptions.AutosaveInterval.count());
 #if DXX_USE_TRACKER
 	PHYSFSX_printf(file, TrackerStr "=%i\n", ng->Tracker);

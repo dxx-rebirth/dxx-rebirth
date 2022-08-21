@@ -1629,8 +1629,13 @@ class input_config_menu_items
 	DXX_MENUITEM(VERB, TEXT, "Uncapped turning in:", opt_label_mouselook_mode)	\
 	DXX_MENUITEM(VERB, CHECK, "Single player", opt_ic_mouselook_sp, PlayerCfg.MouselookFlags & MouselookMode::Singleplayer)	\
 	DXX_MENUITEM(VERB, CHECK, "Multi Coop (if host allows)", opt_ic_mouselook_mp_cooperative, PlayerCfg.MouselookFlags & MouselookMode::MPCoop)	\
-	DXX_MENUITEM(VERB, CHECK, "Multi Anarchy (if host allows)", opt_ic_mouselook_mp_anarchy, PlayerCfg.MouselookFlags & MouselookMode::MPAnarchy)	\
+	DXX_MENUITEM(VERB, CHECK, "Multi Anarchy (if host allows)", opt_ic_mouselook_mp_anarchy, PlayerCfg.MouselookFlags & MouselookMode::MPAnarchy) \
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_mouselook)	\
+	DXX_MENUITEM(VERB, TEXT, "Release pitch lock:", opt_label_pitch_lock_mode) \
+	DXX_MENUITEM(VERB, CHECK, "Single player", opt_ic_pitch_lock_sp, PlayerCfg.PitchLockFlags & MouselookMode::Singleplayer) \
+	DXX_MENUITEM(VERB, CHECK, "Multi Coop (if host allows)", opt_ic_pitch_lock_mp_coop, PlayerCfg.PitchLockFlags & MouselookMode::MPCoop) \
+	DXX_MENUITEM(VERB, CHECK, "Multi Anarchy (if host allows)", opt_ic_pitch_lock_mp_anarchy, PlayerCfg.PitchLockFlags & MouselookMode::MPAnarchy) \
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_rotational_setting)	\
 	DXX_MENUITEM(VERB, MENU, "GAME SYSTEM KEYS", opt_ic_help0)	\
 	DXX_MENUITEM(VERB, MENU, "NETGAME SYSTEM KEYS", opt_ic_help1)	\
 	DXX_MENUITEM(VERB, MENU, "DEMO SYSTEM KEYS", opt_ic_help2)	\
@@ -1678,6 +1683,7 @@ window_event_result input_config_menu::event_handler(const d_event &event)
 		{
 			const auto citem = static_cast<const d_change_event &>(event).citem;
 			MouselookMode mousemode;
+			MouselookMode pitchlock;
 #if DXX_MAX_JOYSTICKS
 			if (citem == opt_ic_usejoy)
 			{
@@ -1717,6 +1723,15 @@ window_event_result input_config_menu::event_handler(const d_event &event)
 				else
 					PlayerCfg.MouselookFlags &= ~mousemode;
 			}
+			else if ((citem == opt_ic_pitch_lock_sp && (pitchlock = MouselookMode::Singleplayer, true)) ||
+					(citem == opt_ic_pitch_lock_mp_coop && (pitchlock = MouselookMode::MPCoop, true)) ||
+					(citem == opt_ic_pitch_lock_mp_anarchy && (pitchlock = MouselookMode::MPAnarchy, true))) {
+				if (items[citem].value)
+					PlayerCfg.PitchLockFlags |= pitchlock;
+				else
+					PlayerCfg.PitchLockFlags &= ~pitchlock;
+			}
+
 			break;
 		}
 		case EVENT_NEWMENU_SELECTED:
