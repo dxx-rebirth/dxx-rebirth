@@ -19,6 +19,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include "d_array.h"
 #include "dsx-ns.h"
 #include "fwd-object.h"
 #include "fwd-segment.h"
@@ -33,12 +34,7 @@ namespace dcx {
 
 constexpr std::integral_constant<std::size_t, 8> MAX_GUNS{};      //should be multiple of 4 for ubyte array
 
-//Animation states
-#define AS_REST         0
-#define AS_ALERT        1
-#define AS_FIRE         2
-#define AS_RECOIL       3
-#define AS_FLINCH       4
+enum class robot_animation_state : uint8_t;
 #define N_ANIM_STATES   5
 
 #define RI_CLOAKED_ALWAYS           1
@@ -97,7 +93,7 @@ void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_
  * reads n robot_info structs from a PHYSFS_File
  */
 void robot_info_read(PHYSFS_File *fp, robot_info &r);
-void robot_set_angles(robot_info *r,polymodel *pm, std::array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs);
+void robot_set_angles(robot_info *r, polymodel *pm, enumerated_array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES, robot_animation_state> &angs);
 weapon_id_type get_robot_weapon(const robot_info &ri, const unsigned gun_num);
 
 }

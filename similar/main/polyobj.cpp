@@ -248,7 +248,7 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			
 			case ID_ANIM:		//Animation data
 				if (r) {
-					std::array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> anim_angs{};
+					enumerated_array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES, robot_animation_state> anim_angs{};
 					unsigned n_frames;
 
 					n_frames = pof_read_short(model_buf, Pof_addr);

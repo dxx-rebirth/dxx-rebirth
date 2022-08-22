@@ -385,7 +385,7 @@ static int load_pigpog(const d_fname &pogname)
 
 static int read_d2_robot_info(PHYSFS_File *fp, robot_info &ri)
 {
-	int j, k;
+	int j;
 
 	ri.model_num = PHYSFSX_readInt(fp);
 
@@ -460,10 +460,10 @@ static int read_d2_robot_info(PHYSFS_File *fp, robot_info &ri)
 
 	for (j = 0; j < MAX_GUNS + 1; j++)
 	{
-		for (k = 0; k < N_ANIM_STATES; k++)
+		for (auto &k : ri.anim_states[j])
 		{
-			ri.anim_states[j][k].n_joints = PHYSFSX_readShort(fp);
-			ri.anim_states[j][k].offset = PHYSFSX_readShort(fp);
+			k.n_joints = PHYSFSX_readShort(fp);
+			k.offset = PHYSFSX_readShort(fp);
 		}
 	}
 	ri.always_0xabcd = PHYSFSX_readInt(fp);

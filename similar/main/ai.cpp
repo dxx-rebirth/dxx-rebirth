@@ -136,8 +136,8 @@ enum {
 #define	ANIM_RATE		(F1_0/16)
 #define	DELTA_ANG_SCALE	16
 
-constexpr std::array<int8_t, 8> Mike_to_matt_xlate{{
-	AS_REST, AS_REST, AS_ALERT, AS_ALERT, AS_FLINCH, AS_FIRE, AS_RECOIL, AS_REST
+constexpr std::array<robot_animation_state, 8> Mike_to_matt_xlate{{
+	robot_animation_state::rest, robot_animation_state::rest, robot_animation_state::alert, robot_animation_state::alert, robot_animation_state::flinch, robot_animation_state::fire, robot_animation_state::recoil, robot_animation_state::rest
 }};
 
 #define	OVERALL_AGITATION_MAX	100
@@ -781,7 +781,7 @@ namespace {
 //	Return 1 if animates, else return 0
 static int do_silly_animation(const d_robot_info_array &Robot_info, object &objp)
 {
-	int				robot_type, gun_num, robot_state;
+	int				robot_type, gun_num;
 	polyobj_info	*const pobj_info = &objp.rtype.pobj_info;
 	auto &aip = objp.ctype.ai_info;
 	int				num_guns, at_goal;
@@ -799,12 +799,12 @@ static int do_silly_animation(const d_robot_info_array &Robot_info, object &objp
 	}
 
 	//	This is a hack.  All positions should be based on goal_state, not GOAL_STATE.
-	robot_state = Mike_to_matt_xlate[aip.GOAL_STATE];
+	const auto robot_state = Mike_to_matt_xlate[aip.GOAL_STATE];
 	// previous_robot_state = Mike_to_matt_xlate[aip->CURRENT_STATE];
 
-	if (attack_type) // && ((robot_state == AS_FIRE) || (robot_state == AS_RECOIL)))
+	if (attack_type) // && ((robot_state == robot_animation_state::fire) || (robot_state == robot_animation_state::recoil)))
 		flinch_attack_scale = Attack_scale;
-	else if ((robot_state == AS_FLINCH) || (robot_state == AS_RECOIL))
+	else if (robot_state == robot_animation_state::flinch || robot_state == robot_animation_state::recoil)
 		flinch_attack_scale = Flinch_scale;
 
 	at_goal = 1;

@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_levelstate.h"
 #include "segment.h"
 
+#include "d_enumerate.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
@@ -86,7 +87,7 @@ void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_
 
 //fills in ptr to list of joints, and returns the number of joints in list
 //takes the robot type (object id), gun number, and desired state
-partial_range_t<const jointpos *> robot_get_anim_state(const d_robot_info_array &robot_info, const std::array<jointpos, MAX_ROBOT_JOINTS> &robot_joints, const unsigned robot_type, const unsigned gun_num, const unsigned state)
+partial_range_t<const jointpos *> robot_get_anim_state(const d_robot_info_array &robot_info, const std::array<jointpos, MAX_ROBOT_JOINTS> &robot_joints, const unsigned robot_type, const unsigned gun_num, const robot_animation_state state)
 {
 	auto &rirt = robot_info[robot_type];
 	assert(gun_num <= rirt.n_guns);
@@ -98,7 +99,7 @@ partial_range_t<const jointpos *> robot_get_anim_state(const d_robot_info_array 
 #ifndef NDEBUG
 //for test, set a robot to a specific state
 __attribute_used
-static void set_robot_state(object_base &obj, const unsigned state)
+static void set_robot_state(object_base &obj, const robot_animation_state state)
 {
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	int g,j,jo;
@@ -111,7 +112,6 @@ static void set_robot_state(object_base &obj, const unsigned state)
 
 	for (g = 0; g < ri.n_guns + 1; g++)
 	{
-
 		jl = &ri.anim_states[g][state];
 
 		jo = jl->offset;
@@ -129,10 +129,10 @@ static void set_robot_state(object_base &obj, const unsigned state)
 
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.
-void robot_set_angles(robot_info *r,polymodel *pm,std::array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> &angs)
+void robot_set_angles(robot_info *const r, polymodel *const pm, enumerated_array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES, robot_animation_state> &angs)
 {
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
-	int g,state;
+	int g;
 	std::array<int, MAX_SUBMODELS> gun_nums;			//which gun each submodel is part of
 
 	range_for (auto &m, partial_range(gun_nums, 1u, pm->n_models))
@@ -151,10 +151,10 @@ void robot_set_angles(robot_info *r,polymodel *pm,std::array<std::array<vms_angv
 
 	for (g=0;g<r->n_guns+1;g++) {
 
-		for (state=0;state<N_ANIM_STATES;state++) {
-
-			r->anim_states[g][state].n_joints = 0;
-			r->anim_states[g][state].offset = LevelSharedRobotJointState.N_robot_joints;
+		for (auto &&[state, as] : enumerate(r->anim_states[g]))
+		{
+			as.n_joints = 0;
+			as.offset = LevelSharedRobotJointState.N_robot_joints;
 
 			for (unsigned m = 0; m < pm->n_models; ++m)
 			{

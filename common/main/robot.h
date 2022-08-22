@@ -38,6 +38,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
+enum class robot_animation_state : uint8_t
+{
+	rest,
+	alert,
+	fire,
+	recoil,
+	flinch,
+};
+
 //describes the position of a certain joint
 struct jointpos : prohibit_void_ptr<jointpos>
 {
@@ -134,7 +143,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	ubyte   aim;                //  255 = perfect, less = more likely to miss.  0 != random, would look stupid.  0=45 degree spread.  Specify in bitmaps.tbl in range 0.0..1.0
 #endif
 	//animation info
-	std::array<std::array<jointlist, N_ANIM_STATES>, MAX_GUNS+1> anim_states;
+	std::array<enumerated_array<jointlist, N_ANIM_STATES, robot_animation_state>, MAX_GUNS+1> anim_states;
 	int     always_0xabcd;      // debugging
 };
 
@@ -211,12 +220,12 @@ struct d_level_shared_robot_joint_state : ::dcx::d_level_shared_robot_joint_stat
 //      robot_type      type of robot for which to get joint information.  A particular type, not an instance of a robot.
 //      gun_num         gun number.  If in 0..Robot_info[robot_type].n_guns-1, then it is a gun, else it refers to non-animating parts of robot.
 //      state           state about which to get information.  Legal states in range 0..N_ANIM_STATES-1, defined in robot.h, are:
-//                          AS_REST, AS_ALERT, AS_FIRE, AS_RECOIL, AS_FLINCH
+//                          robot_animation_state::rest, robot_animation_state::alert, robot_animation_state::fire, robot_animation_state::recoil, robot_animation_state::flinch
 
 //  On exit:
 //      Returns number of joints in list.
 //      jp_list_ptr is stuffed with a pointer to a static array of joint positions.  This pointer is valid forever.
-partial_range_t<const jointpos *> robot_get_anim_state(const d_robot_info_array &, const std::array<jointpos, MAX_ROBOT_JOINTS> &, unsigned robot_type, unsigned gun_num, unsigned state);
+partial_range_t<const jointpos *> robot_get_anim_state(const d_robot_info_array &, const std::array<jointpos, MAX_ROBOT_JOINTS> &, unsigned robot_type, unsigned gun_num, robot_animation_state state);
 
 /*
  * reads n robot_info structs from a PHYSFS_File
