@@ -1276,8 +1276,11 @@ static void DoEndLevelScoreGlitz()
 	auto &hostage_text = m_str[c++];
 	if (cheats.enabled)
 		snprintf(hostage_text, sizeof(hostage_text), "Hostages saved:   \t%u", hostages_on_board);
-	else if (const auto hostages_lost = LevelUniqueObjectState.total_hostages - hostages_on_board)
+	else if (LevelUniqueObjectState.total_hostages > hostages_on_board)
+	{
+		const auto hostages_lost = LevelUniqueObjectState.total_hostages - hostages_on_board;
 		snprintf(hostage_text, sizeof(hostage_text), "Hostages lost:    \t%u", hostages_lost);
+	}
 	else
 	{
 		all_hostage_points = hostages_on_board * 1000 * (underlying_value(Difficulty_level) + 1);
