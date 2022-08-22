@@ -130,15 +130,11 @@ static void pof_read_vec(vms_vector &vec, const uint8_t *bufp)
 		Int3();
 }
 
-static void pof_read_angs(vms_angvec *angs,int n,ubyte *bufp)
+static void pof_read_ang(vms_angvec &ang, const uint8_t *bufp)
 {
-	for (int i = 0; i < n; i++)
-	{
-		angs[i].p = pof_read_short(bufp);
-		angs[i].b = pof_read_short(bufp);
-		angs[i].h = pof_read_short(bufp);
-	}
-
+	ang.p = pof_read_short(bufp);
+	ang.b = pof_read_short(bufp);
+	ang.h = pof_read_short(bufp);
 	if (Pof_addr > MODEL_BUF_SIZE)
 		Int3();
 }
@@ -269,7 +265,7 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 
 					for (int m=0;m<pm->n_models;m++)
 						range_for (auto &f, partial_range(anim_angs, n_frames))
-							pof_read_angs(&f[m], 1, model_buf);
+							pof_read_ang(f[m], model_buf);
 
 
 					robot_set_angles(r,pm,anim_angs);
