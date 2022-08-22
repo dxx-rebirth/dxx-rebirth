@@ -103,17 +103,11 @@ static size_t pof_cfread(void *const dst, const size_t elsize, const uint8_t *bu
 
 #define new_pof_read_int(i,f) pof_cfread(&(i), sizeof(i), (f))
 
-static short pof_read_short(ubyte *bufp)
+static short pof_read_short(const uint8_t *bufp)
 {
-	short s;
-
-	s = *(reinterpret_cast<int16_t *>(&bufp[Pof_addr]));
+	const auto r = GET_INTEL_SHORT(&bufp[Pof_addr]);
 	Pof_addr += 2;
-	return INTEL_SHORT(s);
-//	if (PHYSFS_read(f,&s,sizeof(s),1) != 1)
-//		Error("Unexpected end-of-file while reading object");
-//
-//	return s;
+	return r;
 }
 
 static void pof_read_string(char *buf,int max_char, ubyte *bufp)
