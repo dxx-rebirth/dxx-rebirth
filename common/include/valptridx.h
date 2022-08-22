@@ -15,11 +15,6 @@
 #include "selfiter.h"
 
 #ifdef DXX_CONSTANT_TRUE
-#define DXX_VALPTRIDX_STATIC_CHECK(SUCCESS_CONDITION,FAILURE_FUNCTION,FAILURE_STRING)	\
-		static_cast<void>(DXX_CONSTANT_TRUE(!SUCCESS_CONDITION) &&	\
-			(DXX_ALWAYS_ERROR_FUNCTION(FAILURE_FUNCTION, FAILURE_STRING), 0)	\
-		)	\
-
 #ifdef DXX_HAVE_ATTRIBUTE_WARNING
 /* This causes many warnings because some conversions are not checked for
  * safety.  Eliminating the warnings by changing the call sites to check first
@@ -27,18 +22,12 @@
  */
 //#define DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT __attribute__((__warning__("call not eliminated")))
 #endif
-#else
-#define DXX_VALPTRIDX_STATIC_CHECK(E,F,S)
 #endif
 
-#define DXX_VALPTRIDX_CHECK(SUCCESS_CONDITION,ERROR,FAILURE_STRING,...)	\
-	( DXX_BEGIN_COMPOUND_STATEMENT {	\
-		const bool dxx_valptridx_check_success_condition = (SUCCESS_CONDITION);	\
-		DXX_VALPTRIDX_STATIC_CHECK(dxx_valptridx_check_success_condition, dxx_trap_##ERROR, FAILURE_STRING);	\
-		static_cast<void>(	\
-			dxx_valptridx_check_success_condition || (ERROR::report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VA(__VA_ARGS__)), 0)	\
-		);	\
-	} DXX_END_COMPOUND_STATEMENT )
+#define DXX_VALPTRIDX_CHECK(SUCCESS_CONDITION,ERROR,...)	\
+	static_cast<void>(	\
+		static_cast<bool>(SUCCESS_CONDITION) || (ERROR::report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VA(__VA_ARGS__)), 0)	\
+	)	\
 
 #ifndef DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
 #define DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
@@ -206,7 +195,7 @@ template <typename handle_index_mismatch>
 void valptridx<managed_type>::check_index_match(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_reference_type r, index_type i, const array_managed_type &a __attribute_unused)
 {
 	const auto pi = &a[i];
-	DXX_VALPTRIDX_CHECK(pi == &r, handle_index_mismatch, "pointer/index mismatch", &a, i, pi, &r);
+	DXX_VALPTRIDX_CHECK(pi == &r, handle_index_mismatch, &a, i, pi, &r);
 }
 
 template <typename managed_type>
@@ -226,7 +215,7 @@ template <typename managed_type>
 template <typename handle_index_range_error, template <typename> class Compare>
 typename valptridx<managed_type>::index_type valptridx<managed_type>::check_index_range_size(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const std::size_t s, const array_managed_type *const a)
 {
-	DXX_VALPTRIDX_CHECK(Compare<std::size_t>()(s, array_size), handle_index_range_error, "invalid index used in array subscript", a, s);
+	DXX_VALPTRIDX_CHECK(Compare<std::size_t>()(s, array_size), handle_index_range_error, a, s);
 	/* This cast will truncate the value to fit in index_type, which is
 	 * normally smaller than std::size_t.  However, truncation is legal
 	 * here, because (1) DXX_VALPTRIDX_CHECK would trap on an index that
@@ -246,14 +235,14 @@ template <typename managed_type>
 template <typename handle_null_pointer>
 void valptridx<managed_type>::check_null_pointer_conversion(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_pointer_type p)
 {
-	DXX_VALPTRIDX_CHECK(p, handle_null_pointer, "NULL pointer converted");
+	DXX_VALPTRIDX_CHECK(p, handle_null_pointer);
 }
 
 template <typename managed_type>
 template <typename handle_null_pointer>
 void valptridx<managed_type>::check_null_pointer(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_pointer_type p, const array_managed_type &a __attribute_unused)
 {
-	DXX_VALPTRIDX_CHECK(p, handle_null_pointer, "NULL pointer used", &a);
+	DXX_VALPTRIDX_CHECK(p, handle_null_pointer, &a);
 }
 
 template <typename managed_type>
