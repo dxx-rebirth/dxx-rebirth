@@ -280,8 +280,8 @@ class ConfigureTests(_ConfigureTests):
 		def __init__(self,features):
 			self.features = features
 			s = '/* C++{} {} */\n{}'.format
-			self.main = '\n'.join((s(f.std, f.name, f.main) for f in features))
-			self.text = '\n'.join((s(f.std, f.name, f.text) for f in features))
+			self.main = '\n'.join((s(f.std, f.name, f.main) for f in features if f.main))
+			self.text = '\n'.join((s(f.std, f.name, f.text) for f in features if f.text))
 	class PCHAction:
 		def __init__(self,context):
 			self._context = context
