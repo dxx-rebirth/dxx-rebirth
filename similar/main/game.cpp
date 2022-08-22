@@ -257,14 +257,14 @@ void init_cockpit()
 		PlayerCfg.CockpitMode[1] = cockpit_mode_t::full_screen;
 
 #if !DXX_USE_OGL
-	if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
+	if (PlayerCfg.CockpitMode[1] != cockpit_mode_t::letterbox)
 	{
 #if defined(DXX_BUILD_DESCENT_II)
 		int HiresGFXAvailable = !GameArg.GfxSkipHiresGFX;
 #endif
 		auto full_screen_mode = HiresGFXAvailable ? initial_large_game_screen_mode : initial_small_game_screen_mode;
 		if (Game_screen_mode != full_screen_mode) {
-			PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
+			PlayerCfg.CockpitMode[1] = cockpit_mode_t::full_screen;
 		}
 	}
 #endif
