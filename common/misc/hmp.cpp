@@ -27,8 +27,8 @@
 #include "compiler-range_for.h"
 #include "d_range.h"
 #include "d_underlying_value.h"
+#include "d_zip.h"
 #include "partial_range.h"
-#include <memory>
 
 namespace dcx {
 
@@ -133,7 +133,6 @@ void hmp_stop(hmp_file *hmp)
 	while ((mhdr = hmp->evbuf)) {
 		midiOutUnprepareHeader(reinterpret_cast<HMIDIOUT>(hmp->hmidi), mhdr, sizeof(MIDIHDR));
 		hmp->evbuf = mhdr->lpNext;
-		d_free(mhdr);
 	}
 
 	if (hmp->hmidi) {
@@ -327,22 +326,19 @@ static int fill_buffer(hmp_file *hmp) {
 	return 0;
 }
 
-static int setup_buffers(hmp_file *hmp) {
-	MIDIHDR *buf, *lastbuf;
-
-	lastbuf = NULL;
-	for (int i = 0; i < HMP_BUFFERS; i++) {
-		if (!(buf = reinterpret_cast<MIDIHDR *>(d_malloc(HMP_BUFSIZE + sizeof(MIDIHDR)))))
-			return HMP_OUT_OF_MEM;
-		memset(buf, 0, sizeof(MIDIHDR));
-		buf->lpData = reinterpret_cast<char *>(buf) + sizeof(MIDIHDR);
-		buf->dwBufferLength = HMP_BUFSIZE;
-		buf->dwUser = reinterpret_cast<uintptr_t>(hmp);
-		buf->lpNext = lastbuf;
-		lastbuf = buf;
+static void setup_buffers(hmp_file &hmp)
+{
+	MIDIHDR *lastbuf = nullptr;
+	for (auto &&[header, buffer] : zip(hmp.midi_headers, hmp.midi_buffers))
+	{
+		header = {};
+		header.lpData = buffer.data();
+		header.dwBufferLength = std::size(buffer);
+		header.dwUser = reinterpret_cast<uintptr_t>(std::addressof(hmp));
+		header.lpNext = lastbuf;
+		lastbuf = &header;
 	}
-	hmp->evbuf = lastbuf;
-	return 0;
+	hmp.evbuf = lastbuf;
 }
 
 static void reset_tracks(struct hmp_file *hmp)
@@ -427,8 +423,7 @@ int hmp_play(hmp_file *hmp, int bLoop)
 	hmp->looping = 0;
 	hmp->devid = MIDI_MAPPER;
 
-	if ((rc = setup_buffers(hmp)))
-		return rc;
+	setup_buffers(*hmp);
 	if ((midiStreamOpen(&hmp->hmidi, &hmp->devid, 1, reinterpret_cast<DWORD_PTR>(&midi_callback), 0, CALLBACK_FUNCTION)) != MMSYSERR_NOERROR)
 	{
 		hmp->hmidi = NULL;
