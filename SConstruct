@@ -517,6 +517,17 @@ static inline void f_%(N)s() {}
 			break;
 	}
 '''),
+		Cxx17RequiredFeature('attribute [[nodiscard]]', '''
+[[nodiscard]]
+static int f_%(N)s()
+{
+	return 0;
+}
+''',
+'''
+	auto i_%(N)s = f_%(N)s();
+	(void)i_%(N)s;
+'''),
 		Cxx14RequiredFeature('template variables', '''
 template <unsigned U_%(N)s>
 int a_%(N)s = U_%(N)s + 1;
