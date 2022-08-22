@@ -488,7 +488,10 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 
 			std::array<int8_t, 11> ai_info_flags{};
 			PHYSFS_read(f, &ai_info_flags[0], 1, 11);
-			obj->ctype.ai_info.CURRENT_GUN = ai_info_flags[0];
+			{
+				const uint8_t gun_num = ai_info_flags[0];
+				obj->ctype.ai_info.CURRENT_GUN = (gun_num < MAX_GUNS) ? robot_gun_number{gun_num} : robot_gun_number{};
+			}
 			obj->ctype.ai_info.CURRENT_STATE = build_ai_state_from_untrusted(ai_info_flags[1]).value();
 			obj->ctype.ai_info.GOAL_STATE = build_ai_state_from_untrusted(ai_info_flags[2]).value();
 			obj->ctype.ai_info.PATH_DIR = ai_info_flags[3];
@@ -758,7 +761,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 			PHYSFSX_writeU8(f, static_cast<uint8_t>(obj.ctype.ai_info.behavior));
 
 			std::array<int8_t, 11> ai_info_flags{};
-			ai_info_flags[0] = obj.ctype.ai_info.CURRENT_GUN;
+			ai_info_flags[0] = underlying_value(obj.ctype.ai_info.CURRENT_GUN);
 			ai_info_flags[1] = obj.ctype.ai_info.CURRENT_STATE;
 			ai_info_flags[2] = obj.ctype.ai_info.GOAL_STATE;
 			ai_info_flags[3] = obj.ctype.ai_info.PATH_DIR;

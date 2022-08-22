@@ -398,7 +398,7 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 		case object::control_type::ai:
 		{
 			obj_rw->ctype.ai_info.behavior               = static_cast<uint8_t>(obj.ctype.ai_info.behavior);
-			obj_rw->ctype.ai_info.flags[0] = obj.ctype.ai_info.CURRENT_GUN;
+			obj_rw->ctype.ai_info.flags[0] = underlying_value(obj.ctype.ai_info.CURRENT_GUN);
 			obj_rw->ctype.ai_info.flags[1] = obj.ctype.ai_info.CURRENT_STATE;
 			obj_rw->ctype.ai_info.flags[2] = obj.ctype.ai_info.GOAL_STATE;
 			obj_rw->ctype.ai_info.flags[3] = obj.ctype.ai_info.PATH_DIR;
@@ -606,7 +606,10 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 		case object::control_type::ai:
 		{
 			obj.ctype.ai_info.behavior               = static_cast<ai_behavior>(obj_rw->ctype.ai_info.behavior);
-			obj.ctype.ai_info.CURRENT_GUN = obj_rw->ctype.ai_info.flags[0];
+			{
+				const uint8_t gun_num = obj_rw->ctype.ai_info.flags[0];
+				obj.ctype.ai_info.CURRENT_GUN = (gun_num < MAX_GUNS) ? robot_gun_number{gun_num} : robot_gun_number{};
+			}
 			obj.ctype.ai_info.CURRENT_STATE = build_ai_state_from_untrusted(obj_rw->ctype.ai_info.flags[1]).value();
 			obj.ctype.ai_info.GOAL_STATE = build_ai_state_from_untrusted(obj_rw->ctype.ai_info.flags[2]).value();
 			obj.ctype.ai_info.PATH_DIR = obj_rw->ctype.ai_info.flags[3];

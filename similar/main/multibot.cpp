@@ -517,7 +517,7 @@ void multi_send_robot_position(object &obj, const multi_send_robot_position_prio
 	return;
 }
 
-void multi_send_robot_fire(const vmobjptridx_t obj, int gun_num, const vms_vector &fire)
+void multi_send_robot_fire(const vmobjptridx_t obj, const robot_gun_number gun_num, const vms_vector &fire)
 {
 	multi_command<MULTI_ROBOT_FIRE> multibuf;
         // Send robot fire event
@@ -529,7 +529,7 @@ void multi_send_robot_fire(const vmobjptridx_t obj, int gun_num, const vms_vecto
 	multibuf[loc+2] = obj_owner;
 	PUT_INTEL_SHORT(&multibuf[loc], remote_objnum);
                                                                         loc += 3;
-        multibuf[loc] = gun_num;                                        loc += 1;
+        multibuf[loc] = underlying_value(gun_num);                                        loc += 1;
 		multi_put_vector(&multibuf[loc], fire);
                                                                         loc += sizeof(vms_vector); // 12
                                                                         // --------------------------
@@ -868,10 +868,10 @@ void multi_do_robot_position(const playernum_t pnum, const multiplayer_rspan<MUL
 
 }
 
-static inline vms_vector calc_gun_point(const object_base &obj, unsigned gun_num)
+static inline vms_vector calc_gun_point(const robot_info &robptr, const object_base &obj, const robot_gun_number gun_num)
 {
 	vms_vector v;
-	return calc_gun_point(v, obj, gun_num), v;
+	return calc_gun_point(robptr, v, obj, gun_num), v;
 }
 
 namespace dsx {
@@ -882,11 +882,10 @@ void multi_do_robot_fire(const multiplayer_rspan<MULTI_ROBOT_FIRE> buf)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	// Send robot fire event
 	int loc = 1;
-	int gun_num;
                                                                                         loc += 1; // pnum
 	const short remote_botnum = GET_INTEL_SHORT(&buf[loc]);
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[loc+2]);                loc += 3;
-	gun_num = static_cast<int8_t>(buf[loc]);                                                      loc += 1;
+	const auto gun_num = buf[loc];                                                      loc += 1;
 	const auto fire = multi_get_vector(&buf[loc]);
 
 	if (botnum > Highest_object_index)
@@ -897,19 +896,32 @@ void multi_do_robot_fire(const multiplayer_rspan<MULTI_ROBOT_FIRE> buf)
 		return;
 
 	using pt_weapon = std::pair<vms_vector, weapon_id_type>;
+	auto &robptr = Robot_info[get_robot_id(botp)];
+	switch (gun_num)
+	{
+		case underlying_value(robot_gun_number::proximity):
+#if defined(DXX_BUILD_DESCENT_II)
+		case underlying_value(robot_gun_number::smart_mine):
+#endif
+			break;
+		default:
+			if (gun_num >= robptr.n_guns)
+				return;
+			break;
+	}
 	const pt_weapon pw =
 	// Do the firing
-		(gun_num == -1
+		(gun_num == underlying_value(robot_gun_number::proximity)
 #if defined(DXX_BUILD_DESCENT_II)
-		|| gun_num==-2
+		|| gun_num == underlying_value(robot_gun_number::smart_mine)
 #endif
 		)
 		? pt_weapon(vm_vec_add(botp->pos, fire), 
 #if defined(DXX_BUILD_DESCENT_II)
-			gun_num != -1 ? weapon_id_type::SUPERPROX_ID :
+			gun_num != underlying_value(robot_gun_number::proximity) ? weapon_id_type::SUPERPROX_ID :
 #endif
 			weapon_id_type::PROXIMITY_ID)
-		: pt_weapon(calc_gun_point(botp, gun_num), get_robot_weapon(Robot_info[get_robot_id(botp)], 1));
+		: pt_weapon(calc_gun_point(robptr, botp, robot_gun_number{gun_num}), get_robot_weapon(robptr, robot_gun_number::_1));
 	Laser_create_new_easy(Robot_info, fire, pw.first, botp, pw.second, weapon_sound_flag::audible);
 }
 

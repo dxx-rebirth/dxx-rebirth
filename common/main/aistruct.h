@@ -75,6 +75,20 @@ enum ai_static_state : uint8_t
 	AIS_ERR_ = 7,
 };
 
+enum class robot_gun_number : uint8_t
+{
+	/* This enum is used to index an array[8], so only values in [0, 7] are
+	 * valid indices.  All others are special flag values that must not be
+	 * stored into the robot structure.
+	 */
+	_0,
+	_1,
+	/* if DXX_BUILD_DESCENT_II */
+	smart_mine = 0xfe,
+	/* endif */
+	proximity = 0xff,
+};
+
 static inline unsigned player_is_visible(const player_visibility_state s)
 {
 	return static_cast<unsigned>(s) > 0;
@@ -209,14 +223,14 @@ struct ai_local : public prohibit_void_ptr<ai_local>
 	fix64      next_misc_sound_time = 0;          // absolute time in seconds at which this robot last made an angry or lurking sound.
 	std::array<vms_angvec, MAX_SUBMODELS> goal_angles{};    // angles for each subobject
 	std::array<vms_angvec, MAX_SUBMODELS> delta_angles{};   // angles for each subobject
-	std::array<ai_static_state, MAX_SUBMODELS> goal_state{};     // Goal state for this sub-object
-	std::array<ai_static_state, MAX_SUBMODELS> achieved_state{}; // Last achieved state
+	enumerated_array<ai_static_state, MAX_SUBMODELS, robot_gun_number> goal_state{};     // Goal state for this sub-object
+	enumerated_array<ai_static_state, MAX_SUBMODELS, robot_gun_number> achieved_state{}; // Last achieved state
 };
 
 struct ai_static : public prohibit_void_ptr<ai_static>
 {
 	ai_behavior behavior = static_cast<ai_behavior>(0);               //
-	int8_t CURRENT_GUN;
+	robot_gun_number CURRENT_GUN;
 	ai_static_state CURRENT_STATE;
 	ai_static_state GOAL_STATE;
 	int8_t PATH_DIR;

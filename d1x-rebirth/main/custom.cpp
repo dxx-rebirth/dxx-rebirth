@@ -389,10 +389,10 @@ static int read_d2_robot_info(PHYSFS_File *fp, robot_info &ri)
 
 	ri.model_num = PHYSFSX_readInt(fp);
 
-	for (j = 0; j < MAX_GUNS; j++)
-		PHYSFSX_readVector(fp, ri.gun_points[j]);
-	for (j = 0; j < MAX_GUNS; j++)
-		ri.gun_submodels[j] = PHYSFSX_readByte(fp);
+	for (auto &j : ri.gun_points)
+		PHYSFSX_readVector(fp, j);
+	for (auto &j : ri.gun_submodels)
+		j = PHYSFSX_readByte(fp);
 	ri.exp1_vclip_num = PHYSFSX_readShort(fp);
 	ri.exp1_sound_num = PHYSFSX_readShort(fp);
 	ri.exp2_vclip_num = PHYSFSX_readShort(fp);
@@ -458,9 +458,9 @@ static int read_d2_robot_info(PHYSFS_File *fp, robot_info &ri)
 	/*ri.behavior =*/ PHYSFSX_readByte(fp);
 	/*ri.aim =*/ PHYSFSX_readByte(fp);
 
-	for (j = 0; j < MAX_GUNS + 1; j++)
+	for (auto &j : ri.anim_states)
 	{
-		for (auto &k : ri.anim_states[j])
+		for (auto &k : j)
 		{
 			k.n_joints = PHYSFSX_readShort(fp);
 			k.offset = PHYSFSX_readShort(fp);

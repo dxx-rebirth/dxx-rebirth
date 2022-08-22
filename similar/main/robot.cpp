@@ -51,20 +51,17 @@ namespace dsx {
 
 //given an object and a gun number, return position in 3-space of gun
 //fills in gun_point
-void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_num)
+void calc_gun_point(const robot_info &r, vms_vector &gun_point, const object_base &obj, const robot_gun_number entry_gun_num)
 {
 	Assert(obj.render_type == RT_POLYOBJ || obj.render_type == RT_MORPH);
 	assert(get_robot_id(obj) < LevelSharedRobotInfoState.N_robot_types);
 
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	const auto &r = Robot_info[get_robot_id(obj)];
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const auto &pm = Polygon_models[r.model_num];
 
-	if (gun_num >= r.n_guns)
-	{
-		gun_num = 0;
-	}
+	const auto gun_num = (underlying_value(entry_gun_num) >= r.n_guns)
+		? robot_gun_number::_0
+		: entry_gun_num;
 
 	auto pnt = r.gun_points[gun_num];
 
@@ -87,10 +84,9 @@ void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_
 
 //fills in ptr to list of joints, and returns the number of joints in list
 //takes the robot type (object id), gun number, and desired state
-partial_range_t<const jointpos *> robot_get_anim_state(const d_robot_info_array &robot_info, const std::array<jointpos, MAX_ROBOT_JOINTS> &robot_joints, const unsigned robot_type, const unsigned gun_num, const robot_animation_state state)
+partial_range_t<const jointpos *> robot_get_anim_state(const d_robot_info_array &robot_info, const std::array<jointpos, MAX_ROBOT_JOINTS> &robot_joints, const unsigned robot_type, const robot_gun_number gun_num, const robot_animation_state state)
 {
 	auto &rirt = robot_info[robot_type];
-	assert(gun_num <= rirt.n_guns);
 	auto &as = rirt.anim_states[gun_num][state];
 	const unsigned o = as.offset;
 	return partial_range(robot_joints, o, o + as.n_joints);
@@ -102,18 +98,17 @@ __attribute_used
 static void set_robot_state(object_base &obj, const robot_animation_state state)
 {
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
-	int g,j,jo;
-	jointlist *jl;
+	int j,jo;
 
 	assert(obj.type == OBJ_ROBOT);
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &ri = Robot_info[get_robot_id(obj)];
 
-	for (g = 0; g < ri.n_guns + 1; g++)
+	const unsigned n_guns = ri.n_guns + 1;
+	for (auto &as : partial_range(ri.anim_states, n_guns))
 	{
-		jl = &ri.anim_states[g][state];
-
+		const auto jl = &as[state];
 		jo = jl->offset;
 
 		for (j=0;j<jl->n_joints;j++,jo++) {
@@ -132,33 +127,39 @@ static void set_robot_state(object_base &obj, const robot_animation_state state)
 void robot_set_angles(robot_info *const r, polymodel *const pm, enumerated_array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES, robot_animation_state> &angs)
 {
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
-	int g;
-	std::array<int, MAX_SUBMODELS> gun_nums;			//which gun each submodel is part of
+	std::array<robot_gun_number, MAX_SUBMODELS> gun_nums;			//which gun each submodel is part of
+	gun_nums[0] = robot_gun_number{UINT8_MAX};		//body never animates, at least for now
+	{
+		auto &&gr = partial_range(gun_nums, 1u, pm->n_models);
+		//assume part of body...
+		std::fill(gr.begin(), gr.end(), robot_gun_number{r->n_guns});
+	}
 
-	range_for (auto &m, partial_range(gun_nums, 1u, pm->n_models))
-		m = r->n_guns;		//assume part of body...
-
-	gun_nums[0] = -1;		//body never animates, at least for now
-
-	for (g=0;g<r->n_guns;g++) {
-		auto m = r->gun_submodels[g];
-
-		while (m != 0) {
+	for (auto [g, entry_m] : enumerate(partial_const_range(r->gun_submodels, r->n_guns)))
+	{
+		const std::size_t bound = std::min(std::size(gun_nums), std::size(pm->submodel_parents));
+		auto m = entry_m;
+		while (m != 0 && m < bound)
+		{
 			gun_nums[m] = g;				//...unless we find it in a gun
 			m = pm->submodel_parents[m];
 		}
 	}
 
-	for (g=0;g<r->n_guns+1;g++) {
-
-		for (auto &&[state, as] : enumerate(r->anim_states[g]))
+	const auto n_models = pm->n_models;
+	const auto &&gun_num_model_range = enumerate(partial_range(gun_nums, n_models));
+	const unsigned n_guns = r->n_guns + 1;
+	for (auto &&[g, ras] : enumerate(partial_range(r->anim_states, n_guns)))
+	{
+		for (auto &&[state, as] : enumerate(ras))
 		{
 			as.n_joints = 0;
 			as.offset = LevelSharedRobotJointState.N_robot_joints;
 
-			for (unsigned m = 0; m < pm->n_models; ++m)
+			for (auto &&[m, gn] : gun_num_model_range)
 			{
-				if (gun_nums[m] == g) {
+				if (gn == g)
+				{
 					const auto N_robot_joints = LevelSharedRobotJointState.N_robot_joints ++;
 					Robot_joints[N_robot_joints].jointnum = m;
 					Robot_joints[N_robot_joints].angles = angs[state][m];

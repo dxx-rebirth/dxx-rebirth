@@ -53,7 +53,7 @@ extern std::bitset<MAX_ROBOTS_CONTROLLED> robot_fired;
 #ifdef dsx
 int multi_can_move_robot(vmobjptridx_t objnum, int agitation);
 void multi_send_robot_position(object &objnum, multi_send_robot_position_priority fired);
-void multi_send_robot_fire(vmobjptridx_t objnum, int gun_num, const vms_vector &fire);
+void multi_send_robot_fire(vmobjptridx_t objnum, robot_gun_number gun_num, const vms_vector &fire);
 void multi_send_claim_robot(vmobjptridx_t objnum);
 void multi_send_robot_explode(imobjptridx_t objnum, objnum_t killer);
 void multi_send_create_robot(station_number robotcen, objnum_t objnum, int type);

@@ -219,22 +219,30 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 				if (r) {
 					vms_vector gun_dir;
 
-					r->n_guns = pof_read_int(model_buf, Pof_addr);
-
-					Assert(r->n_guns <= MAX_GUNS);
-
-					for (int i=0;i<r->n_guns;i++) {
+					const uint8_t n_guns = pof_read_int(model_buf, Pof_addr);
+					r->n_guns = std::min<uint8_t>(n_guns, MAX_GUNS);
+					for (const auto i : xrange(n_guns))
+					{
+						(void)i;
 						const uint_fast32_t gun_id = pof_read_short(model_buf, Pof_addr);
 						/*
-						 * D1 v1.0 boss02.pof has id=4 and r->n_guns==4.
-						 * Relax the assert to check only for memory
-						 * corruption.
+						 * D1 v1.0 boss02.pof has id=4 and r->n_guns==4.  This
+						 * is wrong, but it will not cause memory corruption.
 						 */
-						assert(gun_id < std::size(r->gun_submodels));
-						auto &submodel = r->gun_submodels[gun_id];
-						submodel = pof_read_short(model_buf, Pof_addr);
+						const auto submodel = pof_read_short(model_buf, Pof_addr);
+						vms_vector v;
+						pof_read_vec(v, model_buf, Pof_addr);
 						Assert(submodel != 0xff);
-						pof_read_vec(r->gun_points[gun_id], model_buf, Pof_addr);
+						if (gun_id < std::size(r->gun_submodels))
+						{
+							/* Cast to robot_gun_number is well defined because
+							 * the if test ensures the index is in range for
+							 * the array.
+							 */
+							const auto g = static_cast<robot_gun_number>(gun_id);
+							r->gun_submodels[g] = submodel;
+							r->gun_points[g] = v;
+						}
 
 						if (version >= 7)
 							pof_read_vec(gun_dir, model_buf, Pof_addr);

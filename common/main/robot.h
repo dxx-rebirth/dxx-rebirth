@@ -76,8 +76,8 @@ namespace dsx {
 struct robot_info : prohibit_void_ptr<robot_info>
 {
 	int     model_num;                  // which polygon model?
-	std::array<vms_vector, MAX_GUNS>  gun_points;   // where each gun model is
-	std::array<uint8_t, MAX_GUNS>   gun_submodels;    // which submodel is each gun in?
+	enumerated_array<vms_vector, MAX_GUNS, robot_gun_number>  gun_points;   // where each gun model is
+	enumerated_array<uint8_t, MAX_GUNS, robot_gun_number>   gun_submodels;    // which submodel is each gun in?
 	uint16_t score_value;						//	Score from this robot.
 	short   exp1_vclip_num;
 	short   exp1_sound_num;
@@ -143,7 +143,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	ubyte   aim;                //  255 = perfect, less = more likely to miss.  0 != random, would look stupid.  0=45 degree spread.  Specify in bitmaps.tbl in range 0.0..1.0
 #endif
 	//animation info
-	std::array<enumerated_array<jointlist, N_ANIM_STATES, robot_animation_state>, MAX_GUNS+1> anim_states;
+	enumerated_array<enumerated_array<jointlist, N_ANIM_STATES, robot_animation_state>, MAX_GUNS + 1, robot_gun_number> anim_states;
 	int     always_0xabcd;      // debugging
 };
 
@@ -225,7 +225,7 @@ struct d_level_shared_robot_joint_state : ::dcx::d_level_shared_robot_joint_stat
 //  On exit:
 //      Returns number of joints in list.
 //      jp_list_ptr is stuffed with a pointer to a static array of joint positions.  This pointer is valid forever.
-partial_range_t<const jointpos *> robot_get_anim_state(const d_robot_info_array &, const std::array<jointpos, MAX_ROBOT_JOINTS> &, unsigned robot_type, unsigned gun_num, robot_animation_state state);
+partial_range_t<const jointpos *> robot_get_anim_state(const d_robot_info_array &, const std::array<jointpos, MAX_ROBOT_JOINTS> &, unsigned robot_type, robot_gun_number gun_num, robot_animation_state state);
 
 /*
  * reads n robot_info structs from a PHYSFS_File

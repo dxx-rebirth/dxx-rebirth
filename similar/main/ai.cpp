@@ -122,6 +122,35 @@ constexpr std::array<std::array<int, 3>, NUM_D2_BOSSES> Spew_bots{{
 constexpr std::array<int, NUM_D2_BOSSES> Max_spew_bots{{2, 1, 2, 3, 3, 3, 3, 3}};
 static fix Dist_to_last_fired_upon_player_pos;
 #endif
+
+static bool robot_gun_number_valid(const robot_info &robptr, const robot_gun_number current_gun)
+{
+	return static_cast<uint8_t>(current_gun) < robptr.n_guns;
+}
+
+static robot_gun_number robot_advance_current_gun(const robot_info &robptr, const robot_gun_number gun)
+{
+	const uint8_t next_gun = 1 + static_cast<uint8_t>(gun);
+	if (next_gun >= robptr.n_guns)
+		return robot_gun_number::_0;
+	return robot_gun_number{next_gun};
+}
+
+static robot_gun_number robot_advance_current_gun_prefer_second(const robot_info &robptr, const robot_gun_number gun)
+{
+	const uint8_t next_gun = 1 + static_cast<uint8_t>(gun);
+	if (next_gun >= robptr.n_guns)
+	{
+#if defined(DXX_BUILD_DESCENT_II)
+		if (robptr.n_guns != 1 && robptr.weapon_type2 != weapon_none)
+			return robot_gun_number::_1;
+		else
+#endif
+			return robot_gun_number::_0;
+	}
+	return robot_gun_number{next_gun};
+}
+
 }
 }
 
@@ -385,12 +414,12 @@ constexpr std::array<
 
 namespace dsx {
 
-weapon_id_type get_robot_weapon(const robot_info &ri, const unsigned gun_num)
+weapon_id_type get_robot_weapon(const robot_info &ri, const robot_gun_number gun_num)
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)gun_num;
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (ri.weapon_type2 != weapon_none && !gun_num)
+	if (ri.weapon_type2 != weapon_none && gun_num == robot_gun_number::_0)
 		return ri.weapon_type2;
 #endif
 	return ri.weapon_type;
@@ -781,18 +810,18 @@ namespace {
 //	Return 1 if animates, else return 0
 static int do_silly_animation(const d_robot_info_array &Robot_info, object &objp)
 {
-	int				robot_type, gun_num;
+	int				robot_type;
 	polyobj_info	*const pobj_info = &objp.rtype.pobj_info;
 	auto &aip = objp.ctype.ai_info;
-	int				num_guns, at_goal;
+	int				at_goal;
 	int				attack_type;
 	int				flinch_attack_scale = 1;
 
 	robot_type = get_robot_id(objp);
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	auto &robptr = Robot_info[robot_type];
-	num_guns = robptr.n_guns;
 	attack_type = robptr.attack_type;
+	const auto num_guns = robptr.n_guns;
 
 	if (num_guns == 0) {
 		return 0;
@@ -809,7 +838,9 @@ static int do_silly_animation(const d_robot_info_array &Robot_info, object &objp
 
 	at_goal = 1;
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	for (gun_num=0; gun_num <= num_guns; gun_num++) {
+	for (const uint8_t gun_num_idx : xrange(1u + num_guns))
+	{
+		const auto gun_num = robot_gun_number{gun_num_idx};
 		const auto &&ras = robot_get_anim_state(Robot_info, Robot_joints, robot_type, gun_num, robot_state);
 
 		auto &ail = aip.ail;
@@ -828,7 +859,7 @@ static int do_silly_animation(const d_robot_info_array &Robot_info, object &objp
 			const auto animate_p = silly_animation_angle(&vms_angvec::p, jp, *pobjp, flinch_attack_scale, goal_angles, delta_angles);
 			const auto animate_b = silly_animation_angle(&vms_angvec::b, jp, *pobjp, flinch_attack_scale, goal_angles, delta_angles);
 			const auto animate_h = silly_animation_angle(&vms_angvec::h, jp, *pobjp, flinch_attack_scale, goal_angles, delta_angles);
-			if (gun_num == 0)
+			if (gun_num == robot_gun_number::_0)
 			{
 				if (animate_p || animate_b || animate_h)
 					at_goal = 0;
@@ -876,7 +907,7 @@ static void ai_frame_animation(object &objp)
 }
 
 // ----------------------------------------------------------------------------------
-static void set_next_fire_time(object &objp, ai_local &ailp, const robot_info &robptr, const unsigned gun_num)
+static void set_next_fire_time(object &objp, ai_local &ailp, const robot_info &robptr, const robot_gun_number gun_num)
 {
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -892,7 +923,7 @@ static void set_next_fire_time(object &objp, ai_local &ailp, const robot_info &r
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	//	For guys in snipe mode, they have a 50% shot of getting this shot in free.
-	if ((gun_num != 0) || (robptr.weapon_type2 == weapon_none))
+	if (gun_num != robot_gun_number::_0 || robptr.weapon_type2 == weapon_none)
 		if ((objp.ctype.ai_info.behavior != ai_behavior::AIB_SNIPE) || (d_rand() > 16384))
 			ailp.rapidfire_count++;
 
@@ -907,11 +938,12 @@ static void set_next_fire_time(object &objp, ai_local &ailp, const robot_info &r
 // -- 			ailp->next_fire2 = robptr.firing_wait2[Difficulty_level];
 // -- 	}
 
-	if ((gun_num != 0 || robptr.weapon_type2 == weapon_none) && ailp.rapidfire_count < robptr.rapidfire_count[Difficulty_level])
+	if ((gun_num != robot_gun_number::_0 || robptr.weapon_type2 == weapon_none) && ailp.rapidfire_count < robptr.rapidfire_count[Difficulty_level])
 	{
 		ailp.next_fire = min(F1_0/8, robptr.firing_wait[Difficulty_level]/2);
 	} else {
-		if ((robptr.weapon_type2 == weapon_none) || (gun_num != 0)) {
+		if (gun_num != robot_gun_number::_0 || robptr.weapon_type2 == weapon_none)
+		{
 			ailp.next_fire = robptr.firing_wait[Difficulty_level];
 			if (ailp.rapidfire_count >= robptr.rapidfire_count[Difficulty_level])
 				ailp.rapidfire_count = 0;
@@ -958,7 +990,7 @@ void do_ai_robot_hit_attack(const d_robot_info_array &Robot_info, const vmobjptr
 				}
 
 			robot->ctype.ai_info.GOAL_STATE = AIS_RECO;
-			set_next_fire_time(robot, ailp, robptr, 1);	//	1 = gun_num: 0 is special (uses next_fire2)
+			set_next_fire_time(robot, ailp, robptr, robot_gun_number::_1);	//	1 = gun_num: 0 is special (uses next_fire2)
 		}
 	}
 }
@@ -985,7 +1017,7 @@ static void compute_lead_component(fix vms_vector::*const m, vms_vector &out, co
 //		Player not farther away than MAX_LEAD_DISTANCE
 //		dot(vector_to_player, player_direction) must be in -LEAD_RANGE..LEAD_RANGE
 //		if firing a matter weapon, less leading, based on skill level.
-static int lead_player(const object_base &objp, const vms_vector &fire_point, const vms_vector &believed_player_pos, int gun_num, vms_vector &fire_vec)
+static int lead_player(const object_base &objp, const vms_vector &fire_point, const vms_vector &believed_player_pos, const robot_gun_number gun_num, vms_vector &fire_vec)
 {
 	const auto &plrobj = *ConsoleObject;
 	if (plrobj.ctype.player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)
@@ -1064,7 +1096,7 @@ static int lead_player(const object_base &objp, const vms_vector &fire_point, co
 //	Note: Parameter vec_to_player is only passed now because guns which aren't on the forward vector from the
 //	center of the robot will not fire right at the player.  We need to aim the guns at the player.  Barring that, we cheat.
 //	When this routine is complete, the parameter vec_to_player should not be necessary.
-static void ai_fire_laser_at_player(const d_robot_info_array &Robot_info, const d_level_shared_segment_state &LevelSharedSegmentState, const vmobjptridx_t obj, const player_info &player_info, const vms_vector &fire_point, const int gun_num
+static void ai_fire_laser_at_player(const d_robot_info_array &Robot_info, const d_level_shared_segment_state &LevelSharedSegmentState, const vmobjptridx_t obj, const player_info &player_info, const vms_vector &fire_point, const robot_gun_number gun_num
 #if defined(DXX_BUILD_DESCENT_II)
 									, const vms_vector &believed_player_pos
 #endif
@@ -2752,7 +2784,7 @@ static int maybe_ai_do_actual_firing_stuff(object &obj)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmobjptridx &vmobjptridx, const vmobjptridx_t obj, ai_static *const aip, ai_local &ailp, const robot_info &robptr, const fix dist_to_player, const vms_vector &gun_point, const robot_to_player_visibility_state &player_visibility, const int object_animates, const player_info &player_info, int)
+static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmobjptridx &vmobjptridx, const vmobjptridx_t obj, ai_static *const aip, ai_local &ailp, const robot_info &robptr, const fix dist_to_player, const vms_vector &gun_point, const robot_to_player_visibility_state &player_visibility, const int object_animates, const player_info &player_info, robot_gun_number)
 {
 	auto &vec_to_player = player_visibility.vec_to_player;
 	fix	dot;
@@ -2764,8 +2796,8 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 		if (!object_animates || ready_to_fire_any_weapon(robptr, ailp, 0)) {
 			dot = vm_vec_dot(obj->orient.fvec, vec_to_player);
 			if (dot >= 7*F1_0/8) {
-
-				if (aip->CURRENT_GUN < robptr.n_guns) {
+				if (robot_gun_number_valid(robptr, aip->CURRENT_GUN))
+				{
 					if (robptr.attack_type == 1) {
 						if (Player_dead_state != player_dead_state::exploded &&
 							dist_to_player < obj->size + ConsoleObject->size + F1_0*2)
@@ -2782,7 +2814,7 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 						} else {
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 								return;
-							ai_fire_laser_at_player(Robot_info, LevelSharedSegmentState, obj, player_info, gun_point, 0);
+							ai_fire_laser_at_player(Robot_info, LevelSharedSegmentState, obj, player_info, gun_point, robot_gun_number::_0);
 						}
 					}
 
@@ -2793,11 +2825,8 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 
 				aip->GOAL_STATE = AIS_RECO;
 				ailp.goal_state[aip->CURRENT_GUN] = AIS_RECO;
-
 				// Switch to next gun for next fire.
-				aip->CURRENT_GUN++;
-				if (aip->CURRENT_GUN >= robptr.n_guns)
-					aip->CURRENT_GUN = 0;
+				aip->CURRENT_GUN = robot_advance_current_gun(robptr, aip->CURRENT_GUN);
 			}
 		}
 	} else if (Weapon_info[robptr.weapon_type].homing_flag) {
@@ -2807,21 +2836,13 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 			&& (vm_vec_dist_quick(Hit_pos, obj->pos) > F1_0*40)) {
 			if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 				return;
-			ai_fire_laser_at_player(Robot_info, LevelSharedSegmentState, obj, player_info, gun_point, 0);
+			ai_fire_laser_at_player(Robot_info, LevelSharedSegmentState, obj, player_info, gun_point, robot_gun_number::_0);
 
 			aip->GOAL_STATE = AIS_RECO;
 			ailp.goal_state[aip->CURRENT_GUN] = AIS_RECO;
-
-			// Switch to next gun for next fire.
-			aip->CURRENT_GUN++;
-			if (aip->CURRENT_GUN >= robptr.n_guns)
-				aip->CURRENT_GUN = 0;
-		} else {
-			// Switch to next gun for next fire.
-			aip->CURRENT_GUN++;
-			if (aip->CURRENT_GUN >= robptr.n_guns)
-				aip->CURRENT_GUN = 0;
 		}
+			// Switch to next gun for next fire.
+		aip->CURRENT_GUN = robot_advance_current_gun(robptr, aip->CURRENT_GUN);
 	}
 }
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -2829,7 +2850,7 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 // --------------------------------------------------------------------------------------------------------------------
 //	If fire_anyway, fire even if player is not visible.  We're firing near where we believe him to be.  Perhaps he's
 //	lurking behind a corner.
-static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmobjptridx &vmobjptridx, const vmobjptridx_t obj, ai_static *const aip, ai_local &ailp, const robot_info &robptr, const fix dist_to_player, vms_vector &gun_point, const robot_to_player_visibility_state &player_visibility, const int object_animates, const player_info &player_info, const int gun_num)
+static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmobjptridx &vmobjptridx, const vmobjptridx_t obj, ai_static *const aip, ai_local &ailp, const robot_info &robptr, const fix dist_to_player, vms_vector &gun_point, const robot_to_player_visibility_state &player_visibility, const int object_animates, const player_info &player_info, const robot_gun_number gun_num)
 {
 	auto &vec_to_player = player_visibility.vec_to_player;
 	fix	dot;
@@ -2850,8 +2871,8 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 		if (!object_animates || ready_to_fire_any_weapon(robptr, ailp, 0)) {
 			dot = vm_vec_dot(obj->orient.fvec, vec_to_player);
 			if ((dot >= 7*F1_0/8) || ((dot > F1_0/4) &&  robptr.boss_flag)) {
-
-				if (gun_num < robptr.n_guns) {
+				if (robot_gun_number_valid(robptr, gun_num))
+				{
 					if (robptr.attack_type == 1) {
 						if (Player_dead_state != player_dead_state::exploded &&
 							dist_to_player < obj->size + ConsoleObject->size + F1_0*2)
@@ -2873,10 +2894,11 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 								ai_fire_laser_at_player(Robot_info, LevelSharedSegmentState, obj, player_info, gun_point, gun_num, fire_pos);
 								Last_fired_upon_player_pos = fire_pos;
 							}
-							if (gun_num != 0) {
+							if (gun_num != robot_gun_number::_0)
+							{
 								if (ready_to_fire_weapon2(robptr, ailp, 0)) {
-									calc_gun_point(gun_point, obj, 0);
-									ai_fire_laser_at_player(Robot_info, LevelSharedSegmentState, obj, player_info, gun_point, 0, fire_pos);
+									calc_gun_point(robptr, gun_point, obj, robot_gun_number::_0);
+									ai_fire_laser_at_player(Robot_info, LevelSharedSegmentState, obj, player_info, gun_point, robot_gun_number::_0, fire_pos);
 									Last_fired_upon_player_pos = fire_pos;
 								}
 							}
@@ -2897,14 +2919,7 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 				ailp.goal_state[aip->CURRENT_GUN] = AIS_RECO;
 
 				// Switch to next gun for next fire.  If has 2 gun types, select gun #1, if exists.
-				aip->CURRENT_GUN++;
-				if (aip->CURRENT_GUN >= robptr.n_guns)
-				{
-					if ((robptr.n_guns == 1) || (robptr.weapon_type2 == weapon_none))
-						aip->CURRENT_GUN = 0;
-					else
-						aip->CURRENT_GUN = 1;
-				}
+				aip->CURRENT_GUN = robot_advance_current_gun_prefer_second(robptr, aip->CURRENT_GUN);
 			}
 		}
 	}
@@ -2912,7 +2927,9 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 	{
 		//	Robots which fire homing weapons might fire even if they don't have a bead on the player.
 		if ((!object_animates || ailp.achieved_state[aip->CURRENT_GUN] == AIS_FIRE)
-			&& (((ready_to_fire_weapon1(ailp, 0)) && (aip->CURRENT_GUN != 0)) || ((ready_to_fire_weapon2(robptr, ailp, 0)) && (aip->CURRENT_GUN == 0)))
+			&& (
+				(aip->CURRENT_GUN != robot_gun_number::_0 && ready_to_fire_weapon1(ailp, 0)) ||
+				(aip->CURRENT_GUN == robot_gun_number::_0 && ready_to_fire_weapon2(robptr, ailp, 0)))
 			 && (vm_vec_dist_quick(Hit_pos, obj->pos) > F1_0*40)) {
 			if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 				return;
@@ -2922,23 +2939,17 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 			ailp.goal_state[aip->CURRENT_GUN] = AIS_RECO;
 		}
 			// Switch to next gun for next fire.
-			aip->CURRENT_GUN++;
-			if (aip->CURRENT_GUN >= robptr.n_guns)
-				aip->CURRENT_GUN = 0;
+		aip->CURRENT_GUN = robot_advance_current_gun(robptr, aip->CURRENT_GUN);
 	} else {
-
-
 	//	---------------------------------------------------------------
-
 		vms_vector	vec_to_last_pos;
-
 		if (d_rand()/2 < fixmul(FrameTime, (underlying_value(GameUniqueState.Difficulty_level) << 12) + 0x4000)) {
 		if ((!object_animates || ready_to_fire_any_weapon(robptr, ailp, 0)) && (Dist_to_last_fired_upon_player_pos < FIRE_AT_NEARBY_PLAYER_THRESHOLD)) {
 			vm_vec_normalized_dir_quick(vec_to_last_pos, Believed_player_pos, obj->pos);
 			dot = vm_vec_dot(obj->orient.fvec, vec_to_last_pos);
 			if (dot >= 7*F1_0/8) {
-
-				if (aip->CURRENT_GUN < robptr.n_guns) {
+				if (robot_gun_number_valid(robptr, aip->CURRENT_GUN))
+				{
 					if (robptr.attack_type == 1) {
 						if (Player_dead_state != player_dead_state::exploded &&
 							dist_to_player < obj->size + ConsoleObject->size + F1_0*2)
@@ -2960,11 +2971,11 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 							{
 								ai_fire_laser_at_player(Robot_info, LevelSharedSegmentState, obj, player_info, gun_point, gun_num, Last_fired_upon_player_pos);
 							}
-							if (gun_num != 0) {
-
+							if (gun_num != robot_gun_number::_0)
+							{
 								if (ready_to_fire_weapon2(robptr, ailp, 0)) {
-									calc_gun_point(gun_point, obj, 0);
-									ai_fire_laser_at_player(Robot_info, LevelSharedSegmentState, obj, player_info, gun_point, 0, Last_fired_upon_player_pos);
+									calc_gun_point(robptr, gun_point, obj, robot_gun_number::_0);
+									ai_fire_laser_at_player(Robot_info, LevelSharedSegmentState, obj, player_info, gun_point, robot_gun_number::_0, Last_fired_upon_player_pos);
 								}
 							}
 						}
@@ -2978,18 +2989,10 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 				ailp.goal_state[aip->CURRENT_GUN] = AIS_RECO;
 
 				// Switch to next gun for next fire.
-				aip->CURRENT_GUN++;
-				if (aip->CURRENT_GUN >= robptr.n_guns)
-				{
-					if (robptr.n_guns == 1)
-						aip->CURRENT_GUN = 0;
-					else
-						aip->CURRENT_GUN = 1;
-				}
+				aip->CURRENT_GUN = robot_advance_current_gun_prefer_second(robptr, aip->CURRENT_GUN);
 			}
 		}
 		}
-
 
 	//	---------------------------------------------------------------
 	}
@@ -3346,11 +3349,11 @@ _exit_cheat:
 		const auto gun_num =
 #if defined(DXX_BUILD_DESCENT_II)
 			(!ready_to_fire_weapon1(ailp, 0))
-			? 0
+			? robot_gun_number::_0
 			:
 #endif
 			aip->CURRENT_GUN;
-			calc_gun_point(gun_point, obj, gun_num);
+			calc_gun_point(robptr, gun_point, obj, gun_num);
 		vis_vec_pos = gun_point;
 	} else {
 		vis_vec_pos = obj->pos;
@@ -3916,13 +3919,13 @@ _exit_cheat:
 				if (Game_mode & GM_MULTI)
 				{
 					ai_multi_send_robot_position(obj, -1);
-					const int gun_num =
+					const auto gun_num =
 #if defined(DXX_BUILD_DESCENT_II)
 						(aip->SUB_FLAGS & SUB_FLAGS_SPROX)
-						? -2
+						? robot_gun_number::smart_mine
 						:
 #endif
-					-1;
+					robot_gun_number::proximity;
 					multi_send_robot_fire(obj, gun_num, fire_vec);
 				}
 			}
@@ -4252,9 +4255,7 @@ _exit_cheat:
 	// If new state = fire, then set all gun states to fire.
 	if (aip->GOAL_STATE == AIS_FIRE)
 	{
-		uint_fast32_t num_guns = robptr.n_guns;
-		for (uint_fast32_t i=0; i<num_guns; i++)
-			ailp.goal_state[i] = AIS_FIRE;
+		std::fill_n(ailp.goal_state.begin(), robptr.n_guns, AIS_FIRE);
 	}
 
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
@@ -4338,7 +4339,7 @@ _exit_cheat:
 					if (!ai_multiplayer_awareness(obj, (ROBOT_FIRE_AGITATION-1))) 
 					{
 						if (Game_mode & GM_MULTI) {
-							ai_do_actual_firing_stuff(Robot_info, vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, 0);
+							ai_do_actual_firing_stuff(Robot_info, vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, robot_gun_number::_0);
 							return;
 						}
 					}
@@ -4402,16 +4403,7 @@ _exit_cheat:
 	// Switch to next gun for next fire.
 	if (!player_is_visible(player_visibility.visibility))
 	{
-		aip->CURRENT_GUN++;
-		if (aip->CURRENT_GUN >= robptr.n_guns)
-		{
-#if defined(DXX_BUILD_DESCENT_II)
-			if (!((robptr.n_guns == 1) || (robptr.weapon_type2 == weapon_none)))  // Two weapon types hack.
-				aip->CURRENT_GUN = 1;
-			else
-#endif
-				aip->CURRENT_GUN = 0;
-		}
+		aip->CURRENT_GUN = robot_advance_current_gun_prefer_second(robptr, aip->CURRENT_GUN);
 	}
 
 }
@@ -4606,8 +4598,6 @@ namespace {
 // Following functions convert ai_local/ai_cloak_info to ai_local/ai_cloak_info_rw to be written to/read from Savegames. Convertin back is not done here - reading is done specifically together with swapping (if necessary). These structs differ in terms of timer values (fix/fix64). as we reset GameTime64 for writing so it can fit into fix it's not necessary to increment savegame version. But if we once store something else into object which might be useful after restoring, it might be handy to increment Savegame version and actually store these new infos.
 static void state_ai_local_to_ai_local_rw(const ai_local *ail, ai_local_rw *ail_rw)
 {
-	int i = 0;
-
 	ail_rw->player_awareness_type      = static_cast<int8_t>(ail->player_awareness_type);
 	ail_rw->retry_count                = ail->retry_count;
 	ail_rw->consecutive_retries        = ail->consecutive_retries;
@@ -4629,7 +4619,7 @@ static void state_ai_local_to_ai_local_rw(const ai_local *ail, ai_local_rw *ail_
 	ail_rw->time_player_sound_attacked = build_savegametime_from_gametime(gametime, ail->time_player_sound_attacked);
 	ail_rw->next_misc_sound_time = build_savegametime_from_gametime(gametime, ail->next_misc_sound_time);
 	ail_rw->time_since_processed       = ail->time_since_processed;
-	for (i = 0; i < MAX_SUBMODELS; i++)
+	for (uint8_t i = 0; i < MAX_SUBMODELS; i++)
 	{
 		ail_rw->goal_angles[i].p   = ail->goal_angles[i].p;
 		ail_rw->goal_angles[i].b   = ail->goal_angles[i].b;
@@ -4637,8 +4627,8 @@ static void state_ai_local_to_ai_local_rw(const ai_local *ail, ai_local_rw *ail_
 		ail_rw->delta_angles[i].p  = ail->delta_angles[i].p;
 		ail_rw->delta_angles[i].b  = ail->delta_angles[i].b;
 		ail_rw->delta_angles[i].h  = ail->delta_angles[i].h;
-		ail_rw->goal_state[i]      = ail->goal_state[i];
-		ail_rw->achieved_state[i]  = ail->achieved_state[i];
+		ail_rw->goal_state[i]      = ail->goal_state[(robot_gun_number{i})];
+		ail_rw->achieved_state[i]  = ail->achieved_state[(robot_gun_number{i})];
 	}
 }
 

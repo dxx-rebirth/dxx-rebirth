@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
+enum class robot_gun_number : uint8_t;
 constexpr std::integral_constant<std::size_t, 8> MAX_GUNS{};      //should be multiple of 4 for ubyte array
 
 enum class robot_animation_state : uint8_t;
@@ -87,14 +88,14 @@ extern d_level_shared_robot_joint_state LevelSharedRobotJointState;
 
 //given an object and a gun number, return position in 3-space of gun
 //fills in gun_point
-void calc_gun_point(vms_vector &gun_point, const object_base &obj, unsigned gun_num);
+void calc_gun_point(const robot_info &, vms_vector &gun_point, const object_base &obj, robot_gun_number gun_num);
 
 /*
  * reads n robot_info structs from a PHYSFS_File
  */
 void robot_info_read(PHYSFS_File *fp, robot_info &r);
 void robot_set_angles(robot_info *r, polymodel *pm, enumerated_array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES, robot_animation_state> &angs);
-weapon_id_type get_robot_weapon(const robot_info &ri, const unsigned gun_num);
+weapon_id_type get_robot_weapon(const robot_info &ri, const robot_gun_number gun_num);
 
 }
 #endif
