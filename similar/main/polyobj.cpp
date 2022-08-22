@@ -87,23 +87,21 @@ static int pof_read_int(const uint8_t *bufp)
 	return r;
 }
 
-static size_t pof_cfread(void *dst, size_t elsize, size_t nelem, ubyte *bufp)
+static size_t pof_cfread(void *const dst, const size_t elsize, const uint8_t *bufp)
 {
-	if (Pof_addr + nelem*elsize > Pof_file_end)
+	if (Pof_addr + elsize > Pof_file_end)
 		return 0;
 
-	memcpy(dst, &bufp[Pof_addr], elsize*nelem);
+	memcpy(dst, &bufp[Pof_addr], elsize);
 
-	Pof_addr += elsize*nelem;
+	Pof_addr += elsize;
 
 	if (Pof_addr > MODEL_BUF_SIZE)
 		Int3();
-
-	return nelem;
+	return elsize;
 }
 
-// #define new_read_int(i,f) PHYSFS_read((f),&(i),sizeof(i),1)
-#define new_pof_read_int(i,f) pof_cfread(&(i),sizeof(i),1,(f))
+#define new_pof_read_int(i,f) pof_cfread(&(i), sizeof(i), (f))
 
 static short pof_read_short(ubyte *bufp)
 {
@@ -190,7 +188,7 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 		Error("Bad version (%d) in model file <%s>",version,filename);
 
 	int pof_id;
-	while (new_pof_read_int(pof_id, model_buf) == 1)
+	while (new_pof_read_int(pof_id, model_buf))
 	{
 		pof_id = INTEL_INT(pof_id);
 		//id  = pof_read_int(model_buf);
@@ -305,7 +303,7 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 				pm->model_data_size = len;
 				pm->model_data = std::make_unique<uint8_t[]>(pm->model_data_size);
 
-				pof_cfread(pm->model_data.get(),1,len,model_buf);
+				pof_cfread(pm->model_data.get(), len, model_buf);
 
 				break;
 
@@ -361,7 +359,7 @@ void read_model_guns(const char *filename, reactor &r)
 		Error("Bad version (%d) in model file <%s>",version,filename);
 
 	int pof_id;
-	while (new_pof_read_int(pof_id,model_buf) == 1)
+	while (new_pof_read_int(pof_id,model_buf))
 	{
 		pof_id = INTEL_INT(pof_id);
 		//id  = pof_read_int(model_buf);
