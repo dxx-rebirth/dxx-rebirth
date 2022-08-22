@@ -124,6 +124,15 @@ enum segnum_t : uint16_t
 {
 };
 
+enum class vertnum_t : uint32_t
+{
+};
+
+enum class wallnum_t : uint16_t
+{
+	None = 0xffff,
+};
+
 struct shared_side
 {
 	struct illegal_type;
