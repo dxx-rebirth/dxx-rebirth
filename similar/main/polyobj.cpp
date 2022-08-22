@@ -59,7 +59,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define PM_OBJFILE_VERSION 8
 
 namespace {
-static unsigned Pof_file_end;
 static unsigned Pof_addr;
 
 #define	MODEL_BUF_SIZE	32768
@@ -69,10 +68,6 @@ static void _pof_cfseek(int len,int type)
 	switch (type) {
 		case SEEK_SET:	Pof_addr = len;	break;
 		case SEEK_CUR:	Pof_addr += len;	break;
-		case SEEK_END:
-			Assert(len <= 0);	//	seeking from end, better be moving back.
-			Pof_addr = Pof_file_end + len;
-			break;
 	}
 
 	if (Pof_addr > MODEL_BUF_SIZE)
@@ -166,7 +161,7 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 
 	Pof_addr = 0;
 	std::array<uint8_t, MODEL_BUF_SIZE> model_storage;
-	Pof_file_end = PHYSFS_read(ifile, model_storage.data(), 1, model_storage.size());
+	const std::size_t Pof_file_end = PHYSFS_read(ifile, model_storage.data(), 1, model_storage.size());
 	const std::span model_buf{model_storage.data(), Pof_file_end};
 	ifile.reset();
 	const int model_id = pof_read_int(model_buf);
@@ -333,7 +328,7 @@ void read_model_guns(const char *filename, reactor &r)
 
 	Pof_addr = 0;
 	std::array<uint8_t, MODEL_BUF_SIZE> model_storage;
-	Pof_file_end = PHYSFS_read(ifile, model_storage.data(), 1, model_storage.size());
+	const std::size_t Pof_file_end = PHYSFS_read(ifile, model_storage.data(), 1, model_storage.size());
 	const std::span model_buf{model_storage.data(), Pof_file_end};
 	ifile.reset();
 
