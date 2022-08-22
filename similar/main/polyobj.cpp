@@ -108,15 +108,12 @@ static short pof_read_short(const std::span<const uint8_t> bufp)
 	return r;
 }
 
-static void pof_read_string(char *buf,int max_char, const std::span<const uint8_t> bufp)
+static void pof_skip_string(int max_char, const std::span<const uint8_t> bufp)
 {
 	for (int i=0; i<max_char; i++) {
-		if ((*buf++ = bufp[Pof_addr++]) == 0)
+		if (bufp[Pof_addr++] == 0)
 			break;
 	}
-
-//	while (max_char-- && (*buf=PHYSFSX_fgetc(f)) != 0) buf++;
-
 }
 
 static void pof_read_vec(vms_vector &vec, const std::span<const uint8_t> bufp)
@@ -276,13 +273,11 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			
 			case ID_TXTR: {		//Texture filename list
 				int n;
-				char name_buf[128];
 
 				n = pof_read_short(model_buf);
 				while (n--) {
-					pof_read_string(name_buf,128,model_buf);
+					pof_skip_string(128, model_buf);
 				}
-
 				break;
 			}
 			
