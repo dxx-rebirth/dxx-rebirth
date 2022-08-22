@@ -570,6 +570,17 @@ void init_ai_object(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 	ailp->player_awareness_time = 0;
 	ailp->player_awareness_type = player_awareness_type_t::PA_NONE;
 	aip->GOAL_STATE = AIS_SRCH;
+	if constexpr (DXX_HAVE_POISON || static_cast<uint8_t>(robot_gun_number::_0) != 0)
+		/* If memory poisoning is enabled, then CURRENT_GUN is undefined.  Set
+		 * it to a reasonable value here, because nothing else will assign it
+		 * before use.
+		 *
+		 * If memory poisoning is disabled, then obj_create initialized
+		 * CURRENT_GUN to 0 as part of clearing the newly allocated structure.
+		 * If the value that would be written by an explicit initialization is
+		 * 0, then avoid actually writing it.
+		 */
+		aip->CURRENT_GUN = robot_gun_number::_0;
 	aip->CURRENT_STATE = AIS_REST;
 	ailp->time_player_seen = GameTime64;
 	ailp->next_misc_sound_time = GameTime64;
