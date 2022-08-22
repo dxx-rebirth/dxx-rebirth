@@ -80,18 +80,11 @@ static void _pof_cfseek(int len,int type)
 
 #define pof_cfseek(_buf,_len,_type) _pof_cfseek((_len),(_type))
 
-static int pof_read_int(ubyte *bufp)
+static int pof_read_int(const uint8_t *bufp)
 {
-	int i;
-
-	i = *(reinterpret_cast<int *>(&bufp[Pof_addr]));
+	const auto r = GET_INTEL_INT(&bufp[Pof_addr]);
 	Pof_addr += 4;
-	return INTEL_INT(i);
-
-//	if (PHYSFS_read(f,&i,sizeof(i),1) != 1)
-//		Error("Unexpected end-of-file while reading object");
-//
-//	return i;
+	return r;
 }
 
 static size_t pof_cfread(void *dst, size_t elsize, size_t nelem, ubyte *bufp)
@@ -136,16 +129,11 @@ static void pof_read_string(char *buf,int max_char, ubyte *bufp)
 
 }
 
-static void pof_read_vecs(vms_vector *vecs,int n,ubyte *bufp)
+static void pof_read_vec(vms_vector &vec, const uint8_t *bufp)
 {
-//	PHYSFS_read(f,vecs,sizeof(vms_vector),n);
-	for (int i = 0; i < n; i++)
-	{
-		vecs[i].x = pof_read_int(bufp);
-		vecs[i].y = pof_read_int(bufp);
-		vecs[i].z = pof_read_int(bufp);
-	}
-
+	vec.x = pof_read_int(bufp);
+	vec.y = pof_read_int(bufp);
+	vec.z = pof_read_int(bufp);
 	if (Pof_addr > MODEL_BUF_SIZE)
 		Int3();
 }
@@ -219,8 +207,8 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 
 				Assert(pm->n_models <= MAX_SUBMODELS);
 
-				pof_read_vecs(&pmmin,1,model_buf);
-				pof_read_vecs(&pmmax,1,model_buf);
+				pof_read_vec(pmmin, model_buf);
+				pof_read_vec(pmmax, model_buf);
 
 				break;
 			}
@@ -234,9 +222,9 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 
 				pm->submodel_parents[n] = pof_read_short(model_buf);
 
-				pof_read_vecs(&pm->submodel_norms[n],1,model_buf);
-				pof_read_vecs(&pm->submodel_pnts[n],1,model_buf);
-				pof_read_vecs(&pm->submodel_offsets[n],1,model_buf);
+				pof_read_vec(pm->submodel_norms[n], model_buf);
+				pof_read_vec(pm->submodel_pnts[n], model_buf);
+				pof_read_vec(pm->submodel_offsets[n], model_buf);
 
 				pm->submodel_rads[n] = pof_read_int(model_buf);		//radius
 
@@ -267,10 +255,10 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 						auto &submodel = r->gun_submodels[gun_id];
 						submodel = pof_read_short(model_buf);
 						Assert(submodel != 0xff);
-						pof_read_vecs(&r->gun_points[gun_id], 1, model_buf);
+						pof_read_vec(r->gun_points[gun_id], model_buf);
 
 						if (version >= 7)
-							pof_read_vecs(&gun_dir,1,model_buf);
+							pof_read_vec(gun_dir, model_buf);
 					}
 				}
 				else
@@ -390,8 +378,8 @@ void read_model_guns(const char *filename, reactor &r)
 				sm = pof_read_short(model_buf);
 				if (sm!=0)
 					Error("Invalid gun submodel in file <%s>",filename);
-				pof_read_vecs(&gun_points[gun_id], 1, model_buf);
-				pof_read_vecs(&gun_dirs[gun_id], 1, model_buf);
+				pof_read_vec(gun_points[gun_id], model_buf);
+				pof_read_vec(gun_dirs[gun_id], model_buf);
 			}
 
 		}
