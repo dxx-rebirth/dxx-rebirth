@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include <array>
 #include <memory>
+#include <new>
 #include <span>
 
 namespace dcx {
@@ -93,7 +94,15 @@ struct morph_data : prohibit_void_ptr<morph_data>
 	std::span<vms_vector> get_morph_vecs();
 	std::span<vms_vector> get_morph_deltas();
 private:
-	static void *operator new(std::size_t bytes, max_vectors);
+	/* Advise gcc to inline this `operator new` because if it is not inline,
+	 * then -Wmismatched-new-delete issues a spurious warning when it inlines
+	 * the body of `operator delete(void *, max_vectors)` and does not inline
+	 * this method.  Possibly relevant gcc bug reports:
+	 *
+	 * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100485	`False positive in -Wmismatched-new-delete`
+	 * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=103993	`-Wismatched-new-delete due to difference in inlining decisions`
+	 */
+	static inline void *operator new(std::size_t bytes, max_vectors);
 	explicit morph_data(object_base &o, max_vectors);
 };
 
