@@ -141,8 +141,6 @@ static void pof_read_ang(vms_angvec &ang, const std::span<const uint8_t> bufp)
 #define ID_IDTA 0x41544449 // 'ATDI'  //Interpreter data
 #define ID_TXTR 0x52545854 // 'RTXT'  //Texture filename list
 
-static std::array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> anim_angs;
-
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.
 
@@ -251,6 +249,7 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			
 			case ID_ANIM:		//Animation data
 				if (r) {
+					std::array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> anim_angs{};
 					unsigned n_frames;
 
 					n_frames = pof_read_short(model_buf);
