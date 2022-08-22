@@ -159,16 +159,15 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 {
 	short version;
 	int len, next_chunk;
-	ubyte	model_buf[MODEL_BUF_SIZE];
 
 	auto &&[ifile, physfserr] = PHYSFSX_openReadBuffered(filename);
 	if (!ifile)
 		Error("Failed to open file <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
 
-	Assert(PHYSFS_fileLength(ifile) <= MODEL_BUF_SIZE);
-
 	Pof_addr = 0;
-	Pof_file_end = PHYSFS_read(ifile, model_buf, 1, PHYSFS_fileLength(ifile));
+	std::array<uint8_t, MODEL_BUF_SIZE> model_storage;
+	Pof_file_end = PHYSFS_read(ifile, model_storage.data(), 1, model_storage.size());
+	const std::span model_buf{model_storage.data(), Pof_file_end};
 	ifile.reset();
 	const int model_id = pof_read_int(model_buf);
 
