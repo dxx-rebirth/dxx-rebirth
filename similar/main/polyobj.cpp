@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 
+#include <span>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -80,16 +81,17 @@ static void _pof_cfseek(int len,int type)
 
 #define pof_cfseek(_buf,_len,_type) _pof_cfseek((_len),(_type))
 
-static int pof_read_int(const uint8_t *bufp)
+static int pof_read_int(const std::span<const uint8_t> bufp)
 {
-	const auto r = GET_INTEL_INT(&bufp[Pof_addr]);
+	const auto s = bufp.subspan(Pof_addr, 4);
 	Pof_addr += 4;
+	const auto r = GET_INTEL_INT(s.data());
 	return r;
 }
 
-static size_t pof_cfread(void *const dst, const size_t elsize, const uint8_t *bufp)
+static size_t pof_cfread(void *const dst, const size_t elsize, const std::span<const uint8_t> bufp)
 {
-	if (Pof_addr + elsize > Pof_file_end)
+	if (Pof_addr + elsize > bufp.size())
 		return 0;
 
 	memcpy(dst, &bufp[Pof_addr], elsize);
@@ -103,14 +105,15 @@ static size_t pof_cfread(void *const dst, const size_t elsize, const uint8_t *bu
 
 #define new_pof_read_int(i,f) pof_cfread(&(i), sizeof(i), (f))
 
-static short pof_read_short(const uint8_t *bufp)
+static short pof_read_short(const std::span<const uint8_t> bufp)
 {
-	const auto r = GET_INTEL_SHORT(&bufp[Pof_addr]);
+	const auto s = bufp.subspan(Pof_addr, 2);
 	Pof_addr += 2;
+	const auto r = GET_INTEL_SHORT(s.data());
 	return r;
 }
 
-static void pof_read_string(char *buf,int max_char, ubyte *bufp)
+static void pof_read_string(char *buf,int max_char, const std::span<const uint8_t> bufp)
 {
 	for (int i=0; i<max_char; i++) {
 		if ((*buf++ = bufp[Pof_addr++]) == 0)
@@ -121,7 +124,7 @@ static void pof_read_string(char *buf,int max_char, ubyte *bufp)
 
 }
 
-static void pof_read_vec(vms_vector &vec, const uint8_t *bufp)
+static void pof_read_vec(vms_vector &vec, const std::span<const uint8_t> bufp)
 {
 	vec.x = pof_read_int(bufp);
 	vec.y = pof_read_int(bufp);
@@ -130,7 +133,7 @@ static void pof_read_vec(vms_vector &vec, const uint8_t *bufp)
 		Int3();
 }
 
-static void pof_read_ang(vms_angvec &ang, const uint8_t *bufp)
+static void pof_read_ang(vms_angvec &ang, const std::span<const uint8_t> bufp)
 {
 	ang.p = pof_read_short(bufp);
 	ang.b = pof_read_short(bufp);
