@@ -2853,6 +2853,7 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 		buf[len] = Netgame.PacketLossPrevention;					len++;
 		buf[len] = Netgame.NoFriendlyFire;						len++;
 		buf[len] = Netgame.MouselookFlags;						len++;
+		buf[len] = Netgame.PitchLockFlags;                      len++;
 		copy_from_ntstring(buf, len, Netgame.game_name);
 		copy_from_ntstring(buf, len, Netgame.mission_title);
 		copy_from_ntstring(buf, len, Netgame.mission_name);
@@ -3108,6 +3109,7 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		Netgame.PacketLossPrevention = data[len];					len++;
 		Netgame.NoFriendlyFire = data[len];						len++;
 		Netgame.MouselookFlags = data[len];						len++;
+		Netgame.PitchLockFlags = data[len];                     len++;
 		copy_to_ntstring(data, len, Netgame.game_name);
 		copy_to_ntstring(data, len, Netgame.mission_title);
 		copy_to_ntstring(data, len, Netgame.mission_name);
@@ -3609,6 +3611,7 @@ constexpr std::integral_constant<unsigned, 5 * reactor_invul_time_mini_scale> re
 	DXX_MENUITEM(VERB, CHECK, "Show enemy names on HUD", opt_show_names, Netgame.ShowEnemyNames)	\
 	DXX_MENUITEM(VERB, CHECK, "No friendly fire (Team, Coop)", opt_ffire, Netgame.NoFriendlyFire)	\
 	DXX_MENUITEM(VERB, FCHECK, game_is_cooperative ? "Allow coop mouselook" : "Allow anarchy mouselook", opt_mouselook, Netgame.MouselookFlags, MouselookMPFlag(game_is_cooperative))	\
+	DXX_MENUITEM(VERB, FCHECK, game_is_cooperative ? "Release coop pitch lock" : "Release anarchy pitch lock", opt_pitch_lock, Netgame.PitchLockFlags, MouselookMPFlag(game_is_cooperative))  \
 	DXX_MENUITEM(VERB, TEXT, "", blank_4)                                     \
 	DXX_MENUITEM_AUTOSAVE_LABEL_INPUT(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "", blank_6)                                     \
@@ -4241,6 +4244,7 @@ window_event_result net_udp_setup_game()
 	Netgame.PacketLossPrevention = 1;
 	Netgame.NoFriendlyFire = 0;
 	Netgame.MouselookFlags = 0;
+	Netgame.PitchLockFlags = 0;
 
 #if DXX_USE_TRACKER
 	Netgame.Tracker = 1;

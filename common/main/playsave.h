@@ -159,6 +159,7 @@ struct player_config : prohibit_void_ptr<player_config>
 	HudType HudMode;
 	RespawnPress RespawnMode;
 	uint8_t MouselookFlags;
+	uint8_t PitchLockFlags;
 	using primary_weapon_order = std::array<uint8_t, MAX_PRIMARY_WEAPONS + 1>;
 	using secondary_weapon_order = std::array<uint8_t, MAX_SECONDARY_WEAPONS + 1>;
 	primary_weapon_order PrimaryOrder;
