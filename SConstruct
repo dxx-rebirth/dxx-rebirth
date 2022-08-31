@@ -131,13 +131,14 @@ class Git(StaticSubprocess):
 			self.revparse_HEAD = revparse_HEAD
 		def __repr__(self):
 			return 'ComputedExtraVersion(%r,%r,%r,%r)' % (self.describe, self.status, self.diffstat_HEAD, self.revparse_HEAD)
-	UnknownExtraVersion = ComputedExtraVersion(None, None, None,
+	UnknownExtraVersion = (
 		# If the string is alphanumeric, then `git archive` has rewritten the
 		# string to be a commit ID.  Use that commit ID as a guessed default
 		# when Git is not available to resolve a current commit ID.
-		'archive_$Format:%H$' if '$Format:%H$'.isalnum() else
+		ComputedExtraVersion('$Format:%(describe:tags,abbrev=12)$', None, None, 'archive_$Format:%H$') if '$Format:%H$'.isalnum() else
 		# Otherwise, assume that this is a checked-in copy.
-		None)
+		ComputedExtraVersion(None, None, None, None)
+		)
 	# None when unset.  Instance of ComputedExtraVersion once cached.
 	__computed_extra_version = None
 	__path_git = None
