@@ -4606,7 +4606,11 @@ static void multi_do_start_trigger(const multiplayer_rspan<MULTI_START_TRIGGER> 
 {
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &vmtrgptr = Triggers.vmptr;
-	vmtrgptr(static_cast<trgnum_t>(buf[1]))->flags |= trigger_behavior_flags::disabled;
+	const auto &&utrg = vmtrgptr.check_untrusted(static_cast<trgnum_t>(buf[1]));
+	if (!utrg)
+		return;
+	auto &trg = **utrg;
+	trg.flags |= trigger_behavior_flags::disabled;
 }
 
 }
