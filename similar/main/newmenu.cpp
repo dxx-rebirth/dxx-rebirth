@@ -1616,7 +1616,7 @@ window_event_result newmenu::event_handler(const d_event &event)
 		case EVENT_KEY_COMMAND:
 			return newmenu_key_command(event, this);
 		case EVENT_IDLE:
-			if (!(Game_mode & GM_MULTI && Game_wind))
+			if (!(Game_mode & GM_MULTI) || !Game_wind || !Game_wind->is_visible())
 				timer_delay2(CGameArg.SysMaxFPS);
 			break;
 		case EVENT_WINDOW_DRAW:
