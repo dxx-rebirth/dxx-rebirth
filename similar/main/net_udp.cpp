@@ -654,7 +654,7 @@ struct socket_data_buffer_template
 };
 
 using csocket_data_buffer = socket_data_buffer_template<true>;
-using socket_data_buffer = socket_data_buffer_template<false>;
+using socket_data_buffer = std::span<uint8_t>;
 
 class start_poll_menu_items
 {
@@ -822,7 +822,7 @@ ssize_t dxx_sendto(const int sockfd, const csocket_data_buffer msg, const int fl
 
 ssize_t dxx_recvfrom(const int sockfd, const socket_data_buffer msg, const int flags, sockaddr_ref from)
 {
-	ssize_t rv = recvfrom(sockfd, reinterpret_cast<char *>(msg.buf), msg.len, flags, &from.sa, &from.len);
+	ssize_t rv = recvfrom(sockfd, reinterpret_cast<char *>(msg.data()), msg.size(), flags, &from.sa, &from.len);
 
 	UDP_num_recvfrom++;
 	UDP_len_recvfrom += rv;
@@ -1084,8 +1084,8 @@ static ssize_t udp_receive_packet(RAIIsocket &sock, const socket_data_buffer msg
 		if (msglen < 0)
 			return 0;
 
-	if (msglen < msg.len)
-		msg.buf[msglen] = 0;
+	if (msglen < msg.size())
+		msg[msglen] = 0;
 	return msglen;
 }
 /* General UDP functions - END */
