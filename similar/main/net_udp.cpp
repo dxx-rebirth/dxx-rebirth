@@ -361,11 +361,6 @@ static void net_udp_send_rejoin_sync(unsigned player_num);
 static void net_udp_do_refuse_stuff(const UDP_sequence_request_packet &their, const struct _sockaddr &peer_addr);
 static void net_udp_read_sync_packet(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr);
 static void net_udp_send_extras();
-static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &game_addr, int lite_info
-#if DXX_USE_TRACKER
-									  , tracker_game_id TrackerGameID = {}
-#endif
-									  );
 #if DXX_USE_TRACKER
 static int udp_tracker_register();
 static int udp_tracker_reqgames();
@@ -2997,14 +2992,13 @@ static unsigned net_udp_send_request(void)
 namespace dsx {
 namespace {
 
-static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const _sockaddr &game_addr, const int lite_info
+static void net_udp_process_game_info_light(const uint8_t *data, uint_fast32_t, const _sockaddr &game_addr
 #if DXX_USE_TRACKER
-									  , const tracker_game_id TrackerGameID
+									  , const tracker_game_id TrackerGameID = {}
 #endif
 									  )
 {
 	uint_fast32_t len = 0;
-	if (lite_info)
 	{
 		const auto menu = netgame_list_menu;
 		if (!menu)
@@ -3082,7 +3076,11 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 			-- menu->num_active_udp_games;
 		}
 	}
-	else
+}
+
+static void net_udp_process_game_info_heavy(const uint8_t *data, uint_fast32_t, const _sockaddr &game_addr)
+{
+	uint_fast32_t len = 0;
 	{
 		Netgame.players[0].protocol.udp.addr = game_addr;
 
@@ -3296,7 +3294,7 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 		case upid::game_info:
 			if (multi_i_am_master() || length > UPID_GAME_INFO_SIZE_MAX)
 				break;
-			net_udp_process_game_info(data, length, sender_addr, 0);
+			net_udp_process_game_info_heavy(data, length, sender_addr);
 			break;
 		case upid::game_info_lite_req:
 		{
@@ -3327,7 +3325,7 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 		case upid::game_info_lite:
 			if (multi_i_am_master() || length > UPID_GAME_INFO_LITE_SIZE_MAX)
 				break;
-			net_udp_process_game_info(data, length, sender_addr, 1);
+			net_udp_process_game_info_light(data, length, sender_addr);
 			break;
 		case upid::dump:
 			if (multi_i_am_master() || Netgame.players[0].protocol.udp.addr != sender_addr || length != UPID_DUMP_SIZE)
@@ -4488,7 +4486,7 @@ void net_udp_read_sync_packet(const uint8_t *data, uint_fast32_t data_len, const
 	auto &vmobjptridx = Objects.vmptridx;
 	if (data)
 	{
-		net_udp_process_game_info(data, data_len, sender_addr, 0);
+		net_udp_process_game_info_heavy(data, data_len, sender_addr);
 	}
 
 	N_players = Netgame.numplayers;
@@ -6467,7 +6465,7 @@ static int udp_tracker_process_game(const uint8_t *const data, int data_len, con
 	// Now process the actual lite_game packet contained.
 	int iPos = (p3-p0+5);
 	const auto TrackerGameID = tracker_game_id{GET_INTEL_SHORT(&p2[2])};
-	net_udp_process_game_info( &data[iPos], data_len - iPos, sAddr, 1, TrackerGameID );
+	net_udp_process_game_info_light(&data[iPos], data_len - iPos, sAddr, TrackerGameID);
 
 	return 0;
 }
