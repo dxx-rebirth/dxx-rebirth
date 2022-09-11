@@ -1530,7 +1530,7 @@ window_event_result multi_message_input_sub(const d_robot_info_array &Robot_info
 
 namespace {
 
-static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, const uint8_t *const buf)
+static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, const uint8_t *const buf, const icobjidx_t Network_laser_track, const std::optional<uint16_t> remote_objnum)
 {
 	sbyte flags;
 
@@ -1540,9 +1540,6 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 	flags = buf[4];
 
 	const auto shot_orientation = multi_get_vector(&buf[5]);
-	const icobjidx_t Network_laser_track = (buf[0] == MULTI_FIRE_TRACK)
-		? objnum_remote_to_local(GET_INTEL_SHORT(&buf[17]), buf[19])
-		: object_none;
 
 	Assert (pnum < N_players);
 
@@ -1569,11 +1566,8 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 #endif
 
 		const auto &&objnum = Laser_player_fire(LevelSharedRobotInfoState.Robot_info, obj, weapon_id, weapon_gun, weapon_sound_flag::audible, shot_orientation, Network_laser_track);
-		if (buf[0] == MULTI_FIRE_BOMB)
-		{
-			const auto remote_objnum = GET_INTEL_SHORT(&buf[17]);
-			map_objnum_local_to_remote(objnum, remote_objnum, pnum);
-		}
+		if (remote_objnum)
+			map_objnum_local_to_remote(objnum, *remote_objnum, pnum);
 	}
 	else if (const uint8_t untrusted_weapon = untrusted_raw_weapon; untrusted_weapon < MAX_PRIMARY_WEAPONS)
 	{
@@ -5667,7 +5661,13 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 		case MULTI_FIRE:
 		case MULTI_FIRE_TRACK:
 		case MULTI_FIRE_BOMB:
-			multi_do_fire(vmobjptridx, pnum, buf);
+			multi_do_fire(vmobjptridx, pnum, buf,
+							type == MULTI_FIRE_TRACK
+							? objnum_remote_to_local(GET_INTEL_SHORT(&buf[17]), buf[19])
+							: object_none,
+							type == MULTI_FIRE_BOMB
+							? std::optional(GET_INTEL_SHORT(&buf[17]))
+							: std::nullopt);
 			break;
 		case MULTI_REMOVE_OBJECT:
 			multi_do_remobj(vmobjptr, multi_subspan_first<MULTI_REMOVE_OBJECT>(data));
