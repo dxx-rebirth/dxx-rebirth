@@ -2474,9 +2474,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 				if (vcplayerptr(i)->connected == player_connection_status::playing && restore_players[j].connected == player_connection_status::playing && vcplayerptr(i)->callsign == restore_players[j].callsign)
 				{
 					auto &p = *vmplayerptr(i);
-					const auto sav_objnum = p.objnum;
 					p = restore_players[j];
-					p.objnum = sav_objnum;
 					coop_player_got[i] = 1;
 					coop_got_nplayers++;
 
@@ -2494,6 +2492,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 					obj->mtype.phys_info = restore_objects[j].mtype.phys_info;
 					obj->rtype.pobj_info = restore_objects[j].rtype.pobj_info;
 					// make this restored player object an actual player again
+					assert(obj->type == OBJ_GHOST);
 					obj->type = OBJ_PLAYER;
 					set_player_id(obj, i); // assign player object id to player number
 					multi_reset_player_object(obj);
