@@ -33,7 +33,7 @@ struct dispatch_table final : multi::dispatch_table
 	virtual void do_protocol_frame(int force, int listen) const override;
 	virtual window_event_result level_sync() const override;
 	virtual void send_endlevel_packet() const override;
-	virtual void kick_player(const _sockaddr &dump_addr, int why) const override;
+	virtual void kick_player(const _sockaddr &dump_addr, kick_player_reason why) const override;
 	virtual void disconnect_player(int playernum) const override;
 	virtual int end_current_level(
 #if defined(DXX_BUILD_DESCENT_I)

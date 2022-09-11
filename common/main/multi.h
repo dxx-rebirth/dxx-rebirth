@@ -104,6 +104,23 @@ enum class multiplayer_data_priority : uint8_t
 	_2,
 };
 
+/* These values are sent over the network.  If new values are added or existing
+ * entries are renumbered, the multiplayer protocol version must be changed.
+ */
+enum class kick_player_reason : uint8_t
+{
+	// reasons for a packet with type UPID_DUMP
+	closed, // no new players allowed after game started
+	full, // player count maxed out
+	endlevel,
+	dork,
+	aborted,
+	connected, // never used
+	level,
+	kicked,
+	pkttimeout,
+};
+
 }
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
@@ -126,17 +143,6 @@ enum class multiplayer_data_priority : uint8_t
 #define MAX_MULTI_MESSAGE_LEN   120
 
 #endif
-
-// reasons for a packet with type PID_DUMP
-#define DUMP_CLOSED     0 // no new players allowed after game started
-#define DUMP_FULL       1 // player cound maxed out
-#define DUMP_ENDLEVEL   2
-#define DUMP_DORK       3
-#define DUMP_ABORTED    4
-#define DUMP_CONNECTED  5 // never used
-#define DUMP_LEVEL      6
-#define DUMP_KICKED     7
-#define DUMP_PKTTIMEOUT 8
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #define NETFLAG_LABEL_QUAD	 "Quad Lasers"
@@ -218,6 +224,7 @@ constexpr std::integral_constant<unsigned, 21> MULTI_ALLOW_POWERUP_TEXT_LENGTH{}
 #endif
 
 namespace multi {
+
 struct dispatch_table
 {
 	constexpr const dispatch_table *operator->() const
@@ -230,7 +237,7 @@ struct dispatch_table
 	virtual void do_protocol_frame(int force, int listen) const = 0;
 	virtual window_event_result level_sync() const = 0;
 	virtual void send_endlevel_packet() const = 0;
-	virtual void kick_player(const _sockaddr &dump_addr, int why) const = 0;
+	virtual void kick_player(const _sockaddr &dump_addr, kick_player_reason why) const = 0;
 	virtual void disconnect_player(int playernum) const = 0;
 	virtual int end_current_level(
 #if defined(DXX_BUILD_DESCENT_I)

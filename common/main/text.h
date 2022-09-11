@@ -1248,13 +1248,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 	)
 
 #define NET_DUMP_STRINGS(u)	(	\
-	((u) == DUMP_CLOSED) ? TXT_NET_GAME_CLOSED :	\
-	((u) == DUMP_FULL) ? TXT_NET_GAME_FULL	:	\
-	((u) == DUMP_ENDLEVEL) ? TXT_NET_GAME_BETWEEN	:	\
-	((u) == DUMP_DORK) ? TXT_NET_GAME_NSELECT	:	\
-	((u) == DUMP_ABORTED) ? TXT_NET_GAME_NSTART	:	\
-	((u) == DUMP_CONNECTED) ? TXT_NET_GAME_CONNECT	:	\
-	((u) == DUMP_LEVEL) ? TXT_NET_GAME_WRONGLEV	:	\
+	((u) == kick_player_reason::closed) ? TXT_NET_GAME_CLOSED :	\
+	((u) == kick_player_reason::full) ? TXT_NET_GAME_FULL	:	\
+	((u) == kick_player_reason::endlevel) ? TXT_NET_GAME_BETWEEN	:	\
+	((u) == kick_player_reason::dork) ? TXT_NET_GAME_NSELECT	:	\
+	((u) == kick_player_reason::aborted) ? TXT_NET_GAME_NSTART	:	\
+	((u) == kick_player_reason::connected) ? TXT_NET_GAME_CONNECT	:	\
+	((u) == kick_player_reason::level) ? TXT_NET_GAME_WRONGLEV	:	\
 	(dxx_text_ensure_simple_expr(&(u), TXT_NET_GAME_CLOSED))	\
 	)
 #define MENU_DIFFICULTY_TEXT(u)	(	\

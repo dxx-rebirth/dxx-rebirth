@@ -1241,7 +1241,7 @@ namespace {
 
 static void kick_player(const player &plr, netplayer_info &nplr)
 {
-	multi::dispatch->kick_player(nplr.protocol.udp.addr, DUMP_KICKED);
+	multi::dispatch->kick_player(nplr.protocol.udp.addr, kick_player_reason::kicked);
 	HUD_init_message(HM_MULTI, "Dumping %s...", static_cast<const char *>(plr.callsign));
 	multi_message_index = 0;
 	multi_sending_message[Player_num] = msgsend_state::none;
