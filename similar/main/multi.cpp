@@ -1038,9 +1038,9 @@ window_event_result multi_do_frame()
 namespace {
 
 template <multiplayer_command_t C>
-static inline void multi_send_data_direct(multi_command<C> &buf, const playernum_t pnum, const int priority)
+static inline void multi_send_data_direct(const multi_command<C> &buf, const playernum_t pnum, const int priority)
 {
-	multi::dispatch->send_data_direct(buf.data(), buf.size(), pnum, priority);
+	multi::dispatch->send_data_direct(buf, pnum, priority);
 }
 
 }

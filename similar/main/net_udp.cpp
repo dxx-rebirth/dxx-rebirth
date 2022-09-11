@@ -5624,13 +5624,13 @@ namespace dsx {
 namespace multi {
 namespace udp {
 
-void dispatch_table::send_data_direct(const uint8_t *const data, const unsigned data_len, const playernum_t pnum, int needack) const
+void dispatch_table::send_data_direct(const std::span<const uint8_t> data, const playernum_t pnum, int needack) const
 {
 	ubyte buf[sizeof(UDP_mdata_info)];
 	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
 
-	if (!(data_len > 0))
+	if (data.empty())
 		return;
 
 	if (!multi_i_am_master() && pnum != 0)
@@ -5651,7 +5651,7 @@ void dispatch_table::send_data_direct(const uint8_t *const data, const unsigned 
 	{
 		PUT_INTEL_INT(buf + len, UDP_mdata_trace[pnum].pkt_num_tosend);					len += 4;
 	}
-	memcpy(&buf[len], data, sizeof(char)*data_len);								len += data_len;
+	memcpy(&buf[len], data.data(), data.size());								len += data.size();
 
 	dxx_sendto(UDP_Socket[0], {buf, len}, 0, Netgame.players[pnum].protocol.udp.addr);
 
@@ -5659,7 +5659,7 @@ void dispatch_table::send_data_direct(const uint8_t *const data, const unsigned 
 	{
 		player_acknowledgement_mask player_ack;
 		player_ack[pnum] = 0;
-		net_udp_noloss_add_queue_pkt(timer_query(), std::span{data, data_len}, Player_num, player_ack);
+		net_udp_noloss_add_queue_pkt(timer_query(), data, Player_num, player_ack);
 	}
 }
 
