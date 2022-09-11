@@ -622,38 +622,7 @@ struct csockaddr_ref
 	}
 };
 
-template <bool const_qualified>
-struct socket_data_buffer_template
-{
-	template <typename T>
-		using cq = typename std::conditional<const_qualified, const T, T>::type;
-	cq<uint8_t> *const buf;
-	const std::size_t len;
-	socket_data_buffer_template(cq<uint8_t> *const buf, const std::size_t len) :
-		buf(buf), len(len)
-	{
-	}
-	/* Enable exactly one of these two constructors for std::array.
-	 *
-	 * To permit deduction of `N`, the std::array parameter must not be wrapped
-	 * inside a template indirection.  Therefore, separate constructors are
-	 * needed for the const and non-const cases.
-	 */
-	template <std::size_t N>
-		requires(const_qualified)
-		socket_data_buffer_template(const std::array<uint8_t, N> &a) :
-			socket_data_buffer_template(a.data(), a.size())
-	{
-	}
-	template <std::size_t N>
-		requires(!const_qualified)
-		socket_data_buffer_template(std::array<uint8_t, N> &a) :
-			socket_data_buffer_template(a.data(), a.size())
-	{
-	}
-};
-
-using csocket_data_buffer = socket_data_buffer_template<true>;
+using csocket_data_buffer = std::span<const uint8_t>;
 using socket_data_buffer = std::span<uint8_t>;
 
 class start_poll_menu_items
@@ -811,7 +780,7 @@ static bool convert_text_portstring(const std::array<char, 6> &portstring, uint1
 /* General UDP functions - START */
 ssize_t dxx_sendto(const int sockfd, const csocket_data_buffer msg, const int flags, const csockaddr_ref to)
 {
-	ssize_t rv = sendto(sockfd, reinterpret_cast<const char *>(msg.buf), msg.len, flags, &to.sa, to.len);
+	ssize_t rv = sendto(sockfd, reinterpret_cast<const char *>(msg.data()), msg.size(), flags, &to.sa, to.len);
 
 	UDP_num_sendto++;
 	if (rv > 0)
