@@ -4587,11 +4587,8 @@ void multi_send_finish_game ()
 
 namespace {
 
-static void multi_do_finish_game(const multiplayer_rspan<MULTI_FINISH_GAME> buf)
+static void multi_do_finish_game()
 {
-	if (buf[0]!=MULTI_FINISH_GAME)
-		return;
-
 	if (Current_level_num != Current_mission->last_level)
 		return;
 
@@ -5750,7 +5747,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 		case MULTI_GOT_ORB:
 			multi_do_got_orb(pnum); break;
 		case MULTI_FINISH_GAME:
-			multi_do_finish_game(multi_subspan_first<MULTI_FINISH_GAME>(data));
+			multi_do_finish_game();
 			break;  // do this one regardless of endsequence
 #endif
 		case MULTI_RANK:
