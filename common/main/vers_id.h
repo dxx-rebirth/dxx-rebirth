@@ -36,5 +36,7 @@
 
 #define DESCENT_VERSION g_descent_version
 
+#ifndef RC_INVOKED
 extern const char g_descent_version[];
 extern const char g_descent_build_datetime[];
+#endif
