@@ -102,6 +102,54 @@ enum class upid : uint8_t
 #endif
 };
 
+template <upid>
+[[deprecated("only explicit specializations can be used")]]
+constexpr std::size_t upid_length
+#ifdef __clang__
+/* clang raises an error if upid_length is not initialized, even if the generic
+ * case is never referenced.
+ *
+ * gcc permits the generic case to be uninitialized if it is never referenced.
+ * Therefore, leave it uninitialized when possible, so that any erroneous use
+ * triggers an error.
+ */
+= std::dynamic_extent
+#endif
+;
+
+template <>
+constexpr std::size_t upid_length<upid::version_deny> = 9;
+
+template <>
+constexpr std::size_t upid_length<upid::game_info_req> = 13;
+
+template <>
+constexpr std::size_t upid_length<upid::game_info> = sizeof(netgame_info);
+
+template <>
+constexpr std::size_t upid_length<upid::game_info_lite_req> = 13;
+
+template <>
+constexpr std::size_t upid_length<upid::game_info_lite> = sizeof(UDP_netgame_info_lite);
+
+template <>
+constexpr std::size_t upid_length<upid::dump> = 2;
+
+template <>
+constexpr std::size_t upid_length<upid::addplayer> = 3 + (CALLSIGN_LEN + 1);
+
+template <>
+constexpr std::size_t upid_length<upid::request> = upid_length<upid::addplayer>;
+
+template <>
+constexpr std::size_t upid_length<upid::ping> = 37;
+
+template <>
+constexpr std::size_t upid_length<upid::pong> = 10;
+
+template <>
+constexpr std::size_t upid_length<upid::pdata> = 49;
+
 }
 
 }
@@ -367,7 +415,7 @@ static int udp_tracker_reqgames();
 #endif
 
 template <upid id>
-constexpr std::array<uint8_t, UPID_GAME_INFO_REQ_SIZE> udp_request_game_info_template{{
+constexpr std::array<uint8_t, upid_length<upid::game_info_req>> udp_request_game_info_template{{
 	static_cast<uint8_t>(id),
 	UDP_REQ_ID[0],
 	UDP_REQ_ID[1],
@@ -640,7 +688,7 @@ public:
 	}
 };
 
-constexpr std::array<uint8_t, UPID_VERSION_DENY_SIZE> udp_response_version_deny{{
+constexpr std::array<uint8_t, upid_length<upid::version_deny>> udp_response_version_deny{{
 	underlying_value(upid::version_deny),
 	DXX_CONST_INIT_LE16(DXX_VERSION_MAJORi),
 	DXX_CONST_INIT_LE16(DXX_VERSION_MINORi),
@@ -1190,7 +1238,7 @@ void net_udp_send_game_info(csockaddr_ref sender_addr, const _sockaddr *player_a
 namespace dsx {
 namespace {
 
-void net_udp_request_game_info(const csockaddr_ref game_addr, const std::array<uint8_t, UPID_GAME_INFO_REQ_SIZE> &buf = udp_request_game_info_template<upid::game_info_lite_req>)
+void net_udp_request_game_info(const csockaddr_ref game_addr, const std::array<uint8_t, upid_length<upid::game_info_req>> &buf = udp_request_game_info_template<upid::game_info_lite_req>)
 {
 	dxx_sendto(UDP_Socket[0], buf, 0, game_addr);
 }
@@ -1629,7 +1677,7 @@ namespace {
 
 static void net_udp_send_sequence_packet(const UDP_sequence_request_packet &seq, const _sockaddr &recv_addr)
 {
-	std::array<uint8_t, UPID_SEQUENCE_SIZE> buf;
+	std::array<uint8_t, upid_length<upid::request>> buf;
 	int len = 0;
 	buf[0] = underlying_value(seq.type);						len++;
 	memcpy(&buf[len], seq.callsign.operator const char *(), CALLSIGN_LEN+1);		len += CALLSIGN_LEN+1;
@@ -1640,7 +1688,7 @@ static void net_udp_send_sequence_packet(const UDP_sequence_request_packet &seq,
 
 static void net_udp_send_sequence_packet(const UDP_sequence_addplayer_packet &seq, const _sockaddr &recv_addr)
 {
-	std::array<uint8_t, UPID_SEQUENCE_SIZE> buf;
+	std::array<uint8_t, upid_length<upid::addplayer>> buf;
 	int len = 0;
 	buf[0] = underlying_value(seq.type);						len++;
 	memcpy(&buf[len], seq.callsign.operator const char *(), CALLSIGN_LEN+1);		len += CALLSIGN_LEN+1;
@@ -2636,7 +2684,7 @@ namespace udp {
 void dispatch_table::kick_player(const _sockaddr &dump_addr, kick_player_reason why) const
 {
 	// Inform player that he was not chosen for the netgame
-	const std::array<uint8_t, UPID_DUMP_SIZE> buf{{
+	const std::array<uint8_t, upid_length<upid::dump>> buf{{
 		underlying_value(upid::dump),
 		underlying_value(why)
 	}};
@@ -2786,12 +2834,12 @@ static void net_udp_process_version_deny(const uint8_t *const data, const _socka
 
 struct game_info_light
 {
-	std::array<uint8_t, UPID_GAME_INFO_LITE_SIZE_MAX> buf;
+	std::array<uint8_t, upid_length<upid::game_info_lite>> buf;
 };
 
 struct game_info_heavy
 {
-	std::array<uint8_t, UPID_GAME_INFO_SIZE_MAX> buf;
+	std::array<uint8_t, upid_length<upid::game_info>> buf;
 };
 
 static uint_fast32_t net_udp_prepare_light_game_info(game_info_light &info)
@@ -3263,14 +3311,14 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 	switch (*cmd)
 	{
 		case upid::version_deny:
-			if (multi_i_am_master() || length != UPID_VERSION_DENY_SIZE)
+			if (multi_i_am_master() || length != upid_length<upid::version_deny>)
 				break;
 			net_udp_process_version_deny(data, sender_addr);
 			break;
 		case upid::game_info_req:
 		{
 			static fix64 last_full_req_time = 0;
-			if (!multi_i_am_master() || length != UPID_GAME_INFO_REQ_SIZE)
+			if (!multi_i_am_master() || length != upid_length<upid::game_info_req>)
 				break;
 			if (timer_query() < last_full_req_time+(F1_0/2)) // answer 2 times per second max
 				break;
@@ -3292,14 +3340,14 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 			break;
 		}
 		case upid::game_info:
-			if (multi_i_am_master() || length > UPID_GAME_INFO_SIZE_MAX)
+			if (multi_i_am_master() || length > upid_length<upid::game_info>)
 				break;
 			net_udp_process_game_info_heavy(data, length, sender_addr);
 			break;
 		case upid::game_info_lite_req:
 		{
 			static fix64 last_lite_req_time = 0;
-			if (!multi_i_am_master() || length != UPID_GAME_INFO_LITE_REQ_SIZE)
+			if (!multi_i_am_master() || length != upid_length<upid::game_info_lite_req>)
 				break;
 			if (timer_query() < last_lite_req_time+(F1_0/8))// answer 8 times per second max
 				break;
@@ -3323,23 +3371,23 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 			break;
 		}
 		case upid::game_info_lite:
-			if (multi_i_am_master() || length > UPID_GAME_INFO_LITE_SIZE_MAX)
+			if (multi_i_am_master() || length > upid_length<upid::game_info_lite>)
 				break;
 			net_udp_process_game_info_light(data, length, sender_addr);
 			break;
 		case upid::dump:
-			if (multi_i_am_master() || Netgame.players[0].protocol.udp.addr != sender_addr || length != UPID_DUMP_SIZE)
+			if (multi_i_am_master() || Netgame.players[0].protocol.udp.addr != sender_addr || length != upid_length<upid::dump>)
 				break;
 			if (Network_status == network_state::waiting || Network_status == network_state::playing)
 				net_udp_process_dump(data, length, sender_addr);
 			break;
 		case upid::addplayer:
-			if (multi_i_am_master() || Netgame.players[0].protocol.udp.addr != sender_addr || length != UPID_SEQUENCE_SIZE)
+			if (multi_i_am_master() || Netgame.players[0].protocol.udp.addr != sender_addr || length != upid_length<upid::addplayer>)
 				break;
 			net_udp_new_player(UDP_sequence_addplayer_packet::build_from_untrusted(data), sender_addr);
 			break;
 		case upid::request:
-			if (!multi_i_am_master() || length != UPID_SEQUENCE_SIZE)
+			if (!multi_i_am_master() || length != upid_length<upid::request>)
 				break;
 			{
 				const auto their = UDP_sequence_request_packet::build_from_untrusted(data);
@@ -3372,7 +3420,7 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 				net_udp_stop_resync(sender_addr);
 			break;
 		case upid::sync:
-			if (multi_i_am_master() || length > UPID_GAME_INFO_SIZE_MAX || Network_status != network_state::waiting)
+			if (multi_i_am_master() || length > upid_length<upid::game_info> || Network_status != network_state::waiting)
 				break;
 			net_udp_read_sync_packet(data, length, sender_addr);
 			break;
@@ -3382,12 +3430,12 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 			net_udp_read_object_packet(data);
 			break;
 		case upid::ping:
-			if (multi_i_am_master() || length != UPID_PING_SIZE)
+			if (multi_i_am_master() || length != upid_length<upid::ping>)
 				break;
 			net_udp_process_ping(data, sender_addr);
 			break;
 		case upid::pong:
-			if (!multi_i_am_master() || length != UPID_PONG_SIZE)
+			if (!multi_i_am_master() || length != upid_length<upid::pong>)
 				break;
 			net_udp_process_pong(data, sender_addr);
 			break;
@@ -5824,9 +5872,7 @@ void net_udp_process_pdata(const uint8_t *data, uint_fast32_t data_len, const _s
 
 	pd = {};
 	
-	if (data_len > sizeof(UDP_frame_info))
-		return;
-	if (data_len != UPID_PDATA_SIZE)
+	if (data_len != upid_length<upid::pdata>)
 		return;
 
 	if (sender_addr != Netgame.players[((multi_i_am_master())?(data[len]):(0))].protocol.udp.addr)
@@ -5985,10 +6031,9 @@ void net_udp_ping_frame(fix64 time)
 	
 	if ((PingTime + F1_0) < time)
 	{
-		std::array<uint8_t, UPID_PING_SIZE> buf;
+		std::array<uint8_t, upid_length<upid::ping>> buf{};
 		int len = 0;
 		
-		memset(&buf, 0, sizeof(ubyte)*UPID_PING_SIZE);
 		buf[0] = underlying_value(upid::ping);							len++;
 		memcpy(&buf[len], &time, 8);						len += 8;
 		range_for (auto &i, partial_const_range(Netgame.players, 1u, MAX_PLAYERS))
@@ -6010,7 +6055,7 @@ void net_udp_ping_frame(fix64 time)
 void net_udp_process_ping(const uint8_t *data, const _sockaddr &sender_addr)
 {
 	fix64 host_ping_time = 0;
-	std::array<uint8_t, UPID_PONG_SIZE> buf;
+	std::array<uint8_t, upid_length<upid::pong>> buf;
 	int len = 0;
 
 	if (Netgame.players[0].protocol.udp.addr != sender_addr)
@@ -6396,7 +6441,7 @@ static int udp_tracker_register()
 
 	game_info_light light;
 	unsigned len = 1, light_len = net_udp_prepare_light_game_info(light);
-	std::array<uint8_t, 2 + sizeof("b=") + sizeof(UDP_REQ_ID) + sizeof("00000.00000.00000.00000,z=") + UPID_GAME_INFO_LITE_SIZE_MAX> pBuf = {};
+	std::array<uint8_t, 2 + sizeof("b=") + sizeof(UDP_REQ_ID) + sizeof("00000.00000.00000.00000,z=") + upid_length<upid::game_info_lite>> pBuf = {};
 
 	pBuf[0] = UPID_TRACKER_REGISTER;
 	len += snprintf(reinterpret_cast<char *>(&pBuf[1]), sizeof(pBuf)-1, "b=" UDP_REQ_ID DXX_VERSION_STR ".%hu,z=", MULTI_PROTO_VERSION );

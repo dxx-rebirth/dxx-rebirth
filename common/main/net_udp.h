@@ -83,16 +83,6 @@ constexpr std::integral_constant<unsigned, 12> UDP_NETGAMES_PPAGE{}; // Netgames
 #define UDP_MDATA_PKT_NUM_MAX (UDP_MDATA_STOR_QUEUE_SIZE*100) // the max value for pkt_num. roll over when we go any higher. this should be smaller than INT_MAX
 
 // UDP-Packet identificators (ubyte) and their (max. sizes).
-#define UPID_VERSION_DENY_SIZE			  9
-#define UPID_GAME_INFO_REQ_SIZE			 13
-#define UPID_GAME_INFO_LITE_REQ_SIZE		 13
-#define UPID_GAME_INFO_SIZE_MAX			 (sizeof(netgame_info))
-#define UPID_GAME_INFO_LITE_SIZE_MAX		 (sizeof(UDP_netgame_info_lite))
-#define UPID_DUMP_SIZE				  2
-#define UPID_SEQUENCE_SIZE			 (3 + (CALLSIGN_LEN+1))
-#define UPID_PING_SIZE				 37
-#define UPID_PONG_SIZE				 10
-#define UPID_PDATA_SIZE				 49
 #define UPID_MAX_SIZE			       1024 // Max size for a packet
 #define UPID_MDATA_BUF_SIZE			454
 #if DXX_USE_TRACKER
