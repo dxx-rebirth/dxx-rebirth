@@ -59,6 +59,7 @@ window_event_result net_udp_level_sync();
 
 // Some defines
 // Our default port - easy to remember: D = 4, X = 24, X = 24
+namespace dcx {
 constexpr uint16_t UDP_PORT_DEFAULT = 42424;
 #define UDP_MANUAL_ADDR_DEFAULT "localhost"
 #if DXX_USE_TRACKER
@@ -67,9 +68,11 @@ constexpr uint16_t UDP_PORT_DEFAULT = 42424;
 #define TRACKER_ADDR_DEFAULT "tracker.dxx-rebirth.com"
 #endif
 constexpr uint16_t TRACKER_PORT_DEFAULT = 9999;
+enum class tracker_game_id : uint16_t
+{
+};
 #endif
 #define UDP_MAX_NETGAMES 900
-namespace dcx {
 constexpr std::integral_constant<unsigned, 12> UDP_NETGAMES_PPAGE{}; // Netgames on one page of Netlist
 }
 #define UDP_NETGAMES_PAGES 75 // Pages available on Netlist (UDP_MAX_NETGAMES/UDP_NETGAMES_PPAGE)
@@ -105,7 +108,9 @@ struct UDP_netgame_info_lite : public prohibit_void_ptr<UDP_netgame_info_lite>
 	struct _sockaddr                game_addr;
 	std::array<short, 3>                 program_iver;
 	fix                             GameID;
-	uint16_t			TrackerGameID;
+#if DXX_USE_TRACKER
+	tracker_game_id			TrackerGameID;
+#endif
 	ntstring<NETGAME_NAME_LEN> game_name;
 	ntstring<MISSION_NAME_LEN> mission_title;
 	ntstring<8> mission_name;

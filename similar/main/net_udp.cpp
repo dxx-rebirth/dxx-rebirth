@@ -361,7 +361,11 @@ static void net_udp_send_rejoin_sync(unsigned player_num);
 static void net_udp_do_refuse_stuff(const UDP_sequence_request_packet &their, const struct _sockaddr &peer_addr);
 static void net_udp_read_sync_packet(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr);
 static void net_udp_send_extras();
-static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &game_addr, int lite_info, uint16_t TrackerGameID = 0);
+static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &game_addr, int lite_info
+#if DXX_USE_TRACKER
+									  , tracker_game_id TrackerGameID = {}
+#endif
+									  );
 #if DXX_USE_TRACKER
 static int udp_tracker_register();
 static int udp_tracker_reqgames();
@@ -427,7 +431,7 @@ static int udp_tracker_unregister();
 static int udp_tracker_process_game(const uint8_t *data, int data_len, const _sockaddr &sender_addr );
 static void udp_tracker_process_ack(const uint8_t *data, int data_len, const _sockaddr &sender_addr );
 static void udp_tracker_verify_ack_timeout();
-static void udp_tracker_request_holepunch( uint16_t TrackerGameID );
+static void udp_tracker_request_holepunch(tracker_game_id TrackerGameID);
 static void udp_tracker_process_holepunch(uint8_t *data, unsigned data_len, const _sockaddr &sender_addr);
 #endif
 }
@@ -1071,7 +1075,7 @@ struct direct_join
 	fix64 start_time, last_time;
 	connect_type connecting = connect_type::idle;
 #if DXX_USE_TRACKER
-	uint16_t gameid;
+	tracker_game_id gameid;
 #endif
 };
 
@@ -1237,9 +1241,9 @@ Possible reasons:\n\
 	{
 		net_udp_request_game_info(dj->host_addr, udp_request_game_info_template<upid::game_info_req>);
 #if DXX_USE_TRACKER
-		if (dj->gameid)
+		if (const auto g = dj->gameid; g != tracker_game_id{})
 			if (timer_query() >= dj->start_time + (F1_0*4))
-				udp_tracker_request_holepunch(dj->gameid);
+				udp_tracker_request_holepunch(g);
 #endif
 		dj->last_time = timer_query();
 	}
@@ -2993,7 +2997,11 @@ static unsigned net_udp_send_request(void)
 namespace dsx {
 namespace {
 
-static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const _sockaddr &game_addr, int lite_info, uint16_t TrackerGameID)
+static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const _sockaddr &game_addr, const int lite_info
+#if DXX_USE_TRACKER
+									  , const tracker_game_id TrackerGameID
+#endif
+									  )
 {
 	uint_fast32_t len = 0;
 	if (lite_info)
@@ -3029,7 +3037,9 @@ static void net_udp_process_game_info(const uint8_t *data, uint_fast32_t, const 
 		copy_to_ntstring(data, len, recv_game.game_name);
 		copy_to_ntstring(data, len, recv_game.mission_title);
 		copy_to_ntstring(data, len, recv_game.mission_name);
+#if DXX_USE_TRACKER
 		recv_game.TrackerGameID = TrackerGameID;
+#endif
 	
 		menu->num_active_udp_changed = 1;
 		
@@ -6423,7 +6433,7 @@ static int udp_tracker_process_game(const uint8_t *const data, int data_len, con
 	const char *p0 = NULL, *p1 = NULL, *p2 = NULL, *p3 = NULL;
 	char sIP[47] = {};
 	std::array<char, 6> sPort{};
-	uint16_t iPort = 0, TrackerGameID = 0;
+	uint16_t iPort = 0;
 
 	// Get the IP
 	if ((p0 = strstr(reinterpret_cast<const char *>(data), "a=")) == NULL)
@@ -6451,12 +6461,12 @@ static int udp_tracker_process_game(const uint8_t *const data, int data_len, con
 		return -1;
 	if (data_len < p2 - reinterpret_cast<const char *>(data) + 2)
 		return -1;
-	TrackerGameID = GET_INTEL_SHORT(p2 + 2);
 	if ((p3 = strstr(reinterpret_cast<const char *>(data), "z=")) == NULL)
 		return -1;
 
 	// Now process the actual lite_game packet contained.
 	int iPos = (p3-p0+5);
+	const auto TrackerGameID = tracker_game_id{GET_INTEL_SHORT(&p2[2])};
 	net_udp_process_game_info( &data[iPos], data_len - iPos, sAddr, 1, TrackerGameID );
 
 	return 0;
@@ -6513,11 +6523,12 @@ static void udp_tracker_verify_ack_timeout()
 }
 
 /* We don't seem to be able to connect to a game. Ask Tracker to send hole punch request to host. */
-static void udp_tracker_request_holepunch( uint16_t TrackerGameID )
+static void udp_tracker_request_holepunch(const tracker_game_id id)
 {
 	std::array<uint8_t, 3> pBuf;
 
 	pBuf[0] = underlying_value(upid::tracker_holepunch);
+	const uint16_t TrackerGameID = underlying_value(id);
 	PUT_INTEL_SHORT(&pBuf[1], TrackerGameID);
 
 	con_printf(CON_VERBOSE, "[Tracker] Sending hole-punch request for game [%i] to tracker.", TrackerGameID);
