@@ -80,44 +80,22 @@ constexpr std::integral_constant<unsigned, 12> UDP_NETGAMES_PPAGE{}; // Netgames
 #define UDP_MDATA_PKT_NUM_MAX (UDP_MDATA_STOR_QUEUE_SIZE*100) // the max value for pkt_num. roll over when we go any higher. this should be smaller than INT_MAX
 
 // UDP-Packet identificators (ubyte) and their (max. sizes).
-#define UPID_VERSION_DENY			  1 // Netgame join or info has been denied due to version difference.
 #define UPID_VERSION_DENY_SIZE			  9
-#define UPID_GAME_INFO_REQ			  2 // Requesting all info about a netgame.
 #define UPID_GAME_INFO_REQ_SIZE			 13
 #define UPID_GAME_INFO_LITE_REQ_SIZE		 13
-#define UPID_GAME_INFO				  3 // Packet containing all info about a netgame.
-#define UPID_GAME_INFO_LITE_REQ			  4 // Requesting lite info about a netgame. Used for discovering games.
-#define UPID_GAME_INFO_LITE			  5 // Packet containing lite netgame info.
 #define UPID_GAME_INFO_SIZE_MAX			 (sizeof(netgame_info))
 #define UPID_GAME_INFO_LITE_SIZE_MAX		 (sizeof(UDP_netgame_info_lite))
-#define UPID_DUMP				  6 // Packet containing why player cannot join this game.
 #define UPID_DUMP_SIZE				  2
-#define UPID_ADDPLAYER				  7 // Packet from Host containing info about a new player.
-#define UPID_REQUEST				  8 // New player says: "I want to be inside of you!" (haha, sorry I could not resist) / Packet containing request to join the game actually.
-#define UPID_QUIT_JOINING			  9 // Packet from a player who suddenly quits joining.
 #define UPID_SEQUENCE_SIZE			 (3 + (CALLSIGN_LEN+1))
-#define UPID_SYNC				 10 // Packet from host containing full netgame info to sync players up.
-#define UPID_OBJECT_DATA			 11 // Packet from host containing object buffer.
-#define UPID_PING				 12 // Packet from host containing his GameTime and the Ping list. Client returns this time to host as UPID_PONG and adapts the ping list.
 #define UPID_PING_SIZE				 37
-#define UPID_PONG				 13 // Packet answer from client to UPID_PING. Contains the time the initial ping packet was sent.
 #define UPID_PONG_SIZE				 10
-#define UPID_ENDLEVEL_H				 14 // Packet from Host to all Clients containing connect-states and kills information about everyone in the game.
-#define UPID_ENDLEVEL_C				 15 // Packet from Client to Host containing connect-state and kills information from this Client.
-#define UPID_PDATA				 16 // Packet from player containing his movement data.
 #define UPID_PDATA_SIZE				 49
-#define UPID_MDATA_PNORM			 17 // Packet containing multi buffer from a player. Priority 0,1 - no ACK needed.
-#define UPID_MDATA_PNEEDACK			 18 // Packet containing multi buffer from a player. Priority 2 - ACK needed. Also contains pkt_num
-#define UPID_MDATA_ACK				 19 // ACK packet for UPID_MDATA_P1.
 #define UPID_MAX_SIZE			       1024 // Max size for a packet
 #define UPID_MDATA_BUF_SIZE			454
 #if DXX_USE_TRACKER
 #define UPID_TRACKER_REGISTER			 21 // Register or update a game on the tracker.
 #define UPID_TRACKER_REMOVE			 22 // Remove our game from the tracker.
 #define UPID_TRACKER_REQGAMES			 23 // Request a list of all games stored on the tracker.
-#define UPID_TRACKER_GAMEINFO			 24 // Packet containing info about a game
-#define UPID_TRACKER_ACK			 25 // An ACK packet from the tracker
-#define UPID_TRACKER_HOLEPUNCH			 26 // Hole punching process. Sent from client to tracker to request hole punching from game host and received by host from tracker to initiate hole punching to requesting client
 #endif
 
 // Structure keeping lite game infos (for netlist, etc.)

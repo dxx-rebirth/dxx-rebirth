@@ -70,6 +70,42 @@
 #define UDP_REQ_ID "D2XR" // ID string for a request packet
 #endif
 
+namespace dcx {
+
+namespace {
+
+enum class upid : uint8_t
+{
+	version_deny = 1,	// Netgame join or info has been denied due to version difference.
+	game_info_req,	// Requesting all info about a netgame.
+	game_info,	// Packet containing all info about a netgame.
+	game_info_lite_req,	// Requesting lite info about a netgame. Used for discovering games.
+	game_info_lite,	// Packet containing lite netgame info.
+	dump,	// Packet containing why player cannot join this game.
+	addplayer,	// Packet from Host containing info about a new player.
+	request,	// Packet containing request to join the game
+	quit_joining,	// Packet from a player who suddenly quits joining.
+	sync,	// Packet from host containing full netgame info to sync players up.
+	object_data,	// Packet from host containing object buffer.
+	ping,	// Packet from host containing his GameTime and the Ping list. Client returns this time to host as UPID_PONG and adapts the ping list.
+	pong,	// Packet answer from client to UPID_PING. Contains the time the initial ping packet was sent.
+	endlevel_h,	// Packet from Host to all Clients containing connect-states and kills information about everyone in the game.
+	endlevel_c,	// Packet from Client to Host containing connect-state and kills information from this Client.
+	pdata,	// Packet from player containing his movement data.
+	mdata_pnorm,	// Packet containing multi buffer from a player. Priority 0,1 - no ACK needed.
+	mdata_pneedack,	// Packet containing multi buffer from a player. Priority 2 - ACK needed. Also contains pkt_num
+	mdata_ack,	// ACK packet for UPID_MDATA_P1.
+#if DXX_USE_TRACKER
+	tracker_gameinfo,	// Packet containing info about a game
+	tracker_ack,	// An ACK packet from the tracker
+	tracker_holepunch,	// Hole punching process. Sent from client to tracker to request hole punching from game host and received by host from tracker to initiate hole punching to requesting client
+#endif
+};
+
+}
+
+}
+
 namespace {
 
 void net_udp_send_netgame_update();
@@ -263,11 +299,11 @@ window_event_result net_udp_select_teams_menu::event_handler(const d_event &even
 
 struct UDP_sequence_packet
 {
-	const uint8_t type;
+	const upid type;
 	const netplayer_info::player_rank rank;
 	const callsign_t callsign;
 protected:
-	UDP_sequence_packet(const uint8_t type, const netplayer_info::player_rank rank, const callsign_t &callsign) :
+	UDP_sequence_packet(const upid type, const netplayer_info::player_rank rank, const callsign_t &callsign) :
 		type(type), rank(rank), callsign(callsign)
 	{
 	}
@@ -277,7 +313,7 @@ struct UDP_sequence_request_packet : UDP_sequence_packet
 {
 	const int8_t Current_level_num;
 	UDP_sequence_request_packet(const netplayer_info::player_rank rank, const callsign_t &callsign, const int8_t Current_level_num) :
-		UDP_sequence_packet(UPID_REQUEST, rank, callsign), Current_level_num(Current_level_num)
+		UDP_sequence_packet(upid::request, rank, callsign), Current_level_num(Current_level_num)
 	{
 	}
 	static UDP_sequence_request_packet build_from_untrusted(const uint8_t *);
@@ -287,7 +323,7 @@ struct UDP_sequence_addplayer_packet : UDP_sequence_packet
 {
 	const uint8_t player_num;
 	UDP_sequence_addplayer_packet(const netplayer_info::player_rank rank, const callsign_t &callsign, const int8_t player_num) :
-		UDP_sequence_packet(UPID_ADDPLAYER, rank, callsign), player_num(player_num)
+		UDP_sequence_packet(upid::addplayer, rank, callsign), player_num(player_num)
 	{
 	}
 	static UDP_sequence_addplayer_packet build_from_untrusted(const uint8_t *);
@@ -331,9 +367,9 @@ static int udp_tracker_register();
 static int udp_tracker_reqgames();
 #endif
 
-template <uint8_t id>
+template <upid id>
 constexpr std::array<uint8_t, UPID_GAME_INFO_REQ_SIZE> udp_request_game_info_template{{
-	id,
+	static_cast<uint8_t>(id),
 	UDP_REQ_ID[0],
 	UDP_REQ_ID[1],
 	UDP_REQ_ID[2],
@@ -637,7 +673,7 @@ public:
 };
 
 constexpr std::array<uint8_t, UPID_VERSION_DENY_SIZE> udp_response_version_deny{{
-	UPID_VERSION_DENY,
+	underlying_value(upid::version_deny),
 	DXX_CONST_INIT_LE16(DXX_VERSION_MAJORi),
 	DXX_CONST_INIT_LE16(DXX_VERSION_MINORi),
 	DXX_CONST_INIT_LE16(DXX_VERSION_MICROi),
@@ -835,6 +871,40 @@ static std::optional<kick_player_reason> build_kick_player_reason_from_untrusted
 		case static_cast<uint8_t>(kick_player_reason::kicked):
 		case static_cast<uint8_t>(kick_player_reason::pkttimeout):
 			return static_cast<kick_player_reason>(why);
+		default:
+			return std::nullopt;
+	}
+}
+
+static std::optional<upid> build_upid_from_untrusted(const uint8_t cmd)
+{
+	switch (cmd)
+	{
+		case static_cast<uint8_t>(upid::version_deny):
+		case static_cast<uint8_t>(upid::game_info_req):
+		case static_cast<uint8_t>(upid::game_info):
+		case static_cast<uint8_t>(upid::game_info_lite_req):
+		case static_cast<uint8_t>(upid::game_info_lite):
+		case static_cast<uint8_t>(upid::dump):
+		case static_cast<uint8_t>(upid::addplayer):
+		case static_cast<uint8_t>(upid::request):
+		case static_cast<uint8_t>(upid::quit_joining):
+		case static_cast<uint8_t>(upid::sync):
+		case static_cast<uint8_t>(upid::object_data):
+		case static_cast<uint8_t>(upid::ping):
+		case static_cast<uint8_t>(upid::pong):
+		case static_cast<uint8_t>(upid::endlevel_h):
+		case static_cast<uint8_t>(upid::endlevel_c):
+		case static_cast<uint8_t>(upid::pdata):
+		case static_cast<uint8_t>(upid::mdata_pnorm):
+		case static_cast<uint8_t>(upid::mdata_pneedack):
+		case static_cast<uint8_t>(upid::mdata_ack):
+#if DXX_USE_TRACKER
+		case static_cast<uint8_t>(upid::tracker_gameinfo):
+		case static_cast<uint8_t>(upid::tracker_ack):
+		case static_cast<uint8_t>(upid::tracker_holepunch):
+#endif
+			return static_cast<upid>(cmd);
 		default:
 			return std::nullopt;
 	}
@@ -1145,14 +1215,14 @@ struct netgame_list_game_menu : netgame_list_game_menu_items, direct_join, newme
 
 manual_join_user_inputs manual_join_menu_items::s_last_inputs;
 
-void net_udp_send_game_info(csockaddr_ref sender_addr, const _sockaddr *player_address, const uint8_t info_upid);
+void net_udp_send_game_info(csockaddr_ref sender_addr, const _sockaddr *player_address, const upid info_upid);
 
 }
 
 namespace dsx {
 namespace {
 
-void net_udp_request_game_info(const csockaddr_ref game_addr, const std::array<uint8_t, UPID_GAME_INFO_REQ_SIZE> &buf = udp_request_game_info_template<UPID_GAME_INFO_LITE_REQ>)
+void net_udp_request_game_info(const csockaddr_ref game_addr, const std::array<uint8_t, UPID_GAME_INFO_REQ_SIZE> &buf = udp_request_game_info_template<upid::game_info_lite_req>)
 {
 	dxx_sendto(UDP_Socket[0], buf, 0, game_addr);
 }
@@ -1196,7 +1266,7 @@ Possible reasons:\n\
 	
 	if (timer_query() >= dj->last_time + F1_0)
 	{
-		net_udp_request_game_info(dj->host_addr, udp_request_game_info_template<UPID_GAME_INFO_REQ>);
+		net_udp_request_game_info(dj->host_addr, udp_request_game_info_template<upid::game_info_req>);
 #if DXX_USE_TRACKER
 		if (dj->gameid)
 			if (timer_query() >= dj->start_time + (F1_0*4))
@@ -1593,7 +1663,7 @@ static void net_udp_send_sequence_packet(const UDP_sequence_request_packet &seq,
 {
 	std::array<uint8_t, UPID_SEQUENCE_SIZE> buf;
 	int len = 0;
-	buf[0] = seq.type;						len++;
+	buf[0] = underlying_value(seq.type);						len++;
 	memcpy(&buf[len], seq.callsign.operator const char *(), CALLSIGN_LEN+1);		len += CALLSIGN_LEN+1;
 	buf[len] = seq.Current_level_num;				len++;
 	buf[len] = underlying_value(seq.rank);					len++;
@@ -1604,7 +1674,7 @@ static void net_udp_send_sequence_packet(const UDP_sequence_addplayer_packet &se
 {
 	std::array<uint8_t, UPID_SEQUENCE_SIZE> buf;
 	int len = 0;
-	buf[0] = seq.type;						len++;
+	buf[0] = underlying_value(seq.type);						len++;
 	memcpy(&buf[len], seq.callsign.operator const char *(), CALLSIGN_LEN+1);		len += CALLSIGN_LEN+1;
 	buf[len] = seq.player_num;				len++;
 	buf[len] = underlying_value(seq.rank);					len++;
@@ -2218,8 +2288,9 @@ void net_udp_send_objects(void)
 		return;
 	}
 
-	std::array<uint8_t, UPID_MAX_SIZE> object_buffer{};
-	object_buffer[0] = UPID_OBJECT_DATA;
+	std::array<uint8_t, UPID_MAX_SIZE> object_buffer{{
+		underlying_value(upid::object_data)
+	}};
 	loc = 5;
 
 	if (Network_send_objnum == -1)
@@ -2291,7 +2362,7 @@ void net_udp_send_objects(void)
 			Assert(Network_send_object_mode == 1); 
 
 			// Send count so other side can make sure he got them all
-			object_buffer[0] = UPID_OBJECT_DATA;
+			object_buffer[0] = underlying_value(upid::object_data);
 			PUT_INTEL_INT(&object_buffer[1], 1);
 			PUT_INTEL_INT(&object_buffer[5], network_checksum_marker_object);
 			object_buffer[9] = player_num;
@@ -2492,7 +2563,7 @@ void net_udp_send_rejoin_sync(const unsigned player_num)
 	Netgame.level_time = get_local_player().time_level;
 	Netgame.monitor_vector = net_udp_create_monitor_vector();
 
-	net_udp_send_game_info(UDP_sync_player.udp_addr, &UDP_sync_player.udp_addr, UPID_SYNC);
+	net_udp_send_game_info(UDP_sync_player.udp_addr, &UDP_sync_player.udp_addr, upid::sync);
 #if defined(DXX_BUILD_DESCENT_I)
 	net_udp_send_door_updates();
 #endif
@@ -2535,7 +2606,7 @@ static void net_udp_resend_sync_due_to_packet_loss()
 	Netgame.level_time = get_local_player().time_level;
 	Netgame.monitor_vector = net_udp_create_monitor_vector();
 
-	net_udp_send_game_info(UDP_sync_player.udp_addr, &UDP_sync_player.udp_addr, UPID_SYNC);
+	net_udp_send_game_info(UDP_sync_player.udp_addr, &UDP_sync_player.udp_addr, upid::sync);
 }
 
 static void net_udp_add_player(const UDP_sequence_request_packet &p, const struct _sockaddr &udp_addr)
@@ -2598,7 +2669,7 @@ void dispatch_table::kick_player(const _sockaddr &dump_addr, kick_player_reason 
 {
 	// Inform player that he was not chosen for the netgame
 	const std::array<uint8_t, UPID_DUMP_SIZE> buf{{
-		UPID_DUMP,
+		underlying_value(upid::dump),
 		underlying_value(why)
 	}};
 	dxx_sendto(UDP_Socket[0], buf, 0, dump_addr);
@@ -2682,7 +2753,7 @@ void dispatch_table::send_endlevel_packet() const
 	if (multi_i_am_master())
 	{
 		std::array<uint8_t, 2 + (5 * Players.size()) + sizeof(kill_matrix)> buf;
-		buf[len] = UPID_ENDLEVEL_H;											len++;
+		buf[len] = underlying_value(upid::endlevel_h);											len++;
 		buf[len] = LevelUniqueControlCenterState.Countdown_seconds_left;				len++;
 
 		range_for (auto &i, Players)
@@ -2711,7 +2782,7 @@ void dispatch_table::send_endlevel_packet() const
 	else
 	{
 		std::array<uint8_t, 8 + sizeof(kill_matrix[0])> buf;
-		buf[len] = UPID_ENDLEVEL_C;											len++;
+		buf[len] = underlying_value(upid::endlevel_c);											len++;
 		buf[len] = Player_num;												len++;
 		buf[len] = underlying_value(get_local_player().connected);							len++;
 		buf[len] = LevelUniqueControlCenterState.Countdown_seconds_left;				len++;
@@ -2760,7 +2831,7 @@ static uint_fast32_t net_udp_prepare_light_game_info(game_info_light &info)
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	uint_fast32_t len = 0;
 	uint8_t *const buf = info.buf.data();
-		buf[0] = UPID_GAME_INFO_LITE;								len++;				// 1
+		buf[0] = underlying_value(upid::game_info_lite);								len++;				// 1
 		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MAJORi); 						len += 2;			// 3
 		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MINORi); 						len += 2;			// 5
 		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MICROi); 						len += 2;			// 7
@@ -2780,13 +2851,13 @@ static uint_fast32_t net_udp_prepare_light_game_info(game_info_light &info)
 	return len;
 }
 
-static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyte info_upid, game_info_heavy &info)
+static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *const addr, const upid info_upid, game_info_heavy &info)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	uint8_t *const buf = info.buf.data();
 	uint_fast32_t len = 0;
 
-		buf[0] = info_upid;								len++;
+		buf[0] = underlying_value(info_upid);								len++;
 		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MAJORi); 						len += 2;
 		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MINORi); 						len += 2;
 		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MICROi); 						len += 2;
@@ -2881,7 +2952,7 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *addr, ubyt
 	return len;
 }
 
-void net_udp_send_game_info(csockaddr_ref sender_addr, const _sockaddr *player_address, const uint8_t info_upid)
+void net_udp_send_game_info(csockaddr_ref sender_addr, const _sockaddr *player_address, const upid info_upid)
 {
 	// Send game info to someone who requested it
 	net_udp_update_netgame(); // Update the values in the netgame struct
@@ -2891,7 +2962,7 @@ void net_udp_send_game_info(csockaddr_ref sender_addr, const _sockaddr *player_a
 	};
 	std::size_t len;
 	const uint8_t *info;
-	if (info_upid == UPID_GAME_INFO_LITE)
+	if (info_upid == upid::game_info_lite)
 	{
 		len = net_udp_prepare_light_game_info(light);
 		info = light.buf.data();
@@ -2909,7 +2980,7 @@ static unsigned MouselookMPFlag(const unsigned game_is_cooperative)
 	return game_is_cooperative ? MouselookMode::MPCoop : MouselookMode::MPAnarchy;
 }
 
-static void net_udp_broadcast_game_info(uint8_t info_upid)
+static void net_udp_broadcast_game_info(const upid info_upid)
 {
 	net_udp_send_game_info(GBcast, nullptr, info_upid);
 #if DXX_USE_IPv6
@@ -2925,9 +2996,9 @@ void net_udp_send_netgame_update()
 		if (vcplayerptr(i)->connected == player_connection_status::disconnected)
 			continue;
 		const auto &addr = Netgame.players[i].protocol.udp.addr;
-		net_udp_send_game_info(addr, &addr, UPID_GAME_INFO);
+		net_udp_send_game_info(addr, &addr, upid::game_info);
 	}
-	net_udp_broadcast_game_info(UPID_GAME_INFO_LITE);
+	net_udp_broadcast_game_info(upid::game_info_lite);
 }
 
 static unsigned net_udp_send_request(void)
@@ -3205,14 +3276,21 @@ namespace {
 
 static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, uint8_t *const data, const _sockaddr &sender_addr, int length)
 {
-	switch (data[0])
+	const auto dcmd = data[0];
+	const auto cmd = build_upid_from_untrusted(dcmd);
+	if (!cmd)
 	{
-		case UPID_VERSION_DENY:
+		con_printf(CON_DEBUG, "unknown packet type received - type %i", dcmd);
+		return;
+	}
+	switch (*cmd)
+	{
+		case upid::version_deny:
 			if (multi_i_am_master() || length != UPID_VERSION_DENY_SIZE)
 				break;
 			net_udp_process_version_deny(data, sender_addr);
 			break;
-		case UPID_GAME_INFO_REQ:
+		case upid::game_info_req:
 		{
 			static fix64 last_full_req_time = 0;
 			if (!multi_i_am_master() || length != UPID_GAME_INFO_REQ_SIZE)
@@ -3223,7 +3301,7 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 			switch (net_udp_check_game_info_request(data, 0))
 			{
 				case game_info_request_result::accept:
-					net_udp_send_game_info(sender_addr, &sender_addr, UPID_GAME_INFO);
+					net_udp_send_game_info(sender_addr, &sender_addr, upid::game_info);
 					break;
 				case game_info_request_result::id_mismatch:
 					/* No response - peer is not the same type of Descent, and
@@ -3236,12 +3314,12 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 			}
 			break;
 		}
-		case UPID_GAME_INFO:
+		case upid::game_info:
 			if (multi_i_am_master() || length > UPID_GAME_INFO_SIZE_MAX)
 				break;
 			net_udp_process_game_info(data, length, sender_addr, 0);
 			break;
-		case UPID_GAME_INFO_LITE_REQ:
+		case upid::game_info_lite_req:
 		{
 			static fix64 last_lite_req_time = 0;
 			if (!multi_i_am_master() || length != UPID_GAME_INFO_LITE_REQ_SIZE)
@@ -3252,7 +3330,7 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 			switch (net_udp_check_game_info_request(data, 1))
 			{
 				case game_info_request_result::accept:
-					net_udp_send_game_info(sender_addr, &sender_addr, UPID_GAME_INFO_LITE);
+					net_udp_send_game_info(sender_addr, &sender_addr, upid::game_info_lite);
 					break;
 				case game_info_request_result::id_mismatch:
 					/* No response - peer is not the same type of Descent, and
@@ -3267,23 +3345,23 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 			}
 			break;
 		}
-		case UPID_GAME_INFO_LITE:
+		case upid::game_info_lite:
 			if (multi_i_am_master() || length > UPID_GAME_INFO_LITE_SIZE_MAX)
 				break;
 			net_udp_process_game_info(data, length, sender_addr, 1);
 			break;
-		case UPID_DUMP:
+		case upid::dump:
 			if (multi_i_am_master() || Netgame.players[0].protocol.udp.addr != sender_addr || length != UPID_DUMP_SIZE)
 				break;
 			if (Network_status == network_state::waiting || Network_status == network_state::playing)
 				net_udp_process_dump(data, length, sender_addr);
 			break;
-		case UPID_ADDPLAYER:
+		case upid::addplayer:
 			if (multi_i_am_master() || Netgame.players[0].protocol.udp.addr != sender_addr || length != UPID_SEQUENCE_SIZE)
 				break;
 			net_udp_new_player(UDP_sequence_addplayer_packet::build_from_untrusted(data), sender_addr);
 			break;
-		case UPID_REQUEST:
+		case upid::request:
 			if (!multi_i_am_master() || length != UPID_SEQUENCE_SIZE)
 				break;
 			{
@@ -3308,7 +3386,7 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 			}
 			}
 			break;
-		case UPID_QUIT_JOINING:
+		case upid::quit_joining:
 			if (!multi_i_am_master() || length != 1)
 				break;
 			if (Network_status == network_state::starting)
@@ -3316,62 +3394,59 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 			else if (Network_status == network_state::playing && Network_send_objects)
 				net_udp_stop_resync(sender_addr);
 			break;
-		case UPID_SYNC:
+		case upid::sync:
 			if (multi_i_am_master() || length > UPID_GAME_INFO_SIZE_MAX || Network_status != network_state::waiting)
 				break;
 			net_udp_read_sync_packet(data, length, sender_addr);
 			break;
-		case UPID_OBJECT_DATA:
+		case upid::object_data:
 			if (multi_i_am_master() || length > UPID_MAX_SIZE || Network_status != network_state::waiting)
 				break;
 			net_udp_read_object_packet(data);
 			break;
-		case UPID_PING:
+		case upid::ping:
 			if (multi_i_am_master() || length != UPID_PING_SIZE)
 				break;
 			net_udp_process_ping(data, sender_addr);
 			break;
-		case UPID_PONG:
+		case upid::pong:
 			if (!multi_i_am_master() || length != UPID_PONG_SIZE)
 				break;
 			net_udp_process_pong(data, sender_addr);
 			break;
-		case UPID_ENDLEVEL_H:
+		case upid::endlevel_h:
 			if ((!multi_i_am_master()) && (Network_status == network_state::endlevel || Network_status == network_state::playing))
 				net_udp_read_endlevel_packet(data, sender_addr);
 			break;
-		case UPID_ENDLEVEL_C:
+		case upid::endlevel_c:
 			if ((multi_i_am_master()) && (Network_status == network_state::endlevel || Network_status == network_state::playing))
 				net_udp_read_endlevel_packet(data, sender_addr);
 			break;
-		case UPID_PDATA:
+		case upid::pdata:
 			net_udp_process_pdata( data, length, sender_addr );
 			break;
-		case UPID_MDATA_PNORM:
+		case upid::mdata_pnorm:
 			net_udp_process_mdata(LevelSharedRobotInfoState, data, length, sender_addr, 0);
 			break;
-		case UPID_MDATA_PNEEDACK:
+		case upid::mdata_pneedack:
 			net_udp_process_mdata(LevelSharedRobotInfoState, data, length, sender_addr, 1);
 			break;
-		case UPID_MDATA_ACK:
+		case upid::mdata_ack:
 			net_udp_noloss_got_ack(data, length);
 			break;
 #if DXX_USE_TRACKER
-		case UPID_TRACKER_GAMEINFO:
+		case upid::tracker_gameinfo:
 			udp_tracker_process_game( data, length, sender_addr );
 			break;
-		case UPID_TRACKER_ACK:
+		case upid::tracker_ack:
 			if (!multi_i_am_master())
 				break;
 			udp_tracker_process_ack( data, length, sender_addr );
 			break;
-		case UPID_TRACKER_HOLEPUNCH:
+		case upid::tracker_holepunch:
 			udp_tracker_process_holepunch( data, length, sender_addr );
 			break;
 #endif
-		default:
-			con_printf(CON_DEBUG, "unknown packet type received - type %i", data[0]);
-			break;
 	}
 }
 
@@ -4542,9 +4617,9 @@ static int net_udp_send_sync(void)
 				continue;
 			const auto &addr = Netgame.players[i].protocol.udp.addr;
 			multi::udp::dispatch->kick_player(addr, kick_player_reason::aborted);
-			net_udp_send_game_info(addr, &addr, UPID_GAME_INFO);
+			net_udp_send_game_info(addr, &addr, upid::game_info);
 		}
-		net_udp_broadcast_game_info(UPID_GAME_INFO_LITE);
+		net_udp_broadcast_game_info(upid::game_info_lite);
 		return -1;
 	}
 
@@ -4578,7 +4653,7 @@ static int net_udp_send_sync(void)
 		if (vcplayerptr(i)->connected == player_connection_status::disconnected || i == Player_num)
 			continue;
 		const auto &addr = Netgame.players[i].protocol.udp.addr;
-		net_udp_send_game_info(addr, &addr, UPID_SYNC);
+		net_udp_send_game_info(addr, &addr, upid::sync);
 	}
 
 	net_udp_read_sync_packet(nullptr, 0, Netgame.players[0].protocol.udp.addr); // Read it myself, as if I had sent it
@@ -4661,9 +4736,9 @@ abort:
 				continue;
 			const auto &addr = Netgame.players[i].protocol.udp.addr;
 			multi::udp::dispatch->kick_player(addr, kick_player_reason::aborted);
-			net_udp_send_game_info(addr, &addr, UPID_GAME_INFO);
+			net_udp_send_game_info(addr, &addr, upid::game_info);
 		}
-		net_udp_broadcast_game_info(UPID_GAME_INFO_LITE);
+		net_udp_broadcast_game_info(upid::game_info_lite);
 		Netgame.numplayers = save_nplayers;
 
 		Network_status = network_state::menu;
@@ -4766,7 +4841,7 @@ static int net_udp_start_game()
 		return 0;	// see if we want to tweak the game we setup
 	}
 	state_set_next_autosave(GameUniqueState, Netgame.MPGameplayOptions.AutosaveInterval);
-	net_udp_broadcast_game_info(UPID_GAME_INFO_LITE); // game started. broadcast our current status to everyone who wants to know
+	net_udp_broadcast_game_info(upid::game_info_lite); // game started. broadcast our current status to everyone who wants to know
 
 	return 1;	// don't keep params menu or mission listbox (may want to join a game next time)
 }
@@ -4797,8 +4872,9 @@ static int net_udp_wait_for_sync(void)
 
 	if (Network_status != network_state::playing)
 	{
-		std::array<uint8_t, 1> buf;
-		buf[0] = UPID_QUIT_JOINING;
+		const std::array<uint8_t, 1> buf{{
+			underlying_value(upid::quit_joining)
+		}};
 		dxx_sendto(UDP_Socket[0], buf, 0, Netgame.players[0].protocol.udp.addr);
 		N_players = 0;
 		Game_mode = {};
@@ -5060,9 +5136,9 @@ void dispatch_table::leave_game() const
 			if (vcplayerptr(i)->connected == player_connection_status::disconnected)
 				continue;
 			const auto &addr = Netgame.players[i].protocol.udp.addr;
-			net_udp_send_game_info(addr, &addr, UPID_GAME_INFO);
+			net_udp_send_game_info(addr, &addr, upid::game_info);
 		}
-		net_udp_broadcast_game_info(UPID_GAME_INFO_LITE);
+		net_udp_broadcast_game_info(upid::game_info_lite);
 		N_players=nsave;
 #if DXX_USE_TRACKER
 		if( Netgame.Tracker )
@@ -5246,7 +5322,7 @@ void dispatch_table::do_protocol_frame(int force, int listen) const
 	if (multi_i_am_master() && time>=last_bcast_time+(F1_0*10))
 	{
 		last_bcast_time = time;
-		net_udp_broadcast_game_info(UPID_GAME_INFO_LITE);
+		net_udp_broadcast_game_info(upid::game_info_lite);
 #if DXX_USE_TRACKER
 		if ( Netgame.Tracker )
 			udp_tracker_register();
@@ -5277,7 +5353,7 @@ void dispatch_table::do_protocol_frame(int force, int listen) const
 namespace {
 
 /* CODE FOR PACKET LOSS PREVENTION - START */
-/* This code tries to make sure that packets with opcode UPID_MDATA_PNEEDACK aren't lost and sent and received in order. */
+/* This code tries to make sure that packets with opcode upid::mdata_pneedack aren't lost and sent and received in order. */
 /*
  * Adds a packet to our queue. Should be called when an IMPORTANT mdata packet is created.
  * player_ack is an array which should contain 0 for each player that needs to send an ACK signal.
@@ -5358,7 +5434,7 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, co
 
         // Prepare the ACK (but do not send, yet)
 	std::array<uint8_t, 7> buf;
-        buf[len] = UPID_MDATA_ACK;											len++;
+        buf[len] = underlying_value(upid::mdata_ack);											len++;
         buf[len] = Player_num;												len++;
         buf[len] = pkt_sender_pnum;											len++;
 	PUT_INTEL_INT(&buf[len], pkt_num);										len += 4;
@@ -5481,7 +5557,7 @@ void net_udp_noloss_process_queue(fix64 time)
 
 					unsigned len = 0;
 					// Prepare the packet and send it
-					buf[len] = UPID_MDATA_PNEEDACK;													len++;
+					buf[len] = underlying_value(upid::mdata_pneedack);													len++;
 					buf[len] = UDP_mdata_queue[queuec].Player_num;								len++;
 					PUT_INTEL_INT(buf + len, UDP_mdata_queue[queuec].pkt_num[plc]);					len += 4;
 					memcpy(&buf[len], UDP_mdata_queue[queuec].data.data(), sizeof(char)*UDP_mdata_queue[queuec].data_size);
@@ -5567,10 +5643,9 @@ void dispatch_table::send_data_direct(const uint8_t *const data, const unsigned 
 	memset(&buf, 0, sizeof(UDP_mdata_info));
 
 	unsigned len = 0;
-	if (needack)
-		buf[len] = UPID_MDATA_PNEEDACK;
-	else
-		buf[len] = UPID_MDATA_PNORM;
+	buf[0] = needack
+		? underlying_value(upid::mdata_pneedack)
+		: underlying_value(upid::mdata_pnorm);
 														len++;
 	buf[len] = Player_num;											len++;
 	if (needack)
@@ -5610,10 +5685,9 @@ void net_udp_send_mdata(int needack, fix64 time)
 	memset(&buf, 0, sizeof(UDP_mdata_info));
 
 	unsigned len = 0;
-	if (needack)
-		buf[len] = UPID_MDATA_PNEEDACK;
-	else
-		buf[len] = UPID_MDATA_PNORM;
+	buf[0] = needack
+		? underlying_value(upid::mdata_pneedack)
+		: underlying_value(upid::mdata_pnorm);
 														len++;
 	buf[len] = Player_num;											len++;
 	if (needack)												len += 4; // we place the pkt_num later since it changes per player
@@ -5731,7 +5805,7 @@ void net_udp_send_pdata()
 	if (!(Network_status == network_state::playing || Network_status == network_state::endlevel))
 		return;
 
-	buf[len] = UPID_PDATA;									len++;
+	buf[len] = underlying_value(upid::pdata);									len++;
 	buf[len] = Player_num;									len++;
 	buf[len] = underlying_value(plr.connected);						len++;
 
@@ -5939,7 +6013,7 @@ void net_udp_ping_frame(fix64 time)
 		int len = 0;
 		
 		memset(&buf, 0, sizeof(ubyte)*UPID_PING_SIZE);
-		buf[len] = UPID_PING;							len++;
+		buf[0] = underlying_value(upid::ping);							len++;
 		memcpy(&buf[len], &time, 8);						len += 8;
 		range_for (auto &i, partial_const_range(Netgame.players, 1u, MAX_PLAYERS))
 		{
@@ -5973,7 +6047,7 @@ void net_udp_process_ping(const uint8_t *data, const _sockaddr &sender_addr)
 		i.ping = GET_INTEL_INT(&(data[len]));		len += 4;
 	}
 	
-	buf[0] = UPID_PONG;
+	buf[0] = underlying_value(upid::pong);
 	buf[1] = Player_num;
 	memcpy(&buf[2], &host_ping_time, 8);
 	
@@ -6475,7 +6549,7 @@ static void udp_tracker_request_holepunch( uint16_t TrackerGameID )
 {
 	std::array<uint8_t, 3> pBuf;
 
-	pBuf[0] = UPID_TRACKER_HOLEPUNCH;
+	pBuf[0] = underlying_value(upid::tracker_holepunch);
 	PUT_INTEL_SHORT(&pBuf[1], TrackerGameID);
 
 	con_printf(CON_VERBOSE, "[Tracker] Sending hole-punch request for game [%i] to tracker.", TrackerGameID);
@@ -6523,8 +6597,9 @@ static void udp_tracker_process_holepunch(uint8_t *const data, const unsigned da
 	if(udp_dns_filladdr(sAddr, sIP, iPort, true, true) < 0)
 		return;
 
-	std::array<uint8_t, 1> pBuf;
-	pBuf[0] = UPID_TRACKER_HOLEPUNCH;
+	const std::array<uint8_t, 1> pBuf{{
+		underlying_value(upid::tracker_holepunch)
+	}};
 	dxx_sendto(UDP_Socket[0], pBuf, 0, sAddr);
 }
 
