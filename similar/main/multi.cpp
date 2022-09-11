@@ -129,6 +129,23 @@ static std::array<uint16_t, MAX_OBJECTS> local_to_remote;
 static std::array<unsigned, MAX_PLAYERS> sorted_kills;
 static void multi_send_quit();
 void multi_new_bounty_target(playernum_t, const char *callsign);
+
+using kill_name_storage = std::array<char, (CALLSIGN_LEN * 2) + 4>;
+
+[[nodiscard]]
+static const char *prepare_kill_name(fvcplayerptr &vcplayerptr, const game_mode_flags Game_mode, const netgame_info &Netgame, const vcplayeridx_t pnum, kill_name_storage &buf)
+{
+	const char *const callsign = vcplayerptr(pnum)->callsign;
+	if (Game_mode & GM_TEAM)
+	{
+		const auto r = std::data(buf);
+		snprintf(r, std::size(buf), "%s (%s)", callsign, Netgame.team_name[get_team(pnum)].operator const char *());
+		return r;
+	}
+	else
+		return callsign;
+}
+
 }
 DEFINE_SERIAL_UDT_TO_MESSAGE(shortpos, s, (s.bytemat, s.xo, s.yo, s.zo, s.segment, s.velx, s.vely, s.velz));
 
@@ -718,29 +735,6 @@ static void net_destroy_controlcen(object_array &Objects, const d_robot_info_arr
 	net_destroy_controlcen_object(Robot_info, obj_find_first_of_type(Objects.vmptridx, OBJ_CNTRLCEN));
 }
 
-}
-
-}
-
-namespace {
-
-static const char *prepare_kill_name(const playernum_t pnum, char (&buf)[(CALLSIGN_LEN*2)+4])
-{
-	if (Game_mode & GM_TEAM)
-	{
-		snprintf(buf, sizeof(buf), "%s (%s)", static_cast<const char *>(vcplayerptr(pnum)->callsign), static_cast<const char *>(Netgame.team_name[get_team(pnum)]));
-		return buf;
-	}
-	else
-		return static_cast<const char *>(vcplayerptr(pnum)->callsign);
-}
-
-}
-
-namespace dsx {
-
-namespace {
-
 static void multi_compute_kill(const d_robot_info_array &Robot_info, const imobjptridx_t killer, object &killed)
 {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -766,8 +760,8 @@ static void multi_compute_kill(const d_robot_info_array &Robot_info, const imobj
 
 	Assert (killed_pnum < N_players);
 
-	char killed_buf[(CALLSIGN_LEN*2)+4];
-	const char *killed_name = prepare_kill_name(killed_pnum, killed_buf);
+	kill_name_storage killed_buf;
+	const auto killed_name = prepare_kill_name(vcplayerptr, Game_mode, Netgame, killed_pnum, killed_buf);
 
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_multi_death(killed_pnum);
@@ -830,8 +824,8 @@ static void multi_compute_kill(const d_robot_info_array &Robot_info, const imobj
 
 	killer_pnum = get_player_id(killer);
 
-	char killer_buf[(CALLSIGN_LEN*2)+4];
-	const char *killer_name = prepare_kill_name(killer_pnum, killer_buf);
+	kill_name_storage killer_buf;
+	const auto killer_name = prepare_kill_name(vcplayerptr, Game_mode, Netgame, killer_pnum, killer_buf);
 
 	// Beyond this point, it was definitely a player-player kill situation
 
@@ -962,8 +956,8 @@ static void multi_compute_kill(const d_robot_info_array &Robot_info, const imobj
 			}
 			else
 			{
-				char buf[(CALLSIGN_LEN*2)+4];
-				HUD_init_message(HM_MULTI, "%s has reached the kill goal!", prepare_kill_name(killer_pnum, buf));
+				kill_name_storage buf;
+				HUD_init_message(HM_MULTI, "%s has reached the kill goal!", prepare_kill_name(vcplayerptr, Game_mode, Netgame, killer_pnum, buf));
 			}
 			net_destroy_controlcen(Objects, Robot_info);
 		}
