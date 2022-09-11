@@ -5358,7 +5358,7 @@ namespace {
  * Adds a packet to our queue. Should be called when an IMPORTANT mdata packet is created.
  * player_ack is an array which should contain 0 for each player that needs to send an ACK signal.
  */
-static void net_udp_noloss_add_queue_pkt(fix64 time, const uint8_t *const data, ushort data_size, ubyte pnum, const player_acknowledgement_mask &player_ack)
+static void net_udp_noloss_add_queue_pkt(fix64 time, const std::span<const uint8_t> data, ubyte pnum, const player_acknowledgement_mask &player_ack)
 {
 	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
@@ -5409,8 +5409,7 @@ static void net_udp_noloss_add_queue_pkt(fix64 time, const uint8_t *const data, 
 	}
 	UDP_mdata_queue[UDP_mdata_queue_highest].Player_num = pnum;
 	UDP_mdata_queue[UDP_mdata_queue_highest].player_ack = player_ack;
-	memcpy( &UDP_mdata_queue[UDP_mdata_queue_highest].data, data, sizeof(char)*data_size );
-	UDP_mdata_queue[UDP_mdata_queue_highest].data_size = data_size;
+	memcpy(&UDP_mdata_queue[UDP_mdata_queue_highest].data, data.data(), UDP_mdata_queue[UDP_mdata_queue_highest].data_size = data.size());
 	UDP_mdata_queue_highest++;
 }
 
@@ -5660,7 +5659,7 @@ void dispatch_table::send_data_direct(const uint8_t *const data, const unsigned 
 	{
 		player_acknowledgement_mask player_ack;
 		player_ack[pnum] = 0;
-		net_udp_noloss_add_queue_pkt(timer_query(), data, data_len, Player_num, player_ack);
+		net_udp_noloss_add_queue_pkt(timer_query(), std::span{data, data_len}, Player_num, player_ack);
 	}
 }
 
@@ -5717,7 +5716,7 @@ void net_udp_send_mdata(int needack, fix64 time)
 	}
 	
 	if (needack)
-		net_udp_noloss_add_queue_pkt(time, UDP_MData.mbuf.data(), UDP_MData.mbuf_size, Player_num, player_ack);
+		net_udp_noloss_add_queue_pkt(time, std::span{UDP_MData.mbuf.data(), UDP_MData.mbuf_size}, Player_num, player_ack);
 
 	// Clear UDP_MData except pkt_num. That one must not be deleted so we can clearly keep track of important packets.
 	UDP_MData.type = 0;
@@ -5778,7 +5777,7 @@ void net_udp_process_mdata(const d_level_shared_robot_info_state &LevelSharedRob
 		}
 
 		if (needack)
-			net_udp_noloss_add_queue_pkt(timer_query(), data+dataoffset, data_len-dataoffset, pnum, player_ack);
+			net_udp_noloss_add_queue_pkt(timer_query(), std::span{data+dataoffset, data_len-dataoffset}, pnum, player_ack);
 	}
 
 	// Check if we are in correct state to process the packet
