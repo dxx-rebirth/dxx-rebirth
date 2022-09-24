@@ -24,8 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #pragma once
-
-#ifdef __cplusplus
 #include <cstddef>
 
 namespace dcx {
@@ -34,15 +32,8 @@ struct PHYSFSX_gets_line_t;
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-#define MENU_PALETTE	""	// never used
-static inline int load_palette(const char *name, int used_for_level, int no_change_screen)
-{
-	(void)name;
-	(void)used_for_level;
-	(void)no_change_screen;
-	return 1;
-}
 #elif defined(DXX_BUILD_DESCENT_II)
+#include <span>
 #include "inferno.h"
 
 namespace dsx {
@@ -57,8 +48,6 @@ extern char last_palette_loaded_pig[FILENAME_LEN];
 // if used_for_level is set, load pig, etc.
 // if no_change_screen is set, the current screen does not get
 // remapped, and the hardware palette does not get changed
-int load_palette(const char *name, int used_for_level, int no_change_screen);
+int load_palette(std::span<const char> name, int used_for_level, int no_change_screen);
 }
-#endif
-
 #endif

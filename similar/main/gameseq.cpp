@@ -1068,7 +1068,7 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	Current_level_num=level_num;
 
-	load_palette(Current_level_palette,1,1);		//don't change screen
+	load_palette(Current_level_palette.line(), 1, 1);		//don't change screen
 #endif
 
 #if DXX_USE_EDITOR
@@ -2033,7 +2033,7 @@ window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, const
 #if defined(DXX_BUILD_DESCENT_I)
 	gr_use_palette_table( "palette.256" );
 #elif defined(DXX_BUILD_DESCENT_II)
-	load_palette(Current_level_palette,0,1);
+	load_palette(Current_level_palette.line(), 0, 1);
 #endif
 	gr_palette_load(gr_palette);
 
