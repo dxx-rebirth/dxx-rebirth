@@ -12,6 +12,7 @@
  *  -- MD2211 (2006-04-24)
  */
 
+#include <span>
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include <string.h>
@@ -131,7 +132,7 @@ enum class CurrentMusicType
 
 static CurrentMusicType current_music_type = CurrentMusicType::None;
 
-static CurrentMusicType load_mus_data(const uint8_t *data, size_t size, int loop, void (*const hook_finished_track)());
+static CurrentMusicType load_mus_data(std::span<const uint8_t> data, int loop, void (*const hook_finished_track)());
 static CurrentMusicType load_mus_file(const char *filename, int loop, void (*const hook_finished_track)());
 
 }
@@ -142,8 +143,6 @@ static CurrentMusicType load_mus_file(const char *filename, int loop, void (*con
 
 int mix_play_file(const char *filename, int loop, void (*const entry_hook_finished_track)())
 {
-	unsigned int bufsize = 0;
-
 	mix_free_music();	// stop and free what we're already playing, if anything
 
 	const auto hook_finished_track = entry_hook_finished_track ? entry_hook_finished_track : mix_free_music;
@@ -153,7 +152,7 @@ int mix_play_file(const char *filename, int loop, void (*const entry_hook_finish
 		if (auto &&[v, hoe] = hmp2mid(filename); hoe == hmp_open_error::None)
 		{
 			current_music_hndlbuf = std::move(v);
-			current_music_type = load_mus_data(current_music_hndlbuf.data(), current_music_hndlbuf.size(), loop, hook_finished_track);
+			current_music_type = load_mus_data(current_music_hndlbuf, loop, hook_finished_track);
 			if (current_music_type != CurrentMusicType::None)
 				return 1;
 		}
@@ -189,10 +188,10 @@ int mix_play_file(const char *filename, int loop, void (*const entry_hook_finish
 	{
 		if (RAIIPHYSFS_File filehandle{PHYSFS_openRead(filename)})
 		{
-			unsigned len = PHYSFS_fileLength(filehandle);
+			const auto len = PHYSFS_fileLength(filehandle);
 			current_music_hndlbuf.resize(len);
-			bufsize = PHYSFS_read(filehandle, &current_music_hndlbuf[0], sizeof(char), len);
-			current_music_type = load_mus_data(current_music_hndlbuf.data(), bufsize, loop, hook_finished_track);
+			const auto bufsize = PHYSFS_read(filehandle, &current_music_hndlbuf[0], sizeof(char), len);
+			current_music_type = load_mus_data(std::span(current_music_hndlbuf).first(bufsize), loop, hook_finished_track);
 			if (current_music_type != CurrentMusicType::None)
 				return 1;
 		}
@@ -254,11 +253,11 @@ void mix_pause_resume_music()
 
 namespace {
 
-static CurrentMusicType load_mus_data(const uint8_t *data, size_t size, int loop, void (*const hook_finished_track)())
+static CurrentMusicType load_mus_data(const std::span<const uint8_t> data, int loop, void (*const hook_finished_track)())
 {
 #if DXX_USE_ADLMIDI
 	const auto adlmidi = get_adlmidi();
-	if (adlmidi && adl_openData(adlmidi, data, size) == 0)
+	if (adlmidi && adl_openData(adlmidi, data.data(), data.size()) == 0)
 	{
 		mix_set_music_type_adl(loop, hook_finished_track);
 		return CurrentMusicType::ADLMIDI;
@@ -266,7 +265,7 @@ static CurrentMusicType load_mus_data(const uint8_t *data, size_t size, int loop
 	else
 #endif
 	{
-		const auto rw = SDL_RWFromConstMem(data, size);
+		const auto rw = SDL_RWFromConstMem(data.data(), data.size());
 		current_music.reset(rw);
 		if (current_music)
 		{
