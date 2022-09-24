@@ -337,16 +337,10 @@ static int convert_pattern_array(const char (&name)[namelen], std::array<int, ar
 	return convert_pattern_array(name, namelen, &array[0], arraylen, word, line);
 }
 
-static void print_pattern_array(PHYSFS_File *fout, const char *name, const int *array, std::size_t arraylen)
+static void print_pattern_array(PHYSFS_File *fout, const char *name, const std::span<const int> array)
 {
-	for (std::size_t i = 0; i < arraylen; ++i)
+	for (std::size_t i = 0; i < array.size(); ++i)
 		PHYSFSX_printf(fout,"%s%" DXX_PRI_size_type "=%d\n", name, i, array[i]);
-}
-
-template <std::size_t arraylen>
-static void print_pattern_array(PHYSFS_File *fout, const char *name, const std::array<int, arraylen> &array)
-{
-	print_pattern_array(fout, name, &array[0], arraylen);
 }
 
 static const char *splitword(char *line, char c)
