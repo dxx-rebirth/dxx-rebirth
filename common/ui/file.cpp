@@ -17,6 +17,7 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#include <span>
 #include <stdlib.h>
 #include <string.h>
 
@@ -42,14 +43,14 @@ namespace dcx {
 namespace {
 
 #if DXX_USE_EDITOR
-static PHYSFSX_counted_list file_getdirlist(const char *dir)
+static PHYSFSX_counted_list file_getdirlist(const std::span<const char, PATH_MAX> dir)
 {
 	ntstring<PATH_MAX - 1> path;
-	auto dlen = path.copy_if(dir);
+	auto dlen = path.copy_if(dir.data());
 	if ((!dlen && dir[0] != '\0') || !path.copy_if(dlen, "/"))
 		return nullptr;
 	++ dlen;
-	PHYSFSX_counted_list list{PHYSFS_enumerateFiles(dir)};
+	PHYSFSX_counted_list list{PHYSFS_enumerateFiles(dir.data())};
 	if (!list)
 		return nullptr;
 	const auto predicate = [&](char *i) -> bool {
@@ -62,7 +63,7 @@ static PHYSFSX_counted_list file_getdirlist(const char *dir)
 	*j = NULL;
 	auto NumDirs = j.get() - list.get();
 	qsort(list.get(), NumDirs, sizeof(char *), string_array_sort_func);
-	if (*dir)
+	if (dir[0])
 	{
 		// Put the 'go to parent directory' sequence '..' first
 		++NumDirs;
@@ -226,7 +227,7 @@ window_event_result ui_file_browser::callback_handler(const d_event &event)
 			}
 			
 			ui_inputbox_set_text(user_file.get(), filespec);
-			directory_list = file_getdirlist(view_dir.data());
+			directory_list = file_getdirlist(view_dir);
 			if (!directory_list)
 			{
 				filename_list.reset();
@@ -275,7 +276,7 @@ int ui_get_filename(std::array<char, PATH_MAX> &filename, const char *const file
 		return 0;
 	}
 	
-	PHYSFSX_counted_list &&directory_list = file_getdirlist(view_dir.data());
+	PHYSFSX_counted_list &&directory_list = file_getdirlist(view_dir);
 	if (!directory_list)
 	{
 		return 0;
