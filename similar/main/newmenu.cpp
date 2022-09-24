@@ -396,22 +396,25 @@ static void nm_rstring(grs_canvas &canvas, const grs_font &cv_font, int w1, int 
 	gr_string(canvas, cv_font, x - w, y, s, w, h);
 }
 
-static void nm_string_inputbox(grs_canvas &canvas, const grs_font &cv_font, const int w, const int x, const int y, const char *text, const int current)
+static void nm_string_inputbox(grs_canvas &canvas, const grs_font &cv_font, const int w, const int x, const int y, const char *const entry_text, const int current)
 {
-	int w1;
-
+	const auto &&[w1, text] = [](const grs_font &font, const int w, const char *text) -> std::pair<int, const char *> {
 	// even with variable char widths and a box that goes over the whole screen, we maybe never get more than 75 chars on the line
-	if (strlen(text)>75)
-		text+=strlen(text)-75;
-	while( *text )	{
-		w1 = gr_get_string_size(cv_font, text).width;
-		if ( w1 > w-FSPACX(10) )
-			text++;
-		else
-			break;
-	}
-	if ( *text == 0 )
-		w1 = 0;
+		if (const auto l = strlen(text); l > 75)
+			text += l - 75;
+		const auto threshold = w - FSPACX(10);
+		for (;;)
+		{
+			const char c = *text;
+			if (!c)
+				return {0, text};
+			const int w1 = gr_get_string_size(font, text, UINT_MAX).width;
+			if (w1 > threshold)
+				++text;
+			else
+				return {w1, text};
+		}
+	}(cv_font, w, entry_text);
 
 	nm_string_black(canvas, w, x, y, text);
 
