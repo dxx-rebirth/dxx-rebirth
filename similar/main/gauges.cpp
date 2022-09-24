@@ -3099,7 +3099,7 @@ static void draw_invulnerable_ship(const hud_draw_context_hs_mr hudctx, const ob
 }
 }
 
-const rgb_array_t player_rgb_normal{{
+constexpr rgb_array_t player_rgb_normal{{
 							{15,15,23},
 							{27,0,0},
 							{0,23,0},

@@ -702,14 +702,14 @@ struct d_level_unique_control_center_state :
 	fix64 Last_time_cc_vis_check;
 };
 
-class d_guided_missile_indices : std::array<imobjidx_t, MAX_PLAYERS>
+class d_guided_missile_indices : per_player_array<imobjidx_t>
 {
 	template <typename R, typename F>
 		R get_player_active_guided_missile_tmpl(F &fvcobj, playernum_t pnum) const;
 	static bool debug_check_current_object(const object_base &);
 public:
 	constexpr d_guided_missile_indices() :
-		std::array<imobjidx_t, MAX_PLAYERS>(init_object_number_array<imobjidx_t>(std::make_index_sequence<MAX_PLAYERS>()))
+		per_player_array<imobjidx_t>(init_object_number_array<imobjidx_t>(std::make_index_sequence<MAX_PLAYERS>()))
 	{
 	}
 	imobjidx_t get_player_active_guided_missile(playernum_t pnum) const;

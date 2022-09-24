@@ -94,14 +94,14 @@ struct rgb {
 	ubyte r,g,b;
 };
 
-using rgb_array_t = const std::array<rgb, MAX_PLAYERS>;
+using rgb_array_t = const per_player_array<rgb>;
 extern const rgb_array_t player_rgb_normal;
 
 /* Stub for mods that provide switchable player colors */
 class rgb_array_wrapper
 {
 public:
-	const rgb &operator[](std::size_t i) const
+	const rgb &operator[](const playernum_t i) const
 	{
 		return player_rgb_normal[i];
 	}

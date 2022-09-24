@@ -562,7 +562,7 @@ extern int VerifyPlayerJoined;
 extern int Player_joining_extras;
 extern int Network_player_added;
 
-extern std::array<std::array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
+extern per_player_array<per_player_array<uint16_t>> kill_matrix;
 extern std::array<int16_t, 2> team_kills;
 
 extern ushort my_segments_checksum;
@@ -589,7 +589,7 @@ extern std::array<sbyte, MAX_OBJECTS> object_owner;
 
 extern int multi_quit_game;
 
-extern std::array<msgsend_state, MAX_PLAYERS> multi_sending_message;
+extern per_player_array<msgsend_state> multi_sending_message;
 extern int multi_defining_message;
 
 vms_vector multi_get_vector(const uint8_t *buf);
@@ -614,7 +614,7 @@ extern hoard_highest_record hoard_highest_record_stats;
 namespace dcx {
 extern playernum_t Bounty_target;
 
-extern std::array<std::array<bitmap_index, N_PLAYER_SHIP_TEXTURES>, MAX_PLAYERS> multi_player_textures;
+extern per_player_array<std::array<bitmap_index, N_PLAYER_SHIP_TEXTURES>> multi_player_textures;
 
 #define GetRankStringWithSpace(I)	(PlayerCfg.NoRankings ? std::pair<const char *, const char *>("", "") : std::pair<const char *, const char *>(RankStrings[I], " "))
 
@@ -873,14 +873,14 @@ struct netgame_info : prohibit_void_ptr<netgame_info>
 	ubyte						PacketLossPrevention;
 	ubyte						NoFriendlyFire;
 	std::array<callsign_t, 2>					team_name;
-	std::array<uint32_t, MAX_PLAYERS>						locations;
-	std::array<std::array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS>						kills;
+	per_player_array<uint32_t>						locations;
+	per_player_array<per_player_array<uint16_t>>	kills;
 	std::array<int16_t, 2>						team_kills;
-	std::array<uint16_t, MAX_PLAYERS>						killed;
-	std::array<uint16_t, MAX_PLAYERS>						player_kills;
-	std::array<uint32_t, MAX_PLAYERS>						player_score;
-	std::array<player_flags, MAX_PLAYERS>					net_player_flags;
-	std::array<netplayer_info, MAX_PLAYERS> 				players;
+	per_player_array<uint16_t>						killed;
+	per_player_array<uint16_t>						player_kills;
+	per_player_array<uint32_t>						player_score;
+	per_player_array<player_flags>					net_player_flags;
+	per_player_array<netplayer_info>				players;
 #if DXX_USE_TRACKER
 	ubyte						Tracker;
 	TrackerNATHolePunchWarn TrackerNATWarned;

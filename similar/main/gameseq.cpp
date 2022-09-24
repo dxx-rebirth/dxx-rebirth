@@ -196,7 +196,7 @@ PHYSFSX_gets_line_t<LEVEL_NAME_LEN> Current_level_name;
 unsigned	N_players=1;	// Number of players ( >1 means a net game, eh?)
 playernum_t Player_num;	// The player number who is on the console.
 fix StartingShields=INITIAL_SHIELDS;
-std::array<obj_position, MAX_PLAYERS> Player_init;
+per_player_array<obj_position> Player_init;
 
 // Global variables telling what sort of game we have
 unsigned NumNetPlayerPositions;
@@ -262,7 +262,7 @@ static bool operator!=(const vms_vector &a, const vms_vector &b)
 constexpr constant_xrange<sidenum_t, sidenum_t::WRIGHT, sidenum_t::WFRONT> displacement_sides{};
 static_assert(static_cast<uint8_t>(sidenum_t::WBACK) + 1 == static_cast<uint8_t>(sidenum_t::WFRONT), "side ordering error");
 
-static unsigned generate_extra_starts_by_copying(object_array &Objects, valptridx<player>::array_managed_type &Players, segment_array &Segments, const xrange<unsigned, std::integral_constant<unsigned, 0>> preplaced_start_range, const std::array<sidemask_t, MAX_PLAYERS> &player_init_segment_capacity_flag, const unsigned total_required_num_starts, unsigned synthetic_player_idx)
+static unsigned generate_extra_starts_by_copying(object_array &Objects, valptridx<player>::array_managed_type &Players, segment_array &Segments, const xrange<unsigned, std::integral_constant<unsigned, 0>> preplaced_start_range, const per_player_array<sidemask_t> &player_init_segment_capacity_flag, const unsigned total_required_num_starts, unsigned synthetic_player_idx)
 {
 	for (const auto side : displacement_sides)
 	{
@@ -309,7 +309,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
-	std::array<sidemask_t, MAX_PLAYERS> player_init_segment_capacity_flag{};
+	per_player_array<sidemask_t> player_init_segment_capacity_flag{};
 	DXX_MAKE_VAR_UNDEFINED(player_init_segment_capacity_flag);
 	static_assert(static_cast<uint8_t>(sidenum_t::WRIGHT) + 1 == static_cast<uint8_t>(sidenum_t::WBOTTOM), "side ordering error");
 	static_assert(static_cast<uint8_t>(sidenum_t::WBOTTOM) + 1 == static_cast<uint8_t>(sidenum_t::WBACK), "side ordering error");
@@ -2232,7 +2232,7 @@ class respawn_locations
 {
 	typedef std::pair<int, fix> site;
 	unsigned max_usable_spawn_sites;
-	std::array<site, MAX_PLAYERS> sites;
+	per_player_array<site> sites;
 public:
 	respawn_locations(fvmobjptr &vmobjptr, fvcsegptridx &vcsegptridx)
 	{
@@ -2254,7 +2254,7 @@ public:
 			return closest_dist;
 		};
 		const auto max_spawn_sites = std::min<unsigned>(NumNetPlayerPositions, sites.size());
-		for (uint_fast32_t i = max_spawn_sites; i--;)
+		for (playernum_t i = max_spawn_sites; i--;)
 		{
 			auto &s = sites[i];
 			s.first = i;
@@ -2279,7 +2279,7 @@ public:
 	{
 		return max_usable_spawn_sites;
 	}
-	const site &operator[](std::size_t i) const
+	const site &operator[](const playernum_t i) const
 	{
 		return sites[i];
 	}

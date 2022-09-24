@@ -717,7 +717,7 @@ static vmsegptridx_t choose_drop_segment(fvmsegptridx &vmsegptridx, fvcvertptr &
 	auto &drop_playerobj = *vmobjptr(drop_player.objnum);
 
 	auto mrd = std::minstd_rand(timer_query());
-	std::array<playernum_t, MAX_PLAYERS> candidate_drop_players;
+	per_player_array<playernum_t> candidate_drop_players;
 	const auto end_drop_players = [&candidate_drop_players, drop_pnum]() {
 		const auto b = candidate_drop_players.begin();
 		auto r = b;
@@ -785,7 +785,7 @@ static vmsegptridx_t choose_drop_segment(fvmsegptridx &vmsegptridx, fvcvertptr &
 	 * segment should be found before all MAX_PLAYERS instances are
 	 * constructed.
 	 */
-	std::array<std::unique_ptr<connected_segment_raw_distances>, MAX_PLAYERS> distance_by_player;
+	per_player_array<std::unique_ptr<connected_segment_raw_distances>> distance_by_player;
 	std::optional<vmsegptridx_t> fallback_drop;
 	for (const unsigned candidate_depth : xrange(std::uniform_int_distribution(net_drop_max_depth_lower + 0u, net_drop_max_depth_upper + 0u)(mrd), net_drop_min_depth, xrange_descending()))
 	{

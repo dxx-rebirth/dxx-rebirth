@@ -73,7 +73,7 @@ enum class kmatrix_status_mode
 
 static void kmatrix_redraw_coop(grs_canvas &canvas, fvcobjptr &vcobjptr, font_y_scale_float);
 
-static void kmatrix_draw_item(fvcobjptr &vcobjptr, grs_canvas &canvas, const grs_font &cv_font, const int i, const playernum_array_t &sorted, const font_y_scale_float fspacy)
+static void kmatrix_draw_item(fvcobjptr &vcobjptr, grs_canvas &canvas, const grs_font &cv_font, const playernum_t i, const playernum_array_t &sorted, const font_y_scale_float fspacy)
 {
 	const auto y = fspacy(80 + i * 9);
 	const auto &&fspacx = FSPACX();
@@ -82,7 +82,7 @@ static void kmatrix_draw_item(fvcobjptr &vcobjptr, grs_canvas &canvas, const grs
 
 	const auto &&rgb10 = BM_XRGB(10, 10, 10);
 	const auto &&rgb25 = BM_XRGB(25, 25, 25);
-	for (int j=0; j<N_players; j++)
+	for (playernum_t j = 0; j < N_players; ++j)
 	{
 		const auto x = fspacx(70 + CENTERING_OFFSET(N_players) + j * 25);
 
@@ -126,17 +126,18 @@ static void kmatrix_draw_names(grs_canvas &canvas, const grs_font &cv_font, cons
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacy_header = fspacy(65);
 	const auto &&rgb31 = BM_XRGB(31, 31, 31);
-	for (int j=0; j<N_players; j++)
+	for (playernum_t j = 0; j < N_players; ++j)
 	{
 		const auto x = fspacx(70 + CENTERING_OFFSET(N_players) + j * 25);
 
 		color_t c;
-		auto &p = *vcplayerptr(sorted[j]);
+		const auto sj = sorted[j];
+		auto &p = *vcplayerptr(sj);
 		if (p.connected == player_connection_status::disconnected)
 			c = rgb31;
 		else
 		{
-			const auto color = get_player_or_team_color(sorted[j]);
+			const auto color = get_player_or_team_color(sj);
 			const auto &rgb = player_rgb[color];
 			c = BM_XRGB(rgb.r, rgb.g, rgb.b);
 		}

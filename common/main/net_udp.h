@@ -138,8 +138,8 @@ struct UDP_mdata_info : prohibit_void_ptr<UDP_mdata_info>
 struct UDP_mdata_store : prohibit_void_ptr<UDP_mdata_store>
 {
 	fix64				pkt_initial_timestamp;			// initial timestamp to see if packet is outdated
-	enumerated_array<fix64, MAX_PLAYERS, playernum_t>		pkt_timestamp;		// Packet timestamp
-	enumerated_array<uint32_t, MAX_PLAYERS, playernum_t>	pkt_num;			// Packet number
+	per_player_array<fix64>		pkt_timestamp;		// Packet timestamp
+	per_player_array<uint32_t>	pkt_num;			// Packet number
 	sbyte				used;
 	ubyte				Player_num;				// sender of this packet
 	uint16_t			data_size;

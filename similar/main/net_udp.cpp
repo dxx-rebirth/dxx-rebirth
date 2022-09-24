@@ -467,7 +467,7 @@ static int UDP_num_sendto, UDP_len_sendto, UDP_num_recvfrom, UDP_len_recvfrom;
 static UDP_mdata_info		UDP_MData;
 static unsigned UDP_mdata_queue_highest;
 static std::array<UDP_mdata_store, UDP_MDATA_STOR_QUEUE_SIZE> UDP_mdata_queue;
-static std::array<UDP_mdata_check, MAX_PLAYERS> UDP_mdata_trace;
+static per_player_array<UDP_mdata_check> UDP_mdata_trace;
 static UDP_sequence_syncplayer_packet UDP_sync_player; // For rejoin object syncing
 static uint16_t UDP_MyPort;
 #if DXX_USE_TRACKER

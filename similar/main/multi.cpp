@@ -124,9 +124,9 @@ namespace dcx {
 namespace {
 static int imulti_new_game; // to prep stuff for level only when starting new game
 static int multi_message_index;
-static std::array<std::array<objnum_t, MAX_OBJECTS>, MAX_PLAYERS> remote_to_local;  // Remote object number for each local object
+static per_player_array<std::array<objnum_t, MAX_OBJECTS>> remote_to_local;  // Remote object number for each local object
 static std::array<uint16_t, MAX_OBJECTS> local_to_remote;
-static std::array<unsigned, MAX_PLAYERS> sorted_kills;
+static per_player_array<unsigned> sorted_kills;
 static void multi_send_quit();
 void multi_new_bounty_target(playernum_t, const char *callsign);
 
@@ -227,7 +227,7 @@ network_state Network_status;
 playernum_t Bounty_target;
 
 
-std::array<msgsend_state, MAX_PLAYERS> multi_sending_message;
+per_player_array<msgsend_state> multi_sending_message;
 int multi_defining_message = 0;
 
 std::array<sbyte, MAX_OBJECTS> object_owner;   // Who created each object in my universe, -1 = loaded at start
@@ -236,7 +236,7 @@ unsigned   Net_create_loc;       // pointer into previous array
 std::array<objnum_t, MAX_NET_CREATE_OBJECTS>   Net_create_objnums; // For tracking object creation that will be sent to remote
 ntstring<MAX_MESSAGE_LEN - 1> Network_message;
 int   Network_message_reciever=-1;
-std::array<std::array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
+per_player_array<per_player_array<uint16_t>> kill_matrix;
 std::array<int16_t, 2> team_kills;
 int   multi_quit_game = 0;
 
@@ -295,7 +295,7 @@ int     Network_player_added = 0;   // Is this a new player or a returning playe
 ushort          my_segments_checksum = 0;
 
 
-std::array<std::array<bitmap_index, N_PLAYER_SHIP_TEXTURES>, MAX_PLAYERS> multi_player_textures;
+per_player_array<std::array<bitmap_index, N_PLAYER_SHIP_TEXTURES>> multi_player_textures;
 
 // Globals for protocol-bound Refuse-functions
 char RefuseThisPlayer=0,WaitForRefuseAnswer=0,RefuseTeam,RefusePlayerName[12];
@@ -675,7 +675,7 @@ void multi_sort_kill_list()
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	// Sort the kills list each time a new kill is added
-	std::array<int, MAX_PLAYERS> kills;
+	per_player_array<int> kills;
 	for (playernum_t i = 0; i < MAX_PLAYERS; ++i)
 	{
 		auto &player_info = vcobjptr(vcplayerptr(i)->objnum)->ctype.player_info;
