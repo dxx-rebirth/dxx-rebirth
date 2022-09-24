@@ -96,8 +96,6 @@ constexpr std::array<std::array<char, 8>, 3> movielib_files{{
 	{"intro"}, {"other"}, {"robots"}
 }};
 
-static RWops_ptr RoboFile;
-
 // Function Prototypes
 static movie_play_status RunMovie(const char *filename, const char *subtitles, int highres_flag, play_movie_warn_missing, int dx,int dy);
 
@@ -425,15 +423,15 @@ movie_play_status RunMovie(const char *const filename, const char *const subtitl
 }
 
 //returns 1 if frame updated ok
-int RotateRobot(MVESTREAM_ptr_t &pMovie)
+int RotateRobot(MVESTREAM_ptr_t &pMovie, SDL_RWops *const RoboFile)
 {
 	auto err = MVE_rmStepMovie(*pMovie.get());
 	gr_palette_load(gr_palette);
 
 	if (err == MVE_StepStatus::EndOfFile)     //end of movie, so reset
 	{
-		SDL_RWseek(RoboFile.get(), 0, SEEK_SET);
-		if (MVE_rmPrepMovie(pMovie, RoboFile.get(), SWIDTH/2.3, SHEIGHT/2.3, 0))
+		SDL_RWseek(RoboFile, 0, SEEK_SET);
+		if (MVE_rmPrepMovie(pMovie, RoboFile, SWIDTH/2.3, SHEIGHT/2.3, 0))
 		{
 			Int3();
 			return 0;
@@ -452,31 +450,28 @@ int RotateRobot(MVESTREAM_ptr_t &pMovie)
 void DeInitRobotMovie(MVESTREAM_ptr_t &pMovie)
 {
 	pMovie.reset();
-	RoboFile.reset();                           // Close Movie File
 }
 
-uint8_t InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
+RWops_ptr InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
 {
 	if (GameArg.SysNoMovies)
-		return 0;
+		return nullptr;
 
 	con_printf(CON_DEBUG, "RoboFile=%s", filename);
 
 	MVE_sndInit(-1);        //tell movies to play no sound for robots
 
-	auto &&[filehndl, physfserr] = PHYSFSRWOPS_openRead(filename);
-	RoboFile = std::move(filehndl);
+	auto &&[RoboFile, physfserr] = PHYSFSRWOPS_openRead(filename);
 	if (!RoboFile)
 	{
 		con_printf(CON_URGENT, "Failed to open movie <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
-		return 0;
+		return nullptr;
 	}
 	if (MVE_rmPrepMovie(pMovie, RoboFile.get(), SWIDTH/2.3, SHEIGHT/2.3, 0)) {
 		Int3();
-		return 0;
+		return nullptr;
 	}
-
-	return 1;
+	return std::move(RoboFile);
 }
 
 namespace {

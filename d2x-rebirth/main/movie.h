@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <limits.h>
 #include "d2x-rebirth/libmve/mvelib.h"
 #include "dsx-ns.h"
+#include "physfsrwops.h"
 
 namespace dsx {
 
@@ -52,8 +53,8 @@ enum class movie_play_status : uint8_t
 #endif
 
 movie_play_status PlayMovie(const char *subtitles, const char *filename, play_movie_warn_missing);
-uint8_t InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie);
-int RotateRobot(MVESTREAM_ptr_t &pMovie);
+RWops_ptr InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie);
+int RotateRobot(MVESTREAM_ptr_t &pMovie, SDL_RWops *);
 void DeInitRobotMovie(MVESTREAM_ptr_t &pMovie);
 
 struct LoadedMovie

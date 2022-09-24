@@ -56,6 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "songs.h"
 #if defined(DXX_BUILD_DESCENT_II)
 #include "movie.h"
+#include "physfsrwops.h"
 #endif
 #include "mouse.h"
 #include "console.h"
@@ -522,11 +523,11 @@ struct briefing : window
 #if defined(DXX_BUILD_DESCENT_II)
 	uint8_t got_z;
 	uint8_t dumb_adjust;
-	uint8_t robot_playing;
 	uint8_t chattering;
 	uint8_t line_adjustment;
 	RAIIdigi_sound		hum_channel, printing_channel;
 	MVESTREAM_ptr_t pMovie;
+	RWops_ptr RoboFile;
 #endif
 	std::unique_ptr<char[]>	text;
 	const char	*message;
@@ -553,7 +554,7 @@ static void briefing_init(briefing *br, short level_num)
 	br->background_name.back() = 0;
 	strncpy(br->background_name.data(), DEFAULT_BRIEFING_BKG, br->background_name.size() - 1);
 #if defined(DXX_BUILD_DESCENT_II)
-	br->robot_playing = 0;
+	br->RoboFile = {};
 #endif
 	br->robot_num = 0;
 	br->robot_angles = {};
@@ -733,9 +734,9 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 		} else if (ch == 'R') {
 			br->robot_canv.reset();
 #if defined(DXX_BUILD_DESCENT_II)
-			if (br->robot_playing) {
+			if (auto &RoboFile = br->RoboFile) {
+				RoboFile.reset();
 				DeInitRobotMovie(br->pMovie);
-				br->robot_playing=0;
 			}
 #endif
 
@@ -753,9 +754,9 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 				kludge=*br->message++;
 				spinRobotName[2]=kludge; // ugly but proud
 
-				br->robot_playing=InitRobotMovie(spinRobotName, br->pMovie);
-				if (br->robot_playing) {
-					RotateRobot(br->pMovie);
+				if ((br->RoboFile = InitRobotMovie(spinRobotName, br->pMovie)))
+				{
+					RotateRobot(br->pMovie, br->RoboFile.get());
 					set_briefing_fontcolor(*br);
 				}
 #endif
@@ -895,9 +896,9 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 				{
 					p = p2;
 					br->robot_canv.reset();
-					if (br->robot_playing)
+					if (auto &RoboFile = br->RoboFile)
 					{
-						br->robot_playing = 0;
+						RoboFile.reset();
 						DeInitRobotMovie(br->pMovie);
 					}
 					init_spinning_robot(canvas, *br);
@@ -1012,7 +1013,7 @@ static void set_briefing_fontcolor(briefing &br)
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (br.robot_playing)
+	if (br.RoboFile)
 	{
 		colors[0] = {0, 31, 0};
 	}
@@ -1239,10 +1240,10 @@ static int init_new_page(grs_canvas &canvas, briefing *br)
 	br->guy_bitmap.reset();
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (br->robot_playing)
+	if (auto &RoboFile = br->RoboFile)
 	{
+		RoboFile.reset();
 		DeInitRobotMovie(br->pMovie);
-		br->robot_playing=0;
 	}
 #endif
 
@@ -1402,10 +1403,10 @@ static void free_briefing_screen(briefing *br)
 {
 	br->background.reset();
 #if defined(DXX_BUILD_DESCENT_II)
-	if (br->robot_playing)
+	if (auto &RoboFile = br->RoboFile)
 	{
+		RoboFile.reset();
 		DeInitRobotMovie(br->pMovie);
-		br->robot_playing=0;
 	}
 #endif
 	br->robot_canv.reset();
@@ -1493,7 +1494,7 @@ static int new_briefing_screen(grs_canvas &canvas, briefing *br, int first)
 	br->dumb_adjust = 0;
 	br->line_adjustment = 1;
 	br->chattering = 0;
-	br->robot_playing=0;
+	br->RoboFile = {};
 #endif
 
 	if (br->message==NULL)
@@ -1637,8 +1638,8 @@ window_event_result briefing::event_handler(const d_event &event)
 			if (this->bitmap_name[0] != 0)
 				show_animated_bitmap(canvas, this);
 #if defined(DXX_BUILD_DESCENT_II)
-			if (this->robot_playing)
-				RotateRobot(this->pMovie);
+			if (auto &RoboFile = this->RoboFile)
+				RotateRobot(this->pMovie, RoboFile.get());
 #endif
 			if (this->robot_num != -1)
 				show_spinning_robot_frame(this, this->robot_num);
