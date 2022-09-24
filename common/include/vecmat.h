@@ -25,7 +25,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#ifdef __cplusplus
 #include <cassert>
 #include <cstdint>
 #include <utility>
@@ -321,6 +320,13 @@ static inline vms_vector vm_vec_normalized_quick(vms_vector v)
 }
 
 [[nodiscard]]
+static inline std::pair<vm_magnitude, vms_vector> vm_vec_normalize_quick_with_magnitude(vms_vector v)
+{
+	const auto mag = vm_vec_normalize_quick(v);
+	return {mag, v};
+}
+
+[[nodiscard]]
 static inline vms_vector vm_vec_cross(const vms_vector &src0, const vms_vector &src1)
 {
 	vms_vector dest;
@@ -418,5 +424,3 @@ static inline void vm_angvec_make(vms_angvec *v, fixang p, fixang b, fixang h)
 extern const vms_vector vmd_zero_vector;
 
 }
-
-#endif

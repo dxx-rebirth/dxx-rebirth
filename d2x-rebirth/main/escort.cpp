@@ -1110,14 +1110,12 @@ static int maybe_buddy_fire_mega(const vmobjptridx_t objp)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	const auto Buddy_objnum = BuddyState.Buddy_objnum;
 	const auto &&buddy_objp = objp.absolute_sibling(Buddy_objnum);
-	fix		dist, dot;
-	auto vec_to_robot = vm_vec_sub(buddy_objp->pos, objp->pos);
-	dist = vm_vec_normalize_quick(vec_to_robot);
+	const auto &&[dist, vec_to_robot] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(buddy_objp->pos, objp->pos));
 
 	if (dist > F1_0*100)
 		return 0;
 
-	dot = vm_vec_dot(vec_to_robot, buddy_objp->orient.fvec);
+	const auto dot = vm_vec_dot(vec_to_robot, buddy_objp->orient.fvec);
 
 	if (dot < F1_0/2)
 		return 0;

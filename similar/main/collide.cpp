@@ -1611,11 +1611,8 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_robot_info_
 			//	Cause weapon to bounce.
 			if (Weapon_info[get_weapon_id(weapon)].matter == weapon_info::matter_flag::energy)
 			{
-					fix			speed;
-
 					auto vec_to_point = vm_vec_normalized_quick(vm_vec_sub(collision_point, robot.pos));
-					auto weap_vec = weapon.mtype.phys_info.velocity;
-					speed = vm_vec_normalize_quick(weap_vec);
+					const auto &&[speed, weap_vec] = vm_vec_normalize_quick_with_magnitude(weapon.mtype.phys_info.velocity);
 					vm_vec_scale_add2(vec_to_point, weap_vec, -F1_0*2);
 					vm_vec_scale(vec_to_point, speed/4);
 					weapon.mtype.phys_info.velocity = vec_to_point;

@@ -417,10 +417,10 @@ namespace {
 static bool create_omega_blobs(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const weapon_info_array &Weapon_info, const Difficulty_level_type Difficulty_level, const imsegptridx_t firing_segnum, const vms_vector &firing_pos, const vms_vector &goal_pos, const vmobjptridx_t parent_objp)
 {
 	imobjptridx_t  last_created_objnum = object_none;
-	fix		dist_to_goal = 0, omega_blob_dist = 0;
+	fix omega_blob_dist = 0;
 
-	auto vec_to_goal = vm_vec_sub(goal_pos, firing_pos);
-	dist_to_goal = vm_vec_normalize_quick(vec_to_goal);
+	const auto &&[magnitude_to_goal, vec_to_goal] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(goal_pos, firing_pos));
+	const fix dist_to_goal = magnitude_to_goal;
 
 	unsigned num_omega_blobs = 0;
 	if (dist_to_goal < MIN_OMEGA_BLOBS * MIN_OMEGA_DIST) {
@@ -1601,9 +1601,8 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 	if (Weapon_info[get_weapon_id(obj)].homing_flag && !is_active_guided_missile(LevelUniqueObjectState, obj))
 #endif
 	{
-		vms_vector		vector_to_object, temp_vec;
+		vms_vector		vector_to_object;
 		fix				dot=F1_0;
-		fix				speed, max_speed;
 
 		//	For first 125ms of life, missile flies straight.
 		if (obj->ctype.laser_info.creation_time + HOMING_FLY_STRAIGHT_TIME < GameTime64)
@@ -1637,9 +1636,9 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 				{
 					vm_vec_sub(vector_to_object, track_goal->pos, obj->pos);
 					vm_vec_normalize_quick(vector_to_object);
-					temp_vec = obj->mtype.phys_info.velocity;
-					speed = vm_vec_normalize_quick(temp_vec);
-					max_speed = Weapon_info[get_weapon_id(obj)].speed[Difficulty_level];
+					auto &&[speed_magnitude, temp_vec] = vm_vec_normalize_quick_with_magnitude(obj->mtype.phys_info.velocity);
+					fix speed = speed_magnitude;
+					const auto max_speed = Weapon_info[get_weapon_id(obj)].speed[Difficulty_level];
 					if (speed+F1_0 < max_speed) {
 						speed += fixmul(max_speed, HOMING_TURN_TIME/2);
 						if (speed > max_speed)

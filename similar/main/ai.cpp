@@ -1035,14 +1035,12 @@ static int lead_player(const object_base &objp, const vms_vector &fire_point, co
 		return 0;
 
 	const auto &velocity = plrobj.mtype.phys_info.velocity;
-	auto player_movement_dir = velocity;
-	const auto player_speed = vm_vec_normalize_quick(player_movement_dir);
+	const auto &&[player_speed, player_movement_dir] = vm_vec_normalize_quick_with_magnitude(velocity);
 
 	if (player_speed < MIN_LEAD_SPEED)
 		return 0;
 
-	auto vec_to_player = vm_vec_sub(believed_player_pos, fire_point);
-	const auto dist_to_player = vm_vec_normalize_quick(vec_to_player);
+	const auto &&[dist_to_player, vec_to_player] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(believed_player_pos, fire_point));
 	if (dist_to_player > MAX_LEAD_DISTANCE)
 		return 0;
 
@@ -1482,8 +1480,7 @@ static void ai_move_relative_to_player(const d_robot_info_array &Robot_info, con
 
 			const fix field_of_view = robptr.field_of_view[Difficulty_level];
 
-			auto vec_to_laser = vm_vec_sub(dobjp->pos, objp->pos);
-			auto dist_to_laser = vm_vec_normalize_quick(vec_to_laser);
+			const auto &&[dist_to_laser, vec_to_laser] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(dobjp->pos, objp->pos));
 			const fix dot = vm_vec_dot(vec_to_laser, objp->orient.fvec);
 
 			if (dot > field_of_view || robot_is_companion(robptr))

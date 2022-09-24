@@ -593,8 +593,7 @@ static fix compute_headlight_light_on_object(const d_level_unique_headlight_stat
 
 	range_for (const object_base *const light_objp, partial_const_range(LevelUniqueHeadlightState.Headlights, LevelUniqueHeadlightState.Num_headlights))
 	{
-		auto vec_to_obj = vm_vec_sub(objp.pos, light_objp->pos);
-		const fix dist = vm_vec_normalize_quick(vec_to_obj);
+		const auto &&[dist, vec_to_obj] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(objp.pos, light_objp->pos));
 		if (dist > 0) {
 			const fix dot = vm_vec_dot(light_objp->orient.fvec, vec_to_obj);
 

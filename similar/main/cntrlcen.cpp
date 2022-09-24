@@ -370,8 +370,7 @@ void do_controlcen_frame(const d_robot_info_array &Robot_info, const vmobjptridx
 			if (std::none_of(children.begin(), children.end(), IS_CHILD))
 				return;
 
-			auto vec_to_player = vm_vec_sub(ConsoleObject->pos, obj->pos);
-			auto dist_to_player = vm_vec_normalize_quick(vec_to_player);
+			const auto &&[dist_to_player, vec_to_player] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(ConsoleObject->pos, obj->pos));
 			if (dist_to_player < F1_0*200) {
 				LevelUniqueControlCenterState.Control_center_player_been_seen = player_is_visible_from_object(Robot_info, obj, obj->pos, 0, vec_to_player);
 				LevelUniqueControlCenterState.Frametime_until_next_fire = 0;
@@ -388,9 +387,7 @@ void do_controlcen_frame(const d_robot_info_array &Robot_info, const vmobjptridx
 		if (LevelUniqueControlCenterState.Last_time_cc_vis_check + F1_0 * 5 < GameTime64 || LevelUniqueControlCenterState.Last_time_cc_vis_check > GameTime64)
 		{
 			LevelUniqueControlCenterState.Last_time_cc_vis_check = GameTime64;
-			fix			dist_to_player;
-			auto vec_to_player = vm_vec_sub(ConsoleObject->pos, obj->pos);
-			dist_to_player = vm_vec_normalize_quick(vec_to_player);
+			const auto &&[dist_to_player, vec_to_player] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(ConsoleObject->pos, obj->pos));
 			if (dist_to_player < F1_0*120) {
 				LevelUniqueControlCenterState.Control_center_player_been_seen = player_is_visible_from_object(Robot_info, obj, obj->pos, 0, vec_to_player);
 				if (!player_is_visible(LevelUniqueControlCenterState.Control_center_player_been_seen))
@@ -424,8 +421,7 @@ void do_controlcen_frame(const d_robot_info_array &Robot_info, const vmobjptridx
 		if (best_gun_num != -1) {
 			fix			delta_fire_time;
 
-			auto vec_to_goal = vm_vec_sub(player_pos, obj->ctype.reactor_info.gun_pos[best_gun_num]);
-			auto dist_to_player = vm_vec_normalize_quick(vec_to_goal);
+			auto &&[dist_to_player, vec_to_goal] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(player_pos, obj->ctype.reactor_info.gun_pos[best_gun_num]));
 
 			if (dist_to_player > F1_0*300)
 			{
