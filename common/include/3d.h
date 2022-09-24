@@ -210,7 +210,7 @@ constexpr std::integral_constant<std::size_t, 64> MAX_POINTS_PER_POLY{};
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew
-void _g3_draw_tmap(grs_canvas &canvas, unsigned nv, cg3s_point *const *pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm);
+void _g3_draw_tmap(grs_canvas &canvas, std::span<cg3s_point *const> pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm);
 
 template <std::size_t N>
 static inline void g3_draw_tmap(grs_canvas &canvas, unsigned nv, const std::array<cg3s_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
@@ -222,13 +222,14 @@ static inline void g3_draw_tmap(grs_canvas &canvas, unsigned nv, const std::arra
 #endif
 	if (nv > N)
 		return;
-	_g3_draw_tmap(canvas, nv, &pointlist[0], &uvl_list[0], &light_rgb[0], bm);
+	_g3_draw_tmap(canvas, std::span(pointlist).first(nv), &uvl_list[0], &light_rgb[0], bm);
 }
 
 template <std::size_t N>
+requires(N <= MAX_POINTS_PER_POLY)
 static inline void g3_draw_tmap(grs_canvas &canvas, const std::array<cg3s_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
-	g3_draw_tmap(canvas, N, pointlist, uvl_list, light_rgb, bm);
+	_g3_draw_tmap(canvas, pointlist, uvl_list.data(), light_rgb.data(), bm);
 }
 
 //draw a sortof sphere - i.e., the 2d radius is proportional to the 3d

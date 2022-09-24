@@ -892,7 +892,7 @@ void _g3_draw_poly(grs_canvas &canvas, const std::span<cg3s_point *const> pointl
 /*
  * Everything texturemapped (walls, robots, ship)
  */ 
-void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *const pointlist, const g3s_uvl *const uvl_list, const g3s_lrgb *const light_rgb, grs_bitmap &bm)
+void _g3_draw_tmap(grs_canvas &canvas, const std::span<cg3s_point *const> pointlist, const g3s_uvl *const uvl_list, const g3s_lrgb *const light_rgb, grs_bitmap &bm)
 {
 	GLfloat color_alpha = 1.0;
 
@@ -917,8 +917,9 @@ void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *con
 	flatten_array<GLfloat, 4, MAX_POINTS_PER_POLY> color_array;
 	flatten_array<GLfloat, 2, MAX_POINTS_PER_POLY> texcoord_array;
 
+	const auto nv = pointlist.size();
 	for (auto &&[point, light, uvl, vert, color, texcoord] : zip(
-			unchecked_partial_range(pointlist, nv),
+			pointlist,
 			unchecked_partial_range(light_rgb, nv),
 			unchecked_partial_range(uvl_list, nv),
 			unchecked_partial_range(vertices.nested, nv),
@@ -971,7 +972,7 @@ void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *con
  */
 void _g3_draw_tmap_2(grs_canvas &canvas, const std::span<const g3s_point *const> pointlist, const std::span<const g3s_uvl, 4> uvl_list, const std::span<const g3s_lrgb, 4> light_rgb, grs_bitmap &bmbot, grs_bitmap &bm, const texture2_rotation_low orient)
 {
-	_g3_draw_tmap(canvas, pointlist.size(), pointlist.data(), uvl_list.data(), light_rgb.data(), bmbot);//draw the bottom texture first.. could be optimized with multitexturing..
+	_g3_draw_tmap(canvas, pointlist, uvl_list.data(), light_rgb.data(), bmbot);//draw the bottom texture first.. could be optimized with multitexturing..
 	ogl_client_states<int, GL_VERTEX_ARRAY, GL_COLOR_ARRAY, GL_TEXTURE_COORD_ARRAY> cs;
 	(void)cs;
 	r_tpolyc++;
@@ -1012,11 +1013,12 @@ void _g3_draw_tmap_2(grs_canvas &canvas, const std::span<const g3s_point *const>
 	flatten_array<GLfloat, 3, MAX_POINTS_PER_POLY> vertices;
 	flatten_array<GLfloat, 2, MAX_POINTS_PER_POLY> texcoord_array;
 
+	const auto nv = pointlist.size();
 	for (auto &&[point, uvl, vert, texcoord] : zip(
 			pointlist,
-			unchecked_partial_range(uvl_list, pointlist.size()),
-			unchecked_partial_range(vertices.nested, pointlist.size()),
-			partial_range(texcoord_array.nested, pointlist.size())
+			unchecked_partial_range(uvl_list, nv),
+			unchecked_partial_range(vertices.nested, nv),
+			partial_range(texcoord_array.nested, nv)
 		)
 	)
 	{
@@ -1046,7 +1048,7 @@ void _g3_draw_tmap_2(grs_canvas &canvas, const std::span<const g3s_point *const>
 	glVertexPointer(3, GL_FLOAT, 0, vertices.flat.data());
 	glColorPointer(4, GL_FLOAT, 0, color_array.flat.data());
 	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array.flat.data());
-	glDrawArrays(GL_TRIANGLE_FAN, 0, pointlist.size());
+	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
 }
 
 namespace dcx {

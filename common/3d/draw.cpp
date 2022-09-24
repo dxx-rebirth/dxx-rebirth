@@ -204,26 +204,26 @@ void _g3_draw_poly(grs_canvas &canvas, const std::span<cg3s_point *const> pointl
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew
-void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *const pointlist, const g3s_uvl *const uvl_list, const g3s_lrgb *const light_rgb, grs_bitmap &bm)
+void _g3_draw_tmap(grs_canvas &canvas, const std::span<cg3s_point *const> pointlist, const g3s_uvl *const uvl_list, const g3s_lrgb *const light_rgb, grs_bitmap &bm)
 {
 	g3s_codes cc;
 
 	polygon_clip_points Vbuf0, Vbuf1;
-	auto bufptr = &Vbuf0[0];
+	auto &bufptr = Vbuf0;
 
-	for (int i=0;i<nv;i++) {
-		g3s_point *p;
-
-		p = bufptr[i] = pointlist[i];
+	for (auto &&[i, pl, bp] : enumerate(zip(pointlist, bufptr)))
+	{
+		const auto p = bp = pl;
 
 		cc.uand &= p->p3_codes;
 		cc.uor  |= p->p3_codes;
 
-#if !DXX_USE_OGL
+		if constexpr (!DXX_USE_OGL)
+		{
 		p->p3_u = uvl_list[i].u;
 		p->p3_v = uvl_list[i].v;
 		p->p3_l = (light_rgb[i].r+light_rgb[i].g+light_rgb[i].b)/3;
-#endif
+		}
 
 		p->p3_flags |= PF_UVS + PF_LS;
 
@@ -234,15 +234,14 @@ void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *con
 
 	if (cc.uor)
 	{
-		must_clip_tmap_face(canvas, nv, cc, bm, Vbuf0, Vbuf1);
+		must_clip_tmap_face(canvas, pointlist.size(), cc, bm, Vbuf0, Vbuf1);
 		return;
 	}
 
 	//now make list of 2d coords (& check for overflow)
 
-	for (int i=0;i<nv;i++) {
-		g3s_point *p = bufptr[i];
-
+	for (auto &&p : unchecked_partial_range(bufptr, pointlist.size()))
+	{
 		if (!(p->p3_flags&PF_PROJECTED))
 			g3_project_point(*p);
 
@@ -251,8 +250,7 @@ void _g3_draw_tmap(grs_canvas &canvas, const unsigned nv, cg3s_point *const *con
 			return;
 		}
 	}
-
-	(*tmap_drawer_ptr)(canvas, bm, nv, bufptr);
+	(*tmap_drawer_ptr)(canvas, bm, pointlist.size(), bufptr.data());
 }
 
 namespace {
