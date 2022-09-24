@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <array>
 #include <cstddef>
 #include <cstring>
 #include <type_traits>
@@ -36,8 +37,8 @@ constexpr std::integral_constant<std::size_t, 2048> CON_LINE_LENGTH{};
 
 struct console_buffer
 {
-	char line[CON_LINE_LENGTH];
 	int priority;
+	std::array<char, CON_LINE_LENGTH> line;
 };
 
 /* Define to 1 to capture the __FILE__, __LINE__ of callers to

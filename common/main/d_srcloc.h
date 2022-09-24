@@ -29,7 +29,7 @@ public:
 	template <std::size_t N>
 		using scratch_buffer = std::false_type;
 	template <std::size_t N>
-		static std::span<char, N> insert_location_leader(char (&buffer)[N])
+		static std::span<char, N> insert_location_leader(std::array<char, N> &buffer)
 		{
 			return buffer;
 		}
@@ -63,9 +63,9 @@ public:
 	 * place further text.
 	 */
 	template <std::size_t N>
-		std::span<char> insert_location_leader(char (&buffer)[N]) const
+		std::span<char> insert_location_leader(std::array<char, N> &buffer) const
 		{
-			const auto written = std::snprintf(buffer, sizeof(buffer), "%s:%u: ", file, line);
+			const auto written = std::snprintf(buffer.data(), buffer.size(), "%s:%u: ", file, line);
 			return std::span(buffer).subspan(written);
 		}
 	/* Return a span describing the written area that the caller can read

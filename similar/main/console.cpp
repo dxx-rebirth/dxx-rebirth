@@ -85,7 +85,7 @@ static void con_add_buffer_line(const con_priority priority, const char *const b
 	console_buffer &c = con_buffer.back();
 	c.priority=priority;
 
-	size_t copy = std::min(len, CON_LINE_LENGTH - 1);
+	size_t copy = std::min(len, std::size(c.line) - 1);
 	c.line[copy] = 0;
 	memcpy(&c.line,buffer, copy);
 }
@@ -95,15 +95,15 @@ static void con_add_buffer_line(const con_priority priority, const char *const b
 void (con_printf)(const con_priority_wrapper priority, const char *const fmt, ...)
 {
 	va_list arglist;
-	char buffer[CON_LINE_LENGTH];
 
 	if (priority <= CGameArg.DbgVerbose)
 	{
 		va_start (arglist, fmt);
+		std::array<char, CON_LINE_LENGTH> buffer;
 		auto &&leader = priority.insert_location_leader(buffer);
 		const std::size_t len = std::max(vsnprintf(leader.data(), leader.size(), fmt, arglist), 0);
 		va_end (arglist);
-		con_force_puts(priority, buffer, len);
+		con_force_puts(priority, buffer.data(), len);
 	}
 }
 
@@ -318,9 +318,9 @@ static void con_draw(grs_canvas &canvas)
 	{
 		auto &b = con_buffer[CON_LINES_MAX - 1 - i];
 		gr_set_fontcolor(canvas, get_console_color_by_priority(b.priority), -1);
-		const auto &&[w, h] = gr_get_string_size(game_font, b.line);
+		const auto &&[w, h] = gr_get_string_size(game_font, b.line.data());
 		y -= h + fspacy1;
-		gr_string(canvas, game_font, fspacx1, y, b.line, w, h);
+		gr_string(canvas, game_font, fspacx1, y, b.line.data(), w, h);
 		i++;
 
 		if (y<=0 || CON_LINES_MAX-1-i <= 0 || i < 0)
