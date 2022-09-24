@@ -21,6 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <array>
 #include <cstdint>
+#include <span>
 #include <type_traits>
 #include "fwd-object.h"
 #include "fwd-vclip.h"
@@ -67,6 +68,6 @@ void do_powerup_frame(const d_vclip_array &Vclip, vmobjptridx_t obj);
 
 void do_megawow_powerup(object &plrobj, int quantity);
 
-void powerup_basic_str(int redadd, int greenadd, int blueadd, int score, const char *str) __attribute_nonnull();
+void powerup_basic_str(int redadd, int greenadd, int blueadd, int score, std::span<const char> str);
 }
 #endif

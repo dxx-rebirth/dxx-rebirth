@@ -132,7 +132,6 @@ static void _powerup_basic_nonhud(int redadd, int greenadd, int blueadd, int sco
 	add_points_to_score(ConsoleObject->ctype.player_info, score, Game_mode);
 }
 
-#define powerup_basic(A1,A2,A3,A4,F,...)	dxx_call_printf_checked(powerup_basic,powerup_basic_str,(A1,A2,A3,A4),(F),##__VA_ARGS__)
 __attribute_format_printf(5, 6)
 void (powerup_basic)(int redadd, int greenadd, int blueadd, int score, const char *format, ...)
 {
@@ -146,9 +145,9 @@ void (powerup_basic)(int redadd, int greenadd, int blueadd, int score, const cha
 
 }
 
-void powerup_basic_str(int redadd, int greenadd, int blueadd, int score, const char *str)
+void powerup_basic_str(int redadd, int greenadd, int blueadd, int score, const std::span<const char> str)
 {
-	HUD_init_message_literal(HM_DEFAULT, str);
+	HUD_init_message_literal(HM_DEFAULT, str.data());
 	_powerup_basic_nonhud(redadd, greenadd, blueadd, score);
 }
 
@@ -156,7 +155,7 @@ void powerup_basic_str(int redadd, int greenadd, int blueadd, int score, const c
 //	Give the megawow powerup!
 void do_megawow_powerup(object &plrobj, const int quantity)
 {
-	powerup_basic(30, 0, 30, 1, "MEGA-WOWIE-ZOWIE!");
+	powerup_basic_str(30, 0, 30, 1, "MEGA-WOWIE-ZOWIE!");
 	auto &player_info = plrobj.ctype.player_info;
 #if defined(DXX_BUILD_DESCENT_I)
 	player_info.primary_weapon_flags = (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
@@ -256,8 +255,8 @@ static int pick_up_key(const int r, const int g, const int b, player_flags &play
 template <int r, int g, int b>
 struct player_hit_basic_silent_powerup
 {
-	const char *const desc_pickup;
-	player_hit_basic_silent_powerup(const char *const p) :
+	const std::span<const char> desc_pickup;
+	player_hit_basic_silent_powerup(const std::span<const char> p) :
 		desc_pickup(p)
 	{
 	}
@@ -324,7 +323,7 @@ struct player_hit_headlight_powerup
 };
 
 template <unsigned TEAM>
-static int player_hit_flag_powerup(player_info &player_info, const char *const desc)
+static int player_hit_flag_powerup(player_info &player_info, const std::span<const char> desc)
 {
 	if (!game_mode_capture_flag())
 		return 0;
@@ -422,7 +421,10 @@ int do_powerup(const vmobjptridx_t obj)
 	{
 		case POW_EXTRA_LIFE:
 			get_local_player().lives++;
-			powerup_basic_str(15, 15, 15, 0, TXT_EXTRA_LIFE);
+			{
+				const auto &&m = TXT_EXTRA_LIFE;
+				powerup_basic_str(15, 15, 15, 0, {m, strlen(m)});
+			}
 			used=1;
 			break;
 		case POW_ENERGY:
@@ -681,7 +683,7 @@ int do_powerup(const vmobjptridx_t obj)
 				if (proximity < player_info.max_hoard_orbs)
 				{
 					++ proximity;
-					powerup_basic(15, 0, 15, 0, "Orb!!!");
+					powerup_basic_str(15, 0, 15, 0, "Orb!!!");
 					player_info.powerup_flags |= PLAYER_FLAGS_FLAG;
 					used=1;
 					multi_send_got_orb (Player_num);

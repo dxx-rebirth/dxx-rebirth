@@ -2001,7 +2001,8 @@ static void common_add_points_to_score(const int points, int &score, const game_
 	{
 		int snd;
 		get_local_player().lives += current_ship_score - previous_ship_score;
-		powerup_basic_str(20, 20, 20, 0, TXT_EXTRA_LIFE);
+		const auto &&m = TXT_EXTRA_LIFE;
+		powerup_basic_str(20, 20, 20, 0, {m, strlen(m)});
 		if ((snd=Powerup_info[POW_EXTRA_LIFE].hit_sound) > -1 )
 			digi_play_sample( snd, F1_0 );
 	}
