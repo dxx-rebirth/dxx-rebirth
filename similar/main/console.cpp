@@ -101,7 +101,7 @@ void (con_printf)(const con_priority_wrapper priority, const char *const fmt, ..
 	{
 		va_start (arglist, fmt);
 		auto &&leader = priority.insert_location_leader(buffer);
-		size_t len = vsnprintf (leader.first, leader.second, fmt, arglist);
+		const std::size_t len = std::max(vsnprintf(leader.data(), leader.size(), fmt, arglist), 0);
 		va_end (arglist);
 		con_force_puts(priority, buffer, len);
 	}
@@ -248,7 +248,7 @@ void con_puts(const con_priority_wrapper priority, char *const buffer, const siz
 	{
 		typename con_priority_wrapper::scratch_buffer<CON_LINE_LENGTH> scratch_buffer;
 		auto &&b = priority.prepare_buffer(scratch_buffer, buffer, len);
-		con_force_puts(priority, b.first, b.second);
+		con_force_puts(priority, b.data(), b.size());
 	}
 }
 
@@ -259,8 +259,8 @@ void con_puts(const con_priority_wrapper priority, const char *const buffer, con
 		typename con_priority_wrapper::scratch_buffer<CON_LINE_LENGTH> scratch_buffer;
 		auto &&b = priority.prepare_buffer(scratch_buffer, buffer, len);
 		/* add given string to con_buffer */
-		con_add_buffer_line(priority, b.first, b.second);
-		con_print_file(b.first);
+		con_add_buffer_line(priority, b.data(), b.size());
+		con_print_file(b.data());
 	}
 }
 
