@@ -440,8 +440,7 @@ static bool create_omega_blobs(d_level_unique_object_state &LevelUniqueObjectSta
 		}
 	}
 
-	auto omega_delta_vector = vec_to_goal;
-	vm_vec_scale(omega_delta_vector, omega_blob_dist);
+	const auto omega_delta_vector = vm_vec_copy_scale(vec_to_goal, omega_blob_dist);
 
 	//	Now, create all the blobs
 	auto blob_pos = firing_pos;
