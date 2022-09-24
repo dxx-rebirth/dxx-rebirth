@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <cstddef>
 #include <utility>
+#include <span>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "fmtcheck.h"
@@ -247,14 +248,7 @@ imobjptridx_t boss_spew_robot(const d_robot_info_array &Robot_info, const object
 void init_ai_frame(player_flags, const control_info &Controls);
 
 [[nodiscard]]
-std::size_t create_bfs_list(const object &robot, const robot_info &robptr, vcsegidx_t start_seg, player_flags, segnum_t *bfs_list, std::size_t max_segs);
-
-template <std::size_t N>
-	[[nodiscard]]
-std::size_t create_bfs_list(const object &robot, const robot_info &robptr, const vcsegidx_t &start_seg, const player_flags powerup_flags, std::array<segnum_t, N> &bfs_list)
-{
-	return create_bfs_list(robot, robptr, start_seg, powerup_flags, bfs_list.data(), N);
-}
+std::size_t create_bfs_list(const object &robot, const robot_info &robptr, vcsegidx_t start_seg, player_flags, std::span<segnum_t> bfs_list);
 extern void init_thief_for_level();
 
 void start_robot_death_sequence(object &objp);

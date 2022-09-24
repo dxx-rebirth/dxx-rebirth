@@ -251,14 +251,15 @@ static int segment_is_reachable(const object &robot, const robot_info &robptr, c
 //	Output:
 //		bfs_list:	array of shorts, each reachable segment.  Includes start segment.
 //		length:		number of elements in bfs_list
-std::size_t create_bfs_list(const object &robot, const robot_info &robptr, const vcsegidx_t start_seg, const player_flags powerup_flags, segnum_t *const bfs_list, std::size_t max_segs)
+std::size_t create_bfs_list(const object &robot, const robot_info &robptr, const vcsegidx_t start_seg, const player_flags powerup_flags, const std::span<segnum_t> bfs_list)
 {
 	std::size_t head = 0, tail = 0;
 	visited_segment_bitarray_t visited;
 	bfs_list[head++] = start_seg;
 	visited[start_seg] = true;
 
-	while ((head != tail) && (head < max_segs)) {
+	while (head != tail && head < bfs_list.size())
+	{
 		auto curseg = bfs_list[tail++];
 		const auto &&cursegp = vcsegptr(curseg);
 		for (const auto &&[i, connected_seg] : enumerate(cursegp->children))
@@ -266,7 +267,7 @@ std::size_t create_bfs_list(const object &robot, const robot_info &robptr, const
 			if (IS_CHILD(connected_seg) && (!visited[connected_seg])) {
 				if (segment_is_reachable(robot, robptr, cursegp, static_cast<sidenum_t>(i), powerup_flags)) {
 					bfs_list[head++] = connected_seg;
-					if (head >= max_segs)
+					if (head >= bfs_list.size())
 						break;
 					visited[connected_seg] = true;
 					Assert(head < MAX_SEGMENTS);
