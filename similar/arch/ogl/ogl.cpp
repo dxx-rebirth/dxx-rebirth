@@ -851,9 +851,9 @@ int gr_disk(grs_canvas &canvas, const fix x, const fix y, const fix r, const uin
 /*
  * Draw flat-shaded Polygon (Lasers, Drone-arms, Driller-ears)
  */
-void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cg3s_point *const *const pointlist, const uint8_t palette_color_index)
+void _g3_draw_poly(grs_canvas &canvas, const std::span<cg3s_point *const> pointlist, const uint8_t palette_color_index)
 {
-	if (nv > MAX_POINTS_PER_POLY)
+	if (pointlist.size() > MAX_POINTS_PER_POLY)
 		return;
 	flatten_array<GLfloat, 4, MAX_POINTS_PER_POLY> color_array;
 	flatten_array<GLfloat, 3, MAX_POINTS_PER_POLY> vertices;
@@ -868,9 +868,9 @@ void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cg3s_point *const
 		: 1.0 - static_cast<float>(canvas.cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0);
 
 	for (auto &&[p, v, c] : zip(
-			unchecked_partial_range(pointlist, nv),
-			unchecked_partial_range(vertices.nested, nv),
-			unchecked_partial_range(color_array.nested, nv)
+			pointlist,
+			unchecked_partial_range(vertices.nested, pointlist.size()),
+			unchecked_partial_range(color_array.nested, pointlist.size())
 		)
 	)
 	{
@@ -886,7 +886,7 @@ void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cg3s_point *const
 
 	glVertexPointer(3, GL_FLOAT, 0, vertices.flat.data());
 	glColorPointer(4, GL_FLOAT, 0, color_array.flat.data());
-	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, pointlist.size());
 }
 
 /*

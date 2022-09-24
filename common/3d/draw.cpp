@@ -20,6 +20,8 @@
 #include "clipper.h"
 #include "gr.h"
 #endif
+#include "d_enumerate.h"
+#include "d_zip.h"
 
 namespace dcx {
 
@@ -157,19 +159,18 @@ free_points:
 
 //draw a flat-shaded face.
 //returns 1 if off screen, 0 if drew
-void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cg3s_point *const *const pointlist, const uint8_t color)
+void _g3_draw_poly(grs_canvas &canvas, const std::span<cg3s_point *const> pointlist, const uint8_t color)
 {
 	g3s_codes cc;
 
 	polygon_clip_points Vbuf0, Vbuf1;
-	auto bufptr = &Vbuf0[0];
+	auto &bufptr = Vbuf0;
 
-	for (int i=0;i<nv;i++) {
-
-		bufptr[i] = pointlist[i];
-
-		cc.uand &= bufptr[i]->p3_codes;
-		cc.uor  |= bufptr[i]->p3_codes;
+	for (const auto &&[pl, bp] : zip(pointlist, bufptr))
+	{
+		bp = pl;
+		cc.uand &= bp->p3_codes;
+		cc.uor  |= bp->p3_codes;
 	}
 
 	if (cc.uand)
@@ -177,28 +178,27 @@ void _g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, cg3s_point *const
 
 	if (cc.uor)
 	{
-		must_clip_flat_face(canvas, nv, cc, Vbuf0, Vbuf1, color);
+		must_clip_flat_face(canvas, pointlist.size(), cc, Vbuf0, Vbuf1, color);
 		return;
 	}
 
 	//now make list of 2d coords (& check for overflow)
 	std::array<fix, MAX_POINTS_IN_POLY*2> Vertex_list;
-	for (int i=0;i<nv;i++) {
-		g3s_point *p = bufptr[i];
-
+	for (const auto &&[i, pl, p] : enumerate(zip(pointlist, bufptr)))
+	{
 		if (!(p->p3_flags&PF_PROJECTED))
 			g3_project_point(*p);
 
 		if (p->p3_flags&PF_OVERFLOW)
 		{
-			must_clip_flat_face(canvas, nv, cc, Vbuf0, Vbuf1, color);
+			must_clip_flat_face(canvas, pointlist.size(), cc, Vbuf0, Vbuf1, color);
 			return;
 		}
 
 		Vertex_list[i*2]   = p->p3_sx;
 		Vertex_list[i*2+1] = p->p3_sy;
 	}
-	gr_upoly_tmap(canvas, nv, Vertex_list, color);
+	gr_upoly_tmap(canvas, pointlist.size(), Vertex_list, color);
 	//say it drew
 }
 

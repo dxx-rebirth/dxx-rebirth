@@ -33,6 +33,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h" //the vector/matrix library
 #include "fwd-gr.h"
 #include <array>
+#include <span>
 
 #if DXX_USE_OGL
 #if defined(__APPLE__) && defined(__MACH__)
@@ -198,11 +199,11 @@ ubyte g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &de
 
 //draw a flat-shaded face.
 //returns 1 if off screen, 0 if drew
-void _g3_draw_poly(grs_canvas &, uint_fast32_t nv, cg3s_point *const *pointlist, uint8_t color);
+void _g3_draw_poly(grs_canvas &, std::span<cg3s_point *const> pointlist, uint8_t color);
 template <std::size_t N>
 static inline void g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, const std::array<cg3s_point *, N> &pointlist, const uint8_t color)
 {
-	_g3_draw_poly(canvas, nv, &pointlist[0], color);
+	_g3_draw_poly(canvas, std::span(pointlist).first(nv), color);
 }
 
 constexpr std::integral_constant<std::size_t, 64> MAX_POINTS_PER_POLY{};
