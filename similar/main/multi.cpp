@@ -1280,25 +1280,26 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 	{
 		if ((Game_mode & GM_NETWORK) && (Game_mode & GM_TEAM))
 		{
-			unsigned name_index=7;
-			if (strlen(Network_message.data()) > 7)
-				while (Network_message[name_index] == ' ')
-					name_index++;
-
 			if (!multi_i_am_master())
 			{
 				HUD_init_message(HM_MULTI, "Only %s can move players!",static_cast<const char *>(Players[multi_who_is_master()].callsign));
 				return;
 			}
 
-			if (strlen(Network_message.data()) <= name_index)
+			unsigned name_index=7;
+			const auto nlen = strlen(Network_message.data());
+			if (nlen > 7)
+				while (Network_message[name_index] == ' ')
+					name_index++;
+
+			if (nlen <= name_index)
 			{
 				HUD_init_message_literal(HM_MULTI, "You must specify a name to move");
 				return;
 			}
 
 			for (unsigned i = 0; i < N_players; ++i)
-				if (vcplayerptr(i)->connected != player_connection_status::disconnected && !d_strnicmp(static_cast<const char *>(vcplayerptr(i)->callsign), &Network_message[name_index], strlen(Network_message.data()) - name_index))
+				if (vcplayerptr(i)->connected != player_connection_status::disconnected && !d_strnicmp(static_cast<const char *>(vcplayerptr(i)->callsign), &Network_message[name_index], nlen - name_index))
 				{
 #if defined(DXX_BUILD_DESCENT_II)
 					if (game_mode_capture_flag() && (vmobjptr(vcplayerptr(i)->objnum)->ctype.player_info.powerup_flags & PLAYER_FLAGS_FLAG))
@@ -1334,11 +1335,6 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 
 	else if (!d_strnicmp(Network_message.data(), "/kick: ") && (Game_mode & GM_NETWORK))
 	{
-		unsigned name_index=7;
-		if (strlen(Network_message.data()) > 7)
-			while (Network_message[name_index] == ' ')
-				name_index++;
-
 		if (!multi_i_am_master())
 		{
 			HUD_init_message(HM_MULTI, "Only %s can kick others out!", static_cast<const char *>(Players[multi_who_is_master()].callsign));
@@ -1349,7 +1345,13 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 #endif
 			return;
 		}
-		if (strlen(Network_message.data()) <= name_index)
+		unsigned name_index=7;
+		const auto nlen = strlen(Network_message.data());
+		if (nlen > 7)
+			while (Network_message[name_index] == ' ')
+				name_index++;
+
+		if (nlen <= name_index)
 		{
 			HUD_init_message_literal(HM_MULTI, "You must specify a name to kick");
 			multi_message_index = 0;
@@ -1395,7 +1397,7 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 		}
 
 		for (unsigned i = 0; i < N_players; i++)
-			if (i != Player_num && vcplayerptr(i)->connected != player_connection_status::disconnected && !d_strnicmp(static_cast<const char *>(vcplayerptr(i)->callsign), &Network_message[name_index], strlen(Network_message.data()) - name_index))
+			if (i != Player_num && vcplayerptr(i)->connected != player_connection_status::disconnected && !d_strnicmp(static_cast<const char *>(vcplayerptr(i)->callsign), &Network_message[name_index], nlen - name_index))
 			{
 				kick_player(*vcplayerptr(i), Netgame.players[i]);
 				return;

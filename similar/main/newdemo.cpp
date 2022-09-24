@@ -365,8 +365,9 @@ static void nd_write_int(int i)
 
 static void nd_write_string(const char *str)
 {
-	nd_write_byte(strlen(str) + 1);
-	newdemo_write(str, strlen(str) + 1, 1);
+	const auto n = strlen(str);
+	nd_write_byte(n + 1);
+	newdemo_write(str, n + 1, 1);
 }
 
 static void nd_write_fix(fix f)
