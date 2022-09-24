@@ -7,28 +7,24 @@
 #pragma once
 
 #include <cstddef>
-#include <algorithm>
 #include "dxxsconf.h"
 #include <array>
 
 template <std::size_t N>
-class cstring_tie
+class cstring_tie : std::array<const char *, N>
 {
 public:
 	static const std::size_t maximum_arity = N;
 	using array_t = std::array<const char *, maximum_arity>;
 	template <typename... Args>
-		cstring_tie(Args&&... args) : p(array_t{{args...}}), m_count(sizeof...(Args))
+		requires(sizeof...(Args) <= maximum_arity)
+		cstring_tie(Args&&... args) :
+			array_t{{args...}}, m_count(sizeof...(Args))
 	{
-		static_assert(sizeof...(Args) <= maximum_arity, "too many arguments to cstring_tie");
 	}
 	unsigned count() const { return m_count; }
-	const char *string(std::size_t i) const { return p[i]; }
-	typename array_t::const_iterator begin() const
-	{
-		return p.begin();
-	}
+	const char *string(std::size_t i) const { return this->operator[](i); }
+	using array_t::begin;
 private:
-	array_t p;
 	unsigned m_count;
 };
