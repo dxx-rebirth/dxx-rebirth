@@ -617,7 +617,6 @@ namespace {
 // returns segment number, or -1 if can't find segment
 static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedSegmentState, const vms_vector &p0, const vcsegptridx_t oldsegnum, const unsigned recursion_count, visited_segment_bitarray_t &visited)
 {
-	fix biggest_val;
 	if (recursion_count >= LevelSharedSegmentState.Num_segments) {
 		con_puts(CON_DEBUG, "trace_segs: Segment not found");
 		return segment_none;
@@ -634,10 +633,10 @@ static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 	if (centermask == sidemask_t{}) // we are in the old segment
 		return oldsegnum; //..say so
 
+	auto &children = oldsegnum->shared_segment::children;
 	for (;;) {
-		auto &children = oldsegnum->shared_segment::children;
 		std::optional<sidenum_t> biggest_side;
-		biggest_val = 0;
+		fix biggest_val = 0;
 		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
 		{
 			const auto bit = build_sidemask(sidenum);
