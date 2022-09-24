@@ -1187,7 +1187,7 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 					changed = 1;
 				rval = window_event_result::handled;
 			}
-			else if (const auto im = citem.input_or_menu(); citem.value < im->text_len)
+			else if (const auto im = citem.input_or_menu(); citem.value < im->text_len || citem.value == -1)
 			{
 				auto ascii = key_ascii();
 				if (ascii < 255)

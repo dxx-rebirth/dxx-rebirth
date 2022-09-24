@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstdint>
 #include <algorithm>
 #include <memory>
+#include <span>
 #include <stdexcept>
 #include <tuple>
 #include <type_traits>
@@ -67,7 +68,7 @@ class newmenu_item
 	struct input_common_type
 	{
 		const char *allowed_chars;
-		int text_len;
+		unsigned text_len;
 		/* Only used by imenu, but placing it in imenu_specific_type
 		 * makes newmenu_item non-POD.  Some users expect newmenu_item
 		 * to be POD.  Placing group here does not increase overall size
@@ -130,11 +131,11 @@ private:
 			check_union_type(type, static_type);
 			return v;
 		}
-	void initialize_imenu(char *const text, int textlen, ntstring<NM_MAX_TEXT_LEN> &saved_text, const char *allowed_chars)
+	void initialize_imenu(const std::span<char> text, ntstring<NM_MAX_TEXT_LEN> &saved_text)
 	{
 		auto &im = imenu();
-		this->text = text;
-		new(&im) newmenu_item::imenu_specific_type({allowed_chars, textlen, 0}, saved_text);
+		this->text = text.data();
+		new(&im) newmenu_item::imenu_specific_type({nullptr, static_cast<unsigned>(text.size() - 1), 0}, saved_text);
 	}
 public:
 	struct nm_item_text
@@ -147,15 +148,14 @@ public:
 	};
 	struct nm_item_input
 	{
-		char *text;
+		const std::span<char> text;
 		const char *allowed_chars;
-		int textlen;
 		template <std::size_t len>
+			requires(len > 1 && len == static_cast<unsigned>(len))
 			nm_item_input(std::array<char, len> &text, const char *const allowed_chars = nullptr) :
-				text(text.data()), allowed_chars(allowed_chars), textlen(static_cast<int>(len))
-			{
-				static_assert(static_cast<int>(len) == len);
-			}
+				text(text), allowed_chars(allowed_chars)
+		{
+		}
 	};
 	struct nm_item_slider
 	{
@@ -175,7 +175,7 @@ public:
 	{
 	}
 	newmenu_item(nm_item_input input) :
-		text(input.text),
+		text(input.text.data()),
 		type(nm_type::input),
 		nm_private(input)
 	{
@@ -230,7 +230,7 @@ public:
 		{
 		}
 		nm_type_specific_data(const nm_item_input &input) :
-			input{{input.allowed_chars, input.textlen, 0}}
+			input{{input.allowed_chars, static_cast<unsigned>(input.text.size() - 1), 0}}
 		{
 		}
 		nm_type_specific_data(const nm_item_slider &slider) :
@@ -245,9 +245,10 @@ public:
 	};
 	nm_type_specific_data nm_private;
 	template <std::size_t len>
-		void initialize_imenu(std::array<char, len> &text, ntstring<NM_MAX_TEXT_LEN> &saved_text, const char *allowed_chars = nullptr)
+		requires(len > 1 && len == static_cast<unsigned>(len))
+		void initialize_imenu(std::array<char, len> &text, ntstring<NM_MAX_TEXT_LEN> &saved_text)
 		{
-			initialize_imenu(text.data(), text.size() - 1, saved_text, allowed_chars);
+			initialize_imenu(std::span(text), saved_text);
 		}
 };
 

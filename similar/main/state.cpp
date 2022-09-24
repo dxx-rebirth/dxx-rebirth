@@ -1011,7 +1011,7 @@ savegame_newmenu_items::savegame_newmenu_items(d_game_unique_state::savegame_des
 				? nm_type::menu
 				: nm_type::text);
 		if (user_entered_savegame_descriptions)
-			mi.initialize_imenu(desc, (*user_entered_savegame_descriptions)[savegame_index], nullptr);
+			mi.initialize_imenu(desc, (*user_entered_savegame_descriptions)[savegame_index]);
 	}
 	if (!savegame_description && nsaves < 1)
 		throw error_no_saves_found();
