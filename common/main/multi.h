@@ -476,7 +476,6 @@ void multi_send_score(void);
 void multi_send_trigger(trgnum_t trigger);
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
-extern char Multi_is_guided;
 void multi_send_flags(playernum_t);
 struct marker_message_text_t;
 void multi_send_drop_marker(unsigned player, const vms_vector &position, player_marker_index messagenum, const marker_message_text_t &text);

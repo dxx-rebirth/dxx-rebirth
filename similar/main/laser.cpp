@@ -745,8 +745,8 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 		else if (!EMULATING_D1 && is_laser_weapon_type(weapon_type) && (parent->ctype.player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS))
 			obj->ctype.laser_info.multiplier = F1_0*3/4;
 		else if (weapon_type == weapon_id_type::GUIDEDMISS_ID) {
+			LevelUniqueObjectState.Guided_missile.set_player_active_guided_missile(obj, get_player_id(parent));
 			if (parent==get_local_player().objnum) {
-				LevelUniqueObjectState.Guided_missile.set_player_active_guided_missile(obj, Player_num);
 				if (Newdemo_state==ND_STATE_RECORDING)
 					newdemo_record_guided_start();
 			}
@@ -1398,12 +1398,6 @@ static imobjptridx_t Laser_player_fire_spread_delay(const d_robot_info_array &Ro
 	//	Omega cannon is a hack, not surprisingly.  Don't want to do the rest of this stuff.
 	if (laser_type == weapon_id_type::OMEGA_ID)
 		return objnum;
-
-	if (laser_type == weapon_id_type::GUIDEDMISS_ID && Multi_is_guided) {
-		LevelUniqueObjectState.Guided_missile.set_player_active_guided_missile(objnum, get_player_id(obj));
-	}
-
-	Multi_is_guided=0;
 
 	if (laser_type == weapon_id_type::CONCUSSION_ID ||
 			 laser_type == weapon_id_type::HOMING_ID ||

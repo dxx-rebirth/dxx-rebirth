@@ -218,8 +218,6 @@ fix Show_kill_list_timer = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 hoard_highest_record hoard_highest_record_stats;
-
-char Multi_is_guided=0;
 }
 #endif
 
@@ -1551,13 +1549,6 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 		const auto weapon_gun = (base_weapon_gun == gun_num_t::_4)
 			? static_cast<gun_num_t>(static_cast<uint8_t>(base_weapon_gun) + (flags & 1))
 			: base_weapon_gun;
-
-#if defined(DXX_BUILD_DESCENT_II)
-		if (weapon == secondary_weapon_index_t::GUIDED_INDEX)
-		{
-			Multi_is_guided=1;
-		}
-#endif
 
 		const auto &&objnum = Laser_player_fire(LevelSharedRobotInfoState.Robot_info, obj, weapon_id, weapon_gun, weapon_sound_flag::audible, shot_orientation, Network_laser_track);
 		if (remote_objnum)
