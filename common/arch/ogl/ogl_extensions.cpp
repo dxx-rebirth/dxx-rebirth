@@ -58,13 +58,14 @@ static std::array<long, 2> parse_version_str(const char *v)
 	return version;
 }
 
-static bool is_ext_supported(const char *extensions, const char *name)
+static bool is_ext_supported(const char *extensions, const std::span<const char> name)
 {
-	if (extensions && name) {
-		const char *found=strstr(extensions, name);
+	if (extensions)
+	{
+		const auto found = strstr(extensions, name.data());
 		if (found) {
 			// check that the name is actually complete */
-			char c = found[strlen(name)];
+			const char c = found[name.size() - 1];
 			if (c == ' ' || c == 0)
 				return true;
 		}
@@ -78,7 +79,7 @@ enum support_mode {
 	SUPPORT_EXT=2
 };
 
-static support_mode is_supported(const char *extensions, const std::array<long, 2> &version, const char *name, long major, long minor, long major_es, long minor_es)
+static support_mode is_supported(const char *extensions, const std::array<long, 2> &version, const std::span<const char> name, long major, long minor, long major_es, long minor_es)
 {
 #if DXX_USE_OGLES
 	static_cast<void>(major);
