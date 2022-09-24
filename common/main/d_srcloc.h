@@ -29,9 +29,9 @@ public:
 	template <std::size_t N>
 		using scratch_buffer = std::false_type;
 	template <std::size_t N>
-		static std::span<char, N> insert_location_leader(std::array<char, N> &buffer)
+		static std::pair<std::size_t, std::span<char, N>> insert_location_leader(std::array<char, N> &buffer)
 		{
-			return buffer;
+			return {{}, buffer};
 		}
 	/* Define overloads to preserve const qualification */
 	static std::span<char> prepare_buffer(scratch_buffer<0> &, char *const text, const std::size_t len)
@@ -63,10 +63,10 @@ public:
 	 * place further text.
 	 */
 	template <std::size_t N>
-		std::span<char> insert_location_leader(std::array<char, N> &buffer) const
+		std::pair<std::size_t, std::span<char>> insert_location_leader(std::array<char, N> &buffer)
 		{
 			const auto written = std::snprintf(buffer.data(), buffer.size(), "%s:%u: ", file, line);
-			return std::span(buffer).subspan(written);
+			return {written, std::span(buffer).subspan(written)};
 		}
 	/* Return a span describing the written area that the caller can read
 	 * without accessing undefined bytes.

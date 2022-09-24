@@ -76,7 +76,7 @@ static RAIIPHYSFS_File gamelog_fp;
 static std::array<console_buffer, CON_LINES_MAX> con_buffer;
 static con_state con_state;
 static int con_scroll_offset, con_size;
-static void con_force_puts(con_priority priority, char *buffer, size_t len);
+static void con_force_puts(con_priority priority, std::span<char> buffer);
 
 static void con_add_buffer_line(const con_priority priority, const std::span<const char> buffer)
 {
@@ -100,10 +100,10 @@ void (con_printf)(const con_priority_wrapper priority, const char *const fmt, ..
 	{
 		va_start (arglist, fmt);
 		std::array<char, CON_LINE_LENGTH> buffer;
-		auto &&leader = priority.insert_location_leader(buffer);
+		auto &&[written, leader] = priority.insert_location_leader(buffer);
 		const std::size_t len = std::max(vsnprintf(leader.data(), leader.size(), fmt, arglist), 0);
 		va_end (arglist);
-		con_force_puts(priority, buffer.data(), len);
+		con_force_puts(priority, std::span(buffer).first(len + written));
 	}
 }
 
@@ -232,12 +232,12 @@ static void con_print_file(const char *const buffer)
  * The caller is assumed to have checked that the priority allows this
  * entry to be logged.
  */
-static void con_force_puts(const con_priority priority, char *const buffer, const size_t len)
+static void con_force_puts(const con_priority priority, const std::span<char> buffer)
 {
-	con_add_buffer_line(priority, std::span(buffer, len));
-	con_scrub_markup(buffer);
+	con_add_buffer_line(priority, buffer);
+	con_scrub_markup(buffer.data());
 	/* Produce a sanitised version and send it to the console */
-	con_print_file(buffer);
+	con_print_file(buffer.data());
 }
 
 }
@@ -248,7 +248,7 @@ void con_puts(const con_priority_wrapper priority, char *const buffer, const siz
 	{
 		typename con_priority_wrapper::scratch_buffer<CON_LINE_LENGTH> scratch_buffer;
 		auto &&b = priority.prepare_buffer(scratch_buffer, buffer, len);
-		con_force_puts(priority, b.data(), b.size());
+		con_force_puts(priority, b);
 	}
 }
 
