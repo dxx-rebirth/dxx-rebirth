@@ -865,11 +865,11 @@ int load_mission_ham()
 namespace {
 
 #define tex ".tex"
-static void set_briefing_filename(d_fname &f, const char *const v, std::size_t d)
+static void set_briefing_filename(d_fname &f, const std::span<const char> v)
 {
-	f.copy_if(v, d);
-	f.copy_if(d, tex);
-	if (!PHYSFSX_exists(static_cast<const char *>(f), 1) && !(f.copy_if(++d, "txb"), PHYSFSX_exists(static_cast<const char *>(f), 1))) // check if this file exists ...
+	f.copy_if(v.data(), v.size());
+	f.copy_if(v.size(), tex);
+	if (!PHYSFSX_exists(static_cast<const char *>(f), 1) && !(f.copy_if(v.size() + 1, "txb"), PHYSFSX_exists(static_cast<const char *>(f), 1))) // check if this file exists ...
 		f = {};
 }
 
@@ -881,7 +881,7 @@ static void set_briefing_filename(d_fname &f, const char *const v)
 	};
 	auto i = std::find_if(v, next(v, f.size() - sizeof(tex)), a);
 	std::size_t d = std::distance(v, i);
-	set_briefing_filename(f, v, d);
+	set_briefing_filename(f, {v, d});
 }
 
 static void record_briefing(d_fname &f, std::array<char, PATH_MAX> &buf)
@@ -893,7 +893,7 @@ static void record_briefing(d_fname &f, std::array<char, PATH_MAX> &buf)
 	if (d >= FILENAME_LEN)
 		return;
 	{
-		set_briefing_filename(f, v, std::min(d, f.size() - sizeof(tex)));
+		set_briefing_filename(f, {v, std::min(d, f.size() - sizeof(tex))});
 	}
 }
 #undef tex
