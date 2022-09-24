@@ -13,10 +13,10 @@
 
 #pragma once
 
+#include <span>
 #include "maths.h"
 #include "3d.h"
 
-#ifdef __cplusplus
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include <array>
@@ -45,7 +45,7 @@ struct glow_values_t : public std::array<fix, glow_array_size> {};
 void g3_draw_polygon_model(grs_bitmap *const *model_bitmaps, polygon_model_points &Interp_point_list, grs_canvas &, submodel_angles anim_angles, g3s_lrgb model_light, const glow_values_t *glow_values, const uint8_t *p);
 
 //init code for bitmap models
-int16_t g3_init_polygon_model(uint8_t *model_ptr, std::size_t model_size);
+int16_t g3_init_polygon_model(std::span<uint8_t> model);
 #if defined(DXX_BUILD_DESCENT_I)
 void g3_validate_polygon_model(uint8_t *model_ptr, std::size_t model_size);
 #endif
@@ -70,5 +70,3 @@ void swap_polygon_model_data(ubyte *data);
 static inline void swap_polygon_model_data(uint8_t *) {}
 #endif
 }
-
-#endif

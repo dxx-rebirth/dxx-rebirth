@@ -559,7 +559,7 @@ int load_polygon_model(const char *filename,int n_textures,int first_texture,rob
 
 	polyobj_find_min_max(&model);
 
-	const auto highest_texture_num = g3_init_polygon_model(model.model_data.get(), model.model_data_size);
+	const auto highest_texture_num = g3_init_polygon_model(std::span{model.model_data.get(), model.model_data_size});
 
 	if (highest_texture_num+1 != n_textures)
 		Error("Model <%s> references %d textures but specifies %d.",filename,highest_texture_num+1,n_textures);
@@ -647,7 +647,7 @@ void polygon_model_data_read(polymodel *pm, PHYSFS_File *fp)
 #if defined(DXX_BUILD_DESCENT_I)
 	g3_validate_polygon_model(pm->model_data.get(), model_data_size);
 #elif defined(DXX_BUILD_DESCENT_II)
-	g3_init_polygon_model(pm->model_data.get(), model_data_size);
+	g3_init_polygon_model(std::span{pm->model_data.get(), model_data_size});
 #endif
 }
 }
