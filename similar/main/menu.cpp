@@ -2286,10 +2286,10 @@ window_event_result browser::callback_handler(const d_event &event, window_event
 				};
 				const auto rval = run_blocking_newmenu<drive_letter_menu>(*grd_curcanv, m);
 				const auto t0 = text[0];
-				std::array<char, PATH_MAX> newpath;
-				snprintf(newpath.data(), newpath.size(), "%c:%s", t0, sep);
 				if (!rval && t0)
 				{
+					std::array<char, PATH_MAX> newpath;
+					snprintf(newpath.data(), newpath.size(), "%c:%s", t0, sep);
 					select_file_recursive(title, newpath, ext_range, select_dir, userdata);
 					// close old box.
 					return window_event_result::close;
