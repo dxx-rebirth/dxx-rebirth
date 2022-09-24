@@ -78,16 +78,16 @@ static con_state con_state;
 static int con_scroll_offset, con_size;
 static void con_force_puts(con_priority priority, char *buffer, size_t len);
 
-static void con_add_buffer_line(const con_priority priority, const char *const buffer, const size_t len)
+static void con_add_buffer_line(const con_priority priority, const std::span<const char> buffer)
 {
 	/* shift con_buffer for one line */
 	std::move(std::next(con_buffer.begin()), con_buffer.end(), con_buffer.begin());
 	console_buffer &c = con_buffer.back();
 	c.priority=priority;
 
-	size_t copy = std::min(len, std::size(c.line) - 1);
+	const std::size_t copy = std::min(buffer.size(), std::size(c.line) - 1);
 	c.line[copy] = 0;
-	memcpy(&c.line,buffer, copy);
+	memcpy(&c.line, buffer.data(), copy);
 }
 
 }
@@ -234,7 +234,7 @@ static void con_print_file(const char *const buffer)
  */
 static void con_force_puts(const con_priority priority, char *const buffer, const size_t len)
 {
-	con_add_buffer_line(priority, buffer, len);
+	con_add_buffer_line(priority, std::span(buffer, len));
 	con_scrub_markup(buffer);
 	/* Produce a sanitised version and send it to the console */
 	con_print_file(buffer);
@@ -259,7 +259,7 @@ void con_puts(const con_priority_wrapper priority, const char *const buffer, con
 		typename con_priority_wrapper::scratch_buffer<CON_LINE_LENGTH> scratch_buffer;
 		auto &&b = priority.prepare_buffer(scratch_buffer, buffer, len);
 		/* add given string to con_buffer */
-		con_add_buffer_line(priority, b.data(), b.size());
+		con_add_buffer_line(priority, b);
 		con_print_file(b.data());
 	}
 }
