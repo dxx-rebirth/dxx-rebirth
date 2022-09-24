@@ -142,7 +142,6 @@ static CurrentMusicType load_mus_file(const char *filename, int loop, void (*con
 
 int mix_play_file(const char *filename, int loop, void (*const entry_hook_finished_track)())
 {
-	std::array<char, PATH_MAX> full_path;
 	unsigned int bufsize = 0;
 
 	mix_free_music();	// stop and free what we're already playing, if anything
@@ -176,6 +175,7 @@ int mix_play_file(const char *filename, int loop, void (*const entry_hook_finish
 	{
 		const auto sep = PHYSFS_getDirSeparator();
 		const auto lensep = strlen(sep);
+		std::array<char, PATH_MAX> full_path;
 		snprintf(full_path.data(), PATH_MAX, "%s%s", PHYSFS_getUserDir(),
 				 &filename[1 + (!strncmp(&filename[1], sep, lensep)
 			? lensep
