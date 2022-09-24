@@ -591,15 +591,38 @@ v1_control_center_triggers::v1_control_center_triggers(const control_center_trig
 void control_center_triggers_read(control_center_triggers &cct, PHYSFS_File *fp)
 {
 	const v1_control_center_triggers v1cct{fp};
-	cct.seg = {};
-	cct.side = {};
-	const auto num_links = cct.num_links = v1cct.num_links;
+	cct = {};
+	const auto num_links = v1cct.num_links;
 	if (unlikely(!num_links))
 		return;
-	for (auto &&[w, r] : zip(partial_range(cct.seg, num_links), v1cct.seg))
-		w = r;
-	for (auto &&[w, r] : zip(unchecked_partial_range(cct.side, num_links), v1cct.side))
-		w = build_sidenum_from_untrusted(r).value();
+	const auto &&cct_input_range = zip(partial_range(v1cct.seg, num_links), v1cct.side);
+	const auto &&cct_output_range = zip(cct.seg, cct.side);
+	auto oi = cct_output_range.begin();
+	auto ii = cct_input_range.begin();
+	const auto ie = cct_input_range.end();
+	uint8_t valid_num_links = 0;
+	const auto segment_count = Segments.get_count();
+	for (; ii != ie; ++ii)
+	{
+		const auto &&[iseg, iside] = *ii;
+		const auto si = build_sidenum_from_untrusted(iside);
+		if (!si)
+			continue;
+		/* Descent 2: Vertigo level 10 specifies an invalid control center trigger.
+		 * seg[0] is 0x257, but the level only has 0x1ae segments defined.
+		 * Attempting to access segment 0x257 is undefined behavior, and will crash
+		 * in a memory-poisoned build.  Guard against that behavior by cleaning the
+		 * structure at load time.
+		 */
+		if (iseg >= segment_count)
+			continue;
+		auto &&[oseg, oside] = *oi;
+		++ oi;
+		oseg = iseg;
+		oside = si.value();
+		++ valid_num_links;
+	}
+	cct.num_links = valid_num_links;
 }
 
 void control_center_triggers_write(const control_center_triggers &cct, PHYSFS_File *fp)
