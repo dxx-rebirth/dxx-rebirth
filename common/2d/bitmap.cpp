@@ -146,12 +146,12 @@ void gr_init_sub_bitmap (grs_bitmap &bm, grs_bitmap &bmParent, uint16_t x, uint1
 	bm.bm_data = &bmParent.bm_data[static_cast<uint32_t>((y*bmParent.bm_rowsize)+x)];
 }
 
-void decode_data(color_palette_index *const data, uint_fast32_t num_pixels, std::array<color_palette_index, 256> &colormap, std::bitset<256> &used)
+void decode_data(const std::span<color_palette_index> data, const std::array<color_palette_index, 256> &colormap, std::bitset<256> &used)
 {
 	const auto a = [&](uint8_t mapped) {
 		return used[mapped] = true, colormap[mapped];
 	};
-	std::transform(data, data + num_pixels, data, a);
+	std::transform(data.begin(), data.end(), data.begin(), a);
 }
 
 namespace {
@@ -184,11 +184,11 @@ void gr_remap_bitmap_good(grs_bitmap &bmp, palette_array_t &palette, uint_fast32
 
 	std::bitset<256> freq{};
 	if (bmp.bm_w == bmp.bm_rowsize)
-		decode_data(bmp.get_bitmap_data(), bmp.bm_w * bmp.bm_h, colormap, freq );
+		decode_data(std::span(bmp.get_bitmap_data(), bmp.bm_w * bmp.bm_h), colormap, freq);
 	else {
 		auto p = bmp.get_bitmap_data();
 		for (uint_fast32_t y = bmp.bm_h; y--; p += bmp.bm_rowsize)
-			decode_data(p, bmp.bm_w, colormap, freq );
+			decode_data(std::span{p, bmp.bm_w}, colormap, freq);
 	}
 
 	if (transparent_color < freq.size() && freq[transparent_color])

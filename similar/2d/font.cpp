@@ -1024,7 +1024,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 
 		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;              // changed from colormap[255] = 255 to this for macintosh
 
-		decode_data(ft_data, ptr - font->ft_data, colormap, freq );
+		decode_data(std::span{ft_data, ptr}, colormap, freq);
 	}
 	fontfile.reset();
 	//set curcanv vars
