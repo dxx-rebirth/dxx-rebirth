@@ -491,20 +491,14 @@ static void nd_read_objnum32(objnum_t &o)
 	o = i;
 }
 
-static void nd_read_string(char *str, std::size_t max_length)
+static void nd_read_string(const std::span<char> str)
 {
 	sbyte len;
 
 	nd_read_byte(&len);
-	if (static_cast<unsigned>(len) > max_length)
+	if (static_cast<unsigned>(len) > str.size())
 		throw std::runtime_error("demo string too long");
-	newdemo_read(str, len, 1);
-}
-
-template <std::size_t max_length>
-static void nd_read_string(char (&str)[max_length])
-{
-	nd_read_string(str, max_length);
+	newdemo_read(str.data(), len, 1);
 }
 
 static void nd_read_fix(fix *f)
