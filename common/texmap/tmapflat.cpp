@@ -34,16 +34,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
-//#include "tmapext.h"
-
 #if !DXX_USE_OGL
 #include "3d.h"
 #include "dxxerror.h"
-
-#include "3d.h"
-#include "dxxerror.h"
+#include "d_zip.h"
 
 namespace dcx {
+
+namespace {
 
 static void gr_upoly_tmap_ylr(grs_canvas &, uint_fast32_t nverts, const int *vert, uint8_t color);
 
@@ -69,7 +67,6 @@ static void tmap_scanline_flat(grs_canvas &canvas, int y, fix xleft, fix xright)
 	}	
 }
 
-
 //--unused-- void tmap_scanline_shaded(int y, fix xleft, fix xright)
 //--unused-- {
 //--unused-- 	fix	dx;
@@ -84,7 +81,6 @@ static void tmap_scanline_flat(grs_canvas &canvas, int y, fix xleft, fix xright)
 //--unused-- 
 //--unused-- 	asm_tmap_scanline_shaded();
 //--unused-- }
-
 
 // -------------------------------------------------------------------------------------
 //	Render a texture map.
@@ -172,6 +168,8 @@ static void texture_map_flat(grs_canvas &canvas, const g3ds_tmap &t, int color)
 	tmap_scanline_flat(canvas, boty, xleft, xright);
 }
 
+}
+
 //	-----------------------------------------------------------------------------------------
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
 //	(ie, avoids cracking) edge/delta computation.
@@ -180,12 +178,16 @@ void gr_upoly_tmap(grs_canvas &canvas, uint_fast32_t nverts, const std::array<fi
 	gr_upoly_tmap_ylr(canvas, nverts, vert.data(), color);
 }
 
+namespace {
+
 struct pnt2d {
 	fix x,y;
 };
 
+}
+
 //this takes the same partms as draw_tmap, but draws a flat-shaded polygon
-void draw_tmap_flat(grs_canvas &canvas, const grs_bitmap &bp, uint_fast32_t nverts, const g3s_point *const *vertbuf)
+void draw_tmap_flat(grs_canvas &canvas, const grs_bitmap &bp, const std::span<const g3s_point *const> vertbuf)
 {
 	union {
 		std::array<pnt2d, MAX_TMAP_VERTS> points;
@@ -193,15 +195,15 @@ void draw_tmap_flat(grs_canvas &canvas, const grs_bitmap &bp, uint_fast32_t nver
 	};
 	static_assert(sizeof(points) == sizeof(ipoints), "array size mismatch");
 	fix	average_light;
-	Assert(nverts < MAX_TMAP_VERTS);
-	average_light = vertbuf[0]->p3_l;
-	for (int i=1; i<nverts; i++)
-		average_light += vertbuf[i]->p3_l;
+	assert(vertbuf.size() < MAX_TMAP_VERTS);
+	average_light = 0;
+	for (const auto vb : vertbuf)
+		average_light += vb->p3_l;
 
-	if (nverts == 4)
+	if (vertbuf.size() == 4)
 		average_light = f2i(average_light * NUM_LIGHTING_LEVELS/4);
 	else
-		average_light = f2i(average_light * NUM_LIGHTING_LEVELS/nverts);
+		average_light = f2i(average_light * NUM_LIGHTING_LEVELS / vertbuf.size());
 
 	if (average_light < 0)
 		average_light = 0;
@@ -210,12 +212,15 @@ void draw_tmap_flat(grs_canvas &canvas, const grs_bitmap &bp, uint_fast32_t nver
 
 	const auto color = gr_fade_table[static_cast<gr_fade_level>(average_light)][bp.avg_color];
 
-	for (int i=0;i<nverts;i++) {
-		points[i].x = vertbuf[i]->p3_sx;
-		points[i].y = vertbuf[i]->p3_sy;
+	for (auto &&[vb, pt] : zip(vertbuf, points))
+	{
+		pt.x = vb->p3_sx;
+		pt.y = vb->p3_sy;
 	}
-	gr_upoly_tmap_ylr(canvas, nverts, ipoints.data(), color);
+	gr_upoly_tmap_ylr(canvas, vertbuf.size(), ipoints.data(), color);
 }
+
+namespace {
 
 //	-----------------------------------------------------------------------------------------
 //This is like gr_upoly_tmap() but instead of drawing, it calls the specified
@@ -231,6 +236,8 @@ static void gr_upoly_tmap_ylr(grs_canvas &canvas, uint_fast32_t nverts, const in
 		i.y2d = *vert++;
 	}
 	texture_map_flat(canvas, my_tmap, color);
+}
+
 }
 
 }

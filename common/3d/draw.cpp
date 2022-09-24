@@ -250,7 +250,7 @@ void _g3_draw_tmap(grs_canvas &canvas, const std::span<cg3s_point *const> pointl
 			return;
 		}
 	}
-	(*tmap_drawer_ptr)(canvas, bm, pointlist.size(), bufptr.data());
+	(*tmap_drawer_ptr)(canvas, bm, std::span(bufptr).first(pointlist.size()));
 }
 
 namespace {
@@ -273,7 +273,7 @@ static void must_clip_tmap_face(grs_canvas &canvas, int nv, g3s_codes cc, grs_bi
 			}
 		}
 
-		(*tmap_drawer_ptr)(canvas, bm, nv, &bufptr[0]);
+		(*tmap_drawer_ptr)(canvas, bm, std::span(bufptr).first(nv));
 	}
 
 free_points:
