@@ -54,7 +54,7 @@ class location_wrapper<true>
 	unsigned line;
 public:
 	template <std::size_t N>
-		using scratch_buffer = char[N];
+		using scratch_buffer = std::array<char, N>;
 	location_wrapper(const char *const f = __builtin_FILE(), const unsigned l = __builtin_LINE()) :
 		file(f), line(l)
 	{
@@ -72,7 +72,7 @@ public:
 	 * without accessing undefined bytes.
 	 */
 	template <std::size_t N>
-		std::span<const char> prepare_buffer(char (&buffer)[N], const char *const text, const std::size_t len) const
+		std::span<const char> prepare_buffer(std::array<char, N> &buffer, const char *const text, const std::size_t len) const
 		{
 			const auto written = std::snprintf(buffer, sizeof(buffer), "%s:%u: %.*s", file, line, static_cast<int>(len), text);
 			return {buffer, written};
@@ -82,7 +82,7 @@ public:
 	 * overload for the function to receive this result.
 	 */
 	template <std::size_t N>
-		std::span<char> prepare_buffer(char (&buffer)[N], char *const text, const std::size_t len) const
+		std::span<char> prepare_buffer(std::array<char, N> &buffer, char *const text, const std::size_t len) const
 		{
 			return {buffer, prepare_buffer(buffer, const_cast<const char *>(text), len).size()};
 		}
