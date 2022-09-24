@@ -1167,13 +1167,8 @@ void read_sndfile(const int required)
 int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	int ham_ok=0,snd_ok=0;
-	for (unsigned i = 0; i < MAX_SOUND_FILES; ++i)
-	{
-		GameSounds[i].length = 0;
-		GameSounds[i].data = NULL;
-		SoundOffset[i] = 0;
-	}
-
+	GameSounds = {};
+	SoundOffset = {};
 	for (unsigned i = 0; i < GameBitmapXlat.size(); ++i)
 	{
 		GameBitmapXlat[i] = i;
