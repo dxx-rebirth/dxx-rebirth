@@ -749,10 +749,46 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 #endif
 			} else {
 #if defined(DXX_BUILD_DESCENT_II)
-				char spinRobotName[]="RBA.MVE", kludge;  // matt don't change this!
+				std::array<char, 8> robot_name_storage{{"RBA.MVE"}};  // matt don't change this!
+				const char *spinRobotName = robot_name_storage.data();
+				const char robot_movie_selector_character = *br->message++;
 
-				kludge=*br->message++;
-				spinRobotName[2]=kludge; // ugly but proud
+				robot_name_storage[2] = robot_movie_selector_character; // ugly but proud
+				if (robot_movie_selector_character == '9')
+				{
+					/* Descent 2: Vertigo level 1 `Deep Kraeg Tunnel System`
+					 * references `RB9.MVE` for the robot `Fervid`.  However,
+					 * there is no such MVE in the movie file.
+					 * The high-resolution movie file contains `RB9.mve`.
+					 * The low-resolution movie file contains `rb9.mve`.
+					 */
+					if (const auto m = Current_mission->extra_robot_movie.get())
+					{
+						if (m->resolution == movie_resolution::high)
+							spinRobotName = "RB9.mve";
+						else
+							spinRobotName = "rb9.mve";
+					}
+				}
+				else if (robot_movie_selector_character == '$')
+				{
+					/* Descent 2: Vertigo level 16 `Fold Zandura` references
+					 * `RB$.MVE` for the robot `SPIKE`.  However, that MVE is
+					 * only present in the high-resolution movie file.
+					 * The low-resolution movie file contains `RB$.mve`.
+					 */
+					if (const auto m = Current_mission->extra_robot_movie.get())
+					{
+						if (m->resolution == movie_resolution::high)
+						{
+							/* High-resolution movie file contains the correct
+							 * capitalization, so no change is needed.
+							 */
+						}
+						else
+							spinRobotName = "RB$.mve";
+					}
+				}
 
 				if ((br->RoboFile = InitRobotMovie(spinRobotName, br->pMovie)))
 				{

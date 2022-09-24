@@ -44,6 +44,12 @@ enum class movie_play_status : uint8_t
 	started,	// movie was present and started; it may or may not have completed
 };
 
+enum class movie_resolution : uint8_t
+{
+	high,
+	low,
+};
+
 #if DXX_USE_OGL
 #define MOVIE_WIDTH  (!GameArg.GfxSkipHiresMovie && grd_curscreen->get_screen_width() < 640 ? static_cast<uint16_t>(640) : grd_curscreen->get_screen_width())
 #define MOVIE_HEIGHT (!GameArg.GfxSkipHiresMovie && grd_curscreen->get_screen_height() < 480 ? static_cast<uint16_t>(480) : grd_curscreen->get_screen_height())
@@ -67,6 +73,11 @@ struct LoadedMovie
 	~LoadedMovie();
 };
 
+struct LoadedMovieWithResolution : LoadedMovie
+{
+	movie_resolution resolution;
+};
+
 struct BuiltinMovies
 {
 	std::array<LoadedMovie, 3> movies;
@@ -76,8 +87,6 @@ struct BuiltinMovies
 [[nodiscard]]
 std::unique_ptr<BuiltinMovies> init_movies();
 [[nodiscard]]
-std::unique_ptr<LoadedMovie> init_extra_robot_movie(const char *filename);
-
-extern int MovieHires;      // specifies whether movies use low or high res
+std::unique_ptr<LoadedMovieWithResolution> init_extra_robot_movie(const char *filename);
 
 }

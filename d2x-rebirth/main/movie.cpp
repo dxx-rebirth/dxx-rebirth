@@ -648,14 +648,14 @@ static PHYSFS_ErrorCode init_movie(const char *movielib, char resolution, int re
 	return r;
 }
 
-static PHYSFS_ErrorCode init_movie(const char *movielib, int required, LoadedMovie &movie)
+static std::pair<PHYSFS_ErrorCode, movie_resolution> init_movie(const char *movielib, int required, LoadedMovie &movie)
 {
 	if (!GameArg.GfxSkipHiresMovie)
 	{
 		if (auto r = init_movie(movielib, 'h', required, movie); r == PHYSFS_ERR_OK)
-			return r;
+			return {r, movie_resolution::high};
 	}
-	return init_movie(movielib, 'l', required, movie);
+	return {init_movie(movielib, 'l', required, movie), movie_resolution::low};
 }
 
 }
@@ -683,14 +683,18 @@ LoadedMovie::~LoadedMovie()
 		con_printf(CON_VERBOSE, "Unloaded movielib <%s>", movielib);
 }
 
-std::unique_ptr<LoadedMovie> init_extra_robot_movie(const char *movielib)
+std::unique_ptr<LoadedMovieWithResolution> init_extra_robot_movie(const char *movielib)
 {
 	if (GameArg.SysNoMovies)
 		return nullptr;
-	auto r = std::make_unique<LoadedMovie>();
-	if (init_movie(movielib, 0, *r) != PHYSFS_ERR_OK)
+	auto r = std::make_unique<LoadedMovieWithResolution>();
+	if (auto &&[code, resolution] = init_movie(movielib, 0, *r); code != PHYSFS_ERR_OK)
 		return nullptr;
-	return r;
+	else
+	{
+		r->resolution = resolution;
+		return r;
+	}
 }
 
 }
