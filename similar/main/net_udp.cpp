@@ -2848,11 +2848,11 @@ static uint_fast32_t net_udp_prepare_light_game_info(game_info_light &info)
 	uint_fast32_t len = 0;
 	uint8_t *const buf = info.buf.data();
 		buf[0] = underlying_value(upid::game_info_lite);								len++;				// 1
-		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MAJORi); 						len += 2;			// 3
-		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MINORi); 						len += 2;			// 5
-		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MICROi); 						len += 2;			// 7
-		PUT_INTEL_INT(buf + len, Netgame.protocol.udp.GameID);				len += 4;			// 11
-		PUT_INTEL_INT(buf + len, Netgame.levelnum);					len += 4;
+	PUT_INTEL_SHORT(&buf[len], DXX_VERSION_MAJORi); 						len += 2;			// 3
+	PUT_INTEL_SHORT(&buf[len], DXX_VERSION_MINORi); 						len += 2;			// 5
+	PUT_INTEL_SHORT(&buf[len], DXX_VERSION_MICROi); 						len += 2;			// 7
+	PUT_INTEL_INT(&buf[len], Netgame.protocol.udp.GameID);				len += 4;			// 11
+	PUT_INTEL_INT(&buf[len], Netgame.levelnum);					len += 4;
 		buf[len] = underlying_value(Netgame.gamemode);							len++;
 		buf[len] = Netgame.RefusePlayers;						len++;
 		buf[len] = underlying_value(Netgame.difficulty);							len++;
@@ -2874,9 +2874,9 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *const addr
 	uint_fast32_t len = 0;
 
 		buf[0] = underlying_value(info_upid);								len++;
-		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MAJORi); 						len += 2;
-		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MINORi); 						len += 2;
-		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MICROi); 						len += 2;
+	PUT_INTEL_SHORT(&buf[len], DXX_VERSION_MAJORi); 						len += 2;
+	PUT_INTEL_SHORT(&buf[len], DXX_VERSION_MINORi); 						len += 2;
+	PUT_INTEL_SHORT(&buf[len], DXX_VERSION_MICROi); 						len += 2;
 		ubyte &your_index = buf[len++];
 		your_index = MULTI_PNUM_UNDEF;
 		for (int i = 0; i < Netgame.players.size(); i++)
@@ -2887,7 +2887,7 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *const addr
 			if (addr && *addr == Netgame.players[i].protocol.udp.addr)
 				your_index = i;
 		}
-		PUT_INTEL_INT(buf + len, Netgame.levelnum);					len += 4;
+	PUT_INTEL_INT(&buf[len], Netgame.levelnum);					len += 4;
 		buf[len] = underlying_value(Netgame.gamemode);							len++;
 		buf[len] = Netgame.RefusePlayers;						len++;
 		buf[len] = underlying_value(Netgame.difficulty);							len++;
@@ -2898,16 +2898,16 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *const addr
 		buf[len] = Netgame.numconnected;						len++;
 		buf[len] = pack_game_flags(&Netgame.game_flag).value;							len++;
 		buf[len] = Netgame.team_vector;							len++;
-		PUT_INTEL_INT(buf + len, Netgame.AllowedItems);					len += 4;
-		/* In cooperative games, never shuffle. */
-		PUT_INTEL_INT(&buf[len], (Game_mode & GM_MULTI_COOP) ? 0 : Netgame.ShufflePowerupSeed);			len += 4;
+	PUT_INTEL_INT(&buf[len], Netgame.AllowedItems);					len += 4;
+	/* In cooperative games, never shuffle. */
+	PUT_INTEL_INT(&buf[len], (Game_mode & GM_MULTI_COOP) ? 0 : Netgame.ShufflePowerupSeed);			len += 4;
 		buf[len] = Netgame.SecludedSpawns;			len += 1;
 #if defined(DXX_BUILD_DESCENT_I)
 		buf[len] = Netgame.SpawnGrantedItems.mask;			len += 1;
 		buf[len] = Netgame.DuplicatePowerups.get_packed_field();			len += 1;
 #elif defined(DXX_BUILD_DESCENT_II)
-		PUT_INTEL_SHORT(buf + len, Netgame.SpawnGrantedItems.mask);			len += 2;
-		PUT_INTEL_SHORT(buf + len, Netgame.DuplicatePowerups.get_packed_field());			len += 2;
+	PUT_INTEL_SHORT(&buf[len], Netgame.SpawnGrantedItems.mask);			len += 2;
+	PUT_INTEL_SHORT(&buf[len], Netgame.DuplicatePowerups.get_packed_field());			len += 2;
 		buf[len++] = Netgame.Allow_marker_view;
 		buf[len++] = Netgame.AlwaysLighting;
 		buf[len++] = Netgame.ThiefModifierFlags;
@@ -2923,41 +2923,41 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *const addr
 		}
 		range_for (auto &i, Netgame.locations)
 		{
-			PUT_INTEL_INT(buf + len, i);				len += 4;
+		PUT_INTEL_INT(&buf[len], i);				len += 4;
 		}
 		range_for (auto &i, Netgame.kills)
 		{
 			range_for (auto &j, i)
 			{
-				PUT_INTEL_SHORT(buf + len, j);		len += 2;
+			PUT_INTEL_SHORT(&buf[len], j);		len += 2;
 			}
 		}
-		PUT_INTEL_SHORT(buf + len, Netgame.segments_checksum);			len += 2;
-		PUT_INTEL_SHORT(buf + len, Netgame.team_kills[0]);				len += 2;
-		PUT_INTEL_SHORT(buf + len, Netgame.team_kills[1]);				len += 2;
+	PUT_INTEL_SHORT(&buf[len], Netgame.segments_checksum);			len += 2;
+	PUT_INTEL_SHORT(&buf[len], Netgame.team_kills[0]);				len += 2;
+	PUT_INTEL_SHORT(&buf[len], Netgame.team_kills[1]);				len += 2;
 		range_for (auto &i, Netgame.killed)
 		{
-			PUT_INTEL_SHORT(buf + len, i);				len += 2;
+		PUT_INTEL_SHORT(&buf[len], i);				len += 2;
 		}
 		range_for (auto &i, Netgame.player_kills)
 		{
-			PUT_INTEL_SHORT(buf + len, i);			len += 2;
+		PUT_INTEL_SHORT(&buf[len], i);			len += 2;
 		}
-		PUT_INTEL_INT(buf + len, Netgame.KillGoal);					len += 4;
-		PUT_INTEL_INT(buf + len, Netgame.PlayTimeAllowed.count());				len += 4;
-		PUT_INTEL_INT(buf + len, Netgame.level_time);					len += 4;
-		PUT_INTEL_INT(buf + len, Netgame.control_invul_time);				len += 4;
-		PUT_INTEL_INT(buf + len, Netgame.monitor_vector);				len += 4;
+	PUT_INTEL_INT(&buf[len], Netgame.KillGoal);					len += 4;
+	PUT_INTEL_INT(&buf[len], Netgame.PlayTimeAllowed.count());				len += 4;
+	PUT_INTEL_INT(&buf[len], Netgame.level_time);					len += 4;
+	PUT_INTEL_INT(&buf[len], Netgame.control_invul_time);				len += 4;
+	PUT_INTEL_INT(&buf[len], Netgame.monitor_vector);				len += 4;
 		range_for (auto &i, Netgame.player_score)
 		{
-			PUT_INTEL_INT(buf + len, i);			len += 4;
+		PUT_INTEL_INT(&buf[len], i);			len += 4;
 		}
 		range_for (auto &i, Netgame.net_player_flags)
 		{
 			buf[len] = static_cast<uint8_t>(i.get_player_flags());
 			len++;
 		}
-		PUT_INTEL_SHORT(buf + len, Netgame.PacketsPerSec);				len += 2;
+	PUT_INTEL_SHORT(&buf[len], Netgame.PacketsPerSec);				len += 2;
 		buf[len] = Netgame.PacketLossPrevention;					len++;
 		buf[len] = Netgame.NoFriendlyFire;						len++;
 		buf[len] = Netgame.MouselookFlags;						len++;
