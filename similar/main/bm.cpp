@@ -653,9 +653,8 @@ static grs_bitmap *bm_load_extra_objbitmap(const char *name)
 		grs_bitmap &n = GameBitmaps[bitmap_store_index.index];
 		if (!read_extra_bitmap_iff(name, n))
 		{
-			RAIIdmem<char[]> name2(d_strdup(name));
-			*strrchr(name2.get(), '.') = '\0';
-			if (const auto r = read_extra_bitmap_d1_pig(name2.get(), n); !r)
+			const char *const dot = strrchr(name, '.');
+			if (const auto r = read_extra_bitmap_d1_pig(std::span<const char>(name, dot ? std::distance(name, dot) : 8), n); !r)
 				return r;
 		}
 		bitmap_idx = bitmap_store_index;

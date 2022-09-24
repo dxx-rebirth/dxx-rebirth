@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <span>
 #include <physfs.h>
 #include "dsx-ns.h"
 #include "fwd-gr.h"
@@ -111,7 +112,7 @@ void load_d1_bitmap_replacements();
 /*
  * Find and load the named bitmap from descent.pig
  */
-grs_bitmap *read_extra_bitmap_d1_pig(const char *name, grs_bitmap &out);
+grs_bitmap *read_extra_bitmap_d1_pig(std::span<const char> name, grs_bitmap &out);
 void read_sndfile(int required);
 #endif
 }

@@ -2151,7 +2151,7 @@ void load_d1_bitmap_replacements()
  * Find and load the named bitmap from descent.pig
  * similar to read_extra_bitmap_iff
  */
-grs_bitmap *read_extra_bitmap_d1_pig(const char *name, grs_bitmap &n)
+grs_bitmap *read_extra_bitmap_d1_pig(const std::span<const char> name, grs_bitmap &n)
 {
 	{
 		int pig_data_start, bitmap_header_start, bitmap_data_start;
@@ -2205,12 +2205,12 @@ grs_bitmap *read_extra_bitmap_d1_pig(const char *name, grs_bitmap &n)
 		{
 			if (i > N_bitmaps)
 			{
-				con_printf(CON_DEBUG, "could not find bitmap %s", name);
+				con_printf(CON_DEBUG, "Failed to find bitmap: %s", name.data());
 				return nullptr;
 			}
 			DiskBitmapHeader bmh;
 			DiskBitmapHeader_d1_read(&bmh, d1_Piggy_fp);
-			if (!d_strnicmp(bmh.name, name, 8))
+			if (!d_strnicmp(bmh.name, name.data(), std::min<std::size_t>(8u, name.size())))
 			{
 				bitmap_read_d1(&n, d1_Piggy_fp, bitmap_data_start, &bmh, 0, d1_palette, colormap);
 				break;
