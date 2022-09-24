@@ -726,7 +726,7 @@ static int main(int argc, char *argv[])
 			}
 			if(PHYSFSX_exists(filename,0))
 			{
-				InterfaceUniqueState.PilotName.copy(b, std::distance(b, &filename[j - 4]));
+				InterfaceUniqueState.PilotName.copy(std::span<const char>(b, std::distance(b, &filename[j - 4])));
 				InterfaceUniqueState.update_window_title();
 				read_player_file();
 				WriteConfigFile();

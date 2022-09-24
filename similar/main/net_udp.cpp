@@ -204,8 +204,20 @@ net_udp_select_teams_menu_items::net_udp_select_teams_menu_items(const unsigned 
 	blue_team_color(BM_XRGB(player_rgb[0].r, player_rgb[0].g, player_rgb[0].b)),
 	red_team_color(BM_XRGB(player_rgb[1].r, player_rgb[1].g, player_rgb[1].b))
 {
-	team_names[0].copy(TXT_BLUE, ~0ul);
-	team_names[1].copy(TXT_RED, ~0ul);
+	const auto set_team_name = [](callsign_t &team_name, const auto &&s) {
+		if constexpr (std::is_array<typename std::remove_cvref<decltype(s)>::type>::value)
+			/* When the input is an array (due to
+			 * -D'USE_BUILTIN_ENGLISH_TEXT_STRINGS'), construct a std::span
+			 *  implicitly with the correct length.
+			 */
+			team_name.copy(s);
+		else
+			/* Otherwise, construct one explicitly with the dynamically
+			 * detected length. */
+			team_name.copy(std::span(s, strlen(s)));
+	};
+	set_team_name(team_names[0], TXT_BLUE);
+	set_team_name(team_names[1], TXT_RED);
 	/* Round blue team up.  Round red team down. */
 	const unsigned num_blue_players = (num_players + 1) >> 1;
 	// Put first half of players on team A
@@ -3183,7 +3195,7 @@ static void net_udp_process_game_info_heavy(const uint8_t *data, uint_fast32_t, 
 		Netgame.InvulAppear = data[len];				len += 1;
 		range_for (auto &i, Netgame.team_name)
 		{
-			i.copy(reinterpret_cast<const char *>(&data[len]), (CALLSIGN_LEN+1));
+			i.copy(std::span<const char, CALLSIGN_LEN + 1>(reinterpret_cast<const char *>(&data[len]), CALLSIGN_LEN + 1));
 			len += CALLSIGN_LEN + 1;
 		}
 		range_for (auto &i, Netgame.locations)
