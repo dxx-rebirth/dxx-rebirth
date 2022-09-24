@@ -74,46 +74,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_zip.h"
 #include "partial_range.h"
 
-#if defined(DXX_BUILD_DESCENT_I)
-#if DXX_USE_EDITOR
-const char Shareware_level_names[NUM_SHAREWARE_LEVELS][12] = {
-	"level01.rdl",
-	"level02.rdl",
-	"level03.rdl",
-	"level04.rdl",
-	"level05.rdl",
-	"level06.rdl",
-	"level07.rdl"
-};
-
-const char Registered_level_names[NUM_REGISTERED_LEVELS][12] = {
-	"level08.rdl",
-	"level09.rdl",
-	"level10.rdl",
-	"level11.rdl",
-	"level12.rdl",
-	"level13.rdl",
-	"level14.rdl",
-	"level15.rdl",
-	"level16.rdl",
-	"level17.rdl",
-	"level18.rdl",
-	"level19.rdl",
-	"level20.rdl",
-	"level21.rdl",
-	"level22.rdl",
-	"level23.rdl",
-	"level24.rdl",
-	"level25.rdl",
-	"level26.rdl",
-	"level27.rdl",
-	"levels1.rdl",
-	"levels2.rdl",
-	"levels3.rdl"
-};
-#endif
-#endif
-
 char Gamesave_current_filename[PATH_MAX];
 
 int Gamesave_current_version;
