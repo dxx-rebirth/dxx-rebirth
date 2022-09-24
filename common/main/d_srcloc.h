@@ -34,13 +34,13 @@ public:
 			return {{}, buffer};
 		}
 	/* Define overloads to preserve const qualification */
-	static std::span<char> prepare_buffer(scratch_buffer<0> &, char *const text, const std::size_t len)
+	static std::span<char> prepare_buffer(scratch_buffer<0> &, const std::span<char> text)
 	{
-		return {text, len};
+		return text;
 	}
-	static std::span<const char> prepare_buffer(scratch_buffer<0> &, const char *const text, const std::size_t len)
+	static std::span<const char> prepare_buffer(scratch_buffer<0> &, const std::span<const char> text)
 	{
-		return {text, len};
+		return text;
 	}
 };
 
@@ -72,9 +72,9 @@ public:
 	 * without accessing undefined bytes.
 	 */
 	template <std::size_t N>
-		std::span<const char> prepare_buffer(std::array<char, N> &buffer, const char *const text, const std::size_t len) const
+		std::span<const char> prepare_buffer(std::array<char, N> &buffer, const std::span<const char> text) const
 		{
-			const auto written = std::snprintf(buffer, sizeof(buffer), "%s:%u: %.*s", file, line, static_cast<int>(len), text);
+			const auto written = std::snprintf(buffer, sizeof(buffer), "%s:%u: %.*s", file, line, static_cast<int>(text.size()), text.data());
 			return {buffer, written};
 		}
 	/* Delegate to the const-qualified version, but return a `char *` to
@@ -82,9 +82,9 @@ public:
 	 * overload for the function to receive this result.
 	 */
 	template <std::size_t N>
-		std::span<char> prepare_buffer(std::array<char, N> &buffer, char *const text, const std::size_t len) const
+		std::span<char> prepare_buffer(std::array<char, N> &buffer, const std::span<char> text) const
 		{
-			return {buffer, prepare_buffer(buffer, const_cast<const char *>(text), len).size()};
+			return {buffer, prepare_buffer(buffer, std::span(const_cast<const char *>(text.data()), text.size())).size()};
 		}
 };
 #endif
