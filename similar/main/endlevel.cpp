@@ -1218,13 +1218,9 @@ void do_endlevel_flythrough(d_level_unique_object_state &LevelUniqueObjectState,
 
 		//find new exit side
 
-		if (!flydata->first_time) {
-
-			entry_side = matt_find_connect_side(vcsegptr(obj->segnum), old_player_seg);
-			exit_side = Side_opposite[entry_side];
-		}
-
-		if (flydata->first_time || entry_side == side_none || pseg.children[exit_side] == segment_none)
+		if (flydata->first_time ||
+			(entry_side = matt_find_connect_side(vcsegptr(obj->segnum), old_player_seg)) == side_none ||
+			pseg.children[exit_side = Side_opposite[entry_side]] == segment_none)
 			exit_side = find_exit_side(LevelSharedSegmentState, LevelSharedVertexState, LevelUniqueObjectState.last_console_player_position, obj);
 
 		{										//find closest side to align to
@@ -1234,7 +1230,6 @@ void do_endlevel_flythrough(d_level_unique_object_state &LevelUniqueObjectState,
 				d = vm_vec_dot(pseg.sides[i].normals[0], flydata->obj->orient.uvec);
 				if (d > largest_d) {largest_d = d; up_side=i;}
 			}
-
 		}
 
 		//update target point & angles
