@@ -5240,8 +5240,10 @@ namespace dsx {
 namespace multi {
 namespace udp {
 
-void dispatch_table::send_data(const uint8_t *const ptr, const unsigned len, const multiplayer_data_priority priority) const
+void dispatch_table::send_data(const std::span<const uint8_t> buf, const multiplayer_data_priority priority) const
 {
+	const auto ptr = buf.data();
+	const auto len = buf.size();
 #if DXX_HAVE_POISON_VALGRIND
 	VALGRIND_CHECK_MEM_IS_DEFINED(ptr, len);
 #endif

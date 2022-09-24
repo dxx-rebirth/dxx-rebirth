@@ -232,7 +232,7 @@ struct dispatch_table
 	{
 		return this;
 	}
-	virtual void send_data(const uint8_t *data, unsigned data_len, multiplayer_data_priority) const = 0;
+	virtual void send_data(std::span<const uint8_t> data, multiplayer_data_priority) const = 0;
 	virtual void send_data_direct(std::span<const uint8_t> data, playernum_t pnum, int needack) const = 0;
 	virtual int objnum_is_past(objnum_t objnum) const = 0;
 	virtual void do_protocol_frame(int force, int listen) const = 0;
