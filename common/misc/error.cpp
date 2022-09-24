@@ -71,24 +71,24 @@ constexpr auto warn_func = &warn_printf;
 
 namespace {
 
-static void print_exit_message(const char *exit_message, size_t len)
+static void print_exit_message(const std::span<const char> exit_message)
 {
-	con_puts(CON_CRITICAL, exit_message, len);
-	msgbox_error(exit_message);
+	con_puts(CON_CRITICAL, exit_message.data(), exit_message.size());
+	msgbox_error(exit_message.data());
 }
 
 [[noreturn]]
-static void abort_print_exit_message(const char *exit_message, size_t len)
+static void abort_print_exit_message(const std::span<const char> exit_message)
 {
-	print_exit_message(exit_message, len);
+	print_exit_message(exit_message);
 	d_debugbreak();
 	std::abort();
 }
 
 [[noreturn]]
-static void graceful_print_exit_message(const char *exit_message, size_t len)
+static void graceful_print_exit_message(const std::span<const char> exit_message)
 {
-	print_exit_message(exit_message, len);
+	print_exit_message(exit_message);
 	exit(1);
 }
 
@@ -97,13 +97,13 @@ static void graceful_print_exit_message(const char *exit_message, size_t len)
 void (Error_puts)(const char *filename, const unsigned line, const char *func, const char *str)
 {
 	char exit_message[MAX_MSG_LEN]; // don't put the new line in for dialog output
-	int len = snprintf(exit_message, sizeof(exit_message), "%s:%u: %s: error: %s", filename, line, func, str);
-	abort_print_exit_message(exit_message, len);
+	const auto len = snprintf(exit_message, sizeof(exit_message), "%s:%u: %s: error: %s", filename, line, func, str);
+	abort_print_exit_message({exit_message, len > 0 ? static_cast<std::size_t>(len) : 0});
 }
 
 void (UserError_puts)(const char *str, std::size_t len)
 {
-	graceful_print_exit_message(str, len);
+	graceful_print_exit_message({str, len});
 }
 
 //terminates with error code 1, printing message
@@ -112,11 +112,11 @@ void (Error)(const char *filename, const unsigned line, const char *func, const 
 	char exit_message[MAX_MSG_LEN]; // don't put the new line in for dialog output
 	va_list arglist;
 
-	int leader = snprintf(exit_message, sizeof(exit_message), "%s:%u: %s: error: ", filename, line, func);
+	const std::size_t leader = std::max(snprintf(exit_message, sizeof(exit_message), "%s:%u: %s: error: ", filename, line, func), 0);
 	va_start(arglist,fmt);
-	int len = vsnprintf(exit_message+leader,sizeof(exit_message)-leader,fmt,arglist);
+	const std::size_t len = std::max(vsnprintf(exit_message + leader, sizeof(exit_message) - leader, fmt, arglist), 0);
 	va_end(arglist);
-	abort_print_exit_message(exit_message, len);
+	abort_print_exit_message({exit_message, leader + len});
 }
 
 void (UserError)(const char *fmt,...)
@@ -124,9 +124,9 @@ void (UserError)(const char *fmt,...)
 	char exit_message[MAX_MSG_LEN]; // don't put the new line in for dialog output
 	va_list arglist;
 	va_start(arglist,fmt);
-	int len = vsnprintf(exit_message, sizeof(exit_message), fmt, arglist);
+	const std::size_t len = std::max(vsnprintf(exit_message, sizeof(exit_message), fmt, arglist), 0);
 	va_end(arglist);
-	graceful_print_exit_message(exit_message, len);
+	graceful_print_exit_message({exit_message, len});
 }
 
 void Warning_puts(const char *str)
