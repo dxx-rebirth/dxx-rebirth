@@ -204,11 +204,11 @@ morph_data::morph_data(object_base &o, const max_vectors m) :
 {
 	DXX_POISON_VAR(submodel_active, 0xcc);
 	const auto morph_times = get_morph_times();
-	DXX_POISON_MEMORY(morph_times.data(), morph_times.size(), 0xcc);
+	DXX_POISON_MEMORY(morph_times, 0xcc);
 	const auto morph_vecs = get_morph_times();
-	DXX_POISON_MEMORY(morph_vecs.data(), morph_vecs.size(), 0xcc);
+	DXX_POISON_MEMORY(morph_vecs, 0xcc);
 	const auto morph_deltas = get_morph_times();
-	DXX_POISON_MEMORY(morph_deltas.data(), morph_deltas.size(), 0xcc);
+	DXX_POISON_MEMORY(morph_deltas, 0xcc);
 	DXX_POISON_VAR(n_morphing_points, 0xcc);
 	DXX_POISON_VAR(submodel_startpoints, 0xcc);
 }

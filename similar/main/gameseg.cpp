@@ -222,7 +222,7 @@ static uint_fast32_t create_vertex_lists_from_values(T &va, const shared_segment
 			 * -Wmaybe-uninitialized in check_segment_connections
 			 */
 			va[4] = va[5] = {};
-			DXX_MAKE_MEM_UNDEFINED(&va[4], 2 * sizeof(va[4]));
+			DXX_MAKE_MEM_UNDEFINED(std::span(va).template subspan<4, 2>());
 			return 1;
 		case side_type::tri_02:
 			va[3] = f2;

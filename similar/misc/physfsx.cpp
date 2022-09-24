@@ -39,10 +39,10 @@ char *PHYSFSX_fgets_t::get(char *const buf, std::size_t n, PHYSFS_File *const fp
 {
 	PHYSFS_sint64 r = PHYSFS_read(fp, buf, sizeof(*buf), n - 1);
 	if (r <= 0)
-		return DXX_POISON_MEMORY(buf, buf + n, 0xcc), nullptr;
+		return DXX_POISON_MEMORY(std::span(buf, n), 0xcc), nullptr;
 	char *p = buf;
 	const auto cleanup = [&]{
-		return *p = 0, DXX_POISON_MEMORY(p + 1, buf + n, 0xcc), p;
+		return *p = 0, DXX_POISON_MEMORY(std::span(buf, n).subspan((p + 1) - buf), 0xcc), p;
 	};
 	char *const e = &buf[r];
 	for (;;)
@@ -403,7 +403,7 @@ namespace dcx {
 
 int PHYSFSX_getRealPath(const char *stdPath, std::array<char, PATH_MAX> &realPath)
 {
-	DXX_POISON_MEMORY(realPath.data(), realPath.size(), 0xdd);
+	DXX_POISON_MEMORY(std::span(realPath), 0xdd);
 	const char *realDir = PHYSFS_getRealDir(stdPath);
 	if (!realDir)
 	{

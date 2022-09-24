@@ -116,7 +116,7 @@ static pcx_result pcx_read_bitmap(const char *const filename, grs_main_bitmap &b
 		return pcx_result::ERROR_MEMORY;
 	if (ysize > 2400)
 		return pcx_result::ERROR_MEMORY;
-	DXX_CHECK_MEM_IS_DEFINED(s.pixels, xsize * ysize);
+	DXX_CHECK_MEM_IS_DEFINED(std::span(static_cast<const std::byte *>(s.pixels), xsize * ysize));
 	gr_init_bitmap_alloc(bmp, bm_mode::linear, 0, 0, xsize, ysize, xsize);
 	std::copy_n(reinterpret_cast<const uint8_t *>(s.pixels), xsize * ysize, &bmp.get_bitmap_data()[0]);
 	{

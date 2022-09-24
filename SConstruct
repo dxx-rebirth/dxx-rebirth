@@ -2319,7 +2319,7 @@ help:add Valgrind annotations; wipe certain freed memory when running under Valg
 #include "compiler-poison.h"
 '''
 		main = '''
-	DXX_MAKE_MEM_UNDEFINED(&argc, sizeof(argc));
+	DXX_MAKE_MEM_UNDEFINED(std::span<int, 1>(&argc, 1));
 '''
 		if self.Compile(context, text=text, main=main, msg='whether Valgrind memcheck header works'):
 			return True

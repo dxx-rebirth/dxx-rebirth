@@ -90,8 +90,8 @@ void fuelcen_reset()
 {
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Station = LevelUniqueFuelcenterState.Station;
-	DXX_MAKE_MEM_UNDEFINED(Station.begin(), Station.end());
-	DXX_MAKE_MEM_UNDEFINED(RobotCenters.begin(), RobotCenters.end());
+	DXX_MAKE_MEM_UNDEFINED(std::span(Station));
+	DXX_MAKE_MEM_UNDEFINED(std::span(RobotCenters));
 	LevelSharedRobotcenterState.Num_robot_centers = 0;
 	LevelUniqueFuelcenterState.Num_fuelcenters = 0;
 	range_for (shared_segment &i, Segments)

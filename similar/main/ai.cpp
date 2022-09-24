@@ -3336,7 +3336,7 @@ void do_ai_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoStat
 				goto _exit_cheat;
 		} else {
 _exit_cheat:
-			DXX_MAKE_MEM_UNDEFINED(&player_visibility, sizeof(player_visibility));
+			DXX_MAKE_VAR_UNDEFINED(player_visibility);
 			player_visibility.initialized = 0;
 			if (!(player_info.powerup_flags & PLAYER_FLAGS_CLOAKED))
 				Believed_player_pos = ConsoleObject->pos;

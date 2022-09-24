@@ -2260,7 +2260,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		auto &Automap_visited = LevelUniqueAutomapState.Automap_visited;
 	// Restore the automap visited info
 		Automap_visited = {};
-		DXX_MAKE_MEM_UNDEFINED(Automap_visited.begin(), Automap_visited.end());
+		DXX_MAKE_MEM_UNDEFINED(std::span(Automap_visited));
 		PHYSFS_read(fp, Automap_visited.data(), sizeof(uint8_t), std::max<std::size_t>(Highest_segment_index + 1, MAX_SEGMENTS_ORIGINAL));
 	}
 

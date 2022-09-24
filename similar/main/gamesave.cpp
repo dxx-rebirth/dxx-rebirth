@@ -365,8 +365,7 @@ static void verify_object(const d_level_shared_robot_info_state &LevelSharedRobo
 //reads one object of the given version from the given file
 static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 {
-	const auto poison_obj = reinterpret_cast<uint8_t *>(&*obj);
-	DXX_POISON_MEMORY(poison_obj, sizeof(*obj), 0xfd);
+	DXX_POISON_MEMORY(std::span<object>(&*obj, 1), 0xfd);
 	obj->signature = object_signature_t{0};
 	set_object_type(*obj, PHYSFSX_readByte(f));
 	obj->id             = PHYSFSX_readByte(f);

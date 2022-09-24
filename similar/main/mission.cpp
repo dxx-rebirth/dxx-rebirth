@@ -727,7 +727,7 @@ static void add_missions_to_list(mission_list_type &mission_list, mission_candid
 			break;
 		}
 		*rel_path = 0;	// chop off the entry
-		DXX_POISON_MEMORY(std::next(rel_path), path.end(), 0xcc);
+		DXX_POISON_MEMORY(std::span(std::next(rel_path), path.end()), 0xcc);
 	}
 }
 
@@ -794,7 +794,7 @@ static mission_list_type build_mission_list(const mission_filter_mode mission_fi
 #endif
 	add_d1_builtin_mission_to_list(mission_list);
 	mission_candidate_search_path search_str = {{MISSION_DIR}};
-	DXX_POISON_MEMORY(std::next(search_str.begin(), sizeof(MISSION_DIR)), search_str.end(), 0xcc);
+	DXX_POISON_MEMORY(std::span(std::next(search_str.begin(), sizeof(MISSION_DIR)), search_str.end()), 0xcc);
 	add_missions_to_list(mission_list, search_str, search_str.begin() + sizeof(MISSION_DIR) - 1, mission_filter);
 	
 	// move original missions (in story-chronological order)

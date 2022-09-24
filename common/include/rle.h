@@ -209,7 +209,7 @@ public:
 			 */
 			const auto b = t.get_begin_dbits();
 			const auto e = t.get_end_dbits();
-			DXX_MAKE_MEM_UNDEFINED(b, e);
+			DXX_MAKE_MEM_UNDEFINED(std::span(b, e));
 			/* Check for source exhaustion, so that empty bitmaps are
 			 * not read at all.  This allows callers to treat
 			 * src_exhausted as a definitive end-of-record with no data
