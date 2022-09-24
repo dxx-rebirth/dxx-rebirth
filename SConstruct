@@ -1262,14 +1262,6 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	def _check_user_settings_tracker(self,context,_CPPDEFINES='DXX_USE_TRACKER'):
 		use_tracker = self.user_settings.use_tracker
 		self._result_check_user_setting(context, use_tracker, _CPPDEFINES, 'UDP game tracker')
-		# The legacy UDP tracker does not need either curl or jsoncpp.
-		# The new HTTP tracker requires both.  Force `use_tracker` to
-		# False for now.  Remove this comment and this assignment when
-		# the HTTP tracker is made active.
-		use_tracker = False
-		if use_tracker:
-			self.check_curl(context)
-			self.check_jsoncpp(context)
 
 	@_implicit_test
 	def check_libpng(self,context,
@@ -1383,41 +1375,6 @@ struct d_screenshot
 		context.Result(_msg % (self.msgprefix, 'yes, define _WIN32_WINNT=%#x' % _CPPDEFINES_WIN32_WINNT[1]))
 		self.successful_flags['CPPDEFINES'].append(_CPPDEFINES_WIN32_WINNT)
 		self.__defined_macros += '#define %s %s\n' % (_CPPDEFINES_WIN32_WINNT[0], _CPPDEFINES_WIN32_WINNT[1])
-
-	@_implicit_test
-	def check_curl(self,context,
-		_header=('curl/curl.h',),
-		_guess_flags={'LIBS' : ['curl']},
-		_main='''
-	CURL *c = curl_easy_init();
-	curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, nullptr);
-	curl_easy_cleanup(c);
-'''):
-		successflags = self.pkgconfig.merge(context, self.msgprefix, self.user_settings, 'libcurl', 'curl', _guess_flags).copy()
-		successflags['CPPDEFINES'] = successflags.get('CPPDEFINES', []) + ['DXX_HAVE_LIBCURL']
-		self._check_system_library(context, header=_header, main=_main, lib='curl', successflags=successflags)
-
-	@_implicit_test
-	def check_jsoncpp(self,context,
-		_header=(
-			'memory',
-			'json/json.h',
-		),
-		_guess_flags={'LIBS' : ['jsoncpp'], 'CPPPATH': ['/usr/include/jsoncpp']},
-		_main='''
-	Json::Value v;
-	v["a"] = "a";
-	v["b"] = 1;
-	// This code is silly, but it uses many of the required
-	// symbols, so if it builds, jsoncpp is probably installed correctly.
-	const std::string &&s = Json::writeString(Json::StreamWriterBuilder(), v);
-	std::string errs;
-	std::unique_ptr<Json::CharReader>(
-		Json::CharReaderBuilder().newCharReader()
-	)->parse(s.data(), &s.data()[s.size()], &v, &errs);
-'''):
-		successflags = self.pkgconfig.merge(context, self.msgprefix, self.user_settings, 'jsoncpp', 'jsoncpp', _guess_flags)
-		self._check_system_library(context, header=_header, main=_main, lib='jsoncpp', successflags=successflags)
 
 	@_guarded_test_windows
 	def check_dbghelp_header(self,context,_CPPDEFINES='DXX_ENABLE_WINDOWS_MINIDUMP'):
