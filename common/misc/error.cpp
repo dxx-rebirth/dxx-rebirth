@@ -37,14 +37,14 @@ namespace dcx {
 #define MAX_MSG_LEN 2048
 
 #if !DXX_USE_EDITOR || (!(defined(WIN32) || defined(__APPLE__) || defined(__MACH__)))
-static void warn_printf(const char *s)
+static void warn_printf(const std::span<const char> s)
 {
-	con_puts(CON_URGENT,s);
+	con_puts(CON_URGENT, s.data());
 }
 #endif
 
 #if DXX_USE_EDITOR
-static void (*warn_func)(const char *s) =
+static void (*warn_func)(std::span<const char> s) =
 #if defined(WIN32) || defined(__APPLE__) || defined(__MACH__)
 	msgbox_warning
 #else
@@ -53,7 +53,7 @@ static void (*warn_func)(const char *s) =
 	;
 
 //provides a function to call with warning messages
-void set_warn_func(void (*f)(const char *s))
+void set_warn_func(void (*f)(std::span<const char> s))
 {
 	warn_func = f;
 }
@@ -136,9 +136,9 @@ void Warning_puts(const char *str)
 	if (warn == NULL)
 		return;
 #endif
-	char warn_message[MAX_MSG_LEN];
-	snprintf(warn_message, sizeof(warn_message), "Warning: %s", str);
-	(*warn)(warn_message);
+	std::array<char, MAX_MSG_LEN> warn_message;
+	const auto written = snprintf(std::data(warn_message), std::size(warn_message), "Warning: %s", str);
+	(*warn)(std::span<const char>(warn_message.data(), written));
 }
 
 //print out warning message to user
@@ -152,14 +152,14 @@ void (Warning)(const char *fmt,...)
 		return;
 #endif
 
-	char warn_message[MAX_MSG_LEN];
-	strcpy(warn_message,"Warning: ");
+	std::array<char, MAX_MSG_LEN> warn_message;
+	strcpy(warn_message.data(), "Warning: ");
 
 	va_start(arglist,fmt);
-	vsnprintf(warn_message+9,sizeof(warn_message)-9,fmt,arglist);
+	const auto written = vsnprintf(std::next(warn_message.begin(), 9), std::size(warn_message) - 9, fmt, arglist);
 	va_end(arglist);
 
-	(*warn)(warn_message);
+	(*warn)(std::span<const char>(warn_message.data(), written + 9));
 }
 
 }
