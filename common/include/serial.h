@@ -6,6 +6,7 @@
  */
 #pragma once
 #include <algorithm>
+#include <bit>
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
@@ -104,8 +105,6 @@ class endian_access
 public:
 	/*
 	 * Endian access modes:
-	 * - foreign_endian: assume buffered data is foreign endian
-	 *   Byte swap regardless of host byte order
 	 * - little_endian: assume buffered data is little endian
 	 *   Copy on little endian host, byte swap on big endian host
 	 * - big_endian: assume buffered data is big endian
@@ -113,10 +112,13 @@ public:
 	 * - native_endian: assume buffered data is native endian
 	 *   Copy regardless of host byte order
 	 */
-	typedef std::integral_constant<uint16_t, 0> foreign_endian_type;
-	typedef std::integral_constant<uint16_t, 255> little_endian_type;
-	typedef std::integral_constant<uint16_t, 256> big_endian_type;
-	typedef std::integral_constant<uint16_t, 257> native_endian_type;
+	using little_endian_type = std::integral_constant<std::endian, std::endian::little>;
+	using big_endian_type = std::integral_constant<std::endian, std::endian::big>;
+	using native_endian_type = std::integral_constant<std::endian, std::endian::native>;
+	/* If this static_assert fails, then endian_skip_byteswap may return the
+	 * wrong result.
+	 */
+	static_assert(std::endian::little == std::endian::native || std::endian::big == std::endian::native, "host byte order must be little endian or big endian");
 };
 
 	/* Implementation details - avoid namespace pollution */
@@ -381,19 +383,9 @@ using class_type = message_type<decltype(udt_to_message(std::declval<T>()))>;
 #define ASSERT_SERIAL_UDT_MESSAGE_MUTABLE_TYPE(T, TYPELIST)	\
 	_ASSERT_SERIAL_UDT_MESSAGE_TYPE(T, TYPELIST)
 
-union endian_skip_byteswap_u
+static constexpr uint8_t endian_skip_byteswap(std::endian E)
 {
-	uint8_t c[2];
-	uint16_t s;
-	constexpr endian_skip_byteswap_u(const uint16_t &u) : s(u)
-	{
-		static_assert((offsetof(endian_skip_byteswap_u, c) == offsetof(endian_skip_byteswap_u, s)), "union layout error");
-	}
-};
-
-static constexpr uint8_t endian_skip_byteswap(const uint16_t &endian)
-{
-	return endian_skip_byteswap_u{endian}.c[0];
+	return E == std::endian::native;
 }
 
 template <typename T, std::size_t N>
