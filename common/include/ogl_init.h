@@ -109,7 +109,7 @@ void ogl_cache_level_textures();
 }
 #endif
 
-void _g3_draw_tmap_2(grs_canvas &, unsigned nv, const g3s_point *const *const pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bmbot, grs_bitmap &bm, texture2_rotation_low orient);
+void _g3_draw_tmap_2(grs_canvas &, std::span<const g3s_point *const> pointlist, std::span<const g3s_uvl, 4> uvl_list, std::span<const g3s_lrgb, 4> light_rgb, grs_bitmap &bmbot, grs_bitmap &bm, texture2_rotation_low orient);
 
 template <std::size_t N>
 static inline void g3_draw_tmap_2(grs_canvas &canvas, const unsigned nv, const std::array<cg3s_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bmbot, grs_bitmap &bm, const texture2_rotation_low orient)
@@ -121,7 +121,7 @@ static inline void g3_draw_tmap_2(grs_canvas &canvas, const unsigned nv, const s
 #endif
 	if (nv > N)
 		return;
-	_g3_draw_tmap_2(canvas, nv, &pointlist[0], &uvl_list[0], &light_rgb[0], bmbot, bm, orient);
+	_g3_draw_tmap_2(canvas, std::span(pointlist).first(nv), uvl_list, light_rgb, bmbot, bm, orient);
 }
 
 namespace dcx {
