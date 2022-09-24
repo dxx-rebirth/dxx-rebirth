@@ -58,10 +58,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define ROW_SPACING			(SHEIGHT / 17)
 #define NUM_LINES			20 //14
-#define MAKE_CREDITS_PAIR(F)	std::pair<const char *, int>(F ".tex", sizeof(F) + 1)
 #if defined(DXX_BUILD_DESCENT_I)
+#define MAKE_CREDITS_PAIR(F)	std::span<const char, sizeof(F) + 1>(F ".tex", sizeof(F) + 1)
 #define CREDITS_FILE 			MAKE_CREDITS_PAIR("credits")
 #elif defined(DXX_BUILD_DESCENT_II)
+#define MAKE_CREDITS_PAIR(F)	std::span<const char>(F ".tex", sizeof(F) + 1)
 #define CREDITS_FILE    		(	\
 	PHYSFSX_exists("mcredits.tex", 1)	\
 		? MAKE_CREDITS_PAIR("mcredits")	\
@@ -285,11 +286,11 @@ void credits_show()
 {
 	const auto &&credits_file = CREDITS_FILE;
 	int have_bin_file = 0;
-	auto &&[file, physfserr] = PHYSFSX_openReadBuffered(credits_file.first);
+	auto &&[file, physfserr] = PHYSFSX_openReadBuffered(credits_file.data());
 	if (!file)
 	{
 		char nfile[32];
-		snprintf(nfile, sizeof(nfile), "%.*sxb", credits_file.second, credits_file.first);
+		snprintf(nfile, sizeof(nfile), "%.*sxb", static_cast<int>(credits_file.size()), credits_file.data());
 		auto &&[file2, physfserr2] = PHYSFSX_openReadBuffered(nfile);
 		if (!file2)
 			Error("Failed to open CREDITS.TEX and CREDITS.TXB file: \"%s\", \"%s\"\n", PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
