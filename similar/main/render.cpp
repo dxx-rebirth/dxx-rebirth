@@ -1093,11 +1093,13 @@ public:
 //compare function for object sort. 
 bool render_compare_context_t::operator()(const distant_object &a, const distant_object &b) const
 {
-	const auto delta_dist_squared = (*this)[a.objnum].dist_squared - (*this)[b.objnum].dist_squared;
+	auto &doa = operator[](a.objnum);
+	auto &dob = operator[](b.objnum);
+	const auto delta_dist_squared = doa.dist_squared - dob.dist_squared;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	const auto obj_a = (*this)[a.objnum].objp;
-	const auto obj_b = (*this)[b.objnum].objp;
+	const auto obj_a = doa.objp;
+	const auto obj_b = dob.objp;
 
 	auto abs_delta_dist_squared = std::abs(delta_dist_squared);
 	fix combined_size = obj_a->size + obj_b->size;
