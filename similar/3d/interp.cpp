@@ -967,12 +967,12 @@ static void validate_model_sub(uint8_t *const model_sub_ptr, const std::span<con
 
 }
 
-void g3_validate_polygon_model(uint8_t *const model_ptr, const std::size_t model_size)
+void g3_validate_polygon_model(const std::span<uint8_t> model)
 {
 #ifndef NDEBUG
 	nest_count = 0;
 #endif
-	return validate_model_sub(model_ptr, std::span{model_ptr, model_size});
+	return validate_model_sub(model.data(), model);
 }
 #endif
 
