@@ -319,22 +319,17 @@ void new_player_config()
 }
 
 namespace {
-static int convert_pattern_array(const char *name, std::size_t namelen, int *array, std::size_t arraylen, const char *word, const char *line)
+
+static int convert_pattern_array(const std::span<const char> name, const std::span<int> array, const char *word, const char *line)
 {
-	if (memcmp(word, name, namelen - 1))
+	if (memcmp(word, name.data(), name.size() - 1))
 		return 0;
 	char *p;
-	unsigned long which = strtoul(word + namelen - 1, &p, 10);
-	if (*p || which >= arraylen)
+	const unsigned long which = strtoul(word + name.size() - 1, &p, 10);
+	if (*p || which >= array.size())
 		return 0;
 	array[which] = strtol(line, NULL, 10);
 	return 1;
-}
-
-template <std::size_t namelen, std::size_t arraylen>
-static int convert_pattern_array(const char (&name)[namelen], std::array<int, arraylen> &array, const char *word, const char *line)
-{
-	return convert_pattern_array(name, namelen, &array[0], arraylen, word, line);
 }
 
 static void print_pattern_array(PHYSFS_File *fout, const char *name, const std::span<const int> array)
