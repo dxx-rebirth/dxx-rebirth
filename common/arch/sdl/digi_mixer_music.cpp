@@ -32,12 +32,6 @@ namespace dcx {
 
 namespace {
 
-#if SDL_MIXER_MAJOR_VERSION == 2
-#define DXX_SDL_MIXER_MANAGES_RWOPS	1
-#else
-#define DXX_SDL_MIXER_MANAGES_RWOPS	0
-#endif
-
 struct Music_delete
 {
 	void operator()(Mix_Music *m) const
@@ -70,11 +64,19 @@ void current_music_t::reset(SDL_RWops *const rw)
 		return;
 	}
 	reset(Mix_LoadMUSType_RW(rw, MUS_NONE, SDL_TRUE));
-	if (!*this)
-		/* If the underlying resource failed to load, then SDL does not
-		 * free the RWops structure.  Free it here.
+	if constexpr (SDL_MIXER_MAJOR_VERSION == 1)
+	{
+		/* In SDL_mixer-1, setting freesrc==SDL_TRUE only transfers ownership
+		 * of the RWops structure on success.  On failure, the structure is
+		 * still owned by the caller, and must be freed here.
+		 *
+		 * In SDL_mixer-2, setting freesrc==SDL_TRUE always transfers ownership
+		 * of the RWops structure.  On failure, SDL_mixer-2 will free the RWops
+		 * before returning, so the structure must not be freed here.
 		 */
-		SDL_RWclose(rw);
+		if (!*this)
+			SDL_RWclose(rw);
+	}
 }
 
 static current_music_t current_music;
