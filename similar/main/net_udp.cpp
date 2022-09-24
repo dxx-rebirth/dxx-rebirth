@@ -790,9 +790,10 @@ static bool operator!=(const _sockaddr &l, const _sockaddr &r)
 }
 
 template <std::size_t N>
-static void copy_from_ntstring(uint8_t *const buf, uint_fast32_t &len, const ntstring<N> &in)
+[[nodiscard]]
+static std::size_t copy_from_ntstring(uint8_t *const buf, const std::size_t len, const ntstring<N> &in)
 {
-	len += in.copy_out(0, reinterpret_cast<char *>(&buf[len]), N);
+	return in.copy_out(0, reinterpret_cast<char *>(&buf[len]), N);
 }
 
 template <std::size_t N>
@@ -2861,9 +2862,9 @@ static uint_fast32_t net_udp_prepare_light_game_info(game_info_light &info)
 		buf[len] = Netgame.numconnected;						len++;
 		buf[len] = Netgame.max_numplayers;						len++;
 		buf[len] = pack_game_flags(&Netgame.game_flag).value;							len++;
-		copy_from_ntstring(buf, len, Netgame.game_name);
-		copy_from_ntstring(buf, len, Netgame.mission_title);
-		copy_from_ntstring(buf, len, Netgame.mission_name);
+	len += copy_from_ntstring(buf, len, Netgame.game_name);
+	len += copy_from_ntstring(buf, len, Netgame.mission_title);
+	len += copy_from_ntstring(buf, len, Netgame.mission_name);
 	return len;
 }
 
@@ -2962,9 +2963,9 @@ static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *const addr
 		buf[len] = Netgame.NoFriendlyFire;						len++;
 		buf[len] = Netgame.MouselookFlags;						len++;
 		buf[len] = Netgame.PitchLockFlags;                      len++;
-		copy_from_ntstring(buf, len, Netgame.game_name);
-		copy_from_ntstring(buf, len, Netgame.mission_title);
-		copy_from_ntstring(buf, len, Netgame.mission_name);
+	len += copy_from_ntstring(buf, len, Netgame.game_name);
+	len += copy_from_ntstring(buf, len, Netgame.mission_title);
+	len += copy_from_ntstring(buf, len, Netgame.mission_name);
 	return len;
 }
 
