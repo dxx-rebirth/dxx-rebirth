@@ -6561,7 +6561,7 @@ static void udp_tracker_verify_ack_timeout()
 	{
 		TrackerAckStatus = TrackerAckState::TACK_SEQCOMPL; // set this now or we'll run into an endless loop if nm_messagebox triggers.
 		if (Network_status == network_state::playing)
-			HUD_init_message(HM_MULTI, "No ACK from tracker. Please check game log.");
+			HUD_init_message_literal(HM_MULTI, "No ACK from tracker. Please check game log.");
 		else
 			nm_messagebox_str(menu_title{TXT_WARNING}, nm_messagebox_tie(TXT_OK), menu_subtitle{"No ACK from tracker.\nPlease check game log."});
 		con_puts(CON_URGENT, "[Tracker] No response from game tracker. Tracker address may be invalid or Tracker may be offline or otherwise unreachable.");
