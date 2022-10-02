@@ -4120,6 +4120,15 @@ class DXXCommon(LazyObjectConstructor):
 				CXXFLAGS = ['-pthread'],
 			)
 
+	class HaikuPlatformSettings(LinuxPlatformSettings):
+		def adjust_environment(self,program,env):
+			# Note: the lack of super() is deliberate.  Haiku does not want the
+			# environment changes that LinuxPlatformSettings.adjust_environment
+			# would provide, so there is no call to the base class method.
+			env.Append(
+				LIBS = ['network'],
+			)
+
 	def __init__(self,user_settings,__program_instance=itertools.count(1)):
 		self.program_instance = next(__program_instance)
 		self.user_settings = user_settings
@@ -4522,6 +4531,7 @@ class DXXCommon(LazyObjectConstructor):
 		return (
 			cls.Win32PlatformSettings if platform_name == 'win32' else (
 				cls.DarwinPlatformSettings if platform_name == 'darwin' else
+				cls.HaikuPlatformSettings if platform_name == 'haiku1' else
 				cls.LinuxPlatformSettings
 			)
 		)
