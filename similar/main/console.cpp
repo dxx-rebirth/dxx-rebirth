@@ -109,25 +109,41 @@ void (con_printf)(const con_priority_wrapper priority, const char *const fmt, ..
 
 namespace {
 
-static void con_scrub_markup(char *buffer)
+static void con_scrub_markup(const std::span<char> buffer)
 {
-	char *p1 = buffer, *p2 = p1;
-	do
-		switch (*p1)
+	const auto b = buffer.begin();
+	const auto e = buffer.end();
+	const auto i = std::find_if(b, e, [](const char c) { return c == CC_COLOR || c == CC_LSPACING || c == CC_UNDERLINE; });
+	if (i == e)
+		return;
+	auto p1 = i;
+	auto p2 = p1;
+	for (;; ++p1)
+	{
+		switch (auto c = *p1)
 		{
 			case CC_COLOR:
 			case CC_LSPACING:
-				if (!*++p1)
+				c = *++p1;
+				if (c)
+					/* If a character follows the control code, drop that
+					 * character.
+					 *
+					 * If a null byte follows the control code, fall through
+					 * and store that null byte to terminate the scrubbed
+					 * string.
+					 */
 					break;
 				[[fallthrough]];
-			case CC_UNDERLINE:
-				p1++;
-				break;
 			default:
-				*p2++ = *p1++;
+				*p2 = c;
+				if (!c)
+					return;
+				++p2;
+			case CC_UNDERLINE:
+				break;
 		}
-	while (*p1);
-	*p2 = 0;
+	}
 }
 
 static void con_print_file(const char *const buffer)
@@ -140,7 +156,7 @@ static void con_print_file(const char *const buffer)
 #endif
 
 	/* Print output to gamelog.txt */
-	if (gamelog_fp)
+	if (const auto fp = gamelog_fp.get())
 #endif
 	{
 #if DXX_CONSOLE_TIME_SHOW_YMD
@@ -215,10 +231,10 @@ static void con_print_file(const char *const buffer)
 #ifndef _WIN32
 		fputs(buf, stdout);
 #endif
-		if (gamelog_fp)
+		if (const auto fp = gamelog_fp.get())
 #endif
 		{
-			PHYSFS_write(gamelog_fp, buf, 1, len);
+			PHYSFS_write(fp, buf, 1, len);
 		}
 #undef DXX_LF
 #undef DXX_CONSOLE_TIME_ARG_MSEC
@@ -235,7 +251,7 @@ static void con_print_file(const char *const buffer)
 static void con_force_puts(const con_priority priority, const std::span<char> buffer)
 {
 	con_add_buffer_line(priority, buffer);
-	con_scrub_markup(buffer.data());
+	con_scrub_markup(buffer);
 	/* Produce a sanitised version and send it to the console */
 	con_print_file(buffer.data());
 }
