@@ -902,7 +902,7 @@ static void grs_font_read(grs_font *gf, PHYSFS_File *fp)
 
 static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 {
-	const uint8_t *ptr;
+	color_palette_index *ptr;
 	color_palette_index *ft_data;
 	struct {
 		std::array<char, 4> magic;
@@ -979,7 +979,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 		font->ft_data   = ft_data = font_data;
 		font->ft_widths = NULL;
 
-		ptr = font->ft_data + (nchars * font->ft_w * font->ft_h);
+		ptr = ft_data + (nchars * font->ft_w * font->ft_h);
 	}
 
 	if (font->ft_flags & FT_KERNED)
