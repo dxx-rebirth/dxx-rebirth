@@ -293,7 +293,7 @@ template <typename range_exception, std::size_t required_buffer_size, typename P
 void check_range_object_size(const char *, unsigned, const char *, const P &&, std::size_t, std::size_t) {}
 #endif
 
-template <typename range_type, typename index_type>
+/* If no range_type::index_type is defined, then allow any index type. */
 std::true_type check_range_index_type_vs_provided_index_type(...);
 
 template <
@@ -302,9 +302,9 @@ template <
 	/* If `range_type::index_type` is not defined, fail.
 	 * If `range_type::index_type` is void, fail.
 	 */
-	typename range_index_type = typename std::remove_reference<typename std::remove_reference<range_type>::type::index_type &>::type
+	typename range_index_type = typename std::remove_reference<typename range_type::index_type &>::type
 	>
-std::is_same<provided_index_type, range_index_type> check_range_index_type_vs_provided_index_type(std::nullptr_t);
+std::is_same<provided_index_type, range_index_type> check_range_index_type_vs_provided_index_type(const range_type *, const provided_index_type *);
 
 template <typename range_type, typename index_type>
 requires(std::is_enum<index_type>::value)
@@ -314,7 +314,7 @@ std::size_t cast_index_to_size(const index_type i)
 	/* If an enumerated index type is used, require that it be the type that
 	 * the underlying range uses.
 	 */
-	static_assert(decltype(check_range_index_type_vs_provided_index_type<range_type, index_type>(nullptr))::value);
+	static_assert(decltype(check_range_index_type_vs_provided_index_type(static_cast<typename std::remove_reference<range_type>::type *>(nullptr), static_cast<index_type *>(nullptr)))::value);
 	return static_cast<std::size_t>(i);
 }
 
