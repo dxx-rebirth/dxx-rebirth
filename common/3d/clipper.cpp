@@ -37,14 +37,14 @@ static g3s_point &get_temp_point(temporary_points_t &t)
 
 }
 
-void temporary_points_t::free_temp_point(g3s_point *p)
+void temporary_points_t::free_temp_point(g3s_point &p)
 {
-	if (!(p->p3_flags & PF_TEMP_POINT))
+	if (!(p.p3_flags & PF_TEMP_POINT))
 		throw std::invalid_argument("freeing non-temporary point");
 	if (--free_point_num >= free_points.size())
 		throw std::out_of_range("too many free points");
-	free_points[free_point_num] = p;
-	p->p3_flags &= ~PF_TEMP_POINT;
+	free_points[free_point_num] = &p;
+	p.p3_flags &= ~PF_TEMP_POINT;
 }
 
 namespace {
@@ -125,8 +125,8 @@ void clip_line(g3s_point *&p0,g3s_point *&p1,const uint_fast8_t codes_or, tempor
 
 			if (p0->p3_codes & plane_flag)
 				std::swap(p0, p1);
-			const auto old_p1 = std::exchange(p1, &clip_edge(plane_flag,p0,p1,tp));
-			if (old_p1->p3_flags & PF_TEMP_POINT)
+			auto &old_p1 = *std::exchange(p1, &clip_edge(plane_flag, p0, p1, tp));
+			if (old_p1.p3_flags & PF_TEMP_POINT)
 				tp.free_temp_point(old_p1);
 		}
 }
@@ -165,7 +165,7 @@ static int clip_plane(int plane_flag,polygon_clip_points &src,polygon_clip_point
 			//see if must free discarded point
 
 			if (src[i]->p3_flags & PF_TEMP_POINT)
-				tp.free_temp_point(src[i]);
+				tp.free_temp_point(*src[i]);
 		}
 		else {			//cur not off, copy to dest buffer
 

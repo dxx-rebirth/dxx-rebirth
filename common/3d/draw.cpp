@@ -73,10 +73,10 @@ static void must_clip_line(const g3_draw_line_context &context, g3s_point *p0, g
 	//free temp points
 
 	if (p0->p3_flags & PF_TEMP_POINT)
-		tp.free_temp_point(p0);
+		tp.free_temp_point(*p0);
 
 	if (p1->p3_flags & PF_TEMP_POINT)
-		tp.free_temp_point(p1);
+		tp.free_temp_point(*p1);
 }
 
 }
