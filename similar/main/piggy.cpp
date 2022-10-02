@@ -224,7 +224,7 @@ static void free_d1_tmap_nums()
 }
 #if DXX_USE_EDITOR
 static int piggy_is_substitutable_bitmap(char * name, char (&subst_name)[32]);
-static void piggy_write_pigfile(const char *filename);
+static void piggy_write_pigfile(std::span<const char, FILENAME_LEN> filename);
 static void write_int(int i,PHYSFS_File *file);
 #endif
 #endif
@@ -991,7 +991,7 @@ void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 		//@@
 		//@@piggy_close_file();
 
-		piggy_write_pigfile(pigname.data());
+		piggy_write_pigfile(pigname);
 
 		Current_pigfile[0] = 0;                 //say no pig, to force reload
 
@@ -1510,7 +1510,7 @@ namespace {
 #if defined(DXX_BUILD_DESCENT_II)
 #if DXX_USE_EDITOR
 
-static void piggy_write_pigfile(const char *filename)
+static void piggy_write_pigfile(const std::span<const char, FILENAME_LEN> filename)
 {
 	int bitmap_data_start, data_offset;
 	DiskBitmapHeader bmh;
@@ -1527,7 +1527,7 @@ static void piggy_write_pigfile(const char *filename)
 
 	piggy_close_file();
 
-	auto pig_fp = PHYSFSX_openWriteBuffered(filename).first;       //open PIG file
+	auto pig_fp = PHYSFSX_openWriteBuffered(filename.data()).first;       //open PIG file
 	if (!pig_fp)
 		return;
 
@@ -1542,9 +1542,9 @@ static void piggy_write_pigfile(const char *filename)
 	bitmap_data_start += (Num_bitmap_files - 1) * sizeof(DiskBitmapHeader);
 	data_offset = bitmap_data_start;
 
-	change_filename_extension(tname,filename,"lst");
+	change_filename_extension(tname,filename.data(),"lst");
 	auto fp1 = PHYSFSX_openWriteBuffered(tname).first;
-	change_filename_extension(tname,filename,"all");
+	change_filename_extension(tname,filename.data(),"all");
 	auto fp2 = PHYSFSX_openWriteBuffered(tname).first;
 
 	for (i=1; i < Num_bitmap_files; i++ ) {
