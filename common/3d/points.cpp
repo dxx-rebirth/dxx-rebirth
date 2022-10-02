@@ -143,11 +143,11 @@ void g3_rotate_delta_vec(vms_vector &dest,const vms_vector &src)
 	vm_vec_rotate(dest,src,View_matrix);
 }
 
-ubyte g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &deltav)
+void g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &deltav)
 {
 	vm_vec_add(dest.p3_vec,src.p3_vec,deltav);
 	dest.p3_flags = {};		//not projected
-	return g3_code_point(dest);
+	g3_code_point(dest);
 }
 
 //calculate the depth of a point - returns the z coord of the rotated point
