@@ -66,14 +66,42 @@ struct g3s_codes {
 	uint8_t uor = 0, uand = 0xff;
 };
 
-//flags for point structure
-constexpr std::integral_constant<uint8_t, 1> PF_PROJECTED{};		//has been projected, so sx,sy valid
-constexpr std::integral_constant<uint8_t, 2> PF_OVERFLOW{};		//can't project
+enum class projection_flag : uint8_t
+{
+	//flags for point structure
+	projected = 1,		//has been projected, so sx,sy valid
+	overflow = 2,		//can't project
 #if !DXX_USE_OGL
-constexpr std::integral_constant<uint8_t, 4> PF_TEMP_POINT{};	//created during clip
-constexpr std::integral_constant<uint8_t, 8> PF_UVS{};			//has uv values set
-constexpr std::integral_constant<uint8_t, 16> PF_LS{};			//has lighting values set
+	temp_point = 4,	//created during clip
+	uvs = 8,			//has uv values set
+	ls = 16,			//has lighting values set
 #endif
+};
+
+static constexpr uint8_t operator&(const projection_flag a, const projection_flag b)
+{
+	return static_cast<uint8_t>(a) & static_cast<uint8_t>(b);
+}
+
+static constexpr projection_flag &operator&=(projection_flag &a, const projection_flag b)
+{
+	return a = static_cast<projection_flag>(a & b);
+}
+
+static constexpr projection_flag operator|(const projection_flag a, const projection_flag b)
+{
+	return static_cast<projection_flag>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+}
+
+static constexpr projection_flag &operator|=(projection_flag &a, const projection_flag b)
+{
+	return a = (a | b);
+}
+
+static constexpr projection_flag operator~(const projection_flag a)
+{
+	return static_cast<projection_flag>(~static_cast<uint8_t>(a));
+}
 
 //clipping codes flags
 
@@ -92,7 +120,7 @@ struct g3s_point {
 #endif
 	fix p3_sx,p3_sy;    //screen x&y
 	ubyte p3_codes;     //clipping codes
-	ubyte p3_flags;     //projected?
+	projection_flag p3_flags;     //projected?
 	uint16_t p3_last_generation;
 };
 

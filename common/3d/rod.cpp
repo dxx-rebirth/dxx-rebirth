@@ -90,7 +90,7 @@ static int calc_rod_corners(rod_4point &rod_point_group, const g3s_point &bot_po
 	{
 		codes_and &= g3_code_point(i);
 	//clear flags for new points (not projected)
-		i.p3_flags = 0;
+		i.p3_flags = {};
 	}
 	return codes_and;
 }
@@ -132,7 +132,7 @@ void g3_draw_bitmap(grs_canvas &canvas, const vms_vector &pos, fix width, fix he
 	if (g3_rotate_point(pnt,pos) & CC_BEHIND)
 		return;
 	g3_project_point(pnt);
-	if (pnt.p3_flags & PF_OVERFLOW)
+	if (pnt.p3_flags & projection_flag::overflow)
 		return;
 #ifndef __powerc
 	const auto pz = pnt.p3_z;

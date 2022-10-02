@@ -383,7 +383,7 @@ void draw_stars(grs_canvas &canvas, const d_unique_endlevel_state::starfield_typ
 
 		if (p.p3_codes == 0) {
 
-			p.p3_flags &= ~PF_PROJECTED;
+			p.p3_flags &= ~projection_flag::projected;
 
 			g3_project_point(p);
 #if !DXX_USE_OGL
@@ -406,9 +406,9 @@ void draw_stars(grs_canvas &canvas, const d_unique_endlevel_state::starfield_typ
 //@@		if (! (p.p3_codes & CC_BEHIND)) {
 //@@			int save_im = Interpolation_method;
 //@@			Interpolation_method = 0;
-//@@			//p.p3_flags &= ~PF_PROJECTED;
+//@@			//p.p3_flags &= ~projection_flag::projected;
 //@@			g3_project_point(&p);
-//@@			if (! (p.p3_flags & PF_OVERFLOW))
+//@@			if (! (p.p3_flags & projection_flag::overflow))
 //@@				//gr_bitmapm(f2i(p.p3_sx)-32,f2i(p.p3_sy)-32,satellite_bitmap);
 //@@				g3_draw_rod_tmap(satellite_bitmap,&p,SATELLITE_WIDTH,&top_pnt,SATELLITE_WIDTH,f1_0);
 //@@			Interpolation_method = save_im;
@@ -608,9 +608,9 @@ static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas,
 		g3_add_delta_vec(top_pnt,p,delta);
 
 		if (! (p.p3_codes & CC_BEHIND)) {
-			//p.p3_flags &= ~PF_PROJECTED;
+			//p.p3_flags &= ~projection_flag::projected;
 			//g3_project_point(&p);
-			if (! (p.p3_flags & PF_OVERFLOW)) {
+			if (! (p.p3_flags & projection_flag::overflow)) {
 				push_interpolation_method save_im(0);
 				//gr_bitmapm(f2i(p.p3_sx)-32,f2i(p.p3_sy)-32,satellite_bitmap);
 				g3_draw_rod_tmap(canvas, *satellite_bitmap, p, SATELLITE_WIDTH, top_pnt, SATELLITE_WIDTH, lrgb);

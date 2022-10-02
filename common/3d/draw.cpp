@@ -63,7 +63,7 @@ namespace {
 //deal with a clipped line
 static void must_clip_line(const g3_draw_line_context &context, g3s_point *p0, g3s_point *p1, const uint8_t codes_or, temporary_points_t &tp)
 {
-	if ((p0->p3_flags&PF_TEMP_POINT) || (p1->p3_flags&PF_TEMP_POINT))
+	if ((p0->p3_flags&projection_flag::temp_point) || (p1->p3_flags&projection_flag::temp_point))
 		;		//line has already been clipped, so give up
 	else {
 		clip_line(p0,p1,codes_or,tp);
@@ -72,10 +72,10 @@ static void must_clip_line(const g3_draw_line_context &context, g3s_point *p0, g
 
 	//free temp points
 
-	if (p0->p3_flags & PF_TEMP_POINT)
+	if (p0->p3_flags & projection_flag::temp_point)
 		tp.free_temp_point(*p0);
 
-	if (p1->p3_flags & PF_TEMP_POINT)
+	if (p1->p3_flags & projection_flag::temp_point)
 		tp.free_temp_point(*p1);
 }
 
@@ -99,8 +99,8 @@ void g3_draw_line(const g3_draw_line_context &context, g3s_point &p0, g3s_point 
 
 	if (
 		(codes_or & CC_BEHIND) ||
-		(static_cast<void>((p0.p3_flags & PF_PROJECTED) || (g3_project_point(p0), 0)), p0.p3_flags & PF_OVERFLOW) ||
-		(static_cast<void>((p1.p3_flags & PF_PROJECTED) || (g3_project_point(p1), 0)), p1.p3_flags & PF_OVERFLOW)
+		(static_cast<void>((p0.p3_flags & projection_flag::projected) || (g3_project_point(p0), 0)), p0.p3_flags & projection_flag::overflow) ||
+		(static_cast<void>((p1.p3_flags & projection_flag::projected) || (g3_project_point(p1), 0)), p1.p3_flags & projection_flag::overflow)
 	)
 		return must_clip_line(context, &p0,&p1, codes_or, tp);
 	gr_line(context.canvas, p0.p3_sx, p0.p3_sy, p1.p3_sx, p1.p3_sy, context.color);
@@ -138,10 +138,10 @@ static void must_clip_flat_face(grs_canvas &canvas, int nv, g3s_codes cc, polygo
 		for (int i=0;i<nv;i++) {
 			g3s_point *p = bufptr[i];
 	
-			if (!(p->p3_flags&PF_PROJECTED))
+			if (!(p->p3_flags&projection_flag::projected))
 				g3_project_point(*p);
 	
-			if (p->p3_flags&PF_OVERFLOW) {
+			if (p->p3_flags&projection_flag::overflow) {
 				goto free_points;
 			}
 
@@ -186,10 +186,10 @@ void _g3_draw_poly(grs_canvas &canvas, const std::span<cg3s_point *const> pointl
 	std::array<fix, MAX_POINTS_IN_POLY*2> Vertex_list;
 	for (const auto &&[i, pl, p] : enumerate(zip(pointlist, bufptr)))
 	{
-		if (!(p->p3_flags&PF_PROJECTED))
+		if (!(p->p3_flags&projection_flag::projected))
 			g3_project_point(*p);
 
-		if (p->p3_flags&PF_OVERFLOW)
+		if (p->p3_flags&projection_flag::overflow)
 		{
 			must_clip_flat_face(canvas, pointlist.size(), cc, Vbuf0, Vbuf1, color);
 			return;
@@ -225,7 +225,7 @@ void _g3_draw_tmap(grs_canvas &canvas, const std::span<cg3s_point *const> pointl
 		p->p3_l = (light_rgb[i].r+light_rgb[i].g+light_rgb[i].b)/3;
 		}
 
-		p->p3_flags |= PF_UVS + PF_LS;
+		p->p3_flags |= projection_flag::uvs | projection_flag::ls;
 
 	}
 
@@ -242,10 +242,10 @@ void _g3_draw_tmap(grs_canvas &canvas, const std::span<cg3s_point *const> pointl
 
 	for (auto &&p : unchecked_partial_range(bufptr, pointlist.size()))
 	{
-		if (!(p->p3_flags&PF_PROJECTED))
+		if (!(p->p3_flags&projection_flag::projected))
 			g3_project_point(*p);
 
-		if (p->p3_flags&PF_OVERFLOW) {
+		if (p->p3_flags&projection_flag::overflow) {
 			Int3();		//should not overflow after clip
 			return;
 		}
@@ -264,10 +264,10 @@ static void must_clip_tmap_face(grs_canvas &canvas, int nv, g3s_codes cc, grs_bi
 		for (int i=0;i<nv;i++) {
 			g3s_point *p = bufptr[i];
 
-			if (!(p->p3_flags&PF_PROJECTED))
+			if (!(p->p3_flags&projection_flag::projected))
 				g3_project_point(*p);
 	
-			if (p->p3_flags&PF_OVERFLOW) {
+			if (p->p3_flags&projection_flag::overflow) {
 				Int3();		//should not overflow after clip
 				goto free_points;
 			}
@@ -290,10 +290,10 @@ void g3_draw_sphere(grs_canvas &canvas, cg3s_point &pnt, const fix rad, const ui
 {
 	if (! (pnt.p3_codes & CC_BEHIND)) {
 
-		if (! (pnt.p3_flags & PF_PROJECTED))
+		if (! (pnt.p3_flags & projection_flag::projected))
 			g3_project_point(pnt);
 
-		if (! (pnt.p3_flags & PF_OVERFLOW)) {
+		if (! (pnt.p3_flags & projection_flag::overflow)) {
 			const auto r2 = fixmul(rad, Matrix_scale.x);
 #ifndef __powerc
 			const auto ot = checkmuldiv(r2, Canv_w2, pnt.p3_z);

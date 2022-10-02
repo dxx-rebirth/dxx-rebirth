@@ -3563,7 +3563,7 @@ void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &canvas, co
 			if (player_point.p3_codes == 0) //on screen
 			{
 				g3_project_point(player_point);
-				if (!(player_point.p3_flags & PF_OVERFLOW))
+				if (!(player_point.p3_flags & projection_flag::overflow))
 				{
 					fix x,y,dx,dy;
 					char s[CALLSIGN_LEN+10];

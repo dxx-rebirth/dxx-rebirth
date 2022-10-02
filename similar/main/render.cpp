@@ -758,7 +758,7 @@ static void project_list(const std::array<vertnum_t, 8> &pointnumlist)
 	range_for (const auto pnum, pointnumlist)
 	{
 		auto &p = Segment_points[pnum];
-		if (!(p.p3_flags & PF_PROJECTED))
+		if (!(p.p3_flags & projection_flag::projected))
 			g3_project_point(p);
 	}
 }
@@ -1409,7 +1409,7 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 						{
 							g3s_point *pnt = &Segment_points[seg->verts[i]];
 
-							if (! (pnt->p3_flags&PF_PROJECTED)) {no_proj_flag=1; break;}
+							if (! (pnt->p3_flags&projection_flag::projected)) {no_proj_flag=1; break;}
 
 							const int16_t _x = f2i(pnt->p3_sx), _y = f2i(pnt->p3_sy);
 
