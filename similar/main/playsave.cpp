@@ -636,23 +636,20 @@ static void plyr_read_stats_v(int *k, int *d)
 	if (auto f = PHYSFSX_openReadBuffered(filename).first)
 	{
 		PHYSFSX_gets_line_t<256> line;
-		if(!PHYSFS_eof(f))
+		if (!PHYSFS_eof(f) && PHYSFSX_fgets(line, f))
 		{
-			 PHYSFSX_fgets(line,f);
 			 const char *value=splitword(line,':');
 			 if(!strcmp(line,"kills") && value)
 				*k=atoi(value);
 		}
-		if(!PHYSFS_eof(f))
+		if (!PHYSFS_eof(f) && PHYSFSX_fgets(line, f))
                 {
-			 PHYSFSX_fgets(line,f);
 			 const char *value=splitword(line,':');
 			 if(!strcmp(line,"deaths") && value)
 				*d=atoi(value);
 		 }
-		if(!PHYSFS_eof(f))
+		if (!PHYSFS_eof(f) && PHYSFSX_fgets(line, f))
 		{
-			 PHYSFSX_fgets(line,f);
 			 const char *value=splitword(line,':');
 			 if(value && !strcmp(line,"key") && strlen(value)>10){
 				 if (value[0]=='0' && value[1]=='1'){
@@ -1226,8 +1223,9 @@ int read_player_file()
 	}
 
 	//read guidebot name
-	if (player_file_version >= 18)
-		PHYSFSX_fgets(PlayerCfg.GuidebotName, file);
+	if (player_file_version >= 18 && PHYSFSX_fgets(PlayerCfg.GuidebotName, file))
+	{
+	}
 	else
 		PlayerCfg.GuidebotName = "GUIDE-BOT";
 	PlayerCfg.GuidebotNameReal = PlayerCfg.GuidebotName;
@@ -1235,7 +1233,12 @@ int read_player_file()
 		if (player_file_version >= 24) 
 		{
 			PHYSFSX_gets_line_t<128> buf;
-			PHYSFSX_fgets(buf, file);			// Just read it in fpr DPS.
+			if (PHYSFSX_fgets(buf, file))			// Just read it in fpr DPS.
+			{
+				/* Nothing to do.  Buffer contents are ignored.  This is only
+				 * read for its side effect on the file position.
+				 */
+			}
 		}
 	}
 #endif

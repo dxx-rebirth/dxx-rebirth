@@ -588,7 +588,8 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 					inputline[l-2] = ' ';				//add one
 					l++;
 				}
-				PHYSFSX_fgets(inputline,InfoFile,l-2);
+				if (!PHYSFSX_fgets(inputline, InfoFile, l - 2))
+					break;
 				linenum++;
 			}
 		}

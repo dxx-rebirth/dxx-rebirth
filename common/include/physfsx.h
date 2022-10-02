@@ -253,9 +253,12 @@ template <>
 struct PHYSFSX_gets_line_t<0>
 {
 #define DXX_ALLOCATE_PHYSFS_LINE(n)	std::make_unique<char[]>(n)
+#if !DXX_HAVE_POISON
+	const
+#endif
 	std::unique_ptr<char[]> m_line;
-	std::size_t m_length;
-	PHYSFSX_gets_line_t(std::size_t n) :
+	const std::size_t m_length;
+	PHYSFSX_gets_line_t(const std::size_t n) :
 #if !DXX_HAVE_POISON
 		m_line(DXX_ALLOCATE_PHYSFS_LINE(n)),
 #endif
@@ -282,7 +285,9 @@ struct PHYSFSX_gets_line_t<0>
 
 class PHYSFSX_fgets_t
 {
+	[[nodiscard]]
 	static char *get(char *buf, std::size_t n, PHYSFS_File *const fp);
+	[[nodiscard]]
 	static char *get(char *buf, std::size_t offset, std::size_t n, PHYSFS_File *const fp)
 	{
 		if (offset > n)
@@ -291,12 +296,14 @@ class PHYSFSX_fgets_t
 	}
 public:
 	template <std::size_t n>
+		[[nodiscard]]
 		__attribute_nonnull()
 		char *operator()(PHYSFSX_gets_line_t<n> &buf, PHYSFS_File *const fp, std::size_t offset = 0) const
 		{
 			return get(&buf.next()[0], offset, buf.size(), fp);
 		}
 	template <std::size_t n>
+		[[nodiscard]]
 		__attribute_nonnull()
 		char *operator()(ntstring<n> &buf, PHYSFS_File *const fp, std::size_t offset = 0) const
 		{

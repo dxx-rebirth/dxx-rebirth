@@ -1986,7 +1986,10 @@ static void read_d1_tmap_nums_from_hog(PHYSFS_File *d1_pig)
 			decode_text_line((inputline));
 		else
 			while (inputline[(i=strlen(inputline))-2]=='\\')
-				PHYSFSX_fgets(inputline,bitmaps,i-2); // strip comments
+			{
+				if (PHYSFSX_fgets(inputline, bitmaps, i - 2)) // strip comments
+					break;
+			}
 		REMOVE_EOL(inputline);
                 if (strchr(inputline, ';')!=NULL) REMOVE_COMMENTS(inputline);
 		if (strlen(inputline) == LINEBUF_SIZE-1) {

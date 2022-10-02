@@ -966,22 +966,11 @@ static int load_game_data(
 	}
 #endif
 
-	if (game_top_fileinfo_version >= 31) //load mine filename
+	if (game_top_fileinfo_version >= 14) //load mine filename
+	{
 		// read newline-terminated string, not sure what version this changed.
-		PHYSFSX_fgets(Current_level_name,LoadFile);
-	else if (game_top_fileinfo_version >= 14) { //load mine filename
-		// read null-terminated string
-		//must do read one char at a time, since no PHYSFSX_fgets()
-		for (auto p = Current_level_name.next().begin(); (*p = PHYSFSX_fgetc(LoadFile));)
-		{
-			if (++p == Current_level_name.line().end())
-			{
-				p[-1] = 0;
-				while (PHYSFSX_fgetc(LoadFile))
-					;
-				break;
-			}
-		}
+		if (!PHYSFSX_fgets(Current_level_name, LoadFile))
+			*Current_level_name = 0;
 	}
 	else
 		Current_level_name.next()[0]=0;
@@ -1372,7 +1361,10 @@ int load_level(
 	}
 
 	if (Gamesave_current_version > 1)
-		PHYSFSX_fgets(Current_level_palette,LoadFile);
+	{
+		if (!PHYSFSX_fgets(Current_level_palette, LoadFile))
+			Current_level_palette[0] = 0;
+	}
 	if (Gamesave_current_version <= 1 || Current_level_palette[0]==0) // descent 1 level
 		strcpy(Current_level_palette.next().data(), DEFAULT_LEVEL_PALETTE);
 
