@@ -56,6 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "d_range.h"
+#include "d_zip.h"
 #include "partial_range.h"
 
 #define PLAYER_EFFECTIVENESS_FILENAME_FORMAT	PLAYER_DIRECTORY_STRING("%s.eff")
@@ -196,31 +197,44 @@ static std::array<saved_game_sw, N_SAVE_SLOTS> saved_games;
 static inline void plyr_read_stats() {}
 static int get_lifetime_checksum (int a,int b);
 #endif
-}
-}
 
-namespace {
-template <std::size_t N>
-static void check_weapon_reorder(std::array<ubyte, N> &w)
+template <typename weapon_type_out, typename weapon_type_from_file, std::size_t N>
+static void check_weapon_reorder(std::array<weapon_type_out, N> &wo, const std::array<weapon_type_from_file, N> &in)
 {
+	/* Examine the input array and update `m` to represent which elements were
+	 * found.  A well-formed input array will have exactly one of each value in
+	 * the range [0..N-1], and one occurrence of the sentinel `255`.  Since
+	 * only `N` elements are present, any duplicate value means some other
+	 * value will be missing.  If an out of range value is found, the loop
+	 * breaks early, because that also guarantees that at least one required
+	 * element will be missing.
+	 */
+	constexpr weapon_type_from_file cycle_never_autoselect_below{255};
 	uint_fast32_t m = 0;
-	range_for (const auto i, w)
-		if (i == 255)
+	for (auto &&[w, i] : zip(wo, in))
+	{
+		if (i == cycle_never_autoselect_below)
 			m |= 1 << N;
 		else if (i < N - 1)
 			m |= 1 << i;
 		else
 			break;
+		w = i;
+	}
+	/* If `m` is equal to the value below, then every desired element appeared
+	 * in the input sequence.  If the input sequence contained duplicates or
+	 * out of range values, then the test on `m` will fail, and the output
+	 * array will be reset to a sane default.
+	 */
 	if (m != ((1 << N) | ((1 << (N - 1)) - 1)))
 	{
-		w[0] = 255;
+		wo[0] = cycle_never_autoselect_below;
 		range_for (const uint_fast32_t i, xrange(1u, N))
-			w[i] = i - 1;
+			wo[i] = i - 1;
 	}
 }
 }
 
-namespace dsx {
 void new_player_config()
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -372,9 +386,8 @@ static void read_player_dxx(const char *filename)
 				if (!value)
 					continue;
 #define CONVERT_WEAPON_REORDER_VALUE(A,F)	\
-	unsigned int wo0=0,wo1=0,wo2=0,wo3=0,wo4=0,wo5=0;	\
-	if (sscanf(value,F,&wo0, &wo1, &wo2, &wo3, &wo4, &wo5) == 6)	\
-		A[0]=wo0, A[1]=wo1, A[2]=wo2, A[3]=wo3, A[4]=wo4, A[5]=wo5, check_weapon_reorder(A);
+	if (std::array<unsigned, 6> wo; sscanf(value, F, &wo[0], &wo[1], &wo[2], &wo[3], &wo[4], &wo[5]) == 6)	\
+		check_weapon_reorder(A, wo)
 				if(!strcmp(line,WEAPON_REORDER_PRIMARY_NAME_TEXT))
 				{
 					CONVERT_WEAPON_REORDER_VALUE(PlayerCfg.PrimaryOrder, WEAPON_REORDER_PRIMARY_VALUE_TEXT);
@@ -1129,13 +1142,16 @@ int read_player_file()
 #if defined(DXX_BUILD_DESCENT_II)
 		PlayerCfg.ControlType = control_type_dos;
 	
+		std::array<uint8_t, 22> weapon_file_order{};
+		std::array<uint8_t, 11> primary_order, secondary_order;
+		PHYSFS_read(file, weapon_file_order.data(), weapon_file_order.size(), 1);
 		range_for (const unsigned i, xrange(11u))
 		{
-			PlayerCfg.PrimaryOrder[i] = PHYSFSX_readByte(file);
-			PlayerCfg.SecondaryOrder[i] = PHYSFSX_readByte(file);
+			primary_order[i] = weapon_file_order[i * 2];
+			secondary_order[i] = weapon_file_order[(i * 2) + 1];
 		}
-		check_weapon_reorder(PlayerCfg.PrimaryOrder);
-		check_weapon_reorder(PlayerCfg.SecondaryOrder);
+		check_weapon_reorder(PlayerCfg.PrimaryOrder, primary_order);
+		check_weapon_reorder(PlayerCfg.SecondaryOrder, secondary_order);
 
 		if (player_file_version>=16)
 		{
