@@ -172,7 +172,8 @@ BOOST_AUTO_TEST_CASE(idx_convert_check)
 			typename vo::vmidx{i};
 			}))
 	);
-	typename vo::imidx i_none(static_cast<objnum_t>(~0));
+	typename vo::imidx i_none0(static_cast<objnum_t>(~0));
+	auto i_none = optimizer_hidden_variable(i_none0);
 	if (!valptridx_access_override::report_error_uses_exception::value)
 		return;
 	BOOST_CHECK_THROW(
@@ -190,7 +191,8 @@ BOOST_AUTO_TEST_CASE(idx_convert_check)
 BOOST_AUTO_TEST_CASE(ptr_convert_check)
 {
 	using vo = valptridx<object>;
-	typename vo::imptr i_none(nullptr);
+	typename vo::imptr i_none0(nullptr);
+	auto i_none = optimizer_hidden_variable(i_none0);
 	auto &&i_zero = Objects.imptr(optimizer_hidden_variable<objnum_t>(0));
 	BOOST_CHECK_NO_THROW(
 		DXX_TEST_VALPTRIDX_IGNORE_RETURN(({
