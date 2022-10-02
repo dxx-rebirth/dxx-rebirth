@@ -212,8 +212,8 @@ static void write_exit_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 {
 	int	count;
 
-	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
-	PHYSFSX_printf(my_file, "Exit stuff\n");
+	PHYSFSX_puts_literal(my_file, "-----------------------------------------------------------------------------\n");
+	PHYSFSX_puts_literal(my_file, "Exit stuff\n");
 
 	//	---------- Find exit triggers ----------
 	count=0;
@@ -340,8 +340,8 @@ public:
 // ----------------------------------------------------------------------------
 static void write_key_text(fvcobjptridx &vcobjptridx, segment_array &segments, fvcwallptridx &vcwallptridx, PHYSFS_File *my_file)
 {
-	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
-	PHYSFSX_printf(my_file, "Key stuff:\n");
+	PHYSFSX_puts_literal(my_file, "-----------------------------------------------------------------------------\n");
+	PHYSFSX_puts_literal(my_file, "Key stuff:\n");
 
 	key_stat blue("blue"), gold("gold"), red("red");
 
@@ -400,8 +400,8 @@ static void write_control_center_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my
 	auto &vcobjptridx = Objects.vcptridx;
 	int	count, count2;
 
-	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
-	PHYSFSX_printf(my_file, "Control Center stuff:\n");
+	PHYSFSX_puts_literal(my_file, "-----------------------------------------------------------------------------\n");
+	PHYSFSX_puts_literal(my_file, "Control Center stuff:\n");
 
 	count = 0;
 	range_for (const auto &&segp, vcsegptridx)
@@ -417,7 +417,7 @@ static void write_control_center_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my
 					count2++;
 			}
 			if (count2 == 0)
-				PHYSFSX_printf(my_file, "No control center object in control center segment.\n");
+				PHYSFSX_puts_literal(my_file, "No control center object in control center segment.\n");
 			else if (count2 != 1)
 				PHYSFSX_printf(my_file, "%i control center objects in control center segment.\n", count2);
 		}
@@ -434,8 +434,8 @@ static void write_fuelcen_text(PHYSFS_File *my_file)
 {
 	auto &Station = LevelUniqueFuelcenterState.Station;
 
-	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
-	PHYSFSX_printf(my_file, "Fuel Center stuff: (Note: This means fuel, repair, materialize, control centers!)\n");
+	PHYSFSX_puts_literal(my_file, "-----------------------------------------------------------------------------\n");
+	PHYSFSX_puts_literal(my_file, "Fuel Center stuff: (Note: This means fuel, repair, materialize, control centers!)\n");
 
 	const auto Num_fuelcenters = LevelUniqueFuelcenterState.Num_fuelcenters;
 	for (auto &&[i, f] : enumerate(partial_const_range(Station, Num_fuelcenters)))
@@ -451,8 +451,8 @@ static void write_segment_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my_file)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
-	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
-	PHYSFSX_printf(my_file, "Segment stuff:\n");
+	PHYSFSX_puts_literal(my_file, "-----------------------------------------------------------------------------\n");
+	PHYSFSX_puts_literal(my_file, "Segment stuff:\n");
 
 	range_for (const auto &&segp, vcsegptridx)
 	{
@@ -470,7 +470,7 @@ static void write_segment_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my_file)
 
 		PHYSFSX_printf(my_file, "Segment %4hu: ", static_cast<uint16_t>(segp));
 		depth=0;
-			PHYSFSX_printf(my_file, "Objects: ");
+		PHYSFSX_puts_literal(my_file, "Objects: ");
 		range_for (const auto objp, objects_in(segp, vcobjptridx, vcsegptr))
 			{
 				short objnum = objp;
@@ -487,8 +487,8 @@ static void write_segment_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my_file)
 // ----------------------------------------------------------------------------
 static void write_matcen_text(PHYSFS_File *my_file)
 {
-	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
-	PHYSFSX_printf(my_file, "Materialization centers:\n");
+	PHYSFSX_puts_literal(my_file, "-----------------------------------------------------------------------------\n");
+	PHYSFSX_puts_literal(my_file, "Materialization centers:\n");
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
@@ -538,8 +538,8 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 {
 	enumerated_array<int8_t, MAX_WALLS, wallnum_t> wall_flags;
 
-	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
-	PHYSFSX_printf(my_file, "Walls:\n");
+	PHYSFSX_puts_literal(my_file, "-----------------------------------------------------------------------------\n");
+	PHYSFSX_puts_literal(my_file, "Walls:\n");
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 #endif
@@ -585,8 +585,8 @@ static void write_player_text(fvcobjptridx &vcobjptridx, PHYSFS_File *my_file)
 {
 	int	num_players=0;
 
-	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
-	PHYSFSX_printf(my_file, "Players:\n");
+	PHYSFSX_puts_literal(my_file, "-----------------------------------------------------------------------------\n");
+	PHYSFSX_puts_literal(my_file, "Players:\n");
 	range_for (const auto &&objp, vcobjptridx)
 	{
 		if (objp->type == OBJ_PLAYER)
@@ -607,8 +607,8 @@ static void write_player_text(fvcobjptridx &vcobjptridx, PHYSFS_File *my_file)
 // ----------------------------------------------------------------------------
 static void write_trigger_text(PHYSFS_File *my_file)
 {
-	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
-	PHYSFSX_printf(my_file, "Triggers:\n");
+	PHYSFSX_puts_literal(my_file, "-----------------------------------------------------------------------------\n");
+	PHYSFSX_puts_literal(my_file, "Triggers:\n");
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &vctrgptridx = Triggers.vcptridx;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
@@ -1157,16 +1157,16 @@ say_totals_all();
 		merge_buffers(perm_wall_buf, temp_wall_buf);
 	}
 
-	PHYSFSX_printf(my_file, "\n\nUsed textures in all shareware mines:\n");
+	PHYSFSX_puts_literal(my_file, "\n\nUsed textures in all shareware mines:\n");
 	say_used_tmaps(my_file, perm_tmap_buf);
 
-	PHYSFSX_printf(my_file, "\nUnused textures in all shareware mines:\n");
+	PHYSFSX_puts_literal(my_file, "\nUnused textures in all shareware mines:\n");
 	say_unused_tmaps(my_file, perm_tmap_buf);
 
-	PHYSFSX_printf(my_file, "\nTextures used exactly once in all shareware mines:\n");
+	PHYSFSX_puts_literal(my_file, "\nTextures used exactly once in all shareware mines:\n");
 	say_used_once_tmaps(my_file, perm_tmap_buf, level_tmap_buf);
 
-	PHYSFSX_printf(my_file, "\nWall anims (eg, doors) unused in all shareware mines:\n");
+	PHYSFSX_puts_literal(my_file, "\nWall anims (eg, doors) unused in all shareware mines:\n");
 	say_unused_walls(my_file, perm_wall_buf);
 
 	for (unsigned i = 0; i < NUM_REGISTERED_LEVELS; ++i)
@@ -1179,10 +1179,10 @@ say_totals_all();
 	}
 #endif
 
-	PHYSFSX_printf(my_file, "\n\nUsed textures in all (including registered) mines:\n");
+	PHYSFSX_puts_literal(my_file, "\n\nUsed textures in all (including registered) mines:\n");
 	say_used_tmaps(my_file, perm_tmap_buf);
 
-	PHYSFSX_printf(my_file, "\nUnused textures in all (including registered) mines:\n");
+	PHYSFSX_puts_literal(my_file, "\nUnused textures in all (including registered) mines:\n");
 	say_unused_tmaps(my_file, perm_tmap_buf);
 }
 }

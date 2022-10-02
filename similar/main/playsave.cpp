@@ -689,7 +689,7 @@ void plyr_save_stats()
 
 	PHYSFSX_printf(f,"kills:%i\n",kills);
 	PHYSFSX_printf(f,"deaths:%i\n",deaths);
-	PHYSFSX_printf(f,"key:01 ");
+	PHYSFSX_puts_literal(f, "key:01 ");
 
 	if (kills < 0)
 	{

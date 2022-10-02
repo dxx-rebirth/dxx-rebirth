@@ -1592,7 +1592,7 @@ static void piggy_write_pigfile(const std::span<const char, FILENAME_LEN> filena
 			PHYSFS_write( pig_fp, bmp->bm_data, sizeof(ubyte), bmp->bm_rowsize * bmp->bm_h );
 			data_offset += bmp->bm_rowsize * bmp->bm_h;
 			if (fp1)
-				PHYSFSX_printf( fp1, ".\n" );
+				PHYSFSX_puts_literal( fp1, ".\n" );
 		}
 		PHYSFSX_fseek( pig_fp, org_offset, SEEK_SET );
 		Assert( GameBitmaps[i].bm_w < 4096 );

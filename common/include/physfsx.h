@@ -317,9 +317,10 @@ public:
 
 constexpr PHYSFSX_fgets_t PHYSFSX_fgets{};
 
-static inline int PHYSFSX_printf(PHYSFS_File *file, const char *format, ...) __attribute_format_printf(2, 3);
+int PHYSFSX_printf(PHYSFS_File *file, const char *format) = delete;
+
+__attribute_format_printf(2, 3)
 static inline int PHYSFSX_printf(PHYSFS_File *file, const char *format, ...)
-#define PHYSFSX_printf(A1,F,...)	dxx_call_printf_checked(PHYSFSX_printf,PHYSFSX_puts_literal,(A1),(F),##__VA_ARGS__)
 {
 	char buffer[1024];
 	va_list args;
