@@ -805,7 +805,7 @@ template <std::size_t Extent, std::size_t N>
 [[nodiscard]]
 static std::size_t copy_from_ntstring(const std::span<uint8_t, Extent> buf, const std::size_t len, const ntstring<N> &in)
 {
-	return in.copy_out(0, reinterpret_cast<char *>(&buf[len]), N);
+	return in.copy_out(buf.subspan(len, N));
 }
 
 template <std::size_t N>

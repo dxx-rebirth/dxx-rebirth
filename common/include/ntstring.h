@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <span>
 #include "dxxsconf.h"
 #include "pack.h"
 #include <array>
@@ -12,7 +13,6 @@ class ntstring :
 	public prohibit_void_ptr<ntstring<L>>,
 	public std::array<char, L + 1>
 {
-	static char terminator() { return 0; }
 public:
 	using array_t = std::array<char, L + 1>;
 	typedef char elements_t[L + 1];
@@ -28,7 +28,7 @@ public:
 			eb += N;
 		auto ob = std::next(this->begin(), offset);
 		auto oc = std::copy(ib, eb, ob);
-		std::fill(oc, this->end(), terminator());
+		std::fill(oc, this->end(), 0);
 		return r;
 	}
 	template <std::size_t N>
@@ -75,46 +75,30 @@ public:
 #ifdef DXX_CONSTANT_TRUE
 			(DXX_CONSTANT_TRUE(!i[N - 1])) ? N - 1 :
 #endif
-			std::distance(i, std::find(i, i + N, terminator()));
+			std::distance(i, std::find(i, i + N, 0));
 		return _copy_n(offset, i, d);
 	}
+	[[nodiscard]]
 	__attribute_nonnull()
-	std::size_t _copy_out(const std::size_t src_offset, char *const dst_base, const std::size_t dst_offset, const std::size_t max_copy) const
+	std::size_t copy_out(const std::span<uint8_t> dst) const
 	{
-		char *const dst = dst_base + dst_offset;
-		if (L > max_copy || src_offset >= this->size())
-		{
-			/* Some outputs might not fit or nothing to copy */
-			*dst = terminator();
-			return 1;
-		}
+		if (dst.empty())
+			return 0;
 		const auto ie = std::prev(this->end());
-		const auto ib = std::next(this->begin(), src_offset);
-		auto ii = std::find(ib, ie, terminator());
+		const auto ib = this->begin();
+		auto ii = std::find(ib, ie, 0);
 		if (ii != ie)
 			/* Only copy null if string is short  */
 			++ ii;
 		const std::size_t r = std::distance(ib, ii);
-		if (r > max_copy)
+		if (r > dst.size())
 		{
 			/* This output does not fit */
-			*dst = terminator();
+			dst[0] = 0;
 			return 1;
 		}
-		std::copy(ib, ii, dst);
+		std::copy(ib, ii, dst.begin());
 		return r;
-	}
-	__attribute_nonnull()
-	std::size_t copy_out(std::size_t src_offset, char *dst, std::size_t dst_offset, std::size_t dst_size) const
-	{
-		if (dst_size <= dst_offset)
-			return 0;
-		return _copy_out(src_offset, dst, dst_offset, dst_size - dst_offset);
-	}
-	__attribute_nonnull()
-	std::size_t copy_out(std::size_t src_offset, char *dst, std::size_t dst_size) const
-	{
-		return copy_out(src_offset, dst, 0, dst_size);
 	}
 	operator bool() const = delete;
 	operator char *() const = delete;
