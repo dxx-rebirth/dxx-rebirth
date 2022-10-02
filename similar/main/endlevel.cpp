@@ -534,7 +534,7 @@ static movie_play_status start_endlevel_movie()
 
 	save_pal = gr_palette;
 
-	const auto r = PlayMovie(nullptr, movie_name, (Game_mode & GM_MULTI) ? play_movie_warn_missing::verbose : play_movie_warn_missing::urgent);
+	const auto r = PlayMovie({}, movie_name, (Game_mode & GM_MULTI) ? play_movie_warn_missing::verbose : play_movie_warn_missing::urgent);
 	if (Newdemo_state == ND_STATE_PLAYBACK) {
 		set_screen_mode(SCREEN_GAME);
 		gr_palette = save_pal;

@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include <limits.h>
+#include <span>
 #include "d2x-rebirth/libmve/mvelib.h"
 #include "dsx-ns.h"
 #include "physfsrwops.h"
@@ -58,7 +59,7 @@ enum class movie_resolution : uint8_t
 #define MOVIE_HEIGHT static_cast<uint16_t>(!GameArg.GfxSkipHiresMovie? 480 : 200)
 #endif
 
-movie_play_status PlayMovie(const char *subtitles, const char *filename, play_movie_warn_missing);
+movie_play_status PlayMovie(std::span<const char> subtitles, const char *filename, play_movie_warn_missing);
 RWops_ptr InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie);
 int RotateRobot(MVESTREAM_ptr_t &pMovie, SDL_RWops *);
 void DeInitRobotMovie(MVESTREAM_ptr_t &pMovie);

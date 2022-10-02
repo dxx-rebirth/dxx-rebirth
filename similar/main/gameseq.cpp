@@ -2163,7 +2163,7 @@ static void ShowLevelIntro(int level_num)
 					if (i.level_num == level_num)
 					{
 						Screen_mode = -1;
-						PlayMovie(nullptr, i.movie_name, play_movie_warn_missing::urgent);
+						PlayMovie({}, i.movie_name, play_movie_warn_missing::urgent);
 						break;
 					}
 				}

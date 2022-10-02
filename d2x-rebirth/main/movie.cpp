@@ -138,7 +138,7 @@ namespace dsx {
 
 //filename will actually get modified to be either low-res or high-res
 //returns status.  see values in movie.h
-movie_play_status PlayMovie(const char *subtitles, const char *const name, const play_movie_warn_missing must_have)
+movie_play_status PlayMovie(const std::span<const char> subtitles, const char *const name, const play_movie_warn_missing must_have)
 {
 	if (GameArg.SysNoMovies)
 		return movie_play_status::skipped;
@@ -156,7 +156,7 @@ movie_play_status PlayMovie(const char *subtitles, const char *const name, const
 	// Start sound
 	MVE_sndInit(!CGameArg.SndNoSound ? 1 : -1);
 
-	const auto ret = RunMovie(name, subtitles, !GameArg.GfxSkipHiresMovie, must_have, -1, -1);
+	const auto ret = RunMovie(name, subtitles.data(), !GameArg.GfxSkipHiresMovie, must_have, -1, -1);
 
 	// MD2211: if using SDL_Mixer, we never reinit the sound system
 	if (!CGameArg.SndNoSound
