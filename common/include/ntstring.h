@@ -17,8 +17,6 @@ public:
 	using array_t = std::array<char, L + 1>;
 	typedef char elements_t[L + 1];
 	using array_t::operator[];
-	typename array_t::reference operator[](int i) { return array_t::operator[](i); }
-	typename array_t::reference operator[](unsigned i) { return array_t::operator[](i); }
 	__attribute_nonnull()
 	std::size_t _copy_n(std::size_t offset, const char *ib, std::size_t N)
 	{
@@ -118,16 +116,6 @@ public:
 	{
 		return copy_out(src_offset, dst, 0, dst_size);
 	}
-	template <std::size_t N>
-		std::size_t copy_out(std::size_t src_offset, std::array<char, N> &dst, std::size_t dst_offset) const
-		{
-			return copy_out(src_offset, dst.data(), dst_offset, N);
-		}
-	template <std::size_t N>
-		std::size_t copy_out(std::size_t src_offset, std::array<uint8_t, N> &dst, std::size_t dst_offset) const
-		{
-			return copy_out(src_offset, reinterpret_cast<char *>(dst.data()), dst_offset, N);
-		}
 	operator bool() const = delete;
 	operator char *() const = delete;
 	operator elements_t &() const = delete;
