@@ -97,7 +97,7 @@ constexpr std::array<std::array<char, 8>, 3> movielib_files{{
 }};
 
 // Function Prototypes
-static movie_play_status RunMovie(const char *filename, const char *subtitles, int highres_flag, play_movie_warn_missing, int dx,int dy);
+static movie_play_status RunMovie(const char *filename, std::span<const char> subtitles, int highres_flag, play_movie_warn_missing, int dx,int dy);
 
 static void draw_subtitles(const d_loaded_subtitle_state &, int frame_num);
 
@@ -156,7 +156,7 @@ movie_play_status PlayMovie(const std::span<const char> subtitles, const char *c
 	// Start sound
 	MVE_sndInit(!CGameArg.SndNoSound ? 1 : -1);
 
-	const auto ret = RunMovie(name, subtitles.data(), !GameArg.GfxSkipHiresMovie, must_have, -1, -1);
+	const auto ret = RunMovie(name, subtitles, !GameArg.GfxSkipHiresMovie, must_have, -1, -1);
 
 	// MD2211: if using SDL_Mixer, we never reinit the sound system
 	if (!CGameArg.SndNoSound
@@ -367,7 +367,7 @@ window_event_result movie::event_handler(const d_event &event)
 }
 
 //returns status.  see movie.h
-movie_play_status RunMovie(const char *const filename, const char *const subtitles, const int hires_flag, const play_movie_warn_missing warn_missing, const int dx, const int dy)
+movie_play_status RunMovie(const char *const filename, const std::span<const char> subtitles, const int hires_flag, const play_movie_warn_missing warn_missing, const int dx, const int dy)
 {
 	int track = 0;
 #if DXX_USE_OGL
@@ -391,7 +391,7 @@ movie_play_status RunMovie(const char *const filename, const char *const subtitl
 	auto wind = window_create<movie>(grd_curscreen->sc_canvas, std::move(mvestream));
 	bool exists = true;
 	wind->track(&exists);
-	init_subtitles(wind->SubtitleState, subtitles);
+	init_subtitles(wind->SubtitleState, subtitles.data());
 
 #if DXX_USE_OGL
 	set_screen_mode(SCREEN_MOVIE);
