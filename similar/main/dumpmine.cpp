@@ -158,9 +158,10 @@ static void err_puts_literal(PHYSFS_File *f, const char (&str)[len])
 	err_puts(f, {str, len - 1});
 }
 
-static void err_printf(PHYSFS_File *my_file, const char * format, ... ) __attribute_format_printf(2, 3);
+void err_printf(PHYSFS_File *my_file, const char * format) = delete;
+
+__attribute_format_printf(2, 3)
 static void err_printf(PHYSFS_File *my_file, const char * format, ... )
-#define err_printf(A1,F,...)	dxx_call_printf_checked(err_printf,err_puts_literal,(A1),(F),##__VA_ARGS__)
 {
 	va_list	args;
 	char		message[256];
@@ -246,9 +247,9 @@ static void write_exit_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 	}
 
 	if (count == 0)
-		err_printf(my_file, "Error: No exit trigger in this mine.");
+		err_puts_literal(my_file, "Error: No exit trigger in this mine.");
 	else if (count != 1)
-		err_printf(my_file, "Error: More than one exit trigger in this mine.");
+		err_puts_literal(my_file, "Error: More than one exit trigger in this mine.");
 	else
 		PHYSFSX_puts_literal(my_file, "\n");
 
@@ -267,7 +268,7 @@ static void write_exit_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 	}
 
 	if (count == 0)
-		err_printf(my_file, "Error: No external wall in this mine.");
+		err_puts_literal(my_file, "Error: No external wall in this mine.");
 	else if (count != 1) {
 #if defined(DXX_BUILD_DESCENT_I)
 		warning_printf(my_file, "Warning: %i external walls in this mine.", count);
@@ -420,9 +421,9 @@ static void write_control_center_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my
 	}
 
 	if (count == 0)
-		err_printf(my_file, "Error: No control center in this mine.");
+		err_puts_literal(my_file, "Error: No control center in this mine.");
 	else if (count != 1)
-		err_printf(my_file, "Error: More than one control center in this mine.");
+		err_puts_literal(my_file, "Error: More than one control center in this mine.");
 }
 
 // ----------------------------------------------------------------------------
