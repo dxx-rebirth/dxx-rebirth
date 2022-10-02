@@ -1273,6 +1273,7 @@ void ogl_start_frame(grs_canvas &canvas)
 	glLoadIdentity();//clear matrix
 }
 
+#if !DXX_USE_OGLES
 void ogl_stereo_frame(const bool left_eye, const int xoff)
 {
 	const float dxoff = xoff * 2.0f / grd_curscreen->sc_canvas.cv_bitmap.bm_w;
@@ -1358,6 +1359,7 @@ void ogl_stereo_frame(const bool left_eye, const int xoff)
 	glLoadMatrixf(ogl_stereo_transform.data());
 	glMatrixMode(GL_MODELVIEW);
 }
+#endif
 
 void ogl_end_frame(void){
 	OGL_VIEWPORT(0, 0, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height());
