@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <span>
 #include <physfs.h>
 #include "dsx-ns.h"
+#include "fwd-inferno.h"
 #include "fwd-gr.h"
 #include "fwd-partial_range.h"
 #include "sounds.h"
@@ -111,7 +112,7 @@ void piggy_read_sounds(void);
 
 //reads in a new pigfile (for new palette)
 //returns the size of all the bitmap data
-void piggy_new_pigfile(char *pigname);
+void piggy_new_pigfile(std::span<char, FILENAME_LEN> pigname);
 
 //loads custom bitmaps for current level
 void load_bitmap_replacements(const char *level_name);

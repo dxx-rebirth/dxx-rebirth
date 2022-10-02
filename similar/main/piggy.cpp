@@ -760,7 +760,7 @@ void piggy_init_pigfile(const char *filename)
 
 //reads in a new pigfile (for new palette)
 //returns the size of all the bitmap data
-void piggy_new_pigfile(char *pigname)
+void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 {
 	int i;
 	std::array<char, 13> temp_name;
@@ -770,14 +770,14 @@ void piggy_new_pigfile(char *pigname)
 	int must_rewrite_pig = 0;
 #endif
 
-	d_strlwr(pigname);
+	d_strlwr(pigname.data());
 
-	if (d_strnicmp(Current_pigfile, pigname, sizeof(Current_pigfile)) == 0 // correct pig already loaded
+	if (d_strnicmp(Current_pigfile, pigname.data(), sizeof(Current_pigfile)) == 0 // correct pig already loaded
 	    && !Bitmap_replacement_data) // no need to reload: no bitmaps were altered
 		return;
 
 	if (!Pigfile_initialized) {                     //have we ever opened a pigfile?
-		piggy_init_pigfile(pigname);            //..no, so do initialization stuff
+		piggy_init_pigfile(pigname.data());            //..no, so do initialization stuff
 		return;
 	}
 	else
@@ -785,27 +785,31 @@ void piggy_new_pigfile(char *pigname)
 
 	Piggy_bitmap_cache_next = 0;            //free up cache
 
-	strncpy(Current_pigfile, pigname, sizeof(Current_pigfile) - 1);
+	strncpy(Current_pigfile, pigname.data(), sizeof(Current_pigfile) - 1);
 
-	auto &&[fp, physfserr] = PHYSFSX_openReadBuffered(pigname);
+	auto &&[fp, physfserr] = PHYSFSX_openReadBuffered(pigname.data());
 #if !DXX_USE_EDITOR
-	const char *effective_filename = pigname;
+	const char *effective_filename = pigname.data();
 #endif
 	//try pigfile for shareware
 	if (!fp)
 	{
-		auto &&[fp2, physfserr2] = PHYSFSX_openReadBuffered(DEFAULT_PIGFILE_SHAREWARE);
-		if (!fp2)
+		if (auto &&[fp2, physfserr2] = PHYSFSX_openReadBuffered(DEFAULT_PIGFILE_SHAREWARE); fp2)
+			fp = std::move(fp2);
+		else
 		{
-#if DXX_USE_EDITOR
-			static_cast<void>(physfserr);
-			static_cast<void>(physfserr2);
-			return;         //if editor, ok to not have pig, because we'll build one
-#else
-			Error("Failed to open required files <%s>, <" DEFAULT_PIGFILE_SHAREWARE ">: \"%s\", \"%s\"", pigname, PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
-#endif
+			if constexpr (DXX_USE_EDITOR)
+			{
+				static_cast<void>(physfserr);
+				static_cast<void>(physfserr2);
+			}
+			else
+				Error("Failed to open required files <%s>, <" DEFAULT_PIGFILE_SHAREWARE ">: \"%s\", \"%s\"", pigname.data(), PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
+			/* In an editor build, a pig can be built.  In a non-editor build,
+			 * Error was fatal.
+			 */
+			return;
 		}
-		fp = std::move(fp2);
 #if !DXX_USE_EDITOR
 		effective_filename = DEFAULT_PIGFILE_SHAREWARE;
 #endif
@@ -987,7 +991,7 @@ void piggy_new_pigfile(char *pigname)
 		//@@
 		//@@piggy_close_file();
 
-		piggy_write_pigfile(pigname);
+		piggy_write_pigfile(pigname.data());
 
 		Current_pigfile[0] = 0;                 //say no pig, to force reload
 
