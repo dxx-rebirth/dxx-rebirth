@@ -1141,9 +1141,6 @@ void g3_draw_bitmap(grs_canvas &canvas, const vms_vector &pos, const fix iwidth,
 bool ogl_ubitblt_i(unsigned dw,unsigned dh,unsigned dx,unsigned dy, unsigned sw, unsigned sh, unsigned sx, unsigned sy, const grs_bitmap &src, grs_bitmap &dest, const opengl_texture_filter texfilt)
 {
 	GLfloat xo,yo,xs,ys,u1,v1;
-	GLfloat color_array[] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
-	GLfloat texcoord_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-	GLfloat vertices[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	struct bitblt_free_ogl_texture
 	{
 		ogl_texture t;
@@ -1176,25 +1173,35 @@ bool ogl_ubitblt_i(unsigned dw,unsigned dh,unsigned dx,unsigned dy, unsigned sw,
 	
 	ogl_texwrap(&tex,GL_CLAMP_TO_EDGE);
 
-	vertices[0] = xo;
-	vertices[1] = yo;
-	vertices[2] = xo+xs;
-	vertices[3] = yo;
-	vertices[4] = xo+xs;
-	vertices[5] = yo-ys;
-	vertices[6] = xo;
-	vertices[7] = yo-ys;
+	const GLfloat vertices[] = {
+		xo,
+		yo,
+		xo + xs,
+		yo,
+		xo + xs,
+		yo - ys,
+		xo,
+		yo - ys
+	};
 
-	texcoord_array[0] = u1;
-	texcoord_array[1] = v1;
-	texcoord_array[2] = tex.u;
-	texcoord_array[3] = v1;
-	texcoord_array[4] = tex.u;
-	texcoord_array[5] = tex.v;
-	texcoord_array[6] = u1;
-	texcoord_array[7] = tex.v;
+	const GLfloat texcoord_array[] = {
+		u1,
+		v1,
+		tex.u,
+		v1,
+		tex.u,
+		tex.v,
+		u1,
+		tex.v
+	};
 
 	glVertexPointer(2, GL_FLOAT, 0, vertices);
+	static constexpr GLfloat color_array[] = {
+		1.0, 1.0, 1.0, 1.0,
+		1.0, 1.0, 1.0, 1.0,
+		1.0, 1.0, 1.0, 1.0,
+		1.0, 1.0, 1.0, 1.0
+	};
 	glColorPointer(4, GL_FLOAT, 0, color_array);
 	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);  
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);//replaced GL_QUADS
