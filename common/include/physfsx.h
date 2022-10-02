@@ -15,6 +15,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <span>
 #include <string.h>
 #include <stdarg.h>
 #include <type_traits>
@@ -225,7 +226,7 @@ struct PHYSFSX_gets_line_t
 	std::unique_ptr<line_t> m_line;
 	const line_t &line() const { return *m_line.get(); }
 	line_t &line() { return *m_line.get(); }
-	line_t &next()
+	std::span<char, N> next()
 	{
 		m_line = std::make_unique<line_t>();
 		return *m_line.get();
@@ -234,7 +235,7 @@ struct PHYSFSX_gets_line_t
 	line_t m_line;
 	const line_t &line() const { return m_line; }
 	line_t &line() { return m_line; }
-	line_t &next() { return m_line; }
+	std::span<char, N> next() { return m_line; }
 #endif
 	operator line_t &() { return line(); }
 	operator const line_t &() const { return line(); }
@@ -267,13 +268,13 @@ struct PHYSFSX_gets_line_t<0>
 	}
 	char *line() { return m_line.get(); }
 	const char *line() const { return m_line.get(); }
-	char *next()
+	std::span<char> next()
 	{
 #if DXX_HAVE_POISON
 		/* Reallocate to tell checker to undefine the buffer */
 		m_line = DXX_ALLOCATE_PHYSFS_LINE(m_length);
 #endif
-		return m_line.get();
+		return std::span<char>(m_line.get(), m_length);
 	}
 	std::size_t size() const { return m_length; }
 	operator const char *() const { return m_line.get(); }
@@ -286,13 +287,14 @@ struct PHYSFSX_gets_line_t<0>
 class PHYSFSX_fgets_t
 {
 	[[nodiscard]]
-	static char *get(char *buf, std::size_t n, PHYSFS_File *const fp);
-	[[nodiscard]]
-	static char *get(char *buf, std::size_t offset, std::size_t n, PHYSFS_File *const fp)
+	static char *get(std::span<char> buf, PHYSFS_File *const fp);
+	template <std::size_t Extent>
+		[[nodiscard]]
+		static char *get(const std::span<char, Extent> buf, std::size_t offset, PHYSFS_File *const fp)
 	{
-		if (offset > n)
+		if (offset > buf.size())
 			throw std::invalid_argument("offset too large");
-		return get(&buf[offset], n - offset, fp);
+		return get(buf.subspan(offset), fp);
 	}
 public:
 	template <std::size_t n>
@@ -300,14 +302,14 @@ public:
 		__attribute_nonnull()
 		char *operator()(PHYSFSX_gets_line_t<n> &buf, PHYSFS_File *const fp, std::size_t offset = 0) const
 		{
-			return get(&buf.next()[0], offset, buf.size(), fp);
+			return get(buf.next(), offset, fp);
 		}
 	template <std::size_t n>
 		[[nodiscard]]
 		__attribute_nonnull()
 		char *operator()(ntstring<n> &buf, PHYSFS_File *const fp, std::size_t offset = 0) const
 		{
-			auto r = get(&buf.data()[0], offset, buf.size(), fp);
+			auto r = get(std::span(buf), offset, fp);
 			buf.back() = 0;
 			return r;
 		}

@@ -35,16 +35,16 @@ namespace dcx {
 
 const std::array<file_extension_t, 1> archive_exts{{"dxa"}};
 
-char *PHYSFSX_fgets_t::get(char *const buf, std::size_t n, PHYSFS_File *const fp)
+char *PHYSFSX_fgets_t::get(const std::span<char> buf, PHYSFS_File *const fp)
 {
-	PHYSFS_sint64 r = PHYSFS_read(fp, buf, sizeof(*buf), n - 1);
+	const PHYSFS_sint64 r = PHYSFS_read(fp, buf.data(), 1, buf.size() - 1);
 	if (r <= 0)
-		return DXX_POISON_MEMORY(std::span(buf, n), 0xcc), nullptr;
-	char *p = buf;
+		return DXX_POISON_MEMORY(buf, 0xcc), nullptr;
+	auto p = buf.begin();
 	const auto cleanup = [&]{
-		return *p = 0, DXX_POISON_MEMORY(std::span(buf, n).subspan((p + 1) - buf), 0xcc), p;
+		return *p = 0, DXX_POISON_MEMORY(buf.subspan((p + 1) - buf.begin()), 0xcc), &*p;
 	};
-	char *const e = &buf[r];
+	const auto e = std::next(p, r);
 	for (;;)
 	{
 		if (p == e)

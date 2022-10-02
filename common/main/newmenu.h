@@ -156,6 +156,12 @@ public:
 				text(text), allowed_chars(allowed_chars)
 		{
 		}
+		template <std::size_t len>
+			requires(len != std::dynamic_extent && len == static_cast<unsigned>(len))
+			nm_item_input(const std::span<char, len> text) :
+				text(text), allowed_chars(nullptr)
+		{
+		}
 	};
 	struct nm_item_slider
 	{
