@@ -165,20 +165,15 @@ static inline int PHYSFSX_writeString(PHYSFS_File *file, const char *s)
 	return PHYSFS_write(file, s, 1, strlen(s) + 1);
 }
 
-static inline int PHYSFSX_puts(PHYSFS_File *file, const char *s, size_t len) __attribute_nonnull();
-static inline int PHYSFSX_puts(PHYSFS_File *file, const char *s, size_t len)
+static inline auto PHYSFSX_puts(PHYSFS_File *file, const std::span<const char> s)
 {
-	return PHYSFS_write(file, s, 1, len);
+	return PHYSFS_write(file, s.data(), 1, s.size());
 }
 
-template <size_t len>
-static inline int PHYSFSX_puts_literal(PHYSFS_File *file, const char (&s)[len]) __attribute_nonnull();
-template <size_t len>
-static inline int PHYSFSX_puts_literal(PHYSFS_File *file, const char (&s)[len])
+static inline auto PHYSFSX_puts_literal(PHYSFS_File *file, const std::span<const char> s)
 {
-	return PHYSFSX_puts(file, s, len - 1);
+	return PHYSFS_write(file, s.data(), 1, s.size() - 1);
 }
-#define PHYSFSX_puts(A1,S,...)	(PHYSFSX_puts(A1,S, _dxx_call_puts_parameter2(1, ## __VA_ARGS__, strlen(S))))
 
 static inline int PHYSFSX_fgetc(PHYSFS_File *const fp)
 {
@@ -326,10 +321,10 @@ static inline int PHYSFSX_printf(PHYSFS_File *file, const char *format, ...)
 	va_list args;
 
 	va_start(args, format);
-	size_t len = vsnprintf(buffer, sizeof(buffer), format, args);
+	const std::size_t len = std::max(vsnprintf(buffer, sizeof(buffer), format, args), 0);
 	va_end(args);
 
-	return PHYSFSX_puts(file, buffer, len);
+	return PHYSFSX_puts(file, {buffer, len});
 }
 
 #define PHYSFSX_writeFix	PHYSFS_writeSLE32

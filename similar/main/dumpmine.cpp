@@ -149,7 +149,7 @@ static void err_puts(PHYSFS_File *f, const std::span<const char> str)
 {
 	++Errors_in_mine;
 	con_puts(CON_CRITICAL, str.data(), str.size());
-	PHYSFSX_puts(f, str.data(), str.size());
+	PHYSFSX_puts(f, str);
 }
 
 template <std::size_t len>
@@ -175,7 +175,7 @@ static void err_printf(PHYSFS_File *my_file, const char * format, ... )
 static void warning_puts(PHYSFS_File *f, const std::span<const char> str)
 {
 	con_puts(CON_URGENT, str.data(), str.size());
-	PHYSFSX_puts(f, str.data(), str.size());
+	PHYSFSX_puts(f, str);
 }
 
 void warning_printf(PHYSFS_File *my_file, const char *format) = delete;
