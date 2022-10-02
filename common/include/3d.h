@@ -158,14 +158,6 @@ bool g3_check_normal_facing(const vms_vector &v,const vms_vector &norm);
 
 //Point definition and rotation functions:
 
-//specify the arrays refered to by the 'pointlist' parms in the following
-//functions.  I'm not sure if we will keep this function, but I need
-//it now.
-//void g3_set_points(g3s_point *points,vms_vector *vecs);
-
-//returns codes_and & codes_or of a list of points numbers
-g3s_codes g3_check_codes(int nv,g3s_point **pointlist);
-
 namespace dcx {
 
 //rotates a point. returns codes.  does not check if already rotated
