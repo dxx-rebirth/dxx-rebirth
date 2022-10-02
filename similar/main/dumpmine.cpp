@@ -172,33 +172,24 @@ static void err_printf(PHYSFS_File *my_file, const char * format, ... )
 	err_puts(my_file, {message, len});
 }
 
-static void warning_puts(PHYSFS_File *f, const char *str, size_t len) __attribute_nonnull();
-static void warning_puts(PHYSFS_File *f, const char *str, size_t len)
-#define warning_puts(A1,S,...)	(warning_puts(A1,S, _dxx_call_puts_parameter2(1, ## __VA_ARGS__, strlen(S))))
+static void warning_puts(PHYSFS_File *f, const std::span<const char> str)
 {
-	con_puts(CON_URGENT, str, len);
-	PHYSFSX_puts(f, str);
+	con_puts(CON_URGENT, str.data(), str.size());
+	PHYSFSX_puts(f, str.data(), str.size());
 }
 
-template <size_t len>
-static void warning_puts_literal(PHYSFS_File *f, const char (&str)[len]) __attribute_nonnull();
-template <size_t len>
-static void warning_puts_literal(PHYSFS_File *f, const char (&str)[len])
-{
-	warning_puts(f, str, len);
-}
+void warning_printf(PHYSFS_File *my_file, const char *format) = delete;
 
 static void warning_printf(PHYSFS_File *my_file, const char * format, ... ) __attribute_format_printf(2, 3);
 static void warning_printf(PHYSFS_File *my_file, const char * format, ... )
-#define warning_printf(A1,F,...)	dxx_call_printf_checked(warning_printf,warning_puts_literal,(A1),(F),##__VA_ARGS__)
 {
 	va_list	args;
 	char		message[256];
 
 	va_start(args, format );
-	vsnprintf(message,sizeof(message),format,args);
+	const std::size_t written = std::max(vsnprintf(message, sizeof(message), format, args), 0);
 	va_end(args);
-	warning_puts(my_file, message);
+	warning_puts(my_file, {message, written});
 }
 }
 
