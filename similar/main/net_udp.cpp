@@ -801,9 +801,9 @@ static bool operator!=(const _sockaddr &l, const _sockaddr &r)
 	return !(l == r);
 }
 
-template <std::size_t N>
+template <std::size_t Extent, std::size_t N>
 [[nodiscard]]
-static std::size_t copy_from_ntstring(uint8_t *const buf, const std::size_t len, const ntstring<N> &in)
+static std::size_t copy_from_ntstring(const std::span<uint8_t, Extent> buf, const std::size_t len, const ntstring<N> &in)
 {
 	return in.copy_out(0, reinterpret_cast<char *>(&buf[len]), N);
 }
@@ -2832,7 +2832,6 @@ void dispatch_table::send_endlevel_packet() const
 }
 }
 }
-}
 
 namespace {
 
@@ -2855,131 +2854,139 @@ struct game_info_heavy
 	std::array<uint8_t, upid_length<upid::game_info>> buf;
 };
 
-static uint_fast32_t net_udp_prepare_light_game_info(game_info_light &info)
+[[nodiscard]]
+static std::span<const uint8_t> net_udp_prepare_light_game_info(const d_level_unique_control_center_state &LevelUniqueControlCenterState, const netgame_info &Netgame, const std::span<uint8_t, upid_length<upid::game_info_lite>> buf)
 {
-	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
-	uint_fast32_t len = 0;
-	uint8_t *const buf = info.buf.data();
-		buf[0] = underlying_value(upid::game_info_lite);								len++;				// 1
+	std::size_t len = 0;
+	buf[0] = underlying_value(upid::game_info_lite);								len++;				// 1
 	PUT_INTEL_SHORT(&buf[len], DXX_VERSION_MAJORi); 						len += 2;			// 3
 	PUT_INTEL_SHORT(&buf[len], DXX_VERSION_MINORi); 						len += 2;			// 5
 	PUT_INTEL_SHORT(&buf[len], DXX_VERSION_MICROi); 						len += 2;			// 7
 	PUT_INTEL_INT(&buf[len], Netgame.protocol.udp.GameID);				len += 4;			// 11
 	PUT_INTEL_INT(&buf[len], Netgame.levelnum);					len += 4;
-		buf[len] = underlying_value(Netgame.gamemode);							len++;
-		buf[len] = Netgame.RefusePlayers;						len++;
-		buf[len] = underlying_value(Netgame.difficulty);							len++;
+	buf[len] = underlying_value(Netgame.gamemode);							len++;
+	buf[len] = Netgame.RefusePlayers;						len++;
+	buf[len] = underlying_value(Netgame.difficulty);							len++;
 	const auto tmpvar = get_effective_netgame_status(LevelUniqueControlCenterState);
-		buf[len] = underlying_value(tmpvar);								len++;
-		buf[len] = Netgame.numconnected;						len++;
-		buf[len] = Netgame.max_numplayers;						len++;
-		buf[len] = pack_game_flags(&Netgame.game_flag).value;							len++;
+	buf[len] = underlying_value(tmpvar);								len++;
+	buf[len] = Netgame.numconnected;						len++;
+	buf[len] = Netgame.max_numplayers;						len++;
+	buf[len] = pack_game_flags(&Netgame.game_flag).value;							len++;
 	len += copy_from_ntstring(buf, len, Netgame.game_name);
 	len += copy_from_ntstring(buf, len, Netgame.mission_title);
 	len += copy_from_ntstring(buf, len, Netgame.mission_name);
-	return len;
+	return buf.first(len);
 }
 
-static uint_fast32_t net_udp_prepare_heavy_game_info(const _sockaddr *const addr, const upid info_upid, game_info_heavy &info)
+[[nodiscard]]
+static std::span<const uint8_t> net_udp_prepare_heavy_game_info(const d_level_unique_control_center_state &LevelUniqueControlCenterState, const netgame_info &Netgame, const _sockaddr *const entry_addr, const upid info_upid, game_info_heavy &info)
 {
-	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
-	uint8_t *const buf = info.buf.data();
-	uint_fast32_t len = 0;
+	const std::span buf = info.buf;
+	std::size_t len = 0;
 
-		buf[0] = underlying_value(info_upid);								len++;
+	buf[0] = underlying_value(info_upid);								len++;
 	PUT_INTEL_SHORT(&buf[len], DXX_VERSION_MAJORi); 						len += 2;
 	PUT_INTEL_SHORT(&buf[len], DXX_VERSION_MINORi); 						len += 2;
 	PUT_INTEL_SHORT(&buf[len], DXX_VERSION_MICROi); 						len += 2;
-		ubyte &your_index = buf[len++];
-		your_index = MULTI_PNUM_UNDEF;
-		for (int i = 0; i < Netgame.players.size(); i++)
+	auto &your_index = buf[len++];
+	your_index = MULTI_PNUM_UNDEF;
+	auto addr = entry_addr;
+	for (const auto &&[i, np] : enumerate(Netgame.players))
+	{
+		memcpy(&buf[len], &np.callsign[0], CALLSIGN_LEN+1); 	len += CALLSIGN_LEN+1;
+		buf[len] = underlying_value(np.connected);				len++;
+		buf[len] = underlying_value(np.rank);					len++;
+		if (addr && *addr == np.protocol.udp.addr)
 		{
-			memcpy(&buf[len], Netgame.players[i].callsign.buffer(), CALLSIGN_LEN+1); 	len += CALLSIGN_LEN+1;
-			buf[len] = underlying_value(Netgame.players[i].connected);				len++;
-			buf[len] = underlying_value(Netgame.players[i].rank);					len++;
-			if (addr && *addr == Netgame.players[i].protocol.udp.addr)
-				your_index = i;
+			addr = nullptr;
+			your_index = i;
 		}
+	}
 	PUT_INTEL_INT(&buf[len], Netgame.levelnum);					len += 4;
-		buf[len] = underlying_value(Netgame.gamemode);							len++;
-		buf[len] = Netgame.RefusePlayers;						len++;
-		buf[len] = underlying_value(Netgame.difficulty);							len++;
+	buf[len] = underlying_value(Netgame.gamemode);							len++;
+	buf[len] = Netgame.RefusePlayers;						len++;
+	buf[len] = underlying_value(Netgame.difficulty);							len++;
 	const auto tmpvar = get_effective_netgame_status(LevelUniqueControlCenterState);
-		buf[len] = underlying_value(tmpvar);								len++;
-		buf[len] = Netgame.numplayers;							len++;
-		buf[len] = Netgame.max_numplayers;						len++;
-		buf[len] = Netgame.numconnected;						len++;
-		buf[len] = pack_game_flags(&Netgame.game_flag).value;							len++;
-		buf[len] = Netgame.team_vector;							len++;
+	buf[len] = underlying_value(tmpvar);								len++;
+	buf[len] = Netgame.numplayers;							len++;
+	buf[len] = Netgame.max_numplayers;						len++;
+	buf[len] = Netgame.numconnected;						len++;
+	buf[len] = pack_game_flags(&Netgame.game_flag).value;							len++;
+	buf[len] = Netgame.team_vector;							len++;
 	PUT_INTEL_INT(&buf[len], Netgame.AllowedItems);					len += 4;
 	/* In cooperative games, never shuffle. */
 	PUT_INTEL_INT(&buf[len], (Game_mode & GM_MULTI_COOP) ? 0 : Netgame.ShufflePowerupSeed);			len += 4;
-		buf[len] = Netgame.SecludedSpawns;			len += 1;
+	buf[len] = Netgame.SecludedSpawns;			len += 1;
 #if defined(DXX_BUILD_DESCENT_I)
-		buf[len] = Netgame.SpawnGrantedItems.mask;			len += 1;
-		buf[len] = Netgame.DuplicatePowerups.get_packed_field();			len += 1;
+	buf[len] = Netgame.SpawnGrantedItems.mask;			len += 1;
+	buf[len] = Netgame.DuplicatePowerups.get_packed_field();			len += 1;
 #elif defined(DXX_BUILD_DESCENT_II)
 	PUT_INTEL_SHORT(&buf[len], Netgame.SpawnGrantedItems.mask);			len += 2;
 	PUT_INTEL_SHORT(&buf[len], Netgame.DuplicatePowerups.get_packed_field());			len += 2;
-		buf[len++] = Netgame.Allow_marker_view;
-		buf[len++] = Netgame.AlwaysLighting;
-		buf[len++] = Netgame.ThiefModifierFlags;
-		buf[len++] = Netgame.AllowGuidebot;
+	buf[len++] = Netgame.Allow_marker_view;
+	buf[len++] = Netgame.AlwaysLighting;
+	buf[len++] = Netgame.ThiefModifierFlags;
+	buf[len++] = Netgame.AllowGuidebot;
 #endif
-		buf[len++] = Netgame.ShowEnemyNames;
-		buf[len++] = Netgame.BrightPlayers;
-		buf[len++] = Netgame.InvulAppear;
-		range_for (const auto &i, Netgame.team_name)
-		{
-			memcpy(&buf[len], static_cast<const char *>(i), (CALLSIGN_LEN+1));
-			len += CALLSIGN_LEN + 1;
-		}
-		range_for (auto &i, Netgame.locations)
-		{
+	buf[len++] = Netgame.ShowEnemyNames;
+	buf[len++] = Netgame.BrightPlayers;
+	buf[len++] = Netgame.InvulAppear;
+	for (auto &i : Netgame.team_name)
+	{
+		memcpy(&buf[len], i.operator const char *(), (CALLSIGN_LEN+1));
+		len += CALLSIGN_LEN + 1;
+	}
+	for (auto &i : Netgame.locations)
+	{
 		PUT_INTEL_INT(&buf[len], i);				len += 4;
-		}
-		range_for (auto &i, Netgame.kills)
+	}
+	for (auto &i : Netgame.kills)
+	{
+		for (auto &j : i)
 		{
-			range_for (auto &j, i)
-			{
 			PUT_INTEL_SHORT(&buf[len], j);		len += 2;
-			}
 		}
+	}
 	PUT_INTEL_SHORT(&buf[len], Netgame.segments_checksum);			len += 2;
 	PUT_INTEL_SHORT(&buf[len], Netgame.team_kills[0]);				len += 2;
 	PUT_INTEL_SHORT(&buf[len], Netgame.team_kills[1]);				len += 2;
-		range_for (auto &i, Netgame.killed)
-		{
+	for (auto &i : Netgame.killed)
+	{
 		PUT_INTEL_SHORT(&buf[len], i);				len += 2;
-		}
-		range_for (auto &i, Netgame.player_kills)
-		{
+	}
+	for (auto &i : Netgame.player_kills)
+	{
 		PUT_INTEL_SHORT(&buf[len], i);			len += 2;
-		}
+	}
 	PUT_INTEL_INT(&buf[len], Netgame.KillGoal);					len += 4;
 	PUT_INTEL_INT(&buf[len], Netgame.PlayTimeAllowed.count());				len += 4;
 	PUT_INTEL_INT(&buf[len], Netgame.level_time);					len += 4;
 	PUT_INTEL_INT(&buf[len], Netgame.control_invul_time);				len += 4;
 	PUT_INTEL_INT(&buf[len], Netgame.monitor_vector);				len += 4;
-		range_for (auto &i, Netgame.player_score)
-		{
+	for (auto &i : Netgame.player_score)
+	{
 		PUT_INTEL_INT(&buf[len], i);			len += 4;
-		}
-		range_for (auto &i, Netgame.net_player_flags)
-		{
-			buf[len] = static_cast<uint8_t>(i.get_player_flags());
-			len++;
-		}
+	}
+	for (auto &i : Netgame.net_player_flags)
+	{
+		buf[len] = static_cast<uint8_t>(i.get_player_flags());
+		len++;
+	}
 	PUT_INTEL_SHORT(&buf[len], Netgame.PacketsPerSec);				len += 2;
-		buf[len] = Netgame.PacketLossPrevention;					len++;
-		buf[len] = Netgame.NoFriendlyFire;						len++;
-		buf[len] = Netgame.MouselookFlags;						len++;
-		buf[len] = Netgame.PitchLockFlags;                      len++;
+	buf[len] = Netgame.PacketLossPrevention;					len++;
+	buf[len] = Netgame.NoFriendlyFire;						len++;
+	buf[len] = Netgame.MouselookFlags;						len++;
+	buf[len] = Netgame.PitchLockFlags;                      len++;
 	len += copy_from_ntstring(buf, len, Netgame.game_name);
 	len += copy_from_ntstring(buf, len, Netgame.mission_title);
 	len += copy_from_ntstring(buf, len, Netgame.mission_name);
-	return len;
+	return buf.first(len);
 }
+
+}
+}
+
+namespace {
 
 void net_udp_send_game_info(csockaddr_ref sender_addr, const _sockaddr *player_address, const upid info_upid)
 {
@@ -2989,19 +2996,10 @@ void net_udp_send_game_info(csockaddr_ref sender_addr, const _sockaddr *player_a
 		game_info_light light;
 		game_info_heavy heavy;
 	};
-	std::size_t len;
-	const uint8_t *info;
-	if (info_upid == upid::game_info_lite)
-	{
-		len = net_udp_prepare_light_game_info(light);
-		info = light.buf.data();
-	}
-	else
-	{
-		len = net_udp_prepare_heavy_game_info(player_address, info_upid, heavy);
-		info = heavy.buf.data();
-	}
-	dxx_sendto(UDP_Socket[0], {info, len}, 0, sender_addr);
+	const auto buf = (info_upid == upid::game_info_lite)
+		? net_udp_prepare_light_game_info(LevelUniqueObjectState.ControlCenterState, Netgame, light.buf)
+		: net_udp_prepare_heavy_game_info(LevelUniqueObjectState.ControlCenterState, Netgame, player_address, info_upid, heavy);
+	dxx_sendto(UDP_Socket[0], buf, 0, sender_addr);
 }
 
 static unsigned MouselookMPFlag(const unsigned game_is_cooperative)
@@ -6450,14 +6448,15 @@ static int udp_tracker_register()
 	net_udp_update_netgame();
 
 	game_info_light light;
-	unsigned len = 1, light_len = net_udp_prepare_light_game_info(light);
+	std::size_t len = 1;
+	const auto light_span = net_udp_prepare_light_game_info(LevelUniqueObjectState.ControlCenterState, Netgame, light.buf);
 	std::array<uint8_t, 2 + sizeof("b=") + sizeof(UDP_REQ_ID) + sizeof("00000.00000.00000.00000,z=") + upid_length<upid::game_info_lite>> pBuf = {};
 
 	pBuf[0] = UPID_TRACKER_REGISTER;
 	len += snprintf(reinterpret_cast<char *>(&pBuf[1]), sizeof(pBuf)-1, "b=" UDP_REQ_ID DXX_VERSION_STR ".%hu,z=", MULTI_PROTO_VERSION );
-	memcpy(&pBuf[len], light.buf.data(), light_len);		len += light_len;
+	memcpy(&pBuf[len], light_span.data(), light_span.size());		len += light_span.size();
 
-	return dxx_sendto(UDP_Socket[0], {pBuf.data(), len}, 0, TrackerSocket);
+	return dxx_sendto(UDP_Socket[0], std::span(pBuf).first(len), 0, TrackerSocket);
 }
 
 /* Ask the tracker to send us a list of games */
