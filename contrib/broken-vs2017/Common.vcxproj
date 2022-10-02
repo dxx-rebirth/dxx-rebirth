@@ -86,8 +86,6 @@
     <ClCompile Include="..\..\common\3d\points.cpp" />
     <ClCompile Include="..\..\common\3d\rod.cpp" />
     <ClCompile Include="..\..\common\3d\setup.cpp" />
-    <ClCompile Include="..\..\common\arch\carbon\messagebox.c" />
-    <ClCompile Include="..\..\common\arch\carbon\SDL_main.c" />
     <ClCompile Include="..\..\common\arch\sdl\digi_mixer_music.cpp" />
     <ClCompile Include="..\..\common\arch\sdl\event.cpp" />
     <ClCompile Include="..\..\common\arch\sdl\key.cpp" />

@@ -815,17 +815,6 @@
 			path = 3d;
 			sourceTree = "<group>";
 		};
-		14F8A93A1A2D6320003AA93A /* carbon */ = {
-			isa = PBXGroup;
-			children = (
-				14F8A9361A2D6320003AA93A /* conf.h */,
-				14F8A9371A2D6320003AA93A /* descent.r */,
-				14F8A9381A2D6320003AA93A /* messagebox.c */,
-				14F8A9391A2D6320003AA93A /* SDL_main.c */,
-			);
-			path = carbon;
-			sourceTree = "<group>";
-		};
 		14F8A9421A2D6320003AA93A /* cocoa */ = {
 			isa = PBXGroup;
 			children = (
@@ -835,7 +824,6 @@
 				14F8A93E1A2D6320003AA93A /* SDLMain.h */,
 				14F8A93F1A2D6320003AA93A /* SDLMain.m */,
 				14F8A9401A2D6320003AA93A /* tool_bundle.py */,
-				14F8A9411A2D6320003AA93A /* tool_bundle.pyc */,
 			);
 			path = cocoa;
 			sourceTree = "<group>";
@@ -866,7 +854,6 @@
 		14F8A94A1A2D6320003AA93A /* arch */ = {
 			isa = PBXGroup;
 			children = (
-				14F8A93A1A2D6320003AA93A /* carbon */,
 				14F8A9421A2D6320003AA93A /* cocoa */,
 				EB46A1D71C67537900C2C377 /* ogl */,
 				14F8A9471A2D6320003AA93A /* sdl */,

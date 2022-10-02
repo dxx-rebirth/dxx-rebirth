@@ -78,12 +78,6 @@
     <ClCompile Include="..\..\common\3d\setup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\common\arch\carbon\messagebox.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\common\arch\carbon\SDL_main.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\common\arch\sdl\digi_mixer_music.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

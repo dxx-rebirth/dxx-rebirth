@@ -4200,7 +4200,6 @@ class DXXCommon(LazyObjectConstructor):
 			# they unconditionally include headers specific to OS X.
 			excluded_directories = (
 				'common/arch/cocoa/',
-				'common/arch/carbon/',
 			)
 			# Use `.extend()` instead of assignment because
 			# `__shared_header_file_list` is shared among all invocations of
