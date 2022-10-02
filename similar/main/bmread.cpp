@@ -295,7 +295,7 @@ static bitmap_index bm_load_sub(const int skip, const char *const filename)
 	n.avg_color = compute_average_pixel(&n);
 #endif
 
-	bitmap_num = piggy_register_bitmap(n, fname.data(), 0);
+	bitmap_num = piggy_register_bitmap(n, fname, 0);
 	return bitmap_num;
 }
 
@@ -371,7 +371,7 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 #if !DXX_USE_OGL
 		bm[i]->avg_color = compute_average_pixel(bm[i].get());
 #endif
-		bmp[i] = piggy_register_bitmap(*bm[i].get(), tempname.data(), 0);
+		bmp[i] = piggy_register_bitmap(*bm[i].get(), tempname, 0);
 	}
 }
 

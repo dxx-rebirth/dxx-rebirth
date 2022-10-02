@@ -75,7 +75,7 @@ struct digi_sound;
 extern digi_sound bogus_sound;
 
 void piggy_close();
-bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const char * name, int in_file);
+bitmap_index piggy_register_bitmap(grs_bitmap &bmp, std::span<const char> name, int in_file);
 int piggy_register_sound( digi_sound * snd, const char * name, int in_file );
 bitmap_index piggy_find_bitmap(const char *name);
 void piggy_read_sound_data(digi_sound *snd);

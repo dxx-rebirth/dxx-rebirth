@@ -324,7 +324,7 @@ void swap_0_255(grs_bitmap &bmp)
 
 namespace dsx {
 
-bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const char *const name, const int in_file)
+bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const std::span<const char> name, const int in_file)
 {
 	bitmap_index temp;
 	assert(Num_bitmap_files < AllBitmaps.size());
@@ -347,8 +347,8 @@ bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const char *const name, cons
 #endif
 
 	auto &abn = AllBitmaps[Num_bitmap_files].name;
+	std::memcpy(abn.data(), name.data(), std::min(abn.size() - 1, name.size()));
 	abn.back() = 0;
-	strncpy(abn.data(), name, abn.size() - 1);
 	hashtable_insert(&AllBitmapsNames, AllBitmaps[Num_bitmap_files].name.data(), Num_bitmap_files);
 #if defined(DXX_BUILD_DESCENT_I)
 	GameBitmaps[Num_bitmap_files] = bmp;
@@ -608,7 +608,7 @@ int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 				temp_bitmap.bm_h = 480;
 		}
 		
-		piggy_register_bitmap(temp_bitmap, temp_name.data(), 1);
+		piggy_register_bitmap(temp_bitmap, temp_name, 1);
 	}
 
 	if (!MacPig)
@@ -741,7 +741,7 @@ void piggy_init_pigfile(const char *filename)
 
 		GameBitmapOffset[i+1] = pig_bitmap_offset{bmh.offset + data_start};
 		Assert( (i+1) == Num_bitmap_files );
-		piggy_register_bitmap(*bm, temp_name.data(), 1);
+		piggy_register_bitmap(*bm, temp_name, 1);
 	}
 
 #if DXX_USE_EDITOR
