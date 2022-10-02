@@ -628,7 +628,7 @@ static void set_robot_location_info(object &objp)
 	auto &vcobjptr = Objects.vcptr;
 	if (Player_fired_laser_this_frame != object_none) {
 		const auto &&temp = g3_rotate_point(objp.pos);
-		if (temp.p3_codes & CC_BEHIND)		//robot behind the screen
+		if ((temp.p3_codes & clipping_code::behind) != clipping_code::None)		//robot behind the screen
 			return;
 
 		//the code below to check for object near the center of the screen

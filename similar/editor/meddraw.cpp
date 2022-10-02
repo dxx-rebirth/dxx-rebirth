@@ -119,7 +119,7 @@ static void draw_segment(const g3_draw_line_context &context, const shared_segme
 
 	auto &svp = seg.verts;
 	auto &vcvertptr = Vertices.vcptr;
-	if (!rotate_list(vcvertptr, svp).uand)
+	if (rotate_list(vcvertptr, svp).uand == clipping_code::None)
 	{		//all off screen?
 		for (const uint8_t i : xrange(4u))
 			draw_line(context, svp[(segment_relative_vertnum{i})], svp[(segment_relative_vertnum{static_cast<uint8_t>(i + 4)})]);
@@ -142,7 +142,7 @@ static void check_segment(const vmsegptridx_t seg)
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
-	if (!rotate_list(vcvertptr, svp).uand)
+	if (rotate_list(vcvertptr, svp).uand == clipping_code::None)
 	{		//all off screen?
 #if DXX_USE_OGL
 		g3_end_frame();
@@ -186,7 +186,7 @@ static void draw_seg_side(const shared_segment &seg, const sidenum_t side, const
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
-	if (!rotate_list(vcvertptr, svp).uand)
+	if (rotate_list(vcvertptr, svp).uand == clipping_code::None)
 	{		//all off screen?
 		auto &stv = Side_to_verts[side];
 		g3_draw_line_context context{*grd_curcanv, color};
@@ -201,7 +201,7 @@ static void draw_side_edge(const shared_segment &seg, const sidenum_t side, cons
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
-	if (!rotate_list(vcvertptr, svp).uand)		//on screen?
+	if (rotate_list(vcvertptr, svp).uand == clipping_code::None)		//on screen?
 	{
 		auto &stv = Side_to_verts[side];
 		draw_line(g3_draw_line_context{*grd_curcanv, color}, svp[stv[edge]], svp[stv[next_side_vertex(edge)]]);
@@ -344,7 +344,7 @@ static void add_edges(const shared_segment &seg)
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
-	if (!rotate_list(vcvertptr, svp).uand)
+	if (rotate_list(vcvertptr, svp).uand == clipping_code::None)
 	{		//all off screen?
 		int	i,fn,vn;
 		int	flag;
@@ -397,7 +397,7 @@ static void draw_trigger_side(const shared_segment &seg, const sidenum_t side, c
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
-	if (!rotate_list(vcvertptr, svp).uand)
+	if (rotate_list(vcvertptr, svp).uand == clipping_code::None)
 	{		//all off screen?
 		// Draw diagonals
 		auto &stv = Side_to_verts[side];
@@ -412,7 +412,7 @@ static void draw_wall_side(const shared_segment &seg, const sidenum_t side, cons
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
-	if (!rotate_list(vcvertptr, svp).uand)
+	if (rotate_list(vcvertptr, svp).uand == clipping_code::None)
 	{		//all off screen?
 		// Draw diagonals
 		g3_draw_line_context context{*grd_curcanv, color};

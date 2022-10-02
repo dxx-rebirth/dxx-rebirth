@@ -1304,7 +1304,7 @@ void draw_all_edges(automap &am)
 		if (min_distance>distance )
 			min_distance = distance;
 
-		if (!rotate_list(vcvertptr, e->verts).uand)
+		if (rotate_list(vcvertptr, e->verts).uand == clipping_code::None)
 		{			//all off screen?
 			nfacing = nnfacing = 0;
 			auto &tv1 = *vcvertptr(e->verts[0]);

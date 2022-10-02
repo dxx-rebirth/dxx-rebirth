@@ -60,10 +60,48 @@ struct g3s_lrgb {
 	fix r,g,b;
 };
 
+//clipping codes flags
+
+enum class clipping_code : uint8_t
+{
+	None = 0,
+	off_left = 1,
+	off_right = 2,
+	off_bot = 4,
+	off_top = 8,
+	behind = 0x80,
+};
+
+static constexpr clipping_code operator&(const clipping_code a, const clipping_code b)
+{
+	return static_cast<clipping_code>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
+}
+
+static constexpr clipping_code &operator&=(clipping_code &a, const clipping_code b)
+{
+	return a = (a & b);
+}
+
+static constexpr clipping_code operator|(const clipping_code a, const clipping_code b)
+{
+	return static_cast<clipping_code>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+}
+
+static constexpr clipping_code &operator|=(clipping_code &a, const clipping_code b)
+{
+	return a = (a | b);
+}
+
+static constexpr clipping_code operator~(const clipping_code a)
+{
+	return static_cast<clipping_code>(~static_cast<uint8_t>(a));
+}
+
 //Stucture to store clipping codes in a word
 struct g3s_codes {
 	//or is low byte, and is high byte
-	uint8_t uor = 0, uand = 0xff;
+	clipping_code uor = clipping_code{0};
+	clipping_code uand = clipping_code{0xff};
 };
 
 enum class projection_flag : uint8_t
@@ -103,14 +141,6 @@ static constexpr projection_flag operator~(const projection_flag a)
 	return static_cast<projection_flag>(~static_cast<uint8_t>(a));
 }
 
-//clipping codes flags
-
-constexpr std::integral_constant<uint8_t, 1> CC_OFF_LEFT{};
-constexpr std::integral_constant<uint8_t, 2> CC_OFF_RIGHT{};
-constexpr std::integral_constant<uint8_t, 4> CC_OFF_BOT{};
-constexpr std::integral_constant<uint8_t, 8> CC_OFF_TOP{};
-constexpr std::integral_constant<uint8_t, 0x80> CC_BEHIND{};
-
 //Used to store rotated points for mines.  Has frame count to indictate
 //if rotated, and flag to indicate if projected.
 struct g3s_point {
@@ -119,7 +149,7 @@ struct g3s_point {
 	fix p3_u,p3_v,p3_l; //u,v,l coords
 #endif
 	fix p3_sx,p3_sy;    //screen x&y
-	ubyte p3_codes;     //clipping codes
+	clipping_code p3_codes;     //clipping codes
 	projection_flag p3_flags;     //projected?
 	uint16_t p3_last_generation;
 };
@@ -189,7 +219,7 @@ bool g3_check_normal_facing(const vms_vector &v,const vms_vector &norm);
 namespace dcx {
 
 //rotates a point. returns codes.  does not check if already rotated
-ubyte g3_rotate_point(g3s_point &dest,const vms_vector &src);
+clipping_code g3_rotate_point(g3s_point &dest,const vms_vector &src);
 
 [[nodiscard]]
 static inline g3s_point g3_rotate_point(const vms_vector &src)
@@ -208,7 +238,7 @@ fix g3_calc_point_depth(const vms_vector &pnt);
 void g3_point_2_vec(vms_vector &v,short sx,short sy);
 
 //code a point.  fills in the p3_codes field of the point, and returns the codes
-ubyte g3_code_point(g3s_point &point);
+clipping_code g3_code_point(g3s_point &point);
 
 //delta rotation functions
 void g3_rotate_delta_vec(vms_vector &dest,const vms_vector &src);

@@ -61,7 +61,7 @@ void g3_set_special_render(tmap_drawer_type tmap_drawer)
 namespace {
 
 //deal with a clipped line
-static void must_clip_line(const g3_draw_line_context &context, g3s_point *p0, g3s_point *p1, const uint8_t codes_or, temporary_points_t &tp)
+static void must_clip_line(const g3_draw_line_context &context, g3s_point *p0, g3s_point *p1, const clipping_code codes_or, temporary_points_t &tp)
 {
 	if ((p0->p3_flags&projection_flag::temp_point) || (p1->p3_flags&projection_flag::temp_point))
 		;		//line has already been clipped, so give up
@@ -90,15 +90,12 @@ void g3_draw_line(const g3_draw_line_context &context, g3s_point &p0, g3s_point 
 
 void g3_draw_line(const g3_draw_line_context &context, g3s_point &p0, g3s_point &p1, temporary_points_t &tp)
 {
-	ubyte codes_or;
-
-	if (p0.p3_codes & p1.p3_codes)
+	if ((p0.p3_codes & p1.p3_codes) != clipping_code::None)
 		return;
 
-	codes_or = p0.p3_codes | p1.p3_codes;
-
+	const clipping_code codes_or = p0.p3_codes | p1.p3_codes;
 	if (
-		(codes_or & CC_BEHIND) ||
+		(codes_or & clipping_code::behind) != clipping_code::None ||
 		(static_cast<void>((p0.p3_flags & projection_flag::projected) || (g3_project_point(p0), 0)), p0.p3_flags & projection_flag::overflow) ||
 		(static_cast<void>((p1.p3_flags & projection_flag::projected) || (g3_project_point(p1), 0)), p1.p3_flags & projection_flag::overflow)
 	)
@@ -133,7 +130,8 @@ static void must_clip_flat_face(grs_canvas &canvas, int nv, g3s_codes cc, polygo
 	temporary_points_t tp;
 	auto &bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc,tp);
 
-	if (nv>0 && !(cc.uor&CC_BEHIND) && !cc.uand) {
+	if (nv > 0 && (cc.uor & clipping_code::behind) == clipping_code::None && cc.uand == clipping_code::None)
+	{
 		std::array<fix, MAX_POINTS_IN_POLY*2> Vertex_list;
 		for (int i=0;i<nv;i++) {
 			g3s_point *p = bufptr[i];
@@ -173,10 +171,10 @@ void _g3_draw_poly(grs_canvas &canvas, const std::span<cg3s_point *const> pointl
 		cc.uor  |= bp->p3_codes;
 	}
 
-	if (cc.uand)
+	if (cc.uand != clipping_code::None)
 		return;	//all points off screen
 
-	if (cc.uor)
+	if (cc.uor != clipping_code::None)
 	{
 		must_clip_flat_face(canvas, pointlist.size(), cc, Vbuf0, Vbuf1, color);
 		return;
@@ -229,10 +227,10 @@ void _g3_draw_tmap(grs_canvas &canvas, const std::span<cg3s_point *const> pointl
 
 	}
 
-	if (cc.uand)
+	if (cc.uand != clipping_code::None)
 		return;	//all points off screen
 
-	if (cc.uor)
+	if (cc.uor != clipping_code::None)
 	{
 		must_clip_tmap_face(canvas, pointlist.size(), cc, bm, Vbuf0, Vbuf1);
 		return;
@@ -259,8 +257,8 @@ static void must_clip_tmap_face(grs_canvas &canvas, int nv, g3s_codes cc, grs_bi
 {
 	temporary_points_t tp;
 	auto &bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc,tp);
-	if (nv && !(cc.uor&CC_BEHIND) && !cc.uand) {
-
+	if (nv && (cc.uor & clipping_code::behind) == clipping_code::None && cc.uand == clipping_code::None)
+	{
 		for (int i=0;i<nv;i++) {
 			g3s_point *p = bufptr[i];
 
@@ -288,8 +286,8 @@ free_points:
 //radius, but not to the distance from the eye
 void g3_draw_sphere(grs_canvas &canvas, cg3s_point &pnt, const fix rad, const uint8_t color)
 {
-	if (! (pnt.p3_codes & CC_BEHIND)) {
-
+	if ((pnt.p3_codes & clipping_code::behind) == clipping_code::None)
+	{
 		if (! (pnt.p3_flags & projection_flag::projected))
 			g3_project_point(pnt);
 

@@ -771,7 +771,7 @@ namespace dsx {
 namespace {
 static void render_segment(fvcvertptr &vcvertptr, fvcwallptr &vcwallptr, const vms_vector &Viewer_eye, grs_canvas &canvas, const vcsegptridx_t seg)
 {
-	if (!rotate_list(vcvertptr, seg->verts).uand)
+	if (rotate_list(vcvertptr, seg->verts).uand == clipping_code::None)
 	{		//all off screen?
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -808,7 +808,7 @@ static void outline_seg_side(grs_canvas &canvas, const shared_segment &seg, cons
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
-	if (!rotate_list(vcvertptr, verts).uand)
+	if (rotate_list(vcvertptr, verts).uand == clipping_code::None)
 	{		//all off screen?
 		//render curedge of curside of curseg in green
 
@@ -840,15 +840,18 @@ namespace dcx {
 
 namespace {
 
-static ubyte code_window_point(fix x,fix y,const rect &w)
+static clipping_code code_window_point(const fix x, const fix y, const rect &w)
 {
-	ubyte code=0;
+	clipping_code code{};
+	if (x <= w.left)
+		code |= clipping_code::off_left;
+	if (x >= w.right)
+		code |= clipping_code::off_right;
 
-	if (x <= w.left)  code |= 1;
-	if (x >= w.right) code |= 2;
-
-	if (y <= w.top) code |= 4;
-	if (y >= w.bot) code |= 8;
+	if (y <= w.top)
+		code |= clipping_code::off_top;
+	if (y >= w.bot)
+		code |= clipping_code::off_bot;
 
 	return code;
 }
@@ -1367,7 +1370,7 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 			processed = true;
 
 			const auto &&seg = vcsegptridx(segnum);
-			const auto uor = rotate_list(vcvertptr, seg->verts).uor & CC_BEHIND;
+			const auto uor = rotate_list(vcvertptr, seg->verts).uor & clipping_code::behind;
 
 			//look at all sides of this segment.
 			//tricky code to look at sides in correct order follows
@@ -1380,11 +1383,12 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 				const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, c);
 				if (wid & WALL_IS_DOORWAY_FLAG::rendpast)
 				{
-					if (auto codes_and = uor)
+					if (uor != clipping_code::None)
 					{
+						auto codes_and = uor;
 						range_for (const auto i, sv)
 							codes_and &= Segment_points[seg->verts[i]].p3_codes;
-						if (codes_and)
+						if (codes_and != clipping_code::None)
 							continue;
 					}
 					*child_iter++ = c;
@@ -1404,7 +1408,8 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 					{
 						short min_x=32767,max_x=-32767,min_y=32767,max_y=-32767;
 						int no_proj_flag=0;	//a point wasn't projected
-						uint8_t codes_and_3d = 0xff, codes_and_2d = codes_and_3d;
+						clipping_code codes_and_3d{0xff};
+						auto codes_and_2d = codes_and_3d;
 						range_for (const auto i, Side_to_verts[siden])
 						{
 							g3s_point *pnt = &Segment_points[seg->verts[i]];
@@ -1421,7 +1426,7 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 							codes_and_3d &= pnt->p3_codes;
 							codes_and_2d &= code_window_point(_x,_y,check_w);
 						}
-						if (no_proj_flag || (!codes_and_3d && !codes_and_2d)) {	//maybe add this segment
+						if (no_proj_flag || (codes_and_3d == clipping_code::None && codes_and_2d == clipping_code::None)) {	//maybe add this segment
 							auto rp = rstate.render_pos[ch];
 							rect nw;
 
@@ -1638,7 +1643,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 			{
 				const auto &&seg = vcsegptridx(segnum);
 				Assert(segnum!=segment_none && segnum<=Highest_segment_index);
-				if (!rotate_list(vcvertptr, seg->verts).uand)
+				if (rotate_list(vcvertptr, seg->verts).uand == clipping_code::None)
 				{		//all off screen?
 
 					if (Viewer->type!=OBJ_ROBOT)
@@ -1687,7 +1692,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 			{
 				const auto &&seg = vcsegptridx(segnum);
 				Assert(segnum!=segment_none && segnum<=Highest_segment_index);
-				if (!rotate_list(vcvertptr, seg->verts).uand)
+				if (rotate_list(vcvertptr, seg->verts).uand == clipping_code::None)
 				{		//all off screen?
 
 					if (Viewer->type!=OBJ_ROBOT)

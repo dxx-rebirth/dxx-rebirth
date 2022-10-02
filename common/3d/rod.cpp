@@ -31,7 +31,7 @@ struct rod_4point
 };
 
 //compute the corners of a rod.  fills in vertbuf.
-static int calc_rod_corners(rod_4point &rod_point_group, const g3s_point &bot_point,fix bot_width,const g3s_point &top_point,fix top_width)
+static clipping_code calc_rod_corners(rod_4point &rod_point_group, const g3s_point &bot_point,fix bot_width,const g3s_point &top_point,fix top_width)
 {
 	//compute vector from one point to other, do cross product with vector
 	//from eye to get perpendiclar
@@ -85,7 +85,7 @@ static int calc_rod_corners(rod_4point &rod_point_group, const g3s_point &bot_po
 
 	//now code the four points
 
-	ubyte codes_and = 0xff;
+	clipping_code codes_and{0xff};
 	range_for (auto &i, rod_points)
 	{
 		codes_and &= g3_code_point(i);
@@ -102,7 +102,7 @@ static int calc_rod_corners(rod_4point &rod_point_group, const g3s_point &bot_po
 void g3_draw_rod_tmap(grs_canvas &canvas, grs_bitmap &bitmap, const g3s_point &bot_point, fix bot_width, const g3s_point &top_point, fix top_width, g3s_lrgb light)
 {
 	rod_4point rod;
-	if (calc_rod_corners(rod,bot_point,bot_width,top_point,top_width))
+	if (calc_rod_corners(rod, bot_point, bot_width, top_point, top_width) != clipping_code::None)
 		return;
 
 	const fix average_light = static_cast<unsigned>(light.r+light.g+light.b)/3;
@@ -129,7 +129,7 @@ void g3_draw_bitmap(grs_canvas &canvas, const vms_vector &pos, fix width, fix he
 {
 	g3s_point pnt;
 	fix w,h;
-	if (g3_rotate_point(pnt,pos) & CC_BEHIND)
+	if ((g3_rotate_point(pnt, pos) & clipping_code::behind) != clipping_code::None)
 		return;
 	g3_project_point(pnt);
 	if (pnt.p3_flags & projection_flag::overflow)

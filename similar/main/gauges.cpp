@@ -3560,7 +3560,7 @@ void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &canvas, co
 		if ((show_name || show_typing || show_indi) && see_object(Robot_info, vcobjptridx, objp))
 		{
 			auto player_point = g3_rotate_point(objp->pos);
-			if (player_point.p3_codes == 0) //on screen
+			if (player_point.p3_codes == clipping_code::None) //on screen
 			{
 				g3_project_point(player_point);
 				if (!(player_point.p3_flags & projection_flag::overflow))

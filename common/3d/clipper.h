@@ -38,7 +38,7 @@ struct temporary_points_t
 };
 
 const polygon_clip_points &clip_polygon(polygon_clip_points &src,polygon_clip_points &dest,int *nv,g3s_codes *cc,temporary_points_t &);
-void clip_line(g3s_point *&p0,g3s_point *&p1,uint_fast8_t codes_or,temporary_points_t &);
+void clip_line(g3s_point *&p0, g3s_point *&p1, clipping_code codes_or, temporary_points_t &);
 
 }
 #endif

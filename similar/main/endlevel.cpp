@@ -381,10 +381,9 @@ void draw_stars(grs_canvas &canvas, const d_unique_endlevel_state::starfield_typ
 		g3_rotate_delta_vec(p.p3_vec, si);
 		g3_code_point(p);
 
-		if (p.p3_codes == 0) {
-
+		if (p.p3_codes == clipping_code::None)
+		{
 			p.p3_flags &= ~projection_flag::projected;
-
 			g3_project_point(p);
 #if !DXX_USE_OGL
 			gr_pixel(canvas.cv_bitmap, f2i(p.p3_sx), f2i(p.p3_sy), color);
@@ -403,7 +402,7 @@ void draw_stars(grs_canvas &canvas, const d_unique_endlevel_state::starfield_typ
 //@@
 //@@		g3_add_delta_vec(&top_pnt,&p,&delta);
 //@@
-//@@		if (! (p.p3_codes & CC_BEHIND)) {
+//@@		if (! (p.p3_codes & clipping_code::behind)) {
 //@@			int save_im = Interpolation_method;
 //@@			Interpolation_method = 0;
 //@@			//p.p3_flags &= ~projection_flag::projected;
@@ -607,7 +606,8 @@ static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas,
 
 		g3_add_delta_vec(top_pnt,p,delta);
 
-		if (! (p.p3_codes & CC_BEHIND)) {
+		if ((p.p3_codes & clipping_code::behind) == clipping_code::None)
+		{
 			//p.p3_flags &= ~projection_flag::projected;
 			//g3_project_point(&p);
 			if (! (p.p3_flags & projection_flag::overflow)) {

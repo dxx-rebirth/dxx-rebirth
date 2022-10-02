@@ -50,7 +50,7 @@ void temporary_points_t::free_temp_point(g3s_point &p)
 namespace {
 
 //clips an edge against one plane. 
-static g3s_point &clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt, temporary_points_t &tp)
+static g3s_point &clip_edge(const clipping_code plane_flag, g3s_point *on_pnt, g3s_point *off_pnt, temporary_points_t &tp)
 {
 	fix psx_ratio;
 	fix a,b,kn,kd;
@@ -58,7 +58,8 @@ static g3s_point &clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt,
 	//compute clipping value k = (xs-zs) / (xs-xe-zs+ze)
 	//use x or y as appropriate, and negate x/y value as appropriate
 
-	if (plane_flag & (CC_OFF_RIGHT | CC_OFF_LEFT)) {
+	if ((plane_flag & (clipping_code::off_right | clipping_code::off_left)) != clipping_code::None)
+	{
 		a = on_pnt->p3_x;
 		b = off_pnt->p3_x;
 	}
@@ -67,7 +68,8 @@ static g3s_point &clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt,
 		b = off_pnt->p3_y;
 	}
 
-	if (plane_flag & (CC_OFF_LEFT | CC_OFF_BOT)) {
+	if ((plane_flag & (clipping_code::off_left | clipping_code::off_bot)) != clipping_code::None)
+	{
 		a = -a;
 		b = -b;
 	}
@@ -81,12 +83,12 @@ static g3s_point &clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt,
 	tmp.p3_x = on_pnt->p3_x + fixmul( (off_pnt->p3_x-on_pnt->p3_x), psx_ratio);
 	tmp.p3_y = on_pnt->p3_y + fixmul( (off_pnt->p3_y-on_pnt->p3_y), psx_ratio);
 
-	if (plane_flag & (CC_OFF_TOP|CC_OFF_BOT))
+	if ((plane_flag & (clipping_code::off_top | clipping_code::off_bot)) != clipping_code::None)
 		tmp.p3_z = tmp.p3_y;
 	else
 		tmp.p3_z = tmp.p3_x;
 
-	if (plane_flag & (CC_OFF_LEFT|CC_OFF_BOT))
+	if ((plane_flag & (clipping_code::off_left | clipping_code::off_bot)) != clipping_code::None)
 		tmp.p3_z = -tmp.p3_z;
 
 	if (on_pnt->p3_flags & projection_flag::uvs) {
@@ -114,48 +116,52 @@ static g3s_point &clip_edge(int plane_flag,g3s_point *on_pnt,g3s_point *off_pnt,
 }
 
 //clips a line to the viewing pyramid.
-void clip_line(g3s_point *&p0,g3s_point *&p1,const uint_fast8_t codes_or, temporary_points_t &tp)
+void clip_line(g3s_point *&p0, g3s_point *&p1, const clipping_code codes_or, temporary_points_t &tp)
 {
 	//might have these left over
 	p0->p3_flags &= ~(projection_flag::uvs|projection_flag::ls);
 	p1->p3_flags &= ~(projection_flag::uvs|projection_flag::ls);
 
-	for (int plane_flag=1;plane_flag<16;plane_flag<<=1)
-		if (codes_or & plane_flag) {
-
-			if (p0->p3_codes & plane_flag)
+	for (uint8_t plane_step = 1; plane_step < 16; plane_step <<= 1)
+	{
+		const clipping_code plane_flag{plane_step};
+		if ((codes_or & plane_flag) != clipping_code::None)
+		{
+			if ((p0->p3_codes & plane_flag) != clipping_code::None)
 				std::swap(p0, p1);
 			auto &old_p1 = *std::exchange(p1, &clip_edge(plane_flag, p0, p1, tp));
 			if (old_p1.p3_flags & projection_flag::temp_point)
 				tp.free_temp_point(old_p1);
 		}
+	}
 }
 
 namespace {
 
-static int clip_plane(int plane_flag,polygon_clip_points &src,polygon_clip_points &dest,int *nv,g3s_codes *cc, temporary_points_t &tp)
+static int clip_plane(const clipping_code plane_flag, polygon_clip_points &src, polygon_clip_points &dest, int *nv, g3s_codes *const cc, temporary_points_t &tp)
 {
 	//copy first two verts to end
 	src[*nv] = src[0];
 	src[*nv+1] = src[1];
 
-	cc->uand = 0xff; cc->uor = 0;
+	*cc = {};
 
 	uint_fast32_t j = 0;
 	for (int i=1;i<=*nv;i++) {
 
-		if (src[i]->p3_codes & plane_flag) {				//cur point off?
+		if ((src[i]->p3_codes & plane_flag) != clipping_code::None)
+		{				//cur point off?
 
-			if (! (src[i-1]->p3_codes & plane_flag)) {	//prev not off?
-
+			if ((src[i-1]->p3_codes & plane_flag) == clipping_code::None)
+			{	//prev not off?
 				dest[j] = &clip_edge(plane_flag,src[i-1],src[i],tp);
 				cc->uor  |= dest[j]->p3_codes;
 				cc->uand &= dest[j]->p3_codes;
 				++j;
 			}
 
-			if (! (src[i+1]->p3_codes & plane_flag)) {
-
+			if ((src[i+1]->p3_codes & plane_flag) == clipping_code::None)
+			{
 				dest[j] = &clip_edge(plane_flag,src[i+1],src[i],tp);
 				cc->uor  |= dest[j]->p3_codes;
 				cc->uand &= dest[j]->p3_codes;
@@ -183,17 +189,18 @@ static int clip_plane(int plane_flag,polygon_clip_points &src,polygon_clip_point
 const polygon_clip_points &clip_polygon(polygon_clip_points &rsrc,polygon_clip_points &rdest,int *nv,g3s_codes *cc, temporary_points_t &tp)
 {
 	polygon_clip_points *src = &rsrc, *dest = &rdest;
-	for (int plane_flag=1;plane_flag<16;plane_flag<<=1)
-
-		if (cc->uor & plane_flag) {
-
+	for (uint8_t plane_step = 1; plane_step < 16; plane_step <<= 1)
+	{
+		const clipping_code plane_flag{plane_step};
+		if ((cc->uor & plane_flag) != clipping_code::None)
+		{
 			*nv = clip_plane(plane_flag,*src,*dest,nv,cc,tp);
-
-			if (cc->uand)		//clipped away
+			if (cc->uand != clipping_code::None)		//clipped away
 				return *dest;
 
 			std::swap(src, dest);
 		}
+	}
 
 	return *src;		//we swapped after we copied
 }
