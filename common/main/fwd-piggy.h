@@ -42,6 +42,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define D1_MAC_PIGSIZE          3975533
 #define D1_MAC_SHARE_PIGSIZE    2714487
 
+namespace dcx {
+
+enum class game_sound_offset : int
+{
+};
+
+}
+
 #if defined(DXX_BUILD_DESCENT_II)
 #define D1_PIGFILE              "descent.pig"
 #define MAX_ALIASES 20
@@ -76,7 +84,7 @@ extern digi_sound bogus_sound;
 
 void piggy_close();
 bitmap_index piggy_register_bitmap(grs_bitmap &bmp, std::span<const char> name, int in_file);
-int piggy_register_sound( digi_sound * snd, const char * name, int in_file );
+int piggy_register_sound(digi_sound *snd, const char *name, int in_file, game_sound_offset);
 bitmap_index piggy_find_bitmap(const char *name);
 void piggy_read_sound_data(digi_sound *snd);
 void piggy_load_level_data();

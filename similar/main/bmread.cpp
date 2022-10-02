@@ -385,7 +385,7 @@ int ds_load(int skip, const char * filename )	{
 	if (skip) {
 		// We tell piggy_register_sound it's in the pig file, when in actual fact it's in no file
 		// This just tells piggy_close not to attempt to free it
-		return piggy_register_sound( &bogus_sound, "bogus", 1 );
+		return piggy_register_sound(&bogus_sound, "bogus", 1, game_sound_offset{});
 	}
 
 	std::array<char, 20> fname;
@@ -409,7 +409,7 @@ int ds_load(int skip, const char * filename )	{
 	} else {
 		return 255;
 	}
-	i = piggy_register_sound(&n, fname.data(), 0);
+	i = piggy_register_sound(&n, fname.data(), 0, game_sound_offset{});
 	return i;
 }
 }
