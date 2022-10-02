@@ -145,21 +145,17 @@ static const char *object_ids(const object_base &objp)
 	}
 }
 
-static void err_puts(PHYSFS_File *f, const char *str, size_t len) __attribute_nonnull();
-static void err_puts(PHYSFS_File *f, const char *str, size_t len)
-#define err_puts(A1,S,...)	(err_puts(A1,S, _dxx_call_puts_parameter2(1, ## __VA_ARGS__, strlen(S))))
+static void err_puts(PHYSFS_File *f, const std::span<const char> str)
 {
-	con_puts(CON_CRITICAL, str, len);
-	PHYSFSX_puts(f, str);
-	Errors_in_mine++;
+	++Errors_in_mine;
+	con_puts(CON_CRITICAL, str.data(), str.size());
+	PHYSFSX_puts(f, str.data(), str.size());
 }
 
-template <size_t len>
-static void err_puts_literal(PHYSFS_File *f, const char (&str)[len]) __attribute_nonnull();
-template <size_t len>
+template <std::size_t len>
 static void err_puts_literal(PHYSFS_File *f, const char (&str)[len])
 {
-	err_puts(f, str, len);
+	err_puts(f, {str, len - 1});
 }
 
 static void err_printf(PHYSFS_File *my_file, const char * format, ... ) __attribute_format_printf(2, 3);
@@ -170,9 +166,9 @@ static void err_printf(PHYSFS_File *my_file, const char * format, ... )
 	char		message[256];
 
 	va_start(args, format );
-	size_t len = vsnprintf(message,sizeof(message),format,args);
+	const std::size_t len = std::max(vsnprintf(message, sizeof(message), format, args), 0);
 	va_end(args);
-	err_puts(my_file, message, len);
+	err_puts(my_file, {message, len});
 }
 
 static void warning_puts(PHYSFS_File *f, const char *str, size_t len) __attribute_nonnull();
