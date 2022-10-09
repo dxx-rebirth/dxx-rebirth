@@ -1542,9 +1542,11 @@ static void piggy_write_pigfile(const std::span<const char, FILENAME_LEN> filena
 	data_offset = bitmap_data_start;
 
 	std::array<char, FILENAME_LEN> tname;
-	change_filename_extension(tname, filename.data(), "lst");
+	if (!change_filename_extension(tname, filename.data(), "lst"))
+		return;
 	auto fp1 = PHYSFSX_openWriteBuffered(tname.data()).first;
-	change_filename_extension(tname, filename.data(), "all");
+	if (!change_filename_extension(tname, filename.data(), "all"))
+		return;
 	auto fp2 = PHYSFSX_openWriteBuffered(tname.data()).first;
 
 	for (i=1; i < Num_bitmap_files; i++ ) {
@@ -1785,7 +1787,8 @@ void load_bitmap_replacements(const std::span<const char, FILENAME_LEN> level_na
 	free_bitmap_replacements();
 
 	std::array<char, FILENAME_LEN> ifile_name;
-	change_filename_extension(ifile_name, level_name.data(), "POG");
+	if (!change_filename_extension(ifile_name, level_name.data(), "POG"))
+		return;
 	if (auto ifile = PHYSFSX_openReadBuffered(ifile_name.data()).first)
 	{
 		int id,version;

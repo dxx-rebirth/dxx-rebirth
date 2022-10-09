@@ -1845,12 +1845,18 @@ static int save_level_sub(
 	}
 //	else
 	{
+		auto &level_file_extension =
 #if defined(DXX_BUILD_DESCENT_II)
-		if (Gamesave_current_version > 3)
-			change_filename_extension(temp_filename, filename, D2X_LEVEL_FILE_EXTENSION);
-		else
+			(Gamesave_current_version > 3)
+			? D2X_LEVEL_FILE_EXTENSION
+			:
 #endif
-			change_filename_extension(temp_filename, filename, D1X_LEVEL_FILE_EXTENSION);
+			D1X_LEVEL_FILE_EXTENSION;
+		if (!change_filename_extension(temp_filename, filename, level_file_extension))
+		{
+			con_printf(CON_URGENT, "Failed to generate filename for level data from \"%s\"", filename);
+			return 1;
+		}
 	}
 
 	auto &&[SaveFile, physfserr] = PHYSFSX_openWriteBuffered(temp_filename.data());

@@ -4360,11 +4360,9 @@ int newdemo_swap_endian(const char *filename)
 	infile.reset();
 	outfile.reset();
 
-	if (complete)
+	std::array<char, PATH_MAX> bakpath;
+	if (complete && change_filename_extension(bakpath, inpath, DEMO_BACKUP_EXT))
 	{
-		std::array<char, PATH_MAX> bakpath;
-
-		change_filename_extension(bakpath, inpath, DEMO_BACKUP_EXT);
 		PHYSFSX_rename(inpath, bakpath.data());
 		PHYSFSX_rename(DEMO_FILENAME, inpath);
 	}

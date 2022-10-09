@@ -518,7 +518,11 @@ static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const std::spa
 
 	if (!ifile) {								//no text version, try binary version
 		std::array<char, FILENAME_LEN> filename2;
-		change_filename_extension(filename2, filename.data(), "txb");
+		if (!change_filename_extension(filename2, filename.data(), "txb"))
+		{
+			con_printf(CON_NORMAL, "Rebirth: skipping subtitles because cannot open \"%s\" (\"%s\")", filename.data(), PHYSFS_getErrorByCode(physfserr));
+			return 0;
+		}
 		auto &&[ifile2, physfserr2] = PHYSFSX_openReadBuffered(filename2.data());
 		if (!ifile2)
 		{

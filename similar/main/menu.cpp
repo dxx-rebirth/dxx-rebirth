@@ -876,7 +876,8 @@ static window_event_result demo_menu_keycommand( listbox *lb,const d_event &even
 
 				// Get backup name
 				const auto ic = items[citem];
-				change_filename_extension(bakname, ic, DEMO_BACKUP_EXT);
+				if (!change_filename_extension(bakname, ic, DEMO_BACKUP_EXT))
+					return window_event_result::handled;
 				const auto x = nm_messagebox(menu_title{nullptr}, 2, TXT_YES, TXT_NO,	"Are you sure you want to\n"
 								  "swap the endianness of\n"
 								  "%s? If the file is\n"

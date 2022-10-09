@@ -61,7 +61,8 @@ struct splitpath_t
 void removeext(const char *filename, std::array<char, 20> &out);
 
 //give a filename a new extension, doesn't work with paths with no extension already there
-void change_filename_extension(std::span<char> dest, const char *src, std::span<const char, 4> ext);
+[[nodiscard]]
+bool change_filename_extension(std::span<char> dest, const char *src, std::span<const char, 4> ext);
 
 /* Given an MS-DOS path, return pointers to the start of the basename and the
  * start of the extension.
