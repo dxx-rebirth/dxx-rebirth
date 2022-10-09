@@ -423,16 +423,16 @@ public:
 		static_assert(allow_nullptr || static_cast<std::size_t>(v) < array_size, "invalid magic index not allowed for this policy");
 	}
 	template <typename rpolicy>
-		bool operator==(const idx<rpolicy> &rhs) const
+		constexpr bool operator==(const idx<rpolicy> &rhs) const
 		{
 			return m_idx == rhs.get_unchecked_index();
 		}
-	bool operator==(const index_type &i) const
+	constexpr bool operator==(const index_type &i) const
 	{
 		return m_idx == i;
 	}
 	template <integral_type v>
-		bool operator==(const magic_constant<v> &) const
+		constexpr bool operator==(const magic_constant<v> &) const
 		{
 			static_assert(allow_nullptr || static_cast<std::size_t>(v) < array_size, "invalid magic index not allowed for this policy");
 			return m_idx == v;
@@ -623,21 +623,21 @@ public:
 		return *this;
 	}
 	explicit operator bool() const && = delete;
-	bool operator==(std::nullptr_t) const
+	constexpr bool operator==(std::nullptr_t) const
 	{
 		static_assert(allow_nullptr, "nullptr comparison not allowed: value is never null");
 		return m_ptr == nullptr;
 	}
-	bool operator==(const_pointer_type p) const
+	constexpr bool operator==(const_pointer_type p) const
 	{
 		return m_ptr == p;
 	}
-	bool operator==(mutable_pointer_type p) const
+	constexpr bool operator==(mutable_pointer_type p) const
 	{
 		return m_ptr == p;
 	}
 	template <typename rpolicy>
-		bool operator==(const ptr<rpolicy> &rhs) const
+		constexpr bool operator==(const ptr<rpolicy> &rhs) const
 		{
 			return *this == rhs.get_unchecked_pointer();
 		}
@@ -812,7 +812,7 @@ public:
 		return r;
 	}
 	template <typename rpolicy>
-		bool operator==(const ptridx<rpolicy> &rhs) const
+		constexpr bool operator==(const ptridx<rpolicy> &rhs) const
 		{
 			return vptr_type::operator==(static_cast<const typename ptridx<rpolicy>::vptr_type &>(rhs));
 		}
