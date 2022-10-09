@@ -385,10 +385,6 @@ public:
 		{
 			return type == t;
 		}
-	bool operator!=(tmap_drawer_constant t) const
-		{
-			return type != t;
-		}
 };
 #else
 void g3_draw_line(const g3_draw_line_context &, cg3s_point &p0, cg3s_point &p1, temporary_points_t &);
