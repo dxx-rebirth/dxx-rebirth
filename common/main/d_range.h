@@ -118,13 +118,14 @@ public:
 template <typename index_type, typename step_type>
 class xrange_iterator
 {
-	index_type m_idx;
+	index_type m_idx{};
 public:
 	using difference_type = std::ptrdiff_t;
 	using iterator_category = std::forward_iterator_tag;
 	using value_type = index_type;
 	using pointer = value_type *;
 	using reference = value_type &;
+	constexpr xrange_iterator() = default;	// default constructible required by std::semiregular
 	constexpr xrange_iterator(const index_type i) :
 		m_idx(i)
 	{
@@ -142,6 +143,12 @@ public:
 		else
 			m_idx += step_type::value;
 		return *this;
+	}
+	xrange_iterator operator++(int)
+	{
+		auto r = *this;
+		++ *this;
+		return r;
 	}
 	[[nodiscard]]
 	constexpr bool operator==(const xrange_iterator &i) const = default;

@@ -73,25 +73,6 @@ void prepare_error_string(std::array<char, N> &buf, unsigned long d, const char 
 }
 #undef REPORT_FORMAT_STRING
 
-/*
- * These are placed out of line from the class and used as an
- * indirection, so that the compiler can pick std::begin/std::end or ADL
- * appropriate alternatives, if they exist.
- */
-template <typename T>
-inline auto adl_begin(T &t)
-{
-	using std::begin;
-	return begin(t);
-}
-
-template <typename T>
-inline auto adl_end(T &t)
-{
-	using std::end;
-	return end(t);
-}
-
 template <typename>
 void range_index_type(...);
 
@@ -148,7 +129,7 @@ public:
 	partial_range_t &operator=(const partial_range_t &) = default;
 	template <typename T>
 		partial_range_t(T &&t) :
-			m_begin(partial_range_detail::adl_begin(t)), m_end(partial_range_detail::adl_end(t))
+			m_begin(std::ranges::begin(t)), m_end(std::ranges::end(t))
 	{
 		/* If `T &&`, after reference collapsing, is an lvalue
 		 * reference, then the object referenced by `t` will remain in
