@@ -100,12 +100,15 @@ template <
 	/* If `range_type::index_type` is not defined, fail.
 	 * If `range_type::index_type` is void, fail.
 	 */
-	typename index_type = typename std::remove_reference<typename std::remove_reference<range_type>::type::index_type &>::type,
+	typename index_type = typename std::remove_reference<typename std::remove_reference<range_type>::type::index_type &>::type>
 	/* If `range_type::index_type` is not a suitable argument to
 	 * range_type::operator[](), fail.
 	 */
-	typename = decltype(std::declval<range_type &>().operator[](std::declval<index_type>()))
-	>
+	requires(
+		requires(range_type &r, index_type i) {
+			r.operator[](i);
+		}
+	)
 index_type range_index_type(std::nullptr_t);
 
 }
