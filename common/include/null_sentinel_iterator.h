@@ -42,10 +42,6 @@ public:
 			return true;
 		return !**this;
 	}
-	bool operator!=(null_sentinel_iterator rhs) const
-	{
-		return !(*this == rhs);
-	}
 private:
 	pointer p = nullptr;
 };
