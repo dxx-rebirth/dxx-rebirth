@@ -344,7 +344,7 @@ void bm_read_all(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_v
 		jointpos_read(fp, r);
 
 	N_weapon_types = PHYSFSX_readInt(fp);
-	weapon_info_read_n(Weapon_info, N_weapon_types, fp, Piggy_hamfile_version);
+	weapon_info_read_n(Weapon_info, N_weapon_types, fp, Piggy_hamfile_version, 0);
 
 	N_powerup_types = PHYSFSX_readInt(fp);
 	range_for (auto &p, partial_range(Powerup_info, N_powerup_types))
@@ -402,7 +402,7 @@ void bm_read_all(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_v
 	//@@PHYSFS_read( fp, controlcen_gun_points, sizeof(vms_vector), N_controlcen_guns );
 	//@@PHYSFS_read( fp, controlcen_gun_dirs, sizeof(vms_vector), N_controlcen_guns );
 
-	if (Piggy_hamfile_version < 3) { // D1
+	if (Piggy_hamfile_version < pig_hamfile_version::_3) { // D1
 		exit_modelnum = PHYSFSX_readInt(fp);
 		destroyed_exit_modelnum = PHYSFSX_readInt(fp);
 	}
@@ -475,7 +475,7 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 
 	t = PHYSFSX_readInt(fp);
 	N_weapon_types = N_D2_WEAPON_TYPES+t;
-	weapon_info_read_n(Weapon_info, N_weapon_types, fp, 3, N_D2_WEAPON_TYPES);
+	weapon_info_read_n(Weapon_info, N_weapon_types, fp, pig_hamfile_version::_3, N_D2_WEAPON_TYPES);
 
 	//now read robot info
 

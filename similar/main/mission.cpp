@@ -820,7 +820,7 @@ int load_mission_ham()
 {
 	read_hamfile(LevelSharedRobotInfoState); // intentionally can also read from the HOG
 
-	if (Piggy_hamfile_version >= 3)
+	if (Piggy_hamfile_version >= pig_hamfile_version::_3)
 	{
 		// re-read sounds in case mission has custom .sXX
 		Num_sound_files = 0;

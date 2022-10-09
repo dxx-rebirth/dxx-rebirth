@@ -32,11 +32,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 
 #if defined(DXX_BUILD_DESCENT_II)
+namespace dsx {
 struct alias
 {
 	char alias_name[FILENAME_LEN];
 	char file_name[FILENAME_LEN];
 };
+}
 #endif
 
 // an index into the bitmap collection of the piggy file
@@ -64,6 +66,12 @@ static inline void _piggy_page_in(GameBitmaps_array &GameBitmaps, bitmap_index b
 int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState);
 
 #if defined(DXX_BUILD_DESCENT_II)
+enum class pig_hamfile_version : uint8_t
+{
+	_0,
+	_3 = 3,
+};
+
 int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState);
 #endif
 }

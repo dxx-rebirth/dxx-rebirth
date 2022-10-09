@@ -1775,7 +1775,7 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 	{
 		HUD_init_message_literal(HM_DEFAULT, TXT_WOWIE_ZOWIE);
 
-		if (Piggy_hamfile_version < 3) // SHAREWARE
+		if (Piggy_hamfile_version < pig_hamfile_version::_3) // SHAREWARE
 		{
 			player_info.primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG) | (HAS_GAUSS_FLAG | HAS_HELIX_FLAG);
 		}
@@ -1788,7 +1788,7 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 		auto &secondary_ammo = player_info.secondary_ammo;
 		secondary_ammo = Secondary_ammo_max;
 
-		if (Piggy_hamfile_version < 3) // SHAREWARE
+		if (Piggy_hamfile_version < pig_hamfile_version::_3) // SHAREWARE
 		{
 			secondary_ammo[SMISSILE4_INDEX] = 0;
 			secondary_ammo[SMISSILE5_INDEX] = 0;

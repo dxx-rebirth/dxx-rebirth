@@ -726,7 +726,7 @@ window_event_result start_endlevel_sequence()
 #if defined(DXX_BUILD_DESCENT_II)
 	int exit_models_loaded = 0;
 
-	if (Piggy_hamfile_version < 3)
+	if (Piggy_hamfile_version < pig_hamfile_version::_3)
 		exit_models_loaded = 1; // built-in for PC shareware
 
 	else

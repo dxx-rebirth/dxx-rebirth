@@ -55,14 +55,15 @@ enum class game_sound_offset : int
 #define D1_PIGFILE              "descent.pig"
 #define MAX_ALIASES 20
 
+namespace dsx {
 struct alias;
 #if DXX_USE_EDITOR
 extern std::array<alias, MAX_ALIASES> alias_list;
 extern unsigned Num_aliases;
 #endif
 
-extern int Piggy_hamfile_version;
-extern int Pigfile_initialized;
+extern uint8_t Pigfile_initialized;
+}
 #endif
 
 // an index into the bitmap collection of the piggy file

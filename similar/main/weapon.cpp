@@ -1828,13 +1828,17 @@ void weapon_info_write(PHYSFS_File *fp, const weapon_info &w)
  * reads n weapon_info structs from a PHYSFS_File
  */
 namespace dsx {
-void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *fp, int file_version, std::size_t offset)
+
+void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *fp,
+#if defined(DXX_BUILD_DESCENT_II)
+						const pig_hamfile_version file_version,
+#endif
+						std::size_t offset)
 {
 	auto r = partial_range(wi, offset, count);
 #if defined(DXX_BUILD_DESCENT_I)
-	(void)file_version;
 #elif defined(DXX_BUILD_DESCENT_II)
-	if (file_version < 3)
+	if (file_version < pig_hamfile_version::_3)
 	{
 		range_for (auto &w, r)
 			PHYSFSX_serialize_read(fp, static_cast<v2_weapon_info &>(w));

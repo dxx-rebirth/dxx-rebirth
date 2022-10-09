@@ -72,7 +72,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define D1_PALETTE "palette.256"
 
-#define DEFAULT_SNDFILE ((Piggy_hamfile_version < 3)?DEFAULT_HAMFILE_SHAREWARE:(GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?"descent2.s22":"descent2.s11")
+#define DEFAULT_SNDFILE ((Piggy_hamfile_version < pig_hamfile_version::_3) ? DEFAULT_HAMFILE_SHAREWARE : (GameArg.SndDigiSampleRate == SAMPLE_RATE_22K) ? "descent2.s22" : "descent2.s11")
 
 #define MAC_ALIEN1_PIGSIZE      5013035
 #define MAC_ALIEN2_PIGSIZE      4909916
@@ -81,12 +81,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAC_ICE_PIGSIZE         4923425
 #define MAC_WATER_PIGSIZE       4832403
 
+namespace dsx {
+
 #if DXX_USE_EDITOR
 unsigned Num_aliases;
 std::array<alias, MAX_ALIASES> alias_list;
 #endif
 
-int Piggy_hamfile_version = 0;
+pig_hamfile_version Piggy_hamfile_version;
+uint8_t Pigfile_initialized;
+
+}
 #endif
 
 namespace {
@@ -164,7 +169,6 @@ static std::array<int, MAX_SOUND_FILES> SoundCompressed;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 char Current_pigfile[FILENAME_LEN] = "";
-int Pigfile_initialized=0;
 
 #define BM_FLAGS_TO_COPY (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT \
                          | BM_FLAG_NO_LIGHTING | BM_FLAG_RLE | BM_FLAG_RLE_BIG)
@@ -1039,18 +1043,14 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 
 	//make sure ham is valid type file & is up-to-date
 	ham_id = PHYSFSX_readInt(ham_fp);
-	Piggy_hamfile_version = PHYSFSX_readInt(ham_fp);
+	/* All code checks only that Piggy_hamfile_version is `< 3` or `! ( < 3 )`,
+	 * so clamp any version higher than 3 to just 3.
+	 */
+	Piggy_hamfile_version = static_cast<pig_hamfile_version>(std::clamp(PHYSFSX_readInt(ham_fp), 0, 3));
 	if (ham_id != HAMFILE_ID)
-		Error("Failed to load ham file " DEFAULT_HAMFILE_REGISTERED ": expected ham_id=%.8lx, found ham_id=%.8x version=%.8x\n", HAMFILE_ID, ham_id, Piggy_hamfile_version);
-#if 0
-	if (ham_id != HAMFILE_ID || Piggy_hamfile_version != HAMFILE_VERSION) {
-		Must_write_hamfile = 1;
-		PHYSFS_close(ham_fp);						//out of date ham
-		return 0;
-	}
-#endif
+		Error("Failed to load ham file " DEFAULT_HAMFILE_REGISTERED ": expected ham_id=%.8lx, found ham_id=%.8x version=%.8x\n", HAMFILE_ID, ham_id, underlying_value(Piggy_hamfile_version));
 
-	if (Piggy_hamfile_version < 3) // hamfile contains sound info, probably PC demo
+	if (Piggy_hamfile_version < pig_hamfile_version::_3) // hamfile contains sound info, probably PC demo
 	{
 		sound_offset = PHYSFSX_readInt(ham_fp);
 		
@@ -1074,7 +1074,7 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 	}
 	#endif
 
-	if (Piggy_hamfile_version < 3) {
+	if (Piggy_hamfile_version < pig_hamfile_version::_3) {
 		int N_sounds;
 		int sound_start;
 		int header_size;
@@ -1199,7 +1199,7 @@ int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 
 	snd_ok = ham_ok = read_hamfile(LevelSharedRobotInfoState);
 
-	if (Piggy_hamfile_version >= 3)
+	if (Piggy_hamfile_version >= pig_hamfile_version::_3)
 	{
 		read_sndfile(1);
 	}

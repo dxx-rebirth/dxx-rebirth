@@ -81,6 +81,9 @@ constexpr std::integral_constant<unsigned, 70> MAX_WEAPON_TYPES{};
 
 constexpr std::integral_constant<unsigned, 10> MAX_PRIMARY_WEAPONS{};
 constexpr std::integral_constant<unsigned, 10> MAX_SECONDARY_WEAPONS{};
+
+enum class pig_hamfile_version : uint8_t;
+extern pig_hamfile_version Piggy_hamfile_version;
 #endif
 
 enum primary_weapon_index_t : uint8_t;
@@ -98,7 +101,11 @@ extern const enumerated_array<uint8_t, MAX_SECONDARY_WEAPONS, secondary_weapon_i
  */
 using weapon_info_array = std::array<weapon_info, MAX_WEAPON_TYPES>;
 extern weapon_info_array Weapon_info;
-void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *fp, int file_version, std::size_t offset = 0);
+void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *fp,
+#if defined(DXX_BUILD_DESCENT_II)
+						pig_hamfile_version file_version,
+#endif
+						std::size_t offset);
 
 //given a weapon index, return the flag value
 #define  HAS_PRIMARY_FLAG(index)  (1<<(index))

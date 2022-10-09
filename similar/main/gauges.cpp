@@ -2599,7 +2599,7 @@ static void draw_weapon_info_sub(const hud_draw_context_hs_mr hudctx, const play
 	const auto &picture = 
 #if defined(DXX_BUILD_DESCENT_II)
 	// !SHAREWARE
-		(Piggy_hamfile_version >= 3 && hudctx.multires_gauge_graphic.is_hires()) ?
+		(Piggy_hamfile_version >= pig_hamfile_version::_3 && hudctx.multires_gauge_graphic.is_hires()) ?
 			Weapon_info[info_index].hires_picture :
 #endif
 			Weapon_info[info_index].picture;
