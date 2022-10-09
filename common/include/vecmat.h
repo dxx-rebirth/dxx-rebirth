@@ -36,6 +36,7 @@ namespace dcx {
 struct vms_vector
 {
 	fix x, y, z;
+	constexpr bool operator==(const vms_vector &rhs) const = default;
 };
 
 class vm_distance

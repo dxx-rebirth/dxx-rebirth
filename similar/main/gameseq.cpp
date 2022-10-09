@@ -254,11 +254,6 @@ static unsigned count_number_of_objects_of_type(fvcobjptr &vcobjptr)
 #define count_number_of_robots	count_number_of_objects_of_type<OBJ_ROBOT>
 #define count_number_of_hostages	count_number_of_objects_of_type<OBJ_HOSTAGE>
 
-static bool operator!=(const vms_vector &a, const vms_vector &b)
-{
-	return a.x != b.x || a.y != b.y || a.z != b.z;
-}
-
 constexpr constant_xrange<sidenum_t, sidenum_t::WRIGHT, sidenum_t::WFRONT> displacement_sides{};
 static_assert(static_cast<uint8_t>(sidenum_t::WBACK) + 1 == static_cast<uint8_t>(sidenum_t::WFRONT), "side ordering error");
 
