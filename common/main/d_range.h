@@ -130,6 +130,14 @@ public:
 		m_idx(i)
 	{
 	}
+	/* This is a temporary constructor to facilitate conversion to sentinel
+	 * usage in calling algorithms.
+	 */
+	template <typename end_index_type>
+		constexpr xrange_iterator(xrange_endpoint<end_index_type, false> i) :
+			m_idx(i)
+	{
+	}
 	index_type operator*() const
 	{
 		return m_idx;
@@ -152,6 +160,12 @@ public:
 	}
 	[[nodiscard]]
 	constexpr bool operator==(const xrange_iterator &i) const = default;
+	template <typename end_index_type>
+		[[nodiscard]]
+		constexpr bool operator==(const xrange_endpoint<end_index_type, false> &i) const
+		{
+			return m_idx == i.value;
+		}
 };
 
 /* This provides an approximation of the functionality of the Python2
@@ -237,9 +251,9 @@ public:
 	{
 		return iterator(static_cast<const begin_type &>(*this));
 	}
-	iterator end() const
+	end_type end() const
 	{
-		return iterator(static_cast<const end_type &>(*this));
+		return *this;
 	}
 };
 
