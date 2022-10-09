@@ -83,11 +83,6 @@ struct WALL_IS_DOORWAY_result_t
 		return value & m.value;
 	}
 	bool operator==(WALL_IS_DOORWAY_result_t) const = delete;
-	template <typename T>
-		bool operator!=(const T &t) const
-		{
-			return !(*this == t);
-		}
 };
 
 struct stuckobj : public prohibit_void_ptr<stuckobj>
