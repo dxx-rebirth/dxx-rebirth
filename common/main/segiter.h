@@ -123,10 +123,6 @@ public:
 	{
 		return m_idx == rhs.m_idx;
 	}
-	bool operator!=(const iterator &rhs) const
-	{
-		return !(*this == rhs);
-	}
 };
 
 template <typename OF, typename SF, typename R = segment_object_range_t<decltype(std::declval<OF &>()(object_first))>>
