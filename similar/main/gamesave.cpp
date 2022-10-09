@@ -1315,7 +1315,6 @@ int load_level(
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptridx = Objects.vmptridx;
-	char filename[PATH_MAX];
 	int sig, minedata_offset, gamedata_offset;
 	int mine_err, game_err;
 
@@ -1323,12 +1322,13 @@ int load_level(
 	Level_being_loaded = filename_passed;
 	#endif
 
-	strcpy(filename,filename_passed);
-
+	std::array<char, PATH_MAX> filename_storage;
+	auto filename = filename_passed;
 	auto LoadFile = PHYSFSX_openReadBuffered(filename).first;
 	if (!LoadFile)
 	{
-		snprintf(filename, sizeof(filename), "%.*s%s", DXX_ptrdiff_cast_int(std::distance(Current_mission->path.cbegin(), Current_mission->filename)), Current_mission->path.c_str(), filename_passed);
+		filename = filename_storage.data(); 
+		snprintf(filename_storage.data(), filename_storage.size(), "%.*s%s", DXX_ptrdiff_cast_int(std::distance(Current_mission->path.cbegin(), Current_mission->filename)), Current_mission->path.c_str(), filename_passed);
 		auto &&[fp, physfserr] = PHYSFSX_openReadBuffered(filename);
 		if (!fp)
 		{
