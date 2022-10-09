@@ -816,11 +816,6 @@ public:
 		{
 			return vptr_type::operator==(static_cast<const typename ptridx<rpolicy>::vptr_type &>(rhs));
 		}
-	template <typename R>
-		bool operator!=(const R &rhs) const
-		{
-			return !(*this == rhs);
-		}
 protected:
 	ptridx &operator++()
 	{
