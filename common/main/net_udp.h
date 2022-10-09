@@ -114,7 +114,7 @@ struct UDP_netgame_info_lite : public prohibit_void_ptr<UDP_netgame_info_lite>
 	bit_game_flags game_flag;
 };
 
-struct player_acknowledgement_mask : enumerated_bitset<MAX_PLAYERS, playernum_t>
+struct player_acknowledgement_mask : enumerated_bitset<MAX_PLAYERS, std::conditional<std::is_same<std::size_t, unsigned>::value, unsigned long, playernum_t>::type>
 {
 public:
 	constexpr player_acknowledgement_mask() :
