@@ -6,10 +6,10 @@
  */
 #pragma once
 
-#ifdef __cplusplus
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <span>
 #include "dxxsconf.h"
 #include "u_mem.h"
 #include "dsx-ns.h"
@@ -61,7 +61,7 @@ struct splitpath_t
 void removeext(const char *filename, std::array<char, 20> &out);
 
 //give a filename a new extension, doesn't work with paths with no extension already there
-extern void change_filename_extension( char *dest, const char *src, const char *new_ext );
+void change_filename_extension(std::span<char> dest, const char *src, std::span<const char, 4> ext);
 
 /* Given an MS-DOS path, return pointers to the start of the basename and the
  * start of the extension.
@@ -99,5 +99,3 @@ static_assert(number_to_text_length<255, 16> == 2, "");
 static_assert(number_to_text_length<256, 16> == 3, "");
 
 }
-
-#endif

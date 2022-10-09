@@ -137,21 +137,21 @@ void removeext(const char *const filename, std::array<char, 20> &out)
 
 
 //give a filename a new extension, won't append if strlen(dest) > 8 chars.
-void change_filename_extension( char *dest, const char *src, const char *ext )
+void change_filename_extension(const std::span<char> dest, const char *const src, const std::span<const char, 4> ext)
 {
 	char *p;
 	
-	strcpy (dest, src);
-	p = strrchr(dest, '.');
+	strcpy(dest.data(), src);
+	p = strrchr(dest.data(), '.');
 	if (!p) {
-		if (strlen(dest) > FILENAME_LEN - 5)
+		if (strlen(dest.data()) > FILENAME_LEN - 5)
 			return;	// a non-opened file is better than a bad memory access
 		
-		p = dest + strlen(dest);
+		p = dest.data() + strlen(dest.data());
 		*p = '.';
 	}
 	
-	strcpy(p+1,ext);
+	strcpy(p + 1, ext.data());
 }
 
 splitpath_t d_splitpath(const char *name)

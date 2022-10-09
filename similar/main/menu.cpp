@@ -872,19 +872,19 @@ static window_event_result demo_menu_keycommand( listbox *lb,const d_event &even
 
 		case KEY_CTRLED+KEY_C:
 			{
-				int x = 1;
-				char bakname[PATH_MAX];
+				std::array<char, PATH_MAX> bakname;
 
 				// Get backup name
-				change_filename_extension(bakname, items[citem]+((items[citem][0]=='$')?1:0), DEMO_BACKUP_EXT);
-				x = nm_messagebox(menu_title{nullptr}, 2, TXT_YES, TXT_NO,	"Are you sure you want to\n"
+				const auto ic = items[citem];
+				change_filename_extension(bakname, ic, DEMO_BACKUP_EXT);
+				const auto x = nm_messagebox(menu_title{nullptr}, 2, TXT_YES, TXT_NO,	"Are you sure you want to\n"
 								  "swap the endianness of\n"
 								  "%s? If the file is\n"
 								  "already endian native, D1X\n"
 								  "will likely crash. A backup\n"
-								  "%s will be created", items[citem]+((items[citem][0]=='$')?1:0), bakname );
+								  "%s will be created.", ic, bakname.data());
 				if (!x)
-					newdemo_swap_endian(items[citem]);
+					newdemo_swap_endian(ic);
 
 				return window_event_result::handled;
 			}

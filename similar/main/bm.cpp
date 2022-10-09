@@ -537,11 +537,10 @@ void load_robot_replacements(const d_fname &level_name)
 {
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	int t,j;
-	char ifile_name[FILENAME_LEN];
-
+	std::array<char, FILENAME_LEN> ifile_name;
 	change_filename_extension(ifile_name, level_name, "HXM");
 
-	auto fp = PHYSFSX_openReadBuffered(ifile_name).first;
+	auto fp = PHYSFSX_openReadBuffered(ifile_name.data()).first;
 	if (!fp)		//no robot replacement file
 		return;
 

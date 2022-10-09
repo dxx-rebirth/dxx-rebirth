@@ -517,17 +517,17 @@ static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const std::spa
 	auto &&[ifile, physfserr] = PHYSFSX_openReadBuffered(filename.data());		//try text version
 
 	if (!ifile) {								//no text version, try binary version
-		char filename2[FILENAME_LEN];
+		std::array<char, FILENAME_LEN> filename2;
 		change_filename_extension(filename2, filename.data(), "txb");
-		auto &&[ifile2, physfserr2] = PHYSFSX_openReadBuffered(filename2);
+		auto &&[ifile2, physfserr2] = PHYSFSX_openReadBuffered(filename2.data());
 		if (!ifile2)
 		{
-			con_printf(CON_VERBOSE, "Rebirth: skipping subtitles because cannot open \"%s\" or \"%s\" (\"%s\", \"%s\")", filename.data(), filename2, PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
+			con_printf(CON_VERBOSE, "Rebirth: skipping subtitles because cannot open \"%s\" or \"%s\" (\"%s\", \"%s\")", filename.data(), filename2.data(), PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
 			return 0;
 		}
 		ifile = std::move(ifile2);
 		have_binary = 1;
-		con_printf(CON_VERBOSE, "Rebirth: found encoded subtitles in \"%s\"", filename2);
+		con_printf(CON_VERBOSE, "Rebirth: found encoded subtitles in \"%s\"", filename2.data());
 	}
 	else
 		con_printf(CON_VERBOSE, "Rebirth: found text subtitles in \"%s\"", filename.data());

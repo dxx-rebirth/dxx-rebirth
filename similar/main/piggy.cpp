@@ -1517,7 +1517,6 @@ static void piggy_write_pigfile(const std::span<const char, FILENAME_LEN> filena
 	int org_offset;
 	char subst_name[32];
 	int i;
-	char tname[FILENAME_LEN];
 
 	for (i=0; i < Num_bitmap_files; i++ ) {
 		bitmap_index bi;
@@ -1542,10 +1541,11 @@ static void piggy_write_pigfile(const std::span<const char, FILENAME_LEN> filena
 	bitmap_data_start += (Num_bitmap_files - 1) * sizeof(DiskBitmapHeader);
 	data_offset = bitmap_data_start;
 
-	change_filename_extension(tname,filename.data(),"lst");
-	auto fp1 = PHYSFSX_openWriteBuffered(tname).first;
-	change_filename_extension(tname,filename.data(),"all");
-	auto fp2 = PHYSFSX_openWriteBuffered(tname).first;
+	std::array<char, FILENAME_LEN> tname;
+	change_filename_extension(tname, filename.data(), "lst");
+	auto fp1 = PHYSFSX_openWriteBuffered(tname.data()).first;
+	change_filename_extension(tname, filename.data(), "all");
+	auto fp2 = PHYSFSX_openWriteBuffered(tname.data()).first;
 
 	for (i=1; i < Num_bitmap_files; i++ ) {
 		grs_bitmap *bmp;
@@ -1781,12 +1781,12 @@ int d1_tmap_num_unique(uint16_t d1_tmap_num)
 
 void load_bitmap_replacements(const std::span<const char, FILENAME_LEN> level_name)
 {
-	char ifile_name[FILENAME_LEN];
 	//first, free up data allocated for old bitmaps
 	free_bitmap_replacements();
 
+	std::array<char, FILENAME_LEN> ifile_name;
 	change_filename_extension(ifile_name, level_name.data(), "POG");
-	if (auto ifile = PHYSFSX_openReadBuffered(ifile_name).first)
+	if (auto ifile = PHYSFSX_openReadBuffered(ifile_name.data()).first)
 	{
 		int id,version;
 		unsigned n_bitmaps;

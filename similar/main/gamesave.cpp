@@ -1826,8 +1826,8 @@ static int save_level_sub(
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
-	char temp_filename[PATH_MAX];
 	int minedata_offset=0,gamedata_offset=0;
+	std::array<char, PATH_MAX> temp_filename;
 
 //	if ( !compiled_version )
 	{
@@ -1853,11 +1853,11 @@ static int save_level_sub(
 			change_filename_extension(temp_filename, filename, D1X_LEVEL_FILE_EXTENSION);
 	}
 
-	auto &&[SaveFile, physfserr] = PHYSFSX_openWriteBuffered(temp_filename);
+	auto &&[SaveFile, physfserr] = PHYSFSX_openWriteBuffered(temp_filename.data());
 	if (!SaveFile)
 	{
 		gr_palette_load(gr_palette);
-		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "ERROR: Cannot write to '%s'.\n%s", temp_filename, PHYSFS_getErrorByCode(physfserr));
+		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "ERROR: Cannot write to '%s'.\n%s", temp_filename.data(), PHYSFS_getErrorByCode(physfserr));
 		return 1;
 	}
 
