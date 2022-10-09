@@ -4356,10 +4356,10 @@ window_event_result net_udp_setup_game()
 
 	change_playernum_to(0);
 
-	const auto &self = get_local_player();
 	{
+		const player *const self = &get_local_player();
 		range_for (auto &i, Players)
-			if (&i != &self)
+			if (&i != self)
 				i.callsign = {};
 	}
 
