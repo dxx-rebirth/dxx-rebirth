@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <compare>
 #include <physfs.h>
 #include <type_traits>
 #include "pstypes.h"
@@ -410,14 +411,13 @@ struct dl_index {
 	sidenum_t  sidenum;
 	uint8_t count;
 	uint16_t index;
-	bool operator<(const dl_index &rhs) const
+	constexpr std::strong_ordering operator<=>(const dl_index &rhs) const
 	{
-		if (segnum < rhs.segnum)
-			return true;
-		if (segnum > rhs.segnum)
-			return false;
-		return sidenum < rhs.sidenum;
+		if (const auto r = segnum <=> rhs.segnum; r != std::strong_ordering::equal)
+			return r;
+		return sidenum <=> rhs.sidenum;
 	}
+	constexpr bool operator==(const dl_index &) const = default;
 };
 
 struct d_level_shared_destructible_light_state
