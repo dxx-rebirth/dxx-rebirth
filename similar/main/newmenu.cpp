@@ -683,13 +683,12 @@ static void newmenu_scroll(newmenu *const menu, const int amount)
 		return;
 	}
 	const auto &range = menu->items;
-	const auto predicate = [](const newmenu_item &n) {
-		return n.type != nm_type::text;
-	};
-	const auto first = std::find_if(range.begin(), range.end(), predicate);
+	const auto find_value = nm_type::text;
+	const auto find_projection = &newmenu_item::type;
+	const auto &&first = std::ranges::find(range, find_value, find_projection);
 	if (first == range.end())
 		return;
-	const auto rlast = std::find_if(range.rbegin(), std::reverse_iterator<newmenu_item *>(first), predicate).base();
+	const auto &&rlast = std::ranges::find(range.rbegin(), std::reverse_iterator<newmenu_item *>(first), find_value, find_projection).base();
 	/* `first == rlast` should not happen, since that would mean that
 	 * there are no elements in `range` for which `predicate` is true.
 	 * If there are no such elements, then `first == range.end()` should

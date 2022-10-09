@@ -2256,7 +2256,7 @@ static std::pair<d_flickering_light_state::Flickering_light_array_t::iterator, d
 		return f.segnum == segnum && f.sidenum == sidenum;	//found it!
 	};
 	const auto &&pe = pr.end();
-	return {std::find_if(pr.begin(), pe, predicate), pe};
+	return {std::ranges::find_if(pr.begin(), pe, predicate), pe};
 }
 
 static void update_flicker(d_flickering_light_state &fls, const vmsegidx_t segnum, const sidenum_t sidenum, const fix timer)

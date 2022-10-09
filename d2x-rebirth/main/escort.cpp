@@ -687,16 +687,13 @@ static std::pair<icsegidx_t, d_unique_buddy_state::Escort_goal_reachability> exi
 			return vcsegptr(s)->special == segment_special::fuelcen;
 		};
 		const auto &&rb = partial_const_range(bfs_list, length);
-		const auto i = std::find_if(rb.begin(), rb.end(), predicate);
+		const auto &&i = std::ranges::find_if(rb, predicate);
 		if (i != rb.end())
 			return {*i, d_unique_buddy_state::Escort_goal_reachability::reachable};
 	}
 	{
-		const auto &rh = vcsegptridx;
-		const auto &&predicate = [](const shared_segment &s) {
-			return s.special == segment_special::fuelcen;
-		};
-		const auto i = std::find_if(rh.begin(), rh.end(), predicate);
+		const auto &&rh = make_range(vcsegptridx);
+		const auto &&i = std::ranges::find(rh, segment_special::fuelcen, &shared_segment::special);
 		if (i != rh.end())
 			return {*i, d_unique_buddy_state::Escort_goal_reachability::unreachable};
 	}

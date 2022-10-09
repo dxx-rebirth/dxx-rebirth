@@ -3034,7 +3034,7 @@ static unsigned net_udp_send_request(void)
 	// game, non-zero if there is some problem.
 	auto b = Netgame.players.begin();
 	auto e = Netgame.players.end();
-	auto i = std::find_if(b, e, [](const netplayer_info &ni) { return ni.connected != player_connection_status::disconnected; });
+	const auto &&i = std::ranges::find(b, e, player_connection_status::disconnected, &netplayer_info::connected);
 	if (i == e)
 	{
 		Assert(false);
@@ -3097,7 +3097,7 @@ static void net_udp_process_game_info_light(const uint8_t *data, uint_fast32_t, 
 		menu->num_active_udp_changed = 1;
 		
 		auto r = partial_range(menu->Active_udp_games, menu->num_active_udp_games);
-		auto i = std::find_if(r.begin(), r.end(), [&recv_game](const UDP_netgame_info_lite &g) { return !d_stricmp(g.game_name.data(), recv_game.game_name.data()) && g.GameID == recv_game.GameID; });
+		const auto &&i = std::ranges::find_if(r, [&recv_game](const UDP_netgame_info_lite &g) { return !d_stricmp(g.game_name.data(), recv_game.game_name.data()) && g.GameID == recv_game.GameID; });
 		if (i == menu->Active_udp_games.end())
 		{
 			return;
@@ -5641,7 +5641,7 @@ void net_udp_noloss_process_queue(fix64 time)
 	{
 		const auto b = UDP_mdata_queue.begin();
 		const auto e = std::next(b, UDP_mdata_queue_highest);
-		const auto first_used_entry = std::find_if(b, e, [](const UDP_mdata_store &m) { return m.used; });
+		const auto &&first_used_entry = std::ranges::find_if(b, e, [](const UDP_mdata_store &m) { return m.used; });
 		if (first_used_entry != b)
 		{
 			std::move(first_used_entry, e, b);

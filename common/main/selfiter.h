@@ -19,6 +19,21 @@ public:
 	using difference_type = std::ptrdiff_t;
 	using pointer = T *;
 	using reference = T &;
+	/* A default constructor must be declared to satisfy constraints from
+	 * std::ranges algorithms.  The declaration must be visible in an unrelated
+	 * context, so it is public here.  However, it must not be used in normal
+	 * operation.  self_return_iterator is used by valptridx iterators, which
+	 * do not offer default construction.  Therefore, the default constructor
+	 * is declared in order to satisfy the library's concept check, but never
+	 * implemented, since even the library's algorithms never default construct
+	 * an instance of self_return_iterator.
+	 *
+	 * std::sentinel_for ->
+	 * std::semiregular ->
+	 * std::default_initializable ->
+	 * requires { T{}; }
+	 */
+	self_return_iterator();
 	self_return_iterator(T &&i) :
 		T(std::move(i))
 	{

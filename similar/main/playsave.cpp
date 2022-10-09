@@ -1286,7 +1286,7 @@ static std::array<std::array<hli, MAX_MISSIONS>::pointer, 2> find_hli_entry(cons
 	const auto &&a = [p = &*mission_filename](const hli &h) {
 		return !d_stricmp(h.Shortname.data(), p);
 	};
-	const auto i = std::find_if(r.begin(), r.end(), a);
+	const auto &&i = std::ranges::find_if(r, a);
 	return {{&*i, r.end()}};
 }
 }

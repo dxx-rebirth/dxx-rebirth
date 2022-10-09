@@ -2678,6 +2678,29 @@ constexpr literal_as_type<T, v...> operator""_literal_as_type();
 ''', msg='whether compiler accepts string literal operator templates'):
 			self.successful_flags['CXXFLAGS'].append('-Wno-gnu-string-literal-operator-template')
 
+	@_custom_test
+	def check_have_std_ranges(self,context,_successflags={'CPPDEFINES' : ['_LIBCPP_ENABLE_EXPERIMENTAL']}):
+		text = '''
+#include <algorithm>
+'''
+		main = '''
+	int a[3]{1, 2, 3};
+	return std::ranges::find(a, argc) == a;
+'''
+		if self.Compile(context, text=text, main=main, msg='whether C++ compiler provides std::ranges by default'):
+			return
+		# As a special case, put this define in the command-line instead of
+		# allowing it to be moved to `dxxsconf.h`.  This define must be in
+		# effect before the C++ compiler sees a `#include` of any system
+		# headers that conditionally define experimental functionality.
+		# Placing the define on the command line ensures that.  If the
+		# preprocessor definition were in `dxxsconf.h`, then some files might
+		# include the system header before including the definition.
+		if self.Compile(context, text=text, main=main, msg='whether C++ compiler provides std::ranges with -D_LIBCPP_ENABLE_EXPERIMENTAL', testflags=_successflags):
+			self.successful_flags['CPPDEFINES'].extend(*_successflags.items())
+			return
+		raise SCons.Errors.StopError("C++ compiler does not support std::ranges.")
+
 	__preferred_compiler_options = (
 		'-fvisibility=hidden',
 		'-Wduplicated-branches',

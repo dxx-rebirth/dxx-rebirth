@@ -163,6 +163,15 @@ public:
 		d_zip::detail::increment_iterator(*this, index_sequence_type());
 		return *this;
 	}
+	/* operator++(int) is currently unused, but is required to satisfy
+	 * the concept check on forward iterator.
+	 */
+	zip_iterator operator++(int)
+	{
+		auto result = *this;
+		d_zip::detail::increment_iterator(*this, index_sequence_type());
+		return result;
+	}
 	difference_type operator-(const zip_iterator &i) const
 	{
 		return std::get<0>(*this) - std::get<0>(i);

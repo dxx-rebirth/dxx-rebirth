@@ -42,7 +42,7 @@ pressed_keys keyd_pressed;
 fix64			keyd_time_when_last_pressed;
 std::array<unsigned char, KEY_BUFFER_SIZE>		unicode_frame_buffer;
 
-const std::array<key_props, 256> key_properties = {{
+constexpr std::array<key_props, 256> key_properties = {{
 { "",       255,    SDLK_UNKNOWN                 }, // 0
 { "ESC",    255,    SDLK_ESCAPE        },
 { "1",      '1',    SDLK_1             },
@@ -511,8 +511,8 @@ window_event_result key_handler(const SDL_KeyboardEvent *const kevent)
 	}
 
 	//=====================================================
-	auto re = key_properties.rend();
-	auto fi = std::find_if(key_properties.rbegin(), re, [event_keysym](const key_props &k) { return k.sym == event_keysym; });
+	const auto re = key_properties.rend();
+	const auto &&fi = std::ranges::find(key_properties.rbegin(), re, event_keysym, &key_props::sym);
 	if (fi == re)
 		return window_event_result::ignored;
 	unsigned keycode = std::distance(key_properties.begin(), std::next(fi).base());

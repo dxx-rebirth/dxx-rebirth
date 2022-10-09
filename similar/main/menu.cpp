@@ -1264,7 +1264,7 @@ void screen_resolution_menu::check_apply_preset_resolution() const
 			return 0;
 		return ni.value;
 	};
-	const auto i = std::find_if(r.begin(), r.end(), predicate);
+	const auto &&i = std::ranges::find_if(r, predicate);
 	if (i == r.end())
 		return;
 	const auto requested_mode = std::get<0>(*i);

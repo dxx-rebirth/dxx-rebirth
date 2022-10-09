@@ -436,8 +436,9 @@ void wall_open_door(const vmsegptridx_t seg, const sidenum_t side)
 	auto &vmactdoorptr = ActiveDoors.vmptr;
 	if (w->state == wall_state::closing) {		//closing, so reuse door
 		const auto &&r = make_range(vmactdoorptr);
-		const auto &&i = std::find_if(r.begin(), r.end(), find_active_door_predicate(wall_num));
-		if (i == r.end())	// likely in demo playback or multiplayer
+		const auto &&re = r.end();
+		const auto &&i = std::ranges::find_if(r.begin(), re, find_active_door_predicate(wall_num));
+		if (i == re)	// likely in demo playback or multiplayer
 		{
 			const auto c = ActiveDoors.get_count();
 			ActiveDoors.set_count(c + 1);
@@ -548,8 +549,9 @@ void start_wall_cloak(const vmsegptridx_t seg, const sidenum_t side)
 	if (w->state == wall_state::decloaking)
 	{	//decloaking, so reuse door
 		const auto &&r = make_range(CloakingWalls.vmptr);
-		const auto i = std::find_if(r.begin(), r.end(), find_cloaked_wall_predicate(w));
-		if (i == r.end())
+		const auto &&re = r.end();
+		const auto &&i = std::ranges::find_if(r.begin(), re, find_cloaked_wall_predicate(w));
+		if (i == re)
 		{
 			d_debugbreak();
 			return;
@@ -624,8 +626,9 @@ void start_wall_decloak(const vmsegptridx_t seg, const sidenum_t side)
 	auto &CloakingWalls = LevelUniqueWallSubsystemState.CloakingWalls;
 	if (w->state == wall_state::cloaking) {	//cloaking, so reuse door
 		const auto &&r = make_range(CloakingWalls.vmptr);
-		const auto i = std::find_if(r.begin(), r.end(), find_cloaked_wall_predicate(w));
-		if (i == r.end())
+		const auto &&re = r.end();
+		const auto &&i = std::ranges::find_if(r.begin(), re, find_cloaked_wall_predicate(w));
+		if (i == re)
 		{
 			d_debugbreak();
 			return;
@@ -796,8 +799,9 @@ void wall_close_door(wall_array &Walls, const vmsegptridx_t seg, const sidenum_t
 	if (w->state == wall_state::opening)
 	{	//reuse door
 		const auto &&r = make_range(vmactdoorptr);
-		const auto &&i = std::find_if(r.begin(), r.end(), find_active_door_predicate(wall_num));
-		if (i == r.end())
+		const auto &&re = r.end();
+		const auto &&i = std::ranges::find_if(r.begin(), re, find_active_door_predicate(wall_num));
+		if (i == re)
 		{
 			d_debugbreak();
 			return;
@@ -1457,9 +1461,10 @@ void d_level_unique_stuck_object_state::add_stuck_object(fvcwallptr &vcwallptr, 
 void d_level_unique_stuck_object_state::remove_stuck_object(const vcobjidx_t obj)
 {
 	auto &&pr = partial_range(Stuck_objects, Num_stuck_objects);
+	auto &&pre = pr.end();
 	const auto predicate = [obj](const stuckobj &so) { return so.objnum == obj; };
-	const auto i = std::find_if(pr.begin(), pr.end(), predicate);
-	if (i == pr.end())
+	const auto &&i = std::ranges::find_if(pr.begin(), pre, predicate);
+	if (i == pre)
 		/* Objects enter this function if they are able to become stuck,
 		 * without regard to whether they actually are stuck.  If the
 		 * object terminated without being stuck in a wall, then it will

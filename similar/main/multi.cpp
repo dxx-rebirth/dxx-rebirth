@@ -3428,7 +3428,7 @@ texture_index find_goal_texture(const d_level_unique_tmap_info_state &LevelUniqu
 		return (i.flags & tmi_flag);
 	};
 	const auto begin = r.begin();
-	const auto idx = std::distance(begin, std::find_if(begin, r.end(), predicate));
+	const auto idx = std::distance(begin, std::ranges::find_if(begin, r.end(), predicate));
 	return idx;
 }
 
