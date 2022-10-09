@@ -113,10 +113,7 @@ public:
 		return static_cast<const array_t &>(*this) == static_cast<const array_t &>(r);
 	}
 	[[nodiscard]]
-	bool operator!=(const ntstring &r) const
-	{
-		return !(*this == r);
-	}
+	bool operator!=(const ntstring &r) const = default;
 	template <std::size_t N>
 		ntstring &operator=(const char (&i)[N])
 		{
