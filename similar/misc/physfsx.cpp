@@ -71,7 +71,7 @@ char *PHYSFSX_fgets_t::get(const std::span<char> buf, PHYSFS_File *const fp)
 	return cleanup();
 }
 
-int PHYSFSX_checkMatchingExtension(const char *filename, const partial_range_t<const file_extension_t *> range)
+int PHYSFSX_checkMatchingExtension(const char *filename, const std::ranges::subrange<const file_extension_t *> range)
 {
 	const char *ext = strrchr(filename, '.');
 	if (!ext)

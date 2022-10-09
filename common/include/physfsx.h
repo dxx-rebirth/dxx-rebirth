@@ -14,9 +14,10 @@
 #pragma once
 
 #include <cstddef>
+#include <cstring>
 #include <memory>
+#include <ranges>
 #include <span>
-#include <string.h>
 #include <stdarg.h>
 #include <type_traits>
 
@@ -423,15 +424,7 @@ typedef char file_extension_t[5];
 
 [[nodiscard]]
 __attribute_nonnull()
-int PHYSFSX_checkMatchingExtension(const char *filename, const partial_range_t<const file_extension_t *>);
-
-template <std::size_t count>
-[[nodiscard]]
-__attribute_nonnull()
-static inline int PHYSFSX_checkMatchingExtension(const std::array<file_extension_t, count> &exts, const char *filename)
-{
-	return PHYSFSX_checkMatchingExtension(filename, exts);
-}
+int PHYSFSX_checkMatchingExtension(const char *filename, const std::ranges::subrange<const file_extension_t *> range);
 
 enum class physfs_search_path : int
 {
