@@ -118,10 +118,6 @@ union weapon_index
 		secondary(s)
 	{
 	}
-	constexpr bool operator!=(const weapon_index w) const
-	{
-		return primary != w.primary;
-	}
 	constexpr bool operator==(const weapon_index w) const
 	{
 		return primary == w.primary;
