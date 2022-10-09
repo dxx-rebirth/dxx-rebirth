@@ -204,10 +204,6 @@ public:
 	{
 		return wh == rhs.wh;
 	}
-	bool operator!=(const screen_mode &rhs) const
-	{
-		return !(*this == rhs);
-	}
 	screen_mode() = default;
 	constexpr screen_mode(uint16_t &&w, uint16_t &&h) :
 		width(w), height(h)
