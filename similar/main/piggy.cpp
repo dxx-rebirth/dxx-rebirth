@@ -1779,13 +1779,13 @@ int d1_tmap_num_unique(uint16_t d1_tmap_num)
 
 }
 
-void load_bitmap_replacements(const char *level_name)
+void load_bitmap_replacements(const std::span<const char, FILENAME_LEN> level_name)
 {
 	char ifile_name[FILENAME_LEN];
 	//first, free up data allocated for old bitmaps
 	free_bitmap_replacements();
 
-	change_filename_extension(ifile_name, level_name, "POG");
+	change_filename_extension(ifile_name, level_name.data(), "POG");
 	if (auto ifile = PHYSFSX_openReadBuffered(ifile_name).first)
 	{
 		int id,version;
