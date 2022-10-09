@@ -297,7 +297,7 @@ static void nm_string(grs_canvas &canvas, const grs_font &cv_font, const int w1,
 	{
 		const char *s1 = s;
 		const char *p = nullptr;
-		RAIIdmem<char[]> s2;
+		std::unique_ptr<char[]> s2;
 		if (w1 > 0 && (p = strchr(s, '\t')))
 		{
 			s2 = d_strdup(s);

@@ -46,8 +46,8 @@ static std::map<const char *, std::unique_ptr<cmd_t>> cmd_list;
 #define ALIAS_NAME_MAX 32
 struct cmd_alias_t
 {
+	std::unique_ptr<char[]> value;
 	char           name[ALIAS_NAME_MAX];
-	RAIIdmem<char[]> value;
 };
 
 #define CMD_MAX_ALIASES 1024
@@ -93,8 +93,8 @@ namespace {
 
 struct cmd_queue_t
 {
-	RAIIdmem<char[]> command_line;
-	explicit cmd_queue_t(RAIIdmem<char[]> p) :
+	std::unique_ptr<char[]> command_line;
+	explicit cmd_queue_t(std::unique_ptr<char[]> p) :
 		command_line(std::move(p))
 	{
 	}

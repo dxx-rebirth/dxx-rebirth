@@ -39,12 +39,7 @@ __attribute_nonnull()
 int d_strnicmp(const char *s1, const char *s2, uint_fast32_t n);
 #endif
 extern void d_strlwr( char *s1 );
-#ifdef DEBUG_MEMORY_ALLOCATIONS
-RAIIdmem<char[]> d_strdup(const char *str, const char *, const char *, unsigned);
-#define d_strdup(str)	(d_strdup(str, #str, __FILE__,__LINE__))
-#else
-RAIIdmem<char[]> d_strdup(const char *str);
-#endif
+std::unique_ptr<char[]> d_strdup(const char *str);
 
 #if DXX_USE_EDITOR
 void d_strupr(std::array<char, PATH_MAX> &out, const std::array<char, PATH_MAX> &in);

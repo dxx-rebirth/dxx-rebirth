@@ -46,10 +46,10 @@ namespace {
 
 struct ITEM {
 	short x = 0, y = 0, w = 0, h = 0;
-	RAIIdmem<char[]> Text;
-	RAIIdmem<char[]> InactiveText;
 	short Hotkey = -1;
 	int   			(*user_function)(void) = nullptr;
+	std::unique_ptr<char[]> Text;
+	std::unique_ptr<char[]> InactiveText;
 };
 
 struct MENU {

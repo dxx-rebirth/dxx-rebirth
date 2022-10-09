@@ -108,21 +108,10 @@ void d_strupr(std::array<char, PATH_MAX> &out, const std::array<char, PATH_MAX> 
 }
 #endif
 
-#ifdef DEBUG_MEMORY_ALLOCATIONS
-RAIIdmem<char[]> (d_strdup)(const char *str, const char *var, const char *file, unsigned line)
-#else
-RAIIdmem<char[]> (d_strdup)(const char *str)
-#endif
+std::unique_ptr<char[]> (d_strdup)(const char *str)
 {
-	RAIIdmem<char[]> newstr;
-#ifndef DEBUG_MEMORY_ALLOCATIONS
-	const auto var = nullptr;
-	const auto file = nullptr;
-	const unsigned line = 0;
-#endif
-
 	const auto len = strlen(str) + 1;
-	MALLOC<char[]>(newstr, len, var, file, line);
+	std::unique_ptr<char[]> newstr(new char[len]);
 	memcpy(newstr.get(), str, len);
 	return newstr;
 }
