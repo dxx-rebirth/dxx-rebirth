@@ -564,7 +564,8 @@ void draw_exit_model(grs_canvas &canvas)
 
 	auto model_pos = vm_vec_scale_add(mine_exit_point,mine_exit_orient.fvec,i2f(f));
 	vm_vec_scale_add2(model_pos,mine_exit_orient.uvec,i2f(u));
-	draw_polygon_model(canvas, model_pos, mine_exit_orient, nullptr, mine_destroyed ? destroyed_exit_modelnum : exit_modelnum, 0, lrgb, nullptr, nullptr);
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
+	draw_polygon_model(Polygon_models, canvas, model_pos, mine_exit_orient, nullptr, mine_destroyed ? destroyed_exit_modelnum : exit_modelnum, 0, lrgb, nullptr, nullptr);
 }
 
 #define SATELLITE_DIST		i2f(1024)

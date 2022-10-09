@@ -2935,7 +2935,8 @@ window_event_result polygon_models_viewer_window::event_handler(const d_event &e
 			timer_delay(F1_0/60);
 			{
 				auto &canvas = *grd_curcanv;
-				draw_model_picture(canvas, view_idx, ang);
+				auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
+				draw_model_picture(canvas, Polygon_models[view_idx], ang);
 				gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), -1);
 				auto &game_font = *GAME_FONT;
 				gr_printf(canvas, game_font, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev model (%i/%i)\nA/D: rotate y\nW/S: rotate x\nQ/E: rotate z\nR: reset orientation", view_idx, LevelSharedPolygonModelState.N_polygon_models - 1);

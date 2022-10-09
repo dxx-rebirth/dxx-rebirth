@@ -69,16 +69,19 @@ public:
 
 static object_dialog objpage_dialog;
 
-//this is bad to have the extern, but this snapshot stuff is special
+static void draw_model_picture(const std::array<polymodel, MAX_POLYGON_MODELS> &Polygon_models, grs_canvas &canvas, const unsigned model_num, const vms_angvec &orient_angles)
+{
+	draw_model_picture(canvas, Polygon_models[model_num], orient_angles);
+}
 
 //canvas set
 void draw_object_picture(grs_canvas &canvas, const unsigned id, const vms_angvec &orient_angles, const unsigned type)
 {
-
 	if (id >= Num_object_subtypes)
 		return;
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
+	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	switch (type) {
 
 		case OBJ_HOSTAGE:
@@ -94,18 +97,18 @@ void draw_object_picture(grs_canvas &canvas, const unsigned id, const vms_angvec
 			break;
 
 		case OBJ_PLAYER:
-			draw_model_picture(canvas, Player_ship->model_num, orient_angles);		// Draw a poly model below
+			draw_model_picture(Polygon_models, canvas, Player_ship->model_num, orient_angles);		// Draw a poly model below
 			break;
 
 		case OBJ_ROBOT:
-			draw_model_picture(canvas, Robot_info[id].model_num, orient_angles);	// Draw a poly model below
+			draw_model_picture(Polygon_models, canvas, Robot_info[id].model_num, orient_angles);	// Draw a poly model below
 			break;
 
 		case OBJ_CNTRLCEN:
-			draw_model_picture(canvas, get_reactor_model_number(id), orient_angles);
+			draw_model_picture(Polygon_models, canvas, get_reactor_model_number(id), orient_angles);
 			break;
 		case OBJ_CLUTTER:
-			draw_model_picture(canvas, id, orient_angles);
+			draw_model_picture(Polygon_models, canvas, id, orient_angles);
 			break;
 		default:
 			//Int3();	// Invalid type!!!

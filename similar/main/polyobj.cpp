@@ -392,10 +392,15 @@ void free_model(polymodel &po)
 
 namespace dsx {
 
-void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_matrix &orient, const submodel_angles anim_angles, const unsigned model_num, unsigned flags, const g3s_lrgb light, const glow_values_t *const glow_values, alternate_textures alt_textures)
+void draw_polygon_model(const std::array<polymodel, MAX_POLYGON_MODELS> &Polygon_models, grs_canvas &canvas, const vms_vector &pos, const vms_matrix &orient, const submodel_angles anim_angles, const unsigned model_num, const unsigned flags, const g3s_lrgb light, const glow_values_t *const glow_values, const alternate_textures alt_textures)
+{
+	draw_polygon_model(canvas, pos, orient, anim_angles, Polygon_models[model_num], flags, light, glow_values, alt_textures);
+}
+
+void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_matrix &orient, const submodel_angles anim_angles, const polymodel &pm, unsigned flags, const g3s_lrgb light, const glow_values_t *const glow_values, const alternate_textures alt_textures)
 {
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	const polymodel *po = &Polygon_models[model_num];
+	const polymodel *po = &pm;
 
 	//check if should use simple model
 	if (po->simpler_model )					//must have a simpler model
@@ -582,7 +587,7 @@ int load_polygon_model(const char *filename,int n_textures,int first_texture,rob
 //more-or-less fill the canvas.  Note that this routine actually renders
 //into an off-screen canvas that it creates, then copies to the current
 //canvas.
-void draw_model_picture(grs_canvas &canvas, const uint_fast32_t mn, const vms_angvec &orient_angles)
+void draw_model_picture(grs_canvas &canvas, const polymodel &mn, const vms_angvec &orient_angles)
 {
 	g3s_lrgb	lrgb = { f1_0, f1_0, f1_0 };
 
@@ -591,9 +596,8 @@ void draw_model_picture(grs_canvas &canvas, const uint_fast32_t mn, const vms_an
 	vms_vector temp_pos{};
 	g3_set_view_matrix(temp_pos,vmd_identity_matrix,0x9000);
 
-	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	if (Polygon_models[mn].rad != 0)
-		temp_pos.z = fixmuldiv(DEFAULT_VIEW_DIST,Polygon_models[mn].rad,BASE_MODEL_SIZE);
+	if (mn.rad != 0)
+		temp_pos.z = fixmuldiv(DEFAULT_VIEW_DIST, mn.rad, BASE_MODEL_SIZE);
 	else
 		temp_pos.z = DEFAULT_VIEW_DIST;
 
