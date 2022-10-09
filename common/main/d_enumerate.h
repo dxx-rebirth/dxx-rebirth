@@ -98,10 +98,9 @@ public:
 			++ m_idx;
 		return *this;
 	}
-	bool operator!=(const enumerated_iterator &i) const
-	{
-		return m_iter != i.m_iter;
-	}
+	/* Define operator== to compare only the iterator, but not the index.  This
+	 * is sufficient for proper operation, and generates smaller code.
+	 */
 	bool operator==(const enumerated_iterator &i) const
 	{
 		return m_iter == i.m_iter;
