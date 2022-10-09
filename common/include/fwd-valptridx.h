@@ -60,11 +60,21 @@ class valptridx :
 	template <typename>
 		class guarded;
 	class array_base_count_type;
-	using array_base_storage_type = typename std::conditional<
-		std::is_enum<typename specialized_types::integral_type>::value,
-		dcx::enumerated_array<managed_type, array_size, typename specialized_types::integral_type>,
-		std::array<managed_type, array_size>
-		>::type;
+	struct array_base_storage_integral
+	{
+		using type = std::array<managed_type, array_size>;
+	};
+	/* Note: integral_type must be an `enum` type, but
+	 * `requires(std::is_enum<integral_type>::value)` cannot be checked
+	 * here, because the name `array_base_storage_enum<integral_type>` may be
+	 * formed for non-enum types, but the internal type `type` will not be
+	 * used in those cases.
+	 */
+	template <typename integral_type>
+	struct array_base_storage_enum
+	{
+		using type = dcx::enumerated_array<managed_type, array_size, integral_type>;
+	};
 protected:
 	using const_pointer_type = const managed_type *;
 	using const_reference_type = const managed_type &;
@@ -75,6 +85,7 @@ protected:
 	 */
 	using typename specialized_types::integral_type;
 	using index_type = integral_type;	// deprecated; should be dedicated UDT
+	using array_base_storage_type = typename std::conditional<std::is_integral<integral_type>::value, array_base_storage_integral, array_base_storage_enum<integral_type>>::type::type;
 
 public:
 	class array_managed_type;
