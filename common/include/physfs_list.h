@@ -83,7 +83,7 @@ PHYSFSX_uncounted_list PHYSFSX_findFiles(const char *path, partial_range_t<const
 
 [[nodiscard]]
 __attribute_nonnull()
-PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const partial_range_t<const file_extension_t *> exts);
+PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, std::ranges::subrange<const file_extension_t *> exts);
 
 }
 #endif
