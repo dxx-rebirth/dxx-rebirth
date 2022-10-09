@@ -77,13 +77,7 @@ struct callsign_t
 	{
 		return &a[0];
 	};
-	bool operator==(const callsign_t &r) const
-	{
-		return a == r.a;
-	}
-	bool operator!=(const callsign_t &r) const
-	{
-		return !(*this == r);
-	}
+	[[nodiscard]]
+	constexpr bool operator==(const callsign_t &r) const = default;
 };
 static_assert(sizeof(callsign_t) == CALLSIGN_LEN + 1, "callsign_t too big");
