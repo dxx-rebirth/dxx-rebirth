@@ -220,7 +220,7 @@ static void print_commandline_help()
 		VERB("                                    5: Auto: if VSync is enabled and ARB_sync is supported, use mode 2, otherwise mode 0\n")	\
 		VERB("  -gl_syncwait <n>              Wait interval (ms) for sync mode 2 (default: " DXX_STRINGIZE(OGL_SYNC_WAIT_DEFAULT) ")\n")	\
 		VERB("  -gl_darkedges                 Re-enable dark edges around filtered textures (as present in earlier versions of the engine)\n")	\
-		DXX_if_not_defined_to_1(RELEASE, (	\
+		DXX_if_defined_01(DXX_USE_STEREOSCOPIC_RENDER, (	\
 		VERB("  -gl_stereo                    Enable OpenGL stereo quad buffering, if available\n")	\
 		VERB("  -gl_stereoview <n>            Select OpenGL stereo viewport mode (experimental; incomplete)\n")	\
 		VERB("                                    1: above/below half-height format\n")	\

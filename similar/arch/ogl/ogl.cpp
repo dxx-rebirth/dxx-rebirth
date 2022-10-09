@@ -1280,7 +1280,7 @@ void ogl_start_frame(grs_canvas &canvas)
 	glLoadIdentity();//clear matrix
 }
 
-#if !DXX_USE_OGLES
+#if DXX_USE_STEREOSCOPIC_RENDER
 void ogl_stereo_frame(const bool left_eye, const int xoff)
 {
 	const float dxoff = xoff * 2.0f / grd_curscreen->sc_canvas.cv_bitmap.bm_w;

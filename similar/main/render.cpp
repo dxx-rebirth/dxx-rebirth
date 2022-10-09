@@ -1265,10 +1265,12 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
   
 	g3_start_frame(canvas);
 
-#if DXX_USE_OGL && !DXX_USE_OGLES
+#if DXX_USE_STEREOSCOPIC_RENDER
+#if DXX_USE_OGL
 	// select stereo viewport/transform/buffer per left/right eye
 	if (VR_stereo != StereoFormat::None && eye_offset)
 		ogl_stereo_frame(eye_offset < 0, VR_eye_offset);
+#endif
 #endif
 
 	auto Viewer_eye = Viewer->pos;

@@ -203,16 +203,20 @@ constexpr screen_mode initial_small_game_screen_mode{320, 200};
 constexpr screen_mode initial_large_game_screen_mode{1024, 768};
 screen_mode Game_screen_mode = initial_large_game_screen_mode;
 
+#if DXX_USE_STEREOSCOPIC_RENDER
 StereoFormat VR_stereo;
 fix  VR_eye_width = F1_0;
 int  VR_eye_offset = 0;
 int  VR_sync_width = 20;
 grs_subcanvas VR_hud_left;
 grs_subcanvas VR_hud_right;
+#endif
+
 }
 
 namespace dsx {
 
+#if DXX_USE_STEREOSCOPIC_RENDER
 void init_stereo()
 {
 #if DXX_USE_OGL
@@ -243,6 +247,7 @@ void init_stereo()
 	}
 #endif
 }
+#endif
 
 //initialize the various canvases on the game screen
 //called every time the screen mode or cockpit changes
@@ -300,6 +305,7 @@ void init_cockpit()
 			{
 				unsigned w = SWIDTH;
 				unsigned h = SHEIGHT;
+#if DXX_USE_STEREOSCOPIC_RENDER
 				switch (VR_stereo)
 				{
 					case StereoFormat::None:
@@ -323,6 +329,7 @@ void init_cockpit()
 						w /= 2;
 						break;
 				}
+#endif
 				game_init_render_sub_buffers(canvas, 0, 0, w, h);
 			}
 			break;
@@ -356,9 +363,11 @@ void init_cockpit()
 //selects a given cockpit (or lack of one).  See types in game.h
 void select_cockpit(const cockpit_mode_t mode)
 {
+#if DXX_USE_STEREOSCOPIC_RENDER
 	// skip switching cockpit views while stereo viewport active
 	if (VR_stereo != StereoFormat::None && mode != cockpit_mode_t::full_screen)
 		return;
+#endif
 
 	if (mode != PlayerCfg.CockpitMode[1]) {		//new mode
 		PlayerCfg.CockpitMode[1]=mode;
@@ -380,6 +389,7 @@ void game_init_render_sub_buffers(grs_canvas &canvas, const int x, const int y, 
 	gr_clear_canvas(canvas, 0);
 	gr_init_sub_canvas(Screen_3d_window, canvas, x, y, w, h);
 
+#if DXX_USE_STEREOSCOPIC_RENDER
 	if (VR_stereo != StereoFormat::None)
 	{
 		// offset HUD screen rects to force out-of-screen parallax on HUD overlays
@@ -429,6 +439,7 @@ void game_init_render_sub_buffers(grs_canvas &canvas, const int x, const int y, 
 		gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, l.x, l.y, l.w, l.h);
 		gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, r.x, r.y, r.w, r.h);
 	}
+#endif
 }
 
 }
@@ -1729,7 +1740,9 @@ game_window *game_setup()
 
 	auto game_wind = window_create<game_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 	reset_palette_add();
+#if DXX_USE_STEREOSCOPIC_RENDER
 	init_stereo();
+#endif
 	init_cockpit();
 	init_gauges();
 	netplayerinfo_on = 0;

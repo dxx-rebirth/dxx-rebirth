@@ -802,13 +802,17 @@ void game_render_frame_mono(const d_robot_info_array &Robot_info, const control_
 		Viewer = gimobj;
 
 		window_rendered_data window;
+#if DXX_USE_STEREOSCOPIC_RENDER
 		if (VR_stereo != StereoFormat::None)
 		{
 			render_frame(canvas, -VR_eye_width, window);
 			render_frame(canvas, +VR_eye_width, window);
 		}
 		else
+#endif
+		{
 			render_frame(canvas, 0, window);
+		}
 
 		wake_up_rendered_objects(*Viewer, window);
 		show_HUD_names(Robot_info, canvas, Game_mode);
@@ -840,13 +844,17 @@ void game_render_frame_mono(const d_robot_info_array &Robot_info, const control_
 		}
 #endif
 		window_rendered_data window;
+#if DXX_USE_STEREOSCOPIC_RENDER
 		if (VR_stereo != StereoFormat::None)
 		{
 			render_frame(canvas, -VR_eye_width, window);
 			render_frame(canvas, +VR_eye_width, window);
 		}
 		else
+#endif
+		{
 			render_frame(canvas, 0, window);
+		}
 	}
 	}
 	gr_set_default_canvas();
@@ -859,13 +867,17 @@ void game_render_frame_mono(const d_robot_info_array &Robot_info, const control_
 	}
 
 	if (!no_draw_hud) {
+#if DXX_USE_STEREOSCOPIC_RENDER
 		if (VR_stereo != StereoFormat::None)
 		{
 			game_draw_hud_stuff(Robot_info, VR_hud_left, Controls);
 			game_draw_hud_stuff(Robot_info, VR_hud_right, Controls);
 		}
 		else
+#endif
+		{
 			game_draw_hud_stuff(Robot_info, Screen_3d_window, Controls);
+		}
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -884,8 +896,12 @@ void game_render_frame_mono(const d_robot_info_array &Robot_info, const control_
 
 void toggle_cockpit()
 {
-	if (Rear_view || Player_dead_state != player_dead_state::no || VR_stereo != StereoFormat::None)
+	if (Rear_view || Player_dead_state != player_dead_state::no)
 		return;
+#if DXX_USE_STEREOSCOPIC_RENDER
+	if (VR_stereo != StereoFormat::None)
+		return;
+#endif
 
 	auto new_mode = cockpit_mode_t::full_screen;
 

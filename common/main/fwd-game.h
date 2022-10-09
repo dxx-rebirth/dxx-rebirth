@@ -92,6 +92,7 @@ extern int Global_missile_firing_count;
 
 extern int PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 
+#if DXX_USE_STEREOSCOPIC_RENDER
 // Stereo viewport formats
 enum class StereoFormat : uint8_t;
 
@@ -101,6 +102,7 @@ extern int  VR_eye_offset;
 extern int  VR_sync_width;
 extern grs_subcanvas VR_hud_left;
 extern grs_subcanvas VR_hud_right;
+#endif
 
 extern cockpit_mode_t last_drawn_cockpit;
 
@@ -160,7 +162,9 @@ extern game_window *Game_wind;
 
 void game();
 void init_game();
+#if DXX_USE_STEREOSCOPIC_RENDER
 void init_stereo();
+#endif
 void init_cockpit();
 void PALETTE_FLASH_ADD(int dr, int dg, int db);
 

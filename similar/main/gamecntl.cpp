@@ -977,7 +977,7 @@ static window_event_result HandleSystemKey(int key)
 			break;
 #endif
 
-#if DXX_USE_OGL
+#if DXX_USE_STEREOSCOPIC_RENDER
 #if 0
 			/* These conflict with the drop-primary and drop-secondary
 			 * keybindings.  Dropping items is more common than using VR, so

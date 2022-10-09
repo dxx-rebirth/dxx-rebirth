@@ -1256,6 +1256,10 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		self._result_check_user_setting(context, self.user_settings.ipv6, _CPPDEFINES, 'IPv6 support')
 
 	@_custom_test
+	def _check_user_settings_stereo_render(self,context,_CPPDEFINES='DXX_USE_STEREOSCOPIC_RENDER'):
+		self._result_check_user_setting(context, self.user_settings.use_stereo_render, _CPPDEFINES, 'stereoscopic rendering')
+
+	@_custom_test
 	def _check_user_settings_udp(self,context,_CPPDEFINES='DXX_USE_UDP'):
 		self._result_check_user_setting(context, self.user_settings.use_udp, _CPPDEFINES, 'multiplayer over UDP')
 
@@ -3641,6 +3645,8 @@ class DXXCommon(LazyObjectConstructor):
 			if self.raspberrypi in ('yes', 'mesa'):
 				return True
 			return False
+		def default_use_stereo_render(self):
+			return self.opengl and not self.opengles
 		def selected_OGLES_LIB(self):
 			if self.raspberrypi == 'yes':
 				return 'brcmGLESv2'
@@ -3839,6 +3845,12 @@ class DXXCommon(LazyObjectConstructor):
 					# Only applicable if show_tool_version=True
 					('show_assembler_version', True, None),
 					('show_linker_version', True, None),
+				),
+			},
+			{
+				'variable': BoolVariable,
+				'arguments': (
+					('use_stereo_render', self.default_use_stereo_render, 'enable stereoscopic rendering'),
 				),
 			},
 			{

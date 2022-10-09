@@ -100,8 +100,10 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool DbgGlGetTexLevelParamOk;
 	bool DbgGlLuminance4Alpha4Ok;
 	bool DbgGlRGBA2Ok;
+#if DXX_USE_STEREOSCOPIC_RENDER
 	bool OglStereo;
 	uint8_t OglStereoView;
+#endif
 	unsigned OglSyncWait;
 #else
 	bool DbgSdlHWSurface;

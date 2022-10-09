@@ -138,6 +138,7 @@ struct d_game_unique_state
 	}
 };
 
+#if DXX_USE_STEREOSCOPIC_RENDER
 // Stereo viewport formats
 enum class StereoFormat : uint8_t
 {
@@ -148,6 +149,7 @@ enum class StereoFormat : uint8_t
 	AboveBelowSync,
 	HighestFormat = AboveBelowSync
 };
+#endif
 
 }
 
