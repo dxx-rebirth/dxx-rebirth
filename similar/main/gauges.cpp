@@ -3518,7 +3518,10 @@ void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &canvas, co
 	auto &vcobjptridx = Objects.vcptridx;
 	for (playernum_t pnum = 0;pnum < N_players; ++pnum)
 	{
-		if (pnum == Player_num || vcplayerptr(pnum)->connected != player_connection_status::playing)
+		if (pnum == Player_num)
+			continue;
+		auto &plr = *vcplayerptr(pnum);
+		if (plr.connected != player_connection_status::playing)
 			continue;
 		// ridiculusly complex to check if we want to show something... but this is readable at least.
 
@@ -3535,7 +3538,7 @@ void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &canvas, co
 				continue;			//..so don't show name
 		}
 		else
-			objnum = vcplayerptr(pnum)->objnum;
+			objnum = plr.objnum;
 
 		const auto &&objp = vcobjptridx(objnum);
 		const auto &pl_flags = objp->ctype.player_info.powerup_flags;
@@ -3561,46 +3564,73 @@ void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &canvas, co
 				g3_project_point(player_point);
 				if (!(player_point.p3_flags & projection_flag::overflow))
 				{
-					fix x,y,dx,dy;
-					char s[CALLSIGN_LEN+10];
-					int x1, y1;
-
-					x = player_point.p3_sx;
-					y = player_point.p3_sy;
-					dy = -fixmuldiv(fixmul(objp->size, Matrix_scale.y), i2f(canvas.cv_bitmap.bm_h) / 2, player_point.p3_z);
-					dx = fixmul(dy,grd_curscreen->sc_aspect);
+					const fix x = player_point.p3_sx;
+					const fix y = player_point.p3_sy;
+					const fix dy = -fixmuldiv(fixmul(objp->size, Matrix_scale.y), i2f(canvas.cv_bitmap.bm_h) / 2, player_point.p3_z);
+					const fix dx = fixmul(dy, grd_curscreen->sc_aspect);
 					/* Set the text to show */
-					const char *name = NULL;
-					if(is_bounty_target)
-						name = "Target";
-					else if (show_name)
-						name = static_cast<const char *>(vcplayerptr(pnum)->callsign);
-					const char *trailer = NULL;
-					if (show_typing)
-					{
-						if (multi_sending_message[pnum] == msgsend_state::typing)
-							trailer = "Typing";
-						else if (multi_sending_message[pnum] == msgsend_state::automap)
-							trailer = "Map";
-					}
-					int written = snprintf(s, sizeof(s), "%s%s%s", name ? name : "", name && trailer ? ", " : "", trailer ? trailer : "");
-					if (written)
+					const auto name = is_bounty_target
+						? "Target"
+						: (show_name
+							? plr.callsign.operator const char *()
+							: nullptr);
+					const auto trailer = show_typing
+						? ({
+							const auto m = multi_sending_message[pnum];
+							m == msgsend_state::typing
+							? ", Typing"
+							: m == msgsend_state::automap
+								? ", Map"
+								: nullptr;
+							})
+						: nullptr;
+					/* If both `name` and `trailer` are present, then
+					 * concatenate them into label_storage.  If successful, set
+					 * `s` to `label_storage`.  Otherwise, set `s` to
+					 * `nullptr`.
+					 *
+					 * If exactly one of `name` or `trailer` is present, set
+					 * `s` to the one that is present.  In the case that
+					 * `trailer` is present, skip the leading literal `", "`
+					 * that is necessary for the name-present case, but not
+					 * necessary for the name-absent case.
+					 *
+					 * If neither is present, set `s` to `trailer`, which by
+					 * definition is `nullptr` in this branch.
+					 *
+					 * Finally, if `s` is not `nullptr`, then something can be
+					 * shown.  Show whatever `s` points at, which will be one
+					 * of:
+					 * - `label_storage`
+					 * - `name`
+					 * - `&trailer[2]`
+					 */
+					std::array<char, CALLSIGN_LEN + 10> label_storage;
+					if (const auto s = name
+						? (
+							trailer
+							? (std::snprintf(label_storage.data(), label_storage.size(), "%s%s", name, trailer) > 0 ? label_storage.data() : nullptr)
+							: name
+						)
+						: (
+							trailer ? &trailer[2] : trailer
+						)
+					)
 					{
 						const auto &&[w, h] = gr_get_string_size(*canvas.cv_font, s);
 						const auto color = get_player_or_team_color(pnum);
-						gr_set_fontcolor(canvas, BM_XRGB(player_rgb[color].r, player_rgb[color].g, player_rgb[color].b), -1);
-						x1 = f2i(x)-w/2;
-						y1 = f2i(y-dy)+FSPACY(1);
+						auto &c = player_rgb[color];
+						gr_set_fontcolor(canvas, BM_XRGB(c.r, c.g, c.b), -1);
+						const int x1 = f2i(x) - w / 2;
+						const int y1 = f2i(y - dy) + FSPACY(1);
 						gr_string(canvas, *canvas.cv_font, x1, y1, s, w, h);
 					}
 
 					/* Draw box on HUD */
 					if (show_indi)
 					{
-						fix w,h;
-
-						w = dx/4;
-						h = dy/4;
+						const fix w = dx / 4;
+						const fix h = dy / 4;
 
 							struct {
 								int r, g, b;
