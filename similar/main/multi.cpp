@@ -4869,7 +4869,7 @@ void multi_initiate_save_game()
 	multi_execute_save_game(slot, desc, player_range);
 }
 
-void multi_execute_save_game(const d_game_unique_state::save_slot slot, const d_game_unique_state::savegame_description &desc, const partial_range_t<const player *> player_range)
+void multi_execute_save_game(const d_game_unique_state::save_slot slot, const d_game_unique_state::savegame_description &desc, const std::ranges::subrange<const player *> player_range)
 {
 	// Make a unique game id
 	fix game_id;

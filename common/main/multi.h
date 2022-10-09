@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <type_traits>
 #include "dxxsconf.h"
 #include "fwd-partial_range.h"
-#include "fwd-player.h"
+#include "player.h"
 #include "player-callsign.h"
 #include "player-flags.h"
 #include "fwd-weapon.h"
@@ -63,6 +63,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ntstring.h"
 #include "compiler-static_assert.h"
 #include <array>
+
+#ifdef dsx
+#include <ranges>
+#endif
 
 namespace dcx {
 
@@ -522,7 +526,7 @@ void multi_disconnect_player(playernum_t);
 namespace dsx {
 void multi_initiate_save_game();
 void multi_initiate_restore_game();
-void multi_execute_save_game(d_game_unique_state::save_slot slot, const d_game_unique_state::savegame_description &desc, partial_range_t<const player *> player_range);
+void multi_execute_save_game(d_game_unique_state::save_slot slot, const d_game_unique_state::savegame_description &desc, std::ranges::subrange<const player *> player_range);
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void multi_send_got_flag (playernum_t) {}
 #elif defined(DXX_BUILD_DESCENT_II)
