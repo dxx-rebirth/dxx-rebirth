@@ -504,7 +504,7 @@ static inline PHYSFSX_uncounted_list PHYSFSX_findPredicateFiles(const char *path
 
 // Find files at path that have an extension listed in exts
 // The extension list exts must be NULL-terminated, with each ext beginning with a '.'
-PHYSFSX_uncounted_list PHYSFSX_findFiles(const char *path, const partial_range_t<const file_extension_t *> exts)
+PHYSFSX_uncounted_list PHYSFSX_findFiles(const char *path, const std::ranges::subrange<const file_extension_t *> exts)
 {
 	const auto predicate = [&](const char *i) {
 		return PHYSFSX_checkMatchingExtension(i, exts);
