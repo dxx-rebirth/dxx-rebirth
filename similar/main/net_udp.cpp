@@ -183,7 +183,7 @@ struct net_udp_select_teams_menu_items
 	unsigned idx_item_accept;
 	const color_palette_index blue_team_color;
 	const color_palette_index red_team_color;
-	std::array<callsign_t, 2> team_names;
+	per_team_array<callsign_t> team_names;
 	/* Labels plus slots for every player */
 	std::array<newmenu_item, std::size(Netgame.players) + 4> m;
 	net_udp_select_teams_menu_items(unsigned num_players);

@@ -76,6 +76,8 @@ constexpr unsigned MAX_PLAYERS = 8;
 template <typename T>
 	using per_player_array = std::array<T, MAX_PLAYERS>;
 using playernum_array_t = per_player_array<playernum_t>;
+template <typename T>
+	using per_team_array = std::array<T, 2>;
 
 extern unsigned N_players;   // Number of players ( >1 means a net game, eh?)
 extern playernum_t Player_num;  // The player number who is on the console.

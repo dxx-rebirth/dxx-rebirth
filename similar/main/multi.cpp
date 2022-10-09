@@ -237,7 +237,7 @@ std::array<objnum_t, MAX_NET_CREATE_OBJECTS>   Net_create_objnums; // For tracki
 ntstring<MAX_MESSAGE_LEN - 1> Network_message;
 int   Network_message_reciever=-1;
 per_player_array<per_player_array<uint16_t>> kill_matrix;
-std::array<int16_t, 2> team_kills;
+per_team_array<int16_t> team_kills;
 int   multi_quit_game = 0;
 
 }

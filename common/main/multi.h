@@ -563,7 +563,7 @@ extern int Player_joining_extras;
 extern int Network_player_added;
 
 extern per_player_array<per_player_array<uint16_t>> kill_matrix;
-extern std::array<int16_t, 2> team_kills;
+extern per_team_array<int16_t> team_kills;
 
 extern ushort my_segments_checksum;
 
@@ -872,10 +872,10 @@ struct netgame_info : prohibit_void_ptr<netgame_info>
 	short						PacketsPerSec;
 	ubyte						PacketLossPrevention;
 	ubyte						NoFriendlyFire;
-	std::array<callsign_t, 2>					team_name;
+	per_team_array<callsign_t>						team_name;
 	per_player_array<uint32_t>						locations;
 	per_player_array<per_player_array<uint16_t>>	kills;
-	std::array<int16_t, 2>						team_kills;
+	per_team_array<int16_t>							team_kills;
 	per_player_array<uint16_t>						killed;
 	per_player_array<uint16_t>						player_kills;
 	per_player_array<uint32_t>						player_score;
