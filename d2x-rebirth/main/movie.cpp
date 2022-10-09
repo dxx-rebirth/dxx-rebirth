@@ -88,7 +88,7 @@ struct d_loaded_subtitle_state
 		;
 };
 
-static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const char *filename);
+static int init_subtitles(d_loaded_subtitle_state &SubtitleState, std::span<const char> filename);
 
 // Movielib data
 
@@ -391,7 +391,7 @@ movie_play_status RunMovie(const char *const filename, const std::span<const cha
 	auto wind = window_create<movie>(grd_curscreen->sc_canvas, std::move(mvestream));
 	bool exists = true;
 	wind->track(&exists);
-	init_subtitles(wind->SubtitleState, subtitles.data());
+	init_subtitles(wind->SubtitleState, subtitles);
 
 #if DXX_USE_OGL
 	set_screen_mode(SCREEN_MOVIE);
@@ -498,9 +498,9 @@ static char *next_field (char *p)
 	return p;
 }
 
-static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const char *const filename)
+static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const std::span<const char> filename)
 {
-	if (!filename)
+	if (filename.empty())
 		return 0;
 	int size,read_count;
 	char *p;
@@ -514,15 +514,15 @@ static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const char *co
 		return 0;
 	}
 
-	auto &&[ifile, physfserr] = PHYSFSX_openReadBuffered(filename);		//try text version
+	auto &&[ifile, physfserr] = PHYSFSX_openReadBuffered(filename.data());		//try text version
 
 	if (!ifile) {								//no text version, try binary version
 		char filename2[FILENAME_LEN];
-		change_filename_extension(filename2, filename, "txb");
+		change_filename_extension(filename2, filename.data(), "txb");
 		auto &&[ifile2, physfserr2] = PHYSFSX_openReadBuffered(filename2);
 		if (!ifile2)
 		{
-			con_printf(CON_VERBOSE, "Rebirth: skipping subtitles because cannot open \"%s\" or \"%s\" (\"%s\", \"%s\")", filename, filename2, PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
+			con_printf(CON_VERBOSE, "Rebirth: skipping subtitles because cannot open \"%s\" or \"%s\" (\"%s\", \"%s\")", filename.data(), filename2, PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
 			return 0;
 		}
 		ifile = std::move(ifile2);
@@ -530,7 +530,7 @@ static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const char *co
 		con_printf(CON_VERBOSE, "Rebirth: found encoded subtitles in \"%s\"", filename2);
 	}
 	else
-		con_printf(CON_VERBOSE, "Rebirth: found text subtitles in \"%s\"", filename);
+		con_printf(CON_VERBOSE, "Rebirth: found text subtitles in \"%s\"", filename.data());
 
 	size = PHYSFS_fileLength(ifile);
 
