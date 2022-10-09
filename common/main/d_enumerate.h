@@ -6,11 +6,11 @@
  */
 #pragma once
 
-#include <inttypes.h>
 #include <iterator>
 #include "dxxsconf.h"
 #include "partial_range.h"
 #include "ephemeral_range.h"
+#include <ranges>
 #include <tuple>
 #include <type_traits>
 
@@ -58,7 +58,18 @@ typename std::remove_reference<typename T::index_type &>::type array_index_type(
 
 }
 
-template <typename range_index_type, typename range_iterator_type, typename adjust_iterator_dereference_type>
+template <typename sentinel_type>
+class enumerated_sentinel
+{
+public:
+	const sentinel_type m_sentinel;
+	constexpr enumerated_sentinel(sentinel_type &&iter) :
+		m_sentinel(std::move(iter))
+	{
+	}
+};
+
+template <typename range_index_type, typename range_iterator_type, typename sentinel_type, typename adjust_iterator_dereference_type>
 class enumerated_iterator
 {
 	range_iterator_type m_iter;
@@ -70,7 +81,7 @@ public:
 	using difference_type = std::ptrdiff_t;
 	using pointer = value_type *;
 	using reference = value_type &;
-	enumerated_iterator(range_iterator_type &&iter, const index_type idx) :
+	constexpr enumerated_iterator(range_iterator_type &&iter, const index_type idx) :
 		m_iter(std::move(iter)), m_idx(idx)
 	{
 	}
@@ -97,12 +108,9 @@ public:
 			++ m_idx;
 		return *this;
 	}
-	/* Define operator== to compare only the iterator, but not the index.  This
-	 * is sufficient for proper operation, and generates smaller code.
-	 */
-	bool operator==(const enumerated_iterator &i) const
+	constexpr bool operator==(const enumerated_sentinel<sentinel_type> &i) const
 	{
-		return m_iter == i.m_iter;
+		return m_iter == i.m_sentinel;
 	}
 };
 
@@ -110,10 +118,12 @@ template <typename range_iterator_type, typename range_index_type>
 class enumerate : partial_range_t<range_iterator_type, range_index_type>
 {
 	using base_type = partial_range_t<range_iterator_type, range_index_type>;
+	using range_sentinel_type = decltype(std::declval<base_type &>().end());
 	using iterator_dereference_type = decltype(*std::declval<range_iterator_type>());
 	using enumerated_iterator_type = enumerated_iterator<
 		range_index_type,
 		range_iterator_type,
+		range_sentinel_type,
 		d_enumerate::detail::adjust_iterator_dereference_type<range_index_type, typename std::remove_cv<iterator_dereference_type>::type>>;
 	const range_index_type m_idx;
 public:
@@ -139,11 +149,11 @@ public:
 	{
 		return {this->base_type::begin(), m_idx};
 	}
-	enumerated_iterator_type end() const
+	enumerated_sentinel<range_sentinel_type> end() const
 	{
-		return {this->base_type::end(), index_type{} /* unused */};
+		return {this->base_type::end()};
 	}
 };
 
 template <typename range_type, typename index_type = decltype(d_enumerate::detail::array_index_type(static_cast<typename std::remove_reference<range_type>::type *>(nullptr)))>
-enumerate(range_type &&r, const index_type start = index_type(/* value ignored */)) -> enumerate</* range_iterator_type */ decltype(std::begin(std::declval<range_type &>())), index_type>;
+enumerate(range_type &&r, index_type start = {/* value ignored for deduction guide */}) -> enumerate</*range_iterator_type = */ decltype(std::ranges::begin(std::declval<range_type &>())), index_type>;
