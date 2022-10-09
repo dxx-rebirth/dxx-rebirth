@@ -846,18 +846,28 @@ static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &int
 					continue;
 #endif
 
+			/*
+			 * In Descent 1:
 			//	If this is a robot:robot collision, only do it if both of them have attack_type != 0 (eg, green guy)
-			if (robptrthis && robptrthis->attack_type)
+			 *
+			 * In Descent 2:
+			 * Robot-vs-robot collisions never happen.  This appears to have
+			 * been done for the benefit of the Diamond Claw.  However, it also
+			 * has the effect of allowing the Thief to pass through other
+			 * robots unharmed.
+			 */
+			if (robptrthis)
 			{
 				if (objnum->type == OBJ_ROBOT)
 				{
 #if defined(DXX_BUILD_DESCENT_I)
-					if (!((*Robot_info)[get_robot_id(objnum)].attack_type))
+					if (!((*Robot_info)[get_robot_id(objnum)].attack_type && robptrthis->attack_type))
 #endif
 					// -- MK: 11/18/95, 4claws glomming together...this is easy.  -- if (!(Robot_info[Objects[objnum].id].attack_type && Robot_info[Objects[thisobjnum].id].attack_type))
 						continue;
 				}
-				fudged_rad = (rad * 3) / 4;
+				if (robptrthis->attack_type)
+					fudged_rad = (rad * 3) / 4;
 			}
 			//if obj is player, and bumping into other player or a weapon of another coop player, reduce radius
 			else if (fq.thisobjnum->type == OBJ_PLAYER &&
