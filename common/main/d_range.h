@@ -83,7 +83,7 @@ struct xrange_check_constant_endpoints<std::integral_constant<Tb, b>, std::integ
 
 }
 
-/* For the general case, store a `const`-qualified copy of the value,
+/* For the general case, store a copy of the value,
  * and provide an implicit conversion.
  */
 template <typename T, bool begin>
@@ -91,7 +91,11 @@ class xrange_endpoint
 {
 public:
 	using value_type = T;
-	const value_type value;
+	/* The value is never mutated, but must be mutable to satisfy
+	 * std::ranges::range<xrange<...>>.
+	 */
+	value_type value{};
+	constexpr xrange_endpoint() = default;
 	constexpr xrange_endpoint(value_type v) :
 		value(std::move(v))
 	{
