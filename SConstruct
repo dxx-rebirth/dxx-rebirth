@@ -439,9 +439,10 @@ struct A_%(N)s
 };
 ''',
 '''
-	A_%(N)s a{0};
-	A_%(N)s b{0};
-	(void)(a == b);
+	constexpr A_%(N)s a1{0};
+	constexpr A_%(N)s a2{0};
+	static_assert(a1 == a2);
+	static_assert(!(a1 != a2));
 '''),
 		Cxx20RequiredFeature('requires clause', '''
 template <typename T>
