@@ -396,21 +396,26 @@ void draw_polygon_model(const std::array<polymodel, MAX_POLYGON_MODELS> &Polygon
 	draw_polygon_model(canvas, pos, orient, anim_angles, Polygon_models[model_num], flags, light, glow_values, alt_textures);
 }
 
+static unsigned build_polygon_model_index_from_polygon_simpler_model_index(const polygon_simpler_model_index i)
+{
+	return underlying_value(i) - 1;
+}
+
 void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_matrix &orient, const submodel_angles anim_angles, const polymodel &pm, unsigned flags, const g3s_lrgb light, const glow_values_t *const glow_values, const alternate_textures alt_textures)
 {
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const polymodel *po = &pm;
 
 	//check if should use simple model
-	if (po->simpler_model )					//must have a simpler model
+	if (po->simpler_model != polygon_simpler_model_index::None)	//must have a simpler model
 		if (flags==0)							//can't switch if this is debris
 			//alt textures might not match, but in the one case we're using this
 			//for on 11/14/94, they do match.  So we leave it in.
 			{
 				int cnt=1;
 				const auto depth = g3_calc_point_depth(pos);		//gets 3d depth
-				while (po->simpler_model && depth > cnt++ * Simple_model_threshhold_scale * po->rad)
-					po = &Polygon_models[po->simpler_model-1];
+				while (po->simpler_model != polygon_simpler_model_index::None && depth > cnt++ * Simple_model_threshhold_scale * po->rad)
+					po = &Polygon_models[build_polygon_model_index_from_polygon_simpler_model_index(po->simpler_model)];
 			}
 
 	std::array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
@@ -570,7 +575,7 @@ int load_polygon_model(const char *filename,int n_textures,int first_texture,rob
 
 	model.n_textures = n_textures;
 	model.first_texture = first_texture;
-	model.simpler_model = 0;
+	model.simpler_model = polygon_simpler_model_index{};
 
 	return LevelSharedPolygonModelState.N_polygon_models++;
 }

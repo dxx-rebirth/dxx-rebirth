@@ -37,6 +37,15 @@ struct bitmap_index;
 #include "inferno.h"
 #include "pack.h"
 
+namespace dcx {
+
+enum class polygon_simpler_model_index : uint8_t
+{
+	None = 0,
+};
+
+}
+
 #ifdef dsx
 namespace dsx {
 struct robot_info;
@@ -73,7 +82,7 @@ struct polymodel : prohibit_void_ptr<polymodel>
 	fix     rad;
 	ushort  first_texture;
 	ubyte   n_textures;
-	ubyte   simpler_model;                      // alternate model with less detail (0 if none, model_num+1 else)
+	polygon_simpler_model_index simpler_model;                      // alternate model with less detail (0 if none, model_num+1 else)
 	//vms_vector min,max;
 };
 

@@ -1284,6 +1284,14 @@ static void adjust_field_of_view(enumerated_array<fix, NDL, Difficulty_level_typ
 	}
 }
 
+static polygon_simpler_model_index build_polygon_simpler_model_index_from_polygon_model_index(const unsigned i)
+{
+	const auto ii = i + 1;
+	if (ii > MAX_POLYGON_MODELS)
+		return polygon_simpler_model_index::None;
+	return static_cast<polygon_simpler_model_index>(ii);
+}
+
 }
 }
 
@@ -1664,7 +1672,7 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 		if (i==0)
 			current_robot_info.model_num = model_num;
 		else
-			Polygon_models[0].simpler_model = model_num+1;
+			Polygon_models[0].simpler_model = build_polygon_simpler_model_index_from_polygon_model_index(model_num);
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -2049,7 +2057,7 @@ void bm_read_player_ship(void)
 		if (i==0)
 			Player_ship->model_num = model_num;
 		else
-			Polygon_models[0].simpler_model = model_num+1;
+			Polygon_models[0].simpler_model = build_polygon_simpler_model_index_from_polygon_model_index(model_num);
 	}
 
 	if ( model_name_dying ) {
@@ -2468,7 +2476,7 @@ void bm_read_weapon(int skip, int unused_flag)
 			Weapon_info[n].model_num = model_num;
 		}
 		else
-			Polygon_models[0].simpler_model = model_num+1;
+			Polygon_models[0].simpler_model = build_polygon_simpler_model_index_from_polygon_model_index(model_num);
 	}
 
 	if ( pof_file_inner )	{
