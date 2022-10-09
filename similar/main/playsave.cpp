@@ -1271,7 +1271,7 @@ namespace {
  *   pointer to end().  The caller must check that the first unused
  *   element is not end().
  */
-static std::array<std::array<hli, MAX_MISSIONS>::pointer, 2> find_hli_entry(const partial_range_t<hli *> &r, const Mission_path &m)
+static std::array<std::array<hli, MAX_MISSIONS>::pointer, 2> find_hli_entry(const std::ranges::subrange<hli *> r, const Mission_path &m)
 {
 	const auto mission_filename = m.filename;
 	const auto mission_length = std::distance(mission_filename, m.path.end());
