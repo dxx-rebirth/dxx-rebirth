@@ -25,6 +25,10 @@ public:
 	unsigned count() const { return m_count; }
 	const char *string(std::size_t i) const { return this->operator[](i); }
 	using array_t::begin;
+	auto end() const
+	{
+		return std::next(begin(), m_count);
+	}
 private:
 	unsigned m_count;
 };
