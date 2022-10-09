@@ -437,11 +437,6 @@ public:
 			static_assert(allow_nullptr || static_cast<std::size_t>(v) < array_size, "invalid magic index not allowed for this policy");
 			return m_idx == v;
 		}
-	template <typename R>
-		bool operator!=(const R &rhs) const
-		{
-			return !(*this == rhs);
-		}
 	operator index_type() const
 	{
 		return m_idx;
