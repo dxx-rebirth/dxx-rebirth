@@ -189,7 +189,7 @@ void free_model(polymodel &po);
 /*
  * reads a polymodel structure from a PHYSFS_File
  */
-extern void polymodel_read(polymodel *pm, PHYSFS_File *fp);
+void polymodel_read(polymodel &pm, PHYSFS_File *fp);
 }
 #if 0
 void polymodel_write(PHYSFS_File *fp, const polymodel &pm);

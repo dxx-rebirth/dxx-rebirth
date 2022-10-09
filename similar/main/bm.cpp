@@ -213,7 +213,7 @@ void properties_read_cmp(d_level_shared_robot_info_state &LevelSharedRobotInfoSt
 	{
 		const auto &&r = partial_range(Polygon_models, N_polygon_models);
 	range_for (auto &p, r)
-		polymodel_read(&p, fp);
+		polymodel_read(p, fp);
 
 	range_for (auto &p, r)
 		polygon_model_data_read(&p, fp);
@@ -355,7 +355,7 @@ void bm_read_all(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_v
 	{
 		const auto &&r = partial_range(Polygon_models, N_polygon_models);
 	range_for (auto &p, r)
-		polymodel_read(&p, fp);
+		polymodel_read(p, fp);
 
 	range_for (auto &p, r)
 		polygon_model_data_read(&p, fp);
@@ -502,7 +502,7 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 	{
 		const auto &&r = partial_range(Polygon_models, N_D2_POLYGON_MODELS.value, N_polygon_models);
 		range_for (auto &p, r)
-		polymodel_read(&p, fp);
+			polymodel_read(p, fp);
 
 		range_for (auto &p, r)
 			polygon_model_data_read(&p, fp);
@@ -585,7 +585,7 @@ void load_robot_replacements(const d_fname &level_name)
 			Error("Polygon model (%u) out of range in (%s).  Range = [0..%u].", i, static_cast<const char *>(level_name), N_polygon_models - 1);
 
 		free_model(Polygon_models[i]);
-		polymodel_read(&Polygon_models[i], fp);
+		polymodel_read(Polygon_models[i], fp);
 		polygon_model_data_read(&Polygon_models[i], fp);
 
 		Dying_modelnums[i] = PHYSFSX_readInt(fp);
@@ -749,8 +749,8 @@ int load_exit_models()
 	{
 		exit_modelnum = LevelSharedPolygonModelState.N_polygon_models++;
 		destroyed_exit_modelnum = LevelSharedPolygonModelState.N_polygon_models++;
-		polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
-		polymodel_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
+		polymodel_read(Polygon_models[exit_modelnum], exit_hamfile);
+		polymodel_read(Polygon_models[destroyed_exit_modelnum], exit_hamfile);
 		Polygon_models[exit_modelnum].first_texture = start_num;
 		Polygon_models[destroyed_exit_modelnum].first_texture = start_num+3;
 
@@ -796,8 +796,8 @@ int load_exit_models()
 		PHYSFSX_fseek(exit_hamfile, offset, SEEK_SET);
 		exit_modelnum = LevelSharedPolygonModelState.N_polygon_models++;
 		destroyed_exit_modelnum = LevelSharedPolygonModelState.N_polygon_models++;
-		polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
-		polymodel_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
+		polymodel_read(Polygon_models[exit_modelnum], exit_hamfile);
+		polymodel_read(Polygon_models[destroyed_exit_modelnum], exit_hamfile);
 		Polygon_models[exit_modelnum].first_texture = start_num;
 		Polygon_models[destroyed_exit_modelnum].first_texture = start_num+3;
 

@@ -551,7 +551,7 @@ static void load_hxm(const d_fname &hxmname)
 			{
 				auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 				pm = &Polygon_models[repl_num];
-				polymodel_read(pm, f);
+				polymodel_read(*pm, f);
 				const auto model_data_size = pm->model_data_size;
 				pm->model_data = std::make_unique<uint8_t[]>(model_data_size);
 				if (PHYSFS_read(f, pm->model_data, model_data_size, 1) < 1)

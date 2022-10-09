@@ -144,7 +144,7 @@ static void pof_read_ang(vms_angvec &ang, const std::span<const uint8_t> bufp, s
 //be filled in.
 
 //reads a binary file containing a 3d model
-static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info *r)
+static void read_model_file(polymodel &pm, const char *const filename, robot_info *r)
 {
 	short version;
 	int len, next_chunk;
@@ -181,10 +181,10 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			case ID_OHDR: {		//Object header
 				vms_vector pmmin,pmmax;
 
-				pm->n_models = pof_read_int(model_buf, Pof_addr);
-				pm->rad = pof_read_int(model_buf, Pof_addr);
+				pm.n_models = pof_read_int(model_buf, Pof_addr);
+				pm.rad = pof_read_int(model_buf, Pof_addr);
 
-				Assert(pm->n_models <= MAX_SUBMODELS);
+				assert(pm.n_models <= MAX_SUBMODELS);
 
 				pof_read_vec(pmmin, model_buf, Pof_addr);
 				pof_read_vec(pmmax, model_buf, Pof_addr);
@@ -199,15 +199,15 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 
 				Assert(n < MAX_SUBMODELS);
 
-				pm->submodel_parents[n] = pof_read_short(model_buf, Pof_addr);
+				pm.submodel_parents[n] = pof_read_short(model_buf, Pof_addr);
 
-				pof_read_vec(pm->submodel_norms[n], model_buf, Pof_addr);
-				pof_read_vec(pm->submodel_pnts[n], model_buf, Pof_addr);
-				pof_read_vec(pm->submodel_offsets[n], model_buf, Pof_addr);
+				pof_read_vec(pm.submodel_norms[n], model_buf, Pof_addr);
+				pof_read_vec(pm.submodel_pnts[n], model_buf, Pof_addr);
+				pof_read_vec(pm.submodel_offsets[n], model_buf, Pof_addr);
 
-				pm->submodel_rads[n] = pof_read_int(model_buf, Pof_addr);		//radius
+				pm.submodel_rads[n] = pof_read_int(model_buf, Pof_addr);		//radius
 
-				pm->submodel_ptrs[n] = pof_read_int(model_buf, Pof_addr);	//offset
+				pm.submodel_ptrs[n] = pof_read_int(model_buf, Pof_addr);	//offset
 
 				break;
 
@@ -263,12 +263,12 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 
 					Assert(n_frames == N_ANIM_STATES);
 
-					for (int m=0;m<pm->n_models;m++)
+					for (int m = 0; m < pm.n_models; ++m)
 						range_for (auto &f, partial_range(anim_angs, n_frames))
 							pof_read_ang(f[m], model_buf, Pof_addr);
 
 
-					robot_set_angles(r,pm,anim_angs);
+					robot_set_angles(*r, pm, anim_angs);
 				
 				}
 				else
@@ -288,10 +288,10 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			}
 			
 			case ID_IDTA:		//Interpreter data
-				pm->model_data_size = len;
-				pm->model_data = std::make_unique<uint8_t[]>(pm->model_data_size);
+				pm.model_data_size = len;
+				pm.model_data = std::make_unique<uint8_t[]>(pm.model_data_size);
 
-				pof_cfread(pm->model_data.get(), len, model_buf, Pof_addr);
+				pof_cfread(pm.model_data.get(), len, model_buf, Pof_addr);
 
 				break;
 
@@ -308,8 +308,7 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 	align_polygon_model_data(pm);
 #endif
 	if constexpr (words_bigendian)
-		swap_polygon_model_data(pm->model_data.get());
-	return pm;
+		swap_polygon_model_data(pm.model_data.get());
 }
 }
 
@@ -504,16 +503,17 @@ static void assign_minmax(vms_vector &minv, vms_vector &maxv, const vms_vector &
 	update_bounds<&vms_vector::z>(minv, maxv, v);
 }
 
-static void polyobj_find_min_max(polymodel *pm)
+static void polyobj_find_min_max(polymodel &pm)
 {
-	auto &big_mn = pm->mins;
-	auto &big_mx = pm->maxs;
-	for (int m=0;m<pm->n_models;m++) {
-		auto &mn = pm->submodel_mins[m];
-		auto &mx = pm->submodel_maxs[m];
-		const auto &ofs = pm->submodel_offsets[m];
+	auto &big_mn = pm.mins;
+	auto &big_mx = pm.maxs;
+	for (int m = 0; m < pm.n_models; ++m)
+	{
+		auto &mn = pm.submodel_mins[m];
+		auto &mx = pm.submodel_maxs[m];
+		const auto &ofs = pm.submodel_offsets[m];
 
-		auto data = reinterpret_cast<const uint16_t *>(&pm->model_data[pm->submodel_ptrs[m]]);
+		auto data = reinterpret_cast<const uint16_t *>(&pm.model_data[pm.submodel_ptrs[m]]);
 	
 		const auto type = *data++;
 	
@@ -560,9 +560,8 @@ int load_polygon_model(const char *filename,int n_textures,int first_texture,rob
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	auto &model = Polygon_models[n_models];
-	read_model_file(&model, filename, r);
-
-	polyobj_find_min_max(&model);
+	read_model_file(model, filename, r);
+	polyobj_find_min_max(model);
 
 	const auto highest_texture_num = g3_init_polygon_model(std::span{model.model_data.get(), model.model_data_size});
 
@@ -615,10 +614,10 @@ ASSERT_SERIAL_UDT_MESSAGE_SIZE(polymodel, 12 + (10 * 4) + (10 * 3 * sizeof(vms_v
 /*
  * reads a polymodel structure from a PHYSFS_File
  */
-void polymodel_read(polymodel *pm, PHYSFS_File *fp)
+void polymodel_read(polymodel &pm, PHYSFS_File *fp)
 {
-	pm->model_data.reset();
-	PHYSFSX_serialize_read(fp, *pm);
+	pm.model_data.reset();
+	PHYSFSX_serialize_read(fp, pm);
 }
 
 }

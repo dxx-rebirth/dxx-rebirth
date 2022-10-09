@@ -94,7 +94,7 @@ void calc_gun_point(const robot_info &, vms_vector &gun_point, const object_base
  * reads n robot_info structs from a PHYSFS_File
  */
 void robot_info_read(PHYSFS_File *fp, robot_info &r);
-void robot_set_angles(robot_info *r, polymodel *pm, enumerated_array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES, robot_animation_state> &angs);
+void robot_set_angles(robot_info &r, polymodel &pm, enumerated_array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES, robot_animation_state> &angs);
 weapon_id_type get_robot_weapon(const robot_info &ri, const robot_gun_number gun_num);
 
 }

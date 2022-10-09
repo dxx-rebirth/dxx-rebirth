@@ -124,32 +124,32 @@ static void set_robot_state(object_base &obj, const robot_animation_state state)
 
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.
-void robot_set_angles(robot_info *const r, polymodel *const pm, enumerated_array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES, robot_animation_state> &angs)
+void robot_set_angles(robot_info &r, polymodel &pm, enumerated_array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES, robot_animation_state> &angs)
 {
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	std::array<robot_gun_number, MAX_SUBMODELS> gun_nums;			//which gun each submodel is part of
 	gun_nums[0] = robot_gun_number{UINT8_MAX};		//body never animates, at least for now
 	{
-		auto &&gr = partial_range(gun_nums, 1u, pm->n_models);
+		auto &&gr = partial_range(gun_nums, 1u, pm.n_models);
 		//assume part of body...
-		std::fill(gr.begin(), gr.end(), robot_gun_number{r->n_guns});
+		std::fill(gr.begin(), gr.end(), robot_gun_number{r.n_guns});
 	}
 
-	for (auto [g, entry_m] : enumerate(partial_const_range(r->gun_submodels, r->n_guns)))
+	for (auto [g, entry_m] : enumerate(partial_const_range(r.gun_submodels, r.n_guns)))
 	{
-		const std::size_t bound = std::min(std::size(gun_nums), std::size(pm->submodel_parents));
+		const std::size_t bound = std::min(std::size(gun_nums), std::size(pm.submodel_parents));
 		auto m = entry_m;
 		while (m != 0 && m < bound)
 		{
 			gun_nums[m] = g;				//...unless we find it in a gun
-			m = pm->submodel_parents[m];
+			m = pm.submodel_parents[m];
 		}
 	}
 
-	const auto n_models = pm->n_models;
+	const auto n_models = pm.n_models;
 	const auto &&gun_num_model_range = enumerate(partial_range(gun_nums, n_models));
-	const unsigned n_guns = r->n_guns + 1;
-	for (auto &&[g, ras] : enumerate(partial_range(r->anim_states, n_guns)))
+	const unsigned n_guns = r.n_guns + 1;
+	for (auto &&[g, ras] : enumerate(partial_range(r.anim_states, n_guns)))
 	{
 		for (auto &&[state, as] : enumerate(ras))
 		{
@@ -163,7 +163,7 @@ void robot_set_angles(robot_info *const r, polymodel *const pm, enumerated_array
 					const auto N_robot_joints = LevelSharedRobotJointState.N_robot_joints ++;
 					Robot_joints[N_robot_joints].jointnum = m;
 					Robot_joints[N_robot_joints].angles = angs[state][m];
-					r->anim_states[g][state].n_joints++;
+					r.anim_states[g][state].n_joints++;
 					Assert(N_robot_joints < MAX_ROBOT_JOINTS);
 				}
 			}
