@@ -143,10 +143,8 @@ public:
 			m_idx += step_type::value;
 		return *this;
 	}
-	constexpr bool operator!=(const xrange_iterator &i) const
-	{
-		return m_idx != i.m_idx;
-	}
+	[[nodiscard]]
+	constexpr bool operator==(const xrange_iterator &i) const = default;
 };
 
 /* This provides an approximation of the functionality of the Python2
