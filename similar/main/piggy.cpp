@@ -1785,7 +1785,7 @@ void load_bitmap_replacements(const char *level_name)
 	//first, free up data allocated for old bitmaps
 	free_bitmap_replacements();
 
-	change_filename_extension(ifile_name, level_name, ".POG" );
+	change_filename_extension(ifile_name, level_name, "POG");
 	if (auto ifile = PHYSFSX_openReadBuffered(ifile_name).first)
 	{
 		int id,version;

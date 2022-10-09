@@ -1842,16 +1842,15 @@ static int save_level_sub(
 				}
 			}
 		}
-//		change_filename_extension(temp_filename,filename,".LVL");
 	}
 //	else
 	{
 #if defined(DXX_BUILD_DESCENT_II)
 		if (Gamesave_current_version > 3)
-			change_filename_extension(temp_filename, filename, "." D2X_LEVEL_FILE_EXTENSION);
+			change_filename_extension(temp_filename, filename, D2X_LEVEL_FILE_EXTENSION);
 		else
 #endif
-			change_filename_extension(temp_filename, filename, "." D1X_LEVEL_FILE_EXTENSION);
+			change_filename_extension(temp_filename, filename, D1X_LEVEL_FILE_EXTENSION);
 	}
 
 	auto &&[SaveFile, physfserr] = PHYSFSX_openWriteBuffered(temp_filename);

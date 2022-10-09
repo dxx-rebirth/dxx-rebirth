@@ -518,7 +518,7 @@ static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const char *co
 
 	if (!ifile) {								//no text version, try binary version
 		char filename2[FILENAME_LEN];
-		change_filename_extension(filename2, filename, ".txb");
+		change_filename_extension(filename2, filename, "txb");
 		auto &&[ifile2, physfserr2] = PHYSFSX_openReadBuffered(filename2);
 		if (!ifile2)
 		{

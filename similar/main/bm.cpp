@@ -539,7 +539,7 @@ void load_robot_replacements(const d_fname &level_name)
 	int t,j;
 	char ifile_name[FILENAME_LEN];
 
-	change_filename_extension(ifile_name, level_name, ".HXM" );
+	change_filename_extension(ifile_name, level_name, "HXM");
 
 	auto fp = PHYSFSX_openReadBuffered(ifile_name).first;
 	if (!fp)		//no robot replacement file

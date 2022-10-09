@@ -142,10 +142,6 @@ void change_filename_extension( char *dest, const char *src, const char *ext )
 	char *p;
 	
 	strcpy (dest, src);
-	
-	if (ext[0] == '.')
-		ext++;
-	
 	p = strrchr(dest, '.');
 	if (!p) {
 		if (strlen(dest) > FILENAME_LEN - 5)
