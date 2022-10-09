@@ -722,7 +722,7 @@ static void print_kill_goal_tables(fvcobjptr &vcobjptr)
 			continue;
 		auto &plrobj = *vcobjptr(i.objnum);
 		auto &player_info = plrobj.ctype.player_info;
-		con_printf(CON_NORMAL, "\t#%" PRIuFAST32 " \"%s\"\tdeaths=%i\tkills=%i\tmatrix=%hu/%hu", idx, static_cast<const char *>(i.callsign), player_info.net_killed_total, player_info.net_kills_total, kill_matrix[pnum][idx], kill_matrix[idx][pnum]);
+		con_printf(CON_NORMAL, "\t#%" DXX_PRI_size_type " \"%s\"\tdeaths=%i\tkills=%i\tmatrix=%hu/%hu", idx, static_cast<const char *>(i.callsign), player_info.net_killed_total, player_info.net_kills_total, kill_matrix[pnum][idx], kill_matrix[idx][pnum]);
 	}
 }
 

@@ -69,7 +69,7 @@ struct assert_index_type
 	static_assert(std::is_same<Expected, index_type>::value);
 };
 
-template struct assert_index_type<uint_fast32_t, decltype(enumerate(std::declval<std::array<int, 1>>()))>;
+template struct assert_index_type<std::size_t, decltype(enumerate(std::declval<std::array<int, 1> &>()))>;
 
 template <typename T>
 struct custom_index_type : std::array<int, 1>

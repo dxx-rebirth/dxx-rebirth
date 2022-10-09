@@ -38,10 +38,9 @@ struct adjust_iterator_dereference_type<index_type, std::tuple<T...>> : std::tru
 };
 
 /* Retrieve the member typedef `index_type` if one exists.  Otherwise,
- * use `uint_fast32_t` as a fallback.
+ * use `std::size_t` as a fallback.
  */
-template <typename>
-uint_fast32_t array_index_type(...);
+std::size_t array_index_type(...);
 
 /* Add, then remove, a reference to the `index_type`.  If `index_type`
  * is an integer or enum type, this produces `index_type` again.  If
@@ -53,7 +52,7 @@ uint_fast32_t array_index_type(...);
  * `index_type` based on their template parameters.
  */
 template <typename T>
-typename std::remove_reference<typename std::remove_reference<T>::type::index_type &>::type array_index_type(std::nullptr_t);
+typename std::remove_reference<typename T::index_type &>::type array_index_type(T *);
 
 }
 
@@ -146,5 +145,5 @@ public:
 	}
 };
 
-template <typename range_type, typename index_type = decltype(d_enumerate::detail::array_index_type<range_type>(nullptr)), typename range_iterator_type = decltype(std::begin(std::declval<range_type &>()))>
-enumerate(range_type &&r, const index_type start = index_type(/* value ignored */)) -> enumerate<range_iterator_type, index_type>;
+template <typename range_type, typename index_type = decltype(d_enumerate::detail::array_index_type(static_cast<typename std::remove_reference<range_type>::type *>(nullptr)))>
+enumerate(range_type &&r, const index_type start = index_type(/* value ignored */)) -> enumerate</* range_iterator_type */ decltype(std::begin(std::declval<range_type &>())), index_type>;

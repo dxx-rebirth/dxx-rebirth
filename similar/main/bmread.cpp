@@ -809,7 +809,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 	for (auto &&[idx, e] : enumerate(Effects))
 	{
 		if ((e.changing_wall_texture != -1 || e.changing_object_texture != object_bitmap_index::None) && e.vc.num_frames == ~0u)
-			Error("EClip %" PRIuFAST32 " referenced (by polygon object?), but not defined", idx);
+			Error("EClip %" DXX_PRI_size_type " referenced (by polygon object?), but not defined", idx);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
