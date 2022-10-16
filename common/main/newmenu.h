@@ -553,7 +553,7 @@ namespace dcx {
 
 int nm_messagebox_str(menu_title title, const nm_messagebox_tie &tie, menu_subtitle str);
 
-struct messagebox_newmenu :
+struct messagebox_newmenu final :
 	std::array<newmenu_item, nm_messagebox_tie::maximum_arity>,
 	newmenu
 {

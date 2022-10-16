@@ -520,7 +520,7 @@ extern grs_subcanvas _canv_editor_game;		//the game on the editor screen
 extern grs_canvas *Canv_editor;			//the editor screen
 extern grs_subcanvas *const Canv_editor_game; //the game on the editor screen
 
-struct editor_dialog : UI_DIALOG
+struct editor_dialog final : UI_DIALOG
 {
 	using UI_DIALOG::UI_DIALOG;
 	std::array<std::unique_ptr<UI_GADGET_BUTTON>, 9> pad_goto;

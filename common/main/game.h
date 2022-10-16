@@ -156,7 +156,7 @@ enum class StereoFormat : uint8_t
 #ifdef dsx
 namespace dsx {
 
-struct game_window : window
+struct game_window final : window
 {
 	using window::window;
 	virtual window_event_result event_handler(const d_event &) override;

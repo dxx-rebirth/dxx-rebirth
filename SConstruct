@@ -2710,6 +2710,8 @@ constexpr literal_as_type<T, v...> operator""_literal_as_type();
 		'-Wduplicated-branches',
 		'-Wduplicated-cond',
 		'-Wsuggest-attribute=noreturn',
+		'-Wsuggest-final-types',
+		'-Wsuggest-override',
 		'-Wlogical-op',
 		'-Wold-style-cast',
 		'-Wredundant-decls',
