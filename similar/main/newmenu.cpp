@@ -682,13 +682,19 @@ static void newmenu_scroll(newmenu *const menu, const int amount)
 			menu->scroll_offset = nitems - menu->max_on_menu;
 		return;
 	}
+	/* Otherwise, at least one element is not of type text.  Find that element.
+	 */
 	const auto &range = menu->items;
-	const auto find_value = nm_type::text;
-	const auto find_projection = &newmenu_item::type;
-	const auto &&first = std::ranges::find(range, find_value, find_projection);
+	const auto predicate = [](const newmenu_item &n) {
+		return n.type != nm_type::text;
+	};
+	const auto &&first = std::ranges::find_if(range, predicate);
 	if (first == range.end())
+		/* This should not happen.  If every entry is of type `nm_type::text`,
+		 * then `menu->all_text` should have been true.
+		 */
 		return;
-	const auto &&rlast = std::ranges::find(range.rbegin(), std::reverse_iterator<newmenu_item *>(first), find_value, find_projection).base();
+	const auto &&rlast = std::ranges::find_if(std::reverse_iterator(range.end()), std::reverse_iterator(first), predicate).base();
 	/* `first == rlast` should not happen, since that would mean that
 	 * there are no elements in `range` for which `predicate` is true.
 	 * If there are no such elements, then `first == range.end()` should

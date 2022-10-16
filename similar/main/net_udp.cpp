@@ -3034,7 +3034,7 @@ static unsigned net_udp_send_request(void)
 	// game, non-zero if there is some problem.
 	auto b = Netgame.players.begin();
 	auto e = Netgame.players.end();
-	const auto &&i = std::ranges::find(b, e, player_connection_status::disconnected, &netplayer_info::connected);
+	const auto &&i = std::ranges::find_if(b, e, [](const netplayer_info &ni) { return ni.connected != player_connection_status::disconnected; });
 	if (i == e)
 	{
 		Assert(false);
