@@ -24,7 +24,7 @@
 #endif
 
 // "D1X-Rebirth " or "D2X-Rebirth "
-constexpr char g_descent_version[] = {'D', DXX_NAME_NUMBER, 'X', '-', 'R', 'e', 'b', 'i', 'r', 't', 'h', ' ', DESCENT_VERSION_EXTRA};
+constexpr char g_descent_version[]{'D', DXX_NAME_NUMBER, 'X', '-', 'R', 'e', 'b', 'i', 'r', 't', 'h', ' ', DESCENT_VERSION_EXTRA, 0};
 constexpr char g_descent_build_datetime[21] = DXX_VERSID_BUILD_DATE " " DXX_VERSID_BUILD_TIME;
 
 #ifdef DXX_RBE
