@@ -1169,13 +1169,13 @@ static void multi_message_feedback(void)
 	if (!(!(colon = strstr(Network_message.data(), ": ")) || colon == Network_message.data() || colon - Network_message.data() > CALLSIGN_LEN))
 	{
 		std::size_t feedlen = snprintf(feedback_result, sizeof(feedback_result), "%s ", TXT_MESSAGE_SENT_TO);
-		if ((Game_mode & GM_TEAM) && (Network_message[0] == '1' || Network_message[0] == '2'))
-		{
-			snprintf(feedback_result + feedlen, sizeof(feedback_result) - feedlen, "%s '%s'", TXT_TEAM, static_cast<const char *>(Netgame.team_name[Network_message[0] - '1']));
-			found = 1;
-		}
 		if (Game_mode & GM_TEAM)
 		{
+			if (const auto c = Network_message[0u]; c == '1' || c == '2')
+			{
+				snprintf(feedback_result + feedlen, sizeof(feedback_result) - feedlen, "%s '%s'", TXT_TEAM, Netgame.team_name[c - '1'].operator const char *());
+				found = 1;
+			}
 			range_for (auto &i, Netgame.team_name)
 			{
 				if (!d_strnicmp(i, Network_message.data(), colon - Network_message.data()))
