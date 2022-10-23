@@ -458,7 +458,7 @@ constexpr std::array<uint8_t, upid_length<upid::game_info_req>> udp_request_game
 namespace {
 static void net_udp_ping_frame(fix64 time);
 static void net_udp_process_ping(upid_rspan<upid::ping>, const _sockaddr &sender_addr);
-static void net_udp_process_pong(const uint8_t *data, const _sockaddr &sender_addr);
+static void net_udp_process_pong(upid_rspan<upid::pong>, const _sockaddr &sender_addr);
 static void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_addr);
 static void net_udp_send_mdata(int needack, fix64 time);
 static void net_udp_process_mdata(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr, int needack);
@@ -3469,9 +3469,10 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 				net_udp_process_ping(*s, sender_addr);
 			break;
 		case upid::pong:
-			if (!multi_i_am_master() || length != upid_length<upid::pong>)
+			if (!multi_i_am_master())
 				break;
-			net_udp_process_pong(data, sender_addr);
+			if (const auto s = build_upid_rspan<upid::pong>(buf))
+				net_udp_process_pong(*s, sender_addr);
 			break;
 		case upid::endlevel_h:
 			if ((!multi_i_am_master()) && (Network_status == network_state::endlevel || Network_status == network_state::playing))
@@ -6108,7 +6109,7 @@ void net_udp_process_ping(const upid_rspan<upid::ping> data, const _sockaddr &se
 }
 
 // Got a PONG from a client. Check the time and add it to our players.
-void net_udp_process_pong(const uint8_t *data, const _sockaddr &sender_addr)
+void net_udp_process_pong(const upid_rspan<upid::pong> data, const _sockaddr &sender_addr)
 {
 	const uint_fast32_t playernum = data[1];
 	if (playernum >= MAX_PLAYERS || playernum < 1)
