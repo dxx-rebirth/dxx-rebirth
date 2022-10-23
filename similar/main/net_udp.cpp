@@ -2516,12 +2516,9 @@ static void net_udp_read_object_packet(uint8_t *const data)
 					Assert(obj->segnum == segment_none);
 				}
 				Assert(objnum < MAX_OBJECTS);
-				if constexpr (words_bigendian)
-					object_rw_swap(reinterpret_cast<object_rw *>(&data[loc]), 1);
 				multi_object_rw_to_object(reinterpret_cast<const object_rw *>(&data[loc]), obj);
 				loc += sizeof(object_rw);
 				auto segnum = obj->segnum;
-				obj->attached_obj = object_none;
 				if (segnum != segment_none)
 				{
 					obj_link_unchecked(Objects.vmptr, obj, Segments.vmptridx(segnum));
