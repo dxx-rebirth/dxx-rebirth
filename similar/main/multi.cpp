@@ -1581,7 +1581,7 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 
 namespace {
 
-static void multi_do_message(const multiplayer_rspan<multiplayer_command_t::MULTI_MESSAGE> cbuf)
+static void multi_do_message(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_MESSAGE> cbuf)
 {
 	const auto buf = reinterpret_cast<const char *>(cbuf.data());
 	const char *colon;
@@ -1602,7 +1602,6 @@ static void multi_do_message(const multiplayer_rspan<multiplayer_command_t::MULT
 		else
 			return;
 	}
-	const playernum_t pnum = buf[1];
 	const auto color = get_player_or_team_color(pnum);
 	char xrgb = BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
@@ -2658,6 +2657,7 @@ void multi_send_message()
 	if (Network_message_reciever != -1)
 	{
 		multi_command<multiplayer_command_t::MULTI_MESSAGE> multibuf;
+		/* Obsolete - reclaim player number field on next multiplayer protocol version bump */
 		multibuf[1] = Player_num;
 		std::copy(Network_message.begin(), Network_message.end(), std::next(multibuf.begin(), 2));
 		multi_send_data(multibuf, multiplayer_data_priority::_0);
@@ -5681,7 +5681,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_player_deres(LevelSharedRobotInfoState.Robot_info, Objects, pnum, multi_subspan_first<multiplayer_command_t::MULTI_PLAYER_DERES>(data));
 			break;
 		case multiplayer_command_t::MULTI_MESSAGE:
-			multi_do_message(multi_subspan_first<multiplayer_command_t::MULTI_MESSAGE>(data));
+			multi_do_message(pnum, multi_subspan_first<multiplayer_command_t::MULTI_MESSAGE>(data));
 			break;
 		case multiplayer_command_t::MULTI_QUIT:
 			multi_do_quit(multi_subspan_first<multiplayer_command_t::MULTI_QUIT>(data));
