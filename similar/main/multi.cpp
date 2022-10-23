@@ -1781,19 +1781,12 @@ static void multi_do_player_deres(const d_robot_info_array &Robot_info, object_a
 /*
  * Process can compute a kill. If I am a Client this might be my own one (see multi_send_kill()) but with more specific data so I can compute my kill correctly.
  */
-static void multi_do_kill_host(object_array &Objects, const multiplayer_rspan<multiplayer_command_t::MULTI_KILL_HOST> buf)
+static void multi_do_kill_host(object_array &Objects, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_KILL_HOST> buf)
 {
 	int count = 1;
 
 	if (multi_i_am_master())
 		return;
-	const playernum_t pnum = buf[1];
-	if (pnum >= N_players)
-	{
-		Int3(); // Invalid player number killed
-		return;
-	}
-
 	const auto killed = vcplayerptr(pnum)->objnum;
 	count += 1;
 	objnum_t killer = GET_INTEL_SHORT(&buf[count]);
@@ -1805,18 +1798,11 @@ static void multi_do_kill_host(object_array &Objects, const multiplayer_rspan<mu
 	multi_compute_kill(LevelSharedRobotInfoState.Robot_info, Objects.imptridx(killer), Objects.vmptridx(killed));
 }
 
-static void multi_do_kill_client(object_array &Objects, const multiplayer_rspan<multiplayer_command_t::MULTI_KILL_CLIENT> buf)
+static void multi_do_kill_client(object_array &Objects, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_KILL_CLIENT> buf)
 {
 	if (!multi_i_am_master())
 		return;
 	int count = 1;
-	const playernum_t pnum = buf[1];
-	if (pnum >= N_players)
-	{
-		Int3(); // Invalid player number killed
-		return;
-	}
-
 	// I am host, I know what's going on so take this packet, add game_mode related info which might be necessary for kill computation and send it to everyone so they can compute their kills correctly
 	{
 		multi_command<multiplayer_command_t::MULTI_KILL_HOST> multibuf;
@@ -2740,6 +2726,7 @@ void multi_send_kill(const vmobjptridx_t objnum)
 	{
 		new(&multibuf.c) multi_command<multiplayer_command_t::MULTI_KILL_CLIENT>();
 	}
+	/* Obsolete - reclaim player number field on next multiplayer protocol version bump */
 	multibuf.h[1] = Player_num;
 	multibuf.h[4] = remote_owner;
 	PUT_INTEL_SHORT(&multibuf.h[2], remote_objnum);
@@ -5844,10 +5831,10 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_gmode_update(multi_subspan_first<multiplayer_command_t::MULTI_GMODE_UPDATE>(data));
 			break;
 		case multiplayer_command_t::MULTI_KILL_HOST:
-			multi_do_kill_host(Objects, multi_subspan_first<multiplayer_command_t::MULTI_KILL_HOST>(data));
+			multi_do_kill_host(Objects, pnum, multi_subspan_first<multiplayer_command_t::MULTI_KILL_HOST>(data));
 			break;
 		case multiplayer_command_t::MULTI_KILL_CLIENT:
-			multi_do_kill_client(Objects, multi_subspan_first<multiplayer_command_t::MULTI_KILL_CLIENT>(data));
+			multi_do_kill_client(Objects, pnum, multi_subspan_first<multiplayer_command_t::MULTI_KILL_CLIENT>(data));
 			break;
 		case multiplayer_command_t::MULTI_PLAYER_INV:
 			multi_do_player_inventory(pnum, multi_subspan_first<multiplayer_command_t::MULTI_PLAYER_INV>(data));
