@@ -2421,14 +2421,15 @@ static std::optional<multiplayer_command_t> build_multiplayer_command_from_untru
 
 }
 
-void multi_process_bigdata(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const playernum_t pnum, const uint8_t *const buf, const uint_fast32_t len)
+void multi_process_bigdata(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const playernum_t pnum, const std::span<const uint8_t> buf)
 {
 	// Takes a bunch of messages, check them for validity,
 	// and pass them to multi_process_data.
 
 	uint_fast32_t bytes_processed = 0;
 
-	while( bytes_processed < len )  {
+	while (bytes_processed < buf.size())
+	{
 		const uint_fast32_t type = buf[bytes_processed];
 
 		if (type >= std::size(message_length))
@@ -2443,13 +2444,14 @@ void multi_process_bigdata(const d_level_shared_robot_info_state &LevelSharedRob
 
 		Assert(sub_len > 0);
 
-		if ( (bytes_processed+sub_len) > len )  {
-			con_printf(CON_DEBUG, "multi_process_bigdata: packet type %" PRIuFAST32 " too short (%" PRIuFAST32 " > %" PRIuFAST32 ")!", type, bytes_processed + sub_len, len);
+		if (bytes_processed + sub_len > buf.size())
+		{
+			con_printf(CON_DEBUG, "multi_process_bigdata: packet type %" PRIuFAST32 " too short (%" PRIuFAST32 " > %" DXX_PRI_size_type ")!", type, bytes_processed + sub_len, buf.size());
 			Int3();
 			return;
 		}
 
-		multi_process_data(LevelSharedRobotInfoState, pnum, std::span(&buf[bytes_processed], sub_len), *mtype);
+		multi_process_data(LevelSharedRobotInfoState, pnum, buf.subspan(bytes_processed, sub_len), *mtype);
 		bytes_processed += sub_len;
 	}
 }

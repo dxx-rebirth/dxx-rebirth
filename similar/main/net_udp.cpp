@@ -5850,7 +5850,7 @@ void net_udp_process_mdata(const d_level_shared_robot_info_state &LevelSharedRob
 
 	// Process
 
-	multi_process_bigdata(LevelSharedRobotInfoState, pnum, subdata.data(), subdata.size());
+	multi_process_bigdata(LevelSharedRobotInfoState, pnum, subdata);
 }
 
 void net_udp_send_pdata()
