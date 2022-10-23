@@ -457,7 +457,7 @@ constexpr std::array<uint8_t, upid_length<upid::game_info_req>> udp_request_game
 }
 namespace {
 static void net_udp_ping_frame(fix64 time);
-static void net_udp_process_ping(const uint8_t *data, const _sockaddr &sender_addr);
+static void net_udp_process_ping(upid_rspan<upid::ping>, const _sockaddr &sender_addr);
 static void net_udp_process_pong(const uint8_t *data, const _sockaddr &sender_addr);
 static void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_addr);
 static void net_udp_send_mdata(int needack, fix64 time);
@@ -3463,9 +3463,10 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 			net_udp_read_object_packet(data);
 			break;
 		case upid::ping:
-			if (multi_i_am_master() || length != upid_length<upid::ping>)
+			if (multi_i_am_master())
 				break;
-			net_udp_process_ping(data, sender_addr);
+			if (const auto s = build_upid_rspan<upid::ping>(buf))
+				net_udp_process_ping(*s, sender_addr);
 			break;
 		case upid::pong:
 			if (!multi_i_am_master() || length != upid_length<upid::pong>)
@@ -6086,9 +6087,8 @@ void net_udp_ping_frame(fix64 time)
 }
 
 // Got a PING from host. Apply the pings to our players and respond to host.
-void net_udp_process_ping(const uint8_t *data, const _sockaddr &sender_addr)
+void net_udp_process_ping(const upid_rspan<upid::ping> data, const _sockaddr &sender_addr)
 {
-	fix64 host_ping_time = 0;
 	std::array<uint8_t, upid_length<upid::pong>> buf;
 	int len = 0;
 
@@ -6096,7 +6096,7 @@ void net_udp_process_ping(const uint8_t *data, const _sockaddr &sender_addr)
 		return;
 
 										len++; // Skip UPID byte;
-	memcpy(&host_ping_time, &data[len], 8);					len += 8;
+	memcpy(&buf[2], &data[len], 8);					len += 8;
 	range_for (auto &i, partial_range(Netgame.players, 1u, MAX_PLAYERS))
 	{
 		i.ping = GET_INTEL_INT(&(data[len]));		len += 4;
@@ -6104,8 +6104,6 @@ void net_udp_process_ping(const uint8_t *data, const _sockaddr &sender_addr)
 	
 	buf[0] = underlying_value(upid::pong);
 	buf[1] = Player_num;
-	memcpy(&buf[2], &host_ping_time, 8);
-	
 	dxx_sendto(UDP_Socket[0], buf, 0, sender_addr);
 }
 
