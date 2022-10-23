@@ -1996,9 +1996,9 @@ void multi_disconnect_player(const playernum_t pnum)
 
 namespace {
 
-static void multi_do_quit(const multiplayer_rspan<multiplayer_command_t::MULTI_QUIT> buf)
+static void multi_do_quit(const playernum_t pnum)
 {
-	multi_disconnect_player(static_cast<int>(buf[1]));
+	multi_disconnect_player(pnum);
 }
 
 }
@@ -2786,6 +2786,7 @@ void multi_send_quit()
 	// I am quitting the game, tell the other guy the bad news.
 
 	multi_command<multiplayer_command_t::MULTI_QUIT> multibuf;
+	/* Obsolete - reclaim player number field on next multiplayer protocol version bump */
 	multibuf[1] = Player_num;
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
@@ -5684,7 +5685,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_message(pnum, multi_subspan_first<multiplayer_command_t::MULTI_MESSAGE>(data));
 			break;
 		case multiplayer_command_t::MULTI_QUIT:
-			multi_do_quit(multi_subspan_first<multiplayer_command_t::MULTI_QUIT>(data));
+			multi_do_quit(pnum);
 			break;
 		case multiplayer_command_t::MULTI_CONTROLCEN:
 			multi_do_controlcen_destroy(LevelSharedRobotInfoState.Robot_info, imobjptridx, multi_subspan_first<multiplayer_command_t::MULTI_CONTROLCEN>(data));
