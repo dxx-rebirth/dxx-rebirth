@@ -463,7 +463,7 @@ static void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &s
 static void net_udp_send_mdata(int needack, fix64 time);
 static void net_udp_process_mdata(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr, int needack);
 static void net_udp_send_pdata();
-static void net_udp_process_pdata (const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr);
+static void net_udp_process_pdata (std::span<const uint8_t> data, const _sockaddr &sender_addr);
 static void net_udp_read_pdata_packet(UDP_frame_info *pd);
 static void net_udp_timeout_check(fix64 time);
 static int net_udp_get_new_player_num ();
@@ -3483,7 +3483,8 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 				net_udp_read_endlevel_packet(data, sender_addr);
 			break;
 		case upid::pdata:
-			net_udp_process_pdata( data, length, sender_addr );
+			if (const auto s = build_upid_rspan<upid::pdata>(buf))
+				net_udp_process_pdata(*s, sender_addr);
 			break;
 		case upid::mdata_pnorm:
 			net_udp_process_mdata(LevelSharedRobotInfoState, data, length, sender_addr, 0);
@@ -5896,7 +5897,7 @@ void net_udp_send_pdata()
 	}
 }
 
-void net_udp_process_pdata(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr)
+void net_udp_process_pdata(const std::span<const uint8_t> data, const _sockaddr &sender_addr)
 {
 	UDP_frame_info pd;
 	int len = 0;
@@ -5907,14 +5908,13 @@ void net_udp_process_pdata(const uint8_t *data, uint_fast32_t data_len, const _s
 	len++;
 
 	pd = {};
-	
-	if (data_len != upid_length<upid::pdata>)
+	const playernum_t playernum = data[len];
+	if (playernum >= std::size(Netgame.players))
+		return;
+	if (sender_addr != Netgame.players[multi_i_am_master() ? playernum : 0].protocol.udp.addr)
 		return;
 
-	if (sender_addr != Netgame.players[((multi_i_am_master())?(data[len]):(0))].protocol.udp.addr)
-		return;
-
-	pd.Player_num = data[len];								len++;
+	pd.Player_num = playernum;								len++;
 	pd.connected = player_connection_status{data[len]};								len++;
 	pd.qpp.orient.w = GET_INTEL_SHORT(&data[len]);					len += 2;
 	pd.qpp.orient.x = GET_INTEL_SHORT(&data[len]);					len += 2;
@@ -5946,7 +5946,7 @@ void net_udp_process_pdata(const uint8_t *data, uint_fast32_t data_len, const _s
 					continue;
 				auto &iplr = *vcplayerptr(i);
 				if (iplr.connected != player_connection_status::disconnected && iplr.connected != player_connection_status::waiting)
-					dxx_sendto(UDP_Socket[0], {data, data_len}, 0, Netgame.players[i].protocol.udp.addr);
+					dxx_sendto(UDP_Socket[0], data, 0, Netgame.players[i].protocol.udp.addr);
 			}
 		}
 	}
