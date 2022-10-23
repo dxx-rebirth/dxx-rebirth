@@ -950,6 +950,15 @@ static std::optional<upid> build_upid_from_untrusted(const uint8_t cmd)
 	}
 }
 
+static void net_udp_process_version_deny(const upid_rspan<upid::version_deny> data, const _sockaddr &)
+{
+	Netgame.protocol.udp.program_iver[0] = GET_INTEL_SHORT(&data[1]);
+	Netgame.protocol.udp.program_iver[1] = GET_INTEL_SHORT(&data[3]);
+	Netgame.protocol.udp.program_iver[2] = GET_INTEL_SHORT(&data[5]);
+	Netgame.protocol.udp.program_iver[3] = GET_INTEL_SHORT(&data[7]);
+	Netgame.protocol.udp.valid = -1;
+}
+
 }
 }
 
@@ -2844,15 +2853,6 @@ void dispatch_table::send_endlevel_packet() const
 }
 
 namespace {
-
-static void net_udp_process_version_deny(const upid_rspan<upid::version_deny> data, const _sockaddr &)
-{
-	Netgame.protocol.udp.program_iver[0] = GET_INTEL_SHORT(&data[1]);
-	Netgame.protocol.udp.program_iver[1] = GET_INTEL_SHORT(&data[3]);
-	Netgame.protocol.udp.program_iver[2] = GET_INTEL_SHORT(&data[5]);
-	Netgame.protocol.udp.program_iver[3] = GET_INTEL_SHORT(&data[7]);
-	Netgame.protocol.udp.valid = -1;
-}
 
 struct game_info_light
 {
