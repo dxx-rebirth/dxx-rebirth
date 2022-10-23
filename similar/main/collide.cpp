@@ -1203,16 +1203,17 @@ static void collide_player_and_marker(const d_robot_info_array &, const object_b
 
 		const auto marker_id = get_marker_id(marker);
 		auto &msg = MarkerState.message[marker_id];
+		auto &p = msg[0u];
 		if (Game_mode & GM_MULTI)
 		{
 			const auto marker_owner = get_marker_owner(Game_mode, marker_id, Netgame.max_numplayers);
-			drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %s: %s", static_cast<const char *>(vcplayerptr(marker_owner)->callsign), &msg[0]);
+			drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %s: %s", vcplayerptr(marker_owner)->callsign.operator const char *(), &p);
 		}
 		else
 		{
 			const auto displayed_marker_id = static_cast<unsigned>(marker_id) + 1;
-			if (msg[0])
-				drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %d: %s", displayed_marker_id, &msg[0]);
+			if (p)
+				drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %d: %s", displayed_marker_id, &p);
 			else
 				drawn = HUD_init_message(HM_DEFAULT|HM_MAYDUPL, "MARKER %d", displayed_marker_id);
 	   }

@@ -83,7 +83,7 @@ static void game_draw_marker_message(grs_canvas &canvas)
 	{
 		gr_set_fontcolor(canvas, BM_XRGB(0, 63, 0),-1);
 		auto &game_font = *GAME_FONT;
-		gr_printf(canvas, game_font, 0x8000, (LINE_SPACING(game_font, game_font) * 5) + FSPACY(1), "Marker: %s%c", &Marker_input[0], Marker_input[Marker_input.size() - 2] ? 0 : '_');
+		gr_printf(canvas, game_font, 0x8000, (LINE_SPACING(game_font, game_font) * 5) + FSPACY(1), "Marker: %s%c", &Marker_input[0u], Marker_input[Marker_input.size() - 2] ? 0 : '_');
 	}
 }
 #endif

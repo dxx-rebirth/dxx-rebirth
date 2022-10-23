@@ -813,7 +813,7 @@ static void say_escort_goal(const escort_goal_t goal_num)
 		case ESCORT_GOAL_MARKER9:
 			{
 				const uint8_t zero_based_goal_num = goal_num - ESCORT_GOAL_MARKER1;
-				buddy_message("Finding marker %i: '%.24s'", zero_based_goal_num + 1, &MarkerState.message[game_marker_index{zero_based_goal_num}][0]);
+				buddy_message("Finding marker %i: '%.24s'", zero_based_goal_num + 1, &MarkerState.message[(game_marker_index{zero_based_goal_num})][0u]);
 			}
 			return;
 	}

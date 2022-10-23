@@ -540,7 +540,7 @@ void DropBuddyMarker(object &objp)
 	static_assert(MarkerState.message.valid_index(marker_num), "not enough markers");
 
 	auto &MarkerMessage = MarkerState.message[marker_num];
-	snprintf(&MarkerMessage[0], MarkerMessage.size(), "RIP: %s", static_cast<const char *>(PlayerCfg.GuidebotName));
+	snprintf(&MarkerMessage[0u], MarkerMessage.size(), "RIP: %s", static_cast<const char *>(PlayerCfg.GuidebotName));
 
 	auto &marker_objidx = MarkerState.imobjidx[marker_num];
 	if (marker_objidx != object_none)
@@ -952,7 +952,8 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 		if (MarkerState.message.valid_index(HighlightMarker))
 		{
 			auto &m = MarkerState.message[HighlightMarker];
-			gr_printf(canvas, *canvas.cv_font, (SWIDTH/64), (SHEIGHT/18), "Marker %u%c %s", static_cast<unsigned>(HighlightMarker) + 1, m[0] ? ':' : 0, &m[0]);
+			auto &p = m[0u];
+			gr_printf(canvas, *canvas.cv_font, (SWIDTH / 64), (SHEIGHT / 18), "Marker %u%c %s", static_cast<unsigned>(HighlightMarker) + 1, p ? ':' : 0, &p);
 		}
 	}
 #endif
@@ -1733,7 +1734,7 @@ void InitMarkerInput ()
 
 	//got a free slot.  start inputting marker message
 
-	Marker_input[0]=0;
+	Marker_input.front() = 0;
 	Marker_index=0;
 	key_toggle_repeat(1);
 }

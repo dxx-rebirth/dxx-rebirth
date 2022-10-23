@@ -106,7 +106,7 @@ void HUD_render_message_frame(grs_canvas &canvas)
 		if (strlen(i->message) > 38)
 			HUD_toolong = 1;
 		for (; i != e; ++i )	{
-			gr_string(canvas, game_font, 0x8000, y, &i->message[0]);
+			gr_string(canvas, game_font, 0x8000, y, &i->message[0u]);
 			y += line_spacing;
 		}
 	}

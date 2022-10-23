@@ -568,7 +568,7 @@ int songs_play_song( int songnum, int repeat )
 		case MUSIC_TYPE_CUSTOM:
 		{
 			// EXCEPTION: If SONG_ENDLEVEL is undefined, continue playing level song.
-			if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum == SONG_ENDLEVEL && !CGameCfg.CMMiscMusic[songnum][0])
+			if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum == SONG_ENDLEVEL && !CGameCfg.CMMiscMusic[songnum].front())
 				return Song_playing;
 
 			Song_playing = -1;

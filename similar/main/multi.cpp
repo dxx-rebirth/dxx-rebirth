@@ -1236,7 +1236,7 @@ void multi_send_macro(const int fkey)
 			return;
 	}
 
-	if (!PlayerCfg.NetworkMessageMacro[key][0])
+	if (!PlayerCfg.NetworkMessageMacro[key][0u])
 	{
 		HUD_init_message_literal(HM_MULTI, TXT_NO_MACRO);
 		return;
@@ -1293,7 +1293,7 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 		constexpr auto maximum_allowed_shields = 100ul;
 		auto &plr = get_local_player();
 		const char *const callsign = plr.callsign;
-		const auto requested_handicap = strtoul(&Network_message[11], 0, 10);
+		const auto requested_handicap = strtoul(&Network_message[11u], 0, 10);
 		const auto clamped_handicap_max = std::max(minimum_allowed_shields, requested_handicap);
 		const auto clamped_handicap_min = std::min(maximum_allowed_shields, clamped_handicap_max);
 		StartingShields = i2f(clamped_handicap_min);

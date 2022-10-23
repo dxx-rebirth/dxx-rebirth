@@ -4029,7 +4029,7 @@ static void newdemo_write_end()
 
 static bool guess_demo_name(ntstring<PATH_MAX - 16> &filename)
 {
-	filename[0] = 0;
+	filename.front() = 0;
 	const auto &n = CGameArg.SysRecordDemoNameTemplate;
 	if (n.empty())
 		return false;
@@ -4106,7 +4106,7 @@ static bool guess_demo_name(ntstring<PATH_MAX - 16> &filename)
 		if (i >= sizeof(filename) - 1)
 			return false;
 	}
-	return filename[0];
+	return filename.front();
 }
 
 constexpr char demoname_allowed_chars[] = "azAZ09__--";
@@ -4150,7 +4150,7 @@ try_again:
 	if (exit == -2) {                   // got bumped out from network menu
 		char save_file[PATH_MAX];
 
-		if (filename[0] != '\0') {
+		if (filename.front() != '\0') {
 			snprintf(save_file, sizeof(save_file), DEMO_FORMAT_STRING("%s"), filename.data());
 		} else
 			snprintf(save_file, sizeof(save_file), DEMO_FORMAT_STRING("tmp%d"), tmpcnt++);
@@ -4163,7 +4163,7 @@ try_again:
 		return;                     // return without doing anything
 	}
 
-	if (filename[0]==0) //null string
+	if (!filename.front()) //null string
 		goto try_again;
 
 	//check to make sure name is ok

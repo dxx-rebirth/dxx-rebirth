@@ -2906,7 +2906,7 @@ static std::span<const uint8_t> net_udp_prepare_heavy_game_info(const d_level_un
 	auto addr = entry_addr;
 	for (const auto &&[i, np] : enumerate(Netgame.players))
 	{
-		memcpy(&buf[len], &np.callsign[0], CALLSIGN_LEN+1); 	len += CALLSIGN_LEN+1;
+		memcpy(&buf[len], &np.callsign[0u], CALLSIGN_LEN+1); 	len += CALLSIGN_LEN+1;
 		buf[len] = underlying_value(np.connected);				len++;
 		buf[len] = underlying_value(np.rank);					len++;
 		if (addr && *addr == np.protocol.udp.addr)
