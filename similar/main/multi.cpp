@@ -1859,10 +1859,9 @@ static void multi_do_controlcen_destroy(const d_robot_info_array &Robot_info, fi
 	}
 }
 
-static void multi_do_escape(fvmobjptridx &vmobjptridx, const multiplayer_rspan<multiplayer_command_t::MULTI_ENDLEVEL_START> buf)
+static void multi_do_escape(fvmobjptridx &vmobjptridx, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_ENDLEVEL_START> buf)
 {
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-	const playernum_t pnum = buf[1];
 	auto &plr = *vmplayerptr(pnum);
 	const auto &&objnum = vmobjptridx(plr.objnum);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2554,6 +2553,7 @@ void multi_send_endlevel_start()
 #endif
 {
 	multi_command<multiplayer_command_t::MULTI_ENDLEVEL_START> buf;
+	/* Obsolete - reclaim player number field on next multiplayer protocol version bump */
 	buf[1] = Player_num;
 #if defined(DXX_BUILD_DESCENT_I)
 	buf[2] = static_cast<uint8_t>(secret);
@@ -5723,7 +5723,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			break;
 #endif
 		case multiplayer_command_t::MULTI_ENDLEVEL_START:
-			multi_do_escape(vmobjptridx, multi_subspan_first<multiplayer_command_t::MULTI_ENDLEVEL_START>(data));
+			multi_do_escape(vmobjptridx, pnum, multi_subspan_first<multiplayer_command_t::MULTI_ENDLEVEL_START>(data));
 			break;
 		case multiplayer_command_t::MULTI_CLOAK:
 			multi_do_cloak(vmobjptr, pnum);
