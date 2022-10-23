@@ -2436,7 +2436,7 @@ $ x86_64-pc-linux-gnu-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
 
 '''
 		# Test types in order of decreasing probability.
-		for how in (
+		for DXX_PRI_size_type, calling_function in (
 			# Linux
 			('z', 'size_type_size'),
 			('l', 'size_type_long'),
@@ -2445,9 +2445,8 @@ $ x86_64-pc-linux-gnu-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
 			# Win32
 			('', 'size_type_int'),
 		):
-			DXX_PRI_size_type = how[0]
 			f = '"%su"' % DXX_PRI_size_type
-			if self.Compile(context, text=_text % f, main=_main, msg='whether to format std::size_t with "%%%su"' % DXX_PRI_size_type, calling_function=how[1]):
+			if self.Compile(context, text=_text % f, main=_main, msg='whether to format std::size_t with "%%%su"' % DXX_PRI_size_type, calling_function=calling_function):
 				context.sconf.Define('DXX_PRI_size_type', f)
 				return
 		raise SCons.Errors.StopError("C++ compiler rejects all candidate format strings for std::size_t.")
