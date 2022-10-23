@@ -387,7 +387,7 @@ struct UDP_sequence_request_packet : UDP_sequence_packet
 		UDP_sequence_packet(upid::request, rank, callsign), Current_level_num(Current_level_num)
 	{
 	}
-	static UDP_sequence_request_packet build_from_untrusted(const uint8_t *);
+	static UDP_sequence_request_packet build_from_untrusted(upid_rspan<upid::request> untrusted);
 };
 
 struct UDP_sequence_addplayer_packet : UDP_sequence_packet
@@ -397,7 +397,7 @@ struct UDP_sequence_addplayer_packet : UDP_sequence_packet
 		UDP_sequence_packet(upid::addplayer, rank, callsign), player_num(player_num)
 	{
 	}
-	static UDP_sequence_addplayer_packet build_from_untrusted(const uint8_t *);
+	static UDP_sequence_addplayer_packet build_from_untrusted(upid_rspan<upid::addplayer>);
 };
 
 struct UDP_sequence_syncplayer_packet
@@ -1721,27 +1721,27 @@ static void net_udp_send_sequence_packet(const UDP_sequence_addplayer_packet &se
 	dxx_sendto(UDP_Socket[0], buf, 0, recv_addr);
 }
 
-static auto build_udp_sequence_from_untrusted(const uint8_t *const untrusted)
+static auto build_udp_sequence_from_untrusted(const std::span<const uint8_t, upid_length<upid::request>> untrusted)
 {
 	callsign_t callsign;
 	/* Skip over the first byte, since it is the UPID code */
 	std::size_t position = 1;
-	callsign.copy_lower(&(reinterpret_cast<const char *>(untrusted)[position]), CALLSIGN_LEN);
+	callsign.copy_lower(reinterpret_cast<const char *>(&untrusted[position]), CALLSIGN_LEN);
 	position += CALLSIGN_LEN + 1;
 	const netplayer_info::player_rank rank = build_rank_from_untrusted(untrusted[++position]);
 	return std::tuple(callsign, rank);
 }
 
-UDP_sequence_request_packet UDP_sequence_request_packet::build_from_untrusted(const uint8_t *const untrusted)
+UDP_sequence_request_packet UDP_sequence_request_packet::build_from_untrusted(const upid_rspan<upid::request> untrusted)
 {
-	auto &&[callsign, rank] = build_udp_sequence_from_untrusted(untrusted);
+	auto &&[callsign, rank] = build_udp_sequence_from_untrusted(untrusted.template first<upid_length<upid::request>>());
 	const int8_t Current_level_num = untrusted[1 + CALLSIGN_LEN + 1];
 	return {rank, callsign, Current_level_num};
 }
 
-UDP_sequence_addplayer_packet UDP_sequence_addplayer_packet::build_from_untrusted(const uint8_t *const untrusted)
+UDP_sequence_addplayer_packet UDP_sequence_addplayer_packet::build_from_untrusted(const upid_rspan<upid::addplayer> untrusted)
 {
-	auto &&[callsign, rank] = build_udp_sequence_from_untrusted(untrusted);
+	auto &&[callsign, rank] = build_udp_sequence_from_untrusted(untrusted.template first<upid_length<upid::addplayer>>());
 	const int8_t player_num = untrusted[1 + CALLSIGN_LEN + 1];
 	return {rank, callsign, player_num};
 }
@@ -3413,15 +3413,17 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 					net_udp_process_dump(*s, sender_addr);
 			break;
 		case upid::addplayer:
-			if (multi_i_am_master() || Netgame.players[0].protocol.udp.addr != sender_addr || length != upid_length<upid::addplayer>)
+			if (multi_i_am_master() || Netgame.players[0].protocol.udp.addr != sender_addr)
 				break;
-			net_udp_new_player(UDP_sequence_addplayer_packet::build_from_untrusted(data), sender_addr);
+			if (const auto s = build_upid_rspan<upid::addplayer>(buf))
+				net_udp_new_player(UDP_sequence_addplayer_packet::build_from_untrusted(*s), sender_addr);
 			break;
 		case upid::request:
-			if (!multi_i_am_master() || length != upid_length<upid::request>)
+			if (!multi_i_am_master())
 				break;
+			if (const auto s = build_upid_rspan<upid::request>(buf))
 			{
-				const auto their = UDP_sequence_request_packet::build_from_untrusted(data);
+				const auto their = UDP_sequence_request_packet::build_from_untrusted(*s);
 				if (Network_status == network_state::starting) 
 			{
 				// Someone wants to join our game!
