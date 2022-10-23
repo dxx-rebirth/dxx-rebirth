@@ -150,6 +150,9 @@ constexpr std::size_t upid_length<upid::pong> = 10;
 template <>
 constexpr std::size_t upid_length<upid::pdata> = 49;
 
+template <>
+constexpr std::size_t upid_length<upid::mdata_ack> = 7;
+
 template <upid id>
 using upid_rspan = std::span<const uint8_t, upid_length<id>>;
 
@@ -467,7 +470,7 @@ static void net_udp_process_pdata (std::span<const uint8_t> data, const _sockadd
 static void net_udp_read_pdata_packet(UDP_frame_info *pd);
 static void net_udp_timeout_check(fix64 time);
 static int net_udp_get_new_player_num ();
-static void net_udp_noloss_got_ack(const uint8_t *data, uint_fast32_t data_len);
+static void net_udp_noloss_got_ack(std::span<const uint8_t>);
 static void net_udp_noloss_init_mdata_queue();
 static void net_udp_noloss_clear_mdata_trace(ubyte player_num);
 static void net_udp_noloss_process_queue(fix64 time);
@@ -3493,7 +3496,8 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 			net_udp_process_mdata(LevelSharedRobotInfoState, data, length, sender_addr, 1);
 			break;
 		case upid::mdata_ack:
-			net_udp_noloss_got_ack(data, length);
+			if (const auto s = build_upid_rspan<upid::mdata_ack>(buf))
+				net_udp_noloss_got_ack(*s);
 			break;
 #if DXX_USE_TRACKER
 		case upid::tracker_gameinfo:
@@ -5536,14 +5540,11 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, co
 }
 
 /* We got an ACK by a player. Set this player slot to positive! */
-void net_udp_noloss_got_ack(const uint8_t *data, uint_fast32_t data_len)
+void net_udp_noloss_got_ack(const std::span<const uint8_t> data)
 {
 	int len = 0;
 	uint32_t pkt_num = 0;
 	ubyte sender_pnum = 0, dest_pnum = 0;
-
-	if (data_len != 7)
-		return;
 
 															len++;
 	sender_pnum = data[len];											len++;
