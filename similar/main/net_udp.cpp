@@ -3260,7 +3260,7 @@ static void net_udp_process_game_info_heavy(const uint8_t *data, uint_fast32_t, 
 
 namespace {
 
-static void net_udp_process_dump(const uint8_t *data, int, const _sockaddr &sender_addr)
+static void net_udp_process_dump(const upid_rspan<upid::dump> data, const _sockaddr &sender_addr)
 {
 	// Our request for join was denied.  Tell the user why.
 	if (sender_addr != Netgame.players[0].protocol.udp.addr)
@@ -3406,10 +3406,11 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 			net_udp_process_game_info_light(data, length, sender_addr);
 			break;
 		case upid::dump:
-			if (multi_i_am_master() || Netgame.players[0].protocol.udp.addr != sender_addr || length != upid_length<upid::dump>)
+			if (multi_i_am_master() || Netgame.players[0].protocol.udp.addr != sender_addr)
 				break;
-			if (Network_status == network_state::waiting || Network_status == network_state::playing)
-				net_udp_process_dump(data, length, sender_addr);
+			if (const auto s = build_upid_rspan<upid::dump>(buf))
+				if (Network_status == network_state::waiting || Network_status == network_state::playing)
+					net_udp_process_dump(*s, sender_addr);
 			break;
 		case upid::addplayer:
 			if (multi_i_am_master() || Netgame.players[0].protocol.udp.addr != sender_addr || length != upid_length<upid::addplayer>)
