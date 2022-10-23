@@ -1524,7 +1524,7 @@ window_event_result multi_message_input_sub(const d_robot_info_array &Robot_info
 
 namespace {
 
-static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, const uint8_t *const buf, const icobjidx_t Network_laser_track, const std::optional<uint16_t> remote_objnum)
+static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_FIRE> buf, const icobjidx_t Network_laser_track, const std::optional<uint16_t> remote_objnum)
 {
 	sbyte flags;
 
@@ -5632,7 +5632,6 @@ namespace {
 
 static void multi_process_data(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const playernum_t pnum, const std::span<const uint8_t> data, const multiplayer_command_t type)
 {
-	const auto buf = data.data();
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &imobjptridx = Objects.imptridx;
 	auto &vmobjptr = Objects.vmptr;
@@ -5652,12 +5651,12 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 		case multiplayer_command_t::MULTI_FIRE:
 		case multiplayer_command_t::MULTI_FIRE_TRACK:
 		case multiplayer_command_t::MULTI_FIRE_BOMB:
-			multi_do_fire(vmobjptridx, pnum, buf,
+			multi_do_fire(vmobjptridx, pnum, multi_subspan_first<multiplayer_command_t::MULTI_FIRE>(data),
 							type == multiplayer_command_t::MULTI_FIRE_TRACK
-							? objnum_remote_to_local(GET_INTEL_SHORT(&buf[17]), buf[19])
+							? objnum_remote_to_local(GET_INTEL_SHORT(&data[17]), data[19])
 							: object_none,
 							type == multiplayer_command_t::MULTI_FIRE_BOMB
-							? std::optional(GET_INTEL_SHORT(&buf[17]))
+							? std::optional(GET_INTEL_SHORT(&data[17]))
 							: std::nullopt);
 			break;
 		case multiplayer_command_t::MULTI_REMOVE_OBJECT:
