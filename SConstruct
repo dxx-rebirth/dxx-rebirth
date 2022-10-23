@@ -2357,15 +2357,15 @@ help:always wipe certain freed memory
 	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_I64', "assume size_t is formatted as `unsigned I64`"))
 
 	@_custom_test
-	def _check_size_type_format_modifier(self,context,_text='''
+	def _check_size_type_format_modifier(self,context,_text_format='''
 #include <cstddef>
-#define DXX_PRI_size_type %s
+#define DXX_PRI_size_type {}
 __attribute_format_printf(1, 2)
 void f(const char *, ...);
 void f(const char *, ...)
-{
-}
-''',_main='''
+{{
+}}
+'''.format,_main='''
 	std::size_t s = 0;
 	f("%" DXX_PRI_size_type, s);
 '''):
@@ -2445,8 +2445,8 @@ $ x86_64-pc-linux-gnu-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
 			# Win32
 			('', 'size_type_int'),
 		):
-			f = '"%su"' % DXX_PRI_size_type
-			if self.Compile(context, text=_text % f, main=_main, msg='whether to format std::size_t with "%%%su"' % DXX_PRI_size_type, calling_function=calling_function):
+			f = '"{}u"'.format(DXX_PRI_size_type)
+			if self.Compile(context, text=_text_format(f), main=_main, msg='whether to format std::size_t with "%{}u"'.format(DXX_PRI_size_type), calling_function=calling_function):
 				context.sconf.Define('DXX_PRI_size_type', f)
 				return
 		raise SCons.Errors.StopError("C++ compiler rejects all candidate format strings for std::size_t.")
