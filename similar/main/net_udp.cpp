@@ -150,6 +150,17 @@ constexpr std::size_t upid_length<upid::pong> = 10;
 template <>
 constexpr std::size_t upid_length<upid::pdata> = 49;
 
+template <upid id>
+using upid_rspan = std::span<const uint8_t, upid_length<id>>;
+
+template <upid id, typename R = upid_rspan<id>>
+static std::optional<R> build_upid_rspan(const std::span<const uint8_t> buf)
+{
+	if (buf.size() != R::extent)
+		return std::nullopt;
+	return buf.template first<R::extent>();
+}
+
 }
 
 }
@@ -2832,7 +2843,7 @@ void dispatch_table::send_endlevel_packet() const
 
 namespace {
 
-static void net_udp_process_version_deny(const uint8_t *const data, const _sockaddr &)
+static void net_udp_process_version_deny(const upid_rspan<upid::version_deny> data, const _sockaddr &)
 {
 	Netgame.protocol.udp.program_iver[0] = GET_INTEL_SHORT(&data[1]);
 	Netgame.protocol.udp.program_iver[1] = GET_INTEL_SHORT(&data[3]);
@@ -3321,9 +3332,10 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 	switch (*cmd)
 	{
 		case upid::version_deny:
-			if (multi_i_am_master() || length != upid_length<upid::version_deny>)
+			if (multi_i_am_master())
 				break;
-			net_udp_process_version_deny(data, sender_addr);
+			if (const auto s = build_upid_rspan<upid::version_deny>(buf))
+				net_udp_process_version_deny(*s, sender_addr);
 			break;
 		case upid::game_info_req:
 		{
