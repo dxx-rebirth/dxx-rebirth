@@ -870,7 +870,7 @@ ssize_t dxx_recvfrom(const int sockfd, const socket_data_buffer msg, const int f
 	return rv;
 }
 
-static game_info_request_result net_udp_check_game_info_request(const uint8_t *const data)
+static game_info_request_result net_udp_check_game_info_request(const upid_rspan<upid::game_info_lite_req> data, std::integral_constant<upid, upid::game_info_lite_req>)
 {
 	if (const auto sender_major_version = GET_INTEL_SHORT(&(data[5])); sender_major_version != DXX_VERSION_MAJORi)
 		return game_info_request_result::version_mismatch;
@@ -881,14 +881,14 @@ static game_info_request_result net_udp_check_game_info_request(const uint8_t *c
 	return game_info_request_result::accept;
 }
 
-static game_info_request_result net_udp_check_game_info_request(const uint8_t *const data, int lite)
+[[nodiscard]]
+static game_info_request_result net_udp_check_game_info_request(const upid_rspan<upid::game_info_req> data, std::integral_constant<upid, upid::game_info_req>)
 {
-	if (!lite)
 	{
 		if (const auto sender_proto_version = GET_INTEL_SHORT(&data[11]); sender_proto_version != MULTI_PROTO_VERSION)
 			return game_info_request_result::version_mismatch;
 	}
-	return net_udp_check_game_info_request(data);
+	return net_udp_check_game_info_request(data.template first<upid_length<upid::game_info_lite_req>>(), std::integral_constant<upid, upid::game_info_lite_req>());
 }
 
 static void net_udp_send_version_deny(const _sockaddr &sender_addr)
@@ -2608,11 +2608,13 @@ void net_udp_send_rejoin_sync(const unsigned player_num)
 	return;
 }
 
-static game_info_request_result net_udp_check_game_info_request(const uint8_t *const data, int lite)
+template <upid id>
+[[nodiscard]]
+static game_info_request_result net_udp_check_game_info_request(const upid_rspan<id> data)
 {
 	if (memcmp(&data[1], UDP_REQ_ID, 4))
 		return game_info_request_result::id_mismatch;
-	return ::dcx::net_udp_check_game_info_request(data, lite);
+	return net_udp_check_game_info_request(data, std::integral_constant<upid, id>());
 }
 
 }
@@ -3339,13 +3341,16 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 			break;
 		case upid::game_info_req:
 		{
-			static fix64 last_full_req_time = 0;
-			if (!multi_i_am_master() || length != upid_length<upid::game_info_req>)
+			if (!multi_i_am_master())
 				break;
+			const auto s = build_upid_rspan<upid::game_info_req>(buf);
+			if (!s)
+				break;
+			static fix64 last_full_req_time = 0;
 			if (timer_query() < last_full_req_time+(F1_0/2)) // answer 2 times per second max
 				break;
 			last_full_req_time = timer_query();
-			switch (net_udp_check_game_info_request(data, 0))
+			switch (net_udp_check_game_info_request(*s, std::integral_constant<upid, upid::game_info_req>()))
 			{
 				case game_info_request_result::accept:
 					net_udp_send_game_info(sender_addr, &sender_addr, upid::game_info);
@@ -3368,13 +3373,16 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 			break;
 		case upid::game_info_lite_req:
 		{
-			static fix64 last_lite_req_time = 0;
-			if (!multi_i_am_master() || length != upid_length<upid::game_info_lite_req>)
+			if (!multi_i_am_master())
 				break;
+			const auto s = build_upid_rspan<upid::game_info_lite_req>(buf);
+			if (!s)
+				break;
+			static fix64 last_lite_req_time = 0;
 			if (timer_query() < last_lite_req_time+(F1_0/8))// answer 8 times per second max
 				break;
 			last_lite_req_time = timer_query();
-			switch (net_udp_check_game_info_request(data, 1))
+			switch (net_udp_check_game_info_request(*s, std::integral_constant<upid, upid::game_info_lite_req>()))
 			{
 				case game_info_request_result::accept:
 					net_udp_send_game_info(sender_addr, &sender_addr, upid::game_info_lite);
