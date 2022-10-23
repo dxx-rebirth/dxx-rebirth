@@ -464,7 +464,7 @@ static void net_udp_process_ping(upid_rspan<upid::ping>, const _sockaddr &sender
 static void net_udp_process_pong(upid_rspan<upid::pong>, const _sockaddr &sender_addr);
 static void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_addr);
 static void net_udp_send_mdata(int needack, fix64 time);
-static void net_udp_process_mdata(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr, int needack);
+static void net_udp_process_mdata(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, std::span<uint8_t> data, const _sockaddr &sender_addr, int needack);
 static void net_udp_send_pdata();
 static void net_udp_process_pdata (std::span<const uint8_t> data, const _sockaddr &sender_addr);
 static void net_udp_read_pdata_packet(UDP_frame_info *pd);
@@ -3490,10 +3490,10 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 				net_udp_process_pdata(*s, sender_addr);
 			break;
 		case upid::mdata_pnorm:
-			net_udp_process_mdata(LevelSharedRobotInfoState, data, length, sender_addr, 0);
+			net_udp_process_mdata(LevelSharedRobotInfoState, buf, sender_addr, 0);
 			break;
 		case upid::mdata_pneedack:
-			net_udp_process_mdata(LevelSharedRobotInfoState, data, length, sender_addr, 1);
+			net_udp_process_mdata(LevelSharedRobotInfoState, buf, sender_addr, 1);
 			break;
 		case upid::mdata_ack:
 			if (const auto s = build_upid_rspan<upid::mdata_ack>(buf))
@@ -5788,7 +5788,7 @@ void net_udp_send_mdata(int needack, fix64 time)
 	UDP_MData.mbuf = {};
 }
 
-void net_udp_process_mdata(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, uint8_t *const data, uint_fast32_t data_len, const _sockaddr &sender_addr, int needack)
+void net_udp_process_mdata(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const std::span<uint8_t> data, const _sockaddr &sender_addr, int needack)
 {
 	const unsigned pnum = data[1];
 	const unsigned dataoffset = needack ? 6 : 2;
@@ -5796,7 +5796,7 @@ void net_udp_process_mdata(const d_level_shared_robot_info_state &LevelSharedRob
 	// Check if packet might be bogus
 	if (pnum >= MAX_PLAYERS)
 		return;
-	if (data_len > sizeof(UDP_mdata_info))
+	if (data.size() > sizeof(UDP_mdata_info))
 		return;
 
 	// Check if it came from valid IP
@@ -5821,6 +5821,7 @@ void net_udp_process_mdata(const d_level_shared_robot_info_state &LevelSharedRob
 		if (!net_udp_noloss_validate_mdata(GET_INTEL_INT(&data[2]), pnum, sender_addr))
 			return;
 	}
+	const auto subdata = data.subspan(dataoffset);
 
 	// send this to everyone else (if master)
 	if (multi_i_am_master())
@@ -5833,14 +5834,14 @@ void net_udp_process_mdata(const d_level_shared_robot_info_state &LevelSharedRob
 				if (needack)
 				{
 					player_ack[i] = 0;
-					PUT_INTEL_INT(data + 2, UDP_mdata_trace[i].pkt_num_tosend);
+					PUT_INTEL_INT(&data[2], UDP_mdata_trace[i].pkt_num_tosend);
 				}
-				dxx_sendto(UDP_Socket[0], {data, data_len}, 0, Netgame.players[i].protocol.udp.addr);
+				dxx_sendto(UDP_Socket[0], data, 0, Netgame.players[i].protocol.udp.addr);
 			}
 		}
 
 		if (needack)
-			net_udp_noloss_add_queue_pkt(timer_query(), std::span{data+dataoffset, data_len-dataoffset}, pnum, player_ack);
+			net_udp_noloss_add_queue_pkt(timer_query(), subdata, pnum, player_ack);
 	}
 
 	// Check if we are in correct state to process the packet
@@ -5849,7 +5850,7 @@ void net_udp_process_mdata(const d_level_shared_robot_info_state &LevelSharedRob
 
 	// Process
 
-	multi_process_bigdata(LevelSharedRobotInfoState, pnum, data+dataoffset, data_len-dataoffset );
+	multi_process_bigdata(LevelSharedRobotInfoState, pnum, subdata.data(), subdata.size());
 }
 
 void net_udp_send_pdata()
