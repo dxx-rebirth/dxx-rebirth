@@ -2444,7 +2444,7 @@ static int net_udp_verify_objects(int remote, int local)
 	return(1);
 }
 
-static void net_udp_read_object_packet(uint8_t *const data)
+static void net_udp_read_object_packet(const uint8_t *const data)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -3307,8 +3307,10 @@ static void net_udp_process_request(const UDP_sequence_request_packet &their, co
 namespace dsx {
 namespace {
 
-static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, uint8_t *const data, const _sockaddr &sender_addr, int length)
+static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const std::span<uint8_t> buf, const _sockaddr &sender_addr)
 {
+	const auto data = buf.data();
+	const auto length = buf.size();
 	const auto dcmd = data[0];
 	const auto cmd = build_upid_from_untrusted(dcmd);
 	if (!cmd)
@@ -5231,7 +5233,11 @@ static void net_udp_listen(RAIIsocket &sock)
 		const auto size = udp_receive_packet(sock, packet, sender_addr);
 		if (!(size > 0))
 			break;
-		net_udp_process_packet(LevelSharedRobotInfoState, packet.data(), sender_addr, size);
+		/* Casting from ssize_t to std::size_t is safe here.  Only negative
+		 * values would be affected by the narrowing conversion, and a negative
+		 * value would have caused the preceding `if` test to `break`.
+		 */
+		net_udp_process_packet(LevelSharedRobotInfoState, {packet.data(), static_cast<std::size_t>(size)}, sender_addr);
 	}
 }
 
