@@ -2999,6 +2999,7 @@ void multi_send_trigger(const trgnum_t triggernum)
 
 	count += 1;
 	multi_command<multiplayer_command_t::MULTI_TRIGGER> multibuf;
+	/* Obsolete - reclaim player number field on next multiplayer protocol version bump */
 	multibuf[count] = Player_num;                                   count += 1;
 	static_assert(sizeof(trgnum_t) == sizeof(uint8_t), "trigger number could be truncated");
 	multibuf[count] = static_cast<uint8_t>(triggernum);            count += 1;
@@ -4855,6 +4856,11 @@ static void multi_send_restore_game(ubyte slot, uint id)
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
+static void multi_do_msgsend_state(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_TYPING_STATE> buf)
+{
+	multi_sending_message[pnum] = msgsend_state{buf[2]};
+}
+
 }
 }
 
@@ -4999,18 +5005,10 @@ void multi_restore_game(const unsigned slot, const unsigned id)
 
 }
 
-namespace {
-
-static void multi_do_msgsend_state(const multiplayer_rspan<multiplayer_command_t::MULTI_TYPING_STATE> buf)
-{
-	multi_sending_message[static_cast<int>(buf[1])] = msgsend_state{buf[2]};
-}
-
-}
-
 void multi_send_msgsend_state(const msgsend_state state)
 {
 	multi_command<multiplayer_command_t::MULTI_TYPING_STATE> multibuf;
+	/* Obsolete - reclaim player number field on next multiplayer protocol version bump */
 	multibuf[1] = Player_num;
 	multibuf[2] = static_cast<char>(state);
 	
@@ -5840,7 +5838,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_bounty(multi_subspan_first<multiplayer_command_t::MULTI_DO_BOUNTY>(data));
 			break;
 		case multiplayer_command_t::MULTI_TYPING_STATE:
-			multi_do_msgsend_state(multi_subspan_first<multiplayer_command_t::MULTI_TYPING_STATE>(data));
+			multi_do_msgsend_state(pnum, multi_subspan_first<multiplayer_command_t::MULTI_TYPING_STATE>(data));
 			break;
 		case multiplayer_command_t::MULTI_GMODE_UPDATE:
 			multi_do_gmode_update(multi_subspan_first<multiplayer_command_t::MULTI_GMODE_UPDATE>(data));
