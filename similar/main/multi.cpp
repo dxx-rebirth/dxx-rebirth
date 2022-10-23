@@ -96,7 +96,7 @@ namespace {
 static void MultiLevelInv_Repopulate(fix frequency);
 void multi_new_bounty_target_with_sound(playernum_t, const char *callsign);
 static void multi_reset_object_texture(object_base &objp);
-static void multi_process_data(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, playernum_t pnum, std::span<const uint8_t> data, uint_fast32_t type);
+static void multi_process_data(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, playernum_t pnum, std::span<const uint8_t> data, multiplayer_command_t type);
 static void multi_update_objects_for_non_cooperative();
 static void multi_restore_game(unsigned slot, unsigned id);
 static void multi_save_game(unsigned slot, unsigned id, const d_game_unique_state::savegame_description &desc);
@@ -115,7 +115,7 @@ static void multi_send_gmode_update();
 namespace dsx {
 namespace {
 static void multi_do_capture_bonus(const playernum_t pnum);
-static void multi_do_orb_bonus(const playernum_t pnum, const multiplayer_rspan<MULTI_ORB_BONUS> buf);
+static void multi_do_orb_bonus(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_ORB_BONUS> buf);
 static void multi_send_drop_flag(vmobjptridx_t objnum,int seed);
 }
 }
@@ -1581,7 +1581,7 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 
 namespace {
 
-static void multi_do_message(const multiplayer_rspan<MULTI_MESSAGE> cbuf)
+static void multi_do_message(const multiplayer_rspan<multiplayer_command_t::MULTI_MESSAGE> cbuf)
 {
 	const auto buf = reinterpret_cast<const char *>(cbuf.data());
 	const char *colon;
@@ -1616,7 +1616,7 @@ namespace dsx {
 
 namespace {
 
-static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum, const multiplayer_rspan<MULTI_POSITION> buf)
+static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_POSITION> buf)
 {
 	const auto &&obj = vmobjptridx(vcplayerptr(pnum)->objnum);
         int count = 1;
@@ -1645,7 +1645,7 @@ static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum,
 		set_thrust_from_velocity(obj);
 }
 
-static void multi_do_reappear(const playernum_t pnum, const multiplayer_rspan<MULTI_REAPPEAR> buf)
+static void multi_do_reappear(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_REAPPEAR> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
@@ -1673,7 +1673,7 @@ static void multi_do_reappear(const playernum_t pnum, const multiplayer_rspan<MU
 	create_player_appearance_effect(Vclip, obj);
 }
 
-static void multi_do_player_deres(const d_robot_info_array &Robot_info, object_array &Objects, const playernum_t pnum, const multiplayer_rspan<MULTI_PLAYER_DERES> buf)
+static void multi_do_player_deres(const d_robot_info_array &Robot_info, object_array &Objects, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_PLAYER_DERES> buf)
 {
 	auto &vmobjptridx = Objects.vmptridx;
 	auto &vmobjptr = Objects.vmptr;
@@ -1782,7 +1782,7 @@ static void multi_do_player_deres(const d_robot_info_array &Robot_info, object_a
 /*
  * Process can compute a kill. If I am a Client this might be my own one (see multi_send_kill()) but with more specific data so I can compute my kill correctly.
  */
-static void multi_do_kill_host(object_array &Objects, const multiplayer_rspan<MULTI_KILL_HOST> buf)
+static void multi_do_kill_host(object_array &Objects, const multiplayer_rspan<multiplayer_command_t::MULTI_KILL_HOST> buf)
 {
 	int count = 1;
 
@@ -1806,7 +1806,7 @@ static void multi_do_kill_host(object_array &Objects, const multiplayer_rspan<MU
 	multi_compute_kill(LevelSharedRobotInfoState.Robot_info, Objects.imptridx(killer), Objects.vmptridx(killed));
 }
 
-static void multi_do_kill_client(object_array &Objects, const multiplayer_rspan<MULTI_KILL_CLIENT> buf)
+static void multi_do_kill_client(object_array &Objects, const multiplayer_rspan<multiplayer_command_t::MULTI_KILL_CLIENT> buf)
 {
 	if (!multi_i_am_master())
 		return;
@@ -1820,7 +1820,7 @@ static void multi_do_kill_client(object_array &Objects, const multiplayer_rspan<
 
 	// I am host, I know what's going on so take this packet, add game_mode related info which might be necessary for kill computation and send it to everyone so they can compute their kills correctly
 	{
-		multi_command<MULTI_KILL_HOST> multibuf;
+		multi_command<multiplayer_command_t::MULTI_KILL_HOST> multibuf;
 		std::memcpy(std::next(multibuf.data()), std::next(buf.data()), 4);
 		multibuf[5] = Netgame.team_vector;
 		multibuf[6] = Bounty_target;
@@ -1842,7 +1842,7 @@ static void multi_do_kill_client(object_array &Objects, const multiplayer_rspan<
 
 //      Changed by MK on 10/20/94 to send NULL as object to net_destroy_controlcen if it got -1
 // which means not a controlcen object, but contained in another object
-static void multi_do_controlcen_destroy(const d_robot_info_array &Robot_info, fimobjptridx &imobjptridx, const multiplayer_rspan<MULTI_CONTROLCEN> buf)
+static void multi_do_controlcen_destroy(const d_robot_info_array &Robot_info, fimobjptridx &imobjptridx, const multiplayer_rspan<multiplayer_command_t::MULTI_CONTROLCEN> buf)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	objnum_t objnum = GET_INTEL_SHORT(&buf[1]);
@@ -1860,7 +1860,7 @@ static void multi_do_controlcen_destroy(const d_robot_info_array &Robot_info, fi
 	}
 }
 
-static void multi_do_escape(fvmobjptridx &vmobjptridx, const multiplayer_rspan<MULTI_ENDLEVEL_START> buf)
+static void multi_do_escape(fvmobjptridx &vmobjptridx, const multiplayer_rspan<multiplayer_command_t::MULTI_ENDLEVEL_START> buf)
 {
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 	const playernum_t pnum = buf[1];
@@ -1891,7 +1891,7 @@ static void multi_do_escape(fvmobjptridx &vmobjptridx, const multiplayer_rspan<M
 	multi_make_player_ghost(buf[1]);
 }
 
-static void multi_do_remobj(fvmobjptr &vmobjptr, const multiplayer_rspan<MULTI_REMOVE_OBJECT> buf)
+static void multi_do_remobj(fvmobjptr &vmobjptr, const multiplayer_rspan<multiplayer_command_t::MULTI_REMOVE_OBJECT> buf)
 {
 	// which object to remove
 	const objnum_t objnum = GET_INTEL_SHORT(&buf[1]);
@@ -1997,7 +1997,7 @@ void multi_disconnect_player(const playernum_t pnum)
 
 namespace {
 
-static void multi_do_quit(const multiplayer_rspan<MULTI_QUIT> buf)
+static void multi_do_quit(const multiplayer_rspan<multiplayer_command_t::MULTI_QUIT> buf)
 {
 	multi_disconnect_player(static_cast<int>(buf[1]));
 }
@@ -2058,7 +2058,7 @@ namespace dsx {
 
 namespace {
 
-static void multi_do_door_open(fvmwallptr &vmwallptr, const multiplayer_rspan<MULTI_DOOR_OPEN> buf)
+static void multi_do_door_open(fvmwallptr &vmwallptr, const multiplayer_rspan<multiplayer_command_t::MULTI_DOOR_OPEN> buf)
 {
 	const auto uside = build_sidenum_from_untrusted(buf[3]);
 	if (!uside)
@@ -2103,7 +2103,7 @@ static void multi_do_create_explosion(fvmobjptridx &vmobjptridx, const playernum
 	create_small_fireball_on_object(vmobjptridx(vcplayerptr(pnum)->objnum), F1_0, 1);
 }
 
-static void multi_do_controlcen_fire(const multiplayer_rspan<MULTI_CONTROLCEN_FIRE> buf)
+static void multi_do_controlcen_fire(const multiplayer_rspan<multiplayer_command_t::MULTI_CONTROLCEN_FIRE> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -2123,7 +2123,7 @@ static void multi_do_controlcen_fire(const multiplayer_rspan<MULTI_CONTROLCEN_FI
 	Laser_create_new_easy(LevelSharedRobotInfoState.Robot_info, to_target, objp->ctype.reactor_info.gun_pos[gun_num], objp, weapon_id_type::CONTROLCEN_WEAPON_NUM, weapon_sound_flag::audible);
 }
 
-static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t pnum, const multiplayer_rspan<MULTI_CREATE_POWERUP> buf)
+static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_CREATE_POWERUP> buf)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int count = 1;
@@ -2160,7 +2160,7 @@ static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t
 	object_create_explosion(segnum, new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE);
 }
 
-static void multi_do_play_sound(object_array &Objects, const playernum_t pnum, const multiplayer_rspan<MULTI_PLAY_SOUND> buf)
+static void multi_do_play_sound(object_array &Objects, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_PLAY_SOUND> buf)
 {
 	auto &vcobjptridx = Objects.vcptridx;
 	const auto &plr = *vcplayerptr(pnum);
@@ -2181,7 +2181,7 @@ static void multi_do_play_sound(object_array &Objects, const playernum_t pnum, c
 
 namespace {
 
-static void multi_do_score(fvmobjptr &vmobjptr, const playernum_t pnum, const multiplayer_rspan<MULTI_SCORE> buf)
+static void multi_do_score(fvmobjptr &vmobjptr, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_SCORE> buf)
 {
 	if (pnum >= N_players)
 	{
@@ -2198,7 +2198,7 @@ static void multi_do_score(fvmobjptr &vmobjptr, const playernum_t pnum, const mu
 	multi_sort_kill_list();
 }
 
-static void multi_do_trigger(const playernum_t pnum, const multiplayer_rspan<MULTI_TRIGGER> buf)
+static void multi_do_trigger(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_TRIGGER> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -2224,7 +2224,7 @@ namespace dsx {
 
 namespace {
 
-static void multi_do_effect_blowup(const playernum_t pnum, const multiplayer_rspan<MULTI_EFFECT_BLOWUP> buf)
+static void multi_do_effect_blowup(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_EFFECT_BLOWUP> buf)
 {
 	if (pnum >= N_players || pnum == Player_num)
 		return;
@@ -2251,7 +2251,7 @@ static void multi_do_effect_blowup(const playernum_t pnum, const multiplayer_rsp
 	check_effect_blowup(LevelSharedDestructibleLightState, Vclip, *useg, side, hitpnt, laser, 0, 1);
 }
 
-static void multi_do_drop_marker(object_array &Objects, fvmsegptridx &vmsegptridx, const playernum_t pnum, const multiplayer_rspan<MULTI_MARKER> buf)
+static void multi_do_drop_marker(object_array &Objects, fvmsegptridx &vmsegptridx, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_MARKER> buf)
 {
 	if (pnum==Player_num)  // my marker? don't set it down cuz it might screw up the orientation
 		return;
@@ -2289,7 +2289,7 @@ static void multi_do_drop_marker(object_array &Objects, fvmsegptridx &vmsegptrid
 
 namespace {
 
-static void multi_do_hostage_door_status(fvmsegptridx &vmsegptridx, wall_array &Walls, const multiplayer_rspan<MULTI_HOSTAGE_DOOR> buf)
+static void multi_do_hostage_door_status(fvmsegptridx &vmsegptridx, wall_array &Walls, const multiplayer_rspan<multiplayer_command_t::MULTI_HOSTAGE_DOOR> buf)
 {
 	// Update hit point status of a door
 
@@ -2394,6 +2394,20 @@ static void multi_reset_object_texture(object_base &objp)
 	}
 }
 
+static std::optional<multiplayer_command_t> build_multiplayer_command_from_untrusted(const uint8_t type)
+{
+	switch (type)
+	{
+#define multiplayer_case(NAME, LENGTH)	\
+		case static_cast<uint8_t>(multiplayer_command_t::NAME):
+			for_each_multiplayer_command(multiplayer_case);
+			return static_cast<multiplayer_command_t>(type);
+#undef multiplayer_case
+		default:
+			return std::nullopt;
+	}
+}
+
 }
 
 void multi_process_bigdata(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const playernum_t pnum, const uint8_t *const buf, const uint_fast32_t len)
@@ -2411,6 +2425,9 @@ void multi_process_bigdata(const d_level_shared_robot_info_state &LevelSharedRob
 			con_printf(CON_DEBUG, "multi_process_bigdata: Invalid packet type %" PRIuFAST32 "!", type);
 			return;
 		}
+		const auto mtype = build_multiplayer_command_from_untrusted(type);
+		if (!mtype)
+			return;
 		const uint_fast32_t sub_len = message_length[type];
 
 		Assert(sub_len > 0);
@@ -2421,7 +2438,7 @@ void multi_process_bigdata(const d_level_shared_robot_info_state &LevelSharedRob
 			return;
 		}
 
-		multi_process_data(LevelSharedRobotInfoState, pnum, std::span(&buf[bytes_processed], sub_len), type);
+		multi_process_data(LevelSharedRobotInfoState, pnum, std::span(&buf[bytes_processed], sub_len), *mtype);
 		bytes_processed += sub_len;
 	}
 }
@@ -2443,17 +2460,17 @@ void multi_send_fire(const vms_matrix &orient, int laser_gun, const laser_level 
 	}
 
 	union mb {
-		multi_command<MULTI_FIRE_BOMB> multibomb;
-		multi_command<MULTI_FIRE_TRACK> multitrack;
-		multi_command<MULTI_FIRE> multifire;
+		multi_command<multiplayer_command_t::MULTI_FIRE_BOMB> multibomb;
+		multi_command<multiplayer_command_t::MULTI_FIRE_TRACK> multitrack;
+		multi_command<multiplayer_command_t::MULTI_FIRE> multifire;
 		mb() {}
 	} multibuf;
 	if (is_bomb_objnum != object_none)
-		new(&multibuf.multibomb) multi_command<MULTI_FIRE_BOMB>();
+		new(&multibuf.multibomb) multi_command<multiplayer_command_t::MULTI_FIRE_BOMB>();
 	else if (laser_track != object_none)
-		new(&multibuf.multitrack) multi_command<MULTI_FIRE_TRACK>();
+		new(&multibuf.multitrack) multi_command<multiplayer_command_t::MULTI_FIRE_TRACK>();
 	else
-		new(&multibuf.multifire) multi_command<MULTI_FIRE>();
+		new(&multibuf.multifire) multi_command<multiplayer_command_t::MULTI_FIRE>();
 	multibuf.multifire[1] = static_cast<char>(Player_num);
 	multibuf.multifire[2] = static_cast<char>(laser_gun);
 	multibuf.multifire[3] = static_cast<uint8_t>(level);
@@ -2466,13 +2483,13 @@ void multi_send_fire(const vms_matrix &orient, int laser_gun, const laser_level 
 	 * If we fire a tracking projectile, we should others let know about what we track but we have to pay attention that it is mapped correctly.
 	 * If we fire something else, we make the packet as small as possible.
 	 */
-	if (multibuf.multifire[0] == MULTI_FIRE_BOMB)
+	if (is_bomb_objnum != object_none)
 	{
 		map_objnum_local_to_local(is_bomb_objnum);
 		PUT_INTEL_SHORT(&multibuf.multibomb[17], is_bomb_objnum.operator objnum_t());
 		multi_send_data(multibuf.multibomb, multiplayer_data_priority::_1);
 	}
-	else if (multibuf.multifire[0] == MULTI_FIRE_TRACK)
+	else if (laser_track != object_none)
 	{
 		const auto &&[remote_owner, remote_laser_track] = objnum_local_to_remote(laser_track);
 		PUT_INTEL_SHORT(&multibuf.multitrack[17], remote_laser_track);
@@ -2492,7 +2509,7 @@ void multi_send_destroy_controlcen(const objnum_t objnum, const playernum_t play
 	else
 		HUD_init_message_literal(HM_MULTI, TXT_CONTROL_DESTROYED);
 
-	multi_command<MULTI_CONTROLCEN> multibuf;
+	multi_command<multiplayer_command_t::MULTI_CONTROLCEN> multibuf;
 	PUT_INTEL_SHORT(&multibuf[1], objnum);
 	multibuf[3] = player;
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
@@ -2501,7 +2518,7 @@ void multi_send_destroy_controlcen(const objnum_t objnum, const playernum_t play
 #if defined(DXX_BUILD_DESCENT_II)
 void multi_send_drop_marker(const unsigned player, const vms_vector &position, const player_marker_index messagenum, const marker_message_text_t &text)
 {
-	multi_command<MULTI_MARKER> multibuf;
+	multi_command<multiplayer_command_t::MULTI_MARKER> multibuf;
 		multibuf[1]=static_cast<char>(player);
 		multibuf[2] = static_cast<uint8_t>(messagenum);
 	multi_put_vector(&multibuf[3], position);
@@ -2537,7 +2554,7 @@ void multi_send_endlevel_start(const multi_endlevel_type secret)
 void multi_send_endlevel_start()
 #endif
 {
-	multi_command<MULTI_ENDLEVEL_START> buf;
+	multi_command<multiplayer_command_t::MULTI_ENDLEVEL_START> buf;
 	buf[1] = Player_num;
 #if defined(DXX_BUILD_DESCENT_I)
 	buf[2] = static_cast<uint8_t>(secret);
@@ -2564,7 +2581,7 @@ void multi_send_player_deres(deres_type_t type)
 
 	multi_send_position(vmobjptridx(get_local_player().objnum));
 
-	multi_command<MULTI_PLAYER_DERES> multibuf;
+	multi_command<multiplayer_command_t::MULTI_PLAYER_DERES> multibuf;
 	count++;
 	multibuf[count++] = Player_num;
 	multibuf[count++] = type;
@@ -2621,7 +2638,7 @@ void multi_send_player_deres(deres_type_t type)
 
 	Net_create_loc = 0;
 
-	if (count > message_length[MULTI_PLAYER_DERES])
+	if (count > command_length<multiplayer_command_t::MULTI_PLAYER_DERES>::value)
 	{
 		Int3(); // See Rob
 	}
@@ -2640,7 +2657,7 @@ void multi_send_message()
 {
 	if (Network_message_reciever != -1)
 	{
-		multi_command<MULTI_MESSAGE> multibuf;
+		multi_command<multiplayer_command_t::MULTI_MESSAGE> multibuf;
 		multibuf[1] = Player_num;
 		std::copy(Network_message.begin(), Network_message.end(), std::next(multibuf.begin(), 2));
 		multi_send_data(multibuf, multiplayer_data_priority::_0);
@@ -2656,7 +2673,7 @@ void multi_send_reappear()
 	auto &vmobjptridx = Objects.vmptridx;
 	auto &plr = get_local_player();
 	multi_send_position(vmobjptridx(plr.objnum));
-	multi_command<MULTI_REAPPEAR> multibuf;
+	multi_command<multiplayer_command_t::MULTI_REAPPEAR> multibuf;
 	multibuf[1] = static_cast<char>(Player_num);
 	PUT_INTEL_SHORT(&multibuf[2], plr.objnum);
 
@@ -2671,7 +2688,7 @@ void multi_send_position(object &obj)
 
 	quaternionpos qpp{};
 	create_quaternionpos(qpp, obj);
-	multi_command<MULTI_POSITION> multibuf;
+	multi_command<multiplayer_command_t::MULTI_POSITION> multibuf;
 	PUT_INTEL_SHORT(&multibuf[count], qpp.orient.w);							count += 2;
 	PUT_INTEL_SHORT(&multibuf[count], qpp.orient.x);							count += 2;
 	PUT_INTEL_SHORT(&multibuf[count], qpp.orient.y);							count += 2;
@@ -2708,20 +2725,20 @@ void multi_send_kill(const vmobjptridx_t objnum)
 		: owned_remote_objnum{static_cast<int8_t>(-1), static_cast<uint16_t>(0xffff)};
 	const auto local_is_host = multi_i_am_master();
 	union mb {
-		multi_command<MULTI_KILL_CLIENT> c;
-		multi_command<MULTI_KILL_HOST> h;
+		multi_command<multiplayer_command_t::MULTI_KILL_CLIENT> c;
+		multi_command<multiplayer_command_t::MULTI_KILL_HOST> h;
 		mb() {}
 	};
 	mb multibuf;
 	if (local_is_host)
 	{
-		new(&multibuf.h) multi_command<MULTI_KILL_HOST>();
+		new(&multibuf.h) multi_command<multiplayer_command_t::MULTI_KILL_HOST>();
 		multibuf.h[5] = Netgame.team_vector;
 		multibuf.h[6] = Bounty_target;
 	}
 	else
 	{
-		new(&multibuf.c) multi_command<MULTI_KILL_CLIENT>();
+		new(&multibuf.c) multi_command<multiplayer_command_t::MULTI_KILL_CLIENT>();
 	}
 	multibuf.h[1] = Player_num;
 	multibuf.h[4] = remote_owner;
@@ -2745,7 +2762,7 @@ void multi_send_remobj(const vmobjidx_t objnum)
 {
 	// Tell the other guy to remove an object from his list
 	const auto &&[obj_owner, remote_objnum] = objnum_local_to_remote(objnum);
-	multi_command<MULTI_REMOVE_OBJECT> multibuf;
+	multi_command<multiplayer_command_t::MULTI_REMOVE_OBJECT> multibuf;
 	PUT_INTEL_SHORT(&multibuf[1], remote_objnum); // Map to network objnums
 
 	multibuf[3] = obj_owner;
@@ -2768,7 +2785,7 @@ void multi_send_quit()
 {
 	// I am quitting the game, tell the other guy the bad news.
 
-	multi_command<MULTI_QUIT> multibuf;
+	multi_command<multiplayer_command_t::MULTI_QUIT> multibuf;
 	multibuf[1] = Player_num;
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
@@ -2779,7 +2796,7 @@ void multi_send_cloak()
 {
 	// Broadcast a change in our pflags (made to support cloaking)
 
-	multi_command<MULTI_CLOAK> multibuf;
+	multi_command<multiplayer_command_t::MULTI_CLOAK> multibuf;
 	const auto pnum = Player_num;
 	multibuf[1] = pnum;
 
@@ -2792,7 +2809,7 @@ void multi_send_decloak()
 {
 	// Broadcast a change in our pflags (made to support cloaking)
 
-	multi_command<MULTI_DECLOAK> multibuf;
+	multi_command<multiplayer_command_t::MULTI_DECLOAK> multibuf;
 	multibuf[1] = Player_num;
 
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
@@ -2804,7 +2821,7 @@ namespace dsx {
 
 void multi_send_door_open(const vcsegidx_t segnum, const sidenum_t side, const wall_flags flag)
 {
-	multi_command<MULTI_DOOR_OPEN> multibuf;
+	multi_command<multiplayer_command_t::MULTI_DOOR_OPEN> multibuf;
 	// When we open a door make sure everyone else opens that door
 	PUT_INTEL_SEGNUM(&multibuf[1], segnum);
 	multibuf[3] = underlying_value(side);
@@ -2824,7 +2841,7 @@ void multi_send_door_open_specific(const playernum_t pnum, const vcsegidx_t segn
 	Assert (Game_mode & GM_NETWORK);
 	//   Assert (pnum>-1 && pnum<N_players);
 
-	multi_command<MULTI_DOOR_OPEN> multibuf;
+	multi_command<multiplayer_command_t::MULTI_DOOR_OPEN> multibuf;
 	PUT_INTEL_SEGNUM(&multibuf[1], segnum);
 	multibuf[3] = static_cast<int8_t>(side);
 	multibuf[4] = underlying_value(flag);
@@ -2848,7 +2865,7 @@ void multi_send_create_explosion(const playernum_t pnum)
 	int count = 0;
 
 	count += 1;
-	multi_command<MULTI_CREATE_EXPLOSION> multibuf;
+	multi_command<multiplayer_command_t::MULTI_CREATE_EXPLOSION> multibuf;
 	multibuf[count] = static_cast<int8_t>(pnum);                  count += 1;
 	//                                                                                                      -----------
 	//                                                                                                      Total size = 2
@@ -2860,7 +2877,7 @@ void multi_send_controlcen_fire(const vms_vector &to_goal, int best_gun_num, obj
 	int count = 0;
 
 	count +=  1;
-	multi_command<MULTI_CONTROLCEN_FIRE> multibuf;
+	multi_command<multiplayer_command_t::MULTI_CONTROLCEN_FIRE> multibuf;
 	multi_put_vector(&multibuf[count], to_goal);
 	count += 12;
 	multibuf[count] = static_cast<char>(best_gun_num);                   count +=  1;
@@ -2885,7 +2902,7 @@ void multi_send_create_powerup(const powerup_type_t powerup_type, const vcsegidx
 	multi_send_position(vmobjptridx(get_local_player().objnum));
 
 	count += 1;
-	multi_command<MULTI_CREATE_POWERUP> multibuf;
+	multi_command<multiplayer_command_t::MULTI_CREATE_POWERUP> multibuf;
 	multibuf[count] = Player_num;                                      count += 1;
 	multibuf[count] = powerup_type;                                 count += 1;
 	PUT_INTEL_SEGNUM(&multibuf[count], segnum);     count += 2;
@@ -2944,7 +2961,7 @@ void multi_send_play_sound(const int sound_num, const fix volume, const sound_st
 {
 	int count = 0;
 	count += 1;
-	multi_command<MULTI_PLAY_SOUND> multibuf;
+	multi_command<multiplayer_command_t::MULTI_PLAY_SOUND> multibuf;
 	multibuf[count] = Player_num;                                   count += 1;
 	multibuf[count] = static_cast<char>(sound_num);                      count += 1;
 	multibuf[count] = static_cast<uint8_t>(once);                      count += 1;
@@ -2965,7 +2982,7 @@ void multi_send_score()
 	if (Game_mode & GM_MULTI_COOP) {
 		multi_sort_kill_list();
 		count += 1;
-		multi_command<MULTI_SCORE> multibuf;
+		multi_command<multiplayer_command_t::MULTI_SCORE> multibuf;
 		multibuf[count] = Player_num;                           count += 1;
 		auto &player_info = get_local_plrobj().ctype.player_info;
 		PUT_INTEL_INT(&multibuf[count], player_info.mission.score);  count += 4;
@@ -2980,7 +2997,7 @@ void multi_send_trigger(const trgnum_t triggernum)
 	int count = 0;
 
 	count += 1;
-	multi_command<MULTI_TRIGGER> multibuf;
+	multi_command<multiplayer_command_t::MULTI_TRIGGER> multibuf;
 	multibuf[count] = Player_num;                                   count += 1;
 	static_assert(sizeof(trgnum_t) == sizeof(uint8_t), "trigger number could be truncated");
 	multibuf[count] = static_cast<uint8_t>(triggernum);            count += 1;
@@ -3002,7 +3019,7 @@ void multi_send_effect_blowup(const vcsegidx_t segnum, const sidenum_t side, con
 	multi::dispatch->do_protocol_frame(1, 0); // force packets to be sent, ensuring this packet will be attached to following MULTI_TRIGGER
 	
 	count += 1;
-	multi_command<MULTI_EFFECT_BLOWUP> multibuf;
+	multi_command<multiplayer_command_t::MULTI_EFFECT_BLOWUP> multibuf;
 	multibuf[count] = Player_num;                                   count += 1;
 	PUT_INTEL_SEGNUM(&multibuf[count], segnum);                        count += 2;
 	multibuf[count] = static_cast<int8_t>(side);                                  count += 1;
@@ -3022,7 +3039,7 @@ void multi_send_hostage_door_status(const vcwallptridx_t w)
 	assert(w->type == WALL_BLASTABLE);
 
 	count += 1;
-	multi_command<MULTI_HOSTAGE_DOOR> multibuf;
+	multi_command<multiplayer_command_t::MULTI_HOSTAGE_DOOR> multibuf;
 	PUT_INTEL_SHORT(&multibuf[count], underlying_value(wallnum_t{w}));
 	count += 2;
 	PUT_INTEL_INT(&multibuf[count], w->hps);  count += 4;
@@ -3713,7 +3730,7 @@ void multi_send_drop_weapon(const vmobjptridx_t objp, int seed)
 	Assert(ammo_count < F1_0); //make sure fits in short
 
 	count++;
-	multi_command<MULTI_DROP_WEAPON> multibuf;
+	multi_command<multiplayer_command_t::MULTI_DROP_WEAPON> multibuf;
 	multibuf[count++]=static_cast<char>(get_powerup_id(objp));
 	PUT_INTEL_SHORT(&multibuf[count], objp); count += 2;
 	PUT_INTEL_SHORT(&multibuf[count], static_cast<uint16_t>(ammo_count)); count += 2;
@@ -3727,7 +3744,7 @@ void multi_send_drop_weapon(const vmobjptridx_t objp, int seed)
 
 namespace {
 
-static void multi_do_drop_weapon(fvmobjptr &vmobjptr, const playernum_t pnum, const multiplayer_rspan<MULTI_DROP_WEAPON> buf)
+static void multi_do_drop_weapon(fvmobjptr &vmobjptr, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_DROP_WEAPON> buf)
 {
 	const auto powerup_id = static_cast<powerup_type_t>(buf[1]);
 	const objnum_t remote_objnum = GET_INTEL_SHORT(&buf[2]);
@@ -3746,7 +3763,7 @@ static void multi_do_drop_weapon(fvmobjptr &vmobjptr, const playernum_t pnum, co
 void multi_send_vulcan_weapon_ammo_adjust(const vmobjptridx_t objnum)
 {
 	const auto &&[obj_owner, remote_objnum] = objnum_local_to_remote(objnum);
-	multi_command<MULTI_VULWPN_AMMO_ADJ> multibuf;
+	multi_command<multiplayer_command_t::MULTI_VULWPN_AMMO_ADJ> multibuf;
 	PUT_INTEL_SHORT(&multibuf[1], remote_objnum); // Map to network objnums
 
 	multibuf[3] = obj_owner;
@@ -3764,7 +3781,7 @@ void multi_send_vulcan_weapon_ammo_adjust(const vmobjptridx_t objnum)
 
 namespace {
 
-static void multi_do_vulcan_weapon_ammo_adjust(fvmobjptr &vmobjptr, const multiplayer_rspan<MULTI_VULWPN_AMMO_ADJ> buf)
+static void multi_do_vulcan_weapon_ammo_adjust(fvmobjptr &vmobjptr, const multiplayer_rspan<multiplayer_command_t::MULTI_VULWPN_AMMO_ADJ> buf)
 {
 	// which object to update
 	const objnum_t objnum = GET_INTEL_SHORT(&buf[1]);
@@ -3810,7 +3827,7 @@ struct multi_guided_info
 	shortpos sp;
 };
 
-DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_GUIDED, multi_guided_info, g, (g.pnum, g.release, g.sp));
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_GUIDED, multi_guided_info, g, (g.pnum, g.release, g.sp));
 
 }
 
@@ -3825,7 +3842,7 @@ void multi_send_guided_info(const object_base &miss, const char done)
 
 namespace {
 
-static void multi_do_guided(d_level_unique_object_state &LevelUniqueObjectState, const playernum_t pnum, const multiplayer_rspan<MULTI_GUIDED> buf)
+static void multi_do_guided(d_level_unique_object_state &LevelUniqueObjectState, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_GUIDED> buf)
 {
 	multi_guided_info b;
 	multi_serialize_read(buf, b);
@@ -3850,7 +3867,7 @@ static void multi_do_guided(d_level_unique_object_state &LevelUniqueObjectState,
 
 void multi_send_stolen_items ()
 {
-	multi_command<MULTI_STOLEN_ITEMS> multibuf;
+	multi_command<multiplayer_command_t::MULTI_STOLEN_ITEMS> multibuf;
 	auto &Stolen_items = LevelUniqueObjectState.ThiefState.Stolen_items;
 	std::copy(Stolen_items.begin(), Stolen_items.end(), std::next(multibuf.begin()));
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
@@ -3858,7 +3875,7 @@ void multi_send_stolen_items ()
 
 namespace {
 
-static void multi_do_stolen_items(const multiplayer_rspan<MULTI_STOLEN_ITEMS> buf)
+static void multi_do_stolen_items(const multiplayer_rspan<multiplayer_command_t::MULTI_STOLEN_ITEMS> buf)
 {
 	auto &Stolen_items = LevelUniqueObjectState.ThiefState.Stolen_items;
 	std::copy_n(&buf[1], Stolen_items.size(), Stolen_items.begin());
@@ -3876,7 +3893,7 @@ void multi_send_wall_status_specific(const playernum_t pnum, wallnum_t wallnum, 
 	//Assert (pnum>-1 && pnum<N_players);
 
 	count++;
-	multi_command<MULTI_WALL_STATUS> multibuf;
+	multi_command<multiplayer_command_t::MULTI_WALL_STATUS> multibuf;
 	PUT_INTEL_SHORT(&multibuf[count], static_cast<uint16_t>(wallnum));
 	count+=2;
 	multibuf[count]=type;                 count++;
@@ -3888,7 +3905,7 @@ void multi_send_wall_status_specific(const playernum_t pnum, wallnum_t wallnum, 
 
 namespace {
 
-static void multi_do_wall_status(fvmwallptr &vmwallptr, const multiplayer_rspan<MULTI_WALL_STATUS> buf)
+static void multi_do_wall_status(fvmwallptr &vmwallptr, const multiplayer_rspan<multiplayer_command_t::MULTI_WALL_STATUS> buf)
 {
 	ubyte flag,type,state;
 
@@ -3917,7 +3934,7 @@ void multi_send_kill_goal_counts()
 	auto &vcobjptr = Objects.vcptr;
 	int count=1;
 
-	multi_command<MULTI_KILLGOALS> multibuf;
+	multi_command<multiplayer_command_t::MULTI_KILLGOALS> multibuf;
 	range_for (auto &i, Players)
 	{
 		auto &obj = *vcobjptr(i.objnum);
@@ -3930,7 +3947,7 @@ void multi_send_kill_goal_counts()
 
 namespace {
 
-static void multi_do_kill_goal_counts(fvmobjptr &vmobjptr, const multiplayer_rspan<MULTI_KILLGOALS> buf)
+static void multi_do_kill_goal_counts(fvmobjptr &vmobjptr, const multiplayer_rspan<multiplayer_command_t::MULTI_KILLGOALS> buf)
 {
 	int count=1;
 
@@ -3948,12 +3965,12 @@ void multi_send_heartbeat ()
 	if (!Netgame.PlayTimeAllowed.count())
 		return;
 
-	multi_command<MULTI_HEARTBEAT> multibuf;
+	multi_command<multiplayer_command_t::MULTI_HEARTBEAT> multibuf;
 	PUT_INTEL_INT(&multibuf[1], ThisLevelTime.count());
 	multi_send_data(multibuf, multiplayer_data_priority::_0);
 }
 
-static void multi_do_heartbeat(const multiplayer_rspan<MULTI_HEARTBEAT> buf)
+static void multi_do_heartbeat(const multiplayer_rspan<multiplayer_command_t::MULTI_HEARTBEAT> buf)
 {
 	const fix num = GET_INTEL_INT(&buf[1]);
 	ThisLevelTime = d_time_fix(num);
@@ -4013,14 +4030,14 @@ void multi_check_for_killgoal_winner(const d_robot_info_array &Robot_info)
 void multi_send_seismic(fix duration)
 {
 	int count=1;
-	multi_command<MULTI_SEISMIC> multibuf;
+	multi_command<multiplayer_command_t::MULTI_SEISMIC> multibuf;
 	PUT_INTEL_INT(&multibuf[count], duration); count += sizeof(duration);
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 namespace {
 
-static void multi_do_seismic(multiplayer_rspan<MULTI_SEISMIC> buf)
+static void multi_do_seismic(multiplayer_rspan<multiplayer_command_t::MULTI_SEISMIC> buf)
 {
 	const fix duration = GET_INTEL_INT(&buf[1]);
 	LevelUniqueSeismicState.Seismic_disturbance_end_time = GameTime64 + duration;
@@ -4036,7 +4053,7 @@ void multi_send_light_specific (const playernum_t pnum, const vcsegptridx_t segn
 	Assert (Game_mode & GM_NETWORK);
 	//  Assert (pnum>-1 && pnum<N_players);
 
-	multi_command<MULTI_LIGHT> multibuf;
+	multi_command<multiplayer_command_t::MULTI_LIGHT> multibuf;
 	PUT_INTEL_SEGNUM(&multibuf[count], segnum);
 	count += sizeof(uint16_t);
 	multibuf[count] = underlying_value(val); count++;
@@ -4051,7 +4068,7 @@ void multi_send_light_specific (const playernum_t pnum, const vcsegptridx_t segn
 
 namespace {
 
-static void multi_do_light(const multiplayer_rspan<MULTI_LIGHT> buf)
+static void multi_do_light(const multiplayer_rspan<multiplayer_command_t::MULTI_LIGHT> buf)
 {
 	const auto sides = buf[3];
 
@@ -4074,7 +4091,7 @@ static void multi_do_light(const multiplayer_rspan<MULTI_LIGHT> buf)
 	}
 }
 
-static void multi_do_flags(fvmobjptr &vmobjptr, const playernum_t pnum, const multiplayer_rspan<MULTI_FLAGS> buf)
+static void multi_do_flags(fvmobjptr &vmobjptr, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_FLAGS> buf)
 {
 	if (pnum!=Player_num)
 	{
@@ -4089,7 +4106,7 @@ void multi_send_flags (const playernum_t pnum)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	multi_command<MULTI_FLAGS> multibuf;
+	multi_command<multiplayer_command_t::MULTI_FLAGS> multibuf;
 	multibuf[1]=pnum;
 	PUT_INTEL_INT(&multibuf[2], vmobjptr(vcplayerptr(pnum)->objnum)->ctype.player_info.powerup_flags.get_player_flags());
  
@@ -4098,7 +4115,7 @@ void multi_send_flags (const playernum_t pnum)
 
 void multi_send_drop_blobs (const playernum_t pnum)
 {
-	multi_command<MULTI_DROP_BLOB> multibuf;
+	multi_command<multiplayer_command_t::MULTI_DROP_BLOB> multibuf;
 	multibuf[1]=pnum;
 
 	multi_send_data(multibuf, multiplayer_data_priority::_0);
@@ -4118,7 +4135,7 @@ void multi_send_sound_function (char whichfunc, char sound)
 	int count=0;
 
 	count++;
-	multi_command<MULTI_SOUND_FUNCTION> multibuf;
+	multi_command<multiplayer_command_t::MULTI_SOUND_FUNCTION> multibuf;
 	multibuf[1]=Player_num;             count++;
 	multibuf[2]=whichfunc;              count++;
 	multibuf[3] = sound; count++;       // this would probably work on the PC as well.  Jason?
@@ -4130,7 +4147,7 @@ void multi_send_sound_function (char whichfunc, char sound)
 
 namespace {
 
-static void multi_do_sound_function(const playernum_t pnum, const multiplayer_rspan<MULTI_SOUND_FUNCTION> buf)
+static void multi_do_sound_function(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_SOUND_FUNCTION> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
@@ -4154,7 +4171,7 @@ static void multi_do_sound_function(const playernum_t pnum, const multiplayer_rs
 
 void multi_send_capture_bonus (const playernum_t pnum)
 {
-	multi_command<MULTI_CAPTURE_BONUS> multibuf;
+	multi_command<multiplayer_command_t::MULTI_CAPTURE_BONUS> multibuf;
 	Assert (game_mode_capture_flag());
 
 	multibuf[1]=pnum;
@@ -4165,7 +4182,7 @@ void multi_send_capture_bonus (const playernum_t pnum)
 
 void multi_send_orb_bonus (const playernum_t pnum, const uint8_t hoard_orbs)
 {
-	multi_command<MULTI_ORB_BONUS> multibuf;
+	multi_command<multiplayer_command_t::MULTI_ORB_BONUS> multibuf;
 	Assert (game_mode_hoard());
 
 	multibuf[1]=pnum;
@@ -4235,7 +4252,7 @@ static int GetOrbBonus (char num)
 	return (bonus);
 }
 
-void multi_do_orb_bonus(const playernum_t pnum, const multiplayer_rspan<MULTI_ORB_BONUS> buf)
+void multi_do_orb_bonus(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_ORB_BONUS> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -4306,7 +4323,7 @@ void multi_do_orb_bonus(const playernum_t pnum, const multiplayer_rspan<MULTI_OR
 
 void multi_send_got_flag (const playernum_t pnum)
 {
-	multi_command<MULTI_GOT_FLAG> multibuf;
+	multi_command<multiplayer_command_t::MULTI_GOT_FLAG> multibuf;
 	multibuf[1]=pnum;
 
 	digi_start_sound_queued (SOUND_HUD_YOU_GOT_FLAG,F1_0*2);
@@ -4317,7 +4334,7 @@ void multi_send_got_flag (const playernum_t pnum)
 
 void multi_send_got_orb (const playernum_t pnum)
 {
-	multi_command<MULTI_GOT_ORB> multibuf;
+	multi_command<multiplayer_command_t::MULTI_GOT_ORB> multibuf;
 	multibuf[1]=pnum;
 
 	digi_play_sample (SOUND_YOU_GOT_ORB,F1_0*2);
@@ -4437,7 +4454,7 @@ namespace {
 
 void multi_send_drop_flag(const vmobjptridx_t objp, int seed)
 {
-	multi_command<MULTI_DROP_FLAG> multibuf;
+	multi_command<multiplayer_command_t::MULTI_DROP_FLAG> multibuf;
 	int count=0;
 	count++;
 	multibuf[count++]=static_cast<char>(get_powerup_id(objp));
@@ -4451,7 +4468,7 @@ void multi_send_drop_flag(const vmobjptridx_t objp, int seed)
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
-static void multi_do_drop_flag(const playernum_t pnum, const multiplayer_rspan<MULTI_DROP_FLAG> buf)
+static void multi_do_drop_flag(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_DROP_FLAG> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -4566,7 +4583,7 @@ uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned BaseAll
 #if defined(DXX_BUILD_DESCENT_II)
 void multi_send_finish_game ()
 {
-	multi_command<MULTI_FINISH_GAME> multibuf;
+	multi_command<multiplayer_command_t::MULTI_FINISH_GAME> multibuf;
 	multibuf[1]=Player_num;
 
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
@@ -4586,7 +4603,7 @@ static void multi_do_finish_game()
 
 void multi_send_trigger_specific(const playernum_t pnum, const trgnum_t trig)
 {
-	multi_command<MULTI_START_TRIGGER> multibuf;
+	multi_command<multiplayer_command_t::MULTI_START_TRIGGER> multibuf;
 	static_assert(sizeof(trgnum_t) == sizeof(uint8_t), "trigger number could be truncated");
 	multibuf[1] = static_cast<uint8_t>(trig);
 
@@ -4595,7 +4612,7 @@ void multi_send_trigger_specific(const playernum_t pnum, const trgnum_t trig)
 
 namespace {
 
-static void multi_do_start_trigger(const multiplayer_rspan<MULTI_START_TRIGGER> buf)
+static void multi_do_start_trigger(const multiplayer_rspan<multiplayer_command_t::MULTI_START_TRIGGER> buf)
 {
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &vmtrgptr = Triggers.vmptr;
@@ -4667,14 +4684,14 @@ namespace {
 
 void multi_send_ranking (const netplayer_info::player_rank newrank)
 {
-	multi_command<MULTI_RANK> multibuf;
+	multi_command<multiplayer_command_t::MULTI_RANK> multibuf;
 	multibuf[1]=static_cast<char>(Player_num);
 	multibuf[2] = underlying_value(newrank);
 
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
-static void multi_do_ranking(const playernum_t pnum, const multiplayer_rspan<MULTI_RANK> buf)
+static void multi_do_ranking(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_RANK> buf)
 {
 	const auto rank = build_rank_from_untrusted(buf[2]);
 	if (rank == netplayer_info::player_rank::None)
@@ -4745,7 +4762,7 @@ void multi_send_bounty( void )
 	if ( !multi_i_am_master() )
 		return;
 	
-	multi_command<MULTI_DO_BOUNTY> multibuf;
+	multi_command<multiplayer_command_t::MULTI_DO_BOUNTY> multibuf;
 	/* Add opcode, target ID and how often we re-assigned */
 	multibuf[1] = static_cast<char>(Bounty_target);
 	
@@ -4757,7 +4774,7 @@ namespace dsx {
 
 namespace {
 
-static void multi_do_bounty(multiplayer_rspan<MULTI_DO_BOUNTY> buf)
+static void multi_do_bounty(const multiplayer_rspan<multiplayer_command_t::MULTI_DO_BOUNTY> buf)
 {
 	if ( multi_i_am_master() )
 		return;
@@ -4775,7 +4792,7 @@ void multi_new_bounty_target_with_sound(const playernum_t pnum, const char *cons
 	multi_new_bounty_target(pnum, callsign);
 }
 
-static void multi_do_save_game(const multiplayer_rspan<MULTI_SAVE_GAME> buf)
+static void multi_do_save_game(const multiplayer_rspan<multiplayer_command_t::MULTI_SAVE_GAME> buf)
 {
 	int count = 1;
 	ubyte slot;
@@ -4796,7 +4813,7 @@ static void multi_do_save_game(const multiplayer_rspan<MULTI_SAVE_GAME> buf)
 
 namespace {
 
-static void multi_do_restore_game(const multiplayer_rspan<MULTI_RESTORE_GAME> buf)
+static void multi_do_restore_game(const multiplayer_rspan<multiplayer_command_t::MULTI_RESTORE_GAME> buf)
 {
 	int count = 1;
 	ubyte slot;
@@ -4817,7 +4834,7 @@ static void multi_send_save_game(const d_game_unique_state::save_slot slot, cons
 	int count = 0;
 	
 	count += 1;
-	multi_command<MULTI_SAVE_GAME> multibuf;
+	multi_command<multiplayer_command_t::MULTI_SAVE_GAME> multibuf;
 	multibuf[count] = static_cast<uint8_t>(slot);				count += 1; // Save slot=0
 	PUT_INTEL_INT(&multibuf[count], id );		count += 4; // Save id
 	memcpy(&multibuf[count], desc.data(), desc.size());
@@ -4830,7 +4847,7 @@ static void multi_send_restore_game(ubyte slot, uint id)
 	int count = 0;
 	
 	count += 1;
-	multi_command<MULTI_RESTORE_GAME> multibuf;
+	multi_command<multiplayer_command_t::MULTI_RESTORE_GAME> multibuf;
 	multibuf[count] = slot;				count += 1; // Save slot=0
 	PUT_INTEL_INT(&multibuf[count], id );		count += 4; // Save id
 
@@ -4983,7 +5000,7 @@ void multi_restore_game(const unsigned slot, const unsigned id)
 
 namespace {
 
-static void multi_do_msgsend_state(const multiplayer_rspan<MULTI_TYPING_STATE> buf)
+static void multi_do_msgsend_state(const multiplayer_rspan<multiplayer_command_t::MULTI_TYPING_STATE> buf)
 {
 	multi_sending_message[static_cast<int>(buf[1])] = msgsend_state{buf[2]};
 }
@@ -4992,7 +5009,7 @@ static void multi_do_msgsend_state(const multiplayer_rspan<MULTI_TYPING_STATE> b
 
 void multi_send_msgsend_state(const msgsend_state state)
 {
-	multi_command<MULTI_TYPING_STATE> multibuf;
+	multi_command<multiplayer_command_t::MULTI_TYPING_STATE> multibuf;
 	multibuf[1] = Player_num;
 	multibuf[2] = static_cast<char>(state);
 	
@@ -5008,14 +5025,14 @@ void multi_send_gmode_update()
 		return;
 	if (!(Game_mode & GM_TEAM || Game_mode & GM_BOUNTY)) // expand if necessary
 		return;
-	multi_command<MULTI_GMODE_UPDATE> multibuf;
+	multi_command<multiplayer_command_t::MULTI_GMODE_UPDATE> multibuf;
 	multibuf[1] = Netgame.team_vector;
 	multibuf[2] = Bounty_target;
 	
 	multi_send_data(multibuf, multiplayer_data_priority::_0);
 }
 
-static void multi_do_gmode_update(const multiplayer_rspan<MULTI_GMODE_UPDATE> buf)
+static void multi_do_gmode_update(const multiplayer_rspan<multiplayer_command_t::MULTI_GMODE_UPDATE> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -5049,7 +5066,7 @@ void multi_send_player_inventory(const multiplayer_data_priority priority)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	multi_command<MULTI_PLAYER_INV> multibuf;
+	multi_command<multiplayer_command_t::MULTI_PLAYER_INV> multibuf;
 	int count = 0;
 
 	count++;
@@ -5084,7 +5101,7 @@ void multi_send_player_inventory(const multiplayer_data_priority priority)
 
 namespace {
 
-static void multi_do_player_inventory(const playernum_t pnum, const multiplayer_rspan<MULTI_PLAYER_INV> buf)
+static void multi_do_player_inventory(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_PLAYER_INV> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -5627,7 +5644,7 @@ void save_hoard_data(void)
 
 namespace {
 
-static void multi_process_data(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const playernum_t pnum, const std::span<const uint8_t> data, const uint_fast32_t type)
+static void multi_process_data(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const playernum_t pnum, const std::span<const uint8_t> data, const multiplayer_command_t type)
 {
 	const auto buf = data.data();
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -5638,203 +5655,203 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 	// if necessary) and act on it.
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vmwallptr = Walls.vmptr;
-	switch (static_cast<multiplayer_command_t>(type))
+	switch (type)
 	{
-		case MULTI_POSITION:
-			multi_do_position(vmobjptridx, pnum, multi_subspan_first<MULTI_POSITION>(data));
+		case multiplayer_command_t::MULTI_POSITION:
+			multi_do_position(vmobjptridx, pnum, multi_subspan_first<multiplayer_command_t::MULTI_POSITION>(data));
 			break;
-		case MULTI_REAPPEAR:
-			multi_do_reappear(pnum, multi_subspan_first<MULTI_REAPPEAR>(data));
+		case multiplayer_command_t::MULTI_REAPPEAR:
+			multi_do_reappear(pnum, multi_subspan_first<multiplayer_command_t::MULTI_REAPPEAR>(data));
 			break;
-		case MULTI_FIRE:
-		case MULTI_FIRE_TRACK:
-		case MULTI_FIRE_BOMB:
+		case multiplayer_command_t::MULTI_FIRE:
+		case multiplayer_command_t::MULTI_FIRE_TRACK:
+		case multiplayer_command_t::MULTI_FIRE_BOMB:
 			multi_do_fire(vmobjptridx, pnum, buf,
-							type == MULTI_FIRE_TRACK
+							type == multiplayer_command_t::MULTI_FIRE_TRACK
 							? objnum_remote_to_local(GET_INTEL_SHORT(&buf[17]), buf[19])
 							: object_none,
-							type == MULTI_FIRE_BOMB
+							type == multiplayer_command_t::MULTI_FIRE_BOMB
 							? std::optional(GET_INTEL_SHORT(&buf[17]))
 							: std::nullopt);
 			break;
-		case MULTI_REMOVE_OBJECT:
-			multi_do_remobj(vmobjptr, multi_subspan_first<MULTI_REMOVE_OBJECT>(data));
+		case multiplayer_command_t::MULTI_REMOVE_OBJECT:
+			multi_do_remobj(vmobjptr, multi_subspan_first<multiplayer_command_t::MULTI_REMOVE_OBJECT>(data));
 			break;
-		case MULTI_PLAYER_DERES:
-			multi_do_player_deres(LevelSharedRobotInfoState.Robot_info, Objects, pnum, multi_subspan_first<MULTI_PLAYER_DERES>(data));
+		case multiplayer_command_t::MULTI_PLAYER_DERES:
+			multi_do_player_deres(LevelSharedRobotInfoState.Robot_info, Objects, pnum, multi_subspan_first<multiplayer_command_t::MULTI_PLAYER_DERES>(data));
 			break;
-		case MULTI_MESSAGE:
-			multi_do_message(multi_subspan_first<MULTI_MESSAGE>(data));
+		case multiplayer_command_t::MULTI_MESSAGE:
+			multi_do_message(multi_subspan_first<multiplayer_command_t::MULTI_MESSAGE>(data));
 			break;
-		case MULTI_QUIT:
-			multi_do_quit(multi_subspan_first<MULTI_QUIT>(data));
+		case multiplayer_command_t::MULTI_QUIT:
+			multi_do_quit(multi_subspan_first<multiplayer_command_t::MULTI_QUIT>(data));
 			break;
-		case MULTI_CONTROLCEN:
-			multi_do_controlcen_destroy(LevelSharedRobotInfoState.Robot_info, imobjptridx, multi_subspan_first<MULTI_CONTROLCEN>(data));
+		case multiplayer_command_t::MULTI_CONTROLCEN:
+			multi_do_controlcen_destroy(LevelSharedRobotInfoState.Robot_info, imobjptridx, multi_subspan_first<multiplayer_command_t::MULTI_CONTROLCEN>(data));
 			break;
-		case MULTI_DROP_WEAPON:
-			multi_do_drop_weapon(vmobjptr, pnum, multi_subspan_first<MULTI_DROP_WEAPON>(data));
+		case multiplayer_command_t::MULTI_DROP_WEAPON:
+			multi_do_drop_weapon(vmobjptr, pnum, multi_subspan_first<multiplayer_command_t::MULTI_DROP_WEAPON>(data));
 			break;
-		case MULTI_VULWPN_AMMO_ADJ:
-			multi_do_vulcan_weapon_ammo_adjust(vmobjptr, multi_subspan_first<MULTI_VULWPN_AMMO_ADJ>(data));
+		case multiplayer_command_t::MULTI_VULWPN_AMMO_ADJ:
+			multi_do_vulcan_weapon_ammo_adjust(vmobjptr, multi_subspan_first<multiplayer_command_t::MULTI_VULWPN_AMMO_ADJ>(data));
 			break;
 #if defined(DXX_BUILD_DESCENT_II)
-		case MULTI_SOUND_FUNCTION:
-			multi_do_sound_function(pnum, multi_subspan_first<MULTI_SOUND_FUNCTION>(data));
+		case multiplayer_command_t::MULTI_SOUND_FUNCTION:
+			multi_do_sound_function(pnum, multi_subspan_first<multiplayer_command_t::MULTI_SOUND_FUNCTION>(data));
 			break;
-		case MULTI_MARKER:
-			multi_do_drop_marker(Objects, vmsegptridx, pnum, multi_subspan_first<MULTI_MARKER>(data));
+		case multiplayer_command_t::MULTI_MARKER:
+			multi_do_drop_marker(Objects, vmsegptridx, pnum, multi_subspan_first<multiplayer_command_t::MULTI_MARKER>(data));
 			break;
-		case MULTI_DROP_FLAG:
-			multi_do_drop_flag(pnum, multi_subspan_first<MULTI_DROP_FLAG>(data));
+		case multiplayer_command_t::MULTI_DROP_FLAG:
+			multi_do_drop_flag(pnum, multi_subspan_first<multiplayer_command_t::MULTI_DROP_FLAG>(data));
 			break;
-		case MULTI_GUIDED:
-			multi_do_guided(LevelUniqueObjectState, pnum, multi_subspan_first<MULTI_GUIDED>(data));
+		case multiplayer_command_t::MULTI_GUIDED:
+			multi_do_guided(LevelUniqueObjectState, pnum, multi_subspan_first<multiplayer_command_t::MULTI_GUIDED>(data));
 			break;
-		case MULTI_STOLEN_ITEMS:
-			multi_do_stolen_items(multi_subspan_first<MULTI_STOLEN_ITEMS>(data));
+		case multiplayer_command_t::MULTI_STOLEN_ITEMS:
+			multi_do_stolen_items(multi_subspan_first<multiplayer_command_t::MULTI_STOLEN_ITEMS>(data));
 			break;
-		case MULTI_WALL_STATUS:
-			multi_do_wall_status(vmwallptr, multi_subspan_first<MULTI_WALL_STATUS>(data));
+		case multiplayer_command_t::MULTI_WALL_STATUS:
+			multi_do_wall_status(vmwallptr, multi_subspan_first<multiplayer_command_t::MULTI_WALL_STATUS>(data));
 			break;
-		case MULTI_SEISMIC:
-			multi_do_seismic(multi_subspan_first<MULTI_SEISMIC>(data));
+		case multiplayer_command_t::MULTI_SEISMIC:
+			multi_do_seismic(multi_subspan_first<multiplayer_command_t::MULTI_SEISMIC>(data));
 			break;
-		case MULTI_LIGHT:
-			multi_do_light(multi_subspan_first<MULTI_LIGHT>(data));
+		case multiplayer_command_t::MULTI_LIGHT:
+			multi_do_light(multi_subspan_first<multiplayer_command_t::MULTI_LIGHT>(data));
 			break;
 #endif
-		case MULTI_ENDLEVEL_START:
-			multi_do_escape(vmobjptridx, multi_subspan_first<MULTI_ENDLEVEL_START>(data));
+		case multiplayer_command_t::MULTI_ENDLEVEL_START:
+			multi_do_escape(vmobjptridx, multi_subspan_first<multiplayer_command_t::MULTI_ENDLEVEL_START>(data));
 			break;
-		case MULTI_CLOAK:
+		case multiplayer_command_t::MULTI_CLOAK:
 			multi_do_cloak(vmobjptr, pnum);
 			break;
-		case MULTI_DECLOAK:
+		case multiplayer_command_t::MULTI_DECLOAK:
 			multi_do_decloak(pnum); break;
-		case MULTI_DOOR_OPEN:
-			multi_do_door_open(vmwallptr, multi_subspan_first<MULTI_DOOR_OPEN>(data));
+		case multiplayer_command_t::MULTI_DOOR_OPEN:
+			multi_do_door_open(vmwallptr, multi_subspan_first<multiplayer_command_t::MULTI_DOOR_OPEN>(data));
 			break;
-		case MULTI_CREATE_EXPLOSION:
+		case multiplayer_command_t::MULTI_CREATE_EXPLOSION:
 			multi_do_create_explosion(vmobjptridx, pnum);
 			break;
-		case MULTI_CONTROLCEN_FIRE:
-			multi_do_controlcen_fire(multi_subspan_first<MULTI_CONTROLCEN_FIRE>(data));
+		case multiplayer_command_t::MULTI_CONTROLCEN_FIRE:
+			multi_do_controlcen_fire(multi_subspan_first<multiplayer_command_t::MULTI_CONTROLCEN_FIRE>(data));
 			break;
-		case MULTI_CREATE_POWERUP:
-			multi_do_create_powerup(vmsegptridx, pnum, multi_subspan_first<MULTI_CREATE_POWERUP>(data));
+		case multiplayer_command_t::MULTI_CREATE_POWERUP:
+			multi_do_create_powerup(vmsegptridx, pnum, multi_subspan_first<multiplayer_command_t::MULTI_CREATE_POWERUP>(data));
 			break;
-		case MULTI_PLAY_SOUND:
-			multi_do_play_sound(Objects, pnum, multi_subspan_first<MULTI_PLAY_SOUND>(data));
+		case multiplayer_command_t::MULTI_PLAY_SOUND:
+			multi_do_play_sound(Objects, pnum, multi_subspan_first<multiplayer_command_t::MULTI_PLAY_SOUND>(data));
 			break;
 #if defined(DXX_BUILD_DESCENT_II)
-		case MULTI_CAPTURE_BONUS:
+		case multiplayer_command_t::MULTI_CAPTURE_BONUS:
 			multi_do_capture_bonus(pnum); break;
-		case MULTI_ORB_BONUS:
-			multi_do_orb_bonus(pnum, multi_subspan_first<MULTI_ORB_BONUS>(data));
+		case multiplayer_command_t::MULTI_ORB_BONUS:
+			multi_do_orb_bonus(pnum, multi_subspan_first<multiplayer_command_t::MULTI_ORB_BONUS>(data));
 			break;
-		case MULTI_GOT_FLAG:
+		case multiplayer_command_t::MULTI_GOT_FLAG:
 			multi_do_got_flag(pnum); break;
-		case MULTI_GOT_ORB:
+		case multiplayer_command_t::MULTI_GOT_ORB:
 			multi_do_got_orb(pnum); break;
-		case MULTI_FINISH_GAME:
+		case multiplayer_command_t::MULTI_FINISH_GAME:
 			multi_do_finish_game();
 			break;  // do this one regardless of endsequence
 #endif
-		case MULTI_RANK:
-			multi_do_ranking (pnum, multi_subspan_first<MULTI_RANK>(data));
+		case multiplayer_command_t::MULTI_RANK:
+			multi_do_ranking (pnum, multi_subspan_first<multiplayer_command_t::MULTI_RANK>(data));
 			break;
-		case MULTI_ROBOT_CLAIM:
-			multi_do_claim_robot(pnum, multi_subspan_first<MULTI_ROBOT_CLAIM>(data));
+		case multiplayer_command_t::MULTI_ROBOT_CLAIM:
+			multi_do_claim_robot(pnum, multi_subspan_first<multiplayer_command_t::MULTI_ROBOT_CLAIM>(data));
 			break;
-		case MULTI_ROBOT_POSITION:
-			multi_do_robot_position(pnum, multi_subspan_first<MULTI_ROBOT_POSITION>(data));
+		case multiplayer_command_t::MULTI_ROBOT_POSITION:
+			multi_do_robot_position(pnum, multi_subspan_first<multiplayer_command_t::MULTI_ROBOT_POSITION>(data));
 			break;
-		case MULTI_ROBOT_EXPLODE:
-			multi_do_robot_explode(LevelSharedRobotInfoState.Robot_info, multi_subspan_first<MULTI_ROBOT_EXPLODE>(data));
+		case multiplayer_command_t::MULTI_ROBOT_EXPLODE:
+			multi_do_robot_explode(LevelSharedRobotInfoState.Robot_info, multi_subspan_first<multiplayer_command_t::MULTI_ROBOT_EXPLODE>(data));
 			break;
-		case MULTI_ROBOT_RELEASE:
-			multi_do_release_robot(pnum, multi_subspan_first<MULTI_ROBOT_RELEASE>(data));
+		case multiplayer_command_t::MULTI_ROBOT_RELEASE:
+			multi_do_release_robot(pnum, multi_subspan_first<multiplayer_command_t::MULTI_ROBOT_RELEASE>(data));
 			break;
-		case MULTI_ROBOT_FIRE:
-			multi_do_robot_fire(multi_subspan_first<MULTI_ROBOT_FIRE>(data));
+		case multiplayer_command_t::MULTI_ROBOT_FIRE:
+			multi_do_robot_fire(multi_subspan_first<multiplayer_command_t::MULTI_ROBOT_FIRE>(data));
 			break;
-		case MULTI_SCORE:
-			multi_do_score(vmobjptr, pnum, multi_subspan_first<MULTI_SCORE>(data));
+		case multiplayer_command_t::MULTI_SCORE:
+			multi_do_score(vmobjptr, pnum, multi_subspan_first<multiplayer_command_t::MULTI_SCORE>(data));
 			break;
-		case MULTI_CREATE_ROBOT:
-			multi_do_create_robot(LevelSharedRobotInfoState.Robot_info, Vclip, pnum, multi_subspan_first<MULTI_CREATE_ROBOT>(data));
+		case multiplayer_command_t::MULTI_CREATE_ROBOT:
+			multi_do_create_robot(LevelSharedRobotInfoState.Robot_info, Vclip, pnum, multi_subspan_first<multiplayer_command_t::MULTI_CREATE_ROBOT>(data));
 			break;
-		case MULTI_TRIGGER:
-			multi_do_trigger(pnum, multi_subspan_first<MULTI_TRIGGER>(data));
+		case multiplayer_command_t::MULTI_TRIGGER:
+			multi_do_trigger(pnum, multi_subspan_first<multiplayer_command_t::MULTI_TRIGGER>(data));
 			break;
 #if defined(DXX_BUILD_DESCENT_II)
-		case MULTI_START_TRIGGER:
-			multi_do_start_trigger(multi_subspan_first<MULTI_START_TRIGGER>(data));
+		case multiplayer_command_t::MULTI_START_TRIGGER:
+			multi_do_start_trigger(multi_subspan_first<multiplayer_command_t::MULTI_START_TRIGGER>(data));
 			break;
-		case MULTI_EFFECT_BLOWUP:
-			multi_do_effect_blowup(pnum, multi_subspan_first<MULTI_EFFECT_BLOWUP>(data));
+		case multiplayer_command_t::MULTI_EFFECT_BLOWUP:
+			multi_do_effect_blowup(pnum, multi_subspan_first<multiplayer_command_t::MULTI_EFFECT_BLOWUP>(data));
 			break;
-		case MULTI_FLAGS:
-			multi_do_flags(vmobjptr, pnum, multi_subspan_first<MULTI_FLAGS>(data));
+		case multiplayer_command_t::MULTI_FLAGS:
+			multi_do_flags(vmobjptr, pnum, multi_subspan_first<multiplayer_command_t::MULTI_FLAGS>(data));
 			break;
-		case MULTI_DROP_BLOB:
+		case multiplayer_command_t::MULTI_DROP_BLOB:
 			multi_do_drop_blob(vmobjptr, pnum);
 			break;
-		case MULTI_UPDATE_BUDDY_STATE:
-			multi_recv_escort_goal(LevelUniqueObjectState.BuddyState, multi_subspan_first<MULTI_UPDATE_BUDDY_STATE>(data));
+		case multiplayer_command_t::MULTI_UPDATE_BUDDY_STATE:
+			multi_recv_escort_goal(LevelUniqueObjectState.BuddyState, multi_subspan_first<multiplayer_command_t::MULTI_UPDATE_BUDDY_STATE>(data));
 			break;
 #endif
-		case MULTI_BOSS_TELEPORT:
-			multi_do_boss_teleport(LevelSharedRobotInfoState.Robot_info, Vclip, pnum, multi_subspan_first<MULTI_BOSS_TELEPORT>(data));
+		case multiplayer_command_t::MULTI_BOSS_TELEPORT:
+			multi_do_boss_teleport(LevelSharedRobotInfoState.Robot_info, Vclip, pnum, multi_subspan_first<multiplayer_command_t::MULTI_BOSS_TELEPORT>(data));
 			break;
-		case MULTI_BOSS_CLOAK:
-			multi_do_boss_cloak(multi_subspan_first<MULTI_BOSS_CLOAK>(data));
+		case multiplayer_command_t::MULTI_BOSS_CLOAK:
+			multi_do_boss_cloak(multi_subspan_first<multiplayer_command_t::MULTI_BOSS_CLOAK>(data));
 			break;
-		case MULTI_BOSS_START_GATE:
-			multi_do_boss_start_gate(multi_subspan_first<MULTI_BOSS_START_GATE>(data));
+		case multiplayer_command_t::MULTI_BOSS_START_GATE:
+			multi_do_boss_start_gate(multi_subspan_first<multiplayer_command_t::MULTI_BOSS_START_GATE>(data));
 			break;
-		case MULTI_BOSS_STOP_GATE:
-			multi_do_boss_stop_gate(multi_subspan_first<MULTI_BOSS_STOP_GATE>(data));
+		case multiplayer_command_t::MULTI_BOSS_STOP_GATE:
+			multi_do_boss_stop_gate(multi_subspan_first<multiplayer_command_t::MULTI_BOSS_STOP_GATE>(data));
 			break;
-		case MULTI_BOSS_CREATE_ROBOT:
-			multi_do_boss_create_robot(pnum, multi_subspan_first<MULTI_BOSS_CREATE_ROBOT>(data));
+		case multiplayer_command_t::MULTI_BOSS_CREATE_ROBOT:
+			multi_do_boss_create_robot(pnum, multi_subspan_first<multiplayer_command_t::MULTI_BOSS_CREATE_ROBOT>(data));
 			break;
-		case MULTI_CREATE_ROBOT_POWERUPS:
-			multi_do_create_robot_powerups(pnum, multi_subspan_first<MULTI_CREATE_ROBOT_POWERUPS>(data));
+		case multiplayer_command_t::MULTI_CREATE_ROBOT_POWERUPS:
+			multi_do_create_robot_powerups(pnum, multi_subspan_first<multiplayer_command_t::MULTI_CREATE_ROBOT_POWERUPS>(data));
 			break;
-		case MULTI_HOSTAGE_DOOR:
-			multi_do_hostage_door_status(vmsegptridx, Walls, multi_subspan_first<MULTI_HOSTAGE_DOOR>(data));
+		case multiplayer_command_t::MULTI_HOSTAGE_DOOR:
+			multi_do_hostage_door_status(vmsegptridx, Walls, multi_subspan_first<multiplayer_command_t::MULTI_HOSTAGE_DOOR>(data));
 			break;
-		case MULTI_SAVE_GAME:
-			multi_do_save_game(multi_subspan_first<MULTI_SAVE_GAME>(data));
+		case multiplayer_command_t::MULTI_SAVE_GAME:
+			multi_do_save_game(multi_subspan_first<multiplayer_command_t::MULTI_SAVE_GAME>(data));
 			break;
-		case MULTI_RESTORE_GAME:
-			multi_do_restore_game(multi_subspan_first<MULTI_RESTORE_GAME>(data));
+		case multiplayer_command_t::MULTI_RESTORE_GAME:
+			multi_do_restore_game(multi_subspan_first<multiplayer_command_t::MULTI_RESTORE_GAME>(data));
 			break;
-		case MULTI_HEARTBEAT:
-			multi_do_heartbeat(multi_subspan_first<MULTI_HEARTBEAT>(data));
+		case multiplayer_command_t::MULTI_HEARTBEAT:
+			multi_do_heartbeat(multi_subspan_first<multiplayer_command_t::MULTI_HEARTBEAT>(data));
 			break;
-		case MULTI_KILLGOALS:
-			multi_do_kill_goal_counts(vmobjptr, multi_subspan_first<MULTI_KILLGOALS>(data));
+		case multiplayer_command_t::MULTI_KILLGOALS:
+			multi_do_kill_goal_counts(vmobjptr, multi_subspan_first<multiplayer_command_t::MULTI_KILLGOALS>(data));
 			break;
-		case MULTI_DO_BOUNTY:
-			multi_do_bounty(multi_subspan_first<MULTI_DO_BOUNTY>(data));
+		case multiplayer_command_t::MULTI_DO_BOUNTY:
+			multi_do_bounty(multi_subspan_first<multiplayer_command_t::MULTI_DO_BOUNTY>(data));
 			break;
-		case MULTI_TYPING_STATE:
-			multi_do_msgsend_state(multi_subspan_first<MULTI_TYPING_STATE>(data));
+		case multiplayer_command_t::MULTI_TYPING_STATE:
+			multi_do_msgsend_state(multi_subspan_first<multiplayer_command_t::MULTI_TYPING_STATE>(data));
 			break;
-		case MULTI_GMODE_UPDATE:
-			multi_do_gmode_update(multi_subspan_first<MULTI_GMODE_UPDATE>(data));
+		case multiplayer_command_t::MULTI_GMODE_UPDATE:
+			multi_do_gmode_update(multi_subspan_first<multiplayer_command_t::MULTI_GMODE_UPDATE>(data));
 			break;
-		case MULTI_KILL_HOST:
-			multi_do_kill_host(Objects, multi_subspan_first<MULTI_KILL_HOST>(data));
+		case multiplayer_command_t::MULTI_KILL_HOST:
+			multi_do_kill_host(Objects, multi_subspan_first<multiplayer_command_t::MULTI_KILL_HOST>(data));
 			break;
-		case MULTI_KILL_CLIENT:
-			multi_do_kill_client(Objects, multi_subspan_first<MULTI_KILL_CLIENT>(data));
+		case multiplayer_command_t::MULTI_KILL_CLIENT:
+			multi_do_kill_client(Objects, multi_subspan_first<multiplayer_command_t::MULTI_KILL_CLIENT>(data));
 			break;
-		case MULTI_PLAYER_INV:
-			multi_do_player_inventory(pnum, multi_subspan_first<MULTI_PLAYER_INV>(data));
+		case multiplayer_command_t::MULTI_PLAYER_INV:
+			multi_do_player_inventory(pnum, multi_subspan_first<multiplayer_command_t::MULTI_PLAYER_INV>(data));
 			break;
 	}
 }

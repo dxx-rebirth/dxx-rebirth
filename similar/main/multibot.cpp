@@ -61,7 +61,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dcx {
 namespace {
 std::array<multi_send_robot_position_priority, MAX_ROBOTS_CONTROLLED> robot_send_pending;
-std::array<multi_command<MULTI_ROBOT_FIRE>, MAX_ROBOTS_CONTROLLED> robot_fire_buf;
+std::array<multi_command<multiplayer_command_t::MULTI_ROBOT_FIRE>, MAX_ROBOTS_CONTROLLED> robot_fire_buf;
 }
 std::array<objnum_t, MAX_ROBOTS_CONTROLLED> robot_controlled;
 std::array<int, MAX_ROBOTS_CONTROLLED> robot_agitation;
@@ -362,7 +362,7 @@ struct multi_claim_robot
 	int8_t owner;
 	uint16_t robjnum;
 };
-DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_ROBOT_CLAIM, multi_claim_robot, b, (b.pnum, b.owner, b.robjnum));
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_ROBOT_CLAIM, multi_claim_robot, b, (b.pnum, b.owner, b.robjnum));
 
 void multi_send_claim_robot(const vmobjptridx_t objnum)
 {
@@ -378,7 +378,7 @@ namespace {
 
 void multi_send_release_robot(const vmobjptridx_t objnum)
 {
-	multi_command<MULTI_ROBOT_RELEASE> multibuf;
+	multi_command<multiplayer_command_t::MULTI_ROBOT_RELEASE> multibuf;
 	if (objnum->type != OBJ_ROBOT)
 	{
 		Int3(); // See rob
@@ -463,7 +463,7 @@ void multi_send_thief_frame()
 namespace {
 void multi_send_robot_position_sub(const vmobjptridx_t objnum, const multiplayer_data_priority priority)
 {
-	multi_command<MULTI_ROBOT_POSITION> multibuf;
+	multi_command<multiplayer_command_t::MULTI_ROBOT_POSITION> multibuf;
 	int loc = 0;
 
 	loc += 1;
@@ -519,7 +519,7 @@ void multi_send_robot_position(object &obj, const multi_send_robot_position_prio
 
 void multi_send_robot_fire(const vmobjptridx_t obj, const robot_gun_number gun_num, const vms_vector &fire)
 {
-	multi_command<MULTI_ROBOT_FIRE> multibuf;
+	multi_command<multiplayer_command_t::MULTI_ROBOT_FIRE> multibuf;
         // Send robot fire event
         int loc = 0;
 
@@ -562,7 +562,7 @@ struct multi_explode_robot
 	int16_t robj_killer, robj_killed;
 	int8_t owner_killer, owner_killed;
 };
-DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_ROBOT_EXPLODE, multi_explode_robot, b, (b.robj_killer, b.robj_killed, b.owner_killer, b.owner_killed));
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_ROBOT_EXPLODE, multi_explode_robot, b, (b.robj_killer, b.robj_killed, b.owner_killer, b.owner_killed));
 
 void multi_send_robot_explode(const imobjptridx_t objnum, objnum_t killer)
 {
@@ -581,7 +581,7 @@ void multi_send_robot_explode(const imobjptridx_t objnum, objnum_t killer)
 
 void multi_send_create_robot(const station_number station, const objnum_t objnum, const int type)
 {
-	multi_command<MULTI_CREATE_ROBOT> multibuf;
+	multi_command<multiplayer_command_t::MULTI_CREATE_ROBOT> multibuf;
 	// Send create robot information
 
 	int loc = 0;
@@ -605,25 +605,25 @@ struct boss_teleport
 	objnum_t objnum;
 	segnum_t where;
 };
-DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_BOSS_TELEPORT, boss_teleport, b, (b.objnum, b.where));
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_BOSS_TELEPORT, boss_teleport, b, (b.objnum, b.where));
 
 struct boss_cloak
 {
 	objnum_t objnum;
 };
-DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_BOSS_CLOAK, boss_cloak, b, (b.objnum));
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_BOSS_CLOAK, boss_cloak, b, (b.objnum));
 
 struct boss_start_gate
 {
 	objnum_t objnum;
 };
-DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_BOSS_START_GATE, boss_start_gate, b, (b.objnum));
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_BOSS_START_GATE, boss_start_gate, b, (b.objnum));
 
 struct boss_stop_gate
 {
 	objnum_t objnum;
 };
-DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_BOSS_STOP_GATE, boss_stop_gate, b, (b.objnum));
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_BOSS_STOP_GATE, boss_stop_gate, b, (b.objnum));
 
 struct boss_create_robot
 {
@@ -632,7 +632,7 @@ struct boss_create_robot
 	segnum_t where;
 	uint8_t robot_type;
 };
-DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_BOSS_CREATE_ROBOT, boss_create_robot, b, (b.objnum, b.objrobot, b.where, b.robot_type));
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_BOSS_CREATE_ROBOT, boss_create_robot, b, (b.objnum, b.objrobot, b.where, b.robot_type));
 
 #if defined(DXX_BUILD_DESCENT_II)
 struct update_buddy_state
@@ -641,7 +641,7 @@ struct update_buddy_state
 	escort_goal_t Escort_special_goal;
 	int Last_buddy_key;
 };
-DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_UPDATE_BUDDY_STATE, update_buddy_state, b, (b.Looking_for_marker, b.Escort_special_goal, b.Last_buddy_key));
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_UPDATE_BUDDY_STATE, update_buddy_state, b, (b.Looking_for_marker, b.Escort_special_goal, b.Last_buddy_key));
 #endif
 
 }
@@ -697,7 +697,7 @@ namespace {
 
 static void multi_send_create_robot_powerups(const object_base &del_obj)
 {
-	multi_command<MULTI_CREATE_ROBOT_POWERUPS> multibuf;
+	multi_command<multiplayer_command_t::MULTI_CREATE_ROBOT_POWERUPS> multibuf;
 	// Send create robot information
 
 	int loc = 0;
@@ -734,7 +734,7 @@ static void multi_send_create_robot_powerups(const object_base &del_obj)
 }
 }
 
-void multi_do_claim_robot(const playernum_t pnum, const multiplayer_rspan<MULTI_ROBOT_CLAIM> buf)
+void multi_do_claim_robot(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_CLAIM> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -769,7 +769,7 @@ void multi_do_claim_robot(const playernum_t pnum, const multiplayer_rspan<MULTI_
 	botp->ctype.ai_info.REMOTE_SLOT_NUM = 0;
 }
 
-void multi_do_release_robot(const playernum_t pnum, const multiplayer_rspan<MULTI_ROBOT_RELEASE> buf)
+void multi_do_release_robot(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_RELEASE> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -800,7 +800,7 @@ void multi_do_release_robot(const playernum_t pnum, const multiplayer_rspan<MULT
 	botp->ctype.ai_info.REMOTE_SLOT_NUM = 0;
 }
 
-void multi_do_robot_position(const playernum_t pnum, const multiplayer_rspan<MULTI_ROBOT_POSITION> buf)
+void multi_do_robot_position(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_POSITION> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -875,7 +875,7 @@ static inline vms_vector calc_gun_point(const robot_info &robptr, const object_b
 }
 
 namespace dsx {
-void multi_do_robot_fire(const multiplayer_rspan<MULTI_ROBOT_FIRE> buf)
+void multi_do_robot_fire(const multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_FIRE> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -992,7 +992,7 @@ int multi_explode_robot_sub(const d_robot_info_array &Robot_info, const vmobjptr
 	return 1;
 }
 
-void multi_do_robot_explode(const d_robot_info_array &Robot_info, const multiplayer_rspan<MULTI_ROBOT_EXPLODE> buf)
+void multi_do_robot_explode(const d_robot_info_array &Robot_info, const multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_EXPLODE> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -1017,7 +1017,7 @@ void multi_do_robot_explode(const d_robot_info_array &Robot_info, const multipla
 		add_points_to_score(ConsoleObject->ctype.player_info, Robot_info[get_robot_id(robot)].score_value, Game_mode);
 }
 
-void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const playernum_t pnum, const multiplayer_rspan<MULTI_CREATE_ROBOT> buf)
+void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_CREATE_ROBOT> buf)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
@@ -1080,7 +1080,7 @@ void multi_send_escort_goal(const d_unique_buddy_state &BuddyState)
 	multi_serialize_write(multiplayer_data_priority::_2, b);
 }
 
-void multi_recv_escort_goal(d_unique_buddy_state &BuddyState, const multiplayer_rspan<MULTI_UPDATE_BUDDY_STATE> buf)
+void multi_recv_escort_goal(d_unique_buddy_state &BuddyState, const multiplayer_rspan<multiplayer_command_t::MULTI_UPDATE_BUDDY_STATE> buf)
 {
 	update_buddy_state b;
 	multi_serialize_read(buf, b);
@@ -1096,7 +1096,7 @@ void multi_recv_escort_goal(d_unique_buddy_state &BuddyState, const multiplayer_
 }
 #endif
 
-void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const playernum_t pnum, const multiplayer_rspan<MULTI_BOSS_TELEPORT> buf)
+void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_TELEPORT> buf)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
@@ -1142,7 +1142,7 @@ void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_
 	boss_obj->ctype.ai_info.REMOTE_SLOT_NUM = 0; // Available immediately!
 }
 
-void multi_do_boss_cloak(const multiplayer_rspan<MULTI_BOSS_CLOAK> buf)
+void multi_do_boss_cloak(const multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_CLOAK> buf)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1167,7 +1167,7 @@ void multi_do_boss_cloak(const multiplayer_rspan<MULTI_BOSS_CLOAK> buf)
 	boss_obj->ctype.ai_info.CLOAKED = 1;
 }
 
-void multi_do_boss_start_gate(const multiplayer_rspan<MULTI_BOSS_START_GATE> buf)
+void multi_do_boss_start_gate(const multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_START_GATE> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -1186,7 +1186,7 @@ void multi_do_boss_start_gate(const multiplayer_rspan<MULTI_BOSS_START_GATE> buf
 	restart_effect(ECLIP_NUM_BOSS);
 }
 
-void multi_do_boss_stop_gate(const multiplayer_rspan<MULTI_BOSS_STOP_GATE> buf)
+void multi_do_boss_stop_gate(const multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_STOP_GATE> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -1205,7 +1205,7 @@ void multi_do_boss_stop_gate(const multiplayer_rspan<MULTI_BOSS_STOP_GATE> buf)
 	stop_effect(ECLIP_NUM_BOSS);
 }
 
-void multi_do_boss_create_robot(const playernum_t pnum, const multiplayer_rspan<MULTI_BOSS_CREATE_ROBOT> buf)
+void multi_do_boss_create_robot(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_CREATE_ROBOT> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -1233,7 +1233,7 @@ void multi_do_boss_create_robot(const playernum_t pnum, const multiplayer_rspan<
 		map_objnum_local_to_remote(robot, b.objrobot, pnum);
 }
 
-void multi_do_create_robot_powerups(const playernum_t pnum, const multiplayer_rspan<MULTI_CREATE_ROBOT_POWERUPS> buf)
+void multi_do_create_robot_powerups(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_CREATE_ROBOT_POWERUPS> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;

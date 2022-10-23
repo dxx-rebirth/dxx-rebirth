@@ -113,7 +113,7 @@ namespace dcx {
 enum class multiplayer_data_priority : uint8_t;
 }
 
-enum multiplayer_command_t : uint8_t
+enum class multiplayer_command_t : uint8_t
 {
 	for_each_multiplayer_command(define_multiplayer_command)
 };
@@ -122,7 +122,7 @@ template <multiplayer_command_t>
 struct command_length;
 #define define_command_length(NAME,SIZE)	\
 	template <>	\
-	struct command_length<NAME> : public std::integral_constant<unsigned, SIZE> {};
+	struct command_length<multiplayer_command_t::NAME> : public std::integral_constant<unsigned, SIZE> {};
 for_each_multiplayer_command(define_command_length);
 
 namespace dcx {
@@ -132,7 +132,7 @@ struct multi_command : public std::array<uint8_t, command_length<C>::value>
 {
 	constexpr multi_command()
 	{
-		this->front() = C;
+		this->front() = static_cast<uint8_t>(C);
 	}
 };
 
@@ -181,21 +181,21 @@ static constexpr auto multi_subspan_first(const std::span<const uint8_t> &data)
 
 namespace dsx {
 
-void multi_do_robot_explode(const d_robot_info_array &Robot_info, multiplayer_rspan<MULTI_ROBOT_EXPLODE> buf);
-void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, playernum_t pnum, multiplayer_rspan<MULTI_CREATE_ROBOT> buf);
-void multi_do_claim_robot(playernum_t pnum, const multiplayer_rspan<MULTI_ROBOT_CLAIM> buf);
-void multi_do_robot_position(playernum_t pnum, const multiplayer_rspan<MULTI_ROBOT_POSITION> buf);
-void multi_do_release_robot(playernum_t pnum, const multiplayer_rspan<MULTI_ROBOT_RELEASE> buf);
-void multi_do_robot_fire(multiplayer_rspan<MULTI_ROBOT_FIRE> buf);
+void multi_do_robot_explode(const d_robot_info_array &Robot_info, multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_EXPLODE> buf);
+void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, playernum_t pnum, multiplayer_rspan<multiplayer_command_t::MULTI_CREATE_ROBOT> buf);
+void multi_do_claim_robot(playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_CLAIM> buf);
+void multi_do_robot_position(playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_POSITION> buf);
+void multi_do_release_robot(playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_RELEASE> buf);
+void multi_do_robot_fire(multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_FIRE> buf);
 #if defined(DXX_BUILD_DESCENT_II)
-void multi_recv_escort_goal(d_unique_buddy_state &, multiplayer_rspan<MULTI_UPDATE_BUDDY_STATE> buf);
+void multi_recv_escort_goal(d_unique_buddy_state &, multiplayer_rspan<multiplayer_command_t::MULTI_UPDATE_BUDDY_STATE> buf);
 #endif
-void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, playernum_t pnum, multiplayer_rspan<MULTI_BOSS_TELEPORT> buf);
-void multi_do_boss_cloak(multiplayer_rspan<MULTI_BOSS_CLOAK> buf);
-void multi_do_boss_start_gate(multiplayer_rspan<MULTI_BOSS_START_GATE> buf);
-void multi_do_boss_stop_gate(multiplayer_rspan<MULTI_BOSS_STOP_GATE> buf);
-void multi_do_boss_create_robot(playernum_t pnum, multiplayer_rspan<MULTI_BOSS_CREATE_ROBOT> buf);
-void multi_do_create_robot_powerups(playernum_t pnum, multiplayer_rspan<MULTI_CREATE_ROBOT_POWERUPS> buf);
+void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, playernum_t pnum, multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_TELEPORT> buf);
+void multi_do_boss_cloak(multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_CLOAK> buf);
+void multi_do_boss_start_gate(multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_START_GATE> buf);
+void multi_do_boss_stop_gate(multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_STOP_GATE> buf);
+void multi_do_boss_create_robot(playernum_t pnum, multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_CREATE_ROBOT> buf);
+void multi_do_create_robot_powerups(playernum_t pnum, multiplayer_rspan<multiplayer_command_t::MULTI_CREATE_ROBOT_POWERUPS> buf);
 
 }
 
