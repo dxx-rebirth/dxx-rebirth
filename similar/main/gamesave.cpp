@@ -1198,7 +1198,7 @@ static int load_game_data(
 		{
 			const auto i = (*iter).get_unchecked_index();
 		//	Find which wall this trigger is connected to.
-			const auto &&w = std::ranges::find(wr, i, &wall::trigger);
+			const auto &&w = ranges::find(wr, i, &wall::trigger);
 		if (w == wr.end())
 		{
 				remove_trigger_num(Triggers, Walls.vmptr, i);

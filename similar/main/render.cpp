@@ -1040,7 +1040,7 @@ static bool compare_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye
 //short the children of segment to render in the correct order
 //returns non-zero if swaps were made
 using sort_child_array_t = per_side_array<sidenum_t>;
-static void sort_seg_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const vcsegptridx_t seg, const std::ranges::subrange<sort_child_array_t::iterator> &r)
+static void sort_seg_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const vcsegptridx_t seg, const ranges::subrange<sort_child_array_t::iterator> &r)
 {
 	//for each child,  compare with other children and see if order matters
 	//if order matters, fix if wrong
@@ -1400,7 +1400,7 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 				continue;
 
 			//now order the sides in some magical way
-			const auto &&child_range = std::ranges::subrange(child_begin, child_iter);
+			const auto &&child_range = ranges::subrange(child_begin, child_iter);
 			sort_seg_children(vcvertptr, Viewer_eye, seg, child_range);
 			project_list(seg->verts);
 			range_for (const auto siden, child_range)

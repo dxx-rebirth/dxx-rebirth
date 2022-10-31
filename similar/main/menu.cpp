@@ -251,7 +251,7 @@ enum class select_dir_flag : uint8_t
 };
 
 __attribute_nonnull()
-static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path, const std::ranges::subrange<const file_extension_t *> &ext_list, select_dir_flag select_dir, ntstring<PATH_MAX - 1> &userdata);
+static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path, const ranges::subrange<const file_extension_t *> &ext_list, select_dir_flag select_dir, ntstring<PATH_MAX - 1> &userdata);
 
 static window_event_result get_absolute_path(ntstring<PATH_MAX - 1> &full_path, const char *rel_path)
 {
@@ -1264,7 +1264,7 @@ void screen_resolution_menu::check_apply_preset_resolution() const
 			return 0;
 		return ni.value;
 	};
-	const auto &&i = std::ranges::find_if(r, predicate);
+	const auto &&i = ranges::find_if(r, predicate);
 	if (i == r.end())
 		return;
 	const auto requested_mode = std::get<0>(*i);
@@ -2216,23 +2216,23 @@ struct browser_storage
 {
 	struct target_path_not_mounted {};
 	// List of file extensions we're looking for (if looking for a music file many types are possible)
-	const std::ranges::subrange<const file_extension_t *> ext_range;
+	const ranges::subrange<const file_extension_t *> ext_range;
 	const select_dir_flag select_dir;		// Allow selecting the current directory (e.g. for Jukebox level song directory)
 	physfsx_mounted_path view_path;	// The absolute path we're currently looking at
 	string_array_t list;
-	browser_storage(const char *orig_path, const std::ranges::subrange<const file_extension_t *> &ext_range, const select_dir_flag select_dir, const char *const sep) :
+	browser_storage(const char *orig_path, const ranges::subrange<const file_extension_t *> &ext_range, const select_dir_flag select_dir, const char *const sep) :
 		ext_range(ext_range), select_dir(select_dir),
 		/* view_path is trivially constructed, then properly initialized as
 		 * a side effect of preparing the string list */
 		list(construct_string_list(orig_path, view_path, ext_range, select_dir, sep))
 	{
 	}
-	static string_array_t construct_string_list(const char *orig_path, physfsx_mounted_path &view_path, const std::ranges::subrange<const file_extension_t *> &r, const select_dir_flag select_dir, const char *const sep);
+	static string_array_t construct_string_list(const char *orig_path, physfsx_mounted_path &view_path, const ranges::subrange<const file_extension_t *> &r, const select_dir_flag select_dir, const char *const sep);
 };
 
 struct browser : browser_storage, listbox
 {
-	browser(const char *orig_path, menu_title title, const std::ranges::subrange<const file_extension_t *> &r, const select_dir_flag select_dir, const char *const sep, ntstring<PATH_MAX - 1> &userdata) :
+	browser(const char *orig_path, menu_title title, const ranges::subrange<const file_extension_t *> &r, const select_dir_flag select_dir, const char *const sep, ntstring<PATH_MAX - 1> &userdata) :
 		browser_storage(orig_path, r, select_dir, sep),
 		listbox(0, list.pointer().size(), &list.pointer().front(), title, grd_curscreen->sc_canvas, 1),
 		userdata(userdata)
@@ -2245,7 +2245,7 @@ struct browser : browser_storage, listbox
 struct list_directory_context
 {
 	string_array_t &string_list;
-	const std::ranges::subrange<const file_extension_t *> ext_range;
+	const ranges::subrange<const file_extension_t *> ext_range;
 	const std::array<char, PATH_MAX> &path;
 };
 
@@ -2280,7 +2280,7 @@ window_event_result browser::callback_handler(const d_event &event, window_event
 				}};
 				struct drive_letter_menu : passive_newmenu
 				{
-					drive_letter_menu(grs_canvas &canvas, const std::ranges::subrange<newmenu_item *> items) :
+					drive_letter_menu(grs_canvas &canvas, const ranges::subrange<newmenu_item *> items) :
 						passive_newmenu(menu_title{nullptr}, menu_subtitle{"Enter drive letter"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(items, 0), canvas)
 						{
 						}
@@ -2364,7 +2364,7 @@ window_event_result browser::callback_handler(const d_event &event, window_event
 	return window_event_result::ignored;
 }
 
-static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path_storage, const std::ranges::subrange<const file_extension_t *> &ext_range, const select_dir_flag select_dir, ntstring<PATH_MAX - 1> &userdata)
+static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path_storage, const ranges::subrange<const file_extension_t *> &ext_range, const select_dir_flag select_dir, ntstring<PATH_MAX - 1> &userdata)
 {
 	const auto sep = PHYSFS_getDirSeparator();
 	auto orig_path = orig_path_storage.data();
@@ -2383,7 +2383,7 @@ static int select_file_recursive(const menu_title title, const std::array<char, 
 	}
 }
 
-string_array_t browser_storage::construct_string_list(const char *orig_path, physfsx_mounted_path &view_path, const std::ranges::subrange<const file_extension_t *> &ext_range, const select_dir_flag select_dir, const char *const sep)
+string_array_t browser_storage::construct_string_list(const char *orig_path, physfsx_mounted_path &view_path, const ranges::subrange<const file_extension_t *> &ext_range, const select_dir_flag select_dir, const char *const sep)
 {
 	view_path.path.front() = 0;
 	// Set the viewing directory to orig_path, or some parent of it

@@ -113,7 +113,7 @@ static void digi_kill_sound(sound_object &s)
 static std::pair<sound_objects_t::iterator, sound_objects_t::iterator> find_sound_object_flags0(sound_objects_t &SoundObjects)
 {
 	const auto eso = SoundObjects.end();
-	const auto &&i = std::ranges::find(SoundObjects.begin(), eso, 0, &sound_object::flags);
+	const auto &&i = ranges::find(SoundObjects.begin(), eso, 0, &sound_object::flags);
 	return {i, eso};
 }
 

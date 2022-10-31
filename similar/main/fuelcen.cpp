@@ -667,7 +667,7 @@ void init_all_matcens(void)
 			station.Enabled = 0;
 			station.Disable_time = 0;
 			//	Make sure this fuelcen is pointed at by a matcen.
-			if (std::ranges::find(robot_range, i, &matcen_info::fuelcen_num) == robot_range.end())
+			if (ranges::find(robot_range, i, &matcen_info::fuelcen_num) == robot_range.end())
 			{
 				station.Lives = 0;
 				LevelError("Station %i has type robotmaker, but no robotmaker uses it; ignoring.", underlying_value(i));

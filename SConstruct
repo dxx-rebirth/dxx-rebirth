@@ -2682,25 +2682,59 @@ constexpr literal_as_type<T, v...> operator""_literal_as_type();
 			self.successful_flags['CXXFLAGS'].append('-Wno-gnu-string-literal-operator-template')
 
 	@_custom_test
-	def check_have_std_ranges(self,context,_successflags={'CPPDEFINES' : ['_LIBCPP_ENABLE_EXPERIMENTAL']}):
+	def check_have_std_ranges(self,context,_testflags={'CPPDEFINES' : ['_LIBCPP_ENABLE_EXPERIMENTAL']}):
 		text = '''
-#include <algorithm>
+#include "backports-ranges.h"
+
+struct test_borrowed_range {};
+
+template <>
+constexpr bool std::ranges::enable_borrowed_range<test_borrowed_range> = true;
+
+template <typename R>
+requires(std::ranges::range<R>)
+static void requires_range(R &) {}
+
+template <typename R>
+requires(std::ranges::borrowed_range<R>)
+static void requires_borrowed_range(R &&) {}
 '''
 		main = '''
 	int a[3]{1, 2, 3};
-	return std::ranges::find(a, argc) == a;
+	int b[2]{4, 5};
+	const ranges::subrange c(b);
+	const ranges::subrange<int *> c2(b);
+	(void)c2;
+	const auto m = [](int i) { return i * 2; };
+	(void)(ranges::find(a, argc) == a);
+	(void)(ranges::find(a, argc, m) == a);
+	(void)(ranges::find(std::ranges::begin(b), std::ranges::end(b), argc) == a);
+	(void)(ranges::find(std::ranges::begin(b), std::ranges::end(b), argc, m) == a);
+	const auto predicate = [](int i) { return i == 3; };
+	(void)(ranges::find_if(b, predicate) == a);
+	(void)(ranges::find_if(std::ranges::begin(b), std::ranges::end(b), predicate) == a);
+	requires_range(a);
+	requires_borrowed_range(a);
+	return 0;
 '''
 		if self.Compile(context, text=text, main=main, msg='whether C++ compiler provides std::ranges by default'):
 			return
-		# As a special case, put this define in the command-line instead of
-		# allowing it to be moved to `dxxsconf.h`.  This define must be in
-		# effect before the C++ compiler sees a `#include` of any system
-		# headers that conditionally define experimental functionality.
-		# Placing the define on the command line ensures that.  If the
-		# preprocessor definition were in `dxxsconf.h`, then some files might
-		# include the system header before including the definition.
-		if self.Compile(context, text=text, main=main, msg='whether C++ compiler provides std::ranges with -D_LIBCPP_ENABLE_EXPERIMENTAL', testflags=_successflags):
-			self.successful_flags['CPPDEFINES'].extend(*_successflags.items())
+		# std::ranges is a C++20 feature.
+		# gcc first shipped std::ranges in gcc-10.1 [1], which was released on
+		# 2020-05-07 [2].
+		# clang shipped incomplete std::ranges behind a preprocessor guard in
+		# clang-14 [3], which was released on 2022-03-25 [4].
+		#
+		# As of this writing, Apple clang is still clang-14, and so does not
+		# support all needed std::ranges features, even with the preprocessor
+		# guard defined.  Try to work around this by bundling an implementation
+		# sufficient to cover Rebirth's needs.
+		#
+		# [1]: https://gcc.gnu.org/onlinedocs/libstdc++/manual/status.html#table.cxx20_features
+		# [2]: https://gcc.gnu.org/git/?p=gcc.git;a=commit;h=6e6e3f144a33ae504149dc992453b4f6dea12fdb
+		# [3]: https://libcxx.llvm.org/Status/Ranges.html
+		# [4]: https://discourse.llvm.org/t/llvm-14-0-0-release/61224
+		if self.Compile(context, text=text, main=main, msg='whether C++ compiler can use bundled ranges support with -D_LIBCPP_ENABLE_EXPERIMENTAL', testflags=_testflags):
 			return
 		raise SCons.Errors.StopError("C++ compiler does not support std::ranges.")
 

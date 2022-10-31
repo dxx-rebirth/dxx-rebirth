@@ -14,6 +14,7 @@
 #include "fwd-partial_range.h"
 #include <memory>
 #include "dxxsconf.h"
+#include "backports-ranges.h"
 
 /* If no value was specified for DXX_PARTIAL_RANGE_MINIMIZE_ERROR_TYPE,
  * then define it to true for NDEBUG builds and false for debug builds.

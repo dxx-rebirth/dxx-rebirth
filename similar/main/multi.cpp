@@ -3463,7 +3463,7 @@ texture_index find_goal_texture(const d_level_unique_tmap_info_state &LevelUniqu
 		return (i.flags & tmi_flag);
 	};
 	const auto begin = r.begin();
-	const auto idx = std::distance(begin, std::ranges::find_if(begin, r.end(), predicate));
+	const auto idx = std::distance(begin, ranges::find_if(begin, r.end(), predicate));
 	return idx;
 }
 
@@ -4909,7 +4909,7 @@ void multi_initiate_save_game()
 	multi_execute_save_game(slot, desc, player_range);
 }
 
-void multi_execute_save_game(const d_game_unique_state::save_slot slot, const d_game_unique_state::savegame_description &desc, const std::ranges::subrange<const player *> player_range)
+void multi_execute_save_game(const d_game_unique_state::save_slot slot, const d_game_unique_state::savegame_description &desc, const ranges::subrange<const player *> player_range)
 {
 	// Make a unique game id
 	fix game_id;

@@ -36,7 +36,6 @@
 #include "vecmat.h"
 #include "byteutil.h"
 
-#ifdef __cplusplus
 #include <stdexcept>
 #include "u_mem.h"
 #include "pack.h"
@@ -44,6 +43,7 @@
 #include "fwd-partial_range.h"
 #include <array>
 #include <memory>
+#include "backports-ranges.h"
 
 #ifdef DXX_CONSTANT_TRUE
 #define _DXX_PHYSFS_CHECK_SIZE_CONSTANT(S,v)	DXX_CONSTANT_TRUE((S) > (v))
@@ -424,7 +424,7 @@ typedef char file_extension_t[5];
 
 [[nodiscard]]
 __attribute_nonnull()
-int PHYSFSX_checkMatchingExtension(const char *filename, const std::ranges::subrange<const file_extension_t *> range);
+int PHYSFSX_checkMatchingExtension(const char *filename, const ranges::subrange<const file_extension_t *> range);
 
 enum class physfs_search_path : int
 {
@@ -501,6 +501,4 @@ RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(const char *const na
 #endif
 
 }
-#endif
-
 #endif

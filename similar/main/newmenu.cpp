@@ -688,13 +688,13 @@ static void newmenu_scroll(newmenu *const menu, const int amount)
 	const auto predicate = [](const newmenu_item &n) {
 		return n.type != nm_type::text;
 	};
-	const auto &&first = std::ranges::find_if(range, predicate);
+	const auto &&first = ranges::find_if(range, predicate);
 	if (first == range.end())
 		/* This should not happen.  If every entry is of type `nm_type::text`,
 		 * then `menu->all_text` should have been true.
 		 */
 		return;
-	const auto &&rlast = std::ranges::find_if(std::reverse_iterator(range.end()), std::reverse_iterator(first), predicate).base();
+	const auto &&rlast = ranges::find_if(std::reverse_iterator(range.end()), std::reverse_iterator(first), predicate).base();
 	/* `first == rlast` should not happen, since that would mean that
 	 * there are no elements in `range` for which `predicate` is true.
 	 * If there are no such elements, then `first == range.end()` should

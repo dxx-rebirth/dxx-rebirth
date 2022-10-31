@@ -10,7 +10,6 @@
 #include "dxxsconf.h"
 #include "partial_range.h"
 #include "ephemeral_range.h"
-#include <ranges>
 #include <tuple>
 #include <type_traits>
 

@@ -75,7 +75,7 @@ static keypad_input_line_t::const_iterator find_fake_comma(keypad_input_line_t::
 	const auto is_fake_comma = [](const char c) {
 		return !c || static_cast<uint8_t>(c) == 179;
 	};
-	return std::ranges::find_if(i, e, is_fake_comma);
+	return ranges::find_if(i, e, is_fake_comma);
 }
 
 template <bool append, char eor>
@@ -84,7 +84,7 @@ static keypad_input_line_t::const_iterator set_row(keypad_input_line_t::const_it
 	const auto oe = r.end();
 	auto ob = r.begin();
 	if (append)
-		ob = std::ranges::find(ob, oe, 0);
+		ob = ranges::find(ob, oe, 0);
 	auto comma0 = find_fake_comma(i, e);
 	if (comma0 == e)
 		/* Start not found */

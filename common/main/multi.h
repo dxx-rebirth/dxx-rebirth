@@ -65,7 +65,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <array>
 
 #ifdef dsx
-#include <ranges>
+#include "backports-ranges.h"
 #endif
 
 namespace dcx {
@@ -526,7 +526,7 @@ void multi_disconnect_player(playernum_t);
 namespace dsx {
 void multi_initiate_save_game();
 void multi_initiate_restore_game();
-void multi_execute_save_game(d_game_unique_state::save_slot slot, const d_game_unique_state::savegame_description &desc, std::ranges::subrange<const player *> player_range);
+void multi_execute_save_game(d_game_unique_state::save_slot slot, const d_game_unique_state::savegame_description &desc, ranges::subrange<const player *> player_range);
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void multi_send_got_flag (playernum_t) {}
 #elif defined(DXX_BUILD_DESCENT_II)
