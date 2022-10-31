@@ -11,7 +11,7 @@ The DXX-Rebirth maintainers have no control over the sites linked below.  The ma
 [Python 3.9](https://www.python.org/downloads/release/python-3912/) is recommended.
 * C++ compiler with support for selected C++20 features.  One of:
     * [gcc](https://gcc.gnu.org/) 10.3
-    * [clang](https://clang.llvm.org/) 13.0 or later
+    * [clang](https://clang.llvm.org/) 14.0 or later
     * Microsoft Visual Studio is **not** supported at this time.
 	  Visual Studio 2022 release notes indicate it has sufficient C++ support
 	  that it should be able to compile Rebirth.  However, due to limitations
@@ -28,7 +28,7 @@ Optional, but recommended:
 * [SDL\_mixer 1.2](https://www.libsdl.org/projects/SDL_mixer/).
 * [libpng](http://www.libpng.org/).
 
-Unless otherwise noted, using the newest release available is recommended.  For example, prefer gcc-11.2 to gcc-10.3, even though both should work.
+Unless otherwise noted, using the newest release available is recommended.  For example, prefer gcc-11.3 to gcc-10.4, even though both should work.
 
 DXX-Rebirth can be built on one system to run on a different system, such as using Linux to build for Windows (a "cross-compiled build").  The sections below specify where to get prerequisites for a build meant to run on the system where it is built (a "native build").
 
