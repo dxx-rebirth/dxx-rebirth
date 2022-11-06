@@ -36,6 +36,11 @@
 namespace ranges {
 
 #ifdef __clang__
+template <typename R>
+	concept range = true;
+
+template <typename R>
+	concept borrowed_range = true;
 
 template <typename iterator, typename sentinel = iterator>
 class subrange
@@ -109,9 +114,13 @@ auto find_if(auto &r, auto predicate)
 }
 
 #else
+
+using std::ranges::range;
+using std::ranges::borrowed_range;
 using std::ranges::subrange;
 using std::ranges::find;
 using std::ranges::find_if;
+
 #endif
 
 }

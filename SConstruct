@@ -2692,11 +2692,11 @@ template <>
 constexpr bool std::ranges::enable_borrowed_range<test_borrowed_range> = true;
 
 template <typename R>
-requires(std::ranges::range<R>)
+requires(ranges::range<R>)
 static void requires_range(R &) {}
 
 template <typename R>
-requires(std::ranges::borrowed_range<R>)
+requires(ranges::borrowed_range<R>)
 static void requires_borrowed_range(R &&) {}
 '''
 		main = '''
