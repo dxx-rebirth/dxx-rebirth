@@ -50,24 +50,6 @@ namespace dcx {
 
 namespace {
 
-#if DXX_USE_SDLIMAGE
-struct RAII_SDL_Surface
-{
-	struct deleter
-	{
-		void operator()(SDL_Surface *s) const
-		{
-			SDL_FreeSurface(s);
-		}
-	};
-	std::unique_ptr<SDL_Surface, deleter> surface;
-	explicit RAII_SDL_Surface(SDL_Surface *const s) :
-		surface(s)
-	{
-	}
-};
-#endif
-
 #if !DXX_USE_OGL && DXX_USE_SCREENSHOT_FORMAT_LEGACY
 [[nodiscard]]
 static int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_File *fid);
