@@ -43,13 +43,7 @@ static int gr_installed;
 
 void gr_flip()
 {
-	SDL_Rect src, dest;
-
-	dest.x = src.x = dest.y = src.y = 0;
-	dest.w = src.w = canvas->w;
-	dest.h = src.h = canvas->h;
-
-	SDL_BlitSurface(canvas, &src, screen, &dest);
+	SDL_BlitSurface(canvas, nullptr, screen, nullptr);
 	SDL_Flip(screen);
 }
 
