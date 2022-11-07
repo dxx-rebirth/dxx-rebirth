@@ -454,9 +454,8 @@ void do_morph_frame(object &obj)
 	}
 }
 
-void init_morphs()
+void init_morphs(d_level_unique_morph_object_state &LevelUniqueMorphObjectState)
 {
-	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
 	auto &morph_objects = LevelUniqueMorphObjectState.morph_objects;
 	morph_objects = {};
 }

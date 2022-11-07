@@ -118,7 +118,7 @@ void morph_start(d_level_unique_morph_object_state &, d_level_shared_polygon_mod
 void do_morph_frame(object &obj);
 
 //called at the start of a level
-void init_morphs();
+void init_morphs(d_level_unique_morph_object_state &MorphObjectState);
 }
 #endif
 

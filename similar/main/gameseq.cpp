@@ -1476,7 +1476,7 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 		init_robots_for_level();
 		init_ai_objects(LevelSharedRobotInfoState.Robot_info);
 		init_smega_detonates();
-		init_morphs();
+		init_morphs(LevelUniqueObjectState.MorphObjectState);
 		init_all_matcens();
 		reset_special_effects();
 		StartSecretLevel();
@@ -2060,7 +2060,7 @@ window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, const
 	init_cockpit();
 	init_robots_for_level();
 	init_ai_objects(Robot_info);
-	init_morphs();
+	init_morphs(LevelUniqueObjectState.MorphObjectState);
 	init_all_matcens();
 	reset_palette_add();
 	LevelUniqueStuckObjectState.init_stuck_objects();
