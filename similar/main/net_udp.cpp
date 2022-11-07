@@ -509,7 +509,7 @@ static TrackerAckState TrackerAckStatus;
 static fix64 TrackerAckTime;
 static int udp_tracker_init();
 static int udp_tracker_unregister();
-static int udp_tracker_process_game(const uint8_t *data, int data_len, const _sockaddr &sender_addr );
+static int udp_tracker_process_game(std::span<const uint8_t> data, const _sockaddr &sender_addr);
 static void udp_tracker_process_ack(const uint8_t *data, int data_len, const _sockaddr &sender_addr );
 static void udp_tracker_verify_ack_timeout();
 static void udp_tracker_request_holepunch(tracker_game_id TrackerGameID);
@@ -3076,12 +3076,13 @@ static unsigned net_udp_send_request(void)
 namespace dsx {
 namespace {
 
-static void net_udp_process_game_info_light(const uint8_t *data, uint_fast32_t, const _sockaddr &game_addr
+static void net_udp_process_game_info_light(const std::span<const uint8_t> buf, const _sockaddr &game_addr
 #if DXX_USE_TRACKER
 									  , const tracker_game_id TrackerGameID = {}
 #endif
 									  )
 {
+	const auto data = buf.data();
 	uint_fast32_t len = 0;
 	{
 		const auto menu = netgame_list_menu;
@@ -3418,7 +3419,7 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 		case upid::game_info_lite:
 			if (multi_i_am_master() || length > upid_length<upid::game_info_lite>)
 				break;
-			net_udp_process_game_info_light(data, length, sender_addr);
+			net_udp_process_game_info_light(buf, sender_addr);
 			break;
 		case upid::dump:
 			if (multi_i_am_master() || Netgame.players[0].protocol.udp.addr != sender_addr)
@@ -3513,7 +3514,7 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 			break;
 #if DXX_USE_TRACKER
 		case upid::tracker_gameinfo:
-			udp_tracker_process_game( data, length, sender_addr );
+			udp_tracker_process_game(buf, sender_addr);
 			break;
 		case upid::tracker_ack:
 			if (!multi_i_am_master())
@@ -6515,17 +6516,19 @@ static int udp_tracker_reqgames()
 namespace {
 
 /* The tracker has sent us a game.  Let's list it. */
-static int udp_tracker_process_game(const uint8_t *const data, int data_len, const _sockaddr &sender_addr)
+static int udp_tracker_process_game(const std::span<const uint8_t> buf, const _sockaddr &sender_addr)
 {
 	// Only accept data from the tracker we specified and only when we look at the netlist (i.e. network_state::browsing)
 	if (!sender_is_tracker(sender_addr, TrackerSocket) || Network_status != network_state::browsing)
 		return -1;
 
-	const char *p0 = NULL, *p1 = NULL, *p2 = NULL, *p3 = NULL;
+	const char *p0 = NULL, *p1 = NULL, *p3 = NULL;
 	char sIP[47] = {};
 	std::array<char, 6> sPort{};
 	uint16_t iPort = 0;
 
+	const auto data = buf.data();
+	const auto data_len = buf.size();
 	// Get the IP
 	if ((p0 = strstr(reinterpret_cast<const char *>(data), "a=")) == NULL)
 		return -1;
@@ -6538,7 +6541,8 @@ static int udp_tracker_process_game(const uint8_t *const data, int data_len, con
 
 	// Get the port
 	p1++;
-	if ((p2 = strstr(p1, "c=")) == NULL)
+	const auto p2 = strstr(p1, "c=");
+	if (p2 == nullptr)
 		return -1;
 	if (p2-p1-1 < 1 || p2-p1-1 > sizeof(sPort))
 		return -1;
@@ -6558,7 +6562,7 @@ static int udp_tracker_process_game(const uint8_t *const data, int data_len, con
 	// Now process the actual lite_game packet contained.
 	int iPos = (p3-p0+5);
 	const auto TrackerGameID = tracker_game_id{GET_INTEL_SHORT(&p2[2])};
-	net_udp_process_game_info_light(&data[iPos], data_len - iPos, sAddr, TrackerGameID);
+	net_udp_process_game_info_light(buf.subspan(iPos, data_len - iPos), sAddr, TrackerGameID);
 
 	return 0;
 }
