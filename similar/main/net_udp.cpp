@@ -76,6 +76,9 @@ namespace {
 
 enum class upid : uint8_t
 {
+	/* upid codes are part of the network ABI, and must be compatible with the
+	 * game running on the peer system.
+	 */
 	version_deny = 1,	// Netgame join or info has been denied due to version difference.
 	game_info_req,	// Requesting all info about a netgame.
 	game_info,	// Packet containing all info about a netgame.
@@ -96,9 +99,18 @@ enum class upid : uint8_t
 	mdata_pneedack,	// Packet containing multi buffer from a player. Priority 2 - ACK needed. Also contains pkt_num
 	mdata_ack,	// ACK packet for UPID_MDATA_P1.
 #if DXX_USE_TRACKER
-	tracker_gameinfo,	// Packet containing info about a game
-	tracker_ack,	// An ACK packet from the tracker
-	tracker_holepunch,	// Hole punching process. Sent from client to tracker to request hole punching from game host and received by host from tracker to initiate hole punching to requesting client
+	/* Tracker upid codes are special.  They must be compatible with the
+	 * tracker, which is a separate program maintained in a different
+	 * repository[1], with its own private copy of these numbers[2].  Changing
+	 * the value of tracker codes will break communications with the tracker
+	 * program.
+	 *
+	 * [1]: https://github.com/Mako88/dxx-tracker/
+	 * [2]: https://github.com/Mako88/dxx-tracker/blob/master/RebirthTracker/RebirthTracker/PacketHandlers/ - see `[Opcode(NN)]` in the *.cs files
+	 */
+	tracker_gameinfo = 24,	// Packet containing info about a game
+	tracker_ack = 25,	// An ACK packet from the tracker
+	tracker_holepunch = 26,	// Hole punching process. Sent from client to tracker to request hole punching from game host and received by host from tracker to initiate hole punching to requesting client
 #endif
 };
 
