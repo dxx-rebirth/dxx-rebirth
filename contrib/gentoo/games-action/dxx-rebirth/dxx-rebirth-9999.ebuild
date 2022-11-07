@@ -16,7 +16,6 @@ if [[ "$PV" = 9999 ]]; then
 	EGIT_REPO_URI="https://github.com/dxx-rebirth/dxx-rebirth"
 	# Live ebuilds have blank keywords.
 	KEYWORDS=
-	PROPERTIES="live"
 else
 	MY_COMMIT=''
 	S="$WORKDIR/$PN-$MY_COMMIT"
