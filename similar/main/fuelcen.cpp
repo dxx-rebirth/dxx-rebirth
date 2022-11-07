@@ -472,7 +472,7 @@ static void robotmaker_proc(const d_robot_info_array &Robot_info, const d_vclip_
 			const auto &&cur_object_loc = compute_segment_center(vcvertptr, csegp);
 			const auto &&robotcen_segp = vmsegptridx(robotcen->segnum);
 			// HACK!!! The 10 under here should be something equal to the 1/2 the size of the segment.
-			auto obj = object_create_explosion(robotcen_segp, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT);
+			auto obj = object_create_explosion_without_damage(Vclip, robotcen_segp, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT);
 
 			if (obj != object_none)
 				extract_orient_from_segment(vcvertptr, obj->orient, robotcen_segp);

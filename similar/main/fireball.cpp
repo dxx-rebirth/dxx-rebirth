@@ -359,7 +359,9 @@ static bool can_collide(const object *const weapon_object, const object_base &it
 	}
 }
 
-static imobjptridx_t object_create_explosion_without_damage(const d_vclip_array &Vclip, const vmsegptridx_t segnum, const vms_vector &position, const fix size, const int vclip_type)
+}
+
+imobjptridx_t object_create_explosion_without_damage(const d_vclip_array &Vclip, const vmsegptridx_t segnum, const vms_vector &position, const fix size, const int vclip_type)
 {
 	const auto &&obj_fireball = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_FIREBALL, vclip_type, segnum, position, &vmd_identity_matrix, size,
 					object::control_type::explosion, object::movement_type::None, RT_FIREBALL);
@@ -377,6 +379,8 @@ static imobjptridx_t object_create_explosion_without_damage(const d_vclip_array 
 	obj_fireball->ctype.expl_info.delete_time = -1;
 	return obj_fireball;
 }
+
+namespace {
 
 static imobjptridx_t object_create_explosion_with_damage(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, fvmobjptridx &vmobjptridx, const imobjptridx_t obj_explosion_origin, const vmsegptridx_t segnum, const vms_vector &position, const fix size, const int vclip_type, const fix maxdamage, const fix maxdistance, const fix maxforce, const icobjptridx_t parent)
 {
@@ -559,11 +563,6 @@ static imobjptridx_t object_create_explosion_with_damage(const d_robot_info_arra
 void object_create_muzzle_flash(const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type )
 {
 	object_create_explosion_without_damage(Vclip, segnum, position, size, vclip_type);
-}
-
-imobjptridx_t object_create_explosion(const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type )
-{
-	return object_create_explosion_without_damage(Vclip, segnum, position, size, vclip_type);
 }
 
 imobjptridx_t object_create_badass_explosion(const d_robot_info_array &Robot_info, const imobjptridx_t objp, const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const icobjptridx_t parent )
@@ -888,8 +887,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 		if (objnum == object_none)
 			return;
 		multi_send_create_powerup(powerup_type, segnum, objnum, new_pos);
-
-		object_create_explosion(segnum, new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE );
+		object_create_explosion_without_damage(Vclip, segnum, new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE);
 	}
 }
 
@@ -1404,8 +1402,7 @@ void explode_object(d_level_unique_object_state &LevelUniqueObjectState, const d
 
 		vclip_num = get_explosion_vclip(Robot_info, hitobj, explosion_vclip_stage::s0);
 
-		imobjptr_t expl_obj = object_create_explosion(vmsegptridx(hitobj->segnum), hitobj->pos, fixmul(hitobj->size,EXPLOSION_SCALE), vclip_num);
-	
+		const imobjptr_t expl_obj = object_create_explosion_without_damage(Vclip, vmsegptridx(hitobj->segnum), hitobj->pos, fixmul(hitobj->size, EXPLOSION_SCALE), vclip_num);
 		if (! expl_obj) {
 			maybe_delete_object(hitobj);		//no explosion, die instantly
 			return;
@@ -1470,7 +1467,7 @@ void do_explosion_sequence(const d_robot_info_array &Robot_info, object &obj)
 					return object_create_badass_explosion(Robot_info, object_none, vmsegptridx(del_obj->segnum), spawn_pos, fixmul(del_obj->size, EXPLOSION_SCALE), vclip_num, F1_0 * ri.badass, i2f(4) * ri.badass, i2f(35) * ri.badass, object_none);
 			}
 #endif
-			return object_create_explosion(vmsegptridx(del_obj->segnum), spawn_pos, fixmul(del_obj->size, EXPLOSION_SCALE), vclip_num);
+			return object_create_explosion_without_damage(Vclip, vmsegptridx(del_obj->segnum), spawn_pos, fixmul(del_obj->size, EXPLOSION_SCALE), vclip_num);
 		}();
 
 		if ((del_obj->contains_count > 0) && !(Game_mode & GM_MULTI)) { // Multiplayer handled outside of this code!!
@@ -1651,7 +1648,7 @@ unsigned do_exploding_wall_frame(const d_robot_info_array &Robot_info, wall &w1)
 		vm_vec_scale_add2(pos, w1normal0, size * (EXPL_WALL_TOTAL_FIREBALLS - e) / EXPL_WALL_TOTAL_FIREBALLS);
 
 		if (e & 3)		//3 of 4 are normal
-			object_create_explosion(seg, pos, size, VCLIP_SMALL_EXPLOSION);
+			object_create_explosion_without_damage(Vclip, seg, pos, size, VCLIP_SMALL_EXPLOSION);
 		else
 			object_create_badass_explosion(Robot_info, object_none, seg, pos,
 										   size,
@@ -1680,13 +1677,13 @@ void drop_afterburner_blobs(object &obj, int count, fix size_scale, fix lifetime
 	{
 		const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos_left, objseg);
 	if (segnum != segment_none)
-		object_create_explosion(segnum, pos_left, size_scale, VCLIP_AFTERBURNER_BLOB );
+		object_create_explosion_without_damage(Vclip, segnum, pos_left, size_scale, VCLIP_AFTERBURNER_BLOB);
 	}
 
 	if (count > 1) {
 		const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos_right, objseg);
 		if (segnum != segment_none) {
-			auto blob_obj = object_create_explosion(segnum, pos_right, size_scale, VCLIP_AFTERBURNER_BLOB );
+			const auto &&blob_obj = object_create_explosion_without_damage(Vclip, segnum, pos_right, size_scale, VCLIP_AFTERBURNER_BLOB);
 			if (lifetime != -1 && blob_obj != object_none)
 				blob_obj->lifeleft = lifetime;
 		}

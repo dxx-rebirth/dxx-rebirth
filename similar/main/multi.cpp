@@ -2168,7 +2168,7 @@ static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t
 
 	map_objnum_local_to_remote(my_objnum, objnum, pnum);
 
-	object_create_explosion(segnum, new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE);
+	object_create_explosion_without_damage(Vclip, segnum, new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE);
 }
 
 static void multi_do_play_sound(object_array &Objects, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_PLAY_SOUND> buf)

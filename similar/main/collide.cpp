@@ -675,7 +675,7 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 					vc = 3;
 				}
 
-				object_create_explosion( seg, pnt, dest_size, vc );
+				object_create_explosion_without_damage(Vclip, seg, pnt, dest_size, vc);
 
 #if defined(DXX_BUILD_DESCENT_II)
 				if (ec != eclip_none && db != -1 && !(Effects[ec].flags & EF_ONE_SHOT))
@@ -904,11 +904,11 @@ static window_event_result collide_weapon_and_wall(
 					imobjptridx(weapon->ctype.laser_info.parent_num));
 			}
 			else
-				object_create_explosion(vmsegptridx(weapon->segnum), weapon->pos, Weapon_info[get_weapon_id(weapon)].impact_size, Weapon_info[get_weapon_id(weapon)].wall_hit_vclip);
+				object_create_explosion_without_damage(Vclip, vmsegptridx(weapon->segnum), weapon->pos, wi->impact_size, wi->wall_hit_vclip);
 
 		} else {
 			digi_link_sound_to_pos( SOUND_LASER_HIT_WATER,hitseg, sidenum_t::WLEFT, hitpt, 0, F1_0 );
-			object_create_explosion(vmsegptridx(weapon->segnum), weapon->pos, Weapon_info[get_weapon_id(weapon)].impact_size, VCLIP_WATER_HIT);
+			object_create_explosion_without_damage(Vclip, vmsegptridx(weapon->segnum), weapon->pos, wi->impact_size, VCLIP_WATER_HIT);
 		}
 
 		weapon->flags |= OF_SHOULD_BE_DEAD;		//make flares die in water
@@ -941,7 +941,7 @@ static window_event_result collide_weapon_and_wall(
 					explode_badass_weapon(Robot_info, weapon, hitpt);
 #endif
 				else
-					object_create_explosion(vmsegptridx(weapon->segnum), weapon->pos, Weapon_info[get_weapon_id(weapon)].impact_size, Weapon_info[get_weapon_id(weapon)].wall_hit_vclip);
+					object_create_explosion_without_damage(Vclip, vmsegptridx(weapon->segnum), weapon->pos, Weapon_info[get_weapon_id(weapon)].impact_size, Weapon_info[get_weapon_id(weapon)].wall_hit_vclip);
 			}
 		}
 	}
@@ -1100,7 +1100,7 @@ static void collide_robot_and_player(const d_robot_info_array &Robot_info, const
 			digi_link_sound_to_pos(SOUND_ROBOT_HIT_PLAYER, player_segp, sidenum_t::WLEFT, collision_point, 0, F1_0);
 
 		if (collision_seg != segment_none)
-			object_create_explosion(collision_seg, collision_point, Weapon_info[0].impact_size, Weapon_info[0].wall_hit_vclip);
+			object_create_explosion_without_damage(Vclip, collision_seg, collision_point, Weapon_info[0].impact_size, Weapon_info[0].wall_hit_vclip);
 	}
 
 	bump_two_objects(Robot_info, robot, playerobj, 1);
@@ -1323,7 +1323,7 @@ static void collide_weapon_and_controlcen(const d_robot_info_array &Robot_info, 
 #endif
 		}
 		else
-			object_create_explosion(vmsegptridx(controlcen->segnum), collision_point, explosion_size, VCLIP_SMALL_EXPLOSION);
+			object_create_explosion_without_damage(Vclip, vmsegptridx(controlcen->segnum), collision_point, explosion_size, VCLIP_SMALL_EXPLOSION);
 
 		digi_link_sound_to_pos(SOUND_CONTROL_CENTER_HIT, vmsegptridx(controlcen->segnum), sidenum_t::WLEFT, collision_point, 0, F1_0);
 
@@ -1333,7 +1333,7 @@ static void collide_weapon_and_controlcen(const d_robot_info_array &Robot_info, 
 
 		maybe_kill_weapon(weapon,controlcen);
 	} else {	//	If robot weapon hits control center, blow it up, make it go away, but do no damage to control center.
-		object_create_explosion(vmsegptridx(controlcen->segnum), collision_point, explosion_size, VCLIP_SMALL_EXPLOSION);
+		object_create_explosion_without_damage(Vclip, vmsegptridx(controlcen->segnum), collision_point, explosion_size, VCLIP_SMALL_EXPLOSION);
 		maybe_kill_weapon(weapon,controlcen);
 	}
 }
@@ -1347,7 +1347,7 @@ static void collide_weapon_and_clutter(const d_robot_info_array &Robot_info, obj
 
 	digi_link_sound_to_pos(SOUND_LASER_HIT_CLUTTER, vmsegptridx(weapon.segnum), sidenum_t::WLEFT, collision_point, 0, F1_0);
 
-	object_create_explosion(vmsegptridx(clutter->segnum), collision_point, ((clutter->size/3)*3)/4, exp_vclip);
+	object_create_explosion_without_damage(Vclip, vmsegptridx(clutter->segnum), collision_point, ((clutter->size / 3) * 3) / 4, exp_vclip);
 
 	if ( (clutter->shields < 0) && !(clutter->flags&(OF_EXPLODING|OF_DESTROYED)))
 		explode_object(LevelUniqueObjectState, Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, clutter, STANDARD_EXPL_DELAY);
@@ -1756,7 +1756,7 @@ static void collide_robot_and_weapon(const d_robot_info_array &Robot_info, const
 #endif
 			)
 		{
-			const auto &&expl_obj = object_create_explosion(vmsegptridx(weapon->segnum), collision_point, explosion_size_and_vclip.first, explosion_size_and_vclip.second);
+			const auto &&expl_obj = object_create_explosion_without_damage(Vclip, vmsegptridx(weapon->segnum), collision_point, explosion_size_and_vclip.first, explosion_size_and_vclip.second);
 
 		if (expl_obj != object_none)
 				obj_attach(Objects, robot, expl_obj);
@@ -2213,7 +2213,7 @@ static void collide_player_and_weapon(const d_robot_info_array &Robot_info, cons
 		multi_digi_link_sound_to_pos((player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE) ? SOUND_WEAPON_HIT_DOOR : SOUND_PLAYER_GOT_HIT, player_segp, sidenum_t::WLEFT, collision_point, 0, F1_0);
 	}
 
-	object_create_explosion(player_segp, collision_point, i2f(10)/2, VCLIP_PLAYER_HIT);
+	object_create_explosion_without_damage(Vclip, player_segp, collision_point, i2f(10) / 2, VCLIP_PLAYER_HIT);
 	if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
 	{
 		const auto obj2weapon = vm_vec_sub(collision_point, playerobj->pos);
@@ -2258,7 +2258,7 @@ void collide_player_and_nasty_robot(const d_robot_info_array &Robot_info, const 
 {
 	const auto &&player_segp = vmsegptridx(playerobj->segnum);
 	digi_link_sound_to_pos(Robot_info[get_robot_id(robot)].claw_sound, player_segp, sidenum_t::WLEFT, collision_point, 0, F1_0);
-	object_create_explosion(player_segp, collision_point, i2f(10)/2, VCLIP_PLAYER_HIT);
+	object_create_explosion_without_damage(Vclip, player_segp, collision_point, i2f(10) / 2, VCLIP_PLAYER_HIT);
 
 	bump_two_objects(Robot_info, playerobj, robot, 0);	//no damage from bump
 
@@ -2290,7 +2290,7 @@ void collide_player_and_materialization_center(const vmobjptridx_t objp)
 {
 	const auto &&segp = vmsegptridx(objp->segnum);
 	digi_link_sound_to_pos(SOUND_PLAYER_GOT_HIT, segp, sidenum_t::WLEFT, objp->pos, 0, F1_0);
-	object_create_explosion(segp, objp->pos, i2f(10)/2, VCLIP_PLAYER_HIT);
+	object_create_explosion_without_damage(Vclip, segp, objp->pos, i2f(10) / 2, VCLIP_PLAYER_HIT);
 
 	if (get_player_id(objp) != Player_num)
 		return;
@@ -2317,7 +2317,7 @@ void collide_robot_and_materialization_center(const d_robot_info_array &Robot_in
 	digi_link_sound_to_pos(SOUND_ROBOT_HIT, segp, sidenum_t::WLEFT, objp->pos, 0, F1_0);
 
 	if ( Robot_info[get_robot_id(objp)].exp1_vclip_num > -1 )
-		object_create_explosion(segp, objp->pos, (objp->size / 2 * 3) / 4, Robot_info[get_robot_id(objp)].exp1_vclip_num);
+		object_create_explosion_without_damage(Vclip, segp, objp->pos, (objp->size / 2 * 3) / 4, Robot_info[get_robot_id(objp)].exp1_vclip_num);
 
 	auto exit_dir = find_exit_direction({}, objp, segp);
 	bump_one_object(objp, exit_dir, 8*F1_0);

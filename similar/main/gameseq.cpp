@@ -892,7 +892,7 @@ void create_player_appearance_effect(const d_vclip_array &Vclip, const object_ba
 		: player_obj.pos;
 
 	const auto &&seg = vmsegptridx(player_obj.segnum);
-	const auto &&effect_obj = object_create_explosion(seg, pos, player_obj.size, VCLIP_PLAYER_APPEARANCE);
+	const auto &&effect_obj = object_create_explosion_without_damage(Vclip, seg, pos, player_obj.size, VCLIP_PLAYER_APPEARANCE);
 
 	if (effect_obj) {
 		effect_obj->orient = player_obj.orient;

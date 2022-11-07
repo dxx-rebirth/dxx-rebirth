@@ -2125,7 +2125,7 @@ static imobjptridx_t create_gated_robot(const d_robot_info_array &Robot_info, co
 	objp->lifeleft = F1_0*30;	//	Gated in robots only live 30 seconds.
 #endif
 
-	object_create_explosion(segp, object_pos, i2f(10), VCLIP_MORPHING_ROBOT );
+	object_create_explosion_without_damage(Vclip, segp, object_pos, i2f(10), VCLIP_MORPHING_ROBOT);
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, segp, sidenum_t::WLEFT, object_pos, 0 , F1_0);
 	morph_start(LevelUniqueMorphObjectState, LevelSharedPolygonModelState, objp);
 

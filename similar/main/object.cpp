@@ -668,7 +668,7 @@ void create_small_fireball_on_object(const vmobjptridx_t objp, fix size_scale, i
 
 	const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos, Segments.vmptridx(objp->segnum));
 	if (segnum != segment_none) {
-		auto expl_obj = object_create_explosion(segnum, pos, size, VCLIP_SMALL_EXPLOSION);
+		const auto &&expl_obj = object_create_explosion_without_damage(Vclip, segnum, pos, size, VCLIP_SMALL_EXPLOSION);
 		if (!expl_obj)
 			return;
 		obj_attach(Objects, objp, expl_obj);

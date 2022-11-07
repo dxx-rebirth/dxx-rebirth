@@ -111,7 +111,7 @@ void do_powerup_frame(const d_vclip_array &Vclip, const vmobjptridx_t obj)
 	}
 
 	if (obj->lifeleft <= 0) {
-		object_create_explosion(vmsegptridx(obj->segnum), obj->pos, F1_0*7/2, VCLIP_POWERUP_DISAPPEARANCE);
+		object_create_explosion_without_damage(Vclip, vmsegptridx(obj->segnum), obj->pos, F1_0 * 7 / 2, VCLIP_POWERUP_DISAPPEARANCE);
 
 		if ( Vclip[VCLIP_POWERUP_DISAPPEARANCE].sound_num > -1 )
 			digi_link_sound_to_object(Vclip[VCLIP_POWERUP_DISAPPEARANCE].sound_num, obj, 0, F1_0, sound_stack::allow_stacking);

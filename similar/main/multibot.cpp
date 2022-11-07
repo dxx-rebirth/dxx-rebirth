@@ -1050,7 +1050,7 @@ void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_a
 	const auto &&robotcen_segp = vmsegptridx(robotcen.segnum);
 	auto &vcvertptr = Vertices.vcptr;
 	const auto &&cur_object_loc = compute_segment_center(vcvertptr, robotcen_segp);
-	if (const auto &&obj = object_create_explosion(robotcen_segp, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT))
+	if (const auto &&obj = object_create_explosion_without_damage(Vclip, robotcen_segp, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT))
 		extract_orient_from_segment(vcvertptr, obj->orient, robotcen_segp);
 	if (Vclip[VCLIP_MORPHING_ROBOT].sound_num > -1)
 		digi_link_sound_to_pos(Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen_segp, sidenum_t::WLEFT, cur_object_loc, 0, F1_0);
