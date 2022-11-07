@@ -56,8 +56,11 @@ auto dereference_iterator(const std::tuple<range_iterator_type...> &iterator, st
 template <typename T, std::size_t N>
 std::integral_constant<std::size_t, N> get_static_size(const T (&)[N]);
 
-template <typename T, std::size_t N>
-std::integral_constant<std::size_t, N> get_static_size(const std::array<T, N> &);
+template <typename T>
+requires(requires {
+	typename std::tuple_size<T>::type;
+	})
+typename std::tuple_size<T>::type get_static_size(const T &);
 
 std::nullptr_t get_static_size(...);
 
