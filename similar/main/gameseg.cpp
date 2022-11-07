@@ -1733,12 +1733,12 @@ static void change_light(const d_level_shared_destructible_light_state &LevelSha
 	const fix ds = dir * DL_SCALE;
 	auto &Dl_indices = LevelSharedDestructibleLightState.Dl_indices;
 	const auto &&pr = cast_range_result<const dl_index &>(Dl_indices.vcptr);
-	const auto &&er = std::equal_range(pr.begin(), pr.end(), dl_index{segnum, sidenum, 0, 0});
+	const auto &&er = std::equal_range(pr.begin(), pr.end(), dl_index{segnum, sidenum, 0, {}});
 	auto &Delta_lights = LevelSharedDestructibleLightState.Delta_lights;
 	range_for (auto &i, partial_range_t<const dl_index *>(er.first.base().base(), er.second.base().base()))
 	{
-		const uint_fast32_t idx = i.index;
-			range_for (auto &j, partial_const_range(Delta_lights, idx, idx + i.count))
+		const std::size_t idx = underlying_value(i.index);
+		for (auto &j : partial_const_range(Delta_lights, idx, idx + i.count))
 			{
 				assert(j.sidenum < MAX_SIDES_PER_SEGMENT);
 				const auto &&segp = vmsegptr(j.segnum);

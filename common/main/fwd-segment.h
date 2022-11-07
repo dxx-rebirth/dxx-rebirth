@@ -161,7 +161,8 @@ constexpr std::integral_constant<std::size_t, 32000> MAX_DELTA_LIGHTS{}; // Orig
 
 constexpr std::integral_constant<fix, 2048> DL_SCALE{};    // Divide light to allow 3 bits integer, 5 bits fraction.
 
-using d_delta_light_array = std::array<delta_light, MAX_DELTA_LIGHTS>;
+enum class delta_light_index : uint16_t;
+using d_delta_light_array = enumerated_array<delta_light, MAX_DELTA_LIGHTS, delta_light_index>;
 
 void clear_light_subtracted();
 

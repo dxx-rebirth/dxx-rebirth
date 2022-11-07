@@ -58,6 +58,14 @@ void segment_side_wall_tmap_write(PHYSFS_File *fp, const shared_side &sside, con
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 
+static std::optional<delta_light_index> build_delta_light_index_from_untrusted(const uint16_t i)
+{
+	if (i < MAX_DELTA_LIGHTS)
+		return delta_light_index{i};
+	else
+		return std::nullopt;
+}
+
 /*
  * reads a delta_light structure from a PHYSFS_File
  */
@@ -86,8 +94,17 @@ void dl_index_read(dl_index *di, PHYSFS_File *fp)
 		di->segnum = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
 	}
 	di->sidenum = build_sidenum_from_untrusted(PHYSFSX_readByte(fp)).value_or(sidenum_t::WLEFT);
-	di->count = PHYSFSX_readByte(fp);
-	di->index = PHYSFSX_readShort(fp);
+	const auto count = PHYSFSX_readByte(fp);
+	if (const auto i = build_delta_light_index_from_untrusted(PHYSFSX_readShort(fp)); i)
+	{
+		di->count = count;
+		di->index = *i;
+	}
+	else
+	{
+		di->count = 0;
+		di->index = {};
+	}
 }
 
 void segment2_write(const cscusegment s2, PHYSFS_File *fp)
@@ -115,7 +132,7 @@ void dl_index_write(const dl_index *di, PHYSFS_File *fp)
 	PHYSFS_writeSLE16(fp, di->segnum);
 	PHYSFSX_writeU8(fp, underlying_value(di->sidenum));
 	PHYSFSX_writeU8(fp, di->count);
-	PHYSFS_writeSLE16(fp, di->index);
+	PHYSFS_writeSLE16(fp, underlying_value(di->index));
 }
 
 }
