@@ -1553,7 +1553,7 @@ window_event_result multi_message_input_sub(const d_robot_info_array &Robot_info
 						multi_send_msgsend_state(msgsend_state::typing);
 						auto pcolon = strstr(Network_message.data(), ": " );
 						if ( pcolon )
-							strcpy( pcolon+1, ptext );
+							strcpy( pcolon+2, ptext );
 						else
 							strcpy(Network_message.data(), ptext);
 						multi_message_index = strlen( Network_message );
