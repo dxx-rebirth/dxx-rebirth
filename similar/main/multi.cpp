@@ -123,7 +123,7 @@ static void multi_send_drop_flag(vmobjptridx_t objnum,int seed);
 namespace dcx {
 namespace {
 static int imulti_new_game; // to prep stuff for level only when starting new game
-static int multi_message_index;
+static std::size_t multi_message_index;
 static per_player_array<std::array<objnum_t, MAX_OBJECTS>> remote_to_local;  // Remote object number for each local object
 static std::array<uint16_t, MAX_OBJECTS> local_to_remote;
 static per_player_array<unsigned> sorted_kills;
