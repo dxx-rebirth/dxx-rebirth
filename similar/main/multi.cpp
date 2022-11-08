@@ -1519,17 +1519,33 @@ window_event_result multi_message_input_sub(const d_robot_info_array &Robot_info
 				}
 				else if (auto &sending = multi_sending_message[Player_num]; sending != msgsend_state::none)
 				{
-					int i;
-					char * ptext;
-					ptext = NULL;
-					Network_message[multi_message_index++] = ascii;
-					Network_message[multi_message_index] = 0;
-					for (i=multi_message_index-1; i>=0; i-- )       {
-						if ( Network_message[i]==32 )   {
-							ptext = &Network_message[i+1];
-							Network_message[i] = 0;
+					const char *ptext = nullptr;
+					Network_message[std::size(Network_message) - 2] = ascii;
+					Network_message.back() = 0;
+					const auto nmb = Network_message.begin();
+					/* Start at the end of the message and scan backward for
+					 * the first space.  Start the scan at the second-to-last
+					 * element, since the last element was set to null above,
+					 * and so is guaranteed not to be a space.
+					 */
+					for (auto nmi = std::prev(Network_message.end());;)
+					{
+						if (auto &c = * -- nmi; c == ' ')
+						{
+							/* Found a space.  Replace it with a null, and save
+							 * a pointer to the first non-space after the
+							 * space.
+							 */
+							c = 0;
+							ptext = std::next(nmi);
 							break;
 						}
+						/* The scan reached the beginning of the buffer without
+						 * finding a space.  Break anyway to avoid scanning
+						 * before the beginning of the buffer.
+						 */
+						if (nmi == nmb)
+							break;
 					}
 					multi_send_message_end(Robot_info, vmobjptr, Controls);
 					if ( ptext )    {
