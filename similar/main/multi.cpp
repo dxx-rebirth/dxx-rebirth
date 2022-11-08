@@ -1517,7 +1517,7 @@ window_event_result multi_message_input_sub(const d_robot_info_array &Robot_info
 					Network_message[multi_message_index++] = ascii;
 					Network_message[multi_message_index] = 0;
 				}
-				else if (multi_sending_message[Player_num] != msgsend_state::none)
+				else if (auto &sending = multi_sending_message[Player_num]; sending != msgsend_state::none)
 				{
 					int i;
 					char * ptext;
@@ -1533,7 +1533,7 @@ window_event_result multi_message_input_sub(const d_robot_info_array &Robot_info
 					}
 					multi_send_message_end(Robot_info, vmobjptr, Controls);
 					if ( ptext )    {
-						multi_sending_message[Player_num] = msgsend_state::typing;
+						sending = msgsend_state::typing;
 						multi_send_msgsend_state(msgsend_state::typing);
 						auto pcolon = strstr(Network_message.data(), ": " );
 						if ( pcolon )
