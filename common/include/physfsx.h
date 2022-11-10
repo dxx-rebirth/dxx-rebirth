@@ -46,8 +46,7 @@
 #include "backports-ranges.h"
 
 #ifdef DXX_CONSTANT_TRUE
-#define _DXX_PHYSFS_CHECK_SIZE_CONSTANT(S,v)	DXX_CONSTANT_TRUE((S) > (v))
-#define _DXX_PHYSFS_CHECK_SIZE(S,C,v)	_DXX_PHYSFS_CHECK_SIZE_CONSTANT(static_cast<size_t>(S) * static_cast<size_t>(C), v)
+#define _DXX_PHYSFS_CHECK_SIZE(S,C,v)	DXX_CONSTANT_TRUE((std::size_t{S} * std::size_t{C}) > (v))
 #define DXX_PHYSFS_CHECK_READ_SIZE_OBJECT_SIZE(S,C,v)	\
 	(void)(__builtin_object_size(v, 1) != static_cast<size_t>(-1) && _DXX_PHYSFS_CHECK_SIZE(S,C,__builtin_object_size(v, 1)) && (DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_overwrite, "read size exceeds element size"), 0))
 #define DXX_PHYSFS_CHECK_READ_SIZE_ARRAY_SIZE(S,C)	\
