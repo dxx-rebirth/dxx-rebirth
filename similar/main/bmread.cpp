@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
+#include <inttypes.h>
 
 #include "pstypes.h"
 #include "gr.h"
