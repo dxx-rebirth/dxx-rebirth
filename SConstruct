@@ -1835,12 +1835,12 @@ return __builtin_expect(argc == 1, 1) ? 1 : 0;
 
 	@_custom_test
 	def check_builtin_file(self,context):
-		if self.Compile(context, text='''
+		context.sconf.Define('DXX_HAVE_CXX_BUILTIN_FILE_LINE',
+			self.Compile(context, text='''
 static void f(const char * = __builtin_FILE(), unsigned = __builtin_LINE())
 {
 }
-''', main='f();', msg='whether compiler accepts __builtin_FILE, __builtin_LINE'):
-			context.sconf.Define('DXX_HAVE_CXX_BUILTIN_FILE_LINE')
+''', main='f();', msg='whether compiler accepts __builtin_FILE, __builtin_LINE'))
 
 	@_custom_test
 	def check_builtin_object_size(self,context):

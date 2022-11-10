@@ -44,7 +44,7 @@ public:
 	}
 };
 
-#ifdef DXX_HAVE_CXX_BUILTIN_FILE_LINE
+#if DXX_HAVE_CXX_BUILTIN_FILE_LINE
 #include <cstdio>
 
 template <>
@@ -97,7 +97,7 @@ public:
 	/* Allow callers to pass explicit file/line, for signature
 	 * compatibility with `location_value_wrapper<T, true>`.
 	 */
-#ifndef DXX_HAVE_CXX_BUILTIN_FILE_LINE
+#if !DXX_HAVE_CXX_BUILTIN_FILE_LINE
 	location_value_wrapper(const T &v) :
 		value(v)
 	{
@@ -105,11 +105,11 @@ public:
 #endif
 	location_value_wrapper(const T &v,
 		const char *const f
-#ifdef DXX_HAVE_CXX_BUILTIN_FILE_LINE
+#if DXX_HAVE_CXX_BUILTIN_FILE_LINE
 		= __builtin_FILE()
 #endif
 		, const unsigned l
-#ifdef DXX_HAVE_CXX_BUILTIN_FILE_LINE
+#if DXX_HAVE_CXX_BUILTIN_FILE_LINE
 		= __builtin_LINE()
 #endif
 		) :
