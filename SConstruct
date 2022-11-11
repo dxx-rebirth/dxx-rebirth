@@ -1634,31 +1634,6 @@ static void terminate_handler()
 		self._check_system_library(context, header=['%s.h' % (library_format_name % '')], main=main, lib=library_name, successflags=successflags)
 
 	@_custom_test
-	def check_compiler_missing_field_initializers(self,context,
-		_testflags_warn={'CXXFLAGS' : ['-Wmissing-field-initializers']},
-		_successflags_nowarn={'CXXFLAGS' : ['-Wno-missing-field-initializers']}
-	):
-		"""
-Test whether the compiler warns for a statement of the form
-
-	variable={};
-
-gcc-4.x warns for this form, but -Wno-missing-field-initializers silences it.
-gcc-5 does not warn.
-
-This form is used extensively in the code as a shorthand for resetting
-variables to their default-constructed value.
-"""
-		text = 'struct A{int a;};'
-		main = 'A a{};(void)a;'
-		Compile = self.Compile
-		if Compile(context, text=text, main=main, msg='whether C++ compiler accepts {} initialization', testflags=_testflags_warn) or \
-			Compile(context, text=text, main=main, msg='whether C++ compiler understands -Wno-missing-field-initializers', successflags=_successflags_nowarn) or \
-			not Compile(context, text=text, main=main, msg='whether C++ compiler always errors for {} initialization', expect_failure=True):
-			return
-		raise SCons.Errors.StopError("C++ compiler errors on {} initialization, even with -Wno-missing-field-initializers.")
-
-	@_custom_test
 	def check_attribute_error(self,context):
 		"""
 Test whether the compiler accepts and properly implements gcc's function
