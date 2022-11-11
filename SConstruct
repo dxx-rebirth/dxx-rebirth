@@ -2721,34 +2721,6 @@ static void requires_borrowed_range(R &&) {}
 #endif
 
 #include <SDL.h>
-
-/* gcc's warning -Wduplicated-branches was initially overzealous and
- * warned if the branches were identical after expanding template
- * parameters.  This was documented in gcc bug #82541, which was fixed
- * for gcc-8.x.  As of this writing, the fix has not been backported to
- * gcc-7.x.
- *
- * Work around this unwanted quirk by including code which will provoke
- * a -Wduplicated-branches warning in affected versions, but not in
- * fixed versions, so that the configure stage blacklists the warning on
- * affected versions.
- */
-
-namespace gcc_pr82541 {
-
-template <unsigned U1, unsigned U2>
-unsigned u(bool b)
-{
-	return b ? U1 : U2;
-}
-
-unsigned u2(bool b);
-unsigned u2(bool b)
-{
-	return u<1, 1>(b);
-}
-
-}
 ''',
 		_mangle_compiler_option_name=__mangle_compiler_option_name,
 		_mangle_linker_option_name=__mangle_linker_option_name
@@ -2759,10 +2731,6 @@ unsigned u2(bool b)
 		Link = self.Link
 		f, desc = (Link, 'linker') if ldopts else (Compile, 'compiler')
 		if f(context, text=_text, main='''
-	using gcc_pr82541::u2;
-	u2(false);
-	u2(true);
-	u2(argc > 2);
 ''', msg='whether %s accepts preferred options' % desc, successflags={'CXXFLAGS' : ccopts, 'LINKFLAGS' : ldopts}, calling_function='preferred_%s_options' % desc):
 			# Everything is supported.  Skip individual tests.
 			return
