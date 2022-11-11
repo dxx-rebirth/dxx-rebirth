@@ -3,9 +3,6 @@ tap "homebrew/core"
 
 # Install dependencies
 brew "scons"
-brew "sdl"
-brew "sdl_image"
-brew "sdl_mixer"
 brew "sdl2"
 brew "sdl2_image"
 brew "sdl2_mixer"

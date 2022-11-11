@@ -3572,7 +3572,7 @@ class DXXCommon(LazyObjectConstructor):
 				return True
 			return False
 		def default_sdl2(self):
-			if self.raspberrypi in ('mesa',):
+			if self.raspberrypi in ('mesa',) or self.host_platform == 'darwin':
 				return True
 			return False
 		@classmethod
@@ -4050,6 +4050,8 @@ class DXXCommon(LazyObjectConstructor):
 		# arguments are included.
 		tools = ('gcc', 'g++', 'applelink')
 		def adjust_environment(self,program,env):
+			if self.user_settings.sdl2 == False:
+				raise SCons.Errors.StopError('macOS builds do not support SDL 1.2.')
 			macos_add_frameworks = self.user_settings.macos_add_frameworks
 			if macos_add_frameworks:
 				# The user may or may not have a private installation of
