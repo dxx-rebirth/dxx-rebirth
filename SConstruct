@@ -2541,10 +2541,6 @@ where the cast is useless.
 	return 0;
 ''', msg='for struct timespec', successflags=_successflags)
 
-	@_implicit_test
-	def check_warn_implicit_fallthrough(self,context,text,main,testflags,_successflags={'CXXFLAGS' : ['-Wimplicit-fallthrough=5']}):
-		self.Compile(context, text=text, main=main, msg='for -Wimplicit-fallthrough=5', testflags=testflags, successflags=_successflags)
-
 	@_custom_test
 	def check_warn_implicit_fallthrough(self,context,_successflags={'CXXFLAGS' : ['-Wimplicit-fallthrough=5']}):
 		main = '''
