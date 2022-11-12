@@ -188,14 +188,14 @@ static int32_t coeffs_halfband[FILTER_LEN] =
 
 // Fixed-point FIR filtering
 // Not optimal: consider optimization with 1/4, 1/2 band filters, and symmetric kernels
-static void filter_fir(int16_t *signal, int16_t *output, int signalLen, int32_t *coeffs, int coeffsLen)
+static void filter_fir(int16_t *signal, int16_t *output, int signalLen, const int32_t (&coeffs)[FILTER_LEN])
 {
 	// A FIR filter is just a 1D convolution
 	// Keep only signalLen samples
 	for(int nn = 0; nn < signalLen; nn++)
 	{
 		// Determin start/stop indices for convolved chunk
-		int min_idx = std::max(0, nn-coeffsLen+1);
+		int min_idx = std::max(0, nn - FILTER_LEN + 1);
 		int max_idx = std::min(nn, signalLen-1);
 
 		int32_t cur_output = 0;  // Increase bit size for fixed point expansion
@@ -254,13 +254,12 @@ static void convert_audio(uint8_t *input, int16_t *output, int inputLen, int upF
 	upsample(input, stage1.get(), inputLen, upFactor);
 
 	// We expect a 4x upscaling 11025 -> 44100
-	int32_t *coeffs = &coeffs_quarterband[0];
-	if(upFactor )  // But maybe 2x for d2x in some cases
-		coeffs = &coeffs_halfband[0];
+	// But maybe 2x for d2x in some cases
+	auto &coeffs = upFactor ? coeffs_halfband : coeffs_quarterband;
 
 	// Apply LPF filter to smooth out upscaled points
 	// There will be some uniform amplitude loss here, but less than -3dB
-	filter_fir(stage1.get(), stage2.get(), upsampledLen, coeffs, FILTER_LEN);
+	filter_fir(stage1.get(), stage2.get(), upsampledLen, coeffs);
 
 	// Replicate channel
 	replicateChannel(stage2.get(), output, upsampledLen, chFactor);
