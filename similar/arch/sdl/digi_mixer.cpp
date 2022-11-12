@@ -213,18 +213,15 @@ static void filter_fir(int16_t *signal, int16_t *output, int signalLen, const in
 
 static std::unique_ptr<int16_t[]> upsample(uint8_t *input, const std::size_t upsampledLen, int inputLen, int factor)
 {
+	/* Caution: `output` is sparsely initialized, so the value-initialization
+	 * from `make_unique` is necessary.  This site cannot be converted to
+	 * `make_unique_for_overwrite`.
+	 */
 	auto output = std::make_unique<int16_t[]>(upsampledLen);
 	for(int ii = 0; ii < inputLen; ii++)
 	{
 		// Save input sample, convert to signed, and scale
 		output[ii*factor] = 256 * (int16_t(input[ii]) - 128);
-
-		// Pad the rest with zeros
-		for(int jj = 1; jj < factor; jj++)
-		{
-			int idx = (ii*factor) + jj;
-			output[idx] = 0;
-		}
 	}
 	return output;
 }
