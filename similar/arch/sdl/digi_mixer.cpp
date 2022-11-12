@@ -211,9 +211,9 @@ static void filter_fir(int16_t *signal, int16_t *output, int signalLen, const in
 	}
 }
 
-
-static void upsample(uint8_t *input, int16_t *output, int inputLen, int factor)
+static std::unique_ptr<int16_t[]> upsample(uint8_t *input, const std::size_t upsampledLen, int inputLen, int factor)
 {
+	auto output = std::make_unique<int16_t[]>(upsampledLen);
 	for(int ii = 0; ii < inputLen; ii++)
 	{
 		// Save input sample, convert to signed, and scale
@@ -226,6 +226,7 @@ static void upsample(uint8_t *input, int16_t *output, int inputLen, int factor)
 			output[idx] = 0;
 		}
 	}
+	return output;
 }
 
 
@@ -248,10 +249,8 @@ static void convert_audio(uint8_t *input, int16_t *output, int inputLen, int upF
 	// First upsample
 	int upsampledLen = inputLen*upFactor;
 
-	auto stage1 = std::make_unique<int16_t[]>(upsampledLen);
 	auto stage2 = std::make_unique<int16_t[]>(upsampledLen);
-
-	upsample(input, stage1.get(), inputLen, upFactor);
+	auto stage1 = upsample(input, upsampledLen, inputLen, upFactor);
 
 	// We expect a 4x upscaling 11025 -> 44100
 	// But maybe 2x for d2x in some cases
