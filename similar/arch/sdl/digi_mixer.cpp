@@ -194,7 +194,7 @@ static void filter_fir(int16_t *signal, int16_t *output, int signalLen, const in
 	// Keep only signalLen samples
 	for(int nn = 0; nn < signalLen; nn++)
 	{
-		// Determin start/stop indices for convolved chunk
+		// Determine start/stop indices for convolved chunk
 		int min_idx = std::max(0, nn - FILTER_LEN + 1);
 		int max_idx = std::min(nn, signalLen-1);
 
