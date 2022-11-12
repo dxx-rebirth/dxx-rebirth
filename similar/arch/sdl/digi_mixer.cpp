@@ -170,23 +170,20 @@ namespace {
 	b_s16 = int32(round(b * (2^16 -1)));  % coeffs!
 
  */
-#define FILTER_LEN 51
-static int32_t coeffs_quarterband[FILTER_LEN] =
-{
+constexpr std::size_t FILTER_LEN = 51;
+static constexpr std::array<int32_t, FILTER_LEN> coeffs_quarterband{{
 		0, 0, -7, -25, -35, 0, 94, 200, 205, 0, -395, -751, -702, 0, 1178, 2127,
 		1907, 0, -3050, -5490, -5011, 0, 9275, 20326, 29311, 32767, 29311,
 		20326, 9275, 0, -5011, -5490, -3050, 0, 1907, 2127, 1178, 0, -702,
 		-751, -395, 0, 205, 200, 94, 0, -35, -25, -7, 0, 0
-};
-
+}},
 // Coefficient set for half-band (e.g. 22050 -> 44100)
-static int32_t coeffs_halfband[FILTER_LEN] =
-{
+coeffs_halfband{{
 		0, 0, -11, 0, 49, 0, -133, 0, 290, 0, -558, 0, 992, 0, -1666, 0, 2697, 0,
 		-4313, 0, 7086, 0, -13117, 0, 41452, 65535, 41452, 0, -13117, 0, 7086, 0,
 		-4313, 0, 2697, 0, -1666, 0, 992, 0, -558, 0, 290, 0, -133, 0, 49, 0, -11,
 		0, 0
-};
+}};
 
 // Fixed-point FIR filtering
 // Not optimal: consider optimization with 1/4, 1/2 band filters, and symmetric kernels
