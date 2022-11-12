@@ -203,7 +203,7 @@ static std::unique_ptr<int16_t[]> filter_fir(const std::span<const int16_t> sign
 		 * unsigned subtraction to underflow.
 		 */
 		const std::size_t min_idx = (nn + 1 > coeffsLen ? nn + 1 - coeffsLen : 0u);
-		const std::size_t max_idx = std::min(nn, signal.size() - 1);
+		const std::size_t max_idx = nn;
 		if (min_idx > max_idx)
 			continue;
 
