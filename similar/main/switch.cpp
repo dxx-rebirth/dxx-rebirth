@@ -56,6 +56,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 
+namespace {
+
 template <typename SF, typename O, typename... Oa>
 static inline void trigger_wall_op(const trigger &t, SF &segment_factory, const O &op, Oa &&... oargs)
 {
@@ -74,8 +76,11 @@ static void do_link(const trigger &t)
 	trigger_wall_op(t, vmsegptridx, wall_toggle, vmwallptr);
 }
 
+}
+
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
+namespace {
 //close a door
 static void do_close_door(const trigger &t)
 {
@@ -255,7 +260,11 @@ static int (print_trigger_message)(int pnum, const trigger &t, int shot)
 	return 0;
  }
 }
+
+}
 #endif
+
+namespace {
 
 static void do_matcen(const trigger &t)
 {
@@ -268,7 +277,10 @@ static void do_il_on(fvcsegptridx &vcsegptridx, fvmwallptr &vmwallptr, const tri
 	trigger_wall_op(t, vcsegptridx, wall_illusion_on, vmwallptr);
 }
 
+}
+
 namespace dsx {
+namespace {
 
 #if defined(DXX_BUILD_DESCENT_I)
 static void do_il_off(fvcsegptridx &vcsegptridx, fvmwallptr &vmwallptr, const trigger &t)
@@ -287,6 +299,8 @@ static void do_il_off(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr, fvmwallp
 }
 #endif
 
+}
+
 // Slight variation on window_event_result meaning
 // 'ignored' means we still want check_trigger to call multi_send_trigger
 // 'handled' or 'close' means we don't
@@ -300,7 +314,7 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto result = window_event_result::ignored;
 
-	if ((Game_mode & GM_MULTI) && vcplayerptr(pnum)->connected != CONNECT_PLAYING) // as a host we may want to handle triggers for our clients. to do that properly we must check wether we (host) or client is actually playing.
+	if ((Game_mode & GM_MULTI) && vcplayerptr(pnum)->connected != player_connection_status::playing) // as a host we may want to handle triggers for our clients. to do that properly we must check wether we (host) or client is actually playing.
 		return window_event_result::handled;
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &vmtrgptr = Triggers.vmptr;
@@ -333,7 +347,7 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 				multi_send_endlevel_start(multi_endlevel_type::secret);
 			if (Game_mode & GM_NETWORK)
 				multi::dispatch->do_protocol_frame(1, 1);
-			result = std::max(PlayerFinishedLevel(1), result);		//1 means go to secret level
+			result = std::max(PlayerFinishedLevel(next_level_request_secret_flag::use_secret), result);
 			LevelUniqueControlCenterState.Control_center_destroyed = 0;
 			return std::max(result, window_event_result::handled);
 		}
@@ -516,7 +530,7 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 // Checks for a trigger whenever an object hits a trigger side.
 window_event_result check_trigger(const vcsegptridx_t seg, const sidenum_t side, object &plrobj, const vcobjptridx_t objnum, int shot)
 {
-	if ((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. so this function may be called when we are not playing.
+	if ((Game_mode & GM_MULTI) && (get_local_player().connected != player_connection_status::playing)) // as a host we may want to handle triggers for our clients. so this function may be called when we are not playing.
 		return window_event_result::ignored;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -593,7 +607,10 @@ void v26_trigger_read(PHYSFS_File *fp, trigger &t)
 	t.value = PHYSFSX_readInt(fp);
 	PHYSFSX_readInt(fp);
 	for (unsigned i=0; i < MAX_WALLS_PER_LINK; i++ )
-		t.seg[i] = PHYSFSX_readShort(fp);
+	{
+		const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(fp))};
+		t.seg[i] = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
+	}
 	for (unsigned i=0; i < MAX_WALLS_PER_LINK; i++ )
 	{
 		auto s = build_sidenum_from_untrusted(PHYSFSX_readShort(fp));
@@ -617,7 +634,10 @@ void v29_trigger_read(v29_trigger *t, PHYSFS_File *fp)
 	PHYSFSX_readByte(fp);
 	t->num_links = PHYSFSX_readShort(fp);
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
-		t->seg[i] = PHYSFSX_readShort(fp);
+	{
+		const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(fp))};
+		t->seg[i] = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
+	}
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
 	{
 		auto s = build_sidenum_from_untrusted(PHYSFSX_readShort(fp));
@@ -637,7 +657,10 @@ extern void v30_trigger_read(v30_trigger *t, PHYSFS_File *fp)
 	t->value = PHYSFSX_readFix(fp);
 	PHYSFSX_readFix(fp);
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
-		t->seg[i] = PHYSFSX_readShort(fp);
+	{
+		const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(fp))};
+		t->seg[i] = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
+	}
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
 		t->side[i] = build_sidenum_from_untrusted(PHYSFSX_readShort(fp)).value_or(sidenum_t::WLEFT);
 }

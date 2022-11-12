@@ -14,11 +14,13 @@
 
 #pragma once
 
+#include <span>
+
 namespace dcx {
 
 #if defined(WIN32) || defined(__APPLE__) || defined(__MACH__)
 // Display a warning in a messagebox
-extern void msgbox_warning(const char *message);
+void msgbox_warning(std::span<const char> message);
 
 // Display an error in a messagebox
 extern void msgbox_error(const char *message);

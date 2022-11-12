@@ -204,28 +204,30 @@ morph_data::morph_data(object_base &o, const max_vectors m) :
 {
 	DXX_POISON_VAR(submodel_active, 0xcc);
 	const auto morph_times = get_morph_times();
-	DXX_POISON_MEMORY(morph_times.begin(), morph_times.end(), 0xcc);
+	DXX_POISON_MEMORY(morph_times, 0xcc);
 	const auto morph_vecs = get_morph_times();
-	DXX_POISON_MEMORY(morph_vecs.begin(), morph_vecs.end(), 0xcc);
+	DXX_POISON_MEMORY(morph_vecs, 0xcc);
 	const auto morph_deltas = get_morph_times();
-	DXX_POISON_MEMORY(morph_deltas.begin(), morph_deltas.end(), 0xcc);
+	DXX_POISON_MEMORY(morph_deltas, 0xcc);
 	DXX_POISON_VAR(n_morphing_points, 0xcc);
 	DXX_POISON_VAR(submodel_startpoints, 0xcc);
 }
 
-span<fix> morph_data::get_morph_times()
+std::span<fix> morph_data::get_morph_times()
 {
 	return {reinterpret_cast<fix *>(this + 1), max_vecs.count};
 }
 
-span<vms_vector> morph_data::get_morph_vecs()
+std::span<vms_vector> morph_data::get_morph_vecs()
 {
-	return {reinterpret_cast<vms_vector *>(get_morph_times().end()), max_vecs.count};
+	const auto t = get_morph_times();
+	return {reinterpret_cast<vms_vector *>(t.data() + t.size()), max_vecs.count};
 }
 
-span<vms_vector> morph_data::get_morph_deltas()
+std::span<vms_vector> morph_data::get_morph_deltas()
 {
-	return {get_morph_vecs().end(), max_vecs.count};
+	const auto v = get_morph_vecs();
+	return {v.data() + v.size(), max_vecs.count};
 }
 
 d_level_unique_morph_object_state::~d_level_unique_morph_object_state() = default;
@@ -452,9 +454,8 @@ void do_morph_frame(object &obj)
 	}
 }
 
-void init_morphs()
+void init_morphs(d_level_unique_morph_object_state &LevelUniqueMorphObjectState)
 {
-	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
 	auto &morph_objects = LevelUniqueMorphObjectState.morph_objects;
 	morph_objects = {};
 }
@@ -474,7 +475,7 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 		auto &mo = *pmo.get();
 		return mo.obj->type == OBJ_NONE || mo.obj->signature != mo.Morph_sig;
 	};
-	const auto moi = std::find_if(mob, moe, mop);
+	const auto moi = ranges::find_if(mob, moe, mop);
 
 	if (moi == moe)		//no free slots
 		return;

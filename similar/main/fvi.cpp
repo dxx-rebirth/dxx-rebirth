@@ -571,19 +571,16 @@ static vm_distance_squared check_vector_to_sphere_1(vms_vector &intp,const vms_v
 //$$}
 */
 
-
-
 //determine if a vector intersects with an object
 //if no intersects, returns 0, else fills in intp and returns dist
 [[nodiscard]]
-static vm_distance_squared check_vector_to_object(vms_vector &intp, const vms_vector &p0, const vms_vector &p1, const fix rad, const object_base &obj, const object &otherobj)
+static vm_distance_squared check_vector_to_object(const d_robot_info_array *const Robot_info, vms_vector &intp, const vms_vector &p0, const vms_vector &p1, const fix rad, const object_base &obj, const object &otherobj)
 {
 	fix size = obj.size;
 
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (obj.type == OBJ_ROBOT)
 	{
-		if (Robot_info[get_robot_id(obj)].attack_type)
+		if ((*Robot_info)[get_robot_id(obj)].attack_type)
 			size = (size*3)/4;
 	}
 	//if obj is player, and bumping into other player or a weapon of another coop player, reduce radius
@@ -605,13 +602,11 @@ struct fvi_segments_visited_t : public fvi_segment_visit_count_t, public visited
 {
 };
 
-//these vars are used to pass vars from fvi_sub() to find_vector_intersection()
-
 }
 
 namespace dsx {
 namespace {
-static fvi_hit_type fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const vcsegptridx_t startseg, const vms_vector &p1, fix rad, const icobjptridx_t thisobjnum, const std::pair<const vcobjidx_t *, const vcobjidx_t *> ignore_obj_list, int flags, fvi_info::segment_array_t &seglist, segnum_t entry_seg, fvi_segments_visited_t &visited, sidenum_t &fvi_hit_side, icsegidx_t &fvi_hit_side_seg, unsigned &fvi_nest_count, icsegidx_t &fvi_hit_pt_seg, const vms_vector *&wall_norm, icobjidx_t &fvi_hit_object);
+static fvi_hit_type fvi_sub(const fvi_query &, vms_vector &intp, segnum_t &ints, const vcsegptridx_t startseg, fix rad, fvi_info::segment_array_t &seglist, segnum_t entry_seg, fvi_segments_visited_t &visited, sidenum_t &fvi_hit_side, icsegidx_t &fvi_hit_side_seg, unsigned &fvi_nest_count, icsegidx_t &fvi_hit_pt_seg, const vms_vector *&wall_norm, icobjidx_t &fvi_hit_object);
 }
 
 //What the hell is fvi_hit_seg for???
@@ -626,12 +621,10 @@ static fvi_hit_type fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &
 //  ingore_obj			ignore collisions with this object
 //  check_obj_flag	determines whether collisions with objects are checked
 //Returns the hit_data->hit_type
-fvi_hit_type find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
+fvi_hit_type find_vector_intersection(const fvi_query fq, const segnum_t startseg, const fix rad, fvi_info &hit_data)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
-	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	auto &imobjptridx = Objects.imptridx;
 	segnum_t hit_seg2;
 	vms_vector hit_pnt;
 
@@ -641,11 +634,12 @@ fvi_hit_type find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 	//Assert(check_point_in_seg(p0,startseg,0).centermask==0);	//start point not in seg
 
 	// invalid segnum, so say there is no hit.
-	if(fq.startseg > Highest_segment_index)
+	if (startseg > Highest_segment_index)
 	{
-		Assert(fq.startseg <= Highest_segment_index);
-		hit_data.hit_pnt = *fq.p0;
-		hit_data.hit_seg = hit_data.hit_object = 0;
+		assert(startseg <= Highest_segment_index);
+		hit_data.hit_pnt = fq.p0;
+		hit_data.hit_seg = segnum_t{};
+		hit_data.hit_object = 0;
 		hit_data.hit_side = side_none;
 		hit_data.hit_side_seg = segment_none;
 		return fvi_hit_type::BadP0;
@@ -653,10 +647,10 @@ fvi_hit_type find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 
 	auto &vcvertptr = Vertices.vcptr;
 	// Viewer is not in segment as claimed, so say there is no hit.
-	if (get_seg_masks(vcvertptr, *fq.p0, vcsegptr(fq.startseg), 0).centermask != sidemask_t{})
+	if (get_seg_masks(vcvertptr, fq.p0, vcsegptr(startseg), 0).centermask != sidemask_t{})
 	{
-		hit_data.hit_pnt = *fq.p0;
-		hit_data.hit_seg = fq.startseg;
+		hit_data.hit_pnt = fq.p0;
+		hit_data.hit_seg = startseg;
 		hit_data.hit_side = side_none;
 		hit_data.hit_object = 0;
 		hit_data.hit_side_seg = segment_none;
@@ -664,7 +658,7 @@ fvi_hit_type find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 	}
 
 	fvi_segments_visited_t visited;
-	visited[fq.startseg] = true;
+	visited[startseg] = true;
 
 	sidenum_t fvi_hit_side;
 	icsegidx_t fvi_hit_side_seg = segment_none;	// what seg the hitside is in
@@ -674,12 +668,12 @@ fvi_hit_type find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 	hit_seg2 = segment_none;
 
 	const vms_vector *wall_norm = nullptr;	//surface normal of hit wall
-	const auto hit_type = fvi_sub(hit_pnt, hit_seg2, *fq.p0, vcsegptridx(fq.startseg), *fq.p1, fq.rad, imobjptridx(fq.thisobjnum), fq.ignore_obj_list, fq.flags, hit_data.seglist, segment_exit, visited, fvi_hit_side, fvi_hit_side_seg, fvi_nest_count, fvi_hit_pt_seg, wall_norm, fvi_hit_object);
+	const auto hit_type = fvi_sub(fq, hit_pnt, hit_seg2, vcsegptridx(startseg), rad, hit_data.seglist, segment_exit, visited, fvi_hit_side, fvi_hit_side_seg, fvi_nest_count, fvi_hit_pt_seg, wall_norm, fvi_hit_object);
 	segnum_t hit_seg;
 	if (hit_seg2 != segment_none && get_seg_masks(vcvertptr, hit_pnt, vcsegptr(hit_seg2), 0).centermask == sidemask_t{})
 		hit_seg = hit_seg2;
 	else
-		hit_seg = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, hit_pnt, imsegptridx(fq.startseg));
+		hit_seg = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, hit_pnt, imsegptridx(startseg));
 
 //MATT: TAKE OUT THIS HACK AND FIX THE BUGS!
 	if (hit_type == fvi_hit_type::Wall && hit_seg == segment_none)
@@ -693,7 +687,7 @@ fvi_hit_type find_vector_intersection(const fvi_query &fq, fvi_info &hit_data)
 		//because of code that deal with object with non-zero radius has
 		//problems, try using zero radius and see if we hit a wall
 
-		const auto new_hit_type = fvi_sub(new_hit_pnt, new_hit_seg2, *fq.p0, vcsegptridx(fq.startseg), *fq.p1, 0, imobjptridx(fq.thisobjnum), fq.ignore_obj_list, fq.flags, hit_data.seglist, segment_exit, visited, fvi_hit_side, fvi_hit_side_seg, fvi_nest_count, fvi_hit_pt_seg, wall_norm, fvi_hit_object);
+		const auto new_hit_type = fvi_sub(fq, new_hit_pnt, new_hit_seg2, vcsegptridx(startseg), 0, hit_data.seglist, segment_exit, visited, fvi_hit_side, fvi_hit_side_seg, fvi_nest_count, fvi_hit_pt_seg, wall_norm, fvi_hit_object);
 		(void)new_hit_type; // FIXME! This should become hit_type, right?
 
 		if (new_hit_seg2 != segment_none) {
@@ -796,12 +790,10 @@ static void append_segments(fvi_info::segment_array_t &dst, const fvi_info::segm
 
 namespace dsx {
 namespace {
-static fvi_hit_type fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &p0, const vcsegptridx_t startseg, const vms_vector &p1, fix rad, icobjptridx_t thisobjnum, const std::pair<const vcobjidx_t *, const vcobjidx_t *> ignore_obj_list, int flags, fvi_info::segment_array_t &seglist, segnum_t entry_seg, fvi_segments_visited_t &visited, sidenum_t &fvi_hit_side, icsegidx_t &fvi_hit_side_seg, unsigned &fvi_nest_count, icsegidx_t &fvi_hit_pt_seg, const vms_vector *&wall_norm, icobjidx_t &fvi_hit_object)
+static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &ints, const vcsegptridx_t startseg, fix rad, fvi_info::segment_array_t &seglist, segnum_t entry_seg, fvi_segments_visited_t &visited, sidenum_t &fvi_hit_side, icsegidx_t &fvi_hit_side_seg, unsigned &fvi_nest_count, icsegidx_t &fvi_hit_pt_seg, const vms_vector *&wall_norm, icobjidx_t &fvi_hit_object)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
-	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	auto &vcobjptridx = Objects.vcptridx;
 	int startmask,endmask;	//mask of faces
 	//@@int sidemask;				//mask of sides - can be on back of face but not side
 	vms_vector closest_hit_point{}; 	//where we hit
@@ -810,63 +802,81 @@ static fvi_hit_type fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &
 	segnum_t hit_seg=segment_none;
 	segnum_t hit_none_seg=segment_none;
 	fvi_info::segment_array_t hit_none_seglist;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 
 	seglist.clear();
-	if (flags&FQ_GET_SEGLIST)
+	if (fq.flags & FQ_GET_SEGLIST)
 		seglist.emplace_back(startseg);
 
 	const unsigned cur_nest_level = fvi_nest_count;
 	fvi_nest_count++;
 
 	//first, see if vector hit any objects in this segment
-	if (flags & FQ_CHECK_OBJS)
+	if (const auto LevelUniqueObjectState = fq.LevelUniqueObjectState)
 	{
-		const auto &collision = CollisionResult[likely(thisobjnum != object_none) ? thisobjnum->type : 0];
+		auto &Objects = LevelUniqueObjectState->Objects;
+		auto &vcobjptridx = Objects.vcptridx;
+		/* A caller which provides LevelUniqueObjectState must provide a valid object.
+		 * Obtain a require_valid instance once, before the loop begins.
+		 */
+		const vcobjptridx_t thisobjnum = fq.thisobjnum;
+		const auto this_is_robot = thisobjnum->type == OBJ_ROBOT;
+		const auto &collision = CollisionResult[thisobjnum->type];
+		const auto Robot_info = fq.Robot_info;
+		const robot_info *const robptrthis = this_is_robot
+			? &(assert(Robot_info != nullptr), (*Robot_info)[get_robot_id(thisobjnum)])
+			: nullptr;
 		range_for (const auto objnum, objects_in(*startseg, vcobjptridx, vcsegptr))
 		{
+			if (thisobjnum == objnum)
+				continue;
 			if (objnum->flags & OF_SHOULD_BE_DEAD)
 				continue;
-			if (thisobjnum != object_none)
-			{
-				if (thisobjnum == objnum)
-					continue;
-				if (laser_are_related(objnum, thisobjnum))
-					continue;
-				if (collision[objnum->type] == collision_result::ignore)
-					continue;
-			}
-			if (obj_in_list(objnum, ignore_obj_list))
+			if (collision[objnum->type] == collision_result::ignore)
+				continue;
+			if (laser_are_related(objnum, thisobjnum))
+				continue;
+			if (obj_in_list(objnum, fq.ignore_obj_list))
 				continue;
 			int fudged_rad = rad;
 
 #if defined(DXX_BUILD_DESCENT_II)
 			//	If this is a powerup, don't do collision if flag FQ_IGNORE_POWERUPS is set
 			if (objnum->type == OBJ_POWERUP)
-				if (flags & FQ_IGNORE_POWERUPS)
+				if (fq.flags & FQ_IGNORE_POWERUPS)
 					continue;
 #endif
 
+			/*
+			 * In Descent 1:
 			//	If this is a robot:robot collision, only do it if both of them have attack_type != 0 (eg, green guy)
-			if (thisobjnum->type == OBJ_ROBOT)
+			 *
+			 * In Descent 2:
+			 * Robot-vs-robot collisions never happen.  This appears to have
+			 * been done for the benefit of the Diamond Claw.  However, it also
+			 * has the effect of allowing the Thief to pass through other
+			 * robots unharmed.
+			 */
+			if (robptrthis)
 			{
 				if (objnum->type == OBJ_ROBOT)
+				{
 #if defined(DXX_BUILD_DESCENT_I)
-					if (!(Robot_info[get_robot_id(objnum)].attack_type && Robot_info[get_robot_id(thisobjnum)].attack_type))
+					if (!((*Robot_info)[get_robot_id(objnum)].attack_type && robptrthis->attack_type))
 #endif
 					// -- MK: 11/18/95, 4claws glomming together...this is easy.  -- if (!(Robot_info[Objects[objnum].id].attack_type && Robot_info[Objects[thisobjnum].id].attack_type))
 						continue;
-				if (Robot_info[get_robot_id(thisobjnum)].attack_type)
-					fudged_rad = (rad*3)/4;
+				}
+				if (robptrthis->attack_type)
+					fudged_rad = (rad * 3) / 4;
 			}
 			//if obj is player, and bumping into other player or a weapon of another coop player, reduce radius
-			else if (thisobjnum->type == OBJ_PLAYER &&
+			else if (fq.thisobjnum->type == OBJ_PLAYER &&
 					((objnum->type == OBJ_PLAYER) ||
 					((Game_mode&GM_MULTI_COOP) &&  objnum->type == OBJ_WEAPON && objnum->ctype.laser_info.parent_type == OBJ_PLAYER)))
 				fudged_rad = rad/2;	//(rad*3)/4;
 
 			vms_vector hit_point;
-			const auto &&d = check_vector_to_object(hit_point,p0,p1,fudged_rad,objnum, thisobjnum);
+			const auto &&d = check_vector_to_object(Robot_info, hit_point, fq.p0, fq.p1, fudged_rad, objnum, thisobjnum);
 
 			if (d)          //we have intersection
 				if (d < closest_d) {
@@ -879,15 +889,15 @@ static fvi_hit_type fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &
 		}
 	}
 
-	if (thisobjnum != object_none && CollisionResult[thisobjnum->type][OBJ_WALL] == collision_result::ignore)
+	if (fq.thisobjnum != object_none && CollisionResult[fq.thisobjnum->type][OBJ_WALL] == collision_result::ignore)
 		rad = 0;		//HACK - ignore when edges hit walls
 
 	//now, check segment walls
 
 	auto &vcvertptr = Vertices.vcptr;
-	startmask = get_seg_masks(vcvertptr, p0, startseg, rad).facemask;
+	startmask = get_seg_masks(vcvertptr, fq.p0, startseg, rad).facemask;
 
-	const auto &&masks = get_seg_masks(vcvertptr, p1, startseg, rad);    //on back of which faces?
+	const auto &&masks = get_seg_masks(vcvertptr, fq.p1, startseg, rad);    //on back of which faces?
 	endmask = masks.facemask;
 	//@@sidemask = masks.sidemask;
 	const auto centermask = masks.centermask;			//where the center point is
@@ -923,13 +933,13 @@ static fvi_hit_type fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &
 					vms_vector hit_point;
 					if (startmask & bit)		//start was also though.  Do extra check
 						face_hit_type = special_check_line_to_face(hit_point,
-										p0,p1,startseg,side,
+										fq.p0, fq.p1, startseg, side,
 										face,
 										nv,rad);
 					else
 						//NOTE LINK TO ABOVE!!
 						face_hit_type = check_line_to_face(hit_point,
-										p0,p1,startseg,side,
+										fq.p0, fq.p1, startseg, side,
 										face,
 										nv,rad);
 
@@ -941,7 +951,7 @@ static fvi_hit_type fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &
 
 						//if what we have hit is a door, check the adjoining seg
 
-						if (thisobjnum == get_local_player().objnum && cheats.ghostphysics)
+						if (fq.thisobjnum == get_local_player().objnum && cheats.ghostphysics)
 						{
 							if (IS_CHILD(child_segnum))
  								wid_flag |= WALL_IS_DOORWAY_FLAG::fly;
@@ -954,7 +964,7 @@ static fvi_hit_type fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &
 #elif defined(DXX_BUILD_DESCENT_II)
 								((wid_flag & WALL_IS_DOORWAY_FLAG::render) && (wid_flag & WALL_IS_DOORWAY_FLAG::rendpast)) &&
 #endif
-								((flags & FQ_TRANSWALL) || (flags & FQ_TRANSPOINT && check_trans_wall(hit_point,startseg,side,face))))) {
+								((fq.flags & FQ_TRANSWALL) || (fq.flags & FQ_TRANSPOINT && check_trans_wall(hit_point,startseg,side,face))))) {
 
 							segnum_t newsegnum,sub_hit_seg;
 							vms_vector sub_hit_point;
@@ -973,11 +983,11 @@ static fvi_hit_type fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &
 									goto quit_looking;		//we've looked a long time, so give up
 
 								fvi_info::segment_array_t temp_seglist;
-								const auto sub_hit_type = fvi_sub(sub_hit_point, sub_hit_seg, p0, startseg.absolute_sibling(newsegnum), p1, rad, thisobjnum, ignore_obj_list, flags, temp_seglist, startseg, visited, fvi_hit_side, fvi_hit_side_seg, fvi_nest_count, fvi_hit_pt_seg, wall_norm, fvi_hit_object);
+								const auto sub_hit_type = fvi_sub(fq, sub_hit_point, sub_hit_seg, startseg.absolute_sibling(newsegnum), rad, temp_seglist, startseg, visited, fvi_hit_side, fvi_hit_side_seg, fvi_nest_count, fvi_hit_pt_seg, wall_norm, fvi_hit_object);
 
 								if (sub_hit_type != fvi_hit_type::None)
 								{
-									const auto d = vm_vec_dist2(sub_hit_point,p0);
+									const auto d = vm_vec_dist2(sub_hit_point, fq.p0);
 
 									if (d < closest_d) {
 
@@ -987,7 +997,7 @@ static fvi_hit_type fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &
 										if (sub_hit_seg!=segment_none) hit_seg = sub_hit_seg;
 
 										//copy seglist
-										if (flags&FQ_GET_SEGLIST) {
+										if (fq.flags & FQ_GET_SEGLIST) {
 											append_segments(seglist, temp_seglist);
 										}
 									}
@@ -1000,9 +1010,8 @@ static fvi_hit_type fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &
 									wall_norm = save_wall_norm;     //global could be trashed
 									if (sub_hit_seg!=segment_none) hit_none_seg = sub_hit_seg;
 									//copy seglist
-									if (flags&FQ_GET_SEGLIST) {
+									if (fq.flags & FQ_GET_SEGLIST)
 										hit_none_seglist = temp_seglist;
-									}
 								}
 							}
 						}
@@ -1010,7 +1019,7 @@ static fvi_hit_type fvi_sub(vms_vector &intp, segnum_t &ints, const vms_vector &
 																
 								//is this the closest hit?
 	
-								const auto d = vm_vec_dist2(hit_point,p0);
+								const auto d = vm_vec_dist2(hit_point, fq.p0);
 	
 								if (d < closest_d) {
 									closest_d = d;
@@ -1042,13 +1051,13 @@ quit_looking:
 
 	if (hit_type == fvi_hit_type::None)
 	{     //didn't hit anything, return end point
-		intp = p1;
+		intp = fq.p1;
 		ints = hit_none_seg;
 		//MATT: MUST FIX THIS!!!!
 		//Assert(!centermask);
 
 		if (hit_none_seg!=segment_none) {			///(centermask == 0)
-			if (flags&FQ_GET_SEGLIST)
+			if (fq.flags & FQ_GET_SEGLIST)
 				//copy seglist
 				append_segments(seglist, hit_none_seglist);
 		}

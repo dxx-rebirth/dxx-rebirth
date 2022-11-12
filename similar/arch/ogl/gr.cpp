@@ -72,7 +72,7 @@ namespace dcx {
 
 static int ogl_brightness_r, ogl_brightness_g, ogl_brightness_b;
 
-#if DXX_USE_OGLES
+#if DXX_USE_OGLES && SDL_MAJOR_VERSION == 1
 static int sdl_video_flags;
 
 #ifdef RPI
@@ -125,7 +125,7 @@ void gr_set_mode_from_window_size()
 
 }
 
-#if DXX_USE_OGLES
+#if DXX_USE_OGLES && SDL_MAJOR_VERSION == 1 
 static EGLDisplay eglDisplay=EGL_NO_DISPLAY;
 static EGLConfig eglConfig;
 static EGLSurface eglSurface=EGL_NO_SURFACE;
@@ -154,7 +154,7 @@ namespace dcx {
 void ogl_swap_buffers_internal(void)
 {
 	sync_helper.before_swap();
-#if DXX_USE_OGLES
+#if DXX_USE_OGLES && SDL_MAJOR_VERSION == 1
 	eglSwapBuffers(eglDisplay, eglSurface);
 #else
 #if SDL_MAJOR_VERSION == 1
@@ -309,7 +309,7 @@ static int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
 
 #endif // RPI
 
-#if DXX_USE_OGLES
+#if DXX_USE_OGLES && SDL_MAJOR_VERSION == 1
 static void ogles_destroy()
 {
 	if( eglDisplay != EGL_NO_DISPLAY ) {
@@ -338,7 +338,7 @@ static void ogles_destroy()
 
 static int ogl_init_window(int w, int h)
 {
-#if DXX_USE_OGLES
+#if DXX_USE_OGLES && SDL_MAJOR_VERSION == 1
 	SDL_SysWMinfo info;
 	Window    x11Window = 0;
 	Display*  x11Display = 0;
@@ -401,7 +401,7 @@ static int ogl_init_window(int w, int h)
 		SDL_SetWindowSize(SDLWindow, w, h);
 #endif
 
-#if DXX_USE_OGLES
+#if DXX_USE_OGLES && SDL_MAJOR_VERSION == 1
 #ifndef RPI
 	// NOTE: on the RPi, the EGL stuff is not connected to the X11 window,
 	//       so there is no need to destroy and recreate this
@@ -409,7 +409,7 @@ static int ogl_init_window(int w, int h)
 #endif
 
 	SDL_VERSION(&info.version);
-	
+
 	if (SDL_GetWMInfo(&info) > 0) {
 		if (info.subsystem == SDL_SYSWM_X11) {
 			x11Display = info.info.x11.display;
@@ -593,6 +593,7 @@ namespace dsx {
 
 static void ogl_tune_for_current(void)
 {
+#if !DXX_USE_OGLES
 	const auto gl_vendor = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
 	const auto gl_renderer = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
 	const auto gl_version = reinterpret_cast<const char *>(glGetString(GL_VERSION));
@@ -632,6 +633,7 @@ static void ogl_tune_for_current(void)
 		con_puts(CON_VERBOSE, "DXX-Rebirth: OpenGL: anisotropic texture filter not supported");
 		CGameCfg.TexAnisotropy = false;
 	}
+#endif
 }
 
 }
@@ -791,6 +793,12 @@ void gr_set_attributes(void)
 	}
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, buffers);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, samples);
+#else
+#if SDL_MAJOR_VERSION == 2
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#endif
 #endif
 	ogl_smash_texture_list_internal();
 	gr_remap_color_fonts();
@@ -822,6 +830,8 @@ int gr_init()
 	ogl_init_load_library();
 #endif
 
+	gr_set_attributes();
+
 #if SDL_MAJOR_VERSION == 1
 	if (!CGameCfg.WindowMode && !CGameArg.SysWindow)
 		sdl_video_flags|=SDL_FULLSCREEN;
@@ -848,8 +858,6 @@ int gr_init()
 	if (const auto window_icon = SDL_LoadBMP(DXX_SDL_WINDOW_ICON_BITMAP))
 		SDL_SetWindowIcon(SDLWindow, window_icon);
 #endif
-
-	gr_set_attributes();
 
 	ogl_init_texture_list_internal();
 
@@ -898,7 +906,7 @@ void gr_close()
 		OpenGL_LoadLibrary(false, OglLibPath);
 #endif
 
-#if DXX_USE_OGLES
+#if DXX_USE_OGLES && SDL_MAJOR_VERSION == 1
 	ogles_destroy();
 #ifdef RPI
 	con_printf(CON_DEBUG, "RPi: cleanuing up");
@@ -1136,8 +1144,6 @@ void gr_palette_load( palette_array_t &pal )
 	reset_computed_colors();
 }
 
-#define GL_BGR_EXT 0x80E0
-
 struct TGA_header
 {
       unsigned char TGAheader[12];
@@ -1151,18 +1157,12 @@ void write_bmp(PHYSFS_File *const TGAFile, const unsigned w, const unsigned h)
 {
 	TGA_header TGA;
 	GLbyte HeightH,HeightL,WidthH,WidthL;
-	RAIIdmem<uint8_t[]> buf;
 	const unsigned buffer_size_TGA = w * h * 3;
-	CALLOC(buf, uint8_t[], buffer_size_TGA);
+	const auto buf = std::make_unique<uint8_t[]>(buffer_size_TGA);
 
-	RAIIdmem<uint8_t[]> rgbaBuf;
-	CALLOC(rgbaBuf, uint8_t[], w * h * 4);
-	glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, rgbaBuf.get());
-	for(unsigned int pixel = 0; pixel < w * h; pixel++) {
-		buf[pixel * 3] = rgbaBuf[pixel * 4 + 2];
-		buf[pixel * 3 + 1] = rgbaBuf[pixel * 4 + 1];
-		buf[pixel * 3 + 2] = rgbaBuf[pixel * 4];
-	}
+	glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, buf.get());
+	for (const auto pixel : xrange(w * h))
+		std::swap(buf[pixel * 3], buf[pixel * 3 + 2]);
 
 	HeightH = static_cast<GLbyte>(h / 256);
 	HeightL = static_cast<GLbyte>(h % 256);

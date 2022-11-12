@@ -67,12 +67,17 @@ struct callsign_t;
 #define N_PLAYER_SHIP_TEXTURES 32
 
 namespace dcx {
+enum class player_connection_status : uint8_t;
 struct player_ship;
 
 struct player;
 using playernum_t = uint32_t;
 constexpr unsigned MAX_PLAYERS = 8;
-using playernum_array_t = std::array<playernum_t, MAX_PLAYERS>;
+template <typename T>
+	using per_player_array = std::array<T, MAX_PLAYERS>;
+using playernum_array_t = per_player_array<playernum_t>;
+template <typename T>
+	using per_team_array = std::array<T, 2>;
 
 extern unsigned N_players;   // Number of players ( >1 means a net game, eh?)
 extern playernum_t Player_num;  // The player number who is on the console.

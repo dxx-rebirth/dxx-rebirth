@@ -33,9 +33,9 @@ void display_cocoa_alert(const char *message, int error)
 	[pool drain];
 }
 
-void msgbox_warning(const char *message)
+void msgbox_warning(const std::span<const char> message)
 {
-	display_cocoa_alert(message, 0);
+	display_cocoa_alert(message.data(), 0);
 }
 
 void msgbox_error(const char *message)

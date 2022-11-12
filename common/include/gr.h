@@ -35,6 +35,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pack.h"
 #include <array>
 
+#if DXX_USE_SDLIMAGE || !DXX_USE_OGL
+#include <memory>
+#include <SDL_video.h>
+#endif
+
 namespace dcx {
 
 enum class gr_fade_level : uint8_t
@@ -126,7 +131,7 @@ public:
 	}
 	grs_main_bitmap &operator=(grs_main_bitmap &&r)
 	{
-		if (this == &r)
+		if (grs_bitmap *const that = &r; this == that)
 			return *this;
 		reset();
 		grs_bitmap::operator=(std::move(static_cast<grs_bitmap &>(r)));
@@ -204,10 +209,6 @@ public:
 	{
 		return wh == rhs.wh;
 	}
-	bool operator!=(const screen_mode &rhs) const
-	{
-		return !(*this == rhs);
-	}
 	screen_mode() = default;
 	constexpr screen_mode(uint16_t &&w, uint16_t &&h) :
 		width(w), height(h)
@@ -236,13 +237,55 @@ struct grs_main_canvas : grs_canvas, prohibit_void_ptr<grs_main_canvas>
 	~grs_main_canvas();
 };
 
+// Creates a canvas that is part of another canvas.  This can be used to make
+// a window on the screen.  The address of the raw pixel data is inherited from
+// the parent canvas.
+struct grs_subcanvas : grs_canvas, prohibit_void_ptr<grs_subcanvas>
+{
+	using prohibit_void_ptr<grs_subcanvas>::operator &;
+};
+
+#if DXX_USE_SDLIMAGE || !DXX_USE_OGL
+struct RAII_SDL_Surface
+{
+	struct deleter
+	{
+		void operator()(SDL_Surface *s) const
+		{
+			SDL_FreeSurface(s);
+		}
+	};
+	std::unique_ptr<SDL_Surface, deleter> surface;
+	constexpr RAII_SDL_Surface() = default;
+	RAII_SDL_Surface(RAII_SDL_Surface &&) = default;
+	RAII_SDL_Surface &operator=(RAII_SDL_Surface &&) = default;
+	explicit RAII_SDL_Surface(SDL_Surface *const s) :
+		surface(s)
+	{
+	}
+};
+#endif
+
 class grs_screen : prohibit_void_ptr<grs_screen>
 {    // This is a video screen
 	screen_mode sc_mode;
 public:
 	grs_screen &operator=(grs_screen &) = delete;
 	grs_screen &operator=(grs_screen &&) = default;
+#if DXX_USE_OGL
+	/* OpenGL builds allocate the backing data for the canvas, so use
+	 * grs_main_canvas to ensure it is freed when appropriate.
+	 */
 	grs_main_canvas  sc_canvas;  // Represents the entire screen
+#else
+	/* SDL builds borrow the backing data from the SDL_Surface, so use
+	 * grs_subcanvas for the canvas because the memory is owned by SDL and will
+	 * be freed by SDL_FreeSurface.  Store the associated SDL_Surface alongside
+	 * the canvas, so that it is freed at the same time.
+	 */
+	RAII_SDL_Surface sdl_surface;
+	grs_subcanvas sc_canvas;
+#endif
 	fix     sc_aspect;      //aspect ratio (w/h) for this screen
 	uint16_t get_screen_width() const
 	{
@@ -265,15 +308,6 @@ public:
 
 //=========================================================================
 // Canvas functions:
-
-// Creates a canvas that is part of another canvas.  this can be used to make
-// a window on the screen.  the canvas structure is malloc'd; the address of
-// the raw pixel data is inherited from the parent canvas.
-
-struct grs_subcanvas : grs_canvas, prohibit_void_ptr<grs_subcanvas>
-{
-	using prohibit_void_ptr<grs_subcanvas>::operator &;
-};
 
 // Free the bitmap, but not the pixel data buffer
 class grs_subbitmap : public grs_bitmap

@@ -398,7 +398,7 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 		case object::control_type::ai:
 		{
 			obj_rw->ctype.ai_info.behavior               = static_cast<uint8_t>(obj.ctype.ai_info.behavior);
-			obj_rw->ctype.ai_info.flags[0] = obj.ctype.ai_info.CURRENT_GUN;
+			obj_rw->ctype.ai_info.flags[0] = underlying_value(obj.ctype.ai_info.CURRENT_GUN);
 			obj_rw->ctype.ai_info.flags[1] = obj.ctype.ai_info.CURRENT_STATE;
 			obj_rw->ctype.ai_info.flags[2] = obj.ctype.ai_info.GOAL_STATE;
 			obj_rw->ctype.ai_info.flags[3] = obj.ctype.ai_info.PATH_DIR;
@@ -524,7 +524,10 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 		obj.render_type = RT_NONE;
 	}
 	obj.flags         = obj_rw->flags;
-	obj.segnum        = obj_rw->segnum;
+	{
+		const auto s = segnum_t{obj_rw->segnum};
+		obj.segnum    = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
+	}
 	obj.attached_obj  = obj_rw->attached_obj;
 	obj.pos.x         = obj_rw->pos.x;
 	obj.pos.y         = obj_rw->pos.y;
@@ -603,7 +606,10 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 		case object::control_type::ai:
 		{
 			obj.ctype.ai_info.behavior               = static_cast<ai_behavior>(obj_rw->ctype.ai_info.behavior);
-			obj.ctype.ai_info.CURRENT_GUN = obj_rw->ctype.ai_info.flags[0];
+			{
+				const uint8_t gun_num = obj_rw->ctype.ai_info.flags[0];
+				obj.ctype.ai_info.CURRENT_GUN = (gun_num < MAX_GUNS) ? robot_gun_number{gun_num} : robot_gun_number{};
+			}
 			obj.ctype.ai_info.CURRENT_STATE = build_ai_state_from_untrusted(obj_rw->ctype.ai_info.flags[1]).value();
 			obj.ctype.ai_info.GOAL_STATE = build_ai_state_from_untrusted(obj_rw->ctype.ai_info.flags[2]).value();
 			obj.ctype.ai_info.PATH_DIR = obj_rw->ctype.ai_info.flags[3];
@@ -617,7 +623,10 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 			obj.ctype.ai_info.SKIP_AI_COUNT = obj_rw->ctype.ai_info.flags[7];
 			obj.ctype.ai_info.REMOTE_OWNER = obj_rw->ctype.ai_info.flags[8];
 			obj.ctype.ai_info.REMOTE_SLOT_NUM = obj_rw->ctype.ai_info.flags[9];
-			obj.ctype.ai_info.hide_segment           = obj_rw->ctype.ai_info.hide_segment;
+			{
+				const auto s = segnum_t{obj_rw->ctype.ai_info.hide_segment};
+				obj.ctype.ai_info.hide_segment = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
+			}
 			obj.ctype.ai_info.hide_index             = obj_rw->ctype.ai_info.hide_index;
 			obj.ctype.ai_info.path_length            = obj_rw->ctype.ai_info.path_length;
 			obj.ctype.ai_info.cur_path_index         = obj_rw->ctype.ai_info.cur_path_index;
@@ -743,7 +752,7 @@ static void state_player_to_player_rw(const relocated_player_data &rpd, const pl
 	int i=0;
 	pl_rw->callsign = pl->callsign;
 	memset(pl_rw->net_address, 0, 6);
-	pl_rw->connected                 = pl->connected;
+	pl_rw->connected                 = underlying_value(pl->connected);
 	pl_rw->objnum                    = pl->objnum;
 	pl_rw->n_packets_got             = 0;
 	pl_rw->n_packets_sent            = 0;
@@ -814,7 +823,7 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player
 {
 	int i=0;
 	pl->callsign = pl_rw->callsign;
-	pl->connected                 = pl_rw->connected;
+	pl->connected                 = player_connection_status{pl_rw->connected};
 	pl->objnum                    = pl_rw->objnum;
 	pl_info.powerup_flags         = player_flags(pl_rw->flags);
 	pl_info.energy                = pl_rw->energy;
@@ -1002,7 +1011,7 @@ savegame_newmenu_items::savegame_newmenu_items(d_game_unique_state::savegame_des
 				? nm_type::menu
 				: nm_type::text);
 		if (user_entered_savegame_descriptions)
-			mi.initialize_imenu(desc, (*user_entered_savegame_descriptions)[savegame_index], nullptr);
+			mi.initialize_imenu(desc, (*user_entered_savegame_descriptions)[savegame_index]);
 	}
 	if (!savegame_description && nsaves < 1)
 		throw error_no_saves_found();
@@ -1048,6 +1057,8 @@ void state_poll_autosave_game(d_game_unique_state &GameUniqueState, const d_leve
 	state_set_next_autosave(GameUniqueState, now, interval);
 	state_autosave_game(multiplayer);
 }
+
+namespace {
 
 /* Present a menu for selection of a savegame filename.
  * For saving, dsc should be a pre-allocated buffer into which the new
@@ -1101,6 +1112,8 @@ static d_game_unique_state::save_slot state_get_savegame_filename(grs_canvas &ca
 	return choice;
 }
 
+}
+
 d_game_unique_state::save_slot state_get_save_file(grs_canvas &canvas, d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *const dsc, const blind_save blind_save)
 {
 	return state_get_savegame_filename(canvas, fname, dsc, menu_subtitle{"Save Game"}, blind_save);
@@ -1113,6 +1126,7 @@ d_game_unique_state::save_slot state_get_restore_file(grs_canvas &canvas, d_game
 
 #if defined(DXX_BUILD_DESCENT_I)
 #elif defined(DXX_BUILD_DESCENT_II)
+namespace {
 
 //	-----------------------------------------------------------------------------------
 //	Imagine if C had a function to copy a file...
@@ -1146,6 +1160,8 @@ static int copy_file(const char *old_file, const char *new_file)
 static void format_secret_sgc_filename(std::array<char, PATH_MAX> &fname, const d_game_unique_state::save_slot filenum)
 {
 	snprintf(fname.data(), fname.size(), PLAYER_DIRECTORY_STRING("%xsecret.sgc"), static_cast<unsigned>(filenum));
+}
+
 }
 #endif
 
@@ -1391,7 +1407,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 // Save the difficulty level
 	{
-		const int Difficulty_level = GameUniqueState.Difficulty_level;
+		const int Difficulty_level = underlying_value(GameUniqueState.Difficulty_level);
 	PHYSFS_write(fp, &Difficulty_level, sizeof(int), 1);
 	}
 
@@ -1980,7 +1996,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 			LoadLevel(current_level, 1);
 		else
 #endif
-			StartNewLevelSub(current_level, 1, secret);
+			StartNewLevelSub(LevelSharedRobotInfoState.Robot_info, current_level, 1, secret);
 
 		auto &plr = get_local_player();
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2088,7 +2104,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		if (obj->type == OBJ_ROBOT && Robot_info[get_robot_id(obj)].boss_flag) {
 			fix save_shields = obj->shields;
 
-			copy_defaults_to_robot(obj);		//calculate starting shields
+			copy_defaults_to_robot(Robot_info, obj);		//calculate starting shields
 
 			//if in valid range, use loaded shield value
 			if (save_shields > 0 && save_shields <= obj->shields)
@@ -2238,13 +2254,13 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		LevelUniqueControlCenterState.Total_countdown_time = LevelUniqueControlCenterState.Countdown_timer / F0_5; // we do not need to know this, but it should not be 0 either...
 
 	// Restore the AI state
-	ai_restore_state( fp, version, swap );
+	ai_restore_state(LevelSharedRobotInfoState.Robot_info, fp, version, swap);
 
 	{
 		auto &Automap_visited = LevelUniqueAutomapState.Automap_visited;
 	// Restore the automap visited info
 		Automap_visited = {};
-		DXX_MAKE_MEM_UNDEFINED(Automap_visited.begin(), Automap_visited.end());
+		DXX_MAKE_MEM_UNDEFINED(std::span(Automap_visited));
 		PHYSFS_read(fp, Automap_visited.data(), sizeof(uint8_t), std::max<std::size_t>(Highest_segment_index + 1, MAX_SEGMENTS_ORIGINAL));
 	}
 
@@ -2441,7 +2457,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 			
 			// make all (previous) player objects to ghosts but store them first for later remapping
 			const auto &&obj = vmobjptr(restore_players[i].objnum);
-			if (restore_players[i].connected == CONNECT_PLAYING && obj->type == OBJ_PLAYER)
+			if (restore_players[i].connected == player_connection_status::playing && obj->type == OBJ_PLAYER)
 			{
 				obj->ctype.player_info = pl_info;
 				obj->shields = rpd.shields;
@@ -2455,12 +2471,10 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 			for (unsigned j = 0; j < MAX_PLAYERS; j++)
 			{
 				// map stored players to current players depending on their unique (which we made sure) callsign
-				if (vcplayerptr(i)->connected == CONNECT_PLAYING && restore_players[j].connected == CONNECT_PLAYING && vcplayerptr(i)->callsign == restore_players[j].callsign)
+				if (vcplayerptr(i)->connected == player_connection_status::playing && restore_players[j].connected == player_connection_status::playing && vcplayerptr(i)->callsign == restore_players[j].callsign)
 				{
 					auto &p = *vmplayerptr(i);
-					const auto sav_objnum = p.objnum;
 					p = restore_players[j];
-					p.objnum = sav_objnum;
 					coop_player_got[i] = 1;
 					coop_got_nplayers++;
 
@@ -2478,6 +2492,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 					obj->mtype.phys_info = restore_objects[j].mtype.phys_info;
 					obj->rtype.pobj_info = restore_objects[j].rtype.pobj_info;
 					// make this restored player object an actual player again
+					assert(obj->type == OBJ_GHOST);
 					obj->type = OBJ_PLAYER;
 					set_player_id(obj, i); // assign player object id to player number
 					multi_reset_player_object(obj);
@@ -2511,7 +2526,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 			Netgame.net_player_flags[i] = pi.powerup_flags;
 		}
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++) // Disconnect connected players not available in this Savegame
-			if (!coop_player_got[i] && vcplayerptr(i)->connected == CONNECT_PLAYING)
+			if (!coop_player_got[i] && vcplayerptr(i)->connected == player_connection_status::playing)
 				multi_disconnect_player(i);
 		Viewer = ConsoleObject = &get_local_plrobj(); // make sure Viewer and ConsoleObject are set up (which we skipped by not using InitPlayerObject but we need since objects changed while loading)
 		special_reset_objects(LevelUniqueObjectState); // since we juggled around with objects to remap coop players rebuild the index of free objects

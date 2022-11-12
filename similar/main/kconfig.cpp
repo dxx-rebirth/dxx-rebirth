@@ -286,6 +286,7 @@ static void kc_set_exclusive_binding(kc_menu &menu, kc_mitem &mitem, const unsig
 }
 }
 
+namespace {
 static void kc_drawinput(grs_canvas &, const grs_font &, const kc_item &item, kc_mitem &mitem, int is_current, const char *label);
 static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem& mitem );
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
@@ -541,8 +542,9 @@ static inline int in_bounds(unsigned mx, unsigned my, unsigned x1, unsigned xw, 
 	return 1;
 }
 
-namespace dsx {
+}
 
+namespace dsx {
 namespace {
 
 static window_event_result kconfig_mouse(kc_menu &menu, const d_event &event)
@@ -601,11 +603,9 @@ static window_event_result kconfig_mouse(kc_menu &menu, const d_event &event)
 }
 
 }
-
 }
 
 namespace dcx {
-
 namespace {
 
 template <std::size_t M, std::size_t C>
@@ -687,11 +687,9 @@ static window_event_result kconfig_key_command(kc_menu &menu, const d_event &eve
 }
 
 }
-
 }
 
 namespace dsx {
-
 namespace {
 
 window_event_result kc_menu::event_handler(const d_event &event)
@@ -834,8 +832,9 @@ static void kconfig_sub(const char *litems, const kc_item (&items)[N], std::arra
 }
 
 }
-
 }
+
+namespace {
 
 static void kc_drawinput(grs_canvas &canvas, const grs_font &cv_font, const kc_item &item, kc_mitem &mitem, const int is_current, const char *const label)
 {
@@ -950,6 +949,8 @@ static void kc_change_mouseaxis( kc_menu &menu,const d_event &event, kc_mitem &m
 	kc_set_exclusive_binding(menu, mitem, BT_MOUSE_AXIS, code);
 }
 
+}
+
 void kconfig(const kconfig_type n)
 {
 	switch (n)
@@ -972,6 +973,7 @@ void kconfig(const kconfig_type n)
 }
 
 namespace dsx {
+namespace {
 
 static void input_button_matched(control_info &Controls, const kc_item& item, int down)
 {
@@ -992,9 +994,9 @@ static void input_button_matched(control_info &Controls, const kc_item& item, in
 }
 
 }
+}
 
 namespace dcx {
-
 namespace {
 
 template <template<typename> class F>
@@ -1080,8 +1082,19 @@ static unsigned allow_uncapped_turning()
 		: MouselookMode::MPAnarchy);
 }
 
+static unsigned release_pitch_lock()
+{
+	const auto game_mode = Game_mode;
+	if(!(game_mode & GM_MULTI)) {
+		return PlayerCfg.PitchLockFlags & MouselookMode::Singleplayer;
+	}
+
+	return PlayerCfg.PitchLockFlags &
+		Netgame.PitchLockFlags &
+		((game_mode & GM_MULTI_COOP) ? MouselookMode::MPCoop : MouselookMode::MPAnarchy);
 }
 
+}
 }
 
 namespace dsx {
@@ -1263,9 +1276,14 @@ void kconfig_end_loop(control_info &Controls, const fix frametime)
 	//------------ Read pitch_time -----------
 	if ( !Controls.state.slide_on )
 	{
-		// From keyboard...
-		adjust_ramped_keyboard_field(plus, key_pitch_forward, Controls.pitch_time, PlayerCfg.KeyboardSens[player_config_keyboard_index::pitch_ud], speed_factor, 2);
-		adjust_ramped_keyboard_field(minus, key_pitch_backward, Controls.pitch_time, PlayerCfg.KeyboardSens[player_config_keyboard_index::pitch_ud], speed_factor, 2);
+		auto pitch_factor = LOCKED_PITCH_FACTOR;
+		if (release_pitch_lock())
+			pitch_factor = FREE_PITCH_FACTOR;
+
+		// From keyboard...		
+		adjust_ramped_keyboard_field(plus, key_pitch_forward, Controls.pitch_time, PlayerCfg.KeyboardSens[player_config_keyboard_index::pitch_ud], speed_factor, pitch_factor);
+		adjust_ramped_keyboard_field(minus, key_pitch_backward, Controls.pitch_time, PlayerCfg.KeyboardSens[player_config_keyboard_index::pitch_ud], speed_factor, pitch_factor);
+
 		// From joystick...
 #ifdef dxx_kconfig_ui_kc_joystick_pitch_ud
 		adjust_axis_field(Controls.pitch_time, joy_axis, kcm_joystick[dxx_kconfig_ui_kc_joystick_pitch_ud].value, kcm_joystick[dxx_kconfig_ui_kc_joystick_invert_pitch].value, PlayerCfg.JoystickSens[player_config_joystick_index::pitch_ud]);
@@ -1395,7 +1413,11 @@ void kconfig_end_loop(control_info &Controls, const fix frametime)
 	clamp_kconfig_control_with_overrun(Controls.forward_thrust_time, frametime, Controls.excess_forward_thrust_time, frametime * PlayerCfg.MouseOverrun[player_config_mouse_index::throttle]);
 	if (!allow_uncapped_turning())
 	{
-		clamp_kconfig_control_with_overrun(Controls.pitch_time, frametime / 2, Controls.excess_pitch_time, frametime * PlayerCfg.MouseOverrun[player_config_mouse_index::pitch_ud]);
+		auto pitch_frametime = frametime / LOCKED_PITCH_FACTOR;
+		if(release_pitch_lock()) {
+			pitch_frametime = frametime / FREE_PITCH_FACTOR;
+		}
+		clamp_kconfig_control_with_overrun(Controls.pitch_time, pitch_frametime, Controls.excess_pitch_time, frametime * PlayerCfg.MouseOverrun[player_config_mouse_index::pitch_ud]);
 		clamp_kconfig_control_with_overrun(Controls.heading_time, frametime, Controls.excess_heading_time, frametime * PlayerCfg.MouseOverrun[player_config_mouse_index::turn_lr]);
 		clamp_kconfig_control_with_overrun(Controls.bank_time, frametime, Controls.excess_bank_time, frametime * PlayerCfg.MouseOverrun[player_config_mouse_index::bank_lr]);
 	}

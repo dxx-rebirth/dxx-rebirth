@@ -34,10 +34,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dsx-ns.h"
 
 #ifdef dsx
-#include "compiler-span.h"
 #include "object.h"
 #include <array>
 #include <memory>
+#include <new>
+#include <span>
 
 namespace dcx {
 
@@ -89,11 +90,19 @@ struct morph_data : prohibit_void_ptr<morph_data>
 		n_morphing_points,       // how many active points in each part
 		submodel_startpoints;    // first point for each submodel
 	static ptr create(object_base &, const polymodel &, polymodel_idx);
-	span<fix> get_morph_times();
-	span<vms_vector> get_morph_vecs();
-	span<vms_vector> get_morph_deltas();
+	std::span<fix> get_morph_times();
+	std::span<vms_vector> get_morph_vecs();
+	std::span<vms_vector> get_morph_deltas();
 private:
-	static void *operator new(std::size_t bytes, max_vectors);
+	/* Advise gcc to inline this `operator new` because if it is not inline,
+	 * then -Wmismatched-new-delete issues a spurious warning when it inlines
+	 * the body of `operator delete(void *, max_vectors)` and does not inline
+	 * this method.  Possibly relevant gcc bug reports:
+	 *
+	 * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100485	`False positive in -Wmismatched-new-delete`
+	 * https://gcc.gnu.org/bugzilla/show_bug.cgi?id=103993	`-Wismatched-new-delete due to difference in inlining decisions`
+	 */
+	static inline void *operator new(std::size_t bytes, max_vectors);
 	explicit morph_data(object_base &o, max_vectors);
 };
 
@@ -109,7 +118,7 @@ void morph_start(d_level_unique_morph_object_state &, d_level_shared_polygon_mod
 void do_morph_frame(object &obj);
 
 //called at the start of a level
-void init_morphs();
+void init_morphs(d_level_unique_morph_object_state &MorphObjectState);
 }
 #endif
 

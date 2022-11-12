@@ -46,6 +46,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SHAREWARE_TEXTSIZE  14677
 #endif
 
+namespace {
+
 static std::unique_ptr<char[]> text;
 static std::unique_ptr<char[]> overwritten_text;
 
@@ -62,6 +64,8 @@ static uint8_t decode_char(const uint8_t c)
 	const auto c1 = encode_rotate_left(c);
 	const auto c2 = c1 ^ BITMAP_TBL_XOR;
 	return encode_rotate_left(c2);
+}
+
 }
 
 //decode an encoded line of text of bitmaps.tbl

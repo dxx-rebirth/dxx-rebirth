@@ -25,73 +25,54 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <bitset>
 #include "pstypes.h"
 
-#ifdef __cplusplus
 #include "fwd-player.h"	// playernum_t
 #include "fwd-vclip.h"
 #include "fwd-vecmat.h"
+#include "robot.h"
+
+namespace dcx {
+
+enum class multi_send_robot_position_priority : uint8_t
+{
+	_0,
+	_1,
+	_2,
+};
 
 constexpr std::integral_constant<std::size_t, 5> MAX_ROBOTS_CONTROLLED{};
 constexpr std::integral_constant<std::size_t, MAX_ROBOTS_CONTROLLED> HANDS_OFF_PERIOD{}; // i.e. one slow above max
 
 extern std::array<objnum_t, MAX_ROBOTS_CONTROLLED> robot_controlled;
-extern std::array<int, MAX_ROBOTS_CONTROLLED> robot_agitation, robot_fired;
+extern std::array<int, MAX_ROBOTS_CONTROLLED> robot_agitation;
+extern std::bitset<MAX_ROBOTS_CONTROLLED> robot_fired;
+}
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 int multi_can_move_robot(vmobjptridx_t objnum, int agitation);
-void multi_send_robot_position(object &objnum, int fired);
-void multi_send_robot_fire(vmobjptridx_t objnum, int gun_num, const vms_vector &fire);
+void multi_send_robot_position(object &objnum, multi_send_robot_position_priority fired);
+void multi_send_robot_fire(vmobjptridx_t objnum, robot_gun_number gun_num, const vms_vector &fire);
 void multi_send_claim_robot(vmobjptridx_t objnum);
 void multi_send_robot_explode(imobjptridx_t objnum, objnum_t killer);
 void multi_send_create_robot(station_number robotcen, objnum_t objnum, int type);
-#ifdef dsx
 namespace dsx {
 void multi_send_boss_teleport(vmobjptridx_t bossobjnum, vcsegidx_t where);
 }
-#endif
 void multi_send_boss_cloak(objnum_t bossobjnum);
 void multi_send_boss_start_gate(objnum_t bossobjnum);
 void multi_send_boss_stop_gate(objnum_t bossobjnum);
 void multi_send_boss_create_robot(vmobjidx_t bossobjnum, vmobjptridx_t objnum);
-#ifdef dsx
+void multi_send_robot_frame();
 namespace dsx {
-int multi_explode_robot_sub(vmobjptridx_t botnum);
-}
-#endif
-int multi_send_robot_frame(int sent);
-#ifdef dsx
-namespace dsx {
+int multi_explode_robot_sub(const d_robot_info_array &Robot_info, vmobjptridx_t botnum);
 void multi_robot_request_change(vmobjptridx_t robot, int playernum);
 #if defined(DXX_BUILD_DESCENT_II)
 void multi_send_thief_frame();
 #endif
 }
 #endif
-#endif
-
-void multi_do_robot_explode(const ubyte *buf);
-void multi_do_robot_position(playernum_t pnum, const ubyte *buf);
-void multi_do_claim_robot(playernum_t pnum, const ubyte *buf);
-void multi_do_release_robot(playernum_t pnum, const ubyte *buf);
-#ifdef dsx
-namespace dsx {
-void multi_do_robot_fire(const ubyte *buf);
-void multi_do_create_robot(const d_vclip_array &Vclip, playernum_t pnum, const uint8_t *buf);
-void multi_do_boss_teleport(const d_vclip_array &Vclip, playernum_t pnum, const uint8_t *buf);
-}
-#endif
-void multi_do_create_robot_powerups(playernum_t pnum, const ubyte *buf);
-#ifdef dsx
-namespace dsx {
-void multi_do_boss_cloak(const ubyte *buf);
-}
-#endif
-void multi_do_boss_start_gate(const ubyte *buf);
-void multi_do_boss_stop_gate(const ubyte *buf);
-void multi_do_boss_create_robot(playernum_t pnum, const ubyte *buf);
 
 void multi_strip_robots(int playernum);
 void multi_check_robot_timeout(void);
-
-#endif

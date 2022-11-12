@@ -727,7 +727,7 @@ static void add_missions_to_list(mission_list_type &mission_list, mission_candid
 			break;
 		}
 		*rel_path = 0;	// chop off the entry
-		DXX_POISON_MEMORY(std::next(rel_path), path.end(), 0xcc);
+		DXX_POISON_MEMORY(std::span(std::next(rel_path), path.end()), 0xcc);
 	}
 }
 
@@ -794,7 +794,7 @@ static mission_list_type build_mission_list(const mission_filter_mode mission_fi
 #endif
 	add_d1_builtin_mission_to_list(mission_list);
 	mission_candidate_search_path search_str = {{MISSION_DIR}};
-	DXX_POISON_MEMORY(std::next(search_str.begin(), sizeof(MISSION_DIR)), search_str.end(), 0xcc);
+	DXX_POISON_MEMORY(std::span(std::next(search_str.begin(), sizeof(MISSION_DIR)), search_str.end()), 0xcc);
 	add_missions_to_list(mission_list, search_str, search_str.begin() + sizeof(MISSION_DIR) - 1, mission_filter);
 	
 	// move original missions (in story-chronological order)
@@ -818,9 +818,9 @@ static mission_list_type build_mission_list(const mission_filter_mode mission_fi
 
 int load_mission_ham()
 {
-	read_hamfile(); // intentionally can also read from the HOG
+	read_hamfile(LevelSharedRobotInfoState); // intentionally can also read from the HOG
 
-	if (Piggy_hamfile_version >= 3)
+	if (Piggy_hamfile_version >= pig_hamfile_version::_3)
 	{
 		// re-read sounds in case mission has custom .sXX
 		Num_sound_files = 0;
@@ -865,11 +865,11 @@ int load_mission_ham()
 namespace {
 
 #define tex ".tex"
-static void set_briefing_filename(d_fname &f, const char *const v, std::size_t d)
+static void set_briefing_filename(d_fname &f, const std::span<const char> v)
 {
-	f.copy_if(v, d);
-	f.copy_if(d, tex);
-	if (!PHYSFSX_exists(static_cast<const char *>(f), 1) && !(f.copy_if(++d, "txb"), PHYSFSX_exists(static_cast<const char *>(f), 1))) // check if this file exists ...
+	f.copy_if(v.data(), v.size());
+	f.copy_if(v.size(), tex);
+	if (!PHYSFSX_exists(static_cast<const char *>(f), 1) && !(f.copy_if(v.size() + 1, "txb"), PHYSFSX_exists(static_cast<const char *>(f), 1))) // check if this file exists ...
 		f = {};
 }
 
@@ -879,9 +879,9 @@ static void set_briefing_filename(d_fname &f, const char *const v)
 	auto a = [](char c) {
 		return !c || c == '.';
 	};
-	auto i = std::find_if(v, next(v, f.size() - sizeof(tex)), a);
+	const auto &&i = ranges::find_if(v, next(v, f.size() - sizeof(tex)), a);
 	std::size_t d = std::distance(v, i);
-	set_briefing_filename(f, v, d);
+	set_briefing_filename(f, {v, d});
 }
 
 static void record_briefing(d_fname &f, std::array<char, PATH_MAX> &buf)
@@ -889,11 +889,11 @@ static void record_briefing(d_fname &f, std::array<char, PATH_MAX> &buf)
 	const auto v = get_value(buf.data());
 	if (!v)
 		return;
-	const std::size_t d = std::distance(v, std::find_if(v, buf.end(), null_or_space));
+	const std::size_t d = std::distance(v, ranges::find_if(v, buf.end(), null_or_space));
 	if (d >= FILENAME_LEN)
 		return;
 	{
-		set_briefing_filename(f, v, std::min(d, f.size() - sizeof(tex)));
+		set_briefing_filename(f, {v, std::min(d, f.size() - sizeof(tex))});
 	}
 }
 #undef tex
@@ -1046,8 +1046,8 @@ static const char *load_mission(const mle *const mission)
 					if (!PHYSFSX_fgets(buf, mfile))
 						break;
 					auto &line = buf.line();
-					auto s = std::find_if(line.begin(), line.end(), null_or_space);
-					if (i.copy_if(buf.line(), std::distance(line.begin(), s)))
+					const auto &&s = ranges::find_if(line, null_or_space);
+					if (i.copy_if(line, std::distance(line.begin(), s)))
 					{
 						++level_names_loaded;
 					}
@@ -1092,7 +1092,7 @@ static const char *load_mission(const mle *const mission)
 					auto a = [](char c) {
 						return isspace(static_cast<unsigned>(c));
 					};
-					auto s = std::find_if(lb, t, a);
+					const auto &&s = ranges::find_if(lb, t, a);
 					if (name.copy_if(line, std::distance(lb, s)))
 					{
 						unsigned long ls = strtoul(t + 1, &ip, 10);
@@ -1478,6 +1478,7 @@ int select_mission(const mission_filter_mode mission_filter, const menu_title me
 }
 
 #if DXX_USE_EDITOR
+namespace {
 static int write_mission(void)
 {
 	auto &msn_extension =
@@ -1546,6 +1547,7 @@ static int write_mission(void)
 #endif
 
 	return 1;
+}
 }
 
 void create_new_mission(void)

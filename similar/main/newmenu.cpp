@@ -297,7 +297,7 @@ static void nm_string(grs_canvas &canvas, const grs_font &cv_font, const int w1,
 	{
 		const char *s1 = s;
 		const char *p = nullptr;
-		RAIIdmem<char[]> s2;
+		std::unique_ptr<char[]> s2;
 		if (w1 > 0 && (p = strchr(s, '\t')))
 		{
 			s2 = d_strdup(s);
@@ -396,22 +396,25 @@ static void nm_rstring(grs_canvas &canvas, const grs_font &cv_font, int w1, int 
 	gr_string(canvas, cv_font, x - w, y, s, w, h);
 }
 
-static void nm_string_inputbox(grs_canvas &canvas, const grs_font &cv_font, const int w, const int x, const int y, const char *text, const int current)
+static void nm_string_inputbox(grs_canvas &canvas, const grs_font &cv_font, const int w, const int x, const int y, const char *const entry_text, const int current)
 {
-	int w1;
-
+	const auto &&[w1, text] = [](const grs_font &font, const int w, const char *text) -> std::pair<int, const char *> {
 	// even with variable char widths and a box that goes over the whole screen, we maybe never get more than 75 chars on the line
-	if (strlen(text)>75)
-		text+=strlen(text)-75;
-	while( *text )	{
-		w1 = gr_get_string_size(cv_font, text).width;
-		if ( w1 > w-FSPACX(10) )
-			text++;
-		else
-			break;
-	}
-	if ( *text == 0 )
-		w1 = 0;
+		if (const auto l = strlen(text); l > 75)
+			text += l - 75;
+		const auto threshold = w - FSPACX(10);
+		for (;;)
+		{
+			const char c = *text;
+			if (!c)
+				return {0, text};
+			const int w1 = gr_get_string_size(font, text, UINT_MAX).width;
+			if (w1 > threshold)
+				++text;
+			else
+				return {w1, text};
+		}
+	}(cv_font, w, entry_text);
 
 	nm_string_black(canvas, w, x, y, text);
 
@@ -679,14 +682,19 @@ static void newmenu_scroll(newmenu *const menu, const int amount)
 			menu->scroll_offset = nitems - menu->max_on_menu;
 		return;
 	}
+	/* Otherwise, at least one element is not of type text.  Find that element.
+	 */
 	const auto &range = menu->items;
 	const auto predicate = [](const newmenu_item &n) {
 		return n.type != nm_type::text;
 	};
-	const auto first = std::find_if(range.begin(), range.end(), predicate);
+	const auto &&first = ranges::find_if(range, predicate);
 	if (first == range.end())
+		/* This should not happen.  If every entry is of type `nm_type::text`,
+		 * then `menu->all_text` should have been true.
+		 */
 		return;
-	const auto rlast = std::find_if(range.rbegin(), std::reverse_iterator<newmenu_item *>(first), predicate).base();
+	const auto &&rlast = ranges::find_if(std::reverse_iterator(range.end()), std::reverse_iterator(first), predicate).base();
 	/* `first == rlast` should not happen, since that would mean that
 	 * there are no elements in `range` for which `predicate` is true.
 	 * If there are no such elements, then `first == range.end()` should
@@ -1187,7 +1195,7 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 					changed = 1;
 				rval = window_event_result::handled;
 			}
-			else if (const auto im = citem.input_or_menu(); citem.value < im->text_len)
+			else if (const auto im = citem.input_or_menu(); citem.value < im->text_len || citem.value == -1)
 			{
 				auto ascii = key_ascii();
 				if (ascii < 255)
@@ -1616,7 +1624,7 @@ window_event_result newmenu::event_handler(const d_event &event)
 		case EVENT_KEY_COMMAND:
 			return newmenu_key_command(event, this);
 		case EVENT_IDLE:
-			if (!(Game_mode & GM_MULTI && Game_wind))
+			if (!(Game_mode & GM_MULTI) || !Game_wind || !Game_wind->is_visible())
 				timer_delay2(CGameArg.SysMaxFPS);
 			break;
 		case EVENT_WINDOW_DRAW:

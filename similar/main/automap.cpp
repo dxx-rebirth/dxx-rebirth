@@ -269,6 +269,12 @@ static void recompute_automap_segment_visibility(const d_level_unique_automap_st
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
+#ifdef RELEASE
+constexpr
+#endif
+static float MarkerScale = 2.0;
+static unsigned Marker_index;
+
 struct marker_delete_are_you_sure_menu : std::array<newmenu_item, 2>, newmenu
 {
 	using array_type = std::array<newmenu_item, 2>;
@@ -360,7 +366,6 @@ void init_automap_colors(automap &am)
 
 #if defined(DXX_BUILD_DESCENT_II)
 marker_message_text_t Marker_input;
-static float MarkerScale=2.0;
 
 d_marker_state MarkerState;
 
@@ -535,7 +540,7 @@ void DropBuddyMarker(object &objp)
 	static_assert(MarkerState.message.valid_index(marker_num), "not enough markers");
 
 	auto &MarkerMessage = MarkerState.message[marker_num];
-	snprintf(&MarkerMessage[0], MarkerMessage.size(), "RIP: %s", static_cast<const char *>(PlayerCfg.GuidebotName));
+	snprintf(&MarkerMessage[0u], MarkerMessage.size(), "RIP: %s", static_cast<const char *>(PlayerCfg.GuidebotName));
 
 	auto &marker_objidx = MarkerState.imobjidx[marker_num];
 	if (marker_objidx != object_none)
@@ -947,7 +952,8 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 		if (MarkerState.message.valid_index(HighlightMarker))
 		{
 			auto &m = MarkerState.message[HighlightMarker];
-			gr_printf(canvas, *canvas.cv_font, (SWIDTH/64), (SHEIGHT/18), "Marker %u%c %s", static_cast<unsigned>(HighlightMarker) + 1, m[0] ? ':' : 0, &m[0]);
+			auto &p = m[0u];
+			gr_printf(canvas, *canvas.cv_font, (SWIDTH / 64), (SHEIGHT / 18), "Marker %u%c %s", static_cast<unsigned>(HighlightMarker) + 1, p ? ':' : 0, &p);
 		}
 	}
 #endif
@@ -1299,7 +1305,7 @@ void draw_all_edges(automap &am)
 		if (min_distance>distance )
 			min_distance = distance;
 
-		if (!rotate_list(vcvertptr, e->verts).uand)
+		if (rotate_list(vcvertptr, e->verts).uand == clipping_code::None)
 		{			//all off screen?
 			nfacing = nnfacing = 0;
 			auto &tv1 = *vcvertptr(e->verts[0]);
@@ -1690,8 +1696,6 @@ void automap_build_edge_list(automap &am, int add_all_edges)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-static unsigned Marker_index;
-
 void InitMarkerInput ()
 {
 	//find free marker slot
@@ -1730,7 +1734,7 @@ void InitMarkerInput ()
 
 	//got a free slot.  start inputting marker message
 
-	Marker_input[0]=0;
+	Marker_input.front() = 0;
 	Marker_index=0;
 	key_toggle_repeat(1);
 }

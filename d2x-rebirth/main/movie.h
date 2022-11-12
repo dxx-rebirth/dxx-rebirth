@@ -26,18 +26,29 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include <limits.h>
+#include <span>
 #include "d2x-rebirth/libmve/mvelib.h"
 #include "dsx-ns.h"
+#include "physfsrwops.h"
 
 namespace dsx {
 
-#define MOVIE_ABORT_ON  1
-#define MOVIE_ABORT_OFF 0
+enum class play_movie_warn_missing : uint8_t
+{
+	verbose,
+	urgent,
+};
 
 enum class movie_play_status : uint8_t
 {
 	skipped,   // movie wasn't present
 	started,	// movie was present and started; it may or may not have completed
+};
+
+enum class movie_resolution : uint8_t
+{
+	high,
+	low,
 };
 
 #if DXX_USE_OGL
@@ -48,9 +59,9 @@ enum class movie_play_status : uint8_t
 #define MOVIE_HEIGHT static_cast<uint16_t>(!GameArg.GfxSkipHiresMovie? 480 : 200)
 #endif
 
-movie_play_status PlayMovie(const char *subtitles, const char *filename, int allow_abort);
-uint8_t InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie);
-int RotateRobot(MVESTREAM_ptr_t &pMovie);
+movie_play_status PlayMovie(std::span<const char> subtitles, const char *filename, play_movie_warn_missing);
+RWops_ptr InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie);
+int RotateRobot(MVESTREAM_ptr_t &pMovie, SDL_RWops *);
 void DeInitRobotMovie(MVESTREAM_ptr_t &pMovie);
 
 struct LoadedMovie
@@ -63,6 +74,11 @@ struct LoadedMovie
 	~LoadedMovie();
 };
 
+struct LoadedMovieWithResolution : LoadedMovie
+{
+	movie_resolution resolution;
+};
+
 struct BuiltinMovies
 {
 	std::array<LoadedMovie, 3> movies;
@@ -72,8 +88,6 @@ struct BuiltinMovies
 [[nodiscard]]
 std::unique_ptr<BuiltinMovies> init_movies();
 [[nodiscard]]
-std::unique_ptr<LoadedMovie> init_extra_robot_movie(const char *filename);
-
-extern int MovieHires;      // specifies whether movies use low or high res
+std::unique_ptr<LoadedMovieWithResolution> init_extra_robot_movie(const char *filename);
 
 }

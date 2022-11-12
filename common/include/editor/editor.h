@@ -34,6 +34,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-window.h"
 #include "fwd-segment.h"
 #include "objnum.h"
+#ifdef dsx
+#include "robot.h"
+#endif
 
 /*
  * Constants
@@ -457,7 +460,6 @@ void editor_status( const char *text);
 extern int MacroNumEvents;
 extern int MacroStatus;
 
-//extern	int	Highest_segment_index;			// Highest index in Segments, an efficiency hack
 extern	int	Lock_view_to_cursegp;			// !0 means whenever cursegp changes, view it
 
 //	eglobal.c
@@ -518,7 +520,7 @@ extern grs_subcanvas _canv_editor_game;		//the game on the editor screen
 extern grs_canvas *Canv_editor;			//the editor screen
 extern grs_subcanvas *const Canv_editor_game; //the game on the editor screen
 
-struct editor_dialog : UI_DIALOG
+struct editor_dialog final : UI_DIALOG
 {
 	using UI_DIALOG::UI_DIALOG;
 	std::array<std::unique_ptr<UI_GADGET_BUTTON>, 9> pad_goto;
@@ -538,7 +540,7 @@ void close_editor_screen(void);
 #ifdef dsx
 namespace dsx {
 //    From eobject.c
-int place_object(vmsegptridx_t segp, const vms_vector &object_pos, short object_type, short object_id);
+int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_polygon_model_state &LevelSharedPolygonModelState, const d_robot_info_array &Robot_info, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, vmsegptridx_t segp, const vms_vector &object_pos, short object_type, short object_id);
 
 // from ksegsize.c
 void med_extract_up_vector_from_segment_side(const shared_segment &sp, sidenum_t sidenum, vms_vector &vp);

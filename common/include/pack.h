@@ -29,6 +29,8 @@ public:
 	constexpr operator const T *() const { return p; }
 	constexpr operator typename std::remove_const<T>::type *() const { return p; }
 	constexpr bool operator==(const T *rhs) const { return p == rhs; }
+	[[nodiscard]]
+	constexpr bool operator==(const exact_type<T> &rhs) const = default;
 };
 
 template <typename T>

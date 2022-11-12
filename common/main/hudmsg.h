@@ -32,7 +32,6 @@ void HUD_render_message_frame(grs_canvas &);
 }
 #endif
 int HUD_init_message(int class_flag, const char * format, ... ) __attribute_format_printf(2, 3);
-#define HUD_init_message(A1,F,...)	dxx_call_printf_checked(HUD_init_message,HUD_init_message_literal,(A1),(F),##__VA_ARGS__)
 int HUD_init_message_va(int class_flag, const char * format, va_list args) __attribute_format_printf(2, 0);
 int HUD_init_message_literal(int class_flag, const char *str);
 

@@ -29,11 +29,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-inferno.h"
 #include "fwd-player.h"
 #include "fwd-object.h"
+#include "fwd-robot.h"
 #include "fwd-vclip.h"
 #include "fwd-window.h"
 #include "powerup.h"
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 
 namespace dcx {
 template <std::size_t>
@@ -46,7 +47,7 @@ constexpr std::integral_constant<unsigned, 36> LEVEL_NAME_LEN{};       //make su
 // 0 used to mean not a real level loaded (i.e. editor generated level), but this hack has been removed
 extern int Current_level_num;
 extern PHYSFSX_gets_line_t<LEVEL_NAME_LEN> Current_level_name;
-extern std::array<obj_position, MAX_PLAYERS> Player_init;
+extern per_player_array<obj_position> Player_init;
 
 // This is the highest level the player has ever reached
 extern int Player_highest_level;
@@ -57,48 +58,52 @@ extern int Player_highest_level;
 //
 
 // starts a new game on the given level
-#ifdef dsx
 namespace dsx {
+
+enum class next_level_request_secret_flag : uint8_t
+{
+	only_normal_level,
+#if defined(DXX_BUILD_DESCENT_I)
+	use_secret,
+#endif
+};
+
 void StartNewGame(int start_level);
 
 // starts the next level
 window_event_result StartNewLevel(int level_num);
 
 }
-#endif
 void InitPlayerObject();            //make sure player's object set up
 namespace dsx {
 void init_player_stats_game(playernum_t pnum);      //clear all stats
-}
 
 // called when the player has finished a level
 // if secret flag is true, advance to secret level, else next normal level
-#ifdef dsx
-namespace dsx {
-window_event_result PlayerFinishedLevel(int secret_flag);
-
-}
+window_event_result PlayerFinishedLevel(
+#if defined(DXX_BUILD_DESCENT_I)
+	next_level_request_secret_flag secret_flag
 #endif
-namespace dsx {
+	);
+
 // called when the player has died
 window_event_result DoPlayerDead(void);
-}
 
 #if defined(DXX_BUILD_DESCENT_I)
+#define gameseq_remove_unused_players(Robot_info)	gameseq_remove_unused_players()
+#undef PlayerFinishedLevel
 #elif defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
+#undef gameseq_remove_unused_players
+#define PlayerFinishedLevel(secret_flag)	((void)secret_flag,PlayerFinishedLevel())
 // load just the hxm file
 void load_level_robots(int level_num);
 void load_level_robots(const d_fname &level_name);
 extern int	First_secret_visit;
 window_event_result ExitSecretLevel();
-}
 #endif
 
 // load a level off disk. level numbers start at 1.
 // Secret levels are -1,-2,-3
-#ifdef dsx
-namespace dsx {
 void LoadLevel(int level_num, int page_in_textures);
 
 }
@@ -121,10 +126,7 @@ void close_message_window(void);
 namespace dsx {
 void create_player_appearance_effect(const d_vclip_array &Vclip, const object_base &player_obj);
 void bash_to_shield(const d_powerup_info_array &Powerup_info, const d_vclip_array &Vclip, object_base &i);
-void copy_defaults_to_robot(object_base &objp);
-void gameseq_remove_unused_players();
 }
-#endif
 
 // Show endlevel bonus scores
 namespace dcx {
@@ -142,5 +144,7 @@ void do_cloak_invul_secret_stuff(fix64 old_gametime, player_info &player_info);
 #endif
 void EnterSecretLevel(void);
 void init_player_stats_new_ship(playernum_t pnum);
+void copy_defaults_to_robot(const d_robot_info_array &Robot_info, object_base &objp);
+void gameseq_remove_unused_players(const d_robot_info_array &Robot_info);
 }
 #endif

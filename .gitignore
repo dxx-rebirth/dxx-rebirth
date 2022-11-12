@@ -48,3 +48,7 @@ xcuserdata
 # PyCharm generated files #
 ###########################
 .idea
+
+# Brewfile installation artifacts
+#################################
+Brewfile.lock.json

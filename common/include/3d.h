@@ -33,6 +33,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h" //the vector/matrix library
 #include "fwd-gr.h"
 #include <array>
+#include <span>
 
 #if DXX_USE_OGL
 #if defined(__APPLE__) && defined(__MACH__)
@@ -59,28 +60,86 @@ struct g3s_lrgb {
 	fix r,g,b;
 };
 
+//clipping codes flags
+
+enum class clipping_code : uint8_t
+{
+	None = 0,
+	off_left = 1,
+	off_right = 2,
+	off_bot = 4,
+	off_top = 8,
+	behind = 0x80,
+};
+
+static constexpr clipping_code operator&(const clipping_code a, const clipping_code b)
+{
+	return static_cast<clipping_code>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
+}
+
+static constexpr clipping_code &operator&=(clipping_code &a, const clipping_code b)
+{
+	return a = (a & b);
+}
+
+static constexpr clipping_code operator|(const clipping_code a, const clipping_code b)
+{
+	return static_cast<clipping_code>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+}
+
+static constexpr clipping_code &operator|=(clipping_code &a, const clipping_code b)
+{
+	return a = (a | b);
+}
+
+static constexpr clipping_code operator~(const clipping_code a)
+{
+	return static_cast<clipping_code>(~static_cast<uint8_t>(a));
+}
+
 //Stucture to store clipping codes in a word
 struct g3s_codes {
 	//or is low byte, and is high byte
-	uint8_t uor = 0, uand = 0xff;
+	clipping_code uor = clipping_code{0};
+	clipping_code uand = clipping_code{0xff};
 };
 
-//flags for point structure
-constexpr std::integral_constant<uint8_t, 1> PF_PROJECTED{};		//has been projected, so sx,sy valid
-constexpr std::integral_constant<uint8_t, 2> PF_OVERFLOW{};		//can't project
+enum class projection_flag : uint8_t
+{
+	//flags for point structure
+	projected = 1,		//has been projected, so sx,sy valid
+	overflow = 2,		//can't project
 #if !DXX_USE_OGL
-constexpr std::integral_constant<uint8_t, 4> PF_TEMP_POINT{};	//created during clip
-constexpr std::integral_constant<uint8_t, 8> PF_UVS{};			//has uv values set
-constexpr std::integral_constant<uint8_t, 16> PF_LS{};			//has lighting values set
+	temp_point = 4,	//created during clip
+	uvs = 8,			//has uv values set
+	ls = 16,			//has lighting values set
 #endif
+};
 
-//clipping codes flags
+static constexpr uint8_t operator&(const projection_flag a, const projection_flag b)
+{
+	return static_cast<uint8_t>(a) & static_cast<uint8_t>(b);
+}
 
-constexpr std::integral_constant<uint8_t, 1> CC_OFF_LEFT{};
-constexpr std::integral_constant<uint8_t, 2> CC_OFF_RIGHT{};
-constexpr std::integral_constant<uint8_t, 4> CC_OFF_BOT{};
-constexpr std::integral_constant<uint8_t, 8> CC_OFF_TOP{};
-constexpr std::integral_constant<uint8_t, 0x80> CC_BEHIND{};
+static constexpr projection_flag &operator&=(projection_flag &a, const projection_flag b)
+{
+	return a = static_cast<projection_flag>(a & b);
+}
+
+static constexpr projection_flag operator|(const projection_flag a, const projection_flag b)
+{
+	return static_cast<projection_flag>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+}
+
+static constexpr projection_flag &operator|=(projection_flag &a, const projection_flag b)
+{
+	return a = (a | b);
+}
+
+static constexpr projection_flag operator~(const projection_flag a)
+{
+	return static_cast<projection_flag>(~static_cast<uint8_t>(a));
+}
 
 //Used to store rotated points for mines.  Has frame count to indictate
 //if rotated, and flag to indicate if projected.
@@ -90,8 +149,8 @@ struct g3s_point {
 	fix p3_u,p3_v,p3_l; //u,v,l coords
 #endif
 	fix p3_sx,p3_sy;    //screen x&y
-	ubyte p3_codes;     //clipping codes
-	ubyte p3_flags;     //projected?
+	clipping_code p3_codes;     //clipping codes
+	projection_flag p3_flags;     //projected?
 	uint16_t p3_last_generation;
 };
 
@@ -157,18 +216,10 @@ bool g3_check_normal_facing(const vms_vector &v,const vms_vector &norm);
 
 //Point definition and rotation functions:
 
-//specify the arrays refered to by the 'pointlist' parms in the following
-//functions.  I'm not sure if we will keep this function, but I need
-//it now.
-//void g3_set_points(g3s_point *points,vms_vector *vecs);
-
-//returns codes_and & codes_or of a list of points numbers
-g3s_codes g3_check_codes(int nv,g3s_point **pointlist);
-
 namespace dcx {
 
 //rotates a point. returns codes.  does not check if already rotated
-ubyte g3_rotate_point(g3s_point &dest,const vms_vector &src);
+clipping_code g3_rotate_point(g3s_point &dest,const vms_vector &src);
 
 [[nodiscard]]
 static inline g3s_point g3_rotate_point(const vms_vector &src)
@@ -187,29 +238,29 @@ fix g3_calc_point_depth(const vms_vector &pnt);
 void g3_point_2_vec(vms_vector &v,short sx,short sy);
 
 //code a point.  fills in the p3_codes field of the point, and returns the codes
-ubyte g3_code_point(g3s_point &point);
+clipping_code g3_code_point(g3s_point &point);
 
 //delta rotation functions
 void g3_rotate_delta_vec(vms_vector &dest,const vms_vector &src);
 
-ubyte g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &deltav);
+void g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &deltav);
 
 //Drawing functions:
 
 //draw a flat-shaded face.
 //returns 1 if off screen, 0 if drew
-void _g3_draw_poly(grs_canvas &, uint_fast32_t nv, cg3s_point *const *pointlist, uint8_t color);
+void _g3_draw_poly(grs_canvas &, std::span<cg3s_point *const> pointlist, uint8_t color);
 template <std::size_t N>
 static inline void g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, const std::array<cg3s_point *, N> &pointlist, const uint8_t color)
 {
-	_g3_draw_poly(canvas, nv, &pointlist[0], color);
+	_g3_draw_poly(canvas, std::span(pointlist).first(nv), color);
 }
 
 constexpr std::integral_constant<std::size_t, 64> MAX_POINTS_PER_POLY{};
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew
-void _g3_draw_tmap(grs_canvas &canvas, unsigned nv, cg3s_point *const *pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm);
+void _g3_draw_tmap(grs_canvas &canvas, std::span<cg3s_point *const> pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm);
 
 template <std::size_t N>
 static inline void g3_draw_tmap(grs_canvas &canvas, unsigned nv, const std::array<cg3s_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
@@ -221,13 +272,14 @@ static inline void g3_draw_tmap(grs_canvas &canvas, unsigned nv, const std::arra
 #endif
 	if (nv > N)
 		return;
-	_g3_draw_tmap(canvas, nv, &pointlist[0], &uvl_list[0], &light_rgb[0], bm);
+	_g3_draw_tmap(canvas, std::span(pointlist).first(nv), &uvl_list[0], &light_rgb[0], bm);
 }
 
 template <std::size_t N>
+requires(N <= MAX_POINTS_PER_POLY)
 static inline void g3_draw_tmap(grs_canvas &canvas, const std::array<cg3s_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm)
 {
-	g3_draw_tmap(canvas, N, pointlist, uvl_list, light_rgb, bm);
+	_g3_draw_tmap(canvas, pointlist, uvl_list.data(), light_rgb.data(), bm);
 }
 
 //draw a sortof sphere - i.e., the 2d radius is proportional to the 3d
@@ -333,16 +385,12 @@ public:
 		{
 			return type == t;
 		}
-	bool operator!=(tmap_drawer_constant t) const
-		{
-			return type != t;
-		}
 };
 #else
 void g3_draw_line(const g3_draw_line_context &, cg3s_point &p0, cg3s_point &p1, temporary_points_t &);
 constexpr std::integral_constant<std::size_t, 100> MAX_POINTS_IN_POLY{};
 
-using tmap_drawer_type = void (*)(grs_canvas &, const grs_bitmap &bm, uint_fast32_t nv, const g3s_point *const *vertlist);
+using tmap_drawer_type = void (*)(grs_canvas &, const grs_bitmap &bm, std::span<const g3s_point *const> vertlist);
 
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
 //	(ie, avoids cracking) edge/delta computation.

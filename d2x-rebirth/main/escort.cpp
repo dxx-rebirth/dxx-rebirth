@@ -81,6 +81,10 @@ namespace dsx {
 
 namespace {
 
+#if defined(DXX_BUILD_DESCENT_II)
+static constexpr std::integral_constant<uint8_t, UINT8_MAX> stolen_item_type_none{};
+#endif
+
 static void say_escort_goal(escort_goal_t goal_num);
 
 constexpr std::array<char[12], ESCORT_GOAL_MARKER9> Escort_goal_text = {{
@@ -247,14 +251,15 @@ static int segment_is_reachable(const object &robot, const robot_info &robptr, c
 //	Output:
 //		bfs_list:	array of shorts, each reachable segment.  Includes start segment.
 //		length:		number of elements in bfs_list
-std::size_t create_bfs_list(const object &robot, const robot_info &robptr, const vcsegidx_t start_seg, const player_flags powerup_flags, segnum_t *const bfs_list, std::size_t max_segs)
+std::size_t create_bfs_list(const object &robot, const robot_info &robptr, const vcsegidx_t start_seg, const player_flags powerup_flags, const std::span<segnum_t> bfs_list)
 {
 	std::size_t head = 0, tail = 0;
 	visited_segment_bitarray_t visited;
 	bfs_list[head++] = start_seg;
 	visited[start_seg] = true;
 
-	while ((head != tail) && (head < max_segs)) {
+	while (head != tail && head < bfs_list.size())
+	{
 		auto curseg = bfs_list[tail++];
 		const auto &&cursegp = vcsegptr(curseg);
 		for (const auto &&[i, connected_seg] : enumerate(cursegp->children))
@@ -262,7 +267,7 @@ std::size_t create_bfs_list(const object &robot, const robot_info &robptr, const
 			if (IS_CHILD(connected_seg) && (!visited[connected_seg])) {
 				if (segment_is_reachable(robot, robptr, cursegp, static_cast<sidenum_t>(i), powerup_flags)) {
 					bfs_list[head++] = connected_seg;
-					if (head >= max_segs)
+					if (head >= bfs_list.size())
 						break;
 					visited[connected_seg] = true;
 					Assert(head < MAX_SEGMENTS);
@@ -682,16 +687,13 @@ static std::pair<icsegidx_t, d_unique_buddy_state::Escort_goal_reachability> exi
 			return vcsegptr(s)->special == segment_special::fuelcen;
 		};
 		const auto &&rb = partial_const_range(bfs_list, length);
-		const auto i = std::find_if(rb.begin(), rb.end(), predicate);
+		const auto &&i = ranges::find_if(rb, predicate);
 		if (i != rb.end())
 			return {*i, d_unique_buddy_state::Escort_goal_reachability::reachable};
 	}
 	{
-		const auto &rh = vcsegptridx;
-		const auto &&predicate = [](const shared_segment &s) {
-			return s.special == segment_special::fuelcen;
-		};
-		const auto i = std::find_if(rh.begin(), rh.end(), predicate);
+		const auto &&rh = make_range(vcsegptridx);
+		const auto &&i = ranges::find(rh, segment_special::fuelcen, &shared_segment::special);
 		if (i != rh.end())
 			return {*i, d_unique_buddy_state::Escort_goal_reachability::unreachable};
 	}
@@ -811,7 +813,7 @@ static void say_escort_goal(const escort_goal_t goal_num)
 		case ESCORT_GOAL_MARKER9:
 			{
 				const uint8_t zero_based_goal_num = goal_num - ESCORT_GOAL_MARKER1;
-				buddy_message("Finding marker %i: '%.24s'", zero_based_goal_num + 1, &MarkerState.message[game_marker_index{zero_based_goal_num}][0]);
+				buddy_message("Finding marker %i: '%.24s'", zero_based_goal_num + 1, &MarkerState.message[(game_marker_index{zero_based_goal_num})][0u]);
 			}
 			return;
 	}
@@ -1106,14 +1108,12 @@ static int maybe_buddy_fire_mega(const vmobjptridx_t objp)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	const auto Buddy_objnum = BuddyState.Buddy_objnum;
 	const auto &&buddy_objp = objp.absolute_sibling(Buddy_objnum);
-	fix		dist, dot;
-	auto vec_to_robot = vm_vec_sub(buddy_objp->pos, objp->pos);
-	dist = vm_vec_normalize_quick(vec_to_robot);
+	const auto &&[dist, vec_to_robot] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(buddy_objp->pos, objp->pos));
 
 	if (dist > F1_0*100)
 		return 0;
 
-	dot = vm_vec_dot(vec_to_robot, buddy_objp->orient.fvec);
+	const auto dot = vm_vec_dot(vec_to_robot, buddy_objp->orient.fvec);
 
 	if (dot < F1_0/2)
 		return 0;
@@ -1129,7 +1129,7 @@ static int maybe_buddy_fire_mega(const vmobjptridx_t objp)
 
 	buddy_message("GAHOOGA!");
 
-	const imobjptridx_t weapon_objnum = Laser_create_new_easy( buddy_objp->orient.fvec, buddy_objp->pos, objp, weapon_id_type::MEGA_ID, weapon_sound_flag::audible);
+	const imobjptridx_t weapon_objnum = Laser_create_new_easy(LevelSharedRobotInfoState.Robot_info, buddy_objp->orient.fvec, buddy_objp->pos, objp, weapon_id_type::MEGA_ID, weapon_sound_flag::audible);
 
 	if (weapon_objnum != object_none)
 		bash_buddy_weapon_info(BuddyState, Objects.vmptridx, weapon_objnum);
@@ -1156,7 +1156,7 @@ static int maybe_buddy_fire_smart(const vmobjptridx_t objp)
 
 	buddy_message("WHAMMO!");
 
-	const imobjptridx_t weapon_objnum = Laser_create_new_easy( buddy_objp->orient.fvec, buddy_objp->pos, objp, weapon_id_type::SMART_ID, weapon_sound_flag::audible);
+	const imobjptridx_t weapon_objnum = Laser_create_new_easy(LevelSharedRobotInfoState.Robot_info, buddy_objp->orient.fvec, buddy_objp->pos, objp, weapon_id_type::SMART_ID, weapon_sound_flag::audible);
 
 	if (weapon_objnum != object_none)
 		bash_buddy_weapon_info(BuddyState, Objects.vmptridx, weapon_objnum);
@@ -1378,7 +1378,7 @@ void do_snipe_frame(const vmobjptridx_t objp, const robot_info &robptr, const fi
 			}
 			else if (player_visibility == player_visibility_state::no_line_of_sight || ailp->next_action_time > SNIPE_ABORT_RETREAT_TIME)
 			{
-				ai_follow_path(objp, player_visibility, &vec_to_player);
+				ai_follow_path(LevelSharedRobotInfoState.Robot_info, objp, player_visibility, &vec_to_player);
 				ailp->mode = ai_mode::AIM_SNIPE_RETREAT_BACKWARDS;
 			} else {
 				ailp->mode = ai_mode::AIM_SNIPE_FIRE;
@@ -1391,7 +1391,7 @@ void do_snipe_frame(const vmobjptridx_t objp, const robot_info &robptr, const fi
 				ailp->mode = ai_mode::AIM_SNIPE_RETREAT;
 				ailp->next_action_time = SNIPE_WAIT_TIME;
 			} else {
-				ai_follow_path(objp, player_visibility, &vec_to_player);
+				ai_follow_path(LevelSharedRobotInfoState.Robot_info, objp, player_visibility, &vec_to_player);
 				if (player_is_visible(player_visibility))
 				{
 					ailp->mode = ai_mode::AIM_SNIPE_FIRE;
@@ -1427,7 +1427,7 @@ void do_snipe_frame(const vmobjptridx_t objp, const robot_info &robptr, const fi
 static fix64	Re_init_thief_time = 0x3f000000;
 
 //	----------------------------------------------------------------------
-void recreate_thief(const uint8_t thief_id)
+void recreate_thief(const d_robot_info_array &Robot_info, const uint8_t thief_id)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -1436,7 +1436,7 @@ void recreate_thief(const uint8_t thief_id)
 	auto &vcvertptr = Vertices.vcptr;
 	const auto &&center_point = compute_segment_center(vcvertptr, segp);
 
-	const auto &&new_obj = create_morph_robot(segp, center_point, thief_id);
+	const auto &&new_obj = create_morph_robot(Robot_info, segp, center_point, thief_id);
 	if (new_obj == object_none)
 		return;
 	Re_init_thief_time = GameTime64 + F1_0*10;		//	In 10 seconds, re-initialize thief.
@@ -1505,7 +1505,7 @@ void do_thief_frame(const vmobjptridx_t objp, const robot_info &robptr, const fi
 			}
 			else if (dist_to_player < F1_0 * 100 || player_is_visible(player_visibility) || ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION)
 			{
-				ai_follow_path(objp, player_visibility, &vec_to_player);
+				ai_follow_path(LevelSharedRobotInfoState.Robot_info, objp, player_visibility, &vec_to_player);
 				if ((dist_to_player < F1_0*100) || (ailp->player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION)) {
 					ai_static	*aip = &objp->ctype.ai_info;
 					if (((aip->cur_path_index <=1) && (aip->PATH_DIR == -1)) || ((aip->cur_path_index >= aip->path_length-1) && (aip->PATH_DIR == 1))) {
@@ -1561,12 +1561,12 @@ void do_thief_frame(const vmobjptridx_t objp, const robot_info &robptr, const fi
 						}
 					} 
 					ai_turn_towards_vector(vec_to_player, objp, F1_0/4);
-					move_towards_player(objp, vec_to_player);
+					move_towards_player(LevelSharedRobotInfoState.Robot_info, objp, vec_to_player);
 				} else {
 					ai_static	*aip = &objp->ctype.ai_info;
 					//	If path length == 0, then he will keep trying to create path, but he is probably stuck in his closet.
 					if ((aip->path_length > 1) || ((d_tick_count & 0x0f) == 0)) {
-						ai_follow_path(objp, player_visibility, &vec_to_player);
+						ai_follow_path(LevelSharedRobotInfoState.Robot_info, objp, player_visibility, &vec_to_player);
 						ailp->mode = ai_mode::AIM_THIEF_ATTACK;
 					}
 				}
@@ -1823,15 +1823,14 @@ void attempt_to_steal_item(const vmobjptridx_t thiefp, const robot_info &robptr,
 
 	if (thief.ctype.ai_info.ail.mode == ai_mode::AIM_THIEF_ATTACK)
 	{
-		static constexpr constant_xrange<unsigned, 0, 3> retry_count{};
-		rval += attempt_to_steal_item_2(thief, player_num);
-		for (const auto i : retry_count)
+		for (auto i = 4u;; i--)
 		{
-		(void)i;
-		if (!rval || (d_rand() < 11000)) {	//	about 1/3 of time, steal another item
-				rval += attempt_to_steal_item_2(thief, player_num);
-		} else
-			break;
+			rval += attempt_to_steal_item_2(thief, player_num);
+			if (!i)
+				break;
+			if (rval && !(d_rand() < 11000)) {	//	about 1/3 of time, steal another item
+				break;
+			}
 		}
 	}
 	create_n_segment_path(thiefp, robptr, 10, ConsoleObject->segnum);
@@ -1852,7 +1851,7 @@ void init_thief_for_level(void)
 	auto &ThiefUniqueState = LevelUniqueObjectState.ThiefState;
 	ThiefUniqueState.Stolen_item_index = 0;
 	auto &Stolen_items = ThiefUniqueState.Stolen_items;
-	Stolen_items.fill(255);
+	Stolen_items.fill(stolen_item_type_none);
 
 	constexpr unsigned iterations = 3;
 	static_assert (std::tuple_size<decltype(ThiefUniqueState.Stolen_items)>::value >= iterations * 2, "Stolen_items too small");	//	Oops!  Loop below will overwrite memory!
@@ -1865,18 +1864,13 @@ void init_thief_for_level(void)
 }
 
 // --------------------------------------------------------------------------------------------------------------
-void drop_stolen_items(fvmsegptridx &vmsegptridx, d_level_unique_object_state &LevelUniqueObjectState, const d_vclip_array &Vclip, const object_base &objp)
+void drop_stolen_items_local(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const d_vclip_array &Vclip, vmsegptridx_t segp, const vms_vector &thief_velocity, const vms_vector &thief_position, d_thief_unique_state::stolen_item_storage &Stolen_items)
 {
-	auto &ThiefUniqueState = LevelUniqueObjectState.ThiefState;
-	const auto &&segp = vmsegptridx(objp.segnum);
-	range_for (auto &i, ThiefUniqueState.Stolen_items)
+	for (auto &i : Stolen_items)
 	{
-		if (i != 255)
-		{
-			drop_powerup(Vclip, std::exchange(i, 255), objp.mtype.phys_info.velocity, objp.pos, segp, true);
-		}
+		if (i != stolen_item_type_none)
+			drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, std::exchange(i, stolen_item_type_none), thief_velocity, thief_position, segp, true);
 	}
-
 }
 
 // --------------------------------------------------------------------------------------------------------------

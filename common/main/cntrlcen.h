@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "fwd-object.h"
 #include "pack.h"
+#include "fwd-robot.h"
 #include "fwd-segment.h"
 #include "fwd-window.h"
 
@@ -125,12 +126,9 @@ static inline reactor &get_reactor_definition(int id)
 #endif
 }
 
-// do whatever this thing does in a frame
-void do_controlcen_frame(vmobjptridx_t obj);
-
 // Initialize control center for a level.
 // Call when a new level is started.
-void init_controlcen_for_level();
+void init_controlcen_for_level(const d_robot_info_array &Robot_info);
 void calc_controlcen_gun_point(object &obj);
 
 void do_controlcen_destroyed_stuff(imobjidx_t objp);

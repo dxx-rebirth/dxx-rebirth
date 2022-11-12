@@ -564,7 +564,7 @@ static int med_copy_group(const unsigned delta_flag, const vmsegptridx_t base_se
 	auto gb = GroupList[current_group].segments.begin();
 	auto ge = GroupList[current_group].segments.end();
 	auto gp = Groupsegp[current_group];
-	auto gi = std::find_if(gb, ge, [gp](const segnum_t segnum){ return vcsegptr(segnum) == gp; });
+	const auto &&gi = ranges::find_if(gb, ge, [gp](const segnum_t segnum) { return vcsegptr(segnum) == gp; });
 	int gs_index = (gi == ge) ? 0 : std::distance(gb, gi);
 
 	GroupList[new_current_group] = GroupList[current_group];
@@ -915,7 +915,6 @@ int rotate_segment_new(const vms_angvec &pbh)
 {
 	vms_matrix	tm1;
 	group::segment_array_type_t selected_segs_save;
-	int			child_save;
 	int			current_group_save;
 
         if (!IS_CHILD(Cursegp->children[Side_opposite[Curside]]))
@@ -936,7 +935,7 @@ int rotate_segment_new(const vms_angvec &pbh)
 
 	// Create list of segments to rotate.
 	//	Sever connection between first seg to rotate and its connection on Side_opposite[Curside].
-	child_save = Cursegp->children[newseg_side];	// save connection we are about to sever
+	const auto child_save = Cursegp->children[newseg_side];	// save connection we are about to sever
 	Cursegp->children[newseg_side] = segment_none;			// sever connection
 	create_group_list(Cursegp, GroupList[ROT_GROUP].segments, NULL);       // create list of segments in group
 	Cursegp->children[newseg_side] = child_save;	// restore severed connection

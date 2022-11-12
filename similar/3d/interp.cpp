@@ -124,18 +124,17 @@ public:
 class interpreter_track_model_extent
 {
 protected:
-	const uint8_t *const model_base;
-	const std::size_t model_length;
+	const std::span<const uint8_t> model;
 public:
-	constexpr interpreter_track_model_extent(const uint8_t *const b, const std::size_t l) :
-		model_base(b), model_length(l)
+	constexpr interpreter_track_model_extent(const std::span<const uint8_t> model) :
+		model(model)
 	{
 	}
 	uint8_t truncate_invalid_model(const unsigned line, uint8_t *const p, const std::ptrdiff_t d, const std::size_t size) const
 	{
-		const std::ptrdiff_t offset_from_base = p - model_base;
+		const std::ptrdiff_t offset_from_base = p - model.data();
 		const std::ptrdiff_t offset_of_value = offset_from_base + d;
-		if (offset_of_value >= model_length || offset_of_value + size >= model_length)
+		if (const auto model_length = model.size(); offset_of_value >= model_length || offset_of_value + size >= model_length)
 		{
 			auto &opref = *wp(p);
 			const auto badop = opref;
@@ -143,7 +142,7 @@ public:
 			const unsigned long uml = model_length;
 			const long ofb = offset_from_base;
 			const long oov = offset_of_value;
-			con_printf(CON_URGENT, "%s:%u: warning: invalid polymodel at %p with length %lu; opcode %u at offset %li references invalid offset %li; replacing invalid operation with EOF", __FILE__, line, model_base, uml, badop, ofb, oov);
+			con_printf(CON_URGENT, "%s:%u: warning: invalid polymodel at %p with length %lu; opcode %u at offset %li references invalid offset %li; replacing invalid operation with EOF", __FILE__, line, model.data(), uml, badop, ofb, oov);
 			return 1;
 		}
 		return 0;
@@ -178,9 +177,9 @@ namespace dsx {
 
 namespace {
 
-static int16_t init_model_sub(uint8_t *model_sub_ptr, const uint8_t *model_base_ptr, std::size_t model_size);
+static int16_t init_model_sub(uint8_t *model_sub_ptr, const std::span<const uint8_t> model_base);
 #if defined(DXX_BUILD_DESCENT_I)
-static void validate_model_sub(uint8_t *model_sub_ptr, const uint8_t *model_base_ptr, std::size_t model_size);
+static void validate_model_sub(uint8_t *model_sub_ptr, const std::span<const uint8_t> model_base);
 #endif
 
 class g3_poly_get_color_state :
@@ -512,7 +511,7 @@ public:
 	using model_load_state::model_load_state;
 	int16_t init_sub_model(uint8_t *const p) const
 	{
-		return init_model_sub(p, model_base, model_length);
+		return init_model_sub(p, model);
 	}
 	void update_texture(const int16_t t)
 	{
@@ -540,7 +539,7 @@ public:
 	using model_load_state::model_load_state;
 	unsigned init_sub_model(uint8_t *const p) const
 	{
-		validate_model_sub(p, model_base, model_length);
+		validate_model_sub(p, model);
 		return 0;
 	}
 	void update_texture(int16_t)
@@ -937,9 +936,9 @@ void g3_draw_morphing_model(grs_canvas &canvas, const uint8_t *const p, grs_bitm
 
 namespace {
 
-static int16_t init_model_sub(uint8_t *const model_sub_ptr, const uint8_t *const model_base_ptr, const std::size_t model_size)
+static int16_t init_model_sub(uint8_t *const model_sub_ptr, const std::span<const uint8_t> model_base)
 {
-	init_model_sub_state state(model_base_ptr, model_size);
+	init_model_sub_state state(model_base);
 	Assert(++nest_count < 1000);
 	iterate_polymodel(model_sub_ptr, state);
 	return state.highest_texture_num;
@@ -948,32 +947,32 @@ static int16_t init_model_sub(uint8_t *const model_sub_ptr, const uint8_t *const
 }
 
 //init code for bitmap models
-int16_t g3_init_polygon_model(uint8_t *const model_ptr, const std::size_t model_size)
+int16_t g3_init_polygon_model(const std::span<uint8_t> model)
 {
 	#ifndef NDEBUG
 	nest_count = 0;
 	#endif
-	return init_model_sub(model_ptr, model_ptr, model_size);
+	return init_model_sub(model.data(), model);
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
 namespace {
 
-static void validate_model_sub(uint8_t *const model_sub_ptr, const uint8_t *const model_base_ptr, const std::size_t model_size)
+static void validate_model_sub(uint8_t *const model_sub_ptr, const std::span<const uint8_t> model_base)
 {
-	validate_model_sub_state state(model_base_ptr, model_size);
+	validate_model_sub_state state(model_base);
 	assert(++nest_count < 1000);
 	iterate_polymodel(model_sub_ptr, state);
 }
 
 }
 
-void g3_validate_polygon_model(uint8_t *const model_ptr, const std::size_t model_size)
+void g3_validate_polygon_model(const std::span<uint8_t> model)
 {
 #ifndef NDEBUG
 	nest_count = 0;
 #endif
-	return validate_model_sub(model_ptr, model_ptr, model_size);
+	return validate_model_sub(model.data(), model);
 }
 #endif
 

@@ -111,18 +111,18 @@ static inline int state_restore_all(int in_game, secret_restore, std::nullptr_t,
 {
 	return state_restore_all(in_game, nullptr, blind);
 }
-window_event_result StartNewLevelSub(int level_num, int page_in_textures);
+window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, int level_num, int page_in_textures);
 // Actually does the work to start new level
-static inline window_event_result StartNewLevelSub(int level_num, int page_in_textures, secret_restore)
+static inline window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, int level_num, int page_in_textures, secret_restore)
 {
-	return StartNewLevelSub(level_num, page_in_textures);
+	return StartNewLevelSub(Robot_info, level_num, page_in_textures);
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, secret_restore, const char *filename);
 void set_pos_from_return_segment(void);
 int state_save_all(secret_save, blind_save);
 int state_restore_all(int in_game, secret_restore, const char *filename_override, blind_save);
-window_event_result StartNewLevelSub(int level_num, int page_in_textures, secret_restore);
+window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, int level_num, int page_in_textures, secret_restore);
 #endif
 }
 #endif

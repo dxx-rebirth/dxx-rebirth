@@ -22,6 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <span>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -49,27 +50,11 @@ namespace dcx {
 
 namespace {
 
-#if DXX_USE_SDLIMAGE
-struct RAII_SDL_Surface
-{
-	struct deleter
-	{
-		void operator()(SDL_Surface *s) const
-		{
-			SDL_FreeSurface(s);
-		}
-	};
-	std::unique_ptr<SDL_Surface, deleter> surface;
-	explicit RAII_SDL_Surface(SDL_Surface *const s) :
-		surface(s)
-	{
-	}
-};
-#endif
-
 #if !DXX_USE_OGL && DXX_USE_SCREENSHOT_FORMAT_LEGACY
+[[nodiscard]]
 static int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_File *fid);
-static int pcx_encode_line(const uint8_t *inBuff, uint_fast32_t inLen, PHYSFS_File *fp);
+[[nodiscard]]
+static int pcx_encode_line(std::span<const uint8_t> in, PHYSFS_File *fp);
 
 /* PCX Header data type */
 struct PCXHeader
@@ -116,7 +101,7 @@ static pcx_result pcx_read_bitmap(const char *const filename, grs_main_bitmap &b
 		return pcx_result::ERROR_MEMORY;
 	if (ysize > 2400)
 		return pcx_result::ERROR_MEMORY;
-	DXX_CHECK_MEM_IS_DEFINED(s.pixels, xsize * ysize);
+	DXX_CHECK_MEM_IS_DEFINED(std::span(static_cast<const std::byte *>(s.pixels), xsize * ysize));
 	gr_init_bitmap_alloc(bmp, bm_mode::linear, 0, 0, xsize, ysize, xsize);
 	std::copy_n(reinterpret_cast<const uint8_t *>(s.pixels), xsize * ysize, &bmp.get_bitmap_data()[0]);
 	{
@@ -291,7 +276,7 @@ unsigned pcx_write_bitmap(PHYSFS_File *const PCXfile, const grs_bitmap *const bm
 		const auto e = &bm_data[bm_rowsize * bmp->bm_h];
 		for (auto i = &bm_data[0]; i != e; i += bm_rowsize)
 		{
-			if (!pcx_encode_line(i, bm_w, PCXfile))
+			if (!pcx_encode_line(std::span{i, bm_w}, PCXfile))
 			{
 				return 1;
 			}
@@ -315,17 +300,16 @@ unsigned pcx_write_bitmap(PHYSFS_File *const PCXfile, const grs_bitmap *const bm
 namespace {
 
 // returns number of bytes written into outBuff, 0 if failed
-int pcx_encode_line(const uint8_t *inBuff, uint_fast32_t inLen, PHYSFS_File *fp)
+int pcx_encode_line(const std::span<const uint8_t> in, PHYSFS_File *fp)
 {
-	ubyte last;
 	int i;
 	int total;
 	ubyte runCount; 	// max single runlength is 63
 	total = 0;
-	last = *(inBuff);
+	auto last = in.front();
 	runCount = 1;
 
-	range_for (const auto ub, unchecked_partial_range(inBuff, 1u, inLen))
+	range_for (const auto ub, unchecked_partial_range(in.data(), 1u, in.size()))
 	{
 		if (ub == last)	{
 			runCount++;			// it encodes

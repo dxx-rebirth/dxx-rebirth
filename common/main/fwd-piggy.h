@@ -25,8 +25,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <span>
 #include <physfs.h>
 #include "dsx-ns.h"
+#include "fwd-inferno.h"
 #include "fwd-gr.h"
 #include "fwd-partial_range.h"
 #include "sounds.h"
@@ -41,18 +43,27 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define D1_MAC_PIGSIZE          3975533
 #define D1_MAC_SHARE_PIGSIZE    2714487
 
+namespace dcx {
+
+enum class game_sound_offset : int
+{
+};
+
+}
+
 #if defined(DXX_BUILD_DESCENT_II)
 #define D1_PIGFILE              "descent.pig"
 #define MAX_ALIASES 20
 
+namespace dsx {
 struct alias;
 #if DXX_USE_EDITOR
 extern std::array<alias, MAX_ALIASES> alias_list;
 extern unsigned Num_aliases;
 #endif
 
-extern int Piggy_hamfile_version;
-extern int Pigfile_initialized;
+extern uint8_t Pigfile_initialized;
+}
 #endif
 
 // an index into the bitmap collection of the piggy file
@@ -73,10 +84,9 @@ namespace dsx {
 struct digi_sound;
 extern digi_sound bogus_sound;
 
-int properties_init();
 void piggy_close();
-bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const char * name, int in_file);
-int piggy_register_sound( digi_sound * snd, const char * name, int in_file );
+bitmap_index piggy_register_bitmap(grs_bitmap &bmp, std::span<const char> name, int in_file);
+int piggy_register_sound(digi_sound *snd, const char *name, int in_file, game_sound_offset);
 bitmap_index piggy_find_bitmap(const char *name);
 void piggy_read_sound_data(digi_sound *snd);
 void piggy_load_level_data();
@@ -103,17 +113,16 @@ void piggy_read_sounds(void);
 
 //reads in a new pigfile (for new palette)
 //returns the size of all the bitmap data
-void piggy_new_pigfile(char *pigname);
+void piggy_new_pigfile(std::span<char, FILENAME_LEN> pigname);
 
 //loads custom bitmaps for current level
-void load_bitmap_replacements(const char *level_name);
+void load_bitmap_replacements(std::span<const char, FILENAME_LEN> level_name);
 //if descent.pig exists, loads descent 1 texture bitmaps
 void load_d1_bitmap_replacements();
 /*
  * Find and load the named bitmap from descent.pig
  */
-grs_bitmap *read_extra_bitmap_d1_pig(const char *name, grs_bitmap &out);
-int read_hamfile();
+grs_bitmap *read_extra_bitmap_d1_pig(std::span<const char> name, grs_bitmap &out);
 void read_sndfile(int required);
 #endif
 }

@@ -8,9 +8,9 @@
 #include "vers_id.h"
 
 #if defined(DXX_BUILD_DESCENT_I)
-#define DXX_NAME_NUMBER	"1"
+#define DXX_NAME_NUMBER	'1'
 #elif defined(DXX_BUILD_DESCENT_II)
-#define DXX_NAME_NUMBER	"2"
+#define DXX_NAME_NUMBER	'2'
 #else
 #error "Must set DXX_BUILD_DESCENT_I or DXX_BUILD_DESCENT_II"
 #endif
@@ -23,12 +23,13 @@
 #define DXX_VERSID_BUILD_TIME	__TIME__
 #endif
 
-constexpr char g_descent_version[] = "D" DXX_NAME_NUMBER "X-Rebirth " DESCENT_VERSION_EXTRA;
+// "D1X-Rebirth " or "D2X-Rebirth "
+constexpr char g_descent_version[]{'D', DXX_NAME_NUMBER, 'X', '-', 'R', 'e', 'b', 'i', 'r', 't', 'h', ' ', DESCENT_VERSION_EXTRA, 0};
 constexpr char g_descent_build_datetime[21] = DXX_VERSID_BUILD_DATE " " DXX_VERSID_BUILD_TIME;
 
 #ifdef DXX_RBE
 #define RECORD_BUILD_VARIABLE(X)	extern const char g_descent_##X[];	\
-	const char g_descent_##X[] __attribute_used = #X "=" DESCENT_##X;
+	constexpr char g_descent_##X[] __attribute_used = {DESCENT_##X};
 
 DXX_RBE(RECORD_BUILD_VARIABLE);
 #endif

@@ -6,10 +6,10 @@
  */
 #pragma once
 
-#ifdef __cplusplus
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <span>
 #include "dxxsconf.h"
 #include "u_mem.h"
 #include "dsx-ns.h"
@@ -39,12 +39,7 @@ __attribute_nonnull()
 int d_strnicmp(const char *s1, const char *s2, uint_fast32_t n);
 #endif
 extern void d_strlwr( char *s1 );
-#ifdef DEBUG_MEMORY_ALLOCATIONS
-RAIIdmem<char[]> d_strdup(const char *str, const char *, const char *, unsigned);
-#define d_strdup(str)	(d_strdup(str, #str, __FILE__,__LINE__))
-#else
-RAIIdmem<char[]> d_strdup(const char *str);
-#endif
+std::unique_ptr<char[]> d_strdup(const char *str);
 
 #if DXX_USE_EDITOR
 void d_strupr(std::array<char, PATH_MAX> &out, const std::array<char, PATH_MAX> &in);
@@ -66,7 +61,8 @@ struct splitpath_t
 void removeext(const char *filename, std::array<char, 20> &out);
 
 //give a filename a new extension, doesn't work with paths with no extension already there
-extern void change_filename_extension( char *dest, const char *src, const char *new_ext );
+[[nodiscard]]
+bool change_filename_extension(std::span<char> dest, const char *src, std::span<const char, 4> ext);
 
 /* Given an MS-DOS path, return pointers to the start of the basename and the
  * start of the extension.
@@ -104,5 +100,3 @@ static_assert(number_to_text_length<255, 16> == 2, "");
 static_assert(number_to_text_length<256, 16> == 3, "");
 
 }
-
-#endif

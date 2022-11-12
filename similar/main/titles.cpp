@@ -56,6 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "songs.h"
 #if defined(DXX_BUILD_DESCENT_II)
 #include "movie.h"
+#include "physfsrwops.h"
 #endif
 #include "mouse.h"
 #include "console.h"
@@ -244,7 +245,7 @@ void show_titles(void)
 
 	const auto hiresmode = HIRESMODE;
 	{       //show bundler screens
-		const auto played = PlayMovie(NULL, "pre_i.mve",0);
+		const auto played = PlayMovie({}, "pre_i.mve", play_movie_warn_missing::verbose);
 		if (played == movie_play_status::skipped)
 		{
 			char filename[12];
@@ -258,14 +259,14 @@ void show_titles(void)
 		}
 	}
 
-	auto played = PlayMovie("intro.tex", "intro.mve",MOVIE_REQUIRED);
+	auto played = PlayMovie("intro.tex", "intro.mve", play_movie_warn_missing::urgent);
 
 	if (played != movie_play_status::skipped)
 		intro_played = 1;
 	else
 	{                                               //didn't get intro movie, try titles
 
-		played = PlayMovie(NULL, "titles.mve",MOVIE_REQUIRED);
+		played = PlayMovie({}, "titles.mve", play_movie_warn_missing::urgent);
 
 		if (played == movie_play_status::skipped)
 		{
@@ -293,7 +294,7 @@ void show_titles(void)
 		//check if OEM movie exists, so we don't stop the music if it doesn't
 		if (RAIIPHYSFS_File{PHYSFS_openRead("oem.mve")})
 		{
-			played = PlayMovie(NULL, "oem.mve",0);
+			played = PlayMovie({}, "oem.mve", play_movie_warn_missing::verbose);
 			song_playing = 0;               //movie will kill sound
 		}
 
@@ -338,8 +339,6 @@ struct briefing_screen {
 #define	ENDING_LEVEL_NUM_OEMSHARE 0x7f
 #define	ENDING_LEVEL_NUM_REGISTER 0x7e
 
-}
-
 static grs_subcanvas_ptr create_spinning_robot_sub_canvas(grs_canvas &canvas)
 {
 	return gr_create_sub_canvas(canvas, rescale_x(canvas.cv_bitmap, 138), rescale_y(canvas.cv_bitmap, 55), rescale_x(canvas.cv_bitmap, 166), rescale_y(canvas.cv_bitmap, 138));
@@ -382,6 +381,7 @@ static void get_message_name(const char *&message, std::array<char, 32> &result,
 		}
 	message = p;
 	strcpy(i, trailer);
+}
 }
 }
 
@@ -523,11 +523,11 @@ struct briefing : window
 #if defined(DXX_BUILD_DESCENT_II)
 	uint8_t got_z;
 	uint8_t dumb_adjust;
-	uint8_t robot_playing;
 	uint8_t chattering;
 	uint8_t line_adjustment;
 	RAIIdigi_sound		hum_channel, printing_channel;
 	MVESTREAM_ptr_t pMovie;
+	RWops_ptr RoboFile;
 #endif
 	std::unique_ptr<char[]>	text;
 	const char	*message;
@@ -554,7 +554,7 @@ static void briefing_init(briefing *br, short level_num)
 	br->background_name.back() = 0;
 	strncpy(br->background_name.data(), DEFAULT_BRIEFING_BKG, br->background_name.size() - 1);
 #if defined(DXX_BUILD_DESCENT_II)
-	br->robot_playing = 0;
+	br->RoboFile = {};
 #endif
 	br->robot_num = 0;
 	br->robot_angles = {};
@@ -734,9 +734,9 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 		} else if (ch == 'R') {
 			br->robot_canv.reset();
 #if defined(DXX_BUILD_DESCENT_II)
-			if (br->robot_playing) {
+			if (auto &RoboFile = br->RoboFile) {
+				RoboFile.reset();
 				DeInitRobotMovie(br->pMovie);
-				br->robot_playing=0;
 			}
 #endif
 
@@ -749,14 +749,50 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 #endif
 			} else {
 #if defined(DXX_BUILD_DESCENT_II)
-				char spinRobotName[]="RBA.MVE", kludge;  // matt don't change this!
+				std::array<char, 8> robot_name_storage{{"RBA.MVE"}};  // matt don't change this!
+				const char *spinRobotName = robot_name_storage.data();
+				const char robot_movie_selector_character = *br->message++;
 
-				kludge=*br->message++;
-				spinRobotName[2]=kludge; // ugly but proud
+				robot_name_storage[2] = robot_movie_selector_character; // ugly but proud
+				if (robot_movie_selector_character == '9')
+				{
+					/* Descent 2: Vertigo level 1 `Deep Kraeg Tunnel System`
+					 * references `RB9.MVE` for the robot `Fervid`.  However,
+					 * there is no such MVE in the movie file.
+					 * The high-resolution movie file contains `RB9.mve`.
+					 * The low-resolution movie file contains `rb9.mve`.
+					 */
+					if (const auto m = Current_mission->extra_robot_movie.get())
+					{
+						if (m->resolution == movie_resolution::high)
+							spinRobotName = "RB9.mve";
+						else
+							spinRobotName = "rb9.mve";
+					}
+				}
+				else if (robot_movie_selector_character == '$')
+				{
+					/* Descent 2: Vertigo level 16 `Fold Zandura` references
+					 * `RB$.MVE` for the robot `SPIKE`.  However, that MVE is
+					 * only present in the high-resolution movie file.
+					 * The low-resolution movie file contains `RB$.mve`.
+					 */
+					if (const auto m = Current_mission->extra_robot_movie.get())
+					{
+						if (m->resolution == movie_resolution::high)
+						{
+							/* High-resolution movie file contains the correct
+							 * capitalization, so no change is needed.
+							 */
+						}
+						else
+							spinRobotName = "RB$.mve";
+					}
+				}
 
-				br->robot_playing=InitRobotMovie(spinRobotName, br->pMovie);
-				if (br->robot_playing) {
-					RotateRobot(br->pMovie);
+				if ((br->RoboFile = InitRobotMovie(spinRobotName, br->pMovie)))
+				{
+					RotateRobot(br->pMovie, br->RoboFile.get());
 					set_briefing_fontcolor(*br);
 				}
 #endif
@@ -896,9 +932,9 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 				{
 					p = p2;
 					br->robot_canv.reset();
-					if (br->robot_playing)
+					if (auto &RoboFile = br->RoboFile)
 					{
-						br->robot_playing = 0;
+						RoboFile.reset();
 						DeInitRobotMovie(br->pMovie);
 					}
 					init_spinning_robot(canvas, *br);
@@ -1013,7 +1049,7 @@ static void set_briefing_fontcolor(briefing &br)
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (br.robot_playing)
+	if (br.RoboFile)
 	{
 		colors[0] = {0, 31, 0};
 	}
@@ -1038,6 +1074,8 @@ static void set_briefing_fontcolor(briefing &br)
 
 }
 
+namespace {
+
 static void redraw_messagestream(grs_canvas &canvas, const grs_font &cv_font, const msgstream &stream, unsigned &lastcolor)
 {
 	if (lastcolor != stream.color)
@@ -1046,6 +1084,8 @@ static void redraw_messagestream(grs_canvas &canvas, const grs_font &cv_font, co
 		gr_set_fontcolor(canvas, stream.color, -1);
 	}
 	gr_string(canvas, cv_font, stream.x + 1, stream.y, stream.ch.data());
+}
+
 }
 
 namespace dsx {
@@ -1181,6 +1221,8 @@ static void show_animated_bitmap(grs_canvas &canvas, briefing *br)
 
 }
 
+namespace {
+
 //-----------------------------------------------------------------------------
 static void show_briefing_bitmap(grs_canvas &canvas, grs_bitmap *bmp)
 {
@@ -1191,6 +1233,8 @@ static void show_briefing_bitmap(grs_canvas &canvas, grs_bitmap *bmp)
 
 	auto bitmap_canv = gr_create_sub_canvas(canvas, rescale_x(canvas.cv_bitmap, 220), rescale_y(canvas.cv_bitmap, 55), bmp->bm_w*scale, bmp->bm_h*scale);
 	show_fullscr(*bitmap_canv, *bmp);
+}
+
 }
 
 //-----------------------------------------------------------------------------
@@ -1209,7 +1253,8 @@ static void show_spinning_robot_frame(briefing *br, int robot_num)
 		br->robot_angles.h += 150;
 
 		Assert(Robot_info[robot_num].model_num != -1);
-		draw_model_picture(*br->robot_canv.get(), Robot_info[robot_num].model_num, br->robot_angles);
+		auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
+		draw_model_picture(*br->robot_canv.get(), Polygon_models[Robot_info[robot_num].model_num], br->robot_angles);
 	}
 }
 
@@ -1232,10 +1277,10 @@ static int init_new_page(grs_canvas &canvas, briefing *br)
 	br->guy_bitmap.reset();
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (br->robot_playing)
+	if (auto &RoboFile = br->RoboFile)
 	{
+		RoboFile.reset();
 		DeInitRobotMovie(br->pMovie);
-		br->robot_playing=0;
 	}
 #endif
 
@@ -1395,10 +1440,10 @@ static void free_briefing_screen(briefing *br)
 {
 	br->background.reset();
 #if defined(DXX_BUILD_DESCENT_II)
-	if (br->robot_playing)
+	if (auto &RoboFile = br->RoboFile)
 	{
+		RoboFile.reset();
 		DeInitRobotMovie(br->pMovie);
-		br->robot_playing=0;
 	}
 #endif
 	br->robot_canv.reset();
@@ -1486,7 +1531,7 @@ static int new_briefing_screen(grs_canvas &canvas, briefing *br, int first)
 	br->dumb_adjust = 0;
 	br->line_adjustment = 1;
 	br->chattering = 0;
-	br->robot_playing=0;
+	br->RoboFile = {};
 #endif
 
 	if (br->message==NULL)
@@ -1630,8 +1675,8 @@ window_event_result briefing::event_handler(const d_event &event)
 			if (this->bitmap_name[0] != 0)
 				show_animated_bitmap(canvas, this);
 #if defined(DXX_BUILD_DESCENT_II)
-			if (this->robot_playing)
-				RotateRobot(this->pMovie);
+			if (auto &RoboFile = this->RoboFile)
+				RotateRobot(this->pMovie, RoboFile.get());
 #endif
 			if (this->robot_num != -1)
 				show_spinning_robot_frame(this, this->robot_num);

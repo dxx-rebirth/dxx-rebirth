@@ -7,6 +7,7 @@
 #ifndef __HMP_H
 #define __HMP_H
 
+#include <array>
 #include <memory>
 #include <tuple>
 #include <vector>
@@ -16,7 +17,6 @@
 #endif
 #include "physfsx.h"
 
-#ifdef __cplusplus
 namespace dcx {
 
 #define HMP_TRACKS 32
@@ -91,6 +91,10 @@ struct hmp_file
 	int bufs_in_mm;
 	int bLoop;
 	unsigned int midi_division;
+#ifdef _WIN32
+	std::array<MIDIHDR, HMP_BUFFERS> midi_headers;
+	std::array<std::array<char, HMP_BUFSIZE>, HMP_BUFFERS> midi_buffers;
+#endif
 };
 
 enum class hmp_open_error : uint8_t
@@ -131,6 +135,4 @@ void hmp_reset();
 #endif
 
 }
-#endif
-
 #endif

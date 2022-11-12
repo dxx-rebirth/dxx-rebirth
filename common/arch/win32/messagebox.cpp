@@ -46,9 +46,9 @@ static void display_win32_alert(const char *message, int error)
 		gr_toggle_fullscreen();
 }
 
-void msgbox_warning(const char *message)
+void msgbox_warning(const std::span<const char> message)
 {
-	display_win32_alert(message, 0);
+	display_win32_alert(message.data(), 0);
 }
 
 void msgbox_error(const char *message)

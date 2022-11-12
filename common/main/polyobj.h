@@ -37,6 +37,15 @@ struct bitmap_index;
 #include "inferno.h"
 #include "pack.h"
 
+namespace dcx {
+
+enum class polygon_simpler_model_index : uint8_t
+{
+	None = 0,
+};
+
+}
+
 #ifdef dsx
 namespace dsx {
 struct robot_info;
@@ -73,7 +82,7 @@ struct polymodel : prohibit_void_ptr<polymodel>
 	fix     rad;
 	ushort  first_texture;
 	ubyte   n_textures;
-	ubyte   simpler_model;                      // alternate model with less detail (0 if none, model_num+1 else)
+	polygon_simpler_model_index simpler_model;                      // alternate model with less detail (0 if none, model_num+1 else)
 	//vms_vector min,max;
 };
 
@@ -154,7 +163,8 @@ public:
 #ifdef dsx
 namespace dsx {
 // draw a polygon model
-void draw_polygon_model(grs_canvas &, const vms_vector &pos, const vms_matrix &orient, submodel_angles anim_angles, unsigned model_num, unsigned flags, g3s_lrgb light, const glow_values_t *glow_values, alternate_textures);
+void draw_polygon_model(const std::array<polymodel, MAX_POLYGON_MODELS> &, grs_canvas &, const vms_vector &pos, const vms_matrix &orient, submodel_angles anim_angles, const unsigned model_num, unsigned flags, g3s_lrgb light, const glow_values_t *glow_values, alternate_textures);
+void draw_polygon_model(grs_canvas &, const vms_vector &pos, const vms_matrix &orient, submodel_angles anim_angles, const polymodel &model_num, unsigned flags, g3s_lrgb light, const glow_values_t *glow_values, alternate_textures);
 }
 #endif
 
@@ -162,7 +172,7 @@ void draw_polygon_model(grs_canvas &, const vms_vector &pos, const vms_matrix &o
 // more-or-less fill the canvas.  Note that this routine actually renders
 // into an off-screen canvas that it creates, then copies to the current
 // canvas.
-void draw_model_picture(grs_canvas &, uint_fast32_t mn, const vms_angvec &orient_angles);
+void draw_model_picture(grs_canvas &, const polymodel &mn, const vms_angvec &orient_angles);
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if defined(DXX_BUILD_DESCENT_I)
@@ -188,7 +198,7 @@ void free_model(polymodel &po);
 /*
  * reads a polymodel structure from a PHYSFS_File
  */
-extern void polymodel_read(polymodel *pm, PHYSFS_File *fp);
+void polymodel_read(polymodel &pm, PHYSFS_File *fp);
 }
 #if 0
 void polymodel_write(PHYSFS_File *fp, const polymodel &pm);

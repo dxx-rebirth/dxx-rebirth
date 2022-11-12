@@ -88,7 +88,7 @@ struct d_loaded_subtitle_state
 		;
 };
 
-static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const char *filename);
+static int init_subtitles(d_loaded_subtitle_state &SubtitleState, std::span<const char> filename);
 
 // Movielib data
 
@@ -96,10 +96,8 @@ constexpr std::array<std::array<char, 8>, 3> movielib_files{{
 	{"intro"}, {"other"}, {"robots"}
 }};
 
-static RWops_ptr RoboFile;
-
 // Function Prototypes
-static movie_play_status RunMovie(const char *filename, const char *subtitles, int highres_flag, int allow_abort,int dx,int dy);
+static movie_play_status RunMovie(const char *filename, std::span<const char> subtitles, int highres_flag, play_movie_warn_missing, int dx,int dy);
 
 static void draw_subtitles(const d_loaded_subtitle_state &, int frame_num);
 
@@ -128,9 +126,9 @@ void MovieMemoryFree(void *p)
 	d_free(p);
 }
 
-unsigned int MovieFileRead(void *handle, void *buf, unsigned int count)
+unsigned int MovieFileRead(SDL_RWops *const handle, void *buf, unsigned int count)
 {
-	const unsigned numread = SDL_RWread(reinterpret_cast<SDL_RWops *>(handle), buf, 1, count);
+	const unsigned numread = SDL_RWread(handle, buf, 1, count);
 	return (numread == count);
 }
 
@@ -140,7 +138,7 @@ namespace dsx {
 
 //filename will actually get modified to be either low-res or high-res
 //returns status.  see values in movie.h
-movie_play_status PlayMovie(const char *subtitles, const char *const name, int must_have)
+movie_play_status PlayMovie(const std::span<const char> subtitles, const char *const name, const play_movie_warn_missing must_have)
 {
 	if (GameArg.SysNoMovies)
 		return movie_play_status::skipped;
@@ -369,7 +367,7 @@ window_event_result movie::event_handler(const d_event &event)
 }
 
 //returns status.  see movie.h
-movie_play_status RunMovie(const char *const filename, const char *const subtitles, const int hires_flag, const int must_have, const int dx, const int dy)
+movie_play_status RunMovie(const char *const filename, const std::span<const char> subtitles, const int hires_flag, const play_movie_warn_missing warn_missing, const int dx, const int dy)
 {
 	int track = 0;
 #if DXX_USE_OGL
@@ -381,7 +379,7 @@ movie_play_status RunMovie(const char *const filename, const char *const subtitl
 	auto &&[filehndl, physfserr] = PHYSFSRWOPS_openRead(filename);
 	if (!filehndl)
 	{
-		con_printf(must_have ? CON_URGENT : CON_VERBOSE, "Failed to open movie <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
+		con_printf(warn_missing == play_movie_warn_missing::verbose ? CON_VERBOSE : CON_URGENT, "Failed to open movie <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
 		return movie_play_status::skipped;
 	}
 	MVESTREAM_ptr_t mvestream;
@@ -408,7 +406,6 @@ movie_play_status RunMovie(const char *const filename, const char *const subtitl
 		event_process();
 	wind = nullptr;
 
-	filehndl.reset();                           // Close Movie File
 	if (reshow)
 		show_menus();
 
@@ -426,15 +423,15 @@ movie_play_status RunMovie(const char *const filename, const char *const subtitl
 }
 
 //returns 1 if frame updated ok
-int RotateRobot(MVESTREAM_ptr_t &pMovie)
+int RotateRobot(MVESTREAM_ptr_t &pMovie, SDL_RWops *const RoboFile)
 {
 	auto err = MVE_rmStepMovie(*pMovie.get());
 	gr_palette_load(gr_palette);
 
 	if (err == MVE_StepStatus::EndOfFile)     //end of movie, so reset
 	{
-		SDL_RWseek(RoboFile.get(), 0, SEEK_SET);
-		if (MVE_rmPrepMovie(pMovie, RoboFile.get(), SWIDTH/2.3, SHEIGHT/2.3, 0))
+		SDL_RWseek(RoboFile, 0, SEEK_SET);
+		if (MVE_rmPrepMovie(pMovie, RoboFile, SWIDTH/2.3, SHEIGHT/2.3, 0))
 		{
 			Int3();
 			return 0;
@@ -453,31 +450,28 @@ int RotateRobot(MVESTREAM_ptr_t &pMovie)
 void DeInitRobotMovie(MVESTREAM_ptr_t &pMovie)
 {
 	pMovie.reset();
-	RoboFile.reset();                           // Close Movie File
 }
 
-uint8_t InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
+RWops_ptr InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
 {
 	if (GameArg.SysNoMovies)
-		return 0;
+		return nullptr;
 
 	con_printf(CON_DEBUG, "RoboFile=%s", filename);
 
 	MVE_sndInit(-1);        //tell movies to play no sound for robots
 
-	auto &&[filehndl, physfserr] = PHYSFSRWOPS_openRead(filename);
-	RoboFile = std::move(filehndl);
+	auto &&[RoboFile, physfserr] = PHYSFSRWOPS_openRead(filename);
 	if (!RoboFile)
 	{
 		con_printf(CON_URGENT, "Failed to open movie <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
-		return 0;
+		return nullptr;
 	}
 	if (MVE_rmPrepMovie(pMovie, RoboFile.get(), SWIDTH/2.3, SHEIGHT/2.3, 0)) {
 		Int3();
-		return 0;
+		return nullptr;
 	}
-
-	return 1;
+	return std::move(RoboFile);
 }
 
 namespace {
@@ -504,9 +498,9 @@ static char *next_field (char *p)
 	return p;
 }
 
-static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const char *const filename)
+static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const std::span<const char> filename)
 {
-	if (!filename)
+	if (filename.empty())
 		return 0;
 	int size,read_count;
 	char *p;
@@ -520,23 +514,27 @@ static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const char *co
 		return 0;
 	}
 
-	auto &&[ifile, physfserr] = PHYSFSX_openReadBuffered(filename);		//try text version
+	auto &&[ifile, physfserr] = PHYSFSX_openReadBuffered(filename.data());		//try text version
 
 	if (!ifile) {								//no text version, try binary version
-		char filename2[FILENAME_LEN];
-		change_filename_extension(filename2, filename, ".txb");
-		auto &&[ifile2, physfserr2] = PHYSFSX_openReadBuffered(filename2);
+		std::array<char, FILENAME_LEN> filename2;
+		if (!change_filename_extension(filename2, filename.data(), "txb"))
+		{
+			con_printf(CON_NORMAL, "Rebirth: skipping subtitles because cannot open \"%s\" (\"%s\")", filename.data(), PHYSFS_getErrorByCode(physfserr));
+			return 0;
+		}
+		auto &&[ifile2, physfserr2] = PHYSFSX_openReadBuffered(filename2.data());
 		if (!ifile2)
 		{
-			con_printf(CON_VERBOSE, "Rebirth: skipping subtitles because cannot open \"%s\" or \"%s\" (\"%s\", \"%s\")", filename, filename2, PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
+			con_printf(CON_VERBOSE, "Rebirth: skipping subtitles because cannot open \"%s\" or \"%s\" (\"%s\", \"%s\")", filename.data(), filename2.data(), PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
 			return 0;
 		}
 		ifile = std::move(ifile2);
 		have_binary = 1;
-		con_printf(CON_VERBOSE, "Rebirth: found encoded subtitles in \"%s\"", filename2);
+		con_printf(CON_VERBOSE, "Rebirth: found encoded subtitles in \"%s\"", filename2.data());
 	}
 	else
-		con_printf(CON_VERBOSE, "Rebirth: found text subtitles in \"%s\"", filename);
+		con_printf(CON_VERBOSE, "Rebirth: found text subtitles in \"%s\"", filename.data());
 
 	size = PHYSFS_fileLength(ifile);
 
@@ -654,14 +652,14 @@ static PHYSFS_ErrorCode init_movie(const char *movielib, char resolution, int re
 	return r;
 }
 
-static PHYSFS_ErrorCode init_movie(const char *movielib, int required, LoadedMovie &movie)
+static std::pair<PHYSFS_ErrorCode, movie_resolution> init_movie(const char *movielib, int required, LoadedMovie &movie)
 {
 	if (!GameArg.GfxSkipHiresMovie)
 	{
 		if (auto r = init_movie(movielib, 'h', required, movie); r == PHYSFS_ERR_OK)
-			return r;
+			return {r, movie_resolution::high};
 	}
-	return init_movie(movielib, 'l', required, movie);
+	return {init_movie(movielib, 'l', required, movie), movie_resolution::low};
 }
 
 }
@@ -689,14 +687,18 @@ LoadedMovie::~LoadedMovie()
 		con_printf(CON_VERBOSE, "Unloaded movielib <%s>", movielib);
 }
 
-std::unique_ptr<LoadedMovie> init_extra_robot_movie(const char *movielib)
+std::unique_ptr<LoadedMovieWithResolution> init_extra_robot_movie(const char *movielib)
 {
 	if (GameArg.SysNoMovies)
 		return nullptr;
-	auto r = std::make_unique<LoadedMovie>();
-	if (init_movie(movielib, 0, *r) != PHYSFS_ERR_OK)
+	auto r = std::make_unique<LoadedMovieWithResolution>();
+	if (auto &&[code, resolution] = init_movie(movielib, 0, *r); code != PHYSFS_ERR_OK)
 		return nullptr;
-	return r;
+	else
+	{
+		r->resolution = resolution;
+		return r;
+	}
 }
 
 }

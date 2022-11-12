@@ -131,5 +131,6 @@ BOOST_AUTO_TEST_CASE(xrange_iter_values)
 {
 	auto &&r = xrange(2u);
 	BOOST_TEST(*r.begin() == 0);
-	BOOST_TEST(*r.end() == 2);
+	BOOST_TEST(*std::next(r.begin()) == 1);
+	BOOST_TEST(*std::next(r.begin(), 2) == 2);
 }

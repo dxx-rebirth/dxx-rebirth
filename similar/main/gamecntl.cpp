@@ -162,10 +162,6 @@ int allowed_to_fire_flare(player_info &player_info)
 	return 1;
 }
 
-}
-
-}
-
 #define key_isfunc(k) (((k&0xff)>=KEY_F1 && (k&0xff)<=KEY_F10) || (k&0xff)==KEY_F11 || (k&0xff)==KEY_F12)
 
 // Functions ------------------------------------------------------------------
@@ -175,9 +171,6 @@ int allowed_to_fire_flare(player_info &player_info)
 #define CONVERTER_SCALE  2		//2 units energy -> 1 unit shields
 
 #define CONVERTER_SOUND_DELAY (f1_0/2)		//play every half second
-
-namespace dsx {
-namespace {
 
 static void transfer_energy_to_shield(object &plrobj)
 {
@@ -212,10 +205,11 @@ static void transfer_energy_to_shield(object &plrobj)
 		last_play_time = GameTime64;
 	}
 }
+#endif
 
 }
+
 }
-#endif
 
 namespace {
 
@@ -289,14 +283,14 @@ namespace {
 static void do_weapon_n_item_stuff(object_array &Objects, control_info &Controls)
 {
 	auto &vmobjptridx = Objects.vmptridx;
-	auto &vmobjptr = Objects.vmptr;
-	auto &plrobj = get_local_plrobj();
+	const auto &&plrobjidx = vmobjptridx(get_local_player().objnum);
+	auto &plrobj = *plrobjidx;
 	auto &player_info = plrobj.ctype.player_info;
 	if (Controls.state.fire_flare > 0)
 	{
 		Controls.state.fire_flare = 0;
 		if (allowed_to_fire_flare(player_info))
-			Flare_create(vmobjptridx(ConsoleObject));
+			Flare_create(plrobjidx);
 	}
 
 	if (Controls.state.fire_secondary && allowed_to_fire_missile(player_info))
@@ -305,8 +299,8 @@ static void do_weapon_n_item_stuff(object_array &Objects, control_info &Controls
 	}
 
 	if (Global_missile_firing_count) {
-		do_missile_firing(0);
-		Global_missile_firing_count--;
+		--Global_missile_firing_count;
+		do_missile_firing(player_info.Secondary_weapon, plrobjidx);
 	}
 
 	if (Controls.state.cycle_primary > 0)
@@ -342,8 +336,9 @@ static void do_weapon_n_item_stuff(object_array &Objects, control_info &Controls
 	//	Drop proximity bombs.
 	if (Controls.state.drop_bomb > 0)
 	{
+		const auto bomb = which_bomb(player_info);
 		for (uint_fast32_t i = std::exchange(Controls.state.drop_bomb, 0); i--;)
-		do_missile_firing(1);
+			do_missile_firing(bomb, plrobjidx);
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Controls.state.toggle_bomb > 0)
@@ -607,9 +602,16 @@ static void save_pr_screenshot()
 	save_screen_shot(0);
 }
 
+static inline void game_render_frame_mono(const d_robot_info_array &Robot_info, int skip_flip, const control_info &Controls)
+{
+	game_render_frame_mono(Robot_info, Controls);
+	if (!skip_flip)
+		gr_flip();
+}
+
 static void save_clean_screenshot()
 {
-	game_render_frame_mono(CGameArg.DbgNoDoubleBuffer, Controls);
+	game_render_frame_mono(LevelSharedRobotInfoState.Robot_info, CGameArg.DbgNoDoubleBuffer, Controls);
 	save_screen_shot(0);
 }
 #endif
@@ -743,7 +745,7 @@ static int select_next_window_function(const gauge_inset_window_view w)
 					}
 					if (cvp == Player_num)
 						continue;
-					if (vcplayerptr(cvp)->connected != CONNECT_PLAYING)
+					if (vcplayerptr(cvp)->connected != player_connection_status::playing)
 						continue;
 
 					if (Game_mode & GM_MULTI_COOP)
@@ -975,7 +977,7 @@ static window_event_result HandleSystemKey(int key)
 			break;
 #endif
 
-#if DXX_USE_OGL
+#if DXX_USE_STEREOSCOPIC_RENDER
 #if 0
 			/* These conflict with the drop-primary and drop-secondary
 			 * keybindings.  Dropping items is more common than using VR, so
@@ -1221,7 +1223,7 @@ static void kill_all_robots(void)
 //	Place player just outside exit.
 //	Kill all bots in mine.
 //	Yippee!!
-static void kill_and_so_forth(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx)
+static void kill_and_so_forth(const d_robot_info_array &Robot_info, fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1233,7 +1235,7 @@ static void kill_and_so_forth(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptri
 	{
 		switch (o->type) {
 			case OBJ_ROBOT:
-				apply_damage_to_robot(o, o->shields + 1, get_local_player().objnum);
+				apply_damage_to_robot(Robot_info, o, o->shields + 1, get_local_player().objnum);
 				break;
 			case OBJ_POWERUP:
 				do_powerup(o);
@@ -1328,7 +1330,7 @@ static void kill_buddy(void)
 }
 #endif
 
-static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key, control_info &Controls)
+static window_event_result HandleTestKey(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, fvmsegptridx &vmsegptridx, int key, control_info &Controls)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
@@ -1380,7 +1382,7 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key, con
 			static int i = 0;
 			const auto &&segp = vmsegptridx(ConsoleObject->segnum);
 			auto &vcvertptr = Vertices.vcptr;
-			const auto &&new_obj = create_morph_robot(segp, compute_segment_center(vcvertptr, segp), i);
+			const auto &&new_obj = create_morph_robot(LevelSharedRobotInfoState.Robot_info, segp, compute_segment_center(vcvertptr, segp), i);
 			if (new_obj != object_none)
 				morph_start(LevelUniqueMorphObjectState, LevelSharedPolygonModelState, new_obj);
 			i++;
@@ -1441,7 +1443,7 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key, con
 		{
 			palette_array_t save_pal;
 			save_pal = gr_palette;
-			PlayMovie ("end.tex", "end.mve",MOVIE_ABORT_ON);
+			PlayMovie ("end.tex", "end.mve", play_movie_warn_missing::urgent);
 			Screen_mode = -1;
 			set_screen_mode(SCREEN_GAME);
 			reset_cockpit();
@@ -1552,7 +1554,7 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key, con
 			}};
 			struct briefing_menu : passive_newmenu
 			{
-				briefing_menu(grs_canvas &canvas, partial_range_t<newmenu_item *> items) :
+				briefing_menu(grs_canvas &canvas, const ranges::subrange<newmenu_item *> items) :
 					passive_newmenu(menu_title{nullptr}, menu_subtitle{"Briefing to play?"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(items, 0), canvas)
 				{
 				}
@@ -1568,7 +1570,7 @@ static window_event_result HandleTestKey(fvmsegptridx &vmsegptridx, int key, con
 			if (Player_dead_state != player_dead_state::no)
 				return window_event_result::ignored;
 
-			kill_and_so_forth(vmobjptridx, vmsegptridx);
+			kill_and_so_forth(LevelSharedRobotInfoState.Robot_info, vmobjptridx, vmsegptridx);
 			break;
 		case KEY_DEBUGGED+KEY_G:
 			GameTime64 = (INT64_MAX) - (F1_0*10);
@@ -1685,7 +1687,7 @@ window_event_result levelwarp_menu::event_handler(const d_event &event)
 	}
 }
 
-static window_event_result FinalCheats()
+static window_event_result FinalCheats(const d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -1773,7 +1775,7 @@ static window_event_result FinalCheats()
 	{
 		HUD_init_message_literal(HM_DEFAULT, TXT_WOWIE_ZOWIE);
 
-		if (Piggy_hamfile_version < 3) // SHAREWARE
+		if (Piggy_hamfile_version < pig_hamfile_version::_3) // SHAREWARE
 		{
 			player_info.primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG) | (HAS_GAUSS_FLAG | HAS_HELIX_FLAG);
 		}
@@ -1786,7 +1788,7 @@ static window_event_result FinalCheats()
 		auto &secondary_ammo = player_info.secondary_ammo;
 		secondary_ammo = Secondary_ammo_max;
 
-		if (Piggy_hamfile_version < 3) // SHAREWARE
+		if (Piggy_hamfile_version < pig_hamfile_version::_3) // SHAREWARE
 		{
 			secondary_ammo[SMISSILE4_INDEX] = 0;
 			secondary_ammo[SMISSILE5_INDEX] = 0;
@@ -1855,9 +1857,7 @@ static window_event_result FinalCheats()
 #endif
 
 	if (gotcha == &game_cheats::killreactor)
-	{
-		kill_and_so_forth(vmobjptridx, vmsegptridx);
-	}
+		kill_and_so_forth(LevelSharedRobotInfoState.Robot_info, vmobjptridx, vmsegptridx);
 
 	if (gotcha == &game_cheats::exitpath)
 	{
@@ -1932,7 +1932,7 @@ static window_event_result FinalCheats()
 	if (gotcha == &game_cheats::buddyclone)
 	{
 		HUD_init_message_literal(HM_DEFAULT, "What's this? Another buddy bot!");
-		create_buddy_bot();
+		create_buddy_bot(LevelSharedRobotInfoState);
 	}
 
 	if (gotcha == &game_cheats::buddyangry)
@@ -2128,7 +2128,7 @@ static void play_test_sound()
 
 }
 
-window_event_result ReadControls(const d_event &event, control_info &Controls)
+window_event_result ReadControls(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const d_event &event, control_info &Controls)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -2167,7 +2167,7 @@ window_event_result ReadControls(const d_event &event, control_info &Controls)
 #endif
 		if ( (Game_mode & GM_MULTI) && (multi_sending_message[Player_num] != msgsend_state::none || multi_defining_message) )
 		{
-			return multi_message_input_sub(key, Controls);
+			return multi_message_input_sub(LevelSharedRobotInfoState.Robot_info, key, Controls);
 		}
 
 #ifndef RELEASE
@@ -2191,7 +2191,7 @@ window_event_result ReadControls(const d_event &event, control_info &Controls)
 		}
 		else
 		{
-			window_event_result r = FinalCheats();
+			window_event_result r = FinalCheats(LevelSharedRobotInfoState);
 			if (r == window_event_result::ignored)
 				r = HandleSystemKey(key);
 			if (r == window_event_result::ignored)
@@ -2202,7 +2202,7 @@ window_event_result ReadControls(const d_event &event, control_info &Controls)
 
 #ifndef RELEASE
 		{
-			window_event_result r = HandleTestKey(vmsegptridx, key, Controls);
+			window_event_result r = HandleTestKey(LevelSharedRobotInfoState, vmsegptridx, key, Controls);
 			if (r != window_event_result::ignored)
 				return r;
 		}

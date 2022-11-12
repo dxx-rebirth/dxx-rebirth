@@ -28,11 +28,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dsx-ns.h"
 #include "vecmat.h"
 
-#include "fwd-object.h"
+#include "object.h"
 #include "pack.h"
 #include "countarray.h"
 #include "fwd-segment.h"
-#include "objnum.h"
+#include "robot.h"
 
 //return values for find_vector_intersection() - what did we hit?
 enum class fvi_hit_type : uint8_t
@@ -59,7 +59,6 @@ struct fvi_info : prohibit_void_ptr<fvi_info>
 };
 
 //flags for fvi query
-#define FQ_CHECK_OBJS	1		//check against objects?
 #define FQ_TRANSWALL		2		//go through transparent walls
 #define FQ_TRANSPOINT	4		//go through trans wall if hit point is transparent
 #define FQ_GET_SEGLIST	8		//build a list of segments
@@ -77,18 +76,43 @@ struct sphere_intersects_wall_result
 	const shared_segment *seg;
 	sidenum_t side;
 };
+
 }
 
 namespace dsx {
+
 //this data contains the parms to fvi()
-struct fvi_query : prohibit_void_ptr<fvi_query>
+struct fvi_query
 {
-	const vms_vector *p0,*p1;
-	segnum_t startseg;
-	objnum_t thisobjnum;
-	fix rad;
-	std::pair<const vcobjidx_t *, const vcobjidx_t *> ignore_obj_list;
-	int flags;
+	static constexpr const std::pair<const vcobjidx_t *, const vcobjidx_t *> unused_ignore_obj_list{};
+	static constexpr const d_level_unique_object_state *const unused_LevelUniqueObjectState = nullptr;
+	static constexpr const d_robot_info_array *const unused_Robot_info = nullptr;
+	const vms_vector &p0;
+	const vms_vector &p1;
+	const std::pair<const vcobjidx_t *, const vcobjidx_t *> ignore_obj_list;
+	const d_level_unique_object_state *const LevelUniqueObjectState;
+	/* This member is required when LevelUniqueObjectState != nullptr and
+	 * thisobjnum->type == OBJ_ROBOT.
+	 * Otherwise, it is ignored.
+	 */
+	const d_robot_info_array *const Robot_info;
+	const int flags;
+	/* This member depends on the value of LevelUniqueObjectState.
+	 * If LevelUniqueObjectState != nullptr, then `thisobjnum` _must_ be a
+	 * valid object.  It will be dereferenced in the course of comparing to
+	 * objects in the segment.
+	 *
+	 * If LevelUniqueObjectState == nullptr, then `thisobjnum` may be a valid
+	 * object, or not, depending on the caller's needs.
+	 *
+	 * If `thisobjnum` is a valid object, then regardless of whether
+	 * LevelUniqueObjectState == nullptr:
+	 * - fvi_sub enables the zero-radius hack for objects that ignore wall
+	 *   collisions
+	 * - fvi_sub respects the ghostphysics cheat if `thisobjnum` is the local
+	 *   player
+	 */
+	const icobjptridx_t thisobjnum;
 };
 
 //Find out if a vector intersects with anything.
@@ -101,7 +125,11 @@ struct fvi_query : prohibit_void_ptr<fvi_query>
 //  ingore_obj_list	NULL, or ptr to a list of objnums to ignore, terminated with -1
 //  check_obj_flag	determines whether collisions with objects are checked
 //Returns the hit_data->hit_type
-fvi_hit_type find_vector_intersection(const fvi_query &fq, fvi_info &hit_data);
+// Pass fvi_query by value since callers construct an anonymous instance solely
+// for this call.  Passing it by value avoids an extra indirection in the
+// called function, and has no cost since it is constructed in place.
+[[nodiscard]]
+fvi_hit_type find_vector_intersection(fvi_query fq, segnum_t startseg, fix rad, fvi_info &hit_data);
 
 //finds the uv coords of the given point on the given seg & side
 //fills in u & v. if l is non-NULL fills it in also

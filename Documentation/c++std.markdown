@@ -1,7 +1,7 @@
-DXX-Rebirth requires a compiler that implements the C++17 standard.  A fully conforming compiler is recommended, but some omissions can be handled by SConf tests that enable a fallback to emulate the feature.
+DXX-Rebirth requires a compiler that implements the C++20 standard.  A fully conforming compiler is recommended, but some omissions can be handled by SConf tests that enable a fallback to emulate the feature.
 
 # Required C++11 features
-DXX-Rebirth code uses C++11 and C++14 features present in >=clang-9.0 and >=gcc-7.5.  Some of these features are probed in the SConf tests so that an error can be reported if the feature is missing.  However, since these are considered the minimum supported compiler versions, and existing SConf tests reject older compilers, some C++14 features that are new in gcc-7.5 may be used without a corresponding test in SConf.
+DXX-Rebirth code uses C++20 features present in >=clang-14.0 and >=gcc-10.4.  Some of these features are probed in the SConf tests so that an error can be reported if the feature is missing.  However, since these are considered the minimum supported compiler versions, and existing SConf tests reject older compilers, some C++20 features that are new in gcc-10.4 may be used without a corresponding test in SConf.
 
 These C++11 features are required to build DXX-Rebirth:
 
@@ -40,20 +40,34 @@ std::unique_ptr<int[]> j;`)
 * `std::addressof`
 * [inheriting constructors][cppr:cpp/language/using_declaration]
 * [Range-based for][cppr:cpp/language/range-for]
+* [Reference-qualified methods][scppr:rvalue method] check that an rvalue which may or may not hold a valid pointer is not used in a context where the caller assumes the rvalue holds a valid pointer.
 
 # Required C++14 features
 * [`std::index_sequence`][cppr:cpp/utility/integer_sequence] is a compile-time sequence of integers.
 * [`std::exchange`][cppr:cpp/utility/exchange] is a utility to update a variable, and yield the value it had before the update
 * [`std::make_unique`][cppr:cpp/memory/unique_ptr/make_unique] is a convenience utility function for constructing `std::unique_ptr` with a managed value.
 
-# Optional C++11/C++14 features
-DXX-Rebirth code may use C++11 or C++14 features not present in the minimum supported compiler if the feature can be removed by a macro and the removal does not change the correctness of the program (C++11: [rvalue-qualified member methods][scppr:rvalue method]).
+# Required C++17 features
+* [Fold expressions][cppr:cpp/language/fold]
+* [Class template argument deduction][cppr:cpp/language/class_template_argument_deduction]
+* [`if constexpr`][cppr:cpp/language/if]
+* [inline variables][cppr:cpp/language/inline]
+* [structured bindings][cppr:cpp/language/structured_binding]
+* [initializers in `if`][cppr:cpp/language/if]
+* [attribute `[[fallthrough]]`][cppr:cpp/language/attributes/fallthrough]
+* [attribute `[[maybe_unused]]`][cppr:cpp/language/attributes/maybe_unused]
+* [attribute `[[nodiscard]]`][cppr:cpp/language/attributes/nodiscard]
+* [`std::optional`][cppr:cpp/utility/optional]
+* [non-member `std::size()`][cppr:cpp/iterator/size]
+* [non-member `std::data()`][cppr:cpp/iterator/data]
 
-## Optional C++11 features
-### Preprocessed out if absent
-
-* [Reference-qualified methods][scppr:rvalue method] check that an rvalue which may or may not hold a valid pointer is not used in a context where the caller assumes the rvalue holds a valid pointer.
-When the rvalue may or may not hold a valid pointer, it must be saved to an lvalue, tested for a valid pointer, and used only if a valid pointer is found.
+# Required C++20 features
+* [3-way comparison `operator<=>`][scppr:operator_comparison]
+* [explicitly defaulted `operator==()`][cppr:cpp/language/default_comparisons]
+* [designated initializers][cppr:cpp/language/aggregate_initialization#Designated_initializers]
+* [constraints and concepts][cppr:cpp/language/constraints]
+* [`std::span`][cppr:cpp/container/span]
+* [`std::endian`][cppr:cpp/types/endian]
 
 [cppr:cpp/language/reference]: https://en.cppreference.com/w/cpp/language/reference
 [cppr:cpp/language/parameter_pack]: https://en.cppreference.com/w/cpp/language/parameter_pack
@@ -75,3 +89,21 @@ When the rvalue may or may not hold a valid pointer, it must be saved to an lval
 [cppr:cpp/language/using_declaration]: https://en.cppreference.com/w/cpp/language/using_declaration
 [cppr:cpp/language/range-for]: https://en.cppreference.com/w/cpp/language/range-for
 [cppr:cpp/language/static_assert]: https://en.cppreference.com/w/cpp/language/static_assert
+[cppr:cpp/language/fold]: https://en.cppreference.com/w/cpp/language/fold
+[cppr:cpp/language/class_template_argument_deduction]: https://en.cppreference.com/w/cpp/language/class_template_argument_deduction
+[cppr:cpp/language/if]: https://en.cppreference.com/w/cpp/language/if
+[cppr:cpp/language/inline]: https://en.cppreference.com/w/cpp/language/inline
+[cppr:cpp/language/structured_binding]: https://en.cppreference.com/w/cpp/language/structured_binding
+[cppr:cpp/language/if]: https://en.cppreference.com/w/cpp/language/if
+[cppr:cpp/language/attributes/fallthrough]: https://en.cppreference.com/w/cpp/language/attributes/fallthrough
+[cppr:cpp/language/attributes/maybe_unused]: https://en.cppreference.com/w/cpp/language/attributes/maybe_unused
+[cppr:cpp/language/attributes/nodiscard]: https://en.cppreference.com/w/cpp/language/attributes/nodiscard
+[cppr:cpp/utility/optional]: https://en.cppreference.com/w/cpp/utility/optional
+[cppr:cpp/iterator/size]: https://en.cppreference.com/w/cpp/iterator/size
+[cppr:cpp/iterator/data]: https://en.cppreference.com/w/cpp/iterator/data
+[scppr:operator_comparison]: https://en.cppreference.com/w/cpp/language/operator_comparison#Three-way_comparison
+[cppr:cpp/language/default_comparisons]: https://en.cppreference.com/w/cpp/language/default_comparisons
+[cppr:cpp/language/aggregate_initialization#Designated_initializers]: https://en.cppreference.com/w/cpp/language/aggregate_initialization#Designated_initializers
+[cppr:cpp/language/constraints]: https://en.cppreference.com/w/cpp/language/constraints
+[cppr:cpp/container/span]: https://en.cppreference.com/w/cpp/container/span
+[cppr:cpp/types/endian]: https://en.cppreference.com/w/cpp/types/endian

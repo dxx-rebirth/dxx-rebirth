@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <cstddef>
 #include <utility>
+#include <span>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "fmtcheck.h"
@@ -109,7 +110,7 @@ extern const object *Ai_last_missile_camera;
 namespace dsx {
 void create_awareness_event(object &objp, player_awareness_type_t type, d_level_unique_robot_awareness_state &LevelUniqueRobotAwarenessState);         // object *objp can create awareness of player, amount based on "type"
 ai_mode ai_behavior_to_mode(ai_behavior behavior);
-void init_ai_object(vmobjptridx_t objp, ai_behavior initial_mode, imsegidx_t hide_segment);
+void init_ai_object(const d_robot_info_array &Robot_info, vmobjptridx_t objp, ai_behavior initial_mode, imsegidx_t hide_segment);
 }
 
 namespace dcx {
@@ -145,22 +146,27 @@ struct d_level_shared_boss_state : ::dcx::d_level_shared_boss_state
 };
 
 extern d_level_shared_boss_state LevelSharedBossState;
-void move_towards_segment_center(const d_level_shared_segment_state &, object_base &objp);
-imobjptridx_t gate_in_robot(unsigned type, vmsegptridx_t segnum);
-void do_ai_frame(vmobjptridx_t objp);
-void do_ai_frame_all();
+void move_towards_segment_center(const d_robot_info_array &Robot_info, const d_level_shared_segment_state &, object_base &objp);
+imobjptridx_t gate_in_robot(const d_robot_info_array &Robot_info, unsigned type, vmsegptridx_t segnum);
+void do_ai_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, vmobjptridx_t objp);
+#if defined(DXX_BUILD_DESCENT_I)
+#define do_ai_frame_all(Robot_info) do_ai_frame_all()
+#elif defined(DXX_BUILD_DESCENT_II)
+#undef do_ai_frame_all
+#endif
+void do_ai_frame_all(const d_robot_info_array &Robot_info);
 }
 extern void create_all_paths(void);
 namespace dsx {
 void create_path_to_station(vmobjptridx_t objp, const robot_info &robptr, int max_length);
 #if defined(DXX_BUILD_DESCENT_I)
-#define ai_follow_path(o,pv,vec)	ai_follow_path(o,pv)
+#define ai_follow_path(Robot_info,o,pv,vec)	ai_follow_path(Robot_info,o,pv)
 #else
 #undef ai_follow_path
 #endif
-void ai_follow_path(vmobjptridx_t objp, const player_visibility_state player_visibility, const vms_vector *vec_to_player);
+void ai_follow_path(const d_robot_info_array &Robot_info, vmobjptridx_t objp, const player_visibility_state player_visibility, const vms_vector *vec_to_player);
 void ai_turn_towards_vector(const vms_vector &vec_to_player, object_base &obj, fix rate);
-extern void init_ai_objects(void);
+void init_ai_objects(const d_robot_info_array &Robot_info);
 void create_n_segment_path(vmobjptridx_t objp, const robot_info &robptr, unsigned path_length, imsegidx_t avoid_seg);
 void create_n_segment_path_to_door(vmobjptridx_t objp, const robot_info &robptr, unsigned path_length);
 }
@@ -180,22 +186,22 @@ namespace dsx {
 void init_robots_for_level();
 #if defined(DXX_BUILD_DESCENT_II)
 int polish_path(vmobjptridx_t objp, point_seg *psegs, int num_points);
-void move_towards_player(object &objp, const vms_vector &vec_to_player);
+void move_towards_player(const d_robot_info_array &Robot_info, object &objp, const vms_vector &vec_to_player);
 #endif
 
 // max_length is maximum depth of path to create.
 // If -1, use default: MAX_DEPTH_TO_SEARCH_FOR_PLAYER
-void attempt_to_resume_path(vmobjptridx_t objp);
+void attempt_to_resume_path(const d_robot_info_array &Robot_info, vmobjptridx_t objp);
 
 // When a robot and a player collide, some robots attack!
-void do_ai_robot_hit_attack(vmobjptridx_t robot, vmobjptridx_t player, const vms_vector &collision_point);
+void do_ai_robot_hit_attack(const d_robot_info_array &Robot_info, vmobjptridx_t robot, vmobjptridx_t player, const vms_vector &collision_point);
 int ai_door_is_openable(
 	const object &, const robot_info *,
 #if defined(DXX_BUILD_DESCENT_II)
 	player_flags,
 #endif
 	const shared_segment &segp, sidenum_t sidenum);
-player_visibility_state player_is_visible_from_object(vmobjptridx_t objp, vms_vector &pos, fix field_of_view, const vms_vector &vec_to_player);
+player_visibility_state player_is_visible_from_object(const d_robot_info_array &Robot_info, vmobjptridx_t objp, vms_vector &pos, fix field_of_view, const vms_vector &vec_to_player);
 extern void ai_reset_all_paths(void);   // Reset all paths.  Call at the start of a level.
 int ai_multiplayer_awareness(vmobjptridx_t objp, int awareness_level);
 
@@ -208,7 +214,7 @@ void do_thief_frame(vmobjptridx_t objp, const robot_info &robptr, fix dist_to_pl
 }
 
 namespace dsx {
-void start_boss_death_sequence(d_level_unique_boss_state &BossUniqueState, const d_level_shared_robot_info_state::d_robot_info_array &Robot_info, object &objp);
+void start_boss_death_sequence(d_level_unique_boss_state &BossUniqueState, const d_robot_info_array &Robot_info, object &objp);
 extern void ai_init_boss_for_ship(void);
 void init_ai_for_ship();
 
@@ -225,9 +231,9 @@ extern vms_vector Last_fired_upon_player_pos;
 
 #define THIEF_PROBABILITY   16384   // 50% chance of stealing an item at each attempt
 
-extern void  create_buddy_bot(void);
+void create_buddy_bot(const d_level_shared_robot_info_state &LevelSharedRobotInfoState);
 
-imobjptridx_t boss_spew_robot(const object_base &objp, const vms_vector &pos);
+imobjptridx_t boss_spew_robot(const d_robot_info_array &Robot_info, const object_base &objp, const vms_vector &pos);
 
 // Amount of time since the current robot was last processed for things such as movement.
 // It is not valid to use FrameTime because robots do not get moved every frame.
@@ -242,14 +248,7 @@ imobjptridx_t boss_spew_robot(const object_base &objp, const vms_vector &pos);
 void init_ai_frame(player_flags, const control_info &Controls);
 
 [[nodiscard]]
-std::size_t create_bfs_list(const object &robot, const robot_info &robptr, vcsegidx_t start_seg, player_flags, segnum_t *bfs_list, std::size_t max_segs);
-
-template <std::size_t N>
-	[[nodiscard]]
-std::size_t create_bfs_list(const object &robot, const robot_info &robptr, const vcsegidx_t &start_seg, const player_flags powerup_flags, std::array<segnum_t, N> &bfs_list)
-{
-	return create_bfs_list(robot, robptr, start_seg, powerup_flags, bfs_list.data(), N);
-}
+std::size_t create_bfs_list(const object &robot, const robot_info &robptr, vcsegidx_t start_seg, player_flags, std::span<segnum_t> bfs_list);
 extern void init_thief_for_level();
 
 void start_robot_death_sequence(object &objp);
@@ -310,7 +309,7 @@ void create_path_to_guidebot_player_segment(vmobjptridx_t objp, const robot_info
 std::pair<create_path_result, unsigned> create_path_points(vmobjptridx_t objp, const robot_info *robptr, vcsegidx_t start_seg, icsegidx_t end_seg, point_seg_array_t::iterator point_segs, unsigned max_depth, create_path_random_flag random_flag, create_path_safety_flag safety_flag, icsegidx_t avoid_seg);
 
 int ai_save_state(PHYSFS_File * fp);
-int ai_restore_state(PHYSFS_File *fp, int version, int swap);
+int ai_restore_state(const d_robot_info_array &Robot_info, PHYSFS_File *fp, int version, int swap);
 
 #if DXX_USE_EDITOR
 void player_follow_path(object &objp);

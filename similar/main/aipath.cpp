@@ -63,7 +63,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dsx {
 namespace {
-static void ai_path_set_orient_and_vel(object &objp, const vms_vector &goal_point
+static void ai_path_set_orient_and_vel(const d_robot_info_array &Robot_info, object &objp, const vms_vector &goal_point
 #if defined(DXX_BUILD_DESCENT_II)
 								, player_visibility_state player_visibility, const vms_vector *vec_to_player
 #endif
@@ -207,27 +207,26 @@ static void move_towards_outside(const d_level_shared_segment_state &LevelShared
 
 		count = 3;
 		while (count) {
-			fvi_query	fq;
 			fvi_info		hit_data;
-	
-			fq.p0						= &psegs[i].point;
-			fq.startseg				= psegs[i].segnum;
-			fq.p1						= &goal_pos;
-			fq.rad					= objp->size;
-			fq.thisobjnum			= objp;
-			fq.ignore_obj_list.first = nullptr;
-			fq.flags					= 0;
-	
-			const auto hit_type = find_vector_intersection(fq, hit_data);
+			auto &p0 = psegs[i].point;
+			const auto hit_type = find_vector_intersection(fvi_query{
+				p0,
+				goal_pos,
+				fvi_query::unused_ignore_obj_list,
+				fvi_query::unused_LevelUniqueObjectState,
+				fvi_query::unused_Robot_info,
+				0,
+				objp,
+			}, psegs[i].segnum, objp->size, hit_data);
 	
 			if (hit_type == fvi_hit_type::None)
 				count = 0;
 			else {
 				if (count == 3 && hit_type == fvi_hit_type::BadP0)
 					Int3();
-				goal_pos.x = (fq.p0->x + hit_data.hit_pnt.x)/2;
-				goal_pos.y = (fq.p0->y + hit_data.hit_pnt.y)/2;
-				goal_pos.z = (fq.p0->z + hit_data.hit_pnt.z)/2;
+				goal_pos.x = (p0.x + hit_data.hit_pnt.x)/2;
+				goal_pos.y = (p0.y + hit_data.hit_pnt.y)/2;
+				goal_pos.z = (p0.z + hit_data.hit_pnt.z)/2;
 				count--;
 				if (count == 0) {	//	Couldn't move towards outside, that's ok, sometimes things can't be moved.
 					goal_pos = psegs[i].point;
@@ -374,20 +373,18 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 #if defined(DXX_BUILD_DESCENT_II)
 				Assert(this_seg != segment_none);
 				if (((cur_seg == avoid_seg) || (this_seg == avoid_seg)) && (ConsoleObject->segnum == avoid_seg)) {
-					fvi_query	fq;
+					const auto &&center_point = compute_center_point_on_side(vcvertptr, segp, snum);
 					fvi_info		hit_data;
 	
-					const auto &&center_point = compute_center_point_on_side(vcvertptr, segp, snum);
-
-					fq.p0						= &obj.pos;
-					fq.startseg				= obj.segnum;
-					fq.p1						= &center_point;
-					fq.rad					= obj.size;
-					fq.thisobjnum			= objp;
-					fq.ignore_obj_list.first = nullptr;
-					fq.flags					= 0;
-
-					const auto hit_type = find_vector_intersection(fq, hit_data);
+					const auto hit_type = find_vector_intersection(fvi_query{
+						obj.pos,
+						center_point,
+						fvi_query::unused_ignore_obj_list,
+						fvi_query::unused_LevelUniqueObjectState,
+						fvi_query::unused_Robot_info,
+						0,
+						objp,
+					}, obj.segnum, obj.size, hit_data);
 					if (hit_type != fvi_hit_type::None)
 					{
 						goto dont_add;
@@ -550,18 +547,16 @@ int polish_path(const vmobjptridx_t objp, point_seg *psegs, int num_points)
 
 	// -- MK: 10/18/95: for (i=0; i<num_points-3; i++)
 	for (i=0; i<2; i++) {
-		fvi_query	fq;
 		fvi_info		hit_data;
-	
-		fq.p0						= &obj.pos;
-		fq.startseg				= obj.segnum;
-		fq.p1						= &psegs[i].point;
-		fq.rad					= obj.size;
-		fq.thisobjnum			= objp;
-		fq.ignore_obj_list.first = nullptr;
-		fq.flags					= 0;
-
-		const auto hit_type = find_vector_intersection(fq, hit_data);
+		const auto hit_type = find_vector_intersection(fvi_query{
+			obj.pos,
+			psegs[i].point,
+			fvi_query::unused_ignore_obj_list,
+			fvi_query::unused_LevelUniqueObjectState,
+			fvi_query::unused_Robot_info,
+			0,
+			objp,
+		}, obj.segnum, obj.size, hit_data);
 	
 		if (hit_type == fvi_hit_type::None)
 			first_point = i+1;
@@ -949,7 +944,7 @@ static void create_path(const vmobjptridx_t objp, const robot_info &robptr)
 
 //	----------------------------------------------------------------------------------------------------------
 //	Optimization: If current velocity will take robot near goal, don't change velocity
-void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state player_visibility, const vms_vector *const vec_to_player)
+void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t objp, const player_visibility_state player_visibility, const vms_vector *const vec_to_player)
 {
 	auto &obj = *objp;
 	ai_static *const aip = &obj.ctype.ai_info;
@@ -958,7 +953,6 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 #endif
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(obj)];
 	int			forced_break, original_dir, original_index;
 	ai_local *const ailp = &obj.ctype.ai_info.ail;
@@ -1188,9 +1182,7 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 				//	Reached end of the line.  First see if opposite end point is reachable, and if so, go there.
 				//	If not, turn around.
 				int			opposite_end_index;
-				vms_vector	*opposite_end_point;
 				fvi_info		hit_data;
-				fvi_query	fq;
 
 				// See which end we're nearer and look at the opposite end point.
 				if (abs(aip->cur_path_index - aip->path_length) < aip->cur_path_index) {
@@ -1201,17 +1193,15 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 					opposite_end_index = aip->path_length-1;
 				}
 
-				opposite_end_point = &Point_segs[aip->hide_index + opposite_end_index].point;
-
-				fq.p0						= &obj.pos;
-				fq.startseg				= obj.segnum;
-				fq.p1						= opposite_end_point;
-				fq.rad					= obj.size;
-				fq.thisobjnum			= objp;
-				fq.ignore_obj_list.first = nullptr;
-				fq.flags					= 0; 				//what about trans walls???
-
-				const auto fate = find_vector_intersection(fq, hit_data);
+				const auto fate = find_vector_intersection(fvi_query{
+					obj.pos,
+					Point_segs[aip->hide_index + opposite_end_index].point,
+					fvi_query::unused_ignore_obj_list,
+					fvi_query::unused_LevelUniqueObjectState,
+					fvi_query::unused_Robot_info,
+					0, 				//what about trans walls???
+					objp,
+				}, obj.segnum, obj.size, hit_data);
 				if (fate != fvi_hit_type::Wall)
 				{
 					//	We can be circular!  Do it!
@@ -1239,7 +1229,7 @@ void ai_follow_path(const vmobjptridx_t objp, const player_visibility_state play
 	}	//	end while
 
 	//	Set velocity (objp->mtype.phys_info.velocity) and orientation (objp->orient) for this object.
-	ai_path_set_orient_and_vel(objp, goal_point
+	ai_path_set_orient_and_vel(Robot_info, objp, goal_point
 #if defined(DXX_BUILD_DESCENT_II)
 							   , player_visibility, vec_to_player
 #endif
@@ -1276,7 +1266,7 @@ namespace {
 
 //	----------------------------------------------------------------------------------------------------------
 //	Set orientation matrix and velocity for objp based on its desire to get to a point.
-void ai_path_set_orient_and_vel(object &objp, const vms_vector &goal_point
+void ai_path_set_orient_and_vel(const d_robot_info_array &Robot_info, object &objp, const vms_vector &goal_point
 #if defined(DXX_BUILD_DESCENT_II)
 								, const player_visibility_state player_visibility, const vms_vector *const vec_to_player
 #endif
@@ -1286,7 +1276,6 @@ void ai_path_set_orient_and_vel(object &objp, const vms_vector &goal_point
 	vms_vector	cur_pos = objp.pos;
 	fix			speed_scale;
 	fix			dot;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(objp)];
 	fix			max_speed;
 
@@ -1351,7 +1340,7 @@ void ai_path_set_orient_and_vel(object &objp, const vms_vector &goal_point
 				vm_vec_negate(norm_vec_to_goal);
 		}
 #endif
-		rate = robptr.turn_time[Difficulty_4] / 2;
+		rate = robptr.turn_time[Difficulty_level_type::_4] / 2;
 	} else
 		rate = robptr.turn_time[Difficulty_level];
 	ai_turn_towards_vector(norm_vec_to_goal, objp, rate);
@@ -1477,11 +1466,10 @@ void ai_reset_all_paths(void)
 //	---------------------------------------------------------------------------------------------------------
 //	Probably called because a robot bashed a wall, getting a bunch of retries.
 //	Try to resume path.
-void attempt_to_resume_path(const vmobjptridx_t objp)
+void attempt_to_resume_path(const d_robot_info_array &Robot_info, const vmobjptridx_t objp)
 {
 	ai_static *aip = &objp->ctype.ai_info;
 	int new_path_index;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[get_robot_id(objp)];
 
 	if (aip->behavior == ai_behavior::AIB_STATION
@@ -1502,7 +1490,7 @@ void attempt_to_resume_path(const vmobjptridx_t objp)
 		aip->cur_path_index = new_path_index;
 	} else {
 		// At end of line and have nowhere to go.
-		move_towards_segment_center(LevelSharedSegmentState, objp);
+		move_towards_segment_center(Robot_info, LevelSharedSegmentState, objp);
 		create_path_to_station(objp, robptr, 15);
 	}
 }
@@ -1512,6 +1500,7 @@ void attempt_to_resume_path(const vmobjptridx_t objp)
 //	----------------------------------------------------------------------------------------------------------
 
 #if DXX_USE_EDITOR
+namespace {
 
 __attribute_used
 static void test_create_path_many(fvmobjptridx &vmobjptridx, fimsegptridx &imsegptridx)
@@ -1546,7 +1535,7 @@ static void test_create_all_paths(fvmobjptridx &vmobjptridx, fvcsegptridx &vcseg
 		const shared_segment &sseg0 = segp0;
 		if (sseg0.segnum != segment_none)
 		{
-			range_for (const auto &&segp1, partial_range(vcsegptridx, static_cast<segnum_t>(segp0), vcsegptridx.count()))
+			for (const auto &&segp1 : partial_range(vcsegptridx, segp0.get_unchecked_index(), vcsegptridx.count()))
 			{
 				const shared_segment &sseg1 = segp1;
 				if (sseg1.segnum != segment_none)
@@ -1562,8 +1551,6 @@ short	Player_path_length=0;
 int	Player_hide_index=-1;
 int	Player_cur_path_index=0;
 int	Player_following_path_flag=0;
-
-namespace {
 
 //	------------------------------------------------------------------------------------------------------------------
 //	Set orientation matrix and velocity for objp based on its desire to get to a point.

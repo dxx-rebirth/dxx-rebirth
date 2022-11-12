@@ -35,6 +35,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "objnum.h"
 #include "fwd-segment.h"
 
+#if defined(DXX_BUILD_DESCENT_II)
+#include "fwd-object.h"
+#include "fwd-vclip.h"
+#endif
+
 #define GREEN_GUY   1
 
 #define MAX_SEGMENTS_PER_PATH       20
@@ -68,6 +73,20 @@ enum ai_static_state : uint8_t
 	AIS_FIRE = 5,
 	AIS_RECO = 6,
 	AIS_ERR_ = 7,
+};
+
+enum class robot_gun_number : uint8_t
+{
+	/* This enum is used to index an array[8], so only values in [0, 7] are
+	 * valid indices.  All others are special flag values that must not be
+	 * stored into the robot structure.
+	 */
+	_0,
+	_1,
+	/* if DXX_BUILD_DESCENT_II */
+	smart_mine = 0xfe,
+	/* endif */
+	proximity = 0xff,
 };
 
 static inline unsigned player_is_visible(const player_visibility_state s)
@@ -204,14 +223,14 @@ struct ai_local : public prohibit_void_ptr<ai_local>
 	fix64      next_misc_sound_time = 0;          // absolute time in seconds at which this robot last made an angry or lurking sound.
 	std::array<vms_angvec, MAX_SUBMODELS> goal_angles{};    // angles for each subobject
 	std::array<vms_angvec, MAX_SUBMODELS> delta_angles{};   // angles for each subobject
-	std::array<ai_static_state, MAX_SUBMODELS> goal_state{};     // Goal state for this sub-object
-	std::array<ai_static_state, MAX_SUBMODELS> achieved_state{}; // Last achieved state
+	enumerated_array<ai_static_state, MAX_SUBMODELS, robot_gun_number> goal_state{};     // Goal state for this sub-object
+	enumerated_array<ai_static_state, MAX_SUBMODELS, robot_gun_number> achieved_state{}; // Last achieved state
 };
 
 struct ai_static : public prohibit_void_ptr<ai_static>
 {
 	ai_behavior behavior = static_cast<ai_behavior>(0);               //
-	int8_t CURRENT_GUN;
+	robot_gun_number CURRENT_GUN;
 	ai_static_state CURRENT_STATE;
 	ai_static_state GOAL_STATE;
 	int8_t PATH_DIR;
@@ -247,7 +266,7 @@ struct ai_static_rw
 {
 	ubyte   behavior;               //
 	int8_t  flags[11];    // various flags, meaning defined by constants
-	short   hide_segment;           // Segment to go to for hiding.
+	uint16_t hide_segment;           // Segment to go to for hiding.
 	short   hide_index;             // Index in Path_seg_points
 	short   path_length;            // Length of hide path.
 #if defined(DXX_BUILD_DESCENT_I)
@@ -329,9 +348,12 @@ struct ai_cloak_info_rw
 // Maximum number kept track of, will keep stealing, causes stolen weapons to be lost!
 struct d_thief_unique_state
 {
+	using stolen_item_storage = std::array<uint8_t, 10>;
 	unsigned Stolen_item_index;   // Used in ai.c for controlling rate of Thief flare firing.
-	std::array<uint8_t, 10> Stolen_items;
+	stolen_item_storage Stolen_items;
 };
+
+void drop_stolen_items_local(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const d_vclip_array &Vclip, vmsegptridx_t segp, const vms_vector &thief_velocity, const vms_vector &thief_position, d_thief_unique_state::stolen_item_storage &);
 
 #endif
 }

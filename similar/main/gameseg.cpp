@@ -222,7 +222,7 @@ static uint_fast32_t create_vertex_lists_from_values(T &va, const shared_segment
 			 * -Wmaybe-uninitialized in check_segment_connections
 			 */
 			va[4] = va[5] = {};
-			DXX_MAKE_MEM_UNDEFINED(&va[4], 2 * sizeof(va[4]));
+			DXX_MAKE_MEM_UNDEFINED(std::span(va).template subspan<4, 2>());
 			return 1;
 		case side_type::tri_02:
 			va[3] = f2;
@@ -531,8 +531,9 @@ int check_segment_connections(void)
 				{
 					shared_segment &rseg = *seg;
 					const shared_segment &rcseg = *cseg;
-					const unsigned segi = seg.get_unchecked_index();
-					LevelError("Segment #%u side %u has asymmetric link to segment %u.  Coercing to segment_none; Segments[%u].children={%hu, %hu, %hu, %hu, %hu, %hu}, Segments[%u].children={%hu, %hu, %hu, %hu, %hu, %hu}.", segi, underlying_value(sidenum), csegnum, segi, rseg.children[sidenum_t::WLEFT], rseg.children[sidenum_t::WTOP], rseg.children[sidenum_t::WRIGHT], rseg.children[sidenum_t::WBOTTOM], rseg.children[sidenum_t::WBACK], rseg.children[sidenum_t::WFRONT], csegnum, rcseg.children[sidenum_t::WLEFT], rcseg.children[sidenum_t::WTOP], rcseg.children[sidenum_t::WRIGHT], rcseg.children[sidenum_t::WBOTTOM], rcseg.children[sidenum_t::WBACK], rcseg.children[sidenum_t::WFRONT]);
+					const auto segi = underlying_value(seg.get_unchecked_index());
+					const auto csegi = underlying_value(csegnum);
+					LevelError("Segment #%hu side %u has asymmetric link to segment %hu.  Coercing to segment_none; Segments[%hu].children={%hu, %hu, %hu, %hu, %hu, %hu}, Segments[%u].children={%hu, %hu, %hu, %hu, %hu, %hu}.", segi, underlying_value(sidenum), csegi, segi, rseg.children[sidenum_t::WLEFT], rseg.children[sidenum_t::WTOP], rseg.children[sidenum_t::WRIGHT], rseg.children[sidenum_t::WBOTTOM], rseg.children[sidenum_t::WBACK], rseg.children[sidenum_t::WFRONT], csegi, rcseg.children[sidenum_t::WLEFT], rcseg.children[sidenum_t::WTOP], rcseg.children[sidenum_t::WRIGHT], rcseg.children[sidenum_t::WBOTTOM], rcseg.children[sidenum_t::WBACK], rcseg.children[sidenum_t::WFRONT]);
 					rseg.children[sidenum] = segment_none;
 					errors = 1;
 					continue;
@@ -616,7 +617,6 @@ namespace {
 // returns segment number, or -1 if can't find segment
 static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedSegmentState, const vms_vector &p0, const vcsegptridx_t oldsegnum, const unsigned recursion_count, visited_segment_bitarray_t &visited)
 {
-	fix biggest_val;
 	if (recursion_count >= LevelSharedSegmentState.Num_segments) {
 		con_puts(CON_DEBUG, "trace_segs: Segment not found");
 		return segment_none;
@@ -633,10 +633,10 @@ static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 	if (centermask == sidemask_t{}) // we are in the old segment
 		return oldsegnum; //..say so
 
+	auto &children = oldsegnum->shared_segment::children;
 	for (;;) {
-		auto &children = oldsegnum->shared_segment::children;
 		std::optional<sidenum_t> biggest_side;
-		biggest_val = 0;
+		fix biggest_val = 0;
 		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
 		{
 			const auto bit = build_sidemask(sidenum);
@@ -769,66 +769,58 @@ icsegptridx_t find_point_seg(const d_level_shared_segment_state &LevelSharedSegm
 //--repair-- 	return ((Lsegment_highest_segment_index == Highest_segment_index) && (Lsegment_highest_vertex_index == Highest_vertex_index));
 //--repair-- }
 
-}
-
-namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-static inline void add_to_fcd_cache(int seg0, int seg1, int depth, vm_distance dist)
+namespace {
+static inline void add_to_fcd_cache(segnum_t seg0, segnum_t seg1, vm_distance dist)
 {
-	(void)(seg0||seg1||depth||dist);
+	(void)seg0;
+	(void)seg1;
+	(void)dist;
+}
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 #define	MIN_CACHE_FCD_DIST	(F1_0*80)	//	Must be this far apart for cache lookup to succeed.  Recognizes small changes in distance matter at small distances.
-#define	MAX_FCD_CACHE	8
-
 namespace {
 
 struct fcd_data {
 	segnum_t	seg0, seg1;
-	int csd;
 	vm_distance dist;
 };
 
-}
-
-int	Fcd_index = 0;
-static std::array<fcd_data, MAX_FCD_CACHE> Fcd_cache;
 fix64	Last_fcd_flush_time;
+unsigned Fcd_index;
+std::array<fcd_data, 8> Fcd_cache;
 
-//	----------------------------------------------------------------------------------------------------------
-void flush_fcd_cache(void)
-{
-	Fcd_index = 0;
-
-	range_for (auto &i, Fcd_cache)
-		i.seg0 = segment_none;
-}
-
-namespace {
-//	----------------------------------------------------------------------------------------------------------
-static void add_to_fcd_cache(int seg0, int seg1, int depth, vm_distance dist)
+static void add_to_fcd_cache(const segnum_t seg0, const segnum_t seg1, const vm_distance dist)
 {
 	if (dist > MIN_CACHE_FCD_DIST) {
-		Fcd_cache[Fcd_index].seg0 = seg0;
-		Fcd_cache[Fcd_index].seg1 = seg1;
-		Fcd_cache[Fcd_index].csd = depth;
-		Fcd_cache[Fcd_index].dist = dist;
-
-		Fcd_index++;
-
-		if (Fcd_index >= MAX_FCD_CACHE)
+		if (Fcd_index >= Fcd_cache.size())
 			Fcd_index = 0;
+		auto &f = Fcd_cache[Fcd_index++];
+		f.seg0 = seg0;
+		f.seg1 = seg1;
+		f.dist = dist;
 	} else {
 		//	If it's in the cache, remove it.
-		range_for (auto &i, Fcd_cache)
-			if (i.seg0 == seg0)
-				if (i.seg1 == seg1) {
-					Fcd_cache[Fcd_index].seg0 = segment_none;
-					break;
-				}
+		for (auto &f : Fcd_cache)
+			if (f.seg0 == seg0 && f.seg1 == seg1)
+			{
+				f.seg0 = segment_none;
+				break;
+			}
 	}
+}
 
 }
+
+//	----------------------------------------------------------------------------------------------------------
+void flush_fcd_cache()
+{
+	Fcd_index = 0;
+	Last_fcd_flush_time = GameTime64;
+
+	for (auto &f : Fcd_cache)
+		f.seg0 = segment_none;
 }
 #endif
 
@@ -880,7 +872,6 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 	//	Periodically flush cache.
 	if ((GameTime64 - Last_fcd_flush_time > F1_0*2) || (GameTime64 < Last_fcd_flush_time)) {
 		flush_fcd_cache();
-		Last_fcd_flush_time = GameTime64;
 	}
 
 	else
@@ -919,8 +910,7 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 					depth[qtail++] = cur_depth+1;
 					if (max_depth != -1) {
 						if (depth[qtail-1] == max_depth) {
-							constexpr auto Connected_segment_distance = 1000;
-							add_to_fcd_cache(seg0, seg1, Connected_segment_distance, fcd_abort_cache_value);
+							add_to_fcd_cache(seg0, seg1, fcd_abort_cache_value);
 							return fcd_abort_return_value;
 						}
 					} else if (this_seg == seg1) {
@@ -930,8 +920,7 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 		}	//	for (sidenum...
 
 		if (qhead >= qtail) {
-			constexpr auto Connected_segment_distance = 1000;
-			add_to_fcd_cache(seg0, seg1, Connected_segment_distance, fcd_abort_cache_value);
+			add_to_fcd_cache(seg0, seg1, fcd_abort_cache_value);
 			return fcd_abort_return_value;
 		}
 
@@ -945,8 +934,7 @@ fcd_done1: ;
 	//	Set qtail to the segment which ends at the goal.
 	while (seg_queue[--qtail].end != seg1)
 		if (qtail < 0) {
-			constexpr auto Connected_segment_distance = 1000;
-			add_to_fcd_cache(seg0, seg1, Connected_segment_distance, fcd_abort_cache_value);
+			add_to_fcd_cache(seg0, seg1, fcd_abort_cache_value);
 			return fcd_abort_return_value;
 		}
 
@@ -979,7 +967,7 @@ fcd_done1: ;
 			dist += vm_vec_dist_quick(point_segs[i].point, point_segs[i+1].point);
 		}
 
-	add_to_fcd_cache(seg0, seg1, num_points, dist);
+	add_to_fcd_cache(seg0, seg1, dist);
 
 	return dist;
 
@@ -1050,7 +1038,7 @@ void create_shortpos_little(const d_level_shared_segment_state &LevelSharedSegme
 		spp.xo = INTEL_SHORT(spp.xo);
 		spp.yo = INTEL_SHORT(spp.yo);
 		spp.zo = INTEL_SHORT(spp.zo);
-		spp.segment = INTEL_SHORT(spp.segment);
+		spp.segment = segnum_t{INTEL_SHORT(underlying_value(spp.segment))};
 		spp.velx = INTEL_SHORT(spp.velx);
 		spp.vely = INTEL_SHORT(spp.vely);
 		spp.velz = INTEL_SHORT(spp.velz);
@@ -1075,7 +1063,7 @@ void extract_shortpos_little(const vmobjptridx_t objp, const shortpos *spp)
 	objp->orient.uvec.z = *sp++ << MATRIX_PRECISION;
 	objp->orient.fvec.z = *sp++ << MATRIX_PRECISION;
 
-	const segnum_t segnum = INTEL_SHORT(spp->segment);
+	const auto segnum = segnum_t{INTEL_SHORT(underlying_value(spp->segment))};
 
 	Assert(segnum <= Highest_segment_index);
 
@@ -1586,7 +1574,7 @@ void validate_segment_all(d_level_shared_segment_state &LevelSharedSegmentState)
 	}
 
 #if DXX_USE_EDITOR
-	range_for (shared_segment &s, partial_range(Segments, Highest_segment_index + 1, Segments.size()))
+	for (shared_segment &s : partial_range(Segments, Segments.get_count(), Segments.size()))
 		s.segnum = segment_none;
 	#endif
 }
@@ -1745,12 +1733,12 @@ static void change_light(const d_level_shared_destructible_light_state &LevelSha
 	const fix ds = dir * DL_SCALE;
 	auto &Dl_indices = LevelSharedDestructibleLightState.Dl_indices;
 	const auto &&pr = cast_range_result<const dl_index &>(Dl_indices.vcptr);
-	const auto &&er = std::equal_range(pr.begin(), pr.end(), dl_index{segnum, sidenum, 0, 0});
+	const auto &&er = std::equal_range(pr.begin(), pr.end(), dl_index{segnum, sidenum, 0, {}});
 	auto &Delta_lights = LevelSharedDestructibleLightState.Delta_lights;
 	range_for (auto &i, partial_range_t<const dl_index *>(er.first.base().base(), er.second.base().base()))
 	{
-		const uint_fast32_t idx = i.index;
-			range_for (auto &j, partial_const_range(Delta_lights, idx, idx + i.count))
+		const std::size_t idx = underlying_value(i.index);
+		for (auto &j : partial_const_range(Delta_lights, idx, idx + i.count))
 			{
 				assert(j.sidenum < MAX_SIDES_PER_SEGMENT);
 				const auto &&segp = vmsegptr(j.segnum);

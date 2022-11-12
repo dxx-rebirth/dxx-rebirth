@@ -46,11 +46,9 @@ static std::map<const char *, std::unique_ptr<cmd_t>> cmd_list;
 #define ALIAS_NAME_MAX 32
 struct cmd_alias_t
 {
+	std::unique_ptr<char[]> value;
 	char           name[ALIAS_NAME_MAX];
-	RAIIdmem<char[]> value;
 };
-
-}
 
 #define CMD_MAX_ALIASES 1024
 
@@ -70,6 +68,7 @@ static cmd_alias_t *cmd_findalias(const char *alias_name )
 	return i == cmd_alias_list.end() ? nullptr : i->second.get();
 }
 
+}
 
 /* add a new console command */
 void cmd_addcommand(const char *cmd_name, cmd_handler_t cmd_func, const char *cmd_help_text)
@@ -94,14 +93,12 @@ namespace {
 
 struct cmd_queue_t
 {
-	RAIIdmem<char[]> command_line;
-	explicit cmd_queue_t(RAIIdmem<char[]> p) :
+	std::unique_ptr<char[]> command_line;
+	explicit cmd_queue_t(std::unique_ptr<char[]> p) :
 		command_line(std::move(p))
 	{
 	}
 };
-
-}
 
 /* The list of commands to be executed */
 static std::forward_list<cmd_queue_t> cmd_queue;
@@ -138,7 +135,6 @@ static void cmd_execute(unsigned long argc, const char *const *const argv)
 		cvar_cmd_set(argc + 1, new_argv);
 	}
 }
-
 
 /* Parse an input string */
 static void cmd_parse(char *input)
@@ -189,8 +185,9 @@ static void cmd_parse(char *input)
 	cmd_execute(num_tokens, tokens);
 }
 
-
 static int cmd_queue_wait;
+
+}
 
 int cmd_queue_process(void)
 {
@@ -311,6 +308,7 @@ const char *cmd_complete(const char *input)
 	return cvar_complete(input);
 }
 
+namespace {
 
 /* alias */
 static void cmd_alias(unsigned long argc, const char *const *const argv)
@@ -350,7 +348,6 @@ static void cmd_alias(unsigned long argc, const char *const *const argv)
 	}
 	alias->value = d_strdup(buf);
 }
-
 
 /* unalias */
 static void cmd_unalias(unsigned long argc, const char *const *const argv)
@@ -456,6 +453,8 @@ static void cmd_wait(unsigned long argc, const char *const *const argv)
 		cmd_queue_wait = 1;
 	else
 		cmd_queue_wait = atoi(argv[1]);
+}
+
 }
 
 void cmd_init(void)

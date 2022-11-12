@@ -8,6 +8,7 @@
 // Generated from the TEXTINCLUDE 2 resource.
 //
 #include "afxres.h"
+#include "vers_id.h"
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_ICON_NUMBER	"1"
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -15,6 +16,37 @@
 #endif
 1	RT_MANIFEST	"dxx-rebirth.manifest"
 IDI_DXX_ICON            ICON                    "d" DXX_ICON_NUMBER "x-rebirth.ico"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION DXX_VERSION_SEQ,0
+ PRODUCTVERSION DXX_VERSION_SEQ,0
+ FILEFLAGSMASK 0x3fL
+#ifndef NDEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004b0"
+        BEGIN
+            VALUE "FileDescription", "Descent " DXX_ICON_NUMBER " Rebirth"
+            VALUE "FileVersion", DXX_VERSION_STR ".0"
+            VALUE "InternalName", "d" DXX_ICON_NUMBER "-rebirth.exe"
+            VALUE "OriginalFilename", "d" DXX_ICON_NUMBER "-rebirth.exe"
+            VALUE "ProductName", "Descent " DXX_ICON_NUMBER " Rebirth"
+            VALUE "ProductVersion", DXX_VERSION_STR ".0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0, 1200
+    END
+END
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -39,6 +71,7 @@ END
 2 TEXTINCLUDE
 BEGIN
     "#include ""afxres.h""\r\n"
+    "#include ""vers_id.h""\r\n"
 	"#if defined(DXX_BUILD_DESCENT_I)\r\n"
 	"#define DXX_ICON_NUMBER	""1""\r\n"
 	"#elif defined(DXX_BUILD_DESCENT_II)\r\n"

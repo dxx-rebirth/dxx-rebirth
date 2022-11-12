@@ -56,6 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 #include "segiter.h"
 
+namespace {
 static void paging_touch_vclip(const vclip &vc, const unsigned line)
 #define paging_touch_vclip(V)	paging_touch_vclip(V, __LINE__)
 {
@@ -173,7 +174,7 @@ static void paging_touch_weapon(const d_vclip_array &Vclip, const weapon_info_ar
 
 const std::array<sbyte, 13> super_boss_gate_type_list{{0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22}};
 
-static void paging_touch_robot(const d_level_shared_robot_info_state::d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, const unsigned ridx)
+static void paging_touch_robot(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, const unsigned ridx)
 {
 	auto &ri = Robot_info[ridx];
 	// Page in robot_index
@@ -195,7 +196,7 @@ static void paging_touch_robot(const d_level_shared_robot_info_state::d_robot_in
 	}
 }
 
-static void paging_touch_object(const d_level_shared_robot_info_state::d_robot_info_array &Robot_info, const Textures_array &Textures, const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, const object_base &obj)
+static void paging_touch_object(const d_robot_info_array &Robot_info, const Textures_array &Textures, const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, const object_base &obj)
 {
 	int v;
 
@@ -234,7 +235,7 @@ static void paging_touch_object(const d_level_shared_robot_info_state::d_robot_i
 		default:
 			break;
 	case OBJ_PLAYER:	
-		v = get_explosion_vclip(obj, explosion_vclip_stage::s0);
+		v = get_explosion_vclip(LevelSharedRobotInfoState.Robot_info, obj, explosion_vclip_stage::s0);
 		if ( v > -1 )
 			paging_touch_vclip(Vclip[v]);
 		break;
@@ -269,7 +270,7 @@ static void paging_touch_side(const d_eclip_array &Effects, const Textures_array
 	}
 }
 
-static void paging_touch_robot_maker(const d_level_shared_robot_info_state::d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, const shared_segment &segp)
+static void paging_touch_robot_maker(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, const shared_segment &segp)
 {
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 		paging_touch_vclip(Vclip[VCLIP_MORPHING_ROBOT]);
@@ -292,7 +293,7 @@ static void paging_touch_robot_maker(const d_level_shared_robot_info_state::d_ro
 			}
 }
 
-static void paging_touch_segment(const d_eclip_array &Effects, const d_level_shared_robot_info_state::d_robot_info_array &Robot_info, const Textures_array &Textures, const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, const fvcobjptridx &vcobjptridx, const fvcsegptr &vcsegptr, const cscusegment segp)
+static void paging_touch_segment(const d_eclip_array &Effects, const d_robot_info_array &Robot_info, const Textures_array &Textures, const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, const fvcobjptridx &vcobjptridx, const fvcsegptr &vcsegptr, const cscusegment segp)
 {
 	if (segp.s.special == segment_special::robotmaker)
 		paging_touch_robot_maker(Robot_info, Vclip, Weapon_info, segp);
@@ -317,6 +318,7 @@ static void paging_touch_walls(const Textures_array &Textures, const wall_animat
 				PIGGY_PAGE_IN(Textures[j]);
 		}
 	}
+}
 }
 
 namespace dsx {

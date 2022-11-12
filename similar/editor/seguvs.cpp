@@ -1014,21 +1014,19 @@ static void cast_light_from_side(const vmsegptridx_t segp, const sidenum_t light
 													hashp = &fvi_cache[hash_value];
 												}
 											} else {
-												fvi_query fq;
-
 												Hash_calcs++;
 												hashp->vector = vector_to_light;
 												hashp->flag = 1;
 
-												fq.p0						= &light_location;
-												fq.startseg				= segp;
-												fq.p1						= &vert_location;
-												fq.rad					= 0;
-												fq.thisobjnum			= object_none;
-												fq.ignore_obj_list.first = nullptr;
-												fq.flags					= 0;
-
-												hit_type = find_vector_intersection(fq, hit_data);
+												hit_type = find_vector_intersection(fvi_query{
+													light_location,
+													vert_location,
+													fvi_query::unused_ignore_obj_list,
+													fvi_query::unused_LevelUniqueObjectState,
+													fvi_query::unused_Robot_info,
+													0,
+													object_none,
+												}, segp, 0, hit_data);
 												hashp->hit_type = hit_type;
 												break;
 											}
@@ -1116,18 +1114,17 @@ static void cast_light_from_side_to_center(const vmsegptridx_t segp, const siden
 					fvi_hit_type hit_type;
 
 					if (!quick_light) {
-						fvi_query fq;
 						fvi_info	hit_data;
 
-						fq.p0						= &light_location;
-						fq.startseg				= segp;
-						fq.p1						= &r_segment_center;
-						fq.rad					= 0;
-						fq.thisobjnum			= object_none;
-						fq.ignore_obj_list.first = nullptr;
-						fq.flags					= 0;
-
-						hit_type = find_vector_intersection(fq, hit_data);
+						hit_type = find_vector_intersection(fvi_query{
+							light_location,
+							r_segment_center,
+							fvi_query::unused_ignore_obj_list,
+							fvi_query::unused_LevelUniqueObjectState,
+							fvi_query::unused_Robot_info,
+							0,
+							object_none,
+						}, segp, 0, hit_data);
 					}
 					else
 						hit_type = fvi_hit_type::None;

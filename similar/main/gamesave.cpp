@@ -74,46 +74,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_zip.h"
 #include "partial_range.h"
 
-#if defined(DXX_BUILD_DESCENT_I)
-#if DXX_USE_EDITOR
-const char Shareware_level_names[NUM_SHAREWARE_LEVELS][12] = {
-	"level01.rdl",
-	"level02.rdl",
-	"level03.rdl",
-	"level04.rdl",
-	"level05.rdl",
-	"level06.rdl",
-	"level07.rdl"
-};
-
-const char Registered_level_names[NUM_REGISTERED_LEVELS][12] = {
-	"level08.rdl",
-	"level09.rdl",
-	"level10.rdl",
-	"level11.rdl",
-	"level12.rdl",
-	"level13.rdl",
-	"level14.rdl",
-	"level15.rdl",
-	"level16.rdl",
-	"level17.rdl",
-	"level18.rdl",
-	"level19.rdl",
-	"level20.rdl",
-	"level21.rdl",
-	"level22.rdl",
-	"level23.rdl",
-	"level24.rdl",
-	"level25.rdl",
-	"level26.rdl",
-	"level27.rdl",
-	"levels1.rdl",
-	"levels2.rdl",
-	"levels3.rdl"
-};
-#endif
-#endif
-
 char Gamesave_current_filename[PATH_MAX];
 
 int Gamesave_current_version;
@@ -139,6 +99,7 @@ int Gamesave_num_org_robots = 0;
 //--unused-- grs_bitmap * Gamesave_saved_bitmap = NULL;
 
 #if DXX_USE_EDITOR
+namespace {
 // Return true if this level has a name of the form "level??"
 // Note that a pathspec can appear at the beginning of the filename.
 static int is_real_level(const char *filename)
@@ -149,6 +110,7 @@ static int is_real_level(const char *filename)
 		return 0;
 
 	return !d_strnicmp(&filename[len-11], "level");
+}
 }
 #endif
 
@@ -196,7 +158,8 @@ using savegame_pof_names_type = std::array<char[FILENAME_LEN], MAX_POLYGON_MODEL
 #endif
 
 namespace {
-static void verify_object(const d_vclip_array &Vclip, object &obj, const savegame_pof_names_type &Save_pof_names)
+
+static void verify_object(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const d_vclip_array &Vclip, object &obj, const savegame_pof_names_type &Save_pof_names)
 {
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	obj.lifeleft = IMMORTAL_TIME;		//all loaded object are immortal, for now
@@ -362,8 +325,7 @@ static void verify_object(const d_vclip_array &Vclip, object &obj, const savegam
 //reads one object of the given version from the given file
 static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 {
-	const auto poison_obj = reinterpret_cast<uint8_t *>(&*obj);
-	DXX_POISON_MEMORY(poison_obj, sizeof(*obj), 0xfd);
+	DXX_POISON_MEMORY(std::span<object>(&*obj, 1), 0xfd);
 	obj->signature = object_signature_t{0};
 	set_object_type(*obj, PHYSFSX_readByte(f));
 	obj->id             = PHYSFSX_readByte(f);
@@ -426,7 +388,10 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 	}
 	obj->flags          = PHYSFSX_readByte(f);
 
-	obj->segnum         = PHYSFSX_readShort(f);
+	{
+		const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(f))};
+		obj->segnum = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
+	}
 	obj->attached_obj   = object_none;
 
 	PHYSFSX_readVector(f, obj->pos);
@@ -482,7 +447,10 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 
 			std::array<int8_t, 11> ai_info_flags{};
 			PHYSFS_read(f, &ai_info_flags[0], 1, 11);
-			obj->ctype.ai_info.CURRENT_GUN = ai_info_flags[0];
+			{
+				const uint8_t gun_num = ai_info_flags[0];
+				obj->ctype.ai_info.CURRENT_GUN = (gun_num < MAX_GUNS) ? robot_gun_number{gun_num} : robot_gun_number{};
+			}
 			obj->ctype.ai_info.CURRENT_STATE = build_ai_state_from_untrusted(ai_info_flags[1]).value();
 			obj->ctype.ai_info.GOAL_STATE = build_ai_state_from_untrusted(ai_info_flags[2]).value();
 			obj->ctype.ai_info.PATH_DIR = ai_info_flags[3];
@@ -496,7 +464,10 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 			obj->ctype.ai_info.SKIP_AI_COUNT = ai_info_flags[7];
 			obj->ctype.ai_info.REMOTE_OWNER = ai_info_flags[8];
 			obj->ctype.ai_info.REMOTE_SLOT_NUM = ai_info_flags[9];
-			obj->ctype.ai_info.hide_segment			= PHYSFSX_readShort(f);
+			{
+				const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(f))};
+				obj->ctype.ai_info.hide_segment = imsegidx_t::check_nothrow_index(s) ? s : segment_none;
+			}
 			obj->ctype.ai_info.hide_index			= PHYSFSX_readShort(f);
 			obj->ctype.ai_info.path_length			= PHYSFSX_readShort(f);
 			obj->ctype.ai_info.cur_path_index		= PHYSFSX_readShort(f);
@@ -749,7 +720,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 			PHYSFSX_writeU8(f, static_cast<uint8_t>(obj.ctype.ai_info.behavior));
 
 			std::array<int8_t, 11> ai_info_flags{};
-			ai_info_flags[0] = obj.ctype.ai_info.CURRENT_GUN;
+			ai_info_flags[0] = underlying_value(obj.ctype.ai_info.CURRENT_GUN);
 			ai_info_flags[1] = obj.ctype.ai_info.CURRENT_STATE;
 			ai_info_flags[2] = obj.ctype.ai_info.GOAL_STATE;
 			ai_info_flags[3] = obj.ctype.ai_info.PATH_DIR;
@@ -902,7 +873,7 @@ static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, co
 				if (connected_seg == segment_none)
 				{
 					rwn0 = wall_none;
-					LevelError("segment %u side %u wall %u has no child segment; removing orphan wall.", seg.get_unchecked_index(), underlying_value(sidenum), static_cast<unsigned>(wn0));
+					LevelError("segment %hu side %u wall %hu has no child segment; removing orphan wall.", seg.get_unchecked_index(), underlying_value(sidenum), underlying_value(wn0));
 					return;
 				}
 				const shared_segment &vcseg = *vcsegptr(connected_seg);
@@ -910,14 +881,14 @@ static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, co
 				if (connected_side == side_none)
 				{
 					rwn0 = wall_none;
-					LevelError("segment %u side %u wall %u has child segment %u side %u, but child segment does not link back; removing orphan wall.", seg.get_unchecked_index(), underlying_value(sidenum), underlying_value(wn0), connected_seg, underlying_value(connected_side));
+					LevelError("segment %hu side %u wall %u has child segment %hu side %u, but child segment does not link back; removing orphan wall.", seg.get_unchecked_index(), underlying_value(sidenum), underlying_value(wn0), connected_seg, underlying_value(connected_side));
 					return;
 				}
 				const auto wn1 = vcseg.sides[connected_side].wall_num;
 				if (wn1 == wall_none)
 				{
 					rwn0 = wall_none;
-					LevelError("segment %u side %u wall %u has child segment %u side %u, but no wall; removing orphan wall.", seg.get_unchecked_index(), underlying_value(sidenum), static_cast<unsigned>(wn0), connected_seg, underlying_value(connected_side));
+					LevelError("segment %hu side %u wall %u has child segment %hu side %u, but no wall; removing orphan wall.", seg.get_unchecked_index(), underlying_value(sidenum), static_cast<unsigned>(wn0), connected_seg, underlying_value(connected_side));
 					return;
 				}
 			}
@@ -995,22 +966,11 @@ static int load_game_data(
 	}
 #endif
 
-	if (game_top_fileinfo_version >= 31) //load mine filename
+	if (game_top_fileinfo_version >= 14) //load mine filename
+	{
 		// read newline-terminated string, not sure what version this changed.
-		PHYSFSX_fgets(Current_level_name,LoadFile);
-	else if (game_top_fileinfo_version >= 14) { //load mine filename
-		// read null-terminated string
-		//must do read one char at a time, since no PHYSFSX_fgets()
-		for (auto p = Current_level_name.next().begin(); (*p = PHYSFSX_fgetc(LoadFile));)
-		{
-			if (++p == Current_level_name.line().end())
-			{
-				p[-1] = 0;
-				while (PHYSFSX_fgetc(LoadFile))
-					;
-				break;
-			}
-		}
+		if (!PHYSFSX_fgets(Current_level_name, LoadFile))
+			*Current_level_name = 0;
 	}
 	else
 		Current_level_name.next()[0]=0;
@@ -1040,7 +1000,7 @@ static int load_game_data(
 		{
 			const auto &&o = vmobjptr(&i);
 			read_object(o, LoadFile, game_top_fileinfo_version);
-			verify_object(Vclip, o, Save_pof_names);
+			verify_object(LevelSharedRobotInfoState, Vclip, o, Save_pof_names);
 		}
 	}
 
@@ -1136,7 +1096,7 @@ static int load_game_data(
 			matcen_info_read(LoadFile, r);
 #endif
 			//	Set links in RobotCenters to Station array
-		range_for (const shared_segment &seg, partial_const_range(Segments, Highest_segment_index + 1))
+		for (const shared_segment &seg : partial_const_range(Segments, Segments.get_count()))
 			if (seg.special == segment_special::robotmaker)
 				if (seg.matcen_num == i)
 					r.fuelcen_num = seg.station_idx;
@@ -1187,7 +1147,7 @@ static int load_game_data(
 			auto objsegnum = i.segnum;
 			if (objsegnum > Highest_segment_index)		//bogus object
 			{
-				Warning("Object %p is in non-existent segment %i, highest=%i", &i, objsegnum, Highest_segment_index);
+				Warning("Object %p is in non-existent segment %hu, highest=%hu", &i, objsegnum, Highest_segment_index);
 				i.type = OBJ_NONE;
 			}
 			else {
@@ -1237,9 +1197,8 @@ static int load_game_data(
 		for (auto iter = Triggers.vmptridx.begin(); iter != Triggers.vmptridx.end();)
 		{
 			const auto i = (*iter).get_unchecked_index();
-		auto a = [i](const wall &w) { return w.trigger == i; };
 		//	Find which wall this trigger is connected to.
-		auto w = std::find_if(wr.begin(), wr.end(), a);
+			const auto &&w = ranges::find(wr, i, &wall::trigger);
 		if (w == wr.end())
 		{
 				remove_trigger_num(Triggers, Walls.vmptr, i);
@@ -1355,7 +1314,6 @@ int load_level(
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptridx = Objects.vmptridx;
-	char filename[PATH_MAX];
 	int sig, minedata_offset, gamedata_offset;
 	int mine_err, game_err;
 
@@ -1363,12 +1321,13 @@ int load_level(
 	Level_being_loaded = filename_passed;
 	#endif
 
-	strcpy(filename,filename_passed);
-
+	std::array<char, PATH_MAX> filename_storage;
+	auto filename = filename_passed;
 	auto LoadFile = PHYSFSX_openReadBuffered(filename).first;
 	if (!LoadFile)
 	{
-		snprintf(filename, sizeof(filename), "%.*s%s", DXX_ptrdiff_cast_int(std::distance(Current_mission->path.cbegin(), Current_mission->filename)), Current_mission->path.c_str(), filename_passed);
+		filename = filename_storage.data(); 
+		snprintf(filename_storage.data(), filename_storage.size(), "%.*s%s", DXX_ptrdiff_cast_int(std::distance(Current_mission->path.cbegin(), Current_mission->filename)), Current_mission->path.c_str(), filename_passed);
 		auto &&[fp, physfserr] = PHYSFSX_openReadBuffered(filename);
 		if (!fp)
 		{
@@ -1401,7 +1360,10 @@ int load_level(
 	}
 
 	if (Gamesave_current_version > 1)
-		PHYSFSX_fgets(Current_level_palette,LoadFile);
+	{
+		if (!PHYSFSX_fgets(Current_level_palette, LoadFile))
+			Current_level_palette[0] = 0;
+	}
 	if (Gamesave_current_version <= 1 || Current_level_palette[0]==0) // descent 1 level
 		strcpy(Current_level_palette.next().data(), DEFAULT_LEVEL_PALETTE);
 
@@ -1437,7 +1399,10 @@ int load_level(
 		Secret_return_orient.uvec.y = 0;
 		Secret_return_orient.uvec.z = F1_0;
 	} else {
-		LevelSharedSegmentState.Secret_return_segment = PHYSFSX_readInt(LoadFile);
+		{
+			const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readInt(LoadFile))};
+			LevelSharedSegmentState.Secret_return_segment = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
+		}
 		Secret_return_orient.rvec.x = PHYSFSX_readInt(LoadFile);
 		Secret_return_orient.rvec.y = PHYSFSX_readInt(LoadFile);
 		Secret_return_orient.rvec.z = PHYSFSX_readInt(LoadFile);
@@ -1470,7 +1435,7 @@ int load_level(
 	 */
 	if (Current_mission && !d_stricmp("Descent 2: Counterstrike!", Current_mission->mission_name) && !d_stricmp("d2levc-4.rl2", filename))
 	{
-		shared_segment &s104 = *vmsegptr(vmsegidx_t(104));
+		shared_segment &s104 = *vmsegptr(segnum_t{104});
 		auto &s104v0 = *vmvertptr(s104.verts[segment_relative_vertnum::_0]);
 		auto &s104s1 = s104.sides[sidenum_t::WTOP];
 		auto &s104s1n0 = s104s1.normals[0];
@@ -1860,8 +1825,8 @@ static int save_level_sub(
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
-	char temp_filename[PATH_MAX];
 	int minedata_offset=0,gamedata_offset=0;
+	std::array<char, PATH_MAX> temp_filename;
 
 //	if ( !compiled_version )
 	{
@@ -1876,23 +1841,28 @@ static int save_level_sub(
 				}
 			}
 		}
-//		change_filename_extension(temp_filename,filename,".LVL");
 	}
 //	else
 	{
+		auto &level_file_extension =
 #if defined(DXX_BUILD_DESCENT_II)
-		if (Gamesave_current_version > 3)
-			change_filename_extension(temp_filename, filename, "." D2X_LEVEL_FILE_EXTENSION);
-		else
+			(Gamesave_current_version > 3)
+			? D2X_LEVEL_FILE_EXTENSION
+			:
 #endif
-			change_filename_extension(temp_filename, filename, "." D1X_LEVEL_FILE_EXTENSION);
+			D1X_LEVEL_FILE_EXTENSION;
+		if (!change_filename_extension(temp_filename, filename, level_file_extension))
+		{
+			con_printf(CON_URGENT, "Failed to generate filename for level data from \"%s\"", filename);
+			return 1;
+		}
 	}
 
-	auto &&[SaveFile, physfserr] = PHYSFSX_openWriteBuffered(temp_filename);
+	auto &&[SaveFile, physfserr] = PHYSFSX_openWriteBuffered(temp_filename.data());
 	if (!SaveFile)
 	{
 		gr_palette_load(gr_palette);
-		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "ERROR: Cannot write to '%s'.\n%s", temp_filename, PHYSFS_getErrorByCode(physfserr));
+		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "ERROR: Cannot write to '%s'.\n%s", temp_filename.data(), PHYSFS_getErrorByCode(physfserr));
 		return 1;
 	}
 

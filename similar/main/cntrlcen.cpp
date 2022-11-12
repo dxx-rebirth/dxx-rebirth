@@ -50,15 +50,28 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 
 #include "compiler-range_for.h"
+#include "d_array.h"
 #include "d_levelstate.h"
 #include "partial_range.h"
 #include "d_zip.h"
+
+namespace dcx {
+namespace {
+
+constexpr enumerated_array<uint8_t, NDL, Difficulty_level_type> D1_Alan_pavlish_reactor_times = {{{
+	50, 45, 40, 35, 30
+}}};
+
+}
+}
 
 namespace dsx {
 std::array<reactor, MAX_REACTORS> Reactors;
 #if defined(DXX_BUILD_DESCENT_II)
 unsigned Num_reactors;
 #endif
+
+namespace {
 
 static window_event_result do_countdown_frame();
 
@@ -76,6 +89,8 @@ static void calc_controlcen_gun_point(reactor &r, object &obj, const uint_fast32
 	vm_vec_rotate(gun_dir, r.gun_dirs[gun_num], m);
 }
 
+}
+
 void calc_controlcen_gun_point(object &obj)
 {
 	assert(obj.type == OBJ_CNTRLCEN);
@@ -84,6 +99,14 @@ void calc_controlcen_gun_point(object &obj)
 	for (uint_fast32_t i = reactor.n_guns; i--;)
 		calc_controlcen_gun_point(reactor, obj, i);
 }
+
+namespace {
+
+#if defined(DXX_BUILD_DESCENT_II)
+constexpr enumerated_array<uint8_t, NDL, Difficulty_level_type> D2_Alan_pavlish_reactor_times = {{{
+	90, 60, 45, 35, 30
+}}};
+#endif
 
 //	-----------------------------------------------------------------------------
 //	Look at control center guns, find best one to fire at *objp.
@@ -121,15 +144,12 @@ static int calc_best_gun(const unsigned num_guns, const object &objreactor, cons
 
 }
 
+}
+
 namespace dcx {
 control_center_triggers ControlCenterTriggers;
-
-constexpr int	D1_Alan_pavlish_reactor_times[NDL] = {50, 45, 40, 35, 30};
 }
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_II)
-constexpr int	D2_Alan_pavlish_reactor_times[NDL] = {90, 60, 45, 35, 30};
-#endif
 
 //	-----------------------------------------------------------------------------
 //	Called every frame.  If control center been destroyed, then actually do something.
@@ -138,7 +158,7 @@ window_event_result do_controlcen_dead_frame()
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	if ((Game_mode & GM_MULTI) && (get_local_player().connected != CONNECT_PLAYING)) // if out of level already there's no need for this
+	if ((Game_mode & GM_MULTI) && (get_local_player().connected != player_connection_status::playing)) // if out of level already there's no need for this
 		return window_event_result::ignored;
 
 	const auto Dead_controlcen_object_num = LevelUniqueControlCenterState.Dead_controlcen_object_num;
@@ -158,6 +178,8 @@ window_event_result do_controlcen_dead_frame()
 }
 
 #define COUNTDOWN_VOICE_TIME fl2f(12.75)
+
+namespace {
 
 window_event_result do_countdown_frame()
 {
@@ -190,7 +212,7 @@ window_event_result do_countdown_frame()
 		};
 		fix disturb_x = get_base_disturbance(), disturb_z = get_base_disturbance();
 		//	At Trainee, decrease rocking of ship by 4x.
-		if (GameUniqueState.Difficulty_level == Difficulty_0)
+		if (GameUniqueState.Difficulty_level == Difficulty_level_type::_0)
 		{
 			disturb_x /= 4;
 			disturb_z /= 4;
@@ -254,6 +276,8 @@ window_event_result do_countdown_frame()
 	return window_event_result::handled;
 }
 
+}
+
 //	-----------------------------------------------------------------------------
 //	Called when control center gets destroyed.
 //	This code is common to whether control center is implicitly imbedded in a boss,
@@ -287,7 +311,7 @@ void do_controlcen_destroyed_stuff(const imobjidx_t objp)
 
 	const auto Base_control_center_explosion_time = LevelSharedControlCenterState.Base_control_center_explosion_time;
 	if (Base_control_center_explosion_time != DEFAULT_CONTROL_CENTER_EXPLOSION_TIME)
-		Total_countdown_time = Base_control_center_explosion_time + Base_control_center_explosion_time * (NDL-Difficulty_level-1)/2;
+		Total_countdown_time = Base_control_center_explosion_time + Base_control_center_explosion_time * (NDL - underlying_value(Difficulty_level) - 1) / 2;
 	else if (!EMULATING_D1)
 		Total_countdown_time = D2_Alan_pavlish_reactor_times[Difficulty_level];
 	else
@@ -305,7 +329,7 @@ void do_controlcen_destroyed_stuff(const imobjidx_t objp)
 
 //	-----------------------------------------------------------------------------
 //do whatever this thing does in a frame
-void do_controlcen_frame(const vmobjptridx_t obj)
+void do_controlcen_frame(const d_robot_info_array &Robot_info, const vmobjptridx_t obj)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int			best_gun_num;
@@ -346,10 +370,9 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 			if (std::none_of(children.begin(), children.end(), IS_CHILD))
 				return;
 
-			auto vec_to_player = vm_vec_sub(ConsoleObject->pos, obj->pos);
-			auto dist_to_player = vm_vec_normalize_quick(vec_to_player);
+			const auto &&[dist_to_player, vec_to_player] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(ConsoleObject->pos, obj->pos));
 			if (dist_to_player < F1_0*200) {
-				LevelUniqueControlCenterState.Control_center_player_been_seen = player_is_visible_from_object(obj, obj->pos, 0, vec_to_player);
+				LevelUniqueControlCenterState.Control_center_player_been_seen = player_is_visible_from_object(Robot_info, obj, obj->pos, 0, vec_to_player);
 				LevelUniqueControlCenterState.Frametime_until_next_fire = 0;
 			}
 		}			
@@ -364,11 +387,9 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 		if (LevelUniqueControlCenterState.Last_time_cc_vis_check + F1_0 * 5 < GameTime64 || LevelUniqueControlCenterState.Last_time_cc_vis_check > GameTime64)
 		{
 			LevelUniqueControlCenterState.Last_time_cc_vis_check = GameTime64;
-			fix			dist_to_player;
-			auto vec_to_player = vm_vec_sub(ConsoleObject->pos, obj->pos);
-			dist_to_player = vm_vec_normalize_quick(vec_to_player);
+			const auto &&[dist_to_player, vec_to_player] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(ConsoleObject->pos, obj->pos));
 			if (dist_to_player < F1_0*120) {
-				LevelUniqueControlCenterState.Control_center_player_been_seen = player_is_visible_from_object(obj, obj->pos, 0, vec_to_player);
+				LevelUniqueControlCenterState.Control_center_player_been_seen = player_is_visible_from_object(Robot_info, obj, obj->pos, 0, vec_to_player);
 				if (!player_is_visible(LevelUniqueControlCenterState.Control_center_player_been_seen))
 					LevelUniqueControlCenterState.Control_center_been_hit = 0;
 			}
@@ -400,8 +421,7 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 		if (best_gun_num != -1) {
 			fix			delta_fire_time;
 
-			auto vec_to_goal = vm_vec_sub(player_pos, obj->ctype.reactor_info.gun_pos[best_gun_num]);
-			auto dist_to_player = vm_vec_normalize_quick(vec_to_goal);
+			auto &&[dist_to_player, vec_to_goal] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(player_pos, obj->ctype.reactor_info.gun_pos[best_gun_num]));
 
 			if (dist_to_player > F1_0*300)
 			{
@@ -412,7 +432,7 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 	
 			if (Game_mode & GM_MULTI)
 				multi_send_controlcen_fire(vec_to_goal, best_gun_num, obj);	
-			Laser_create_new_easy( vec_to_goal, obj->ctype.reactor_info.gun_pos[best_gun_num], obj, weapon_id_type::CONTROLCEN_WEAPON_NUM, weapon_sound_flag::audible);
+			Laser_create_new_easy(Robot_info, vec_to_goal, obj->ctype.reactor_info.gun_pos[best_gun_num], obj, weapon_id_type::CONTROLCEN_WEAPON_NUM, weapon_sound_flag::audible);
 
 			int count = 0;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -430,14 +450,14 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 				vm_vec_normalize_quick(vec_to_goal);
 				if (Game_mode & GM_MULTI)
 					multi_send_controlcen_fire(vec_to_goal, best_gun_num, obj);
-				Laser_create_new_easy(vec_to_goal, obj->ctype.reactor_info.gun_pos[best_gun_num], obj, weapon_id_type::CONTROLCEN_WEAPON_NUM, count == 0 ? weapon_sound_flag::audible : weapon_sound_flag::silent);
+				Laser_create_new_easy(Robot_info, vec_to_goal, obj->ctype.reactor_info.gun_pos[best_gun_num], obj, weapon_id_type::CONTROLCEN_WEAPON_NUM, count == 0 ? weapon_sound_flag::audible : weapon_sound_flag::silent);
 				count++;
 			}
 
 			const auto Difficulty_level = GameUniqueState.Difficulty_level;
-			delta_fire_time = (NDL - Difficulty_level) * F1_0/4;
+			delta_fire_time = (NDL - underlying_value(Difficulty_level)) * F1_0/4;
 #if defined(DXX_BUILD_DESCENT_II)
-			if (Difficulty_level == 0)
+			if (Difficulty_level == Difficulty_level_type::_0)
 				delta_fire_time += F1_0/2;
 #endif
 
@@ -455,14 +475,13 @@ void do_controlcen_frame(const vmobjptridx_t obj)
 //	This must be called at the start of each level.
 //	If this level contains a boss and mode != multiplayer, don't do control center stuff.  (Ghost out control center object.)
 //	If this level contains a boss and mode == multiplayer, do control center stuff.
-void init_controlcen_for_level(void)
+void init_controlcen_for_level(const d_robot_info_array &Robot_info)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	imobjptr_t cntrlcen_objnum = nullptr, boss_objnum = nullptr;
 
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	range_for (const auto &&objp, vmobjptridx)
 	{
 		if (objp->type == OBJ_CNTRLCEN)
@@ -526,7 +545,7 @@ void special_reactor_stuff()
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	if (LevelUniqueControlCenterState.Control_center_destroyed) {
 		const auto Base_control_center_explosion_time = LevelSharedControlCenterState.Base_control_center_explosion_time;
-		LevelUniqueControlCenterState.Countdown_timer += i2f(Base_control_center_explosion_time + (NDL - 1 - GameUniqueState.Difficulty_level) * Base_control_center_explosion_time / (NDL - 1));
+		LevelUniqueControlCenterState.Countdown_timer += i2f(Base_control_center_explosion_time + (NDL - 1 - underlying_value(GameUniqueState.Difficulty_level)) * Base_control_center_explosion_time / (NDL - 1));
 		LevelUniqueControlCenterState.Total_countdown_time = f2i(LevelUniqueControlCenterState.Countdown_timer) + 2;	//	Will prevent "Self destruct sequence activated" message from replaying.
 	}
 }
@@ -572,15 +591,38 @@ v1_control_center_triggers::v1_control_center_triggers(const control_center_trig
 void control_center_triggers_read(control_center_triggers &cct, PHYSFS_File *fp)
 {
 	const v1_control_center_triggers v1cct{fp};
-	cct.seg = {};
-	cct.side = {};
-	const auto num_links = cct.num_links = v1cct.num_links;
+	cct = {};
+	const auto num_links = v1cct.num_links;
 	if (unlikely(!num_links))
 		return;
-	for (auto &&[w, r] : zip(partial_range(cct.seg, num_links), v1cct.seg))
-		w = r;
-	for (auto &&[w, r] : zip(unchecked_partial_range(cct.side, num_links), v1cct.side))
-		w = build_sidenum_from_untrusted(r).value();
+	const auto &&cct_input_range = zip(partial_range(v1cct.seg, num_links), v1cct.side);
+	const auto &&cct_output_range = zip(cct.seg, cct.side);
+	auto oi = cct_output_range.begin();
+	auto ii = cct_input_range.begin();
+	const auto ie = cct_input_range.end();
+	uint8_t valid_num_links = 0;
+	const auto segment_count = Segments.get_count();
+	for (; ii != ie; ++ii)
+	{
+		const auto &&[iseg, iside] = *ii;
+		const auto si = build_sidenum_from_untrusted(iside);
+		if (!si)
+			continue;
+		/* Descent 2: Vertigo level 10 specifies an invalid control center trigger.
+		 * seg[0] is 0x257, but the level only has 0x1ae segments defined.
+		 * Attempting to access segment 0x257 is undefined behavior, and will crash
+		 * in a memory-poisoned build.  Guard against that behavior by cleaning the
+		 * structure at load time.
+		 */
+		if (iseg >= segment_count)
+			continue;
+		auto &&[oseg, oside] = *oi;
+		++ oi;
+		oseg = iseg;
+		oside = si.value();
+		++ valid_num_links;
+	}
+	cct.num_links = valid_num_links;
 }
 
 void control_center_triggers_write(const control_center_triggers &cct, PHYSFS_File *fp)

@@ -195,7 +195,7 @@ static void scores_fill_struct(stats_info * stats)
 
 	stats->seconds = f2i(plr.time_total) + (plr.hours_total * 3600);
 
-	stats->diff_level = GameUniqueState.Difficulty_level;
+	stats->diff_level = underlying_value(GameUniqueState.Difficulty_level);
 	stats->starting_level = plr.starting_level;
 }
 
@@ -290,7 +290,7 @@ void scores_maybe_add_player()
 	const auto end_score_stats = std::end(scores.stats);
 	/* Find the position at which the player's score should be placed.
 	 */
-	const auto iter_position = std::find_if(begin_score_stats, end_score_stats, predicate);
+	const auto &&iter_position = ranges::find_if(begin_score_stats, end_score_stats, predicate);
 	const auto position = std::distance(begin_score_stats, iter_position);
 	/* If iter_position == end_score_stats, then the player's score does
 	 * not beat any of the existing high scores.  Include a special case
@@ -489,7 +489,8 @@ static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const 
 	gr_string(canvas, cv_font, shared_item_context.name, fspacy_y, stats.name);
 	scores_rputs(canvas, cv_font, shared_item_context.score, fspacy_y, stats.score.data());
 
-	gr_string(canvas, cv_font, shared_item_context.difficulty, fspacy_y, MENU_DIFFICULTY_TEXT(stats.diff_level));
+	if (const auto d = build_difficulty_level_from_untrusted(stats.diff_level))
+		gr_string(canvas, cv_font, shared_item_context.difficulty, fspacy_y, MENU_DIFFICULTY_TEXT(*d));
 
 	scores_rputs(canvas, cv_font, shared_item_context.levels, fspacy_y, stats.levels.data());
 	scores_rputs(canvas, cv_font, shared_item_context.time_played, fspacy_y, stats.time_played.data());

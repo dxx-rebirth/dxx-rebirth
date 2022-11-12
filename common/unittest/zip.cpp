@@ -89,3 +89,12 @@ enum class e2 : unsigned char;
 
 static_assert(assert_index_type<e1, decltype(zip(std::declval<custom_index_type<e1>&>(), std::declval<custom_index_type<e1>&>()))>::value);
 static_assert(assert_index_type<void, decltype(zip(std::declval<custom_index_type<e1>&>(), std::declval<custom_index_type<e2>&>()))>::value);
+
+template <typename Expected, typename Actual>
+requires(std::is_same<Expected, Actual>::value)
+using assert_same_type = std::true_type;
+
+static_assert(assert_same_type<std::nullptr_t, decltype(d_zip::detail::get_static_size(std::declval<int *>()))>::value);
+static_assert(assert_same_type<std::nullptr_t, decltype(d_zip::detail::get_static_size(std::declval<std::vector<int>::iterator>()))>::value);
+static_assert(assert_same_type<std::integral_constant<std::size_t, 5>, decltype(d_zip::detail::get_static_size(std::declval<int (&)[5]>()))>::value);
+static_assert(assert_same_type<std::integral_constant<std::size_t, 6>, decltype(d_zip::detail::get_static_size(std::declval<std::array<int, 6> &>()))>::value);

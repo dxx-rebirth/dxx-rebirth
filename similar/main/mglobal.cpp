@@ -119,7 +119,7 @@ static void reset_globals_for_new_game()
 template <typename managed_type>
 valptridx<managed_type>::array_managed_type::array_managed_type()
 {
-	DXX_MAKE_MEM_UNDEFINED(this->begin(), this->end());
+	DXX_MAKE_MEM_UNDEFINED(std::span(static_cast<array_base_storage_type &>(*this)));
 }
 #endif
 

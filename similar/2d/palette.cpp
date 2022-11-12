@@ -146,18 +146,6 @@ int gr_palette_get_gamma()
 
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_I)
-void copy_diminish_palette(palette_array_t &palette, const uint8_t *p)
-{
-	range_for (auto &i, palette)
-	{
-		i.r = *p++ >> 2;
-		i.g = *p++ >> 2;
-		i.b = *p++ >> 2;
-	}
-}
-#endif
-
 #if defined(DXX_BUILD_DESCENT_II)
 void gr_copy_palette(palette_array_t &gr_palette, const palette_array_t &pal)
 {

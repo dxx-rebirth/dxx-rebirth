@@ -83,7 +83,7 @@ struct xrange_check_constant_endpoints<std::integral_constant<Tb, b>, std::integ
 
 }
 
-/* For the general case, store a `const`-qualified copy of the value,
+/* For the general case, store a copy of the value,
  * and provide an implicit conversion.
  */
 template <typename T, bool begin>
@@ -91,7 +91,11 @@ class xrange_endpoint
 {
 public:
 	using value_type = T;
-	const value_type value;
+	/* The value is never mutated, but must be mutable to satisfy
+	 * std::ranges::range<xrange<...>>.
+	 */
+	value_type value{};
+	constexpr xrange_endpoint() = default;
 	constexpr xrange_endpoint(value_type v) :
 		value(std::move(v))
 	{
@@ -118,15 +122,24 @@ public:
 template <typename index_type, typename step_type>
 class xrange_iterator
 {
-	index_type m_idx;
+	index_type m_idx{};
 public:
 	using difference_type = std::ptrdiff_t;
 	using iterator_category = std::forward_iterator_tag;
 	using value_type = index_type;
 	using pointer = value_type *;
 	using reference = value_type &;
+	constexpr xrange_iterator() = default;	// default constructible required by std::semiregular
 	constexpr xrange_iterator(const index_type i) :
 		m_idx(i)
+	{
+	}
+	/* This is a temporary constructor to facilitate conversion to sentinel
+	 * usage in calling algorithms.
+	 */
+	template <typename end_index_type>
+		constexpr xrange_iterator(xrange_endpoint<end_index_type, false> i) :
+			m_idx(i)
 	{
 	}
 	index_type operator*() const
@@ -143,10 +156,20 @@ public:
 			m_idx += step_type::value;
 		return *this;
 	}
-	constexpr bool operator!=(const xrange_iterator &i) const
+	xrange_iterator operator++(int)
 	{
-		return m_idx != i.m_idx;
+		auto r = *this;
+		++ *this;
+		return r;
 	}
+	[[nodiscard]]
+	constexpr bool operator==(const xrange_iterator &i) const = default;
+	template <typename end_index_type>
+		[[nodiscard]]
+		constexpr bool operator==(const xrange_endpoint<end_index_type, false> &i) const
+		{
+			return m_idx == i.value;
+		}
 };
 
 /* This provides an approximation of the functionality of the Python2
@@ -232,9 +255,9 @@ public:
 	{
 		return iterator(static_cast<const begin_type &>(*this));
 	}
-	iterator end() const
+	end_type end() const
 	{
-		return iterator(static_cast<const end_type &>(*this));
+		return *this;
 	}
 };
 
@@ -244,7 +267,8 @@ public:
  * change `e`, store it in a const qualified variable, which will select
  * the next overload down instead.
  */
-template <typename Tb, typename Te, typename std::enable_if<!std::is_const<Te>::value, int>::type = 0>
+template <typename Tb, typename Te>
+requires(!std::is_const<Te>::value)
 xrange(Tb &&b, Te &e) -> xrange<Tb, Tb, Te &>;	// provokes a static_assert failure in the constructor
 
 template <typename Tb, typename Te>

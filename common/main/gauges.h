@@ -67,14 +67,14 @@ void add_points_to_score(player_info &, unsigned points, game_mode_flags);
 void add_bonus_points_to_score(player_info &, unsigned points, game_mode_flags);
 void render_gauges(grs_canvas &, game_mode_flags game_mode);
 void init_gauges(void);
-void draw_hud(grs_canvas &, const object &, const control_info &Controls, game_mode_flags);     // draw all the HUD stuff
+void draw_hud(const d_robot_info_array &Robot_info, grs_canvas &, const object &, const control_info &Controls, game_mode_flags);     // draw all the HUD stuff
 }
 #endif
 void close_gauges(void);
 #ifdef dsx
 namespace dsx {
 void show_reticle(grs_canvas &canvas, const player_info &, int reticle_type, int secondary_display);
-void show_HUD_names(grs_canvas &, game_mode_flags);
+void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &, game_mode_flags);
 }
 #endif
 
@@ -94,14 +94,14 @@ struct rgb {
 	ubyte r,g,b;
 };
 
-using rgb_array_t = const std::array<rgb, MAX_PLAYERS>;
+using rgb_array_t = const per_player_array<rgb>;
 extern const rgb_array_t player_rgb_normal;
 
 /* Stub for mods that provide switchable player colors */
 class rgb_array_wrapper
 {
 public:
-	const rgb &operator[](std::size_t i) const
+	const rgb &operator[](const playernum_t i) const
 	{
 		return player_rgb_normal[i];
 	}

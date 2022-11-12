@@ -134,6 +134,8 @@ void songs_set_volume(int volume)
 #endif
 }
 
+namespace {
+
 static int is_valid_song_extension(const char* dot)
 {
 	return (!d_stricmp(dot, SONG_EXT_HMP)
@@ -169,8 +171,10 @@ static void add_song(std::vector<bim_song_info> &songs, const char *const input)
 }
 
 }
+}
 
 namespace dsx {
+namespace {
 
 // Set up everything for our music
 // NOTE: you might think this is done once per runtime but it's not! It's done for EACH song so that each mission can have it's own descent.sng structure. We COULD optimize that by only doing this once per mission.
@@ -289,6 +293,7 @@ static void songs_init()
 	songs_set_volume(GameCfg.MusicVolume);
 }
 }
+}
 
 void songs_uninit()
 {
@@ -393,6 +398,7 @@ void songs_pause_resume(void)
 
 // 0 otherwise
 namespace dsx {
+namespace {
 #if DXX_USE_SDL_REDBOOK_AUDIO
 static int songs_have_cd()
 {
@@ -430,7 +436,6 @@ static int songs_have_cd()
 	}
 }
 #endif
-}
 
 #if defined(DXX_BUILD_DESCENT_I)
 #if DXX_USE_SDL_REDBOOK_AUDIO
@@ -449,6 +454,8 @@ static void play_credits_track()
 }
 #endif
 #endif
+}
+}
 
 // play a filename as music, depending on filename extension.
 int songs_play_file(const char *filename, int repeat, void (*hook_finished_track)())
@@ -561,7 +568,7 @@ int songs_play_song( int songnum, int repeat )
 		case MUSIC_TYPE_CUSTOM:
 		{
 			// EXCEPTION: If SONG_ENDLEVEL is undefined, continue playing level song.
-			if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum == SONG_ENDLEVEL && !CGameCfg.CMMiscMusic[songnum][0])
+			if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum == SONG_ENDLEVEL && !CGameCfg.CMMiscMusic[songnum].front())
 				return Song_playing;
 
 			Song_playing = -1;
@@ -589,11 +596,13 @@ int songs_play_song( int songnum, int repeat )
 }
 
 #if DXX_USE_SDL_REDBOOK_AUDIO
+namespace {
 static void redbook_first_song_func()
 {
 	pause_game_world_time p;
 	Song_playing = -1; // Playing Redbook tracks will not modify Song_playing. To repeat we must reset this so songs_play_level_song does not think we want to re-play the same song again.
 	songs_play_level_song(1, 0);
+}
 }
 #endif
 

@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <compare>
 #include <physfs.h>
 #include <type_traits>
 #include "pstypes.h"
@@ -33,7 +34,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 
-#ifdef __cplusplus
 #include <cassert>
 #include <cstdint>
 #include <stdexcept>
@@ -42,7 +42,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "valptridx.h"
 #include "objnum.h"
 #include "pack.h"
-
 
 #ifdef dsx
 namespace dsx {
@@ -120,6 +119,19 @@ enum class materialization_center_number : uint8_t
 enum class station_number : uint8_t
 {
 	None = 0xff,
+};
+
+enum segnum_t : uint16_t
+{
+};
+
+enum class vertnum_t : uint32_t
+{
+};
+
+enum class wallnum_t : uint16_t
+{
+	None = 0xffff,
 };
 
 struct shared_side
@@ -306,7 +318,8 @@ struct susegment
 	U &u;
 	constexpr susegment(const susegment &) = default;
 	constexpr susegment(susegment &&) = default;
-	template <typename T, typename std::enable_if<std::is_convertible<T &&, S &>::value && std::is_convertible<T &&, U &>::value, int>::type = 0>
+	template <typename T>
+		requires(std::is_convertible<T &&, S &>::value && std::is_convertible<T &&, U &>::value)
 		constexpr susegment(T &&t) :
 			s(t), u(t)
 	{
@@ -338,7 +351,7 @@ struct group
 };
 
 #ifdef dsx
-#define Highest_segment_index (Segments.get_count() - 1)
+#define Highest_segment_index static_cast<segnum_t>(Segments.get_count() - 1)
 DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(segment, seg, Segments);
 #endif
 
@@ -383,6 +396,10 @@ struct shared_side::illegal_type : std::runtime_error
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_II)
+enum class delta_light_index : uint16_t
+{
+};
+
 // New stuff, 10/14/95: For shooting out lights and monitors.
 // Light cast upon vert_light vertices in segnum:sidenum by some light
 struct delta_light : prohibit_void_ptr<delta_light>
@@ -397,15 +414,14 @@ struct dl_index {
 	segnum_t   segnum;
 	sidenum_t  sidenum;
 	uint8_t count;
-	uint16_t index;
-	bool operator<(const dl_index &rhs) const
+	delta_light_index index;
+	constexpr std::strong_ordering operator<=>(const dl_index &rhs) const
 	{
-		if (segnum < rhs.segnum)
-			return true;
-		if (segnum > rhs.segnum)
-			return false;
-		return sidenum < rhs.sidenum;
+		if (const auto r = segnum <=> rhs.segnum; r != std::strong_ordering::equal)
+			return r;
+		return sidenum <=> rhs.sidenum;
 	}
+	constexpr bool operator==(const dl_index &) const = default;
 };
 
 struct d_level_shared_destructible_light_state
@@ -641,5 +657,4 @@ struct d_level_shared_segment_state : ::dcx::d_level_shared_segment_state
 extern d_level_shared_segment_state LevelSharedSegmentState;
 
 }
-#endif
 #endif

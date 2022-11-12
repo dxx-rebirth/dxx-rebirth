@@ -83,7 +83,7 @@ extern int Game_suspended;          // if non-zero, nothing moves but player
  * use Difficulty_level_type in arithmetic expressions, and those
  * expressions must be signed to produce the correct result.
  */
-enum Difficulty_level_type : signed int;
+enum class Difficulty_level_type : signed int;
 
 struct d_game_shared_state;
 struct d_game_unique_state;
@@ -92,6 +92,7 @@ extern int Global_missile_firing_count;
 
 extern int PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 
+#if DXX_USE_STEREOSCOPIC_RENDER
 // Stereo viewport formats
 enum class StereoFormat : uint8_t;
 
@@ -101,6 +102,7 @@ extern int  VR_eye_offset;
 extern int  VR_sync_width;
 extern grs_subcanvas VR_hud_left;
 extern grs_subcanvas VR_hud_right;
+#endif
 
 extern cockpit_mode_t last_drawn_cockpit;
 
@@ -153,12 +155,16 @@ void calc_frame_time(void);
 #ifdef dsx
 namespace dsx {
 
+enum class next_level_request_secret_flag : uint8_t;
+
 struct game_window;
 extern game_window *Game_wind;
 
 void game();
 void init_game();
+#if DXX_USE_STEREOSCOPIC_RENDER
 void init_stereo();
+#endif
 void init_cockpit();
 void PALETTE_FLASH_ADD(int dr, int dg, int db);
 
@@ -175,7 +181,6 @@ extern d_level_unique_seismic_state LevelUniqueSeismicState;
 
 extern d_game_shared_state GameSharedState;
 extern d_game_unique_state GameUniqueState;
-void game_render_frame(const control_info &Controls);
 
 void game_flush_respawn_inputs(control_info &Controls);
 void game_flush_inputs(control_info &Controls);    // clear all inputs
@@ -210,14 +215,11 @@ void flickering_light_read(flickering_light &fl, PHYSFS_File *fp);
 void flickering_light_write(const flickering_light &fl, PHYSFS_File *fp);
 #endif
 
-void game_render_frame_mono(const control_info &Controls);
-
 //Cheats
 struct game_cheats;
 extern game_cheats cheats;
 
 game_window *game_setup();
-window_event_result ReadControls(const d_event &event, control_info &Controls);
 bool allowed_to_fire_laser(const player_info &);
 void reset_globals_for_new_game();
 void check_rear_view(control_info &Controls);

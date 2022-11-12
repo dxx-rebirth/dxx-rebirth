@@ -118,10 +118,6 @@ union weapon_index
 		secondary(s)
 	{
 	}
-	constexpr bool operator!=(const weapon_index w) const
-	{
-		return primary != w.primary;
-	}
 	constexpr bool operator==(const weapon_index w) const
 	{
 		return primary == w.primary;
@@ -545,6 +541,7 @@ std::array<bitmap_index, MAX_GAUGE_BMS> Gauges,   // Array of all gauge bitmaps.
 #endif
 
 namespace dsx {
+namespace {
 static inline void PAGE_IN_GAUGE(int x, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	const auto &g =
@@ -555,11 +552,14 @@ static inline void PAGE_IN_GAUGE(int x, const local_multires_gauge_graphic multi
 	PIGGY_PAGE_IN(g[x]);
 }
 }
+}
 
+namespace {
 static int score_display;
 static fix score_time;
 static laser_level old_laser_level;
 static int invulnerable_frame;
+}
 int	Color_0_31_0 = -1;
 
 namespace dcx {
@@ -1162,7 +1162,7 @@ static void hud_show_keys(const hud_draw_context_mr hudctx, const hud_ar_scale_f
 		grs_bitmap *const bm;
 	public:
 		gauge_key(const unsigned key_icon, const local_multires_gauge_graphic multires_gauge_graphic) :
-			bm(&GameBitmaps[static_cast<void>(multires_gauge_graphic), PAGE_IN_GAUGE(key_icon, multires_gauge_graphic), GET_GAUGE_INDEX(key_icon)])
+			bm(&GameBitmaps[(static_cast<void>(multires_gauge_graphic), PAGE_IN_GAUGE(key_icon, multires_gauge_graphic), GET_GAUGE_INDEX(key_icon))])
 		{
 		}
 		grs_bitmap *operator->() const
@@ -1363,6 +1363,7 @@ static void show_bomb_count(grs_canvas &canvas, const player_info &player_info, 
 }
 }
 
+namespace {
 static void draw_primary_ammo_info(const hud_draw_context_hs_mr hudctx, const unsigned ammo_count)
 {
 	int x, y;
@@ -1372,6 +1373,7 @@ static void draw_primary_ammo_info(const hud_draw_context_hs_mr hudctx, const un
 	else
 		x = PRIMARY_AMMO_X, y = PRIMARY_AMMO_Y;
 	draw_ammo_info(hudctx.canvas, hudctx.xscale(x), hudctx.yscale(y), ammo_count);
+}
 }
 
 namespace dcx {
@@ -1385,11 +1387,11 @@ constexpr rgb_t hud_rgb_gray = {6, 6, 6};
 }
 
 namespace dsx {
+namespace {
+
 #if defined(DXX_BUILD_DESCENT_II)
 constexpr rgb_t hud_rgb_yellow = {30, 30, 0};
 #endif
-
-namespace {
 
 [[nodiscard]]
 static rgb_t hud_get_primary_weapon_fontcolor(const player_info &player_info, const primary_weapon_index_t consider_weapon)
@@ -1995,7 +1997,8 @@ static void common_add_points_to_score(const int points, int &score, const game_
 	{
 		int snd;
 		get_local_player().lives += current_ship_score - previous_ship_score;
-		powerup_basic_str(20, 20, 20, 0, TXT_EXTRA_LIFE);
+		const auto &&m = TXT_EXTRA_LIFE;
+		powerup_basic_str(20, 20, 20, 0, {m, strlen(m)});
 		if ((snd=Powerup_info[POW_EXTRA_LIFE].hit_sound) > -1 )
 			digi_play_sample( snd, F1_0 );
 	}
@@ -2570,6 +2573,9 @@ static void draw_numerical_display(const draw_numerical_display_draw_context hud
 
 }
 
+namespace dsx {
+namespace {
+
 void draw_keys_state::draw_all_cockpit_keys()
 {
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
@@ -2577,10 +2583,6 @@ void draw_keys_state::draw_all_cockpit_keys()
 	draw_one_key(GAUGE_GOLD_KEY_X, GAUGE_GOLD_KEY_Y, GAUGE_GOLD_KEY, PLAYER_FLAGS_GOLD_KEY);
 	draw_one_key(GAUGE_RED_KEY_X, GAUGE_RED_KEY_Y, GAUGE_RED_KEY, PLAYER_FLAGS_RED_KEY);
 }
-
-namespace dsx {
-
-namespace {
 
 static void draw_weapon_info_sub(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const int info_index, const gauge_box *const box, const int pic_x, const int pic_y, const char *const name, const int text_x, const int text_y)
 {
@@ -2597,7 +2599,7 @@ static void draw_weapon_info_sub(const hud_draw_context_hs_mr hudctx, const play
 	const auto &picture = 
 #if defined(DXX_BUILD_DESCENT_II)
 	// !SHAREWARE
-		(Piggy_hamfile_version >= 3 && hudctx.multires_gauge_graphic.is_hires()) ?
+		(Piggy_hamfile_version >= pig_hamfile_version::_3 && hudctx.multires_gauge_graphic.is_hires()) ?
 			Weapon_info[info_index].hires_picture :
 #endif
 			Weapon_info[info_index].picture;
@@ -2733,7 +2735,6 @@ static void draw_weapon_info(const hud_draw_context_hs_mr hudctx, const player_i
 }
 
 }
-
 }
 
 namespace {
@@ -3035,7 +3036,6 @@ static void sb_draw_shield_bar(const hud_draw_context_hs_mr hudctx, const int sh
 }
 
 namespace dsx {
-
 namespace {
 
 void draw_keys_state::draw_all_statusbar_keys()
@@ -3093,10 +3093,9 @@ static void draw_invulnerable_ship(const hud_draw_context_hs_mr hudctx, const ob
 }
 
 }
-
 }
 
-const rgb_array_t player_rgb_normal{{
+constexpr rgb_array_t player_rgb_normal{{
 							{15,15,23},
 							{27,0,0},
 							{0,23,0},
@@ -3164,7 +3163,7 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, int reticl
 	if (primary_bm_num && Primary_weapon == primary_weapon_index_t::LASER_INDEX && (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS))
 		primary_bm_num++;
 
-	if (Secondary_weapon_to_gun_num[Secondary_weapon]==7)
+	if (Secondary_weapon_to_gun_num[Secondary_weapon] == gun_num_t::_7)
 		secondary_bm_num += 3;		//now value is 0,1 or 3,4
 	else if (secondary_bm_num && !(player_info.missile_gun & 1))
 			secondary_bm_num++;
@@ -3418,7 +3417,7 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas, const ga
 		rgb color;
 		if (Show_kill_list == show_kill_list_mode::_1 || Show_kill_list == show_kill_list_mode::efficiency)
 		{
-			if (vcplayerptr(player_num)->connected != CONNECT_PLAYING)
+			if (vcplayerptr(player_num)->connected != player_connection_status::playing)
 				color.r = color.g = color.b = 12;
 			else {
 				color = player_rgb[get_player_or_team_color(player_num)];
@@ -3488,22 +3487,23 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas, const ga
 }
 
 //returns true if viewer can see object
-static int see_object(fvcobjptridx &vcobjptridx, const vcobjptridx_t objnum)
+static int see_object(const d_robot_info_array &Robot_info, fvcobjptridx &vcobjptridx, const vcobjptridx_t objnum)
 {
-	fvi_query fq;
 	fvi_info hit_data;
 
 	//see if we can see this player
-
-	fq.p0 					= &Viewer->pos;
-	fq.p1 					= &objnum->pos;
-	fq.rad 					= 0;
-	fq.thisobjnum			= vcobjptridx(Viewer);
-	fq.flags 				= FQ_TRANSWALL | FQ_CHECK_OBJS;
-	fq.startseg				= Viewer->segnum;
-	fq.ignore_obj_list.first = nullptr;
-
-	const auto hit_type = find_vector_intersection(fq, hit_data);
+	const auto hit_type = find_vector_intersection(fvi_query{
+		Viewer->pos,
+		objnum->pos,
+		fvi_query::unused_ignore_obj_list,
+		&LevelUniqueObjectState,
+		/* This is only necessary if `Viewer` can be a robot.  In developer
+		 * builds, the user can view from any object, not just a player.
+		 */
+		&Robot_info,
+		FQ_TRANSWALL,
+		vcobjptridx(Viewer),
+	}, Viewer->segnum, 0, hit_data);
 	return hit_type == fvi_hit_type::Object && hit_data.hit_object == objnum;
 }
 
@@ -3511,14 +3511,17 @@ static int see_object(fvcobjptridx &vcobjptridx, const vcobjptridx_t objnum)
 
 //show names of teammates & players carrying flags
 
-void show_HUD_names(grs_canvas &canvas, const game_mode_flags Game_mode)
+void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &canvas, const game_mode_flags Game_mode)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	auto &vcobjptridx = Objects.vcptridx;
 	for (playernum_t pnum = 0;pnum < N_players; ++pnum)
 	{
-		if (pnum == Player_num || vcplayerptr(pnum)->connected != CONNECT_PLAYING)
+		if (pnum == Player_num)
+			continue;
+		auto &plr = *vcplayerptr(pnum);
+		if (plr.connected != player_connection_status::playing)
 			continue;
 		// ridiculusly complex to check if we want to show something... but this is readable at least.
 
@@ -3535,7 +3538,7 @@ void show_HUD_names(grs_canvas &canvas, const game_mode_flags Game_mode)
 				continue;			//..so don't show name
 		}
 		else
-			objnum = vcplayerptr(pnum)->objnum;
+			objnum = plr.objnum;
 
 		const auto &&objp = vcobjptridx(objnum);
 		const auto &pl_flags = objp->ctype.player_info.powerup_flags;
@@ -3553,54 +3556,81 @@ void show_HUD_names(grs_canvas &canvas, const game_mode_flags Game_mode)
 			(is_bounty_target || ((game_mode_capture_flag() || game_mode_hoard()) && (pl_flags & PLAYER_FLAGS_FLAG)));
 #endif
 
-		if ((show_name || show_typing || show_indi) && see_object(vcobjptridx, objp))
+		if ((show_name || show_typing || show_indi) && see_object(Robot_info, vcobjptridx, objp))
 		{
 			auto player_point = g3_rotate_point(objp->pos);
-			if (player_point.p3_codes == 0) //on screen
+			if (player_point.p3_codes == clipping_code::None) //on screen
 			{
 				g3_project_point(player_point);
-				if (!(player_point.p3_flags & PF_OVERFLOW))
+				if (!(player_point.p3_flags & projection_flag::overflow))
 				{
-					fix x,y,dx,dy;
-					char s[CALLSIGN_LEN+10];
-					int x1, y1;
-
-					x = player_point.p3_sx;
-					y = player_point.p3_sy;
-					dy = -fixmuldiv(fixmul(objp->size, Matrix_scale.y), i2f(canvas.cv_bitmap.bm_h) / 2, player_point.p3_z);
-					dx = fixmul(dy,grd_curscreen->sc_aspect);
+					const fix x = player_point.p3_sx;
+					const fix y = player_point.p3_sy;
+					const fix dy = -fixmuldiv(fixmul(objp->size, Matrix_scale.y), i2f(canvas.cv_bitmap.bm_h) / 2, player_point.p3_z);
+					const fix dx = fixmul(dy, grd_curscreen->sc_aspect);
 					/* Set the text to show */
-					const char *name = NULL;
-					if(is_bounty_target)
-						name = "Target";
-					else if (show_name)
-						name = static_cast<const char *>(vcplayerptr(pnum)->callsign);
-					const char *trailer = NULL;
-					if (show_typing)
-					{
-						if (multi_sending_message[pnum] == msgsend_state::typing)
-							trailer = "Typing";
-						else if (multi_sending_message[pnum] == msgsend_state::automap)
-							trailer = "Map";
-					}
-					int written = snprintf(s, sizeof(s), "%s%s%s", name ? name : "", name && trailer ? ", " : "", trailer ? trailer : "");
-					if (written)
+					const auto name = is_bounty_target
+						? "Target"
+						: (show_name
+							? plr.callsign.operator const char *()
+							: nullptr);
+					const auto trailer = show_typing
+						? ({
+							const auto m = multi_sending_message[pnum];
+							m == msgsend_state::typing
+							? ", Typing"
+							: m == msgsend_state::automap
+								? ", Map"
+								: nullptr;
+							})
+						: nullptr;
+					/* If both `name` and `trailer` are present, then
+					 * concatenate them into label_storage.  If successful, set
+					 * `s` to `label_storage`.  Otherwise, set `s` to
+					 * `nullptr`.
+					 *
+					 * If exactly one of `name` or `trailer` is present, set
+					 * `s` to the one that is present.  In the case that
+					 * `trailer` is present, skip the leading literal `", "`
+					 * that is necessary for the name-present case, but not
+					 * necessary for the name-absent case.
+					 *
+					 * If neither is present, set `s` to `trailer`, which by
+					 * definition is `nullptr` in this branch.
+					 *
+					 * Finally, if `s` is not `nullptr`, then something can be
+					 * shown.  Show whatever `s` points at, which will be one
+					 * of:
+					 * - `label_storage`
+					 * - `name`
+					 * - `&trailer[2]`
+					 */
+					std::array<char, CALLSIGN_LEN + 10> label_storage;
+					if (const auto s = name
+						? (
+							trailer
+							? (std::snprintf(label_storage.data(), label_storage.size(), "%s%s", name, trailer) > 0 ? label_storage.data() : nullptr)
+							: name
+						)
+						: (
+							trailer ? &trailer[2] : trailer
+						)
+					)
 					{
 						const auto &&[w, h] = gr_get_string_size(*canvas.cv_font, s);
 						const auto color = get_player_or_team_color(pnum);
-						gr_set_fontcolor(canvas, BM_XRGB(player_rgb[color].r, player_rgb[color].g, player_rgb[color].b), -1);
-						x1 = f2i(x)-w/2;
-						y1 = f2i(y-dy)+FSPACY(1);
+						auto &c = player_rgb[color];
+						gr_set_fontcolor(canvas, BM_XRGB(c.r, c.g, c.b), -1);
+						const int x1 = f2i(x) - w / 2;
+						const int y1 = f2i(y - dy) + FSPACY(1);
 						gr_string(canvas, *canvas.cv_font, x1, y1, s, w, h);
 					}
 
 					/* Draw box on HUD */
 					if (show_indi)
 					{
-						fix w,h;
-
-						w = dx/4;
-						h = dy/4;
+						const fix w = dx / 4;
+						const fix h = dy / 4;
 
 							struct {
 								int r, g, b;
@@ -3639,7 +3669,7 @@ void show_HUD_names(grs_canvas &canvas, const game_mode_flags Game_mode)
 }
 
 //draw all the things on the HUD
-void draw_hud(grs_canvas &canvas, const object &plrobj, const control_info &Controls, const game_mode_flags Game_mode)
+void draw_hud(const d_robot_info_array &Robot_info, grs_canvas &canvas, const object &plrobj, const control_info &Controls, const game_mode_flags Game_mode)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
@@ -3661,7 +3691,7 @@ void draw_hud(grs_canvas &canvas, const object &plrobj, const control_info &Cont
 		return;
 
 	// Cruise speed
-	if (Viewer->type == OBJ_PLAYER && get_player_id(vcobjptr(Viewer)) == Player_num && PlayerCfg.CockpitMode[1] != cockpit_mode_t::rear_view)
+	if (auto &viewer = *Viewer; viewer.type == OBJ_PLAYER && get_player_id(viewer) == Player_num && PlayerCfg.CockpitMode[1] != cockpit_mode_t::rear_view)
 	{
 		int	x = FSPACX(1);
 		int	y = canvas.cv_bitmap.bm_h;
@@ -3705,7 +3735,7 @@ void draw_hud(grs_canvas &canvas, const object &plrobj, const control_info &Cont
 	//	Show other stuff if not in rearview or letterbox.
 	if (!Rear_view && PlayerCfg.CockpitMode[1] != cockpit_mode_t::rear_view)
 	{
-		show_HUD_names(canvas, Game_mode);
+		show_HUD_names(Robot_info, canvas, Game_mode);
 
 		if (PlayerCfg.CockpitMode[1] == cockpit_mode_t::status_bar || PlayerCfg.CockpitMode[1] == cockpit_mode_t::full_screen)
 			hud_show_homing_warning(canvas, player_info.homing_object_dist);

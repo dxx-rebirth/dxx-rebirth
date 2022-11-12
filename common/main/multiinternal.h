@@ -6,8 +6,10 @@
  */
 #pragma once
 
+#include <span>
 #include <type_traits>
 #include "dxxerror.h"
+#include "net_udp.h"
 #include "object.h"
 #include "powerup.h"
 #include "serial.h"
@@ -24,9 +26,9 @@
 #define for_each_multiplayer_command(VALUE)	\
 	VALUE(MULTI_POSITION              , 1 + quaternionpos::packed_size::value)	\
 	VALUE(MULTI_REAPPEAR              , 4)	\
-	VALUE(MULTI_FIRE                  , 18)	\
-	VALUE(MULTI_FIRE_TRACK            , 21)	\
-	VALUE(MULTI_FIRE_BOMB             , 20)	\
+	VALUE(MULTI_FIRE                  , 17)	\
+	VALUE(MULTI_FIRE_TRACK            , 20)	\
+	VALUE(MULTI_FIRE_BOMB             , 19)	\
 	VALUE(MULTI_REMOVE_OBJECT         , 4)	\
 	VALUE(MULTI_MESSAGE               , 37)	/* (MAX_MESSAGE_LENGTH = 40) */	\
 	VALUE(MULTI_QUIT                  , 2)	\
@@ -107,7 +109,11 @@
 
 #include "dxxsconf.h"
 
-enum multiplayer_command_t : uint8_t
+namespace dcx {
+enum class multiplayer_data_priority : uint8_t;
+}
+
+enum class multiplayer_command_t : uint8_t
 {
 	for_each_multiplayer_command(define_multiplayer_command)
 };
@@ -116,37 +122,24 @@ template <multiplayer_command_t>
 struct command_length;
 #define define_command_length(NAME,SIZE)	\
 	template <>	\
-	struct command_length<NAME> : public std::integral_constant<unsigned, SIZE> {};
+	struct command_length<multiplayer_command_t::NAME> : public std::integral_constant<unsigned, SIZE> {};
 for_each_multiplayer_command(define_command_length);
+
+namespace dcx {
 
 template <multiplayer_command_t C>
 struct multi_command : public std::array<uint8_t, command_length<C>::value>
 {
+	constexpr multi_command()
+	{
+		this->front() = static_cast<uint8_t>(C);
+	}
 };
 
-void _multi_send_data(const uint8_t *buf, unsigned len, int priority);
-
 template <multiplayer_command_t C>
-static inline void multi_send_data(uint8_t *const buf, const unsigned len, const int priority)
+static inline void multi_send_data(const multi_command<C> &buf, const multiplayer_data_priority priority)
 {
-	buf[0] = C;
-	constexpr unsigned expected = command_length<C>::value;
-#ifdef DXX_CONSTANT_TRUE
-	if (DXX_CONSTANT_TRUE(len != expected))
-		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_multi_send_data, "wrong packet size");
-#endif
-	if (len != expected)
-	{
-		Error("multi_send_data: Packet type %i length: %i, expected: %i\n", C, len, expected);
-	}
-	_multi_send_data(buf, len, priority);
-}
-
-template <multiplayer_command_t C>
-static inline void multi_send_data(multi_command<C> &buf, const int priority)
-{
-	buf[0] = C;
-	_multi_send_data(buf.data(), buf.size(), priority);
+	multi::dispatch->send_data(buf, priority);
 }
 
 template <typename T>
@@ -156,17 +149,54 @@ static inline void multi_serialize_read(const uint8_t *const buf, T &t)
 	serial::process_buffer(b, t);
 }
 
+template <typename T, std::size_t Extent>
+static inline void multi_serialize_read(const std::span<const uint8_t, Extent> buf, T &t)
+{
+	multi_serialize_read(buf.data(), t);
+}
+
 template <typename T>
-static inline void multi_serialize_write(int priority, const T &t)
+static inline void multi_serialize_write(const multiplayer_data_priority priority, const T &t)
 {
 	constexpr size_t maximum_size = serial::message_type<T>::maximum_size;
 	uint8_t buf[maximum_size];
 	serial::writer::bytebuffer_t b(buf);
 	serial::process_buffer(b, t);
-	_multi_send_data(buf, maximum_size, priority);
+	multi::dispatch->send_data(buf, priority);
 }
 
 template <multiplayer_command_t C>
 using multiplayer_command = serial::pad<1, static_cast<uint8_t>(C)>;
+
+template <multiplayer_command_t C>
+using multiplayer_rspan = std::span<const uint8_t, command_length<C>::value>;
+
+template <multiplayer_command_t C>
+static constexpr auto multi_subspan_first(const std::span<const uint8_t> &data)
+{
+	return data.first<command_length<C>::value>();
+}
+
+}
+
+namespace dsx {
+
+void multi_do_robot_explode(const d_robot_info_array &Robot_info, multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_EXPLODE> buf);
+void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, playernum_t pnum, multiplayer_rspan<multiplayer_command_t::MULTI_CREATE_ROBOT> buf);
+void multi_do_claim_robot(playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_CLAIM> buf);
+void multi_do_robot_position(playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_POSITION> buf);
+void multi_do_release_robot(playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_RELEASE> buf);
+void multi_do_robot_fire(multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_FIRE> buf);
+#if defined(DXX_BUILD_DESCENT_II)
+void multi_recv_escort_goal(d_unique_buddy_state &, multiplayer_rspan<multiplayer_command_t::MULTI_UPDATE_BUDDY_STATE> buf);
+#endif
+void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, playernum_t pnum, multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_TELEPORT> buf);
+void multi_do_boss_cloak(multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_CLOAK> buf);
+void multi_do_boss_start_gate(multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_START_GATE> buf);
+void multi_do_boss_stop_gate(multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_STOP_GATE> buf);
+void multi_do_boss_create_robot(playernum_t pnum, multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_CREATE_ROBOT> buf);
+void multi_do_create_robot_powerups(playernum_t pnum, multiplayer_rspan<multiplayer_command_t::MULTI_CREATE_ROBOT_POWERUPS> buf);
+
+}
 
 #endif

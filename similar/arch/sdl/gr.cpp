@@ -43,13 +43,7 @@ static int gr_installed;
 
 void gr_flip()
 {
-	SDL_Rect src, dest;
-
-	dest.x = src.x = dest.y = src.y = 0;
-	dest.w = src.w = canvas->w;
-	dest.h = src.h = canvas->h;
-
-	SDL_BlitSurface(canvas, &src, screen, &dest);
+	SDL_BlitSurface(canvas, nullptr, screen, nullptr);
 	SDL_Flip(screen);
 }
 
@@ -129,6 +123,7 @@ int gr_set_mode(screen_mode mode)
 	}
 
 	*grd_curscreen = {};
+	grd_curscreen->sdl_surface = RAII_SDL_Surface(canvas);
 	grd_curscreen->set_screen_width_height(w, h);
 	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->get_screen_width() * GameCfg.AspectX, grd_curscreen->get_screen_height() * GameCfg.AspectY);
 	gr_init_canvas(grd_curscreen->sc_canvas, reinterpret_cast<unsigned char *>(canvas->pixels), bm_mode::linear, w, h);
@@ -177,7 +172,6 @@ int gr_init()
 	}
 
 	grd_curscreen = std::make_unique<grs_screen>();
-	*grd_curscreen = {};
 
 	if (!CGameCfg.WindowMode && !CGameArg.SysWindow)
 		sdl_video_flags|=SDL_FULLSCREEN;
@@ -210,7 +204,6 @@ void gr_close()
 		gr_installed = 0;
 		grd_curscreen.reset();
 		SDL_ShowCursor(1);
-		SDL_FreeSurface(canvas);
 	}
 }
 

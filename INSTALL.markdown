@@ -9,13 +9,14 @@ The DXX-Rebirth maintainers have no control over the sites linked below.  The ma
 
 * [Python 3.x](https://www.python.org/) to run [scons](https://www.scons.org/), the processor for SConstruct scripts.
 [Python 3.9](https://www.python.org/downloads/release/python-3912/) is recommended.
-* C++ compiler with support for selected C++17 features.  One of:
+* C++ compiler with support for selected C++20 features.  One of:
     * [gcc](https://gcc.gnu.org/) 10.3
-    * [clang](https://clang.llvm.org/) 13.0 or later
+    * [clang](https://clang.llvm.org/) 14.0 or later
     * Microsoft Visual Studio is **not** supported at this time.
-	  Support for Microsoft Visual Studio will be added when it
-	  implements sufficient C++17 features for the code to build with
-	  few or no modifications.
+	  Visual Studio 2022 release notes indicate it has sufficient C++ support
+	  that it should be able to compile Rebirth.  However, due to limitations
+	  of the Visual Studio installation environment, the core team does not
+	  use, test, or support Visual Studio.
 * [SDL 1.2](https://www.libsdl.org/).
 SDL 2 is also supported, and will become the default soon.
 * [PhysicsFS](https://icculus.org/physfs/).
@@ -27,7 +28,7 @@ Optional, but recommended:
 * [SDL\_mixer 1.2](https://www.libsdl.org/projects/SDL_mixer/).
 * [libpng](http://www.libpng.org/).
 
-Unless otherwise noted, using the newest release available is recommended.  For example, prefer gcc-11.2 to gcc-10.3, even though both should work.
+Unless otherwise noted, using the newest release available is recommended.  For example, prefer gcc-11.3 to gcc-10.4, even though both should work.
 
 DXX-Rebirth can be built on one system to run on a different system, such as using Linux to build for Windows (a "cross-compiled build").  The sections below specify where to get prerequisites for a build meant to run on the system where it is built (a "native build").
 
@@ -125,16 +126,14 @@ from the Terminal.  This may need to be done after each major OS upgrade as well
 
 DXX-Rebirth can be built from the Terminal (via SCons) without Xcode; to build using Xcode requires Xcode to be installed.
 
+When building for Mac OS X, only SDL 2 is currently supported, as SDL 1.2 has long-standing issues with modern versions of the operating system.  Terminal builds for Mac OS X default to SDL 2, which is equivalent to passing **sdl2=True** as a parameter to the SCons command.
+
 ##### [Homebrew](https://github.com/Homebrew/homebrew/)
-* **brew install
- scons
- sdl
- sdl\_image
- sdl\_mixer
- physfs
- libpng
- pkg-config
- dylibbundler**
+The project includes a Brewfile for installing all required dependencies, if you use Homebrew.  You can install them with:
+
+* **brew bundle**
+
+**Note:** Because Homebrew only installs libraries and not frameworks, when building for Mac OS X with Homebrew-provided dependencies, you must provide **macos_add_frameworks=False** as a SCons command parameter in order for the build system to look for libraries rather than frameworks.
 
 ### Building
 Once prerequisites are installed, run **scons** *options* to build.  By default, both D1X-Rebirth and D2X-Rebirth are built.  To build only D1X-Rebirth, run **scons d1x=1**.  To build only D2X-Rebirth, run **scons d2x=1**.

@@ -102,7 +102,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define COMPRESS_INTERVAL	5			// seconds
 
-static void med_show_warning(const char *s);
+static void med_show_warning(std::span<const char> s);
 
 //char *undo_status[128];
 
@@ -823,14 +823,13 @@ void close_editor_screen()
 
 }
 
-static void med_show_warning(const char *s)
+static void med_show_warning(std::span<const char> s)
 {
 	grs_canvas &save_canv = *grd_curcanv;
 
 	//gr_pal_fade_in(grd_curscreen->pal);	//in case palette is blacked
 
-	ui_messagebox(-2,-2,1,s,"OK");
-
+	ui_messagebox(-2, -2, 1, s.data(), "OK");
 	gr_set_current_canvas(save_canv);
 }
 

@@ -124,6 +124,8 @@ uint8_t HiresGFXAvailable;
 int MacHog = 0;	// using a Mac hogfile?
 #endif
 
+namespace {
+
 //read help from a file & print to screen
 static void print_commandline_help()
 {
@@ -218,7 +220,7 @@ static void print_commandline_help()
 		VERB("                                    5: Auto: if VSync is enabled and ARB_sync is supported, use mode 2, otherwise mode 0\n")	\
 		VERB("  -gl_syncwait <n>              Wait interval (ms) for sync mode 2 (default: " DXX_STRINGIZE(OGL_SYNC_WAIT_DEFAULT) ")\n")	\
 		VERB("  -gl_darkedges                 Re-enable dark edges around filtered textures (as present in earlier versions of the engine)\n")	\
-		DXX_if_not_defined_to_1(RELEASE, (	\
+		DXX_if_defined_01(DXX_USE_STEREOSCOPIC_RENDER, (	\
 		VERB("  -gl_stereo                    Enable OpenGL stereo quad buffering, if available\n")	\
 		VERB("  -gl_stereoview <n>            Select OpenGL stereo viewport mode (experimental; incomplete)\n")	\
 		VERB("                                    1: above/below half-height format\n")	\
@@ -279,6 +281,8 @@ static void print_commandline_help()
 	VERB("\n\n")	\
 
 	printf(DXX_COMMAND_LINE_HELP(DXX_COMMAND_LINE_HELP_FMT) DXX_COMMAND_LINE_HELP(DXX_COMMAND_LINE_HELP_ARG));
+}
+
 }
 
 int Quitting = 0;
@@ -452,6 +456,8 @@ namespace dsx {
 //	DESCENT II by Parallax Software
 //	(varies based on preprocessor options)
 //		Descent Main
+
+namespace {
 
 static int main(int argc, char *argv[])
 {
@@ -664,7 +670,7 @@ static int main(int argc, char *argv[])
 #endif
 
 	con_puts(CON_DEBUG, "Doing gamedata_init...");
-	gamedata_init();
+	gamedata_init(LevelSharedRobotInfoState);
 
 #if defined(DXX_BUILD_DESCENT_II)
 #if DXX_USE_EDITOR
@@ -720,7 +726,7 @@ static int main(int argc, char *argv[])
 			}
 			if(PHYSFSX_exists(filename,0))
 			{
-				InterfaceUniqueState.PilotName.copy(b, std::distance(b, &filename[j - 4]));
+				InterfaceUniqueState.PilotName.copy(std::span<const char>(b, std::distance(b, &filename[j - 4])));
 				InterfaceUniqueState.update_window_title();
 				read_player_file();
 				WriteConfigFile();
@@ -767,6 +773,8 @@ static int main(int argc, char *argv[])
 	PHYSFSX_removeArchiveContent();
 
 	return(0);		//presumably successful exit
+}
+
 }
 
 }

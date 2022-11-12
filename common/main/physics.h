@@ -46,12 +46,6 @@ struct phys_visited_seglist
 	std::array<segnum_t, MAX_FVI_SEGS> seglist;
 };
 
-#ifdef dsx
-namespace dsx {
-window_event_result do_physics_sim(vmobjptridx_t obj, const vms_vector &obj_previous_position, phys_visited_seglist *phys_segs);
-
-}
-#endif
 namespace dcx {
 
 // Applies an instantaneous force on an object, resulting in an instantaneous
@@ -60,6 +54,7 @@ void phys_apply_force(object_base &obj, const vms_vector &force_vec);
 
 }
 namespace dsx {
+window_event_result do_physics_sim(const d_robot_info_array &Robot_info, vmobjptridx_t obj, const vms_vector &obj_previous_position, phys_visited_seglist *phys_segs);
 void phys_apply_rot(object &obj, const vms_vector &force_vec);
 }
 

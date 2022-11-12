@@ -92,7 +92,7 @@ PHYSFS_sint64 __wrap_PHYSFS_read(PHYSFS_File *const handle, void *const buffer, 
 		 * more precise.
 		 */
 		for (PHYSFS_uint32 i = objCount; i--; p += objSize)
-			DXX_MAKE_MEM_UNDEFINED(p, objSize);
+			DXX_MAKE_MEM_UNDEFINED(std::span(p, objSize));
 	}
 	return __real_PHYSFS_read(handle, buffer, objSize, objCount);
 }

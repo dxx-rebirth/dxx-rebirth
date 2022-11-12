@@ -58,6 +58,8 @@ static void windowevent_handler(const SDL_WindowEvent &windowevent)
 }
 #endif
 
+namespace {
+
 static void event_notify_begin_loop()
 {
 	const d_event_begin_loop event;
@@ -67,6 +69,8 @@ static void event_notify_begin_loop()
 static void event_notify_end_loop()
 {
 	event_send(d_event_end_loop{});
+}
+
 }
 
 window_event_result event_poll()
@@ -265,6 +269,8 @@ window_event_result event_process(void)
 	return highest_result;
 }
 
+namespace {
+
 template <bool activate_focus>
 static void event_change_focus()
 {
@@ -279,6 +285,8 @@ static void event_change_focus()
 		mouse_disable_cursor();
 	else
 		mouse_enable_cursor();
+}
+
 }
 
 void event_enable_focus()

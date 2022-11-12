@@ -33,6 +33,7 @@
 #include "dsx-ns.h"
 #include "compiler-range_for.h"
 #include <array>
+#include "backports-ranges.h"
 
 namespace dcx {
 
@@ -42,7 +43,7 @@ pressed_keys keyd_pressed;
 fix64			keyd_time_when_last_pressed;
 std::array<unsigned char, KEY_BUFFER_SIZE>		unicode_frame_buffer;
 
-const std::array<key_props, 256> key_properties = {{
+constexpr std::array<key_props, 256> key_properties = {{
 { "",       255,    SDLK_UNKNOWN                 }, // 0
 { "ESC",    255,    SDLK_ESCAPE        },
 { "1",      '1',    SDLK_1             },
@@ -389,8 +390,6 @@ struct d_event_keycommand : d_event
 	}
 };
 
-}
-
 static int key_ismodlck(int keycode)
 {
 	switch (keycode)
@@ -411,6 +410,8 @@ static int key_ismodlck(int keycode)
 		default:
 			return 0;
 	}
+}
+
 }
 
 unsigned char key_ascii()
@@ -511,8 +512,8 @@ window_event_result key_handler(const SDL_KeyboardEvent *const kevent)
 	}
 
 	//=====================================================
-	auto re = key_properties.rend();
-	auto fi = std::find_if(key_properties.rbegin(), re, [event_keysym](const key_props &k) { return k.sym == event_keysym; });
+	const auto re = key_properties.rend();
+	const auto &&fi = ranges::find(key_properties.rbegin(), re, event_keysym, &key_props::sym);
 	if (fi == re)
 		return window_event_result::ignored;
 	unsigned keycode = std::distance(key_properties.begin(), std::next(fi).base());
@@ -561,6 +562,8 @@ void key_init()
 	key_flush();
 }
 
+namespace {
+
 static void restore_sticky_key(const uint8_t *keystate, const unsigned i)
 {
 #if SDL_MAJOR_VERSION == 1
@@ -570,6 +573,8 @@ static void restore_sticky_key(const uint8_t *keystate, const unsigned i)
 #endif
 	const auto v = keystate[ki];	// do not flush status of sticky keys
 	keyd_pressed.update_pressed(i, v);
+}
+
 }
 
 void key_flush()

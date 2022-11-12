@@ -148,6 +148,8 @@ void kconfig_end_loop(control_info &, const fix frametime);
 #define CONTROL_USING_JOYSTICK	1
 #define CONTROL_USING_MOUSE		2
 #define MOUSEFS_DELTA_RANGE 512
+#define LOCKED_PITCH_FACTOR 2
+#define FREE_PITCH_FACTOR 1
 #ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)

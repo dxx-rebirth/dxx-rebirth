@@ -408,7 +408,8 @@ static void read_children(shared_segment &segp, const sidemask_t bit_mask, PHYSF
 	{
 		if (bit_mask & build_sidemask(bit))
 		{
-			segp.children[bit] = PHYSFSX_readShort(LoadFile);
+			const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(LoadFile))};
+			segp.children[bit] = (imsegidx_t::check_nothrow_index(s) || s == segment_exit) ? s : segment_none;
 		} else
 			segp.children[bit] = segment_none;
 	}
@@ -501,11 +502,21 @@ int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_cu
 		PHYSFSX_readVector(LoadFile, i);
 
 	const auto Num_segments = LevelSharedSegmentState.Num_segments;
-	for (segnum_t segnum=0; segnum < Num_segments; segnum++ )	{
-		const msmusegment segp = vmsegptr(segnum);
+	/* Editor builds need both the segment index and segment pointer.
+	 * Non-editor builds need only the segment pointer.
+	 */
+#if DXX_USE_EDITOR
+#define dxx_segment_iteration_factory vmptridx
+#else
+#define dxx_segment_iteration_factory vmptr
+#endif
+	for (auto &&segpi : partial_range(Segments.dxx_segment_iteration_factory, Num_segments))
+#undef dxx_segment_iteration_factory
+	{
+		const msmusegment segp = segpi;
 
 #if DXX_USE_EDITOR
-		segp.s.segnum = segnum;
+		segp.s.segnum = segpi;
 		segp.s.group = 0;
 		#endif
 

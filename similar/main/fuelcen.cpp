@@ -67,7 +67,7 @@ constexpr fix Fuelcen_max_amount = i2f(100);
 // by this amount... when capacity gets to 0, no more morphers...
 constexpr fix EnergyToCreateOneRobot = i2f(1);
 
-static int Num_extry_robots = 15;
+constexpr std::integral_constant<int, 15> Num_extry_robots{};
 }
 namespace dsx {
 #if DXX_USE_EDITOR
@@ -90,8 +90,8 @@ void fuelcen_reset()
 {
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Station = LevelUniqueFuelcenterState.Station;
-	DXX_MAKE_MEM_UNDEFINED(Station.begin(), Station.end());
-	DXX_MAKE_MEM_UNDEFINED(RobotCenters.begin(), RobotCenters.end());
+	DXX_MAKE_MEM_UNDEFINED(std::span(Station));
+	DXX_MAKE_MEM_UNDEFINED(std::span(RobotCenters));
 	LevelSharedRobotcenterState.Num_robot_centers = 0;
 	LevelUniqueFuelcenterState.Num_fuelcenters = 0;
 	range_for (shared_segment &i, Segments)
@@ -99,7 +99,7 @@ void fuelcen_reset()
 }
 
 #ifndef NDEBUG		//this is sometimes called by people from the debugger
-static void reset_all_robot_centers() __attribute_used;
+__attribute_used
 static void reset_all_robot_centers()
 {
 	// Remove all materialization centers
@@ -145,6 +145,8 @@ void fuelcen_create(const vmsegptridx_t segp)
 	station.Flag = 0;
 }
 
+namespace {
+
 //------------------------------------------------------------
 // Adds a matcen that already is a special type into the Station array.
 // This function is separate from other fuelcens because we don't want values reset.
@@ -161,7 +163,7 @@ static void matcen_create(const vmsegptridx_t segp)
 	auto &station = Station.at(next_fuelcenter_idx);
 
 	station.Type = station_type;
-	station.Capacity = i2f(GameUniqueState.Difficulty_level + 3);
+	station.Capacity = i2f(underlying_value(GameUniqueState.Difficulty_level) + 3);
 	station.segnum = segp;
 	station.Timer = -1;
 	station.Flag = 0;
@@ -173,6 +175,8 @@ static void matcen_create(const vmsegptridx_t segp)
 	robotcenter.segnum = segp;
 }
 
+}
+
 //------------------------------------------------------------
 // Adds a segment that already is a special type into the Station array.
 void fuelcen_activate(const vmsegptridx_t segp)
@@ -182,11 +186,6 @@ void fuelcen_activate(const vmsegptridx_t segp)
 	else
 		fuelcen_create( segp);
 }
-
-//	The lower this number is, the more quickly the center can be re-triggered.
-//	If it's too low, it can mean all the robots won't be put out, but for about 5
-//	robots, that's not real likely.
-#define	MATCEN_LIFE (i2f(30-2*Difficulty_level))
 
 //------------------------------------------------------------
 //	Trigger (enable) the materialization center in segment segnum
@@ -212,13 +211,17 @@ void trigger_matcen(const vmsegptridx_t segp)
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 #if defined(DXX_BUILD_DESCENT_II)
 	//	MK: 11/18/95, At insane, matcens work forever!
-	if (Difficulty_level+1 < NDL)
+	if (Difficulty_level != Difficulty_level_type::_4)
 #endif
 		robotcen->Lives--;
 
 	robotcen->Timer = F1_0*1000;	//	Make sure the first robot gets emitted right away.
 	robotcen->Enabled = 1;			//	Say this center is enabled, it can create robots.
-	robotcen->Capacity = i2f(Difficulty_level + 3);
+	robotcen->Capacity = i2f(underlying_value(Difficulty_level) + 3);
+//	The lower this number is, the more quickly the center can be re-triggered.
+//	If it's too low, it can mean all the robots won't be put out, but for about 5
+//	robots, that's not real likely.
+	const auto MATCEN_LIFE = i2f(30 - 2 * underlying_value(Difficulty_level));
 	robotcen->Disable_time = MATCEN_LIFE;
 
 	//	Create a bright object in the segment.
@@ -226,7 +229,7 @@ void trigger_matcen(const vmsegptridx_t segp)
 	auto &&pos = compute_segment_center(vcvertptr, segp);
 	const auto &&delta = vm_vec_sub(vcvertptr(segp->verts.front()), pos);
 	vm_vec_scale_add2(pos, delta, F1_0/2);
-	const auto &&objnum = obj_create(OBJ_LIGHT, 0, segp, pos, nullptr, 0, object::control_type::light, object::movement_type::None, RT_NONE);
+	const auto &&objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_LIGHT, 0, segp, pos, nullptr, 0, object::control_type::light, object::movement_type::None, RT_NONE);
 	if (objnum != object_none) {
 		objnum->lifeleft = MATCEN_LIFE;
 		objnum->ctype.light_info.intensity = i2f(8);	//	Light cast by a fuelcen.
@@ -295,10 +298,9 @@ Restart: ;
 
 #define	ROBOT_GEN_TIME (i2f(5))
 
-imobjptridx_t create_morph_robot(const vmsegptridx_t segp, const vms_vector &object_pos, const unsigned object_id)
+imobjptridx_t create_morph_robot(const d_robot_info_array &Robot_info, const vmsegptridx_t segp, const vms_vector &object_pos, const unsigned object_id)
 {
 	ai_behavior default_behavior;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[object_id];
 #if defined(DXX_BUILD_DESCENT_I)
 	default_behavior = ai_behavior::AIB_NORMAL;
@@ -309,7 +311,7 @@ imobjptridx_t create_morph_robot(const vmsegptridx_t segp, const vms_vector &obj
 #endif
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	auto obj = robot_create(object_id, segp, object_pos,
+	auto obj = robot_create(Robot_info, object_id, segp, object_pos,
 				&vmd_identity_matrix, Polygon_models[robptr.model_num].rad,
 				default_behavior);
 
@@ -349,8 +351,10 @@ imobjptridx_t create_morph_robot(const vmsegptridx_t segp, const vms_vector &obj
 
 }
 
+namespace {
+
 //	----------------------------------------------------------------------------------------------------------
-static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx, FuelCenter *const robotcen, const station_number numrobotcen)
+static void robotmaker_proc(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, fvmsegptridx &vmsegptridx, FuelCenter *const robotcen, const station_number numrobotcen)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
@@ -437,7 +441,8 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 					if (obj.matcen_creator == biased_matcen_creator)
 						count++;
 			}
-			if (count > GameUniqueState.Difficulty_level + 3) {
+			if (count > underlying_value(GameUniqueState.Difficulty_level) + 3)
+			{
 				robotcen->Timer /= 2;
 				return;
 			}
@@ -454,7 +459,7 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 					return;
 				}
 				if (objp->type==OBJ_ROBOT) {
-					collide_robot_and_materialization_center(objp);
+					collide_robot_and_materialization_center(Robot_info, objp);
 					robotcen->Timer = top_time/2;
 					return;
 				} else if (objp->type==OBJ_PLAYER ) {
@@ -467,7 +472,7 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 			const auto &&cur_object_loc = compute_segment_center(vcvertptr, csegp);
 			const auto &&robotcen_segp = vmsegptridx(robotcen->segnum);
 			// HACK!!! The 10 under here should be something equal to the 1/2 the size of the segment.
-			auto obj = object_create_explosion(robotcen_segp, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT);
+			auto obj = object_create_explosion_without_damage(Vclip, robotcen_segp, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT);
 
 			if (obj != object_none)
 				extract_orient_from_segment(vcvertptr, obj->orient, robotcen_segp);
@@ -514,7 +519,7 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 				else
 					type = legal_types[(d_rand() * num_types) / 32768];
 
-				const auto &&obj = create_morph_robot(vmsegptridx(robotcen->segnum), cur_object_loc, type );
+				const auto &&obj = create_morph_robot(Robot_info, vmsegptridx(robotcen->segnum), cur_object_loc, type );
 				if (obj != object_none) {
 					if (Game_mode & GM_MULTI)
 						multi_send_create_robot(numrobotcen, obj, type);
@@ -538,9 +543,11 @@ static void robotmaker_proc(const d_vclip_array &Vclip, fvmsegptridx &vmsegptrid
 	}
 }
 
+}
+
 //-------------------------------------------------------------
 // Called once per frame, replenishes fuel supply.
-void fuelcen_update_all()
+void fuelcen_update_all(const d_robot_info_array &Robot_info)
 {
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	for (auto &&[idx, i] : enumerate(partial_range(Station, LevelUniqueFuelcenterState.Num_fuelcenters)))
@@ -548,7 +555,7 @@ void fuelcen_update_all()
 		if (i.Type == segment_special::robotmaker)
 		{
 			if (! (Game_suspended & SUSP_ROBOTS))
-				robotmaker_proc(Vclip, vmsegptridx, &i, idx);
+				robotmaker_proc(Robot_info, Vclip, vmsegptridx, &i, idx);
 		}
 	}
 }
@@ -660,9 +667,7 @@ void init_all_matcens(void)
 			station.Enabled = 0;
 			station.Disable_time = 0;
 			//	Make sure this fuelcen is pointed at by a matcen.
-			if (std::find_if(robot_range.begin(), robot_range.end(), [i = i](const matcen_info &mi) {
-				return mi.fuelcen_num == i;
-			}) == robot_range.end())
+			if (ranges::find(robot_range, i, &matcen_info::fuelcen_num) == robot_range.end())
 			{
 				station.Lives = 0;
 				LevelError("Station %i has type robotmaker, but no robotmaker uses it; ignoring.", underlying_value(i));

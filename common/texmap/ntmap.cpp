@@ -35,7 +35,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rle.h"
 #include "scanline.h"
 #include "u_mem.h"
-
+#include "d_zip.h"
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include <utility>
@@ -789,18 +789,18 @@ static void ntexture_map_lighted_linear(const grs_bitmap &srcb, const g3ds_tmap 
 // -------------------------------------------------------------------------------------
 // Interface from Matt's data structures to Mike's texture mapper.
 // -------------------------------------------------------------------------------------
-void draw_tmap(grs_canvas &canvas, const grs_bitmap &rbp, uint_fast32_t nverts, const g3s_point *const *vertbuf)
+void draw_tmap(grs_canvas &canvas, const grs_bitmap &rbp, const std::span<const g3s_point *const> vertbuf)
 {
 	//	These variables are used in system which renders texture maps which lie on one scanline as a line.
 	// fix	div_numerator;
 	int	lighting_on_save = Lighting_on;
 
-	Assert(nverts <= MAX_TMAP_VERTS);
+	assert(vertbuf.size() <= MAX_TMAP_VERTS);
 
 	const grs_bitmap *bp = &rbp;
 	//	If no transparency and seg depth is large, render as flat shaded.
 	if ((Current_seg_depth > Max_linear_depth) && ((bp->get_flag_mask(3)) == 0)) {
-		draw_tmap_flat(canvas, rbp, nverts, vertbuf);
+		draw_tmap_flat(canvas, rbp, vertbuf);
 		return;
 	}
 
@@ -813,27 +813,25 @@ void draw_tmap(grs_canvas &canvas, const grs_bitmap &rbp, uint_fast32_t nverts, 
 
 	// Setup texture map in Tmap1
 	g3ds_tmap Tmap1;
-	Tmap1.nv = nverts;						// Initialize number of vertices
+	Tmap1.nv = vertbuf.size();						// Initialize number of vertices
 
 // 	div_numerator = DivNum;	//f1_0*3;
 
-	for (int i=0; i<nverts; i++) {
-		g3ds_vertex	*tvp = &Tmap1.verts[i];
-		auto vp = vertbuf[i];
-
-		tvp->x2d = vp->p3_sx;
-		tvp->y2d = vp->p3_sy;
+	for (auto &&[vp, tvp] : zip(vertbuf, Tmap1.verts))
+	{
+		tvp.x2d = vp->p3_sx;
+		tvp.y2d = vp->p3_sy;
 
 		//	Check for overflow on fixdiv.  Will overflow on vp->z <= something small.  Allow only as low as 256.
 		auto clipped_p3_z = std::max(256, vp->p3_z);
-		tvp->z = fixdiv(F1_0*12, clipped_p3_z);
-		tvp->u = vp->p3_u << 6; //* bp->bm_w;
-		tvp->v = vp->p3_v << 6; //* bp->bm_h;
+		tvp.z = fixdiv(F1_0*12, clipped_p3_z);
+		tvp.u = vp->p3_u << 6; //* bp->bm_w;
+		tvp.v = vp->p3_v << 6; //* bp->bm_h;
 
 		Assert(Lighting_on < 3);
 
 		if (Lighting_on)
-			tvp->l = vp->p3_l * NUM_LIGHTING_LEVELS;
+			tvp.l = vp->p3_l * NUM_LIGHTING_LEVELS;
 	}
 
 

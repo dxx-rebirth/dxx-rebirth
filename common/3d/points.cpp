@@ -17,35 +17,35 @@
 namespace dcx {
 
 //code a point.  fills in the p3_codes field of the point, and returns the codes
-ubyte g3_code_point(g3s_point &p)
+clipping_code g3_code_point(g3s_point &p)
 {
-	ubyte cc=0;
+	clipping_code cc{};
 
 	if (p.p3_x > p.p3_z)
-		cc |= CC_OFF_RIGHT;
+		cc |= clipping_code::off_right;
 
 	if (p.p3_y > p.p3_z)
-		cc |= CC_OFF_TOP;
+		cc |= clipping_code::off_top;
 
 	if (p.p3_x < -p.p3_z)
-		cc |= CC_OFF_LEFT;
+		cc |= clipping_code::off_left;
 
 	if (p.p3_y < -p.p3_z)
-		cc |= CC_OFF_BOT;
+		cc |= clipping_code::off_bot;
 
 	if (p.p3_z < 0)
-		cc |= CC_BEHIND;
+		cc |= clipping_code::behind;
 
 	return p.p3_codes = cc;
 
 }
 
 //rotates a point. returns codes.  does not check if already rotated
-ubyte g3_rotate_point(g3s_point &dest,const vms_vector &src)
+clipping_code g3_rotate_point(g3s_point &dest,const vms_vector &src)
 {
 	const auto tempv = vm_vec_sub(src,View_position);
 	vm_vec_rotate(dest.p3_vec,tempv,View_matrix);
-	dest.p3_flags = 0;	//no projected
+	dest.p3_flags = {};	//no projected
 	return g3_code_point(dest);
 }
 
@@ -90,7 +90,7 @@ std::optional<int32_t> checkmuldiv(fix a,fix b,fix c)
 void g3_project_point(g3s_point &p)
 {
 #ifndef __powerc
-	if ((p.p3_flags & PF_PROJECTED) || (p.p3_codes & CC_BEHIND))
+	if ((p.p3_flags & projection_flag::projected) || (p.p3_codes & clipping_code::behind) != clipping_code::None)
 		return;
 
 	const auto pz = p.p3_z;
@@ -100,18 +100,18 @@ void g3_project_point(g3s_point &p)
 	{
 		p.p3_sx = Canv_w2 + *otx;
 		p.p3_sy = Canv_h2 - *oty;
-		p.p3_flags |= PF_PROJECTED;
+		p.p3_flags |= projection_flag::projected;
 	}
 	else
-		p.p3_flags |= PF_OVERFLOW;
+		p.p3_flags |= projection_flag::overflow;
 #else
 	double fz;
 	
-	if ((p.p3_flags & PF_PROJECTED) || (p.p3_codes & CC_BEHIND))
+	if ((p.p3_flags & projection_flag::projected) || (p.p3_codes & clipping_code::behind) != clipping_code::None)
 		return;
 	
 	if ( p.p3_z <= 0 )	{
-		p.p3_flags |= PF_OVERFLOW;
+		p.p3_flags |= projection_flag::overflow;
 		return;
 	}
 
@@ -119,7 +119,7 @@ void g3_project_point(g3s_point &p)
 	p.p3_sx = fl2f(fCanv_w2 + (f2fl(p.p3_x)*fCanv_w2 / fz));
 	p.p3_sy = fl2f(fCanv_h2 - (f2fl(p.p3_y)*fCanv_h2 / fz));
 
-	p.p3_flags |= PF_PROJECTED;
+	p.p3_flags |= projection_flag::projected;
 #endif
 }
 
@@ -143,11 +143,11 @@ void g3_rotate_delta_vec(vms_vector &dest,const vms_vector &src)
 	vm_vec_rotate(dest,src,View_matrix);
 }
 
-ubyte g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &deltav)
+void g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &deltav)
 {
 	vm_vec_add(dest.p3_vec,src.p3_vec,deltav);
-	dest.p3_flags = 0;		//not projected
-	return g3_code_point(dest);
+	dest.p3_flags = {};		//not projected
+	g3_code_point(dest);
 }
 
 //calculate the depth of a point - returns the z coord of the rotated point

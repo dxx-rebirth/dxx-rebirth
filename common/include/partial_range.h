@@ -14,6 +14,7 @@
 #include "fwd-partial_range.h"
 #include <memory>
 #include "dxxsconf.h"
+#include "backports-ranges.h"
 
 /* If no value was specified for DXX_PARTIAL_RANGE_MINIMIZE_ERROR_TYPE,
  * then define it to true for NDEBUG builds and false for debug builds.
@@ -73,25 +74,6 @@ void prepare_error_string(std::array<char, N> &buf, unsigned long d, const char 
 }
 #undef REPORT_FORMAT_STRING
 
-/*
- * These are placed out of line from the class and used as an
- * indirection, so that the compiler can pick std::begin/std::end or ADL
- * appropriate alternatives, if they exist.
- */
-template <typename T>
-inline auto adl_begin(T &t)
-{
-	using std::begin;
-	return begin(t);
-}
-
-template <typename T>
-inline auto adl_end(T &t)
-{
-	using std::end;
-	return end(t);
-}
-
 template <typename>
 void range_index_type(...);
 
@@ -100,12 +82,15 @@ template <
 	/* If `range_type::index_type` is not defined, fail.
 	 * If `range_type::index_type` is void, fail.
 	 */
-	typename index_type = typename std::remove_reference<typename std::remove_reference<range_type>::type::index_type &>::type,
+	typename index_type = typename std::remove_reference<typename std::remove_reference<range_type>::type::index_type &>::type>
 	/* If `range_type::index_type` is not a suitable argument to
 	 * range_type::operator[](), fail.
 	 */
-	typename = decltype(std::declval<range_type &>().operator[](std::declval<index_type>()))
-	>
+	requires(
+		requires(range_type &r, index_type i) {
+			r.operator[](i);
+		}
+	)
 index_type range_index_type(std::nullptr_t);
 
 }
@@ -145,7 +130,7 @@ public:
 	partial_range_t &operator=(const partial_range_t &) = default;
 	template <typename T>
 		partial_range_t(T &&t) :
-			m_begin(partial_range_detail::adl_begin(t)), m_end(partial_range_detail::adl_end(t))
+			m_begin(std::ranges::begin(t)), m_end(std::ranges::end(t))
 	{
 		/* If `T &&`, after reference collapsing, is an lvalue
 		 * reference, then the object referenced by `t` will remain in
@@ -293,6 +278,46 @@ template <typename range_exception, std::size_t required_buffer_size, typename P
 void check_range_object_size(const char *, unsigned, const char *, const P &&, std::size_t, std::size_t) {}
 #endif
 
+/* If no range_type::index_type is defined, then allow any index type. */
+std::true_type check_range_index_type_vs_provided_index_type(...);
+
+template <
+	typename range_type,
+	typename provided_index_type,
+	/* If `range_type::index_type` is not defined, fail.
+	 * If `range_type::index_type` is void, fail.
+	 */
+	typename range_index_type = typename std::remove_reference<typename range_type::index_type &>::type
+	>
+std::is_same<provided_index_type, range_index_type> check_range_index_type_vs_provided_index_type(const range_type *, const provided_index_type *);
+
+template <typename range_type, typename index_type>
+requires(std::is_enum<index_type>::value)
+std::size_t cast_index_to_size(const index_type i)
+{
+	static_assert(std::is_unsigned<typename std::underlying_type<index_type>::type>::value, "underlying_type of index_type must be unsigned");
+	/* If an enumerated index type is used, require that it be the type that
+	 * the underlying range uses.
+	 */
+	static_assert(decltype(check_range_index_type_vs_provided_index_type(static_cast<typename std::remove_reference<range_type>::type *>(nullptr), static_cast<index_type *>(nullptr)))::value);
+	return static_cast<std::size_t>(i);
+}
+
+template <typename range_type, typename index_type>
+requires(std::is_integral<index_type>::value)
+std::size_t cast_index_to_size(const index_type i)
+{
+	static_assert(std::is_unsigned<index_type>::value, "integral index_type must be unsigned");
+	/* Omit enforcement of range_type::index_type vs index_type, since many
+	 * call sites provide numeric length limits.
+	static_assert(decltype(check_range_index_type_vs_provided_index_type<range_type, index_type>(nullptr))::value);
+	 */
+	/* Use an implicit conversion, so that an index_type of std::size_t does
+	 * not cause a useless cast.
+	 */
+	return i;
+}
+
 }
 
 template <
@@ -360,9 +385,6 @@ inline auto (unchecked_partial_range)(
 #endif
 	range_type &range, const index_begin_type &index_begin, const index_end_type &index_end)
 {
-	/* Require unsigned length */
-	static_assert(std::is_unsigned<index_begin_type>::value, "offset to partial_range must be unsigned");
-	static_assert(std::is_unsigned<index_end_type>::value, "length to partial_range must be unsigned");
 	static_assert(!std::is_void<reference>::value, "dereference of iterator must not be void");
 	return unchecked_partial_range_advance<
 #ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
@@ -372,7 +394,9 @@ inline auto (unchecked_partial_range)(
 #ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
 			file, line, estr,
 #endif
-			std::begin(range), index_begin, index_end
+			std::begin(range),
+			partial_range_detail::cast_index_to_size<range_type, index_begin_type>(index_begin),
+			partial_range_detail::cast_index_to_size<range_type, index_end_type>(index_end)
 		);
 }
 
@@ -462,19 +486,21 @@ template <
 [[nodiscard]]
 inline auto (partial_range)(const char *const file, const unsigned line, const char *const estr, range_type &range, const index_begin_type &index_begin, const index_end_type &index_end)
 {
+	const auto sz_begin = partial_range_detail::cast_index_to_size<range_type, index_begin_type>(index_begin);
+	const auto sz_end = partial_range_detail::cast_index_to_size<range_type, index_end_type>(index_end);
 	partial_range_detail::check_range_bounds<
 		typename partial_range_t<iterator_type, decltype(partial_range_detail::range_index_type<range_type>(nullptr))>::partial_range_error,
 		required_buffer_size
-	>(file, line, estr, reinterpret_cast<uintptr_t>(std::addressof(range)), index_begin, index_end, std::size(range));
+	>(file, line, estr, reinterpret_cast<uintptr_t>(std::addressof(range)), sz_begin, sz_end, std::size(range));
 	return unchecked_partial_range<
 #ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
 		required_buffer_size,
 #endif
-		range_type, index_begin_type, index_end_type>(
+		range_type>(
 #ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
 			file, line, estr,
 #endif
-			range, index_begin, index_end
+			range, sz_begin, sz_end
 		);
 }
 

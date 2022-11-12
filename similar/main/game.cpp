@@ -118,11 +118,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 #include "segiter.h"
 
-static fix64 last_timer_value=0;
-static fix64 sync_timer_value=0;
 d_time_fix ThisLevelTime;
 
 namespace dcx {
+namespace {
+static fix64 last_timer_value;
+static fix64 sync_timer_value;
+}
 grs_subcanvas Screen_3d_window;							// The rectangle for rendering the mine to
 int	force_cockpit_redraw=0;
 int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
@@ -130,6 +132,22 @@ int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 int	Game_suspended=0; //if non-zero, nothing moves but player
 game_mode_flags Game_mode;
 int	Global_missile_firing_count = 0;
+
+std::optional<Difficulty_level_type> build_difficulty_level_from_untrusted(const int8_t untrusted)
+{
+	switch (untrusted)
+	{
+		case static_cast<int8_t>(Difficulty_level_type::_0):
+		case static_cast<int8_t>(Difficulty_level_type::_1):
+		case static_cast<int8_t>(Difficulty_level_type::_2):
+		case static_cast<int8_t>(Difficulty_level_type::_3):
+		case static_cast<int8_t>(Difficulty_level_type::_4):
+			return Difficulty_level_type{untrusted};
+		default:
+			return std::nullopt;
+	}
+}
+
 }
 
 //	Function prototypes for GAME.C exclusively.
@@ -140,7 +158,7 @@ game_window *Game_wind;
 
 namespace {
 
-static window_event_result GameProcessFrame(void);
+static window_event_result GameProcessFrame(const d_level_shared_robot_info_state &);
 static bool FireLaser(player_info &, const control_info &Controls);
 static void powerup_grab_cheat_all();
 
@@ -179,22 +197,23 @@ void reset_palette_add()
 	PaletteBlueAdd		= 0;
 }
 
-#if !DXX_USE_OGL
-constexpr screen_mode initial_small_game_screen_mode{320, 200};
-#endif
 constexpr screen_mode initial_large_game_screen_mode{1024, 768};
 screen_mode Game_screen_mode = initial_large_game_screen_mode;
 
+#if DXX_USE_STEREOSCOPIC_RENDER
 StereoFormat VR_stereo;
 fix  VR_eye_width = F1_0;
 int  VR_eye_offset = 0;
 int  VR_sync_width = 20;
 grs_subcanvas VR_hud_left;
 grs_subcanvas VR_hud_right;
+#endif
+
 }
 
 namespace dsx {
 
+#if DXX_USE_STEREOSCOPIC_RENDER
 void init_stereo()
 {
 #if DXX_USE_OGL
@@ -225,6 +244,7 @@ void init_stereo()
 	}
 #endif
 }
+#endif
 
 //initialize the various canvases on the game screen
 //called every time the screen mode or cockpit changes
@@ -239,14 +259,16 @@ void init_cockpit()
 		PlayerCfg.CockpitMode[1] = cockpit_mode_t::full_screen;
 
 #if !DXX_USE_OGL
-	if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
+	if (PlayerCfg.CockpitMode[1] != cockpit_mode_t::letterbox)
 	{
 #if defined(DXX_BUILD_DESCENT_II)
 		int HiresGFXAvailable = !GameArg.GfxSkipHiresGFX;
 #endif
-		auto full_screen_mode = HiresGFXAvailable ? initial_large_game_screen_mode : initial_small_game_screen_mode;
+		const auto full_screen_mode = HiresGFXAvailable
+			? screen_mode /* large_game_screen_mode */{640, 480}
+			: screen_mode /* small_game_screen_mode */{320, 200};
 		if (Game_screen_mode != full_screen_mode) {
-			PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
+			PlayerCfg.CockpitMode[1] = cockpit_mode_t::full_screen;
 		}
 	}
 #endif
@@ -282,6 +304,7 @@ void init_cockpit()
 			{
 				unsigned w = SWIDTH;
 				unsigned h = SHEIGHT;
+#if DXX_USE_STEREOSCOPIC_RENDER
 				switch (VR_stereo)
 				{
 					case StereoFormat::None:
@@ -305,6 +328,7 @@ void init_cockpit()
 						w /= 2;
 						break;
 				}
+#endif
 				game_init_render_sub_buffers(canvas, 0, 0, w, h);
 			}
 			break;
@@ -338,9 +362,11 @@ void init_cockpit()
 //selects a given cockpit (or lack of one).  See types in game.h
 void select_cockpit(const cockpit_mode_t mode)
 {
+#if DXX_USE_STEREOSCOPIC_RENDER
 	// skip switching cockpit views while stereo viewport active
 	if (VR_stereo != StereoFormat::None && mode != cockpit_mode_t::full_screen)
 		return;
+#endif
 
 	if (mode != PlayerCfg.CockpitMode[1]) {		//new mode
 		PlayerCfg.CockpitMode[1]=mode;
@@ -362,6 +388,7 @@ void game_init_render_sub_buffers(grs_canvas &canvas, const int x, const int y, 
 	gr_clear_canvas(canvas, 0);
 	gr_init_sub_canvas(Screen_3d_window, canvas, x, y, w, h);
 
+#if DXX_USE_STEREOSCOPIC_RENDER
 	if (VR_stereo != StereoFormat::None)
 	{
 		// offset HUD screen rects to force out-of-screen parallax on HUD overlays
@@ -411,6 +438,7 @@ void game_init_render_sub_buffers(grs_canvas &canvas, const int x, const int y, 
 		gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, l.x, l.y, l.w, l.h);
 		gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, r.x, r.y, r.w, r.h);
 	}
+#endif
 }
 
 }
@@ -1053,7 +1081,7 @@ namespace dsx {
 namespace {
 
 //	------------------------------------------------------------------------------------
-static void do_cloak_stuff(void)
+static void do_cloak_stuff()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -1109,13 +1137,13 @@ static inline void do_afterburner_stuff(object_array &)
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 ubyte	Last_afterburner_state = 0;
-static fix Last_afterburner_charge;
 fix64	Time_flash_last_played;
 
 #define AFTERBURNER_LOOP_START	((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?32027:(32027/2))		//20098
 #define AFTERBURNER_LOOP_END		((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?48452:(48452/2))		//25776
 
 namespace {
+static fix Last_afterburner_charge;
 
 static void do_afterburner_stuff(object_array &Objects)
 {
@@ -1208,6 +1236,8 @@ void PALETTE_FLASH_ADD(int _dr, int _dg, int _db)
 
 }
 
+namespace {
+
 static void diminish_palette_color_toward_zero(int& palette_color_add, const int& dec_amount)
 {
 	if (palette_color_add > 0 ) {
@@ -1221,6 +1251,8 @@ static void diminish_palette_color_toward_zero(int& palette_color_add, const int
 		else
 			palette_color_add += dec_amount;
 	}
+}
+
 }
 
 namespace dsx {
@@ -1707,7 +1739,9 @@ game_window *game_setup()
 
 	auto game_wind = window_create<game_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 	reset_palette_add();
+#if DXX_USE_STEREOSCOPIC_RENDER
 	init_stereo();
+#endif
 	init_cockpit();
 	init_gauges();
 	netplayerinfo_on = 0;
@@ -1785,13 +1819,13 @@ window_event_result game_window::event_handler(const d_event &event)
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
 		case EVENT_IDLE:
-			return ReadControls(event, Controls);
+			return ReadControls(LevelSharedRobotInfoState, event, Controls);
 
 		case EVENT_WINDOW_DRAW:
 			if (!time_paused)
 			{
 				calc_frame_time();
-				result = GameProcessFrame();
+				result = GameProcessFrame(LevelSharedRobotInfoState);
 			}
 
 			if (!Automap_active)		// efficiency hack
@@ -1800,7 +1834,7 @@ window_event_result game_window::event_handler(const d_event &event)
 					init_cockpit();
 					force_cockpit_redraw=0;
 				}
-				game_render_frame(Controls);
+				game_render_frame(LevelSharedRobotInfoState.Robot_info, Controls);
 			}
 			break;
 
@@ -1877,7 +1911,7 @@ enumerated_array<unsigned, 2, gauge_inset_window_view> Coop_view_player{
 };
 
 //returns ptr to escort robot, or NULL
-imobjptridx_t find_escort(fvmobjptridx &vmobjptridx, const d_level_shared_robot_info_state::d_robot_info_array &Robot_info)
+imobjptridx_t find_escort(fvmobjptridx &vmobjptridx, const d_robot_info_array &Robot_info)
 {
 	range_for (const auto &&o, vmobjptridx)
 	{
@@ -1933,7 +1967,7 @@ namespace dsx {
 
 namespace {
 
-window_event_result GameProcessFrame()
+window_event_result GameProcessFrame(const d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1993,12 +2027,12 @@ window_event_result GameProcessFrame()
 		if (Netgame.PlayTimeAllowed.count())
 		{
 			if (ThisLevelTime >= Netgame.PlayTimeAllowed)
-				multi_check_for_killgoal_winner();
+				multi_check_for_killgoal_winner(LevelSharedRobotInfoState.Robot_info);
 			ThisLevelTime += d_time_fix(FrameTime);
 		}
 	}
 
-	result = std::max(dead_player_frame(), result);
+	result = std::max(dead_player_frame(LevelSharedRobotInfoState.Robot_info), result);
 	if (Newdemo_state != ND_STATE_PLAYBACK)
 		result = std::max(do_controlcen_dead_frame(), result);
 	if (result == window_event_result::close)
@@ -2013,7 +2047,7 @@ window_event_result GameProcessFrame()
 	digi_sync_sounds();
 
 	if (Endlevel_sequence) {
-		result = std::max(do_endlevel_frame(), result);
+		result = std::max(do_endlevel_frame(LevelSharedRobotInfoState), result);
 		powerup_grab_cheat_all();
 		do_special_effects();
 		return result;					//skip everything else
@@ -2021,7 +2055,7 @@ window_event_result GameProcessFrame()
 
 	if ((Newdemo_state != ND_STATE_PLAYBACK) || (Newdemo_vcr_state != ND_STATE_PAUSED)) {
 		do_special_effects();
-		wall_frame_process();
+		wall_frame_process(LevelSharedRobotInfoState.Robot_info);
 	}
 
 	if (LevelUniqueControlCenterState.Control_center_destroyed)
@@ -2046,15 +2080,14 @@ window_event_result GameProcessFrame()
 #ifndef NEWHOMER
 		player_info.homing_object_dist = -1; // Assume not being tracked.  Laser_do_weapon_sequence modifies this.
 #endif
-		result = std::max(game_move_all_objects(), result);
+		result = std::max(game_move_all_objects(LevelSharedRobotInfoState), result);
 		powerup_grab_cheat_all();
 
 		if (Endlevel_sequence)	//might have been started during move
 			return result;
 
-		fuelcen_update_all();
-
-		do_ai_frame_all();
+		fuelcen_update_all(LevelSharedRobotInfoState.Robot_info);
+		do_ai_frame_all(LevelSharedRobotInfoState.Robot_info);
 
 		auto laser_firing_count = FireLaser(player_info, Controls);
 		if (auto &Auto_fire_fusion_cannon_time = player_info.Auto_fire_fusion_cannon_time)
@@ -2095,11 +2128,15 @@ window_event_result GameProcessFrame()
 
 	//if the player is taking damage, give up guided missile control
 	if (local_player_shields_ref != player_shields)
-		release_guided_missile(LevelUniqueObjectState, Player_num);
+	{
+		const auto player_num = Player_num;
+		if (const auto &&gimobj = LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(vmobjptr, player_num))
+			release_local_guided_missile(LevelUniqueObjectState, player_num, *gimobj);
+	}
 #endif
 
 	// Check if we have to close in-game menus for multiplayer
-	if ((Game_mode & GM_MULTI) && (get_local_player().connected == CONNECT_PLAYING))
+	if ((Game_mode & GM_MULTI) && get_local_player().connected == player_connection_status::playing)
 	{
 		if (Endlevel_sequence || Player_dead_state != player_was_dead || local_player_shields_ref < player_shields || (LevelUniqueControlCenterState.Control_center_destroyed && LevelUniqueControlCenterState.Countdown_seconds_left < 10))
                         game_leave_menus();
@@ -2231,7 +2268,7 @@ static std::pair<d_flickering_light_state::Flickering_light_array_t::iterator, d
 		return f.segnum == segnum && f.sidenum == sidenum;	//found it!
 	};
 	const auto &&pe = pr.end();
-	return {std::find_if(pr.begin(), pe, predicate), pe};
+	return {ranges::find_if(pr.begin(), pe, predicate), pe};
 }
 
 static void update_flicker(d_flickering_light_state &fls, const vmsegidx_t segnum, const sidenum_t sidenum, const fix timer)
@@ -2319,7 +2356,7 @@ bool FireLaser(player_info &player_info, const control_info &Controls)
 						multi_send_play_sound(11, F1_0, sound_stack::allow_stacking);
 #endif
 					const auto cobjp = vmobjptridx(ConsoleObject);
-					apply_damage_to_player(cobjp, cobjp, d_rand() * 4, 0);
+					apply_damage_to_player(cobjp, cobjp, d_rand() * 4, apply_damage_player::always);
 				} else {
 					create_awareness_event(vmobjptr(ConsoleObject), player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION, LevelUniqueRobotAwarenessState);
 					multi_digi_play_sample(SOUND_FUSION_WARMUP, F1_0);
@@ -2411,7 +2448,7 @@ static int mark_player_path_to_segment(const d_vclip_array &Vclip, fvmobjptridx 
 
 		seg_center = Point_segs[player_hide_index+i].point;
 
-		const auto &&obj = obj_create(OBJ_POWERUP, POW_ENERGY, vmsegptridx(Point_segs[player_hide_index+i].segnum), seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, object::control_type::powerup, object::movement_type::None, RT_POWERUP);
+		const auto &&obj = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, POW_ENERGY, vmsegptridx(Point_segs[player_hide_index+i].segnum), seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, object::control_type::powerup, object::movement_type::None, RT_POWERUP);
 		if (obj == object_none) {
 			Int3();		//	Unable to drop energy powerup for path
 			return 1;
@@ -2457,7 +2494,10 @@ namespace dsx {
  */
 void flickering_light_read(flickering_light &fl, PHYSFS_File *fp)
 {
-	fl.segnum = PHYSFSX_readShort(fp);
+	{
+		const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(fp))};
+		fl.segnum = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
+	}
 	const auto sidenum = build_sidenum_from_untrusted(PHYSFSX_readShort(fp));
 	fl.mask = PHYSFSX_readInt(fp);
 	fl.timer = PHYSFSX_readFix(fp);

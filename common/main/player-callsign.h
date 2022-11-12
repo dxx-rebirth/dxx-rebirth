@@ -8,10 +8,10 @@
 
 #pragma once
 
-#ifdef __cplusplus
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
+#include <span>
 #include "dxxsconf.h"
 #include <array>
 
@@ -28,10 +28,18 @@ struct callsign_t
 	{
 		return std::tolower(static_cast<unsigned>(c));
 	}
-	void copy(const char *s, std::size_t N)
+	template <std::size_t Extent>
+		requires(Extent == std::dynamic_extent || Extent <= array_length)
+	void copy(const std::span<const char, Extent> s)
 	{
+		/* Zero the entire array first, so that word-sized moves can be used to
+		 * store the null bytes in bulk.  Then copy an appropriate number of
+		 * characters using byte-sized moves, with a limit to prevent
+		 * overwriting the final null byte even if the input string is too
+		 * long.
+		 */
 		a = {};
-		std::copy_n(s, std::min(a.size() - 1, N), begin(a));
+		std::copy_n(s.data(), std::min(a.size() - 1, s.size()), begin(a));
 	}
 	void copy_lower(const char *s, std::size_t N)
 	{
@@ -52,8 +60,7 @@ struct callsign_t
 	template <std::size_t N>
 		void operator=(const char (&s)[N])
 		{
-			static_assert(N <= array_length, "string too long");
-			copy(s, N);
+			copy(std::span(s));
 		}
 	template <std::size_t N>
 		void copy_lower(const char (&s)[N])
@@ -70,15 +77,7 @@ struct callsign_t
 	{
 		return &a[0];
 	};
-	bool operator==(const callsign_t &r) const
-	{
-		return a == r.a;
-	}
-	bool operator!=(const callsign_t &r) const
-	{
-		return !(*this == r);
-	}
+	[[nodiscard]]
+	constexpr bool operator==(const callsign_t &r) const = default;
 };
 static_assert(sizeof(callsign_t) == CALLSIGN_LEN + 1, "callsign_t too big");
-
-#endif

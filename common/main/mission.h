@@ -152,7 +152,7 @@ struct Mission : Mission_path
 #if defined(DXX_BUILD_DESCENT_II)
 	descent_version_type descent_version;	// descent 1 or descent 2?
 	std::unique_ptr<d_fname> alternate_ham_file;
-	std::unique_ptr<LoadedMovie> extra_robot_movie;
+	std::unique_ptr<LoadedMovieWithResolution> extra_robot_movie;
 #endif
 	/* Explicitly default move constructor and move operator=
 	 *

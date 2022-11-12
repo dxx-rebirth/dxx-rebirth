@@ -113,8 +113,6 @@ struct merge_transform_new
 	}
 };
 
-}
-
 /* Run the transform for one texture merge case.  Different values of
  * `orient` in texmerge_get_cached_bitmap lead to different types for
  * `get_index`.
@@ -169,6 +167,8 @@ static std::array<TEXTURE_CACHE, MAX_NUM_CACHE_BITMAPS> Cache;
 
 static int cache_hits = 0;
 static int cache_misses = 0;
+
+}
 
 //----------------------------------------------------------------------
 

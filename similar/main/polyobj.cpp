@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 
+#include <span>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,107 +58,77 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define PM_COMPATIBLE_VERSION 6
 #define PM_OBJFILE_VERSION 8
 
-static unsigned Pof_file_end;
-static unsigned Pof_addr;
+namespace {
 
 #define	MODEL_BUF_SIZE	32768
 
-static void _pof_cfseek(int len,int type)
+static void _pof_cfseek(int len, int type, std::size_t &Pof_addr)
 {
 	switch (type) {
 		case SEEK_SET:	Pof_addr = len;	break;
 		case SEEK_CUR:	Pof_addr += len;	break;
-		case SEEK_END:
-			Assert(len <= 0);	//	seeking from end, better be moving back.
-			Pof_addr = Pof_file_end + len;
-			break;
 	}
 
 	if (Pof_addr > MODEL_BUF_SIZE)
 		Int3();
 }
 
-#define pof_cfseek(_buf,_len,_type) _pof_cfseek((_len),(_type))
+#define pof_cfseek(_buf,_len,_type) _pof_cfseek((_len), (_type), Pof_addr)
 
-static int pof_read_int(ubyte *bufp)
+static int32_t pof_read_int(const std::span<const uint8_t> bufp, std::size_t &Pof_addr)
 {
-	int i;
-
-	i = *(reinterpret_cast<int *>(&bufp[Pof_addr]));
+	const auto s = bufp.subspan(Pof_addr, 4);
 	Pof_addr += 4;
-	return INTEL_INT(i);
-
-//	if (PHYSFS_read(f,&i,sizeof(i),1) != 1)
-//		Error("Unexpected end-of-file while reading object");
-//
-//	return i;
+	const auto r = GET_INTEL_INT(s.data());
+	return r;
 }
 
-static size_t pof_cfread(void *dst, size_t elsize, size_t nelem, ubyte *bufp)
+static std::size_t pof_cfread(void *const dst, const size_t elsize, const std::span<const uint8_t> bufp, std::size_t &Pof_addr)
 {
-	if (Pof_addr + nelem*elsize > Pof_file_end)
+	if (Pof_addr + elsize > bufp.size())
 		return 0;
 
-	memcpy(dst, &bufp[Pof_addr], elsize*nelem);
+	memcpy(dst, &bufp[Pof_addr], elsize);
 
-	Pof_addr += elsize*nelem;
+	Pof_addr += elsize;
 
 	if (Pof_addr > MODEL_BUF_SIZE)
 		Int3();
-
-	return nelem;
+	return elsize;
 }
 
-// #define new_read_int(i,f) PHYSFS_read((f),&(i),sizeof(i),1)
-#define new_pof_read_int(i,f) pof_cfread(&(i),sizeof(i),1,(f))
+#define new_pof_read_int(i,f) pof_cfread(&(i), sizeof(i), (f), Pof_addr)
 
-static short pof_read_short(ubyte *bufp)
+static int16_t pof_read_short(const std::span<const uint8_t> bufp, std::size_t &Pof_addr)
 {
-	short s;
-
-	s = *(reinterpret_cast<int16_t *>(&bufp[Pof_addr]));
+	const auto s = bufp.subspan(Pof_addr, 2);
 	Pof_addr += 2;
-	return INTEL_SHORT(s);
-//	if (PHYSFS_read(f,&s,sizeof(s),1) != 1)
-//		Error("Unexpected end-of-file while reading object");
-//
-//	return s;
+	const auto r = GET_INTEL_SHORT(s.data());
+	return r;
 }
 
-static void pof_read_string(char *buf,int max_char, ubyte *bufp)
+static void pof_skip_string(int max_char, const std::span<const uint8_t> bufp, std::size_t &Pof_addr)
 {
 	for (int i=0; i<max_char; i++) {
-		if ((*buf++ = bufp[Pof_addr++]) == 0)
+		if (bufp[Pof_addr++] == 0)
 			break;
 	}
-
-//	while (max_char-- && (*buf=PHYSFSX_fgetc(f)) != 0) buf++;
-
 }
 
-static void pof_read_vecs(vms_vector *vecs,int n,ubyte *bufp)
+static void pof_read_vec(vms_vector &vec, const std::span<const uint8_t> bufp, std::size_t &Pof_addr)
 {
-//	PHYSFS_read(f,vecs,sizeof(vms_vector),n);
-	for (int i = 0; i < n; i++)
-	{
-		vecs[i].x = pof_read_int(bufp);
-		vecs[i].y = pof_read_int(bufp);
-		vecs[i].z = pof_read_int(bufp);
-	}
-
+	vec.x = pof_read_int(bufp, Pof_addr);
+	vec.y = pof_read_int(bufp, Pof_addr);
+	vec.z = pof_read_int(bufp, Pof_addr);
 	if (Pof_addr > MODEL_BUF_SIZE)
 		Int3();
 }
 
-static void pof_read_angs(vms_angvec *angs,int n,ubyte *bufp)
+static void pof_read_ang(vms_angvec &ang, const std::span<const uint8_t> bufp, std::size_t &Pof_addr)
 {
-	for (int i = 0; i < n; i++)
-	{
-		angs[i].p = pof_read_short(bufp);
-		angs[i].b = pof_read_short(bufp);
-		angs[i].h = pof_read_short(bufp);
-	}
-
+	ang.p = pof_read_short(bufp, Pof_addr);
+	ang.b = pof_read_short(bufp, Pof_addr);
+	ang.h = pof_read_short(bufp, Pof_addr);
 	if (Pof_addr > MODEL_BUF_SIZE)
 		Int3();
 }
@@ -169,43 +140,40 @@ static void pof_read_angs(vms_angvec *angs,int n,ubyte *bufp)
 #define ID_IDTA 0x41544449 // 'ATDI'  //Interpreter data
 #define ID_TXTR 0x52545854 // 'RTXT'  //Texture filename list
 
-static std::array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES> anim_angs;
-
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.
 
 //reads a binary file containing a 3d model
-static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info *r)
+static void read_model_file(polymodel &pm, const char *const filename, robot_info *r)
 {
 	short version;
 	int len, next_chunk;
-	ubyte	model_buf[MODEL_BUF_SIZE];
 
 	auto &&[ifile, physfserr] = PHYSFSX_openReadBuffered(filename);
 	if (!ifile)
 		Error("Failed to open file <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
 
-	Assert(PHYSFS_fileLength(ifile) <= MODEL_BUF_SIZE);
-
-	Pof_addr = 0;
-	Pof_file_end = PHYSFS_read(ifile, model_buf, 1, PHYSFS_fileLength(ifile));
+	std::size_t Pof_addr = 0;
+	std::array<uint8_t, MODEL_BUF_SIZE> model_storage;
+	const std::size_t Pof_file_end = PHYSFS_read(ifile, model_storage.data(), 1, model_storage.size());
+	const std::span model_buf{model_storage.data(), Pof_file_end};
 	ifile.reset();
-	const int model_id = pof_read_int(model_buf);
+	const int model_id = pof_read_int(model_buf, Pof_addr);
 
 	if (model_id != 0x4f505350) /* 'OPSP' */
 		Error("Bad ID in model file <%s>",filename);
 
-	version = pof_read_short(model_buf);
+	version = pof_read_short(model_buf, Pof_addr);
 	
 	if (version < PM_COMPATIBLE_VERSION || version > PM_OBJFILE_VERSION)
 		Error("Bad version (%d) in model file <%s>",version,filename);
 
 	int pof_id;
-	while (new_pof_read_int(pof_id, model_buf) == 1)
+	while (new_pof_read_int(pof_id, model_buf))
 	{
 		pof_id = INTEL_INT(pof_id);
 		//id  = pof_read_int(model_buf);
-		len = pof_read_int(model_buf);
+		len = pof_read_int(model_buf, Pof_addr);
 		next_chunk = Pof_addr + len;
 
 		switch (pof_id)
@@ -213,13 +181,13 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			case ID_OHDR: {		//Object header
 				vms_vector pmmin,pmmax;
 
-				pm->n_models = pof_read_int(model_buf);
-				pm->rad = pof_read_int(model_buf);
+				pm.n_models = pof_read_int(model_buf, Pof_addr);
+				pm.rad = pof_read_int(model_buf, Pof_addr);
 
-				Assert(pm->n_models <= MAX_SUBMODELS);
+				assert(pm.n_models <= MAX_SUBMODELS);
 
-				pof_read_vecs(&pmmin,1,model_buf);
-				pof_read_vecs(&pmmax,1,model_buf);
+				pof_read_vec(pmmin, model_buf, Pof_addr);
+				pof_read_vec(pmmax, model_buf, Pof_addr);
 
 				break;
 			}
@@ -227,19 +195,19 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			case ID_SOBJ: {		//Subobject header
 				int n;
 
-				n = pof_read_short(model_buf);
+				n = pof_read_short(model_buf, Pof_addr);
 
 				Assert(n < MAX_SUBMODELS);
 
-				pm->submodel_parents[n] = pof_read_short(model_buf);
+				pm.submodel_parents[n] = pof_read_short(model_buf, Pof_addr);
 
-				pof_read_vecs(&pm->submodel_norms[n],1,model_buf);
-				pof_read_vecs(&pm->submodel_pnts[n],1,model_buf);
-				pof_read_vecs(&pm->submodel_offsets[n],1,model_buf);
+				pof_read_vec(pm.submodel_norms[n], model_buf, Pof_addr);
+				pof_read_vec(pm.submodel_pnts[n], model_buf, Pof_addr);
+				pof_read_vec(pm.submodel_offsets[n], model_buf, Pof_addr);
 
-				pm->submodel_rads[n] = pof_read_int(model_buf);		//radius
+				pm.submodel_rads[n] = pof_read_int(model_buf, Pof_addr);		//radius
 
-				pm->submodel_ptrs[n] = pof_read_int(model_buf);	//offset
+				pm.submodel_ptrs[n] = pof_read_int(model_buf, Pof_addr);	//offset
 
 				break;
 
@@ -251,25 +219,33 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 				if (r) {
 					vms_vector gun_dir;
 
-					r->n_guns = pof_read_int(model_buf);
-
-					Assert(r->n_guns <= MAX_GUNS);
-
-					for (int i=0;i<r->n_guns;i++) {
-						const uint_fast32_t gun_id = pof_read_short(model_buf);
+					const uint8_t n_guns = pof_read_int(model_buf, Pof_addr);
+					r->n_guns = std::min<uint8_t>(n_guns, MAX_GUNS);
+					for (const auto i : xrange(n_guns))
+					{
+						(void)i;
+						const uint_fast32_t gun_id = pof_read_short(model_buf, Pof_addr);
 						/*
-						 * D1 v1.0 boss02.pof has id=4 and r->n_guns==4.
-						 * Relax the assert to check only for memory
-						 * corruption.
+						 * D1 v1.0 boss02.pof has id=4 and r->n_guns==4.  This
+						 * is wrong, but it will not cause memory corruption.
 						 */
-						assert(gun_id < std::size(r->gun_submodels));
-						auto &submodel = r->gun_submodels[gun_id];
-						submodel = pof_read_short(model_buf);
+						const auto submodel = pof_read_short(model_buf, Pof_addr);
+						vms_vector v;
+						pof_read_vec(v, model_buf, Pof_addr);
 						Assert(submodel != 0xff);
-						pof_read_vecs(&r->gun_points[gun_id], 1, model_buf);
+						if (gun_id < std::size(r->gun_submodels))
+						{
+							/* Cast to robot_gun_number is well defined because
+							 * the if test ensures the index is in range for
+							 * the array.
+							 */
+							const auto g = static_cast<robot_gun_number>(gun_id);
+							r->gun_submodels[g] = submodel;
+							r->gun_points[g] = v;
+						}
 
 						if (version >= 7)
-							pof_read_vecs(&gun_dir,1,model_buf);
+							pof_read_vec(gun_dir, model_buf, Pof_addr);
 					}
 				}
 				else
@@ -280,18 +256,19 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			
 			case ID_ANIM:		//Animation data
 				if (r) {
+					enumerated_array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES, robot_animation_state> anim_angs{};
 					unsigned n_frames;
 
-					n_frames = pof_read_short(model_buf);
+					n_frames = pof_read_short(model_buf, Pof_addr);
 
 					Assert(n_frames == N_ANIM_STATES);
 
-					for (int m=0;m<pm->n_models;m++)
+					for (int m = 0; m < pm.n_models; ++m)
 						range_for (auto &f, partial_range(anim_angs, n_frames))
-							pof_read_angs(&f[m], 1, model_buf);
+							pof_read_ang(f[m], model_buf, Pof_addr);
 
 
-					robot_set_angles(r,pm,anim_angs);
+					robot_set_angles(*r, pm, anim_angs);
 				
 				}
 				else
@@ -302,21 +279,19 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 			
 			case ID_TXTR: {		//Texture filename list
 				int n;
-				char name_buf[128];
 
-				n = pof_read_short(model_buf);
+				n = pof_read_short(model_buf, Pof_addr);
 				while (n--) {
-					pof_read_string(name_buf,128,model_buf);
+					pof_skip_string(128, model_buf, Pof_addr);
 				}
-
 				break;
 			}
 			
 			case ID_IDTA:		//Interpreter data
-				pm->model_data_size = len;
-				pm->model_data = std::make_unique<uint8_t[]>(pm->model_data_size);
+				pm.model_data_size = len;
+				pm.model_data = std::make_unique<uint8_t[]>(pm.model_data_size);
 
-				pof_cfread(pm->model_data.get(),1,len,model_buf);
+				pof_cfread(pm.model_data.get(), len, model_buf, Pof_addr);
 
 				break;
 
@@ -333,8 +308,8 @@ static polymodel *read_model_file(polymodel *pm,const char *filename,robot_info 
 	align_polygon_model_data(pm);
 #endif
 	if constexpr (words_bigendian)
-		swap_polygon_model_data(pm->model_data.get());
-	return pm;
+		swap_polygon_model_data(pm.model_data.get());
+}
 }
 
 //reads the gun information for a model
@@ -346,24 +321,23 @@ void read_model_guns(const char *filename, reactor &r)
 	short version;
 	int len;
 	int n_guns=0;
-	ubyte	model_buf[MODEL_BUF_SIZE];
 
 	auto &&[ifile, physfserr] = PHYSFSX_openReadBuffered(filename);
 	if (!ifile)
 		Error("Failed to open file <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
 
-	Assert(PHYSFS_fileLength(ifile) <= MODEL_BUF_SIZE);
-
-	Pof_addr = 0;
-	Pof_file_end = PHYSFS_read(ifile, model_buf, 1, PHYSFS_fileLength(ifile));
+	std::size_t Pof_addr = 0;
+	std::array<uint8_t, MODEL_BUF_SIZE> model_storage;
+	const std::size_t Pof_file_end = PHYSFS_read(ifile, model_storage.data(), 1, model_storage.size());
+	const std::span model_buf{model_storage.data(), Pof_file_end};
 	ifile.reset();
 
-	const int model_id = pof_read_int(model_buf);
+	const int model_id = pof_read_int(model_buf, Pof_addr);
 
 	if (model_id != 0x4f505350) /* 'OPSP' */
 		Error("Bad ID in model file <%s>",filename);
 
-	version = pof_read_short(model_buf);
+	version = pof_read_short(model_buf, Pof_addr);
 
 	Assert(version >= 7);		//must be 7 or higher for this data
 
@@ -371,25 +345,25 @@ void read_model_guns(const char *filename, reactor &r)
 		Error("Bad version (%d) in model file <%s>",version,filename);
 
 	int pof_id;
-	while (new_pof_read_int(pof_id,model_buf) == 1)
+	while (new_pof_read_int(pof_id,model_buf))
 	{
 		pof_id = INTEL_INT(pof_id);
 		//id  = pof_read_int(model_buf);
-		len = pof_read_int(model_buf);
+		len = pof_read_int(model_buf, Pof_addr);
 
 		if (pof_id == ID_GUNS)
 		{		//List of guns on this object
-			n_guns = pof_read_int(model_buf);
+			n_guns = pof_read_int(model_buf, Pof_addr);
 
 			for (int i=0;i<n_guns;i++) {
 				int sm;
 
-				const int gun_id = pof_read_short(model_buf);
-				sm = pof_read_short(model_buf);
+				const int gun_id = pof_read_short(model_buf, Pof_addr);
+				sm = pof_read_short(model_buf, Pof_addr);
 				if (sm!=0)
 					Error("Invalid gun submodel in file <%s>",filename);
-				pof_read_vecs(&gun_points[gun_id], 1, model_buf);
-				pof_read_vecs(&gun_dirs[gun_id], 1, model_buf);
+				pof_read_vec(gun_points[gun_id], model_buf, Pof_addr);
+				pof_read_vec(gun_dirs[gun_id], model_buf, Pof_addr);
 			}
 
 		}
@@ -417,21 +391,31 @@ void free_model(polymodel &po)
 
 namespace dsx {
 
-void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_matrix &orient, const submodel_angles anim_angles, const unsigned model_num, unsigned flags, const g3s_lrgb light, const glow_values_t *const glow_values, alternate_textures alt_textures)
+void draw_polygon_model(const std::array<polymodel, MAX_POLYGON_MODELS> &Polygon_models, grs_canvas &canvas, const vms_vector &pos, const vms_matrix &orient, const submodel_angles anim_angles, const unsigned model_num, const unsigned flags, const g3s_lrgb light, const glow_values_t *const glow_values, const alternate_textures alt_textures)
+{
+	draw_polygon_model(canvas, pos, orient, anim_angles, Polygon_models[model_num], flags, light, glow_values, alt_textures);
+}
+
+static unsigned build_polygon_model_index_from_polygon_simpler_model_index(const polygon_simpler_model_index i)
+{
+	return underlying_value(i) - 1;
+}
+
+void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_matrix &orient, const submodel_angles anim_angles, const polymodel &pm, unsigned flags, const g3s_lrgb light, const glow_values_t *const glow_values, const alternate_textures alt_textures)
 {
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	const polymodel *po = &Polygon_models[model_num];
+	const polymodel *po = &pm;
 
 	//check if should use simple model
-	if (po->simpler_model )					//must have a simpler model
+	if (po->simpler_model != polygon_simpler_model_index::None)	//must have a simpler model
 		if (flags==0)							//can't switch if this is debris
 			//alt textures might not match, but in the one case we're using this
 			//for on 11/14/94, they do match.  So we leave it in.
 			{
 				int cnt=1;
 				const auto depth = g3_calc_point_depth(pos);		//gets 3d depth
-				while (po->simpler_model && depth > cnt++ * Simple_model_threshhold_scale * po->rad)
-					po = &Polygon_models[po->simpler_model-1];
+				while (po->simpler_model != polygon_simpler_model_index::None && depth > cnt++ * Simple_model_threshhold_scale * po->rad)
+					po = &Polygon_models[build_polygon_model_index_from_polygon_simpler_model_index(po->simpler_model)];
 			}
 
 	std::array<grs_bitmap *, MAX_POLYOBJ_TEXTURES> texture_list;
@@ -496,6 +480,7 @@ void free_polygon_models(d_level_shared_polygon_model_state &LevelSharedPolygonM
 }
 
 namespace dcx {
+namespace {
 
 static void assign_max(fix &a, const fix &b)
 {
@@ -523,16 +508,17 @@ static void assign_minmax(vms_vector &minv, vms_vector &maxv, const vms_vector &
 	update_bounds<&vms_vector::z>(minv, maxv, v);
 }
 
-static void polyobj_find_min_max(polymodel *pm)
+static void polyobj_find_min_max(polymodel &pm)
 {
-	auto &big_mn = pm->mins;
-	auto &big_mx = pm->maxs;
-	for (int m=0;m<pm->n_models;m++) {
-		auto &mn = pm->submodel_mins[m];
-		auto &mx = pm->submodel_maxs[m];
-		const auto &ofs = pm->submodel_offsets[m];
+	auto &big_mn = pm.mins;
+	auto &big_mx = pm.maxs;
+	for (int m = 0; m < pm.n_models; ++m)
+	{
+		auto &mn = pm.submodel_mins[m];
+		auto &mx = pm.submodel_maxs[m];
+		const auto &ofs = pm.submodel_offsets[m];
 
-		auto data = reinterpret_cast<const uint16_t *>(&pm->model_data[pm->submodel_ptrs[m]]);
+		auto data = reinterpret_cast<const uint16_t *>(&pm.model_data[pm.submodel_ptrs[m]]);
 	
 		const auto type = *data++;
 	
@@ -557,6 +543,7 @@ static void polyobj_find_min_max(polymodel *pm)
 		}
 	}
 }
+}
 
 void init_polygon_models(d_level_shared_polygon_model_state &LevelSharedPolygonModelState)
 {
@@ -578,18 +565,17 @@ int load_polygon_model(const char *filename,int n_textures,int first_texture,rob
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	auto &model = Polygon_models[n_models];
-	read_model_file(&model, filename, r);
+	read_model_file(model, filename, r);
+	polyobj_find_min_max(model);
 
-	polyobj_find_min_max(&model);
-
-	const auto highest_texture_num = g3_init_polygon_model(model.model_data.get(), model.model_data_size);
+	const auto highest_texture_num = g3_init_polygon_model(std::span{model.model_data.get(), model.model_data_size});
 
 	if (highest_texture_num+1 != n_textures)
 		Error("Model <%s> references %d textures but specifies %d.",filename,highest_texture_num+1,n_textures);
 
 	model.n_textures = n_textures;
 	model.first_texture = first_texture;
-	model.simpler_model = 0;
+	model.simpler_model = polygon_simpler_model_index{};
 
 	return LevelSharedPolygonModelState.N_polygon_models++;
 }
@@ -605,7 +591,7 @@ int load_polygon_model(const char *filename,int n_textures,int first_texture,rob
 //more-or-less fill the canvas.  Note that this routine actually renders
 //into an off-screen canvas that it creates, then copies to the current
 //canvas.
-void draw_model_picture(grs_canvas &canvas, const uint_fast32_t mn, const vms_angvec &orient_angles)
+void draw_model_picture(grs_canvas &canvas, const polymodel &mn, const vms_angvec &orient_angles)
 {
 	g3s_lrgb	lrgb = { f1_0, f1_0, f1_0 };
 
@@ -614,9 +600,8 @@ void draw_model_picture(grs_canvas &canvas, const uint_fast32_t mn, const vms_an
 	vms_vector temp_pos{};
 	g3_set_view_matrix(temp_pos,vmd_identity_matrix,0x9000);
 
-	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	if (Polygon_models[mn].rad != 0)
-		temp_pos.z = fixmuldiv(DEFAULT_VIEW_DIST,Polygon_models[mn].rad,BASE_MODEL_SIZE);
+	if (mn.rad != 0)
+		temp_pos.z = fixmuldiv(DEFAULT_VIEW_DIST, mn.rad, BASE_MODEL_SIZE);
 	else
 		temp_pos.z = DEFAULT_VIEW_DIST;
 
@@ -634,10 +619,10 @@ ASSERT_SERIAL_UDT_MESSAGE_SIZE(polymodel, 12 + (10 * 4) + (10 * 3 * sizeof(vms_v
 /*
  * reads a polymodel structure from a PHYSFS_File
  */
-void polymodel_read(polymodel *pm, PHYSFS_File *fp)
+void polymodel_read(polymodel &pm, PHYSFS_File *fp)
 {
-	pm->model_data.reset();
-	PHYSFSX_serialize_read(fp, *pm);
+	pm.model_data.reset();
+	PHYSFSX_serialize_read(fp, pm);
 }
 
 }
@@ -668,9 +653,9 @@ void polygon_model_data_read(polymodel *pm, PHYSFS_File *fp)
 	if constexpr (words_bigendian)
 		swap_polygon_model_data(pm->model_data.get());
 #if defined(DXX_BUILD_DESCENT_I)
-	g3_validate_polygon_model(pm->model_data.get(), model_data_size);
+	g3_validate_polygon_model(std::span{pm->model_data.get(), model_data_size});
 #elif defined(DXX_BUILD_DESCENT_II)
-	g3_init_polygon_model(pm->model_data.get(), model_data_size);
+	g3_init_polygon_model(std::span{pm->model_data.get(), model_data_size});
 #endif
 }
 }

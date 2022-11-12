@@ -148,14 +148,14 @@ static void tmap_info_read(tmap_info &ti, PHYSFS_File *fp)
 
 //-----------------------------------------------------------------
 // Initializes game properties data (including texture caching system) and sound data.
-int gamedata_init()
+int gamedata_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	int retval;
 	
 	init_polygon_models(LevelSharedPolygonModelState);
-	retval = properties_init();				// This calls properties_read_cmp if appropriate
+	retval = properties_init(LevelSharedRobotInfoState);				// This calls properties_read_cmp if appropriate
 	if (retval)
-		gamedata_read_tbl(Vclip, retval == PIGGY_PC_SHAREWARE);
+		gamedata_read_tbl(LevelSharedRobotInfoState, Vclip, retval == PIGGY_PC_SHAREWARE);
 
 	piggy_read_sounds(retval == PIGGY_PC_SHAREWARE);
 	
@@ -164,7 +164,7 @@ int gamedata_init()
 
 // Read compiled properties data from descent.pig
 // (currently only ever called if D1)
-void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
+void properties_read_cmp(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_vclip_array &Vclip, PHYSFS_File * fp)
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
@@ -213,7 +213,7 @@ void properties_read_cmp(d_vclip_array &Vclip, PHYSFS_File * fp)
 	{
 		const auto &&r = partial_range(Polygon_models, N_polygon_models);
 	range_for (auto &p, r)
-		polymodel_read(&p, fp);
+		polymodel_read(p, fp);
 
 	range_for (auto &p, r)
 		polygon_model_data_read(&p, fp);
@@ -288,16 +288,16 @@ static void tmap_info_read(tmap_info &ti, PHYSFS_File *fp)
 
 //-----------------------------------------------------------------
 // Initializes game properties data (including texture caching system) and sound data.
-int gamedata_init()
+int gamedata_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	init_polygon_models(LevelSharedPolygonModelState);
 
 #if DXX_USE_EDITOR
 	// The pc_shareware argument is currently unused for Descent 2,
 	// but *may* be useful for loading Descent 1 Shareware texture properties.
-	if (!gamedata_read_tbl(Vclip, 0))
+	if (!gamedata_read_tbl(LevelSharedRobotInfoState, Vclip, 0))
 #endif
-		if (!properties_init())				// This calls properties_read_cmp
+		if (!properties_init(LevelSharedRobotInfoState))				// This calls properties_read_cmp
 				Error("Cannot open ham file\n");
 
 	piggy_read_sounds();
@@ -305,7 +305,7 @@ int gamedata_init()
 	return 0;
 }
 
-void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
+void bm_read_all(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_vclip_array &Vclip, PHYSFS_File * fp)
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
@@ -344,7 +344,7 @@ void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 		jointpos_read(fp, r);
 
 	N_weapon_types = PHYSFSX_readInt(fp);
-	weapon_info_read_n(Weapon_info, N_weapon_types, fp, Piggy_hamfile_version);
+	weapon_info_read_n(Weapon_info, N_weapon_types, fp, Piggy_hamfile_version, 0);
 
 	N_powerup_types = PHYSFSX_readInt(fp);
 	range_for (auto &p, partial_range(Powerup_info, N_powerup_types))
@@ -355,7 +355,7 @@ void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 	{
 		const auto &&r = partial_range(Polygon_models, N_polygon_models);
 	range_for (auto &p, r)
-		polymodel_read(&p, fp);
+		polymodel_read(p, fp);
 
 	range_for (auto &p, r)
 		polygon_model_data_read(&p, fp);
@@ -402,7 +402,7 @@ void bm_read_all(d_vclip_array &Vclip, PHYSFS_File * fp)
 	//@@PHYSFS_read( fp, controlcen_gun_points, sizeof(vms_vector), N_controlcen_guns );
 	//@@PHYSFS_read( fp, controlcen_gun_dirs, sizeof(vms_vector), N_controlcen_guns );
 
-	if (Piggy_hamfile_version < 3) { // D1
+	if (Piggy_hamfile_version < pig_hamfile_version::_3) { // D1
 		exit_modelnum = PHYSFSX_readInt(fp);
 		destroyed_exit_modelnum = PHYSFSX_readInt(fp);
 	}
@@ -475,7 +475,7 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 
 	t = PHYSFSX_readInt(fp);
 	N_weapon_types = N_D2_WEAPON_TYPES+t;
-	weapon_info_read_n(Weapon_info, N_weapon_types, fp, 3, N_D2_WEAPON_TYPES);
+	weapon_info_read_n(Weapon_info, N_weapon_types, fp, pig_hamfile_version::_3, N_D2_WEAPON_TYPES);
 
 	//now read robot info
 
@@ -502,7 +502,7 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 	{
 		const auto &&r = partial_range(Polygon_models, N_D2_POLYGON_MODELS.value, N_polygon_models);
 		range_for (auto &p, r)
-		polymodel_read(&p, fp);
+			polymodel_read(p, fp);
 
 		range_for (auto &p, r)
 			polygon_model_data_read(&p, fp);
@@ -537,11 +537,14 @@ void load_robot_replacements(const d_fname &level_name)
 {
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	int t,j;
-	char ifile_name[FILENAME_LEN];
+	std::array<char, FILENAME_LEN> ifile_name;
+	if (!change_filename_extension(ifile_name, level_name, "HXM"))
+	{
+		con_printf(CON_URGENT, "Failed to generate HXM name from level name \"%s\"", level_name.data());
+		return;
+	}
 
-	change_filename_extension(ifile_name, level_name, ".HXM" );
-
-	auto fp = PHYSFSX_openReadBuffered(ifile_name).first;
+	auto fp = PHYSFSX_openReadBuffered(ifile_name.data()).first;
 	if (!fp)		//no robot replacement file
 		return;
 
@@ -582,7 +585,7 @@ void load_robot_replacements(const d_fname &level_name)
 			Error("Polygon model (%u) out of range in (%s).  Range = [0..%u].", i, static_cast<const char *>(level_name), N_polygon_models - 1);
 
 		free_model(Polygon_models[i]);
-		polymodel_read(&Polygon_models[i], fp);
+		polymodel_read(Polygon_models[i], fp);
 		polygon_model_data_read(&Polygon_models[i], fp);
 
 		Dying_modelnums[i] = PHYSFSX_readInt(fp);
@@ -653,9 +656,8 @@ static grs_bitmap *bm_load_extra_objbitmap(const char *name)
 		grs_bitmap &n = GameBitmaps[bitmap_store_index.index];
 		if (!read_extra_bitmap_iff(name, n))
 		{
-			RAIIdmem<char[]> name2(d_strdup(name));
-			*strrchr(name2.get(), '.') = '\0';
-			if (const auto r = read_extra_bitmap_d1_pig(name2.get(), n); !r)
+			const char *const dot = strrchr(name, '.');
+			if (const auto r = read_extra_bitmap_d1_pig(std::span<const char>(name, dot ? std::distance(name, dot) : 8), n); !r)
 				return r;
 		}
 		bitmap_idx = bitmap_store_index;
@@ -747,8 +749,8 @@ int load_exit_models()
 	{
 		exit_modelnum = LevelSharedPolygonModelState.N_polygon_models++;
 		destroyed_exit_modelnum = LevelSharedPolygonModelState.N_polygon_models++;
-		polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
-		polymodel_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
+		polymodel_read(Polygon_models[exit_modelnum], exit_hamfile);
+		polymodel_read(Polygon_models[destroyed_exit_modelnum], exit_hamfile);
 		Polygon_models[exit_modelnum].first_texture = start_num;
 		Polygon_models[destroyed_exit_modelnum].first_texture = start_num+3;
 
@@ -794,8 +796,8 @@ int load_exit_models()
 		PHYSFSX_fseek(exit_hamfile, offset, SEEK_SET);
 		exit_modelnum = LevelSharedPolygonModelState.N_polygon_models++;
 		destroyed_exit_modelnum = LevelSharedPolygonModelState.N_polygon_models++;
-		polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
-		polymodel_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
+		polymodel_read(Polygon_models[exit_modelnum], exit_hamfile);
+		polymodel_read(Polygon_models[destroyed_exit_modelnum], exit_hamfile);
 		Polygon_models[exit_modelnum].first_texture = start_num;
 		Polygon_models[destroyed_exit_modelnum].first_texture = start_num+3;
 

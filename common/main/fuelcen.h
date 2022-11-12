@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "pack.h"
 #include "fwd-object.h"
+#include "fwd-robot.h"
 #include "fwd-segment.h"
 #include "fwd-vecmat.h"
 #include "d_array.h"
@@ -67,16 +68,13 @@ void fuelcen_activate(vmsegptridx_t segp);
 // Deletes a segment as a fuel center.
 void fuelcen_delete(shared_segment &segp);
 
-// Create a matcen robot
-imobjptridx_t create_morph_robot(vmsegptridx_t segp, const vms_vector &object_pos, unsigned object_id);
-
 // Returns the amount of fuel/shields this segment can give up.
 // Can be from 0 to 100.
 fix fuelcen_give_fuel(const shared_segment &segp, fix MaxAmountCanTake);
 }
 
 // Call once per frame.
-void fuelcen_update_all();
+void fuelcen_update_all(const d_robot_info_array &Robot_info);
 #endif
 
 //--repair-- //do the repair center for this frame

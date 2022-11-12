@@ -8,14 +8,12 @@
 
 #include "pstypes.h"
 
-#ifdef __cplusplus
 #include "palette.h"
 #include <array>
 #include <bitset>
+#include <span>
 
 namespace dcx {
 void build_colormap_good(const palette_array_t &palette, std::array<color_palette_index, 256> &colormap);
-void decode_data(color_palette_index *data, uint_fast32_t num_pixels, std::array<color_palette_index, 256> &colormap, std::bitset<256> &used);
+void decode_data(std::span<color_palette_index> data, const std::array<color_palette_index, 256> &colormap, std::bitset<256> &used);
 }
-
-#endif

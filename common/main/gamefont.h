@@ -78,6 +78,7 @@ public:
 	{
 		f = v;
 	}
+	constexpr bool operator==(const base_font_scale_proportion &rhs) const = default;
 };
 
 template <char tag>
@@ -85,10 +86,7 @@ class font_scale_proportion : public base_font_scale_proportion
 {
 public:
 	using base_font_scale_proportion::base_font_scale_proportion;
-	bool operator!=(const font_scale_proportion &rhs) const
-	{
-		return f != rhs.f;
-	}
+	bool operator==(const font_scale_proportion &rhs) const = default;	/* no `constexpr` due to gcc bug #98712 */
 };
 
 using font_x_scale_proportion = font_scale_proportion<'x'>;

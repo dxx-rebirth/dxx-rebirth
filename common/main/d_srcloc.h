@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <span>
 #include <type_traits>
 #include <utility>
 #include "dxxsconf.h"
@@ -28,22 +29,22 @@ public:
 	template <std::size_t N>
 		using scratch_buffer = std::false_type;
 	template <std::size_t N>
-		static std::pair<char (&)[N], std::integral_constant<std::size_t, N>> insert_location_leader(char (&buffer)[N])
+		static std::pair<std::size_t, std::span<char, N>> insert_location_leader(std::array<char, N> &buffer)
 		{
-			return {buffer, {}};
+			return {{}, buffer};
 		}
 	/* Define overloads to preserve const qualification */
-	static std::pair<char *, std::size_t> prepare_buffer(scratch_buffer<0> &, char *const text, const std::size_t len)
+	static std::span<char> prepare_buffer(scratch_buffer<0> &, const std::span<char> text)
 	{
-		return {text, len};
+		return text;
 	}
-	static std::pair<const char *, std::size_t> prepare_buffer(scratch_buffer<0> &, const char *const text, const std::size_t len)
+	static std::span<const char> prepare_buffer(scratch_buffer<0> &, const std::span<const char> text)
 	{
-		return {text, len};
+		return text;
 	}
 };
 
-#ifdef DXX_HAVE_CXX_BUILTIN_FILE_LINE
+#if DXX_HAVE_CXX_BUILTIN_FILE_LINE
 #include <cstdio>
 
 template <>
@@ -53,31 +54,37 @@ class location_wrapper<true>
 	unsigned line;
 public:
 	template <std::size_t N>
-		using scratch_buffer = char[N];
+		using scratch_buffer = std::array<char, N>;
 	location_wrapper(const char *const f = __builtin_FILE(), const unsigned l = __builtin_LINE()) :
 		file(f), line(l)
 	{
 	}
+	/* Return a span describing the unwritten area into which the caller can
+	 * place further text.
+	 */
 	template <std::size_t N>
-		std::pair<char *, std::size_t> insert_location_leader(char (&buffer)[N]) const
+		std::pair<std::size_t, std::span<char>> insert_location_leader(std::array<char, N> &buffer)
 		{
-			const auto written = std::snprintf(buffer, sizeof(buffer), "%s:%u: ", file, line);
-			return {buffer + written, sizeof(buffer) - written};
+			const auto written = std::snprintf(buffer.data(), buffer.size(), "%s:%u: ", file, line);
+			return {written, std::span(buffer).subspan(written)};
 		}
+	/* Return a span describing the written area that the caller can read
+	 * without accessing undefined bytes.
+	 */
 	template <std::size_t N>
-		std::pair<const char *, std::size_t> prepare_buffer(char (&buffer)[N], const char *const text, const std::size_t len) const
+		std::span<const char> prepare_buffer(std::array<char, N> &buffer, const std::span<const char> text) const
 		{
-			const auto written = std::snprintf(buffer, sizeof(buffer), "%s:%u: %.*s", file, line, static_cast<int>(len), text);
-			return {buffer, len + written};
+			const auto written = std::snprintf(buffer, sizeof(buffer), "%s:%u: %.*s", file, line, static_cast<int>(text.size()), text.data());
+			return {buffer, written};
 		}
 	/* Delegate to the const-qualified version, but return a `char *` to
 	 * match the non-const input `char *`, to preserve the choice of
 	 * overload for the function to receive this result.
 	 */
 	template <std::size_t N>
-		std::pair<char *, std::size_t> prepare_buffer(char (&buffer)[N], char *const text, const std::size_t len) const
+		std::span<char> prepare_buffer(std::array<char, N> &buffer, const std::span<char> text) const
 		{
-			return {buffer, prepare_buffer(buffer, const_cast<const char *>(text), len).second};
+			return {buffer, prepare_buffer(buffer, std::span(const_cast<const char *>(text.data()), text.size())).size()};
 		}
 };
 #endif
@@ -90,7 +97,7 @@ public:
 	/* Allow callers to pass explicit file/line, for signature
 	 * compatibility with `location_value_wrapper<T, true>`.
 	 */
-#ifndef DXX_HAVE_CXX_BUILTIN_FILE_LINE
+#if !DXX_HAVE_CXX_BUILTIN_FILE_LINE
 	location_value_wrapper(const T &v) :
 		value(v)
 	{
@@ -98,11 +105,11 @@ public:
 #endif
 	location_value_wrapper(const T &v,
 		const char *const f
-#ifdef DXX_HAVE_CXX_BUILTIN_FILE_LINE
+#if DXX_HAVE_CXX_BUILTIN_FILE_LINE
 		= __builtin_FILE()
 #endif
 		, const unsigned l
-#ifdef DXX_HAVE_CXX_BUILTIN_FILE_LINE
+#if DXX_HAVE_CXX_BUILTIN_FILE_LINE
 		= __builtin_LINE()
 #endif
 		) :

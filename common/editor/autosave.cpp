@@ -124,6 +124,8 @@ void autosave_mine(const std::array<char, PATH_MAX> &name)
 
 tm Editor_time_of_day;
 
+namespace {
+
 static void print_clock(grs_canvas &canvas, const grs_font &cv_font)
 {
 	gr_set_fontcolor(canvas, CBLACK, CGREY);
@@ -135,6 +137,8 @@ static void print_clock(grs_canvas &canvas, const grs_font &cv_font)
 	gr_rect(canvas, 700, 0, 799, h + 1, color);
 	gr_string(canvas, cv_font, 700, 0, message.data(), w, h);
 	gr_set_fontcolor(canvas, CBLACK, CWHITE);
+}
+
 }
 
 void set_editor_time_of_day()

@@ -25,16 +25,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <span>
 #include <type_traits>
 #include "dxxsconf.h"
 #include "fwd-partial_range.h"
-#include "fwd-player.h"
+#include "player.h"
 #include "player-callsign.h"
 #include "player-flags.h"
 #include "fwd-weapon.h"
 #include "mission.h"
 #include "powerup.h"
 #include "fwd-object.h"
+#include "fwd-robot.h"
 #include "fwd-segment.h"
 #include "fwd-wall.h"
 #include "window.h"
@@ -61,6 +63,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ntstring.h"
 #include "compiler-static_assert.h"
 #include <array>
+
+#ifdef dsx
+#include "backports-ranges.h"
+#endif
 
 namespace dcx {
 
@@ -96,11 +102,35 @@ enum class network_game_type : uint8_t
 	bounty,
 };
 
+enum class multiplayer_data_priority : uint8_t
+{
+	_0,
+	_1,
+	_2,
+};
+
+/* These values are sent over the network.  If new values are added or existing
+ * entries are renumbered, the multiplayer protocol version must be changed.
+ */
+enum class kick_player_reason : uint8_t
+{
+	// reasons for a packet with type UPID_DUMP
+	closed, // no new players allowed after game started
+	full, // player count maxed out
+	endlevel,
+	dork,
+	aborted,
+	connected, // never used
+	level,
+	kicked,
+	pkttimeout,
+};
+
 }
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Reset to 0 each time the version of the game changes
-#define MULTI_PROTO_VERSION	static_cast<uint16_t>(14)
+#define MULTI_PROTO_VERSION	static_cast<uint16_t>(16)
 // PROTOCOL VARIABLES AND DEFINES - END
 
 // limits for Packets (i.e. positional updates) per sec
@@ -118,35 +148,6 @@ enum class network_game_type : uint8_t
 #define MAX_MULTI_MESSAGE_LEN   120
 
 #endif
-
-#define NETSTAT_MENU                0
-#define NETSTAT_PLAYING             1
-#define NETSTAT_BROWSING            2
-#define NETSTAT_WAITING             3
-#define NETSTAT_STARTING            4
-#define NETSTAT_ENDLEVEL            5
-
-#define CONNECT_DISCONNECTED        0
-#define CONNECT_PLAYING             1
-#define CONNECT_WAITING             2
-#define CONNECT_DIED_IN_MINE        3
-#define CONNECT_FOUND_SECRET        4
-#define CONNECT_ESCAPE_TUNNEL       5
-#define CONNECT_END_MENU            6
-#if defined(DXX_BUILD_DESCENT_II)
-#define CONNECT_KMATRIX_WAITING     7 // Like CONNECT_WAITING but used especially in kmatrix.c to seperate "escaped" and "waiting"
-#endif
-
-// reasons for a packet with type PID_DUMP
-#define DUMP_CLOSED     0 // no new players allowed after game started
-#define DUMP_FULL       1 // player cound maxed out
-#define DUMP_ENDLEVEL   2
-#define DUMP_DORK       3
-#define DUMP_ABORTED    4
-#define DUMP_CONNECTED  5 // never used
-#define DUMP_LEVEL      6
-#define DUMP_KICKED     7
-#define DUMP_PKTTIMEOUT 8
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #define NETFLAG_LABEL_QUAD	 "Quad Lasers"
@@ -228,28 +229,37 @@ constexpr std::integral_constant<unsigned, 21> MULTI_ALLOW_POWERUP_TEXT_LENGTH{}
 #endif
 
 namespace multi {
+
 struct dispatch_table
 {
 	constexpr const dispatch_table *operator->() const
 	{
 		return this;
 	}
+	virtual void send_data(std::span<const uint8_t> data, multiplayer_data_priority) const = 0;
+	virtual void send_data_direct(std::span<const uint8_t> data, playernum_t pnum, int needack) const = 0;
 	virtual int objnum_is_past(objnum_t objnum) const = 0;
 	virtual void do_protocol_frame(int force, int listen) const = 0;
 	virtual window_event_result level_sync() const = 0;
 	virtual void send_endlevel_packet() const = 0;
-	virtual void kick_player(const _sockaddr &dump_addr, int why) const = 0;
+	virtual void kick_player(const _sockaddr &dump_addr, kick_player_reason why) const = 0;
 	virtual void disconnect_player(int playernum) const = 0;
-	virtual int end_current_level(int *secret) const = 0;
+	virtual int end_current_level(
+#if defined(DXX_BUILD_DESCENT_I)
+		next_level_request_secret_flag *secret
+#endif
+		) const = 0;
 	virtual void leave_game() const = 0;
 };
-}
 }
 
 #define define_netflag_bit_enum(NAME,STR)	BIT_##NAME,
 #define define_netflag_bit_mask(NAME,STR)	NAME = (1 << BIT_##NAME),
 #define define_netflag_powerup_mask(NAME,STR)	| (NAME)
-enum { for_each_netflag_value(define_netflag_bit_enum) };
+enum netflag_bit : uint8_t
+{
+	for_each_netflag_value(define_netflag_bit_enum)
+};
 // Bitmask for netgame_info->AllowedItems to set allowed items in Netgame
 enum netflag_flag :
 #if defined(DXX_BUILD_DESCENT_I)
@@ -260,7 +270,8 @@ enum netflag_flag :
 {
 	for_each_netflag_value(define_netflag_bit_mask)
 };
-enum {
+enum netgrant_bit : uint8_t
+{
 	BIT_NETGRANT_LASER = DXX_GRANT_LASER_LEVEL_BITS - 1,
 	for_each_netgrant_value(define_netflag_bit_enum)
 	BIT_NETGRANT_MAXIMUM
@@ -276,8 +287,6 @@ enum netgrant_flag :
 };
 #undef define_netflag_bit_enum
 #undef define_netflag_bit_mask
-
-namespace dsx {
 
 struct packed_spawn_granted_items
 {
@@ -393,7 +402,7 @@ int multi_maybe_disable_friendly_fire(const object_base *attacker);
 
 namespace dsx {
 
-void multi_send_fire(int laser_gun, laser_level, int laser_flags, objnum_t laser_track, imobjptridx_t is_bomb_objnum);
+void multi_send_fire(const vms_matrix &orient, int laser_gun, laser_level, int laser_flags, objnum_t laser_track, imobjptridx_t is_bomb_objnum);
 void multi_send_destroy_controlcen(objnum_t objnum, playernum_t player);
 void multi_send_position(object &objnum);
 void multi_send_kill(vmobjptridx_t objnum);
@@ -471,7 +480,6 @@ void multi_send_score(void);
 void multi_send_trigger(trgnum_t trigger);
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
-extern char Multi_is_guided;
 void multi_send_flags(playernum_t);
 struct marker_message_text_t;
 void multi_send_drop_marker(unsigned player, const vms_vector &position, player_marker_index messagenum, const marker_message_text_t &text);
@@ -496,7 +504,7 @@ void multi_send_hostage_door_status(vcwallptridx_t wallnum);
 void multi_prep_level_objects(const d_powerup_info_array &Powerup_info, const d_vclip_array &Vclip);
 void multi_prep_level_player();
 void multi_leave_game(void);
-void multi_process_bigdata(playernum_t pnum, const uint8_t *buf, uint_fast32_t len);
+void multi_process_bigdata(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, playernum_t pnum, std::span<const uint8_t> buf);
 void multi_make_ghost_player(playernum_t);
 void multi_make_player_ghost(playernum_t);
 }
@@ -518,7 +526,7 @@ void multi_disconnect_player(playernum_t);
 namespace dsx {
 void multi_initiate_save_game();
 void multi_initiate_restore_game();
-void multi_execute_save_game(d_game_unique_state::save_slot slot, const d_game_unique_state::savegame_description &desc, partial_range_t<const player *> player_range);
+void multi_execute_save_game(d_game_unique_state::save_slot slot, const d_game_unique_state::savegame_description &desc, ranges::subrange<const player *> player_range);
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void multi_send_got_flag (playernum_t) {}
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -530,7 +538,23 @@ void multi_send_got_flag (playernum_t);
 // Exported variables
 
 namespace dcx {
-extern int Network_status;
+
+/* These values are sent over the network.  If they are changed, the
+ * multiplayer protocol version must be updated.
+ */
+enum class network_state : uint8_t
+{
+	menu,
+	playing,
+	browsing,
+	waiting,
+	starting,
+	endlevel,
+};
+
+std::optional<network_state> build_network_state_from_untrusted(uint8_t untrusted);
+
+extern network_state Network_status;
 
 // IMPORTANT: These variables needed for player rejoining done by protocol-specific code
 extern int Network_send_objects;
@@ -542,8 +566,8 @@ extern int VerifyPlayerJoined;
 extern int Player_joining_extras;
 extern int Network_player_added;
 
-extern std::array<std::array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS> kill_matrix;
-extern std::array<int16_t, 2> team_kills;
+extern per_player_array<per_player_array<uint16_t>> kill_matrix;
+extern per_team_array<int16_t> team_kills;
 
 extern ushort my_segments_checksum;
 
@@ -569,8 +593,12 @@ extern std::array<sbyte, MAX_OBJECTS> object_owner;
 
 extern int multi_quit_game;
 
-extern std::array<msgsend_state, MAX_PLAYERS> multi_sending_message;
+extern per_player_array<msgsend_state> multi_sending_message;
 extern int multi_defining_message;
+
+vms_vector multi_get_vector(const uint8_t *buf);
+void multi_put_vector(uint8_t *buf, const vms_vector &v);
+
 }
 extern void multi_send_message_start();
 void multi_send_msgsend_state(msgsend_state state);
@@ -590,7 +618,7 @@ extern hoard_highest_record hoard_highest_record_stats;
 namespace dcx {
 extern playernum_t Bounty_target;
 
-extern std::array<std::array<bitmap_index, N_PLAYER_SHIP_TEXTURES>, MAX_PLAYERS> multi_player_textures;
+extern per_player_array<std::array<bitmap_index, N_PLAYER_SHIP_TEXTURES>> multi_player_textures;
 
 #define GetRankStringWithSpace(I)	(PlayerCfg.NoRankings ? std::pair<const char *, const char *>("", "") : std::pair<const char *, const char *>(RankStrings[I], " "))
 
@@ -602,7 +630,6 @@ extern fix64 RefuseTimeLimit;
 
 #ifdef dsx
 namespace dsx {
-window_event_result multi_message_input_sub(int key, control_info &Controls);
 struct bit_game_flags {
 	unsigned closed : 1;
 	unsigned : 1;
@@ -691,21 +718,16 @@ void MultiLevelInv_Recount();
 #ifdef dsx
 namespace dsx {
 extern bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type);
-}
-#endif
-extern void MultiLevelInv_Repopulate(fix frequency);
-#ifdef dsx
-namespace dsx {
 uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems);
 uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems, const unsigned SpawnGrantedItems);
 void show_netgame_info(const netgame_info &netgame);
-extern void multi_send_player_inventory(int priority);
+void multi_send_player_inventory(multiplayer_data_priority priority);
 const char *multi_common_deny_save_game(const fvcobjptr &vcobjptr, partial_range_t<const player *> player_range);
 const char *multi_interactive_deny_save_game(const fvcobjptr &vcobjptr, partial_range_t<const player *> player_range, const d_level_unique_control_center_state &);
+void multi_check_for_killgoal_winner(const d_robot_info_array &Robot_info);
 }
 #endif
 extern void multi_send_kill_goal_counts();
-void multi_check_for_killgoal_winner();
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 extern void multi_send_stolen_items();
@@ -723,7 +745,6 @@ void multi_send_finish_game ();
 void init_hoard_data(d_vclip_array &Vclip);
 void multi_apply_goal_textures();
 void multi_send_escort_goal(const d_unique_buddy_state &);
-void multi_recv_escort_goal(d_unique_buddy_state &, const uint8_t *);
 
 int HoardEquipped();
 #if DXX_USE_EDITOR
@@ -768,7 +789,7 @@ struct netplayer_info : prohibit_void_ptr<netplayer_info>
 	} protocol;	
 #endif
 	callsign_t					callsign;
-	sbyte						connected;
+	player_connection_status connected;
 	player_rank					rank;
 	fix							ping;
 	fix64							LastPacketTime;
@@ -818,7 +839,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>
 	Difficulty_level_type difficulty;
 	network_game_type   		gamemode;
 	ubyte   					RefusePlayers;
-	ubyte   					game_status;
+	network_state game_status;
 	ubyte   					numplayers;
 	ubyte   					max_numplayers;
 	ubyte   					numconnected;
@@ -826,6 +847,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>
 	ubyte   					team_vector;
 	uint8_t						SecludedSpawns;
 	uint8_t MouselookFlags;
+	uint8_t PitchLockFlags;
 	uint32_t					AllowedItems;
 	packed_spawn_granted_items SpawnGrantedItems;
 	packed_netduplicate_items DuplicatePowerups;
@@ -854,15 +876,15 @@ struct netgame_info : prohibit_void_ptr<netgame_info>
 	short						PacketsPerSec;
 	ubyte						PacketLossPrevention;
 	ubyte						NoFriendlyFire;
-	std::array<callsign_t, 2>					team_name;
-	std::array<uint32_t, MAX_PLAYERS>						locations;
-	std::array<std::array<uint16_t, MAX_PLAYERS>, MAX_PLAYERS>						kills;
-	std::array<int16_t, 2>						team_kills;
-	std::array<uint16_t, MAX_PLAYERS>						killed;
-	std::array<uint16_t, MAX_PLAYERS>						player_kills;
-	std::array<uint32_t, MAX_PLAYERS>						player_score;
-	std::array<player_flags, MAX_PLAYERS>					net_player_flags;
-	std::array<netplayer_info, MAX_PLAYERS> 				players;
+	per_team_array<callsign_t>						team_name;
+	per_player_array<uint32_t>						locations;
+	per_player_array<per_player_array<uint16_t>>	kills;
+	per_team_array<int16_t>							team_kills;
+	per_player_array<uint16_t>						killed;
+	per_player_array<uint16_t>						player_kills;
+	per_player_array<uint32_t>						player_score;
+	per_player_array<player_flags>					net_player_flags;
+	per_player_array<netplayer_info>				players;
 #if DXX_USE_TRACKER
 	ubyte						Tracker;
 	TrackerNATHolePunchWarn TrackerNATWarned;
@@ -926,3 +948,8 @@ static inline unsigned get_player_or_team_color(unsigned pnum)
 		? get_team_color(get_team(pnum))
 		: get_player_color(pnum);
 }
+
+#define PUT_INTEL_SEGNUM(D,S)	( DXX_BEGIN_COMPOUND_STATEMENT {	\
+	const segnum_t PUT_INTEL_SEGNUM = S;	\
+	PUT_INTEL_SHORT(D, static_cast<uint16_t>(PUT_INTEL_SEGNUM));	\
+	} DXX_END_COMPOUND_STATEMENT )

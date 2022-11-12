@@ -139,7 +139,7 @@ struct UI_GADGET_RADIO final : UI_GADGET
 	static constexpr auto s_kind = std::integral_constant<uint8_t, 4>{};
 	using UI_GADGET::UI_GADGET;
 	virtual window_event_result event_handler(UI_DIALOG &dlg, const d_event &event) override;
-	RAIIdmem<char[]>  text;
+	std::unique_ptr<char[]>  text;
 	short           width, height;
 	short           position;
 	short           oldposition;

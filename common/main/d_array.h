@@ -24,6 +24,7 @@ namespace dcx {
  * Other types for E are not likely to be useful, but are not blocked.
  */
 template <typename T, std::size_t N, typename E>
+requires(!std::is_same<unsigned, E>::value && !std::is_same<unsigned long, E>::value)
 struct enumerated_array : std::array<T, N>
 {
 	using base_type = std::array<T, N>;

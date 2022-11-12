@@ -43,6 +43,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <vector>
 #include <stdexcept>
 #include "fwd-object.h"
+#include "fwd-robot.h"
 #include "fwd-weapon.h"
 #include "fwd-player.h"
 #include "powerup.h"
@@ -88,6 +89,17 @@ enum render_type_t : uint8_t
 	RT_POWERUP = 5,   // a powerup
 	RT_MORPH = 6,   // a robot being morphed
 	RT_WEAPON_VCLIP = 7,   // a weapon that renders as a vclip
+};
+
+enum class gun_num_t : uint8_t
+{
+	_0,
+	_1,
+	_2,
+	_3,
+	_4,
+	center = 6,
+	_7,
 };
 
 static inline bool valid_render_type(const uint8_t r)
@@ -479,7 +491,7 @@ struct object_rw
 	ubyte   movement_source;  // how this object moves
 	ubyte   render_type;    // how this object renders
 	ubyte   flags;          // misc flags
-	short   segnum;         // segment number containing object
+	uint16_t segnum;         // segment number containing object
 	short   attached_obj;   // number of attached fireball object
 	vms_vector pos;         // absolute x,y,z coordinate of center of object
 	vms_matrix orient;      // orientation of object in world
@@ -608,7 +620,11 @@ namespace dsx {
 
 // initialize a new object.  adds to the list for the given segment
 // returns the object number
-imobjptridx_t obj_create(object_type_t type, unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, enum object::control_type ctype, enum object::movement_type mtype, render_type_t rtype);
+[[nodiscard]]
+imobjptridx_t obj_create(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, object_type_t type, unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, enum object::control_type ctype, enum object::movement_type mtype, render_type_t rtype);
+
+[[nodiscard]]
+imobjptridx_t obj_weapon_create(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const weapon_info_array &Weapon_info, unsigned id, vmsegptridx_t segnum, const vms_vector &pos, fix size, render_type_t rtype);
 
 #if defined(DXX_BUILD_DESCENT_II)
 
@@ -686,21 +702,21 @@ struct d_level_unique_control_center_state :
 	fix64 Last_time_cc_vis_check;
 };
 
-class d_guided_missile_indices : std::array<imobjidx_t, MAX_PLAYERS>
+class d_guided_missile_indices : per_player_array<imobjidx_t>
 {
 	template <typename R, typename F>
-		R get_player_active_guided_missile_tmpl(F &fvcobj, unsigned pnum) const;
+		R get_player_active_guided_missile_tmpl(F &fvcobj, playernum_t pnum) const;
 	static bool debug_check_current_object(const object_base &);
 public:
 	constexpr d_guided_missile_indices() :
-		std::array<imobjidx_t, MAX_PLAYERS>(init_object_number_array<imobjidx_t>(std::make_index_sequence<MAX_PLAYERS>()))
+		per_player_array<imobjidx_t>(init_object_number_array<imobjidx_t>(std::make_index_sequence<MAX_PLAYERS>()))
 	{
 	}
-	imobjidx_t get_player_active_guided_missile(unsigned pnum) const;
-	imobjptr_t get_player_active_guided_missile(fvmobjptr &vmobjptr, unsigned pnum) const;
-	imobjptridx_t get_player_active_guided_missile(fvmobjptridx &vmobjptridx, unsigned pnum) const;
-	void set_player_active_guided_missile(vmobjidx_t, unsigned pnum);
-	void clear_player_active_guided_missile(unsigned pnum);
+	imobjidx_t get_player_active_guided_missile(playernum_t pnum) const;
+	imobjptr_t get_player_active_guided_missile(fvmobjptr &vmobjptr, playernum_t pnum) const;
+	imobjptridx_t get_player_active_guided_missile(fvmobjptridx &vmobjptridx, playernum_t pnum) const;
+	void set_player_active_guided_missile(vmobjidx_t, playernum_t pnum);
+	void clear_player_active_guided_missile(playernum_t pnum);
 };
 
 struct d_level_unique_boss_state : ::dcx::d_level_unique_boss_state
@@ -740,6 +756,11 @@ static inline void set_weapon_id(object_base &o, weapon_id_type id)
 	o.id = static_cast<uint8_t>(id);
 }
 
+window_event_result dead_player_frame(const d_robot_info_array &Robot_info);
+
+// move all objects for the current frame
+window_event_result game_move_all_objects(const d_level_shared_robot_info_state &LevelSharedRobotInfoState);     // moves all objects
+window_event_result endlevel_move_all_objects(const d_level_shared_robot_info_state &LevelSharedRobotInfoState);
 }
 
 namespace dcx {

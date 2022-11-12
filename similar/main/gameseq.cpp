@@ -115,9 +115,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace d1x {
 namespace {
 
-static int8_t find_next_level(const int secret_flag, const int current_level_num, const Mission &mission)
+static int8_t find_next_level(const next_level_request_secret_flag secret_flag, const int current_level_num, const Mission &mission)
 {
-	if (secret_flag) {			//go to secret level instead
+	if (secret_flag != next_level_request_secret_flag::only_normal_level)
+	{			//go to secret level instead
 		for (const auto &&[idx, table_entry] : enumerate(
 				unchecked_partial_range(
 					mission.secret_level_table.get(),
@@ -195,7 +196,7 @@ PHYSFSX_gets_line_t<LEVEL_NAME_LEN> Current_level_name;
 unsigned	N_players=1;	// Number of players ( >1 means a net game, eh?)
 playernum_t Player_num;	// The player number who is on the console.
 fix StartingShields=INITIAL_SHIELDS;
-std::array<obj_position, MAX_PLAYERS> Player_init;
+per_player_array<obj_position> Player_init;
 
 // Global variables telling what sort of game we have
 unsigned NumNetPlayerPositions;
@@ -211,7 +212,7 @@ static bool is_object_of_type(const object_base &o)
 
 static unsigned get_starting_concussion_missile_count()
 {
-	return 2 + NDL - GameUniqueState.Difficulty_level;
+	return 2 + NDL - underlying_value(GameUniqueState.Difficulty_level);
 }
 
 }
@@ -221,9 +222,16 @@ static unsigned get_starting_concussion_missile_count()
 namespace dsx {
 namespace {
 static void init_player_stats_ship(object &, fix GameTime64);
-static window_event_result AdvanceLevel(int secret_flag);
+static window_event_result AdvanceLevel(
+#if defined(DXX_BUILD_DESCENT_I)
+#undef AdvanceLevel
+	next_level_request_secret_flag secret_flag
+#elif defined(DXX_BUILD_DESCENT_II)
+#define AdvanceLevel(secret_flag)	((void)secret_flag,AdvanceLevel())
+#endif
+	);
 static void StartLevel(int random_flag);
-static void copy_defaults_to_robot_all(void);
+static void copy_defaults_to_robot_all(const d_robot_info_array &Robot_info);
 
 //--------------------------------------------------------------------
 static void verify_console_object()
@@ -246,15 +254,10 @@ static unsigned count_number_of_objects_of_type(fvcobjptr &vcobjptr)
 #define count_number_of_robots	count_number_of_objects_of_type<OBJ_ROBOT>
 #define count_number_of_hostages	count_number_of_objects_of_type<OBJ_HOSTAGE>
 
-static bool operator!=(const vms_vector &a, const vms_vector &b)
-{
-	return a.x != b.x || a.y != b.y || a.z != b.z;
-}
-
 constexpr constant_xrange<sidenum_t, sidenum_t::WRIGHT, sidenum_t::WFRONT> displacement_sides{};
 static_assert(static_cast<uint8_t>(sidenum_t::WBACK) + 1 == static_cast<uint8_t>(sidenum_t::WFRONT), "side ordering error");
 
-static unsigned generate_extra_starts_by_copying(object_array &Objects, valptridx<player>::array_managed_type &Players, segment_array &Segments, const xrange<unsigned, std::integral_constant<unsigned, 0>> preplaced_start_range, const std::array<sidemask_t, MAX_PLAYERS> &player_init_segment_capacity_flag, const unsigned total_required_num_starts, unsigned synthetic_player_idx)
+static unsigned generate_extra_starts_by_copying(object_array &Objects, valptridx<player>::array_managed_type &Players, segment_array &Segments, const xrange<unsigned, std::integral_constant<unsigned, 0>> preplaced_start_range, const per_player_array<sidemask_t> &player_init_segment_capacity_flag, const unsigned total_required_num_starts, unsigned synthetic_player_idx)
 {
 	for (const auto side : displacement_sides)
 	{
@@ -301,7 +304,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
-	std::array<sidemask_t, MAX_PLAYERS> player_init_segment_capacity_flag{};
+	per_player_array<sidemask_t> player_init_segment_capacity_flag{};
 	DXX_MAKE_VAR_UNDEFINED(player_init_segment_capacity_flag);
 	static_assert(static_cast<uint8_t>(sidenum_t::WRIGHT) + 1 == static_cast<uint8_t>(sidenum_t::WBOTTOM), "side ordering error");
 	static_assert(static_cast<uint8_t>(sidenum_t::WBOTTOM) + 1 == static_cast<uint8_t>(sidenum_t::WBACK), "side ordering error");
@@ -414,7 +417,12 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 }
 
 //added 10/12/95: delete buddy bot if coop game.  Probably doesn't really belong here. -MT
-static void gameseq_init_network_players(object_array &Objects)
+#if defined(DXX_BUILD_DESCENT_I)
+#define gameseq_init_network_players(Robot_info,Objects)	gameseq_init_network_players(Objects)
+#elif defined(DXX_BUILD_DESCENT_II)
+#undef gameseq_init_network_players
+#endif
+static void gameseq_init_network_players(const d_robot_info_array &Robot_info, object_array &Objects)
 {
 
 	// Initialize network player start locations and object numbers
@@ -426,7 +434,6 @@ static void gameseq_init_network_players(object_array &Objects)
 	const auto remove_thief = Netgame.ThiefModifierFlags & ThiefModifier::Absent;
 	const auto multiplayer = Game_mode & GM_MULTI;
 	const auto retain_guidebot = Netgame.AllowGuidebot;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 #endif
 	auto &vmobjptridx = Objects.vmptridx;
 	range_for (const auto &&o, vmobjptridx)
@@ -460,7 +467,7 @@ static void gameseq_init_network_players(object_array &Objects)
 			if ((!retain_guidebot && robot_is_companion(ri)) ||
 				(remove_thief && robot_is_thief(ri)))
 			{
-				object_create_robot_egg(o);
+				object_create_robot_egg(Robot_info, o);
 				obj_delete(LevelUniqueObjectState, Segments, o);		//kill the buddy in netgames
 			}
 		}
@@ -487,7 +494,7 @@ static void gameseq_init_network_players(object_array &Objects)
 
 }
 
-void gameseq_remove_unused_players()
+void gameseq_remove_unused_players(const d_robot_info_array &Robot_info)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -497,7 +504,7 @@ void gameseq_remove_unused_players()
 	{
 		for (unsigned i = 0; i < NumNetPlayerPositions; ++i)
 		{
-			if ((!vcplayerptr(i)->connected) || (i >= N_players))
+			if (vcplayerptr(i)->connected == player_connection_status::disconnected || i >= N_players)
 			{
 				multi_make_player_ghost(i);
 			}
@@ -510,7 +517,6 @@ void gameseq_remove_unused_players()
 			obj_delete(LevelUniqueObjectState, Segments, vmobjptridx(i.objnum));
 		}
 #if defined(DXX_BUILD_DESCENT_II)
-		auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 		if (PlayerCfg.ThiefModifierFlags & ThiefModifier::Absent)
 		{
 			range_for (const auto &&o, vmobjptridx)
@@ -521,7 +527,7 @@ void gameseq_remove_unused_players()
 					auto &ri = Robot_info[get_robot_id(o)];
 					if (robot_is_thief(ri))
 					{
-						object_create_robot_egg(o);
+						object_create_robot_egg(Robot_info, o);
 						obj_delete(LevelUniqueObjectState, Segments, o);
 					}
 				}
@@ -685,7 +691,8 @@ void init_player_stats_new_ship(const playernum_t pnum)
 		? MAX_OMEGA_CHARGE
 		: 0;
 	player_info.Omega_recharge_delay = 0;
-	player_info.hoard.orbs = 0;
+	if (game_mode_hoard())
+		player_info.hoard.orbs = 0;
 #endif
 	player_info.powerup_flags |= map_granted_flags_to_player_flags(GrantedItems);
 	DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
@@ -885,7 +892,7 @@ void create_player_appearance_effect(const d_vclip_array &Vclip, const object_ba
 		: player_obj.pos;
 
 	const auto &&seg = vmsegptridx(player_obj.segnum);
-	const auto &&effect_obj = object_create_explosion(seg, pos, player_obj.size, VCLIP_PLAYER_APPEARANCE);
+	const auto &&effect_obj = object_create_explosion_without_damage(Vclip, seg, pos, player_obj.size, VCLIP_PLAYER_APPEARANCE);
 
 	if (effect_obj) {
 		effect_obj->orient = player_obj.orient;
@@ -967,10 +974,10 @@ static ushort netmisc_calc_checksum()
 				do_checksum_calc(reinterpret_cast<uint8_t *>(&t), 4, &sum1, &sum2);
 			}
 		}
-		range_for (auto &j, i.s.children)
+		for (const typename std::underlying_type<segnum_t>::type j : i.s.children)
 		{
-			s = INTEL_SHORT(j);
-			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
+			const auto s = INTEL_SHORT(j);
+			do_checksum_calc(reinterpret_cast<const uint8_t *>(&s), 2, &sum1, &sum2);
 		}
 		range_for (const auto vn, i.s.verts)
 		{
@@ -1057,7 +1064,7 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	Current_level_num=level_num;
 
-	load_palette(Current_level_palette,1,1);		//don't change screen
+	load_palette(Current_level_palette.line(), 1, 1);		//don't change screen
 #endif
 
 #if DXX_USE_EDITOR
@@ -1105,7 +1112,7 @@ void LoadLevel(int level_num,int page_in_textures)
 		piggy_load_level_data();
 #endif
 
-	gameseq_init_network_players(Objects);
+	gameseq_init_network_players(LevelSharedRobotInfoState.Robot_info, Objects);
 	p.restore(vmobjptr);
 }
 }
@@ -1212,20 +1219,30 @@ static void DoEndLevelScoreGlitz()
 
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	if (!cheats.enabled) {
-		if (Difficulty_level > 1) {
+		const auto d = underlying_value(Difficulty_level);
+		switch (Difficulty_level)
+		{
+			default:
+			case Difficulty_level_type::_0:
+			case Difficulty_level_type::_1:
+				skill_points = 0;
+				break;
+			case Difficulty_level_type::_2:
+			case Difficulty_level_type::_3:
+			case Difficulty_level_type::_4:
 #if defined(DXX_BUILD_DESCENT_I)
-			skill_points = level_points*(Difficulty_level-1)/2;
+				skill_points = level_points * (d - 1) / 2;
 #elif defined(DXX_BUILD_DESCENT_II)
-			skill_points = level_points*(Difficulty_level)/4;
+				skill_points = level_points * d / 4;
 #endif
-			skill_points -= skill_points % 100;
-		} else
-			skill_points = 0;
+				skill_points -= skill_points % 100;
+				break;
+		}
 
-		hostage_points = player_info.mission.hostages_on_board * 500 * (Difficulty_level+1);
+		hostage_points = player_info.mission.hostages_on_board * 500 * (d + 1);
 #if defined(DXX_BUILD_DESCENT_I)
-		shield_points = f2i(plrobj.shields) * 10 * (Difficulty_level+1);
-		energy_points = f2i(player_info.energy) * 5 * (Difficulty_level+1);
+		shield_points = f2i(plrobj.shields) * 10 * (d + 1);
+		energy_points = f2i(player_info.energy) * 5 * (d + 1);
 #elif defined(DXX_BUILD_DESCENT_II)
 		shield_points = f2i(plrobj.shields) * 5 * mine_level;
 		energy_points = f2i(player_info.energy) * 2 * mine_level;
@@ -1255,11 +1272,14 @@ static void DoEndLevelScoreGlitz()
 	auto &hostage_text = m_str[c++];
 	if (cheats.enabled)
 		snprintf(hostage_text, sizeof(hostage_text), "Hostages saved:   \t%u", hostages_on_board);
-	else if (const auto hostages_lost = LevelUniqueObjectState.total_hostages - hostages_on_board)
+	else if (LevelUniqueObjectState.total_hostages > hostages_on_board)
+	{
+		const auto hostages_lost = LevelUniqueObjectState.total_hostages - hostages_on_board;
 		snprintf(hostage_text, sizeof(hostage_text), "Hostages lost:    \t%u", hostages_lost);
+	}
 	else
 	{
-		all_hostage_points = hostages_on_board * 1000 * (Difficulty_level + 1);
+		all_hostage_points = hostages_on_board * 1000 * (underlying_value(Difficulty_level) + 1);
 		snprintf(hostage_text, sizeof(hostage_text), "%s%i\n", TXT_FULL_RESCUE_BONUS, all_hostage_points);
 	}
 
@@ -1443,7 +1463,7 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 
 	Viewer = &get_local_plrobj();
 
-	gameseq_remove_unused_players();
+	gameseq_remove_unused_players(LevelSharedRobotInfoState.Robot_info);
 
 	Game_suspended = 0;
 
@@ -1454,9 +1474,9 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 
 	if (First_secret_visit || (Newdemo_state == ND_STATE_PLAYBACK)) {
 		init_robots_for_level();
-		init_ai_objects();
+		init_ai_objects(LevelSharedRobotInfoState.Robot_info);
 		init_smega_detonates();
-		init_morphs();
+		init_morphs(LevelUniqueObjectState.MorphObjectState);
 		init_all_matcens();
 		reset_special_effects();
 		StartSecretLevel();
@@ -1479,10 +1499,10 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 	}
 
 	if (First_secret_visit) {
-		copy_defaults_to_robot_all();
+		copy_defaults_to_robot_all(LevelSharedRobotInfoState.Robot_info);
 	}
 
-	init_controlcen_for_level();
+	init_controlcen_for_level(LevelSharedRobotInfoState.Robot_info);
 
 	// Say player can use FLASH cheat to mark path to exit.
 	LevelUniqueObjectState.Level_path_created = 0;
@@ -1645,7 +1665,11 @@ void EnterSecretLevel(void)
 #endif
 
 //called when the player has finished a level
-window_event_result PlayerFinishedLevel(int secret_flag)
+window_event_result (PlayerFinishedLevel)(
+#if defined(DXX_BUILD_DESCENT_I)
+	const next_level_request_secret_flag secret_flag
+#endif
+	)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -1657,7 +1681,7 @@ window_event_result PlayerFinishedLevel(int secret_flag)
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	player_info.mission.hostages_rescued_total += player_info.mission.hostages_on_board;
 #if defined(DXX_BUILD_DESCENT_I)
-	if (!(Game_mode & GM_MULTI) && (secret_flag)) {
+	if (!(Game_mode & GM_MULTI) && secret_flag != next_level_request_secret_flag::only_normal_level) {
 		using items_type = std::array<newmenu_item, 1>;
 		struct message_menu : items_type, passive_newmenu
 		{
@@ -1672,10 +1696,10 @@ window_event_result PlayerFinishedLevel(int secret_flag)
 		run_blocking_newmenu<message_menu>(*grd_curcanv);
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
-	Assert(!secret_flag);
+	constexpr auto secret_flag = next_level_request_secret_flag::only_normal_level;
 #endif
 	if (Game_mode & GM_NETWORK)
-		get_local_player().connected = CONNECT_WAITING; // Finished but did not die
+		get_local_player().connected = player_connection_status::waiting; // Finished but did not die
 
 	last_drawn_cockpit = cockpit_mode_t{UINT8_MAX};
 
@@ -1710,7 +1734,7 @@ static void DoEndGame()
 	if (PLAYING_BUILTIN_MISSION && !(Game_mode & GM_MULTI))
 	{ //only built-in mission, & not multi
 #if defined(DXX_BUILD_DESCENT_II)
-		auto played = PlayMovie(ENDMOVIE ".tex", ENDMOVIE ".mve",MOVIE_REQUIRED);
+		auto played = PlayMovie(ENDMOVIE ".tex", ENDMOVIE ".mve", play_movie_warn_missing::urgent);
 		if (played == movie_play_status::skipped)
 #endif
 		{
@@ -1749,14 +1773,16 @@ static void DoEndGame()
 //called to go to the next level (if there is one)
 //if secret_flag is true, advance to secret level, else next normal one
 //	Return true if game over.
-static window_event_result AdvanceLevel(int secret_flag)
+static window_event_result (AdvanceLevel)(
+#if defined(DXX_BUILD_DESCENT_I)
+	next_level_request_secret_flag secret_flag
+#endif
+	)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto rval = window_event_result::handled;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	Assert(!secret_flag);
-
 	// Loading a level can write over homing_flag.
 	// So for simplicity, reset the homing weapon cheat here.
 	if (cheats.homingfire)
@@ -1783,7 +1809,11 @@ static window_event_result AdvanceLevel(int secret_flag)
 	if (Game_mode & GM_MULTI)
 	{
 		int result;
-		result = multi::dispatch->end_current_level(&secret_flag); // Wait for other players to reach this point
+		result = multi::dispatch->end_current_level(
+#if defined(DXX_BUILD_DESCENT_I)
+			&secret_flag
+#endif
+			); // Wait for other players to reach this point
 		if (result) // failed to sync
 		{
 			// check if player has finished the game
@@ -1863,7 +1893,7 @@ window_event_result DoPlayerDead()
 		player_info.mission.hostages_on_board = 0;
 		player_info.energy = 0;
 		plrobj.shields = 0;
-		plr.connected = CONNECT_DIED_IN_MINE;
+		plr.connected = player_connection_status::died_in_mine;
 
 		do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1893,7 +1923,7 @@ window_event_result DoPlayerDead()
 					const auto g = Game_wind;
 					if (g)
 						g->set_visible(0);
-			result = AdvanceLevel(0);			//if finished, go on to next level
+			result = AdvanceLevel(next_level_request_secret_flag::only_normal_level);			//if finished, go on to next level
 
 			init_player_stats_new_ship(Player_num);
 			last_drawn_cockpit = cockpit_mode_t{UINT8_MAX};
@@ -1941,9 +1971,9 @@ window_event_result DoPlayerDead()
 //called when the player is starting a new level for normal game mode and restore state
 //	secret_flag set if came from a secret level
 #if defined(DXX_BUILD_DESCENT_I)
-window_event_result StartNewLevelSub(const int level_num, const int page_in_textures)
+window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, const int level_num, const int page_in_textures)
 #elif defined(DXX_BUILD_DESCENT_II)
-window_event_result StartNewLevelSub(const int level_num, const int page_in_textures, const secret_restore secret_flag)
+window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, const int level_num, const int page_in_textures, const secret_restore secret_flag)
 #endif
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
@@ -1999,7 +2029,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 #if defined(DXX_BUILD_DESCENT_I)
 	gr_use_palette_table( "palette.256" );
 #elif defined(DXX_BUILD_DESCENT_II)
-	load_palette(Current_level_palette,0,1);
+	load_palette(Current_level_palette.line(), 0, 1);
 #endif
 	gr_palette_load(gr_palette);
 
@@ -2017,7 +2047,7 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 		multi_prep_level_player();
 	}
 
-	gameseq_remove_unused_players();
+	gameseq_remove_unused_players(Robot_info);
 
 	Game_suspended = 0;
 
@@ -2029,8 +2059,8 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 
 	init_cockpit();
 	init_robots_for_level();
-	init_ai_objects();
-	init_morphs();
+	init_ai_objects(Robot_info);
+	init_morphs(LevelUniqueObjectState.MorphObjectState);
 	init_all_matcens();
 	reset_palette_add();
 	LevelUniqueStuckObjectState.init_stuck_objects();
@@ -2061,8 +2091,8 @@ window_event_result StartNewLevelSub(const int level_num, const int page_in_text
 	else
 		StartLevel(0);		// Note link to above if!
 
-	copy_defaults_to_robot_all();
-	init_controlcen_for_level();
+	copy_defaults_to_robot_all(Robot_info);
+	init_controlcen_for_level(Robot_info);
 
 	//	Say player can use FLASH cheat to mark path to exit.
 	LevelUniqueObjectState.Level_path_created = 0;
@@ -2129,7 +2159,7 @@ static void ShowLevelIntro(int level_num)
 					if (i.level_num == level_num)
 					{
 						Screen_mode = -1;
-						PlayMovie(NULL, i.movie_name, MOVIE_REQUIRED);
+						PlayMovie({}, i.movie_name, play_movie_warn_missing::urgent);
 						break;
 					}
 				}
@@ -2188,7 +2218,7 @@ window_event_result StartNewLevel(int level_num)
 	ShowLevelIntro(level_num);
 #endif
 
-	return StartNewLevelSub(level_num, 1, secret_restore::none);
+	return StartNewLevelSub(LevelSharedRobotInfoState.Robot_info, level_num, 1, secret_restore::none);
 
 }
 
@@ -2198,7 +2228,7 @@ class respawn_locations
 {
 	typedef std::pair<int, fix> site;
 	unsigned max_usable_spawn_sites;
-	std::array<site, MAX_PLAYERS> sites;
+	per_player_array<site> sites;
 public:
 	respawn_locations(fvmobjptr &vmobjptr, fvcsegptridx &vcsegptridx)
 	{
@@ -2220,7 +2250,7 @@ public:
 			return closest_dist;
 		};
 		const auto max_spawn_sites = std::min<unsigned>(NumNetPlayerPositions, sites.size());
-		for (uint_fast32_t i = max_spawn_sites; i--;)
+		for (playernum_t i = max_spawn_sites; i--;)
 		{
 			auto &s = sites[i];
 			s.first = i;
@@ -2245,7 +2275,7 @@ public:
 	{
 		return max_usable_spawn_sites;
 	}
-	const site &operator[](std::size_t i) const
+	const site &operator[](const playernum_t i) const
 	{
 		return sites[i];
 	}
@@ -2295,13 +2325,11 @@ static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptr
 //	-----------------------------------------------------------------------------------------------------
 //	Initialize default parameters for one robot, copying from Robot_info to *objp.
 //	What about setting size!?  Where does that come from?
-void copy_defaults_to_robot(object_base &objp)
+void copy_defaults_to_robot(const d_robot_info_array &Robot_info, object_base &objp)
 {
 	assert(objp.type == OBJ_ROBOT);
 	const unsigned objid = get_robot_id(objp);
-	assert(objid < LevelSharedRobotInfoState.N_robot_types);
 
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[objid];
 
 	//	Boost shield for Thief and Buddy based on level.
@@ -2315,16 +2343,22 @@ void copy_defaults_to_robot(object_base &objp)
 		if (robot_is_companion(robptr)) {
 			//	Now, scale guide-bot hits by skill level
 			switch (Difficulty_level) {
-				case 0:	shields = i2f(20000);	break;		//	Trainee, basically unkillable
-				case 1:	shields *= 3;				break;		//	Rookie, pretty dang hard
-				case 2:	shields *= 2;				break;		//	Hotshot, a bit tough
+				case Difficulty_level_type::_0:
+					shields = i2f(20000);
+					break;		//	Trainee, basically unkillable
+				case Difficulty_level_type::_1:
+					shields *= 3;
+					break;		//	Rookie, pretty dang hard
+				case Difficulty_level_type::_2:
+					shields *= 2;
+					break;		//	Hotshot, a bit tough
 				default:	break;
 			}
 		}
 	} else if (robptr.boss_flag)	//	MK, 01/16/95, make boss shields lower on lower diff levels.
 	{
 	//	Additional wimpification of bosses at Trainee
-		shields = shields / (NDL + 3) * (Difficulty_level ? Difficulty_level + 4 : 2);
+		shields = shields / (NDL + 3) * (Difficulty_level != Difficulty_level_type::_0 ? underlying_value(Difficulty_level) + 4 : 2);
 	}
 #endif
 	objp.shields = shields;
@@ -2336,14 +2370,14 @@ namespace {
 //	Copy all values from the robot info structure to all instances of robots.
 //	This allows us to change bitmaps.tbl and have these changes manifested in existing robots.
 //	This function should be called at level load time.
-static void copy_defaults_to_robot_all(void)
+static void copy_defaults_to_robot_all(const d_robot_info_array &Robot_info)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	range_for (object_base &objp, vmobjptr)
 	{
 		if (objp.type == OBJ_ROBOT)
-			copy_defaults_to_robot(objp);
+			copy_defaults_to_robot(Robot_info, objp);
 	}
 }
 

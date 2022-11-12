@@ -385,14 +385,14 @@ static int load_pigpog(const d_fname &pogname)
 
 static int read_d2_robot_info(PHYSFS_File *fp, robot_info &ri)
 {
-	int j, k;
+	int j;
 
 	ri.model_num = PHYSFSX_readInt(fp);
 
-	for (j = 0; j < MAX_GUNS; j++)
-		PHYSFSX_readVector(fp, ri.gun_points[j]);
-	for (j = 0; j < MAX_GUNS; j++)
-		ri.gun_submodels[j] = PHYSFSX_readByte(fp);
+	for (auto &j : ri.gun_points)
+		PHYSFSX_readVector(fp, j);
+	for (auto &j : ri.gun_submodels)
+		j = PHYSFSX_readByte(fp);
 	ri.exp1_vclip_num = PHYSFSX_readShort(fp);
 	ri.exp1_sound_num = PHYSFSX_readShort(fp);
 	ri.exp2_vclip_num = PHYSFSX_readShort(fp);
@@ -458,12 +458,12 @@ static int read_d2_robot_info(PHYSFS_File *fp, robot_info &ri)
 	/*ri.behavior =*/ PHYSFSX_readByte(fp);
 	/*ri.aim =*/ PHYSFSX_readByte(fp);
 
-	for (j = 0; j < MAX_GUNS + 1; j++)
+	for (auto &j : ri.anim_states)
 	{
-		for (k = 0; k < N_ANIM_STATES; k++)
+		for (auto &k : j)
 		{
-			ri.anim_states[j][k].n_joints = PHYSFSX_readShort(fp);
-			ri.anim_states[j][k].offset = PHYSFSX_readShort(fp);
+			k.n_joints = PHYSFSX_readShort(fp);
+			k.offset = PHYSFSX_readShort(fp);
 		}
 	}
 	ri.always_0xabcd = PHYSFSX_readInt(fp);
@@ -551,7 +551,7 @@ static void load_hxm(const d_fname &hxmname)
 			{
 				auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 				pm = &Polygon_models[repl_num];
-				polymodel_read(pm, f);
+				polymodel_read(*pm, f);
 				const auto model_data_size = pm->model_data_size;
 				pm->model_data = std::make_unique<uint8_t[]>(model_data_size);
 				if (PHYSFS_read(f, pm->model_data, model_data_size, 1) < 1)

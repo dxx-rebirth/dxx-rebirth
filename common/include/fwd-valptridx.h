@@ -13,7 +13,7 @@
 #include "cpp-valptridx.h"
 #include "d_array.h"
 
-#if defined(DXX_HAVE_CXX_BUILTIN_FILE_LINE)
+#if DXX_HAVE_CXX_BUILTIN_FILE_LINE
 #define DXX_VALPTRIDX_ENABLE_REPORT_FILENAME
 #define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS	const char *filename = __builtin_FILE(), const unsigned lineno = __builtin_LINE()
 #define DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS	, DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS
@@ -60,11 +60,21 @@ class valptridx :
 	template <typename>
 		class guarded;
 	class array_base_count_type;
-	using array_base_storage_type = typename std::conditional<
-		std::is_enum<typename specialized_types::integral_type>::value,
-		dcx::enumerated_array<managed_type, array_size, typename specialized_types::integral_type>,
-		std::array<managed_type, array_size>
-		>::type;
+	struct array_base_storage_integral
+	{
+		using type = std::array<managed_type, array_size>;
+	};
+	/* Note: integral_type must be an `enum` type, but
+	 * `requires(std::is_enum<integral_type>::value)` cannot be checked
+	 * here, because the name `array_base_storage_enum<integral_type>` may be
+	 * formed for non-enum types, but the internal type `type` will not be
+	 * used in those cases.
+	 */
+	template <typename integral_type>
+	struct array_base_storage_enum
+	{
+		using type = dcx::enumerated_array<managed_type, array_size, integral_type>;
+	};
 protected:
 	using const_pointer_type = const managed_type *;
 	using const_reference_type = const managed_type &;
@@ -75,6 +85,7 @@ protected:
 	 */
 	using typename specialized_types::integral_type;
 	using index_type = integral_type;	// deprecated; should be dedicated UDT
+	using array_base_storage_type = typename std::conditional<std::is_integral<integral_type>::value, array_base_storage_integral, array_base_storage_enum<integral_type>>::type::type;
 
 public:
 	class array_managed_type;
@@ -115,8 +126,21 @@ protected:
 	static inline index_type check_index_range_size(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS std::size_t, const array_managed_type *);
 	template <typename handle_index_mismatch, typename handle_index_range_error>
 	static inline void check_explicit_index_range_ref(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_reference_type, std::size_t, const array_managed_type &);
+	/* Given a reference `r` to an element that should be in the array `a`,
+	 * compute the array index `i` that should refer to `r`.  Check that `i` is
+	 * within the bounds of the array, and that computing `&a[i]` yields `&r`.
+	 * The second test catches an error of the form:
+	 *
+	 * T a[3];
+	 * T *b = reinterpret_cast<char *>(&a[1]) + 1;
+	 * check_implicit_index_range_ref(*b, a);
+	 *
+	 * Use of the cast would allow the pointer to become misaligned and point
+	 * into the middle of an instance.  Such a pointer would never be correct,
+	 * so detect and trap it here.
+	 */
 	template <typename handle_index_mismatch, typename handle_index_range_error>
-	static inline void check_implicit_index_range_ref(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_reference_type, const array_managed_type &);
+	static inline void check_implicit_index_range_ref(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_reference_type r, const array_managed_type &a);
 	template <typename handle_null_pointer>
 	static inline void check_null_pointer_conversion(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_pointer_type);
 	template <typename handle_null_pointer>

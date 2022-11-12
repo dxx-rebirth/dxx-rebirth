@@ -56,8 +56,11 @@ auto dereference_iterator(const std::tuple<range_iterator_type...> &iterator, st
 template <typename T, std::size_t N>
 std::integral_constant<std::size_t, N> get_static_size(const T (&)[N]);
 
-template <typename T, std::size_t N>
-std::integral_constant<std::size_t, N> get_static_size(const std::array<T, N> &);
+template <typename T>
+requires(requires {
+	typename std::tuple_size<T>::type;
+	})
+typename std::tuple_size<T>::type get_static_size(const T &);
 
 std::nullptr_t get_static_size(...);
 
@@ -127,13 +130,15 @@ class zip_iterator : std::tuple<range0_iterator_type, rangeN_iterator_type...>
 	 * used for ignored fields are default-constructed (if possible)
 	 * instead of copy-constructed from the begin iterator.
 	 */
-	template <std::size_t I, typename T>
-		static typename std::enable_if<std::is_default_constructible<T>::value, T>::type end_construct_ignored_element()
+	template <std::size_t, typename T>
+		requires(std::is_default_constructible<T>::value)
+		static T end_construct_ignored_element()
 		{
 			return T();
 		}
 	template <std::size_t I, typename T>
-		typename std::enable_if<!std::is_default_constructible<T>::value, T>::type end_construct_ignored_element() const
+		requires(!std::is_default_constructible<T>::value)
+		T end_construct_ignored_element() const
 		{
 			return std::get<I>(*this);
 		}
@@ -160,6 +165,15 @@ public:
 	{
 		d_zip::detail::increment_iterator(*this, index_sequence_type());
 		return *this;
+	}
+	/* operator++(int) is currently unused, but is required to satisfy
+	 * the concept check on forward iterator.
+	 */
+	zip_iterator operator++(int)
+	{
+		auto result = *this;
+		d_zip::detail::increment_iterator(*this, index_sequence_type());
+		return result;
 	}
 	difference_type operator-(const zip_iterator &i) const
 	{

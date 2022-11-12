@@ -1248,21 +1248,21 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 	)
 
 #define NET_DUMP_STRINGS(u)	(	\
-	((u) == DUMP_CLOSED) ? TXT_NET_GAME_CLOSED :	\
-	((u) == DUMP_FULL) ? TXT_NET_GAME_FULL	:	\
-	((u) == DUMP_ENDLEVEL) ? TXT_NET_GAME_BETWEEN	:	\
-	((u) == DUMP_DORK) ? TXT_NET_GAME_NSELECT	:	\
-	((u) == DUMP_ABORTED) ? TXT_NET_GAME_NSTART	:	\
-	((u) == DUMP_CONNECTED) ? TXT_NET_GAME_CONNECT	:	\
-	((u) == DUMP_LEVEL) ? TXT_NET_GAME_WRONGLEV	:	\
+	((u) == kick_player_reason::closed) ? TXT_NET_GAME_CLOSED :	\
+	((u) == kick_player_reason::full) ? TXT_NET_GAME_FULL	:	\
+	((u) == kick_player_reason::endlevel) ? TXT_NET_GAME_BETWEEN	:	\
+	((u) == kick_player_reason::dork) ? TXT_NET_GAME_NSELECT	:	\
+	((u) == kick_player_reason::aborted) ? TXT_NET_GAME_NSTART	:	\
+	((u) == kick_player_reason::connected) ? TXT_NET_GAME_CONNECT	:	\
+	((u) == kick_player_reason::level) ? TXT_NET_GAME_WRONGLEV	:	\
 	(dxx_text_ensure_simple_expr(&(u), TXT_NET_GAME_CLOSED))	\
 	)
 #define MENU_DIFFICULTY_TEXT(u)	(	\
-	((u) == Difficulty_0) ? TXT_DIFFICULTY_1	:	\
-	((u) == Difficulty_1) ? TXT_DIFFICULTY_2	:	\
-	((u) == Difficulty_2) ? TXT_DIFFICULTY_3	:	\
-	((u) == Difficulty_3) ? TXT_DIFFICULTY_4	:	\
-	((u) == Difficulty_4) ? TXT_DIFFICULTY_5	:	\
+	((u) == Difficulty_level_type::_0) ? TXT_DIFFICULTY_1	:	\
+	((u) == Difficulty_level_type::_1) ? TXT_DIFFICULTY_2	:	\
+	((u) == Difficulty_level_type::_2) ? TXT_DIFFICULTY_3	:	\
+	((u) == Difficulty_level_type::_3) ? TXT_DIFFICULTY_4	:	\
+	((u) == Difficulty_level_type::_4) ? TXT_DIFFICULTY_5	:	\
 		 /* &u is ill-formed when u is a literal number */	\
 	(dxx_text_ensure_simple_expr(NULL, TXT_DIFFICULTY_1))	\
 	)

@@ -231,9 +231,7 @@ int wall_add_external_wall()
 		editor_status( "Cannot add external wall here - seg has children" );
 		return 0;
 	}
-
-	Cursegp->children[Curside] = -2;
-
+	Cursegp->children[Curside] = segment_exit;
 	return 1;
 }
 

@@ -76,18 +76,18 @@ static RAIIPHYSFS_File gamelog_fp;
 static std::array<console_buffer, CON_LINES_MAX> con_buffer;
 static con_state con_state;
 static int con_scroll_offset, con_size;
-static void con_force_puts(con_priority priority, char *buffer, size_t len);
+static void con_force_puts(con_priority priority, std::span<char> buffer);
 
-static void con_add_buffer_line(const con_priority priority, const char *const buffer, const size_t len)
+static void con_add_buffer_line(const con_priority priority, const std::span<const char> buffer)
 {
 	/* shift con_buffer for one line */
 	std::move(std::next(con_buffer.begin()), con_buffer.end(), con_buffer.begin());
 	console_buffer &c = con_buffer.back();
 	c.priority=priority;
 
-	size_t copy = std::min(len, CON_LINE_LENGTH - 1);
+	const std::size_t copy = std::min(buffer.size(), std::size(c.line) - 1);
 	c.line[copy] = 0;
-	memcpy(&c.line,buffer, copy);
+	memcpy(&c.line, buffer.data(), copy);
 }
 
 }
@@ -95,39 +95,55 @@ static void con_add_buffer_line(const con_priority priority, const char *const b
 void (con_printf)(const con_priority_wrapper priority, const char *const fmt, ...)
 {
 	va_list arglist;
-	char buffer[CON_LINE_LENGTH];
 
 	if (priority <= CGameArg.DbgVerbose)
 	{
 		va_start (arglist, fmt);
-		auto &&leader = priority.insert_location_leader(buffer);
-		size_t len = vsnprintf (leader.first, leader.second, fmt, arglist);
+		std::array<char, CON_LINE_LENGTH> buffer;
+		auto &&[written, leader] = priority.insert_location_leader(buffer);
+		const std::size_t len = std::max(vsnprintf(leader.data(), leader.size(), fmt, arglist), 0);
 		va_end (arglist);
-		con_force_puts(priority, buffer, len);
+		con_force_puts(priority, std::span(buffer).first(len + written));
 	}
 }
 
 namespace {
 
-static void con_scrub_markup(char *buffer)
+static void con_scrub_markup(const std::span<char> buffer)
 {
-	char *p1 = buffer, *p2 = p1;
-	do
-		switch (*p1)
+	const auto b = buffer.begin();
+	const auto e = buffer.end();
+	const auto &&i = ranges::find_if(b, e, [](const char c) { return c == CC_COLOR || c == CC_LSPACING || c == CC_UNDERLINE; });
+	if (i == e)
+		return;
+	auto p1 = i;
+	auto p2 = p1;
+	for (;; ++p1)
+	{
+		switch (auto c = *p1)
 		{
 			case CC_COLOR:
 			case CC_LSPACING:
-				if (!*++p1)
+				c = *++p1;
+				if (c)
+					/* If a character follows the control code, drop that
+					 * character.
+					 *
+					 * If a null byte follows the control code, fall through
+					 * and store that null byte to terminate the scrubbed
+					 * string.
+					 */
 					break;
 				[[fallthrough]];
-			case CC_UNDERLINE:
-				p1++;
-				break;
 			default:
-				*p2++ = *p1++;
+				*p2 = c;
+				if (!c)
+					return;
+				++p2;
+			case CC_UNDERLINE:
+				break;
 		}
-	while (*p1);
-	*p2 = 0;
+	}
 }
 
 static void con_print_file(const char *const buffer)
@@ -140,7 +156,7 @@ static void con_print_file(const char *const buffer)
 #endif
 
 	/* Print output to gamelog.txt */
-	if (gamelog_fp)
+	if (const auto fp = gamelog_fp.get())
 #endif
 	{
 #if DXX_CONSOLE_TIME_SHOW_YMD
@@ -215,10 +231,10 @@ static void con_print_file(const char *const buffer)
 #ifndef _WIN32
 		fputs(buf, stdout);
 #endif
-		if (gamelog_fp)
+		if (const auto fp = gamelog_fp.get())
 #endif
 		{
-			PHYSFS_write(gamelog_fp, buf, 1, len);
+			PHYSFS_write(fp, buf, 1, len);
 		}
 #undef DXX_LF
 #undef DXX_CONSOLE_TIME_ARG_MSEC
@@ -232,12 +248,12 @@ static void con_print_file(const char *const buffer)
  * The caller is assumed to have checked that the priority allows this
  * entry to be logged.
  */
-static void con_force_puts(const con_priority priority, char *const buffer, const size_t len)
+static void con_force_puts(const con_priority priority, const std::span<char> buffer)
 {
-	con_add_buffer_line(priority, buffer, len);
+	con_add_buffer_line(priority, buffer);
 	con_scrub_markup(buffer);
 	/* Produce a sanitised version and send it to the console */
-	con_print_file(buffer);
+	con_print_file(buffer.data());
 }
 
 }
@@ -247,8 +263,8 @@ void con_puts(const con_priority_wrapper priority, char *const buffer, const siz
 	if (priority <= CGameArg.DbgVerbose)
 	{
 		typename con_priority_wrapper::scratch_buffer<CON_LINE_LENGTH> scratch_buffer;
-		auto &&b = priority.prepare_buffer(scratch_buffer, buffer, len);
-		con_force_puts(priority, b.first, b.second);
+		auto &&b = priority.prepare_buffer(scratch_buffer, std::span<char>{buffer, len});
+		con_force_puts(priority, b);
 	}
 }
 
@@ -257,10 +273,10 @@ void con_puts(const con_priority_wrapper priority, const char *const buffer, con
 	if (priority <= CGameArg.DbgVerbose)
 	{
 		typename con_priority_wrapper::scratch_buffer<CON_LINE_LENGTH> scratch_buffer;
-		auto &&b = priority.prepare_buffer(scratch_buffer, buffer, len);
+		auto &&b = priority.prepare_buffer(scratch_buffer, std::span<const char>{buffer, len});
 		/* add given string to con_buffer */
-		con_add_buffer_line(priority, b.first, b.second);
-		con_print_file(b.first);
+		con_add_buffer_line(priority, b);
+		con_print_file(b.data());
 	}
 }
 
@@ -318,9 +334,9 @@ static void con_draw(grs_canvas &canvas)
 	{
 		auto &b = con_buffer[CON_LINES_MAX - 1 - i];
 		gr_set_fontcolor(canvas, get_console_color_by_priority(b.priority), -1);
-		const auto &&[w, h] = gr_get_string_size(game_font, b.line);
+		const auto &&[w, h] = gr_get_string_size(game_font, b.line.data());
 		y -= h + fspacy1;
-		gr_string(canvas, game_font, fspacx1, y, b.line, w, h);
+		gr_string(canvas, game_font, fspacx1, y, b.line.data(), w, h);
 		i++;
 
 		if (y<=0 || CON_LINES_MAX-1-i <= 0 || i < 0)

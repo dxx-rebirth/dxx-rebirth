@@ -29,9 +29,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "pack.h"
 #include "fwd-segment.h"
+#include "robot.h"
 #include "window.h"
 #include "wall.h"
 #include "d_underlying_value.h"
+#include <optional>
 
 namespace dcx {
 
@@ -74,21 +76,23 @@ static constexpr auto operator&(const game_mode_flags game_mode, const game_mode
  * use Difficulty_level_type in arithmetic expressions, and those
  * expressions must be signed to produce the correct result.
  */
-enum Difficulty_level_type : signed int
+enum class Difficulty_level_type : signed int
 {
-	Difficulty_0,
-	Difficulty_1,
-	Difficulty_2,
-	Difficulty_3,
-	Difficulty_4,
+	_0,
+	_1,
+	_2,
+	_3,
+	_4,
 };
 
-constexpr Difficulty_level_type DEFAULT_DIFFICULTY = Difficulty_1;
+constexpr Difficulty_level_type DEFAULT_DIFFICULTY = Difficulty_level_type::_1;
 
-static inline Difficulty_level_type cast_clamp_difficulty(const unsigned d)
+static inline Difficulty_level_type cast_clamp_difficulty(const int8_t d)
 {
-	return (d <= Difficulty_4) ? static_cast<Difficulty_level_type>(d) : Difficulty_4;
+	return (static_cast<uint8_t>(d) <= static_cast<uint8_t>(Difficulty_level_type::_4)) ? Difficulty_level_type{d} : Difficulty_level_type::_4;
 }
+
+std::optional<Difficulty_level_type> build_difficulty_level_from_untrusted(int8_t untrusted);
 
 struct d_game_shared_state
 {
@@ -134,6 +138,7 @@ struct d_game_unique_state
 	}
 };
 
+#if DXX_USE_STEREOSCOPIC_RENDER
 // Stereo viewport formats
 enum class StereoFormat : uint8_t
 {
@@ -144,13 +149,14 @@ enum class StereoFormat : uint8_t
 	AboveBelowSync,
 	HighestFormat = AboveBelowSync
 };
+#endif
 
 }
 
 #ifdef dsx
 namespace dsx {
 
-struct game_window : window
+struct game_window final : window
 {
 	using window::window;
 	virtual window_event_result event_handler(const d_event &) override;
@@ -251,13 +257,6 @@ struct d_flickering_light_state
 };
 #endif
 
-static inline void game_render_frame_mono(int skip_flip, const control_info &Controls)
-{
-	game_render_frame_mono(Controls);
-	if (!skip_flip)
-		gr_flip();
-}
-
 //Cheats
 struct game_cheats : prohibit_void_ptr<game_cheats>
 {
@@ -292,6 +291,10 @@ struct game_cheats : prohibit_void_ptr<game_cheats>
 	int buddyangry;
 #endif
 };
+
+void game_render_frame(const d_robot_info_array &Robot_info, const control_info &Controls);
+void game_render_frame_mono(const d_robot_info_array &Robot_info, const control_info &Controls);
+window_event_result ReadControls(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const d_event &event, control_info &Controls);
 
 }
 #endif

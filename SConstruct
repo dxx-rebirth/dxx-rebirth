@@ -131,13 +131,14 @@ class Git(StaticSubprocess):
 			self.revparse_HEAD = revparse_HEAD
 		def __repr__(self):
 			return 'ComputedExtraVersion(%r,%r,%r,%r)' % (self.describe, self.status, self.diffstat_HEAD, self.revparse_HEAD)
-	UnknownExtraVersion = ComputedExtraVersion(None, None, None,
+	UnknownExtraVersion = (
 		# If the string is alphanumeric, then `git archive` has rewritten the
 		# string to be a commit ID.  Use that commit ID as a guessed default
 		# when Git is not available to resolve a current commit ID.
-		'archive_$Format:%H$' if '$Format:%H$'.isalnum() else
+		ComputedExtraVersion('$Format:%(describe:tags,abbrev=12)$', None, None, 'archive_$Format:%H$') if '$Format:%H$'.isalnum() else
 		# Otherwise, assume that this is a checked-in copy.
-		None)
+		ComputedExtraVersion(None, None, None, None)
+		)
 	# None when unset.  Instance of ComputedExtraVersion once cached.
 	__computed_extra_version = None
 	__path_git = None
@@ -273,13 +274,15 @@ class ConfigureTests(_ConfigureTests):
 		std = 14
 	class Cxx17RequiredFeature(CxxRequiredFeature):
 		std = 17
+	class Cxx20RequiredFeature(CxxRequiredFeature):
+		std = 20
 	class CxxRequiredFeatures:
 		__slots__ = ('features', 'main', 'text')
 		def __init__(self,features):
 			self.features = features
 			s = '/* C++{} {} */\n{}'.format
-			self.main = '\n'.join((s(f.std, f.name, f.main) for f in features))
-			self.text = '\n'.join((s(f.std, f.name, f.text) for f in features))
+			self.main = '\n'.join((s(f.std, f.name, f.main) for f in features if f.main))
+			self.text = '\n'.join((s(f.std, f.name, f.text) for f in features if f.text))
 	class PCHAction:
 		def __init__(self,context):
 			self._context = context
@@ -426,8 +429,49 @@ class ConfigureTests(_ConfigureTests):
 	custom_tests = _custom_test.tests
 	comment_not_supported = '/* not supported */'
 	__python_import_struct = None
-	_cxx_conformance_cxx17 = 17
+	_cxx_conformance_cxx20 = 20
 	__cxx_std_required_features = CxxRequiredFeatures([
+		Cxx20RequiredFeature('explicitly defaulted operator==', '''
+struct A_%(N)s
+{
+	int a;
+	constexpr bool operator==(const A_%(N)s &) const = default;
+};
+''',
+'''
+	constexpr A_%(N)s a1{0};
+	constexpr A_%(N)s a2{0};
+	static_assert(a1 == a2);
+	static_assert(!(a1 != a2));
+'''),
+		Cxx20RequiredFeature('requires clause', '''
+template <typename T>
+requires(sizeof(T) >= 1)
+void f_%(N)s(T)
+{
+}
+''',
+'''
+	f_%(N)s('a');
+'''),
+		Cxx20RequiredFeature('std::span', '''
+#include <span>
+
+void sd_%(N)s(std::span<const char>);
+void ss_%(N)s(std::span<const char, 2>);
+
+void sd_%(N)s(std::span<const char>)
+{
+}
+
+void ss_%(N)s(std::span<const char, 2>)
+{
+}
+''',
+'''
+	sd_%(N)s("ab");
+	ss_%(N)s("a");
+'''),
 		Cxx17RequiredFeature('constexpr if', '''
 template <bool b>
 int f_%(N)s()
@@ -474,6 +518,17 @@ static inline void f_%(N)s() {}
 			f_%(N)s();
 			break;
 	}
+'''),
+		Cxx17RequiredFeature('attribute [[nodiscard]]', '''
+[[nodiscard]]
+static int f_%(N)s()
+{
+	return 0;
+}
+''',
+'''
+	auto i_%(N)s = f_%(N)s();
+	(void)i_%(N)s;
 '''),
 		Cxx14RequiredFeature('template variables', '''
 template <unsigned U_%(N)s>
@@ -910,37 +965,19 @@ help:assume C++ compiler works
 				if self._Compile(context, text='', msg='whether C++ compiler works with blank $CXXFLAGS', calling_function='cxx_blank_cxxflags_works'):
 					return 'C++ compiler works with blank $CXXFLAGS.  C++ compiler does not work with specified $CXXFLAGS.'
 			return 'C++ compiler does not work.'
-	implicit_tests.append(_implicit_test.RecordedTest('check_cxx17', "assume C++ compiler supports C++17"))
+	implicit_tests.append(_implicit_test.RecordedTest('check_cxx20', "assume C++ compiler supports C++20"))
 	__cxx_conformance_CXXFLAGS = [None]
 	def _check_cxx_conformance_level(self,context,_levels=(
 			# List standards in descending order of preference.
 			#
-			# C++17 is required, so list it last.
-			_cxx_conformance_cxx17,
+			# C++20 is required, so list it last.
+			_cxx_conformance_cxx20,
 		), _CXXFLAGS=__cxx_conformance_CXXFLAGS,
 		_successflags={'CXXFLAGS' : __cxx_conformance_CXXFLAGS}
 		):
 		# Testing the compiler option parser only needs Compile, even when LTO
 		# is enabled.
 		Compile = self._Compile
-		# Accepted options by version:
-		#
-		#	gcc-7 -std=gnu++1y
-		#	gcc-7 -std=gnu++14
-		#	gcc-7 -std=gnu++1z
-		#	gcc-7 -std=gnu++17
-		#
-		#	gcc-8 -std=gnu++1y
-		#	gcc-8 -std=gnu++14
-		#	gcc-8 -std=gnu++1z
-		#	gcc-8 -std=gnu++17
-		#	gcc-8 -std=gnu++2a
-		#
-		#	gcc-9 -std=gnu++1y
-		#	gcc-9 -std=gnu++14
-		#	gcc-9 -std=gnu++1z
-		#	gcc-9 -std=gnu++17
-		#	gcc-9 -std=gnu++2a
 		for level in _levels:
 			opt = '-std=gnu++%u' % level
 			_CXXFLAGS[0] = opt
@@ -1219,6 +1256,10 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		self._result_check_user_setting(context, self.user_settings.ipv6, _CPPDEFINES, 'IPv6 support')
 
 	@_custom_test
+	def _check_user_settings_stereo_render(self,context,_CPPDEFINES='DXX_USE_STEREOSCOPIC_RENDER'):
+		self._result_check_user_setting(context, self.user_settings.use_stereo_render, _CPPDEFINES, 'stereoscopic rendering')
+
+	@_custom_test
 	def _check_user_settings_udp(self,context,_CPPDEFINES='DXX_USE_UDP'):
 		self._result_check_user_setting(context, self.user_settings.use_udp, _CPPDEFINES, 'multiplayer over UDP')
 
@@ -1226,14 +1267,6 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	def _check_user_settings_tracker(self,context,_CPPDEFINES='DXX_USE_TRACKER'):
 		use_tracker = self.user_settings.use_tracker
 		self._result_check_user_setting(context, use_tracker, _CPPDEFINES, 'UDP game tracker')
-		# The legacy UDP tracker does not need either curl or jsoncpp.
-		# The new HTTP tracker requires both.  Force `use_tracker` to
-		# False for now.  Remove this comment and this assignment when
-		# the HTTP tracker is made active.
-		use_tracker = False
-		if use_tracker:
-			self.check_curl(context)
-			self.check_jsoncpp(context)
 
 	@_implicit_test
 	def check_libpng(self,context,
@@ -1347,41 +1380,6 @@ struct d_screenshot
 		context.Result(_msg % (self.msgprefix, 'yes, define _WIN32_WINNT=%#x' % _CPPDEFINES_WIN32_WINNT[1]))
 		self.successful_flags['CPPDEFINES'].append(_CPPDEFINES_WIN32_WINNT)
 		self.__defined_macros += '#define %s %s\n' % (_CPPDEFINES_WIN32_WINNT[0], _CPPDEFINES_WIN32_WINNT[1])
-
-	@_implicit_test
-	def check_curl(self,context,
-		_header=('curl/curl.h',),
-		_guess_flags={'LIBS' : ['curl']},
-		_main='''
-	CURL *c = curl_easy_init();
-	curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, nullptr);
-	curl_easy_cleanup(c);
-'''):
-		successflags = self.pkgconfig.merge(context, self.msgprefix, self.user_settings, 'libcurl', 'curl', _guess_flags).copy()
-		successflags['CPPDEFINES'] = successflags.get('CPPDEFINES', []) + ['DXX_HAVE_LIBCURL']
-		self._check_system_library(context, header=_header, main=_main, lib='curl', successflags=successflags)
-
-	@_implicit_test
-	def check_jsoncpp(self,context,
-		_header=(
-			'memory',
-			'json/json.h',
-		),
-		_guess_flags={'LIBS' : ['jsoncpp'], 'CPPPATH': ['/usr/include/jsoncpp']},
-		_main='''
-	Json::Value v;
-	v["a"] = "a";
-	v["b"] = 1;
-	// This code is silly, but it uses many of the required
-	// symbols, so if it builds, jsoncpp is probably installed correctly.
-	const std::string &&s = Json::writeString(Json::StreamWriterBuilder(), v);
-	std::string errs;
-	std::unique_ptr<Json::CharReader>(
-		Json::CharReaderBuilder().newCharReader()
-	)->parse(s.data(), &s.data()[s.size()], &v, &errs);
-'''):
-		successflags = self.pkgconfig.merge(context, self.msgprefix, self.user_settings, 'jsoncpp', 'jsoncpp', _guess_flags)
-		self._check_system_library(context, header=_header, main=_main, lib='jsoncpp', successflags=successflags)
 
 	@_guarded_test_windows
 	def check_dbghelp_header(self,context,_CPPDEFINES='DXX_ENABLE_WINDOWS_MINIDUMP'):
@@ -1636,31 +1634,6 @@ static void terminate_handler()
 		self._check_system_library(context, header=['%s.h' % (library_format_name % '')], main=main, lib=library_name, successflags=successflags)
 
 	@_custom_test
-	def check_compiler_missing_field_initializers(self,context,
-		_testflags_warn={'CXXFLAGS' : ['-Wmissing-field-initializers']},
-		_successflags_nowarn={'CXXFLAGS' : ['-Wno-missing-field-initializers']}
-	):
-		"""
-Test whether the compiler warns for a statement of the form
-
-	variable={};
-
-gcc-4.x warns for this form, but -Wno-missing-field-initializers silences it.
-gcc-5 does not warn.
-
-This form is used extensively in the code as a shorthand for resetting
-variables to their default-constructed value.
-"""
-		text = 'struct A{int a;};'
-		main = 'A a{};(void)a;'
-		Compile = self.Compile
-		if Compile(context, text=text, main=main, msg='whether C++ compiler accepts {} initialization', testflags=_testflags_warn) or \
-			Compile(context, text=text, main=main, msg='whether C++ compiler understands -Wno-missing-field-initializers', successflags=_successflags_nowarn) or \
-			not Compile(context, text=text, main=main, msg='whether C++ compiler always errors for {} initialization', expect_failure=True):
-			return
-		raise SCons.Errors.StopError("C++ compiler errors on {} initialization, even with -Wno-missing-field-initializers.")
-
-	@_custom_test
 	def check_attribute_error(self,context):
 		"""
 Test whether the compiler accepts and properly implements gcc's function
@@ -1837,12 +1810,12 @@ return __builtin_expect(argc == 1, 1) ? 1 : 0;
 
 	@_custom_test
 	def check_builtin_file(self,context):
-		if self.Compile(context, text='''
+		context.sconf.Define('DXX_HAVE_CXX_BUILTIN_FILE_LINE',
+			self.Compile(context, text='''
 static void f(const char * = __builtin_FILE(), unsigned = __builtin_LINE())
 {
 }
-''', main='f();', msg='whether compiler accepts __builtin_FILE, __builtin_LINE'):
-			context.sconf.Define('DXX_HAVE_CXX_BUILTIN_FILE_LINE')
+''', main='f();', msg='whether compiler accepts __builtin_FILE, __builtin_LINE'))
 
 	@_custom_test
 	def check_builtin_object_size(self,context):
@@ -2200,7 +2173,7 @@ using namespace B;
 		# First test all the features at once.  If all work, then done.
 		# If any fail, then the configure run will stop.
 		_Compile = self.Compile
-		if _Compile(context, text=_features.text, main=_features.main, msg='for required C++11, C++14, C++17 standard features'):
+		if _Compile(context, text=_features.text, main=_features.main, msg='for required C++11, C++14, C++17, C++20 standard features'):
 			return
 		# Some failed.  Run each test separately and report to the user
 		# which ones failed.
@@ -2326,7 +2299,7 @@ help:add Valgrind annotations; wipe certain freed memory when running under Valg
 #include "compiler-poison.h"
 '''
 		main = '''
-	DXX_MAKE_MEM_UNDEFINED(&argc, sizeof(argc));
+	DXX_MAKE_MEM_UNDEFINED(std::span<int, 1>(&argc, 1));
 '''
 		if self.Compile(context, text=text, main=main, msg='whether Valgrind memcheck header works'):
 			return True
@@ -2359,15 +2332,15 @@ help:always wipe certain freed memory
 	implicit_tests.append(_implicit_test.RecordedTest('check_size_type_I64', "assume size_t is formatted as `unsigned I64`"))
 
 	@_custom_test
-	def _check_size_type_format_modifier(self,context,_text='''
+	def _check_size_type_format_modifier(self,context,_text_format='''
 #include <cstddef>
-#define DXX_PRI_size_type %s
+#define DXX_PRI_size_type {}
 __attribute_format_printf(1, 2)
 void f(const char *, ...);
 void f(const char *, ...)
-{
-}
-''',_main='''
+{{
+}}
+'''.format,_main='''
 	std::size_t s = 0;
 	f("%" DXX_PRI_size_type, s);
 '''):
@@ -2438,7 +2411,7 @@ $ x86_64-pc-linux-gnu-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
 
 '''
 		# Test types in order of decreasing probability.
-		for how in (
+		for DXX_PRI_size_type, calling_function in (
 			# Linux
 			('z', 'size_type_size'),
 			('l', 'size_type_long'),
@@ -2447,9 +2420,8 @@ $ x86_64-pc-linux-gnu-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
 			# Win32
 			('', 'size_type_int'),
 		):
-			DXX_PRI_size_type = how[0]
-			f = '"%su"' % DXX_PRI_size_type
-			if self.Compile(context, text=_text % f, main=_main, msg='whether to format std::size_t with "%%%su"' % DXX_PRI_size_type, calling_function=how[1]):
+			f = '"{}u"'.format(DXX_PRI_size_type)
+			if self.Compile(context, text=_text_format(f), main=_main, msg='whether to format std::size_t with "%{}u"'.format(DXX_PRI_size_type), calling_function=calling_function):
 				context.sconf.Define('DXX_PRI_size_type', f)
 				return
 		raise SCons.Errors.StopError("C++ compiler rejects all candidate format strings for std::size_t.")
@@ -2467,37 +2439,9 @@ $ x86_64-pc-linux-gnu-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
  */
 #include <SDL_endian.h>
 
-/*
- * Recent gcc[1] create a useless cast when synthesizing constructor
- * inheritance, then warn the user about the compiler-generated cast.
- * Since the user did not write the cast in the source, the user
- * cannot remove the cast to eliminate the warning.
- *
- * The only way to avoid the problem is to avoid using constructor
- * inheritance in cases where the compiler would synthesize a useless
- * cast.
- *
- * Reported-by: zicodxx <https://github.com/dxx-rebirth/dxx-rebirth/issues/316>
- * gcc Bugzilla: <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=70844>
- *
- * [1] gcc-6.x, gcc-7.x (all currently released versions)
- */
-class base
-{
-public:
-	base(int &) {}
-};
-
-class derived : public base
-{
-public:
-	using base::base;
-};
-
 ''', main='''
-	derived d(argc);
 	return SDL_Swap32(argc);
-''', msg='whether compiler argument -Wuseless-cast works with SDL and with constructor inheritance', successflags=flags):
+''', msg='whether compiler argument -Wuseless-cast works with SDL', successflags=flags):
 			return
 		# <=clang-3.7 does not understand -Wuseless-cast
 		# This test does not influence the compile environment, but is
@@ -2597,10 +2541,6 @@ where the cast is useless.
 	return 0;
 ''', msg='for struct timespec', successflags=_successflags)
 
-	@_implicit_test
-	def check_warn_implicit_fallthrough(self,context,text,main,testflags,_successflags={'CXXFLAGS' : ['-Wimplicit-fallthrough=5']}):
-		self.Compile(context, text=text, main=main, msg='for -Wimplicit-fallthrough=5', testflags=testflags, successflags=_successflags)
-
 	@_custom_test
 	def check_warn_implicit_fallthrough(self,context,_successflags={'CXXFLAGS' : ['-Wimplicit-fallthrough=5']}):
 		main = '''
@@ -2684,11 +2624,70 @@ constexpr literal_as_type<T, v...> operator""_literal_as_type();
 ''', msg='whether compiler accepts string literal operator templates'):
 			self.successful_flags['CXXFLAGS'].append('-Wno-gnu-string-literal-operator-template')
 
+	@_custom_test
+	def check_have_std_ranges(self,context,_testflags={'CPPDEFINES' : ['_LIBCPP_ENABLE_EXPERIMENTAL']}):
+		text = '''
+#include "backports-ranges.h"
+
+struct test_borrowed_range {};
+
+template <>
+constexpr bool std::ranges::enable_borrowed_range<test_borrowed_range> = true;
+
+template <typename R>
+requires(ranges::range<R>)
+static void requires_range(R &) {}
+
+template <typename R>
+requires(ranges::borrowed_range<R>)
+static void requires_borrowed_range(R &&) {}
+'''
+		main = '''
+	int a[3]{1, 2, 3};
+	int b[2]{4, 5};
+	const ranges::subrange c(b);
+	const ranges::subrange<int *> c2(b);
+	(void)c2;
+	const auto m = [](int i) { return i * 2; };
+	(void)(ranges::find(a, argc) == a);
+	(void)(ranges::find(a, argc, m) == a);
+	(void)(ranges::find(std::ranges::begin(b), std::ranges::end(b), argc) == a);
+	(void)(ranges::find(std::ranges::begin(b), std::ranges::end(b), argc, m) == a);
+	const auto predicate = [](int i) { return i == 3; };
+	(void)(ranges::find_if(b, predicate) == a);
+	(void)(ranges::find_if(std::ranges::begin(b), std::ranges::end(b), predicate) == a);
+	requires_range(a);
+	requires_borrowed_range(a);
+	return 0;
+'''
+		if self.Compile(context, text=text, main=main, msg='whether C++ compiler provides std::ranges by default'):
+			return
+		# std::ranges is a C++20 feature.
+		# gcc first shipped std::ranges in gcc-10.1 [1], which was released on
+		# 2020-05-07 [2].
+		# clang shipped incomplete std::ranges behind a preprocessor guard in
+		# clang-14 [3], which was released on 2022-03-25 [4].
+		#
+		# As of this writing, Apple clang is still clang-14, and so does not
+		# support all needed std::ranges features, even with the preprocessor
+		# guard defined.  Try to work around this by bundling an implementation
+		# sufficient to cover Rebirth's needs.
+		#
+		# [1]: https://gcc.gnu.org/onlinedocs/libstdc++/manual/status.html#table.cxx20_features
+		# [2]: https://gcc.gnu.org/git/?p=gcc.git;a=commit;h=6e6e3f144a33ae504149dc992453b4f6dea12fdb
+		# [3]: https://libcxx.llvm.org/Status/Ranges.html
+		# [4]: https://discourse.llvm.org/t/llvm-14-0-0-release/61224
+		if self.Compile(context, text=text, main=main, msg='whether C++ compiler can use bundled ranges support with -D_LIBCPP_ENABLE_EXPERIMENTAL', testflags=_testflags):
+			return
+		raise SCons.Errors.StopError("C++ compiler does not support std::ranges.")
+
 	__preferred_compiler_options = (
 		'-fvisibility=hidden',
 		'-Wduplicated-branches',
 		'-Wduplicated-cond',
 		'-Wsuggest-attribute=noreturn',
+		'-Wsuggest-final-types',
+		'-Wsuggest-override',
 		'-Wlogical-op',
 		'-Wold-style-cast',
 		'-Wredundant-decls',
@@ -2722,34 +2721,6 @@ constexpr literal_as_type<T, v...> operator""_literal_as_type();
 #endif
 
 #include <SDL.h>
-
-/* gcc's warning -Wduplicated-branches was initially overzealous and
- * warned if the branches were identical after expanding template
- * parameters.  This was documented in gcc bug #82541, which was fixed
- * for gcc-8.x.  As of this writing, the fix has not been backported to
- * gcc-7.x.
- *
- * Work around this unwanted quirk by including code which will provoke
- * a -Wduplicated-branches warning in affected versions, but not in
- * fixed versions, so that the configure stage blacklists the warning on
- * affected versions.
- */
-
-namespace gcc_pr82541 {
-
-template <unsigned U1, unsigned U2>
-unsigned u(bool b)
-{
-	return b ? U1 : U2;
-}
-
-unsigned u2(bool b);
-unsigned u2(bool b)
-{
-	return u<1, 1>(b);
-}
-
-}
 ''',
 		_mangle_compiler_option_name=__mangle_compiler_option_name,
 		_mangle_linker_option_name=__mangle_linker_option_name
@@ -2760,10 +2731,6 @@ unsigned u2(bool b)
 		Link = self.Link
 		f, desc = (Link, 'linker') if ldopts else (Compile, 'compiler')
 		if f(context, text=_text, main='''
-	using gcc_pr82541::u2;
-	u2(false);
-	u2(true);
-	u2(argc > 2);
 ''', msg='whether %s accepts preferred options' % desc, successflags={'CXXFLAGS' : ccopts, 'LINKFLAGS' : ldopts}, calling_function='preferred_%s_options' % desc):
 			# Everything is supported.  Skip individual tests.
 			return
@@ -3605,7 +3572,7 @@ class DXXCommon(LazyObjectConstructor):
 				return True
 			return False
 		def default_sdl2(self):
-			if self.raspberrypi in ('mesa',):
+			if self.raspberrypi in ('mesa',) or self.host_platform == 'darwin':
 				return True
 			return False
 		@classmethod
@@ -3624,6 +3591,8 @@ class DXXCommon(LazyObjectConstructor):
 			if self.raspberrypi in ('yes', 'mesa'):
 				return True
 			return False
+		def default_use_stereo_render(self):
+			return self.opengl and not self.opengles
 		def selected_OGLES_LIB(self):
 			if self.raspberrypi == 'yes':
 				return 'brcmGLESv2'
@@ -3822,6 +3791,12 @@ class DXXCommon(LazyObjectConstructor):
 					# Only applicable if show_tool_version=True
 					('show_assembler_version', True, None),
 					('show_linker_version', True, None),
+				),
+			},
+			{
+				'variable': BoolVariable,
+				'arguments': (
+					('use_stereo_render', self.default_use_stereo_render, 'enable stereoscopic rendering'),
 				),
 			},
 			{
@@ -4075,6 +4050,8 @@ class DXXCommon(LazyObjectConstructor):
 		# arguments are included.
 		tools = ('gcc', 'g++', 'applelink')
 		def adjust_environment(self,program,env):
+			if self.user_settings.sdl2 == False:
+				raise SCons.Errors.StopError('macOS builds do not support SDL 1.2.')
 			macos_add_frameworks = self.user_settings.macos_add_frameworks
 			if macos_add_frameworks:
 				# The user may or may not have a private installation of
@@ -4125,6 +4102,15 @@ class DXXCommon(LazyObjectConstructor):
 		def adjust_environment(self,program,env):
 			env.Append(
 				CXXFLAGS = ['-pthread'],
+			)
+
+	class HaikuPlatformSettings(LinuxPlatformSettings):
+		def adjust_environment(self,program,env):
+			# Note: the lack of super() is deliberate.  Haiku does not want the
+			# environment changes that LinuxPlatformSettings.adjust_environment
+			# would provide, so there is no call to the base class method.
+			env.Append(
+				LIBS = ['network'],
 			)
 
 	def __init__(self,user_settings,__program_instance=itertools.count(1)):
@@ -4207,7 +4193,6 @@ class DXXCommon(LazyObjectConstructor):
 			# they unconditionally include headers specific to OS X.
 			excluded_directories = (
 				'common/arch/cocoa/',
-				'common/arch/carbon/',
 			)
 			# Use `.extend()` instead of assignment because
 			# `__shared_header_file_list` is shared among all invocations of
@@ -4380,6 +4365,19 @@ class DXXCommon(LazyObjectConstructor):
 		return '\\"%s\\"' % r
 
 	@staticmethod
+	def _quote_cppdefine_as_char_initializer(k,v):
+		# - Format the input as `name=value`
+		# - map(ord, formatted_string) to produce a map object that yields an
+		#   iterable of integers representing the character codes of the
+		#   formatted string
+		# - map(str, inner_map) to convert the iterable of integers to an
+		#   iterable of strings, where each string is the decimal digits of an
+		#   input integer
+		# - ','.join(outer_map) to convert the iterable of strings to a
+		#   comma-separated string
+		return ('DESCENT_%s' % k), ','.join(map(str, map(ord, '%s=%r' % (k, v))))
+
+	@staticmethod
 	def _encode_cppdefine_for_identifier(s,b32encode=base64.b32encode):
 		# Identifiers cannot contain `=`; `z` is not generated by
 		# b32encode, so use it in place of the pad character.
@@ -4517,6 +4515,7 @@ class DXXCommon(LazyObjectConstructor):
 		return (
 			cls.Win32PlatformSettings if platform_name == 'win32' else (
 				cls.DarwinPlatformSettings if platform_name == 'darwin' else
+				cls.HaikuPlatformSettings if platform_name == 'haiku1' else
 				cls.LinuxPlatformSettings
 			)
 		)
@@ -5030,7 +5029,7 @@ class DXXProgram(DXXCommon):
 			self.platform_objects = [resfile]
 			env.Prepend(
 				CXXFLAGS = ['-fno-omit-frame-pointer'],
-				RCFLAGS = ['-D%s' % d for d in program.env_CPPDEFINES],
+				RCFLAGS = ['-D%s' % d for d in program.env_CPPDEFINES] + ['-D' 'DXX_VERSION_SEQ=%s' % (program.DXX_VERSION_SEQ,)],
 			)
 			env.Append(
 				LIBS = ['wsock32', 'ws2_32', 'winmm', 'mingw32'],
@@ -5189,8 +5188,8 @@ class DXXProgram(DXXCommon):
 			extra_version += git_describe_version_describe_output
 		get_version_head = StaticSubprocess.get_version_head
 		ld_path = ToolchainInformation.get_tool_path(env, 'ld')[1]
-		_quote_cppdefine = self._quote_cppdefine
-		versid_cppdefines.extend([('DESCENT_%s' % k, _quote_cppdefine(env.get(k, ''))) for k in versid_build_environ])
+		_quote_cppdefine_as_char_initializer = self._quote_cppdefine_as_char_initializer
+		versid_cppdefines.extend([_quote_cppdefine_as_char_initializer(k, env.get(k, '')) for k in versid_build_environ])
 		versid_cppdefines.extend((
 			# VERSION_EXTRA is special.  Format it as a string so that
 			# it can be pasted into g_descent_version (in vers_id.cpp)
@@ -5198,15 +5197,15 @@ class DXXProgram(DXXCommon):
 			# banner.  Since it is pasted into g_descent_version, it is
 			# NOT included in versid_build_environ as an independent
 			# field.
-			('DESCENT_VERSION_EXTRA', _quote_cppdefine(extra_version, f=str)),
-			('DESCENT_CXX_version', _quote_cppdefine(get_version_head(env['CXX']))),
-			('DESCENT_LINK', _quote_cppdefine(ld_path.decode())),
-			('DESCENT_git_status', _quote_cppdefine(git_describe_version.status)),
-			('DESCENT_git_diffstat', _quote_cppdefine(git_describe_version.diffstat_HEAD)),
+			('DESCENT_VERSION_EXTRA', ','.join(map(str, map(ord, extra_version)))),
+			_quote_cppdefine_as_char_initializer('CXX_version', get_version_head(env['CXX'])),
+			_quote_cppdefine_as_char_initializer('LINK', ld_path.decode()),
+			_quote_cppdefine_as_char_initializer('git_status', git_describe_version.status),
+			_quote_cppdefine_as_char_initializer('git_diffstat', git_describe_version.diffstat_HEAD),
 		))
 		if ld_path:
 			versid_cppdefines.append(
-				('DESCENT_LINK_version', _quote_cppdefine(get_version_head(ld_path))),
+				_quote_cppdefine_as_char_initializer('LINK_version', get_version_head(ld_path))
 			)
 			versid_build_environ.append('LINK_version')
 		versid_build_environ.extend((

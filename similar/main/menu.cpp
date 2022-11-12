@@ -251,7 +251,7 @@ enum class select_dir_flag : uint8_t
 };
 
 __attribute_nonnull()
-static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path, const partial_range_t<const file_extension_t *> &ext_list, select_dir_flag select_dir, ntstring<PATH_MAX - 1> &userdata);
+static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path, const ranges::subrange<const file_extension_t *> &ext_list, select_dir_flag select_dir, ntstring<PATH_MAX - 1> &userdata);
 
 static window_event_result get_absolute_path(ntstring<PATH_MAX - 1> &full_path, const char *rel_path)
 {
@@ -443,6 +443,7 @@ static int MakeNewPlayerFile(int allow_abort)
 	return 1;
 }
 
+static void do_sound_menu();
 }
 
 }
@@ -748,7 +749,9 @@ window_event_result main_menu::event_handler(const d_event &event)
 			RegisterPlayer();
 			break;
 		case EVENT_WINDOW_ACTIVATED:
+#if defined(DXX_BUILD_DESCENT_II)
 			load_palette(MENU_PALETTE,0,1);		//get correct palette
+#endif
 			keyd_time_when_last_pressed = timer_query();		// .. 20 seconds from now!
 			break;
 
@@ -782,7 +785,7 @@ window_event_result main_menu::event_handler(const d_event &event)
 #if DXX_USE_OGL
 					Screen_mode = -1;
 #endif
-					PlayMovie("intro.tex", "intro.mve",0);
+					PlayMovie("intro.tex", "intro.mve", play_movie_warn_missing::verbose);
 					songs_play_song(SONG_TITLE,1);
 					set_screen_mode(SCREEN_MENU);
 				}
@@ -869,19 +872,20 @@ static window_event_result demo_menu_keycommand( listbox *lb,const d_event &even
 
 		case KEY_CTRLED+KEY_C:
 			{
-				int x = 1;
-				char bakname[PATH_MAX];
+				std::array<char, PATH_MAX> bakname;
 
 				// Get backup name
-				change_filename_extension(bakname, items[citem]+((items[citem][0]=='$')?1:0), DEMO_BACKUP_EXT);
-				x = nm_messagebox(menu_title{nullptr}, 2, TXT_YES, TXT_NO,	"Are you sure you want to\n"
+				const auto ic = items[citem];
+				if (!change_filename_extension(bakname, ic, DEMO_BACKUP_EXT))
+					return window_event_result::handled;
+				const auto x = nm_messagebox(menu_title{nullptr}, 2, TXT_YES, TXT_NO,	"Are you sure you want to\n"
 								  "swap the endianness of\n"
 								  "%s? If the file is\n"
 								  "already endian native, D1X\n"
 								  "will likely crash. A backup\n"
-								  "%s will be created", items[citem]+((items[citem][0]=='$')?1:0), bakname );
+								  "%s will be created.", ic, bakname.data());
 				if (!x)
-					newdemo_swap_endian(items[citem]);
+					newdemo_swap_endian(ic);
 
 				return window_event_result::handled;
 			}
@@ -937,24 +941,24 @@ static int do_difficulty_menu()
 	using items_type = enumerated_array<newmenu_item, NDL, Difficulty_level_type>;
 	struct difficulty_prompt_menu : items_type, passive_newmenu
 	{
-		difficulty_prompt_menu(const unsigned Difficulty_level) :
+		difficulty_prompt_menu(const Difficulty_level_type Difficulty_level) :
 			items_type{{{
-				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_0)},
-				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_1)},
-				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_2)},
-				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_3)},
-				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_4)},
+				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_level_type::_0)},
+				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_level_type::_1)},
+				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_level_type::_2)},
+				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_level_type::_3)},
+				newmenu_item::nm_item_menu{MENU_DIFFICULTY_TEXT(Difficulty_level_type::_4)},
 			}}},
-			passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_DIFFICULTY_LEVEL}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), Difficulty_level), grd_curscreen->sc_canvas)
+			passive_newmenu(menu_title{nullptr}, menu_subtitle{TXT_DIFFICULTY_LEVEL}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(*static_cast<items_type *>(this), underlying_value(Difficulty_level)), grd_curscreen->sc_canvas)
 		{
 		}
 	};
 	auto &Difficulty_level = GameUniqueState.Difficulty_level;
 	const unsigned s = run_blocking_newmenu<difficulty_prompt_menu>(Difficulty_level);
 
-	if (s <= Difficulty_4)
+	if (const auto od = build_difficulty_level_from_untrusted(s))
 	{
-		const auto d = static_cast<Difficulty_level_type>(s);
+		const auto d = *od;
 		if (d != Difficulty_level)
 		{
 			PlayerCfg.DefaultDifficulty = d;
@@ -1033,13 +1037,6 @@ window_event_result do_new_game_menu()
 	return window_event_result::close;	// exit mission listbox
 }
 
-}
-
-}
-
-static void do_sound_menu();
-namespace dsx {
-namespace {
 static void hud_config();
 static void graphics_config();
 static void gameplay_config();
@@ -1267,7 +1264,7 @@ void screen_resolution_menu::check_apply_preset_resolution() const
 			return 0;
 		return ni.value;
 	};
-	const auto i = std::find_if(r.begin(), r.end(), predicate);
+	const auto &&i = ranges::find_if(r, predicate);
 	if (i == r.end())
 		return;
 	const auto requested_mode = std::get<0>(*i);
@@ -1637,6 +1634,11 @@ class input_config_menu_items
 	DXX_MENUITEM(VERB, CHECK, "Multi Coop (if host allows)", opt_ic_mouselook_mp_cooperative, PlayerCfg.MouselookFlags & MouselookMode::MPCoop)	\
 	DXX_MENUITEM(VERB, CHECK, "Multi Anarchy (if host allows)", opt_ic_mouselook_mp_anarchy, PlayerCfg.MouselookFlags & MouselookMode::MPAnarchy)	\
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_mouselook)	\
+	DXX_MENUITEM(VERB, TEXT, "Release pitch lock:", opt_label_pitch_lock_mode) \
+	DXX_MENUITEM(VERB, CHECK, "Single player", opt_ic_pitch_lock_sp, PlayerCfg.PitchLockFlags & MouselookMode::Singleplayer) \
+	DXX_MENUITEM(VERB, CHECK, "Multi Coop (if host allows)", opt_ic_pitch_lock_mp_coop, PlayerCfg.PitchLockFlags & MouselookMode::MPCoop) \
+	DXX_MENUITEM(VERB, CHECK, "Multi Anarchy (if host allows)", opt_ic_pitch_lock_mp_anarchy, PlayerCfg.PitchLockFlags & MouselookMode::MPAnarchy) \
+	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_rotational_setting)	\
 	DXX_MENUITEM(VERB, MENU, "GAME SYSTEM KEYS", opt_ic_help0)	\
 	DXX_MENUITEM(VERB, MENU, "NETGAME SYSTEM KEYS", opt_ic_help1)	\
 	DXX_MENUITEM(VERB, MENU, "DEMO SYSTEM KEYS", opt_ic_help2)	\
@@ -1684,6 +1686,7 @@ window_event_result input_config_menu::event_handler(const d_event &event)
 		{
 			const auto citem = static_cast<const d_change_event &>(event).citem;
 			MouselookMode mousemode;
+			MouselookMode pitchlock;
 #if DXX_MAX_JOYSTICKS
 			if (citem == opt_ic_usejoy)
 			{
@@ -1723,6 +1726,15 @@ window_event_result input_config_menu::event_handler(const d_event &event)
 				else
 					PlayerCfg.MouselookFlags &= ~mousemode;
 			}
+			else if ((citem == opt_ic_pitch_lock_sp && (pitchlock = MouselookMode::Singleplayer, true)) ||
+					(citem == opt_ic_pitch_lock_mp_coop && (pitchlock = MouselookMode::MPCoop, true)) ||
+					(citem == opt_ic_pitch_lock_mp_anarchy && (pitchlock = MouselookMode::MPAnarchy, true))) {
+				if (items[citem].value)
+					PlayerCfg.PitchLockFlags |= pitchlock;
+				else
+					PlayerCfg.PitchLockFlags &= ~pitchlock;
+			}
+
 			break;
 		}
 		case EVENT_NEWMENU_SELECTED:
@@ -2204,23 +2216,23 @@ struct browser_storage
 {
 	struct target_path_not_mounted {};
 	// List of file extensions we're looking for (if looking for a music file many types are possible)
-	const partial_range_t<const file_extension_t *> ext_range;
+	const ranges::subrange<const file_extension_t *> ext_range;
 	const select_dir_flag select_dir;		// Allow selecting the current directory (e.g. for Jukebox level song directory)
 	physfsx_mounted_path view_path;	// The absolute path we're currently looking at
 	string_array_t list;
-	browser_storage(const char *orig_path, const partial_range_t<const file_extension_t *> &ext_range, const select_dir_flag select_dir, const char *const sep) :
+	browser_storage(const char *orig_path, const ranges::subrange<const file_extension_t *> &ext_range, const select_dir_flag select_dir, const char *const sep) :
 		ext_range(ext_range), select_dir(select_dir),
 		/* view_path is trivially constructed, then properly initialized as
 		 * a side effect of preparing the string list */
 		list(construct_string_list(orig_path, view_path, ext_range, select_dir, sep))
 	{
 	}
-	static string_array_t construct_string_list(const char *orig_path, physfsx_mounted_path &view_path, const partial_range_t<const file_extension_t *> &r, const select_dir_flag select_dir, const char *const sep);
+	static string_array_t construct_string_list(const char *orig_path, physfsx_mounted_path &view_path, const ranges::subrange<const file_extension_t *> &r, const select_dir_flag select_dir, const char *const sep);
 };
 
 struct browser : browser_storage, listbox
 {
-	browser(const char *orig_path, menu_title title, const partial_range_t<const file_extension_t *> &r, const select_dir_flag select_dir, const char *const sep, ntstring<PATH_MAX - 1> &userdata) :
+	browser(const char *orig_path, menu_title title, const ranges::subrange<const file_extension_t *> &r, const select_dir_flag select_dir, const char *const sep, ntstring<PATH_MAX - 1> &userdata) :
 		browser_storage(orig_path, r, select_dir, sep),
 		listbox(0, list.pointer().size(), &list.pointer().front(), title, grd_curscreen->sc_canvas, 1),
 		userdata(userdata)
@@ -2233,7 +2245,7 @@ struct browser : browser_storage, listbox
 struct list_directory_context
 {
 	string_array_t &string_list;
-	const partial_range_t<const file_extension_t *> ext_range;
+	const ranges::subrange<const file_extension_t *> ext_range;
 	const std::array<char, PATH_MAX> &path;
 };
 
@@ -2268,17 +2280,17 @@ window_event_result browser::callback_handler(const d_event &event, window_event
 				}};
 				struct drive_letter_menu : passive_newmenu
 				{
-					drive_letter_menu(grs_canvas &canvas, partial_range_t<newmenu_item *> items) :
+					drive_letter_menu(grs_canvas &canvas, const ranges::subrange<newmenu_item *> items) :
 						passive_newmenu(menu_title{nullptr}, menu_subtitle{"Enter drive letter"}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(items, 0), canvas)
 						{
 						}
 				};
 				const auto rval = run_blocking_newmenu<drive_letter_menu>(*grd_curcanv, m);
 				const auto t0 = text[0];
-				std::array<char, PATH_MAX> newpath;
-				snprintf(newpath.data(), newpath.size(), "%c:%s", t0, sep);
 				if (!rval && t0)
 				{
+					std::array<char, PATH_MAX> newpath;
+					snprintf(newpath.data(), newpath.size(), "%c:%s", t0, sep);
 					select_file_recursive(title, newpath, ext_range, select_dir, userdata);
 					// close old box.
 					return window_event_result::close;
@@ -2352,7 +2364,7 @@ window_event_result browser::callback_handler(const d_event &event, window_event
 	return window_event_result::ignored;
 }
 
-static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path_storage, const partial_range_t<const file_extension_t *> &ext_range, const select_dir_flag select_dir, ntstring<PATH_MAX - 1> &userdata)
+static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path_storage, const ranges::subrange<const file_extension_t *> &ext_range, const select_dir_flag select_dir, ntstring<PATH_MAX - 1> &userdata)
 {
 	const auto sep = PHYSFS_getDirSeparator();
 	auto orig_path = orig_path_storage.data();
@@ -2371,7 +2383,7 @@ static int select_file_recursive(const menu_title title, const std::array<char, 
 	}
 }
 
-string_array_t browser_storage::construct_string_list(const char *orig_path, physfsx_mounted_path &view_path, const partial_range_t<const file_extension_t *> &ext_range, const select_dir_flag select_dir, const char *const sep)
+string_array_t browser_storage::construct_string_list(const char *orig_path, physfsx_mounted_path &view_path, const ranges::subrange<const file_extension_t *> &ext_range, const select_dir_flag select_dir, const char *const sep)
 {
 	view_path.path.front() = 0;
 	// Set the viewing directory to orig_path, or some parent of it
@@ -2698,18 +2710,11 @@ window_event_result sound_menu::event_handler(const d_event &event)
 	return newmenu::event_handler(event);
 }
 
-}
-}
-
 void do_sound_menu()
 {
 	auto menu = window_create<sound_menu>(grd_curscreen->sc_canvas);
 	(void)menu;
 }
-
-namespace dsx {
-
-namespace {
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define DSX_GAME_SPECIFIC_OPTIONS(VERB)	\
@@ -2930,14 +2935,17 @@ window_event_result polygon_models_viewer_window::event_handler(const d_event &e
 			timer_delay(F1_0/60);
 			{
 				auto &canvas = *grd_curcanv;
-				draw_model_picture(canvas, view_idx, ang);
+				auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
+				draw_model_picture(canvas, Polygon_models[view_idx], ang);
 				gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), -1);
 				auto &game_font = *GAME_FONT;
 				gr_printf(canvas, game_font, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev model (%i/%i)\nA/D: rotate y\nW/S: rotate x\nQ/E: rotate z\nR: reset orientation", view_idx, LevelSharedPolygonModelState.N_polygon_models - 1);
 			}
 			break;
 		case EVENT_WINDOW_CLOSE:
+#if defined(DXX_BUILD_DESCENT_II)
 			load_palette(MENU_PALETTE,0,1);
+#endif
 			key_toggle_repeat(0);
 			break;
 		default:
@@ -3008,7 +3016,9 @@ window_event_result gamebitmaps_viewer_window::event_handler(const d_event &even
 			}
 			break;
 		case EVENT_WINDOW_CLOSE:
+#if defined(DXX_BUILD_DESCENT_II)
 			load_palette(MENU_PALETTE,0,1);
+#endif
 			key_toggle_repeat(0);
 			break;
 		default:

@@ -8,7 +8,7 @@
 # terms and a link to the Git history.
 
 EAPI=7
-PYTHON_COMPAT=( python3_9 )
+PYTHON_COMPAT=( python3_10 )
 
 inherit desktop eutils python-any-r1 scons-utils toolchain-funcs xdg
 if [[ "$PV" = 9999 ]]; then
@@ -16,7 +16,6 @@ if [[ "$PV" = 9999 ]]; then
 	EGIT_REPO_URI="https://github.com/dxx-rebirth/dxx-rebirth"
 	# Live ebuilds have blank keywords.
 	KEYWORDS=
-	PROPERTIES="live"
 else
 	MY_COMMIT=''
 	S="$WORKDIR/$PN-$MY_COMMIT"

@@ -33,7 +33,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "multibot.h"
 #include "game.h"
-#include "net_udp.h"
 #include "laser.h"
 #include "dxxerror.h"
 #include "timer.h"
@@ -59,15 +58,25 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_levelstate.h"
 #include "partial_range.h"
 
-namespace dsx {
-static int multi_add_controlled_robot(vmobjptridx_t objnum, int agitation);
+namespace dcx {
 namespace {
+std::array<multi_send_robot_position_priority, MAX_ROBOTS_CONTROLLED> robot_send_pending;
+std::array<multi_command<multiplayer_command_t::MULTI_ROBOT_FIRE>, MAX_ROBOTS_CONTROLLED> robot_fire_buf;
+}
+std::array<objnum_t, MAX_ROBOTS_CONTROLLED> robot_controlled;
+std::array<int, MAX_ROBOTS_CONTROLLED> robot_agitation;
+std::bitset<MAX_ROBOTS_CONTROLLED> robot_fired;
+}
+
+namespace dsx {
+namespace {
+static int multi_add_controlled_robot(vmobjptridx_t objnum, int agitation);
 void multi_drop_robot_powerups(object &objnum);
-}
-}
-static void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now);
+static void multi_send_robot_position_sub(const vmobjptridx_t objnum, multiplayer_data_priority now);
 static void multi_send_release_robot(vmobjptridx_t objnum);
 static void multi_delete_controlled_robot(const vmobjptridx_t objnum);
+}
+}
 
 //
 // Code for controlling robots in multiplayer games
@@ -86,14 +95,9 @@ static void multi_delete_controlled_robot(const vmobjptridx_t objnum);
 
 #define MIN_TO_ADD	60
 
-std::array<objnum_t, MAX_ROBOTS_CONTROLLED> robot_controlled;
-std::array<int, MAX_ROBOTS_CONTROLLED> robot_agitation,
-	robot_send_pending,
-	robot_fired;
 std::array<fix64, MAX_ROBOTS_CONTROLLED> robot_controlled_time,
 	robot_last_send_time,
 	robot_last_message_time;
-ubyte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];
 
 #define MULTI_ROBOT_PRIORITY(objnum, pnum) (((objnum % 4) + pnum) % N_players)
 
@@ -176,8 +180,8 @@ void multi_check_robot_timeout()
 					Int3(); // Non-terminal but Rob is interesting, step over please...
 					return;
 				}
-				if (robot_send_pending[i])
-					multi_send_robot_position(robot_objp, 1);
+				if (robot_send_pending[i] != multi_send_robot_position_priority::_0)
+					multi_send_robot_position(robot_objp, multi_send_robot_position_priority::_2);
 				multi_send_release_robot(robot_objp);
 //				multi_delete_controlled_robot(robot_controlled[i]);
 //				robot_controlled[i] = -1;
@@ -245,6 +249,7 @@ void multi_strip_robots(const int playernum)
 }
 
 namespace dsx {
+namespace {
 int multi_add_controlled_robot(const vmobjptridx_t objnum, int agitation)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -278,8 +283,8 @@ int multi_add_controlled_robot(const vmobjptridx_t objnum, int agitation)
 
 		if (robot_last_message_time[i] + ROBOT_TIMEOUT < GameTime64) {
 			const auto &&robot_objp = vmobjptridx(robot_controlled[i]);
-			if (robot_send_pending[i])
-				multi_send_robot_position(robot_objp, 1);
+			if (robot_send_pending[i] != multi_send_robot_position_priority::_0)
+				multi_send_robot_position(robot_objp, multi_send_robot_position_priority::_2);
 			multi_send_release_robot(robot_objp);
 			first_free_robot = i;
 			break;
@@ -302,8 +307,8 @@ int multi_add_controlled_robot(const vmobjptridx_t objnum, int agitation)
 	) // Replace some old robot with a more agitated one
 	{
 		const auto &&robot_objp = vmobjptridx(robot_controlled[lowest_agitated_bot]);
-		if (robot_send_pending[lowest_agitated_bot])
-			multi_send_robot_position(robot_objp, 1);
+		if (robot_send_pending[lowest_agitated_bot] != multi_send_robot_position_priority::_0)
+			multi_send_robot_position(robot_objp, multi_send_robot_position_priority::_2);
 		multi_send_release_robot(robot_objp);
 
 		i = lowest_agitated_bot;
@@ -321,7 +326,6 @@ int multi_add_controlled_robot(const vmobjptridx_t objnum, int agitation)
 	robot_last_send_time[i] = robot_last_message_time[i] = GameTime64;
 	return(1);
 }	
-}
 
 void multi_delete_controlled_robot(const vmobjptridx_t objnum)
 {
@@ -346,8 +350,10 @@ void multi_delete_controlled_robot(const vmobjptridx_t objnum)
 	objrobot.ctype.ai_info.REMOTE_OWNER = -1;
 	objrobot.ctype.ai_info.REMOTE_SLOT_NUM = 0;
 	robot_controlled[i] = object_none;
-	robot_send_pending[i] = 0;
+	robot_send_pending[i] = multi_send_robot_position_priority::_0;
 	robot_fired[i] = 0;
+}
+}
 }
 
 struct multi_claim_robot
@@ -356,7 +362,7 @@ struct multi_claim_robot
 	int8_t owner;
 	uint16_t robjnum;
 };
-DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_ROBOT_CLAIM, multi_claim_robot, b, (b.pnum, b.owner, b.robjnum));
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_ROBOT_CLAIM, multi_claim_robot, b, (b.pnum, b.owner, b.robjnum));
 
 void multi_send_claim_robot(const vmobjptridx_t objnum)
 {
@@ -364,12 +370,15 @@ void multi_send_claim_robot(const vmobjptridx_t objnum)
 		throw std::runtime_error("claiming non-robot"); // See rob
 	// The AI tells us we should take control of this robot. 
 	auto r = objnum_local_to_remote(objnum);
-	multi_serialize_write(2, multi_claim_robot{static_cast<uint8_t>(Player_num), r.owner, r.objnum});
+	multi_serialize_write(multiplayer_data_priority::_2, multi_claim_robot{static_cast<uint8_t>(Player_num), r.owner, r.objnum});
 }
+
+namespace dsx {
+namespace {
 
 void multi_send_release_robot(const vmobjptridx_t objnum)
 {
-	multi_command<MULTI_ROBOT_RELEASE> multibuf;
+	multi_command<multiplayer_command_t::MULTI_ROBOT_RELEASE> multibuf;
 	if (objnum->type != OBJ_ROBOT)
 	{
 		Int3(); // See rob
@@ -383,49 +392,45 @@ void multi_send_release_robot(const vmobjptridx_t objnum)
 	multibuf[4] = obj_owner;
 	PUT_INTEL_SHORT(&multibuf[2], remote_objnum);
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
-#define MIN_ROBOT_COM_GAP F1_0/12
+}
+}
 
-int multi_send_robot_frame(int sent)
+void multi_send_robot_frame()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
 	static int last_sent = 0;
 
 	int i;
-	int rval = 0;
 
+	const unsigned sent = 0;
 	for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
 	{
 		int sending = (last_sent+1+i)%MAX_ROBOTS_CONTROLLED;
-		if (robot_controlled[sending] != object_none && (robot_send_pending[sending] > sent || robot_fired[sending] > sent))
+		if (robot_controlled[sending] != object_none && (underlying_value(robot_send_pending[sending]) > sent || robot_fired[sending] > sent))
 		{
-			if (robot_send_pending[sending])
+			if (auto &pending = robot_send_pending[sending]; pending != multi_send_robot_position_priority::_0)
 			{
-				multi_send_robot_position_sub(vmobjptridx(robot_controlled[sending]), (std::exchange(robot_send_pending[sending], 0) > 1));
+				const auto p = std::exchange(pending, multi_send_robot_position_priority::_0);
+				multi_send_robot_position_sub(vmobjptridx(robot_controlled[sending]), underlying_value(p) > 1 ? multiplayer_data_priority::_1 : multiplayer_data_priority::_0);
 			}
 
-			if (robot_fired[sending])
+			if (auto &&b = robot_fired[sending])
 			{
-				robot_fired[sending] = 0;
-				multi_send_data<MULTI_ROBOT_FIRE>(robot_fire_buf[sending], 18, 1);
+				b = 0;
+				multi_send_data(robot_fire_buf[sending], multiplayer_data_priority::_1);
 			}
-
-			if (!(Game_mode & GM_NETWORK))
-				sent += 1;
-
 			last_sent = sending;
-			rval++;
 		}
 	}
 	Assert((last_sent >= 0) && (last_sent <= MAX_ROBOTS_CONTROLLED));
-	return(rval);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
+#if defined(DXX_BUILD_DESCENT_II)
 /*
  * The thief bot moves around even when not controlled by a player. Due to its erratic and random behaviour, it's movement will diverge heavily between players and cause it to teleport when a player takes over.
  * To counter this, let host update positions when no one controls it OR the client which does.
@@ -446,21 +451,19 @@ void multi_send_thief_frame()
 			if (robot_is_thief(Robot_info[get_robot_id(objp)]))
                         {
 				if ((multi_i_am_master() && objp->ctype.ai_info.REMOTE_OWNER == -1) || objp->ctype.ai_info.REMOTE_OWNER == Player_num)
-                                {
-                                        multi_send_robot_position_sub(objp,1);
-                                }
+					multi_send_robot_position_sub(objp, multiplayer_data_priority::_1);
                                 return;
                         }
                 }
         }
 }
 
-}
 #endif
 
-void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now)
+namespace {
+void multi_send_robot_position_sub(const vmobjptridx_t objnum, const multiplayer_data_priority priority)
 {
-	multi_command<MULTI_ROBOT_POSITION> multibuf;
+	multi_command<multiplayer_command_t::MULTI_ROBOT_POSITION> multibuf;
 	int loc = 0;
 
 	loc += 1;
@@ -475,21 +478,21 @@ void multi_send_robot_position_sub(const vmobjptridx_t objnum, int now)
 	PUT_INTEL_SHORT(&multibuf[loc], qpp.orient.x);			loc += 2;
 	PUT_INTEL_SHORT(&multibuf[loc], qpp.orient.y);			loc += 2;
 	PUT_INTEL_SHORT(&multibuf[loc], qpp.orient.z);			loc += 2;
-	PUT_INTEL_INT(&multibuf[loc], qpp.pos.x);				loc += 4;
-	PUT_INTEL_INT(&multibuf[loc], qpp.pos.y);				loc += 4;
-	PUT_INTEL_INT(&multibuf[loc], qpp.pos.z);				loc += 4;
-	PUT_INTEL_SHORT(&multibuf[loc], qpp.segment);			loc += 2;
-	PUT_INTEL_INT(&multibuf[loc], qpp.vel.x);				loc += 4;
-	PUT_INTEL_INT(&multibuf[loc], qpp.vel.y);				loc += 4;
-	PUT_INTEL_INT(&multibuf[loc], qpp.vel.z);				loc += 4;
-	PUT_INTEL_INT(&multibuf[loc], qpp.rotvel.x);			loc += 4;
-	PUT_INTEL_INT(&multibuf[loc], qpp.rotvel.y);			loc += 4;
-	PUT_INTEL_INT(&multibuf[loc], qpp.rotvel.z);			loc += 4; // 46 + 5 = 51
+	multi_put_vector(&multibuf[loc], qpp.pos);
+	loc += 12;
+	PUT_INTEL_SEGNUM(&multibuf[loc], qpp.segment);			loc += 2;
+	multi_put_vector(&multibuf[loc], qpp.vel);
+	loc += 12;
+	multi_put_vector(&multibuf[loc], qpp.rotvel);
+	// 46 + 5 = 51
 
-	multi_send_data<MULTI_ROBOT_POSITION>(multibuf, now?1:0);
+	multi_send_data(multibuf, priority);
 }
 
-void multi_send_robot_position(object &obj, int force)
+}
+}
+
+void multi_send_robot_position(object &obj, const multi_send_robot_position_priority force)
 {
 	// Send robot position to other player(s).  Includes a byte
 	// value describing whether or not they fired a weapon
@@ -510,13 +513,13 @@ void multi_send_robot_position(object &obj, int force)
 
 	const auto slot = obj.ctype.ai_info.REMOTE_SLOT_NUM;
 	robot_last_send_time[slot] = GameTime64;
-	robot_send_pending[slot] = 1+force;
+	robot_send_pending[slot] = force;
 	return;
 }
 
-void multi_send_robot_fire(const vmobjptridx_t obj, int gun_num, const vms_vector &fire)
+void multi_send_robot_fire(const vmobjptridx_t obj, const robot_gun_number gun_num, const vms_vector &fire)
 {
-	multi_command<MULTI_ROBOT_FIRE> multibuf;
+	multi_command<multiplayer_command_t::MULTI_ROBOT_FIRE> multibuf;
         // Send robot fire event
         int loc = 0;
 
@@ -526,19 +529,8 @@ void multi_send_robot_fire(const vmobjptridx_t obj, int gun_num, const vms_vecto
 	multibuf[loc+2] = obj_owner;
 	PUT_INTEL_SHORT(&multibuf[loc], remote_objnum);
                                                                         loc += 3;
-        multibuf[loc] = gun_num;                                        loc += 1;
-        if constexpr (words_bigendian)
-        {
-                vms_vector swapped_vec;
-		swapped_vec.x = INTEL_INT(static_cast<int>(fire.x));
-		swapped_vec.y = INTEL_INT(static_cast<int>(fire.y));
-		swapped_vec.z = INTEL_INT(static_cast<int>(fire.z));
-                memcpy(&multibuf[loc], &swapped_vec, sizeof(vms_vector));
-        }
-        else
-        {
-                memcpy(&multibuf[loc], &fire, sizeof(vms_vector));
-        }
+        multibuf[loc] = underlying_value(gun_num);                                        loc += 1;
+		multi_put_vector(&multibuf[loc], fire);
                                                                         loc += sizeof(vms_vector); // 12
                                                                         // --------------------------
                                                                         //      Total = 18
@@ -550,16 +542,19 @@ void multi_send_robot_fire(const vmobjptridx_t obj, int gun_num, const vms_vecto
                 {
                         return;
                 }
-                if (robot_fired[slot] != 0)
+		if (auto &&b = robot_fired[slot])
                 {
                         // Int3(); // ROB!
                         return;
                 }
-                memcpy(robot_fire_buf[slot], multibuf.data(), loc);
-                robot_fired[slot] = 1;
+		else
+		{
+			b = 1;
+		}
+			robot_fire_buf[slot] = multibuf;
         }
         else
-                multi_send_data(multibuf, 1); // Not our robot, send ASAP
+                multi_send_data(multibuf, multiplayer_data_priority::_1); // Not our robot, send ASAP
 }
 
 struct multi_explode_robot
@@ -567,7 +562,7 @@ struct multi_explode_robot
 	int16_t robj_killer, robj_killed;
 	int8_t owner_killer, owner_killed;
 };
-DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_ROBOT_EXPLODE, multi_explode_robot, b, (b.robj_killer, b.robj_killed, b.owner_killer, b.owner_killed));
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_ROBOT_EXPLODE, multi_explode_robot, b, (b.robj_killer, b.robj_killed, b.owner_killer, b.owner_killed));
 
 void multi_send_robot_explode(const imobjptridx_t objnum, objnum_t killer)
 {
@@ -579,14 +574,14 @@ void multi_send_robot_explode(const imobjptridx_t objnum, objnum_t killer)
 	const auto d = objnum_local_to_remote(objnum);
 	e.robj_killed = d.objnum;
 	e.owner_killed = d.owner;
-	multi_serialize_write(2, e);
+	multi_serialize_write(multiplayer_data_priority::_2, e);
 
 	multi_delete_controlled_robot(objnum);
 }
 
 void multi_send_create_robot(const station_number station, const objnum_t objnum, const int type)
 {
-	multi_command<MULTI_CREATE_ROBOT> multibuf;
+	multi_command<multiplayer_command_t::MULTI_CREATE_ROBOT> multibuf;
 	// Send create robot information
 
 	int loc = 0;
@@ -600,7 +595,7 @@ void multi_send_create_robot(const station_number station, const objnum_t objnum
 
 	map_objnum_local_to_local(objnum);
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
 namespace {
@@ -610,25 +605,25 @@ struct boss_teleport
 	objnum_t objnum;
 	segnum_t where;
 };
-DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_BOSS_TELEPORT, boss_teleport, b, (b.objnum, b.where));
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_BOSS_TELEPORT, boss_teleport, b, (b.objnum, b.where));
 
 struct boss_cloak
 {
 	objnum_t objnum;
 };
-DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_BOSS_CLOAK, boss_cloak, b, (b.objnum));
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_BOSS_CLOAK, boss_cloak, b, (b.objnum));
 
 struct boss_start_gate
 {
 	objnum_t objnum;
 };
-DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_BOSS_START_GATE, boss_start_gate, b, (b.objnum));
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_BOSS_START_GATE, boss_start_gate, b, (b.objnum));
 
 struct boss_stop_gate
 {
 	objnum_t objnum;
 };
-DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_BOSS_STOP_GATE, boss_stop_gate, b, (b.objnum));
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_BOSS_STOP_GATE, boss_stop_gate, b, (b.objnum));
 
 struct boss_create_robot
 {
@@ -637,7 +632,7 @@ struct boss_create_robot
 	segnum_t where;
 	uint8_t robot_type;
 };
-DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_BOSS_CREATE_ROBOT, boss_create_robot, b, (b.objnum, b.objrobot, b.where, b.robot_type));
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_BOSS_CREATE_ROBOT, boss_create_robot, b, (b.objnum, b.objrobot, b.where, b.robot_type));
 
 #if defined(DXX_BUILD_DESCENT_II)
 struct update_buddy_state
@@ -646,15 +641,19 @@ struct update_buddy_state
 	escort_goal_t Escort_special_goal;
 	int Last_buddy_key;
 };
-DEFINE_MULTIPLAYER_SERIAL_MESSAGE(MULTI_UPDATE_BUDDY_STATE, update_buddy_state, b, (b.Looking_for_marker, b.Escort_special_goal, b.Last_buddy_key));
+DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_UPDATE_BUDDY_STATE, update_buddy_state, b, (b.Looking_for_marker, b.Escort_special_goal, b.Last_buddy_key));
 #endif
 
 }
 
+namespace {
+
 template <typename T, typename... Args>
 static inline void multi_send_boss_action(objnum_t bossobjnum, Args&&... args)
 {
-	multi_serialize_write(2, T{bossobjnum, std::forward<Args>(args)...});
+	multi_serialize_write(multiplayer_data_priority::_2, T{bossobjnum, std::forward<Args>(args)...});
+}
+
 }
 
 namespace dsx {
@@ -694,10 +693,11 @@ void multi_send_boss_create_robot(vmobjidx_t bossobjnum, const vmobjptridx_t obj
 #define MAX_ROBOT_POWERUPS 4
 
 namespace dsx {
+namespace {
 
 static void multi_send_create_robot_powerups(const object_base &del_obj)
 {
-	multi_command<MULTI_CREATE_ROBOT_POWERUPS> multibuf;
+	multi_command<multiplayer_command_t::MULTI_CREATE_ROBOT_POWERUPS> multibuf;
 	// Send create robot information
 
 	int loc = 0;
@@ -707,21 +707,9 @@ static void multi_send_create_robot_powerups(const object_base &del_obj)
 	multibuf[loc] = del_obj.contains_count;					loc += 1;
 	multibuf[loc] = del_obj.contains_type; 					loc += 1;
 	multibuf[loc] = del_obj.contains_id;						loc += 1;
-	PUT_INTEL_SHORT(&multibuf[loc], del_obj.segnum);		        loc += 2;
-	if constexpr (words_bigendian)
-	{
-		vms_vector swapped_vec;
-		swapped_vec.x = INTEL_INT(static_cast<int>(del_obj.pos.x));
-		swapped_vec.y = INTEL_INT(static_cast<int>(del_obj.pos.y));
-		swapped_vec.z = INTEL_INT(static_cast<int>(del_obj.pos.z));
-		memcpy(&multibuf[loc], &swapped_vec, sizeof(vms_vector));
-		loc += 12;
-	}
-	else
-	{
-		memcpy(&multibuf[loc], &del_obj.pos, sizeof(vms_vector));
-		loc += 12;
-	}
+	PUT_INTEL_SEGNUM(&multibuf[loc], del_obj.segnum);		        loc += 2;
+	multi_put_vector(&multibuf[loc], del_obj.pos);
+	loc += 12;
 
 	memset(&multibuf[loc], -1, MAX_ROBOT_POWERUPS*sizeof(short));
 #if defined(DXX_BUILD_DESCENT_II)
@@ -742,11 +730,11 @@ static void multi_send_create_robot_powerups(const object_base &del_obj)
 
 	Net_create_loc = 0;
 
-	multi_send_data(multibuf, 2);
+	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 }
 
-void multi_do_claim_robot(const playernum_t pnum, const ubyte *buf)
+void multi_do_claim_robot(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_CLAIM> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -781,13 +769,13 @@ void multi_do_claim_robot(const playernum_t pnum, const ubyte *buf)
 	botp->ctype.ai_info.REMOTE_SLOT_NUM = 0;
 }
 
-void multi_do_release_robot(const playernum_t pnum, const ubyte *buf)
+void multi_do_release_robot(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_RELEASE> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	short remote_botnum;
 
-	remote_botnum = GET_INTEL_SHORT(buf + 2);
+	remote_botnum = GET_INTEL_SHORT(&buf[2]);
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[4]);
 
 	if (botnum > Highest_object_index)
@@ -812,7 +800,7 @@ void multi_do_release_robot(const playernum_t pnum, const ubyte *buf)
 	botp->ctype.ai_info.REMOTE_SLOT_NUM = 0;
 }
 
-void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
+void multi_do_robot_position(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_POSITION> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -823,7 +811,7 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 
 	;										loc += 1;
 
-	remote_botnum = GET_INTEL_SHORT(buf + loc);
+	remote_botnum = GET_INTEL_SHORT(&buf[loc]);
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[loc+2]); loc += 3;
 
 	if (botnum > Highest_object_index)
@@ -836,7 +824,7 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 	if ((robot->type != OBJ_ROBOT) || (robot->flags & OF_EXPLODING)) {
 		return;
 	}
-		
+
 	if (robot->ctype.ai_info.REMOTE_OWNER != pnum)
 	{	
 		if (robot->ctype.ai_info.REMOTE_OWNER == -1)
@@ -863,44 +851,42 @@ void multi_do_robot_position(const playernum_t pnum, const ubyte *buf)
 	qpp.orient.x = GET_INTEL_SHORT(&buf[loc]);					loc += 2;
 	qpp.orient.y = GET_INTEL_SHORT(&buf[loc]);					loc += 2;
 	qpp.orient.z = GET_INTEL_SHORT(&buf[loc]);					loc += 2;
-	qpp.pos.x = GET_INTEL_INT(&buf[loc]);						loc += 4;
-	qpp.pos.y = GET_INTEL_INT(&buf[loc]);						loc += 4;
-	qpp.pos.z = GET_INTEL_INT(&buf[loc]);						loc += 4;
-	qpp.segment = GET_INTEL_SHORT(&buf[loc]);					loc += 2;
-	qpp.vel.x = GET_INTEL_INT(&buf[loc]);						loc += 4;
-	qpp.vel.y = GET_INTEL_INT(&buf[loc]);						loc += 4;
-	qpp.vel.z = GET_INTEL_INT(&buf[loc]);						loc += 4;
-	qpp.rotvel.x = GET_INTEL_INT(&buf[loc]);					loc += 4;
-	qpp.rotvel.y = GET_INTEL_INT(&buf[loc]);					loc += 4;
-	qpp.rotvel.z = GET_INTEL_INT(&buf[loc]);					loc += 4;
+	qpp.pos = multi_get_vector(&buf[loc]);
+	loc += 12;
+	if (const auto s = segnum_t{GET_INTEL_SHORT(&buf[loc])}; vmsegidx_t::check_nothrow_index(s))
+	{
+		qpp.segment = s;
+		loc += 2;
+	}
+	else
+		return;
+	qpp.vel = multi_get_vector(&buf[loc]);
+	loc += 12;
+	qpp.rotvel = multi_get_vector(&buf[loc]);
 	extract_quaternionpos(robot, qpp);
 }
 
-static inline vms_vector calc_gun_point(const object_base &obj, unsigned gun_num)
+}
+
+static inline vms_vector calc_gun_point(const robot_info &robptr, const object_base &obj, const robot_gun_number gun_num)
 {
 	vms_vector v;
-	return calc_gun_point(v, obj, gun_num), v;
+	return calc_gun_point(robptr, v, obj, gun_num), v;
 }
 
 namespace dsx {
-void multi_do_robot_fire(const uint8_t *const buf)
+void multi_do_robot_fire(const multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_FIRE> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	// Send robot fire event
 	int loc = 1;
-	short remote_botnum;
-	int gun_num;
-	vms_vector fire;
                                                                                         loc += 1; // pnum
-	remote_botnum = GET_INTEL_SHORT(buf + loc);
+	const short remote_botnum = GET_INTEL_SHORT(&buf[loc]);
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[loc+2]);                loc += 3;
-	gun_num = static_cast<int8_t>(buf[loc]);                                                      loc += 1;
-	memcpy(&fire, buf+loc, sizeof(vms_vector));
-	fire.x = INTEL_INT(fire.x);
-	fire.y = INTEL_INT(fire.y);
-	fire.z = INTEL_INT(fire.z);
+	const auto gun_num = buf[loc];                                                      loc += 1;
+	const auto fire = multi_get_vector(&buf[loc]);
 
 	if (botnum > Highest_object_index)
 		return;
@@ -910,28 +896,38 @@ void multi_do_robot_fire(const uint8_t *const buf)
 		return;
 
 	using pt_weapon = std::pair<vms_vector, weapon_id_type>;
+	auto &robptr = Robot_info[get_robot_id(botp)];
+	switch (gun_num)
+	{
+		case underlying_value(robot_gun_number::proximity):
+#if defined(DXX_BUILD_DESCENT_II)
+		case underlying_value(robot_gun_number::smart_mine):
+#endif
+			break;
+		default:
+			if (gun_num >= robptr.n_guns)
+				return;
+			break;
+	}
 	const pt_weapon pw =
 	// Do the firing
-		(gun_num == -1
+		(gun_num == underlying_value(robot_gun_number::proximity)
 #if defined(DXX_BUILD_DESCENT_II)
-		|| gun_num==-2
+		|| gun_num == underlying_value(robot_gun_number::smart_mine)
 #endif
 		)
 		? pt_weapon(vm_vec_add(botp->pos, fire), 
 #if defined(DXX_BUILD_DESCENT_II)
-			gun_num != -1 ? weapon_id_type::SUPERPROX_ID :
+			gun_num != underlying_value(robot_gun_number::proximity) ? weapon_id_type::SUPERPROX_ID :
 #endif
 			weapon_id_type::PROXIMITY_ID)
-		: pt_weapon(calc_gun_point(botp, gun_num), get_robot_weapon(Robot_info[get_robot_id(botp)], 1));
-	Laser_create_new_easy(fire, pw.first, botp, pw.second, weapon_sound_flag::audible);
-}
+		: pt_weapon(calc_gun_point(robptr, botp, robot_gun_number{gun_num}), get_robot_weapon(robptr, robot_gun_number::_1));
+	Laser_create_new_easy(Robot_info, fire, pw.first, botp, pw.second, weapon_sound_flag::audible);
 }
 
-namespace dsx {
-int multi_explode_robot_sub(const vmobjptridx_t robot)
+int multi_explode_robot_sub(const d_robot_info_array &Robot_info, const vmobjptridx_t robot)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &objrobot = *robot;
 	if (objrobot.type != OBJ_ROBOT) { // Object is robot?
 		return 0;
@@ -951,7 +947,7 @@ int multi_explode_robot_sub(const vmobjptridx_t robot)
 	// Drop non-random KEY powerups locally only!
 	if (objrobot.contains_count > 0 && objrobot.contains_type == OBJ_POWERUP && (Game_mode & GM_MULTI_COOP) && objrobot.contains_id >= POW_KEY_BLUE && objrobot.contains_id <= POW_KEY_GOLD)
 	{
-		object_create_robot_egg(objrobot);
+		object_create_robot_egg(Robot_info, objrobot);
 	}
 	else if (objrobot.ctype.ai_info.REMOTE_OWNER == Player_num)
 	{
@@ -963,12 +959,14 @@ int multi_explode_robot_sub(const vmobjptridx_t robot)
 		multi_drop_robot_powerups(robot);
 	}
 	const auto robot_id = get_robot_id(objrobot);
+#if defined(DXX_BUILD_DESCENT_II)
 	if (robot_is_thief(Robot_info[robot_id]))
-		drop_stolen_items(vmsegptridx, LevelUniqueObjectState, Vclip, robot);
+		drop_stolen_items_local(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, vmsegptridx(objrobot.segnum), objrobot.mtype.phys_info.velocity, objrobot.pos, LevelUniqueObjectState.ThiefState.Stolen_items);
+#endif
 	if (Robot_info[robot_id].boss_flag)
 	{
 		if (!BossUniqueState.Boss_dying)
-			start_boss_death_sequence(LevelUniqueObjectState.BossState, LevelSharedRobotInfoState.Robot_info, robot);
+			start_boss_death_sequence(LevelUniqueObjectState.BossState, Robot_info, robot);
 		else
 			return (0);
 	}
@@ -982,22 +980,22 @@ int multi_explode_robot_sub(const vmobjptridx_t robot)
 #if defined(DXX_BUILD_DESCENT_II)
 		if (robot_id == SPECIAL_REACTOR_ROBOT)
 			special_reactor_stuff();
-		if (Robot_info[robot_id].kamikaze)
-			explode_object(robot,1);	//	Kamikaze, explode right away, IN YOUR FACE!
-		else
 #endif
-			explode_object(robot,STANDARD_EXPL_DELAY);
+		// Kamikaze, explode right away, IN YOUR FACE!
+		explode_object(LevelUniqueObjectState, Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, robot,
+#if defined(DXX_BUILD_DESCENT_II)
+					   Robot_info[robot_id].kamikaze ? 1 :
+#endif
+					   STANDARD_EXPL_DELAY);
    }
    
 	return 1;
 }
-}
 
-void multi_do_robot_explode(const uint8_t *const buf)
+void multi_do_robot_explode(const d_robot_info_array &Robot_info, const multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_EXPLODE> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	multi_explode_robot b;
 	multi_serialize_read(buf, b);
 	auto killer = objnum_remote_to_local(b.robj_killer, b.owner_killer);
@@ -1009,7 +1007,7 @@ void multi_do_robot_explode(const uint8_t *const buf)
 	}
 
 	const auto robot = vmobjptridx(botnum);
-	const auto rval = multi_explode_robot_sub(robot);
+	const auto rval = multi_explode_robot_sub(Robot_info, robot);
 	if (!rval)
 		return;
 
@@ -1019,9 +1017,7 @@ void multi_do_robot_explode(const uint8_t *const buf)
 		add_points_to_score(ConsoleObject->ctype.player_info, Robot_info[get_robot_id(robot)].score_value, Game_mode);
 }
 
-namespace dsx {
-
-void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, const ubyte *buf)
+void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_CREATE_ROBOT> buf)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
@@ -1031,7 +1027,7 @@ void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, c
 	int type = buf[5];
 
 	objnum_t objnum;
-	objnum = GET_INTEL_SHORT(buf + 3);
+	objnum = GET_INTEL_SHORT(&buf[3]);
 
 	if (!LevelUniqueFuelcenterState.Station.valid_index(untrusted_fuelcen_num))
 		return;
@@ -1054,12 +1050,12 @@ void multi_do_create_robot(const d_vclip_array &Vclip, const playernum_t pnum, c
 	const auto &&robotcen_segp = vmsegptridx(robotcen.segnum);
 	auto &vcvertptr = Vertices.vcptr;
 	const auto &&cur_object_loc = compute_segment_center(vcvertptr, robotcen_segp);
-	if (const auto &&obj = object_create_explosion(robotcen_segp, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT))
+	if (const auto &&obj = object_create_explosion_without_damage(Vclip, robotcen_segp, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT))
 		extract_orient_from_segment(vcvertptr, obj->orient, robotcen_segp);
 	if (Vclip[VCLIP_MORPHING_ROBOT].sound_num > -1)
 		digi_link_sound_to_pos(Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen_segp, sidenum_t::WLEFT, cur_object_loc, 0, F1_0);
 
-	const auto &&obj = create_morph_robot(robotcen_segp, cur_object_loc, type);
+	const auto &&obj = create_morph_robot(Robot_info, robotcen_segp, cur_object_loc, type);
 	if (obj == object_none)
 		return; // Cannot create object!
 	
@@ -1081,10 +1077,10 @@ void multi_send_escort_goal(const d_unique_buddy_state &BuddyState)
 	b.Looking_for_marker = static_cast<uint8_t>(BuddyState.Looking_for_marker);
 	b.Escort_special_goal = BuddyState.Escort_special_goal;
 	b.Last_buddy_key = BuddyState.Last_buddy_key;
-	multi_serialize_write(2, b);
+	multi_serialize_write(multiplayer_data_priority::_2, b);
 }
 
-void multi_recv_escort_goal(d_unique_buddy_state &BuddyState, const uint8_t *const buf)
+void multi_recv_escort_goal(d_unique_buddy_state &BuddyState, const multiplayer_rspan<multiplayer_command_t::MULTI_UPDATE_BUDDY_STATE> buf)
 {
 	update_buddy_state b;
 	multi_serialize_read(buf, b);
@@ -1100,7 +1096,7 @@ void multi_recv_escort_goal(d_unique_buddy_state &BuddyState, const uint8_t *con
 }
 #endif
 
-void multi_do_boss_teleport(const d_vclip_array &Vclip, const playernum_t pnum, const ubyte *buf)
+void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_TELEPORT> buf)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
@@ -1108,7 +1104,6 @@ void multi_do_boss_teleport(const d_vclip_array &Vclip, const playernum_t pnum, 
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	boss_teleport b;
 	multi_serialize_read(buf, b);
 	const auto &&guarded_boss_obj = Objects.vmptridx.check_untrusted(b.objnum);
@@ -1134,7 +1129,7 @@ void multi_do_boss_teleport(const d_vclip_array &Vclip, const playernum_t pnum, 
 
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, teleport_segnum, sidenum_t::WLEFT, boss_obj->pos, 0 , F1_0);
 	digi_kill_sound_linked_to_object( boss_obj);
-	boss_link_see_sound(boss_obj);
+	boss_link_see_sound(Robot_info, boss_obj);
 	ai_local		*ailp = &boss_obj->ctype.ai_info.ail;
 	ailp->next_fire = 0;
 
@@ -1147,7 +1142,7 @@ void multi_do_boss_teleport(const d_vclip_array &Vclip, const playernum_t pnum, 
 	boss_obj->ctype.ai_info.REMOTE_SLOT_NUM = 0; // Available immediately!
 }
 
-void multi_do_boss_cloak(const ubyte *buf)
+void multi_do_boss_cloak(const multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_CLOAK> buf)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1171,9 +1166,8 @@ void multi_do_boss_cloak(const ubyte *buf)
 	BossUniqueState.Boss_cloak_start_time = GameTime64;
 	boss_obj->ctype.ai_info.CLOAKED = 1;
 }
-}
 
-void multi_do_boss_start_gate(const ubyte *buf)
+void multi_do_boss_start_gate(const multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_START_GATE> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -1192,7 +1186,7 @@ void multi_do_boss_start_gate(const ubyte *buf)
 	restart_effect(ECLIP_NUM_BOSS);
 }
 
-void multi_do_boss_stop_gate(const ubyte *buf)
+void multi_do_boss_stop_gate(const multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_STOP_GATE> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -1211,7 +1205,7 @@ void multi_do_boss_stop_gate(const ubyte *buf)
 	stop_effect(ECLIP_NUM_BOSS);
 }
 
-void multi_do_boss_create_robot(const playernum_t pnum, const ubyte *buf)
+void multi_do_boss_create_robot(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_CREATE_ROBOT> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -1234,12 +1228,12 @@ void multi_do_boss_create_robot(const playernum_t pnum, const ubyte *buf)
 		return;
 	}
 	// Gate one in!
-	const auto &&robot = gate_in_robot(b.robot_type, vmsegptridx(b.where));
+	const auto &&robot = gate_in_robot(Robot_info, b.robot_type, vmsegptridx(b.where));
 	if (robot != object_none)
 		map_objnum_local_to_remote(robot, b.objrobot, pnum);
 }
 
-void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
+void multi_do_create_robot_powerups(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_CREATE_ROBOT_POWERUPS> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -1250,14 +1244,12 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 	uint8_t contains_count = buf[loc];			loc += 1;
 	uint8_t contains_type = buf[loc];			loc += 1;
 	uint8_t contains_id = buf[loc]; 			loc += 1;
-	segnum_t segnum = GET_INTEL_SHORT(buf + loc);            loc += 2;
-	vms_vector pos;
-	memcpy(&pos, &buf[loc], sizeof(pos));      loc += 12;
-	
+	const auto segnum = segnum_t{GET_INTEL_SHORT(&buf[loc])};	loc += 2;
+	if (!vmsegidx_t::check_nothrow_index(segnum))
+		return;
+	const auto pos = multi_get_vector(&buf[loc]);
+	loc += 12;
 	vms_vector velocity{};
-	pos.x = INTEL_INT(pos.x);
-	pos.y = INTEL_INT(pos.y);
-	pos.z = INTEL_INT(pos.z);
 
 	Assert(pnum < N_players);
 	Assert (pnum!=Player_num); // What? How'd we send ourselves this?
@@ -1265,7 +1257,7 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 	Net_create_loc = 0;
 	d_srand(1245L);
 
-	if (!object_create_robot_egg(contains_type, contains_id, contains_count, velocity, pos, vmsegptridx(segnum)))
+	if (!object_create_robot_egg(LevelSharedRobotInfoState.Robot_info, contains_type, contains_id, contains_count, velocity, pos, vmsegptridx(segnum)))
 		return; // Object buffer full
 
 	Assert((Net_create_loc > 0) && (Net_create_loc <= MAX_ROBOT_POWERUPS));
@@ -1274,7 +1266,7 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 	{
 		short s;
 		
-		s = GET_INTEL_SHORT(buf + loc);
+		s = GET_INTEL_SHORT(&buf[loc]);
 		if ( s != -1)
 			map_objnum_local_to_remote(i, s, pnum);
 		else
@@ -1282,8 +1274,6 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const ubyte *buf)
 		loc += 2;
 	}
 }
-
-namespace dsx {
 
 namespace {
 
@@ -1317,7 +1307,7 @@ void multi_drop_robot_powerups(object &del_obj)
 		}
 		d_srand(1245L);
 		if (del_obj.contains_count > 0)
-			created = object_create_robot_egg(del_obj);
+			created = object_create_robot_egg(LevelSharedRobotInfoState.Robot_info, del_obj);
 	}
 		
 	else if (del_obj.ctype.ai_info.REMOTE_OWNER == -1) // No random goodies for robots we weren't in control of
@@ -1338,7 +1328,7 @@ void multi_drop_robot_powerups(object &del_obj)
 		
 			d_srand(1245L);
 			if (del_obj.contains_count > 0)
-				created = object_create_robot_egg(del_obj);
+				created = object_create_robot_egg(LevelSharedRobotInfoState.Robot_info, del_obj);
 		}
 	}
 	if (created)
@@ -1383,8 +1373,8 @@ void multi_robot_request_change(const vmobjptridx_t robot, int player_num)
 
 	if ( (robot_agitation[slot] < 70) || (MULTI_ROBOT_PRIORITY(remote_objnum, player_num) > MULTI_ROBOT_PRIORITY(remote_objnum, Player_num)) || (d_rand() > 0x4400))
 	{
-		if (robot_send_pending[slot])
-			multi_send_robot_position(rcrobot, -1);
+		if (robot_send_pending[slot] != multi_send_robot_position_priority::_0)
+			multi_send_robot_position(rcrobot, multi_send_robot_position_priority::_0);
 		multi_send_release_robot(rcrobot);
 		objrobot.ctype.ai_info.REMOTE_SLOT_NUM = HANDS_OFF_PERIOD;  // Hands-off period
 	}

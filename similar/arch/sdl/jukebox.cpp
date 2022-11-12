@@ -312,7 +312,6 @@ namespace dsx {
 int jukebox_play()
 {
 	const char *music_filename;
-	uint_fast32_t size_full_filename = 0;
 
 	if (!JukeboxSongs.list)
 		return 0;
@@ -325,24 +324,26 @@ int jukebox_play()
 	if (!music_filename)
 		return 0;
 
-	size_t size_music_filename = strlen(music_filename);
+	const size_t size_music_filename = strlen(music_filename);
 	auto &cfgpath = CGameCfg.CMLevelMusicPath;
-	size_t musiclen = strlen(cfgpath.data());
-	size_full_filename = musiclen + size_music_filename + 1;
-	RAIIdmem<char[]> full_filename;
-	CALLOC(full_filename, char[], size_full_filename);
+	const size_t musiclen = strlen(cfgpath.data());
+	{
 	const char *LevelMusicPath;
+	std::unique_ptr<char[]> full_filename;
 	if (musiclen > 4 && !d_stricmp(&cfgpath[musiclen - 4], ".m3u"))	// if it's from an M3U playlist
-		LevelMusicPath = "";
+		LevelMusicPath = music_filename;
 	else											// if it's from a specified path
-		LevelMusicPath = cfgpath.data();
-	snprintf(full_filename.get(), size_full_filename, "%s%s", LevelMusicPath, music_filename);
+	{
+		const std::size_t size_full_filename = musiclen + size_music_filename + 1;
+		full_filename = std::make_unique<char[]>(size_full_filename);
+		LevelMusicPath = full_filename.get();
+		snprintf(full_filename.get(), size_full_filename, "%s%s", cfgpath.data(), music_filename);
+	}
 
-	int played = songs_play_file(full_filename.get(), (CGameCfg.CMLevelMusicPlayOrder == LevelMusicPlayOrder::Level ? 1 : 0), (CGameCfg.CMLevelMusicPlayOrder == LevelMusicPlayOrder::Level ? nullptr : jukebox_hook_next));
-	full_filename.reset();
-	if (!played)
+	if (!songs_play_file(LevelMusicPath, (CGameCfg.CMLevelMusicPlayOrder == LevelMusicPlayOrder::Level ? 1 : 0), (CGameCfg.CMLevelMusicPlayOrder == LevelMusicPlayOrder::Level ? nullptr : jukebox_hook_next)))
 	{
 		return 0;	// whoops, got an error
+	}
 	}
 
 	// Formatting a pretty message

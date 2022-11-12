@@ -29,6 +29,8 @@
 
 namespace dcx {
 
+namespace {
+
 //changed on 980905 by adb to increase number of concurrent sounds
 //end changes by adb
 #define SOUND_BUFFER_SIZE 1024
@@ -100,10 +102,9 @@ struct sound_slot {
 	sound_pan pan;       // 0 = far left, 1 = far right
 	fix volume;    // 0 = nothing, 1 = fully on
 	//changed on 980905 by adb from char * to unsigned char *
-	unsigned char *samples;
+	std::span<uint8_t> samples;
 	sound_object *soundobj;   // Which soundobject is on this channel
 	//end changes by adb
-	unsigned int length; // Length of the sample
 	unsigned int position; // Position we are at at the moment.
 };
 
@@ -115,13 +116,16 @@ static void digi_audio_stop_sound(sound_slot &s)
 }
 
 static std::array<sound_slot, 32> SoundSlots;
+static SDL_AudioSpec WaveSpec;
+static int next_channel;
+
+}
 
 }
 
 namespace dsx {
 
-static SDL_AudioSpec WaveSpec;
-static int next_channel = 0;
+namespace {
 
 /* Audio mixing callback */
 //changed on 980905 by adb to cleanup, add pan support and optimize mixer
@@ -138,7 +142,7 @@ static void audio_mixcallback(void *, Uint8 *stream, int len)
 	range_for (auto &sl, SoundSlots)
 	{
 		if (sl.playing) {
-			Uint8 *sldata = sl.samples + sl.position, *slend = sl.samples + sl.length;
+			auto sldata = std::next(sl.samples.begin(), sl.position), slend = sl.samples.end();
 			Uint8 *sp = stream, s;
 			signed char v;
 			fix vl, vr;
@@ -159,7 +163,7 @@ static void audio_mixcallback(void *, Uint8 *stream, int len)
 						sl.playing = 0;
 						break;
 					}
-					sldata = sl.samples;
+					sldata = sl.samples.begin();
 				}
 				v = *(sldata++) - 0x80;
 				s = *sp;
@@ -167,11 +171,13 @@ static void audio_mixcallback(void *, Uint8 *stream, int len)
 				s = *sp;
 				*(sp++) = mix8[ s + fixmul(v, vr) + 0x80 ];
 			}
-			sl.position = sldata - sl.samples;
+			sl.position = std::distance(sl.samples.begin(), sldata);
 		}
 	}
 
 	SDL_UnlockAudio();
+}
+
 }
 //end changes by adb
 
@@ -275,8 +281,7 @@ int digi_audio_start_sound(short soundnum, fix volume, sound_pan pan, int loopin
 #endif
 
 	SoundSlots[next_channel].soundno = soundnum;
-	SoundSlots[next_channel].samples = GameSounds[soundnum].data;
-	SoundSlots[next_channel].length = GameSounds[soundnum].length;
+	SoundSlots[next_channel].samples = std::span(GameSounds[soundnum].data, GameSounds[soundnum].length);
 	SoundSlots[next_channel].volume = fixmul(digi_volume, volume);
 	SoundSlots[next_channel].pan = pan;
 	SoundSlots[next_channel].position = 0;

@@ -38,11 +38,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct rgb_t {
 	ubyte r,g,b;
+	[[nodiscard]]
+	constexpr bool operator==(const rgb_t &) const = default;
 };
 
 typedef uint8_t color_t;
-
-static inline bool operator==(const rgb_t &a, const rgb_t &b) { return a.r == b.r && a.g == b.g && a.b == b.b; }
 
 namespace dcx {
 
@@ -88,12 +88,6 @@ static inline const rgb_t &PAL2T(const color_palette_index c)
 //inline GLfloat PAL2Tg(int c);
 //inline GLfloat PAL2Tb(int c);
 }
-
-#ifdef DXX_BUILD_DESCENT_I
-namespace dsx {
-void copy_diminish_palette(palette_array_t &palette, const uint8_t *p);
-}
-#endif
 
 #endif
 
