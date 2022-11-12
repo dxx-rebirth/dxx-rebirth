@@ -218,7 +218,7 @@ static std::unique_ptr<int16_t[]> filter_fir(const std::span<const int16_t> sign
 	return output;
 }
 
-static std::unique_ptr<int16_t[]> upsample(const std::span<const uint8_t> input, const std::size_t upsampledLen, const int factor)
+static std::unique_ptr<int16_t[]> upsample(const std::span<const uint8_t> input, const std::size_t upsampledLen, const std::size_t factor)
 {
 	/* Caution: `output` is sparsely initialized, so the value-initialization
 	 * from `make_unique` is necessary.  This site cannot be converted to
@@ -233,20 +233,16 @@ static std::unique_ptr<int16_t[]> upsample(const std::span<const uint8_t> input,
 	return output;
 }
 
-static void replicateChannel(const std::span<const int16_t> input, int16_t *const output, int chFactor)
+static void replicateChannel(const std::span<const int16_t> input, int16_t *const output, const std::size_t chFactor)
 {
 	for (const auto ii : xrange(input.size()))
 	{
 		// Duplicate and interleave as many channels as needed
-		for(int jj = 0; jj < chFactor; jj++)
-		{
-			int idx = (ii*chFactor) + jj;
-			output[idx] = input[ii];
-		}
+		std::fill_n(std::next(output, ii * chFactor), chFactor, input[ii]);
 	}
 }
 
-static void convert_audio(const std::span<const uint8_t> input, int16_t *const output, int upFactor, int chFactor)
+static void convert_audio(const std::span<const uint8_t> input, int16_t *const output, const int upFactor, const std::size_t chFactor)
 {
 	// First upsample
 	const auto upsampledLen = input.size() * upFactor;
