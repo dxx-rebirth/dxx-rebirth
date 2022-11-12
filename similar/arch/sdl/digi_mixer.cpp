@@ -148,9 +148,7 @@ void digi_mixer_close() {
 	Mix_CloseAudio();
 }
 
-}
-
-namespace dsx {
+namespace {
 
 /*
  * Blackman windowed-sinc filter coefficients at 1/4 bandwidth of upsampled
@@ -268,6 +266,13 @@ static void convert_audio(uint8_t *input, int16_t *output, int inputLen, int upF
 	replicateChannel(stage2.get(), output, upsampledLen, chFactor);
 }
 
+}
+
+}
+
+namespace dsx {
+
+namespace {
 
 /*
  * Play-time conversion. Performs output conversion only once per sound effect used.
@@ -312,6 +317,8 @@ static void mixdigi_convert_sound(const unsigned i)
 		SoundChunks[i].allocated = 1;
 		SoundChunks[i].volume = 128; // Max volume = 128
 	}
+}
+
 }
 
 // Volume 0-F1_0
