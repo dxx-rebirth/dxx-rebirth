@@ -308,11 +308,9 @@ static void mixdigi_convert_sound(const unsigned i)
 		int convertedSize = dlen * upFactor * out_channels * formatFactor;
 
 		auto cvtbuf = std::make_unique<Uint8[]>(convertedSize);
-		uint8_t *buf = cvtbuf.release();
+		convert_audio(data, reinterpret_cast<int16_t*>(cvtbuf.get()), dlen, upFactor, out_channels);
 
-		convert_audio(data, reinterpret_cast<int16_t*>(buf), dlen, upFactor, out_channels);
-
-		SoundChunks[i].abuf = buf;
+		SoundChunks[i].abuf = cvtbuf.release();
 		SoundChunks[i].alen = convertedSize;
 		SoundChunks[i].allocated = 1;
 		SoundChunks[i].volume = 128; // Max volume = 128
