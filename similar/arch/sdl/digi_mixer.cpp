@@ -291,7 +291,6 @@ static void mixdigi_convert_sound(const unsigned i)
 	int out_channels;
 #if defined(DXX_BUILD_DESCENT_I)
 	out_freq = digi_sample_rate;
-	//	out_format = MIX_OUTPUT_FORMAT;
 	out_channels = MIX_OUTPUT_CHANNELS;
 	freq = GameSounds[i].freq;
 #elif defined(DXX_BUILD_DESCENT_II)
