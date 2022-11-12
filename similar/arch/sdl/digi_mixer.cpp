@@ -54,6 +54,37 @@ namespace dcx {
 
 namespace {
 
+template <typename T>
+class unique_span : std::unique_ptr<T[]>
+{
+	using base_type = std::unique_ptr<T[]>;
+	std::size_t extent;
+public:
+	unique_span(const std::size_t e) :
+		base_type(std::make_unique<T[]>(e)),
+		extent(e)
+	{
+	}
+	unique_span(unique_span &&) = default;
+	using base_type::get;
+	/* Require an lvalue input, since the returned pointer is borrowed from
+	 * this object.  If the method is called on an rvalue input, then the
+	 * unique_ptr would be destroyed and free the memory before the returned
+	 * span was destroyed, which would leave the span dangling.
+	 */
+	[[nodiscard]]
+	std::span<T> span() &
+	{
+		return {get(), extent};
+	}
+	[[nodiscard]]
+	std::span<const T> span() const &
+	{
+		return {get(), extent};
+	}
+	std::span<const T> span() const && = delete;
+};
+
 /* channel management */
 static unsigned digi_mixer_find_channel(const std::bitset<64> &channels, const unsigned max_channels)
 {
@@ -187,12 +218,15 @@ coeffs_halfband{{
 
 // Fixed-point FIR filtering
 // Not optimal: consider optimization with 1/4, 1/2 band filters, and symmetric kernels
-static std::unique_ptr<int16_t[]> filter_fir(const std::span<const int16_t> signal, const std::span<const int32_t, FILTER_LEN> coeffs)
+static auto filter_fir(const unique_span<int16_t> signal_storage, const std::span<const int32_t, FILTER_LEN> coeffs)
 {
-	auto output = std::make_unique<int16_t[]>(signal.size());
+	const auto signal{signal_storage.span()};
+	const std::size_t outsize = signal.size();
+	unique_span<int16_t> result(outsize);
+	const auto output{result.span()};
 	// A FIR filter is just a 1D convolution
 	// Keep only signalLen samples
-	for (const auto nn : xrange(signal.size()))
+	for (const auto nn : xrange(outsize))
 	{
 		// Determine start/stop indices for convolved chunk
 		constexpr std::size_t coeffsLen = FILTER_LEN;
@@ -215,26 +249,28 @@ static std::unique_ptr<int16_t[]> filter_fir(const std::span<const int16_t> sign
 		// Save and fit back into int16
 		output[nn] = int16_t(cur_output >> 16);  // Arithmetic shift
 	}
-	return output;
+	return result;
 }
 
-static std::unique_ptr<int16_t[]> upsample(const std::span<const uint8_t> input, const std::size_t upsampledLen, const std::size_t factor)
+static auto upsample(const std::span<const uint8_t> input, const std::size_t upsampledLen, const std::size_t factor)
 {
 	/* Caution: `output` is sparsely initialized, so the value-initialization
 	 * from `make_unique` is necessary.  This site cannot be converted to
 	 * `make_unique_for_overwrite`.
 	 */
-	auto output = std::make_unique<int16_t[]>(upsampledLen);
+	unique_span<int16_t> result(upsampledLen);
+	const auto output{result.span()};
 	for (const auto ii : xrange(input.size()))
 	{
 		// Save input sample, convert to signed, and scale
 		output[ii*factor] = 256 * (int16_t(input[ii]) - 128);
 	}
-	return output;
+	return result;
 }
 
-static void replicateChannel(const std::span<const int16_t> input, int16_t *const output, const std::size_t chFactor)
+static void replicateChannel(const unique_span<int16_t> input_storage, int16_t *const output, const std::size_t chFactor)
 {
+	const auto input{input_storage.span()};
 	for (const auto ii : xrange(input.size()))
 	{
 		// Duplicate and interleave as many channels as needed
@@ -242,22 +278,22 @@ static void replicateChannel(const std::span<const int16_t> input, int16_t *cons
 	}
 }
 
-static void convert_audio(const std::span<const uint8_t> input, int16_t *const output, const int upFactor, const std::size_t chFactor)
+static std::unique_ptr<Uint8[]> convert_audio(const std::span<const uint8_t> input, const std::size_t outsize, const int upFactor, const std::size_t chFactor)
 {
-	// First upsample
 	const auto upsampledLen = input.size() * upFactor;
-	auto stage1 = upsample(input, upsampledLen, upFactor);
 
 	// We expect a 4x upscaling 11025 -> 44100
 	// But maybe 2x for d2x in some cases
 	auto &coeffs = upFactor ? coeffs_halfband : coeffs_quarterband;
 
+	auto output = std::make_unique<Uint8[]>(outsize);
+	replicateChannel(
+	// First upsample
 	// Apply LPF filter to smooth out upscaled points
 	// There will be some uniform amplitude loss here, but less than -3dB
-	auto stage2 = filter_fir({stage1.get(), upsampledLen}, coeffs);
-
-	// Replicate channel
-	replicateChannel({stage2.get(), upsampledLen}, output, chFactor);
+		filter_fir(upsample(input, upsampledLen, upFactor), coeffs),
+		reinterpret_cast<int16_t *>(output.get()), chFactor);
+	return output;
 }
 
 }
@@ -300,8 +336,7 @@ static void mixdigi_convert_sound(const unsigned i)
 		int formatFactor = 2;  // U8 -> S16 is two bytes
 		int convertedSize = dlen * upFactor * out_channels * formatFactor;
 
-		auto cvtbuf = std::make_unique<Uint8[]>(convertedSize);
-		convert_audio({data, dlen}, reinterpret_cast<int16_t*>(cvtbuf.get()), upFactor, out_channels);
+		auto cvtbuf = convert_audio({data, dlen}, convertedSize, upFactor, out_channels);
 
 		SoundChunks[i].abuf = cvtbuf.release();
 		SoundChunks[i].alen = convertedSize;
