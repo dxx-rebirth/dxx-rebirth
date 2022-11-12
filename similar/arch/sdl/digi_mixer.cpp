@@ -37,6 +37,7 @@
 #include "piggy.h"
 #include "u_mem.h"
 #include <memory>
+#include "d_range.h"
 
 #define MIX_DIGI_DEBUG 0
 #define MIX_OUTPUT_FORMAT	AUDIO_S16
@@ -196,14 +197,20 @@ static std::unique_ptr<int16_t[]> filter_fir(int16_t *signal, int signalLen, con
 	for(int nn = 0; nn < signalLen; nn++)
 	{
 		// Determine start/stop indices for convolved chunk
-		int min_idx = std::max(0, nn - FILTER_LEN + 1);
-		int max_idx = std::min(nn, signalLen-1);
+		constexpr std::size_t coeffsLen = FILTER_LEN;
+		/* Avoid use of `std::max` here, since `nn + 1 < coeffsLen` would cause
+		 * unsigned subtraction to underflow.
+		 */
+		const std::size_t min_idx = (nn + 1 > coeffsLen ? nn + 1 - coeffsLen : 0u);
+		const std::size_t max_idx = std::min(nn, signalLen - 1);
+		if (min_idx > max_idx)
+			continue;
 
 		int32_t cur_output = 0;  // Increase bit size for fixed point expansion
 		// Sum over each sample * coefficient in this column
-		for(int kk = min_idx; kk <= max_idx; kk++)
+		for (const auto kk : xrange(min_idx, max_idx + 1))
 		{
-			int product = int32_t(signal[kk]) * coeffs[nn-kk];
+			const auto product = int32_t{signal[kk]} * coeffs[nn - kk];
 			cur_output = cur_output + product;
 		}
 
