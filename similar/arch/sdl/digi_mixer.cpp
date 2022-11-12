@@ -268,14 +268,17 @@ static auto upsample(const std::span<const uint8_t> input, const std::size_t ups
 	return result;
 }
 
-static void replicateChannel(const unique_span<int16_t> input_storage, int16_t *const output, const std::size_t chFactor)
+static auto replicateChannel(const unique_span<int16_t> input_storage, const std::size_t outsize, const std::size_t chFactor)
 {
 	const auto input{input_storage.span()};
+	auto result = std::make_unique<Uint8[]>(outsize);
+	const auto output = reinterpret_cast<int16_t *>(result.get());
 	for (const auto ii : xrange(input.size()))
 	{
 		// Duplicate and interleave as many channels as needed
 		std::fill_n(std::next(output, ii * chFactor), chFactor, input[ii]);
 	}
+	return result;
 }
 
 static std::unique_ptr<Uint8[]> convert_audio(const std::span<const uint8_t> input, const std::size_t outsize, const int upFactor, const std::size_t chFactor)
@@ -286,14 +289,12 @@ static std::unique_ptr<Uint8[]> convert_audio(const std::span<const uint8_t> inp
 	// But maybe 2x for d2x in some cases
 	auto &coeffs = upFactor ? coeffs_halfband : coeffs_quarterband;
 
-	auto output = std::make_unique<Uint8[]>(outsize);
-	replicateChannel(
+	return replicateChannel(
 	// First upsample
 	// Apply LPF filter to smooth out upscaled points
 	// There will be some uniform amplitude loss here, but less than -3dB
 		filter_fir(upsample(input, upsampledLen, upFactor), coeffs),
-		reinterpret_cast<int16_t *>(output.get()), chFactor);
-	return output;
+		outsize, chFactor);
 }
 
 }
