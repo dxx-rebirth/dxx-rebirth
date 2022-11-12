@@ -188,8 +188,9 @@ static int32_t coeffs_halfband[FILTER_LEN] =
 
 // Fixed-point FIR filtering
 // Not optimal: consider optimization with 1/4, 1/2 band filters, and symmetric kernels
-static void filter_fir(int16_t *signal, int16_t *output, int signalLen, const int32_t (&coeffs)[FILTER_LEN])
+static std::unique_ptr<int16_t[]> filter_fir(int16_t *signal, int signalLen, const int32_t (&coeffs)[FILTER_LEN])
 {
+	auto output = std::make_unique<int16_t[]>(signalLen);
 	// A FIR filter is just a 1D convolution
 	// Keep only signalLen samples
 	for(int nn = 0; nn < signalLen; nn++)
@@ -209,6 +210,7 @@ static void filter_fir(int16_t *signal, int16_t *output, int signalLen, const in
 		// Save and fit back into int16
 		output[nn] = int16_t(cur_output >> 16);  // Arithmetic shift
 	}
+	return output;
 }
 
 static std::unique_ptr<int16_t[]> upsample(uint8_t *input, const std::size_t upsampledLen, int inputLen, int factor)
@@ -246,7 +248,6 @@ static void convert_audio(uint8_t *input, int16_t *output, int inputLen, int upF
 	// First upsample
 	int upsampledLen = inputLen*upFactor;
 
-	auto stage2 = std::make_unique<int16_t[]>(upsampledLen);
 	auto stage1 = upsample(input, upsampledLen, inputLen, upFactor);
 
 	// We expect a 4x upscaling 11025 -> 44100
@@ -255,7 +256,7 @@ static void convert_audio(uint8_t *input, int16_t *output, int inputLen, int upF
 
 	// Apply LPF filter to smooth out upscaled points
 	// There will be some uniform amplitude loss here, but less than -3dB
-	filter_fir(stage1.get(), stage2.get(), upsampledLen, coeffs);
+	auto stage2 = filter_fir(stage1.get(), upsampledLen, coeffs);
 
 	// Replicate channel
 	replicateChannel(stage2.get(), output, upsampledLen, chFactor);
