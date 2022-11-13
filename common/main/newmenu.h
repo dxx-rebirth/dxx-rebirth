@@ -131,11 +131,11 @@ private:
 			check_union_type(type, static_type);
 			return v;
 		}
-	void initialize_imenu(const std::span<char> text, ntstring<NM_MAX_TEXT_LEN> &saved_text)
+	void initialize_imenu(char *const text, const uint16_t len, ntstring<NM_MAX_TEXT_LEN> &saved_text)
 	{
+		this->text = text;
 		auto &im = imenu();
-		this->text = text.data();
-		new(&im) newmenu_item::imenu_specific_type({nullptr, static_cast<unsigned>(text.size() - 1), 0}, saved_text);
+		new(&im) newmenu_item::imenu_specific_type({nullptr, len, 0}, saved_text);
 	}
 public:
 	struct nm_item_text
@@ -148,18 +148,19 @@ public:
 	};
 	struct nm_item_input
 	{
-		const std::span<char> text;
 		const char *allowed_chars;
+		char *const text;
+		const uint16_t size;
 		template <std::size_t len>
-			requires(len > 1 && len == static_cast<unsigned>(len))
+			requires(len > 1 && std::in_range<uint16_t>(len))
 			nm_item_input(std::array<char, len> &text, const char *const allowed_chars = nullptr) :
-				text(text), allowed_chars(allowed_chars)
+				allowed_chars(allowed_chars), text(text.data()), size(len)
 		{
 		}
 		template <std::size_t len>
-			requires(len != std::dynamic_extent && len == static_cast<unsigned>(len))
+			requires(len != std::dynamic_extent && std::in_range<uint16_t>(len))
 			nm_item_input(const std::span<char, len> text) :
-				text(text), allowed_chars(nullptr)
+				allowed_chars(nullptr), text(text.data()), size(len)
 		{
 		}
 	};
@@ -181,7 +182,7 @@ public:
 	{
 	}
 	newmenu_item(nm_item_input input) :
-		text(input.text.data()),
+		text{input.text},
 		type(nm_type::input),
 		nm_private(input)
 	{
@@ -236,7 +237,7 @@ public:
 		{
 		}
 		nm_type_specific_data(const nm_item_input &input) :
-			input{{input.allowed_chars, static_cast<unsigned>(input.text.size() - 1), 0}}
+			input{{input.allowed_chars, input.size, 0}}
 		{
 		}
 		nm_type_specific_data(const nm_item_slider &slider) :
@@ -251,10 +252,10 @@ public:
 	};
 	nm_type_specific_data nm_private;
 	template <std::size_t len>
-		requires(len > 1 && len == static_cast<unsigned>(len))
+		requires(len > 1 && std::in_range<uint16_t>(len))
 		void initialize_imenu(std::array<char, len> &text, ntstring<NM_MAX_TEXT_LEN> &saved_text)
 		{
-			initialize_imenu(std::span(text), saved_text);
+			initialize_imenu(text.data(), len - 1, saved_text);
 		}
 };
 
