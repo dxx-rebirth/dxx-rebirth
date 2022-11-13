@@ -52,7 +52,6 @@ static_assert(sizeof(disk_expl_wall) == 12, "sizeof(disk_expl_wall) wrong");
 #endif
 
 imobjptridx_t object_create_explosion_without_damage(const d_vclip_array &Vclip, vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);
-void object_create_muzzle_flash(vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);
 
 imobjptridx_t object_create_badass_explosion(const d_robot_info_array &Robot_info, imobjptridx_t objp, vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type,
 		fix maxdamage, fix maxdistance, fix maxforce, icobjptridx_t parent);

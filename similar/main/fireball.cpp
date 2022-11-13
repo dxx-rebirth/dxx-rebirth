@@ -560,11 +560,6 @@ static imobjptridx_t object_create_explosion_with_damage(const d_robot_info_arra
 
 }
 
-void object_create_muzzle_flash(const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type )
-{
-	object_create_explosion_without_damage(Vclip, segnum, position, size, vclip_type);
-}
-
 imobjptridx_t object_create_badass_explosion(const d_robot_info_array &Robot_info, const imobjptridx_t objp, const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const icobjptridx_t parent )
 {
 	auto &Objects = LevelUniqueObjectState.Objects;

@@ -52,6 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "fwd-wall.h"
 #include "playsave.h"
+#include "vclip.h"
 
 #include "compiler-range_for.h"
 #include "d_levelstate.h"
@@ -706,7 +707,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 		if (parent != Viewer && parent->type != OBJ_WEAPON) {
 			// Muzzle flash
 			if (weapon_info.flash_vclip > -1 )
-				object_create_muzzle_flash(vmsegptridx(obj->segnum), obj->pos, weapon_info.flash_size, weapon_info.flash_vclip);
+				object_create_explosion_without_damage(Vclip, vmsegptridx(obj->segnum), obj->pos, weapon_info.flash_size, weapon_info.flash_vclip);
 		}
 
 		do_omega_stuff(vmsegptridx, parent, position, obj);
@@ -815,7 +816,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 	if (( parent != Viewer ) && (parent->type != OBJ_WEAPON))	{
 		// Muzzle flash
 		if (weapon_info.flash_vclip > -1 )
-			object_create_muzzle_flash(segnum.absolute_sibling(obj->segnum), obj->pos, weapon_info.flash_size, weapon_info.flash_vclip);
+			object_create_explosion_without_damage(Vclip, segnum.absolute_sibling(obj->segnum), obj->pos, weapon_info.flash_size, weapon_info.flash_vclip);
 	}
 
 	if (weapon_info.flash_sound > -1)
