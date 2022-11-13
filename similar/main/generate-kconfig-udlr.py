@@ -343,7 +343,7 @@ class Main:
 			# show the full traceback.
 			if os.getenv('DXX_KCONFIG_UDLR_TRACEBACK') is not None:
 				raise
-			sys.stderr.write('error: %s\n' % e.message)
+			sys.stderr.write('error: {!s}\n'.format(e))
 			sys.exit(1)
 		self.write_generated_text(target,generated_text)
 
