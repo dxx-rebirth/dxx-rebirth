@@ -227,7 +227,7 @@ public:
 	uint8_t right_offset;
 	nm_type type
 #ifndef NDEBUG
-		= static_cast<nm_type>(UINT8_MAX);
+		{UINT8_MAX};
 #endif
 		;           // What kind of item this is, see NM_TYPE_????? defines
 	union nm_type_specific_data {
