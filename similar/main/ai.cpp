@@ -2792,7 +2792,7 @@ static int maybe_ai_do_actual_firing_stuff(object &obj)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmobjptridx &vmobjptridx, const vmobjptridx_t obj, ai_static *const aip, ai_local &ailp, const robot_info &robptr, const fix dist_to_player, const vms_vector &gun_point, const robot_to_player_visibility_state &player_visibility, const int object_animates, const player_info &player_info, robot_gun_number)
+static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmobjptridx &vmobjptridx, const vmobjptridx_t obj, ai_static *const aip, ai_local &ailp, const robot_info &robptr, const fix dist_to_player, const vms_vector &gun_point, const robot_to_player_visibility_state &player_visibility, const int object_animates, const player_info &player_info, const robot_gun_number gun_num)
 {
 	auto &vec_to_player = player_visibility.vec_to_player;
 	fix	dot;
@@ -2844,6 +2844,9 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 			&& (vm_vec_dist_quick(Hit_pos, obj->pos) > F1_0*40)) {
 			if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 				return;
+			// Ensure gun point is calculated (might have been skipped because of player distance).
+			vms_vector gun_point;
+			calc_gun_point(Robot_info[get_robot_id(obj)], gun_point, obj, gun_num);
 			ai_fire_laser_at_player(Robot_info, LevelSharedSegmentState, obj, player_info, gun_point, robot_gun_number::_0);
 
 			aip->GOAL_STATE = AIS_RECO;
@@ -2941,6 +2944,9 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 			 && (vm_vec_dist_quick(Hit_pos, obj->pos) > F1_0*40)) {
 			if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 				return;
+			// Ensure gun point is calculated (might have been skipped because of player distance).
+			vms_vector gun_point;
+			calc_gun_point(Robot_info[get_robot_id(obj)], gun_point, obj, gun_num);
 			ai_fire_laser_at_player(Robot_info, LevelSharedSegmentState, obj, player_info, gun_point, gun_num, Believed_player_pos);
 
 			aip->GOAL_STATE = AIS_RECO;
