@@ -778,7 +778,8 @@ player_visibility_state player_is_visible_from_object(const d_robot_info_array &
 		if (segnum == segment_none) {
 			startseg = obj.segnum;
 			pos = obj.pos;
-			move_towards_segment_center(Robot_info, LevelSharedSegmentState, obj);
+			auto &robptr = Robot_info[get_robot_id(obj)];
+			move_towards_segment_center(robptr, LevelSharedSegmentState, obj);
 		} else
 		{
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1222,7 +1223,8 @@ static void ai_fire_laser_at_player(const d_robot_info_array &Robot_info, const 
 			if (fate != fvi_hit_type::None)
 			{
 				Int3();		//	This bot's gun is poking through a wall, so don't fire.
-				move_towards_segment_center(Robot_info, LevelSharedSegmentState, obj);		//	And decrease chances it will happen again.
+				auto &robptr = Robot_info[get_robot_id(obj)];
+				move_towards_segment_center(robptr, LevelSharedSegmentState, obj);		//	And decrease chances it will happen again.
 				return;
 			}
 		}
@@ -1840,7 +1842,7 @@ static void compute_buddy_vis_vec(const vmobjptridx_t buddy_obj, const vms_vecto
 // --------------------------------------------------------------------------------------------------------------------
 //	Move object one object radii from current position towards segment center.
 //	If segment center is nearer than 2 radii, move it to center.
-void move_towards_segment_center(const d_robot_info_array &Robot_info, const d_level_shared_segment_state &LevelSharedSegmentState, object_base &objp)
+void move_towards_segment_center(const robot_info &robptr, const d_level_shared_segment_state &LevelSharedSegmentState, object_base &objp)
 {
 /* ZICO's change of 20081103:
    Make move to segment center smoother by using move_towards vector.
@@ -1854,7 +1856,6 @@ void move_towards_segment_center(const d_robot_info_array &Robot_info, const d_l
 	auto &SSegments = LevelSharedSegmentState.get_segments();
 	const auto &&segment_center = compute_segment_center(Vertices.vcptr, SSegments.vcptr(segnum));
 	vm_vec_normalized_dir_quick(vec_to_center, segment_center, objp.pos);
-	auto &robptr = Robot_info[get_robot_id(objp)];
 	move_towards_vector(robptr, objp, vec_to_center, 1);
 }
 
@@ -3464,7 +3465,7 @@ _exit_cheat:
 			switch (ailp.mode) {
 #if defined(DXX_BUILD_DESCENT_II)
 				case ai_mode::AIM_GOTO_PLAYER:
-					move_towards_segment_center(Robot_info, LevelSharedSegmentState, obj);
+					move_towards_segment_center(robptr, LevelSharedSegmentState, obj);
 					create_path_to_guidebot_player_segment(obj, robptr, 100, create_path_safety_flag::safe);
 					break;
 				case ai_mode::AIM_GOTO_OBJECT:
@@ -3479,7 +3480,7 @@ _exit_cheat:
 					if (!((aip->behavior == ai_behavior::AIB_STILL) || (aip->behavior == ai_behavior::AIB_STATION)))	//	Behavior is still, so don't follow path.
 #elif defined(DXX_BUILD_DESCENT_II)
 					if (robptr.attack_type)
-						move_towards_segment_center(Robot_info, LevelSharedSegmentState, obj);
+						move_towards_segment_center(robptr, LevelSharedSegmentState, obj);
 					else if (!((aip->behavior == ai_behavior::AIB_STILL) || (aip->behavior == ai_behavior::AIB_STATION) || (aip->behavior == ai_behavior::AIB_FOLLOW)))    // Behavior is still, so don't follow path.
 #endif
 						attempt_to_resume_path(Robot_info, obj);
@@ -3491,14 +3492,14 @@ _exit_cheat:
 						attempt_to_resume_path(Robot_info, obj);
 					break;
 				case ai_mode::AIM_RUN_FROM_OBJECT:
-					move_towards_segment_center(Robot_info, LevelSharedSegmentState, obj);
+					move_towards_segment_center(robptr, LevelSharedSegmentState, obj);
 					obj->mtype.phys_info.velocity = {};
 					create_n_segment_path(obj, robptr, 5, segment_none);
 					ailp.mode = ai_mode::AIM_RUN_FROM_OBJECT;
 					break;
 #if defined(DXX_BUILD_DESCENT_I)
 				case ai_mode::AIM_HIDE:
-					move_towards_segment_center(Robot_info, LevelSharedSegmentState, obj);
+					move_towards_segment_center(robptr, LevelSharedSegmentState, obj);
 					obj->mtype.phys_info.velocity = {};
 					if (Overall_agitation > (50 - underlying_value(Difficulty_level) * 4))
 						create_path_to_believed_player_segment(obj, robptr, 4 + Overall_agitation/8, create_path_safety_flag::safe);
@@ -3508,7 +3509,7 @@ _exit_cheat:
 					break;
 #elif defined(DXX_BUILD_DESCENT_II)
 				case ai_mode::AIM_BEHIND:
-					move_towards_segment_center(Robot_info, LevelSharedSegmentState, obj);
+					move_towards_segment_center(robptr, LevelSharedSegmentState, obj);
 					obj->mtype.phys_info.velocity = {};
 					break;
 				case ai_mode::AIM_SNIPE_ATTACK:

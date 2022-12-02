@@ -1490,7 +1490,7 @@ void attempt_to_resume_path(const d_robot_info_array &Robot_info, const vmobjptr
 		aip->cur_path_index = new_path_index;
 	} else {
 		// At end of line and have nowhere to go.
-		move_towards_segment_center(Robot_info, LevelSharedSegmentState, objp);
+		move_towards_segment_center(robptr, LevelSharedSegmentState, objp);
 		create_path_to_station(objp, robptr, 15);
 	}
 }

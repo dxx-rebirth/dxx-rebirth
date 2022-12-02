@@ -146,7 +146,7 @@ struct d_level_shared_boss_state : ::dcx::d_level_shared_boss_state
 };
 
 extern d_level_shared_boss_state LevelSharedBossState;
-void move_towards_segment_center(const d_robot_info_array &Robot_info, const d_level_shared_segment_state &, object_base &objp);
+void move_towards_segment_center(const robot_info &robptr, const d_level_shared_segment_state &, object_base &objp);
 imobjptridx_t gate_in_robot(const d_robot_info_array &Robot_info, unsigned type, vmsegptridx_t segnum);
 void do_ai_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, vmobjptridx_t objp);
 #if defined(DXX_BUILD_DESCENT_I)
