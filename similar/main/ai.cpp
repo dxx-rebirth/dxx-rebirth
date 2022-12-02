@@ -1285,10 +1285,9 @@ player_led: ;
 // --------------------------------------------------------------------------------------------------------------------
 //	vec_goal must be normalized, or close to it.
 //	if dot_based set, then speed is based on direction of movement relative to heading
-static void move_towards_vector(const d_robot_info_array &Robot_info, object_base &objp, const vms_vector &vec_goal, int dot_based)
+static void move_towards_vector(const robot_info &robptr, object_base &objp, const vms_vector &vec_goal, int dot_based)
 {
 	auto &velocity = objp.mtype.phys_info.velocity;
-	auto &robptr = Robot_info[get_robot_id(objp)];
 
 	//	Trying to move towards player.  If forward vector much different than velocity vector,
 	//	bash velocity vector twice as much towards player as usual.
@@ -1346,7 +1345,8 @@ static
 void move_towards_player(const d_robot_info_array &Robot_info, object &objp, const vms_vector &vec_to_player)
 //	vec_to_player must be normalized, or close to it.
 {
-	move_towards_vector(Robot_info, objp, vec_to_player, 1);
+	auto &robptr = Robot_info[get_robot_id(objp)];
+	move_towards_vector(robptr, objp, vec_to_player, 1);
 }
 
 namespace {
@@ -1854,7 +1854,8 @@ void move_towards_segment_center(const d_robot_info_array &Robot_info, const d_l
 	auto &SSegments = LevelSharedSegmentState.get_segments();
 	const auto &&segment_center = compute_segment_center(Vertices.vcptr, SSegments.vcptr(segnum));
 	vm_vec_normalized_dir_quick(vec_to_center, segment_center, objp.pos);
-	move_towards_vector(Robot_info, objp, vec_to_center, 1);
+	auto &robptr = Robot_info[get_robot_id(objp)];
+	move_towards_vector(robptr, objp, vec_to_center, 1);
 }
 
 //	-----------------------------------------------------------------------------------------------------------
@@ -4085,7 +4086,7 @@ _exit_cheat:
 				auto goal_point = vm_vec_add(ConsoleObject->pos, goal_vector);
 				vm_vec_scale_add2(goal_point, make_random_vector(), F1_0*8);
 				const auto vec_to_goal = vm_vec_normalized_quick(vm_vec_sub(goal_point, obj->pos));
-				move_towards_vector(Robot_info, obj, vec_to_goal, 0);
+				move_towards_vector(robptr, obj, vec_to_goal, 0);
 				ai_turn_towards_vector(vec_to_player, obj, robptr.turn_time[Difficulty_level]);
 				ai_do_actual_firing_stuff(Robot_info, vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 			}
@@ -4175,7 +4176,7 @@ _exit_cheat:
 			const auto &&center_point = compute_center_point_on_side(vcvertptr, vcsegptr(obj->segnum), aip->GOALSIDE);
 			const auto goal_vector = vm_vec_normalized_quick(vm_vec_sub(center_point, obj->pos));
 			ai_turn_towards_vector(goal_vector, obj, robptr.turn_time[Difficulty_level]);
-			move_towards_vector(Robot_info, obj, goal_vector, 0);
+			move_towards_vector(robptr, obj, goal_vector, 0);
 			ai_multi_send_robot_position(obj, -1);
 
 			break;
