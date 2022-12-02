@@ -93,6 +93,35 @@ namespace {
 static void init_boss_segments(const segment_array &segments, const object &boss_objnum, d_level_shared_boss_state::special_segment_array_t &a, int size_check, int one_wall_hack);
 static void ai_multi_send_robot_position(object &objnum, int force);
 
+/* Computing the robot gun point is moderately expensive.  Defer computing it
+ * until needed, and store the computed value in a std::optional.  When the
+ * optional is valueless, the gun point has not yet been computed.
+ */
+class robot_gun_point : std::optional<vms_vector>
+{
+	using base_type = std::optional<vms_vector>;
+public:
+	using base_type::has_value;
+	const vms_vector &build(const robot_info &robptr, const object_base &obj, robot_gun_number gun_num);
+};
+
+/* If the gun point was previously computed, return a reference to the
+ * previously computed value.
+ *
+ * If the gun point was not yet computed, compute it here, and return a
+ * reference to the computed value.
+ */
+const vms_vector &robot_gun_point::build(const robot_info &robptr, const object_base &obj, const robot_gun_number gun_num)
+{
+	if (!has_value())
+	{
+		vms_vector gun_point;
+		calc_gun_point(robptr, gun_point, obj, gun_num);
+		emplace(gun_point);
+	}
+	return **this;
+}
+
 #if defined(DXX_BUILD_DESCENT_I)
 #define	BOSS_DEATH_SOUND_DURATION	0x2ae14		//	2.68 seconds
 
@@ -1106,7 +1135,7 @@ static int lead_player(const object_base &objp, const vms_vector &fire_point, co
 //	Note: Parameter vec_to_player is only passed now because guns which aren't on the forward vector from the
 //	center of the robot will not fire right at the player.  We need to aim the guns at the player.  Barring that, we cheat.
 //	When this routine is complete, the parameter vec_to_player should not be necessary.
-static void ai_fire_laser_at_player(const d_robot_info_array &Robot_info, const d_level_shared_segment_state &LevelSharedSegmentState, const vmobjptridx_t obj, const player_info &player_info, const vms_vector &fire_point, const robot_gun_number gun_num
+static void ai_fire_laser_at_player(const d_robot_info_array &Robot_info, const d_level_shared_segment_state &LevelSharedSegmentState, const vmobjptridx_t obj, const player_info &player_info, robot_gun_point &gun_point, const robot_gun_number gun_num
 #if defined(DXX_BUILD_DESCENT_II)
 									, const vms_vector &believed_player_pos
 #endif
@@ -1156,6 +1185,7 @@ static void ai_fire_laser_at_player(const d_robot_info_array &Robot_info, const 
 			}
 	}
 
+	auto &fire_point = gun_point.build(robptr, obj, gun_num);
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)LevelSharedSegmentState;
 	//	Set position to fire at based on difficulty level.
@@ -2793,7 +2823,7 @@ static int maybe_ai_do_actual_firing_stuff(object &obj)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmobjptridx &vmobjptridx, const vmobjptridx_t obj, ai_static *const aip, ai_local &ailp, const robot_info &robptr, const fix dist_to_player, const vms_vector &gun_point, const robot_to_player_visibility_state &player_visibility, const int object_animates, const player_info &player_info, const robot_gun_number gun_num)
+static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmobjptridx &vmobjptridx, const vmobjptridx_t obj, ai_static *const aip, ai_local &ailp, const robot_info &robptr, const fix dist_to_player, robot_gun_point &gun_point, const robot_to_player_visibility_state &player_visibility, const int object_animates, const player_info &player_info, robot_gun_number)
 {
 	auto &vec_to_player = player_visibility.vec_to_player;
 	fix	dot;
@@ -2818,7 +2848,7 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 							return;
 						}
 					} else {
-						if ((gun_point.x == 0) && (gun_point.y == 0) && (gun_point.z == 0)) {
+						if (!gun_point.has_value()) {
 							;
 						} else {
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
@@ -2845,9 +2875,6 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 			&& (vm_vec_dist_quick(Hit_pos, obj->pos) > F1_0*40)) {
 			if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 				return;
-			// Ensure gun point is calculated (might have been skipped because of player distance).
-			vms_vector gun_point;
-			calc_gun_point(Robot_info[get_robot_id(obj)], gun_point, obj, gun_num);
 			ai_fire_laser_at_player(Robot_info, LevelSharedSegmentState, obj, player_info, gun_point, robot_gun_number::_0);
 
 			aip->GOAL_STATE = AIS_RECO;
@@ -2862,7 +2889,7 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 // --------------------------------------------------------------------------------------------------------------------
 //	If fire_anyway, fire even if player is not visible.  We're firing near where we believe him to be.  Perhaps he's
 //	lurking behind a corner.
-static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmobjptridx &vmobjptridx, const vmobjptridx_t obj, ai_static *const aip, ai_local &ailp, const robot_info &robptr, const fix dist_to_player, vms_vector &gun_point, const robot_to_player_visibility_state &player_visibility, const int object_animates, const player_info &player_info, const robot_gun_number gun_num)
+static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmobjptridx &vmobjptridx, const vmobjptridx_t obj, ai_static *const aip, ai_local &ailp, const robot_info &robptr, const fix dist_to_player, robot_gun_point &gun_point, const robot_to_player_visibility_state &player_visibility, const int object_animates, const player_info &player_info, const robot_gun_number gun_num)
 {
 	auto &vec_to_player = player_visibility.vec_to_player;
 	fix	dot;
@@ -2896,7 +2923,7 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 							return;
 						}
 					} else {
-						if ((gun_point.x == 0) && (gun_point.y == 0) && (gun_point.z == 0)) {
+						if (!gun_point.has_value()) {
 							;
 						} else {
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
@@ -2909,7 +2936,6 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 							if (gun_num != robot_gun_number::_0)
 							{
 								if (ready_to_fire_weapon2(robptr, ailp, 0)) {
-									calc_gun_point(robptr, gun_point, obj, robot_gun_number::_0);
 									ai_fire_laser_at_player(Robot_info, LevelSharedSegmentState, obj, player_info, gun_point, robot_gun_number::_0, fire_pos);
 									Last_fired_upon_player_pos = fire_pos;
 								}
@@ -2945,9 +2971,7 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 			 && (vm_vec_dist_quick(Hit_pos, obj->pos) > F1_0*40)) {
 			if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 				return;
-			// Ensure gun point is calculated (might have been skipped because of player distance).
-			vms_vector gun_point;
-			calc_gun_point(Robot_info[get_robot_id(obj)], gun_point, obj, gun_num);
+			robot_gun_point gun_point;
 			ai_fire_laser_at_player(Robot_info, LevelSharedSegmentState, obj, player_info, gun_point, gun_num, Believed_player_pos);
 
 			aip->GOAL_STATE = AIS_RECO;
@@ -2976,7 +3000,7 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 							return;
 						}
 					} else {
-						if ((gun_point.x == 0) && (gun_point.y == 0) && (gun_point.z == 0)) {
+						if (!gun_point.has_value()) {
 							;
 						} else {
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
@@ -2989,7 +3013,6 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 							if (gun_num != robot_gun_number::_0)
 							{
 								if (ready_to_fire_weapon2(robptr, ailp, 0)) {
-									calc_gun_point(robptr, gun_point, obj, robot_gun_number::_0);
 									ai_fire_laser_at_player(Robot_info, LevelSharedSegmentState, obj, player_info, gun_point, robot_gun_number::_0, Last_fired_upon_player_pos);
 								}
 							}
@@ -3199,7 +3222,6 @@ void do_ai_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoStat
 	ai_local &ailp = obj->ctype.ai_info.ail;
 	int			obj_ref;
 	int			object_animates;
-	vms_vector	gun_point;
 	vms_vector	vis_vec_pos;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -3353,6 +3375,7 @@ _exit_cheat:
 
 	// If this robot can fire, compute visibility from gun position.
 	// Don't want to compute visibility twice, as it is expensive.  (So is call to calc_gun_point).
+	robot_gun_point gun_point;
 #if defined(DXX_BUILD_DESCENT_I)
 	if (ready_to_fire_any_weapon(robptr, ailp, 0) && (dist_to_player < F1_0*200) && (robptr.n_guns) && !(robptr.attack_type))
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -3368,11 +3391,9 @@ _exit_cheat:
 			:
 #endif
 			aip->CURRENT_GUN;
-			calc_gun_point(robptr, gun_point, obj, gun_num);
-		vis_vec_pos = gun_point;
+		vis_vec_pos = gun_point.build(robptr, obj, gun_num);
 	} else {
 		vis_vec_pos = obj->pos;
-		vm_vec_zero(gun_point);
 	}
 
 	switch (const auto boss_flag = robptr.boss_flag) {
