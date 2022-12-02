@@ -1141,7 +1141,7 @@ static void ai_fire_laser_at_player(const d_robot_info_array &Robot_info, const 
 
 	//	Don't let the boss fire while in death roll.  Sorry, this is the easiest way to do this.
 	//	If you try to key the boss off obj->ctype.ai_info.dying_start_time, it will hose the endlevel stuff.
-	if (BossUniqueState.Boss_dying_start_time && Robot_info[get_robot_id(obj)].boss_flag)
+	if (BossUniqueState.Boss_dying_start_time && robptr.boss_flag)
 		return;
 #endif
 
@@ -1223,7 +1223,6 @@ static void ai_fire_laser_at_player(const d_robot_info_array &Robot_info, const 
 			if (fate != fvi_hit_type::None)
 			{
 				Int3();		//	This bot's gun is poking through a wall, so don't fire.
-				auto &robptr = Robot_info[get_robot_id(obj)];
 				move_towards_segment_center(robptr, LevelSharedSegmentState, obj);		//	And decrease chances it will happen again.
 				return;
 			}
