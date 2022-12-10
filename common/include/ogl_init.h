@@ -119,7 +119,7 @@ static inline void g3_draw_tmap_2(grs_canvas &canvas, const unsigned nv, const s
 	static_assert(N <= MAX_POINTS_PER_POLY, "too many points in tmap");
 #ifdef DXX_CONSTANT_TRUE
 	if (DXX_CONSTANT_TRUE(nv > N))
-		DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_tmap_overread, "reading beyond array");
+		DXX_ALWAYS_ERROR_FUNCTION("reading beyond array");
 #endif
 	if (nv > N)
 		return;

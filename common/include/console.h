@@ -68,7 +68,7 @@ void con_printf(con_priority_wrapper level, const char *fmt, ...) __attribute_fo
 #ifdef DXX_CONSTANT_TRUE
 #define DXX_CON_PRINTF_CHECK_TRAILING_NEWLINE(F)	\
 	(DXX_CONSTANT_TRUE(sizeof((F)) > 1 && (F)[sizeof((F)) - 2] == '\n') &&	\
-		(DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_trailing_newline, "trailing literal newline on con_printf"), 0)),
+		(DXX_ALWAYS_ERROR_FUNCTION("trailing literal newline on con_printf"), 0)),
 #else
 #define DXX_CON_PRINTF_CHECK_TRAILING_NEWLINE(C)
 #endif

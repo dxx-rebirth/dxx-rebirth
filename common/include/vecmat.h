@@ -268,9 +268,9 @@ static inline vms_vector &vm_vec_sub(vms_vector &dest, const vms_vector &src0, c
 {
 #ifdef DXX_CONSTANT_TRUE
 	if (DXX_CONSTANT_TRUE(&src0 == &src1))
-		DXX_ALWAYS_ERROR_FUNCTION(vm_vec_sub_same_op, "vm_vec_sub with &src0 == &src1");
+		DXX_ALWAYS_ERROR_FUNCTION("vm_vec_sub with &src0 == &src1");
 	else if (DXX_CONSTANT_TRUE(src0.x == src1.x && src0.y == src1.y && src0.z == src1.z))
-		DXX_ALWAYS_ERROR_FUNCTION(vm_vec_sub_same_values, "vm_vec_sub with equal value inputs");
+		DXX_ALWAYS_ERROR_FUNCTION("vm_vec_sub with equal value inputs");
 #endif
 	return _vm_vec_sub(dest, src0, src1);
 }
@@ -390,9 +390,9 @@ static inline void vm_matrix_x_matrix(vms_matrix &dest, const vms_matrix &src0, 
 {
 #ifdef DXX_CONSTANT_TRUE
 	if (DXX_CONSTANT_TRUE(&dest == &src0))
-		DXX_ALWAYS_ERROR_FUNCTION(vm_matrix_x_matrix_dest_src0, "vm_matrix_x_matrix with &dest == &src0");
+		DXX_ALWAYS_ERROR_FUNCTION("vm_matrix_x_matrix with &dest == &src0");
 	else if (DXX_CONSTANT_TRUE(&dest == &src1))
-		DXX_ALWAYS_ERROR_FUNCTION(vm_matrix_x_matrix_dest_src1, "vm_matrix_x_matrix with &dest == &src1");
+		DXX_ALWAYS_ERROR_FUNCTION("vm_matrix_x_matrix with &dest == &src1");
 #endif
 	assert(&dest != &src0);
 	assert(&dest != &src1);

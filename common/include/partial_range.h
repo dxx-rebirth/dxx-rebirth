@@ -233,7 +233,7 @@ inline void check_range_bounds(const char *file, unsigned line, const char *estr
 	 * not define DXX_CONSTANT_TRUE and the macro expands to nothing.
 	 */
 #define PARTIAL_RANGE_COMPILE_CHECK_BOUND(EXPR,S)	\
-	(DXX_CONSTANT_TRUE(EXPR > d) && (DXX_ALWAYS_ERROR_FUNCTION(partial_range_will_always_throw_##S, #S " will always throw"), 0))
+	(DXX_CONSTANT_TRUE(EXPR > d) && (DXX_ALWAYS_ERROR_FUNCTION(#S " will always throw"), 0))
 #else
 #define PARTIAL_RANGE_COMPILE_CHECK_BOUND(EXPR,S)	static_cast<void>(0)
 #endif
@@ -341,7 +341,7 @@ inline partial_range_t<iterator_type, index_type> unchecked_partial_range_advanc
 	 * likely indicates a bug.
 	 */
 	if (DXX_CONSTANT_TRUE(!(index_begin < index_end)))
-		DXX_ALWAYS_ERROR_FUNCTION(partial_range_is_always_empty, "offset never less than length");
+		DXX_ALWAYS_ERROR_FUNCTION("offset never less than length");
 #endif
 #ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
 	/* Avoid iterator dereference if range is empty */

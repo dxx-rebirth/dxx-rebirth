@@ -825,7 +825,7 @@ void check_warn_object_type(const object_base &, object_type_t, const char *file
 		DXX_CONSTANT_TRUE(dxx_check_warn_actual_type == dxx_check_warn_expected_type) || (	\
 			/* If the type is always wrong, force a compile-time error. */	\
 			DXX_CONSTANT_TRUE(dxx_check_warn_actual_type != dxx_check_warn_expected_type)	\
-			? DXX_ALWAYS_ERROR_FUNCTION(dxx_error_object_type_mismatch, "object type mismatch")	\
+			? DXX_ALWAYS_ERROR_FUNCTION("object type mismatch")	\
 			: (	\
 				check_warn_object_type(dxx_check_warn_o, dxx_check_warn_expected_type, F, L)	\
 			)	\

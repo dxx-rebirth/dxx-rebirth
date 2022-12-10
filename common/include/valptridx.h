@@ -914,10 +914,10 @@ public:
 			 * where operator bool() has not been called.
 			 */
 			if (DXX_CONSTANT_TRUE(m_state == empty))
-				DXX_ALWAYS_ERROR_FUNCTION(guarded_accessed_empty, DXX_VALPTRIDX_GUARDED_OBJECT_NO);
+				DXX_ALWAYS_ERROR_FUNCTION(DXX_VALPTRIDX_GUARDED_OBJECT_NO);
 			/* If the contained object might not exist: */
 			if (DXX_CONSTANT_TRUE(m_state == initialized))
-				DXX_ALWAYS_ERROR_FUNCTION(guarded_accessed_unchecked, DXX_VALPTRIDX_GUARDED_OBJECT_MAYBE);
+				DXX_ALWAYS_ERROR_FUNCTION(DXX_VALPTRIDX_GUARDED_OBJECT_MAYBE);
 		}
 #endif
 		/*

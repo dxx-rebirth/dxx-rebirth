@@ -199,7 +199,7 @@ protected:
 			if constexpr (std::is_same<step_type, xrange_ascending>::value || (!std::is_same<step_type, xrange_descending>::value && step_type::value > 0))
 			{
 #ifdef DXX_CONSTANT_TRUE
-				(DXX_CONSTANT_TRUE(!(b < e)) && (DXX_ALWAYS_ERROR_FUNCTION(xrange_is_always_empty, "begin never less than end"), 0));
+				(DXX_CONSTANT_TRUE(!(b < e)) && (DXX_ALWAYS_ERROR_FUNCTION("begin never less than end"), 0));
 #endif
 				if (!(b < e))
 					return e;
@@ -207,7 +207,7 @@ protected:
 			else
 			{
 #ifdef DXX_CONSTANT_TRUE
-				(DXX_CONSTANT_TRUE(!(e < b)) && (DXX_ALWAYS_ERROR_FUNCTION(xrange_is_always_empty, "end never less than begin"), 0));
+				(DXX_CONSTANT_TRUE(!(e < b)) && (DXX_ALWAYS_ERROR_FUNCTION("end never less than begin"), 0));
 #endif
 				if (!(e < b))
 					return e;

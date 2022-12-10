@@ -120,7 +120,7 @@ private:
 	{
 #ifdef DXX_CONSTANT_TRUE
 		if (DXX_CONSTANT_TRUE(current_type != static_type))
-			DXX_ALWAYS_ERROR_FUNCTION(dxx_newmenu_trap_invalid_type, "invalid type access");
+			DXX_ALWAYS_ERROR_FUNCTION("invalid type access");
 #endif
 		if (current_type != static_type)
 			throw std::runtime_error("invalid type access");

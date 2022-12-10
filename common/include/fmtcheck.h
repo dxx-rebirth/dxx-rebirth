@@ -17,7 +17,7 @@
 #ifdef DXX_CONSTANT_TRUE
 #define DXX_PRINTF_CHECK_HAS_NONTRIVIAL_FORMAT_STRING_(V,P,FMT)	\
 	static_cast<void>(DXX_CONSTANT_TRUE((FMT) && (FMT)[0] == '%' && (FMT)[1] == 's' && (FMT)[2] == 0) &&	\
-		(DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_trivial_string_specifier_argument_##V, "bare %s argument to " #V "; use " #P " directly"), 0))
+		(DXX_ALWAYS_ERROR_FUNCTION("bare %s argument to " #V "; use " #P " directly"), 0))
 #else
 #define DXX_PRINTF_CHECK_HAS_NONTRIVIAL_FORMAT_STRING_(V,P,FMT)	\
 	((void)(FMT))

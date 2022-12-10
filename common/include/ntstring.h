@@ -58,7 +58,7 @@ public:
 		{
 #ifdef DXX_CONSTANT_TRUE
 			if (DXX_CONSTANT_TRUE(n > N))
-				DXX_ALWAYS_ERROR_FUNCTION(dxx_trap_overread, "read size exceeds array size");
+				DXX_ALWAYS_ERROR_FUNCTION("read size exceeds array size");
 #endif
 			return copy_if(out_offset, i.data(), n);
 		}
