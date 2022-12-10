@@ -1076,14 +1076,13 @@ static void set_briefing_fontcolor(briefing &br)
 
 namespace {
 
-static void redraw_messagestream(grs_canvas &canvas, const grs_font &cv_font, const msgstream &stream, unsigned &lastcolor)
+static int redraw_messagestream(grs_canvas &canvas, const grs_font &cv_font, const msgstream &stream, const int lastcolor)
 {
-	if (lastcolor != stream.color)
-	{
-		lastcolor = stream.color;
-		gr_set_fontcolor(canvas, stream.color, -1);
-	}
+	const auto nextcolor = stream.color;
+	if (lastcolor != nextcolor)
+		gr_set_fontcolor(canvas, nextcolor, -1);
 	gr_string(canvas, cv_font, stream.x + 1, stream.y, stream.ch.data());
+	return nextcolor;
 }
 
 }
@@ -1683,12 +1682,10 @@ window_event_result briefing::event_handler(const d_event &event)
 
 			auto &game_font = *GAME_FONT;
 
-			gr_set_fontcolor(canvas, *Current_color, -1);
-			{
-				unsigned lastcolor = ~0u;
-				range_for (const auto b, partial_const_range(this->messagestream, this->streamcount))
-					redraw_messagestream(canvas, game_font, b, lastcolor);
-			}
+			auto lastcolor = *Current_color;
+			gr_set_fontcolor(canvas, lastcolor, -1);
+			for (const auto b : partial_const_range(this->messagestream, this->streamcount))
+				lastcolor = redraw_messagestream(canvas, game_font, b, lastcolor);
 
 			if (this->new_page || this->new_screen)
 				flash_cursor(canvas, game_font, this, this->flashing_cursor);
