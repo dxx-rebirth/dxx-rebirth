@@ -641,11 +641,6 @@ public:
 		{
 			return *this == rhs.get_unchecked_pointer();
 		}
-	template <typename R>
-		bool operator!=(const R &rhs) const
-		{
-			return !(*this == rhs);
-		}
 	template <typename U>
 		long operator-(U) const = delete;
 	template <typename R>
