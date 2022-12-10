@@ -41,10 +41,13 @@ struct callsign_t
 		a = {};
 		std::copy_n(s.data(), std::min(a.size() - 1, s.size()), begin(a));
 	}
-	void copy_lower(const char *s, std::size_t N)
+	template <std::size_t Extent>
+		requires(Extent == std::dynamic_extent || Extent <= array_length)
+	void copy_lower(const std::span<const char, Extent> sc)
 	{
 		a = {};
-		std::transform(s, std::next(s, std::min(a.size() - 1, N)), begin(a), lower_predicate);
+		const auto s = sc.data();
+		std::transform(s, std::next(s, std::min(a.size() - 1, sc.size())), begin(a), lower_predicate);
 	}
 	void lower()
 	{
@@ -61,12 +64,6 @@ struct callsign_t
 		void operator=(const char (&s)[N])
 		{
 			copy(std::span(s));
-		}
-	template <std::size_t N>
-		void copy_lower(const char (&s)[N])
-		{
-			static_assert(N <= array_length, "string too long");
-			copy_lower(s, N);
 		}
 	void fill(char c) { a.fill(c); }
 	const char &operator[](std::size_t i) const

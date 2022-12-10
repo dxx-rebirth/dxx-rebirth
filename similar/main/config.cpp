@@ -197,7 +197,7 @@ int ReadConfigFile()
 			gr_palette_set_gamma(CGameCfg.GammaLevel);
 		}
 		else if (cmp(lb, eq, LastPlayerStr))
-			GameCfg.LastPlayer.copy_lower(value, std::distance(value, eol));
+			GameCfg.LastPlayer.copy_lower(std::span(value, std::distance(value, eol)));
 		else if (cmp(lb, eq, LastMissionStr))
 			convert_string(CGameCfg.LastMission, value, eol);
 		else if (cmp(lb, eq, ResolutionXStr))

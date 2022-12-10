@@ -1750,7 +1750,7 @@ static auto build_udp_sequence_from_untrusted(const std::span<const uint8_t, upi
 	callsign_t callsign;
 	/* Skip over the first byte, since it is the UPID code */
 	std::size_t position = 1;
-	callsign.copy_lower(reinterpret_cast<const char *>(&untrusted[position]), CALLSIGN_LEN);
+	callsign.copy_lower(std::span<const char, CALLSIGN_LEN>(reinterpret_cast<const char *>(&untrusted[position]), CALLSIGN_LEN));
 	position += CALLSIGN_LEN + 1;
 	const netplayer_info::player_rank rank = build_rank_from_untrusted(untrusted[++position]);
 	return std::tuple(callsign, rank);
@@ -3176,7 +3176,7 @@ static void net_udp_process_game_info_heavy(const uint8_t *data, uint_fast32_t, 
 		Netgame.protocol.udp.your_index = data[len]; ++len;
 		range_for (auto &i, Netgame.players)
 		{
-			i.callsign.copy_lower(reinterpret_cast<const char *>(&data[len]), CALLSIGN_LEN);
+			i.callsign.copy_lower(std::span<const char, CALLSIGN_LEN>(reinterpret_cast<const char *>(&data[len]), CALLSIGN_LEN));
 			len += CALLSIGN_LEN+1;
 			i.connected = player_connection_status{data[len]};				len++;
 			i.rank = build_rank_from_untrusted(data[len]);					len++;

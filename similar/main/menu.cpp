@@ -533,7 +533,7 @@ window_event_result pilot_selection_listbox::callback_handler(const d_event &eve
 			else
 			{
 				const auto p = item[citem];
-				InterfaceUniqueState.PilotName.copy_lower(p, strlen(p));
+				InterfaceUniqueState.PilotName.copy_lower(std::span(p, strlen(p)));
 				InterfaceUniqueState.update_window_title();
 			}
 			return window_event_result::close;
