@@ -256,7 +256,6 @@ struct MVE_audio_clamp
 
 }
 
-static int audiobuf_created = 0;
 static void mve_audio_callback(void *userdata, unsigned char *stream, int len);
 static std::array<std::unique_ptr<short[], MVE_audio_deleter>, TOTAL_AUDIO_BUFFERS> mve_audio_buffers;
 static std::array<unsigned, TOTAL_AUDIO_BUFFERS> mve_audio_buflens;
@@ -340,10 +339,8 @@ static int create_audiobuf_handler(unsigned char, unsigned char minor, const uns
 	if (!mve_audio_enabled)
 		return 1;
 
-	if (audiobuf_created)
+	if (mve_audio_spec)
 		return 1;
-	else
-		audiobuf_created = 1;
 
 	flags = get_ushort(data + 2);
 	sample_rate = get_ushort(data + 4);
@@ -762,7 +759,6 @@ void MVE_rmEndMovie(std::unique_ptr<MVESTREAM>)
 	mve_audio_flags = 0;
 
 	mve_audio_spec.reset();
-	audiobuf_created = 0;
 	g_vBuffers.clear();
 	g_pCurMap=NULL;
 	g_nMapLength=0;
