@@ -441,7 +441,8 @@ void digi_link_sound_to_object3(const unsigned org_soundnum, const vcobjptridx_t
 
 	if (soundnum < 0)
 		return;
-	if (GameSounds[soundnum].data==NULL) {
+	if (!GameSounds[soundnum].data)
+	{
 		Int3();
 		return;
 	}
@@ -494,7 +495,8 @@ static void digi_link_sound_to_pos2(const int org_soundnum, const vcsegptridx_t 
 
 	if (soundnum < 0)
 		return;
-	if (GameSounds[soundnum].data==NULL) {
+	if (!GameSounds[soundnum].data)
+	{
 		Int3();
 		return;
 	}

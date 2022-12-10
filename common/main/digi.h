@@ -34,6 +34,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dsx-ns.h"
 #include "fwd-object.h"
 #include "fwd-segment.h"
+#include "fwd-piggy.h"
 #include <utility>
 
 #ifdef dsx
@@ -49,14 +50,93 @@ enum class sound_stack : uint8_t
 	cancel_previous,
 };
 
-}
-namespace dsx {
+struct digi_sound_deleter : std::default_delete<uint8_t[]>
+{
+	game_sound_offset offset = {};
+	constexpr digi_sound_deleter() = default;
+	constexpr digi_sound_deleter(const game_sound_offset offset) :
+		offset(offset)
+	{
+	}
+	constexpr bool must_free_buffer() const
+	{
+		return static_cast<std::underlying_type<game_sound_offset>::type>(offset) <= 0;
+	}
+	void operator()(uint8_t *const p) const
+	{
+		if (must_free_buffer())
+			this->std::default_delete<uint8_t[]>::operator()(p);
+		/* Else, this pointer was not owned by the unique_ptr, and should not
+		 * be freed.  This happens for some sounds that are stored in a single
+		 * large allocation containing all the sounds, rather than individual
+		 * per-sound allocations.
+		 */
+	}
+};
+
 struct digi_sound
 {
-        int freq;
-	int length;
-	uint8_t * data;
+	struct allocated_data : private std::unique_ptr<uint8_t[], digi_sound_deleter>
+	{
+		using base_type = std::unique_ptr<uint8_t[], digi_sound_deleter>;
+		using base_type::get;
+		using base_type::get_deleter;
+		using base_type::operator bool;
+		constexpr allocated_data() :
+			base_type()
+		{
+		}
+		allocated_data(const base_type::pointer p, const game_sound_offset o) :
+			base_type(p, o)
+		{
+		}
+		/* This is only used in the Descent 1 build. */
+		explicit allocated_data(std::unique_ptr<uint8_t[]> p, const game_sound_offset o) :
+			allocated_data(p.release(), o)
+		{
+		}
+		/* Define reset() instead of inheriting via `using base_type::reset`,
+		 * because only the zero-argument form of reset() should be exposed.
+		 * The one-argument form should be hidden.
+		 */
+		void reset()
+		{
+			this->base_type::reset();
+		}
+		allocated_data &operator=(allocated_data &&rhs)
+		{
+			auto &d = rhs.get_deleter();
+			if (d.must_free_buffer())
+				/* If the other object exclusively owns the data it controls,
+				 * then use the standard move semantics of unique_ptr.
+				 */
+				return static_cast<allocated_data &>(this->base_type::operator=(std::move(rhs)));
+			/* Otherwise, the source object does not free its data, so assume
+			 * that it is safe, and sometimes necessary, to copy from the
+			 * source instead of moving from it.
+			 */
+			if (this == &rhs)
+				return *this;
+			/* Free the old data, if needed. */
+			this->base_type::reset();
+			/* Mark this deleter as not requiring a free. */
+			get_deleter() = d;
+			/* Change this pointer to share ownership with the other object. */
+			this->base_type::reset(rhs.get());
+			return *this;
+		}
+	};
+	std::size_t length;
+	int freq;
+	allocated_data data;
+	std::span<const uint8_t> span() const
+	{
+		return {data.get(), length};
+	}
 };
+
+}
+namespace dsx {
 
 extern int digi_init();
 extern void digi_close();

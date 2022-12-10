@@ -5466,7 +5466,7 @@ void hoard_resources_type::reset()
 	{
 		const auto idx = std::exchange(snd_idx, invalid_snd_idx);
 		range_for (auto &i, partial_range(GameSounds, idx, idx + 4))
-			d_free(i.data);
+			i.data.reset();
 	}
 	range_for (auto &i, Orb_icons)
 		i.reset();
@@ -5597,9 +5597,10 @@ void init_hoard_data(d_vclip_array &Vclip)
 			len = PHYSFSX_readInt(ifile);    //get 22k len
 		}
 
-		GameSounds[Num_sound_files+i].length = len;
-		MALLOC(GameSounds[Num_sound_files+i].data, ubyte, len);
-		PHYSFS_read(ifile,GameSounds[Num_sound_files+i].data,1,len);
+		auto &gs = GameSounds[Num_sound_files+i];
+		gs.length = len;
+		gs.data = digi_sound::allocated_data{std::make_unique<uint8_t[]>(len), game_sound_offset{}};
+		PHYSFS_read(ifile, gs.data.get(), 1, len);
 
 		if (GameArg.SndDigiSampleRate == SAMPLE_RATE_11K) {
 			len = PHYSFSX_readInt(ifile);    //get 22k len

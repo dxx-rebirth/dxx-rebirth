@@ -314,30 +314,27 @@ static void mixdigi_convert_sound(const unsigned i)
 	if (SoundChunks[i].abuf)
 		//proceed only if not converted yet
 		return;
-
-	Uint8 *data = GameSounds[i].data;
-	Uint32 dlen = GameSounds[i].length;
-	int freq;
+	const auto data = GameSounds[i].span();
 	int out_freq;
 	int out_channels;
 #if defined(DXX_BUILD_DESCENT_I)
 	out_freq = digi_sample_rate;
 	out_channels = MIX_OUTPUT_CHANNELS;
-	freq = GameSounds[i].freq;
+	const auto freq = GameSounds[i].freq;
 #elif defined(DXX_BUILD_DESCENT_II)
 	Uint16 out_format;
 	Mix_QuerySpec(&out_freq, &out_format, &out_channels); // get current output settings
-	freq = GameArg.SndDigiSampleRate;
+	const auto freq = GameArg.SndDigiSampleRate;
 #endif
 
-	if (data)
+	if (!data.empty())
 	{
 		// Create output memory
 		int upFactor = out_freq / freq;  // Should be integer, 2 or 4
 		int formatFactor = 2;  // U8 -> S16 is two bytes
-		int convertedSize = dlen * upFactor * out_channels * formatFactor;
+		int convertedSize = data.size() * upFactor * out_channels * formatFactor;
 
-		auto cvtbuf = convert_audio({data, dlen}, convertedSize, upFactor, out_channels);
+		auto cvtbuf = convert_audio(data, convertedSize, upFactor, out_channels);
 
 		SoundChunks[i].abuf = cvtbuf.release();
 		SoundChunks[i].alen = convertedSize;
@@ -362,8 +359,6 @@ int digi_mixer_start_sound(short soundnum, const fix volume, const sound_pan pan
 	const auto channel = digi_mixer_find_channel(channels, max_channels);
 	if (channel >= max_channels)
 		return -1;
-
-	Assert(GameSounds[soundnum].data != reinterpret_cast<void *>(-1));
 
 	mixdigi_convert_sound(soundnum);
 

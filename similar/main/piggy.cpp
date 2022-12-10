@@ -117,13 +117,9 @@ static std::unique_ptr<uint8_t[]> Bitmap_replacement_data;
 #endif
 
 unsigned Num_bitmap_files;
-int Num_sound_files = 0;
 
 namespace dsx {
 std::array<digi_sound, MAX_SOUND_FILES> GameSounds;
-namespace {
-static std::array<game_sound_offset, MAX_SOUND_FILES> SoundOffset;
-}
 GameBitmaps_array GameBitmaps;
 }
 
@@ -156,9 +152,6 @@ static RAIIPHYSFS_File Piggy_fp;
 
 ubyte bogus_bitmap_initialized=0;
 std::array<uint8_t, 64 * 64> bogus_data;
-namespace dsx {
-digi_sound bogus_sound;
-}
 
 #if defined(DXX_BUILD_DESCENT_I)
 grs_bitmap bogus_bitmap;
@@ -236,6 +229,10 @@ static void write_int(int i,PHYSFS_File *file);
 }
 
 namespace dcx {
+
+digi_sound bogus_sound;
+unsigned Num_sound_files;
+
 namespace {
 
 static void get_bitmap_name_from_header(std::array<char, 13> &output_name, const DiskBitmapHeader &bmh)
@@ -363,7 +360,7 @@ bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const std::span<const char> 
 	return temp;
 }
 
-int piggy_register_sound(digi_sound *const snd, const char * name, int in_file, const game_sound_offset sound_offset)
+int piggy_register_sound(digi_sound &snd, const char * name)
 {
 	int i;
 
@@ -371,30 +368,14 @@ int piggy_register_sound(digi_sound *const snd, const char * name, int in_file, 
 
 	strncpy( AllSounds[Num_sound_files].name, name, 12 );
 	hashtable_insert( &AllDigiSndNames, AllSounds[Num_sound_files].name, Num_sound_files );
-	GameSounds[Num_sound_files] = *snd;
+	auto &gs = GameSounds[Num_sound_files];
+	gs = std::move(snd);
 #if defined(DXX_BUILD_DESCENT_I)
 //added/moved on 11/13/99 by Victor Rachels to ready for changing freq
 //#ifdef ALLEGRO
-        GameSounds[Num_sound_files].freq = snd->freq;
+        GameSounds[Num_sound_files].freq = snd.freq;
 
-#ifdef ALLEGRO
-//end this section move - VR
-	GameSounds[Num_sound_files].priority = 128;
-	GameSounds[Num_sound_files].loop_start = 0;
-	GameSounds[Num_sound_files].loop_end = GameSounds[Num_sound_files].len;
-	GameSounds[Num_sound_files].param = -1;
 #endif
-#endif
-	SoundOffset[Num_sound_files] = !in_file
-		? game_sound_offset{}
-		:
-#if defined(DXX_BUILD_DESCENT_I)
-			(sound_offset == game_sound_offset{})
-			? game_sound_offset{-1}		// make sure this sound's data is not individually freed
-		:
-#endif
-		sound_offset;
-
 	i = Num_sound_files;
 	Num_sound_files++;
 	return i;
@@ -471,7 +452,6 @@ int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	int sbytes = 0;
 	std::array<char, 13> temp_name;
-	digi_sound temp_sound;
 	DiskBitmapHeader bmh;
 	DiskSoundHeader sndh;
 	int N_sounds;
@@ -479,7 +459,6 @@ int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 	int pigsize;
 	int retval;
 	GameSounds = {};
-	SoundOffset = {};
 
 	static_assert(GameBitmapXlat.size() == GameBitmaps.size(), "size mismatch");
 	for (unsigned i = 0; i < GameBitmaps.size(); ++i)
@@ -507,7 +486,7 @@ int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 #else
         bogus_sound.length = 64*64;
 #endif
-		bogus_sound.data = bogus_data.data();
+		bogus_sound.data = digi_sound::allocated_data{bogus_data.data(), game_sound_offset{INT_MAX}};
 //added on 11/13/99 by Victor Rachels to ready for changing freq
                 bogus_sound.freq = 11025;
 //end this section addition - VR
@@ -621,23 +600,20 @@ int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 		DiskSoundHeader_read(&sndh, Piggy_fp);
 		
 		//size -= sizeof(DiskSoundHeader);
-#ifdef ALLEGRO
-		temp_sound.len = sndh.length;
-#else
+		digi_sound temp_sound;
 		temp_sound.length = sndh.length;
-#endif
 
 //added on 11/13/99 by Victor Rachels to ready for changing freq
                 temp_sound.freq = 11025;
 //end this section addition - VR
-		temp_sound.data = reinterpret_cast<uint8_t *>(sndh.offset + header_size + (sizeof(int)*2)+Pigdata_start);
 		const game_sound_offset sound_offset{static_cast<int>(sndh.offset + header_size + (sizeof(int)*2)+Pigdata_start)};
+		temp_sound.data = digi_sound::allocated_data{nullptr, sound_offset};
 		if (PCSharePig)
 			SoundCompressed[Num_sound_files] = sndh.data_length;
 		std::array<char, 9> temp_name_read;
 		memcpy(temp_name_read.data(), sndh.name, temp_name_read.size() - 1);
 		temp_name_read.back() = 0;
-		piggy_register_sound(&temp_sound, temp_name_read.data(), 1, sound_offset);
+		piggy_register_sound(temp_sound, temp_name_read.data());
                 sbytes += sndh.length;
 	}
 
@@ -1080,7 +1056,6 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 		int header_size;
 		int i;
 		DiskSoundHeader sndh;
-		digi_sound temp_sound;
 		char temp_name_read[16];
 		int sbytes = 0;
 		static int justonce = 1;
@@ -1102,12 +1077,13 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 
 		for (i=0; i<N_sounds; i++ ) {
 			DiskSoundHeader_read(&sndh, ham_fp);
+			digi_sound temp_sound;
 			temp_sound.length = sndh.length;
-			temp_sound.data = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(sndh.offset + header_size + sound_start));
 			const game_sound_offset sound_offset{sndh.offset + header_size + sound_start};
+			temp_sound.data = digi_sound::allocated_data{nullptr, sound_offset};
 			memcpy( temp_name_read, sndh.name, 8 );
 			temp_name_read[8] = 0;
-			piggy_register_sound(&temp_sound, temp_name_read, 1, sound_offset);
+			piggy_register_sound(temp_sound, temp_name_read);
 			if (piggy_is_needed(i))
 				sbytes += sndh.length;
 		}
@@ -1124,7 +1100,6 @@ void read_sndfile(const int required)
 	int header_size;
 	int i;
 	DiskSoundHeader sndh;
-	digi_sound temp_sound;
 	char temp_name_read[16];
 	int sbytes = 0;
 
@@ -1155,12 +1130,13 @@ void read_sndfile(const int required)
 
 	for (i=0; i<N_sounds; i++ ) {
 		DiskSoundHeader_read(&sndh, snd_fp);
+		digi_sound temp_sound;
 		temp_sound.length = sndh.length;
-		temp_sound.data = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(sndh.offset + header_size + sound_start));
 		const game_sound_offset sound_offset{sndh.offset + header_size + sound_start};
+		temp_sound.data = digi_sound::allocated_data{nullptr, sound_offset};
 		memcpy( temp_name_read, sndh.name, 8 );
 		temp_name_read[8] = 0;
-		piggy_register_sound(&temp_sound, temp_name_read, 1, sound_offset);
+		piggy_register_sound(temp_sound, temp_name_read);
 		if (piggy_is_needed(i))
 			sbytes += sndh.length;
 	}
@@ -1171,7 +1147,6 @@ int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	int ham_ok=0,snd_ok=0;
 	GameSounds = {};
-	SoundOffset = {};
 	for (unsigned i = 0; i < GameBitmapXlat.size(); ++i)
 	{
 		GameBitmapXlat[i] = i;
@@ -1193,7 +1168,7 @@ int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 		gr_init_bitmap(GameBitmaps[Num_bitmap_files], bm_mode::linear, 0, 0, 64, 64, 64, bogus_data.data());
 		piggy_register_bitmap(GameBitmaps[Num_bitmap_files], "bogus", 1);
 		bogus_sound.length = 64*64;
-		bogus_sound.data = bogus_data.data();
+		bogus_sound.data = digi_sound::allocated_data{bogus_data.data(), game_sound_offset{INT_MAX}};
 		GameBitmapOffset[0] = pig_bitmap_offset::None;
 	}
 
@@ -1251,35 +1226,29 @@ void piggy_read_sounds(int pc_shareware)
 	std::vector<uint8_t> lastbuf;
 	for (i=0; i<Num_sound_files; i++ )
 	{
-		digi_sound *snd = &GameSounds[i];
-
-		if (const auto sound_offset = underlying_value(SoundOffset[i]); sound_offset > 0)
+		auto &snd = GameSounds[i];
+		auto &d = snd.data.get_deleter();
+		if (!d.must_free_buffer())
 		{
 			if ( piggy_is_needed(i) )
 			{
+				const auto current_sound_offset = d.offset;
+				const auto sound_offset = underlying_value(current_sound_offset);
 				PHYSFSX_fseek(Piggy_fp, sound_offset, SEEK_SET);
 
 				// Read in the sound data!!!
-				snd->data = ptr;
-#ifdef ALLEGRO
-				ptr += snd->len;
-#else
-				ptr += snd->length;
-#endif
+				snd.data = digi_sound::allocated_data{ptr, current_sound_offset};
+				ptr += snd.length;
 		//Arne's decompress for shareware on all soundcards - Tim@Rikers.org
 				if (pc_shareware)
 				{
 					const auto compressed_length = SoundCompressed[i];
 					lastbuf.resize(compressed_length);
 					PHYSFS_read(Piggy_fp, lastbuf.data(), compressed_length, 1);
-					sound_decompress(lastbuf.data(), compressed_length, snd->data);
+					sound_decompress(lastbuf.data(), compressed_length, snd.data.get());
 				}
 				else
-#ifdef ALLEGRO
-					PHYSFS_read( Piggy_fp, snd->data, snd->len, 1 );
-#else
-					PHYSFS_read( Piggy_fp, snd->data, snd->length, 1 );
-#endif
+					PHYSFS_read(Piggy_fp, snd.data.get(), snd.length, 1);
 			}
 		}
 	}
@@ -1296,20 +1265,22 @@ void piggy_read_sounds(void)
 		return;
 
 	for (i=0; i<Num_sound_files; i++ )      {
-		digi_sound *snd = &GameSounds[i];
-
-		if (const auto sound_offset = underlying_value(SoundOffset[i]); sound_offset > 0)
+		auto &snd = GameSounds[i];
+		auto &d = snd.data.get_deleter();
+		if (!d.must_free_buffer())
 		{
 			if ( piggy_is_needed(i) )       {
+				const auto current_sound_offset = snd.data.get_deleter().offset;
+				const auto sound_offset = underlying_value(current_sound_offset);
 				PHYSFSX_fseek(fp, sound_offset, SEEK_SET);
 
 				// Read in the sound data!!!
-				snd->data = ptr;
-				ptr += snd->length;
-				PHYSFS_read( fp, snd->data, snd->length, 1 );
+				snd.data = digi_sound::allocated_data{ptr, current_sound_offset};
+				ptr += snd.length;
+				PHYSFS_read(fp, snd.data.get(), snd.length, 1);
 			}
 			else
-				snd->data = reinterpret_cast<uint8_t *>(-1);
+				snd.data.reset();
 		}
 	}
 }
@@ -1641,17 +1612,14 @@ static void free_bitmap_replacements()
 
 void piggy_close()
 {
-	int i;
-
 #if defined(DXX_BUILD_DESCENT_I)
 	custom_close();
 #endif
 	piggy_close_file();
 	BitmapBits.reset();
 	SoundBits.reset();
-	for (i = 0; i < Num_sound_files; i++)
-		if (SoundOffset[i] == game_sound_offset{})
-			d_free(GameSounds[i].data);
+	for (auto &gs : partial_range(GameSounds, Num_sound_files))
+		gs.data.reset();
 #if defined(DXX_BUILD_DESCENT_II)
 	free_bitmap_replacements();
 	free_d1_tmap_nums();

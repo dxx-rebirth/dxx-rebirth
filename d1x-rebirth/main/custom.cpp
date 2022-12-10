@@ -34,8 +34,8 @@ namespace {
 
 struct snd_info
 {
-	unsigned int length;
-	uint8_t *data;
+	std::size_t length;
+	digi_sound::allocated_data data;
 };
 
 }
@@ -251,8 +251,6 @@ static int load_pigpog(const d_fname &pogname)
 {
 	unsigned num_custom;
 	grs_bitmap *bmp;
-	digi_sound *snd;
-	uint8_t *p;
 	auto f = PHYSFSX_openReadBuffered(pogname).first;
 	int i, j, rc = -1;
 	unsigned int x = 0;
@@ -284,6 +282,7 @@ static int load_pigpog(const d_fname &pogname)
 			else
 				j = cip->width * cip->height;
 
+			uint8_t *p;
 			if (!MALLOC(p, ubyte, j))
 			{
 				return rc;
@@ -345,34 +344,23 @@ static int load_pigpog(const d_fname &pogname)
 		else if ((cip->repl_idx + 1) < 0)
 		{
 			PHYSFSX_fseek( f, cip->offset, SEEK_SET );
-			snd = &GameSounds[x & 0x7fffffff];
+			auto snd = &GameSounds[x & 0x7fffffff];
 
 			j = cip->width;
-			if (!MALLOC(p, ubyte, j))
-			{
-				return rc;
-			}
-
+			auto p = std::make_unique<uint8_t[]>(j);
 			if (SoundOriginal[x & 0x7fffffff].length & 0x80000000)  // already customized?
-				d_free(snd->data);
+			{
+			}
 			else
 			{
-#ifdef ALLEGRO
-				SoundOriginal[x & 0x7fffffff].length = snd->len | 0x80000000;
-#else
 				SoundOriginal[x & 0x7fffffff].length = snd->length | 0x80000000;
-#endif
-				SoundOriginal[x & 0x7fffffff].data = snd->data;
+				SoundOriginal[x & 0x7fffffff].data = std::move(snd->data);
 			}
 
-#ifdef ALLEGRO
-				snd->loop_end = snd->len = j;
-#else
 				snd->length = j;
-#endif
-			snd->data = p;
+			snd->data = digi_sound::allocated_data{std::move(p), game_sound_offset{}};
 
-			if (PHYSFS_read(f, p, j, 1) < 1)
+			if (PHYSFS_read(f, p.get(), j, 1) < 1)
 			{
 				return rc;
 			}
@@ -619,13 +607,8 @@ static void custom_remove()
 	for (i = 0; i < MAX_SOUND_FILES; i++)
 		if (SoundOriginal[i].length & 0x80000000)
 		{
-			d_free(GameSounds[i].data);
-			GameSounds[i].data = SoundOriginal[i].data;
-#ifdef ALLEGRO
-			GameSounds[i].len = SoundOriginal[i].length & 0x7fffffff;
-#else
+			GameSounds[i].data = std::move(SoundOriginal[i].data);
 			GameSounds[i].length = SoundOriginal[i].length & 0x7fffffff;
-#endif
 			SoundOriginal[i].length = 0;
 		}
 }

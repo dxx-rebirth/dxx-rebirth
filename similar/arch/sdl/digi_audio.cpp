@@ -102,7 +102,7 @@ struct sound_slot {
 	sound_pan pan;       // 0 = far left, 1 = far right
 	fix volume;    // 0 = nothing, 1 = fully on
 	//changed on 980905 by adb from char * to unsigned char *
-	std::span<uint8_t> samples;
+	std::span<const uint8_t> samples;
 	sound_object *soundobj;   // Which soundobject is on this channel
 	//end changes by adb
 	unsigned int position; // Position we are at at the moment.
@@ -244,8 +244,6 @@ int digi_audio_start_sound(short soundnum, fix volume, sound_pan pan, int loopin
 
 	SDL_LockAudio();
 
-	Assert(GameSounds[soundnum].data != reinterpret_cast<void *>(-1));
-
 	starting_channel = next_channel;
 
 	while(1)
@@ -281,7 +279,7 @@ int digi_audio_start_sound(short soundnum, fix volume, sound_pan pan, int loopin
 #endif
 
 	SoundSlots[next_channel].soundno = soundnum;
-	SoundSlots[next_channel].samples = std::span(GameSounds[soundnum].data, GameSounds[soundnum].length);
+	SoundSlots[next_channel].samples = GameSounds[soundnum].span();
 	SoundSlots[next_channel].volume = fixmul(digi_volume, volume);
 	SoundSlots[next_channel].pan = pan;
 	SoundSlots[next_channel].position = 0;

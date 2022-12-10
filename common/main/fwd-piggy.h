@@ -49,6 +49,10 @@ enum class game_sound_offset : int
 {
 };
 
+struct digi_sound;
+extern digi_sound bogus_sound;
+extern unsigned Num_sound_files;
+
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -81,14 +85,10 @@ extern std::array<uint8_t, 64 * 64> bogus_data;
 #ifdef dsx
 namespace dsx {
 
-struct digi_sound;
-extern digi_sound bogus_sound;
-
 void piggy_close();
 bitmap_index piggy_register_bitmap(grs_bitmap &bmp, std::span<const char> name, int in_file);
-int piggy_register_sound(digi_sound *snd, const char *name, int in_file, game_sound_offset);
+int piggy_register_sound(digi_sound &snd, const char * name);
 bitmap_index piggy_find_bitmap(const char *name);
-void piggy_read_sound_data(digi_sound *snd);
 void piggy_load_level_data();
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -144,7 +144,6 @@ void remove_char( char * s, char c );	// in piggy.c
 #define REMOVE_DOTS(s)  	remove_char((s),'.')
 
 extern unsigned Num_bitmap_files;
-extern int Num_sound_files;
 extern ubyte bogus_bitmap_initialized;
 #endif
 #define space_tab " \t"

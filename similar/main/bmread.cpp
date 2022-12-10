@@ -380,13 +380,12 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 
 int ds_load(int skip, const char * filename )	{
 	int i;
-	digi_sound n;
 	char rawname[100];
 
 	if (skip) {
 		// We tell piggy_register_sound it's in the pig file, when in actual fact it's in no file
 		// This just tells piggy_close not to attempt to free it
-		return piggy_register_sound(&bogus_sound, "bogus", 1, game_sound_offset{});
+		return piggy_register_sound(bogus_sound, "bogus");
 	}
 
 	std::array<char, 20> fname;
@@ -403,14 +402,15 @@ int ds_load(int skip, const char * filename )	{
 	}
 	if (auto cfp = PHYSFSX_openReadBuffered(rawname).first)
 	{
+		digi_sound n;
 		n.length	= PHYSFS_fileLength( cfp );
-		MALLOC( n.data, ubyte, n.length );
-		PHYSFS_read( cfp, n.data, 1, n.length );
+		n.data = digi_sound::allocated_data{std::make_unique<uint8_t[]>(n.length), game_sound_offset{}};
+		PHYSFS_read(cfp, n.data.get(), 1, n.length);
 		n.freq = 11025;
+		i = piggy_register_sound(n, fname.data());
 	} else {
 		return 255;
 	}
-	i = piggy_register_sound(&n, fname.data(), 0, game_sound_offset{});
 	return i;
 }
 }
