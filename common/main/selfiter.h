@@ -94,16 +94,16 @@ public:
 	{
 		return static_cast<self_return_iterator &>(this->T::operator--());
 	}
-	/* Since `T` is inherited privately, the base class `operator==` and
-	 * `operator!=` cannot implicitly convert `rhs` to `T`.  Define
-	 * comparison operators to perform the conversion explicitly.
+	/* Since `T` is inherited privately, the base class `operator==` cannot
+	 * implicitly convert `rhs` to `T`.  Explicitly cast to the base class,
+	 * then invoke the comparison operator to perform the conversion.
 	 */
-	bool operator==(const self_return_iterator &rhs) const
+	constexpr bool operator==(const self_return_iterator &rhs) const
 	{
-		return this->T::operator==(static_cast<const T &>(rhs));
+		return static_cast<const T &>(*this) == static_cast<const T &>(rhs);
 	}
-	bool operator!=(const self_return_iterator &rhs) const
+	constexpr bool operator!=(const self_return_iterator &rhs) const
 	{
-		return this->T::operator!=(static_cast<const T &>(rhs));
+		return static_cast<const T &>(*this) != static_cast<const T &>(rhs);
 	}
 };
