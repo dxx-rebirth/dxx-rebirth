@@ -220,7 +220,7 @@ static void free_d1_tmap_nums()
 	d1_tmap_nums.reset();
 }
 #if DXX_USE_EDITOR
-static int piggy_is_substitutable_bitmap(char * name, char (&subst_name)[32]);
+static int piggy_is_substitutable_bitmap(std::span<const char, 13> name, std::array<char, 32> &subst_name);
 static void piggy_write_pigfile(std::span<const char, FILENAME_LEN> filename);
 static void write_int(int i,PHYSFS_File *file);
 #endif
@@ -1470,7 +1470,6 @@ static void piggy_write_pigfile(const std::span<const char, FILENAME_LEN> filena
 	int bitmap_data_start, data_offset;
 	DiskBitmapHeader bmh;
 	int org_offset;
-	char subst_name[32];
 	int i;
 
 	for (i=0; i < Num_bitmap_files; i++ ) {
@@ -1507,24 +1506,24 @@ static void piggy_write_pigfile(const std::span<const char, FILENAME_LEN> filena
 	for (i=1; i < Num_bitmap_files; i++ ) {
 		grs_bitmap *bmp;
 
-		const auto name = AllBitmaps[i].name.data();
+		const std::span name = AllBitmaps[i].name;
 		{
 			char *p1;
-			if (const auto p = strchr(name, '#')) {   // this is an ABM == animated bitmap
+			if (const auto p = strchr(name.data(), '#')) {   // this is an ABM == animated bitmap
 				int n;
 				p1 = p; p1++; 
 				n = atoi(p1);
 				*p = 0;
 				if (fp2 && n==0)
-					PHYSFSX_printf( fp2, "%s.abm\n", name);
-				memcpy(bmh.name, name, 8);
+					PHYSFSX_printf(fp2, "%s.abm\n", name.data());
+				memcpy(bmh.name, name.data(), 8);
 				Assert( n <= DBM_NUM_FRAMES );
 				bmh.dflags = DBM_FLAG_ABM + n;
 				*p = '#';
 			} else {
 				if (fp2)
-					PHYSFSX_printf( fp2, "%s.bbm\n", name);
-				memcpy(bmh.name, name, 8);
+					PHYSFSX_printf(fp2, "%s.bbm\n", name.data());
+				memcpy(bmh.name, name.data(), 8);
 				bmh.dflags = 0;
 			}
 		}
@@ -1533,7 +1532,7 @@ static void piggy_write_pigfile(const std::span<const char, FILENAME_LEN> filena
 		assert(!bmp->get_flag_mask(BM_FLAG_PAGED_OUT));
 
 		if (fp1)
-			PHYSFSX_printf(fp1, "BMP: %s, size %d bytes", name, bmp->bm_rowsize * bmp->bm_h);
+			PHYSFSX_printf(fp1, "BMP: %s, size %d bytes", name.data(), bmp->bm_rowsize * bmp->bm_h);
 		org_offset = PHYSFS_tell(pig_fp);
 		bmh.offset = data_offset - bitmap_data_start;
 		PHYSFSX_fseek( pig_fp, data_offset, SEEK_SET );
@@ -1559,7 +1558,7 @@ static void piggy_write_pigfile(const std::span<const char, FILENAME_LEN> filena
 		bmh.height = GameBitmaps[i].bm_h;
 		bmh.wh_extra |= ((GameBitmaps[i].bm_h >> 4) & 0xf0);
 		bmh.flags = GameBitmaps[i].get_flags();
-		if (piggy_is_substitutable_bitmap(name, subst_name))
+		if (std::array<char, 32> subst_name; piggy_is_substitutable_bitmap(name, subst_name))
 		{
 			bitmap_index other_bitmap;
 			other_bitmap = piggy_find_bitmap( subst_name );
@@ -1676,29 +1675,27 @@ static const char (*piggy_is_gauge_bitmap(const char *const base_name))[9]
 	return nullptr;
 }
 
-static int piggy_is_substitutable_bitmap(char * name, char (&subst_name)[32])
+static int piggy_is_substitutable_bitmap(std::span<const char, 13> name, std::array<char, 32> &subst_name)
 {
-	int frame;
-	char * p;
-	char base_name[ 16 ];
-	
-	strcpy( subst_name, name );
-	p = strchr( subst_name, '#' );
-	if ( p ) {
-		frame = atoi( &p[1] );
+	std::copy(name.begin(), name.end(), subst_name.begin());
+	if (const auto p = strchr(subst_name.data(), '#'))
+	{
+		const int frame = atoi(&p[1]);
 		*p = 0;
-		strcpy( base_name, subst_name );
-		if ( !piggy_is_gauge_bitmap( base_name )) {
-			snprintf(subst_name, sizeof(subst_name), "%s#%d", base_name, frame + 1);
-			if ( piggy_does_bitmap_exist_slow( subst_name )  ) {
+		auto base_name = subst_name;
+		if (!piggy_is_gauge_bitmap(base_name.data()))
+		{
+			snprintf(subst_name.data(), subst_name.size(), "%.13s#%d", base_name.data(), frame + 1);
+			if (piggy_does_bitmap_exist_slow(subst_name.data()))
+			{
 				if ( frame & 1 ) {
-					snprintf(subst_name, sizeof(subst_name), "%s#%d", base_name, frame - 1);
+					snprintf(subst_name.data(), subst_name.size(), "%.13s#%d", base_name.data(), frame - 1);
 					return 1;
 				}
 			}
 		}
+		std::copy(name.begin(), name.end(), subst_name.begin());
 	}
-	strcpy( subst_name, name );
 	return 0;
 }
 #endif
