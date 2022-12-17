@@ -861,21 +861,16 @@ void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 		//re-read the bitmaps that aren't in this pig
 
 		for (i=N_bitmaps+1;i<Num_bitmap_files;i++) {
-			if (const auto p = strchr(AllBitmaps[i].name.data(), '#'))
+			auto &abn = AllBitmaps[i].name;
+			if (const auto p = strchr(abn.data(), '#'))
 			{   // this is an ABM == animated bitmap
 				char abmname[FILENAME_LEN];
 				unsigned fnum;
 				int iff_error;          //reference parm to avoid warning message
 				palette_array_t newpal;
-				char basename[FILENAME_LEN];
 				unsigned nframes;
 
-				const std::size_t len = p - AllBitmaps[i].name.data();
-				cf_assert(len < AllBitmaps[i].name.size());
-				memcpy(basename, AllBitmaps[i].name.data(), len);
-				basename[len] = 0;
-
-				snprintf(abmname, sizeof(abmname), "%.8s.abm", basename);
+				snprintf(abmname, sizeof(abmname), "%.*s.abm", static_cast<int>(std::min<std::ptrdiff_t>(p - abn.data(), 8)), abn.data());
 
 				std::array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
 				iff_error = iff_read_animbrush(abmname,bm,&nframes,newpal);
@@ -926,7 +921,7 @@ void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 				char bbmname[FILENAME_LEN];
 				int SuperX;
 
-				snprintf(bbmname, sizeof(bbmname), "%.8s.bbm", AllBitmaps[i].name.data());
+				snprintf(bbmname, sizeof(bbmname), "%.8s.bbm", abn.data());
 				iff_error = iff_read_bitmap(bbmname, n, &newpal);
 
 				if (iff_error != IFF_NO_ERROR)          {
