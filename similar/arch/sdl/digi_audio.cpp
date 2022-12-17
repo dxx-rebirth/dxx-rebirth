@@ -26,6 +26,7 @@
 #include "piggy.h"
 
 #include "compiler-range_for.h"
+#include "d_underlying_value.h"
 
 namespace dcx {
 
@@ -115,9 +116,18 @@ static void digi_audio_stop_sound(sound_slot &s)
 	s.persistent = 0;
 }
 
-static std::array<sound_slot, 32> SoundSlots;
+static enumerated_array<sound_slot, 32, sound_channel> SoundSlots;
 static SDL_AudioSpec WaveSpec;
-static int next_channel;
+static sound_channel next_channel;
+
+/* Return the next sound_channel after `c`, and roll back to 0 if incrementing
+ * `c` exceeds the maximum available channels.
+ */
+static sound_channel next(const sound_channel c)
+{
+	const std::underlying_type<sound_channel>::type v = underlying_value(c) + 1;
+	return (v >= digi_max_channels) ? sound_channel{} : sound_channel{v};
+}
 
 }
 
@@ -234,17 +244,17 @@ void digi_audio_stop_all_channels()
 
 
 // Volume 0-F1_0
-int digi_audio_start_sound(short soundnum, fix volume, sound_pan pan, int looping, int, int, sound_object *const soundobj)
+sound_channel digi_audio_start_sound(short soundnum, fix volume, sound_pan pan, int looping, int, int, sound_object *const soundobj)
 {
-	int i, starting_channel;
+	if (!digi_initialised)
+		return sound_channel::None;
 
-	if (!digi_initialised) return -1;
-
-	if (soundnum < 0) return -1;
+	if (soundnum < 0)
+		return sound_channel::None;
 
 	SDL_LockAudio();
 
-	starting_channel = next_channel;
+	const auto starting_channel = next_channel;
 
 	while(1)
 	{
@@ -254,13 +264,11 @@ int digi_audio_start_sound(short soundnum, fix volume, sound_pan pan, int loopin
 		if (!SoundSlots[next_channel].persistent)
 			break;	// use this channel!
 
-		next_channel++;
-		if (next_channel >= digi_max_channels)
-			next_channel = 0;
+		next_channel = next(next_channel);
 		if (next_channel == starting_channel)
 		{
 			SDL_UnlockAudio();
-			return -1;
+			return sound_channel::None;
 		}
 	}
 	if (SoundSlots[next_channel].playing)
@@ -290,11 +298,8 @@ int digi_audio_start_sound(short soundnum, fix volume, sound_pan pan, int loopin
 	if (soundobj || looping || volume > F1_0)
 		SoundSlots[next_channel].persistent = 1;
 
-	i = next_channel;
-	next_channel++;
-	if (next_channel >= digi_max_channels)
-		next_channel = 0;
-
+	const auto i = next_channel;
+	next_channel = next(next_channel);
 	SDL_UnlockAudio();
 
 	return i;
@@ -317,7 +322,7 @@ void digi_audio_set_digi_volume( int dvolume )
 }
 //end edit by adb
 
-int digi_audio_is_channel_playing(int channel)
+int digi_audio_is_channel_playing(const sound_channel channel)
 {
 	if (!digi_initialised)
 		return 0;
@@ -325,7 +330,7 @@ int digi_audio_is_channel_playing(int channel)
 	return SoundSlots[channel].playing;
 }
 
-void digi_audio_set_channel_volume(int channel, int volume)
+void digi_audio_set_channel_volume(const sound_channel channel, int volume)
 {
 	if (!digi_initialised)
 		return;
@@ -336,7 +341,7 @@ void digi_audio_set_channel_volume(int channel, int volume)
 	SoundSlots[channel].volume = fixmuldiv(volume, digi_volume, F1_0);
 }
 
-void digi_audio_set_channel_pan(int channel, const sound_pan pan)
+void digi_audio_set_channel_pan(const sound_channel channel, const sound_pan pan)
 {
 	if (!digi_initialised)
 		return;
@@ -347,12 +352,12 @@ void digi_audio_set_channel_pan(int channel, const sound_pan pan)
 	SoundSlots[channel].pan = pan;
 }
 
-void digi_audio_stop_sound(int channel)
+void digi_audio_stop_sound(const sound_channel channel)
 {
 	digi_audio_stop_sound(SoundSlots[channel]);
 }
 
-void digi_audio_end_sound(int channel)
+void digi_audio_end_sound(const sound_channel channel)
 {
 	if (!digi_initialised)
 		return;

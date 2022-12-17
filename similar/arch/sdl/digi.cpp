@@ -66,12 +66,12 @@ struct sound_function_table_t
 {
 	int  (*init)();
 	void (*close)();
-	void (*set_channel_volume)(int, int);
-	void (*set_channel_pan)(int, sound_pan);
-	int  (*start_sound)(short, fix, sound_pan, int, int, int, sound_object *);
-	void (*stop_sound)(int);
-	void (*end_sound)(int);
-	int  (*is_channel_playing)(int);
+	void (*set_channel_volume)(sound_channel, int);
+	void (*set_channel_pan)(sound_channel, sound_pan);
+	sound_channel (*start_sound)(short, fix, sound_pan, int, int, int, sound_object *);
+	void (*stop_sound)(sound_channel);
+	void (*end_sound)(sound_channel);
+	int  (*is_channel_playing)(sound_channel);
 	void (*stop_all_channels)();
 	void (*set_digi_volume)(int);
 };
@@ -224,18 +224,36 @@ int  digi_init()
 
 void digi_close() { fptr->close(); }
 
-void digi_set_channel_volume(int channel, int volume) { fptr->set_channel_volume(channel, volume); }
-void digi_set_channel_pan(const int channel, const sound_pan pan) { fptr->set_channel_pan(channel, pan); }
+void digi_set_channel_volume(const sound_channel channel, int volume)
+{
+	fptr->set_channel_volume(channel, volume);
+}
 
-int  digi_start_sound(const short soundnum, const fix volume, const sound_pan pan, const int looping, const int loop_start, const int loop_end, sound_object *const soundobj)
+void digi_set_channel_pan(const sound_channel channel, const sound_pan pan)
+{
+	fptr->set_channel_pan(channel, pan);
+}
+
+sound_channel digi_start_sound(const short soundnum, const fix volume, const sound_pan pan, const int looping, const int loop_start, const int loop_end, sound_object *const soundobj)
 {
 	return fptr->start_sound(soundnum, volume, pan, looping, loop_start, loop_end, soundobj);
 }
 
-void digi_stop_sound(int channel) { fptr->stop_sound(channel); }
-void digi_end_sound(int channel) { fptr->end_sound(channel); }
+void digi_stop_sound(const sound_channel channel)
+{
+	fptr->stop_sound(channel);
+}
 
-int  digi_is_channel_playing(int channel) { return fptr->is_channel_playing(channel); }
+void digi_end_sound(const sound_channel channel)
+{
+	fptr->end_sound(channel);
+}
+
+int  digi_is_channel_playing(const sound_channel channel)
+{
+	return fptr->is_channel_playing(channel);
+}
+
 void digi_stop_all_channels() { fptr->stop_all_channels(); }
 void digi_set_digi_volume(int dvolume) { fptr->set_digi_volume(dvolume); }
 

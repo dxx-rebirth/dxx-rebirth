@@ -38,7 +38,9 @@
 #include "piggy.h"
 #include "u_mem.h"
 #include <memory>
+#include "d_bitset.h"
 #include "d_range.h"
+#include "d_underlying_value.h"
 
 #define MIX_DIGI_DEBUG 0
 #define MIX_OUTPUT_FORMAT	AUDIO_S16
@@ -85,14 +87,16 @@ public:
 	std::span<const T> span() const && = delete;
 };
 
+enumerated_bitset<64, sound_channel> channels;
+
 /* channel management */
-static unsigned digi_mixer_find_channel(const std::bitset<64> &channels, const unsigned max_channels)
+static sound_channel digi_mixer_find_channel(const enumerated_bitset<64, sound_channel> &channels, const unsigned max_channels)
 {
-	unsigned i = 0;
+	uint8_t i{};
 	for (; i < max_channels; ++i)
-		if (!channels[i])
+		if (!channels[(sound_channel{i})])
 			break;
-	return i;
+	return sound_channel{i};
 }
 
 struct RAIIMix_Chunk : public Mix_Chunk
@@ -118,12 +122,12 @@ static uint8_t fix2byte(const fix f)
 }
 
 uint8_t digi_initialised;
-std::bitset<64> channels;
-unsigned digi_mixer_max_channels = channels.size();
+unsigned digi_mixer_max_channels = std::size(channels);
 
 void digi_mixer_free_channel(const int channel_num)
 {
-	channels.reset(channel_num);
+	if (const std::size_t u = channel_num; channels.valid_index(u))
+		channels.reset(static_cast<sound_channel>(channel_num));
 }
 
 }
@@ -346,19 +350,21 @@ static void mixdigi_convert_sound(const unsigned i)
 }
 
 // Volume 0-F1_0
-int digi_mixer_start_sound(short soundnum, const fix volume, const sound_pan pan, const int looping, const int loop_start, const int loop_end, sound_object *)
+sound_channel digi_mixer_start_sound(short soundnum, const fix volume, const sound_pan pan, const int looping, const int loop_start, const int loop_end, sound_object *)
 {
-	if (!digi_initialised) return -1;
+	if (!digi_initialised)
+		return sound_channel::None;
 
 	if (soundnum < 0)
-		return -1;
+		return sound_channel::None;
 
 	const unsigned max_channels = digi_mixer_max_channels;
 	if (max_channels > channels.size())
-		return -1;
-	const auto channel = digi_mixer_find_channel(channels, max_channels);
+		return sound_channel::None;
+	const auto c = digi_mixer_find_channel(channels, max_channels);
+	const auto channel = underlying_value(c);
 	if (channel >= max_channels)
-		return -1;
+		return sound_channel::None;
 
 	mixdigi_convert_sound(soundnum);
 
@@ -374,37 +380,38 @@ int digi_mixer_start_sound(short soundnum, const fix volume, const sound_pan pan
 	Mix_PlayChannel(channel, &(SoundChunks[soundnum]), mix_loop);
 	Mix_SetPanning(channel, 255-mix_pan, mix_pan);
 	Mix_SetDistance(channel, UINT8_MAX - fix2byte(volume));
-	channels.set(channel);
-
-	return channel;
+	channels.set(c);
+	return c;
 }
 
 }
 
 namespace dcx {
 
-void digi_mixer_set_channel_volume(int channel, int volume)
+void digi_mixer_set_channel_volume(const sound_channel channel, const int volume)
 {
 	if (!digi_initialised) return;
-	Mix_SetDistance(channel, UINT8_MAX - fix2byte(volume));
+	Mix_SetDistance(underlying_value(channel), UINT8_MAX - fix2byte(volume));
 }
 
-void digi_mixer_set_channel_pan(int channel, const sound_pan pan)
+void digi_mixer_set_channel_pan(const sound_channel channel, const sound_pan pan)
 {
 	int mix_pan = fix2byte(static_cast<fix>(pan));
-	Mix_SetPanning(channel, 255-mix_pan, mix_pan);
+	Mix_SetPanning(underlying_value(channel), 255 - mix_pan, mix_pan);
 }
 
-void digi_mixer_stop_sound(int channel) {
+void digi_mixer_stop_sound(const sound_channel channel)
+{
 	if (!digi_initialised) return;
+	const auto c = underlying_value(channel);
 #if MIX_DIGI_DEBUG
-	con_printf(CON_DEBUG, "digi_stop_sound %d", channel);
+	con_printf(CON_DEBUG, "%s:%u: %d", __FUNCTION__, __LINE__, c);
 #endif
-	Mix_HaltChannel(channel);
+	Mix_HaltChannel(c);
 	channels.reset(channel);
 }
 
-void digi_mixer_end_sound(int channel)
+void digi_mixer_end_sound(const sound_channel channel)
 {
 	digi_mixer_stop_sound(channel);
 	channels.reset(channel);
@@ -417,7 +424,7 @@ void digi_mixer_set_digi_volume( int dvolume )
 	Mix_Volume(-1, fix2byte(dvolume));
 }
 
-int digi_mixer_is_channel_playing(const int c)
+int digi_mixer_is_channel_playing(const sound_channel c)
 {
 	return channels[c];
 }

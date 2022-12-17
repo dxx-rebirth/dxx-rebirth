@@ -15,17 +15,17 @@ namespace dcx {
 enum class sound_pan : int;
 struct sound_object;
 void digi_mixer_close();
-void digi_mixer_set_channel_volume(int, int);
-void digi_mixer_set_channel_pan(int, sound_pan);
-void digi_mixer_stop_sound(int);
-void digi_mixer_end_sound(int);
+void digi_mixer_set_channel_volume(sound_channel, int);
+void digi_mixer_set_channel_pan(sound_channel, sound_pan);
+void digi_mixer_stop_sound(sound_channel);
+void digi_mixer_end_sound(sound_channel);
 void digi_mixer_set_digi_volume(int);
-int digi_mixer_is_channel_playing(int);
+int digi_mixer_is_channel_playing(sound_channel);
 void digi_mixer_stop_all_channels();
 }
 namespace dsx {
 int digi_mixer_init();
-int digi_mixer_start_sound(short, fix, sound_pan, int, int, int, sound_object *);
+sound_channel digi_mixer_start_sound(short, fix, sound_pan, int, int, int, sound_object *);
 }
 #endif
 

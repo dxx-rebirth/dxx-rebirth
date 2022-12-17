@@ -63,6 +63,8 @@ constexpr std::integral_constant<unsigned, 150> MAX_SOUND_OBJECTS{};
 
 }
 
+sound_channel SoundQ_channel;
+
 struct sound_object
 {
 	short			signature;		// A unique signature to this sound
@@ -72,7 +74,7 @@ struct sound_object
 	vm_distance max_distance;	// The max distance that this sound can be heard at...
 	int			volume;			// Volume that this sound is playing at
 	sound_pan	pan;				// Pan value that this sound is playing at
-	int			channel;			// What channel this is playing on, -1 if not playing
+	sound_channel channel;			// What channel this is playing on, sound_channel::None if not playing
 	short			soundnum;		// The sound number that is playing
 	int			loop_start;		// The start point of the loop. -1 means no loop
 	int			loop_end;		// The end point of the loop
@@ -104,9 +106,10 @@ static int N_active_sound_objects;
 static void digi_kill_sound(sound_object &s)
 {
 	s.flags = 0;	// Mark as dead, so some other sound can use this sound
-	if (s.channel > -1)	{
+	if (s.channel != sound_channel::None)
+	{
 		N_active_sound_objects--;
-		digi_stop_sound(std::exchange(s.channel, -1));
+		digi_stop_sound(std::exchange(s.channel, sound_channel::None));
 	}
 }
 
@@ -286,7 +289,7 @@ void digi_init_sounds()
 	digi_stop_looping_sound();
 	range_for (auto &i, SoundObjects)
 	{
-		i.channel = -1;
+		i.channel = sound_channel::None;
 		i.flags = 0;	// Mark as dead, so some other sound can use this sound
 	}
 	N_active_sound_objects = 0;
@@ -304,7 +307,7 @@ static int digi_looping_sound = -1;
 static int digi_looping_volume;
 static int digi_looping_start = -1;
 static int digi_looping_end = -1;
-static int digi_looping_channel = -1;
+static sound_channel digi_looping_channel = sound_channel::None;
 
 static void digi_play_sample_looping_sub()
 {
@@ -320,7 +323,7 @@ void digi_play_sample_looping( int soundno, fix max_volume,int loop_start, int l
 
 	if (soundno < 0 ) return;
 
-	if (digi_looping_channel>-1)
+	if (digi_looping_channel != sound_channel::None)
 		digi_stop_sound( digi_looping_channel );
 
 	digi_looping_sound = soundno;
@@ -333,7 +336,7 @@ void digi_play_sample_looping( int soundno, fix max_volume,int loop_start, int l
 void digi_change_looping_volume( fix volume )
 {
 	digi_looping_volume = volume;
-	if ( digi_looping_channel > -1 )
+	if (digi_looping_channel != sound_channel::None)
 		digi_set_channel_volume( digi_looping_channel, volume );
 }
 
@@ -342,9 +345,9 @@ namespace {
 static void digi_pause_looping_sound()
 {
 	const auto c = digi_looping_channel;
-	if (c > -1)
+	if (c != sound_channel::None)
 	{
-		digi_looping_channel = -1;
+		digi_looping_channel = sound_channel::None;
 		digi_stop_sound(c);
 	}
 }
@@ -374,7 +377,7 @@ namespace {
 static void digi_start_sound_object(sound_object &s)
 {
 	// start sample structures
-	s.channel =  -1;
+	s.channel = sound_channel::None;
 
 	if ( s.volume <= 0 )
 		return;
@@ -395,7 +398,7 @@ static void digi_start_sound_object(sound_object &s)
 										s.loop_start,
 										s.loop_end, &s);
 
-	if (s.channel > -1 )
+	if (s.channel != sound_channel::None)
 		N_active_sound_objects++;
 }
 
@@ -411,7 +414,7 @@ static void digi_link_sound_common(const object_base &viewer, sound_object &so, 
 	so.pan = {};
 	if (Dont_start_sound_objects) {		//started at level start
 		so.flags |= SOF_PERMANENT;
-		so.channel =  -1;
+		so.channel = sound_channel::None;
 	}
 	else
 	{
@@ -419,7 +422,8 @@ static void digi_link_sound_common(const object_base &viewer, sound_object &so, 
 		digi_start_sound_object(so);
 		// If it's a one-shot sound effect, and it can't start right away, then
 		// just cancel it and be done with it.
-		if ( (so.channel < 0) && (!(so.flags & SOF_PLAY_FOREVER)) )    {
+		if (so.channel == sound_channel::None && !(so.flags & SOF_PLAY_FOREVER))
+		{
 			so.flags = 0;
 			return;
 		}
@@ -604,7 +608,8 @@ void digi_sync_sounds()
 
 			if ( !(s.flags & SOF_PLAY_FOREVER) )	{
 			 	// Check if its done.
-				if (s.channel > -1 ) {
+				if (s.channel != sound_channel::None)
+				{
 					if ( !digi_is_channel_playing(s.channel) )	{
 						digi_end_sound( s.channel );
 						s.flags = 0;	// Mark as dead, so some other sound can use this sound
@@ -628,7 +633,8 @@ void digi_sync_sounds()
 
 				if ((objp.type==OBJ_NONE) || (objp.signature!=s.link_type.obj.objsignature))	{
 					// The object that this is linked to is dead, so just end this sound if it is looping.
-					if ( s.channel>-1 )	{
+					if (s.channel != sound_channel::None)
+					{
 						if (s.flags & SOF_PLAY_FOREVER)
 							digi_stop_sound( s.channel );
 						else
@@ -647,9 +653,9 @@ void digi_sync_sounds()
 					// Sound is too far away, so stop it from playing.
 
 					const auto c = s.channel;
-					if (c > -1)
+					if (c != sound_channel::None)
 					{
-						s.channel = -1;
+						s.channel = sound_channel::None;
 						if (s.flags & SOF_PLAY_FOREVER)
 							digi_stop_sound(c);
 						else
@@ -663,7 +669,8 @@ void digi_sync_sounds()
 					}
 
 				} else {
-					if (s.channel<0)	{
+					if (s.channel == sound_channel::None)
+					{
 						digi_start_sound_object(s);
 					} else {
 						digi_set_channel_volume( s.channel, s.volume );
@@ -672,7 +679,7 @@ void digi_sync_sounds()
 			}
 
 			if (oldpan != s.pan) 	{
-				if (s.channel>-1)
+				if (s.channel != sound_channel::None)
 					digi_set_channel_pan( s.channel, s.pan );
 			}
 
@@ -688,9 +695,9 @@ void digi_pause_digi_sounds()
 		if (!(s.flags & SOF_USED))
 			continue;
 		const auto c = s.channel;
-		if (c > -1)
+		if (c != sound_channel::None)
 		{
-			s.channel = -1;
+			s.channel = sound_channel::None;
 			if (! (s.flags & SOF_PLAY_FOREVER))
 				s.flags = 0;	// Mark as dead, so some other sound can use this sound
 			N_active_sound_objects--;
@@ -713,10 +720,10 @@ void digi_resume_digi_sounds()
 void digi_end_soundobj(sound_object &s)
 {
 	Assert(s.flags & SOF_USED);
-	Assert(s.channel > -1);
+	assert(s.channel != sound_channel::None);
 
 	N_active_sound_objects--;
-	s.channel = -1;
+	s.channel = sound_channel::None;
 }
 
 void digi_stop_digi_sounds()
@@ -726,7 +733,8 @@ void digi_stop_digi_sounds()
 	{
 		if (s.flags & SOF_USED)
 		{
-			if ( s.channel > -1 )	{
+			if (s.channel != sound_channel::None)
+			{
 				digi_stop_sound( s.channel );
 				N_active_sound_objects--;
 			}
@@ -739,18 +747,15 @@ void digi_stop_digi_sounds()
 }
 
 #ifndef NDEBUG
-int verify_sound_channel_free( int channel )
+void verify_sound_channel_free(const sound_channel channel)
 {
 	const auto predicate = [channel](const sound_object &s) {
 		return (s.flags & SOF_USED) && s.channel == channel;
 	};
 	if (std::any_of(SoundObjects.begin(), SoundObjects.end(), predicate))
 		throw std::runtime_error("sound busy");
-	return 0;
 }
 #endif
-
-int SoundQ_channel;
 
 namespace {
 
@@ -768,12 +773,12 @@ void SoundQ_init()
 {
 	SoundQ_head = SoundQ_tail = 0;
 	SoundQ_num = 0;
-	SoundQ_channel = -1;
+	SoundQ_channel = sound_channel::None;
 }
 
 void SoundQ_pause()
 {
-	SoundQ_channel = -1;
+	SoundQ_channel = sound_channel::None;
 }
 
 }
@@ -785,15 +790,16 @@ void SoundQ_end()
 	if (SoundQ_head >= SoundQ.size())
 		SoundQ_head = 0;
 	SoundQ_num--;
-	SoundQ_channel = -1;
+	SoundQ_channel = sound_channel::None;
 }
 
 namespace {
 
 void SoundQ_process()
 {
-	if ( SoundQ_channel > -1 )	{
-		if ( digi_is_channel_playing(SoundQ_channel) )
+	if (const auto channel = SoundQ_channel; channel != sound_channel::None)
+	{
+		if (digi_is_channel_playing(channel))
 			return;
 		SoundQ_end();
 	}

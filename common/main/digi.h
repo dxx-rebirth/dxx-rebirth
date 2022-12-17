@@ -40,7 +40,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef dsx
 namespace dcx {
 
-enum class sound_pan : int;
+enum class sound_pan : int
+{
+};
+
+enum class sound_channel : uint8_t
+{
+	None = UINT8_MAX,
+};
+
 struct sound_object;
 extern int digi_volume;
 
@@ -135,7 +143,10 @@ struct digi_sound
 	}
 };
 
+extern sound_channel SoundQ_channel;
+
 }
+
 namespace dsx {
 
 extern int digi_init();
@@ -166,21 +177,21 @@ extern void digi_resume_digi_sounds();
 
 extern int digi_xlat_sound(int soundno);
 
-extern void digi_stop_sound( int channel );
+void digi_stop_sound(sound_channel channel);
 
 // Volume 0-F1_0
 constexpr sound_object *sound_object_none = nullptr;
-int digi_start_sound(short soundnum, fix volume, sound_pan pan, int looping, int loop_start, int loop_end, sound_object *);
+sound_channel digi_start_sound(short soundnum, fix volume, sound_pan pan, int looping, int loop_start, int loop_end, sound_object *);
 
 // Stops all sounds that are playing
 void digi_stop_all_channels();
 
 void digi_stop_digi_sounds();
 
-extern void digi_end_sound( int channel );
-void digi_set_channel_pan(int channel, sound_pan pan);
-extern void digi_set_channel_volume( int channel, int volume );
-extern int digi_is_channel_playing(int channel);
+void digi_end_sound(sound_channel channel);
+void digi_set_channel_pan(sound_channel channel, sound_pan pan);
+void digi_set_channel_volume(sound_channel channel, int volume);
+int digi_is_channel_playing(sound_channel channel);
 
 extern void digi_play_sample_looping( int soundno, fix max_volume,int loop_start, int loop_end );
 extern void digi_change_looping_volume( fix volume );
@@ -211,7 +222,6 @@ extern void digi_start_sound_queued( short soundnum, fix volume );
 extern int digi_sample_rate;
 #endif
 extern int Dont_start_sound_objects;
-extern int SoundQ_channel;
 void digi_select_system();
 
 #ifdef _WIN32
@@ -225,7 +235,7 @@ void digi_win32_stop_midi_song();
 void digi_end_soundobj(sound_object &);
 void SoundQ_end();
 #ifndef NDEBUG
-int verify_sound_channel_free( int channel );
+void verify_sound_channel_free(sound_channel channel);
 #endif
 
 }
@@ -234,9 +244,9 @@ namespace dsx {
 
 class RAIIdigi_sound
 {
-	static constexpr auto invalid_channel = std::integral_constant<int, -1>{};
-	int channel = invalid_channel;
-	static void stop(int channel)
+	static constexpr std::integral_constant<sound_channel, sound_channel::None> invalid_channel{};
+	sound_channel channel = invalid_channel;
+	static void stop(const sound_channel channel)
 	{
 		if (channel != invalid_channel)
 			digi_stop_sound(channel);
@@ -246,7 +256,7 @@ public:
 	{
 		stop(channel);
 	}
-	void reset(int c = invalid_channel)
+	void reset(const sound_channel c = invalid_channel)
 	{
 		stop(std::exchange(channel, c));
 	}
