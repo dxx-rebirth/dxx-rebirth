@@ -344,12 +344,13 @@ static grs_subcanvas_ptr create_spinning_robot_sub_canvas(grs_canvas &canvas)
 	return gr_create_sub_canvas(canvas, rescale_x(canvas.cv_bitmap, 138), rescale_y(canvas.cv_bitmap, 55), rescale_x(canvas.cv_bitmap, 166), rescale_y(canvas.cv_bitmap, 138));
 }
 
-static void get_message_name(const char *&message, std::array<char, 32> &result, const char *const trailer)
+static std::array<char, 32> get_message_name(const char *&message, const char *const trailer)
 {
 	auto p = message;
 	for (; *p == ' '; ++p)
 	{
 	}
+	std::array<char, 32> result{};
 	const auto e = std::prev(result.end(), sizeof(".bbm"));
 	auto i = result.begin();
 	char c;
@@ -381,6 +382,7 @@ static void get_message_name(const char *&message, std::array<char, 32> &result,
 		}
 	message = p;
 	strcpy(i, trailer);
+	return result;
 }
 }
 }
@@ -804,7 +806,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 		{
 			br->robot_canv.reset();
 			br->prev_ch = 10;
-			get_message_name(br->message, br->bitmap_name, "#0");
+			br->bitmap_name = get_message_name(br->message, "#0");
 		} else if (ch=='A') {
 #if defined(DXX_BUILD_DESCENT_II)
 			br->line_adjustment=1-br->line_adjustment;
@@ -853,11 +855,10 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 				return 1;
 #endif
 		} else if (ch == 'B') {
-			std::array<char, 32> bitmap_name;
 			palette_array_t		temp_palette;
 			int		iff_error;
+			const auto bitmap_name = get_message_name(br->message, ".bbm");
 			br->robot_canv.reset();
-			get_message_name(br->message, bitmap_name, ".bbm");
 			br->guy_bitmap.reset();
 			iff_error = iff_read_bitmap(&bitmap_name[0], br->guy_bitmap, &temp_palette);
 #if defined(DXX_BUILD_DESCENT_II)
