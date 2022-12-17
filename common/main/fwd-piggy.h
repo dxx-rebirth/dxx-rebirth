@@ -87,7 +87,7 @@ namespace dsx {
 
 void piggy_close();
 bitmap_index piggy_register_bitmap(grs_bitmap &bmp, std::span<const char> name, int in_file);
-int piggy_register_sound(digi_sound &snd, const char * name);
+int piggy_register_sound(digi_sound &snd, std::span<const char> name);
 bitmap_index piggy_find_bitmap(const char *name);
 void piggy_load_level_data();
 

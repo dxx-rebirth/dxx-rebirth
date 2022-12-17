@@ -407,7 +407,7 @@ int ds_load(int skip, const char * filename )	{
 		n.data = digi_sound::allocated_data{std::make_unique<uint8_t[]>(n.length), game_sound_offset{}};
 		PHYSFS_read(cfp, n.data.get(), 1, n.length);
 		n.freq = 11025;
-		i = piggy_register_sound(n, fname.data());
+		i = piggy_register_sound(n, fname);
 	} else {
 		return 255;
 	}

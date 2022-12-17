@@ -101,7 +101,7 @@ static std::unique_ptr<ubyte[]> SoundBits;
 
 struct SoundFile
 {
-	char    name[15];
+	std::array<char, 15> name;
 };
 }
 
@@ -360,14 +360,16 @@ bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const std::span<const char> 
 	return temp;
 }
 
-int piggy_register_sound(digi_sound &snd, const char * name)
+int piggy_register_sound(digi_sound &snd, const std::span<const char> name)
 {
 	int i;
 
 	Assert( Num_sound_files < MAX_SOUND_FILES );
 
-	strncpy( AllSounds[Num_sound_files].name, name, 12 );
-	hashtable_insert( &AllDigiSndNames, AllSounds[Num_sound_files].name, Num_sound_files );
+	auto &asn = AllSounds[Num_sound_files].name;
+	std::memcpy(asn.data(), name.data(), std::min(asn.size() - 1, name.size()));
+	asn.back() = 0;
+	hashtable_insert(&AllDigiSndNames, asn.data(), Num_sound_files);
 	auto &gs = GameSounds[Num_sound_files];
 	gs = std::move(snd);
 #if defined(DXX_BUILD_DESCENT_I)
@@ -610,10 +612,7 @@ int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 		temp_sound.data = digi_sound::allocated_data{nullptr, sound_offset};
 		if (PCSharePig)
 			SoundCompressed[Num_sound_files] = sndh.data_length;
-		std::array<char, 9> temp_name_read;
-		memcpy(temp_name_read.data(), sndh.name, temp_name_read.size() - 1);
-		temp_name_read.back() = 0;
-		piggy_register_sound(temp_sound, temp_name_read.data());
+		piggy_register_sound(temp_sound, std::span(sndh.name).first<8>());
                 sbytes += sndh.length;
 	}
 
@@ -1051,7 +1050,6 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 		int header_size;
 		int i;
 		DiskSoundHeader sndh;
-		char temp_name_read[16];
 		int sbytes = 0;
 		static int justonce = 1;
 
@@ -1076,9 +1074,7 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 			temp_sound.length = sndh.length;
 			const game_sound_offset sound_offset{sndh.offset + header_size + sound_start};
 			temp_sound.data = digi_sound::allocated_data{nullptr, sound_offset};
-			memcpy( temp_name_read, sndh.name, 8 );
-			temp_name_read[8] = 0;
-			piggy_register_sound(temp_sound, temp_name_read);
+			piggy_register_sound(temp_sound, std::span(sndh.name).first<8>());
 			if (piggy_is_needed(i))
 				sbytes += sndh.length;
 		}
@@ -1095,7 +1091,6 @@ void read_sndfile(const int required)
 	int header_size;
 	int i;
 	DiskSoundHeader sndh;
-	char temp_name_read[16];
 	int sbytes = 0;
 
 	const auto filename = DEFAULT_SNDFILE;
@@ -1129,9 +1124,7 @@ void read_sndfile(const int required)
 		temp_sound.length = sndh.length;
 		const game_sound_offset sound_offset{sndh.offset + header_size + sound_start};
 		temp_sound.data = digi_sound::allocated_data{nullptr, sound_offset};
-		memcpy( temp_name_read, sndh.name, 8 );
-		temp_name_read[8] = 0;
-		piggy_register_sound(temp_sound, temp_name_read);
+		piggy_register_sound(temp_sound, std::span(sndh.name).first<8>());
 		if (piggy_is_needed(i))
 			sbytes += sndh.length;
 	}
