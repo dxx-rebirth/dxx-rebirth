@@ -279,7 +279,7 @@ static bitmap_index bm_load_sub(const int skip, const char *const filename)
 	memcpy(fname.data(), path.base_start, path.base_end - path.base_start);
 #endif
 
-	bitmap_num = piggy_find_bitmap(fname.data());
+	bitmap_num = piggy_find_bitmap(fname);
 	if (bitmap_num.index)	{
 		return bitmap_num;
 	}
@@ -305,7 +305,6 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 	bitmap_index bi;
 	int iff_error;		//reference parm to avoid warning message
 	palette_array_t newpal;
-	std::array<char, 24> tempname;
 
 	if (skip) {
 		Assert( bogus_bitmap_initialized != 0 );
@@ -329,12 +328,13 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 	{
 	unsigned i;
 	for (i=0; i<MAX_BITMAPS_PER_BRUSH; i++ )	{
+		std::array<char, 24> tempname;
 #if defined(DXX_BUILD_DESCENT_I)
-		snprintf(tempname.data(), tempname.size(), "%.16s#%d", fname.data(), i);
+		const auto len = snprintf(tempname.data(), tempname.size(), "%.16s#%d", fname.data(), i);
 #elif defined(DXX_BUILD_DESCENT_II)
-		snprintf(tempname.data(), tempname.size(), "%.*s#%d", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start, i);
+		const auto len = snprintf(tempname.data(), tempname.size(), "%.*s#%d", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start, i);
 #endif
-		bi = piggy_find_bitmap(tempname.data());
+		bi = piggy_find_bitmap(std::span<const char>(tempname.data(), len));
 		if ( !bi.index )
 			break;
 		bmp[i] = bi;
@@ -362,6 +362,7 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 #endif
 	range_for (const uint_fast32_t i, xrange(nf))
 	{
+		std::array<char, 24> tempname;
 		cf_assert(i < bm.size());
 #if defined(DXX_BUILD_DESCENT_I)
 		snprintf(tempname.data(), tempname.size(), "%s#%" PRIuFAST32, fname.data(), i);

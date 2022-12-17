@@ -1118,7 +1118,7 @@ static void show_animated_bitmap(grs_canvas &canvas, briefing *br)
 	if (br->door_div_count) {
 		if (br->bitmap_name[0] != 0) {
 			bitmap_index bi;
-			bi = piggy_find_bitmap(&br->bitmap_name[0]);
+			bi = piggy_find_bitmap(br->bitmap_name);
 			bitmap_ptr = &GameBitmaps[bi.index];
 			PIGGY_PAGE_IN( bi );
 #if DXX_USE_OGL
@@ -1191,7 +1191,7 @@ static void show_animated_bitmap(grs_canvas &canvas, briefing *br)
 			*(pound_signp+2) = 0;
 		}
 
-		bi = piggy_find_bitmap(&br->bitmap_name[0]);
+		bi = piggy_find_bitmap(br->bitmap_name);
 		bitmap_ptr = &GameBitmaps[bi.index];
 		PIGGY_PAGE_IN( bi );
 #if DXX_USE_OGL

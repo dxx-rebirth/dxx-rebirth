@@ -383,26 +383,28 @@ int piggy_register_sound(digi_sound &snd, const std::span<const char> name)
 	return i;
 }
 
-bitmap_index piggy_find_bitmap(const char * name)
+bitmap_index piggy_find_bitmap(const std::span<const char> entry_name)
 {
 	bitmap_index bmp;
 
 	bmp.index = 0;
 
+	auto name = entry_name;
 #if defined(DXX_BUILD_DESCENT_II) && DXX_USE_EDITOR
 	size_t namelen;
-	const char *t;
-	if ((t=strchr(name,'#'))!=NULL)
-		namelen = t - name;
+	const auto t = strchr(name.data(), '#');
+	if (t != nullptr)
+		namelen = t - name.data();
 	else
-		namelen = strlen(name);
+		namelen = strlen(name.data());
 
-	char temp[FILENAME_LEN];
+	std::array<char, FILENAME_LEN> temp;
 	range_for (auto &i, partial_const_range(alias_list, Num_aliases))
-		if (i.alias_name[namelen] == 0 && d_strnicmp(name, i.alias_name,namelen)==0) {
+		if (i.alias_name[namelen] == 0 && d_strnicmp(name.data(), i.alias_name,namelen) == 0)
+		{
 			if (t) {                //extra stuff for ABMs
 				const auto path = d_splitpath(i.file_name);
-				snprintf(temp, sizeof(temp), "%.*s%s\n", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start, t);
+				snprintf(temp.data(), temp.size(), "%.*s%s\n", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start, t);
 				name = temp;
 			}
 			else
@@ -411,8 +413,7 @@ bitmap_index piggy_find_bitmap(const char * name)
 		}
 #endif
 
-	int i;
-	i = hashtable_search( &AllBitmapsNames, name );
+	const auto i = hashtable_search(&AllBitmapsNames, name.data());
 	Assert( i != 0 );
 	if ( i < 0 )
 		return bmp;
