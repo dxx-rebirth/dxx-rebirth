@@ -5728,7 +5728,12 @@ void dispatch_table::send_data_direct(const std::span<const uint8_t> data, const
 	{
 		PUT_INTEL_INT(&buf[len], UDP_mdata_trace[pnum].pkt_num_tosend);					len += 4;
 	}
-	memcpy(std::span(buf).subspan(len, data.size()).data(), data.data(), data.size());								len += data.size();
+	{
+		const auto count_to_copy = data.size();
+		cf_assert(count_to_copy != std::dynamic_extent);
+		memcpy(std::span(buf).subspan(len, count_to_copy).data(), data.data(), count_to_copy);
+		len += count_to_copy;
+	}
 
 	dxx_sendto(UDP_Socket[0], std::span(buf).first(len), 0, Netgame.players[pnum].protocol.udp.addr);
 
