@@ -344,8 +344,14 @@ static inline int PHYSFSX_writeVector(PHYSFS_File *file, const vms_vector &v)
 __attribute_cold
 void PHYSFSX_read_helper_report_error(const char *const filename, const unsigned line, const char *const func, PHYSFS_File *const file);
 
-template <typename T, int (*F)(PHYSFS_File *, T *)>
-static T PHYSFSX_read_helper(const char *const filename, const unsigned line, const char *const func, PHYSFS_File *const file)
+template <typename T, auto F>
+struct PHYSFSX_read_helper
+{
+	T operator()(PHYSFS_File *file, const char *filename = __builtin_FILE(), unsigned line = __builtin_LINE(), const char *func = __builtin_FUNCTION()) const;
+};
+
+template <typename T, auto F>
+T PHYSFSX_read_helper<T, F>::operator()(PHYSFS_File *const file, const char *const filename, const unsigned line, const char *const func) const
 {
 	T i;
 	if (!F(file, &i))
@@ -367,11 +373,11 @@ static inline int PHYSFSX_readS8(PHYSFS_File *const file, int8_t *const b)
 	return (PHYSFS_read(file, b, sizeof(*b), 1) == 1);
 }
 
-#define PHYSFSX_readByte(F)	(PHYSFSX_read_helper<int8_t, PHYSFSX_readS8>(__FILE__, __LINE__, __func__, (F)))
-#define PHYSFSX_readShort(F)	(PHYSFSX_read_helper<int16_t, PHYSFS_readSLE16>(__FILE__, __LINE__, __func__, (F)))
-#define PHYSFSX_readInt(F)	(PHYSFSX_read_helper<int32_t, PHYSFS_readSLE32>(__FILE__, __LINE__, __func__, (F)))
-#define PHYSFSX_readFix(F)	(PHYSFSX_read_helper<fix, PHYSFS_readSLE32>(__FILE__, __LINE__, __func__, (F)))
-#define PHYSFSX_readFixAng(F)	(PHYSFSX_read_helper<fixang, PHYSFS_readSLE16>(__FILE__, __LINE__, __func__, (F)))
+static constexpr PHYSFSX_read_helper<int8_t, PHYSFSX_readS8> PHYSFSX_readByte{};
+static constexpr PHYSFSX_read_helper<int16_t, PHYSFS_readSLE16> PHYSFSX_readShort{};
+static constexpr PHYSFSX_read_helper<int32_t, PHYSFS_readSLE32> PHYSFSX_readInt{};
+static constexpr PHYSFSX_read_helper<fix, PHYSFS_readSLE32> PHYSFSX_readFix{};
+static constexpr PHYSFSX_read_helper<fixang, PHYSFS_readSLE16> PHYSFSX_readFixAng{};
 #define PHYSFSX_readVector(F,V)	(PHYSFSX_read_sequence_helper<fix, PHYSFS_readSLE32, vms_vector, &vms_vector::x, &vms_vector::y, &vms_vector::z>(__FILE__, __LINE__, __func__, (F), &(V)))
 #define PHYSFSX_readAngleVec(V,F)	(PHYSFSX_read_sequence_helper<fixang, PHYSFS_readSLE16, vms_angvec, &vms_angvec::p, &vms_angvec::b, &vms_angvec::h>(__FILE__, __LINE__, __func__, (F), (V)))
 
