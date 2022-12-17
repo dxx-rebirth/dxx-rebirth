@@ -424,15 +424,11 @@ bitmap_index piggy_find_bitmap(const std::span<const char> entry_name)
 
 }
 
-int piggy_find_sound(const char *name)
+int piggy_find_sound(const std::span<const char> name)
 {
-	int i;
-
-	i = hashtable_search( &AllDigiSndNames, name );
-
+	const auto i = hashtable_search(&AllDigiSndNames, name.data());
 	if ( i < 0 )
 		return 255;
-
 	return i;
 }
 

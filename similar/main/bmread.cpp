@@ -380,7 +380,6 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 }
 
 int ds_load(int skip, const char * filename )	{
-	int i;
 	char rawname[100];
 
 	if (skip) {
@@ -397,7 +396,7 @@ int ds_load(int skip, const char * filename )	{
 	snprintf(rawname, sizeof(rawname), "Sounds/%s.%s", fname.data(), (GameArg.SndDigiSampleRate==SAMPLE_RATE_22K) ? "r22" : "raw");
 #endif
 
-	i = piggy_find_sound(fname.data());
+	const auto i = piggy_find_sound(fname);
 	if (i!=255)	{
 		return i;
 	}
@@ -408,11 +407,10 @@ int ds_load(int skip, const char * filename )	{
 		n.data = digi_sound::allocated_data{std::make_unique<uint8_t[]>(n.length), game_sound_offset{}};
 		PHYSFS_read(cfp, n.data.get(), 1, n.length);
 		n.freq = 11025;
-		i = piggy_register_sound(n, fname);
+		return piggy_register_sound(n, fname);
 	} else {
 		return 255;
 	}
-	return i;
 }
 }
 

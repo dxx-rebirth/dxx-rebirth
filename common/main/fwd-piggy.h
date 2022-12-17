@@ -126,7 +126,7 @@ grs_bitmap *read_extra_bitmap_d1_pig(std::span<const char> name, grs_bitmap &out
 void read_sndfile(int required);
 #endif
 }
-int piggy_find_sound(const char *name);
+int piggy_find_sound(std::span<const char> name);
 
 void piggy_read_bitmap_data(grs_bitmap * bmp);
 
