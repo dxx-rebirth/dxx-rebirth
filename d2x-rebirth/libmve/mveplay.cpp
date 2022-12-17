@@ -746,6 +746,10 @@ void MVE_rmEndMovie(std::unique_ptr<MVESTREAM>)
 		{
 			SDL_CloseAudio();
 		}
+#if DXX_USE_SDLMIXER
+		else
+			Mix_SetPostMix(nullptr, nullptr);
+#endif
 		mve_audio_canplay = 0;
 	}
 	mve_audio_buffers = {};
