@@ -267,18 +267,20 @@ static int piggy_is_needed(const int soundnum)
  */
 namespace dsx {
 namespace {
-static void DiskBitmapHeader_read(DiskBitmapHeader *dbh, PHYSFS_File *fp)
+static DiskBitmapHeader DiskBitmapHeader_read(PHYSFS_File *fp)
 {
-	PHYSFS_read(fp, dbh->name, 8, 1);
-	dbh->dflags = PHYSFSX_readByte(fp);
-	dbh->width = PHYSFSX_readByte(fp);
-	dbh->height = PHYSFSX_readByte(fp);
+	DiskBitmapHeader dbh{};
+	PHYSFS_read(fp, dbh.name, 8, 1);
+	dbh.dflags = PHYSFSX_readByte(fp);
+	dbh.width = PHYSFSX_readByte(fp);
+	dbh.height = PHYSFSX_readByte(fp);
 #if defined(DXX_BUILD_DESCENT_II)
-	dbh->wh_extra = PHYSFSX_readByte(fp);
+	dbh.wh_extra = PHYSFSX_readByte(fp);
 #endif
-	dbh->flags = PHYSFSX_readByte(fp);
-	dbh->avg_color = PHYSFSX_readByte(fp);
-	dbh->offset = PHYSFSX_readInt(fp);
+	dbh.flags = PHYSFSX_readByte(fp);
+	dbh.avg_color = PHYSFSX_readByte(fp);
+	dbh.offset = PHYSFSX_readInt(fp);
+	return dbh;
 }
 }
 
@@ -451,7 +453,6 @@ int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	int sbytes = 0;
 	std::array<char, 13> temp_name;
-	DiskBitmapHeader bmh;
 	DiskSoundHeader sndh;
 	int N_sounds;
 	int size;
@@ -557,7 +558,7 @@ int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 
 	for (const unsigned i : xrange(N_bitmaps))
 	{
-		DiskBitmapHeader_read(&bmh, Piggy_fp);
+		const auto bmh = DiskBitmapHeader_read(Piggy_fp);
 		
 		GameBitmapFlags[i+1] = bmh.flags & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT | BM_FLAG_NO_LIGHTING | BM_FLAG_RLE);
 
@@ -638,7 +639,6 @@ void piggy_init_pigfile(const char *filename)
 {
 	int i;
 	std::array<char, 13> temp_name;
-	DiskBitmapHeader bmh;
 	int header_size, N_bitmaps;
 #if DXX_USE_EDITOR
 	int data_size;
@@ -703,7 +703,7 @@ void piggy_init_pigfile(const char *filename)
 		int width;
 		grs_bitmap *bm = &GameBitmaps[i + 1];
 		
-		DiskBitmapHeader_read(&bmh, Piggy_fp);
+		const auto bmh = DiskBitmapHeader_read(Piggy_fp);
 		get_bitmap_name_from_header(temp_name, bmh);
 		width = bmh.width + (static_cast<short>(bmh.wh_extra & 0x0f) << 8);
 		gr_init_bitmap(*bm, bm_mode::linear, 0, 0, width, bmh.height + (static_cast<short>(bmh.wh_extra & 0xf0) << 4), width, NULL);
@@ -740,7 +740,6 @@ void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 {
 	int i;
 	std::array<char, 13> temp_name;
-	DiskBitmapHeader bmh;
 	int header_size, N_bitmaps;
 #if DXX_USE_EDITOR
 	int must_rewrite_pig = 0;
@@ -816,7 +815,7 @@ void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 			grs_bitmap *bm = &GameBitmaps[i];
 			int width;
 			
-			DiskBitmapHeader_read(&bmh, Piggy_fp);
+			const auto bmh = DiskBitmapHeader_read(Piggy_fp);
 			get_bitmap_name_from_header(temp_name, bmh);
 #if DXX_USE_EDITOR
 			//Make sure name matches
@@ -1766,11 +1765,10 @@ void load_bitmap_replacements(const std::span<const char, FILENAME_LEN> level_na
 
 		range_for (const auto i, unchecked_partial_range(indices.get(), n_bitmaps))
 		{
-			DiskBitmapHeader bmh;
 			grs_bitmap *bm = &GameBitmaps[i];
 			int width;
 
-			DiskBitmapHeader_read(&bmh, ifile);
+			const auto bmh = DiskBitmapHeader_read(ifile);
 
 			width = bmh.width + (static_cast<short>(bmh.wh_extra & 0x0f) << 8);
 			gr_set_bitmap_data(*bm, NULL);	// free ogl texture
