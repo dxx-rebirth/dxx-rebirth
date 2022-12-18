@@ -56,13 +56,6 @@ struct morph_data : prohibit_void_ptr<morph_data>
 		{
 		}
 	};
-	struct polymodel_idx
-	{
-		std::size_t idx;
-		explicit polymodel_idx(std::size_t i) : idx(i)
-		{
-		}
-	};
 	static void *operator new(std::size_t bytes) = delete;	/* require caller to use placement-form to specify the number of vectors to allocate */
 	static void operator delete(void *p)
 	{
@@ -89,7 +82,7 @@ struct morph_data : prohibit_void_ptr<morph_data>
 	std::array<int, MAX_SUBMODELS>
 		n_morphing_points,       // how many active points in each part
 		submodel_startpoints;    // first point for each submodel
-	static ptr create(object_base &, const polymodel &, polymodel_idx);
+	static ptr create(object_base &, const polymodel &, polygon_model_index);
 	std::span<fix> get_morph_times();
 	std::span<vms_vector> get_morph_vecs();
 	std::span<vms_vector> get_morph_deltas();

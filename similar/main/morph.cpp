@@ -74,15 +74,15 @@ public:
 class invalid_morph_model_vertex_count : public std::runtime_error
 {
 	__attribute_cold
-	static std::string prepare_message(const unsigned count, const morph_data::polymodel_idx idx, const unsigned submodel_num)
+	static std::string prepare_message(const unsigned count, const polygon_model_index idx, const unsigned submodel_num)
 	{
 		char buf[68 + 3 * sizeof("4294967295")];
-		const unsigned uidx = idx.idx;
+		const unsigned uidx = underlying_value(idx);
 		const auto len = std::snprintf(buf, sizeof buf, "too many vertices in morph model: found %u in model %u, submodel %u", count, uidx, submodel_num);
 		return std::string(buf, len);
 	}
 public:
-	invalid_morph_model_vertex_count(const unsigned count, const morph_data::polymodel_idx idx, const unsigned submodel_num) :
+	invalid_morph_model_vertex_count(const unsigned count, const polygon_model_index idx, const unsigned submodel_num) :
 		runtime_error(prepare_message(count, idx, submodel_num))
 	{
 	}
@@ -113,7 +113,7 @@ submodel_data parse_model_data_header(const polymodel &pm, const unsigned submod
 	return {data, type, nverts, startpoint};
 }
 
-std::size_t count_submodel_points(const polymodel &pm, const morph_data::polymodel_idx model_idx, const unsigned submodel_num)
+std::size_t count_submodel_points(const polymodel &pm, const polygon_model_index model_idx, const unsigned submodel_num)
 {
 	/* Return the minimum array size that will not cause this submodel
 	 * to index past the end of the array.
@@ -125,7 +125,7 @@ std::size_t count_submodel_points(const polymodel &pm, const morph_data::polymod
 	return count;
 }
 
-std::size_t count_model_points(const polymodel &pm, const morph_data::polymodel_idx model_idx)
+std::size_t count_model_points(const polymodel &pm, const polygon_model_index model_idx)
 {
 	/* Return the minimum array size that will not cause any used
 	 * submodel of this model to index past the end of the array.
@@ -187,7 +187,7 @@ void *morph_data::operator new(std::size_t, const max_vectors max_vecs)
 	return ::operator new(sizeof(morph_data) + (max_vecs.count * (sizeof(fix) + sizeof(vms_vector) + sizeof(vms_vector))));
 }
 
-morph_data::ptr morph_data::create(object_base &o, const polymodel &pm, const polymodel_idx model_idx)
+morph_data::ptr morph_data::create(object_base &o, const polymodel &pm, const polygon_model_index model_idx)
 {
 	const max_vectors m{count_model_points(pm, model_idx)};
 	/* This is an unusual form of `new` overload.  Although arguments to
@@ -481,8 +481,8 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 		return;
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	const morph_data::polymodel_idx pmi(obj.rtype.pobj_info.model_num);
-	auto &pm = Polygon_models[pmi.idx];
+	const auto pmi = obj.rtype.pobj_info.model_num;
+	auto &pm = Polygon_models[pmi];
 
 	*moi = morph_data::create(obj, pm, pmi);
 	morph_data *const md = moi->get();

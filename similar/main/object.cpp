@@ -482,7 +482,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 			}
 #endif
 
-			const auto is_weapon_with_inner_model = (obj->type == OBJ_WEAPON && Weapon_info[get_weapon_id(obj)].model_num_inner > -1);
+			const auto is_weapon_with_inner_model = (obj->type == OBJ_WEAPON && Weapon_info[get_weapon_id(obj)].model_num_inner != polygon_model_index::None);
 			bool draw_simple_model;
 			if (is_weapon_with_inner_model)
 			{
@@ -2469,9 +2469,9 @@ imobjptridx_t drop_marker_object(const vms_vector &pos, const vmsegptridx_t segn
 {
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const auto Marker_model_num = LevelSharedPolygonModelState.Marker_model_num;
-	if (Marker_model_num >= Polygon_models.size())
+	if (Marker_model_num == polygon_model_index::None)
 	{
-		con_printf(CON_URGENT, "%s:%u: failed to drop marker object: invalid model number %u", __FILE__, __LINE__, Marker_model_num);
+		con_printf(CON_URGENT, "%s:%u: failed to drop marker object: invalid model number %u", __FILE__, __LINE__, underlying_value(Marker_model_num));
 		return object_none;
 	}
 	const auto movement_type =

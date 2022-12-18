@@ -215,7 +215,7 @@ imobjptridx_t robot_create(const d_robot_info_array &Robot_info, const unsigned 
  */
 void robot_info_read(PHYSFS_File *fp, robot_info &ri)
 {
-	ri.model_num = PHYSFSX_readInt(fp);
+	ri.model_num = build_polygon_model_index_from_untrusted(PHYSFSX_readInt(fp));
 #if defined(DXX_BUILD_DESCENT_I)
 	ri.n_guns = PHYSFSX_readInt(fp);
 #endif

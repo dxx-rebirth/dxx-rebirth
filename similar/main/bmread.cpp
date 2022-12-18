@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include "dxxsconf.h"
 #include <algorithm>
 #include <string>
 #include <stdio.h>
@@ -485,7 +486,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 #if defined(DXX_BUILD_DESCENT_I)
 	std::string dest_bm;
 	ObjType[0] = OL_PLAYER;
-	ObjId[0] = 0;
+	ObjId[0] = {};
 	Num_total_object_types = 1;
 #elif defined(DXX_BUILD_DESCENT_II)
 	// Open BITMAPS.TBL for reading.
@@ -521,7 +522,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 #if defined(DXX_BUILD_DESCENT_II)
 	DXX_MAKE_VAR_UNDEFINED(Reactors);
 	range_for (auto &i, Reactors)
-		i.model_num = -1;
+		i.model_num = polygon_model_index::None;
 #endif
 
 	Num_effects = 0;
@@ -535,8 +536,8 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 		ec.vc.num_frames = -1;		//another mark of being unused
 	}
 
-	for (unsigned i = 0; i < MAX_POLYGON_MODELS; ++i)
-		Dying_modelnums[i] = Dead_modelnums[i] = -1;
+	for (auto &&[dying, dead] : zip(Dying_modelnums, Dead_modelnums))
+		dying = dead = polygon_model_index::None;
 
 	Num_vclips = 0;
 	DXX_MAKE_VAR_UNDEFINED(Vclip);
@@ -1284,9 +1285,9 @@ static void adjust_field_of_view(enumerated_array<fix, NDL, Difficulty_level_typ
 	}
 }
 
-static polygon_simpler_model_index build_polygon_simpler_model_index_from_polygon_model_index(const unsigned i)
+static polygon_simpler_model_index build_polygon_simpler_model_index_from_polygon_model_index(const polygon_model_index i)
 {
-	const auto ii = i + 1;
+	const auto ii = underlying_value(i) + 1;
 	if (ii > MAX_POLYGON_MODELS)
 		return polygon_simpler_model_index::None;
 	return static_cast<polygon_simpler_model_index>(ii);
@@ -1496,7 +1497,7 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (skip) {
 		auto &ri = Robot_info[LevelSharedRobotInfoState.N_robot_types++];
-		ri.model_num = -1;
+		ri.model_num = polygon_model_index::None;
 #if defined(DXX_BUILD_DESCENT_I)
 		Num_total_object_types++;
 		clear_to_end_of_line(arg);
@@ -1672,12 +1673,12 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 		if (i==0)
 			current_robot_info.model_num = model_num;
 		else
-			Polygon_models[0].simpler_model = build_polygon_simpler_model_index_from_polygon_model_index(model_num);
+			Polygon_models.front().simpler_model = build_polygon_simpler_model_index_from_polygon_model_index(model_num);
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
 	ObjType[Num_total_object_types] = OL_ROBOT;
-	ObjId[Num_total_object_types] = LevelSharedRobotInfoState.N_robot_types;
+	ObjId[Num_total_object_types] = static_cast<polygon_model_index>(LevelSharedRobotInfoState.N_robot_types);
 #elif defined(DXX_BUILD_DESCENT_II)
 	if ((glow > i2f(15)) || (glow < 0) || (glow != 0 && glow < 0x1000)) {
 		Int3();
@@ -1752,7 +1753,6 @@ void bm_read_reactor(void)
 	char *model_name, *model_name_dead=NULL;
 	int first_bitmap_num, first_bitmap_num_dead=0, n_normal_bitmaps;
 	char *equal_ptr;
-	short model_num;
 	fix	lighting = F1_0/2;		// Default
 #if defined(DXX_BUILD_DESCENT_I)
 	int type = -1;
@@ -1822,7 +1822,7 @@ void bm_read_reactor(void)
 	else
 		n_normal_bitmaps = N_ObjBitmapPtrs-first_bitmap_num;
 
-	model_num = load_polygon_model(model_name,n_normal_bitmaps,first_bitmap_num,NULL);
+	const auto model_num = load_polygon_model(model_name, n_normal_bitmaps, first_bitmap_num, nullptr);
 
 #if defined(DXX_BUILD_DESCENT_I)
 	if (type == OL_CONTROL_CENTER)
@@ -1831,7 +1831,7 @@ void bm_read_reactor(void)
 	if ( model_name_dead )
 		Dead_modelnums[model_num]  = load_polygon_model(model_name_dead,N_ObjBitmapPtrs-first_bitmap_num_dead,first_bitmap_num_dead,NULL);
 	else
-		Dead_modelnums[model_num] = -1;
+		Dead_modelnums[model_num] = polygon_model_index::None;
 
 #if defined(DXX_BUILD_DESCENT_I)
 	if (type == -1)
@@ -1898,7 +1898,6 @@ void bm_read_exitmodel()
 	char *model_name, *model_name_dead=NULL;
 	int first_bitmap_num=0, first_bitmap_num_dead=0, n_normal_bitmaps;
 	char *equal_ptr;
-	short model_num;
 
 	model_name = strtok( NULL, space_tab );
 
@@ -1934,12 +1933,12 @@ void bm_read_exitmodel()
 	else
 		n_normal_bitmaps = N_ObjBitmapPtrs-first_bitmap_num;
 
-	model_num = load_polygon_model(model_name,n_normal_bitmaps,first_bitmap_num,NULL);
+	const auto model_num = load_polygon_model(model_name, n_normal_bitmaps, first_bitmap_num, nullptr);
 
 	if ( model_name_dead )
 		Dead_modelnums[model_num]  = load_polygon_model(model_name_dead,N_ObjBitmapPtrs-first_bitmap_num_dead,first_bitmap_num_dead,NULL);
 	else
-		Dead_modelnums[model_num] = -1;
+		Dead_modelnums[model_num] = polygon_model_index::None;
 
 	exit_modelnum = model_num;
 	destroyed_exit_modelnum = Dead_modelnums[model_num];
@@ -2057,7 +2056,7 @@ void bm_read_player_ship(void)
 		if (i==0)
 			Player_ship->model_num = model_num;
 		else
-			Polygon_models[0].simpler_model = build_polygon_simpler_model_index_from_polygon_model_index(model_num);
+			Polygon_models.front().simpler_model = build_polygon_simpler_model_index_from_polygon_model_index(model_num);
 	}
 
 	if ( model_name_dying ) {
@@ -2237,8 +2236,8 @@ void bm_read_weapon(int skip, int unused_flag)
 	// Initialize weapon array
 	Weapon_info[n].render = WEAPON_RENDER_NONE;		// 0=laser, 1=blob, 2=object
 	Weapon_info[n].bitmap.index = 0;
-	Weapon_info[n].model_num = -1;
-	Weapon_info[n].model_num_inner = -1;
+	Weapon_info[n].model_num = polygon_model_index::None;
+	Weapon_info[n].model_num_inner = polygon_model_index::None;
 	Weapon_info[n].blob_size = 0x1000;									// size of blob
 	Weapon_info[n].flash_vclip = vclip_none;
 	Weapon_info[n].flash_sound = SOUND_LASER_FIRED;
@@ -2476,7 +2475,7 @@ void bm_read_weapon(int skip, int unused_flag)
 			Weapon_info[n].model_num = model_num;
 		}
 		else
-			Polygon_models[0].simpler_model = build_polygon_simpler_model_index_from_polygon_model_index(model_num);
+			Polygon_models.front().simpler_model = build_polygon_simpler_model_index_from_polygon_model_index(model_num);
 	}
 
 	if ( pof_file_inner )	{
@@ -2494,12 +2493,11 @@ void bm_read_powerup(char *&arg, int unused_flag)
 void bm_read_powerup(int unused_flag)
 #endif
 {
-	int n;
 	char 	*equal_ptr;
 
 	Assert(N_powerup_types < MAX_POWERUP_TYPES);
 
-	n = N_powerup_types;
+	const auto n = N_powerup_types;
 	N_powerup_types++;
 
 	if (unused_flag) {
@@ -2561,7 +2559,7 @@ void bm_read_powerup(int unused_flag)
 	}
 #if defined(DXX_BUILD_DESCENT_I)
 	ObjType[Num_total_object_types] = OL_POWERUP;
-	ObjId[Num_total_object_types] = n;
+	ObjId[Num_total_object_types] = static_cast<polygon_model_index>(n);
 	Num_total_object_types++;
 #endif
 }
@@ -2572,12 +2570,11 @@ void bm_read_hostage(char *&arg)
 void bm_read_hostage()
 #endif
 {
-	int n;
 	char 	*equal_ptr;
 
 	Assert(N_hostage_types < MAX_HOSTAGE_TYPES);
 
-	n = N_hostage_types;
+	const auto n = N_hostage_types;
 	N_hostage_types++;
 
 	// Process arguments
@@ -2608,7 +2605,7 @@ void bm_read_hostage()
 	}
 #if defined(DXX_BUILD_DESCENT_I)
 	ObjType[Num_total_object_types] = OL_HOSTAGE;
-	ObjId[Num_total_object_types] = n;
+	ObjId[Num_total_object_types] = static_cast<polygon_model_index>(n);
 	Num_total_object_types++;
 #endif
 }

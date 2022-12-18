@@ -1252,7 +1252,7 @@ static void show_spinning_robot_frame(briefing *br, int robot_num)
 		br->robot_angles.p = br->robot_angles.b = 0;
 		br->robot_angles.h += 150;
 
-		Assert(Robot_info[robot_num].model_num != -1);
+		assert(Robot_info[robot_num].model_num != polygon_model_index::None);
 		auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 		draw_model_picture(*br->robot_canv.get(), Polygon_models[Robot_info[robot_num].model_num], br->robot_angles);
 	}

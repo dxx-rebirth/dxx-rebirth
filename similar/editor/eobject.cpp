@@ -200,8 +200,14 @@ int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_le
 		}
 		case OBJ_CNTRLCEN: 
 		{
+			const auto model_num =
+#if defined(DXX_BUILD_DESCENT_I)
+			ObjId[object_type];
+#elif defined(DXX_BUILD_DESCENT_II)
+			Reactors[object_id].model_num;
+#endif
 			objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_CNTRLCEN, object_id, segp, object_pos,
-					&seg_matrix, Polygon_models[object_id].rad,
+					&seg_matrix, Polygon_models[model_num].rad,
 					object::control_type::cntrlcen, object::movement_type::None, RT_POLYOBJ);
 
 			if ( objnum == object_none)
@@ -211,11 +217,7 @@ int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_le
 
 			//Set polygon-object-specific data 
 			obj->shields = 0;	// stored in Reactor_strength or calculated
-#if defined(DXX_BUILD_DESCENT_I)
-			obj->rtype.pobj_info.model_num = ObjId[object_type];
-#elif defined(DXX_BUILD_DESCENT_II)
-			obj->rtype.pobj_info.model_num = Reactors[object_id].model_num;
-#endif
+			obj->rtype.pobj_info.model_num = model_num;
 			obj->rtype.pobj_info.subobj_flags = 0;
 
 			break;

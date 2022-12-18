@@ -97,7 +97,7 @@ namespace dcx {
 
 int Endlevel_sequence;
 grs_bitmap *terrain_bitmap;	//!!*exit_bitmap,
-unsigned exit_modelnum, destroyed_exit_modelnum;
+polygon_model_index exit_modelnum, destroyed_exit_modelnum;
 vms_matrix surface_orient;
 
 namespace {

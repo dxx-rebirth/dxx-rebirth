@@ -75,7 +75,7 @@ namespace dsx {
 //  Robot information
 struct robot_info : prohibit_void_ptr<robot_info>
 {
-	int     model_num;                  // which polygon model?
+	polygon_model_index model_num;                  // which polygon model?
 	enumerated_array<vms_vector, MAX_GUNS, robot_gun_number>  gun_points;   // where each gun model is
 	enumerated_array<uint8_t, MAX_GUNS, robot_gun_number>   gun_submodels;    // which submodel is each gun in?
 	uint16_t score_value;						//	Score from this robot.

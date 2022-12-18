@@ -673,8 +673,11 @@ static void nd_read_object(const vmobjptridx_t obj)
 	case OBJ_CLUTTER:
 		obj->control_source = object::control_type::None;
 		obj->movement_source = object::movement_type::None;
-		obj->size = Polygon_models[obj->id].rad;
-		obj->rtype.pobj_info.model_num = obj->id;
+		{
+			const polygon_model_index pmi{obj->id};
+			obj->size = Polygon_models[pmi].rad;
+			obj->rtype.pobj_info.model_num = pmi;
+		}
 		obj->rtype.pobj_info.subobj_flags = 0;
 		break;
 
@@ -797,7 +800,9 @@ static void nd_read_object(const vmobjptridx_t obj)
 		int tmo;
 
 		if ((obj->type != OBJ_ROBOT) && (obj->type != OBJ_PLAYER) && (obj->type != OBJ_CLUTTER)) {
-			nd_read_int(&(obj->rtype.pobj_info.model_num));
+			int i;
+			nd_read_int(&i);
+			obj->rtype.pobj_info.model_num = static_cast<polygon_model_index>(i);
 			nd_read_int(&(obj->rtype.pobj_info.subobj_flags));
 		}
 
@@ -972,7 +977,7 @@ static void nd_write_object(const vcobjptridx_t objp)
 	case RT_MORPH:
 	case RT_POLYOBJ: {
 		if ((obj.type != OBJ_ROBOT) && (obj.type != OBJ_PLAYER) && (obj.type != OBJ_CLUTTER)) {
-			nd_write_int(obj.rtype.pobj_info.model_num);
+			nd_write_int(underlying_value(obj.rtype.pobj_info.model_num));
 			nd_write_int(obj.rtype.pobj_info.subobj_flags);
 		}
 

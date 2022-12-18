@@ -6047,7 +6047,7 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 			int i;
 			if (obj.render_type == RT_NONE && obj.type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time.
 				break;
-			obj_rw->rtype.pobj_info.model_num                = obj.rtype.pobj_info.model_num;
+			obj_rw->rtype.pobj_info.model_num = underlying_value(obj.rtype.pobj_info.model_num);
 			for (i=0;i<MAX_SUBMODELS;i++)
 			{
 				obj_rw->rtype.pobj_info.anim_angles[i].p = obj.rtype.pobj_info.anim_angles[i].p;
@@ -6243,7 +6243,7 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 			int i;
 			if (obj.render_type == RT_NONE && obj.type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time.
 				break;
-			obj.rtype.pobj_info.model_num                = INTEL_INT(obj_rw->rtype.pobj_info.model_num);
+			obj.rtype.pobj_info.model_num                = build_polygon_model_index_from_untrusted(INTEL_INT(obj_rw->rtype.pobj_info.model_num));
 			for (i=0;i<MAX_SUBMODELS;i++)
 			{
 				obj.rtype.pobj_info.anim_angles[i] = build_native_endian_angvec_from_little_endian(obj_rw->rtype.pobj_info.anim_angles[i]);

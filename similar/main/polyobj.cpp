@@ -144,7 +144,7 @@ static void pof_read_ang(vms_angvec &ang, const std::span<const uint8_t> bufp, s
 //be filled in.
 
 //reads a binary file containing a 3d model
-static void read_model_file(polymodel &pm, const char *const filename, robot_info *r)
+static void read_model_file(polymodel &pm, const char *const filename, robot_info *const r)
 {
 	short version;
 	int len, next_chunk;
@@ -206,7 +206,6 @@ static void read_model_file(polymodel &pm, const char *const filename, robot_inf
 				pof_read_vec(pm.submodel_offsets[n], model_buf, Pof_addr);
 
 				pm.submodel_rads[n] = pof_read_int(model_buf, Pof_addr);		//radius
-
 				pm.submodel_ptrs[n] = pof_read_int(model_buf, Pof_addr);	//offset
 
 				break;
@@ -267,9 +266,7 @@ static void read_model_file(polymodel &pm, const char *const filename, robot_inf
 						range_for (auto &f, partial_range(anim_angs, n_frames))
 							pof_read_ang(f[m], model_buf, Pof_addr);
 
-
 					robot_set_angles(*r, pm, anim_angs);
-				
 				}
 				else
 					pof_cfseek(model_buf,len,SEEK_CUR);
@@ -311,6 +308,8 @@ static void read_model_file(polymodel &pm, const char *const filename, robot_inf
 		swap_polygon_model_data(pm.model_data.get());
 }
 }
+
+namespace dsx {
 
 //reads the gun information for a model
 //fills in arrays gun_points & gun_dirs, returns the number of guns read
@@ -374,6 +373,8 @@ void read_model_guns(const char *filename, reactor &r)
 	r.n_guns = n_guns;
 }
 
+}
+
 namespace dcx {
 
 //free up a model, getting rid of all its memory
@@ -391,14 +392,14 @@ void free_model(polymodel &po)
 
 namespace dsx {
 
-void draw_polygon_model(const std::array<polymodel, MAX_POLYGON_MODELS> &Polygon_models, grs_canvas &canvas, const vms_vector &pos, const vms_matrix &orient, const submodel_angles anim_angles, const unsigned model_num, const unsigned flags, const g3s_lrgb light, const glow_values_t *const glow_values, const alternate_textures alt_textures)
+void draw_polygon_model(const enumerated_array<polymodel, MAX_POLYGON_MODELS, polygon_model_index> &Polygon_models, grs_canvas &canvas, const vms_vector &pos, const vms_matrix &orient, const submodel_angles anim_angles, const polygon_model_index model_num, const unsigned flags, const g3s_lrgb light, const glow_values_t *const glow_values, const alternate_textures alt_textures)
 {
 	draw_polygon_model(canvas, pos, orient, anim_angles, Polygon_models[model_num], flags, light, glow_values, alt_textures);
 }
 
-static unsigned build_polygon_model_index_from_polygon_simpler_model_index(const polygon_simpler_model_index i)
+static polygon_model_index build_polygon_model_index_from_polygon_simpler_model_index(const polygon_simpler_model_index i)
 {
-	return underlying_value(i) - 1;
+	return static_cast<polygon_model_index>(underlying_value(i) - 1);
 }
 
 void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_matrix &orient, const submodel_angles anim_angles, const polymodel &pm, unsigned flags, const g3s_lrgb light, const glow_values_t *const glow_values, const alternate_textures alt_textures)
@@ -555,12 +556,14 @@ void init_polygon_models(d_level_shared_polygon_model_state &LevelSharedPolygonM
 namespace dsx {
 
 //returns the number of this model
-int load_polygon_model(const char *filename,int n_textures,int first_texture,robot_info *r)
+polygon_model_index load_polygon_model(const char *filename, int n_textures, int first_texture, robot_info *const r)
 {
 	Assert(n_textures < MAX_POLYOBJ_TEXTURES);
 
 	Assert(strlen(filename) <= 12);
-	const auto n_models = LevelSharedPolygonModelState.N_polygon_models;
+	const auto n_models = build_polygon_model_index_from_untrusted(LevelSharedPolygonModelState.N_polygon_models);
+	if (n_models == polygon_model_index::None)
+		throw std::runtime_error("too many polygon models");
 	strcpy(LevelSharedPolygonModelState.Pof_names[n_models], filename);
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
@@ -577,7 +580,8 @@ int load_polygon_model(const char *filename,int n_textures,int first_texture,rob
 	model.first_texture = first_texture;
 	model.simpler_model = polygon_simpler_model_index{};
 
-	return LevelSharedPolygonModelState.N_polygon_models++;
+	++LevelSharedPolygonModelState.N_polygon_models;
+	return n_models;
 }
 
 }
@@ -658,4 +662,12 @@ void polygon_model_data_read(polymodel *pm, PHYSFS_File *fp)
 	g3_init_polygon_model(std::span{pm->model_data.get(), model_data_size});
 #endif
 }
+
+polygon_model_index build_polygon_model_index_from_untrusted(const unsigned i)
+{
+	if (i >= MAX_POLYGON_MODELS)
+		return polygon_model_index::None;
+	return static_cast<polygon_model_index>(i);
+}
+
 }

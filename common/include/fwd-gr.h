@@ -423,8 +423,9 @@ int gr_check_fullscreen();
  */
 void gr_toggle_fullscreen();
 
+#if DXX_USE_OGL
 void ogl_do_palfx();
 void ogl_init_pixel_buffers(unsigned w, unsigned h);
 void ogl_close_pixel_buffers();
+#endif
 }
-void ogl_cache_polymodel_textures(unsigned model_num);

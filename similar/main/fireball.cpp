@@ -1193,7 +1193,10 @@ static bool drop_robot_egg(const d_robot_info_array &Robot_info, const int type,
 //				new_pos.z += (d_rand()-16384)*6;
 
 #if defined(DXX_BUILD_DESCENT_I)
-				const auto robot_id = ObjId[type];
+				/* ObjId appears to serve as both a polygon_model_index and as
+				 * a robot index.
+				 */
+				const auto robot_id = static_cast<unsigned>(ObjId[type]);
 #elif defined(DXX_BUILD_DESCENT_II)
 				const auto robot_id = id;
 #endif
@@ -1333,7 +1336,7 @@ static void explode_model(object_base &obj)
 
 	const auto poly_model_num = obj.rtype.pobj_info.model_num;
 	const auto dying_model_num = Dying_modelnums[poly_model_num];
-	const auto model_num = (dying_model_num != -1)
+	const auto model_num = (dying_model_num != polygon_model_index::None)
 		? (obj.rtype.pobj_info.model_num = dying_model_num)
 		: poly_model_num;
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
@@ -1354,7 +1357,7 @@ static void explode_model(object_base &obj)
 static void maybe_delete_object(object_base &del_obj)
 {
 	const auto dead_modelnum = Dead_modelnums[del_obj.rtype.pobj_info.model_num];
-	if (dead_modelnum != -1)
+	if (dead_modelnum != polygon_model_index::None)
 	{
 		del_obj.rtype.pobj_info.model_num = dead_modelnum;
 		del_obj.flags |= OF_DESTROYED;

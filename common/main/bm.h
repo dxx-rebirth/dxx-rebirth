@@ -162,7 +162,7 @@ int gamedata_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState);
 
 extern int Num_total_object_types;		//	Total number of object types, including robots, hostages, powerups, control centers, faces
 extern int8_t	ObjType[MAX_OBJTYPE];		// Type of an object, such as Robot, eg if ObjType[11] == OL_ROBOT, then object #11 is a robot
-extern int8_t	ObjId[MAX_OBJTYPE];			// ID of a robot, within its class, eg if ObjType[11] == 3, then object #11 is the third robot
+extern std::array<polygon_model_index, MAX_OBJTYPE> ObjId;			// ID of a robot, within its class, eg if ObjType[11] == 3, then object #11 is the third robot
 extern fix	ObjStrength[MAX_OBJTYPE];	// initial strength of each object
 
 constexpr std::integral_constant<unsigned, 210> MAX_OBJ_BITMAPS{};

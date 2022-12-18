@@ -71,7 +71,7 @@ void player_rw_swap(player_rw *p, int swap)
  */
 void player_ship_read(player_ship *ps, PHYSFS_File *fp)
 {
-	ps->model_num = PHYSFSX_readInt(fp);
+	ps->model_num = build_polygon_model_index_from_untrusted(PHYSFSX_readInt(fp));
 	ps->expl_vclip_num = PHYSFSX_readInt(fp);
 	ps->mass = PHYSFSX_readFix(fp);
 	ps->drag = PHYSFSX_readFix(fp);

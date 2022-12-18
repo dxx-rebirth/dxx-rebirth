@@ -2864,7 +2864,7 @@ namespace {
 struct polygon_models_viewer_window : window
 {
 	vms_angvec ang{0, 0, F0_5 - 1};
-	unsigned view_idx = 0;
+	polygon_model_index view_idx{};
 	using window::window;
 	virtual window_event_result event_handler(const d_event &) override;
 };
@@ -2895,15 +2895,21 @@ window_event_result polygon_models_viewer_window::event_handler(const d_event &e
 				case KEY_ESC:
 					return window_event_result::close;
 				case KEY_SPACEBAR:
-					view_idx ++;
-					if (view_idx >= LevelSharedPolygonModelState.N_polygon_models)
-						view_idx = 0;
+					{
+						auto v = underlying_value(view_idx);
+						if (++ v >= LevelSharedPolygonModelState.N_polygon_models)
+							v = 0;
+						view_idx = polygon_model_index{v};
+					}
 					break;
 				case KEY_BACKSP:
-					if (!view_idx)
-						view_idx = LevelSharedPolygonModelState.N_polygon_models - 1;
-					else
-						view_idx --;
+					{
+						auto v = underlying_value(view_idx);
+						const auto n = LevelSharedPolygonModelState.N_polygon_models;
+						if (-- v >= n)
+							v = n - 1;
+						view_idx = polygon_model_index{v};
+					}
 					break;
 				case KEY_A:
 					ang.h -= 100;
@@ -2939,7 +2945,7 @@ window_event_result polygon_models_viewer_window::event_handler(const d_event &e
 				draw_model_picture(canvas, Polygon_models[view_idx], ang);
 				gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), -1);
 				auto &game_font = *GAME_FONT;
-				gr_printf(canvas, game_font, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev model (%i/%i)\nA/D: rotate y\nW/S: rotate x\nQ/E: rotate z\nR: reset orientation", view_idx, LevelSharedPolygonModelState.N_polygon_models - 1);
+				gr_printf(canvas, game_font, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev model (%i/%i)\nA/D: rotate y\nW/S: rotate x\nQ/E: rotate z\nR: reset orientation", underlying_value(view_idx), LevelSharedPolygonModelState.N_polygon_models - 1);
 			}
 			break;
 		case EVENT_WINDOW_CLOSE:

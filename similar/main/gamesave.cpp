@@ -122,7 +122,7 @@ namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 namespace {
 
-using savegame_pof_names_type = std::array<char[FILENAME_LEN], 167>;
+using savegame_pof_names_type = enumerated_array<char[FILENAME_LEN], 167, polygon_model_index>;
 
 static int convert_vclip(const d_vclip_array &Vclip, int vc)
 {
@@ -153,7 +153,7 @@ static unsigned convert_polymod(const unsigned N_polygon_models, const unsigned 
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 namespace {
-using savegame_pof_names_type = std::array<char[FILENAME_LEN], MAX_POLYGON_MODELS>;
+using savegame_pof_names_type = enumerated_array<char[FILENAME_LEN], MAX_POLYGON_MODELS, polygon_model_index>;
 }
 #endif
 
@@ -179,7 +179,7 @@ static void verify_object(const d_level_shared_robot_info_state &LevelSharedRobo
 		{
 			auto &ri = Robot_info[get_robot_id(obj)];
 #if defined(DXX_BUILD_DESCENT_II)
-			assert(ri.model_num != -1);
+			assert(ri.model_num != polygon_model_index::None);
 				//if you fail this assert, it means that a robot in this level
 				//hasn't been loaded, possibly because he's marked as
 				//non-shareware.  To see what robot number, print obj.id.
@@ -568,11 +568,13 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 		case RT_POLYOBJ: {
 			int tmo;
 
+			obj->rtype.pobj_info.model_num = build_polygon_model_index_from_untrusted(
 #if defined(DXX_BUILD_DESCENT_I)
-			obj->rtype.pobj_info.model_num		= convert_polymod(LevelSharedPolygonModelState.N_polygon_models, PHYSFSX_readInt(f));
+				convert_polymod(LevelSharedPolygonModelState.N_polygon_models, PHYSFSX_readInt(f))
 #elif defined(DXX_BUILD_DESCENT_II)
-			obj->rtype.pobj_info.model_num		= PHYSFSX_readInt(f);
+				PHYSFSX_readInt(f)
 #endif
+			);
 
 			range_for (auto &i, obj->rtype.pobj_info.anim_angles)
 				PHYSFSX_readAngleVec(&i, f);
@@ -813,7 +815,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 
 		case RT_MORPH:
 		case RT_POLYOBJ: {
-			PHYSFS_writeSLE32(f, obj.rtype.pobj_info.model_num);
+			PHYSFS_writeSLE32(f, obj.rtype.pobj_info.model_num == polygon_model_index::None ? -1 : underlying_value(obj.rtype.pobj_info.model_num));
 
 			range_for (auto &i, obj.rtype.pobj_info.anim_angles)
 				PHYSFSX_writeAngleVec(f, i);

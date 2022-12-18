@@ -114,7 +114,7 @@ static void paging_touch_object_effects(const d_eclip_array &Effects, const obje
 	}
 }
 
-static void paging_touch_model( int modelnum )
+static void paging_touch_model(const polygon_model_index modelnum)
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
@@ -244,10 +244,8 @@ static void paging_touch_object(const d_robot_info_array &Robot_info, const Text
 		break;
 	case OBJ_CNTRLCEN:
 		paging_touch_weapon(Vclip, Weapon_info, weapon_id_type::CONTROLCEN_WEAPON_NUM);
-		if (Dead_modelnums[obj.rtype.pobj_info.model_num] != -1)
-		{
-			paging_touch_model(Dead_modelnums[obj.rtype.pobj_info.model_num]);
-		}
+		if (const auto m = Dead_modelnums[obj.rtype.pobj_info.model_num]; m != polygon_model_index::None)
+			paging_touch_model(m);
 		break;
 	}
 }

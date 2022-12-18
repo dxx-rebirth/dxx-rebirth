@@ -30,14 +30,20 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct bitmap_index;
 
-#ifdef __cplusplus
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <physfs.h>
+#include "d_array.h"
 #include "inferno.h"
 #include "pack.h"
 
 namespace dcx {
+
+enum class polygon_model_index : uint8_t
+{
+	None = UINT8_MAX
+};
 
 enum class polygon_simpler_model_index : uint8_t
 {
@@ -57,7 +63,7 @@ constexpr std::integral_constant<unsigned, 200> MAX_POLYGON_MODELS{};
 #endif
 
 //for each model, a model number for dying & dead variants, or -1 if none
-extern std::array<int, MAX_POLYGON_MODELS> Dying_modelnums, Dead_modelnums;
+extern enumerated_array<polygon_model_index, MAX_POLYGON_MODELS, polygon_model_index> Dying_modelnums, Dead_modelnums;
 }
 #endif
 
@@ -124,12 +130,12 @@ namespace dsx {
  */
 struct d_level_shared_polygon_model_state : ::dcx::d_level_shared_polygon_model_state
 {
-	std::array<polymodel, MAX_POLYGON_MODELS> Polygon_models;
+	enumerated_array<polymodel, MAX_POLYGON_MODELS, polygon_model_index> Polygon_models;
 	// array of names of currently-loaded models
-	std::array<char[FILENAME_LEN], MAX_POLYGON_MODELS> Pof_names;
+	enumerated_array<char[FILENAME_LEN], MAX_POLYGON_MODELS, polygon_model_index> Pof_names;
 #if defined(DXX_BUILD_DESCENT_II)
 	//the model number of the marker object
-	uint32_t Marker_model_num = UINT32_MAX;
+	polygon_model_index Marker_model_num = polygon_model_index::None;
 	bool Exit_models_loaded;
 #endif
 };
@@ -139,7 +145,7 @@ extern d_level_shared_polygon_model_state LevelSharedPolygonModelState;
 
 void free_polygon_models(d_level_shared_polygon_model_state &LevelSharedPolygonModelState);
 
-int load_polygon_model(const char *filename,int n_textures,int first_texture,robot_info *r);
+polygon_model_index load_polygon_model(const char *filename, int n_textures, int first_texture, robot_info *r);
 }
 #endif
 
@@ -163,7 +169,7 @@ public:
 #ifdef dsx
 namespace dsx {
 // draw a polygon model
-void draw_polygon_model(const std::array<polymodel, MAX_POLYGON_MODELS> &, grs_canvas &, const vms_vector &pos, const vms_matrix &orient, submodel_angles anim_angles, const unsigned model_num, unsigned flags, g3s_lrgb light, const glow_values_t *glow_values, alternate_textures);
+void draw_polygon_model(const enumerated_array<polymodel, MAX_POLYGON_MODELS, polygon_model_index> &, grs_canvas &, const vms_vector &pos, const vms_matrix &orient, submodel_angles anim_angles, const polygon_model_index model_num, unsigned flags, g3s_lrgb light, const glow_values_t *glow_values, alternate_textures);
 void draw_polygon_model(grs_canvas &, const vms_vector &pos, const vms_matrix &orient, submodel_angles anim_angles, const polymodel &model_num, unsigned flags, g3s_lrgb light, const glow_values_t *glow_values, alternate_textures);
 }
 #endif
@@ -210,7 +216,9 @@ void polymodel_write(PHYSFS_File *fp, const polymodel &pm);
 #ifdef dsx
 namespace dsx {
 void polygon_model_data_read(polymodel *pm, PHYSFS_File *fp);
-
-}
+polygon_model_index build_polygon_model_index_from_untrusted(unsigned i);
+#if DXX_USE_OGL
+void ogl_cache_polymodel_textures(polygon_model_index model_num);
 #endif
+}
 #endif

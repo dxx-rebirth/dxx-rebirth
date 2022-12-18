@@ -370,10 +370,12 @@ static void ogl_texwrap(ogl_texture *const gltexture, const int state)
 //similarly, with the objects(esp weapons), we could just go through and cache em all instead, but that would get ones that might not even be on the level
 //TODO: doors
 
-void ogl_cache_polymodel_textures(const unsigned model_num)
+namespace dsx {
+
+void ogl_cache_polymodel_textures(const polygon_model_index model_num)
 {
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	if (model_num >= Polygon_models.size())
+	if (model_num == polygon_model_index::None)
 		return;
 	const auto &po = Polygon_models[model_num];
 	unsigned i = po.first_texture;
@@ -384,6 +386,8 @@ void ogl_cache_polymodel_textures(const unsigned model_num)
 		PIGGY_PAGE_IN(objbitmap);
 		ogl_loadbmtexture(GameBitmaps[objbitmap.index], 1);
 	}
+}
+
 }
 
 static void ogl_cache_vclip_textures(const vclip &vc)

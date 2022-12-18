@@ -557,7 +557,7 @@ void reactor_read_n(PHYSFS_File *fp, partial_range_t<reactor *> r)
 {
 	range_for (auto &i, r)
 	{
-		i.model_num = PHYSFSX_readInt(fp);
+		i.model_num = build_polygon_model_index_from_untrusted(PHYSFSX_readInt(fp));
 		i.n_guns = PHYSFSX_readInt(fp);
 		range_for (auto &j, i.gun_points)
 			PHYSFSX_readVector(fp, j);

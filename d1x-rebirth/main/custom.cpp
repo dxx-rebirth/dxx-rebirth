@@ -375,7 +375,7 @@ static int read_d2_robot_info(PHYSFS_File *fp, robot_info &ri)
 {
 	int j;
 
-	ri.model_num = PHYSFSX_readInt(fp);
+	ri.model_num = build_polygon_model_index_from_untrusted(PHYSFSX_readInt(fp));
 
 	for (auto &j : ri.gun_points)
 		PHYSFSX_readVector(fp, j);
@@ -464,7 +464,6 @@ namespace dsx {
 static void load_hxm(const d_fname &hxmname)
 {
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
-	unsigned int repl_num;
 	int i;
 	auto f = PHYSFSX_openReadBuffered(hxmname).first;
 	int n_items;
@@ -490,8 +489,7 @@ static void load_hxm(const d_fname &hxmname)
 		auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 		for (i = 0; i < n_items; i++)
 		{
-			repl_num = PHYSFSX_readInt(f);
-
+			const unsigned repl_num = PHYSFSX_readInt(f);
 			if (repl_num >= MAX_ROBOT_TYPES)
 			{
 				PHYSFSX_fseek(f, 480, SEEK_CUR); /* sizeof d2_robot_info */
@@ -511,8 +509,7 @@ static void load_hxm(const d_fname &hxmname)
 	{
 		for (i = 0; i < n_items; i++)
 		{
-			repl_num = PHYSFSX_readInt(f);
-
+			const unsigned repl_num = PHYSFSX_readInt(f);
 			if (repl_num >= MAX_ROBOT_JOINTS)
 				PHYSFSX_fseek(f, sizeof(jointpos), SEEK_CUR);
 			else
@@ -528,9 +525,7 @@ static void load_hxm(const d_fname &hxmname)
 		for (i = 0; i < n_items; i++)
 		{
 			polymodel *pm;
-
-			repl_num = PHYSFSX_readInt(f);
-			if (repl_num >= MAX_POLYGON_MODELS)
+			if (const auto repl_num = build_polygon_model_index_from_untrusted(PHYSFSX_readInt(f)); repl_num == polygon_model_index::None)
 			{
 				PHYSFSX_readInt(f); // skip n_models
 				PHYSFSX_fseek(f, 734 - 8 + PHYSFSX_readInt(f) + 8, SEEK_CUR);
@@ -548,8 +543,8 @@ static void load_hxm(const d_fname &hxmname)
 					return;
 				}
 
-				Dying_modelnums[repl_num] = PHYSFSX_readInt(f);
-				Dead_modelnums[repl_num] = PHYSFSX_readInt(f);
+				Dying_modelnums[repl_num] = build_polygon_model_index_from_untrusted(PHYSFSX_readInt(f));
+				Dead_modelnums[repl_num] = build_polygon_model_index_from_untrusted(PHYSFSX_readInt(f));
 			}
 		}
 	}

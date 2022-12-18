@@ -41,7 +41,7 @@ struct d_unique_endlevel_state
 };
 
 extern grs_bitmap *terrain_bitmap;  //*satellite_bitmap,*station_bitmap,
-extern unsigned exit_modelnum, destroyed_exit_modelnum;
+extern polygon_model_index exit_modelnum, destroyed_exit_modelnum;
 extern int Endlevel_sequence;
 extern vms_matrix surface_orient;
 

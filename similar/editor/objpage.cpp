@@ -69,7 +69,7 @@ public:
 
 static object_dialog objpage_dialog;
 
-static void draw_model_picture(const std::array<polymodel, MAX_POLYGON_MODELS> &Polygon_models, grs_canvas &canvas, const unsigned model_num, const vms_angvec &orient_angles)
+static void draw_model_picture(const enumerated_array<polymodel, MAX_POLYGON_MODELS, polygon_model_index> &Polygon_models, grs_canvas &canvas, const polygon_model_index model_num, const vms_angvec &orient_angles)
 {
 	draw_model_picture(canvas, Polygon_models[model_num], orient_angles);
 }
@@ -108,7 +108,7 @@ void draw_object_picture(grs_canvas &canvas, const unsigned id, const vms_angvec
 			draw_model_picture(Polygon_models, canvas, get_reactor_model_number(id), orient_angles);
 			break;
 		case OBJ_CLUTTER:
-			draw_model_picture(Polygon_models, canvas, id, orient_angles);
+			draw_model_picture(Polygon_models, canvas, static_cast<polygon_model_index>(id), orient_angles);
 			break;
 		default:
 			//Int3();	// Invalid type!!!

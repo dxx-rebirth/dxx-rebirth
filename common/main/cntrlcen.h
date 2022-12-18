@@ -67,9 +67,12 @@ void control_center_triggers_write(const control_center_triggers &cct, PHYSFS_Fi
 
 #ifdef dsx
 #include "vecmat.h"
+
+namespace dsx {
+
 struct reactor {
 #if defined(DXX_BUILD_DESCENT_II)
-	int model_num;
+	polygon_model_index model_num;
 #endif
 	int n_guns;
 	/* Location of the gun on the reactor model */
@@ -81,7 +84,6 @@ struct reactor {
 // fills in arrays gun_points & gun_dirs, returns the number of guns read
 void read_model_guns(const char *filename, reactor &);
 
-namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 constexpr std::integral_constant<unsigned, 1> MAX_REACTORS{};
 constexpr std::integral_constant<unsigned, 1> Num_reactors{};
@@ -107,10 +109,10 @@ void reactor_read_n(PHYSFS_File *fp, partial_range_t<reactor *> r);
 
 extern std::array<reactor, MAX_REACTORS> Reactors;
 
-static inline int get_reactor_model_number(int id)
+static inline polygon_model_index get_reactor_model_number(const uint8_t id)
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	return id;
+	return polygon_model_index{id};
 #elif defined(DXX_BUILD_DESCENT_II)
 	return Reactors[id].model_num;
 #endif

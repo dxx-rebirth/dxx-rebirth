@@ -111,8 +111,8 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 	bounce_type bounce;
 	persistence_flag persistent;         // 0 = dies when it hits something, 1 = continues (eg, fusion cannon)
 #if defined(DXX_BUILD_DESCENT_I)
-	sbyte	model_num;					// Model num if rendertype==2.
-	sbyte	model_num_inner;			// Model num of inner part if rendertype==2.
+	polygon_model_index	model_num;		// Model num if rendertype==2.
+	polygon_model_index	model_num_inner;// Model num of inner part if rendertype==2.
 
 	sbyte   flash_vclip;        // What vclip to use for muzzle flash
 	short   flash_sound;        // What sound to play when fired
@@ -151,8 +151,8 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 // damage_force was a real mess.  Wasn't Difficulty_level based, and was being applied instead of weapon's actual strength.  Now use 2*strength instead. --MK, 01/19/95
 	bitmap_index    picture;    // a picture of the weapon for the cockpit
 #elif defined(DXX_BUILD_DESCENT_II)
-	short   model_num;          // Model num if rendertype==2.
-	short   model_num_inner;    // Model num of inner part if rendertype==2.
+	polygon_model_index   model_num;          // Model num if rendertype==2.
+	polygon_model_index   model_num_inner;    // Model num of inner part if rendertype==2.
 
 	sbyte   flash_vclip;        // What vclip to use for muzzle flash
 	sbyte   robot_hit_vclip;    // What vclip for impact with robot
