@@ -475,12 +475,11 @@ static g3s_lrgb compute_light_emission(const d_robot_info_array &Robot_info, d_l
 
 		if (t_idx_s != -1 && t_idx_e != -1)
 		{
-			obj_color.r = obj_color.g = obj_color.b = 0;
-			range_for (const int i, xrange(t_idx_s, t_idx_e + 1))
+			obj_color = {};
+			for (const uint16_t i : xrange(t_idx_s, t_idx_e + 1))
 			{
 				grs_bitmap *bm = &GameBitmaps[i];
-				bitmap_index bi;
-				bi.index = i;
+				const bitmap_index bi{i};
 				PIGGY_PAGE_IN(bi);
 				obj_color.r += bm->avg_color_rgb[0];
 				obj_color.g += bm->avg_color_rgb[1];

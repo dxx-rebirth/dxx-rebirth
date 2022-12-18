@@ -260,14 +260,11 @@ namespace {
 
 static bitmap_index bm_load_sub(const int skip, const char *const filename)
 {
-	bitmap_index bitmap_num;
 	palette_array_t newpal;
 	int iff_error;		//reference parm to avoid warning message
 
-	bitmap_num.index = 0;
-
 	if (skip) {
-		return bitmap_num;
+		return bitmap_index{};
 	}
 
 	std::array<char, 20> fname{};
@@ -280,8 +277,8 @@ static bitmap_index bm_load_sub(const int skip, const char *const filename)
 	memcpy(fname.data(), path.base_start, path.base_end - path.base_start);
 #endif
 
-	bitmap_num = piggy_find_bitmap(fname);
-	if (bitmap_num.index)	{
+	if (const auto bitmap_num = piggy_find_bitmap(fname); bitmap_num != bitmap_index{})
+	{
 		return bitmap_num;
 	}
 
@@ -296,14 +293,11 @@ static bitmap_index bm_load_sub(const int skip, const char *const filename)
 #if !DXX_USE_OGL
 	n.avg_color = compute_average_pixel(&n);
 #endif
-
-	bitmap_num = piggy_register_bitmap(n, fname, 0);
-	return bitmap_num;
+	return piggy_register_bitmap(n, fname, 0);
 }
 
 static void ab_load(int skip, const char * filename, std::array<bitmap_index, MAX_BITMAPS_PER_BRUSH> &bmp, unsigned *nframes )
 {
-	bitmap_index bi;
 	int iff_error;		//reference parm to avoid warning message
 	palette_array_t newpal;
 
@@ -335,7 +329,7 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 #elif defined(DXX_BUILD_DESCENT_II)
 		const auto len = snprintf(tempname.data(), tempname.size(), "%.*s#%d", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start, i);
 #endif
-		bi = piggy_find_bitmap(std::span<const char>(tempname.data(), len));
+		const auto bi = piggy_find_bitmap(std::span<const char>(tempname.data(), len));
 		if ( !bi.index )
 			break;
 		bmp[i] = bi;
@@ -909,7 +903,6 @@ static void bm_read_eclip(int skip)
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
-	bitmap_index bitmap;
 
 	assert(clip_num < Effects.size());
 
@@ -946,7 +939,7 @@ static void bm_read_eclip(int skip)
 
 	if (!abm_flag)
 	{
-		bitmap = bm_load_sub(skip, arg);
+		const auto bitmap = bm_load_sub(skip, arg);
 
 		Effects[clip_num].vc.play_time = fl2f(play_time);
 		Effects[clip_num].vc.num_frames = frames;
@@ -1072,11 +1065,10 @@ static void bm_read_gauges(const char *const arg, int skip)
 static void bm_read_gauges(int skip)
 #endif
 {
-	bitmap_index bitmap;
 	unsigned i, num_abm_frames;
 
 	if (!abm_flag)	{
-		bitmap = bm_load_sub(skip, arg);
+		const auto bitmap = bm_load_sub(skip, arg);
 		Assert(clip_count < MAX_GAUGE_BMS);
 		Gauges[clip_count] = bitmap;
 		clip_count++;
@@ -1097,11 +1089,10 @@ static void bm_read_wclip(char *const arg, int skip)
 #elif defined(DXX_BUILD_DESCENT_II)
 static void bm_read_gauges_hires()
 {
-	bitmap_index bitmap;
 	unsigned i, num_abm_frames;
 
 	if (!abm_flag)	{
-		bitmap = bm_load_sub(0, arg);
+		const auto bitmap = bm_load_sub(0, arg);
 		Assert(clip_count < MAX_GAUGE_BMS);
 		Gauges_hires[clip_count] = bitmap;
 		clip_count++;
@@ -1122,14 +1113,13 @@ static void bm_read_wclip(int skip)
 {
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	auto &WallAnims = GameSharedState.WallAnims;
-	bitmap_index bitmap;
 	Assert(clip_num < MAX_WALL_ANIMS);
 
 	auto &wa = WallAnims[clip_num];
 	wa.flags = wall_explodes_flag | wall_blastable_flag | wall_hidden_flag | tmap1_flag;
 
 	if (!abm_flag)	{
-		bitmap = bm_load_sub(skip, arg);
+		const auto bitmap = bm_load_sub(skip, arg);
 		if (wa.num_frames != wclip_frames_none && clip_count == 0)
 			Error( "Wall Clip %d is already used!", clip_num );
 		wa.play_time = fl2f(play_time);
@@ -1188,7 +1178,6 @@ static void bm_read_vclip(d_vclip_array &Vclip, const char *const arg, int skip)
 static void bm_read_vclip(d_vclip_array &Vclip, int skip)
 #endif
 {
-	bitmap_index bi;
 	assert(clip_num < Vclip.size());
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1199,7 +1188,7 @@ static void bm_read_vclip(d_vclip_array &Vclip, int skip)
 	if (!abm_flag)	{
 		if (Vclip[clip_num].num_frames != ~0u && clip_count == 0)
 			Error( "Vclip %d is already used!", clip_num );
-		bi = bm_load_sub(skip, arg);
+		const auto bi = bm_load_sub(skip, arg);
 		Vclip[clip_num].play_time = fl2f(play_time);
 		Vclip[clip_num].num_frames = frames;
 		Vclip[clip_num].frame_time = fl2f(play_time)/frames;
@@ -2119,8 +2108,7 @@ void bm_read_some_file(d_vclip_array &Vclip, int skip)
 		break;
 #endif
 	case bm_type::cockpit:	{
-		bitmap_index bitmap;
-		bitmap = bm_load_sub(skip, arg);
+		const auto bitmap = bm_load_sub(skip, arg);
 		if (Num_cockpits >= N_COCKPIT_BITMAPS)
 			throw std::runtime_error("too many cockpit bitmaps");
 		cockpit_bitmap[static_cast<cockpit_mode_t>(Num_cockpits++)] = bitmap;
@@ -2158,8 +2146,7 @@ void bm_read_some_file(d_vclip_array &Vclip, int skip)
 #endif
 		break;
 	case bm_type::textures:			{
-		bitmap_index bitmap;
-		bitmap = bm_load_sub(skip, arg);
+		const auto bitmap = bm_load_sub(skip, arg);
 		Assert(tmap_count < MAX_TEXTURES);
   		tmap_count++;
 		Textures[texture_count] = bitmap;
@@ -2235,7 +2222,7 @@ void bm_read_weapon(int skip, int unused_flag)
 
 	// Initialize weapon array
 	Weapon_info[n].render = WEAPON_RENDER_NONE;		// 0=laser, 1=blob, 2=object
-	Weapon_info[n].bitmap.index = 0;
+	Weapon_info[n].bitmap = {};
 	Weapon_info[n].model_num = polygon_model_index::None;
 	Weapon_info[n].model_num_inner = polygon_model_index::None;
 	Weapon_info[n].blob_size = 0x1000;									// size of blob
@@ -2316,7 +2303,7 @@ void bm_read_weapon(int skip, int unused_flag)
 
 			} else if (!d_stricmp( arg, "weapon_vclip" ))	{
 				// Set vclip to play for this weapon.
-				Weapon_info[n].bitmap.index = 0;
+				Weapon_info[n].bitmap = {};
 				Weapon_info[n].render = WEAPON_RENDER_VCLIP;
 				Weapon_info[n].weapon_vclip = atoi(equal_ptr);
 

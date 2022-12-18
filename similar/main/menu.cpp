@@ -2871,7 +2871,7 @@ struct polygon_models_viewer_window : window
 
 struct gamebitmaps_viewer_window : window
 {
-	unsigned view_idx = 0;
+	uint16_t view_idx = 0;
 	using window::window;
 	virtual window_event_result event_handler(const d_event &) override;
 };
@@ -2972,7 +2972,6 @@ window_event_result gamebitmaps_viewer_window::event_handler(const d_event &even
 #if DXX_USE_OGL
 	float scale = 1.0;
 #endif
-	bitmap_index bi;
 	grs_bitmap *bm;
 
 	switch (event.type)
@@ -3003,11 +3002,11 @@ window_event_result gamebitmaps_viewer_window::event_handler(const d_event &even
 			}
 			return window_event_result::handled;
 		case EVENT_WINDOW_DRAW:
-			bi.index = view_idx;
+			{
+				const bitmap_index bi{view_idx};
 			bm = &GameBitmaps[view_idx];
 			timer_delay(F1_0/60);
 			PIGGY_PAGE_IN(bi);
-			{
 				auto &canvas = *grd_curcanv;
 				gr_clear_canvas(canvas, BM_XRGB(0,0,0));
 #if DXX_USE_OGL

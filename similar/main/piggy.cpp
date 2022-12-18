@@ -330,10 +330,8 @@ namespace dsx {
 
 bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const std::span<const char> name, const int in_file)
 {
-	bitmap_index temp;
 	assert(Num_bitmap_files < AllBitmaps.size());
-
-	temp.index = Num_bitmap_files;
+	const bitmap_index temp{static_cast<uint16_t>(Num_bitmap_files)};
 
 	if (!in_file) {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -387,10 +385,6 @@ int piggy_register_sound(digi_sound &snd, const std::span<const char> name)
 
 bitmap_index piggy_find_bitmap(const std::span<const char> entry_name)
 {
-	bitmap_index bmp;
-
-	bmp.index = 0;
-
 	auto name = entry_name;
 #if defined(DXX_BUILD_DESCENT_II) && DXX_USE_EDITOR
 	size_t namelen;
@@ -418,8 +412,9 @@ bitmap_index piggy_find_bitmap(const std::span<const char> entry_name)
 	const auto i = hashtable_search(&AllBitmapsNames, name.data());
 	Assert( i != 0 );
 	if ( i < 0 )
-		return bmp;
+		return bitmap_index{};
 
+	bitmap_index bmp;
 	bmp.index = i;
 	return bmp;
 }
@@ -1472,9 +1467,9 @@ static void piggy_write_pigfile(const std::span<const char, FILENAME_LEN> filena
 	int org_offset;
 	int i;
 
-	for (i=0; i < Num_bitmap_files; i++ ) {
-		bitmap_index bi;
-		bi.index = i;
+	for (const unsigned n = Num_bitmap_files; const uint16_t i : xrange(n))
+	{
+		const bitmap_index bi{i};
 		PIGGY_PAGE_IN( bi );
 	}
 
@@ -1560,8 +1555,7 @@ static void piggy_write_pigfile(const std::span<const char, FILENAME_LEN> filena
 		bmh.flags = GameBitmaps[i].get_flags();
 		if (std::array<char, 32> subst_name; piggy_is_substitutable_bitmap(name, subst_name))
 		{
-			bitmap_index other_bitmap;
-			other_bitmap = piggy_find_bitmap( subst_name );
+			const auto other_bitmap = piggy_find_bitmap(subst_name);
 			GameBitmapXlat[i] = other_bitmap.index;
 			bmh.flags |= BM_FLAG_PAGED_OUT;
 		} else {

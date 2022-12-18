@@ -45,6 +45,7 @@ struct alias
 struct bitmap_index
 {
 	ushort index;
+	constexpr bool operator==(const bitmap_index &) const = default;
 };
 #define DEFINE_BITMAP_SERIAL_UDT() DEFINE_SERIAL_UDT_TO_MESSAGE(bitmap_index, b, (b.index))
 
