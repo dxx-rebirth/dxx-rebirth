@@ -145,12 +145,12 @@ window *window::set_visible(uint8_t visible)
 }
 
 window_event_result window::send_event(const d_event &event
-#ifdef DXX_HAVE_CXX_BUILTIN_FILE_LINE
+#if DXX_HAVE_CXX_BUILTIN_FILE_LINE
 									, const char *const file, const unsigned line
 #endif
 									)
 {
-#ifdef DXX_HAVE_CXX_BUILTIN_FILE_LINE
+#if DXX_HAVE_CXX_BUILTIN_FILE_LINE
 	con_printf(CON_DEBUG, "%s:%u: sending event %i to window of dimensions %dx%d", file, line, event.type, w_canv.cv_bitmap.bm_w, w_canv.cv_bitmap.bm_h);
 #endif
 	const auto r = event_handler(event);

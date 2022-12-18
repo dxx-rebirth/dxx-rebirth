@@ -71,7 +71,7 @@ public:
 	}
 
 	window_event_result send_event(const d_event &event
-#ifdef DXX_HAVE_CXX_BUILTIN_FILE_LINE
+#if DXX_HAVE_CXX_BUILTIN_FILE_LINE
 								, const char *file = __builtin_FILE(), unsigned line = __builtin_LINE()
 #endif
 								);
