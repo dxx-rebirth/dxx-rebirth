@@ -128,10 +128,6 @@ class enumerate : partial_range_t<range_iterator_type, range_index_type>
 public:
 	using range_owns_iterated_storage = std::false_type;
 	using typename base_type::index_type;
-	enumerate(const range_iterator_type b, const range_iterator_type e, const index_type i) :
-		base_type(b, e), m_idx(i)
-	{
-	}
 	template <typename range_type>
 		enumerate(range_type &&t, const index_type i = index_type{}) :
 			base_type(std::forward<range_type>(t)), m_idx(i)
