@@ -37,8 +37,6 @@ void window_select(window &wind);
 void window_update_canvases();
 #endif
 
-#define WINDOW_SEND_EVENT(w)	((WINDOW_SEND_EVENT)(*w, event, __FILE__, __LINE__))
-
 }
 
 #endif

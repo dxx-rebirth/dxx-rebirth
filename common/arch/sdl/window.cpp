@@ -17,6 +17,7 @@
 #include "gr.h"
 #include "window.h"
 #include "u_mem.h"
+#include "console.h"
 #include "dxxerror.h"
 #include "event.h"
 
@@ -42,18 +43,9 @@ void window::send_creation_events()
 		FrontWindow->next = this;
 	FrontWindow = this;
 	if (prev_front)
-	{
-		const d_event event{EVENT_WINDOW_DEACTIVATED};
-		WINDOW_SEND_EVENT(prev_front);
-	}
-	{
-		const d_create_event event{};
-		WINDOW_SEND_EVENT(this);
-	}
-	{
-		const d_event event{EVENT_WINDOW_ACTIVATED};
-		WINDOW_SEND_EVENT(this);
-	}
+		prev_front->send_event(d_event{EVENT_WINDOW_DEACTIVATED});
+	this->send_event(d_create_event{});
+	this->send_event(d_event{EVENT_WINDOW_ACTIVATED});
 }
 
 window::~window()
@@ -72,27 +64,15 @@ window::~window()
 
 int window_close(window *wind)
 {
-	window *prev;
-	window_event_result result;
-
 	if (wind == window_get_front())
-	{
-		const d_event event{EVENT_WINDOW_DEACTIVATED};
-		WINDOW_SEND_EVENT(wind);	// Deactivate first
-	}
+		wind->send_event(d_event{EVENT_WINDOW_DEACTIVATED});	// Deactivate first
 
-	{
-		const d_event event{EVENT_WINDOW_CLOSE};
-		result = WINDOW_SEND_EVENT(wind);
-	}
+	const auto result = wind->send_event(d_event{EVENT_WINDOW_CLOSE});
 	if (result == window_event_result::handled)
 	{
 		// User 'handled' the event, cancelling close
 		if (wind == window_get_front())
-		{
-			const d_event event{EVENT_WINDOW_ACTIVATED};
-			WINDOW_SEND_EVENT(wind);
-		}
+			wind->send_event(d_event{EVENT_WINDOW_ACTIVATED});
 		return 0;
 	}
 
@@ -101,11 +81,8 @@ int window_close(window *wind)
 	if (result != window_event_result::deleted)	// don't attempt to re-delete
 		delete wind;
 
-	if ((prev = window_get_front()))
-	{
-		const d_event event{EVENT_WINDOW_ACTIVATED};
-		WINDOW_SEND_EVENT(prev);
-	}
+	if (const auto prev = window_get_front())
+		prev->send_event(d_event{EVENT_WINDOW_ACTIVATED});
 
 	return 1;
 }
@@ -146,12 +123,8 @@ void window_select(window &wind)
 	if (wind.is_visible())
 	{
 		if (prev)
-		{
-			const d_event event{EVENT_WINDOW_DEACTIVATED};
-			WINDOW_SEND_EVENT(prev);
-		}
-		const d_event event{EVENT_WINDOW_ACTIVATED};
-		WINDOW_SEND_EVENT(&wind);
+			prev->send_event(d_event{EVENT_WINDOW_DEACTIVATED});
+		wind.send_event(d_event{EVENT_WINDOW_ACTIVATED});
 	}
 }
 
@@ -164,17 +137,27 @@ window *window::set_visible(uint8_t visible)
 		return wind;
 	
 	if (prev)
-	{
-		const d_event event{EVENT_WINDOW_DEACTIVATED};
-		WINDOW_SEND_EVENT(prev);
-	}
+		prev->send_event(d_event{EVENT_WINDOW_DEACTIVATED});
 
 	if (wind)
-	{
-		const d_event event{EVENT_WINDOW_ACTIVATED};
-		WINDOW_SEND_EVENT(wind);
-	}
+		wind->send_event(d_event{EVENT_WINDOW_ACTIVATED});
 	return wind;
+}
+
+window_event_result window::send_event(const d_event &event
+#ifdef DXX_HAVE_CXX_BUILTIN_FILE_LINE
+									, const char *const file, const unsigned line
+#endif
+									)
+{
+#ifdef DXX_HAVE_CXX_BUILTIN_FILE_LINE
+	con_printf(CON_DEBUG, "%s:%u: sending event %i to window of dimensions %dx%d", file, line, event.type, w_canv.cv_bitmap.bm_w, w_canv.cv_bitmap.bm_h);
+#endif
+	const auto r = event_handler(event);
+	if (r == window_event_result::close)
+		if (window_close(this))
+			return window_event_result::deleted;
+	return r;
 }
 
 #if !DXX_USE_OGL

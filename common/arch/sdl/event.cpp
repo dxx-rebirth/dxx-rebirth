@@ -208,7 +208,7 @@ window_event_result event_send(const d_event &event)
 	for (wind = window_get_front(); wind && handled == window_event_result::ignored; wind = window_get_prev(*wind))
 		if (wind->is_visible())
 		{
-			handled = window_send_event(*wind, event);
+			handled = wind->send_event(event);
 
 			if (handled == window_event_result::deleted) // break away if necessary: window_send_event() could have closed wind by now
 				break;
@@ -249,7 +249,7 @@ window_event_result event_process(void)
 		if (wind->is_visible())
 		{
 			auto prev = window_get_prev(*wind);
-			auto result = window_send_event(*wind, event);
+			auto result = wind->send_event(event);
 			highest_result = std::max(result, highest_result);
 			if (result == window_event_result::deleted)
 			{

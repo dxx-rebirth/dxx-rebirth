@@ -90,7 +90,7 @@ window_event_result UI_DIALOG::event_handler(const d_event &event)
 			if (rval != window_event_result::close)
 			{
 				d_event event2 = { EVENT_UI_DIALOG_DRAW };
-				window_send_event(*this, event2);
+				this->send_event(event2);
 			}
 			return rval;
 		}

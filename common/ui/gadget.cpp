@@ -136,7 +136,7 @@ window_event_result ui_gadget_send_event(UI_DIALOG &dlg, const event_type type, 
 	if (const auto parent = gadget.parent)
 		return gadget.parent->event_handler(dlg, event);
 
-	return window_send_event(dlg, event);
+	return dlg.send_event(event);
 }
 
 UI_GADGET &ui_event_get_gadget(const d_event &event)
