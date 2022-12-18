@@ -102,8 +102,4 @@ public:
 	{
 		return static_cast<const T &>(*this) == static_cast<const T &>(rhs);
 	}
-	constexpr bool operator!=(const self_return_iterator &rhs) const
-	{
-		return static_cast<const T &>(*this) != static_cast<const T &>(rhs);
-	}
 };
