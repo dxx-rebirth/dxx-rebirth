@@ -51,10 +51,7 @@ struct morph_data : prohibit_void_ptr<morph_data>
 	};
 	struct max_vectors
 	{
-		std::size_t count;
-		explicit max_vectors(std::size_t c) : count(c)
-		{
-		}
+		const std::size_t count;
 	};
 	static void *operator new(std::size_t bytes) = delete;	/* require caller to use placement-form to specify the number of vectors to allocate */
 	static void operator delete(void *p)
