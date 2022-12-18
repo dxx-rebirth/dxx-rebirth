@@ -995,7 +995,7 @@ static int load_game_data(
 	Gamesave_num_players = 0;
 
 	if (object_offset > -1) {
-		if (PHYSFSX_fseek( LoadFile, object_offset, SEEK_SET ))
+		if (!PHYSFS_seek(LoadFile, object_offset))
 			Error( "Error seeking to object_offset in gamesave.c" );
 
 		range_for (auto &i, partial_range(Objects, gs_num_objects))
@@ -1418,7 +1418,7 @@ int load_level(
 	}
 #endif
 
-	PHYSFSX_fseek(LoadFile,minedata_offset,SEEK_SET);
+	PHYSFS_seek(LoadFile, minedata_offset);
 		//NOTE LINK TO ABOVE!!
 		mine_err = load_mine_data_compiled(LoadFile, filename);
 
@@ -1475,7 +1475,7 @@ int load_level(
 		return 2;
 	}
 
-	PHYSFSX_fseek(LoadFile,gamedata_offset,SEEK_SET);
+	PHYSFS_seek(LoadFile, gamedata_offset);
 	game_err = load_game_data(
 #if defined(DXX_BUILD_DESCENT_II)
 		LevelSharedDestructibleLightState,

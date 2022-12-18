@@ -3584,7 +3584,7 @@ window_event_result newdemo_goto_end(int to_rewrite)
 	if (to_rewrite)
 		return window_event_result::handled;
 
-	PHYSFSX_fseek(infile, loc, SEEK_SET);
+	PHYSFS_seek(infile, loc);
 	}
 	PHYSFSX_fseek(infile, -frame_length, SEEK_CUR);
 	nd_read_int(&nd_playback_v_framecount);            // get the frame count

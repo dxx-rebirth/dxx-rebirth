@@ -5495,7 +5495,7 @@ void init_hoard_data(d_vclip_array &Vclip)
 	save_pos = PHYSFS_tell(ifile);
 	PHYSFSX_fseek(ifile,sizeof(palette)+n_orb_frames*orb_w*orb_h,SEEK_CUR);
 	n_goal_frames = PHYSFSX_readShort(ifile);
-	PHYSFSX_fseek(ifile,save_pos,SEEK_SET);
+	PHYSFS_seek(ifile, save_pos);
 
 	//Allocate memory for bitmaps
 	MALLOC( bitmap_data1, ubyte, n_orb_frames*orb_w*orb_h + n_goal_frames*64*64 );

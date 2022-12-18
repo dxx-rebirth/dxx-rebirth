@@ -566,7 +566,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 #endif
 	linenum = 0;
 
-	PHYSFSX_fseek( InfoFile, 0L, SEEK_SET);
+	PHYSFS_seek(InfoFile, 0L);
 
 	PHYSFSX_gets_line_t<LINEBUF_SIZE> inputline;
 	while (PHYSFSX_fgets(inputline, InfoFile)) {

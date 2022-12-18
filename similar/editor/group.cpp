@@ -1120,7 +1120,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	group_fileinfo.texture_offset    =   texture_offset;
 	
 	// Write the fileinfo
-	PHYSFSX_fseek(  SaveFile, 0, SEEK_SET );  // Move to TOF
+	PHYSFS_seek(SaveFile, 0);  // Move to TOF
 	PHYSFS_write( SaveFile, &group_fileinfo, sizeof(group_fileinfo), 1);
 
 	//==================== CLOSE THE FILE =============================
@@ -1168,7 +1168,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 
 	// Read in group_top_fileinfo to get size of saved fileinfo.
 
-	if (PHYSFSX_fseek( LoadFile, 0, SEEK_SET ))
+	if (!PHYSFS_seek(LoadFile, 0))
 		Error( "Error seeking to 0 in group.c" );
 
 	if (PHYSFS_read( LoadFile, &group_top_fileinfo, sizeof(group_top_fileinfo),1 )!=1)
@@ -1192,7 +1192,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 
 	// Now, Read in the fileinfo
 
-	if (PHYSFSX_fseek( LoadFile, 0, SEEK_SET ))
+	if (!PHYSFS_seek(LoadFile, 0))
 		Error( "Error seeking to 0b in group.c" );
 
 	if (PHYSFS_read( LoadFile, &group_fileinfo, group_top_fileinfo.fileinfo_sizeof,1 )!=1)
@@ -1206,7 +1206,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 
 	if (group_fileinfo.header_offset > -1 )
 	{
-		if (PHYSFSX_fseek( LoadFile,group_fileinfo.header_offset, SEEK_SET ))
+		if (!PHYSFS_seek(LoadFile, group_fileinfo.header_offset))
 			Error( "Error seeking to header_offset in group.c" );
 
 		if (PHYSFS_read( LoadFile, &group_header, group_fileinfo.header_size,1 )!=1)
@@ -1224,7 +1224,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 
 	if (group_fileinfo.editor_offset > -1 )
 	{
-		if (PHYSFSX_fseek( LoadFile,group_fileinfo.editor_offset, SEEK_SET ))
+		if (!PHYSFS_seek(LoadFile, group_fileinfo.editor_offset))
 			Error( "Error seeking to editor_offset in group.c" );
 
 		if (PHYSFS_read( LoadFile, &group_editor, group_fileinfo.editor_size,1 )!=1)
@@ -1236,7 +1236,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 
 	if ( (group_fileinfo.vertex_offset > -1) && (group_fileinfo.vertex_howmany > 0))
 	{
-		if (PHYSFSX_fseek( LoadFile,group_fileinfo.vertex_offset, SEEK_SET ))
+		if (!PHYSFS_seek(LoadFile, group_fileinfo.vertex_offset))
 			Error( "Error seeking to vertex_offset in group.c" );
 
 		vertex_ids.clear();
@@ -1254,7 +1254,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 
 	if ( (group_fileinfo.segment_offset > -1) && (group_fileinfo.segment_howmany > 0))
 	{
-		if (PHYSFSX_fseek( LoadFile,group_fileinfo.segment_offset, SEEK_SET ))
+		if (!PHYSFS_seek(LoadFile, group_fileinfo.segment_offset))
 			Error( "Error seeking to segment_offset in group.c" );
 
 		segment_ids.clear();
@@ -1311,7 +1311,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 
 	if ( (group_fileinfo.texture_offset > -1) && (group_fileinfo.texture_howmany > 0))
 	{
-		if (PHYSFSX_fseek( LoadFile, group_fileinfo.texture_offset, SEEK_SET ))
+		if (!PHYSFS_seek(LoadFile, group_fileinfo.texture_offset))
 			Error( "Error seeking to texture_offset in gamemine.c" );
 
 		range_for (auto &i, partial_range(old_tmap_list, group_fileinfo.texture_howmany))

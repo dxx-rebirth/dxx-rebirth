@@ -1050,7 +1050,7 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 		}
 		justonce = 0;
 
-		PHYSFSX_fseek(ham_fp, sound_offset, SEEK_SET);
+		PHYSFS_seek(ham_fp, sound_offset);
 		N_sounds = PHYSFSX_readInt(ham_fp);
 
 		sound_start = PHYSFS_tell(ham_fp);
@@ -1213,7 +1213,7 @@ void piggy_read_sounds(int pc_shareware)
 			{
 				const auto current_sound_offset = d.offset;
 				const auto sound_offset = underlying_value(current_sound_offset);
-				PHYSFSX_fseek(Piggy_fp, sound_offset, SEEK_SET);
+				PHYSFS_seek(Piggy_fp, sound_offset);
 
 				// Read in the sound data!!!
 				snd.data = digi_sound::allocated_data{ptr, current_sound_offset};
@@ -1251,7 +1251,7 @@ void piggy_read_sounds(void)
 			if ( piggy_is_needed(i) )       {
 				const auto current_sound_offset = snd.data.get_deleter().offset;
 				const auto sound_offset = underlying_value(current_sound_offset);
-				PHYSFSX_fseek(fp, sound_offset, SEEK_SET);
+				PHYSFS_seek(fp, sound_offset);
 
 				// Read in the sound data!!!
 				snd.data = digi_sound::allocated_data{ptr, current_sound_offset};
@@ -1530,7 +1530,7 @@ static void piggy_write_pigfile(const std::span<const char, FILENAME_LEN> filena
 			PHYSFSX_printf(fp1, "BMP: %s, size %d bytes", name.data(), bmp->bm_rowsize * bmp->bm_h);
 		org_offset = PHYSFS_tell(pig_fp);
 		bmh.offset = data_offset - bitmap_data_start;
-		PHYSFSX_fseek( pig_fp, data_offset, SEEK_SET );
+		PHYSFS_seek(pig_fp, data_offset);
 
 		if (bmp->get_flag_mask(BM_FLAG_RLE))
 		{
@@ -1545,7 +1545,7 @@ static void piggy_write_pigfile(const std::span<const char, FILENAME_LEN> filena
 			if (fp1)
 				PHYSFSX_puts_literal( fp1, ".\n" );
 		}
-		PHYSFSX_fseek( pig_fp, org_offset, SEEK_SET );
+		PHYSFS_seek(pig_fp, org_offset);
 		Assert( GameBitmaps[i].bm_w < 4096 );
 		bmh.width = (GameBitmaps[i].bm_w & 0xff);
 		bmh.wh_extra = ((GameBitmaps[i].bm_w >> 8) & 0x0f);
@@ -1825,7 +1825,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 #endif
 	gr_set_bitmap_flags(*bitmap, bmh->flags & BM_FLAGS_TO_COPY);
 
-	PHYSFSX_fseek(d1_Piggy_fp, bitmap_data_start + bmh->offset, SEEK_SET);
+	PHYSFS_seek(d1_Piggy_fp, bitmap_data_start + bmh->offset);
 	if (bmh->flags & BM_FLAG_RLE) {
 		zsize = PHYSFSX_readInt(d1_Piggy_fp);
 		PHYSFSX_fseek(d1_Piggy_fp, -4, SEEK_CUR);
@@ -1873,7 +1873,7 @@ static void bm_read_d1_tmap_nums(PHYSFS_File *d1pig)
 {
 	int i, d1_index;
 
-	PHYSFSX_fseek(d1pig, 8, SEEK_SET);
+	PHYSFS_seek(d1pig, 8);
 	d1_tmap_nums = std::make_unique<d1_tmap_nums_t>();
 	d1_tmap_nums->fill(-1);
 	for (i = 0; i < D1_MAX_TEXTURES; i++) {
@@ -1892,9 +1892,9 @@ static int get_d1_bm_index(char *filename, PHYSFS_File *d1_pig) {
 	DiskBitmapHeader bmh;
 	if (strchr (filename, '.'))
 		*strchr (filename, '.') = '\0'; // remove extension
-	PHYSFSX_fseek (d1_pig, 0, SEEK_SET);
+	PHYSFS_seek(d1_pig, 0);
 	N_bitmaps = PHYSFSX_readInt (d1_pig);
-	PHYSFSX_fseek (d1_pig, 8, SEEK_SET);
+	PHYSFS_seek(d1_pig, 8);
 	for (i = 1; i <= N_bitmaps; i++) {
 		DiskBitmapHeader_d1_read(&bmh, d1_pig);
 		if (!d_strnicmp(bmh.name, filename, 8))
@@ -2049,7 +2049,7 @@ void load_d1_bitmap_replacements()
 		break;
 	}
 
-	PHYSFSX_fseek( d1_Piggy_fp, pig_data_start, SEEK_SET );
+	PHYSFS_seek(d1_Piggy_fp, pig_data_start);
 	N_bitmaps = PHYSFSX_readInt(d1_Piggy_fp);
 	{
 		int N_sounds = PHYSFSX_readInt(d1_Piggy_fp);
@@ -2071,7 +2071,7 @@ void load_d1_bitmap_replacements()
 		d2_index = d2_index_for_d1_index(d1_index);
 		// only change bitmaps which are unique to d1
 		if (d2_index != -1) {
-			PHYSFSX_fseek(d1_Piggy_fp, bitmap_header_start + (d1_index-1) * DISKBITMAPHEADER_D1_SIZE, SEEK_SET);
+			PHYSFS_seek(d1_Piggy_fp, bitmap_header_start + (d1_index - 1) * DISKBITMAPHEADER_D1_SIZE);
 			DiskBitmapHeader_d1_read(&bmh, d1_Piggy_fp);
 
 			bitmap_read_d1( &GameBitmaps[d2_index], d1_Piggy_fp, bitmap_data_start, &bmh, &next_bitmap, d1_palette, colormap );
@@ -2143,7 +2143,7 @@ grs_bitmap *read_extra_bitmap_d1_pig(const std::span<const char> name, grs_bitma
 			break;
 		}
 
-		PHYSFSX_fseek( d1_Piggy_fp, pig_data_start, SEEK_SET );
+		PHYSFS_seek(d1_Piggy_fp, pig_data_start);
 		N_bitmaps = PHYSFSX_readInt(d1_Piggy_fp);
 		{
 			int N_sounds = PHYSFSX_readInt(d1_Piggy_fp);

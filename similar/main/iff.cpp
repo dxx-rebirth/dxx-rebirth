@@ -760,7 +760,7 @@ static int write_body(PHYSFS_File *ofile,iff_bitmap_header *bitmap_header,int co
 	}
 
 	if (compression_on) {		//write actual data length
-		Assert(PHYSFSX_fseek(ofile,save_pos,SEEK_SET)==0);
+		assert(PHYSFS_seek(ofile, save_pos) != 0);
 		(void)save_pos;
 		PHYSFS_writeSBE32(ofile, total_len);
 		Assert(PHYSFSX_fseek(ofile,total_len,SEEK_CUR)==0);
@@ -814,7 +814,7 @@ int write_tiny(PHYSFS_File *ofile,iff_bitmap_header *bitmap_header,int compressi
 	}
 
 	if (compression_on) {
-		Assert(PHYSFSX_fseek(ofile,save_pos,SEEK_SET)==0);
+		assert(PHYSFS_seek(ofile, save_pos) != 0);
 		(void)save_pos;
 		PHYSFS_writeSBE32(ofile, 4+total_len);
 		Assert(PHYSFSX_fseek(ofile,4+total_len,SEEK_CUR)==0);
@@ -853,7 +853,7 @@ static int write_pbm(PHYSFS_File *ofile,iff_bitmap_header *bitmap_header,int com
 
 	pbm_size = 4 + BMHD_SIZE + body_size + tiny_size + sizeof(rgb_t)*(1<<bitmap_header->nplanes)+8;
 
-	Assert(PHYSFSX_fseek(ofile,save_pos,SEEK_SET)==0);
+	assert(PHYSFS_seek(ofile, save_pos) != 0);
 	(void)save_pos;
 	PHYSFS_writeSBE32(ofile, pbm_size+8);
 	Assert(PHYSFSX_fseek(ofile,pbm_size+8,SEEK_CUR)==0);

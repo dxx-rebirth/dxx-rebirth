@@ -109,12 +109,12 @@ static int load_pig1(PHYSFS_File *f, unsigned num_bitmaps, unsigned num_sounds, 
 
 	if (num_bitmaps <= MAX_BITMAP_FILES) // <v1.4 pig?
 	{
-		PHYSFSX_fseek(f, 8, SEEK_SET);
+		PHYSFS_seek(f, 8);
 		data_ofs = 8;
 	}
 	else if (num_bitmaps > 0 && num_bitmaps < PHYSFS_fileLength(f)) // >=v1.4 pig?
 	{
-		PHYSFSX_fseek(f, num_bitmaps, SEEK_SET);
+		PHYSFS_seek(f, num_bitmaps);
 		data_ofs = num_bitmaps + 8;
 		num_bitmaps = PHYSFSX_readInt(f);
 		num_sounds = PHYSFSX_readInt(f);
@@ -275,7 +275,7 @@ static int load_pigpog(const d_fname &pogname)
 		x = cip->repl_idx;
 		if (cip->repl_idx >= 0)
 		{
-			PHYSFSX_fseek( f, cip->offset, SEEK_SET );
+			PHYSFS_seek(f, cip->offset);
 
 			if ( cip->flags & BM_FLAG_RLE )
 				j = PHYSFSX_readInt(f);
@@ -343,7 +343,7 @@ static int load_pigpog(const d_fname &pogname)
 		}
 		else if ((cip->repl_idx + 1) < 0)
 		{
-			PHYSFSX_fseek( f, cip->offset, SEEK_SET );
+			PHYSFS_seek(f, cip->offset);
 			auto snd = &GameSounds[x & 0x7fffffff];
 
 			j = cip->width;

@@ -804,7 +804,7 @@ int load_exit_models()
 			con_puts(CON_NORMAL, "Can't load exit models!");
 			return 0;
 		}
-		PHYSFSX_fseek(exit_hamfile, offset, SEEK_SET);
+		PHYSFS_seek(exit_hamfile, offset);
 		const auto em = static_cast<polygon_model_index>(N_polygon_models);
 		const auto dem = static_cast<polygon_model_index>(N_polygon_models + 1);
 		LevelSharedPolygonModelState.N_polygon_models = N_polygon_models + 2;
@@ -817,7 +817,7 @@ int load_exit_models()
 		pem.first_texture = start_num;
 		pdem.first_texture = start_num+3;
 
-		PHYSFSX_fseek(exit_hamfile, offset2, SEEK_SET);
+		PHYSFS_seek(exit_hamfile, offset2);
 		polygon_model_data_read(&pem, exit_hamfile);
 		polygon_model_data_read(&pdem, exit_hamfile);
 	} else {
