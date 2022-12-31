@@ -301,9 +301,8 @@ static void read_model_file(polymodel &pm, const char *const filename, robot_inf
 			pof_cfseek(model_buf,next_chunk,SEEK_SET);
 	}
 
-#if DXX_WORDS_NEED_ALIGNMENT
-	align_polygon_model_data(pm);
-#endif
+	if constexpr (DXX_WORDS_NEED_ALIGNMENT)
+		align_polygon_model_data(&pm);
 	if constexpr (words_bigendian)
 		swap_polygon_model_data(pm.model_data.get());
 }
@@ -647,13 +646,14 @@ void polygon_model_data_read(polymodel *pm, PHYSFS_File *fp)
 	auto model_data_size = pm->model_data_size;
 	pm->model_data = std::make_unique<uint8_t[]>(model_data_size);
 	PHYSFS_read(fp, pm->model_data, sizeof(uint8_t), model_data_size);
-#if DXX_WORDS_NEED_ALIGNMENT
 	/* Aligning model data changes pm->model_data_size.  Reload it
 	 * afterward.
 	 */
-	align_polygon_model_data(pm);
-	model_data_size = pm->model_data_size;
-#endif
+	if constexpr (DXX_WORDS_NEED_ALIGNMENT)
+	{
+		align_polygon_model_data(pm);
+		model_data_size = pm->model_data_size;
+	}
 	if constexpr (words_bigendian)
 		swap_polygon_model_data(pm->model_data.get());
 #if defined(DXX_BUILD_DESCENT_I)
