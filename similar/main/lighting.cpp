@@ -58,6 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "d_bitset.h"
+#include "d_enumerate.h"
 #include "d_levelstate.h"
 #include "partial_range.h"
 #include "d_range.h"
@@ -311,6 +312,79 @@ static fix compute_player_light_emission_intensity(d_level_unique_headlight_stat
 }
 #endif
 
+static g3s_lrgb build_object_color_from_bitmap(GameBitmaps_array &GameBitmaps, const bitmap_index i, grs_bitmap &bm)
+{
+	if (bm.get_flag_mask(BM_FLAG_PAGED_OUT))
+		piggy_bitmap_page_in(GameBitmaps, i);
+	return g3s_lrgb{
+		.r = bm.avg_color_rgb[0],
+		.g = bm.avg_color_rgb[1],
+		.b = bm.avg_color_rgb[2],
+	};
+}
+
+static g3s_lrgb build_object_color_from_range(GameBitmaps_array &GameBitmaps, const bitmap_index index_begin, const bitmap_index index_end)
+{
+	g3s_lrgb obj_color{};
+	for (auto &&[i, bm] : enumerate(partial_range(GameBitmaps, underlying_value(index_begin), underlying_value(index_end))))
+	{
+		const auto r = build_object_color_from_bitmap(GameBitmaps, i, bm);
+		obj_color.r += r.r;
+		obj_color.g += r.g;
+		obj_color.b += r.b;
+	}
+	return obj_color;
+}
+
+static g3s_lrgb build_object_color_from_vclip(GameBitmaps_array &GameBitmaps, const d_vclip_array &Vclip, const std::size_t id)
+{
+	auto &v = Vclip[id];
+	auto &f = v.frames;
+	const auto t_idx_s = f[0];
+	const auto t_idx_e = f[v.num_frames - 1];
+	return build_object_color_from_range(GameBitmaps, t_idx_s, t_idx_e);
+}
+
+static g3s_lrgb build_object_color(GameBitmaps_array &GameBitmaps, const object_base &objp)
+{
+	switch (objp.render_type)
+	{
+		case RT_POLYOBJ:
+		{
+			auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
+			const polymodel *const po = &Polygon_models[objp.rtype.pobj_info.model_num];
+			if (const auto n_textures = po->n_textures; n_textures > 0)
+			{
+				const bitmap_index t_idx_s = ObjBitmaps[ObjBitmapPtrs[po->first_texture]];
+				const bitmap_index t_idx_e{static_cast<uint16_t>(underlying_value(t_idx_s) + n_textures)};
+				return build_object_color_from_range(GameBitmaps, t_idx_s, t_idx_e);
+			}
+			/* If no texture, try to get a general polygon color */
+			if (const auto color = g3_poly_get_color(po->model_data.get()))
+			{
+				auto &rgb = gr_current_pal[color];
+				return {rgb.r, rgb.g, rgb.b};
+			}
+			/* If no color either, fall through and use a generic value */
+		}
+		[[fallthrough]];
+		case RT_NONE:
+			// no object - no light
+			return {255, 255, 255};
+		case RT_LASER:
+		{
+			const bitmap_index t_idx_s = Weapon_info[get_weapon_id(objp)].bitmap;
+			return build_object_color_from_bitmap(GameBitmaps, t_idx_s, GameBitmaps[t_idx_s]);
+		}
+		case RT_POWERUP:
+			return build_object_color_from_vclip(GameBitmaps, Vclip, objp.rtype.vclip_info.vclip_num);
+		case RT_WEAPON_VCLIP:
+			return build_object_color_from_vclip(GameBitmaps, Vclip, Weapon_info[get_weapon_id(objp)].weapon_vclip);
+		default:
+			return build_object_color_from_vclip(GameBitmaps, Vclip, objp.id);
+	}
+}
+
 static g3s_lrgb compute_light_emission(const d_robot_info_array &Robot_info, d_level_unique_headlight_state &LevelUniqueHeadlightState, const d_vclip_array &Vclip, const vcobjptridx_t obj)
 {
 	int compute_color = 0;
@@ -411,82 +485,10 @@ static g3s_lrgb compute_light_emission(const d_robot_info_array &Robot_info, d_l
 
 	if (compute_color)
 	{
-		int t_idx_s = -1, t_idx_e = -1;
-
 		if (light_intensity < F1_0) // for every effect we want color, increase light_intensity so the effect becomes barely visible
 			light_intensity = F1_0;
 
-		g3s_lrgb obj_color = { 255, 255, 255 };
-
-		switch (objp.render_type)
-		{
-			case RT_NONE:
-				break; // no object - no light
-			case RT_POLYOBJ:
-			{
-				auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-				const polymodel *const po = &Polygon_models[objp.rtype.pobj_info.model_num];
-				if (po->n_textures <= 0)
-				{
-					int color = g3_poly_get_color(po->model_data.get());
-					if (color)
-					{
-						obj_color.r = gr_current_pal[color].r;
-						obj_color.g = gr_current_pal[color].g;
-						obj_color.b = gr_current_pal[color].b;
-					}
-				}
-				else
-				{
-					t_idx_s = underlying_value(ObjBitmaps[ObjBitmapPtrs[po->first_texture]]);
-					t_idx_e = t_idx_s + po->n_textures - 1;
-				}
-				break;
-			}
-			case RT_LASER:
-			{
-				t_idx_s = t_idx_e = underlying_value(Weapon_info[get_weapon_id(objp)].bitmap);
-				break;
-			}
-			case RT_POWERUP:
-			{
-				auto &v = Vclip[objp.rtype.vclip_info.vclip_num];
-				auto &f = v.frames;
-				t_idx_s = underlying_value(f[0]);
-				t_idx_e = underlying_value(f[v.num_frames - 1]);
-				break;
-			}
-			case RT_WEAPON_VCLIP:
-			{
-				auto &v = Vclip[Weapon_info[get_weapon_id(objp)].weapon_vclip];
-				auto &f = v.frames;
-				t_idx_s = underlying_value(f[0]);
-				t_idx_e = underlying_value(f[v.num_frames - 1]);
-				break;
-			}
-			default:
-			{
-				const auto &vc = Vclip[objp.id];
-				t_idx_s = underlying_value(vc.frames[0]);
-				t_idx_e = underlying_value(vc.frames[vc.num_frames - 1]);
-				break;
-			}
-		}
-
-		if (t_idx_s != -1 && t_idx_e != -1)
-		{
-			obj_color = {};
-			for (const uint16_t i : xrange(t_idx_s, t_idx_e + 1))
-			{
-				const bitmap_index bi{i};
-				PIGGY_PAGE_IN(bi);
-				grs_bitmap *const bm = &GameBitmaps[bi];
-				obj_color.r += bm->avg_color_rgb[0];
-				obj_color.g += bm->avg_color_rgb[1];
-				obj_color.b += bm->avg_color_rgb[2];
-			}
-		}
-
+		const auto &&obj_color = build_object_color(GameBitmaps, objp);
 		const fix rgbsum = obj_color.r + obj_color.g + obj_color.b;
 		// obviously this object did not give us any usable color. so let's do our own but with blackjack and hookers!
 		if (rgbsum <= 0)
