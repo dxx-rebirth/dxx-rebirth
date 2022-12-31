@@ -257,14 +257,14 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const si
 	grs_bitmap *bm2 = nullptr;
 	if (!CGameArg.DbgUseOldTextureMerge)
 	{
-		auto &texture1 = Textures[get_texture_index(tmap1)];
+		const auto texture1 = Textures[get_texture_index(tmap1)];
 		PIGGY_PAGE_IN(texture1);
-		bm = &GameBitmaps[texture1.index];
+		bm = &GameBitmaps[texture1];
 		if (tmap2 != texture2_value::None)
 		{
 			const auto texture2 = Textures[get_texture_index(tmap2)];
 			PIGGY_PAGE_IN(texture2);
-			bm2 = &GameBitmaps[texture2.index];
+			bm2 = &GameBitmaps[texture2];
 			if (bm2->get_flag_mask(BM_FLAG_SUPER_TRANSPARENT))
 			{
 				bm2 = nullptr;
@@ -278,8 +278,8 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const si
 		{
 			bm = &texmerge_get_cached_bitmap( tmap1, tmap2 );
 		} else {
-			auto &texture1 = Textures[get_texture_index(tmap1)];
-			bm = &GameBitmaps[texture1.index];
+			const auto texture1 = Textures[get_texture_index(tmap1)];
+			bm = &GameBitmaps[texture1];
 			PIGGY_PAGE_IN(texture1);
 		}
 
@@ -351,7 +351,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const si
 
 #if DXX_USE_EDITOR
 	if (Render_only_bottom && sidenum == sidenum_t::WBOTTOM)
-		g3_draw_tmap(canvas, nv, pointlist, uvl_copy, dyn_light, GameBitmaps[Textures[Bottom_bitmap_num].index]);
+		g3_draw_tmap(canvas, nv, pointlist, uvl_copy, dyn_light, GameBitmaps[Textures[Bottom_bitmap_num]]);
 	else
 #endif
 

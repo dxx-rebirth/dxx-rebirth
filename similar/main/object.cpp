@@ -186,7 +186,7 @@ namespace dsx {
 //draw an object that has one bitmap & doesn't rotate
 void draw_object_blob(GameBitmaps_array &GameBitmaps, const object_base &Viewer, grs_canvas &canvas, const object_base &obj, const bitmap_index bmi)
 {
-	auto &bm = GameBitmaps[bmi.index];
+	auto &bm = GameBitmaps[bmi];
 	PIGGY_PAGE_IN( bmi );
 
 	const auto osize = obj.size;
@@ -214,7 +214,7 @@ void draw_object_tmap_rod(grs_canvas &canvas, const d_level_unique_light_state *
 	g3s_lrgb light;
 	PIGGY_PAGE_IN(bitmapi);
 
-	auto &bitmap = GameBitmaps[bitmapi.index];
+	auto &bitmap = GameBitmaps[bitmapi];
 
 	const auto delta = vm_vec_copy_scale(obj->orient.uvec,obj->size);
 

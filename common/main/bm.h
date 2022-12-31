@@ -29,12 +29,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "fwd-vclip.h"
 #include "fwd-game.h"
+#include "fwd-piggy.h"
 #include "fwd-robot.h"
 #include "d_array.h"
 #include "inferno.h"
-
-struct bitmap_index;
-
 #include <cstdint>
 
 namespace dcx {

@@ -933,7 +933,6 @@ namespace {
 // This actually renders the new cockpit onto the screen.
 static void update_cockpits(grs_canvas &canvas)
 {
-	grs_bitmap *bm;
 	const auto raw_cockpit_mode = PlayerCfg.CockpitMode[1];
 	auto mode =
 #if defined(DXX_BUILD_DESCENT_II)
@@ -946,26 +945,32 @@ static void update_cockpits(grs_canvas &canvas)
 	switch( PlayerCfg.CockpitMode[1] )	{
 		case cockpit_mode_t::full_cockpit:
 		case cockpit_mode_t::rear_view:
-			PIGGY_PAGE_IN(cockpit_bitmap[mode]);
-			bm=&GameBitmaps[cockpit_bitmap[mode].index];
+			{
+				const auto bi = cockpit_bitmap[mode];
+				PIGGY_PAGE_IN(bi);
+				grs_bitmap *const bm = &GameBitmaps[bi];
 #if DXX_USE_OGL
 			ogl_ubitmapm_cs(canvas, 0, 0, opengl_bitmap_use_dst_canvas, opengl_bitmap_use_dst_canvas, *bm, 255);
 #else
 			gr_ubitmapm(canvas, 0, 0, *bm);
 #endif
+			}
 			break;
 	
 		case cockpit_mode_t::full_screen:
 			break;
 	
 		case cockpit_mode_t::status_bar:
-			PIGGY_PAGE_IN(cockpit_bitmap[mode]);
-			bm=&GameBitmaps[cockpit_bitmap[mode].index];
+			{
+				const auto bi = cockpit_bitmap[mode];
+				PIGGY_PAGE_IN(bi);
+				grs_bitmap *const bm = &GameBitmaps[bi];
 #if DXX_USE_OGL
 			ogl_ubitmapm_cs(canvas, 0, (HIRESMODE ? (SHEIGHT * 2) / 2.6 : (SHEIGHT * 2) / 2.72), opengl_bitmap_use_dst_canvas, (static_cast<int>(static_cast<double>(bm->bm_h) * (HIRESMODE ? static_cast<double>(SHEIGHT) / 480 : static_cast<double>(SHEIGHT) / 200) + 0.5)), *bm, 255);
 #else
 			gr_ubitmapm(canvas, 0, SHEIGHT - bm->bm_h, *bm);
 #endif
+			}
 			break;
 	
 		case cockpit_mode_t::letterbox:

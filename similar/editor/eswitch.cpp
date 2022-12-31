@@ -497,7 +497,7 @@ window_event_result trigger_dialog::callback_handler(const d_event &event)
 				{
 					auto &t = Textures[get_texture_index(tmap_num)];
 					PIGGY_PAGE_IN(t);
-					gr_ubitmap(canvas, GameBitmaps[t.index]);
+					gr_ubitmap(canvas, GameBitmaps[t]);
 				} else
 					gr_clear_canvas(canvas, CGREY);
 			}

@@ -430,7 +430,7 @@ static void bm_free_extra_objbitmaps()
 	for (i = Num_bitmap_files; i < extra_bitmap_num; i++)
 	{
 		N_ObjBitmaps--;
-		d_free(GameBitmaps[i].bm_mdata);
+		d_free(GameBitmaps[(bitmap_index{static_cast<uint16_t>(i)})].bm_mdata);
 	}
 	extra_bitmap_num = Num_bitmap_files;
 	Exit_bitmaps_loaded = false;
@@ -659,7 +659,7 @@ static grs_bitmap *bm_load_extra_objbitmap(const char *name)
 	{
 		auto &bitmap_idx = ObjBitmaps[oi];
 		const auto bitmap_store_index = bitmap_index{static_cast<uint16_t>(extra_bitmap_num)};
-		grs_bitmap &n = GameBitmaps[bitmap_store_index.index];
+		grs_bitmap &n = GameBitmaps[bitmap_store_index];
 		if (!read_extra_bitmap_iff(name, n))
 		{
 			const char *const dot = strrchr(name, '.');
@@ -684,7 +684,7 @@ static void bm_unload_last_objbitmaps(unsigned count)
 
 	unsigned new_N_ObjBitmaps = N_ObjBitmaps - count;
 	range_for (auto &o, partial_range(ObjBitmaps, new_N_ObjBitmaps, N_ObjBitmaps))
-		d_free(GameBitmaps[o.index].bm_mdata);
+		d_free(GameBitmaps[o].bm_mdata);
 	N_ObjBitmaps = new_N_ObjBitmaps;
 }
 

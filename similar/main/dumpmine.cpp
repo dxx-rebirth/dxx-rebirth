@@ -68,12 +68,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dsx {
 namespace {
 #if defined(DXX_BUILD_DESCENT_I)
-using perm_tmap_buffer_type = std::array<int, MAX_TEXTURES>;
-using level_tmap_buffer_type = std::array<int8_t, MAX_TEXTURES>;
+using perm_tmap_buffer_type = enumerated_array<int, MAX_TEXTURES, bitmap_index>;
+using level_tmap_buffer_type = enumerated_array<int8_t, MAX_TEXTURES, bitmap_index>;
 using wall_buffer_type = std::array<int, MAX_WALL_ANIMS>;
 #elif defined(DXX_BUILD_DESCENT_II)
-using perm_tmap_buffer_type = std::array<int, MAX_BITMAP_FILES>;
-using level_tmap_buffer_type = std::array<int8_t, MAX_BITMAP_FILES>;
+using perm_tmap_buffer_type = enumerated_array<int, MAX_BITMAP_FILES, bitmap_index>;
+using level_tmap_buffer_type = enumerated_array<int8_t, MAX_BITMAP_FILES, bitmap_index>;
 using wall_buffer_type = std::array<int, MAX_BITMAP_FILES>;
 #endif
 }
@@ -772,9 +772,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 					wall_buf[clip_num] = 1;
 
 					for (j=0; j<num_frames; j++) {
-						int	tmap_num;
-
-						tmap_num = WallAnims[clip_num].frames[j];
+						const bitmap_index tmap_num{WallAnims[clip_num].frames[j]};
 						tmap_buf[tmap_num]++;
 						if (level_tmap_buf[tmap_num] == -1)
 							level_tmap_buf[tmap_num] = level_num + (!shareware_flag) * NUM_SHAREWARE_LEVELS;
@@ -783,8 +781,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 			}
 
 			auto &uside = std::get<1>(z);
-			const auto tmap1idx = get_texture_index(uside.tmap_num);
-			if (tmap1idx < max_tmap)
+			if (const bitmap_index tmap1idx{get_texture_index(uside.tmap_num)}; underlying_value(tmap1idx) < max_tmap)
 			{
 				++ tmap_buf[tmap1idx];
 				if (auto &t = level_tmap_buf[tmap1idx]; t == -1)
@@ -795,9 +792,9 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 					Int3(); //	Error, bogus texture map.  Should not be greater than max_tmap.
                                  }
 
-			if (const auto tmap_num2 = get_texture_index(uside.tmap_num2))
+			if (const bitmap_index tmap_num2{get_texture_index(uside.tmap_num2)}; tmap_num2 != bitmap_index{})
                          {
-				if (tmap_num2 < max_tmap) {
+				if (underlying_value(tmap_num2) < max_tmap) {
 					++tmap_buf[tmap_num2];
 					if (level_tmap_buf[tmap_num2] == -1)
 						level_tmap_buf[tmap_num2] = level_num + (!shareware_flag) * NUM_SHAREWARE_LEVELS;
@@ -822,13 +819,12 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 
 			for (unsigned i = 0; i < po->n_textures; ++i)
 			{
-				unsigned tli = ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]].index;
-
-				if (tli < tmap_buf.size())
+				const auto tli = ObjBitmaps[ObjBitmapPtrs[po->first_texture + i]];
+				if (tmap_buf.valid_index(tli))
 				{
 					tmap_buf[tli]++;
-					if (level_tmap_buf[tli] == -1)
-						level_tmap_buf[tli] = level_num;
+					if (auto &ltb = level_tmap_buf[tli]; ltb == -1)
+						ltb = level_num;
 				} else
 					Int3();	//	Hmm, It seems this texture is bogus!
 			}
@@ -856,22 +852,22 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 					wall_buf[clip_num] = 1;
 
 					for (j=0; j<1; j++) {	//	Used to do through num_frames, but don't really want all the door01#3 stuff.
-						unsigned tmap_num = Textures[WallAnims[clip_num].frames[j]].index;
-						Assert(tmap_num < tmap_buf.size());
+						const auto tmap_num = Textures[WallAnims[clip_num].frames[j]];
+						assert(tmap_buf.valid_index(tmap_num));
 						tmap_buf[tmap_num]++;
-						if (level_tmap_buf[tmap_num] == -1)
-							level_tmap_buf[tmap_num] = level_num;
+						if (auto &ltb = level_tmap_buf[tmap_num]; ltb == -1)
+							ltb = level_num;
 					}
 				}
 			} else if (child == segment_none) {
 				{
 					const auto tmap1idx = get_texture_index(uside.tmap_num);
 					if (tmap1idx < Textures.size()) {
-						const auto ti = Textures[tmap1idx].index;
-						assert(ti < tmap_buf.size());
+						const auto ti = Textures[tmap1idx];
+						assert(tmap_buf.valid_index(ti));
 						++tmap_buf[ti];
-						if (level_tmap_buf[ti] == -1)
-							level_tmap_buf[ti] = level_num;
+						if (auto &ltb = level_tmap_buf[ti]; ltb == -1)
+							ltb = level_num;
 					} else
 						Int3();	//	Error, bogus texture map.  Should not be greater than max_tmap.
 				}
@@ -880,8 +876,8 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 				{
 					if (masked_tmap_num2 < Textures.size())
 					{
-						const auto ti = Textures[masked_tmap_num2].index;
-						assert(ti < tmap_buf.size());
+						const auto ti = Textures[masked_tmap_num2];
+						assert(tmap_buf.valid_index(ti));
 						++tmap_buf[ti];
 						if (level_tmap_buf[ti] == -1)
 							level_tmap_buf[ti] = level_num;
@@ -914,21 +910,26 @@ namespace dsx {
 namespace {
 static void say_used_tmaps(PHYSFS_File *const my_file, const perm_tmap_buffer_type &tb)
 {
-	int	i;
 #if defined(DXX_BUILD_DESCENT_I)
 	int	count = 0;
 
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	const auto Num_tmaps = LevelUniqueTmapInfoState.Num_tmaps;
-	for (i=0; i<Num_tmaps; i++)
-		if (tb[i]) {
-			PHYSFSX_printf(my_file, "[%3i %8s (%4i)]%s", i, static_cast<const char *>(TmapInfo[i].filename), tb[i], count++ >= 4 ? (count = 0, "\n") : " ");
+	for (const uint16_t i : xrange(Num_tmaps))
+	{
+		const bitmap_index bi{i};
+		if (tb[bi]) {
+			PHYSFSX_printf(my_file, "[%3i %8s (%4i)]%s", i, TmapInfo[i].filename.data(), tb[bi], count++ >= 4 ? (count = 0, "\n") : " ");
 		}
+	}
 #elif defined(DXX_BUILD_DESCENT_II)
-	for (i = 0; i < tb.size(); ++i)
-		if (tb[i]) {
-			PHYSFSX_printf(my_file, "[%3i %8s (%4i)]\n", i, AllBitmaps[i].name.data(), tb[i]);
+	for (const uint16_t i : xrange(std::size(tb)))
+	{
+		const bitmap_index bi{i};
+		if (tb[bi]) {
+			PHYSFSX_printf(my_file, "[%3i %8s (%4i)]\n", i, AllBitmaps[bi].name.data(), tb[bi]);
 		}
+	}
 #endif
 }
 
@@ -936,14 +937,16 @@ static void say_used_tmaps(PHYSFS_File *const my_file, const perm_tmap_buffer_ty
 //	-----------------------------------------------------------------------------
 static void say_used_once_tmaps(PHYSFS_File *const my_file, const perm_tmap_buffer_type &tb, const level_tmap_buffer_type &tb_lnum)
 {
-	int	i;
 	const char	*level_name;
 
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	const auto Num_tmaps = LevelUniqueTmapInfoState.Num_tmaps;
-	for (i=0; i<Num_tmaps; i++)
-		if (tb[i] == 1) {
-			int	level_num = tb_lnum[i];
+	for (const uint16_t i : xrange(Num_tmaps))
+	{
+		const bitmap_index bi{i};
+		if (tb[bi] == 1)
+		{
+			const auto level_num = tb_lnum[bi];
 			if (level_num >= NUM_SHAREWARE_LEVELS) {
 				Assert((level_num - NUM_SHAREWARE_LEVELS >= 0) && (level_num - NUM_SHAREWARE_LEVELS < NUM_REGISTERED_LEVELS));
 				level_name = Registered_level_names[level_num - NUM_SHAREWARE_LEVELS];
@@ -954,6 +957,7 @@ static void say_used_once_tmaps(PHYSFS_File *const my_file, const perm_tmap_buff
 
 			PHYSFSX_printf(my_file, "Texture %3i %8s used only once on level %s\n", i, static_cast<const char *>(TmapInfo[i].filename), level_name);
 		}
+	}
 }
 #endif
 
@@ -972,7 +976,7 @@ static void say_unused_tmaps(PHYSFS_File *my_file, perm_tmap_buffer_type &perm_t
 	for (auto &&[i, tb, texture, tmap_name] : enumerate(zip(partial_range(perm_tmap_buf, bound), Textures, tmap_name_source)))
 		if (!tb)
 		{
-			const char usage_indicator = (GameBitmaps[texture.index].bm_data == bogus_data.data())
+			const char usage_indicator = (GameBitmaps[texture].bm_data == bogus_data.data())
 				? 'U'
 				: ' ';
 

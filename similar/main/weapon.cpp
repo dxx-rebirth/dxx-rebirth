@@ -1789,8 +1789,6 @@ void do_seismic_stuff(void)
 
 }
 
-DEFINE_BITMAP_SERIAL_UDT();
-
 namespace serial {
 
 template <typename T>

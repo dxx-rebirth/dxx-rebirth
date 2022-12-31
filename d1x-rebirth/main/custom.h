@@ -10,20 +10,17 @@
 #include "pstypes.h"
 #include "piggy.h"
 
-#ifdef __cplusplus
 #include "dxxsconf.h"
-#include <array>
+#include "d_array.h"
 
 /* from piggy.c */
 #define DBM_FLAG_LARGE	128		// Flags added onto the flags struct in b
 #define DBM_FLAG_ABM            64
 
-extern std::array<pig_bitmap_offset, MAX_BITMAP_FILES> GameBitmapOffset;
+extern enumerated_array<pig_bitmap_offset, MAX_BITMAP_FILES, bitmap_index> GameBitmapOffset;
 
 void load_custom_data(const d_fname &level_file);
 
 void custom_close();
-
-#endif
 
 #endif

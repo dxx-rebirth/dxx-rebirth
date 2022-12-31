@@ -439,7 +439,7 @@ void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_mat
 	// Make sure the textures for this object are paged in...
 		for (auto &&[tli, tl] : zip(tlir, partial_range(texture_list, n_textures)))
 		{
-			tl = &GameBitmaps[tli.index];
+			tl = &GameBitmaps[tli];
 			PIGGY_PAGE_IN(tli);
 		}
 	}

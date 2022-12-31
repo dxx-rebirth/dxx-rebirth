@@ -602,7 +602,7 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 		{
 			const auto tmf = get_texture_rotation_high(tmap2);		//tm flags
 			auto &texture2 = Textures[tm];
-			const grs_bitmap *bm = &GameBitmaps[texture2.index];
+			const grs_bitmap *bm = &GameBitmaps[texture2];
 			int x=0,y=0,t;
 
 			PIGGY_PAGE_IN(texture2);

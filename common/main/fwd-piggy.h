@@ -71,7 +71,7 @@ extern uint8_t Pigfile_initialized;
 #endif
 
 // an index into the bitmap collection of the piggy file
-struct bitmap_index;
+enum class bitmap_index : uint16_t;
 struct BitmapFile;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -100,7 +100,7 @@ constexpr std::integral_constant<unsigned, 2620> MAX_BITMAP_FILES{};
 #endif
 #define MAX_SOUND_FILES     MAX_SOUNDS
 
-using GameBitmaps_array = std::array<grs_bitmap, MAX_BITMAP_FILES>;
+using GameBitmaps_array = enumerated_array<grs_bitmap, MAX_BITMAP_FILES, bitmap_index>;
 extern std::array<digi_sound, MAX_SOUND_FILES> GameSounds;
 extern GameBitmaps_array GameBitmaps;
 void piggy_bitmap_page_in(GameBitmaps_array &, bitmap_index bmp);
@@ -153,7 +153,7 @@ extern ubyte bogus_bitmap_initialized;
 extern hashtable AllBitmapsNames;
 extern hashtable AllDigiSndNames;
 #elif defined(DXX_BUILD_DESCENT_II)
-extern std::array<BitmapFile, MAX_BITMAP_FILES> AllBitmaps;
+extern enumerated_array<BitmapFile, MAX_BITMAP_FILES, bitmap_index> AllBitmaps;
 #endif
 void swap_0_255(grs_bitmap &bmp);
 

@@ -288,7 +288,8 @@ static int load_pigpog(const d_fname &pogname)
 				return rc;
 			}
 
-			bmp = &GameBitmaps[x];
+			const bitmap_index bi{static_cast<uint16_t>(x)};
+			bmp = &GameBitmaps[bi];
 
 			auto &bmo = BitmapOriginal[x].b;
 			if (bmo.get_flag_mask(BM_FLAG_CUSTOMIZED)) // already customized?
@@ -307,7 +308,7 @@ static int load_pigpog(const d_fname &pogname)
 				// save original bitmap info
 				bmo = *bmp;
 				bmo.add_flags(BM_FLAG_CUSTOMIZED);
-				if (GameBitmapOffset[x] != pig_bitmap_offset::None) // from pig?
+				if (GameBitmapOffset[bi] != pig_bitmap_offset::None) // from pig?
 				{
 					/* Borrow the data field to store the offset within
 					 * the pig file, which is not a pointer.  Attempts
@@ -315,11 +316,11 @@ static int load_pigpog(const d_fname &pogname)
 					 * crash.
 					 */
 					bmo.add_flags(BM_FLAG_PAGED_OUT);
-					bmo.bm_data = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(GameBitmapOffset[x]));
+					bmo.bm_data = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(GameBitmapOffset[bi]));
 				}
 			}
 
-			GameBitmapOffset[x] = pig_bitmap_offset::None; // not in pig
+			GameBitmapOffset[bi] = pig_bitmap_offset::None; // not in pig
 			*bmp = {};
 			gr_init_bitmap(*bmp, bm_mode::linear, 0, 0, cip->width, cip->height, cip->width, p);
 			gr_set_bitmap_flags(*bmp, cip->flags & 255);
@@ -557,7 +558,7 @@ static void load_hxm(const d_fname &hxmname)
 			const auto oi = static_cast<object_bitmap_index>(PHYSFSX_readInt(f));
 			auto v = PHYSFSX_readShort(f);
 			if (ObjBitmaps.valid_index(oi))
-				ObjBitmaps[oi].index = v;
+				ObjBitmaps[oi] = bitmap_index{static_cast<uint16_t>(v)};
 		}
 	}
 }

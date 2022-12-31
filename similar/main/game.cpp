@@ -292,9 +292,9 @@ void init_cockpit()
 #endif
 				cockpit_mode_t::rear_view;
 
-			auto &cb = cockpit_bitmap[mode];
+			const auto cb = cockpit_bitmap[mode];
 			PIGGY_PAGE_IN(cb);
-			auto &bm = GameBitmaps[cb.index];
+			auto &bm = GameBitmaps[cb];
 			gr_bitblt_find_transparent_area(bm, x1, y1, x2, y2);
 			game_init_render_sub_buffers(canvas, x1 * (static_cast<float>(SWIDTH) / bm.bm_w), y1 * (static_cast<float>(SHEIGHT) / bm.bm_h), (x2 - x1 + 1) * (static_cast<float>(SWIDTH) / bm.bm_w), (y2 - y1 + 2) * (static_cast<float>(SHEIGHT) / bm.bm_h));
 			break;

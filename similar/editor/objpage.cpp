@@ -86,13 +86,13 @@ void draw_object_picture(grs_canvas &canvas, const unsigned id, const vms_angvec
 
 		case OBJ_HOSTAGE:
 			PIGGY_PAGE_IN(Vclip[Hostage_vclip_num[id]].frames[0]);
-			gr_bitmap(canvas, 0, 0, GameBitmaps[Vclip[Hostage_vclip_num[id]].frames[0].index]);
+			gr_bitmap(canvas, 0, 0, GameBitmaps[Vclip[Hostage_vclip_num[id]].frames[0]]);
 			break;
 
 		case OBJ_POWERUP:
 			if ( Powerup_info[id].vclip_num > -1 )	{
 				PIGGY_PAGE_IN(Vclip[Powerup_info[id].vclip_num].frames[0]);
-				gr_bitmap(canvas, 0, 0, GameBitmaps[Vclip[Powerup_info[id].vclip_num].frames[0].index]);
+				gr_bitmap(canvas, 0, 0, GameBitmaps[Vclip[Powerup_info[id].vclip_num].frames[0]]);
 			}
 			break;
 

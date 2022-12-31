@@ -42,12 +42,10 @@ struct alias
 #endif
 
 // an index into the bitmap collection of the piggy file
-struct bitmap_index
+enum class bitmap_index : uint16_t
 {
-	ushort index;
-	constexpr bool operator==(const bitmap_index &) const = default;
+	None = UINT16_MAX
 };
-#define DEFINE_BITMAP_SERIAL_UDT() DEFINE_SERIAL_UDT_TO_MESSAGE(bitmap_index, b, (b.index))
 
 struct BitmapFile
 {
@@ -60,7 +58,7 @@ namespace dsx {
 #  define  PIGGY_PAGE_IN(bmp) _piggy_page_in(GameBitmaps, bmp)
 static inline void _piggy_page_in(GameBitmaps_array &GameBitmaps, bitmap_index bmp)
 {
-	if (GameBitmaps[bmp.index].get_flag_mask(BM_FLAG_PAGED_OUT))
+	if (GameBitmaps[bmp].get_flag_mask(BM_FLAG_PAGED_OUT))
         piggy_bitmap_page_in(GameBitmaps, bmp);
 }
 

@@ -132,7 +132,7 @@ static void paging_touch_weapon(const d_vclip_array &Vclip, const weapon_info &w
 {
 	// Page in the robot's weapons.
 
-	if(weapon.picture.index)
+	if (weapon.picture != bitmap_index{})
 	{
 		PIGGY_PAGE_IN(weapon.picture);
 	}		
@@ -361,9 +361,8 @@ void paging_touch_all(const d_vclip_array &Vclip)
 
 	range_for (auto &s, Gauges)
 	{
-		if ( s.index )	{
+		if (s != bitmap_index{})
 			PIGGY_PAGE_IN( s );
-		}
 	}
 	paging_touch_vclip(Vclip[VCLIP_PLAYER_APPEARANCE]);
 	paging_touch_vclip(Vclip[VCLIP_POWERUP_DISAPPEARANCE]);

@@ -251,7 +251,7 @@ union weapon_index
 #define SB_SECONDARY_W_BOX_RIGHT_L	(SB_SECONDARY_W_BOX_LEFT_L+54)
 #define SB_SECONDARY_W_BOX_BOT_L	(153+42)
 #define SB_SECONDARY_AMMO_X		(SB_SECONDARY_W_BOX_LEFT + (multires_gauge_graphic.get(14, 11)))	//(212+9)
-#define GET_GAUGE_INDEX(x)		(Gauges[x].index)
+#define GET_GAUGE_INDEX(x)		(Gauges[x])
 
 #elif defined(DXX_BUILD_DESCENT_II)
 #define AFTERBURNER_GAUGE_X_L	45-1
@@ -295,7 +295,7 @@ union weapon_index
 #define SB_SECONDARY_W_BOX_RIGHT_L	(SB_SECONDARY_W_BOX_LEFT_L+54+1)
 #define SB_SECONDARY_W_BOX_BOT_L	(SB_SECONDARY_W_BOX_TOP_L+43)
 #define SB_SECONDARY_AMMO_X		(SB_SECONDARY_W_BOX_LEFT + (multires_gauge_graphic.get(14 - 4, 11)))	//(212+9)
-#define GET_GAUGE_INDEX(x)		((multires_gauge_graphic.rget(Gauges_hires, Gauges)[x].index))
+#define GET_GAUGE_INDEX(x)		((multires_gauge_graphic.rget(Gauges_hires, Gauges)[x]))
 
 #endif
 
@@ -2188,9 +2188,9 @@ static void draw_wbu_overlay(const hud_draw_context_hs_mr hudctx)
 		:
 #endif
 		raw_cockpit_mode;
-	auto &cb = cockpit_bitmap[cockpit_idx];
+	const auto cb = cockpit_bitmap[cockpit_idx];
 	PIGGY_PAGE_IN(cb);
-	grs_bitmap *bm = &GameBitmaps[cb.index];
+	grs_bitmap *const bm = &GameBitmaps[cb];
 
 	cockpit_decode_alpha(hudctx, bm);
 
@@ -2596,7 +2596,7 @@ static void draw_weapon_info_sub(const hud_draw_context_hs_mr hudctx, const play
 #endif
 		gr_rect(hudctx.canvas, hudctx.xscale(box->left), hudctx.yscale(box->top), hudctx.xscale(box->right), hudctx.yscale(box->bot + bottom_bias), color);
 	}
-	const auto &picture = 
+	const auto picture = 
 #if defined(DXX_BUILD_DESCENT_II)
 	// !SHAREWARE
 		(Piggy_hamfile_version >= pig_hamfile_version::_3 && hudctx.multires_gauge_graphic.is_hires()) ?
@@ -2604,8 +2604,7 @@ static void draw_weapon_info_sub(const hud_draw_context_hs_mr hudctx, const play
 #endif
 			Weapon_info[info_index].picture;
 	PIGGY_PAGE_IN(picture);
-	auto &bm = GameBitmaps[picture.index];
-
+	auto &bm = GameBitmaps[picture];
 	hud_bitblt(hudctx, pic_x, pic_y, bm);
 
 	if (PlayerCfg.HudMode == HudType::Standard)
@@ -2854,7 +2853,7 @@ static void draw_static(const d_vclip_array &Vclip, const hud_draw_context_hs_mr
 
 	PIGGY_PAGE_IN(vc->frames[framenum]);
 
-	auto &bmp = GameBitmaps[vc->frames[framenum].index];
+	auto &bmp = GameBitmaps[vc->frames[framenum]];
 	auto &resbox = gauge_boxes[multires_gauge_graphic.hiresmode];
 	auto &weaponbox = resbox[win];
 	auto &box = weaponbox[(PlayerCfg.CockpitMode[1] == cockpit_mode_t::status_bar) ? gauge_hud_type::statusbar : gauge_hud_type::cockpit];

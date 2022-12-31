@@ -153,7 +153,7 @@ static std::pair<uint_fast32_t, uint_fast32_t> get_transparency_check_values(con
 static uint_fast32_t check_transparency(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, const unique_side &side)
 {
 	const auto &&v = get_transparency_check_values(side);
-	return GameBitmaps[Textures[v.first].index].get_flag_mask(v.second);
+	return GameBitmaps[Textures[v.first]].get_flag_mask(v.second);
 }
 
 }

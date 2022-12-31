@@ -382,9 +382,9 @@ void ogl_cache_polymodel_textures(const polygon_model_index model_num)
 	const unsigned last_texture = i + po.n_textures;
 	for (; i != last_texture; ++i)
 	{
-		auto &objbitmap = ObjBitmaps[ObjBitmapPtrs[i]];
+		const auto objbitmap = ObjBitmaps[ObjBitmapPtrs[i]];
 		PIGGY_PAGE_IN(objbitmap);
-		ogl_loadbmtexture(GameBitmaps[objbitmap.index], 1);
+		ogl_loadbmtexture(GameBitmaps[objbitmap], 1);
 	}
 }
 
@@ -392,10 +392,10 @@ void ogl_cache_polymodel_textures(const polygon_model_index model_num)
 
 static void ogl_cache_vclip_textures(const vclip &vc)
 {
-	range_for (auto &i, partial_const_range(vc.frames, vc.num_frames))
+	for (const auto i : partial_const_range(vc.frames, vc.num_frames))
 	{
 		PIGGY_PAGE_IN(i);
-		ogl_loadbmtexture(GameBitmaps[i.index], 0);
+		ogl_loadbmtexture(GameBitmaps[i], 0);
 	}
 }
 
@@ -463,14 +463,14 @@ void ogl_cache_level_textures(void)
 					//				tmap1=0;
 					continue;
 				}
-				auto &texture1 = Textures[tmap1idx];
+				const auto texture1 = Textures[tmap1idx];
 				PIGGY_PAGE_IN(texture1);
-				grs_bitmap *bm = &GameBitmaps[texture1.index];
+				grs_bitmap *bm = &GameBitmaps[texture1];
 				if (tmap2 != texture2_value::None)
 				{
 					const auto texture2 = Textures[get_texture_index(tmap2)];
 					PIGGY_PAGE_IN(texture2);
-					auto &bm2 = GameBitmaps[texture2.index];
+					auto &bm2 = GameBitmaps[texture2];
 					if (CGameArg.DbgUseOldTextureMerge || bm2.get_flag_mask(BM_FLAG_SUPER_TRANSPARENT))
 						bm = &texmerge_get_cached_bitmap( tmap1, tmap2 );
 					else {
@@ -537,9 +537,9 @@ void ogl_cache_level_textures(void)
 				}
 				if (objp->rtype.pobj_info.tmap_override != -1)
 				{
-					auto &t = Textures[objp->rtype.pobj_info.tmap_override];
+					const auto t = Textures[objp->rtype.pobj_info.tmap_override];
 					PIGGY_PAGE_IN(t);
-					ogl_loadbmtexture(GameBitmaps[t.index], 1);
+					ogl_loadbmtexture(GameBitmaps[t], 1);
 				}
 				else
 					ogl_cache_polymodel_textures(objp->rtype.pobj_info.model_num);

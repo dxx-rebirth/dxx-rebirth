@@ -438,37 +438,37 @@ static g3s_lrgb compute_light_emission(const d_robot_info_array &Robot_info, d_l
 				}
 				else
 				{
-					t_idx_s = ObjBitmaps[ObjBitmapPtrs[po->first_texture]].index;
+					t_idx_s = underlying_value(ObjBitmaps[ObjBitmapPtrs[po->first_texture]]);
 					t_idx_e = t_idx_s + po->n_textures - 1;
 				}
 				break;
 			}
 			case RT_LASER:
 			{
-				t_idx_s = t_idx_e = Weapon_info[get_weapon_id(objp)].bitmap.index;
+				t_idx_s = t_idx_e = underlying_value(Weapon_info[get_weapon_id(objp)].bitmap);
 				break;
 			}
 			case RT_POWERUP:
 			{
 				auto &v = Vclip[objp.rtype.vclip_info.vclip_num];
 				auto &f = v.frames;
-				t_idx_s = f[0].index;
-				t_idx_e = f[v.num_frames - 1].index;
+				t_idx_s = underlying_value(f[0]);
+				t_idx_e = underlying_value(f[v.num_frames - 1]);
 				break;
 			}
 			case RT_WEAPON_VCLIP:
 			{
 				auto &v = Vclip[Weapon_info[get_weapon_id(objp)].weapon_vclip];
 				auto &f = v.frames;
-				t_idx_s = f[0].index;
-				t_idx_e = f[v.num_frames - 1].index;
+				t_idx_s = underlying_value(f[0]);
+				t_idx_e = underlying_value(f[v.num_frames - 1]);
 				break;
 			}
 			default:
 			{
 				const auto &vc = Vclip[objp.id];
-				t_idx_s = vc.frames[0].index;
-				t_idx_e = vc.frames[vc.num_frames-1].index;
+				t_idx_s = underlying_value(vc.frames[0]);
+				t_idx_e = underlying_value(vc.frames[vc.num_frames - 1]);
 				break;
 			}
 		}
@@ -478,9 +478,9 @@ static g3s_lrgb compute_light_emission(const d_robot_info_array &Robot_info, d_l
 			obj_color = {};
 			for (const uint16_t i : xrange(t_idx_s, t_idx_e + 1))
 			{
-				grs_bitmap *bm = &GameBitmaps[i];
 				const bitmap_index bi{i};
 				PIGGY_PAGE_IN(bi);
+				grs_bitmap *const bm = &GameBitmaps[bi];
 				obj_color.r += bm->avg_color_rgb[0];
 				obj_color.g += bm->avg_color_rgb[1];
 				obj_color.b += bm->avg_color_rgb[2];

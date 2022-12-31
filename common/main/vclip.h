@@ -89,7 +89,7 @@ void vclip_write(PHYSFS_File *fp, const vclip &vc);
 
 /* Defer expansion to source file so that serial.h not needed here */
 #define DEFINE_VCLIP_SERIAL_UDT()	\
-	DEFINE_SERIAL_UDT_TO_MESSAGE(bitmap_index, bi, (bi.index));	\
+	/* DEFINE_SERIAL_UDT_TO_MESSAGE(bitmap_index, bi, (bi.index)); */	\
 	DEFINE_SERIAL_UDT_TO_MESSAGE(vclip, vc, (vc.play_time, vc.num_frames, vc.frame_time, vc.flags, serial::pad<3>(), vc.sound_num, vc.frames, vc.light_value));	\
 	ASSERT_SERIAL_UDT_MESSAGE_SIZE(vclip, 82);
 #endif

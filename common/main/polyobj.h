@@ -25,11 +25,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include "fwd-piggy.h"
 #include "vecmat.h"
 #include "3d.h"
-
-struct bitmap_index;
-
 #include <cstddef>
 #include <cstdint>
 #include <memory>

@@ -612,9 +612,9 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 				if (framenum >= wa.num_frames)
 					framenum=0;
 				const auto frame = wa.frames[framenum];
-				auto &texture = Textures[frame];
+				const auto texture = Textures[frame];
 				PIGGY_PAGE_IN(texture);
-				gr_ubitmap(*grd_curcanv, GameBitmaps[texture.index]);
+				gr_ubitmap(*grd_curcanv, GameBitmaps[texture]);
 			} else {
 				if (type == WALL_OPEN)
 					gr_clear_canvas(*grd_curcanv, CBLACK);
@@ -624,9 +624,9 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 					if (curside.tmap_num2 != texture2_value::None)
 						gr_ubitmap(*grd_curcanv, texmerge_get_cached_bitmap(tmap_num, curside.tmap_num2));
 					else	{
-						auto &texture1 = Textures[get_texture_index(tmap_num)];
+						const auto texture1 = Textures[get_texture_index(tmap_num)];
 						PIGGY_PAGE_IN(texture1);
-						gr_ubitmap(*grd_curcanv, GameBitmaps[texture1.index]);
+						gr_ubitmap(*grd_curcanv, GameBitmaps[texture1]);
 					}
 				}
 			}

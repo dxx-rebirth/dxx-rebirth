@@ -36,6 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "powerup.h"
 #include "fwd-object.h"
+#include "fwd-piggy.h"
 #include "fwd-robot.h"
 #include "fwd-segment.h"
 #include "fwd-wall.h"

@@ -5429,10 +5429,10 @@ namespace {
 
 class hoard_resources_type
 {
-	static constexpr auto invalid_bm_idx = std::integral_constant<int, -1>{};
+	static constexpr std::integral_constant<bitmap_index, bitmap_index{UINT16_MAX}> invalid_bm_idx{};
 	static constexpr auto invalid_snd_idx = std::integral_constant<unsigned, ~0u>{};
 public:
-	int bm_idx = invalid_bm_idx;
+	bitmap_index bm_idx = invalid_bm_idx;
 	unsigned snd_idx = invalid_snd_idx;
 	void reset();
 	~hoard_resources_type()
@@ -5482,7 +5482,8 @@ void init_hoard_data(d_vclip_array &Vclip)
 	palette_array_t palette;
 	uint8_t *bitmap_data1;
 	int save_pos;
-	int bitmap_num = hoard_resources.bm_idx = Num_bitmap_files;
+	uint16_t bitmap_num = Num_bitmap_files;
+	hoard_resources.bm_idx = bitmap_index{bitmap_num};
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 
 	auto &&[ifile, physfserr] = PHYSFSX_openReadBuffered("hoard.ham");
@@ -5511,9 +5512,10 @@ void init_hoard_data(d_vclip_array &Vclip)
 	Vclip[orb_vclip].light_value = F1_0;
 	range_for (auto &i, partial_range(Vclip[orb_vclip].frames, n_orb_frames))
 	{
-		i.index = bitmap_num;
-		gr_init_bitmap(GameBitmaps[bitmap_num],bm_mode::linear,0,0,orb_w,orb_h,orb_w,bitmap_data1);
-		gr_set_transparent(GameBitmaps[bitmap_num], 1);
+		const bitmap_index bi{bitmap_num};
+		i = bi;
+		gr_init_bitmap(GameBitmaps[bi], bm_mode::linear, 0, 0, orb_w, orb_h, orb_w, bitmap_data1);
+		gr_set_transparent(GameBitmaps[bi], 1);
 		bitmap_data1 += orb_w*orb_h;
 		bitmap_num++;
 		Assert(bitmap_num < MAX_BITMAP_FILES);
@@ -5539,8 +5541,9 @@ void init_hoard_data(d_vclip_array &Vclip)
 	Assert(NumTextures < MAX_TEXTURES);
 	range_for (auto &i, partial_range(Effects[goal_eclip].vc.frames, n_goal_frames))
 	{
-		i.index = bitmap_num;
-		gr_init_bitmap(GameBitmaps[bitmap_num],bm_mode::linear,0,0,64,64,64,bitmap_data1);
+		const bitmap_index bi{bitmap_num};
+		i = bi;
+		gr_init_bitmap(GameBitmaps[bi], bm_mode::linear, 0, 0, 64, 64, 64, bitmap_data1);
 		bitmap_data1 += 64*64;
 		bitmap_num++;
 		Assert(bitmap_num < MAX_BITMAP_FILES);
@@ -5550,7 +5553,7 @@ void init_hoard_data(d_vclip_array &Vclip)
 	PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
 	range_for (auto &i, partial_const_range(Vclip[orb_vclip].frames, n_orb_frames))
 	{
-		grs_bitmap *bm = &GameBitmaps[i.index];
+		grs_bitmap *const bm = &GameBitmaps[i];
 		PHYSFS_read(ifile,bm->get_bitmap_data(),1,orb_w*orb_h);
 		gr_remap_bitmap_good(*bm, palette, 255, -1);
 	}
@@ -5560,7 +5563,7 @@ void init_hoard_data(d_vclip_array &Vclip)
 	PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
 	range_for (auto &i, partial_const_range(Effects[goal_eclip].vc.frames, n_goal_frames))
 	{
-		grs_bitmap *bm = &GameBitmaps[i.index];
+		grs_bitmap *const bm = &GameBitmaps[i];
 		PHYSFS_read(ifile,bm->get_bitmap_data(),1,64*64);
 		gr_remap_bitmap_good(*bm, palette, 255, -1);
 	}

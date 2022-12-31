@@ -562,7 +562,7 @@ static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, p
 				const auto ptr = ObjBitmapPtrs[pm->first_texture + i];
 				const auto &bmp = ObjBitmaps[ptr];
 				texture_list_index[i] = bmp;
-				texture_list[i] = &GameBitmaps[bmp.index];
+				texture_list[i] = &GameBitmaps[bmp];
 			}
 
 			// Make sure the textures for this object are paged in...

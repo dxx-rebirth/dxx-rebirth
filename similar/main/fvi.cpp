@@ -1214,7 +1214,7 @@ int check_trans_wall(const vms_vector &pnt, const vcsegptridx_t seg, const siden
 		: ( [tmap_num]() -> const grs_bitmap & {
 			auto &texture1 = Textures[get_texture_index(tmap_num)];
 			PIGGY_PAGE_IN(texture1);
-			return GameBitmaps[texture1.index];
+			return GameBitmaps[texture1];
 		} () );
 	const auto bm = rle_expand_texture(rbm);
 

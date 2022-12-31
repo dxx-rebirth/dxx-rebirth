@@ -19,8 +19,6 @@
 #include "polyobj.h"
 #include <array>
 
-struct bitmap_index;
-
 namespace dcx {
 
 // Movement types

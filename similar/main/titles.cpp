@@ -1104,7 +1104,6 @@ static void flash_cursor(grs_canvas &canvas, const grs_font &cv_font, briefing *
 //-----------------------------------------------------------------------------
 static void show_animated_bitmap(grs_canvas &canvas, briefing *br)
 {
-	grs_bitmap	*bitmap_ptr;
 #if DXX_USE_OGL
 	float scale = 1.0;
 
@@ -1118,7 +1117,7 @@ static void show_animated_bitmap(grs_canvas &canvas, briefing *br)
 	if (br->door_div_count) {
 		if (br->bitmap_name[0] != 0) {
 			const auto bi = piggy_find_bitmap(br->bitmap_name);
-			bitmap_ptr = &GameBitmaps[bi.index];
+			grs_bitmap *const bitmap_ptr = &GameBitmaps[bi];
 			PIGGY_PAGE_IN( bi );
 #if DXX_USE_OGL
 			ogl_ubitmapm_cs(canvas, rescale_x(canvas.cv_bitmap, 220), rescale_y(canvas.cv_bitmap, 45), bitmap_ptr->bm_w * scale, bitmap_ptr->bm_h * scale, *bitmap_ptr, 255);
@@ -1190,7 +1189,7 @@ static void show_animated_bitmap(grs_canvas &canvas, briefing *br)
 		}
 
 		const auto bi = piggy_find_bitmap(br->bitmap_name);
-		bitmap_ptr = &GameBitmaps[bi.index];
+		grs_bitmap *const bitmap_ptr = &GameBitmaps[bi];
 		PIGGY_PAGE_IN( bi );
 #if DXX_USE_OGL
 		ogl_ubitmapm_cs(subcanvas, 0, 0, bitmap_ptr->bm_w*scale, bitmap_ptr->bm_h*scale, *bitmap_ptr, 255);

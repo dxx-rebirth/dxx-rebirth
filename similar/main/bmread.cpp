@@ -306,7 +306,7 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 #if defined(DXX_BUILD_DESCENT_I)
 		bmp[0] = piggy_register_bitmap(bogus_bitmap, "bogus", 0);
 #elif defined(DXX_BUILD_DESCENT_II)
-		bmp[0].index = 0;		//index of bogus bitmap==0 (I think)		//&bogus_bitmap;
+		bmp[0] = {};		//index of bogus bitmap==0 (I think)		//&bogus_bitmap;
 #endif
 		*nframes = 1;
 		return;
@@ -330,7 +330,7 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 		const auto len = snprintf(tempname.data(), tempname.size(), "%.*s#%d", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start, i);
 #endif
 		const auto bi = piggy_find_bitmap(std::span<const char>(tempname.data(), len));
-		if ( !bi.index )
+		if (bi == bitmap_index{})
 			break;
 		bmp[i] = bi;
 	}
@@ -793,7 +793,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 	LevelUniqueTmapInfoState.Num_tmaps = tmap_count;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	Textures[NumTextures++].index = 0;		//entry for bogus tmap
+	Textures[NumTextures++] = {};		//entry for bogus tmap
 	InfoFile.reset();
 #endif
 	assert(LevelSharedRobotInfoState.N_robot_types == Num_robot_ais);		//should be one ai info per robot
@@ -839,7 +839,7 @@ void verify_textures()
 	const auto Num_tmaps = LevelUniqueTmapInfoState.Num_tmaps;
 	for (uint_fast32_t i = 0; i < Num_tmaps; ++i)
 	{
-		bmp = &GameBitmaps[Textures[i].index];
+		bmp = &GameBitmaps[Textures[i]];
 		if ( (bmp->bm_w!=64)||(bmp->bm_h!=64)||(bmp->bm_rowsize!=64) )	{
 			j++;
 		}
@@ -851,8 +851,9 @@ void verify_textures()
 	for (uint_fast32_t i = 0; i < Num_effects; ++i)
 		if (const auto changing_object_texture = Effects[i].changing_object_texture; changing_object_texture != object_bitmap_index::None)
 		{
-			const auto &o = ObjBitmaps[changing_object_texture].index;
-			if (GameBitmaps[o].bm_w != 64 || GameBitmaps[o].bm_h != 64)
+			const auto o = ObjBitmaps[changing_object_texture];
+			auto &gbo = GameBitmaps[o];
+			if (gbo.bm_w != 64 || gbo.bm_h != 64)
 				Error("Effect %" PRIuFAST32 " is used on object, but is not 64x64",i);
 		}
 #endif
@@ -931,7 +932,7 @@ static void bm_read_eclip(int skip)
 			Assert(texture_count < MAX_TEXTURES);
 			NumTextures = texture_count;
 		}
-		else if (Textures[i].index == 0)		//was found, but registered out
+		else if (Textures[i] == bitmap_index{})		//was found, but registered out
 			Textures[i] = bm_load_sub(skip, dest_bm);
 		dest_bm_num = i;
 	}
@@ -947,7 +948,7 @@ static void bm_read_eclip(int skip)
 
 		Assert(clip_count < frames);
 		Effects[clip_num].vc.frames[clip_count] = bitmap;
-		set_lighting_flag(GameBitmaps[bitmap.index]);
+		set_lighting_flag(GameBitmaps[bitmap]);
 
 		Assert(!obj_eclip);		//obj eclips for non-abm files not supported!
 		Assert(crit_flag==0);
@@ -976,7 +977,7 @@ static void bm_read_eclip(int skip)
 		Effects[clip_num].vc.frame_time = Effects[clip_num].vc.play_time/Effects[clip_num].vc.num_frames;
 
 		clip_count = 0;
-		set_lighting_flag(GameBitmaps[bm[clip_count].index]);
+		set_lighting_flag(GameBitmaps[bm[clip_count]]);
 		Effects[clip_num].vc.frames[clip_count] = bm[clip_count];
 
 		if (!obj_eclip && !crit_flag) {
@@ -1005,7 +1006,7 @@ static void bm_read_eclip(int skip)
 		//if for an object, Effects_bm_ptrs set in object load
 
 		for(clip_count=1;clip_count < Effects[clip_num].vc.num_frames; clip_count++) {
-			set_lighting_flag(GameBitmaps[bm[clip_count].index]);
+			set_lighting_flag(GameBitmaps[bm[clip_count]]);
 			Effects[clip_num].vc.frames[clip_count] = bm[clip_count];
 		}
 
@@ -1130,7 +1131,7 @@ static void bm_read_wclip(int skip)
 		wa.open_sound = wall_open_sound;
 		wa.close_sound = wall_close_sound;
 		Textures[texture_count] = bitmap;
-		set_lighting_flag(GameBitmaps[bitmap.index]);
+		set_lighting_flag(GameBitmaps[bitmap]);
 		set_texture_name( arg );
 		Assert(texture_count < MAX_TEXTURES);
 		texture_count++;
@@ -1157,11 +1158,11 @@ static void bm_read_wclip(int skip)
 
 		if (clip_num >= Num_wall_anims) Num_wall_anims = clip_num+1;
 
-		set_lighting_flag(GameBitmaps[bm[clip_count].index]);
+		set_lighting_flag(GameBitmaps[bm[clip_count]]);
 
 		for (clip_count=0;clip_count < wa.num_frames; clip_count++)	{
 			Textures[texture_count] = bm[clip_count];
-			set_lighting_flag(GameBitmaps[bm[clip_count].index]);
+			set_lighting_flag(GameBitmaps[bm[clip_count]]);
 			wa.frames[clip_count] = texture_count;
 			REMOVE_DOTS(arg);
 			snprintf(&TmapInfo[texture_count].filename[0u], TmapInfo[texture_count].filename.size(), "%s#%d", arg, clip_count);
@@ -1194,7 +1195,7 @@ static void bm_read_vclip(d_vclip_array &Vclip, int skip)
 		Vclip[clip_num].frame_time = fl2f(play_time)/frames;
 		Vclip[clip_num].light_value = fl2f(vlighting);
 		Vclip[clip_num].sound_num = sound_num;
-		set_lighting_flag(GameBitmaps[bi.index]);
+		set_lighting_flag(GameBitmaps[bi]);
 		Assert(clip_count < frames);
 		Vclip[clip_num].frames[clip_count++] = bi;
 		if (rod_flag) {
@@ -1218,10 +1219,10 @@ static void bm_read_vclip(d_vclip_array &Vclip, int skip)
 		Vclip[clip_num].frame_time = fl2f(play_time)/Vclip[clip_num].num_frames;
 		Vclip[clip_num].light_value = fl2f(vlighting);
 		Vclip[clip_num].sound_num = sound_num;
-		set_lighting_flag(GameBitmaps[bm[clip_count].index]);
+		set_lighting_flag(GameBitmaps[bm[clip_count]]);
 
 		for (clip_count=0;clip_count < Vclip[clip_num].num_frames; clip_count++) {
-			set_lighting_flag(GameBitmaps[bm[clip_count].index]);
+			set_lighting_flag(GameBitmaps[bm[clip_count]]);
 			Vclip[clip_num].frames[clip_count] = bm[clip_count];
 		}
 	}
@@ -1428,7 +1429,8 @@ static grs_bitmap *load_polymodel_bitmap(int skip, const char *name)
 		auto &ob = ObjBitmaps[oi];
 		ob = loaded_value;
 #if defined(DXX_BUILD_DESCENT_II)
-		if (GameBitmaps[ob.index].bm_w != 64 || GameBitmaps[ob.index].bm_h != 64)
+		auto &gbo = GameBitmaps[ob];
+		if (gbo.bm_w != 64 || gbo.bm_h != 64)
 			Error("Bitmap <%s> is not 64x64",name);
 #endif
 		ObjBitmapPtrs[N_ObjBitmapPtrs++] = oi;
@@ -1437,7 +1439,7 @@ static grs_bitmap *load_polymodel_bitmap(int skip, const char *name)
 		assert(N_ObjBitmaps < ObjBitmaps.size());
 		assert(N_ObjBitmapPtrs < ObjBitmapPtrs.size());
 #endif
-		return &GameBitmaps[ob.index];
+		return &GameBitmaps[ob];
 	}
 }
 
@@ -2261,9 +2263,9 @@ void bm_read_weapon(int skip, int unused_flag)
 
 	Weapon_info[n].po_len_to_width_ratio = F1_0*10;
 
-	Weapon_info[n].picture.index = 0;
+	Weapon_info[n].picture = {};
 #if defined(DXX_BUILD_DESCENT_II)
-	Weapon_info[n].hires_picture.index = 0;
+	Weapon_info[n].hires_picture = {};
 #endif
 	Weapon_info[n].homing_flag = 0;
 
