@@ -52,7 +52,7 @@ public:
 		b(b), e(e)
 	{
 	}
-	subrange(auto &r) :
+	subrange(auto &&r) :
 		b(std::ranges::begin(r)), e(std::ranges::end(r))
 	{
 	}
