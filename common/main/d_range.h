@@ -143,6 +143,10 @@ public:
 			m_idx(i)
 	{
 	}
+	difference_type operator-(const xrange_iterator &i) const
+	{
+		return m_idx - i.m_idx;
+	}
 	index_type operator*() const
 	{
 		return m_idx;
