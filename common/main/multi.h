@@ -737,7 +737,7 @@ void multi_send_door_open_specific(playernum_t pnum, vcsegidx_t segnum, sidenum_
 void multi_send_wall_status_specific(playernum_t pnum, wallnum_t wallnum, uint8_t type, wall_flags flags, wall_state state);
 void multi_send_light_specific (playernum_t pnum, vcsegptridx_t segnum, sidemask_t val);
 void multi_send_capture_bonus (playernum_t pnum);
-int multi_all_players_alive(const fvcobjptr &, partial_range_t<const player *>);
+int multi_all_players_alive(const fvcobjptr &, ranges::subrange<const player *>);
 void multi_send_seismic(fix);
 void multi_send_drop_blobs(playernum_t);
 void multi_send_sound_function (char,char);

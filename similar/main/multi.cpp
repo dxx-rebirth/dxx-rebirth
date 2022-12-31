@@ -3711,7 +3711,7 @@ namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static
 #endif
-int multi_all_players_alive(const fvcobjptr &vcobjptr, const partial_range_t<const player *> player_range)
+int multi_all_players_alive(const fvcobjptr &vcobjptr, const ranges::subrange<const player *> player_range)
 {
 	range_for (auto &plr, player_range)
 	{
