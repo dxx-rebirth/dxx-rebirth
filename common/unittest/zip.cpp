@@ -100,9 +100,37 @@ static_assert(assert_same_type<std::integral_constant<std::size_t, 5>, decltype(
 static_assert(assert_same_type<std::integral_constant<std::size_t, 6>, decltype(d_zip::detail::get_static_size(std::declval<std::array<int, 6> &>()))>::value);
 
 template <typename T>
+requires(std::ranges::range<T>)
+struct check_is_range : std::true_type
+{
+};
+
+template <typename T>
 requires(std::ranges::borrowed_range<T>)
 struct check_is_borrowed_range : std::true_type
 {
 };
 
 static_assert(check_is_borrowed_range<decltype(zip(std::declval<int (&)[1]>()))>::value);
+
+struct difference_range
+{
+	struct iterator {
+		int *operator *() const;
+		iterator &operator++();
+		iterator operator++(int);
+		constexpr auto operator<=>(const iterator &) const = default;
+		using difference_type = short;
+		using value_type = int;
+		using pointer = value_type *;
+		using reference = value_type &;
+		using iterator_category = std::forward_iterator_tag;
+	};
+	struct index_type {};
+	iterator begin();
+	iterator end();
+};
+
+static_assert(check_is_range<decltype(std::declval<difference_range &>())>::value);
+static_assert(check_is_borrowed_range<decltype(std::declval<difference_range &>())>::value);
+static_assert(assert_same_type<difference_range::iterator::difference_type, decltype(zip(std::declval<difference_range &>()).begin())::difference_type>::value);

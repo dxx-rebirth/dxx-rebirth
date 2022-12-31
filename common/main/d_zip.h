@@ -121,6 +121,11 @@ index_type range_index_type(std::tuple<range_type...> *);
 
  */
 template <typename range_index_type, typename range0_iterator_type, typename... rangeN_iterator_type>
+requires(
+	requires {
+		typename std::iterator_traits<range0_iterator_type>::difference_type;
+	}
+)
 class zip_iterator : std::tuple<range0_iterator_type, rangeN_iterator_type...>
 {
 	using base_type = std::tuple<range0_iterator_type, rangeN_iterator_type...>;
