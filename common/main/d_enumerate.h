@@ -112,11 +112,10 @@ public:
 	}
 };
 
-template <typename range_iterator_type, typename range_index_type>
-class enumerate : ranges::subrange<range_iterator_type>
+template <typename range_iterator_type, typename range_sentinel_type, typename range_index_type>
+class enumerate : ranges::subrange<range_iterator_type, range_sentinel_type>
 {
-	using base_type = ranges::subrange<range_iterator_type>;
-	using range_sentinel_type = decltype(std::declval<base_type &>().end());
+	using base_type = ranges::subrange<range_iterator_type, range_sentinel_type>;
 	using iterator_dereference_type = decltype(*std::declval<range_iterator_type>());
 	using enumerated_iterator_type = enumerated_iterator<
 		range_index_type,
@@ -148,9 +147,9 @@ public:
 	}
 };
 
-template <typename range_iterator_type, typename index_type>
-inline constexpr bool std::ranges::enable_borrowed_range<enumerate<range_iterator_type, index_type>> = true;
+template <typename range_iterator_type, typename range_sentinel_type, typename index_type>
+inline constexpr bool std::ranges::enable_borrowed_range<enumerate<range_iterator_type, range_sentinel_type, index_type>> = true;
 
 template <typename range_type, typename index_type = decltype(d_enumerate::detail::array_index_type(static_cast<typename std::remove_reference<range_type>::type *>(nullptr)))>
 requires(std::ranges::borrowed_range<range_type>)
-enumerate(range_type &&r, index_type start = {/* value ignored for deduction guide */}) -> enumerate</* range_iterator_type = */ decltype(std::ranges::begin(std::declval<range_type &>())), index_type>;
+enumerate(range_type &&r, index_type start = {/* value ignored for deduction guide */}) -> enumerate</* range_iterator_type = */ decltype(std::ranges::begin(std::declval<range_type &>())), /* range_sentinel_type = */ decltype(std::ranges::end(std::declval<range_type &>())), index_type>;
