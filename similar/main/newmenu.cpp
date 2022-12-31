@@ -127,7 +127,7 @@ void newmenu_free_background()	{
 	nm_background1.reset();
 }
 
-newmenu_layout::adjusted_citem newmenu_layout::adjusted_citem::create(const partial_range_t<newmenu_item *> items, int citem)
+newmenu_layout::adjusted_citem newmenu_layout::adjusted_citem::create(const ranges::subrange<newmenu_item *> items, int citem)
 {
 	if (citem < 0)
 		citem = 0;
@@ -523,7 +523,7 @@ static void strip_end_whitespace( char * text )
 
 }
 
-int newmenu_do2(const menu_title title, const menu_subtitle subtitle, const partial_range_t<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const menu_filename filename)
+int newmenu_do2(const menu_title title, const menu_subtitle subtitle, const ranges::subrange<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const menu_filename filename)
 {
 	if (items.size() < 1)
 		return -1;

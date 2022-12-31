@@ -44,6 +44,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef dsx
 #include "gamefont.h"
 #include "window.h"
+#include "backports-ranges.h"
 
 namespace dcx {
 
@@ -298,10 +299,10 @@ struct newmenu_layout
 {
 	struct adjusted_citem
 	{
-		const partial_range_t<newmenu_item *> items;
+		const ranges::subrange<newmenu_item *> items;
 		const int citem;
 		const uint8_t all_text;
-		static adjusted_citem create(partial_range_t<newmenu_item *> items, int citem);
+		static adjusted_citem create(ranges::subrange<newmenu_item *> items, int citem);
 	};
 	int             x,y,w,h;
 	short			swidth, sheight;
@@ -321,7 +322,7 @@ struct newmenu_layout
 	const uint8_t max_displayable;
 	const draw_box_flag draw_box;
 	uint8_t mouse_state;
-	const partial_range_t<newmenu_item *> items;
+	const ranges::subrange<newmenu_item *> items;
 	int	scroll_offset = 0;
 	newmenu_layout(const menu_title title, const menu_subtitle subtitle, const menu_filename filename, grs_canvas &parent_canvas, const tiny_mode_flag tiny_mode, const tab_processing_flag tabs_flag, const adjusted_citem citem_init, const draw_box_flag draw_box) :
 		citem(citem_init.citem),
@@ -443,7 +444,7 @@ constexpr const unused_newmenu_userdata_t *unused_newmenu_userdata = nullptr;
 //should be called whenever the palette changes
 void newmenu_free_background();
 
-int newmenu_do2(menu_title title, menu_subtitle subtitle, partial_range_t<newmenu_item *> items, newmenu_subfunction subfunction, void *userdata, int citem, menu_filename filename);
+int newmenu_do2(menu_title title, menu_subtitle subtitle, ranges::subrange<newmenu_item *> items, newmenu_subfunction subfunction, void *userdata, int citem, menu_filename filename);
 
 // Pass an array of newmenu_items and it processes the menu. It will
 // return a -1 if Esc is pressed, otherwise, it returns the index of
@@ -455,13 +456,13 @@ int newmenu_do2(menu_title title, menu_subtitle subtitle, partial_range_t<newmen
 // either/both of these if you don't want them.
 // Same as above, only you can pass through what background bitmap to use.
 template <typename T>
-int newmenu_do2(const menu_title title, const menu_subtitle subtitle, partial_range_t<newmenu_item *> items, const newmenu_subfunction_t<T> subfunction, T *const userdata, const int citem = 0, const menu_filename filename = {})
+int newmenu_do2(const menu_title title, const menu_subtitle subtitle, ranges::subrange<newmenu_item *> items, const newmenu_subfunction_t<T> subfunction, T *const userdata, const int citem = 0, const menu_filename filename = {})
 {
 	return newmenu_do2(title, subtitle, std::move(items), reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(userdata), citem, filename);
 }
 
 template <typename T>
-int newmenu_do2(const menu_title title, const menu_subtitle subtitle, partial_range_t<newmenu_item *> items, const newmenu_subfunction_t<const T> subfunction, const T *const userdata, const int citem = 0, const menu_filename filename = {})
+int newmenu_do2(const menu_title title, const menu_subtitle subtitle, ranges::subrange<newmenu_item *> items, const newmenu_subfunction_t<const T> subfunction, const T *const userdata, const int citem = 0, const menu_filename filename = {})
 {
 	return newmenu_do2(title, subtitle, std::move(items), reinterpret_cast<newmenu_subfunction>(subfunction), static_cast<void *>(const_cast<T *>(userdata)), citem, filename);
 }

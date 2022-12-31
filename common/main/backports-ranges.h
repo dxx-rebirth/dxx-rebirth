@@ -58,6 +58,10 @@ public:
 	}
 	iterator begin() const { return b; }
 	sentinel end() const { return e; }
+	auto size() const
+	{
+		return std::distance(b, e);
+	}
 };
 
 subrange(auto &r) -> subrange<decltype(std::ranges::begin(r)), decltype(std::ranges::end(r))>;
