@@ -8,6 +8,7 @@
 
 #include <type_traits>
 #include <iterator>
+#include <ranges>
 #include <utility>
 
 /* These could be empty tag types, but defining them from
@@ -220,7 +221,6 @@ protected:
 public:
 	using end_type::value;
 	using end_type::operator typename end_type::value_type;
-	using range_owns_iterated_storage = std::false_type;
 	/* If the endpoints are both integral constants, then they will have a
 	 * default constructor that this explicitly defaulted default constructor
 	 * can call.  They will have no non-static data members, so their default
@@ -260,6 +260,9 @@ public:
 		return *this;
 	}
 };
+
+template <typename index_type, typename B, typename E, typename step_type>
+inline constexpr bool std::ranges::enable_borrowed_range<xrange<index_type, B, E, step_type>> = true;
 
 /* Disallow building an `xrange` with a reference to mutable `e` as the
  * end term.  When `e` is mutable, the loop might change `e` during

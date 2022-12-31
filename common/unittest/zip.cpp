@@ -76,7 +76,7 @@ struct assert_index_type : std::true_type
 	static_assert(std::is_same<Expected, index_type>::value);
 };
 
-static_assert(assert_index_type<void, decltype(zip(std::declval<std::array<int, 1>>(), std::declval<std::array<float, 1>>()))>::value);
+static_assert(assert_index_type<void, decltype(zip(std::declval<std::array<int, 1> &>(), std::declval<std::array<float, 1> &>()))>::value);
 
 template <typename T>
 struct custom_index_type : std::array<int, 1>
@@ -98,3 +98,11 @@ static_assert(assert_same_type<std::nullptr_t, decltype(d_zip::detail::get_stati
 static_assert(assert_same_type<std::nullptr_t, decltype(d_zip::detail::get_static_size(std::declval<std::vector<int>::iterator>()))>::value);
 static_assert(assert_same_type<std::integral_constant<std::size_t, 5>, decltype(d_zip::detail::get_static_size(std::declval<int (&)[5]>()))>::value);
 static_assert(assert_same_type<std::integral_constant<std::size_t, 6>, decltype(d_zip::detail::get_static_size(std::declval<std::array<int, 6> &>()))>::value);
+
+template <typename T>
+requires(std::ranges::borrowed_range<T>)
+struct check_is_borrowed_range : std::true_type
+{
+};
+
+static_assert(check_is_borrowed_range<decltype(zip(std::declval<int (&)[1]>()))>::value);

@@ -9,7 +9,6 @@
 #include <iterator>
 #include "dxxsconf.h"
 #include "partial_range.h"
-#include "ephemeral_range.h"
 #include <tuple>
 #include <type_traits>
 
@@ -126,18 +125,17 @@ class enumerate : partial_range_t<range_iterator_type, range_index_type>
 		d_enumerate::detail::adjust_iterator_dereference_type<range_index_type, typename std::remove_cv<iterator_dereference_type>::type>>;
 	const range_index_type m_idx;
 public:
-	using range_owns_iterated_storage = std::false_type;
 	using typename base_type::index_type;
 	template <typename range_type>
-		enumerate(range_type &&t, const index_type i = index_type{}) :
-			base_type(std::forward<range_type>(t)), m_idx(i)
-	{
 		/* Block using `enumerate` on an ephemeral range, since the storage
 		 * owned by the range must exist until the `enumerate` object is
 		 * fully consumed.  If `range_type &&` is an ephemeral range, then its
 		 * storage may cease to exist after this constructor returns.
 		 */
-		static_assert(!any_ephemeral_range<range_type &&>::value, "cannot enumerate storage of ephemeral ranges");
+		requires(std::ranges::borrowed_range<range_type>)
+		enumerate(range_type &&t, const index_type i = index_type{}) :
+			base_type(std::forward<range_type>(t)), m_idx(i)
+	{
 		static_assert(std::is_rvalue_reference<range_type &&>::value || !std::is_rvalue_reference<iterator_dereference_type>::value, "lvalue range must not produce rvalue reference enumerated_value");
 	}
 	enumerated_iterator_type begin() const
@@ -150,5 +148,9 @@ public:
 	}
 };
 
+template <typename range_iterator_type, typename index_type>
+inline constexpr bool std::ranges::enable_borrowed_range<enumerate<range_iterator_type, index_type>> = true;
+
 template <typename range_type, typename index_type = decltype(d_enumerate::detail::array_index_type(static_cast<typename std::remove_reference<range_type>::type *>(nullptr)))>
-enumerate(range_type &&r, index_type start = {/* value ignored for deduction guide */}) -> enumerate</*range_iterator_type = */ decltype(std::ranges::begin(std::declval<range_type &>())), index_type>;
+requires(std::ranges::borrowed_range<range_type>)
+enumerate(range_type &&r, index_type start = {/* value ignored for deduction guide */}) -> enumerate</* range_iterator_type = */ decltype(std::ranges::begin(std::declval<range_type &>())), index_type>;

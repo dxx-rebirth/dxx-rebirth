@@ -104,7 +104,6 @@ class partial_range_t
 {
 public:
 	static_assert(!std::is_reference<range_iterator>::value);
-	using range_owns_iterated_storage = std::false_type;
 	using iterator = range_iterator;
 	using index_type = range_index_type;
 	/* When using the unminimized type, forward declare a structure.
@@ -129,16 +128,13 @@ public:
 	partial_range_t(partial_range_t &&) = default;
 	partial_range_t &operator=(const partial_range_t &) = default;
 	template <typename T>
-		partial_range_t(T &&t) :
-			m_begin(std::ranges::begin(t)), m_end(std::ranges::end(t))
-	{
 		/* If `T &&`, after reference collapsing, is an lvalue
 		 * reference, then the object referenced by `t` will remain in
 		 * scope after the statement that called this constructor, and
 		 * there is no need to check whether the object `t` owns the
 		 * iterated range.
 		 *
-		 * Otherwise, if `t` is an rvalue reference, assert that `t` is
+		 * Otherwise, if `t` is an rvalue reference, require that `t` is
 		 * a view onto a range, rather than owning the range.  A `t`
 		 * that owns the storage would leave the iterators dangling.
 		 *
@@ -150,8 +146,10 @@ public:
 		 * and neither can be handled here.  These checks attempt to
 		 * catch obvious mistakes.
 		 */
-		if constexpr (!std::is_lvalue_reference<T &&>::value)
-			static_assert(!T::range_owns_iterated_storage::value, "rvalue reference to range requires that the range is a view, not an owner");
+		requires(std::ranges::borrowed_range<T>)
+		partial_range_t(T &&t) :
+			m_begin(std::ranges::begin(t)), m_end(std::ranges::end(t))
+	{
 	}
 	[[nodiscard]]
 	iterator begin() const { return m_begin; }
@@ -180,6 +178,9 @@ public:
 		return {rbegin(), rend()};
 	}
 };
+
+template <typename range_iterator, typename range_index_type>
+inline constexpr bool std::ranges::enable_borrowed_range<partial_range_t<range_iterator, range_index_type>> = true;
 
 #if DXX_PARTIAL_RANGE_MINIMIZE_ERROR_TYPE
 struct partial_range_error

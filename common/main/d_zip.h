@@ -10,8 +10,8 @@
 #include <tuple>
 #include <type_traits>
 #include "dxxsconf.h"
-#include "ephemeral_range.h"
 #include <utility>
+#include "backports-ranges.h"
 
 namespace d_zip {
 
@@ -194,7 +194,6 @@ class zip : zip_iterator<range_index_type, range0_iterator_type, rangeN_iterator
 {
 	range0_iterator_type m_end;
 public:
-	using range_owns_iterated_storage = std::false_type;
 	using iterator = zip_iterator<range_index_type, range0_iterator_type, rangeN_iterator_type...>;
 	using typename iterator::index_type;
 	template <typename range0, typename... rangeN>
@@ -215,7 +214,6 @@ public:
 					> ...
 				>::value);
 		}
-		static_assert((!any_ephemeral_range<range0 &&, rangeN &&...>::value), "cannot zip storage of ephemeral ranges");
 	}
 	[[nodiscard]]
 	iterator begin() const { return *this; }
@@ -226,5 +224,9 @@ public:
 	}
 };
 
+template <typename range_index_type, typename range0_iterator_type, typename... rangeN_iterator_type>
+inline constexpr bool std::ranges::enable_borrowed_range<zip<range_index_type, range0_iterator_type, rangeN_iterator_type...>> = true;
+
 template <typename range0, typename... rangeN>
+requires(std::ranges::borrowed_range<range0> && ... && std::ranges::borrowed_range<rangeN>)
 zip(range0 &&r0, rangeN &&... rN) -> zip<decltype(d_zip::detail::range_index_type(static_cast<std::tuple<range0, rangeN...> *>(nullptr))), decltype(std::begin(r0)), decltype(std::begin(rN))...>;
