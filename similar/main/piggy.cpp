@@ -2190,7 +2190,7 @@ void bitmap_index_read(PHYSFS_File *fp, bitmap_index &bi)
 /*
  * reads n bitmap_index structs from a PHYSFS_File
  */
-void bitmap_index_read_n(PHYSFS_File *fp, const partial_range_t<bitmap_index *> r)
+void bitmap_index_read_n(PHYSFS_File *fp, const ranges::subrange<bitmap_index *> r)
 {
 	for (auto &bi : r)
 	{

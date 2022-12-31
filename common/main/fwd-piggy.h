@@ -52,6 +52,7 @@ enum class game_sound_offset : int
 struct digi_sound;
 extern digi_sound bogus_sound;
 extern unsigned Num_sound_files;
+struct BitmapFile;
 
 }
 
@@ -72,7 +73,6 @@ extern uint8_t Pigfile_initialized;
 
 // an index into the bitmap collection of the piggy file
 enum class bitmap_index : uint16_t;
-struct BitmapFile;
 
 #if defined(DXX_BUILD_DESCENT_I)
 extern int MacPig;
@@ -135,7 +135,6 @@ namespace dcx {
  * reads a bitmap_index structure from a PHYSFS_File
  */
 void bitmap_index_read(PHYSFS_File *fp, bitmap_index &bi);
-void bitmap_index_read_n(PHYSFS_File *fp, partial_range_t<bitmap_index *> r);
 }
 
 void remove_char( char * s, char c );	// in piggy.c

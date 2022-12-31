@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include "dsx-ns.h"
+#include "backports-ranges.h"
 #include "fwd-inferno.h"
 #include "fwd-piggy.h"
 #include "fwd-robot.h"
@@ -47,10 +48,14 @@ enum class bitmap_index : uint16_t
 	None = UINT16_MAX
 };
 
+namespace dcx {
 struct BitmapFile
 {
 	std::array<char, 13> name;
 };
+
+void bitmap_index_read_n(PHYSFS_File *fp, ranges::subrange<bitmap_index *> r);
+}
 
 #ifdef dsx
 namespace dsx {
