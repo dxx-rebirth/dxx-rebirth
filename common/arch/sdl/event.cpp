@@ -11,6 +11,7 @@
  *
  */
 
+#include <ranges>
 #include <SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,6 +27,7 @@
 #include "joy.h"
 #include "args.h"
 #include "partial_range.h"
+#include "backports-ranges.h"
 
 namespace dcx {
 
@@ -36,7 +38,7 @@ struct event_poll_state
 	uint8_t clean_uniframe = 1;
 	const window *const front_window = window_get_front();
 	window_event_result highest_result = window_event_result::ignored;
-	void process_event_batch(partial_range_t<const SDL_Event *>);
+	void process_event_batch(ranges::subrange<const SDL_Event *>);
 };
 
 }
@@ -115,7 +117,7 @@ window_event_result event_poll()
 	return state.highest_result;
 }
 
-void event_poll_state::process_event_batch(partial_range_t<const SDL_Event *> events)
+void event_poll_state::process_event_batch(const ranges::subrange<const SDL_Event *> events)
 {
 	for (auto &&event : events)
 	{
