@@ -23,6 +23,7 @@
 #include "u_mem.h"
 #include "physfs_list.h"
 
+#include "backports-ranges.h"
 #include "partial_range.h"
 #include <memory>
 
@@ -36,20 +37,12 @@ namespace {
 
 struct m3u_bytes
 {
-	using range_type = partial_range_t<char *>;
-	using ptr_range_type = partial_range_t<char **>;
+	using range_type = ranges::subrange<char *>;
+	using ptr_range_type = ranges::subrange<char **>;
 	using alloc_type = std::unique_ptr<char *[]>;
-	range_type range = {nullptr, nullptr};
-	ptr_range_type ptr_range = {nullptr, nullptr};
+	range_type range{nullptr, nullptr};
+	ptr_range_type ptr_range{nullptr, nullptr};
 	alloc_type alloc;
-	m3u_bytes() = default;
-	m3u_bytes(m3u_bytes &&) = default;
-	m3u_bytes(range_type &&r, ptr_range_type &&p, alloc_type &&b) :
-		range(std::move(r)),
-		ptr_range(std::move(p)),
-		alloc(std::move(b))
-	{
-	}
 };
 
 class FILE_deleter
@@ -179,12 +172,12 @@ static m3u_bytes read_m3u_bytes_from_disk(const char *const cfgpath)
 	const auto p = reinterpret_cast<char *>(list_buf.get() + max_songs);
 	p[length] = '\0';	// make sure the last string is terminated
 	return fread(p, length, 1, fp)
-		? m3u_bytes(
+		? m3u_bytes{
 			unchecked_partial_range(p, length),
 			unchecked_partial_range(list_buf.get(), max_songs),
 			std::move(list_buf)
-		)
-		: m3u_bytes();
+		}
+		: m3u_bytes{};
 }
 
 static int read_m3u(void)
