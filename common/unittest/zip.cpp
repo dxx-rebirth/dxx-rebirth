@@ -71,9 +71,9 @@ BOOST_AUTO_TEST_CASE(zip_xrange)
  * at runtime.
  */
 template <typename Expected, typename zip_type, typename index_type = typename zip_type::index_type>
+requires(std::is_same<Expected, index_type>::value)
 struct assert_index_type : std::true_type
 {
-	static_assert(std::is_same<Expected, index_type>::value);
 };
 
 static_assert(assert_index_type<void, decltype(zip(std::declval<std::array<int, 1> &>(), std::declval<std::array<float, 1> &>()))>::value);
