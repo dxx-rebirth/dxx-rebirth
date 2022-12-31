@@ -189,6 +189,7 @@ struct difference_range
 		using pointer = value_type *;
 		using reference = value_type &;
 		using iterator_category = std::forward_iterator_tag;
+		difference_type operator-(const iterator &) const;
 	};
 	struct index_type {};
 	iterator begin();
