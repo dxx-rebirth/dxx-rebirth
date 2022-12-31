@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <physfs.h>
 
+#include "backports-ranges.h"
 #include "fwd-object.h"
 #include "pack.h"
 #include "fwd-robot.h"
@@ -104,7 +105,7 @@ extern unsigned Num_reactors;
 /*
  * reads n reactor structs from a PHYSFS_File
  */
-void reactor_read_n(PHYSFS_File *fp, partial_range_t<reactor *> r);
+void reactor_read_n(PHYSFS_File *fp, ranges::subrange<reactor *> r);
 #endif
 
 extern std::array<reactor, MAX_REACTORS> Reactors;

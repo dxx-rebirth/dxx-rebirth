@@ -553,7 +553,7 @@ void special_reactor_stuff()
 /*
  * reads n reactor structs from a PHYSFS_File
  */
-void reactor_read_n(PHYSFS_File *fp, partial_range_t<reactor *> r)
+void reactor_read_n(PHYSFS_File *fp, ranges::subrange<reactor *> r)
 {
 	range_for (auto &i, r)
 	{
