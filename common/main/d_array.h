@@ -24,6 +24,16 @@ namespace dcx {
  * Other types for E are not likely to be useful, but are not blocked.
  */
 template <typename T, std::size_t N, typename E>
+/* `std::size_t` is `unsigned` on i686-w64-mingw32, and `unsigned long` on
+ * x86_64-pc-linux-gnu.
+ *
+ * As a result, if `E` is `unsigned`, then i686-w64-mingw32 breaks due to
+ * `operator[](E)` and `operator[](std::size_t)` being the same signature.  If
+ * `E` is `unsigned long`, then x86_64-pc-linux-gnu breaks for the same reason.
+ * Disallow both `unsigned` and `unsigned long`, so that any attempt to use
+ * either for `E` will break everywhere, rather than breaking only some
+ * platforms.
+ */
 requires(!std::is_same<unsigned, E>::value && !std::is_same<unsigned long, E>::value)
 struct enumerated_array : std::array<T, N>
 {
@@ -47,7 +57,9 @@ struct enumerated_array : std::array<T, N>
 	{
 		return this->base_type::operator[](static_cast<std::size_t>(position));
 	}
-	const_reference operator[](std::size_t) const = delete;
+	template <typename I>
+		requires(std::is_integral_v<I>)
+		const_reference operator[](I) const = delete;
 	[[nodiscard]]
 	static constexpr bool valid_index(std::size_t s)
 	{
