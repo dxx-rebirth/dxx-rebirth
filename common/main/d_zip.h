@@ -152,14 +152,6 @@ template <
 	>
 index_type range_index_type(std::tuple<range_type...> *);
 
-template <bool element_selected, typename range_type>
-requires(element_selected)
-decltype(std::ranges::end(std::declval<range_type &&>())) iterator_element_end_type();
-
-template <bool element_selected, typename>
-requires(!element_selected)
-decltype(std::ignore) iterator_element_end_type();
-
 template <typename... T>
 struct zip_sentinel : public std::tuple<T...>
 {
@@ -178,7 +170,7 @@ struct zip_sentinel : public std::tuple<T...>
  */
 template <zip_sequence_length_selector mask, typename... range_type, std::size_t... range_index>
 requires(mask != zip_sequence_length_selector{} && sizeof...(range_index) == sizeof...(range_type))
-zip_sentinel<decltype(iterator_element_end_type<examine_zip_element<mask, range_index>::value, range_type>())...> iterator_end_type(std::tuple<range_type...>, std::index_sequence<range_index...>);
+zip_sentinel<typename std::conditional<examine_zip_element<mask, range_index>::value, decltype(std::ranges::end(std::declval<range_type &&>())), decltype(std::ignore)>::type ...> iterator_end_type(std::tuple<range_type...>, std::index_sequence<range_index...>);
 
 template <typename end_iterator_type, typename range>
 static constexpr auto capture_end_iterator(range &&r)
