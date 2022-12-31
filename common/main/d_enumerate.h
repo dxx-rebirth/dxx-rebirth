@@ -8,7 +8,7 @@
 
 #include <iterator>
 #include "dxxsconf.h"
-#include "partial_range.h"
+#include "backports-ranges.h"
 #include <tuple>
 #include <type_traits>
 
@@ -113,9 +113,9 @@ public:
 };
 
 template <typename range_iterator_type, typename range_index_type>
-class enumerate : partial_range_t<range_iterator_type, range_index_type>
+class enumerate : ranges::subrange<range_iterator_type>
 {
-	using base_type = partial_range_t<range_iterator_type, range_index_type>;
+	using base_type = ranges::subrange<range_iterator_type>;
 	using range_sentinel_type = decltype(std::declval<base_type &>().end());
 	using iterator_dereference_type = decltype(*std::declval<range_iterator_type>());
 	using enumerated_iterator_type = enumerated_iterator<
@@ -125,7 +125,7 @@ class enumerate : partial_range_t<range_iterator_type, range_index_type>
 		d_enumerate::detail::adjust_iterator_dereference_type<range_index_type, typename std::remove_cv<iterator_dereference_type>::type>>;
 	const range_index_type m_idx;
 public:
-	using typename base_type::index_type;
+	using index_type = range_index_type;
 	template <typename range_type>
 		/* Block using `enumerate` on an ephemeral range, since the storage
 		 * owned by the range must exist until the `enumerate` object is

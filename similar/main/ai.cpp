@@ -75,6 +75,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //end addition -MM
 
 #include "compiler-range_for.h"
+#include "partial_range.h"
 #include "segiter.h"
 #include "d_enumerate.h"
 #include "d_levelstate.h"
@@ -2200,7 +2201,7 @@ static const shared_segment *boss_intersects_wall(fvcvertptr &vcvertptr, const o
 {
 	const auto size = boss_objp.size;
 	const auto &&segcenter = compute_segment_center(vcvertptr, segp);
-	const auto &&r = make_range(segp->verts);
+	const auto &&r = ranges::subrange(segp->verts);
 	const auto re = r.end();
 	auto pos = segcenter;
 	for (auto ri = r.begin();; ++ri)

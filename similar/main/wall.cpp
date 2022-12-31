@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_levelstate.h"
 #include "d_range.h"
 #include "compiler-range_for.h"
+#include "partial_range.h"
 #include "segiter.h"
 #include "d_zip.h"
 
@@ -435,7 +436,7 @@ void wall_open_door(const vmsegptridx_t seg, const sidenum_t side)
 	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
 	auto &vmactdoorptr = ActiveDoors.vmptr;
 	if (w->state == wall_state::closing) {		//closing, so reuse door
-		const auto &&r = make_range(vmactdoorptr);
+		const auto &&r = ranges::subrange(vmactdoorptr);
 		const auto &&re = r.end();
 		const auto &&i = ranges::find_if(r.begin(), re, find_active_door_predicate(wall_num));
 		if (i == re)	// likely in demo playback or multiplayer
@@ -548,7 +549,7 @@ void start_wall_cloak(const vmsegptridx_t seg, const sidenum_t side)
 	auto &CloakingWalls = LevelUniqueWallSubsystemState.CloakingWalls;
 	if (w->state == wall_state::decloaking)
 	{	//decloaking, so reuse door
-		const auto &&r = make_range(CloakingWalls.vmptr);
+		const auto &&r = ranges::subrange(CloakingWalls.vmptr);
 		const auto &&re = r.end();
 		const auto &&i = ranges::find_if(r.begin(), re, find_cloaked_wall_predicate(w));
 		if (i == re)
@@ -625,7 +626,7 @@ void start_wall_decloak(const vmsegptridx_t seg, const sidenum_t side)
 
 	auto &CloakingWalls = LevelUniqueWallSubsystemState.CloakingWalls;
 	if (w->state == wall_state::cloaking) {	//cloaking, so reuse door
-		const auto &&r = make_range(CloakingWalls.vmptr);
+		const auto &&r = ranges::subrange(CloakingWalls.vmptr);
 		const auto &&re = r.end();
 		const auto &&i = ranges::find_if(r.begin(), re, find_cloaked_wall_predicate(w));
 		if (i == re)
@@ -798,7 +799,7 @@ void wall_close_door(wall_array &Walls, const vmsegptridx_t seg, const sidenum_t
 	auto &vmactdoorptr = ActiveDoors.vmptr;
 	if (w->state == wall_state::opening)
 	{	//reuse door
-		const auto &&r = make_range(vmactdoorptr);
+		const auto &&r = ranges::subrange(vmactdoorptr);
 		const auto &&re = r.end();
 		const auto &&i = ranges::find_if(r.begin(), re, find_active_door_predicate(wall_num));
 		if (i == re)
