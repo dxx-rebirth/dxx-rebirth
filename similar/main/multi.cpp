@@ -3736,7 +3736,7 @@ const char *multi_common_deny_save_game(const fvcobjptr &vcobjptr, const ranges:
 	return deny_multi_save_game_duplicate_callsign(player_range);
 }
 
-const char *multi_interactive_deny_save_game(const fvcobjptr &vcobjptr, const partial_range_t<const player *> player_range, const d_level_unique_control_center_state &LevelUniqueControlCenterState)
+const char *multi_interactive_deny_save_game(const fvcobjptr &vcobjptr, const ranges::subrange<const player *> player_range, const d_level_unique_control_center_state &LevelUniqueControlCenterState)
 {
 	if (LevelUniqueControlCenterState.Control_center_destroyed)
 		return "Countdown in progress";
