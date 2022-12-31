@@ -2056,7 +2056,7 @@ namespace dcx {
 
 namespace {
 
-static const char *deny_multi_save_game_duplicate_callsign(const partial_range_t<const player *> range)
+static const char *deny_multi_save_game_duplicate_callsign(const ranges::subrange<const player *> range)
 {
 	const auto e = range.end();
 	for (auto i = range.begin(); i != e; ++i)
@@ -3727,7 +3727,7 @@ int multi_all_players_alive(const fvcobjptr &vcobjptr, const partial_range_t<con
 	return (1);
 }
 
-const char *multi_common_deny_save_game(const fvcobjptr &vcobjptr, const partial_range_t<const player *> player_range)
+const char *multi_common_deny_save_game(const fvcobjptr &vcobjptr, const ranges::subrange<const player *> player_range)
 {
 	if (Network_status == network_state::endlevel)
 		return "Level is ending";
