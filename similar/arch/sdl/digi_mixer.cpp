@@ -192,7 +192,7 @@ coeffs_halfband{{
 
 // Fixed-point FIR filtering
 // Not optimal: consider optimization with 1/4, 1/2 band filters, and symmetric kernels
-static auto filter_fir(const unique_span<int16_t> signal_storage, const std::span<const int32_t, FILTER_LEN> coeffs)
+static auto filter_fir(const unique_span<int8_t> signal_storage, const std::span<const int32_t, FILTER_LEN> coeffs)
 {
 	const auto signal{signal_storage.span()};
 	const std::size_t outsize = signal.size();
@@ -221,7 +221,7 @@ static auto filter_fir(const unique_span<int16_t> signal_storage, const std::spa
 		}
 
 		// Save and fit back into int16
-		output[nn] = int16_t(cur_output >> 16);  // Arithmetic shift
+		output[nn] = static_cast<int16_t>(cur_output >> 8);  // Arithmetic shift
 	}
 	return result;
 }
@@ -232,12 +232,12 @@ static auto upsample(const std::span<const uint8_t> input, const std::size_t ups
 	 * from `make_unique` is necessary.  This site cannot be converted to
 	 * `make_unique_for_overwrite`.
 	 */
-	unique_span<int16_t> result(upsampledLen);
+	unique_span<int8_t> result(upsampledLen);
 	const auto output{result.span()};
 	for (const auto ii : xrange(input.size()))
 	{
-		// Save input sample, convert to signed, and scale
-		output[ii*factor] = 256 * (int16_t(input[ii]) - 128);
+		// Save input sample, convert to signed
+		output[ii*factor] = int16_t{input[ii]} - 128;
 	}
 	return result;
 }
