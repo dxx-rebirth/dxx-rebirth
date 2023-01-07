@@ -417,23 +417,18 @@ void do_morph_frame(object &obj)
 	const polymodel &pm = Polygon_models[obj.rtype.pobj_info.model_num];
 
 	const auto n_models = pm.n_models;
-	range_for (const auto &&zi, zip(xrange(n_models), md->submodel_active, md->n_morphing_points))
+	for (auto &&[i, submodel_active, n_morphing_points] : enumerate(zip(unchecked_partial_range(md->submodel_active, n_models), md->n_morphing_points)))
 	{
-		const unsigned i = std::get<0>(zi);
-		auto &submodel_active = std::get<1>(zi);
 		if (submodel_active == morph_data::submodel_state::animating)
 		{
 			update_points(pm,i,md);
-			const auto &n_morphing_points = std::get<2>(zi);
 			if (n_morphing_points == 0) {		//maybe start submodel
 				submodel_active = morph_data::submodel_state::visible;		//not animating, just visible
 				md->n_submodels_active--;		//this one done animating
-				range_for (const auto &&zt, zip(xrange(n_models), pm.submodel_parents))
+				for (auto &&[t, submodel_parents] : enumerate(unchecked_partial_range(pm.submodel_parents, n_models)))
 				{
-					auto &submodel_parents = std::get<1>(zt);
 					if (submodel_parents == i)
 					{		//start this one
-						const auto t = std::get<0>(zt);
 						init_points(pm,nullptr,t,md);
 						md->n_submodels_active++;
 					}
