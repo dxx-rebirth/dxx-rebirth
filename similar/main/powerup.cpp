@@ -706,8 +706,10 @@ int do_powerup(const vmobjptridx_t obj)
 //is solved.  Note also the break statements above that are commented out
 //!!	used=1;
 
-	if ((used || special_used) && Powerup_info[id].hit_sound  > -1 ) {
-		multi_digi_play_sample(Powerup_info[id].hit_sound, F1_0);
+	if (used || special_used)
+	{
+		if (const auto hit_sound = Powerup_info[id].hit_sound; hit_sound > -1)
+			multi_digi_play_sample(hit_sound, F1_0);
 		detect_escort_goal_accomplished(obj);
 	}
 
