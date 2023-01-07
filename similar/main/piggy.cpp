@@ -449,13 +449,12 @@ static void piggy_close_file()
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
+properties_init_result properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	int sbytes = 0;
 	int N_sounds;
 	int size;
 	int pigsize;
-	int retval;
 	GameSounds = {};
 
 	static_assert(GameBitmapXlat.size() == GameBitmaps.size(), "size mismatch");
@@ -497,7 +496,7 @@ int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 	{
 		if (!PHYSFSX_exists("BITMAPS.TBL",1) && !PHYSFSX_exists("BITMAPS.BIN",1))
 			Error("Cannot find " DEFAULT_PIGFILE_REGISTERED " or BITMAPS.TBL");
-		return 1;	// need to run gamedata_read_tbl
+		return properties_init_result::use_gamedata_read_tbl;	// need to run gamedata_read_tbl
 	}
 
 	pigsize = PHYSFS_fileLength(Piggy_fp);
@@ -529,8 +528,9 @@ int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 	
 	HiresGFXAvailable = MacPig;	// for now at least
 
+	properties_init_result retval;
 	if (PCSharePig)
-		retval = PIGGY_PC_SHAREWARE;	// run gamedata_read_tbl in shareware mode
+		retval = properties_init_result::shareware;	// run gamedata_read_tbl in shareware mode
 	else if (GameArg.EdiNoBm || (!PHYSFSX_exists("BITMAPS.TBL",1) && !PHYSFSX_exists("BITMAPS.BIN",1)))
 	{
 		properties_read_cmp(LevelSharedRobotInfoState, Vclip, Piggy_fp);	// Note connection to above if!!!
@@ -541,10 +541,10 @@ int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 			if (PHYSFS_eof(Piggy_fp))
 				break;
 		}
-		retval = 0;	// don't run gamedata_read_tbl
+		retval = properties_init_result::skip_gamedata_read_tbl;	// don't run gamedata_read_tbl
 	}
 	else
-		retval = 1;	// run gamedata_read_tbl
+		retval = properties_init_result::use_gamedata_read_tbl;	// run gamedata_read_tbl
 
 	PHYSFS_seek(Piggy_fp, Pigdata_start);
 	size = PHYSFS_fileLength(Piggy_fp) - Pigdata_start;
@@ -1129,7 +1129,7 @@ void read_sndfile(const int required)
 	SoundBits = std::make_unique<ubyte[]>(sbytes + 16);
 }
 
-int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
+properties_init_result properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	int ham_ok=0,snd_ok=0;
 	GameSounds = {};
@@ -1167,7 +1167,7 @@ int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 		read_sndfile(1);
 	}
 
-	return (ham_ok && snd_ok);               //read ok
+	return (ham_ok && snd_ok) ? properties_init_result::success : properties_init_result::failure;               //read ok
 }
 #endif
 

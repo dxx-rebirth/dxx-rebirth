@@ -150,14 +150,11 @@ static void tmap_info_read(tmap_info &ti, PHYSFS_File *fp)
 // Initializes game properties data (including texture caching system) and sound data.
 int gamedata_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
-	int retval;
-	
 	init_polygon_models(LevelSharedPolygonModelState);
-	retval = properties_init(LevelSharedRobotInfoState);				// This calls properties_read_cmp if appropriate
-	if (retval)
-		gamedata_read_tbl(LevelSharedRobotInfoState, Vclip, retval == PIGGY_PC_SHAREWARE);
-
-	piggy_read_sounds(retval == PIGGY_PC_SHAREWARE);
+	const auto retval = properties_init(LevelSharedRobotInfoState);				// This calls properties_read_cmp if appropriate
+	if (retval != properties_init_result::skip_gamedata_read_tbl)
+		gamedata_read_tbl(LevelSharedRobotInfoState, Vclip, retval == properties_init_result::shareware);
+	piggy_read_sounds(retval == properties_init_result::shareware);
 	
 	return 0;
 }
@@ -301,7 +298,7 @@ int gamedata_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 	// but *may* be useful for loading Descent 1 Shareware texture properties.
 	if (!gamedata_read_tbl(LevelSharedRobotInfoState, Vclip, 0))
 #endif
-		if (!properties_init(LevelSharedRobotInfoState))				// This calls properties_read_cmp
+		if (properties_init(LevelSharedRobotInfoState) == properties_init_result::failure)				// This calls properties_read_cmp
 				Error("Cannot open ham file\n");
 
 	piggy_read_sounds();

@@ -67,7 +67,22 @@ static inline void _piggy_page_in(GameBitmaps_array &GameBitmaps, bitmap_index b
         piggy_bitmap_page_in(GameBitmaps, bmp);
 }
 
-int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState);
+#if defined(DXX_BUILD_DESCENT_I)
+enum class properties_init_result : int8_t
+{
+	skip_gamedata_read_tbl,
+	use_gamedata_read_tbl,
+	shareware,
+};
+#elif defined(DXX_BUILD_DESCENT_II)
+enum class properties_init_result : int8_t
+{
+	failure,
+	success,
+};
+#endif
+
+properties_init_result properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState);
 
 #if defined(DXX_BUILD_DESCENT_II)
 enum class pig_hamfile_version : uint8_t
