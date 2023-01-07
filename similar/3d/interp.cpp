@@ -731,7 +731,7 @@ public:
 
 }
 
-void swap_polygon_model_data(ubyte *data)
+void swap_polygon_model_data(uint8_t *const data)
 {
 	swap_polygon_model_data_state state;
 	iterate_polymodel(data, state);

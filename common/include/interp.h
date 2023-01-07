@@ -63,10 +63,6 @@ int g3_poly_get_color(const uint8_t *model_ptr);
 #endif
 
 namespace dcx {
-#if DXX_WORDS_BIGENDIAN
 // routine to convert little to big endian in polygon model data
-void swap_polygon_model_data(ubyte *data);
-#else
-static inline void swap_polygon_model_data(uint8_t *) {}
-#endif
+void swap_polygon_model_data(uint8_t *data);
 }
