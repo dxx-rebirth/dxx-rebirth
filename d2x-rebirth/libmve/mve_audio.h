@@ -6,8 +6,7 @@
  */
 #pragma once
 
-#ifdef __cplusplus
+#include <cstdint>
+#include <span>
 
-void mveaudio_uncompress(short *buffer, const unsigned char *data);
-
-#endif
+void mveaudio_uncompress(std::span<int16_t> out, const uint8_t *in);

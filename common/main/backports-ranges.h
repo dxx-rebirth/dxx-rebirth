@@ -128,3 +128,10 @@ using std::ranges::find_if;
 #endif
 
 }
+
+#ifdef __clang__
+
+template <typename iterator, typename sentinel>
+inline constexpr bool std::ranges::enable_borrowed_range<ranges::subrange<iterator, sentinel>> = true;
+
+#endif

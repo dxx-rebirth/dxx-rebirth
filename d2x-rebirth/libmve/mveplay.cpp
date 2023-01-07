@@ -414,31 +414,46 @@ static int play_audio_handler(unsigned char, unsigned char, const unsigned char 
 	return 1;
 }
 
+/* Caution: the data length argument is unnamed here because it is sometimes
+ * wrong.  The first movie segment of the opening video of the game is
+ * ill-formed:
+ * - Its segment size according to mvelib is 2932.
+ * - It has a 10 byte header:
+ *   - 2 bytes skipped
+ *   - 2 bytes of `chan`
+ *   - 2 bytes of `nsamp`
+ *   - 2 bytes of "current offset 0"
+ *   - 2 bytes of "current offset 1"
+ * - It has an internal size of 2924, which is 2 bytes too long.
+ *
+ * If `std::span` is used to describe this segment, then the historically used
+ * audio processing will read past the end of the `std::span`, which is
+ * undefined and may trigger an assertion failure.  Therefore, do not use
+ * std::span to describe this block of memory.
+ */
 static int audio_data_handler(unsigned char major, unsigned char, const unsigned char *data, int, void *)
 {
 	static const int selected_chan=1;
-	int chan;
-	int nsamp;
 	if (mve_audio_canplay)
 	{
 		if (mve_audio_playing)
 			SDL_LockAudio();
 
-		chan = get_ushort(data + 2);
-		nsamp = get_ushort(data + 4);
+		const auto chan = get_ushort(data + 2);
+		unsigned nsamp = get_ushort(data + 4);
 		if (chan & selected_chan)
 		{
 			std::unique_ptr<int16_t[], MVE_audio_deleter> p;
 			const auto DigiVolume = GameCfg.DigiVolume;
-			/* HACK: +4 mveaudio_uncompress adds 4 more bytes */
 			/* At volume 0 (minimum), no sound is wanted. */
 			if (DigiVolume && major == MVE_OPCODE_AUDIOFRAMEDATA) {
 				const auto flags = mve_audio_flags;
 				if (flags & MVE_AUDIO_FLAGS_COMPRESSED) {
+					/* HACK: +4 mveaudio_uncompress adds 4 more bytes */
 					nsamp += 4;
 
 					p.reset(reinterpret_cast<int16_t *>(MovieMemoryAllocate(nsamp)));
-					mveaudio_uncompress(p.get(), data); /* XXX */
+					mveaudio_uncompress({p.get(), nsamp / 2}, data);
 				} else {
 					nsamp -= 8;
 					data += 8;

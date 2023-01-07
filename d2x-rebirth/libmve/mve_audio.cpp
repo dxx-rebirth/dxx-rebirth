@@ -7,6 +7,8 @@
 #include "mve_audio.h"
 #include "dxxsconf.h"
 #include <array>
+#include "d_enumerate.h"
+#include "backports-ranges.h"
 
 constexpr std::array<int, 256> audio_exp_table{
 {
@@ -29,37 +31,30 @@ constexpr std::array<int, 256> audio_exp_table{
 }
 };
 
-static int getWord(const unsigned char **fin)
+static void processSwath(std::span<int16_t> fout, const uint8_t *const data, std::array<int32_t, 2> offsets)
 {
-    int value = ((*fin)[1] << 8) | (*fin)[0];
-    *fin += 2;
-    return value;
-}
-
-static void sendWord(short **fout, int nOffset)
-{
-    *(*fout)++ = nOffset;
-}
-
-static void processSwath(short *fout, const unsigned char *data, int swath, int *offsets)
-{
-    for (int i=0; i<swath; i++)
+	for (const auto &&[i, d] : enumerate(ranges::subrange(data, std::next(data, fout.size()))))
     {
-        offsets[i&1] += audio_exp_table[data[i]];
-        sendWord(&fout, offsets[i&1]);
+		auto &o = offsets[i & 1];
+		o += audio_exp_table[d];
+		fout.front() = o;
+		fout = fout.subspan<1>();
     }
 }
 
-void mveaudio_uncompress(short *buffer, const unsigned char *data)
+void mveaudio_uncompress(std::span<int16_t> buffer, const uint8_t *data)
 {
-    int nCurOffsets[2];
-    int swath;
-
-    data += 4;
-    swath = getWord(&data) / 2;
-    nCurOffsets[0] = getWord(&data);
-    nCurOffsets[1] = getWord(&data);
-    sendWord(&buffer, nCurOffsets[0]);
-    sendWord(&buffer, nCurOffsets[1]);
-    processSwath(buffer, data, swath, nCurOffsets);
+	/* Skip 4 bytes.  Then, skip over the swath value in the input, since the
+	 * caller provided that value as the extent of `buffer`.
+	 */
+	data += 6;
+	const uint16_t c0 = data[0] | (data[1] << 8);
+	data += 2;
+	const uint16_t c1 = data[0] | (data[1] << 8);
+	data += 2;
+	buffer.front() = c0;
+	buffer = buffer.subspan<1>();
+	buffer.front() = c1;
+	buffer = buffer.subspan<1>();
+	processSwath(buffer, data, {{c0, c1}});
 }
