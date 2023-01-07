@@ -232,15 +232,6 @@ static void do_timer_wait(void)
 
 namespace {
 
-class MVE_audio_deleter
-{
-public:
-	void operator()(int16_t *p) const
-	{
-		MovieMemoryFree(p);
-	}
-};
-
 template <typename T>
 struct MVE_audio_clamp
 {
@@ -258,7 +249,7 @@ struct MVE_audio_clamp
 }
 
 static void mve_audio_callback(void *userdata, unsigned char *stream, int len);
-static std::array<std::unique_ptr<short[], MVE_audio_deleter>, TOTAL_AUDIO_BUFFERS> mve_audio_buffers;
+static std::array<std::unique_ptr<int16_t[]>, TOTAL_AUDIO_BUFFERS> mve_audio_buffers;
 static std::array<unsigned, TOTAL_AUDIO_BUFFERS> mve_audio_buflens;
 static int    mve_audio_curbuf_curpos=0;
 static int mve_audio_bufhead=0;
@@ -443,7 +434,7 @@ static int audio_data_handler(unsigned char major, unsigned char, const unsigned
 		unsigned nsamp = get_ushort(data + 4);
 		if (chan & selected_chan)
 		{
-			std::unique_ptr<int16_t[], MVE_audio_deleter> p;
+			decltype(mve_audio_buffers)::value_type p;
 			const auto DigiVolume = GameCfg.DigiVolume;
 			/* At volume 0 (minimum), no sound is wanted. */
 			if (DigiVolume && major == MVE_OPCODE_AUDIOFRAMEDATA) {
@@ -452,13 +443,14 @@ static int audio_data_handler(unsigned char major, unsigned char, const unsigned
 					/* HACK: +4 mveaudio_uncompress adds 4 more bytes */
 					nsamp += 4;
 
-					p.reset(reinterpret_cast<int16_t *>(MovieMemoryAllocate(nsamp)));
-					mveaudio_uncompress({p.get(), nsamp / 2}, data);
+					const auto n2 = nsamp / 2;
+					p = std::make_unique<int16_t[]>(n2);
+					mveaudio_uncompress({p.get(), n2}, data);
 				} else {
 					nsamp -= 8;
 					data += 8;
 
-					p.reset(reinterpret_cast<int16_t *>(MovieMemoryAllocate(nsamp)));
+					p = std::make_unique<int16_t[]>(nsamp / 2);
 					memcpy(p.get(), data, nsamp);
 				}
 				if (DigiVolume < 8)
@@ -476,8 +468,10 @@ static int audio_data_handler(unsigned char major, unsigned char, const unsigned
 					}
 				}
 			} else {
-				p.reset(reinterpret_cast<int16_t *>(MovieMemoryAllocate(nsamp)));
-				memset(p.get(), 0, nsamp); /* XXX */
+				/* make_unique will value-initialize the buffer, so no explicit
+				 * initialization is necessary
+				 */
+				p = std::make_unique<int16_t[]>(nsamp / 2);
 			}
 			unsigned buflen = nsamp;
 
@@ -508,7 +502,8 @@ static int audio_data_handler(unsigned char major, unsigned char, const unsigned
 				{
 				// copy back to the audio buffer
 					const std::size_t converted_buffer_size = cvt.len_cvt;
-					p.reset(reinterpret_cast<int16_t *>(MovieMemoryAllocate(converted_buffer_size))); // free the old audio buffer
+					p.reset(); // free the old audio buffer
+					p = std::make_unique<int16_t[]>(converted_buffer_size / 2);
 					buflen = converted_buffer_size;
 					memcpy(p.get(), cvt.buf, converted_buffer_size);
 				}

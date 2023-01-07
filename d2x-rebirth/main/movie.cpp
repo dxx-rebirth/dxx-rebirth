@@ -116,16 +116,6 @@ struct movie_pause_window : window
 
 }
 
-void *MovieMemoryAllocate(std::size_t size)
-{
-	return d_malloc(size);
-}
-
-void MovieMemoryFree(void *p)
-{
-	d_free(p);
-}
-
 unsigned int MovieFileRead(SDL_RWops *const handle, void *buf, unsigned int count)
 {
 	const unsigned numread = SDL_RWread(handle, buf, 1, count);
