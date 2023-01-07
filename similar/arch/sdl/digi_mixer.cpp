@@ -234,10 +234,18 @@ static auto upsample(const std::span<const uint8_t> input, const std::size_t ups
 	 */
 	unique_span<int8_t> result(upsampledLen);
 	const auto output{result.span()};
+	using output_type = decltype(output)::value_type;
 	for (const auto ii : xrange(input.size()))
 	{
+		/* Assert that the minimum and maximum possible values in the input can
+		 * be represented in the output without truncation. */
+		using conversion_type = int16_t;
+		using input_type = decltype(input)::value_type;
+		constexpr int8_t convert_u8_to_s8 = INT8_MIN;
+		static_assert(std::in_range<output_type>(conversion_type{input_type{0}} + convert_u8_to_s8));
+		static_assert(std::in_range<output_type>(conversion_type{input_type{UINT8_MAX}} + convert_u8_to_s8));
 		// Save input sample, convert to signed
-		output[ii*factor] = int16_t{input[ii]} - 128;
+		output[ii*factor] = conversion_type{input[ii]} + convert_u8_to_s8;
 	}
 	return result;
 }
