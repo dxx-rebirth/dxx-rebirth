@@ -255,7 +255,6 @@ static int    mve_audio_curbuf_curpos=0;
 static int mve_audio_bufhead=0;
 static int mve_audio_buftail=0;
 static int mve_audio_playing=0;
-static int mve_audio_canplay=0;
 static unsigned mve_audio_flags;
 static int mve_audio_enabled = 1;
 static std::unique_ptr<SDL_AudioSpec> mve_audio_spec;
@@ -369,11 +368,10 @@ static int create_audiobuf_handler(unsigned char, unsigned char minor, const uns
 	{
 		if (SDL_OpenAudio(mve_audio_spec.get(), NULL) >= 0) {
 			con_puts(CON_CRITICAL, "   success");
-			mve_audio_canplay = 1;
 		}
 		else {
 			con_printf(CON_CRITICAL, "   failure : %s", SDL_GetError());
-			mve_audio_canplay = 0;
+			mve_audio_spec = {};
 		}
 	}
 
@@ -381,7 +379,6 @@ static int create_audiobuf_handler(unsigned char, unsigned char minor, const uns
 	else {
 		// MD2211: using the same old SDL audio callback as a postmixer in SDL_mixer
 		Mix_SetPostMix(mve_audio_spec->callback, mve_audio_spec->userdata);
-		mve_audio_canplay = 1;
 	}
 #endif
 
@@ -392,7 +389,7 @@ static int create_audiobuf_handler(unsigned char, unsigned char minor, const uns
 
 static int play_audio_handler(unsigned char, unsigned char, const unsigned char *, int, void *)
 {
-	if (mve_audio_canplay  &&  !mve_audio_playing  &&  mve_audio_bufhead != mve_audio_buftail)
+	if (mve_audio_spec && !mve_audio_playing && mve_audio_bufhead != mve_audio_buftail)
 	{
 		if (CGameArg.SndDisableSdlMixer)
 			SDL_PauseAudio(0);
@@ -425,7 +422,7 @@ static int play_audio_handler(unsigned char, unsigned char, const unsigned char 
 static int audio_data_handler(unsigned char major, unsigned char, const unsigned char *data, int, void *)
 {
 	static const int selected_chan=1;
-	if (mve_audio_canplay)
+	if (mve_audio_spec)
 	{
 		if (mve_audio_playing)
 			SDL_LockAudio();
@@ -749,7 +746,7 @@ void MVE_rmEndMovie(std::unique_ptr<MVESTREAM>)
 	timer_stop();
 	timer_created = 0;
 
-	if (mve_audio_canplay) {
+	if (mve_audio_spec) {
 		// MD2211: if using SDL_Mixer, we never reinit sound, hence never close it
 		if (CGameArg.SndDisableSdlMixer)
 		{
@@ -759,7 +756,7 @@ void MVE_rmEndMovie(std::unique_ptr<MVESTREAM>)
 		else
 			Mix_SetPostMix(nullptr, nullptr);
 #endif
-		mve_audio_canplay = 0;
+		mve_audio_spec = {};
 	}
 	mve_audio_buffers = {};
 	mve_audio_buflens = {};
@@ -768,10 +765,8 @@ void MVE_rmEndMovie(std::unique_ptr<MVESTREAM>)
 	mve_audio_bufhead=0;
 	mve_audio_buftail=0;
 	mve_audio_playing=0;
-	mve_audio_canplay=0;
 	mve_audio_flags = 0;
 
-	mve_audio_spec.reset();
 	g_vBuffers.clear();
 	g_pCurMap = {};
 	videobuf_created = 0;
