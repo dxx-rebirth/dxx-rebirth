@@ -7,6 +7,7 @@
 //#define DEBUG
 
 #include "dxxsconf.h"
+#include <span>
 #include <vector>
 #include <string.h>
 #include <time.h>
@@ -527,8 +528,7 @@ unsigned char *g_vBackBuf1, *g_vBackBuf2;
 
 static int g_destX, g_destY;
 static int g_screenWidth, g_screenHeight;
-static const unsigned char *g_pCurMap;
-static int g_nMapLength=0;
+static std::span<const uint8_t> g_pCurMap;
 static int g_truecolor;
 
 static int create_videobuf_handler(unsigned char, unsigned char minor, const unsigned char *data, int, void *)
@@ -621,8 +621,7 @@ static int video_palette_handler(unsigned char, unsigned char, const unsigned ch
 
 static int video_codemap_handler(unsigned char, unsigned char, const unsigned char *data, int len, void *)
 {
-	g_pCurMap = data;
-	g_nMapLength = len;
+	g_pCurMap = std::span<const uint8_t>(data, len);
 	return 1;
 }
 
@@ -646,9 +645,9 @@ static int video_data_handler(unsigned char, unsigned char, const unsigned char 
 
 	/* convert the frame */
 	if (g_truecolor) {
-		decodeFrame16(g_vBackBuf1, g_pCurMap, g_nMapLength, data+14, len-14);
+		decodeFrame16(g_vBackBuf1, g_pCurMap.data(), g_pCurMap.size(), data+14, len-14);
 	} else {
-		decodeFrame8(g_vBackBuf1, g_pCurMap, g_nMapLength, data+14, len-14);
+		decodeFrame8(g_vBackBuf1, g_pCurMap.data(), g_pCurMap.size(), data+14, len-14);
 	}
 
 	return 1;
@@ -656,7 +655,7 @@ static int video_data_handler(unsigned char, unsigned char, const unsigned char 
 
 static int end_chunk_handler(unsigned char, unsigned char, const unsigned char *, int, void *)
 {
-	g_pCurMap=NULL;
+	g_pCurMap = {};
 	return 1;
 }
 
@@ -764,8 +763,7 @@ void MVE_rmEndMovie(std::unique_ptr<MVESTREAM>)
 
 	mve_audio_spec.reset();
 	g_vBuffers.clear();
-	g_pCurMap=NULL;
-	g_nMapLength=0;
+	g_pCurMap = {};
 	videobuf_created = 0;
 	video_initialized = 0;
 }
