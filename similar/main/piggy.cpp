@@ -210,13 +210,12 @@ namespace dsx {
 namespace {
 static void piggy_bitmap_page_out_all();
 #if defined(DXX_BUILD_DESCENT_II)
-#define D1_MAX_TMAP_NUM 1630 // 1621 in descent.pig Mac registered
 
 /* the inverse of the d2 Textures array, but for the descent 1 pigfile.
  * "Textures" looks up a d2 bitmap index given a d2 tmap_num.
  * "d1_tmap_nums" looks up a d1 tmap_num given a d1 bitmap. "-1" means "None".
  */
-using d1_tmap_nums_t = std::array<short, D1_MAX_TMAP_NUM>;
+using d1_tmap_nums_t = std::array<short, 1630>; // 1621 in descent.pig Mac registered
 static std::unique_ptr<d1_tmap_nums_t> d1_tmap_nums;
 
 static void free_d1_tmap_nums()
@@ -1872,15 +1871,17 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 
 static void bm_read_d1_tmap_nums(PHYSFS_File *d1pig)
 {
-	int i, d1_index;
+	int i;
 
 	PHYSFS_seek(d1pig, 8);
 	d1_tmap_nums = std::make_unique<d1_tmap_nums_t>();
-	d1_tmap_nums->fill(-1);
+	auto &t = *d1_tmap_nums.get();
+	t.fill(-1);
 	for (i = 0; i < D1_MAX_TEXTURES; i++) {
-		d1_index = PHYSFSX_readShort(d1pig);
-		Assert(d1_index >= 0 && d1_index < D1_MAX_TMAP_NUM);
-		(*d1_tmap_nums)[d1_index] = i;
+		const uint16_t d1_index = PHYSFSX_readShort(d1pig);
+		if (d1_index >= std::size(t))
+			break;
+		t[d1_index] = i;
 		if (PHYSFS_eof(d1pig))
 			break;
 	}
@@ -1891,8 +1892,8 @@ static void bm_read_d1_tmap_nums(PHYSFS_File *d1pig)
 static int get_d1_bm_index(char *filename, PHYSFS_File *d1_pig) {
 	int i, N_bitmaps;
 	DiskBitmapHeader bmh;
-	if (strchr (filename, '.'))
-		*strchr (filename, '.') = '\0'; // remove extension
+	if (const auto p = strchr (filename, '.'))
+		*p = '\0'; // remove extension
 	PHYSFS_seek(d1_pig, 0);
 	N_bitmaps = PHYSFSX_readInt (d1_pig);
 	PHYSFS_seek(d1_pig, 8);
@@ -1926,7 +1927,8 @@ static void read_d1_tmap_nums_from_hog(PHYSFS_File *d1_pig)
 	}
 
 	d1_tmap_nums = std::make_unique<d1_tmap_nums_t>();
-	d1_tmap_nums->fill(-1);
+	auto &t = *d1_tmap_nums.get();
+	t.fill(-1);
 
 	for (PHYSFSX_gets_line_t<LINEBUF_SIZE> inputline; PHYSFSX_fgets (inputline, bitmaps);)
 	{
@@ -1967,9 +1969,10 @@ static void read_d1_tmap_nums_from_hog(PHYSFS_File *d1_pig)
 					if (*arg == '\0')
 						break;
 					if (d1_tmap_num_unique(texture_count)) {
-						int d1_index = get_d1_bm_index(arg, d1_pig);
-						if (d1_index >= 0 && d1_index < D1_MAX_TMAP_NUM) {
-							(*d1_tmap_nums)[d1_index] = texture_count;
+						const uint32_t d1_index = get_d1_bm_index(arg, d1_pig);
+						if (d1_index < std::size(t))
+						{
+							t[d1_index] = texture_count;
 							//int d2_index = d2_index_for_d1_index(d1_index);
 						}
 				}
@@ -1989,12 +1992,16 @@ static void read_d1_tmap_nums_from_hog(PHYSFS_File *d1_pig)
  */
 static bitmap_index d2_index_for_d1_index(short d1_index)
 {
-	Assert(d1_index >= 0 && d1_index < D1_MAX_TMAP_NUM);
-	if (! d1_tmap_nums || (*d1_tmap_nums)[d1_index] == -1
-	    || ! d1_tmap_num_unique((*d1_tmap_nums)[d1_index]))
+	if (!d1_tmap_nums)
 		return bitmap_index::None;
-
-	return Textures[convert_d1_tmap_num((*d1_tmap_nums)[d1_index])];
+	auto &t = *d1_tmap_nums.get();
+	assert(d1_index < std::size(t));
+	if (d1_index >= std::size(t))
+		return bitmap_index::None;
+	const auto i = t[d1_index];
+	if (i == -1 || !d1_tmap_num_unique(i))
+		return bitmap_index::None;
+	return Textures[convert_d1_tmap_num(i)];
 }
 
 }
