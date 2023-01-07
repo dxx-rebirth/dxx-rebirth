@@ -308,6 +308,8 @@ static void mixdigi_convert_sound(const unsigned i)
 		//proceed only if not converted yet
 		return;
 	const auto data = GameSounds[i].span();
+	if (data.empty())
+		return;
 	int out_freq;
 	int out_channels;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -323,7 +325,6 @@ static void mixdigi_convert_sound(const unsigned i)
 	const auto freq = underlying_value(GameArg.SndDigiSampleRate);
 #endif
 
-	if (!data.empty())
 	{
 #if DXX_FEATURE_INTERNAL_RESAMPLER
 		// Create output memory
