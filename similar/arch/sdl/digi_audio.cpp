@@ -199,8 +199,12 @@ int digi_audio_init()
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
-	WaveSpec.freq = digi_sample_rate;
+	/* Descent 1 sounds are always 11Khz. */
+	WaveSpec.freq = SAMPLE_RATE_11K;
 #elif defined(DXX_BUILD_DESCENT_II)
+	/* Descent 2 sounds are available in both 11Khz and 22Khz.  The user may
+	 * pick at program start time which to use.
+	 */
 	WaveSpec.freq = GameArg.SndDigiSampleRate;
 #endif
 	//added/changed by Sam Lantinga on 12/01/98 for new SDL version

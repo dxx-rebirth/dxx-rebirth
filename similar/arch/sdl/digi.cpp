@@ -209,11 +209,6 @@ void digi_select_system()
 		fptr = digi_audio_table;
 }
 
-/* Common digi functions */
-#if defined(DXX_BUILD_DESCENT_I)
-int digi_sample_rate = SAMPLE_RATE_11K;
-#endif
-
 /* Stub functions */
 
 int  digi_init()

@@ -61,6 +61,15 @@ namespace dcx {
 
 namespace {
 
+/* In mixer mode, always request 44Khz.  This guarantees a need to upsample,
+ * but allows passing into the mixing subsystem sounds that are natively higher
+ * quality, like a user's personal music collection.
+ *
+ * 44Khz is an integer multiple of both the Descent 1 sounds (11Khz) and the
+ * Descent 2 sounds (variously, 11Khz or 22Khz), so the upsample should be
+ * straightforward.
+ */
+constexpr unsigned digi_sample_rate = SAMPLE_RATE_44K;
 enumerated_bitset<64, sound_channel> channels;
 
 /* channel management */
@@ -115,11 +124,6 @@ static std::array<RAIIMix_Chunk, MAX_SOUNDS> SoundChunks;
 /* Initialise audio */
 int digi_mixer_init()
 {
-#if defined(DXX_BUILD_DESCENT_II)
-	const unsigned
-#endif
-	digi_sample_rate = SAMPLE_RATE_44K;
-
 #if MIX_DIGI_DEBUG
 	con_printf(CON_DEBUG, "digi_init %u (SDL_Mixer)", MAX_SOUNDS.value);
 #endif
