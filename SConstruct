@@ -4364,12 +4364,19 @@ class DXXCommon(LazyObjectConstructor):
 			CXXFLAGS = ['-funsigned-char'],
 			CPPPATH = ['common/include', 'common/main', '.'],
 			CPPFLAGS = SCons.Util.CLVar('-Wno-sign-compare'),
+			CPPDEFINES = [
 			# PhysFS 2.1 and later deprecate functions PHYSFS_read,
 			# PHYSFS_write, which Rebirth uses extensively.  PhysFS 2.0
 			# does not implement the new non-deprecated functions.
 			# Disable the deprecation error until PhysFS 2.0 support is
 			# removed.
-			CPPDEFINES = [('PHYSFS_DEPRECATED', '')],
+				('PHYSFS_DEPRECATED', ''),
+				# Every file that sees `CGameArg` must know whether a sharepath
+				# exists.  Most files do not need to know the value of
+				# sharepath.  Pass only its existence, so that changing the
+				# sharepath does not needlessly rebuild those files.
+				('DXX_USE_SHAREPATH', int(not not user_settings.sharepath)),
+			],
 		)
 		add_flags = defaultdict(list)
 		if user_settings.builddir:
@@ -5009,12 +5016,6 @@ class DXXProgram(DXXCommon):
 				self.env_CPPDEFINES,
 		# For PRIi64
 				('__STDC_FORMAT_MACROS',),
-				# Every file that sees `GameArg` must know whether a
-				# sharepath exists.  Most files do not need to know the
-				# value of sharepath.  Pass only its existence, so that
-				# changing the sharepath does not needlessly rebuild
-				# those files.
-				('DXX_USE_SHAREPATH', int(not not sharepath)),
 			],
 			CPPPATH = [os.path.join(self.srcdir, 'main')],
 			LIBS = ['m'],

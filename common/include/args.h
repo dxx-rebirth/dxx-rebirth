@@ -118,6 +118,9 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool DbgRenderStats;
 	uint8_t DbgBpp;
 	int8_t DbgVerbose;
+#if DXX_USE_SHAREPATH
+	bool SysNoHogDir;
+#endif
 	bool SysNoNiceFPS;
 	int SysMaxFPS;
 	uint16_t MplUdpHostPort;
@@ -143,9 +146,6 @@ extern CArg CGameArg;
 namespace dsx {
 struct Arg : prohibit_void_ptr<Arg>
 {
-#if DXX_USE_SHAREPATH
-	bool SysNoHogDir;
-#endif
 #ifdef DXX_BUILD_DESCENT_I
 	bool EdiNoBm;
 #endif
