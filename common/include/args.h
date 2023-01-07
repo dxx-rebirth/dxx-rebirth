@@ -61,6 +61,9 @@ enum SyncGLMethod : uint8_t {
 #include "pack.h"
 
 namespace dcx {
+
+enum class sound_sample_rate : uint16_t;
+
 struct CArg : prohibit_void_ptr<CArg>
 {
 	bool CtlNoCursor;
@@ -150,7 +153,7 @@ struct Arg : prohibit_void_ptr<Arg>
 	bool SysNoMovies;
 	bool GfxSkipHiresMovie;
 	bool GfxSkipHiresGFX;
-	int SndDigiSampleRate;
+	sound_sample_rate SndDigiSampleRate;
 	std::string EdiAutoLoad;
 	bool EdiSaveHoardData;
 	bool EdiMacData; // also used for some read routines in non-editor build

@@ -1139,8 +1139,8 @@ static inline void do_afterburner_stuff(object_array &)
 ubyte	Last_afterburner_state = 0;
 fix64	Time_flash_last_played;
 
-#define AFTERBURNER_LOOP_START	((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?32027:(32027/2))		//20098
-#define AFTERBURNER_LOOP_END		((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?48452:(48452/2))		//25776
+#define AFTERBURNER_LOOP_START	((GameArg.SndDigiSampleRate == sound_sample_rate::_22k)?32027:(32027/2))		//20098
+#define AFTERBURNER_LOOP_END		((GameArg.SndDigiSampleRate == sound_sample_rate::_22k)?48452:(48452/2))		//25776
 
 namespace {
 static fix Last_afterburner_charge;

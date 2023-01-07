@@ -5589,13 +5589,15 @@ void init_hoard_data(d_vclip_array &Vclip)
 
 	//Load sounds for orb game
 	hoard_resources.snd_idx = Num_sound_files;
+	const auto SndDigiSampleRate = GameArg.SndDigiSampleRate;
 	range_for (const unsigned i, xrange(4u))
 	{
 		int len;
 
 		len = PHYSFSX_readInt(ifile);        //get 11k len
 
-		if (GameArg.SndDigiSampleRate == SAMPLE_RATE_22K) {
+		if (SndDigiSampleRate == sound_sample_rate::_22k)
+		{
 			PHYSFSX_fseek(ifile,len,SEEK_CUR);     //skip over 11k sample
 			len = PHYSFSX_readInt(ifile);    //get 22k len
 		}
@@ -5605,7 +5607,8 @@ void init_hoard_data(d_vclip_array &Vclip)
 		gs.data = digi_sound::allocated_data{std::make_unique<uint8_t[]>(len), game_sound_offset{}};
 		PHYSFS_read(ifile, gs.data.get(), 1, len);
 
-		if (GameArg.SndDigiSampleRate == SAMPLE_RATE_11K) {
+		if (SndDigiSampleRate == sound_sample_rate::_11k)
+		{
 			len = PHYSFSX_readInt(ifile);    //get 22k len
 			PHYSFSX_fseek(ifile,len,SEEK_CUR);     //skip over 22k sample
 		}

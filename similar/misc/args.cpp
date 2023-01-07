@@ -177,7 +177,7 @@ namespace {
 static void InitGameArg()
 {
 #if defined(DXX_BUILD_DESCENT_II)
-	GameArg.SndDigiSampleRate = SAMPLE_RATE_22K;
+	GameArg.SndDigiSampleRate = sound_sample_rate::_22k;
 #endif
 	::dcx::InitGameArg();
 }
@@ -266,7 +266,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 			CGameArg.SndNoMusic = true;
 #if defined(DXX_BUILD_DESCENT_II)
 		else if (!d_stricmp(p, "-sound11k"))
-			GameArg.SndDigiSampleRate 		= SAMPLE_RATE_11K;
+			GameArg.SndDigiSampleRate = sound_sample_rate::_11k;
 #endif
 		else if (!d_stricmp(p, "-nosdlmixer"))
 		{

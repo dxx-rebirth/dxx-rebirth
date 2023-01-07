@@ -69,7 +69,7 @@ namespace {
  * Descent 2 sounds (variously, 11Khz or 22Khz), so the upsample should be
  * straightforward.
  */
-constexpr unsigned digi_sample_rate = SAMPLE_RATE_44K;
+constexpr auto digi_sample_rate = underlying_value(sound_sample_rate::_44k);
 enumerated_bitset<64, sound_channel> channels;
 
 /* channel management */
@@ -320,7 +320,7 @@ static void mixdigi_convert_sound(const unsigned i)
 #elif defined(DXX_BUILD_DESCENT_II)
 	Uint16 out_format;
 	Mix_QuerySpec(&out_freq, &out_format, &out_channels); // get current output settings
-	const auto freq = GameArg.SndDigiSampleRate;
+	const auto freq = underlying_value(GameArg.SndDigiSampleRate);
 #endif
 
 	if (!data.empty())

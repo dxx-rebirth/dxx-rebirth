@@ -2527,7 +2527,7 @@ static int do_robot_dying_frame(const vmobjptridx_t objp, fix64 start_time, fix 
 	objp->mtype.phys_info.rotvel.y = (GameTime64 - start_time)/5;
 	objp->mtype.phys_info.rotvel.z = (GameTime64 - start_time)/7;
 
-	if (const auto SndDigiSampleRate = GameArg.SndDigiSampleRate)
+	if (const auto SndDigiSampleRate = underlying_value(GameArg.SndDigiSampleRate))
 		sound_duration = fixdiv(GameSounds[digi_xlat_sound(death_sound)].length, SndDigiSampleRate);
 	else
 		sound_duration = F1_0;

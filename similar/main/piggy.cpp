@@ -73,7 +73,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define D1_PALETTE "palette.256"
 
-#define DEFAULT_SNDFILE ((Piggy_hamfile_version < pig_hamfile_version::_3) ? DEFAULT_HAMFILE_SHAREWARE : (GameArg.SndDigiSampleRate == SAMPLE_RATE_22K) ? "descent2.s22" : "descent2.s11")
+#define DEFAULT_SNDFILE ((Piggy_hamfile_version < pig_hamfile_version::_3) ? DEFAULT_HAMFILE_SHAREWARE : (GameArg.SndDigiSampleRate == sound_sample_rate::_22k) ? "descent2.s22" : "descent2.s11")
 
 #define MAC_ALIEN1_PIGSIZE      5013035
 #define MAC_ALIEN2_PIGSIZE      4909916
@@ -997,7 +997,7 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 		if (ham_fp)
 		{
 			shareware = 1;
-			GameArg.SndDigiSampleRate = SAMPLE_RATE_11K;
+			GameArg.SndDigiSampleRate = sound_sample_rate::_11k;
 			if (CGameArg.SndDisableSdlMixer)
 			{
 				digi_close();

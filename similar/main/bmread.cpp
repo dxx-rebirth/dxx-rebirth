@@ -388,7 +388,7 @@ int ds_load(int skip, const char * filename )	{
 #if defined(DXX_BUILD_DESCENT_I)
 	snprintf(rawname, sizeof(rawname), "Sounds/%s.raw", fname.data());
 #elif defined(DXX_BUILD_DESCENT_II)
-	snprintf(rawname, sizeof(rawname), "Sounds/%s.%s", fname.data(), (GameArg.SndDigiSampleRate==SAMPLE_RATE_22K) ? "r22" : "raw");
+	snprintf(rawname, sizeof(rawname), "Sounds/%s.r%s", fname.data(), (GameArg.SndDigiSampleRate == sound_sample_rate::_22k) ? "22" : "aw");
 #endif
 
 	const auto i = piggy_find_sound(fname);

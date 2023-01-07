@@ -58,6 +58,13 @@ enum class sound_stack : uint8_t
 	cancel_previous,
 };
 
+enum class sound_sample_rate : uint16_t
+{
+	_11k = 11025,
+	_22k = 22050,
+	_44k = 44100,
+};
+
 struct digi_sound_deleter : std::default_delete<uint8_t[]>
 {
 	game_sound_offset offset = {};
@@ -201,13 +208,6 @@ extern void digi_stop_looping_sound();
 extern void digi_start_sound_queued( short soundnum, fix volume );
 
 // Following declarations are for the runtime switching system
-
-#define SAMPLE_RATE_11K 11025
-#define SAMPLE_RATE_22K 22050
-#define SAMPLE_RATE_44K 44100
-
-#define SDLMIXER_SYSTEM 1
-#define SDLAUDIO_SYSTEM 2
 
 #define MUSIC_TYPE_NONE		0
 #define MUSIC_TYPE_BUILTIN	1
