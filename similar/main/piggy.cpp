@@ -265,6 +265,19 @@ static int piggy_is_needed(const int soundnum)
 	return 0;
 }
 
+/*
+ * reads a DiskSoundHeader structure from a PHYSFS_File
+ */
+static DiskSoundHeader DiskSoundHeader_read(PHYSFS_File *fp)
+{
+	DiskSoundHeader dsh{};
+	PHYSFS_read(fp, dsh.name, 8, 1);
+	dsh.length = PHYSFSX_readInt(fp);
+	dsh.data_length = PHYSFSX_readInt(fp);
+	dsh.offset = PHYSFSX_readInt(fp);
+	return dsh;
+}
+
 }
 }
 
@@ -288,17 +301,6 @@ static DiskBitmapHeader DiskBitmapHeader_read(PHYSFS_File *fp)
 	dbh.offset = PHYSFSX_readInt(fp);
 	return dbh;
 }
-}
-
-/*
- * reads a DiskSoundHeader structure from a PHYSFS_File
- */
-static void DiskSoundHeader_read(DiskSoundHeader *dsh, PHYSFS_File *fp)
-{
-	PHYSFS_read(fp, dsh->name, 8, 1);
-	dsh->length = PHYSFSX_readInt(fp);
-	dsh->data_length = PHYSFSX_readInt(fp);
-	dsh->offset = PHYSFSX_readInt(fp);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -450,7 +452,6 @@ static void piggy_close_file()
 int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	int sbytes = 0;
-	DiskSoundHeader sndh;
 	int N_sounds;
 	int size;
 	int pigsize;
@@ -597,7 +598,7 @@ int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 	{
 	for (unsigned i = 0; i < N_sounds; ++i)
 	{
-		DiskSoundHeader_read(&sndh, Piggy_fp);
+		const auto sndh = DiskSoundHeader_read(Piggy_fp);
 		
 		//size -= sizeof(DiskSoundHeader);
 		digi_sound temp_sound;
@@ -1048,7 +1049,6 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 		int sound_start;
 		int header_size;
 		int i;
-		DiskSoundHeader sndh;
 		int sbytes = 0;
 		static int justonce = 1;
 
@@ -1068,7 +1068,7 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 		//Read sounds
 
 		for (i=0; i<N_sounds; i++ ) {
-			DiskSoundHeader_read(&sndh, ham_fp);
+			const auto sndh = DiskSoundHeader_read(ham_fp);
 			digi_sound temp_sound;
 			temp_sound.length = sndh.length;
 			const game_sound_offset sound_offset{sndh.offset + header_size + sound_start};
@@ -1089,7 +1089,6 @@ void read_sndfile(const int required)
 	int sound_start;
 	int header_size;
 	int i;
-	DiskSoundHeader sndh;
 	int sbytes = 0;
 
 	const auto filename = DEFAULT_SNDFILE;
@@ -1118,7 +1117,7 @@ void read_sndfile(const int required)
 	//Read sounds
 
 	for (i=0; i<N_sounds; i++ ) {
-		DiskSoundHeader_read(&sndh, snd_fp);
+		const auto sndh = DiskSoundHeader_read(snd_fp);
 		digi_sound temp_sound;
 		temp_sound.length = sndh.length;
 		const game_sound_offset sound_offset{sndh.offset + header_size + sound_start};
