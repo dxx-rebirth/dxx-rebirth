@@ -236,15 +236,20 @@ unsigned Num_sound_files;
 
 namespace {
 
-static void get_bitmap_name_from_header(std::array<char, 13> &output_name, const DiskBitmapHeader &bmh)
+struct BitmapNameFromHeader
 {
-	if (bmh.dflags & DBM_FLAG_ABM)
-		snprintf(output_name.data(), output_name.size(), "%.8s#%d", bmh.name, bmh.dflags & DBM_NUM_FRAMES);
-	else
-	{
-		memcpy(output_name.data(), bmh.name, 8);
-		output_name[8] = 0;
+	BitmapFile storage;
+	std::span<const char> name;
+	BitmapNameFromHeader(const DiskBitmapHeader &);
+};
+
+BitmapNameFromHeader::BitmapNameFromHeader(const DiskBitmapHeader &bmh) :
+	name{
+		(bmh.dflags & DBM_FLAG_ABM)
+			? (storage = {}, std::span<const char>(storage.name).first(snprintf(storage.name.data(), storage.name.size(), "%.8s#%d", bmh.name, bmh.dflags & DBM_NUM_FRAMES)))
+			: std::span(bmh.name)
 	}
+{
 }
 
 static int piggy_is_needed(const int soundnum)
@@ -445,7 +450,6 @@ static void piggy_close_file()
 int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	int sbytes = 0;
-	std::array<char, 13> temp_name;
 	DiskSoundHeader sndh;
 	int N_sounds;
 	int size;
@@ -561,7 +565,8 @@ int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 		Assert( (i+1) == Num_bitmap_files );
 
 		//size -= sizeof(DiskBitmapHeader);
-		get_bitmap_name_from_header(temp_name, bmh);
+		const BitmapNameFromHeader bitmap_name(bmh);
+		const auto &temp_name = bitmap_name.name;
 
 		grs_bitmap temp_bitmap{};
 		const auto iwidth = (bmh.dflags & DBM_FLAG_LARGE) ? bmh.width + 256 : bmh.width;
@@ -633,7 +638,6 @@ int properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 void piggy_init_pigfile(const char *filename)
 {
 	int i;
-	std::array<char, 13> temp_name;
 	int header_size, N_bitmaps;
 #if DXX_USE_EDITOR
 	int data_size;
@@ -700,7 +704,8 @@ void piggy_init_pigfile(const char *filename)
 		grs_bitmap *const bm = &GameBitmaps[bi];
 		
 		const auto bmh = DiskBitmapHeader_read(Piggy_fp);
-		get_bitmap_name_from_header(temp_name, bmh);
+		const BitmapNameFromHeader bitmap_name(bmh);
+		const auto &temp_name = bitmap_name.name;
 		width = bmh.width + (static_cast<short>(bmh.wh_extra & 0x0f) << 8);
 		gr_init_bitmap(*bm, bm_mode::linear, 0, 0, width, bmh.height + (static_cast<short>(bmh.wh_extra & 0xf0) << 4), width, NULL);
 		bm->set_flags(BM_FLAG_PAGED_OUT);
@@ -733,7 +738,6 @@ void piggy_init_pigfile(const char *filename)
 //returns the size of all the bitmap data
 void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 {
-	std::array<char, 13> temp_name;
 	int header_size, N_bitmaps;
 #if DXX_USE_EDITOR
 	int must_rewrite_pig = 0;
@@ -811,17 +815,19 @@ void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 			int width;
 			
 			const auto bmh = DiskBitmapHeader_read(Piggy_fp);
-			get_bitmap_name_from_header(temp_name, bmh);
+			const BitmapNameFromHeader bitmap_name(bmh);
+			const auto &temp_name = bitmap_name.name;
+			auto &abn = AllBitmaps[bi];
 #if DXX_USE_EDITOR
 			//Make sure name matches
-			if (strcmp(temp_name.data(), AllBitmaps[bi].name.data()))
+			if (strcmp(temp_name.data(), abn.name.data()))
 			{
 				//Int3();       //this pig is out of date.  Delete it
 				must_rewrite_pig=1;
 			}
 #endif
-	
-			AllBitmaps[bi].name = temp_name;
+			abn = {};
+			std::copy(temp_name.begin(), temp_name.end(), abn.name.begin());
 
 			width = bmh.width + (static_cast<short>(bmh.wh_extra & 0x0f) << 8);
 			gr_set_bitmap_data(*bm, NULL);	// free ogl texture
