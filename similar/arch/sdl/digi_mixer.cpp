@@ -47,6 +47,10 @@
 #define MIX_OUTPUT_FORMAT	AUDIO_S16
 #define MIX_OUTPUT_CHANNELS	2
 
+#ifndef DXX_FEATURE_INTERNAL_RESAMPLER
+#define DXX_FEATURE_INTERNAL_RESAMPLER	1
+#endif
+
 #if !((defined(__APPLE__) && defined(__MACH__)) || defined(macintosh))
 #define SOUND_BUFFER_SIZE 2048
 #else
@@ -157,6 +161,7 @@ void digi_mixer_close() {
 
 namespace {
 
+#if DXX_FEATURE_INTERNAL_RESAMPLER
 /*
  * Blackman windowed-sinc filter coefficients at 1/4 bandwidth of upsampled
  * frequency. Chosen for linear phase and approximates ~10th order IIR
@@ -278,6 +283,7 @@ static std::unique_ptr<Uint8[]> convert_audio(const std::span<const uint8_t> inp
 		filter_fir(upsample(input, upsampledLen, upFactor), coeffs),
 		outsize, chFactor);
 }
+#endif
 
 }
 
@@ -293,7 +299,8 @@ namespace {
  */
 static void mixdigi_convert_sound(const unsigned i)
 {
-	if (SoundChunks[i].abuf)
+	auto &sci = SoundChunks[i];
+	if (sci.abuf)
 		//proceed only if not converted yet
 		return;
 	const auto data = GameSounds[i].span();
@@ -303,6 +310,9 @@ static void mixdigi_convert_sound(const unsigned i)
 	out_freq = digi_sample_rate;
 	out_channels = MIX_OUTPUT_CHANNELS;
 	const auto freq = GameSounds[i].freq;
+#if !DXX_FEATURE_INTERNAL_RESAMPLER
+	const Uint16 out_format = MIX_OUTPUT_FORMAT;
+#endif
 #elif defined(DXX_BUILD_DESCENT_II)
 	Uint16 out_format;
 	Mix_QuerySpec(&out_freq, &out_format, &out_channels); // get current output settings
@@ -311,17 +321,67 @@ static void mixdigi_convert_sound(const unsigned i)
 
 	if (!data.empty())
 	{
+#if DXX_FEATURE_INTERNAL_RESAMPLER
 		// Create output memory
 		int upFactor = out_freq / freq;  // Should be integer, 2 or 4
 		int formatFactor = 2;  // U8 -> S16 is two bytes
 		int convertedSize = data.size() * upFactor * out_channels * formatFactor;
 
 		auto cvtbuf = convert_audio(data, convertedSize, upFactor, out_channels);
-
-		SoundChunks[i].abuf = cvtbuf.release();
-		SoundChunks[i].alen = convertedSize;
-		SoundChunks[i].allocated = 1;
-		SoundChunks[i].volume = 128; // Max volume = 128
+#else
+		SDL_AudioCVT cvt;
+		if (SDL_BuildAudioCVT(&cvt, AUDIO_U8, 1, freq, out_format, out_channels, out_freq) == -1)
+		{
+			con_printf(CON_URGENT, "%s:%u: SDL_BuildAudioCVT failed: sound=%i dlen=%" DXX_PRI_size_type " freq=%i out_format=%i out_channels=%i out_freq=%i", __FILE__, __LINE__, i, data.size(), freq, out_format, out_channels, out_freq);
+			return;
+		}
+		if (cvt.len_mult < 1)
+		{
+			con_printf(CON_URGENT, "%s:%u: SDL_BuildAudioCVT requested invalid length multiplier: sound=%i dlen=%" DXX_PRI_size_type " freq=%i out_format=%i out_channels=%i out_freq=%i len_mult=%i", __FILE__, __LINE__, i, data.size(), freq, out_format, out_channels, out_freq, cvt.len_mult);
+			return;
+		}
+		const std::size_t workingSize = data.size() * cvt.len_mult;
+		auto cvtbuf = std::make_unique<uint8_t[]>(workingSize);
+		cvt.buf = cvtbuf.get();
+		cvt.len = data.size();
+		memcpy(cvt.buf, data.data(), data.size());
+		if (SDL_ConvertAudio(&cvt))
+		{
+			con_printf(CON_URGENT, "%s:%u: SDL_ConvertAudio failed: sound=%i dlen=%" DXX_PRI_size_type " freq=%i out_format=%i out_channels=%i out_freq=%i", __FILE__, __LINE__, i, data.size(), freq, out_format, out_channels, out_freq);
+			return;
+		}
+		const std::size_t convertedSize = cvt.len_cvt;
+		if (convertedSize < workingSize)
+		{
+			/* The final sound required less space to store than
+			 * SDL_BuildAudioCVT requested for an intermediate buffer.
+			 * Allocate a new buffer just large enough for the final sound,
+			 * copy the staging buffer into it, and use that new buffer as the
+			 * long term storage.
+			 */
+			auto outbuf = std::make_unique<uint8_t[]>(convertedSize);
+			memcpy(outbuf.get(), cvt.buf, convertedSize);
+			cvtbuf = std::move(outbuf);
+		}
+		else
+		{
+			/* The final sound required as much (or more) space than was
+			 * requested.  If it required more, there was likely memory
+			 * corruption, and that would be a bug in SDL audio conversion.
+			 * Therefore, assume that this path is for when the requested space
+			 * was exactly correct.  No memory can be recovered with an extra
+			 * copy, so transfer the staging buffer to the output structure.
+			 *
+			 * It is not a bug that there are no statements in this `else`
+			 * block.  The block exists to communicate the scope of this
+			 * comment.
+			 */
+		}
+#endif
+		sci.abuf = cvtbuf.release();
+		sci.alen = convertedSize;
+		sci.allocated = 1;
+		sci.volume = 128; // Max volume = 128
 	}
 }
 
