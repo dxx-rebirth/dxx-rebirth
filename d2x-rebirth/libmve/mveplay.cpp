@@ -647,7 +647,7 @@ static int video_data_handler(unsigned char, unsigned char, const unsigned char 
 	if (g_truecolor) {
 		decodeFrame16(g_vBackBuf1, g_pCurMap.data(), g_pCurMap.size(), data+14, len-14);
 	} else {
-		decodeFrame8(g_vBackBuf1, g_pCurMap.data(), g_pCurMap.size(), data+14, len-14);
+		decodeFrame8(g_vBackBuf1, g_pCurMap, data+14, len-14);
 	}
 
 	return 1;

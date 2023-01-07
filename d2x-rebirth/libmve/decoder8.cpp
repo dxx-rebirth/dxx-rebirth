@@ -22,7 +22,7 @@ using namespace dcx;
 
 static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, const unsigned char **pData, int *pDataRemain, int *curXb, int *curYb);
 
-void decodeFrame8(unsigned char *pFrame, const unsigned char *pMap, int mapRemain, const unsigned char *pData, int dataRemain)
+void decodeFrame8(unsigned char *pFrame, std::span<const uint8_t> pMap, const unsigned char *pData, int dataRemain)
 {
 	int xb, yb;
 
@@ -32,21 +32,20 @@ void decodeFrame8(unsigned char *pFrame, const unsigned char *pMap, int mapRemai
 	{
 		for (int i=0; i<xb/2; i++)
 		{
-			dispatchDecoder(&pFrame, (*pMap) & 0xf, &pData, &dataRemain, &i, &j);
+			const auto m = pMap.front();
+			dispatchDecoder(&pFrame, m & 0xf, &pData, &dataRemain, &i, &j);
 			if (pFrame < g_vBackBuf1)
-				con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (1) [%x]", i, j, (*pMap) & 0xf);
+				con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (1) [%x]", i, j, m & 0xf);
 			else if (pFrame >= g_vBackBuf1 + g_width*g_height)
-				con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (1) [%x]", i, j, (*pMap) & 0xf);
-			dispatchDecoder(&pFrame, (*pMap) >> 4, &pData, &dataRemain, &i, &j);
+				con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (1) [%x]", i, j, m & 0xf);
+			dispatchDecoder(&pFrame, m >> 4, &pData, &dataRemain, &i, &j);
 			if (pFrame < g_vBackBuf1)
-				con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (2) [%x]", i, j, (*pMap) >> 4);
+				con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (2) [%x]", i, j, m >> 4);
 			else if (pFrame >= g_vBackBuf1 + g_width*g_height)
-				con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (2) [%x]", i, j, (*pMap) >> 4);
+				con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (2) [%x]", i, j, m >> 4);
 
-			++pMap;
-			--mapRemain;
+			pMap = pMap.subspan<1>();
 		}
-
 		pFrame += 7*g_width;
 	}
 }

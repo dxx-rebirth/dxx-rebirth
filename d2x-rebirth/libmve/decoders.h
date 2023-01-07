@@ -11,13 +11,11 @@
  */
 
 #pragma once
-
-#ifdef __cplusplus
+#include <cstdint>
+#include <span>
 
 extern int g_width, g_height;
 extern unsigned char *g_vBackBuf1, *g_vBackBuf2;
 
-void decodeFrame8(unsigned char *pFrame, const unsigned char *pMap, int mapRemain, const unsigned char *pData, int dataRemain);
+void decodeFrame8(unsigned char *pFrame, std::span<const uint8_t> pMap, const unsigned char *pData, int dataRemain);
 void decodeFrame16(unsigned char *pFrame, const unsigned char *pMap, int mapRemain, const unsigned char *pData, int dataRemain);
-
-#endif
