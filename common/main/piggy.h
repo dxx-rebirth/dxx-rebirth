@@ -36,8 +36,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dsx {
 struct alias
 {
-	char alias_name[FILENAME_LEN];
-	char file_name[FILENAME_LEN];
+	std::array<char, FILENAME_LEN> alias_name;
+	std::array<char, FILENAME_LEN> file_name;
 };
 }
 #endif

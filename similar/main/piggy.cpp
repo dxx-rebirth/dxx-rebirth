@@ -407,10 +407,10 @@ bitmap_index piggy_find_bitmap(const std::span<const char> entry_name)
 
 	std::array<char, FILENAME_LEN> temp;
 	range_for (auto &i, partial_const_range(alias_list, Num_aliases))
-		if (i.alias_name[namelen] == 0 && d_strnicmp(name.data(), i.alias_name,namelen) == 0)
+		if (i.alias_name[namelen] == 0 && d_strnicmp(name.data(), i.alias_name.data(), namelen) == 0)
 		{
 			if (t) {                //extra stuff for ABMs
-				const auto path = d_splitpath(i.file_name);
+				const auto path = d_splitpath(i.file_name.data());
 				snprintf(temp.data(), temp.size(), "%.*s%s\n", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start, t);
 				name = temp;
 			}

@@ -862,13 +862,18 @@ void verify_textures()
 #if defined(DXX_BUILD_DESCENT_II) && DXX_USE_EDITOR
 void bm_read_alias()
 {
-	char *t;
-
 	Assert(Num_aliases < MAX_ALIASES);
+	auto &a = alias_list[Num_aliases];
+	a = {};
 
-	t = strtok( NULL, space_tab );  strncpy(alias_list[Num_aliases].alias_name,t,sizeof(alias_list[Num_aliases].alias_name));
-	t = strtok( NULL, space_tab );  strncpy(alias_list[Num_aliases].file_name,t,sizeof(alias_list[Num_aliases].file_name));
-
+	for (const auto b : {&a.alias_name, &a.file_name})
+	{
+		const auto t = strtok(nullptr, space_tab);
+		if (!t)
+			return;
+		const auto c = std::min(strlen(t), std::size(*b) - 1);
+		std::memcpy(std::data(*b), t, c);
+	}
 	Num_aliases++;
 }
 #endif
