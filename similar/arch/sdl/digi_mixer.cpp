@@ -41,6 +41,7 @@
 #include "d_bitset.h"
 #include "d_range.h"
 #include "d_underlying_value.h"
+#include "d_uspan.h"
 
 #define MIX_DIGI_DEBUG 0
 #define MIX_OUTPUT_FORMAT	AUDIO_S16
@@ -55,37 +56,6 @@
 namespace dcx {
 
 namespace {
-
-template <typename T>
-class unique_span : std::unique_ptr<T[]>
-{
-	using base_type = std::unique_ptr<T[]>;
-	std::size_t extent;
-public:
-	unique_span(const std::size_t e) :
-		base_type(std::make_unique<T[]>(e)),
-		extent(e)
-	{
-	}
-	unique_span(unique_span &&) = default;
-	using base_type::get;
-	/* Require an lvalue input, since the returned pointer is borrowed from
-	 * this object.  If the method is called on an rvalue input, then the
-	 * unique_ptr would be destroyed and free the memory before the returned
-	 * span was destroyed, which would leave the span dangling.
-	 */
-	[[nodiscard]]
-	std::span<T> span() &
-	{
-		return {get(), extent};
-	}
-	[[nodiscard]]
-	std::span<const T> span() const &
-	{
-		return {get(), extent};
-	}
-	std::span<const T> span() const && = delete;
-};
 
 enumerated_bitset<64, sound_channel> channels;
 
