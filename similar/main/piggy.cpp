@@ -75,12 +75,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define DEFAULT_SNDFILE ((Piggy_hamfile_version < pig_hamfile_version::_3) ? DEFAULT_HAMFILE_SHAREWARE : (GameArg.SndDigiSampleRate == sound_sample_rate::_22k) ? "descent2.s22" : "descent2.s11")
 
-#define MAC_ALIEN1_PIGSIZE      5013035
-#define MAC_ALIEN2_PIGSIZE      4909916
-#define MAC_FIRE_PIGSIZE        4969035
-#define MAC_GROUPA_PIGSIZE      4929684 // also used for mac shareware
-#define MAC_ICE_PIGSIZE         4923425
-#define MAC_WATER_PIGSIZE       4832403
+enum class pigfile_size : uint32_t
+{
+	mac_alien1_pigsize = 5013035,
+	mac_alien2_pigsize = 4909916,
+	mac_fire_pigsize = 4969035,
+	mac_groupa_pigsize = 4929684, // also used for mac shareware
+	mac_ice_pigsize = 4923425,
+	mac_water_pigsize = 4832403,
+};
 
 namespace dsx {
 
@@ -1324,7 +1327,7 @@ void piggy_bitmap_page_in(GameBitmaps_array &GameBitmaps, const bitmap_index ent
 			}
 			Piggy_bitmap_cache_next += zsize-4;
 #elif defined(DXX_BUILD_DESCENT_II)
-			int pigsize = PHYSFS_fileLength(Piggy_fp);
+			const pigfile_size pigsize{static_cast<uint32_t>(PHYSFS_fileLength(Piggy_fp))};
 
 			// GET JOHN NOW IF YOU GET THIS ASSERT!!!
 			//Assert( Piggy_bitmap_cache_next+zsize < Piggy_bitmap_cache_size );
@@ -1343,12 +1346,12 @@ void piggy_bitmap_page_in(GameBitmaps_array &GameBitmaps, const bitmap_index ent
 				if (!GameArg.EdiMacData)
 					break;
 				[[fallthrough]];
-			case MAC_ALIEN1_PIGSIZE:
-			case MAC_ALIEN2_PIGSIZE:
-			case MAC_FIRE_PIGSIZE:
-			case MAC_GROUPA_PIGSIZE:
-			case MAC_ICE_PIGSIZE:
-			case MAC_WATER_PIGSIZE:
+			case pigfile_size::mac_alien1_pigsize:
+			case pigfile_size::mac_alien2_pigsize:
+			case pigfile_size::mac_fire_pigsize:
+			case pigfile_size::mac_groupa_pigsize:
+			case pigfile_size::mac_ice_pigsize:
+			case pigfile_size::mac_water_pigsize:
 				rle_swap_0_255(*bmp);
 				memcpy(&zsize, bmp->bm_data, 4);
 				break;
@@ -1376,7 +1379,7 @@ void piggy_bitmap_page_in(GameBitmaps_array &GameBitmaps, const bitmap_index ent
 			if (MacPig)
 				swap_0_255(*bmp);
 #elif defined(DXX_BUILD_DESCENT_II)
-			int pigsize = PHYSFS_fileLength(Piggy_fp);
+			const pigfile_size pigsize{static_cast<uint32_t>(PHYSFS_fileLength(Piggy_fp))};
 			gr_set_bitmap_data(*bmp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next]);
 			Piggy_bitmap_cache_next+=bmp->bm_h*bmp->bm_w;
 
@@ -1386,12 +1389,12 @@ void piggy_bitmap_page_in(GameBitmaps_array &GameBitmaps, const bitmap_index ent
 				if (!GameArg.EdiMacData)
 					break;
 				[[fallthrough]];
-			case MAC_ALIEN1_PIGSIZE:
-			case MAC_ALIEN2_PIGSIZE:
-			case MAC_FIRE_PIGSIZE:
-			case MAC_GROUPA_PIGSIZE:
-			case MAC_ICE_PIGSIZE:
-			case MAC_WATER_PIGSIZE:
+			case pigfile_size::mac_alien1_pigsize:
+			case pigfile_size::mac_alien2_pigsize:
+			case pigfile_size::mac_fire_pigsize:
+			case pigfile_size::mac_groupa_pigsize:
+			case pigfile_size::mac_ice_pigsize:
+			case pigfile_size::mac_water_pigsize:
 				swap_0_255(*bmp);
 				break;
 			}
