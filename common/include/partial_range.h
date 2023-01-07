@@ -146,7 +146,7 @@ public:
 		 * and neither can be handled here.  These checks attempt to
 		 * catch obvious mistakes.
 		 */
-		requires(std::ranges::borrowed_range<T>)
+		requires(ranges::borrowed_range<T>)
 		partial_range_t(T &&t) :
 			m_begin(std::ranges::begin(t)), m_end(std::ranges::end(t))
 	{

@@ -131,7 +131,7 @@ public:
 		 * fully consumed.  If `range_type &&` is an ephemeral range, then its
 		 * storage may cease to exist after this constructor returns.
 		 */
-		requires(std::ranges::borrowed_range<range_type>)
+		requires(ranges::borrowed_range<range_type>)
 		enumerate(range_type &&t, const index_type i = index_type{}) :
 			base_type(std::forward<range_type>(t)), m_idx(i)
 	{
@@ -151,5 +151,5 @@ template <typename range_iterator_type, typename range_sentinel_type, typename i
 inline constexpr bool std::ranges::enable_borrowed_range<enumerate<range_iterator_type, range_sentinel_type, index_type>> = true;
 
 template <typename range_type, typename index_type = decltype(d_enumerate::detail::array_index_type(static_cast<typename std::remove_reference<range_type>::type *>(nullptr)))>
-requires(std::ranges::borrowed_range<range_type>)
+requires(ranges::borrowed_range<range_type>)
 enumerate(range_type &&r, index_type start = {/* value ignored for deduction guide */}) -> enumerate</* range_iterator_type = */ decltype(std::ranges::begin(std::declval<range_type &>())), /* range_sentinel_type = */ decltype(std::ranges::end(std::declval<range_type &>())), index_type>;

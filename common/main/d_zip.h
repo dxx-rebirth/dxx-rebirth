@@ -345,7 +345,7 @@ public:
 	template <typename... rangeN_type>
 		requires(
 			sizeof...(rangeN_type) > 0 &&
-			(std::ranges::borrowed_range<rangeN_type> && ...)
+			(ranges::borrowed_range<rangeN_type> && ...)
 		)
 		constexpr zip(rangeN_type &&... rN) :
 			iterator(std::ranges::begin(rN)...), m_end(d_zip::detail::capture_end_iterators<range_sentinel_type>(typename iterator::index_sequence_type(), rN...))
