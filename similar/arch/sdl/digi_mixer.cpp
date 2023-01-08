@@ -38,6 +38,7 @@
 #include "piggy.h"
 #include "u_mem.h"
 #include <memory>
+#include "compiler-cf_assert.h"
 #include "d_bitset.h"
 #include "d_range.h"
 #include "d_underlying_value.h"
@@ -166,6 +167,17 @@ void digi_mixer_close() {
 namespace {
 
 #if DXX_FEATURE_INTERNAL_RESAMPLER
+
+enum class upscale_factor : uint8_t
+{
+	/* The enum values must be the ratio of the destination divided by the
+	 * source, because the numeric value is used to compute how much buffer
+	 * space to allocate.  Do not renumber these constants.
+	 */
+	from_22khz_to_44khz = 2,
+	from_11khz_to_44khz = 4,
+};
+
 /*
  * Blackman windowed-sinc filter coefficients at 1/4 bandwidth of upsampled
  * frequency. Chosen for linear phase and approximates ~10th order IIR
@@ -235,8 +247,18 @@ static auto filter_fir(const unique_span<int8_t> signal_storage, const std::span
 	return result;
 }
 
-static auto upsample(const std::span<const uint8_t> input, const std::size_t upsampledLen, const std::size_t factor)
+static auto upsample(const std::span<const uint8_t> input, const upscale_factor upFactor)
 {
+	const std::size_t factor = underlying_value(upFactor);
+	switch (upFactor)
+	{
+		case upscale_factor::from_11khz_to_44khz:
+		case upscale_factor::from_22khz_to_44khz:
+			break;
+		default:
+			cf_assert(false);
+	}
+	const auto upsampledLen = input.size() * factor;
 	/* Caution: `output` is sparsely initialized, so the value-initialization
 	 * from `make_unique` is necessary.  This site cannot be converted to
 	 * `make_unique_for_overwrite`.
@@ -272,19 +294,20 @@ static auto replicateChannel(const unique_span<int16_t> input_storage, const std
 	return result;
 }
 
-static std::unique_ptr<Uint8[]> convert_audio(const std::span<const uint8_t> input, const std::size_t outsize, const int upFactor, const std::size_t chFactor)
+static std::unique_ptr<Uint8[]> convert_audio(const std::span<const uint8_t> input, const std::size_t outsize, const upscale_factor upFactor, const std::size_t chFactor)
 {
-	const auto upsampledLen = input.size() * upFactor;
-
 	// We expect a 4x upscaling 11025 -> 44100
 	// But maybe 2x for d2x in some cases
-	auto &coeffs = upFactor ? coeffs_halfband : coeffs_quarterband;
+	auto &coeffs = (upFactor == upscale_factor::from_22khz_to_44khz)
+		? coeffs_halfband
+		/* Otherwise, assume upscale_factor::from_11khz_to_44khz */
+		: coeffs_quarterband;
 
 	return replicateChannel(
 	// First upsample
 	// Apply LPF filter to smooth out upscaled points
 	// There will be some uniform amplitude loss here, but less than -3dB
-		filter_fir(upsample(input, upsampledLen, upFactor), coeffs),
+		filter_fir(upsample(input, upFactor), coeffs),
 		outsize, chFactor);
 }
 #endif
@@ -327,10 +350,23 @@ static void mixdigi_convert_sound(const unsigned i)
 
 	{
 #if DXX_FEATURE_INTERNAL_RESAMPLER
+		/* Only a small set of conversions are supported.  List them out
+		 * explicitly instead of using division.  This also allows the
+		 * conversion factor to be an `enum class`, which emphasizes its
+		 * limited legal values.
+		 */
+		if (out_freq != underlying_value(sound_sample_rate::_44k))
+			return;
+		upscale_factor upFactor;
+		if (freq == underlying_value(sound_sample_rate::_11k))
+			upFactor = upscale_factor::from_11khz_to_44khz;
+		else if (freq == underlying_value(sound_sample_rate::_22k))
+			upFactor = upscale_factor::from_22khz_to_44khz;
+		else
+			return;
 		// Create output memory
-		int upFactor = out_freq / freq;  // Should be integer, 2 or 4
 		int formatFactor = 2;  // U8 -> S16 is two bytes
-		int convertedSize = data.size() * upFactor * out_channels * formatFactor;
+		const std::size_t convertedSize = data.size() * underlying_value(upFactor) * out_channels * formatFactor;
 
 		auto cvtbuf = convert_audio(data, convertedSize, upFactor, out_channels);
 #else
