@@ -5731,6 +5731,8 @@ void dispatch_table::send_data_direct(const std::span<const uint8_t> data, const
 	{
 		const auto count_to_copy = data.size();
 		cf_assert(count_to_copy != std::dynamic_extent);
+		if (count_to_copy > buf.size() - len)
+			Error("net_udp_send_mdata_direct() got more data than UDP_mdata_info can hold!\n");
 		memcpy(std::span(buf).subspan(len, count_to_copy).data(), data.data(), count_to_copy);
 		len += count_to_copy;
 	}
