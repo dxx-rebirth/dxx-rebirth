@@ -21,6 +21,7 @@
 #include "console.h"
 
 #include <assert.h>
+#include <memory>
 
 #include "fwd-window.h"
 #include "event.h"
@@ -36,7 +37,7 @@ private:
 	class window *next = nullptr;				// the next window in the doubly linked list
 	uint8_t w_visible = 1;						// whether it's visible
 	uint8_t w_modal = 1;						// modal = accept all user input exclusively
-	bool *w_exists = nullptr;					// optional pointer to a tracking variable
+	std::shared_ptr<bool> w_exists;					// optional pointer to a tracking variable
 public:
 	explicit window(grs_canvas &src, int x, int y, int w, int h);
 	window(const window &) = delete;
@@ -85,9 +86,9 @@ public:
 		return wind.prev;
 	}
 
-	void track(bool *exists)
+	void track(std::shared_ptr<bool> exists)
 	{
-		assert(w_exists == nullptr);
+		assert(!w_exists);
 		w_exists = exists;
 	}
 };

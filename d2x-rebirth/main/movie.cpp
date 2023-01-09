@@ -23,6 +23,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <memory>
+
 #include <string.h>
 #ifndef macintosh
 # include <sys/types.h>
@@ -379,8 +381,8 @@ movie_play_status RunMovie(const char *const filename, const std::span<const cha
 	}
 	const auto reshow = hide_menus();
 	auto wind = window_create<movie>(grd_curscreen->sc_canvas, std::move(mvestream));
-	bool exists = true;
-	wind->track(&exists);
+	auto window_exists = std::make_shared<bool>(true);
+	wind->track(window_exists);
 	init_subtitles(wind->SubtitleState, subtitles);
 
 #if DXX_USE_OGL
@@ -392,7 +394,7 @@ movie_play_status RunMovie(const char *const filename, const std::span<const cha
 	gr_set_mode(hires_flag ? screen_mode{640, 480} : screen_mode{320, 200});
 #endif
 
-	while (exists)
+	while (*window_exists)
 		event_process();
 	wind = nullptr;
 
