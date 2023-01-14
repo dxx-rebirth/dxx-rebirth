@@ -60,7 +60,8 @@ template <typename sentinel_type>
 class enumerated_sentinel
 {
 public:
-	const sentinel_type m_sentinel;
+	sentinel_type m_sentinel;
+	constexpr enumerated_sentinel() = default;
 	constexpr enumerated_sentinel(sentinel_type &&iter) :
 		m_sentinel(std::move(iter))
 	{
@@ -105,6 +106,12 @@ public:
 		else
 			++ m_idx;
 		return *this;
+	}
+	enumerated_iterator operator++(int)
+	{
+		auto result = *this;
+		++ * this;
+		return result;
 	}
 	constexpr bool operator==(const enumerated_sentinel<sentinel_type> &i) const
 	{
