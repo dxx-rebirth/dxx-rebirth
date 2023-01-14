@@ -385,12 +385,6 @@ window_event_result standard_handler(const d_event &event)
 #endif
 					return window_event_result::handled;
 
-#if defined(__APPLE__) || defined(macintosh)
-				case KEY_COMMAND+KEY_Q:
-					// Alt-F4 already taken, too bad
-					Quitting = 1;
-					return window_event_result::handled;
-#endif
 				case KEY_SHIFTED + KEY_ESC:
 					con_showup(Controls);
 					return window_event_result::handled;
