@@ -61,6 +61,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 
 #include "compiler-range_for.h"
+#include "compiler-cf_assert.h"
 #include "d_levelstate.h"
 #include "d_enumerate.h"
 #include "d_range.h"
@@ -1398,6 +1399,15 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 			}
 			if (child_iter == child_begin)
 				continue;
+			/* The preceding loop will write at most one element per iteration,
+			 * and iterates at most std::size(Side_to_verts) steps.  Therefore,
+			 * it advances `child_iter` by at most `std::size(Side_to_verts)`
+			 * steps.  gcc-12 warns in `sort_seg_children` when `std::sort`
+			 * computes `begin + 16`, which exceeds `begin + size()`.  This
+			 * control-flow assertion encourages it to prune the bad path
+			 * before warning about it.
+			 */
+			cf_assert(std::distance(child_begin, child_iter) <= std::size(Side_to_verts));
 
 			//now order the sides in some magical way
 			const auto &&child_range = ranges::subrange(child_begin, child_iter);
