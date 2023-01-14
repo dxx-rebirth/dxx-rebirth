@@ -57,8 +57,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segiter.h"
 
 namespace {
-static void paging_touch_vclip(const vclip &vc, const unsigned line)
-#define paging_touch_vclip(V)	paging_touch_vclip(V, __LINE__)
+
+static void paging_touch_vclip(const vclip &vc, const unsigned line
+#if DXX_HAVE_CXX_BUILTIN_FILE_LINE
+							   = __builtin_LINE()
+#else
+							   = 0
+#endif
+							   )
 {
 	using range_type = partial_range_t<const bitmap_index*>;
 	union {
@@ -81,6 +87,30 @@ static void paging_touch_vclip(const vclip &vc, const unsigned line)
 	}
 }
 
+static void paging_touch_vclip(const d_vclip_array &Vclip, const int vclip_id, const unsigned line
+#if DXX_HAVE_CXX_BUILTIN_FILE_LINE
+							   = __builtin_LINE()
+#else
+							   = 0
+#endif
+							   )
+{
+	if (vclip_id > -1)
+		paging_touch_vclip(Vclip[vclip_id], line);
+}
+
+static void paging_touch_vclip(const d_eclip_array &Effects, const int eclip_id, const unsigned line
+#if DXX_HAVE_CXX_BUILTIN_FILE_LINE
+							   = __builtin_LINE()
+#else
+							   = 0
+#endif
+							   )
+{
+	if (eclip_id > -1)
+		paging_touch_vclip(Effects[eclip_id].vc, line);
+}
+
 static void paging_touch_wall_effects(const d_eclip_array &Effects, const Textures_array &Textures, const d_vclip_array &Vclip, const int tmap_num)
 {
 	range_for (auto &i, partial_const_range(Effects, Num_effects))
@@ -90,14 +120,9 @@ static void paging_touch_wall_effects(const d_eclip_array &Effects, const Textur
 
 			if (i.dest_bm_num < Textures.size())
 				PIGGY_PAGE_IN( Textures[i.dest_bm_num] );	//use this bitmap when monitor destroyed
-			if ( i.dest_vclip > -1 )
-				paging_touch_vclip(Vclip[i.dest_vclip]);		  //what vclip to play when exploding
-
-			if ( i.dest_eclip > -1 )
-				paging_touch_vclip(Effects[i.dest_eclip].vc); //what eclip to play when exploding
-
-			if ( i.crit_clip > -1 )
-				paging_touch_vclip(Effects[i.crit_clip].vc); //what eclip to play when mine critical
+			paging_touch_vclip(Vclip, i.dest_vclip);		  //what vclip to play when exploding
+			paging_touch_vclip(Effects, i.dest_eclip); //what eclip to play when exploding
+			paging_touch_vclip(Effects, i.crit_clip); //what eclip to play when mine critical
 			break;
 		}
 	}
@@ -137,22 +162,18 @@ static void paging_touch_weapon(const d_vclip_array &Vclip, const weapon_info &w
 		PIGGY_PAGE_IN(weapon.picture);
 	}		
 	
-	if (weapon.flash_vclip > -1)
-		paging_touch_vclip(Vclip[weapon.flash_vclip]);
-	if (weapon.wall_hit_vclip > -1)
-		paging_touch_vclip(Vclip[weapon.wall_hit_vclip]);
+	paging_touch_vclip(Vclip, weapon.flash_vclip);
+	paging_touch_vclip(Vclip, weapon.wall_hit_vclip);
 	if (weapon.damage_radius)
 	{
 		// Robot_hit_vclips are actually badass_vclips
-		if (weapon.robot_hit_vclip > -1)
-			paging_touch_vclip(Vclip[weapon.robot_hit_vclip]);
+		paging_touch_vclip(Vclip, weapon.robot_hit_vclip);
 	}
 
 	switch(weapon.render)
 	{
 	case WEAPON_RENDER_VCLIP:
-		if (weapon.weapon_vclip > -1)
-			paging_touch_vclip(Vclip[weapon.weapon_vclip]);
+		paging_touch_vclip(Vclip, weapon.weapon_vclip);
 		break;
 	case WEAPON_RENDER_NONE:
 	case weapon_info::render_type::laser:
@@ -179,10 +200,8 @@ static void paging_touch_robot(const d_robot_info_array &Robot_info, const d_vcl
 	auto &ri = Robot_info[ridx];
 	// Page in robot_index
 	paging_touch_model(ri.model_num);
-	if (ri.exp1_vclip_num > -1)
-		paging_touch_vclip(Vclip[ri.exp1_vclip_num]);
-	if (ri.exp2_vclip_num > -1)
-		paging_touch_vclip(Vclip[ri.exp2_vclip_num]);
+	paging_touch_vclip(Vclip, ri.exp1_vclip_num);
+	paging_touch_vclip(Vclip, ri.exp2_vclip_num);
 
 	// Page in his weapons
 	paging_touch_weapon(Vclip, Weapon_info, ri.weapon_type);
@@ -198,8 +217,6 @@ static void paging_touch_robot(const d_robot_info_array &Robot_info, const d_vcl
 
 static void paging_touch_object(const d_robot_info_array &Robot_info, const Textures_array &Textures, const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, const object_base &obj)
 {
-	int v;
-
 	switch (obj.render_type) {
 
 		case RT_NONE:	break;		//doesn't render, like the player
@@ -212,10 +229,7 @@ static void paging_touch_object(const d_robot_info_array &Robot_info, const Text
 			break;
 
 		case RT_POWERUP:
-			if (obj.rtype.vclip_info.vclip_num > -1)
-			{
-				paging_touch_vclip(Vclip[obj.rtype.vclip_info.vclip_num]);
-			}
+			paging_touch_vclip(Vclip, obj.rtype.vclip_info.vclip_num);
 			break;
 
 		case RT_MORPH:	break;
@@ -235,9 +249,7 @@ static void paging_touch_object(const d_robot_info_array &Robot_info, const Text
 		default:
 			break;
 	case OBJ_PLAYER:	
-		v = get_explosion_vclip(LevelSharedRobotInfoState.Robot_info, obj, explosion_vclip_stage::s0);
-		if ( v > -1 )
-			paging_touch_vclip(Vclip[v]);
+		paging_touch_vclip(Vclip, get_explosion_vclip(LevelSharedRobotInfoState.Robot_info, obj, explosion_vclip_stage::s0));
 		break;
 	case OBJ_ROBOT:
 		paging_touch_robot(Robot_info, Vclip, Weapon_info, get_robot_id(obj));
@@ -343,10 +355,7 @@ void paging_touch_all(const d_vclip_array &Vclip)
 	paging_touch_walls(Textures, WallAnims, vcwallptr);
 
 	range_for (auto &s, partial_const_range(Powerup_info, N_powerup_types))
-	{
-		if ( s.vclip_num > -1 )	
-			paging_touch_vclip(Vclip[s.vclip_num]);
-	}
+		paging_touch_vclip(Vclip, s.vclip_num);
 
 	range_for (auto &w, partial_const_range(Weapon_info, N_weapon_types))
 	{
@@ -354,10 +363,7 @@ void paging_touch_all(const d_vclip_array &Vclip)
 	}
 
 	range_for (auto &s, partial_const_range(Powerup_info, N_powerup_types))
-	{
-		if ( s.vclip_num > -1 )	
-			paging_touch_vclip(Vclip[s.vclip_num]);
-	}
+		paging_touch_vclip(Vclip, s.vclip_num);
 
 	range_for (auto &s, Gauges)
 	{
