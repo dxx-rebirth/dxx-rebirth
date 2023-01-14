@@ -517,7 +517,7 @@ int newmenu_get_citem(newmenu *menu);
 // nm_messagebox( "Title", "Subtitle", 2, "Ok", "Cancel", "There are %d objects", nobjects );
 // Returns 0 through nchoices-1.
 //int nm_messagebox(const char *title, int nchoices, ...);
-typedef cstring_tie<5> nm_messagebox_tie;
+using nm_messagebox_tie = cstring_tie<4>;
 
 int nm_messagebox(menu_title title, const nm_messagebox_tie &tie, const char *format, ...) __attribute_format_printf(3, 4);
 
