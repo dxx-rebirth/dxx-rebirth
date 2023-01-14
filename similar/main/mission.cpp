@@ -1440,17 +1440,16 @@ static std::unique_ptr<mission_menu_create_state> prepare_mission_menu_state(con
 
 namespace dsx {
 
-int select_mission(const mission_filter_mode mission_filter, const menu_title message, window_event_result (*when_selected)(void))
+void select_mission(const mission_filter_mode mission_filter, const menu_title message, window_event_result (*when_selected)(void))
 {
 	auto &&mission_list = build_mission_list(mission_filter);
-	int new_mission_num;
 
+	if (mission_list.empty())
+		return;
     if (mission_list.size() <= 1)
 	{
-        new_mission_num = !mission_list.empty() && !load_mission(&mission_list.front()) ? 0 : -1;
+        load_mission(&mission_list.front());
 		(*when_selected)();
-		
-		return (new_mission_num >= 0);
     }
 	else
 	{
@@ -1473,8 +1472,6 @@ int select_mission(const mission_filter_mode mission_filter, const menu_title me
 			parent_mission_menu = submm;
 		}
     }
-
-    return 1;	// presume success
 }
 
 #if DXX_USE_EDITOR
