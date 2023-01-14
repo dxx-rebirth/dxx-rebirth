@@ -720,15 +720,12 @@ window_event_result dispatch_menu_option(const netgame_menu_item_index select)
 	switch (select)
 	{
 		case netgame_menu_item_index::start_new_multiplayer_game:
-			multi_protocol = MULTI_PROTO_UDP;
 			select_mission(mission_filter_mode::include_anarchy, menu_title{TXT_MULTI_MISSION}, net_udp_setup_game);
 			break;
 		case netgame_menu_item_index::join_multiplayer_game:
-			multi_protocol = MULTI_PROTO_UDP;
 			net_udp_manual_join_game();
 			break;
 		case netgame_menu_item_index::list_multiplayer_games:
-			multi_protocol = MULTI_PROTO_UDP;
 			net_udp_list_join_game(*grd_curcanv);
 			break;
 		default:

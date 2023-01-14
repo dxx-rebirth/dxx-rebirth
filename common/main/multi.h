@@ -89,7 +89,6 @@ struct _sockaddr
 };
 
 // PROTOCOL VARIABLES AND DEFINES
-extern int multi_protocol; // set and determinate used protocol
 
 enum class network_game_type : uint8_t
 {
