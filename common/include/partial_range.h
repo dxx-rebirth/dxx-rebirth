@@ -100,8 +100,9 @@ struct partial_range_error;
 #endif
 
 template <typename range_iterator, typename range_index_type>
-class partial_range_t
+class partial_range_t : ranges::subrange<range_iterator>
 {
+	using base_type = ranges::subrange<range_iterator>;
 public:
 	static_assert(!std::is_reference<range_iterator>::value);
 	using iterator = range_iterator;
@@ -119,58 +120,23 @@ public:
 	using partial_range_error =
 #endif
 	struct partial_range_error;
-	iterator m_begin, m_end;
-	partial_range_t(iterator b, iterator e) :
-		m_begin(b), m_end(e)
-	{
-	}
+	using base_type::base_type;
 	partial_range_t(const partial_range_t &) = default;
 	partial_range_t(partial_range_t &&) = default;
 	partial_range_t &operator=(const partial_range_t &) = default;
-	template <typename T>
-		/* If `T &&`, after reference collapsing, is an lvalue
-		 * reference, then the object referenced by `t` will remain in
-		 * scope after the statement that called this constructor, and
-		 * there is no need to check whether the object `t` owns the
-		 * iterated range.
-		 *
-		 * Otherwise, if `t` is an rvalue reference, require that `t` is
-		 * a view onto a range, rather than owning the range.  A `t`
-		 * that owns the storage would leave the iterators dangling.
-		 *
-		 * These checks are not precise.  It is possible to have a type
-		 * T that remains in scope, but frees its storage early, and
-		 * leaves the range dangling.  It is possible to have a type T
-		 * that owns the storage, and is not destroyed after the
-		 * containing statement terminates.  Neither are good designs,
-		 * and neither can be handled here.  These checks attempt to
-		 * catch obvious mistakes.
-		 */
-		requires(std::ranges::borrowed_range<T>)
-		partial_range_t(T &&t) :
-			m_begin(std::ranges::begin(t)), m_end(std::ranges::end(t))
-	{
-	}
-	[[nodiscard]]
-	iterator begin() const { return m_begin; }
-	[[nodiscard]]
-	iterator end() const { return m_end; }
-	[[nodiscard]]
-	bool empty() const
-	{
-		return m_begin == m_end;
-	}
-	[[nodiscard]]
-	std::size_t size() const { return std::distance(m_begin, m_end); }
+	using base_type::begin;
+	using base_type::end;
+	using base_type::empty;
+	using base_type::size;
 	[[nodiscard]]
 	std::reverse_iterator<iterator> rbegin() const
 	{
-		return std::reverse_iterator<iterator>{m_end};
+		return std::reverse_iterator<iterator>{end()};
 	}
 	[[nodiscard]]
 	std::reverse_iterator<iterator> rend() const
 	{
-		return std::reverse_iterator<iterator>{m_begin};
+		return std::reverse_iterator<iterator>{begin()};
 	}
 	[[nodiscard]]
 	partial_range_t<std::reverse_iterator<iterator>, index_type> reversed() const
@@ -180,7 +146,7 @@ public:
 };
 
 template <typename range_iterator, typename range_index_type>
-inline constexpr bool std::ranges::enable_borrowed_range<partial_range_t<range_iterator, range_index_type>> = true;
+inline constexpr bool std::ranges::enable_borrowed_range<partial_range_t<range_iterator, range_index_type>> = std::ranges::enable_borrowed_range<::ranges::subrange<range_iterator>>;
 
 #if DXX_PARTIAL_RANGE_MINIMIZE_ERROR_TYPE
 struct partial_range_error

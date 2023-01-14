@@ -590,18 +590,16 @@ void med_combine_duplicate_vertices(enumerated_array<uint8_t, MAX_VERTICES, vert
 	auto &vcvertptridx = Vertices.vcptridx;
 	const auto &&range = make_range(vcvertptridx);
 	// Note: ok to do to <, rather than <= because w for loop starts at v+1
-	if (range.m_begin == range.m_end)
+	if (range.empty())
 		return;
-	for (auto i = range.m_begin;;)
+	for (auto i = range.begin();;)
 	{
 		const auto &&v = *i;
-		if (++i == range.m_end)
+		if (++i == range.end())
 			return;
 		if (vlp[v]) {
 			auto &vvp = *v;
-			auto subrange = range;
-			subrange.m_begin = i;
-			range_for (auto &&w, subrange)
+			for (auto &&w : ranges::subrange(i, range.end()))
 				if (vlp[w]) {	//	used to be Vertex_active[w]
 					if (vnear(vvp, *w)) {
 						change_vertex_occurrences(vmsegptr, v, w);

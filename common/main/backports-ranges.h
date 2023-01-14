@@ -62,6 +62,10 @@ public:
 	{
 		return std::distance(b, e);
 	}
+	bool empty() const
+	{
+		return b == e;
+	}
 };
 
 subrange(auto &r) -> subrange<decltype(std::ranges::begin(r)), decltype(std::ranges::end(r))>;
