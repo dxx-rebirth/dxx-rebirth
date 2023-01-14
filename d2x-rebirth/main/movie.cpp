@@ -237,7 +237,7 @@ namespace dsx {
 
 namespace {
 
-struct movie : window
+struct movie : window, mixin_trackable_window
 {
 	MVE_StepStatus result = MVE_StepStatus::EndOfFile;
 	int frame_num = 0;
@@ -379,8 +379,6 @@ movie_play_status RunMovie(const char *const filename, const std::span<const cha
 	}
 	const auto reshow = hide_menus();
 	auto wind = window_create<movie>(grd_curscreen->sc_canvas, std::move(mvestream));
-	bool exists = true;
-	wind->track(&exists);
 	init_subtitles(wind->SubtitleState, subtitles);
 
 #if DXX_USE_OGL
@@ -392,7 +390,7 @@ movie_play_status RunMovie(const char *const filename, const std::span<const cha
 	gr_set_mode(hires_flag ? screen_mode{640, 480} : screen_mode{320, 200});
 #endif
 
-	while (exists)
+	for (const auto exists = wind->track(); *exists;)
 		event_process();
 	wind = nullptr;
 

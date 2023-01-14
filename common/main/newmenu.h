@@ -347,7 +347,7 @@ struct newmenu_layout
 	void create_structure();
 };
 
-struct newmenu : newmenu_layout, window
+struct newmenu : newmenu_layout, window, mixin_trackable_window
 {
 	using subfunction_type = int(*)(newmenu *menu, const d_event &event, void *userdata);
 	newmenu(const menu_title title, const menu_subtitle subtitle, const menu_filename filename, const tiny_mode_flag tiny_mode, const tab_processing_flag tabs_flag, const adjusted_citem citem_init, grs_canvas &src, const draw_box_flag draw_box = draw_box_flag::menu_background) :

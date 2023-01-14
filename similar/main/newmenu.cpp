@@ -534,16 +534,13 @@ int newmenu_do2(const menu_title title, const menu_subtitle subtitle, const rang
 
 int newmenu::process_until_closed(newmenu *const menu)
 {
-	bool exists = true;
 	int rval = -1;
 	menu->rval = &rval;
 	// Track to see when the window is freed
 	// Doing this way in case another window is opened on top without its own polling loop
-	menu->track(&exists);
-
 	// newmenu_do2 and simpler get their own event loop
 	// This is so the caller doesn't have to provide a callback that responds to EVENT_NEWMENU_SELECTED
-	while (exists)
+	for (const auto exists = menu->track(); *exists;)
 		event_process();
 
 	/* menu is now a pointer to freed memory, and cannot be accessed

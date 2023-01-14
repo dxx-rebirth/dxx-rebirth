@@ -50,8 +50,6 @@ void window::send_creation_events()
 
 window::~window()
 {
-	if (w_exists)
-		*w_exists = false;
 	if (this == FrontWindow)
 		FrontWindow = this->prev;
 	if (this == FirstWindow)
@@ -60,6 +58,12 @@ window::~window()
 		this->next->prev = this->prev;
 	if (this->prev)
 		this->prev->next = this->next;
+}
+
+mixin_trackable_window::~mixin_trackable_window()
+{
+	if (exists)
+		*exists = false;
 }
 
 int window_close(window *wind)

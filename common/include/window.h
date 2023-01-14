@@ -24,6 +24,7 @@
 
 #include "fwd-window.h"
 #include "event.h"
+#include <memory>
 
 namespace dcx {
 
@@ -36,7 +37,6 @@ private:
 	class window *next = nullptr;				// the next window in the doubly linked list
 	uint8_t w_visible = 1;						// whether it's visible
 	uint8_t w_modal = 1;						// modal = accept all user input exclusively
-	bool *w_exists = nullptr;					// optional pointer to a tracking variable
 public:
 	explicit window(grs_canvas &src, int x, int y, int w, int h);
 	window(const window &) = delete;
@@ -84,12 +84,18 @@ public:
 	{
 		return wind.prev;
 	}
+};
 
-	void track(bool *exists)
+struct mixin_trackable_window
+{
+	std::shared_ptr<bool> exists;
+	std::shared_ptr<bool> track()
 	{
-		assert(w_exists == nullptr);
-		w_exists = exists;
+		if (!exists)
+			exists = std::make_unique<bool>(true);
+		return exists;
 	}
+	~mixin_trackable_window();
 };
 
 void menu_destroy_hook(window *w);
