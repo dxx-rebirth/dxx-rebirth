@@ -4149,7 +4149,7 @@ try_again:
 			newmenu_item::nm_item_text{TXT_DEMO_SAVE_NOSPACE},
 			newmenu_item::nm_item_input(filename, demoname_allowed_chars),
 		}};
-		exit = newmenu_do2(menu_title{nullptr}, menu_subtitle{nullptr}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
+		exit = run_blocking_newmenu<newmenu>(menu_title{nullptr}, menu_subtitle{nullptr}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, newmenu_layout::adjusted_citem::create(m, 0), grd_curscreen->sc_canvas);
 	}
 
 	if (exit == -2) {                   // got bumped out from network menu
