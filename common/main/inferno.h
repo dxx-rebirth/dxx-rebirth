@@ -85,7 +85,6 @@ namespace dsx {
  **	Global variables
  **/
 
-extern int Quitting;
 extern int Screen_mode;			// editor screen or game screen?
 #ifdef DXX_BUILD_DESCENT_I
 extern int MacHog;

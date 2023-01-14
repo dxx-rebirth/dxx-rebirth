@@ -285,8 +285,6 @@ static void print_commandline_help()
 
 }
 
-int Quitting = 0;
-
 }
 
 namespace dcx {
@@ -295,35 +293,6 @@ namespace dcx {
 window_event_result standard_handler(const d_event &event)
 {
 	int key;
-
-	if (Quitting)
-	{
-		window *wind = window_get_front();
-		if (!wind)
-			return window_event_result::ignored;	// finished quitting
-	
-		if (wind == Game_wind)
-		{
-			Quitting = 0;
-			const auto choice = nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_YES, TXT_NO), menu_subtitle{TXT_ABORT_GAME});
-			if (choice != 0)
-				return window_event_result::handled;	// aborted quitting
-			else
-			{
-				CGameArg.SysAutoDemo = false;
-				Quitting = 1;
-			}
-		}
-		
-		// Close front window, let the code flow continue until all windows closed or quit cancelled
-		if (!window_close(wind))
-		{
-			Quitting = 0;
-			return window_event_result::handled;
-		}
-		
-		return window_event_result::deleted;	// tell the event system we deleted some window
-	}
 
 	switch (event.type)
 	{
@@ -401,11 +370,28 @@ window_event_result standard_handler(const d_event &event)
 
 		case EVENT_QUIT:
 #if DXX_USE_EDITOR
-			if (SafetyCheck())
+			if (!SafetyCheck())
+				return window_event_result::handled;
 #endif
-				Quitting = 1;
-			return window_event_result::handled;
+			for (;;)
+			{
+				const auto wind = window_get_front();
+				if (!wind)
+					return window_event_result::handled;	// finished quitting
 
+				if (wind == Game_wind)
+				{
+					const auto choice = nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_YES, TXT_NO), menu_subtitle{TXT_ABORT_GAME});
+					if (choice != 0)
+						return window_event_result::handled;	// aborted quitting
+					else
+						CGameArg.SysAutoDemo = false;
+				}
+
+				// Close front window, let the code flow continue until all windows closed or quit cancelled
+				if (!window_close(wind))
+					return window_event_result::handled;
+			}
 		default:
 			break;
 	}
