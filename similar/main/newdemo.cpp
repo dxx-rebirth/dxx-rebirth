@@ -4143,7 +4143,7 @@ try_again:
 		std::array<newmenu_item, 1> m{{
 			newmenu_item::nm_item_input(filename, demoname_allowed_chars),
 		}};
-		exit = newmenu_do2(menu_title{nullptr}, menu_subtitle{TXT_SAVE_DEMO_AS}, m, unused_newmenu_subfunction, unused_newmenu_userdata);
+		exit = run_blocking_newmenu<newmenu>(menu_title{nullptr}, menu_subtitle{TXT_SAVE_DEMO_AS}, menu_filename{nullptr}, tiny_mode_flag::normal, tab_processing_flag::ignore, newmenu_layout::adjusted_citem::create(m, 0), grd_curscreen->sc_canvas);
 	} else if (nd_record_v_no_space == 2) {
 		std::array<newmenu_item, 2> m{{
 			newmenu_item::nm_item_text{TXT_DEMO_SAVE_NOSPACE},
