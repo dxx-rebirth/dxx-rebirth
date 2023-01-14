@@ -2334,10 +2334,19 @@ window_event_result browser::callback_handler(const d_event &event, window_event
 			{
 				const size_t len_newpath = strlen(newpath.data());
 				const size_t len_item = strlen(list[citem]);
-				if (len_newpath + len_item < newpath.size())
+				/* The separator may or may not be included, depending on
+				 * whether one is already present.  Regardless of whether a new
+				 * separator is printed by the block, require sufficient space
+				 * for it to fit.  This is pessimistic, but should discourage
+				 * gcc's -Wformat-truncation from warning about insufficient
+				 * buffer capacity.  In practice, users should never have a
+				 * path that approaches this limit, so the `if` test should
+				 * succeed in all reasonable cases.
+				 */
+				const size_t len_sep = strlen(sep);
+				if (len_newpath + len_item + len_sep < newpath.size())
 				{
-					const size_t len_sep = strlen(sep);
-					snprintf(&newpath[len_newpath], newpath.size() - len_newpath, "%s%s", strncmp(&newpath[len_newpath - len_sep], sep, len_sep) ? sep : "", list[citem]);
+					snprintf(&newpath[len_newpath], newpath.size() - len_newpath, "%s%s", (len_newpath >= len_sep && strncmp(&newpath[len_newpath - len_sep], sep, len_sep)) ? sep : "", list[citem]);
 				}
 			}
 			if ((citem == 0) || PHYSFS_isDirectory(list[citem]))
