@@ -1938,7 +1938,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 
 	if (const auto errstr = load_mission_by_name(mission_predicate, name_match_mode))
 	{
-		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Unable to load mission\n'%s'\n\n%s", mission_pathname.full.data(), errstr);
+		nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "Unable to load mission\n'%s'\n\n%s", mission_pathname.full.data(), errstr);
 		return 0;
 	}
 

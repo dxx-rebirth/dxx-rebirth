@@ -855,7 +855,7 @@ static bool convert_text_portstring(const std::array<char, 6> &portstring, uint1
 	if (*porterror || static_cast<uint16_t>(myport) != myport || (!allow_privileged && myport < 1024))
 	{
 		if (!silent)
-			nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Illegal port \"%s\"", portstring.data());
+			nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "Illegal port \"%s\"", portstring.data());
 		return false;
 	}
 	else
@@ -1022,7 +1022,7 @@ int udp_dns_filladdr(sockaddr_ref addr, const char *host, uint16_t port, bool nu
 	{
 		con_printf( CON_URGENT, "udp_dns_filladdr (getaddrinfo) failed for host %s", host );
 		if (!silent)
-			nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Could not resolve address\n%s", host);
+			nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "Could not resolve address\n%s", host);
 		addr.sa.sa_family = AF_UNSPEC;
 		return -1;
 	}
@@ -1031,7 +1031,7 @@ int udp_dns_filladdr(sockaddr_ref addr, const char *host, uint16_t port, bool nu
 	{
 		con_printf(CON_URGENT, "Address too big for host %s", host);
 		if (!silent)
-			nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Address too big for host\n%s", host);
+			nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "Address too big for host\n%s", host);
 		addr.sa.sa_family = AF_UNSPEC;
 		return -1;
 	}
@@ -1061,7 +1061,7 @@ int udp_dns_filladdr(sockaddr_ref addr, const char *host, uint16_t port, bool nu
 	{
 		con_printf(CON_URGENT, "udp_dns_filladdr (gethostbyname) failed for host %s", host);
 		if (!silent)
-			nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Could not resolve IPv4 address\n%s", host);
+			nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "Could not resolve IPv4 address\n%s", host);
 		addr.sa.sa_family = AF_UNSPEC;
 		return -1;
 	}
@@ -1085,7 +1085,7 @@ static int udp_open_socket(RAIIsocket &sock, int port)
 	if (!sock)
 	{
 		con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)", port);
-		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Port: %i\nCould not create socket.", port);
+		nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "Port: %i\nCould not create socket.", port);
 		return -1;
 	}
 	sAddr = {};
@@ -1101,7 +1101,7 @@ static int udp_open_socket(RAIIsocket &sock, int port)
 	if (bind(sock, &sAddr.sa, sizeof(sAddr)) < 0)
 	{      
 		con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed (port %i)", port);
-		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Port: %i\nCould not bind name to socket.", port);
+		nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "Port: %i\nCould not bind name to socket.", port);
 		sock.reset();
 		return -1;
 	}
@@ -1310,7 +1310,7 @@ static int net_udp_game_connect(direct_join *const dj)
 			:
 #endif
 			dj->host_addr.sin.sin_port;
-		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK,
+		nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK},
 "No response by host.\n\n\
 Possible reasons:\n\
 * No game on %s (anymore)\n\
@@ -1323,7 +1323,7 @@ Possible reasons:\n\
 	
 	if (Netgame.protocol.udp.valid == -1)
 	{
-		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Version mismatch! Cannot join Game.\n\nHost game version: %i.%i.%i\nHost game protocol: %i\n(%s)\n\nYour game version: " DXX_VERSION_STR "\nYour game protocol: %i\n(%s)", Netgame.protocol.udp.program_iver[0], Netgame.protocol.udp.program_iver[1], Netgame.protocol.udp.program_iver[2], Netgame.protocol.udp.program_iver[3], (Netgame.protocol.udp.program_iver[3]==0?"RELEASE VERSION":"DEVELOPMENT BUILD, BETA, etc."), MULTI_PROTO_VERSION, (MULTI_PROTO_VERSION==0?"RELEASE VERSION":"DEVELOPMENT BUILD, BETA, etc."));
+		nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "Version mismatch! Cannot join Game.\n\nHost game version: %i.%i.%i\nHost game protocol: %i\n(%s)\n\nYour game version: " DXX_VERSION_STR "\nYour game protocol: %i\n(%s)", Netgame.protocol.udp.program_iver[0], Netgame.protocol.udp.program_iver[1], Netgame.protocol.udp.program_iver[2], Netgame.protocol.udp.program_iver[3], (Netgame.protocol.udp.program_iver[3]==0?"RELEASE VERSION":"DEVELOPMENT BUILD, BETA, etc."), MULTI_PROTO_VERSION, (MULTI_PROTO_VERSION==0?"RELEASE VERSION":"DEVELOPMENT BUILD, BETA, etc."));
 		dj->connecting = direct_join::connect_type::idle;
 		return 0;
 	}
@@ -3668,7 +3668,7 @@ static int net_udp_start_poll(newmenu *, const d_event &event, start_poll_menu_i
 	};
 	const auto nm = std::count_if(menus.begin(), std::next(menus.begin(), nitems), predicate);
 	if ( nm > Netgame.max_numplayers ) {
-		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "%s %d %s", TXT_SORRY_ONLY, Netgame.max_numplayers, TXT_NETPLAYERS_IN);
+		nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "%s %d %s", TXT_SORRY_ONLY, Netgame.max_numplayers, TXT_NETPLAYERS_IN);
 		// Turn off the last player highlighted
 		for (int i = N_players; i > 0; i--)
 			if (menus[i].value == 1) 
@@ -4223,12 +4223,12 @@ window_event_result more_game_options_menu::event_handler(const d_event &event)
 			if (Netgame.PacketsPerSec > MAX_PPS)
 			{
 				Netgame.PacketsPerSec = MAX_PPS;
-				nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Packet value out of range\nSetting value to %i", MAX_PPS);
+				nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "Packet value out of range\nSetting value to %i", MAX_PPS);
 			}
 			else if (Netgame.PacketsPerSec < MIN_PPS)
 			{
 				Netgame.PacketsPerSec = MIN_PPS;
-				nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Packet value out of range\nSetting value to %i", MIN_PPS);
+				nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "Packet value out of range\nSetting value to %i", MIN_PPS);
 			}
 			GameUniqueState.Difficulty_level = Netgame.difficulty;
 			break;
@@ -4686,7 +4686,7 @@ static int net_udp_send_sync(void)
 	// Check if there are enough starting positions
 	if (supported_start_positions_on_level < Netgame.max_numplayers)
 	{
-		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Not enough start positions\n(set %d got %d)\nNetgame aborted", Netgame.max_numplayers, supported_start_positions_on_level);
+		nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "Not enough start positions\n(set %d got %d)\nNetgame aborted", Netgame.max_numplayers, supported_start_positions_on_level);
 		// Tell everyone we're bailing
 		Netgame.numplayers = 0;
 		for (unsigned i = 1; i < N_players; ++i)
@@ -4836,7 +4836,7 @@ abort:
 	}
 	
 	if ( N_players > Netgame.max_numplayers) {
-		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "%s %d %s", TXT_SORRY_ONLY, Netgame.max_numplayers, TXT_NETPLAYERS_IN);
+		nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "%s %d %s", TXT_SORRY_ONLY, Netgame.max_numplayers, TXT_NETPLAYERS_IN);
 		N_players = save_nplayers;
 		goto GetPlayersAgain;
 	}

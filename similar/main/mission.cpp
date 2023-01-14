@@ -1362,7 +1362,7 @@ window_event_result mission_menu::callback_handler(const d_event &event, window_
 				// Chose a mission
 				else if (const auto errstr = load_mission(&mli))
 				{
-					nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s\n\n%s\n\n%s", TXT_MISSION_ERROR, errstr, mli.path.c_str());
+					nm_messagebox(menu_title{nullptr}, {TXT_OK}, "%s\n\n%s\n\n%s", TXT_MISSION_ERROR, errstr, mli.path.c_str());
 					return window_event_result::handled;	// stay in listbox so user can select another one
 				}
 				CGameCfg.LastMission.copy_if(listbox_strings[raw_citem]);

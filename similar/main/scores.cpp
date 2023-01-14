@@ -163,7 +163,7 @@ static void scores_write(all_scores *scores)
 	RAIIPHYSFS_File fp{PHYSFS_openWrite(SCORES_FILENAME)};
 	if (!fp)
 	{
-		nm_messagebox(menu_title{TXT_WARNING}, 1, TXT_OK, "%s\n'%s'", TXT_UNABLE_TO_OPEN, SCORES_FILENAME);
+		nm_messagebox(menu_title{TXT_WARNING}, {TXT_OK}, "%s\n'%s'", TXT_UNABLE_TO_OPEN, SCORES_FILENAME);
 		return;
 	}
 
@@ -315,7 +315,7 @@ void scores_maybe_add_player()
 			/* New record, but not a new best score.  Tell the player
 			 * what slot the new record earned.
 			 */
-			nm_messagebox(menu_title{TXT_HIGH_SCORE}, 1, TXT_OK, "%s %s!", TXT_YOU_PLACED, get_placement_slot_string(position));
+			nm_messagebox(menu_title{TXT_HIGH_SCORE}, {TXT_OK}, "%s %s!", TXT_YOU_PLACED, get_placement_slot_string(position));
 		}
 
 		// move everyone down...

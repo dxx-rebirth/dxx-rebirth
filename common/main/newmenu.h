@@ -517,16 +517,9 @@ int newmenu_get_citem(newmenu *menu);
 // nm_messagebox( "Title", "Subtitle", 2, "Ok", "Cancel", "There are %d objects", nobjects );
 // Returns 0 through nchoices-1.
 //int nm_messagebox(const char *title, int nchoices, ...);
-#define nm_messagebox(T,N,...)	nm_messagebox_a##N((T), ##__VA_ARGS__)
-#define nm_messagebox_a1(T,A1				,F,...)	vnm_messagebox_aN(T,nm_messagebox_tie(A1			),F,##__VA_ARGS__)
-#define nm_messagebox_a2(T,A1,A2			,F,...)	vnm_messagebox_aN(T,nm_messagebox_tie(A1,A2			),F,##__VA_ARGS__)
-#define nm_messagebox_a3(T,A1,A2,A3			,F,...)	vnm_messagebox_aN(T,nm_messagebox_tie(A1,A2,A3		),F,##__VA_ARGS__)
-#define nm_messagebox_a4(T,A1,A2,A3,A4		,F,...)	vnm_messagebox_aN(T,nm_messagebox_tie(A1,A2,A3,A4	),F,##__VA_ARGS__)
-#define nm_messagebox_a5(T,A1,A2,A3,A4,A5	,F,...)	vnm_messagebox_aN(T,nm_messagebox_tie(A1,A2,A3,A4,A5),F,##__VA_ARGS__)
-
 typedef cstring_tie<5> nm_messagebox_tie;
 
-int vnm_messagebox_aN(menu_title title, const nm_messagebox_tie &tie, const char *format, ...) __attribute_format_printf(3, 4);
+int nm_messagebox(menu_title title, const nm_messagebox_tie &tie, const char *format, ...) __attribute_format_printf(3, 4);
 
 void nm_draw_background(grs_canvas &, int x1, int y1, int x2, int y2);
 

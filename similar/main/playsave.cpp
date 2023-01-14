@@ -898,7 +898,7 @@ int read_player_file()
 	auto &&[file, physfserr] = PHYSFSX_openReadBuffered(filename);
 	if (!file)
 	{
-		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "Failed to open PLR file\n%s\n\n%s", filename, PHYSFS_getErrorByCode(physfserr));
+		nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "Failed to open PLR file\n%s\n\n%s", filename, PHYSFS_getErrorByCode(physfserr));
 		return -1;
 	}
 
@@ -1256,7 +1256,7 @@ int read_player_file()
 	return EZERO;
 
  read_player_file_failed:
-	nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "%s\n\n%s", "Error reading PLR file", PHYSFS_getLastError());
+	nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "%s\n\n%s", "Error reading PLR file", PHYSFS_getLastError());
 	return -1;
 }
 }
@@ -1507,7 +1507,7 @@ void write_player_file()
 
 	if (errno_ret != EZERO) {
 		PHYSFS_delete(filename);			//delete bogus file
-		nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "%s\n\n%s",TXT_ERROR_WRITING_PLR, strerror(errno_ret));
+		nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "%s\n\n%s",TXT_ERROR_WRITING_PLR, strerror(errno_ret));
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	(void)errno_ret;
@@ -1595,7 +1595,7 @@ void write_player_file()
 	return;
 
  write_player_file_failed:
-	nm_messagebox(menu_title{TXT_ERROR}, 1, TXT_OK, "%s\n\n%s", TXT_ERROR_WRITING_PLR, PHYSFS_getLastError());
+	nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "%s\n\n%s", TXT_ERROR_WRITING_PLR, PHYSFS_getLastError());
 	if (file)
 	{
 		file.reset();

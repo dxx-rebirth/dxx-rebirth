@@ -1637,7 +1637,7 @@ window_event_result newmenu::event_handler(const d_event &event)
 	return window_event_result::ignored;
 }
 
-int (vnm_messagebox_aN)(const menu_title title, const nm_messagebox_tie &tie, const char *format, ...)
+int nm_messagebox(const menu_title title, const nm_messagebox_tie &tie, const char *format, ...)
 {
 	va_list args;
 	char nm_text[MESSAGEBOX_TEXT_SIZE];

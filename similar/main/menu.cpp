@@ -429,7 +429,7 @@ static int MakeNewPlayerFile(int allow_abort)
 		snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.plr"), name);
 		if (PHYSFSX_exists(filename, 0))
 		{
-			nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s '%s' %s", TXT_PLAYER, name, TXT_ALREADY_EXISTS);
+			nm_messagebox(menu_title{nullptr}, {TXT_OK}, "%s '%s' %s", TXT_PLAYER, name, TXT_ALREADY_EXISTS);
 			continue;
 		}
 		break;
@@ -473,7 +473,7 @@ static window_event_result player_menu_keycommand( listbox *lb,const d_event &ev
 			if (citem > 0)
 			{
 				int x = 1;
-				x = nm_messagebox(menu_title{nullptr}, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_PILOT, items[citem]+((items[citem][0]=='$')?1:0) );
+				x = nm_messagebox(menu_title{nullptr}, {TXT_YES, TXT_NO}, "%s %s?", TXT_DELETE_PILOT, items[citem]+((items[citem][0]=='$')?1:0) );
 				if (x==0)	{
 					char plxfile[PATH_MAX], efffile[PATH_MAX], ngpfile[PATH_MAX];
 					int ret;
@@ -501,7 +501,7 @@ static window_event_result player_menu_keycommand( listbox *lb,const d_event &ev
 					}
 
 					if (ret)
-						nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_PILOT, items[citem]+((items[citem][0]=='$')?1:0) );
+						nm_messagebox(menu_title{nullptr}, {TXT_OK}, "%s %s %s", TXT_COULDNT, TXT_DELETE_PILOT, items[citem]+((items[citem][0]=='$')?1:0) );
 					else
 						listbox_delete_item(*lb, citem);
 				}
@@ -846,7 +846,7 @@ static window_event_result demo_menu_keycommand( listbox *lb,const d_event &even
 			if (citem >= 0)
 			{
 				int x = 1;
-				x = nm_messagebox(menu_title{nullptr}, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_DEMO, items[citem]+((items[citem][0]=='$')?1:0) );
+				x = nm_messagebox(menu_title{nullptr}, {TXT_YES, TXT_NO}, "%s %s?", TXT_DELETE_DEMO, items[citem]+((items[citem][0]=='$')?1:0) );
 				if (x==0)
 				{
 					int ret;
@@ -858,7 +858,7 @@ static window_event_result demo_menu_keycommand( listbox *lb,const d_event &even
 					ret = !PHYSFS_delete(name);
 
 					if (ret)
-						nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_DEMO, items[citem]+((items[citem][0]=='$')?1:0) );
+						nm_messagebox(menu_title{nullptr}, {TXT_OK}, "%s %s %s", TXT_COULDNT, TXT_DELETE_DEMO, items[citem]+((items[citem][0]=='$')?1:0) );
 					else
 						listbox_delete_item(*lb, citem);
 				}
@@ -875,7 +875,7 @@ static window_event_result demo_menu_keycommand( listbox *lb,const d_event &even
 				const auto ic = items[citem];
 				if (!change_filename_extension(bakname, ic, DEMO_BACKUP_EXT))
 					return window_event_result::handled;
-				const auto x = nm_messagebox(menu_title{nullptr}, 2, TXT_YES, TXT_NO,	"Are you sure you want to\n"
+				const auto x = nm_messagebox(menu_title{nullptr}, {TXT_YES, TXT_NO}, "Are you sure you want to\n"
 								  "swap the endianness of\n"
 								  "%s? If the file is\n"
 								  "already endian native, D1X\n"
@@ -922,7 +922,7 @@ int select_demo()
 		return 0;	// memory error
 	if (!list[0])
 	{
-		nm_messagebox(menu_title{nullptr}, 1, TXT_OK, "%s %s\n%s", TXT_NO_DEMO_FILES, TXT_USE_F5, TXT_TO_CREATE_ONE);
+		nm_messagebox(menu_title{nullptr}, {TXT_OK}, "%s %s\n%s", TXT_NO_DEMO_FILES, TXT_USE_F5, TXT_TO_CREATE_ONE);
 		return 0;
 	}
 
@@ -1017,7 +1017,7 @@ window_event_result do_new_game_menu()
 
 			if (*p || new_level_num <= 0 || new_level_num > last_level)
 			{
-				nm_messagebox(menu_title{TXT_INVALID_LEVEL}, 1, TXT_OK, "You must enter a\npositive level number\nless than or\nequal to %u.\n", static_cast<unsigned>(Current_mission->last_level));
+				nm_messagebox(menu_title{TXT_INVALID_LEVEL}, {TXT_OK}, "You must enter a\npositive level number\nless than or\nequal to %u.\n", static_cast<unsigned>(Current_mission->last_level));
 			}
 			else
 				break;
