@@ -354,7 +354,7 @@ struct newmenu : newmenu_layout, window, mixin_trackable_window
 		newmenu_layout(title, subtitle, filename, src, tiny_mode, tabs_flag, citem_init, draw_box), window(src, x, y, w, h)
 	{
 	}
-	int *rval = nullptr;			// Pointer to return value (for polling newmenus)
+	std::shared_ptr<int> rval;			// Pointer to return value (for polling newmenus)
 	virtual window_event_result event_handler(const d_event &) override;
 	static int process_until_closed(newmenu *);
 };

@@ -534,8 +534,8 @@ int newmenu_do2(const menu_title title, const menu_subtitle subtitle, const rang
 
 int newmenu::process_until_closed(newmenu *const menu)
 {
-	int rval = -1;
-	menu->rval = &rval;
+	auto rval = std::make_shared<int>(-1);
+	menu->rval = rval;
 	// Track to see when the window is freed
 	// Doing this way in case another window is opened on top without its own polling loop
 	// newmenu_do2 and simpler get their own event loop
@@ -546,7 +546,7 @@ int newmenu::process_until_closed(newmenu *const menu)
 	/* menu is now a pointer to freed memory, and cannot be accessed
 	 * further
 	 */
-	return rval;
+	return *rval;
 }
 
 namespace {
