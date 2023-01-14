@@ -1061,6 +1061,24 @@ window_event_result multi_do_frame()
 namespace {
 
 template <multiplayer_command_t C>
+#ifndef __clang__
+/* udp::dispatch_table::send_data_direct copies `buf` into a buffer sized from
+ * `UDP_mdata_info`.  Require that no overflow will occur.
+ *
+ * Guard this with `#ifndef __clang__` because clang-14 rejects this constraint
+ * with the error:
+
+similar/main/multi.cpp:1068:22: note: because '(std::size(buf) + 6 <= sizeof(UDP_mdata_info))' would be invalid: constraint variable 'buf' cannot be used in an evaluated context
+
+ * gcc accepts this requires() constraint and enforces it as intended.  Raising
+ * the `6` to `6000` correctly provokes a rejection.
+ */
+requires(
+	requires(multi_command<C> buf) {
+		requires(std::size(buf) + 6 <= sizeof(UDP_mdata_info));
+	}
+)
+#endif
 static inline void multi_send_data_direct(const multi_command<C> &buf, const playernum_t pnum, const int priority)
 {
 	multi::dispatch->send_data_direct(buf, pnum, priority);
