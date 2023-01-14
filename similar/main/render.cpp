@@ -1048,7 +1048,12 @@ static void sort_seg_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_ey
 	{
 		return compare_children(vcvertptr, Viewer_eye, seg, a, b);
 	};
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+		// gcc produces invalid bounds checks when sorting arrays of size 6 due to a compiler optimization bug.
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=107986
 		std::sort(r.begin(), r.end(), predicate);
+#pragma GCC diagnostic pop
 }
 
 static void add_obj_to_seglist(render_state_t &rstate, objnum_t objnum, segnum_t segnum)
