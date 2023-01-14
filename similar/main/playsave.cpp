@@ -1622,10 +1622,9 @@ static int get_lifetime_checksum (int a,int b)
 template <uint_fast32_t shift, uint_fast32_t width>
 static void convert_duplicate_powerup_integer(packed_netduplicate_items &d, const char *value)
 {
-	/* Initialize 'i' to avoid bogus -Wmaybe-uninitialized at -Og on
-	 * gcc-4.9 */
-	unsigned i = 0;
-	if (convert_integer(i, value) && !(i & ~((1 << width) - 1)))
+	if (auto r = convert_integer<unsigned>(value); !r)
+		return;
+	else if (const auto i = *r; !(i & ~((1 << width) - 1)))
 		d.set_sub_field<shift, width>(i);
 }
 }
@@ -1658,23 +1657,23 @@ void read_netgame_profile(netgame_info *ng)
 			convert_string(ng->game_name, value, eol);
 		else if (cmp(lb, eq, GameModeStr))
 		{
-			uint8_t gamemode;
-			if (convert_integer(gamemode, value))
-				ng->gamemode = network_game_type{gamemode};
+			if (auto gamemode = convert_integer<uint8_t>(value))
+				ng->gamemode = network_game_type{*gamemode};
 		}
 		else if (cmp(lb, eq, RefusePlayersStr))
 			convert_integer(ng->RefusePlayers, value);
 		else if (cmp(lb, eq, DifficultyStr))
 		{
-			uint8_t difficulty;
-			if (convert_integer(difficulty, value))
-				ng->difficulty = cast_clamp_difficulty(difficulty);
+			if (auto difficulty = convert_integer<uint8_t>(value))
+				ng->difficulty = cast_clamp_difficulty(*difficulty);
 		}
 		else if (cmp(lb, eq, GameFlagsStr))
 		{
-			packed_game_flags p;
-			if (convert_integer(p.value, value))
+			if (auto r = convert_integer<uint8_t>(value))
+			{
+				const packed_game_flags p{*r};
 				ng->game_flag = unpack_game_flags(&p);
+			}
 		}
 		else if (cmp(lb, eq, AllowedItemsStr))
 			convert_integer(ng->AllowedItems, value);
@@ -1716,9 +1715,8 @@ void read_netgame_profile(netgame_info *ng)
 			convert_integer(ng->KillGoal, value);
 		else if (cmp(lb, eq, PlayTimeAllowedStr))
 		{
-			int PlayTimeAllowed;
-			if (convert_integer(PlayTimeAllowed, value))
-				ng->PlayTimeAllowed = std::chrono::duration<int, netgame_info::play_time_allowed_abi_ratio>(PlayTimeAllowed);
+			if (const auto r = convert_integer<int>(value))
+				ng->PlayTimeAllowed = std::chrono::duration<int, netgame_info::play_time_allowed_abi_ratio>(*r);
 		}
 		else if (cmp(lb, eq, ControlInvulTimeStr))
 			convert_integer(ng->control_invul_time, value);
@@ -1732,9 +1730,8 @@ void read_netgame_profile(netgame_info *ng)
 			convert_integer(ng->PitchLockFlags, value);
 		else if (cmp(lb, eq, AutosaveIntervalStr))
 		{
-			uint16_t AutosaveInterval;
-			if (convert_integer(AutosaveInterval, value))
-				ng->MPGameplayOptions.AutosaveInterval = std::chrono::seconds(AutosaveInterval);
+			if (const auto r = convert_integer<uint16_t>(value))
+				ng->MPGameplayOptions.AutosaveInterval = std::chrono::seconds(*r);
 		}
 #if DXX_USE_TRACKER
 		else if (cmp(lb, eq, TrackerStr))

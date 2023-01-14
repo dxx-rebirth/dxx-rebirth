@@ -171,9 +171,9 @@ int ReadConfigFile()
 			convert_integer(GameCfg.MusicType, value);
 		else if (cmp(lb, eq, CMLevelMusicPlayOrderStr))
 		{
-			unsigned CMLevelMusicPlayOrder;
-			if (convert_integer(CMLevelMusicPlayOrder, value) && CMLevelMusicPlayOrder <= static_cast<unsigned>(LevelMusicPlayOrder::Random))
-				CGameCfg.CMLevelMusicPlayOrder = static_cast<LevelMusicPlayOrder>(CMLevelMusicPlayOrder);
+			if (auto r = convert_integer<uint8_t>(value))
+				if (auto CMLevelMusicPlayOrder = *r; CMLevelMusicPlayOrder <= static_cast<uint8_t>(LevelMusicPlayOrder::Random))
+					CGameCfg.CMLevelMusicPlayOrder = LevelMusicPlayOrder{CMLevelMusicPlayOrder};
 		}
 		else if (cmp(lb, eq, CMLevelMusicTrack0Str))
 			convert_integer(CGameCfg.CMLevelMusicTrack[0], value);
@@ -212,10 +212,9 @@ int ReadConfigFile()
 			convert_integer(CGameCfg.WindowMode, value);
 		else if (cmp(lb, eq, TexFiltStr))
 		{
-			uint8_t TexFilt;
-			if (convert_integer(TexFilt, value))
+			if (auto r = convert_integer<uint8_t>(value))
 			{
-				switch (TexFilt)
+				switch (const auto TexFilt = *r)
 				{
 					case static_cast<unsigned>(opengl_texture_filter::classic):
 					case static_cast<unsigned>(opengl_texture_filter::upscale):
