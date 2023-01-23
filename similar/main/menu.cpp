@@ -2344,9 +2344,11 @@ window_event_result browser::callback_handler(const d_event &event, window_event
 				 * succeed in all reasonable cases.
 				 */
 				const size_t len_sep = strlen(sep);
-				if (len_newpath + len_item + len_sep < newpath.size())
+				const char *sep_to_add = strncmp(&newpath[len_newpath - len_sep], sep, len_sep) ? sep : "";
+				const size_t len_sep_to_add = (sep_to_add == sep) ? len_sep : 0;
+				if (len_newpath + len_item + len_sep_to_add < newpath.size())
 				{
-					snprintf(&newpath[len_newpath], newpath.size() - len_newpath, "%s%s", (len_newpath >= len_sep && strncmp(&newpath[len_newpath - len_sep], sep, len_sep)) ? sep : "", list[citem]);
+					snprintf(&newpath[len_newpath], newpath.size() - len_newpath, "%s%s", sep_to_add, list[citem]);
 				}
 			}
 			if ((citem == 0) || PHYSFS_isDirectory(list[citem]))
