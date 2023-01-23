@@ -2337,10 +2337,13 @@ window_event_result browser::callback_handler(const d_event &event, window_event
 			{
 				const size_t len_newpath = strlen(newpath.data());
 				const size_t len_item = strlen(list[citem]);
-				if (len_newpath + len_item < newpath.size())
+				// Add a separator if the path doesn't already end with one.
+				const size_t len_sep = strlen(sep);
+				const char* sep_to_add = strncmp(&newpath[len_newpath - len_sep], sep, len_sep) ? sep : "";
+				const size_t len_sep_to_add = (sep_to_add == sep) ? len_sep : 0;
+				if (len_newpath + len_item + len_sep_to_add < newpath.size())
 				{
-					const size_t len_sep = strlen(sep);
-					snprintf(&newpath[len_newpath], newpath.size() - len_newpath, "%s%s", strncmp(&newpath[len_newpath - len_sep], sep, len_sep) ? sep : "", list[citem]);
+					snprintf(&newpath[len_newpath], newpath.size() - len_newpath, "%s%s", sep_to_add, list[citem]);
 				}
 			}
 			if ((citem == 0) || PHYSFS_isDirectory(list[citem]))
