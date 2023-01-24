@@ -33,7 +33,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "gamefont.h"
 #include "mission.h"
+#if DXX_USE_OGL
 #include "ogl_init.h"
+#endif
 #include "config.h"
 
 #include "compiler-range_for.h"

@@ -41,7 +41,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "physfsx.h"
 #include "nvparse.h"
+#if DXX_USE_OGL
 #include "ogl_init.h"
+#endif
 #include <memory>
 
 namespace dcx {
@@ -131,14 +133,20 @@ int ReadConfigFile()
 	GameCfg.AspectX = 3;
 	GameCfg.AspectY = 4;
 	CGameCfg.WindowMode = false;
+#if DXX_USE_OGL
 	CGameCfg.TexFilt = opengl_texture_filter::classic;
 	CGameCfg.TexAnisotropy = 0;
+#endif
 #if defined(DXX_BUILD_DESCENT_II)
+#if DXX_USE_OGL
 	GameCfg.MovieTexFilt = 0;
+#endif
 	GameCfg.MovieSubtitles = 0;
 #endif
 	CGameCfg.VSync = false;
+#if DXX_USE_OGL
 	CGameCfg.Multisample = 0;
+#endif
 	CGameCfg.FPSIndicator = 0;
 	CGameCfg.Grabinput = true;
 
@@ -210,6 +218,7 @@ int ReadConfigFile()
 			convert_integer(GameCfg.AspectY, value);
 		else if (cmp(lb, eq, WindowModeStr))
 			convert_integer(CGameCfg.WindowMode, value);
+#if DXX_USE_OGL
 		else if (cmp(lb, eq, TexFiltStr))
 		{
 			if (auto r = convert_integer<uint8_t>(value))
@@ -226,9 +235,12 @@ int ReadConfigFile()
 		}
 		else if (cmp(lb, eq, TexAnisStr))
 			convert_integer(CGameCfg.TexAnisotropy, value);
+#endif
 #if defined(DXX_BUILD_DESCENT_II)
+#if DXX_USE_OGL
 		else if (cmp(lb, eq, MovieTexFiltStr))
 			convert_integer(GameCfg.MovieTexFilt, value);
+#endif
 		else if (cmp(lb, eq, MovieSubtitlesStr))
 			convert_integer(GameCfg.MovieSubtitles, value);
 #endif
@@ -242,8 +254,10 @@ int ReadConfigFile()
 #endif
 		else if (cmp(lb, eq, VSyncStr))
 			convert_integer(CGameCfg.VSync, value);
+#if DXX_USE_OGL
 		else if (cmp(lb, eq, MultisampleStr))
 			convert_integer(CGameCfg.Multisample, value);
+#endif
 		else if (cmp(lb, eq, FPSIndicatorStr))
 			convert_integer(CGameCfg.FPSIndicator, value);
 		else if (cmp(lb, eq, GrabinputStr))
@@ -292,10 +306,14 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", AspectXStr, GameCfg.AspectX);
 	PHYSFSX_printf(infile, "%s=%i\n", AspectYStr, GameCfg.AspectY);
 	PHYSFSX_printf(infile, "%s=%i\n", WindowModeStr, CGameCfg.WindowMode);
+#if DXX_USE_OGL
 	PHYSFSX_printf(infile, "%s=%i\n", TexFiltStr, static_cast<unsigned>(CGameCfg.TexFilt));
 	PHYSFSX_printf(infile, "%s=%i\n", TexAnisStr, CGameCfg.TexAnisotropy);
+#endif
 #if defined(DXX_BUILD_DESCENT_II)
+#if DXX_USE_OGL
 	PHYSFSX_printf(infile, "%s=%i\n", MovieTexFiltStr, GameCfg.MovieTexFilt);
+#endif
 	PHYSFSX_printf(infile, "%s=%i\n", MovieSubtitlesStr, GameCfg.MovieSubtitles);
 #endif
 #if DXX_USE_ADLMIDI
@@ -304,7 +322,9 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", ADLMIDIEnabledStr, CGameCfg.ADLMIDI_enabled);
 #endif
 	PHYSFSX_printf(infile, "%s=%i\n", VSyncStr, CGameCfg.VSync);
+#if DXX_USE_OGL
 	PHYSFSX_printf(infile, "%s=%i\n", MultisampleStr, CGameCfg.Multisample);
+#endif
 	PHYSFSX_printf(infile, "%s=%i\n", FPSIndicatorStr, CGameCfg.FPSIndicator);
 	PHYSFSX_printf(infile, "%s=%i\n", GrabinputStr, CGameCfg.Grabinput);
 	return 0;
