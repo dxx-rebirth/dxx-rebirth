@@ -1457,12 +1457,27 @@ static void terminate_handler()
 	PHYSFS_delete("");
 '''
 		l = ['physfs']
-		successflags = self.pkgconfig.merge(context, self.msgprefix, self.user_settings, 'physfs', 'physfs', {'LIBS' : l})
+		guess_flags = {'LIBS' : l}
+		# If pkg-config is not available, or the `physfs.pc` file is not
+		# usable, then `successflags is guess_flags`.  Otherwise,
+		# `successflags` is derived from the output of `pkg-config`.
+		successflags = self.pkgconfig.merge(context, self.msgprefix, self.user_settings, 'physfs', 'physfs', guess_flags)
 		e = self._soft_check_system_library(context, header=_header, main=main, lib='physfs', successflags=successflags)
 		if not e:
+			# If the test succeeded outright, return.
 			return
-		if e[0] == 0:
+		if e[0] == 0 and successflags is guess_flags:
+			# If the header is usable, but the link test failed, and the link
+			# test was done using `guess_flags`, then speculatively add zlib to
+			# the link line and retry.  This is a convenience for users who (1)
+			# use a physfs that depends on zlib and (2) do not use a pkg-config
+			# file, so they have no place to express the dependency on zlib.
+			# For users who use pkg-config, the pkg-config output is assumed to
+			# be correct, and this speculative retry is skipped.
 			context.Display("%s: physfs header usable; adding zlib and retesting library\n" % self.msgprefix)
+			# `l is guess_flags['LIBS']` and `successflags is guess_flags`, so
+			# `l is successflags['LIBS']`.  Therefore, this `append` modifies
+			# the value of `successflags`.
 			l.append('z')
 			e = self._soft_check_system_library(context, header=_header, main=main, lib='physfs', successflags=successflags)
 		if e:
