@@ -390,7 +390,13 @@ class ConfigureTests(_ConfigureTests):
 			mv_cmd = pkgconfig + ('--modversion', pkgconfig_name)
 			try:
 				Display("%s: reading %s version from %s\n" % (message, pkgconfig_name, mv_cmd))
-				v = StaticSubprocess.pcall(mv_cmd)
+				v = StaticSubprocess.pcall(mv_cmd, stderr=subprocess.PIPE)
+				if v.err:
+					for l in v.err.splitlines():
+						Display('%s: pkg-config error: %s: %s\n' % (message, display_name, l.decode()))
+				if v.returncode:
+					Display('%s: pkg-config failed: %s: %d; using default flags %r\n' % (message, display_name, v.returncode, guess_flags))
+					return guess_flags
 				if v.out:
 					Display("%s: %s version: %r\n" % (message, display_name, v.out.splitlines()[0]))
 			except OSError as o:
@@ -399,7 +405,14 @@ class ConfigureTests(_ConfigureTests):
 			else:
 				Display("%s: reading %s settings from %s\n" % (message, display_name, cmd))
 				try:
-					out = StaticSubprocess.pcall(cmd).out
+					v = StaticSubprocess.pcall(cmd, stderr=subprocess.PIPE)
+					if v.err:
+						for l in v.err.splitlines():
+							Display('%s: pkg-config error: %s: %s\n' % (message, display_name, l.decode()))
+					if v.returncode:
+						Display('%s: pkg-config failed: %s: %d; using default flags %r\n' % (message, display_name, v.returncode, guess_flags))
+						return guess_flags
+					out = v.out
 					flags = {
 						k:v for k,v in context.env.ParseFlags(' ' + out.decode()).items()
 							if v and (k[0] in 'CL')
