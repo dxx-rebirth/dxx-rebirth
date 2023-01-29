@@ -38,8 +38,6 @@ struct snd_info
 	digi_sound::allocated_data data;
 };
 
-}
-
 struct DiskBitmapHeader2 
 {
 	char name[8];
@@ -71,12 +69,25 @@ struct DiskSoundHeader
 	int offset;
 } __pack__;
 
-namespace {
-
 struct custom_info
 {
+	/* replacement_index is overloaded.
+	 * If the value is non-negative, it is a bitmap index.
+	 * If the value is `-1`, then it indicates no record was found.
+	 * If the value is negative and not `-1`, then bitwise clearing the sign
+	 * bit (as by `idx & 0x7fffffff`) produces a sound index.  This convention
+	 * causes all sound index values to be very negative, so there is no
+	 * ambiguity between `-1` as "No record found" versus `-1` as a sound
+	 * index.  The first sound index values would be `0x80000000`,
+	 * `0x80000001`, `0x80000002`, and so on.  Collision would therefore
+	 * require the game to define `0x7fffffff` unique sounds.
+	 */
+	enum class replacement_index : int32_t
+	{
+		None = -1,
+	};
 	int offset;
-	int repl_idx; // 0x80000000 -> sound, -1 -> n/a
+	replacement_index repl_idx; // 0x80000000 -> sound, -1 -> n/a
 	unsigned int flags;
 	int width, height;
 };
@@ -94,7 +105,7 @@ constexpr std::integral_constant<uint8_t, 0x80> BM_FLAG_CUSTOMIZED{};
 
 }
 
-static std::array<bitmap_original, MAX_BITMAP_FILES> BitmapOriginal;
+static enumerated_array<bitmap_original, MAX_BITMAP_FILES, bitmap_index> BitmapOriginal;
 static std::array<snd_info, MAX_SOUND_FILES> SoundOriginal;
 
 static int load_pig1(PHYSFS_File *f, unsigned num_bitmaps, unsigned num_sounds, unsigned &num_custom, std::unique_ptr<custom_info[]> &ci)
@@ -140,7 +151,7 @@ static int load_pig1(PHYSFS_File *f, unsigned num_bitmaps, unsigned num_sounds, 
 		snprintf(name, sizeof(name), "%.8s%c%d", bmh.name, (bmh.dflags & DBM_FLAG_ABM) ? '#' : 0, bmh.dflags & 63);
 
 		cip->offset = bmh.offset + data_ofs;
-		cip->repl_idx = hashtable_search(&AllBitmapsNames, name);
+		cip->repl_idx = custom_info::replacement_index{hashtable_search(&AllBitmapsNames, name)};
 		cip->flags = bmh.flags & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT | BM_FLAG_NO_LIGHTING | BM_FLAG_RLE);
 		cip->width = bmh.width + ((bmh.dflags & DBM_FLAG_LARGE) ? 256 : 0);
 		cip->height = bmh.height;
@@ -159,7 +170,7 @@ static int load_pig1(PHYSFS_File *f, unsigned num_bitmaps, unsigned num_sounds, 
 		memcpy(name, sndh.name, 8);
 		name[8] = 0;
 		cip->offset = sndh.offset + data_ofs;
-		cip->repl_idx = hashtable_search(&AllDigiSndNames, name) | 0x80000000;
+		cip->repl_idx = custom_info::replacement_index{hashtable_search(&AllDigiSndNames, name) | INT32_MIN};
 		cip->width = sndh.length;
 		cip++;
 	}
@@ -205,7 +216,7 @@ static int load_pog(PHYSFS_File *f, int pog_sig, int pog_ver, unsigned &num_cust
 	if (!no_repl)
 	{
 		for (int i = num_bitmaps; i--;)
-			(cip++)->repl_idx = PHYSFSX_readShort(f);
+			(cip++)->repl_idx = custom_info::replacement_index{PHYSFSX_readShort(f)};
 
 		cip = ci.get();
 		data_ofs += num_bitmaps * 2;
@@ -272,8 +283,8 @@ static int load_pigpog(const d_fname &pogname)
 
 	while (i--)
 	{
-		x = cip->repl_idx;
-		if (cip->repl_idx >= 0)
+		const auto x = cip->repl_idx;
+		if (const auto replacement_idx = underlying_value(x); replacement_idx >= 0)
 		{
 			PHYSFS_seek(f, cip->offset);
 
@@ -288,10 +299,10 @@ static int load_pigpog(const d_fname &pogname)
 				return rc;
 			}
 
-			const bitmap_index bi{static_cast<uint16_t>(x)};
-			bmp = &GameBitmaps[bi];
+			const auto replacement_bitmap_idx = bitmap_index{static_cast<uint16_t>(replacement_idx)};
+			bmp = &GameBitmaps[replacement_bitmap_idx];
 
-			auto &bmo = BitmapOriginal[x].b;
+			auto &bmo = BitmapOriginal[replacement_bitmap_idx].b;
 			if (bmo.get_flag_mask(BM_FLAG_CUSTOMIZED)) // already customized?
 				/* If the bitmap was previously customized, and another
 				 * customization is loaded on top of it, discard the
@@ -308,7 +319,7 @@ static int load_pigpog(const d_fname &pogname)
 				// save original bitmap info
 				bmo = *bmp;
 				bmo.add_flags(BM_FLAG_CUSTOMIZED);
-				if (GameBitmapOffset[bi] != pig_bitmap_offset::None) // from pig?
+				if (GameBitmapOffset[replacement_bitmap_idx] != pig_bitmap_offset::None) // from pig?
 				{
 					/* Borrow the data field to store the offset within
 					 * the pig file, which is not a pointer.  Attempts
@@ -316,11 +327,11 @@ static int load_pigpog(const d_fname &pogname)
 					 * crash.
 					 */
 					bmo.add_flags(BM_FLAG_PAGED_OUT);
-					bmo.bm_data = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(GameBitmapOffset[bi]));
+					bmo.bm_data = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(GameBitmapOffset[replacement_bitmap_idx]));
 				}
 			}
 
-			GameBitmapOffset[bi] = pig_bitmap_offset::None; // not in pig
+			GameBitmapOffset[replacement_bitmap_idx] = pig_bitmap_offset::None; // not in pig
 			*bmp = {};
 			gr_init_bitmap(*bmp, bm_mode::linear, 0, 0, cip->width, cip->height, cip->width, p);
 			gr_set_bitmap_flags(*bmp, cip->flags & 255);
@@ -340,22 +351,22 @@ static int load_pigpog(const d_fname &pogname)
 			{
 				return rc;
 			}
-
 		}
-		else if ((cip->repl_idx + 1) < 0)
+		else if (replacement_idx + 1 < 0)
 		{
 			PHYSFS_seek(f, cip->offset);
-			auto snd = &GameSounds[x & 0x7fffffff];
 
 			j = cip->width;
 			auto p = std::make_unique<uint8_t[]>(j);
-			if (SoundOriginal[x & 0x7fffffff].length & 0x80000000)  // already customized?
+			const std::size_t replacement_sound_index = replacement_idx & ~INT32_MIN;
+			auto snd = &GameSounds[replacement_sound_index];
+			if (SoundOriginal[replacement_sound_index].length & 0x80000000)  // already customized?
 			{
 			}
 			else
 			{
-				SoundOriginal[x & 0x7fffffff].length = snd->length | 0x80000000;
-				SoundOriginal[x & 0x7fffffff].data = std::move(snd->data);
+				SoundOriginal[replacement_sound_index].length = snd->length | 0x80000000;
+				SoundOriginal[replacement_sound_index].data = std::move(snd->data);
 			}
 
 				snd->length = j;
