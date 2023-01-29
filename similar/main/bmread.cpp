@@ -435,32 +435,25 @@ static int get_int()
 namespace dsx {
 namespace {
 
-#if defined(DXX_BUILD_DESCENT_II)
 //loads a texture and returns the texture num
-static int get_texture(char *name)
+static std::pair<unsigned, bool> get_texture(d_level_unique_tmap_info_state::TmapInfo_array &TmapInfo, const int skip, const char *const name)
 {
-	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
-	char short_name[FILENAME_LEN];
-	int i;
-
-	strcpy(short_name,name);
-	REMOVE_DOTS(short_name);
-	for (i=0;i<texture_count;i++)
-		if (!d_stricmp(TmapInfo[i].filename,short_name))
-			break;
-	if (i==texture_count) {
-		Textures[texture_count] = bm_load_sub(0, name);
-		TmapInfo[texture_count].filename.copy_if(short_name);
-		texture_count++;
-		Assert(texture_count < MAX_TEXTURES);
-		NumTextures = texture_count;
+	d_fname short_name;
+	short_name.copy_if(name, FILENAME_LEN);
+	REMOVE_DOTS(&short_name[0u]);
+	const unsigned t = texture_count;
+	for (const auto &&[i, ti] : enumerate(partial_range(TmapInfo, t)))
+	{
+		if (!d_stricmp(ti.filename, short_name))
+			return {i, true};
 	}
-
-	return i;
+	Textures[t] = bm_load_sub(skip, name);
+	TmapInfo[t].filename.copy_if(short_name);
+	++texture_count;
+	NumTextures = texture_count;
+	return {t, false};
 }
 
-#define DEFAULT_PIG_PALETTE	"groupa.256"
-#endif
 }
 
 #define LINEBUF_SIZE 600
@@ -494,8 +487,8 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 		have_bin_tbl = 1;
 	}
 
+#define DEFAULT_PIG_PALETTE	"groupa.256"
 	gr_use_palette_table(DEFAULT_PIG_PALETTE);
-
 	load_palette(DEFAULT_PIG_PALETTE,-2,0);		//special: tell palette code which pig is loaded
 #endif
 
@@ -694,7 +687,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 			else IFTOK("water")	 			TmapInfo[texture_count-1].flags |= tmapinfo_flag::water;
 			else IFTOK("force_field")		TmapInfo[texture_count-1].flags |= tmapinfo_flag::force_field;
 			else IFTOK("slide")	 			{TmapInfo[texture_count-1].slide_u = fl2f(get_float())>>8; TmapInfo[texture_count-1].slide_v = fl2f(get_float())>>8;}
-			else IFTOK("destroyed")	 		{int t=texture_count-1; TmapInfo[t].destroyed = get_texture(strtok( NULL, space_tab ));}
+			else IFTOK("destroyed")	 		{int t=texture_count-1; TmapInfo[t].destroyed = get_texture(LevelUniqueTmapInfoState.TmapInfo, 0, strtok(nullptr, space_tab)).first;}
 #endif
 			//else IFTOK("Num_effects")		Num_effects = get_int();
 			else IFTOK("Num_wall_anims")	Num_wall_anims = get_int();
@@ -923,19 +916,9 @@ static void bm_read_eclip(int skip)
 	//texture will be the monitor, so that lighting parameter will be applied
 	//to the correct texture
 	if (dest_bm) {			//deal with bitmap for blown up clip
-		d_fname short_name;
-		int i;
-		short_name.copy_if(dest_bm, FILENAME_LEN);
-		REMOVE_DOTS(&short_name[0u]);
-		for (i=0;i<texture_count;i++)
-			if (!d_stricmp(TmapInfo[i].filename,short_name))
-				break;
-		if (i==texture_count) {
-			Textures[texture_count] = bm_load_sub(skip, dest_bm);
-			TmapInfo[texture_count].filename = short_name;
-			texture_count++;
-			Assert(texture_count < MAX_TEXTURES);
-			NumTextures = texture_count;
+		const auto &&[i, f] = get_texture(LevelUniqueTmapInfoState.TmapInfo, skip, dest_bm);
+		if (!f)
+		{
 		}
 		else if (Textures[i] == bitmap_index{})		//was found, but registered out
 			Textures[i] = bm_load_sub(skip, dest_bm);
@@ -1027,20 +1010,7 @@ static void bm_read_eclip(int skip)
 #endif
 	{			//deal with bitmap for blown up clip
 #if defined(DXX_BUILD_DESCENT_I)
-		char short_name[13];
-		int i;
-		strcpy(short_name,dest_bm.c_str());
-		REMOVE_DOTS(short_name);
-		for (i=0;i<texture_count;i++)
-			if (!d_stricmp(static_cast<const char *>(TmapInfo[i].filename),short_name))
-				break;
-		if (i==texture_count) {
-			Textures[texture_count] = bm_load_sub(skip, dest_bm.c_str());
-			TmapInfo[texture_count].filename.copy_if(short_name);
-			texture_count++;
-			Assert(texture_count < MAX_TEXTURES);
-			NumTextures = texture_count;
-		}
+		const auto &&[i, f] = get_texture(LevelUniqueTmapInfoState.TmapInfo, skip, dest_bm.c_str());
 		Effects[clip_num].dest_bm_num = i;
 #elif defined(DXX_BUILD_DESCENT_II)
 		Effects[clip_num].dest_bm_num = dest_bm_num;
