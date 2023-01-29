@@ -51,7 +51,9 @@ enum class tmapinfo_flag : uint8_t
 	/* endif */
 };
 
-enum class tmapinfo_flags : uint8_t;
+enum class tmapinfo_flags : uint8_t
+{
+};
 
 static constexpr uint8_t operator&(tmapinfo_flags flags, tmapinfo_flag mask)
 {
