@@ -57,32 +57,26 @@ enum class wall_is_doorway_mask : uint8_t
 	fly_rendpast = fly | rendpast,
 };
 
-struct WALL_IS_DOORWAY_result_t
+enum class wall_is_doorway_result : uint8_t
 {
-	uint8_t value;
-	constexpr WALL_IS_DOORWAY_result_t(const WALL_IS_DOORWAY_sresult_t f) :
-		value(static_cast<unsigned>(f))
-	{
-	}
-	unsigned operator&(WALL_IS_DOORWAY_FLAG f) const
-	{
-		return value & static_cast<uint8_t>(f);
-	}
-	WALL_IS_DOORWAY_result_t &operator|=(WALL_IS_DOORWAY_FLAG f)
-	{
-		value |= static_cast<uint8_t>(f);
-		return *this;
-	}
-	bool operator==(WALL_IS_DOORWAY_sresult_t F) const
-	{
-		return value == static_cast<unsigned>(F);
-	}
-	bool operator&(wall_is_doorway_mask m) const
-	{
-		return value & static_cast<uint8_t>(m);
-	}
-	bool operator==(WALL_IS_DOORWAY_result_t) const = delete;
 };
+
+[[nodiscard]]
+static constexpr bool operator&(const wall_is_doorway_result r, const WALL_IS_DOORWAY_FLAG f)
+{
+	return static_cast<uint8_t>(r) & static_cast<uint8_t>(f);
+}
+
+[[nodiscard]]
+static constexpr bool operator&(const wall_is_doorway_result r, const wall_is_doorway_mask m)
+{
+	return static_cast<uint8_t>(r) & static_cast<uint8_t>(m);
+}
+
+static inline wall_is_doorway_result &operator|=(wall_is_doorway_result &r, const WALL_IS_DOORWAY_FLAG f)
+{
+	return r = static_cast<wall_is_doorway_result>(static_cast<uint8_t>(r) | static_cast<uint8_t>(f));
+}
 
 struct stuckobj : public prohibit_void_ptr<stuckobj>
 {

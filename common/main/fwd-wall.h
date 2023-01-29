@@ -92,26 +92,24 @@ static constexpr WALL_IS_DOORWAY_FLAG operator|(const WALL_IS_DOORWAY_FLAG a, co
 	return static_cast<WALL_IS_DOORWAY_FLAG>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
 }
 
-enum class WALL_IS_DOORWAY_sresult_t : unsigned;
+enum class wall_is_doorway_result : uint8_t;
 
-static constexpr WALL_IS_DOORWAY_sresult_t WALL_IS_DOORWAY_sresult(WALL_IS_DOORWAY_FLAG F)
-{
-	return WALL_IS_DOORWAY_sresult_t{static_cast<unsigned>(F)};
-}
-
-struct WALL_IS_DOORWAY_result_t;
+template <WALL_IS_DOORWAY_FLAG... F>
+inline constexpr wall_is_doorway_result WALL_IS_DOORWAY_static_result{
+	(... | static_cast<uint8_t>(F))
+};
 
 //  WALL_IS_DOORWAY return values          F/R/RP
-constexpr auto WID_WALL                = WALL_IS_DOORWAY_sresult(WALL_IS_DOORWAY_FLAG::render);   // 0/1/0        wall
-constexpr auto WID_TRANSPARENT_WALL    = WALL_IS_DOORWAY_sresult(WALL_IS_DOORWAY_FLAG::render | WALL_IS_DOORWAY_FLAG::rendpast);   // 0/1/1        transparent wall
-constexpr auto WID_ILLUSORY_WALL       = WALL_IS_DOORWAY_sresult(WALL_IS_DOORWAY_FLAG::fly | WALL_IS_DOORWAY_FLAG::render);   // 1/1/0        illusory wall
-constexpr auto WID_TRANSILLUSORY_WALL  = WALL_IS_DOORWAY_sresult(WALL_IS_DOORWAY_FLAG::fly | WALL_IS_DOORWAY_FLAG::render | WALL_IS_DOORWAY_FLAG::rendpast);   // 1/1/1        transparent illusory wall
-constexpr auto WID_NO_WALL             = WALL_IS_DOORWAY_sresult(WALL_IS_DOORWAY_FLAG::fly | WALL_IS_DOORWAY_FLAG::rendpast);   //  1/0/1       no wall, can fly through
-constexpr auto WID_EXTERNAL            = WALL_IS_DOORWAY_sresult(WALL_IS_DOORWAY_FLAG::external);   // 0/0/0/1  don't see it, dont fly through it
+constexpr auto WID_WALL                = WALL_IS_DOORWAY_static_result<WALL_IS_DOORWAY_FLAG::render>;   // 0/1/0        wall
+constexpr auto WID_TRANSPARENT_WALL    = WALL_IS_DOORWAY_static_result<WALL_IS_DOORWAY_FLAG::render, WALL_IS_DOORWAY_FLAG::rendpast>;   // 0/1/1        transparent wall
+constexpr auto WID_ILLUSORY_WALL       = WALL_IS_DOORWAY_static_result<WALL_IS_DOORWAY_FLAG::fly, WALL_IS_DOORWAY_FLAG::render>;   // 1/1/0        illusory wall
+constexpr auto WID_TRANSILLUSORY_WALL  = WALL_IS_DOORWAY_static_result<WALL_IS_DOORWAY_FLAG::fly, WALL_IS_DOORWAY_FLAG::render, WALL_IS_DOORWAY_FLAG::rendpast>;   // 1/1/1        transparent illusory wall
+constexpr auto WID_NO_WALL             = WALL_IS_DOORWAY_static_result<WALL_IS_DOORWAY_FLAG::fly, WALL_IS_DOORWAY_FLAG::rendpast>;   //  1/0/1       no wall, can fly through
+constexpr auto WID_EXTERNAL            = WALL_IS_DOORWAY_static_result<WALL_IS_DOORWAY_FLAG::external>;   // 0/0/0/1  don't see it, dont fly through it
 }
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
-constexpr auto WID_CLOAKED_WALL        = WALL_IS_DOORWAY_sresult(WALL_IS_DOORWAY_FLAG::render | WALL_IS_DOORWAY_FLAG::rendpast | WALL_IS_DOORWAY_FLAG::cloaked);
+constexpr auto WID_CLOAKED_WALL        = WALL_IS_DOORWAY_static_result<WALL_IS_DOORWAY_FLAG::render, WALL_IS_DOORWAY_FLAG::rendpast, WALL_IS_DOORWAY_FLAG::cloaked>;
 }
 #endif
 #endif
@@ -161,7 +159,7 @@ extern unsigned Num_wall_anims;
 namespace dsx {
 
 // Automatically checks if a there is a doorway (i.e. can fly through)
-WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, cscusegment seg, sidenum_t side);
+wall_is_doorway_result WALL_IS_DOORWAY(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, cscusegment seg, sidenum_t side);
 
 // Deteriorate appearance of wall. (Changes bitmap (paste-ons))
 }

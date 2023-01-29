@@ -176,7 +176,7 @@ namespace dsx {
 
 namespace {
 
-static WALL_IS_DOORWAY_result_t wall_is_doorway(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, const shared_side &sside, const unique_side &uside)
+static wall_is_doorway_result wall_is_doorway(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, const shared_side &sside, const unique_side &uside)
 {
 	auto &w = *vcwallptr(sside.wall_num);
 	const auto type = w.type;
@@ -220,7 +220,7 @@ static WALL_IS_DOORWAY_result_t wall_is_doorway(const GameBitmaps_array &GameBit
 
 }
 
-WALL_IS_DOORWAY_result_t WALL_IS_DOORWAY(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, const cscusegment seg, const sidenum_t side)
+wall_is_doorway_result WALL_IS_DOORWAY(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, const cscusegment seg, const sidenum_t side)
 {
 	const auto child = seg.s.children[side];
 	if (unlikely(child == segment_none))
