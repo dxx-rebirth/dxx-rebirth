@@ -828,7 +828,7 @@ void flush_fcd_cache()
 //	Determine whether seg0 and seg1 are reachable in a way that allows sound to pass.
 //	Search up to a maximum depth of max_depth.
 //	Return the distance.
-vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t seg0, const vms_vector &p1, const vcsegptridx_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag)
+vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t seg0, const vms_vector &p1, const vcsegptridx_t seg1, int max_depth, const wall_is_doorway_mask wid_flag)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -902,7 +902,7 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 			auto &&v = visited[this_seg];
 			if (v)
 				continue;
-			if (!wid_flag.value || (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, snum) & wid_flag))
+			if (wid_flag == wall_is_doorway_mask::None || (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, snum) & wid_flag))
 			{
 				v = true;
 					seg_queue[qtail].start = cur_seg;

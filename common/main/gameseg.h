@@ -83,6 +83,9 @@ static inline side_vertnum_list_t get_side_verts(const shared_segment &segnum, c
 	return get_side_verts(r, segnum, sidenum), r;
 }
 #endif
+
+enum class wall_is_doorway_mask : uint8_t;
+
 }
 
 #ifdef dsx
@@ -147,7 +150,6 @@ static inline vertex_vertnum_array_list create_all_vertnum_lists(const shared_se
 namespace dcx {
 //      Given a side, return the number of faces
 bool get_side_is_quad(const shared_side &sidep);
-struct WALL_IS_DOORWAY_mask_t;
 }
 
 namespace dsx {
@@ -172,7 +174,7 @@ icsegptridx_t find_point_seg(const d_level_shared_segment_state &, const vms_vec
 //      set to WID_FLY_FLAG to see if a robot could fly from one to the other.
 //      Search up to a maximum depth of max_depth.
 //      Return the distance.
-vm_distance find_connected_distance(const vms_vector &p0, vcsegptridx_t seg0, const vms_vector &p1, vcsegptridx_t seg1, int max_depth, WALL_IS_DOORWAY_mask_t wid_flag);
+vm_distance find_connected_distance(const vms_vector &p0, vcsegptridx_t seg0, const vms_vector &p1, vcsegptridx_t seg1, int max_depth, wall_is_doorway_mask wid_flag);
 
 //create a matrix that describes the orientation of the given segment
 void extract_orient_from_segment(fvcvertptr &vcvertptr, vms_matrix &m, const shared_segment &seg);

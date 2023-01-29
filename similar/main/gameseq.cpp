@@ -2243,7 +2243,7 @@ public:
 				const auto &&objp = vmobjptr(vcplayerptr(i)->objnum);
 				if (objp->type != OBJ_PLAYER)
 					continue;
-				const auto dist = find_connected_distance(objp->pos, candidate_segp.absolute_sibling(objp->segnum), candidate.pos, candidate_segp, -1, WALL_IS_DOORWAY_FLAG::None);
+				const auto dist = find_connected_distance(objp->pos, candidate_segp.absolute_sibling(objp->segnum), candidate.pos, candidate_segp, -1, wall_is_doorway_mask::None);
 				if (dist >= 0 && closest_dist > dist)
 					closest_dist = dist;
 			}

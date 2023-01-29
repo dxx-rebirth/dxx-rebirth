@@ -206,7 +206,7 @@ static std::pair<int, sound_pan> digi_get_sound_loc(const vms_matrix &listener, 
 		int num_search_segs = f2i(max_distance/20);
 		if ( num_search_segs < 1 ) num_search_segs = 1;
 
-		auto path_distance = find_connected_distance(listener_pos, listener_seg, sound_pos, sound_seg, num_search_segs, WALL_IS_DOORWAY_FLAG::rendpast | WALL_IS_DOORWAY_FLAG::fly);
+		const auto path_distance = find_connected_distance(listener_pos, listener_seg, sound_pos, sound_seg, num_search_segs, wall_is_doorway_mask::fly_rendpast);
 		if ( path_distance > -1 )	{
 			const int volume = max_volume - fixdiv(path_distance,max_distance);
 			if (volume > 0)

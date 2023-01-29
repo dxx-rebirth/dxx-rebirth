@@ -49,13 +49,12 @@ constexpr uint8_t operator&(const wall_key a, const wall_key b)
 }
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-struct WALL_IS_DOORWAY_mask_t
+enum class wall_is_doorway_mask : uint8_t
 {
-	uint8_t value;
-	constexpr WALL_IS_DOORWAY_mask_t(WALL_IS_DOORWAY_FLAG F) :
-		value(static_cast<uint8_t>(F))
-	{
-	}
+	None = 0,
+	fly = static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::fly),
+	rendpast = static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::rendpast),
+	fly_rendpast = fly | rendpast,
 };
 
 struct WALL_IS_DOORWAY_result_t
@@ -78,9 +77,9 @@ struct WALL_IS_DOORWAY_result_t
 	{
 		return value == static_cast<unsigned>(F);
 	}
-	bool operator&(WALL_IS_DOORWAY_mask_t m) const
+	bool operator&(wall_is_doorway_mask m) const
 	{
-		return value & m.value;
+		return value & static_cast<uint8_t>(m);
 	}
 	bool operator==(WALL_IS_DOORWAY_result_t) const = delete;
 };
