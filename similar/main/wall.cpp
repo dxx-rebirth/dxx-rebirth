@@ -561,7 +561,7 @@ void start_wall_cloak(const vmsegptridx_t seg, const sidenum_t side)
 		d->time = CLOAKING_WALL_TIME - d->time;
 	}
 	else if (w->state == wall_state::closed) {	//create new door
-		const clwallnum_t c = CloakingWalls.get_count();
+		const auto c = CloakingWalls.get_count();
 		if (c >= CloakingWalls.size())
 		{
 			Int3();		//ran out of cloaking wall slots
@@ -571,7 +571,7 @@ void start_wall_cloak(const vmsegptridx_t seg, const sidenum_t side)
 			return;
 		}
 		CloakingWalls.set_count(c + 1);
-		d = CloakingWalls.vmptr(c);
+		d = CloakingWalls.vmptr(clwallnum_t{c});
 		d->time = 0;
 	}
 	else {
@@ -638,7 +638,7 @@ void start_wall_decloak(const vmsegptridx_t seg, const sidenum_t side)
 		d->time = CLOAKING_WALL_TIME - d->time;
 	}
 	else if (w->state == wall_state::closed) {	//create new door
-		const clwallnum_t c = CloakingWalls.get_count();
+		const auto c = CloakingWalls.get_count();
 		if (c >= CloakingWalls.size())
 		{
 			Int3();		//ran out of cloaking wall slots
@@ -649,7 +649,7 @@ void start_wall_decloak(const vmsegptridx_t seg, const sidenum_t side)
 			return;
 		}
 		CloakingWalls.set_count(c + 1);
-		d = CloakingWalls.vmptr(c);
+		d = CloakingWalls.vmptr(clwallnum_t{c});
 		d->time = 0;
 	}
 	else {
