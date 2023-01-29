@@ -95,10 +95,6 @@ window_event_result UI_DIALOG::event_handler(const d_event &event)
 			return rval;
 		}
 
-		case EVENT_WINDOW_CLOSE:
-			if (rval != window_event_result::deleted)	// check if handler already deleted dialog (e.g. if UI_DIALOG was subclassed)
-				delete this;
-			return window_event_result::deleted;	// free the window in any case (until UI_DIALOG is subclass of window)
 		default:
 			return window_event_result::ignored;
 	}
