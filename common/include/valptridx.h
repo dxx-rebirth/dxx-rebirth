@@ -37,8 +37,15 @@ template <typename managed_type>
 class valptridx<managed_type>::array_base_count_type
 {
 protected:
+	/* Use the smallest size that will store all legal values.  Currently,
+	 * no user has a maximum size that needs more than uint16_t, so reject
+	 * attempts to use that size.  This protects against silently getting
+	 * the wrong result if a future change raises the maximum size above
+	 * uint16_t.
+	 */
+	using count_type = typename std::conditional<(array_size <= UINT8_MAX), uint8_t, typename std::conditional<(array_size <= UINT16_MAX), uint16_t, void>::type>::type;
 	union {
-		unsigned count;
+		count_type count;
 		/*
 		 * Use DXX_VALPTRIDX_FOR_EACH_PPI_TYPE to generate empty union
 		 * members based on basic_{i,v}val_member_factory
@@ -55,11 +62,11 @@ protected:
 	{
 	}
 public:
-	unsigned get_count() const
+	count_type get_count() const
 	{
 		return count;
 	}
-	void set_count(const unsigned c)
+	void set_count(const count_type c)
 	{
 		count = c;
 	}

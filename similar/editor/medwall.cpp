@@ -775,7 +775,7 @@ int wall_remove_side(const vmsegptridx_t seg, const sidenum_t side)
 		}
 
 		{
-			const auto num_walls = Walls.get_count();
+			const std::size_t num_walls{Walls.get_count()};
 			auto &&sr = partial_const_range(Walls, static_cast<unsigned>(lower_wallnum) + 2, num_walls);
 			std::move(sr.begin(), sr.end(), partial_range(Walls, static_cast<unsigned>(lower_wallnum), num_walls - 2).begin());
 			Walls.set_count(num_walls - 2);
