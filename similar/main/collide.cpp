@@ -2606,40 +2606,58 @@ void collide_two_objects(const d_robot_info_array &Robot_info, vmobjptridx_t A, 
 
 namespace {
 
+/* If not otherwise specified, collision results are ignored. */
 template <object_type_t A, object_type_t B>
-struct collision_result_t : public std::conditional<(B < A), collision_result_t<B, A>, std::integral_constant<collision_result, collision_result::ignore>>::type
-{
-};
+inline constexpr collision_result collision_result_t{collision_result::ignore};
+
+/* Create symmetric collisions.  For any <A,B> where (B < A), use the result of
+ * <B,A>.
+ */
+template <object_type_t A, object_type_t B>
+requires(B < A)
+inline constexpr collision_result collision_result_t<A, B>{collision_result_t<B, A>};
 
 #define COLLISION_RESULT(type1,type2,result)	\
 	template <>	\
-	struct collision_result_t<type1, type2> : public std::integral_constant<collision_result, result>	\
-	{	\
-	}
+	inline constexpr collision_result collision_result_t<type1, type2>{result}
 
 COLLISION_TABLE(DISABLE, ENABLE);
 
-template <std::size_t R, std::size_t... C>
-static inline constexpr collision_inner_array_t collide_init(std::index_sequence<C...>)
-{
-	static_assert((COLLISION_OF(R, 0) < COLLISION_OF(R, sizeof...(C) - 1)), "ambiguous collision");
-	static_assert((COLLISION_OF(R, sizeof...(C) - 1) < COLLISION_OF(R + 1, 0)), "ambiguous collision");
-	return collision_inner_array_t{{
-		collision_result_t<static_cast<object_type_t>(R), static_cast<object_type_t>(C)>::value...
-	}};
-}
+template <std::size_t R, typename C>
+[[deprecated("only specializations can be used")]]
+inline constexpr collision_inner_array_t collision_inner_array
+#ifdef __clang__
+{}
+#endif
+;
 
-template <std::size_t... R, std::size_t... C>
-static inline constexpr collision_outer_array_t collide_init(std::index_sequence<R...>, std::index_sequence<C...> c)
-{
-	return collision_outer_array_t{{collide_init<R>(c)...}};
-}
+template <std::size_t R, std::size_t... C>
+requires(
+	(COLLISION_OF(R, 0) < COLLISION_OF(R, sizeof...(C) - 1)) &&
+	(COLLISION_OF(R, sizeof...(C) - 1) < COLLISION_OF(R + 1, 0))
+)
+inline constexpr collision_inner_array_t collision_inner_array<R, std::index_sequence<C...>>{{
+	collision_result_t<static_cast<object_type_t>(R), static_cast<object_type_t>(C)>...
+}};
+
+template <typename R, typename C>
+[[deprecated("only specializations can be used")]]
+inline constexpr collision_outer_array_t collision_outer_array
+#ifdef __clang__
+{}
+#endif
+;
+
+template <std::size_t... R, typename C>
+inline constexpr collision_outer_array_t collision_outer_array<std::index_sequence<R...>, C>{{
+	collision_inner_array<static_cast<object_type_t>(R), C>...
+}};
 
 }
 
 namespace dsx {
 
-constexpr collision_outer_array_t CollisionResult = collide_init(std::make_index_sequence<MAX_OBJECT_TYPES>(), std::make_index_sequence<MAX_OBJECT_TYPES>());
+constexpr collision_outer_array_t CollisionResult{collision_outer_array<std::make_index_sequence<MAX_OBJECT_TYPES>, std::make_index_sequence<MAX_OBJECT_TYPES>>};
 
 }
 
@@ -2647,13 +2665,13 @@ constexpr collision_outer_array_t CollisionResult = collide_init(std::make_index
 #undef ENABLE_COLLISION
 
 #define ENABLE_COLLISION(T1,T2)	static_assert(	\
-	collision_result_t<T1, T2>::value == collision_result::check &&	\
-	collision_result_t<T2, T1>::value == collision_result::check,	\
+	collision_result_t<T1, T2> == collision_result::check &&	\
+	collision_result_t<T2, T1> == collision_result::check,	\
 	#T1 " " #T2	\
 	)
 #define DISABLE_COLLISION(T1,T2)	static_assert(	\
-	collision_result_t<T1, T2>::value == collision_result::ignore &&	\
-	collision_result_t<T2, T1>::value == collision_result::ignore,	\
+	collision_result_t<T1, T2> == collision_result::ignore &&	\
+	collision_result_t<T2, T1> == collision_result::ignore,	\
 	#T1 " " #T2	\
 	)
 
