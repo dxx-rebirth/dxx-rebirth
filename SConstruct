@@ -1496,13 +1496,10 @@ static void terminate_handler()
 		if e:
 			raise SCons.Errors.StopError(e[1])
 
-	@_custom_test
+	# SDL-only builds do not need GL utility functions
+	# OpenGLES builds to not use the GL utility functions
+	@GuardedCollector(_custom_test, lambda user_settings: user_settings.opengl and not user_settings.opengles)
 	def check_glu(self,context):
-		if not self.user_settings.opengl:
-			return
-		if self.user_settings.opengles:
-			# GLES builds do not use the GL utility functions
-			return
 		ogllibs = self.platform_settings.ogllibs
 		self._check_system_library(context, header=['OpenGL/glu.h' if sys.platform == 'darwin' else 'GL/glu.h'], main='''
 	gluPerspective(90.0,1.0,0.1,5000.0);
