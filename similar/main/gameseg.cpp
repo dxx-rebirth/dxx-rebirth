@@ -48,6 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-range_for.h"
+#include "d_array.h"
 #include "d_levelstate.h"
 #include "d_range.h"
 #include "d_zip.h"
@@ -60,8 +61,8 @@ namespace {
 	/* The array can be of any type that can hold values in the range
 	 * [0, AMBIENT_SEGMENT_DEPTH].
 	 */
-struct segment_lava_depth_array : std::array<uint8_t, MAX_SEGMENTS> {};
-struct segment_water_depth_array : std::array<uint8_t, MAX_SEGMENTS> {};
+struct segment_lava_depth_array : enumerated_array<uint8_t, MAX_SEGMENTS, segnum_t> {};
+struct segment_water_depth_array : enumerated_array<uint8_t, MAX_SEGMENTS, segnum_t> {};
 
 class abs_vertex_lists_predicate
 {
