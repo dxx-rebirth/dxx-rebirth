@@ -22,9 +22,9 @@ void digi_mixer_end_sound(sound_channel);
 void digi_mixer_set_digi_volume(int);
 int digi_mixer_is_channel_playing(sound_channel);
 void digi_mixer_stop_all_channels();
+int digi_mixer_init();
 }
 namespace dsx {
-int digi_mixer_init();
 sound_channel digi_mixer_start_sound(short, fix, sound_pan, int, int, int, sound_object *);
 }
 #endif

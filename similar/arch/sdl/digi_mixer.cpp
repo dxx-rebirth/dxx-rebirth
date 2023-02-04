@@ -116,12 +116,6 @@ void digi_mixer_free_channel(const int channel_num)
 
 }
 
-}
-
-namespace dsx {
-
-static std::array<RAIIMix_Chunk, MAX_SOUNDS> SoundChunks;
-
 /* Initialise audio */
 int digi_mixer_init()
 {
@@ -149,10 +143,6 @@ int digi_mixer_init()
 
 	return 0;
 }
-
-}
-
-namespace dcx {
 
 /* Shut down audio */
 void digi_mixer_close() {
@@ -319,6 +309,8 @@ static std::unique_ptr<Uint8[]> convert_audio(const std::span<const uint8_t> inp
 namespace dsx {
 
 namespace {
+
+static std::array<RAIIMix_Chunk, MAX_SOUNDS> SoundChunks;
 
 /*
  * Play-time conversion. Performs output conversion only once per sound effect used.
