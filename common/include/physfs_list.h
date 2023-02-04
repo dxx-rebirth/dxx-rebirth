@@ -51,27 +51,17 @@ public:
 template <typename D>
 class PHYSFSX_counted_list_template : public PHYSFSX_uncounted_list_template<D>
 {
-	typedef PHYSFSX_uncounted_list_template<D> base_ptr;
-	using typename base_ptr::pointer;
-	uint_fast32_t count = 0;
+	using base_type = PHYSFSX_uncounted_list_template<D>;
+	std::size_t count = 0;
 public:
-	using base_ptr::base_ptr;
-	uint_fast32_t get_count() const
+	constexpr PHYSFSX_counted_list_template() = default;
+	constexpr PHYSFSX_counted_list_template(base_type &&base, std::size_t count) :
+		base_type{std::move(base)}, count{count}
+	{
+	}
+	std::size_t get_count() const
 	{
 		return count;
-	}
-	void set_count(uint_fast32_t c)
-	{
-		count = c;
-	}
-	void reset()
-	{
-		base_ptr::reset();
-	}
-	void reset(pointer p)
-	{
-		count = 0;
-		base_ptr::reset(p);
 	}
 };
 

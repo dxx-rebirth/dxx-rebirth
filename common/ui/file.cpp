@@ -47,11 +47,11 @@ static PHYSFSX_counted_list file_getdirlist(const std::span<const char, PATH_MAX
 	ntstring<PATH_MAX - 1> path;
 	auto dlen = path.copy_if(dir.data());
 	if ((!dlen && dir[0] != '\0') || !path.copy_if(dlen, "/"))
-		return nullptr;
+		return {};
 	++ dlen;
-	PHYSFSX_counted_list list{PHYSFS_enumerateFiles(dir.data())};
+	PHYSFSX_uncounted_list list{PHYSFS_enumerateFiles(dir.data())};
 	if (!list)
-		return nullptr;
+		return {};
 	const auto predicate = [&](char *i) -> bool {
 		if (path.copy_if(dlen, i) && PHYSFS_isDirectory(path))
 			return false;
@@ -68,21 +68,20 @@ static PHYSFSX_counted_list file_getdirlist(const std::span<const char, PATH_MAX
 		++NumDirs;
 		auto r = reinterpret_cast<char **>(realloc(list.get(), sizeof(char *)*(NumDirs + 1)));
 		if (!r)
-			return list;
+			return {};
 		list.release();
 		list.reset(r);
 		std::move_backward(r, r + NumDirs, r + NumDirs + 1);
 		list[0] = strdup("..");
 	}
-	list.set_count(NumDirs);
-	return list;
+	return {std::move(list), static_cast<std::size_t>(NumDirs)};
 }
 
 static PHYSFSX_counted_list file_getfilelist(const char *filespec, const char *dir)
 {
-	PHYSFSX_counted_list list{PHYSFS_enumerateFiles(dir)};
+	PHYSFSX_uncounted_list list{PHYSFS_enumerateFiles(dir)};
 	if (!list)
-		return nullptr;
+		return {};
 
 	if (*filespec == '*')
 		filespec++;
@@ -97,9 +96,8 @@ static PHYSFSX_counted_list file_getfilelist(const char *filespec, const char *d
 	auto j = std::remove_if(list.begin(), list.end(), predicate);
 	*j = NULL;
 	auto NumFiles = j.get() - list.get();
-	list.set_count(NumFiles);
 	qsort(list.get(), NumFiles, sizeof(char *), string_array_sort_func);
-	return list;
+	return {std::move(list), static_cast<std::size_t>(NumFiles)};
 }
 
 struct ui_file_browser : UI_DIALOG
