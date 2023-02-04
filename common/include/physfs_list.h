@@ -37,18 +37,17 @@ class PHYSFSX_uncounted_list_template : protected std::unique_ptr<char *[], Dele
 {
 	using base_type = std::unique_ptr<char *[], Deleter>;
 public:
-	typedef null_sentinel_iterator<char *> const_iterator;
 	using base_type::base_type;
 	using base_type::get;
 	using base_type::operator bool;
 	using base_type::operator[];
 	using base_type::release;
 	using base_type::reset;
-	const_iterator begin() const
+	null_sentinel_iterator<char *> begin() const
 	{
 		return this->get();
 	}
-	const_iterator end() const
+	null_sentinel_sentinel<char *> end() const
 	{
 		return {};
 	}

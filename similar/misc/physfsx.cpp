@@ -372,7 +372,7 @@ int PHYSFSX_checkSupportedArchiveTypes()
 #endif
 
 	con_puts(CON_DEBUG, "PHYSFS: Checking supported archive types.");
-	range_for (const auto i, make_null_sentinel_array(PHYSFS_supportedArchiveTypes()))
+	range_for (const auto i, null_sentinel_array(PHYSFS_supportedArchiveTypes()))
 	{
 		const auto iextension = i->extension;
 		con_printf(CON_DEBUG, "PHYSFS: Supported archive: [%s], which is [%s].", iextension, i->description);

@@ -3,6 +3,11 @@
 #include <iterator>
 
 template <typename I>
+struct null_sentinel_sentinel
+{
+};
+
+template <typename I>
 class null_sentinel_iterator
 {
 public:
@@ -20,11 +25,7 @@ public:
 	{
 		return p;
 	}
-	value_type operator*() const
-	{
-		return *p;
-	}
-	reference operator*()
+	reference operator*() const
 	{
 		return *p;
 	}
@@ -33,13 +34,15 @@ public:
 		++p;
 		return *this;
 	}
-	bool operator==(null_sentinel_iterator rhs) const
+	null_sentinel_iterator operator++(int)
 	{
-		if (rhs.p)
-			return p == rhs.p;
-		if (!p)
-			/* Should never happen */
-			return true;
+		auto r = *this;
+		++ *this;
+		return r;
+	}
+	constexpr bool operator==(const null_sentinel_iterator &) const = default;
+	constexpr bool operator==(null_sentinel_sentinel<I>) const
+	{
 		return !**this;
 	}
 private:
@@ -49,25 +52,18 @@ private:
 template <typename I>
 class null_sentinel_array
 {
-	typedef null_sentinel_iterator<I> iterator;
 	I *b;
 public:
 	null_sentinel_array(I *i) :
 		b(i)
 	{
 	}
-	iterator begin() const
+	null_sentinel_iterator<I> begin() const
 	{
 		return b;
 	}
-	iterator end() const
+	null_sentinel_sentinel<I> end() const
 	{
 		return {};
 	}
 };
-
-template <typename I>
-static inline null_sentinel_array<I> make_null_sentinel_array(I *i)
-{
-	return i;
-}

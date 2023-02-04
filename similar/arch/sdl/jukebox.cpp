@@ -261,7 +261,12 @@ void jukebox_load()
 		{
 			return;
 		}
-		num_songs = std::distance(JukeboxSongs.list.begin(), JukeboxSongs.list.end());
+		std::size_t count = 0;
+		auto ii = JukeboxSongs.list.begin();
+		auto ie = JukeboxSongs.list.end();
+		for (; ii != ie; ++ii)
+			++ count;
+		num_songs = count;
 	}
 
 	if (num_songs)

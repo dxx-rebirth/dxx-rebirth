@@ -58,8 +58,8 @@ static PHYSFSX_counted_list file_getdirlist(const std::span<const char, PATH_MAX
 		free(i);
 		return true;
 	};
-	auto j = std::remove_if(list.begin(), list.end(), predicate);
-	*j = NULL;
+	const auto j = std::ranges::remove_if(list, predicate).begin();
+	*j = nullptr;
 	auto NumDirs = j.get() - list.get();
 	qsort(list.get(), NumDirs, sizeof(char *), string_array_sort_func);
 	if (dir[0])
@@ -93,8 +93,8 @@ static PHYSFSX_counted_list file_getfilelist(const char *filespec, const char *d
 		free(i);
 		return true;
 	};
-	auto j = std::remove_if(list.begin(), list.end(), predicate);
-	*j = NULL;
+	const auto j = std::ranges::remove_if(list, predicate).begin();
+	*j = nullptr;
 	auto NumFiles = j.get() - list.get();
 	qsort(list.get(), NumFiles, sizeof(char *), string_array_sort_func);
 	return {std::move(list), static_cast<std::size_t>(NumFiles)};
