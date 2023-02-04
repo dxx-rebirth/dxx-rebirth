@@ -701,7 +701,7 @@ void render_start_frame()
 }
 
 //Given a lit of point numbers, rotate any that haven't been rotated this frame
-g3s_codes rotate_list(fvcvertptr &vcvertptr, const std::size_t nv, const vertnum_t *const pointnumlist)
+g3s_codes rotate_list(fvcvertptr &vcvertptr, const std::span<const vertnum_t> pointnumlist)
 {
 	g3s_codes cc;
 	const auto current_generation = s_current_generation;
@@ -710,7 +710,7 @@ g3s_codes rotate_list(fvcvertptr &vcvertptr, const std::size_t nv, const vertnum
 		? 0.0f /* unused */
 		: 2.0f * (static_cast<float>(timer_query()) / F1_0);
 
-	range_for (const auto pnum, unchecked_partial_range(pointnumlist, nv))
+	for (const auto pnum : pointnumlist)
 	{
 		auto &pnt = Segment_points[pnum];
 		if (pnt.p3_last_generation != current_generation)
