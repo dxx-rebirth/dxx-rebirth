@@ -102,6 +102,7 @@ static PHYSFSX_counted_list file_getfilelist(const char *filespec, const char *d
 
 struct ui_file_browser : UI_DIALOG
 {
+	static constexpr auto spaces = "                                  ";
 	char		*filename;
 	const char		*filespec;
 	const char		*message;
@@ -110,7 +111,6 @@ struct ui_file_browser : UI_DIALOG
 	std::unique_ptr<UI_GADGET_BUTTON> button1, button2, help_button;
 	std::unique_ptr<UI_GADGET_LISTBOX> listbox1, listbox2;
 	std::unique_ptr<UI_GADGET_INPUTBOX> user_file;
-	std::array<char, 35> spaces;
 	std::array<char, PATH_MAX> view_dir;
 	explicit ui_file_browser(short x, short y, short w, short h, enum dialog_flags flags, const std::array<char, PATH_MAX> &view_dir, PHYSFSX_counted_list &&filename, PHYSFSX_counted_list &&directory) :
 		UI_DIALOG(x, y, w, h, flags),
@@ -118,8 +118,6 @@ struct ui_file_browser : UI_DIALOG
 		directory_list(std::move(directory)),
 		view_dir(view_dir)
 	{
-		std::fill(spaces.begin(), std::prev(spaces.end()), ' ');
-		spaces.back() = 0;
 	}
 	virtual window_event_result callback_handler(const d_event &) override;
 };
@@ -136,7 +134,7 @@ window_event_result ui_file_browser::callback_handler(const d_event &event)
 		ui_dprintf_at(this, 20, 86, "&Files");
 		ui_dprintf_at(this, 210, 86, "&Dirs");
 		
-		ui_dputs_at(this, 20, 60, spaces.data());
+		ui_dputs_at(this, 20, 60, spaces);
 		ui_dputs_at(this, 20, 60, view_dir.data());
 		
 		return window_event_result::handled;
