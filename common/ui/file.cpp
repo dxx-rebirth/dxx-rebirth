@@ -42,7 +42,6 @@ namespace dcx {
 
 namespace {
 
-#if DXX_USE_EDITOR
 static PHYSFSX_counted_list file_getdirlist(const std::span<const char, PATH_MAX> dir)
 {
 	ntstring<PATH_MAX - 1> path;
@@ -78,7 +77,6 @@ static PHYSFSX_counted_list file_getdirlist(const std::span<const char, PATH_MAX
 	list.set_count(NumDirs);
 	return list;
 }
-#endif
 
 static PHYSFSX_counted_list file_getfilelist(const char *filespec, const char *dir)
 {
@@ -104,7 +102,6 @@ static PHYSFSX_counted_list file_getfilelist(const char *filespec, const char *d
 	return list;
 }
 
-#if DXX_USE_EDITOR
 struct ui_file_browser : UI_DIALOG
 {
 	char		*filename;
@@ -242,11 +239,9 @@ window_event_result ui_file_browser::callback_handler(const d_event &event)
 	}
 	return rval;
 }
-#endif
 
 }
 
-#if DXX_USE_EDITOR
 int ui_get_filename(std::array<char, PATH_MAX> &filename, const char *const filespec, const char *const message)
 {
 	std::array<char, PATH_MAX>::iterator InputText;
@@ -316,7 +311,6 @@ int ui_get_filename(std::array<char, PATH_MAX> &filename, const char *const file
 	//key_flush();
 	return rval;
 }
-#endif
 
 int ui_get_file( char * filename, const char * Filespec  )
 {
