@@ -76,22 +76,22 @@ public:
 
 class list_pointers : public PHYSFSX_uncounted_list_template<list_deleter>
 {
-	typedef PHYSFSX_uncounted_list_template<list_deleter> base_ptr;
+	using base_type = PHYSFSX_uncounted_list_template<list_deleter>;
 public:
-	using base_ptr::reset;
+	using base_type::reset;
 	void set_combined(std::unique_ptr<char *[]> &&buf)
 		noexcept(
-			noexcept(std::declval<base_ptr>().reset(buf.get())) &&
+			noexcept(std::declval<base_type>() = base_type{buf.get()}) &&
 			noexcept(std::declval<list_deleter>().buf = std::move(buf))
 		)
 	{
-		this->base_ptr::reset(buf.get());
+		static_cast<base_type &>(*this) = base_type{buf.get()};
 		get_deleter().buf = std::move(buf);
 	}
 	void reset(PHYSFSX_uncounted_list list)
-		noexcept(noexcept(std::declval<base_ptr>().reset(list.release())))
+		noexcept(noexcept(std::declval<base_type>() = base_type{list.release()}))
 	{
-		this->base_ptr::reset(list.release());
+		static_cast<base_type &>(*this) = base_type{list.release()};
 	}
 };
 

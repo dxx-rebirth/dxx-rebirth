@@ -32,12 +32,18 @@ public:
 	}
 };
 
-template <typename D>
-class PHYSFSX_uncounted_list_template : public std::unique_ptr<char *[], D>
+template <typename Deleter>
+class PHYSFSX_uncounted_list_template : protected std::unique_ptr<char *[], Deleter>
 {
+	using base_type = std::unique_ptr<char *[], Deleter>;
 public:
 	typedef null_sentinel_iterator<char *> const_iterator;
-	using std::unique_ptr<char *[], D>::unique_ptr;
+	using base_type::base_type;
+	using base_type::get;
+	using base_type::operator bool;
+	using base_type::operator[];
+	using base_type::release;
+	using base_type::reset;
 	const_iterator begin() const
 	{
 		return this->get();
@@ -48,12 +54,19 @@ public:
 	}
 };
 
-template <typename D>
-class PHYSFSX_counted_list_template : public PHYSFSX_uncounted_list_template<D>
+template <typename Deleter>
+class PHYSFSX_counted_list_template : public PHYSFSX_uncounted_list_template<Deleter>
 {
-	using base_type = PHYSFSX_uncounted_list_template<D>;
+	using base_type = PHYSFSX_uncounted_list_template<Deleter>;
 	std::size_t count = 0;
 public:
+	/* Inherit the zero-argument form of reset(), for clearing a list.
+	 * Override and delete the one-argument form, so that the list cannot be
+	 * given new contents, with a potentially different length, using
+	 * `reset(other_list);`
+	 */
+	using base_type::reset;
+	void reset(auto) = delete;
 	constexpr PHYSFSX_counted_list_template() = default;
 	constexpr PHYSFSX_counted_list_template(base_type &&base, std::size_t count) :
 		base_type{std::move(base)}, count{count}

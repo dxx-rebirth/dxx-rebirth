@@ -353,12 +353,9 @@ int PHYSFSX_fsize(const char *hogname)
 void PHYSFSX_listSearchPathContent()
 {
 	con_puts(CON_DEBUG, "PHYSFS: Listing contents of Search Path.");
-	PHYSFSX_uncounted_list list{PHYSFS_getSearchPath()};
-	range_for (const auto i, list)
+	for (const auto i : PHYSFSX_uncounted_list{PHYSFS_getSearchPath()})
 		con_printf(CON_DEBUG, "PHYSFS: [%s] is in the Search Path.", i);
-	list.reset();
-	list.reset(PHYSFS_enumerateFiles(""));
-	range_for (const auto i, list)
+	for (const auto i : PHYSFSX_uncounted_list{PHYSFS_enumerateFiles("")})
 		con_printf(CON_DEBUG, "PHYSFS: * We've got [%s].", i);
 }
 
@@ -478,8 +475,16 @@ int PHYSFSX_rename(const char *oldpath, const char *newpath)
 	return (rename(old.data(), n.data()) == 0);
 }
 
-template <typename F>
-static inline PHYSFSX_uncounted_list PHYSFSX_findPredicateFiles(const char *path, F f)
+static PHYSFSX_uncounted_list trim_physfs_list(PHYSFSX_uncounted_list list, char **const iter_first_unused)
+{
+	*iter_first_unused = nullptr;
+	const auto old_begin = list.get();
+	const auto r = reinterpret_cast<char **>(realloc(old_begin, (iter_first_unused - old_begin + 1) * sizeof(char *)));	// save a bit of memory (or a lot?)
+	/* iter_first_unused, old_begin are now invalid since realloc may have moved the block */
+	return r ? PHYSFSX_uncounted_list{(list.release(), r)} : std::move(list);
+}
+
+static PHYSFSX_uncounted_list PHYSFSX_findPredicateFiles(const char *path, auto &&predicate)
 {
 	PHYSFSX_uncounted_list list{PHYSFS_enumerateFiles(path)};
 	if (!list)
@@ -487,19 +492,12 @@ static inline PHYSFSX_uncounted_list PHYSFSX_findPredicateFiles(const char *path
 	char **j = list.get();
 	range_for (const auto i, list)
 	{
-		if (f(i))
+		if (predicate(i))
 			*j++ = i;
 		else
 			free(i);
 	}
-	*j = NULL;
-	char **r = reinterpret_cast<char **>(realloc(list.get(), (j - list.get() + 1)*sizeof(char *)));	// save a bit of memory (or a lot?)
-	if (r)
-	{
-		list.release();
-		list.reset(r);
-	}
-	return list;
+	return trim_physfs_list(std::move(list), j);
 }
 
 // Find files at path that have an extension listed in exts
@@ -578,9 +576,8 @@ void PHYSFSX_addArchiveContent()
 
 	con_puts(CON_DEBUG, "PHYSFS: Adding archives to the game.");
 	// find files in Searchpath ...
-	auto list = PHYSFSX_findFiles("", archive_exts);
 	// if found, add them...
-	range_for (const auto i, list)
+	for (const auto i : PHYSFSX_findFiles("", archive_exts))
 	{
 		std::array<char, PATH_MAX> realfile;
 		if (PHYSFSX_getRealPath(i, realfile) && PHYSFS_mount(realfile.data(), nullptr, 0))
@@ -590,11 +587,9 @@ void PHYSFSX_addArchiveContent()
 		}
 	}
 #if PHYSFS_VER_MAJOR >= 2
-	list.reset();
 	// find files in DEMO_DIR ...
-	list = PHYSFSX_findFiles(DEMO_DIR, archive_exts);
 	// if found, add them...
-	range_for (const auto i, list)
+	for (const auto i : PHYSFSX_findFiles(DEMO_DIR, archive_exts))
 	{
 		char demofile[PATH_MAX];
 		snprintf(demofile, sizeof(demofile), DEMO_DIR "%s", i);
@@ -606,8 +601,6 @@ void PHYSFSX_addArchiveContent()
 		}
 	}
 #endif
-	list.reset();
-
 	if (content_updated)
 	{
 		con_puts(CON_DEBUG, "Game content updated!");
@@ -619,19 +612,16 @@ void PHYSFSX_addArchiveContent()
 void PHYSFSX_removeArchiveContent()
 {
 	// find files in Searchpath ...
-	auto list = PHYSFSX_findFiles("", archive_exts);
 	// if found, remove them...
-	range_for (const auto i, list)
+	for (const auto i : PHYSFSX_findFiles("", archive_exts))
 	{
 		std::array<char, PATH_MAX> realfile;
 		if (PHYSFSX_getRealPath(i, realfile))
 			PHYSFS_unmount(realfile.data());
 	}
-	list.reset();
 	// find files in DEMO_DIR ...
-	list = PHYSFSX_findFiles(DEMO_DIR, archive_exts);
 	// if found, remove them...
-	range_for (const auto i, list)
+	for (const auto i : PHYSFSX_findFiles(DEMO_DIR, archive_exts))
 	{
 		char demofile[PATH_MAX];
 		snprintf(demofile, sizeof(demofile), DEMO_DIR "%s", i);

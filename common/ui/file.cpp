@@ -70,9 +70,9 @@ static PHYSFSX_counted_list file_getdirlist(const std::span<const char, PATH_MAX
 		if (!r)
 			return {};
 		list.release();
-		list.reset(r);
+		list = PHYSFSX_uncounted_list{r};
 		std::move_backward(r, r + NumDirs, r + NumDirs + 1);
-		list[0] = strdup("..");
+		r[0] = strdup("..");
 	}
 	return {std::move(list), static_cast<std::size_t>(NumDirs)};
 }
