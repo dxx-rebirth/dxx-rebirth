@@ -31,10 +31,6 @@
 
 namespace dcx {
 
-#if DXX_USE_EDITOR
-int g3d_interp_outline;
-#endif
-
 namespace {
 
 constexpr std::integral_constant<unsigned, 0> OP_EOF{};   //eof

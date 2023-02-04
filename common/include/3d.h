@@ -43,12 +43,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #endif
 
-#if DXX_USE_EDITOR
-namespace dcx {
-extern int g3d_interp_outline;      //if on, polygon models outlined in white
-}
-#endif
-
 //Structure for storing u,v,light values.  This structure doesn't have a
 //prefix because it was defined somewhere else before it was moved here
 struct g3s_uvl {

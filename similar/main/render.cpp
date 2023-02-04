@@ -626,9 +626,6 @@ static void render_object_search(grs_canvas &canvas, const d_level_unique_light_
 
 static void do_render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const vmobjptridx_t obj, window_rendered_data &window)
 {
-#if DXX_USE_EDITOR
-	int save_3d_outline=0;
-	#endif
 	int count = 0;
 
 	#ifndef NDEBUG
@@ -670,13 +667,6 @@ static void do_render_object(grs_canvas &canvas, const d_level_unique_light_stat
 	//check for editor object
 
 #if DXX_USE_EDITOR
-	if (EditorWindow && obj==Cur_object_index) {
-		save_3d_outline = g3d_interp_outline;
-		g3d_interp_outline=1;
-	}
-	#endif
-
-#if DXX_USE_EDITOR
 	if (_search_mode)
 		render_object_search(canvas, LevelUniqueLightState, obj);
 	else
@@ -694,14 +684,6 @@ static void do_render_object(grs_canvas &canvas, const d_level_unique_light_stat
 
 		render_object(canvas, LevelUniqueLightState, o);
 	}
-
-
-#if DXX_USE_EDITOR
-	if (EditorWindow && obj==Cur_object_index)
-		g3d_interp_outline = save_3d_outline;
-	#endif
-
-
 }
 }
 }
