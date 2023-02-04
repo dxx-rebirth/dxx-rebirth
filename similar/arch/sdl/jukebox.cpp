@@ -100,7 +100,6 @@ class jukebox_songs
 public:
 	void unload();
 	list_pointers list;	// the actual list
-	unsigned num_songs;	// number of jukebox songs
 	static const std::size_t max_songs = 1024;	// maximum number of pointers that 'list' can hold, i.e. size of list / size of one pointer
 };
 
@@ -110,7 +109,6 @@ static jukebox_songs JukeboxSongs;
 
 void jukebox_songs::unload()
 {
-	num_songs = 0;
 	list.reset();
 }
 
@@ -180,7 +178,8 @@ static m3u_bytes read_m3u_bytes_from_disk(const char *const cfgpath)
 		: m3u_bytes{};
 }
 
-static int read_m3u(void)
+[[nodiscard]]
+static std::size_t read_m3u(void)
 {
 	auto &&m3u = read_m3u_bytes_from_disk(CGameCfg.CMLevelMusicPath.data());
 	auto &list_buf = m3u.alloc;
@@ -193,7 +192,8 @@ static int read_m3u(void)
 	};
 	JukeboxSongs.list.set_combined(std::move(list_buf));
 	const auto &range = m3u.range;
-	auto pp = m3u.ptr_range.begin();
+	const auto ib = m3u.ptr_range.begin();
+	auto pp = ib;
 	for (auto buf = range.begin(); buf != range.end(); ++buf)
 	{
 		for (; buf != range.end() && eol(*buf);)	// find new line - support DOS, Unix and Mac line endings
@@ -215,8 +215,7 @@ static int read_m3u(void)
 		if (buf == range.end())
 			break;
 	}
-	JukeboxSongs.num_songs = std::distance(m3u.ptr_range.begin(), pp);
-	return 1;
+	return std::distance(ib, pp);
 }
 
 /* Loads music file names from a given directory or M3U playlist */
@@ -227,8 +226,9 @@ void jukebox_load()
 	// Check if it's an M3U file
 	auto &cfgpath = CGameCfg.CMLevelMusicPath;
 	size_t musiclen = strlen(cfgpath.data());
+	std::size_t num_songs;
 	if (musiclen > 4 && !d_stricmp(&cfgpath[musiclen - 4], ".m3u"))
-		read_m3u();
+		num_songs = read_m3u();
 	else	// a directory
 	{
 		const char *sep = PHYSFS_getDirSeparator();
@@ -261,15 +261,15 @@ void jukebox_load()
 		{
 			return;
 		}
-		JukeboxSongs.num_songs = std::distance(JukeboxSongs.list.begin(), JukeboxSongs.list.end());
+		num_songs = std::distance(JukeboxSongs.list.begin(), JukeboxSongs.list.end());
 	}
 
-	if (JukeboxSongs.num_songs)
+	if (num_songs)
 	{
-		con_printf(CON_DEBUG,"Jukebox: %d music file(s) found in %s", JukeboxSongs.num_songs, cfgpath.data());
-		if (CGameCfg.CMLevelMusicTrack[1] != JukeboxSongs.num_songs)
+		con_printf(CON_DEBUG,"Jukebox: %" DXX_PRI_size_type " music file(s) found in %s", num_songs, cfgpath.data());
+		if (CGameCfg.CMLevelMusicTrack[1] != num_songs)
 		{
-			CGameCfg.CMLevelMusicTrack[1] = JukeboxSongs.num_songs;
+			CGameCfg.CMLevelMusicTrack[1] = num_songs;
 			CGameCfg.CMLevelMusicTrack[0] = 0; // number of songs changed so start from beginning.
 		}
 	}
