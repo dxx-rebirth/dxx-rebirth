@@ -107,16 +107,16 @@ struct ui_file_browser : UI_DIALOG
 	char		*filename;
 	const char		*filespec;
 	const char		*message;
-	PHYSFSX_counted_list &filename_list;
+	PHYSFSX_counted_list filename_list;
 	PHYSFSX_counted_list directory_list;
 	std::unique_ptr<UI_GADGET_BUTTON> button1, button2, help_button;
 	std::unique_ptr<UI_GADGET_LISTBOX> listbox1, listbox2;
 	std::unique_ptr<UI_GADGET_INPUTBOX> user_file;
 	std::array<char, 35> spaces;
 	std::array<char, PATH_MAX> view_dir;
-	explicit ui_file_browser(short x, short y, short w, short h, enum dialog_flags flags, const std::array<char, PATH_MAX> &view_dir, PHYSFSX_counted_list &filename, PHYSFSX_counted_list &&directory) :
+	explicit ui_file_browser(short x, short y, short w, short h, enum dialog_flags flags, const std::array<char, PATH_MAX> &view_dir, PHYSFSX_counted_list &&filename, PHYSFSX_counted_list &&directory) :
 		UI_DIALOG(x, y, w, h, flags),
-		filename_list(filename),
+		filename_list(std::move(filename)),
 		directory_list(std::move(directory)),
 		view_dir(view_dir)
 	{
@@ -265,25 +265,24 @@ int ui_get_filename(std::array<char, PATH_MAX> &filename, const char *const file
 		InputLength = filename.size();
 	}
 
-	PHYSFSX_counted_list filename_list = file_getfilelist(filespec, view_dir.data());
+	auto dlg = ({
+	auto &&filename_list = file_getfilelist(filespec, view_dir.data());
 	if (!filename_list)
 	{
 		return 0;
 	}
 	
-	PHYSFSX_counted_list &&directory_list = file_getdirlist(view_dir);
+	auto &&directory_list = file_getdirlist(view_dir);
 	if (!directory_list)
 	{
 		return 0;
 	}
-
-	//ui_messagebox( -2,-2, 1,"DEBUG:0", "Ok" );
-
-	auto dlg = window_create<ui_file_browser>(200, 100, 400, 370, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), view_dir, filename_list, std::move(directory_list));
+		window_create<ui_file_browser>(200, 100, 400, 370, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), view_dir, std::move(filename_list), std::move(directory_list));
+	});
 
 	dlg->user_file = ui_add_gadget_inputbox(*dlg, 60, 30, InputLength, 40, InputText);
 
-	dlg->listbox1 = ui_add_gadget_listbox(*dlg,  20, 110, 125, 200, filename_list.get_count(), filename_list.get());
+	dlg->listbox1 = ui_add_gadget_listbox(*dlg,  20, 110, 125, 200, dlg->filename_list.get_count(), dlg->filename_list.get());
 	dlg->listbox2 = ui_add_gadget_listbox(*dlg, 210, 110, 100, 200, dlg->directory_list.get_count(), dlg->directory_list.get());
 
 	dlg->button1 = ui_add_gadget_button(*dlg,     20, 330, 60, 25, "Ok", nullptr);
@@ -306,7 +305,7 @@ int ui_get_filename(std::array<char, PATH_MAX> &filename, const char *const file
 	dlg->message = message;
 	
 	event_process_all();
-	rval = static_cast<bool>(filename_list);
+	rval = static_cast<bool>(dlg->filename_list);
 
 	//key_flush();
 	return rval;
