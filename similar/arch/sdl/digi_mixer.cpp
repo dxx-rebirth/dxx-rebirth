@@ -43,24 +43,24 @@
 #include "d_range.h"
 #include "d_underlying_value.h"
 #include "d_uspan.h"
+#include "d_zip.h"
 
 #define MIX_DIGI_DEBUG 0
-#define MIX_OUTPUT_FORMAT	AUDIO_S16
-#define MIX_OUTPUT_CHANNELS	2
 
-#ifndef DXX_FEATURE_INTERNAL_RESAMPLER
-#define DXX_FEATURE_INTERNAL_RESAMPLER	1
-#endif
-
-#if !((defined(__APPLE__) && defined(__MACH__)) || defined(macintosh))
-#define SOUND_BUFFER_SIZE 2048
-#else
-#define SOUND_BUFFER_SIZE 1024
-#endif
+#define DXX_FEATURE_INTERNAL_RESAMPLER (DXX_FEATURE_INTERNAL_RESAMPLER_EMULATE_SDL1 || DXX_FEATURE_INTERNAL_RESAMPLER_EMULATE_SOUNDBLASTER16)
 
 namespace dcx {
 
 namespace {
+
+#if !((defined(__APPLE__) && defined(__MACH__)) || defined(macintosh))
+constexpr std::size_t SOUND_BUFFER_SIZE{2048};
+#else
+constexpr std::size_t SOUND_BUFFER_SIZE{1024};
+#endif
+
+constexpr uint16_t MIX_OUTPUT_FORMAT{AUDIO_S16};
+constexpr int MIX_OUTPUT_CHANNELS{2};
 
 /* In mixer mode, always request 44Khz.  This guarantees a need to upsample,
  * but allows passing into the mixing subsystem sounds that are natively higher
@@ -70,7 +70,7 @@ namespace {
  * Descent 2 sounds (variously, 11Khz or 22Khz), so the upsample should be
  * straightforward.
  */
-constexpr auto digi_sample_rate = underlying_value(sound_sample_rate::_44k);
+constexpr auto digi_sample_rate{underlying_value(sound_sample_rate::_44k)};
 enumerated_bitset<64, sound_channel> channels;
 
 /* channel management */
@@ -164,9 +164,44 @@ enum class upscale_factor : uint8_t
 	 * source, because the numeric value is used to compute how much buffer
 	 * space to allocate.  Do not renumber these constants.
 	 */
+#if defined(DXX_BUILD_DESCENT_II)
 	from_22khz_to_44khz = 2,
+#endif
 	from_11khz_to_44khz = 4,
 };
+
+#if DXX_FEATURE_INTERNAL_RESAMPLER_EMULATE_SDL1
+namespace emulate_sdl1 {
+
+static unique_span<uint8_t> convert_audio(const std::span<const uint8_t> input, const std::size_t output_per_input)
+{
+	using output_type = int16_t;
+	unique_span<uint8_t> result{input.size() * output_per_input * sizeof(output_type)};
+	const auto result_span{result.span()};
+	const std::span<output_type> output{reinterpret_cast<output_type *>(result_span.data()), result_span.size_bytes() / sizeof(output_type)};
+	auto output_iter = output.begin();
+	for (const auto input_value : input)
+	{
+		/* Assert that the minimum and maximum possible values in the input can
+		 * be represented in the output without truncation. */
+		using input_type = decltype(input)::value_type;
+		constexpr int8_t convert_u8_to_s8{INT8_MIN};
+		static_assert(std::in_range<output_type>(output_type{input_type{0}} + convert_u8_to_s8));
+		static_assert(std::in_range<output_type>(output_type{input_type{UINT8_MAX}} + convert_u8_to_s8));
+		const auto output_value = (output_type{input_value} + convert_u8_to_s8) << 8;
+		const auto output_next_iter = std::next(output_iter, output_per_input);
+		assert(output_iter != output.end());
+		std::fill(std::exchange(output_iter, output_next_iter), output_next_iter, output_value);
+	}
+	assert(output_iter == output.end());
+	return result;
+}
+
+}
+#endif
+
+#if DXX_FEATURE_INTERNAL_RESAMPLER_EMULATE_SOUNDBLASTER16
+namespace emulate_soundblaster16 {
 
 /*
  * Blackman windowed-sinc filter coefficients at 1/4 bandwidth of upsampled
@@ -192,14 +227,18 @@ static constexpr std::array<int32_t, FILTER_LEN> coeffs_quarterband{{
 		1907, 0, -3050, -5490, -5011, 0, 9275, 20326, 29311, 32767, 29311,
 		20326, 9275, 0, -5011, -5490, -3050, 0, 1907, 2127, 1178, 0, -702,
 		-751, -395, 0, 205, 200, 94, 0, -35, -25, -7, 0, 0
-}},
+}}
+#if defined(DXX_BUILD_DESCENT_II)
+,
 // Coefficient set for half-band (e.g. 22050 -> 44100)
 coeffs_halfband{{
 		0, 0, -11, 0, 49, 0, -133, 0, 290, 0, -558, 0, 992, 0, -1666, 0, 2697, 0,
 		-4313, 0, 7086, 0, -13117, 0, 41452, 65535, 41452, 0, -13117, 0, 7086, 0,
 		-4313, 0, 2697, 0, -1666, 0, 992, 0, -558, 0, 290, 0, -133, 0, 49, 0, -11,
 		0, 0
-}};
+}}
+#endif
+;
 
 // Fixed-point FIR filtering
 // Not optimal: consider optimization with 1/4, 1/2 band filters, and symmetric kernels
@@ -243,7 +282,9 @@ static auto upsample(const std::span<const uint8_t> input, const upscale_factor 
 	switch (upFactor)
 	{
 		case upscale_factor::from_11khz_to_44khz:
+#if defined(DXX_BUILD_DESCENT_II)
 		case upscale_factor::from_22khz_to_44khz:
+#endif
 			break;
 		default:
 			cf_assert(false);
@@ -262,7 +303,7 @@ static auto upsample(const std::span<const uint8_t> input, const upscale_factor 
 		 * be represented in the output without truncation. */
 		using conversion_type = int16_t;
 		using input_type = decltype(input)::value_type;
-		constexpr int8_t convert_u8_to_s8 = INT8_MIN;
+		constexpr int8_t convert_u8_to_s8{INT8_MIN};
 		static_assert(std::in_range<output_type>(conversion_type{input_type{0}} + convert_u8_to_s8));
 		static_assert(std::in_range<output_type>(conversion_type{input_type{UINT8_MAX}} + convert_u8_to_s8));
 		// Save input sample, convert to signed
@@ -271,11 +312,13 @@ static auto upsample(const std::span<const uint8_t> input, const upscale_factor 
 	return result;
 }
 
-static auto replicateChannel(const unique_span<int16_t> input_storage, const std::size_t outsize, const std::size_t chFactor)
+static auto replicateChannel(const unique_span<int16_t> input_storage, const std::size_t output_per_input)
 {
+	const std::size_t chFactor = MIX_OUTPUT_CHANNELS;
 	const auto input{input_storage.span()};
-	auto result = std::make_unique<Uint8[]>(outsize);
-	const auto output = reinterpret_cast<int16_t *>(result.get());
+	using output_type = int16_t;
+	unique_span<uint8_t> result{output_per_input * sizeof(output_type)};
+	const auto output = reinterpret_cast<output_type *>(result.get());
 	for (const auto ii : xrange(input.size()))
 	{
 		// Duplicate and interleave as many channels as needed
@@ -284,21 +327,82 @@ static auto replicateChannel(const unique_span<int16_t> input_storage, const std
 	return result;
 }
 
-static std::unique_ptr<Uint8[]> convert_audio(const std::span<const uint8_t> input, const std::size_t outsize, const upscale_factor upFactor, const std::size_t chFactor)
+static auto convert_audio(const std::span<const uint8_t> input, const std::size_t output_per_input, const upscale_factor upFactor)
 {
 	// We expect a 4x upscaling 11025 -> 44100
 	// But maybe 2x for d2x in some cases
-	auto &coeffs = (upFactor == upscale_factor::from_22khz_to_44khz)
+	auto &coeffs =
+#if defined(DXX_BUILD_DESCENT_II)
+		(upFactor == upscale_factor::from_22khz_to_44khz)
 		? coeffs_halfband
 		/* Otherwise, assume upscale_factor::from_11khz_to_44khz */
-		: coeffs_quarterband;
+		:
+#endif
+		coeffs_quarterband;
 
 	return replicateChannel(
 	// First upsample
 	// Apply LPF filter to smooth out upscaled points
 	// There will be some uniform amplitude loss here, but less than -3dB
 		filter_fir(upsample(input, upFactor), coeffs),
-		outsize, chFactor);
+		output_per_input);
+}
+
+}
+#endif
+#endif
+
+#if DXX_FEATURE_EXTERNAL_RESAMPLER_SDL_NATIVE
+namespace sdl_native {
+
+static unique_span<uint8_t> convert_audio(const unsigned sound_idx, const std::span<const uint8_t> data, const int freq)
+{
+	SDL_AudioCVT cvt;
+	if (SDL_BuildAudioCVT(&cvt, AUDIO_U8, 1, freq, MIX_OUTPUT_FORMAT, MIX_OUTPUT_CHANNELS, digi_sample_rate) == -1)
+	{
+		con_printf(CON_URGENT, "%s:%u: SDL_BuildAudioCVT failed: sound=%u dlen=%" DXX_PRI_size_type " freq=%i out_format=%i out_channels=%i out_freq=%i", __FILE__, __LINE__, sound_idx, data.size(), freq, MIX_OUTPUT_FORMAT, MIX_OUTPUT_CHANNELS, digi_sample_rate);
+		return {};
+	}
+	if (cvt.len_mult < 1)
+	{
+		con_printf(CON_URGENT, "%s:%u: SDL_BuildAudioCVT requested invalid length multiplier: sound=%u dlen=%" DXX_PRI_size_type " freq=%i out_format=%i out_channels=%i out_freq=%i len_mult=%i", __FILE__, __LINE__, sound_idx, data.size(), freq, MIX_OUTPUT_FORMAT, MIX_OUTPUT_CHANNELS, digi_sample_rate, cvt.len_mult);
+		return {};
+	}
+	const std::size_t workingSize = data.size() * cvt.len_mult;
+	auto cvtbuf = std::make_unique<uint8_t[]>(workingSize);
+	cvt.buf = cvtbuf.get();
+	cvt.len = data.size();
+	memcpy(cvt.buf, data.data(), data.size());
+	if (SDL_ConvertAudio(&cvt))
+	{
+		con_printf(CON_URGENT, "%s:%u: SDL_ConvertAudio failed: sound=%u dlen=%" DXX_PRI_size_type " freq=%i out_format=%i out_channels=%i out_freq=%i", __FILE__, __LINE__, sound_idx, data.size(), freq, MIX_OUTPUT_FORMAT, MIX_OUTPUT_CHANNELS, digi_sample_rate);
+		return {};
+	}
+	if (const std::size_t convertedSize = cvt.len_cvt; convertedSize < workingSize)
+	{
+		/* The final sound required less space to store than
+		 * SDL_BuildAudioCVT requested for an intermediate buffer.
+		 * Allocate a new buffer just large enough for the final sound,
+		 * copy the staging buffer into it, and use that new buffer as the
+		 * long term storage.
+		 */
+		auto outbuf = std::make_unique<uint8_t[]>(convertedSize);
+		memcpy(outbuf.get(), cvt.buf, convertedSize);
+		return {std::move(outbuf), convertedSize};
+	}
+	else
+	{
+		/* The final sound required as much (or more) space than was
+		 * requested.  If it required more, there was likely memory
+		 * corruption, and that would be a bug in SDL audio conversion.
+		 * Therefore, assume that this path is for when the requested space
+		 * was exactly correct.  No memory can be recovered with an extra
+		 * copy, so transfer the staging buffer to the output structure.
+		 */
+		return {std::move(cvtbuf), convertedSize};
+	}
+}
+
 }
 #endif
 
@@ -316,106 +420,95 @@ static std::array<RAIIMix_Chunk, MAX_SOUNDS> SoundChunks;
  * Play-time conversion. Performs output conversion only once per sound effect used.
  * Once the sound sample has been converted, it is cached in SoundChunks[]
  */
-static void mixdigi_convert_sound(const unsigned i)
+static void mixdigi_convert_sound(const unsigned sound_idx, RAIIMix_Chunk &sci, const digi_sound &gs, const uint16_t freq)
 {
-	auto &sci = SoundChunks[i];
-	if (sci.abuf)
-		//proceed only if not converted yet
-		return;
-	const auto data = GameSounds[i].span();
+	const auto data = gs.span();
 	if (data.empty())
 		return;
-	int out_freq;
-	int out_channels;
-#if defined(DXX_BUILD_DESCENT_I)
-	out_freq = digi_sample_rate;
-	out_channels = MIX_OUTPUT_CHANNELS;
-	const auto freq = GameSounds[i].freq;
-#if !DXX_FEATURE_INTERNAL_RESAMPLER
-	const Uint16 out_format = MIX_OUTPUT_FORMAT;
-#endif
-#elif defined(DXX_BUILD_DESCENT_II)
-	Uint16 out_format;
-	Mix_QuerySpec(&out_freq, &out_format, &out_channels); // get current output settings
-	const auto freq = underlying_value(GameArg.SndDigiSampleRate);
-#endif
 
+	digi_mixer_method method = CGameArg.SndMixerMethod;
+	unique_span<uint8_t> cvtbuf;
+#if !DXX_FEATURE_EXTERNAL_RESAMPLER_SDL_NATIVE
+	(void)sound_idx;
+#endif
+	switch (method)
 	{
 #if DXX_FEATURE_INTERNAL_RESAMPLER
-		/* Only a small set of conversions are supported.  List them out
-		 * explicitly instead of using division.  This also allows the
-		 * conversion factor to be an `enum class`, which emphasizes its
-		 * limited legal values.
-		 */
-		if (out_freq != underlying_value(sound_sample_rate::_44k))
-			return;
-		upscale_factor upFactor;
-		if (freq == underlying_value(sound_sample_rate::_11k))
-			upFactor = upscale_factor::from_11khz_to_44khz;
-		else if (freq == underlying_value(sound_sample_rate::_22k))
-			upFactor = upscale_factor::from_22khz_to_44khz;
-		else
-			return;
-		// Create output memory
-		int formatFactor = 2;  // U8 -> S16 is two bytes
-		const std::size_t convertedSize = data.size() * underlying_value(upFactor) * out_channels * formatFactor;
-
-		auto cvtbuf = convert_audio(data, convertedSize, upFactor, out_channels);
-#else
-		SDL_AudioCVT cvt;
-		if (SDL_BuildAudioCVT(&cvt, AUDIO_U8, 1, freq, out_format, out_channels, out_freq) == -1)
-		{
-			con_printf(CON_URGENT, "%s:%u: SDL_BuildAudioCVT failed: sound=%i dlen=%" DXX_PRI_size_type " freq=%i out_format=%i out_channels=%i out_freq=%i", __FILE__, __LINE__, i, data.size(), freq, out_format, out_channels, out_freq);
-			return;
-		}
-		if (cvt.len_mult < 1)
-		{
-			con_printf(CON_URGENT, "%s:%u: SDL_BuildAudioCVT requested invalid length multiplier: sound=%i dlen=%" DXX_PRI_size_type " freq=%i out_format=%i out_channels=%i out_freq=%i len_mult=%i", __FILE__, __LINE__, i, data.size(), freq, out_format, out_channels, out_freq, cvt.len_mult);
-			return;
-		}
-		const std::size_t workingSize = data.size() * cvt.len_mult;
-		auto cvtbuf = std::make_unique<uint8_t[]>(workingSize);
-		cvt.buf = cvtbuf.get();
-		cvt.len = data.size();
-		memcpy(cvt.buf, data.data(), data.size());
-		if (SDL_ConvertAudio(&cvt))
-		{
-			con_printf(CON_URGENT, "%s:%u: SDL_ConvertAudio failed: sound=%i dlen=%" DXX_PRI_size_type " freq=%i out_format=%i out_channels=%i out_freq=%i", __FILE__, __LINE__, i, data.size(), freq, out_format, out_channels, out_freq);
-			return;
-		}
-		const std::size_t convertedSize = cvt.len_cvt;
-		if (convertedSize < workingSize)
-		{
-			/* The final sound required less space to store than
-			 * SDL_BuildAudioCVT requested for an intermediate buffer.
-			 * Allocate a new buffer just large enough for the final sound,
-			 * copy the staging buffer into it, and use that new buffer as the
-			 * long term storage.
-			 */
-			auto outbuf = std::make_unique<uint8_t[]>(convertedSize);
-			memcpy(outbuf.get(), cvt.buf, convertedSize);
-			cvtbuf = std::move(outbuf);
-		}
-		else
-		{
-			/* The final sound required as much (or more) space than was
-			 * requested.  If it required more, there was likely memory
-			 * corruption, and that would be a bug in SDL audio conversion.
-			 * Therefore, assume that this path is for when the requested space
-			 * was exactly correct.  No memory can be recovered with an extra
-			 * copy, so transfer the staging buffer to the output structure.
-			 *
-			 * It is not a bug that there are no statements in this `else`
-			 * block.  The block exists to communicate the scope of this
-			 * comment.
-			 */
-		}
+#if DXX_FEATURE_INTERNAL_RESAMPLER_EMULATE_SDL1
+		case digi_mixer_method::emulate_sdl1:
 #endif
-		sci.abuf = cvtbuf.release();
-		sci.alen = convertedSize;
-		sci.allocated = 1;
-		sci.volume = 128; // Max volume = 128
+#if DXX_FEATURE_INTERNAL_RESAMPLER_EMULATE_SOUNDBLASTER16
+		case digi_mixer_method::emulate_soundblaster16:
+#endif
+			{
+				/* Only a small set of conversions are supported.  List them out
+				 * explicitly instead of using division.  This also allows the
+				 * conversion factor to be an `enum class`, which emphasizes its
+				 * limited legal values.
+				 */
+				const auto upFactor = ({
+					upscale_factor r;
+					if (freq == underlying_value(sound_sample_rate::_11k))
+						r = upscale_factor::from_11khz_to_44khz;
+#if defined(DXX_BUILD_DESCENT_II)
+					else if (freq == underlying_value(sound_sample_rate::_22k))
+						r = upscale_factor::from_22khz_to_44khz;
+#endif
+					else
+						return;
+					r;
+					});
+				const std::size_t output_per_input = underlying_value(upFactor) * MIX_OUTPUT_CHANNELS;
+				switch (method)
+				{
+#if DXX_FEATURE_EXTERNAL_RESAMPLER_SDL_NATIVE
+					case digi_mixer_method::sdl_native:
+						/* This is unreachable, since the case labels of the
+						 * outer switch only match emulation paths.
+						 */
+						return;
+#endif
+#if DXX_FEATURE_INTERNAL_RESAMPLER_EMULATE_SDL1
+					case digi_mixer_method::emulate_sdl1:
+						cvtbuf = emulate_sdl1::convert_audio(data, output_per_input);
+						break;
+#endif
+#if DXX_FEATURE_INTERNAL_RESAMPLER_EMULATE_SOUNDBLASTER16
+					case digi_mixer_method::emulate_soundblaster16:
+						cvtbuf = emulate_soundblaster16::convert_audio(data, data.size() * output_per_input, upFactor);
+						break;
+#endif
+				}
+			}
+			break;
+#endif
+#if DXX_FEATURE_EXTERNAL_RESAMPLER_SDL_NATIVE
+		case digi_mixer_method::sdl_native:
+			cvtbuf = sdl_native::convert_audio(sound_idx, data, freq);
+			break;
+#endif
 	}
+	sci.alen = cvtbuf.size();
+	sci.abuf = cvtbuf.release();
+	sci.allocated = 1;
+	sci.volume = 128; // Max volume = 128
+}
+
+static Mix_Chunk &mixdigi_convert_sound(const unsigned i)
+{
+	auto &sci = SoundChunks[i];
+	if (!sci.abuf)
+	{
+		auto &gs = GameSounds[i];
+#if defined(DXX_BUILD_DESCENT_I)
+		const auto freq = gs.freq;
+#elif defined(DXX_BUILD_DESCENT_II)
+		const auto freq = underlying_value(GameArg.SndDigiSampleRate);
+#endif
+		//proceed only if not converted yet
+		mixdigi_convert_sound(i, sci, gs, freq);
+	}
+	return sci;
 }
 
 }

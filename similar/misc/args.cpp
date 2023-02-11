@@ -24,6 +24,9 @@
 #include "game.h"
 #include "console.h"
 #include "mission.h"
+#if DXX_USE_SDLMIXER
+#include "digi_mixer.h"
+#endif
 #if DXX_USE_UDP
 #include "net_udp.h"
 #endif
@@ -272,6 +275,27 @@ static void ReadCmdArgs(Inilist &ini, Arglist &Args)
 		{
 #if DXX_USE_SDLMIXER
 			CGameArg.SndDisableSdlMixer = true;
+#endif
+		}
+		else if (!strncmp(p, "-sdlmixer-resampler=", 20))
+		{
+#if DXX_USE_SDLMIXER
+#if DXX_FEATURE_EXTERNAL_RESAMPLER_SDL_NATIVE
+			if (!strcmp(&p[20], "sdl-native"))
+				CGameArg.SndMixerMethod = digi_mixer_method::sdl_native;
+			else
+#endif
+#if DXX_FEATURE_INTERNAL_RESAMPLER_EMULATE_SDL1
+				if (!strcmp(&p[20], "emulate-sdl1"))
+					CGameArg.SndMixerMethod = digi_mixer_method::emulate_sdl1;
+				else
+#endif
+#if DXX_FEATURE_INTERNAL_RESAMPLER_EMULATE_SOUNDBLASTER16
+					if (!strcmp(&p[20], "emulate-soundblaster16"))
+						CGameArg.SndMixerMethod = digi_mixer_method::emulate_soundblaster16;
+					else
+#endif
+				throw unhandled_argument(std::move(*pp));
 #endif
 		}
 

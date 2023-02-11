@@ -63,6 +63,7 @@ enum SyncGLMethod : uint8_t {
 namespace dcx {
 
 enum class sound_sample_rate : uint16_t;
+enum class digi_mixer_method : uint8_t;
 
 struct CArg : prohibit_void_ptr<CArg>
 {
@@ -85,6 +86,7 @@ struct CArg : prohibit_void_ptr<CArg>
 	bool SysNoTitles;
 #if DXX_USE_SDLMIXER
 	bool SndDisableSdlMixer;
+	digi_mixer_method SndMixerMethod;
 #else
 	static constexpr std::true_type SndDisableSdlMixer{};
 #endif

@@ -25,14 +25,21 @@ template <typename T, typename Deleter = typename std::unique_ptr<T[]>::deleter_
 class unique_span : std::unique_ptr<T[], Deleter>
 {
 	using base_type = std::unique_ptr<T[], Deleter>;
-	std::size_t extent;
+	std::size_t extent{};
 public:
+	constexpr unique_span() = default;
+	constexpr unique_span(base_type &&b, const std::size_t e) :
+		base_type(std::move(b)),
+		extent(e)
+	{
+	}
 	unique_span(const std::size_t e) :
 		base_type(new T[e]()),
 		extent(e)
 	{
 	}
 	unique_span(unique_span &&) = default;
+	unique_span &operator=(unique_span &&) = default;
 	using base_type::get;
 	/* Require an lvalue input, since the returned pointer is borrowed from
 	 * this object.  If the method is called on an rvalue input, then the
@@ -50,6 +57,15 @@ public:
 		return {get(), extent};
 	}
 	std::span<const T> span() const && = delete;
+	auto release()
+	{
+		extent = 0;
+		return this->base_type::release();
+	}
+	std::size_t size() const
+	{
+		return extent;
+	}
 };
 
 }
