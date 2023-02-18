@@ -59,6 +59,16 @@ enum class wall_is_doorway_mask : uint8_t
 
 enum class wall_is_doorway_result : uint8_t
 {
+	//  WALL_IS_DOORWAY return values          F/R/RP
+	wall                = static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::render),   // 0/1/0        wall
+	transparent_wall    = static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::render) | static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::rendpast),   // 0/1/1        transparent wall
+	illusory_wall       = static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::fly) | static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::render),   // 1/1/0        illusory wall
+	transillusory_wall  = static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::fly) | static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::render) | static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::rendpast),   // 1/1/1        transparent illusory wall
+	no_wall             = static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::fly) | static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::rendpast),   //  1/0/1       no wall, can fly through
+	external            = static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::external),   // 0/0/0/1  do not see it, do not fly through it
+	/* if DXX_BUILD_DESCENT_II */
+	cloaked_wall        = static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::render) | static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::rendpast) | static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::cloaked),
+	/* endif */
 };
 
 [[nodiscard]]

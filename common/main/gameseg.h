@@ -170,8 +170,8 @@ icsegptridx_t find_point_seg(const d_level_shared_segment_state &, const vms_vec
 
 //      ----------------------------------------------------------------------------------------------------------
 //      Determine whether seg0 and seg1 are reachable using wid_flag to go through walls.
-//      For example, set to WID_RENDPAST_FLAG to see if sound can get from one segment to the other.
-//      set to WID_FLY_FLAG to see if a robot could fly from one to the other.
+//      For example, set to WALL_IS_DOORWAY::rendpast to see if sound can get from one segment to the other.
+//      set to WALL_IS_DOORWAY::fly to see if a robot could fly from one to the other.
 //      Search up to a maximum depth of max_depth.
 //      Return the distance.
 vm_distance find_connected_distance(const vms_vector &p0, vcsegptridx_t seg0, const vms_vector &p1, vcsegptridx_t seg1, int max_depth, wall_is_doorway_mask wid_flag);

@@ -93,25 +93,7 @@ static constexpr WALL_IS_DOORWAY_FLAG operator|(const WALL_IS_DOORWAY_FLAG a, co
 }
 
 enum class wall_is_doorway_result : uint8_t;
-
-template <WALL_IS_DOORWAY_FLAG... F>
-inline constexpr wall_is_doorway_result WALL_IS_DOORWAY_static_result{
-	(... | static_cast<uint8_t>(F))
-};
-
-//  WALL_IS_DOORWAY return values          F/R/RP
-constexpr auto WID_WALL                = WALL_IS_DOORWAY_static_result<WALL_IS_DOORWAY_FLAG::render>;   // 0/1/0        wall
-constexpr auto WID_TRANSPARENT_WALL    = WALL_IS_DOORWAY_static_result<WALL_IS_DOORWAY_FLAG::render, WALL_IS_DOORWAY_FLAG::rendpast>;   // 0/1/1        transparent wall
-constexpr auto WID_ILLUSORY_WALL       = WALL_IS_DOORWAY_static_result<WALL_IS_DOORWAY_FLAG::fly, WALL_IS_DOORWAY_FLAG::render>;   // 1/1/0        illusory wall
-constexpr auto WID_TRANSILLUSORY_WALL  = WALL_IS_DOORWAY_static_result<WALL_IS_DOORWAY_FLAG::fly, WALL_IS_DOORWAY_FLAG::render, WALL_IS_DOORWAY_FLAG::rendpast>;   // 1/1/1        transparent illusory wall
-constexpr auto WID_NO_WALL             = WALL_IS_DOORWAY_static_result<WALL_IS_DOORWAY_FLAG::fly, WALL_IS_DOORWAY_FLAG::rendpast>;   //  1/0/1       no wall, can fly through
-constexpr auto WID_EXTERNAL            = WALL_IS_DOORWAY_static_result<WALL_IS_DOORWAY_FLAG::external>;   // 0/0/0/1  don't see it, dont fly through it
 }
-#if defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
-constexpr auto WID_CLOAKED_WALL        = WALL_IS_DOORWAY_static_result<WALL_IS_DOORWAY_FLAG::render, WALL_IS_DOORWAY_FLAG::rendpast, WALL_IS_DOORWAY_FLAG::cloaked>;
-}
-#endif
 #endif
 
 namespace dcx {

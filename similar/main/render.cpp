@@ -486,7 +486,7 @@ static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegpt
 {
 	fix		min_dot, max_dot;
 
-	if (!(wid_flags & WALL_IS_DOORWAY_FLAG::render))		//if (WALL_IS_DOORWAY(segp, sidenum) == WID_NO_WALL)
+	if (!(wid_flags & WALL_IS_DOORWAY_FLAG::render))		//if (WALL_IS_DOORWAY(segp, sidenum) == wall_is_doorway_result::no_wall)
 		return;
 
 	const auto vertnum_list = get_side_verts(segp,sidenum);
@@ -1646,7 +1646,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 					for (const auto sn : MAX_SIDES_PER_SEGMENT)
 					{
 						const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sn);
-						if (wid == WID_TRANSPARENT_WALL || wid == WID_TRANSILLUSORY_WALL
+						if (wid == wall_is_doorway_result::transparent_wall || wid == wall_is_doorway_result::transillusory_wall
 #if defined(DXX_BUILD_DESCENT_II)
 							|| (wid & WALL_IS_DOORWAY_FLAG::cloaked)
 #endif
@@ -1695,7 +1695,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 					for (const auto sn : MAX_SIDES_PER_SEGMENT)
 					{
 						const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sn);
-						if (wid == WID_TRANSPARENT_WALL || wid == WID_TRANSILLUSORY_WALL
+						if (wid == wall_is_doorway_result::transparent_wall || wid == wall_is_doorway_result::transillusory_wall
 #if defined(DXX_BUILD_DESCENT_II)
 							|| (wid & WALL_IS_DOORWAY_FLAG::cloaked)
 #endif

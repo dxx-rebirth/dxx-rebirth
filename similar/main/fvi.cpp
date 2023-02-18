@@ -960,7 +960,7 @@ static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &int
 						if ((wid_flag & WALL_IS_DOORWAY_FLAG::fly) ||
 							(
 #if defined(DXX_BUILD_DESCENT_I)
-								(wid_flag == WID_TRANSPARENT_WALL) && 
+								(wid_flag == wall_is_doorway_result::transparent_wall) &&
 #elif defined(DXX_BUILD_DESCENT_II)
 								((wid_flag & WALL_IS_DOORWAY_FLAG::render) && (wid_flag & WALL_IS_DOORWAY_FLAG::rendpast)) &&
 #endif
@@ -1200,7 +1200,7 @@ int check_trans_wall(const vms_vector &pnt, const vcsegptridx_t seg, const siden
 #ifndef NDEBUG
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
-	assert(WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sidenum) == WID_TRANSPARENT_WALL);
+	assert(WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sidenum) == wall_is_doorway_result::transparent_wall);
 #endif
 #endif
 

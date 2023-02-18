@@ -163,15 +163,15 @@ static uint_fast32_t check_transparency(const GameBitmaps_array &GameBitmaps, co
 // This function checks whether we can fly through the given side.
 //	In other words, whether or not we have a 'doorway'
 //	 Flags:
-//		WID_FLY_FLAG				1
-//		WID_RENDER_FLAG			2
-//		WID_RENDPAST_FLAG			4
+//		WALL_IS_DOORWAY_FLAG::FLY				1
+//		WALL_IS_DOORWAY_FLAG::RENDER			2
+//		WALL_IS_DOORWAY_FLAG::RENDPAST			4
 //	 Return values:
-//		WID_WALL						2	// 0/1/0		wall	
-//		WID_TRANSPARENT_WALL		6	//	0/1/1		transparent wall
-//		WID_ILLUSORY_WALL			3	//	1/1/0		illusory wall
-//		WID_TRANSILLUSORY_WALL	7	//	1/1/1		transparent illusory wall
-//		WID_NO_WALL					5	//	1/0/1		no wall, can fly through
+//		wall_is_doorway_result::wall					2	// 0/1/0		wall
+//		wall_is_doorway_result::transparent_wall		6	// 0/1/1		transparent wall
+//		wall_is_doorway_result::illusory_wall			3	// 1/1/0		illusory wall
+//		wall_is_doorway_result::transillusory_wall		7	// 1/1/1		transparent illusory wall
+//		wall_is_doorway_result::no_wall					5	// 1/0/1		no wall, can fly through
 namespace dsx {
 
 namespace {
@@ -181,41 +181,41 @@ static wall_is_doorway_result wall_is_doorway(const GameBitmaps_array &GameBitma
 	auto &w = *vcwallptr(sside.wall_num);
 	const auto type = w.type;
 	if (type == WALL_OPEN)
-		return WID_NO_WALL;
+		return wall_is_doorway_result::no_wall;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (unlikely(type == WALL_CLOAKED))
-		return WID_CLOAKED_WALL;
+		return wall_is_doorway_result::cloaked_wall;
 #endif
 
 	const auto flags = w.flags;
 	if (type == WALL_ILLUSION) {
 		if (flags & wall_flag::illusion_off)
-			return WID_NO_WALL;
+			return wall_is_doorway_result::no_wall;
 		else {
 			if (check_transparency(GameBitmaps, Textures, uside))
-				return WID_TRANSILLUSORY_WALL;
+				return wall_is_doorway_result::transillusory_wall;
 		 	else
-				return WID_ILLUSORY_WALL;
+				return wall_is_doorway_result::illusory_wall;
 		}
 	}
 
 	if (type == WALL_BLASTABLE) {
 	 	if (flags & wall_flag::blasted)
-			return WID_TRANSILLUSORY_WALL;
+			return wall_is_doorway_result::transillusory_wall;
 	}	
 	else
 	{
 	if (unlikely(flags & wall_flag::door_opened))
-		return WID_TRANSILLUSORY_WALL;
+		return wall_is_doorway_result::transillusory_wall;
 	if (likely(type == WALL_DOOR) && unlikely(w.state == wall_state::opening))
-		return WID_TRANSPARENT_WALL;
+		return wall_is_doorway_result::transparent_wall;
 	}
 // If none of the above flags are set, there is no doorway.
 	if (check_transparency(GameBitmaps, Textures, uside))
-		return WID_TRANSPARENT_WALL;
+		return wall_is_doorway_result::transparent_wall;
 	else
-		return WID_WALL; // There are children behind the door.
+		return wall_is_doorway_result::wall; // There are children behind the door.
 }
 
 }
@@ -224,12 +224,12 @@ wall_is_doorway_result WALL_IS_DOORWAY(const GameBitmaps_array &GameBitmaps, con
 {
 	const auto child = seg.s.children[side];
 	if (unlikely(child == segment_none))
-		return WID_WALL;
+		return wall_is_doorway_result::wall;
 	if (unlikely(child == segment_exit))
-		return WID_EXTERNAL;
+		return wall_is_doorway_result::external;
 	auto &sside = seg.s.sides[side];
 	if (likely(sside.wall_num == wall_none))
-		return WID_NO_WALL;
+		return wall_is_doorway_result::no_wall;
 	auto &uside = seg.u.sides[side];
 	return wall_is_doorway(GameBitmaps, Textures, vcwallptr, sside, uside);
 }

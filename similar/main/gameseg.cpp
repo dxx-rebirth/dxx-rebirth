@@ -1848,7 +1848,7 @@ static void ambient_mark_bfs(const vmsegptridx_t segp, segment_lava_depth_array 
 
 		/*
 		 * No explicit check for IS_CHILD.  If !IS_CHILD, then
-		 * WALL_IS_DOORWAY never sets WID_RENDPAST_FLAG.
+		 * WALL_IS_DOORWAY never sets WALL_IS_DOORWAY_FLAG::rendpast.
 		 */
 		if (!(WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, i) & WALL_IS_DOORWAY_FLAG::rendpast))
 			continue;

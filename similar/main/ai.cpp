@@ -2318,7 +2318,7 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 				if ((w & WALL_IS_DOORWAY_FLAG::fly) || one_wall_hack)
 				{
 #if defined(DXX_BUILD_DESCENT_II)
-					//	If we get here and w == WID_WALL, then we want to process through this wall, else not.
+					//	If we get here and w == wall_is_doorway_result::wall, then we want to process through this wall, else not.
 					if (IS_CHILD(csegnum)) {
 						if (one_wall_hack)
 							one_wall_hack--;
