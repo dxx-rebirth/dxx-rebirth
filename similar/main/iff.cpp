@@ -99,12 +99,8 @@ static int32_t get_sig(PHYSFS_File *f)
 
 #define put_sig(sig, f) PHYSFS_writeSBE32(f, sig)
 
-static int parse_bmhd(PHYSFS_File *ifile,long len,iff_bitmap_header *bmheader)
+static int parse_bmhd(PHYSFS_File *ifile,iff_bitmap_header *bmheader)
 {
-	len++;  /* so no "parm not used" warning */
-
-//  debug("parsing bmhd len=%ld\n",len);
-
 	PHYSFS_readSBE16(ifile, &bmheader->w);
 	PHYSFS_readSBE16(ifile, &bmheader->h);
 	PHYSFS_readSBE16(ifile, &bmheader->x);
@@ -367,7 +363,7 @@ static int iff_parse_ilbm_pbm(PHYSFS_File *ifile,long form_type,iff_bitmap_heade
 						int ret;
 						int save_w=bmheader->w,save_h=bmheader->h;
 
-						ret = parse_bmhd(ifile,len,bmheader);
+						ret = parse_bmhd(ifile, bmheader);
 
 						if (ret != IFF_NO_ERROR)
 							return ret;
