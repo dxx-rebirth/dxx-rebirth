@@ -5133,12 +5133,11 @@ class DXXProgram(DXXCommon):
 		return env.Program(target=exe_target, source = objects)
 
 	def _show_build_failure_summary():
-		from SCons.Script import GetBuildFailures
-		build_failures = GetBuildFailures()
+		build_failures = SCons.Script.GetBuildFailures()
 		if not build_failures:
+			# If all targets built successfully, return.
 			return
-		node = []
-		command = []
+		reportable_failures = []
 		total = 0
 		for f in build_failures:
 			if not f:
@@ -5146,22 +5145,36 @@ class DXXProgram(DXXCommon):
 			e = f.executor
 			if not e:
 				continue
-			total = total + 1
+			total += 1
 			e = e.get_build_env()
+			# Test whether the build environment for this failure is one for
+			# which failures should be reported.  If the attribute is present,
+			# a report is desired.  If the attribute is absent, then this
+			# failure should not be reported, but this method was called
+			# because some other build environment was marked to report
+			# failures.
 			try:
 				e.__show_build_failure_summary
 			except AttributeError:
 				continue
-			node.append('\t%s\n' % f.node)
-			# Sacrifice some precision so that the printed output is
-			# valid shell input.
-			c = f.command
-			command.append('\n %s' % (' '.join(c) if isinstance(c, list) else c))
+			reportable_failures.append(f)
 		if not total:
+			# If no failed targets had a usable executor, then nothing useful
+			# can be reported.  Return silently.
 			return
-		print("Failed target count: total=%u; targets with enable_build_failure_summary=1: %u" % (total, len(node)))
-		if node:
-			print('Failed node list:\n%sFailed command list:%s' % (''.join(node), ''.join(command)))
+		print(f'Failed target count: total={total}; targets with enable_build_failure_summary=1: {len(reportable_failures)}')
+		if reportable_failures:
+			# If all the failures were in profiles that do not report failures,
+			# then `reportable_failures` is empty.
+			#
+			# Sacrifice some precision on the command so that the printed
+			# output is valid shell input.
+			print(f'''Failed node list:
+	{"""
+	""".join(str(f.node) for f in reportable_failures)}
+Failed command list:
+ {"""
+ """.join(" ".join(f.command) if isinstance(f.command, list) else f.command for f in reportable_failures)}''')
 
 	def _register_build_failure_hook(self,archive,show_build_failure_summary=[_show_build_failure_summary]):
 		# Always mark the environment as report-enabled.
