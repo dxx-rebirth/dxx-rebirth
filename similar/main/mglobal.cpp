@@ -60,7 +60,6 @@ d_level_unique_automap_state LevelUniqueAutomapState;
 d_level_unique_fuelcenter_state LevelUniqueFuelcenterState;
 d_level_unique_robot_awareness_state LevelUniqueRobotAwarenessState;
 d_level_unique_segment_state LevelUniqueSegmentState;
-// Global array of vertices, common to one mine.
 valptridx<player>::array_managed_type Players;
 valptridx<segment>::array_managed_type Segments;
 }
@@ -72,37 +71,6 @@ fix64 GameTime64 = 0;			//	Time in game, in seconds
 
 int d_tick_count = 0; // increments every 33.33ms
 int d_tick_step = 0;  // true once every 33.33ms
-
-//	This is the global mine which create_new_mine returns.
-//lsegment	Lsegments[MAX_SEGMENTS];
-
-// Number of vertices in current mine (ie, Vertices, pointed to by Vp)
-
-//	Translate table to get opposite side of a face on a segment.
-
-constexpr per_side_array<sidenum_t> Side_opposite{{{
-	sidenum_t::WRIGHT,
-	sidenum_t::WBOTTOM,
-	sidenum_t::WLEFT,
-	sidenum_t::WTOP,
-	sidenum_t::WFRONT,
-	sidenum_t::WBACK
-}}};
-
-#define TOLOWER(c) ((((c)>='A') && ((c)<='Z'))?((c)+('a'-'A')):(c))
-
-const per_side_array<enumerated_array<segment_relative_vertnum, 4, side_relative_vertnum>> Side_to_verts{{{
-	{{{segment_relative_vertnum::_7, segment_relative_vertnum::_6, segment_relative_vertnum::_2, segment_relative_vertnum::_3}}}, 			// left
-	{{{segment_relative_vertnum::_0, segment_relative_vertnum::_4, segment_relative_vertnum::_7, segment_relative_vertnum::_3}}}, 			// top
-	{{{segment_relative_vertnum::_0, segment_relative_vertnum::_1, segment_relative_vertnum::_5, segment_relative_vertnum::_4}}}, 			// right
-	{{{segment_relative_vertnum::_2, segment_relative_vertnum::_6, segment_relative_vertnum::_5, segment_relative_vertnum::_1}}}, 			// bottom
-	{{{segment_relative_vertnum::_4, segment_relative_vertnum::_5, segment_relative_vertnum::_6, segment_relative_vertnum::_7}}}, 			// back
-	{{{segment_relative_vertnum::_3, segment_relative_vertnum::_2, segment_relative_vertnum::_1, segment_relative_vertnum::_0}}}, 			// front
-}}};
-
-// Texture map stuff
-
-//--unused-- fix	Laser_delay_time = F1_0/6;		//	Delay between laser fires.
 
 static void reset_globals_for_new_game()
 {

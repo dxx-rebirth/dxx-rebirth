@@ -4546,6 +4546,7 @@ class DXXArchive(DXXCommon):
 'common/arch/sdl/mouse.cpp',
 'common/arch/sdl/timer.cpp',
 'common/arch/sdl/window.cpp',
+'common/main/cglobal.cpp',
 'common/main/cli.cpp',
 'common/main/cmd.cpp',
 'common/main/cvar.cpp',
