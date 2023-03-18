@@ -8,6 +8,7 @@ import base64
 import binascii
 import errno
 import itertools
+import shlex
 import subprocess
 import sys
 import os
@@ -40,7 +41,7 @@ class StaticSubprocess:
 	# cached to persistent storage, so an upgrade performed after one
 	# SConstruct run, but before the next, will not cause any
 	# inconsistencies.
-	from shlex import split as shlex_split
+	shlex_split = shlex.split
 	class CachedCall:
 		def __init__(self,out,err,returncode):
 			self.out = out
@@ -387,11 +388,11 @@ class ConfigureTests(_ConfigureTests):
 			cmd = pkgconfig + ('--cflags', '--libs', pkgconfig_name)
 			flags = _cache.get(cmd, None)
 			if flags is not None:
-				Display(f'{message}: reusing {display_name} settings from {cmd}: {flags!r}\n')
+				Display(f'{message}: reusing {display_name} settings from `{shlex.join(cmd)}`: {flags!r}\n')
 				return flags
 			mv_cmd = pkgconfig + ('--modversion', pkgconfig_name)
 			try:
-				Display(f'{message}: reading {pkgconfig_name} version from {mv_cmd}\n')
+				Display(f'{message}: reading {pkgconfig_name} version from `{shlex.join(mv_cmd)}`\n')
 				v = StaticSubprocess.pcall(mv_cmd, stderr=subprocess.PIPE)
 				if v.err:
 					for l in v.err.splitlines():
@@ -400,12 +401,17 @@ class ConfigureTests(_ConfigureTests):
 					Display(f'{message}: pkg-config failed: {display_name}: {v.returncode}; using default flags {guess_flags!r}\n')
 					return guess_flags
 				if v.out:
-					Display(f'{message}: {display_name} version: {v.out.splitlines()[0]}\n')
+					displayed_version = v.out.splitlines()[0]
+					try:
+						displayed_version = displayed_version.decode()
+					except UnicodeDecodeError:
+						pass
+					Display(f'{message}: {display_name} version: {displayed_version!r}\n')
 			except OSError as o:
 				Display(f'''{message}: failed with error {repr(o.message) if o.errno is None else f'{o.errno} ("{o.strerror}")'}; using default flags for {pkgconfig_name!r}: {guess_flags!r}\n''')
 				flags = guess_flags
 			else:
-				Display(f'{message}: reading {display_name} settings from {cmd}\n')
+				Display(f'{message}: reading {display_name} settings from `{shlex.join(cmd)}`\n')
 				try:
 					v = StaticSubprocess.pcall(cmd, stderr=subprocess.PIPE)
 					if v.err:
