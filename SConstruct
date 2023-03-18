@@ -18,7 +18,7 @@ import SCons.Script
 SCons.Defaults.DefaultEnvironment(tools = [])
 
 def message(program,msg):
-	print("%s: %s" % (program.program_message_prefix, msg))
+	print(f'{program.program_message_prefix}: {msg}')
 
 def get_Werror_string(l):
 	if l and '-Werror' in l:
@@ -90,11 +90,11 @@ class ToolchainInformation(StaticSubprocess):
 	def get_tool_path(env,tool,_qcall=StaticSubprocess.qcall):
 		# Include $LINKFLAGS since -fuse-ld=gold influences the path
 		# printed for the linker.
-		tool = env.subst('$CXX $CXXFLAGS $LINKFLAGS -print-prog-name=%s' % tool)
+		tool = env.subst(f'$CXX $CXXFLAGS $LINKFLAGS -print-prog-name={tool}')
 		return tool, _qcall(tool).out.strip()
 	@staticmethod
 	def show_partial_environ(env, user_settings, f, msgprefix, append_newline='\n'):
-		f("{}: CHOST: {!r}{}".format(msgprefix, user_settings.CHOST, append_newline))
+		f(f'{msgprefix}: CHOST: {(user_settings.CHOST)!r}{append_newline}')
 		for v in (
 			'CXX',
 			'CPPDEFINES',
@@ -113,13 +113,13 @@ class ToolchainInformation(StaticSubprocess):
 			) if user_settings.host_platform == 'darwin' else (
 			)
 		):
-			f("{}: {}: {!r}{}".format(msgprefix, v, env.get(v, None), append_newline))
+			f(f'{msgprefix}: {v}: {(env.get(v, None))!r}{append_newline}')
 		penv = env['ENV']
 		for v in (
 			'CCACHE_PREFIX',
 			'DISTCC_HOSTS',
 		):
-			f("{}: ${}: {!r}{}".format(msgprefix, v, penv.get(v, None), append_newline))
+			f(f'{msgprefix}: ${v}: {(penv.get(v, None))!r}{append_newline}')
 
 class Git(StaticSubprocess):
 	class ComputedExtraVersion:
@@ -130,7 +130,7 @@ class Git(StaticSubprocess):
 			self.diffstat_HEAD = diffstat_HEAD
 			self.revparse_HEAD = revparse_HEAD
 		def __repr__(self):
-			return 'ComputedExtraVersion(%r,%r,%r,%r)' % (self.describe, self.status, self.diffstat_HEAD, self.revparse_HEAD)
+			return f'ComputedExtraVersion({self.describe!r},{self.status!r},{self.diffstat_HEAD!r},{self.revparse_HEAD!r})'
 	UnknownExtraVersion = (
 		# If the string is alphanumeric, then `git archive` has rewritten the
 		# string to be a commit ID.  Use that commit ID as a guessed default
@@ -218,7 +218,7 @@ class _ConfigureTests:
 				# Linux target.
 				self.predicate = predicate
 			def __repr__(self):
-				return '_ConfigureTests.Collector.RecordedTest(%r, %r, %r)' % (self.name, self.desc, self.predicate)
+				return f'_ConfigureTests.Collector.RecordedTest({self.name!r}, {self.desc!r}, {self.predicate!r})'
 
 		def __init__(self,record):
 			self.record = record
@@ -264,10 +264,12 @@ class ConfigureTests(_ConfigureTests):
 			self.name = name
 			# Avoid generating consecutive underscores if the input
 			# string has multiple adjacent unacceptable characters.
-			f = '_{:x}'.format
-			name = {'N' : 'test_' + ''.join([c if c.isalnum() else f(ord(c)) for c in name])}
+			# Pass alphanumeric characters through as-is.  Escape
+			# non-alphanumeric by converting them to the hexadecimal
+			# representation of their ordinal value.
+			name = {'N' : f'test_{"".join(c if c.isalnum() else f"_{(ord(c)):x}" for c in name)}'}
 			self.text = text % name
-			self.main = ('{' + (main % name) + '}\n') if main else ''
+			self.main = f'{{{(main % name)}}}\n' if main else ''
 	class Cxx11RequiredFeature(CxxRequiredFeature):
 		std = 11
 	class Cxx14RequiredFeature(CxxRequiredFeature):
@@ -333,14 +335,14 @@ class ConfigureTests(_ConfigureTests):
 		def _get_pkg_config_exec_path(context,msgprefix,pkgconfig):
 			Display = context.Display
 			if not pkgconfig:
-				Display("%s: pkg-config disabled by user settings\n" % msgprefix)
+				Display(f'{msgprefix}: pkg-config disabled by user settings\n')
 				return pkgconfig
 			if os.sep in pkgconfig:
 				# Split early, so that the user can pass a command with
 				# arguments.  Convert to tuple so that the value is not
 				# modified later.
 				pkgconfig = tuple(StaticSubprocess.shlex_split(pkgconfig))
-				Display("%s: using pkg-config at user specified path %s\n" % (msgprefix, pkgconfig))
+				Display(f'{msgprefix}: using pkg-config at user specified path {pkgconfig!r}\n')
 				return pkgconfig
 			join = os.path.join
 			# No path specified, search in $PATH
@@ -355,16 +357,16 @@ class ConfigureTests(_ConfigureTests):
 					if e.errno == errno.ENOENT or e.errno == errno.EACCES:
 						continue
 					raise
-				Display("%s: using pkg-config at discovered path %s\n" % (msgprefix, fp))
+				Display(f'{msgprefix}: using pkg-config at discovered path {fp}\n')
 				return (fp,)
-			Display("%s: no usable pkg-config %r found in $PATH\n" % (msgprefix, pkgconfig))
+			Display(f'{msgprefix}: no usable pkg-config {pkgconfig!r} found in $PATH\n')
 		def __get_pkg_config_path(context,message,user_settings,display_name,
 				_get_pkg_config_exec_path=_get_pkg_config_exec_path,
 				_cache={}):
 			pkgconfig = user_settings.PKG_CONFIG
 			if pkgconfig is None:
 				CHOST = user_settings.CHOST
-				pkgconfig = ('%s-pkg-config' % CHOST) if CHOST else 'pkg-config'
+				pkgconfig = f'{CHOST}-pkg-config' if CHOST else 'pkg-config'
 				if sys.platform == 'win32':
 					pkgconfig += '.exe'
 			path = _cache.get(pkgconfig, _cache)
@@ -377,50 +379,53 @@ class ConfigureTests(_ConfigureTests):
 				__get_pkg_config_path=__get_pkg_config_path,
 				_cache={}):
 			Display = context.Display
-			Display("%s: checking %s pkg-config %s\n" % (message, display_name, pkgconfig_name))
+			Display(f'{message}: checking {display_name} pkg-config {pkgconfig_name}\n')
 			pkgconfig = __get_pkg_config_path(context, message, user_settings, display_name)
 			if not pkgconfig:
-				Display("%s: skipping %s pkg-config; using default flags %r\n" % (message, display_name, guess_flags))
+				Display(f'{message}: skipping {display_name} pkg-config; using default flags {guess_flags!r}\n')
 				return guess_flags
 			cmd = pkgconfig + ('--cflags', '--libs', pkgconfig_name)
 			flags = _cache.get(cmd, None)
 			if flags is not None:
-				Display("%s: reusing %s settings from %s: %r\n" % (message, display_name, cmd, flags))
+				Display(f'{message}: reusing {display_name} settings from {cmd}: {flags!r}\n')
 				return flags
 			mv_cmd = pkgconfig + ('--modversion', pkgconfig_name)
 			try:
-				Display("%s: reading %s version from %s\n" % (message, pkgconfig_name, mv_cmd))
+				Display(f'{message}: reading {pkgconfig_name} version from {mv_cmd}\n')
 				v = StaticSubprocess.pcall(mv_cmd, stderr=subprocess.PIPE)
 				if v.err:
 					for l in v.err.splitlines():
-						Display('%s: pkg-config error: %s: %s\n' % (message, display_name, l.decode()))
+						Display(f'{message}: pkg-config error: {display_name}: {l.decode()}\n')
 				if v.returncode:
-					Display('%s: pkg-config failed: %s: %d; using default flags %r\n' % (message, display_name, v.returncode, guess_flags))
+					Display(f'{message}: pkg-config failed: {display_name}: {v.returncode}; using default flags {guess_flags!r}\n')
 					return guess_flags
 				if v.out:
-					Display("%s: %s version: %r\n" % (message, display_name, v.out.splitlines()[0]))
+					Display(f'{message}: {display_name} version: {v.out.splitlines()[0]}\n')
 			except OSError as o:
-				Display("%s: failed with error %s; using default flags for '%s': %r\n" % (message, repr(o.message) if o.errno is None else ('%u ("%s")' % (o.errno, o.strerror)), pkgconfig_name, guess_flags))
+				Display(f'''{message}: failed with error {repr(o.message) if o.errno is None else f'{o.errno} ("{o.strerror}")'}; using default flags for {pkgconfig_name!r}: {guess_flags!r}\n''')
 				flags = guess_flags
 			else:
-				Display("%s: reading %s settings from %s\n" % (message, display_name, cmd))
+				Display(f'{message}: reading {display_name} settings from {cmd}\n')
 				try:
 					v = StaticSubprocess.pcall(cmd, stderr=subprocess.PIPE)
 					if v.err:
 						for l in v.err.splitlines():
-							Display('%s: pkg-config error: %s: %s\n' % (message, display_name, l.decode()))
+							Display(f'{message}: pkg-config error: {display_name}: {l.decode()}\n')
 					if v.returncode:
-						Display('%s: pkg-config failed: %s: %d; using default flags %r\n' % (message, display_name, v.returncode, guess_flags))
+						Display(f'{message}: pkg-config failed: {display_name}: {v.returncode}; using default flags {guess_flags!r}\n')
 						return guess_flags
 					out = v.out
 					flags = {
 						k:v for k,v in context.env.ParseFlags(' ' + out.decode()).items()
 							if v and (k[0] in 'CL')
 					}
-					Display("%s: %s settings: %r\n" % (message, display_name, flags))
-					context.Log("%s: %s settings full output: %r\n" % (message, display_name, out))
+					Display(f'{message}: {display_name} settings: {flags!r}\n')
+					# Write the full output to the SCons log for later review.
+					# Omit it from `Display` since it is rarely necessary to
+					# see it during the build.
+					context.Log(f'{message}: {display_name} settings full output: {out!r}\n')
 				except OSError as o:
-					Display("%s: failed with error %s; using default flags for '%s': %r\n" % (message, repr(o.message) if o.errno is None else ('%u ("%s")' % (o.errno, o.strerror)), pkgconfig_name, guess_flags))
+					Display(f'''{message}: failed with error {repr(o.message) if o.errno is None else f'{o.errno} ("{o.strerror}")'}; using default flags for {pkgconfig_name!r}: {guess_flags!r}\n''')
 					flags = guess_flags
 			_cache[cmd] = flags
 			return flags
@@ -644,16 +649,17 @@ struct %(N)s_derived : %(N)s_base {
 ),
 		Cxx11RequiredFeature('std::begin(), std::end()', '''
 #include <array>
-''', '''
+''', f'''
 	char ac[1];
 	std::array<char, 1> as;
-%s
-''' % (''.join(['''
-	auto %(i)s = std::%(f)s(%(a)s);
-	(void)%(i)s;
-''' % {'i' : 'i%s%s' % (f, a), 'f' : f, 'a' : a} for f in ('begin', 'end') for a in ('ac', 'as')]
+{(''.join([f"""	{{
+		auto s = std::{f}({a});
+		(void)s;
+	}}
+""" for f in ('begin', 'end') for a in ('ac', 'as')]
 	)
-	)),
+	)}
+'''),
 		Cxx11RequiredFeature('range-based for', '''
 #include "compiler-range_for.h"
 ''', '''
@@ -769,10 +775,10 @@ I%(N)s a%(N)s()
 		#
 		# Unregistered tests are never documented and cannot be overridden by
 		# the user.
-		return getattr(self.user_settings, 'sconf_%s' % name)
+		return getattr(self.user_settings, f'sconf_{name}')
 	def _check_expected(self,name):
 		# The remarks for _check_forced apply here too.
-		r = getattr(self.user_settings, 'expect_sconf_%s' % name)
+		r = getattr(self.user_settings, f'expect_sconf_{name}')
 		if r is not None:
 			if r == self.expect_sconf_success:
 				return 1
@@ -780,16 +786,16 @@ I%(N)s a%(N)s()
 				return 0
 		return r
 	def _check_macro(self,context,macro_name,macro_value,test,_comment_not_supported=comment_not_supported,**kwargs):
-		r = self.Compile(context, text="""
+		r = self.Compile(context, text=f'''
 #define {macro_name} {macro_value}
 {test}
-""".format(macro_name=macro_name, macro_value=macro_value, test=test), **kwargs)
+''', **kwargs)
 		if not r:
 			macro_value = _comment_not_supported
 		self._define_macro(context, macro_name, macro_value)
 	def _define_macro(self,context,macro_name,macro_value):
 		context.sconf.Define(macro_name, macro_value)
-		self.__defined_macros += '#define %s %s\n' % (macro_name, macro_value)
+		self.__defined_macros += f'#define {macro_name} {macro_value}\n'
 	implicit_tests.append(_implicit_test.RecordedTest('check_ccache_distcc_ld_works', "assume ccache, distcc, C++ compiler, and C++ linker work"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_ccache_ld_works', "assume ccache, C++ compiler, and C++ linker work"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_distcc_ld_works', "assume distcc, C++ compiler, and C++ linker work"))
@@ -821,8 +827,8 @@ I%(N)s a%(N)s()
 		"""
 help:assume C++ compiler works
 """
-		# Use %r to print the tuple in an unambiguous form.
-		context.Log('scons: dxx: version: %r\n' % (Git.compute_extra_version(),))
+		# Use !r to print the tuple in an unambiguous form.
+		context.Log(f'scons: dxx: version: {(Git.compute_extra_version(),)!r}\n')
 		cenv = context.env
 		penv = cenv['ENV']
 		self.__cxx_com_prefix = cenv['CXXCOM']
@@ -857,27 +863,27 @@ help:assume C++ compiler works
 		# before the function call required to format the string for the
 		# second line.
 		Display = context.Display
-		Display('%s: checking version of %s %r ... ' % (self.msgprefix, desc, tool))
+		Display(f'{self.msgprefix}: checking version of {desc} {tool!r} ... ')
 		try:
 			v = StaticSubprocess.get_version_head(tool)
 		except OSError as e:
 			if e.errno == errno.ENOENT or e.errno == errno.EACCES:
-				Display('error: %s\n' % e.strerror)
-				raise SCons.Errors.StopError('Failed to run %r.' % tool)
+				Display(f'error: {e.strerror}\n')
+				raise SCons.Errors.StopError(f'Failed to run {tool!r}.')
 			raise
 		if save_tool_version:
 			self.__tool_versions.append((tool, v))
-		Display('%r\n' % v)
+		Display(f'{v!r}\n')
 	def _show_indirect_tool_version(self,context,CXX,tool,desc):
 		Display = context.Display
-		Display('%s: checking path to %s ... ' % (self.msgprefix, desc))
+		Display(f'{self.msgprefix}: checking path to {desc} ... ')
 		tool, name = ToolchainInformation.get_tool_path(context.env, tool)
 		self.__tool_versions.append((tool, name))
 		if not name:
 			# Strange, but not fatal for this to fail.
-			Display('! %r\n' % name)
+			Display(f'! {name!r}\n')
 			return
-		Display('%r\n' % name)
+		Display(f'{name!r}\n')
 		self._show_tool_version(context,name,desc)
 	def _check_cxx_works(self,context,_crc32=binascii.crc32):
 		# Test whether the compiler+linker+optional wrapper(s) work.  If
@@ -911,17 +917,18 @@ help:assume C++ compiler works
 		# to the end of the line.  repr ensures that embedded newlines
 		# will be escaped and that the final character will not be a
 		# backslash.
-		self.__commented_tool_versions = s = ''.join('// %r => %r\n' % (v[0], v[1]) for v in self.__tool_versions)
-		self.__tool_versions = '''
+		self.__commented_tool_versions = s = ''.join(f'// {tool!r} => {value!r}\n' for tool, value in self.__tool_versions)
+		self.__tool_versions = f'''
 /* This test is always false.  Use a non-trivial condition to
  * discourage external text scanners from recognizing that the block
- * is never compiled.
+ * is never compiled.  This is intended to encourage SCons to generate a new
+ * test if any of the tools have changed their version identifier.
  */
 #if 1 < -1
-%.8x
-%s
+{_crc32(s.encode()):08x}
+{s}
 #endif
-''' % (_crc32(s.encode()), s)
+'''
 		ToolchainInformation.show_partial_environ(cenv, user_settings, context.Display, self.msgprefix)
 		if use_ccache:
 			if use_distcc:
@@ -979,9 +986,7 @@ help:assume C++ compiler works
 					# lucky, fixing LINKFLAGS will allow the build to
 					# run.
 					return 'C++ compiler works.  C++ linker works with blank $LIBS and blank $LDFLAGS.  C++ linker does not work with blank $LIBS and specified $LDFLAGS.'
-			return 'C++ compiler works.  C++ linker does not work with specified %(LIBS)sblank $LIBS and specified $LINKFLAGS.  C++ linker does not work with blank $LIBS and blank $LINKFLAGS.' % {
-				'LIBS' : specified_LIBS,
-			}
+			return f'C++ compiler works.  C++ linker does not work with specified {specified_LIBS}blank $LIBS and specified $LINKFLAGS.  C++ linker does not work with blank $LIBS and blank $LINKFLAGS.'
 		else:
 			if cenv['CXXFLAGS']:
 				cenv['CXXFLAGS'] = []
@@ -1002,17 +1007,17 @@ help:assume C++ compiler works
 		# is enabled.
 		Compile = self._Compile
 		for level in _levels:
-			opt = '-std=gnu++%u' % level
+			opt = f'-std=gnu++{level}'
 			_CXXFLAGS[0] = opt
-			if Compile(context, text='', msg='whether C++ compiler accepts {opt}'.format(opt=opt), successflags=_successflags, calling_function='cxx%s' % level):
+			if Compile(context, text='', msg=f'whether C++ compiler accepts {opt}', successflags=_successflags, calling_function=f'cxx{level}'):
 				return
 		raise SCons.Errors.StopError('C++ compiler does not accept any supported C++ -std option.')
 	def _Test(self,context,text,msg,action,main='',ext='.cpp',testflags={},successflags={},skipped=None,successmsg=None,failuremsg=None,expect_failure=False,calling_function=None,__flags_Werror = {'CXXFLAGS' : ['-Werror']}):
 		if calling_function is None:
 			calling_function = self._find_calling_sconf_function()
-		context.Message('%s: checking %s...' % (self.msgprefix, msg))
+		context.Message(f'{self.msgprefix}: checking {msg}...')
 		if skipped is not None:
-			context.Result('(skipped){skipped}'.format(skipped=skipped))
+			context.Result(f'(skipped){skipped}')
 			if self.user_settings.record_sconf_results:
 				self._sconf_results.append((calling_function, 'skipped'))
 			return
@@ -1026,26 +1031,28 @@ help:assume C++ compiler works
 		# If forced is None, run the test.  Otherwise, skip the test and
 		# take an action determined by the value of forced.
 		if forced is None:
-			r = action('''
-{tools}
-{macros}
+			r = action(f'''
+{self.__tool_versions}
+{self.__defined_macros}
 {text}
 
 #undef main	/* avoid -Dmain=SDL_main from libSDL (and, on some platforms, from libSDL2) */
-
-{main}
-'''.format(
-	tools=self.__tool_versions,
-	macros=self.__defined_macros,
-	text=text,
-	main=('' if main is None else
 '''
-int main(int argc,char**argv){(void)argc;(void)argv;
-%s
-
-;}
-''' % main
-	)), ext)
+# As a special case, a caller may set main=None to prevent generating the
+# `main()` function.  This is only useful when the included headers or
+# expanded macros from `text` provide a definition of `main`.
+f'''{
+'' if main is None else
+f"""
+int main(int argc,char**argv)
+{{
+	(void)argc;(void)argv;
+{main}
+;
+}}
+"""
+}
+''', ext)
 			# Some tests check that the compiler rejects an input.
 			# SConf considers the result a failure when the compiler
 			# rejects the input.  For tests that consider a rejection to
@@ -1056,16 +1063,16 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 				r = not r
 			context.Result((successmsg if r else failuremsg) or r)
 			if expected is not None and r != expected:
-				raise SCons.Errors.StopError('Expected and actual results differ.  Test should %s, but it did not.' % ('succeed' if expected else 'fail'))
+				raise SCons.Errors.StopError(f'Expected and actual results differ.  Test should {"succeed" if expected else "fail"}, but it did not.')
 		else:
 			choices = (self.sconf_force_failure, self.sconf_force_success, self.sconf_assume_success)
 			if forced not in choices:
 				try:
 					forced = choices[int(forced)]
 				except ValueError:
-					raise SCons.Errors.UserError("Unknown force value for sconf_%s: %s" % (co_name[6:], forced))
+					raise SCons.Errors.UserError(f'Unknown force value for sconf_{co_name[6:]}: {forced}')
 				except IndexError:
-					raise SCons.Errors.UserError("Out of range force value for sconf_%s: %s" % (co_name[6:], forced))
+					raise SCons.Errors.UserError(f'Out of range force value for sconf_{co_name[6:]}: {forced}')
 			if forced == self.sconf_force_failure:
 				# Pretend the test returned a failure result
 				r = False
@@ -1077,19 +1084,19 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 				#
 				# The latter is used when the user arranges for the
 				# environment to be correct.  For example, if the
-				# compiler understands C++14, but uses a non-standard
+				# compiler understands C++20, but uses a non-standard
 				# name for the option, the user would set assume-success
 				# and add the appropriate option to CXXFLAGS.
 				r = True
 			else:
-				raise SCons.Errors.UserError("Unknown force value for sconf_%s: %s" % (co_name[6:], forced))
+				raise SCons.Errors.UserError(f'Unknown force value for sconf_{co_name[6:]}: {forced}')
 			# Flip the sense of the forced value, so that users can
 			# treat "force-failure" as force-bad-result regardless of
 			# whether the bad result is that the compiler rejected good
 			# input or that the compiler accepted bad input.
 			if expect_failure:
 				r = not r
-			context.Result('(forced){inverted}{forced}'.format(forced=forced, inverted='(inverted)' if expect_failure else ''))
+			context.Result(f'(forced){("(inverted)" if expect_failure else "")}{forced}')
 		# On success, revert to base flags + successflags
 		# On failure, revert to base flags
 		if r and forced != self.sconf_assume_success:
@@ -1130,11 +1137,11 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 	# user.  Some callers handle failure by retrying with other options.
 	# Others abort the SConf run.
 	def _soft_check_system_library(self,context,header,main,lib,pretext='',text='',successflags={},testflags={}):
-		include = pretext + '\n'.join(['#include <%s>' % h for h in header])
+		include = pretext + ''.join([f'#include <{h}>\n' for h in header])
 		header = header[-1]
 		# Test library.  On success, good.  On failure, test header to
 		# give the user more help.
-		if self.Link(context, text=include + text, main=main, msg='for usable library %s' % lib, successflags=successflags, testflags=testflags):
+		if self.Link(context, text=include + text, main=main, msg=f'for usable library {lib}', successflags=successflags, testflags=testflags):
 			return
 		# If linking failed, an error report is inevitable.  Probe
 		# progressively simpler configurations to help the user trace
@@ -1142,27 +1149,27 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		successflags = successflags.copy()
 		successflags.update(testflags)
 		Compile = self.Compile
-		if Compile(context, text=include + text, main=main, msg='for usable header %s' % header, testflags=successflags):
+		if Compile(context, text=include + text, main=main, msg=f'for usable header {header}', testflags=successflags):
 			# If this Compile succeeds, then the test program can be
 			# compiled, but it cannot be linked.  The required library
 			# may be missing or broken.
-			return (0, "Header %s is usable, but library %s is not usable." % (header, lib))
-		if Compile(context, text=include, main=main and '', msg='whether compiler can parse header %s' % header, testflags=successflags):
+			return (0, f'Header {header} is usable, but library {lib} is not usable.')
+		if Compile(context, text=include, main=main and '', msg=f'whether compiler can parse header {header}', testflags=successflags):
 			# If this Compile succeeds, then the test program cannot be
 			# compiled, but the header can be used with an empty test
 			# program.  Either the test program is broken or it relies
 			# on the header working differently than the used header
 			# actually works.
-			return (1, "Header %s is parseable, but cannot compile the test program." % header)
+			return (1, f'Header {header} is parseable, but cannot compile the test program.')
 		CXXFLAGS = successflags.setdefault('CXXFLAGS', [])
 		CXXFLAGS.append('-E')
-		if Compile(context, text=include, main=main and '', msg='whether preprocessor can parse header %s' % header, testflags=successflags):
+		if Compile(context, text=include, main=main and '', msg=f'whether preprocessor can parse header {header}', testflags=successflags):
 			# If this Compile succeeds, then the used header can be
 			# preprocessed, but cannot be compiled as C++ even with an
 			# empty test program.  The header likely has a C++ syntax
 			# error or assumes prerequisite headers will be included by
 			# the calling program.
-			return (2, "Header %s exists, but cannot compile an empty program." % header)
+			return (2, f'Header {header} exists, but cannot compile an empty program.')
 		CXXFLAGS.extend(('-M', '-MG'))
 		# If the header exists and is accepted by the preprocessor, an
 		# earlier test would have returned and this Compile would not be
@@ -1172,7 +1179,7 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		#   header)
 		# - Is present, but rejected by the preprocessor (such as from
 		#   an active `#error`)
-		if Compile(context, text=include, main=main and '', msg='whether preprocessor can locate header %s (and supporting headers)' % header, expect_failure=True, testflags=successflags):
+		if Compile(context, text=include, main=main and '', msg=f'whether preprocessor can locate header {header} (and supporting headers)', expect_failure=True, testflags=successflags):
 			# If this Compile succeeds, then the header does not exist,
 			# or exists and includes (possibly through layers of
 			# indirection) a header which does not exist.  Passing `-MG`
@@ -1200,8 +1207,8 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 			# by `expect_failure=True`, so the guarded path should
 			# return "unusable" and the fallthrough path should return
 			# "missing".
-			return (3, "Header %s is unusable." % header)
-		return (4, "Header %s is missing or includes a missing supporting header." % header)
+			return (3, f'Header {header} is unusable.')
+		return (4, f'Header {header} is missing or includes a missing supporting header.')
 	# Compile and link a program that uses a system library.  On
 	# success, return None.  On failure, abort the SConf run.
 	def _check_system_library(self,*args,**kwargs):
@@ -1227,13 +1234,13 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 			elif i == unpack('>i', a):
 				endian = 1
 			else:
-				raise SCons.Errors.UserError("Unknown host endian: unpack('i', %r) == %r; set host_endian='big' or host_endian='little' as appropriate." % (a, i))
+				raise SCons.Errors.UserError(f"Unknown host endian: unpack('i', {a!r}) == {i!r}; set host_endian='big' or host_endian='little' as appropriate.")
 		else:
 			if endian == __endian_names[0]:
 				endian = 0
 			else:
 				endian = 1
-		context.Result('%s: checking endian to use...%s' % (self.msgprefix, __endian_names[endian]))
+		context.Result(f'{self.msgprefix}: checking endian to use...{__endian_names[endian]}')
 		self._define_macro(context, 'DXX_WORDS_BIGENDIAN', endian)
 
 	@_custom_test
@@ -1247,20 +1254,18 @@ int main(int argc,char**argv){(void)argc;(void)argv;
 		_define_macro = self._define_macro
 		_define_macro(context, 'DXX_USE_OGL', int(user_settings.opengl))
 		_define_macro(context, 'DXX_USE_OGLES', int(user_settings.opengles))
-		if user_settings.opengles:
-			s = 'OpenGL ES'
-		elif user_settings.opengl:
-			s = 'OpenGL'
-		else:
-			s = 'software renderer'
-		Result('%s: building with %s' % (self.msgprefix, s))
+		Result(f'''{self.msgprefix}: building with {
+			"OpenGL ES" if user_settings.opengles else
+			"OpenGL" if user_settings.opengl else
+			"software renderer"
+}''')
 
 	def _result_check_user_setting(self,context,condition,CPPDEFINES,label,int=int,str=str):
 		if isinstance(CPPDEFINES, str):
 			self._define_macro(context, CPPDEFINES, int(condition))
 		elif condition:
 			self.successful_flags['CPPDEFINES'].extend(CPPDEFINES)
-		context.Result('%s: checking whether to enable %s...%s' % (self.msgprefix, label, 'yes' if condition else 'no'))
+		context.Result(f'{self.msgprefix}: checking whether to enable {label}...{"yes" if condition else "no"}')
 
 	@_custom_test
 	def _check_user_settings_debug(self,context,_CPPDEFINES=(('NDEBUG',), ('RELEASE',))):
@@ -1356,7 +1361,7 @@ struct d_screenshot
 			adlmidi_load_type = 'load dynamically'
 		else:
 			return
-		context.Result('%s: checking how to handle ADL MIDI...%s' % (self.msgprefix, adlmidi_load_type))
+		context.Result(f'{self.msgprefix}: checking how to handle ADL MIDI...{adlmidi_load_type}')
 		Define = context.sconf.Define
 		Define('DXX_USE_ADLMIDI', int(user_settings._enable_adlmidi()))
 
@@ -1372,7 +1377,7 @@ struct d_screenshot
 			screenshot_format_type = 'screenshot support disabled'
 		else:
 			return
-		context.Result('%s: checking how to format screenshots...%s' % (self.msgprefix, screenshot_format_type))
+		context.Result(f'{self.msgprefix}: checking how to format screenshots...{screenshot_format_type}')
 		Define = context.sconf.Define
 		Define('DXX_USE_SCREENSHOT_FORMAT_PNG', int(screenshot_mode == 'png'))
 		Define('DXX_USE_SCREENSHOT_FORMAT_LEGACY', int(screenshot_mode == 'legacy'))
@@ -1394,15 +1399,15 @@ struct d_screenshot
 			# (name,number) is useful for macro _WIN32_WINNT.
 			if f[0] == '_WIN32_WINNT':
 				f = f[1]
-				context.Result(_msg % (self.msgprefix, 'no, already set in CPPDEFINES as %s' % (('%#x' if isinstance(f, int) else '%r') % f)))
+				context.Result(_msg % (self.msgprefix, 'no, already set in CPPDEFINES as %s' % (f'{f:#x}' if isinstance(f, int) else f'{f!r}',)))
 				return
 		for f in env['CPPFLAGS']:
 			if f.startswith('-D_WIN32_WINNT='):
-				context.Result(_msg % (self.msgprefix, 'no, already set in CPPFLAGS as %r' % f))
+				context.Result(_msg % (self.msgprefix, f'no, already set in CPPFLAGS as {f!r}'))
 				return
-		context.Result(_msg % (self.msgprefix, 'yes, define _WIN32_WINNT=%#x' % _CPPDEFINES_WIN32_WINNT[1]))
+		context.Result(_msg % (self.msgprefix, f'yes, define _WIN32_WINNT={_CPPDEFINES_WIN32_WINNT[1]:#x}'))
 		self.successful_flags['CPPDEFINES'].append(_CPPDEFINES_WIN32_WINNT)
-		self.__defined_macros += '#define %s %s\n' % (_CPPDEFINES_WIN32_WINNT[0], _CPPDEFINES_WIN32_WINNT[1])
+		self.__defined_macros += f'#define {_CPPDEFINES_WIN32_WINNT[0]} {_CPPDEFINES_WIN32_WINNT[1]}\n'
 
 	@_guarded_test_windows
 	def check_dbghelp_header(self,context,_CPPDEFINES='DXX_ENABLE_WINDOWS_MINIDUMP'):
@@ -1497,7 +1502,7 @@ static void terminate_handler()
 			# file, so they have no place to express the dependency on zlib.
 			# For users who use pkg-config, the pkg-config output is assumed to
 			# be correct, and this speculative retry is skipped.
-			context.Display("%s: physfs header usable; adding zlib and retesting library\n" % self.msgprefix)
+			context.Display(f'{self.msgprefix}: physfs header usable; adding zlib and retesting library\n')
 			# `l is guess_flags['LIBS']` and `successflags is guess_flags`, so
 			# `l is successflags['LIBS']`.  Therefore, this `append` modifies
 			# the value of `successflags`.
@@ -1507,7 +1512,7 @@ static void terminate_handler()
 			raise SCons.Errors.StopError(e[1])
 
 	# SDL-only builds do not need GL utility functions
-	# OpenGLES builds to not use the GL utility functions
+	# OpenGLES builds do not use the GL utility functions
 	@GuardedCollector(_custom_test, lambda user_settings: user_settings.opengl and not user_settings.opengles)
 	def check_glu(self,context):
 		ogllibs = self.platform_settings.ogllibs
@@ -1546,7 +1551,7 @@ static void terminate_handler()
 
 	def _check_libSDL(self,context,sdl2,guess_flags):
 		user_settings = self.user_settings
-		successflags = self.pkgconfig.merge(context, self.msgprefix, user_settings, 'sdl%s' % sdl2, 'SDL%s' % sdl2, guess_flags).copy()
+		successflags = self.pkgconfig.merge(context, self.msgprefix, user_settings, f'sdl{sdl2}', f'SDL{sdl2}', guess_flags).copy()
 		if user_settings.max_joysticks:
 			# If joysticks are enabled, but all possible inputs are
 			# disabled, then disable joystick support.
@@ -1570,15 +1575,15 @@ static void terminate_handler()
 			('DXX_MAX_HATS_PER_JOYSTICK', user_settings.max_hats_per_joystick),
 			('DXX_USE_SDL_REDBOOK_AUDIO', use_redbook),
 		))
-		context.Display('%s: checking whether to enable joystick support...%s\n' % (self.msgprefix, 'yes' if user_settings.max_joysticks else 'no'))
+		context.Display(f'{self.msgprefix}: checking whether to enable joystick support...{"yes" if user_settings.max_joysticks else "no"}\n')
 		# SDL2 removed CD-rom support.
 		init_cdrom = '0' if sdl2 else 'SDL_INIT_CDROM'
-		error_text_opengl_mismatch = 'Rebirth configured with OpenGL enabled, but SDL{0} configured with OpenGL disabled.  Disable Rebirth OpenGL or install an SDL{0} with OpenGL enabled.'.format(sdl2)
-		test_opengl = ('''
+		error_text_opengl_mismatch = f'Rebirth configured with OpenGL enabled, but SDL{sdl2} configured with OpenGL disabled.  Disable Rebirth OpenGL or install an SDL{sdl2} with OpenGL enabled.'
+		test_opengl = (f'''
 #ifndef SDL_VIDEO_OPENGL
-#error "%s"
+#error "{error_text_opengl_mismatch}"
 #endif
-''' % error_text_opengl_mismatch) if user_settings.opengl else ''
+''') if user_settings.opengl else ''
 		main = '''
 	SDL_RWops *ops = reinterpret_cast<SDL_RWops *>(argv);
 #if DXX_MAX_JOYSTICKS
@@ -1600,13 +1605,13 @@ static void terminate_handler()
 	SDL_Quit();
 '''
 		e = self._soft_check_system_library(context,header=['SDL.h'],main=main.format(init_cdrom=init_cdrom, sdl2=sdl2, test_opengl=test_opengl),
-			lib=('SDL{0} with OpenGL' if test_opengl else 'SDL{0}').format(sdl2), successflags=successflags
+			lib=f'SDL{sdl2} with{"" if test_opengl else "out"} OpenGL', successflags=successflags
 		)
 		if not e:
 			return
 		if test_opengl:
 			e2 = self._soft_check_system_library(context,header=['SDL.h'],main=main.format(init_cdrom=init_cdrom, sdl2=sdl2, test_opengl=''),
-				lib='SDL without OpenGL', successflags=successflags
+				lib=f'SDL{sdl2} without OpenGL', successflags=successflags
 			)
 			if not e2 and e[0] == 1:
 				e = (None, error_text_opengl_mismatch)
@@ -1650,7 +1655,7 @@ static void terminate_handler()
 	def _check_SDL_addon_library(self,context,sdl2,library_format_name,macro_name,use_addon,main):
 		library_name = library_format_name % sdl2
 		self._define_macro(context, macro_name, int(use_addon))
-		context.Display('%s: checking whether to use %s...%s\n' % (self.msgprefix, library_name, 'yes' if use_addon else 'no'))
+		context.Display(f'{self.msgprefix}: checking whether to use {library_name}...{"yes" if use_addon else "no"}\n')
 		if not use_addon:
 			return
 		user_settings = self.user_settings
@@ -1661,8 +1666,8 @@ static void terminate_handler()
 		if user_settings.host_platform == 'darwin' and user_settings.macos_add_frameworks:
 			successflags = successflags.copy()
 			successflags['FRAMEWORKS'] = [library_name]
-			relative_headers = 'Library/Frameworks/%s.framework/Headers' % library_name
-			successflags['CPPPATH'] = [h for h in (os.path.join(os.getenv("HOME"), relative_headers), '/%s' % relative_headers) if os.path.isdir(h)]
+			relative_headers = f'Library/Frameworks/{library_name}.framework/Headers'
+			successflags['CPPPATH'] = [h for h in (os.path.join(os.getenv("HOME"), relative_headers), f'/{relative_headers}') if os.path.isdir(h)]
 		# SDL2 headers still use SDL_*.h for their filename, not
 		# SDL2_*.h, so expanded library_format_name with an explicitly
 		# blank insert, regardless of whether building for SDL1 or SDL2.
@@ -1695,22 +1700,22 @@ void DXX_ALWAYS_ERROR_FUNCTION(const char *);
 #endif
 '''
 	def _check_function_dce_attribute(self,context,attribute):
-		__attribute__ = '__%s__' % attribute
-		f = '''
-void a()__attribute__((%s("a called")));
-''' % __attribute__
-		macro_name = '__attribute_%s(M)' % attribute
+		__attribute__ = f'__{attribute}__'
+		f = f'''
+void a()__attribute__(({__attribute__}("a called")));
+'''
+		macro_name = f'__attribute_{attribute}(M)'
 		Compile = self.Compile
 		Define = context.sconf.Define
-		if Compile(context, text=f, main='if("0"[0]==\'1\')a();', msg='whether compiler optimizes function __attribute__((%s))' % __attribute__):
-			Define('DXX_HAVE_ATTRIBUTE_%s' % attribute.upper())
-			macro_value = '__attribute__((%s(M)))' % __attribute__
+		if Compile(context, text=f, main='if("0"[0]==\'1\')a();', msg=f'whether compiler optimizes function __attribute__(({__attribute__}))'):
+			Define(f'DXX_HAVE_ATTRIBUTE_{attribute.upper()}')
+			macro_value = f'__attribute__(({__attribute__}(M)))'
 		else:
-			Compile(context, text=f, msg='whether compiler accepts function __attribute__((%s))' % __attribute__) and \
-			Compile(context, text=f, main='a();', msg='whether compiler understands function __attribute__((%s))' % __attribute__, expect_failure=True)
+			Compile(context, text=f, msg=f'whether compiler accepts function __attribute__(({__attribute__}))') and \
+			Compile(context, text=f, main='a();', msg=f'whether compiler understands function __attribute__(({__attribute__}))', expect_failure=True)
 			macro_value = self.comment_not_supported
 		Define(macro_name, macro_value)
-		self.__defined_macros += '#define %s %s\n' % (macro_name, macro_value)
+		self.__defined_macros += f'#define {macro_name} {macro_value}\n'
 
 	@_custom_test
 	def check_builtin_bswap(self,context,
@@ -1922,7 +1927,7 @@ help:assume compiler supports __attribute__((always_inline))
 """
 		macro_name = '__attribute_always_inline()'
 		macro_value = '__attribute__((__always_inline__))'
-		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test='%s static inline void a(){}' % macro_name, main='a();', msg='for function __attribute__((always_inline))')
+		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test=f'{macro_name} static inline void a(){{}}', main='a();', msg='for function __attribute__((always_inline))')
 
 	@_custom_test
 	def check_attribute_alloc_size(self,context):
@@ -2105,14 +2110,13 @@ using namespace B;
 			return
 		# Some failed.  Run each test separately and report to the user
 		# which ones failed.
-		failures = [f.name for f in _features.features if not _Compile(context, text=f.text, main=f.main, msg='for C++%u %s' % (f.std, f.name))]
-		raise SCons.Errors.StopError(("C++ compiler does not support %s." %
-			', '.join(failures)
+		failures = [f.name for f in _features.features if not _Compile(context, text=f.text, main=f.main, msg=f'for C++{f.std} {f.name}')]
+		raise SCons.Errors.StopError((f'C++ compiler does not support {", ".join(failures)}.'
 		) if failures else 'C++ compiler supports each feature individually, but not all of them together.  Please report this as a bug in the Rebirth configure script.')
 
 	def _show_pch_count_message(self,context,which,user_setting):
 		count = user_setting if user_setting else 0
-		context.Display('%s: checking when to pre-compile %s headers...%s\n' % (self.msgprefix, which, ('if used at least %u time%s' % (count, 's' if count > 1 else '')) if count > 0 else 'never'))
+		context.Display(f'{self.msgprefix}: checking when to pre-compile {which} headers...{f"""if used at least {count} time{"s" if count > 1 else ""}""" if count > 0 else "never"}\n')
 		return count > 0
 
 	implicit_tests.append(_implicit_test.RecordedTest('check_pch_compile', "assume C++ compiler can create pre-compiled headers"))
@@ -2131,7 +2135,7 @@ using namespace B;
 		context.did_show_result = True
 		if not co and not cs:
 			return
-		context.Display('%s: checking when to compute pre-compiled header input *pch.cpp...%s\n' % (self.msgprefix, 'if missing' if self.user_settings.pch_cpp_assume_unchanged else 'always'))
+		context.Display(f'{self.msgprefix}: checking when to compute pre-compiled header input *pch.cpp...{"if missing" if self.user_settings.pch_cpp_assume_unchanged else "always"}\n')
 		result = _Test(self, context, action=self.PCHAction(context), text='', msg='whether compiler can create pre-compiled headers', testflags=_testflags_compile_pch, calling_function='pch_compile')
 		if not result:
 			raise SCons.Errors.StopError("C++ compiler cannot create pre-compiled headers.")
@@ -2176,7 +2180,7 @@ static void a(){{
 		'''
 help:add Valgrind annotations; wipe certain freed memory when running under Valgrind
 '''
-		context.Message('%s: checking %s...' % (self.msgprefix, 'whether to use Valgrind poisoning'))
+		context.Message(f'{self.msgprefix}: checking whether to use Valgrind poisoning...')
 		r = 'valgrind' in self.user_settings.poison
 		context.Result(r)
 		self._define_macro(context, 'DXX_HAVE_POISON_VALGRIND', int(r))
@@ -2192,16 +2196,18 @@ help:add Valgrind annotations; wipe certain freed memory when running under Valg
 		if self.Compile(context, text=text, main=main, msg='whether Valgrind memcheck header works'):
 			return True
 		raise SCons.Errors.StopError("Valgrind poison requested, but <valgrind/memcheck.h> does not work.")
+
 	@_implicit_test
 	def check_poison_overwrite(self,context):
 		'''
 help:always wipe certain freed memory
 '''
-		context.Message('%s: checking %s...' % (self.msgprefix, 'whether to use overwrite poisoning'))
+		context.Message(f'{self.msgprefix}: checking whether to use overwrite poisoning...')
 		r = 'overwrite' in self.user_settings.poison
 		context.Result(r)
 		self._define_macro(context, 'DXX_HAVE_POISON_OVERWRITE', int(r))
 		return r
+
 	@_custom_test
 	def _check_poison_method(self,context,
 		_methods=(check_poison_overwrite, check_poison_valgrind),
@@ -2308,8 +2314,8 @@ $ x86_64-pc-linux-gnu-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
 			# Win32
 			('', 'size_type_int'),
 		):
-			f = '"{}u"'.format(DXX_PRI_size_type)
-			if self.Compile(context, text=_text_format(f), main=_main, msg='whether to format std::size_t with "%{}u"'.format(DXX_PRI_size_type), calling_function=calling_function):
+			f = f'"{DXX_PRI_size_type}u"'
+			if self.Compile(context, text=_text_format(f), main=_main, msg=f'whether to format std::size_t with "%{DXX_PRI_size_type}u"', calling_function=calling_function):
 				context.sconf.Define('DXX_PRI_size_type', f)
 				return
 		raise SCons.Errors.StopError("C++ compiler rejects all candidate format strings for std::size_t.")
@@ -2591,9 +2597,9 @@ static void requires_borrowed_range(R &&) {}
 	if os.getenv('SOURCE_DATE_EPOCH') is None:
 		__preferred_win32_linker_options += ('-Wl,--insert-timestamp',)
 	def __mangle_compiler_option_name(opt):
-		return 'check_compiler_option%s' % opt.replace('-', '_').replace('=', '_')
+		return f'check_compiler_option{opt.replace("-", "_").replace("=", "_")}'
 	def __mangle_linker_option_name(opt):
-		return 'check_linker_option%s' % opt.replace('-', '_').replace(',', '_')
+		return f'check_linker_option{opt.replace("-", "_").replace(",", "_")}'
 	@_custom_test
 	def check_preferred_compiler_options(self,context,
 		ccopts=list(__preferred_compiler_options),
@@ -2619,7 +2625,7 @@ static void requires_borrowed_range(R &&) {}
 		Link = self.Link
 		f, desc = (Link, 'linker') if ldopts else (Compile, 'compiler')
 		if f(context, text=_text, main='''
-''', msg='whether %s accepts preferred options' % desc, successflags={'CXXFLAGS' : ccopts, 'LINKFLAGS' : ldopts}, calling_function='preferred_%s_options' % desc):
+''', msg=f'whether {desc} accepts preferred options', successflags={'CXXFLAGS' : ccopts, 'LINKFLAGS' : ldopts}, calling_function=f'preferred_{desc}_options'):
 			# Everything is supported.  Skip individual tests.
 			return
 		# Compiler+linker together failed.  Check if compiler alone will work.
@@ -2627,10 +2633,10 @@ static void requires_borrowed_range(R &&) {}
 			# Compiler alone failed.
 			# Run down the individual compiler options to find any that work.
 			for opt in ccopts:
-				Compile(context, text=_text, main='', msg='whether compiler accepts option %s' % opt, successflags={'CXXFLAGS' : (opt,)}, calling_function=_mangle_compiler_option_name(opt)[6:])
+				Compile(context, text=_text, main='', msg=f'whether compiler accepts option {opt}', successflags={'CXXFLAGS' : (opt,)}, calling_function=_mangle_compiler_option_name(opt)[6:])
 		# Run down the individual linker options to find any that work.
 		for opt in ldopts:
-			Link(context, text=_text, main='', msg='whether linker accepts option %s' % opt, successflags={'LINKFLAGS' : (opt,)}, calling_function=_mangle_linker_option_name(opt)[6:])
+			Link(context, text=_text, main='', msg=f'whether linker accepts option {opt}', successflags={'LINKFLAGS' : (opt,)}, calling_function=_mangle_linker_option_name(opt)[6:])
 	@classmethod
 	def register_preferred_compiler_options(cls,
 		ccopts = ('-Wextra',) + __preferred_compiler_options,
@@ -2646,10 +2652,10 @@ static void requires_borrowed_range(R &&) {}
 		record(RecordedTest('check_preferred_linker_options', 'assume linker accepts preferred options'))
 		mangle = _mangle_compiler_option_name
 		for opt in ccopts:
-			record(RecordedTest(mangle(opt), 'assume compiler accepts %s' % opt))
+			record(RecordedTest(mangle(opt), f'assume compiler accepts {opt}'))
 		mangle = _mangle_linker_option_name
 		for opt in ldopts:
-			record(RecordedTest(mangle(opt), 'assume linker accepts %s' % opt))
+			record(RecordedTest(mangle(opt), f'assume linker accepts {opt}'))
 		assert cls.custom_tests[0].name == cls.check_cxx_works.__name__, cls.custom_tests[0].name
 		assert cls.custom_tests[-1].name == cls._cleanup_configure_test_state.__name__, cls.custom_tests[-1].name
 
@@ -2668,7 +2674,7 @@ BOOST_AUTO_TEST_CASE(f)
 	@_custom_test
 	def _check_boost_test_required(self,context):
 		register_runtime_test_link_targets = self.user_settings.register_runtime_test_link_targets
-		context.Display('%s: checking whether to build runtime tests...' % self.msgprefix)
+		context.Display(f'{self.msgprefix}: checking whether to build runtime tests...')
 		context.Result(register_runtime_test_link_targets)
 		if register_runtime_test_link_targets:
 			self.check_boost_test(context)
@@ -2679,12 +2685,12 @@ BOOST_AUTO_TEST_CASE(f)
 	# should not fail on other operating system targets if it's absent.
 	@GuardedCollector(_guarded_test_darwin, lambda user_settings: user_settings.macos_bundle_libs and not user_settings.macos_add_frameworks)
 	def _check_dylibbundler(self, context, _common_error_text='; dylibbundler is required for compilation for a macOS target when not using frameworks and bundling libraries.  Set macos_bundle_libs=False or macos_add_frameworks=True, or install dylibbundler.'):
-		context.Display('%s: checking whether dylibbundler is installed and accepts -h...' % self.msgprefix)
+		context.Display(f'{self.msgprefix}: checking whether dylibbundler is installed and accepts -h...')
 		try:
 			p = StaticSubprocess.pcall(('dylibbundler', '-h'), stderr=subprocess.PIPE)
 		except FileNotFoundError as e:
-			context.Result('no; %s' % (e,))
-			raise SCons.Errors.StopError('dylibbundler not found%s' % (_common_error_text,))
+			context.Result(f'no; {e}')
+			raise SCons.Errors.StopError(f'dylibbundler not found{_common_error_text}')
 		expected = b'dylibbundler is a utility'
 		first_output_line = p.out.splitlines()
 		if first_output_line:
@@ -2693,17 +2699,17 @@ BOOST_AUTO_TEST_CASE(f)
 		# output.  Only the first line of output will be shown to SCons'
 		# stdout.  The full output will be written to the SConf log.
 		if p.returncode:
-			reason = 'successful exit, but return code was %d' % p.returncode
+			reason = f'successful exit, but return code was {p.returncode}'
 		elif expected not in p.out:
-			reason = 'output to contain %r, but first line of output was: %r' % (expected.decode(), first_output_line)
+			reason = f'output to contain {expected.decode()!r}, but first line of output was: {first_output_line!r}'
 		else:
-			context.Result('yes; %s' % (first_output_line,))
+			context.Result(f'yes; {first_output_line}')
 			return
-		context.Result('no; expected %s' % reason)
-		context.Log('''scons: dylibbundler return code: %r
-scons: dylibbundler stdout: %r
-scons: dylibbundler stderr: %r
-'''  % (p.returncode, p.out, p.err))
+		context.Result(f'no; expected {reason}')
+		context.Log(f'''scons: dylibbundler return code: {p.returncode!r}
+scons: dylibbundler stdout: {p.out!r}
+scons: dylibbundler stderr: {p.err!r}
+''')
 		raise SCons.Errors.StopError('`dylibbundler -h` failed to return expected output; dylibbundler is required for compilation for a macOS target when not using frameworks.  Set macos_bundle_libs=False or macos_add_frameworks=False (and handle the libraries manually), or install dylibbundler.')
 
 	# This must be the last custom test.  It does not test the environment,
@@ -2823,14 +2829,14 @@ class FilterHelpText:
 		l = []
 		if default is not None:
 			if isinstance(default, str) and not default.isalnum():
-				default = '"%s"' % default
-			l.append("default: {default}".format(default=default))
+				default = f'"{default}"'
+			l.append(f'default: {default}')
 		actual = getattr(self, opt, None)
 		if actual is not None:
 			if isinstance(actual, str) and not actual.isalnum():
-				actual = '"%s"' % actual
-			l.append("current: {current}".format(current=actual))
-		return (" {opt:%u}  {help}{l}\n" % (self._sconf_align if opt[:6] == 'sconf_' else 15)).format(opt=opt, help=help, l=(" [" + "; ".join(l) + "]" if l else ''))
+				actual = f'"{actual}"'
+			l.append(f'current: {actual}')
+		return f' {opt:{self._sconf_align if opt[:6] == "sconf_" else 15}}  {help}{f""" [{"; ".join(l)}]""" if l else ""}\n'
 
 class PCHManager:
 	class ScannedFile:
@@ -2901,13 +2907,13 @@ class PCHManager:
 		if user_settings.syspch:
 			self.syspch_cpp_node = pch_subdir_node.File('syspch.cpp')
 			self.syspch_cpp_filename = syspch_cpp_filename = str(self.syspch_cpp_node)
-			self.required_pch_object_node = self.syspch_object_node = syspch_object_node = env.StaticObject(target='%s.gch' % syspch_cpp_filename, source=self.syspch_cpp_node, CXXCOM=env._dxx_cxxcom_no_ccache_prefix, CXXFLAGS=CXXFLAGS)
+			self.required_pch_object_node = self.syspch_object_node = syspch_object_node = env.StaticObject(target=f'{syspch_cpp_filename}.gch', source=self.syspch_cpp_node, CXXCOM=env._dxx_cxxcom_no_ccache_prefix, CXXFLAGS=CXXFLAGS)
 		if user_settings.pch:
 			self.ownpch_cpp_node = pch_subdir_node.File('ownpch.cpp')
 			self.ownpch_cpp_filename = ownpch_cpp_filename = str(self.ownpch_cpp_node)
 			if syspch_object_node:
 				CXXFLAGS += ['-include', syspch_cpp_node, '-Winvalid-pch']
-			self.required_pch_object_node = self.ownpch_object_node = ownpch_object_node = env.StaticObject(target='%s.gch' % ownpch_cpp_filename, source=self.ownpch_cpp_node, CXXCOM=env._dxx_cxxcom_no_ccache_prefix, CXXFLAGS=CXXFLAGS)
+			self.required_pch_object_node = self.ownpch_object_node = ownpch_object_node = env.StaticObject(target=f'{ownpch_cpp_filename}.gch', source=self.ownpch_cpp_node, CXXCOM=env._dxx_cxxcom_no_ccache_prefix, CXXFLAGS=CXXFLAGS)
 			env.Depends(ownpch_object_node, builddir.File('dxxsconf.h'))
 			if syspch_object_node:
 				env.Depends(ownpch_object_node, syspch_object_node)
@@ -3099,7 +3105,7 @@ class PCHManager:
 			):
 				guard.append(b'#%s %s' % (directive, m.group(2)))
 			elif directive not in (b'error',):
-				raise SCons.Errors.StopError("Scanning %s found unhandled C preprocessor directive %r" % (str(source_filenode), directive))
+				raise SCons.Errors.StopError(f'Scanning {source_filenode!s} found unhandled C preprocessor directive {directive!r}')
 		return cls.ScannedFile(candidates)
 
 	def _compute_pch_text(self):
@@ -3263,7 +3269,7 @@ class PCHManager:
 	def write_pch_inclusion_file(cls,target,source,env):
 		target = str(target[0])
 		dn, bn = os.path.split(target)
-		fd, path = cls._tempfile_mkstemp(suffix='', prefix='%s.' % bn, dir=dn, text=True)
+		fd, path = cls._tempfile_mkstemp(suffix='', prefix=f'{bn}.', dir=dn, text=True)
 		# source[0].get_contents() returns the comment-stripped form
 		os.write(fd, source[0].__generated_pch_text)
 		os.close(fd)
@@ -3383,7 +3389,7 @@ class DXXCommon(LazyObjectConstructor):
 
 	@cached_property
 	def program_message_prefix(self):
-		return '%s.%d' % (self.PROGRAM_NAME, self.program_instance)
+		return f'{self.PROGRAM_NAME}.{self.program_instance}'
 
 	@cached_property
 	def builddir(self):
@@ -3400,7 +3406,7 @@ class DXXCommon(LazyObjectConstructor):
 					int(value)
 					return True
 				except ValueError:
-					raise SCons.Errors.UserError('Invalid value for integer-only option %s: %s.' % (key, value))
+					raise SCons.Errors.UserError(f'Invalid value for integer-only option {key}: {value}.')
 		class UIntVariable(IntVariable):
 			@staticmethod
 			def _validator(key, value, env):
@@ -3409,7 +3415,7 @@ class DXXCommon(LazyObjectConstructor):
 						raise ValueError
 					return True
 				except ValueError:
-					raise SCons.Errors.UserError('Invalid value for unsigned-integer-only option %s: %s.' % (key, value))
+					raise SCons.Errors.UserError(f'Invalid value for unsigned-integer-only option {key}: {value}.')
 		# Paths for the Videocore libs/includes on the Raspberry Pi
 		RPI_DEFAULT_VC_PATH='/opt/vc'
 		default_OGLES_LIB = 'GLES_CM'
@@ -3432,11 +3438,11 @@ class DXXCommon(LazyObjectConstructor):
 					# Mix in CRC of CXXFLAGS to get reasonable uniqueness
 					# when flags are changed.  A full hash is
 					# unnecessary here.
-					fields.append('{:08x}'.format(binascii.crc32(compiler_flags.encode())))
+					fields.append(f'{(binascii.crc32(compiler_flags.encode())):08x}')
 				if self.pch:
-					fields.append('p%u' % self.pch)
+					fields.append(f'p{self.pch}')
 				elif self.syspch:
-					fields.append('sp%u' % self.syspch)
+					fields.append(f'sp{self.syspch}')
 				fields.append(''.join(a[1] if getattr(self, a[0]) else (a[2] if len(a) > 2 else '')
 				for a in (
 					('debug', 'dbg'),
@@ -3550,7 +3556,7 @@ class DXXCommon(LazyObjectConstructor):
 			{
 				'variable': EnumVariable,
 				'arguments': [
-					('expect_sconf_%s' % t.name[6:],
+					(f'expect_sconf_{t.name[6:]}',
 						None,
 						None,
 						{'allowed_values' : expect_sconf_tuple}
@@ -3560,9 +3566,9 @@ class DXXCommon(LazyObjectConstructor):
 			{
 				'variable': EnumVariable,
 				'arguments': [
-					('sconf_%s' % t.name[6:],
+					(f'sconf_{t.name[6:]}',
 						None,
-						t.desc or ('assume result of %s' % t.name),
+						t.desc or f'assume result of {t.name}',
 						{'allowed_values' : sconf_tuple}
 					) for t in tests
 				],
@@ -3792,7 +3798,7 @@ class DXXCommon(LazyObjectConstructor):
 
 		@staticmethod
 		def _names(name,prefix):
-			return ['%s%s%s' % (p, '_' if p else '', name) for p in prefix]
+			return [f'{p}{"_" if p else ""}{name}' for p in prefix]
 
 		def __init__(self,program=None):
 			self._program = program
@@ -3820,7 +3826,7 @@ class DXXCommon(LazyObjectConstructor):
 					append_known_variable((names, name, value, stack))
 					if stack:
 						for n in names:
-							add_variable(self._generic_variable(key='%s_stop' % n, help=None, default=None))
+							add_variable(self._generic_variable(key=f'{n}_stop', help=None, default=None))
 		def read_variables(self,program,variables,d):
 			verbose_settings_init = os.getenv('DXX_SCONS_DEBUG_USER_SETTINGS')
 			for (namelist,cname,dvalue,stack) in self.known_variables:
@@ -3833,26 +3839,26 @@ class DXXCommon(LazyObjectConstructor):
 						if stack:
 							if callable(v):
 								if verbose_settings_init:
-									message(program, 'append to stackable %r from %r by call to %r(%r, %r, %r)' % (cname, n, v, dvalue, value, stack))
+									message(program, f'append to stackable {cname!r} from {n!r} by call to {v!r}({dvalue!r}, {value!r}, {stack!r})')
 								value = v(dvalue=dvalue, value=value, stack=stack)
 							else:
 								if value:
 									value = (value, v)
 									if verbose_settings_init:
-										message(program, 'append to stackable %r from %r by join of %r.join(%r, %r)' % (cname, n, stack, value))
+										message(program, f'append to stackable {cname!r} from {n!r} by join of {stack!r}.join({value!r})')
 									value = stack.join(value)
 								else:
 									if verbose_settings_init:
-										message(program, 'assign to stackable %r from %r value %r' % (cname, n, v))
+										message(program, f'assign to stackable {cname!r} from {n!r} value {v!r}')
 									value = v
-							stop = '%s_stop' % n
+							stop = f'{n}_stop'
 							if d.get(stop, None):
 								if verbose_settings_init:
-									message(program, 'terminating search early due to presence of %s' % stop)
+									message(program, f'terminating search early due to presence of {stop}')
 								break
 							continue
 						if verbose_settings_init:
-							message(program, 'assign to non-stackable %r from %r value %r' % (cname, n, v))
+							message(program, f'assign to non-stackable {cname!r} from {n!r} value {v!r}')
 						value = v
 						break
 					except KeyError as e:
@@ -3861,11 +3867,11 @@ class DXXCommon(LazyObjectConstructor):
 					if callable(dvalue):
 						value = dvalue()
 						if verbose_settings_init:
-							message(program, 'assign to %r by default value %r from call %r' % (cname, value, dvalue))
+							message(program, f'assign to {cname!r} by default value {value!r} from call {dvalue!r}')
 					else:
 						value = dvalue
 						if verbose_settings_init:
-							message(program, 'assign to %r by default value %r from direct' % (cname, value))
+							message(program, f'assign to {cname!r} by default value {value!r} from direct')
 				setattr(self, cname, value)
 			if self.builddir != '' and self.builddir[-1:] != '/':
 				self.builddir += '/'
@@ -4099,7 +4105,7 @@ class DXXCommon(LazyObjectConstructor):
 		CXXFLAGS = env['CXXFLAGS']
 		target = os.path.join(
 				str(builddir.Dir(self.srcdir).Dir('check_header_includes')),
-				'${DXX_EFFECTIVE_SOURCE}%s' % (env['OBJSUFFIX'],)
+				f'${{DXX_EFFECTIVE_SOURCE}}{env["OBJSUFFIX"]}'
 				)
 		for name in __shared_header_file_list:
 			if not name:
@@ -4133,7 +4139,7 @@ class DXXCommon(LazyObjectConstructor):
 		OBJSUFFIX = env['OBJSUFFIX']
 		StaticObject = env.__cpp_output_StaticObject
 		StaticObject(
-			target='%s.i' % (target[:-len(OBJSUFFIX)] if target.endswith(OBJSUFFIX) else target),
+			target=f'{target.removesuffix(OBJSUFFIX)}.i',
 			source=source, OBJSUFFIX='.i',
 			# Bypass ccache
 			CXXCOM=env._dxx_cxxcom_no_prefix,
@@ -4246,11 +4252,11 @@ class DXXCommon(LazyObjectConstructor):
 			elif c == '\n':
 				r += r'\n'
 			else:
-				r += r'\\x%s' % b2a_hex(c.encode()).decode()
+				r += rf'\\x{b2a_hex(c.encode()).decode()}'
 				prior = True
 				continue
 			prior = False
-		return '\\"%s\\"' % r
+		return f'\\"{r}\\"'
 
 	@staticmethod
 	def _quote_cppdefine_as_char_initializer(k,v):
@@ -4263,7 +4269,7 @@ class DXXCommon(LazyObjectConstructor):
 		#   input integer
 		# - ','.join(outer_map) to convert the iterable of strings to a
 		#   comma-separated string
-		return ('DESCENT_%s' % k), ','.join(map(str, map(ord, '%s=%r' % (k, v))))
+		return f'DESCENT_{k}', ','.join(map(str, map(ord, f'{k}={v!r}')))
 
 	@staticmethod
 	def _encode_cppdefine_for_identifier(s,b32encode=base64.b32encode):
@@ -4286,18 +4292,18 @@ class DXXCommon(LazyObjectConstructor):
 		# Expand $CXX immediately.
 		# $CCFLAGS is never used.  Remove it.
 		cxxcom = env['CXXCOM'] \
-			.replace('$CXX ', '%s ' % env['CXX']) \
+			.replace('$CXX ', f'{env["CXX"]} ') \
 			.replace('$CCFLAGS ', '')
 		if target_string + ' ' in cxxcom:
-			cxxcom = '%s%s' % (cxxcom.replace(target_string, ''), target_string)
+			cxxcom = f'{cxxcom.replace(target_string, "")}{target_string}'
 		env._dxx_cxxcom_no_prefix = cxxcom
 		distcc_path = user_settings.distcc
-		distcc_cxxcom = ('%s %s' % (distcc_path, cxxcom)) if distcc_path else cxxcom
+		distcc_cxxcom = f'{distcc_path} {cxxcom}' if distcc_path else cxxcom
 		env._dxx_cxxcom_no_ccache_prefix = distcc_cxxcom
 		ccache_path = user_settings.ccache
 		# Add ccache/distcc only for compile, not link
 		if ccache_path:
-			cxxcom = '%s %s' % (ccache_path, cxxcom)
+			cxxcom = f'{ccache_path} {cxxcom}'
 			if distcc_path is not None:
 				penv = self.env['ENV']
 				if distcc_path:
@@ -4307,10 +4313,10 @@ class DXXCommon(LazyObjectConstructor):
 		elif distcc_path:
 			cxxcom = distcc_cxxcom
 		# Expand $LINK immediately.
-		linkcom = env['LINKCOM'].replace('$LINK ', '%s ' % env['LINK'])
+		linkcom = env['LINKCOM'].replace('$LINK ', f'{env["LINK"]} ')
 		# Move target to end of link command
 		if target_string + ' ' in linkcom:
-			linkcom = '%s%s' % (linkcom.replace(target_string, ''), target_string)
+			linkcom = f'{linkcom.replace(target_string, "")}{target_string}'
 		# Add $CXXFLAGS to link command
 		cxxflags = '$CXXFLAGS '
 		if ' ' + cxxflags not in linkcom:
@@ -4329,16 +4335,17 @@ class DXXCommon(LazyObjectConstructor):
 			env.__generate_cpp_output_COMSTR	= None
 		else:
 			target = self.target[:3]
-			format_tuple = (target, user_settings.builddir or '.')
-			env.__header_check_output_COMSTR	= "CHK %s %s $DXX_EFFECTIVE_SOURCE" % format_tuple
-			env.__generate_cpp_output_COMSTR	= "CPP %s %s $DXX_EFFECTIVE_SOURCE" % format_tuple
+			nonblank_builddir = user_settings.builddir or '.'
+			env.__header_check_output_COMSTR	= f'CHK {target} {nonblank_builddir} $DXX_EFFECTIVE_SOURCE'
+			env.__generate_cpp_output_COMSTR	= f'CPP {target} {nonblank_builddir} $DXX_EFFECTIVE_SOURCE'
 			env.Replace(
-				CXXCOMSTR						= "CXX %s %s $SOURCE" % format_tuple,
+				CXXCOMSTR						= f'CXX {target} {nonblank_builddir} $SOURCE',
 			# `builddir` is implicit since $TARGET is the full path to
 			# the output
-				LINKCOMSTR						= "LD  %s $TARGET" % target,
-				RCCOMSTR						= "RC  %s %s $SOURCE" % format_tuple,
+				LINKCOMSTR						= f'LD  {target} $TARGET',
+				RCCOMSTR						= f'RC  {target} {nonblank_builddir} $SOURCE',
 			)
+			del nonblank_builddir
 
 		Werror = get_Werror_string(user_settings.CXXFLAGS)
 		env.Prepend(CXXFLAGS = [
@@ -4387,7 +4394,7 @@ class DXXCommon(LazyObjectConstructor):
 		if self.user_settings.lto:
 			env.Append(CXXFLAGS = [
 				# clang does not support =N syntax
-				('-flto=%s' % self.user_settings.lto) if self.user_settings.lto > 1 else '-flto',
+				f'-flto={self.user_settings.lto}' if self.user_settings.lto > 1 else '-flto',
 			])
 
 	@cached_property
@@ -4398,8 +4405,7 @@ class DXXCommon(LazyObjectConstructor):
 			machine = os.uname()[4]
 		except AttributeError:
 			machine = None
-		message(self, "compiling on %r/%r for %r into %s%s" % (sys.platform, machine, platform_name, self.user_settings.builddir or '.',
-			(' with prefix list %s' % str(self._argument_prefix_list)) if self._argument_prefix_list else ''))
+		message(self, f'compiling on {sys.platform!r}/{machine!r} for {platform_name!r} into {self.user_settings.builddir or "."}{f" with prefix list {self._argument_prefix_list}" if self._argument_prefix_list else ""}')
 		return self.get_platform_settings_type(platform_name)(self, self.user_settings)
 
 	@classmethod
@@ -4447,7 +4453,7 @@ class DXXCommon(LazyObjectConstructor):
 				# this is an SCons default, not a user-chosen value.
 				value = denv.get(cc)
 				if value and env.get(cc) == value:
-					env[cc] = '{}-{}'.format(CHOST, value)
+					env[cc] = f'{CHOST}-{value}'
 		platform_settings.adjust_environment(self, env)
 		return env
 
@@ -4463,18 +4469,18 @@ class DXXCommon(LazyObjectConstructor):
 		# Raspberry Pi?
 		if user_settings.raspberrypi == 'yes':
 			rpi_vc_path = user_settings.rpi_vc_path
-			message(self, "Raspberry Pi: using VideoCore libs in %r" % rpi_vc_path)
+			message(self, f'Raspberry Pi: using VideoCore libs in {rpi_vc_path!r}')
 			env.Append(
 				CPPDEFINES = ['RPI'],
 			# use CPPFLAGS -isystem instead of CPPPATH because these those header files
 			# are not very clean and would trigger some warnings we usually consider as
 			# errors. Using them as system headers will make gcc ignoring any warnings.
 				CPPFLAGS = [
-				'-isystem%s/include' % rpi_vc_path,
-				'-isystem%s/include/interface/vcos/pthreads' % rpi_vc_path,
-				'-isystem%s/include/interface/vmcs_host/linux' % rpi_vc_path,
+				f'-isystem{rpi_vc_path}/include',
+				f'-isystem{rpi_vc_path}/include/interface/vcos/pthreads',
+				f'-isystem{rpi_vc_path}/include/interface/vmcs_host/linux',
 			],
-				LIBPATH = '%s/lib' % rpi_vc_path,
+				LIBPATH = f'{rpi_vc_path}/lib',
 				LIBS = ['bcm_host'],
 			)
 
@@ -4675,22 +4681,25 @@ class DXXArchive(DXXCommon):
 			for k in tests.custom_tests:
 				getattr(conf, k.name)()
 		except SCons.Errors.StopError as e:
-			raise SCons.Errors.StopError('{e0}  See {log_file} for details.'.format(e0=e.args[0], log_file=log_file), *e.args[1:])
+			raise SCons.Errors.StopError(f'{e.args[0]}  See {log_file} for details.', *e.args[1:])
 		cc_env_strings.restore(conf.env)
 		if user_settings.pch:
 			conf.Define('DXX_VERSION_SEQ', self.DXX_VERSION_SEQ)
 		if user_settings.record_sconf_results:
-			conf.config_h_text += '''
+			conf.config_h_text += f'''
 /*
-%s
+SConf test results
+---
+{''.join(f"""check_{n}={v}
+""" for n,v in tests._sconf_results)}
  */
-''' % '\n'.join(['check_%s=%s' % (n,v) for n,v in tests._sconf_results])
+'''
 		conf.Finish()
 		self.configure_pch_flags = tests.pch_flags
 		add_flags = self.configure_added_environment_flags
 		CLVar = SCons.Util.CLVar
 		for flags in ('CPPFLAGS', 'CXXFLAGS', 'LINKFLAGS'):
-			value = getattr(user_settings, '%s_unchecked' % flags)
+			value = getattr(user_settings, f'{flags}_unchecked')
 			if value:
 				add_flags[flags] += CLVar(value)
 		# Wrapping PHYSFS_read / PHYSFS_write is only useful when
@@ -4750,8 +4759,10 @@ class DXXProgram(DXXCommon):
 			env.Depends(kconfig_static_object, generated_udlr_header)
 
 	static_archive_construction = {}
+
 	def _apply_target_name(self,name):
-		return os.path.join(os.path.dirname(name), '.%s.%s' % (self.target, os.path.splitext(os.path.basename(name))[0]))
+		return os.path.join(os.path.dirname(name), f'.{self.target}.{os.path.splitext(os.path.basename(name))[0]}')
+
 	def _apply_env_version_seq(self,env,_empty={}):
 		return _empty if self.user_settings.pch else {'CPPDEFINES' : env['CPPDEFINES'] + [('DXX_VERSION_SEQ', self.DXX_VERSION_SEQ)]}
 	get_objects_similar_arch_ogl = DXXCommon.create_lazy_object_states_getter((LazyObjectState(sources=(
@@ -4910,22 +4921,22 @@ class DXXProgram(DXXCommon):
 		@property
 		def BIN_DIR(self):
 			# installation path
-			return '%s/bin' % self.prefix
+			return f'{self.prefix}/bin'
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(DXXCommon.Win32PlatformSettings):
 		def adjust_environment(self,program,env):
 			super().adjust_environment(program, env)
 			rcdir = 'similar/arch/win32'
 			j = os.path.join
-			resfile = env.RES(target=j(program.user_settings.builddir, rcdir, '%s.res%s' % (program.target, env["OBJSUFFIX"])), source=j(rcdir, 'dxx-rebirth.rc'))
+			resfile = env.RES(target=j(program.user_settings.builddir, rcdir, f'{program.target}.res{env["OBJSUFFIX"]}'), source=j(rcdir, 'dxx-rebirth.rc'))
 			Depends = env.Depends
 			File = env.File
 			Depends(resfile, File(j(rcdir, 'dxx-rebirth.manifest')))
-			Depends(resfile, File(j(rcdir, '%s.ico' % program.target)))
+			Depends(resfile, File(j(rcdir, f'{program.target}.ico')))
 			self.platform_objects = [resfile]
 			env.Prepend(
 				CXXFLAGS = ['-fno-omit-frame-pointer'],
-				RCFLAGS = ['-D%s' % d for d in program.env_CPPDEFINES] + ['-D' 'DXX_VERSION_SEQ=%s' % (program.DXX_VERSION_SEQ,)],
+				RCFLAGS = [f'-D{d}' for d in program.env_CPPDEFINES] + ['-D' f'DXX_VERSION_SEQ={program.DXX_VERSION_SEQ}'],
 			)
 			env.Append(
 				LIBS = ['wsock32', 'ws2_32', 'winmm', 'mingw32'],
@@ -4934,12 +4945,12 @@ class DXXProgram(DXXCommon):
 	class DarwinPlatformSettings(DXXCommon.DarwinPlatformSettings):
 		def adjust_environment(self,program,env):
 			super().adjust_environment(program, env)
-			VERSION = '%s.%s' % (program.VERSION_MAJOR, program.VERSION_MINOR)
+			VERSION = f'{program.VERSION_MAJOR}.{program.VERSION_MINOR}'
 			if (program.VERSION_MICRO):
-				VERSION += '.%s' % program.VERSION_MICRO
+				VERSION += f'.{program.VERSION_MICRO}'
 			env.Replace(
 				VERSION_NUM = VERSION,
-				VERSION_NAME = '%s v%s' % (program.PROGRAM_NAME, VERSION),
+				VERSION_NAME = f'{program.PROGRAM_NAME} v{VERSION}',
 			)
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(DXXCommon.LinuxPlatformSettings):
@@ -4977,10 +4988,10 @@ class DXXProgram(DXXCommon):
 		super().__init__(user_settings)
 		compute_extra_version = Git.compute_extra_version()
 		git_describe_version = compute_extra_version.describe
-		extra_version = 'v%s.%s.%s' % (self.VERSION_MAJOR, self.VERSION_MINOR, self.VERSION_MICRO)
+		extra_version = f'v{self.VERSION_MAJOR}.{self.VERSION_MINOR}.{self.VERSION_MICRO}'
 		if git_describe_version and not (extra_version == git_describe_version or extra_version[1:] == git_describe_version):
 			extra_version += ' ' + git_describe_version
-		print('===== %s %s %s =====' % (self.PROGRAM_NAME, extra_version, compute_extra_version.revparse_HEAD))
+		print(f'===== {self.PROGRAM_NAME} {extra_version} {compute_extra_version.revparse_HEAD} =====')
 		user_settings.register_variables(prefix, variables, filtered_help)
 
 	def init(self,substenv):
@@ -5006,7 +5017,7 @@ class DXXProgram(DXXCommon):
 		# Must use [] here, not (), since it is concatenated with other
 		# lists.
 		env.__dxx_CPPDEFINE_SHAREPATH = [('DXX_SHAREPATH', self._quote_cppdefine(sharepath, f=str))] if sharepath else []
-		SCons.Script.Main.progress_display("{}: default sharepath is {!r}".format(self.program_message_prefix, sharepath or None))
+		SCons.Script.Main.progress_display(f'{self.program_message_prefix}: default sharepath is {(sharepath or None)!r}')
 		env.Append(
 			CPPDEFINES = [
 				self.env_CPPDEFINES,
@@ -5067,9 +5078,7 @@ class DXXProgram(DXXCommon):
 		versid_cppdefines = env['CPPDEFINES'][:]
 		extra_version = user_settings.extra_version
 		if extra_version is None:
-			extra_version = 'v%u.%u' % (self.VERSION_MAJOR, self.VERSION_MINOR)
-			if self.VERSION_MICRO:
-				extra_version += '.%u' % self.VERSION_MICRO
+			extra_version = f'v{self.VERSION_MAJOR}.{self.VERSION_MINOR}{f".{self.VERSION_MICRO}" if self.VERSION_MICRO else ""}'
 		git_describe_version_describe_output = git_describe_version.describe
 		if git_describe_version_describe_output and not (extra_version and (extra_version == git_describe_version_describe_output or (extra_version[0] == 'v' and extra_version[1:] == git_describe_version_describe_output))):
 			# Suppress duplicate output
@@ -5104,12 +5113,12 @@ class DXXProgram(DXXCommon):
 			'git_status',
 			'git_diffstat',
 		))
-		versid_cppdefines.append(('DXX_RBE"(A)"', '"%s"' % ''.join(['A(%s)' % k for k in versid_build_environ])))
+		versid_cppdefines.append(('DXX_RBE"(A)"', f'"{"".join([f"A({k})" for k in versid_build_environ])}"'))
 		versid_environ = self.env['ENV'].copy()
 		# Direct mode conflicts with __TIME__
 		versid_environ['CCACHE_NODIRECT'] = 1
 		versid_cpp = 'similar/main/vers_id.cpp'
-		versid_obj = env.StaticObject(target='%s%s%s' % (user_settings.builddir, self._apply_target_name(versid_cpp), self.env["OBJSUFFIX"]), source=versid_cpp, CPPDEFINES=versid_cppdefines, ENV=versid_environ)
+		versid_obj = env.StaticObject(target=f'{user_settings.builddir}{self._apply_target_name(versid_cpp)}{self.env["OBJSUFFIX"]}', source=versid_cpp, CPPDEFINES=versid_cppdefines, ENV=versid_environ)
 		Depends = env.Depends
 		# If $SOURCE_DATE_EPOCH is set, add its value as a shadow
 		# dependency to ensure that vers_id.cpp is rebuilt if
@@ -5191,7 +5200,7 @@ Failed command list:
 	def _register_install(self,dxxstr,exe_node):
 		env = self.env
 		if self.user_settings.host_platform != 'darwin':
-				install_dir = '%s%s' % (self.user_settings.DESTDIR or '', self.user_settings.BIN_DIR)
+				install_dir = f'{self.user_settings.DESTDIR or ""}{self.user_settings.BIN_DIR}'
 				env.Install(install_dir, exe_node)
 				env.Alias('install', install_dir)
 		else:
@@ -5207,13 +5216,13 @@ Failed command list:
 			#
 			# appfile is an SCons.Environment.File corresponding to the
 			# game executable copied into the `.app` directory.
-			bundledir, appfile = env.MakeBundle(os.path.join(self.user_settings.builddir, '%s.app' % self.PROGRAM_NAME), exe_node,
-					'free.%s-rebirth' % dxxstr, os.path.join(cocoa, 'Info.plist'),
+			bundledir, appfile = env.MakeBundle(os.path.join(self.user_settings.builddir, f'{self.PROGRAM_NAME}.app'), exe_node,
+					f'free.{dxxstr}-rebirth', os.path.join(cocoa, 'Info.plist'),
 					typecode='APPL', creator='DCNT',
-					icon_file=os.path.join(cocoa, '%s-rebirth.icns' % dxxstr),
+					icon_file=os.path.join(cocoa, f'{dxxstr}-rebirth.icns'),
 					resources=[[os.path.join(self.srcdir, s), s] for s in ['English.lproj/InfoPlist.strings']])
 			if self.user_settings.macos_bundle_libs and not self.user_settings.macos_add_frameworks:
-				message(self, 'Bundling libraries for %s' % (str(bundledir),))
+				message(self, f'Bundling libraries for {bundledir!s}')
 				# If the user has set $PATH, use it in preference to the
 				# built-in SCons path.
 				dylibenv = env['ENV']
@@ -5231,22 +5240,22 @@ Failed command list:
 		if self.user_settings.host_platform != 'darwin' or bundledir is None:
 			return
 		env = self.env
-		compressed_bundle = env.File(os.path.join(self.user_settings.builddir, '%s.zip' % self.PROGRAM_NAME))
+		compressed_bundle = env.File(os.path.join(self.user_settings.builddir, f'{self.PROGRAM_NAME}.zip'))
 		if self.user_settings.macos_notarization_keychain_item is not None:
 			env.Command(target=compressed_bundle,
 					source=bundledir,
-					action=[['common/arch/macos/notarize_dxx_bundles.zsh', '--signing-identity', self.user_settings.macos_code_signing_identity, '--notarization-keychain-profile', self.user_settings.macos_notarization_keychain_item, '--binary-name', '%s-rebirth' % (dxxstr), '--app-bundle-path', '$SOURCE', '--zip-path', '$TARGET']])
+					action=[['common/arch/macos/notarize_dxx_bundles.zsh', '--signing-identity', self.user_settings.macos_code_signing_identity, '--notarization-keychain-profile', self.user_settings.macos_notarization_keychain_item, '--binary-name', f'{dxxstr}-rebirth', '--app-bundle-path', '$SOURCE', '--zip-path', '$TARGET']])
 		elif self.user_settings.macos_notarization_apple_id is not None and self.user_settings.macos_notarization_team_id is not None:
 			if self.user_settings.macos_notarization_password is None:
 				env.Command(target=compressed_bundle,
 						source=bundledir,
-						action=[['common/arch/macos/notarize_dxx_bundles.zsh', '--signing-identity', self.user_settings.macos_code_signing_identity, '--apple-id', self.user_settings.macos_notarization_apple_id, '--team-id', self.user_settings.macos_notarization_team_id, '--binary-name', '%s-rebirth' % (dxxstr), '--app-bundle-path', '$SOURCE', '--zip-path', '$TARGET']])
+						action=[['common/arch/macos/notarize_dxx_bundles.zsh', '--signing-identity', self.user_settings.macos_code_signing_identity, '--apple-id', self.user_settings.macos_notarization_apple_id, '--team-id', self.user_settings.macos_notarization_team_id, '--binary-name', f'{dxxstr}-rebirth', '--app-bundle-path', '$SOURCE', '--zip-path', '$TARGET']])
 			else:
 				notarization_password_env = env['ENV'].copy()
 				notarization_password_env['DXX_NOTARIZATION_PASSWORD'] = self.user_settings.macos_notarization_password
 				env.Command(target=compressed_bundle,
 						source=bundledir,
-						action=[['common/arch/macos/notarize_dxx_bundles.zsh', '--signing-identity', self.user_settings.macos_code_signing_identity, '--apple-id', self.user_settings.macos_notarization_apple_id, '--team-id', self.user_settings.macos_notarization_team_id, '--binary-name', '%s-rebirth' % (dxxstr), '--app-bundle-path', '$SOURCE', '--zip-path', '$TARGET']],
+						action=[['common/arch/macos/notarize_dxx_bundles.zsh', '--signing-identity', self.user_settings.macos_code_signing_identity, '--apple-id', self.user_settings.macos_notarization_apple_id, '--team-id', self.user_settings.macos_notarization_team_id, '--binary-name', f'{dxxstr}-rebirth', '--app-bundle-path', '$SOURCE', '--zip-path', '$TARGET']],
 						ENV = notarization_password_env)
 		else:
 			raise SCons.Errors.StopError('Either macos_notarization_keychain_item or both macos_notarization_apple_id and macos_notarization_team_id must be specified for notarization')
@@ -5385,7 +5394,7 @@ def register_program(program,other_program,variables,filtered_help,append,_itert
 			if prefix in seen:
 				continue
 			add_seen(prefix)
-			append(program(tuple(('%s%s%s' % (s, '_' if p else '', p) for p in prefix)) + prefix, variables, filtered_help))
+			append(program(tuple((f'{s}{p and "_"}{p}' for p in prefix)) + prefix, variables, filtered_help))
 
 def main(register_program,_d1xp=D1XProgram,_d2xp=D2XProgram):
 	if os.path.isdir('build'):
@@ -5412,7 +5421,7 @@ def main(register_program,_d1xp=D1XProgram,_d2xp=D2XProgram):
 	d2x=prefix-list  Enable D2X-Rebirth with prefix-list modifiers
 	dxx=VALUE        Equivalent to d1x=VALUE d2x=VALUE
 """ +	\
-		''.join(['%s:\n%s' % (d.program_message_prefix, d.init(substenv)) for d in dxx])
+		''.join([f'{d.program_message_prefix}:\n{d.init(substenv)}' for d in dxx])
 	)
 	if not dxx:
 		return
@@ -5450,12 +5459,16 @@ def main(register_program,_d1xp=D1XProgram,_d2xp=D2XProgram):
 			ignore_unknown_variables = int(ignore_unknown_variables)
 		except ValueError:
 			ignore_unknown_variables = False
-		j = 'Unknown values specified on command line.%s' % \
-''.join(['\n\t%s' % k for k in unknown.keys()])
+		j = f'''Unknown values specified on command line.{
+	''.join((f"""
+	{k}""" for k in unknown.keys()))
+}'''
 		if not ignore_unknown_variables:
 			raise SCons.Errors.StopError(j +
 '\nRemove unknown values or set ignore_unknown_variables=1 to continue.')
-		print('warning: %s\nBuild will continue, but these values have no effect.\n' % j)
+		print(f'''warning: {j}
+Build will continue, but these values have no effect.
+''')
 
 main(register_program)
 
