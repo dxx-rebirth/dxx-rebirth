@@ -312,7 +312,7 @@ class ConfigureTests(_ConfigureTests):
 		# creates copies, so it is safe for the default value to be
 		# shared.
 		def __init__(self,env,keyviews,_l=[]):
-			self.flags = {k: env.get(k, _l)[:] for k in itertools.chain.from_iterable(keyviews)}
+			self.flags = {k: env.get(k, _l).copy() for k in itertools.chain.from_iterable(keyviews)}
 		def restore(self,env):
 			env.Replace(**self.flags)
 		def __getitem__(self,name):
@@ -1569,7 +1569,7 @@ static void terminate_handler()
 			# If joysticks are disabled, then disable all possible
 			# inputs.
 			user_settings.max_axes_per_joystick = user_settings.max_buttons_per_joystick = user_settings.max_hats_per_joystick = 0
-		successflags['CPPDEFINES'] = CPPDEFINES = successflags.get('CPPDEFINES', [])[:]
+		successflags['CPPDEFINES'] = CPPDEFINES = successflags.get('CPPDEFINES', []).copy()
 		# use Redbook if at least one of the following applies
 		#    1. we are on SDL1
 		#    2. we are building for a platform for which we have a custom CD implementation (currently only win32)
@@ -4498,7 +4498,7 @@ class DXXCommon(LazyObjectConstructor):
 		user_settings = self.user_settings
 		builddir = env.Dir(user_settings.builddir).Dir(self.srcdir)
 		for test in runtime_test_boost_tests:
-			LIBS = [] if test.nodefaultlibs else env['LIBS'][:]
+			LIBS = [] if test.nodefaultlibs else env['LIBS'].copy()
 			LIBS.append('boost_unit_test_framework')
 			env.Program(target=builddir.File(test.target), source=test.source(self), LIBS=LIBS)
 
@@ -5081,7 +5081,7 @@ class DXXProgram(DXXCommon):
 			objects.extend(self.get_objects_editor())
 			objects.extend(static_archive_construction.get_objects_editor())
 		versid_build_environ = ['CXX', 'CPPFLAGS', 'CXXFLAGS', 'LINKFLAGS']
-		versid_cppdefines = env['CPPDEFINES'][:]
+		versid_cppdefines = env['CPPDEFINES'].copy()
 		extra_version = user_settings.extra_version
 		if extra_version is None:
 			extra_version = f'v{self.VERSION_MAJOR}.{self.VERSION_MINOR}{f".{self.VERSION_MICRO}" if self.VERSION_MICRO else ""}'
@@ -5210,7 +5210,7 @@ Failed command list:
 				env.Install(install_dir, exe_node)
 				env.Alias('install', install_dir)
 		else:
-			syspath = sys.path[:]
+			syspath = sys.path.copy()
 			cocoa = 'common/arch/cocoa'
 			sys.path += [cocoa]
 			import tool_bundle
