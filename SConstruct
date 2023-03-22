@@ -4748,7 +4748,7 @@ class DXXProgram(DXXCommon):
 			# Bypass ccache, if any, since this is a preprocess only
 			# call.
 			kwargs['CXXFLAGS'] = (env['CXXFLAGS'] or []) + ['-E']
-			kwargs['CPPDEFINES'] = (env['CPPDEFINES'] or []) + [
+			kwargs['CPPDEFINES'] = list(env['CPPDEFINES'] or []) + [
 					# Define these tokens to themselves so that
 					# `#ifndef` does not try to redefine them.
 					('DXX_KCONFIG_UI_ENUM', 'DXX_KCONFIG_UI_ENUM'),
@@ -4770,7 +4770,7 @@ class DXXProgram(DXXCommon):
 		return os.path.join(os.path.dirname(name), f'.{self.target}.{os.path.splitext(os.path.basename(name))[0]}')
 
 	def _apply_env_version_seq(self,env,_empty={}):
-		return _empty if self.user_settings.pch else {'CPPDEFINES' : env['CPPDEFINES'] + [('DXX_VERSION_SEQ', self.DXX_VERSION_SEQ)]}
+		return _empty if self.user_settings.pch else {'CPPDEFINES' : list(env['CPPDEFINES']) + [('DXX_VERSION_SEQ', self.DXX_VERSION_SEQ)]}
 	get_objects_similar_arch_ogl = DXXCommon.create_lazy_object_states_getter((LazyObjectState(sources=(
 'similar/arch/ogl/gr.cpp',
 'similar/arch/ogl/ogl.cpp',
@@ -4866,7 +4866,7 @@ class DXXProgram(DXXCommon):
 	), LazyObjectState(sources=(
 'similar/main/inferno.cpp',
 ),
-		transform_env = (lambda self, env: {'CPPDEFINES' : env['CPPDEFINES'] + env.__dxx_CPPDEFINE_SHAREPATH + env.__dxx_CPPDEFINE_git_version}),
+		transform_env = (lambda self, env: {'CPPDEFINES' : list(env['CPPDEFINES']) + env.__dxx_CPPDEFINE_SHAREPATH + env.__dxx_CPPDEFINE_git_version}),
 		transform_target=_apply_target_name,
 	), LazyObjectState(sources=(
 'similar/main/kconfig.cpp',
@@ -4876,7 +4876,7 @@ class DXXProgram(DXXCommon):
 	), LazyObjectState(sources=(
 'similar/misc/physfsx.cpp',
 ),
-		transform_env = (lambda self, env: {'CPPDEFINES' : env['CPPDEFINES'] + env.__dxx_CPPDEFINE_SHAREPATH}),
+		transform_env = (lambda self, env: {'CPPDEFINES' : list(env['CPPDEFINES']) + env.__dxx_CPPDEFINE_SHAREPATH}),
 		transform_target=_apply_target_name,
 	), LazyObjectState(sources=(
 'similar/main/playsave.cpp',
