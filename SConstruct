@@ -4744,11 +4744,14 @@ class DXXProgram(DXXCommon):
 	LazyObjectState = DXXCommon.LazyObjectState
 	def _generate_kconfig_ui_table(program,env,source,target,kconfig_static_object):
 			builddir = program.builddir.Dir(program.target)
-			kwargs = {}
 			# Bypass ccache, if any, since this is a preprocess only
 			# call.
-			kwargs['CXXFLAGS'] = (env['CXXFLAGS'] or []) + ['-E']
-			kwargs['CPPDEFINES'] = list(env['CPPDEFINES'] or []) + [
+			CXXFLAGS = env['CXXFLAGS']
+			CXXFLAGS = CXXFLAGS.copy() if CXXFLAGS else []
+			CXXFLAGS.append('-E')
+			CPPDEFINES = env['CPPDEFINES']
+			CPPDEFINES = CPPDEFINES.copy() if CPPDEFINES else []
+			CPPDEFINES.extend((
 					# Define these tokens to themselves so that
 					# `#ifndef` does not try to redefine them.
 					('DXX_KCONFIG_UI_ENUM', 'DXX_KCONFIG_UI_ENUM'),
@@ -4757,8 +4760,8 @@ class DXXProgram(DXXCommon):
 					# the kc_item structure are defined in the output
 					# file.
 					('kc_item', 'kc_item'),
-					]
-			cpp_kconfig_udlr = env._rebirth_nopch_StaticObject(target=str(target)[:-1] + 'ui-table.i', source=source[:-3] + 'ui-table.cpp', CXXCOM=env._dxx_cxxcom_no_ccache_prefix, **kwargs)
+					))
+			cpp_kconfig_udlr = env._rebirth_nopch_StaticObject(target=str(target)[:-1] + 'ui-table.i', source=source[:-3] + 'ui-table.cpp', CPPDEFINES=CPPDEFINES, CXXCOM=env._dxx_cxxcom_no_ccache_prefix, CXXFLAGS=CXXFLAGS)
 			generated_udlr_header = builddir.File('kconfig.udlr.h')
 			generate_kconfig_udlr = env.File('similar/main/generate-kconfig-udlr.py')
 			env.Command(generated_udlr_header, [cpp_kconfig_udlr, generate_kconfig_udlr], [[sys.executable, generate_kconfig_udlr, '$SOURCE', '$TARGET']])
@@ -4770,7 +4773,15 @@ class DXXProgram(DXXCommon):
 		return os.path.join(os.path.dirname(name), f'.{self.target}.{os.path.splitext(os.path.basename(name))[0]}')
 
 	def _apply_env_version_seq(self,env,_empty={}):
-		return _empty if self.user_settings.pch else {'CPPDEFINES' : list(env['CPPDEFINES']) + [('DXX_VERSION_SEQ', self.DXX_VERSION_SEQ)]}
+		if self.user_settings.pch:
+			return _empty
+		CPPDEFINES = env['CPPDEFINES']
+		CPPDEFINES = CPPDEFINES.copy() if CPPDEFINES else []
+		CPPDEFINES.append(('DXX_VERSION_SEQ', self.DXX_VERSION_SEQ))
+		return {
+				'CPPDEFINES' : CPPDEFINES
+				}
+
 	get_objects_similar_arch_ogl = DXXCommon.create_lazy_object_states_getter((LazyObjectState(sources=(
 'similar/arch/ogl/gr.cpp',
 'similar/arch/ogl/ogl.cpp',
@@ -4866,7 +4877,9 @@ class DXXProgram(DXXCommon):
 	), LazyObjectState(sources=(
 'similar/main/inferno.cpp',
 ),
-		transform_env = (lambda self, env: {'CPPDEFINES' : list(env['CPPDEFINES']) + env.__dxx_CPPDEFINE_SHAREPATH + env.__dxx_CPPDEFINE_git_version}),
+		transform_env = lambda self, env: {
+			'CPPDEFINES' : tuple(itertools.chain(env['CPPDEFINES'], env.__dxx_CPPDEFINE_SHAREPATH, env.__dxx_CPPDEFINE_git_version))
+			},
 		transform_target=_apply_target_name,
 	), LazyObjectState(sources=(
 'similar/main/kconfig.cpp',
@@ -4876,7 +4889,9 @@ class DXXProgram(DXXCommon):
 	), LazyObjectState(sources=(
 'similar/misc/physfsx.cpp',
 ),
-		transform_env = (lambda self, env: {'CPPDEFINES' : list(env['CPPDEFINES']) + env.__dxx_CPPDEFINE_SHAREPATH}),
+		transform_env = lambda self, env: {
+			'CPPDEFINES' : tuple(itertools.chain(env['CPPDEFINES'], env.__dxx_CPPDEFINE_SHAREPATH))
+			},
 		transform_target=_apply_target_name,
 	), LazyObjectState(sources=(
 'similar/main/playsave.cpp',
@@ -5020,9 +5035,9 @@ class DXXProgram(DXXCommon):
 		env.MergeFlags(archive.configure_added_environment_flags)
 		self.create_special_target_nodes(archive)
 		sharepath = self.user_settings.sharepath
-		# Must use [] here, not (), since it is concatenated with other
-		# lists.
-		env.__dxx_CPPDEFINE_SHAREPATH = [('DXX_SHAREPATH', self._quote_cppdefine(sharepath, f=str))] if sharepath else []
+		env.__dxx_CPPDEFINE_SHAREPATH = (
+				('DXX_SHAREPATH', self._quote_cppdefine(sharepath, f=str)),
+				) if sharepath else ()
 		SCons.Script.Main.progress_display(f'{self.program_message_prefix}: default sharepath is {(sharepath or None)!r}')
 		env.Append(
 			CPPDEFINES = [
@@ -5060,10 +5075,10 @@ class DXXProgram(DXXCommon):
 		static_archive_construction = self.static_archive_construction[user_settings.builddir]
 		objects = static_archive_construction.get_objects_common()
 		git_describe_version = Git.compute_extra_version() if user_settings.git_describe_version else Git.UnknownExtraVersion
-		env.__dxx_CPPDEFINE_git_version = [
+		env.__dxx_CPPDEFINE_git_version = (
 				('DXX_git_commit', git_describe_version.revparse_HEAD),
 				('DXX_git_describe', self._encode_cppdefine_for_identifier(git_describe_version.describe))
-				]
+				)
 		objects.extend(self.get_objects_common())
 		if user_settings.sdlmixer:
 			objects.extend(static_archive_construction.get_objects_arch_sdlmixer())
