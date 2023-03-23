@@ -4207,7 +4207,7 @@ class DXXCommon(LazyObjectConstructor):
 				# dictionary entry is only present as a convenience to other
 				# tools which may want to use the compilation database to know
 				# the link flags.
-				'file' : str(list(map(repr, source))),
+				'file' : str(list(map(str, source))),
 				'output' : str(o),
 				}
 			for o in objects])
