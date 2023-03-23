@@ -79,6 +79,9 @@ If unsure, omit this section.  Generally, if you are on an architecture that req
 * [ ] x86\_64 (64-bit Intel/AMD)
 * [ ] ARM (32-bit)
 * [ ] ARM64 (64-bit; sometimes called AArch64)
+* [ ] PowerPC (32-bit, sometimes called ppc)
+* [ ] PowerPC64 (64-bit, big-endian, sometimes called ppc64)
+* [ ] PowerPC64Le (64-bit, little-endian, sometimes called ppc64le)
 
 ### Description
 
