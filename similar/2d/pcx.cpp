@@ -145,7 +145,7 @@ static pcx_result pcx_read_blank(grs_main_bitmap &bmp, palette_array_t &palette)
 static pcx_result pcx_support_not_compiled(const char *const filename, grs_main_bitmap &bmp, palette_array_t &palette)
 {
 	con_printf(CON_NORMAL, "%s:%u: PCX support disabled at compile time; cannot read file \"%s\"", __FILE__, __LINE__, filename);
-	pcx_read_blank(bmp, palette);
+	return pcx_read_blank(bmp, palette);
 }
 #endif
 
