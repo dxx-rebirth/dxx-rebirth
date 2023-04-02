@@ -267,10 +267,10 @@ static bitmap_index bm_load_sub(const int skip, const char *const filename)
 		return bitmap_index{};
 	}
 
-	std::array<char, 20> fname{};
 #if defined(DXX_BUILD_DESCENT_I)
-	removeext(filename, fname);
+	const auto &&fname = removeext(filename);
 #elif defined(DXX_BUILD_DESCENT_II)
+	std::array<char, 20> fname{};
 	const auto path = d_splitpath(filename);
 	if (path.base_end - path.base_start >= fname.size())
 		Error("File <%s> - bitmap error, filename too long", filename);
@@ -314,8 +314,7 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 
 
 #if defined(DXX_BUILD_DESCENT_I)
-	std::array<char, 20> fname;
-	removeext(filename, fname);
+	const auto &&fname = removeext(filename);
 #elif defined(DXX_BUILD_DESCENT_II)
 	const auto path = d_splitpath(filename);
 #endif
@@ -383,8 +382,7 @@ int ds_load(int skip, const char * filename )	{
 		return piggy_register_sound(bogus_sound, "bogus");
 	}
 
-	std::array<char, 20> fname;
-	removeext(filename, fname);
+	const auto &&fname = removeext(filename);
 #if defined(DXX_BUILD_DESCENT_I)
 	snprintf(rawname, sizeof(rawname), "Sounds/%s.raw", fname.data());
 #elif defined(DXX_BUILD_DESCENT_II)

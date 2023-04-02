@@ -117,7 +117,7 @@ std::unique_ptr<char[]> (d_strdup)(const char *str)
 }
 
 // remove extension from filename
-void removeext(const char *const filename, std::array<char, 20> &out)
+std::array<char, 20> removeext(const char *const filename)
 {
 	const char *p = nullptr;
 	auto i = filename;
@@ -130,9 +130,10 @@ void removeext(const char *const filename, std::array<char, 20> &out)
 	if (!p)
 		p = i;
 	const std::size_t rawlen = p - filename;
+	std::array<char, 20> out{};
 	const std::size_t copy_len = rawlen < out.size() ? rawlen : 0;
-	out[copy_len] = 0;
 	memcpy(out.data(), filename, copy_len);
+	return out;
 }
 
 //give a filename a new extension, won't append if strlen(dest) > 8 chars.
