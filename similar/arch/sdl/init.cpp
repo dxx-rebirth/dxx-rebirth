@@ -77,6 +77,9 @@ arch_atexit arch_init()
 	 * visible.
 	 */
 	SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
+	/* Support the Alt+Shift+F4 hotkey for renaming the Guide-Bot
+	 */
+	SDL_SetHint(SDL_HINT_WINDOWS_NO_CLOSE_ON_ALT_F4, "1");
 #endif
 
 	key_init();
