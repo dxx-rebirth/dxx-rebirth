@@ -69,6 +69,8 @@ static SDL_RWops_callback_seek_position physfsrwops_seek(SDL_RWops *rw, const SD
             SDL_SetError("Can't fit current file position in an int!");
             return(-1);
         } /* if */
+#else
+        pos = current;
 #endif
 
         if (offset == 0)  /* this is a "tell" call. We're done. */
@@ -93,6 +95,8 @@ static SDL_RWops_callback_seek_position physfsrwops_seek(SDL_RWops *rw, const SD
             SDL_SetError("Can't fit end-of-file position in an int!");
             return(-1);
         } /* if */
+#else
+        pos = len;
 #endif
 
         pos += offset;
