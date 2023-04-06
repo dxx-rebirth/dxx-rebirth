@@ -1030,7 +1030,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 	//set curcanv vars
 
 	auto &ft_filename = font->ft_filename;
-	font->ft_allocdata = move(ft_allocdata);
+	font->ft_allocdata = std::move(ft_allocdata);
 	strncpy(&ft_filename[0], fontname, ft_filename.size());
 	return font;
 }

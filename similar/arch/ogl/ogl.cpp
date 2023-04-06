@@ -287,7 +287,6 @@ static void ogl_texture_stats(grs_canvas &canvas)
 {
 	int used = 0, usedother = 0, usedidx = 0, usedrgb = 0, usedrgba = 0;
 	int databytes = 0, truebytes = 0;
-	int prio0=0,prio1=0,prio2=0,prio3=0,prioh=0;
 	GLint idx, r, g, b, a, dbl, depth;
 	int res, colorsize, depthsize;
 	range_for (auto &i, ogl_texture_list)
@@ -296,11 +295,6 @@ static void ogl_texture_stats(grs_canvas &canvas)
 			used++;
 			databytes+=i.bytesu;
 			truebytes+=i.bytes;
-			if (i.prio<0.299)prio0++;
-			else if (i.prio<0.399)prio1++;
-			else if (i.prio<0.499)prio2++;
-			else if (i.prio<0.599)prio3++;
-			else prioh++;
 			if (i.format == GL_RGBA)
 				usedrgba++;
 			else if (i.format == GL_RGB)

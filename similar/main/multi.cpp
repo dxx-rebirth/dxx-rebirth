@@ -4179,13 +4179,10 @@ static void multi_do_drop_blob(fvmobjptr &vmobjptr, const playernum_t pnum)
 
 void multi_send_sound_function (char whichfunc, char sound)
 {
-	int count=0;
-
-	count++;
 	multi_command<multiplayer_command_t::MULTI_SOUND_FUNCTION> multibuf;
-	multibuf[1]=Player_num;             count++;
-	multibuf[2]=whichfunc;              count++;
-	multibuf[3] = sound; count++;       // this would probably work on the PC as well.  Jason?
+	multibuf[1]=Player_num;
+	multibuf[2]=whichfunc;
+	multibuf[3] = sound;       // this would probably work on the PC as well.  Jason?
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
