@@ -1302,7 +1302,6 @@ namespace {
 
 static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_font)
 {
-	int nmenus;
 	auto &canvas = menu.parent_canvas;
 
 	auto iterative_layout_max_width = 0u;
@@ -1329,7 +1328,6 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 	int aw = 0;
 	auto iterative_layout_body_width = 0u;
 	const auto initial_layout_height = iterative_layout_max_height;
-	nmenus = 0;
 
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacy = FSPACY();
@@ -1343,9 +1341,6 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 		const auto average_width = cv_font.ft_w;
 		auto [string_width, string_height] = gr_get_string_size(cv_font, i.text);
 		i.right_offset = 0;
-
-		if (i.type == nm_type::menu)
-			nmenus++;
 
 		if (i.type == nm_type::slider)
 		{
@@ -1394,7 +1389,6 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 				auto &im = i.imenu();
 				im.group = 0;
 				im.saved_text.copy_if(i.text);
-				nmenus++;
 			}
 		}
 

@@ -320,7 +320,7 @@ void CLIState::execute_active_line()
 	const char *p = m_line.c_str();
 	con_printf(CON_NORMAL, "con%c%s", g_prompt_strings[0], p);
 	cmd_append(p);
-	m_lines[0] = move(m_line);
+	m_lines[0] = std::move(m_line);
 	m_lines.emplace_front();
 	m_history_position = 0;
 	if (m_lines.size() > m_maximum_history_lines)
@@ -394,7 +394,7 @@ void CLIState::history_move(unsigned position)
 {
 	if (position >= m_lines.size())
 		return;
-	m_lines[m_history_position] = move(m_line);
+	m_lines[m_history_position] = std::move(m_line);
 	auto &l = m_lines[m_history_position = position];
 	m_line_position = l.size();
 	m_line = l;

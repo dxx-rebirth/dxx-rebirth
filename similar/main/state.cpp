@@ -2440,7 +2440,6 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	{
 		player restore_players[MAX_PLAYERS];
 		object restore_objects[MAX_PLAYERS];
-		int coop_got_nplayers = 0;
 
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++) 
 		{
@@ -2476,7 +2475,6 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 					auto &p = *vmplayerptr(i);
 					p = restore_players[j];
 					coop_player_got[i] = 1;
-					coop_got_nplayers++;
 
 					const auto &&obj = vmobjptridx(vcplayerptr(i)->objnum);
 					// since a player always uses the same object, we just have to copy the saved object properties to the existing one. i hate you...
