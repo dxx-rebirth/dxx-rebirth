@@ -209,7 +209,7 @@ static const char *DOWN_ARROW_MARKER(const grs_font &cv_font, const grs_font &ga
 #endif
 
 // Draws the custom menu background pcx, if available
-static void nm_draw_background1(grs_canvas &canvas, const char * filename)
+static void nm_draw_background1(grs_canvas &canvas, const menu_filename filename)
 {
 	if (filename != NULL)
 	{
