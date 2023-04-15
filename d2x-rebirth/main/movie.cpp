@@ -240,8 +240,8 @@ namespace {
 struct movie : window, mixin_trackable_window
 {
 	MVE_StepStatus result = MVE_StepStatus::EndOfFile;
+	uint8_t paused{};
 	int frame_num = 0;
-	int paused = 0;
 	const MVESTREAM_ptr_t pMovie;
 	d_loaded_subtitle_state SubtitleState;
 	movie(grs_canvas &src, MVESTREAM_ptr_t mvestream) :
@@ -329,6 +329,8 @@ window_event_result movie::event_handler(const d_event &event)
 			}
 
 		case EVENT_WINDOW_DRAW:
+			{
+				const auto f = frame_num;
 			if (!paused)
 			{
 				result = MVE_rmStepMovie(*pMovie.get());
@@ -338,14 +340,14 @@ window_event_result movie::event_handler(const d_event &event)
 				{
 					return window_event_result::handled;
 				}
+				++frame_num;
 			}
 
-			draw_subtitles(SubtitleState, frame_num);
+			draw_subtitles(SubtitleState, f);
+			}
 
 			gr_palette_load(gr_palette);
 
-			if (!paused)
-				frame_num++;
 			break;
 
 		case EVENT_WINDOW_CLOSE:
