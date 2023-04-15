@@ -37,6 +37,19 @@ struct PHYSFSX_gets_line_t;
 #include "inferno.h"
 
 namespace dsx {
+
+enum class load_palette_use : bool
+{
+	background,
+	level,
+};
+
+enum class load_palette_change_screen : bool
+{
+	immediate,
+	delayed,
+};
+
 #define D2_DEFAULT_PALETTE "default.256"
 #define MENU_PALETTE    "default.256"
 
@@ -48,6 +61,8 @@ extern char last_palette_loaded_pig[FILENAME_LEN];
 // if used_for_level is set, load pig, etc.
 // if no_change_screen is set, the current screen does not get
 // remapped, and the hardware palette does not get changed
-int load_palette(std::span<const char> name, int used_for_level, int no_change_screen);
+int load_palette(std::span<const char> name, load_palette_use used_for_level, load_palette_change_screen change_screen);
+void load_palette_for_pig(std::span<const char> name);
+
 }
 #endif

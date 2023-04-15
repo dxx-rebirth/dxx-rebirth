@@ -487,7 +487,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 
 #define DEFAULT_PIG_PALETTE	"groupa.256"
 	gr_use_palette_table(DEFAULT_PIG_PALETTE);
-	load_palette(DEFAULT_PIG_PALETTE,-2,0);		//special: tell palette code which pig is loaded
+	load_palette_for_pig(DEFAULT_PIG_PALETTE);		//special: tell palette code which pig is loaded
 #endif
 
 	Sounds.fill(255);

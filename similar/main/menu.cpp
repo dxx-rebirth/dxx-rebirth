@@ -747,7 +747,7 @@ window_event_result main_menu::event_handler(const d_event &event)
 			break;
 		case EVENT_WINDOW_ACTIVATED:
 #if defined(DXX_BUILD_DESCENT_II)
-			load_palette(MENU_PALETTE,0,1);		//get correct palette
+			load_palette(MENU_PALETTE, load_palette_use::background, load_palette_change_screen::delayed);		//get correct palette
 #endif
 			keyd_time_when_last_pressed = timer_query();		// .. 20 seconds from now!
 			break;
@@ -2950,7 +2950,7 @@ window_event_result polygon_models_viewer_window::event_handler(const d_event &e
 			break;
 		case EVENT_WINDOW_CLOSE:
 #if defined(DXX_BUILD_DESCENT_II)
-			load_palette(MENU_PALETTE,0,1);
+			load_palette(MENU_PALETTE, load_palette_use::background, load_palette_change_screen::delayed);
 #endif
 			key_toggle_repeat(0);
 			break;
@@ -3021,7 +3021,7 @@ window_event_result gamebitmaps_viewer_window::event_handler(const d_event &even
 			break;
 		case EVENT_WINDOW_CLOSE:
 #if defined(DXX_BUILD_DESCENT_II)
-			load_palette(MENU_PALETTE,0,1);
+			load_palette(MENU_PALETTE, load_palette_use::background, load_palette_change_screen::delayed);
 #endif
 			key_toggle_repeat(0);
 			break;

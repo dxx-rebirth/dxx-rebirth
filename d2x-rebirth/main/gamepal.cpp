@@ -47,22 +47,23 @@ namespace dsx {
 char last_palette_loaded[FILENAME_LEN]="";
 char last_palette_loaded_pig[FILENAME_LEN]="";
 
+//special hack to tell that palette system about a pig that's been loaded elsewhere
+void load_palette_for_pig(const std::span<const char> name)
+{
+	/* Never write to the last byte, so that the array is always null terminated. */
+	std::memcpy(last_palette_loaded_pig, name.data(), std::min(name.size(), sizeof(last_palette_loaded_pig) - 1));
+}
+
 //load a palette by name. returns 1 if new palette loaded, else 0
 //if used_for_level is set, load pig, etc.
 //if no_change_screen is set, the current screen does not get remapped,
 //and the hardware palette does not get changed
-int load_palette(const std::span<const char> name, int used_for_level, int no_change_screen)
+int load_palette(const std::span<const char> name, const load_palette_use used_for_level, const load_palette_change_screen change_screen)
 {
 	char pigname[FILENAME_LEN];
 	palette_array_t old_pal;
 
-	//special hack to tell that palette system about a pig that's been loaded elsewhere
-	if (used_for_level == -2) {
-		std::memcpy(last_palette_loaded_pig, name.data(), std::min(name.size(), sizeof(last_palette_loaded_pig) - 1));
-		return 1;
-	}
-
-	if (used_for_level && d_stricmp(last_palette_loaded_pig, name.data()) != 0)
+	if (used_for_level != load_palette_use::background && strcmp(last_palette_loaded_pig, name.data()) != 0)
 	{
 		const auto path = d_splitpath(name.data());
 		snprintf(pigname, sizeof(pigname), "%.*s.pig", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start);
@@ -81,11 +82,12 @@ int load_palette(const std::span<const char> name, int used_for_level, int no_ch
 		std::memcpy(last_palette_loaded, name.data(), std::min(name.size(), sizeof(last_palette_loaded) - 1));
 		gr_use_palette_table(name.data());
 
-		if (Game_wind && !no_change_screen)
-			gr_remap_bitmap_good(grd_curscreen->sc_canvas.cv_bitmap, old_pal, -1, -1);
-
-		if (!no_change_screen)
+		if (change_screen == load_palette_change_screen::immediate)
+		{
+			if (Game_wind)
+				gr_remap_bitmap_good(grd_curscreen->sc_canvas.cv_bitmap, old_pal, -1, -1);
 			gr_palette_load(gr_palette);
+		}
 
 		newmenu_free_background(); // palette changed! free menu!
 		gr_remap_color_fonts();
@@ -94,7 +96,7 @@ int load_palette(const std::span<const char> name, int used_for_level, int no_ch
 	}
 
 
-	if (used_for_level && d_stricmp(last_palette_loaded_pig, name.data()) != 0)
+	if (used_for_level != load_palette_use::background && strcmp(last_palette_loaded_pig, name.data()) != 0)
 	{
 		std::memcpy(last_palette_loaded_pig, name.data(), std::min(name.size(), sizeof(last_palette_loaded_pig) - 1));
 

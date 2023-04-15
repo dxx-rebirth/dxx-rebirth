@@ -1064,7 +1064,7 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	Current_level_num=level_num;
 
-	load_palette(Current_level_palette.line(), 1, 1);		//don't change screen
+	load_palette(Current_level_palette.line(), load_palette_use::level, load_palette_change_screen::delayed);		//don't change screen
 #endif
 
 #if DXX_USE_EDITOR
@@ -1764,7 +1764,7 @@ static void DoEndGame()
 		gr_set_default_canvas();
 		gr_clear_canvas(*grd_curcanv, BM_XRGB(0,0,0));
 #if defined(DXX_BUILD_DESCENT_II)
-		load_palette(D2_DEFAULT_PALETTE,0,1);
+		load_palette(D2_DEFAULT_PALETTE, load_palette_use::background, load_palette_change_screen::delayed);
 #endif
 		scores_maybe_add_player();
 	}
@@ -2029,7 +2029,7 @@ window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, const
 #if defined(DXX_BUILD_DESCENT_I)
 	gr_use_palette_table( "palette.256" );
 #elif defined(DXX_BUILD_DESCENT_II)
-	load_palette(Current_level_palette.line(), 0, 1);
+	load_palette(Current_level_palette.line(), load_palette_use::background, load_palette_change_screen::delayed);
 #endif
 	gr_palette_load(gr_palette);
 
