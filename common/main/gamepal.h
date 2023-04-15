@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #pragma once
+#include <array>
 #include <cstddef>
 
 namespace dcx {
@@ -55,7 +56,7 @@ enum class load_palette_change_screen : bool
 
 extern char last_palette_loaded[FILENAME_LEN];
 extern PHYSFSX_gets_line_t<FILENAME_LEN> Current_level_palette;
-extern char last_palette_loaded_pig[FILENAME_LEN];
+extern std::array<char, FILENAME_LEN> last_palette_loaded_pig;
 
 // load a palette by name. returns 1 if new palette loaded, else 0
 // if used_for_level is set, load pig, etc.

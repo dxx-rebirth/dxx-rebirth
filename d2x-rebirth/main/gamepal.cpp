@@ -45,13 +45,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dsx {
 
 char last_palette_loaded[FILENAME_LEN]="";
-char last_palette_loaded_pig[FILENAME_LEN]="";
+std::array<char, FILENAME_LEN> last_palette_loaded_pig;
 
 //special hack to tell that palette system about a pig that's been loaded elsewhere
 void load_palette_for_pig(const std::span<const char> name)
 {
 	/* Never write to the last byte, so that the array is always null terminated. */
-	std::memcpy(last_palette_loaded_pig, name.data(), std::min(name.size(), sizeof(last_palette_loaded_pig) - 1));
+	std::memcpy(last_palette_loaded_pig.data(), name.data(), std::min(name.size(), last_palette_loaded_pig.size() - 1));
 }
 
 //load a palette by name. returns 1 if new palette loaded, else 0
@@ -63,7 +63,7 @@ int load_palette(const std::span<const char> name, const load_palette_use used_f
 	char pigname[FILENAME_LEN];
 	palette_array_t old_pal;
 
-	if (used_for_level != load_palette_use::background && strcmp(last_palette_loaded_pig, name.data()) != 0)
+	if (used_for_level != load_palette_use::background && strcmp(last_palette_loaded_pig.data(), name.data()) != 0)
 	{
 		const auto path = d_splitpath(name.data());
 		snprintf(pigname, sizeof(pigname), "%.*s.pig", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start);
@@ -96,9 +96,9 @@ int load_palette(const std::span<const char> name, const load_palette_use used_f
 	}
 
 
-	if (used_for_level != load_palette_use::background && strcmp(last_palette_loaded_pig, name.data()) != 0)
+	if (used_for_level != load_palette_use::background && strcmp(last_palette_loaded_pig.data(), name.data()) != 0)
 	{
-		std::memcpy(last_palette_loaded_pig, name.data(), std::min(name.size(), sizeof(last_palette_loaded_pig) - 1));
+		std::memcpy(last_palette_loaded_pig.data(), name.data(), std::min(name.size(), last_palette_loaded_pig.size() - 1));
 
 #if DXX_USE_EDITOR
 		piggy_new_pigfile(pigname);
