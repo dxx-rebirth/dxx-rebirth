@@ -656,14 +656,13 @@ static void do_omega_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t parent
 	}
 }
 
+// Note that this is only used for determining if the quad laser per-bolt damage penalty should be applied, and consequently excludes super lasers
 static int is_laser_weapon_type(const weapon_id_type weapon_type)
 {
 	return weapon_type == weapon_id_type::LASER_ID_L1 ||
 		weapon_type == weapon_id_type::LASER_ID_L2 ||
 		weapon_type == weapon_id_type::LASER_ID_L3 ||
-		weapon_type == weapon_id_type::LASER_ID_L4 ||
-		weapon_type == weapon_id_type::LASER_ID_L5 ||
-		weapon_type == weapon_id_type::LASER_ID_L6;
+		weapon_type == weapon_id_type::LASER_ID_L4;
 }
 
 }
