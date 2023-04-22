@@ -284,24 +284,24 @@ namespace {
 
 static color_palette_index get_console_color_by_priority(const int priority)
 {
-	int r, g, b;
+	uint8_t r, g, b;
 	switch (priority)
 	{
 		case CON_CRITICAL:
-			r = 28 * 2, g = 0 * 2, b = 0 * 2;
+			r = 28 * 2, g = 0, b = 0;
 			break;
 		case CON_URGENT:
-			r = 54 * 2, g = 54 * 2, b = 0 * 2;
+			r = 63, g = 63, b = 0;
 			break;
 		case CON_DEBUG:
 		case CON_VERBOSE:
 			r = 14 * 2, g = 14 * 2, b = 14 * 2;
 			break;
 		case CON_HUD:
-			r = 0 * 2, g = 28 * 2, b = 0 * 2;
+			r = 0, g = 28 * 2, b = 0;
 			break;
 		default:
-			r = 255 * 2, g = 255 * 2, b = 255 * 2;
+			r = 63, g = 63, b = 63;
 			break;
 	}
 	return gr_find_closest_color(r, g, b);
