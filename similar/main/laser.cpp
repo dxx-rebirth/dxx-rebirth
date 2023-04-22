@@ -656,6 +656,11 @@ static void do_omega_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t parent
 	}
 }
 
+/* Descent 2 attempted to penalize super lasers, but did so incorrectly, so the
+ * penalty only applied successfully on non-super lasers.  Therefore, this test
+ * excludes super lasers from the penalty, in order to behave more like the
+ * original game.
+ */
 // Note that this is only used for determining if the quad laser per-bolt damage penalty should be applied, and consequently excludes super lasers
 static int is_laser_weapon_type(const weapon_id_type weapon_type)
 {
@@ -741,6 +746,13 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 #endif
 		}
 #if defined(DXX_BUILD_DESCENT_II)
+		/* Descent 1 attempted to penalize laser damage, but did so
+		 * incorrectly, so it never applied to the player's weapons.
+		 * Therefore, this penalty check is applied only in the Descent 2
+		 * build, and then only if not playing a Descent 1 mission, so that
+		 * when the Descent 2 build plays a Descent 1 mission, the weapons work
+		 * more like they would in a Descent 1 build playing that mission.
+		 */
 		else if (!EMULATING_D1 && is_laser_weapon_type(weapon_type) && (parent->ctype.player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS))
 			obj->ctype.laser_info.multiplier = F1_0*3/4;
 		else if (weapon_type == weapon_id_type::GUIDEDMISS_ID) {
