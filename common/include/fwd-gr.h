@@ -403,7 +403,6 @@ void gr_remap_bitmap_good(grs_bitmap &bmp, palette_array_t &palette, uint_fast32
 
 void gr_palette_step_up(int r, int g, int b);
 
-#define BM_RGB(r,g,b) ((((r)&31)<<10) | (((g)&31)<<5) | ((b)&31))
 #define BM_XRGB(r,g,b) gr_find_closest_color((r)*2,(g)*2,(b)*2)
 
 // Given: r,g,b, each in range of 0-63, return the color index that

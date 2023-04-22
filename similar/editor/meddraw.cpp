@@ -886,8 +886,8 @@ void meddraw_init_views( grs_canvas * canvas)
 #if defined(DXX_BUILD_DESCENT_II)
 	// sticking these here so the correct D2 colors are used
 	edge_colors[0] = BM_XRGB(45/2,45/2,45/2);
-	edge_colors[1] = BM_XRGB(45/3,45/3,45/3);		//BM_RGB(0,0,45),	//
-	edge_colors[2] = BM_XRGB(45/4,45/4,45/4);	//BM_RGB(0,45,0)};	//
+	edge_colors[1] = BM_XRGB(45/3,45/3,45/3);
+	edge_colors[2] = BM_XRGB(45/4,45/4,45/4);
 #endif
 
 	Views[0]->ev_canv = canvas;
