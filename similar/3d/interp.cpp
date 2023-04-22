@@ -196,7 +196,7 @@ public:
 #if defined(DXX_BUILD_DESCENT_I)
 			color = (w(p+28));
 #elif defined(DXX_BUILD_DESCENT_II)
-			color = gr_find_closest_color_15bpp(w(p + 28));
+			color = gr_find_closest_color_15bpp(packed_color_r5g5b5{w(p + 28)});
 #endif
 		}
 	}
@@ -334,7 +334,7 @@ public:
 				//					DPH: Now we treat this color as 15bpp
 				const uint8_t color = effective_glow_value == -2
 					? 255
-					: gr_find_closest_color_15bpp(w(p + 28));
+					: gr_find_closest_color_15bpp(packed_color_r5g5b5{w(p + 28)});
 #endif
 				const auto point_list = prepare_point_list<MAX_POINTS_PER_POLY>(nv, p);
 				g3_draw_poly(canvas, nv, point_list, color);
@@ -521,7 +521,7 @@ public:
 		if (nv <= 2)
 			return;
 		const auto p16 = wp(p + 28);
-		*p16 = static_cast<short>(gr_find_closest_color_15bpp(*p16));
+		*p16 = static_cast<short>(gr_find_closest_color_15bpp(packed_color_r5g5b5{*p16}));
 	}
 #endif
 };

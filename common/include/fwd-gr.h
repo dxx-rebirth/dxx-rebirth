@@ -45,6 +45,15 @@ enum class gr_blend : uint8_t {
 	additive_c,	// additive color blending
 };
 
+/* rgb color packed into 3 units of 5 bits per color, with the sign bit left unused.
+ * r << 10
+ * g << 5
+ * b << 0
+ */
+enum class packed_color_r5g5b5 : int16_t
+{
+};
+
 }
 
 #define SWIDTH  (grd_curscreen->get_screen_width())
@@ -408,7 +417,8 @@ void gr_palette_step_up(int r, int g, int b);
 // Given: r,g,b, each in range of 0-63, return the color index that
 // best matches the input.
 color_palette_index gr_find_closest_color(int r, int g, int b);
-color_palette_index gr_find_closest_color_15bpp(int rgb);
+color_palette_index gr_find_closest_color_15bpp(packed_color_r5g5b5 rgb);
+
 void gr_flip();
 
 /*
