@@ -666,7 +666,7 @@ static int end_chunk_handler(unsigned char, unsigned char, const unsigned char *
 	return 1;
 }
 
-int MVE_rmPrepMovie(MVESTREAM_ptr_t &pMovie, MVEFILE::stream_type *const src, int x, int y, int)
+int MVE_rmPrepMovie(MVESTREAM_ptr_t &pMovie, MVEFILE::stream_type *const src, const int x, const int y)
 {
 	if (pMovie) {
 		mve_reset(pMovie.get());

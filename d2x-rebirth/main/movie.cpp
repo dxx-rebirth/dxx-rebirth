@@ -361,7 +361,6 @@ window_event_result movie::event_handler(const d_event &event)
 //returns status.  see movie.h
 movie_play_status RunMovie(const char *const filename, const std::span<const char> subtitles, const int hires_flag, const play_movie_warn_missing warn_missing, const int dx, const int dy)
 {
-	int track = 0;
 #if DXX_USE_OGL
 	palette_array_t pal_save;
 #endif
@@ -375,7 +374,7 @@ movie_play_status RunMovie(const char *const filename, const std::span<const cha
 		return movie_play_status::skipped;
 	}
 	MVESTREAM_ptr_t mvestream;
-	if (MVE_rmPrepMovie(mvestream, filehndl.get(), dx, dy, track))
+	if (MVE_rmPrepMovie(mvestream, filehndl.get(), dx, dy))
 	{
 		return movie_play_status::skipped;
 	}
@@ -421,7 +420,7 @@ int RotateRobot(MVESTREAM_ptr_t &pMovie, SDL_RWops *const RoboFile)
 	if (err == MVE_StepStatus::EndOfFile)     //end of movie, so reset
 	{
 		SDL_RWseek(RoboFile, 0, SEEK_SET);
-		if (MVE_rmPrepMovie(pMovie, RoboFile, SWIDTH/2.3, SHEIGHT/2.3, 0))
+		if (MVE_rmPrepMovie(pMovie, RoboFile, SWIDTH / 2.3, SHEIGHT / 2.3))
 		{
 			Int3();
 			return 0;
@@ -457,7 +456,8 @@ RWops_ptr InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
 		con_printf(CON_URGENT, "Failed to open movie <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
 		return nullptr;
 	}
-	if (MVE_rmPrepMovie(pMovie, RoboFile.get(), SWIDTH/2.3, SHEIGHT/2.3, 0)) {
+	if (MVE_rmPrepMovie(pMovie, RoboFile.get(), SWIDTH / 2.3, SHEIGHT / 2.3))
+	{
 		Int3();
 		return nullptr;
 	}
