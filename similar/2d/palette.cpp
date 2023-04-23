@@ -190,23 +190,6 @@ void gr_use_palette_table(const char * filename )
 		i[255] = 255;
 #if defined(DXX_BUILD_DESCENT_II)
 	Num_computed_colors = 0;	//	Flush palette cache.
-// swap colors 0 and 255 of the palette along with fade table entries
-
-#ifdef SWAP_0_255
-	for (i = 0; i < 3; i++) {
-		ubyte c;
-		c = gr_palette[i];
-		gr_palette[i] = gr_palette[765+i];
-		gr_palette[765+i] = c;
-	}
-
-	for (i = 0; i < GR_FADE_LEVELS * 256; i++) {
-		if (gr_fade_table[i] == 0)
-			gr_fade_table[i] = 255;
-	}
-	for (i=0; i<GR_FADE_LEVELS; i++)
-		gr_fade_table[i*256] = TRANSPARENCY_COLOR;
-#endif
 #endif
 }
 
