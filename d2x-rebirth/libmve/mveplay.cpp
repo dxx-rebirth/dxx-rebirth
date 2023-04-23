@@ -43,25 +43,6 @@
 #include "u_mem.h"
 #include <memory>
 
-#define MVE_OPCODE_ENDOFSTREAM          0x00
-#define MVE_OPCODE_ENDOFCHUNK           0x01
-#define MVE_OPCODE_CREATETIMER          0x02
-#define MVE_OPCODE_INITAUDIOBUFFERS     0x03
-#define MVE_OPCODE_STARTSTOPAUDIO       0x04
-#define MVE_OPCODE_INITVIDEOBUFFERS     0x05
-
-#define MVE_OPCODE_DISPLAYVIDEO         0x07
-#define MVE_OPCODE_AUDIOFRAMEDATA       0x08
-#define MVE_OPCODE_AUDIOFRAMESILENCE    0x09
-#define MVE_OPCODE_INITVIDEOMODE        0x0A
-
-#define MVE_OPCODE_SETPALETTE           0x0C
-#define MVE_OPCODE_SETPALETTECOMPRESSED 0x0D
-
-#define MVE_OPCODE_SETDECODINGMAP       0x0F
-
-#define MVE_OPCODE_VIDEODATA            0x11
-
 #define MVE_AUDIO_FLAGS_STEREO     1
 #define MVE_AUDIO_FLAGS_16BIT      2
 #define MVE_AUDIO_FLAGS_COMPRESSED 4
@@ -94,7 +75,7 @@ static int32_t get_int(const unsigned char *data)
 /*************************
  * general handlers
  *************************/
-static int end_movie_handler(unsigned char, unsigned char, const unsigned char *, int, void *)
+static int end_movie_handler(mve_opcode, unsigned char, const unsigned char *, int, void *)
 {
 	return 0;
 }
@@ -138,7 +119,7 @@ int gettimeofday(struct timeval *tv, void *)
 #endif //  defined(_WIN32) || defined(macintosh)
 
 
-static int create_timer_handler(unsigned char, unsigned char, const unsigned char *data, int, void *)
+static int create_timer_handler(mve_opcode, unsigned char, const unsigned char *data, int, void *)
 {
 
 #if !defined(_WIN32) && !defined(macintosh) // FIXME
@@ -321,7 +302,7 @@ static void mve_audio_callback(void *, unsigned char *stream, int len)
 	//con_printf(CON_CRITICAL, "- <%d (%d), %d, %d>", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
 }
 
-static int create_audiobuf_handler(unsigned char, unsigned char minor, const unsigned char *data, int, void *)
+static int create_audiobuf_handler(mve_opcode, unsigned char minor, const unsigned char *data, int, void *)
 {
 	int flags;
 	int sample_rate;
@@ -387,7 +368,7 @@ static int create_audiobuf_handler(unsigned char, unsigned char minor, const uns
 	return 1;
 }
 
-static int play_audio_handler(unsigned char, unsigned char, const unsigned char *, int, void *)
+static int play_audio_handler(mve_opcode, unsigned char, const unsigned char *, int, void *)
 {
 	if (mve_audio_spec && !mve_audio_playing && mve_audio_bufhead != mve_audio_buftail)
 	{
@@ -419,7 +400,7 @@ static int play_audio_handler(unsigned char, unsigned char, const unsigned char 
  * undefined and may trigger an assertion failure.  Therefore, do not use
  * std::span to describe this block of memory.
  */
-static int audio_data_handler(unsigned char major, unsigned char, const unsigned char *data, int, void *)
+static int audio_data_handler(const mve_opcode major, unsigned char, const unsigned char *data, int, void *)
 {
 	static const int selected_chan=1;
 	if (mve_audio_spec)
@@ -434,7 +415,7 @@ static int audio_data_handler(unsigned char major, unsigned char, const unsigned
 			decltype(mve_audio_buffers)::value_type p;
 			const auto DigiVolume = GameCfg.DigiVolume;
 			/* At volume 0 (minimum), no sound is wanted. */
-			if (DigiVolume && major == MVE_OPCODE_AUDIOFRAMEDATA) {
+			if (DigiVolume && major == mve_opcode::audioframedata) {
 				const auto flags = mve_audio_flags;
 				if (flags & MVE_AUDIO_FLAGS_COMPRESSED) {
 					/* HACK: +4 mveaudio_uncompress adds 4 more bytes */
@@ -538,7 +519,7 @@ static int g_screenWidth, g_screenHeight;
 static std::span<const uint8_t> g_pCurMap;
 static int g_truecolor;
 
-static int create_videobuf_handler(unsigned char, unsigned char minor, const unsigned char *data, int, void *)
+static int create_videobuf_handler(mve_opcode, unsigned char minor, const unsigned char *data, int, void *)
 {
 	short w, h,
 #ifdef DEBUG
@@ -589,7 +570,7 @@ static int create_videobuf_handler(unsigned char, unsigned char minor, const uns
 	return 1;
 }
 
-static int display_video_handler(unsigned char, unsigned char, const unsigned char *, int, void *)
+static int display_video_handler(mve_opcode, unsigned char, const unsigned char *, int, void *)
 {
 	MovieShowFrame(g_vBackBuf1, g_destX, g_destY, g_width, g_height, g_screenWidth, g_screenHeight);
 
@@ -598,7 +579,7 @@ static int display_video_handler(unsigned char, unsigned char, const unsigned ch
 	return 1;
 }
 
-static int init_video_handler(unsigned char, unsigned char, const unsigned char *data, int, void *)
+static int init_video_handler(mve_opcode, unsigned char, const unsigned char *data, int, void *)
 {
 	short width, height;
 
@@ -615,7 +596,7 @@ static int init_video_handler(unsigned char, unsigned char, const unsigned char 
 	return 1;
 }
 
-static int video_palette_handler(unsigned char, unsigned char, const unsigned char *data, int, void *)
+static int video_palette_handler(mve_opcode, unsigned char, const unsigned char *data, int, void *)
 {
 	short start, count;
 	start = get_short(data);
@@ -626,13 +607,13 @@ static int video_palette_handler(unsigned char, unsigned char, const unsigned ch
 	return 1;
 }
 
-static int video_codemap_handler(unsigned char, unsigned char, const unsigned char *data, int len, void *)
+static int video_codemap_handler(mve_opcode, unsigned char, const unsigned char *data, int len, void *)
 {
 	g_pCurMap = std::span<const uint8_t>(data, len);
 	return 1;
 }
 
-static int video_data_handler(unsigned char, unsigned char, const unsigned char *data, int len, void *)
+static int video_data_handler(mve_opcode, unsigned char, const unsigned char *data, int len, void *)
 {
 	unsigned short nFlags;
 
@@ -660,7 +641,7 @@ static int video_data_handler(unsigned char, unsigned char, const unsigned char 
 	return 1;
 }
 
-static int end_chunk_handler(unsigned char, unsigned char, const unsigned char *, int, void *)
+static int end_chunk_handler(mve_opcode, unsigned char, const unsigned char *, int, void *)
 {
 	g_pCurMap = {};
 	return 1;
@@ -682,22 +663,22 @@ int MVE_rmPrepMovie(MVESTREAM_ptr_t &pMovie, MVEFILE::stream_type *const src, co
 	g_destY = y;
 
 	auto &mve = *pMovie.get();
-	mve_set_handler(mve, MVE_OPCODE_ENDOFSTREAM,          end_movie_handler);
-	mve_set_handler(mve, MVE_OPCODE_ENDOFCHUNK,           end_chunk_handler);
-	mve_set_handler(mve, MVE_OPCODE_CREATETIMER,          create_timer_handler);
-	mve_set_handler(mve, MVE_OPCODE_INITAUDIOBUFFERS,     create_audiobuf_handler);
-	mve_set_handler(mve, MVE_OPCODE_STARTSTOPAUDIO,       play_audio_handler);
-	mve_set_handler(mve, MVE_OPCODE_INITVIDEOBUFFERS,     create_videobuf_handler);
+	mve_set_handler(mve, mve_opcode::endofstream,          end_movie_handler);
+	mve_set_handler(mve, mve_opcode::endofchunk,           end_chunk_handler);
+	mve_set_handler(mve, mve_opcode::createtimer,          create_timer_handler);
+	mve_set_handler(mve, mve_opcode::initaudiobuffers,     create_audiobuf_handler);
+	mve_set_handler(mve, mve_opcode::startstopaudio,       play_audio_handler);
+	mve_set_handler(mve, mve_opcode::initvideobuffers,     create_videobuf_handler);
 
-	mve_set_handler(mve, MVE_OPCODE_DISPLAYVIDEO,         display_video_handler);
-	mve_set_handler(mve, MVE_OPCODE_AUDIOFRAMEDATA,       audio_data_handler);
-	mve_set_handler(mve, MVE_OPCODE_AUDIOFRAMESILENCE,    audio_data_handler);
-	mve_set_handler(mve, MVE_OPCODE_INITVIDEOMODE,        init_video_handler);
+	mve_set_handler(mve, mve_opcode::displayvideo,         display_video_handler);
+	mve_set_handler(mve, mve_opcode::audioframedata,       audio_data_handler);
+	mve_set_handler(mve, mve_opcode::audioframesilence,    audio_data_handler);
+	mve_set_handler(mve, mve_opcode::initvideomode,        init_video_handler);
 
-	mve_set_handler(mve, MVE_OPCODE_SETPALETTE,           video_palette_handler);
-	mve_set_handler(mve, MVE_OPCODE_SETDECODINGMAP,       video_codemap_handler);
+	mve_set_handler(mve, mve_opcode::setpalette,           video_palette_handler);
+	mve_set_handler(mve, mve_opcode::setdecodingmap,       video_codemap_handler);
 
-	mve_set_handler(mve, MVE_OPCODE_VIDEODATA,            video_data_handler);
+	mve_set_handler(mve, mve_opcode::videodata,            video_data_handler);
 
 	mve_play_next_chunk(mve); /* video initialization chunk */
 	mve_play_next_chunk(mve); /* audio initialization chunk */

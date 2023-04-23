@@ -12,12 +12,35 @@
 
 #include "libmve.h"
 
-#ifdef __cplusplus
 #include <cstdint>
 #include <vector>
 #include "dxxsconf.h"
-#include <array>
+#include "dsx-ns.h"
+#include "d_array.h"
 #include <SDL.h>
+
+enum class mve_opcode : uint8_t
+{
+	endofstream = 0x00,
+	endofchunk = 0x01,
+	createtimer = 0x02,
+	initaudiobuffers = 0x03,
+	startstopaudio = 0x04,
+	initvideobuffers = 0x05,
+
+	displayvideo = 0x07,
+	audioframedata = 0x08,
+	audioframesilence = 0x09,
+	initvideomode = 0x0A,
+
+	setpalette = 0x0C,
+	setpalettecompressed = 0x0D,
+
+	setdecodingmap = 0x0F,
+
+	videodata = 0x11,
+	None = 0xff,
+};
 
 /*
  * structure for maintaining info on a MVEFILE stream
@@ -41,7 +64,7 @@ int_fast32_t mvefile_get_next_segment_size(const MVEFILE *movie);
 /*
  * get type of next segment in chunk (0xff if no more segments in chunk)
  */
-unsigned char mvefile_get_next_segment_major(const MVEFILE *movie);
+mve_opcode mvefile_get_next_segment_major(const MVEFILE *movie);
 
 /*
  * get subtype (version) of next segment in chunk (0xff if no more segments in
@@ -67,7 +90,7 @@ int mvefile_fetch_next_chunk(MVEFILE *movie);
 /*
  * callback for segment type
  */
-typedef int (*MVESEGMENTHANDLER)(unsigned char major, unsigned char minor, const unsigned char *data, int len, void *context);
+typedef int (*MVESEGMENTHANDLER)(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);
 
 /*
  * structure for maintaining an MVE stream
@@ -78,7 +101,7 @@ struct MVESTREAM
 	~MVESTREAM();
 	std::unique_ptr<MVEFILE> movie;
 	void *context = nullptr;
-	std::array<MVESEGMENTHANDLER, 32> handlers = {};
+	enumerated_array<MVESEGMENTHANDLER, 32, mve_opcode> handlers{};
 };
 
 struct MVESTREAM_deleter_t
@@ -105,7 +128,7 @@ void mve_reset(MVESTREAM *movie);
 /*
  * set segment type handler
  */
-void mve_set_handler(MVESTREAM &movie, unsigned char major, MVESEGMENTHANDLER handler);
+void mve_set_handler(MVESTREAM &movie, mve_opcode major, MVESEGMENTHANDLER handler);
 
 /*
  * set segment handler context
@@ -118,5 +141,3 @@ void mve_set_handler_context(MVESTREAM *movie, void *context);
 int mve_play_next_chunk(MVESTREAM &movie);
 
 unsigned int MovieFileRead(MVEFILE::stream_type *handle, void *buf, unsigned int count);
-
-#endif

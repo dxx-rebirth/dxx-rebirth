@@ -126,12 +126,12 @@ int_fast32_t mvefile_get_next_segment_size(const MVEFILE *movie)
 /*
  * get type of next segment in chunk (0xff if no more segments in chunk)
  */
-unsigned char mvefile_get_next_segment_major(const MVEFILE *movie)
+mve_opcode mvefile_get_next_segment_major(const MVEFILE *movie)
 {
 	if (!have_segment_header(movie))
-        return 0xff;
+        return mve_opcode::None;
     /* otherwise, get the data length */
-    return movie->cur_chunk[movie->next_segment + 2];
+    return mve_opcode{movie->cur_chunk[movie->next_segment + 2]};
 }
 
 /*
@@ -209,10 +209,9 @@ void mve_reset(MVESTREAM *movie)
 /*
  * set segment type handler
  */
-void mve_set_handler(MVESTREAM &movie, unsigned char major, MVESEGMENTHANDLER handler)
+void mve_set_handler(MVESTREAM &movie, mve_opcode major, MVESEGMENTHANDLER handler)
 {
-    if (major < 32)
-        movie.handlers[major] = handler;
+	movie.handlers[major] = handler;
 }
 
 /*
@@ -234,9 +233,9 @@ int mve_play_next_chunk(MVESTREAM &movie)
 	for (;; mvefile_advance_segment(m))
     {
 		const auto major = mvefile_get_next_segment_major(m);
-		if (major == 0xff)
+		if (major == mve_opcode::None)
 			break;
-		if (major >= movie.handlers.size())
+		if (!movie.handlers.valid_index(major))
 			continue;
         /* check whether to handle the segment */
 		if (const auto handler = movie.handlers[major])
