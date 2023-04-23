@@ -271,9 +271,7 @@ MVEFILE::MVEFILE(MVEFILE::stream_type *const stream) :
 /*
  * free an MVE file
  */
-MVEFILE::~MVEFILE()
-{
-}
+MVEFILE::~MVEFILE() = default;
 
 namespace {
 
