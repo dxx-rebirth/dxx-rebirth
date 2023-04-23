@@ -147,9 +147,6 @@ struct automap : ::dcx::window
 	color_t			wall_door_red;
 	color_t			hostage_color;
 	color_t			green_31;
-	color_t			white_63;
-	color_t			blue_48;
-	color_t			red_48;
 };
 
 }
@@ -164,6 +161,8 @@ struct automap : ::dcx::automap
 {
 	using ::dcx::automap::automap;
 #if defined(DXX_BUILD_DESCENT_II)
+	color_t white_63;
+	color_t blue_48;
 	color_t wall_revealed_color;
 #endif
 	control_info controls;
@@ -224,9 +223,6 @@ static void init_automap_colors(automap &am)
 	am.wall_door_red = K_WALL_DOOR_RED;
 	am.hostage_color = K_HOSTAGE_COLOR;
 	am.green_31 = K_GREEN_31;
-	am.white_63 = gr_find_closest_color_current(63, 63, 63);
-	am.blue_48 = gr_find_closest_color_current(0, 0, 48);
-	am.red_48 = gr_find_closest_color_current(48, 0, 0);
 }
 
 void adjust_segment_limit(automap &am, const unsigned SegmentLimit)
@@ -342,6 +338,8 @@ void marker_delete_are_you_sure_menu::handle_selected_yes() const
 void init_automap_colors(automap &am)
 {
 	::dcx::init_automap_colors(am);
+	am.white_63 = gr_find_closest_color_current(63, 63, 63);
+	am.blue_48 = gr_find_closest_color_current(0, 0, 48);
 	am.wall_revealed_color = K_WALL_REVEALED_COLOR;
 }
 #endif
