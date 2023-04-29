@@ -427,6 +427,13 @@ static int get_int()
 	xarg = strtok( NULL, space_tab );
 	return atoi( xarg );
 }
+
+static void set_texture_fname(d_fname &fname, const char *name)
+{
+	fname.copy_if(name, FILENAME_LEN);
+	REMOVE_DOTS(&fname[0u]);
+}
+
 }
 }
 
@@ -880,17 +887,15 @@ static void set_lighting_flag(grs_bitmap &bmp)
 	bmp.set_flag_mask(vlighting < 0, BM_FLAG_NO_LIGHTING);
 }
 
-static void set_texture_name(const char *name)
-{
-	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
-	TmapInfo[texture_count].filename.copy_if(name, FILENAME_LEN);
-	REMOVE_DOTS(&TmapInfo[texture_count].filename[0u]);
-}
-
 }
 
 namespace dsx {
 namespace {
+
+static void set_texture_name(d_level_unique_tmap_info_state::TmapInfo_array &TmapInfo, const unsigned texture_idx, const char *name)
+{
+	set_texture_fname(TmapInfo[texture_idx].filename, name);
+}
 
 #if defined(DXX_BUILD_DESCENT_I)
 static void bm_read_eclip(const std::string &dest_bm, const char *const arg, int skip)
@@ -944,7 +949,7 @@ static void bm_read_eclip(int skip)
 			Assert(tmap_count < MAX_TEXTURES);
 	  		tmap_count++;
 			Textures[texture_count] = bitmap;
-			set_texture_name(arg);
+			set_texture_name(LevelUniqueTmapInfoState.TmapInfo, texture_count, arg);
 			Assert(texture_count < MAX_TEXTURES);
 			texture_count++;
 			TmapInfo[texture_count].eclip_num = clip_num;
@@ -971,7 +976,7 @@ static void bm_read_eclip(int skip)
 			Assert(tmap_count < MAX_TEXTURES);
   			tmap_count++;
 			Textures[texture_count] = bm[clip_count];
-			set_texture_name( arg );
+			set_texture_name(LevelUniqueTmapInfoState.TmapInfo, texture_count, arg);
 			Assert(texture_count < MAX_TEXTURES);
 			TmapInfo[texture_count].eclip_num = clip_num;
 			texture_count++;
@@ -1105,7 +1110,7 @@ static void bm_read_wclip(int skip)
 		wa.close_sound = wall_close_sound;
 		Textures[texture_count] = bitmap;
 		set_lighting_flag(GameBitmaps[bitmap]);
-		set_texture_name( arg );
+		set_texture_name(LevelUniqueTmapInfoState.TmapInfo, texture_count, arg);
 		Assert(texture_count < MAX_TEXTURES);
 		texture_count++;
 		NumTextures = texture_count;
@@ -2125,7 +2130,7 @@ void bm_read_some_file(d_vclip_array &Vclip, int skip)
 		Assert(tmap_count < MAX_TEXTURES);
   		tmap_count++;
 		Textures[texture_count] = bitmap;
-		set_texture_name( arg );
+		set_texture_name(LevelUniqueTmapInfoState.TmapInfo, texture_count, arg);
 		Assert(texture_count < MAX_TEXTURES);
 		texture_count++;
 		NumTextures = texture_count;
