@@ -579,7 +579,7 @@ int MVESTREAM::handle_mve_segment_displayvideo()
 	return 1;
 }
 
-int MVESTREAM::handle_mve_segment_initvideomode(mve_opcode, unsigned char, const unsigned char *data, int, void *)
+int MVESTREAM::handle_mve_segment_initvideomode(const unsigned char *data)
 {
 	short width, height;
 

@@ -278,7 +278,7 @@ int mve_play_next_chunk(MVESTREAM &movie)
 				r = movie.handle_mve_segment_audioframedata(major, data);
 				break;
 			case mve_opcode::initvideomode:
-				r = movie.handle_mve_segment_initvideomode(major, minor, data, len, movie.context);
+				r = movie.handle_mve_segment_initvideomode(data);
 				break;
 			case mve_opcode::setpalette:
 				r = movie.handle_mve_segment_setpalette(major, minor, data, len, movie.context);
