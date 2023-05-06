@@ -259,7 +259,7 @@ int mve_play_next_chunk(MVESTREAM &movie)
 				r = movie.handle_mve_segment_endofchunk();
 				break;
 			case mve_opcode::createtimer:
-				r = movie.handle_mve_segment_createtimer(major, minor, data, len, movie.context);
+				r = movie.handle_mve_segment_createtimer(data);
 				break;
 			case mve_opcode::initaudiobuffers:
 				r = movie.handle_mve_segment_initaudiobuffers(major, minor, data, len, movie.context);

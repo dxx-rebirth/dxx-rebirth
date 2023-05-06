@@ -119,7 +119,7 @@ int gettimeofday(struct timeval *tv, void *)
 #endif //  defined(_WIN32) || defined(macintosh)
 
 
-int MVESTREAM::handle_mve_segment_createtimer(mve_opcode, unsigned char, const unsigned char *data, int, void *)
+int MVESTREAM::handle_mve_segment_createtimer(const unsigned char *data)
 {
 
 #if !defined(_WIN32) && !defined(macintosh) // FIXME
