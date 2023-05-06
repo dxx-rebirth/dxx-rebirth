@@ -253,7 +253,7 @@ int mve_play_next_chunk(MVESTREAM &movie)
 		switch (major)
 		{
 			case mve_opcode::endofstream:
-				r = movie.handle_mve_segment_endofstream(major, minor, data, len, movie.context);
+				r = movie.handle_mve_segment_endofstream();
 				break;
 			case mve_opcode::endofchunk:
 				r = movie.handle_mve_segment_endofchunk(major, minor, data, len, movie.context);

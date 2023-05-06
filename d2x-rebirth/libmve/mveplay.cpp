@@ -75,7 +75,7 @@ static int32_t get_int(const unsigned char *data)
 /*************************
  * general handlers
  *************************/
-int MVESTREAM::handle_mve_segment_endofstream(mve_opcode, unsigned char, const unsigned char *, int, void *)
+int MVESTREAM::handle_mve_segment_endofstream()
 {
 	return 0;
 }
