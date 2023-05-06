@@ -60,8 +60,8 @@ enum class movie_resolution : uint8_t
 #endif
 
 movie_play_status PlayMovie(std::span<const char> subtitles, const char *filename, play_movie_warn_missing);
-RWops_ptr InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie);
-int RotateRobot(MVESTREAM_ptr_t &pMovie, SDL_RWops *);
+const MVESTREAM *InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie);
+int RotateRobot(MVESTREAM *pMovie);
 void DeInitRobotMovie(MVESTREAM_ptr_t &pMovie);
 
 struct LoadedMovie

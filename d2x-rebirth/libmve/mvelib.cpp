@@ -51,12 +51,12 @@ namespace {
 /*
  * open an MVE file
  */
-std::unique_ptr<MVEFILE> mvefile_open(MVEFILE::stream_type *const stream)
+std::unique_ptr<MVEFILE> mvefile_open(RWops_ptr stream)
 {
 	if (!stream)
 		return nullptr;
     /* create the file */
-	auto file = std::make_unique<MVEFILE>(stream);
+	auto file = std::make_unique<MVEFILE>(std::move(stream));
 
     /* initialize the file */
 	_mvefile_set_buffer_size(file.get(), 1024);
@@ -70,15 +70,6 @@ std::unique_ptr<MVEFILE> mvefile_open(MVEFILE::stream_type *const stream)
     /* now, prefetch the next chunk */
 	_mvefile_fetch_next_chunk(file.get());
     return file;
-}
-
-/*
- * open an MVESTREAM object
- */
-static const MVEFILE *_mvestream_open(MVESTREAM *movie, MVEFILE::stream_type *const stream)
-{
-    movie->movie = mvefile_open(stream);
-    return movie->movie.get();
 }
 
 /*
@@ -185,13 +176,14 @@ int mvefile_fetch_next_chunk(MVEFILE *movie)
 /*
  * open an MVE stream
  */
-MVESTREAM_ptr_t mve_open(MVEFILE::stream_type *const stream)
+MVESTREAM_ptr_t mve_open(RWops_ptr stream)
 {
     /* allocate */
 	auto movie = std::make_unique<MVESTREAM>();
 
     /* open */
-    if (! _mvestream_open(movie.get(), stream))
+    movie->movie = mvefile_open(std::move(stream));
+    if (!movie->movie)
     {
         return nullptr;
     }
@@ -302,8 +294,8 @@ int mve_play_next_chunk(MVESTREAM &movie)
 /*
  * allocate an MVEFILE
  */
-MVEFILE::MVEFILE(MVEFILE::stream_type *const stream) :
-	stream(stream)
+MVEFILE::MVEFILE(RWops_ptr stream) :
+	stream{std::move(stream)}
 {
 }
 
@@ -326,7 +318,7 @@ static int _mvefile_read_header(const MVEFILE *movie)
         return 0;
 
     /* check the file is long enough */
-	if (!MovieFileRead(movie->stream, buffer, 26))
+	if (!MovieFileRead(movie->stream.get(), buffer, 26))
         return 0;
 
     /* check the signature */
@@ -367,7 +359,7 @@ static int _mvefile_fetch_next_chunk(MVEFILE *movie)
         return 0;
 
     /* fail if we can't read the next segment descriptor */
-	if (!MovieFileRead(movie->stream, buffer, 4))
+	if (!MovieFileRead(movie->stream.get(), buffer, 4))
         return 0;
 
     /* pull out the next length */
@@ -377,7 +369,7 @@ static int _mvefile_fetch_next_chunk(MVEFILE *movie)
     _mvefile_set_buffer_size(movie, length);
 
     /* read the chunk */
-	if (!MovieFileRead(movie->stream, &movie->cur_chunk[0], length))
+	if (!MovieFileRead(movie->stream.get(), &movie->cur_chunk[0], length))
         return 0;
     movie->cur_chunk.resize(length);
     movie->next_segment = 0;

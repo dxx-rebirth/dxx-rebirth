@@ -333,7 +333,7 @@ window_event_result movie::event_handler(const d_event &event)
 				const auto f = frame_num;
 			if (!paused)
 			{
-				result = MVE_rmStepMovie(*pMovie.get());
+				result = MVE_rmStepMovie(*pMovie);
 				if (result == MVE_StepStatus::EndOfFile)
 					return window_event_result::close;
 				if (result != MVE_StepStatus::Continue)
@@ -374,7 +374,7 @@ movie_play_status RunMovie(const char *const filename, const std::span<const cha
 		return movie_play_status::skipped;
 	}
 	MVESTREAM_ptr_t mvestream;
-	if (!(mvestream = MVE_rmPrepMovie(filehndl.get(), dx, dy)))
+	if (!(mvestream = MVE_rmPrepMovie(std::move(filehndl), dx, dy)))
 	{
 		return movie_play_status::skipped;
 	}
@@ -412,16 +412,16 @@ movie_play_status RunMovie(const char *const filename, const std::span<const cha
 }
 
 //returns 1 if frame updated ok
-int RotateRobot(MVESTREAM_ptr_t &pMovie, SDL_RWops *const RoboFile)
+int RotateRobot(MVESTREAM *const pMovie)
 {
-	auto err = MVE_rmStepMovie(*pMovie.get());
+	auto err = MVE_rmStepMovie(*pMovie);
 	gr_palette_load(gr_palette);
 
 	if (err == MVE_StepStatus::EndOfFile)     //end of movie, so reset
 	{
-		SDL_RWseek(RoboFile, 0, SEEK_SET);
-		mve_reset(pMovie.get());
-		err = MVE_rmStepMovie(*pMovie.get());
+		SDL_RWseek(pMovie->movie->stream.get(), 0, SEEK_SET);
+		mve_reset(pMovie);
+		err = MVE_rmStepMovie(*pMovie);
 	}
 	if (err != MVE_StepStatus::Continue)
 	{
@@ -437,7 +437,7 @@ void DeInitRobotMovie(MVESTREAM_ptr_t &pMovie)
 	pMovie.reset();
 }
 
-RWops_ptr InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
+const MVESTREAM *InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
 {
 	if (GameArg.SysNoMovies)
 		return nullptr;
@@ -452,12 +452,12 @@ RWops_ptr InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
 		con_printf(CON_URGENT, "Failed to open movie <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
 		return nullptr;
 	}
-	if (!(pMovie = MVE_rmPrepMovie(RoboFile.get(), SWIDTH / 2.3, SHEIGHT / 2.3)))
+	if (!(pMovie = MVE_rmPrepMovie(std::move(RoboFile), SWIDTH / 2.3, SHEIGHT / 2.3)))
 	{
 		Int3();
 		return nullptr;
 	}
-	return std::move(RoboFile);
+	return pMovie.get();
 }
 
 namespace {

@@ -646,9 +646,9 @@ int MVESTREAM::handle_mve_segment_endofchunk()
 	return 1;
 }
 
-MVESTREAM_ptr_t MVE_rmPrepMovie(MVEFILE::stream_type *const src, const int x, const int y)
+MVESTREAM_ptr_t MVE_rmPrepMovie(RWops_ptr src, const int x, const int y)
 {
-	MVESTREAM_ptr_t pMovie{mve_open(src)};
+	MVESTREAM_ptr_t pMovie{mve_open(std::move(src))};
 	if (!pMovie)
 		return pMovie;
 

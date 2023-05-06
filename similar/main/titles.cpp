@@ -792,9 +792,9 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 					}
 				}
 
-				if ((br->RoboFile = InitRobotMovie(spinRobotName, br->pMovie)))
+				if (InitRobotMovie(spinRobotName, br->pMovie))
 				{
-					RotateRobot(br->pMovie, br->RoboFile.get());
+					RotateRobot(br->pMovie.get());
 					set_briefing_fontcolor(*br);
 				}
 #endif
@@ -1672,8 +1672,8 @@ window_event_result briefing::event_handler(const d_event &event)
 			if (this->bitmap_name[0] != 0)
 				show_animated_bitmap(canvas, this);
 #if defined(DXX_BUILD_DESCENT_II)
-			if (auto &RoboFile = this->RoboFile)
-				RotateRobot(this->pMovie, RoboFile.get());
+			if (auto pMovie = this->pMovie.get())
+				RotateRobot(pMovie);
 #endif
 			if (this->robot_num != -1)
 				show_spinning_robot_frame(this, this->robot_num);

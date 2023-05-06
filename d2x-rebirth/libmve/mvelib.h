@@ -16,6 +16,7 @@
 #include <vector>
 #include "dxxsconf.h"
 #include <SDL.h>
+#include "physfsrwops.h"
 
 enum class mve_opcode : uint8_t
 {
@@ -45,11 +46,12 @@ enum class mve_opcode : uint8_t
  */
 struct MVEFILE
 {
-	using stream_type = SDL_RWops;
 	MVEFILE() = default;
-	MVEFILE(stream_type *);
+	MVEFILE(RWops_ptr);
+	MVEFILE(MVEFILE &&) = default;
+	MVEFILE &operator=(MVEFILE &&) = default;
 	~MVEFILE();
-	stream_type *stream = nullptr;
+	RWops_ptr stream{};
 	std::vector<uint8_t> cur_chunk;
 	std::size_t next_segment = 0;
 };
@@ -123,12 +125,12 @@ struct MVESTREAM_deleter_t
 };
 
 typedef std::unique_ptr<MVESTREAM, MVESTREAM_deleter_t> MVESTREAM_ptr_t;
-MVESTREAM_ptr_t MVE_rmPrepMovie(MVEFILE::stream_type *stream, int x, int y);
+MVESTREAM_ptr_t MVE_rmPrepMovie(RWops_ptr stream, int x, int y);
 
 /*
  * open an MVE stream
  */
-MVESTREAM_ptr_t mve_open(MVEFILE::stream_type *stream);
+MVESTREAM_ptr_t mve_open(RWops_ptr stream);
 
 /*
  * reset an MVE stream
@@ -140,4 +142,4 @@ void mve_reset(MVESTREAM *movie);
  */
 int mve_play_next_chunk(MVESTREAM &movie);
 
-unsigned int MovieFileRead(MVEFILE::stream_type *handle, void *buf, unsigned int count);
+unsigned int MovieFileRead(SDL_RWops *handle, void *buf, unsigned count);
