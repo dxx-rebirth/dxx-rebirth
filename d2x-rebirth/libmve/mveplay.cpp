@@ -236,7 +236,7 @@ static int mve_audio_bufhead=0;
 static int mve_audio_buftail=0;
 static int mve_audio_playing=0;
 static unsigned mve_audio_flags;
-static int mve_audio_enabled = 1;
+static MVE_play_sounds mve_audio_enabled;
 static std::unique_ptr<SDL_AudioSpec> mve_audio_spec;
 
 static void mve_audio_callback(void *, unsigned char *stream, int len)
@@ -307,7 +307,7 @@ int MVESTREAM::handle_mve_segment_initaudiobuffers(unsigned char minor, const un
 	int sample_rate;
 	int desired_buffer;
 
-	if (!mve_audio_enabled)
+	if (mve_audio_enabled == MVE_play_sounds::silent)
 		return 1;
 
 	if (mve_audio_spec)
@@ -736,7 +736,7 @@ void MVE_rmHoldMovie()
 }
 
 
-void MVE_sndInit(int x)
+void MVE_sndInit(MVE_play_sounds x)
 {
-	mve_audio_enabled = (x == -1 ? 0 : 1);
+	mve_audio_enabled = x;
 }

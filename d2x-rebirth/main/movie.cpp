@@ -144,7 +144,7 @@ movie_play_status PlayMovie(const std::span<const char> subtitles, const char *c
 		digi_close();
 
 	// Start sound
-	MVE_sndInit(!CGameArg.SndNoSound ? 1 : -1);
+	MVE_sndInit(!CGameArg.SndNoSound ? MVE_play_sounds::enabled : MVE_play_sounds::silent);
 
 	const auto ret = RunMovie(name, subtitles, !GameArg.GfxSkipHiresMovie, must_have, -1, -1);
 
@@ -444,7 +444,7 @@ const MVESTREAM *InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
 
 	con_printf(CON_DEBUG, "RoboFile=%s", filename);
 
-	MVE_sndInit(-1);        //tell movies to play no sound for robots
+	MVE_sndInit(MVE_play_sounds::silent);        //tell movies to play no sound for robots
 
 	auto &&[RoboFile, physfserr] = PHYSFSRWOPS_openRead(filename);
 	if (!RoboFile)
