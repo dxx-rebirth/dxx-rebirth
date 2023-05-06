@@ -207,14 +207,6 @@ void mve_reset(MVESTREAM *movie)
 }
 
 /*
- * set segment type handler
- */
-void mve_set_handler(MVESTREAM &movie, mve_opcode major, MVESEGMENTHANDLER handler)
-{
-	movie.handlers[major] = handler;
-}
-
-/*
  * set segment handler context
  */
 void mve_set_handler_context(MVESTREAM *movie, void *context)
@@ -235,18 +227,73 @@ int mve_play_next_chunk(MVESTREAM &movie)
 		const auto major = mvefile_get_next_segment_major(m);
 		if (major == mve_opcode::None)
 			break;
-		if (!movie.handlers.valid_index(major))
-			continue;
-        /* check whether to handle the segment */
-		if (const auto handler = movie.handlers[major])
-        {
-			const auto minor = mvefile_get_next_segment_minor(m);
-			const auto len = mvefile_get_next_segment_size(m);
-			const auto data = mvefile_get_next_segment(m);
-
-            if (!handler(major, minor, data, len, movie.context))
-                return 0;
-        }
+		switch (major)
+		{
+			case mve_opcode::endofstream:
+			case mve_opcode::endofchunk:
+			case mve_opcode::createtimer:
+			case mve_opcode::initaudiobuffers:
+			case mve_opcode::startstopaudio:
+			case mve_opcode::initvideobuffers:
+			case mve_opcode::displayvideo:
+			case mve_opcode::audioframedata:
+			case mve_opcode::audioframesilence:
+			case mve_opcode::initvideomode:
+			case mve_opcode::setpalette:
+			case mve_opcode::setdecodingmap:
+			case mve_opcode::videodata:
+				break;
+			default:
+				continue;
+		}
+		const auto minor = mvefile_get_next_segment_minor(m);
+		const auto len = mvefile_get_next_segment_size(m);
+		const auto data = mvefile_get_next_segment(m);
+		int r;
+		switch (major)
+		{
+			case mve_opcode::endofstream:
+				r = movie.handle_mve_segment_endofstream(major, minor, data, len, movie.context);
+				break;
+			case mve_opcode::endofchunk:
+				r = movie.handle_mve_segment_endofchunk(major, minor, data, len, movie.context);
+				break;
+			case mve_opcode::createtimer:
+				r = movie.handle_mve_segment_createtimer(major, minor, data, len, movie.context);
+				break;
+			case mve_opcode::initaudiobuffers:
+				r = movie.handle_mve_segment_initaudiobuffers(major, minor, data, len, movie.context);
+				break;
+			case mve_opcode::startstopaudio:
+				r = movie.handle_mve_segment_startstopaudio(major, minor, data, len, movie.context);
+				break;
+			case mve_opcode::initvideobuffers:
+				r = movie.handle_mve_segment_initvideobuffers(major, minor, data, len, movie.context);
+				break;
+			case mve_opcode::displayvideo:
+				r = movie.handle_mve_segment_displayvideo(major, minor, data, len, movie.context);
+				break;
+			case mve_opcode::audioframedata:
+			case mve_opcode::audioframesilence:
+				r = movie.handle_mve_segment_audioframedata(major, minor, data, len, movie.context);
+				break;
+			case mve_opcode::initvideomode:
+				r = movie.handle_mve_segment_initvideomode(major, minor, data, len, movie.context);
+				break;
+			case mve_opcode::setpalette:
+				r = movie.handle_mve_segment_setpalette(major, minor, data, len, movie.context);
+				break;
+			case mve_opcode::setdecodingmap:
+				r = movie.handle_mve_segment_setdecodingmap(major, minor, data, len, movie.context);
+				break;
+			case mve_opcode::videodata:
+				r = movie.handle_mve_segment_videodata(major, minor, data, len, movie.context);
+				break;
+			default:
+				continue;
+		}
+		if (!r)
+			return 0;
     }
 
 	if (!mvefile_fetch_next_chunk(m))

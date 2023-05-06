@@ -75,7 +75,7 @@ static int32_t get_int(const unsigned char *data)
 /*************************
  * general handlers
  *************************/
-static int end_movie_handler(mve_opcode, unsigned char, const unsigned char *, int, void *)
+int MVESTREAM::handle_mve_segment_endofstream(mve_opcode, unsigned char, const unsigned char *, int, void *)
 {
 	return 0;
 }
@@ -119,7 +119,7 @@ int gettimeofday(struct timeval *tv, void *)
 #endif //  defined(_WIN32) || defined(macintosh)
 
 
-static int create_timer_handler(mve_opcode, unsigned char, const unsigned char *data, int, void *)
+int MVESTREAM::handle_mve_segment_createtimer(mve_opcode, unsigned char, const unsigned char *data, int, void *)
 {
 
 #if !defined(_WIN32) && !defined(macintosh) // FIXME
@@ -302,7 +302,7 @@ static void mve_audio_callback(void *, unsigned char *stream, int len)
 	//con_printf(CON_CRITICAL, "- <%d (%d), %d, %d>", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
 }
 
-static int create_audiobuf_handler(mve_opcode, unsigned char minor, const unsigned char *data, int, void *)
+int MVESTREAM::handle_mve_segment_initaudiobuffers(mve_opcode, unsigned char minor, const unsigned char *data, int, void *)
 {
 	int flags;
 	int sample_rate;
@@ -368,7 +368,7 @@ static int create_audiobuf_handler(mve_opcode, unsigned char minor, const unsign
 	return 1;
 }
 
-static int play_audio_handler(mve_opcode, unsigned char, const unsigned char *, int, void *)
+int MVESTREAM::handle_mve_segment_startstopaudio(mve_opcode, unsigned char, const unsigned char *, int, void *)
 {
 	if (mve_audio_spec && !mve_audio_playing && mve_audio_bufhead != mve_audio_buftail)
 	{
@@ -400,7 +400,7 @@ static int play_audio_handler(mve_opcode, unsigned char, const unsigned char *, 
  * undefined and may trigger an assertion failure.  Therefore, do not use
  * std::span to describe this block of memory.
  */
-static int audio_data_handler(const mve_opcode major, unsigned char, const unsigned char *data, int, void *)
+int MVESTREAM::handle_mve_segment_audioframedata(const mve_opcode major, unsigned char, const unsigned char *data, int, void *)
 {
 	static const int selected_chan=1;
 	if (mve_audio_spec)
@@ -519,7 +519,7 @@ static int g_screenWidth, g_screenHeight;
 static std::span<const uint8_t> g_pCurMap;
 static int g_truecolor;
 
-static int create_videobuf_handler(mve_opcode, unsigned char minor, const unsigned char *data, int, void *)
+int MVESTREAM::handle_mve_segment_initvideobuffers(mve_opcode, unsigned char minor, const unsigned char *data, int, void *)
 {
 	short w, h,
 #ifdef DEBUG
@@ -570,7 +570,7 @@ static int create_videobuf_handler(mve_opcode, unsigned char minor, const unsign
 	return 1;
 }
 
-static int display_video_handler(mve_opcode, unsigned char, const unsigned char *, int, void *)
+int MVESTREAM::handle_mve_segment_displayvideo(mve_opcode, unsigned char, const unsigned char *, int, void *)
 {
 	MovieShowFrame(g_vBackBuf1, g_destX, g_destY, g_width, g_height, g_screenWidth, g_screenHeight);
 
@@ -579,7 +579,7 @@ static int display_video_handler(mve_opcode, unsigned char, const unsigned char 
 	return 1;
 }
 
-static int init_video_handler(mve_opcode, unsigned char, const unsigned char *data, int, void *)
+int MVESTREAM::handle_mve_segment_initvideomode(mve_opcode, unsigned char, const unsigned char *data, int, void *)
 {
 	short width, height;
 
@@ -596,7 +596,7 @@ static int init_video_handler(mve_opcode, unsigned char, const unsigned char *da
 	return 1;
 }
 
-static int video_palette_handler(mve_opcode, unsigned char, const unsigned char *data, int, void *)
+int MVESTREAM::handle_mve_segment_setpalette(mve_opcode, unsigned char, const unsigned char *data, int, void *)
 {
 	short start, count;
 	start = get_short(data);
@@ -607,13 +607,13 @@ static int video_palette_handler(mve_opcode, unsigned char, const unsigned char 
 	return 1;
 }
 
-static int video_codemap_handler(mve_opcode, unsigned char, const unsigned char *data, int len, void *)
+int MVESTREAM::handle_mve_segment_setdecodingmap(mve_opcode, unsigned char, const unsigned char *data, int len, void *)
 {
 	g_pCurMap = std::span<const uint8_t>(data, len);
 	return 1;
 }
 
-static int video_data_handler(mve_opcode, unsigned char, const unsigned char *data, int len, void *)
+int MVESTREAM::handle_mve_segment_videodata(mve_opcode, unsigned char, const unsigned char *data, int len, void *)
 {
 	unsigned short nFlags;
 
@@ -641,7 +641,7 @@ static int video_data_handler(mve_opcode, unsigned char, const unsigned char *da
 	return 1;
 }
 
-static int end_chunk_handler(mve_opcode, unsigned char, const unsigned char *, int, void *)
+int MVESTREAM::handle_mve_segment_endofchunk(mve_opcode, unsigned char, const unsigned char *, int, void *)
 {
 	g_pCurMap = {};
 	return 1;
@@ -663,22 +663,6 @@ int MVE_rmPrepMovie(MVESTREAM_ptr_t &pMovie, MVEFILE::stream_type *const src, co
 	g_destY = y;
 
 	auto &mve = *pMovie.get();
-	mve_set_handler(mve, mve_opcode::endofstream,          end_movie_handler);
-	mve_set_handler(mve, mve_opcode::endofchunk,           end_chunk_handler);
-	mve_set_handler(mve, mve_opcode::createtimer,          create_timer_handler);
-	mve_set_handler(mve, mve_opcode::initaudiobuffers,     create_audiobuf_handler);
-	mve_set_handler(mve, mve_opcode::startstopaudio,       play_audio_handler);
-	mve_set_handler(mve, mve_opcode::initvideobuffers,     create_videobuf_handler);
-
-	mve_set_handler(mve, mve_opcode::displayvideo,         display_video_handler);
-	mve_set_handler(mve, mve_opcode::audioframedata,       audio_data_handler);
-	mve_set_handler(mve, mve_opcode::audioframesilence,    audio_data_handler);
-	mve_set_handler(mve, mve_opcode::initvideomode,        init_video_handler);
-
-	mve_set_handler(mve, mve_opcode::setpalette,           video_palette_handler);
-	mve_set_handler(mve, mve_opcode::setdecodingmap,       video_codemap_handler);
-
-	mve_set_handler(mve, mve_opcode::videodata,            video_data_handler);
 
 	mve_play_next_chunk(mve); /* video initialization chunk */
 	mve_play_next_chunk(mve); /* audio initialization chunk */

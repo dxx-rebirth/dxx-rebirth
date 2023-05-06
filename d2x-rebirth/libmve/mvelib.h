@@ -15,8 +15,6 @@
 #include <cstdint>
 #include <vector>
 #include "dxxsconf.h"
-#include "dsx-ns.h"
-#include "d_array.h"
 #include <SDL.h>
 
 enum class mve_opcode : uint8_t
@@ -34,7 +32,7 @@ enum class mve_opcode : uint8_t
 	initvideomode = 0x0A,
 
 	setpalette = 0x0C,
-	setpalettecompressed = 0x0D,
+	/* setpalettecompressed = 0x0D,	// unused */
 
 	setdecodingmap = 0x0F,
 
@@ -101,7 +99,19 @@ struct MVESTREAM
 	~MVESTREAM();
 	std::unique_ptr<MVEFILE> movie;
 	void *context = nullptr;
-	enumerated_array<MVESEGMENTHANDLER, 32, mve_opcode> handlers{};
+
+	int handle_mve_segment_endofstream(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);
+	int handle_mve_segment_endofchunk(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);
+	int handle_mve_segment_createtimer(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);
+	int handle_mve_segment_initaudiobuffers(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);
+	int handle_mve_segment_startstopaudio(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);
+	int handle_mve_segment_initvideobuffers(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);
+	int handle_mve_segment_displayvideo(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);
+	int handle_mve_segment_audioframedata(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);
+	int handle_mve_segment_initvideomode(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);
+	int handle_mve_segment_setpalette(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);
+	int handle_mve_segment_setdecodingmap(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);
+	int handle_mve_segment_videodata(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);
 };
 
 struct MVESTREAM_deleter_t
@@ -124,11 +134,6 @@ MVESTREAM_ptr_t mve_open(MVEFILE::stream_type *stream);
  * reset an MVE stream
  */
 void mve_reset(MVESTREAM *movie);
-
-/*
- * set segment type handler
- */
-void mve_set_handler(MVESTREAM &movie, mve_opcode major, MVESEGMENTHANDLER handler);
 
 /*
  * set segment handler context
