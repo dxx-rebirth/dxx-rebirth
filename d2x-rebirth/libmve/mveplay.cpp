@@ -400,7 +400,7 @@ int MVESTREAM::handle_mve_segment_startstopaudio()
  * undefined and may trigger an assertion failure.  Therefore, do not use
  * std::span to describe this block of memory.
  */
-int MVESTREAM::handle_mve_segment_audioframedata(const mve_opcode major, unsigned char, const unsigned char *data, int, void *)
+int MVESTREAM::handle_mve_segment_audioframedata(const mve_opcode major, const unsigned char *data)
 {
 	static const int selected_chan=1;
 	if (mve_audio_spec)
