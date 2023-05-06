@@ -596,7 +596,7 @@ int MVESTREAM::handle_mve_segment_initvideomode(const unsigned char *data)
 	return 1;
 }
 
-int MVESTREAM::handle_mve_segment_setpalette(mve_opcode, unsigned char, const unsigned char *data, int, void *)
+int MVESTREAM::handle_mve_segment_setpalette(const unsigned char *data)
 {
 	short start, count;
 	start = get_short(data);
