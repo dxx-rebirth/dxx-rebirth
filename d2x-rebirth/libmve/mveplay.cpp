@@ -368,7 +368,7 @@ int MVESTREAM::handle_mve_segment_initaudiobuffers(unsigned char minor, const un
 	return 1;
 }
 
-int MVESTREAM::handle_mve_segment_startstopaudio(mve_opcode, unsigned char, const unsigned char *, int, void *)
+int MVESTREAM::handle_mve_segment_startstopaudio()
 {
 	if (mve_audio_spec && !mve_audio_playing && mve_audio_bufhead != mve_audio_buftail)
 	{
