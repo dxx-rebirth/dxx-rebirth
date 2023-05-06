@@ -302,7 +302,7 @@ static void mve_audio_callback(void *, unsigned char *stream, int len)
 	//con_printf(CON_CRITICAL, "- <%d (%d), %d, %d>", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
 }
 
-int MVESTREAM::handle_mve_segment_initaudiobuffers(mve_opcode, unsigned char minor, const unsigned char *data, int, void *)
+int MVESTREAM::handle_mve_segment_initaudiobuffers(unsigned char minor, const unsigned char *data)
 {
 	int flags;
 	int sample_rate;
