@@ -613,7 +613,7 @@ int MVESTREAM::handle_mve_segment_setdecodingmap(const unsigned char *data, int 
 	return 1;
 }
 
-int MVESTREAM::handle_mve_segment_videodata(mve_opcode, unsigned char, const unsigned char *data, int len, void *)
+int MVESTREAM::handle_mve_segment_videodata(const unsigned char *data, int len)
 {
 	unsigned short nFlags;
 

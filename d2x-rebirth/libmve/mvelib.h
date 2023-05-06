@@ -111,7 +111,7 @@ struct MVESTREAM
 	int handle_mve_segment_initvideomode(const unsigned char *data);
 	int handle_mve_segment_setpalette(const unsigned char *data);
 	int handle_mve_segment_setdecodingmap(const unsigned char *data, int len);
-	int handle_mve_segment_videodata(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);
+	int handle_mve_segment_videodata(const unsigned char *data, int len);
 };
 
 struct MVESTREAM_deleter_t
