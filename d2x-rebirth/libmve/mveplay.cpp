@@ -607,7 +607,7 @@ int MVESTREAM::handle_mve_segment_setpalette(const unsigned char *data)
 	return 1;
 }
 
-int MVESTREAM::handle_mve_segment_setdecodingmap(mve_opcode, unsigned char, const unsigned char *data, int len, void *)
+int MVESTREAM::handle_mve_segment_setdecodingmap(const unsigned char *data, int len)
 {
 	g_pCurMap = std::span<const uint8_t>(data, len);
 	return 1;

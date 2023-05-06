@@ -284,7 +284,7 @@ int mve_play_next_chunk(MVESTREAM &movie)
 				r = movie.handle_mve_segment_setpalette(data);
 				break;
 			case mve_opcode::setdecodingmap:
-				r = movie.handle_mve_segment_setdecodingmap(major, minor, data, len, movie.context);
+				r = movie.handle_mve_segment_setdecodingmap(data, len);
 				break;
 			case mve_opcode::videodata:
 				r = movie.handle_mve_segment_videodata(major, minor, data, len, movie.context);
