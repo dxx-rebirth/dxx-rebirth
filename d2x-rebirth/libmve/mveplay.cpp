@@ -47,6 +47,8 @@
 #define MVE_AUDIO_FLAGS_16BIT      2
 #define MVE_AUDIO_FLAGS_COMPRESSED 4
 
+namespace d2x {
+
 int g_spdFactorNum=0;
 static int g_spdFactorDenom=10;
 static int g_frameUpdated = 0;
@@ -91,6 +93,8 @@ static int micro_frame_delay=0;
 static int timer_started=0;
 static struct timeval timer_expire = {0, 0};
 
+}
+
 #ifndef DXX_HAVE_STRUCT_TIMESPEC
 struct timespec
 {
@@ -117,6 +121,7 @@ int gettimeofday(struct timeval *tv, void *)
 }
 #endif //  defined(_WIN32) || defined(macintosh)
 
+namespace d2x {
 
 int MVESTREAM::handle_mve_segment_createtimer(const unsigned char *data)
 {
@@ -739,4 +744,6 @@ void MVE_rmHoldMovie()
 void MVE_sndInit(MVE_play_sounds x)
 {
 	mve_audio_enabled = x;
+}
+
 }

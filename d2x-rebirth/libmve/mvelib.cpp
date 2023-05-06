@@ -15,6 +15,8 @@
 #include "mvelib.h"
 #include <memory>
 
+namespace d2x {
+
 namespace {
 
 static const char  MVE_HEADER[]  = "Interplay MVE File\x1A";
@@ -40,13 +42,9 @@ static int _mvefile_fetch_next_chunk(MVEFILE *movie);
  */
 static void _mvestream_reset(MVESTREAM *movie);
 
-}
-
 /************************************************************
  * public MVEFILE functions
  ************************************************************/
-
-namespace {
 
 /*
  * open an MVE file
@@ -412,6 +410,8 @@ namespace {
 static void _mvestream_reset(MVESTREAM *movie)
 {
 	mvefile_reset(movie->movie.get());
+}
+
 }
 
 }

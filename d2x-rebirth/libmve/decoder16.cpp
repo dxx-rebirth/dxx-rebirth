@@ -20,6 +20,8 @@
 
 using namespace dcx;
 
+namespace d2x {
+
 namespace {
 
 static unsigned short *backBuf1, *backBuf2;
@@ -720,6 +722,8 @@ static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, c
     }
 
     *pFrame = pDstBak+8;
+}
+
 }
 
 }

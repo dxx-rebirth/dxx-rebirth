@@ -65,7 +65,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 #include "d_zip.h"
 
-namespace dsx {
+namespace d2x {
 
 namespace {
 
@@ -114,8 +114,6 @@ struct movie_pause_window : window
 
 }
 
-}
-
 unsigned MovieFileRead(SDL_RWops *const handle, const std::span<uint8_t> buf)
 {
 	const auto count = buf.size();
@@ -124,8 +122,6 @@ unsigned MovieFileRead(SDL_RWops *const handle, const std::span<uint8_t> buf)
 }
 
 //-----------------------------------------------------------------------
-
-namespace dsx {
 
 //filename will actually get modified to be either low-res or high-res
 //returns status.  see values in movie.h
@@ -157,8 +153,6 @@ movie_play_status PlayMovie(const std::span<const char> subtitles, const char *c
 
 	Screen_mode = -1;		//force screen reset
 	return ret;
-}
-
 }
 
 void MovieShowFrame(const uint8_t *buf, int dstx, int dsty, int bufw, int bufh, int sw, int sh)
@@ -233,8 +227,6 @@ void MovieSetPalette(const unsigned char *p, unsigned start, unsigned count)
 	//movie libs palette into our array
 	memcpy(&gr_palette[start],p+start*3,count*3);
 }
-
-namespace dsx {
 
 namespace {
 

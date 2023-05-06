@@ -19,6 +19,8 @@
 #include <SDL.h>
 #include "physfsrwops.h"
 
+namespace d2x {
+
 enum class mve_opcode : uint8_t
 {
 	endofstream = 0x00,
@@ -144,3 +146,5 @@ void mve_reset(MVESTREAM *movie);
 int mve_play_next_chunk(MVESTREAM &movie);
 
 unsigned MovieFileRead(SDL_RWops *handle, std::span<uint8_t> buf);
+
+}

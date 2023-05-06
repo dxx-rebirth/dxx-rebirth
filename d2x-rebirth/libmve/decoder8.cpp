@@ -20,6 +20,8 @@
 
 using namespace dcx;
 
+namespace d2x {
+
 static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, const unsigned char **pData, int *pDataRemain, int *curXb, int *curYb);
 
 void decodeFrame8(unsigned char *pFrame, std::span<const uint8_t> pMap, const unsigned char *pData, int dataRemain)
@@ -921,4 +923,6 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 	default:
 		break;
 	}
+}
+
 }
