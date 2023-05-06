@@ -646,17 +646,11 @@ int MVESTREAM::handle_mve_segment_endofchunk()
 	return 1;
 }
 
-int MVE_rmPrepMovie(MVESTREAM_ptr_t &pMovie, MVEFILE::stream_type *const src, const int x, const int y)
+MVESTREAM_ptr_t MVE_rmPrepMovie(MVEFILE::stream_type *const src, const int x, const int y)
 {
-	if (pMovie) {
-		mve_reset(pMovie.get());
-		return 0;
-	}
-
-	pMovie = mve_open(src);
-
+	MVESTREAM_ptr_t pMovie{mve_open(src)};
 	if (!pMovie)
-		return 1;
+		return pMovie;
 
 	g_destX = x;
 	g_destY = y;
@@ -665,8 +659,7 @@ int MVE_rmPrepMovie(MVESTREAM_ptr_t &pMovie, MVEFILE::stream_type *const src, co
 
 	mve_play_next_chunk(mve); /* video initialization chunk */
 	mve_play_next_chunk(mve); /* audio initialization chunk */
-
-	return 0;
+	return pMovie;
 }
 
 

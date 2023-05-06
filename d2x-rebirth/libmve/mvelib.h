@@ -123,7 +123,7 @@ struct MVESTREAM_deleter_t
 };
 
 typedef std::unique_ptr<MVESTREAM, MVESTREAM_deleter_t> MVESTREAM_ptr_t;
-int  MVE_rmPrepMovie(MVESTREAM_ptr_t &, MVEFILE::stream_type *stream, int x, int y);
+MVESTREAM_ptr_t MVE_rmPrepMovie(MVEFILE::stream_type *stream, int x, int y);
 
 /*
  * open an MVE stream

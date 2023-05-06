@@ -374,7 +374,7 @@ movie_play_status RunMovie(const char *const filename, const std::span<const cha
 		return movie_play_status::skipped;
 	}
 	MVESTREAM_ptr_t mvestream;
-	if (MVE_rmPrepMovie(mvestream, filehndl.get(), dx, dy))
+	if (!(mvestream = MVE_rmPrepMovie(filehndl.get(), dx, dy)))
 	{
 		return movie_play_status::skipped;
 	}
@@ -452,7 +452,7 @@ RWops_ptr InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
 		con_printf(CON_URGENT, "Failed to open movie <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
 		return nullptr;
 	}
-	if (MVE_rmPrepMovie(pMovie, RoboFile.get(), SWIDTH / 2.3, SHEIGHT / 2.3))
+	if (!(pMovie = MVE_rmPrepMovie(RoboFile.get(), SWIDTH / 2.3, SHEIGHT / 2.3)))
 	{
 		Int3();
 		return nullptr;
