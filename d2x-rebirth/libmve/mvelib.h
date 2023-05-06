@@ -101,7 +101,7 @@ struct MVESTREAM
 	void *context = nullptr;
 
 	int handle_mve_segment_endofstream();
-	int handle_mve_segment_endofchunk(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);
+	int handle_mve_segment_endofchunk();
 	int handle_mve_segment_createtimer(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);
 	int handle_mve_segment_initaudiobuffers(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);
 	int handle_mve_segment_startstopaudio(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);

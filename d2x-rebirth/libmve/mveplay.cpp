@@ -641,7 +641,7 @@ int MVESTREAM::handle_mve_segment_videodata(mve_opcode, unsigned char, const uns
 	return 1;
 }
 
-int MVESTREAM::handle_mve_segment_endofchunk(mve_opcode, unsigned char, const unsigned char *, int, void *)
+int MVESTREAM::handle_mve_segment_endofchunk()
 {
 	g_pCurMap = {};
 	return 1;

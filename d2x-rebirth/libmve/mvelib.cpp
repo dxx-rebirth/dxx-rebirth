@@ -256,7 +256,7 @@ int mve_play_next_chunk(MVESTREAM &movie)
 				r = movie.handle_mve_segment_endofstream();
 				break;
 			case mve_opcode::endofchunk:
-				r = movie.handle_mve_segment_endofchunk(major, minor, data, len, movie.context);
+				r = movie.handle_mve_segment_endofchunk();
 				break;
 			case mve_opcode::createtimer:
 				r = movie.handle_mve_segment_createtimer(major, minor, data, len, movie.context);
