@@ -98,7 +98,6 @@ struct MVESTREAM
 	MVESTREAM();
 	~MVESTREAM();
 	std::unique_ptr<MVEFILE> movie;
-	void *context = nullptr;
 	uint8_t timer_created{};
 
 	int handle_mve_segment_endofstream();
@@ -135,11 +134,6 @@ MVESTREAM_ptr_t mve_open(MVEFILE::stream_type *stream);
  * reset an MVE stream
  */
 void mve_reset(MVESTREAM *movie);
-
-/*
- * set segment handler context
- */
-void mve_set_handler_context(MVESTREAM *movie, void *context);
 
 /*
  * play next chunk

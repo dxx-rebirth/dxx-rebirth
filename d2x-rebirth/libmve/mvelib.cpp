@@ -207,14 +207,6 @@ void mve_reset(MVESTREAM *movie)
 }
 
 /*
- * set segment handler context
- */
-void mve_set_handler_context(MVESTREAM *movie, void *context)
-{
-    movie->context = context;
-}
-
-/*
  * play next chunk
  */
 int mve_play_next_chunk(MVESTREAM &movie)
