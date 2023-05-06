@@ -87,7 +87,6 @@ int MVESTREAM::handle_mve_segment_endofstream()
 /*
  * timer variables
  */
-static int timer_created = 0;
 static int micro_frame_delay=0;
 static int timer_started=0;
 static struct timeval timer_expire = {0, 0};
@@ -709,7 +708,6 @@ MVE_StepStatus MVE_rmStepMovie(MVESTREAM &mve)
 void MVE_rmEndMovie(std::unique_ptr<MVESTREAM>)
 {
 	timer_stop();
-	timer_created = 0;
 
 	if (mve_audio_spec) {
 		// MD2211: if using SDL_Mixer, we never reinit sound, hence never close it

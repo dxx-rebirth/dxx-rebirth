@@ -99,6 +99,7 @@ struct MVESTREAM
 	~MVESTREAM();
 	std::unique_ptr<MVEFILE> movie;
 	void *context = nullptr;
+	uint8_t timer_created{};
 
 	int handle_mve_segment_endofstream();
 	int handle_mve_segment_endofchunk();
