@@ -13,6 +13,7 @@
 #include "libmve.h"
 
 #include <cstdint>
+#include <span>
 #include <vector>
 #include "dxxsconf.h"
 #include <SDL.h>
@@ -142,4 +143,4 @@ void mve_reset(MVESTREAM *movie);
  */
 int mve_play_next_chunk(MVESTREAM &movie);
 
-unsigned int MovieFileRead(SDL_RWops *handle, void *buf, unsigned count);
+unsigned MovieFileRead(SDL_RWops *handle, std::span<uint8_t> buf);

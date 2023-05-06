@@ -318,7 +318,7 @@ static int _mvefile_read_header(const MVEFILE *movie)
         return 0;
 
     /* check the file is long enough */
-	if (!MovieFileRead(movie->stream.get(), buffer, 26))
+	if (!MovieFileRead(movie->stream.get(), buffer))
         return 0;
 
     /* check the signature */
@@ -359,19 +359,18 @@ static int _mvefile_fetch_next_chunk(MVEFILE *movie)
         return 0;
 
     /* fail if we can't read the next segment descriptor */
-	if (!MovieFileRead(movie->stream.get(), buffer, 4))
+	if (!MovieFileRead(movie->stream.get(), buffer))
         return 0;
 
     /* pull out the next length */
     length = _mve_get_short(buffer);
 
     /* make sure we've got sufficient space */
-    _mvefile_set_buffer_size(movie, length);
+	movie->cur_chunk.resize(length);
 
     /* read the chunk */
-	if (!MovieFileRead(movie->stream.get(), &movie->cur_chunk[0], length))
+	if (!MovieFileRead(movie->stream.get(), movie->cur_chunk))
         return 0;
-    movie->cur_chunk.resize(length);
     movie->next_segment = 0;
 
     return 1;
