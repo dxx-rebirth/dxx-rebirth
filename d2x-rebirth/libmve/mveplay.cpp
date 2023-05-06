@@ -519,7 +519,7 @@ static int g_screenWidth, g_screenHeight;
 static std::span<const uint8_t> g_pCurMap;
 static int g_truecolor;
 
-int MVESTREAM::handle_mve_segment_initvideobuffers(mve_opcode, unsigned char minor, const unsigned char *data, int, void *)
+int MVESTREAM::handle_mve_segment_initvideobuffers(unsigned char minor, const unsigned char *data)
 {
 	short w, h,
 #ifdef DEBUG
