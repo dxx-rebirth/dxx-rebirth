@@ -106,7 +106,7 @@ struct MVESTREAM
 	int handle_mve_segment_initaudiobuffers(unsigned char minor, const unsigned char *data);
 	int handle_mve_segment_startstopaudio();
 	int handle_mve_segment_initvideobuffers(unsigned char minor, const unsigned char *data);
-	int handle_mve_segment_displayvideo(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);
+	int handle_mve_segment_displayvideo();
 	int handle_mve_segment_audioframedata(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);
 	int handle_mve_segment_initvideomode(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);
 	int handle_mve_segment_setpalette(mve_opcode major, unsigned char minor, const unsigned char *data, int len, void *context);

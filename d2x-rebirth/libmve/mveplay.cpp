@@ -570,7 +570,7 @@ int MVESTREAM::handle_mve_segment_initvideobuffers(unsigned char minor, const un
 	return 1;
 }
 
-int MVESTREAM::handle_mve_segment_displayvideo(mve_opcode, unsigned char, const unsigned char *, int, void *)
+int MVESTREAM::handle_mve_segment_displayvideo()
 {
 	MovieShowFrame(g_vBackBuf1, g_destX, g_destY, g_width, g_height, g_screenWidth, g_screenHeight);
 

@@ -271,7 +271,7 @@ int mve_play_next_chunk(MVESTREAM &movie)
 				r = movie.handle_mve_segment_initvideobuffers(minor, data);
 				break;
 			case mve_opcode::displayvideo:
-				r = movie.handle_mve_segment_displayvideo(major, minor, data, len, movie.context);
+				r = movie.handle_mve_segment_displayvideo();
 				break;
 			case mve_opcode::audioframedata:
 			case mve_opcode::audioframesilence:
