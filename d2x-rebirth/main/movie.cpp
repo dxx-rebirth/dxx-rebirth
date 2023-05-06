@@ -420,11 +420,7 @@ int RotateRobot(MVESTREAM_ptr_t &pMovie, SDL_RWops *const RoboFile)
 	if (err == MVE_StepStatus::EndOfFile)     //end of movie, so reset
 	{
 		SDL_RWseek(RoboFile, 0, SEEK_SET);
-		if (MVE_rmPrepMovie(pMovie, RoboFile, SWIDTH / 2.3, SHEIGHT / 2.3))
-		{
-			Int3();
-			return 0;
-		}
+		mve_reset(pMovie.get());
 		err = MVE_rmStepMovie(*pMovie.get());
 	}
 	if (err != MVE_StepStatus::Continue)
