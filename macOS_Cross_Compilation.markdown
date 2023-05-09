@@ -7,7 +7,9 @@ The Command Line Tools bundles from Apple are the most efficient to work with, a
 
 There will also be several packages you'll need to install from your Linux distribution in order to successfully build osxcross.  The package names will vary by distribution, but tested package installation commands are:
 
-Alma Linux 9: `yum install llvm clang cmake cpio git patch python3 python3-pip openssl-devel xz-devel bzip2-devel libxml2-devel bash wget openssl`
+Alma Linux 9: `yum install llvm clang pkgconf-pkg-config cmake cpio git patch python3 python3-pip openssl-devel xz-devel bzip2-devel libxml2-devel bash wget openssl`
+
+Ubuntu 22.04: `apt-get install llvm clang pkg-config cmake cpio git patch python3 python3-pip libssl-dev liblzma-dev libbz2-dev libxml2-dev bash wget openssl`
 
 ### Obtaining the SDK
 
@@ -25,7 +27,7 @@ Once this completes, you'll have a .tar.xz file for each of the SDKs in the DMG.
 
 At this point, you can begin building osxcross.  After deciding where the installed tools should be installed on your system, run the following:
 
-`TARGET_DIR=/path/to/tool/installation/location ./build.sh`
+`TARGET_DIR=/path/to/osxcross/installation/location ./build.sh`
 
 There will be a confirmation of the settings you're using to build osxcross, so if everything looks correct, press enter to begin the build process.
 
@@ -53,7 +55,7 @@ The following command assumes the osxcross `bin` directory is in your path.  If 
 
 ## Building dxx-rebirth
 
-At this point, the prerequisites are in place, and dxx-rebirth can be built.  Note that the `macos_bundle_libs` depends on a tool (`dylibbundler`) which does not run on non-macOS hosts.  As a result, builds from this process will depend on libraries existing in locations defined by the MacPorts project.  However, it is possible to copy the libraries to a macOS host and either package them with `dylibbundler` on that host or run the resulting binary by placing them in the same locations as the MacPorts project does (`/opt/local/lib`).
+At this point, the prerequisites are in place, and dxx-rebirth can be built.  Note that the `macos_bundle_libs` depends on a tool (`dylibbundler`) which does not run on non-macOS hosts.  As a result, builds from this process will depend on libraries existing in locations defined by the MacPorts project.  However, it is possible to copy the libraries to a macOS host and either package them with `dylibbundler` on that host or run the resulting binary by placing them in the same locations as the MacPorts project does (`/opt/local/lib`).  The specific location to place libraries on a Mac for `dylibbundler` to pick them up will be irrelevant once [this `dylibbundler` bug](https://github.com/auriamg/macdylibbundler/issues/82) is resolved.
 
 To build dxx-rebirth, you'll need to know which C++ compiler you built.  This will look something like `x86_64-apple-darwin21.4-clang++` or `aarch64-apple-darwin21.4-clang++`.  The `darwin21.4` part may change depending on the SDK you built osxcross with, as each macOS SDK version targets a specific maximum Darwin version and osxcross allows for having multiple concurrent versions installed simultaneously.
 
