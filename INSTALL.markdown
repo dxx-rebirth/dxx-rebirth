@@ -128,6 +128,8 @@ DXX-Rebirth can be built from the Terminal (via SCons) without Xcode; to build u
 
 When building for Mac OS X, only SDL 2 is currently supported, as SDL 1.2 has long-standing issues with modern versions of the operating system.  Terminal builds for Mac OS X default to SDL 2, which is equivalent to passing **sdl2=True** as a parameter to the SCons command.
 
+**Note:** If intending to cross-compile from Linux to macOS, information about this process can be found at [macOS_Cross_Compilation.markdown](macOS_Cross_Compilation.markdown).
+
 ##### [Homebrew](https://github.com/Homebrew/homebrew/)
 The project includes a Brewfile for installing all required dependencies, if you use Homebrew.  You can install them with:
 
