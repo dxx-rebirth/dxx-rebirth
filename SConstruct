@@ -2691,6 +2691,8 @@ BOOST_AUTO_TEST_CASE(f)
 	# should not fail on other operating system targets if it's absent.
 	@GuardedCollector(_guarded_test_darwin, lambda user_settings: user_settings.macos_bundle_libs and not user_settings.macos_add_frameworks)
 	def _check_dylibbundler(self, context, _common_error_text='; dylibbundler is required for compilation for a macOS target when not using frameworks and bundling libraries.  Set macos_bundle_libs=False or macos_add_frameworks=True, or install dylibbundler.'):
+		if sys.platform != 'darwin':
+			raise SCons.Errors.StopError(f'dylibbundler can only be run on macOS build hosts')
 		context.Display(f'{self.msgprefix}: checking whether dylibbundler is installed and accepts -h...')
 		try:
 			p = StaticSubprocess.pcall(('dylibbundler', '-h'), stderr=subprocess.PIPE)
