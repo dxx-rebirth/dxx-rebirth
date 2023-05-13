@@ -15,8 +15,6 @@
 #include "physfs_list.h"
 #include "ignorecase.h"
 
-#include "compiler-range_for.h"
-
 /**
  * Please see ignorecase.h for details.
  *
@@ -38,6 +36,8 @@
 
 namespace dcx {
 
+namespace {
+
 /* I'm not screwing around with stricmp vs. strcasecmp... */
 static int caseInsensitiveStringCompare(const char *x, const char *y)
 {
@@ -55,29 +55,21 @@ static int caseInsensitiveStringCompare(const char *x, const char *y)
     return(0);
 } /* caseInsensitiveStringCompare */
 
-namespace {
-
-class search_result_t : public PHYSFSX_uncounted_list
-{
-	typedef PHYSFSX_uncounted_list base_ptr;
-public:
-	search_result_t(char *ptr, const char *buf) :
-		base_ptr(PHYSFS_enumerateFiles(ptr ? (*ptr = 0, buf) : "/"))
-	{
-		if (ptr)
-			*ptr = '/';
-	}
-};
-
-}
-
 static int locateOneElement(char *const sptr, char *const ptr, const char *buf)
 {
     if (const auto r = PHYSFS_exists(buf))
         return r;  /* quick rejection: exists in current case. */
 
-	search_result_t rc{ptr, buf};
-	range_for (const auto i, rc)
+	struct search_result : PHYSFSX_uncounted_list
+	{
+		search_result(char *ptr, const char *buf) :
+			PHYSFSX_uncounted_list(PHYSFS_enumerateFiles(ptr ? (*ptr = 0, buf) : "/"))
+		{
+			if (ptr)
+				*ptr = '/';
+		}
+	};
+	for (const auto i : search_result{ptr, buf})
     {
 		if (caseInsensitiveStringCompare(i, sptr) == 0)
         {
@@ -90,6 +82,7 @@ static int locateOneElement(char *const sptr, char *const ptr, const char *buf)
     return(0);
 } /* locateOneElement */
 
+}
 
 int PHYSFSEXT_locateCorrectCase(char *buf)
 {
