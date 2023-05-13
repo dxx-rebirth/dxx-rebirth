@@ -6,10 +6,12 @@
  */
 /** \file ignorecase.c */
 
+#include <cstddef>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <optional>
 
 #include "physfsx.h"
 #include "physfs_list.h"
@@ -39,20 +41,20 @@ namespace dcx {
 namespace {
 
 /* I'm not screwing around with stricmp vs. strcasecmp... */
-static int caseInsensitiveStringCompare(const char *x, const char *y)
+static std::optional<std::size_t> caseInsensitiveStringCompare(const char *x, const char *y)
 {
-    int ux, uy;
-    do
+	const auto sx = x;
+	for (;;)
     {
-        ux = toupper(static_cast<int>(*x));
-        uy = toupper(static_cast<int>(*y));
+		const auto ux = toupper(static_cast<unsigned>(*x));
+		const auto uy = toupper(static_cast<unsigned>(*y));
         if (ux != uy)
-            return((ux > uy) ? 1 : -1);
+			return std::nullopt;
+		if (!ux)
+			return std::distance(sx, x);
         x++;
         y++;
-    } while ((ux) && (uy));
-
-    return(0);
+	}
 } /* caseInsensitiveStringCompare */
 
 static int locateOneElement(char *const sptr, char *const ptr, const char *buf)
@@ -71,9 +73,9 @@ static int locateOneElement(char *const sptr, char *const ptr, const char *buf)
 	};
 	for (const auto i : search_result{ptr, buf})
     {
-		if (caseInsensitiveStringCompare(i, sptr) == 0)
+		if (const auto o = caseInsensitiveStringCompare(i, sptr))
         {
-			strcpy(sptr, i); /* found a match. Overwrite with this case. */
+			std::memcpy(sptr, i, *o); /* found a match. Overwrite with this case. */
             return(1);
         } /* if */
     } /* for */
