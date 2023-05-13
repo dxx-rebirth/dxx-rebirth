@@ -26,6 +26,7 @@
 #include "piggy.h"
 
 #include "compiler-range_for.h"
+#include "d_sdl_audio.h"
 #include "d_underlying_value.h"
 
 namespace dcx {
@@ -147,7 +148,7 @@ static void audio_mixcallback(void *, Uint8 *stream, int len)
 
 	memset(stream, 0x80, len); // fix "static" sound bug on Mac OS X
 
-	SDL_LockAudio();
+	RAII_SDL_LockAudio lock_audio{};
 
 	range_for (auto &sl, SoundSlots)
 	{
@@ -184,8 +185,6 @@ static void audio_mixcallback(void *, Uint8 *stream, int len)
 			sl.position = std::distance(sl.samples.begin(), sldata);
 		}
 	}
-
-	SDL_UnlockAudio();
 }
 
 }
@@ -256,7 +255,7 @@ sound_channel digi_audio_start_sound(short soundnum, fix volume, sound_pan pan, 
 	if (soundnum < 0)
 		return sound_channel::None;
 
-	SDL_LockAudio();
+	RAII_SDL_LockAudio lock_audio{};
 
 	const auto starting_channel = next_channel;
 
@@ -271,7 +270,6 @@ sound_channel digi_audio_start_sound(short soundnum, fix volume, sound_pan pan, 
 		next_channel = next(next_channel);
 		if (next_channel == starting_channel)
 		{
-			SDL_UnlockAudio();
 			return sound_channel::None;
 		}
 	}
@@ -304,7 +302,6 @@ sound_channel digi_audio_start_sound(short soundnum, fix volume, sound_pan pan, 
 
 	const auto i = next_channel;
 	next_channel = next(next_channel);
-	SDL_UnlockAudio();
 
 	return i;
 }

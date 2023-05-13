@@ -21,7 +21,6 @@
 #include <string.h>
 
 #include <SDL.h>
-#include <SDL_audio.h>
 #include <SDL_mixer.h>
 
 #include "pstypes.h"

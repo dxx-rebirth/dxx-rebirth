@@ -33,6 +33,7 @@
 #endif
 
 #include "config.h"
+#include "d_sdl_audio.h"
 #include "mvelib.h"
 #include "mve_audio.h"
 #include "byteutil.h"
@@ -409,8 +410,9 @@ int MVESTREAM::handle_mve_segment_audioframedata(const mve_opcode major, const u
 	static const int selected_chan=1;
 	if (mve_audio_spec)
 	{
-		if (mve_audio_playing)
-			SDL_LockAudio();
+		std::optional<RAII_SDL_LockAudio> lock_audio{
+			mve_audio_playing ? std::optional<RAII_SDL_LockAudio>(std::in_place) : std::nullopt
+		};
 
 		const auto chan = get_ushort(data + 2);
 		unsigned nsamp = get_ushort(data + 4);
@@ -500,9 +502,6 @@ int MVESTREAM::handle_mve_segment_audioframedata(const mve_opcode major, const u
 			if (mve_audio_buftail == mve_audio_bufhead)
 				con_printf(CON_CRITICAL, "d'oh!  buffer ring overrun (%d)", mve_audio_bufhead);
 		}
-
-		if (mve_audio_playing)
-			SDL_UnlockAudio();
 	}
 
 	return 1;
