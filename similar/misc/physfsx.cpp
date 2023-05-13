@@ -235,7 +235,10 @@ bool PHYSFSX_init(int argc, char *argv[])
 #endif
 	
 	std::array<char, PATH_MAX> pathname;
-	PHYSFSX_addRelToSearchPath("data", pathname, physfs_search_path::append);	// 'Data' subdirectory
+	{
+		static char relname[]{"data"};
+		PHYSFSX_addRelToSearchPath(relname, pathname, physfs_search_path::append);	// 'Data' subdirectory
+	}
 	
 	// For Macintosh, add the 'Resources' directory in the .app bundle to the searchpaths
 #if defined(__APPLE__) && defined(__MACH__)
@@ -271,7 +274,7 @@ bool PHYSFSX_init(int argc, char *argv[])
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(const char *const name1, const char *const name2, physfs_search_path position)
+RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(char *const name1, char *const name2, physfs_search_path position)
 {
 	auto pathname = std::make_unique<std::array<char, PATH_MAX>>();
 	if (PHYSFSX_addRelToSearchPath(name1, *pathname.get(), position) == PHYSFS_ERR_OK ||
@@ -287,11 +290,8 @@ namespace dcx {
 
 // Add a searchpath, but that searchpath is relative to an existing searchpath
 // It will add the first one it finds and return 1, if it doesn't find any it returns 0
-PHYSFS_ErrorCode PHYSFSX_addRelToSearchPath(const char *relname, std::array<char, PATH_MAX> &pathname, physfs_search_path add_to_end)
+PHYSFS_ErrorCode PHYSFSX_addRelToSearchPath(char *const relname2, std::array<char, PATH_MAX> &pathname, physfs_search_path add_to_end)
 {
-	char relname2[PATH_MAX];
-
-	snprintf(relname2, sizeof(relname2), "%s", relname);
 	PHYSFSEXT_locateCorrectCase(relname2);
 
 	if (!PHYSFSX_getRealPath(relname2, pathname))
@@ -307,13 +307,13 @@ PHYSFS_ErrorCode PHYSFSX_addRelToSearchPath(const char *relname, std::array<char
 	const auto action = add_to_end != physfs_search_path::prepend ? "append" : "insert";
 	if (r)
 	{
-		con_printf(CON_DEBUG, "PHYSFS: %s canonical directory \"%s\" to search path from relative name \"%s\"", action, pathname.data(), relname);
+		con_printf(CON_DEBUG, "PHYSFS: %s canonical directory \"%s\" to search path from relative name \"%s\"", action, pathname.data(), relname2);
 		return PHYSFS_ERR_OK;
 	}
 	else
 	{
 		const auto err = PHYSFS_getLastErrorCode();
-		con_printf(CON_VERBOSE, "PHYSFS: failed to %s canonical directory \"%s\" to search path from relative name \"%s\": \"%s\"", action, pathname.data(), relname, PHYSFS_getErrorByCode(err));
+		con_printf(CON_VERBOSE, "PHYSFS: failed to %s canonical directory \"%s\" to search path from relative name \"%s\": \"%s\"", action, pathname.data(), relname2, PHYSFS_getErrorByCode(err));
 		return err;
 	}
 }
@@ -636,7 +636,7 @@ void PHYSFSX_read_helper_report_error(const char *const filename, const unsigned
 	(Error)(filename, line, func, "reading at %lu", static_cast<unsigned long>((PHYSFS_tell)(file)));
 }
 
-RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(const char *const name, physfs_search_path position)
+RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(char *const name, physfs_search_path position)
 {
 	auto pathname = std::make_unique<std::array<char, PATH_MAX>>();
 	if (PHYSFSX_addRelToSearchPath(name, *pathname.get(), position) == PHYSFS_ERR_OK)

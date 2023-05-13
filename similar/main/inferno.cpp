@@ -465,11 +465,14 @@ static int main(int argc, char *argv[])
 		return(0);
 
 #if defined(DXX_BUILD_DESCENT_I)
-	const auto descent_hog = make_PHYSFSX_ComputedPathMount("descent.hog", physfs_search_path::append);
+	static char relname_descent_hog[]{"descent.hog"};
+	const auto descent_hog = make_PHYSFSX_ComputedPathMount(relname_descent_hog, physfs_search_path::append);
 #define DXX_NAME_NUMBER	"1"
 #define DXX_HOGFILE_NAMES	"descent.hog"
 #elif defined(DXX_BUILD_DESCENT_II)
-	const auto descent_hog = make_PHYSFSX_ComputedPathMount("descent2.hog", "d2demo.hog", physfs_search_path::append);
+	static char relname_descent2_hog[]{"descent2.hog"};
+	static char relname_d2demo_hog[]{"d2demo.hog"};
+	const auto descent_hog = make_PHYSFSX_ComputedPathMount(relname_descent2_hog, relname_d2demo_hog, physfs_search_path::append);
 #define DXX_NAME_NUMBER	"2"
 #define DXX_HOGFILE_NAMES	"descent2.hog or d2demo.hog"
 #endif

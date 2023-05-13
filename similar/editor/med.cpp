@@ -350,10 +350,22 @@ void init_editor()
 
 	// first, make sure we can find the files we need
 	std::array<char, PATH_MAX> pathname;
-	PHYSFSX_addRelToSearchPath("editor/data", pathname, physfs_search_path::append);	// look in source directory first (for work in progress)
-	PHYSFSX_addRelToSearchPath("editor", pathname, physfs_search_path::append);		// then in editor directory
-	PHYSFSX_addRelToSearchPath("editor.zip", pathname, physfs_search_path::append);	// then in a zip file
-	PHYSFSX_addRelToSearchPath("editor.dxa", pathname, physfs_search_path::append);	// or addon pack
+	{
+		static char relname[]{"editor/data"};
+		PHYSFSX_addRelToSearchPath(relname, pathname, physfs_search_path::append);	// look in source directory first (for work in progress)
+	}
+	{
+		static char relname[]{"editor"};
+		PHYSFSX_addRelToSearchPath(relname, pathname, physfs_search_path::append);		// then in editor directory
+	}
+	{
+		static char relname[]{"editor.zip"};
+		PHYSFSX_addRelToSearchPath(relname, pathname, physfs_search_path::append);	// then in a zip file
+	}
+	{
+		static char relname[]{"editor.dxa"};
+		PHYSFSX_addRelToSearchPath(relname, pathname, physfs_search_path::append);	// or addon pack
+	}
 
 	if (!ui_init())
 	{

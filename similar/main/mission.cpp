@@ -938,7 +938,8 @@ static const char *load_mission(const mle *const mission)
 #endif
 	{
 		std::array<char, PATH_MAX> pathname;
-		if (const auto r = PHYSFSX_addRelToSearchPath("descent.hog", pathname, physfs_search_path::prepend); r != PHYSFS_ERR_OK)
+		static char relname[]{"descent.hog"};
+		if (const auto r = PHYSFSX_addRelToSearchPath(relname, pathname, physfs_search_path::prepend); r != PHYSFS_ERR_OK)
 #if defined(DXX_BUILD_DESCENT_I)
 			Error("descent.hog not available!\n%s", PHYSFS_getErrorByCode(r));
 #elif defined(DXX_BUILD_DESCENT_II)

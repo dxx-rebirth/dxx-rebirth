@@ -437,7 +437,7 @@ enum class physfs_search_path : int
 	append,
 };
 
-PHYSFS_ErrorCode PHYSFSX_addRelToSearchPath(const char *relname, std::array<char, PATH_MAX> &realPath, physfs_search_path);
+PHYSFS_ErrorCode PHYSFSX_addRelToSearchPath(char *relname, std::array<char, PATH_MAX> &realPath, physfs_search_path);
 void PHYSFSX_removeRelFromSearchPath(const char *relname);
 extern int PHYSFSX_fsize(const char *hogname);
 extern void PHYSFSX_listSearchPathContent();
@@ -483,8 +483,8 @@ using RAIIPHYSFS_LiteralMount = std::unique_ptr<const char, PHYSFS_unowned_stora
  */
 using RAIIPHYSFS_ComputedPathMount = std::unique_ptr<typename PHYSFS_computed_path_mount_deleter::element_type, PHYSFS_computed_path_mount_deleter>;
 
-RAIIPHYSFS_LiteralMount make_PHYSFSX_LiteralMount(const char *const name, physfs_search_path);
-RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(const char *const name, physfs_search_path position);
+[[nodiscard]]
+RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(char *const name, physfs_search_path position);
 
 extern int PHYSFSX_rename(const char *oldpath, const char *newpath);
 
@@ -502,7 +502,7 @@ namespace dsx {
 bool PHYSFSX_init(int argc, char *argv[]);
 int PHYSFSX_checkSupportedArchiveTypes();
 #if defined(DXX_BUILD_DESCENT_II)
-RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(const char *const name1, const char *const name2, physfs_search_path);
+RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(char *name1, char *name2, physfs_search_path);
 #endif
 
 }
