@@ -1282,6 +1282,8 @@ void obj_delete(d_level_unique_object_state &LevelUniqueObjectState, segment_arr
 			}
 		}
 	}
+	else if (LevelUniqueObjectState.BuddyState.Buddy_objnum == obj)
+		LevelUniqueObjectState.BuddyState.Buddy_objnum = object_none;
 #endif
 
 	if (obj == Viewer)		//deleting the viewer?
