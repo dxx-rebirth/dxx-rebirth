@@ -2115,7 +2115,7 @@ window_event_result endlevel_move_all_objects(const d_level_shared_robot_info_st
 //--unused--
 //--unused-- }
 
-
+#if DXX_USE_EDITOR
 //make object array non-sparse
 void compress_objects(void)
 {
@@ -2138,10 +2138,8 @@ void compress_objects(void)
 
 			*start_objp = *h;
 
-#if DXX_USE_EDITOR
 			if (Cur_object_index == Highest_object_index)
 				Cur_object_index = start_i;
-			#endif
 
 			h->type = OBJ_NONE;
 
@@ -2168,6 +2166,7 @@ void compress_objects(void)
 	}
 	reset_objects(LevelUniqueObjectState, LevelUniqueObjectState.num_objects);
 }
+#endif
 
 //called after load.  Takes number of objects,  and objects should be
 //compressed.  resets free list, marks unused objects as unused

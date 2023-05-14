@@ -208,8 +208,10 @@ void obj_delete(d_level_unique_object_state &LevelUniqueObjectState, segment_arr
 // compressed
 void reset_objects(d_level_unique_object_state &, unsigned n_objs);
 
+#if DXX_USE_EDITOR
 // make object array non-sparse
 void compress_objects();
+#endif
 
 // set viewer object to next object in array
 void object_goto_next_viewer(const object_array &Objects, const object *&viewer);
