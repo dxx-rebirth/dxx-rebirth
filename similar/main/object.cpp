@@ -914,8 +914,8 @@ void init_objects()
 
 //after calling init_object(), the network code has grabbed specific
 //object slots without allocating them.  Go though the objects & build
-//the free list, then set the apporpriate globals
-void special_reset_objects(d_level_unique_object_state &LevelUniqueObjectState)
+//the free list, then set the appropriate globals
+void special_reset_objects(d_level_unique_object_state &LevelUniqueObjectState, const d_robot_info_array &Robot_info)
 {
 	unsigned num_objects = MAX_OBJECTS;
 
@@ -924,12 +924,34 @@ void special_reset_objects(d_level_unique_object_state &LevelUniqueObjectState)
 	assert(Objects.front().type != OBJ_NONE);		//0 should be used
 
 	DXX_POISON_VAR(LevelUniqueObjectState.free_obj_list, 0xfd);
+#if defined(DXX_BUILD_DESCENT_I)
+	/* Descent 1 does not have a guidebot, so there is nothing to fix up.  For
+	 * simplicity, both games pass the parameter.
+	 */
+	(void)Robot_info;
+#elif defined(DXX_BUILD_DESCENT_II)
+	icobjidx_t Buddy_objnum = object_none;
+#endif
 	for (objnum_t i = MAX_OBJECTS; i--;)
-		if (Objects.vcptr(i)->type == OBJ_NONE)
+	{
+		const auto &obj = *Objects.vcptr(i);
+#if defined(DXX_BUILD_DESCENT_II)
+		if (obj.type == OBJ_ROBOT)
+		{
+			auto &robptr = Robot_info[get_robot_id(obj)];
+			if (robot_is_companion(robptr))
+				Buddy_objnum = i;
+		}
+#endif
+		if (obj.type == OBJ_NONE)
 			LevelUniqueObjectState.free_obj_list[--num_objects] = i;
 		else
 			if (i > Highest_object_index)
 				Objects.set_count(i + 1);
+	}
+#if defined(DXX_BUILD_DESCENT_II)
+	LevelUniqueObjectState.BuddyState.Buddy_objnum = Buddy_objnum;
+#endif
 	LevelUniqueObjectState.num_objects = num_objects;
 }
 
@@ -2180,6 +2202,10 @@ void reset_objects(d_level_unique_object_state &LevelUniqueObjectState, const un
 	auto &Objects = LevelUniqueObjectState.get_objects();
 	assert(LevelUniqueObjectState.num_objects < Objects.size());
 	Objects.set_count(n_objs);
+#if defined(DXX_BUILD_DESCENT_II)
+	if (LevelUniqueObjectState.BuddyState.Buddy_objnum.get_unchecked_index() >= n_objs)
+		LevelUniqueObjectState.BuddyState.Buddy_objnum = object_none;
+#endif
 
 	for (objnum_t i = n_objs; i < MAX_OBJECTS; ++i)
 	{

@@ -267,12 +267,6 @@ void clear_transient_objects(int clear_all);
 [[nodiscard]]
 imobjptridx_t obj_allocate(d_level_unique_object_state &);
 
-// after calling init_object(), the network code has grabbed specific
-// object slots without allocating them.  Go though the objects &
-// build the free list, then set the apporpriate globals Don't call
-// this function if you don't know what you're doing.
-void special_reset_objects(d_level_unique_object_state &);
-
 // attaches an object, such as a fireball, to another object, such as
 // a robot
 void obj_attach(object_array &Objects, vmobjptridx_t parent, vmobjptridx_t sub);

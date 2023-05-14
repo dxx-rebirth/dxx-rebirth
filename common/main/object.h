@@ -727,6 +727,12 @@ struct d_level_unique_boss_state : ::dcx::d_level_unique_boss_state
 const player &get_player_controlling_guidebot(const d_unique_buddy_state & /* reserved for future use */, const valptridx<player>::array_managed_type &Players);
 #endif
 
+// after calling init_object(), the network code has grabbed specific
+// object slots without allocating them.  Go though the objects &
+// build the free list, then set the appropriate globals.
+// Don't call this function unless you know what you're doing.
+void special_reset_objects(d_level_unique_object_state &, const d_robot_info_array &Robot_info);
+
 unsigned laser_parent_is_player(fvcobjptr &, const laser_parent &, const object_base &);
 unsigned laser_parent_is_object(fvcobjptr &, const laser_parent &, const object_base &);
 unsigned laser_parent_is_object(const laser_parent &, vcobjptridx_t);

@@ -2479,9 +2479,10 @@ static int net_udp_verify_objects(int remote, int local)
 	return(1);
 }
 
-static void net_udp_read_object_packet(const uint8_t *const data)
+static void net_udp_read_object_packet(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const uint8_t *const data)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &vmobjptridx = Objects.vmptridx;
 	// Object from another net player we need to sync with
 	sbyte obj_owner;
@@ -2512,7 +2513,7 @@ static void net_udp_read_object_packet(const uint8_t *const data)
 			// Special debug checksum marker for entire send
 			if (mode == 1)
 			{
-				special_reset_objects(LevelUniqueObjectState);
+				special_reset_objects(LevelUniqueObjectState, Robot_info);
 				mode = 0;
 			}
 			if (remote_objnum != object_count) {
@@ -2538,7 +2539,7 @@ static void net_udp_read_object_packet(const uint8_t *const data)
 			else {
 				if (mode == 1)
 				{
-					special_reset_objects(LevelUniqueObjectState);
+					special_reset_objects(LevelUniqueObjectState, Robot_info);
 					mode = 0;
 				}
 				objnum = obj_allocate(LevelUniqueObjectState);
@@ -3476,7 +3477,7 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 		case upid::object_data:
 			if (multi_i_am_master() || length > UPID_MAX_SIZE || Network_status != network_state::waiting)
 				break;
-			net_udp_read_object_packet(data);
+			net_udp_read_object_packet(LevelSharedRobotInfoState, data);
 			break;
 		case upid::ping:
 			if (multi_i_am_master())
