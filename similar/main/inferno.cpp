@@ -511,11 +511,13 @@ static int main(int argc, char *argv[])
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
-	switch (PHYSFSX_fsize("descent.hog"))
+	switch (descent_hog_size{PHYSFSX_fsize("descent.hog")})
 	{
-		case D1_MAC_SHARE_MISSION_HOGSIZE:
-		case D1_MAC_MISSION_HOGSIZE:
+		case descent_hog_size::mac_shareware:
+		case descent_hog_size::mac_retail:
 			MacHog = 1;	// used for fonts and the Automap
+			break;
+		default:
 			break;
 	}
 #endif

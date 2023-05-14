@@ -47,17 +47,21 @@ constexpr std::integral_constant<uint8_t, 127> MAX_SECRET_LEVELS_PER_MISSION{};	
 #define D1_MISSION_FILENAME             "descent"
 #endif
 #define D1_MISSION_NAME                 "Descent: First Strike"
-#define D1_MISSION_HOGSIZE              6856701 // v1.4 - 1.5
-#define D1_MISSION_HOGSIZE2             6856183 // v1.4 - 1.5 - different patch-way
-#define D1_10_MISSION_HOGSIZE           7261423 // v1.0
-#define D1_MAC_MISSION_HOGSIZE          7456179
 #define D1_OEM_MISSION_NAME             "Destination Saturn"
-#define D1_OEM_MISSION_HOGSIZE          4492107 // v1.4a
-#define D1_OEM_10_MISSION_HOGSIZE       4494862 // v1.0
 #define D1_SHAREWARE_MISSION_NAME       "Descent Demo"
-#define D1_SHAREWARE_MISSION_HOGSIZE    2339773 // v1.4
-#define D1_SHAREWARE_10_MISSION_HOGSIZE 2365676 // v1.0 - 1.2
-#define D1_MAC_SHARE_MISSION_HOGSIZE    3370339
+
+enum class descent_hog_size : int
+{
+	pc_retail_v15 = 6856701, // v1.4 - 1.5
+	pc_retail_v15_alt1 = 6856183, // v1.4 - 1.5 - different patch-way
+	pc_retail_v10 = 7261423, // v1.0
+	mac_retail = 7456179,
+	pc_oem_v14 = 4492107, // v1.4a
+	pc_oem_v10 = 4494862, // v1.0
+	pc_shareware_v14 = 2339773, // v1.4
+	pc_shareware_v10 = 2365676, // v1.0 - 1.2
+	mac_shareware = 3370339,
+};
 
 #if defined(DXX_BUILD_DESCENT_II)
 #define SHAREWARE_MISSION_FILENAME  "d2demo"

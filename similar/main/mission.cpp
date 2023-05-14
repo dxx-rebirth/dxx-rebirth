@@ -57,6 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-poison.h"
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
+#include "d_underlying_value.h"
 #include "d_zip.h"
 #include <memory>
 
@@ -295,17 +296,17 @@ static void build_rdl_secret_level_names(const unsigned count_secret_level, std:
 
 static void load_mission_d1()
 {
-	switch (PHYSFSX_fsize("descent.hog"))
+	switch (descent_hog_size{PHYSFSX_fsize("descent.hog")})
 	{
-		case D1_SHAREWARE_MISSION_HOGSIZE:
-		case D1_SHAREWARE_10_MISSION_HOGSIZE:
+		case descent_hog_size::pc_shareware_v14:
+		case descent_hog_size::pc_shareware_v10:
 			allocate_shareware_levels(7, 0);
 			break;
-		case D1_MAC_SHARE_MISSION_HOGSIZE:
+		case descent_hog_size::mac_shareware:
 			allocate_shareware_levels(3, 0);
 			break;
-		case D1_OEM_MISSION_HOGSIZE:
-		case D1_OEM_10_MISSION_HOGSIZE:
+		case descent_hog_size::pc_oem_v14:
+		case descent_hog_size::pc_oem_v10:
 			{
 			constexpr unsigned last_level = 15;
 			constexpr unsigned last_secret_level = 1;
@@ -325,10 +326,10 @@ static void load_mission_d1()
 		default:
 			Int3();
 			[[fallthrough]];
-		case D1_MISSION_HOGSIZE:
-		case D1_MISSION_HOGSIZE2:
-		case D1_10_MISSION_HOGSIZE:
-		case D1_MAC_MISSION_HOGSIZE:
+		case descent_hog_size::pc_retail_v15:
+		case descent_hog_size::pc_retail_v15_alt1:
+		case descent_hog_size::pc_retail_v10:
+		case descent_hog_size::mac_retail:
 			{
 			constexpr unsigned last_level = 27;
 			constexpr unsigned last_secret_level = 3;
@@ -561,34 +562,32 @@ static int read_mission_file(mission_list_type &mission_list, mission_candidate_
 
 static void add_d1_builtin_mission_to_list(mission_list_type &mission_list)
 {
-    int size;
-    
-	size = PHYSFSX_fsize("descent.hog");
-	if (size == -1)
+	const descent_hog_size size{PHYSFSX_fsize("descent.hog")};
+	if (size == descent_hog_size{-1})
 		return;
 
 	mission_list.emplace_back(Mission_path(D1_MISSION_FILENAME, 0));
 	mle *mission = &mission_list.back();
 	switch (size) {
-	case D1_SHAREWARE_MISSION_HOGSIZE:
-	case D1_SHAREWARE_10_MISSION_HOGSIZE:
-	case D1_MAC_SHARE_MISSION_HOGSIZE:
+		case descent_hog_size::pc_shareware_v14:
+		case descent_hog_size::pc_shareware_v10:
+		case descent_hog_size::mac_shareware:
 		mission->mission_name.copy_if(D1_SHAREWARE_MISSION_NAME);
 		mission->anarchy_only_flag = 0;
 		break;
-	case D1_OEM_MISSION_HOGSIZE:
-	case D1_OEM_10_MISSION_HOGSIZE:
+		case descent_hog_size::pc_oem_v14:
+		case descent_hog_size::pc_oem_v10:
 		mission->mission_name.copy_if(D1_OEM_MISSION_NAME);
 		mission->anarchy_only_flag = 0;
 		break;
 	default:
-		Warning("Unknown D1 hogsize %d\n", size);
+		Warning("Unknown D1 hogsize %d\n", underlying_value(size));
 		Int3();
 		[[fallthrough]];
-	case D1_MISSION_HOGSIZE:
-	case D1_MISSION_HOGSIZE2:
-	case D1_10_MISSION_HOGSIZE:
-	case D1_MAC_MISSION_HOGSIZE:
+		case descent_hog_size::pc_retail_v15:
+		case descent_hog_size::pc_retail_v15_alt1:
+		case descent_hog_size::pc_retail_v10:
+		case descent_hog_size::mac_retail:
 		mission->mission_name.copy_if(D1_MISSION_NAME);
 		mission->anarchy_only_flag = 0;
 		break;
@@ -596,7 +595,7 @@ static void add_d1_builtin_mission_to_list(mission_list_type &mission_list)
 
 	mission->anarchy_only_flag = 0;
 #if defined(DXX_BUILD_DESCENT_I)
-	mission->builtin_hogsize = size;
+	mission->builtin_hogsize = underlying_value(size);
 #elif defined(DXX_BUILD_DESCENT_II)
 	mission->descent_version = Mission::descent_version_type::descent1;
 	mission->builtin_hogsize = 0;

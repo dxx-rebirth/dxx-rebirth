@@ -468,9 +468,9 @@ struct msgstream
 	std::array<char, 2> ch;
 };
 
-constexpr const briefing_screen *get_d1_briefing_screens(const unsigned descent_hog_size)
+constexpr const briefing_screen *get_d1_briefing_screens(const descent_hog_size size)
 {
-	if (descent_hog_size == D1_SHAREWARE_MISSION_HOGSIZE || descent_hog_size == D1_SHAREWARE_10_MISSION_HOGSIZE)
+	if (size == descent_hog_size::pc_shareware_v14 || size == descent_hog_size::pc_shareware_v10)
 		return D1_Briefing_screens_share;
 	return D1_Briefing_screens_full;
 }
@@ -991,8 +991,8 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			br->text_x = br->screen->text_ulx;
 			if (br->text_y > br->screen->text_uly + br->screen->text_height) {
 #if defined(DXX_BUILD_DESCENT_I)
-				const auto descent_hog_size = PHYSFSX_fsize("descent.hog");
-				auto &bs = get_d1_briefing_screens(descent_hog_size)[br->cur_screen];
+				const descent_hog_size size{PHYSFSX_fsize("descent.hog")};
+				auto &bs = get_d1_briefing_screens(size)[br->cur_screen];
 #elif defined(DXX_BUILD_DESCENT_II)
 				auto &bs = Briefing_screens[br->cur_screen];
 #endif
@@ -1328,7 +1328,7 @@ static void free_briefing_screen(briefing *br);
 static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const char *const fname)
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	const auto descent_hog_size = PHYSFSX_fsize("descent.hog");
+	const descent_hog_size descent_hog_size{PHYSFSX_fsize("descent.hog")};
 	char forigin[PATH_MAX];
 	decltype(br->background_name) fname2a;
 
@@ -1455,9 +1455,9 @@ static void free_briefing_screen(briefing *br)
 static int new_briefing_screen(grs_canvas &canvas, briefing *br, int first)
 {
 	br->new_screen = 0;
-	const auto descent_hog_size = PHYSFSX_fsize("descent.hog");
+	const descent_hog_size descent_hog_size{PHYSFSX_fsize("descent.hog")};
 	const auto num_d1_briefing_screens = (
-		(descent_hog_size == D1_SHAREWARE_MISSION_HOGSIZE || descent_hog_size == D1_SHAREWARE_10_MISSION_HOGSIZE)
+		(descent_hog_size == descent_hog_size::pc_shareware_v14 || descent_hog_size == descent_hog_size::pc_shareware_v10)
 		? std::size(D1_Briefing_screens_share)
 		: std::size(D1_Briefing_screens_full)
 	);
