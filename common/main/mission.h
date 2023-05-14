@@ -152,30 +152,17 @@ struct Mission : Mission_path
 	std::unique_ptr<d_fname[]>	secret_level_names;
 	int     builtin_hogsize;    // the size of the hogfile for a builtin mission, and 0 for an add-on mission
 	ntstring<MISSION_NAME_LEN> mission_name;
-	d_fname	briefing_text_filename; // name of briefing file
-	d_fname	ending_text_filename; // name of ending file
+	d_fname	briefing_text_filename{}; // name of briefing file
+	d_fname	ending_text_filename{}; // name of ending file
 	anarchy_only_level anarchy_only_flag;  // if true, mission is only for anarchy
-	ubyte	last_level;
-	sbyte	last_secret_level;
-	ubyte	n_secret_levels;
+	uint8_t	last_level{};
+	int8_t	last_secret_level{};
+	uint8_t	n_secret_levels{};
 #if defined(DXX_BUILD_DESCENT_II)
 	descent_version_type descent_version;	// descent 1 or descent 2?
 	std::unique_ptr<d_fname> alternate_ham_file;
 	std::unique_ptr<LoadedMovieWithResolution> extra_robot_movie;
 #endif
-	/* Explicitly default move constructor and move operator=
-	 *
-	 * Without this, gcc (tested gcc-4.9, gcc-5) tries to use
-	 * a synthetic operator=(const Mission &) to implement `instance =
-	 * {};`, which fails because Mission contains std::unique_ptr, a
-	 * movable but noncopyable type.
-	 *
-	 * With the explicit default, gcc uses operator=(Mission &&), which
-	 * works.
-	 *
-	 * Explicitly delete copy constructor and copy operator= for
-	 * thoroughness.
-	 */
 	Mission(Mission &&) = default;
 	Mission &operator=(Mission &&) = default;
 	Mission(const Mission &) = delete;

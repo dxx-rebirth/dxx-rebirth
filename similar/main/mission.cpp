@@ -914,19 +914,6 @@ static const char *load_mission(const mle *const mission)
 	Current_mission->descent_version = mission->descent_version;
 #endif
 	Current_mission->anarchy_only_flag = mission->anarchy_only_flag;
-	Current_mission->n_secret_levels = 0;
-#if defined(DXX_BUILD_DESCENT_II)
-	Current_mission->alternate_ham_file = NULL;
-#endif
-
-	//init vars
-	Current_mission->last_level = 0;
-	Current_mission->last_secret_level = 0;
-	Current_mission->briefing_text_filename = {};
-	Current_mission->ending_text_filename = {};
-	Current_mission->secret_level_table.reset();
-	Current_mission->level_names.reset();
-	Current_mission->secret_level_names.reset();
 
 	// for Descent 1 missions, load descent.hog
 #if defined(DXX_BUILD_DESCENT_II)
