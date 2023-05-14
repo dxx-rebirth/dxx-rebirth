@@ -933,19 +933,6 @@ void special_reset_objects(d_level_unique_object_state &LevelUniqueObjectState)
 	LevelUniqueObjectState.num_objects = num_objects;
 }
 
-namespace {
-
-//link the object into the list for its segment
-void obj_link(fvmobjptr &vmobjptr, const vmobjptridx_t obj, const vmsegptridx_t segnum)
-{
-	assert(obj->segnum == segment_none);
-	assert(obj->next == object_none);
-	assert(obj->prev == object_none);
-	obj_link_unchecked(vmobjptr, obj, segnum);
-}
-
-}
-
 void obj_link_unchecked(fvmobjptr &vmobjptr, const vmobjptridx_t obj, const vmsegptridx_t segnum)
 {
 	obj->segnum = segnum;
@@ -2158,7 +2145,17 @@ void compress_objects(void)
 
 			h->type = OBJ_NONE;
 
-			obj_link(Objects.vmptr, start_objp, vmsegptridx(segnum_copy));
+			{
+				//link the object into the list for its segment
+				const auto &&segnum = vmsegptridx(segnum_copy);
+#ifndef NDEBUG
+				const auto &obj = *start_objp;
+				assert(obj.segnum == segment_none);
+				assert(obj.next == object_none);
+				assert(obj.prev == object_none);
+#endif
+				obj_link_unchecked(Objects.vmptr, start_objp, segnum);
+			}
 
 			while (vmobjptr(static_cast<objnum_t>(--highest))->type == OBJ_NONE)
 			{
