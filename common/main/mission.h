@@ -141,6 +141,11 @@ namespace dsx {
 
 struct Mission : Mission_path
 {
+	enum class anarchy_only_level : bool
+	{
+		allow_any_game,
+		only_anarchy_games,
+	};
 	std::unique_ptr<ubyte[]>	secret_level_table; // originating level no for each secret level 
 	// arrays of names of the level files
 	std::unique_ptr<d_fname[]>	level_names;
@@ -149,7 +154,7 @@ struct Mission : Mission_path
 	ntstring<MISSION_NAME_LEN> mission_name;
 	d_fname	briefing_text_filename; // name of briefing file
 	d_fname	ending_text_filename; // name of ending file
-	ubyte   anarchy_only_flag;  // if true, mission is only for anarchy
+	anarchy_only_level anarchy_only_flag;  // if true, mission is only for anarchy
 	ubyte	last_level;
 	sbyte	last_secret_level;
 	ubyte	n_secret_levels;
@@ -200,7 +205,7 @@ extern Mission_ptr Current_mission; // current mission
 #define EMULATING_D1		(Mission::descent_version_type::descent1 == Current_mission->descent_version)
 #endif
 #define PLAYING_BUILTIN_MISSION	(Current_mission->builtin_hogsize != 0)
-#define ANARCHY_ONLY_MISSION	(1 == Current_mission->anarchy_only_flag)
+#define ANARCHY_ONLY_MISSION	(Mission::anarchy_only_level::only_anarchy_games == Current_mission->anarchy_only_flag)
 
 }
 #endif

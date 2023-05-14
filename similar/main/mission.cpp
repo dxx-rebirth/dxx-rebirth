@@ -93,7 +93,7 @@ struct mle : Mission_path
 #if defined(DXX_BUILD_DESCENT_II)
 	descent_version_type descent_version;    // descent 1 or descent 2?
 #endif
-	ubyte   anarchy_only_flag;  // if true, mission is anarchy only
+	Mission::anarchy_only_level anarchy_only_flag;  // if true, mission is anarchy only
 	mission_list_type directory;
 	mle(Mission_path &&m) :
 		Mission_path(std::move(m))
@@ -357,7 +357,7 @@ static void load_mission_shareware()
 {
     Current_mission->mission_name.copy_if(SHAREWARE_MISSION_NAME);
     Current_mission->descent_version = Mission::descent_version_type::descent2;
-    Current_mission->anarchy_only_flag = 0;
+    Current_mission->anarchy_only_flag = Mission::anarchy_only_level::allow_any_game;
     
     switch (Current_mission->builtin_hogsize)
 	{
@@ -391,7 +391,7 @@ static void load_mission_oem()
 {
     Current_mission->mission_name.copy_if(OEM_MISSION_NAME);
     Current_mission->descent_version = Mission::descent_version_type::descent2;
-    Current_mission->anarchy_only_flag = 0;
+    Current_mission->anarchy_only_flag = Mission::anarchy_only_level::allow_any_game;
     
 	allocate_levels(8, 2);
 	Current_mission->level_names[0] = "d2leva-1.rl2";
@@ -515,7 +515,7 @@ static int read_mission_file(mission_list_type &mission_list, mission_candidate_
 			? Mission::descent_version_type::descent2
 			: Mission::descent_version_type::descent1;
 #endif
-		mission->anarchy_only_flag = 0;
+		mission->anarchy_only_flag = Mission::anarchy_only_level::allow_any_game;
 
 		PHYSFSX_gets_line_t<80> buf;
 		const auto &&nv = get_any_mission_type_name_value(buf, mfile, descent_version);
@@ -550,7 +550,7 @@ static int read_mission_file(mission_list_type &mission_list, mission_candidate_
 				const auto p = get_value(temp);
 				//get mission type
 				if (p)
-					mission->anarchy_only_flag = istok(p,"anarchy");
+					mission->anarchy_only_flag = istok(p, "anarchy") ? Mission::anarchy_only_level::only_anarchy_games : Mission::anarchy_only_level::allow_any_game;
 			}
 		}
 		}
@@ -573,12 +573,10 @@ static void add_d1_builtin_mission_to_list(mission_list_type &mission_list)
 		case descent_hog_size::pc_shareware_v10:
 		case descent_hog_size::mac_shareware:
 		mission->mission_name.copy_if(D1_SHAREWARE_MISSION_NAME);
-		mission->anarchy_only_flag = 0;
 		break;
 		case descent_hog_size::pc_oem_v14:
 		case descent_hog_size::pc_oem_v10:
 		mission->mission_name.copy_if(D1_OEM_MISSION_NAME);
-		mission->anarchy_only_flag = 0;
 		break;
 	default:
 		Warning("Unknown D1 hogsize %d\n", underlying_value(size));
@@ -589,11 +587,10 @@ static void add_d1_builtin_mission_to_list(mission_list_type &mission_list)
 		case descent_hog_size::pc_retail_v10:
 		case descent_hog_size::mac_retail:
 		mission->mission_name.copy_if(D1_MISSION_NAME);
-		mission->anarchy_only_flag = 0;
 		break;
 	}
 
-	mission->anarchy_only_flag = 0;
+	mission->anarchy_only_flag = Mission::anarchy_only_level::allow_any_game;
 #if defined(DXX_BUILD_DESCENT_I)
 	mission->builtin_hogsize = underlying_value(size);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -609,7 +606,7 @@ static void set_hardcoded_mission(mission_list_type &mission_list, const char (&
 	mission_list.emplace_back(Mission_path(path, 0));
 	mle *mission = &mission_list.back();
 	mission->mission_name.copy_if(mission_name);
-	mission->anarchy_only_flag = 0;
+	mission->anarchy_only_flag = Mission::anarchy_only_level::allow_any_game;
 }
 
 static void add_builtin_mission_to_list(mission_list_type &mission_list, d_fname &name)
@@ -645,7 +642,7 @@ static void add_builtin_mission_to_list(mission_list_type &mission_list, d_fname
 	name.copy_if(mission->path.c_str(), FILENAME_LEN);
     mission->builtin_hogsize = size;
 	mission->descent_version = Mission::descent_version_type::descent2;
-	mission->anarchy_only_flag = 0;
+	mission->anarchy_only_flag = Mission::anarchy_only_level::allow_any_game;
 }
 #endif
 
@@ -713,7 +710,7 @@ static void add_missions_to_list(mission_list_type &mission_list, mission_candid
 			))
 			if (read_mission_file(mission_list, path))
 			{
-				if (mission_filter != mission_filter_mode::exclude_anarchy || !mission_list.back().anarchy_only_flag)
+				if (mission_filter != mission_filter_mode::exclude_anarchy || mission_list.back().anarchy_only_flag == Mission::anarchy_only_level::allow_any_game)
 				{
 					mission_list.back().builtin_hogsize = 0;
 				}
@@ -1518,7 +1515,7 @@ static int write_mission(void)
 
 	PHYSFSX_printf(mfile, "%sname = %s\n", prefix, static_cast<const char *>(Current_mission->mission_name));
 
-	PHYSFSX_printf(mfile, "type = %s\n", Current_mission->anarchy_only_flag ? "anarchy" : "normal");
+	PHYSFSX_printf(mfile, "type = %s\n", Current_mission->anarchy_only_flag == Mission::anarchy_only_level::only_anarchy_games ? "anarchy" : "normal");
 
 	if (Current_mission->briefing_text_filename[0])
 		PHYSFSX_printf(mfile, "briefing = %s\n", static_cast<const char *>(Current_mission->briefing_text_filename));
@@ -1552,7 +1549,7 @@ void create_new_mission(void)
 	Current_mission = std::make_unique<Mission>(Mission_path(MISSION_DIR "new_miss", sizeof(MISSION_DIR) - 1));		// limited to eight characters because of savegame format
 	Current_mission->mission_name.copy_if("Untitled");
 	Current_mission->builtin_hogsize = 0;
-	Current_mission->anarchy_only_flag = 0;
+	Current_mission->anarchy_only_flag = Mission::anarchy_only_level::allow_any_game;
 	
 	Current_mission->level_names = std::make_unique<d_fname[]>(1);
 	if (!Current_mission->level_names)
