@@ -601,7 +601,19 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 			obj.ctype.laser_info.parent_num       = obj_rw->ctype.laser_info.parent_num;
 			obj.ctype.laser_info.parent_signature = object_signature_t{static_cast<uint16_t>(obj_rw->ctype.laser_info.parent_signature)};
 			obj.ctype.laser_info.creation_time    = obj_rw->ctype.laser_info.creation_time;
-			obj.ctype.laser_info.reset_hitobj(obj_rw->ctype.laser_info.last_hitobj);
+			/* Use vcobjidx_t so that `object_none` fails the test and uses the
+			 * `else` path.  `reset_hitobj` can accept `object_none`, but it
+			 * cannot accept invalid indexes, such as the corrupted value
+			 * `0x1ff` produced by certain <0.60 builds, when they ran
+			 * `laser_info.hitobj_list[-1] = 1;` due to using `object_none`
+			 * (`-1` back then) as if it were a valid index.  That bug was
+			 * fixed in 14cdf1b3521ff82701c58c04e47a6c1deefe8e43, but some old
+			 * save games were corrupted by it, so trap that error here.
+			 */
+			if (const auto last_hitobj = obj_rw->ctype.laser_info.last_hitobj; vcobjidx_t::check_nothrow_index(last_hitobj))
+				obj.ctype.laser_info.reset_hitobj(last_hitobj);
+			else
+				obj.ctype.laser_info.clear_hitobj();
 			obj.ctype.laser_info.track_goal       = obj_rw->ctype.laser_info.track_goal;
 			obj.ctype.laser_info.multiplier       = obj_rw->ctype.laser_info.multiplier;
 #if defined(DXX_BUILD_DESCENT_II)

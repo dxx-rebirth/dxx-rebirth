@@ -6158,10 +6158,11 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 			obj.ctype.laser_info.parent_num       = INTEL_SHORT(obj_rw->ctype.laser_info.parent_num);
 			obj.ctype.laser_info.parent_signature = object_signature_t{static_cast<uint16_t>(INTEL_INT(obj_rw->ctype.laser_info.parent_signature))};
 			obj.ctype.laser_info.creation_time    = INTEL_INT(obj_rw->ctype.laser_info.creation_time);
-			{
-				const auto last_hitobj = INTEL_SHORT(obj_rw->ctype.laser_info.last_hitobj);
+			/* `last_hitobj` is untrusted network data, so it must be checked before use. */
+			if (const auto last_hitobj = INTEL_SHORT(obj_rw->ctype.laser_info.last_hitobj); vcobjidx_t::check_nothrow_index(last_hitobj))
 				obj.ctype.laser_info.reset_hitobj(last_hitobj);
-			}
+			else
+				obj.ctype.laser_info.clear_hitobj();
 			obj.ctype.laser_info.track_goal       = INTEL_SHORT(obj_rw->ctype.laser_info.track_goal);
 			obj.ctype.laser_info.multiplier       = INTEL_INT(obj_rw->ctype.laser_info.multiplier);
 #if defined(DXX_BUILD_DESCENT_II)
