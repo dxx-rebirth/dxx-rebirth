@@ -2459,6 +2459,90 @@ where the cast is useless.
 		self.Compile(context, text='', main=main, msg='whether compiler accepts -Wimplicit-fallthrough=5', successflags=_successflags)
 
 	@_custom_test
+	def check_compiler_overzealous_dangling_reference(self, context):
+		'''
+<gcc-13: -Wdangling-reference does not exist, so there is no problem
+=gcc-13.1.x: -Wextra implies -Wdangling-reference, and -Wdangling-reference is overzealous, triggering a warning in cases which are safe
+
+The warning is:
+
+```
+conftest_888dcb61611da0c235ca66f61ef1f3f9_0.cpp:92:21: error: possibly dangling reference to a temporary [-Werror=dangling-reference]
+   91 |     for (const int &x : range{a})
+      |                     ^
+conftest_888dcb61611da0c235ca66f61ef1f3f9_0.cpp:92:32: note: the temporary was destroyed at the end of the full expression '__for_begin .{anonymous}::iterator::operator*().{anonymous}::result_type::operator const int&()'
+   91 |     for (const int &x : range{a})
+```
+
+The example program is safe, because `range` only refers to `a`, and does not
+own it, so neither the destruction of `range`, nor the destruction of
+`iterator`, nor the destruction of `result_type` can invalidate the returned
+reference.  Unfortunately, as shipped in gcc-13, `-Wdangling-reference`
+triggers without regard to the underlying ownership.  See gcc bug reports for
+where this warning was created[1], some of the early reports of false positives[2],
+and the advice to disable it on safe classes.[3]
+
+Test whether the compiler warns for this case and, if it does, tell it
+not to warn, since even the original author acknowledges that this warning is
+susceptible to false-positives that require it to be disabled.
+
+Once all supported gcc versions recognize the test case as safe, this test can
+be removed.
+
+[1]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=106393
+[2]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108165
+|: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=109538
+|: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=109642
+|: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=109671
+[3]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108165#c15
+		'''
+		if not self.Compile(context, text='''
+namespace {
+
+struct result_type
+{
+	/* Using `const int &` for `p` can silence the gcc -Wdangling-reference warning. */
+	const int *p;
+	operator const int &() const { return *p; }
+};
+
+struct iterator
+{
+	const int *p;
+	result_type operator*()
+	{
+		return {p};
+	}
+	iterator &operator++()
+	{
+		++p;
+		return *this;
+	}
+	bool operator==(const iterator &) const = default;
+};
+
+struct range
+{
+	int (&a)[2];
+	iterator begin() const
+	{
+		return {a};
+	}
+	iterator end() const
+	{
+		return {&a[2]};
+	}
+};
+
+}
+''', main='''
+	int a[2]{};
+	for (const int &x : range{a})
+		(void)x;
+''', msg='whether compiler accepts safe use of references'):
+			self.successful_flags['CXXFLAGS'].append('-Wno-dangling-reference')
+
+	@_custom_test
 	def check_compiler_overzealous_unused_lambda_capture(self,context):
 		'''
 <clang-5: untested
