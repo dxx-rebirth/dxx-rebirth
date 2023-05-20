@@ -73,9 +73,7 @@ struct a_gamefont_conf
 {
 	int x;
 	int y;
-	union{
-		char name[64];//hrm.
-	} f;
+	std::array<char, 16> name;
 };
 
 struct gamefont_conf
@@ -96,9 +94,10 @@ static void gamefont_unloadfont(int gf)
 
 static void gamefont_loadfont(grs_canvas &canvas, int gf, int fi)
 {
-	if (PHYSFSX_exists(font_conf[gf].font[fi].f.name,1)){
+	if (PHYSFS_exists(font_conf[gf].font[fi].name.data()))
+	{
 		gamefont_unloadfont(gf);
-		Gamefonts[gf] = gr_init_font(canvas, font_conf[gf].font[fi].f.name);
+		Gamefonts[gf] = gr_init_font(canvas, font_conf[gf].font[fi].name.data());
 	}else {
 		if (!Gamefonts[gf]){
 			font_conf[gf].cur=-1;
@@ -160,16 +159,16 @@ void gamefont_choose_game_font(int scrx,int scry){
 
 namespace {
 
-static void addfontconf(int gf, int x, int y, const char *const fn)
+static void addfontconf(int gf, int x, int y, const std::span<const char, 16> fn)
 {
-	if (!PHYSFSX_exists(fn,1))
+	if (!PHYSFS_exists(fn.data()))
 		return;
 
 	for (int i=0;i<font_conf[gf].num;i++){
 		if (font_conf[gf].font[i].x==x && font_conf[gf].font[i].y==y){
 			if (i==font_conf[gf].cur)
 				gamefont_unloadfont(gf);
-			strcpy(font_conf[gf].font[i].f.name,fn);
+			std::memcpy(font_conf[gf].font[i].name.data(), fn.data(), fn.size());
 			if (i==font_conf[gf].cur)
 				gamefont_loadfont(*grd_curcanv, gf, i);
 			return;
@@ -177,7 +176,7 @@ static void addfontconf(int gf, int x, int y, const char *const fn)
 	}
 	font_conf[gf].font[font_conf[gf].num].x=x;
 	font_conf[gf].font[font_conf[gf].num].y=y;
-	strcpy(font_conf[gf].font[font_conf[gf].num].f.name,fn);
+	std::memcpy(font_conf[gf].font[font_conf[gf].num].name.data(), fn.data(), fn.size());
 	font_conf[gf].num++;
 }
 
