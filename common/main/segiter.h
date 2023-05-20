@@ -29,18 +29,17 @@ class segment_object_range_t
 	class sentinel;
 	const iterator b;
 public:
-	segment_object_range_t(iterator &&o) :
-		b(std::move(o))
+	segment_object_range_t(const unique_segment &s, auto &object_factory, auto &segment_factory) :
+		b(construct(s, object_factory, segment_factory))
 	{
 	}
 	const iterator &begin() const { return b; }
 	static sentinel end() { return {}; }
-	template <typename OF, typename SF>
-		static segment_object_range_t construct(const unique_segment &s, OF &of, SF &sf)
+	static T construct(const unique_segment &s, auto &of, auto &sf)
 		{
 			if (s.objects == object_none)
-				return iterator(T(object_none, static_cast<typename T::allow_none_construction *>(nullptr)));
-			auto &&opi = of(s.objects);
+				return T(object_none, static_cast<typename T::allow_none_construction *>(nullptr));
+			auto opi = of(s.objects);
 			const object_base &o = opi;
 #if DXX_SEGITER_DEBUG_OBJECT_LINKAGE
 			/* Assert that the first object in the segment claims to be
@@ -60,7 +59,7 @@ public:
 			 * emitting code to implement the test.
 			 */
 			static_cast<void>(sizeof(&*sf(o.segnum) == &s));
-			return iterator(std::move(opi));
+			return opi;
 		}
 };
 
@@ -81,7 +80,7 @@ public:
 	using difference_type = std::ptrdiff_t;
 	using pointer = void;
 	using reference = T;
-	iterator(T &&o) :
+	iterator(T o) :
 		T(std::move(o))
 	{
 	}
@@ -127,11 +126,10 @@ public:
 	}
 };
 
-template <typename OF, typename SF, typename R = segment_object_range_t<decltype(std::declval<OF &>()(object_first))>>
 [[nodiscard]]
-static inline R objects_in(const unique_segment &s, OF &of, SF &sf)
+static inline auto objects_in(const unique_segment &s, auto &object_factory, auto &segment_factory) -> segment_object_range_t<decltype(object_factory(object_first))>
 {
-	return R::construct(s, of, sf);
+	return {s, object_factory, segment_factory};
 }
 
 }
