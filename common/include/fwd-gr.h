@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include <cstdint>
 #include <memory>
+#include <span>
 #include <utility>
 #include "d_array.h"
 #include "palette.h"
@@ -277,7 +278,7 @@ struct font_delete;
 typedef std::unique_ptr<grs_font, font_delete> grs_font_ptr;
 
 // Reads in a font file... current font set to this one.
-grs_font_ptr gr_init_font(grs_canvas &canvas, const char * fontfile);
+grs_font_ptr gr_init_font(grs_canvas &canvas, std::span<const char> fontfile);
 
 }
 

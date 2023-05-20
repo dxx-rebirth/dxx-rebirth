@@ -103,11 +103,11 @@ static void gamefont_loadfont(grs_canvas &canvas, const int gf, const gamefont_c
 	if (PHYSFS_exists(font_conf[gf].font[fi].name.data()))
 	{
 		gamefont_unloadfont(gf);
-		Gamefonts[gf] = gr_init_font(canvas, font_conf[gf].font[fi].name.data());
+		Gamefonts[gf] = gr_init_font(canvas, font_conf[gf].font[fi].name);
 	}else {
 		if (!Gamefonts[gf]){
 			font_conf[gf].cur = gamefont_conf::font_index::None;
-			Gamefonts[gf] = gr_init_font(canvas, Gamefont_filenames_l[gf].data());
+			Gamefonts[gf] = gr_init_font(canvas, Gamefont_filenames_l[gf]);
 		}
 		return;
 	}

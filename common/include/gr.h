@@ -323,7 +323,7 @@ struct grs_font : public prohibit_void_ptr<grs_font>
 	int16_t     ft_baseline;    //
 	uint8_t     ft_minchar;     // First char defined by this font
 	uint8_t     ft_maxchar;     // Last char defined by this font
-	std::array<char, 13> ft_filename;
+	std::array<char, 13> ft_filename{};
 	const uint8_t *ft_data = nullptr;        // Ptr to raw data.
 	const uint8_t *const *ft_chars = nullptr;       // Ptrs to data for each char (required for prop font)
 	const int16_t *ft_widths = nullptr;      // Array of widths (required for prop font)

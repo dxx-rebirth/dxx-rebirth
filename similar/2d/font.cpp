@@ -868,7 +868,7 @@ void gr_close_font(std::unique_ptr<grs_font> font)
 }
 
 //remap a font, re-reading its data & palette
-static void gr_remap_font(grs_font *font, const char *fontname);
+static void gr_remap_font(grs_font *font, std::span<const char> fontname);
 
 //remap (by re-reading) all the color fonts
 void gr_remap_color_fonts()
@@ -876,7 +876,7 @@ void gr_remap_color_fonts()
 	range_for (auto font, open_font)
 	{
 		if (font)
-			gr_remap_font(font, &font->ft_filename[0]);
+			gr_remap_font(font, font->ft_filename);
 	}
 }
 
@@ -900,7 +900,7 @@ static void grs_font_read(grs_font *gf, PHYSFS_File *fp)
 	gf->ft_kerndata = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(PHYSFSX_readInt(fp)) - GRS_FONT_SIZE);
 }
 
-static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
+static std::unique_ptr<grs_font> gr_internal_init_font(const std::span<const char> fontname)
 {
 	color_palette_index *ptr;
 	color_palette_index *ft_data;
@@ -909,10 +909,10 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 		unsigned datasize;	//size up to (but not including) palette
 	} file_header;
 
-	auto &&[fontfile, physfserr] = PHYSFSX_openReadBuffered(fontname);
+	auto &&[fontfile, physfserr] = PHYSFSX_openReadBuffered(fontname.data());
 
 	if (!fontfile) {
-		con_printf(CON_VERBOSE, "Failed to open font file \"%s\": %s", fontname, PHYSFS_getErrorByCode(physfserr));
+		con_printf(CON_VERBOSE, "Failed to open font file \"%s\": %s", fontname.data(), PHYSFS_getErrorByCode(physfserr));
 		return {};
 	}
 
@@ -921,7 +921,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 		memcmp(file_header.magic.data(), "PSFN", 4) ||
 		(file_header.datasize = INTEL_INT(file_header.datasize)) < GRS_FONT_SIZE)
 	{
-		con_printf(CON_NORMAL, "Invalid header in font file %s", fontname);
+		con_printf(CON_NORMAL, "Invalid header in font file %s", fontname.data());
 		return {};
 	}
 
@@ -940,7 +940,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 	const auto font_data = &ft_allocdata[ft_chars_storage];
 	if (PHYSFS_read(fontfile, font_data, 1, datasize) != datasize)
 	{
-		con_printf(CON_URGENT, "Insufficient data in font file %s", fontname);
+		con_printf(CON_URGENT, "Insufficient data in font file %s", fontname.data());
 		return {};
 	}
 
@@ -949,14 +949,14 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 		auto w = reinterpret_cast<short *>(&font_data[offset_widths]);
 		if (offset_widths >= datasize || offset_widths + (nchars * sizeof(*w)) >= datasize)
 		{
-			con_printf(CON_URGENT, "Missing widths in font file %s", fontname);
+			con_printf(CON_URGENT, "Missing widths in font file %s", fontname.data());
 			return {};
 		}
 		font->ft_widths = w;
 		const auto offset_data = reinterpret_cast<uintptr_t>(font->ft_data);
 		if (offset_data >= datasize)
 		{
-			con_printf(CON_URGENT, "Missing data in font file %s", fontname);
+			con_printf(CON_URGENT, "Missing data in font file %s", fontname.data());
 			return {};
 		}
 		font->ft_data = ptr = ft_data = &font_data[offset_data];
@@ -987,7 +987,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 		const auto offset_kerndata = reinterpret_cast<uintptr_t>(font->ft_kerndata);
 		if (datasize <= offset_kerndata)
 		{
-			con_printf(CON_URGENT, "Missing kerndata in font file %s", fontname);
+			con_printf(CON_URGENT, "Missing kerndata in font file %s", fontname.data());
 			return {};
 		}
 		const auto begin_kerndata = reinterpret_cast<const unsigned char *>(&font_data[offset_kerndata]);
@@ -996,7 +996,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 		{
 			if (cur_kerndata == end_font_data)
 			{
-				con_printf(CON_URGENT, "Unterminated kerndata in font file %s", fontname);
+				con_printf(CON_URGENT, "Unterminated kerndata in font file %s", fontname.data());
 				return {};
 			}
 			if (*cur_kerndata == kerndata_terminator)
@@ -1031,13 +1031,13 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const char *fontname)
 
 	auto &ft_filename = font->ft_filename;
 	font->ft_allocdata = std::move(ft_allocdata);
-	strncpy(&ft_filename[0], fontname, ft_filename.size());
+	std::memcpy(ft_filename.data(), fontname.data(), std::min(fontname.size(), std::size(ft_filename) - 1));
 	return font;
 }
 
 }
 
-grs_font_ptr gr_init_font(grs_canvas &canvas, const char *fontname)
+grs_font_ptr gr_init_font(grs_canvas &canvas, const std::span<const char> fontname)
 {
 	auto font = gr_internal_init_font(fontname);
 	if (!font)
@@ -1061,7 +1061,7 @@ grs_font_ptr gr_init_font(grs_canvas &canvas, const char *fontname)
 }
 
 //remap a font by re-reading its data & palette
-void gr_remap_font(grs_font *font, const char *fontname)
+void gr_remap_font(grs_font *font, const std::span<const char> fontname)
 {
 	auto n = gr_internal_init_font(fontname);
 	if (!n)
