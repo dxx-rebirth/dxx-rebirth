@@ -41,20 +41,20 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace {
 
-constexpr std::array<char[16], 5> Gamefont_filenames_l{{
-	"font1-1.fnt", // Font 0
-	"font2-1.fnt", // Font 1
-	"font2-2.fnt", // Font 2
-	"font2-3.fnt", // Font 3
-	"font3-1.fnt"  // Font 4
+constexpr std::array<std::array<char, 16>, 5> Gamefont_filenames_l{{
+	{"font1-1.fnt"}, // Font 0
+	{"font2-1.fnt"}, // Font 1
+	{"font2-2.fnt"}, // Font 2
+	{"font2-3.fnt"}, // Font 3
+	{"font3-1.fnt"}  // Font 4
 }};
 
-constexpr std::array<char[16], 5> Gamefont_filenames_h{{
-	"font1-1h.fnt", // Font 0
-	"font2-1h.fnt", // Font 1
-	"font2-2h.fnt", // Font 2
-	"font2-3h.fnt", // Font 3
-	"font3-1h.fnt"  // Font 4
+constexpr std::array<std::array<char, 16>, 5> Gamefont_filenames_h{{
+	{"font1-1h.fnt"}, // Font 0
+	{"font2-1h.fnt"}, // Font 1
+	{"font2-2h.fnt"}, // Font 2
+	{"font2-3h.fnt"}, // Font 3
+	{"font3-1h.fnt"}  // Font 4
 }};
 
 static int Gamefont_installed;
@@ -101,7 +101,7 @@ static void gamefont_loadfont(grs_canvas &canvas, int gf, int fi)
 	}else {
 		if (!Gamefonts[gf]){
 			font_conf[gf].cur=-1;
-			Gamefonts[gf] = gr_init_font(canvas, Gamefont_filenames_l[gf]);
+			Gamefonts[gf] = gr_init_font(canvas, Gamefont_filenames_l[gf].data());
 		}
 		return;
 	}
@@ -159,7 +159,7 @@ void gamefont_choose_game_font(int scrx,int scry){
 
 namespace {
 
-static void addfontconf(int gf, int x, int y, const std::span<const char, 16> fn)
+static void addfontconf(int gf, int x, int y, const std::array<char, 16> &fn)
 {
 	if (!PHYSFS_exists(fn.data()))
 		return;
@@ -168,7 +168,7 @@ static void addfontconf(int gf, int x, int y, const std::span<const char, 16> fn
 		if (font_conf[gf].font[i].x==x && font_conf[gf].font[i].y==y){
 			if (i==font_conf[gf].cur)
 				gamefont_unloadfont(gf);
-			std::memcpy(font_conf[gf].font[i].name.data(), fn.data(), fn.size());
+			font_conf[gf].font[i].name = fn;
 			if (i==font_conf[gf].cur)
 				gamefont_loadfont(*grd_curcanv, gf, i);
 			return;
@@ -176,7 +176,7 @@ static void addfontconf(int gf, int x, int y, const std::span<const char, 16> fn
 	}
 	font_conf[gf].font[font_conf[gf].num].x=x;
 	font_conf[gf].font[font_conf[gf].num].y=y;
-	std::memcpy(font_conf[gf].font[font_conf[gf].num].name.data(), fn.data(), fn.size());
+	font_conf[gf].font[font_conf[gf].num].name = fn;
 	font_conf[gf].num++;
 }
 
