@@ -45,7 +45,7 @@ namespace {
 static SDL_RWops_callback_seek_position physfsrwops_seek(SDL_RWops *rw, const SDL_RWops_callback_seek_position offset, const int whence)
 {
     PHYSFS_File *handle = reinterpret_cast<PHYSFS_File *>(rw->hidden.unknown.data1);
-    SDL_RWops_callback_seek_position pos = 0;
+	SDL_RWops_callback_seek_position pos;
 
     if (whence == SEEK_SET)
     {
@@ -62,21 +62,35 @@ static SDL_RWops_callback_seek_position physfsrwops_seek(SDL_RWops *rw, const SD
             return(-1);
         } /* if */
 
-#if SDL_MAJOR_VERSION == 1
-        pos = static_cast<int>(current);
-        if (static_cast<PHYSFS_sint64>(pos) != current)
+		if (!std::in_range<SDL_RWops_callback_seek_position>(current))
         {
             SDL_SetError("Can't fit current file position in an int!");
             return(-1);
         } /* if */
-#else
-        pos = current;
-#endif
-
         if (offset == 0)  /* this is a "tell" call. We're done. */
-            return(pos);
+			return current;
 
-        pos += offset;
+		/* When `SDL_RWops_callback_seek_position` is `int`, this assignment
+		 * converts to a narrower type, but the call to std::in_range above
+		 * rejected any values for which the narrowing would change the
+		 * observed value.  An assignment which prohibits narrowing would be
+		 * ill-formed, since the compile-time check for narrowing is
+		 * context-free and assumes the worst case.  Therefore, an
+		 * initialization that prohibited narrowing would trigger a compile
+		 * error.
+		 *
+		 * When `SDL_RWops_callback_seek_position` is `Sint64`, then on
+		 * x86_64-w64-mingw32,
+		 * `static_cast<SDL_RWops_callback_seek_position>(v)` triggers
+		 * `-Wuseless-cast`.
+		 *
+		 * When `SDL_RWops_callback_seek_position` is `Sint64`, then on
+		 * x86_64-pc-linux-gnu,
+		 * `static_cast<SDL_RWops_callback_seek_position>(v)` is accepted
+		 * without issue.
+		 */
+		const SDL_RWops_callback_seek_position rwcurrent = current;
+		pos = rwcurrent + offset;
     } /* else if */
 
     else if (whence == SEEK_END)
@@ -88,18 +102,14 @@ static SDL_RWops_callback_seek_position physfsrwops_seek(SDL_RWops *rw, const SD
             return(-1);
         } /* if */
 
-#if SDL_MAJOR_VERSION == 1
-        pos = static_cast<int>(len);
-        if (static_cast<PHYSFS_sint64>(pos) != len)
+		if (!std::in_range<SDL_RWops_callback_seek_position>(len))
         {
             SDL_SetError("Can't fit end-of-file position in an int!");
             return(-1);
         } /* if */
-#else
-        pos = len;
-#endif
 
-        pos += offset;
+		const SDL_RWops_callback_seek_position rwlen = len;
+		pos = rwlen + offset;
     } /* else if */
 
     else
