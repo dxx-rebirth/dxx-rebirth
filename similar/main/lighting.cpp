@@ -71,7 +71,6 @@ using std::min;
 namespace dcx {
 namespace {
 
-static int Do_dynamic_light=1;
 static int use_fcd_lighting;
 
 static void add_light_div(g3s_lrgb &d, const g3s_lrgb &light, const fix &scale)
@@ -519,9 +518,6 @@ void set_dynamic_light(const d_robot_info_array &Robot_info, render_state_t &rst
 #if defined(DXX_BUILD_DESCENT_II)
 	LevelUniqueLightState.Num_headlights = 0;
 #endif
-
-	if (!Do_dynamic_light)
-		return;
 
 	light_time += FrameTime;
 	if (light_time < (F1_0/60)) // it's enough to stress the CPU 60 times per second
