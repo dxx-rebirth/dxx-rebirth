@@ -592,10 +592,16 @@ void control_center_triggers_read(control_center_triggers &cct, PHYSFS_File *fp)
 {
 	const v1_control_center_triggers v1cct{fp};
 	cct = {};
-	const auto num_links = v1cct.num_links;
+	const std::size_t num_links{v1cct.num_links};
 	if (unlikely(!num_links))
 		return;
-	const auto &&cct_input_range = zip(partial_range(v1cct.seg, num_links), v1cct.side);
+	/* num_links is derived from level data, which may be invalid.
+	 */
+	constexpr std::size_t maximum_allowed_links{std::size(v1cct.seg)};
+	const auto clamped_num_links{std::min(num_links, maximum_allowed_links)};
+	if (unlikely(clamped_num_links != num_links))
+		LevelError("too many control center triggers (found %" DXX_PRI_size_type ", max %" DXX_PRI_size_type "); ignoring excess triggers.", num_links, maximum_allowed_links);
+	const auto &&cct_input_range = zip(partial_range(v1cct.seg, clamped_num_links), v1cct.side);
 	const auto &&cct_output_range = zip(cct.seg, cct.side);
 	auto oi = cct_output_range.begin();
 	auto ii = cct_input_range.begin();
@@ -607,7 +613,10 @@ void control_center_triggers_read(control_center_triggers &cct, PHYSFS_File *fp)
 		const auto &&[iseg, iside] = *ii;
 		const auto si = build_sidenum_from_untrusted(iside);
 		if (!si)
+		{
+			LevelError("invalid segment side %u in control center trigger; ignoring.", iside);
 			continue;
+		}
 		/* Descent 2: Vertigo level 10 specifies an invalid control center trigger.
 		 * seg[0] is 0x257, but the level only has 0x1ae segments defined.
 		 * Attempting to access segment 0x257 is undefined behavior, and will crash
@@ -615,7 +624,16 @@ void control_center_triggers_read(control_center_triggers &cct, PHYSFS_File *fp)
 		 * structure at load time.
 		 */
 		if (iseg >= segment_count)
+		{
+			/* When playing Vertigo, only log at verbose level, since users
+			 * cannot fix the level.
+			 *
+			 * For any other mission, log at urgent level, so that level
+			 * authors will fix their level.
+			 */
+			LevelErrorV(!strcmp(Current_mission->briefing_text_filename, "d2x.txb") ? CON_VERBOSE : CON_URGENT, "invalid segment index %u in control center trigger; ignoring.", iseg);
 			continue;
+		}
 		auto &&[oseg, oside] = *oi;
 		++ oi;
 		oseg = iseg;
