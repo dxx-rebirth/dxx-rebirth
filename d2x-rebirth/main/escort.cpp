@@ -1133,12 +1133,10 @@ static int maybe_buddy_fire_mega(const vmobjptridx_t objp, const vcobjptridx_t B
 }
 
 //-----------------------------------------------------------------------------
-static int maybe_buddy_fire_smart(const vmobjptridx_t objp)
+static int maybe_buddy_fire_smart(const vmobjptridx_t objp, const vcobjptridx_t buddy_objp)
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	auto &Objects = LevelUniqueObjectState.Objects;
-	const auto Buddy_objnum = BuddyState.Buddy_objnum;
-	const auto &&buddy_objp = objp.absolute_sibling(Buddy_objnum);
 	fix		dist;
 
 	dist = vm_vec_dist_quick(buddy_objp->pos, objp->pos);
@@ -1185,7 +1183,7 @@ static void do_buddy_dude_stuff(const vmobjptridx_t buddy_objp)
 		range_for (const auto &&objp, rh)
 		{
 			if ((objp->type == OBJ_ROBOT) && !Robot_info[get_robot_id(objp)].companion)
-				if (maybe_buddy_fire_smart(objp)) {
+				if (maybe_buddy_fire_smart(objp, buddy_objp)) {
 					BuddyState.Buddy_last_missile_time = GameTime64;
 					return;
 				}
