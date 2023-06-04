@@ -1098,23 +1098,21 @@ static void bash_buddy_weapon_info(d_unique_buddy_state &BuddyState, fvmobjptrid
 }
 
 //	-----------------------------------------------------------------------------
-static int maybe_buddy_fire_mega(const vmobjptridx_t objp)
+static int maybe_buddy_fire_mega(const vmobjptridx_t objp, const vcobjptridx_t Buddy_objp)
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	auto &Objects = LevelUniqueObjectState.Objects;
-	const auto Buddy_objnum = BuddyState.Buddy_objnum;
-	const auto &&buddy_objp = objp.absolute_sibling(Buddy_objnum);
-	const auto &&[dist, vec_to_robot] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(buddy_objp->pos, objp->pos));
+	const auto &&[dist, vec_to_robot] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(Buddy_objp->pos, objp->pos));
 
 	if (dist > F1_0*100)
 		return 0;
 
-	const auto dot = vm_vec_dot(vec_to_robot, buddy_objp->orient.fvec);
+	const auto dot = vm_vec_dot(vec_to_robot, Buddy_objp->orient.fvec);
 
 	if (dot < F1_0/2)
 		return 0;
 
-	if (!object_to_object_visibility(buddy_objp, objp, FQ_TRANSWALL))
+	if (!object_to_object_visibility(Buddy_objp, objp, FQ_TRANSWALL))
 		return 0;
 
 	if (Weapon_info[weapon_id_type::MEGA_ID].render == weapon_info::render_type::laser) {
@@ -1125,7 +1123,8 @@ static int maybe_buddy_fire_mega(const vmobjptridx_t objp)
 
 	buddy_message("GAHOOGA!");
 
-	const imobjptridx_t weapon_objnum = Laser_create_new_easy(LevelSharedRobotInfoState.Robot_info, buddy_objp->orient.fvec, buddy_objp->pos, objp, weapon_id_type::MEGA_ID, weapon_sound_flag::audible);
+	auto &buddy = *Buddy_objp;
+	const imobjptridx_t weapon_objnum = Laser_create_new_easy(LevelSharedRobotInfoState.Robot_info, buddy.orient.fvec, buddy.pos, objp, weapon_id_type::MEGA_ID, weapon_sound_flag::audible);
 
 	if (weapon_objnum != object_none)
 		bash_buddy_weapon_info(BuddyState, Objects.vmptridx, weapon_objnum);
@@ -1161,7 +1160,7 @@ static int maybe_buddy_fire_smart(const vmobjptridx_t objp)
 }
 
 //	-----------------------------------------------------------------------------
-static void do_buddy_dude_stuff(void)
+static void do_buddy_dude_stuff(const vmobjptridx_t buddy_objp)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
@@ -1176,7 +1175,7 @@ static void do_buddy_dude_stuff(void)
 		range_for (const auto &&objp, rh)
 		{
 			if ((objp->type == OBJ_ROBOT) && !Robot_info[get_robot_id(objp)].companion)
-				if (maybe_buddy_fire_mega(objp)) {
+				if (maybe_buddy_fire_mega(objp, buddy_objp)) {
 					BuddyState.Buddy_last_missile_time = GameTime64;
 					return;
 				}
@@ -1238,7 +1237,7 @@ void do_escort_frame(const vmobjptridx_t objp, const robot_info &robptr, const o
 	}
 
 	if (cheats.buddyangry)
-		do_buddy_dude_stuff();
+		do_buddy_dude_stuff(objp);
 
 	{
 		const auto buddy_sorry_time = BuddyState.Buddy_sorry_time;
