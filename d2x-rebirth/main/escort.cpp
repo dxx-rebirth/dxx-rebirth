@@ -671,15 +671,11 @@ static icobjidx_t exists_in_mine_2(const unique_segment &segp, const int objtype
 }
 
 //	-----------------------------------------------------------------------------
-static std::pair<icsegidx_t, d_unique_buddy_state::Escort_goal_reachability> exists_fuelcen_in_mine(const vcsegidx_t start_seg, const player_flags powerup_flags)
+static std::pair<icsegidx_t, d_unique_buddy_state::Escort_goal_reachability> exists_fuelcen_in_mine(const object &Buddy_objp, const player_flags powerup_flags)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
+	const vcsegidx_t start_seg{Buddy_objp.segnum};
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	auto &vmobjptr = Objects.vmptr;
 	std::array<segnum_t, MAX_SEGMENTS> bfs_list;
-	auto &BuddyState = LevelUniqueObjectState.BuddyState;
-	const auto Buddy_objnum = BuddyState.Buddy_objnum;
-	const auto &&Buddy_objp = vmobjptr(Buddy_objnum);
 	auto &robptr = Robot_info[get_robot_id(Buddy_objp)];
 	const auto length = create_bfs_list(Buddy_objp, robptr, start_seg, powerup_flags, bfs_list);
 	{
@@ -934,7 +930,7 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const robot_inf
 				break;
 			case ESCORT_GOAL_ENERGYCEN:
 				{
-					const auto &&ef = exists_fuelcen_in_mine(objp->segnum, powerup_flags);
+					const auto &&ef = exists_fuelcen_in_mine(objp, powerup_flags);
 					set_escort_goal_non_object(BuddyState);
 				if (ef.second != d_unique_buddy_state::Escort_goal_reachability::unreachable)
 					escort_go_to_goal(objp, robptr, aip, ef.first);
