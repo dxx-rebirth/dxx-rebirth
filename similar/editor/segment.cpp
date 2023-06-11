@@ -588,7 +588,7 @@ void med_combine_duplicate_vertices(enumerated_array<uint8_t, MAX_VERTICES, vert
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptridx = Vertices.vcptridx;
-	const auto &&range = make_range(vcvertptridx);
+	const std::ranges::subrange range{vcvertptridx};
 	// Note: ok to do to <, rather than <= because w for loop starts at v+1
 	if (range.empty())
 		return;

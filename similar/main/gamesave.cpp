@@ -1195,7 +1195,7 @@ static int load_game_data(
 #if DXX_USE_EDITOR
 	//go through all triggers, killing unused ones
 	{
-		const auto &&wr = make_range(vmwallptr);
+		const std::ranges::subrange wr{vmwallptr};
 		for (auto iter = Triggers.vmptridx.begin(); iter != Triggers.vmptridx.end();)
 		{
 			const auto i = (*iter).get_unchecked_index();

@@ -67,6 +67,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "escort.h"
 #include "vclip.h"
 #include "segiter.h"
+#include "backports-ranges.h"
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
 #include "d_levelstate.h"
@@ -688,7 +689,7 @@ static std::pair<icsegidx_t, d_unique_buddy_state::Escort_goal_reachability> exi
 			return {*i, d_unique_buddy_state::Escort_goal_reachability::reachable};
 	}
 	{
-		const auto &&rh = make_range(vcsegptridx);
+		const ranges::subrange rh{vcsegptridx};
 		const auto &&i = ranges::find(rh, segment_special::fuelcen, &shared_segment::special);
 		if (i != rh.end())
 			return {*i, d_unique_buddy_state::Escort_goal_reachability::unreachable};
@@ -1169,7 +1170,7 @@ static void do_buddy_dude_stuff(const vmobjptridx_t buddy_objp)
 	if (BuddyState.Buddy_last_missile_time + F1_0*2 < GameTime64) {
 		//	See if a robot potentially in view cone
 		auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-		auto &&rh = make_range(vmobjptridx);
+		const ranges::subrange rh{vmobjptridx};
 		range_for (const auto &&objp, rh)
 		{
 			if ((objp->type == OBJ_ROBOT) && !Robot_info[get_robot_id(objp)].companion)

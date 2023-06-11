@@ -60,6 +60,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "args.h"
 #include "vclip.h"
+#include "backports-ranges.h"
 #include "compiler-range_for.h"
 #include "d_levelstate.h"
 #include "partial_range.h"
@@ -2103,8 +2104,8 @@ static void cockpit_decode_alpha(const hud_draw_context_mr hudctx, grs_bitmap *c
 	};
 	range_for (auto &s,
 		multires_gauge_graphic.is_hires()
-		? make_range(weapon_windows_hires)
-		: make_range(weapon_windows_lowres)
+		? ranges::subrange(weapon_windows_hires)
+		: ranges::subrange(weapon_windows_lowres)
 	)
 	{
 		fill_alpha_one_line(i, s.l);

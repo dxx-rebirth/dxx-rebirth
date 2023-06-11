@@ -505,16 +505,6 @@ inline auto (partial_const_range)(const char *const file, const unsigned line, c
 	return partial_range<required_buffer_size, const range_type, index_end_type>(file, line, estr, range, index_end);
 }
 
-template <typename range_type>
-[[nodiscard]]
-inline partial_range_t<
-	decltype(std::begin(std::declval<range_type &>())),
-	decltype(partial_range_detail::range_index_type<range_type>(nullptr))
-> (make_range)(range_type &t)
-{
-	return t;
-}
-
 /* Explicitly block use on rvalue t because returned partial_range_t<I>
  * will outlive the rvalue.
  */
