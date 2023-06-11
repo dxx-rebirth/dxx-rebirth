@@ -6,6 +6,7 @@
  */
 /* 8 bit decoding routines */
 
+#include <algorithm>
 #include <cstdint>
 #include <stdio.h>
 #include <string.h>
@@ -85,9 +86,9 @@ static void copyFrame(uint8_t *pDest, const uint8_t *pSrc)
 	range_for (const int i, xrange(8u))
 	{
 		(void)i;
-		memcpy(pDest, pSrc, 8);
-		pDest += width;
-		pSrc += width;
+		std::copy_n(pSrc, 8, pDest);
+		std::advance(pDest, width);
+		std::advance(pSrc, width);
 	}
 }
 
@@ -103,7 +104,7 @@ static void patternRow4Pixels(unsigned char *pFrame,
 
 	while (mask != 0)
 	{
-		*pFrame++ = p[(mask & pattern) >> shift];
+		*pFrame++ = {p[(mask & pattern) >> shift]};
 		mask <<= 2;
 		shift += 2;
 	}
@@ -112,22 +113,21 @@ static void patternRow4Pixels(unsigned char *pFrame,
 // Fill in the next four 2x2 pixel blocks with p[0], p[1], p[2], or p[3],
 // depending on the corresponding two-bit value in pat0.
 static void patternRow4Pixels2(unsigned char *pFrame,
-							   unsigned char pat0,
+							   const uint8_t pat0,
 							   const std::array<uint8_t, 4> &p)
 {
 	unsigned char mask=0x03;
 	unsigned char shift=0;
-	unsigned char pel;
 
 	const auto width = g_width;
 	while (mask != 0)
 	{
-		pel = p[(mask & pat0) >> shift];
-		pFrame[0] = pel;
-		pFrame[1] = pel;
-		pFrame[width + 0] = pel;
-		pFrame[width + 1] = pel;
-		pFrame += 2;
+		const auto pel{p[(mask & pat0) >> shift]};
+		pFrame[0] = {pel};
+		pFrame[1] = {pel};
+		pFrame[width + 0] = {pel};
+		pFrame[width + 1] = {pel};
+		std::advance(pFrame, 2);
 		mask <<= 2;
 		shift += 2;
 	}
@@ -135,18 +135,17 @@ static void patternRow4Pixels2(unsigned char *pFrame,
 
 // Fill in the next four 2x1 pixel blocks with p[0], p[1], p[2], or p[3],
 // depending on the corresponding two-bit value in pat.
-static void patternRow4Pixels2x1(unsigned char *pFrame, unsigned char pat, const std::array<uint8_t, 4> &p)
+static void patternRow4Pixels2x1(unsigned char *pFrame, const uint8_t pat, const std::array<uint8_t, 4> &p)
 {
 	unsigned char mask=0x03;
 	unsigned char shift=0;
-	unsigned char pel;
 
 	while (mask != 0)
 	{
-		pel = p[(mask & pat) >> shift];
-		pFrame[0] = pel;
-		pFrame[1] = pel;
-		pFrame += 2;
+		const auto pel{p[(mask & pat) >> shift]};
+		pFrame[0] = {pel};
+		pFrame[1] = {pel};
+		std::advance(pFrame, 2);
 		mask <<= 2;
 		shift += 2;
 	}
@@ -163,10 +162,10 @@ static void patternQuadrant4Pixels(unsigned char *pFrame, unsigned char pat0, un
 	const auto width = g_width;
 	range_for (const int i, xrange(16u))
 	{
-		pFrame[i&3] = p[(pat & mask) >> shift];
+		pFrame[i & 3] = {p[(pat & mask) >> shift]};
 
 		if ((i&3) == 3)
-			pFrame += width;
+			std::advance(pFrame, width);
 
 		mask <<= 2;
 		shift += 2;
@@ -174,54 +173,48 @@ static void patternQuadrant4Pixels(unsigned char *pFrame, unsigned char pat0, un
 }
 
 // fills the next 8 pixels with either p[0] or p[1], depending on pattern
-static void patternRow2Pixels(unsigned char *pFrame, unsigned char pat, const std::array<uint8_t, 4> &p)
+static void patternRow2Pixels(unsigned char *pFrame, const uint8_t pat, const std::array<uint8_t, 4> &p)
 {
 	unsigned char mask=0x01;
 
 	while (mask != 0)
 	{
-		*pFrame++ = p[(mask & pat) ? 1 : 0];
+		*pFrame++ = {p[(mask & pat) ? 1 : 0]};
 		mask <<= 1;
 	}
 }
 
 // fills the next four 2 x 2 pixel boxes with either p[0] or p[1], depending on pattern
-static void patternRow2Pixels2(unsigned char *pFrame, unsigned char pat, const std::array<uint8_t, 4> &p)
+static void patternRow2Pixels2(unsigned char *pFrame, const uint8_t pat, const std::array<uint8_t, 4> &p)
 {
-	unsigned char pel;
 	unsigned char mask=0x1;
 
 	const auto width = g_width;
 	while (mask != 0x10)
 	{
-		pel = p[(mask & pat) ? 1 : 0];
-
-		pFrame[0] = pel;              // upper-left
-		pFrame[1] = pel;              // upper-right
-		pFrame[width + 0] = pel;    // lower-left
-		pFrame[width + 1] = pel;    // lower-right
-		pFrame += 2;
+		const auto pel{p[(mask & pat) ? 1 : 0]};
+		pFrame[0] = {pel};            // upper-left
+		pFrame[1] = {pel};            // upper-right
+		pFrame[width + 0] = {pel};    // lower-left
+		pFrame[width + 1] = {pel};    // lower-right
+		std::advance(pFrame, 2);
 
 		mask <<= 1;
 	}
 }
 
 // fills pixels in the next 4 x 4 pixel boxes with either p[0] or p[1], depending on pat0 and pat1.
-static void patternQuadrant2Pixels(unsigned char *pFrame, unsigned char pat0, unsigned char pat1, const std::array<uint8_t, 4> &p)
+static void patternQuadrant2Pixels(unsigned char *pFrame, const uint8_t pat0, unsigned char pat1, const std::array<uint8_t, 4> &p)
 {
-	unsigned char pel;
-	unsigned short mask = 0x0001;
-	unsigned short pat = (pat1 << 8) | pat0;
+	uint16_t mask{0x0001};
+	const uint16_t pat = (pat1 << 8) | pat0;
 
 	const auto width = g_width;
 	range_for (const int i, xrange(4u))
 	{
 		range_for (const int j, xrange(4u))
 		{
-			pel = p[(pat & mask) ? 1 : 0];
-
-			pFrame[j + i * width] = pel;
-
+			pFrame[j + i * width] = {p[(pat & mask) ? 1 : 0]};
 			mask <<= 1;
 		}
 	}
@@ -812,7 +805,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		range_for (const int i, xrange(8u))
 		{
 			(void)i;
-			memcpy(*pFrame, *pData, 8);
+			std::copy_n(*pData, 8, *pFrame);
 			*pFrame += width;
 			*pData += 8;
 			*pDataRemain -= 8;
@@ -836,8 +829,8 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 				(void)j;
 				range_for (const int k, xrange(4u))
 				{
-					(*pFrame)[2*k]   = (*pData)[k];
-					(*pFrame)[2*k+1] = (*pData)[k];
+					(*pFrame)[2 * k]   = {(*pData)[k]};
+					(*pFrame)[2 * k + 1] = {(*pData)[k]};
 				}
 				*pFrame += width;
 			}
@@ -862,8 +855,8 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 			{
 				range_for (const int k, xrange(4u))
 				{
-					(*pFrame)[k * width+j] = (*pData)[0];
-					(*pFrame)[k * width+j+4] = (*pData)[1];
+					(*pFrame)[k * width + j] = {(*pData)[0]};
+					(*pFrame)[k * width + j + 4] = {(*pData)[1]};
 				}
 			}
 			*pFrame += 4 * width;
@@ -880,10 +873,11 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		*/
 		{
 			const auto width = g_width;
+			const auto pel{**pData};
 		range_for (const int i, xrange(8u))
 		{
 			(void)i;
-			memset(*pFrame, **pData, 8);
+			std::fill_n(*pFrame, 8, pel);
 			*pFrame += width;
 		}
 		++*pData;
@@ -910,7 +904,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		{
 			range_for (const int j, xrange(8u))
 			{
-				(*pFrame)[j] = (*pData)[(i+j)&1];
+				(*pFrame)[j] = {(*pData)[(i + j) & 1]};
 			}
 			*pFrame += width;
 		}

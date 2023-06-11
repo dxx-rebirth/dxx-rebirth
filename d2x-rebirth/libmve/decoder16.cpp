@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
 #include <cstdint>
 
 #include "decoders.h"
@@ -154,15 +155,16 @@ static constexpr lookup_table_t genLoopkupTable(std::index_sequence<N...>)
 
 constexpr lookup_table_t lookup_table = genLoopkupTable(std::make_index_sequence<256>());
 
-static void copyFrame(unsigned short *pDest, unsigned short *pSrc)
+static void copyFrame(uint16_t *pDest, const uint16_t *pSrc)
 {
+	const auto width = g_width;
     int i;
 
     for (i=0; i<8; i++)
     {
-        memcpy(pDest, pSrc, 16);
-        pDest += g_width;
-        pSrc += g_width;
+		std::copy_n(pSrc, 8, pDest);
+		std::advance(pDest, width);
+		std::advance(pSrc, width);
     }
 }
 
@@ -176,7 +178,7 @@ static void patternRow4Pixels(unsigned short *pFrame,
 
     while (mask != 0)
     {
-        *pFrame++ = p[(mask & pattern) >> shift];
+		*pFrame++ = {p[(mask & pattern) >> shift]};
         mask <<= 2;
         shift += 2;
     }
@@ -188,7 +190,6 @@ static void patternRow4Pixels2(unsigned short *pFrame,
 {
     unsigned char mask=0x03;
     unsigned char shift=0;
-    unsigned short pel;
 	/* ORIGINAL VERSION IS BUGGY
 	   int skip=1;
 
@@ -205,13 +206,14 @@ static void patternRow4Pixels2(unsigned short *pFrame,
 	   shift += 2;
 	   }
 	*/
+	const auto width = g_width;
     while (mask != 0)
     {
-        pel = p[(mask & pat0) >> shift];
-        pFrame[0] = pel;
-        pFrame[1] = pel;
-        pFrame[g_width + 0] = pel;
-        pFrame[g_width + 1] = pel;
+		const auto pel{p[(mask & pat0) >> shift]};
+		pFrame[0] = {pel};
+		pFrame[1] = {pel};
+		pFrame[width + 0] = {pel};
+		pFrame[width + 1] = {pel};
         pFrame += 2;
         mask <<= 2;
         shift += 2;
@@ -223,13 +225,12 @@ static void patternRow4Pixels2x1(unsigned short *pFrame, unsigned char pat,
 {
     unsigned char mask=0x03;
     unsigned char shift=0;
-    unsigned short pel;
 
     while (mask != 0)
     {
-        pel = p[(mask & pat) >> shift];
-        pFrame[0] = pel;
-        pFrame[1] = pel;
+		const auto pel{p[(mask & pat) >> shift]};
+		pFrame[0] = {pel};
+		pFrame[1] = {pel};
         pFrame += 2;
         mask <<= 2;
         shift += 2;
@@ -240,6 +241,7 @@ static void patternQuadrant4Pixels(unsigned short *pFrame,
 								   unsigned char pat0, unsigned char pat1, unsigned char pat2,
 								   unsigned char pat3, const std::array<uint16_t, 4> &p)
 {
+	const auto width = g_width;
     unsigned long mask = 0x00000003UL;
     int shift=0;
     int i;
@@ -247,10 +249,10 @@ static void patternQuadrant4Pixels(unsigned short *pFrame,
 
     for (i=0; i<16; i++)
     {
-        pFrame[i&3] = p[(pat & mask) >> shift];
+		pFrame[i & 3] = {p[(pat & mask) >> shift]};
 
         if ((i&3) == 3)
-            pFrame += g_width;
+			std::advance(pFrame, width);
 
         mask <<= 2;
         shift += 2;
@@ -265,7 +267,7 @@ static void patternRow2Pixels(unsigned short *pFrame, unsigned char pat,
 
     while (mask != 0)
     {
-        *pFrame++ = p[(mask & pat) ? 1 : 0];
+		*pFrame++ = {p[(mask & pat) ? 1 : 0]};
         mask <<= 1;
     }
 }
@@ -273,7 +275,6 @@ static void patternRow2Pixels(unsigned short *pFrame, unsigned char pat,
 static void patternRow2Pixels2(unsigned short *pFrame, unsigned char pat,
 							   const std::array<uint16_t, 4> &p)
 {
-    unsigned short pel;
     unsigned char mask=0x1;
 
 	/* ORIGINAL VERSION IS BUGGY
@@ -290,14 +291,15 @@ static void patternRow2Pixels2(unsigned short *pFrame, unsigned char pat,
 	   mask <<= 1;
 	   }
 	*/
+	const auto width = g_width;
 	while (mask != 0x10) {
-		pel = p[(mask & pat) ? 1 : 0];
+		const auto pel{p[(mask & pat) ? 1 : 0]};
 
-		pFrame[0] = pel;
-		pFrame[1] = pel;
-		pFrame[g_width + 0] = pel;
-		pFrame[g_width + 1] = pel;
-		pFrame += 2;
+		pFrame[0] = {pel};
+		pFrame[1] = {pel};
+		pFrame[width + 0] = {pel};
+		pFrame[width + 1] = {pel};
+		std::advance(pFrame, 2);
 
 		mask <<= 1;
 	}
@@ -306,16 +308,17 @@ static void patternRow2Pixels2(unsigned short *pFrame, unsigned char pat,
 static void patternQuadrant2Pixels(unsigned short *pFrame, unsigned char pat0,
 								   unsigned char pat1, const std::array<uint16_t, 4> &p)
 {
+	const auto width = g_width;
     unsigned short mask = 0x0001;
     int i;
     unsigned short pat = (pat1 << 8) | pat0;
 
     for (i=0; i<16; i++)
     {
-        pFrame[i&3] = p[(pat & mask) ? 1 : 0];
+		pFrame[i & 3] = {p[(pat & mask) ? 1 : 0]};
 
         if ((i&3) == 3)
-            pFrame += g_width;
+			std::advance(pFrame, width);
 
         mask <<= 1;
     }
@@ -327,9 +330,7 @@ static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, c
 	std::array<uint8_t, 4> pat;
     int i, j, k;
     int x, y;
-    unsigned short *pDstBak;
-
-    pDstBak = *pFrame;
+	auto pDstBak = *pFrame;
 
     switch(codeType)
     {
@@ -641,6 +642,8 @@ static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, c
 		break;
 
 	case 0xc:
+		{
+			const auto width = g_width;
 		for (i=0; i<4; i++)
 		{
 			p[0] = GETPIXEL(pData, 0);
@@ -652,28 +655,34 @@ static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, c
 			{
 				for (k=0; k<4; k++)
 				{
-					(*pFrame)[j+2*k] = p[k];
-					(*pFrame)[g_width+j+2*k] = p[k];
+					const auto pel{p[k]};
+					(*pFrame)[j + 2 * k] = {pel};
+					(*pFrame)[width + j + 2 * k] = {pel};
 				}
-				*pFrame += g_width;
+				std::advance(*pFrame, width);
 			}
 			*pData += 8;
 			*pDataRemain -= 8;
 		}
+		}
 		break;
 
 	case 0xd:
+		{
+			const auto width = g_width;
 		for (i=0; i<2; i++)
 		{
 			p[0] = GETPIXEL(pData, 0);
 			p[1] = GETPIXEL(pData, 2);
+			const auto p0{p[0]};
+			const auto p1{p[1]};
 
 			for (j=0; j<4; j++)
 			{
 				for (k=0; k<4; k++)
 				{
-					(*pFrame)[k*g_width+j] = p[0];
-					(*pFrame)[k*g_width+j+4] = p[1];
+					(*pFrame)[k * width + j] = {p0};
+					(*pFrame)[k * width + j + 4] = {p1};
 				}
 			}
 
@@ -682,17 +691,21 @@ static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, c
 			*pData += 4;
 			*pDataRemain -= 4;
 		}
+		}
 		break;
 
 	case 0xe:
 		p[0] = GETPIXEL(pData, 0);
+		{
+			const auto p0{p[0]};
 
 		for (i = 0; i < 8; i++) {
 			for (j = 0; j < 8; j++) {
-				(*pFrame)[j] = p[0];
+				(*pFrame)[j] = {p0};
 			}
 
 			*pFrame += g_width;
+		}
 		}
 
 		*pData += 2;
@@ -708,7 +721,7 @@ static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, c
 		{
 			for (j=0; j<8; j++)
 			{
-				(*pFrame)[j] = p[(i+j)&1];
+				(*pFrame)[j] = {p[(i + j) & 1]};
 			}
 			*pFrame += g_width;
 		}
