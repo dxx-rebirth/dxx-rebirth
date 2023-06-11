@@ -1211,11 +1211,10 @@ int check_trans_wall(const vms_vector &pnt, const vcsegptridx_t seg, const siden
 	const auto tmap_num = side.tmap_num;
 	const grs_bitmap &rbm = (side.tmap_num2 != texture2_value::None)
 		? texmerge_get_cached_bitmap(tmap_num, side.tmap_num2)
-		: ( [tmap_num]() -> const grs_bitmap & {
-			auto &texture1 = Textures[get_texture_index(tmap_num)];
+		: ( [](GameBitmaps_array &GameBitmaps, const bitmap_index texture1) -> const grs_bitmap & {
 			PIGGY_PAGE_IN(texture1);
 			return GameBitmaps[texture1];
-		} () );
+		} (GameBitmaps, Textures[get_texture_index(tmap_num)]) );
 	const auto bm = rle_expand_texture(rbm);
 
 	bmx = static_cast<unsigned>(f2i(u*bm->bm_w)) % bm->bm_w;
