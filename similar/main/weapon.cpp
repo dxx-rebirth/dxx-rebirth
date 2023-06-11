@@ -1261,7 +1261,7 @@ static void start_seismic_sound()
 
 static void apply_seismic_effect(const int entry_fc)
 {
-	const auto fc = std::min(std::max(entry_fc, 16), 1);
+	const auto fc = std::clamp(entry_fc, 1, 16);
 	LevelUniqueSeismicState.Seismic_tremor_volume += fc;
 
 	if (!d_tick_step)

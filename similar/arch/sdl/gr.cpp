@@ -235,11 +235,11 @@ void gr_palette_step_up( int r, int g, int b )
 	range_for (const int i, xrange(256u))
 	{
 		const auto ir = static_cast<int>(p[i].r) + r + gr_palette_gamma;
-		colors[i].r = std::min(std::max(ir, 0), 63) * 4;
+		colors[i].r = std::clamp(ir, 0, 63) * 4;
 		const auto ig = static_cast<int>(p[i].g) + g + gr_palette_gamma;
-		colors[i].g = std::min(std::max(ig, 0), 63) * 4;
+		colors[i].g = std::clamp(ig, 0, 63) * 4;
 		const auto ib = static_cast<int>(p[i].b) + b + gr_palette_gamma;
-		colors[i].b = std::min(std::max(ib, 0), 63) * 4;
+		colors[i].b = std::clamp(ib, 0, 63) * 4;
 	}
 	SDL_SetColors(canvas, colors.data(), 0, colors.size());
 }
