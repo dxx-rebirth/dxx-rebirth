@@ -53,7 +53,7 @@ class NodeVisitor(ast.NodeVisitor):
 		self.constants = constants
 
 	def generic_visit(self,node):
-		raise InputException('%s:%u: %r expression %r uses unsupported node type %s' % (self.source, self.lno, self.name, self.expr, node.__class__.__name__))
+		raise InputException(f'{self.source}:{self.lno}: {self.name!r} expression {self.expr!r} uses unsupported node type {node.__class__.__name__}')
 
 	def visit_BinOp(self,node):
 		left = self.visit(node.left)
@@ -68,7 +68,7 @@ class NodeVisitor(ast.NodeVisitor):
 		elif isinstance(op, ast.Div):
 			return left / right
 		else:
-			raise InputException('%s:%u: %r expression %r uses unsupported BinOp node type %s' % (self.source, self.lno, self.name, self.expr, op.__class__.__name__))
+			raise InputException(f'{self.source}:{self.lno}: {self.name!r} expression {self.expr!r} uses unsupported BinOp node type {op.__class__.__name__}')
 
 	# Resolve expressions by expanding them.
 	def visit_Expression(self,node):
@@ -81,7 +81,7 @@ class NodeVisitor(ast.NodeVisitor):
 		try:
 			return self.constants[node.id]
 		except KeyError as e:
-			raise InputException('%s:%u: %r expression %r uses undefined name %s' % (self.source, self.lno, self.name, self.expr, node.id))
+			raise InputException(f'{self.source}:{self.lno}: {self.name!r} expression {self.expr!r} uses undefined name {node.id}' % (self.source, self.lno, self.name, self.expr, node.id))
 
 	# Resolve numbers by returning the value as-is.
 	@staticmethod
@@ -154,12 +154,12 @@ class Main:
 			# If the loop executes at least once, then a result was
 			# found, not `old_idx is idx`, and no exception is necessary.
 			if old_idx is idx:
-				raise InputException('%s:%u: failed to match regex for line %r\n' % (source, lno, line))
+				raise InputException(f'{source}:{lno}: failed to match regex for line {line!r}\n')
 		if not array:
 			# An empty array is not useful, but may exist when the
 			# developer is adding a new array and has not yet defined
 			# any elements.
-			return '\n/* %s - udlr blank */' % array_name
+			return f'\n/* {array_name} - udlr blank */',
 		# Generate a temporary list with the elements sorted for u/d
 		# navigation.  Walk the temporary and assign appropriate u/d
 		# references.
@@ -176,22 +176,7 @@ class Main:
 			i.next_l = p
 			p.next_r = i
 			p = i
-		# This must be a `#define` since it expands to a comma-separated
-		# list of values for a structure initializer.
-		template_define_udlr = '#define {0}()\t/* [{1:2d}] */\t{2:2d},{3:3d},{4:3d},{5:3d}'.format
-		# Use an `enum class` here so that the values can only be used
-		# in arrays specifically marked for this index type.  This
-		# prevents mixing types, such as indexing the mouse array with
-		# joystick index values.
-		#
-		# Generate `#define` statements to allow the consuming code to
-		# use `#ifdef` to detect which members exist.
-		template_define_enum_header = 'enum class dxx_kconfig_ui_{0} : unsigned {{'.format
-		template_define_enum_member = '''\
-#define dxx_kconfig_ui_{0}_{1} dxx_kconfig_ui_{0}::{1}
-	{1} = {2},'''.format
 		define_enum_footer = '};'
-		template_define_label_value_fragment = '\t\\\n\t/* [{1:2d}] */\t{0} "\\0"'.format
 		enum = []
 		label = []
 		# Generate the `#define` lines using the relations computed by
@@ -203,25 +188,35 @@ class Main:
 		# The enum member and label logic could be handled in a prior
 		# loop, but are more logical here.  Moving them to an earlier
 		# loop offers no gain.
-		result = ['/* {0} - udlr define */'.format(array_name)]
+		result = [f'/* {array_name} - udlr define */']
 		for i in array:
 			idx = i.idx
-			result.append(template_define_udlr(i.name, idx, i.next_u.idx, i.next_d.idx, i.next_l.idx, i.next_r.idx))
+			# This must be a `#define` since it expands to a comma-separated
+			# list of values for a structure initializer.
+			result.append(f'#define {i.name}()\t/* [{idx:2d}] */\t{i.next_u.idx:2d},{i.next_d.idx:3d},{i.next_l.idx:3d},{i.next_r.idx:3d}')
 			il = i.enum
 			if il:
-				enum.append(template_define_enum_member(array_name, il, idx))
+				# Generate `#define` statements to allow the consuming code to
+				# use `#ifdef` to detect which members exist.
+				enum.append(f'''\
+#define dxx_kconfig_ui_{array_name}_{il} dxx_kconfig_ui_{array_name}::{il}
+	{il} = {idx},''')
 			il = i.label
 			if il:
-				label.append(template_define_label_value_fragment(il, idx))
+				label.append(f'\t\\\n\t/* [{idx:2d}] */\t{il} "\\0"')
 		if enum:
-			result.append('\n/* {0} - enum define */'.format(array_name))
-			result.append(template_define_enum_header(array_name))
+			result.append(f'\n/* {array_name} - enum define */')
+			# Use an `enum class` here so that the values can only be used in
+			# arrays specifically marked for this index type.  This prevents
+			# mixing types, such as indexing the mouse array with joystick
+			# index values.
+			result.append(f'enum class dxx_kconfig_ui_{array_name} : unsigned {{')
 			result.extend(enum)
 			result.append(define_enum_footer)
 		else:
-			result.append('\n/* {0} - enum blank */'.format(array_name))
+			result.append(f'\n/* {array_name} - enum blank */')
 		if label:
-			result.append('\n#define DXX_KCONFIG_UI_LABEL_{0}{1}\n'.format(array_name, ''.join(label)))
+			result.append(f'\n#define DXX_KCONFIG_UI_LABEL_{array_name}{"".join(label)}\n')
 		return result
 
 	# Given an iterable over a CPP-processed C++ file, find each kc_item
@@ -243,11 +238,11 @@ class Main:
 		_re_match_defn_array=re.compile(r'constexpr\s+kc_item\s+(\w+)\s*\[\]\s*=\s*{').match
 		):
 		source = fi.name
-		result = ['''/* This is a generated file.  Do not edit.
- * This file was generated by {0}
- * This file was generated from {1}
+		result = [f'''/* This is a generated file.  Do not edit.
+ * This file was generated by {script}
+ * This file was generated from {source}
  */
-'''.format(script, source)]
+''']
 		lines = []
 		# Simple line reassembly is done automatically, based on the
 		# requirement that braces be balanced to complete an
@@ -271,9 +266,9 @@ class Main:
 				# Compute #define statements for this array.  Reset for
 				# the next array.
 				if array_name is None:
-					raise InputException('%s:%u: end of array definition while no array open' % (source, lno))
+					raise InputException(f'{source}:{lno}: end of array definition while no array open')
 				if unbalanced_open_brace:
-					raise InputException('%s:%u: end of array definition while reading array initialization' % (source, lno))
+					raise InputException(f'{source}:{lno}: end of array definition while reading array initialization')
 				result.extend(generate_defines(array_name, source, lines))
 				lines = []
 				array_name = None
@@ -296,7 +291,7 @@ class Main:
 			count = line.count
 			unbalanced_open_brace += count('{') - count('}')
 			if unbalanced_open_brace < 0:
-				raise InputException('%s:%u: brace count becomes negative' % (source, lno))
+				raise InputException(f'{source}:{lno}: brace count becomes negative')
 			if partial_line is not None:
 				# Insert a fake whitespace to avoid combining a token at
 				# the end of one line with a token at the beginning of
@@ -312,7 +307,7 @@ class Main:
 			lines.append((lno, line))
 		# Check for context error.
 		if array_name is not None:
-			raise InputException('%s: end of file while array definition open' % source)
+			raise InputException(f'{source}: end of file while array definition open')
 		# Ensure end-of-line at end-of-file.
 		result.append('')
 		return '\n'.join(result)
@@ -326,7 +321,7 @@ class Main:
 			return
 		from tempfile import mkstemp
 		os_path = os.path
-		fd, path = mkstemp(suffix='', prefix='%s.' % os_path.basename(target), dir=os_path.dirname(target), text=True)
+		fd, path = mkstemp(suffix='', prefix=f'{os_path.basename(target)}.', dir=os_path.dirname(target), text=True)
 		os.write(fd, generated_text.encode())
 		os.close(fd)
 		os.rename(path, target)
@@ -343,7 +338,7 @@ class Main:
 			# show the full traceback.
 			if os.getenv('DXX_KCONFIG_UDLR_TRACEBACK') is not None:
 				raise
-			sys.stderr.write('error: {!s}\n'.format(e))
+			sys.stderr.write(f'error: {e!s}\n')
 			sys.exit(1)
 		self.write_generated_text(target,generated_text)
 
