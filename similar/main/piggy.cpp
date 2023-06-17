@@ -117,6 +117,7 @@ hashtable AllDigiSndNames;
 enumerated_array<pig_bitmap_offset, MAX_BITMAP_FILES, bitmap_index> GameBitmapOffset;
 #if defined(DXX_BUILD_DESCENT_II)
 static std::unique_ptr<uint8_t[]> Bitmap_replacement_data;
+static std::array<char, FILENAME_LEN> Current_pigfile;
 }
 #endif
 
@@ -165,8 +166,6 @@ namespace {
 static std::array<int, MAX_SOUND_FILES> SoundCompressed;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-char Current_pigfile[FILENAME_LEN] = "";
-
 #define BM_FLAGS_TO_COPY (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT \
                          | BM_FLAG_NO_LIGHTING | BM_FLAG_RLE | BM_FLAG_RLE_BIG)
 #endif
@@ -688,7 +687,7 @@ void piggy_init_pigfile(const std::span<const char> filename)
 		}
 	}
 
-	std::copy_n(filename.data(), std::min(filename.size(), sizeof(Current_pigfile) - 1), Current_pigfile);
+	std::copy_n(filename.data(), std::min(filename.size(), std::size(Current_pigfile) - 1), Current_pigfile.begin());
 
 	N_bitmaps = PHYSFSX_readInt(Piggy_fp);
 
@@ -748,7 +747,7 @@ void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 
 	d_strlwr(pigname.data());
 
-	if (d_strnicmp(Current_pigfile, pigname.data(), sizeof(Current_pigfile)) == 0 // correct pig already loaded
+	if (strcmp(Current_pigfile.data(), pigname.data()) == 0 // correct pig already loaded
 	    && !Bitmap_replacement_data) // no need to reload: no bitmaps were altered
 		return;
 
@@ -761,7 +760,7 @@ void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 
 	Piggy_bitmap_cache_next = 0;            //free up cache
 
-	strncpy(Current_pigfile, pigname.data(), sizeof(Current_pigfile) - 1);
+	std::copy_n(pigname.data(), std::min(pigname.size(), std::size(Current_pigfile) - 1), Current_pigfile.begin());
 
 	auto &&[fp, physfserr] = PHYSFSX_openReadBuffered(pigname.data());
 #if !DXX_USE_EDITOR
