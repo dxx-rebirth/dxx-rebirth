@@ -108,7 +108,7 @@ void piggy_bitmap_page_in(GameBitmaps_array &, bitmap_index bmp);
 #if defined(DXX_BUILD_DESCENT_I)
 void piggy_read_sounds(int pc_shareware);
 #elif defined(DXX_BUILD_DESCENT_II)
-void piggy_init_pigfile(const char *filename);
+void piggy_init_pigfile(std::span<const char> filename);
 void piggy_read_sounds(void);
 
 //reads in a new pigfile (for new palette)

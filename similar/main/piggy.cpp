@@ -638,7 +638,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 
 //initialize a pigfile, reading headers
 //returns the size of all the bitmap data
-void piggy_init_pigfile(const char *filename)
+void piggy_init_pigfile(const std::span<const char> filename)
 {
 	int i;
 	int header_size, N_bitmaps;
@@ -648,9 +648,9 @@ void piggy_init_pigfile(const char *filename)
 
 	piggy_close_file();             //close old pig if still open
 
-	auto &&[fp, physfserr] = PHYSFSX_openReadBuffered(filename);
+	auto &&[fp, physfserr] = PHYSFSX_openReadBuffered(filename.data());
 #if !DXX_USE_EDITOR
-	auto effective_filename = filename;
+	auto effective_filename = filename.data();
 #endif
 	//try pigfile for shareware
 	if (!fp)
@@ -663,7 +663,7 @@ void piggy_init_pigfile(const char *filename)
 			static_cast<void>(physfserr2);
 			return;         //if editor, ok to not have pig, because we'll build one
 #else
-			Error("Failed to open required files <%s>, <" DEFAULT_PIGFILE_SHAREWARE ">: \"%s\", \"%s\"", filename, PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
+			Error("Failed to open required files <%s>, <" DEFAULT_PIGFILE_SHAREWARE ">: \"%s\", \"%s\"", filename.data(), PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
 #endif
 		}
 		fp = std::move(fp2);
@@ -688,7 +688,7 @@ void piggy_init_pigfile(const char *filename)
 		}
 	}
 
-	strncpy(Current_pigfile, filename, sizeof(Current_pigfile) - 1);
+	std::copy_n(filename.data(), std::min(filename.size(), sizeof(Current_pigfile) - 1), Current_pigfile);
 
 	N_bitmaps = PHYSFSX_readInt(Piggy_fp);
 
@@ -753,7 +753,7 @@ void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 		return;
 
 	if (!Pigfile_initialized) {                     //have we ever opened a pigfile?
-		piggy_init_pigfile(pigname.data());            //..no, so do initialization stuff
+		piggy_init_pigfile(pigname);            //..no, so do initialization stuff
 		return;
 	}
 	else
