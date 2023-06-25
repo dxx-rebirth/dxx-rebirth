@@ -1586,8 +1586,10 @@ static void terminate_handler()
 		init_cdrom = '0' if sdl2 else 'SDL_INIT_CDROM'
 		error_text_opengl_mismatch = f'Rebirth configured with OpenGL enabled, but SDL{sdl2} configured with OpenGL disabled.  Disable Rebirth OpenGL or install an SDL{sdl2} with OpenGL enabled.'
 		test_opengl = (f'''
+#if !((SDL_MAJOR_VERSION == 1) && (SDL_MINOR_VERSION == 2) && (SDL_PATCHLEVEL >= 50))
 #ifndef SDL_VIDEO_OPENGL
 #error "{error_text_opengl_mismatch}"
+#endif
 #endif
 ''') if user_settings.opengl else ''
 		main = '''
