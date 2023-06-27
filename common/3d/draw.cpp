@@ -22,6 +22,7 @@
 #endif
 #include "d_enumerate.h"
 #include "d_zip.h"
+#include "partial_range.h"
 
 namespace dcx {
 
