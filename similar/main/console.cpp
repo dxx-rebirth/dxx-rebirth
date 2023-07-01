@@ -59,11 +59,12 @@ constexpr unsigned CON_LINES_ONSCREEN = 18;
 constexpr auto CON_SCROLL_OFFSET = CON_LINES_ONSCREEN - 3;
 constexpr unsigned CON_LINES_MAX = 128;
 
-enum con_state {
-	CON_STATE_CLOSING = -1,
-	CON_STATE_CLOSED = 0,
-	CON_STATE_OPENING = 1,
-	CON_STATE_OPEN = 2
+enum class con_state : int8_t
+{
+	closing = -1,
+	closed = 0,
+	opening = 1,
+	open = 2
 };
 
 struct console_window : window
@@ -362,7 +363,7 @@ window_event_result console_window::event_handler(const d_event &event)
 		case EVENT_WINDOW_DEACTIVATED:
 			key_toggle_repeat(0);
 			con_size = 0;
-			con_state = CON_STATE_CLOSED;
+			con_state = con_state::closed;
 			break;
 
 		case EVENT_KEY_COMMAND:
@@ -372,13 +373,13 @@ window_event_result console_window::event_handler(const d_event &event)
 				case KEY_SHIFTED + KEY_ESC:
 					switch (con_state)
 					{
-						case CON_STATE_OPEN:
-						case CON_STATE_OPENING:
-							con_state = CON_STATE_CLOSING;
+						case con_state::open:
+						case con_state::opening:
+							con_state = con_state::closing;
 							break;
-						case CON_STATE_CLOSED:
-						case CON_STATE_CLOSING:
-							con_state = CON_STATE_OPENING;
+						case con_state::closed:
+						case con_state::closing:
+							con_state = con_state::opening;
 						default:
 							break;
 					}
@@ -423,26 +424,26 @@ window_event_result console_window::event_handler(const d_event &event)
 
 		case EVENT_WINDOW_DRAW:
 			timer_delay2(50);
-			if (con_state == CON_STATE_OPENING)
+			if (con_state == con_state::opening)
 			{
 				if (con_size < CON_LINES_ONSCREEN && timer_query() >= last_scroll_time+(F1_0/30))
 				{
 					last_scroll_time = timer_query();
 					if (++ con_size >= CON_LINES_ONSCREEN)
-						con_state = CON_STATE_OPEN;
+						con_state = con_state::open;
 				}
 			}
-			else if (con_state == CON_STATE_CLOSING)
+			else if (con_state == con_state::closing)
 			{
 				if (con_size > 0 && timer_query() >= last_scroll_time+(F1_0/30))
 				{
 					last_scroll_time = timer_query();
 					if (! -- con_size)
-						con_state = CON_STATE_CLOSED;
+						con_state = con_state::closed;
 				}
 			}
 			con_draw(grd_curscreen->sc_canvas);
-			if (con_state == CON_STATE_CLOSED)
+			if (con_state == con_state::closed)
 			{
 				return window_event_result::close;
 			}
@@ -478,7 +479,7 @@ namespace dsx {
 void con_showup(control_info &Controls)
 {
 	game_flush_inputs(Controls);
-	con_state = CON_STATE_OPENING;
+	con_state = con_state::opening;
 	auto wind = window_create<console_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 	(void)wind;
 }
