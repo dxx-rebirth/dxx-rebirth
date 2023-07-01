@@ -46,15 +46,9 @@ namespace detail {
 template <std::size_t maximum, std::size_t minimum = maximum>
 struct size_base
 {
-	static constexpr std::integral_constant<std::size_t, maximum> maximum_size = {};
-	static constexpr std::integral_constant<std::size_t, minimum> minimum_size = {};
+	static constexpr std::integral_constant<std::size_t, maximum> maximum_size{};
+	static constexpr std::integral_constant<std::size_t, minimum> minimum_size{};
 };
-
-template <std::size_t maximum, std::size_t minimum>
-constexpr std::integral_constant<std::size_t, maximum> size_base<maximum, minimum>::maximum_size;
-
-template <std::size_t maximum, std::size_t minimum>
-constexpr std::integral_constant<std::size_t, minimum> size_base<maximum, minimum>::minimum_size;
 
 }
 
@@ -264,7 +258,7 @@ static inline void process_udt(Accessor &&accessor, const pad_type<amount, value
 		>::type
 	>::value)
 		s.f.fill(value);
-	for (std::size_t count = amount; count; count -= s.f.size())
+	for (std::size_t count{amount}; count; count -= s.f.size())
 	{
 		if (count < s.f.size())
 		{
@@ -543,7 +537,7 @@ template <typename A1, std::size_t BYTES>
 static inline void unaligned_copy(const uint8_t *src, unaligned_storage<A1, BYTES> &dst)
 {
 	if constexpr (BYTES == 1)
-		dst.u[0] = *src;
+		dst.u[0] = {*src};
 	else
 		std::copy_n(src, sizeof(dst.u), dst.u);
 }
@@ -555,7 +549,7 @@ static inline void process_integer(Accessor &buffer, A1 &a1)
 	unaligned_storage<A1, message_type<A1>::maximum_size> u;
 	unaligned_copy(buffer, u);
 	if (!endian_skip_byteswap(buffer.endian()))
-		u.i = bswap(u.i);
+		u.i = {bswap(u.i)};
 	a1 = u.a;
 	advance(buffer, sizeof(u.u));
 }
@@ -596,7 +590,7 @@ template <typename A1, std::size_t BYTES>
 static inline void unaligned_copy(const unaligned_storage<A1, BYTES> &src, uint8_t *dst)
 {
 	if constexpr (BYTES == 1)
-		*dst = src.u[0];
+		*dst = {src.u[0]};
 	else
 		std::copy_n(src.u, sizeof(src.u), dst);
 }
@@ -607,7 +601,7 @@ static inline void process_integer(Accessor &buffer, const A1 &a1)
 	using std::advance;
 	unaligned_storage<A1, message_type<A1>::maximum_size> u{a1};
 	if (!endian_skip_byteswap(buffer.endian()))
-		u.i = bswap(u.i);
+		u.i = {bswap(u.i)};
 	unaligned_copy(u, buffer);
 	advance(buffer, sizeof(u.u));
 }
@@ -625,8 +619,7 @@ template <typename Accessor, typename extended_signed_type, typename wrapped_typ
 static inline void process_udt(Accessor &&accessor, const detail::sign_extend_type<extended_signed_type, const wrapped_type> &v)
 {
 	const typename std::make_signed<wrapped_type>::type swt = v.get();
-	const extended_signed_type est = swt;
-	process_integer<Accessor, extended_signed_type>(static_cast<Accessor &&>(accessor), est);
+	process_integer<Accessor, extended_signed_type>(static_cast<Accessor &&>(accessor), extended_signed_type{swt});
 }
 
 }
