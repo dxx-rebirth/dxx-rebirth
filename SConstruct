@@ -21,10 +21,19 @@ SCons.Defaults.DefaultEnvironment(tools = [])
 def message(program,msg):
 	print(f'{program.program_message_prefix}: {msg}')
 
-def get_Werror_string(l):
-	if l and '-Werror' in l:
-		return '-W'
-	return '-Werror='
+def get_Werror_sequence(active_cxxflags, warning_flags):
+	# The leading -W is passed in each element in warning_flags so that if
+	# -Werror is already set, the warning_flags can be returned as-is.  This
+	# also means that the warning flag is written in the caller as it will be
+	# on the command line, so users who grep for `-Wfoo` will find where
+	# `-Wfoo` is set.  If the `-W` were composed in this function and the
+	# caller passed `foo`, then a search for `-Wfoo` would find nothing.
+	if active_cxxflags and '-Werror' in active_cxxflags:
+		# Make both paths return a Python list.
+		return list(warning_flags)
+	# When an option is converted to `-Werror=foo` form, the leading `-W` from
+	# the caller must be stripped off to avoid producing `-Werror=-Wfoo`.
+	return [f'-Werror={warning[2:]}' for warning in warning_flags]
 
 class StaticSubprocess:
 	# This class contains utility functions for calling subprocesses
@@ -2028,7 +2037,7 @@ help:assume compiler supports __attribute__((unused))
 		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
 __attribute_unused
 static void a(){}
-""", msg='for function __attribute__((unused))', successflags={'CXXFLAGS' : [get_Werror_string(context.env['CXXFLAGS']) + 'unused']})
+""", msg='for function __attribute__((unused))', successflags={'CXXFLAGS' : get_Werror_sequence(context.env['CXXFLAGS'], ('-Wunused',))})
 
 	@_custom_test
 	def check_attribute_warning(self,context,_check_function_dce_attribute=_check_function_dce_attribute):
@@ -2332,7 +2341,7 @@ $ x86_64-pc-linux-gnu-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
 	@_custom_test
 	def check_compiler_useless_cast(self,context):
 		Compile = self.Compile
-		flags = {'CXXFLAGS' : [get_Werror_string(context.env['CXXFLAGS']) + 'useless-cast']}
+		flags = {'CXXFLAGS' : get_Werror_sequence(context.env['CXXFLAGS'], ('-Wuseless-cast',))}
 		if Compile(context, text='''
 /*
  * SDL on Raspbian provokes a warning from -Wuseless-cast
@@ -4439,21 +4448,23 @@ class DXXCommon(LazyObjectConstructor):
 			)
 			del nonblank_builddir
 
-		Werror = get_Werror_string(user_settings.CXXFLAGS)
-		env.Prepend(CXXFLAGS = [
+		cxxflags = get_Werror_sequence(user_settings.CXXFLAGS, (
+			'-Wextra',
+			'-Wformat=2',
+			'-Wmissing-braces',
+			'-Wmissing-include-dirs',
+			'-Wuninitialized',
+			'-Wundef',
+			'-Wpointer-arith',
+			'-Wcast-qual',
+			'-Wmissing-declarations',
+			'-Wvla',
+			))
+		cxxflags[0:0] = (
 			'-ftabstop=4',
 			'-Wall',
-			Werror + 'extra',
-			Werror + 'format=2',
-			Werror + 'missing-braces',
-			Werror + 'missing-include-dirs',
-			Werror + 'uninitialized',
-			Werror + 'undef',
-			Werror + 'pointer-arith',
-			Werror + 'cast-qual',
-			Werror + 'missing-declarations',
-			Werror + 'vla',
-		])
+			)
+		env.Prepend(CXXFLAGS = cxxflags)
 		env.Append(
 			CXXFLAGS = ['-funsigned-char'],
 			CPPPATH = ['common/include', 'common/main', '.'],
