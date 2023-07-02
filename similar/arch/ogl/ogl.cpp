@@ -280,7 +280,7 @@ ogl_texture* ogl_get_free_texture(void){
 		if (++ogl_texture_list_cur >= ogl_texture_list.size())
 			ogl_texture_list_cur=0;
 	}
-	Error("OGL: texture list full!\n");
+	throw std::runtime_error("OpenGL: texture list full");
 }
 
 static void ogl_texture_stats(grs_canvas &canvas)
