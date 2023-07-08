@@ -3282,11 +3282,11 @@ static void net_udp_process_dump(const upid_rspan<upid::dump> data, const _socka
 	// Our request for join was denied.  Tell the user why.
 	if (sender_addr != Netgame.players[0].protocol.udp.addr)
 		return;
-	const auto why = build_kick_player_reason_from_untrusted(data[1]);
-	if (!why)
+	const auto untrusted_why = build_kick_player_reason_from_untrusted(data[1]);
+	if (!untrusted_why)
 		/* If the peer sent an invalid kick_player_reason, ignore the kick. */
 		return;
-	switch (*why)
+	switch (const auto why = *untrusted_why)
 	{
 		case kick_player_reason::pkttimeout:
 		case kick_player_reason::kicked:
@@ -3313,7 +3313,36 @@ static void net_udp_process_dump(const upid_rspan<upid::dump> data, const _socka
 		case kick_player_reason::connected:
 		case kick_player_reason::level:
 			Network_status = network_state::menu; // stop us from sending before message
-			nm_messagebox_str(menu_title{nullptr}, TXT_OK, menu_subtitle{NET_DUMP_STRINGS(why)});
+			{
+			const char *dump_string;
+			switch (why)
+			{
+				case kick_player_reason::kicked:	// unreachable
+				case kick_player_reason::pkttimeout:	// unreachable
+				case kick_player_reason::closed:	// reachable
+					dump_string = TXT_NET_GAME_CLOSED;
+					break;
+				case kick_player_reason::full:
+					dump_string = TXT_NET_GAME_FULL;
+					break;
+				case kick_player_reason::endlevel:
+					dump_string = TXT_NET_GAME_BETWEEN;
+					break;
+				case kick_player_reason::dork:
+					dump_string = TXT_NET_GAME_NSELECT;
+					break;
+				case kick_player_reason::aborted:
+					dump_string = TXT_NET_GAME_NSTART;
+					break;
+				case kick_player_reason::connected:
+					dump_string = TXT_NET_GAME_CONNECT;
+					break;
+				case kick_player_reason::level:
+					dump_string = TXT_NET_GAME_WRONGLEV;
+					break;
+			}
+			nm_messagebox_str(menu_title{nullptr}, TXT_OK, menu_subtitle{dump_string});
+			}
 			Network_status = network_state::menu;
 			multi_reset_stuff();
 			break;
