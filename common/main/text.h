@@ -1256,14 +1256,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 		 /* &u is ill-formed when u is a literal number */	\
 	(dxx_text_ensure_simple_expr(NULL, TXT_DIFFICULTY_1))	\
 	)
-#define MENU_DETAIL_TEXT(u)	(	\
-	((u) == 0) ? TXT_DETAIL_1	:	\
-	((u) == 1) ? TXT_DETAIL_2	:	\
-	((u) == 2) ? TXT_DETAIL_3	:	\
-	((u) == 3) ? TXT_DETAIL_4	:	\
-	((u) == 4) ? TXT_DETAIL_5	:	\
-	(dxx_text_ensure_simple_expr(&(u), TXT_DETAIL_1))	\
-	)
 
 void decode_text_line(char *text_line); // decryption for bitmaps.tbl
 void decode_text(char *text, unsigned len);  // decryption for briefings, etc.
