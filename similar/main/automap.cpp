@@ -885,8 +885,10 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 	if (show_all_players || (Game_mode & GM_TEAM))
 	{
 		const auto local_player_team = get_team(Player_num);
-		for (unsigned i = 0; i < N_players; ++i)
+		const auto n_players = N_players;
+		for (const auto iu : xrange(n_players))
 		{
+			const auto i = static_cast<playernum_t>(iu);
 			if (i == Player_num)
 				continue;
 			if (show_all_players || local_player_team == get_team(i))

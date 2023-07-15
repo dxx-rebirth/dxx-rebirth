@@ -932,9 +932,9 @@ netplayer_info::player_rank build_rank_from_untrusted(uint8_t untrusted);
 }
 
 /* Stub for mods that remap player colors */
-static inline unsigned get_player_color(unsigned pnum)
+static inline unsigned get_player_color(const playernum_t pnum)
 {
-	return pnum;
+	return static_cast<unsigned>(pnum);
 }
 
 static inline unsigned get_team_color(const team_number tnum)
@@ -942,7 +942,7 @@ static inline unsigned get_team_color(const team_number tnum)
 	return static_cast<unsigned>(tnum);
 }
 
-static inline unsigned get_player_or_team_color(unsigned pnum)
+static inline unsigned get_player_or_team_color(const playernum_t pnum)
 {
 	return Game_mode & GM_TEAM
 		? get_team_color(get_team(pnum))
