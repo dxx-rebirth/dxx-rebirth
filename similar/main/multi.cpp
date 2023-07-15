@@ -597,12 +597,12 @@ kmatrix_result multi_endlevel_score()
 
 }
 
-int get_team(const playernum_t pnum)
+team_number get_team(const playernum_t pnum)
 {
 	if (Netgame.team_vector & (1 << pnum))
-		return 1;
+		return team_number::red;
 	else
-		return 0;
+		return team_number::blue;
 }
 
 void multi_new_game()
@@ -897,7 +897,7 @@ static void multi_compute_kill(const d_robot_info_array &Robot_info, const imobj
 		 * recognizing that these are written in a team game and only
 		 * read in a team game.
 		 */
-		unsigned killed_team = 0, killer_team = 0;
+		team_number killed_team{}, killer_team{};
 		DXX_MAKE_VAR_UNDEFINED(killed_team);
 		DXX_MAKE_VAR_UNDEFINED(killer_team);
 		const auto is_team_game = Game_mode & GM_TEAM;
@@ -1187,9 +1187,9 @@ static void multi_message_feedback(void)
 		std::size_t feedlen = snprintf(feedback_result, sizeof(feedback_result), "%s ", TXT_MESSAGE_SENT_TO);
 		if (Game_mode & GM_TEAM)
 		{
-			if (const auto c = Network_message[0u]; c == '1' || c == '2')
+			if (const auto o = Netgame.team_name.valid_index(Network_message[0u] - '1'))
 			{
-				snprintf(feedback_result + feedlen, sizeof(feedback_result) - feedlen, "%s '%s'", TXT_TEAM, Netgame.team_name[c - '1'].operator const char *());
+				snprintf(feedback_result + feedlen, sizeof(feedback_result) - feedlen, "%s '%s'", TXT_TEAM, Netgame.team_name[*o].operator const char *());
 				found = 1;
 			}
 			range_for (auto &i, Netgame.team_name)
@@ -1650,8 +1650,25 @@ static void multi_do_message(const playernum_t pnum, const multiplayer_rspan<mul
 	}
 	else
 	{
+		/* if
+		 * - it is addressed to me by name OR
+		 * - team mode is active AND one of:
+		 *	- it is addressed to the number of my team OR
+		 *	- it is addressed to the name of my team
+		 *
+		 * then show it.  Otherwise, hide it.
+		 */
 		if ( (!d_strnicmp(static_cast<const char *>(get_local_player().callsign), buf+loc, colon-(buf+loc))) ||
-			 ((Game_mode & GM_TEAM) && ( (get_team(Player_num) == atoi(buf+loc)-1) || !d_strnicmp(Netgame.team_name[get_team(Player_num)], buf+loc, colon-(buf+loc)))) )
+			((Game_mode & GM_TEAM) && ({
+				const auto local_player_team = get_team(Player_num);
+				(buf + loc + 1 == colon && ({
+					/* The length is correct, so this might or might not be a team number. */
+					const auto o = Netgame.team_name.valid_index(buf[loc] - '1');
+					o && local_player_team == *o;
+					})
+				) ||
+				!d_strnicmp(Netgame.team_name[local_player_team], buf+loc, colon-(buf+loc));
+			})))
 		{
 			msgstart = colon + 2;
 		}
@@ -2412,7 +2429,7 @@ static void multi_reset_object_texture(object_base &objp)
 
 	const auto player_id = get_player_id(objp);
 	const auto id = (Game_mode & GM_TEAM)
-		? get_team(player_id)
+		? static_cast<unsigned>(get_team(player_id))
 		: player_id;
 
 	auto &pobj_info = objp.rtype.pobj_info;
@@ -4254,7 +4271,7 @@ void multi_do_capture_bonus(const playernum_t pnum)
 
 	digi_play_sample(pnum == Player_num
 		? SOUND_HUD_YOU_GOT_GOAL
-		: (get_team(pnum) == TEAM_RED
+		: (get_team(pnum) == team_number::red
 			? SOUND_HUD_RED_GOT_GOAL
 			: SOUND_HUD_BLUE_GOT_GOAL
 		), F1_0*2);
@@ -4315,7 +4332,7 @@ void multi_do_orb_bonus(const playernum_t pnum, const multiplayer_rspan<multipla
 		digi_start_sound_queued (SOUND_HUD_YOU_GOT_GOAL,F1_0*2);
 	else
 		digi_play_sample((Game_mode & GM_TEAM)
-			? (get_team(pnum) == TEAM_RED
+			? (get_team(pnum) == team_number::red
 				? SOUND_HUD_RED_GOT_GOAL
 				: SOUND_HUD_BLUE_GOT_GOAL
 			) : SOUND_OPPONENT_HAS_SCORED, F1_0*2);
@@ -4395,7 +4412,7 @@ static void multi_do_got_flag (const playernum_t pnum)
 	auto &vmobjptr = Objects.vmptr;
 	digi_start_sound_queued(pnum == Player_num
 		? SOUND_HUD_YOU_GOT_FLAG
-		: (get_team(pnum) == TEAM_RED
+		: (get_team(pnum) == team_number::red
 			? SOUND_HUD_RED_GOT_FLAG
 			: SOUND_HUD_BLUE_GOT_FLAG
 		), F1_0*2);
@@ -4478,7 +4495,7 @@ void DropFlag ()
 		return;
 	}
 	seed = d_rand();
-	const auto &&objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, *ConsoleObject, get_team(Player_num) == TEAM_RED ? POW_FLAG_BLUE : POW_FLAG_RED, seed);
+	const auto &&objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, *ConsoleObject, get_team(Player_num) == team_number::red ? POW_FLAG_BLUE : POW_FLAG_RED, seed);
 	if (objnum == object_none)
 	{
 		HUD_init_message_literal(HM_MULTI, "Failed to drop flag!");
@@ -5329,7 +5346,7 @@ static void MultiLevelInv_CountPlayerInventory()
 						powerup_flags.process(PLAYER_FLAGS_HEADLIGHT, POW_HEADLIGHT);
                         if ((Game_mode & GM_CAPTURE) && (player_info.powerup_flags & PLAYER_FLAGS_FLAG))
                         {
-				++Current[(get_team(i) == TEAM_RED) ? POW_FLAG_BLUE : POW_FLAG_RED];
+				++Current[(get_team(i) == team_number::red) ? POW_FLAG_BLUE : POW_FLAG_RED];
                         }
 #endif
 		Current[POW_VULCAN_AMMO] += player_info.vulcan_ammo;

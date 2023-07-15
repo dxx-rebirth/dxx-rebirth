@@ -1089,8 +1089,8 @@ void newdemo_record_start_demo()
 
 	if (Game_mode & GM_TEAM) {
 		nd_write_byte(Netgame.team_vector);
-		nd_write_string(Netgame.team_name[0]);
-		nd_write_string(Netgame.team_name[1]);
+		nd_write_string(Netgame.team_name[team_number::blue]);
+		nd_write_string(Netgame.team_name[team_number::red]);
 	}
 
 	if (Game_mode & GM_MULTI) {
@@ -1815,13 +1815,13 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	{
 		if (Newdemo_game_mode & GM_TEAM) {
 			nd_read_byte(&Netgame.team_vector);
-			nd_read_string(Netgame.team_name[0].buffer());
-			nd_read_string(Netgame.team_name[1].buffer());
+			nd_read_string(Netgame.team_name[team_number::blue].buffer());
+			nd_read_string(Netgame.team_name[team_number::red].buffer());
 			if (purpose == PURPOSE_REWRITE)
 			{
 				nd_write_byte(Netgame.team_vector);
-				nd_write_string(Netgame.team_name[0]);
-				nd_write_string(Netgame.team_name[1]);
+				nd_write_string(Netgame.team_name[team_number::blue]);
+				nd_write_string(Netgame.team_name[team_number::red]);
 			}
 		}
 		if (Newdemo_game_mode & GM_MULTI) {
@@ -2201,7 +2201,7 @@ static int newdemo_read_frame_information(int rewrite)
 					int player;
 
 					if (Newdemo_game_mode & GM_TEAM)
-						player = get_team(get_player_id(obj));
+						player = static_cast<unsigned>(get_team(get_player_id(obj)));
 					else
 						player = get_player_id(obj);
 					if (player == 0)

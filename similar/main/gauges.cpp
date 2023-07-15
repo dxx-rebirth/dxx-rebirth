@@ -1261,7 +1261,7 @@ static void hud_show_flag(grs_canvas &canvas, const player_info &player_info, co
 		}
 		}
 
-		icon = (get_team(Player_num) == TEAM_BLUE)?FLAG_ICON_RED:FLAG_ICON_BLUE;
+		icon = (get_team(Player_num) == team_number::blue) ? FLAG_ICON_RED : FLAG_ICON_BLUE;
 		auto &bm = GameBitmaps[GET_GAUGE_INDEX(icon)];
 		PAGE_IN_GAUGE(icon, multires_gauge_graphic);
 		const auto &&hud_scale_ar = HUD_SCALE_AR(grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic);
@@ -3332,9 +3332,8 @@ namespace {
 
 static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas, const game_mode_flags Game_mode)
 {
-	playernum_t n_players;
 	playernum_array_t player_list;
-	int n_left,i,x0,x1,x2,y,save_y;
+	int n_left,x0,x1,x2,y,save_y;
 
 	if (Show_kill_list_timer > 0)
 	{
@@ -3343,10 +3342,9 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas, const ga
 			Show_kill_list = show_kill_list_mode::None;
 	}
 
-	n_players = multi_get_kill_list(player_list);
-
-	if (Show_kill_list == show_kill_list_mode::team_kills)
-		n_players = 2;
+	const playernum_t n_players = (Show_kill_list == show_kill_list_mode::team_kills)
+		? 2
+		: multi_get_kill_list(player_list);
 
 	if (n_players <= 4)
 		n_left = n_players;
@@ -3383,7 +3381,8 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas, const ga
         const auto &&fspacx35 = fspacx(35);
         const auto &&fspacx64 = fspacx(64);
 	x0 = fspacx1;
-	for (i=0;i<n_players;i++) {
+	for (const uint8_t i : xrange(n_players))
+	{
 		playernum_t player_num;
 		callsign_t name;
 
@@ -3431,7 +3430,7 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas, const ga
 		gr_set_fontcolor(canvas, fontcolor, -1);
 
 		if (Show_kill_list == show_kill_list_mode::team_kills)
-			name = Netgame.team_name[i];
+			name = Netgame.team_name[(team_number{i})];
 		else if ((Game_mode & GM_BOUNTY) && player_num == Bounty_target && (GameTime64 & 0x10000))
 		{
 			name = "[TARGET]";
@@ -3465,7 +3464,7 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas, const ga
 			gr_printf(canvas, game_font, x1, y, "%i%%", eff <= 0 ? 0 : eff);
 		}
 		else if (Show_kill_list == show_kill_list_mode::team_kills)
-			gr_printf(canvas, game_font, x1, y, "%3d", team_kills[i]);
+			gr_printf(canvas, game_font, x1, y, "%3d", team_kills[(team_number{i})]);
 		else if (is_multiplayer_cooperative)
 			gr_printf(canvas, game_font, x1, y, "%-6d", player_info.mission.score);
 		else if (Netgame.KillGoal || Netgame.PlayTimeAllowed.count())
@@ -3637,11 +3636,11 @@ void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &canvas, co
 							} c{};
 #if defined(DXX_BUILD_DESCENT_II)
 						if (game_mode_capture_flag())
-								((get_team(pnum) == TEAM_BLUE) ? c.r : c.b) = 31;
+								((get_team(pnum) == team_number::blue) ? c.r : c.b) = 31;
 						else if (game_mode_hoard())
 						{
 								((Game_mode & GM_TEAM)
-									? ((get_team(pnum) == TEAM_RED) ? c.r : c.b)
+									? ((get_team(pnum) == team_number::red) ? c.r : c.b)
 									: c.g
 								) = 31;
 						}

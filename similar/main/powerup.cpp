@@ -322,7 +322,7 @@ struct player_hit_headlight_powerup
 	}
 };
 
-template <unsigned TEAM>
+template <team_number TEAM>
 static int player_hit_flag_powerup(player_info &player_info, const std::span<const char> desc)
 {
 	if (!game_mode_capture_flag())
@@ -673,7 +673,7 @@ int do_powerup(const vmobjptridx_t obj)
 			break;
 
 		case POW_FLAG_BLUE:
-			used = player_hit_flag_powerup<TEAM_RED>(player_info, "BLUE FLAG!");
+			used = player_hit_flag_powerup<team_number::red>(player_info, "BLUE FLAG!");
 		   break;
 
 		case POW_HOARD_ORB:
@@ -692,7 +692,7 @@ int do_powerup(const vmobjptridx_t obj)
 		  break;	
 
 		case POW_FLAG_RED:
-			used = player_hit_flag_powerup<TEAM_BLUE>(player_info, "RED FLAG!");
+			used = player_hit_flag_powerup<team_number::blue>(player_info, "RED FLAG!");
 		   break;
 
 //		case POW_HOARD_ORB:

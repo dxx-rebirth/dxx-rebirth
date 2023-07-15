@@ -519,7 +519,7 @@ void multi_sort_kill_list(void);
 }
 #endif
 void multi_reset_stuff(void);
-int get_team(playernum_t pnum);
+team_number get_team(playernum_t pnum);
 void multi_disconnect_player(playernum_t);
 
 #ifdef dsx
@@ -937,9 +937,9 @@ static inline unsigned get_player_color(unsigned pnum)
 	return pnum;
 }
 
-static inline unsigned get_team_color(unsigned tnum)
+static inline unsigned get_team_color(const team_number tnum)
 {
-	return tnum;
+	return static_cast<unsigned>(tnum);
 }
 
 static inline unsigned get_player_or_team_color(unsigned pnum)

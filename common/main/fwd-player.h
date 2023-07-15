@@ -51,13 +51,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define PLAYER_MAX_AMMO(powerup_flags,BASE)	(static_cast<void>(powerup_flags), BASE)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define PLAYER_STRUCT_VERSION   17  // increment this every time player struct changes
-
-// defines for teams
-#define TEAM_BLUE   0
-#define TEAM_RED    1
 #endif
-
-#ifdef __cplusplus
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include <array>
@@ -68,6 +62,7 @@ struct callsign_t;
 
 namespace dcx {
 enum class player_connection_status : uint8_t;
+enum class team_number : uint8_t;
 struct player_ship;
 
 struct player;
@@ -77,7 +72,7 @@ template <typename T>
 	using per_player_array = std::array<T, MAX_PLAYERS>;
 using playernum_array_t = per_player_array<playernum_t>;
 template <typename T>
-	using per_team_array = std::array<T, 2>;
+	using per_team_array = enumerated_array<T, 2, team_number>;
 
 extern unsigned N_players;   // Number of players ( >1 means a net game, eh?)
 extern playernum_t Player_num;  // The player number who is on the console.
@@ -101,5 +96,3 @@ void omega_charge_frame(player_info &);
  * reads a player_ship structure from a PHYSFS_File
  */
 void player_ship_read(player_ship *ps, PHYSFS_File *fp);
-
-#endif

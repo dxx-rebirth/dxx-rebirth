@@ -736,16 +736,16 @@ void fuelcen_check_for_goal(object &plrobj, const shared_segment &segp)
 {
 	Assert (game_mode_capture_flag());
 
-	unsigned check_team;
+	team_number check_team;
 	powerup_type_t powerup_to_drop;
 	switch(segp.special)
 	{
 		case segment_special::goal_blue:
-			check_team = TEAM_BLUE;
+			check_team = team_number::blue;
 			powerup_to_drop = POW_FLAG_RED;
 			break;
 		case segment_special::goal_red:
-			check_team = TEAM_RED;
+			check_team = team_number::red;
 			powerup_to_drop = POW_FLAG_BLUE;
 			break;
 		default:

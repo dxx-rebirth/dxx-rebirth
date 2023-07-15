@@ -242,8 +242,8 @@ net_udp_select_teams_menu_items::net_udp_select_teams_menu_items(const unsigned 
 			 * detected length. */
 			team_name.copy(std::span(s, strlen(s)));
 	};
-	set_team_name(team_names[0], TXT_BLUE);
-	set_team_name(team_names[1], TXT_RED);
+	set_team_name(team_names[team_number::blue], TXT_BLUE);
+	set_team_name(team_names[team_number::red], TXT_RED);
 	/* Round blue team up.  Round red team down. */
 	const unsigned num_blue_players = (num_players + 1) >> 1;
 	// Put first half of players on team A
@@ -252,7 +252,7 @@ net_udp_select_teams_menu_items::net_udp_select_teams_menu_items(const unsigned 
 	 * varies based on how many players are on the blue team, so the red
 	 * team label is set by setup_team_sensitive_entries.
 	 */
-	nm_set_item_input(m[idx_label_blue_team], team_names[0].a);
+	nm_set_item_input(m[idx_label_blue_team], team_names[team_number::blue].a);
 	const unsigned idx_label_blank0 = setup_team_sensitive_entries(num_players);
 	idx_item_accept = idx_label_blank0 + 1;
 	nm_set_item_text(m[idx_label_blank0], "");
@@ -275,7 +275,7 @@ unsigned net_udp_select_teams_menu_items::setup_team_sensitive_entries(const uns
 		++ ir;
 	}
 	idx_label_red_team = ir;
-	nm_set_item_input(*mi, team_names[1].a);
+	nm_set_item_input(*mi, team_names[team_number::red].a);
 	++ mi;
 	++ ir;
 	for (auto &&[i, ngp] : enumerate(partial_range(Netgame.players, num_players)))
@@ -2974,8 +2974,8 @@ static std::span<const uint8_t> net_udp_prepare_heavy_game_info(const d_level_un
 		}
 	}
 	PUT_INTEL_SHORT(&buf[len], Netgame.segments_checksum);			len += 2;
-	PUT_INTEL_SHORT(&buf[len], Netgame.team_kills[0]);				len += 2;
-	PUT_INTEL_SHORT(&buf[len], Netgame.team_kills[1]);				len += 2;
+	PUT_INTEL_SHORT(&buf[len], Netgame.team_kills[team_number::blue]);				len += 2;
+	PUT_INTEL_SHORT(&buf[len], Netgame.team_kills[team_number::red]);				len += 2;
 	for (auto &i : Netgame.killed)
 	{
 		PUT_INTEL_SHORT(&buf[len], i);				len += 2;
@@ -3235,8 +3235,8 @@ static void net_udp_process_game_info_heavy(const uint8_t *data, uint_fast32_t, 
 			}
 		}
 		Netgame.segments_checksum = GET_INTEL_SHORT(&(data[len]));			len += 2;
-		Netgame.team_kills[0] = GET_INTEL_SHORT(&(data[len]));				len += 2;	
-		Netgame.team_kills[1] = GET_INTEL_SHORT(&(data[len]));				len += 2;
+		Netgame.team_kills[team_number::blue] = GET_INTEL_SHORT(&(data[len]));				len += 2;
+		Netgame.team_kills[team_number::red] = GET_INTEL_SHORT(&(data[len]));				len += 2;
 		range_for (auto &i, Netgame.killed)
 		{
 			i = GET_INTEL_SHORT(&(data[len]));			len += 2;
@@ -6216,7 +6216,7 @@ void net_udp_do_refuse_stuff(const UDP_sequence_request_packet &their, const str
 		if (Game_mode & GM_TEAM)
 		{
 			HUD_init_message(HM_MULTI, "%s%s'%s' wants to join", rankstr.first, rankstr.second, their.callsign.operator const char *());
-			HUD_init_message(HM_MULTI, "Alt-1 assigns to team %s. Alt-2 to team %s", static_cast<const char *>(Netgame.team_name[0]), static_cast<const char *>(Netgame.team_name[1]));
+			HUD_init_message(HM_MULTI, "Alt-1 assigns to team %s. Alt-2 to team %s", Netgame.team_name[team_number::blue].operator const char *(), Netgame.team_name[team_number::red].operator const char *());
 		}
 		else
 		{

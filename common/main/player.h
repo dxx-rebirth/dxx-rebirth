@@ -57,6 +57,12 @@ enum class player_connection_status : uint8_t
 	end_menu,
 };
 
+enum class team_number : uint8_t
+{
+	blue,
+	red,
+};
+
 struct d_player_unique_endlevel_state
 {
 	segnum_t transition_segnum;
