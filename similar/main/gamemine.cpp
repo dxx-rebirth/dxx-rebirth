@@ -78,16 +78,16 @@ static segment_special build_segment_special_from_untrusted(uint8_t untrusted)
 
 static materialization_center_number build_materialization_center_number_from_untrusted(uint8_t untrusted)
 {
-	if (decltype(d_level_shared_robotcenter_state::RobotCenters)::valid_index(untrusted))
-		return materialization_center_number{untrusted};
+	if (const auto o = decltype(d_level_shared_robotcenter_state::RobotCenters)::valid_index(untrusted))
+		return *o;
 	else
 		return materialization_center_number::None;
 }
 
 static station_number build_station_number_from_untrusted(uint8_t untrusted)
 {
-	if (decltype(d_level_unique_fuelcenter_state::Station)::valid_index(untrusted))
-		return station_number{untrusted};
+	if (const auto o = decltype(d_level_unique_fuelcenter_state::Station)::valid_index(untrusted))
+		return *o;
 	else
 		return station_number::None;
 }

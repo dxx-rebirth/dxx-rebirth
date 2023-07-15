@@ -226,9 +226,8 @@ void properties_read_cmp(d_level_shared_robot_info_state &LevelSharedRobotInfoSt
 	bitmap_index_read_n(fp, ObjBitmaps);
 	range_for (auto &i, ObjBitmapPtrs)
 	{
-		const auto oi = static_cast<object_bitmap_index>(PHYSFSX_readShort(fp));
-		if (ObjBitmaps.valid_index(oi))
-			i = oi;
+		if (const auto oi = ObjBitmaps.valid_index(PHYSFSX_readShort(fp)))
+			i = *oi;
 		else
 			i = {};
 	}
@@ -375,9 +374,8 @@ void bm_read_all(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_v
 	bitmap_index_read_n(fp, partial_range(ObjBitmaps, N_ObjBitmaps));
 	range_for (auto &i, partial_range(ObjBitmapPtrs, N_ObjBitmaps))
 	{
-		const auto oi = static_cast<object_bitmap_index>(PHYSFSX_readShort(fp));
-		if (ObjBitmaps.valid_index(oi))
-			i = oi;
+		if (const auto oi = ObjBitmaps.valid_index(PHYSFSX_readShort(fp)))
+			i = *oi;
 		else
 			i = {};
 	}
@@ -524,9 +522,8 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 		Error("Too many object bitmap pointers (%d) in <%s>.  Max is %" DXX_PRI_size_type ".", t, fname, ObjBitmapPtrs.size() - N_D2_OBJBITMAPPTRS);
 	range_for (auto &i, partial_range(ObjBitmapPtrs, N_D2_OBJBITMAPPTRS.value, N_D2_OBJBITMAPPTRS + t))
 	{
-		const auto oi = static_cast<object_bitmap_index>(PHYSFSX_readShort(fp));
-		if (ObjBitmaps.valid_index(oi))
-			i = oi;
+		if (const auto oi = ObjBitmaps.valid_index(PHYSFSX_readShort(fp)))
+			i = *oi;
 		else
 			i = {};
 	}
@@ -597,10 +594,11 @@ void load_robot_replacements(const d_fname &level_name)
 
 	t = PHYSFSX_readInt(fp);			//read number of objbitmaps
 	for (j=0;j<t;j++) {
-		const auto oi = static_cast<object_bitmap_index>(PHYSFSX_readInt(fp));		//read objbitmap number
-		if (!ObjBitmaps.valid_index(oi))
-			Error("Object bitmap number (%u) out of range in (%s).  Range = [0..%" DXX_PRI_size_type "].", static_cast<unsigned>(oi), static_cast<const char *>(level_name), ObjBitmaps.size() - 1);
-		bitmap_index_read(fp, ObjBitmaps[oi]);
+		const auto foi = PHYSFSX_readInt(fp);		//read objbitmap number
+		if (const auto oi = ObjBitmaps.valid_index(foi))
+			bitmap_index_read(fp, ObjBitmaps[*oi]);
+		else
+			Error("Object bitmap number (%u) out of range in (%s).  Range = [0..%" DXX_PRI_size_type "].", foi, static_cast<const char *>(level_name), ObjBitmaps.size() - 1);
 	}
 
 	t = PHYSFSX_readInt(fp);			//read number of objbitmapptrs
@@ -608,10 +606,11 @@ void load_robot_replacements(const d_fname &level_name)
 		const unsigned i = PHYSFSX_readInt(fp);		//read objbitmapptr number
 		if (i >= ObjBitmapPtrs.size())
 			Error("Object bitmap pointer (%u) out of range in (%s).  Range = [0..%" DXX_PRI_size_type "].", i, static_cast<const char *>(level_name), ObjBitmapPtrs.size() - 1);
-		const auto oi = static_cast<object_bitmap_index>(PHYSFSX_readShort(fp));
-		if (!ObjBitmaps.valid_index(oi))
-			Error("Object bitmap number (%u) out of range in (%s).  Range = [0..%" DXX_PRI_size_type "].", static_cast<unsigned>(oi), static_cast<const char *>(level_name), ObjBitmaps.size() - 1);
-		ObjBitmapPtrs[i] = oi;
+		const auto foi = PHYSFSX_readShort(fp);
+		if (const auto oi = ObjBitmaps.valid_index(foi))
+			ObjBitmapPtrs[i] = *oi;
+		else
+			Error("Object bitmap number (%u) out of range in (%s).  Range = [0..%" DXX_PRI_size_type "].", foi, static_cast<const char *>(level_name), ObjBitmaps.size() - 1);
 	}
 	Robot_replacements_loaded = 1;
 }
@@ -650,10 +649,11 @@ static grs_bitmap *read_extra_bitmap_iff(const char * filename, grs_bitmap &n)
 // formerly load_exit_model_bitmap
 static grs_bitmap *bm_load_extra_objbitmap(const char *name)
 {
-	const auto oi = static_cast<object_bitmap_index>(N_ObjBitmaps);
-	if (!ObjBitmaps.valid_index(oi))
+	if (const auto ooi = ObjBitmaps.valid_index(N_ObjBitmaps); !ooi)
 		return nullptr;
+	else
 	{
+		const auto oi = *ooi;
 		auto &bitmap_idx = ObjBitmaps[oi];
 		const auto bitmap_store_index = bitmap_index{static_cast<uint16_t>(extra_bitmap_num)};
 		grs_bitmap &n = GameBitmaps[bitmap_store_index];

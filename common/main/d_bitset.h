@@ -7,6 +7,7 @@
 
 #pragma once
 #include <bitset>
+#include <optional>
 
 namespace dcx {
 
@@ -41,14 +42,14 @@ public:
 		return static_cast<enumerated_bitset &>(this->base_type::set(static_cast<std::size_t>(position)));
 	}
 	[[nodiscard]]
-	static constexpr bool valid_index(std::size_t s)
+	static constexpr std::optional<E> valid_index(const std::size_t s)
 	{
-		return s < N;
+		return s < N ? std::optional(static_cast<E>(s)) : std::nullopt;
 	}
 	[[nodiscard]]
 	static constexpr bool valid_index(E e)
 	{
-		return valid_index(static_cast<std::size_t>(e));
+		return static_cast<std::size_t>(e) < N;
 	}
 };
 

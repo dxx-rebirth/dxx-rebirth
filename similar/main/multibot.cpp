@@ -1029,15 +1029,18 @@ void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_a
 	objnum_t objnum;
 	objnum = GET_INTEL_SHORT(&buf[3]);
 
-	if (!LevelUniqueFuelcenterState.Station.valid_index(untrusted_fuelcen_num))
-		return;
-	if (untrusted_fuelcen_num >= LevelUniqueFuelcenterState.Num_fuelcenters || pnum >= N_players)
-	{
-		Int3(); // Bogus data
-		return;
-	}
-
-	auto &robotcen = Station[(station_number{untrusted_fuelcen_num})];
+	const auto trusted_fuelcen_num = ({
+		const auto o = LevelUniqueFuelcenterState.Station.valid_index(untrusted_fuelcen_num);
+		if (!o)
+			return;
+		if (untrusted_fuelcen_num >= LevelUniqueFuelcenterState.Num_fuelcenters || pnum >= N_players)
+		{
+			Int3(); // Bogus data
+			return;
+		}
+		*o;
+	});
+	auto &robotcen = Station[trusted_fuelcen_num];
 
 	// Play effect and sound
 
@@ -1085,9 +1088,10 @@ void multi_recv_escort_goal(d_unique_buddy_state &BuddyState, const multiplayer_
 	update_buddy_state b;
 	multi_serialize_read(buf, b);
 	const auto Looking_for_marker = b.Looking_for_marker;
-	BuddyState.Looking_for_marker = MarkerState.imobjidx.valid_index(Looking_for_marker)
-		? static_cast<game_marker_index>(Looking_for_marker)
-		: game_marker_index::None;
+	BuddyState.Looking_for_marker = ({
+		const auto o = MarkerState.imobjidx.valid_index(Looking_for_marker);
+		o ? *o : game_marker_index::None;
+	});
 	BuddyState.Escort_special_goal = b.Escort_special_goal;
 	BuddyState.Last_buddy_key = b.Last_buddy_key;
 	BuddyState.Buddy_messages_suppressed = 0;

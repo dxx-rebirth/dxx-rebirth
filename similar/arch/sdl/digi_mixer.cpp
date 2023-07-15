@@ -109,8 +109,8 @@ unsigned digi_mixer_max_channels = std::size(channels);
 
 void digi_mixer_free_channel(const int channel_num)
 {
-	if (const std::size_t u = channel_num; channels.valid_index(u))
-		channels.reset(static_cast<sound_channel>(channel_num));
+	if (const auto o = channels.valid_index(channel_num))
+		channels.reset(*o);
 }
 
 }

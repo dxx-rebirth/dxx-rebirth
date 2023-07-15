@@ -537,8 +537,8 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 		properties_read_cmp(LevelSharedRobotInfoState, Vclip, Piggy_fp);	// Note connection to above if!!!
 		range_for (auto &i, GameBitmapXlat)
 		{
-			const bitmap_index bi{static_cast<uint16_t>(PHYSFSX_readShort(Piggy_fp))};
-			i = GameBitmapXlat.valid_index(i) ? bi : bitmap_index::None;
+			const auto bi = GameBitmapXlat.valid_index(PHYSFSX_readShort(Piggy_fp));
+			i = bi ? *bi : bitmap_index::None;
 			if (PHYSFS_eof(Piggy_fp))
 				break;
 		}
@@ -1037,8 +1037,8 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 		//PHYSFS_read( ham_fp, GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1 );
 		range_for (auto &i, GameBitmapXlat)
 		{
-			const bitmap_index bi{static_cast<uint16_t>(PHYSFSX_readShort(ham_fp))};
-			i = GameBitmapXlat.valid_index(i) ? bi : bitmap_index::None;
+			const auto bi = GameBitmapXlat.valid_index(PHYSFSX_readShort(ham_fp));
+			i = bi ? *bi : bitmap_index::None;
 			if (PHYSFS_eof(ham_fp))
 				break;
 		}
@@ -2197,8 +2197,8 @@ namespace dcx {
  */
 void bitmap_index_read(PHYSFS_File *fp, bitmap_index &bi)
 {
-	const bitmap_index i{static_cast<uint16_t>(PHYSFSX_readShort(fp))};
-	bi = GameBitmaps.valid_index(i) ? i : bitmap_index::None;
+	const auto i = GameBitmaps.valid_index(PHYSFSX_readShort(fp));
+	bi = i ? *i : bitmap_index::None;
 }
 
 /*
@@ -2208,8 +2208,8 @@ void bitmap_index_read_n(PHYSFS_File *fp, const ranges::subrange<bitmap_index *>
 {
 	for (auto &bi : r)
 	{
-		const bitmap_index i{static_cast<uint16_t>(PHYSFSX_readShort(fp))};
-		bi = GameBitmaps.valid_index(i) ? i : bitmap_index::None;
+		const auto i = GameBitmaps.valid_index(PHYSFSX_readShort(fp));
+		bi = i ? *i : bitmap_index::None;
 	}
 }
 }

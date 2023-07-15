@@ -8,6 +8,7 @@
 #pragma once
 #include "dxxsconf.h"
 #include <array>
+#include <optional>
 #include "fwd-d_array.h"
 
 namespace dcx {
@@ -61,14 +62,19 @@ struct enumerated_array : std::array<T, N>
 		requires(std::is_integral_v<I>)
 		const_reference operator[](I) const = delete;
 	[[nodiscard]]
-	static constexpr bool valid_index(std::size_t s)
+	static constexpr std::optional<E> valid_index(const std::size_t s)
 	{
-		return s < N;
+		/* static_cast<E> is necessary here, since
+		 * `sizeof(E) < sizeof(std::size_t)` is supported and commonly used.
+		 * The narrowing rule is stateless, and therefore does not observe that
+		 * the cast is on a path where `s < N` ensures no narrowing can occur.
+		 */
+		return s < N ? std::optional(static_cast<E>(s)) : std::nullopt;
 	}
 	[[nodiscard]]
 	static constexpr bool valid_index(E e)
 	{
-		return valid_index(static_cast<std::size_t>(e));
+		return static_cast<std::size_t>(e) < N;
 	}
 };
 
