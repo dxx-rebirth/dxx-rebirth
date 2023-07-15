@@ -851,7 +851,7 @@ void multi_do_robot_position(const playernum_t pnum, const multiplayer_rspan<mul
 	qpp.orient.x = GET_INTEL_SHORT(&buf[loc]);					loc += 2;
 	qpp.orient.y = GET_INTEL_SHORT(&buf[loc]);					loc += 2;
 	qpp.orient.z = GET_INTEL_SHORT(&buf[loc]);					loc += 2;
-	qpp.pos = multi_get_vector(&buf[loc]);
+	qpp.pos = multi_get_vector(buf.subspan<5 + 8, 12>());
 	loc += 12;
 	if (const auto s = segnum_t{GET_INTEL_SHORT(&buf[loc])}; vmsegidx_t::check_nothrow_index(s))
 	{
@@ -860,9 +860,9 @@ void multi_do_robot_position(const playernum_t pnum, const multiplayer_rspan<mul
 	}
 	else
 		return;
-	qpp.vel = multi_get_vector(&buf[loc]);
+	qpp.vel = multi_get_vector(buf.subspan<5 + 8 + 12 + 2, 12>());
 	loc += 12;
-	qpp.rotvel = multi_get_vector(&buf[loc]);
+	qpp.rotvel = multi_get_vector(buf.subspan<5 + 8 + 12 + 2 + 12, 12>());
 	extract_quaternionpos(robot, qpp);
 }
 
@@ -886,7 +886,7 @@ void multi_do_robot_fire(const multiplayer_rspan<multiplayer_command_t::MULTI_RO
 	const short remote_botnum = GET_INTEL_SHORT(&buf[loc]);
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[loc+2]);                loc += 3;
 	const auto gun_num = buf[loc];                                                      loc += 1;
-	const auto fire = multi_get_vector(&buf[loc]);
+	const auto fire = multi_get_vector(buf.subspan<6, 12>());
 
 	if (botnum > Highest_object_index)
 		return;
@@ -1251,7 +1251,7 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const multiplayer_rs
 	const auto segnum = segnum_t{GET_INTEL_SHORT(&buf[loc])};	loc += 2;
 	if (!vmsegidx_t::check_nothrow_index(segnum))
 		return;
-	const auto pos = multi_get_vector(&buf[loc]);
+	const auto pos = multi_get_vector(buf.subspan<7, 12>());
 	loc += 12;
 	vms_vector velocity{};
 

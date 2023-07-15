@@ -596,7 +596,7 @@ extern int multi_quit_game;
 extern per_player_array<msgsend_state> multi_sending_message;
 extern int multi_defining_message;
 
-vms_vector multi_get_vector(const uint8_t *buf);
+vms_vector multi_get_vector(std::span<const uint8_t, 12> buf);
 void multi_put_vector(uint8_t *buf, const vms_vector &v);
 
 }

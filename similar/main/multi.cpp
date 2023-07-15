@@ -192,7 +192,7 @@ std::optional<network_state> build_network_state_from_untrusted(const uint8_t un
 	}
 }
 
-vms_vector multi_get_vector(const uint8_t *const buf)
+vms_vector multi_get_vector(const std::span<const uint8_t, 12> buf)
 {
 	return vms_vector{
 		static_cast<int32_t>(GET_INTEL_INT(&buf[0])),
@@ -1589,7 +1589,7 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 
 	flags = buf[4];
 
-	const auto shot_orientation = multi_get_vector(&buf[5]);
+	const auto shot_orientation = multi_get_vector(buf.subspan<5, 12>());
 
 	Assert (pnum < N_players);
 
@@ -1681,7 +1681,7 @@ static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum,
 	qpp.orient.x = GET_INTEL_SHORT(&buf[count]);					count += 2;
 	qpp.orient.y = GET_INTEL_SHORT(&buf[count]);					count += 2;
 	qpp.orient.z = GET_INTEL_SHORT(&buf[count]);					count += 2;
-	qpp.pos = multi_get_vector(&buf[count]);
+	qpp.pos = multi_get_vector(buf.subspan<9, 12>());
 	count += 12;
 	if (const auto s = segnum_t{GET_INTEL_SHORT(&buf[count])}; vmsegidx_t::check_nothrow_index(s))
 	{
@@ -1690,9 +1690,9 @@ static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum,
 	}
 	else
 		return;
-	qpp.vel = multi_get_vector(&buf[count]);
+	qpp.vel = multi_get_vector(buf.subspan<9 + 12 + 2, 12>());
 	count += 12;
-	qpp.rotvel = multi_get_vector(&buf[count]);
+	qpp.rotvel = multi_get_vector(buf.subspan<9 + 12 + 2 + 12, 12>());
 	count += 12;
 	extract_quaternionpos(obj, qpp);
 
@@ -2151,7 +2151,7 @@ static void multi_do_controlcen_fire(const multiplayer_rspan<multiplayer_command
 	objnum_t objnum;
 	int count = 1;
 
-	const auto to_target = multi_get_vector(&buf[count]);
+	const auto to_target = multi_get_vector(buf.subspan<1, 12>());
 	count += 12;
 	gun_num = buf[count];                       count += 1;
 	objnum = GET_INTEL_SHORT(&buf[count]);      count += 2;
@@ -2184,7 +2184,7 @@ static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t
 	const auto &&segnum = *useg;
 	count += 2;
 	objnum_t objnum = GET_INTEL_SHORT(&buf[count]); count += 2;
-	const auto new_pos = multi_get_vector(&buf[count]);
+	const auto new_pos = multi_get_vector(buf.subspan<1 + 1 + 1 + 2 + 2, 12>());
 	count+=sizeof(vms_vector);
 	const auto &&my_objnum = drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, powerup_type, vmd_zero_vector, new_pos, segnum, true);
 	if (my_objnum == object_none)
@@ -2278,7 +2278,7 @@ static void multi_do_effect_blowup(const playernum_t pnum, const multiplayer_rsp
 	if (!uside)
 		return;
 	const auto side = *uside;
-	const auto hitpnt = multi_get_vector(&buf[5]);
+	const auto hitpnt = multi_get_vector(buf.subspan<5, 12>());
 
 	//create a dummy object which will be the weapon that hits
 	//the monitor. the blowup code wants to know who the parent of the
@@ -2302,7 +2302,7 @@ static void multi_do_drop_marker(object_array &Objects, fvmsegptridx &vmsegptrid
 	if (mesnum >= MarkerState.get_markers_per_player(game_mode, max_numplayers))
 		return;
 
-	const auto position = multi_get_vector(&buf[3]);
+	const auto position = multi_get_vector(buf.subspan<3, 12>());
 
 	const auto gmi = convert_player_marker_index_to_game_marker_index(game_mode, max_numplayers, pnum, player_marker_index{mesnum});
 	auto &marker_message = MarkerState.message[gmi];

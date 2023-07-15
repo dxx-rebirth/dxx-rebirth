@@ -5970,7 +5970,7 @@ void net_udp_process_pdata(const std::span<const uint8_t> data, const _sockaddr 
 	pd.qpp.orient.x = GET_INTEL_SHORT(&data[len]);					len += 2;
 	pd.qpp.orient.y = GET_INTEL_SHORT(&data[len]);					len += 2;
 	pd.qpp.orient.z = GET_INTEL_SHORT(&data[len]);					len += 2;
-	pd.qpp.pos = multi_get_vector(&data[len]);
+	pd.qpp.pos = multi_get_vector(data.subspan<3 + 8, 12>());
 	len += 12;
 	if (const auto s = segnum_t{GET_INTEL_SHORT(&data[len])}; vmsegidx_t::check_nothrow_index(s))
 	{
@@ -5979,9 +5979,9 @@ void net_udp_process_pdata(const std::span<const uint8_t> data, const _sockaddr 
 	}
 	else
 		return;
-	pd.qpp.vel = multi_get_vector(&data[len]);
+	pd.qpp.vel = multi_get_vector(data.subspan<3 + 8 + 12 + 2, 12>());
 	len += 12;
-	pd.qpp.rotvel = multi_get_vector(&data[len]);
+	pd.qpp.rotvel = multi_get_vector(data.subspan<3 + 8 + 12 + 2 + 12, 12>());
 	len += 12;
 
 	if (multi_i_am_master()) // I am host - must relay this packet to others!
