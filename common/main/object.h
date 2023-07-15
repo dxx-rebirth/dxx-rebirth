@@ -91,6 +91,13 @@ enum render_type_t : uint8_t
 	RT_WEAPON_VCLIP = 7,   // a weapon that renders as a vclip
 };
 
+enum class contained_object_type : uint8_t
+{
+	None,
+	robot = object_type_t::OBJ_ROBOT,
+	powerup = object_type_t::OBJ_POWERUP,
+};
+
 enum class gun_num_t : uint8_t
 {
 	_0,
@@ -119,6 +126,11 @@ static inline bool valid_render_type(const uint8_t r)
 			return false;
 	}
 }
+
+struct contained_object_parameters
+{
+	contained_object_type type;	// Type of object this robot contains (eg, spider contains powerup)
+};
 
 }
 
@@ -271,10 +283,6 @@ struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 	}
 };
 
-}
-
-namespace dcx {
-
 // Same as above but structure Savegames/Multiplayer objects expect
 struct laser_info_rw
 {
@@ -394,7 +402,7 @@ struct object_base
 	vms_matrix orient;      // orientation of object in world
 	fix     size;           // 3d size of object - for collision detection
 	fix     shields;        // Starts at maximum, when <0, object dies..
-	sbyte   contains_type;  // Type of object this object contains (eg, spider contains powerup)
+	contained_object_parameters contains;
 	sbyte   contains_id;    // ID of object this object contains (eg, id = blue type = key)
 	sbyte   contains_count; // number of objects of type:id this object contains
 	sbyte   matcen_creator; // Materialization center that created this object, high bit set if matcen-created
@@ -770,6 +778,8 @@ window_event_result endlevel_move_all_objects(const d_level_shared_robot_info_st
 }
 
 namespace dcx {
+
+contained_object_type build_contained_object_type_from_untrusted(uint8_t untrusted);
 
 static inline unsigned get_player_id(const object_base &o)
 {

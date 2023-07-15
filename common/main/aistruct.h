@@ -46,6 +46,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
+enum class contained_object_type : uint8_t;
+
 enum class player_awareness_type_t : uint8_t
 {
 	PA_NONE,

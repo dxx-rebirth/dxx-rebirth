@@ -1735,9 +1735,9 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 #endif
 
 	if (contains_type)
-		current_robot_info.contains_type = OBJ_ROBOT;
+		current_robot_info.contains.type = contained_object_type::robot;
 	else
-		current_robot_info.contains_type = OBJ_POWERUP;
+		current_robot_info.contains.type = contained_object_type::powerup;
 
 	++LevelSharedRobotInfoState.N_robot_types;
 #if defined(DXX_BUILD_DESCENT_I)

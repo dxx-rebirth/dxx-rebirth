@@ -104,7 +104,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 
 	sbyte   contains_count; //  Max number of things this instance can contain.
 	sbyte   contains_prob;  //  Probability that this instance will contain something in N/16
-	sbyte   contains_type;  //  Type of thing contained, robot or powerup, in bitmaps.tbl, !0=robot, 0=powerup
+	contained_object_parameters contains;  //  Type of thing contained, robot or powerup, in bitmaps.tbl, !0=robot, 0=powerup
 #if defined(DXX_BUILD_DESCENT_I)
 #elif defined(DXX_BUILD_DESCENT_II)
 	sbyte   kamikaze;       //  !0 means commits suicide when hits you, strength thereof. 0 means no.
@@ -203,7 +203,7 @@ void recreate_thief(const d_robot_info_array &Robot_info, robot_id thief_id);
 
 // Drops objects contained in objp.
 bool object_create_robot_egg(const d_robot_info_array &Robot_info, object_base &objp);
-bool object_create_robot_egg(const d_robot_info_array &Robot_info, int type, int id, unsigned num, const vms_vector &init_vel, const vms_vector &pos, vmsegptridx_t segnum);
+bool object_create_robot_egg(const d_robot_info_array &Robot_info, contained_object_type type, int id, unsigned num, const vms_vector &init_vel, const vms_vector &pos, vmsegptridx_t segnum);
 
 // Create a matcen robot
 imobjptridx_t create_morph_robot(const d_robot_info_array &Robot_info, vmsegptridx_t segp, const vms_vector &object_pos, robot_id object_id);

@@ -362,7 +362,7 @@ static void write_key_text(fvcobjptridx &vcobjptridx, segment_array &segments, f
 
 		if (const auto contains_count = objp->contains_count)
 		{
-			if (objp->contains_type == OBJ_POWERUP)
+			if (objp->contains.type == contained_object_type::powerup)
 			{
 				const char *color;
 				const auto id = objp->contains_id;

@@ -241,7 +241,7 @@ void robot_info_read(PHYSFS_File *fp, robot_info &ri)
 
 	ri.contains_count = PHYSFSX_readByte(fp);
 	ri.contains_prob = PHYSFSX_readByte(fp);
-	ri.contains_type = PHYSFSX_readByte(fp);
+	ri.contains.type = build_contained_object_type_from_untrusted(PHYSFSX_readByte(fp));
 #if defined(DXX_BUILD_DESCENT_I)
 	ri.score_value = PHYSFSX_readInt(fp);
 #elif defined(DXX_BUILD_DESCENT_II)

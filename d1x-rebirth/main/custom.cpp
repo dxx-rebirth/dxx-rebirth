@@ -402,7 +402,8 @@ static int read_d2_robot_info(PHYSFS_File *fp, robot_info &ri)
 	ri.contains_id = PHYSFSX_readByte(fp);
 	ri.contains_count = PHYSFSX_readByte(fp);
 	ri.contains_prob = PHYSFSX_readByte(fp);
-	ri.contains_type = PHYSFSX_readByte(fp);
+	const uint8_t contains_type = PHYSFSX_readByte(fp);
+	ri.contains.type = build_contained_object_type_from_untrusted(contains_type);
 	/*ri.kamikaze =*/ PHYSFSX_readByte(fp);
 	ri.score_value = PHYSFSX_readShort(fp);
 	/*ri.badass =*/ PHYSFSX_readByte(fp);

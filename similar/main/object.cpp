@@ -179,6 +179,18 @@ icobjidx_t laser_info::get_last_hitobj() const
 	return hitobj_values[hitobj_pos - 1];
 }
 
+contained_object_type build_contained_object_type_from_untrusted(const uint8_t untrusted)
+{
+	switch (untrusted)
+	{
+		case object_type_t::OBJ_POWERUP:
+		case object_type_t::OBJ_ROBOT:
+			return contained_object_type{untrusted};
+		default:
+			return contained_object_type::None;
+	}
+}
+
 }
 
 namespace dsx {

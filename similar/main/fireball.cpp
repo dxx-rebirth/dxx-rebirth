@@ -944,7 +944,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 	constexpr primary_weapon_index_t unset_weapon_index = primary_weapon_index_t::LASER_INDEX;
 	primary_weapon_index_t weapon_index = unset_weapon_index;
 
-	if (del_obj.contains_type != OBJ_POWERUP)
+	if (del_obj.contains.type != contained_object_type::powerup)
 		return;
 
 	switch (del_obj.contains_id) {
@@ -995,7 +995,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 #if defined(DXX_BUILD_DESCENT_I)
 				del_obj.contains_count = 1;
 #endif
-				del_obj.contains_type = OBJ_POWERUP;
+				del_obj.contains.type = contained_object_type::powerup;
 				if (weapon_index_uses_vulcan_ammo(weapon_index)) {
 					del_obj.contains_id = POW_VULCAN_AMMO;
 				}
@@ -1006,7 +1006,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 #if defined(DXX_BUILD_DESCENT_I)
 				del_obj.contains_count = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
-				del_obj.contains_type = OBJ_POWERUP;
+				del_obj.contains.type = contained_object_type::powerup;
 				del_obj.contains_id = POW_SHIELD_BOOST;
 #endif
 			}
@@ -1019,13 +1019,13 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 #if defined(DXX_BUILD_DESCENT_I)
 				del_obj.contains_count = 1;
 #endif
-				del_obj.contains_type = OBJ_POWERUP;
+				del_obj.contains.type = contained_object_type::powerup;
 				del_obj.contains_id = POW_ENERGY;
 			} else {
 #if defined(DXX_BUILD_DESCENT_I)
 				del_obj.contains_count = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
-				del_obj.contains_type = OBJ_POWERUP;
+				del_obj.contains.type = contained_object_type::powerup;
 				del_obj.contains_id = POW_SHIELD_BOOST;
 #endif
 			}
@@ -1034,7 +1034,8 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 
 	//	If this robot was gated in by the boss and it now contains energy, make it contain nothing,
 	//	else the room gets full of energy.
-	if ( (del_obj.matcen_creator == BOSS_GATE_MATCEN_NUM) && (del_obj.contains_id == POW_ENERGY) && (del_obj.contains_type == OBJ_POWERUP) ) {
+	if (del_obj.matcen_creator == BOSS_GATE_MATCEN_NUM && del_obj.contains_id == POW_ENERGY && del_obj.contains.type == contained_object_type::powerup)
+	{
 		del_obj.contains_count = 0;
 	}
 
@@ -1155,18 +1156,18 @@ bool drop_powerup(d_level_unique_object_state &LevelUniqueObjectState, const d_l
 
 namespace {
 
-static bool drop_robot_egg(const d_robot_info_array &Robot_info, const int type, const int id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum)
+static bool drop_robot_egg(const d_robot_info_array &Robot_info, const contained_object_type type, const int id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum)
 {
 	if (!num)
 		return false;
 	switch (type)
 	{
-		case OBJ_POWERUP:
+		case contained_object_type::powerup:
 			return drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, id, num, init_vel, pos, segnum, false);
-		case OBJ_ROBOT:
+		case contained_object_type::robot:
 			break;
 		default:
-			con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "ignoring invalid object type; expected OBJ_POWERUP or OBJ_ROBOT, got type=%i, id=%i"), type, id);
+			con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "ignoring invalid object type; expected OBJ_POWERUP or OBJ_ROBOT, got type=%i, id=%i"), underlying_value(type), id);
 			return false;
 	}
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
@@ -1200,7 +1201,7 @@ static bool drop_robot_egg(const d_robot_info_array &Robot_info, const int type,
 				/* ObjId appears to serve as both a polygon_model_index and as
 				 * a robot index.
 				 */
-				const auto rid = static_cast<robot_id>(ObjId[type]);
+				const auto rid = static_cast<robot_id>(ObjId[underlying_value(type)]);
 #elif defined(DXX_BUILD_DESCENT_II)
 				const auto rid = static_cast<robot_id>(id);
 #endif
@@ -1277,14 +1278,14 @@ static bool skip_create_egg_powerup(const object &player, powerup_type_t powerup
 
 }
 
-bool object_create_robot_egg(const d_robot_info_array &Robot_info, const int type, const int id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum)
+bool object_create_robot_egg(const d_robot_info_array &Robot_info, const contained_object_type type, const int id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum)
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	if (!(Game_mode & GM_MULTI))
 	{
-		if (type == OBJ_POWERUP)
+		if (type == contained_object_type::powerup)
 		{
 			if (skip_create_egg_powerup(get_local_plrobj(), static_cast<powerup_type_t>(id)))
 				return false;
@@ -1296,7 +1297,7 @@ bool object_create_robot_egg(const d_robot_info_array &Robot_info, const int typ
 
 bool object_create_robot_egg(const d_robot_info_array &Robot_info, object_base &objp)
 {
-	return object_create_robot_egg(Robot_info, objp.contains_type, objp.contains_id, objp.contains_count, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum));
+	return object_create_robot_egg(Robot_info, objp.contains.type, objp.contains_id, objp.contains_count, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum));
 }
 
 //	-------------------------------------------------------------------------------------------------------
@@ -1475,7 +1476,7 @@ void do_explosion_sequence(const d_robot_info_array &Robot_info, object &obj)
 
 		if ((del_obj->contains_count > 0) && !(Game_mode & GM_MULTI)) { // Multiplayer handled outside of this code!!
 			//	If dropping a weapon that the player has, drop energy instead, unless it's vulcan, in which case drop vulcan ammo.
-			if (del_obj->contains_type == OBJ_POWERUP)
+			if (del_obj->contains.type == contained_object_type::powerup)
 				maybe_replace_powerup_with_energy(del_obj);
 			object_create_robot_egg(Robot_info, del_obj);
 		} else if ((del_obj->type == OBJ_ROBOT) && !(Game_mode & GM_MULTI)) { // Multiplayer handled outside this code!!
@@ -1483,7 +1484,7 @@ void do_explosion_sequence(const d_robot_info_array &Robot_info, object &obj)
 			if (robptr.contains_count) {
 				if (((d_rand() * 16) >> 15) < robptr.contains_prob) {
 					del_obj->contains_count = ((d_rand() * robptr.contains_count) >> 15) + 1;
-					del_obj->contains_type = robptr.contains_type;
+					del_obj->contains = robptr.contains;
 					del_obj->contains_id = robptr.contains_id;
 					maybe_replace_powerup_with_energy(del_obj);
 					object_create_robot_egg(Robot_info, del_obj);

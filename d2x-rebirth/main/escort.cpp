@@ -664,7 +664,7 @@ static icobjidx_t exists_in_mine_2(const unique_segment &segp, const int objtype
 
 			if (objtype == OBJ_POWERUP && curobjp->type == OBJ_ROBOT)
 				if (curobjp->contains_count)
-					if (curobjp->contains_type == OBJ_POWERUP)
+					if (curobjp->contains.type == contained_object_type::powerup)
 						if (curobjp->contains_id == objid)
 							return curobjp;
 	}

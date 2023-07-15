@@ -3707,7 +3707,7 @@ void multi_update_objects_for_non_cooperative()
 #if defined(DXX_BUILD_DESCENT_II)
 			// Before deleting object, if it's a robot, drop it's special powerup, if any
 			if (obj_type == OBJ_ROBOT)
-				if (objp->contains_count && (objp->contains_type == OBJ_POWERUP))
+				if (objp->contains_count && objp->contains.type == contained_object_type::powerup)
 					object_create_robot_egg(LevelSharedRobotInfoState.Robot_info, objp);
 #endif
 			obj_delete(LevelUniqueObjectState, Segments, objp);
@@ -5943,12 +5943,13 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 	obj_rw->render_type   = obj.render_type;
 	obj_rw->flags         = obj.flags;
 	obj_rw->segnum        = obj.segnum;
+	/* attached_obj not maintained here */
 	obj_rw->pos         = obj.pos;
 	obj_rw->orient = obj.orient;
 	obj_rw->size          = obj.size;
 	obj_rw->shields       = obj.shields;
 	obj_rw->last_pos    = obj.pos;
-	obj_rw->contains_type = obj.contains_type;
+	obj_rw->contains_type = underlying_value(obj.contains.type);
 	obj_rw->contains_id   = obj.contains_id;
 	obj_rw->contains_count= obj.contains_count;
 	obj_rw->matcen_creator= obj.matcen_creator;
@@ -6142,7 +6143,7 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 	obj.orient = build_native_endian_matrix_from_little_endian(obj_rw->orient);
 	obj.size          = INTEL_INT(obj_rw->size);
 	obj.shields       = INTEL_INT(obj_rw->shields);
-	obj.contains_type = obj_rw->contains_type;
+	obj.contains.type = build_contained_object_type_from_untrusted(obj_rw->contains_type);
 	obj.contains_id   = obj_rw->contains_id;
 	obj.contains_count= obj_rw->contains_count;
 	obj.matcen_creator= obj_rw->matcen_creator;

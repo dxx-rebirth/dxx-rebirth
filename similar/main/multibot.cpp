@@ -705,7 +705,7 @@ static void multi_send_create_robot_powerups(const object_base &del_obj)
 	loc += 1;
 	multibuf[loc] = Player_num;									loc += 1;
 	multibuf[loc] = del_obj.contains_count;					loc += 1;
-	multibuf[loc] = del_obj.contains_type; 					loc += 1;
+	multibuf[loc] = underlying_value(del_obj.contains.type);	loc += 1;
 	multibuf[loc] = del_obj.contains_id;						loc += 1;
 	PUT_INTEL_SEGNUM(&multibuf[loc], del_obj.segnum);		        loc += 2;
 	multi_put_vector(&multibuf[loc], del_obj.pos);
@@ -945,7 +945,7 @@ int multi_explode_robot_sub(const d_robot_info_array &Robot_info, const vmobjptr
 	}
 
 	// Drop non-random KEY powerups locally only!
-	if (objrobot.contains_count > 0 && objrobot.contains_type == OBJ_POWERUP && (Game_mode & GM_MULTI_COOP) && objrobot.contains_id >= POW_KEY_BLUE && objrobot.contains_id <= POW_KEY_GOLD)
+	if (objrobot.contains_count > 0 && objrobot.contains.type == contained_object_type::powerup && (Game_mode & GM_MULTI_COOP) && objrobot.contains_id >= powerup_type_t::POW_KEY_BLUE && objrobot.contains_id <= powerup_type_t::POW_KEY_GOLD)
 	{
 		object_create_robot_egg(Robot_info, objrobot);
 	}
@@ -1253,7 +1253,9 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const multiplayer_rs
 	int loc = 1;
 	;					loc += 1;
 	uint8_t contains_count = buf[loc];			loc += 1;
-	uint8_t contains_type = buf[loc];			loc += 1;
+	if (contains_count == 0)
+		return;
+	const uint8_t untrusted_contains_type = buf[loc];			loc += 1;
 	uint8_t contains_id = buf[loc]; 			loc += 1;
 	const auto segnum = segnum_t{GET_INTEL_SHORT(&buf[loc])};	loc += 2;
 	if (!vmsegidx_t::check_nothrow_index(segnum))
@@ -1268,6 +1270,7 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const multiplayer_rs
 	Net_create_loc = 0;
 	d_srand(1245L);
 
+	const auto contains_type = build_contained_object_type_from_untrusted(untrusted_contains_type);
 	if (!object_create_robot_egg(LevelSharedRobotInfoState.Robot_info, contains_type, contains_id, contains_count, velocity, pos, vmsegptridx(segnum)))
 		return; // Object buffer full
 
@@ -1305,7 +1308,7 @@ void multi_drop_robot_powerups(object &del_obj)
 	if (del_obj.contains_count > 0)
 	{
 		//	If dropping a weapon that the player has, drop energy instead, unless it's vulcan, in which case drop vulcan ammo.
-		if (del_obj.contains_type == OBJ_POWERUP) {
+		if (del_obj.contains.type == contained_object_type::powerup) {
 			maybe_replace_powerup_with_energy(del_obj);
 			if (!multi_powerup_is_allowed(del_obj.contains_id, Netgame.AllowedItems))
 				del_obj.contains_id = POW_SHIELD_BOOST;
@@ -1328,9 +1331,9 @@ void multi_drop_robot_powerups(object &del_obj)
 		d_srand(static_cast<fix>(timer_query()));
 		if (((d_rand() * 16) >> 15) < robptr.contains_prob) {
 			del_obj.contains_count = ((d_rand() * robptr.contains_count) >> 15) + 1;
-			del_obj.contains_type = robptr.contains_type;
+			del_obj.contains = robptr.contains;
 			del_obj.contains_id = robptr.contains_id;
-			if (del_obj.contains_type == OBJ_POWERUP)
+			if (del_obj.contains.type == contained_object_type::powerup)
 			 {
 				maybe_replace_powerup_with_energy(del_obj);
 				if (!multi_powerup_is_allowed(del_obj.contains_id, Netgame.AllowedItems))

@@ -404,7 +404,8 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 		PHYSFSX_readVector(f, last_pos);
 	}
 
-	obj->contains_type  = PHYSFSX_readByte(f);
+	const uint8_t contains_type = PHYSFSX_readByte(f);
+	obj->contains.type  = build_contained_object_type_from_untrusted(contains_type);
 	obj->contains_id    = PHYSFSX_readByte(f);
 	obj->contains_count = PHYSFSX_readByte(f);
 
@@ -680,7 +681,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 
 	PHYSFSX_writeVector(f, obj.pos);
 
-	PHYSFSX_writeU8(f, obj.contains_type);
+	PHYSFSX_writeU8(f, underlying_value(obj.contains.type));
 	PHYSFSX_writeU8(f, obj.contains_id);
 	PHYSFSX_writeU8(f, obj.contains_count);
 
