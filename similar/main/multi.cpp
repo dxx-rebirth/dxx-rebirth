@@ -4271,9 +4271,9 @@ void multi_do_capture_bonus(const playernum_t pnum)
 
 	digi_play_sample(pnum == Player_num
 		? SOUND_HUD_YOU_GOT_GOAL
-		: (get_team(pnum) == team_number::red
-			? SOUND_HUD_RED_GOT_GOAL
-			: SOUND_HUD_BLUE_GOT_GOAL
+		: (get_team(pnum) == team_number::blue
+			? SOUND_HUD_BLUE_GOT_GOAL
+			: SOUND_HUD_RED_GOT_GOAL
 		), F1_0*2);
 
 
@@ -4332,9 +4332,9 @@ void multi_do_orb_bonus(const playernum_t pnum, const multiplayer_rspan<multipla
 		digi_start_sound_queued (SOUND_HUD_YOU_GOT_GOAL,F1_0*2);
 	else
 		digi_play_sample((Game_mode & GM_TEAM)
-			? (get_team(pnum) == team_number::red
-				? SOUND_HUD_RED_GOT_GOAL
-				: SOUND_HUD_BLUE_GOT_GOAL
+			? (get_team(pnum) == team_number::blue
+				? SOUND_HUD_BLUE_GOT_GOAL
+				: SOUND_HUD_RED_GOT_GOAL
 			) : SOUND_OPPONENT_HAS_SCORED, F1_0*2);
 
 	if (bonus > hoard_highest_record_stats.points)
@@ -4412,9 +4412,9 @@ static void multi_do_got_flag (const playernum_t pnum)
 	auto &vmobjptr = Objects.vmptr;
 	digi_start_sound_queued(pnum == Player_num
 		? SOUND_HUD_YOU_GOT_FLAG
-		: (get_team(pnum) == team_number::red
-			? SOUND_HUD_RED_GOT_FLAG
-			: SOUND_HUD_BLUE_GOT_FLAG
+		: (get_team(pnum) == team_number::blue
+			? SOUND_HUD_BLUE_GOT_FLAG
+			: SOUND_HUD_RED_GOT_FLAG
 		), F1_0*2);
 	vmobjptr(vcplayerptr(pnum)->objnum)->ctype.player_info.powerup_flags |= PLAYER_FLAGS_FLAG;
 	HUD_init_message(HM_MULTI, "%s picked up a flag!",static_cast<const char *>(vcplayerptr(pnum)->callsign));
@@ -4495,7 +4495,7 @@ void DropFlag ()
 		return;
 	}
 	seed = d_rand();
-	const auto &&objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, *ConsoleObject, get_team(Player_num) == team_number::red ? POW_FLAG_BLUE : POW_FLAG_RED, seed);
+	const auto &&objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, *ConsoleObject, get_team(Player_num) == team_number::blue ? POW_FLAG_RED : POW_FLAG_BLUE, seed);
 	if (objnum == object_none)
 	{
 		HUD_init_message_literal(HM_MULTI, "Failed to drop flag!");
@@ -5346,7 +5346,7 @@ static void MultiLevelInv_CountPlayerInventory()
 						powerup_flags.process(PLAYER_FLAGS_HEADLIGHT, POW_HEADLIGHT);
                         if ((Game_mode & GM_CAPTURE) && (player_info.powerup_flags & PLAYER_FLAGS_FLAG))
                         {
-				++Current[(get_team(i) == team_number::red) ? POW_FLAG_BLUE : POW_FLAG_RED];
+							++Current[(get_team(i) == team_number::blue) ? POW_FLAG_RED : POW_FLAG_BLUE];
                         }
 #endif
 		Current[POW_VULCAN_AMMO] += player_info.vulcan_ammo;

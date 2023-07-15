@@ -3640,7 +3640,7 @@ void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &canvas, co
 						else if (game_mode_hoard())
 						{
 								((Game_mode & GM_TEAM)
-									? ((get_team(pnum) == team_number::red) ? c.r : c.b)
+									? ((get_team(pnum) == team_number::blue) ? c.b : c.r)
 									: c.g
 								) = 31;
 						}
