@@ -94,7 +94,7 @@ static void calc_controlcen_gun_point(reactor &r, object &obj, const uint_fast32
 void calc_controlcen_gun_point(object &obj)
 {
 	assert(obj.type == OBJ_CNTRLCEN);
-	assert(obj.render_type == RT_POLYOBJ);
+	assert(obj.render_type == render_type::RT_POLYOBJ);
 	auto &reactor = get_reactor_definition(get_reactor_id(obj));
 	for (uint_fast32_t i = reactor.n_guns; i--;)
 		calc_controlcen_gun_point(reactor, obj, i);
@@ -503,7 +503,7 @@ void init_controlcen_for_level(const d_robot_info_array &Robot_info)
 			auto &objp = *cntrlcen_objnum;
 			objp.type = OBJ_GHOST;
 			objp.control_source = object::control_type::None;
-			objp.render_type = RT_NONE;
+			objp.render_type = render_type::RT_NONE;
 			LevelUniqueControlCenterState.Control_center_present = 0;
 		}
 	}

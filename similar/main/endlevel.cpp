@@ -944,7 +944,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 
 					const auto &&objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_CAMERA, 0,
 					                    vmsegptridx(ConsoleObject->segnum), ConsoleObject->pos, &ConsoleObject->orient, 0, 
-					                    object::control_type::None, object::movement_type::None, RT_NONE);
+					                    object::control_type::None, object::movement_type::None, render_type::RT_NONE);
 
 					if (objnum == object_none) { //can't get object, so abort
 						return std::max(stop_endlevel_sequence(), result);

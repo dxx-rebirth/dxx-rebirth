@@ -27,7 +27,7 @@ constexpr std::integral_constant<std::size_t, MAX_OBJECTS - 20> MAX_USED_OBJECTS
 struct d_level_unique_control_center_state;
 
 // Render types
-enum render_type_t : uint8_t;
+enum class render_type : uint8_t;
 enum class gun_num_t : uint8_t;
 
 }

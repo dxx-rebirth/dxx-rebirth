@@ -285,28 +285,28 @@ namespace {
 //creates a weapon object
 static imobjptridx_t create_weapon_object(int weapon_type,const vmsegptridx_t segnum, const vms_vector &position)
 {
-	render_type_t rtype;
+	render_type rtype;
 	fix laser_radius = -1;
 
 	switch(Weapon_info[weapon_type].render)
 	{
 		case WEAPON_RENDER_BLOB:
-			rtype = RT_LASER;			// Render as a laser even if blob (see render code above for explanation)
+			rtype = render_type::RT_LASER;			// Render as a laser even if blob (see render code above for explanation)
 			laser_radius = Weapon_info[weapon_type].blob_size;
 			break;
 		case WEAPON_RENDER_POLYMODEL:
 			laser_radius = 0;	//	Filled in below.
-			rtype = RT_POLYOBJ;
+			rtype = render_type::RT_POLYOBJ;
 			break;
 		case WEAPON_RENDER_LASER:
 			Int3(); 	// Not supported anymore
 			return object_none;
 		case WEAPON_RENDER_NONE:
-			rtype = RT_NONE;
+			rtype = render_type::RT_NONE;
 			laser_radius = F1_0;
 			break;
 		case WEAPON_RENDER_VCLIP:
-			rtype = RT_WEAPON_VCLIP;
+			rtype = render_type::RT_WEAPON_VCLIP;
 			laser_radius = Weapon_info[weapon_type].blob_size;
 			break;
 		default:
@@ -480,7 +480,7 @@ static bool create_omega_blobs(d_level_unique_object_state &LevelUniqueObjectSta
 		const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, temp_pos, last_segnum);
 		if (segnum != segment_none) {
 			last_segnum = segnum;
-			const auto &&objp = obj_weapon_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Weapon_info, weapon_id_type::OMEGA_ID, segnum, temp_pos, 0, RT_WEAPON_VCLIP);
+			const auto &&objp = obj_weapon_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Weapon_info, weapon_id_type::OMEGA_ID, segnum, temp_pos, 0, render_type::RT_WEAPON_VCLIP);
 			if (objp == object_none)
 				break;
 
@@ -821,7 +821,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 
 	// Create orientation matrix so we can look from this pov
 	//	Homing missiles also need an orientation matrix so they know if they can make a turn.
-	if ((weapon_info.homing_flag && (obj->ctype.laser_info.track_goal = object_none, true)) || obj->render_type == RT_POLYOBJ)
+	if ((weapon_info.homing_flag && (obj->ctype.laser_info.track_goal = object_none, true)) || obj->render_type == render_type::RT_POLYOBJ)
 		vm_vector_2_matrix(obj->orient, direction, &parent->orient.uvec, nullptr);
 
 	if (( parent != Viewer ) && (parent->type != OBJ_WEAPON))	{

@@ -233,30 +233,30 @@ static void paging_touch_object(const d_robot_info_array &Robot_info, const Text
 {
 	switch (obj.render_type) {
 
-		case RT_NONE:	break;		//doesn't render, like the player
+		case render_type::RT_NONE:	break;		//doesn't render, like the player
 
-		case RT_POLYOBJ:
+		case render_type::RT_POLYOBJ:
 			if (obj.rtype.pobj_info.tmap_override != -1)
 				PIGGY_PAGE_IN(Textures[obj.rtype.pobj_info.tmap_override]);
 			else
 				paging_touch_model(obj.rtype.pobj_info.model_num);
 			break;
 
-		case RT_POWERUP:
+		case render_type::RT_POWERUP:
 			paging_touch_vclip(Vclip, obj.rtype.vclip_info.vclip_num);
 			break;
 
-		case RT_MORPH:	break;
+		case render_type::RT_MORPH:	break;
 
-		case RT_FIREBALL: break;
+		case render_type::RT_FIREBALL: break;
 
-		case RT_WEAPON_VCLIP: break;
+		case render_type::RT_WEAPON_VCLIP: break;
 
-		case RT_HOSTAGE:
+		case render_type::RT_HOSTAGE:
 			paging_touch_vclip(Vclip[obj.rtype.vclip_info.vclip_num]);
 			break;
 
-		case RT_LASER: break;
+		case render_type::RT_LASER: break;
  	}
 
 	switch (obj.type) {	

@@ -1542,7 +1542,7 @@ static void ai_move_relative_to_player(const d_robot_info_array &Robot_info, con
 
 				//	The laser is seen by the robot, see if it might hit the robot.
 				//	Get the laser's direction.  If it's a polyobj, it can be gotten cheaply from the orientation matrix.
-				if (dobjp->render_type == RT_POLYOBJ)
+				if (dobjp->render_type == render_type::RT_POLYOBJ)
 					laser_fvec = dobjp->orient.fvec;
 				else {		//	Not a polyobj, get velocity and normalize.
 					laser_fvec = vm_vec_normalized_quick(dobjp->mtype.phys_info.velocity);	//dobjp->orient.fvec;

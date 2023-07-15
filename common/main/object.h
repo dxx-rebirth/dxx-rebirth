@@ -79,7 +79,7 @@ enum object_type_t : uint8_t
 	OBJ_MARKER	= 15,  // a map marker
 };
 
-enum render_type_t : uint8_t
+enum class render_type : uint8_t
 {
 	RT_NONE = 0,   // does not render
 	RT_POLYOBJ = 1,   // a polygon model
@@ -113,14 +113,14 @@ static inline bool valid_render_type(const uint8_t r)
 {
 	switch (r)
 	{
-		case RT_NONE:
-		case RT_POLYOBJ:
-		case RT_FIREBALL:
-		case RT_LASER:
-		case RT_HOSTAGE:
-		case RT_POWERUP:
-		case RT_MORPH:
-		case RT_WEAPON_VCLIP:
+		case static_cast<uint8_t>(render_type::RT_NONE):
+		case static_cast<uint8_t>(render_type::RT_POLYOBJ):
+		case static_cast<uint8_t>(render_type::RT_FIREBALL):
+		case static_cast<uint8_t>(render_type::RT_LASER):
+		case static_cast<uint8_t>(render_type::RT_HOSTAGE):
+		case static_cast<uint8_t>(render_type::RT_POWERUP):
+		case static_cast<uint8_t>(render_type::RT_MORPH):
+		case static_cast<uint8_t>(render_type::RT_WEAPON_VCLIP):
 			return true;
 		default:
 			return false;
@@ -394,7 +394,7 @@ struct object_base
 	objnum_t   next,prev;      // id of next and previous connected object in Objects, -1 = no connection
 	enum control_type control_source;   // how this object is controlled
 	enum movement_type movement_source; // how this object moves
-	render_type_t render_type;    // how this object renders
+	enum render_type render_type;    // how this object renders
 	ubyte   flags;          // misc flags
 	segnum_t   segnum;         // segment number containing object
 	objnum_t   attached_obj;   // number of attached fireball object
@@ -629,10 +629,10 @@ namespace dsx {
 // initialize a new object.  adds to the list for the given segment
 // returns the object number
 [[nodiscard]]
-imobjptridx_t obj_create(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, object_type_t type, unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, enum object::control_type ctype, enum object::movement_type mtype, render_type_t rtype);
+imobjptridx_t obj_create(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, object_type_t type, unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, enum object::control_type ctype, enum object::movement_type mtype, render_type rtype);
 
 [[nodiscard]]
-imobjptridx_t obj_weapon_create(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const weapon_info_array &Weapon_info, unsigned id, vmsegptridx_t segnum, const vms_vector &pos, fix size, render_type_t rtype);
+imobjptridx_t obj_weapon_create(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const weapon_info_array &Weapon_info, unsigned id, vmsegptridx_t segnum, const vms_vector &pos, fix size, render_type rtype);
 
 #if defined(DXX_BUILD_DESCENT_II)
 

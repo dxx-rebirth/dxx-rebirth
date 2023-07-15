@@ -328,9 +328,10 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 	obj_rw->id            = obj.id;
 	obj_rw->next          = obj.next;
 	obj_rw->prev          = obj.prev;
-	obj_rw->control_source  = static_cast<uint8_t>(obj.control_source);
-	obj_rw->movement_source = static_cast<uint8_t>(obj.movement_source);
-	obj_rw->render_type   = obj.render_type;
+	obj_rw->control_source  = underlying_value(obj.control_source);
+	obj_rw->movement_source = underlying_value(obj.movement_source);
+	const auto rtype = obj.render_type;
+	obj_rw->render_type   = underlying_value(rtype);
 	obj_rw->flags         = obj.flags;
 	obj_rw->segnum        = obj.segnum;
 	obj_rw->attached_obj  = obj.attached_obj;
@@ -476,14 +477,14 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 			break;
 	}
 
-	switch (obj_rw->render_type)
+	switch (rtype)
 	{
-		case RT_MORPH:
-		case RT_POLYOBJ:
-		case RT_NONE: // HACK below
+		case render_type::RT_MORPH:
+		case render_type::RT_POLYOBJ:
+		case render_type::RT_NONE: // HACK below
 		{
 			int i;
-			if (obj.render_type == RT_NONE && obj.type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time. Here it's not important, but it might be for Multiplayer Savegames.
+			if (obj.render_type == render_type::RT_NONE && obj.type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time. Here it's not important, but it might be for Multiplayer Savegames.
 				break;
 			obj_rw->rtype.pobj_info.model_num                = underlying_value(obj.rtype.pobj_info.model_num);
 			for (i=0;i<MAX_SUBMODELS;i++)
@@ -498,16 +499,16 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 			break;
 		}
 			
-		case RT_WEAPON_VCLIP:
-		case RT_HOSTAGE:
-		case RT_POWERUP:
-		case RT_FIREBALL:
+		case render_type::RT_WEAPON_VCLIP:
+		case render_type::RT_HOSTAGE:
+		case render_type::RT_POWERUP:
+		case render_type::RT_FIREBALL:
 			obj_rw->rtype.vclip_info.vclip_num = obj.rtype.vclip_info.vclip_num;
 			obj_rw->rtype.vclip_info.frametime = obj.rtype.vclip_info.frametime;
 			obj_rw->rtype.vclip_info.framenum  = obj.rtype.vclip_info.framenum;
 			break;
 			
-		case RT_LASER:
+		case render_type::RT_LASER:
 			break;
 			
 	}
@@ -531,13 +532,12 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 	obj.prev          = obj_rw->prev;
 	obj.control_source  = typename object::control_type{obj_rw->control_source};
 	obj.movement_source  = typename object::movement_type{obj_rw->movement_source};
-	const auto render_type = obj_rw->render_type;
-	if (valid_render_type(render_type))
-		obj.render_type = render_type_t{render_type};
+	if (const auto rtype = obj_rw->render_type; valid_render_type(rtype))
+		obj.render_type = render_type{rtype};
 	else
 	{
-		con_printf(CON_URGENT, "save file used bogus render type %#x for object %p; using none instead", render_type, &obj);
-		obj.render_type = RT_NONE;
+		con_printf(CON_URGENT, "save file used bogus render type %#x for object %p; using none instead", rtype, &obj);
+		obj.render_type = render_type::RT_NONE;
 	}
 	obj.flags         = obj_rw->flags;
 	{
@@ -721,12 +721,12 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 	
 	switch (obj.render_type)
 	{
-		case RT_MORPH:
-		case RT_POLYOBJ:
-		case RT_NONE: // HACK below
+		case render_type::RT_MORPH:
+		case render_type::RT_POLYOBJ:
+		case render_type::RT_NONE: // HACK below
 		{
 			int i;
-			if (obj.render_type == RT_NONE && obj.type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time. Here it's not important, but it might be for Multiplayer Savegames.
+			if (obj.render_type == render_type::RT_NONE && obj.type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time. Here it's not important, but it might be for Multiplayer Savegames.
 				break;
 			obj.rtype.pobj_info.model_num                = build_polygon_model_index_from_untrusted(obj_rw->rtype.pobj_info.model_num);
 			for (i=0;i<MAX_SUBMODELS;i++)
@@ -741,16 +741,16 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 			break;
 		}
 			
-		case RT_WEAPON_VCLIP:
-		case RT_HOSTAGE:
-		case RT_POWERUP:
-		case RT_FIREBALL:
+		case render_type::RT_WEAPON_VCLIP:
+		case render_type::RT_HOSTAGE:
+		case render_type::RT_POWERUP:
+		case render_type::RT_FIREBALL:
 			obj.rtype.vclip_info.vclip_num = obj_rw->rtype.vclip_info.vclip_num;
 			obj.rtype.vclip_info.frametime = obj_rw->rtype.vclip_info.frametime;
 			obj.rtype.vclip_info.framenum  = obj_rw->rtype.vclip_info.framenum;
 			break;
 			
-		case RT_LASER:
+		case render_type::RT_LASER:
 			break;
 			
 	}
@@ -1447,19 +1447,19 @@ int state_save_all_sub(const char *filename, const char *desc)
 //Finish all morph objects
 	range_for (const auto &&objp, vmobjptr)
 	{
-		if (objp->type != OBJ_NONE && objp->render_type == RT_MORPH)
+		if (objp->type != OBJ_NONE && objp->render_type == render_type::RT_MORPH)
 		{
 			if (const auto umd = find_morph_data(LevelUniqueMorphObjectState, objp))
 			{
 				const auto md = umd->get();
 				md->obj->control_source = md->morph_save_control_type;
 				md->obj->movement_source = md->morph_save_movement_type;
-				md->obj->render_type = RT_POLYOBJ;
+				md->obj->render_type = render_type::RT_POLYOBJ;
 				md->obj->mtype.phys_info = md->morph_save_phys_info;
 				umd->reset();
 			} else {						//maybe loaded half-morphed from disk
 				objp->flags |= OF_SHOULD_BE_DEAD;
-				objp->render_type = RT_POLYOBJ;
+				objp->render_type = render_type::RT_POLYOBJ;
 				objp->control_source = object::control_type::None;
 				objp->movement_source = object::movement_type::None;
 			}

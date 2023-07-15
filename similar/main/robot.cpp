@@ -53,7 +53,7 @@ namespace dsx {
 //fills in gun_point
 void calc_gun_point(const robot_info &r, vms_vector &gun_point, const object_base &obj, const robot_gun_number entry_gun_num)
 {
-	Assert(obj.render_type == RT_POLYOBJ || obj.render_type == RT_MORPH);
+	assert(obj.render_type == render_type::RT_POLYOBJ || obj.render_type == render_type::RT_MORPH);
 	assert(underlying_value(get_robot_id(obj)) < LevelSharedRobotInfoState.N_robot_types);
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
@@ -204,7 +204,7 @@ namespace dsx {
 
 imobjptridx_t robot_create(const d_robot_info_array &Robot_info, const robot_id id, const vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *const orient, const fix size, const ai_behavior behavior, const imsegidx_t hide_segment)
 {
-	const auto &&objp = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_ROBOT, underlying_value(id), segnum, pos, orient, size, object::control_type::ai, object::movement_type::physics, RT_POLYOBJ);
+	const auto &&objp = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_ROBOT, underlying_value(id), segnum, pos, orient, size, object::control_type::ai, object::movement_type::physics, render_type::RT_POLYOBJ);
 	if (objp)
 		init_ai_object(Robot_info, objp, behavior, hide_segment);
 	return objp;

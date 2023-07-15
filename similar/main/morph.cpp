@@ -441,8 +441,7 @@ void do_morph_frame(object &obj)
 
 		obj.control_source = md->morph_save_control_type;
 		obj.movement_source = md->morph_save_movement_type;
-
-		obj.render_type = RT_POLYOBJ;
+		obj.render_type = render_type::RT_POLYOBJ;
 
 		obj.mtype.phys_info = md->morph_save_phys_info;
 		umd->reset();
@@ -482,7 +481,7 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 	*moi = morph_data::create(obj, pm, pmi);
 	morph_data *const md = moi->get();
 
-	assert(obj.render_type == RT_POLYOBJ);
+	assert(obj.render_type == render_type::RT_POLYOBJ);
 
 	md->morph_save_control_type = obj.control_source;
 	md->morph_save_movement_type = obj.movement_source;
@@ -491,7 +490,7 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 	assert(obj.control_source == object::control_type::ai);		//morph objects are also AI objects
 
 	obj.control_source = object::control_type::morph;
-	obj.render_type = RT_MORPH;
+	obj.render_type = render_type::RT_MORPH;
 	obj.movement_source = object::movement_type::physics;		//RT_NONE;
 
 	obj.mtype.phys_info.rotvel = morph_rotvel;

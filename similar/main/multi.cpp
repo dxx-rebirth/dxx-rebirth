@@ -650,7 +650,7 @@ void multi_make_player_ghost(const playernum_t playernum)
 	}
 	const auto &&obj = vmobjptridx(vcplayerptr(playernum)->objnum);
 	obj->type = OBJ_GHOST;
-	obj->render_type = RT_NONE;
+	obj->render_type = render_type::RT_NONE;
 	obj->movement_source = object::movement_type::None;
 	multi_reset_player_object(obj);
 	multi_strip_robots(playernum);
@@ -2405,7 +2405,7 @@ void multi_reset_player_object(object &objp)
 
 	//Init render info
 
-	objp.render_type = RT_POLYOBJ;
+	objp.render_type = render_type::RT_POLYOBJ;
 	objp.rtype.pobj_info.model_num = Player_ship->model_num;               //what model is this?
 	objp.rtype.pobj_info.subobj_flags = 0;         //zero the flags
 	objp.rtype.pobj_info.anim_angles = {};
@@ -2415,7 +2415,7 @@ void multi_reset_player_object(object &objp)
 	objp.flags = 0;
 
 	if (objp.type == OBJ_GHOST)
-		objp.render_type = RT_NONE;
+		objp.render_type = render_type::RT_NONE;
 	//reset textures for this, if not player 0
 	multi_reset_object_texture (objp);
 }
@@ -3305,8 +3305,8 @@ void update_item_state::process_powerup(const d_vclip_array &Vclip, fvmsegptridx
 	for (uint_fast32_t i = count++; i; --i)
 	{
 		assert(o.movement_source == object::movement_type::None);
-		assert(o.render_type == RT_POWERUP);
-		const auto &&no = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, id, segp, vm_vec_avg(o.pos, vcvertptr(seg_verts[static_cast<segment_relative_vertnum>(i % seg_verts.size())])), &vmd_identity_matrix, o.size, object::control_type::powerup, object::movement_type::None, RT_POWERUP);
+		assert(o.render_type == render_type::RT_POWERUP);
+		const auto &&no = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, id, segp, vm_vec_avg(o.pos, vcvertptr(seg_verts[static_cast<segment_relative_vertnum>(i % seg_verts.size())])), &vmd_identity_matrix, o.size, object::control_type::powerup, object::movement_type::None, render_type::RT_POWERUP);
 		if (no == object_none)
 			return;
 		m_modified.set(no);
@@ -3372,7 +3372,7 @@ void multi_prep_level_objects(const d_powerup_info_array &Powerup_info, const d_
 	{
 		if ((o->type == OBJ_HOSTAGE) && !(Game_mode & GM_MULTI_COOP))
 		{
-			const auto &&objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, POW_SHIELD_BOOST, vmsegptridx(o->segnum), o->pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, object::control_type::powerup, object::movement_type::physics, RT_POWERUP);
+			const auto &&objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, POW_SHIELD_BOOST, vmsegptridx(o->segnum), o->pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, object::control_type::powerup, object::movement_type::physics, render_type::RT_POWERUP);
 			obj_delete(LevelUniqueObjectState, Segments, o);
 			if (objnum != object_none)
 			{
@@ -5938,9 +5938,10 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 	obj_rw->signature     = static_cast<uint16_t>(obj.signature);
 	obj_rw->type          = obj.type;
 	obj_rw->id            = obj.id;
-	obj_rw->control_source  = static_cast<uint8_t>(obj.control_source);
-	obj_rw->movement_source = static_cast<uint8_t>(obj.movement_source);
-	obj_rw->render_type   = obj.render_type;
+	obj_rw->control_source = underlying_value(obj.control_source);
+	obj_rw->movement_source = underlying_value(obj.movement_source);
+	const auto rtype = obj.render_type;
+	obj_rw->render_type   = underlying_value(rtype);
 	obj_rw->flags         = obj.flags;
 	obj_rw->segnum        = obj.segnum;
 	/* attached_obj not maintained here */
@@ -6075,14 +6076,14 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 			break;
 	}
 	
-	switch (obj_rw->render_type)
+	switch (rtype)
 	{
-		case RT_MORPH:
-		case RT_POLYOBJ:
-		case RT_NONE: // HACK below
+		case render_type::RT_MORPH:
+		case render_type::RT_POLYOBJ:
+		case render_type::RT_NONE: // HACK below
 		{
 			int i;
-			if (obj.render_type == RT_NONE && obj.type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time.
+			if (obj.render_type == render_type::RT_NONE && obj.type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time.
 				break;
 			obj_rw->rtype.pobj_info.model_num = underlying_value(obj.rtype.pobj_info.model_num);
 			for (i=0;i<MAX_SUBMODELS;i++)
@@ -6097,16 +6098,16 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 			break;
 		}
 			
-		case RT_WEAPON_VCLIP:
-		case RT_HOSTAGE:
-		case RT_POWERUP:
-		case RT_FIREBALL:
+		case render_type::RT_WEAPON_VCLIP:
+		case render_type::RT_HOSTAGE:
+		case render_type::RT_POWERUP:
+		case render_type::RT_FIREBALL:
 			obj_rw->rtype.vclip_info.vclip_num = obj.rtype.vclip_info.vclip_num;
 			obj_rw->rtype.vclip_info.frametime = obj.rtype.vclip_info.frametime;
 			obj_rw->rtype.vclip_info.framenum  = obj.rtype.vclip_info.framenum;
 			break;
 			
-		case RT_LASER:
+		case render_type::RT_LASER:
 			break;
 			
 	}
@@ -6125,13 +6126,12 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 	/* obj->next,obj->prev handled by caller based on segment */
 	obj.control_source  = typename object::control_type{obj_rw->control_source};
 	obj.movement_source = typename object::movement_type{obj_rw->movement_source};
-	const auto render_type = obj_rw->render_type;
-	if (valid_render_type(render_type))
-		obj.render_type = render_type_t{render_type};
+	if (const auto rtype = obj_rw->render_type; valid_render_type(rtype))
+		obj.render_type = render_type{rtype};
 	else
 	{
-		con_printf(CON_URGENT, "peer sent bogus render type %#x for object %p; using none instead", render_type, &obj);
-		obj.render_type = RT_NONE;
+		con_printf(CON_URGENT, "peer sent bogus render type %#x for object %p; using none instead", rtype, &obj);
+		obj.render_type = render_type::RT_NONE;
 	}
 	obj.flags         = obj_rw->flags;
 	{
@@ -6274,12 +6274,12 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 	
 	switch (obj.render_type)
 	{
-		case RT_MORPH:
-		case RT_POLYOBJ:
-		case RT_NONE: // HACK below
+		case render_type::RT_MORPH:
+		case render_type::RT_POLYOBJ:
+		case render_type::RT_NONE: // HACK below
 		{
 			int i;
-			if (obj.render_type == RT_NONE && obj.type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time.
+			if (obj.render_type == render_type::RT_NONE && obj.type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time.
 				break;
 			obj.rtype.pobj_info.model_num                = build_polygon_model_index_from_untrusted(INTEL_INT(obj_rw->rtype.pobj_info.model_num));
 			for (i=0;i<MAX_SUBMODELS;i++)
@@ -6292,16 +6292,16 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 			break;
 		}
 			
-		case RT_WEAPON_VCLIP:
-		case RT_HOSTAGE:
-		case RT_POWERUP:
-		case RT_FIREBALL:
+		case render_type::RT_WEAPON_VCLIP:
+		case render_type::RT_HOSTAGE:
+		case render_type::RT_POWERUP:
+		case render_type::RT_FIREBALL:
 			obj.rtype.vclip_info.vclip_num = INTEL_INT(obj_rw->rtype.vclip_info.vclip_num);
 			obj.rtype.vclip_info.frametime = INTEL_INT(obj_rw->rtype.vclip_info.frametime);
 			obj.rtype.vclip_info.framenum  = obj_rw->rtype.vclip_info.framenum;
 			break;
 			
-		case RT_LASER:
+		case render_type::RT_LASER:
 			break;
 			
 	}

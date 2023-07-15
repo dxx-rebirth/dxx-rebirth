@@ -122,7 +122,7 @@ int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_le
 		{
 			objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_HOSTAGE, -1, 
 					segp,object_pos,&seg_matrix,HOSTAGE_SIZE,
-					object::control_type::None, object::movement_type::None,RT_HOSTAGE);
+					object::control_type::None, object::movement_type::None, render_type::RT_HOSTAGE);
 
 			if ( objnum == object_none)
 				return 0;
@@ -181,7 +181,7 @@ int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_le
 		{
 			objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, object_id,
 					segp, object_pos, &seg_matrix, Powerup_info[object_id].size,
-					object::control_type::powerup, object::movement_type::None, RT_POWERUP);
+					object::control_type::powerup, object::movement_type::None, render_type::RT_POWERUP);
 
 			if ( objnum == object_none)
 				return 0;
@@ -210,7 +210,7 @@ int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_le
 #endif
 			objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_CNTRLCEN, object_id, segp, object_pos,
 					&seg_matrix, Polygon_models[model_num].rad,
-					object::control_type::cntrlcen, object::movement_type::None, RT_POLYOBJ);
+					object::control_type::cntrlcen, object::movement_type::None, render_type::RT_POLYOBJ);
 
 			if ( objnum == object_none)
 				return 0;
@@ -227,7 +227,7 @@ int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_le
 		case OBJ_PLAYER:	{
 			objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_PLAYER, object_id, segp, object_pos,
 				&seg_matrix, Polygon_models[Player_ship->model_num].rad,
-				object::control_type::None, object::movement_type::physics, RT_POLYOBJ);
+				object::control_type::None, object::movement_type::physics, render_type::RT_POLYOBJ);
 
 			if ( objnum == object_none)
 				return 0;
@@ -349,7 +349,7 @@ int ObjectPlaceObjectTmap(void)
 	old_cur_object_index = Cur_object_index;
 	const auto rval = place_object(LevelUniqueObjectState, LevelSharedPolygonModelState, LevelSharedRobotInfoState.Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, Cursegp, cur_object_loc, Cur_object_type, Cur_object_id);
 
-	if ((Cur_object_index != old_cur_object_index) && (Objects[Cur_object_index].render_type == RT_POLYOBJ))
+	if (Cur_object_index != old_cur_object_index && Objects[Cur_object_index].render_type == render_type::RT_POLYOBJ)
 		Objects[Cur_object_index].rtype.pobj_info.tmap_override = CurrentTexture;
 	else
 		editor_status("Unable to apply current texture map to this object.");

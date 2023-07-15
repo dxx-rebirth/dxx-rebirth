@@ -348,7 +348,7 @@ static int newdemo_write(const T *buffer, int elsize, int nelem )
  *  just a gamesave
 */
 
-static void nd_write_byte(sbyte b)
+static void nd_write_byte(const int8_t b)
 {
 	newdemo_write(&b, 1, 1);
 }
@@ -397,12 +397,10 @@ static void nd_write_angvec(const vms_angvec &v)
 static void nd_write_shortpos(const object_base &obj)
 {
 	shortpos sp;
-	ubyte render_type;
-
 	create_shortpos_native(LevelSharedSegmentState, sp, obj);
 
-	render_type = obj.render_type;
-	if ((render_type == RT_POLYOBJ || render_type == RT_HOSTAGE || render_type == RT_MORPH) || obj.type == OBJ_CAMERA)
+	const auto rtype = obj.render_type;
+	if ((rtype == render_type::RT_POLYOBJ || rtype == render_type::RT_HOSTAGE || rtype == render_type::RT_MORPH) || obj.type == OBJ_CAMERA)
 	{
 		uint8_t mask = 0;
 		range_for (auto &i, sp.bytemat)
@@ -533,12 +531,10 @@ static void nd_read_shortpos(object_base &obj)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	ubyte render_type;
-
 	shortpos sp{};
 
-	render_type = obj.render_type;
-	if ((render_type == RT_POLYOBJ || render_type == RT_HOSTAGE || render_type == RT_MORPH) || obj.type == OBJ_CAMERA)
+	const auto rtype = obj.render_type;
+	if ((rtype == render_type::RT_POLYOBJ || rtype == render_type::RT_HOSTAGE || rtype == render_type::RT_MORPH) || obj.type == OBJ_CAMERA)
 	{
 		range_for (auto &i, sp.bytemat)
 			nd_read_byte(&i);
@@ -553,7 +549,7 @@ static void nd_read_shortpos(object_base &obj)
 	nd_read_short(&sp.velz);
 
 	my_extract_shortpos(obj, &sp);
-	if (obj.type == OBJ_FIREBALL && get_fireball_id(obj) == VCLIP_MORPHING_ROBOT && render_type == RT_FIREBALL && obj.control_source == object::control_type::explosion)
+	if (obj.type == OBJ_FIREBALL && get_fireball_id(obj) == VCLIP_MORPHING_ROBOT && rtype == render_type::RT_FIREBALL && obj.control_source == object::control_type::explosion)
 	{
 		auto &vcvertptr = Vertices.vcptr;
 		extract_orient_from_segment(vcvertptr, obj.orient, vcsegptr(obj.segnum));
@@ -595,14 +591,14 @@ static void nd_read_object(const vmobjptridx_t obj)
 	 * blow by all other object information
 	 */
 	{
-		uint8_t render_type;
-		nd_read_byte(&render_type);
-		if (valid_render_type(render_type))
-			obj->render_type = render_type_t{render_type};
+		uint8_t rtype;
+		nd_read_byte(&rtype);
+		if (valid_render_type(rtype))
+			obj->render_type = render_type{rtype};
 		else
 		{
-			con_printf(CON_URGENT, "demo used bogus render type %#x for object %p; using none instead", render_type, &*obj);
-			obj->render_type = RT_NONE;
+			con_printf(CON_URGENT, "demo used bogus render type %#x for object %p; using none instead", rtype, &*obj);
+			obj->render_type = render_type::RT_NONE;
 		}
 	}
 	{
@@ -610,7 +606,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 		nd_read_byte(&object_type);
 		set_object_type(*obj, object_type);
 	}
-	if ((obj->render_type == RT_NONE) && (obj->type != OBJ_CAMERA))
+	if (obj->render_type == render_type::RT_NONE && obj->type != OBJ_CAMERA)
 		return;
 
 	nd_read_byte(&obj->id);
@@ -701,7 +697,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 		vms_vector last_pos;
 		nd_read_vector(last_pos);
 	}
-	if ((obj->type == OBJ_WEAPON) && (obj->render_type == RT_WEAPON_VCLIP))
+	if (obj->type == OBJ_WEAPON && obj->render_type == render_type::RT_WEAPON_VCLIP)
 		nd_read_fix(&(obj->lifeleft));
 	else {
 		sbyte b;
@@ -793,11 +789,11 @@ static void nd_read_object(const vmobjptridx_t obj)
 
 	switch (obj->render_type) {
 
-	case RT_NONE:
+		case render_type::RT_NONE:
 		break;
 
-	case RT_MORPH:
-	case RT_POLYOBJ: {
+		case render_type::RT_MORPH:
+		case render_type::RT_POLYOBJ: {
 		int tmo;
 
 		if ((obj->type != OBJ_ROBOT) && (obj->type != OBJ_PLAYER) && (obj->type != OBJ_CLUTTER)) {
@@ -835,16 +831,16 @@ static void nd_read_object(const vmobjptridx_t obj)
 		break;
 	}
 
-	case RT_POWERUP:
-	case RT_WEAPON_VCLIP:
-	case RT_FIREBALL:
-	case RT_HOSTAGE:
+		case render_type::RT_POWERUP:
+		case render_type::RT_WEAPON_VCLIP:
+		case render_type::RT_FIREBALL:
+		case render_type::RT_HOSTAGE:
 		nd_read_int(&(obj->rtype.vclip_info.vclip_num));
 		nd_read_fix(&(obj->rtype.vclip_info.frametime));
 		nd_read_byte(&obj->rtype.vclip_info.framenum);
 		break;
 
-	case RT_LASER:
+		case render_type::RT_LASER:
 		break;
 
 	default:
@@ -872,9 +868,9 @@ static void nd_write_object(const vcobjptridx_t objp)
 	 * Do render_type first so on read, we can make determination of
 	 * what else to read in
 	 */
-	nd_write_byte(obj.render_type);
+	nd_write_byte(underlying_value(obj.render_type));
 	nd_write_byte(obj.type);
-	if (obj.render_type == RT_NONE && obj.type != OBJ_CAMERA)
+	if (obj.render_type == render_type::RT_NONE && obj.type != OBJ_CAMERA)
 		return;
 
 	nd_write_byte(obj.id);
@@ -894,7 +890,7 @@ static void nd_write_object(const vcobjptridx_t objp)
 
 	nd_write_vector(obj.pos);
 
-	if (obj.type == OBJ_WEAPON && obj.render_type == RT_WEAPON_VCLIP)
+	if (obj.type == OBJ_WEAPON && obj.render_type == render_type::RT_WEAPON_VCLIP)
 		nd_write_fix(obj.lifeleft);
 	else {
 		life = static_cast<int>(obj.lifeleft);
@@ -973,11 +969,11 @@ static void nd_write_object(const vcobjptridx_t objp)
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	switch (obj.render_type) {
 
-	case RT_NONE:
+		case render_type::RT_NONE:
 		break;
 
-	case RT_MORPH:
-	case RT_POLYOBJ: {
+		case render_type::RT_MORPH:
+		case render_type::RT_POLYOBJ: {
 		if ((obj.type != OBJ_ROBOT) && (obj.type != OBJ_PLAYER) && (obj.type != OBJ_CLUTTER)) {
 			nd_write_int(underlying_value(obj.rtype.pobj_info.model_num));
 			nd_write_int(obj.rtype.pobj_info.subobj_flags);
@@ -992,16 +988,16 @@ static void nd_write_object(const vcobjptridx_t objp)
 		break;
 	}
 
-	case RT_POWERUP:
-	case RT_WEAPON_VCLIP:
-	case RT_FIREBALL:
-	case RT_HOSTAGE:
+		case render_type::RT_POWERUP:
+		case render_type::RT_WEAPON_VCLIP:
+		case render_type::RT_FIREBALL:
+		case render_type::RT_HOSTAGE:
 		nd_write_int(obj.rtype.vclip_info.vclip_num);
 		nd_write_fix(obj.rtype.vclip_info.frametime);
 		nd_write_byte(obj.rtype.vclip_info.framenum);
 		break;
 
-	case RT_LASER:
+		case render_type::RT_LASER:
 		break;
 
 	default:
@@ -2450,7 +2446,7 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_object(obj);
 				break;
 			}
-			obj->render_type = RT_POLYOBJ;
+			obj->render_type = render_type::RT_POLYOBJ;
 			if (Newdemo_vcr_state != ND_STATE_PAUSED) {
 				if (Newdemo_vcr_state != ND_STATE_PAUSED) {
 					auto segnum = obj->segnum;
@@ -3665,14 +3661,15 @@ static window_event_result interpolate_frame(fix d_play, fix d_recorded)
 			range_for (const auto &&objp, vmobjptr)
 			{
 				if (i.signature == objp->signature) {
-					sbyte render_type = i.render_type;
+					const auto rtype = i.render_type;
 					fix delta_x, delta_y, delta_z;
 
 					//  Extract the angles from the object orientation matrix.
 					//  Some of this code taken from ai_turn_towards_vector
 					//  Don't do the interpolation on certain render types which don't use an orientation matrix
 
-					if (!((render_type == RT_LASER) || (render_type == RT_FIREBALL) || (render_type == RT_POWERUP))) {
+					if (!(rtype == render_type::RT_LASER || rtype == render_type::RT_FIREBALL || rtype == render_type::RT_POWERUP))
+					{
 						vms_vector  fvec1, fvec2, rvec1, rvec2;
 
 						fvec1 = i.orient.fvec;

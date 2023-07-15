@@ -364,7 +364,7 @@ static bool can_collide(const object *const weapon_object, const object_base &it
 imobjptridx_t object_create_explosion_without_damage(const d_vclip_array &Vclip, const vmsegptridx_t segnum, const vms_vector &position, const fix size, const int vclip_type)
 {
 	const auto &&obj_fireball = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_FIREBALL, vclip_type, segnum, position, &vmd_identity_matrix, size,
-					object::control_type::explosion, object::movement_type::None, RT_FIREBALL);
+					object::control_type::explosion, object::movement_type::None, render_type::RT_FIREBALL);
 
 	if (obj_fireball == object_none)
 	{
@@ -632,7 +632,7 @@ static void object_create_debris(fvmsegptridx &vmsegptridx, const object_base &p
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const auto &&obj = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_DEBRIS, 0, vmsegptridx(parent.segnum), parent.pos, &parent.orient, Polygon_models[parent.rtype.pobj_info.model_num].submodel_rads[subobj_num],
-				object::control_type::debris, object::movement_type::physics, RT_POLYOBJ);
+				object::control_type::debris, object::movement_type::physics, render_type::RT_POLYOBJ);
 
 	if ( obj == object_none )
 		return;				// Not enough debris slots!
@@ -1072,7 +1072,7 @@ imobjptridx_t drop_powerup(d_level_unique_object_state &LevelUniqueObjectState, 
 					 return object_none;
 #endif
 				}
-				const auto &&objp = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, id, segnum, pos, &vmd_identity_matrix, Powerup_info[id].size, object::control_type::powerup, object::movement_type::physics, RT_POWERUP);
+				const auto &&objp = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, id, segnum, pos, &vmd_identity_matrix, Powerup_info[id].size, object::control_type::powerup, object::movement_type::physics, render_type::RT_POWERUP);
 
 				if (objp == object_none)
 					return objp;
@@ -1338,7 +1338,7 @@ namespace {
 //blow up a polygon model
 static void explode_model(object_base &obj)
 {
-	Assert(obj.render_type == RT_POLYOBJ);
+	assert(obj.render_type == render_type::RT_POLYOBJ);
 
 	const auto poly_model_num = obj.rtype.pobj_info.model_num;
 	const auto dying_model_num = Dying_modelnums[poly_model_num];
@@ -1370,7 +1370,7 @@ static void maybe_delete_object(object_base &del_obj)
 	}
 	else {		//normal, multi-stage explosion
 		if (del_obj.type == OBJ_PLAYER)
-			del_obj.render_type = RT_NONE;
+			del_obj.render_type = render_type::RT_NONE;
 		else
 			del_obj.flags |= OF_SHOULD_BE_DEAD;
 	}
@@ -1387,7 +1387,7 @@ void explode_object(d_level_unique_object_state &LevelUniqueObjectState, const d
 	if (delay_time) {		//wait a little while before creating explosion
 		//create a placeholder object to do the delay, with id==-1
 		const auto &&obj = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_FIREBALL, -1, vmsegptridx(hitobj->segnum), hitobj->pos, &vmd_identity_matrix, 0,
-						object::control_type::explosion, object::movement_type::None, RT_NONE);
+						object::control_type::explosion, object::movement_type::None, render_type::RT_NONE);
 		if (obj == object_none ) {
 			maybe_delete_object(hitobj);		//no explosion, die instantly
 			Int3();
@@ -1420,7 +1420,7 @@ void explode_object(d_level_unique_object_state &LevelUniqueObjectState, const d
 			expl_obj->mtype.phys_info = hitobj->mtype.phys_info;
 		}
 	
-		if (hitobj->render_type==RT_POLYOBJ && hitobj->type!=OBJ_DEBRIS)
+		if (hitobj->render_type == render_type::RT_POLYOBJ && hitobj->type != OBJ_DEBRIS)
 			explode_model(hitobj);
 
 		maybe_delete_object(hitobj);
@@ -1508,7 +1508,7 @@ void do_explosion_sequence(const d_robot_info_array &Robot_info, object &obj)
 		obj.ctype.expl_info.spawn_time = -1;
 
 		//make debris
-		if (del_obj->render_type==RT_POLYOBJ)
+		if (del_obj->render_type == render_type::RT_POLYOBJ)
 			explode_model(del_obj);		//explode a polygon model
 
 		//set some parm in explosion

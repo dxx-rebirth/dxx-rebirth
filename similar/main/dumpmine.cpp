@@ -814,7 +814,8 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 	//	Process robots.
 	range_for (const auto &&objp, vcobjptr)
 	{
-		if (objp->render_type == RT_POLYOBJ) {
+		if (objp->render_type == render_type::RT_POLYOBJ)
+		{
 			polymodel *po = &Polygon_models[objp->rtype.pobj_info.model_num];
 
 			for (unsigned i = 0; i < po->n_textures; ++i)
@@ -828,7 +829,6 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 				} else
 					Int3();	//	Hmm, It seems this texture is bogus!
 			}
-
 		}
 	}
 
