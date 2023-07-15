@@ -33,6 +33,10 @@
 #include <algorithm>
 #include <ranges>
 
+#ifdef __clang__
+#include <functional>	/* std::invoke */
+#endif
+
 namespace ranges {
 
 #ifdef __clang__
