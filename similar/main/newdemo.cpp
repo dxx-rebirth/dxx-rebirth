@@ -716,7 +716,8 @@ static void nd_read_object(const vmobjptridx_t obj)
 	}
 
 	if ((obj->type == OBJ_ROBOT) && !shareware) {
-		if (Robot_info[get_robot_id(obj)].boss_flag) {
+		if (Robot_info[get_robot_id(obj)].boss_flag != boss_robot_id::None)
+		{
 			sbyte cloaked;
 
 			nd_read_byte(&cloaked);
@@ -904,7 +905,8 @@ static void nd_write_object(const vcobjptridx_t objp)
 	}
 
 	if (obj.type == OBJ_ROBOT) {
-		if (Robot_info[get_robot_id(obj)].boss_flag) {
+		if (Robot_info[get_robot_id(obj)].boss_flag != boss_robot_id::None)
+		{
 			const auto Boss_cloak_start_time = BossUniqueState.Boss_cloak_start_time;
 			if (GameTime64 > Boss_cloak_start_time &&
 				GameTime64 < (Boss_cloak_start_time + Boss_cloak_duration))

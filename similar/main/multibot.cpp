@@ -126,7 +126,7 @@ int multi_can_move_robot(const vmobjptridx_t objnum, int agitation)
 	}
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	if (Robot_info[get_robot_id(objrobot)].boss_flag && BossUniqueState.Boss_dying)
+	if (Robot_info[get_robot_id(objrobot)].boss_flag != boss_robot_id::None && BossUniqueState.Boss_dying)
 		return 0;
 	else if (objrobot.ctype.ai_info.REMOTE_OWNER == Player_num) // Already my robot!
 	{
@@ -265,7 +265,7 @@ int multi_add_controlled_robot(const vmobjptridx_t objnum, int agitation)
 	auto &objrobot = *objnum;
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-   if (Robot_info[get_robot_id(objrobot)].boss_flag) // this is a boss, so make sure he gets a slot
+	if (Robot_info[get_robot_id(objrobot)].boss_flag != boss_robot_id::None) // this is a boss, so make sure he gets a slot
 		agitation=(agitation*3)+Player_num;  
 #endif
 	if (objrobot.ctype.ai_info.REMOTE_SLOT_NUM > 0)
@@ -963,7 +963,7 @@ int multi_explode_robot_sub(const d_robot_info_array &Robot_info, const vmobjptr
 	if (robot_is_thief(Robot_info[robot_id]))
 		drop_stolen_items_local(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, vmsegptridx(objrobot.segnum), objrobot.mtype.phys_info.velocity, objrobot.pos, LevelUniqueObjectState.ThiefState.Stolen_items);
 #endif
-	if (Robot_info[robot_id].boss_flag)
+	if (Robot_info[robot_id].boss_flag != boss_robot_id::None)
 	{
 		if (!BossUniqueState.Boss_dying)
 			start_boss_death_sequence(LevelUniqueObjectState.BossState, Robot_info, robot);
@@ -1120,7 +1120,7 @@ void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_
 	if (!guarded_boss_obj)
 		return;
 	const auto &&boss_obj = *guarded_boss_obj;
-	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[get_robot_id(boss_obj)].boss_flag))
+	if (boss_obj->type != OBJ_ROBOT || Robot_info[get_robot_id(boss_obj)].boss_flag == boss_robot_id::None)
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
 		return;
@@ -1164,7 +1164,7 @@ void multi_do_boss_cloak(const multiplayer_rspan<multiplayer_command_t::MULTI_BO
 	if (!guarded_boss_obj)
 		return;
 	const auto &&boss_obj = *guarded_boss_obj;
-	if (boss_obj->type != OBJ_ROBOT || !Robot_info[get_robot_id(boss_obj)].boss_flag)
+	if (boss_obj->type != OBJ_ROBOT || Robot_info[get_robot_id(boss_obj)].boss_flag == boss_robot_id::None)
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
 		return;
@@ -1188,7 +1188,7 @@ void multi_do_boss_start_gate(const multiplayer_rspan<multiplayer_command_t::MUL
 	if (!guarded_boss_obj)
 		return;
 	const object_base &boss_obj = *guarded_boss_obj;
-	if (boss_obj.type != OBJ_ROBOT || !Robot_info[get_robot_id(boss_obj)].boss_flag)
+	if (boss_obj.type != OBJ_ROBOT || Robot_info[get_robot_id(boss_obj)].boss_flag == boss_robot_id::None)
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
 		return;
@@ -1207,7 +1207,7 @@ void multi_do_boss_stop_gate(const multiplayer_rspan<multiplayer_command_t::MULT
 	if (!guarded_boss_obj)
 		return;
 	const object_base &boss_obj = *guarded_boss_obj;
-	if (boss_obj.type != OBJ_ROBOT || !Robot_info[get_robot_id(boss_obj)].boss_flag)
+	if (boss_obj.type != OBJ_ROBOT || Robot_info[get_robot_id(boss_obj)].boss_flag == boss_robot_id::None)
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
 		return;
@@ -1226,7 +1226,7 @@ void multi_do_boss_create_robot(const playernum_t pnum, const multiplayer_rspan<
 	if (!guarded_boss_obj)
 		return;
 	const object_base &boss_obj = *guarded_boss_obj;
-	if (boss_obj.type != OBJ_ROBOT || !Robot_info[get_robot_id(boss_obj)].boss_flag)
+	if (boss_obj.type != OBJ_ROBOT || Robot_info[get_robot_id(boss_obj)].boss_flag == boss_robot_id::None)
 	{
 		Int3(); // Got boss actions for a robot who's not a boss?
 		return;

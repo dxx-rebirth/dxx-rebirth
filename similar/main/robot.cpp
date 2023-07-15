@@ -284,7 +284,8 @@ void robot_info_read(PHYSFS_File *fp, robot_info &ri)
 	ri.cloak_type = PHYSFSX_readByte(fp);
 	ri.attack_type = PHYSFSX_readByte(fp);
 #if defined(DXX_BUILD_DESCENT_I)
-	ri.boss_flag = PHYSFSX_readByte(fp);
+	const uint8_t boss_flag = PHYSFSX_readByte(fp);
+	ri.boss_flag = (boss_flag == static_cast<uint8_t>(boss_robot_id::d1_1) || boss_flag == static_cast<uint8_t>(boss_robot_id::d1_superboss)) ? boss_robot_id{boss_flag} : boss_robot_id::None;
 #endif
 
 	ri.see_sound = PHYSFSX_readByte(fp);
@@ -293,7 +294,8 @@ void robot_info_read(PHYSFS_File *fp, robot_info &ri)
 #if defined(DXX_BUILD_DESCENT_II)
 	ri.taunt_sound = PHYSFSX_readByte(fp);
 
-	ri.boss_flag = PHYSFSX_readByte(fp);
+	const uint8_t boss_flag = PHYSFSX_readByte(fp);
+	ri.boss_flag = (boss_flag == static_cast<uint8_t>(boss_robot_id::d1_1) || boss_flag == static_cast<uint8_t>(boss_robot_id::d1_superboss) || Boss_spew_more.valid_index(build_boss_robot_index_from_boss_robot_id(boss_robot_id{boss_flag}))) ? boss_robot_id{boss_flag} : boss_robot_id::None;
 	ri.companion = PHYSFSX_readByte(fp);
 	ri.smart_blobs = PHYSFSX_readByte(fp);
 	ri.energy_blobs = PHYSFSX_readByte(fp);

@@ -441,7 +441,7 @@ static imobjptridx_t object_create_explosion_with_damage(const d_robot_info_arra
 #if defined(DXX_BUILD_DESCENT_II)
 								//	If not a boss, stun for 2 seconds at 32 force, 1 second at 16 force
 								fix flash;
-								if (obj_explosion_origin != object_none && obj_explosion_origin->type == OBJ_WEAPON && !Robot_info[get_robot_id(obj_iter)].boss_flag && (flash = Weapon_info[get_weapon_id(obj_explosion_origin)].flash))
+								if (obj_explosion_origin != object_none && obj_explosion_origin->type == OBJ_WEAPON && Robot_info[get_robot_id(obj_iter)].boss_flag == boss_robot_id::None && (flash = Weapon_info[get_weapon_id(obj_explosion_origin)].flash))
 								{
 									ai_static *const aip = &obj_iter->ctype.ai_info;
 
@@ -471,7 +471,11 @@ static imobjptridx_t object_create_explosion_with_damage(const d_robot_info_arra
 								{
 #if defined(DXX_BUILD_DESCENT_II)
 									const auto &robot_info = Robot_info[get_robot_id(obj_iter)];
-									if (robot_info.boss_flag >= BOSS_D2 && Boss_invulnerable_matter[robot_info.boss_flag - BOSS_D2])
+									/* Descent 1 bosses produce an index that
+									 * is not valid for this array, so they
+									 * never test for invulnerability.
+									 */
+									if (const auto boss_index = build_boss_robot_index_from_boss_robot_id(robot_info.boss_flag); Boss_invulnerable_matter.valid_index(boss_index) && Boss_invulnerable_matter[boss_index])
 											damage /= 4;
 #endif
 									if (apply_damage_to_robot(Robot_info, obj_iter, damage, parent))

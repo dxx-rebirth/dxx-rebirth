@@ -60,6 +60,8 @@ enum class robot_id : uint8_t
 	None = UINT8_MAX,
 };
 
+enum class boss_robot_id : uint8_t;
+
 //describes the position of a certain joint
 struct jointpos : prohibit_void_ptr<jointpos>
 {
@@ -134,7 +136,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	ubyte   see_sound;      //  sound robot makes when it first sees the player
 	ubyte   attack_sound;   //  sound robot makes when it attacks the player
 	ubyte   claw_sound;     //  sound robot makes as it claws you (attack_type should be 1)
-	sbyte   boss_flag;      //  0 = not boss, 1 = boss.  Is that surprising?
+	boss_robot_id boss_flag;      //  0 = not boss, 1 = boss.  Is that surprising?
 #if defined(DXX_BUILD_DESCENT_II)
 	ubyte   taunt_sound;    //  sound robot makes after you die
 

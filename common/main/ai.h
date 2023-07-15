@@ -40,6 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-segment.h"
 #ifdef dsx
 #include "countarray.h"
+#include "d_array.h"
 #include "aistruct.h"
 #include "robot.h"
 #include "valptridx.h"
@@ -76,23 +77,49 @@ struct PHYSFS_File;
 #define ROBOT_FIRE_AGITATION 94
 
 #ifdef dsx
+namespace dcx {
 
-#define BOSS_D1      1
-#define BOSS_SUPER   2
+enum class boss_robot_id : uint8_t
+{
+	None = 0,
+	d1_1 = 1,
+	d1_superboss = 2,
+	/* if DXX_BUILD_DESCENT_II */
+	cool = 21,
+	water,
+	fire,
+	ice,
+	alien1,
+	alien2,
+	d2_1 = cool,	// Minimum D2 boss value.
+	/* endif */
+};
+static_assert(static_cast<uint8_t>(boss_robot_id::alien2) == 26);
+
+}
+
 #if defined(DXX_BUILD_DESCENT_II)
 #include "player-flags.h"
 namespace dsx {
-#define BOSS_D2     21 // Minimum D2 boss value.
-#define BOSS_COOL   21
-#define BOSS_WATER  22
-#define BOSS_FIRE   23
-#define BOSS_ICE    24
-#define BOSS_ALIEN1 25
-#define BOSS_ALIEN2 26
-
 #define NUM_D2_BOSSES 8
 
-using boss_flags_t = std::array<ubyte, NUM_D2_BOSSES>;
+enum class boss_robot_index : uint8_t
+{
+	cool,
+	water,
+	fire,
+	ice,
+	alien1,
+	alien2,
+	d2_1 = cool,
+};
+
+static constexpr boss_robot_index build_boss_robot_index_from_boss_robot_id(const boss_robot_id id)
+{
+	return static_cast<boss_robot_index>(static_cast<uint8_t>(id) - static_cast<uint8_t>(boss_robot_id::d2_1));
+}
+
+using boss_flags_t = enumerated_array<uint8_t, NUM_D2_BOSSES, boss_robot_index>;
 extern const boss_flags_t Boss_spew_more;     // Set byte if this boss can teleport
 extern const boss_flags_t Boss_spews_bots_energy;     // Set byte if boss spews bots when hit by energy weapon.
 extern const boss_flags_t Boss_spews_bots_matter;     // Set byte if boss spews bots when hit by matter weapon.

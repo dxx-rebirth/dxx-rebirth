@@ -2128,7 +2128,8 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		}
 #if defined(DXX_BUILD_DESCENT_II)
 		//look for, and fix, boss with bogus shields
-		if (obj->type == OBJ_ROBOT && Robot_info[get_robot_id(obj)].boss_flag) {
+		if (obj->type == OBJ_ROBOT && Robot_info[get_robot_id(obj)].boss_flag != boss_robot_id::None)
+		{
 			fix save_shields = obj->shields;
 
 			copy_defaults_to_robot(Robot_info, obj);		//calculate starting shields

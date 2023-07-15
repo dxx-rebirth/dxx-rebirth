@@ -629,7 +629,7 @@ static robot_id get_boss_id(void)
 		if (objp->type == OBJ_ROBOT)
 		{
 			const auto objp_id = get_robot_id(objp);
-			if (Robot_info[objp_id].boss_flag)
+			if (Robot_info[objp_id].boss_flag != boss_robot_id::None)
 				return objp_id;
 		}
 	}

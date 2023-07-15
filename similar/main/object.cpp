@@ -456,7 +456,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 			cloak_fade = {CLOAK_FADEIN_DURATION_PLAYER, CLOAK_FADEOUT_DURATION_PLAYER};
 		}
 		else if ((obj->type == OBJ_ROBOT) && (obj->ctype.ai_info.CLOAKED)) {
-			if (Robot_info[get_robot_id(obj)].boss_flag)
+			if (Robot_info[get_robot_id(obj)].boss_flag != boss_robot_id::None)
 				cloak_duration = {BossUniqueState.Boss_cloak_start_time, Boss_cloak_duration};
 			else
 				cloak_duration = {GameTime64-F1_0*10, F1_0 * 20};

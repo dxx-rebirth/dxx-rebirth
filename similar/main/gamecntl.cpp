@@ -1187,7 +1187,9 @@ static void kill_all_robots(void)
 	{
 		if (objp->type == OBJ_ROBOT)
 		{
-			if (!Robot_info[get_robot_id(objp)].companion && !Robot_info[get_robot_id(objp)].boss_flag) {
+			auto &ri = Robot_info[get_robot_id(objp)];
+			if (!ri.companion && ri.boss_flag == boss_robot_id::None)
+			{
 				dead_count++;
 				objp->flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
 			}

@@ -2355,7 +2355,7 @@ void copy_defaults_to_robot(const d_robot_info_array &Robot_info, object_base &o
 				default:	break;
 			}
 		}
-	} else if (robptr.boss_flag)	//	MK, 01/16/95, make boss shields lower on lower diff levels.
+	} else if (robptr.boss_flag != boss_robot_id::None)	//	MK, 01/16/95, make boss shields lower on lower diff levels.
 	{
 	//	Additional wimpification of bosses at Trainee
 		shields = shields / (NDL + 3) * (Difficulty_level != Difficulty_level_type::_0 ? underlying_value(Difficulty_level) + 4 : 2);

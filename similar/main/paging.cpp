@@ -221,7 +221,7 @@ static void paging_touch_robot(const d_robot_info_array &Robot_info, const d_vcl
 	paging_touch_weapon(Vclip, Weapon_info, ri.weapon_type);
 
 	// A super-boss can gate in robots...
-	if (ri.boss_flag == BOSS_SUPER)
+	if (ri.boss_flag == boss_robot_id::d1_superboss)
 	{
 		range_for (const auto i, super_boss_gate_type_list)
 			paging_touch_robot(Robot_info, Vclip, Weapon_info, i);

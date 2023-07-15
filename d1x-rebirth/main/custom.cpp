@@ -14,7 +14,7 @@
 #include "pstypes.h"
 #include "piggy.h"
 #include "textures.h"
-#include "robot.h"
+#include "ai.h"
 #include "weapon.h"
 #include "digi.h"
 #include "hash.h"
@@ -439,7 +439,8 @@ static int read_d2_robot_info(PHYSFS_File *fp, robot_info &ri)
 	ri.attack_sound = PHYSFSX_readByte(fp);
 	ri.claw_sound = PHYSFSX_readByte(fp);
 	/*ri.taunt_sound =*/ PHYSFSX_readByte(fp);
-	ri.boss_flag = PHYSFSX_readByte(fp);
+	const uint8_t boss_flag = PHYSFSX_readByte(fp);
+	ri.boss_flag = (boss_flag == static_cast<uint8_t>(boss_robot_id::d1_1) || boss_flag == static_cast<uint8_t>(boss_robot_id::d1_superboss)) ? boss_robot_id{boss_flag} : boss_robot_id::None;
 	/*ri.companion =*/ PHYSFSX_readByte(fp);
 	/*ri.smart_blobs =*/ PHYSFSX_readByte(fp);
 	/*ri.energy_blobs =*/ PHYSFSX_readByte(fp);

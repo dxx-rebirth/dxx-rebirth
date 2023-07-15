@@ -489,7 +489,7 @@ void init_controlcen_for_level(const d_robot_info_array &Robot_info)
 			if (cntrlcen_objnum == nullptr)
 				cntrlcen_objnum = objp;
 		}
-		else if (objp->type == OBJ_ROBOT && (Robot_info[get_robot_id(objp)].boss_flag))
+		else if (objp->type == OBJ_ROBOT && Robot_info[get_robot_id(objp)].boss_flag != boss_robot_id::None)
 		{
 			if (boss_objnum == nullptr)
 				boss_objnum = objp;

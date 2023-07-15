@@ -53,7 +53,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "sounds.h"
 #include "piggy.h"
 #include "aistruct.h"
-#include "robot.h"
+#include "ai.h"
 #include "weapon.h"
 #include "gauges.h"
 #include "player.h"
@@ -1485,7 +1485,7 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 	int			score_value=1000;
 	int			cloak_type=0;		//	Default = this robot does not cloak
 	int			attack_type=0;		//	Default = this robot attacks by firing (1=lunge)
-	int			boss_flag=0;				//	Default = robot is not a boss.
+	boss_robot_id	boss_flag{};				//	Default = robot is not a boss.
 	int			see_sound = ROBOT_SEE_SOUND_DEFAULT;
 	int			attack_sound = ROBOT_ATTACK_SOUND_DEFAULT;
 	int			claw_sound = ROBOT_CLAW_SOUND_DEFAULT;
@@ -1593,7 +1593,8 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 			} else if (!d_stricmp( arg, "attack_type" )) {
 				attack_type = atoi(equal_ptr);
 			} else if (!d_stricmp( arg, "boss" )) {
-				boss_flag = atoi(equal_ptr);
+				const auto i = strtoul(equal_ptr, nullptr, 10);
+				boss_flag = (i == static_cast<uint8_t>(boss_robot_id::d1_1) || i == static_cast<uint8_t>(boss_robot_id::d1_superboss)) ? static_cast<boss_robot_id>(i) : boss_robot_id::None;
 			} else if (!d_stricmp( arg, "score_value" )) {
 				score_value = atoi(equal_ptr);
 			} else if (!d_stricmp( arg, "see_sound" )) {

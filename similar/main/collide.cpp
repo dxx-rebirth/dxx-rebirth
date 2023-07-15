@@ -306,7 +306,8 @@ static void bump_this_object(const d_robot_info_array &Robot_info, const vmobjpt
 				apply_force_damage(Robot_info, objp, force_mag, other_objp);
 			}
 		} else if ((objp->type == OBJ_ROBOT) || (objp->type == OBJ_CLUTTER) || (objp->type == OBJ_CNTRLCEN)) {
-			if (!Robot_info[get_robot_id(objp)].boss_flag) {
+			if (Robot_info[get_robot_id(objp)].boss_flag == boss_robot_id::None)
+			{
 				vms_vector force2;
 				const auto Difficulty_level = underlying_value(GameUniqueState.Difficulty_level);
 				force2.x = force.x/(4 + Difficulty_level);
@@ -1443,7 +1444,7 @@ int apply_damage_to_robot(const d_robot_info_array &Robot_info, const vmobjptrid
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	if (robptr.boss_flag)
+	if (robptr.boss_flag != boss_robot_id::None)
 		BossUniqueState.Boss_hit_time = GameTime64;
 
 	//	Buddy invulnerable on level 24 so he can give you his important messages.  Bah.
@@ -1458,7 +1459,7 @@ int apply_damage_to_robot(const d_robot_info_array &Robot_info, const vmobjptrid
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//	Do unspeakable hacks to make sure player doesn't die after killing boss.  Or before, sort of.
-	if (robptr.boss_flag)
+	if (robptr.boss_flag != boss_robot_id::None)
 		if (PLAYING_BUILTIN_MISSION && Current_level_num == Current_mission->last_level)
 			if (robot->shields < 0)
 			 {
@@ -1497,7 +1498,8 @@ int apply_damage_to_robot(const d_robot_info_array &Robot_info, const vmobjptrid
 				return 0;
 		}
 
-		if (robptr.boss_flag) {
+		if (robptr.boss_flag != boss_robot_id::None)
+		{
 			start_boss_death_sequence(LevelUniqueObjectState.BossState, Robot_info, robot);
 		}
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1544,11 +1546,8 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_robot_info_
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	const object_base &robot = robotptridx;
-	int	d2_boss_index;
-
-	d2_boss_index = Robot_info[get_robot_id(robot)].boss_flag - BOSS_D2;
-
-	Assert((d2_boss_index >= 0) && (d2_boss_index < NUM_D2_BOSSES));
+	const auto d2_boss_index = build_boss_robot_index_from_boss_robot_id(Robot_info[get_robot_id(robot)].boss_flag);
+	assert(Boss_spew_more.valid_index(d2_boss_index));
 
 	//	See if should spew a bot.
 	if (weapon.ctype.laser_info.parent_type == OBJ_PLAYER && weapon.ctype.laser_info.parent_num == get_local_player().objnum)
@@ -1647,7 +1646,7 @@ static void collide_robot_and_weapon(const d_robot_info_array &Robot_info, const
 #endif
 
 	auto &robptr = Robot_info[get_robot_id(robot)];
-	if (robptr.boss_flag)
+	if (robptr.boss_flag != boss_robot_id::None)
 	{
 		BossUniqueState.Boss_hit_this_frame = 1;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1655,7 +1654,7 @@ static void collide_robot_and_weapon(const d_robot_info_array &Robot_info, const
 #endif
 	}
 #if defined(DXX_BUILD_DESCENT_II)
-	const boss_weapon_collision_result damage_flag = (robptr.boss_flag >= BOSS_D2)
+	const boss_weapon_collision_result damage_flag = Boss_invulnerable_matter.valid_index(build_boss_robot_index_from_boss_robot_id(robptr.boss_flag))
 		? do_boss_weapon_collision(Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, robot, weapon, collision_point)
 		: boss_weapon_collision_result::normal;
 #endif
@@ -1776,7 +1775,7 @@ static void collide_robot_and_weapon(const d_robot_info_array &Robot_info, const
 			//	Cut Gauss damage on bosses because it just breaks the game.  Bosses are so easy to
 			//	hit, and missing a robot is what prevents the Gauss from being game-breaking.
 			if (get_weapon_id(weapon) == weapon_id_type::GAUSS_ID)
-				if (robptr.boss_flag)
+				if (robptr.boss_flag != boss_robot_id::None)
 					damage = damage * (2 * NDL - underlying_value(Difficulty_level)) / (2 * NDL);
 #endif
 
@@ -1791,7 +1790,7 @@ static void collide_robot_and_weapon(const d_robot_info_array &Robot_info, const
 
 #if defined(DXX_BUILD_DESCENT_II)
 		//	If Gauss Cannon, spin robot.
-		if (!robot_is_companion(robptr) && (!robptr.boss_flag) && (get_weapon_id(weapon) == weapon_id_type::GAUSS_ID))
+		if (!robot_is_companion(robptr) && robptr.boss_flag == boss_robot_id::None && (get_weapon_id(weapon) == weapon_id_type::GAUSS_ID))
 		{
 			ai_static	*aip = &robot->ctype.ai_info;
 
