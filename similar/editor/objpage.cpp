@@ -101,7 +101,7 @@ void draw_object_picture(grs_canvas &canvas, const unsigned id, const vms_angvec
 			break;
 
 		case OBJ_ROBOT:
-			draw_model_picture(Polygon_models, canvas, Robot_info[id].model_num, orient_angles);	// Draw a poly model below
+			draw_model_picture(Polygon_models, canvas, Robot_info[static_cast<robot_id>(id)].model_num, orient_angles);	// Draw a poly model below
 			break;
 
 		case OBJ_CNTRLCEN:

@@ -84,7 +84,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 using std::min;
 
 #define	AI_TURN_SCALE	1
-#define	BABY_SPIDER_ID	14
 
 namespace dsx {
 
@@ -137,19 +136,23 @@ const vms_vector &robot_gun_point::build(const robot_info &robptr, const object_
 #define	MAX_LEAD_DISTANCE	(F1_0*200)
 #define	LEAD_RANGE			(F1_0/2)
 
-constexpr std::array<std::array<int, 3>, NUM_D2_BOSSES> Spew_bots{{
-	{{38, 40, -1}},
-	{{37, -1, -1}},
-	{{43, 57, -1}},
-	{{26, 27, 58}},
-	{{59, 58, 54}},
-	{{60, 61, 54}},
+/* Invalid robot ID numbers in Spew_bots must be at the end of their row.  The
+ * corresponding count in Max_spew_bots will prevent the game from rolling a
+ * random index that loads the invalid robot ID number.
+ */
+constexpr std::array<std::array<robot_id, 3>, NUM_D2_BOSSES> Spew_bots{{
+	{{robot_id{38}, robot_id{40}, robot_id{UINT8_MAX}}},
+	{{robot_id{37}, robot_id{UINT8_MAX}, robot_id{UINT8_MAX}}},
+	{{robot_id{43}, robot_id{57}, robot_id{UINT8_MAX}}},
+	{{robot_id{26}, robot_id{27}, robot_id{58}}},
+	{{robot_id{59}, robot_id{58}, robot_id{54}}},
+	{{robot_id{60}, robot_id{61}, robot_id{54}}},
 
-	{{69, 29, 24}},
-	{{72, 60, 73}} 
+	{{robot_id{69}, robot_id{29}, robot_id{24}}},
+	{{robot_id{72}, robot_id{60}, robot_id{73}}} 
 }};
 
-constexpr std::array<int, NUM_D2_BOSSES> Max_spew_bots{{2, 1, 2, 3, 3, 3, 3, 3}};
+constexpr std::array<uint8_t, NUM_D2_BOSSES> Max_spew_bots{{2, 1, 2, 3, 3, 3, 3, 3}};
 static fix Dist_to_last_fired_upon_player_pos;
 #endif
 
@@ -252,8 +255,28 @@ point_seg_array_t::iterator       Point_segs_free_ptr;
 // 23 super boss
 
 // byte	Super_boss_gate_list[] = {0, 1, 2, 9, 11, 16, 18, 19, 21, 22, 0, 9, 9, 16, 16, 18, 19, 19, 22, 22};
-constexpr std::array<int8_t, 21> Super_boss_gate_list{{
-	0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22, 0, 8, 11, 19, 20, 8, 20, 8
+constexpr std::array<robot_id, 21> Super_boss_gate_list{{
+	robot_id{0},
+	robot_id{1},
+	robot_id{8},
+	robot_id{9},
+	robot_id{10},
+	robot_id{11},
+	robot_id{12},
+	robot_id{15},
+	robot_id{16},
+	robot_id{18},
+	robot_id{19},
+	robot_id{20},
+	robot_id{22},
+	robot_id{0},
+	robot_id{8},
+	robot_id{11},
+	robot_id{19},
+	robot_id{20},
+	robot_id{8},
+	robot_id{20},
+	robot_id{8},
 }};
 
 std::optional<ai_static_state> build_ai_state_from_untrusted(const uint8_t untrusted)
@@ -706,11 +729,12 @@ void init_ai_objects(const d_robot_info_array &Robot_info)
 //-------------------------------------------------------------------------------------------
 void ai_turn_towards_vector(const vms_vector &goal_vector, object_base &objp, fix rate)
 {
-	//	Not all robots can turn, eg, SPECIAL_REACTOR_ROBOT
+	//	Not all robots can turn, eg, robot_id::special_reactor
 	if (rate == 0)
 		return;
 
-	if (objp.type == OBJ_ROBOT && (get_robot_id(objp) == BABY_SPIDER_ID)) {
+	if (objp.type == OBJ_ROBOT && get_robot_id(objp) == robot_id::baby_spider)
+	{
 		physics_turn_towards_vector(goal_vector, objp, rate);
 		return;
 	}
@@ -852,14 +876,13 @@ namespace {
 //	Return 1 if animates, else return 0
 static int do_silly_animation(const d_robot_info_array &Robot_info, object &objp)
 {
-	int				robot_type;
 	polyobj_info	*const pobj_info = &objp.rtype.pobj_info;
 	auto &aip = objp.ctype.ai_info;
 	int				at_goal;
 	int				attack_type;
 	int				flinch_attack_scale = 1;
 
-	robot_type = get_robot_id(objp);
+	const auto robot_type{get_robot_id(objp)};
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	auto &robptr = Robot_info[robot_type];
 	attack_type = robptr.attack_type;
@@ -1922,7 +1945,7 @@ int ai_door_is_openable(
 		return 0;
 
 #if defined(DXX_BUILD_DESCENT_I)
-	if (get_robot_id(obj) == ROBOT_BRAIN || obj.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM)
+	if (get_robot_id(obj) == robot_id::brain || obj.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM)
 	{
 
 		if (wall_num != wall_none)
@@ -2006,7 +2029,7 @@ int ai_door_is_openable(
 					return 1;
 		}
 	}
-	else if (get_robot_id(obj) == ROBOT_BRAIN || obj.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM || obj.ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
+	else if (get_robot_id(obj) == robot_id::brain || obj.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM || obj.ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
 	{
 		if (wall_num != wall_none)
 		{
@@ -2079,7 +2102,7 @@ static int check_object_object_intersection(const vms_vector &pos, fix size, con
 // --------------------------------------------------------------------------------------------------------------------
 //	Return objnum if object created, else return -1.
 //	If pos == NULL, pick random spot in segment.
-static imobjptridx_t create_gated_robot(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, fvcobjptr &vcobjptr, const vmsegptridx_t segp, const unsigned object_id, const vms_vector *const pos)
+static imobjptridx_t create_gated_robot(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, fvcobjptr &vcobjptr, const vmsegptridx_t segp, const robot_id object_id, const vms_vector *const pos)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -2123,7 +2146,7 @@ static imobjptridx_t create_gated_robot(const d_robot_info_array &Robot_info, co
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
-	const ai_behavior default_behavior = (object_id == 10) //	This is a toaster guy!
+	const ai_behavior default_behavior = (object_id == robot_id::toaster) //	This is a toaster guy!
 	? ai_behavior::AIB_RUN_FROM
 	: ai_behavior::AIB_NORMAL;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -2173,7 +2196,7 @@ static imobjptridx_t create_gated_robot(const d_robot_info_array &Robot_info, co
 //	The process of him bringing in a robot takes one second.
 //	Then a robot appears somewhere near the player.
 //	Return objnum if robot successfully created, else return -1
-imobjptridx_t gate_in_robot(const d_robot_info_array &Robot_info, const unsigned type, const vmsegptridx_t segnum)
+imobjptridx_t gate_in_robot(const d_robot_info_array &Robot_info, const robot_id type, const vmsegptridx_t segnum)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
@@ -2182,7 +2205,7 @@ imobjptridx_t gate_in_robot(const d_robot_info_array &Robot_info, const unsigned
 
 namespace {
 
-static imobjptridx_t gate_in_robot(const d_robot_info_array &Robot_info, fvmsegptridx &vmsegptridx, int type)
+static imobjptridx_t gate_in_robot(const d_robot_info_array &Robot_info, fvmsegptridx &vmsegptridx, const robot_id type)
 {
 	auto &Boss_gate_segs = LevelSharedBossState.Gate_segs;
 	auto segnum = Boss_gate_segs[(d_rand() * Boss_gate_segs.size()) >> 15];
@@ -2723,9 +2746,7 @@ static void do_super_boss_stuff(const d_robot_info_array &Robot_info, fvmsegptri
 				uint_fast32_t randtype = (d_rand() * MAX_GATE_INDEX) >> 15;
 
 				Assert(randtype < MAX_GATE_INDEX);
-				randtype = Super_boss_gate_list[randtype];
-
-				const auto &&rtval = gate_in_robot(Robot_info, vmsegptridx, randtype);
+				const auto &&rtval = gate_in_robot(Robot_info, vmsegptridx, Super_boss_gate_list[randtype]);
 				if (rtval != object_none && (Game_mode & GM_MULTI))
 				{
 					multi_send_boss_create_robot(objp, rtval);
@@ -2807,7 +2828,7 @@ static int maybe_ai_do_actual_firing_stuff(object &obj)
 	if (Game_mode & GM_MULTI)
 	{
 		auto &aip = obj.ctype.ai_info;
-		if (aip.GOAL_STATE != AIS_FLIN && get_robot_id(obj) != ROBOT_BRAIN)
+		if (aip.GOAL_STATE != AIS_FLIN && get_robot_id(obj) != robot_id::brain)
 		{
 			const auto s = aip.CURRENT_STATE;
 			if (s == AIS_FIRE)
@@ -3079,7 +3100,7 @@ static void make_nearby_robot_snipe(fvmsegptr &vmsegptr, const object &robot, co
 			if (obj.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM)
 				continue;
 			const auto rid = get_robot_id(obj);
-			if (rid == ROBOT_BRAIN)
+			if (rid == robot_id::brain)
 				continue;
 			auto &robptr = Robot_info[rid];
 			if (!robptr.boss_flag && !robot_is_companion(robptr))
@@ -3294,7 +3315,7 @@ void do_ai_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoStat
 	}
 
 	Assert(obj->segnum != segment_none);
-	assert(get_robot_id(obj) < LevelSharedRobotInfoState.N_robot_types);
+	assert(underlying_value(get_robot_id(obj)) < LevelSharedRobotInfoState.N_robot_types);
 
 	obj_ref = objnum ^ d_tick_count;
 
@@ -3618,7 +3639,7 @@ _exit_cheat:
 	if (ailp.player_awareness_type == player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION || ailp.player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION)
 #if defined(DXX_BUILD_DESCENT_I)
 	{
-		if ((aip->behavior != ai_behavior::AIB_STILL) && (aip->behavior != ai_behavior::AIB_FOLLOW_PATH) && (aip->behavior != ai_behavior::AIB_RUN_FROM) && (get_robot_id(obj) != ROBOT_BRAIN))
+		if (aip->behavior != ai_behavior::AIB_STILL && aip->behavior != ai_behavior::AIB_FOLLOW_PATH && aip->behavior != ai_behavior::AIB_RUN_FROM && get_robot_id(obj) != robot_id::brain)
 			ailp.mode = ai_mode::AIM_CHASE_OBJECT;
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -3674,7 +3695,7 @@ _exit_cheat:
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
 	//	Perform special ability
 	switch (get_robot_id(obj)) {
-		case ROBOT_BRAIN:
+		case robot_id::brain:
 			// Robots function nicely if behavior is Station.  This
 			// means they won't move until they can see the player, at
 			// which time they will start wandering about opening doors.
@@ -4007,7 +4028,7 @@ _exit_cheat:
 			if ((aip->behavior != ai_behavior::AIB_FOLLOW_PATH) && (aip->behavior != ai_behavior::AIB_RUN_FROM))
 				do_firing_stuff(obj, player_info.powerup_flags, player_visibility);
 
-			if (player_visibility.visibility == player_visibility_state::visible_and_in_field_of_view && aip->behavior != ai_behavior::AIB_FOLLOW_PATH && aip->behavior != ai_behavior::AIB_RUN_FROM && get_robot_id(obj) != ROBOT_BRAIN)
+			if (player_visibility.visibility == player_visibility_state::visible_and_in_field_of_view && aip->behavior != ai_behavior::AIB_FOLLOW_PATH && aip->behavior != ai_behavior::AIB_RUN_FROM && get_robot_id(obj) != robot_id::brain)
 			{
 				if (robptr.attack_type == 0)
 					ailp.mode = ai_mode::AIM_CHASE_OBJECT;
@@ -4029,7 +4050,7 @@ _exit_cheat:
 				aip->behavior != ai_behavior::AIB_SNIPE &&
 				aip->behavior != ai_behavior::AIB_FOLLOW &&
 				aip->behavior != ai_behavior::AIB_RUN_FROM &&
-				get_robot_id(obj) != ROBOT_BRAIN &&
+				get_robot_id(obj) != robot_id::brain &&
 				robot_is_companion(robptr) != 1 &&
 				robot_is_thief(robptr) != 1)
 			{
@@ -4188,7 +4209,7 @@ _exit_cheat:
 
 			break;
 		case ai_mode::AIM_OPEN_DOOR: {       // trying to open a door.
-			Assert(get_robot_id(obj) == ROBOT_BRAIN);     // Make sure this guy is allowed to be in this mode.
+			assert(get_robot_id(obj) == robot_id::brain);     // Make sure this guy is allowed to be in this mode.
 
 			if (!ai_multiplayer_awareness(obj, 62))
 				return;
@@ -4298,7 +4319,8 @@ _exit_cheat:
 	if (ready_to_fire_any_weapon(robptr, ailp, 0) && (aip->GOAL_STATE == AIS_FIRE))
 		aip->CURRENT_STATE = AIS_FIRE;
 
-	if ((aip->GOAL_STATE != AIS_FLIN)  && (get_robot_id(obj) != ROBOT_BRAIN)) {
+	if (aip->GOAL_STATE != AIS_FLIN && get_robot_id(obj) != robot_id::brain)
+	{
 		switch (aip->CURRENT_STATE) {
 			case AIS_NONE:
 				compute_vis_and_vec(Robot_info, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);

@@ -103,8 +103,6 @@ struct bitmap_original
 
 constexpr std::integral_constant<uint8_t, 0x80> BM_FLAG_CUSTOMIZED{};
 
-}
-
 static enumerated_array<bitmap_original, MAX_BITMAP_FILES, bitmap_index> BitmapOriginal;
 static std::array<snd_info, MAX_SOUND_FILES> SoundOriginal;
 
@@ -471,7 +469,11 @@ static int read_d2_robot_info(PHYSFS_File *fp, robot_info &ri)
 	return 1;
 }
 
+}
+
 namespace dsx {
+
+namespace {
 
 static void load_hxm(const d_fname &hxmname)
 {
@@ -508,7 +510,8 @@ static void load_hxm(const d_fname &hxmname)
 			}
 			else
 			{
-				if (!(read_d2_robot_info(f, Robot_info[repl_num])))
+				static_assert(MAX_ROBOT_TYPES <= UINT8_MAX);
+				if (!(read_d2_robot_info(f, Robot_info[static_cast<robot_id>(repl_num)])))
 				{
 					return;
 				}
@@ -574,8 +577,6 @@ static void load_hxm(const d_fname &hxmname)
 	}
 }
 
-}
-
 // undo customized items
 static void custom_remove()
 {
@@ -618,6 +619,10 @@ static void custom_remove()
 			GameSounds[i].length = SoundOriginal[i].length & 0x7fffffff;
 			SoundOriginal[i].length = 0;
 		}
+}
+
+}
+
 }
 
 void load_custom_data(const d_fname &level_name)

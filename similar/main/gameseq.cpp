@@ -2328,7 +2328,7 @@ static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptr
 void copy_defaults_to_robot(const d_robot_info_array &Robot_info, object_base &objp)
 {
 	assert(objp.type == OBJ_ROBOT);
-	const unsigned objid = get_robot_id(objp);
+	const auto objid = get_robot_id(objp);
 
 	auto &robptr = Robot_info[objid];
 

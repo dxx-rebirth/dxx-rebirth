@@ -171,8 +171,8 @@ static void verify_object(const d_level_shared_robot_info_state &LevelSharedRobo
 
 		// Make sure valid id...
 		const auto N_robot_types = LevelSharedRobotInfoState.N_robot_types;
-		if (get_robot_id(obj) >= N_robot_types )
-			set_robot_id(obj, get_robot_id(obj) % N_robot_types);
+		if (const auto id = underlying_value(get_robot_id(obj)); id >= N_robot_types)
+			set_robot_id(obj, static_cast<robot_id>(id % N_robot_types));
 
 		// Make sure model number & size are correct...
 		if (obj.render_type == RT_POLYOBJ)
@@ -209,7 +209,7 @@ static void verify_object(const d_level_shared_robot_info_state &LevelSharedRobo
 		}
 
 #if defined(DXX_BUILD_DESCENT_II)
-		if (get_robot_id(obj) == 65)						//special "reactor" robots
+		if (get_robot_id(obj) == robot_id::special_reactor)						//special "reactor" robots
 			obj.movement_source = object::movement_type::None;
 #endif
 
@@ -333,9 +333,8 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 	if (obj->type == OBJ_ROBOT)
 	{
 #if defined(DXX_BUILD_DESCENT_I)
-		const auto id = get_robot_id(obj);
-		if (id > 23)
-			set_robot_id(obj, id % 24);
+		if (const auto id = underlying_value(get_robot_id(obj)); id >= 24)
+			set_robot_id(obj, static_cast<robot_id>(id % 24));
 #endif
 		obj->matcen_creator = 0;
 	}

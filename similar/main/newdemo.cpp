@@ -621,7 +621,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 	nd_read_shortpos(obj);
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if ((obj->type == OBJ_ROBOT) && (get_robot_id(obj) == SPECIAL_REACTOR_ROBOT))
+	if (obj->type == OBJ_ROBOT && get_robot_id(obj) == robot_id::special_reactor)
 		Int3();
 #endif
 
@@ -641,7 +641,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 		// (MarkA and MikeK said we should not do the crazy last secret stuff with multiple reactors...
 		// This necessary code is our vindication. --MK, 2/15/96)
 #if defined(DXX_BUILD_DESCENT_II)
-		if (get_robot_id(obj) == SPECIAL_REACTOR_ROBOT)
+		if (get_robot_id(obj) == robot_id::special_reactor)
 			obj->movement_source = object::movement_type::None;
 		else
 #endif
@@ -863,7 +863,7 @@ static void nd_write_object(const vcobjptridx_t objp)
 	short shortsig = 0;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (obj.type == OBJ_ROBOT && get_robot_id(obj) == SPECIAL_REACTOR_ROBOT)
+	if (obj.type == OBJ_ROBOT && get_robot_id(obj) == robot_id::special_reactor)
 		Int3();
 #endif
 

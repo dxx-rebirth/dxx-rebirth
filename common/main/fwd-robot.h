@@ -33,6 +33,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dcx {
 
 enum class robot_gun_number : uint8_t;
+enum class robot_id : uint8_t;
+
 constexpr std::integral_constant<std::size_t, 8> MAX_GUNS{};      //should be multiple of 4 for ubyte array
 
 enum class robot_animation_state : uint8_t;
@@ -51,6 +53,7 @@ struct d_level_shared_robot_joint_state;
 
 #ifdef dsx
 namespace dsx {
+
 #if defined(DXX_BUILD_DESCENT_II)
 //robot info flags
 #define RIF_BIG_RADIUS  1   //pad the radius to fix robots firing through walls
@@ -70,14 +73,14 @@ constexpr std::integral_constant<unsigned, 85> MAX_ROBOT_TYPES{};
 constexpr std::integral_constant<unsigned, 1600> MAX_ROBOT_JOINTS{};
 #endif
 
-using d_robot_info_array = std::array<robot_info, MAX_ROBOT_TYPES>;
+using d_robot_info_array = enumerated_array<robot_info, MAX_ROBOT_TYPES, robot_id>;
 
 //the array of robots types
 struct d_level_shared_robot_info_state;
 extern d_level_shared_robot_info_state LevelSharedRobotInfoState;
 
 #if DXX_USE_EDITOR
-using robot_names_array = std::array<std::array<char, ROBOT_NAME_LENGTH>, MAX_ROBOT_TYPES>;
+using robot_names_array = enumerated_array<std::array<char, ROBOT_NAME_LENGTH>, MAX_ROBOT_TYPES, robot_id>;
 extern robot_names_array Robot_names;
 #endif
 

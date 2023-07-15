@@ -786,9 +786,9 @@ static inline uint8_t get_fireball_id(const object_base &o)
 	return o.id;
 }
 
-static inline uint8_t get_robot_id(const object_base &o)
+static inline robot_id get_robot_id(const object_base &o)
 {
-	return o.id;
+	return robot_id{o.id};
 }
 
 static inline void set_player_id(object_base &o, const uint8_t id)
@@ -801,9 +801,9 @@ static inline void set_reactor_id(object_base &o, const uint8_t id)
 	o.id = id;
 }
 
-static inline void set_robot_id(object_base &o, const uint8_t id)
+static inline void set_robot_id(object_base &o, const robot_id id)
 {
-	o.id = id;
+	o.id = {static_cast<std::underlying_type<robot_id>::type>(id)};
 }
 
 void check_warn_object_type(const object_base &, object_type_t, const char *file, unsigned line);

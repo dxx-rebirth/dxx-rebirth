@@ -1242,17 +1242,14 @@ static void init_spinning_robot(grs_canvas &canvas, briefing &br) //(int x,int y
 	br.robot_canv = create_spinning_robot_sub_canvas(canvas);
 }
 
-static void show_spinning_robot_frame(briefing *br, int robot_num)
+static void show_spinning_robot_frame(const enumerated_array<polymodel, MAX_POLYGON_MODELS, polygon_model_index> &Polygon_models, const d_robot_info_array &Robot_info, briefing &br, const robot_id robot_num)
 {
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	if (robot_num != -1) {
-		br->robot_angles.p = br->robot_angles.b = 0;
-		br->robot_angles.h += 150;
+	br.robot_angles.p = br.robot_angles.b = 0;
+	br.robot_angles.h += 150;
 
-		assert(Robot_info[robot_num].model_num != polygon_model_index::None);
-		auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-		draw_model_picture(*br->robot_canv.get(), Polygon_models[Robot_info[robot_num].model_num], br->robot_angles);
-	}
+	const auto model_num = Robot_info[robot_num].model_num;
+	assert(model_num != polygon_model_index::None);
+	draw_model_picture(*br.robot_canv.get(), Polygon_models[model_num], br.robot_angles);
 }
 
 //-----------------------------------------------------------------------------
@@ -1676,7 +1673,10 @@ window_event_result briefing::event_handler(const d_event &event)
 				RotateRobot(pMovie);
 #endif
 			if (this->robot_num != -1)
-				show_spinning_robot_frame(this, this->robot_num);
+			{
+				auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
+				show_spinning_robot_frame(LevelSharedPolygonModelState.Polygon_models, Robot_info, *this, static_cast<robot_id>(this->robot_num));
+			}
 
 			auto &game_font = *GAME_FONT;
 

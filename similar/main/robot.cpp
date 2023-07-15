@@ -54,7 +54,7 @@ namespace dsx {
 void calc_gun_point(const robot_info &r, vms_vector &gun_point, const object_base &obj, const robot_gun_number entry_gun_num)
 {
 	Assert(obj.render_type == RT_POLYOBJ || obj.render_type == RT_MORPH);
-	assert(get_robot_id(obj) < LevelSharedRobotInfoState.N_robot_types);
+	assert(underlying_value(get_robot_id(obj)) < LevelSharedRobotInfoState.N_robot_types);
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const auto &pm = Polygon_models[r.model_num];
@@ -84,7 +84,7 @@ void calc_gun_point(const robot_info &r, vms_vector &gun_point, const object_bas
 
 //fills in ptr to list of joints, and returns the number of joints in list
 //takes the robot type (object id), gun number, and desired state
-ranges::subrange<const jointpos *> robot_get_anim_state(const d_robot_info_array &robot_info, const std::array<jointpos, MAX_ROBOT_JOINTS> &robot_joints, const unsigned robot_type, const robot_gun_number gun_num, const robot_animation_state state)
+ranges::subrange<const jointpos *> robot_get_anim_state(const d_robot_info_array &robot_info, const std::array<jointpos, MAX_ROBOT_JOINTS> &robot_joints, const robot_id robot_type, const robot_gun_number gun_num, const robot_animation_state state)
 {
 	auto &rirt = robot_info[robot_type];
 	auto &as = rirt.anim_states[gun_num][state];
@@ -202,9 +202,9 @@ static void jointlist_read(PHYSFS_File *fp, std::array<jointlist, N_ANIM_STATES>
 
 namespace dsx {
 
-imobjptridx_t robot_create(const d_robot_info_array &Robot_info, const unsigned id, const vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *const orient, const fix size, const ai_behavior behavior, const imsegidx_t hide_segment)
+imobjptridx_t robot_create(const d_robot_info_array &Robot_info, const robot_id id, const vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *const orient, const fix size, const ai_behavior behavior, const imsegidx_t hide_segment)
 {
-	const auto &&objp = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_ROBOT, id, segnum, pos, orient, size, object::control_type::ai, object::movement_type::physics, RT_POLYOBJ);
+	const auto &&objp = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_ROBOT, underlying_value(id), segnum, pos, orient, size, object::control_type::ai, object::movement_type::physics, RT_POLYOBJ);
 	if (objp)
 		init_ai_object(Robot_info, objp, behavior, hide_segment);
 	return objp;

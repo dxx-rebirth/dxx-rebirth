@@ -124,7 +124,7 @@ static int RobotNextType()
 			obj->shields = Robot_info[get_robot_id(obj)].strength;
 			call_init_ai_object(Robot_info, obj, ai_behavior::AIB_NORMAL);
 
-			Cur_object_id = get_robot_id(obj);
+			Cur_object_id = underlying_value(get_robot_id(obj));
 		}
 	}
 	Update_flags |= UF_WORLD_CHANGED;
@@ -157,7 +157,7 @@ static int RobotPrevType()
 			obj->shields = Robot_info[get_robot_id(obj)].strength;
 			call_init_ai_object(Robot_info, obj, ai_behavior::AIB_NORMAL);
 
-			Cur_object_id = get_robot_id(obj);
+			Cur_object_id = underlying_value(get_robot_id(obj));
 		}
 	}
 	Update_flags |= UF_WORLD_CHANGED;
@@ -725,7 +725,7 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 		switch (Cur_goody_type) {
 			case OBJ_ROBOT:
 				type_text = "Robot  ";
-				id_text = Robot_names[Cur_goody_id].data();
+				id_text = Robot_names[static_cast<robot_id>(Cur_goody_id)].data();
 				break;
 			default:
 				editor_status_fmt("Illegal contained object type (%i), changing to powerup.", Cur_goody_type);
@@ -746,7 +746,7 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 			const auto id = get_robot_id(vcobjptr(Cur_object_index));
 
 			ui_dprintf_at( MainWindow, 12,  6, "Robot: %3d ", Cur_object_index );
-			ui_dprintf_at( MainWindow, 12, 22, "   Id: %3d", id);
+			ui_dprintf_at( MainWindow, 12, 22, "   Id: %3d", underlying_value(id));
 			ui_dprintf_at( MainWindow, 12, 38, " Name: %-8s", Robot_names[id].data());
 
 		}	else {

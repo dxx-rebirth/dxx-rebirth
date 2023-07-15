@@ -48,6 +48,18 @@ enum class robot_animation_state : uint8_t
 	flinch,
 };
 
+enum class robot_id : uint8_t
+{
+	brain = 7,
+	toaster = 10,
+	baby_spider = 14,
+	/* if DXX_BUILD_DESCENT_II */
+	energy_bandit = 44,
+	special_reactor = 65,
+	/* endif */
+	None = UINT8_MAX,
+};
+
 //describes the position of a certain joint
 struct jointpos : prohibit_void_ptr<jointpos>
 {
@@ -184,15 +196,15 @@ struct d_level_shared_robot_info_state
 imobjptridx_t find_escort(fvmobjptridx &vmobjptridx, const d_robot_info_array &Robot_info);
 #endif
 
-imobjptridx_t robot_create(const d_robot_info_array &Robot_info, unsigned id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, ai_behavior behavior, const imsegidx_t hide_segment = segment_none);
-void recreate_thief(const d_robot_info_array &Robot_info, uint8_t thief_id);
+imobjptridx_t robot_create(const d_robot_info_array &Robot_info, robot_id id, vmsegptridx_t segnum, const vms_vector &pos, const vms_matrix *orient, fix size, ai_behavior behavior, const imsegidx_t hide_segment = segment_none);
+void recreate_thief(const d_robot_info_array &Robot_info, robot_id thief_id);
 
 // Drops objects contained in objp.
 bool object_create_robot_egg(const d_robot_info_array &Robot_info, object_base &objp);
 bool object_create_robot_egg(const d_robot_info_array &Robot_info, int type, int id, unsigned num, const vms_vector &init_vel, const vms_vector &pos, vmsegptridx_t segnum);
 
 // Create a matcen robot
-imobjptridx_t create_morph_robot(const d_robot_info_array &Robot_info, vmsegptridx_t segp, const vms_vector &object_pos, unsigned object_id);
+imobjptridx_t create_morph_robot(const d_robot_info_array &Robot_info, vmsegptridx_t segp, const vms_vector &object_pos, robot_id object_id);
 
 // do whatever this thing does in a frame
 void do_controlcen_frame(const d_robot_info_array &Robot_info, vmobjptridx_t obj);
@@ -226,7 +238,7 @@ struct d_level_shared_robot_joint_state : ::dcx::d_level_shared_robot_joint_stat
 //  On exit:
 //      Returns number of joints in list.
 //      jp_list_ptr is stuffed with a pointer to a static array of joint positions.  This pointer is valid forever.
-ranges::subrange<const jointpos *> robot_get_anim_state(const d_robot_info_array &, const std::array<jointpos, MAX_ROBOT_JOINTS> &, unsigned robot_type, robot_gun_number gun_num, robot_animation_state state);
+ranges::subrange<const jointpos *> robot_get_anim_state(const d_robot_info_array &, const std::array<jointpos, MAX_ROBOT_JOINTS> &, robot_id robot_type, robot_gun_number gun_num, robot_animation_state state);
 
 /*
  * reads n robot_info structs from a PHYSFS_File

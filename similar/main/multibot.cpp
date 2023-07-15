@@ -579,7 +579,7 @@ void multi_send_robot_explode(const imobjptridx_t objnum, objnum_t killer)
 	multi_delete_controlled_robot(objnum);
 }
 
-void multi_send_create_robot(const station_number station, const objnum_t objnum, const int type)
+void multi_send_create_robot(const station_number station, const objnum_t objnum, const robot_id type)
 {
 	multi_command<multiplayer_command_t::MULTI_CREATE_ROBOT> multibuf;
 	// Send create robot information
@@ -591,7 +591,7 @@ void multi_send_create_robot(const station_number station, const objnum_t objnum
 	static_assert(sizeof(underlying_value(station)) == 1);
 	multibuf[loc] = underlying_value(station);                         loc += 1;
 	PUT_INTEL_SHORT(&multibuf[loc], objnum);                  loc += 2;
-	multibuf[loc] = type;									loc += 1;
+	multibuf[loc] = underlying_value(type);					loc += 1;
 
 	map_objnum_local_to_local(objnum);
 
@@ -687,7 +687,7 @@ void multi_send_boss_stop_gate(objnum_t bossobjnum)
 void multi_send_boss_create_robot(vmobjidx_t bossobjnum, const vmobjptridx_t objrobot)
 {
 	map_objnum_local_to_local(objrobot);
-	multi_send_boss_action<boss_create_robot>(bossobjnum, objrobot, objrobot->segnum, get_robot_id(objrobot));
+	multi_send_boss_action<boss_create_robot>(bossobjnum, objrobot, objrobot->segnum, underlying_value(get_robot_id(objrobot)));
 }
 
 #define MAX_ROBOT_POWERUPS 4
@@ -978,7 +978,7 @@ int multi_explode_robot_sub(const d_robot_info_array &Robot_info, const vmobjptr
 	else
 	{
 #if defined(DXX_BUILD_DESCENT_II)
-		if (robot_id == SPECIAL_REACTOR_ROBOT)
+		if (robot_id == robot_id::special_reactor)
 			special_reactor_stuff();
 #endif
 		// Kamikaze, explode right away, IN YOUR FACE!
@@ -1024,7 +1024,7 @@ void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_a
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	const auto untrusted_fuelcen_num = buf[2];
-	int type = buf[5];
+	const auto untrusted_robot_type = buf[5];
 
 	objnum_t objnum;
 	objnum = GET_INTEL_SHORT(&buf[3]);
@@ -1038,6 +1038,12 @@ void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_a
 			Int3(); // Bogus data
 			return;
 		}
+		*o;
+	});
+	const auto trusted_robot_type = ({
+		const auto o = LevelSharedRobotInfoState.Robot_info.valid_index(untrusted_robot_type);
+		if (!o)
+			return;
 		*o;
 	});
 	auto &robotcen = Station[trusted_fuelcen_num];
@@ -1058,7 +1064,7 @@ void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_a
 	if (Vclip[VCLIP_MORPHING_ROBOT].sound_num > -1)
 		digi_link_sound_to_pos(Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen_segp, sidenum_t::WLEFT, cur_object_loc, 0, F1_0);
 
-	const auto &&obj = create_morph_robot(Robot_info, robotcen_segp, cur_object_loc, type);
+	const auto &&obj = create_morph_robot(Robot_info, robotcen_segp, cur_object_loc, trusted_robot_type);
 	if (obj == object_none)
 		return; // Cannot create object!
 	
@@ -1231,9 +1237,10 @@ void multi_do_boss_create_robot(const playernum_t pnum, const multiplayer_rspan<
 		Int3(); // See Rob, bad data in boss gate action message
 		return;
 	}
+	if (const auto trusted_robot_type = LevelSharedRobotInfoState.Robot_info.valid_index(b.robot_type); !trusted_robot_type)
+		return;
 	// Gate one in!
-	const auto &&robot = gate_in_robot(Robot_info, b.robot_type, vmsegptridx(b.where));
-	if (robot != object_none)
+	else if (const auto &&robot = gate_in_robot(Robot_info, *trusted_robot_type, vmsegptridx(b.where)); robot != object_none)
 		map_objnum_local_to_remote(robot, b.objrobot, pnum);
 }
 

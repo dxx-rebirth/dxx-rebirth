@@ -144,16 +144,16 @@ namespace dsx {
 namespace {
 static void collide_robot_and_wall(fvcwallptr &vcwallptr, object &robot, const vmsegptridx_t hitseg, const sidenum_t hitwall, const vms_vector &)
 {
-	const ubyte robot_id = get_robot_id(robot);
+	const auto robot_id{get_robot_id(robot)};
 #if defined(DXX_BUILD_DESCENT_I)
-	if (robot_id == ROBOT_BRAIN || robot.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM)
+	if (robot_id == robot_id::brain || robot.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM)
 #elif defined(DXX_BUILD_DESCENT_II)
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	auto &robptr = Robot_info[robot_id];
-	if (robot_id == ROBOT_BRAIN || robot.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM || robot_is_companion(robptr) == 1 || robot.ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
+	if (robot_id == robot_id::brain || robot.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM || robot_is_companion(robptr) == 1 || robot.ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
 #endif
 	{
 		const auto wall_num = hitseg->shared_segment::sides[hitwall].wall_num;
@@ -1507,7 +1507,7 @@ int apply_damage_to_robot(const d_robot_info_array &Robot_info, const vmobjptrid
 #endif
 		else {
 #if defined(DXX_BUILD_DESCENT_II)
-			if (get_robot_id(robot) == SPECIAL_REACTOR_ROBOT)
+			if (get_robot_id(robot) == robot_id::special_reactor)
 				special_reactor_stuff();
 #endif
 			// Kamikaze, explode right away, IN YOUR FACE!

@@ -619,7 +619,7 @@ namespace {
 
 //	-----------------------------------------------------------------------------
 //	Return id of boss.
-static int get_boss_id(void)
+static robot_id get_boss_id(void)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
@@ -633,7 +633,7 @@ static int get_boss_id(void)
 				return objp_id;
 		}
 	}
-	return -1;
+	return robot_id::None;
 }
 
 //	-----------------------------------------------------------------------------
@@ -966,11 +966,9 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const robot_inf
 				}
 				break;
 			case ESCORT_GOAL_BOSS: {
-				int	boss_id;
-	
-				boss_id = get_boss_id();
-				Assert(boss_id != -1);
-				goal_seg = escort_get_goal_segment(objp, OBJ_ROBOT, boss_id, powerup_flags);
+				const auto boss_id = get_boss_id();
+				assert(boss_id != robot_id::None);
+				goal_seg = escort_get_goal_segment(objp, OBJ_ROBOT, underlying_value(boss_id), powerup_flags);
 				break;
 			}
 			default:
@@ -1421,7 +1419,7 @@ void do_snipe_frame(const vmobjptridx_t objp, const robot_info &robptr, const fi
 static fix64	Re_init_thief_time = 0x3f000000;
 
 //	----------------------------------------------------------------------
-void recreate_thief(const d_robot_info_array &Robot_info, const uint8_t thief_id)
+void recreate_thief(const d_robot_info_array &Robot_info, const robot_id thief_id)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();

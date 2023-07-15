@@ -107,7 +107,7 @@ static objnum_t get_next_object(const unique_segment &seg, objnum_t id)
 namespace dsx {
 
 //	------------------------------------------------------------------------------------
-int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_polygon_model_state &LevelSharedPolygonModelState, const d_robot_info_array &Robot_info, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const vmsegptridx_t segp, const vms_vector &object_pos, short object_type, short object_id)
+int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_polygon_model_state &LevelSharedPolygonModelState, const d_robot_info_array &Robot_info, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const vmsegptridx_t segp, const vms_vector &object_pos, short object_type, const uint8_t object_id)
 {
 	vms_matrix seg_matrix;
 
@@ -147,9 +147,11 @@ int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_le
 			else
 				hide_segment = segment_none;
 
-			objnum = robot_create(Robot_info, object_id, segp, object_pos,
-								&seg_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
-								Robot_info[object_id].attack_type ?
+			const robot_id rid{object_id};
+			auto &ri = Robot_info[rid];
+			objnum = robot_create(Robot_info, rid, segp, object_pos,
+								&seg_matrix, Polygon_models[ri.model_num].rad,
+								ri.attack_type ?
 								//	robots which lunge forward to attack cannot have behavior type still.
 								ai_behavior::AIB_NORMAL :
 								ai_behavior::AIB_STILL,
@@ -162,17 +164,17 @@ int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_le
 
 			//Set polygon-object-specific data 
 
-			obj->rtype.pobj_info.model_num = Robot_info[get_robot_id(obj)].model_num;
+			obj->rtype.pobj_info.model_num = ri.model_num;
 			obj->rtype.pobj_info.subobj_flags = 0;
 
 			//set Physics info
 		
-			obj->mtype.phys_info.mass = Robot_info[get_robot_id(obj)].mass;
-			obj->mtype.phys_info.drag = Robot_info[get_robot_id(obj)].drag;
+			obj->mtype.phys_info.mass = ri.mass;
+			obj->mtype.phys_info.drag = ri.drag;
 
 			obj->mtype.phys_info.flags |= (PF_LEVELLING);
 
-			obj->shields = Robot_info[get_robot_id(obj)].strength;
+			obj->shields = ri.strength;
 			break;
 		}
 		case OBJ_POWERUP:

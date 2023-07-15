@@ -298,13 +298,13 @@ Restart: ;
 
 #define	ROBOT_GEN_TIME (i2f(5))
 
-imobjptridx_t create_morph_robot(const d_robot_info_array &Robot_info, const vmsegptridx_t segp, const vms_vector &object_pos, const unsigned object_id)
+imobjptridx_t create_morph_robot(const d_robot_info_array &Robot_info, const vmsegptridx_t segp, const vms_vector &object_pos, const robot_id object_id)
 {
 	ai_behavior default_behavior;
 	auto &robptr = Robot_info[object_id];
 #if defined(DXX_BUILD_DESCENT_I)
 	default_behavior = ai_behavior::AIB_NORMAL;
-	if (object_id == 10)						//	This is a toaster guy!
+	if (object_id == robot_id::toaster)						//	This is a toaster guy!
 		default_behavior = ai_behavior::AIB_RUN_FROM;
 #elif defined(DXX_BUILD_DESCENT_II)
 	default_behavior = robptr.behavior;
@@ -496,8 +496,7 @@ static void robotmaker_proc(const d_robot_info_array &Robot_info, const d_vclip_
 
 			// If this is the first materialization, set to valid robot.
 			{
-				int	type;
-				ubyte   legal_types[sizeof(mi->robot_flags) * 8];   // the width of robot_flags[].
+				std::array<robot_id, sizeof(mi->robot_flags) * 8> legal_types;   // the width of robot_flags[].
 				int	num_types;
 
 				num_types = 0;
@@ -509,15 +508,14 @@ static void robotmaker_proc(const d_robot_info_array &Robot_info, const d_vclip_
 					for (unsigned j = 0; flags && j < 8 * sizeof(flags); ++j)
 					{
 						if (flags & 1)
-							legal_types[num_types++] = (i * 32) + j;
+							legal_types[num_types++] = static_cast<robot_id>((i * 32) + j);
 						flags >>= 1;
 					}
 				}
 
-				if (num_types == 1)
-					type = legal_types[0];
-				else
-					type = legal_types[(d_rand() * num_types) / 32768];
+				const robot_id type = (num_types == 1)
+					? legal_types[0]
+					: legal_types[(d_rand() * num_types) / 32768];
 
 				const auto &&obj = create_morph_robot(Robot_info, vmsegptridx(robotcen->segnum), cur_object_loc, type );
 				if (obj != object_none) {

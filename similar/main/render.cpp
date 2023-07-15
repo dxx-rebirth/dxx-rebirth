@@ -1166,7 +1166,7 @@ static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const
 				if (obj->type != OBJ_CNTRLCEN)		//don't migrate controlcen
 #elif defined(DXX_BUILD_DESCENT_II)
 				const int did_migrate = 0;
-				if (obj->type != OBJ_CNTRLCEN && !(obj->type==OBJ_ROBOT && get_robot_id(obj)==65))		//don't migrate controlcen
+				if (obj->type != OBJ_CNTRLCEN && !(obj->type==OBJ_ROBOT && get_robot_id(obj) == robot_id::special_reactor))		//don't migrate controlcen
 #endif
 				do {
 #if defined(DXX_BUILD_DESCENT_I)

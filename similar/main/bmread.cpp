@@ -1357,14 +1357,16 @@ void bm_read_robot_ai(d_robot_info_array &Robot_info, const int skip)
 #endif
 {
 	char			*robotnum_text;
-	int			robotnum;
 
 	robotnum_text = strtok(NULL, space_tab);
-	robotnum = atoi(robotnum_text);
-	Assert(robotnum < MAX_ROBOT_TYPES);
+	const auto l = strtoul(robotnum_text, nullptr, 10);
+	const auto o = Robot_info.valid_index(l);
+	if (!o)
+		return;
+	const auto robotnum = *o;
 	auto &robptr = Robot_info[robotnum];
 
-	Assert(robotnum == Num_robot_ais);		//make sure valid number
+	assert(l == Num_robot_ais);		//make sure valid number
 
 	if (skip) {
 		Num_robot_ais++;
@@ -1492,8 +1494,14 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (skip) {
-		auto &ri = Robot_info[LevelSharedRobotInfoState.N_robot_types++];
-		ri.model_num = polygon_model_index::None;
+		const auto N_robot_types = LevelSharedRobotInfoState.N_robot_types;
+		if (const auto o = Robot_info.valid_index(N_robot_types))
+		{
+			const auto rid = *o;
+			++ LevelSharedRobotInfoState.N_robot_types;
+			auto &ri = Robot_info[rid];
+			ri.model_num = polygon_model_index::None;
+		}
 #if defined(DXX_BUILD_DESCENT_I)
 		Num_total_object_types++;
 		clear_to_end_of_line(arg);
@@ -1624,7 +1632,7 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 #endif
 			else if (!d_stricmp( arg, "name" )) {
 #if DXX_USE_EDITOR
-				auto &name = Robot_names[LevelSharedRobotInfoState.N_robot_types];
+				auto &name = Robot_names[static_cast<robot_id>(LevelSharedRobotInfoState.N_robot_types)];
 				const auto len = strlen(equal_ptr);
 				assert(len < name.size());	//	Oops, name too long.
 				memcpy(name.data(), &equal_ptr[1], len - 2);
@@ -1650,7 +1658,7 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 		arg = strtok( NULL, space_tab );
 	}
 
-	auto &current_robot_info = Robot_info[LevelSharedRobotInfoState.N_robot_types];
+	auto &current_robot_info = Robot_info[static_cast<robot_id>(LevelSharedRobotInfoState.N_robot_types)];
 	//clear out anim info
 	range_for (auto &g, current_robot_info.anim_states)
 		range_for (auto &s, g)

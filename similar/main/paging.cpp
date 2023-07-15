@@ -193,9 +193,23 @@ static void paging_touch_weapon(const d_vclip_array &Vclip, const weapon_info_ar
 		paging_touch_weapon(Vclip, Weapon_info[weapon_type]);
 }
 
-const std::array<sbyte, 13> super_boss_gate_type_list{{0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22}};
+const std::array<robot_id, 13> super_boss_gate_type_list{{
+	robot_id{0},
+	robot_id{1},
+	robot_id{8},
+	robot_id{9},
+	robot_id{10},
+	robot_id{11},
+	robot_id{12},
+	robot_id{15},
+	robot_id{16},
+	robot_id{18},
+	robot_id{19},
+	robot_id{20},
+	robot_id{22},
+}};
 
-static void paging_touch_robot(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, const unsigned ridx)
+static void paging_touch_robot(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, const robot_id ridx)
 {
 	auto &ri = Robot_info[ridx];
 	// Page in robot_index
@@ -285,17 +299,25 @@ static void paging_touch_robot_maker(const d_robot_info_array &Robot_info, const
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 		paging_touch_vclip(Vclip[VCLIP_MORPHING_ROBOT]);
 			const auto &robot_flags = RobotCenters[segp.matcen_num].robot_flags;
-			const std::size_t bits_per_robot_flags = 8 * sizeof(robot_flags[0]);
+			constexpr std::size_t bits_per_robot_flags = 8 * sizeof(robot_flags[0]);
 			for (uint_fast32_t i = 0; i != robot_flags.size(); ++i)
 			{
-				auto robot_index = i * bits_per_robot_flags;
+				uint8_t robot_index = i * bits_per_robot_flags;
+				/* As an optimization, if uint_fast32_t can represent two
+				 * elements of robot_flags[] and a second element exists, then
+				 * merge in the second element, so that the inner while loop
+				 * can handle two elements of robot_flags[] at a time.
+				 */
 				uint_fast32_t flags = robot_flags[i];
-				if (sizeof(flags) >= 2 * sizeof(robot_flags[0]) && i + 1 != robot_flags.size())
-					flags |= static_cast<uint64_t>(robot_flags[++i]) << bits_per_robot_flags;
+				if constexpr (sizeof(flags) >= 2 * sizeof(robot_flags[0]))
+				{
+					if (i + 1 != robot_flags.size())
+						flags |= static_cast<uint64_t>(robot_flags[++i]) << bits_per_robot_flags;
+				}
 				while (flags) {
 					if (flags & 1)	{
 						// Page in robot_index
-						paging_touch_robot(Robot_info, Vclip, Weapon_info, robot_index);
+						paging_touch_robot(Robot_info, Vclip, Weapon_info, robot_id{robot_index});
 					}
 					flags >>= 1;
 					robot_index++;

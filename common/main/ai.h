@@ -73,9 +73,6 @@ struct PHYSFS_File;
 #define MAX_DEPTH_TO_SEARCH_FOR_PLAYER  10
 #define BOSS_GATE_MATCEN_NUM            -1
 
-#define ROBOT_BRAIN 7
-#define ROBOT_BOSS1 17
-
 #define ROBOT_FIRE_AGITATION 94
 
 #ifdef dsx
@@ -147,7 +144,7 @@ struct d_level_shared_boss_state : ::dcx::d_level_shared_boss_state
 
 extern d_level_shared_boss_state LevelSharedBossState;
 void move_towards_segment_center(const robot_info &robptr, const d_level_shared_segment_state &, object_base &objp);
-imobjptridx_t gate_in_robot(const d_robot_info_array &Robot_info, unsigned type, vmsegptridx_t segnum);
+imobjptridx_t gate_in_robot(const d_robot_info_array &Robot_info, robot_id type, vmsegptridx_t segnum);
 void do_ai_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, vmobjptridx_t objp);
 #if defined(DXX_BUILD_DESCENT_I)
 #define do_ai_frame_all(Robot_info) do_ai_frame_all()
@@ -256,7 +253,6 @@ void buddy_message_str(const char * str) __attribute_nonnull();
 void buddy_message(const char * format, ... ) __attribute_format_printf(1, 2);
 #define buddy_message(F,...)	dxx_call_printf_checked(buddy_message,buddy_message_str,(),(F),##__VA_ARGS__)
 
-#define SPECIAL_REACTOR_ROBOT   65
 extern void special_reactor_stuff(void);
 #endif
 }

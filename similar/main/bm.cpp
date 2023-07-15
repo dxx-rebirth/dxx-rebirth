@@ -561,7 +561,7 @@ void load_robot_replacements(const d_fname &level_name)
 		const unsigned i = PHYSFSX_readInt(fp);		//read robot number
 		if (i >= N_robot_types)
 			Error("Robots number (%u) out of range in (%s).  Range = [0..%u].", i, static_cast<const char *>(level_name), N_robot_types- 1);
-		robot_info_read(fp, Robot_info[i]);
+		robot_info_read(fp, Robot_info[static_cast<robot_id>(i)]);
 	}
 
 	t = PHYSFSX_readInt(fp);			//read number of joints

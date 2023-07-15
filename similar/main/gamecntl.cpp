@@ -1379,10 +1379,10 @@ static window_event_result HandleTestKey(const d_level_shared_robot_info_state &
 			break;
 		case KEY_DEBUGGED+KEY_M:
 		{
-			static int i = 0;
+			static uint8_t i = 0;
 			const auto &&segp = vmsegptridx(ConsoleObject->segnum);
 			auto &vcvertptr = Vertices.vcptr;
-			const auto &&new_obj = create_morph_robot(LevelSharedRobotInfoState.Robot_info, segp, compute_segment_center(vcvertptr, segp), i);
+			const auto &&new_obj = create_morph_robot(LevelSharedRobotInfoState.Robot_info, segp, compute_segment_center(vcvertptr, segp), robot_id{i});
 			if (new_obj != object_none)
 				morph_start(LevelUniqueMorphObjectState, LevelSharedPolygonModelState, new_obj);
 			i++;

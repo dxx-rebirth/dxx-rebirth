@@ -353,7 +353,7 @@ static bool can_collide(const object *const weapon_object, const object_base &it
 				return false;
 			if (parent_object->type != OBJ_ROBOT)
 				return true;
-			return get_robot_id(*parent_object) != iter_object.id;
+			return get_robot_id(*parent_object) != get_robot_id(iter_object);
 		default:
 			return false;
 	}
@@ -1196,11 +1196,12 @@ static bool drop_robot_egg(const d_robot_info_array &Robot_info, const int type,
 				/* ObjId appears to serve as both a polygon_model_index and as
 				 * a robot index.
 				 */
-				const auto robot_id = static_cast<unsigned>(ObjId[type]);
+				const auto rid = static_cast<robot_id>(ObjId[type]);
 #elif defined(DXX_BUILD_DESCENT_II)
-				const auto robot_id = id;
+				const auto rid = static_cast<robot_id>(id);
 #endif
-				const auto &&objp = robot_create(Robot_info, id, segnum, new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[robot_id].model_num].rad, ai_behavior::AIB_NORMAL);
+				auto &robptr = Robot_info[rid];
+				const auto &&objp = robot_create(Robot_info, rid, segnum, new_pos, &vmd_identity_matrix, Polygon_models[robptr.model_num].rad, ai_behavior::AIB_NORMAL);
 				if (objp == object_none)
 					break;
 				auto &obj = *objp;
@@ -1213,19 +1214,19 @@ static bool drop_robot_egg(const d_robot_info_array &Robot_info, const int type,
 				}
 				//Set polygon-object-specific data
 
-				obj.rtype.pobj_info.model_num = Robot_info[get_robot_id(obj)].model_num;
+				obj.rtype.pobj_info.model_num = robptr.model_num;
 				obj.rtype.pobj_info.subobj_flags = 0;
 
 				//set Physics info
 		
 				obj.mtype.phys_info.velocity = new_velocity;
 
-				obj.mtype.phys_info.mass = Robot_info[get_robot_id(obj)].mass;
-				obj.mtype.phys_info.drag = Robot_info[get_robot_id(obj)].drag;
+				obj.mtype.phys_info.mass = robptr.mass;
+				obj.mtype.phys_info.drag = robptr.drag;
 
 				obj.mtype.phys_info.flags |= (PF_LEVELLING);
 
-				obj.shields = Robot_info[get_robot_id(obj)].strength;
+				obj.shields = robptr.strength;
 
 				ai_local		*ailp = &obj.ctype.ai_info.ail;
 				ailp->player_awareness_type = player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION;
@@ -1344,7 +1345,7 @@ static void explode_model(object_base &obj)
 	if (n_models > 1) {
 		for (unsigned i = 1; i < n_models; ++i)
 #if defined(DXX_BUILD_DESCENT_II)
-			if (!(i == 5 && obj.type == OBJ_ROBOT && get_robot_id(obj) == 44))	//energy sucker energy part
+			if (!(i == 5 && obj.type == OBJ_ROBOT && get_robot_id(obj) == robot_id::energy_bandit))	//energy sucker energy part
 #endif
 				object_create_debris(vmsegptridx, obj, i);
 
