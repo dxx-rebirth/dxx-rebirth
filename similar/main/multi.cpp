@@ -173,6 +173,10 @@ constexpr vms_matrix build_native_endian_matrix_from_little_endian(const vms_mat
 	};
 }
 
+#define build_little_endian_angvec_from_native_endian build_native_endian_angvec_from_little_endian
+#define build_little_endian_matrix_from_native_endian build_native_endian_matrix_from_little_endian
+#define build_little_endian_vector_from_native_endian build_native_endian_vector_from_little_endian
+
 }
 DEFINE_SERIAL_UDT_TO_MESSAGE(shortpos, s, (s.bytemat, s.xo, s.yo, s.zo, s.segment, s.velx, s.vely, s.velz));
 
@@ -5935,80 +5939,74 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 	 */
 	*obj_rw = {};
 	DXX_POISON_DEFINED_VAR(*obj_rw, 0xfd);
-	obj_rw->signature     = static_cast<uint16_t>(obj.signature);
+	obj_rw->signature     = INTEL_SHORT(static_cast<uint16_t>(obj.signature));
 	obj_rw->type          = obj.type;
 	obj_rw->id            = obj.id;
+	/* next, prev not maintained here */
 	obj_rw->control_source = underlying_value(obj.control_source);
 	obj_rw->movement_source = underlying_value(obj.movement_source);
 	const auto rtype = obj.render_type;
 	obj_rw->render_type   = underlying_value(rtype);
 	obj_rw->flags         = obj.flags;
-	obj_rw->segnum        = obj.segnum;
+	obj_rw->segnum        = INTEL_SHORT(obj.segnum);
 	/* attached_obj not maintained here */
-	obj_rw->pos         = obj.pos;
-	obj_rw->orient = obj.orient;
-	obj_rw->size          = obj.size;
-	obj_rw->shields       = obj.shields;
-	obj_rw->last_pos    = obj.pos;
+	{
+		const auto pos = build_little_endian_vector_from_native_endian(obj.pos);
+		obj_rw->pos = pos;
+		obj_rw->last_pos = pos;
+	}
+	obj_rw->orient = build_little_endian_matrix_from_native_endian(obj.orient);
+	obj_rw->size          = INTEL_INT(obj.size);
+	obj_rw->shields       = INTEL_INT(obj.shields);
 	obj_rw->contains_type = underlying_value(obj.contains.type);
 	obj_rw->contains_id   = obj.contains_id;
 	obj_rw->contains_count= obj.contains_count;
 	obj_rw->matcen_creator= obj.matcen_creator;
-	obj_rw->lifeleft      = obj.lifeleft;
-	
+	obj_rw->lifeleft      = INTEL_INT(obj.lifeleft);
+
 	switch (typename object::movement_type{obj_rw->movement_source})
 	{
 		case object::movement_type::None:
 			obj_rw->mtype = {};
 			break;
 		case object::movement_type::physics:
-			obj_rw->mtype.phys_info.velocity.x  = obj.mtype.phys_info.velocity.x;
-			obj_rw->mtype.phys_info.velocity.y  = obj.mtype.phys_info.velocity.y;
-			obj_rw->mtype.phys_info.velocity.z  = obj.mtype.phys_info.velocity.z;
-			obj_rw->mtype.phys_info.thrust.x    = obj.mtype.phys_info.thrust.x;
-			obj_rw->mtype.phys_info.thrust.y    = obj.mtype.phys_info.thrust.y;
-			obj_rw->mtype.phys_info.thrust.z    = obj.mtype.phys_info.thrust.z;
-			obj_rw->mtype.phys_info.mass        = obj.mtype.phys_info.mass;
-			obj_rw->mtype.phys_info.drag        = obj.mtype.phys_info.drag;
-			obj_rw->mtype.phys_info.rotvel.x    = obj.mtype.phys_info.rotvel.x;
-			obj_rw->mtype.phys_info.rotvel.y    = obj.mtype.phys_info.rotvel.y;
-			obj_rw->mtype.phys_info.rotvel.z    = obj.mtype.phys_info.rotvel.z;
-			obj_rw->mtype.phys_info.rotthrust.x = obj.mtype.phys_info.rotthrust.x;
-			obj_rw->mtype.phys_info.rotthrust.y = obj.mtype.phys_info.rotthrust.y;
-			obj_rw->mtype.phys_info.rotthrust.z = obj.mtype.phys_info.rotthrust.z;
-			obj_rw->mtype.phys_info.turnroll    = obj.mtype.phys_info.turnroll;
-			obj_rw->mtype.phys_info.flags       = obj.mtype.phys_info.flags;
+			obj_rw->mtype.phys_info.velocity  = build_little_endian_vector_from_native_endian(obj.mtype.phys_info.velocity);
+			obj_rw->mtype.phys_info.thrust    = build_little_endian_vector_from_native_endian(obj.mtype.phys_info.thrust);
+			obj_rw->mtype.phys_info.mass        = INTEL_INT(obj.mtype.phys_info.mass);
+			obj_rw->mtype.phys_info.drag        = INTEL_INT(obj.mtype.phys_info.drag);
+			obj_rw->mtype.phys_info.rotvel    = build_little_endian_vector_from_native_endian(obj.mtype.phys_info.rotvel);
+			obj_rw->mtype.phys_info.rotthrust = build_little_endian_vector_from_native_endian(obj.mtype.phys_info.rotthrust);
+			obj_rw->mtype.phys_info.turnroll    = INTEL_INT(obj.mtype.phys_info.turnroll);
+			obj_rw->mtype.phys_info.flags       = INTEL_SHORT(obj.mtype.phys_info.flags);
 			break;
 			
 		case object::movement_type::spinning:
-			obj_rw->mtype.spin_rate.x = obj.mtype.spin_rate.x;
-			obj_rw->mtype.spin_rate.y = obj.mtype.spin_rate.y;
-			obj_rw->mtype.spin_rate.z = obj.mtype.spin_rate.z;
+			obj_rw->mtype.spin_rate = build_little_endian_vector_from_native_endian(obj.mtype.spin_rate);
 			break;
 	}
-	
+
 	switch (typename object::control_type{obj_rw->control_source})
 	{
 		case object::control_type::weapon:
-			obj_rw->ctype.laser_info.parent_type      = obj.ctype.laser_info.parent_type;
-			obj_rw->ctype.laser_info.parent_num       = obj.ctype.laser_info.parent_num;
-			obj_rw->ctype.laser_info.parent_signature = static_cast<uint16_t>(obj.ctype.laser_info.parent_signature);
-			if (obj.ctype.laser_info.creation_time - GameTime64 < F1_0*(-18000))
-				obj_rw->ctype.laser_info.creation_time = F1_0*(-18000);
+			obj_rw->ctype.laser_info.parent_type      = INTEL_SHORT(obj.ctype.laser_info.parent_type);
+			obj_rw->ctype.laser_info.parent_num       = INTEL_SHORT(obj.ctype.laser_info.parent_num);
+			obj_rw->ctype.laser_info.parent_signature = INTEL_INT(static_cast<uint16_t>(obj.ctype.laser_info.parent_signature));
+			if (const auto c = obj.ctype.laser_info.creation_time - GameTime64; c < F1_0*(-18000))
+				obj_rw->ctype.laser_info.creation_time = INTEL_INT(F1_0*(-18000));
 			else
-				obj_rw->ctype.laser_info.creation_time = obj.ctype.laser_info.creation_time - GameTime64;
-			obj_rw->ctype.laser_info.last_hitobj      = obj.ctype.laser_info.get_last_hitobj();
-			obj_rw->ctype.laser_info.track_goal       = obj.ctype.laser_info.track_goal;
-			obj_rw->ctype.laser_info.multiplier       = obj.ctype.laser_info.multiplier;
+				obj_rw->ctype.laser_info.creation_time = INTEL_INT(static_cast<int>(c));
+			obj_rw->ctype.laser_info.last_hitobj      = INTEL_SHORT(obj.ctype.laser_info.get_last_hitobj());
+			obj_rw->ctype.laser_info.track_goal       = INTEL_SHORT(obj.ctype.laser_info.track_goal);
+			obj_rw->ctype.laser_info.multiplier       = INTEL_INT(obj.ctype.laser_info.multiplier);
 			break;
 			
 		case object::control_type::explosion:
-			obj_rw->ctype.expl_info.spawn_time    = obj.ctype.expl_info.spawn_time;
-			obj_rw->ctype.expl_info.delete_time   = obj.ctype.expl_info.delete_time;
-			obj_rw->ctype.expl_info.delete_objnum = obj.ctype.expl_info.delete_objnum;
-			obj_rw->ctype.expl_info.attach_parent = obj.ctype.expl_info.attach_parent;
-			obj_rw->ctype.expl_info.prev_attach   = obj.ctype.expl_info.prev_attach;
-			obj_rw->ctype.expl_info.next_attach   = obj.ctype.expl_info.next_attach;
+			obj_rw->ctype.expl_info.spawn_time    = INTEL_INT(obj.ctype.expl_info.spawn_time);
+			obj_rw->ctype.expl_info.delete_time   = INTEL_INT(obj.ctype.expl_info.delete_time);
+			obj_rw->ctype.expl_info.delete_objnum = INTEL_SHORT(obj.ctype.expl_info.delete_objnum);
+			obj_rw->ctype.expl_info.attach_parent = INTEL_SHORT(obj.ctype.expl_info.attach_parent);
+			obj_rw->ctype.expl_info.prev_attach   = INTEL_SHORT(obj.ctype.expl_info.prev_attach);
+			obj_rw->ctype.expl_info.next_attach   = INTEL_SHORT(obj.ctype.expl_info.next_attach);
 			break;
 			
 		case object::control_type::ai:
@@ -6028,13 +6026,17 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 			obj_rw->ctype.ai_info.flags[7] = obj.ctype.ai_info.SKIP_AI_COUNT;
 			obj_rw->ctype.ai_info.flags[8] = obj.ctype.ai_info.REMOTE_OWNER;
 			obj_rw->ctype.ai_info.flags[9] = obj.ctype.ai_info.REMOTE_SLOT_NUM;
-			obj_rw->ctype.ai_info.hide_segment           = obj.ctype.ai_info.hide_segment;
-			obj_rw->ctype.ai_info.hide_index             = obj.ctype.ai_info.hide_index;
-			obj_rw->ctype.ai_info.path_length            = obj.ctype.ai_info.path_length;
+			obj_rw->ctype.ai_info.hide_segment           = INTEL_SHORT(obj.ctype.ai_info.hide_segment);
+			obj_rw->ctype.ai_info.hide_index             = INTEL_SHORT(obj.ctype.ai_info.hide_index);
+			obj_rw->ctype.ai_info.path_length            = INTEL_SHORT(obj.ctype.ai_info.path_length);
+#if defined(DXX_BUILD_DESCENT_I)
+			obj_rw->ctype.ai_info.cur_path_index         = INTEL_SHORT(obj.ctype.ai_info.cur_path_index);
+#elif defined(DXX_BUILD_DESCENT_II)
 			obj_rw->ctype.ai_info.cur_path_index         = obj.ctype.ai_info.cur_path_index;
-			obj_rw->ctype.ai_info.danger_laser_num       = obj.ctype.ai_info.danger_laser_num;
+#endif
+			obj_rw->ctype.ai_info.danger_laser_num       = INTEL_SHORT(obj.ctype.ai_info.danger_laser_num);
 			if (obj.ctype.ai_info.danger_laser_num != object_none)
-				obj_rw->ctype.ai_info.danger_laser_signature = static_cast<uint16_t>(obj.ctype.ai_info.danger_laser_signature);
+				obj_rw->ctype.ai_info.danger_laser_signature = INTEL_INT(static_cast<uint16_t>(obj.ctype.ai_info.danger_laser_signature));
 			else
 				obj_rw->ctype.ai_info.danger_laser_signature = 0;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -6045,23 +6047,23 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 			if (obj.ctype.ai_info.dying_start_time == 0) // if bot not dead, anything but 0 will kill it
 				obj_rw->ctype.ai_info.dying_start_time = 0;
 			else
-				obj_rw->ctype.ai_info.dying_start_time = obj.ctype.ai_info.dying_start_time - GameTime64;
+				obj_rw->ctype.ai_info.dying_start_time = INTEL_INT(static_cast<int>(obj.ctype.ai_info.dying_start_time - GameTime64));
 #endif
 			break;
 		}
 			
 		case object::control_type::light:
-			obj_rw->ctype.light_info.intensity = obj.ctype.light_info.intensity;
+			obj_rw->ctype.light_info.intensity = INTEL_INT(obj.ctype.light_info.intensity);
 			break;
 			
 		case object::control_type::powerup:
-			obj_rw->ctype.powerup_info.count         = obj.ctype.powerup_info.count;
+			obj_rw->ctype.powerup_info.count         = INTEL_INT(obj.ctype.powerup_info.count);
 #if defined(DXX_BUILD_DESCENT_II)
-			if (obj.ctype.powerup_info.creation_time - GameTime64 < F1_0*(-18000))
-				obj_rw->ctype.powerup_info.creation_time = F1_0*(-18000);
+			if (const auto c = obj.ctype.powerup_info.creation_time - GameTime64; c < F1_0*(-18000))
+				obj_rw->ctype.powerup_info.creation_time = INTEL_INT(F1_0*(-18000));
 			else
-				obj_rw->ctype.powerup_info.creation_time = obj.ctype.powerup_info.creation_time - GameTime64;
-			obj_rw->ctype.powerup_info.flags         = obj.ctype.powerup_info.flags;
+				obj_rw->ctype.powerup_info.creation_time = INTEL_INT(static_cast<int>(c));
+			obj_rw->ctype.powerup_info.flags         = INTEL_INT(obj.ctype.powerup_info.flags);
 #endif
 			break;
 		case object::control_type::None:
@@ -6075,7 +6077,7 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 		default:
 			break;
 	}
-	
+
 	switch (rtype)
 	{
 		case render_type::RT_NONE:
@@ -6086,16 +6088,12 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 		case render_type::RT_POLYOBJ:
 		{
 			int i;
-			obj_rw->rtype.pobj_info.model_num = underlying_value(obj.rtype.pobj_info.model_num);
+			obj_rw->rtype.pobj_info.model_num = INTEL_INT(underlying_value(obj.rtype.pobj_info.model_num));
 			for (i=0;i<MAX_SUBMODELS;i++)
-			{
-				obj_rw->rtype.pobj_info.anim_angles[i].p = obj.rtype.pobj_info.anim_angles[i].p;
-				obj_rw->rtype.pobj_info.anim_angles[i].b = obj.rtype.pobj_info.anim_angles[i].b;
-				obj_rw->rtype.pobj_info.anim_angles[i].h = obj.rtype.pobj_info.anim_angles[i].h;
-			}
-			obj_rw->rtype.pobj_info.subobj_flags             = obj.rtype.pobj_info.subobj_flags;
-			obj_rw->rtype.pobj_info.tmap_override            = obj.rtype.pobj_info.tmap_override;
-			obj_rw->rtype.pobj_info.alt_textures             = obj.rtype.pobj_info.alt_textures;
+				obj_rw->rtype.pobj_info.anim_angles[i] = build_little_endian_angvec_from_native_endian(obj.rtype.pobj_info.anim_angles[i]);
+			obj_rw->rtype.pobj_info.subobj_flags             = INTEL_INT(obj.rtype.pobj_info.subobj_flags);
+			obj_rw->rtype.pobj_info.tmap_override            = INTEL_INT(obj.rtype.pobj_info.tmap_override);
+			obj_rw->rtype.pobj_info.alt_textures             = INTEL_INT(obj.rtype.pobj_info.alt_textures);
 			break;
 		}
 			
@@ -6103,8 +6101,8 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 		case render_type::RT_HOSTAGE:
 		case render_type::RT_POWERUP:
 		case render_type::RT_FIREBALL:
-			obj_rw->rtype.vclip_info.vclip_num = obj.rtype.vclip_info.vclip_num;
-			obj_rw->rtype.vclip_info.frametime = obj.rtype.vclip_info.frametime;
+			obj_rw->rtype.vclip_info.vclip_num = INTEL_INT(obj.rtype.vclip_info.vclip_num);
+			obj_rw->rtype.vclip_info.frametime = INTEL_INT(obj.rtype.vclip_info.frametime);
 			obj_rw->rtype.vclip_info.framenum  = obj.rtype.vclip_info.framenum;
 			break;
 			

@@ -2399,8 +2399,6 @@ void net_udp_send_objects(void)
 		PUT_INTEL_INT(&object_buffer[loc], remote_objnum);            loc += 4;
 		// use object_rw to send objects for now. if object sometime contains some day contains something useful the client should know about, we should use it. but by now it's also easier to use object_rw because then we also do not need fix64 timer values.
 		multi_object_to_object_rw(vmobjptr(i), reinterpret_cast<object_rw *>(&object_buffer[loc]));
-		if constexpr (words_bigendian)
-			object_rw_swap(reinterpret_cast<object_rw *>(&object_buffer[loc]), 1);
 		loc += sizeof(object_rw);
 	}
 
