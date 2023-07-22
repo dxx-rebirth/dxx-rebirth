@@ -2689,14 +2689,15 @@ void object_rw_swap(object_rw *obj, int swap)
 			break;
 	}
 	
-	switch (const auto r = render_type{obj->render_type})
+	switch (render_type{obj->render_type})
 	{
+		case render_type::RT_NONE:
+			if (obj->type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time.
+				break;
+			[[fallthrough]];
 		case render_type::RT_MORPH:
 		case render_type::RT_POLYOBJ:
-		case render_type::RT_NONE: // HACK below
 		{
-			if (r == render_type::RT_NONE && obj->type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time.
-				break;
 			obj->rtype.pobj_info.model_num                = SWAPINT(obj->rtype.pobj_info.model_num);
 			for (uint_fast32_t i=0;i<MAX_SUBMODELS;i++)
 			{

@@ -479,13 +479,14 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 
 	switch (rtype)
 	{
+		case render_type::RT_NONE:
+			if (obj.type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time. Here it's not important, but it might be for Multiplayer Savegames.
+				break;
+			[[fallthrough]];
 		case render_type::RT_MORPH:
 		case render_type::RT_POLYOBJ:
-		case render_type::RT_NONE: // HACK below
 		{
 			int i;
-			if (obj.render_type == render_type::RT_NONE && obj.type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time. Here it's not important, but it might be for Multiplayer Savegames.
-				break;
 			obj_rw->rtype.pobj_info.model_num                = underlying_value(obj.rtype.pobj_info.model_num);
 			for (i=0;i<MAX_SUBMODELS;i++)
 			{
@@ -721,13 +722,14 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 	
 	switch (obj.render_type)
 	{
+		case render_type::RT_NONE:
+			if (obj.type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time. Here it's not important, but it might be for Multiplayer Savegames.
+				break;
+			[[fallthrough]];
 		case render_type::RT_MORPH:
 		case render_type::RT_POLYOBJ:
-		case render_type::RT_NONE: // HACK below
 		{
 			int i;
-			if (obj.render_type == render_type::RT_NONE && obj.type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time. Here it's not important, but it might be for Multiplayer Savegames.
-				break;
 			obj.rtype.pobj_info.model_num                = build_polygon_model_index_from_untrusted(obj_rw->rtype.pobj_info.model_num);
 			for (i=0;i<MAX_SUBMODELS;i++)
 			{
