@@ -352,7 +352,7 @@ namespace dcx {
 
 struct vclip_info : prohibit_void_ptr<vclip_info>
 {
-	int     vclip_num;
+	vclip_index vclip_num;
 	fix     frametime;
 	uint8_t framenum;
 };
@@ -791,9 +791,9 @@ static inline uint8_t get_reactor_id(const object_base &o)
 	return o.id;
 }
 
-static inline uint8_t get_fireball_id(const object_base &o)
+static constexpr vclip_index get_fireball_id(const object_base &o)
 {
-	return o.id;
+	return vclip_index{o.id};
 }
 
 static inline robot_id get_robot_id(const object_base &o)

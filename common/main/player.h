@@ -189,7 +189,7 @@ namespace dcx {
 struct player_ship
 {
 	polygon_model_index model_num;
-	int     expl_vclip_num;
+	vclip_index expl_vclip_num;
 	fix     mass,drag;
 	fix     max_thrust,reverse_thrust,brakes;       //low_thrust
 	fix     wiggle;

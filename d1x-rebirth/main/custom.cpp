@@ -391,9 +391,9 @@ static int read_d2_robot_info(PHYSFS_File *fp, robot_info &ri)
 		PHYSFSX_readVector(fp, j);
 	for (auto &j : ri.gun_submodels)
 		j = PHYSFSX_readByte(fp);
-	ri.exp1_vclip_num = PHYSFSX_readShort(fp);
+	ri.exp1_vclip_num = build_vclip_index_from_untrusted(PHYSFSX_readShort(fp));
 	ri.exp1_sound_num = PHYSFSX_readShort(fp);
-	ri.exp2_vclip_num = PHYSFSX_readShort(fp);
+	ri.exp2_vclip_num = build_vclip_index_from_untrusted(PHYSFSX_readShort(fp));
 	ri.exp2_sound_num = PHYSFSX_readShort(fp);
 	const auto weapon_type = PHYSFSX_readByte(fp);
 	ri.weapon_type = weapon_type < N_weapon_types ? static_cast<weapon_id_type>(weapon_type) : weapon_id_type::LASER_ID_L1;

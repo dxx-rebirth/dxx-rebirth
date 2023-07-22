@@ -94,9 +94,9 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	enumerated_array<vms_vector, MAX_GUNS, robot_gun_number>  gun_points;   // where each gun model is
 	enumerated_array<uint8_t, MAX_GUNS, robot_gun_number>   gun_submodels;    // which submodel is each gun in?
 	uint16_t score_value;						//	Score from this robot.
-	short   exp1_vclip_num;
+	vclip_index exp1_vclip_num;
+	vclip_index exp2_vclip_num;
 	short   exp1_sound_num;
-	short   exp2_vclip_num;
 	short   exp2_sound_num;
 	weapon_id_type weapon_type;
 	uint8_t   n_guns;         // how many different gun positions

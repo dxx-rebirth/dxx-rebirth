@@ -549,7 +549,7 @@ static void nd_read_shortpos(object_base &obj)
 	nd_read_short(&sp.velz);
 
 	my_extract_shortpos(obj, &sp);
-	if (obj.type == OBJ_FIREBALL && get_fireball_id(obj) == VCLIP_MORPHING_ROBOT && rtype == render_type::RT_FIREBALL && obj.control_source == object::control_type::explosion)
+	if (obj.type == OBJ_FIREBALL && get_fireball_id(obj) == vclip_index::morphing_robot && rtype == render_type::RT_FIREBALL && obj.control_source == object::control_type::explosion)
 	{
 		auto &vcvertptr = Vertices.vcptr;
 		extract_orient_from_segment(vcvertptr, obj.orient, vcsegptr(obj.segnum));
@@ -835,7 +835,11 @@ static void nd_read_object(const vmobjptridx_t obj)
 		case render_type::RT_WEAPON_VCLIP:
 		case render_type::RT_FIREBALL:
 		case render_type::RT_HOSTAGE:
-		nd_read_int(&(obj->rtype.vclip_info.vclip_num));
+		{
+			int vclip_num;
+			nd_read_int(&vclip_num);
+			obj->rtype.vclip_info.vclip_num = static_cast<vclip_index>(vclip_num);
+		}
 		nd_read_fix(&(obj->rtype.vclip_info.frametime));
 		nd_read_byte(&obj->rtype.vclip_info.framenum);
 		break;
@@ -992,7 +996,7 @@ static void nd_write_object(const vcobjptridx_t objp)
 		case render_type::RT_WEAPON_VCLIP:
 		case render_type::RT_FIREBALL:
 		case render_type::RT_HOSTAGE:
-		nd_write_int(obj.rtype.vclip_info.vclip_num);
+		nd_write_int(underlying_value(obj.rtype.vclip_info.vclip_num));
 		nd_write_fix(obj.rtype.vclip_info.frametime);
 		nd_write_byte(obj.rtype.vclip_info.framenum);
 		break;

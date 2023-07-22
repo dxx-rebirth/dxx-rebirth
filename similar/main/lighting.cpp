@@ -101,7 +101,7 @@ static fix compute_player_light_emission_intensity(const object_base &objp)
 static fix compute_fireball_light_emission_intensity(const d_vclip_array &Vclip, const object_base &objp)
 {
 	const auto oid = get_fireball_id(objp);
-	if (oid >= Vclip.size())
+	if (!Vclip.valid_index(oid))
 		return 0;
 	auto &v = Vclip[oid];
 	const auto light_intensity = v.light_value;
@@ -335,7 +335,7 @@ static g3s_lrgb build_object_color_from_range(GameBitmaps_array &GameBitmaps, co
 	return obj_color;
 }
 
-static g3s_lrgb build_object_color_from_vclip(GameBitmaps_array &GameBitmaps, const d_vclip_array &Vclip, const std::size_t id)
+static g3s_lrgb build_object_color_from_vclip(GameBitmaps_array &GameBitmaps, const d_vclip_array &Vclip, const vclip_index id)
 {
 	auto &v = Vclip[id];
 	auto &f = v.frames;
@@ -380,7 +380,7 @@ static g3s_lrgb build_object_color(GameBitmaps_array &GameBitmaps, const object_
 		case render_type::RT_WEAPON_VCLIP:
 			return build_object_color_from_vclip(GameBitmaps, Vclip, Weapon_info[get_weapon_id(objp)].weapon_vclip);
 		default:
-			return build_object_color_from_vclip(GameBitmaps, Vclip, objp.id);
+			return build_object_color_from_vclip(GameBitmaps, Vclip, vclip_index{objp.id});
 	}
 }
 

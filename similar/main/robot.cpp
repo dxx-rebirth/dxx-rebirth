@@ -224,10 +224,10 @@ void robot_info_read(PHYSFS_File *fp, robot_info &ri)
 	range_for (auto &j, ri.gun_submodels)
 		j = PHYSFSX_readByte(fp);
 
-	ri.exp1_vclip_num = PHYSFSX_readShort(fp);
+	ri.exp1_vclip_num = build_vclip_index_from_untrusted(PHYSFSX_readShort(fp));
 	ri.exp1_sound_num = PHYSFSX_readShort(fp);
 
-	ri.exp2_vclip_num = PHYSFSX_readShort(fp);
+	ri.exp2_vclip_num = build_vclip_index_from_untrusted(PHYSFSX_readShort(fp));
 	ri.exp2_sound_num = PHYSFSX_readShort(fp);
 
 #if defined(DXX_BUILD_DESCENT_I)

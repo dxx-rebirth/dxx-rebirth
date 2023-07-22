@@ -204,7 +204,7 @@ void draw_object_blob(GameBitmaps_array &GameBitmaps, const object_base &Viewer,
 	const auto osize = obj.size;
 	// draw these with slight offset to viewer preventing too much ugly clipping
 	auto pos = obj.pos;
-	if (obj.type == OBJ_FIREBALL && get_fireball_id(obj) == VCLIP_VOLATILE_WALL_HIT)
+	if (obj.type == OBJ_FIREBALL && get_fireball_id(obj) == vclip_index::volatile_wall_hit)
 	{
 		vms_vector offs_vec;
 		vm_vec_normalized_dir_quick(offs_vec, Viewer.pos, pos);
@@ -680,7 +680,7 @@ void create_small_fireball_on_object(const vmobjptridx_t objp, fix size_scale, i
 
 	const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos, Segments.vmptridx(objp->segnum));
 	if (segnum != segment_none) {
-		const auto &&expl_obj = object_create_explosion_without_damage(Vclip, segnum, pos, size, VCLIP_SMALL_EXPLOSION);
+		const auto &&expl_obj = object_create_explosion_without_damage(Vclip, segnum, pos, size, vclip_index::small_explosion);
 		if (!expl_obj)
 			return;
 		obj_attach(Objects, objp, expl_obj);
@@ -694,7 +694,7 @@ void create_small_fireball_on_object(const vmobjptridx_t objp, fix size_scale, i
 	}
 }
 
-// -- mk, 02/05/95 -- #define	VCLIP_INVULNERABILITY_EFFECT	VCLIP_SMALL_EXPLOSION
+// -- mk, 02/05/95 -- #define	VCLIP_INVULNERABILITY_EFFECT	vclip_index::small_explosion
 // -- mk, 02/05/95 --
 // -- mk, 02/05/95 -- // -----------------------------------------------------------------------------
 // -- mk, 02/05/95 -- void do_player_invulnerability_effect(object *objp)

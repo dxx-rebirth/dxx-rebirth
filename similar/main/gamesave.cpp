@@ -124,14 +124,18 @@ namespace {
 
 using savegame_pof_names_type = enumerated_array<char[FILENAME_LEN], 167, polygon_model_index>;
 
-static int convert_vclip(const d_vclip_array &Vclip, int vc)
+static vclip_index convert_vclip(const d_vclip_array &Vclip, const int vc)
 {
 	if (vc < 0)
-		return vc;
-	if (vc < Vclip.size() && (Vclip[vc].num_frames != ~0u))
-		return vc;
-	return 0;
+		return vclip_index::None;
+	if (const auto o = Vclip.valid_index(vc))
+	{
+		if (const auto vci{*o}; Vclip[vci].num_frames != ~0u)
+			return vci;
+	}
+	return vclip_index{0};
 }
+
 static int convert_wclip(int wc) {
 	return (wc < Num_wall_anims) ? wc : wc % Num_wall_anims;
 }
@@ -614,7 +618,7 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 #if defined(DXX_BUILD_DESCENT_I)
 			obj->rtype.vclip_info.vclip_num	= convert_vclip(Vclip, PHYSFSX_readInt(f));
 #elif defined(DXX_BUILD_DESCENT_II)
-			obj->rtype.vclip_info.vclip_num	= PHYSFSX_readInt(f);
+			obj->rtype.vclip_info.vclip_num	= build_vclip_index_from_untrusted(PHYSFSX_readInt(f));
 #endif
 			obj->rtype.vclip_info.frametime	= PHYSFSX_readFix(f);
 			obj->rtype.vclip_info.framenum	= PHYSFSX_readByte(f);
@@ -831,7 +835,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 		case render_type::RT_POWERUP:
 		case render_type::RT_FIREBALL:
 
-			PHYSFS_writeSLE32(f, obj.rtype.vclip_info.vclip_num);
+			PHYSFS_writeSLE32(f, underlying_value(obj.rtype.vclip_info.vclip_num));
 			PHYSFSX_writeFix(f, obj.rtype.vclip_info.frametime);
 			PHYSFSX_writeU8(f, obj.rtype.vclip_info.framenum);
 

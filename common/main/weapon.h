@@ -114,17 +114,16 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 	polygon_model_index	model_num;		// Model num if rendertype==2.
 	polygon_model_index	model_num_inner;// Model num of inner part if rendertype==2.
 
-	sbyte   flash_vclip;        // What vclip to use for muzzle flash
+	vclip_index flash_vclip;        // What vclip to use for muzzle flash
+	vclip_index robot_hit_vclip;    // What vclip for impact with robot
+	vclip_index wall_hit_vclip;     // What vclip for impact with wall
 	short   flash_sound;        // What sound to play when fired
-	sbyte   robot_hit_vclip;    // What vclip for impact with robot
 	short   robot_hit_sound;    // What sound for impact with robot
-
-	sbyte   wall_hit_vclip;     // What vclip for impact with wall
 	short   wall_hit_sound;     // What sound for impact with wall
 	sbyte   fire_count;         // Number of bursts fired from EACH GUN per firing.  For weapons which fire from both sides, 3*fire_count shots will be fired.
 	sbyte   ammo_usage;         // How many units of ammunition it uses.
 
-	sbyte   weapon_vclip;       // Vclip to render for the weapon, itself.
+	vclip_index weapon_vclip;       // Vclip to render for the weapon, itself.
 	sbyte   destroyable;        // If !0, this weapon can be destroyed by another weapon.
 
 	sbyte   homing_flag;        // Set if this weapon can home in on a target.
@@ -154,16 +153,15 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 	polygon_model_index   model_num;          // Model num if rendertype==2.
 	polygon_model_index   model_num_inner;    // Model num of inner part if rendertype==2.
 
-	sbyte   flash_vclip;        // What vclip to use for muzzle flash
-	sbyte   robot_hit_vclip;    // What vclip for impact with robot
+	vclip_index flash_vclip;        // What vclip to use for muzzle flash
+	vclip_index robot_hit_vclip;    // What vclip for impact with robot
+	vclip_index wall_hit_vclip;     // What vclip for impact with wall
 	short   flash_sound;        // What sound to play when fired
-
-	sbyte   wall_hit_vclip;     // What vclip for impact with wall
 	sbyte   fire_count;         // Number of bursts fired from EACH GUN per firing.  For weapons which fire from both sides, 3*fire_count shots will be fired.
 	short   robot_hit_sound;    // What sound for impact with robot
 
 	sbyte   ammo_usage;         // How many units of ammunition it uses.
-	sbyte   weapon_vclip;       // Vclip to render for the weapon, itself.
+	vclip_index weapon_vclip;       // Vclip to render for the weapon, itself.
 	short   wall_hit_sound;     // What sound for impact with wall
 
 	sbyte   destroyable;        // If !0, this weapon can be destroyed by another weapon.

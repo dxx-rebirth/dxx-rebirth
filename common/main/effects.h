@@ -65,7 +65,7 @@ struct eclip : public prohibit_void_ptr<eclip>
 	int     flags;          //see above
 	int     crit_clip;      //use this clip instead of above one when mine critical
 	unsigned dest_bm_num;    //use this bitmap when monitor destroyed
-	int     dest_vclip;     //what vclip to play when exploding
+	vclip_index dest_vclip;     //what vclip to play when exploding
 	int     dest_eclip;     //what eclip to play when exploding
 	fix     dest_size;      //3d size of explosion
 	int     sound_num;      //what sound this makes

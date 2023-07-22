@@ -504,7 +504,7 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 		case render_type::RT_HOSTAGE:
 		case render_type::RT_POWERUP:
 		case render_type::RT_FIREBALL:
-			obj_rw->rtype.vclip_info.vclip_num = obj.rtype.vclip_info.vclip_num;
+			obj_rw->rtype.vclip_info.vclip_num = underlying_value(obj.rtype.vclip_info.vclip_num);
 			obj_rw->rtype.vclip_info.frametime = obj.rtype.vclip_info.frametime;
 			obj_rw->rtype.vclip_info.framenum  = obj.rtype.vclip_info.framenum;
 			break;
@@ -747,7 +747,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 		case render_type::RT_HOSTAGE:
 		case render_type::RT_POWERUP:
 		case render_type::RT_FIREBALL:
-			obj.rtype.vclip_info.vclip_num = obj_rw->rtype.vclip_info.vclip_num;
+			obj.rtype.vclip_info.vclip_num = build_vclip_index_from_untrusted(obj_rw->rtype.vclip_info.vclip_num);
 			obj.rtype.vclip_info.frametime = obj_rw->rtype.vclip_info.frametime;
 			obj.rtype.vclip_info.framenum  = obj_rw->rtype.vclip_info.framenum;
 			break;

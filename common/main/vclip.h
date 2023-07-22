@@ -33,24 +33,26 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-vclip.h"
 #include "fwd-weapon.h"
 
-
-#define VCLIP_SMALL_EXPLOSION       2
-#define VCLIP_PLAYER_HIT            1
-#define VCLIP_MORPHING_ROBOT        10
-#define VCLIP_PLAYER_APPEARANCE     61
-#define VCLIP_POWERUP_DISAPPEARANCE 62
-#define VCLIP_VOLATILE_WALL_HIT     5
 #ifdef dsx
-namespace dsx {
-#if defined(DXX_BUILD_DESCENT_I)
-#elif defined(DXX_BUILD_DESCENT_II)
-#define VCLIP_WATER_HIT             84
-#define VCLIP_AFTERBURNER_BLOB      95
-#define VCLIP_MONITOR_STATIC        99
-#endif
-}
-
 namespace dcx {
+
+enum class vclip_index : uint8_t
+{
+	player_hit = 1,
+	small_explosion = 2,
+	volatile_wall_hit = 5,
+	morphing_robot = 10,
+	big_player_explosion = 58,
+	player_appearance = 61,
+	powerup_disappearance = 62,
+	/* if DXX_BUILD_DESCENT_II */
+	water_hit = 84,
+	afterburner_blob = 95,
+	monitor_static = 99,
+	/* endif */
+	None = UINT8_MAX
+};
+
 #define VCLIP_MAX_FRAMES            30
 
 // vclip flags
@@ -66,8 +68,6 @@ struct vclip : public prohibit_void_ptr<vclip>
 	std::array<bitmap_index, VCLIP_MAX_FRAMES>    frames;
 	fix             light_value;
 };
-
-constexpr std::integral_constant<int, -1> vclip_none{};
 
 }
 

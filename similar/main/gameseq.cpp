@@ -892,12 +892,12 @@ void create_player_appearance_effect(const d_vclip_array &Vclip, const object_ba
 		: player_obj.pos;
 
 	const auto &&seg = vmsegptridx(player_obj.segnum);
-	const auto &&effect_obj = object_create_explosion_without_damage(Vclip, seg, pos, player_obj.size, VCLIP_PLAYER_APPEARANCE);
+	const auto &&effect_obj = object_create_explosion_without_damage(Vclip, seg, pos, player_obj.size, vclip_index::player_appearance);
 
 	if (effect_obj) {
 		effect_obj->orient = player_obj.orient;
 
-		const auto sound_num = Vclip[VCLIP_PLAYER_APPEARANCE].sound_num;
+		const auto sound_num = Vclip[vclip_index::player_appearance].sound_num;
 		if (sound_num > -1)
 			digi_link_sound_to_pos(sound_num, seg, sidenum_t::WLEFT, effect_obj->pos, 0, F0_5);
 	}

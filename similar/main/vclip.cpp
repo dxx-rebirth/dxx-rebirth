@@ -38,6 +38,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //----------------- Variables for video clips -------------------
 namespace dcx {
 unsigned 					Num_vclips;
+
+vclip_index build_vclip_index_from_untrusted(const std::size_t i)
+{
+	const auto r = Vclip.valid_index(i);
+	return r ? *r : vclip_index::None;
+}
+
 }
 
 namespace dsx {

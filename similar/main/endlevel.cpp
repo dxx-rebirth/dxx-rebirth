@@ -693,7 +693,7 @@ window_event_result start_endlevel_sequence()
 	{
 		if (objp->type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(objp)].companion) {
-				object_create_explosion_without_damage(Vclip, vmsegptridx(objp->segnum), objp->pos, F1_0 * 7 / 2, VCLIP_POWERUP_DISAPPEARANCE);
+				object_create_explosion_without_damage(Vclip, vmsegptridx(objp->segnum), objp->pos, F1_0 * 7 / 2, vclip_index::powerup_disappearance);
 				objp->flags |= OF_SHOULD_BE_DEAD;
 			}
 	}
@@ -794,10 +794,6 @@ window_event_result stop_endlevel_sequence()
 	return PlayerFinishedLevel(next_level_request_secret_flag::only_normal_level);
 }
 
-#define VCLIP_BIG_PLAYER_EXPLOSION	58
-
-//--unused-- vms_vector upvec = {0,f1_0,0};
-
 window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -845,7 +841,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 				outside_mine = 1;
 
 				const auto &&exit_segp = vmsegptridx(PlayerUniqueEndlevelState.exit_segnum);
-				const auto &&tobj = object_create_explosion_without_damage(Vclip, exit_segp, mine_side_exit_point, i2f(50), VCLIP_BIG_PLAYER_EXPLOSION);
+				const auto &&tobj = object_create_explosion_without_damage(Vclip, exit_segp, mine_side_exit_point, i2f(50), vclip_index::big_player_explosion);
 
 				if (tobj) {
 				// Move explosion to Viewer to draw it in front of mine exit model
@@ -875,7 +871,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 			const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, tpnt, Segments.vmptridx(ConsoleObject->segnum));
 
 			if (segnum != segment_none) {
-				object_create_explosion_without_damage(Vclip, segnum, tpnt, i2f(20), VCLIP_BIG_PLAYER_EXPLOSION);
+				object_create_explosion_without_damage(Vclip, segnum, tpnt, i2f(20), vclip_index::big_player_explosion);
 			       	if (d_rand()<10000 || ++sound_count==7) {		//pseudo-random
 					digi_link_sound_to_pos( SOUND_TUNNEL_EXPLOSION, segnum, sidenum_t::WLEFT, tpnt, 0, F1_0 );
 					sound_count=0;
@@ -916,7 +912,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 			}, ConsoleObject->segnum, 0, hit_data);
 
 			if (hit_type == fvi_hit_type::Wall && hit_data.hit_seg != segment_none)
-				object_create_explosion_without_damage(Vclip, vmsegptridx(hit_data.hit_seg), hit_data.hit_pnt, i2f(3) + d_rand() * 6, VCLIP_SMALL_EXPLOSION);
+				object_create_explosion_without_damage(Vclip, vmsegptridx(hit_data.hit_seg), hit_data.hit_pnt, i2f(3) + d_rand() * 6, vclip_index::small_explosion);
 
 			explosion_wait2 = (0xa00 + d_rand()/8)/2;
 		}

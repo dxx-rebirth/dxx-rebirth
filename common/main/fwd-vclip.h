@@ -6,17 +6,17 @@
  */
 #pragma once
 
-#include <array>
-#include <type_traits>
-
-#include "dxxsconf.h"
+#include <cstdint>
+#include <cstddef>
+#include "d_array.h"
 #include "dsx-ns.h"
 
-using std::array;
-
 namespace dcx {
+enum class vclip_index : uint8_t;
 struct vclip;
 extern unsigned Num_vclips;
+
+vclip_index build_vclip_index_from_untrusted(std::size_t i);
 }
 
 #ifdef dsx
@@ -27,7 +27,7 @@ namespace dsx {
 #define VCLIP_MAXNUM	110
 #endif
 
-using d_vclip_array = std::array<vclip, VCLIP_MAXNUM>;
+using d_vclip_array = enumerated_array<vclip, VCLIP_MAXNUM, vclip_index>;
 extern d_vclip_array Vclip;
 #undef VCLIP_MAXNUM
 }

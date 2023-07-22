@@ -710,8 +710,8 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 
 		if (parent != Viewer && parent->type != OBJ_WEAPON) {
 			// Muzzle flash
-			if (weapon_info.flash_vclip > -1 )
-				object_create_explosion_without_damage(Vclip, vmsegptridx(obj->segnum), obj->pos, weapon_info.flash_size, weapon_info.flash_vclip);
+			if (const auto flash_vclip = weapon_info.flash_vclip; Vclip.valid_index(flash_vclip))
+				object_create_explosion_without_damage(Vclip, vmsegptridx(obj->segnum), obj->pos, weapon_info.flash_size, flash_vclip);
 		}
 
 		do_omega_stuff(vmsegptridx, parent, position, obj);
@@ -826,8 +826,8 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 
 	if (( parent != Viewer ) && (parent->type != OBJ_WEAPON))	{
 		// Muzzle flash
-		if (weapon_info.flash_vclip > -1 )
-			object_create_explosion_without_damage(Vclip, segnum.absolute_sibling(obj->segnum), obj->pos, weapon_info.flash_size, weapon_info.flash_vclip);
+		if (const auto flash_vclip = weapon_info.flash_vclip; Vclip.valid_index(flash_vclip))
+			object_create_explosion_without_damage(Vclip, segnum.absolute_sibling(obj->segnum), obj->pos, weapon_info.flash_size, flash_vclip);
 	}
 
 	if (weapon_info.flash_sound > -1)

@@ -90,9 +90,11 @@ void draw_object_picture(grs_canvas &canvas, const unsigned id, const vms_angvec
 			break;
 
 		case OBJ_POWERUP:
-			if ( Powerup_info[id].vclip_num > -1 )	{
-				PIGGY_PAGE_IN(Vclip[Powerup_info[id].vclip_num].frames[0]);
-				gr_bitmap(canvas, 0, 0, GameBitmaps[Vclip[Powerup_info[id].vclip_num].frames[0]]);
+			if (const auto vclip_num = Powerup_info[id].vclip_num; Vclip.valid_index(vclip_num))
+			{
+				auto &v = Vclip[vclip_num];
+				PIGGY_PAGE_IN(v.frames[0]);
+				gr_bitmap(canvas, 0, 0, GameBitmaps[v.frames[0]]);
 			}
 			break;
 

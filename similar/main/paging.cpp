@@ -87,7 +87,7 @@ static void paging_touch_vclip(const vclip &vc, const unsigned line
 	}
 }
 
-static void paging_touch_vclip(const d_vclip_array &Vclip, const int vclip_id, const unsigned line
+static void paging_touch_vclip(const d_vclip_array &Vclip, const vclip_index vclip_id, const unsigned line
 #if DXX_HAVE_CXX_BUILTIN_FILE_LINE
 							   = __builtin_LINE()
 #else
@@ -95,7 +95,7 @@ static void paging_touch_vclip(const d_vclip_array &Vclip, const int vclip_id, c
 #endif
 							   )
 {
-	if (vclip_id > -1)
+	if (Vclip.valid_index(vclip_id))
 		paging_touch_vclip(Vclip[vclip_id], line);
 }
 
@@ -225,7 +225,7 @@ static void paging_touch_robot(const d_robot_info_array &Robot_info, const d_vcl
 	{
 		range_for (const auto i, super_boss_gate_type_list)
 			paging_touch_robot(Robot_info, Vclip, Weapon_info, i);
-		paging_touch_vclip(Vclip[VCLIP_MORPHING_ROBOT]);
+		paging_touch_vclip(Vclip[vclip_index::morphing_robot]);
 	}
 }
 
@@ -297,7 +297,7 @@ static void paging_touch_side(const d_eclip_array &Effects, const Textures_array
 static void paging_touch_robot_maker(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, const shared_segment &segp)
 {
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
-		paging_touch_vclip(Vclip[VCLIP_MORPHING_ROBOT]);
+	paging_touch_vclip(Vclip[vclip_index::morphing_robot]);
 			const auto &robot_flags = RobotCenters[segp.matcen_num].robot_flags;
 			constexpr std::size_t bits_per_robot_flags = 8 * sizeof(robot_flags[0]);
 			for (uint_fast32_t i = 0; i != robot_flags.size(); ++i)
@@ -392,8 +392,8 @@ void paging_touch_all(const d_vclip_array &Vclip)
 		if (s != bitmap_index{})
 			PIGGY_PAGE_IN( s );
 	}
-	paging_touch_vclip(Vclip[VCLIP_PLAYER_APPEARANCE]);
-	paging_touch_vclip(Vclip[VCLIP_POWERUP_DISAPPEARANCE]);
+	paging_touch_vclip(Vclip[vclip_index::player_appearance]);
+	paging_touch_vclip(Vclip[vclip_index::powerup_disappearance]);
 
 	reset_cockpit();		//force cockpit redraw next time
 }

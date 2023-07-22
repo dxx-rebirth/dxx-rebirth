@@ -472,21 +472,20 @@ static void robotmaker_proc(const d_robot_info_array &Robot_info, const d_vclip_
 			const auto &&cur_object_loc = compute_segment_center(vcvertptr, csegp);
 			const auto &&robotcen_segp = vmsegptridx(robotcen->segnum);
 			// HACK!!! The 10 under here should be something equal to the 1/2 the size of the segment.
-			auto obj = object_create_explosion_without_damage(Vclip, robotcen_segp, cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT);
+			auto obj = object_create_explosion_without_damage(Vclip, robotcen_segp, cur_object_loc, i2f(10), vclip_index::morphing_robot);
 
 			if (obj != object_none)
 				extract_orient_from_segment(vcvertptr, obj->orient, robotcen_segp);
 
-			if ( Vclip[VCLIP_MORPHING_ROBOT].sound_num > -1 )		{
-				digi_link_sound_to_pos(Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen_segp, sidenum_t::WLEFT, cur_object_loc, 0, F1_0);
-			}
+			digi_link_sound_to_pos(Vclip[vclip_index::morphing_robot].sound_num, robotcen_segp, sidenum_t::WLEFT, cur_object_loc, 0, F1_0);
 			robotcen->Flag	= 1;
 			robotcen->Timer = 0;
 
 		}
 		break;
 	case 1:			// Wait until 1/2 second after VCLIP started.
-		if (robotcen->Timer > (Vclip[VCLIP_MORPHING_ROBOT].play_time/2) )	{
+		if (robotcen->Timer > Vclip[vclip_index::morphing_robot].play_time / 2)
+		{
 
 			robotcen->Capacity -= EnergyToCreateOneRobot;
 			robotcen->Flag = 0;

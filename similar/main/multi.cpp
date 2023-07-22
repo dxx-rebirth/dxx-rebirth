@@ -2218,7 +2218,7 @@ static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t
 
 	map_objnum_local_to_remote(my_objnum, objnum, pnum);
 
-	object_create_explosion_without_damage(Vclip, segnum, new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE);
+	object_create_explosion_without_damage(Vclip, segnum, new_pos, i2f(5), vclip_index::powerup_disappearance);
 }
 
 static void multi_do_play_sound(object_array &Objects, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_PLAY_SOUND> buf)
@@ -5510,7 +5510,6 @@ void init_hoard_data(d_vclip_array &Vclip)
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	hoard_resources.reset();
-	static int orb_vclip;
 	unsigned n_orb_frames,n_goal_frames;
 	int orb_w,orb_h;
 	palette_array_t palette;
@@ -5536,15 +5535,19 @@ void init_hoard_data(d_vclip_array &Vclip)
 	MALLOC( bitmap_data1, ubyte, n_orb_frames*orb_w*orb_h + n_goal_frames*64*64 );
 
 	//Create orb vclip
-	orb_vclip = Num_vclips++;
-	assert(Num_vclips <= Vclip.size());
-	Vclip[orb_vclip].play_time = F1_0/2;
-	Vclip[orb_vclip].num_frames = n_orb_frames;
-	Vclip[orb_vclip].frame_time = Vclip[orb_vclip].play_time / Vclip[orb_vclip].num_frames;
-	Vclip[orb_vclip].flags = 0;
-	Vclip[orb_vclip].sound_num = -1;
-	Vclip[orb_vclip].light_value = F1_0;
-	range_for (auto &i, partial_range(Vclip[orb_vclip].frames, n_orb_frames))
+	const auto nvc = Vclip.valid_index(Num_vclips);
+	if (!nvc)
+		throw std::runtime_error("too many vclips");
+	++ Num_vclips;
+	const auto orb_vclip{*nvc};
+	auto &vcorb = Vclip[orb_vclip];
+	vcorb.play_time = F1_0/2;
+	vcorb.num_frames = n_orb_frames;
+	vcorb.frame_time = vcorb.play_time / vcorb.num_frames;
+	vcorb.flags = 0;
+	vcorb.sound_num = -1;
+	vcorb.light_value = F1_0;
+	for (auto &i : partial_range(vcorb.frames, n_orb_frames))
 	{
 		const bitmap_index bi{bitmap_num};
 		i = bi;
@@ -5585,7 +5588,7 @@ void init_hoard_data(d_vclip_array &Vclip)
 
 	//Load and remap bitmap data for orb
 	PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
-	range_for (auto &i, partial_const_range(Vclip[orb_vclip].frames, n_orb_frames))
+	range_for (auto &i, partial_const_range(vcorb.frames, n_orb_frames))
 	{
 		grs_bitmap *const bm = &GameBitmaps[i];
 		PHYSFS_read(ifile,bm->get_bitmap_data(),1,orb_w*orb_h);
@@ -6101,7 +6104,7 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 		case render_type::RT_HOSTAGE:
 		case render_type::RT_POWERUP:
 		case render_type::RT_FIREBALL:
-			obj_rw->rtype.vclip_info.vclip_num = INTEL_INT(obj.rtype.vclip_info.vclip_num);
+			obj_rw->rtype.vclip_info.vclip_num = INTEL_INT(underlying_value(obj.rtype.vclip_info.vclip_num));
 			obj_rw->rtype.vclip_info.frametime = INTEL_INT(obj.rtype.vclip_info.frametime);
 			obj_rw->rtype.vclip_info.framenum  = obj.rtype.vclip_info.framenum;
 			break;
@@ -6296,7 +6299,7 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 		case render_type::RT_HOSTAGE:
 		case render_type::RT_POWERUP:
 		case render_type::RT_FIREBALL:
-			obj.rtype.vclip_info.vclip_num = INTEL_INT(obj_rw->rtype.vclip_info.vclip_num);
+			obj.rtype.vclip_info.vclip_num = build_vclip_index_from_untrusted(INTEL_INT(obj_rw->rtype.vclip_info.vclip_num));
 			obj.rtype.vclip_info.frametime = INTEL_INT(obj_rw->rtype.vclip_info.frametime);
 			obj.rtype.vclip_info.framenum  = obj_rw->rtype.vclip_info.framenum;
 			break;

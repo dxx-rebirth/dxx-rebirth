@@ -44,7 +44,7 @@ int hostage_is_valid( int hostage_num );
 namespace dcx {
 
 extern unsigned N_hostage_types;
-extern std::array<int, MAX_HOSTAGE_TYPES> Hostage_vclip_num;    // for each type of hostage
+extern std::array<vclip_index, MAX_HOSTAGE_TYPES> Hostage_vclip_num;    // for each type of hostage
 
 }
 

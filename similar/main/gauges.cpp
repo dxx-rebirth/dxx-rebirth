@@ -2836,7 +2836,7 @@ namespace {
 #if defined(DXX_BUILD_DESCENT_II)
 static void draw_static(const d_vclip_array &Vclip, const hud_draw_context_hs_mr hudctx, const gauge_inset_window_view win)
 {
-	const vclip *const vc = &Vclip[VCLIP_MONITOR_STATIC];
+	const vclip *const vc = &Vclip[vclip_index::monitor_static];
 	int framenum;
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
 #if !DXX_USE_OGL

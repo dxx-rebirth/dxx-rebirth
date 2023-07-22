@@ -31,7 +31,7 @@ namespace dcx {
 
 struct powerup_type_info : public prohibit_void_ptr<powerup_type_info>
 {
-	int vclip_num;
+	vclip_index vclip_num;
 	int hit_sound;
 	fix size;       // 3d size of longest dimension
 	fix light;      // amount of light cast by this powerup, set in bitmaps.tbl

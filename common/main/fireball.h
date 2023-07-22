@@ -51,9 +51,9 @@ struct disk_expl_wall
 static_assert(sizeof(disk_expl_wall) == 12, "sizeof(disk_expl_wall) wrong");
 #endif
 
-imobjptridx_t object_create_explosion_without_damage(const d_vclip_array &Vclip, vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type);
+imobjptridx_t object_create_explosion_without_damage(const d_vclip_array &Vclip, vmsegptridx_t segnum, const vms_vector &position, fix size, vclip_index vclip_type);
 
-imobjptridx_t object_create_badass_explosion(const d_robot_info_array &Robot_info, imobjptridx_t objp, vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type,
+imobjptridx_t object_create_badass_explosion(const d_robot_info_array &Robot_info, imobjptridx_t objp, vmsegptridx_t segnum, const vms_vector &position, fix size, vclip_index vclip_type,
 		fix maxdamage, fix maxdistance, fix maxforce, icobjptridx_t parent);
 
 // blows up a badass weapon, creating the badass explosion
@@ -85,7 +85,7 @@ enum class explosion_vclip_stage : int
 }
 
 namespace dsx {
-int get_explosion_vclip(const d_robot_info_array &Robot_info, const object_base &obj, explosion_vclip_stage stage);
+vclip_index get_explosion_vclip(const d_robot_info_array &Robot_info, const object_base &obj, explosion_vclip_stage stage);
 
 imobjptridx_t drop_powerup(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const d_vclip_array &Vclip, int id, const vms_vector &init_vel, const vms_vector &pos, vmsegptridx_t segnum, bool player);
 bool drop_powerup(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const d_vclip_array &Vclip, int id, unsigned num, const vms_vector &init_vel, const vms_vector &pos, vmsegptridx_t segnum, bool player);

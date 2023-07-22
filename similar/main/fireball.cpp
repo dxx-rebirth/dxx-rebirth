@@ -361,9 +361,9 @@ static bool can_collide(const object *const weapon_object, const object_base &it
 
 }
 
-imobjptridx_t object_create_explosion_without_damage(const d_vclip_array &Vclip, const vmsegptridx_t segnum, const vms_vector &position, const fix size, const int vclip_type)
+imobjptridx_t object_create_explosion_without_damage(const d_vclip_array &Vclip, const vmsegptridx_t segnum, const vms_vector &position, const fix size, const vclip_index vclip_type)
 {
-	const auto &&obj_fireball = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_FIREBALL, vclip_type, segnum, position, &vmd_identity_matrix, size,
+	const auto &&obj_fireball = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_FIREBALL, underlying_value(vclip_type), segnum, position, &vmd_identity_matrix, size,
 					object::control_type::explosion, object::movement_type::None, render_type::RT_FIREBALL);
 
 	if (obj_fireball == object_none)
@@ -373,7 +373,7 @@ imobjptridx_t object_create_explosion_without_damage(const d_vclip_array &Vclip,
 
 	//now set explosion-specific data
 
-	obj_fireball->lifeleft = Vclip[vclip_type ].play_time;
+	obj_fireball->lifeleft = Vclip[vclip_type].play_time;
 	obj_fireball->ctype.expl_info.spawn_time = -1;
 	obj_fireball->ctype.expl_info.delete_objnum = object_none;
 	obj_fireball->ctype.expl_info.delete_time = -1;
@@ -382,7 +382,7 @@ imobjptridx_t object_create_explosion_without_damage(const d_vclip_array &Vclip,
 
 namespace {
 
-static imobjptridx_t object_create_explosion_with_damage(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, fvmobjptridx &vmobjptridx, const imobjptridx_t obj_explosion_origin, const vmsegptridx_t segnum, const vms_vector &position, const fix size, const int vclip_type, const fix maxdamage, const fix maxdistance, const fix maxforce, const icobjptridx_t parent)
+static imobjptridx_t object_create_explosion_with_damage(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, fvmobjptridx &vmobjptridx, const imobjptridx_t obj_explosion_origin, const vmsegptridx_t segnum, const vms_vector &position, const fix size, const vclip_index vclip_type, const fix maxdamage, const fix maxdistance, const fix maxforce, const icobjptridx_t parent)
 {
 	/* `obj_explosion_origin` may not be a weapon in some cases, though
 	 * this function originally expected it would be.
@@ -564,7 +564,7 @@ static imobjptridx_t object_create_explosion_with_damage(const d_robot_info_arra
 
 }
 
-imobjptridx_t object_create_badass_explosion(const d_robot_info_array &Robot_info, const imobjptridx_t objp, const vmsegptridx_t segnum, const vms_vector &position, fix size, int vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const icobjptridx_t parent )
+imobjptridx_t object_create_badass_explosion(const d_robot_info_array &Robot_info, const imobjptridx_t objp, const vmsegptridx_t segnum, const vms_vector &position, fix size, const vclip_index vclip_type, fix maxdamage, fix maxdistance, fix maxforce, const icobjptridx_t parent)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
@@ -886,7 +886,7 @@ void maybe_drop_net_powerup(powerup_type_t powerup_type, bool adjust_cap, bool r
 		if (objnum == object_none)
 			return;
 		multi_send_create_powerup(powerup_type, segnum, objnum, new_pos);
-		object_create_explosion_without_damage(Vclip, segnum, new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE);
+		object_create_explosion_without_damage(Vclip, segnum, new_pos, i2f(5), vclip_index::powerup_disappearance);
 	}
 }
 
@@ -1316,7 +1316,7 @@ void call_object_create_egg(const object_base &objp, const unsigned count, const
 }
 
 //what vclip does this explode with?
-int get_explosion_vclip(const d_robot_info_array &Robot_info, const object_base &obj, explosion_vclip_stage stage)
+vclip_index get_explosion_vclip(const d_robot_info_array &Robot_info, const object_base &obj, explosion_vclip_stage stage)
 {
 	if (obj.type == OBJ_ROBOT)
 	{
@@ -1324,13 +1324,16 @@ int get_explosion_vclip(const d_robot_info_array &Robot_info, const object_base 
 			? &robot_info::exp1_vclip_num
 			: &robot_info::exp2_vclip_num;
 		const auto vclip_num = Robot_info[get_robot_id(obj)].*vclip_ptr;
-		if (vclip_num > -1)
+		if (Vclip.valid_index(vclip_num))
 			return vclip_num;
 	}
-	else if (obj.type == OBJ_PLAYER && Player_ship->expl_vclip_num > -1)
-			return Player_ship->expl_vclip_num;
+	else if (obj.type == OBJ_PLAYER)
+	{
+		if (const auto expl_vclip_num = Player_ship->expl_vclip_num; Vclip.valid_index(expl_vclip_num))
+			return expl_vclip_num;
+	}
 
-	return VCLIP_SMALL_EXPLOSION;		//default
+	return vclip_index::small_explosion;		//default
 }
 
 namespace {
@@ -1402,10 +1405,7 @@ void explode_object(d_level_unique_object_state &LevelUniqueObjectState, const d
 
 	}
 	else {
-		int vclip_num;
-
-		vclip_num = get_explosion_vclip(Robot_info, hitobj, explosion_vclip_stage::s0);
-
+		const auto vclip_num = get_explosion_vclip(Robot_info, hitobj, explosion_vclip_stage::s0);
 		const imobjptr_t expl_obj = object_create_explosion_without_damage(Vclip, vmsegptridx(hitobj->segnum), hitobj->pos, fixmul(hitobj->size, EXPLOSION_SCALE), vclip_num);
 		if (! expl_obj) {
 			maybe_delete_object(hitobj);		//no explosion, die instantly
@@ -1652,11 +1652,11 @@ unsigned do_exploding_wall_frame(const d_robot_info_array &Robot_info, wall &w1)
 		vm_vec_scale_add2(pos, w1normal0, size * (EXPL_WALL_TOTAL_FIREBALLS - e) / EXPL_WALL_TOTAL_FIREBALLS);
 
 		if (e & 3)		//3 of 4 are normal
-			object_create_explosion_without_damage(Vclip, seg, pos, size, VCLIP_SMALL_EXPLOSION);
+			object_create_explosion_without_damage(Vclip, seg, pos, size, vclip_index::small_explosion);
 		else
 			object_create_badass_explosion(Robot_info, object_none, seg, pos,
 										   size,
-										   VCLIP_SMALL_EXPLOSION,
+										   vclip_index::small_explosion,
 										   i2f(4),		// damage strength
 										   i2f(20),		//	damage radius
 										   i2f(50),		//	damage force
@@ -1681,13 +1681,13 @@ void drop_afterburner_blobs(object &obj, int count, fix size_scale, fix lifetime
 	{
 		const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos_left, objseg);
 	if (segnum != segment_none)
-		object_create_explosion_without_damage(Vclip, segnum, pos_left, size_scale, VCLIP_AFTERBURNER_BLOB);
+		object_create_explosion_without_damage(Vclip, segnum, pos_left, size_scale, vclip_index::afterburner_blob);
 	}
 
 	if (count > 1) {
 		const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos_right, objseg);
 		if (segnum != segment_none) {
-			const auto &&blob_obj = object_create_explosion_without_damage(Vclip, segnum, pos_right, size_scale, VCLIP_AFTERBURNER_BLOB);
+			const auto &&blob_obj = object_create_explosion_without_damage(Vclip, segnum, pos_right, size_scale, vclip_index::afterburner_blob);
 			if (lifetime != -1 && blob_obj != object_none)
 				blob_obj->lifeleft = lifetime;
 		}
