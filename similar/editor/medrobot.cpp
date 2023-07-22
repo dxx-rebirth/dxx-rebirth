@@ -237,19 +237,9 @@ static void update_goody_info(void)
 // #define MAX_OBJECT_TYPES	11
 
 
-static int GoodyNextType()
+static int GoodyToggleType()
 {
 	Cur_goody_type = (Cur_goody_type == contained_object_type::robot) ? contained_object_type::powerup : contained_object_type::robot;
-	GoodyNextID();
-	GoodyPrevID();
-
-	update_goody_info();
-	return 1;
-}
-
-static int GoodyPrevType()
-{
-	Cur_goody_type = (Cur_goody_type == contained_object_type::powerup) ? contained_object_type::robot : contained_object_type::powerup;
 	GoodyNextID();
 	GoodyPrevID();
 
@@ -518,8 +508,8 @@ int do_robot_dialog()
 static window_event_result robot_dialog_created(robot_dialog *const r)
 {
 	r->quitButton = ui_add_gadget_button(*r, 20, 286, 40, 32, "Done", NULL);
-	r->prev_powerup_type = ui_add_gadget_button(*r, GOODY_X+50, GOODY_Y-3, 25, 22, "<<", GoodyPrevType);
-	r->next_powerup_type = ui_add_gadget_button(*r, GOODY_X+80, GOODY_Y-3, 25, 22, ">>", GoodyNextType);
+	r->prev_powerup_type = ui_add_gadget_button(*r, GOODY_X+50, GOODY_Y-3, 25, 22, "<<", GoodyToggleType);
+	r->next_powerup_type = ui_add_gadget_button(*r, GOODY_X+80, GOODY_Y-3, 25, 22, ">>", GoodyToggleType);
 	r->prev_powerup_id = ui_add_gadget_button(*r, GOODY_X+50, GOODY_Y+21, 25, 22, "<<", GoodyPrevID);
 	r->next_powerup_id = ui_add_gadget_button(*r, GOODY_X+80, GOODY_Y+21, 25, 22, ">>", GoodyNextID);
 	r->prev_powerup_count = ui_add_gadget_button(*r, GOODY_X+50, GOODY_Y+45, 25, 22, "<<", GoodyPrevCount);
