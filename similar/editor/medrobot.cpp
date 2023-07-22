@@ -65,6 +65,7 @@ static int GoodyPrevID();
 namespace {
 
 static contained_object_type Cur_goody_type = contained_object_type::powerup;
+static uint8_t Cur_goody_id;
 
 }
 
@@ -205,7 +206,6 @@ static int med_set_ai_path()
 //#define	GOODY_ID_MAX_POWERUP	9
 #define	GOODY_COUNT_MAX	4
 
-int		Cur_goody_id = 0;
 int		Cur_goody_count = 0;
 
 static void update_goody_info(void)
@@ -236,12 +236,44 @@ static void update_goody_info(void)
 // #define OBJ_FLARE		10		//the control center
 // #define MAX_OBJECT_TYPES	11
 
+static void GoodyClampIDLower(const contained_object_type type)
+{
+	switch (type)
+	{
+		case contained_object_type::robot:
+			if (Cur_goody_id >= LevelSharedRobotInfoState.N_robot_types)
+				Cur_goody_id = {};
+			break;
+		case contained_object_type::powerup:
+			if (Cur_goody_id >= N_powerup_types)
+				Cur_goody_id = {};
+			break;
+		default:
+			break;
+	}
+}
+
+static void GoodyClampIDUpper(const contained_object_type type)
+{
+	switch (type)
+	{
+		case contained_object_type::robot:
+			if (const auto n = LevelSharedRobotInfoState.N_robot_types; Cur_goody_id >= n)
+				Cur_goody_id = n - 1;
+			break;
+		case contained_object_type::powerup:
+			if (const auto n = N_powerup_types; Cur_goody_id >= n)
+				Cur_goody_id = n - 1;
+			break;
+		default:
+			break;
+	}
+}
 
 static int GoodyToggleType()
 {
 	Cur_goody_type = (Cur_goody_type == contained_object_type::robot) ? contained_object_type::powerup : contained_object_type::robot;
-	GoodyNextID();
-	GoodyPrevID();
+	GoodyClampIDLower(Cur_goody_type);
 
 	update_goody_info();
 	return 1;
@@ -250,15 +282,7 @@ static int GoodyToggleType()
 int GoodyNextID()
 {
 	Cur_goody_id++;
-	if (Cur_goody_type == contained_object_type::robot)
-	{
-		if (Cur_goody_id >= LevelSharedRobotInfoState.N_robot_types)
-			Cur_goody_id=0;
-	} else {
-		if (Cur_goody_id >= N_powerup_types)
-			Cur_goody_id=0;
-	}
-
+	GoodyClampIDLower(Cur_goody_type);
 	update_goody_info();
 	return 1;
 }
@@ -266,14 +290,7 @@ int GoodyNextID()
 int GoodyPrevID()
 {
 	Cur_goody_id--;
-	if (Cur_goody_type == contained_object_type::robot)
-	{
-		if (Cur_goody_id < 0)
-			Cur_goody_id = LevelSharedRobotInfoState.N_robot_types - 1;
-	} else {
-		if (Cur_goody_id < 0)
-			Cur_goody_id = N_powerup_types-1;
-	}
+	GoodyClampIDUpper(Cur_goody_type);
 
 	update_goody_info();
 	return 1;
@@ -673,10 +690,7 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 	//------------------------------------------------------------
 		gr_set_current_canvas(containsViewBox->canvas);
 		if ((Cur_object_index != object_none ) && (Cur_goody_count > 0))	{
-			if ( Cur_goody_id > -1 )
 				draw_object_picture(*grd_curcanv, Cur_goody_id, goody_angles, underlying_value(Cur_goody_type));
-			else
-				gr_clear_canvas(*grd_curcanv, CGREY);
 			goody_angles.h += fixmul(0x1000, DeltaTime );
 		} else {
 			// no object, so just blank out
