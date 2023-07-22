@@ -184,6 +184,14 @@ static constexpr sidemask_t build_sidemask(const sidenum_t s)
 	return static_cast<sidemask_t>(1u << static_cast<uint8_t>(s));
 }
 
+enum class sound_ambient_flags : uint8_t
+{
+	None = 0,
+	water = 1,
+	lava = 2,
+	water_and_lava = water | lava,
+};
+
 enum class texture1_value : uint16_t
 {
 	None,
@@ -290,7 +298,7 @@ struct shared_segment
 	materialization_center_number matcen_num; // which center segment is associated with.
 	station_number station_idx;
 	/* if DXX_BUILD_DESCENT_II */
-	uint8_t s2_flags;
+	sound_ambient_flags s2_flags;
 	/* endif */
 	per_side_array<shared_side> sides;
 };

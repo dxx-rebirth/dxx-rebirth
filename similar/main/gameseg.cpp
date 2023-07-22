@@ -1818,9 +1818,35 @@ void clear_light_subtracted(void)
 
 namespace {
 
-static void ambient_mark_bfs(const vmsegptridx_t segp, segment_lava_depth_array *segdepth_lava, segment_water_depth_array *segdepth_water, const unsigned depth, const uint_fast8_t s2f_bit)
+static inline sound_ambient_flags &operator|=(sound_ambient_flags &l, const sound_ambient_flags r)
+{
+	return l = static_cast<sound_ambient_flags>(static_cast<uint8_t>(l) | static_cast<uint8_t>(r));
+}
+
+/* On entry, `segdepth_lava` or `segdepth_water` may be nullptr if the
+ * corresponding type is not tracked.  `s2f_bit` tracks what flags the initial
+ * caller is tallying, which may be both types even if one of the tracking
+ * arrays was reset to nullptr during an inner iteration.
+ */
+static void ambient_mark_bfs(const vmsegptridx_t segp, segment_lava_depth_array *segdepth_lava, segment_water_depth_array *segdepth_water, const unsigned depth, const sound_ambient_flags s2f_bit)
 {
 	segp->s2_flags |= s2f_bit;
+	/* For each of lava and water, check whether the segment was previously
+	 * visited by an iteration of ambient_mark_bfs that had a higher (more
+	 * permissive) depth count.
+	 *
+	 * If no, record the current depth count in the array.
+	 * If yes, then do not visit it again now, because any work that would be
+	 * done now would already have been done by the prior visit.  Track this by
+	 * setting the corresponding array pointer to nullptr, which serves
+	 * multiple purposes:
+	 * - If one array pointer is null, no further tracking is done for that
+	 *   type, because every subsequent iteration would also find that no
+	 *   further recursion is needed for that type.
+	 * - Once both array pointers are null, every child segment that this call
+	 *   could visit would be skipped by both lava and water, so return early
+	 *   without visiting them.
+	 */
 	if (segdepth_lava)
 	{
 		auto &d = (*segdepth_lava)[segp];
@@ -1865,7 +1891,7 @@ void set_ambient_sound_flags()
 {
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	range_for (const auto &&segp, vmsegptr)
-		segp->s2_flags = 0;
+		segp->s2_flags = {};
 	//	Now, all segments containing ambient lava or water sound makers are flagged.
 	//	Additionally flag all segments which are within range of them.
 	//	Mark all segments which are sources of the sound.
@@ -1896,10 +1922,10 @@ void set_ambient_sound_flags()
 			 * `sound_flag` is passed to `ambient_mark_bfs` only after
 			 * both ternary expressions have finished.
 			 */
-			uint8_t sound_flag = 0;
-			const auto pl = (texture_flags & tmapinfo_flag::lava) ? (sound_flag |= S2F_AMBIENT_LAVA, &segdepth_lava) : nullptr;
-			const auto pw = (texture_flags & tmapinfo_flag::water) ? (sound_flag |= S2F_AMBIENT_WATER, &segdepth_water) : nullptr;
-			if (sound_flag)
+			sound_ambient_flags sound_flag{};
+			const auto pl = (texture_flags & tmapinfo_flag::lava) ? (sound_flag |= sound_ambient_flags::lava, &segdepth_lava) : nullptr;
+			const auto pw = (texture_flags & tmapinfo_flag::water) ? (sound_flag |= sound_ambient_flags::water, &segdepth_water) : nullptr;
+			if (sound_flag != sound_ambient_flags::None)
 				ambient_mark_bfs(segp, pl, pw, AMBIENT_SEGMENT_DEPTH, sound_flag);
 		}
 	}

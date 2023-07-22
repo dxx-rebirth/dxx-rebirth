@@ -112,7 +112,7 @@ void segment2_write(const cscusegment s2, PHYSFS_File *fp)
 	PHYSFSX_writeU8(fp, underlying_value(s2.s.special));
 	PHYSFSX_writeU8(fp, underlying_value(s2.s.matcen_num));
 	PHYSFSX_writeU8(fp, underlying_value(s2.s.station_idx));
-	PHYSFSX_writeU8(fp, s2.s.s2_flags);
+	PHYSFSX_writeU8(fp, underlying_value(s2.s.s2_flags));
 	PHYSFSX_writeFix(fp, s2.u.static_light);
 }
 

@@ -103,11 +103,11 @@ static void segment2_read(const msmusegment s2, PHYSFS_File *fp)
 	 * it here for compatibility with how the game previously worked */
 	s2.s.station_idx = build_station_number_from_untrusted(PHYSFSX_readByte(fp));
 	const auto s2_flags = PHYSFSX_readByte(fp);
-#if defined(DXX_BUILD_DESCENT_I)
-	(void)s2_flags;	// descent 2 ambient sound handling
-#elif defined(DXX_BUILD_DESCENT_II)
-	s2.s.s2_flags = s2_flags;
-#endif
+	/* Ambient sounds are recomputed by the level load code.  Ignore the value
+	 * read from the file.
+	 */
+	(void)s2_flags;
+	s2.s.s2_flags = {};
 	s2.u.static_light = PHYSFSX_readFix(fp);
 }
 }

@@ -126,13 +126,11 @@ DXX_VALPTRIDX_DECLARE_SUBTYPE(dcx::, vertex, vertnum_t, MAX_VERTICES);
 #if defined(DXX_BUILD_DESCENT_I)
 constexpr std::integral_constant<std::size_t, 5> MAX_CENTER_TYPES{};
 #elif defined(DXX_BUILD_DESCENT_II)
-typedef unsigned s2f_ambient_t;
-constexpr std::integral_constant<s2f_ambient_t, 1> S2F_AMBIENT_WATER{};
-constexpr std::integral_constant<s2f_ambient_t, 2> S2F_AMBIENT_LAVA{};
 constexpr std::integral_constant<std::size_t, 7> MAX_CENTER_TYPES{};
 #endif
 
 namespace dcx {
+
 DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(vertex, vert);
 struct count_segment_array_t;
 struct group;

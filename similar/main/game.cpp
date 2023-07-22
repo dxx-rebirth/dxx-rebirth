@@ -1923,21 +1923,25 @@ imobjptridx_t find_escort(fvmobjptridx &vmobjptridx, const d_robot_info_array &R
 
 namespace {
 //if water or fire level, make occasional sound
-static void do_ambient_sounds(const uint8_t s2_flags)
+static void do_ambient_sounds(const sound_ambient_flags s2_flags)
 {
-	const auto has_water = (s2_flags & S2F_AMBIENT_WATER);
 	sound_effect sound;
-	if (s2_flags & S2F_AMBIENT_LAVA)
-	{							//has lava
-		sound = SOUND_AMBIENT_LAVA;
-		if (has_water && (d_rand() & 1))	//both, pick one
-			sound = SOUND_AMBIENT_WATER;
+	switch (s2_flags)
+	{
+		case sound_ambient_flags::water_and_lava:
+			if (d_rand() & 1)	//both, pick one
+			{
+				case sound_ambient_flags::water:
+					sound = SOUND_AMBIENT_WATER;
+					break;
+			}
+			[[fallthrough]];
+		case sound_ambient_flags::lava:
+			sound = SOUND_AMBIENT_LAVA;
+			break;
+		default:
+			return;
 	}
-	else if (has_water)						//just water
-		sound = SOUND_AMBIENT_WATER;
-	else
-		return;
-
 	if (((d_rand() << 3) < FrameTime)) {						//play the sound
 		fix volume = d_rand() + f1_0/2;
 		digi_play_sample(sound,volume);
