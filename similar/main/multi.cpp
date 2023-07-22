@@ -2702,7 +2702,7 @@ void multi_send_player_deres(deres_type_t type)
 
 	Net_create_loc = 0;
 
-	if (count > command_length<multiplayer_command_t::MULTI_PLAYER_DERES>::value)
+	if (count > command_length<multiplayer_command_t::MULTI_PLAYER_DERES>)
 	{
 		Int3(); // See Rob
 	}

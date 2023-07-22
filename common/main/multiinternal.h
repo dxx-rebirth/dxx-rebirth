@@ -18,7 +18,7 @@
 #define _UNPACK_MULTIPLAYER_SERIAL_MESSAGE(A,...)	A, ## __VA_ARGS__
 #define DEFINE_MULTIPLAYER_SERIAL_MESSAGE(C,T,V,A)	\
 	DEFINE_SERIAL_UDT_TO_MESSAGE(T,V, (multiplayer_command<C>(), _UNPACK_MULTIPLAYER_SERIAL_MESSAGE A));	\
-	ASSERT_SERIAL_UDT_MESSAGE_SIZE(T, command_length<C>::value)
+	ASSERT_SERIAL_UDT_MESSAGE_SIZE(T, command_length<C>)
 
 #define define_multiplayer_command(NAME,SIZE)	NAME,
 
@@ -119,16 +119,29 @@ enum class multiplayer_command_t : uint8_t
 };
 
 template <multiplayer_command_t>
-struct command_length;
+[[deprecated("only explicit specializations can be used")]]
+inline constexpr std::size_t command_length
+#ifdef __clang__
+/* clang raises an error if the variable is not initialized, even if the
+ * generic case is never referenced.
+ *
+ * gcc permits the generic case to be uninitialized if it is never referenced.
+ * Therefore, leave it uninitialized when possible, so that any erroneous use
+ * triggers an error.
+ */
+= std::dynamic_extent
+#endif
+;
+
 #define define_command_length(NAME,SIZE)	\
 	template <>	\
-	struct command_length<multiplayer_command_t::NAME> : public std::integral_constant<unsigned, SIZE> {};
+	inline constexpr std::size_t command_length<multiplayer_command_t::NAME>{SIZE};
 for_each_multiplayer_command(define_command_length);
 
 namespace dcx {
 
 template <multiplayer_command_t C>
-struct multi_command : public std::array<uint8_t, command_length<C>::value>
+struct multi_command : public std::array<uint8_t, command_length<C>>
 {
 	constexpr multi_command()
 	{
@@ -169,12 +182,12 @@ template <multiplayer_command_t C>
 using multiplayer_command = serial::pad<1, static_cast<uint8_t>(C)>;
 
 template <multiplayer_command_t C>
-using multiplayer_rspan = std::span<const uint8_t, command_length<C>::value>;
+using multiplayer_rspan = std::span<const uint8_t, command_length<C>>;
 
 template <multiplayer_command_t C>
 static constexpr auto multi_subspan_first(const std::span<const uint8_t> &data)
 {
-	return data.first<command_length<C>::value>();
+	return data.first<command_length<C>>();
 }
 
 }
