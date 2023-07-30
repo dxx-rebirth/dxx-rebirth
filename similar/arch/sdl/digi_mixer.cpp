@@ -142,7 +142,7 @@ int digi_mixer_init()
 
 	digi_initialised = 1;
 
-	digi_mixer_set_digi_volume( (GameCfg.DigiVolume*32768)/8 );
+	digi_mixer_set_digi_volume((CGameCfg.DigiVolume * 32768) / 8);
 
 	return 0;
 }

@@ -2515,7 +2515,7 @@ namespace {
 #endif
 
 #define DSX_SOUND_MENU(VERB)	\
-	DXX_MENUITEM(VERB, SLIDER, TXT_FX_VOLUME, opt_sm_digivol, GameCfg.DigiVolume, 0, 8)	\
+	DXX_MENUITEM(VERB, SLIDER, TXT_FX_VOLUME, opt_sm_digivol, CGameCfg.DigiVolume, 0, 8)	\
 	DXX_MENUITEM(VERB, SLIDER, "Music volume", opt_sm_musicvol, GameCfg.MusicVolume, 0, 8)	\
 	DXX_MENUITEM(VERB, CHECK, TXT_REVERSE_STEREO, opt_sm_revstereo, GameCfg.ReverseStereo)	\
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank0)	\
@@ -2583,8 +2583,9 @@ window_event_result sound_menu::event_handler(const d_event &event)
 			auto &citem = static_cast<const d_change_event &>(event).citem;
 			if (citem == opt_sm_digivol)
 			{
-				GameCfg.DigiVolume = items[citem].value;
-				digi_set_digi_volume( (GameCfg.DigiVolume*32768)/8 );
+				const auto v = items[citem].value;
+				CGameCfg.DigiVolume = v;
+				digi_set_digi_volume((v * 32768) / 8);
 				digi_play_sample_once( SOUND_DROP_BOMB, F1_0 );
 			}
 			else if (citem == opt_sm_musicvol)

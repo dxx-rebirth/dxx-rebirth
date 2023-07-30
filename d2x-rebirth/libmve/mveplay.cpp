@@ -416,7 +416,7 @@ int MVESTREAM::handle_mve_segment_audioframedata(const mve_opcode major, const u
 		if (chan & selected_chan)
 		{
 			decltype(mve_audio_buffers)::value_type p;
-			const auto DigiVolume = GameCfg.DigiVolume;
+			const auto DigiVolume = CGameCfg.DigiVolume;
 			/* At volume 0 (minimum), no sound is wanted. */
 			if (DigiVolume && major == mve_opcode::audioframedata) {
 				const auto flags = mve_audio_flags;

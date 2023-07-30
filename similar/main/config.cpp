@@ -92,7 +92,7 @@ Cfg GameCfg;
 int ReadConfigFile()
 {
 	// set defaults
-	GameCfg.DigiVolume = 8;
+	CGameCfg.DigiVolume = 8;
 	GameCfg.MusicVolume = 8;
 	GameCfg.ReverseStereo = 0;
 	GameCfg.OrigTrackOrder = 0;
@@ -160,7 +160,11 @@ int ReadConfigFile()
 			continue;
 		auto value = std::next(eq);
 		if (cmp(lb, eq, DigiVolumeStr))
-			convert_integer(GameCfg.DigiVolume, value);
+		{
+			if (const auto r = convert_integer<uint8_t>(value))
+				if (const auto v = *r; v < 8)
+					CGameCfg.DigiVolume = v;
+		}
 		else if (cmp(lb, eq, MusicVolumeStr))
 			convert_integer(GameCfg.MusicVolume, value);
 		else if (cmp(lb, eq, ReverseStereoStr))
@@ -249,7 +253,6 @@ int ReadConfigFile()
 		else if (cmp(lb, eq, GrabinputStr))
 			convert_integer(CGameCfg.Grabinput, value);
 	}
-	if ( GameCfg.DigiVolume > 8 ) GameCfg.DigiVolume = 8;
 	if ( GameCfg.MusicVolume > 8 ) GameCfg.MusicVolume = 8;
 
 	if (CGameCfg.ResolutionX >= 320 && CGameCfg.ResolutionY >= 200)
@@ -270,7 +273,7 @@ int WriteConfigFile()
 	{
 		return 1;
 	}
-	PHYSFSX_printf(infile, "%s=%d\n", DigiVolumeStr, GameCfg.DigiVolume);
+	PHYSFSX_printf(infile, "%s=%d\n", DigiVolumeStr, CGameCfg.DigiVolume);
 	PHYSFSX_printf(infile, "%s=%d\n", MusicVolumeStr, GameCfg.MusicVolume);
 	PHYSFSX_printf(infile, "%s=%d\n", ReverseStereoStr, GameCfg.ReverseStereo);
 	PHYSFSX_printf(infile, "%s=%d\n", OrigTrackOrderStr, GameCfg.OrigTrackOrder);

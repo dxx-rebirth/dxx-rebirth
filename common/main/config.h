@@ -70,6 +70,7 @@ struct CCfg : prohibit_void_ptr<CCfg>
 	bool Multisample;
 	bool FPSIndicator;
 	uint8_t GammaLevel;
+	uint8_t DigiVolume;
 	LevelMusicPlayOrder CMLevelMusicPlayOrder;
 	std::array<int, 2> CMLevelMusicTrack;
 	ntstring<MISSION_NAME_LEN> LastMission;
@@ -87,7 +88,6 @@ struct Cfg : prohibit_void_ptr<Cfg>
 	int MusicType;
 	int AspectX;
 	int AspectY;
-	uint8_t DigiVolume;
 	uint8_t MusicVolume;
 	bool ReverseStereo;
 	bool OrigTrackOrder;
