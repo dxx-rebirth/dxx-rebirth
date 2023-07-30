@@ -1181,7 +1181,7 @@ screen_resolution_menu_items::screen_resolution_menu_items()
 		/* At most one entry can be checked.  When the correct entry is
 		 * found, update citem so that no later entries can be checked.
 		 */
-		const auto checked = (citem == -1 && Game_screen_mode == mode && GameCfg.AspectY == sm_w / gcd(sm_w, sm_h) && GameCfg.AspectX == sm_h / gcd(sm_w, sm_h));
+		const auto checked = (citem == -1 && Game_screen_mode == mode && CGameCfg.AspectY == sm_w / gcd(sm_w, sm_h) && GameCfg.AspectX == sm_h / gcd(sm_w, sm_h));
 		if (checked)
 			citem = idx;
 		nm_set_item_radio(menuitem, resolution_text.data(), checked, grp_resolution);
@@ -1194,7 +1194,7 @@ screen_resolution_menu_items::screen_resolution_menu_items()
 	snprintf(crestext.data(), crestext.size(), "%ix%i", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
 	nm_set_item_input(m[convert_fixed_field_to_ni(fixed_field_index::opt_input_resolution)], crestext);
 	nm_set_item_text(m[convert_fixed_field_to_ni(fixed_field_index::opt_label_aspect)], "aspect:");
-	snprintf(casptext.data(), casptext.size(), "%ix%i", GameCfg.AspectY, GameCfg.AspectX);
+	snprintf(casptext.data(), casptext.size(), "%ix%i", CGameCfg.AspectY, GameCfg.AspectX);
 	nm_set_item_input(m[convert_fixed_field_to_ni(fixed_field_index::opt_input_aspect)], casptext);
 	nm_set_item_text(m[convert_fixed_field_to_ni(fixed_field_index::opt_blank_fullscreen)], "");
 	nm_set_item_checkbox(m[convert_fixed_field_to_ni(fixed_field_index::opt_checkbox_fullscreen)], "Fullscreen", gr_check_fullscreen());
@@ -1266,7 +1266,7 @@ void screen_resolution_menu::check_apply_preset_resolution() const
 		return;
 	const auto requested_mode = std::get<0>(*i);
 	const auto g = gcd(SM_W(requested_mode), SM_H(requested_mode));
-	GameCfg.AspectY = SM_W(requested_mode) / g;
+	CGameCfg.AspectY = SM_W(requested_mode) / g;
 	GameCfg.AspectX = SM_H(requested_mode) / g;
 	apply_resolution(requested_mode);
 }
@@ -1331,7 +1331,7 @@ void screen_resolution_menu::apply_custom_resolution() const
 		casp.height = aspect_height;
 	}
 	const auto g = gcd(SM_W(casp), SM_H(casp));
-	GameCfg.AspectY = SM_W(casp) / g;
+	CGameCfg.AspectY = SM_W(casp) / g;
 	GameCfg.AspectX = SM_H(casp) / g;
 	apply_resolution(cmode);
 }
