@@ -71,6 +71,7 @@ struct CCfg : prohibit_void_ptr<CCfg>
 	bool Multisample;
 	bool FPSIndicator;
 	uint8_t GammaLevel;
+	bool ReverseStereo;
 	uint8_t DigiVolume;
 	uint8_t MusicVolume;
 	music_type MusicType;
@@ -90,7 +91,6 @@ struct Cfg : prohibit_void_ptr<Cfg>
 {
 	int AspectX;
 	int AspectY;
-	bool ReverseStereo;
 	bool OrigTrackOrder;
 #ifdef DXX_BUILD_DESCENT_II
 	bool MovieSubtitles;

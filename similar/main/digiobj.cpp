@@ -213,7 +213,8 @@ static std::pair<int, sound_pan> digi_get_sound_loc(const vms_matrix &listener, 
 			{
 				angle_from_ear = vm_vec_delta_ang_norm(listener.rvec,vector_to_sound,listener.uvec);
 				auto cosang = fix_cos(angle_from_ear);
-				if (GameCfg.ReverseStereo) cosang *= -1;
+				if (CGameCfg.ReverseStereo)
+					cosang *= -1;
 				return {volume, sound_pan{(cosang + F1_0) / 2}};
 			}
 		}
