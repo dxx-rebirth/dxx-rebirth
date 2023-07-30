@@ -2526,7 +2526,7 @@ namespace {
 	DXX_SOUND_JUKEBOX_MENU_ITEM(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank1)	\
 	DXX_MENUITEM(VERB, TEXT, DXX_MUSIC_OPTIONS_CD_LABEL DXX_MUSIC_OPTIONS_SEPARATOR_TEXT DXX_MUSIC_OPTIONS_JUKEBOX_LABEL " options:", opt_label_music_options)	\
-	DXX_MENUITEM(VERB, CHECK, DSX_REDBOOK_PLAYORDER_TEXT, opt_sm_redbook_playorder, GameCfg.OrigTrackOrder)	\
+	DXX_MENUITEM(VERB, CHECK, DSX_REDBOOK_PLAYORDER_TEXT, opt_sm_redbook_playorder, CGameCfg.OrigTrackOrder)	\
 	DXX_SOUND_SDLMIXER_MENU_ITEMS(VERB)	\
 
 class sound_menu_items
@@ -2631,7 +2631,7 @@ window_event_result sound_menu::event_handler(const d_event &event)
 #endif
 			else if (citem == opt_sm_redbook_playorder)
 			{
-				GameCfg.OrigTrackOrder = items[citem].value;
+				CGameCfg.OrigTrackOrder = items[citem].value;
 				replay = static_cast<bool>(Game_wind);
 			}
 #if DXX_USE_SDLMIXER

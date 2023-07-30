@@ -95,7 +95,7 @@ int ReadConfigFile()
 	CGameCfg.DigiVolume = 8;
 	CGameCfg.MusicVolume = 8;
 	CGameCfg.ReverseStereo = false;
-	GameCfg.OrigTrackOrder = 0;
+	CGameCfg.OrigTrackOrder = false;
 #if DXX_USE_SDL_REDBOOK_AUDIO && defined(__APPLE__) && defined(__MACH__)
 	CGameCfg.MusicType = music_type::Redbook;
 #else
@@ -107,8 +107,8 @@ int ReadConfigFile()
 	CGameCfg.CMLevelMusicPath = {};
 	CGameCfg.CMMiscMusic = {};
 #if defined(__APPLE__) && defined(__MACH__)
+	CGameCfg.OrigTrackOrder = true;
 	const auto userdir = PHYSFS_getUserDir();
-	GameCfg.OrigTrackOrder = 1;
 #if defined(DXX_BUILD_DESCENT_I)
 	CGameCfg.CMLevelMusicPlayOrder = LevelMusicPlayOrder::Level;
 	CGameCfg.CMLevelMusicPath = "descent.m3u";
@@ -174,7 +174,7 @@ int ReadConfigFile()
 		else if (cmp(lb, eq, ReverseStereoStr))
 			convert_integer(CGameCfg.ReverseStereo, value);
 		else if (cmp(lb, eq, OrigTrackOrderStr))
-			convert_integer(GameCfg.OrigTrackOrder, value);
+			convert_integer(CGameCfg.OrigTrackOrder, value);
 		else if (cmp(lb, eq, MusicTypeStr))
 		{
 			if (const auto r = convert_integer<uint8_t>(value))
@@ -292,7 +292,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%d\n", DigiVolumeStr, CGameCfg.DigiVolume);
 	PHYSFSX_printf(infile, "%s=%d\n", MusicVolumeStr, CGameCfg.MusicVolume);
 	PHYSFSX_printf(infile, "%s=%d\n", ReverseStereoStr, CGameCfg.ReverseStereo);
-	PHYSFSX_printf(infile, "%s=%d\n", OrigTrackOrderStr, GameCfg.OrigTrackOrder);
+	PHYSFSX_printf(infile, "%s=%d\n", OrigTrackOrderStr, CGameCfg.OrigTrackOrder);
 	PHYSFSX_printf(infile, "%s=%d\n", MusicTypeStr, underlying_value(CGameCfg.MusicType));
 	PHYSFSX_printf(infile, "%s=%d\n", CMLevelMusicPlayOrderStr, static_cast<int>(CGameCfg.CMLevelMusicPlayOrder));
 	PHYSFSX_printf(infile, "%s=%d\n", CMLevelMusicTrack0Str, CGameCfg.CMLevelMusicTrack[0]);

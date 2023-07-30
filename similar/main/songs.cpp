@@ -407,7 +407,7 @@ static int songs_have_cd()
 {
 	unsigned long discid;
 
-	if (GameCfg.OrigTrackOrder)
+	if (CGameCfg.OrigTrackOrder)
 		return 1;
 
 	if (!(CGameCfg.MusicType == music_type::Redbook))
@@ -578,7 +578,7 @@ int songs_play_song( int songnum, int repeat )
 #if defined(DXX_BUILD_DESCENT_I)
 			int play = songs_play_file(CGameCfg.CMMiscMusic[songnum].data(), repeat, NULL);
 #elif defined(DXX_BUILD_DESCENT_II)
-			int use_credits_track = (songnum == SONG_TITLE && GameCfg.OrigTrackOrder);
+			int use_credits_track = (songnum == SONG_TITLE && CGameCfg.OrigTrackOrder);
 			int play = songs_play_file(CGameCfg.CMMiscMusic[songnum].data(),
 							  // Play the credits track after the title track and loop the credits track if original CD track order was chosen
 							  use_credits_track ? 0 : repeat,
