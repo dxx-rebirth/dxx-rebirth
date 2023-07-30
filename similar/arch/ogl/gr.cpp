@@ -721,7 +721,7 @@ int gr_set_mode(screen_mode mode)
 		return 0;
 	*grd_curscreen = {};
 	grd_curscreen->set_screen_width_height(w, h);
-	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->get_screen_width() * GameCfg.AspectX, grd_curscreen->get_screen_height() * CGameCfg.AspectY);
+	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->get_screen_width() * CGameCfg.AspectX, grd_curscreen->get_screen_height() * CGameCfg.AspectY);
 	gr_init_canvas(grd_curscreen->sc_canvas, gr_new_bm_data, bm_mode::ogl, w, h);
 
 	ogl_init_window(w,h);//platform specific code

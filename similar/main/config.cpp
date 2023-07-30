@@ -128,7 +128,7 @@ int ReadConfigFile()
 	CGameCfg.LastMission = "";
 	CGameCfg.ResolutionX = 1024;
 	CGameCfg.ResolutionY = 768;
-	GameCfg.AspectX = 3;
+	CGameCfg.AspectX = 3;
 	CGameCfg.AspectY = 4;
 	CGameCfg.WindowMode = false;
 	CGameCfg.TexFilt = opengl_texture_filter::classic;
@@ -226,7 +226,7 @@ int ReadConfigFile()
 		else if (cmp(lb, eq, ResolutionYStr))
 			convert_integer(CGameCfg.ResolutionY, value);
 		else if (cmp(lb, eq, AspectXStr))
-			convert_integer(GameCfg.AspectX, value);
+			convert_integer(CGameCfg.AspectX, value);
 		else if (cmp(lb, eq, AspectYStr))
 			convert_integer(CGameCfg.AspectY, value);
 		else if (cmp(lb, eq, WindowModeStr))
@@ -308,7 +308,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%s\n", LastMissionStr, static_cast<const char *>(CGameCfg.LastMission));
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionXStr, SM_W(Game_screen_mode));
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionYStr, SM_H(Game_screen_mode));
-	PHYSFSX_printf(infile, "%s=%i\n", AspectXStr, GameCfg.AspectX);
+	PHYSFSX_printf(infile, "%s=%i\n", AspectXStr, CGameCfg.AspectX);
 	PHYSFSX_printf(infile, "%s=%i\n", AspectYStr, CGameCfg.AspectY);
 	PHYSFSX_printf(infile, "%s=%i\n", WindowModeStr, CGameCfg.WindowMode);
 	PHYSFSX_printf(infile, "%s=%i\n", TexFiltStr, static_cast<unsigned>(CGameCfg.TexFilt));

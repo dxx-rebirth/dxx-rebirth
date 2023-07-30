@@ -55,6 +55,7 @@ struct CCfg : prohibit_void_ptr<CCfg>
 {
 	uint16_t ResolutionX;
 	uint16_t ResolutionY;
+	uint8_t AspectX;
 	uint8_t AspectY;
 #if DXX_USE_ADLMIDI
 	int ADLMIDI_num_chips = 6;
@@ -91,7 +92,6 @@ extern struct CCfg CGameCfg;
 namespace dsx {
 struct Cfg : prohibit_void_ptr<Cfg>
 {
-	int AspectX;
 #ifdef DXX_BUILD_DESCENT_II
 	bool MovieSubtitles;
 	int MovieTexFilt;
