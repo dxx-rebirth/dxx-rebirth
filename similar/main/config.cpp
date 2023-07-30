@@ -93,7 +93,7 @@ int ReadConfigFile()
 {
 	// set defaults
 	CGameCfg.DigiVolume = 8;
-	GameCfg.MusicVolume = 8;
+	CGameCfg.MusicVolume = 8;
 	GameCfg.ReverseStereo = 0;
 	GameCfg.OrigTrackOrder = 0;
 #if DXX_USE_SDL_REDBOOK_AUDIO && defined(__APPLE__) && defined(__MACH__)
@@ -166,7 +166,11 @@ int ReadConfigFile()
 					CGameCfg.DigiVolume = v;
 		}
 		else if (cmp(lb, eq, MusicVolumeStr))
-			convert_integer(GameCfg.MusicVolume, value);
+		{
+			if (const auto r = convert_integer<uint8_t>(value))
+				if (const auto v = *r; v < 8)
+					CGameCfg.MusicVolume = v;
+		}
 		else if (cmp(lb, eq, ReverseStereoStr))
 			convert_integer(GameCfg.ReverseStereo, value);
 		else if (cmp(lb, eq, OrigTrackOrderStr))
@@ -253,7 +257,6 @@ int ReadConfigFile()
 		else if (cmp(lb, eq, GrabinputStr))
 			convert_integer(CGameCfg.Grabinput, value);
 	}
-	if ( GameCfg.MusicVolume > 8 ) GameCfg.MusicVolume = 8;
 
 	if (CGameCfg.ResolutionX >= 320 && CGameCfg.ResolutionY >= 200)
 	{
@@ -274,7 +277,7 @@ int WriteConfigFile()
 		return 1;
 	}
 	PHYSFSX_printf(infile, "%s=%d\n", DigiVolumeStr, CGameCfg.DigiVolume);
-	PHYSFSX_printf(infile, "%s=%d\n", MusicVolumeStr, GameCfg.MusicVolume);
+	PHYSFSX_printf(infile, "%s=%d\n", MusicVolumeStr, CGameCfg.MusicVolume);
 	PHYSFSX_printf(infile, "%s=%d\n", ReverseStereoStr, GameCfg.ReverseStereo);
 	PHYSFSX_printf(infile, "%s=%d\n", OrigTrackOrderStr, GameCfg.OrigTrackOrder);
 	PHYSFSX_printf(infile, "%s=%d\n", MusicTypeStr, GameCfg.MusicType);

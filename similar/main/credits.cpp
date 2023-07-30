@@ -195,7 +195,7 @@ window_event_result credits_window::event_handler(const d_event &event)
 			{
 				static int curvol = -10; 
 				if (curvol == -10) 
-					curvol = GameCfg.MusicVolume;
+					curvol = CGameCfg.MusicVolume;
 				const auto limitvol = (NUM_LINES - done) / 2;
 				if (curvol > limitvol)
 				{
@@ -243,7 +243,7 @@ window_event_result credits_window::event_handler(const d_event &event)
 			}
 
 		case EVENT_WINDOW_CLOSE:
-			songs_set_volume(GameCfg.MusicVolume);
+			songs_set_volume(CGameCfg.MusicVolume);
 			songs_play_song( SONG_TITLE, 1 );
 			break;
 		default:

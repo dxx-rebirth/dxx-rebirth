@@ -290,7 +290,7 @@ static void songs_init()
 			break;
 	}
 
-	songs_set_volume(GameCfg.MusicVolume);
+	songs_set_volume(CGameCfg.MusicVolume);
 }
 }
 }

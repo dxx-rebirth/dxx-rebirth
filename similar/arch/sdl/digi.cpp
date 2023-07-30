@@ -285,7 +285,7 @@ int digi_win32_play_midi_song( const char * filename, int loop )
 		if (hmp_play(cur_hmp.get(),loop) != 0)
 			return 0;	// error
 		digi_win32_midi_song_playing = 1;
-		digi_win32_set_midi_volume(GameCfg.MusicVolume);
+		digi_win32_set_midi_volume(CGameCfg.MusicVolume);
 		return 1;
 	}
 
