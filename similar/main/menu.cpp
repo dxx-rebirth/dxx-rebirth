@@ -2458,7 +2458,7 @@ namespace {
 
 #if DXX_USE_SDLMIXER || defined(_WIN32)
 #define DXX_SOUND_ADDON_MUSIC_MENU_ITEM(VERB)	\
-	DXX_MENUITEM(VERB, RADIO, "Built-in/Addon music", opt_sm_mtype1, GameCfg.MusicType == MUSIC_TYPE_BUILTIN, optgrp_music_type)	\
+	DXX_MENUITEM(VERB, RADIO, "Built-in/Addon music", opt_sm_mtype1, CGameCfg.MusicType == music_type::Builtin, optgrp_music_type)	\
 
 #else
 #define DXX_SOUND_ADDON_MUSIC_MENU_ITEM(VERB)
@@ -2466,7 +2466,7 @@ namespace {
 
 #if DXX_USE_SDL_REDBOOK_AUDIO
 #define DXX_SOUND_CD_MUSIC_MENU_ITEM(VERB)	\
-	DXX_MENUITEM(VERB, RADIO, "CD music", opt_sm_mtype2, GameCfg.MusicType == MUSIC_TYPE_REDBOOK, optgrp_music_type)	\
+	DXX_MENUITEM(VERB, RADIO, "CD music", opt_sm_mtype2, CGameCfg.MusicType == music_type::Redbook, optgrp_music_type)	\
 
 #define DXX_MUSIC_OPTIONS_CD_LABEL "CD music"
 #else
@@ -2476,7 +2476,7 @@ namespace {
 
 #if DXX_USE_SDLMIXER
 #define DXX_SOUND_JUKEBOX_MENU_ITEM(VERB)	\
-	DXX_MENUITEM(VERB, RADIO, "Jukebox", opt_sm_mtype3, GameCfg.MusicType == MUSIC_TYPE_CUSTOM, optgrp_music_type)	\
+	DXX_MENUITEM(VERB, RADIO, "Jukebox", opt_sm_mtype3, CGameCfg.MusicType == music_type::Custom, optgrp_music_type)	\
 
 #define DXX_MUSIC_OPTIONS_JUKEBOX_LABEL "Jukebox"
 #define DXX_SOUND_SDLMIXER_MENU_ITEMS(VERB)	\
@@ -2520,7 +2520,7 @@ namespace {
 	DXX_MENUITEM(VERB, CHECK, TXT_REVERSE_STEREO, opt_sm_revstereo, GameCfg.ReverseStereo)	\
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank0)	\
 	DXX_MENUITEM(VERB, TEXT, "Music type:", opt_label_music_type)	\
-	DXX_MENUITEM(VERB, RADIO, "No music", opt_sm_mtype0, GameCfg.MusicType == MUSIC_TYPE_NONE, optgrp_music_type)	\
+	DXX_MENUITEM(VERB, RADIO, "No music", opt_sm_mtype0, CGameCfg.MusicType == music_type::None, optgrp_music_type)	\
 	DXX_SOUND_ADDON_MUSIC_MENU_ITEM(VERB)	\
 	DXX_SOUND_CD_MUSIC_MENU_ITEM(VERB)	\
 	DXX_SOUND_JUKEBOX_MENU_ITEM(VERB)	\
@@ -2600,7 +2600,7 @@ window_event_result sound_menu::event_handler(const d_event &event)
 			}
 			else if (citem == opt_sm_mtype0)
 			{
-				GameCfg.MusicType = MUSIC_TYPE_NONE;
+				CGameCfg.MusicType = music_type::None;
 				replay = 1;
 			}
 			/*
@@ -2611,21 +2611,21 @@ window_event_result sound_menu::event_handler(const d_event &event)
 #if DXX_SOUND_ADDON_MUSIC_MENU_ITEM(COUNT) + 0
 			else if (citem == opt_sm_mtype1)
 			{
-				GameCfg.MusicType = MUSIC_TYPE_BUILTIN;
+				CGameCfg.MusicType = music_type::Builtin;
 				replay = 1;
 			}
 #endif
 #if DXX_USE_SDL_REDBOOK_AUDIO
 			else if (citem == opt_sm_mtype2)
 			{
-				GameCfg.MusicType = MUSIC_TYPE_REDBOOK;
+				CGameCfg.MusicType = music_type::Redbook;
 				replay = 1;
 			}
 #endif
 #if DXX_USE_SDLMIXER
 			else if (citem == opt_sm_mtype3)
 			{
-				GameCfg.MusicType = MUSIC_TYPE_CUSTOM;
+				CGameCfg.MusicType = music_type::Custom;
 				replay = 1;
 			}
 #endif

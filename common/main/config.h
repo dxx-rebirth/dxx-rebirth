@@ -38,6 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dcx {
 
 enum class opengl_texture_filter : uint8_t;
+enum class music_type : uint8_t;
 
 // play-order definitions for custom music
 /* These values are written to a file as integers, so they must not be
@@ -72,6 +73,7 @@ struct CCfg : prohibit_void_ptr<CCfg>
 	uint8_t GammaLevel;
 	uint8_t DigiVolume;
 	uint8_t MusicVolume;
+	music_type MusicType;
 	LevelMusicPlayOrder CMLevelMusicPlayOrder;
 	std::array<int, 2> CMLevelMusicTrack;
 	ntstring<MISSION_NAME_LEN> LastMission;
@@ -86,7 +88,6 @@ extern struct CCfg CGameCfg;
 namespace dsx {
 struct Cfg : prohibit_void_ptr<Cfg>
 {
-	int MusicType;
 	int AspectX;
 	int AspectY;
 	bool ReverseStereo;

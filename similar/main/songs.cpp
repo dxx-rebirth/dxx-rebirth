@@ -121,7 +121,7 @@ void songs_set_volume(int volume)
 	digi_win32_set_midi_volume(volume);
 #endif
 #if DXX_USE_SDL_REDBOOK_AUDIO
-	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
+	if (CGameCfg.MusicType == music_type::Redbook)
 	{
 		RBASetVolume(0);
 		RBASetVolume(volume);
@@ -265,27 +265,30 @@ static void songs_init()
 	fp.reset();
 
 	if (CGameArg.SndNoMusic)
-		GameCfg.MusicType = MUSIC_TYPE_NONE;
+		CGameCfg.MusicType = music_type::None;
 
 	// If SDL_Mixer is not supported (or deactivated), switch to no-music type if SDL_mixer-related music type was selected
 	else if (CGameArg.SndDisableSdlMixer)
 	{
 #ifndef _WIN32
-		if (GameCfg.MusicType == MUSIC_TYPE_BUILTIN)
-			GameCfg.MusicType = MUSIC_TYPE_NONE;
+		if (CGameCfg.MusicType == music_type::Builtin)
+			CGameCfg.MusicType = music_type::None;
 #endif
-		if (GameCfg.MusicType == MUSIC_TYPE_CUSTOM)
-			GameCfg.MusicType = MUSIC_TYPE_NONE;
+		if (CGameCfg.MusicType == music_type::Custom)
+			CGameCfg.MusicType = music_type::None;
 	}
 
-	switch (GameCfg.MusicType)
+	switch (CGameCfg.MusicType)
 	{
+		case music_type::None:
+		case music_type::Builtin:
+			break;
 #if DXX_USE_SDL_REDBOOK_AUDIO
-		case MUSIC_TYPE_REDBOOK:
+		case music_type::Redbook:
 			RBAInit();
 			break;
 #endif
-		case MUSIC_TYPE_CUSTOM:
+		case music_type::Custom:
 			jukebox_load();
 			break;
 	}
@@ -328,7 +331,7 @@ void songs_pause(void)
 	digi_win32_pause_midi_song();
 #endif
 #if DXX_USE_SDL_REDBOOK_AUDIO
-	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
+	if (CGameCfg.MusicType == music_type::Redbook)
 		RBAPause();
 #endif
 #if DXX_USE_SDLMIXER
@@ -342,7 +345,7 @@ void songs_resume(void)
 	digi_win32_resume_midi_song();
 #endif
 #if DXX_USE_SDL_REDBOOK_AUDIO
-	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
+	if (CGameCfg.MusicType == music_type::Redbook)
 		RBAResume();
 #endif
 #if DXX_USE_SDLMIXER
@@ -353,7 +356,7 @@ void songs_resume(void)
 void songs_pause_resume(void)
 {
 #if DXX_USE_SDL_REDBOOK_AUDIO
-	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
+	if (CGameCfg.MusicType == music_type::Redbook)
 		RBAPauseResume();
 #endif
 #if DXX_USE_SDLMIXER
@@ -407,7 +410,7 @@ static int songs_have_cd()
 	if (GameCfg.OrigTrackOrder)
 		return 1;
 
-	if (!(GameCfg.MusicType == MUSIC_TYPE_REDBOOK))
+	if (!(CGameCfg.MusicType == music_type::Redbook))
 		return 0;
 
 	discid = RBAGetDiscID();
@@ -497,9 +500,9 @@ int songs_play_song( int songnum, int repeat )
 	if (!Songs_initialized)
 		return 0;
 
-	switch (GameCfg.MusicType)
+	switch (CGameCfg.MusicType)
 	{
-		case MUSIC_TYPE_BUILTIN:
+		case music_type::Builtin:
 		{
 			// EXCEPTION: If SONG_ENDLEVEL is not available, continue playing level song.
 			auto &s = BIMSongs[songnum];
@@ -512,7 +515,7 @@ int songs_play_song( int songnum, int repeat )
 			break;
 		}
 #if DXX_USE_SDL_REDBOOK_AUDIO
-		case MUSIC_TYPE_REDBOOK:
+		case music_type::Redbook:
 		{
 			int num_tracks = RBAGetNumberOfTracks();
 
@@ -565,7 +568,7 @@ int songs_play_song( int songnum, int repeat )
 		}
 #endif
 #if DXX_USE_SDLMIXER
-		case MUSIC_TYPE_CUSTOM:
+		case music_type::Custom:
 		{
 			// EXCEPTION: If SONG_ENDLEVEL is undefined, continue playing level song.
 			if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum == SONG_ENDLEVEL && !CGameCfg.CMMiscMusic[songnum].front())
@@ -620,9 +623,9 @@ int songs_play_level_song( int levelnum, int offset )
 	
 	songnum = (levelnum>0)?(levelnum-1):(-levelnum);
 
-	switch (GameCfg.MusicType)
+	switch (CGameCfg.MusicType)
 	{
-		case MUSIC_TYPE_BUILTIN:
+		case music_type::Builtin:
 		{
 			if (offset)
 				return Song_playing;
@@ -650,7 +653,7 @@ int songs_play_level_song( int levelnum, int offset )
 			break;
 		}
 #if DXX_USE_SDL_REDBOOK_AUDIO
-		case MUSIC_TYPE_REDBOOK:
+		case music_type::Redbook:
 		{
 			int n_tracks = RBAGetNumberOfTracks();
 			int tracknum;
@@ -696,7 +699,7 @@ int songs_play_level_song( int levelnum, int offset )
 		}
 #endif
 #if DXX_USE_SDLMIXER
-		case MUSIC_TYPE_CUSTOM:
+		case music_type::Custom:
 		{
 			if (CGameCfg.CMLevelMusicPlayOrder == LevelMusicPlayOrder::Random)
 				CGameCfg.CMLevelMusicTrack[0] = d_rand() % CGameCfg.CMLevelMusicTrack[1]; // simply a random selection - no check if this song has already been played. But that's how I roll!

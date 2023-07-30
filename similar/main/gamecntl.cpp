@@ -1022,7 +1022,7 @@ static window_event_result HandleSystemKey(int key)
 		case KEY_ALTED + KEY_SHIFTED + KEY_F9:
 		KEY_MAC(case KEY_COMMAND+KEY_E:)
 #if DXX_USE_SDL_REDBOOK_AUDIO
-			if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
+			if (CGameCfg.MusicType == music_type::Redbook)
 			{
 				songs_stop_all();
 				RBAEjectDisk();

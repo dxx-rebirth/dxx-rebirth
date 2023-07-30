@@ -97,9 +97,9 @@ int ReadConfigFile()
 	GameCfg.ReverseStereo = 0;
 	GameCfg.OrigTrackOrder = 0;
 #if DXX_USE_SDL_REDBOOK_AUDIO && defined(__APPLE__) && defined(__MACH__)
-	GameCfg.MusicType = MUSIC_TYPE_REDBOOK;
+	CGameCfg.MusicType = music_type::Redbook;
 #else
-	GameCfg.MusicType = MUSIC_TYPE_BUILTIN;
+	CGameCfg.MusicType = music_type::Builtin;
 #endif
 	CGameCfg.CMLevelMusicPlayOrder = LevelMusicPlayOrder::Continuous;
 	CGameCfg.CMLevelMusicTrack[0] = -1;
@@ -176,7 +176,20 @@ int ReadConfigFile()
 		else if (cmp(lb, eq, OrigTrackOrderStr))
 			convert_integer(GameCfg.OrigTrackOrder, value);
 		else if (cmp(lb, eq, MusicTypeStr))
-			convert_integer(GameCfg.MusicType, value);
+		{
+			if (const auto r = convert_integer<uint8_t>(value))
+				switch (const music_type v{*r})
+				{
+					case music_type::None:
+					case music_type::Builtin:
+#if DXX_USE_SDL_REDBOOK_AUDIO
+					case music_type::Redbook:
+#endif
+					case music_type::Custom:
+						CGameCfg.MusicType = v;
+						break;
+				}
+		}
 		else if (cmp(lb, eq, CMLevelMusicPlayOrderStr))
 		{
 			if (auto r = convert_integer<uint8_t>(value))
@@ -280,7 +293,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%d\n", MusicVolumeStr, CGameCfg.MusicVolume);
 	PHYSFSX_printf(infile, "%s=%d\n", ReverseStereoStr, GameCfg.ReverseStereo);
 	PHYSFSX_printf(infile, "%s=%d\n", OrigTrackOrderStr, GameCfg.OrigTrackOrder);
-	PHYSFSX_printf(infile, "%s=%d\n", MusicTypeStr, GameCfg.MusicType);
+	PHYSFSX_printf(infile, "%s=%d\n", MusicTypeStr, underlying_value(CGameCfg.MusicType));
 	PHYSFSX_printf(infile, "%s=%d\n", CMLevelMusicPlayOrderStr, static_cast<int>(CGameCfg.CMLevelMusicPlayOrder));
 	PHYSFSX_printf(infile, "%s=%d\n", CMLevelMusicTrack0Str, CGameCfg.CMLevelMusicTrack[0]);
 	PHYSFSX_printf(infile, "%s=%d\n", CMLevelMusicTrack1Str, CGameCfg.CMLevelMusicTrack[1]);

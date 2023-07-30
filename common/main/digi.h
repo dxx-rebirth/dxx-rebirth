@@ -152,6 +152,19 @@ struct digi_sound
 
 extern sound_channel SoundQ_channel;
 
+/* These values are written to a file as integers, so they must not be
+ * renumbered.
+ */
+enum class music_type : uint8_t
+{
+	None,
+	Builtin,
+#if DXX_USE_SDL_REDBOOK_AUDIO
+	Redbook,
+#endif
+	Custom = 3,
+};
+
 }
 
 namespace dsx {
@@ -208,13 +221,6 @@ extern void digi_stop_looping_sound();
 extern void digi_start_sound_queued( short soundnum, fix volume );
 
 // Following declarations are for the runtime switching system
-
-#define MUSIC_TYPE_NONE		0
-#define MUSIC_TYPE_BUILTIN	1
-#if DXX_USE_SDL_REDBOOK_AUDIO
-#define MUSIC_TYPE_REDBOOK	2
-#endif
-#define MUSIC_TYPE_CUSTOM	3
 
 #define SOUND_MAX_VOLUME F1_0 / 2
 
