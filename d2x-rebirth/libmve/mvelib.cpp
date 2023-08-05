@@ -199,7 +199,7 @@ void mve_reset(MVESTREAM *movie)
 /*
  * play next chunk
  */
-int mve_play_next_chunk(MVESTREAM &movie)
+MVESTREAM::handle_result mve_play_next_chunk(MVESTREAM &movie)
 {
 	const auto m = movie.movie.get();
     /* loop over segments */
@@ -231,7 +231,7 @@ int mve_play_next_chunk(MVESTREAM &movie)
 		const auto minor = mvefile_get_next_segment_minor(m);
 		const auto len = mvefile_get_next_segment_size(m);
 		const auto data = mvefile_get_next_segment(m);
-		int r;
+		MVESTREAM::handle_result r;
 		switch (major)
 		{
 			case mve_opcode::endofstream:
@@ -274,15 +274,15 @@ int mve_play_next_chunk(MVESTREAM &movie)
 			default:
 				continue;
 		}
-		if (!r)
-			return 0;
+		if (r == MVESTREAM::handle_result::step_finished)
+			return r;
     }
 
 	if (!mvefile_fetch_next_chunk(m))
-        return 0;
+        return MVESTREAM::handle_result::step_finished;
 
     /* return status */
-    return 1;
+    return MVESTREAM::handle_result::step_again;
 }
 
 /************************************************************

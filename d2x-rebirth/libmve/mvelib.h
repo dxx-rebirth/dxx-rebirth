@@ -100,23 +100,28 @@ typedef int (*MVESEGMENTHANDLER)(mve_opcode major, unsigned char minor, const un
  */
 struct MVESTREAM
 {
+	enum class handle_result : bool
+	{
+		step_finished,
+		step_again,
+	};
 	MVESTREAM();
 	~MVESTREAM();
 	std::unique_ptr<MVEFILE> movie;
 	uint8_t timer_created{};
 
-	int handle_mve_segment_endofstream();
-	int handle_mve_segment_endofchunk();
-	int handle_mve_segment_createtimer(const unsigned char *data);
-	int handle_mve_segment_initaudiobuffers(unsigned char minor, const unsigned char *data);
-	int handle_mve_segment_startstopaudio();
-	int handle_mve_segment_initvideobuffers(unsigned char minor, const unsigned char *data);
-	int handle_mve_segment_displayvideo();
-	int handle_mve_segment_audioframedata(mve_opcode major, const unsigned char *data);
-	int handle_mve_segment_initvideomode(const unsigned char *data);
-	int handle_mve_segment_setpalette(const unsigned char *data);
-	int handle_mve_segment_setdecodingmap(const unsigned char *data, int len);
-	int handle_mve_segment_videodata(const unsigned char *data, int len);
+	handle_result handle_mve_segment_endofstream();
+	handle_result handle_mve_segment_endofchunk();
+	handle_result handle_mve_segment_createtimer(const unsigned char *data);
+	handle_result handle_mve_segment_initaudiobuffers(unsigned char minor, const unsigned char *data);
+	handle_result handle_mve_segment_startstopaudio();
+	handle_result handle_mve_segment_initvideobuffers(unsigned char minor, const unsigned char *data);
+	handle_result handle_mve_segment_displayvideo();
+	handle_result handle_mve_segment_audioframedata(mve_opcode major, const unsigned char *data);
+	handle_result handle_mve_segment_initvideomode(const unsigned char *data);
+	handle_result handle_mve_segment_setpalette(const unsigned char *data);
+	handle_result handle_mve_segment_setdecodingmap(const unsigned char *data, int len);
+	handle_result handle_mve_segment_videodata(const unsigned char *data, int len);
 };
 
 struct MVESTREAM_deleter_t
@@ -143,7 +148,7 @@ void mve_reset(MVESTREAM *movie);
 /*
  * play next chunk
  */
-int mve_play_next_chunk(MVESTREAM &movie);
+MVESTREAM::handle_result mve_play_next_chunk(MVESTREAM &movie);
 
 unsigned MovieFileRead(SDL_RWops *handle, std::span<uint8_t> buf);
 

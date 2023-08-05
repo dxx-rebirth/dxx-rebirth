@@ -77,9 +77,9 @@ static int32_t get_int(const unsigned char *data)
 /*************************
  * general handlers
  *************************/
-int MVESTREAM::handle_mve_segment_endofstream()
+MVESTREAM::handle_result MVESTREAM::handle_mve_segment_endofstream()
 {
-	return 0;
+	return MVESTREAM::handle_result::step_finished;
 }
 
 /*************************
@@ -123,7 +123,7 @@ int gettimeofday(struct timeval *tv, void *)
 
 namespace d2x {
 
-int MVESTREAM::handle_mve_segment_createtimer(const unsigned char *data)
+MVESTREAM::handle_result MVESTREAM::handle_mve_segment_createtimer(const unsigned char *data)
 {
 
 #if !defined(_WIN32) && !defined(macintosh) // FIXME
@@ -133,7 +133,7 @@ int MVESTREAM::handle_mve_segment_createtimer(const unsigned char *data)
 #endif
 
 	if (timer_created)
-		return 1;
+		return MVESTREAM::handle_result::step_again;
 	else
 		timer_created = 1;
 
@@ -145,8 +145,7 @@ int MVESTREAM::handle_mve_segment_createtimer(const unsigned char *data)
 		temp /= g_spdFactorDenom;
 		micro_frame_delay = static_cast<int>(temp);
 	}
-
-	return 1;
+	return MVESTREAM::handle_result::step_again;
 }
 
 static void timer_stop(void)
@@ -305,17 +304,17 @@ static void mve_audio_callback(void *, unsigned char *stream, int len)
 	//con_printf(CON_CRITICAL, "- <%d (%d), %d, %d>", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
 }
 
-int MVESTREAM::handle_mve_segment_initaudiobuffers(unsigned char minor, const unsigned char *data)
+MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initaudiobuffers(unsigned char minor, const unsigned char *data)
 {
 	int flags;
 	int sample_rate;
 	int desired_buffer;
 
 	if (mve_audio_enabled == MVE_play_sounds::silent)
-		return 1;
+		return MVESTREAM::handle_result::step_again;
 
 	if (mve_audio_spec)
-		return 1;
+		return MVESTREAM::handle_result::step_again;
 
 	flags = get_ushort(data + 2);
 	sample_rate = get_ushort(data + 4);
@@ -367,10 +366,10 @@ int MVESTREAM::handle_mve_segment_initaudiobuffers(unsigned char minor, const un
 #endif
 
 	mve_audio_buffers = {};
-	return 1;
+	return MVESTREAM::handle_result::step_again;
 }
 
-int MVESTREAM::handle_mve_segment_startstopaudio()
+MVESTREAM::handle_result MVESTREAM::handle_mve_segment_startstopaudio()
 {
 	if (mve_audio_spec && !mve_audio_playing && mve_audio_bufhead != mve_audio_buftail)
 	{
@@ -382,7 +381,7 @@ int MVESTREAM::handle_mve_segment_startstopaudio()
 #endif
 		mve_audio_playing = 1;
 	}
-	return 1;
+	return MVESTREAM::handle_result::step_again;
 }
 
 /* Caution: the data length argument is unnamed here because it is sometimes
@@ -402,7 +401,7 @@ int MVESTREAM::handle_mve_segment_startstopaudio()
  * undefined and may trigger an assertion failure.  Therefore, do not use
  * std::span to describe this block of memory.
  */
-int MVESTREAM::handle_mve_segment_audioframedata(const mve_opcode major, const unsigned char *data)
+MVESTREAM::handle_result MVESTREAM::handle_mve_segment_audioframedata(const mve_opcode major, const unsigned char *data)
 {
 	static const int selected_chan=1;
 	if (mve_audio_spec)
@@ -497,7 +496,7 @@ int MVESTREAM::handle_mve_segment_audioframedata(const mve_opcode major, const u
 		}
 	}
 
-	return 1;
+	return MVESTREAM::handle_result::step_again;
 }
 
 /*************************
@@ -515,7 +514,7 @@ static int g_screenWidth, g_screenHeight;
 static std::span<const uint8_t> g_pCurMap;
 static int g_truecolor;
 
-int MVESTREAM::handle_mve_segment_initvideobuffers(unsigned char minor, const unsigned char *data)
+MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initvideobuffers(unsigned char minor, const unsigned char *data)
 {
 	short w, h,
 #ifdef DEBUG
@@ -524,7 +523,7 @@ int MVESTREAM::handle_mve_segment_initvideobuffers(unsigned char minor, const un
 		truecolor;
 
 	if (videobuf_created)
-		return 1;
+		return MVESTREAM::handle_result::step_again;
 	else
 		videobuf_created = 1;
 
@@ -563,24 +562,24 @@ int MVESTREAM::handle_mve_segment_initvideobuffers(unsigned char minor, const un
 
 	g_truecolor = truecolor;
 
-	return 1;
+	return MVESTREAM::handle_result::step_again;
 }
 
-int MVESTREAM::handle_mve_segment_displayvideo()
+MVESTREAM::handle_result MVESTREAM::handle_mve_segment_displayvideo()
 {
 	MovieShowFrame(g_vBackBuf1, g_destX, g_destY, g_width, g_height, g_screenWidth, g_screenHeight);
 
 	g_frameUpdated = 1;
 
-	return 1;
+	return MVESTREAM::handle_result::step_again;
 }
 
-int MVESTREAM::handle_mve_segment_initvideomode(const unsigned char *data)
+MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initvideomode(const unsigned char *data)
 {
 	short width, height;
 
 	if (video_initialized)
-		return 1; /* maybe we actually need to change width/height here? */
+		return MVESTREAM::handle_result::step_again; /* maybe we actually need to change width/height here? */
 	else
 		video_initialized = 1;
 
@@ -589,10 +588,10 @@ int MVESTREAM::handle_mve_segment_initvideomode(const unsigned char *data)
 	g_screenWidth = width;
 	g_screenHeight = height;
 
-	return 1;
+	return MVESTREAM::handle_result::step_again;
 }
 
-int MVESTREAM::handle_mve_segment_setpalette(const unsigned char *data)
+MVESTREAM::handle_result MVESTREAM::handle_mve_segment_setpalette(const unsigned char *data)
 {
 	short start, count;
 	start = get_short(data);
@@ -600,16 +599,16 @@ int MVESTREAM::handle_mve_segment_setpalette(const unsigned char *data)
 
 	auto p = data + 4;
 	MovieSetPalette(p - 3*start, start, count);
-	return 1;
+	return MVESTREAM::handle_result::step_again;
 }
 
-int MVESTREAM::handle_mve_segment_setdecodingmap(const unsigned char *data, int len)
+MVESTREAM::handle_result MVESTREAM::handle_mve_segment_setdecodingmap(const unsigned char *data, int len)
 {
 	g_pCurMap = std::span<const uint8_t>(data, len);
-	return 1;
+	return MVESTREAM::handle_result::step_again;
 }
 
-int MVESTREAM::handle_mve_segment_videodata(const unsigned char *data, int len)
+MVESTREAM::handle_result MVESTREAM::handle_mve_segment_videodata(const unsigned char *data, int len)
 {
 	unsigned short nFlags;
 
@@ -634,13 +633,13 @@ int MVESTREAM::handle_mve_segment_videodata(const unsigned char *data, int len)
 		decodeFrame8(g_vBackBuf1, g_pCurMap, data+14, len-14);
 	}
 
-	return 1;
+	return MVESTREAM::handle_result::step_again;
 }
 
-int MVESTREAM::handle_mve_segment_endofchunk()
+MVESTREAM::handle_result MVESTREAM::handle_mve_segment_endofchunk()
 {
 	g_pCurMap = {};
-	return 1;
+	return MVESTREAM::handle_result::step_again;
 }
 
 MVESTREAM_ptr_t MVE_rmPrepMovie(RWops_ptr src, const int x, const int y)
@@ -669,21 +668,25 @@ void MVE_getVideoSpec(MVE_videoSpec *vSpec)
 	vSpec->truecolor = g_truecolor;
 }
 
-
 MVE_StepStatus MVE_rmStepMovie(MVESTREAM &mve)
 {
 	static int init_timer=0;
-	int cont=1;
 
 	if (!timer_started)
 		timer_start();
 
-	while (cont && !g_frameUpdated) // make a "step" be a frame, not a chunk...
-		cont = mve_play_next_chunk(mve);
+	for (;;)
+	{
+		// make a "step" be a frame, not a chunk...
+		if (mve_play_next_chunk(mve) == MVESTREAM::handle_result::step_finished)
+		{
+			g_frameUpdated = 0;
+			return MVE_StepStatus::EndOfFile;
+		}
+		if (g_frameUpdated)
+			break;
+	}
 	g_frameUpdated = 0;
-
-	if (!cont)
-		return MVE_StepStatus::EndOfFile;
 
 	if (micro_frame_delay  && !init_timer) {
 		timer_start();
