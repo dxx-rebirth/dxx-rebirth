@@ -910,64 +910,61 @@ int iff_write_bitmap(const char *ofilename,grs_bitmap *bm,palette_array_t *palet
 
 //read in many brushes.  fills in array of pointers, and n_bitmaps.
 //returns iff error codes
-int iff_read_animbrush(const char *ifilename,std::array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> &bm_list,unsigned *n_bitmaps,palette_array_t &palette)
+iff_read_result iff_read_animbrush(const char *ifilename)
 {
-	int ret = IFF_NO_ERROR;			//return code
+	iff_read_result result;
 	int sig,form_len;
 	long form_type;
 
-	*n_bitmaps=0;
-
 	auto ifile = PHYSFSX_openReadBuffered(ifilename).first;
 	if (!ifile)
-		return IFF_NO_FILE;
+	{
+		result.status = IFF_NO_FILE;
+		return result;
+	}
 
 	sig=get_sig(ifile);
 	PHYSFS_readSBE32(ifile, &form_len);
 
 	if (sig != form_sig) {
-		ret = IFF_NOT_IFF;
-		goto done;
+		result.status = IFF_NOT_IFF;
+		return result;
 	}
 
 	form_type = get_sig(ifile);
 
 	if ((form_type == pbm_sig) || (form_type == ilbm_sig))
-		ret = IFF_FORM_BITMAP;
+		result.status = IFF_FORM_BITMAP;
 	else if (form_type == anim_sig) {
 		int anim_end = PHYSFS_tell(ifile) + form_len - 4;
 
-		while (PHYSFS_tell(ifile) < anim_end && *n_bitmaps < bm_list.size()) {
-
-			grs_bitmap *prev_bm;
-
-			prev_bm = *n_bitmaps>0?bm_list[*n_bitmaps-1].get() : nullptr;
-
-			auto &n = bm_list[*n_bitmaps];
+		while (PHYSFS_tell(ifile) < anim_end && result.n_bitmaps < result.bm.size()) {
+			const auto n_bitmaps = result.n_bitmaps;
+			auto &n = result.bm[n_bitmaps];
 			n = std::make_unique<grs_main_bitmap>();
+			grs_bitmap *const prev_bm = n_bitmaps > 0 ? result.bm[n_bitmaps - 1].get() : nullptr;
 
 			/* iff_parse_bitmap needs a bm_mode, but only to test
 			 * whether to do RGB conversion.  Historically, anim files
 			 * do not require RGB conversion, so pass a mode that skips
 			 * the conversion.
 			 */
-			ret = iff_parse_bitmap(ifile, *n.get(), bm_mode::linear, *n_bitmaps > 0 ? nullptr : &palette, prev_bm);
+			const auto ret = iff_parse_bitmap(ifile, *n.get(), bm_mode::linear, n_bitmaps > 0 ? nullptr : &result.palette, prev_bm);
 
 			if (ret != IFF_NO_ERROR)
-				goto done;
-
-			(*n_bitmaps)++;
+			{
+				result.status = ret;
+				return result;
+			}
+			++result.n_bitmaps;
 		}
 
 		if (PHYSFS_tell(ifile) < anim_end)	//ran out of room
-			ret = IFF_TOO_MANY_BMS;
-
+			result.status = IFF_TOO_MANY_BMS;
 	}
 	else
-		ret = IFF_UNKNOWN_FORM;
-
-done:
-	return ret;
+		result.status = IFF_UNKNOWN_FORM;
+	return result;
 }
 
 //text for error messges

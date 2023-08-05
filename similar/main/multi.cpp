@@ -5659,47 +5659,53 @@ void init_hoard_data(d_vclip_array &Vclip)
 void save_hoard_data(void)
 {
 	grs_bitmap icon;
-	unsigned nframes;
-	palette_array_t palette;
-	int iff_error;
-	static const char sounds[][13] = {"selforb.raw","selforb.r22",          //SOUND_YOU_GOT_ORB
+	static constexpr char sounds[][13] = {"selforb.raw","selforb.r22",          //SOUND_YOU_GOT_ORB
 				"teamorb.raw","teamorb.r22",    //SOUND_FRIEND_GOT_ORB
 				"enemyorb.raw","enemyorb.r22",  //SOUND_OPPONENT_GOT_ORB
 				"OPSCORE1.raw","OPSCORE1.r22"}; //SOUND_OPPONENT_HAS_SCORED
-		
 	auto ofile = PHYSFSX_openWriteBuffered("hoard.ham").first;
 	if (!ofile)
 		return;
 
-	std::array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
-	iff_error = iff_read_animbrush("orb.abm",bm,&nframes,palette);
-	Assert(iff_error == IFF_NO_ERROR);
+	{
+		const auto read_result = iff_read_animbrush("orb.abm");
+		auto &bm = read_result.bm;
+		auto &palette = read_result.palette;
+		const auto nframes = read_result.n_bitmaps;
+		const auto iff_error = read_result.status;
+		assert(iff_error == IFF_NO_ERROR);
 	PHYSFS_writeULE16(ofile, nframes);
 	PHYSFS_writeULE16(ofile, bm[0]->bm_w);
 	PHYSFS_writeULE16(ofile, bm[0]->bm_h);
 	PHYSFS_write(ofile, &palette[0], sizeof(palette[0]), palette.size());
 	range_for (auto &i, partial_const_range(bm, nframes))
 		PHYSFS_write(ofile, i->bm_data, i->bm_w * i->bm_h, 1);
+	}
 
-	iff_error = iff_read_animbrush("orbgoal.abm",bm,&nframes,palette);
-	Assert(iff_error == IFF_NO_ERROR);
+	{
+		const auto read_result = iff_read_animbrush("orbgoal.abm");
+		auto &bm = read_result.bm;
+		auto &palette = read_result.palette;
+		const auto nframes = read_result.n_bitmaps;
+		const auto iff_error = read_result.status;
+		assert(iff_error == IFF_NO_ERROR);
 	Assert(bm[0]->bm_w == 64 && bm[0]->bm_h == 64);
 	PHYSFS_writeULE16(ofile, nframes);
 	PHYSFS_write(ofile, &palette[0], sizeof(palette[0]), palette.size());
 	range_for (auto &i, partial_const_range(bm, nframes))
 		PHYSFS_write(ofile, i->bm_data, i->bm_w * i->bm_h, 1);
+	}
 
 	range_for (const unsigned i, xrange(2u))
 	{
-		iff_error = iff_read_bitmap(i ? "orbb.bbm" : "orb.bbm", icon, &palette);
+		palette_array_t palette;
+		const auto iff_error = iff_read_bitmap(i ? "orbb.bbm" : "orb.bbm", icon, &palette);
 		Assert(iff_error == IFF_NO_ERROR);
 		PHYSFS_writeULE16(ofile, icon.bm_w);
 		PHYSFS_writeULE16(ofile, icon.bm_h);
 		PHYSFS_write(ofile, &palette[0], sizeof(palette[0]), palette.size());
 		PHYSFS_write(ofile, icon.bm_data, icon.bm_w*icon.bm_h, 1);
 	}
-	(void)iff_error;
-		
 	range_for (auto &i, sounds)
 		if (RAIIPHYSFS_File ifile{PHYSFS_openRead(i)})
 	{

@@ -865,14 +865,13 @@ void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 			{   // this is an ABM == animated bitmap
 				char abmname[FILENAME_LEN];
 				unsigned fnum;
-				int iff_error;          //reference parm to avoid warning message
-				palette_array_t newpal;
-				unsigned nframes;
-
 				snprintf(abmname, sizeof(abmname), "%.*s.abm", static_cast<int>(std::min<std::ptrdiff_t>(p - abn.data(), 8)), abn.data());
 
-				std::array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
-				iff_error = iff_read_animbrush(abmname,bm,&nframes,newpal);
+				auto read_result = iff_read_animbrush(abmname);
+				auto &bm = read_result.bm;
+				auto &newpal = read_result.palette;
+				const auto nframes = read_result.n_bitmaps;
+				const auto iff_error = read_result.status;
 
 				if (iff_error != IFF_NO_ERROR)  {
 					Error("File %s - IFF error: %s",abmname,iff_errormsg(iff_error));

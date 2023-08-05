@@ -26,12 +26,20 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _IFF_H
 #define _IFF_H
 
+#include <array>
+#include <memory>
 #include "pstypes.h"
 #include "fwd-gr.h"
 
-#ifdef __cplusplus
-
 constexpr std::integral_constant<std::size_t, 30> MAX_BITMAPS_PER_BRUSH{};
+
+struct iff_read_result
+{
+	int status;
+	unsigned n_bitmaps{};
+	palette_array_t palette;
+	std::array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
+};
 
 //Prototypes for IFF library functions
 
@@ -51,7 +59,7 @@ int iff_read_bitmap(const char *ifilename, grs_bitmap &bm, palette_array_t *pale
 //read in animator brush (.abm) file
 //fills in array of pointers, and n_bitmaps.
 //returns iff error codes. max_bitmaps is size of array.
-int iff_read_animbrush(const char *ifilename,std::array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> &bm,unsigned *n_bitmaps,palette_array_t &palette);
+iff_read_result iff_read_animbrush(const char *ifilename);
 
 // After a read
 extern ubyte iff_transparent_color;
@@ -80,8 +88,6 @@ const char *iff_errormsg(int error_number);
 #define IFF_UNKNOWN_MASK    10  //unknown masking type
 #define IFF_READ_ERROR      11  //error reading from file
 #define IFF_BM_MISMATCH     12  //bm being loaded doesn't match bm loaded into
-
-#endif
 
 #endif
 

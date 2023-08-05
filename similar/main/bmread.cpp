@@ -304,9 +304,6 @@ static bitmap_index bm_load_sub(const int skip, const char *const filename)
 
 static void ab_load(int skip, const char * filename, std::array<bitmap_index, MAX_BITMAPS_PER_BRUSH> &bmp, unsigned *nframes )
 {
-	int iff_error;		//reference parm to avoid warning message
-	palette_array_t newpal;
-
 	if (skip) {
 		Assert( bogus_bitmap_initialized != 0 );
 #if defined(DXX_BUILD_DESCENT_I)
@@ -346,11 +343,11 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 	}
 	}
 
-//	Note that last argument passes an address to the array newpal (which is a pointer).
-//	type mismatch found using lint, will substitute this line with an adjusted
-//	one.  If fatal error, then it can be easily changed.
-	std::array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
-	iff_error = iff_read_animbrush(filename,bm,nframes,newpal);
+	auto read_result = iff_read_animbrush(filename);
+	auto &bm = read_result.bm;
+	auto &newpal = read_result.palette;
+	*nframes = read_result.n_bitmaps;
+	const auto iff_error = read_result.status;
 	if (iff_error != IFF_NO_ERROR)	{
 		Error("File <%s> - IFF error: %s, line %d",filename,iff_errormsg(iff_error),linenum);
 	}
