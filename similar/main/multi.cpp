@@ -5658,7 +5658,6 @@ void init_hoard_data(d_vclip_array &Vclip)
 #if DXX_USE_EDITOR
 void save_hoard_data(void)
 {
-	grs_bitmap icon;
 	static constexpr char sounds[][13] = {"selforb.raw","selforb.r22",          //SOUND_YOU_GOT_ORB
 				"teamorb.raw","teamorb.r22",    //SOUND_FRIEND_GOT_ORB
 				"enemyorb.raw","enemyorb.r22",  //SOUND_OPPONENT_GOT_ORB
@@ -5699,6 +5698,7 @@ void save_hoard_data(void)
 	range_for (const unsigned i, xrange(2u))
 	{
 		palette_array_t palette;
+		grs_bitmap icon;
 		const auto iff_error = iff_read_bitmap(i ? "orbb.bbm" : "orb.bbm", icon, &palette);
 		Assert(iff_error == IFF_NO_ERROR);
 		PHYSFS_writeULE16(ofile, icon.bm_w);
