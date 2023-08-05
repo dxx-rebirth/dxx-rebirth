@@ -80,22 +80,48 @@ namespace {
 // ------------------------------------------------------------------------
 static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const int i, const int j, cg3s_point &p0, cg3s_point &p1, cg3s_point &p2, cg3s_point &p3, int &mine_tiles_drawn)
 {
-	std::array<cg3s_point *, 3> pointlist;
+	std::array<cg3s_point *, 3> pointlist{{
+		&p0,
+		&p1,
+		&p3,
+	}};
 
-	pointlist[0] = &p0;
-	pointlist[1] = &p1;
-	pointlist[2] = &p3;
-	std::array<g3s_lrgb, 3> lrgb_list1;
-	std::array<g3s_uvl, 3> uvl_list1;
-	lrgb_list1[0].r = lrgb_list1[0].g = lrgb_list1[0].b = uvl_list1[0].l = LIGHTVAL(i,j);
-	lrgb_list1[1].r = lrgb_list1[1].g = lrgb_list1[1].b = uvl_list1[1].l = LIGHTVAL(i,j+1);
-	lrgb_list1[2].r = lrgb_list1[2].g = lrgb_list1[2].b = uvl_list1[2].l = LIGHTVAL(i+1,j);
-
-	uvl_list1[0].u = (i)*f1_0/4; uvl_list1[0].v = (j)*f1_0/4;
-	uvl_list1[1].u = (i)*f1_0/4; uvl_list1[1].v = (j+1)*f1_0/4;
-	uvl_list1[2].u = (i+1)*f1_0/4;   uvl_list1[2].v = (j)*f1_0/4;
-
-	g3_check_and_draw_tmap(canvas, pointlist, uvl_list1, lrgb_list1, *terrain_bm);
+	const fix lightval_i0j0{LIGHTVAL(i, j)};
+	const fix lightval_i0j1{LIGHTVAL(i, j + 1)};
+	const fix lightval_i1j0{LIGHTVAL(i + 1, j)};
+	g3_check_and_draw_tmap(canvas, pointlist, (std::array<g3s_uvl, 3>{{
+		{
+			.u = i * f1_0 / 4,
+			.v = j * f1_0 / 4,
+			.l = lightval_i0j0,
+		},
+		{
+			.u = i * f1_0 / 4,
+			.v = (j + 1) * f1_0 / 4,
+			.l = lightval_i0j1,
+		},
+		{
+			.u = (i + 1) * f1_0 / 4,
+			.v = j * f1_0 / 4,
+			.l = lightval_i1j0,
+		},
+	}}), (std::array<g3s_lrgb, 3>{{
+		{
+			.r = lightval_i0j0,
+			.g = lightval_i0j0,
+			.b = lightval_i0j0,
+		},
+		{
+			.r = lightval_i0j1,
+			.g = lightval_i0j1,
+			.b = lightval_i0j1,
+		},
+		{
+			.r = lightval_i1j0,
+			.g = lightval_i1j0,
+			.b = lightval_i1j0,
+		},
+	}}), *terrain_bm);
 	std::aligned_union<0, g3_draw_line_context>::type outline_context;
 	static_assert(std::is_trivially_destructible<g3_draw_line_context>::value);
 	const auto draw_terrain_outline = terrain_outline;
@@ -116,17 +142,40 @@ static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const in
 
 	pointlist[0] = &p1;
 	pointlist[1] = &p2;
-	std::array<g3s_uvl, 3> uvl_list2;
-	std::array<g3s_lrgb, 3> lrgb_list2;
-	lrgb_list2[0].r = lrgb_list2[0].g = lrgb_list2[0].b = uvl_list2[0].l = LIGHTVAL(i,j+1);
-	lrgb_list2[1].r = lrgb_list2[1].g = lrgb_list2[1].b = uvl_list2[1].l = LIGHTVAL(i+1,j+1);
-	lrgb_list2[2].r = lrgb_list2[2].g = lrgb_list2[2].b = uvl_list2[2].l = LIGHTVAL(i+1,j);
-
-	uvl_list2[0].u = (i)*f1_0/4; uvl_list2[0].v = (j+1)*f1_0/4;
-	uvl_list2[1].u = (i+1)*f1_0/4;   uvl_list2[1].v = (j+1)*f1_0/4;
-	uvl_list2[2].u = (i+1)*f1_0/4;   uvl_list2[2].v = (j)*f1_0/4;
-
-	g3_check_and_draw_tmap(canvas, pointlist, uvl_list2, lrgb_list2, *terrain_bm);
+	const fix lightval_i1j1{LIGHTVAL(i + 1, j + 1)};
+	g3_check_and_draw_tmap(canvas, pointlist, (std::array<g3s_uvl, 3>{{
+		{
+			.u = i * f1_0 / 4,
+			.v = (j + 1) * f1_0 / 4,
+			.l = lightval_i0j1,
+		},
+		{
+			.u = (i + 1) * f1_0 / 4,
+			.v = (j + 1) * f1_0 / 4,
+			.l = lightval_i1j1,
+		},
+		{
+			.u = (i + 1) * f1_0 / 4,
+			.v = j * f1_0 / 4,
+			.l = lightval_i1j0,
+		},
+	}}), (std::array<g3s_lrgb, 3>{{
+		{
+			.r = lightval_i0j1,
+			.g = lightval_i0j1,
+			.b = lightval_i0j1,
+		},
+		{
+			.r = lightval_i1j1,
+			.g = lightval_i1j1,
+			.b = lightval_i1j1,
+		},
+		{
+			.r = lightval_i1j0,
+			.g = lightval_i1j0,
+			.b = lightval_i1j0,
+		},
+	}}), *terrain_bm);
 	if (draw_terrain_outline)
 	{
 #if !DXX_USE_OGL
