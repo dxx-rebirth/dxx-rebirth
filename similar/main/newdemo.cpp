@@ -1708,15 +1708,16 @@ static void newdemo_record_oneframeevent_update(int wallupdate)
 }
 }
 
-enum purpose_type
+enum class purpose_type : uint8_t
 {
-	PURPOSE_CHOSE_PLAY = 0,
-	PURPOSE_RANDOM_PLAY,
-	PURPOSE_REWRITE
+	chose_play = 0,
+	random_play,
+	rewrite
 };
 
 namespace dsx {
-static int newdemo_read_demo_start(enum purpose_type purpose)
+
+static int newdemo_read_demo_start(const purpose_type purpose)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -1733,27 +1734,28 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 #endif
 
 	nd_read_byte(&c);
-	if (purpose == PURPOSE_REWRITE)
+	if (purpose == purpose_type::rewrite)
 		nd_write_byte(c);
 	if ((c != ND_EVENT_START_DEMO) || nd_playback_v_bad_read) {
 		nm_messagebox(menu_title{nullptr}, {TXT_OK}, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_CORRUPT);
 		return 1;
 	}
 	nd_read_byte(&version);
-	if (purpose == PURPOSE_REWRITE)
+	if (purpose == purpose_type::rewrite)
 		nd_write_byte(version);
 #if defined(DXX_BUILD_DESCENT_I)
 	if (version == DEMO_VERSION_SHAREWARE)
 		shareware = 1;
 	else if (version < DEMO_VERSION) {
-		if (purpose == PURPOSE_CHOSE_PLAY) {
+		if (purpose == purpose_type::chose_play)
+		{
 			nm_messagebox(menu_title{nullptr}, {TXT_OK}, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_OLD);
 		}
 		return 1;
 	}
 #endif
 	nd_read_byte(&game_type);
-	if (purpose == PURPOSE_REWRITE)
+	if (purpose == purpose_type::rewrite)
 		nd_write_byte(game_type);
 #if defined(DXX_BUILD_DESCENT_I)
 	if ((game_type == DEMO_GAME_TYPE_SHAREWARE) && shareware)
@@ -1773,7 +1775,8 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		return 1;
 	}
 	if (version < DEMO_VERSION) {
-		if (purpose == PURPOSE_CHOSE_PLAY) {
+		if (purpose == purpose_type::chose_play)
+		{
 			nm_messagebox(menu_title{nullptr}, {TXT_OK}, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_OLD);
 		}
 		return 1;
@@ -1785,7 +1788,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	nd_read_int(&recorded_demo_game_mode);
 	Newdemo_game_mode = static_cast<game_mode_flags>(recorded_demo_game_mode);
 #if defined(DXX_BUILD_DESCENT_II)
-	if (purpose == PURPOSE_REWRITE)
+	if (purpose == purpose_type::rewrite)
 	{
 		nd_write_fix(nd_GameTime32);
 		nd_write_int(underlying_value(Newdemo_game_mode));
@@ -1800,7 +1803,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		if (Newdemo_game_mode & GM_TEAM)
 		{
 			nd_read_byte(&Netgame.team_vector);
-			if (purpose == PURPOSE_REWRITE)
+			if (purpose == purpose_type::rewrite)
 				nd_write_byte(Netgame.team_vector);
 		}
 
@@ -1819,7 +1822,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 			nd_read_byte(&Netgame.team_vector);
 			nd_read_string(Netgame.team_name[team_number::blue].buffer());
 			nd_read_string(Netgame.team_name[team_number::red].buffer());
-			if (purpose == PURPOSE_REWRITE)
+			if (purpose == purpose_type::rewrite)
 			{
 				nd_write_byte(Netgame.team_vector);
 				nd_write_string(Netgame.team_name[team_number::blue]);
@@ -1828,14 +1831,14 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		}
 		if (Newdemo_game_mode & GM_MULTI) {
 
-			if (purpose != PURPOSE_REWRITE)
+			if (purpose != purpose_type::rewrite)
 				multi_new_game();
 			nd_read_byte(&c);
 			N_players = static_cast<int>(c);
 			// changed this to above two lines -- breaks on the mac because of
 			// endian issues
 			//		nd_read_byte(&N_players);
-			if (purpose == PURPOSE_REWRITE)
+			if (purpose == purpose_type::rewrite)
 				nd_write_byte(N_players);
 			range_for (auto &i, partial_range(Players, N_players)) {
 				const auto &&objp = vmobjptr(i.objnum);
@@ -1849,7 +1852,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 					nd_read_byte(&connected);
 					i.connected = player_connection_status{connected};
 				}
-				if (purpose == PURPOSE_REWRITE)
+				if (purpose == purpose_type::rewrite)
 				{
 					nd_write_string(static_cast<const char *>(i.callsign));
 					nd_write_byte(underlying_value(i.connected));
@@ -1857,12 +1860,12 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 
 				if (Newdemo_game_mode & GM_MULTI_COOP) {
 					nd_read_int(&player_info.mission.score);
-					if (purpose == PURPOSE_REWRITE)
+					if (purpose == purpose_type::rewrite)
 						nd_write_int(player_info.mission.score);
 				} else {
 					nd_read_short(&player_info.net_killed_total);
 					nd_read_short(&player_info.net_kills_total);
-					if (purpose == PURPOSE_REWRITE)
+					if (purpose == purpose_type::rewrite)
 					{
 						nd_write_short(player_info.net_killed_total);
 						nd_write_short(player_info.net_kills_total);
@@ -1870,7 +1873,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 				}
 			}
 			Game_mode = Newdemo_game_mode;
-			if (purpose != PURPOSE_REWRITE)
+			if (purpose != purpose_type::rewrite)
 				multi_sort_kill_list();
 			Game_mode = GM_NORMAL;
 		} else
@@ -1878,7 +1881,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 #if defined(DXX_BUILD_DESCENT_II)
 			auto &player_info = get_local_plrobj().ctype.player_info;
 			nd_read_int(&player_info.mission.score);      // Note link to above if!
-			if (purpose == PURPOSE_REWRITE)
+			if (purpose == purpose_type::rewrite)
 				nd_write_int(player_info.mission.score);
 #endif
 		}
@@ -1889,7 +1892,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	{
 		auto &score = player_info.mission.score;
 		nd_read_int(&score);      // Note link to above if!
-		if (purpose == PURPOSE_REWRITE)
+		if (purpose == purpose_type::rewrite)
 			nd_write_int(score);
 	}
 #endif
@@ -1900,7 +1903,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		nd_read_short(&s);
 		if (i == primary_weapon_index_t::VULCAN_INDEX)
 			player_info.vulcan_ammo = s;
-		if (purpose == PURPOSE_REWRITE)
+		if (purpose == purpose_type::rewrite)
 			nd_write_short(s);
 	}
 
@@ -1909,30 +1912,32 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		uint16_t u;
 		nd_read_short(&u);
 		i = u;
-		if (purpose == PURPOSE_REWRITE)
+		if (purpose == purpose_type::rewrite)
 			nd_write_short(i);
 	}
 
 	uint8_t i;
 	nd_read_byte(&i);
 	const enum laser_level laser_level{i};
-	if ((purpose != PURPOSE_REWRITE) && (laser_level != player_info.laser_level)) {
+	if (purpose != purpose_type::rewrite && laser_level != player_info.laser_level)
+	{
 		player_info.laser_level = laser_level;
 	}
-	else if (purpose == PURPOSE_REWRITE)
+	else if (purpose == purpose_type::rewrite)
 		nd_write_byte(static_cast<uint8_t>(laser_level));
 
 	// Support for missions
 
 	nd_read_string(current_mission);
-	if (purpose == PURPOSE_REWRITE)
+	if (purpose == purpose_type::rewrite)
 		nd_write_string(current_mission);
 #if defined(DXX_BUILD_DESCENT_I)
 	if (!shareware)
 	{
-		if ((purpose != PURPOSE_REWRITE) && load_mission_by_name(mission_entry_predicate{current_mission}, mission_name_type::guess))
+		if (purpose != purpose_type::rewrite && load_mission_by_name(mission_entry_predicate{current_mission}, mission_name_type::guess))
 		{
-			if (purpose == PURPOSE_CHOSE_PLAY) {
+			if (purpose == purpose_type::chose_play)
+			{
 				nm_messagebox(menu_title{nullptr}, {TXT_OK}, TXT_NOMISSION4DEMO, current_mission);
 			}
 			return 1;
@@ -1945,7 +1950,8 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		mission_predicate.check_version = false;
 		if (load_mission_by_name(mission_predicate, mission_name_type::guess))
 		{
-		if (purpose != PURPOSE_RANDOM_PLAY) {
+		if (purpose != purpose_type::random_play)
+		{
 			nm_messagebox(menu_title{nullptr}, {TXT_OK}, TXT_NOMISSION4DEMO, current_mission);
 		}
 		return 1;
@@ -1957,7 +1963,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	nd_playback_total = 0;
 	nd_read_byte(&energy);
 	nd_read_byte(&shield);
-	if (purpose == PURPOSE_REWRITE)
+	if (purpose == purpose_type::rewrite)
 	{
 		nd_write_byte(energy);
 		nd_write_byte(shield);
@@ -1966,7 +1972,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 	int recorded_player_flags;
 	nd_read_int(&recorded_player_flags);
 	player_info.powerup_flags = player_flags(recorded_player_flags);
-	if (purpose == PURPOSE_REWRITE)
+	if (purpose == purpose_type::rewrite)
 		nd_write_int(recorded_player_flags);
 	if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED) {
 		player_info.cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
@@ -1986,7 +1992,7 @@ static int newdemo_read_demo_start(enum purpose_type purpose)
 		nd_read_byte(&v);
 		Secondary_weapon = static_cast<secondary_weapon_index_t>(v);
 	}
-	if (purpose == PURPOSE_REWRITE)
+	if (purpose == purpose_type::rewrite)
 	{
 		nd_write_byte(Primary_weapon);
 		nd_write_byte(Secondary_weapon);
@@ -3418,7 +3424,7 @@ window_event_result newdemo_goto_beginning()
 	//	return;
 	PHYSFS_seek(infile, 0);
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
-	if (newdemo_read_demo_start(PURPOSE_CHOSE_PLAY))
+	if (newdemo_read_demo_start(purpose_type::chose_play))
 		newdemo_stop_playback();
 	if (newdemo_read_frame_information(0) == -1)
 		newdemo_stop_playback();
@@ -4217,7 +4223,7 @@ namespace dsx {
 void newdemo_start_playback(const char * filename)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
-	enum purpose_type rnd_demo = PURPOSE_CHOSE_PLAY;
+	auto rnd_demo{purpose_type::chose_play};
 	char filename2[PATH_MAX+FILENAME_LEN] = DEMO_DIR;
 
 	change_playernum_to(0);
@@ -4229,7 +4235,7 @@ void newdemo_start_playback(const char * filename)
 		// Randomly pick a filename
 		int NumFiles = 0, RandFileNum;
 
-		rnd_demo = PURPOSE_RANDOM_PLAY;
+		rnd_demo = purpose_type::random_play;
 		NumFiles = newdemo_count_demos();
 
 		if ( NumFiles == 0 ) {
@@ -4351,7 +4357,8 @@ int newdemo_swap_endian(const char *filename)
 	nd_playback_v_at_eof = 0;
 	Newdemo_state = ND_STATE_NORMAL;	// not doing anything special really
 
-	if (newdemo_read_demo_start(PURPOSE_REWRITE)) {
+	if (newdemo_read_demo_start(purpose_type::rewrite))
+	{
 		infile.reset();
 		outfile.reset();
 		swap_endian = 0;
