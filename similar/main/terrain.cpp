@@ -410,15 +410,17 @@ namespace dcx {
 
 namespace {
 
-static void get_pnt(vms_vector &p,int i,int j)
+static vms_vector get_pnt(int i, int j)
 {
 	// added on 02/20/99 by adb to prevent overflow
 	if (i >= grid_h) i = grid_h - 1;
 	if (i == grid_h - 1 && j >= grid_w) j = grid_w - 1;
 	// end additions by adb
-	p.x = GRID_SCALE*i;
-	p.z = GRID_SCALE*j;
-	p.y = HEIGHT(i,j)*HEIGHT_SCALE;
+	return {
+		.x = GRID_SCALE * i,
+		.y = HEIGHT(i, j) * HEIGHT_SCALE,
+		.z = GRID_SCALE * j,
+	};
 }
 
 constexpr vms_vector light{0x2e14,0xe8f5,0x5eb8};
@@ -431,17 +433,18 @@ static fix get_face_light(const vms_vector &p0,const vms_vector &p1,const vms_ve
 
 static fix get_avg_light(int i,int j)
 {
-	vms_vector pp,p[6];
 	fix sum;
 	int f;
 
-	get_pnt(pp,i,j);
-	get_pnt(p[0],i-1,j);
-	get_pnt(p[1],i,j-1);
-	get_pnt(p[2],i+1,j-1);
-	get_pnt(p[3],i+1,j);
-	get_pnt(p[4],i,j+1);
-	get_pnt(p[5],i-1,j+1);
+	const auto pp = get_pnt(i, j);
+	const std::array<vms_vector, 6> p{{
+		get_pnt(i - 1, j),
+		get_pnt(i, j - 1),
+		get_pnt(i + 1, j - 1),
+		get_pnt(i + 1, j),
+		get_pnt(i, j + 1),
+		get_pnt(i - 1, j + 1),
+	}};
 
 	for (f=0,sum=0;f<6;f++)
 		sum += get_face_light(pp,p[f],p[(f+1)%5]);
