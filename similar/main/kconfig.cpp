@@ -110,14 +110,14 @@ struct kc_mitem {
 	uint8_t value;		// what key,button,etc
 };
 
-enum kc_type : uint8_t
+enum class kc_type : uint8_t
 {
-	BT_KEY = 0,
-	BT_MOUSE_BUTTON = 1,
-	BT_MOUSE_AXIS = 2,
-	BT_JOY_BUTTON = 3,
-	BT_JOY_AXIS = 4,
-	BT_INVERT = 5,
+	key = 0,
+	mouse_button = 1,
+	mouse_axis = 2,
+	joy_button = 3,
+	joy_axis = 4,
+	invert = 5,
 };
 
 enum kc_state : uint8_t
@@ -260,7 +260,7 @@ static std::array<kc_mitem, std::size(kc_rebirth)> kcm_rebirth;
 static void kconfig_start_changing(kc_menu &menu)
 {
 	const auto citem = menu.citem;
-	if (menu.items[citem].type == BT_INVERT)
+	if (menu.items[citem].type == kc_type::invert)
 	{
 		menu.changing = 0;		// in case we were changing something else
 		auto &value = menu.mitems[citem].value;
@@ -271,7 +271,7 @@ static void kconfig_start_changing(kc_menu &menu)
 	menu.changing = 1;
 }
 
-static void kc_set_exclusive_binding(kc_menu &menu, kc_mitem &mitem, const unsigned type, const unsigned value)
+static void kc_set_exclusive_binding(kc_menu &menu, kc_mitem &mitem, const kc_type type, const unsigned value)
 {
 	const auto nitems = menu.nitems;
 	for (auto &&[iterate_mitem, iterate_item] : zip(unchecked_partial_range(menu.mitems, nitems), unchecked_partial_range(menu.items, nitems)))
@@ -304,14 +304,14 @@ static const char *get_item_text(const kc_item &item, const kc_mitem &mitem, cha
 		return "";
 	} else {
 		switch( item.type )	{
-			case BT_KEY:
+			case kc_type::key:
 				return key_properties[mitem.value].key_text;
-			case BT_MOUSE_BUTTON:
+			case kc_type::mouse_button:
 				return mousebutton_text[mitem.value];
-			case BT_MOUSE_AXIS:
+			case kc_type::mouse_axis:
 				return mouseaxis_text[mitem.value];
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
-			case BT_JOY_BUTTON:
+			case kc_type::joy_button:
 				if (joybutton_text.size() > mitem.value)
 					return &joybutton_text[mitem.value][0];
 				else
@@ -324,7 +324,7 @@ static const char *get_item_text(const kc_item &item, const kc_mitem &mitem, cha
 				(void)buf;
 #endif
 #if DXX_MAX_AXES_PER_JOYSTICK
-			case BT_JOY_AXIS:
+			case kc_type::joy_axis:
 				if (joyaxis_text.size() > mitem.value)
 					return &joyaxis_text[mitem.value][0];
 				else
@@ -336,7 +336,7 @@ static const char *get_item_text(const kc_item &item, const kc_mitem &mitem, cha
 #else
 				(void)buf;
 #endif
-			case BT_INVERT:
+			case kc_type::invert:
 				return invert_text[mitem.value];
 			default:
 				return NULL;
@@ -490,22 +490,22 @@ static void kconfig_draw(kc_menu &menu)
 		const char *s;
 		switch(menu.items[menu.citem].type)
 		{
-			case BT_KEY:
+			case kc_type::key:
 				s = TXT_PRESS_NEW_KEY;
 				break;
-			case BT_MOUSE_BUTTON:
+			case kc_type::mouse_button:
 				s = TXT_PRESS_NEW_MBUTTON;
 				break;
-			case BT_MOUSE_AXIS:
+			case kc_type::mouse_axis:
 				s = TXT_MOVE_NEW_MSE_AXIS;
 				break;
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
-			case BT_JOY_BUTTON:
+			case kc_type::joy_button:
 				s = TXT_PRESS_NEW_JBUTTON;
 				break;
 #endif
 #if DXX_MAX_AXES_PER_JOYSTICK
-			case BT_JOY_AXIS:
+			case kc_type::joy_axis:
 				s = TXT_MOVE_NEW_JOY_AXIS;
 				break;
 #endif
@@ -711,7 +711,7 @@ window_event_result kc_menu::event_handler(const d_event &event)
 			
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
-			if (changing && (items[citem].type == BT_MOUSE_BUTTON) && (event.type == EVENT_MOUSE_BUTTON_UP))
+			if (changing && items[citem].type == kc_type::mouse_button && event.type == EVENT_MOUSE_BUTTON_UP)
 			{
 				kc_change_mousebutton(*this, event, mitems[citem]);
 				mouse_state = (event.type == EVENT_MOUSE_BUTTON_DOWN);
@@ -733,7 +733,7 @@ window_event_result kc_menu::event_handler(const d_event &event)
 			return kconfig_mouse(*this, event);
 
 		case EVENT_MOUSE_MOVED:
-			if (changing && items[citem].type == BT_MOUSE_AXIS)
+			if (changing && items[citem].type == kc_type::mouse_axis)
 				kc_change_mouseaxis(*this, event, mitems[citem]);
 			else
 				event_mouse_get_delta(event, &old_maxis[0], &old_maxis[1], &old_maxis[2]);
@@ -741,14 +741,14 @@ window_event_result kc_menu::event_handler(const d_event &event)
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
 		case EVENT_JOYSTICK_BUTTON_DOWN:
-			if (changing && items[citem].type == BT_JOY_BUTTON)
+			if (changing && items[citem].type == kc_type::joy_button)
 				kc_change_joybutton(*this, event, mitems[citem]);
 			break;
 #endif
 
 #if DXX_MAX_AXES_PER_JOYSTICK
 		case EVENT_JOYSTICK_MOVED:
-			if (changing && items[citem].type == BT_JOY_AXIS)
+			if (changing && items[citem].type == kc_type::joy_axis)
 				kc_change_joyaxis(*this, event, mitems[citem]);
 			else
 			{
@@ -765,7 +765,7 @@ window_event_result kc_menu::event_handler(const d_event &event)
 			window_event_result rval = kconfig_key_command(*this, event);
 			if (rval != window_event_result::ignored)
 				return rval;
-			if (changing && items[citem].type == BT_KEY)
+			if (changing && items[citem].type == kc_type::key)
 				kc_change_key(*this, event, mitems[citem]);
 			return window_event_result::ignored;
 		}
@@ -895,7 +895,7 @@ static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 	if (std::any_of(begin(system_keys), e, predicate))
 		return;
 
-	kc_set_exclusive_binding(menu, mitem, BT_KEY, keycode);
+	kc_set_exclusive_binding(menu, mitem, kc_type::key, keycode);
 }
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
@@ -906,14 +906,14 @@ static void kc_change_joybutton( kc_menu &menu,const d_event &event, kc_mitem &m
 	Assert(event.type == EVENT_JOYSTICK_BUTTON_DOWN);
 	button = event_joystick_get_button(event);
 
-	kc_set_exclusive_binding(menu, mitem, BT_JOY_BUTTON, button);
+	kc_set_exclusive_binding(menu, mitem, kc_type::joy_button, button);
 }
 #endif
 
 static void kc_change_mousebutton( kc_menu &menu,const d_event &event, kc_mitem &mitem)
 {
 	const auto button = event_mouse_get_button(event);
-	kc_set_exclusive_binding(menu, mitem, BT_MOUSE_BUTTON, underlying_value(button));
+	kc_set_exclusive_binding(menu, mitem, kc_type::mouse_button, underlying_value(button));
 }
 
 #if DXX_MAX_AXES_PER_JOYSTICK
@@ -927,7 +927,7 @@ static void kc_change_joyaxis( kc_menu &menu,const d_event &event, kc_mitem &mit
 		return;
 	con_printf(CON_DEBUG, "Axis Movement detected: Axis %i", axis);
 
-	kc_set_exclusive_binding(menu, mitem, BT_JOY_AXIS, axis);
+	kc_set_exclusive_binding(menu, mitem, kc_type::joy_axis, axis);
 }
 #endif
 
@@ -946,7 +946,7 @@ static void kc_change_mouseaxis( kc_menu &menu,const d_event &event, kc_mitem &m
 		code = 0;
 	else
 		return;
-	kc_set_exclusive_binding(menu, mitem, BT_MOUSE_AXIS, code);
+	kc_set_exclusive_binding(menu, mitem, kc_type::mouse_axis, code);
 }
 
 }
@@ -1148,7 +1148,7 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 				{
 					for (auto &&[kc, kcm] : zip(kc_joystick, kcm_joystick))
 					{
-						if (kc.type == BT_JOY_BUTTON && kcm.value == button)
+						if (kc.type == kc_type::joy_button && kcm.value == button)
 							input_button_matched(Controls, kc, event.type == EVENT_JOYSTICK_BUTTON_DOWN);
 					}
 			if (!automap_flag && event.type == EVENT_JOYSTICK_BUTTON_DOWN)
@@ -1171,7 +1171,7 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 				const auto button = underlying_value(mb);
 					for (auto &&[kc, kcm] : zip(kc_mouse, kcm_mouse))
 					{
-						if (kc.type == BT_MOUSE_BUTTON && kcm.value == button)
+						if (kc.type == kc_type::mouse_button && kcm.value == button)
 							input_button_matched(Controls, kc, event.type == EVENT_MOUSE_BUTTON_DOWN);
 					}
 			if (!automap_flag && event.type == EVENT_MOUSE_BUTTON_DOWN)
@@ -1440,7 +1440,7 @@ void kc_set_controls()
 	for (auto &&[kcm, kc, setting] : zip(kcm_joystick, kc_joystick, PlayerCfg.KeySettings.Joystick))
 	{
 		uint8_t value = setting;
-		if (kc.type == BT_INVERT)
+		if (kc.type == kc_type::invert)
 		{
 			if (value != 1)
 				value = 0;
@@ -1453,7 +1453,7 @@ void kc_set_controls()
 	for (auto &&[kcm, kc, setting] : zip(kcm_mouse, kc_mouse, PlayerCfg.KeySettings.Mouse))
 	{
 		uint8_t value = setting;
-		if (kc.type == BT_INVERT)
+		if (kc.type == kc_type::invert)
 		{
 			if (value != 1)
 				value = 0;
