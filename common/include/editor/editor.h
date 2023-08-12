@@ -421,8 +421,8 @@ segnum_t get_free_segment_number(segment_array &);
 #define diagnostic_message_fmt editor_status_fmt
 
 //      Editor status message.
+void editor_status_fmt(const char *) = delete;
 extern void editor_status_fmt(const char *format, ... ) __attribute_format_printf(1, 2);
-#define editor_status_fmt(F,...)	dxx_call_printf_checked(editor_status_fmt,editor_status,(),(F),##__VA_ARGS__)
 
 // Variables in editor.c that the k*.c files need
 
