@@ -809,7 +809,7 @@ int menubar_init(grs_canvas &canvas, const char *const file)
 	auto &&[infile, physfserr] = PHYSFSX_openReadBuffered(file);
 	if (!infile)
 	{
-		Warning("Menubar: failed to open \"%s\": %s\n", file, PHYSFS_getErrorByCode(physfserr));
+		Warning("Menubar: failed to open \"%s\": %s", file, PHYSFS_getErrorByCode(physfserr));
 		return 0;
 	}
 

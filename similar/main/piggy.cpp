@@ -514,7 +514,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 			Pigdata_start = 0;
 			break;
 		default:
-			Warning("Unknown size for " DEFAULT_PIGFILE_REGISTERED);
+			Warning_puts("Unknown size for " DEFAULT_PIGFILE_REGISTERED);
 			Int3();
 			[[fallthrough]];
 		case D1_MAC_PIGSIZE:
@@ -1943,7 +1943,7 @@ static void read_d1_tmap_nums_from_hog(PHYSFS_File *d1_pig)
 		REMOVE_EOL(inputline);
                 if (strchr(inputline, ';')!=NULL) REMOVE_COMMENTS(inputline);
 		if (strlen(inputline) == LINEBUF_SIZE-1) {
-			Warning("Possible line truncation in BITMAPS.TBL");
+			Warning_puts("Possible line truncation in BITMAPS.TBL");
 			return;
 		}
 		arg = strtok( inputline, space_tab );
@@ -2028,7 +2028,7 @@ void load_d1_bitmap_replacements()
 
 	std::array<color_palette_index, 256> colormap;
 	if (get_d1_colormap( d1_palette, colormap ) != 0)
-		Warning("Could not load descent 1 color palette");
+		Warning_puts("Failed to load Descent 1 color palette");
 
 	pigsize = PHYSFS_fileLength(d1_Piggy_fp);
 	switch (pigsize) {
@@ -2042,7 +2042,7 @@ void load_d1_bitmap_replacements()
 		read_d1_tmap_nums_from_hog(d1_Piggy_fp);
 		break;
 	default:
-		Warning("Unknown size for " D1_PIGFILE);
+		Warning_puts("Unknown size for " D1_PIGFILE);
 		Int3();
 		[[fallthrough]];
 	case D1_PIGSIZE:
@@ -2067,7 +2067,7 @@ void load_d1_bitmap_replacements()
 
 	Bitmap_replacement_data = std::make_unique<ubyte[]>(D1_BITMAPS_SIZE);
 	if (!Bitmap_replacement_data) {
-		Warning(D1_PIG_LOAD_FAILED);
+		Warning_puts(D1_PIG_LOAD_FAILED);
 		return;
 	}
 
@@ -2130,7 +2130,7 @@ grs_bitmap *read_extra_bitmap_d1_pig(const std::span<const char> name, grs_bitma
 
 		std::array<color_palette_index, 256> colormap;
 		if (get_d1_colormap( d1_palette, colormap ) != 0)
-			Warning("Could not load descent 1 color palette");
+			Warning_puts("Failed to load Descent 1 color palette");
 
 		pigsize = PHYSFS_fileLength(d1_Piggy_fp);
 		switch (pigsize) {
@@ -2142,7 +2142,7 @@ grs_bitmap *read_extra_bitmap_d1_pig(const std::span<const char> name, grs_bitma
 			pig_data_start = 0;
 			break;
 		default:
-			Warning("Unknown size for " D1_PIGFILE);
+			Warning_puts("Unknown size for " D1_PIGFILE);
 			Int3();
 			[[fallthrough]];
 		case D1_PIGSIZE:

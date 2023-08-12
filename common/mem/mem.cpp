@@ -234,7 +234,7 @@ void mem_free( void * buffer )
 	if (buffer==NULL  &&  (!out_of_memory))
 	{
 		con_printf(CON_CRITICAL, "\nMEM_FREE_NULL: An attempt was made to free the null pointer." );
-		Warning( "MEM: Freeing the NULL pointer!" );
+		Warning_puts("MEM: Freeing the NULL pointer!");
 		Int3();
 		return;
 	}
@@ -243,7 +243,7 @@ void mem_free( void * buffer )
 	if (id==-1 &&  (!out_of_memory))
 	{
 		con_printf(CON_CRITICAL, "\nMEM_FREE_NOMALLOC: An attempt was made to free a ptr that wasn't\nallocated with mem.h included." );
-		Warning( "MEM: Freeing a non-malloced pointer!" );
+		Warning("MEM: Freeing a non-malloced pointer: %p!", buffer);
 		Int3();
 		return;
 	}

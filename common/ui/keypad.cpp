@@ -383,7 +383,7 @@ int ui_pad_read( int n, const char * filename )
 
 	auto &&[infile, physfserr] = PHYSFSX_openReadBuffered(filename);
 	if (!infile) {
-		Warning("UI pad: failed to open \"%s\": %s\n", filename, PHYSFS_getErrorByCode(physfserr));
+		Warning("UI pad: failed to open \"%s\": %s", filename, PHYSFS_getErrorByCode(physfserr));
 		return 0;
 	}
 	auto &kpn = *(KeyPad[n] = std::make_unique<UI_KEYPAD>());

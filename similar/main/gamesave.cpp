@@ -1509,7 +1509,7 @@ int load_level(
 	if (EditorWindow && (Gamesave_current_version <= 3) && !d1_pig_present)
 	{
 		if (!no_old_level_file_error)
-			Warning("A Descent 1 level was loaded,\n"
+			Warning_puts("A Descent 1 level was loaded,\n"
 					"and there is no Descent 1 texture\n"
 					"set available. Saving it will\n"
 					"convert it to a Descent 2 level.");

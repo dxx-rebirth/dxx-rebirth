@@ -329,7 +329,7 @@ static unsigned check_warn_joy_support_limit(const unsigned n, const char *const
 		con_printf(CON_NORMAL, "sdl-joystick: %d %ss", n, desc);
 		return n;
 	}
-	Warning("sdl-joystick: found %d %ss, only %d supported.\n", n, desc, MAX);
+	Warning("sdl-joystick: found %d %ss, only %d supported.", n, desc, MAX);
 	return MAX;
 }
 

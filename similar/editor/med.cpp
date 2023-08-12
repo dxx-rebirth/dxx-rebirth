@@ -389,7 +389,7 @@ void init_editor()
 	editor_font = gr_init_font(*grd_curcanv, "pc8x16.fnt");
 	if (!editor_font)
 	{
-		Warning("Could not find pc8x16.fnt");
+		Warning_puts("Failed to init font pc8x16.fnt");
 		close_editor();
 		return;
 	}

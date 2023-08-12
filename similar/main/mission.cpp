@@ -579,7 +579,7 @@ static void add_d1_builtin_mission_to_list(mission_list_type &mission_list)
 		mission->mission_name.copy_if(D1_OEM_MISSION_NAME);
 		break;
 	default:
-		Warning("Unknown D1 hogsize %d\n", underlying_value(size));
+		Warning("Unknown D1 hogsize %d", underlying_value(size));
 		Int3();
 		[[fallthrough]];
 		case descent_hog_size::pc_retail_v15:
@@ -625,7 +625,7 @@ static void add_builtin_mission_to_list(mission_list_type &mission_list, d_fname
 		set_hardcoded_mission(mission_list, OEM_MISSION_FILENAME, OEM_MISSION_NAME);
 		break;
 	default:
-		Warning("Unknown hogsize %d, trying %s\n", size, FULL_MISSION_FILENAME MISSION_EXTENSION_DESCENT_II);
+		Warning("Unknown hogsize %d, trying %s", size, FULL_MISSION_FILENAME MISSION_EXTENSION_DESCENT_II);
 		Int3();
 		[[fallthrough]];
 	case FULL_MISSION_HOGSIZE:
@@ -926,7 +926,7 @@ static const char *load_mission(const mle *const mission)
 #if defined(DXX_BUILD_DESCENT_I)
 			Error("descent.hog not available!\n%s", PHYSFS_getErrorByCode(r));
 #elif defined(DXX_BUILD_DESCENT_II)
-			Warning("descent.hog not available!\n%s\nThis mission may be missing some files required for briefings and exit sequence\n", PHYSFS_getErrorByCode(r));
+			Warning("descent.hog not available!\n%s\nThis mission may be missing some files required for briefings and exit sequence.", PHYSFS_getErrorByCode(r));
 #endif
 		if (!d_stricmp(Current_mission->path.c_str(), D1_MISSION_FILENAME))
 		{

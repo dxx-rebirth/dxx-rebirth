@@ -97,7 +97,7 @@ void RBAInit()
 			}
 		}
 		else if (s_cd == NULL)
-			Warning("RBAudio: Could not open cdrom %i for redbook audio:%s\n", i, SDL_GetError());
+			Warning("RBAudio: Could not open cdrom %i for redbook audio: %s", i, SDL_GetError());
 	}
 	
 	{

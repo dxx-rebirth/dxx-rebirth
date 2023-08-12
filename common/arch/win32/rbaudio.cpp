@@ -149,7 +149,7 @@ void RBAInit()
 	mciSetParms.dwTimeFormat = MCI_FORMAT_MSF;
 	if (const MCIERROR mciError{mciSendCommand(wCDDeviceID, MCI_SET, MCI_SET_TIME_FORMAT, reinterpret_cast<DWORD_PTR>(&mciSetParms))})
 	{
-		Warning("RBAudio win32/MCI: cannot set time format for CD to MSF (strange)");
+		Warning_puts("RBAudio win32/MCI: cannot set time format for CD to MSF (strange)");
 		RBAExit();
 		return;
 	}
@@ -440,7 +440,7 @@ unsigned long RBAGetDiscID()
 	totalLength = mci_GetTotalLength();
 	if (totalLength < 0)
 	{
-		Warning("RBAudio win32/MCI: cannot determine total length");
+		Warning_puts("RBAudio win32/MCI: cannot determine total length");
 		return 0;
 	}
 

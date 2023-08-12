@@ -215,7 +215,7 @@ int digi_audio_init()
 
 	if ( SDL_OpenAudio(&WaveSpec, NULL) < 0 ) {
 		//edited on 10/05/98 by Matt Mueller - should keep running, just with no sound.
-		Warning("\nError: Couldn't open audio: %s\n", SDL_GetError());
+		Warning("Failed to open audio: %s", SDL_GetError());
 		//killed  exit(2);
 		return 1;
 		//end edit -MM

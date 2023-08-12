@@ -305,7 +305,7 @@ static texture_index convert_to_d1_tmap_num(const texture_index tmap_num)
 				if (tmap_num < 635) return tmap_num - 141;
 				if (tmap_num < 731) return tmap_num - 147;
 			}
-			Warning("can't convert unknown texture #%hu to descent 1.\n", tmap_num);
+			Warning("Failed to convert unknown texture #%hu to Descent 1 texture.", tmap_num);
 			return tmap_num;
 	}
 }
