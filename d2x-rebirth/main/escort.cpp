@@ -509,9 +509,9 @@ static void thief_message_str(const char * str)
 	HUD_init_message(HM_DEFAULT, "%c%cTHIEF:%c%c %s", 1, BM_XRGB(28, 0, 0), 1, BM_XRGB(0, 31, 0), str);
 }
 
-static void thief_message(const char * format, ... ) __attribute_format_printf(1, 2);
+static void thief_message(const char *) = delete;
+__attribute_format_printf(1, 2)
 static void thief_message(const char * format, ... )
-#define thief_message(F,...)	dxx_call_printf_checked(thief_message,thief_message_str,(),(F),##__VA_ARGS__)
 {
 
 	char	new_format[128];
