@@ -1406,7 +1406,9 @@ static void do_screen_message(const char *msg)
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 namespace {
-static void do_screen_message_fmt(const char *fmt, ...) __attribute_format_printf(1, 2);
+void do_screen_message_fmt(const char *) = delete;
+
+__attribute_format_printf(1, 2)
 static void do_screen_message_fmt(const char *fmt, ...)
 {
 	va_list arglist;
@@ -1416,7 +1418,6 @@ static void do_screen_message_fmt(const char *fmt, ...)
 	va_end(arglist);
 	do_screen_message(msg);
 }
-#define do_screen_message(F,...)	dxx_call_printf_checked(do_screen_message_fmt,do_screen_message,(),F,##__VA_ARGS__)
 
 //	-----------------------------------------------------------------------------------------------------
 // called when the player is starting a new level for normal game mode and restore state
@@ -1448,7 +1449,7 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 			{
 				do_screen_message(TXT_SECRET_EXIT);
 			} else {
-				do_screen_message("Secret level already destroyed.\nAdvancing to level %i.", Current_level_num+1);
+				do_screen_message_fmt("Secret level already destroyed.\nAdvancing to level %i.", Current_level_num+1);
 			}
 		}
 	}
@@ -1493,7 +1494,7 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 			StartSecretLevel();
 			// -- No: This is only for returning to base level: set_pos_from_return_segment();
 		} else {
-			do_screen_message("Secret level already destroyed.\nAdvancing to level %i.", Current_level_num+1);
+			do_screen_message_fmt("Secret level already destroyed.\nAdvancing to level %i.", Current_level_num+1);
 			return;
 		}
 	}
@@ -1551,7 +1552,7 @@ window_event_result ExitSecretLevel()
 
 	if (PHYSFSX_exists(SECRETB_FILENAME,0))
 	{
-		do_screen_message(TXT_SECRET_RETURN);
+		do_screen_message_fmt(TXT_SECRET_RETURN);
 		auto &player_info = get_local_plrobj().ctype.player_info;
 		const auto pw_save = player_info.Primary_weapon;
 		const auto sw_save = player_info.Secondary_weapon;
@@ -1566,7 +1567,7 @@ window_event_result ExitSecretLevel()
 			result = window_event_result::close;
 		}
 		else {
-			do_screen_message(TXT_SECRET_ADVANCE);
+			do_screen_message_fmt(TXT_SECRET_ADVANCE);
 			StartNewLevel(Entered_from_level+1);
 		}
 	}
@@ -1900,7 +1901,7 @@ window_event_result DoPlayerDead()
 		if (Current_level_num < 0) {
 			if (PHYSFSX_exists(SECRETB_FILENAME,0))
 			{
-				do_screen_message(TXT_SECRET_RETURN);
+				do_screen_message_fmt(TXT_SECRET_RETURN);
 				state_restore_all(1, secret_restore::died, SECRETB_FILENAME, blind_save::no);			//	2 means you died
 				set_pos_from_return_segment();
 				plr.lives--;						//	re-lose the life, get_local_player().lives got written over in restore.
@@ -1911,7 +1912,7 @@ window_event_result DoPlayerDead()
 					result = window_event_result::close;
 				}
 				else {
-					do_screen_message(TXT_SECRET_ADVANCE);
+					do_screen_message_fmt(TXT_SECRET_ADVANCE);
 					StartNewLevel(Entered_from_level+1);
 					init_player_stats_new_ship(Player_num);	//	New, MK, 05/29/96!, fix bug with dying in secret level, advance to next level, keep powerups!
 				}
@@ -1934,7 +1935,7 @@ window_event_result DoPlayerDead()
 	} else if (Current_level_num < 0) {
 		if (PHYSFSX_exists(SECRETB_FILENAME,0))
 		{
-			do_screen_message(TXT_SECRET_RETURN);
+			do_screen_message_fmt(TXT_SECRET_RETURN);
 			if (!LevelUniqueControlCenterState.Control_center_destroyed)
 				state_save_all(secret_save::c, blind_save::no);
 			state_restore_all(1, secret_restore::died, SECRETB_FILENAME, blind_save::no);
@@ -1948,7 +1949,7 @@ window_event_result DoPlayerDead()
 				result = window_event_result::close;
 			}
 			else {
-				do_screen_message(TXT_SECRET_ADVANCE);
+				do_screen_message_fmt(TXT_SECRET_ADVANCE);
 				StartNewLevel(Entered_from_level+1);
 				init_player_stats_new_ship(Player_num);	//	New, MK, 05/29/96!, fix bug with dying in secret level, advance to next level, keep powerups!
 			}
