@@ -715,9 +715,9 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 			Cur_goody_count = obj->contains_count;
 		}
 
-		ui_dprintf_at( MainWindow, GOODY_X, GOODY_Y,    " Type:");
-		ui_dprintf_at( MainWindow, GOODY_X, GOODY_Y+24, "   ID:");
-		ui_dprintf_at( MainWindow, GOODY_X, GOODY_Y+48, "Count:");
+		ui_dputs_at(MainWindow, GOODY_X, GOODY_Y,    " Type:");
+		ui_dputs_at(MainWindow, GOODY_X, GOODY_Y+24, "   ID:");
+		ui_dputs_at(MainWindow, GOODY_X, GOODY_Y+48, "Count:");
 
 		switch (Cur_goody_type) {
 			case contained_object_type::robot:
@@ -746,9 +746,9 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 			ui_dprintf_at( MainWindow, 12, 38, " Name: %-8s", Robot_names[id].data());
 
 		}	else {
-			ui_dprintf_at( MainWindow, 12,  6, "Robot: none" );
-			ui_dprintf_at( MainWindow, 12, 22, " Type: ?  "  );
-			ui_dprintf_at( MainWindow, 12, 38, " Name: ________" );
+			ui_dputs_at(MainWindow, 12,  6, "Robot: none");
+			ui_dputs_at(MainWindow, 12, 22, " Type: ?");
+			ui_dputs_at(MainWindow, 12, 38, " Name: ________");
 		}
 	}
 	
@@ -876,9 +876,9 @@ window_event_result object_dialog::callback_handler(const d_event &event)
 
 	if (event.type == EVENT_UI_DIALOG_DRAW)
 	{
-		ui_dprintf_at(this, 10, 132,"&X:" );
-		ui_dprintf_at(this, 10, 162,"&Y:" );
-		ui_dprintf_at(this, 10, 192,"&Z:" );
+		ui_dputs_at(this, 10, 132, "&X:");
+		ui_dputs_at(this, 10, 162, "&Y:");
+		ui_dputs_at(this, 10, 192, "&Z:");
 	}
 	
 	if (GADGET_PRESSED(quitButton.get()) || keypress == KEY_ESC)

@@ -646,38 +646,38 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 			switch (wp->type)
 			{
 				case WALL_NORMAL:
-					ui_dprintf_at( MainWindow, 12, 23, " Type: Normal   " );
+					ui_dputs_at(MainWindow, 12, 23, " Type: Normal");
 					break;
 				case WALL_BLASTABLE:
-					ui_dprintf_at( MainWindow, 12, 23, " Type: Blastable" );
+					ui_dputs_at(MainWindow, 12, 23, " Type: Blastable");
 					break;
 				case WALL_DOOR:
-					ui_dprintf_at( MainWindow, 12, 23, " Type: Door     " );
+					ui_dputs_at(MainWindow, 12, 23, " Type: Door     ");
 					ui_dputs_at( MainWindow, 223, 6, &WallAnims[wp->clip_num].filename[0]);
 					break;
 				case WALL_ILLUSION:
-					ui_dprintf_at( MainWindow, 12, 23, " Type: Illusion " );
+					ui_dputs_at(MainWindow, 12, 23, " Type: Illusion ");
 					break;
 				case WALL_OPEN:
-					ui_dprintf_at( MainWindow, 12, 23, " Type: Open     " );
+					ui_dputs_at(MainWindow, 12, 23, " Type: Open     ");
 					break;
 				case WALL_CLOSED:
-					ui_dprintf_at( MainWindow, 12, 23, " Type: Closed   " );
+					ui_dputs_at(MainWindow, 12, 23, " Type: Closed   ");
 					break;
 				default:
-					ui_dprintf_at( MainWindow, 12, 23, " Type: Unknown  " );
+					ui_dputs_at(MainWindow, 12, 23, " Type: Unknown  ");
 					break;
 			}			
 			if (wp->type != WALL_DOOR)
-					ui_dprintf_at( MainWindow, 223, 6, "            " );
+				ui_dputs_at(MainWindow, 223, 6, "            ");
 
 			ui_dprintf_at( MainWindow, 12, 40, " Clip: %d   ", wp->clip_num );
 			ui_dprintf_at(MainWindow, 12, 57, " Trigger: %d  ", underlying_value(wp->trigger));
 		}	else {
-			ui_dprintf_at( MainWindow, 12, 6, "Wall: none ");
-			ui_dprintf_at( MainWindow, 12, 23, " Type: none ");
-			ui_dprintf_at( MainWindow, 12, 40, " Clip: none   ");
-			ui_dprintf_at( MainWindow, 12, 57, " Trigger: none  ");
+			ui_dputs_at(MainWindow, 12, 6, "Wall: none ");
+			ui_dputs_at(MainWindow, 12, 23, " Type: none ");
+			ui_dputs_at(MainWindow, 12, 40, " Clip: none   ");
+			ui_dputs_at(MainWindow, 12, 57, " Trigger: none  ");
 		}
 	}
 	

@@ -514,7 +514,7 @@ window_event_result trigger_dialog::callback_handler(const d_event &event)
 		{
 			ui_dprintf_at(MainWindow, 12, 6, "Trigger: %-4d ", underlying_value(trigger_num));
 		}	else {
-			ui_dprintf_at( MainWindow, 12, 6, "Trigger: none ");
+			ui_dputs_at(MainWindow, 12, 6, "Trigger: none ");
 		}
 	}
 	

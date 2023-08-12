@@ -130,9 +130,9 @@ window_event_result ui_file_browser::callback_handler(const d_event &event)
 	{
 		ui_dputs_at(this, 10, 5, message);
 
-		ui_dprintf_at(this, 20, 32, "N&ame");
-		ui_dprintf_at(this, 20, 86, "&Files");
-		ui_dprintf_at(this, 210, 86, "&Dirs");
+		ui_dputs_at(this, 20, 32, "N&ame");
+		ui_dputs_at(this, 20, 86, "&Files");
+		ui_dputs_at(this, 210, 86, "&Dirs");
 		
 		ui_dputs_at(this, 20, 60, spaces);
 		ui_dputs_at(this, 20, 60, view_dir.data());

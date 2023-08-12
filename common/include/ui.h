@@ -307,8 +307,8 @@ gr_string_size ui_get_button_size(const grs_font &, const char *text);
 std::unique_ptr<UI_GADGET_SCROLLBAR> ui_add_gadget_scrollbar(UI_DIALOG &dlg, short x, short y, short w, short h, int start, int stop, int position, int window_size);
 
 void ui_dputs_at( UI_DIALOG * dlg, short x, short y, const char * str );
+void ui_dprintf_at(UI_DIALOG * dlg, short x, short y, const char *) = delete;
 extern void ui_dprintf_at( UI_DIALOG * dlg, short x, short y, const char * format, ... ) __attribute_format_printf(4, 5);
-#define ui_dprintf_at(A1,A2,A3,F,...)	dxx_call_printf_checked(ui_dprintf_at,ui_dputs_at,(A1,A2,A3),(F),##__VA_ARGS__)
 
 [[nodiscard]]
 std::unique_ptr<UI_GADGET_RADIO> ui_add_gadget_radio(UI_DIALOG &dlg, short x, short y, short w, short h, short group, const char *text);
