@@ -1131,11 +1131,11 @@ static int maybe_buddy_fire_mega(const vmobjptridx_t objp, const vcobjptridx_t B
 
 	if (Weapon_info[weapon_id_type::MEGA_ID].render == weapon_info::render_type::laser) {
 		con_puts(CON_VERBOSE, "Buddy can't fire mega (shareware)");
-		buddy_message("CLICK!");
+		buddy_message_str("CLICK!");
 		return 0;
 	}
 
-	buddy_message("GAHOOGA!");
+	buddy_message_str("GAHOOGA!");
 
 	auto &buddy = *Buddy_objp;
 	const imobjptridx_t weapon_objnum = Laser_create_new_easy(LevelSharedRobotInfoState.Robot_info, buddy.orient.fvec, buddy.pos, objp, weapon_id_type::MEGA_ID, weapon_sound_flag::audible);
@@ -1161,7 +1161,7 @@ static int maybe_buddy_fire_smart(const vmobjptridx_t objp, const vcobjptridx_t 
 	if (!object_to_object_visibility(buddy_objp, objp, FQ_TRANSWALL))
 		return 0;
 
-	buddy_message("WHAMMO!");
+	buddy_message_str("WHAMMO!");
 
 	const imobjptridx_t weapon_objnum = Laser_create_new_easy(LevelSharedRobotInfoState.Robot_info, buddy_objp->orient.fvec, buddy_objp->pos, objp, weapon_id_type::SMART_ID, weapon_sound_flag::audible);
 
@@ -1244,7 +1244,7 @@ void do_escort_frame(const vmobjptridx_t objp, const robot_info &robptr, const o
 			const auto ienergy = f2i(energy);
 			if (ienergy < 40)
 				if (ienergy & 4)
-						buddy_message("Hey, your headlight's on!");
+						buddy_message_str("Hey, your headlight's on!");
 		}
 	}
 
