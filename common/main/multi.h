@@ -253,28 +253,31 @@ struct dispatch_table
 }
 
 #define define_netflag_bit_enum(NAME,STR)	BIT_##NAME,
-#define define_netflag_bit_mask(NAME,STR)	NAME = (1 << BIT_##NAME),
-#define define_netflag_powerup_mask(NAME,STR)	| (NAME)
+#define define_netflag_bit_mask(NAME,STR)	NAME = 1u << static_cast<uint8_t>(netflag_bit::BIT_##NAME),
+#define define_netflag_powerup_mask(NAME,STR)	| static_cast<uint32_t>(netflag_flag::NAME)
 enum netflag_bit : uint8_t
 {
 	for_each_netflag_value(define_netflag_bit_enum)
 };
 // Bitmask for netgame_info->AllowedItems to set allowed items in Netgame
-enum netflag_flag :
+enum class netflag_flag :
 #if defined(DXX_BUILD_DESCENT_I)
 	uint16_t
 #elif defined(DXX_BUILD_DESCENT_II)
 	uint32_t
 #endif
 {
+	None = 0,
 	for_each_netflag_value(define_netflag_bit_mask)
 };
+#undef define_netflag_bit_mask
 enum netgrant_bit : uint8_t
 {
 	BIT_NETGRANT_LASER = DXX_GRANT_LASER_LEVEL_BITS - 1,
 	for_each_netgrant_value(define_netflag_bit_enum)
 	BIT_NETGRANT_MAXIMUM
 };
+#define define_netgrant_bit_mask(NAME,STR)	NAME = 1u << static_cast<uint8_t>(netgrant_bit::BIT_##NAME),
 enum netgrant_flag :
 #if defined(DXX_BUILD_DESCENT_I)
 	uint8_t
@@ -282,10 +285,10 @@ enum netgrant_flag :
 	uint16_t
 #endif
 {
-	for_each_netgrant_value(define_netflag_bit_mask)
+	for_each_netgrant_value(define_netgrant_bit_mask)
 };
 #undef define_netflag_bit_enum
-#undef define_netflag_bit_mask
+#undef define_netgrant_bit_mask
 
 struct packed_spawn_granted_items
 {
@@ -724,8 +727,8 @@ void MultiLevelInv_Recount();
 #ifdef dsx
 namespace dsx {
 extern bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type);
-uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems);
-uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems, const unsigned SpawnGrantedItems);
+netflag_flag multi_powerup_is_allowed(unsigned id, const netflag_flag AllowedItems);
+netflag_flag multi_powerup_is_allowed(unsigned id, const netflag_flag AllowedItems, const netflag_flag SpawnGrantedItems);
 void show_netgame_info(const netgame_info &netgame);
 void multi_send_player_inventory(multiplayer_data_priority priority);
 const char *multi_common_deny_save_game(const fvcobjptr &vcobjptr, ranges::subrange<const player *> player_range);
@@ -820,7 +823,7 @@ namespace dsx {
  */
 struct netgame_info : prohibit_void_ptr<netgame_info>
 {
-	static constexpr std::integral_constant<unsigned, (0 for_each_netflag_value(define_netflag_powerup_mask))> MaskAllKnownAllowedItems{};
+	static constexpr std::integral_constant<netflag_flag, static_cast<netflag_flag>(0 for_each_netflag_value(define_netflag_powerup_mask))> MaskAllKnownAllowedItems{};
 #undef define_netflag_powerup_mask
 	using play_time_allowed_abi_ratio = std::ratio<5 * 60>;
 #if DXX_USE_UDP
@@ -854,7 +857,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>
 	uint8_t						SecludedSpawns;
 	uint8_t MouselookFlags;
 	uint8_t PitchLockFlags;
-	uint32_t					AllowedItems;
+	netflag_flag				AllowedItems;
 	packed_spawn_granted_items SpawnGrantedItems;
 	packed_netduplicate_items DuplicatePowerups;
 	unsigned ShufflePowerupSeed;

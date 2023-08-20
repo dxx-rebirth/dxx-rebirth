@@ -105,6 +105,11 @@ static void multi_add_lifetime_killed();
 static void multi_add_lifetime_kills(int count);
 #endif
 
+static constexpr netflag_flag operator~(const netflag_flag a)
+{
+	return static_cast<netflag_flag>(~static_cast<uint32_t>(a));
+}
+
 static constexpr netflag_flag operator|(const netflag_flag a, const netflag_flag b)
 {
 	return static_cast<netflag_flag>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
@@ -3401,8 +3406,8 @@ void multi_prep_level_objects(const d_powerup_info_array &Powerup_info, const d_
 	constexpr unsigned MAX_ALLOWED_CLOAK = 3;
 	const auto AllowedItems = Netgame.AllowedItems;
 	const auto SpawnGrantedItems = map_granted_flags_to_netflag(Netgame.SpawnGrantedItems);
-	unsigned inv_remaining = (AllowedItems & netflag_flag::NETFLAG_DOINVUL) ? MAX_ALLOWED_INVULNERABILITY : 0;
-	unsigned cloak_remaining = (AllowedItems & netflag_flag::NETFLAG_DOCLOAK) ? MAX_ALLOWED_CLOAK : 0;
+	unsigned inv_remaining = (AllowedItems & netflag_flag::NETFLAG_DOINVUL) != netflag_flag::None ? MAX_ALLOWED_INVULNERABILITY : 0;
+	unsigned cloak_remaining = (AllowedItems & netflag_flag::NETFLAG_DOCLOAK) != netflag_flag::None ? MAX_ALLOWED_CLOAK : 0;
 	update_item_state duplicates;
 	range_for (const auto &&o, vmobjptridx)
 	{
@@ -3442,7 +3447,7 @@ void multi_prep_level_objects(const d_powerup_info_array &Powerup_info, const d_
 						set_powerup_id(Powerup_info, Vclip, o, POW_SHIELD_BOOST);
 					continue;
 				default:
-					if (!multi_powerup_is_allowed(id, AllowedItems, SpawnGrantedItems))
+					if (multi_powerup_is_allowed(id, AllowedItems, SpawnGrantedItems) == netflag_flag::None)
 						bash_to_shield(Powerup_info, Vclip, o);
 					else
 						duplicates.process_powerup(Vclip, vmsegptridx, o, id);
@@ -4587,12 +4592,12 @@ static void multi_do_drop_flag(const playernum_t pnum, const multiplayer_rspan<m
 }
 #endif
 
-uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned AllowedItems)
+netflag_flag multi_powerup_is_allowed(const unsigned id, const netflag_flag AllowedItems)
 {
 	return multi_powerup_is_allowed(id, AllowedItems, map_granted_flags_to_netflag(Netgame.SpawnGrantedItems));
 }
 
-uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned BaseAllowedItems, const unsigned SpawnGrantedItems)
+netflag_flag multi_powerup_is_allowed(const unsigned id, const netflag_flag BaseAllowedItems, const netflag_flag SpawnGrantedItems)
 {
 	const auto AllowedItems = BaseAllowedItems & ~SpawnGrantedItems;
 	switch (id)
@@ -4600,7 +4605,9 @@ uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned BaseAll
 		case POW_KEY_BLUE:
 		case POW_KEY_GOLD:
 		case POW_KEY_RED:
-			return Game_mode & GM_MULTI_COOP;
+			/* Callers only test whether the result is netflag_flag::None or
+			 * not, and do not expect a specific value. */
+			return static_cast<netflag_flag>(Game_mode & GM_MULTI_COOP);
 		case POW_INVULNERABILITY:
 			return AllowedItems & netflag_flag::NETFLAG_DOINVUL;
 		case POW_CLOAK:
@@ -4610,7 +4617,7 @@ uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned BaseAll
 				/* If players are granted maximum level lasers, then disallow
 				 * placing laser powerups.
 				 */
-				return 0;
+				return netflag_flag::None;
 			return AllowedItems & netflag_flag::NETFLAG_DOLASER;
 		case POW_QUAD_FIRE:
 			return AllowedItems & netflag_flag::NETFLAG_DOQUAD;
@@ -4643,7 +4650,7 @@ uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned BaseAll
 				/* If players are granted maximum level super lasers, then
 				 * disallow placing super laser powerups.
 				 */
-				return 0;
+				return netflag_flag::None;
 			return AllowedItems & netflag_flag::NETFLAG_DOSUPERLASER;
 		case POW_GAUSS_WEAPON:
 			return AllowedItems & netflag_flag::NETFLAG_DOGAUSS;
@@ -4676,10 +4683,10 @@ uint_fast32_t multi_powerup_is_allowed(const unsigned id, const unsigned BaseAll
 			return AllowedItems & netflag_flag::NETFLAG_DOHEADLIGHT;
 		case POW_FLAG_BLUE:
 		case POW_FLAG_RED:
-			return game_mode_capture_flag();
+			return netflag_flag{game_mode_capture_flag()};
 #endif
 		default:
-			return 1;
+			return netflag_flag{1};
 	}
 }
 
@@ -6496,35 +6503,35 @@ void show_netgame_info(const netgame_info &netgame)
 #endif
 			array_snprintf(lines[spawn_count], "Use * Furthest Spawn Sites\t  %i", netgame.SecludedSpawns+1);
 			array_snprintf(lines[spawn_invulnerable_time], "Invulnerable Time\t  %1.1f sec", static_cast<float>(netgame.InvulAppear) / 2);
-			array_snprintf(lines[allow_laser_upgrade], "Laser Upgrade\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOLASER)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_quad_laser], "Quad Lasers\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOQUAD)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_vulcan_cannon], "Vulcan Cannon\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOVULCAN)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_spreadfire_cannon], "Spreadfire Cannon\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOSPREAD)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_plasma_cannon], "Plasma Cannon\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOPLASMA)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_fusion_cannon], "Fusion Cannon\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOFUSION)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_homing_missiles], "Homing Missiles\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOHOMING)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_proximity_bombs], "Proximity Bombs\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOPROXIM)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_smart_missiles], "Smart Missiles\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOSMART)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_mega_missiles], "Mega Missiles\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOMEGA)?TXT_YES:TXT_NO);
+			array_snprintf(lines[allow_laser_upgrade], "Laser Upgrade\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOLASER) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_quad_laser], "Quad Lasers\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOQUAD) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_vulcan_cannon], "Vulcan Cannon\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOVULCAN) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_spreadfire_cannon], "Spreadfire Cannon\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOSPREAD) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_plasma_cannon], "Plasma Cannon\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOPLASMA) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_fusion_cannon], "Fusion Cannon\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOFUSION) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_homing_missiles], "Homing Missiles\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOHOMING) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_proximity_bombs], "Proximity Bombs\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOPROXIM) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_smart_missiles], "Smart Missiles\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOSMART) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_mega_missiles], "Mega Missiles\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOMEGA) != netflag_flag::None ? TXT_YES : TXT_NO);
 #if defined(DXX_BUILD_DESCENT_II)
-			array_snprintf(lines[allow_super_laser_upgrade], "Super Lasers\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOSUPERLASER)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_gauss_cannon], "Gauss Cannon\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOGAUSS)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_helix_cannon], "Helix Cannon\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOHELIX)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_phoenix_cannon], "Phoenix Cannon\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOPHOENIX)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_omega_cannon], "Omega Cannon\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOOMEGA)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_flash_missiles], "Flash Missiles\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOFLASH)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_guided_missiles], "Guided Missiles\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOGUIDED)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_smart_mines], "Smart Mines\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOSMARTMINE)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_mercury_missiles], "Mercury Missiles\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOMERCURY)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_earthshaker_missiles], "Earthshaker Missiles\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOSHAKER)?TXT_YES:TXT_NO);
+			array_snprintf(lines[allow_super_laser_upgrade], "Super Lasers\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOSUPERLASER) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_gauss_cannon], "Gauss Cannon\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOGAUSS) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_helix_cannon], "Helix Cannon\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOHELIX) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_phoenix_cannon], "Phoenix Cannon\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOPHOENIX) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_omega_cannon], "Omega Cannon\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOOMEGA) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_flash_missiles], "Flash Missiles\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOFLASH) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_guided_missiles], "Guided Missiles\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOGUIDED) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_smart_mines], "Smart Mines\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOSMARTMINE) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_mercury_missiles], "Mercury Missiles\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOMERCURY) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_earthshaker_missiles], "Earthshaker Missiles\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOSHAKER) != netflag_flag::None ? TXT_YES : TXT_NO);
 #endif
-			array_snprintf(lines[allow_cloaking], "Cloaking\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOCLOAK)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_invulnerability], "Invulnerability\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOINVUL)?TXT_YES:TXT_NO);
+			array_snprintf(lines[allow_cloaking], "Cloaking\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOCLOAK) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_invulnerability], "Invulnerability\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOINVUL) != netflag_flag::None ? TXT_YES : TXT_NO);
 #if defined(DXX_BUILD_DESCENT_II)
-			array_snprintf(lines[allow_afterburner], "Afterburners\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOAFTERBURNER)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_ammo_rack], "Ammo Rack\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOAMMORACK)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_energy_converter], "Energy Converter\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOCONVERTER)?TXT_YES:TXT_NO);
-			array_snprintf(lines[allow_headlight], "Headlight\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOHEADLIGHT)?TXT_YES:TXT_NO);
+			array_snprintf(lines[allow_afterburner], "Afterburners\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOAFTERBURNER) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_ammo_rack], "Ammo Rack\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOAMMORACK) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_energy_converter], "Energy Converter\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOCONVERTER) != netflag_flag::None ? TXT_YES : TXT_NO);
+			array_snprintf(lines[allow_headlight], "Headlight\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOHEADLIGHT) != netflag_flag::None ? TXT_YES : TXT_NO);
 #endif
 			array_snprintf(lines[grant_laser_level], "Laser Level\t  %u", static_cast<unsigned>(map_granted_flags_to_laser_level(netgame.SpawnGrantedItems)) + 1);
 			array_snprintf(lines[grant_quad_laser], "Quad Lasers\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, NETGRANT_QUAD)?TXT_YES:TXT_NO);

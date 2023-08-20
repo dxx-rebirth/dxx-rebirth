@@ -1309,7 +1309,7 @@ void multi_drop_robot_powerups(object &del_obj)
 		//	If dropping a weapon that the player has, drop energy instead, unless it's vulcan, in which case drop vulcan ammo.
 		if (del_obj.contains.type == contained_object_type::powerup) {
 			maybe_replace_powerup_with_energy(del_obj);
-			if (!multi_powerup_is_allowed(del_obj.contains_id, Netgame.AllowedItems))
+			if (multi_powerup_is_allowed(del_obj.contains_id, Netgame.AllowedItems) == netflag_flag::None)
 				del_obj.contains_id = POW_SHIELD_BOOST;
 
 			// No key drops in non-coop games!
@@ -1335,7 +1335,7 @@ void multi_drop_robot_powerups(object &del_obj)
 			if (del_obj.contains.type == contained_object_type::powerup)
 			 {
 				maybe_replace_powerup_with_energy(del_obj);
-				if (!multi_powerup_is_allowed(del_obj.contains_id, Netgame.AllowedItems))
+				if (multi_powerup_is_allowed(del_obj.contains_id, Netgame.AllowedItems) == netflag_flag::None)
 					del_obj.contains_id = POW_SHIELD_BOOST;
 			 }
 		

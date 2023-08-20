@@ -678,7 +678,7 @@ void init_player_stats_new_ship(const playernum_t pnum)
 	player_info.secondary_ammo = {{
 		static_cast<uint8_t>(get_starting_concussion_missile_count())
 	}};
-	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
+	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : packed_spawn_granted_items{};
 	player_info.vulcan_ammo = map_granted_flags_to_vulcan_ammo(GrantedItems);
 	const auto granted_laser_level = map_granted_flags_to_laser_level(GrantedItems);
 	player_info.laser_level = granted_laser_level;

@@ -222,20 +222,20 @@ static inline void full_palette_save(void)
 #endif
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-static inline int game_mode_capture_flag()
+static constexpr uint8_t game_mode_capture_flag()
 {
 	return 0;
 }
-static inline int game_mode_hoard()
+static constexpr uint8_t game_mode_hoard()
 {
 	return 0;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-static inline int game_mode_capture_flag()
+static inline uint16_t game_mode_capture_flag()
 {
 	return (Game_mode & GM_CAPTURE);
 }
-static inline int game_mode_hoard()
+static inline uint16_t game_mode_hoard()
 {
 	return (Game_mode & GM_HOARD);
 }

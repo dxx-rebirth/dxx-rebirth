@@ -2943,7 +2943,7 @@ static std::span<const uint8_t> net_udp_prepare_heavy_game_info(const d_level_un
 	buf[len] = Netgame.numconnected;						len++;
 	buf[len] = pack_game_flags(&Netgame.game_flag).value;							len++;
 	buf[len] = Netgame.team_vector;							len++;
-	PUT_INTEL_INT(&buf[len], Netgame.AllowedItems);					len += 4;
+	PUT_INTEL_INT(&buf[len], underlying_value(Netgame.AllowedItems));					len += 4;
 	/* In cooperative games, never shuffle. */
 	PUT_INTEL_INT(&buf[len], (Game_mode & GM_MULTI_COOP) ? 0 : Netgame.ShufflePowerupSeed);			len += 4;
 	buf[len] = Netgame.SecludedSpawns;			len += 1;
@@ -3202,7 +3202,7 @@ static void net_udp_process_game_info_heavy(const uint8_t *data, uint_fast32_t, 
 		p.value = data[len];
 		Netgame.game_flag = unpack_game_flags(&p);						len++;
 		Netgame.team_vector = data[len];						len++;
-		Netgame.AllowedItems = GET_INTEL_INT(&(data[len]));				len += 4;
+		Netgame.AllowedItems = static_cast<netflag_flag>(GET_INTEL_INT(&data[len]));				len += 4;
 		Netgame.ShufflePowerupSeed = GET_INTEL_INT(&(data[len]));		len += 4;
 		Netgame.SecludedSpawns = data[len];		len += 1;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -3846,8 +3846,9 @@ struct netgame_powerups_allowed_menu_items
 	std::array<newmenu_item, multi_allow_powerup_text.size()> m;
 	netgame_powerups_allowed_menu_items()
 	{
+		const auto AllowedItems{underlying_value(Netgame.AllowedItems)};
 		for (auto &&[i, t, mi] : enumerate(zip(multi_allow_powerup_text, m)))
-			nm_set_item_checkbox(mi, t, (Netgame.AllowedItems >> i) & 1);
+			nm_set_item_checkbox(mi, t, AllowedItems & (1u << i));
 	}
 };
 
@@ -3866,11 +3867,11 @@ window_event_result netgame_powerups_allowed_menu::event_handler(const d_event &
 	{
 		case EVENT_WINDOW_CLOSE:
 			{
-				unsigned AllowedItems = 0;
+				typename std::underlying_type<netflag_flag>::type AllowedItems = 0;
 				for (auto &&[i, mi] : enumerate(m))
 					if (mi.value)
 						AllowedItems |= (1 << i);
-				Netgame.AllowedItems = AllowedItems;
+				Netgame.AllowedItems = netflag_flag{AllowedItems};
 				break;
 			}
 		default:
