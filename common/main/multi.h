@@ -564,7 +564,6 @@ extern int Network_rejoined;
 extern int Network_sending_extras;
 extern int VerifyPlayerJoined;
 extern int Player_joining_extras;
-extern int Network_player_added;
 
 extern per_player_array<per_player_array<uint16_t>> kill_matrix;
 extern per_team_array<int16_t> team_kills;

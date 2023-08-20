@@ -319,7 +319,6 @@ int     Network_rejoined = 0;       // Did WE rejoin this game?
 int     Network_sending_extras=0;
 int     VerifyPlayerJoined=-1;      // Player (num) to enter game before any ingame/extra stuff is being sent
 int     Player_joining_extras=-1;  // This is so we know who to send 'latecomer' packets to.
-int     Network_player_added = 0;   // Is this a new player or a returning player?
 
 ushort          my_segments_checksum = 0;
 

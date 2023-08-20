@@ -176,6 +176,14 @@ static std::optional<R> build_upid_rspan(const std::span<const uint8_t> buf)
 	return buf.template first<R::extent>();
 }
 
+enum class Network_player_added : bool
+{
+	_0,
+	_1,
+};
+
+Network_player_added network_player_added;
+
 }
 
 }
@@ -442,8 +450,8 @@ const dispatch_table dispatch{};
 namespace {
 static int net_udp_do_join_game();
 static void net_udp_update_netgame();
-static void net_udp_send_objects(void);
-static void net_udp_send_rejoin_sync(unsigned player_num);
+static void net_udp_send_objects(Network_player_added network_player_added);
+static void net_udp_send_rejoin_sync(Network_player_added network_player_added, unsigned player_num);
 static void net_udp_do_refuse_stuff(const UDP_sequence_request_packet &their, const struct _sockaddr &peer_addr);
 static void net_udp_read_sync_packet(const uint8_t *data, uint_fast32_t data_len, const _sockaddr &sender_addr);
 static void net_udp_send_extras();
@@ -2019,7 +2027,7 @@ static void net_udp_welcome_player(const UDP_sequence_request_packet &their, con
 
 	unsigned player_num = UINT_MAX;
 	UDP_sync_player = {};
-	Network_player_added = 0;
+	network_player_added = Network_player_added::_0;
 
 	for (unsigned i = 0; i < N_players; i++)
 	{
@@ -2046,7 +2054,7 @@ static void net_udp_welcome_player(const UDP_sequence_request_packet &their, con
 			// Add player in an open slot, game not full yet
 
 			player_num = N_players;
-			Network_player_added = 1;
+			network_player_added = Network_player_added::_1;
 		}
 		else
 		{
@@ -2090,7 +2098,7 @@ static void net_udp_welcome_player(const UDP_sequence_request_packet &their, con
 				// Found a slot!
 
 				player_num = oldest_player;
-				Network_player_added = 1;
+				network_player_added = Network_player_added::_1;
 			}
 		}
 	}
@@ -2106,8 +2114,6 @@ static void net_udp_welcome_player(const UDP_sequence_request_packet &their, con
 
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_multi_reconnect(player_num);
-
-		Network_player_added = 0;
 
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 
@@ -2130,7 +2136,7 @@ static void net_udp_welcome_player(const UDP_sequence_request_packet &their, con
 	Network_send_objnum = -1;
 	Netgame.players[player_num].LastPacketTime = timer_query();
 
-	net_udp_send_objects();
+	net_udp_send_objects(network_player_added);
 }
 }
 
@@ -2323,7 +2329,7 @@ static void net_udp_stop_resync(const struct _sockaddr &udp_addr)
 namespace dsx {
 namespace {
 
-void net_udp_send_objects(void)
+void net_udp_send_objects(const Network_player_added network_player_added)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -2432,7 +2438,7 @@ void net_udp_send_objects(void)
 			dxx_sendto(UDP_Socket[0], std::span(object_buffer).first<14>(), 0, UDP_sync_player.udp_addr);
 
 			// Send sync packet which tells the player who he is and to start!
-			net_udp_send_rejoin_sync(player_num);
+			net_udp_send_rejoin_sync(network_player_added, player_num);
 
 			// Turn off send object mode
 			Network_send_objnum = -1;
@@ -2573,7 +2579,7 @@ static void net_udp_read_object_packet(const d_level_shared_robot_info_state &Le
 namespace dsx {
 namespace {
 
-void net_udp_send_rejoin_sync(const unsigned player_num)
+void net_udp_send_rejoin_sync(const Network_player_added network_player_added, const unsigned player_num)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -2593,7 +2599,7 @@ void net_udp_send_rejoin_sync(const unsigned player_num)
 		return;
 	}
 
-	if (Network_player_added)
+	if (network_player_added != Network_player_added::_0)
 	{
 		const UDP_sequence_addplayer_packet add(UDP_sync_player.rank, UDP_sync_player.callsign, UDP_sync_player.player_num);
 		net_udp_new_player(add, UDP_sync_player.udp_addr);
@@ -5452,7 +5458,7 @@ void dispatch_table::do_protocol_frame(int force, int listen) const
 		net_udp_timeout_check(time);
 		net_udp_listen();
 		if (Network_send_objects)
-			net_udp_send_objects();
+			net_udp_send_objects(network_player_added);
 		if (Network_sending_extras && VerifyPlayerJoined==-1)
 			net_udp_send_extras();
 	}
