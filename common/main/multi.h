@@ -580,7 +580,7 @@ enum class show_kill_list_mode : int8_t
 	team_kills = 3,
 };
 extern show_kill_list_mode Show_kill_list;
-extern int Show_reticle_name;
+extern bool Show_reticle_name;
 extern fix Show_kill_list_timer;
 
 // Used to send network messages

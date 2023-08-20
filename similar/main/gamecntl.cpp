@@ -880,7 +880,7 @@ static window_event_result HandleSystemKey(int key)
 			break;
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_4:)
 		case KEY_ALTED + KEY_F4:
-			Show_reticle_name = (Show_reticle_name+1)%2;
+			Show_reticle_name = !Show_reticle_name;
 			break;
 
 		KEY_MAC(case KEY_COMMAND+KEY_7:)

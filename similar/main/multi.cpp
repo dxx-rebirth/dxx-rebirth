@@ -239,7 +239,7 @@ namespace dcx {
 
 //do we draw the kill list on the HUD?
 show_kill_list_mode Show_kill_list = show_kill_list_mode::_1;
-int Show_reticle_name = 1;
+bool Show_reticle_name{true};
 fix Show_kill_list_timer = 0;
 
 }
