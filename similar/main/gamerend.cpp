@@ -101,17 +101,18 @@ static void game_draw_multi_message(grs_canvas &canvas)
 	if (!(Game_mode&GM_MULTI))
 		return;
 	const auto sending = multi_sending_message[Player_num];
-	const auto defining = multi_defining_message;
-	if (sending == msgsend_state::none && defining == multi_macro_message_index::None)
+	std::array<char, 64> buffer;
+	if (sending != msgsend_state::none)
+		std::snprintf(std::data(buffer), std::size(buffer), "%s: %s_", TXT_MESSAGE, Network_message.data());
+	else if (const auto defining = multi_defining_message; defining != multi_macro_message_index::None)
+		/* Use 1-based counting for user-visible text. */
+		std::snprintf(std::data(buffer), std::size(buffer), "%s #%d: %s_", TXT_MACRO, 1 + underlying_value(defining), Network_message.data());
+	else
 		return;
 	gr_set_fontcolor(canvas, BM_XRGB(0, 63, 0),-1);
 	auto &game_font = *GAME_FONT;
 	const auto &&y = (LINE_SPACING(game_font, game_font) * 5) + FSPACY(1);
-	if (sending != msgsend_state::none)
-		gr_printf(canvas, game_font, 0x8000, y, "%s: %s_", TXT_MESSAGE, Network_message.data());
-	else
-		/* Use 1-based counting for user-visible text. */
-		gr_printf(canvas, game_font, 0x8000, y, "%s #%d: %s_", TXT_MACRO, 1 + underlying_value(defining), Network_message.data());
+	gr_string(canvas, game_font, 0x8000, y, std::data(buffer));
 }
 
 static void show_framerate(grs_canvas &canvas)
