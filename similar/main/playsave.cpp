@@ -318,15 +318,15 @@ void new_player_config()
 
 	// Default taunt macros
 #if defined(DXX_BUILD_DESCENT_I)
-	PlayerCfg.NetworkMessageMacro[0].copy_if(TXT_DEF_MACRO_1);
-	PlayerCfg.NetworkMessageMacro[1].copy_if(TXT_DEF_MACRO_2);
-	PlayerCfg.NetworkMessageMacro[2].copy_if(TXT_DEF_MACRO_3);
-	PlayerCfg.NetworkMessageMacro[3].copy_if(TXT_DEF_MACRO_4);
+	PlayerCfg.NetworkMessageMacro[multi_macro_message_index::_0].copy_if(TXT_DEF_MACRO_1);
+	PlayerCfg.NetworkMessageMacro[multi_macro_message_index::_1].copy_if(TXT_DEF_MACRO_2);
+	PlayerCfg.NetworkMessageMacro[multi_macro_message_index::_2].copy_if(TXT_DEF_MACRO_3);
+	PlayerCfg.NetworkMessageMacro[multi_macro_message_index::_3].copy_if(TXT_DEF_MACRO_4);
 #elif defined(DXX_BUILD_DESCENT_II)
-	PlayerCfg.NetworkMessageMacro[0] = "Why can't we all just get along?";
-	PlayerCfg.NetworkMessageMacro[1] = "Hey, I got a present for ya";
-	PlayerCfg.NetworkMessageMacro[2] = "I got a hankerin' for a spankerin'";
-	PlayerCfg.NetworkMessageMacro[3] = "This one's headed for Uranus";
+	PlayerCfg.NetworkMessageMacro[multi_macro_message_index::_0] = "Why can't we all just get along?";
+	PlayerCfg.NetworkMessageMacro[multi_macro_message_index::_1] = "Hey, I got a present for ya";
+	PlayerCfg.NetworkMessageMacro[multi_macro_message_index::_2] = "I got a hankerin' for a spankerin'";
+	PlayerCfg.NetworkMessageMacro[multi_macro_message_index::_3] = "This one's headed for Uranus";
 #endif
 	PlayerCfg.NetlifeKills=0; PlayerCfg.NetlifeKilled=0;
 }

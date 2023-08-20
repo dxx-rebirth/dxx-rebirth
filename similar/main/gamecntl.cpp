@@ -2150,7 +2150,7 @@ window_event_result ReadControls(const d_level_shared_robot_info_state &LevelSha
 	}
 	if (Player_dead_state != player_dead_state::no &&
 		!((Game_mode & GM_MULTI) &&
-			(multi_sending_message[Player_num] != msgsend_state::none || multi_defining_message)
+			(multi_sending_message[Player_num] != msgsend_state::none || multi_defining_message != multi_macro_message_index::None)
 		)
 	)
 	HandleDeathInput(event, Controls);
@@ -2167,7 +2167,7 @@ window_event_result ReadControls(const d_level_shared_robot_info_state &LevelSha
 			return MarkerInputMessage(key, Controls);
 		}
 #endif
-		if ( (Game_mode & GM_MULTI) && (multi_sending_message[Player_num] != msgsend_state::none || multi_defining_message) )
+		if ( (Game_mode & GM_MULTI) && (multi_sending_message[Player_num] != msgsend_state::none || multi_defining_message != multi_macro_message_index::None) )
 		{
 			return multi_message_input_sub(LevelSharedRobotInfoState.Robot_info, key, Controls);
 		}

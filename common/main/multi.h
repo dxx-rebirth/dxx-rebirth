@@ -594,7 +594,15 @@ extern std::array<sbyte, MAX_OBJECTS> object_owner;
 extern int multi_quit_game;
 
 extern per_player_array<msgsend_state> multi_sending_message;
-extern int multi_defining_message;
+enum class multi_macro_message_index : uint8_t
+{
+	_0,
+	_1,
+	_2,
+	_3,
+	None = UINT8_MAX,
+};
+extern multi_macro_message_index multi_defining_message;
 
 vms_vector multi_get_vector(std::span<const uint8_t, 12> buf);
 void multi_put_vector(uint8_t *buf, const vms_vector &v);

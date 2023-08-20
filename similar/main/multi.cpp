@@ -257,7 +257,7 @@ playernum_t Bounty_target;
 
 
 per_player_array<msgsend_state> multi_sending_message;
-int multi_defining_message = 0;
+multi_macro_message_index multi_defining_message{multi_macro_message_index::None};
 
 std::array<sbyte, MAX_OBJECTS> object_owner;   // Who created each object in my universe, -1 = loaded at start
 
@@ -1160,18 +1160,22 @@ void multi_define_macro(const int key)
 	switch (key & ~KEY_SHIFTED)
 	{
 		case KEY_F9:
-			multi_defining_message = 1; break;
+			multi_defining_message = multi_macro_message_index::_0;
+			break;
 		case KEY_F10:
-			multi_defining_message = 2; break;
+			multi_defining_message = multi_macro_message_index::_1;
+			break;
 		case KEY_F11:
-			multi_defining_message = 3; break;
+			multi_defining_message = multi_macro_message_index::_2;
+			break;
 		case KEY_F12:
-			multi_defining_message = 4; break;
+			multi_defining_message = multi_macro_message_index::_3;
+			break;
 		default:
 			Int3();
+			return;
 	}
-
-	if (multi_defining_message)     {
+	{
 		key_toggle_repeat(1);
 		multi_message_index = 0;
 		Network_message = {};
@@ -1240,17 +1244,21 @@ void multi_send_macro(const int fkey)
 	if (! (Game_mode & GM_MULTI) )
 		return;
 
-	unsigned key;
+	multi_macro_message_index key;
 	switch (fkey)
 	{
 		case KEY_F9:
-			key = 0; break;
+			key = multi_macro_message_index::_0;
+			break;
 		case KEY_F10:
-			key = 1; break;
+			key = multi_macro_message_index::_1;
+			break;
 		case KEY_F11:
-			key = 2; break;
+			key = multi_macro_message_index::_2;
+			break;
 		case KEY_F12:
-			key = 3; break;
+			key = multi_macro_message_index::_3;
+			break;
 		default:
 			Int3();
 			return;
@@ -1488,13 +1496,14 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 
 static void multi_define_macro_end(control_info &Controls)
 {
-	Assert( multi_defining_message > 0 );
-
-	PlayerCfg.NetworkMessageMacro[multi_defining_message-1] = Network_message;
+	const auto defining = multi_defining_message;
+	if (!PlayerCfg.NetworkMessageMacro.valid_index(defining))
+		return;
+	multi_defining_message = multi_macro_message_index::None;
+	PlayerCfg.NetworkMessageMacro[defining] = Network_message;
 	write_player_file();
 
 	multi_message_index = 0;
-	multi_defining_message = 0;
 	key_toggle_repeat(0);
 	game_flush_inputs(Controls);
 }
@@ -1511,7 +1520,7 @@ window_event_result multi_message_input_sub(const d_robot_info_array &Robot_info
 		case KEY_ESC:
 			multi_sending_message[Player_num] = msgsend_state::none;
 			multi_send_msgsend_state(msgsend_state::none);
-			multi_defining_message = 0;
+			multi_defining_message = multi_macro_message_index::None;
 			key_toggle_repeat(0);
 			game_flush_inputs(Controls);
 			return window_event_result::handled;
@@ -1525,7 +1534,7 @@ window_event_result multi_message_input_sub(const d_robot_info_array &Robot_info
 		case KEY_ENTER:
 			if (multi_sending_message[Player_num] != msgsend_state::none)
 				multi_send_message_end(Robot_info, vmobjptr, Controls);
-			else if ( multi_defining_message )
+			else if (multi_defining_message != multi_macro_message_index::None)
 				multi_define_macro_end(Controls);
 			game_flush_inputs(Controls);
 			return window_event_result::handled;

@@ -101,8 +101,8 @@ static void game_draw_multi_message(grs_canvas &canvas)
 	if (!(Game_mode&GM_MULTI))
 		return;
 	const auto sending = multi_sending_message[Player_num];
-	int defining;
-	if (sending == msgsend_state::none && !(defining = multi_defining_message))
+	const auto defining = multi_defining_message;
+	if (sending == msgsend_state::none && defining == multi_macro_message_index::None)
 		return;
 	gr_set_fontcolor(canvas, BM_XRGB(0, 63, 0),-1);
 	auto &game_font = *GAME_FONT;
@@ -110,7 +110,8 @@ static void game_draw_multi_message(grs_canvas &canvas)
 	if (sending != msgsend_state::none)
 		gr_printf(canvas, game_font, 0x8000, y, "%s: %s_", TXT_MESSAGE, Network_message.data());
 	else
-		gr_printf(canvas, game_font, 0x8000, y, "%s #%d: %s_", TXT_MACRO, defining, Network_message.data());
+		/* Use 1-based counting for user-visible text. */
+		gr_printf(canvas, game_font, 0x8000, y, "%s #%d: %s_", TXT_MACRO, 1 + underlying_value(defining), Network_message.data());
 }
 
 static void show_framerate(grs_canvas &canvas)
