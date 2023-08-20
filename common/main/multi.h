@@ -285,6 +285,7 @@ enum netgrant_flag :
 	uint16_t
 #endif
 {
+	None = 0,
 	for_each_netgrant_value(define_netgrant_bit_mask)
 };
 #undef define_netflag_bit_enum
@@ -292,25 +293,14 @@ enum netgrant_flag :
 
 struct packed_spawn_granted_items
 {
-#if defined(DXX_BUILD_DESCENT_I)
-	typedef uint8_t mask_type;
-#elif defined(DXX_BUILD_DESCENT_II)
-	typedef uint16_t mask_type;
-#endif
-	mask_type mask;
+	netgrant_flag mask{netgrant_flag::None};
 	static_assert(BIT_NETGRANT_MAXIMUM <= sizeof(mask) << 3, "mask too small");
-	packed_spawn_granted_items() = default;
-	constexpr packed_spawn_granted_items(mask_type m) :
-		mask(m)
+	constexpr packed_spawn_granted_items() = default;
+	constexpr packed_spawn_granted_items(const netgrant_flag m) :
+		mask{m}
 	{
 	}
-	template <unsigned U>
-		constexpr packed_spawn_granted_items(std::integral_constant<unsigned, U>) :
-			mask(U)
-	{
-		assert_equal(U, static_cast<mask_type>(U), "truncation error");
-	}
-	explicit operator bool() const { return mask; }
+	explicit operator bool() const { return mask != netgrant_flag::None; }
 	bool has_quad_laser() const { return mask & NETGRANT_QUAD; }
 #if defined(DXX_BUILD_DESCENT_II)
 	bool has_afterburner() const { return mask & NETGRANT_AFTERBURNER; }

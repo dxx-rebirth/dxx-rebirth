@@ -1929,11 +1929,10 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 		if (Game_mode & GM_MULTI)
 		{
 			Net_create_loc = 0;
-			d_srand(5483L);
 		}
 		auto &player_info = playerobj->ctype.player_info;
 		auto &plr_laser_level = player_info.laser_level;
-		if (const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0)
+		if (const auto GrantedItems = (Game_mode & GM_MULTI) ? (d_srand(5483L), Netgame.SpawnGrantedItems) : netgrant_flag::None)
 		{
 			if (const auto granted_laser_level = map_granted_flags_to_laser_level(GrantedItems); granted_laser_level != laser_level::_1)
 			{

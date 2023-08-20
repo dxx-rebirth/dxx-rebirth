@@ -1530,7 +1530,7 @@ void DropCurrentWeapon (player_info &player_info)
 
 	powerup_type_t drop_type;
 	const auto &Primary_weapon = player_info.Primary_weapon;
-	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : 0;
+	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : netgrant_flag::None;
 	auto weapon_name = PRIMARY_WEAPON_NAMES(Primary_weapon);
 	if (Primary_weapon == primary_weapon_index_t::LASER_INDEX)
 	{
