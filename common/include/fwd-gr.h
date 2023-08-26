@@ -308,10 +308,10 @@ void gr_string(grs_canvas &, const grs_font &, int x, int y, const char *s);
 void gr_ustring(grs_canvas &, const grs_font &, int x, int y, const char *s);
 template <void (&)(grs_canvas &, const grs_font &, int, int, const char *)>
 void gr_printt(grs_canvas &, const grs_font &, int x, int y, const char *format, ...) __attribute_format_printf(5, 6);
-#define gr_printfs(...)	gr_printt<gr_string>(__VA_ARGS__)
-#define gr_printfus(...)	gr_printt<gr_ustring>(__VA_ARGS__)
-#define gr_printf(A1,A2,A3,A4,F,...)	dxx_call_printf_checked(gr_printfs,gr_string,(A1,A2,A3,A4),(F),##__VA_ARGS__)
-#define gr_uprintf(A1,A2,A3,A4,F,...)	dxx_call_printf_checked(gr_printfus,gr_ustring,(A1,A2,A3,A4),(F),##__VA_ARGS__)
+template <auto>
+void gr_printt(grs_canvas &, const grs_font &, int x, int y, const char *) = delete;
+#define gr_printf	gr_printt<gr_string>
+#define gr_uprintf	gr_printt<gr_ustring>
 std::pair<const char *, unsigned> gr_get_string_wrap(const grs_font &, const char *s, unsigned limit);
 unsigned gr_get_string_height(const grs_font &cv_font, unsigned lines);
 
