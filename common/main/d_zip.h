@@ -260,7 +260,12 @@ protected:
 	using index_sequence_type = std::make_index_sequence<std::tuple_size<range_iterator_type>::value>;
 public:
 	using range_iterator_type::range_iterator_type;
-	using difference_type = decltype(std::get<0>(std::declval<const range_iterator_type &>()) - std::get<0>(std::declval<const range_iterator_type &>()));
+	using difference_type = typename std::incrementable_traits<
+		typename std::remove_reference<
+			decltype(
+				std::get<0>(std::declval<const range_iterator_type &>())
+			)>::type
+		>::difference_type;
 	using value_type = decltype(d_zip::detail::dereference_iterator(std::declval<range_iterator_type>(), index_sequence_type()));
 	using pointer = value_type *;
 	using reference = value_type &;
