@@ -664,7 +664,10 @@ static void add_missions_to_list(mission_list_type &mission_list, mission_candid
 	const std::size_t space_remaining = std::distance(rel_path, path.end());
 	*rel_path = '.';
 	*std::next(rel_path) = 0;
-	range_for (const auto i, PHYSFSX_uncounted_list{PHYSFS_enumerateFiles(path.data())})
+	const PHYSFSX_uncounted_list s{PHYSFS_enumerateFiles(path.data())};
+	if (!s)
+		return;
+	for (const auto i : s)
 	{
 		/* Add 1 to include the terminating null. */
 		const std::size_t il = strlen(i) + 1;
