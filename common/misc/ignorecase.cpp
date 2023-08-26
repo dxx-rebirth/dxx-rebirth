@@ -71,7 +71,13 @@ static int locateOneElement(char *const sptr, char *const ptr, const char *buf)
 				*ptr = '/';
 		}
 	};
-	for (const auto i : search_result{ptr, buf})
+	const search_result s{ptr, buf};
+	if (!s)
+		/* Failed to list the directory.  No names are available, so there is
+		 * no list to iterate.
+		 */
+		return 0;
+	for (const auto i : s)
     {
 		if (const auto o = caseInsensitiveStringCompare(i, sptr))
         {
