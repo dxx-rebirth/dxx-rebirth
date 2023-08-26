@@ -29,6 +29,7 @@
 
 #include "compiler-range_for.h"
 #include "compiler-poison.h"
+#include "d_enumerate.h"
 #include "partial_range.h"
 
 namespace dcx {
@@ -353,10 +354,12 @@ int PHYSFSX_fsize(const char *hogname)
 void PHYSFSX_listSearchPathContent()
 {
 	con_puts(CON_DEBUG, "PHYSFS: Listing contents of Search Path.");
-	for (const auto i : PHYSFSX_uncounted_list{PHYSFS_getSearchPath()})
-		con_printf(CON_DEBUG, "PHYSFS: [%s] is in the Search Path.", i);
-	for (const auto i : PHYSFSX_uncounted_list{PHYSFS_enumerateFiles("")})
-		con_printf(CON_DEBUG, "PHYSFS: * We've got [%s].", i);
+	if (const auto s{PHYSFSX_uncounted_list{PHYSFS_getSearchPath()}})
+		for (const auto &&[idx, entry] : enumerate(s))
+			con_printf(CON_DEBUG, "PHYSFS: search path entry #%" DXX_PRI_size_type ": %s", idx, entry);
+	if (const auto s{PHYSFSX_uncounted_list{PHYSFS_enumerateFiles("")}})
+		for (const auto &&[idx, entry] : enumerate(s))
+			con_printf(CON_DEBUG, "PHYSFS: found file #%" DXX_PRI_size_type ": %s", idx, entry);
 }
 
 }
