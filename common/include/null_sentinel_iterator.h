@@ -16,8 +16,8 @@ public:
 	using difference_type = std::ptrdiff_t;
 	using pointer = I *;
 	using reference = I &;
-	null_sentinel_iterator() = default;
-	null_sentinel_iterator(const pointer i) :
+	constexpr null_sentinel_iterator() = default;
+	constexpr null_sentinel_iterator(const pointer i) :
 		p(i)
 	{
 	}
@@ -46,15 +46,15 @@ public:
 		return !**this;
 	}
 private:
-	pointer p = nullptr;
+	pointer p{nullptr};
 };
 
 template <typename I>
 class null_sentinel_array
 {
-	I *b;
+	I *const b;
 public:
-	null_sentinel_array(I *i) :
+	constexpr null_sentinel_array(I *const i) :
 		b(i)
 	{
 	}
