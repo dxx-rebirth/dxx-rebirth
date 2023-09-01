@@ -189,7 +189,7 @@ screen_mode Game_screen_mode = initial_large_game_screen_mode;
 int  VR_stereo = false;
 fix  VR_eye_width = F1_0;
 int  VR_eye_offset = 0;
-int  VR_sync_width = 20;
+int  VR_sync_width = 24;
 grs_canvas VR_hud_left;
 grs_canvas VR_hud_right;
 }
@@ -218,7 +218,7 @@ void init_stereo()
 				break;
 		}
 		VR_eye_width = (F1_0 * 7) / 10;	// Descent 1.5 defaults
-		VR_sync_width = (20 * SHEIGHT) / 480;
+		VR_sync_width = (24 * SHEIGHT) / 480;
 		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
 	}
 	else {
