@@ -1908,9 +1908,11 @@ static inline int a(char *c){
 	char c[4];
 	return a(c);
 '''
-		if self.Link(context, text=f % 'a()', main=main, msg='whether compiler optimizes __builtin_object_size'):
-			context.sconf.Define('DXX_HAVE_BUILTIN_OBJECT_SIZE')
-		else:
+		r = self.Link(context, text=f % 'a()', main=main, msg='whether compiler optimizes __builtin_object_size')
+		context.sconf.Define('DXX_HAVE_BUILTIN_OBJECT_SIZE', int(r))
+		if not r:
+			# This test is only to provide additional information in the
+			# configure log.  The result does not influence the build.
 			self.Compile(context, text=f % '2', main=main, msg='whether compiler accepts __builtin_object_size')
 
 	@_custom_test

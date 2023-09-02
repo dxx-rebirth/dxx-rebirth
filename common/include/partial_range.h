@@ -213,7 +213,7 @@ inline void check_range_bounds(const char *file, unsigned line, const char *estr
 #undef PARTIAL_RANGE_COMPILE_CHECK_BOUND
 }
 
-#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
+#if DXX_HAVE_BUILTIN_OBJECT_SIZE
 template <typename range_exception, std::size_t required_buffer_size, typename P>
 __attribute_always_inline()
 inline void check_range_object_size(const char *file, unsigned line, const char *estr, P &ref, const std::size_t index_begin, const std::size_t index_end)
@@ -288,7 +288,7 @@ std::size_t cast_index_to_size(const index_type i)
 }
 
 template <
-#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
+#if DXX_HAVE_BUILTIN_OBJECT_SIZE
 	std::size_t required_buffer_size,
 #endif
 	typename index_type,
@@ -296,7 +296,7 @@ template <
 	>
 [[nodiscard]]
 inline partial_range_t<iterator_type, index_type> unchecked_partial_range_advance(
-#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
+#if DXX_HAVE_BUILTIN_OBJECT_SIZE
 	const char *const file, const unsigned line, const char *const estr,
 #endif
 	iterator_type range_begin, const std::size_t index_begin, const std::size_t index_end)
@@ -310,7 +310,7 @@ inline partial_range_t<iterator_type, index_type> unchecked_partial_range_advanc
 	if (DXX_CONSTANT_TRUE(!(index_begin < index_end)))
 		DXX_ALWAYS_ERROR_FUNCTION("offset never less than length");
 #endif
-#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
+#if DXX_HAVE_BUILTIN_OBJECT_SIZE
 	/* Avoid iterator dereference if range is empty */
 	if (index_end)
 	{
@@ -331,7 +331,7 @@ inline partial_range_t<iterator_type, index_type> unchecked_partial_range_advanc
 }
 
 template <
-#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
+#if DXX_HAVE_BUILTIN_OBJECT_SIZE
 	std::size_t required_buffer_size,
 #endif
 	typename range_type,
@@ -347,18 +347,18 @@ template <
 [[nodiscard]]
 __attribute_always_inline()
 inline auto (unchecked_partial_range)(
-#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
+#if DXX_HAVE_BUILTIN_OBJECT_SIZE
 	const char *const file, const unsigned line, const char *const estr,
 #endif
 	range_type &range, const index_begin_type &index_begin, const index_end_type &index_end)
 {
 	static_assert(!std::is_void<reference>::value, "dereference of iterator must not be void");
 	return unchecked_partial_range_advance<
-#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
+#if DXX_HAVE_BUILTIN_OBJECT_SIZE
 		required_buffer_size,
 #endif
 		decltype(partial_range_detail::range_index_type<range_type>(nullptr)), iterator_type>(
-#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
+#if DXX_HAVE_BUILTIN_OBJECT_SIZE
 			file, line, estr,
 #endif
 			std::begin(range),
@@ -368,7 +368,7 @@ inline auto (unchecked_partial_range)(
 }
 
 template <
-#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
+#if DXX_HAVE_BUILTIN_OBJECT_SIZE
 	std::size_t required_buffer_size,
 #endif
 	typename iterator_type,
@@ -389,7 +389,7 @@ template <
 	>
 [[nodiscard]]
 inline auto (unchecked_partial_range)(
-#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
+#if DXX_HAVE_BUILTIN_OBJECT_SIZE
 	const char *const file, const unsigned line, const char *const estr,
 #endif
 	iterator_type iterator, const index_begin_type &index_begin, const index_end_type &index_end)
@@ -405,11 +405,11 @@ inline auto (unchecked_partial_range)(
 	 * index_type from the range_type.
 	 */
 	return unchecked_partial_range_advance<
-#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
+#if DXX_HAVE_BUILTIN_OBJECT_SIZE
 		required_buffer_size,
 #endif
 		void, iterator_type>(
-#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
+#if DXX_HAVE_BUILTIN_OBJECT_SIZE
 			file, line, estr,
 #endif
 			std::move(iterator), index_begin, index_end
@@ -420,7 +420,7 @@ inline auto (unchecked_partial_range)(
  * function, adding an index_begin={} along the way.
  */
 template <
-#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
+#if DXX_HAVE_BUILTIN_OBJECT_SIZE
 	std::size_t required_buffer_size,
 #endif
 	typename iterable,
@@ -428,17 +428,17 @@ template <
 	>
 [[nodiscard]]
 inline auto (unchecked_partial_range)(
-#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
+#if DXX_HAVE_BUILTIN_OBJECT_SIZE
 	const char *const file, const unsigned line, const char *const estr,
 #endif
 	iterable &&it, const index_end_type &index_end)
 {
 	return unchecked_partial_range<
-#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
+#if DXX_HAVE_BUILTIN_OBJECT_SIZE
 		required_buffer_size
 #endif
 		>(
-#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
+#if DXX_HAVE_BUILTIN_OBJECT_SIZE
 			file, line, estr,
 #endif
 			std::forward<iterable>(it), index_end_type{}, index_end
@@ -462,11 +462,11 @@ inline auto (partial_range)(const char *const file, const unsigned line, const c
 		required_buffer_size
 	>(file, line, estr, reinterpret_cast<uintptr_t>(std::addressof(range)), sz_begin, sz_end, std::size(range));
 	return unchecked_partial_range<
-#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
+#if DXX_HAVE_BUILTIN_OBJECT_SIZE
 		required_buffer_size,
 #endif
 		range_type>(
-#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
+#if DXX_HAVE_BUILTIN_OBJECT_SIZE
 			file, line, estr,
 #endif
 			range, sz_begin, sz_end
@@ -521,7 +521,7 @@ template <typename T,
 	>
 partial_range_t<decltype(begin(std::declval<T &&>()))> (partial_const_range)(const char *file, const unsigned line, const char *estr, const T &&t, const index_end_type &index_end) = delete;
 
-#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
+#if DXX_HAVE_BUILTIN_OBJECT_SIZE
 /* This macro is conditionally defined, because in the #else case, a
  * bare invocation supplies all required parameters.  In the #else case:
  * - `required_buffer_size` is not a template parameter
