@@ -420,7 +420,9 @@ inline auto (unchecked_partial_range)(
  * function, adding an index_begin={} along the way.
  */
 template <
+#ifdef DXX_HAVE_BUILTIN_OBJECT_SIZE
 	std::size_t required_buffer_size,
+#endif
 	typename iterable,
 	typename index_end_type
 	>
