@@ -12,7 +12,6 @@
 namespace dcx {
 
 struct vms_vector;
-class vm_distance_squared;
 
 class vm_distance;
 class vm_magnitude;
