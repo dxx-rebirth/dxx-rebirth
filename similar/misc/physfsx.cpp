@@ -353,6 +353,11 @@ int PHYSFSX_fsize(const char *hogname)
 
 void PHYSFSX_listSearchPathContent()
 {
+	if (!(CON_DEBUG <= CGameArg.DbgVerbose))
+		/* Skip retrieving the path contents if the verbosity level will
+		 * prevent showing the results.
+		 */
+		return;
 	con_puts(CON_DEBUG, "PHYSFS: Listing contents of Search Path.");
 	if (const auto s{PHYSFSX_uncounted_list{PHYSFS_getSearchPath()}})
 		for (const auto &&[idx, entry] : enumerate(s))
