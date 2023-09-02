@@ -28,11 +28,10 @@ class ogl_sync {
 		void operator()(pointer p) const;
 	};
 	private:
-		SyncGLMethod method;
-		fix wait_timeout;
+		SyncGLMethod method{SYNC_GL_NONE};
+		fix wait_timeout{0};
 		std::unique_ptr<GLsync, sync_deleter> fence;
 	public:
-		ogl_sync();
 		~ogl_sync();
 
 		void before_swap();

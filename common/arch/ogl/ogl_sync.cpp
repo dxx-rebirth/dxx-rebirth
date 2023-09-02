@@ -24,12 +24,6 @@
 
 namespace dcx {
 
-ogl_sync::ogl_sync()
-{
-	method=SYNC_GL_NONE;
-	wait_timeout = 0;
-}
-
 ogl_sync::~ogl_sync()
 {
 	if (fence)
