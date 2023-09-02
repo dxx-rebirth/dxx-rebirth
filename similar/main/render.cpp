@@ -937,45 +937,50 @@ constexpr std::array<
 //given an edge, tell what side is on that edge
 static std::optional<sidenum_t> find_seg_side(const shared_segment &seg, const std::array<vertnum_t, 2> &verts, const sidenum_t notside)
 {
-	const auto v0 = verts[0];
-	const auto v1 = verts[1];
+	const auto v0{verts[0]};
+	const auto v1{verts[1]};
 
-	const auto b = begin(seg.verts);
-	const auto e = end(seg.verts);
-	auto iv0 = e;
-	auto iv1 = e;
+	const auto b{begin(seg.verts)};
+	const auto e{end(seg.verts)};
+	auto iv0{e};
+	auto iv1{e};
 	for (auto i = b;;)
 	{
 		if (iv0 == e && *i == v0)
 		{
 			iv0 = i;
 			if (iv1 != e)
+				/* If both iterators are set, break */
 				break;
 		}
 		if (iv1 == e && *i == v1)
 		{
 			iv1 = i;
 			if (iv0 != e)
+				/* If both iterators are set, break */
 				break;
 		}
 		if (++i == e)
-			return {};
+			return std::nullopt;
 	}
 
 	const auto &eptr = Edge_to_sides[std::distance(b, iv0)][std::distance(b, iv1)];
 
-	const auto side0 = eptr[0];
-	const auto side1 = eptr[1];
-
-	Assert(side0 != side_none && side1 != side_none);
+	const auto side0{eptr[0]};
+	const auto side1{eptr[1]};
+	if (side0 == side_none && side1 == side_none)
+		/* This never happens in a well-formed level.  However, levels with
+		 * invalid geometry can trigger this path.
+		 */
+		return std::nullopt;
 
 	if (side0 != notside) {
 		Assert(side1==notside);
-		return static_cast<sidenum_t>(side0);
+		return side0;
 	}
 	else {
 		Assert(side0==notside);
-		return static_cast<sidenum_t>(side1);
+		return side1;
 	}
 }
 
