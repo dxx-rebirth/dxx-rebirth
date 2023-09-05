@@ -190,6 +190,7 @@ int  VR_stereo = false;
 fix  VR_eye_width = F1_0;
 int  VR_eye_offset = 0;
 int  VR_sync_width = 24;
+int  VR_sync_param = 24;
 grs_canvas VR_hud_left;
 grs_canvas VR_hud_right;
 }
@@ -203,7 +204,7 @@ void init_stereo()
 	if (CGameArg.OglStereo || CGameArg.OglStereoView) {
 		// overide argument for above/below sync interval
 		if (CGameArg.OglStereoView > STEREO_MAX_FORMAT) {
-			VR_sync_width = CGameArg.OglStereoView;
+			VR_sync_param = CGameArg.OglStereoView;
 			VR_stereo = STEREO_ABOVE_BELOW_SYNC;
 		}
 		if (!VR_stereo && !VR_eye_offset)
@@ -223,7 +224,7 @@ void init_stereo()
 				break;
 		}
 		VR_eye_width = (F1_0 * 7) / 10;	// Descent 1.5 defaults
-		VR_sync_width = (VR_sync_width * SHEIGHT) / 480;
+		VR_sync_width = (VR_sync_param * SHEIGHT) / 480; // normalized for 640x480
 		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
 	}
 	else {
