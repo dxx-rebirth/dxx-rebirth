@@ -205,7 +205,7 @@ void init_stereo()
 		// overide argument for above/below sync interval
 		if (CGameArg.OglStereoView > STEREO_MAX_FORMAT) {
 			VR_sync_param = CGameArg.OglStereoView;
-			VR_stereo = STEREO_ABOVE_BELOW_SYNC;
+			CGameArg.OglStereoView = STEREO_ABOVE_BELOW_SYNC;
 		}
 		if (!VR_stereo && !VR_eye_offset)
 			VR_stereo = (CGameArg.OglStereoView) ? CGameArg.OglStereoView % STEREO_MAX_FORMAT : STEREO_ABOVE_BELOW;
