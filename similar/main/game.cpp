@@ -208,7 +208,7 @@ void init_stereo()
 			CGameArg.OglStereoView = STEREO_ABOVE_BELOW_SYNC;
 		}
 		if (!VR_stereo && !VR_eye_offset)
-			VR_stereo = (CGameArg.OglStereoView) ? CGameArg.OglStereoView % STEREO_MAX_FORMAT : STEREO_ABOVE_BELOW;
+			VR_stereo = (CGameArg.OglStereoView) ? CGameArg.OglStereoView % STEREO_MAX_FORMAT : STEREO_QUAD_BUFFERS;
 		constexpr int half_width_eye_offset = -6;
 		constexpr int full_width_eye_offset = -12;
 		switch (VR_stereo)
@@ -216,6 +216,7 @@ void init_stereo()
 			case STEREO_NONE:
 			case STEREO_ABOVE_BELOW:
 			case STEREO_ABOVE_BELOW_SYNC:
+			case STEREO_QUAD_BUFFERS:
 				VR_eye_offset = full_width_eye_offset;
 				break;
 			case STEREO_SIDE_BY_SIDE:
@@ -287,6 +288,7 @@ void init_cockpit()
 				switch (VR_stereo)
 				{
 					case STEREO_NONE:
+					case STEREO_QUAD_BUFFERS:
 						/* Preserve width */
 						/* Preserve height */
 						break;
@@ -370,6 +372,7 @@ void game_init_render_sub_buffers( int x, int y, int w, int h )
 		int dy = VR_sync_width / 2;
 		switch (VR_stereo) {
 		case STEREO_NONE:
+		case STEREO_QUAD_BUFFERS:
 			gr_init_sub_canvas(VR_hud_left,  grd_curscreen->sc_canvas, x+dx, y, w-dx, h);
 			gr_init_sub_canvas(VR_hud_right, grd_curscreen->sc_canvas, x, y, w-dx, h);
 			break;
