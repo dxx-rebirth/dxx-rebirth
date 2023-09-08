@@ -1292,6 +1292,7 @@ void ogl_stereo_frame(const int xeye, const int xoff)
 {
 	if (!xeye)
 		return;
+
 	const float dxoff = xoff * 2.0f / grd_curscreen->sc_canvas.cv_bitmap.bm_w;
 	float stereo_transform_dxoff;
 
@@ -1308,7 +1309,7 @@ void ogl_stereo_frame(const int xeye, const int xoff)
 			// center unsqueezed side-by-side format
 			switch (VR_stereo) {
 			case STEREO_SIDE_BY_SIDE2:
-				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3]/2;		// y = h/4
+				ogl_stereo_viewport[1] -= SHEIGHT/4;	// y = h/4
 				break;
 			case STEREO_ABOVE_BELOW_SYNC:
 				int dy = VR_sync_width/2;
@@ -1331,18 +1332,18 @@ void ogl_stereo_frame(const int xeye, const int xoff)
 			switch (VR_stereo) {
 			// center unsqueezed side-by-side format
 			case STEREO_SIDE_BY_SIDE2:
-				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3]/2;		// y = h/4
+				ogl_stereo_viewport[1] -= SHEIGHT/4;	// y = h/4
 				DXX_BOOST_FALLTHROUGH;
 			// half-width viewports for side-by-side format
 			case STEREO_SIDE_BY_SIDE:
-				ogl_stereo_viewport[0] += ogl_stereo_viewport[2];		// x = w/2
+				ogl_stereo_viewport[0] += SWIDTH/2;		// x = w/2
 				break;
 			// half-height viewports for above/below format
 			case STEREO_ABOVE_BELOW_SYNC:
+				ogl_stereo_viewport[3] -= VR_sync_width/2;
+				DXX_BOOST_FALLTHROUGH;
 			case STEREO_ABOVE_BELOW:
-				ogl_stereo_viewport[1] -= ogl_stereo_viewport[3];		// y = h/2
-				if (VR_stereo == STEREO_ABOVE_BELOW_SYNC)
-					ogl_stereo_viewport[3] -= VR_sync_width/2;
+				ogl_stereo_viewport[1] -= SHEIGHT/2;	// y = h/2
 				break;
 			}
 			glViewport(ogl_stereo_viewport[0], ogl_stereo_viewport[1], ogl_stereo_viewport[2], ogl_stereo_viewport[3]);

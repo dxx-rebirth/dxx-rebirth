@@ -3855,6 +3855,39 @@ void update_laser_weapon_info(void)
 
 #if defined(DXX_BUILD_DESCENT_II)
 
+void adjust_stereo_window(int &x, int &y, int &w, int &h)
+{
+	int dx, dy, dw, dh;
+
+	switch (VR_stereo) {
+		case STEREO_NONE:
+		case STEREO_QUAD_BUFFERS:
+			return;
+		case STEREO_ABOVE_BELOW_SYNC:
+			dh = VR_sync_width / 2;
+			h -= dh;
+			DXX_BOOST_FALLTHROUGH;
+		case STEREO_ABOVE_BELOW:
+			dy = y / 2;
+			y -= dy;
+			dh = h / 2;
+			h -= dh;
+			break;
+		case STEREO_SIDE_BY_SIDE2:
+			dy = y / 2;
+			y -= dy;
+			dh = h / 2;
+			h -= dh;
+			DXX_BOOST_FALLTHROUGH;
+		case STEREO_SIDE_BY_SIDE:
+			dx = x / 2;
+			x -= dx;
+			dw = w / 2;
+			w -= dw;
+			break;
+	}
+}
+
 //draws a 3d view into one of the cockpit windows.  win is 0 for left,
 //1 for right.  viewer is object.  NULL object means give up window
 //user is one of the WBU_ constants.  If rear_view_flag is set, show a
@@ -3896,13 +3929,16 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const object &vie
 	const hud_draw_context_hs_mr hudctx(window_canv, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic);
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN)
 	{
-		const unsigned w = HUD_SCALE_AR(hudctx.xscale, hudctx.yscale)(multires_gauge_graphic.get(106, 44));
-		const unsigned h = w;
+		int w = HUD_SCALE_AR(hudctx.xscale, hudctx.yscale)(multires_gauge_graphic.get(106, 44));
+		int h = w;
 
 		const int dx = (win == gauge_inset_window_view::primary) ? -(w + (w / 10)) : (w / 10);
 
 		window_x = grd_curscreen->get_screen_width() / 2 + dx;
 		window_y = grd_curscreen->get_screen_height() - h - (SHEIGHT / 15);
+
+		if (VR_stereo)
+			adjust_stereo_window(window_x, window_y, w, h);
 
 		gr_init_sub_canvas(window_canv, grd_curscreen->sc_canvas, window_x, window_y, w, h);
 	}
@@ -3918,7 +3954,12 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const object &vie
 
 	gr_set_current_canvas(window_canv);
 
-	render_frame(*grd_curcanv, 0, window);
+	if (VR_stereo) {
+		render_frame(*grd_curcanv, -VR_eye_width, window);
+		render_frame(*grd_curcanv,  VR_eye_width, window);
+	}
+	else
+		render_frame(*grd_curcanv, 0, window);
 
 	//	HACK! If guided missile, wake up robots as necessary.
 	if (viewer.type == OBJ_WEAPON) {
