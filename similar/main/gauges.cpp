@@ -3957,6 +3957,7 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const object &vie
 	if (VR_stereo) {
 		render_frame(*grd_curcanv, -VR_eye_width, window);
 		render_frame(*grd_curcanv,  VR_eye_width, window);
+		goto abort;
 	}
 	else
 		render_frame(*grd_curcanv, 0, window);
