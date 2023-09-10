@@ -68,9 +68,13 @@ template <std::size_t N>
 	 * ill-formed data on input, these exceptions never happen.
 	 */
 __attribute_cold
-void prepare_error_string(std::array<char, N> &buf, unsigned long d, const char *estr, const char *file, unsigned line, const char *desc, unsigned long expr, const uintptr_t t)
+std::string prepare_error_string(unsigned long d, const char *estr, const char *file, unsigned line, const char *desc, unsigned long expr, const uintptr_t t)
 {
-	std::snprintf(buf.data(), buf.size(), REPORT_FORMAT_STRING, file, line, desc, expr, reinterpret_cast<const void *>(t), d, estr);
+	std::array<char, N> buf;
+	const auto bufdata = std::data(buf);
+	const auto bufsize = std::size(buf);
+	const auto written = std::snprintf(bufdata, bufsize, REPORT_FORMAT_STRING, file, line, desc, expr, reinterpret_cast<const void *>(t), d, estr);
+	return {bufdata, written < 0 ? 0 : std::min(bufsize, static_cast<std::size_t>(written))};
 }
 #undef REPORT_FORMAT_STRING
 
@@ -162,9 +166,7 @@ struct partial_range_t<range_iterator, range_index_type>::partial_range_error
 		__attribute_cold
 	static void report(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const uintptr_t t, unsigned long d)
 	{
-		std::array<char, N> buf;
-		partial_range_detail::prepare_error_string(buf, d, estr, file, line, desc, expr, t);
-		throw partial_range_error(buf.data());
+		throw partial_range_error(partial_range_detail::prepare_error_string<N>(d, estr, file, line, desc, expr, t));
 	}
 };
 
