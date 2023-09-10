@@ -1062,10 +1062,14 @@ static fix seg_seg_vertex_distsum(const shared_segment &seg1, const sidenum_t si
 
 	distsum = 0;
 	auto &vcvertptr = Vertices.vcptr;
+	auto &sv1 = Side_to_verts[side1];
+	auto &sv2 = Side_to_verts[side2];
 	for (const auto secondv : MAX_VERTICES_PER_SIDE)
 	{
 		const auto firstv = static_cast<side_relative_vertnum>((4 - underlying_value(secondv) + (3 - firstv1)) % 4);
-		distsum += vm_vec_dist(vcvertptr(seg1.verts[Side_to_verts[side1][firstv]]),vcvertptr(seg2.verts[Side_to_verts[side2][secondv]]));
+		auto &seg1vert = *vcvertptr(seg1.verts[sv1[firstv]]);
+		auto &seg2vert = *vcvertptr(seg2.verts[sv2[secondv]]);
+		distsum += vm_vec_dist(seg1vert, seg2vert);
 	}
 
 	return distsum;
