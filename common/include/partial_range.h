@@ -337,13 +337,14 @@ template <
 	typename range_type,
 	typename index_begin_type,
 	typename index_end_type,
-	typename iterator_type = decltype(std::begin(std::declval<range_type &>())),
-	/* This is in the template signature so that an `iterator_type`
-	 * which does not provide `operator*()` will trigger an error
-	 * and remove this overload from the resolution set.
-	 */
-	typename reference = decltype(*std::declval<iterator_type>())
+	typename iterator_type = decltype(std::begin(std::declval<range_type &>()))
 	>
+	requires(
+		requires(iterator_type i) {
+			*i;
+			requires !std::is_void<decltype(*i)>::value;	// dereference of iterator must not be void
+		}
+	)
 [[nodiscard]]
 __attribute_always_inline()
 inline auto (unchecked_partial_range)(
@@ -352,7 +353,6 @@ inline auto (unchecked_partial_range)(
 #endif
 	range_type &range, const index_begin_type &index_begin, const index_end_type &index_end)
 {
-	static_assert(!std::is_void<reference>::value, "dereference of iterator must not be void");
 	return unchecked_partial_range_advance<
 #if DXX_HAVE_BUILTIN_OBJECT_SIZE
 		required_buffer_size,
@@ -373,20 +373,27 @@ template <
 #endif
 	typename iterator_type,
 	typename index_begin_type,
-	typename index_end_type,
+	typename index_end_type
+	>
+	requires(
+		std::is_unsigned<index_begin_type>::value &&	// offset to partial_range must be unsigned
+		std::is_unsigned<index_end_type>::value &&	// length to partial_range must be unsigned
 	/* C arrays (`int a[5];`) can match both the overload that calls
 	 * `std::begin(range)` and the overload that calls
 	 * `operator*(range)`, leading to an ambiguity.  Some supporting
 	 * libraries define C arrays, which callers use partial_range on, so
 	 * the array use cannot be converted to std::array.  Use
-	 * std::enable_if to disable this overload in the case of a C array.
+	 * this requires clause to disable this overload in the case of a C array.
 	 *
-	 * C++ std::array does not permit `operator*(range)`, and so does
-	 * not match this overload, regardless of whether std::enable_if is
-	 * used.
+	 * C++ std::array does not permit `operator*(range)`, and so is disabled by
+	 * the `requires { *i; }` check.
 	 */
-	typename reference = typename std::enable_if<!std::is_array<iterator_type>::value, decltype(*std::declval<iterator_type>())>::type
-	>
+		!std::is_array<iterator_type>::value &&
+		requires(iterator_type i) {
+			*i;
+			requires !std::is_void<decltype(*i)>::value;	// dereference of iterator must not be void
+		}
+	)
 [[nodiscard]]
 inline auto (unchecked_partial_range)(
 #if DXX_HAVE_BUILTIN_OBJECT_SIZE
@@ -394,10 +401,6 @@ inline auto (unchecked_partial_range)(
 #endif
 	iterator_type iterator, const index_begin_type &index_begin, const index_end_type &index_end)
 {
-	/* Require unsigned length */
-	static_assert(std::is_unsigned<index_begin_type>::value, "offset to partial_range must be unsigned");
-	static_assert(std::is_unsigned<index_end_type>::value, "length to partial_range must be unsigned");
-	static_assert(!std::is_void<reference>::value, "dereference of iterator must not be void");
 	/* Do not try to guess an index_type when supplied an iterator.  Use
 	 * `void` to state that no index_type is available.  Callers which
 	 * need a defined `index_type` should use the range-based
