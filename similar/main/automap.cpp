@@ -172,6 +172,12 @@ struct automap : ::dcx::automap
 
 static void init_automap_subcanvas(grs_subcanvas &view, grs_canvas &container)
 {
+	if (VR_stereo) {
+		int x = (SWIDTH/23), y = (SHEIGHT/6), w = (SWIDTH/1.1), h = (SHEIGHT/1.45);
+		adjust_stereo_window(x, y, w, h);
+		gr_init_sub_canvas(view, container, x, y, w, h);
+		return;
+	}
 #if defined(DXX_BUILD_DESCENT_I)
 	if (MacHog)
 		gr_init_sub_canvas(view, container, 38*(SWIDTH/640.0), 77*(SHEIGHT/480.0), 564*(SWIDTH/640.0), 381*(SHEIGHT/480.0));
@@ -806,8 +812,11 @@ static void automap_apply_input(automap &am, const vms_matrix &plrorient, const 
 	}
 }
 
-static void draw_automap(fvcobjptr &vcobjptr, automap &am)
+static void draw_automap(fvcobjptr &vcobjptr, automap &am, int eye)
 {
+	int sw = SWIDTH;
+	int sh = SHEIGHT;
+
 	if ( am.leave_mode==0 && am.controls.state.automap && (timer_query()-am.entry_time)>LEAVE_TIME)
 		am.leave_mode = 1;
 
@@ -818,6 +827,9 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 		gr_set_fontcolor(canvas, BM_XRGB(20, 20, 20), -1);
 	{
 		int x, y;
+		int dw = sw, dh = sh;
+		gr_stereo_viewport_resize(VR_stereo, dw, dh);
+		grd_curscreen->set_screen_width_height(dw, dh);
 #if defined(DXX_BUILD_DESCENT_I)
 	if (MacHog)
 			x = 80 * (SWIDTH / 640.), y = 36 * (SHEIGHT / 480.);
@@ -863,6 +875,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 	}
 
 	}
+	grd_curscreen->set_screen_width_height(sw, sh);
 	gr_set_current_canvas(am.automap_view);
 	auto &canvas = *grd_curcanv;
 
@@ -870,6 +883,10 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 
 	g3_start_frame(canvas);
 	render_start_frame();
+
+	// select stereo viewport/transform/buffer per left/right eye
+	if (VR_stereo)
+		g3_stereo_frame(eye, VR_eye_offset);
 
 	if (!PlayerCfg.AutomapFreeFlight)
 		vm_vec_scale_add(am.view_position,am.view_target,am.viewMatrix.fvec,-am.viewDist);
@@ -988,6 +1005,16 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 		calc_d_tick();
 	}
 	am.t1 = am.t2;
+}
+
+static void draw_automap(fvcobjptr &vcobjptr, automap &am)
+{
+	if (VR_stereo) {
+		draw_automap(vcobjptr, am, -VR_eye_offset);
+		draw_automap(vcobjptr, am,  VR_eye_offset);
+	}
+	else
+		draw_automap(vcobjptr, am, 0);
 }
 
 #if defined(DXX_BUILD_DESCENT_I)

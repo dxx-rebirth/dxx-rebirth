@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "byteutil.h"
 #if DXX_USE_OGL
+#include "fwd-gr.h"
 #include "ogl_init.h"
 #endif
 
@@ -495,6 +496,15 @@ void show_fullscr(grs_canvas &canvas, grs_bitmap &bm)
 	if (bm.get_type() == bm_mode::linear && scr.get_type() == bm_mode::ogl &&
 		bm.bm_w <= grd_curscreen->get_screen_width() && bm.bm_h <= grd_curscreen->get_screen_height()) // only scale with OGL if bitmap is not bigger than screen size
 	{
+		extern int VR_stereo;
+		if (VR_stereo) {
+			int x = 0, y = 0, w = SWIDTH, h = SHEIGHT;
+			gr_stereo_viewport_resize(VR_stereo, w, h);
+			ogl_ubitmapm_cs(canvas, x, y, w, h, bm, ogl_colors::white, F1_0);
+			gr_stereo_viewport_offset(VR_stereo, x, y);
+			ogl_ubitmapm_cs(canvas, x, y, w, h, bm, ogl_colors::white, F1_0);
+			return;
+		}
 		ogl_ubitmapm_cs(canvas, 0, 0, -1, -1, bm, ogl_colors::white, F1_0);//use opengl to scale, faster and saves ram. -MPM
 		return;
 	}

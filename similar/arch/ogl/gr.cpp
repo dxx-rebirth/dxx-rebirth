@@ -1189,3 +1189,52 @@ void write_bmp(PHYSFS_File *const TGAFile, const unsigned w, const unsigned h)
 #endif
 
 }
+
+namespace dcx {
+
+void gr_stereo_viewport_resize(const int stereo, int &w, int &h)
+{
+	switch (stereo) {
+		case STEREO_NONE:
+		case STEREO_QUAD_BUFFERS:
+			return;
+		case STEREO_ABOVE_BELOW_SYNC:
+			h -= VR_sync_width;
+			DXX_BOOST_FALLTHROUGH;
+		case STEREO_ABOVE_BELOW:
+			h /= 2;
+			break;
+		case STEREO_SIDE_BY_SIDE2:
+			h /= 2;
+			DXX_BOOST_FALLTHROUGH;
+		case STEREO_SIDE_BY_SIDE:
+			w /= 2;
+			break;
+	}
+}
+
+void gr_stereo_viewport_offset(const int stereo, int &x, int &y)
+{
+	if (!grd_curscreen)
+		return;
+
+	switch (stereo) {
+		case STEREO_NONE:
+		case STEREO_QUAD_BUFFERS:
+			return;
+		case STEREO_ABOVE_BELOW_SYNC:
+			y += VR_sync_width/2;
+			DXX_BOOST_FALLTHROUGH;
+		case STEREO_ABOVE_BELOW:
+			y += SHEIGHT/2;
+			break;
+		case STEREO_SIDE_BY_SIDE2:
+			y += SHEIGHT/2;
+			DXX_BOOST_FALLTHROUGH;
+		case STEREO_SIDE_BY_SIDE:
+			x += SWIDTH/2;
+			break;
+	}
+}
+
+}	// namespace dcx

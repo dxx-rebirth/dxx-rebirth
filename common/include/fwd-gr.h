@@ -181,6 +181,11 @@ void gr_bm_ubitbltm(grs_canvas &dest, unsigned w, unsigned h, unsigned dx, unsig
 #endif
 void gr_bm_pixel(grs_canvas &, grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y, uint8_t color);
 void gr_set_bitmap_data(grs_bitmap &bm, const uint8_t *data);
+
+#if DXX_USE_OGL
+void gr_stereo_viewport_resize(const int stereo, int &w, int &h);
+void gr_stereo_viewport_offset(const int stereo, int &x, int &y);
+#endif
 }
 
 #ifdef dsx
