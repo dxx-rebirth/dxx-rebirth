@@ -1226,11 +1226,20 @@ void gr_stereo_viewport_resize(const int stereo, int &w, int &h)
 	}
 }
 
-void gr_stereo_viewport_offset(const int stereo, int &x, int &y)
+void gr_stereo_viewport_offset(const int stereo, int &x, int &y, const int eye)
 {
 	if (!grd_curscreen)
 		return;
 
+	// left eye viewport origin
+	if (eye <= 0) {
+		x = y = 0;
+		if (stereo == STEREO_SIDE_BY_SIDE2)
+			y += SHEIGHT/4;
+		return;
+	}
+
+	// right eye viewport origin
 	switch (stereo) {
 		case STEREO_NONE:
 		case STEREO_QUAD_BUFFERS:
@@ -1242,8 +1251,6 @@ void gr_stereo_viewport_offset(const int stereo, int &x, int &y)
 			y += SHEIGHT/2;
 			break;
 		case STEREO_SIDE_BY_SIDE2:
-			y += SHEIGHT/2;
-			DXX_BOOST_FALLTHROUGH;
 		case STEREO_SIDE_BY_SIDE:
 			x += SWIDTH/2;
 			break;
