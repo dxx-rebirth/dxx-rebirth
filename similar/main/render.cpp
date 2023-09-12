@@ -1215,11 +1215,9 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
   
 	g3_start_frame(canvas);
 
-#if DXX_USE_OGL
 	// select stereo viewport/transform/buffer per left/right eye
 	if (VR_stereo)
-		ogl_stereo_frame(eye_offset, VR_eye_offset);
-#endif
+		g3_stereo_frame(eye_offset, VR_eye_offset);
 
 	auto Viewer_eye = Viewer->pos;
 
