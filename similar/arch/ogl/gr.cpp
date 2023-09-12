@@ -731,6 +731,8 @@ int gr_set_mode(screen_mode mode)
 	gamefont_choose_game_font(w,h);
 	gr_remap_color_fonts();
 
+	VR_sync_width = (VR_sync_param * SHEIGHT) / 480; // normalized for 640x480
+
 	return 0;
 }
 
@@ -861,6 +863,17 @@ int gr_init()
 	gr_set_current_canvas(grd_curscreen->sc_canvas);
 
 	ogl_init_pixel_buffers(256, 128);       // for gamefont_init
+
+	// stereo display options
+	if (CGameArg.OglStereo)
+		VR_stereo = STEREO_QUAD_BUFFERS;
+	if (CGameArg.OglStereoView > STEREO_MAX_FORMAT) {
+		VR_sync_param = CGameArg.OglStereoView;
+		CGameArg.OglStereoView = STEREO_ABOVE_BELOW_SYNC;
+	}
+	if (CGameArg.OglStereoView)
+		VR_stereo = CGameArg.OglStereoView % STEREO_MAX_FORMAT;
+	VR_sync_width = (VR_sync_param * SHEIGHT) / 480; // normalized for 640x480
 
 	gr_installed = 1;
 

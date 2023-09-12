@@ -205,6 +205,7 @@ extern int  VR_stereo;
 extern fix  VR_eye_width;
 extern int  VR_eye_offset;
 extern int  VR_sync_width;
+extern int  VR_sync_param;
 extern grs_canvas VR_hud_left;
 extern grs_canvas VR_hud_right;
 }

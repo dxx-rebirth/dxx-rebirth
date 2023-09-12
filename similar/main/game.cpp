@@ -202,13 +202,6 @@ void init_stereo()
 #if DXX_USE_OGL
 	// init stereo options
 	if (CGameArg.OglStereo || CGameArg.OglStereoView) {
-		// overide argument for above/below sync interval
-		if (CGameArg.OglStereoView > STEREO_MAX_FORMAT) {
-			VR_sync_param = CGameArg.OglStereoView;
-			CGameArg.OglStereoView = STEREO_ABOVE_BELOW_SYNC;
-		}
-		if (!VR_stereo && !VR_eye_offset)
-			VR_stereo = (CGameArg.OglStereoView) ? CGameArg.OglStereoView % STEREO_MAX_FORMAT : STEREO_QUAD_BUFFERS;
 		constexpr int half_width_eye_offset = -6;
 		constexpr int full_width_eye_offset = -12;
 		switch (VR_stereo)
