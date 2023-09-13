@@ -1251,6 +1251,9 @@ void gr_stereo_viewport_offset(const int stereo, int &x, int &y, const int eye)
 			y += SHEIGHT/2;
 			break;
 		case STEREO_SIDE_BY_SIDE2:
+			if (y == 0)
+				y += SHEIGHT/4;
+			DXX_BOOST_FALLTHROUGH;
 		case STEREO_SIDE_BY_SIDE:
 			x += SWIDTH/2;
 			break;

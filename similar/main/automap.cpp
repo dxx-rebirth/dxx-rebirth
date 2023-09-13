@@ -816,6 +816,9 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am, int eye)
 {
 	int sw = SWIDTH;
 	int sh = SHEIGHT;
+	int dx = 0, dy = 0, dw = sw, dh = sh;
+	gr_stereo_viewport_resize(VR_stereo, dw, dh);
+	gr_stereo_viewport_offset(VR_stereo, dx, dy, eye);
 
 	if ( am.leave_mode==0 && am.controls.state.automap && (timer_query()-am.entry_time)>LEAVE_TIME)
 		am.leave_mode = 1;
@@ -827,8 +830,6 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am, int eye)
 		gr_set_fontcolor(canvas, BM_XRGB(20, 20, 20), -1);
 	{
 		int x, y;
-		int dw = sw, dh = sh;
-		gr_stereo_viewport_resize(VR_stereo, dw, dh);
 		grd_curscreen->set_screen_width_height(dw, dh);
 #if defined(DXX_BUILD_DESCENT_I)
 	if (MacHog)
@@ -836,6 +837,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am, int eye)
 	else
 #endif
 			x = SWIDTH / 8, y = SHEIGHT / 16;
+		x += dx, y += dy;
 		gr_string(canvas, *HUGE_FONT, x, y, TXT_AUTOMAP);
 	}
 		gr_set_fontcolor(canvas, BM_XRGB(20, 20, 20), -1);
@@ -868,6 +870,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am, int eye)
 		y1 = SHEIGHT / 1.083;
 		y2 = SHEIGHT / 1.043;
 #endif
+		x += dx, y0 += dy, y1 += dy, y2 += dy;
 		auto &game_font = *GAME_FONT;
 		gr_string(canvas, game_font, x, y0, TXT_TURN_SHIP);
 		gr_string(canvas, game_font, x, y1, s1);
@@ -1010,8 +1013,8 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am, int eye)
 static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 {
 	if (VR_stereo) {
-		draw_automap(vcobjptr, am, -VR_eye_offset);
-		draw_automap(vcobjptr, am,  VR_eye_offset);
+		draw_automap(vcobjptr, am, -VR_eye_width);
+		draw_automap(vcobjptr, am,  VR_eye_width);
 	}
 	else
 		draw_automap(vcobjptr, am, 0);
