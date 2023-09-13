@@ -174,7 +174,7 @@ static void init_automap_subcanvas(grs_subcanvas &view, grs_canvas &container)
 {
 	if (VR_stereo) {
 		int x = (SWIDTH/23), y = (SHEIGHT/6), w = (SWIDTH/1.1), h = (SHEIGHT/1.45);
-		adjust_stereo_window(x, y, w, h);
+		gr_stereo_viewport_window(VR_stereo, x, y, w, h);
 		gr_init_sub_canvas(view, container, x, y, w, h);
 		return;
 	}

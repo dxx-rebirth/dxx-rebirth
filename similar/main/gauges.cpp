@@ -3855,39 +3855,6 @@ void update_laser_weapon_info(void)
 
 #if defined(DXX_BUILD_DESCENT_II)
 
-void adjust_stereo_window(int &x, int &y, int &w, int &h)
-{
-	int dx, dy, dw, dh;
-
-	switch (VR_stereo) {
-		case STEREO_NONE:
-		case STEREO_QUAD_BUFFERS:
-			return;
-		case STEREO_ABOVE_BELOW_SYNC:
-			dh = VR_sync_width / 2;
-			h -= dh;
-			DXX_BOOST_FALLTHROUGH;
-		case STEREO_ABOVE_BELOW:
-			dy = y / 2;
-			y -= dy;
-			dh = h / 2;
-			h -= dh;
-			break;
-		case STEREO_SIDE_BY_SIDE2:
-			dy = y / 2;
-			y -= dy;
-			dh = h / 2;
-			h -= dh;
-			DXX_BOOST_FALLTHROUGH;
-		case STEREO_SIDE_BY_SIDE:
-			dx = x / 2;
-			x -= dx;
-			dw = w / 2;
-			w -= dw;
-			break;
-	}
-}
-
 //draws a 3d view into one of the cockpit windows.  win is 0 for left,
 //1 for right.  viewer is object.  NULL object means give up window
 //user is one of the WBU_ constants.  If rear_view_flag is set, show a
@@ -3938,7 +3905,7 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const object &vie
 		window_y = grd_curscreen->get_screen_height() - h - (SHEIGHT / 15);
 
 		if (VR_stereo)
-			adjust_stereo_window(window_x, window_y, w, h);
+			gr_stereo_viewport_window(VR_stereo, window_x, window_y, w, h);
 
 		gr_init_sub_canvas(window_canv, grd_curscreen->sc_canvas, window_x, window_y, w, h);
 	}

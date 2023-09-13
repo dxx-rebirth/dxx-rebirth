@@ -185,6 +185,7 @@ void gr_set_bitmap_data(grs_bitmap &bm, const uint8_t *data);
 #if DXX_USE_OGL
 void gr_stereo_viewport_resize(const int stereo, int &w, int &h);
 void gr_stereo_viewport_offset(const int stereo, int &x, int &y, const int eye = 1);
+void gr_stereo_viewport_window(const int stereo, int &x, int &y, int &w, int &h);
 #endif
 }
 

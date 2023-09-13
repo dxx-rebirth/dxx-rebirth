@@ -1260,4 +1260,37 @@ void gr_stereo_viewport_offset(const int stereo, int &x, int &y, const int eye)
 	}
 }
 
+void gr_stereo_viewport_window(const int stereo, int &x, int &y, int &w, int &h)
+{
+	int dx, dy, dw, dh;
+
+	switch (stereo) {
+		case STEREO_NONE:
+		case STEREO_QUAD_BUFFERS:
+			return;
+		case STEREO_ABOVE_BELOW_SYNC:
+			dh = VR_sync_width / 2;
+			h -= dh;
+			DXX_BOOST_FALLTHROUGH;
+		case STEREO_ABOVE_BELOW:
+			dy = y / 2;
+			y -= dy;
+			dh = h / 2;
+			h -= dh;
+			break;
+		case STEREO_SIDE_BY_SIDE2:
+			dy = y / 2;
+			y -= dy;
+			dh = h / 2;
+			h -= dh;
+			DXX_BOOST_FALLTHROUGH;
+		case STEREO_SIDE_BY_SIDE:
+			dx = x / 2;
+			x -= dx;
+			dw = w / 2;
+			w -= dw;
+			break;
+	}
+}
+
 }	// namespace dcx
