@@ -885,6 +885,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am, int eye)
 	gr_set_current_canvas(am.automap_view);
 	auto &canvas = *grd_curcanv;
 
+	if (eye == 0)
 	gr_clear_canvas(canvas, BM_XRGB(0,0,0));
 
 	g3_start_frame(canvas);
