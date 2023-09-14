@@ -819,6 +819,8 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am, int eye)
 	int dx = 0, dy = 0, dw = sw, dh = sh;
 	gr_stereo_viewport_resize(VR_stereo, dw, dh);
 	gr_stereo_viewport_offset(VR_stereo, dx, dy, eye);
+	#define SCREEN_SIZE_STEREO 	grd_curscreen->set_screen_width_height(dw, dh)
+	#define SCREEN_SIZE_NORMAL 	grd_curscreen->set_screen_width_height(sw, sh)
 
 	if ( am.leave_mode==0 && am.controls.state.automap && (timer_query()-am.entry_time)>LEAVE_TIME)
 		am.leave_mode = 1;
@@ -829,9 +831,9 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am, int eye)
 		if (eye <= 0)
 		show_fullscr(canvas, am.automap_background);
 		gr_set_fontcolor(canvas, BM_XRGB(20, 20, 20), -1);
+	SCREEN_SIZE_STEREO;
 	{
 		int x, y;
-		grd_curscreen->set_screen_width_height(dw, dh);
 #if defined(DXX_BUILD_DESCENT_I)
 	if (MacHog)
 			x = 80 * (SWIDTH / 640.), y = 36 * (SHEIGHT / 480.);
@@ -879,7 +881,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am, int eye)
 	}
 
 	}
-	grd_curscreen->set_screen_width_height(sw, sh);
+	SCREEN_SIZE_NORMAL;
 	gr_set_current_canvas(am.automap_view);
 	auto &canvas = *grd_curcanv;
 
@@ -970,9 +972,9 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am, int eye)
 
 	g3_end_frame();
 
-	grd_curscreen->set_screen_width_height(dw, dh);
+	SCREEN_SIZE_STEREO;
 	name_frame(canvas, am, dx, dy);
-	grd_curscreen->set_screen_width_height(sw, sh);
+	SCREEN_SIZE_NORMAL;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	{
