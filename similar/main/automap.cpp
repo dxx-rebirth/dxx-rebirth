@@ -695,7 +695,7 @@ constexpr char system_name[][17] = {
 			"Omega System"};
 #endif
 
-static void name_frame(grs_canvas &canvas, automap &am)
+static void name_frame(grs_canvas &canvas, automap &am, int dx = 0, int dy = 0)
 {
 	gr_set_fontcolor(canvas, am.green_31, -1);
 	char		name_level_left[128];
@@ -711,7 +711,7 @@ static void name_frame(grs_canvas &canvas, automap &am)
 	else
 		name_level = Current_level_name;
 
-	gr_string(canvas, game_font, (SWIDTH / 64), (SHEIGHT / 48), name_level);
+	gr_string(canvas, game_font, dx + (SWIDTH / 64), dy + (SHEIGHT / 48), name_level);
 #elif defined(DXX_BUILD_DESCENT_II)
 	char	name_level_right[128];
 	if (Current_level_num > 0)
@@ -725,10 +725,10 @@ static void name_frame(grs_canvas &canvas, automap &am)
 	else
 		snprintf(name_level_right, sizeof(name_level_right), " %s", current_level_name);
 
-	gr_string(canvas, game_font, (SWIDTH / 64), (SHEIGHT / 48), name_level_left);
+	gr_string(canvas, game_font, dx + (SWIDTH / 64), dy + (SHEIGHT / 48), name_level_left);
 	int wr,h;
 	gr_get_string_size(game_font, name_level_right, &wr, &h, nullptr);
-	gr_string(canvas, game_font, canvas.cv_bitmap.bm_w - wr - (SWIDTH / 64), (SHEIGHT / 48), name_level_right, wr, h);
+	gr_string(canvas, game_font, dx + canvas.cv_bitmap.bm_w - wr - (SWIDTH / 64), dy + (SHEIGHT / 48), name_level_right, wr, h);
 #endif
 }
 
@@ -826,6 +826,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am, int eye)
 	gr_set_default_canvas();
 	{
 		auto &canvas = *grd_curcanv;
+		if (eye <= 0)
 		show_fullscr(canvas, am.automap_background);
 		gr_set_fontcolor(canvas, BM_XRGB(20, 20, 20), -1);
 	{
@@ -969,7 +970,9 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am, int eye)
 
 	g3_end_frame();
 
-	name_frame(canvas, am);
+	grd_curscreen->set_screen_width_height(dw, dh);
+	name_frame(canvas, am, dx, dy);
+	grd_curscreen->set_screen_width_height(sw, sh);
 
 #if defined(DXX_BUILD_DESCENT_II)
 	{
