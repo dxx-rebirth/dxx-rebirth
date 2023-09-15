@@ -812,7 +812,7 @@ static void automap_apply_input(automap &am, const vms_matrix &plrorient, const 
 	}
 }
 
-static void draw_automap(fvcobjptr &vcobjptr, automap &am, int eye)
+static void draw_automap(fvcobjptr &vcobjptr, automap &am, fix eye)
 {
 	int sw = SWIDTH;
 	int sh = SHEIGHT;
@@ -829,9 +829,9 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am, int eye)
 	{
 		auto &canvas = *grd_curcanv;
 		if (eye <= 0)
-		show_fullscr(canvas, am.automap_background);
+			show_fullscr(canvas, am.automap_background);
 		gr_set_fontcolor(canvas, BM_XRGB(20, 20, 20), -1);
-	SCREEN_SIZE_STEREO;
+		SCREEN_SIZE_STEREO;
 	{
 		int x, y;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -886,7 +886,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am, int eye)
 	auto &canvas = *grd_curcanv;
 
 	if (eye == 0)
-	gr_clear_canvas(canvas, BM_XRGB(0,0,0));
+		gr_clear_canvas(canvas, BM_XRGB(0,0,0));
 
 	g3_start_frame(canvas);
 	render_start_frame();
@@ -898,6 +898,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am, int eye)
 	if (!PlayerCfg.AutomapFreeFlight)
 		vm_vec_scale_add(am.view_position,am.view_target,am.viewMatrix.fvec,-am.viewDist);
 
+	am.view_position.x += eye;	// stereo viewpoint offset
 	g3_set_view_matrix(am.view_position,am.viewMatrix,am.zoom);
 
 	draw_all_edges(*grd_curcanv, am);
