@@ -131,7 +131,9 @@ int ReadConfigFile()
 	CGameCfg.AspectX = 3;
 	CGameCfg.AspectY = 4;
 	CGameCfg.WindowMode = false;
+#if DXX_USE_OGL
 	CGameCfg.TexFilt = opengl_texture_filter::classic;
+#endif
 	CGameCfg.TexAnisotropy = 0;
 #if defined(DXX_BUILD_DESCENT_II)
 	GameCfg.MovieTexFilt = 0;
@@ -237,9 +239,19 @@ int ReadConfigFile()
 			{
 				switch (const auto TexFilt = *r)
 				{
+#if DXX_USE_OGL
 					case static_cast<unsigned>(opengl_texture_filter::classic):
 					case static_cast<unsigned>(opengl_texture_filter::upscale):
 					case static_cast<unsigned>(opengl_texture_filter::trilinear):
+#else
+					default:
+						/* In SDL-only builds, accept any value and save it.
+						 * The value will not be used, but it will be written
+						 * back to the configuration file, to avoid deleting
+						 * settings for players who use both SDL-only and
+						 * OpenGL-enabled builds.
+						 */
+#endif
 						CGameCfg.TexFilt = opengl_texture_filter{TexFilt};
 						break;
 				}
@@ -311,7 +323,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", AspectXStr, CGameCfg.AspectX);
 	PHYSFSX_printf(infile, "%s=%i\n", AspectYStr, CGameCfg.AspectY);
 	PHYSFSX_printf(infile, "%s=%i\n", WindowModeStr, CGameCfg.WindowMode);
-	PHYSFSX_printf(infile, "%s=%i\n", TexFiltStr, static_cast<unsigned>(CGameCfg.TexFilt));
+	PHYSFSX_printf(infile, "%s=%i\n", TexFiltStr, underlying_value(CGameCfg.TexFilt));
 	PHYSFSX_printf(infile, "%s=%i\n", TexAnisStr, CGameCfg.TexAnisotropy);
 #if defined(DXX_BUILD_DESCENT_II)
 	PHYSFSX_printf(infile, "%s=%i\n", MovieTexFiltStr, GameCfg.MovieTexFilt);
