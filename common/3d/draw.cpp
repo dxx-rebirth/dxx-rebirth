@@ -239,7 +239,7 @@ void _g3_draw_tmap(grs_canvas &canvas, const std::span<cg3s_point *const> pointl
 
 	//now make list of 2d coords (& check for overflow)
 
-	for (auto &&p : unchecked_partial_range(bufptr, pointlist.size()))
+	for (auto &&p : std::span(bufptr).first(pointlist.size()))
 	{
 		if (!(p->p3_flags&projection_flag::projected))
 			g3_project_point(*p);
