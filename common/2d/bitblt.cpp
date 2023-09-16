@@ -498,7 +498,7 @@ void show_fullscr(grs_canvas &canvas, grs_bitmap &bm)
 	{
 		extern int VR_stereo;
 		if (VR_stereo) {
-			int x = 0, y = 0, w = SWIDTH, h = SHEIGHT;
+			int x = 0, y = 0, w = canvas.cv_bitmap.bm_w, h = canvas.cv_bitmap.bm_h;
 			gr_stereo_viewport_resize(VR_stereo, w, h);
 			gr_stereo_viewport_offset(VR_stereo, x, y, -1);
 			ogl_ubitmapm_cs(canvas, x, y, w, h, bm, ogl_colors::white, F1_0);
