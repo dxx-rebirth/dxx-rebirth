@@ -1467,13 +1467,26 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 
 	// popup menu needs to fit in stereo viewport if active
 	if (VR_stereo) {
-		//gr_stereo_viewport_window(VR_stereo, menu.x, menu.y, menu.w, menu.h);
-		menu.x = 0;
-		menu.y = 0;
-		if (menu.w > SWIDTH/2)
-			menu.w = SWIDTH/2;
-		if (menu.h > SHEIGHT/2)
-			menu.h = SHEIGHT/2;
+		int sw = SWIDTH, sh = SHEIGHT;
+		int dx = menu.x, dy = menu.y, dw = sw, dh = sh;
+		gr_stereo_viewport_resize(VR_stereo, sw, sh);
+		gr_stereo_viewport_window(VR_stereo, menu.x, menu.y, dw, dh);
+		if (menu.w > sw)
+			menu.w -= menu.w - sw;
+		if (menu.x + menu.w > sw) {
+			dx = menu.x + menu.w - sw;
+			menu.x -= dx;
+			if (menu.x < 0)
+				menu.x = 0;
+		}
+		if (menu.h > sh)
+			menu.h -= menu.h - sh;
+		if (menu.y + menu.h > sh) {
+			dy = menu.y + menu.h - sh;
+			menu.y -= dy;
+			if (menu.y < 0)
+				menu.y = 0;
+		}
 	}
 
 	nm_draw_background1(canvas, menu.filename);
@@ -1514,12 +1527,7 @@ static window_event_result newmenu_draw(newmenu *menu)
 	grs_canvas &save_canvas = *grd_curcanv;
 	grs_canvas &scrn_canvas = grd_curscreen->sc_canvas;
 	int th = 0, ty, sx, sy;
-	int sw = SWIDTH, sh = SHEIGHT;
-	int dx = 0, dy = 0, dw = sw, dh = sh;
-	gr_stereo_viewport_resize(VR_stereo, dw, dh);
-	gr_stereo_viewport_offset(VR_stereo, dx, dy, -1);
-	#define SCREEN_SIZE_STEREO 	grd_curscreen->set_screen_width_height(dw, dh)
-	#define SCREEN_SIZE_NORMAL 	grd_curscreen->set_screen_width_height(sw, sh)
+	int dx = 0, dy = 0;
 
 	if (menu->swidth != SWIDTH || menu->sheight != SHEIGHT || menu->fntscalex != FNTScaleX || menu->fntscaley != FNTScaleY)
 	{
@@ -1607,8 +1615,9 @@ static window_event_result newmenu_draw(newmenu *menu)
 	menu->subfunction_handler(d_event{EVENT_NEWMENU_DRAW});
 
 	if (VR_stereo) {
+		dx = menu->x, dy = menu->y;
 		gr_stereo_viewport_offset(VR_stereo, dx, dy, 1);
-		//ogl_ubitmapm_cs(scrn_canvas, dx, dy, menu->w, menu->h, menu_canvas.cv_bitmap, ogl_colors::white, F1_0);
+		gr_bitmap(scrn_canvas, dx, dy, menu_canvas.cv_bitmap);
 	}
 
 	gr_set_current_canvas(save_canvas);
@@ -2081,6 +2090,8 @@ void listbox_layout::create_structure()
 	box_y = (canvas.cv_bitmap.bm_h - (height + title_height)) / 2 + title_height;
 	if (box_y < bordery2)
 		box_y = bordery2;
+
+	// fit listbox in stereo viewport if active
 
 	if (citem < 0)
 		citem = 0;
