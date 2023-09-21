@@ -58,6 +58,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_zip.h"
 #include "partial_range.h"
 
+#if DXX_USE_OGL
+#include "ogl_init.h"
+#endif
+
 #define MESSAGEBOX_TEXT_SIZE 2176  // How many characters in messagebox
 #define MAX_TEXT_WIDTH FSPACX(120) // How many pixels wide a input box can be
 
@@ -1461,6 +1465,17 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 	if (menu.y < 0)
 		menu.y = 0;
 
+	// popup menu needs to fit in stereo viewport if active
+	if (VR_stereo) {
+		//gr_stereo_viewport_window(VR_stereo, menu.x, menu.y, menu.w, menu.h);
+		menu.x = 0;
+		menu.y = 0;
+		if (menu.w > SWIDTH/2)
+			menu.w = SWIDTH/2;
+		if (menu.h > SHEIGHT/2)
+			menu.h = SHEIGHT/2;
+	}
+
 	nm_draw_background1(canvas, menu.filename);
 
 	// Update all item's x & y values.
@@ -1497,13 +1512,20 @@ static window_event_result newmenu_draw(newmenu *menu)
 {
 	grs_canvas &menu_canvas = menu->w_canv;
 	grs_canvas &save_canvas = *grd_curcanv;
+	grs_canvas &scrn_canvas = grd_curscreen->sc_canvas;
 	int th = 0, ty, sx, sy;
+	int sw = SWIDTH, sh = SHEIGHT;
+	int dx = 0, dy = 0, dw = sw, dh = sh;
+	gr_stereo_viewport_resize(VR_stereo, dw, dh);
+	gr_stereo_viewport_offset(VR_stereo, dx, dy, -1);
+	#define SCREEN_SIZE_STEREO 	grd_curscreen->set_screen_width_height(dw, dh)
+	#define SCREEN_SIZE_NORMAL 	grd_curscreen->set_screen_width_height(sw, sh)
 
 	if (menu->swidth != SWIDTH || menu->sheight != SHEIGHT || menu->fntscalex != FNTScaleX || menu->fntscaley != FNTScaleY)
 	{
 		menu->create_structure();
 		{
-			gr_init_sub_canvas(menu_canvas, grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h);
+			gr_init_sub_canvas(menu_canvas, scrn_canvas, menu->x, menu->y, menu->w, menu->h);
 		}
 	}
 
@@ -1583,6 +1605,12 @@ static window_event_result newmenu_draw(newmenu *menu)
 		gr_string(*grd_curcanv, cv_font, sx, sy, (scroll_offset + menu->max_displayable < menu->items.size()) ? DOWN_ARROW_MARKER(*grd_curcanv->cv_font, game_font) : "  ");
 	}
 	menu->subfunction_handler(d_event{EVENT_NEWMENU_DRAW});
+
+	if (VR_stereo) {
+		gr_stereo_viewport_offset(VR_stereo, dx, dy, 1);
+		//ogl_ubitmapm_cs(scrn_canvas, dx, dy, menu->w, menu->h, menu_canvas.cv_bitmap, ogl_colors::white, F1_0);
+	}
+
 	gr_set_current_canvas(save_canvas);
 	return window_event_result::handled;
 }

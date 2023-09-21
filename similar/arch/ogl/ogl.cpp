@@ -2030,8 +2030,8 @@ bool ogl_ubitmapm_cs2x(grs_canvas &canvas, int x0, int y0, int dw, int dh, grs_b
 	// blit bitmap 2x for stereo viewport formats
 	if (VR_stereo) {
 		int x = x0, y = y0;
-		int w = (dw <= 0) ? canvas.cv_bitmap.bm_w : dw;
-		int h = (dh <= 0) ? canvas.cv_bitmap.bm_h : dh;
+		int w = (dw < 0) ? canvas.cv_bitmap.bm_w : (dw == 0) ? bm.bm_w : dw;
+		int h = (dh < 0) ? canvas.cv_bitmap.bm_h : (dh == 0) ? bm.bm_h : dh;
 		gr_stereo_viewport_resize(VR_stereo, w, h);
 		gr_stereo_viewport_offset(VR_stereo, x, y, -1);
 		ogl_ubitmapm_cs(canvas, x, y, w, h, bm, color_array, scale);

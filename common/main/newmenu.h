@@ -227,6 +227,7 @@ struct newmenu_layout
 	uint8_t mouse_state;
 	const partial_range_t<newmenu_item *> items;
 	int	scroll_offset = 0;
+	grs_bitmap_ptr offscreen;
 	newmenu_layout(const menu_title title, const menu_subtitle subtitle, const menu_filename filename, const tiny_mode_flag tiny_mode, const tab_processing_flag tabs_flag, const adjusted_citem citem_init, const draw_box_flag draw_box) :
 		citem(citem_init.citem),
 		title(title), subtitle(subtitle), filename(filename),

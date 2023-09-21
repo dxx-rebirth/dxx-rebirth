@@ -697,6 +697,12 @@ static int gr_check_mode(const screen_mode mode)
 }
 #endif
 
+static inline void gr_set_stereo_mode_sync(void)
+{
+	// calc stereo mode sync interval for above/below format
+	VR_sync_width = (VR_sync_param * SHEIGHT) / 480; // normalized for 640x480
+}
+
 int gr_set_mode(screen_mode mode)
 {
 	unsigned char *gr_bm_data;
@@ -731,7 +737,7 @@ int gr_set_mode(screen_mode mode)
 	gamefont_choose_game_font(w,h);
 	gr_remap_color_fonts();
 
-	VR_sync_width = (VR_sync_param * SHEIGHT) / 480; // normalized for 640x480
+	gr_set_stereo_mode_sync();
 
 	return 0;
 }
@@ -873,7 +879,7 @@ int gr_init()
 	}
 	if (CGameArg.OglStereoView)
 		VR_stereo = CGameArg.OglStereoView % STEREO_MAX_FORMAT;
-	VR_sync_width = (VR_sync_param * SHEIGHT) / 480; // normalized for 640x480
+	gr_set_stereo_mode_sync();
 
 	gr_installed = 1;
 
@@ -1233,7 +1239,7 @@ void gr_stereo_viewport_offset(const int stereo, int &x, int &y, const int eye)
 
 	// left eye viewport origin
 	if (eye <= 0) {
-		x = y = 0;
+//		x = y = 0;
 		if (stereo == STEREO_SIDE_BY_SIDE2)
 			y += SHEIGHT/4;
 		return;
