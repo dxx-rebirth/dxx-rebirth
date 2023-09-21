@@ -1299,6 +1299,30 @@ namespace dsx {
 
 namespace {
 
+static inline void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
+{
+		int sw = SWIDTH, sh = SHEIGHT;
+		int dx = x, dy = y, dw = sw, dh = sh;
+		gr_stereo_viewport_resize(VR_stereo, sw, sh);
+		gr_stereo_viewport_window(VR_stereo, x, y, dw, dh);
+		if (w > sw)
+			w -= w - sw;
+		if (x + w > sw) {
+			dx = x + w - sw;
+			x -= dx;
+			if (x < 0)
+				x = 0;
+		}
+		if (h > sh)
+			h -= h - sh;
+		if (y + h > sh) {
+			dy = y + h - sh;
+			y -= dy;
+			if (y < 0)
+				y = 0;
+		}
+}
+
 static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_font)
 {
 	int nmenus;
@@ -1466,28 +1490,8 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 		menu.y = 0;
 
 	// popup menu needs to fit in stereo viewport if active
-	if (VR_stereo) {
-		int sw = SWIDTH, sh = SHEIGHT;
-		int dx = menu.x, dy = menu.y, dw = sw, dh = sh;
-		gr_stereo_viewport_resize(VR_stereo, sw, sh);
-		gr_stereo_viewport_window(VR_stereo, menu.x, menu.y, dw, dh);
-		if (menu.w > sw)
-			menu.w -= menu.w - sw;
-		if (menu.x + menu.w > sw) {
-			dx = menu.x + menu.w - sw;
-			menu.x -= dx;
-			if (menu.x < 0)
-				menu.x = 0;
-		}
-		if (menu.h > sh)
-			menu.h -= menu.h - sh;
-		if (menu.y + menu.h > sh) {
-			dy = menu.y + menu.h - sh;
-			menu.y -= dy;
-			if (menu.y < 0)
-				menu.y = 0;
-		}
-	}
+	if (VR_stereo)
+		stereo_viewport_adjust(menu.x, menu.y, menu.w, menu.h);
 
 	nm_draw_background1(canvas, menu.filename);
 
@@ -1617,7 +1621,7 @@ static window_event_result newmenu_draw(newmenu *menu)
 	if (VR_stereo) {
 		dx = menu->x, dy = menu->y;
 		gr_stereo_viewport_offset(VR_stereo, dx, dy, 1);
-		gr_bitmap(scrn_canvas, dx, dy, menu_canvas.cv_bitmap);
+		//gr_bitmap(scrn_canvas, dx, dy, menu_canvas.cv_bitmap);
 	}
 
 	gr_set_current_canvas(save_canvas);
@@ -2092,6 +2096,8 @@ void listbox_layout::create_structure()
 		box_y = bordery2;
 
 	// fit listbox in stereo viewport if active
+	if (VR_stereo)
+		stereo_viewport_adjust(box_x, box_y, box_w, height);
 
 	if (citem < 0)
 		citem = 0;
