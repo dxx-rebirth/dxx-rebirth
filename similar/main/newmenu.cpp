@@ -251,14 +251,14 @@ void nm_draw_background(grs_canvas &canvas, int x1, int y1, int x2, int y2)
 	gr_palette_load( gr_palette );
 	{
 		const auto &&tmp = gr_create_sub_canvas(canvas, x1, y1, w, h);
-		show_fullscr(*tmp, nm_background); // show so we load all necessary data for the sub-bitmap
+		show_fullscr(*tmp, nm_background, false); // show so we load all necessary data for the sub-bitmap
 	if (!init_sub && ((nm_background_sub->bm_w != w*((static_cast<float>(nm_background.bm_w))/SWIDTH)) || (nm_background_sub->bm_h != h*((static_cast<float>(nm_background.bm_h))/SHEIGHT))))
 	{
 		init_sub=1;
 	}
 	if (init_sub)
 		nm_background_sub = gr_create_sub_bitmap(nm_background,0,0,w*((static_cast<float>(nm_background.bm_w))/SWIDTH),h*((static_cast<float>(nm_background.bm_h))/SHEIGHT));
-	show_fullscr(*tmp, *nm_background_sub.get());
+	show_fullscr(*tmp, *nm_background_sub.get(), false);
 	}
 
 	gr_settransblend(canvas, 14, gr_blend::normal);

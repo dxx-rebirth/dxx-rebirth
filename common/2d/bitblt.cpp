@@ -489,14 +489,14 @@ inside:
 
 }
 
-void show_fullscr(grs_canvas &canvas, grs_bitmap &bm)
+void show_fullscr(grs_canvas &canvas, grs_bitmap &bm, bool fill)
 {
 	auto &scr = canvas.cv_bitmap;
 #if DXX_USE_OGL
 	if (bm.get_type() == bm_mode::linear && scr.get_type() == bm_mode::ogl &&
 		bm.bm_w <= grd_curscreen->get_screen_width() && bm.bm_h <= grd_curscreen->get_screen_height()) // only scale with OGL if bitmap is not bigger than screen size
 	{
-		ogl_ubitmapm_cs2x(canvas, 0, 0, -1, -1, bm, ogl_colors::white, F1_0);//use opengl to scale, faster and saves ram. -MPM
+		ogl_ubitmapm_cs(canvas, 0, 0, -1, -1, bm, ogl_colors::white, F1_0, fill);//use opengl to scale, faster and saves ram. -MPM
 		return;
 	}
 #endif
