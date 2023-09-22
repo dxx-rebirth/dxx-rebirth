@@ -1306,7 +1306,7 @@ static inline void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
 		gr_stereo_viewport_resize(VR_stereo, sw, sh);
 		gr_stereo_viewport_window(VR_stereo, x, y, dw, dh);
 		if (w > sw)
-			w -= w - sw;
+			w -= (w - sw);
 		if (x + w > sw) {
 			dx = x + w - sw;
 			x -= dx;
@@ -1314,7 +1314,7 @@ static inline void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
 				x = 0;
 		}
 		if (h > sh)
-			h -= h - sh;
+			h -= (h - sh);
 		if (y + h > sh) {
 			dy = y + h - sh;
 			y -= dy;
@@ -2096,8 +2096,17 @@ void listbox_layout::create_structure()
 		box_y = bordery2;
 
 	// fit listbox in stereo viewport if active
-	if (VR_stereo)
-		stereo_viewport_adjust(box_x, box_y, box_w, height);
+	if (VR_stereo) {
+		int dx = box_x - BORDERX;
+		int dy = box_y - title_height - BORDERY;
+		int dw = box_w + 2 * BORDERX;
+		int dh = height + 2 * BORDERY;
+		stereo_viewport_adjust(dx, dy, dw, dh);
+		box_x = dx + BORDERX;
+		box_y = dy + title_height + BORDERY;
+		box_w = dw - 2 * BORDERX;
+		height = dh - 2 * BORDERY;
+	}
 
 	if (citem < 0)
 		citem = 0;
