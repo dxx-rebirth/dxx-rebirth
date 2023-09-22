@@ -1003,6 +1003,9 @@ void show_boxed_message(const char *msg, int RenderFlag)
 	x = (SWIDTH-w)/2;
 	y = (SHEIGHT-h)/2;
 	
+	if (VR_stereo)
+		gr_stereo_viewport_window(VR_stereo, x, y, w, h);
+
 	nm_draw_background(canvas, x - BORDERX, y - BORDERY, x + w + BORDERX, y + h + BORDERY);
 	
 	gr_string(canvas, medium1_font, 0x8000, y, msg, w, h);
