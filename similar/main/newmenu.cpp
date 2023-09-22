@@ -1320,8 +1320,8 @@ static inline void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
 			y -= dy;
 			if (y < 0)
 				y = 0;
-		gr_stereo_viewport_offset(VR_stereo, x, y, -1);
 		}
+		gr_stereo_viewport_offset(VR_stereo, x, y, -1);
 }
 
 static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_font)
