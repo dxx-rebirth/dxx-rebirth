@@ -1239,7 +1239,6 @@ void gr_stereo_viewport_offset(const int stereo, int &x, int &y, const int eye)
 
 	// left eye viewport origin
 	if (eye <= 0) {
-//		x = y = 0;
 		if (stereo == STEREO_SIDE_BY_SIDE2)
 			y += SHEIGHT/4;
 		return;
