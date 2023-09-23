@@ -950,7 +950,10 @@ void menubar_show()
 
 void menubar_close()
 {
-	auto &menubar = *Menu[0];
+	const auto menu = Menu[0];
+	if (!menu)
+		return;
+	auto &menubar = *menu;
 	if (!menubar.wind)
 		return;
 	window_close(std::exchange(menubar.wind, nullptr));
