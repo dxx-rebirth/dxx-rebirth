@@ -54,6 +54,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "null_sentinel_iterator.h"
 
+#include "compiler-cf_assert.h"
 #include "compiler-poison.h"
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
@@ -274,20 +275,29 @@ static void allocate_shareware_levels(const unsigned count_regular_level, const 
 	Current_mission->ending_text_filename = BIMD1_ENDING_FILE_SHARE;
 	allocate_levels(count_regular_level, count_secret_level);
 	//build level names
-	for (const auto &&[idx, name] : enumerate(unchecked_partial_range(Current_mission->level_names.get(), count_regular_level), 1u))
+	for (const auto &&[idx, name] : enumerate(std::span(Current_mission->level_names.get(), count_regular_level), 1u))
+	{
+		cf_assert(idx <= count_regular_level);
 		snprintf(&name[0u], name.size(), "level%02u.sdl", idx);
+	}
 }
 
 static void build_rdl_regular_level_names(const unsigned count_regular_level, std::unique_ptr<d_fname[]> &names)
 {
-	for (auto &&[idx, name] : enumerate(unchecked_partial_range(names.get(), count_regular_level), 1u))
+	for (auto &&[idx, name] : enumerate(std::span(names.get(), count_regular_level), 1u))
+	{
+		cf_assert(idx <= count_regular_level);
 		snprintf(&name[0u], name.size(), "level%02u.rdl", idx);
+	}
 }
 
 static void build_rdl_secret_level_names(const unsigned count_secret_level, std::unique_ptr<d_fname[]> &names)
 {
-	for (auto &&[idx, name] : enumerate(unchecked_partial_range(names.get(), count_secret_level), 1u))
+	for (auto &&[idx, name] : enumerate(std::span(names.get(), count_secret_level), 1u))
+	{
+		cf_assert(idx <= count_secret_level);
 		snprintf(&name[0u], name.size(), "levels%1u.rdl", idx);
+	}
 }
 
 //
@@ -362,7 +372,10 @@ static void load_mission_shareware()
     switch (Current_mission->builtin_hogsize)
 	{
 		case MAC_SHARE_MISSION_HOGSIZE:
-			allocate_levels(4, 1);
+			{
+				constexpr unsigned last_level = 4;
+				allocate_levels(last_level, 1);
+			}
 			// mac demo is using the regular hog and rl2 files
 			Current_mission->level_names[0] = "d2leva-1.rl2";
 			Current_mission->level_names[1] = "d2leva-2.rl2";
@@ -374,7 +387,10 @@ static void load_mission_shareware()
 			Int3();
 			[[fallthrough]];
 		case SHAREWARE_MISSION_HOGSIZE:
-			allocate_levels(3, 0);
+			{
+				constexpr unsigned last_level = 3;
+				allocate_levels(last_level, 0);
+			}
 			Current_mission->level_names[0] = "d2leva-1.sl2";
 			Current_mission->level_names[1] = "d2leva-2.sl2";
 			Current_mission->level_names[2] = "d2leva-3.sl2";
@@ -393,7 +409,10 @@ static void load_mission_oem()
     Current_mission->descent_version = Mission::descent_version_type::descent2;
     Current_mission->anarchy_only_flag = Mission::anarchy_only_level::allow_any_game;
     
-	allocate_levels(8, 2);
+	{
+		constexpr unsigned last_level = 8;
+		allocate_levels(last_level, 2);
+	}
 	Current_mission->level_names[0] = "d2leva-1.rl2";
 	Current_mission->level_names[1] = "d2leva-2.rl2";
 	Current_mission->level_names[2] = "d2leva-3.rl2";
