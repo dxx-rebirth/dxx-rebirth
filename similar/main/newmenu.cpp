@@ -1324,6 +1324,14 @@ static inline void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
 		gr_stereo_viewport_offset(VR_stereo, x, y, -1);
 }
 
+static inline void stereo_viewport_copy(grs_canvas &canvas, int x, int y, int w, int h)
+{
+		int dx = x, dy = y, dw = w, dh = h;
+		int sx = dx, sy = dy;
+		gr_stereo_viewport_offset(VR_stereo, dx, dy, 1);
+		ogl_ubitblt(dw, dh, dx, dy, sx, sy, canvas.cv_bitmap, canvas.cv_bitmap);
+}
+
 static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_font)
 {
 	int nmenus;
@@ -1532,7 +1540,6 @@ static window_event_result newmenu_draw(newmenu *menu)
 	grs_canvas &save_canvas = *grd_curcanv;
 	grs_canvas &scrn_canvas = grd_curscreen->sc_canvas;
 	int th = 0, ty, sx, sy;
-	int dx = 0, dy = 0;
 
 	if (menu->swidth != SWIDTH || menu->sheight != SHEIGHT || menu->fntscalex != FNTScaleX || menu->fntscaley != FNTScaleY)
 	{
@@ -1619,17 +1626,8 @@ static window_event_result newmenu_draw(newmenu *menu)
 	}
 	menu->subfunction_handler(d_event{EVENT_NEWMENU_DRAW});
 
-	if (VR_stereo) {
-		dx = menu->x, dy = menu->y;
-		gr_stereo_viewport_offset(VR_stereo, dx, dy, 1);
-		//gr_bitmap(scrn_canvas, dx, dy, menu_canvas.cv_bitmap);
-		glDisable(GL_BLEND);
-		//ogl_ubitmapm_cs(scrn_canvas, dx, dy, menu->w, menu->h, menu_canvas.cv_bitmap, ogl_colors::white, F1_0);
-		//ogl_ubitblt(menu->w, menu->h, dx, dy, menu->x, menu->y, scrn_canvas.cv_bitmap, scrn_canvas.cv_bitmap);
-		//ogl_ubitblt_i(menu->w, menu->h, dx, dy, menu->w, menu->h, menu->x, menu->y, scrn_canvas.cv_bitmap, scrn_canvas.cv_bitmap, opengl_texture_filter::trilinear);
-		//ogl_ubitblt_i(menu->w, menu->h, dx, dy, menu->w, menu->h, 0, 0, menu_canvas.cv_bitmap, scrn_canvas.cv_bitmap, opengl_texture_filter::trilinear);
-		glEnable(GL_BLEND);
-	}
+	if (VR_stereo)
+		stereo_viewport_copy(scrn_canvas, menu->x, menu->y, menu->w, menu->h);
 
 	gr_set_current_canvas(save_canvas);
 	return window_event_result::handled;
@@ -2214,9 +2212,7 @@ static window_event_result listbox_draw(listbox *lb)
 		int dy = lb->box_y - lb->title_height - BORDERY;
 		int dw = lb->box_w + 2 * BORDERX;
 		int dh = lb->height + 2 * BORDERY;
-		int sx = dx, sy = dy;
-		gr_stereo_viewport_offset(VR_stereo, dx, dy, 1);
-		ogl_ubitblt(dw, dh, dx, dy, sx, sy, canvas.cv_bitmap, canvas.cv_bitmap);
+		stereo_viewport_copy(canvas, dx, dy, dw, dh);
 	}
 
 	return lb->callback_handler(d_event{EVENT_NEWMENU_DRAW}, window_event_result::handled);
