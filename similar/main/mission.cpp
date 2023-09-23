@@ -1507,10 +1507,10 @@ static int write_mission(void)
 
 	PHYSFSX_printf(mfile, "type = %s\n", Current_mission->anarchy_only_flag == Mission::anarchy_only_level::only_anarchy_games ? "anarchy" : "normal");
 
-	if (Current_mission->briefing_text_filename[0])
+	if (Current_mission->briefing_text_filename.front())
 		PHYSFSX_printf(mfile, "briefing = %s\n", static_cast<const char *>(Current_mission->briefing_text_filename));
 
-	if (Current_mission->ending_text_filename[0])
+	if (Current_mission->ending_text_filename.front())
 		PHYSFSX_printf(mfile, "ending = %s\n", static_cast<const char *>(Current_mission->ending_text_filename));
 
 	PHYSFSX_printf(mfile, "num_levels = %i\n", Current_mission->last_level);
