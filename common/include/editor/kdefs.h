@@ -71,7 +71,6 @@ int RotateGroup();
 
 // In segment.c
 int ToggleBottom();
-void make_curside_bottom_side();
 #ifdef DXX_BUILD_DESCENT_II
 int select_segment_by_number();
 int select_segment_with_powerup();

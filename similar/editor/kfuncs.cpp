@@ -124,7 +124,7 @@ const FUNCTION med_functions[] = {
 {   "med-build-adj-joints-all",         0,      CreateAdjacentJointsAll },
 
 // In segment.c
-{   "med-segment-bottom",         		 0,      ToggleBottom }, //make_curside_bottom_side },
+{   "med-segment-bottom",         		 0,      ToggleBottom },
 {   "med-segment-show-bottom",          0,      ToggleBottom },
 
 // In ksegmove.c
