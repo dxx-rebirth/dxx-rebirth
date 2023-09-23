@@ -1623,6 +1623,12 @@ static window_event_result newmenu_draw(newmenu *menu)
 		dx = menu->x, dy = menu->y;
 		gr_stereo_viewport_offset(VR_stereo, dx, dy, 1);
 		//gr_bitmap(scrn_canvas, dx, dy, menu_canvas.cv_bitmap);
+		glDisable(GL_BLEND);
+		//ogl_ubitmapm_cs(scrn_canvas, dx, dy, menu->w, menu->h, menu_canvas.cv_bitmap, ogl_colors::white, F1_0);
+		//ogl_ubitblt(menu->w, menu->h, dx, dy, menu->x, menu->y, scrn_canvas.cv_bitmap, scrn_canvas.cv_bitmap);
+		//ogl_ubitblt_i(menu->w, menu->h, dx, dy, menu->w, menu->h, menu->x, menu->y, scrn_canvas.cv_bitmap, scrn_canvas.cv_bitmap, opengl_texture_filter::trilinear);
+		//ogl_ubitblt_i(menu->w, menu->h, dx, dy, menu->w, menu->h, 0, 0, menu_canvas.cv_bitmap, scrn_canvas.cv_bitmap, opengl_texture_filter::trilinear);
+		glEnable(GL_BLEND);
 	}
 
 	gr_set_current_canvas(save_canvas);
@@ -2200,6 +2206,17 @@ static window_event_result listbox_draw(listbox *lb)
 			}
 			gr_string(canvas, mediumX_font, lb->box_x + fspacx(5), y, showstr);
 		}
+	}
+
+	// copy listbox in stereo viewport if active
+	if (VR_stereo) {
+		int dx = lb->box_x - BORDERX;
+		int dy = lb->box_y - lb->title_height - BORDERY;
+		int dw = lb->box_w + 2 * BORDERX;
+		int dh = lb->height + 2 * BORDERY;
+		int sx = dx, sy = dy;
+		gr_stereo_viewport_offset(VR_stereo, dx, dy, 1);
+		ogl_ubitblt(dw, dh, dx, dy, sx, sy, canvas.cv_bitmap, canvas.cv_bitmap);
 	}
 
 	return lb->callback_handler(d_event{EVENT_NEWMENU_DRAW}, window_event_result::handled);
