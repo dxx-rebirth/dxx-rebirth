@@ -1947,7 +1947,7 @@ const ogl_colors::array_type &ogl_colors::init_palette(const unsigned c)
 bool ogl_ubitmapm_cs(grs_canvas &canvas, int x, int y,int dw, int dh, grs_bitmap &bm,int c, int scale) // to scale bitmaps
 {
 	ogl_colors color;
-	return ogl_ubitmapm_cs(canvas, x, y, dw, dh, bm, color.init(c), scale);
+	return ogl_ubitmapm_cs(canvas, x, y, dw, dh, bm, color.init(c), scale, true);
 }
 
 /*
