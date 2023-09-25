@@ -2037,8 +2037,12 @@ bool ogl_ubitmapm_cs(grs_canvas &canvas, int x0, int y0, int dw, int dh, grs_bit
 		if (fill)
 		gr_stereo_viewport_resize(VR_stereo, w, h);
 		gr_stereo_viewport_offset(VR_stereo, x, y, -1);
+		if (VR_stereo == STEREO_QUAD_BUFFERS)
+			glDrawBuffer(GL_BACK_LEFT);
 		ogl_ubitmapm_cs(canvas, x, y, w, h, bm, color_array, scale);
 		gr_stereo_viewport_offset(VR_stereo, x, y);
+		if (VR_stereo == STEREO_QUAD_BUFFERS)
+			glDrawBuffer(GL_BACK_RIGHT);
 		ogl_ubitmapm_cs(canvas, x, y, w, h, bm, color_array, scale);
 		return 0;
 	}
@@ -2050,6 +2054,10 @@ bool ogl_ubitblt_cs(grs_canvas &canvas, int dw, int dh, int dx, int dy, int sx, 
 {
 	dy = canvas.cv_bitmap.bm_h - (dy + dh);	// GL y flip
 	sy = canvas.cv_bitmap.bm_h - (sy + dh);	// GL y flip
+	if (VR_stereo == STEREO_QUAD_BUFFERS) {
+		glReadBuffer(GL_BACK_LEFT);
+		glDrawBuffer(GL_BACK_RIGHT);
+	}
 	glWindowPos2i(dx, dy);
 	glCopyPixels(sx, sy, dw, dh, GL_COLOR);
 	return 0;
