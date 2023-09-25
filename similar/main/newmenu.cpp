@@ -1329,7 +1329,14 @@ static inline void stereo_viewport_copy(grs_canvas &canvas, int x, int y, int w,
 		int dx = x, dy = y, dw = w, dh = h;
 		int sx = dx, sy = dy;
 		gr_stereo_viewport_offset(VR_stereo, dx, dy, 1);
-		ogl_ubitblt(dw, dh, dx, dy, sx, sy, canvas.cv_bitmap, canvas.cv_bitmap);
+#if DXX_USE_OGL
+		//ogl_ubitblt(dw, dh, dx, dy, sx, sy, canvas.cv_bitmap, canvas.cv_bitmap);
+		(void)canvas;
+		dy = SHEIGHT - (dy + dh);	// GL y flip
+		sy = SHEIGHT - (sy + h);	// GL y flip
+		glWindowPos2i(dx, dy);
+		glCopyPixels(sx, sy, dw, dh, GL_COLOR);
+#endif
 }
 
 static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_font)
