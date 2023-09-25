@@ -237,7 +237,8 @@ struct newmenu_layout
 		is_scroll_box(max_on_menu < citem_init.items.size()),
 		max_displayable(std::min<uint8_t>(max_on_menu, citem_init.items.size())),
 		draw_box(draw_box),
-		items(citem_init.items)
+		items(citem_init.items),
+		offscreen(nullptr)
 	{
 		create_structure();
 	}
@@ -292,7 +293,7 @@ struct listbox_layout
 {
 	struct marquee
 	{
-		class deleter : std::default_delete<fix64[]>
+	   	class deleter : std::default_delete<fix64[]>
 		{
 		public:
 			void operator()(marquee *const m) const

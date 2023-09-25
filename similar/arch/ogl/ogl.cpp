@@ -17,6 +17,7 @@
 #include <windows.h>
 #include <stddef.h>
 #endif
+#include "ogl_init.h"
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
@@ -26,6 +27,7 @@
 #else
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include <GL/glext.h>
 #endif
 #endif
 #include <string.h>
@@ -2041,6 +2043,16 @@ bool ogl_ubitmapm_cs(grs_canvas &canvas, int x0, int y0, int dw, int dh, grs_bit
 		return 0;
 	}
 	return ogl_ubitmapm_cs(canvas, x0, y0, dw, dh, bm, color_array, scale);
+}
+
+// blit rectangular region from screen
+bool ogl_ubitblt_cs(grs_canvas &canvas, int dw, int dh, int dx, int dy, int sx, int sy)
+{
+	dy = canvas.cv_bitmap.bm_h - (dy + dh);	// GL y flip
+	sy = canvas.cv_bitmap.bm_h - (sy + dh);	// GL y flip
+	glWindowPos2i(dx, dy);
+	glCopyPixels(sx, sy, dw, dh, GL_COLOR);
+	return 0;
 }
 
 }
