@@ -817,8 +817,10 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am, fix eye)
 	int sw = SWIDTH;
 	int sh = SHEIGHT;
 	int dx = 0, dy = 0, dw = sw, dh = sh;
-	gr_stereo_viewport_resize(VR_stereo, dw, dh);
-	gr_stereo_viewport_offset(VR_stereo, dx, dy, eye);
+	if (VR_stereo) {
+		gr_stereo_viewport_resize(VR_stereo, dw, dh);
+		gr_stereo_viewport_offset(VR_stereo, dx, dy, eye);
+	}
 	#define SCREEN_SIZE_STEREO 	grd_curscreen->set_screen_width_height(dw, dh)
 	#define SCREEN_SIZE_NORMAL 	grd_curscreen->set_screen_width_height(sw, sh)
 
