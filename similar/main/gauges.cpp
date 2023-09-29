@@ -3894,13 +3894,16 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const object &vie
 	const hud_draw_context_hs_mr hudctx(window_canv, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic);
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN)
 	{
-		const unsigned w = HUD_SCALE_AR(hudctx.xscale, hudctx.yscale)(multires_gauge_graphic.get(106, 44));
-		const unsigned h = w;
+		int w = HUD_SCALE_AR(hudctx.xscale, hudctx.yscale)(multires_gauge_graphic.get(106, 44));
+		int h = w;
 
 		const int dx = (win == gauge_inset_window_view::primary) ? -(w + (w / 10)) : (w / 10);
 
 		window_x = grd_curscreen->get_screen_width() / 2 + dx;
 		window_y = grd_curscreen->get_screen_height() - h - (SHEIGHT / 15);
+
+		if (VR_stereo != StereoFormat::None)
+			gr_stereo_viewport_window(VR_stereo, window_x, window_y, w, h);
 
 		gr_init_sub_canvas(window_canv, grd_curscreen->sc_canvas, window_x, window_y, w, h);
 	}
@@ -3916,7 +3919,13 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const object &vie
 
 	gr_set_current_canvas(window_canv);
 
-	render_frame(*grd_curcanv, 0, window);
+	if (VR_stereo != StereoFormat::None) {
+		render_frame(*grd_curcanv, -VR_eye_width, window);
+		render_frame(*grd_curcanv,  VR_eye_width, window);
+		goto abort;
+	}
+	else
+		render_frame(*grd_curcanv, 0, window);
 
 	//	HACK! If guided missile, wake up robots as necessary.
 	if (viewer.type == OBJ_WEAPON) {

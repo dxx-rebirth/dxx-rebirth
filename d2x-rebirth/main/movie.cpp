@@ -57,6 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsrwops.h"
 #if DXX_USE_OGL
 #include "ogl_init.h"
+#include "game.h"
 #endif
 #include "args.h"
 
@@ -214,6 +215,9 @@ void MovieShowFrame(const uint8_t *buf, int dstx, int dsty, int bufw, int bufh, 
 #if DXX_USE_OGL
 	glDisable (GL_BLEND);
 
+	if (VR_stereo != StereoFormat::None)
+		ogl_ubitmapm_cs(*grd_curcanv, dstx, dsty, bufw, bufh, source_bm, ogl_colors::white, fl2f(scale), true);
+	else
 	ogl_ubitblt_i(
 		bufw*scale, bufh*scale,
 		dstx, dsty,

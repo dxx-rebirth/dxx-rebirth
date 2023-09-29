@@ -197,13 +197,15 @@ enum class StereoFormat : uint8_t {
 	SideBySideFullHeight,
 	SideBySideHalfHeight,
 	AboveBelowSync,
-	HighestFormat = AboveBelowSync
+	QuadBuffers,
+	HighestFormat = QuadBuffers
 };
 
 extern StereoFormat VR_stereo;
 extern fix  VR_eye_width;
 extern int  VR_eye_offset;
 extern int  VR_sync_width;
+extern int  VR_sync_param;
 extern grs_subcanvas VR_hud_left;
 extern grs_subcanvas VR_hud_right;
 }

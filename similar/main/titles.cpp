@@ -1233,6 +1233,14 @@ static int init_new_page(briefing *br)
 	return r;
 }
 
+static inline void stereo_viewport_adjust(short &x, short &y, short &w, short &h)
+{
+	int dx = x, dy = y, dw = w, dh = h;
+	gr_stereo_viewport_window(VR_stereo, dx, dy, dw, dh);
+	gr_stereo_viewport_offset(VR_stereo, dx, dy, -1);
+	x = dx, y = dy, w = dw, h = dh;
+}
+
 #if defined(DXX_BUILD_DESCENT_II)
 static int DefineBriefingBox(const grs_bitmap &cv_bitmap, const char *&buf)
 {
@@ -1263,6 +1271,10 @@ static int DefineBriefingBox(const grs_bitmap &cv_bitmap, const char *&buf)
 	Briefing_screens[n].text_uly = rescale_y(cv_bitmap, Briefing_screens[n].text_uly);
 	Briefing_screens[n].text_width = rescale_x(cv_bitmap, Briefing_screens[n].text_width);
 	Briefing_screens[n].text_height = rescale_y(cv_bitmap, Briefing_screens[n].text_height);
+
+	if (VR_stereo != StereoFormat::None)
+		stereo_viewport_adjust(Briefing_screens[n].text_ulx, Briefing_screens[n].text_uly,
+					Briefing_screens[n].text_width, Briefing_screens[n].text_height);
 
 	return (n);
 }
@@ -1341,6 +1353,9 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 	br->screen->text_uly = rescale_y(canvas.cv_bitmap, br->screen->text_uly);
 	br->screen->text_width = rescale_x(canvas.cv_bitmap, br->screen->text_width);
 	br->screen->text_height = rescale_y(canvas.cv_bitmap, br->screen->text_height);
+	if (VR_stereo != StereoFormat::None)
+		stereo_viewport_adjust(br->screen->text_ulx, br->screen->text_uly,
+					br->screen->text_width, br->screen->text_height);
 	init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 #elif defined(DXX_BUILD_DESCENT_II)
 	free_briefing_screen(br);
@@ -1373,6 +1388,9 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 		br->screen->text_uly = rescale_y(canvas.cv_bitmap, br->screen->text_uly);
 		br->screen->text_width = rescale_x(canvas.cv_bitmap, br->screen->text_width);
 		br->screen->text_height = rescale_y(canvas.cv_bitmap, br->screen->text_height);
+		if (VR_stereo != StereoFormat::None)
+			stereo_viewport_adjust(br->screen->text_ulx, br->screen->text_uly,
+						br->screen->text_width, br->screen->text_height);
 		init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 	}
 

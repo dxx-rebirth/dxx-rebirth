@@ -314,6 +314,7 @@ struct newmenu_layout
 	uint8_t mouse_state;
 	const partial_range_t<newmenu_item *> items;
 	int	scroll_offset = 0;
+	grs_bitmap_ptr offscreen;
 	newmenu_layout(const menu_title title, const menu_subtitle subtitle, const menu_filename filename, const tiny_mode_flag tiny_mode, const tab_processing_flag tabs_flag, const adjusted_citem citem_init, const draw_box_flag draw_box) :
 		citem(citem_init.citem),
 		title(title), subtitle(subtitle), filename(filename),
@@ -323,7 +324,8 @@ struct newmenu_layout
 		is_scroll_box(max_on_menu < citem_init.items.size()),
 		max_displayable(std::min<uint8_t>(max_on_menu, citem_init.items.size())),
 		draw_box(draw_box),
-		items(citem_init.items)
+		items(citem_init.items),
+		offscreen(nullptr)
 	{
 		create_structure();
 	}
@@ -373,7 +375,7 @@ struct listbox_layout
 {
 	struct marquee
 	{
-		class deleter : std::default_delete<fix64[]>
+	   	class deleter : std::default_delete<fix64[]>
 		{
 		public:
 			void operator()(marquee *const m) const

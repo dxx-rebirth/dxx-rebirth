@@ -172,6 +172,12 @@ struct automap : ::dcx::automap
 
 static void init_automap_subcanvas(grs_subcanvas &view, grs_canvas &container)
 {
+	if (VR_stereo != StereoFormat::None) {
+		int x = (SWIDTH/23), y = (SHEIGHT/6), w = (SWIDTH/1.1), h = (SHEIGHT/1.45);
+		gr_stereo_viewport_window(VR_stereo, x, y, w, h);
+		gr_init_sub_canvas(view, container, x, y, w, h);
+		return;
+	}
 #if defined(DXX_BUILD_DESCENT_I)
 	if (MacHog)
 		gr_init_sub_canvas(view, container, 38*(SWIDTH/640.0), 77*(SHEIGHT/480.0), 564*(SWIDTH/640.0), 381*(SHEIGHT/480.0));
@@ -688,7 +694,7 @@ constexpr char system_name[][17] = {
 			"Omega System"};
 #endif
 
-static void name_frame(grs_canvas &canvas, automap &am)
+static void name_frame(grs_canvas &canvas, automap &am, int dx = 0, int dy = 0)
 {
 	gr_set_fontcolor(canvas, am.green_31, -1);
 	char		name_level_left[128];
@@ -704,7 +710,7 @@ static void name_frame(grs_canvas &canvas, automap &am)
 	else
 		name_level = Current_level_name;
 
-	gr_string(canvas, game_font, (SWIDTH / 64), (SHEIGHT / 48), name_level);
+	gr_string(canvas, game_font, dx + (SWIDTH / 64), dy + (SHEIGHT / 48), name_level);
 #elif defined(DXX_BUILD_DESCENT_II)
 	char	name_level_right[128];
 	if (Current_level_num > 0)
@@ -718,10 +724,10 @@ static void name_frame(grs_canvas &canvas, automap &am)
 	else
 		snprintf(name_level_right, sizeof(name_level_right), " %s", current_level_name);
 
-	gr_string(canvas, game_font, (SWIDTH / 64), (SHEIGHT / 48), name_level_left);
+	gr_string(canvas, game_font, dx + (SWIDTH / 64), dy + (SHEIGHT / 48), name_level_left);
 	int wr,h;
 	gr_get_string_size(game_font, name_level_right, &wr, &h, nullptr);
-	gr_string(canvas, game_font, canvas.cv_bitmap.bm_w - wr - (SWIDTH / 64), (SHEIGHT / 48), name_level_right, wr, h);
+	gr_string(canvas, game_font, dx + canvas.cv_bitmap.bm_w - wr - (SWIDTH / 64), dy + (SHEIGHT / 48), name_level_right, wr, h);
 #endif
 }
 
@@ -805,16 +811,28 @@ static void automap_apply_input(automap &am, const vms_matrix &plrorient, const 
 	}
 }
 
-static void draw_automap(fvcobjptr &vcobjptr, automap &am)
+static void draw_automap(fvcobjptr &vcobjptr, automap &am, fix eye)
 {
+	int sw = SWIDTH;
+	int sh = SHEIGHT;
+	int dx = 0, dy = 0, dw = sw, dh = sh;
+	if (VR_stereo != StereoFormat::None) {
+		gr_stereo_viewport_resize(VR_stereo, dw, dh);
+		gr_stereo_viewport_offset(VR_stereo, dx, dy, eye);
+	}
+	#define SCREEN_SIZE_STEREO 	grd_curscreen->set_screen_width_height(dw, dh)
+	#define SCREEN_SIZE_NORMAL 	grd_curscreen->set_screen_width_height(sw, sh)
+
 	if ( am.leave_mode==0 && am.controls.state.automap && (timer_query()-am.entry_time)>LEAVE_TIME)
 		am.leave_mode = 1;
 
 	gr_set_default_canvas();
 	{
 		auto &canvas = *grd_curcanv;
-		show_fullscr(canvas, am.automap_background);
+		if (eye <= 0)
+			show_fullscr(canvas, am.automap_background);
 		gr_set_fontcolor(canvas, BM_XRGB(20, 20, 20), -1);
+		SCREEN_SIZE_STEREO;
 	{
 		int x, y;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -823,6 +841,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 	else
 #endif
 			x = SWIDTH / 8, y = SHEIGHT / 16;
+		x += dx, y += dy;
 		gr_string(canvas, *HUGE_FONT, x, y, TXT_AUTOMAP);
 	}
 		gr_set_fontcolor(canvas, BM_XRGB(20, 20, 20), -1);
@@ -855,6 +874,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 		y1 = SHEIGHT / 1.083;
 		y2 = SHEIGHT / 1.043;
 #endif
+		x += dx, y0 += dy, y1 += dy, y2 += dy;
 		auto &game_font = *GAME_FONT;
 		gr_string(canvas, game_font, x, y0, TXT_TURN_SHIP);
 		gr_string(canvas, game_font, x, y1, s1);
@@ -862,17 +882,24 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 	}
 
 	}
+	SCREEN_SIZE_NORMAL;
 	gr_set_current_canvas(am.automap_view);
 	auto &canvas = *grd_curcanv;
 
-	gr_clear_canvas(canvas, BM_XRGB(0,0,0));
+	if (eye == 0)
+		gr_clear_canvas(canvas, BM_XRGB(0,0,0));
 
 	g3_start_frame(canvas);
 	render_start_frame();
 
+	// select stereo viewport/transform/buffer per left/right eye
+	if (VR_stereo != StereoFormat::None)
+		g3_stereo_frame(eye, VR_eye_offset);
+
 	if (!PlayerCfg.AutomapFreeFlight)
 		vm_vec_scale_add(am.view_position,am.view_target,am.viewMatrix.fvec,-am.viewDist);
 
+	am.view_position.x += eye;	// stereo viewpoint offset
 	g3_set_view_matrix(am.view_position,am.viewMatrix,am.zoom);
 
 	draw_all_edges(*grd_curcanv, am);
@@ -948,7 +975,9 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 
 	g3_end_frame();
 
-	name_frame(canvas, am);
+	SCREEN_SIZE_STEREO;
+	name_frame(canvas, am, dx, dy);
+	SCREEN_SIZE_NORMAL;
 
 #if defined(DXX_BUILD_DESCENT_II)
 	{
@@ -987,6 +1016,16 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 		calc_d_tick();
 	}
 	am.t1 = am.t2;
+}
+
+static void draw_automap(fvcobjptr &vcobjptr, automap &am)
+{
+	if (VR_stereo != StereoFormat::None) {
+		draw_automap(vcobjptr, am, -VR_eye_width);
+		draw_automap(vcobjptr, am,  VR_eye_width);
+	}
+	else
+		draw_automap(vcobjptr, am, 0);
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
