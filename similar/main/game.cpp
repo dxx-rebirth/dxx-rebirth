@@ -376,9 +376,15 @@ void game_init_render_sub_buffers(grs_canvas &canvas, const int x, const int y, 
 		} l, r;
 		switch (VR_stereo) {
 			case StereoFormat::None:
-			case StereoFormat::QuadBuffers:
 			default:
 				return;
+			case StereoFormat::QuadBuffers:
+				l.x = x + dx;
+				l.y = r.y = y;
+				l.w = r.w = w - dx;
+				l.h = r.h = h;
+				r.x = x;
+				break;
 			case StereoFormat::AboveBelow:
 				l.x = x + dx;
 				l.y = y;
