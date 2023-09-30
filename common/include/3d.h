@@ -122,6 +122,9 @@ typedef g3s_point cg3s_point;
 //start the frame
 void g3_start_frame(grs_canvas &);
 
+//modify the frame for stereo format
+void g3_stereo_frame(const int xeye, const int xoff);
+
 //set view from x,y,z, viewer matrix, and zoom.  Must call one of g3_set_view_*() 
 void g3_set_view_matrix(const vms_vector &view_pos,const vms_matrix &view_matrix,fix zoom);
 

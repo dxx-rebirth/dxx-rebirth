@@ -58,6 +58,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_zip.h"
 #include "partial_range.h"
 
+#if DXX_USE_OGL
+#include "ogl_init.h"
+#endif
+
 #define MESSAGEBOX_TEXT_SIZE 2176  // How many characters in messagebox
 #define MAX_TEXT_WIDTH FSPACX(120) // How many pixels wide a input box can be
 
@@ -262,14 +266,14 @@ void nm_draw_background(grs_canvas &canvas, int x1, int y1, int x2, int y2)
 	gr_palette_load( gr_palette );
 	{
 		const auto &&tmp = gr_create_sub_canvas(canvas, x1, y1, w, h);
-		show_fullscr(*tmp, nm_background); // show so we load all necessary data for the sub-bitmap
+		show_fullscr(*tmp, nm_background, false); // show so we load all necessary data for the sub-bitmap
 	if (!init_sub && ((nm_background_sub->bm_w != w*((static_cast<float>(nm_background.bm_w))/SWIDTH)) || (nm_background_sub->bm_h != h*((static_cast<float>(nm_background.bm_h))/SHEIGHT))))
 	{
 		init_sub=1;
 	}
 	if (init_sub)
 		nm_background_sub = gr_create_sub_bitmap(nm_background,0,0,w*((static_cast<float>(nm_background.bm_w))/SWIDTH),h*((static_cast<float>(nm_background.bm_h))/SHEIGHT));
-	show_fullscr(*tmp, *nm_background_sub.get());
+	show_fullscr(*tmp, *nm_background_sub.get(), false);
 	}
 
 	gr_settransblend(canvas, gr_fade_level{14}, gr_blend::normal);
@@ -1295,6 +1299,41 @@ namespace dsx {
 
 namespace {
 
+static inline void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
+{
+		int sw = SWIDTH, sh = SHEIGHT;
+		int dx = x, dy = y, dw = sw, dh = sh;
+		gr_stereo_viewport_resize(VR_stereo, sw, sh);
+		gr_stereo_viewport_window(VR_stereo, x, y, dw, dh);
+		if (w > sw)
+			w -= (w - sw);
+		if (x + w > sw) {
+			dx = x + w - sw;
+			x -= dx;
+			if (x < 0)
+				x = 0;
+		}
+		if (h > sh)
+			h -= (h - sh);
+		if (y + h > sh) {
+			dy = y + h - sh;
+			y -= dy;
+			if (y < 0)
+				y = 0;
+		}
+		gr_stereo_viewport_offset(VR_stereo, x, y, -1);
+}
+
+static inline void stereo_viewport_copy(grs_canvas &canvas, int x, int y, int w, int h)
+{
+		int dx = x, dy = y, dw = w, dh = h;
+		int sx = dx, sy = dy;
+		gr_stereo_viewport_offset(VR_stereo, dx, dy, 1);
+#if DXX_USE_OGL
+		ogl_ubitblt_cs(canvas, dw, dh, dx, dy, sx, sy);
+#endif
+}
+
 static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_font)
 {
 	int nmenus;
@@ -1447,6 +1486,10 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 	if (menu.y < 0)
 		menu.y = 0;
 
+	// popup menu needs to fit in stereo viewport if active
+	if (VR_stereo != StereoFormat::None)
+		stereo_viewport_adjust(menu.x, menu.y, menu.w, menu.h);
+
 	nm_draw_background1(canvas, menu.filename);
 
 	// Update all item's x & y values.
@@ -1481,13 +1524,14 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 static window_event_result newmenu_draw(newmenu *menu)
 {
 	auto &menu_canvas = menu->w_canv;
+	grs_canvas &scrn_canvas = grd_curscreen->sc_canvas;
 	int th = 0, ty, sx, sy;
 
 	if (menu->swidth != SWIDTH || menu->sheight != SHEIGHT || menu->fntscalex != FNTScaleX || menu->fntscaley != FNTScaleY)
 	{
 		menu->create_structure();
 		{
-			gr_init_sub_canvas(menu_canvas, grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h);
+			gr_init_sub_canvas(menu_canvas, scrn_canvas, menu->x, menu->y, menu->w, menu->h);
 		}
 	}
 
@@ -1568,6 +1612,10 @@ static window_event_result newmenu_draw(newmenu *menu)
 		gr_string(menu_canvas, cv_font, sx, sy, (scroll_offset + menu->max_displayable < menu->items.size()) ? DOWN_ARROW_MARKER(cv_font, game_font) : "  ");
 	}
 	menu->event_handler(d_event{EVENT_NEWMENU_DRAW});
+
+	if (VR_stereo != StereoFormat::None)
+		stereo_viewport_copy(scrn_canvas, menu->x, menu->y, menu->w, menu->h);
+
 	return window_event_result::handled;
 }
 
@@ -1999,6 +2047,19 @@ void listbox_layout::create_structure()
 	if (box_y < bordery2)
 		box_y = bordery2;
 
+	// fit listbox in stereo viewport if active
+	if (VR_stereo != StereoFormat::None) {
+		int dx = box_x - BORDERX;
+		int dy = box_y - title_height - BORDERY;
+		int dw = box_w + 2 * BORDERX;
+		int dh = height + 2 * BORDERY;
+		stereo_viewport_adjust(dx, dy, dw, dh);
+		box_x = dx + BORDERX;
+		box_y = dy + title_height + BORDERY;
+		box_w = dw - 2 * BORDERX;
+		height = dh - 2 * BORDERY;
+	}
+
 	if (citem < 0)
 		citem = 0;
 	else if (citem >= nitems)
@@ -2089,6 +2150,15 @@ static window_event_result listbox_draw(listbox *lb)
 			}
 			gr_string(canvas, mediumX_font, lb->box_x + fspacx(5), y, showstr);
 		}
+	}
+
+	// copy listbox in stereo viewport if active
+	if (VR_stereo != StereoFormat::None) {
+		int dx = lb->box_x - BORDERX;
+		int dy = lb->box_y - lb->title_height - BORDERY;
+		int dw = lb->box_w + 2 * BORDERX;
+		int dh = lb->height + 2 * BORDERY;
+		stereo_viewport_copy(canvas, dx, dy, dw, dh);
 	}
 
 	return lb->callback_handler(d_event{EVENT_NEWMENU_DRAW}, window_event_result::handled);

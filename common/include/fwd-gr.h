@@ -192,6 +192,13 @@ void gr_bm_ubitbltm(grs_canvas &dest, unsigned w, unsigned h, unsigned dx, unsig
 #endif
 void gr_bm_pixel(grs_canvas &, grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y, uint8_t color);
 void gr_set_bitmap_data(grs_bitmap &bm, const uint8_t *data);
+
+#if DXX_USE_OGL
+enum class StereoFormat : uint8_t;
+void gr_stereo_viewport_resize(const StereoFormat stereo, int &w, int &h);
+void gr_stereo_viewport_offset(const StereoFormat stereo, int &x, int &y, const int eye = 1);
+void gr_stereo_viewport_window(const StereoFormat stereo, int &x, int &y, int &w, int &h);
+#endif
 }
 
 #ifdef dsx
@@ -231,7 +238,7 @@ void gr_uline(grs_canvas &canvas, fix x0,fix y0,fix x1,fix y1, color_palette_ind
 // Draw the bitmap into the current canvas at the specified location.
 void gr_bitmap(grs_canvas &, unsigned x,unsigned y,grs_bitmap &bm);
 void gr_ubitmap(grs_canvas &, grs_bitmap &bm);
-void show_fullscr(grs_canvas &, grs_bitmap &bm);
+void show_fullscr(grs_canvas &, grs_bitmap &bm, bool fill = true);
 
 // Find transparent area in bitmap
 void gr_bitblt_find_transparent_area(const grs_bitmap &bm, unsigned &minx, unsigned &miny, unsigned &maxx, unsigned &maxy);

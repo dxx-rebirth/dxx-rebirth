@@ -188,7 +188,8 @@ screen_mode Game_screen_mode = initial_large_game_screen_mode;
 StereoFormat VR_stereo;
 fix  VR_eye_width = F1_0;
 int  VR_eye_offset = 0;
-int  VR_sync_width = 20;
+int  VR_sync_width = 24;
+int  VR_sync_param = 24;
 grs_subcanvas VR_hud_left;
 grs_subcanvas VR_hud_right;
 }
@@ -200,8 +201,6 @@ void init_stereo()
 #if DXX_USE_OGL
 	// init stereo options
 	if (CGameArg.OglStereo || CGameArg.OglStereoView) {
-		if (VR_stereo == StereoFormat::None && !VR_eye_offset)
-			VR_stereo = (CGameArg.OglStereoView) ? static_cast<StereoFormat>(CGameArg.OglStereoView % (static_cast<unsigned>(StereoFormat::HighestFormat) + 1)) : StereoFormat::AboveBelow;
 		constexpr int half_width_eye_offset = -6;
 		constexpr int full_width_eye_offset = -12;
 		switch (VR_stereo)
@@ -209,6 +208,7 @@ void init_stereo()
 			case StereoFormat::None:
 			case StereoFormat::AboveBelow:
 			case StereoFormat::AboveBelowSync:
+			case StereoFormat::QuadBuffers:
 				VR_eye_offset = full_width_eye_offset;
 				break;
 			case StereoFormat::SideBySideFullHeight:
@@ -217,7 +217,7 @@ void init_stereo()
 				break;
 		}
 		VR_eye_width = (F1_0 * 7) / 10;	// Descent 1.5 defaults
-		VR_sync_width = (20 * SHEIGHT) / 480;
+		VR_sync_width = (VR_sync_param * SHEIGHT) / 480; // normalized for 640x480
 		PlayerCfg.CockpitMode[1] = cockpit_mode_t::full_screen;
 	}
 	else {
@@ -285,6 +285,7 @@ void init_cockpit()
 				switch (VR_stereo)
 				{
 					case StereoFormat::None:
+					case StereoFormat::QuadBuffers:
 						/* Preserve width */
 						/* Preserve height */
 						break;
@@ -375,6 +376,7 @@ void game_init_render_sub_buffers(grs_canvas &canvas, const int x, const int y, 
 		} l, r;
 		switch (VR_stereo) {
 			case StereoFormat::None:
+			case StereoFormat::QuadBuffers:
 			default:
 				return;
 			case StereoFormat::AboveBelow:

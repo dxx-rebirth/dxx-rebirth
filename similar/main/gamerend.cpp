@@ -986,11 +986,17 @@ void show_boxed_message(grs_canvas &canvas, const char *msg)
 	
 	gr_set_fontcolor(canvas, BM_XRGB(31, 31, 31), -1);
 	auto &medium1_font = *MEDIUM1_FONT;
-	const auto &&[w, h] = gr_get_string_size(medium1_font, msg);
+	auto &&[w, h] = gr_get_string_size(medium1_font, msg);
 	
 	x = (SWIDTH-w)/2;
 	y = (SHEIGHT-h)/2;
 	
+	if (VR_stereo != StereoFormat::None) {
+		int dw = w, dh = h;
+		gr_stereo_viewport_window(VR_stereo, x, y, dw, dh);
+		w = dw, h = dh;
+	}
+
 	nm_draw_background(canvas, x - BORDERX, y - BORDERY, x + w + BORDERX, y + h + BORDERY);
 	
 	gr_string(canvas, medium1_font, 0x8000, y, msg, w, h);
