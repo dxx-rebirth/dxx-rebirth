@@ -1302,25 +1302,18 @@ namespace {
 static inline void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
 {
 		int sw = SWIDTH, sh = SHEIGHT;
-		int dx = x, dy = y, dw = sw, dh = sh;
+		int dx = x, dy = y, dw = w, dh = h;
 		gr_stereo_viewport_resize(VR_stereo, sw, sh);
 		gr_stereo_viewport_window(VR_stereo, x, y, dw, dh);
 		if (w > sw)
 			w -= (w - sw);
-		if (x + w > sw) {
-			dx = x + w - sw;
-			x -= dx;
-			if (x < 0)
-				x = 0;
-		}
 		if (h > sh)
 			h -= (h - sh);
-		if (y + h > sh) {
-			dy = y + h - sh;
-			y -= dy;
-			if (y < 0)
-				y = 0;
-		}
+		// re-center popup on downsized viewport
+		dx = (sw - w) / 2;
+		x = dx;
+		dy = (sh - h) / 2;
+		y = dy;
 		gr_stereo_viewport_offset(VR_stereo, x, y, -1);
 }
 
@@ -1731,6 +1724,11 @@ messagebox_newmenu::adjusted_citem messagebox_newmenu::create_adjusted_citem(std
 
 #define LB_ITEMS_ON_SCREEN 8
 
+#define LB_DX(p)		(p->box_x - BORDERX)
+#define LB_DY(p)		(p->box_y - p->title_height - BORDERY)
+#define LB_DW(p)		(p->box_w + 2 * BORDERX)
+#define LB_DH(p)		(p->height + 2 * BORDERY)
+
 listbox::listbox(int citem, unsigned nitems, const char **item, menu_title title, grs_canvas &canvas, uint8_t allow_abort_flag) :
 	listbox_layout(citem, nitems, item, title, canvas), window(canvas, box_x - BORDERX, box_y - title_height - BORDERY, box_w + 2 * BORDERX, height + 2 * BORDERY),
 	allow_abort_flag(allow_abort_flag)
@@ -2049,15 +2047,15 @@ void listbox_layout::create_structure()
 
 	// fit listbox in stereo viewport if active
 	if (VR_stereo != StereoFormat::None) {
-		int dx = box_x - BORDERX;
-		int dy = box_y - title_height - BORDERY;
-		int dw = box_w + 2 * BORDERX;
-		int dh = height + 2 * BORDERY;
+		int dx = LB_DX(this);
+		int dy = LB_DY(this);
+		int dw = LB_DW(this);
+		int dh = LB_DH(this);
 		stereo_viewport_adjust(dx, dy, dw, dh);
-		box_x = dx + BORDERX;
-		box_y = dy + title_height + BORDERY;
-		box_w = dw - 2 * BORDERX;
-		height = dh - 2 * BORDERY;
+		box_x -= (LB_DX(this) - dx);
+		box_y -= (LB_DY(this) - dy);
+		box_w -= (LB_DW(this) - dw);
+		height -= (LB_DH(this) - dh);
 	}
 
 	if (citem < 0)
@@ -2086,7 +2084,7 @@ static window_event_result listbox_draw(listbox *lb)
 	auto &canvas = lb->parent_canvas;
 	nm_draw_background(canvas, lb->box_x - BORDERX, lb->box_y - lb->title_height - BORDERY,lb->box_x + lb->box_w + BORDERX, lb->box_y + lb->height + BORDERY);
 	auto &medium3_font = *MEDIUM3_FONT;
-	gr_string(canvas, medium3_font, 0x8000, lb->box_y - lb->title_height, lb->title);
+	gr_string(canvas, medium3_font, lb->box_x, lb->box_y - lb->title_height, lb->title);
 
 	const auto &&line_spacing = LINE_SPACING(medium3_font, *GAME_FONT);
 	for (int i = lb->first_item; i < lb->first_item + lb->items_on_screen; ++i)
@@ -2154,10 +2152,10 @@ static window_event_result listbox_draw(listbox *lb)
 
 	// copy listbox in stereo viewport if active
 	if (VR_stereo != StereoFormat::None) {
-		int dx = lb->box_x - BORDERX;
-		int dy = lb->box_y - lb->title_height - BORDERY;
-		int dw = lb->box_w + 2 * BORDERX;
-		int dh = lb->height + 2 * BORDERY;
+		int dx = LB_DX(lb);
+		int dy = LB_DY(lb);
+		int dw = LB_DW(lb);
+		int dh = LB_DH(lb);
 		stereo_viewport_copy(canvas, dx, dy, dw, dh);
 	}
 
