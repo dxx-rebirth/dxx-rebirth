@@ -382,7 +382,7 @@ struct listbox_layout
 {
 	struct marquee
 	{
-		class deleter : std::default_delete<fix64[]>
+	   	class deleter : std::default_delete<fix64[]>
 		{
 		public:
 			void operator()(marquee *const m) const

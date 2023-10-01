@@ -701,6 +701,14 @@ static int gr_check_mode(const screen_mode mode)
 }
 #endif
 
+#if DXX_USE_STEREOSCOPIC_RENDER
+static inline void gr_set_stereo_mode_sync(void)
+{
+	// calc stereo mode sync interval for above/below format
+	VR_sync_width = (VR_sync_param * SHEIGHT) / 480; // normalized for 640x480
+}
+#endif
+
 int gr_set_mode(screen_mode mode)
 {
 	unsigned char *gr_bm_data;
@@ -733,6 +741,10 @@ int gr_set_mode(screen_mode mode)
 	ogl_init_state();
 	gamefont_choose_game_font(w,h);
 	gr_remap_color_fonts();
+
+#if DXX_USE_STEREOSCOPIC_RENDER
+	gr_set_stereo_mode_sync();
+#endif
 
 	return 0;
 }
@@ -873,6 +885,19 @@ int gr_init()
 	gr_set_current_canvas(grd_curscreen->sc_canvas);
 
 	ogl_init_pixel_buffers(256, 128);       // for gamefont_init
+
+#if DXX_USE_STEREOSCOPIC_RENDER
+	// stereo display options
+	if (CGameArg.OglStereo)
+		VR_stereo = StereoFormat::QuadBuffers;
+	if (CGameArg.OglStereoView > static_cast<uint8_t>(StereoFormat::HighestFormat)) {
+		VR_sync_param = CGameArg.OglStereoView;
+		CGameArg.OglStereoView = static_cast<uint8_t>(StereoFormat::AboveBelowSync);
+	}
+	if (CGameArg.OglStereoView)
+		VR_stereo = static_cast<StereoFormat>(CGameArg.OglStereoView);
+	gr_set_stereo_mode_sync();
+#endif
 
 	gr_installed = 1;
 
@@ -1193,3 +1218,96 @@ void write_bmp(PHYSFS_File *const TGAFile, const unsigned w, const unsigned h)
 #endif
 
 }
+
+namespace dcx {
+
+#if DXX_USE_STEREOSCOPIC_RENDER
+void gr_stereo_viewport_resize(const StereoFormat stereo, int &w, int &h)
+{
+	switch (stereo) {
+		case StereoFormat::None:
+		case StereoFormat::QuadBuffers:
+			return;
+		case StereoFormat::AboveBelowSync:
+			h -= VR_sync_width;
+			[[fallthrough]];
+		case StereoFormat::AboveBelow:
+			h /= 2;
+			break;
+		case StereoFormat::SideBySideHalfHeight:
+			h /= 2;
+			[[fallthrough]];
+		case StereoFormat::SideBySideFullHeight:
+			w /= 2;
+			break;
+	}
+}
+
+void gr_stereo_viewport_offset(const StereoFormat stereo, int &x, int &y, const int eye)
+{
+	if (!grd_curscreen)
+		return;
+
+	// left eye viewport origin
+	if (eye <= 0) {
+		if (stereo == StereoFormat::SideBySideHalfHeight)
+			y += SHEIGHT/4;
+		return;
+	}
+
+	// right eye viewport origin
+	switch (stereo) {
+		case StereoFormat::None:
+		case StereoFormat::QuadBuffers:
+			return;
+		case StereoFormat::AboveBelowSync:
+			y += VR_sync_width/2;
+			[[fallthrough]];
+		case StereoFormat::AboveBelow:
+			y += SHEIGHT/2;
+			break;
+		case StereoFormat::SideBySideHalfHeight:
+			if (y == 0)
+				y += SHEIGHT/4;
+			[[fallthrough]];
+		case StereoFormat::SideBySideFullHeight:
+			x += SWIDTH/2;
+			break;
+	}
+}
+
+void gr_stereo_viewport_window(const StereoFormat stereo, int &x, int &y, int &w, int &h)
+{
+	int dx, dy, dw, dh;
+
+	switch (stereo) {
+		case StereoFormat::None:
+		case StereoFormat::QuadBuffers:
+			return;
+		case StereoFormat::AboveBelowSync:
+			dh = VR_sync_width / 2;
+			h -= dh;
+			[[fallthrough]];
+		case StereoFormat::AboveBelow:
+			dy = y / 2;
+			y -= dy;
+			dh = h / 2;
+			h -= dh;
+			break;
+		case StereoFormat::SideBySideHalfHeight:
+			dy = y / 2;
+			y -= dy;
+			dh = h / 2;
+			h -= dh;
+			[[fallthrough]];
+		case StereoFormat::SideBySideFullHeight:
+			dx = x / 2;
+			x -= dx;
+			dw = w / 2;
+			w -= dw;
+			break;
+	}
+}
+#endif
+
+}	// namespace dcx

@@ -147,7 +147,8 @@ enum class StereoFormat : uint8_t
 	SideBySideFullHeight,
 	SideBySideHalfHeight,
 	AboveBelowSync,
-	HighestFormat = AboveBelowSync
+	QuadBuffers,
+	HighestFormat = QuadBuffers
 };
 #endif
 
