@@ -2055,7 +2055,7 @@ bool ogl_ubitmapm_cs(grs_canvas &canvas, int x0, int y0, int dw, int dh, grs_bit
 			glDrawBuffer(GL_BACK_LEFT);
 #endif
 		ogl_ubitmapm_cs(canvas, x, y, w, h, bm, color_array);
-		gr_stereo_viewport_offset(VR_stereo, x, y);
+		gr_stereo_viewport_offset(VR_stereo, x, y, 1);
 #if !DXX_USE_OGLES
 		if (VR_stereo == StereoFormat::QuadBuffers)
 			glDrawBuffer(GL_BACK_RIGHT);

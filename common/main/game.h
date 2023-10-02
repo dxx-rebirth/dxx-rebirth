@@ -150,7 +150,86 @@ enum class StereoFormat : uint8_t
 	QuadBuffers,
 	HighestFormat = QuadBuffers
 };
-#endif
+
+// stereo viewport adjustments
+inline void gr_stereo_viewport_resize(const StereoFormat stereo, int &w, int &h)
+{
+	switch (stereo) {
+		case StereoFormat::None:
+		case StereoFormat::QuadBuffers:
+			return;
+		case StereoFormat::AboveBelowSync:
+			h -= VR_sync_width;
+			[[fallthrough]];
+		case StereoFormat::AboveBelow:
+			h /= 2;
+			break;
+		case StereoFormat::SideBySideHalfHeight:
+			h /= 2;
+			[[fallthrough]];
+		case StereoFormat::SideBySideFullHeight:
+			w /= 2;
+			break;
+	}
+}
+
+inline void gr_stereo_viewport_offset(const StereoFormat stereo, int &x, int &y, const int eye)
+{
+	if (!grd_curscreen)
+		return;
+
+	// left eye viewport origin
+	if (eye <= 0) {
+		if (stereo == StereoFormat::SideBySideHalfHeight)
+			y += SHEIGHT/4;
+		return;
+	}
+
+	// right eye viewport origin
+	switch (stereo) {
+		case StereoFormat::None:
+		case StereoFormat::QuadBuffers:
+			return;
+		case StereoFormat::AboveBelowSync:
+			y += VR_sync_width/2;
+			[[fallthrough]];
+		case StereoFormat::AboveBelow:
+			y += SHEIGHT/2;
+			break;
+		case StereoFormat::SideBySideHalfHeight:
+			if (y == 0)
+				y += SHEIGHT/4;
+			[[fallthrough]];
+		case StereoFormat::SideBySideFullHeight:
+			x += SWIDTH/2;
+			break;
+	}
+}
+
+inline void gr_stereo_viewport_window(const StereoFormat stereo, int &x, int &y, int &w, int &h)
+{
+	switch (stereo) {
+		case StereoFormat::None:
+		case StereoFormat::QuadBuffers:
+			return;
+		case StereoFormat::AboveBelowSync:
+			h -= VR_sync_width / 2;
+			[[fallthrough]];
+		case StereoFormat::AboveBelow:
+			y -= y / 2;
+			h -= h / 2;
+			break;
+		case StereoFormat::SideBySideHalfHeight:
+			y -= y / 2;
+			h -= h / 2;
+			[[fallthrough]];
+		case StereoFormat::SideBySideFullHeight:
+			x -= x / 2;
+			w -= w / 2;
+			break;
+	}
+}
+#endif	// DXX_USE_STEREOSCOPIC_RENDER
 
 }
 
