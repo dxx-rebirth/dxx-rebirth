@@ -1222,6 +1222,9 @@ void write_bmp(PHYSFS_File *const TGAFile, const unsigned w, const unsigned h)
 namespace dcx {
 
 #if DXX_USE_STEREOSCOPIC_RENDER
+#if DXX_USE_OGLES
+	#undef None 	// FIXME: EGL/X11 include
+#endif
 void gr_stereo_viewport_resize(const StereoFormat stereo, int &w, int &h)
 {
 	switch (stereo) {

@@ -1361,8 +1361,12 @@ void ogl_stereo_frame(const bool left_eye, const int xoff)
 		stereo_transform_dxoff = dxoff;		// xoff < 0
 		gl_buffer = GL_BACK_RIGHT;
 	}
+#if !DXX_USE_OGLES
 	if (ogl_stereo_enabled)
 		glDrawBuffer(gl_buffer);
+#else
+	(void)gl_buffer;
+#endif
 	glMatrixMode(GL_PROJECTION);
 	std::array<GLfloat, 16> ogl_stereo_transform;
 	glGetFloatv(GL_PROJECTION_MATRIX, ogl_stereo_transform.data());
@@ -2046,12 +2050,16 @@ bool ogl_ubitmapm_cs(grs_canvas &canvas, int x0, int y0, int dw, int dh, grs_bit
 			gr_stereo_viewport_resize(VR_stereo, w, h);
 			gr_stereo_viewport_offset(VR_stereo, x, y, -1);
 		}
+#if !DXX_USE_OGLES
 		if (VR_stereo == StereoFormat::QuadBuffers)
 			glDrawBuffer(GL_BACK_LEFT);
+#endif
 		ogl_ubitmapm_cs(canvas, x, y, w, h, bm, color_array);
 		gr_stereo_viewport_offset(VR_stereo, x, y);
+#if !DXX_USE_OGLES
 		if (VR_stereo == StereoFormat::QuadBuffers)
 			glDrawBuffer(GL_BACK_RIGHT);
+#endif
 		ogl_ubitmapm_cs(canvas, x, y, w, h, bm, color_array);
 		return 0;
 	}
@@ -2067,10 +2075,12 @@ bool ogl_ubitblt_cs(grs_canvas &canvas, int dw, int dh, int dx, int dy, int sx, 
 #if DXX_USE_STEREOSCOPIC_RENDER
 	dy = canvas.cv_bitmap.bm_h - (dy + dh);	// GL y flip
 	sy = canvas.cv_bitmap.bm_h - (sy + dh);	// GL y flip
+#if DXX_USE_OGLES
 	if (VR_stereo == StereoFormat::QuadBuffers) {
 		glReadBuffer(GL_BACK_LEFT);
 		glDrawBuffer(GL_BACK_RIGHT);
 	}
+#endif
 	glWindowPos2i(dx, dy);
 	glCopyPixels(sx, sy, dw, dh, GL_COLOR);
 	return 0;
