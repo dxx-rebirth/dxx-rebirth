@@ -2075,14 +2075,16 @@ bool ogl_ubitblt_cs(grs_canvas &canvas, int dw, int dh, int dx, int dy, int sx, 
 #if DXX_USE_STEREOSCOPIC_RENDER
 	dy = canvas.cv_bitmap.bm_h - (dy + dh);	// GL y flip
 	sy = canvas.cv_bitmap.bm_h - (sy + dh);	// GL y flip
-#if DXX_USE_OGLES
+#if !DXX_USE_OGLES
 	if (VR_stereo == StereoFormat::QuadBuffers) {
 		glReadBuffer(GL_BACK_LEFT);
 		glDrawBuffer(GL_BACK_RIGHT);
 	}
-#endif
 	glWindowPos2i(dx, dy);
 	glCopyPixels(sx, sy, dw, dh, GL_COLOR);
+#else
+	(void)dx, (void)dy, (void)sx, (void)sy, (void)dw, (void)dh;
+#endif
 	return 0;
 #else
 	return ogl_ubitblt(dw, dh, dx, dy, sx, sy, canvas.cv_bitmap, canvas.cv_bitmap);
