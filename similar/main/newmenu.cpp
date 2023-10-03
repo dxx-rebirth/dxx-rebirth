@@ -58,6 +58,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_zip.h"
 #include "partial_range.h"
 
+#if DXX_USE_OGL
+#include "ogl_init.h"
+#endif
+
 #define MESSAGEBOX_TEXT_SIZE 2176  // How many characters in messagebox
 #define MAX_TEXT_WIDTH FSPACX(120) // How many pixels wide a input box can be
 
@@ -262,14 +266,14 @@ void nm_draw_background(grs_canvas &canvas, int x1, int y1, int x2, int y2)
 	gr_palette_load( gr_palette );
 	{
 		const auto &&tmp = gr_create_sub_canvas(canvas, x1, y1, w, h);
-		show_fullscr(*tmp, nm_background); // show so we load all necessary data for the sub-bitmap
+		show_fullscr(*tmp, nm_background, false); // show so we load all necessary data for the sub-bitmap
 	if (!init_sub && ((nm_background_sub->bm_w != w*((static_cast<float>(nm_background.bm_w))/SWIDTH)) || (nm_background_sub->bm_h != h*((static_cast<float>(nm_background.bm_h))/SHEIGHT))))
 	{
 		init_sub=1;
 	}
 	if (init_sub)
 		nm_background_sub = gr_create_sub_bitmap(nm_background,0,0,w*((static_cast<float>(nm_background.bm_w))/SWIDTH),h*((static_cast<float>(nm_background.bm_h))/SHEIGHT));
-	show_fullscr(*tmp, *nm_background_sub.get());
+	show_fullscr(*tmp, *nm_background_sub.get(), false);
 	}
 
 	gr_settransblend(canvas, gr_fade_level{14}, gr_blend::normal);
@@ -1300,6 +1304,36 @@ namespace dsx {
 
 namespace {
 
+#if DXX_USE_STEREOSCOPIC_RENDER
+static inline void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
+{
+		int sw = SWIDTH, sh = SHEIGHT;
+		int dx = x, dy = y, dw = w, dh = h;
+		gr_stereo_viewport_resize(VR_stereo, sw, sh);
+		gr_stereo_viewport_window(VR_stereo, x, y, dw, dh);
+		if (w > sw)
+			w -= (w - sw);
+		if (h > sh)
+			h -= (h - sh);
+		// re-center popup on downsized viewport
+		dx = (sw - w) / 2;
+		x = dx;
+		dy = (sh - h) / 2;
+		y = dy;
+		gr_stereo_viewport_offset(VR_stereo, x, y, -1);
+}
+
+static inline void stereo_viewport_copy(grs_canvas &canvas, int x, int y, int w, int h)
+{
+		int dx = x, dy = y, dw = w, dh = h;
+		int sx = dx, sy = dy;
+		gr_stereo_viewport_offset(VR_stereo, dx, dy, 1);
+#if DXX_USE_OGL
+		ogl_ubitblt_cs(canvas, dw, dh, dx, dy, sx, sy);
+#endif
+}
+#endif
+
 static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_font)
 {
 	auto &canvas = menu.parent_canvas;
@@ -1446,6 +1480,12 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 	if (menu.y < 0)
 		menu.y = 0;
 
+#if DXX_USE_STEREOSCOPIC_RENDER
+	// popup menu needs to fit in stereo viewport if active
+	if (VR_stereo != StereoFormat::None)
+		stereo_viewport_adjust(menu.x, menu.y, menu.w, menu.h);
+#endif
+
 	nm_draw_background1(canvas, menu.filename);
 
 	// Update all item's x & y values.
@@ -1480,13 +1520,14 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 static window_event_result newmenu_draw(newmenu *menu)
 {
 	auto &menu_canvas = menu->w_canv;
+	grs_canvas &scrn_canvas = grd_curscreen->sc_canvas;
 	int th = 0, ty, sx, sy;
 
 	if (menu->swidth != SWIDTH || menu->sheight != SHEIGHT || menu->fntscalex != FNTScaleX || menu->fntscaley != FNTScaleY)
 	{
 		menu->create_structure();
 		{
-			gr_init_sub_canvas(menu_canvas, grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h);
+			gr_init_sub_canvas(menu_canvas, scrn_canvas, menu->x, menu->y, menu->w, menu->h);
 		}
 	}
 
@@ -1567,6 +1608,12 @@ static window_event_result newmenu_draw(newmenu *menu)
 		gr_string(menu_canvas, cv_font, sx, sy, (scroll_offset + menu->max_displayable < menu->items.size()) ? DOWN_ARROW_MARKER(cv_font, game_font) : "  ");
 	}
 	menu->event_handler(d_event{EVENT_NEWMENU_DRAW});
+
+#if DXX_USE_STEREOSCOPIC_RENDER
+	if (VR_stereo != StereoFormat::None)
+		stereo_viewport_copy(scrn_canvas, menu->x, menu->y, menu->w, menu->h);
+#endif
+
 	return window_event_result::handled;
 }
 
@@ -1681,6 +1728,11 @@ messagebox_newmenu::adjusted_citem messagebox_newmenu::create_adjusted_citem(std
 // }
 
 #define LB_ITEMS_ON_SCREEN 8
+
+#define LB_DX(p)		(p->box_x - BORDERX)
+#define LB_DY(p)		(p->box_y - p->title_height - BORDERY)
+#define LB_DW(p)		(p->box_w + 2 * BORDERX)
+#define LB_DH(p)		(p->height + 2 * BORDERY)
 
 listbox::listbox(int citem, unsigned nitems, const char **item, menu_title title, grs_canvas &canvas, uint8_t allow_abort_flag) :
 	listbox_layout(citem, nitems, item, title, canvas), window(canvas, box_x - BORDERX, box_y - title_height - BORDERY, box_w + 2 * BORDERX, height + 2 * BORDERY),
@@ -1998,6 +2050,21 @@ void listbox_layout::create_structure()
 	if (box_y < bordery2)
 		box_y = bordery2;
 
+#if DXX_USE_STEREOSCOPIC_RENDER
+	// fit listbox in stereo viewport if active
+	if (VR_stereo != StereoFormat::None) {
+		int dx = LB_DX(this);
+		int dy = LB_DY(this);
+		int dw = LB_DW(this);
+		int dh = LB_DH(this);
+		stereo_viewport_adjust(dx, dy, dw, dh);
+		box_x -= (LB_DX(this) - dx);
+		box_y -= (LB_DY(this) - dy);
+		box_w -= (LB_DW(this) - dw);
+		height -= (LB_DH(this) - dh);
+	}
+#endif
+
 	if (citem < 0)
 		citem = 0;
 	else if (citem >= nitems)
@@ -2024,7 +2091,7 @@ static window_event_result listbox_draw(listbox *lb)
 	auto &canvas = lb->parent_canvas;
 	nm_draw_background(canvas, lb->box_x - BORDERX, lb->box_y - lb->title_height - BORDERY,lb->box_x + lb->box_w + BORDERX, lb->box_y + lb->height + BORDERY);
 	auto &medium3_font = *MEDIUM3_FONT;
-	gr_string(canvas, medium3_font, 0x8000, lb->box_y - lb->title_height, lb->title);
+	gr_string(canvas, medium3_font, lb->box_x, lb->box_y - lb->title_height, lb->title);
 
 	const auto &&line_spacing = LINE_SPACING(medium3_font, *GAME_FONT);
 	for (int i = lb->first_item; i < lb->first_item + lb->items_on_screen; ++i)
@@ -2089,6 +2156,17 @@ static window_event_result listbox_draw(listbox *lb)
 			gr_string(canvas, mediumX_font, lb->box_x + fspacx(5), y, showstr);
 		}
 	}
+
+#if DXX_USE_STEREOSCOPIC_RENDER
+	// copy listbox in stereo viewport if active
+	if (VR_stereo != StereoFormat::None) {
+		int dx = LB_DX(lb);
+		int dy = LB_DY(lb);
+		int dw = LB_DW(lb);
+		int dh = LB_DH(lb);
+		stereo_viewport_copy(canvas, dx, dy, dw, dh);
+	}
+#endif
 
 	return lb->callback_handler(d_event{EVENT_NEWMENU_DRAW}, window_event_result::handled);
 }

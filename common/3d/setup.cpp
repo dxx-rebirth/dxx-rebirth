@@ -64,4 +64,17 @@ void g3_start_frame(grs_canvas &canvas)
 #endif
 }
 
+// modify the frame for stereo format
+#if DXX_USE_STEREOSCOPIC_RENDER
+void g3_stereo_frame(const int xeye, const int xoff)
+{
+#if DXX_USE_OGL
+	ogl_stereo_frame(xeye < 0, xoff);
+#else
+	(void)xeye;
+	(void)xoff;
+#endif
+}
+#endif
+
 }
