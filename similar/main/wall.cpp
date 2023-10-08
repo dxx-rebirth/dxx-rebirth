@@ -1426,7 +1426,7 @@ void wall_frame_process(const d_robot_info_array &Robot_info)
 		const auto &&r = partial_range(CloakingWalls, CloakingWalls.get_count());
 		auto &Walls = LevelUniqueWallSubsystemState.Walls;
 		cw_removal_predicate rp{Segments.vmptr, Walls};
-		std::remove_if(r.begin(), r.end(), std::ref(rp));
+		static_cast<void>(std::remove_if(r.begin(), r.end(), std::ref(rp)));
 		CloakingWalls.set_count(rp.num_cloaking_walls);
 	}
 #endif
