@@ -101,80 +101,79 @@ def TOOL_BUNDLE(env):
     Resources/
          """
     if 'BUNDLE' in env['TOOLS']: return
-    if sys.platform == 'darwin':
-        #if tools_verbose:
-        print(" running tool: TOOL_BUNDLE")
-        env.Append(TOOLS = 'BUNDLE')
-        # This is like the regular linker, but uses different vars.
-        # XXX: NOTE: this may be out of date now, scons 0.96.91 has some bundle linker stuff built in.
-        # Check the docs before using this.
-        """LinkBundle = env.Builder(action=[SharedCheck, "$BUNDLECOM"],
-                                           emitter="$SHLIBEMITTER",
-                                           prefix = '$BUNDLEPREFIX',
-                                           suffix = '$BUNDLESUFFIX',
-                                           target_scanner = ProgScan,
-                                           src_suffix = '$BUNDLESUFFIX',
-                                           src_builder = 'SharedObject')
-        env['BUILDERS']['LinkBundle'] = LinkBundle"""
-        env['BUNDLEEMITTER'] = None
-        env['BUNDLEPREFIX'] = ''
-        env['BUNDLESUFFIX'] = ''
-        env['BUNDLEDIRSUFFIX'] = '.bundle'
-        #env['FRAMEWORKS'] = ['-framework Carbon', '-framework System']
-        env['BUNDLE'] = '$SHLINK'
-        env['BUNDLEFLAGS'] = ' -bundle'
-        env['BUNDLECOM'] = '$BUNDLE $BUNDLEFLAGS -o ${TARGET} $SOURCES $_LIBDIRFLAGS $_LIBFLAGS $FRAMEWORKS'
-        # This requires some other tools:
-        TOOL_SUBST(env)
-        # Common type codes are BNDL for generic bundle and APPL for application.
-        def MakeBundle(env, bundledir, app,
-                       key, info_plist,
-                       typecode='BNDL', creator='SapP',
-                       icon_file='#macosx-install/sapphire-icon.icns',
-                       subst_dict=None,
-                       resources=[]):
-            """Install a bundle into its dir, in the proper format"""
-            # Substitute construction vars:
-            for a in [bundledir, key, info_plist, icon_file, typecode, creator]:
-                a = env.subst(a)
-            if SCons.Util.is_List(app):
-                app = app[0]
-            if SCons.Util.is_String(app):
-                app = env.subst(app)
-                appbase = os.path.basename(app)
+    #if tools_verbose:
+    print(" running tool: TOOL_BUNDLE")
+    env.Append(TOOLS = 'BUNDLE')
+    # This is like the regular linker, but uses different vars.
+    # XXX: NOTE: this may be out of date now, scons 0.96.91 has some bundle linker stuff built in.
+    # Check the docs before using this.
+    """LinkBundle = env.Builder(action=[SharedCheck, "$BUNDLECOM"],
+                                       emitter="$SHLIBEMITTER",
+                                       prefix = '$BUNDLEPREFIX',
+                                       suffix = '$BUNDLESUFFIX',
+                                       target_scanner = ProgScan,
+                                       src_suffix = '$BUNDLESUFFIX',
+                                       src_builder = 'SharedObject')
+    env['BUILDERS']['LinkBundle'] = LinkBundle"""
+    env['BUNDLEEMITTER'] = None
+    env['BUNDLEPREFIX'] = ''
+    env['BUNDLESUFFIX'] = ''
+    env['BUNDLEDIRSUFFIX'] = '.bundle'
+    #env['FRAMEWORKS'] = ['-framework Carbon', '-framework System']
+    env['BUNDLE'] = '$SHLINK'
+    env['BUNDLEFLAGS'] = ' -bundle'
+    env['BUNDLECOM'] = '$BUNDLE $BUNDLEFLAGS -o ${TARGET} $SOURCES $_LIBDIRFLAGS $_LIBFLAGS $FRAMEWORKS'
+    # This requires some other tools:
+    TOOL_SUBST(env)
+    # Common type codes are BNDL for generic bundle and APPL for application.
+    def MakeBundle(env, bundledir, app,
+                   key, info_plist,
+                   typecode='BNDL', creator='SapP',
+                   icon_file='#macosx-install/sapphire-icon.icns',
+                   subst_dict=None,
+                   resources=[]):
+        """Install a bundle into its dir, in the proper format"""
+        # Substitute construction vars:
+        for a in [bundledir, key, info_plist, icon_file, typecode, creator]:
+            a = env.subst(a)
+        if SCons.Util.is_List(app):
+            app = app[0]
+        if SCons.Util.is_String(app):
+            app = env.subst(app)
+            appbase = os.path.basename(app)
+        else:
+            appbase = os.path.basename(str(app))
+        if not ('.' in bundledir):
+            bundledir += '.$BUNDLEDIRSUFFIX'
+        bundledir = env.subst(bundledir) # substitute again
+        suffix=bundledir[bundledir.rfind('.'):]
+        if (suffix=='.app' and typecode != 'APPL' or
+            suffix!='.app' and typecode == 'APPL'):
+            raise Error("MakeBundle: inconsistent dir suffix %s and type code %s: app bundles should end with .app and type code APPL." % (suffix, typecode))
+        if subst_dict is None:
+            subst_dict={'%SHORTVERSION%': '$VERSION_NUM',
+                        '%LONGVERSION%': '$VERSION_NAME',
+                        '%YEAR%': '$COMPILE_YEAR',
+                        '%BUNDLE_EXECUTABLE%': appbase,
+                        '%ICONFILE%': os.path.basename(icon_file),
+                        '%CREATOR%': creator,
+                        '%TYPE%': typecode,
+                        '%BUNDLE_KEY%': key}
+        bundledir = env.Dir(bundledir)
+        appfile = env.Install(bundledir.Dir('Contents/MacOS'), app)
+        f = env.SubstInFile(bundledir.File('Contents/Info.plist'), info_plist,
+                        SUBST_DICT=subst_dict)
+        env.Depends(f, env.Value(key + creator + typecode + env['VERSION_NUM'] + env['VERSION_NAME']))
+        env.Textfile(target=bundledir.File('Contents/PkgInfo'),
+                     source=env.Value(typecode+creator))
+        resources.append(icon_file)
+        resource_directory = bundledir.Dir('Contents/Resources')
+        for r in resources:
+            if SCons.Util.is_List(r):
+                env.InstallAs(resource_directory.File(r[1]), r[0])
             else:
-                appbase = os.path.basename(str(app))
-            if not ('.' in bundledir):
-                bundledir += '.$BUNDLEDIRSUFFIX'
-            bundledir = env.subst(bundledir) # substitute again
-            suffix=bundledir[bundledir.rfind('.'):]
-            if (suffix=='.app' and typecode != 'APPL' or
-                suffix!='.app' and typecode == 'APPL'):
-                raise Error("MakeBundle: inconsistent dir suffix %s and type code %s: app bundles should end with .app and type code APPL." % (suffix, typecode))
-            if subst_dict is None:
-                subst_dict={'%SHORTVERSION%': '$VERSION_NUM',
-                            '%LONGVERSION%': '$VERSION_NAME',
-                            '%YEAR%': '$COMPILE_YEAR',
-                            '%BUNDLE_EXECUTABLE%': appbase,
-                            '%ICONFILE%': os.path.basename(icon_file),
-                            '%CREATOR%': creator,
-                            '%TYPE%': typecode,
-                            '%BUNDLE_KEY%': key}
-            bundledir = env.Dir(bundledir)
-            appfile = env.Install(bundledir.Dir('Contents/MacOS'), app)
-            f = env.SubstInFile(bundledir.File('Contents/Info.plist'), info_plist,
-                            SUBST_DICT=subst_dict)
-            env.Depends(f, env.Value(key + creator + typecode + env['VERSION_NUM'] + env['VERSION_NAME']))
-            env.Textfile(target=bundledir.File('Contents/PkgInfo'),
-                         source=env.Value(typecode+creator))
-            resources.append(icon_file)
-            resource_directory = bundledir.Dir('Contents/Resources')
-            for r in resources:
-                if SCons.Util.is_List(r):
-                    env.InstallAs(resource_directory.File(r[1]), r[0])
-                else:
-                    env.Install(resource_directory, r)
-            return bundledir, appfile
-        # This is not a regular Builder; it's a wrapper function.
-        # So just make it available as a method of Environment.
-        SConsEnvironment.MakeBundle = MakeBundle
+                env.Install(resource_directory, r)
+        return bundledir, appfile
+    # This is not a regular Builder; it's a wrapper function.
+    # So just make it available as a method of Environment.
+    SConsEnvironment.MakeBundle = MakeBundle

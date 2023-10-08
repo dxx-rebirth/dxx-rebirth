@@ -1531,7 +1531,7 @@ static void terminate_handler()
 	@GuardedCollector(_custom_test, lambda user_settings: user_settings.opengl and not user_settings.opengles)
 	def check_glu(self,context):
 		ogllibs = self.platform_settings.ogllibs
-		self._check_system_library(context, header=['OpenGL/glu.h' if sys.platform == 'darwin' else 'GL/glu.h'], main='''
+		self._check_system_library(context, header=['OpenGL/glu.h' if self.user_settings.host_platform == 'darwin' else 'GL/glu.h'], main='''
 	gluPerspective(90.0,1.0,0.1,5000.0);
 	gluBuild2DMipmaps (GL_TEXTURE_2D, 0, 1, 1, 1, GL_UNSIGNED_BYTE, nullptr);
 ''', lib=ogllibs, testflags={'LIBS': ogllibs})
@@ -2788,6 +2788,8 @@ BOOST_AUTO_TEST_CASE(f)
 	# should not fail on other operating system targets if it's absent.
 	@GuardedCollector(_guarded_test_darwin, lambda user_settings: user_settings.macos_bundle_libs and not user_settings.macos_add_frameworks)
 	def _check_dylibbundler(self, context, _common_error_text='; dylibbundler is required for compilation for a macOS target when not using frameworks and bundling libraries.  Set macos_bundle_libs=False or macos_add_frameworks=True, or install dylibbundler.'):
+		if sys.platform != 'darwin':
+			raise SCons.Errors.StopError(f'dylibbundler can only be run on macOS build hosts')
 		context.Display(f'{self.msgprefix}: checking whether dylibbundler is installed and accepts -h...')
 		try:
 			p = StaticSubprocess.pcall(('dylibbundler', '-h'), stderr=subprocess.PIPE)
