@@ -1725,7 +1725,8 @@ window_event_result briefing::event_handler(const d_event &event)
 
 #if DXX_USE_STEREOSCOPIC_RENDER
 			if (VR_stereo != StereoFormat::None)
-				stereo_viewport_copy(canvas, canvas.cv_bitmap.bm_x, canvas.cv_bitmap.bm_y, canvas.cv_bitmap.bm_w, canvas.cv_bitmap.bm_h);
+				stereo_viewport_copy(canvas, this->screen->text_ulx, this->screen->text_uly,
+							this->screen->text_width, this->screen->text_height);
 #endif
 			break;
 		}

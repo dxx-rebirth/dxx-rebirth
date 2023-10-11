@@ -810,7 +810,7 @@ static void automap_apply_input(automap &am, const vms_matrix &plrorient, const 
 	}
 }
 
-static void draw_automap(fvcobjptr &vcobjptr, automap &am, fix eye)
+static void draw_automap(fvcobjptr &vcobjptr, automap &am, fix eye = 0)
 {
 #if DXX_USE_STEREOSCOPIC_RENDER
 	int sw = SWIDTH;
@@ -1023,18 +1023,6 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am, fix eye)
 	am.t1 = am.t2;
 }
 
-static void draw_automap(fvcobjptr &vcobjptr, automap &am)
-{
-#if DXX_USE_STEREOSCOPIC_RENDER
-	if (VR_stereo != StereoFormat::None) {
-		draw_automap(vcobjptr, am, -VR_eye_width);
-		draw_automap(vcobjptr, am,  VR_eye_width);
-	}
-	else
-#endif
-		draw_automap(vcobjptr, am, 0);
-}
-
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAP_BACKGROUND_FILENAME (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("maph.pcx",1))?"maph.pcx":"map.pcx")
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1227,6 +1215,13 @@ window_event_result automap::event_handler(const d_event &event)
 				auto &plrobj = get_local_plrobj();
 				automap_apply_input(*this, plrobj.orient, plrobj.pos);
 			}
+#if DXX_USE_STEREOSCOPIC_RENDER
+			if (VR_stereo != StereoFormat::None) {
+				draw_automap(vcobjptr, *this, -VR_eye_width);
+				draw_automap(vcobjptr, *this,  VR_eye_width);
+			}
+			else
+#endif
 			draw_automap(vcobjptr, *this);
 			break;
 			
