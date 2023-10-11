@@ -1308,28 +1308,23 @@ namespace {
 static inline void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
 {
 		int sw = SWIDTH, sh = SHEIGHT;
-		int dx = x, dy = y, dw = w, dh = h;
 		gr_stereo_viewport_resize(VR_stereo, sw, sh);
-		gr_stereo_viewport_window(VR_stereo, x, y, dw, dh);
 		if (w > sw)
 			w -= (w - sw);
 		if (h > sh)
 			h -= (h - sh);
 		// re-center popup on downsized viewport
-		dx = (sw - w) / 2;
-		x = dx;
-		dy = (sh - h) / 2;
-		y = dy;
+		x = (sw - w) / 2;
+		y = (sh - h) / 2;
 		gr_stereo_viewport_offset(VR_stereo, x, y, -1);
 }
 
 static inline void stereo_viewport_copy(grs_canvas &canvas, int x, int y, int w, int h)
 {
-		int dx = x, dy = y, dw = w, dh = h;
-		int sx = dx, sy = dy;
+		int dx = x, dy = y;
 		gr_stereo_viewport_offset(VR_stereo, dx, dy, 1);
 #if DXX_USE_OGL
-		ogl_ubitblt_cs(canvas, dw, dh, dx, dy, sx, sy);
+		ogl_ubitblt_cs(canvas, w, h, dx, dy, x, y);
 #endif
 }
 #endif
@@ -2159,13 +2154,8 @@ static window_event_result listbox_draw(listbox *lb)
 
 #if DXX_USE_STEREOSCOPIC_RENDER
 	// copy listbox in stereo viewport if active
-	if (VR_stereo != StereoFormat::None) {
-		int dx = LB_DX(lb);
-		int dy = LB_DY(lb);
-		int dw = LB_DW(lb);
-		int dh = LB_DH(lb);
-		stereo_viewport_copy(canvas, dx, dy, dw, dh);
-	}
+	if (VR_stereo != StereoFormat::None)
+		stereo_viewport_copy(canvas, LB_DX(lb), LB_DY(lb), LB_DW(lb), LB_DH(lb));
 #endif
 
 	return lb->callback_handler(d_event{EVENT_NEWMENU_DRAW}, window_event_result::handled);

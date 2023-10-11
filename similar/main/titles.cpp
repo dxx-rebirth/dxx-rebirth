@@ -332,8 +332,8 @@ struct briefing_screen {
 	char    bs_name[13];                //  filename, eg merc01.  Assumes .lbm suffix.
 	sbyte   level_num;
 	sbyte   message_num;
-	short   text_ulx, text_uly;         //  upper left x,y of text window
-	short   text_width, text_height;    //  width and height of text window
+	int     text_ulx, text_uly;         //  upper left x,y of text window
+	int     text_width, text_height;    //  width and height of text window
 };
 
 #define	ENDING_LEVEL_NUM_OEMSHARE 0x7f
@@ -1287,12 +1287,19 @@ static int init_new_page(grs_canvas &canvas, briefing *br)
 }
 
 #if DXX_USE_STEREOSCOPIC_RENDER
-static inline void stereo_viewport_adjust(short &x, short &y, short &w, short &h)
+static inline void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
 {
-	int dx = x, dy = y, dw = w, dh = h;
-	gr_stereo_viewport_window(VR_stereo, dx, dy, dw, dh);
-	gr_stereo_viewport_offset(VR_stereo, dx, dy, -1);
-	x = dx, y = dy, w = dw, h = dh;
+	gr_stereo_viewport_window(VR_stereo, x, y, w, h);
+	gr_stereo_viewport_offset(VR_stereo, x, y, -1);
+}
+
+static inline void stereo_viewport_copy(grs_canvas &canvas, int x, int y, int w, int h)
+{
+	int dx = x, dy = y;
+	gr_stereo_viewport_offset(VR_stereo, dx, dy, 1);
+#if DXX_USE_OGL
+	ogl_ubitblt_cs(canvas, w, h, dx, dy, x, y);
+#endif
 }
 #endif
 
@@ -1715,6 +1722,11 @@ window_event_result briefing::event_handler(const d_event &event)
 				flash_cursor(canvas, game_font, this, this->flashing_cursor);
 			else if (this->flashing_cursor)
 				gr_string(canvas, game_font, this->text_x, this->text_y, "_");
+
+#if DXX_USE_STEREOSCOPIC_RENDER
+			if (VR_stereo != StereoFormat::None)
+				stereo_viewport_copy(canvas, canvas.cv_bitmap.bm_x, canvas.cv_bitmap.bm_y, canvas.cv_bitmap.bm_w, canvas.cv_bitmap.bm_h);
+#endif
 			break;
 		}
 		case EVENT_WINDOW_CLOSE:
