@@ -197,9 +197,6 @@ inline void gr_stereo_viewport_offset(const StereoFormat stereo, int &x, int &y,
 			y += SHEIGHT/2;
 			break;
 		case StereoFormat::SideBySideHalfHeight:
-			if (y == 0)
-				y += SHEIGHT/4;
-			[[fallthrough]];
 		case StereoFormat::SideBySideFullHeight:
 			x += SWIDTH/2;
 			break;
