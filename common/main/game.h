@@ -173,7 +173,7 @@ inline void gr_stereo_viewport_resize(const StereoFormat stereo, int &w, int &h)
 	}
 }
 
-inline void gr_stereo_viewport_offset(const StereoFormat stereo, int &x, int &y, const int eye)
+inline void gr_stereo_viewport_offset(const StereoFormat stereo, int &x, int &y, const int eye = 0)
 {
 	if (!grd_curscreen)
 		return;
@@ -197,6 +197,9 @@ inline void gr_stereo_viewport_offset(const StereoFormat stereo, int &x, int &y,
 			y += SHEIGHT/2;
 			break;
 		case StereoFormat::SideBySideHalfHeight:
+			if (y == 0 && eye > F0_1)	// for automap 2nd pass
+				y += SHEIGHT/4;
+			[[fallthrough]];
 		case StereoFormat::SideBySideFullHeight:
 			x += SWIDTH/2;
 			break;
