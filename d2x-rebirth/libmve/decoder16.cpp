@@ -301,10 +301,9 @@ static void patternRow2Pixels2(const std::size_t width, unsigned short *pFrame, 
 	}
 }
 
-static void patternQuadrant2Pixels(unsigned short *pFrame, unsigned char pat0,
+static void patternQuadrant2Pixels(const std::size_t width, unsigned short *pFrame, unsigned char pat0,
 								   unsigned char pat1, const std::array<uint16_t, 4> &p)
 {
-	const auto width = g_width;
     unsigned short mask = 0x0001;
     int i;
     unsigned short pat = (pat1 << 8) | pat0;
@@ -430,7 +429,7 @@ static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, c
 				pat[1] = (*pData)[1];
 				(*pData) += 2;
 
-				patternQuadrant2Pixels(*pFrame, pat[0], pat[1], p);
+				patternQuadrant2Pixels(g_width, *pFrame, pat[0], pat[1], p);
 
 				if (i & 1)
 					*pFrame -= (4*g_width - 4);
@@ -452,7 +451,7 @@ static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, c
 					}
 					pat[0] = *(*pData)++;
 					pat[1] = *(*pData)++;
-					patternQuadrant2Pixels(*pFrame, pat[0], pat[1], p);
+					patternQuadrant2Pixels(g_width, *pFrame, pat[0], pat[1], p);
 
 					if (i & 1)
 						*pFrame -= (4*g_width - 4);
