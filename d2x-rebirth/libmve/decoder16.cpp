@@ -27,7 +27,7 @@ namespace {
 
 static unsigned short *backBuf1;
 
-static void dispatchDecoder16(const uint16_t *backBuf2, std::size_t width, unsigned short **pFrame, unsigned char codeType, const unsigned char **pData, const unsigned char **pOffData, int *pDataRemain, int *curXb, int *curYb);
+static void dispatchDecoder16(const uint16_t *backBuf1, const uint16_t *backBuf2, std::size_t width, unsigned short **pFrame, unsigned char codeType, const unsigned char **pData, const unsigned char **pOffData, int *pDataRemain, int *curXb, int *curYb);
 
 }
 
@@ -60,7 +60,7 @@ void decodeFrame16(const uint16_t *const backBuf2, const std::size_t width, unsi
         {
 			const auto m = pMap.front();
 			op = m & 0xf;
-            dispatchDecoder16(backBuf2, width, &FramePtr, op, &pData, &pOffData, &dataRemain, &i, &j);
+            dispatchDecoder16(backBuf1, backBuf2, width, &FramePtr, op, &pData, &pOffData, &dataRemain, &i, &j);
 
 			/*
 			  if (FramePtr < backBuf1)
@@ -70,7 +70,7 @@ void decodeFrame16(const uint16_t *const backBuf2, const std::size_t width, unsi
 			*/
 
 			op = (m >> 4) & 0xf;
-            dispatchDecoder16(backBuf2, width, &FramePtr, op, &pData, &pOffData, &dataRemain, &i, &j);
+            dispatchDecoder16(backBuf1, backBuf2, width, &FramePtr, op, &pData, &pOffData, &dataRemain, &i, &j);
 
 			/*
 			  if (FramePtr < backBuf1)
@@ -318,7 +318,7 @@ static void patternQuadrant2Pixels(const std::size_t width, unsigned short *pFra
     }
 }
 
-static void dispatchDecoder16(const uint16_t *const backBuf2, const std::size_t width, unsigned short **pFrame, unsigned char codeType, const unsigned char **pData, const unsigned char **pOffData, int *pDataRemain, int *curXb, int *curYb)
+static void dispatchDecoder16(const uint16_t *const backBuf1, const uint16_t *const backBuf2, const std::size_t width, unsigned short **pFrame, unsigned char codeType, const unsigned char **pData, const unsigned char **pOffData, int *pDataRemain, int *curXb, int *curYb)
 {
 	std::array<uint16_t, 4> p;
 	std::array<uint8_t, 4> pat;
