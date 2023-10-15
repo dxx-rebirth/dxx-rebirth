@@ -506,7 +506,7 @@ static int video_initialized = 0;
 int g_width, g_height;
 
 static int g_destX, g_destY;
-static int g_screenWidth, g_screenHeight;
+static int g_screenWidth;
 
 MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initvideobuffers(unsigned char minor, const unsigned char *data)
 {
@@ -558,7 +558,7 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initvideobuffers(unsigned
 
 MVESTREAM::handle_result MVESTREAM::handle_mve_segment_displayvideo()
 {
-	MovieShowFrame(vBackBuf1, g_destX, g_destY, g_width, g_height, g_screenWidth, g_screenHeight);
+	MovieShowFrame(vBackBuf1, g_destX, g_destY, g_width, g_height, g_screenWidth, screenHeight);
 
 	g_frameUpdated = 1;
 
@@ -577,7 +577,7 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initvideomode(const unsig
 	width = get_short(data);
 	height = get_short(data+2);
 	g_screenWidth = width;
-	g_screenHeight = height;
+	screenHeight = height;
 
 	return MVESTREAM::handle_result::step_again;
 }
