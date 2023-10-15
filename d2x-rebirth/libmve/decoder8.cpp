@@ -27,6 +27,7 @@ static void dispatchDecoder(const uint8_t *vBackBuf1, const uint8_t *vBackBuf2, 
 
 void decodeFrame8(const uint8_t *const vBackBuf2, const std::size_t width, unsigned char *pFrame, std::span<const uint8_t> pMap, const unsigned char *pData, int dataRemain)
 {
+	const auto vBackBuf1 = pFrame;
 	int xb, yb;
 
 	xb = width >> 3;
@@ -36,15 +37,15 @@ void decodeFrame8(const uint8_t *const vBackBuf2, const std::size_t width, unsig
 		for (int i=0; i<xb/2; i++)
 		{
 			const auto m = pMap.front();
-			dispatchDecoder(g_vBackBuf1, vBackBuf2, width, &pFrame, m & 0xf, &pData, &dataRemain, &i, &j);
-			if (pFrame < g_vBackBuf1)
+			dispatchDecoder(vBackBuf1, vBackBuf2, width, &pFrame, m & 0xf, &pData, &dataRemain, &i, &j);
+			if (pFrame < vBackBuf1)
 				con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (1) [%x]", i, j, m & 0xf);
-			else if (pFrame >= g_vBackBuf1 + width*g_height)
+			else if (pFrame >= vBackBuf1 + width*g_height)
 				con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (1) [%x]", i, j, m & 0xf);
-			dispatchDecoder(g_vBackBuf1, vBackBuf2, width, &pFrame, m >> 4, &pData, &dataRemain, &i, &j);
-			if (pFrame < g_vBackBuf1)
+			dispatchDecoder(vBackBuf1, vBackBuf2, width, &pFrame, m >> 4, &pData, &dataRemain, &i, &j);
+			if (pFrame < vBackBuf1)
 				con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (2) [%x]", i, j, m >> 4);
-			else if (pFrame >= g_vBackBuf1 + width*g_height)
+			else if (pFrame >= vBackBuf1 + width*g_height)
 				con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (2) [%x]", i, j, m >> 4);
 
 			pMap = pMap.subspan<1>();
