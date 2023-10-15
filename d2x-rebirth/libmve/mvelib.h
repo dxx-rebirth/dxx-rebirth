@@ -127,6 +127,7 @@ struct MVESTREAM
 	int height{};
 	int mve_audio_bufhead{};
 	int mve_audio_buftail{};
+	int mve_audio_curbuf_curpos{};
 	unsigned char *vBackBuf1{};
 	unsigned char *vBackBuf2{};
 	std::array<::dcx::unique_span<int16_t>, 64> mve_audio_buffers;
