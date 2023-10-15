@@ -42,10 +42,6 @@
 #include "console.h"
 #include "u_mem.h"
 
-#define MVE_AUDIO_FLAGS_STEREO     1
-#define MVE_AUDIO_FLAGS_16BIT      2
-#define MVE_AUDIO_FLAGS_COMPRESSED 4
-
 namespace d2x {
 
 int g_spdFactorNum=0;
@@ -213,6 +209,13 @@ static void do_timer_wait(void)
 
 namespace {
 
+enum : uint8_t
+{
+	MVE_AUDIO_FLAGS_STEREO = 1,
+	MVE_AUDIO_FLAGS_16BIT = 2,
+	MVE_AUDIO_FLAGS_COMPRESSED = 4,
+};
+
 template <typename T>
 struct MVE_audio_clamp
 {
@@ -297,25 +300,19 @@ static void mve_audio_callback(void *const vstream, unsigned char *stream, int l
 
 MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initaudiobuffers(unsigned char minor, const unsigned char *data)
 {
-	int flags;
-	int sample_rate;
-	int desired_buffer;
-
 	if (mve_audio_enabled == MVE_play_sounds::silent)
 		return MVESTREAM::handle_result::step_again;
 
 	if (mve_audio_spec)
 		return MVESTREAM::handle_result::step_again;
 
-	flags = get_ushort(data + 2);
-	sample_rate = get_ushort(data + 4);
-	desired_buffer = get_int(data + 6);
+	auto flags{get_ushort(&data[2])};
+	const auto sample_rate{get_ushort(&data[4])};
 
-	const unsigned stereo = (flags & MVE_AUDIO_FLAGS_STEREO);
-	const unsigned bitsize = (flags & MVE_AUDIO_FLAGS_16BIT);
+	const auto stereo{flags & MVE_AUDIO_FLAGS_STEREO};
+	const auto bitsize{flags & MVE_AUDIO_FLAGS_16BIT};
 	if (!minor)
 		flags &= ~MVE_AUDIO_FLAGS_COMPRESSED;
-	const unsigned compressed = flags & MVE_AUDIO_FLAGS_COMPRESSED;
 	mve_audio_flags = flags;
 
 	const unsigned format = (bitsize)
@@ -325,6 +322,8 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initaudiobuffers(unsigned
 	if (CGameArg.SndDisableSdlMixer)
 	{
 		con_puts(CON_CRITICAL, "creating audio buffers:");
+		const auto desired_buffer{get_int(&data[6])};
+		const auto compressed{flags & MVE_AUDIO_FLAGS_COMPRESSED};
 		con_printf(CON_CRITICAL, "sample rate = %d, desired buffer = %d, stereo = %d, bitsize = %d, compressed = %d",
 				sample_rate, desired_buffer, stereo ? 1 : 0, bitsize ? 16 : 8, compressed ? 1 : 0);
 	}
