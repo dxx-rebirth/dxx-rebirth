@@ -117,6 +117,7 @@ struct MVESTREAM
 	uint8_t timer_created{};
 	uint8_t truecolor{};
 	uint8_t videobuf_created{};
+	uint8_t video_initialized{};
 	uint16_t screenWidth{};
 	uint16_t screenHeight{};
 	unsigned char *vBackBuf1{};
