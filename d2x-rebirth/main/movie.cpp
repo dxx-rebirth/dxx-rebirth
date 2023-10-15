@@ -97,7 +97,7 @@ constexpr std::array<std::array<char, 8>, 3> movielib_files{{
 }};
 
 // Function Prototypes
-static movie_play_status RunMovie(const char *filename, std::span<const char> subtitles, int highres_flag, play_movie_warn_missing, int dx,int dy);
+static movie_play_status RunMovie(const char *filename, std::span<const char> subtitles, int highres_flag, play_movie_warn_missing, MVE_play_sounds audio_enabled, int dx, int dy);
 
 static void draw_subtitles(const d_loaded_subtitle_state &, int frame_num);
 
@@ -140,10 +140,7 @@ movie_play_status PlayMovie(const std::span<const char> subtitles, const char *c
 	if (CGameArg.SndDisableSdlMixer)
 		digi_close();
 
-	// Start sound
-	MVE_sndInit(!CGameArg.SndNoSound ? MVE_play_sounds::enabled : MVE_play_sounds::silent);
-
-	const auto ret = RunMovie(name, subtitles, !GameArg.GfxSkipHiresMovie, must_have, -1, -1);
+	const auto ret = RunMovie(name, subtitles, !GameArg.GfxSkipHiresMovie, must_have, !CGameArg.SndNoSound ? MVE_play_sounds::enabled : MVE_play_sounds::silent, -1, -1);
 
 	// MD2211: if using SDL_Mixer, we never reinit the sound system
 	if (!CGameArg.SndNoSound
@@ -352,7 +349,7 @@ window_event_result movie::event_handler(const d_event &event)
 }
 
 //returns status.  see movie.h
-movie_play_status RunMovie(const char *const filename, const std::span<const char> subtitles, const int hires_flag, const play_movie_warn_missing warn_missing, const int dx, const int dy)
+movie_play_status RunMovie(const char *const filename, const std::span<const char> subtitles, const int hires_flag, const play_movie_warn_missing warn_missing, const MVE_play_sounds audio_enabled, const int dx, const int dy)
 {
 #if DXX_USE_OGL
 	palette_array_t pal_save;
@@ -367,7 +364,7 @@ movie_play_status RunMovie(const char *const filename, const std::span<const cha
 		return movie_play_status::skipped;
 	}
 	MVESTREAM_ptr_t mvestream;
-	if (!(mvestream = MVE_rmPrepMovie(std::move(filehndl), dx, dy)))
+	if (!(mvestream = MVE_rmPrepMovie(audio_enabled, dx, dy, std::move(filehndl))))
 	{
 		return movie_play_status::skipped;
 	}
@@ -437,15 +434,14 @@ const MVESTREAM *InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
 
 	con_printf(CON_DEBUG, "RoboFile=%s", filename);
 
-	MVE_sndInit(MVE_play_sounds::silent);        //tell movies to play no sound for robots
-
 	auto &&[RoboFile, physfserr] = PHYSFSRWOPS_openRead(filename);
 	if (!RoboFile)
 	{
 		con_printf(CON_URGENT, "Failed to open movie <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
 		return nullptr;
 	}
-	if (!(pMovie = MVE_rmPrepMovie(std::move(RoboFile), SWIDTH / 2.3, SHEIGHT / 2.3)))
+	//tell movies to play no sound for robots
+	if (!(pMovie = MVE_rmPrepMovie(MVE_play_sounds::silent, SWIDTH / 2.3, SHEIGHT / 2.3, std::move(RoboFile))))
 	{
 		Int3();
 		return nullptr;

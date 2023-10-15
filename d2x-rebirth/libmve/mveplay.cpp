@@ -233,7 +233,6 @@ struct MVE_audio_clamp
 }
 
 static void mve_audio_callback(void *userdata, unsigned char *stream, int len);
-static MVE_play_sounds mve_audio_enabled;
 
 static void mve_audio_callback(void *const vstream, unsigned char *stream, int len)
 {
@@ -620,9 +619,9 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_endofchunk()
 	return MVESTREAM::handle_result::step_again;
 }
 
-MVESTREAM_ptr_t MVE_rmPrepMovie(RWops_ptr src, const int x, const int y)
+MVESTREAM_ptr_t MVE_rmPrepMovie(const MVE_play_sounds audio_enabled, const int x, const int y, RWops_ptr src)
 {
-	MVESTREAM_ptr_t pMovie{mve_open(x, y, std::move(src))};
+	MVESTREAM_ptr_t pMovie{mve_open(audio_enabled, x, y, std::move(src))};
 	if (!pMovie)
 		return pMovie;
 
@@ -684,12 +683,6 @@ void MVE_rmEndMovie(std::unique_ptr<MVESTREAM> stream)
 void MVE_rmHoldMovie()
 {
 	timer_started = 0;
-}
-
-
-void MVE_sndInit(MVE_play_sounds x)
-{
-	mve_audio_enabled = x;
 }
 
 }

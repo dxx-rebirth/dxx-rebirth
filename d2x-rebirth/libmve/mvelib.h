@@ -107,12 +107,13 @@ struct MVESTREAM
 		step_finished,
 		step_again,
 	};
-	MVESTREAM(int x, int y);
+	MVESTREAM(MVE_play_sounds, int x, int y);
 	~MVESTREAM();
 	std::unique_ptr<MVEFILE> movie;
 	std::span<const uint8_t> pCurMap{};
 	std::vector<unsigned char> vBuffers{};
 	std::unique_ptr<SDL_AudioSpec> mve_audio_spec;
+	const MVE_play_sounds mve_audio_enabled;
 	bool mve_audio_playing{};
 	uint8_t timer_created{};
 	uint8_t truecolor{};
@@ -156,12 +157,12 @@ struct MVESTREAM_deleter_t
 };
 
 typedef std::unique_ptr<MVESTREAM, MVESTREAM_deleter_t> MVESTREAM_ptr_t;
-MVESTREAM_ptr_t MVE_rmPrepMovie(RWops_ptr stream, int x, int y);
+MVESTREAM_ptr_t MVE_rmPrepMovie(MVE_play_sounds, int x, int y, RWops_ptr stream);
 
 /*
  * open an MVE stream
  */
-MVESTREAM_ptr_t mve_open(int x, int y, RWops_ptr stream);
+MVESTREAM_ptr_t mve_open(MVE_play_sounds audio_enabled, int x, int y, RWops_ptr stream);
 
 /*
  * reset an MVE stream
