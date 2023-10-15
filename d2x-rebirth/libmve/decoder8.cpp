@@ -23,7 +23,7 @@ using namespace dcx;
 
 namespace d2x {
 
-static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, const unsigned char **pData, int *pDataRemain, int *curXb, int *curYb);
+static void dispatchDecoder(std::size_t width, unsigned char **pFrame, unsigned char codeType, const unsigned char **pData, int *pDataRemain, int *curXb, int *curYb);
 
 void decodeFrame8(const std::size_t width, unsigned char *pFrame, std::span<const uint8_t> pMap, const unsigned char *pData, int dataRemain)
 {
@@ -36,12 +36,12 @@ void decodeFrame8(const std::size_t width, unsigned char *pFrame, std::span<cons
 		for (int i=0; i<xb/2; i++)
 		{
 			const auto m = pMap.front();
-			dispatchDecoder(&pFrame, m & 0xf, &pData, &dataRemain, &i, &j);
+			dispatchDecoder(width, &pFrame, m & 0xf, &pData, &dataRemain, &i, &j);
 			if (pFrame < g_vBackBuf1)
 				con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (1) [%x]", i, j, m & 0xf);
 			else if (pFrame >= g_vBackBuf1 + width*g_height)
 				con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (1) [%x]", i, j, m & 0xf);
-			dispatchDecoder(&pFrame, m >> 4, &pData, &dataRemain, &i, &j);
+			dispatchDecoder(width, &pFrame, m >> 4, &pData, &dataRemain, &i, &j);
 			if (pFrame < g_vBackBuf1)
 				con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (2) [%x]", i, j, m >> 4);
 			else if (pFrame >= g_vBackBuf1 + width*g_height)
@@ -213,7 +213,7 @@ static void patternQuadrant2Pixels(const std::size_t width, unsigned char *pFram
 	}
 }
 
-static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, const unsigned char **pData, int *pDataRemain, int *curXb, int *curYb)
+static void dispatchDecoder(const std::size_t width, unsigned char **pFrame, unsigned char codeType, const unsigned char **pData, int *pDataRemain, int *curXb, int *curYb)
 {
 	std::array<uint8_t, 4> p, pat;
 	int x, y;
@@ -226,7 +226,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 	{
 	case 0x0:
 		/* block is copied from block in current frame */
-		copyFrame(g_width, *pFrame, *pFrame + (g_vBackBuf2 - g_vBackBuf1));
+		copyFrame(width, *pFrame, *pFrame + (g_vBackBuf2 - g_vBackBuf1));
 		[[fallthrough]];
 	case 0x1:
 		/* block is unchanged from two frames ago */
@@ -248,7 +248,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   y =   8 + ((B - 56) / 29)
 		*/
 		relFar(*(*pData)++, 1, &x, &y);
-		copyFrame(g_width, *pFrame, *pFrame + x + y*g_width);
+		copyFrame(width, *pFrame, *pFrame + x + y*width);
 		*pFrame += 8;
 		--*pDataRemain;
 		break;
@@ -265,7 +265,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   y = -(  8 + ((B - 56) / 29))
 		*/
 		relFar(*(*pData)++, -1, &x, &y);
-		copyFrame(g_width, *pFrame, *pFrame + x + y*g_width);
+		copyFrame(width, *pFrame, *pFrame + x + y*width);
 		*pFrame += 8;
 		--*pDataRemain;
 		break;
@@ -285,7 +285,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   y = -8 + BH
 		*/
 		relClose(*(*pData)++, &x, &y);
-		copyFrame(g_width, *pFrame, *pFrame + (g_vBackBuf2 - g_vBackBuf1) + x + y*g_width);
+		copyFrame(width, *pFrame, *pFrame + (g_vBackBuf2 - g_vBackBuf1) + x + y*width);
 		*pFrame += 8;
 		--*pDataRemain;
 		break;
@@ -298,7 +298,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		*/
 		x = static_cast<int8_t>(*(*pData)++);
 		y = static_cast<int8_t>(*(*pData)++);
-		copyFrame(g_width, *pFrame, *pFrame + (g_vBackBuf2 - g_vBackBuf1) + x + y*g_width);
+		copyFrame(width, *pFrame, *pFrame + (g_vBackBuf2 - g_vBackBuf1) + x + y*width);
 		*pFrame += 8;
 		*pDataRemain -= 2;
 		break;
@@ -313,8 +313,6 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   Note that if you've reached the end of a row, this means going on
 		   to the next row.
 		*/
-		{
-			const auto width = g_width;
 		range_for (const int i, xrange(2u))
 		{
 			(void)i;
@@ -326,7 +324,6 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 				if (++*curYb == (g_height >> 3))
 					return;
 			}
-		}
 		}
 		break;
 
@@ -397,8 +394,6 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		*/
 		p[0] = *(*pData)++;
 		p[1] = *(*pData)++;
-		{
-			const auto width = g_width;
 		if (p[0] <= p[1])
 		{
 			range_for (const int i, xrange(8u))
@@ -421,7 +416,6 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 			}
 		}
 		*pFrame -= (8 * width - 8);
-		}
 		break;
 
 	case 0x8:
@@ -513,8 +507,6 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   66 11 66 66 66 66 11 66     ; 42: 01000010
 		   11 66 66 66 66 66 66 11     ; 81: 10000001
 		*/
-		{
-			const auto width = g_width;
 		if ( (*pData)[0] <= (*pData)[1])
 		{
 			// four quadrant case
@@ -568,7 +560,6 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 			}
 			*pFrame -= (8 * width - 8);
 		}
-		}
 		break;
 
 	case 0x9:
@@ -597,8 +588,6 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   if P0 > P1  AND  P2 > P3, we get 8 bytes of pattern, each 2 bits
 		   representing a 1x2 pixel (i.e. 1 pixel wide, and 2 high).
 		*/
-		{
-		const auto width = g_width;
 		if ( (*pData)[0] <= (*pData)[1])
 		{
 			if ( (*pData)[2] <= (*pData)[3])
@@ -626,13 +615,13 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 				p[2] = *(*pData)++;
 				p[3] = *(*pData)++;
 
-				patternRow4Pixels2(g_width, *pFrame, *(*pData)++, p);
+				patternRow4Pixels2(width, *pFrame, *(*pData)++, p);
 				*pFrame += 2 * width;
-				patternRow4Pixels2(g_width, *pFrame, *(*pData)++, p);
+				patternRow4Pixels2(width, *pFrame, *(*pData)++, p);
 				*pFrame += 2 * width;
-				patternRow4Pixels2(g_width, *pFrame, *(*pData)++, p);
+				patternRow4Pixels2(width, *pFrame, *(*pData)++, p);
 				*pFrame += 2 * width;
-				patternRow4Pixels2(g_width, *pFrame, *(*pData)++, p);
+				patternRow4Pixels2(width, *pFrame, *(*pData)++, p);
 				*pFrame -= (6 * width - 8);
 			}
 		}
@@ -675,7 +664,6 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 			}
 			*pFrame -= (8 * width - 8);
 		}
-		}
 		break;
 
 	case 0xa:
@@ -712,8 +700,6 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		P5, then [P0 P1 P2 P3 B0 B1 B2 B3 B4 B5 B6 B7] represent the top
 		half of the block and the other bytes represent the bottom half.
 		*/
-		{
-			const auto width = g_width;
 		if ( (*pData)[0] <= (*pData)[1])
 		{
 			range_for (const int i, xrange(4u))
@@ -785,7 +771,6 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 				*pFrame -= (8 * width - 8);
 			}
 		}
-		}
 		break;
 
 	case 0xb:
@@ -793,8 +778,6 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   bytes of pixel data.  1 byte for each pixel, and in the standard
 		   order (l->r, t->b).
 		*/
-		{
-			const auto width = g_width;
 		range_for (const int i, xrange(8u))
 		{
 			(void)i;
@@ -804,7 +787,6 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 			*pDataRemain -= 8;
 		}
 		*pFrame -= (8 * width - 8);
-		}
 		break;
 
 	case 0xc:
@@ -812,8 +794,6 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   bytes of pixel data.  1 byte for each block of 2x2 pixels, and in
 		   the standard order (l->r, t->b).
 		*/
-		{
-			const auto width = g_width;
 		range_for (const int i, xrange(4u))
 		{
 			(void)i;
@@ -831,7 +811,6 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 			*pDataRemain -= 4;
 		}
 		*pFrame -= (8 * width - 8);
-		}
 		break;
 
 	case 0xd:
@@ -839,8 +818,6 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   bytes of pixel data.  1 byte for each block of 4x4 pixels, and in
 		   the standard order (l->r, t->b).
 		*/
-		{
-			const auto width = g_width;
 		range_for (const int i, xrange(2u))
 		{
 			(void)i;
@@ -857,7 +834,6 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 			*pDataRemain -= 2;
 		}
 		*pFrame -= (8 * width - 8);
-		}
 		break;
 
 	case 0xe:
@@ -865,7 +841,6 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   data from the data stream.
 		*/
 		{
-			const auto width = g_width;
 			const auto pel{**pData};
 		range_for (const int i, xrange(8u))
 		{
@@ -891,8 +866,6 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   P0 P1 P0 P1 P0 P1 P0 P1
 		   P1 P0 P1 P0 P1 P0 P1 P0
 		*/
-		{
-			const auto width = g_width;
 		range_for (const int i, xrange(8u))
 		{
 			range_for (const int j, xrange(8u))
@@ -904,7 +877,6 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		*pData += 2;
 		*pDataRemain -= 2;
 		*pFrame -= (8 * width - 8);
-		}
 		break;
 
 	default:
