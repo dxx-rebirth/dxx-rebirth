@@ -23,7 +23,7 @@ using namespace dcx;
 
 namespace d2x {
 
-static void dispatchDecoder(const uint8_t *vBackBuf2, std::size_t width, unsigned char **pFrame, unsigned char codeType, const unsigned char **pData, int *pDataRemain, int *curXb, int *curYb);
+static void dispatchDecoder(const uint8_t *vBackBuf1, const uint8_t *vBackBuf2, std::size_t width, unsigned char **pFrame, unsigned char codeType, const unsigned char **pData, int *pDataRemain, int *curXb, int *curYb);
 
 void decodeFrame8(const uint8_t *const vBackBuf2, const std::size_t width, unsigned char *pFrame, std::span<const uint8_t> pMap, const unsigned char *pData, int dataRemain)
 {
@@ -36,12 +36,12 @@ void decodeFrame8(const uint8_t *const vBackBuf2, const std::size_t width, unsig
 		for (int i=0; i<xb/2; i++)
 		{
 			const auto m = pMap.front();
-			dispatchDecoder(vBackBuf2, width, &pFrame, m & 0xf, &pData, &dataRemain, &i, &j);
+			dispatchDecoder(g_vBackBuf1, vBackBuf2, width, &pFrame, m & 0xf, &pData, &dataRemain, &i, &j);
 			if (pFrame < g_vBackBuf1)
 				con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (1) [%x]", i, j, m & 0xf);
 			else if (pFrame >= g_vBackBuf1 + width*g_height)
 				con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (1) [%x]", i, j, m & 0xf);
-			dispatchDecoder(vBackBuf2, width, &pFrame, m >> 4, &pData, &dataRemain, &i, &j);
+			dispatchDecoder(g_vBackBuf1, vBackBuf2, width, &pFrame, m >> 4, &pData, &dataRemain, &i, &j);
 			if (pFrame < g_vBackBuf1)
 				con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (2) [%x]", i, j, m >> 4);
 			else if (pFrame >= g_vBackBuf1 + width*g_height)
@@ -213,7 +213,7 @@ static void patternQuadrant2Pixels(const std::size_t width, unsigned char *pFram
 	}
 }
 
-static void dispatchDecoder(const uint8_t *const vBackBuf2, const std::size_t width, unsigned char **pFrame, unsigned char codeType, const unsigned char **pData, int *pDataRemain, int *curXb, int *curYb)
+static void dispatchDecoder(const uint8_t *const vBackBuf1, const uint8_t *const vBackBuf2, const std::size_t width, unsigned char **pFrame, unsigned char codeType, const unsigned char **pData, int *pDataRemain, int *curXb, int *curYb)
 {
 	std::array<uint8_t, 4> p, pat;
 	int x, y;
@@ -226,7 +226,7 @@ static void dispatchDecoder(const uint8_t *const vBackBuf2, const std::size_t wi
 	{
 	case 0x0:
 		/* block is copied from block in current frame */
-		copyFrame(width, *pFrame, *pFrame + (vBackBuf2 - g_vBackBuf1));
+		copyFrame(width, *pFrame, *pFrame + (vBackBuf2 - vBackBuf1));
 		[[fallthrough]];
 	case 0x1:
 		/* block is unchanged from two frames ago */
@@ -285,7 +285,7 @@ static void dispatchDecoder(const uint8_t *const vBackBuf2, const std::size_t wi
 		   y = -8 + BH
 		*/
 		relClose(*(*pData)++, &x, &y);
-		copyFrame(width, *pFrame, *pFrame + (vBackBuf2 - g_vBackBuf1) + x + y*width);
+		copyFrame(width, *pFrame, *pFrame + (vBackBuf2 - vBackBuf1) + x + y*width);
 		*pFrame += 8;
 		--*pDataRemain;
 		break;
@@ -298,7 +298,7 @@ static void dispatchDecoder(const uint8_t *const vBackBuf2, const std::size_t wi
 		*/
 		x = static_cast<int8_t>(*(*pData)++);
 		y = static_cast<int8_t>(*(*pData)++);
-		copyFrame(width, *pFrame, *pFrame + (vBackBuf2 - g_vBackBuf1) + x + y*width);
+		copyFrame(width, *pFrame, *pFrame + (vBackBuf2 - vBackBuf1) + x + y*width);
 		*pFrame += 8;
 		*pDataRemain -= 2;
 		break;
