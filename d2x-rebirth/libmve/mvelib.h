@@ -122,6 +122,7 @@ struct MVESTREAM
 	uint16_t screenHeight{};
 	const int destX;
 	const int destY;
+	int mve_audio_buftail{};
 	unsigned char *vBackBuf1{};
 	unsigned char *vBackBuf2{};
 	std::array<::dcx::unique_span<int16_t>, 64> mve_audio_buffers;

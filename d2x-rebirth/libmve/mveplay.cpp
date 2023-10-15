@@ -233,7 +233,6 @@ struct MVE_audio_clamp
 static void mve_audio_callback(void *userdata, unsigned char *stream, int len);
 static int    mve_audio_curbuf_curpos=0;
 static int mve_audio_bufhead=0;
-static int mve_audio_buftail=0;
 static unsigned mve_audio_flags;
 static MVE_play_sounds mve_audio_enabled;
 
@@ -243,13 +242,13 @@ static void mve_audio_callback(void *const vstream, unsigned char *stream, int l
 #ifdef DXX_REPORT_TOTAL_LENGTH
 	int total=0;
 #endif
-	if (mve_audio_bufhead == mve_audio_buftail)
+	if (mve_audio_bufhead == mvestream.mve_audio_buftail)
 		return /* 0 */;
 
-	//con_printf(CON_CRITICAL, "+ <%d (%d), %d, %d>", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
+	//con_printf(CON_CRITICAL, "+ <%d (%d), %d, %d>", mve_audio_bufhead, mve_audio_curbuf_curpos, mvestream.mve_audio_buftail, len);
 
 	std::span<const std::byte> audio_buffer;
-	while (mve_audio_bufhead != mve_audio_buftail                                           /* while we have more buffers  */
+	while (mve_audio_bufhead != mvestream.mve_audio_buftail                                           /* while we have more buffers  */
 		   && len > (audio_buffer = std::as_bytes(mvestream.mve_audio_buffers[mve_audio_bufhead].span()).subspan(mve_audio_curbuf_curpos)).size())        /* and while we need more data */
 	{
 		const auto length = audio_buffer.size();
@@ -270,12 +269,12 @@ static void mve_audio_callback(void *const vstream, unsigned char *stream, int l
 	}
 
 #ifdef DXX_REPORT_TOTAL_LENGTH
-	//con_printf(CON_CRITICAL, "= <%d (%d), %d, %d>: %d", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len, total);
+	//con_printf(CON_CRITICAL, "= <%d (%d), %d, %d>: %d", mve_audio_bufhead, mve_audio_curbuf_curpos, mvestream.mve_audio_buftail, len, total);
 #endif
 	/*    return total; */
 
 	if (len != 0                                                                        /* ospace remaining  */
-		&&  mve_audio_bufhead != mve_audio_buftail)                                     /* buffers remaining */
+		&&  mve_audio_bufhead != mvestream.mve_audio_buftail)                                     /* buffers remaining */
 	{
 		memcpy(stream,                                                                  /* dest */
 		       (reinterpret_cast<uint8_t *>(mvestream.mve_audio_buffers[mve_audio_bufhead].get()))+mve_audio_curbuf_curpos,         /* src */
@@ -296,7 +295,7 @@ static void mve_audio_callback(void *const vstream, unsigned char *stream, int l
 		}
 	}
 
-	//con_printf(CON_CRITICAL, "- <%d (%d), %d, %d>", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
+	//con_printf(CON_CRITICAL, "- <%d (%d), %d, %d>", mve_audio_bufhead, mve_audio_curbuf_curpos, mvestream.mve_audio_buftail, len);
 }
 
 MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initaudiobuffers(unsigned char minor, const unsigned char *data)
@@ -689,7 +688,6 @@ void MVE_rmEndMovie(std::unique_ptr<MVESTREAM> stream)
 
 	mve_audio_curbuf_curpos=0;
 	mve_audio_bufhead=0;
-	mve_audio_buftail=0;
 	mve_audio_flags = 0;
 }
 
