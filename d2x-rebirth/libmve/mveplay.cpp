@@ -238,7 +238,6 @@ static void mve_audio_callback(void *userdata, unsigned char *stream, int len);
 static int    mve_audio_curbuf_curpos=0;
 static int mve_audio_bufhead=0;
 static int mve_audio_buftail=0;
-static int mve_audio_playing=0;
 static unsigned mve_audio_flags;
 static MVE_play_sounds mve_audio_enabled;
 
@@ -718,7 +717,6 @@ void MVE_rmEndMovie(std::unique_ptr<MVESTREAM> stream)
 	mve_audio_curbuf_curpos=0;
 	mve_audio_bufhead=0;
 	mve_audio_buftail=0;
-	mve_audio_playing=0;
 	mve_audio_flags = 0;
 
 	videobuf_created = 0;
