@@ -155,9 +155,8 @@ static constexpr lookup_table_t genLoopkupTable(std::index_sequence<N...>)
 
 constexpr lookup_table_t lookup_table = genLoopkupTable(std::make_index_sequence<256>());
 
-static void copyFrame(uint16_t *pDest, const uint16_t *pSrc)
+static void copyFrame(const std::size_t width, uint16_t *pDest, const uint16_t *pSrc)
 {
-	const auto width = g_width;
     int i;
 
     for (i=0; i<8; i++)
@@ -335,7 +334,7 @@ static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, c
     switch(codeType)
     {
 	case 0x0:
-		copyFrame(*pFrame, *pFrame + (backBuf2 - backBuf1));
+		copyFrame(g_width, *pFrame, *pFrame + (backBuf2 - backBuf1));
 	case 0x1:
 		break;
 	case 0x2: /*
@@ -346,7 +345,7 @@ static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, c
 		x = lookup_table.far_p[k].x;
 		y = lookup_table.far_p[k].y;
 
-		copyFrame(*pFrame, *pFrame + x + y*g_width);
+		copyFrame(g_width, *pFrame, *pFrame + x + y*g_width);
 		--*pDataRemain;
 		break;
 	case 0x3: /*
@@ -357,7 +356,7 @@ static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, c
 		x = lookup_table.far_n[k].x;
 		y = lookup_table.far_n[k].y;
 
-		copyFrame(*pFrame, *pFrame + x + y*g_width);
+		copyFrame(g_width, *pFrame, *pFrame + x + y*g_width);
 		--*pDataRemain;
 		break;
 	case 0x4: /*
@@ -368,13 +367,13 @@ static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, c
 		x = lookup_table.close[k].x;
 		y = lookup_table.close[k].y;
 
-		copyFrame(*pFrame, *pFrame + (backBuf2 - backBuf1) + x + y*g_width);
+		copyFrame(g_width, *pFrame, *pFrame + (backBuf2 - backBuf1) + x + y*g_width);
 		--*pDataRemain;
 		break;
 	case 0x5:
 		x = static_cast<char>(*(*pData)++);
 		y = static_cast<char>(*(*pData)++);
-		copyFrame(*pFrame, *pFrame + (backBuf2 - backBuf1) + x + y*g_width);
+		copyFrame(g_width, *pFrame, *pFrame + (backBuf2 - backBuf1) + x + y*g_width);
 		*pDataRemain -= 2;
 		break;
 	case 0x6:
