@@ -233,7 +233,6 @@ struct MVE_audio_clamp
 }
 
 static void mve_audio_callback(void *userdata, unsigned char *stream, int len);
-static unsigned mve_audio_flags;
 static MVE_play_sounds mve_audio_enabled;
 
 static void mve_audio_callback(void *const vstream, unsigned char *stream, int len)
@@ -679,7 +678,6 @@ void MVE_rmEndMovie(std::unique_ptr<MVESTREAM> stream)
 			Mix_SetPostMix(nullptr, nullptr);
 #endif
 	}
-	mve_audio_flags = 0;
 }
 
 

@@ -119,6 +119,7 @@ struct MVESTREAM
 	uint8_t videobuf_created{};
 	uint8_t video_initialized{};
 	uint8_t frameUpdated{};
+	uint8_t mve_audio_flags{};
 	uint16_t screenWidth{};
 	uint16_t screenHeight{};
 	const int destX;
