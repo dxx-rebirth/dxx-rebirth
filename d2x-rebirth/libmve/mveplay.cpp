@@ -506,7 +506,6 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_audioframedata(const mve_
 static int videobuf_created = 0;
 static int video_initialized = 0;
 int g_width, g_height;
-static std::vector<unsigned char> g_vBuffers;
 unsigned char *g_vBackBuf1, *g_vBackBuf2;
 
 static int g_destX, g_destY;
@@ -548,8 +547,8 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initvideobuffers(unsigned
 
 	/* TODO: * 4 causes crashes on some files */
 	/* only malloc once */
-	g_vBuffers.assign(g_width * g_height * 8, 0);
-	g_vBackBuf1 = &g_vBuffers[0];
+	vBuffers.assign(g_width * g_height * 8, 0);
+	g_vBackBuf1 = &vBuffers[0];
 	if (truecolor) {
 		g_vBackBuf2 = reinterpret_cast<uint8_t *>(reinterpret_cast<uint16_t *>(g_vBackBuf1) + (g_width * g_height));
 	} else {
@@ -721,7 +720,6 @@ void MVE_rmEndMovie(std::unique_ptr<MVESTREAM>)
 	mve_audio_playing=0;
 	mve_audio_flags = 0;
 
-	g_vBuffers.clear();
 	videobuf_created = 0;
 	video_initialized = 0;
 }
