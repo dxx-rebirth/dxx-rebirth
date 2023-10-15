@@ -612,7 +612,7 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_videodata(const unsigned 
 
 	/* convert the frame */
 	if (truecolor) {
-		decodeFrame16(reinterpret_cast<const uint16_t *>(vBackBuf2), width, vBackBuf1, pCurMap, data+14, len-14);
+		decodeFrame16(reinterpret_cast<const uint16_t *>(vBackBuf2), width, g_height, vBackBuf1, pCurMap, data+14, len-14);
 	} else {
 		decodeFrame8(vBackBuf2, width, g_height, vBackBuf1, pCurMap, data+14, len-14);
 	}

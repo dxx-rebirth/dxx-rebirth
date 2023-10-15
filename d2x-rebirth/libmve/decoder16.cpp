@@ -29,7 +29,7 @@ static void dispatchDecoder16(const uint16_t *backBuf1, const uint16_t *backBuf2
 
 }
 
-void decodeFrame16(const uint16_t *const backBuf2, const std::size_t width, unsigned char *pFrame, std::span<const uint8_t> pMap, const unsigned char *pData, int dataRemain)
+void decodeFrame16(const uint16_t *const backBuf2, const std::size_t width, const std::size_t height, unsigned char *pFrame, std::span<const uint8_t> pMap, const unsigned char *pData, int dataRemain)
 {
 	const auto backBuf1 = reinterpret_cast<const uint16_t *>(pFrame);
     unsigned short offset;
@@ -40,7 +40,7 @@ void decodeFrame16(const uint16_t *const backBuf2, const std::size_t width, unsi
     int xb, yb;
 
     xb = width >> 3;
-    yb = g_height >> 3;
+    yb = height >> 3;
 
     offset = pData[0]|(pData[1]<<8);
 
