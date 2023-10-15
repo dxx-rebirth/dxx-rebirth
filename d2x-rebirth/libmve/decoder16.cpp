@@ -31,7 +31,7 @@ static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, c
 
 }
 
-void decodeFrame16(unsigned char *pFrame, std::span<const uint8_t> pMap, const unsigned char *pData, int dataRemain)
+void decodeFrame16(const std::size_t width, unsigned char *pFrame, std::span<const uint8_t> pMap, const unsigned char *pData, int dataRemain)
 {
     unsigned short offset;
 	auto FramePtr = reinterpret_cast<uint16_t *>(pFrame);
@@ -43,7 +43,7 @@ void decodeFrame16(unsigned char *pFrame, std::span<const uint8_t> pMap, const u
 	backBuf1 = reinterpret_cast<uint16_t *>(g_vBackBuf1);
 	backBuf2 = reinterpret_cast<uint16_t *>(g_vBackBuf2);
 
-    xb = g_width >> 3;
+    xb = width >> 3;
     yb = g_height >> 3;
 
     offset = pData[0]|(pData[1]<<8);
@@ -66,7 +66,7 @@ void decodeFrame16(unsigned char *pFrame, std::span<const uint8_t> pMap, const u
 			/*
 			  if (FramePtr < backBuf1)
 			  con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (1) [%x]", i, j, (*pMap) & 0xf);
-			  else if (FramePtr >= backBuf1 + g_width*g_height)
+			  else if (FramePtr >= backBuf1 + width*g_height)
 			  con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (1) [%x]", i, j, (*pMap) & 0xf);
 			*/
 
@@ -76,13 +76,13 @@ void decodeFrame16(unsigned char *pFrame, std::span<const uint8_t> pMap, const u
 			/*
 			  if (FramePtr < backBuf1)
 			  con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (2) [%x]", i, j, (*pMap) >> 4);
-			  else if (FramePtr >= backBuf1 + g_width*g_height)
+			  else if (FramePtr >= backBuf1 + width*g_height)
 			  con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (2) [%x]", i, j, (*pMap) >> 4);
 			*/
 
 			pMap = pMap.subspan<1>();
         }
-        FramePtr += 7*g_width;
+        FramePtr += 7*width;
     }
 
 	const std::ptrdiff_t remaining = (pData - pOrig);
