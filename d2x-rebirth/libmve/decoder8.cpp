@@ -80,9 +80,8 @@ static void relFar(int i, int sign, int *x, int *y)
 
 /* copies an 8x8 block from pSrc to pDest.
    pDest and pSrc are both g_width bytes wide */
-static void copyFrame(uint8_t *pDest, const uint8_t *pSrc)
+static void copyFrame(const std::size_t width, uint8_t *pDest, const uint8_t *pSrc)
 {
-	const auto width = g_width;
 	range_for (const int i, xrange(8u))
 	{
 		(void)i;
@@ -227,7 +226,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 	{
 	case 0x0:
 		/* block is copied from block in current frame */
-		copyFrame(*pFrame, *pFrame + (g_vBackBuf2 - g_vBackBuf1));
+		copyFrame(g_width, *pFrame, *pFrame + (g_vBackBuf2 - g_vBackBuf1));
 		[[fallthrough]];
 	case 0x1:
 		/* block is unchanged from two frames ago */
@@ -249,7 +248,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   y =   8 + ((B - 56) / 29)
 		*/
 		relFar(*(*pData)++, 1, &x, &y);
-		copyFrame(*pFrame, *pFrame + x + y*g_width);
+		copyFrame(g_width, *pFrame, *pFrame + x + y*g_width);
 		*pFrame += 8;
 		--*pDataRemain;
 		break;
@@ -266,7 +265,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   y = -(  8 + ((B - 56) / 29))
 		*/
 		relFar(*(*pData)++, -1, &x, &y);
-		copyFrame(*pFrame, *pFrame + x + y*g_width);
+		copyFrame(g_width, *pFrame, *pFrame + x + y*g_width);
 		*pFrame += 8;
 		--*pDataRemain;
 		break;
@@ -286,7 +285,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		   y = -8 + BH
 		*/
 		relClose(*(*pData)++, &x, &y);
-		copyFrame(*pFrame, *pFrame + (g_vBackBuf2 - g_vBackBuf1) + x + y*g_width);
+		copyFrame(g_width, *pFrame, *pFrame + (g_vBackBuf2 - g_vBackBuf1) + x + y*g_width);
 		*pFrame += 8;
 		--*pDataRemain;
 		break;
@@ -299,7 +298,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 		*/
 		x = static_cast<int8_t>(*(*pData)++);
 		y = static_cast<int8_t>(*(*pData)++);
-		copyFrame(*pFrame, *pFrame + (g_vBackBuf2 - g_vBackBuf1) + x + y*g_width);
+		copyFrame(g_width, *pFrame, *pFrame + (g_vBackBuf2 - g_vBackBuf1) + x + y*g_width);
 		*pFrame += 8;
 		*pDataRemain -= 2;
 		break;
