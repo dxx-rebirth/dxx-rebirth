@@ -152,13 +152,12 @@ static void patternRow4Pixels2x1(unsigned char *pFrame, const uint8_t pat, const
 
 // Fill in the next 4x4 pixel block with p[0], p[1], p[2], or p[3],
 // depending on the corresponding two-bit value in pat0, pat1, pat2, and pat3.
-static void patternQuadrant4Pixels(unsigned char *pFrame, unsigned char pat0, unsigned char pat1, unsigned char pat2, unsigned char pat3, const std::array<uint8_t, 4> &p)
+static void patternQuadrant4Pixels(const std::size_t width, unsigned char *pFrame, unsigned char pat0, unsigned char pat1, unsigned char pat2, unsigned char pat3, const std::array<uint8_t, 4> &p)
 {
 	unsigned long mask = 0x00000003UL;
 	int shift=0;
 	unsigned long pat = (pat3 << 24) | (pat2 << 16) | (pat1 << 8) | pat0;
 
-	const auto width = g_width;
 	range_for (const int i, xrange(16u))
 	{
 		pFrame[i & 3] = {p[(pat & mask) >> shift]};
@@ -733,7 +732,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 				pat[2] = *(*pData)++;
 				pat[3] = *(*pData)++;
 
-				patternQuadrant4Pixels(*pFrame, pat[0], pat[1], pat[2], pat[3], p);
+				patternQuadrant4Pixels(width, *pFrame, pat[0], pat[1], pat[2], pat[3], p);
 
 				if (i & 1)
 					*pFrame -= (4 * width - 4);
@@ -761,7 +760,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 					pat[2] = *(*pData)++;
 					pat[3] = *(*pData)++;
 
-					patternQuadrant4Pixels(*pFrame, pat[0], pat[1], pat[2], pat[3], p);
+					patternQuadrant4Pixels(width, *pFrame, pat[0], pat[1], pat[2], pat[3], p);
 
 					if (i & 1)
 						*pFrame -= (4 * width - 4);
