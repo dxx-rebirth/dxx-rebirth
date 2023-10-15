@@ -110,6 +110,7 @@ struct MVESTREAM
 	std::unique_ptr<MVEFILE> movie;
 	std::span<const uint8_t> pCurMap{};
 	std::vector<unsigned char> vBuffers{};
+	std::unique_ptr<SDL_AudioSpec> mve_audio_spec;
 	uint8_t timer_created{};
 
 	handle_result handle_mve_segment_endofstream();

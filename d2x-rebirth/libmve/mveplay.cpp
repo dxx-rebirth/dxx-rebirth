@@ -241,7 +241,6 @@ static int mve_audio_buftail=0;
 static int mve_audio_playing=0;
 static unsigned mve_audio_flags;
 static MVE_play_sounds mve_audio_enabled;
-static std::unique_ptr<SDL_AudioSpec> mve_audio_spec;
 
 static void mve_audio_callback(void *, unsigned char *stream, int len)
 {
@@ -339,17 +338,19 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initaudiobuffers(unsigned
 	}
 
 	mve_audio_spec = std::make_unique<SDL_AudioSpec>();
-	mve_audio_spec->freq = sample_rate;
-	mve_audio_spec->format = format;
-	mve_audio_spec->channels = (stereo) ? 2 : 1;
-	mve_audio_spec->samples = 4096;
-	mve_audio_spec->callback = mve_audio_callback;
-	mve_audio_spec->userdata = NULL;
+	{
+		auto &s = *mve_audio_spec;
+		s.freq = sample_rate;
+		s.format = format;
+		s.channels = (stereo) ? 2 : 1;
+		s.samples = 4096;
+		s.callback = mve_audio_callback;
+		s.userdata = NULL;
 
 	// MD2211: if using SDL_Mixer, we never reinit the sound system
 	if (CGameArg.SndDisableSdlMixer)
 	{
-		if (SDL_OpenAudio(mve_audio_spec.get(), NULL) >= 0) {
+		if (SDL_OpenAudio(&s, NULL) >= 0) {
 			con_puts(CON_CRITICAL, "   success");
 		}
 		else {
@@ -361,9 +362,10 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initaudiobuffers(unsigned
 #if DXX_USE_SDLMIXER
 	else {
 		// MD2211: using the same old SDL audio callback as a postmixer in SDL_mixer
-		Mix_SetPostMix(mve_audio_spec->callback, mve_audio_spec->userdata);
+		Mix_SetPostMix(s.callback, s.userdata);
 	}
 #endif
+	}
 
 	mve_audio_buffers = {};
 	return MVESTREAM::handle_result::step_again;
@@ -404,7 +406,7 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_startstopaudio()
 MVESTREAM::handle_result MVESTREAM::handle_mve_segment_audioframedata(const mve_opcode major, const unsigned char *data)
 {
 	static const int selected_chan=1;
-	if (mve_audio_spec)
+	if (const auto mve_audio_spec = this->mve_audio_spec.get())
 	{
 		std::optional<RAII_SDL_LockAudio> lock_audio{
 			mve_audio_playing ? std::optional<RAII_SDL_LockAudio>(std::in_place) : std::nullopt
@@ -696,11 +698,11 @@ MVE_StepStatus MVE_rmStepMovie(MVESTREAM &mve)
 	return MVE_StepStatus::Continue;
 }
 
-void MVE_rmEndMovie(std::unique_ptr<MVESTREAM>)
+void MVE_rmEndMovie(std::unique_ptr<MVESTREAM> stream)
 {
 	timer_stop();
 
-	if (mve_audio_spec) {
+	if (stream->mve_audio_spec) {
 		// MD2211: if using SDL_Mixer, we never reinit sound, hence never close it
 		if (CGameArg.SndDisableSdlMixer)
 		{
@@ -710,7 +712,6 @@ void MVE_rmEndMovie(std::unique_ptr<MVESTREAM>)
 		else
 			Mix_SetPostMix(nullptr, nullptr);
 #endif
-		mve_audio_spec = {};
 	}
 	mve_audio_buffers = {};
 
