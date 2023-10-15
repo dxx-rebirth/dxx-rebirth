@@ -183,11 +183,9 @@ static void patternRow2Pixels(unsigned char *pFrame, const uint8_t pat, const st
 }
 
 // fills the next four 2 x 2 pixel boxes with either p[0] or p[1], depending on pattern
-static void patternRow2Pixels2(unsigned char *pFrame, const uint8_t pat, const std::array<uint8_t, 4> &p)
+static void patternRow2Pixels2(const std::size_t width, unsigned char *pFrame, const uint8_t pat, const std::array<uint8_t, 4> &p)
 {
 	unsigned char mask=0x1;
-
-	const auto width = g_width;
 	while (mask != 0x10)
 	{
 		const auto pel{p[(mask & pat) ? 1 : 0]};
@@ -419,9 +417,9 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 			range_for (const int i, xrange(2u))
 			{
 				(void)i;
-				patternRow2Pixels2(*pFrame, *(*pData) & 0xf, p);
+				patternRow2Pixels2(width, *pFrame, *(*pData) & 0xf, p);
 				*pFrame += width2;
-				patternRow2Pixels2(*pFrame, *(*pData)++ >> 4, p);
+				patternRow2Pixels2(width, *pFrame, *(*pData)++ >> 4, p);
 				*pFrame += width2;
 			}
 		}
