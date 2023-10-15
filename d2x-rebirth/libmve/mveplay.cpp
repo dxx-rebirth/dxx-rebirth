@@ -503,8 +503,6 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_audioframedata(const mve_
 
 int g_width, g_height;
 
-static int g_destX;
-
 MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initvideobuffers(unsigned char minor, const unsigned char *data)
 {
 	short w, h;
@@ -555,7 +553,7 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initvideobuffers(unsigned
 
 MVESTREAM::handle_result MVESTREAM::handle_mve_segment_displayvideo()
 {
-	MovieShowFrame(vBackBuf1, g_destX, destY, g_width, g_height, screenWidth, screenHeight);
+	MovieShowFrame(vBackBuf1, destX, destY, g_width, g_height, screenWidth, screenHeight);
 
 	g_frameUpdated = 1;
 
@@ -632,11 +630,9 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_endofchunk()
 
 MVESTREAM_ptr_t MVE_rmPrepMovie(RWops_ptr src, const int x, const int y)
 {
-	MVESTREAM_ptr_t pMovie{mve_open(y, std::move(src))};
+	MVESTREAM_ptr_t pMovie{mve_open(x, y, std::move(src))};
 	if (!pMovie)
 		return pMovie;
-
-	g_destX = x;
 
 	auto &mve = *pMovie.get();
 

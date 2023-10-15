@@ -174,10 +174,10 @@ int mvefile_fetch_next_chunk(MVEFILE *movie)
 /*
  * open an MVE stream
  */
-MVESTREAM_ptr_t mve_open(const int y, RWops_ptr stream)
+MVESTREAM_ptr_t mve_open(const int x, const int y, RWops_ptr stream)
 {
     /* allocate */
-	auto movie = std::make_unique<MVESTREAM>(y);
+	auto movie = std::make_unique<MVESTREAM>(x, y);
 
     /* open */
     movie->movie = mvefile_open(std::move(stream));
@@ -393,8 +393,9 @@ static uint16_t _mve_get_ushort(const unsigned char *data)
 /*
  * allocate an MVESTREAM
  */
-MVESTREAM::MVESTREAM(const int y) :
+MVESTREAM::MVESTREAM(const int x, const int y) :
     /* allocate and zero-initialize everything */
+	destX{x},
 	destY{y}
 {
 }

@@ -107,7 +107,7 @@ struct MVESTREAM
 		step_finished,
 		step_again,
 	};
-	MVESTREAM(int y);
+	MVESTREAM(int x, int y);
 	~MVESTREAM();
 	std::unique_ptr<MVEFILE> movie;
 	std::span<const uint8_t> pCurMap{};
@@ -120,6 +120,7 @@ struct MVESTREAM
 	uint8_t video_initialized{};
 	uint16_t screenWidth{};
 	uint16_t screenHeight{};
+	const int destX;
 	const int destY;
 	unsigned char *vBackBuf1{};
 	unsigned char *vBackBuf2{};
@@ -153,7 +154,7 @@ MVESTREAM_ptr_t MVE_rmPrepMovie(RWops_ptr stream, int x, int y);
 /*
  * open an MVE stream
  */
-MVESTREAM_ptr_t mve_open(int y, RWops_ptr stream);
+MVESTREAM_ptr_t mve_open(int x, int y, RWops_ptr stream);
 
 /*
  * reset an MVE stream
