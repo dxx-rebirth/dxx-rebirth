@@ -200,12 +200,10 @@ static void patternRow2Pixels2(const std::size_t width, unsigned char *pFrame, c
 }
 
 // fills pixels in the next 4 x 4 pixel boxes with either p[0] or p[1], depending on pat0 and pat1.
-static void patternQuadrant2Pixels(unsigned char *pFrame, const uint8_t pat0, unsigned char pat1, const std::array<uint8_t, 4> &p)
+static void patternQuadrant2Pixels(const std::size_t width, unsigned char *pFrame, const uint8_t pat0, unsigned char pat1, const std::array<uint8_t, 4> &p)
 {
 	uint16_t mask{0x0001};
 	const uint16_t pat = (pat1 << 8) | pat0;
-
-	const auto width = g_width;
 	range_for (const int i, xrange(4u))
 	{
 		range_for (const int j, xrange(4u))
@@ -527,7 +525,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 				p[1] = *(*pData)++;
 				pat[0] = *(*pData)++;
 				pat[1] = *(*pData)++;
-				patternQuadrant2Pixels(*pFrame, pat[0], pat[1], p);
+				patternQuadrant2Pixels(width, *pFrame, pat[0], pat[1], p);
 
 				// alternate between moving down and moving up and right
 				if (i & 1)
@@ -548,7 +546,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, cons
 				}
 				pat[0] = *(*pData)++;
 				pat[1] = *(*pData)++;
-				patternQuadrant2Pixels(*pFrame, pat[0], pat[1], p);
+				patternQuadrant2Pixels(width, *pFrame, pat[0], pat[1], p);
 
 				if (i & 1)
 					*pFrame -= (4 * width - 4);
