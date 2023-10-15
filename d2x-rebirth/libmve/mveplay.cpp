@@ -504,7 +504,7 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_audioframedata(const mve_
 static int videobuf_created = 0;
 static int video_initialized = 0;
 int g_width, g_height;
-unsigned char *g_vBackBuf1, *g_vBackBuf2;
+unsigned char *g_vBackBuf2;
 
 static int g_destX, g_destY;
 static int g_screenWidth, g_screenHeight;
@@ -546,11 +546,11 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initvideobuffers(unsigned
 	/* TODO: * 4 causes crashes on some files */
 	/* only malloc once */
 	vBuffers.assign(g_width * g_height * 8, 0);
-	g_vBackBuf1 = &vBuffers[0];
+	vBackBuf1 = &vBuffers[0];
 	if (truecolor) {
-		g_vBackBuf2 = reinterpret_cast<uint8_t *>(reinterpret_cast<uint16_t *>(g_vBackBuf1) + (g_width * g_height));
+		g_vBackBuf2 = reinterpret_cast<uint8_t *>(reinterpret_cast<uint16_t *>(vBackBuf1) + (g_width * g_height));
 	} else {
-		g_vBackBuf2 = (g_vBackBuf1 + (g_width * g_height));
+		g_vBackBuf2 = (vBackBuf1 + (g_width * g_height));
 	}
 #ifdef DEBUG
 	con_printf(CON_CRITICAL, "DEBUG: w,h=%d,%d count=%d, tc=%d", w, h, count, truecolor);
@@ -563,7 +563,7 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initvideobuffers(unsigned
 
 MVESTREAM::handle_result MVESTREAM::handle_mve_segment_displayvideo()
 {
-	MovieShowFrame(g_vBackBuf1, g_destX, g_destY, g_width, g_height, g_screenWidth, g_screenHeight);
+	MovieShowFrame(vBackBuf1, g_destX, g_destY, g_width, g_height, g_screenWidth, g_screenHeight);
 
 	g_frameUpdated = 1;
 
@@ -619,14 +619,14 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_videodata(const unsigned 
 
 	if (nFlags & 1)
 	{
-		std::swap(g_vBackBuf1, g_vBackBuf2);
+		std::swap(vBackBuf1, g_vBackBuf2);
 	}
 
 	/* convert the frame */
 	if (g_truecolor) {
-		decodeFrame16(reinterpret_cast<const uint16_t *>(g_vBackBuf2), g_width, g_vBackBuf1, pCurMap, data+14, len-14);
+		decodeFrame16(reinterpret_cast<const uint16_t *>(g_vBackBuf2), g_width, vBackBuf1, pCurMap, data+14, len-14);
 	} else {
-		decodeFrame8(g_vBackBuf2, g_width, g_vBackBuf1, pCurMap, data+14, len-14);
+		decodeFrame8(g_vBackBuf2, g_width, vBackBuf1, pCurMap, data+14, len-14);
 	}
 
 	return MVESTREAM::handle_result::step_again;
