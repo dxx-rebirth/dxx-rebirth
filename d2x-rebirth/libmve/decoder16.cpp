@@ -62,7 +62,7 @@ void decodeFrame16(const uint16_t *const backBuf2, const std::size_t width, cons
 			/*
 			  if (FramePtr < backBuf1)
 			  con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (1) [%x]", i, j, (*pMap) & 0xf);
-			  else if (FramePtr >= backBuf1 + width*g_height)
+			  else if (FramePtr >= backBuf1 + width*height)
 			  con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (1) [%x]", i, j, (*pMap) & 0xf);
 			*/
 
@@ -72,7 +72,7 @@ void decodeFrame16(const uint16_t *const backBuf2, const std::size_t width, cons
 			/*
 			  if (FramePtr < backBuf1)
 			  con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (2) [%x]", i, j, (*pMap) >> 4);
-			  else if (FramePtr >= backBuf1 + width*g_height)
+			  else if (FramePtr >= backBuf1 + width*height)
 			  con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (2) [%x]", i, j, (*pMap) >> 4);
 			*/
 

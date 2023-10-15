@@ -118,11 +118,13 @@ struct MVESTREAM
 	uint8_t truecolor{};
 	uint8_t videobuf_created{};
 	uint8_t video_initialized{};
+	uint8_t frameUpdated{};
 	uint16_t screenWidth{};
 	uint16_t screenHeight{};
 	const int destX;
 	const int destY;
 	int width{};
+	int height{};
 	int mve_audio_bufhead{};
 	int mve_audio_buftail{};
 	unsigned char *vBackBuf1{};

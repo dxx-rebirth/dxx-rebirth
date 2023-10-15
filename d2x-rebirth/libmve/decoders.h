@@ -16,8 +16,6 @@
 
 namespace d2x {
 
-extern int g_height;
-
 void decodeFrame8(const uint8_t *vBackBuf2, std::size_t width, std::size_t height, unsigned char *pFrame, std::span<const uint8_t> pMap, const unsigned char *pData, int dataRemain);
 void decodeFrame16(const uint16_t *backBuf2, std::size_t width, std::size_t height, unsigned char *pFrame, std::span<const uint8_t> pMap, const unsigned char *pData, int dataRemain);
 

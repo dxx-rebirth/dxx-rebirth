@@ -50,7 +50,6 @@ namespace d2x {
 
 int g_spdFactorNum=0;
 static int g_spdFactorDenom=10;
-static int g_frameUpdated = 0;
 
 static int16_t get_short(const unsigned char *data)
 {
@@ -499,8 +498,6 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_audioframedata(const mve_
  * video handlers
  *************************/
 
-int g_height;
-
 MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initvideobuffers(unsigned char minor, const unsigned char *data)
 {
 	short w, h;
@@ -531,16 +528,16 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initvideobuffers(unsigned
 	}
 
 	width = w << 3;
-	g_height = h << 3;
+	height = h << 3;
 
 	/* TODO: * 4 causes crashes on some files */
 	/* only malloc once */
-	vBuffers.assign(width * g_height * 8, 0);
+	vBuffers.assign(width * height * 8, 0);
 	vBackBuf1 = &vBuffers[0];
 	if (truecolor) {
-		vBackBuf2 = reinterpret_cast<uint8_t *>(reinterpret_cast<uint16_t *>(vBackBuf1) + (width * g_height));
+		vBackBuf2 = reinterpret_cast<uint8_t *>(reinterpret_cast<uint16_t *>(vBackBuf1) + (width * height));
 	} else {
-		vBackBuf2 = (vBackBuf1 + (width * g_height));
+		vBackBuf2 = (vBackBuf1 + (width * height));
 	}
 #ifdef DEBUG
 	con_printf(CON_CRITICAL, "DEBUG: w,h=%d,%d count=%d, tc=%d", w, h, count, truecolor);
@@ -551,9 +548,9 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initvideobuffers(unsigned
 
 MVESTREAM::handle_result MVESTREAM::handle_mve_segment_displayvideo()
 {
-	MovieShowFrame(vBackBuf1, destX, destY, width, g_height, screenWidth, screenHeight);
+	MovieShowFrame(vBackBuf1, destX, destY, width, height, screenWidth, screenHeight);
 
-	g_frameUpdated = 1;
+	frameUpdated = 1;
 
 	return MVESTREAM::handle_result::step_again;
 }
@@ -612,9 +609,9 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_videodata(const unsigned 
 
 	/* convert the frame */
 	if (truecolor) {
-		decodeFrame16(reinterpret_cast<const uint16_t *>(vBackBuf2), width, g_height, vBackBuf1, pCurMap, data+14, len-14);
+		decodeFrame16(reinterpret_cast<const uint16_t *>(vBackBuf2), width, height, vBackBuf1, pCurMap, data+14, len-14);
 	} else {
-		decodeFrame8(vBackBuf2, width, g_height, vBackBuf1, pCurMap, data+14, len-14);
+		decodeFrame8(vBackBuf2, width, height, vBackBuf1, pCurMap, data+14, len-14);
 	}
 
 	return MVESTREAM::handle_result::step_again;
@@ -651,13 +648,13 @@ MVE_StepStatus MVE_rmStepMovie(MVESTREAM &mve)
 		// make a "step" be a frame, not a chunk...
 		if (mve_play_next_chunk(mve) == MVESTREAM::handle_result::step_finished)
 		{
-			g_frameUpdated = 0;
+			mve.frameUpdated = 0;
 			return MVE_StepStatus::EndOfFile;
 		}
-		if (g_frameUpdated)
+		if (mve.frameUpdated)
 			break;
 	}
-	g_frameUpdated = 0;
+	mve.frameUpdated = 0;
 
 	if (micro_frame_delay  && !init_timer) {
 		timer_start();
