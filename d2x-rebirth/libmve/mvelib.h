@@ -108,6 +108,7 @@ struct MVESTREAM
 	MVESTREAM();
 	~MVESTREAM();
 	std::unique_ptr<MVEFILE> movie;
+	std::span<const uint8_t> pCurMap{};
 	uint8_t timer_created{};
 
 	handle_result handle_mve_segment_endofstream();

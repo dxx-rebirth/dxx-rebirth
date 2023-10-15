@@ -511,7 +511,6 @@ unsigned char *g_vBackBuf1, *g_vBackBuf2;
 
 static int g_destX, g_destY;
 static int g_screenWidth, g_screenHeight;
-static std::span<const uint8_t> g_pCurMap;
 static int g_truecolor;
 
 MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initvideobuffers(unsigned char minor, const unsigned char *data)
@@ -604,7 +603,7 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_setpalette(const unsigned
 
 MVESTREAM::handle_result MVESTREAM::handle_mve_segment_setdecodingmap(const unsigned char *data, int len)
 {
-	g_pCurMap = std::span<const uint8_t>(data, len);
+	pCurMap = std::span<const uint8_t>(data, len);
 	return MVESTREAM::handle_result::step_again;
 }
 
@@ -628,9 +627,9 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_videodata(const unsigned 
 
 	/* convert the frame */
 	if (g_truecolor) {
-		decodeFrame16(g_vBackBuf1, g_pCurMap, data+14, len-14);
+		decodeFrame16(g_vBackBuf1, pCurMap, data+14, len-14);
 	} else {
-		decodeFrame8(g_vBackBuf1, g_pCurMap, data+14, len-14);
+		decodeFrame8(g_vBackBuf1, pCurMap, data+14, len-14);
 	}
 
 	return MVESTREAM::handle_result::step_again;
@@ -638,7 +637,7 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_videodata(const unsigned 
 
 MVESTREAM::handle_result MVESTREAM::handle_mve_segment_endofchunk()
 {
-	g_pCurMap = {};
+	pCurMap = {};
 	return MVESTREAM::handle_result::step_again;
 }
 
@@ -723,7 +722,6 @@ void MVE_rmEndMovie(std::unique_ptr<MVESTREAM>)
 	mve_audio_flags = 0;
 
 	g_vBuffers.clear();
-	g_pCurMap = {};
 	videobuf_created = 0;
 	video_initialized = 0;
 }
