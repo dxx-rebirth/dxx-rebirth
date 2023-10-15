@@ -5,6 +5,7 @@
  * terms and a link to the Git history.
  */
 
+#pragma once
 #include <memory>
 #include <span>
 

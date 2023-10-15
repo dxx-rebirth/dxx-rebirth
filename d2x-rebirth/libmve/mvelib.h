@@ -12,11 +12,13 @@
 
 #include "libmve.h"
 
+#include <array>
 #include <cstdint>
 #include <span>
 #include <vector>
 #include "dxxsconf.h"
 #include <SDL.h>
+#include "d_uspan.h"
 #include "physfsrwops.h"
 
 namespace d2x {
@@ -113,6 +115,7 @@ struct MVESTREAM
 	std::unique_ptr<SDL_AudioSpec> mve_audio_spec;
 	bool mve_audio_playing{};
 	uint8_t timer_created{};
+	std::array<::dcx::unique_span<int16_t>, 64> mve_audio_buffers;
 
 	handle_result handle_mve_segment_endofstream();
 	handle_result handle_mve_segment_endofchunk();
