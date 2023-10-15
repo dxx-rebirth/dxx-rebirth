@@ -25,7 +25,7 @@ namespace d2x {
 
 static void dispatchDecoder(const uint8_t *vBackBuf2, std::size_t width, unsigned char **pFrame, unsigned char codeType, const unsigned char **pData, int *pDataRemain, int *curXb, int *curYb);
 
-void decodeFrame8(const std::size_t width, unsigned char *pFrame, std::span<const uint8_t> pMap, const unsigned char *pData, int dataRemain)
+void decodeFrame8(const uint8_t *const vBackBuf2, const std::size_t width, unsigned char *pFrame, std::span<const uint8_t> pMap, const unsigned char *pData, int dataRemain)
 {
 	int xb, yb;
 
@@ -36,12 +36,12 @@ void decodeFrame8(const std::size_t width, unsigned char *pFrame, std::span<cons
 		for (int i=0; i<xb/2; i++)
 		{
 			const auto m = pMap.front();
-			dispatchDecoder(g_vBackBuf2, width, &pFrame, m & 0xf, &pData, &dataRemain, &i, &j);
+			dispatchDecoder(vBackBuf2, width, &pFrame, m & 0xf, &pData, &dataRemain, &i, &j);
 			if (pFrame < g_vBackBuf1)
 				con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (1) [%x]", i, j, m & 0xf);
 			else if (pFrame >= g_vBackBuf1 + width*g_height)
 				con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (1) [%x]", i, j, m & 0xf);
-			dispatchDecoder(g_vBackBuf2, width, &pFrame, m >> 4, &pData, &dataRemain, &i, &j);
+			dispatchDecoder(vBackBuf2, width, &pFrame, m >> 4, &pData, &dataRemain, &i, &j);
 			if (pFrame < g_vBackBuf1)
 				con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (2) [%x]", i, j, m >> 4);
 			else if (pFrame >= g_vBackBuf1 + width*g_height)
