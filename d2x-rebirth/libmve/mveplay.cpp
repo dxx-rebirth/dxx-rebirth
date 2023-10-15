@@ -654,16 +654,6 @@ MVESTREAM_ptr_t MVE_rmPrepMovie(RWops_ptr src, const int x, const int y)
 	return pMovie;
 }
 
-
-void MVE_getVideoSpec(MVE_videoSpec *vSpec)
-{
-	vSpec->screenWidth = g_screenWidth;
-	vSpec->screenHeight = g_screenHeight;
-	vSpec->width = g_width;
-	vSpec->height = g_height;
-	vSpec->truecolor = g_truecolor;
-}
-
 MVE_StepStatus MVE_rmStepMovie(MVESTREAM &mve)
 {
 	static int init_timer=0;

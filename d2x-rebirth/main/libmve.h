@@ -26,19 +26,9 @@ enum class MVE_play_sounds : bool
 
 struct MVESTREAM;
 
-struct MVE_videoSpec {
-	int screenWidth;
-	int screenHeight;
-	int width;
-	int height;
-	int truecolor;
-};
-
 MVE_StepStatus MVE_rmStepMovie(MVESTREAM &mve);
 void MVE_rmHoldMovie();
 void MVE_rmEndMovie(std::unique_ptr<MVESTREAM> mve);
-
-void MVE_getVideoSpec(MVE_videoSpec *vSpec);
 
 void MVE_sndInit(MVE_play_sounds);
 
