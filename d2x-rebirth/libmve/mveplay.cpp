@@ -501,7 +501,6 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_audioframedata(const mve_
  * video handlers
  *************************/
 
-static int videobuf_created = 0;
 static int video_initialized = 0;
 int g_width, g_height;
 
@@ -699,7 +698,6 @@ void MVE_rmEndMovie(std::unique_ptr<MVESTREAM> stream)
 	mve_audio_buftail=0;
 	mve_audio_flags = 0;
 
-	videobuf_created = 0;
 	video_initialized = 0;
 }
 

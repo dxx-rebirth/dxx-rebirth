@@ -116,6 +116,7 @@ struct MVESTREAM
 	bool mve_audio_playing{};
 	uint8_t timer_created{};
 	uint8_t truecolor{};
+	uint8_t videobuf_created{};
 	uint16_t screenWidth{};
 	uint16_t screenHeight{};
 	unsigned char *vBackBuf1{};
