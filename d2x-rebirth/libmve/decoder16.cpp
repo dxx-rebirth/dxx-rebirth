@@ -25,22 +25,19 @@ namespace d2x {
 
 namespace {
 
-static unsigned short *backBuf1;
-
 static void dispatchDecoder16(const uint16_t *backBuf1, const uint16_t *backBuf2, std::size_t width, unsigned short **pFrame, unsigned char codeType, const unsigned char **pData, const unsigned char **pOffData, int *pDataRemain, int *curXb, int *curYb);
 
 }
 
 void decodeFrame16(const uint16_t *const backBuf2, const std::size_t width, unsigned char *pFrame, std::span<const uint8_t> pMap, const unsigned char *pData, int dataRemain)
 {
+	const auto backBuf1 = reinterpret_cast<const uint16_t *>(pFrame);
     unsigned short offset;
 	auto FramePtr = reinterpret_cast<uint16_t *>(pFrame);
     int length;
     int op;
     int i, j;
     int xb, yb;
-
-	backBuf1 = reinterpret_cast<uint16_t *>(g_vBackBuf1);
 
     xb = width >> 3;
     yb = g_height >> 3;
