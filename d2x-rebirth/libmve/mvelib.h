@@ -122,6 +122,7 @@ struct MVESTREAM
 	uint16_t screenHeight{};
 	const int destX;
 	const int destY;
+	int width{};
 	int mve_audio_bufhead{};
 	int mve_audio_buftail{};
 	unsigned char *vBackBuf1{};
