@@ -116,6 +116,7 @@ struct MVESTREAM
 	bool mve_audio_playing{};
 	uint8_t timer_created{};
 	unsigned char *vBackBuf1{};
+	unsigned char *vBackBuf2{};
 	std::array<::dcx::unique_span<int16_t>, 64> mve_audio_buffers;
 
 	handle_result handle_mve_segment_endofstream();
