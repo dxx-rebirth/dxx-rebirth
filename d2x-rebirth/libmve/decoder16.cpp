@@ -183,7 +183,7 @@ static void patternRow4Pixels(unsigned short *pFrame,
     }
 }
 
-static void patternRow4Pixels2(unsigned short *pFrame,
+static void patternRow4Pixels2(const std::size_t width, unsigned short *pFrame,
                                unsigned char pat0,
                                const std::array<uint16_t, 4> &p)
 {
@@ -205,7 +205,6 @@ static void patternRow4Pixels2(unsigned short *pFrame,
 	   shift += 2;
 	   }
 	*/
-	const auto width = g_width;
     while (mask != 0)
     {
 		const auto pel{p[(mask & pat0) >> shift]};
@@ -505,13 +504,13 @@ static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, c
 			}
 			else
 			{
-				patternRow4Pixels2(*pFrame, (*pData)[0], p);
+				patternRow4Pixels2(g_width, *pFrame, (*pData)[0], p);
 				*pFrame += 2*g_width;
-				patternRow4Pixels2(*pFrame, (*pData)[1], p);
+				patternRow4Pixels2(g_width, *pFrame, (*pData)[1], p);
 				*pFrame += 2*g_width;
-				patternRow4Pixels2(*pFrame, (*pData)[2], p);
+				patternRow4Pixels2(g_width, *pFrame, (*pData)[2], p);
 				*pFrame += 2*g_width;
-				patternRow4Pixels2(*pFrame, (*pData)[3], p);
+				patternRow4Pixels2(g_width, *pFrame, (*pData)[3], p);
 
 				(*pData) += 4;
 				*pDataRemain -= 4;
