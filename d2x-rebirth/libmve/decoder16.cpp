@@ -25,7 +25,7 @@ namespace d2x {
 
 namespace {
 
-static void dispatchDecoder16(const uint16_t *backBuf1, const uint16_t *backBuf2, std::size_t width, unsigned short **pFrame, unsigned char codeType, const unsigned char **pData, const unsigned char **pOffData, int *pDataRemain, int *curXb, int *curYb);
+static void dispatchDecoder16(const uint16_t *backBuf1, const uint16_t *backBuf2, std::size_t width, std::size_t height, unsigned short **pFrame, unsigned char codeType, const unsigned char **pData, const unsigned char **pOffData, int *pDataRemain, int *curXb, int *curYb);
 
 }
 
@@ -57,7 +57,7 @@ void decodeFrame16(const uint16_t *const backBuf2, const std::size_t width, cons
         {
 			const auto m = pMap.front();
 			op = m & 0xf;
-            dispatchDecoder16(backBuf1, backBuf2, width, &FramePtr, op, &pData, &pOffData, &dataRemain, &i, &j);
+            dispatchDecoder16(backBuf1, backBuf2, width, height, &FramePtr, op, &pData, &pOffData, &dataRemain, &i, &j);
 
 			/*
 			  if (FramePtr < backBuf1)
@@ -67,7 +67,7 @@ void decodeFrame16(const uint16_t *const backBuf2, const std::size_t width, cons
 			*/
 
 			op = (m >> 4) & 0xf;
-            dispatchDecoder16(backBuf1, backBuf2, width, &FramePtr, op, &pData, &pOffData, &dataRemain, &i, &j);
+            dispatchDecoder16(backBuf1, backBuf2, width, height, &FramePtr, op, &pData, &pOffData, &dataRemain, &i, &j);
 
 			/*
 			  if (FramePtr < backBuf1)
@@ -315,7 +315,7 @@ static void patternQuadrant2Pixels(const std::size_t width, unsigned short *pFra
     }
 }
 
-static void dispatchDecoder16(const uint16_t *const backBuf1, const uint16_t *const backBuf2, const std::size_t width, unsigned short **pFrame, unsigned char codeType, const unsigned char **pData, const unsigned char **pOffData, int *pDataRemain, int *curXb, int *curYb)
+static void dispatchDecoder16(const uint16_t *const backBuf1, const uint16_t *const backBuf2, const std::size_t width, const std::size_t height, unsigned short **pFrame, unsigned char codeType, const unsigned char **pData, const unsigned char **pOffData, int *pDataRemain, int *curXb, int *curYb)
 {
 	std::array<uint16_t, 4> p;
 	std::array<uint8_t, 4> pat;
@@ -377,7 +377,7 @@ static void dispatchDecoder16(const uint16_t *const backBuf1, const uint16_t *co
 			{
 				*pFrame += 7*width;
 				*curXb = 0;
-				if (++*curYb == (g_height >> 3))
+				if (++*curYb == (height >> 3))
 					return;
 			}
 		}
