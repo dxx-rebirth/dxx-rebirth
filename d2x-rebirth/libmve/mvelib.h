@@ -115,6 +115,7 @@ struct MVESTREAM
 	std::unique_ptr<SDL_AudioSpec> mve_audio_spec;
 	bool mve_audio_playing{};
 	uint8_t timer_created{};
+	uint8_t truecolor{};
 	unsigned char *vBackBuf1{};
 	unsigned char *vBackBuf2{};
 	std::array<::dcx::unique_span<int16_t>, 64> mve_audio_buffers;

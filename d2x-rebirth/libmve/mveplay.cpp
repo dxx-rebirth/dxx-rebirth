@@ -507,15 +507,13 @@ int g_width, g_height;
 
 static int g_destX, g_destY;
 static int g_screenWidth, g_screenHeight;
-static int g_truecolor;
 
 MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initvideobuffers(unsigned char minor, const unsigned char *data)
 {
-	short w, h,
+	short w, h;
 #ifdef DEBUG
-		count, 
+	short count;
 #endif
-		truecolor;
 
 	if (videobuf_created)
 		return MVESTREAM::handle_result::step_again;
@@ -534,7 +532,7 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initvideobuffers(unsigned
 #endif
 
 	if (minor > 1) {
-		truecolor = get_short(data+6);
+		truecolor = !!get_short(data + 6);
 	} else {
 		truecolor = 0;
 	}
@@ -554,8 +552,6 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initvideobuffers(unsigned
 #ifdef DEBUG
 	con_printf(CON_CRITICAL, "DEBUG: w,h=%d,%d count=%d, tc=%d", w, h, count, truecolor);
 #endif
-
-	g_truecolor = truecolor;
 
 	return MVESTREAM::handle_result::step_again;
 }
@@ -622,7 +618,7 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_videodata(const unsigned 
 	}
 
 	/* convert the frame */
-	if (g_truecolor) {
+	if (truecolor) {
 		decodeFrame16(reinterpret_cast<const uint16_t *>(vBackBuf2), g_width, vBackBuf1, pCurMap, data+14, len-14);
 	} else {
 		decodeFrame8(vBackBuf2, g_width, vBackBuf1, pCurMap, data+14, len-14);
