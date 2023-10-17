@@ -201,7 +201,7 @@ constexpr screen_mode initial_large_game_screen_mode{1024, 768};
 screen_mode Game_screen_mode = initial_large_game_screen_mode;
 
 #if DXX_USE_STEREOSCOPIC_RENDER
-StereoFormat VR_stereo;
+StereoFormat VR_stereo = StereoFormat::None;
 fix  VR_eye_width = F1_0;
 int  VR_eye_offset = 0;
 int  VR_sync_width = 24;
@@ -219,7 +219,7 @@ void init_stereo()
 {
 #if DXX_USE_OGL
 	// init stereo options
-	if (CGameArg.OglStereo || CGameArg.OglStereoView) {
+	if (VR_stereo != StereoFormat::None) {
 		constexpr int half_width_eye_offset = -6;
 		constexpr int full_width_eye_offset = -12;
 		switch (VR_stereo)
@@ -238,9 +238,6 @@ void init_stereo()
 		VR_eye_width = (F1_0 * 7) / 10;	// Descent 1.5 defaults
 		VR_sync_width = (VR_sync_param * SHEIGHT) / 480; // normalized for 640x480
 		PlayerCfg.CockpitMode[1] = cockpit_mode_t::full_screen;
-	}
-	else {
-		VR_stereo = StereoFormat::None;
 	}
 #endif
 }
