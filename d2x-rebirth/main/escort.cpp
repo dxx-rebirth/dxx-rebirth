@@ -716,15 +716,10 @@ static std::pair<icsegidx_t, d_unique_buddy_state::Escort_goal_reachability> exi
 //	If special == ESCORT_GOAL_PLAYER_SPEW, then looking for any object spewed by player.
 //	-1 means object does not exist in mine.
 //	-2 means object does exist in mine, but buddy-bot can't reach it (eg, behind triggered wall)
-static std::pair<icobjidx_t, d_unique_buddy_state::Escort_goal_reachability> exists_in_mine(const vcsegidx_t start_seg, const std::optional<object_type_t> objtype, const std::optional<uint8_t> objid, const int special, const player_flags powerup_flags)
+static std::pair<icobjidx_t, d_unique_buddy_state::Escort_goal_reachability> exists_in_mine(const object &Buddy_objp, const vcsegidx_t start_seg, const std::optional<object_type_t> objtype, const std::optional<uint8_t> objid, const int special, const player_flags powerup_flags)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	auto &vmobjptr = Objects.vmptr;
 	std::array<segnum_t, MAX_SEGMENTS> bfs_list;
-	auto &BuddyState = LevelUniqueObjectState.BuddyState;
-	const auto Buddy_objnum = BuddyState.Buddy_objnum;
-	const auto &&Buddy_objp = vmobjptr(Buddy_objnum);
 	auto &robptr = Robot_info[get_robot_id(Buddy_objp)];
 	const auto length = create_bfs_list(Buddy_objp, robptr, start_seg, powerup_flags, bfs_list);
 
@@ -881,12 +876,12 @@ static void escort_go_to_goal(const vmobjptridx_t objp, const robot_info &robptr
 }
 
 //	-----------------------------------------------------------------------------
-static imsegidx_t escort_get_goal_segment(const object_base &buddy_obj, const object_type_t objtype, const std::optional<uint8_t> objid, const player_flags powerup_flags)
+static imsegidx_t escort_get_goal_segment(const object &buddy_obj, const object_type_t objtype, const std::optional<uint8_t> objid, const player_flags powerup_flags)
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
-	const auto &&eim = exists_in_mine(buddy_obj.segnum, objtype, objid, -1, powerup_flags);
+	const auto &&eim = exists_in_mine(buddy_obj, buddy_obj.segnum, objtype, objid, -1, powerup_flags);
 	BuddyState.Escort_goal_objidx = eim.first;
 	BuddyState.Escort_goal_reachable = eim.second;
 	if (eim.second != d_unique_buddy_state::Escort_goal_reachability::unreachable)
@@ -970,7 +965,7 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const robot_inf
 				break;
 			case ESCORT_GOAL_PLAYER_SPEW:
 				{
-					const auto &&egi = exists_in_mine(objp->segnum, std::nullopt, std::nullopt, ESCORT_GOAL_PLAYER_SPEW, powerup_flags);
+					const auto &&egi = exists_in_mine(objp, objp->segnum, std::nullopt, std::nullopt, ESCORT_GOAL_PLAYER_SPEW, powerup_flags);
 					BuddyState.Escort_goal_objidx = egi.first;
 					BuddyState.Escort_goal_reachable = egi.second;
 					if (egi.second != d_unique_buddy_state::Escort_goal_reachability::unreachable)
@@ -1018,7 +1013,7 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const robot_inf
 //	-----------------------------------------------------------------------------
 //	Escort robot chooses goal object based on player's keys, location.
 //	Returns goal object.
-static escort_goal_t escort_set_goal_object(const player_flags pl_flags)
+static escort_goal_t escort_set_goal_object(const object &Buddy_objp, const player_flags pl_flags)
 {
 	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
@@ -1035,12 +1030,12 @@ static escort_goal_t escort_set_goal_object(const player_flags pl_flags)
 	if (plrobj.type != OBJ_PLAYER)
 		return ESCORT_GOAL_UNSPECIFIED;
 
-	const auto need_key_and_key_exists = [pl_flags, start_search_seg = plrobj.segnum](const PLAYER_FLAG flag_key, const powerup_type_t powerup_key) {
+	const auto need_key_and_key_exists = [&Buddy_objp, pl_flags, start_search_seg = plrobj.segnum](const PLAYER_FLAG flag_key, const powerup_type_t powerup_key) {
 		if (pl_flags & flag_key)
 			/* Player already has this key, so no need to get it again.
 			 */
 			return false;
-		const auto &&e = exists_in_mine(start_search_seg, OBJ_POWERUP, powerup_key, -1, pl_flags);
+		const auto &&e = exists_in_mine(Buddy_objp, start_search_seg, OBJ_POWERUP, powerup_key, -1, pl_flags);
 		/* For compatibility with classic Descent 2, test only whether
 		 * the key exists, but ignore whether it can be reached by the
 		 * guide bot.
@@ -1332,7 +1327,7 @@ void do_escort_frame(const vmobjptridx_t objp, const robot_info &robptr, const o
 		//	This is to prevent buddy from looking for a goal, which he will do because we only allow path creation once/second.
 		return;
 	} else if ((ailp->mode == ai_mode::AIM_GOTO_PLAYER) && (dist_to_player < MIN_ESCORT_DISTANCE)) {
-		BuddyState.Escort_goal_object = escort_set_goal_object(player_info.powerup_flags);
+		BuddyState.Escort_goal_object = escort_set_goal_object(objp, player_info.powerup_flags);
 		ailp->mode = ai_mode::AIM_GOTO_OBJECT;		//	May look stupid to be before path creation, but ai_door_is_openable uses mode to determine what doors can be got through
 		escort_create_path_to_goal(objp, robptr, player_info);
 		escort_set_goal_toward_controlling_player(BuddyState, vcobjptr, objp, robptr);
@@ -1340,7 +1335,7 @@ void do_escort_frame(const vmobjptridx_t objp, const robot_info &robptr, const o
 	else if (BuddyState.Escort_goal_object == ESCORT_GOAL_UNSPECIFIED)
 	{
 		if ((ailp->mode != ai_mode::AIM_GOTO_PLAYER) || (dist_to_player < MIN_ESCORT_DISTANCE)) {
-			BuddyState.Escort_goal_object = escort_set_goal_object(player_info.powerup_flags);
+			BuddyState.Escort_goal_object = escort_set_goal_object(objp, player_info.powerup_flags);
 			ailp->mode = ai_mode::AIM_GOTO_OBJECT;		//	May look stupid to be before path creation, but ai_door_is_openable uses mode to determine what doors can be got through
 			escort_create_path_to_goal(objp, robptr, player_info);
 			escort_set_goal_toward_controlling_player(BuddyState, vcobjptr, objp, robptr);
@@ -2028,11 +2023,11 @@ void do_escort_menu(void)
 	//	If we don't set next_goal, we get garbage there.
 	if (BuddyState.Escort_special_goal == ESCORT_GOAL_SCRAM) {
 		BuddyState.Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;	//	Else setting next goal might fail.
-		next_goal = escort_set_goal_object(plrobj.ctype.player_info.powerup_flags);
+		next_goal = escort_set_goal_object(buddy, plrobj.ctype.player_info.powerup_flags);
 		BuddyState.Escort_special_goal = ESCORT_GOAL_SCRAM;
 	} else {
 		BuddyState.Escort_special_goal = ESCORT_GOAL_UNSPECIFIED;	//	Else setting next goal might fail.
-		next_goal = escort_set_goal_object(plrobj.ctype.player_info.powerup_flags);
+		next_goal = escort_set_goal_object(buddy, plrobj.ctype.player_info.powerup_flags);
 	}
 
 	const auto Buddy_messages_suppressed = BuddyState.Buddy_messages_suppressed
