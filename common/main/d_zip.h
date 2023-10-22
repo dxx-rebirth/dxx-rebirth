@@ -362,6 +362,7 @@ template <
 template <typename range_index_type, typename range_iterator_type, typename range_sentinel_type>
 class zip : zip_iterator<range_iterator_type, range_sentinel_type>
 {
+	[[no_unique_address]]
 	range_sentinel_type m_end;
 public:
 	using index_type = range_index_type;
