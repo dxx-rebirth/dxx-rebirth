@@ -84,7 +84,7 @@ public:
 	template <std::size_t N>
 		std::span<char> prepare_buffer(std::array<char, N> &buffer, const std::span<char> text) const
 		{
-			return {buffer, prepare_buffer(buffer, std::span(const_cast<const char *>(text.data()), text.size())).size()};
+			return {buffer, prepare_buffer(buffer, std::span<const char>(text)).size()};
 		}
 };
 #endif
