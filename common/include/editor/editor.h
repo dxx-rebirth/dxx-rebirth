@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <array>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "vecmat.h"
@@ -37,6 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef dsx
 #include "robot.h"
 #endif
+#include "physfsx.h"
 
 /*
  * Constants
@@ -522,11 +524,12 @@ extern grs_subcanvas *const Canv_editor_game; //the game on the editor screen
 
 struct editor_dialog final : UI_DIALOG
 {
-	using UI_DIALOG::UI_DIALOG;
+	editor_dialog(short x, short y, const short w, const short h, const enum dialog_flags flags, std::array<RAIIPHYSFS_ComputedPathMount, 4> &&search_path_editor);
 	std::array<std::unique_ptr<UI_GADGET_BUTTON>, 9> pad_goto;
 	std::unique_ptr<UI_GADGET_BUTTON>
 		pad_prev,
 		pad_next;
+	std::array<RAIIPHYSFS_ComputedPathMount, 4> search_path_editor;
 	virtual window_event_result callback_handler(const d_event &) override;
 };
 

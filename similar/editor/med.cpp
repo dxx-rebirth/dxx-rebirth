@@ -105,7 +105,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static void med_show_warning(std::span<const char> s);
 
 //char *undo_status[128];
-
 int initializing;
 
 //these are instances of canvases, pointed to by variables below
@@ -328,7 +327,7 @@ static void medkey_init()
 static int padnum=0;
 //@@short camera_objnum;			//a camera for viewing. Who knows, might become handy
 
-static void init_editor_screen(grs_canvas &canvas);
+static void init_editor_screen(grs_canvas &canvas, std::array<RAIIPHYSFS_ComputedPathMount, 4> &&search_path_editor);
 static void gamestate_restore_check();
 static void close_editor();
 
@@ -347,24 +346,23 @@ void init_editor()
 		"test.pad"
 					};
 	ModeFlag = Game_wind ? 3 : 2;	// go back to where we were unless we loaded everything properly
-
+	std::array<RAIIPHYSFS_ComputedPathMount, 4> search_path_editor;
 	// first, make sure we can find the files we need
-	std::array<char, PATH_MAX> pathname;
 	{
 		static char relname[]{"editor/data"};
-		PHYSFSX_addRelToSearchPath(relname, pathname, physfs_search_path::append);	// look in source directory first (for work in progress)
+		search_path_editor[0] = make_PHYSFSX_ComputedPathMount(relname, physfs_search_path::append);	// look in source directory first (for work in progress)
 	}
 	{
 		static char relname[]{"editor"};
-		PHYSFSX_addRelToSearchPath(relname, pathname, physfs_search_path::append);		// then in editor directory
+		search_path_editor[1] = make_PHYSFSX_ComputedPathMount(relname, physfs_search_path::append);		// then in editor directory
 	}
 	{
 		static char relname[]{"editor.zip"};
-		PHYSFSX_addRelToSearchPath(relname, pathname, physfs_search_path::append);	// then in a zip file
+		search_path_editor[2] = make_PHYSFSX_ComputedPathMount(relname, physfs_search_path::append);	// then in a zip file
 	}
 	{
 		static char relname[]{"editor.dxa"};
-		PHYSFSX_addRelToSearchPath(relname, pathname, physfs_search_path::append);	// or addon pack
+		search_path_editor[3] = make_PHYSFSX_ComputedPathMount(relname, physfs_search_path::append);	// or addon pack
 	}
 
 	if (!ui_init())
@@ -431,7 +429,7 @@ void init_editor()
 	gr_init_sub_canvas(_canv_editor, grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 	Canv_editor = &_canv_editor;
 	gr_set_current_canvas(*Canv_editor);
-	init_editor_screen(*grd_curcanv); // load the main editor dialog
+	init_editor_screen(*grd_curcanv, std::move(search_path_editor)); // load the main editor dialog
 	gr_set_default_canvas();
 	set_warn_func(med_show_warning);
 	
@@ -735,7 +733,7 @@ static int med_keypad_goto_8()	{	ui_pad_goto(8);	return 0;	}
 int editor_screen_open = 0;
 
 //setup the editors windows, canvases, gadgets, etc.
-static void init_editor_screen(grs_canvas &canvas)
+static void init_editor_screen(grs_canvas &canvas, std::array<RAIIPHYSFS_ComputedPathMount, 4> &&search_path_editor)
 {	
 //	grs_bitmap * bmp;
 
@@ -765,8 +763,8 @@ static void init_editor_screen(grs_canvas &canvas)
 	gr_set_curfont(canvas, *editor_font);
 	gr_set_fontcolor(canvas, CBLACK, CWHITE);
 
-	EditorWindow = window_create<editor_dialog>(0, 0, ED_SCREEN_W, ED_SCREEN_H, DF_FILLED);
-	auto e = EditorWindow;
+	auto e = window_create<editor_dialog>(0, 0, ED_SCREEN_W, ED_SCREEN_H, DF_FILLED, std::move(search_path_editor));
+	EditorWindow = e;
 
 	LargeViewBox = ui_add_gadget_userbox(*e, LVIEW_X, LVIEW_Y, LVIEW_W, LVIEW_H);
 	ui_gadget_calc_keys(*e);	//make tab work for all windows
@@ -883,11 +881,6 @@ static void close_editor()
 	ui_close();
 
 	editor_font.reset();
-
-	PHYSFSX_removeRelFromSearchPath("editor/data");
-	PHYSFSX_removeRelFromSearchPath("editor");
-	PHYSFSX_removeRelFromSearchPath("editor.zip");
-	PHYSFSX_removeRelFromSearchPath("editor.dxa");
 
 	switch (ModeFlag)
 	{
@@ -1020,6 +1013,11 @@ int RestoreGameState()
 
 	Update_flags |= UF_WORLD_CHANGED;
 	return 1;
+}
+
+editor_dialog::editor_dialog(short x, short y, const short w, const short h, const enum dialog_flags flags, std::array<RAIIPHYSFS_ComputedPathMount, 4> &&search_path_editor) :
+	UI_DIALOG(x, y, w, h, flags), search_path_editor{std::move(search_path_editor)}
+{
 }
 
 // Handler for the main editor dialog

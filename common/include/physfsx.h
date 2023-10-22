@@ -462,6 +462,7 @@ public:
 		std::default_delete<element_type>(std::move(d))
 	{
 	}
+	PHYSFS_computed_path_mount_deleter &operator=(PHYSFS_computed_path_mount_deleter &&) = default;
 	void operator()(element_type *const p) const noexcept
 	{
 		PHYSFS_unowned_storage_mount_deleter::operator()(p->data());
