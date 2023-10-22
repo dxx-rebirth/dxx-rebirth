@@ -5,6 +5,10 @@
  * terms and a link to the Git history.
  */
 
+#if !DXX_USE_OGL
+#error "This file can only be included in OpenGL enabled builds."
+#endif
+
 #ifdef _WIN32
 #include "loadgl.h"
 #else

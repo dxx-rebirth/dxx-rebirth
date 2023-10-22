@@ -12,6 +12,10 @@
 
 #pragma once
 
+#if !DXX_USE_OGL
+#error "This file can only be included in OpenGL enabled builds."
+#endif
+
 #include <memory>
 #include "maths.h"
 #include "args.h"
@@ -19,7 +23,6 @@
 
 namespace dcx {
 
-#if DXX_USE_OGL
 class ogl_sync {
 	class sync_deleter
 	{
@@ -39,6 +42,5 @@ class ogl_sync {
 		void init(SyncGLMethod sync_method, int wait);
 		void deinit();
 };
-#endif
 
 }

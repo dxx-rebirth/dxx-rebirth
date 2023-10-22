@@ -12,6 +12,10 @@
 #ifndef _OGL_INIT_H_ 
 #define _OGL_INIT_H_
 
+#if !DXX_USE_OGL
+#error "This file can only be included in OpenGL enabled builds."
+#endif
+
 #include "dxxsconf.h"
 #ifdef _MSC_VER
 #include <windows.h>

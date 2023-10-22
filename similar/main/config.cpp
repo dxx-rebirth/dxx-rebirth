@@ -41,7 +41,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "physfsx.h"
 #include "nvparse.h"
+#if DXX_USE_OGL
 #include "ogl_init.h"
+#endif
 #include <memory>
 
 namespace dcx {
