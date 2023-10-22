@@ -23,7 +23,11 @@ struct vms_quaternion;
 
 extern const vms_matrix vmd_identity_matrix;
 
-#define IDENTITY_MATRIX { {f1_0,0,0}, {0,f1_0,0}, {0,0,f1_0} }
+#define IDENTITY_MATRIX vms_matrix{	\
+	.rvec = {F1_0, 0, 0},	\
+	.uvec = {0, F1_0, 0},	\
+	.fvec = {0, 0, F1_0}	\
+}
 
 vms_vector &vm_vec_add (vms_vector &dest, const vms_vector &src0, const vms_vector &src1);
 
