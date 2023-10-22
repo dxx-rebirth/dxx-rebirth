@@ -100,13 +100,8 @@ struct cwframe
 
 struct cwresult
 {
-	bool remove;
-	bool record;
-	cwresult() = default;
-	explicit cwresult(bool r) :
-		remove(false), record(r)
-	{
-	}
+	const bool remove;
+	const bool record;
 };
 
 struct cw_removal_predicate
@@ -1294,17 +1289,20 @@ static void scale_cloaking_wall_light_to_wall(std::array<uvl, 4> &back_uvls, std
 
 static cwresult do_cloaking_wall_frame(const bool initial, cloaking_wall &d, const cwframe front, const cwframe back)
 {
-	cwresult r(initial);
 	if (d.time > CLOAKING_WALL_TIME) {
 		front.w.type = back.w.type = WALL_OPEN;
 		front.w.state = back.w.state = wall_state::closed;		//why closed? why not?
-		r.remove = true;
+		return {
+			.remove = true,
+			.record = initial,
+		};
 	}
 	else if (d.time > CLOAKING_WALL_TIME/2) {
 		const int8_t cloak_value = ((d.time - CLOAKING_WALL_TIME / 2) * (GR_FADE_LEVELS - 2)) / (CLOAKING_WALL_TIME / 2);
+		bool record = initial;
 		if (front.w.cloak_value != cloak_value)
 		{
-			r.record = true;
+			record = true;
 			front.w.cloak_value = back.w.cloak_value = cloak_value;
 		}
 
@@ -1313,24 +1311,33 @@ static cwresult do_cloaking_wall_frame(const bool initial, cloaking_wall &d, con
 			front.w.type = back.w.type = WALL_CLOAKED;
 			copy_cloaking_wall_light_to_wall(back.uvls, front.uvls, d);
 		}
+		return {
+			.remove = false,
+			.record = record,
+		};
 	}
 	else {		//fading out
 		fix light_scale;
 		light_scale = fixdiv(CLOAKING_WALL_TIME / 2 - d.time, CLOAKING_WALL_TIME / 2);
 		scale_cloaking_wall_light_to_wall(back.uvls, front.uvls, d, light_scale);
+		return {
+			.remove = false,
+			.record = initial,
+		};
 	}
-	return r;
 }
 
 static cwresult do_decloaking_wall_frame(const bool initial, cloaking_wall &d, const cwframe front, const cwframe back)
 {
-	cwresult r(initial);
 	if (d.time > CLOAKING_WALL_TIME) {
 
 		back.w.state = wall_state::closed;
 		front.w.state = wall_state::closed;
 		copy_cloaking_wall_light_to_wall(back.uvls, front.uvls, d);
-		r.remove = true;
+		return {
+			.remove = true,
+			.record = initial,
+		};
 	}
 	else if (d.time > CLOAKING_WALL_TIME/2) {		//fading in
 		fix light_scale;
@@ -1338,18 +1345,26 @@ static cwresult do_decloaking_wall_frame(const bool initial, cloaking_wall &d, c
 
 		light_scale = fixdiv(d.time - CLOAKING_WALL_TIME / 2, CLOAKING_WALL_TIME / 2);
 		scale_cloaking_wall_light_to_wall(back.uvls, front.uvls, d, light_scale);
+		return {
+			.remove = false,
+			.record = initial,
+		};
 	}
 	else {		//cloaking in
 		const int8_t cloak_value = ((CLOAKING_WALL_TIME / 2 - d.time) * (GR_FADE_LEVELS - 2)) / (CLOAKING_WALL_TIME / 2);
+		bool record = initial;
 		if (front.w.cloak_value != cloak_value)
 		{
+			record = true;
 			front.w.cloak_value = back.w.cloak_value = cloak_value;
-			r.record = true;
 		}
 		front.w.type = WALL_CLOAKED;
 		back.w.type = WALL_CLOAKED;
+		return {
+			.remove = false,
+			.record = record,
+		};
 	}
-	return r;
 }
 
 bool cw_removal_predicate::operator()(cloaking_wall &d)
@@ -1360,16 +1375,16 @@ bool cw_removal_predicate::operator()(cloaking_wall &d)
 	const bool initial = (d.time == 0);
 	d.time += FrameTime;
 
-	cwresult r;
-	if (front.w.state == wall_state::cloaking)
-		r = do_cloaking_wall_frame(initial, d, front, back);
-	else if (front.w.state == wall_state::decloaking)
-		r = do_decloaking_wall_frame(initial, d, front, back);
-	else
-	{
-		d_debugbreak();	//unexpected wall state
-		return false;
-	}
+	const cwresult r{
+		(front.w.state == wall_state::cloaking)
+			? do_cloaking_wall_frame(initial, d, front, back)
+			: (front.w.state == wall_state::decloaking)
+			? do_decloaking_wall_frame(initial, d, front, back)
+			: (
+				d_debugbreak(),	//unexpected wall state
+				cwresult{}
+			)
+	};
 	if (r.record)
 	{
 		// check if the actual cloak_value changed in this frame to prevent redundant recordings and wasted bytes
