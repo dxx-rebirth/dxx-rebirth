@@ -1683,7 +1683,8 @@ messagebox_newmenu::adjusted_citem messagebox_newmenu::create_adjusted_citem(std
 #define LB_ITEMS_ON_SCREEN 8
 
 listbox::listbox(int citem, unsigned nitems, const char **item, menu_title title, grs_canvas &canvas, uint8_t allow_abort_flag) :
-	listbox_layout(citem, nitems, item, title, canvas), window(canvas, box_x - BORDERX, box_y - title_height - BORDERY, box_w + 2 * BORDERX, height + 2 * BORDERY),
+	listbox_layout{citem, nitems, item, title, canvas},
+	window(canvas, box_x - BORDERX, box_y - title_height - BORDERY, box_w + 2 * BORDERX, height + 2 * BORDERY),
 	allow_abort_flag(allow_abort_flag)
 {
 }
@@ -1758,13 +1759,13 @@ static window_event_result listbox_mouse(const d_event &event, listbox *lb, cons
 			{
 				int mx, my, mz;
 				mouse_get_pos(&mx, &my, &mz);
-				const int x1 = lb->box_x;
+				const int x1{lb->box_x};
 				if (mx <= x1)
 					break;
 				const int x2 = x1 + lb->box_w;
 				if (mx >= x2)
 					break;
-				const int by = lb->box_y;
+				const int by{lb->box_y};
 				if (my <= by)
 					break;
 				const int my_relative_by = my - by;
@@ -1794,7 +1795,7 @@ static window_event_result listbox_mouse(const d_event &event, listbox *lb, cons
 				int mx, my, mz;
 				mouse_get_pos(&mx, &my, &mz);
 				const auto h = gr_get_string_size(*MEDIUM3_FONT, lb->item[lb->citem]).height;
-				const int x1 = lb->box_x;
+				const int x1{lb->box_x};
 				const int x2 = lb->box_x + lb->box_w;
 				const int y1 = (lb->citem - lb->first_item) * LINE_SPACING(*MEDIUM3_FONT, *GAME_FONT) + lb->box_y;
 				const int y2 = y1 + h;
@@ -1920,7 +1921,8 @@ void listbox_layout::create_structure()
 	box_w = 0;
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacx10 = fspacx(10);
-	const unsigned max_box_width = SWIDTH - (BORDERX * 2);
+	const auto border_x{BORDERX};
+	const unsigned max_box_width = SWIDTH - (border_x * 2);
 	unsigned marquee_maxchars = UINT_MAX;
 	for (const auto i : unchecked_partial_range(item, nitems))
 	{
@@ -1987,14 +1989,18 @@ void listbox_layout::create_structure()
 	}
 
 	const auto &&line_spacing = LINE_SPACING(medium3_font, *GAME_FONT);
-	const unsigned bordery2 = BORDERY * 2;
+	const auto border_y{BORDERY};
+	const unsigned bordery2{border_y * 2u};
 	const auto items_on_screen = std::max<unsigned>(
 		std::min<unsigned>(((canvas.cv_bitmap.bm_h - bordery2 - title_height) / line_spacing) - 2, nitems),
 		LB_ITEMS_ON_SCREEN);
 	this->items_on_screen = items_on_screen;
 	height = line_spacing * items_on_screen;
-	box_x = (canvas.cv_bitmap.bm_w - box_w) / 2;
-	box_y = (canvas.cv_bitmap.bm_h - (height + title_height)) / 2 + title_height;
+	const auto raw_box_x{(canvas.cv_bitmap.bm_w - box_w) / 2};
+	box_x = std::cmp_greater(raw_box_x, border_x) ? raw_box_x : border_x;
+	const auto raw_box_y{((canvas.cv_bitmap.bm_h - (height + title_height)) / 2) + title_height};
+	const auto min_box_y{title_height + border_y};
+	box_y = std::cmp_greater(raw_box_y, min_box_y) ? raw_box_y : min_box_y;
 	if (box_y < bordery2)
 		box_y = bordery2;
 

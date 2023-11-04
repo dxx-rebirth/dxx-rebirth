@@ -435,12 +435,12 @@ static unsigned get_font_total_width(const grs_font &font)
 	}
 }
 
-static std::pair<int, int> ogl_font_choose_size(grs_font * font, const uint8_t gap)
+static std::pair<unsigned, unsigned> ogl_font_choose_size(const grs_font *const font, const uint8_t gap)
 {
 	const auto nchars{font->ft_maxchar - font->ft_minchar + 1u};
-	int x,y,nc=0,smallest=999999,smallr=-1,tries;
+	int x,y,nc=0,smallest=999999,tries;
 	int smallprop=10000;
-	int rw = INT_MIN, rh = INT_MIN;
+	std::optional<std::pair<unsigned, unsigned>> rwh;
 	for (unsigned h{32}; h <= 256; h *= 2)
 	{
 		if (font->ft_h>h)continue;
@@ -479,7 +479,9 @@ static std::pair<int, int> ogl_font_choose_size(grs_font * font, const uint8_t g
 		if (nc!=nchars)
 			continue;
 
-		if (w*h==smallest){//this gives squarer sizes priority (ie, 128x128 would be better than 512*32)
+		const auto whproduct{w * h};
+		if (whproduct == smallest)	//this gives squarer sizes priority (ie, 128x128 would be better than 512*32)
+		{
 			if (w>=h){
 				if (w/h<smallprop){
 					smallprop=w/h;
@@ -492,23 +494,21 @@ static std::pair<int, int> ogl_font_choose_size(grs_font * font, const uint8_t g
 				}
 			}
 		}
-		if (w*h<smallest){
-			smallr=1;
-			smallest=w*h;
-			rw = w;
-			rh = h;
+		if (whproduct < smallest)
+		{
+			smallest = whproduct;
+			rwh = {w, h};
 		}
 	}
-	if (smallr<=0)
+	if (!rwh)
 		Error("Could not fit font?\n");
-	return {rw, rh};
+	return *rwh;
 }
 
 static void ogl_init_font(grs_font *const font)
 {
 	int oglflags = OGL_FLAG_ALPHA;
 	const unsigned nchars = font->ft_maxchar - font->ft_minchar + 1;
-	int curx=0,cury=0;
 	constexpr uint8_t gap{1};	// x/y offset between the chars so we can filter
 
 	const auto &&[tw, th] = ogl_font_choose_size(font, gap);
@@ -526,8 +526,10 @@ static void ogl_init_font(grs_font *const font)
 	ogl_init_texture(*(font->ft_parent_bitmap.gltexture = ogl_get_free_texture()), tw, th, oglflags); // have to init the gltexture here so the subbitmaps will find it.
 
 	font->ft_bitmaps = std::make_unique<grs_bitmap[]>(nchars);
-	const unsigned h = font->ft_h;
+	const auto h{font->ft_h};
 
+	uint16_t curx{};
+	uint16_t cury{};
 	for (const auto i : xrange(nchars))
 	{
 		const auto w{
@@ -541,14 +543,18 @@ static void ogl_init_font(grs_font *const font)
 		if (std::cmp_greater(w, 256u))
 			continue;
 
-		if (curx+w+gap>tw)
+		if (std::cmp_greater(unsigned{curx} + w + gap, tw))
 		{
-			cury+=h+gap;
+			const unsigned next_y{unsigned{cury} + h + gap};
+			if (!std::in_range<uint16_t>(next_y) || std::cmp_greater(next_y + h, th))
+			{
+				std::array<char, 124> buf;
+				const auto written{std::snprintf(std::data(buf), std::size(buf), "failed to fit font: i=%u, nchars=%u, h=%hu, cury=%hu", i, nchars, h, cury)};
+				throw std::runtime_error(std::string{std::data(buf), written > 0 ? std::min<unsigned>(std::size(buf), written) : 0});
+			}
+			cury = next_y;
 			curx=0;
 		}
-
-		if (cury+h>th)
-			Error("font doesn't really fit (%i/%i)?\n",i,nchars);
 
 		if (font->ft_flags & FT_COLOR)
 		{
@@ -614,7 +620,7 @@ static void ogl_init_font(grs_font *const font)
 				}
 			}
 		}
-		gr_init_sub_bitmap(font->ft_bitmaps[i],font->ft_parent_bitmap,curx,cury,w,h);
+		gr_init_sub_bitmap(font->ft_bitmaps[i], font->ft_parent_bitmap, {curx}, {cury}, {w}, {h});
 		curx+=w+gap;
 	}
 	ogl_loadbmtexture_f(font->ft_parent_bitmap, CGameCfg.TexFilt, 0, 0);
@@ -1039,8 +1045,15 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const std::span<const cha
 
 grs_font_ptr gr_init_font(grs_canvas &canvas, const std::span<const char> fontname)
 {
-	auto font = gr_internal_init_font(fontname);
+	auto font{gr_internal_init_font(fontname)};
 	if (!font)
+		return {};
+	if (!std::in_range<uint8_t>(font->ft_h))
+		/* Reject fonts that are very tall.  This is an arbitrary cap that
+		 * should never be exceeded, and it allows later logic to assume that
+		 * uint16_t can hold all results arising from `ft_h` plus a small
+		 * constant.
+		 */
 		return {};
 
 	canvas.cv_font        = font.get();

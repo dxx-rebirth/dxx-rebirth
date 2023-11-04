@@ -419,7 +419,7 @@ struct listbox_layout
 	}
 	void create_structure();
 	unsigned items_on_screen;
-	int box_x, box_y;
+	uint16_t box_x, box_y;
 	int box_w, height, title_height;
 	int citem, first_item;
 	unsigned nitems;
