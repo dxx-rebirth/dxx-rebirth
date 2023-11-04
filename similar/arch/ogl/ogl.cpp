@@ -11,6 +11,7 @@
  */
 
 #include "dxxsconf.h"
+#include <bit>
 #include <stdexcept>
 #include <tuple>
 #ifdef _WIN32
@@ -1394,23 +1395,11 @@ void gr_flip(void)
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-//little hack to find the nearest bigger power of 2 for a given number
-unsigned pow2ize(unsigned f0){
-	unsigned f1 = (f0 - 1) | 1;
-	for (unsigned i = 4; i -- > 0;)
-		f1 |= f1 >> (1 << i);
-	unsigned f2 = f1 + 1;
-	assert(f2 >= f0);
-	assert(!(f2 & f1));
-	assert((f2 >> 1) < f0);
-	return f2;
-}
-
 // Allocate the pixel buffers 'pixels' and 'texbuf' based on current screen resolution
 void ogl_init_pixel_buffers(unsigned w, unsigned h)
 {
-	w = pow2ize(w);	// convert to OpenGL texture size
-	h = pow2ize(h);
+	w = std::bit_ceil(w);	// convert to OpenGL texture size
+	h = std::bit_ceil(h);
 
 	texbuf = std::make_unique<GLubyte[]>(max(w, 1024u)*max(h, 256u)*4);	// must also fit big font texture
 }
@@ -1614,8 +1603,8 @@ static void tex_set_size(ogl_texture &tex)
 //stores OpenGL textured id in *texid and u/v values required to get only the real data in *u/*v
 static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, const int dxo, int dyo, ogl_texture &tex, const int bm_flags, const int data_format, opengl_texture_filter texfilt, const bool texanis, const bool edgepad)
 {
-	tex.tw = pow2ize (tex.w);
-	tex.th = pow2ize (tex.h);//calculate smallest texture size that can accomodate us (must be multiples of 2)
+	tex.tw = {std::bit_ceil(tex.w)};
+	tex.th = {std::bit_ceil(tex.h)};	//calculate smallest texture size that can accommodate us (must be power of 2)
 
 	//calculate u/v values that would make the resulting texture correctly sized
 	tex.u = static_cast<float>(static_cast<double>(tex.w) / static_cast<double>(tex.tw));

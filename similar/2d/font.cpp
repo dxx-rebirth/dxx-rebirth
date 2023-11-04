@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <algorithm>
+#include <bit>
 #include <memory>
 #include <stdexcept>
 #include <stdarg.h>
@@ -421,37 +422,34 @@ static void gr_internal_color_string(grs_canvas &canvas, const grs_font &cv_font
 
 #else //OGL
 
-static int get_font_total_width(const grs_font &font)
+static unsigned get_font_total_width(const grs_font &font)
 {
 	if (font.ft_flags & FT_PROPORTIONAL)
 	{
-		int w=0;
+		unsigned w{};
 		range_for (const auto v, unchecked_partial_range(font.ft_widths, static_cast<unsigned>(font.ft_maxchar - font.ft_minchar) + 1))
-		{
 			w += v;
-		}
 		return w;
 	}else{
-		return font.ft_w*(font.ft_maxchar-font.ft_minchar+1);
+		return {unsigned{font.ft_w} * (font.ft_maxchar - font.ft_minchar + 1u)};
 	}
 }
 
-static std::pair<int, int> ogl_font_choose_size(grs_font * font, const int gap)
+static std::pair<int, int> ogl_font_choose_size(grs_font * font, const uint8_t gap)
 {
-	int	nchars = font->ft_maxchar-font->ft_minchar+1;
-	int r,x,y,nc=0,smallest=999999,smallr=-1,tries;
+	const auto nchars{font->ft_maxchar - font->ft_minchar + 1u};
+	int x,y,nc=0,smallest=999999,smallr=-1,tries;
 	int smallprop=10000;
-	int w;
 	int rw = INT_MIN, rh = INT_MIN;
-	for (int h=32;h<=256;h*=2){
-//		h=pow2ize(font->ft_h*rows+gap*(rows-1));
+	for (unsigned h{32}; h <= 256; h *= 2)
+	{
 		if (font->ft_h>h)continue;
-		r=(h/(font->ft_h+gap));
-		w=pow2ize((get_font_total_width(*font)+(nchars-r)*gap)/r);
+		const auto r{h / (font->ft_h + gap)};
+		auto w{std::bit_ceil((get_font_total_width(*font) + (nchars - r) * gap) / r)};
 		tries=0;
 		do {
 			if (tries)
-				w=pow2ize(w+1);
+				w = std::bit_ceil(w + 1u);
 			if(tries>3){
 				break;
 			}
