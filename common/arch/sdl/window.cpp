@@ -26,11 +26,11 @@ namespace dcx {
 static window *FrontWindow = nullptr;
 static window *FirstWindow = nullptr;
 
-window::window(grs_canvas &src, const int x, const int y, const int w, const int h) :
+window::window(grs_canvas &src, const uint16_t x, const uint16_t y, const uint16_t w, const uint16_t h) :
 	// Default to visible and modal
 	prev(FrontWindow)
 {
-	gr_init_sub_canvas(w_canv, src, x, y, w, h);
+	gr_init_sub_canvas(w_canv, src, {x}, {y}, {w}, {h});
 
 	if (FirstWindow == nullptr)
 		FirstWindow = this;
