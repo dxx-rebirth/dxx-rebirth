@@ -428,8 +428,6 @@ static int get_font_total_width(const grs_font &font)
 		int w=0;
 		range_for (const auto v, unchecked_partial_range(font.ft_widths, static_cast<unsigned>(font.ft_maxchar - font.ft_minchar) + 1))
 		{
-			if (v < 0)
-				throw std::underflow_error("negative width");
 			w += v;
 		}
 		return w;
@@ -508,12 +506,12 @@ static std::pair<int, int> ogl_font_choose_size(grs_font * font, const int gap)
 	return {rw, rh};
 }
 
-static void ogl_init_font(grs_font * font)
+static void ogl_init_font(grs_font *const font)
 {
 	int oglflags = OGL_FLAG_ALPHA;
 	const unsigned nchars = font->ft_maxchar - font->ft_minchar + 1;
 	int curx=0,cury=0;
-	int gap=1; // x/y offset between the chars so we can filter
+	constexpr uint8_t gap{1};	// x/y offset between the chars so we can filter
 
 	const auto &&[tw, th] = ogl_font_choose_size(font, gap);
 	{
@@ -534,11 +532,15 @@ static void ogl_init_font(grs_font * font)
 
 	for (const auto i : xrange(nchars))
 	{
-		const unsigned w = (font->ft_flags & FT_PROPORTIONAL)
+		const auto w{
+			(font->ft_flags & FT_PROPORTIONAL)
 			? font->ft_widths[i]
-			: font->ft_w;
+			: font->ft_w
+		};
 
-		if (w<1 || w>256)
+		if (std::cmp_less(w, 1u))
+			continue;
+		if (std::cmp_greater(w, 256u))
 			continue;
 
 		if (curx+w+gap>tw)
@@ -896,7 +898,7 @@ static void grs_font_read(grs_font *gf, PHYSFS_File *fp)
 	PHYSFSX_readShort(fp);
 	gf->ft_data = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(PHYSFSX_readInt(fp)) - GRS_FONT_SIZE);
 	PHYSFSX_readInt(fp);
-	gf->ft_widths = reinterpret_cast<int16_t *>(static_cast<uintptr_t>(PHYSFSX_readInt(fp)) - GRS_FONT_SIZE);
+	gf->ft_widths = reinterpret_cast<uint16_t *>(static_cast<uintptr_t>(PHYSFSX_readInt(fp)) - GRS_FONT_SIZE);
 	gf->ft_kerndata = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(PHYSFSX_readInt(fp)) - GRS_FONT_SIZE);
 }
 
@@ -946,7 +948,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const std::span<const cha
 
 	if (font->ft_flags & FT_PROPORTIONAL) {
 		const auto offset_widths = reinterpret_cast<uintptr_t>(font->ft_widths);
-		auto w = reinterpret_cast<short *>(&font_data[offset_widths]);
+		auto w = reinterpret_cast<uint16_t *>(&font_data[offset_widths]);
 		if (offset_widths >= datasize || offset_widths + (nchars * sizeof(*w)) >= datasize)
 		{
 			con_printf(CON_URGENT, "Missing widths in font file %s", fontname.data());

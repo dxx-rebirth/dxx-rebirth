@@ -326,7 +326,7 @@ struct grs_font : public prohibit_void_ptr<grs_font>
 	std::array<char, 13> ft_filename{};
 	const uint8_t *ft_data = nullptr;        // Ptr to raw data.
 	const uint8_t *const *ft_chars = nullptr;       // Ptrs to data for each char (required for prop font)
-	const int16_t *ft_widths = nullptr;      // Array of widths (required for prop font)
+	const uint16_t *ft_widths = nullptr;     // Array of widths (required for prop font)
 	const uint8_t *ft_kerndata = nullptr;    // Array of kerning triplet data
 	std::unique_ptr<uint8_t[]> ft_allocdata;
 #if DXX_USE_OGL
