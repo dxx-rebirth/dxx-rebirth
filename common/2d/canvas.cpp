@@ -58,14 +58,14 @@ void gr_init_canvas(grs_canvas &canv, unsigned char *const pixdata, const bm_mod
 	gr_init_bitmap(canv.cv_bitmap, pixtype, 0, 0, w, h, wreal, pixdata);
 }
 
-void gr_init_sub_canvas(grs_subcanvas &n, grs_canvas &src, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+void gr_init_sub_canvas(grs_subcanvas &n, grs_canvas &src, const uint16_t x, const uint16_t y, const uint16_t w, const uint16_t h)
 {
 	n.cv_fade_level = src.cv_fade_level;
 	n.cv_font = src.cv_font;
 	n.cv_font_fg_color = src.cv_font_fg_color;
 	n.cv_font_bg_color = src.cv_font_bg_color;
 
-	gr_init_sub_bitmap (n.cv_bitmap, src.cv_bitmap, x, y, w, h);
+	gr_init_sub_bitmap(n.cv_bitmap, src.cv_bitmap, {x}, {y}, {w}, {h});
 }
 
 grs_main_canvas::~grs_main_canvas()

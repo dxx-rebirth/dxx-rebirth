@@ -42,6 +42,26 @@ namespace {
 // Allocated a bitmap and makes its data be raw_data that is already somewhere.
 static grs_bitmap_ptr gr_create_bitmap_raw(uint16_t w, uint16_t h, RAIIdmem<uint8_t[]> raw_data);
 
+[[noreturn]]
+static void report_overflow(const std::array<char, 124> &buf, const int written)
+{
+	throw std::runtime_error(std::string{std::data(buf), written > 0 ? std::min<unsigned>(std::size(buf), written) : 0});
+}
+
+[[noreturn]]
+static void report_offset_overflow(const char dimension, const uint16_t displacement, const uint16_t parent_displacement)
+{
+	std::array<char, 124> buf;
+	report_overflow(buf, {std::snprintf(std::data(buf), std::size(buf), "offset overflow: %c displacement %hu + parent %hu exceeds uint16_t", dimension, displacement, parent_displacement)});
+}
+
+[[noreturn]]
+static void report_dimension_overflow(const char dimension, const uint16_t offset, const uint16_t parent_dimension)
+{
+	std::array<char, 124> buf;
+	report_overflow(buf, {std::snprintf(std::data(buf), std::size(buf), "offset beyond parent dimension: %c offset %hu > parent %hu", dimension, offset, parent_dimension)});
+}
+
 }
 
 void gr_set_bitmap_data(grs_bitmap &bm, const uint8_t *data)
@@ -110,7 +130,7 @@ grs_main_bitmap::grs_main_bitmap()
 grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap &bm, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
 	auto n = std::make_unique<grs_subbitmap>();
-	gr_init_sub_bitmap(*n.get(), bm, x, y, w, h);
+	gr_init_sub_bitmap(*n.get(), bm, {x}, {y}, {w}, {h});
 	return n;
 }
 
@@ -123,16 +143,20 @@ void gr_free_bitmap_data (grs_bitmap &bm) // TODO: virtulize
 #endif
 }
 
-void gr_init_sub_bitmap (grs_bitmap &bm, grs_bitmap &bmParent, uint16_t x, uint16_t y, uint16_t w, uint16_t h )	// TODO: virtualize
+void gr_init_sub_bitmap(grs_bitmap &bm, grs_bitmap &bmParent, const uint16_t x, const uint16_t y, const uint16_t w, const uint16_t h)	// TODO: virtualize
 {
-	uint32_t subx = x + bmParent.bm_x;
-	uint32_t suby = y + bmParent.bm_y;
-	if (subx != (bm.bm_x = static_cast<uint16_t>(subx)) ||
-		suby != (bm.bm_y = static_cast<uint16_t>(suby)))
-		throw std::overflow_error("offset overflow");
-	if (x > bmParent.bm_w ||
-		y > bmParent.bm_h)
-		throw std::overflow_error("offset beyond parent dimensions");
+	const uint32_t subx{unsigned{x} + bmParent.bm_x};
+	const uint32_t suby{unsigned{y} + bmParent.bm_y};
+	if (!std::in_range<uint16_t>(subx))
+		report_offset_overflow('x', {x}, {bmParent.bm_x});
+	if (!std::in_range<uint16_t>(suby))
+		report_offset_overflow('y', {y}, {bmParent.bm_y});
+	if (std::cmp_greater(x, bmParent.bm_w))
+		report_dimension_overflow('x', {x}, {bmParent.bm_w});
+	if (std::cmp_greater(y, bmParent.bm_h))
+		report_dimension_overflow('y', {y}, {bmParent.bm_h});
+	bm.bm_x = static_cast<uint16_t>(subx);
+	bm.bm_y = static_cast<uint16_t>(suby);
 	bm.bm_w = std::min<uint16_t>(w, bmParent.bm_w - x);
 	bm.bm_h = std::min<uint16_t>(h, bmParent.bm_h - y);
 	bm.set_flags(bmParent.get_flags());
