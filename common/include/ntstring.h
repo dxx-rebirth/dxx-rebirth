@@ -79,7 +79,6 @@ public:
 		return _copy_n(offset, i, d);
 	}
 	[[nodiscard]]
-	__attribute_nonnull()
 	std::size_t copy_out(const std::span<uint8_t> dst) const
 	{
 		if (dst.empty())
