@@ -2107,6 +2107,22 @@ help:assume compiler supports C++ intrinsic static_assert
 
 	@_custom_test
 	def check_namespace_disambiguate(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_CXX_DISAMBIGUATE_USING_NAMESPACE']}):
+		'''
+Test how the compiler handles the ambiguity of a namespace at top level scope
+and a class with the same name in an inner scope.
+
+- gcc (all tested versions) treat `A` as a namespace, and find the variable
+  declared in that namespace.
+- clang (all tested versions) treat `A` as ambiguous and fail the compilation.
+
+The gcc behavior is useful to allow selectively poisoning the dcx/dsx
+namespaces when used in the wrong scope, without breaking legitimate accesses
+to them.  Therefore, when the compiler can handle this ambiguity,
+`common/include/dsx-ns.h` forward declares appropriate ambiguous names.
+See the comments in that header for more details.
+
+help:assume compiler can disambiguate classes and namespaces
+'''
 		self.Compile(context, text='''
 namespace A
 {
