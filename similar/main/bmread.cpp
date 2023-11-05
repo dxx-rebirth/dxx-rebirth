@@ -121,16 +121,14 @@ struct get_texture_result
 [[nodiscard]]
 static std::array<char, 20> removeext(const char *const filename)
 {
-	const char *p = nullptr;
 	auto i = filename;
+	auto p = i;
 	for (; const char c = *i; ++i)
 	{
 		if (c == '.')
 			p = i;
 		/* No break - find the last '.', not the first. */
 	}
-	if (!p)
-		p = i;
 	const std::size_t rawlen = p - filename;
 	std::array<char, 20> out{};
 	const std::size_t copy_len = rawlen < out.size() ? rawlen : 0;
