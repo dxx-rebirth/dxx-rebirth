@@ -64,15 +64,9 @@ extern palette_array_t gr_palette;
 
 using color_palette_index = uint8_t;
 
-static inline const rgb_t &PAL2T(const color_palette_index c)
+static constexpr const rgb_t &PAL2T(const color_palette_index c)
 {
 	return gr_palette[static_cast<std::size_t>(c)];
 }
 
-#define PAL2Tr(c) (PAL2T(c).r / 63.0)
-#define PAL2Tg(c) (PAL2T(c).g / 63.0)
-#define PAL2Tb(c) (PAL2T(c).b / 63.0)
-//inline GLfloat PAL2Tr(int c);
-//inline GLfloat PAL2Tg(int c);
-//inline GLfloat PAL2Tb(int c);
 }

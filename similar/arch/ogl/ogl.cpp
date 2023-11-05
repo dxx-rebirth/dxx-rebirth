@@ -83,6 +83,21 @@ using std::max;
 
 namespace {
 
+static constexpr float PAL2Tr(const color_palette_index c)
+{
+	return PAL2T(c).r / 63.0f;
+}
+
+static constexpr float PAL2Tg(const color_palette_index c)
+{
+	return PAL2T(c).g / 63.0f;
+}
+
+static constexpr float PAL2Tb(const color_palette_index c)
+{
+	return PAL2T(c).b / 63.0f;
+}
+
 template <unsigned G>
 struct enable_ogl_client_state
 {
@@ -600,10 +615,10 @@ void ogl_draw_vertex_reticle(grs_canvas &canvas, int cross, int primary, int sec
 	int size=270+(size_offs*20);
 	float scale = (static_cast<float>(SWIDTH)/SHEIGHT);
 	const std::array<float, 4> ret_rgba{{
-		static_cast<float>(PAL2Tr(color)),
-		static_cast<float>(PAL2Tg(color)),
-		static_cast<float>(PAL2Tb(color)),
-		static_cast<float>(1.0 - (static_cast<float>(alpha) / (static_cast<float>(GR_FADE_LEVELS))))
+		PAL2Tr(color),
+		PAL2Tg(color),
+		PAL2Tb(color),
+		float{1.0f - (static_cast<float>(alpha) / (static_cast<float>(GR_FADE_LEVELS)))}
 	}}, ret_dark_rgba{{
 		ret_rgba[0] / 2,
 		ret_rgba[1] / 2,
@@ -863,7 +878,9 @@ void _g3_draw_poly(grs_canvas &canvas, const std::span<cg3s_point *const> pointl
 	r_polyc++;
 	ogl_client_states<int, GL_VERTEX_ARRAY, GL_COLOR_ARRAY> cs;
 	OGL_DISABLE(TEXTURE_2D);
-	const float color_r = PAL2Tr(palette_color_index), color_g = PAL2Tg(palette_color_index), color_b = PAL2Tb(palette_color_index);
+	const auto color_r{PAL2Tr(palette_color_index)};
+	const auto color_g{PAL2Tg(palette_color_index)};
+	const auto color_b{PAL2Tb(palette_color_index)};
 
 	const float color_a = (canvas.cv_fade_level >= GR_FADE_OFF)
 		? 1.0
