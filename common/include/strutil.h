@@ -57,10 +57,6 @@ struct splitpath_t
 	const char *const base_end;
 };
 
-// remove extension from filename, doesn't work with paths.
-[[nodiscard]]
-std::array<char, 20> removeext(const char *filename);
-
 //give a filename a new extension, doesn't work with paths with no extension already there
 [[nodiscard]]
 bool change_filename_extension(std::span<char> dest, const char *src, std::span<const char, 4> ext);

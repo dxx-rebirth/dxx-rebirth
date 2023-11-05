@@ -117,6 +117,27 @@ struct get_texture_result
 	bool reuse_texture;
 };
 
+// remove extension from filename, doesn't work with paths.
+[[nodiscard]]
+static std::array<char, 20> removeext(const char *const filename)
+{
+	const char *p = nullptr;
+	auto i = filename;
+	for (; const char c = *i; ++i)
+	{
+		if (c == '.')
+			p = i;
+		/* No break - find the last '.', not the first. */
+	}
+	if (!p)
+		p = i;
+	const std::size_t rawlen = p - filename;
+	std::array<char, 20> out{};
+	const std::size_t copy_len = rawlen < out.size() ? rawlen : 0;
+	memcpy(out.data(), filename, copy_len);
+	return out;
+}
+
 }
 
 }
