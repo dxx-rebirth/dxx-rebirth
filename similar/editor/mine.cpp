@@ -49,8 +49,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_underlying_value.h"
 #include "partial_range.h"
 
-#define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
-
 int	New_file_format_save = 1;
 
 #if defined(DXX_BUILD_DESCENT_II)
