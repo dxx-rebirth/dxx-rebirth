@@ -157,8 +157,6 @@ int ReadConfigFile()
 	for (PHYSFSX_gets_line_t<0> line(PHYSFS_fileLength(infile) + 1); const char *const eol = PHYSFSX_fgets(line, infile);)
 	{
 		const auto lb = line.begin();
-		if (eol == line.end())
-			continue;
 		auto eq = std::find(lb, eol, '=');
 		if (eq == eol)
 			continue;

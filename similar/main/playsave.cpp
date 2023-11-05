@@ -1647,8 +1647,6 @@ void read_netgame_profile(netgame_info *ng)
 	for (PHYSFSX_gets_line_t<50> line; const char *const eol = PHYSFSX_fgets(line, file);)
 	{
 		const auto lb = line.begin();
-		if (eol == line.end())
-			continue;
 		auto eq = std::find(lb, eol, '=');
 		if (eq == eol)
 			continue;
