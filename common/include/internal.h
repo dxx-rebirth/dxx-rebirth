@@ -21,6 +21,27 @@ void ogl_smash_texture_list_internal(void);
 extern int linedotscale;
 
 extern int GL_TEXTURE_2D_enabled;
+
+static constexpr const rgb_t &CPAL2T(const color_palette_index c)
+{
+	return gr_current_pal[static_cast<std::size_t>(c)];
+}
+
+static constexpr GLfloat CPAL2Tr(const color_palette_index c)
+{
+	return CPAL2T(c).r / 63.0;
+}
+
+static constexpr GLfloat CPAL2Tg(const color_palette_index c)
+{
+	return CPAL2T(c).g / 63.0;
+}
+
+static constexpr GLfloat CPAL2Tb(const color_palette_index c)
+{
+	return CPAL2T(c).b / 63.0;
+}
+
 }
 
 #define OGL_SET_FEATURE_STATE(G,V,F)	static_cast<void>(G != V && (G = V, F, 0))

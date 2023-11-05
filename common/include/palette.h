@@ -23,13 +23,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifndef _PALETTE_H
-#define _PALETTE_H
+#pragma once
 
 #include "pstypes.h"
-
-#ifdef __cplusplus
 #include <cstddef>
 #include <cstdint>
 #include "dxxsconf.h"
@@ -68,19 +64,11 @@ extern palette_array_t gr_palette;
 
 using color_palette_index = uint8_t;
 
-static inline const rgb_t &CPAL2T(const color_palette_index c)
-{
-	return gr_current_pal[static_cast<std::size_t>(c)];
-}
-
 static inline const rgb_t &PAL2T(const color_palette_index c)
 {
 	return gr_palette[static_cast<std::size_t>(c)];
 }
 
-#define CPAL2Tr(c) (CPAL2T(c).r / 63.0)
-#define CPAL2Tg(c) (CPAL2T(c).g / 63.0)
-#define CPAL2Tb(c) (CPAL2T(c).b / 63.0)
 #define PAL2Tr(c) (PAL2T(c).r / 63.0)
 #define PAL2Tg(c) (PAL2T(c).g / 63.0)
 #define PAL2Tb(c) (PAL2T(c).b / 63.0)
@@ -88,7 +76,3 @@ static inline const rgb_t &PAL2T(const color_palette_index c)
 //inline GLfloat PAL2Tg(int c);
 //inline GLfloat PAL2Tb(int c);
 }
-
-#endif
-
-#endif

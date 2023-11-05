@@ -930,14 +930,14 @@ void ogl_upixelc(const grs_bitmap &cv_bitmap, unsigned x, unsigned y, const colo
 		(x + cv_bitmap.bm_x) / static_cast<float>(last_width),
 		static_cast<GLfloat>(1.0 - (y + cv_bitmap.bm_y) / static_cast<float>(last_height))
 	}};
-	const auto cr = static_cast<GLfloat>(CPAL2Tr(c));
-	const auto cg = static_cast<GLfloat>(CPAL2Tg(c));
-	const auto cb = static_cast<GLfloat>(CPAL2Tb(c));
+	const auto color_r{CPAL2Tr(c)};
+	const auto color_g{CPAL2Tg(c)};
+	const auto color_b{CPAL2Tb(c)};
 	GLfloat color_array[] = {
-		cr, cg, cb, 1.0,
-		cr, cg, cb, 1.0,
-		cr, cg, cb, 1.0,
-		cr, cg, cb, 1.0
+		color_r, color_g, color_b, 1.0,
+		color_r, color_g, color_b, 1.0,
+		color_r, color_g, color_b, 1.0,
+		color_r, color_g, color_b, 1.0,
 	};
 
 	OGL_DISABLE(TEXTURE_2D);
@@ -968,26 +968,25 @@ color_palette_index ogl_ugpixel(const grs_bitmap &bitmap, unsigned x, unsigned y
 
 void ogl_urect(grs_canvas &canvas, const int left, const int top, const int right, const int bot, const color_palette_index c)
 {
-	GLfloat xo, yo, xf, yf, color_r, color_g, color_b, color_a;
-
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
 
-	xo = (left + canvas.cv_bitmap.bm_x) / static_cast<float>(last_width);
-	xf = (right + 1 + canvas.cv_bitmap.bm_x) / static_cast<float>(last_width);
-	yo = 1.0 - (top + canvas.cv_bitmap.bm_y) / static_cast<float>(last_height);
-	yf = 1.0 - (bot + 1 + canvas.cv_bitmap.bm_y) / static_cast<float>(last_height);
+	const GLfloat xo{(left + canvas.cv_bitmap.bm_x) / static_cast<float>(last_width)};
+	const GLfloat xf{(right + 1 + canvas.cv_bitmap.bm_x) / static_cast<float>(last_width)};
+	const GLfloat yo{1.0f - (top + canvas.cv_bitmap.bm_y) / static_cast<float>(last_height)};
+	const GLfloat yf{1.0f - (bot + 1 + canvas.cv_bitmap.bm_y) / static_cast<float>(last_height)};
 
 	OGL_DISABLE(TEXTURE_2D);
 
-	color_r = CPAL2Tr(c);
-	color_g = CPAL2Tg(c);
-	color_b = CPAL2Tb(c);
+	const auto color_r{CPAL2Tr(c)};
+	const auto color_g{CPAL2Tg(c)};
+	const auto color_b{CPAL2Tb(c)};
 
-	if (canvas.cv_fade_level >= GR_FADE_OFF)
-		color_a = 1.0;
-	else
-		color_a = 1.0 - static_cast<float>(canvas.cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0);
+	const GLfloat color_a{
+		(canvas.cv_fade_level >= GR_FADE_OFF)
+			? 1.0f
+			: 1.0f - static_cast<float>(canvas.cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0f)
+	};
 
 	std::array<GLfloat, 16> color_array;
 	color_array[0] = color_array[4] = color_array[8] = color_array[12] = color_r;
@@ -1017,11 +1016,15 @@ void ogl_ulinec(grs_canvas &canvas, const int left, const int top, const int rig
 	GLfloat fade_alpha = (canvas.cv_fade_level >= GR_FADE_OFF)
 		? 1.0
 		: 1.0 - static_cast<float>(canvas.cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0);
+
+	const auto color_r{CPAL2Tr(c)};
+	const auto color_g{CPAL2Tg(c)};
+	const auto color_b{CPAL2Tb(c)};
 	GLfloat color_array[] = {
-		static_cast<GLfloat>(CPAL2Tr(c)), static_cast<GLfloat>(CPAL2Tg(c)), static_cast<GLfloat>(CPAL2Tb(c)), fade_alpha,
-		static_cast<GLfloat>(CPAL2Tr(c)), static_cast<GLfloat>(CPAL2Tg(c)), static_cast<GLfloat>(CPAL2Tb(c)), fade_alpha,
-		static_cast<GLfloat>(CPAL2Tr(c)), static_cast<GLfloat>(CPAL2Tg(c)), static_cast<GLfloat>(CPAL2Tb(c)), 1.0,
-		static_cast<GLfloat>(CPAL2Tr(c)), static_cast<GLfloat>(CPAL2Tg(c)), static_cast<GLfloat>(CPAL2Tb(c)), fade_alpha
+		color_r, color_g, color_b, fade_alpha,
+		color_r, color_g, color_b, fade_alpha,
+		color_r, color_g, color_b, 1.0,
+		color_r, color_g, color_b, fade_alpha
 	};
 
 	glEnableClientState(GL_VERTEX_ARRAY);

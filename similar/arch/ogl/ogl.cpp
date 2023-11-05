@@ -777,11 +777,14 @@ void g3_draw_sphere(grs_canvas &canvas, cg3s_point &pnt, fix rad, const uint8_t 
 	int i;
 	const float scale = (static_cast<float>(canvas.cv_bitmap.bm_w) / canvas.cv_bitmap.bm_h);
 	std::array<GLfloat, 20 * 4> color_array;
+	const auto color_r{CPAL2Tr(c)};
+	const auto color_g{CPAL2Tg(c)};
+	const auto color_b{CPAL2Tb(c)};
 	for (i = 0; i < 20*4; i += 4)
 	{
-		color_array[i] = CPAL2Tr(c);
-		color_array[i+1] = CPAL2Tg(c);
-		color_array[i+2] = CPAL2Tb(c);
+		color_array[i] = color_r;
+		color_array[i+1] = color_g;
+		color_array[i+2] = color_b;
 		color_array[i+3] = 1.0;
 	}
 	OGL_DISABLE(TEXTURE_2D);
