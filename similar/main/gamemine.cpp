@@ -50,8 +50,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_levelstate.h"
 #include "partial_range.h"
 
-#define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
-
 int New_file_format_load = 1; // "new file format" is everything newer than d1 shareware
 
 namespace dsx {
