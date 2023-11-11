@@ -53,28 +53,28 @@ namespace {
 class user_configured_level_songs : std::unique_ptr<bim_song_info[]>
 {
 	using base_type = std::unique_ptr<bim_song_info[]>;
-	unsigned count;
+	std::size_t count;
 public:
 	using base_type::operator[];
 	using base_type::operator bool;
 	user_configured_level_songs() = default;
-	user_configured_level_songs(const std::size_t length) :
-		base_type(std::make_unique<bim_song_info[]>(length)), count(length)
+	explicit user_configured_level_songs(const std::size_t length) :
+		base_type{std::make_unique<bim_song_info[]>(length)}, count{length}
 	{
 	}
-	unsigned size() const
+	auto size() const
 	{
 		return count;
 	}
 	void reset()
 	{
-		count = 0;
+		count = {};
 		base_type::reset();
 	}
 	void resize(const std::size_t length)
 	{
 		base_type::operator=(std::make_unique<bim_song_info[]>(length));
-		count = length;
+		count = {length};
 	}
 	user_configured_level_songs &operator=(user_configured_level_songs &&) = default;
 	void operator=(std::vector<bim_song_info> &&v);
