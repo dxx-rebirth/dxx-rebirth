@@ -1937,7 +1937,7 @@ static void read_d1_tmap_nums_from_hog(PHYSFS_File *d1_pig)
 		else
 			while (inputline[(i=strlen(inputline))-2]=='\\')
 			{
-				if (PHYSFSX_fgets(inputline, bitmaps, i - 2)) // strip comments
+				if (!PHYSFSX_fgets(inputline, bitmaps, i - 2)) // strip comments
 					break;
 			}
 		REMOVE_EOL(inputline);
