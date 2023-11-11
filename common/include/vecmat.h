@@ -68,22 +68,27 @@ public:
 		{
 			return *this = (*this / rhs);
 		}
+	[[nodiscard]]
 	constexpr vm_distance operator+(const vm_distance &rhs) const
 	{
 		return vm_distance{d + rhs.d};
 	}
+	[[nodiscard]]
 	constexpr vm_distance operator*(const int &f) const
 	{
 		return vm_distance{d * f};
 	}
+	[[nodiscard]]
 	constexpr vm_distance operator/(const int &f) const
 	{
 		return vm_distance{d / f};
 	}
+	[[nodiscard]]
 	constexpr bool operator<(const fix &f) const
 	{
 		return d < f;
 	}
+	[[nodiscard]]
 	constexpr bool operator<(const vm_distance &rhs) const
 	{
 		return d < rhs.d;
@@ -91,12 +96,14 @@ public:
 	/* Clang chokes using a template operator> to swap the arguments.
 	 * Use a non-template operator> for the one needed type.
 	 */
+	[[nodiscard]]
 	constexpr bool operator>(const fix &f) const
 	{
 		return d > f;
 	}
 	template <typename T>
 		bool operator>(const T &t) const = delete;
+	[[nodiscard]]
 	constexpr explicit operator bool() const { return d; }
 #ifndef __clang__
 	/* When this catch-all overload is defined, clang becomes confused
@@ -136,14 +143,17 @@ public:
 		d2{static_cast<int64_t>(static_cast<uint64_t>(m))}
 	{
 	}
+	[[nodiscard]]
 	constexpr bool operator<(const vm_distance_squared &rhs) const
 	{
 		return d2 < rhs.d2;
 	}
+	[[nodiscard]]
 	constexpr bool operator>(const vm_distance_squared &rhs) const
 	{
 		return d2 > rhs.d2;
 	}
+	[[nodiscard]]
 	constexpr bool operator>=(const vm_distance_squared &rhs) const
 	{
 		return !(*this < rhs);
@@ -154,21 +164,26 @@ public:
 			return *this = (*this - rhs);
 		}
 	constexpr vm_distance_squared operator-(const fix &) const = delete;
+	[[nodiscard]]
 	constexpr vm_distance_squared operator-(const fix64 &f2) const
 	{
 		return vm_distance_squared{d2 - f2};
 	}
-	explicit operator bool() const { return d2; }
+	[[nodiscard]]
+	constexpr explicit operator bool() const { return d2; }
 	template <typename T>
 		constexpr operator T() const = delete;
+	[[nodiscard]]
 	constexpr operator fix64() const
 	{
 		return d2;
 	}
+	[[nodiscard]]
 	static constexpr vm_distance_squared maximum_value()
 	{
 		return vm_distance_squared{INT64_MAX};
 	}
+	[[nodiscard]]
 	static constexpr vm_distance_squared minimum_value()
 	{
 		return vm_distance_squared{static_cast<fix64>(0)};
@@ -180,11 +195,13 @@ constexpr vm_distance_squared vm_distance::operator*(const vm_distance &rhs) con
 	return vm_distance_squared{static_cast<fix64>(static_cast<fix>(*this)) * static_cast<fix64>(static_cast<fix>(rhs))};
 }
 
+[[nodiscard]]
 constexpr bool operator<(const vm_magnitude_squared a, const fix &b)
 {
 	return static_cast<uint64_t>(a) < b;
 }
 
+[[nodiscard]]
 constexpr bool operator<(const vm_magnitude_squared a, const vm_distance_squared b)
 {
 	return static_cast<uint64_t>(a) < static_cast<uint64_t>(b.operator fix64());

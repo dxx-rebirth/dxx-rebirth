@@ -143,10 +143,12 @@ public:
 			m_idx(i)
 	{
 	}
+	[[nodiscard]]
 	difference_type operator-(const xrange_iterator &i) const
 	{
 		return m_idx - i.m_idx;
 	}
+	[[nodiscard]]
 	index_type operator*() const
 	{
 		return m_idx;
@@ -161,6 +163,7 @@ public:
 			m_idx += step_type::value;
 		return *this;
 	}
+	[[nodiscard]]
 	xrange_iterator operator++(int)
 	{
 		auto r = *this;

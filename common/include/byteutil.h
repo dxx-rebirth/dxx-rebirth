@@ -38,6 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "pstypes.h"
 
+[[nodiscard]]
 static constexpr uint16_t SWAPSHORT(const uint16_t &x)
 {
 #ifdef DXX_HAVE_BUILTIN_BSWAP
@@ -47,11 +48,13 @@ static constexpr uint16_t SWAPSHORT(const uint16_t &x)
 #endif
 }
 
+[[nodiscard]]
 static constexpr int16_t SWAPSHORT(const int16_t &i)
 {
 	return SWAPSHORT(static_cast<uint16_t>(i));
 }
 
+[[nodiscard]]
 static constexpr uint32_t SWAPINT(const uint32_t &x)
 {
 #ifdef DXX_HAVE_BUILTIN_BSWAP
@@ -61,6 +64,7 @@ static constexpr uint32_t SWAPINT(const uint32_t &x)
 #endif
 }
 
+[[nodiscard]]
 static constexpr int32_t SWAPINT(const int32_t &i)
 {
 	return SWAPINT(static_cast<uint32_t>(i));
@@ -79,21 +83,25 @@ constexpr std::integral_constant<int, DXX_WORDS_BIGENDIAN> words_bigendian{};
 #define byteutil_unaligned_copy(dt, d, s)	( DXX_BEGIN_COMPOUND_STATEMENT { dt &destination_reference = d; destination_reference = *reinterpret_cast<const dt *>(s); } DXX_END_COMPOUND_STATEMENT )
 #endif // WORDS_NEED_ALIGNMENT
 
+[[nodiscard]]
 static constexpr uint16_t INTEL_SHORT(const uint16_t &x)
 {
 	return byteutil_choose_endian(SWAPSHORT, x);
 }
 
+[[nodiscard]]
 static constexpr int16_t INTEL_SHORT(const int16_t &x)
 {
 	return byteutil_choose_endian(SWAPSHORT, x);
 }
 
+[[nodiscard]]
 static constexpr uint32_t INTEL_INT(const uint32_t &x)
 {
 	return byteutil_choose_endian(SWAPINT, x);
 }
 
+[[nodiscard]]
 static constexpr int32_t INTEL_INT(const int32_t &x)
 {
 	return byteutil_choose_endian(SWAPINT, x);
@@ -101,6 +109,7 @@ static constexpr int32_t INTEL_INT(const int32_t &x)
 #undef byteutil_choose_endian
 
 template <typename T>
+[[nodiscard]]
 static inline uint32_t GET_INTEL_INT(const T *p)
 {
 	uint32_t u;
@@ -109,6 +118,7 @@ static inline uint32_t GET_INTEL_INT(const T *p)
 }
 
 template <typename T>
+[[nodiscard]]
 static inline uint16_t GET_INTEL_SHORT(const T *p)
 {
 	uint16_t u;

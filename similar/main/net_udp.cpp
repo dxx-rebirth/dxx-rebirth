@@ -612,8 +612,11 @@ public:
 		if (s != INVALID_SOCKET)
 			closesocket(std::exchange(s, INVALID_SOCKET));
 	}
+	[[nodiscard]]
 	explicit operator bool() const { return s != INVALID_SOCKET; }
+	[[nodiscard]]
 	explicit operator bool() { return static_cast<bool>(*const_cast<const RAIIsocket *>(this)); }
+	[[nodiscard]]
 	operator SOCKET() { return s; }
 	template <typename T> bool operator<(T) const = delete;
 	template <typename T> bool operator<=(T) const = delete;

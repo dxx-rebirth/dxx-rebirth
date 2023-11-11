@@ -201,6 +201,7 @@ void get_side_verts(side_vertnum_list_t &vertlist, const shared_segment &segp, c
 namespace {
 
 template <typename T, typename V>
+[[nodiscard]]
 static uint_fast32_t create_vertex_lists_from_values(T &va, const shared_segment &segp, const shared_side &sidep, const V &&f0, const V &&f1, const V &&f2, const V &&f3)
 {
 	const auto type = sidep.get_type();
