@@ -127,9 +127,13 @@ static inline uint16_t GET_INTEL_SHORT(const T *p)
 }
 
 template <typename T>
-static inline void PUT_INTEL_SHORT(uint16_t *d, const T &s)
+requires(
+	std::same_as<T, int16_t> ||
+	requires(T t) { uint16_t{t}; }
+)
+static inline void PUT_INTEL_SHORT(uint16_t *d, const T s)
 {
-	uint16_t u = INTEL_SHORT(s);
+	const uint16_t u = INTEL_SHORT(s);
 	byteutil_unaligned_copy(uint16_t, *d, &u);
 }
 
@@ -140,9 +144,14 @@ static inline void PUT_INTEL_SHORT(uint8_t *d, const T &s)
 }
 
 template <typename T>
-static inline void PUT_INTEL_INT(uint32_t *d, const T &s)
+requires(
+	std::same_as<T, int16_t> ||
+	std::same_as<T, int32_t> ||
+	requires(T t) { uint32_t{t}; }
+)
+static inline void PUT_INTEL_INT(uint32_t *d, const T s)
 {
-	uint32_t u = INTEL_INT(s);
+	const uint32_t u = INTEL_INT(s);
 	byteutil_unaligned_copy(uint32_t, *d, &u);
 }
 
