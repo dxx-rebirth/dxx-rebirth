@@ -95,9 +95,9 @@ public:
 		shrink(std::remove(begin(), end(), t));
 	}
 	template <typename F>
-		void erase_if(F f)
+		void erase_if(F &&f)
 		{
-			shrink(std::remove_if(begin(), end(), f));
+			shrink(std::remove_if(begin(), end(), std::forward<F>(f)));
 		}
 	void replace(const T &o, const T &n)
 	{
