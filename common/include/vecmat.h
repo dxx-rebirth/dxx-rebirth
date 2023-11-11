@@ -54,19 +54,19 @@ public:
 	{
 	}
 	template <typename T>
-		vm_distance &operator+=(const T &rhs)
+		vm_distance &operator+=(T &&rhs)
 		{
-			return *this = (*this + rhs);
+			return *this = (*this + std::forward<T>(rhs));
 		}
 	template <typename T>
-		vm_distance &operator*=(const T &rhs)
+		vm_distance &operator*=(T &&rhs)
 		{
-			return *this = (*this * rhs);
+			return *this = (*this * std::forward<T>(rhs));
 		}
 	template <typename T>
-		vm_distance &operator/=(const T &rhs)
+		vm_distance &operator/=(T &&rhs)
 		{
-			return *this = (*this / rhs);
+			return *this = (*this / std::forward<T>(rhs));
 		}
 	[[nodiscard]]
 	constexpr vm_distance operator+(const vm_distance &rhs) const
@@ -159,9 +159,9 @@ public:
 		return !(*this < rhs);
 	}
 	template <typename T>
-		vm_distance_squared &operator-=(const T &rhs)
+		vm_distance_squared &operator-=(T &&rhs)
 		{
-			return *this = (*this - rhs);
+			return *this = (*this - std::forward<T>(rhs));
 		}
 	constexpr vm_distance_squared operator-(const fix &) const = delete;
 	[[nodiscard]]
