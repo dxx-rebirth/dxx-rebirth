@@ -160,7 +160,7 @@ public:
 	{
 		return w(p + 2);
 	}
-	__attribute_cold
+	[[noreturn]]
 	static void op_default(const unsigned op, const uint8_t *const p)
 	{
 		char buf[64];
@@ -596,7 +596,6 @@ static std::size_t dispatch_polymodel_op(const P p, State &state, const uint_fas
 		}
 		default:
 			state.op_default(op, p);
-			return 2;
 	}
 }
 
