@@ -150,9 +150,17 @@ static int is_valid_song_extension(const char* dot)
 }
 
 template <std::size_t N>
+requires(
+	/* Compile-time check that the input string will not overflow the output
+	 * buffer.
+	 */
+	requires(bim_song_info song) {
+		requires(std::size(song.filename) >= N);
+	}
+)
 static inline void assign_builtin_song(bim_song_info &song, const char (&str)[N])
 {
-	strncpy(song.filename, str, sizeof(song.filename));
+	std::ranges::copy(str, std::ranges::begin(song.filename));
 }
 
 static void add_song(std::vector<bim_song_info> &songs, const char *const input)
