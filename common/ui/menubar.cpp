@@ -284,8 +284,7 @@ static int state2_alt_down;
 static window_event_result do_state_0(const d_event &event)
 {
 	int keypress = 0;
-	
-	if (event.type == EVENT_KEY_COMMAND)
+	if (event.type == event_type::key_command)
 		keypress = event_key_get(event);
 
 	auto &menubar = *Menu[0];
@@ -367,11 +366,10 @@ static window_event_result do_state_1(const d_event &event)
 {
 	int keypress = 0;
 	window_event_result rval = window_event_result::ignored;
-	
-	if (event.type == EVENT_KEY_COMMAND)
+	if (event.type == event_type::key_command)
 		keypress = event_key_get(event);
 	auto &menubar = *Menu[0];
-	if ((event.type == EVENT_KEY_RELEASE) && !(event_key_get(event) & KEY_ALTED))
+	if (event.type == event_type::key_release && !(event_key_get(event) & KEY_ALTED))
 	{
 		state = 2;
 		state2_alt_down = 0;
@@ -429,16 +427,15 @@ static window_event_result do_state_2(const d_event &event)
 	int i;
 	int keypress = 0;
 	window_event_result rval = window_event_result::ignored;
-	if (event.type == EVENT_KEY_COMMAND)
+	if (event.type == event_type::key_command)
 		keypress = event_key_get(event);
-		
 	if (keypress & KEY_ALTED)
 	{
  		state2_alt_down = 1;
 		rval = window_event_result::handled;
 	}
 
-	if ((event.type == EVENT_KEY_RELEASE) && !(event_key_get(event) & KEY_ALTED) && state2_alt_down)
+	if (event.type == event_type::key_release && !(event_key_get(event) & KEY_ALTED) && state2_alt_down)
 	{
 		state = 0;
 		menu_hide_all();
@@ -545,10 +542,9 @@ window_event_result menu_window::event_handler(const d_event &event)
 	
 	if (state != 3)
 		return window_event_result::ignored;
-	
-	if (event.type == EVENT_KEY_COMMAND)
+	if (event.type == event_type::key_command)
 		keypress = event_key_get(event);
-	else if (event.type == EVENT_WINDOW_CLOSE)	// quitting
+	else if (event.type == event_type::window_close)	// quitting
 	{
 		state = 0;
 		menu_hide_all();
@@ -659,8 +655,7 @@ window_event_result menu_window::event_handler(const d_event &event)
 			break;
 			}
 	}
-	
-	if (event.type == EVENT_MOUSE_MOVED || B1_JUST_RELEASED)
+	if (event.type == event_type::mouse_moved || B1_JUST_RELEASED)
 	{
 		auto &other_menu = *Menu[CMENU];
 		const auto i = menu_check_mouse_item(other_menu);
@@ -708,24 +703,23 @@ window_event_result menu_window::event_handler(const d_event &event)
 		}
 	}
 
-	if (event.type == EVENT_WINDOW_DRAW)
+	if (event.type == event_type::window_draw)
 	{
 		auto &other_menu = *Menu[CMENU];
 		menu_draw(other_menu);
 		return window_event_result::handled;
 	}
-	
 	return rval;
 }
 
 window_event_result menubar_window::event_handler(const d_event &event)
 {
-	if (event.type == EVENT_WINDOW_DRAW)
+	if (event.type == event_type::window_draw)
 	{
 		menu_draw(menubar);
 		return window_event_result::handled;
 	}
-	else if (event.type == EVENT_WINDOW_CLOSE)
+	else if (event.type == event_type::window_close)
 	{
 		range_for (const auto pi, partial_range(Menu, 1u, num_menus))
 		{

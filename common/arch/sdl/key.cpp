@@ -535,9 +535,9 @@ window_event_result key_handler(const SDL_KeyboardEvent *const kevent)
 
 		// We allowed the key to be added to the queue for now,
 		// because there are still input loops without associated windows
-		const d_event_keycommand event{key_state ? EVENT_KEY_COMMAND : EVENT_KEY_RELEASE, keycode};
+		const d_event_keycommand event{key_state ? event_type::key_command : event_type::key_release, keycode};
 		con_printf(CON_DEBUG, "Sending event %s: %s %s %s %s %s %s",
-				(key_state)                  ? "EVENT_KEY_COMMAND": "EVENT_KEY_RELEASE",
+				(key_state)                  ? "event_type::key_command": "event_type::key_release",
 				(keycode & KEY_METAED)	? "META" : "",
 				(keycode & KEY_DEBUGGED)	? "DEBUG" : "",
 				(keycode & KEY_CTRLED)	? "CTRL" : "",
@@ -597,14 +597,13 @@ void key_flush()
 }
 
 void event_keycommand_send(unsigned key) {
-	const d_event_keycommand event{EVENT_KEY_COMMAND, key};
-	event_send(event);
+	event_send(d_event_keycommand{event_type::key_command, key});
 }
 
 int event_key_get(const d_event &event)
 {
 	auto &e = static_cast<const d_event_keycommand &>(event);
-	Assert(e.type == EVENT_KEY_COMMAND || e.type == EVENT_KEY_RELEASE);
+	assert(e.type == event_type::key_command || e.type == event_type::key_release);
 	return e.keycode;
 }
 

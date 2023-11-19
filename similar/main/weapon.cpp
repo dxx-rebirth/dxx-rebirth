@@ -259,10 +259,10 @@ window_event_result weapon_reorder_menu<cycle_weapon_state>::event_handler(const
 {
 	switch(event.type)
 	{
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 			event_key_command(event);
 			break;
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			for (auto &&[i, mi] : enumerate(menu_items))
 				cycle_weapon_state::get_weapon_by_order_slot(i) = mi.value;
 			break;

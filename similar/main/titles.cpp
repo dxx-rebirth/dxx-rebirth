@@ -129,7 +129,7 @@ window_event_result title_screen::event_handler(const d_event &event)
 
 	switch (event.type)
 	{
-		case EVENT_MOUSE_BUTTON_DOWN:
+		case event_type::mouse_button_down:
 			if (event_mouse_get_button(event) != mbtn::left)
 				return window_event_result::ignored;
 			else
@@ -138,7 +138,7 @@ window_event_result title_screen::event_handler(const d_event &event)
 			}
 			break;
 
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 			if ((result = call_default_handler(event)) == window_event_result::ignored)
 				{
 					return window_event_result::close;
@@ -146,11 +146,11 @@ window_event_result title_screen::event_handler(const d_event &event)
 			return result;
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
-		case EVENT_JOYSTICK_BUTTON_DOWN:
+		case event_type::joystick_button_down:
 				return window_event_result::close;
 #endif
 
-		case EVENT_IDLE:
+		case event_type::idle:
 			timer_delay2(50);
 
 			if (timer_query() > timer)
@@ -159,11 +159,11 @@ window_event_result title_screen::event_handler(const d_event &event)
 			}
 			break;
 
-		case EVENT_WINDOW_DRAW:
+		case event_type::window_draw:
 			show_fullscr(w_canv, title_bm);
 			break;
 
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			break;
 
 		default:
@@ -1560,12 +1560,12 @@ window_event_result briefing::event_handler(const d_event &event)
 
 	switch (event.type)
 	{
-		case EVENT_WINDOW_ACTIVATED:
-		case EVENT_WINDOW_DEACTIVATED:
+		case event_type::window_activated:
+		case event_type::window_deactivated:
 			key_flush();
 			break;
 
-		case EVENT_MOUSE_BUTTON_DOWN:
+		case event_type::mouse_button_down:
 			if (event_mouse_get_button(event) == mbtn::left)
 			{
 				if (this->new_screen)
@@ -1587,7 +1587,7 @@ window_event_result briefing::event_handler(const d_event &event)
 			break;
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
-		case EVENT_JOYSTICK_BUTTON_DOWN:
+		case event_type::joystick_button_down:
 			// using joy_translate_menu_key doesn't work here for unclear
 			// reasons, so we build a reasonable facsimile right here
 			if (event_joystick_get_button(event) == 1)
@@ -1609,7 +1609,7 @@ window_event_result briefing::event_handler(const d_event &event)
 			return window_event_result::handled;
 #endif
 
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 		{
 			int key = event_key_get(event);
 
@@ -1646,7 +1646,7 @@ window_event_result briefing::event_handler(const d_event &event)
 			break;
 		}
 
-		case EVENT_WINDOW_DRAW:
+		case event_type::window_draw:
 		{
 			auto &canvas = w_canv;
 
@@ -1691,7 +1691,7 @@ window_event_result briefing::event_handler(const d_event &event)
 				gr_string(canvas, game_font, this->text_x, this->text_y, "_");
 			break;
 		}
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			free_briefing_screen(this);
 #if defined(DXX_BUILD_DESCENT_II)
 			this->hum_channel.reset();

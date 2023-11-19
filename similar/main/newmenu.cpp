@@ -539,7 +539,7 @@ int newmenu::process_until_closed(newmenu *const menu)
 	// Track to see when the window is freed
 	// Doing this way in case another window is opened on top without its own polling loop
 	// newmenu_do2 and simpler get their own event loop
-	// This is so the caller doesn't have to provide a callback that responds to EVENT_NEWMENU_SELECTED
+	// This is so the caller doesn't have to provide a callback that responds to event_type::newmenu_selected
 	for (const auto exists = menu->track(); *exists;)
 		event_process();
 
@@ -843,7 +843,7 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, co
 			old_choice = menu->citem;
 
 			const auto &&fspacx = FSPACX();
-			if ((event.type == EVENT_MOUSE_BUTTON_DOWN) && !menu->all_text)
+			if (event.type == event_type::mouse_button_down && !menu->all_text)
 			{
 				mouse_get_pos(&mx, &my, &mz);
 				const int line_spacing = static_cast<int>(LINE_SPACING(*canvas.cv_font, *GAME_FONT));
@@ -956,7 +956,7 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, co
 				}
 			}
 
-			if (event.type == EVENT_MOUSE_BUTTON_UP &&
+			if (event.type == event_type::mouse_button_up &&
 				!menu->all_text &&
 				menu->citem != -1 &&
 				std::next(menu->items.begin(), menu->citem)->type == nm_type::menu)
@@ -982,7 +982,7 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, co
 				}
 			}
 
-			if (event.type == EVENT_MOUSE_BUTTON_UP && menu->citem > -1)
+			if (event.type == event_type::mouse_button_up && menu->citem > -1)
 			{
 				auto &citem = *std::next(menu->items.begin(), menu->citem);
 				if (citem.type == nm_type::input_menu && citem.imenu().group == 0)
@@ -1179,7 +1179,7 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 	}
 
 	if ( menu->citem > -1 )	{
-		// Alerting callback of every keypress for NM_TYPE_INPUT. Alternatively, just respond to EVENT_NEWMENU_SELECTED
+		// Alerting callback of every keypress for NM_TYPE_INPUT. Alternatively, just respond to event_type::newmenu_selected
 		if ((citem.type == nm_type::input || (citem.type == nm_type::input_menu && citem.imenu().group == 1)) && old_choice == menu->citem)
 		{
 			if ( k==KEY_LEFT || k==KEY_BACKSP || k==KEY_PAD4 )	{
@@ -1566,7 +1566,7 @@ static window_event_result newmenu_draw(newmenu *menu)
 
 		gr_string(menu_canvas, cv_font, sx, sy, (scroll_offset + menu->max_displayable < menu->items.size()) ? DOWN_ARROW_MARKER(cv_font, game_font) : "  ");
 	}
-	menu->event_handler(d_event{EVENT_NEWMENU_DRAW});
+	menu->event_handler(d_event{event_type::newmenu_draw});
 	return window_event_result::handled;
 }
 
@@ -1592,35 +1592,35 @@ window_event_result newmenu::event_handler(const d_event &event)
 
 	switch (event.type)
 	{
-		case EVENT_WINDOW_ACTIVATED:
+		case event_type::window_activated:
 			game_flush_inputs(Controls);
 			event_toggle_focus(0);
 			key_toggle_repeat(1);
 			break;
 
-		case EVENT_WINDOW_DEACTIVATED:
+		case event_type::window_deactivated:
 			//event_toggle_focus(1);	// No cursor recentering
 			key_toggle_repeat(1);
 			mouse_state = 0;
 			break;
 
-		case EVENT_MOUSE_BUTTON_DOWN:
-		case EVENT_MOUSE_BUTTON_UP:
+		case event_type::mouse_button_down:
+		case event_type::mouse_button_up:
 		{
-			mouse_state = event.type == EVENT_MOUSE_BUTTON_DOWN;
+			mouse_state = event.type == event_type::mouse_button_down;
 			const auto button = event_mouse_get_button(event);
 			return newmenu_mouse(event, this, button);
 		}
 
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 			return newmenu_key_command(event, this);
-		case EVENT_IDLE:
+		case event_type::idle:
 			if (!(Game_mode & GM_MULTI) || !Game_wind || !Game_wind->is_visible())
 				timer_delay2(CGameArg.SysMaxFPS);
 			break;
-		case EVENT_WINDOW_DRAW:
+		case event_type::window_draw:
 			return newmenu_draw(this);
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			break;
 		default:
 			break;
@@ -1787,7 +1787,7 @@ static window_event_result listbox_mouse(const d_event &event, listbox *lb, cons
 					break;
 				lb->citem = idx_absolute_item;
 			}
-			else if (event.type == EVENT_MOUSE_BUTTON_UP)
+			else if (event.type == event_type::mouse_button_up)
 			{
 				if (lb->citem < 0)
 					return window_event_result::ignored;
@@ -2096,7 +2096,7 @@ static window_event_result listbox_draw(listbox *lb)
 		}
 	}
 
-	return lb->callback_handler(d_event{EVENT_NEWMENU_DRAW}, window_event_result::handled);
+	return lb->callback_handler(d_event{event_type::newmenu_draw}, window_event_result::handled);
 }
 
 }
@@ -2113,30 +2113,30 @@ window_event_result listbox::event_handler(const d_event &event)
 
 	switch (event.type)
 	{
-		case EVENT_WINDOW_ACTIVATED:
+		case event_type::window_activated:
 			game_flush_inputs(Controls);
 			event_toggle_focus(0);
 			key_toggle_repeat(1);
 			break;
 
-		case EVENT_WINDOW_DEACTIVATED:
+		case event_type::window_deactivated:
 			//event_toggle_focus(1);	// No cursor recentering
 			key_toggle_repeat(0);
 			break;
 
-		case EVENT_MOUSE_BUTTON_DOWN:
-		case EVENT_MOUSE_BUTTON_UP:
-			mouse_state = event.type == EVENT_MOUSE_BUTTON_DOWN;
+		case event_type::mouse_button_down:
+		case event_type::mouse_button_up:
+			mouse_state = event.type == event_type::mouse_button_down;
 			return listbox_mouse(event, this, event_mouse_get_button(event));
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 			return listbox_key_command(event, this);
-		case EVENT_IDLE:
+		case event_type::idle:
 			if (!(Game_mode & GM_MULTI && Game_wind))
 				timer_delay2(CGameArg.SysMaxFPS);
 			return window_event_result::ignored;
-		case EVENT_WINDOW_DRAW:
+		case event_type::window_draw:
 			return listbox_draw(this);
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			break;
 		default:
 			break;

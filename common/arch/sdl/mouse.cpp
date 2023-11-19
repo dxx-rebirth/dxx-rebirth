@@ -80,13 +80,12 @@ static window_event_result maybe_send_z_move(const mbtn button)
 	}
 	else
 		return window_event_result::ignored;
-	const d_event_mouse_moved event{EVENT_MOUSE_MOVED, 0, 0, dz};
-	return event_send(event);
+	return event_send(d_event_mouse_moved{event_type::mouse_moved, 0, 0, dz});
 }
 
 static window_event_result send_singleclick(const bool pressed, const mbtn button)
 {
-	const d_event_mousebutton event{pressed ? EVENT_MOUSE_BUTTON_DOWN : EVENT_MOUSE_BUTTON_UP, button};
+	const d_event_mousebutton event{pressed ? event_type::mouse_button_down : event_type::mouse_button_up, button};
 	con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_BUTTON_%s, button %d, coords %d,%d,%d",
 			   pressed ? "DOWN" : "UP", underlying_value(event.button), Mouse.x, Mouse.y, Mouse.z);
 	return event_send(event);
@@ -99,8 +98,8 @@ static window_event_result maybe_send_doubleclick(const fix64 now, const mbtn bu
 	when = now;
 	if (now > then + F1_0/5)
 		return window_event_result::ignored;
-	const d_event_mousebutton event{EVENT_MOUSE_DOUBLE_CLICKED, button};
-	con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_DOUBLE_CLICKED, button %d, coords %d,%d", underlying_value(button), Mouse.x, Mouse.y);
+	const d_event_mousebutton event{event_type::mouse_double_clicked, button};
+	con_printf(CON_DEBUG, "Sending event event_type::mouse_double_clicked, button %d, coords %d,%d", underlying_value(button), Mouse.x, Mouse.y);
 	return event_send(event);
 }
 
@@ -163,9 +162,9 @@ window_event_result mouse_motion_handler(const SDL_MouseMotionEvent *const mme)
 	Mouse.y += mme->yrel;
 	
 	// z handled in mouse_button_handler
-	const d_event_mouse_moved event{EVENT_MOUSE_MOVED, mme->xrel, mme->yrel, 0};
+	const d_event_mouse_moved event{event_type::mouse_moved, mme->xrel, mme->yrel, 0};
 	
-	//con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_MOVED, relative motion %d,%d,%d",
+	//con_printf(CON_DEBUG, "Sending event event_type::mouse_moved, relative motion %d,%d,%d",
 	//		   event.dx, event.dy, event.dz);
 	return event_send(event);
 }

@@ -302,7 +302,7 @@ window_event_result net_udp_select_teams_menu::event_handler(const d_event &even
 {
 	switch (event.type)
 	{
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 			{
 				const auto citem = static_cast<const d_select_event &>(event).citem;
 				if (citem == idx_item_accept)
@@ -358,7 +358,7 @@ window_event_result net_udp_select_teams_menu::event_handler(const d_event &even
 					-- this->citem;
 			}
 			return window_event_result::handled;
-		case EVENT_NEWMENU_DRAW:
+		case event_type::newmenu_draw:
 			{
 				const auto draw_team_color_box = [&canv = this->w_canv](const newmenu_item &mi, const color_palette_index cpi) {
 					const unsigned height = mi.h - 8;
@@ -1381,7 +1381,7 @@ window_event_result manual_join_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 			if (connecting != direct_join::connect_type::idle && event_key_get(event) == KEY_ESC)
 			{
 				connecting = direct_join::connect_type::idle;
@@ -1389,8 +1389,7 @@ window_event_result manual_join_menu::event_handler(const d_event &event)
 				return window_event_result::handled;
 			}
 			break;
-			
-		case EVENT_IDLE:
+		case event_type::idle:
 			if (connecting != direct_join::connect_type::idle)
 			{
 				if (net_udp_game_connect(this))
@@ -1400,7 +1399,7 @@ window_event_result manual_join_menu::event_handler(const d_event &event)
 			}
 			break;
 
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 		{
 			int sockres = -1;
 
@@ -1431,12 +1430,10 @@ window_event_result manual_join_menu::event_handler(const d_event &event)
 				return window_event_result::handled;
 			}
 		}
-			
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			if (!Game_wind) // they cancelled
 				net_udp_close();
 			break;
-			
 		default:
 			break;
 	}
@@ -1492,7 +1489,7 @@ window_event_result netgame_list_game_menu::event_handler(const d_event &event)
 	static int NLPage = 0;
 	switch (event.type)
 	{
-		case EVENT_WINDOW_ACTIVATED:
+		case event_type::window_activated:
 		{
 			Netgame.protocol.udp.valid = 0;
 			Active_udp_games = {};
@@ -1509,7 +1506,7 @@ window_event_result netgame_list_game_menu::event_handler(const d_event &event)
 				nm_set_item_text(menus[UDP_NETGAMES_PPAGE+4], "\t");
 			break;
 		}
-		case EVENT_IDLE:
+		case event_type::idle:
 			if (connecting != direct_join::connect_type::idle)
 			{
 				if (net_udp_game_connect(this))
@@ -1518,7 +1515,7 @@ window_event_result netgame_list_game_menu::event_handler(const d_event &event)
 					nm_set_item_text(menus[UDP_NETGAMES_PPAGE+4], "\t");
 			}
 			break;
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 		{
 			int key = event_key_get(event);
 			if (key == KEY_PAGEUP)
@@ -1597,7 +1594,7 @@ window_event_result netgame_list_game_menu::event_handler(const d_event &event)
 			}
 			break;
 		}
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 			if (((citem+(NLPage*UDP_NETGAMES_PPAGE)) >= 4) && (((citem+(NLPage*UDP_NETGAMES_PPAGE))-3) <= num_active_udp_games))
@@ -1622,7 +1619,7 @@ window_event_result netgame_list_game_menu::event_handler(const d_event &event)
 			}
 			return window_event_result::handled;
 		}
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 		{
 			if (!Game_wind)
 			{
@@ -3663,7 +3660,7 @@ static int net_udp_sync_poll( newmenu *,const d_event &event, const unused_newme
 	static fix64 t1 = 0;
 	int rval = 0;
 
-	if (event.type != EVENT_WINDOW_DRAW)
+	if (event.type != event_type::window_draw)
 		return 0;
 	net_udp_listen();
 
@@ -3690,7 +3687,7 @@ static int net_udp_sync_poll( newmenu *,const d_event &event, const unused_newme
 
 static int net_udp_start_poll(newmenu *, const d_event &event, start_poll_menu_items *const items)
 {
-	if (event.type != EVENT_WINDOW_DRAW)
+	if (event.type != event_type::window_draw)
 		return 0;
 	assert(Network_status == network_state::starting);
 
@@ -3868,7 +3865,7 @@ window_event_result netgame_powerups_allowed_menu::event_handler(const d_event &
 {
 	switch (event.type)
 	{
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			{
 				typename std::underlying_type<netflag_flag>::type AllowedItems = 0;
 				for (auto &&[i, mi] : enumerate(m))
@@ -4159,7 +4156,7 @@ window_event_result grant_powerup_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			read(Netgame.SpawnGrantedItems);
 			break;
 		default:
@@ -4185,7 +4182,7 @@ window_event_result more_game_options_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_NEWMENU_CHANGED:
+		case event_type::newmenu_changed:
 		{
 			auto &citem = static_cast<const d_change_event &>(event).citem;
 			auto &menus = m;
@@ -4247,7 +4244,7 @@ window_event_result more_game_options_menu::event_handler(const d_event &event)
 			}
 			break;
 		}
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 			if (citem == opt_setpower)
@@ -4258,7 +4255,7 @@ window_event_result more_game_options_menu::event_handler(const d_event &event)
 				break;
 			return window_event_result::handled;
 		}
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			read();
 			if (Netgame.PacketsPerSec > MAX_PPS)
 			{
@@ -4312,7 +4309,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 	newmenu_item *menus = newmenu_get_items(menu);
 	switch (event.type)
 	{
-		case EVENT_NEWMENU_CHANGED:
+		case event_type::newmenu_changed:
 		{
 			auto &citem = static_cast<const d_change_event &>(event).citem;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -4391,7 +4388,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 			Netgame.RefusePlayers=menus[opt->refuse].value;
 			break;
 		}
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -5006,7 +5003,7 @@ static int net_udp_request_poll( newmenu *,const d_event &event, const unused_ne
 	// Polling loop for waiting-for-requests menu
 	int num_ready = 0;
 
-	if (event.type != EVENT_WINDOW_DRAW)
+	if (event.type != event_type::window_draw)
 		return 0;
 	net_udp_listen();
 	net_udp_timeout_check(timer_query());
@@ -6376,7 +6373,7 @@ window_event_result show_game_info_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 			switch (citem)

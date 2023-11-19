@@ -297,7 +297,7 @@ window_event_result marker_delete_are_you_sure_menu::event_handler(const d_event
 {
 	switch (event.type)
 	{
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 		{
 			const auto citem = static_cast<const d_select_event &>(event).citem;
 			if (citem == 0)
@@ -1135,53 +1135,51 @@ window_event_result automap::event_handler(const d_event &event)
 	auto &vmobjptr = Objects.vmptr;
 	switch (event.type)
 	{
-		case EVENT_WINDOW_ACTIVATED:
+		case event_type::window_activated:
 			game_flush_inputs(controls);
 			event_toggle_focus(1);
 			key_toggle_repeat(0);
 			break;
 
-		case EVENT_WINDOW_DEACTIVATED:
+		case event_type::window_deactivated:
 			event_toggle_focus(0);
 			key_toggle_repeat(1);
 			break;
 
 #if SDL_MAJOR_VERSION == 2
-		case EVENT_WINDOW_RESIZE:
+		case event_type::window_resize:
 			init_automap_subcanvas(automap_view, grd_curscreen->sc_canvas);
 			break;
 #endif
 
-		case EVENT_IDLE:
+		case event_type::idle:
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
-		case EVENT_JOYSTICK_BUTTON_UP:
-		case EVENT_JOYSTICK_BUTTON_DOWN:
+		case event_type::joystick_button_up:
+		case event_type::joystick_button_down:
 #endif
 #if DXX_MAX_AXES_PER_JOYSTICK
-		case EVENT_JOYSTICK_MOVED:
+		case event_type::joystick_moved:
 #endif
-		case EVENT_MOUSE_BUTTON_UP:
-		case EVENT_MOUSE_BUTTON_DOWN:
-		case EVENT_MOUSE_MOVED:
-		case EVENT_KEY_RELEASE:
+		case event_type::mouse_button_up:
+		case event_type::mouse_button_down:
+		case event_type::mouse_moved:
+		case event_type::key_release:
 			return automap_process_input(event, *this);
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 		{
 			window_event_result kret = automap_key_command(event, *this);
 			if (kret == window_event_result::ignored)
 				kret = automap_process_input(event, *this);
 			return kret;
 		}
-			
-		case EVENT_WINDOW_DRAW:
+		case event_type::window_draw:
 			{
 				auto &plrobj = get_local_plrobj();
 				automap_apply_input(*this, plrobj.orient, plrobj.pos);
 			}
 			draw_automap(vcobjptr, *this);
 			break;
-			
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			if (!pause_game)
 				ConsoleObject->mtype.phys_info.flags |= old_wiggle;		// Restore wiggle
 			event_toggle_focus(0);
@@ -1200,16 +1198,15 @@ window_event_result automap::event_handler(const d_event &event)
 			multi_send_msgsend_state(msgsend_state::none);
 			return window_event_result::ignored;	// continue closing
 
-		case EVENT_LOOP_BEGIN_LOOP:
+		case event_type::loop_begin_loop:
 			kconfig_begin_loop(controls);
 			break;
-		case EVENT_LOOP_END_LOOP:
+		case event_type::loop_end_loop:
 			kconfig_end_loop(controls, FrameTime);
 			break;
 
 		default:
 			return window_event_result::ignored;
-			break;
 	}
 	return window_event_result::handled;
 }

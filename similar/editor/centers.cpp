@@ -146,9 +146,9 @@ window_event_result centers_dialog::callback_handler(const d_event &event)
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	switch(event.type)
 	{
-		case EVENT_WINDOW_CREATED:
+		case event_type::window_created:
 			return centers_dialog_created(this);
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			MainWindow = NULL;
 			return window_event_result::ignored;
 		default:
@@ -160,9 +160,8 @@ window_event_result centers_dialog::callback_handler(const d_event &event)
 
 	Assert(MainWindow != NULL);
 
-	if (event.type == EVENT_KEY_COMMAND)
+	if (event.type == event_type::key_command)
 		keypress = event_key_get(event);
-	
 	//------------------------------------------------------------
 	// Call the ui code..
 	//------------------------------------------------------------
@@ -221,15 +220,12 @@ window_event_result centers_dialog::callback_handler(const d_event &event)
 			rval = window_event_result::handled;
 		}
 	}
-	
 	//------------------------------------------------------------
 	// If anything changes in the ui system, redraw all the text that
 	// identifies this wall.
 	//------------------------------------------------------------
-	if (event.type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == event_type::ui_dialog_draw)
 	{
-//		int	i;
-	
 		ui_dprintf_at(this, 12, 6, "Seg: %3hu", static_cast<segnum_t>(Cursegp));
 	}
 

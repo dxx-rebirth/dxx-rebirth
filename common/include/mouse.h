@@ -92,14 +92,14 @@ public:
 static inline mbtn event_mouse_get_button(const d_event &event)
 {
 	auto &e = static_cast<const d_event_mousebutton &>(event);
-	assert(e.type == EVENT_MOUSE_BUTTON_DOWN || e.type == EVENT_MOUSE_BUTTON_UP);
+	assert(e.type == event_type::mouse_button_down || e.type == event_type::mouse_button_up);
 	return e.button;
 }
 
 static inline void event_mouse_get_delta(const d_event &event, int *dx, int *dy, int *dz)
 {
 	auto &e = static_cast<const d_event_mouse_moved &>(event);
-	assert(e.type == EVENT_MOUSE_MOVED);
+	assert(e.type == event_type::mouse_moved);
 	*dx = e.dx;
 	*dy = e.dy;
 	*dz = e.dz;

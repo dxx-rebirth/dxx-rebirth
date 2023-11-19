@@ -1029,26 +1029,24 @@ window_event_result editor_dialog::callback_handler(const d_event &event)
 	int keypress = 0;
 	window_event_result rval = window_event_result::ignored;
 
-	if (event.type == EVENT_WINDOW_CREATED)
+	if (event.type == event_type::window_created)
 		return window_event_result::ignored;
 
-	if (event.type == EVENT_KEY_COMMAND)
+	if (event.type == event_type::key_command)
 		keypress = event_key_get(event);
-	else if (event.type == EVENT_WINDOW_CLOSE)
+	else if (event.type == event_type::window_close)
 	{
 		EditorWindow = NULL;
 		close_editor();
 		return window_event_result::ignored;
 	}
-	
 	// Update the windows
 
-	if (event.type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == event_type::ui_dialog_draw)
 	{
 		// Draw status box
 		gr_set_default_canvas();
 		gr_rect(*grd_curcanv, STATUS_X,STATUS_Y,STATUS_X+STATUS_W-1,STATUS_Y+STATUS_H-1, CGREY);
-		
 		medlisp_update_screen();
 		calc_frame_time();
 		texpage_do(event);
@@ -1060,28 +1058,27 @@ window_event_result editor_dialog::callback_handler(const d_event &event)
 		set_editor_time_of_day();
 		return window_event_result::handled;
 	}
-	
 	if ((selected_gadget == GameViewBox.get() && !render_3d_in_big_window) ||
 		(selected_gadget == LargeViewBox.get() && render_3d_in_big_window))
 		switch (event.type)
 		{
-			case EVENT_MOUSE_BUTTON_UP:
-			case EVENT_MOUSE_BUTTON_DOWN:
+			case event_type::mouse_button_up:
+			case event_type::mouse_button_down:
 				break;
-			case EVENT_MOUSE_MOVED:
+			case event_type::mouse_moved:
 				if (!keyd_pressed[ KEY_LCTRL ] && !keyd_pressed[ KEY_RCTRL ])
 					break;
 				[[fallthrough]];
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
-			case EVENT_JOYSTICK_BUTTON_UP:
-			case EVENT_JOYSTICK_BUTTON_DOWN:
+			case event_type::joystick_button_up:
+			case event_type::joystick_button_down:
 #endif
 #if DXX_MAX_AXES_PER_JOYSTICK
-			case EVENT_JOYSTICK_MOVED:
+			case event_type::joystick_moved:
 #endif
-			case EVENT_KEY_COMMAND:
-			case EVENT_KEY_RELEASE:
-			case EVENT_IDLE:
+			case event_type::key_command:
+			case event_type::key_release:
+			case event_type::idle:
 				kconfig_read_controls(Controls, event, 1);
 
 				if (slew_frame(0))
@@ -1097,10 +1094,10 @@ window_event_result editor_dialog::callback_handler(const d_event &event)
 					rval = window_event_result::handled;
 				}
 				break;
-			case EVENT_LOOP_BEGIN_LOOP:
+			case event_type::loop_begin_loop:
 				kconfig_begin_loop(Controls);
 				break;
-			case EVENT_LOOP_END_LOOP:
+			case event_type::loop_end_loop:
 				kconfig_end_loop(Controls, FrameTime);
 				break;
 
@@ -1109,7 +1106,7 @@ window_event_result editor_dialog::callback_handler(const d_event &event)
 		}
 
 	//do non-essential stuff in idle event
-	if (event.type == EVENT_IDLE)
+	if (event.type == event_type::idle)
 	{
 		check_wall_validity();
 
@@ -1261,7 +1258,7 @@ window_event_result editor_dialog::callback_handler(const d_event &event)
 		Update_flags |= UF_ED_STATE_CHANGED | UF_VIEWPOINT_MOVED;
 	}
 
-	if (event.type == EVENT_UI_USERBOX_DRAGGED && &ui_event_get_gadget(event) == GameViewBox.get())
+	if (event.type == event_type::ui_userbox_dragged && &ui_event_get_gadget(event) == GameViewBox.get())
 	{
 		int	x, y;
 		x = GameViewBox->b1_drag_x2;
@@ -1336,7 +1333,7 @@ window_event_result editor_dialog::callback_handler(const d_event &event)
 	}
 
 	// Allow specification of LargeView using mouse
-	if (event.type == EVENT_MOUSE_MOVED && (keyd_pressed[ KEY_LCTRL ] || keyd_pressed[ KEY_RCTRL ]))
+	if (event.type == event_type::mouse_moved && (keyd_pressed[ KEY_LCTRL ] || keyd_pressed[ KEY_RCTRL ]))
 	{
 		int dx, dy, dz;
 
@@ -1353,7 +1350,7 @@ window_event_result editor_dialog::callback_handler(const d_event &event)
 		}
 	}
 
-	if (event.type == EVENT_MOUSE_MOVED)
+	if (event.type == event_type::mouse_moved)
 	{
 		int dx, dy, dz;
 

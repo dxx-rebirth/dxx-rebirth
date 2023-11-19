@@ -1326,9 +1326,9 @@ window_event_result mission_menu::callback_handler(const d_event &event, window_
 {
 	switch (event.type)
 	{
-		case EVENT_WINDOW_CREATED:
+		case event_type::window_created:
 			break;
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 		{
 			const auto raw_citem = static_cast<const d_select_event &>(event).citem;
 			auto citem = raw_citem;
@@ -1338,7 +1338,7 @@ window_event_result mission_menu::callback_handler(const d_event &event, window_
 				{
 					/* Clear parent pointer so that the parent window is
 					 * not implicitly closed during handling of
-					 * EVENT_WINDOW_CLOSE.
+					 * event_type::window_close.
 					 */
 					parent = nullptr;
 					return window_event_result::close;
@@ -1375,7 +1375,7 @@ window_event_result mission_menu::callback_handler(const d_event &event, window_
 			}
 			return (*when_selected)();
 		}
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			/* If the user dismisses the listbox by pressing ESCAPE,
 			 * do not close the parent listbox.
 			 */

@@ -284,10 +284,10 @@ window_event_result savegame_chooser_newmenu::event_handler(const d_event &event
 {
 	switch (event.type)
 	{
-		case EVENT_NEWMENU_DRAW:
+		case event_type::newmenu_draw:
 			draw_handler();
 			return window_event_result::handled;
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 			{
 				const auto citem = static_cast<const d_select_event &>(event).citem;
 				const auto choice = static_cast<d_game_unique_state::save_slot>(citem - decorative_item_count);

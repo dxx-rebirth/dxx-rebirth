@@ -143,16 +143,14 @@ std::unique_ptr<UI_GADGET_LISTBOX> ui_add_gadget_listbox(UI_DIALOG &dlg, short x
 window_event_result UI_GADGET_LISTBOX::event_handler(UI_DIALOG &dlg, const d_event &event)
 {
 	int kf;
-	if (event.type == EVENT_WINDOW_DRAW)
+	if (event.type == event_type::window_draw)
 	{
 		ui_draw_listbox(dlg, *this);
 		return window_event_result::ignored;
 	}
-	
-	const auto keypress = (event.type == EVENT_KEY_COMMAND)
+	const auto keypress = (event.type == event_type::key_command)
 		? event_key_get(event)
 		: 0u;
-	
 	selected_item = -1;
 
 	moved = 0;
@@ -349,10 +347,9 @@ window_event_result UI_GADGET_LISTBOX::event_handler(UI_DIALOG &dlg, const d_eve
 		}
 
 	}
-	
 	if (moved || (selected_item > 0))
 	{
-		rval = ui_gadget_send_event(dlg, (selected_item > 0) ? EVENT_UI_LISTBOX_SELECTED : EVENT_UI_LISTBOX_MOVED, *this);
+		rval = ui_gadget_send_event(dlg, (selected_item > 0) ? event_type::ui_listbox_selected : event_type::ui_listbox_moved, *this);
 		if (rval == window_event_result::ignored)
 			rval = window_event_result::handled;
 	}

@@ -247,9 +247,9 @@ public:
 	virtual window_event_result callback_handler(const d_event &) = 0;
 };
 
-#define B1_JUST_PRESSED     (event.type == EVENT_MOUSE_BUTTON_DOWN && event_mouse_get_button(event) == mbtn::left)
-#define B1_JUST_RELEASED    (event.type == EVENT_MOUSE_BUTTON_UP && event_mouse_get_button(event) == mbtn::left)
-#define B1_DOUBLE_CLICKED   (event.type == EVENT_MOUSE_DOUBLE_CLICKED && event_mouse_get_button(event) == mbtn::left)
+#define B1_JUST_PRESSED     (event.type == event_type::mouse_button_down && event_mouse_get_button(event) == mbtn::left)
+#define B1_JUST_RELEASED    (event.type == event_type::mouse_button_up && event_mouse_get_button(event) == mbtn::left)
+#define B1_DOUBLE_CLICKED   (event.type == event_type::mouse_double_clicked && event_mouse_get_button(event) == mbtn::left)
 
 extern grs_font_ptr ui_small_font;
 
@@ -275,7 +275,7 @@ int ui_messagebox( short xc, short yc, const char * text, const ui_messagebox_ti
 void ui_dialog_set_current_canvas(UI_DIALOG &dlg);
 void ui_close_dialog(UI_DIALOG &dlg);
 
-#define GADGET_PRESSED(g) (event.type == EVENT_UI_GADGET_PRESSED && &ui_event_get_gadget(event) == g)
+#define GADGET_PRESSED(g) (event.type == event_type::ui_gadget_pressed && &ui_event_get_gadget(event) == g)
 
 void ui_gadget_add(UI_DIALOG &dlg, short x1, short y1, short x2, short y2, UI_GADGET &);
 

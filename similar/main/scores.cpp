@@ -254,7 +254,7 @@ window_event_result request_user_high_score_comment::event_handler(const d_event
 {
 	switch (event.type)
 	{
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			{
 				std::array<char, sizeof(all_scores::cool_saying)> &text1 = *this;
 				strcpy(scores.cool_saying, text1[0] ? text1.data() : "No comment");
@@ -504,11 +504,11 @@ window_event_result scores_menu::event_handler(const d_event &event)
 
 	switch (event.type)
 	{
-		case EVENT_WINDOW_ACTIVATED:
+		case event_type::window_activated:
 			game_flush_inputs(Controls);
 			break;
 			
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 			k = event_key_get(event);
 			switch( k )	{
 				case KEY_CTRLED+KEY_R:		
@@ -533,8 +533,8 @@ window_event_result scores_menu::event_handler(const d_event &event)
 			}
 			break;
 
-		case EVENT_MOUSE_BUTTON_DOWN:
-		case EVENT_MOUSE_BUTTON_UP:
+		case event_type::mouse_button_down:
+		case event_type::mouse_button_up:
 			if (event_mouse_get_button(event) == mbtn::left || event_mouse_get_button(event) == mbtn::right)
 			{
 				return window_event_result::close;
@@ -542,15 +542,15 @@ window_event_result scores_menu::event_handler(const d_event &event)
 			break;
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
-		case EVENT_JOYSTICK_BUTTON_DOWN:
+		case event_type::joystick_button_down:
 			return window_event_result::close;
 #endif
 
-		case EVENT_IDLE:
+		case event_type::idle:
 			timer_delay2(50);
 			break;
 
-		case EVENT_WINDOW_DRAW:
+		case event_type::window_draw:
 			
 			{
 				auto &canvas = w_canv;
@@ -594,7 +594,7 @@ window_event_result scores_menu::event_handler(const d_event &event)
 			}
 			}
 			break;
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			break;
 		default:
 			break;

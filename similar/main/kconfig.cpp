@@ -576,10 +576,9 @@ static window_event_result kconfig_mouse(kc_menu &menu, const d_event &event)
 			}
 		}
 	}
-	else if (event.type == EVENT_MOUSE_BUTTON_UP)
+	else if (event.type == event_type::mouse_button_up)
 	{
 		int item_height;
-		
 		mouse_get_pos(&mx, &my, &mz);
 		item_height = get_item_height(*canvas.cv_font, menu.items[menu.citem], menu.mitems[menu.citem]);
 		const auto &&fspacx = FSPACX();
@@ -701,20 +700,18 @@ window_event_result kc_menu::event_handler(const d_event &event)
 
 	switch (event.type)
 	{
-		case EVENT_WINDOW_ACTIVATED:
+		case event_type::window_activated:
 			game_flush_inputs(Controls);
 			break;
-			
-		case EVENT_WINDOW_DEACTIVATED:
+		case event_type::window_deactivated:
 			mouse_state = 0;
 			break;
-			
-		case EVENT_MOUSE_BUTTON_DOWN:
-		case EVENT_MOUSE_BUTTON_UP:
-			if (changing && items[citem].type == kc_type::mouse_button && event.type == EVENT_MOUSE_BUTTON_UP)
+		case event_type::mouse_button_down:
+		case event_type::mouse_button_up:
+			if (changing && items[citem].type == kc_type::mouse_button && event.type == event_type::mouse_button_up)
 			{
 				kc_change_mousebutton(*this, event, mitems[citem]);
-				mouse_state = (event.type == EVENT_MOUSE_BUTTON_DOWN);
+				mouse_state = (event.type == event_type::mouse_button_down);
 				return window_event_result::handled;
 			}
 
@@ -729,10 +726,10 @@ window_event_result kc_menu::event_handler(const d_event &event)
 			else if (event_mouse_get_button(event) != mbtn::left)
 				return window_event_result::ignored;
 
-			mouse_state = (event.type == EVENT_MOUSE_BUTTON_DOWN);
+			mouse_state = (event.type == event_type::mouse_button_down);
 			return kconfig_mouse(*this, event);
 
-		case EVENT_MOUSE_MOVED:
+		case event_type::mouse_moved:
 			if (changing && items[citem].type == kc_type::mouse_axis)
 				kc_change_mouseaxis(*this, event, mitems[citem]);
 			else
@@ -740,14 +737,14 @@ window_event_result kc_menu::event_handler(const d_event &event)
 			break;
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
-		case EVENT_JOYSTICK_BUTTON_DOWN:
+		case event_type::joystick_button_down:
 			if (changing && items[citem].type == kc_type::joy_button)
 				kc_change_joybutton(*this, event, mitems[citem]);
 			break;
 #endif
 
 #if DXX_MAX_AXES_PER_JOYSTICK
-		case EVENT_JOYSTICK_MOVED:
+		case event_type::joystick_moved:
 			if (changing && items[citem].type == kc_type::joy_axis)
 				kc_change_joyaxis(*this, event, mitems[citem]);
 			else
@@ -760,7 +757,7 @@ window_event_result kc_menu::event_handler(const d_event &event)
 			break;
 #endif
 
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 		{
 			window_event_result rval = kconfig_key_command(*this, event);
 			if (rval != window_event_result::ignored)
@@ -770,19 +767,17 @@ window_event_result kc_menu::event_handler(const d_event &event)
 			return window_event_result::ignored;
 		}
 
-		case EVENT_IDLE:
+		case event_type::idle:
 			kconfig_mouse(*this, event);
 			break;
-			
-		case EVENT_WINDOW_DRAW:
+		case event_type::window_draw:
 			if (changing)
 				timer_delay(f0_1/10);
 			else
 				timer_delay2(50);
 			kconfig_draw(*this);
 			break;
-			
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			// Update save values...
 			for (auto &&[kcm, setting] : zip(kcm_keyboard, PlayerCfg.KeySettings.Keyboard))
 				setting = kcm.value;
@@ -885,7 +880,7 @@ static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 {
 	ubyte keycode = 255;
 
-	Assert(event.type == EVENT_KEY_COMMAND);
+	assert(event.type == event_type::key_command);
 	keycode = event_key_get_raw(event);
 
 	auto e = end(system_keys);
@@ -903,7 +898,7 @@ static void kc_change_joybutton( kc_menu &menu,const d_event &event, kc_mitem &m
 {
 	int button = 255;
 
-	Assert(event.type == EVENT_JOYSTICK_BUTTON_DOWN);
+	assert(event.type == event_type::joystick_button_down);
 	button = event_joystick_get_button(event);
 
 	kc_set_exclusive_binding(menu, mitem, kc_type::joy_button, button);
@@ -935,7 +930,7 @@ static void kc_change_mouseaxis( kc_menu &menu,const d_event &event, kc_mitem &m
 {
 	int dx, dy, dz;
 
-	Assert(event.type == EVENT_MOUSE_MOVED);
+	assert(event.type == event_type::mouse_moved);
 	event_mouse_get_delta( event, &dx, &dy, &dz );
 	uint8_t code;
 	if (abs(dz) > 5)
@@ -1116,8 +1111,8 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 
 	switch (event.type)
 	{
-		case EVENT_KEY_COMMAND:
-		case EVENT_KEY_RELEASE:
+		case event_type::key_command:
+		case event_type::key_release:
 			{
 				const auto &&key = event_key_get_raw(event);
 				if (key < 255)
@@ -1125,9 +1120,9 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 					for (auto &&[kc, kcm] : zip(kc_keyboard, kcm_keyboard))
 					{
 						if (kcm.value == key)
-							input_button_matched(Controls, kc, event.type == EVENT_KEY_COMMAND);
+							input_button_matched(Controls, kc, event.type == event_type::key_command);
 					}
-			if (!automap_flag && event.type == EVENT_KEY_COMMAND)
+			if (!automap_flag && event.type == event_type::key_command)
 				for (uint_fast32_t i = 0, j = 0; i < 28; i += 3, j++)
 					if (kcm_rebirth[i].value == key)
 					{
@@ -1138,8 +1133,8 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 			}
 			break;
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
-		case EVENT_JOYSTICK_BUTTON_DOWN:
-		case EVENT_JOYSTICK_BUTTON_UP:
+		case event_type::joystick_button_down:
+		case event_type::joystick_button_up:
 			if (!(PlayerCfg.ControlType & CONTROL_USING_JOYSTICK))
 				break;
 			{
@@ -1149,9 +1144,9 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 					for (auto &&[kc, kcm] : zip(kc_joystick, kcm_joystick))
 					{
 						if (kc.type == kc_type::joy_button && kcm.value == button)
-							input_button_matched(Controls, kc, event.type == EVENT_JOYSTICK_BUTTON_DOWN);
+							input_button_matched(Controls, kc, event.type == event_type::joystick_button_down);
 					}
-			if (!automap_flag && event.type == EVENT_JOYSTICK_BUTTON_DOWN)
+			if (!automap_flag && event.type == event_type::joystick_button_down)
 				for (uint_fast32_t i = 1, j = 0; i < 29; i += 3, j++)
 					if (kcm_rebirth[i].value == button)
 					{
@@ -1162,8 +1157,8 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 			break;
 			}
 #endif
-		case EVENT_MOUSE_BUTTON_DOWN:
-		case EVENT_MOUSE_BUTTON_UP:
+		case event_type::mouse_button_down:
+		case event_type::mouse_button_up:
 			if (!(PlayerCfg.ControlType & CONTROL_USING_MOUSE))
 				break;
 			{
@@ -1172,9 +1167,9 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 					for (auto &&[kc, kcm] : zip(kc_mouse, kcm_mouse))
 					{
 						if (kc.type == kc_type::mouse_button && kcm.value == button)
-							input_button_matched(Controls, kc, event.type == EVENT_MOUSE_BUTTON_DOWN);
+							input_button_matched(Controls, kc, event.type == event_type::mouse_button_down);
 					}
-			if (!automap_flag && event.type == EVENT_MOUSE_BUTTON_DOWN)
+			if (!automap_flag && event.type == event_type::mouse_button_down)
 				for (uint_fast32_t i = 2, j = 0; i < 30; i += 3, j++)
 					if (kcm_rebirth[i].value == button)
 					{
@@ -1184,7 +1179,7 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 			}
 			break;
 #if DXX_MAX_AXES_PER_JOYSTICK
-		case EVENT_JOYSTICK_MOVED:
+		case event_type::joystick_moved:
 		{
 			int joy_null_value = 0;
 			if (!(PlayerCfg.ControlType & CONTROL_USING_JOYSTICK))
@@ -1214,7 +1209,7 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 			break;
 		}
 #endif
-		case EVENT_MOUSE_MOVED:
+		case event_type::mouse_moved:
 		{
 			if (!(PlayerCfg.ControlType & CONTROL_USING_MOUSE))
 				break;
@@ -1245,7 +1240,7 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 			}
 			break;
 		}
-		case EVENT_IDLE:
+		case event_type::idle:
 		default:
 			if (!PlayerCfg.MouseFlightSim && mouse_delta_time < timer_query())
 			{

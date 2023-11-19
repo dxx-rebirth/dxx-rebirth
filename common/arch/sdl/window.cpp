@@ -20,6 +20,7 @@
 #include "console.h"
 #include "dxxerror.h"
 #include "event.h"
+#include "d_underlying_value.h"
 
 namespace dcx {
 
@@ -43,9 +44,9 @@ void window::send_creation_events()
 		FrontWindow->next = this;
 	FrontWindow = this;
 	if (prev_front)
-		prev_front->send_event(d_event{EVENT_WINDOW_DEACTIVATED});
+		prev_front->send_event(d_event{event_type::window_deactivated});
 	this->send_event(d_create_event{});
-	this->send_event(d_event{EVENT_WINDOW_ACTIVATED});
+	this->send_event(d_event{event_type::window_activated});
 }
 
 window::~window()
@@ -69,14 +70,14 @@ mixin_trackable_window::~mixin_trackable_window()
 int window_close(window *wind)
 {
 	if (wind == window_get_front())
-		wind->send_event(d_event{EVENT_WINDOW_DEACTIVATED});	// Deactivate first
+		wind->send_event(d_event{event_type::window_deactivated});	// Deactivate first
 
-	const auto result = wind->send_event(d_event{EVENT_WINDOW_CLOSE});
+	const auto result = wind->send_event(d_event{event_type::window_close});
 	if (result == window_event_result::handled)
 	{
 		// User 'handled' the event, cancelling close
 		if (wind == window_get_front())
-			wind->send_event(d_event{EVENT_WINDOW_ACTIVATED});
+			wind->send_event(d_event{event_type::window_activated});
 		return 0;
 	}
 
@@ -86,7 +87,7 @@ int window_close(window *wind)
 		delete wind;
 
 	if (const auto prev = window_get_front())
-		prev->send_event(d_event{EVENT_WINDOW_ACTIVATED});
+		prev->send_event(d_event{event_type::window_activated});
 
 	return 1;
 }
@@ -127,8 +128,8 @@ void window_select(window &wind)
 	if (wind.is_visible())
 	{
 		if (prev)
-			prev->send_event(d_event{EVENT_WINDOW_DEACTIVATED});
-		wind.send_event(d_event{EVENT_WINDOW_ACTIVATED});
+			prev->send_event(d_event{event_type::window_deactivated});
+		wind.send_event(d_event{event_type::window_activated});
 	}
 }
 
@@ -141,10 +142,10 @@ window *window::set_visible(uint8_t visible)
 		return wind;
 	
 	if (prev)
-		prev->send_event(d_event{EVENT_WINDOW_DEACTIVATED});
+		prev->send_event(d_event{event_type::window_deactivated});
 
 	if (wind)
-		wind->send_event(d_event{EVENT_WINDOW_ACTIVATED});
+		wind->send_event(d_event{event_type::window_activated});
 	return wind;
 }
 
@@ -155,7 +156,7 @@ window_event_result window::send_event(const d_event &event
 									)
 {
 #if DXX_HAVE_CXX_BUILTIN_FILE_LINE
-	con_printf(CON_DEBUG, "%s:%u: sending event %i to window of dimensions %dx%d", file, line, event.type, w_canv.cv_bitmap.bm_w, w_canv.cv_bitmap.bm_h);
+	con_printf(CON_DEBUG, "%s:%u: sending event %i to window of dimensions %dx%d", file, line, underlying_value(event.type), w_canv.cv_bitmap.bm_w, w_canv.cv_bitmap.bm_h);
 #endif
 	const auto r = event_handler(event);
 	if (r == window_event_result::close)

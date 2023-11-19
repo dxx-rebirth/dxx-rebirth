@@ -76,14 +76,12 @@ window_event_result UI_GADGET_USERBOX::event_handler(UI_DIALOG &dlg, const d_eve
 {
 	int x, y, z;
 	window_event_result rval = window_event_result::ignored;
-	
-	if (event.type == EVENT_WINDOW_DRAW)
+	if (event.type == event_type::window_draw)
 		ui_draw_userbox(dlg, *this);
 
-	const auto keypress = (event.type == EVENT_KEY_COMMAND)
+	const auto keypress = (event.type == event_type::key_command)
 		? event_key_get(event)
 		: 0u;
-		
 	mouse_get_pos(&x, &y, &z);
 	const auto OnMe = ui_mouse_on_gadget(*this);
 
@@ -113,7 +111,7 @@ window_event_result UI_GADGET_USERBOX::event_handler(UI_DIALOG &dlg, const d_eve
 			rval = window_event_result::handled;
 		}
 
-		if ( (event.type == EVENT_MOUSE_MOVED) && b1_held_down )
+		if (event.type == event_type::mouse_moved && b1_held_down)
 		{
 			b1_dragging = 1;
 			b1_drag_x2 = x - x1;
@@ -146,10 +144,9 @@ window_event_result UI_GADGET_USERBOX::event_handler(UI_DIALOG &dlg, const d_eve
 		this->keypress = keypress;
 		rval = window_event_result::handled;
 	}
-	
 	if (b1_clicked || b1_dragging)
 	{
-		rval = ui_gadget_send_event(dlg, b1_clicked ? EVENT_UI_GADGET_PRESSED : EVENT_UI_USERBOX_DRAGGED, *this);
+		rval = ui_gadget_send_event(dlg, b1_clicked ? event_type::ui_gadget_pressed : event_type::ui_userbox_dragged, *this);
 		if (rval == window_event_result::ignored)
 			rval = window_event_result::handled;
 	}

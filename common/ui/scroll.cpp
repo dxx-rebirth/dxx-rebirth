@@ -99,8 +99,7 @@ window_event_result UI_GADGET_SCROLLBAR::event_handler(UI_DIALOG &dlg, const d_e
 {
 	int x, y, z;
 	window_event_result rval = window_event_result::ignored;
-		
-	if (event.type == EVENT_WINDOW_DRAW)
+	if (event.type == event_type::window_draw)
 	{
 		ui_draw_scrollbar(dlg, *this);
 		return window_event_result::ignored;
@@ -121,10 +120,9 @@ window_event_result UI_GADGET_SCROLLBAR::event_handler(UI_DIALOG &dlg, const d_e
 	moved = 0;
 
 
-	if (keyfocus && event.type == EVENT_KEY_COMMAND)
+	if (keyfocus && event.type == event_type::key_command)
 	{
 		int key;
-		
 		key = event_key_get(event);
 
 		if (key & KEY_UP)
@@ -138,12 +136,10 @@ window_event_result UI_GADGET_SCROLLBAR::event_handler(UI_DIALOG &dlg, const d_e
 			rval = window_event_result::handled;
 		}
 	}
-	else if (keyfocus && event.type == EVENT_KEY_RELEASE)
+	else if (keyfocus && event.type == event_type::key_release)
 	{
 		int key;
-		
 		key = event_key_get(event);
-		
 		if (key & KEY_UP)
 		{
 			up_button->position = 0;
@@ -275,7 +271,7 @@ window_event_result UI_GADGET_SCROLLBAR::event_handler(UI_DIALOG &dlg, const d_e
 		moved = 1;
 	if (moved)
 	{
-		rval = ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, *this);
+		rval = ui_gadget_send_event(dlg, event_type::ui_gadget_pressed, *this);
 		if (rval == window_event_result::ignored)
 			rval = window_event_result::handled;
 	}

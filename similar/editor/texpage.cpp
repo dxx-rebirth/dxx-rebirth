@@ -227,18 +227,15 @@ static std::array<replacement, MAX_REPLACEMENTS> Replacement_list;
 
 int texpage_do(const d_event &event)
 {
-	if (event.type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == event_type::ui_dialog_draw)
 	{
 		gr_set_current_canvas( TmapnameCanvas );
 		gr_set_curfont(*grd_curcanv, *ui_small_font.get());
 		gr_set_fontcolor(*grd_curcanv, CBLACK, CWHITE);
-		
 		texpage_redraw();
-		
 		// Don't reset the current tmap every time we go back to the editor.
 		//	CurrentTexture = TexturePage*TMAPS_PER_PAGE;
 		texpage_show_current();
-		
 		return 1;
 	}
 

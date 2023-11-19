@@ -578,9 +578,9 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 	auto &vmobjptridx = Objects.vmptridx;
 	switch(event.type)
 	{
-		case EVENT_WINDOW_CREATED:
+		case event_type::window_created:
 			return robot_dialog_created(this);
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			MainWindow = NULL;
 			return window_event_result::ignored;
 		default:
@@ -591,10 +591,8 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 	int	first_object_index;
 	int keypress = 0;
 	window_event_result rval = window_event_result::ignored;
-	
-	if (event.type == EVENT_KEY_COMMAND)
+	if (event.type == event_type::key_command)
 		keypress = event_key_get(event);
-		
 	Assert(MainWindow != NULL);
 
 	first_object_index = Cur_object_index;
@@ -665,7 +663,7 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 	//------------------------------------------------------------
 	// Redraw the object in the little 64x64 box
 	//------------------------------------------------------------
-	if (event.type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == event_type::ui_dialog_draw)
 	{
 		// A simple frame time counter for spinning the objects...
 		Temp = timer_query();
@@ -855,7 +853,7 @@ window_event_result object_dialog::callback_handler(const d_event &event)
 	auto &vmobjptr = Objects.vmptr;
 	switch(event.type)
 	{
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			MattWindow = NULL;
 			return window_event_result::ignored;
 		default:
@@ -864,23 +862,20 @@ window_event_result object_dialog::callback_handler(const d_event &event)
 	const auto &&obj = vmobjptr(Cur_object_index);
 	int keypress = 0;
 	window_event_result rval = window_event_result::ignored;
-	
-	if (event.type == EVENT_KEY_COMMAND)
+	if (event.type == event_type::key_command)
 		keypress = event_key_get(event);
-	
 	//------------------------------------------------------------
 	// Call the ui code..
 	//------------------------------------------------------------
 	ui_button_any_drawn = 0;
 
 
-	if (event.type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == event_type::ui_dialog_draw)
 	{
 		ui_dputs_at(this, 10, 132, "&X:");
 		ui_dputs_at(this, 10, 162, "&Y:");
 		ui_dputs_at(this, 10, 192, "&Z:");
 	}
-	
 	if (GADGET_PRESSED(quitButton.get()) || keypress == KEY_ESC)
 	{
 		if (initialMode[0]->flag)

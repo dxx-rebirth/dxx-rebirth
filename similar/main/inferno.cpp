@@ -296,14 +296,14 @@ window_event_result standard_handler(const d_event &event)
 
 	switch (event.type)
 	{
-		case EVENT_MOUSE_BUTTON_DOWN:
-		case EVENT_MOUSE_BUTTON_UP:
+		case event_type::mouse_button_down:
+		case event_type::mouse_button_up:
 			// No window selecting
 			// We stay with the current one until it's closed/hidden or another one is made
 			// Not the case for the editor
 			break;
 
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 			key = event_key_get(event);
 
 			switch (key)
@@ -360,15 +360,15 @@ window_event_result standard_handler(const d_event &event)
 			}
 			break;
 
-		case EVENT_WINDOW_DRAW:
-		case EVENT_IDLE:
+		case event_type::window_draw:
+		case event_type::idle:
 			//see if redbook song needs to be restarted
 #if DXX_USE_SDL_REDBOOK_AUDIO
 			RBACheckFinishedHook();
 #endif
 			return window_event_result::handled;
 
-		case EVENT_QUIT:
+		case event_type::quit:
 #if DXX_USE_EDITOR
 			if (!SafetyCheck())
 				return window_event_result::handled;

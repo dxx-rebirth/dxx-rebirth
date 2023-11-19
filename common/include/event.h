@@ -19,48 +19,48 @@
 #ifdef __cplusplus
 namespace dcx {
 
-enum event_type : unsigned
+enum class event_type : uint8_t
 {
-	EVENT_IDLE = 0,
-	EVENT_QUIT,
+	idle = 0,
+	quit,
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
-	EVENT_JOYSTICK_BUTTON_DOWN,
-	EVENT_JOYSTICK_BUTTON_UP,
+	joystick_button_down,
+	joystick_button_up,
 #endif
 #if DXX_MAX_AXES_PER_JOYSTICK
-	EVENT_JOYSTICK_MOVED,
+	joystick_moved,
 #endif
 
-	EVENT_MOUSE_BUTTON_DOWN,
-	EVENT_MOUSE_BUTTON_UP,
-	EVENT_MOUSE_DOUBLE_CLICKED,
-	EVENT_MOUSE_MOVED,
+	mouse_button_down,
+	mouse_button_up,
+	mouse_double_clicked,
+	mouse_moved,
 
-	EVENT_KEY_COMMAND,
-	EVENT_KEY_RELEASE,
+	key_command,
+	key_release,
 
-	EVENT_WINDOW_CREATED,
+	window_created,
 #if SDL_MAJOR_VERSION == 2
-	EVENT_WINDOW_RESIZE,
+	window_resize,
 #endif
-	EVENT_WINDOW_ACTIVATED,
-	EVENT_WINDOW_DEACTIVATED,
-	EVENT_WINDOW_DRAW,
-	EVENT_WINDOW_CLOSE,
+	window_activated,
+	window_deactivated,
+	window_draw,
+	window_close,
 
-	EVENT_NEWMENU_DRAW,					// draw after the newmenu stuff is drawn (e.g. savegame previews)
-	EVENT_NEWMENU_CHANGED,				// an item had its value/text changed
-	EVENT_NEWMENU_SELECTED,				// user chose something - pressed enter/clicked on it
+	newmenu_draw,					// draw after the newmenu stuff is drawn (e.g. savegame previews)
+	newmenu_changed,				// an item had its value/text changed
+	newmenu_selected,				// user chose something - pressed enter/clicked on it
 
-	EVENT_LOOP_BEGIN_LOOP,
-	EVENT_LOOP_END_LOOP,
+	loop_begin_loop,
+	loop_end_loop,
 
-	EVENT_UI_DIALOG_DRAW,				// draw after the dialog stuff is drawn (e.g. spinning robots)
-	EVENT_UI_GADGET_PRESSED,				// user 'pressed' a gadget
-	EVENT_UI_LISTBOX_MOVED,
-	EVENT_UI_LISTBOX_SELECTED,
-	EVENT_UI_USERBOX_DRAGGED
+	ui_dialog_draw,				// draw after the dialog stuff is drawn (e.g. spinning robots)
+	ui_gadget_pressed,				// user 'pressed' a gadget
+	ui_listbox_moved,
+	ui_listbox_selected,
+	ui_userbox_dragged
 };
 
 enum class window_event_result : uint8_t
@@ -87,7 +87,7 @@ struct d_event
 struct d_create_event : d_event
 {
 	constexpr d_create_event() :
-		d_event{EVENT_WINDOW_CREATED}
+		d_event{event_type::window_created}
 	{
 	}
 };
@@ -96,7 +96,7 @@ struct d_change_event : d_event
 {
 	const int citem;
 	constexpr d_change_event(const int c) :
-		d_event{EVENT_NEWMENU_CHANGED}, citem(c)
+		d_event{event_type::newmenu_changed}, citem{c}
 	{
 	}
 };
@@ -105,7 +105,7 @@ struct d_select_event : d_event
 {
 	int citem;
 	d_select_event(const int c) :
-		d_event{EVENT_NEWMENU_SELECTED}, citem(c)
+		d_event{event_type::newmenu_selected}, citem{c}
 	{
 	}
 };
@@ -116,7 +116,7 @@ struct d_window_size_event : d_event
 	Sint32 width;
 	Sint32 height;
 	d_window_size_event(const Sint32 w, const Sint32 h) :
-		d_event{EVENT_WINDOW_RESIZE}, width(w), height(h)
+		d_event{event_type::window_resize}, width{w}, height{h}
 	{
 	}
 };
@@ -125,7 +125,7 @@ struct d_window_size_event : d_event
 struct d_event_begin_loop : d_event
 {
 	d_event_begin_loop() :
-		d_event{EVENT_LOOP_BEGIN_LOOP}
+		d_event{event_type::loop_begin_loop}
 	{
 	}
 };
@@ -133,7 +133,7 @@ struct d_event_begin_loop : d_event
 struct d_event_end_loop : d_event
 {
 	d_event_end_loop() :
-		d_event{EVENT_LOOP_END_LOOP}
+		d_event{event_type::loop_end_loop}
 	{
 	}
 };

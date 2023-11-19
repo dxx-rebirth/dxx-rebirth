@@ -246,20 +246,20 @@ window_event_result movie_pause_window::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_MOUSE_BUTTON_DOWN:
+		case event_type::mouse_button_down:
 			if (event_mouse_get_button(event) != mbtn::left)
 				return window_event_result::ignored;
 			[[fallthrough]];
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 			if (const auto result = call_default_handler(event); result == window_event_result::ignored)
 				return window_event_result::close;
 			else
 				return result;
-		case EVENT_IDLE:
+		case event_type::idle:
 			timer_delay(F1_0 / 4);
 			break;
 
-		case EVENT_WINDOW_DRAW:
+		case event_type::window_draw:
 		{
 			const char *msg = TXT_PAUSE;
 			int y;
@@ -287,16 +287,16 @@ window_event_result movie::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_WINDOW_ACTIVATED:
+		case event_type::window_activated:
 			paused = 0;
 			break;
 
-		case EVENT_WINDOW_DEACTIVATED:
+		case event_type::window_deactivated:
 			paused = 1;
 			MVE_rmHoldMovie();
 			break;
 
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 			{
 				const auto key = event_key_get(event);
 
@@ -318,7 +318,7 @@ window_event_result movie::event_handler(const d_event &event)
 			break;
 			}
 
-		case EVENT_WINDOW_DRAW:
+		case event_type::window_draw:
 			{
 				const auto f = frame_num;
 			if (!paused)
@@ -340,7 +340,7 @@ window_event_result movie::event_handler(const d_event &event)
 
 			break;
 
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			break;
 		default:
 			break;

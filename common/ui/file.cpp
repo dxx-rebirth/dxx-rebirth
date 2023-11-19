@@ -126,7 +126,7 @@ window_event_result ui_file_browser::callback_handler(const d_event &event)
 {
 	window_event_result rval = window_event_result::ignored;
 
-	if (event.type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == event_type::ui_dialog_draw)
 	{
 		ui_dputs_at(this, 10, 5, message);
 
@@ -151,8 +151,7 @@ window_event_result ui_file_browser::callback_handler(const d_event &event)
 		ui_messagebox( -1, -1, 1, "Sorry, no help is available!", "Ok" );
 		rval = window_event_result::handled;
 	}
-	
-	if (event.type == EVENT_UI_LISTBOX_MOVED)
+	if (event.type == event_type::ui_listbox_moved)
 	{
 		if (&ui_event_get_gadget(event) == listbox1.get() && listbox1->current_item >= 0 && filename_list[listbox1->current_item])
 			ui_inputbox_set_text(user_file.get(), filename_list[listbox1->current_item]);
@@ -162,8 +161,7 @@ window_event_result ui_file_browser::callback_handler(const d_event &event)
 
 		rval = window_event_result::handled;
 	}
-	
-	if (GADGET_PRESSED(button1.get()) || GADGET_PRESSED(user_file.get()) || event.type == EVENT_UI_LISTBOX_SELECTED)
+	if (GADGET_PRESSED(button1.get()) || GADGET_PRESSED(user_file.get()) || event.type == event_type::ui_listbox_selected)
 	{
 		char *p;
 		

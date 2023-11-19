@@ -93,7 +93,7 @@ std::unique_ptr<UI_GADGET_INPUTBOX> ui_add_gadget_inputbox(UI_DIALOG &dlg, const
 
 window_event_result UI_GADGET_INPUTBOX::event_handler(UI_DIALOG &dlg, const d_event &event)
 {
-	const auto keypress = (event.type == EVENT_KEY_COMMAND)
+	const auto keypress = (event.type == event_type::key_command)
 		? event_key_get(event)
 		: 0u;
 
@@ -139,15 +139,13 @@ window_event_result UI_GADGET_INPUTBOX::event_handler(UI_DIALOG &dlg, const d_ev
 	} else {
 		first_time = 1;
 	}
-	
 	if (pressed)
 	{
-		rval = ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, *this);
+		rval = ui_gadget_send_event(dlg, event_type::ui_gadget_pressed, *this);
 		if (rval == window_event_result::ignored)
 			rval = window_event_result::handled;
 	}
-		
-	if (event.type == EVENT_WINDOW_DRAW)
+	if (event.type == event_type::window_draw)
 		ui_draw_inputbox(dlg, *this);
 
 	return rval;

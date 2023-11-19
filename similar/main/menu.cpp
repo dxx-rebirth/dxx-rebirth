@@ -343,7 +343,7 @@ int hide_menus(void)
 }
 
 // Show all menus, with the front one shown first
-// This makes sure EVENT_WINDOW_ACTIVATED is only sent to that window
+// This makes sure event_type::window_activated is only sent to that window
 void show_menus(void)
 {
 	range_for (auto &i, menus)
@@ -518,9 +518,9 @@ window_event_result pilot_selection_listbox::callback_handler(const d_event &eve
 {
 	switch (event.type)
 	{
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 			return player_menu_keycommand(this, event);
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 			if (citem < 0)
@@ -539,7 +539,7 @@ window_event_result pilot_selection_listbox::callback_handler(const d_event &eve
 			return window_event_result::close;
 		}
 
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			if (read_player_file() != EZERO)
 				return window_event_result::handled;		// abort close!
 
@@ -740,32 +740,32 @@ window_event_result main_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_WINDOW_CREATED:
+		case event_type::window_created:
 			if (InterfaceUniqueState.PilotName[0u])
 				break;
 			RegisterPlayer();
 			break;
-		case EVENT_WINDOW_ACTIVATED:
+		case event_type::window_activated:
 #if defined(DXX_BUILD_DESCENT_II)
 			load_palette(MENU_PALETTE, load_palette_use::background, load_palette_change_screen::delayed);		//get correct palette
 #endif
 			keyd_time_when_last_pressed = timer_query();		// .. 20 seconds from now!
 			break;
 
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 			// Don't allow them to hit ESC in the main menu.
 			if (event_key_get(event)==KEY_ESC)
 				return window_event_result::ignored;
 			break;
 
-		case EVENT_MOUSE_BUTTON_DOWN:
-		case EVENT_MOUSE_BUTTON_UP:
+		case event_type::mouse_button_down:
+		case event_type::mouse_button_up:
 			// Don't allow mousebutton-closing in main menu.
 			if (event_mouse_get_button(event) == mbtn::right)
 				return window_event_result::ignored;
 			break;
 
-		case EVENT_IDLE:
+		case event_type::idle:
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_DEMO_KEY_DELAY	45
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -794,11 +794,11 @@ window_event_result main_menu::event_handler(const d_event &event)
 			}
 			break;
 
-		case EVENT_NEWMENU_DRAW:
+		case event_type::newmenu_draw:
 			draw_copyright(parent_canvas, *GAME_FONT);
 			break;
 
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 			return dispatch_menu_option(static_cast<main_menu_item_index>(citem));
@@ -895,9 +895,9 @@ window_event_result demo_selection_listbox::callback_handler(const d_event &even
 {
 	switch (event.type)
 	{
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 			return demo_menu_keycommand(this, event);
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 			if (citem < 0)
@@ -905,7 +905,7 @@ window_event_result demo_selection_listbox::callback_handler(const d_event &even
 			newdemo_start_playback(item[citem]);
 			return window_event_result::handled;		// stay in demo selector
 		}
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			break;
 		default:
 			break;
@@ -1076,7 +1076,7 @@ window_event_result options_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 			switch (citem)
@@ -1097,7 +1097,7 @@ window_event_result options_menu::event_handler(const d_event &event)
 			return window_event_result::handled;	// stay in menu until escape
 		}
 
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			write_player_file();
 			break;
 
@@ -1219,7 +1219,7 @@ window_event_result screen_resolution_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			handle_close_event();
 			return window_event_result::ignored;
 		default:
@@ -1347,8 +1347,8 @@ void screen_resolution_menu::apply_resolution(const screen_mode new_mode) const
 		Game_screen_mode = new_mode;
 		if (const auto g = Game_wind) // shortly activate Game_wind so it's canvas will align to new resolution. really minor glitch but whatever
 		{
-			g->send_event(d_event{EVENT_WINDOW_ACTIVATED});
-			g->send_event(d_event{EVENT_WINDOW_DEACTIVATED});
+			g->send_event(d_event{event_type::window_activated});
+			g->send_event(d_event{event_type::window_deactivated});
 		}
 	}
 	game_init_render_sub_buffers(*grd_curcanv, 0, 0, SM_W(Game_screen_mode), SM_H(Game_screen_mode));
@@ -1418,7 +1418,7 @@ window_event_result menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			copy_sensitivity_from_menu_to_cfg(m, copy_sensitivity<opt_label_kb, &player_config::KeyboardSens>());
 			break;
 		default:
@@ -1489,7 +1489,7 @@ window_event_result menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			PlayerCfg.MouseFSDead = m[opt_mfsd_deadzone].value;
 			copy_sensitivity_from_menu_to_cfg(m,
 				copy_sensitivity<opt_label_ms, &player_config::MouseSens>(),
@@ -1556,7 +1556,7 @@ window_event_result menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			copy_sensitivity_from_menu_to_cfg(m,
 				copy_sensitivity<opt_label_js, &player_config::JoystickSens>(),
 				copy_sensitivity<opt_label_jl, &player_config::JoystickLinear>(),
@@ -1673,7 +1673,7 @@ window_event_result input_config_menu::event_handler(const d_event &event)
 	const auto &items = m;
 	switch (event.type)
 	{
-		case EVENT_NEWMENU_CHANGED:
+		case event_type::newmenu_changed:
 		{
 			const auto citem = static_cast<const d_change_event &>(event).citem;
 			MouselookMode mousemode;
@@ -1728,7 +1728,7 @@ window_event_result input_config_menu::event_handler(const d_event &event)
 
 			break;
 		}
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 		{
 			const auto citem = static_cast<const d_select_event &>(event).citem;
 			if (citem == opt_ic_confkey)
@@ -1833,7 +1833,7 @@ window_event_result reticle_config_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			for (uint_fast32_t i = opt_reticle_classic; i != opt_label_blank_reticle_type; ++i)
 				if (m[i].value)
 				{
@@ -1901,7 +1901,7 @@ window_event_result hud_style_config_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 		{
 			const auto new_mode = m[opt_viewstyle_cockpit].value
 				? cockpit_mode_t::full_cockpit
@@ -1984,7 +1984,7 @@ window_event_result hud_config_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
                         if (citem == opt_hud_reticlemenu)
@@ -1993,7 +1993,7 @@ window_event_result hud_config_menu::event_handler(const d_event &event)
                                 hud_style_config();
 			return window_event_result::handled;		// stay in menu
 		}
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			DSX_HUD_MENU_OPTIONS(READ);
 #if defined(DXX_BUILD_DESCENT_II)
 			PlayerCfg.MissileViewEnabled = m[opt_missileview_selfandallies].value
@@ -2084,7 +2084,7 @@ window_event_result graphics_config_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_NEWMENU_CHANGED:
+		case event_type::newmenu_changed:
 		{
 			auto &citem = static_cast<const d_change_event &>(event).citem;
 			if (citem == opt_gr_brightness)
@@ -2098,7 +2098,7 @@ window_event_result graphics_config_menu::event_handler(const d_event &event)
 #endif
 			break;
 		}
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 			if (citem == opt_gr_screenres)
@@ -2107,7 +2107,7 @@ window_event_result graphics_config_menu::event_handler(const d_event &event)
 				hud_config();
 			return window_event_result::handled;		// stay in menu
 		}
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 #if DXX_USE_OGL
 			if (CGameCfg.VSync != m[opt_gr_vsync].value || CGameCfg.Multisample != m[opt_gr_multisample].value)
 			{
@@ -2261,7 +2261,7 @@ window_event_result browser::callback_handler(const d_event &event, window_event
 	switch (event.type)
 	{
 #ifdef _WIN32
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 		{
 			if (event_key_get(event) == KEY_CTRLED + KEY_D)
 			{
@@ -2291,7 +2291,7 @@ window_event_result browser::callback_handler(const d_event &event, window_event
 			break;
 		}
 #endif
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 			auto newpath = view_path.path;
@@ -2356,7 +2356,7 @@ window_event_result browser::callback_handler(const d_event &event, window_event
 			}
 			return get_absolute_path(userdata, list[citem]);
 		}
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			break;
 		default:
 			break;
@@ -2578,7 +2578,7 @@ window_event_result sound_menu::event_handler(const d_event &event)
 	int replay = 0;
 	switch (event.type)
 	{
-		case EVENT_NEWMENU_CHANGED:
+		case event_type::newmenu_changed:
 		{
 			auto &citem = static_cast<const d_change_event &>(event).citem;
 			if (citem == opt_sm_digivol)
@@ -2653,7 +2653,7 @@ window_event_result sound_menu::event_handler(const d_event &event)
 #endif
 			break;
 		}
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 		{
 #if DXX_USE_SDLMIXER
 			auto &citem = static_cast<const d_select_event &>(event).citem;
@@ -2683,7 +2683,7 @@ window_event_result sound_menu::event_handler(const d_event &event)
 #endif
 			return window_event_result::handled;	// stay in menu
 		}
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 #if DXX_USE_SDLMIXER
 			if (strcmp(old_music.data(), current_music.data()))
 			{
@@ -2780,7 +2780,7 @@ window_event_result gameplay_config_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
                         if (citem == opt_gameplay_reorderprimary_menu)
@@ -2789,7 +2789,7 @@ window_event_result gameplay_config_menu::event_handler(const d_event &event)
                                 ReorderSecondary();
 			return window_event_result::handled;		// stay in menu
 		}
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			{
 #if defined(DXX_BUILD_DESCENT_II)
 				uint8_t thief_absent;
@@ -2827,7 +2827,7 @@ window_event_result netgame_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 			// stay in multiplayer menu, even after having played a game
@@ -2884,13 +2884,13 @@ window_event_result polygon_models_viewer_window::event_handler(const d_event &e
 
 	switch (event.type)
 	{
-		case EVENT_WINDOW_ACTIVATED:
+		case event_type::window_activated:
 #if defined(DXX_BUILD_DESCENT_II)
 			gr_use_palette_table("groupa.256");
 #endif
 			key_toggle_repeat(1);
 			break;
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 			key = event_key_get(event);
 			switch (key)
 			{
@@ -2939,7 +2939,7 @@ window_event_result polygon_models_viewer_window::event_handler(const d_event &e
 					break;
 			}
 			return window_event_result::handled;
-		case EVENT_WINDOW_DRAW:
+		case event_type::window_draw:
 			timer_delay(F1_0/60);
 			{
 				auto &canvas = *grd_curcanv;
@@ -2950,7 +2950,7 @@ window_event_result polygon_models_viewer_window::event_handler(const d_event &e
 				gr_printf(canvas, game_font, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev model (%i/%i)\nA/D: rotate y\nW/S: rotate x\nQ/E: rotate z\nR: reset orientation", underlying_value(view_idx), LevelSharedPolygonModelState.N_polygon_models - 1);
 			}
 			break;
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 #if defined(DXX_BUILD_DESCENT_II)
 			load_palette(MENU_PALETTE, load_palette_use::background, load_palette_change_screen::delayed);
 #endif
@@ -2977,13 +2977,13 @@ window_event_result gamebitmaps_viewer_window::event_handler(const d_event &even
 
 	switch (event.type)
 	{
-		case EVENT_WINDOW_ACTIVATED:
+		case event_type::window_activated:
 #if defined(DXX_BUILD_DESCENT_II)
 			gr_use_palette_table("groupa.256");
 #endif
 			key_toggle_repeat(1);
 			break;
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 			key = event_key_get(event);
 			switch (key)
 			{
@@ -3002,7 +3002,7 @@ window_event_result gamebitmaps_viewer_window::event_handler(const d_event &even
 					break;
 			}
 			return window_event_result::handled;
-		case EVENT_WINDOW_DRAW:
+		case event_type::window_draw:
 			{
 				const bitmap_index bi{view_idx};
 				grs_bitmap *const bm = &GameBitmaps[bi];
@@ -3021,7 +3021,7 @@ window_event_result gamebitmaps_viewer_window::event_handler(const d_event &even
 				gr_printf(canvas, game_font, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev bitmap (%i/%i)", view_idx, Num_bitmap_files-1);
 			}
 			break;
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 #if defined(DXX_BUILD_DESCENT_II)
 			load_palette(MENU_PALETTE, load_palette_use::background, load_palette_change_screen::delayed);
 #endif
@@ -3071,7 +3071,7 @@ window_event_result sandbox_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_NEWMENU_SELECTED:
+		case event_type::newmenu_selected:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
 			switch (citem)

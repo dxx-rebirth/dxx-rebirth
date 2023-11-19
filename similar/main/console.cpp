@@ -353,20 +353,19 @@ window_event_result console_window::event_handler(const d_event &event)
 {
 	int key;
 	static fix64 last_scroll_time = 0;
-	
 	switch (event.type)
 	{
-		case EVENT_WINDOW_ACTIVATED:
+		case event_type::window_activated:
 			key_toggle_repeat(1);
 			break;
 
-		case EVENT_WINDOW_DEACTIVATED:
+		case event_type::window_deactivated:
 			key_toggle_repeat(0);
 			con_size = 0;
 			con_state = con_state::closed;
 			break;
 
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 			key = event_key_get(event);
 			switch (key)
 			{
@@ -422,7 +421,7 @@ window_event_result console_window::event_handler(const d_event &event)
 			}
 			return window_event_result::handled;
 
-		case EVENT_WINDOW_DRAW:
+		case event_type::window_draw:
 			timer_delay2(50);
 			if (con_state == con_state::opening)
 			{
@@ -448,12 +447,11 @@ window_event_result console_window::event_handler(const d_event &event)
 				return window_event_result::close;
 			}
 			break;
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			break;
 		default:
 			break;
 	}
-	
 	return window_event_result::ignored;
 }
 

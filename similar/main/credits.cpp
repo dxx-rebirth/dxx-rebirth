@@ -115,15 +115,15 @@ window_event_result credits_window::event_handler(const d_event &event)
 
 	switch (event.type)
 	{
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 			if ((result = call_default_handler(event)) == window_event_result::ignored)	// if not print screen, debug etc
 			{
 				return window_event_result::close;
 			}
 			return result;
 
-		case EVENT_MOUSE_BUTTON_DOWN:
-		case EVENT_MOUSE_BUTTON_UP:
+		case event_type::mouse_button_down:
+		case event_type::mouse_button_up:
 			if (event_mouse_get_button(event) == mbtn::left || event_mouse_get_button(event) == mbtn::right)
 			{
 				return window_event_result::close;
@@ -131,18 +131,17 @@ window_event_result credits_window::event_handler(const d_event &event)
 			break;
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
-		case EVENT_JOYSTICK_BUTTON_DOWN:
+		case event_type::joystick_button_down:
 			return window_event_result::close;
 #endif
 
-		case EVENT_IDLE:
+		case event_type::idle:
 			if (done > NUM_LINES)
 			{
 				return window_event_result::close;
 			}
 			break;
-			
-		case EVENT_WINDOW_DRAW:
+		case event_type::window_draw:
 			{
 #if defined(DXX_BUILD_DESCENT_I)
 			timer_delay(F1_0/17);
@@ -242,7 +241,7 @@ window_event_result credits_window::event_handler(const d_event &event)
 			break;
 			}
 
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			songs_set_volume(CGameCfg.MusicVolume);
 			songs_play_song( SONG_TITLE, 1 );
 			break;

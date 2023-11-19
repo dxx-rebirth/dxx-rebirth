@@ -142,7 +142,7 @@ window_event_result ui_gadget_send_event(UI_DIALOG &dlg, const event_type type, 
 UI_GADGET &ui_event_get_gadget(const d_event &event)
 {
 	auto &e = static_cast<const event_gadget &>(event);
-	Assert(e.type >= EVENT_UI_GADGET_PRESSED);	// Any UI event
+	assert(e.type >= event_type::ui_gadget_pressed);	// Any UI event
 	return e.gadget;
 }
 
@@ -151,7 +151,7 @@ window_event_result ui_dialog_do_gadgets(UI_DIALOG &dlg, const d_event &event)
 	int keypress = 0;
 	UI_GADGET * tmp, * tmp1;
 
-	if (event.type == EVENT_KEY_COMMAND)
+	if (event.type == event_type::key_command)
 		keypress = event_key_get(event);
 
 	tmp = dlg.gadget;

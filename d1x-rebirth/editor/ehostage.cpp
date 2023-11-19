@@ -138,16 +138,16 @@ window_event_result hostage_dialog::callback_handler(const d_event &event)
 {
 	switch(event.type)
 	{
-		case EVENT_WINDOW_CREATED:
+		case event_type::window_created:
 			return hostage_dialog_created(this);
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			MainWindow = nullptr;
 			return window_event_result::ignored;
 		default:
 			break;
 	}
 	int keypress = 0;
-	if (event.type == EVENT_KEY_COMMAND)
+	if (event.type == event_type::key_command)
 		keypress = event_key_get(event);
 
 	Assert(MainWindow != NULL);

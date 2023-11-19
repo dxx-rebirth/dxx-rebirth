@@ -23,7 +23,7 @@ static void display_win32_alert(const char *message, int error)
 {
 	// Handle Descent's windows properly
 	if (const auto wind = window_get_front())
-		wind->send_event(d_event{EVENT_WINDOW_DEACTIVATED});
+		wind->send_event(d_event{event_type::window_deactivated});
 
 	int fullscreen = (grd_curscreen && gr_check_fullscreen());
 	if (fullscreen)
@@ -32,8 +32,7 @@ static void display_win32_alert(const char *message, int error)
 	MessageBox(NULL, message, error?"Sorry, a critical error has occurred.":"Attention!", error?MB_OK|MB_ICONERROR:MB_OK|MB_ICONWARNING);
 
 	if (const auto wind = window_get_front())
-		wind->send_event(d_event{EVENT_WINDOW_ACTIVATED});
-	
+		wind->send_event(d_event{event_type::window_activated});
 	if (!error && fullscreen)
 		gr_toggle_fullscreen();
 }

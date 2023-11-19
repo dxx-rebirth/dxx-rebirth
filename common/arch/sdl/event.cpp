@@ -103,7 +103,7 @@ window_event_result event_poll()
 	// Send the idle event if there were no other events (or they were ignored)
 	if (state.highest_result == window_event_result::ignored)
 	{
-		const d_event ievent{EVENT_IDLE};
+		const d_event ievent{event_type::idle};
 		state.highest_result = std::max(event_send(ievent), state.highest_result);
 	}
 	else
@@ -170,8 +170,7 @@ void event_poll_state::process_event_batch(const ranges::subrange<const SDL_Even
 			case SDL_JOYBALLMOTION:
 				continue;
 			case SDL_QUIT: {
-				d_event qevent = { EVENT_QUIT };
-				result = call_default_handler(qevent);
+				result = call_default_handler(d_event{event_type::quit});
 				break;
 			}
 			default:
@@ -245,7 +244,7 @@ window_event_result event_process(void)
 	if ((highest_result == window_event_result::deleted) || (window_get_front() != wind))
 		return highest_result;
 
-	const d_event event{EVENT_WINDOW_DRAW};	// then draw all visible windows
+	const d_event event{event_type::window_draw};	// then draw all visible windows
 	for (wind = window_get_first(); wind != nullptr;)
 	{
 		if (wind->is_visible())

@@ -485,9 +485,9 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 {
 	switch(event.type)
 	{
-		case EVENT_WINDOW_CREATED:
+		case event_type::window_created:
 			return wall_dialog_created(this);
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			MainWindow = nullptr;
 			return window_event_result::ignored;
 		default:
@@ -497,10 +497,8 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 	fix64 Temp;
 	int keypress = 0;
 	window_event_result rval = window_event_result::ignored;
-	
-	if (event.type == EVENT_KEY_COMMAND)
+	if (event.type == event_type::key_command)
 		keypress = event_key_get(event);
-	
 	Assert(MainWindow != NULL);
 
 	//------------------------------------------------------------
@@ -593,7 +591,7 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 	//------------------------------------------------------------
 	// Draw the wall in the little 64x64 box
 	//------------------------------------------------------------
-	if (event.type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == event_type::ui_dialog_draw)
 	{
 		// A simple frame time counter for animating the walls...
 		Temp = timer_query();
@@ -638,7 +636,7 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 	// If anything changes in the ui system, redraw all the text that
 	// identifies this wall.
 	//------------------------------------------------------------
-	if (event.type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == event_type::ui_dialog_draw)
 	{
 		if (const auto wp = w.get_unchecked_pointer())
 		{

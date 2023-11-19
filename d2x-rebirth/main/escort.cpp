@@ -151,7 +151,7 @@ window_event_result rename_guidebot_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			{
 				uint8_t changed = 0;
 				if (PlayerCfg.GuidebotName != guidebot_name_buffer)
@@ -1940,21 +1940,18 @@ window_event_result escort_menu::event_handler(const d_event &event)
 {
 	switch (event.type)
 	{
-		case EVENT_WINDOW_ACTIVATED:
+		case event_type::window_activated:
 			game_flush_inputs(Controls);
 			break;
-			
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 			return event_key_command(event);
-		case EVENT_IDLE:
+		case event_type::idle:
 			timer_delay2(50);
 			break;
-			
-		case EVENT_WINDOW_DRAW:
+		case event_type::window_draw:
 			show_escort_menu();
 			break;
-			
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			return window_event_result::ignored;	// continue closing
 		default:
 			return window_event_result::ignored;

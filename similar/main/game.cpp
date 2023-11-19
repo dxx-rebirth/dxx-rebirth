@@ -1773,7 +1773,7 @@ window_event_result game_window::event_handler(const d_event &event)
 
 	switch (event.type)
 	{
-		case EVENT_WINDOW_ACTIVATED:
+		case event_type::window_activated:
 			set_screen_mode(SCREEN_GAME);
 
 			event_toggle_focus(1);
@@ -1792,7 +1792,7 @@ window_event_result game_window::event_handler(const d_event &event)
 			reset_cockpit();
 			break;
 
-		case EVENT_WINDOW_DEACTIVATED:
+		case event_type::window_deactivated:
 			if (!(((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && (!Endlevel_sequence)) )
 				stop_time();
 
@@ -1807,21 +1807,21 @@ window_event_result game_window::event_handler(const d_event &event)
 			break;
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
-		case EVENT_JOYSTICK_BUTTON_UP:
-		case EVENT_JOYSTICK_BUTTON_DOWN:
+		case event_type::joystick_button_up:
+		case event_type::joystick_button_down:
 #endif
 #if DXX_MAX_AXES_PER_JOYSTICK
-		case EVENT_JOYSTICK_MOVED:
+		case event_type::joystick_moved:
 #endif
-		case EVENT_MOUSE_BUTTON_UP:
-		case EVENT_MOUSE_BUTTON_DOWN:
-		case EVENT_MOUSE_MOVED:
-		case EVENT_KEY_COMMAND:
-		case EVENT_KEY_RELEASE:
-		case EVENT_IDLE:
+		case event_type::mouse_button_up:
+		case event_type::mouse_button_down:
+		case event_type::mouse_moved:
+		case event_type::key_command:
+		case event_type::key_release:
+		case event_type::idle:
 			return ReadControls(LevelSharedRobotInfoState, event, Controls);
 
-		case EVENT_WINDOW_DRAW:
+		case event_type::window_draw:
 			if (!time_paused)
 			{
 				calc_frame_time();
@@ -1838,7 +1838,7 @@ window_event_result game_window::event_handler(const d_event &event)
 			}
 			break;
 
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			digi_stop_digi_sounds();
 
 			if ( (Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED) )
@@ -1862,10 +1862,10 @@ window_event_result game_window::event_handler(const d_event &event)
 			Game_wind = nullptr;
 			return window_event_result::ignored;
 
-		case EVENT_LOOP_BEGIN_LOOP:
+		case event_type::loop_begin_loop:
 			kconfig_begin_loop(Controls);
 			break;
-		case EVENT_LOOP_END_LOOP:
+		case event_type::loop_end_loop:
 			kconfig_end_loop(Controls, FrameTime);
 			break;
 

@@ -326,10 +326,9 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int k = 0;
-	
 	switch (event.type)
 	{
-		case EVENT_KEY_COMMAND:
+		case event_type::key_command:
 			k = event_key_get(event);
 			switch( k )
 			{
@@ -365,8 +364,7 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 					break;
 			}
 			break;
-			
-		case EVENT_WINDOW_DRAW:
+		case event_type::window_draw:
 			{
 			timer_delay2(50);
 			gr_set_default_canvas();
@@ -427,12 +425,10 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 			kmatrix_status_msg(*grd_curcanv, playing == kmatrix_status_mode::reactor_countdown_running ? LevelUniqueControlCenterState.Countdown_seconds_left : f2i(end_time - timer_query()), playing);
 			break;
 			}
-			
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			game_flush_inputs(Controls);
 			newmenu_free_background();
 			break;
-			
 		default:
 			break;
 	}

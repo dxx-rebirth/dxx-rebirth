@@ -16,7 +16,7 @@ struct d_event;
 struct d_change_event;
 struct d_select_event;
 
-enum event_type : unsigned;
+enum class event_type : uint8_t;
 enum class window_event_result : uint8_t;
 
 // Sends input events to event handlers

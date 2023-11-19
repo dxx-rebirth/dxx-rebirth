@@ -85,7 +85,7 @@ window_event_result UI_GADGET_CHECKBOX::event_handler(UI_DIALOG &dlg, const d_ev
 	oldposition = position;
 	pressed = 0;
 
-	if (event.type == EVENT_MOUSE_BUTTON_DOWN || event.type == EVENT_MOUSE_BUTTON_UP)
+	if (event.type == event_type::mouse_button_down || event.type == event_type::mouse_button_up)
 	{
 		const auto OnMe = ui_mouse_on_gadget(*this);
 		
@@ -104,7 +104,7 @@ window_event_result UI_GADGET_CHECKBOX::event_handler(UI_DIALOG &dlg, const d_ev
 	}
 
 
-	if (event.type == EVENT_KEY_COMMAND)
+	if (event.type == event_type::key_command)
 	{
 		const auto key = event_key_get(event);
 		if (dlg.keyboard_focus_gadget == this && (key == KEY_SPACEBAR || key == KEY_ENTER))
@@ -113,7 +113,7 @@ window_event_result UI_GADGET_CHECKBOX::event_handler(UI_DIALOG &dlg, const d_ev
 			return window_event_result::handled;
 		}
 	}
-	else if (event.type == EVENT_KEY_RELEASE)
+	else if (event.type == event_type::key_release)
 	{
 		const auto key = event_key_get(event);
 		position = 0;
@@ -124,13 +124,13 @@ window_event_result UI_GADGET_CHECKBOX::event_handler(UI_DIALOG &dlg, const d_ev
 	if (pressed == 1)
 	{
 		flag ^= 1;
-		auto rval = ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, *this);
+		auto rval = ui_gadget_send_event(dlg, event_type::ui_gadget_pressed, *this);
 		if (rval == window_event_result::ignored)
 			rval = window_event_result::handled;
 		return rval;
 	}
 
-	if (event.type == EVENT_WINDOW_DRAW)
+	if (event.type == event_type::window_draw)
 		ui_draw_checkbox(dlg, *this);
 
 	return window_event_result::ignored;

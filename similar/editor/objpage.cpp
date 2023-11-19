@@ -364,7 +364,7 @@ void objpage_close()
 
 int objpage_do(const d_event &event)
 {
-	if (event.type == EVENT_UI_DIALOG_DRAW)
+	if (event.type == event_type::ui_dialog_draw)
 	{
 		for (int i=0;  i<OBJS_PER_PAGE; i++ )
 		{

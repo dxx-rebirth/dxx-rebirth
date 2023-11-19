@@ -288,7 +288,7 @@ window_event_result info_dialog_window::event_handler(const d_event &event)
 
 	switch (event.type)
 	{
-		case EVENT_WINDOW_DRAW:
+		case event_type::window_draw:
 		{
 			gr_set_current_canvas(w_canv);
 			auto &canvas = *grd_curcanv;
@@ -315,10 +315,9 @@ window_event_result info_dialog_window::event_handler(const d_event &event)
 			grd_curcanv = save_canvas;
 			return window_event_result::handled;
 		}
-		case EVENT_WINDOW_CLOSE:
+		case event_type::window_close:
 			Pad_info = NULL;
 			break;
-			
 		default:
 			break;
 	}
