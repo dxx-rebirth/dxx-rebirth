@@ -540,15 +540,7 @@ static int iff_parse_bitmap(PHYSFS_File *ifile, grs_bitmap &bm, const bm_mode bi
 	int sig,form_len;
 	long form_type;
 
-	bmheader.raw_data.reset(bm.get_bitmap_data());
-
-	if (bmheader.raw_data) {
-		bmheader.w = bm.bm_w;
-		bmheader.h = bm.bm_h;
-	}//added 05/17/99 Matt Mueller - don't just leave them unitialized
-	else{
 		bmheader.w=bmheader.h=0;
-	}
 
 	sig=get_sig(ifile);
 
@@ -607,7 +599,7 @@ int iff_read_bitmap(const char *const ifilename, grs_bitmap &bm, palette_array_t
 	if (!ifile)
 		return IFF_NO_FILE;
 
-	bm.bm_data = nullptr;
+	assert(bm.bm_data == nullptr);
 	ret = iff_parse_bitmap(ifile, bm, bm_mode::linear, palette, nullptr);
 	return ret;
 }
