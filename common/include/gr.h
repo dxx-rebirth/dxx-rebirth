@@ -98,7 +98,7 @@ public:
 	short   bm_rowsize; // unsigned char offset to next row
 	std::array<fix, 3> avg_color_rgb; // same as above but real rgb value to be used to textured objects that should emit light
 	union {
-		const color_palette_index *bm_data;     // ptr to pixel data...
+		const color_palette_index *bm_data{};     // ptr to pixel data...
 	                                //   Linear = *parent+(rowsize*y+x)
 	                                //   ModeX = *parent+(rowsize*y+x/4)
 	                                //   SVGA = *parent+(rowsize*y+x)
@@ -106,9 +106,9 @@ public:
 	};
 	const color_palette_index *get_bitmap_data() const { return bm_data; }
 	color_palette_index *get_bitmap_data() { return bm_mdata; }
-	struct grs_bitmap  *bm_parent;
+	struct grs_bitmap  *bm_parent{};
 #if DXX_USE_OGL
-	struct ogl_texture *gltexture;
+	struct ogl_texture *gltexture{};
 #else
 	uint8_t avg_color;  //  Average color of all pixels in texture map.
 #endif /* def OGL */
