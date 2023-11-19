@@ -1273,7 +1273,7 @@ struct netgame_list_game_menu : netgame_list_game_menu_items, direct_join, newme
 {
 	unsigned num_active_udp_games = 0;
 	uint8_t num_active_udp_changed = 1;
-	std::array<UDP_netgame_info_lite, UDP_MAX_NETGAMES> Active_udp_games = {};
+	std::array<UDP_netgame_info_lite, UDP_MAX_NETGAMES> Active_udp_games{};
 	netgame_list_game_menu(grs_canvas &src) :
 		newmenu(menu_title{"NETGAMES"}, menu_subtitle{nullptr}, menu_filename{nullptr}, tiny_mode_flag::tiny, tab_processing_flag::process, adjusted_citem::create(menus, 0), src)
 	{
@@ -6532,7 +6532,7 @@ static int udp_tracker_register()
 	game_info_light light;
 	std::size_t len = 1;
 	const auto light_span = net_udp_prepare_light_game_info(LevelUniqueObjectState.ControlCenterState, Netgame, light.buf);
-	std::array<uint8_t, 2 + sizeof("b=") + sizeof(UDP_REQ_ID) + sizeof("00000.00000.00000.00000,z=") + upid_length<upid::game_info_lite>> pBuf = {};
+	std::array<uint8_t, 2 + sizeof("b=") + sizeof(UDP_REQ_ID) + sizeof("00000.00000.00000.00000,z=") + upid_length<upid::game_info_lite>> pBuf{};
 
 	pBuf[0] = UPID_TRACKER_REGISTER;
 	len += snprintf(reinterpret_cast<char *>(&pBuf[1]), sizeof(pBuf)-1, "b=" UDP_REQ_ID DXX_VERSION_STR ".%hu,z=", MULTI_PROTO_VERSION );
@@ -6544,7 +6544,7 @@ static int udp_tracker_register()
 /* Ask the tracker to send us a list of games */
 static int udp_tracker_reqgames()
 {
-	std::array<uint8_t, 2 + sizeof(UDP_REQ_ID) + sizeof("00000.00000.00000.00000")> pBuf = {};
+	std::array<uint8_t, 2 + sizeof(UDP_REQ_ID) + sizeof("00000.00000.00000.00000")> pBuf{};
 	unsigned len = 1;
 
 	pBuf[0] = UPID_TRACKER_REQGAMES;
@@ -6565,7 +6565,7 @@ static int udp_tracker_process_game(const std::span<const uint8_t> buf, const _s
 		return -1;
 
 	const char *p0 = NULL, *p1 = NULL, *p3 = NULL;
-	char sIP[47] = {};
+	char sIP[47]{};
 	std::array<char, 6> sPort{};
 	uint16_t iPort = 0;
 

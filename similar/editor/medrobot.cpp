@@ -83,7 +83,7 @@ struct robot_dialog : UI_DIALOG
 	std::unique_ptr<UI_GADGET_BUTTON> quitButton, prev_powerup_type, next_powerup_type, prev_powerup_id, next_powerup_id, prev_powerup_count, next_powerup_count, prev_robot_type, next_robot_type, next_segment, prev_object, next_object, delete_object, new_object, set_path;
 	std::array<std::unique_ptr<UI_GADGET_RADIO>, 6> initialMode;			//	Number of boxes, AI modes
 	fix64 time;
-	vms_angvec angles = {}, goody_angles = {};
+	vms_angvec angles{}, goody_angles{};
 	int old_object;
 	virtual window_event_result callback_handler(const d_event &) override;
 };

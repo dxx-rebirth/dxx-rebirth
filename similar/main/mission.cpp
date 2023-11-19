@@ -139,9 +139,9 @@ struct mission_subdir_stats
 struct mission_name_and_version
 {
 #if defined(DXX_BUILD_DESCENT_II)
-	const Mission::descent_version_type descent_version = {};
+	const Mission::descent_version_type descent_version{};
 #endif
-	char *const name = nullptr;
+	char *const name{};
 	mission_name_and_version() = default;
 	mission_name_and_version(Mission::descent_version_type, char *);
 };

@@ -52,8 +52,8 @@ namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 struct d_level_unique_headlight_state
 {
-	unsigned Num_headlights = 0;
-	std::array<const object_base *, 8> Headlights = {};
+	unsigned Num_headlights{};
+	std::array<const object_base *, 8> Headlights{};
 };
 
 struct d_level_unique_light_state :

@@ -230,13 +230,13 @@ struct quaternionpos : prohibit_void_ptr<quaternionpos>
 	vms_vector rotvel;
 };
 
-// stuctures for different kinds of simulation
+// structures for different kinds of simulation
 
 struct laser_parent
 {
-	int16_t parent_type = {};        // The type of the parent of this object
-	objnum_t parent_num = {};         // The object's parent's number
-	object_signature_t parent_signature = object_signature_t{0};   // The object's parent's signature...
+	int16_t parent_type{};        // The type of the parent of this object
+	objnum_t parent_num{};         // The object's parent's number
+	object_signature_t parent_signature{};   // The object's parent's signature...
 };
 
 struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
@@ -251,10 +251,10 @@ struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 	 * hitobj_count == hitobj_values.size(), hitobj_pos wraps around and
 	 * begins erasing the oldest elements first.
 	 */
-	uint8_t hitobj_pos = 0, hitobj_count = 0;
-	std::array<objnum_t, 83> hitobj_values = {};
-	objnum_t track_goal = 0;         // Object this object is tracking.
-	fix multiplier = 0;         // Power if this is a fusion bolt (or other super weapon to be added).
+	uint8_t hitobj_pos{}, hitobj_count{};
+	std::array<objnum_t, 83> hitobj_values{};
+	objnum_t track_goal{};         // Object this object is tracking.
+	fix multiplier{};         // Power if this is a fusion bolt (or other super weapon to be added).
 	uint_fast8_t test_set_hitobj(const vcobjidx_t o);
 	uint_fast8_t test_hitobj(const vcobjidx_t o) const;
 	icobjidx_t get_last_hitobj() const;

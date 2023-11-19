@@ -184,7 +184,7 @@ static void con_print_file(const char *const buffer)
 			tm_hour, tm_min, tm_sec;
 #ifdef _WIN32
 #define DXX_LF	"\r\n"
-		SYSTEMTIME st = {};
+		SYSTEMTIME st{};
 		GetLocalTime(&st);
 #if DXX_CONSOLE_TIME_SHOW_YMD
 		tm_year = st.wYear;

@@ -67,7 +67,7 @@ enum class sound_sample_rate : uint16_t
 
 struct digi_sound_deleter : std::default_delete<uint8_t[]>
 {
-	game_sound_offset offset = {};
+	game_sound_offset offset{};
 	constexpr digi_sound_deleter() = default;
 	constexpr digi_sound_deleter(const game_sound_offset offset) :
 		offset(offset)

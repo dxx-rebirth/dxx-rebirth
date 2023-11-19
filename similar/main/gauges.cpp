@@ -847,13 +847,13 @@ constexpr std::array<dspan, 107> weapon_windows_hires = {{
 
 struct gauge_inset_window
 {
-	fix fade_value = 0;
-	weapon_index old_weapon = {};
-	weapon_box_state box_state = weapon_box_state::set;
+	fix fade_value{};
+	weapon_index old_weapon{};
+	weapon_box_state box_state{weapon_box_state::set};
 #if defined(DXX_BUILD_DESCENT_II)
-	weapon_box_user user = weapon_box_user::weapon;
-	uint8_t overlap_dirty = 0;
-	fix time_static_played = 0;
+	weapon_box_user user{weapon_box_user::weapon};
+	uint8_t overlap_dirty{};
+	fix time_static_played{};
 #endif
 };
 
@@ -2217,8 +2217,7 @@ void close_gauges()
 namespace dsx {
 void init_gauges()
 {
-	inset_window[gauge_inset_window_view::primary] = {};
-	inset_window[gauge_inset_window_view::secondary] = {};
+	inset_window = {};
 	old_laser_level	= {};
 }
 }
@@ -3739,7 +3738,7 @@ void draw_hud(const d_robot_info_array &Robot_info, grs_canvas &canvas, const ob
 		if (PlayerCfg.CockpitMode[1] == cockpit_mode_t::status_bar || PlayerCfg.CockpitMode[1] == cockpit_mode_t::full_screen)
 			hud_show_homing_warning(canvas, player_info.homing_object_dist);
 
-		const local_multires_gauge_graphic multires_gauge_graphic = {};
+		const local_multires_gauge_graphic multires_gauge_graphic{};
 		const hud_draw_context_hs_mr hudctx(canvas, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic);
 		if (PlayerCfg.CockpitMode[1] == cockpit_mode_t::full_screen)
 		{

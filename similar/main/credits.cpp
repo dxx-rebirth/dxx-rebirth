@@ -81,13 +81,13 @@ struct credits_window : window
 {
 	RAIIPHYSFS_File file;
 	const uint8_t have_bin_file;
-	std::array<PHYSFSX_gets_line_t<80>, NUM_LINES> buffer = {};
+	std::array<PHYSFSX_gets_line_t<80>, NUM_LINES> buffer{};
 	int buffer_line = 0;
 	int first_line_offset = 0;
 	int extra_inc = 0;
 	int done = 0;
 	int row = 0;
-	grs_main_bitmap backdrop = {};
+	grs_main_bitmap backdrop{};
 	credits_window(grs_canvas &src, int x, int y, int w, int h, RAIIPHYSFS_File f, const uint8_t bin_file) :
 		window(src, x, y, w, h), file(std::move(f)), have_bin_file(bin_file)
 	{

@@ -227,7 +227,7 @@ void properties_read_cmp(d_level_shared_robot_info_state &LevelSharedRobotInfoSt
 	range_for (auto &i, ObjBitmapPtrs)
 	{
 		if (const auto oi = ObjBitmaps.valid_index(PHYSFSX_readShort(fp)))
-			i = *oi;
+			i = {*oi};
 		else
 			i = {};
 	}
@@ -375,7 +375,7 @@ void bm_read_all(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_v
 	range_for (auto &i, partial_range(ObjBitmapPtrs, N_ObjBitmaps))
 	{
 		if (const auto oi = ObjBitmaps.valid_index(PHYSFSX_readShort(fp)))
-			i = *oi;
+			i = {*oi};
 		else
 			i = {};
 	}
@@ -523,7 +523,7 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 	range_for (auto &i, partial_range(ObjBitmapPtrs, N_D2_OBJBITMAPPTRS.value, N_D2_OBJBITMAPPTRS + t))
 	{
 		if (const auto oi = ObjBitmaps.valid_index(PHYSFSX_readShort(fp)))
-			i = *oi;
+			i = {*oi};
 		else
 			i = {};
 	}
