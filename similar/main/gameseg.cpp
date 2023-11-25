@@ -1119,9 +1119,10 @@ namespace {
 // ------------------------------------------------------------------------------------------
 //	Extract a vector from a segment.  The vector goes from the start face to the end face.
 //	The point on each face is the average of the four points forming the face.
-static void extract_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp, vms_vector &vp, const sidenum_t istart, const sidenum_t iend)
+[[nodiscard]]
+static vms_vector extract_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp, const sidenum_t istart, const sidenum_t iend)
 {
-	vp = {};
+	vms_vector vp{};
 	auto &start = Side_to_verts[istart];
 	auto &end = Side_to_verts[iend];
 	auto &verts = sp.verts;
@@ -1131,16 +1132,15 @@ static void extract_vector_from_segment(fvcvertptr &vcvertptr, const shared_segm
 		vm_vec_add2(vp, vcvertptr(verts[ve]));
 	}
 	vm_vec_scale(vp,F1_0/4);
+	return vp;
 }
 }
 
 //create a matrix that describes the orientation of the given segment
 void extract_orient_from_segment(fvcvertptr &vcvertptr, vms_matrix &m, const shared_segment &seg)
 {
-	vms_vector fvec,uvec;
-
-	extract_vector_from_segment(vcvertptr, seg, fvec, sidenum_t::WFRONT, sidenum_t::WBACK);
-	extract_vector_from_segment(vcvertptr, seg, uvec, sidenum_t::WBOTTOM, sidenum_t::WTOP);
+	const auto fvec{extract_vector_from_segment(vcvertptr, seg, sidenum_t::WFRONT, sidenum_t::WBACK)};
+	const auto uvec{extract_vector_from_segment(vcvertptr, seg, sidenum_t::WBOTTOM, sidenum_t::WTOP)};
 
 	//vector to matrix does normalizations and orthogonalizations
 	vm_vector_2_matrix(m, fvec, &uvec, nullptr);
@@ -1156,7 +1156,7 @@ namespace {
 // to the center of the back face of the segment.
 void extract_forward_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp, vms_vector &vp)
 {
-	extract_vector_from_segment(vcvertptr, sp, vp, sidenum_t::WFRONT, sidenum_t::WBACK);
+	vp = extract_vector_from_segment(vcvertptr, sp, sidenum_t::WFRONT, sidenum_t::WBACK);
 }
 
 // ------------------------------------------------------------------------------------------
@@ -1165,7 +1165,7 @@ void extract_forward_vector_from_segment(fvcvertptr &vcvertptr, const shared_seg
 // to the center of the right face of the segment.
 void extract_right_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp, vms_vector &vp)
 {
-	extract_vector_from_segment(vcvertptr, sp, vp, sidenum_t::WLEFT, sidenum_t::WRIGHT);
+	vp = extract_vector_from_segment(vcvertptr, sp, sidenum_t::WLEFT, sidenum_t::WRIGHT);
 }
 
 // ------------------------------------------------------------------------------------------
@@ -1174,7 +1174,7 @@ void extract_right_vector_from_segment(fvcvertptr &vcvertptr, const shared_segme
 // to the center of the top face of the segment.
 void extract_up_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp, vms_vector &vp)
 {
-	extract_vector_from_segment(vcvertptr, sp, vp, sidenum_t::WBOTTOM, sidenum_t::WTOP);
+	vp = extract_vector_from_segment(vcvertptr, sp, sidenum_t::WBOTTOM, sidenum_t::WTOP);
 }
 
 #if !DXX_USE_EDITOR
