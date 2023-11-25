@@ -6,6 +6,7 @@
  */
 #pragma once
 
+#include <cstdint>
 #include <iterator>
 #include <tuple>
 #include <type_traits>
@@ -35,6 +36,12 @@ void increment_iterator(std::tuple<range_iterator_type...> &iterator, std::index
 }
 
 template <std::size_t... N, typename... range_iterator_type>
+void decrement_iterator(std::tuple<range_iterator_type...> &iterator, std::index_sequence<N...>)
+{
+	discard_arguments(--(std::get<N>(iterator))...);
+}
+
+template <std::size_t... N, typename... range_iterator_type>
 auto dereference_iterator(const std::tuple<range_iterator_type...> &iterator, std::index_sequence<N...>)
 {
 	/* std::make_tuple is not appropriate here, because the result of
@@ -51,6 +58,15 @@ auto dereference_iterator(const std::tuple<range_iterator_type...> &iterator, st
 		decltype(*(std::get<N>(iterator)))...
 		>(*(std::get<N>(iterator))...);
 }
+
+/* This is declared, but never defined.  It is used only for a decltype()
+ * expression.
+ *
+ * Given a tuple of iterator types, return the most-derived iterator_category
+ * that all the iterator types satisfy.
+ */
+template <typename... range_iterator_type>
+typename std::common_type<typename std::iterator_traits<range_iterator_type>::iterator_category...>::type common_iterator_category(std::tuple<range_iterator_type...>);
 
 /* The overloads of get_static_size are declared, but never defined.  They
  * exist only for use in decltype() expressions.
@@ -276,7 +292,7 @@ public:
 	using value_type = decltype(d_zip::detail::dereference_iterator(std::declval<range_iterator_type>(), index_sequence_type()));
 	using pointer = value_type *;
 	using reference = value_type &;
-	using iterator_category = std::forward_iterator_tag;
+	using iterator_category = decltype(d_zip::detail::common_iterator_category(std::declval<range_iterator_type>()));
 	auto operator*() const
 	{
 		return d_zip::detail::dereference_iterator(*this, index_sequence_type());
@@ -291,14 +307,29 @@ public:
 	 */
 	zip_iterator operator++(int)
 	{
-		auto result = *this;
-		d_zip::detail::increment_iterator(*this, index_sequence_type());
+		auto result{*this};
+		++ *this;
+		return result;
+	}
+	zip_iterator &operator--()
+		requires(std::derived_from<std::bidirectional_iterator_tag, iterator_category>)
+	{
+		d_zip::detail::decrement_iterator(*this, index_sequence_type());
+		return *this;
+	}
+	zip_iterator operator--(int)
+		requires(std::derived_from<std::bidirectional_iterator_tag, iterator_category>)
+	{
+		auto result{*this};
+		-- *this;
 		return result;
 	}
 	auto operator-(const zip_iterator &i) const
+		requires(std::derived_from<std::random_access_iterator_tag, iterator_category>)
 	{
 		return std::get<0>(static_cast<const range_iterator_type &>(*this)) - std::get<0>(static_cast<const range_iterator_type &>(i));
 	}
+	constexpr bool operator==(const zip_iterator &) const = default;
 	constexpr bool operator==(const range_sentinel_type &i) const
 	{
 		return d_zip::detail::compare_zip_iterators<range_iterator_type>(*this, i, index_sequence_type());
