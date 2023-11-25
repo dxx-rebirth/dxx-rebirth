@@ -75,13 +75,13 @@ class enumerated_iterator
 	range_index_type m_idx;
 public:
 	using index_type = range_index_type;
-	using iterator_category = std::forward_iterator_tag;
+	using iterator_category = typename std::iterator_traits<range_iterator_type>::iterator_category;
 	using value_type = typename adjust_iterator_dereference_type::value_type;
 	using difference_type = std::ptrdiff_t;
 	using pointer = value_type *;
 	using reference = value_type &;
-	constexpr enumerated_iterator(range_iterator_type &&iter, const index_type idx) :
-		m_iter(std::move(iter)), m_idx(idx)
+	constexpr enumerated_iterator(range_iterator_type &&iter, index_type idx) :
+		m_iter{std::move(iter)}, m_idx{std::move(idx)}
 	{
 	}
 	value_type operator*() const
@@ -113,6 +113,23 @@ public:
 		++ * this;
 		return result;
 	}
+	enumerated_iterator &operator--()
+		requires(std::bidirectional_iterator<range_iterator_type>)
+	{
+		-- m_iter;
+		if constexpr (std::is_enum<index_type>::value)
+			m_idx = static_cast<index_type>(static_cast<typename std::underlying_type<index_type>::type>(m_idx) - 1u);
+		else
+			-- m_idx;
+		return *this;
+	}
+	enumerated_iterator operator--(int)
+		requires(std::bidirectional_iterator<range_iterator_type>)
+	{
+		auto result = *this;
+		-- * this;
+		return result;
+	}
 	constexpr bool operator==(const enumerated_sentinel<sentinel_type> &i) const
 	{
 		return m_iter == i.m_sentinel;
@@ -129,8 +146,10 @@ class enumerate : ranges::subrange<range_iterator_type, range_sentinel_type>
 		range_iterator_type,
 		range_sentinel_type,
 		d_enumerate::detail::adjust_iterator_dereference_type<range_index_type, typename std::remove_cv<iterator_dereference_type>::type>>;
-	const range_index_type m_idx;
+	[[no_unique_address]]
+	range_index_type m_idx;
 public:
+	using base_type::size;
 	using index_type = range_index_type;
 	template <typename range_type>
 		/* Block using `enumerate` on an ephemeral range, since the storage
@@ -139,8 +158,8 @@ public:
 		 * storage may cease to exist after this constructor returns.
 		 */
 		requires(ranges::borrowed_range<range_type>)
-		enumerate(range_type &&t, const index_type i = index_type{}) :
-			base_type(std::forward<range_type>(t)), m_idx(i)
+		enumerate(range_type &&t, index_type i = index_type{}) :
+			base_type{std::forward<range_type>(t)}, m_idx{std::move(i)}
 	{
 		static_assert(std::is_rvalue_reference<range_type &&>::value || !std::is_rvalue_reference<iterator_dereference_type>::value, "lvalue range must not produce rvalue reference enumerated_value");
 	}
