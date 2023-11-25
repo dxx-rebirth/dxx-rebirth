@@ -54,7 +54,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kconfig.h"
 #include "mouse.h"
 #include "dxxerror.h"
-#include "kfuncs.h"
 #ifdef INCLUDE_XLISP
 #include "medlisp.h"
 #endif
@@ -370,8 +369,6 @@ void init_editor()
 		close_editor();
 		return;
 	}
-
-	init_med_functions();	// Must be called before medlisp_init
 
 	for (auto &&[idx, value] : enumerate(pads))
 		if (!ui_pad_read(idx, value))

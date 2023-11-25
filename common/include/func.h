@@ -19,21 +19,22 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#ifdef __cplusplus
+#include "dsx-ns.h"
+#include <cstddef>
 
 namespace dcx {
-typedef struct {
+
+struct FUNCTION
+{
+	using callable = int(*)(void);
 	const char *  name;
 	int     nparams;
-	int  (*cfunction)(void);
-} FUNCTION;
+	callable cfunction;
+};
 
-void func_init( const FUNCTION * funtable, int size );
-void func_close();
-int (*func_get( char * name, int * numparams ))(void);
-int (*func_nget( int func_number, int * numparams, const char **name ))(void);
 int func_get_param( int n );
-int func_get_index( char * name );
-}
+FUNCTION::callable func_get(const char *name, int *numparams);
+FUNCTION::callable func_nget(std::size_t func_number, int *numparams, const char **name);
+int func_get_index(const char *name);
 
-#endif
+}

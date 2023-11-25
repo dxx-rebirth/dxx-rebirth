@@ -26,6 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include "inferno.h"
 #include "func.h"
+#include "d_enumerate.h"
 #include "editor/kdefs.h"
 #include "editor/editor.h"
 #include "dxxerror.h"
@@ -37,7 +38,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/medmisc.h"
 #include "editor/texpage.h"
 #include "editor/ehostage.h"
-#include "kfuncs.h"
 #include "dsx-ns.h"
 
 namespace dsx {
@@ -377,13 +377,43 @@ const FUNCTION med_functions[] = {
 
 // In gamesavec
 {	"rename-level",							0, get_level_name },
+};
 
-// The terminating marker
-{   NULL, 0, NULL } };
+}
 
-void init_med_functions()
+namespace dcx {	/* This should be dsx, but UI code in common needs to see these accessors */
+
+FUNCTION::callable func_get(const char *name, int *numparams)
 {
-	func_init(med_functions, (sizeof(med_functions)/sizeof(FUNCTION))-1 );
+	for (auto &&f : med_functions)
+		if (!d_stricmp(name, f.name))
+		{
+			*numparams = f.nparams;
+			return f.cfunction;
+		}
+	return NULL;
+}
+
+int func_get_index(const char *name)
+{
+	for (auto &&[i, f] : enumerate(med_functions))
+		if (!d_stricmp(name, f.name))
+		{
+			return i;
+		}
+	return -1;
+}
+
+FUNCTION::callable func_nget(std::size_t func_number, int *numparams, const char **name)
+{
+	if (func_number < std::size(med_functions))
+	{
+		auto &f = med_functions[func_number];
+		*name = f.name;
+		*numparams = f.nparams;
+		return f.cfunction;
+	}
+	return NULL;
 }
 
 }

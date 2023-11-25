@@ -302,7 +302,6 @@
 		14F8A9741A2D6320003AA93A /* eswitch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = eswitch.h; sourceTree = "<group>"; };
 		14F8A9751A2D6320003AA93A /* info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = info.h; sourceTree = "<group>"; };
 		14F8A9761A2D6320003AA93A /* kdefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kdefs.h; sourceTree = "<group>"; };
-		14F8A9771A2D6320003AA93A /* kfuncs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kfuncs.h; sourceTree = "<group>"; };
 		14F8A9781A2D6320003AA93A /* macro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macro.h; sourceTree = "<group>"; };
 		14F8A9791A2D6320003AA93A /* meddraw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = meddraw.h; sourceTree = "<group>"; };
 		14F8A97A1A2D6320003AA93A /* medlisp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = medlisp.h; sourceTree = "<group>"; };
@@ -904,7 +903,6 @@
 				14F8A9741A2D6320003AA93A /* eswitch.h */,
 				14F8A9751A2D6320003AA93A /* info.h */,
 				14F8A9761A2D6320003AA93A /* kdefs.h */,
-				14F8A9771A2D6320003AA93A /* kfuncs.h */,
 				14F8A9781A2D6320003AA93A /* macro.h */,
 				14F8A9791A2D6320003AA93A /* meddraw.h */,
 				14F8A97A1A2D6320003AA93A /* medlisp.h */,
