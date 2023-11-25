@@ -20,8 +20,7 @@ namespace d_zip {
 
 namespace detail {
 
-template <typename... T>
-void discard_arguments(T &&...)
+void discard_arguments(auto &&...)
 {
 }
 
