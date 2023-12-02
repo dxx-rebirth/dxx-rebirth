@@ -68,9 +68,10 @@ public:
 	}
 };
 
-template <typename range_index_type, typename range_iterator_type, typename sentinel_type, typename adjust_iterator_dereference_type>
+template <typename range_index_type, typename range_iterator_type, typename sentinel_type>
 class enumerated_iterator
 {
+	using adjust_iterator_dereference_type = d_enumerate::detail::adjust_iterator_dereference_type<range_index_type, typename std::remove_cv<decltype(*std::declval<range_iterator_type>())>::type>;
 	range_iterator_type m_iter;
 	range_index_type m_idx;
 public:
@@ -109,7 +110,7 @@ public:
 	}
 	enumerated_iterator operator++(int)
 	{
-		auto result = *this;
+		auto result{*this};
 		++ * this;
 		return result;
 	}
@@ -126,7 +127,7 @@ public:
 	enumerated_iterator operator--(int)
 		requires(std::bidirectional_iterator<range_iterator_type>)
 	{
-		auto result = *this;
+		auto result{*this};
 		-- * this;
 		return result;
 	}
@@ -140,12 +141,10 @@ template <typename range_iterator_type, typename range_sentinel_type, typename r
 class enumerate : ranges::subrange<range_iterator_type, range_sentinel_type>
 {
 	using base_type = ranges::subrange<range_iterator_type, range_sentinel_type>;
-	using iterator_dereference_type = decltype(*std::declval<range_iterator_type>());
 	using enumerated_iterator_type = enumerated_iterator<
 		range_index_type,
 		range_iterator_type,
-		range_sentinel_type,
-		d_enumerate::detail::adjust_iterator_dereference_type<range_index_type, typename std::remove_cv<iterator_dereference_type>::type>>;
+		range_sentinel_type>;
 	[[no_unique_address]]
 	range_index_type m_idx;
 public:
@@ -161,7 +160,6 @@ public:
 		enumerate(range_type &&t, index_type i = index_type{}) :
 			base_type{std::forward<range_type>(t)}, m_idx{std::move(i)}
 	{
-		static_assert(std::is_rvalue_reference<range_type &&>::value || !std::is_rvalue_reference<iterator_dereference_type>::value, "lvalue range must not produce rvalue reference enumerated_value");
 	}
 	enumerated_iterator_type begin() const
 	{
