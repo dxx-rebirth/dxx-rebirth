@@ -134,13 +134,10 @@ BOOST_AUTO_TEST_CASE(zip_xrange)
  * static_assert can produce a better error message than letting it fail
  * at runtime.
  */
-template <typename Expected, typename zip_type, typename index_type = typename zip_type::index_type>
-requires(std::is_same<Expected, index_type>::value)
-struct assert_index_type : std::true_type
-{
-};
+template <typename Expected, typename zip_type>
+concept assert_index_type = std::same_as<Expected, typename zip_type::index_type>;
 
-static_assert(assert_index_type<void, decltype(zip(std::declval<std::array<int, 1> &>(), std::declval<std::array<float, 1> &>()))>::value);
+static_assert(assert_index_type<void, decltype(zip(std::declval<std::array<int, 1> &>(), std::declval<std::array<float, 1> &>()))>);
 
 template <typename T>
 struct custom_index_type : std::array<int, 1>
@@ -151,36 +148,19 @@ struct custom_index_type : std::array<int, 1>
 enum class e1 : unsigned char;
 enum class e2 : unsigned char;
 
-static_assert(assert_index_type<e1, decltype(zip(std::declval<custom_index_type<e1>&>(), std::declval<custom_index_type<e1>&>()))>::value);
-static_assert(assert_index_type<void, decltype(zip(std::declval<custom_index_type<e1>&>(), std::declval<custom_index_type<e2>&>()))>::value);
+static_assert(assert_index_type<e1, decltype(zip(std::declval<custom_index_type<e1>&>(), std::declval<custom_index_type<e1>&>()))>);
+static_assert(assert_index_type<void, decltype(zip(std::declval<custom_index_type<e1>&>(), std::declval<custom_index_type<e2>&>()))>);
 
-template <typename Expected, typename Actual>
-requires(std::is_same<Expected, Actual>::value)
-using assert_same_type = std::true_type;
+static_assert(std::same_as<std::nullptr_t, decltype(d_zip::detail::get_static_size(std::declval<int *>()))>);
+static_assert(std::same_as<std::nullptr_t, decltype(d_zip::detail::get_static_size(std::declval<std::vector<int>::iterator>()))>);
+static_assert(std::same_as<std::integral_constant<std::size_t, 5>, decltype(d_zip::detail::get_static_size(std::declval<int (&)[5]>()))>);
+static_assert(std::same_as<std::integral_constant<std::size_t, 6>, decltype(d_zip::detail::get_static_size(std::declval<std::array<int, 6> &>()))>);
 
-static_assert(assert_same_type<std::nullptr_t, decltype(d_zip::detail::get_static_size(std::declval<int *>()))>::value);
-static_assert(assert_same_type<std::nullptr_t, decltype(d_zip::detail::get_static_size(std::declval<std::vector<int>::iterator>()))>::value);
-static_assert(assert_same_type<std::integral_constant<std::size_t, 5>, decltype(d_zip::detail::get_static_size(std::declval<int (&)[5]>()))>::value);
-static_assert(assert_same_type<std::integral_constant<std::size_t, 6>, decltype(d_zip::detail::get_static_size(std::declval<std::array<int, 6> &>()))>::value);
-
-template <typename T>
-requires(std::ranges::range<T>)
-struct check_is_range : std::true_type
-{
-};
-
-template <typename T>
-requires(std::ranges::borrowed_range<T>)
-struct check_is_borrowed_range : std::true_type
-{
-};
-
-static_assert(check_is_borrowed_range<decltype(zip(std::declval<int (&)[1]>()))>::value);
+static_assert(std::ranges::borrowed_range<decltype(zip(std::declval<int (&)[1]>()))>);
 
 struct difference_range
 {
 	struct iterator {
-		int *operator *() const;
 		iterator &operator++();
 		iterator operator++(int);
 		constexpr auto operator<=>(const iterator &) const = default;
@@ -189,6 +169,7 @@ struct difference_range
 		using pointer = value_type *;
 		using reference = value_type &;
 		using iterator_category = std::forward_iterator_tag;
+		reference operator *() const;
 		difference_type operator-(const iterator &) const;
 	};
 	struct index_type {};
@@ -196,12 +177,13 @@ struct difference_range
 	iterator end();
 };
 
-static_assert(check_is_range<decltype(std::declval<difference_range &>())>::value);
-static_assert(check_is_borrowed_range<decltype(std::declval<difference_range &>())>::value);
-static_assert(assert_same_type<difference_range::iterator::difference_type, decltype(zip(std::declval<difference_range &>()).begin())::difference_type>::value);
+static_assert(std::ranges::range<difference_range &>);
+static_assert(std::ranges::input_range<difference_range &>);
+static_assert(std::ranges::borrowed_range<difference_range &>);
+static_assert(std::same_as<difference_range::iterator::difference_type, decltype(zip(std::declval<difference_range &>()).begin())::difference_type>);
 
-static_assert(assert_same_type<std::nullptr_t, d_zip::detail::minimum_static_size<std::tuple<std::nullptr_t>>::type>::value);
-static_assert(assert_same_type<std::integral_constant<std::size_t, 1>, d_zip::detail::minimum_static_size<std::tuple<std::integral_constant<std::size_t, 1>, std::nullptr_t>>::type>::value);
-static_assert(assert_same_type<std::integral_constant<std::size_t, 1>, d_zip::detail::minimum_static_size<std::tuple<std::nullptr_t, std::integral_constant<std::size_t, 1>>>::type>::value);
-static_assert(assert_same_type<std::integral_constant<std::size_t, 2>, d_zip::detail::minimum_static_size<std::tuple<std::nullptr_t, std::integral_constant<std::size_t, 2>, std::integral_constant<std::size_t, 3>>>::type>::value);
-static_assert(assert_same_type<std::integral_constant<std::size_t, 2>, d_zip::detail::minimum_static_size<std::tuple<std::nullptr_t, std::integral_constant<std::size_t, 3>, std::nullptr_t, std::integral_constant<std::size_t, 2>>>::type>::value);
+static_assert(std::same_as<std::nullptr_t, d_zip::detail::minimum_static_size<std::tuple<std::nullptr_t>>::type>);
+static_assert(std::same_as<std::integral_constant<std::size_t, 1>, d_zip::detail::minimum_static_size<std::tuple<std::integral_constant<std::size_t, 1>, std::nullptr_t>>::type>);
+static_assert(std::same_as<std::integral_constant<std::size_t, 1>, d_zip::detail::minimum_static_size<std::tuple<std::nullptr_t, std::integral_constant<std::size_t, 1>>>::type>);
+static_assert(std::same_as<std::integral_constant<std::size_t, 2>, d_zip::detail::minimum_static_size<std::tuple<std::nullptr_t, std::integral_constant<std::size_t, 2>, std::integral_constant<std::size_t, 3>>>::type>);
+static_assert(std::same_as<std::integral_constant<std::size_t, 2>, d_zip::detail::minimum_static_size<std::tuple<std::nullptr_t, std::integral_constant<std::size_t, 3>, std::nullptr_t, std::integral_constant<std::size_t, 2>>>::type>);
