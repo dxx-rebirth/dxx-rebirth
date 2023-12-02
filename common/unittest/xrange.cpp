@@ -136,10 +136,4 @@ BOOST_AUTO_TEST_CASE(xrange_iter_values)
 	BOOST_TEST(*std::next(r.begin(), 2) == 2);
 }
 
-template <typename T>
-requires(std::ranges::borrowed_range<T>)
-struct check_is_borrowed_range : std::true_type
-{
-};
-
-static_assert(check_is_borrowed_range<decltype(xrange(2u))>::value);
+static_assert(std::ranges::borrowed_range<decltype(xrange(2u))>);
