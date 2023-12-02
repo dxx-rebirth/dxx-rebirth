@@ -24,6 +24,9 @@
 
 namespace serial {
 
+template <std::size_t Expected, std::size_t Actual>
+concept check_equal_value = (Expected == Actual);
+
 template <typename... Args>
 class message;
 
@@ -327,8 +330,11 @@ static inline detail::sign_extend_type<extended_signed_type, wrapped_type> sign_
 #define DEFINE_SERIAL_MUTABLE_UDT_TO_MESSAGE(TYPE, NAME, MEMBERLIST)	\
 	_DEFINE_SERIAL_UDT_TO_MESSAGE(TYPE, NAME, MEMBERLIST)
 
+template <std::size_t Expected, typename T>
+concept check_serial_udt_maximum_message_size = check_equal_value<Expected, T::maximum_size.value>;
+
 #define ASSERT_SERIAL_UDT_MESSAGE_SIZE(T, SIZE)	\
-	assert_equal(serial::class_type<T>::maximum_size, SIZE, "sizeof(" #T ") is not " #SIZE)
+	static_assert(serial::check_serial_udt_maximum_message_size<SIZE, serial::class_type<T>>)
 
 template <typename M1, typename T1, typename base_type = std::is_same<typename std::remove_cv<typename std::remove_reference<M1>::type>::type, T1>>
 struct udt_message_compatible_same_type : base_type
@@ -390,8 +396,8 @@ union unaligned_storage
 		typename std::conditional<N == 1, uint8_t, uint16_t>,
 		typename std::conditional<N == 4, uint32_t, uint64_t>>::type::type i;
 	uint8_t u[N];
-	assert_equal(sizeof(i), N, "sizeof(i) is not N");
-	assert_equal(sizeof(a), sizeof(u), "sizeof(T) is not N");
+	static_assert(check_equal_value<N, sizeof(i)>);
+	static_assert(check_equal_value<sizeof(u), sizeof(a)>);
 };
 
 template <typename T, typename = void>
@@ -512,16 +518,19 @@ static constexpr T bswap(const T u)
 	 */
 }
 
-assert_equal(bswap(static_cast<uint8_t>(1)), 1, "");
+template <typename T, T Expected, T input>
+concept check_bswap = check_equal_value<Expected, bswap(input)>;
 
-assert_equal(bswap(static_cast<uint16_t>(0x12)), 0x1200, "");
-assert_equal(bswap(static_cast<uint16_t>(0x92)), 0x9200, "");
-assert_equal(bswap(static_cast<uint16_t>(0x9200)), 0x92, "");
-assert_equal(bswap(static_cast<uint16_t>(0x102)), 0x201, "");
+static_assert(check_bswap<uint8_t, 1, 1>);
 
-assert_equal(bswap(static_cast<uint32_t>(0x102)), 0x2010000, "");
+static_assert(check_bswap<uint16_t, 0x1200, 0x12>);
+static_assert(check_bswap<uint16_t, 0x9200, 0x92>);
+static_assert(check_bswap<uint16_t, 0x92, 0x9200>);
+static_assert(check_bswap<uint16_t, 0x201, 0x102>);
 
-assert_equal(bswap(static_cast<uint64_t>(0x102)), 0x201000000000000ull, "");
+static_assert(check_bswap<uint32_t, 0x2010000, 0x102>);
+
+static_assert(check_bswap<uint64_t, 0x201000000000000ull, 0x102>);
 
 namespace reader {
 

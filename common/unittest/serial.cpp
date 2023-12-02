@@ -9,8 +9,14 @@
 static_assert(!serial::is_message<int>::value, "");
 static_assert(serial::is_message<serial::message<int>>::value, "");
 
-assert_equal(serial::detail::size_base<4>::maximum_size, 4, "");
-assert_equal((serial::detail::size_base<4, 2>::minimum_size), 2, "");
+template <std::size_t Expected, typename SizeBase>
+concept check_maximum_size = serial::check_equal_value<Expected, SizeBase::maximum_size.value>;
+
+template <std::size_t Expected, typename SizeBase>
+concept check_minimum_size = serial::check_equal_value<Expected, SizeBase::minimum_size.value>;
+
+static_assert(check_maximum_size<4, serial::detail::size_base<4>>);
+static_assert(check_minimum_size<2, serial::detail::size_base<4, 2>>);
 
 static_assert(!serial::is_cxx_array<int>::value, "");
 static_assert(!serial::is_cxx_array<int[1]>::value, "");
