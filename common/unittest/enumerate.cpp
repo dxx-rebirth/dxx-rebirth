@@ -63,13 +63,10 @@ BOOST_AUTO_TEST_CASE(enumerate_starting_value)
  * static_assert can produce a better error message than letting it fail
  * at runtime.
  */
-template <typename Expected, typename enumerate_type, typename index_type = typename enumerate_type::index_type>
-struct assert_index_type
-{
-	static_assert(std::is_same<Expected, index_type>::value);
-};
+template <typename Expected, typename enumerate_type>
+concept assert_index_type = std::same_as<Expected, typename enumerate_type::index_type>;
 
-template struct assert_index_type<std::size_t, decltype(enumerate(std::declval<std::array<int, 1> &>()))>;
+static_assert(assert_index_type<std::size_t, decltype(enumerate(std::declval<std::array<int, 1> &>()))>);
 
 template <typename T>
 struct custom_index_type : std::array<int, 1>
@@ -79,4 +76,4 @@ struct custom_index_type : std::array<int, 1>
 };
 enum class e1 : unsigned char;
 
-template struct assert_index_type<e1, decltype(enumerate(std::declval<custom_index_type<e1>&>()))>;
+static_assert(assert_index_type<e1, decltype(enumerate(std::declval<custom_index_type<e1>&>()))>);
