@@ -23,8 +23,9 @@ static inline bool cmp(const char *token, const char *equal, const char (&name)[
 	return &token[N - 1] == equal && !strncmp(token, name, N - 1);
 }
 
-template <typename T>
-static inline std::optional<T> convert_integer(const char *value, int base, auto libc_str_to_integer)
+template <std::integral T>
+[[nodiscard]]
+static inline std::optional<T> convert_integer(const char *const value, int base, auto libc_str_to_integer)
 {
 	char *e;
 	const auto r = libc_str_to_integer(value, &e, base);
@@ -42,22 +43,21 @@ static inline std::optional<T> convert_integer(const char *value, int base, auto
 	return static_cast<T>(r);
 }
 
-template <typename T>
-requires(std::is_signed<T>::value)
+template <std::signed_integral T>
+[[nodiscard]]
 static inline auto convert_integer(const char *value, int base = 10)
 {
 	return convert_integer<T>(value, base, std::strtol);
 }
 
-template <typename T>
-requires(std::is_unsigned<T>::value)
+template <std::unsigned_integral T>
+[[nodiscard]]
 static inline auto convert_integer(const char *value, int base = 10)
 {
 	return convert_integer<T>(value, base, std::strtoul);
 }
 
-template <typename T>
-requires(std::is_integral<T>::value)
+template <std::integral T>
 static inline void convert_integer(T &t, const char *value, int base = 10)
 {
 	if (auto r = convert_integer<T>(value, base))
