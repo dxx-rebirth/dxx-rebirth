@@ -566,9 +566,8 @@ static int read_mission_file(mission_list_type &mission_list, mission_candidate_
 		{
 			if (istok(temp,"type"))
 			{
-				const auto p = get_value(temp);
 				//get mission type
-				if (p)
+				if (const auto p = get_value(temp))
 					mission->anarchy_only_flag = istok(p, "anarchy") ? Mission::anarchy_only_level::only_anarchy_games : Mission::anarchy_only_level::allow_any_game;
 			}
 		}
