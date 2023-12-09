@@ -407,7 +407,16 @@ protected:
 		idx(const magic_constant<v> &, const allow_none_construction *) :
 			m_idx(v)
 	{
+		/* Prevent using `allow_none_construction` when the type permits
+		 * use of an invalid index.  `allow_none_construction` is intended
+		 * to override the validity requirement on types that require a
+		 * valid index, for the limited purpose of constructing a sentinel.
+		 */
 		static_assert(!allow_nullptr, "allow_none_construction used where nullptr was already legal");
+		/* Prevent using `allow_none_construction` with a valid index.
+		 * Valid indexes should not use the `allow_none_construction`
+		 * override.
+		 */
 		static_assert(static_cast<std::size_t>(v) >= array_size, "allow_none_construction used with valid index");
 	}
 	idx(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS index_type i, array_managed_type &a, const allow_end_construction *) :
@@ -427,6 +436,10 @@ public:
 		constexpr idx(const magic_constant<v> &) :
 			m_idx(v)
 	{
+		/* If the policy requires a valid index (indicated by
+		 * `allow_nullptr == false`), then require that the magic index be
+		 * valid.
+		 */
 		static_assert(allow_nullptr || static_cast<std::size_t>(v) < array_size, "invalid magic index not allowed for this policy");
 	}
 	template <typename rpolicy>
@@ -510,24 +523,27 @@ public:
 		return *get_nonnull_pointer(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VA());
 	}
 
-	ptr(std::nullptr_t) :
+	ptr(std::nullptr_t)
+		requires(allow_nullptr)	// This constructor always stores nullptr, so require a policy with `allow_nullptr == true`.
+		:
 		m_ptr(nullptr)
 	{
-		static_assert(allow_nullptr, "nullptr construction not allowed for this policy");
 	}
 	template <integral_type v>
+		requires(
+			static_cast<std::size_t>(v) >= array_size	// Require that the index be invalid, since a valid index should compute a non-nullptr here, but with no array, no pointer can be computed.
+		)
 		ptr(const magic_constant<v> &) :
-			m_ptr(nullptr)
+			ptr(nullptr)
 	{
-		static_assert(static_cast<std::size_t>(v) >= array_size, "valid magic index requires an array");
-		if constexpr (!allow_nullptr)
-			static_assert(static_cast<std::size_t>(v) < array_size, "invalid magic index not allowed for this policy");
 	}
 	template <integral_type v>
+		requires(
+			static_cast<std::size_t>(v) < array_size	// valid magic index required when using array
+		)
 		ptr(const magic_constant<v> &, array_managed_type &a) :
 			m_ptr(&a[v])
 	{
-		static_assert(static_cast<std::size_t>(v) < array_size, "valid magic index required when using array");
 	}
 	template <typename rpolicy>
 		requires(policy::allow_nullptr || !rpolicy::allow_nullptr)
@@ -543,6 +559,9 @@ public:
 		check_null_pointer_conversion<null_pointer_error_type<array_managed_type>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS m_ptr);
 	}
 	template <typename rpolicy>
+		requires(
+			policy::allow_nullptr || !rpolicy::allow_nullptr	// cannot move from allow_invalid to require_valid
+		)
 		ptr(ptr<rpolicy> &&rhs) :
 			m_ptr(rhs.get_unchecked_pointer())
 	{
@@ -550,7 +569,6 @@ public:
 		 * right hand side must be saved and checked for validity before
 		 * being used to initialize a require_valid type.
 		 */
-		static_assert(policy::allow_nullptr || !rpolicy::allow_nullptr, "cannot move from allow_invalid to require_valid");
 	}
 	ptr(index_type i) = delete;
 	ptr(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS index_type i, array_managed_type &a) :
@@ -670,16 +688,21 @@ protected:
 		-- m_ptr;
 		return *this;
 	}
-	ptr(const allow_none_construction *) :
+	ptr(const allow_none_construction *)
+		requires(
+			!allow_nullptr	// allow_none_construction is only needed where nullptr is not already legal
+		)
+		:
 		m_ptr(nullptr)
 	{
-		static_assert(!allow_nullptr, "allow_none_construction used where nullptr was already legal");
 	}
 	template <typename rpolicy>
+		requires(
+			allow_nullptr || !rpolicy::allow_nullptr	// cannot rebind from allow_invalid to require_valid
+		)
 		ptr(ptr<rpolicy> &&rhs, const typename containing_type::rebind_policy *) :
 			m_ptr(const_cast<managed_type *>(rhs.get_unchecked_pointer()))
 	{
-		static_assert(allow_nullptr || !rpolicy::allow_nullptr, "cannot rebind from allow_invalid to require_valid");
 	}
 };
 
