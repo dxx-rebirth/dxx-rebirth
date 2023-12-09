@@ -33,8 +33,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-template <typename Rep, std::size_t MaximumValue = std::numeric_limits<Rep>::max()>
-using human_readable_mmss_time = std::array<char, number_to_text_length<MaximumValue / 60> + number_to_text_length<60> + sizeof("ms")>;
+template <typename Rep>
+using human_readable_mmss_time = std::array<char, number_to_text_length<std::numeric_limits<Rep>::max() / 60> + number_to_text_length<60> + sizeof("ms")>;
 
 template <typename Rep, std::size_t S>
 void format_human_readable_time(std::array<char, S> &buf, const std::chrono::duration<Rep, std::chrono::seconds::period> duration);
