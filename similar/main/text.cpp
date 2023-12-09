@@ -51,19 +51,11 @@ namespace {
 static std::unique_ptr<char[]> text;
 static std::unique_ptr<char[]> overwritten_text;
 
-// rotates a byte left one bit, preserving the bit falling off the right
-static uint8_t encode_rotate_left(const uint8_t v)
+static constexpr uint8_t decode_char(const uint8_t c)
 {
-	return (v >> 7) | (v << 1);
-}
-
-constexpr std::integral_constant<uint8_t, 0xd3> BITMAP_TBL_XOR{};
-
-static uint8_t decode_char(const uint8_t c)
-{
-	const auto c1 = encode_rotate_left(c);
-	const auto c2 = c1 ^ BITMAP_TBL_XOR;
-	return encode_rotate_left(c2);
+	constexpr uint8_t BITMAP_TBL_XOR{0xd3};
+	const uint8_t c2 = std::rotl(c, 1) ^ BITMAP_TBL_XOR;
+	return {std::rotl(c2, 1)};
 }
 
 }
