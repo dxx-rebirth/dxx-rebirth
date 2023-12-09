@@ -82,6 +82,7 @@ struct LoadedMovieWithResolution : LoadedMovie
 struct BuiltinMovies
 {
 	std::array<LoadedMovie, 3> movies;
+	BuiltinMovies();
 };
 
 // find and initialize the movie libraries

@@ -644,11 +644,13 @@ std::unique_ptr<BuiltinMovies> init_movies()
 {
 	if (GameArg.SysNoMovies)
 		return nullptr;
+	return std::make_unique<BuiltinMovies>();
+}
 
-	auto r = std::make_unique<BuiltinMovies>();
-	for (auto &&[f, m] : zip(movielib_files, r->movies))
+BuiltinMovies::BuiltinMovies()
+{
+	for (auto &&[f, m] : zip(movielib_files, movies))
 		init_movie(&f[0], 1, m);
-	return r;
 }
 
 LoadedMovie::~LoadedMovie()
