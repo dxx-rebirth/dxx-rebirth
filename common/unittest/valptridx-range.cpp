@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(idx_convert_check)
 	using vo = valptridx<object>;
 	BOOST_CHECK_NO_THROW(
 		DXX_TEST_VALPTRIDX_IGNORE_RETURN(({
-			typename vo::imidx i(static_cast<objnum_t>(0));
+			typename vo::imidx i(objnum_t{0});
 			typename vo::vmidx{i};
 			}))
 	);

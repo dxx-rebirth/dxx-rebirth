@@ -41,12 +41,12 @@ public:
 	template <typename I>
 		std::size_t copy_if(I &&i)
 		{
-			return copy_if(static_cast<std::size_t>(0), static_cast<I &&>(i));
+			return copy_if(std::size_t{0}, static_cast<I &&>(i));
 		}
 	template <typename I>
 		std::size_t copy_if(I &&i, std::size_t N)
 		{
-			return copy_if(static_cast<std::size_t>(0), static_cast<I &&>(i), N);
+			return copy_if(std::size_t{0}, static_cast<I &&>(i), N);
 		}
 	template <typename I>
 		std::size_t copy_if(std::size_t out_offset, I &&i)

@@ -56,7 +56,7 @@ static constexpr int f2i(const fix &f)
 //Convert fix to float and float to fix
 static constexpr float f2fl(const fix &f)
 {
-	return static_cast<float>(f) / static_cast<float>(65536.0);
+	return static_cast<float>(f) / 65536.0f;
 }
 
 static constexpr double f2db(const fix &f)

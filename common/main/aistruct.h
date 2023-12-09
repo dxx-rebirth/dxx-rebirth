@@ -231,7 +231,7 @@ struct ai_local : public prohibit_void_ptr<ai_local>
 
 struct ai_static : public prohibit_void_ptr<ai_static>
 {
-	ai_behavior behavior = static_cast<ai_behavior>(0);               //
+	ai_behavior behavior{};               //
 	robot_gun_number CURRENT_GUN;
 	ai_static_state CURRENT_STATE;
 	ai_static_state GOAL_STATE;

@@ -263,7 +263,7 @@ void gr_palette_load( palette_array_t &pal )
 		return; // Display is not palettised
 
 	range_for (const int i, xrange(64u))
-		gamma[i] = static_cast<int>((pow((static_cast<double>(14)/static_cast<double>(32)), 1.0)*i) + 0.5);
+		gamma[i] = static_cast<int>((pow((14.0 / 32.0), 1.0) * i) + 0.5);
 
 	std::array<SDL_Color, 256> colors{};
 	for (int i = 0, j = 0; j < 256; j++)
