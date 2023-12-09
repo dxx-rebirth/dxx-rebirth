@@ -189,71 +189,69 @@ public:
 		end_src_bm(end(src))
 	{
 	}
-	template <typename T>
-		/* Decode one row of the bitmap, then return control to the
-		 * caller.  If the return value is `again`, then the caller
-		 * should perform any per-row processing, then call step()
-		 * again.  If the return value is not `again`, then the
-		 * destination buffer is undefined and the caller should not
-		 * access it or call step().
-		 *
-		 * `const T &` to ensure that t is only modified by the caller
-		 * and that the caller does not accidentally provide an
-		 * implementation of `get_begin_dbits` that moves the
-		 * destination pointer.
+	/* Decode one row of the bitmap, then return control to the
+	 * caller.  If the return value is `again`, then the caller
+	 * should perform any per-row processing, then call step()
+	 * again.  If the return value is not `again`, then the
+	 * destination buffer is undefined and the caller should not
+	 * access it or call step().
+	 *
+	 * Use `const auto &` to ensure that t is only modified by the caller
+	 * and that the caller does not accidentally provide an
+	 * implementation of `get_begin_dbits` that moves the
+	 * destination pointer.
+	 */
+	step_result step(const auto &t)
+	{
+		/* Poison the memory first, so that it is undefined even if
+		 * the source is exhausted.
 		 */
-		step_result step(const T &t)
-		{
-			/* Poison the memory first, so that it is undefined even if
-			 * the source is exhausted.
-			 */
-			const auto b = t.get_begin_dbits();
-			const auto e = t.get_end_dbits();
-			DXX_MAKE_MEM_UNDEFINED(std::span(b, e));
-			/* Check for source exhaustion, so that empty bitmaps are
-			 * not read at all.  This allows callers to treat
-			 * src_exhausted as a definitive end-of-record with no data
-			 * available.
-			 */
-			if (ptr_src_bit_lengths == end_src_bit_lengths)
-				return src_exhausted;
-			return step_internal(b, e);
-		}
-	template <typename T>
-		/* Decode until source or destination is exhausted.  The
-		 * destination position is updated automatically as each row is
-		 * decoded.  There is no opportunity for callers to perform
-		 * per-row processing.  Callers should call step() directly if
-		 * per-row processing is required.
-		 *
-		 * `T &&` since some callers may not care about the state of `t`
-		 * afterward; `T &&` lets them pass an anonymous temporary.
+		const auto b = t.get_begin_dbits();
+		const auto e = t.get_end_dbits();
+		DXX_MAKE_MEM_UNDEFINED(std::span(b, e));
+		/* Check for source exhaustion, so that empty bitmaps are
+		 * not read at all.  This allows callers to treat
+		 * src_exhausted as a definitive end-of-record with no data
+		 * available.
 		 */
-		bool loop(const unsigned bm_w, T &&t)
+		if (ptr_src_bit_lengths == end_src_bit_lengths)
+			return src_exhausted;
+		return step_internal(b, e);
+	}
+	/* Decode until source or destination is exhausted.  The
+	 * destination position is updated automatically as each row is
+	 * decoded.  There is no opportunity for callers to perform
+	 * per-row processing.  Callers should call step() directly if
+	 * per-row processing is required.
+	 *
+	 * Use `auto &&` since some callers may not care about the state of `t`
+	 * afterward; `auto &&` lets them pass an anonymous temporary.
+	 */
+	bool loop(const unsigned bm_w, auto &&t)
+	{
+		for (;;)
 		{
-			for (;;)
+			switch (step(t))
 			{
-				switch (step(t))
-				{
-					case again:
-						/* Step succeeded.  Notify `t` to update its
-						 * dbits position, then loop around.
-						 */
-						t.consume_dbits(bm_w);
-						break;
-					case src_exhausted:
-						/* Success: source buffer exhausted and no error
-						 * conditions detected.
-						 */
-						return true;
-					case dst_exhausted:
-						/* Failure: destination buffer too small to hold
-						 * expanded source.
-						 */
-						return false;
-				}
+				case again:
+					/* Step succeeded.  Notify `t` to update its
+					 * dbits position, then loop around.
+					 */
+					t.consume_dbits(bm_w);
+					break;
+				case src_exhausted:
+					/* Success: source buffer exhausted and no error
+					 * conditions detected.
+					 */
+					return true;
+				case dst_exhausted:
+					/* Failure: destination buffer too small to hold
+					 * expanded source.
+					 */
+					return false;
 			}
 		}
+	}
 private:
 	step_result step_internal(uint8_t *begin_dbits, uint8_t *end_dbits);
 };
