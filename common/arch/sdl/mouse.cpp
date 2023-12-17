@@ -194,14 +194,22 @@ window_event_result mouse_in_window(window *wind)
 			(static_cast<unsigned>(Mouse.y) - canv.cv_bitmap.bm_y <= canv.cv_bitmap.bm_h) ? window_event_result::handled : window_event_result::ignored;
 }
 
-void mouse_get_delta( int *dx, int *dy, int *dz )
+#if 0
+std::tuple<int, int, int> mouse_get_delta()
 {
-	*dz = Mouse.delta_z;
+	const int dz{Mouse.delta_z};
+	int dx{}, dy{};
 	Mouse.delta_x = 0;
 	Mouse.delta_y = 0;
 	Mouse.delta_z = 0;
-	SDL_GetRelativeMouseState(dx, dy);
+	SDL_GetRelativeMouseState(&dx, &dy);
+	return {
+		dx,
+		dy,
+		dz,
+	};
 }
+#endif
 
 namespace {
 

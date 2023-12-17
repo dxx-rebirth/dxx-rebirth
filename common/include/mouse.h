@@ -58,7 +58,10 @@ extern void mouse_close(void);
 [[nodiscard]]
 std::tuple<int /* x */, int /* y */, int /* z */> mouse_get_pos();
 window_event_result mouse_in_window(class window *wind);
-extern void mouse_get_delta( int *dx, int *dy, int *dz );
+#if 0
+[[nodiscard]]
+std::tuple<int /* x */, int /* y */, int /* z */> mouse_get_delta();
+#endif
 void mouse_enable_cursor();
 void mouse_disable_cursor();
 window_event_result mouse_button_handler(const SDL_MouseButtonEvent *mbe);

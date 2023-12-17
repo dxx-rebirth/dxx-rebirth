@@ -149,7 +149,6 @@ void restore_state()
 
 void ui_mega_process()
 {
-	int mx, my, mz;
 	unsigned char k;
 	
 	event_process();
@@ -157,7 +156,8 @@ void ui_mega_process()
 	switch( Record )
 	{
 	case 0:
-		mouse_get_delta( &mx, &my, &mz );
+		{
+			const auto [mx, my, mz] = mouse_get_delta();
 		Mouse.new_dx = mx;
 		Mouse.new_dy = my;
 		Mouse.new_buttons = mouse_get_btns();
@@ -169,6 +169,7 @@ void ui_mega_process()
 
 		break;
 	case 1:
+		{
 
 		if (ui_event_counter==0 )
 		{
@@ -188,7 +189,7 @@ void ui_mega_process()
 			ui_event_counter++;
 		}
 
-		mouse_get_delta( &mx, &my, &mz );
+		const auto [mx, my, mz] = mouse_get_delta();
 		MouseDX = mx;
 		MouseDY = my;
 		MouseButtons = mouse_get_btns();
@@ -285,6 +286,7 @@ void ui_mega_process()
 			} else {
 				Record = 0;
 			}
+		}
 		}
 
 		FrameCount++;
