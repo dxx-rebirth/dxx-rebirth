@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <array>
 #include <tuple>
 #include "pstypes.h"
 #include "maths.h"
@@ -99,13 +100,16 @@ static inline mbtn event_mouse_get_button(const d_event &event)
 	return e.button;
 }
 
-static inline void event_mouse_get_delta(const d_event &event, int *dx, int *dy, int *dz)
+[[nodiscard]]
+static inline std::array<int, 3> event_mouse_get_delta(const d_event &event)
 {
 	auto &e = static_cast<const d_event_mouse_moved &>(event);
 	assert(e.type == event_type::mouse_moved);
-	*dx = e.dx;
-	*dy = e.dy;
-	*dz = e.dz;
+	return {{
+		e.dx,
+		e.dy,
+		e.dz,
+	}};
 }
 
 }

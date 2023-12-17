@@ -733,7 +733,7 @@ window_event_result kc_menu::event_handler(const d_event &event)
 			if (changing && items[citem].type == kc_type::mouse_axis)
 				kc_change_mouseaxis(*this, event, mitems[citem]);
 			else
-				event_mouse_get_delta(event, &old_maxis[0], &old_maxis[1], &old_maxis[2]);
+				old_maxis = event_mouse_get_delta(event);
 			break;
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
@@ -928,10 +928,8 @@ static void kc_change_joyaxis( kc_menu &menu,const d_event &event, kc_mitem &mit
 
 static void kc_change_mouseaxis( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 {
-	int dx, dy, dz;
-
 	assert(event.type == event_type::mouse_moved);
-	event_mouse_get_delta( event, &dx, &dy, &dz );
+	const auto [dx, dy, dz] = event_mouse_get_delta(event);
 	uint8_t code;
 	if (abs(dz) > 5)
 		code = 2;
@@ -1215,8 +1213,7 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 				break;
 			if (PlayerCfg.MouseFlightSim)
 			{
-				int ax[3];
-				event_mouse_get_delta( event, &ax[0], &ax[1], &ax[2] );
+				const auto ax{event_mouse_get_delta(event)};
 				for (uint_fast32_t i = 0; i <= 2; i++)
 				{
 					int mouse_null_value = (i==2?16:PlayerCfg.MouseFSDead*8);
@@ -1232,7 +1229,7 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 			}
 			else
 			{
-				event_mouse_get_delta( event, &Controls.raw_mouse_axis[0], &Controls.raw_mouse_axis[1], &Controls.raw_mouse_axis[2] );
+				Controls.raw_mouse_axis = event_mouse_get_delta(event);
 				Controls.mouse_axis[0] = (Controls.raw_mouse_axis[0] * frametime) / 8;
 				Controls.mouse_axis[1] = (Controls.raw_mouse_axis[1] * frametime) / 8;
 				Controls.mouse_axis[2] = (Controls.raw_mouse_axis[2] * frametime);

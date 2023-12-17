@@ -1332,9 +1332,7 @@ window_event_result editor_dialog::callback_handler(const d_event &event)
 	// Allow specification of LargeView using mouse
 	if (event.type == event_type::mouse_moved && (keyd_pressed[ KEY_LCTRL ] || keyd_pressed[ KEY_RCTRL ]))
 	{
-		int dx, dy, dz;
-
-		event_mouse_get_delta(event, &dx, &dy, &dz);
+		const auto [dx, dy, dz] = event_mouse_get_delta(event);
 		if ((dx != 0) && (dy != 0))
 		{
 			vms_matrix	MouseRotMat;
@@ -1349,9 +1347,7 @@ window_event_result editor_dialog::callback_handler(const d_event &event)
 
 	if (event.type == event_type::mouse_moved)
 	{
-		int dx, dy, dz;
-
-		event_mouse_get_delta(event, &dx, &dy, &dz);
+		const auto [dx, dy, dz] = event_mouse_get_delta(event);
 		if (dz != 0)
 		{
 			current_view->ev_dist += dz*10000;
