@@ -299,12 +299,6 @@ public:
 };
 
 template <typename managed_type>
-constexpr bool valptridx<managed_type>::partial_policy::require_valid::allow_nullptr;
-
-template <typename managed_type>
-constexpr bool valptridx<managed_type>::partial_policy::allow_invalid::allow_nullptr;
-
-template <typename managed_type>
 template <template <typename> class policy>
 class valptridx<managed_type>::partial_policy::apply_cv_policy
 {
