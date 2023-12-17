@@ -36,12 +36,27 @@ public:
 	const iterator &begin() const { return b; }
 	static sentinel end() { return {}; }
 	static T construct(const unique_segment &s, auto &of, auto &sf)
+		requires(
+			std::convertible_to<decltype(of(s.objects)), const object_base &> &&
+			requires(const object_base o) {
+			/* Require that the supplied `sf` can produce a value whose address
+			 * can be compared to the address of a `const unique_segment &`.
+			 *
+			 * In !NDEBUG builds, this is required as a consequence of the
+			 * assert conditions.  In NDEBUG builds, it would not be checked,
+			 * so an erroneous factory would compile successfully.  Use the
+			 * `requires` clause to catch this error when assertions are not
+			 * enabled.
+			 */
+				&*sf(o.segnum) == &s;
+			}
+		)
 		{
 			if (s.objects == object_none)
 				return T(object_none, static_cast<typename T::allow_none_construction *>(nullptr));
 			auto opi = of(s.objects);
-			const object_base &o = opi;
 #if DXX_SEGITER_DEBUG_OBJECT_LINKAGE
+			const object_base &o = opi;
 			/* Assert that the first object in the segment claims to be
 			 * in the segment that claims to have that object.
 			 */
@@ -51,14 +66,6 @@ public:
 			 */
 			assert(o.prev == object_none);
 #endif
-			/* Check that the supplied SF can produce `const unique_segment &`.
-			 * In !NDEBUG builds, this would be checked as a side effect of the
-			 * assert conditions.  In NDEBUG builds, it would not be checked.
-			 *
-			 * Wrap the expression in a sizeof to prevent the compiler from
-			 * emitting code to implement the test.
-			 */
-			static_cast<void>(sizeof(&*sf(o.segnum) == &s));
 			return opi;
 		}
 };
