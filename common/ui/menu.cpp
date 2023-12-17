@@ -102,9 +102,7 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 	h = grd_curscreen->get_screen_height();
 
 	{
-		int mx, my, mz;
-		
-		mouse_get_pos(&mx, &my, &mz);
+		const auto [mx, my, mz] = mouse_get_pos();
 		if ( x == -1 ) x = mx - width/2;
 		if ( y == -1 ) y = my;
 	}

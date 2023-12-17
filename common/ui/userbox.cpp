@@ -74,7 +74,6 @@ std::unique_ptr<UI_GADGET_USERBOX> ui_add_gadget_userbox(UI_DIALOG &dlg, short x
 
 window_event_result UI_GADGET_USERBOX::event_handler(UI_DIALOG &dlg, const d_event &event)
 {
-	int x, y, z;
 	window_event_result rval = window_event_result::ignored;
 	if (event.type == event_type::window_draw)
 		ui_draw_userbox(dlg, *this);
@@ -82,7 +81,7 @@ window_event_result UI_GADGET_USERBOX::event_handler(UI_DIALOG &dlg, const d_eve
 	const auto keypress = (event.type == event_type::key_command)
 		? event_key_get(event)
 		: 0u;
-	mouse_get_pos(&x, &y, &z);
+	const auto [x, y, z] = mouse_get_pos();
 	const auto OnMe = ui_mouse_on_gadget(*this);
 
 	const auto olddrag  = b1_held_down;

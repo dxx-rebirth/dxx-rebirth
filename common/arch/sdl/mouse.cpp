@@ -177,12 +177,14 @@ void mouse_flush()	// clears all mice events...
 }
 
 //========================================================================
-void mouse_get_pos( int *x, int *y, int *z )
+std::tuple<int, int, int> mouse_get_pos()
 {
 	//event_poll();		// Have to assume this is called in event_process, because event_poll can cause a window to close (depending on what the user does)
-	*x=Mouse.x;
-	*y=Mouse.y;
-	*z=Mouse.z;
+	return {
+		Mouse.x,
+		Mouse.y,
+		Mouse.z,
+	};
 }
 
 window_event_result mouse_in_window(window *wind)

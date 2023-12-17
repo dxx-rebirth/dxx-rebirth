@@ -550,7 +550,7 @@ namespace {
 static window_event_result kconfig_mouse(kc_menu &menu, const d_event &event)
 {
 	grs_canvas &save_canvas = *grd_curcanv;
-	int mx, my, mz, x1, y1;
+	int x1, y1;
 	window_event_result rval = window_event_result::ignored;
 
 	gr_set_current_canvas(menu.w_canv);
@@ -560,7 +560,7 @@ static window_event_result kconfig_mouse(kc_menu &menu, const d_event &event)
 	{
 		int item_height;
 		
-		mouse_get_pos(&mx, &my, &mz);
+		const auto [mx, my, mz] = mouse_get_pos();
 		const auto &&fspacx = FSPACX();
 		const auto &&fspacy = FSPACY();
 		const auto nitems = menu.nitems;
@@ -579,7 +579,7 @@ static window_event_result kconfig_mouse(kc_menu &menu, const d_event &event)
 	else if (event.type == event_type::mouse_button_up)
 	{
 		int item_height;
-		mouse_get_pos(&mx, &my, &mz);
+		const auto [mx, my, mz] = mouse_get_pos();
 		item_height = get_item_height(*canvas.cv_font, menu.items[menu.citem], menu.mitems[menu.citem]);
 		const auto &&fspacx = FSPACX();
 		x1 = canvas.cv_bitmap.bm_x + fspacx(menu.items[menu.citem].xinput);

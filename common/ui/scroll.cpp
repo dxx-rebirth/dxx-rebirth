@@ -97,7 +97,6 @@ std::unique_ptr<UI_GADGET_SCROLLBAR> ui_add_gadget_scrollbar(UI_DIALOG &dlg, sho
 
 window_event_result UI_GADGET_SCROLLBAR::event_handler(UI_DIALOG &dlg, const d_event &event)
 {
-	int x, y, z;
 	window_event_result rval = window_event_result::ignored;
 	if (event.type == event_type::window_draw)
 	{
@@ -191,7 +190,7 @@ window_event_result UI_GADGET_SCROLLBAR::event_handler(UI_DIALOG &dlg, const d_e
 	//    listbox->dragging = 1;
 
 
-	mouse_get_pos(&x, &y, &z);
+	const auto [x, y, z] = mouse_get_pos();
 
 	const auto OnSlider = y >= fake_position + y1 &&
 		y < fake_position + y1 + fake_size &&

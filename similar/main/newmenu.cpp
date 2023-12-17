@@ -831,7 +831,7 @@ static void check_apply_mouse_scroll(newmenu *const menu, const grs_canvas &canv
 
 static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, const mbtn button)
 {
-	int old_choice, mx=0, my=0, mz=0, x1 = 0, x2, y1, y2, changed = 0;
+	int old_choice, x1 = 0, x2, y1, y2, changed = 0;
 	grs_canvas &menu_canvas = menu->w_canv;
 
 	switch (button)
@@ -845,7 +845,7 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, co
 			const auto &&fspacx = FSPACX();
 			if (event.type == event_type::mouse_button_down && !menu->all_text)
 			{
-				mouse_get_pos(&mx, &my, &mz);
+				const auto [mx, my, mz] = mouse_get_pos();
 				const int line_spacing = static_cast<int>(LINE_SPACING(*canvas.cv_font, *GAME_FONT));
 				for (int i = menu->scroll_offset; i < menu->max_on_menu + menu->scroll_offset; ++i)
 				{
@@ -883,8 +883,7 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, co
 			}
 
 			if ( menu->mouse_state ) {
-				mouse_get_pos(&mx, &my, &mz);
-
+				const auto [mx, my, mz] = mouse_get_pos();
 				// check possible scrollbar stuff first
 				const int line_spacing = static_cast<int>(LINE_SPACING(*canvas.cv_font, *GAME_FONT));
 				if (menu->is_scroll_box) {
@@ -961,7 +960,7 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, co
 				menu->citem != -1 &&
 				std::next(menu->items.begin(), menu->citem)->type == nm_type::menu)
 			{
-				mouse_get_pos(&mx, &my, &mz);
+				const auto [mx, my, mz] = mouse_get_pos();
 				const int line_spacing = static_cast<int>(LINE_SPACING(*canvas.cv_font, *GAME_FONT));
 				for (int i = menu->scroll_offset; i < menu->max_on_menu + menu->scroll_offset; ++i)
 				{
@@ -1757,8 +1756,7 @@ static window_event_result listbox_mouse(const d_event &event, listbox *lb, cons
 		{
 			if (lb->mouse_state)
 			{
-				int mx, my, mz;
-				mouse_get_pos(&mx, &my, &mz);
+				const auto [mx, my, mz] = mouse_get_pos();
 				const int x1{lb->box_x};
 				if (mx <= x1)
 					break;
@@ -1792,8 +1790,7 @@ static window_event_result listbox_mouse(const d_event &event, listbox *lb, cons
 				if (lb->citem < 0)
 					return window_event_result::ignored;
 
-				int mx, my, mz;
-				mouse_get_pos(&mx, &my, &mz);
+				const auto [mx, my, mz] = mouse_get_pos();
 				const auto h = gr_get_string_size(*MEDIUM3_FONT, lb->item[lb->citem]).height;
 				const int x1{lb->box_x};
 				const int x2 = lb->box_x + lb->box_w;

@@ -12,10 +12,9 @@
 
 #pragma once
 
+#include <tuple>
 #include "pstypes.h"
 #include "maths.h"
-
-#ifdef __cplusplus
 #include <SDL_version.h>
 #include <cassert>
 #include "event.h"
@@ -56,7 +55,8 @@ enum class mbtn : uint8_t
 extern void mouse_flush();	// clears all mice events...
 extern void mouse_init(void);
 extern void mouse_close(void);
-extern void mouse_get_pos( int *x, int *y, int *z );
+[[nodiscard]]
+std::tuple<int /* x */, int /* y */, int /* z */> mouse_get_pos();
 window_event_result mouse_in_window(class window *wind);
 extern void mouse_get_delta( int *dx, int *dy, int *dz );
 void mouse_enable_cursor();
@@ -106,5 +106,3 @@ static inline void event_mouse_get_delta(const d_event &event, int *dx, int *dy,
 }
 
 }
-
-#endif

@@ -144,10 +144,7 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 	height += 2;  // For line in middle
 
 	{
-		int mx, my, mz;
-		
-		mouse_get_pos(&mx, &my, &mz);
-
+		const auto [mx, my, mz] = mouse_get_pos();
 		if ( xc == -1 )
 			xc = mx;
 

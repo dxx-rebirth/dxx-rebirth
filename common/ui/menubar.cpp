@@ -237,10 +237,7 @@ static int menu_match_keypress(MENU &menu, int keypress)
 
 static int menu_is_mouse_on(const ITEM &item)
 {
-	int x, y, z;
-	
-	mouse_get_pos(&x, &y, &z);
-
+	const auto [x, y, z] = mouse_get_pos();
 	if (x >= item.x &&
 		x < item.x + item.w &&
 		y >= item.y &&

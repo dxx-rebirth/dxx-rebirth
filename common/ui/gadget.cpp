@@ -115,9 +115,7 @@ int is_under_another_window( UI_DIALOG * dlg, UI_GADGET * gadget )
 
 int ui_mouse_on_gadget(UI_GADGET &gadget)
 {
-	int x, y, z;
-	
-	mouse_get_pos(&x, &y, &z);
+	const auto [x, y, z] = mouse_get_pos();
 	if (x >= gadget.x1 && x <= gadget.x2 - 1 && y >= gadget.y1 && y <= gadget.y2 - 1)
 	{
 #if 0	// check is no longer required - if it is under another window, that dialog's handler would have returned 1

@@ -278,9 +278,7 @@ window_event_result UI_GADGET_LISTBOX::event_handler(UI_DIALOG &dlg, const d_eve
 	{
 		if (dragging)
 		{
-			int x, y, z;
-			
-			mouse_get_pos(&x, &y, &z);
+			const auto [x, y, z] = mouse_get_pos();
 			const auto mitem = (y < y1)
 				? -1
 				: (y - y1) / textheight;
