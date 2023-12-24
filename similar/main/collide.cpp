@@ -124,7 +124,7 @@ static int check_collision_delayfunc_exec()
 	static fix64 last_play_time=0;
 	if (last_play_time + (F1_0/3) < GameTime64 || last_play_time > GameTime64)
 	{
-		last_play_time = GameTime64;
+		last_play_time = {GameTime64};
 		last_play_time -= (d_rand()/2); // add some randomness
 		return 1;
 	}
@@ -467,7 +467,7 @@ volatile_wall_result check_volatile_wall(const vmobjptridx_t obj, const unique_s
 		{
 			if (!((GameTime64 > Last_volatile_scrape_time + DESIGNATED_GAME_FRAMETIME) || (GameTime64 < Last_volatile_scrape_time)))
 				return volatile_wall_result::none;
-			Last_volatile_scrape_time = GameTime64;
+			Last_volatile_scrape_time = {GameTime64};
 
 #if defined(DXX_BUILD_DESCENT_II)
 			if (d > 0)
@@ -512,7 +512,7 @@ bool scrape_player_on_wall(const vmobjptridx_t obj, const vmsegptridx_t hitseg, 
 	if (type != volatile_wall_result::none)
 	{
 		if ((GameTime64 > Last_volatile_scrape_sound_time + F1_0/4) || (GameTime64 < Last_volatile_scrape_sound_time)) {
-			Last_volatile_scrape_sound_time = GameTime64;
+			Last_volatile_scrape_sound_time = {GameTime64};
 			const auto sound =
 #if defined(DXX_BUILD_DESCENT_II)
 				(type != volatile_wall_result::lava)
@@ -1068,14 +1068,14 @@ static void collide_robot_and_player(const d_robot_info_array &Robot_info, const
 			ai_local		*ailp = &robot->ctype.ai_info.ail;
 			if (ailp->mode == ai_mode::AIM_THIEF_ATTACK)
 			{
-				Last_thief_hit_time = GameTime64;
+				Last_thief_hit_time = {GameTime64};
 				attempt_to_steal_item(robot, robptr, playerobj);
 				steal_attempt = 1;
 			} else if (GameTime64 - Last_thief_hit_time < F1_0*2)
 				return;		//	ZOUNDS!  BRILLIANT!  Thief not collide with player if not stealing!
 								// NO!  VERY DUMB!  makes thief look very stupid if player hits him while cloaked! -AP
 			else
-				Last_thief_hit_time = GameTime64;
+				Last_thief_hit_time = {GameTime64};
 		}
 #endif
 
@@ -1422,7 +1422,7 @@ void do_final_boss_hacks(void)
 	if (!(pl_flags & PLAYER_FLAGS_INVULNERABLE)) {
 		pl_flags |= PLAYER_FLAGS_INVULNERABLE;
 		player_info.FakingInvul = 0;
-		player_info.invulnerable_time = GameTime64;
+		player_info.invulnerable_time = {GameTime64};
 	}
 	if (!(Game_mode & GM_MULTI))
 		buddy_message("Nice job, %s!", static_cast<const char *>(get_local_player().callsign));
@@ -1445,7 +1445,7 @@ int apply_damage_to_robot(const d_robot_info_array &Robot_info, const vmobjptrid
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	if (robptr.boss_flag != boss_robot_id::None)
-		BossUniqueState.Boss_hit_time = GameTime64;
+		BossUniqueState.Boss_hit_time = {GameTime64};
 
 	//	Buddy invulnerable on level 24 so he can give you his important messages.  Bah.
 	//	Also invulnerable if his cheat for firing weapons is in effect.
@@ -1585,7 +1585,7 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_robot_info_
 						int	sval;
 
 						BuddyState.Buddy_gave_hint_count--;
-						BuddyState.Last_time_buddy_gave_hint = GameTime64;
+						BuddyState.Last_time_buddy_gave_hint = {GameTime64};
 						sval = (d_rand()*4) >> 15;
 						const char *msg;
 						switch (sval) {
@@ -1650,7 +1650,7 @@ static void collide_robot_and_weapon(const d_robot_info_array &Robot_info, const
 	{
 		BossUniqueState.Boss_hit_this_frame = 1;
 #if defined(DXX_BUILD_DESCENT_II)
-		BossUniqueState.Boss_hit_time = GameTime64;
+		BossUniqueState.Boss_hit_time = {GameTime64};
 #endif
 	}
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1853,7 +1853,7 @@ static void collide_player_and_player(const d_robot_info_array &Robot_info, cons
 			: player1)->ctype.player_info.Last_bumped_local_player;
 		if (last_player_bump + (F1_0/Netgame.PacketsPerSec) < GameTime64 || last_player_bump > GameTime64)
 		{
-			last_player_bump = GameTime64;
+			last_player_bump = {GameTime64};
 			damage_flag = 1;
 		}
 	}
@@ -2157,7 +2157,7 @@ void apply_damage_to_player(object &playerobj, const icobjptridx_t killer, const
 #if defined(DXX_BUILD_DESCENT_II)
 			auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 				if (killer && killer->type == OBJ_ROBOT && robot_is_companion(Robot_info[get_robot_id(killer)]))
-					BuddyState.Buddy_sorry_time = GameTime64;
+					BuddyState.Buddy_sorry_time = {GameTime64};
 #endif
 		}
 	}

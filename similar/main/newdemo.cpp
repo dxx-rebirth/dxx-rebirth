@@ -1794,7 +1794,7 @@ static int newdemo_read_demo_start(const purpose_type purpose)
 		nd_write_int(underlying_value(Newdemo_game_mode));
 	}
 
-	BossUniqueState.Boss_cloak_start_time = GameTime64;
+	BossUniqueState.Boss_cloak_start_time = {GameTime64};
 #endif
 
 	change_playernum_to((recorded_demo_game_mode >> 16) & 0x7);

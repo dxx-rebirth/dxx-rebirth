@@ -142,7 +142,7 @@ int multi_can_move_robot(const vmobjptridx_t objnum, int agitation)
 		}
 		else {
 			robot_agitation[slot_num] = agitation;
-			robot_last_message_time[slot_num] = GameTime64;
+			robot_last_message_time[slot_num] = {GameTime64};
 			return 1;
 		}
 	}
@@ -168,7 +168,7 @@ void multi_check_robot_timeout()
 
 	if (GameTime64 > lastcheck + F1_0 || lastcheck > GameTime64)
 	{
-		lastcheck = GameTime64;
+		lastcheck = {GameTime64};
 		for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++) 
 		{
 			if (robot_controlled[i] != object_none && robot_last_send_time[i] + ROBOT_TIMEOUT < GameTime64)
@@ -322,8 +322,8 @@ int multi_add_controlled_robot(const vmobjptridx_t objnum, int agitation)
 	robot_agitation[i] = agitation;
 	objrobot.ctype.ai_info.REMOTE_OWNER = Player_num;
 	objrobot.ctype.ai_info.REMOTE_SLOT_NUM = i;
-	robot_controlled_time[i] = GameTime64;
-	robot_last_send_time[i] = robot_last_message_time[i] = GameTime64;
+	robot_controlled_time[i] = {GameTime64};
+	robot_last_send_time[i] = robot_last_message_time[i] = {GameTime64};
 	return(1);
 }	
 
@@ -512,7 +512,7 @@ void multi_send_robot_position(object &obj, const multi_send_robot_position_prio
 //	Objects[objnum].phys_info.drag = Robot_info[Objects[objnum].id].drag; // Set drag to normal
 
 	const auto slot = obj.ctype.ai_info.REMOTE_SLOT_NUM;
-	robot_last_send_time[slot] = GameTime64;
+	robot_last_send_time[slot] = {GameTime64};
 	robot_send_pending[slot] = force;
 	return;
 }
@@ -1131,7 +1131,7 @@ void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_
 	auto &vcvertptr = Vertices.vcptr;
 	compute_segment_center(vcvertptr, boss_obj->pos, teleport_segnum);
 	obj_relink(vmobjptr, vmsegptr, boss_obj, teleport_segnum);
-	BossUniqueState.Last_teleport_time = GameTime64;
+	BossUniqueState.Last_teleport_time = {GameTime64};
 
 	const auto boss_dir = vm_vec_sub(vcobjptr(vcplayerptr(pnum)->objnum)->pos, boss_obj->pos);
 	vm_vector_2_matrix(boss_obj->orient, boss_dir, nullptr, nullptr);
@@ -1172,7 +1172,7 @@ void multi_do_boss_cloak(const multiplayer_rspan<multiplayer_command_t::MULTI_BO
 #if defined(DXX_BUILD_DESCENT_II)
 	BossUniqueState.Boss_hit_time = -F1_0*10;
 #endif
-	BossUniqueState.Boss_cloak_start_time = GameTime64;
+	BossUniqueState.Boss_cloak_start_time = {GameTime64};
 	boss_obj->ctype.ai_info.CLOAKED = 1;
 }
 

@@ -1858,7 +1858,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	static constexpr std::integral_constant<secret_restore, secret_restore::none> secret{};
 #elif defined(DXX_BUILD_DESCENT_II)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	fix64	old_gametime = GameTime64;
+	const auto old_gametime{GameTime64};
 #endif
 
 	#ifndef NDEBUG
@@ -2312,9 +2312,9 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	auto &Next_laser_fire_time = player_info.Next_laser_fire_time;
 	auto &Next_missile_fire_time = player_info.Next_missile_fire_time;
 	player_info.Auto_fire_fusion_cannon_time = 0;
-	player_info.Next_flare_fire_time = GameTime64;
-	Next_laser_fire_time = GameTime64;
-	Next_missile_fire_time = GameTime64;
+	player_info.Next_flare_fire_time = {GameTime64};
+	Next_laser_fire_time = {GameTime64};
+	Next_missile_fire_time = {GameTime64};
 
 	state_game_id = 0;
 

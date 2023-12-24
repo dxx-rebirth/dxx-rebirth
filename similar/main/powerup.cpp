@@ -596,7 +596,7 @@ int do_powerup(const vmobjptridx_t obj)
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_ARE,TXT_CLOAKED);
 				break;
 			} else {
-				player_info.cloak_time = GameTime64;	//	Not! changed by awareness events (like player fires laser).
+				player_info.cloak_time = {GameTime64};	//	Not! changed by awareness events (like player fires laser).
 				player_info.powerup_flags |= PLAYER_FLAGS_CLOAKED;
 				ai_do_cloak_stuff();
 				if (Game_mode & GM_MULTI)
@@ -617,7 +617,7 @@ int do_powerup(const vmobjptridx_t obj)
 			}
 				player_info.FakingInvul = 0;
 				pl_flags |= PLAYER_FLAGS_INVULNERABLE;
-				player_info.invulnerable_time = GameTime64;
+				player_info.invulnerable_time = {GameTime64};
 				powerup_basic(7, 14, 21, INVULNERABILITY_SCORE, "%s!",TXT_INVULNERABILITY);
 				used = 1;
 				break;

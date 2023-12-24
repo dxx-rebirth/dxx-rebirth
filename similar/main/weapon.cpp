@@ -1371,7 +1371,7 @@ void smega_rock_stuff(void)
 		if (*least > i)
 			least = &i;
 	}
-	*least = GameTime64;
+	*least = {GameTime64};
 }
 
 namespace {

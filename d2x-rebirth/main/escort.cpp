@@ -453,7 +453,7 @@ __attribute_nonnull()
 static void buddy_message_force_str(const char *str)
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
-	BuddyState.Last_buddy_message_time = GameTime64;
+	BuddyState.Last_buddy_message_time = {GameTime64};
 	HUD_init_message(HM_DEFAULT, "%c%c%s:%c%c %s", CC_COLOR, BM_XRGB(28, 0, 0), static_cast<const char *>(PlayerCfg.GuidebotName), CC_COLOR, BM_XRGB(0, 31, 0), str);
 }
 
@@ -1183,7 +1183,7 @@ static void do_buddy_dude_stuff(const vmobjptridx_t buddy_objp)
 		{
 			if ((objp->type == OBJ_ROBOT) && !Robot_info[get_robot_id(objp)].companion)
 				if (maybe_buddy_fire_mega(objp, buddy_objp)) {
-					BuddyState.Buddy_last_missile_time = GameTime64;
+					BuddyState.Buddy_last_missile_time = {GameTime64};
 					return;
 				}
 		}
@@ -1193,7 +1193,7 @@ static void do_buddy_dude_stuff(const vmobjptridx_t buddy_objp)
 		{
 			if ((objp->type == OBJ_ROBOT) && !Robot_info[get_robot_id(objp)].companion)
 				if (maybe_buddy_fire_smart(objp, buddy_objp)) {
-					BuddyState.Buddy_last_missile_time = GameTime64;
+					BuddyState.Buddy_last_missile_time = {GameTime64};
 					return;
 				}
 		}
@@ -1232,7 +1232,7 @@ void do_escort_frame(const vmobjptridx_t objp, const robot_info &robptr, const o
 	auto &player_info = plrobj.ctype.player_info;
 	if (player_is_visible(player_visibility))
 	{
-		BuddyState.Buddy_last_seen_player = GameTime64;
+		BuddyState.Buddy_last_seen_player = {GameTime64};
 		if (player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON)	//	DAMN! MK, stupid bug, fixed 12/08/95, changed PLAYER_FLAGS_HEADLIGHT to PLAYER_FLAGS_HEADLIGHT_ON
 		{
 			const auto energy = player_info.energy;
@@ -1282,7 +1282,7 @@ void do_escort_frame(const vmobjptridx_t objp, const robot_info &robptr, const o
 			return;
 		if (player_is_visible(player_visibility))
 			if (BuddyState.Escort_last_path_created + F1_0*3 < GameTime64) {
-				BuddyState.Escort_last_path_created = GameTime64;
+				BuddyState.Escort_last_path_created = {GameTime64};
 				create_n_segment_path(objp, robptr, 10 + d_rand() * 16, plrobj.segnum);
 			}
 
@@ -1293,20 +1293,20 @@ void do_escort_frame(const vmobjptridx_t objp, const robot_info &robptr, const o
 	if (BuddyState.Escort_last_path_created + (BuddyState.Escort_special_goal != ESCORT_GOAL_SCRAM ? (F1_0 * 5) : (F1_0 * 15)) < GameTime64)
 	{
 		BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
-		BuddyState.Escort_last_path_created = GameTime64;
+		BuddyState.Escort_last_path_created = {GameTime64};
 	}
 
 	const player *guidebot_controller_player;
 	if (BuddyState.Escort_special_goal != ESCORT_GOAL_SCRAM && (guidebot_controller_player = time_to_visit_player(LevelUniqueObjectState, objp)))
 	{
 		unsigned max_len;
-		BuddyState.Buddy_last_player_path_created = GameTime64;
+		BuddyState.Buddy_last_player_path_created = {GameTime64};
 		ailp->mode = ai_mode::AIM_GOTO_PLAYER;
 		if (!player_is_visible(player_visibility))
 		{
 			if (BuddyState.Last_come_back_message_time + F1_0 < GameTime64)
 			{
-				BuddyState.Last_come_back_message_time = GameTime64;
+				BuddyState.Last_come_back_message_time = {GameTime64};
 				auto &local_player = *Players.vcptr(Player_num);
 				if (guidebot_controller_player == &local_player)
 					buddy_message_str("Coming back to get you.");

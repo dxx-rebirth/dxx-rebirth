@@ -201,8 +201,8 @@ static void transfer_energy_to_shield(object &plrobj)
 		last_play_time = 0;
 
 	if (GameTime64 > last_play_time+CONVERTER_SOUND_DELAY) {
+		last_play_time = {GameTime64};
 		digi_play_sample_once(SOUND_CONVERT_ENERGY, F1_0);
-		last_play_time = GameTime64;
 	}
 }
 #endif
@@ -654,11 +654,11 @@ static window_event_result HandleDemoKey(int key)
 			Newdemo_vcr_state = ND_STATE_PAUSED;
 			break;
 		case KEY_LEFT:
-			newdemo_single_frame_time = GameTime64;
+			newdemo_single_frame_time = {GameTime64};
 			Newdemo_vcr_state = ND_STATE_ONEFRAMEBACKWARD;
 			break;
 		case KEY_RIGHT:
-			newdemo_single_frame_time = GameTime64;
+			newdemo_single_frame_time = {GameTime64};
 			Newdemo_vcr_state = ND_STATE_ONEFRAMEFORWARD;
 			break;
 		case KEY_CTRLED + KEY_RIGHT:
@@ -1411,7 +1411,7 @@ static window_event_result HandleTestKey(const d_level_shared_robot_info_state &
 				if (Game_mode & GM_MULTI)
 					multi_send_cloak();
 				ai_do_cloak_stuff();
-				player_info.cloak_time = GameTime64;
+				player_info.cloak_time = {GameTime64};
 			}
 			break;
 		}
@@ -1843,7 +1843,7 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 		if (have_cloaked)
 		{
 			ai_do_cloak_stuff();
-			player_info.cloak_time = GameTime64;
+			player_info.cloak_time = {GameTime64};
 		}
 	}
 
@@ -2024,7 +2024,7 @@ public:
 			if (Game_mode & GM_MULTI)
 				multi_send_cloak();
 			ai_do_cloak_stuff();
-			get().cloak_time = GameTime64;
+			get().cloak_time = {GameTime64};
 		}
 		return *this;
 	}

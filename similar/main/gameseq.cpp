@@ -782,7 +782,7 @@ void init_player_stats_ship(object &plrobj, const fix GameTime64)
 #endif
 	player_info.mission.hostages_on_board = 0;
 	player_info.homing_object_dist = -F1_0; // Added by RH
-	player_info.Next_flare_fire_time = player_info.Next_laser_fire_time = player_info.Next_missile_fire_time = GameTime64;
+	player_info.Next_flare_fire_time = player_info.Next_laser_fire_time = player_info.Next_missile_fire_time = {GameTime64};
 }
 }
 

@@ -635,9 +635,9 @@ void init_ai_object(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 		 */
 		aip->CURRENT_GUN = robot_gun_number::_0;
 	aip->CURRENT_STATE = AIS_REST;
-	ailp->time_player_seen = GameTime64;
-	ailp->next_misc_sound_time = GameTime64;
-	ailp->time_player_sound_attacked = GameTime64;
+	ailp->time_player_seen = {GameTime64};
+	ailp->next_misc_sound_time = {GameTime64};
+	ailp->time_player_sound_attacked = {GameTime64};
 
 	aip->hide_segment = hide_segment;
 	ailp->goal_segment = hide_segment;
@@ -1769,7 +1769,7 @@ static void compute_vis_and_vec(const d_robot_info_array &Robot_info, const vmob
 			const unsigned cloak_index = (objp) % MAX_AI_CLOAK_INFO;
 			const fix delta_time = GameTime64 - Ai_cloak_info[cloak_index].last_time;
 			if (delta_time > F1_0*2) {
-				Ai_cloak_info[cloak_index].last_time = GameTime64;
+				Ai_cloak_info[cloak_index].last_time = {GameTime64};
 				vm_vec_scale_add2(Ai_cloak_info[cloak_index].last_position, make_random_vector(), 8 * delta_time);
 			}
 
@@ -1810,14 +1810,14 @@ static void compute_vis_and_vec(const d_robot_info_array &Robot_info, const vmob
 					if (ailp.time_player_seen + F1_0/2 < GameTime64)
 					{
 						digi_link_sound_to_object(robptr.see_sound, objp, 0, Robot_sound_volume, sound_stack::allow_stacking);
-						ailp.time_player_sound_attacked = GameTime64;
+						ailp.time_player_sound_attacked = {GameTime64};
 						ailp.next_misc_sound_time = GameTime64 + F1_0 + d_rand()*4;
 					}
 				}
 				else if (ailp.time_player_sound_attacked + F1_0/4 < GameTime64)
 				{
 					digi_link_sound_to_object(robptr.attack_sound, objp, 0, Robot_sound_volume, sound_stack::allow_stacking);
-					ailp.time_player_sound_attacked = GameTime64;
+					ailp.time_player_sound_attacked = {GameTime64};
 				}
 			} 
 
@@ -1839,7 +1839,7 @@ static void compute_vis_and_vec(const d_robot_info_array &Robot_info, const vmob
 
 		if (player_is_visible(player_visibility.visibility))
 		{
-			ailp.time_player_seen = GameTime64;
+			ailp.time_player_seen = {GameTime64};
 		}
 	player_visibility.initialized = 1;
 }
@@ -2182,7 +2182,7 @@ static imobjptridx_t create_gated_robot(const d_robot_info_array &Robot_info, co
 	digi_link_sound_to_pos(Vclip[vclip_index::morphing_robot].sound_num, segp, sidenum_t::WLEFT, object_pos, 0, F1_0);
 	morph_start(LevelUniqueMorphObjectState, LevelSharedPolygonModelState, objp);
 
-	BossUniqueState.Last_gate_time = GameTime64;
+	BossUniqueState.Last_gate_time = {GameTime64};
 	++LevelUniqueObjectState.accumulated_robots;
 	++GameUniqueState.accumulated_robots;
 
@@ -2411,7 +2411,7 @@ static void teleport_boss(const d_robot_info_array &Robot_info, const d_vclip_ar
 	compute_segment_center(vcvertptr, objp->pos, rand_segp);
 	obj_relink(vmobjptr, vmsegptr, objp, rand_segp);
 
-	BossUniqueState.Last_teleport_time = GameTime64;
+	BossUniqueState.Last_teleport_time = {GameTime64};
 
 	//	make boss point right at player
 	const auto boss_dir = vm_vec_sub(target_pos, objp->pos);
@@ -2438,7 +2438,7 @@ void start_boss_death_sequence(d_level_unique_boss_state &BossUniqueState, const
 	if (robptr.boss_flag != boss_robot_id::None)
 	{
 		BossUniqueState.Boss_dying = 1;
-		BossUniqueState.Boss_dying_start_time = GameTime64;
+		BossUniqueState.Boss_dying_start_time = {GameTime64};
 	}
 
 }
@@ -2469,7 +2469,7 @@ static void do_boss_dying_frame(const d_robot_info_array &Robot_info, const vmob
 
 	if (BossUniqueState.Boss_dying_start_time + BOSS_DEATH_DURATION < GameTime64 || GameTime64+(F1_0*2) < BossUniqueState.Boss_dying_start_time)
 	{
-		BossUniqueState.Boss_dying_start_time = GameTime64; // make sure following only happens one time!
+		BossUniqueState.Boss_dying_start_time = {GameTime64}; // make sure following only happens one time!
 		do_controlcen_destroyed_stuff(object_none);
 		explode_object(LevelUniqueObjectState, Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, objp, F1_0/4);
 		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, sound_stack::allow_stacking, vm_distance{F1_0*512});
@@ -2525,7 +2525,7 @@ imobjptridx_t boss_spew_robot(const d_robot_info_array &Robot_info, const object
 void start_robot_death_sequence(object &obj)
 {
 	auto &ai_info = obj.ctype.ai_info;
-	ai_info.dying_start_time = GameTime64;
+	ai_info.dying_start_time = {GameTime64};
 	ai_info.dying_sound_playing = 0;
 	ai_info.SKIP_AI_COUNT = 0;
 }
@@ -2577,7 +2577,7 @@ static void do_boss_dying_frame(const d_robot_info_array &Robot_info, const vmob
 
 	if (rval)
 	{
-		BossUniqueState.Boss_dying_start_time = GameTime64; // make sure following only happens one time!
+		BossUniqueState.Boss_dying_start_time = {GameTime64}; // make sure following only happens one time!
 		do_controlcen_destroyed_stuff(object_none);
 		explode_object(LevelUniqueObjectState, Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, objp, F1_0/4);
 		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, sound_stack::allow_stacking, vm_distance{F1_0*512});
@@ -2594,7 +2594,7 @@ static int do_any_robot_dying_frame(const d_robot_info_array &Robot_info, const 
 		rval = do_robot_dying_frame(objp, objp->ctype.ai_info.dying_start_time, min(death_roll/2+1,6)*F1_0, &objp->ctype.ai_info.dying_sound_playing, Robot_info[get_robot_id(objp)].deathroll_sound, death_roll*F1_0/8, death_roll*F1_0/2);
 
 		if (rval) {
-			objp->ctype.ai_info.dying_start_time = GameTime64; // make sure following only happens one time!
+			objp->ctype.ai_info.dying_start_time = {GameTime64}; // make sure following only happens one time!
 			explode_object(LevelUniqueObjectState, Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, objp, F1_0/4);
 			digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp, 0, F2_0, sound_stack::allow_stacking, vm_distance{F1_0*512});
 			if (Current_level_num < 0)
@@ -2694,7 +2694,7 @@ static void do_d1_boss_stuff(const d_robot_info_array &Robot_info, fvmsegptridx 
 				if (ai_multiplayer_awareness(objp, 95))
 				{
 					BossUniqueState.Boss_hit_this_frame = 0;
-					BossUniqueState.Boss_cloak_start_time = GameTime64;
+					BossUniqueState.Boss_cloak_start_time = {GameTime64};
 					objp->ctype.ai_info.CLOAKED = 1;
 					if (Game_mode & GM_MULTI)
 						multi_send_boss_cloak(objp);
@@ -2778,7 +2778,7 @@ static void do_d2_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 	if (!BossUniqueState.Boss_dying && Boss_teleports[boss_index]) {
 		const auto Boss_cloak_start_time = BossUniqueState.Boss_cloak_start_time;
 		if (objp->ctype.ai_info.CLOAKED == 1) {
-			BossUniqueState.Boss_hit_time = GameTime64;	//	Keep the cloak:teleport process going.
+			BossUniqueState.Boss_hit_time = {GameTime64};	//	Keep the cloak:teleport process going.
 			if (GameTime64 - Boss_cloak_start_time > Boss_cloak_duration / 3 &&
 				(Boss_cloak_start_time + Boss_cloak_duration) - GameTime64 > Boss_cloak_duration / 3 &&
 				GameTime64 - BossUniqueState.Last_teleport_time > LevelSharedBossState.Boss_teleport_interval)
@@ -2795,7 +2795,7 @@ static void do_d2_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 		} else if (GameTime64 - (Boss_cloak_start_time + Boss_cloak_duration) > LevelSharedBossState.Boss_cloak_interval ||
 				GameTime64 - (Boss_cloak_start_time + Boss_cloak_duration) < -Boss_cloak_duration) {
 			if (ai_multiplayer_awareness(objp, 95)) {
-				BossUniqueState.Boss_cloak_start_time = GameTime64;
+				BossUniqueState.Boss_cloak_start_time = {GameTime64};
 				objp->ctype.ai_info.CLOAKED = 1;
 				if (Game_mode & GM_MULTI)
 					multi_send_boss_cloak(objp);
@@ -4463,7 +4463,7 @@ _exit_cheat:
 void ai_do_cloak_stuff(void)
 {
 	range_for (auto &i, Ai_cloak_info) {
-		i.last_time = GameTime64;
+		i.last_time = {GameTime64};
 #if defined(DXX_BUILD_DESCENT_II)
 		i.last_segment = ConsoleObject->segnum;
 #endif
@@ -4665,7 +4665,7 @@ static void state_ai_local_to_ai_local_rw(const ai_local *ail, ai_local_rw *ail_
 	ail_rw->next_action_time           = ail->next_action_time;
 	ail_rw->next_fire                  = ail->next_fire;
 	ail_rw->player_awareness_time      = ail->player_awareness_time;
-	const auto gametime = GameTime64;
+	const auto gametime{GameTime64};
 	ail_rw->time_player_seen = build_savegametime_from_gametime(gametime, ail->time_player_seen);
 	ail_rw->time_player_sound_attacked = build_savegametime_from_gametime(gametime, ail->time_player_sound_attacked);
 	ail_rw->next_misc_sound_time = build_savegametime_from_gametime(gametime, ail->next_misc_sound_time);
@@ -4741,7 +4741,7 @@ int ai_save_state(PHYSFS_File *fp)
 		state_ai_cloak_info_to_ai_cloak_info_rw(&i, &aic_rw);
 		PHYSFS_write(fp, &aic_rw, sizeof(aic_rw), 1);
 	}
-	const auto gametime = GameTime64;
+	const auto gametime{GameTime64};
 	{
 		const auto Boss_cloak_start_time = BossUniqueState.Boss_cloak_start_time;
 		tmptime32 = build_savegametime_from_gametime(gametime, Boss_cloak_start_time);

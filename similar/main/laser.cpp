@@ -1921,7 +1921,7 @@ void do_laser_firing_player(object &plrobj)
 			}
 		} else {
 #if defined(DXX_BUILD_DESCENT_II)
-			Next_laser_fire_time = GameTime64;	//	Prevents shots-to-fire from building up.
+			Next_laser_fire_time = {GameTime64};	//	Prevents shots-to-fire from building up.
 #endif
 			break;	//	Couldn't fire weapon, so abort.
 		}

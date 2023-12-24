@@ -1215,7 +1215,7 @@ imobjptridx_t obj_create(d_level_unique_object_state &LevelUniqueObjectState, co
         {
 		obj->ctype.powerup_info.count = 1;
                 obj->ctype.powerup_info.flags = 0;
-                obj->ctype.powerup_info.creation_time = GameTime64;
+                obj->ctype.powerup_info.creation_time = {GameTime64};
         }
 
 	// Init physics info for this object
@@ -1262,7 +1262,7 @@ imobjptridx_t obj_weapon_create(d_level_unique_object_state &LevelUniqueObjectSt
 	assert(obj.control_source == object::control_type::weapon);
 	if (Weapon_info[id].persistent != weapon_info::persistence_flag::terminate_on_impact)
 		obj.mtype.phys_info.flags |= PF_PERSISTENT;
-	obj.ctype.laser_info.creation_time = GameTime64;
+	obj.ctype.laser_info.creation_time = {GameTime64};
 	obj.ctype.laser_info.clear_hitobj();
 	obj.ctype.laser_info.multiplier = F1_0;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2086,8 +2086,8 @@ static window_event_result object_move_one(const d_level_shared_robot_info_state
 
 		assert(obj->control_source == object::control_type::weapon);
 		if ((obj->ctype.laser_info.last_afterburner_time + delay < GameTime64) || (obj->ctype.laser_info.last_afterburner_time > GameTime64)) {
+			obj->ctype.laser_info.last_afterburner_time = {GameTime64};
 			drop_afterburner_blobs(obj, 1, i2f(Weapon_info[get_weapon_id(obj)].afterburner_size)/16, lifetime);
-			obj->ctype.laser_info.last_afterburner_time = GameTime64;
 		}
 	}
 

@@ -2105,7 +2105,7 @@ static void multi_do_cloak(fvmobjptr &vmobjptr, const playernum_t pnum)
 	const auto &&objp = vmobjptr(vcplayerptr(pnum)->objnum);
 	auto &player_info = objp->ctype.player_info;
 	player_info.powerup_flags |= PLAYER_FLAGS_CLOAKED;
-	player_info.cloak_time = GameTime64;
+	player_info.cloak_time = {GameTime64};
 	ai_do_cloak_stuff();
 
 	multi_strip_robots(pnum);

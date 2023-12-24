@@ -819,7 +819,7 @@ static void add_to_fcd_cache(const segnum_t seg0, const segnum_t seg1, const vm_
 void flush_fcd_cache()
 {
 	Fcd_index = 0;
-	Last_fcd_flush_time = GameTime64;
+	Last_fcd_flush_time = {GameTime64};
 
 	for (auto &f : Fcd_cache)
 		f.seg0 = segment_none;

@@ -1296,8 +1296,8 @@ static void diminish_palette_towards_normal(void)
 		}
 
 		if (Time_flash_last_played + F1_0/8 < GameTime64) {
+			Time_flash_last_played = {GameTime64};
 			digi_play_sample( SOUND_CLOAK_OFF, Flash_effect/4);
-			Time_flash_last_played = GameTime64;
 		}
 
 		Flash_effect -= FrameTime;

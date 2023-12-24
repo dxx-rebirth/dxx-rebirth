@@ -1113,8 +1113,8 @@ void play_homing_warning(const player_info &player_info)
 			beep_delay = F1_0/8;
 
 		if (GameTime64 - Last_warning_beep_time > beep_delay/2 || Last_warning_beep_time > GameTime64) {
+			Last_warning_beep_time = {GameTime64};
 			digi_play_sample( SOUND_HOMING_WARNING, F1_0 );
-			Last_warning_beep_time = GameTime64;
 		}
 	}
 }
@@ -1835,7 +1835,7 @@ static void hud_show_cloak_invuln(grs_canvas &canvas, const player_flags player_
 		return;
 	gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
 	const auto &&line_spacing = LINE_SPACING(*canvas.cv_font, *GAME_FONT);
-	const auto gametime64 = GameTime64;
+	const auto gametime64{GameTime64};
 	const auto &&fspacx1 = FSPACX(1);
 
 	const auto cloak_invul_timer = show_cloak_invul_timer();

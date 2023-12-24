@@ -652,7 +652,7 @@ void create_path_to_segment(const vmobjptridx_t objp, const robot_info &robptr, 
 	ai_static *const aip = &obj.ctype.ai_info;
 	ai_local *const ailp = &obj.ctype.ai_info.ail;
 
-	ailp->time_player_seen = GameTime64;			//	Prevent from resetting path quickly.
+	ailp->time_player_seen = {GameTime64};			//	Prevent from resetting path quickly.
 	ailp->goal_segment = goal_segment;
 
 	segnum_t			start_seg;
@@ -720,7 +720,7 @@ void create_path_to_segment(const vmobjptridx_t objp, const robot_info &robptr, 
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 
-	ailp->time_player_seen = GameTime64;			//	Prevent from resetting path quickly.
+	ailp->time_player_seen = {GameTime64};			//	Prevent from resetting path quickly.
 	ailp->goal_segment = goalseg;
 
 	segnum_t			start_seg, end_seg;
@@ -764,7 +764,7 @@ void create_path_to_station(const vmobjptridx_t objp, const robot_info &robptr, 
 	if (max_length == -1)
 		max_length = MAX_DEPTH_TO_SEARCH_FOR_PLAYER;
 
-	ailp->time_player_seen = GameTime64;			//	Prevent from resetting path quickly.
+	ailp->time_player_seen = {GameTime64};			//	Prevent from resetting path quickly.
 
 	segnum_t			start_seg, end_seg;
 	start_seg = obj.segnum;

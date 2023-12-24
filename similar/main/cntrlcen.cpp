@@ -386,7 +386,7 @@ void do_controlcen_frame(const d_robot_info_array &Robot_info, const vmobjptridx
 	{
 		if (LevelUniqueControlCenterState.Last_time_cc_vis_check + F1_0 * 5 < GameTime64 || LevelUniqueControlCenterState.Last_time_cc_vis_check > GameTime64)
 		{
-			LevelUniqueControlCenterState.Last_time_cc_vis_check = GameTime64;
+			LevelUniqueControlCenterState.Last_time_cc_vis_check = {GameTime64};
 			const auto &&[dist_to_player, vec_to_player] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(ConsoleObject->pos, obj->pos));
 			if (dist_to_player < F1_0*120) {
 				LevelUniqueControlCenterState.Control_center_player_been_seen = player_is_visible_from_object(Robot_info, obj, obj->pos, 0, vec_to_player);
