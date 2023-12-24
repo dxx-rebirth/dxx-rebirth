@@ -1197,14 +1197,7 @@ static bool drop_robot_egg(const d_robot_info_array &Robot_info, const contained
 //				new_pos.y += (d_rand()-16384)*7;
 //				new_pos.z += (d_rand()-16384)*6;
 
-#if defined(DXX_BUILD_DESCENT_I)
-				/* ObjId appears to serve as both a polygon_model_index and as
-				 * a robot index.
-				 */
-				const auto rid = static_cast<robot_id>(ObjId[underlying_value(type)]);
-#elif defined(DXX_BUILD_DESCENT_II)
 				const auto rid = static_cast<robot_id>(id);
-#endif
 				auto &robptr = Robot_info[rid];
 				const auto &&objp = robot_create(Robot_info, rid, segnum, new_pos, &vmd_identity_matrix, Polygon_models[robptr.model_num].rad, ai_behavior::AIB_NORMAL);
 				if (objp == object_none)
