@@ -1138,7 +1138,7 @@ window_event_result automap::event_handler(const d_event &event)
 		case event_type::window_activated:
 			game_flush_inputs(controls);
 			event_toggle_focus(1);
-			key_toggle_repeat(0);
+			key_toggle_repeat(1);
 			break;
 
 		case event_type::window_deactivated:
