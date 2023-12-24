@@ -569,7 +569,7 @@ constexpr std::integral_constant<unsigned, F1_0 / 4> FUELCEN_SOUND_DELAY{};
 //-------------------------------------------------------------
 fix fuelcen_give_fuel(const shared_segment &segp, fix MaxAmountCanTake)
 {
-	static fix64 last_play_time = 0;
+	static fix64 last_play_time{};
 
 	if (segp.special == segment_special::fuelcen)
 	{
@@ -609,7 +609,7 @@ namespace dcx {
 // use same values as fuel centers
 fix repaircen_give_shields(const shared_segment &segp, const fix MaxAmountCanTake)
 {
-	static fix last_play_time=0;
+	static fix64 last_play_time{};
 
 	if (segp.special == segment_special::repaircen)
 	{
