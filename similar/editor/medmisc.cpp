@@ -390,7 +390,7 @@ int AttachSegment()
 			auto &vcvertptr = Vertices.vcptr;
 			set_view_target_from_segment(vcvertptr, Cursegp);
 		}
-		vm_angvec_make(&Seg_orientation,0,0,0);
+		Seg_orientation = {};
 		Curside = sidenum_t::WBACK;
 		Update_flags |= UF_WORLD_CHANGED;
 	   autosave_mine(mine_filename);

@@ -414,14 +414,6 @@ static inline vms_angvec vm_extract_angles_matrix (const vms_matrix &m)
 	return vm_extract_angles_matrix(a, m), a;
 }
 
-//fills in fields of an angle vector
-static inline void vm_angvec_make(vms_angvec *v, fixang p, fixang b, fixang h)
-{
-	v->p = p;
-	v->b = b;
-	v->h = h;
-}
-
 extern const vms_vector vmd_zero_vector;
 
 }
