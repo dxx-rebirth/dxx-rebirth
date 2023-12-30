@@ -472,8 +472,7 @@ void multi_send_robot_position_sub(const vmobjptridx_t objnum, const multiplayer
 	multibuf[loc+2] = obj_owner;
 	PUT_INTEL_SHORT(&multibuf[loc], remote_objnum);                                      loc += 3; // 5
 
-	quaternionpos qpp{};
-	create_quaternionpos(qpp, objnum);
+	const auto qpp{build_quaternionpos(objnum)};
 	PUT_INTEL_SHORT(&multibuf[loc], qpp.orient.w);			loc += 2;
 	PUT_INTEL_SHORT(&multibuf[loc], qpp.orient.x);			loc += 2;
 	PUT_INTEL_SHORT(&multibuf[loc], qpp.orient.y);			loc += 2;

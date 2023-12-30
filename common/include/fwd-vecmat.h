@@ -96,7 +96,8 @@ vms_angvec vm_extract_angles_vector(const vms_vector &v);
 [[nodiscard]]
 fix vm_dist_to_plane (const vms_vector &checkp, const vms_vector &norm, const vms_vector &planep);
 
-void vms_quaternion_from_matrix(vms_quaternion &q, const vms_matrix &m);
+[[nodiscard]]
+vms_quaternion vms_quaternion_from_matrix(const vms_matrix &m);
 void vms_matrix_from_quaternion(vms_matrix &m, const vms_quaternion &q);
 
 }

@@ -614,8 +614,9 @@ fix vm_dist_to_plane(const vms_vector &checkp,const vms_vector &norm,const vms_v
 }
 
 // convert vms_matrix to vms_quaternion
-void vms_quaternion_from_matrix(vms_quaternion &rq, const vms_matrix &m)
+vms_quaternion vms_quaternion_from_matrix(const vms_matrix &m)
 {
+	vms_quaternion rq{};
 	const auto rx = m.rvec.x;
 	const auto ry = m.rvec.y;
 	const auto rz = m.rvec.z;
@@ -656,6 +657,7 @@ void vms_quaternion_from_matrix(vms_quaternion &rq, const vms_matrix &m)
 	rq.x = qx / 2;
 	rq.y = qy / 2;
 	rq.z = qz / 2;
+	return rq;
 }
 
 // convert vms_quaternion to vms_matrix

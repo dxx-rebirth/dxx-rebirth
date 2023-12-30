@@ -5927,8 +5927,7 @@ void net_udp_send_pdata()
 	buf[len] = Player_num;									len++;
 	buf[len] = underlying_value(plr.connected);						len++;
 
-	quaternionpos qpp{};
-	create_quaternionpos(qpp, vmobjptr(plr.objnum));
+	const auto qpp{build_quaternionpos(vmobjptr(plr.objnum))};
 	PUT_INTEL_SHORT(&buf[len], qpp.orient.w);							len += 2;
 	PUT_INTEL_SHORT(&buf[len], qpp.orient.x);							len += 2;
 	PUT_INTEL_SHORT(&buf[len], qpp.orient.y);							len += 2;

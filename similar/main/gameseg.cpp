@@ -1083,15 +1083,16 @@ void extract_shortpos_little(const vmobjptridx_t objp, const shortpos *spp)
 	obj_relink(vmobjptr, vmsegptr, objp, segp);
 }
 
-// create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
-void create_quaternionpos(quaternionpos &qpp, const object_base &objp)
+// create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead of orientation matrix
+quaternionpos build_quaternionpos(const object_base &objp)
 {
-	vms_quaternion_from_matrix(qpp.orient, objp.orient);
-
-	qpp.pos = objp.pos;
-	qpp.segment = objp.segnum;
-	qpp.vel = objp.mtype.phys_info.velocity;
-	qpp.rotvel = objp.mtype.phys_info.rotvel;
+	return quaternionpos{
+		.orient = vms_quaternion_from_matrix(objp.orient),
+		.pos = objp.pos,
+		.segment = objp.segnum,
+		.vel = objp.mtype.phys_info.velocity,
+		.rotvel = objp.mtype.phys_info.rotvel
+	};
 }
 
 void extract_quaternionpos(const vmobjptridx_t objp, quaternionpos &qpp)
