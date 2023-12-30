@@ -90,7 +90,8 @@ void vm_vector_2_matrix (vms_matrix &m, const vms_vector &fvec, const vms_vector
 void vm_vec_rotate (vms_vector &dest, const vms_vector &src, const vms_matrix &m);
 void _vm_matrix_x_matrix (vms_matrix &dest, const vms_matrix &src0, const vms_matrix &src1);
 void vm_extract_angles_matrix (vms_angvec &a, const vms_matrix &m);
-void vm_extract_angles_vector (vms_angvec &a, const vms_vector &v);
+[[nodiscard]]
+vms_angvec vm_extract_angles_vector(const vms_vector &v);
 
 [[nodiscard]]
 fix vm_dist_to_plane (const vms_vector &checkp, const vms_vector &norm, const vms_vector &planep);

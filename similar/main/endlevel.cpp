@@ -274,7 +274,7 @@ static int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
 static void get_angs_to_object(vms_angvec &av,const vms_vector &targ_pos,const vms_vector &cur_pos)
 {
 	const auto tv = vm_vec_sub(targ_pos,cur_pos);
-	vm_extract_angles_vector(av,tv);
+	av = vm_extract_angles_vector(tv);
 }
 
 #define MIN_D 0x100
