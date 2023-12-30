@@ -407,13 +407,6 @@ static inline vms_matrix vm_matrix_x_matrix(const vms_matrix &src0, const vms_ma
 	return dest;
 }
 
-[[nodiscard]]
-static inline vms_angvec vm_extract_angles_matrix (const vms_matrix &m)
-{
-	vms_angvec a;
-	return vm_extract_angles_matrix(a, m), a;
-}
-
 extern const vms_vector vmd_zero_vector;
 
 }
