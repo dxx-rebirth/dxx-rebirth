@@ -350,11 +350,7 @@ static inline vms_vector vm_vec_normal(const vms_vector &p0, const vms_vector &p
 }
 
 [[nodiscard]]
-static inline vms_vector vm_vec_perp (const vms_vector &p0, const vms_vector &p1, const vms_vector &p2)
-{
-	vms_vector dest;
-	return vm_vec_perp(dest, p0, p1, p2), dest;
-}
+vms_vector vm_vec_perp (const vms_vector &p0, const vms_vector &p1, const vms_vector &p2);
 
 [[nodiscard]]
 static inline vms_matrix vm_angles_2_matrix (const vms_angvec &a)
