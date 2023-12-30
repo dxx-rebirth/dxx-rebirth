@@ -1312,13 +1312,14 @@ static bool get_verts_for_normal(verts_for_normal &r)
 	return ((w[0] + 3) % 4) == w[1] || ((w[1] + 3) % 4) == w[2];
 }
 
-static void assign_side_normal(fvcvertptr &vcvertptr, vms_vector &n, const vertnum_t v0, const vertnum_t v1, const vertnum_t v2)
+static vms_vector assign_side_normal(fvcvertptr &vcvertptr, const vertnum_t v0, const vertnum_t v1, const vertnum_t v2)
 {
 	verts_for_normal vfn{v0, v1, v2, vertnum_t{UINT32_MAX}};
 	const auto negate_flag = get_verts_for_normal(vfn);
-	n = vm_vec_normal(vcvertptr(vfn.vsorted[0]), vcvertptr(vfn.vsorted[1]), vcvertptr(vfn.vsorted[2]));
+	auto n{vm_vec_normal(vcvertptr(vfn.vsorted[0]), vcvertptr(vfn.vsorted[1]), vcvertptr(vfn.vsorted[2]))};
 	if (negate_flag)
 		vm_vec_negate(n);
+	return n;
 }
 
 }
@@ -1379,8 +1380,8 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 			s0v2 = v[side_relative_vertnum::_3];
 			s1v0 = v[side_relative_vertnum::_1];
 		}
-		assign_side_normal(vcvertptr, sidep->normals[0], v[side_relative_vertnum::_0], v[side_relative_vertnum::_1], s0v2);
-		assign_side_normal(vcvertptr, sidep->normals[1], s1v0, v[side_relative_vertnum::_2], v[side_relative_vertnum::_3]);
+		sidep->normals[0] = assign_side_normal(vcvertptr, v[side_relative_vertnum::_0], v[side_relative_vertnum::_1], s0v2);
+		sidep->normals[1] = assign_side_normal(vcvertptr, s1v0, v[side_relative_vertnum::_2], v[side_relative_vertnum::_3]);
 	}
 }
 
