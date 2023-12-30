@@ -271,10 +271,9 @@ static int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
 }
 
 //find the angle between the player's heading & the station
-static void get_angs_to_object(vms_angvec &av,const vms_vector &targ_pos,const vms_vector &cur_pos)
+static vms_angvec get_angs_to_object(const vms_vector &targ_pos, const vms_vector &cur_pos)
 {
-	const auto tv = vm_vec_sub(targ_pos,cur_pos);
-	av = vm_extract_angles_vector(tv);
+	return vm_extract_angles_vector(vm_vec_sub(targ_pos, cur_pos));
 }
 
 #define MIN_D 0x100
@@ -1025,7 +1024,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 
 		case EL_STOPPED: {
 
-			get_angs_to_object(player_dest_angles,station_pos,ConsoleObject->pos);
+			player_dest_angles = get_angs_to_object(station_pos, ConsoleObject->pos);
 			chase_angles(&player_angles,&player_dest_angles);
 			vm_angles_2_matrix(ConsoleObject->orient,player_angles);
 
@@ -1063,13 +1062,13 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 		case EL_PANNING: {
 			int mask;
 
-			get_angs_to_object(player_dest_angles,station_pos,ConsoleObject->pos);
+			player_dest_angles = get_angs_to_object(station_pos, ConsoleObject->pos);
 			chase_angles(&player_angles,&player_dest_angles);
 			vm_angles_2_matrix(ConsoleObject->orient,player_angles);
 			vm_vec_scale_add2(ConsoleObject->pos,ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
 
 
-			get_angs_to_object(camera_desired_angles,ConsoleObject->pos,endlevel_camera->pos);
+			camera_desired_angles = get_angs_to_object(ConsoleObject->pos, endlevel_camera->pos);
 			mask = chase_angles(&camera_cur_angles,&camera_desired_angles);
 			vm_angles_2_matrix(endlevel_camera->orient,camera_cur_angles);
 
@@ -1092,7 +1091,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 			fix d,speed_scale;
 
 
-			get_angs_to_object(camera_desired_angles,ConsoleObject->pos,endlevel_camera->pos);
+			camera_desired_angles = get_angs_to_object(ConsoleObject->pos, endlevel_camera->pos);
 			chase_angles(&camera_cur_angles,&camera_desired_angles);
 
 			vm_angles_2_matrix(endlevel_camera->orient,camera_cur_angles);
@@ -1102,7 +1101,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 			speed_scale = fixdiv(d,i2f(0x20));
 			if (d<f1_0) d=f1_0;
 
-			get_angs_to_object(player_dest_angles,station_pos,ConsoleObject->pos);
+			player_dest_angles = get_angs_to_object(station_pos, ConsoleObject->pos);
 			chase_angles(&player_angles,&player_dest_angles);
 			vm_angles_2_matrix(ConsoleObject->orient,player_angles);
 
