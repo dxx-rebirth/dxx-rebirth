@@ -323,14 +323,16 @@ int medlisp_update_screen()
 	return 1;
 }
 
-void med_point_2_vec(grs_canvas *canv,vms_vector &v,short sx,short sy)
+vms_vector med_point_2_vec(grs_canvas *const canv, const short sx, const short sy)
 {
 	gr_set_current_canvas(canv);
 
 	g3_start_frame(*grd_curcanv);
 	g3_set_view_matrix(Viewer->pos,Viewer->orient,Render_zoom);
+	vms_vector v;
 	g3_point_2_vec(v,sx,sy);
 	g3_end_frame();
+	return v;
 }
  
 void draw_world_from_game(void)
