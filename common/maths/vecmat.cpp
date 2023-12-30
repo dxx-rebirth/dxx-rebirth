@@ -541,14 +541,14 @@ void _vm_matrix_x_matrix(vms_matrix &dest,const vms_matrix &src0,const vms_matri
 //extract angles from a matrix 
 vms_angvec vm_extract_angles_matrix(const vms_matrix &m)
 {
-	vms_angvec a{};
+	const fixang ah{
+		(m.fvec.x == 0 && m.fvec.z == 0)
+			//zero head
+			? fixang{0}
+			: fix_atan2(m.fvec.z, m.fvec.x)
+	};
 
-	if (m.fvec.x==0 && m.fvec.z==0)		//zero head
-		a.h = 0;
-	else
-		a.h = fix_atan2(m.fvec.z,m.fvec.x);
-
-	const auto &&[sinh, cosh] = fix_sincos(a.h);
+	const auto &&[sinh, cosh] = fix_sincos(ah);
 	const auto cosp{
 		(abs(sinh) > abs(cosh))
 			//sine is larger, so use it
@@ -556,27 +556,25 @@ vms_angvec vm_extract_angles_matrix(const vms_matrix &m)
 			//cosine is larger, so use it
 			: fixdiv(m.fvec.z, cosh)
 	};
-
-	if (cosp==0 && m.fvec.y==0)
-		a.p = 0;
-	else
-		a.p = fix_atan2(cosp,-m.fvec.y);
-
-	if (cosp == 0)	//the cosine of pitch is zero.  we're pitched straight up. say no bank
-		a.b = 0;
-	else {
-		fix sinb,cosb;
-
-		sinb = fixdiv(m.rvec.y,cosp);
-		cosb = fixdiv(m.uvec.y,cosp);
-
-		if (sinb==0 && cosb==0)
-			a.b = 0;
-		else
-			a.b = fix_atan2(cosb,sinb);
-
-	}
-	return a;
+	return vms_angvec{
+		.p = (
+			(cosp == 0 && m.fvec.y == 0)
+			? fixang{0}
+			: fix_atan2(cosp, -m.fvec.y)
+			),
+		.b = (
+			(cosp == 0)	//the cosine of pitch is zero.  we're pitched straight up. say no bank
+			? fixang{0}
+			: ({
+				const auto sinb{fixdiv(m.rvec.y, cosp)};
+				const auto cosb{fixdiv(m.uvec.y, cosp)};
+				(sinb == 0 && cosb == 0)
+				? fixang{0}
+				: fix_atan2(cosb, sinb);
+			})
+		),
+		.h = ah
+	};
 }
 
 
