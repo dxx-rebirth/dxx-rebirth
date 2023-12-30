@@ -190,8 +190,8 @@ static void move_towards_outside(const d_level_shared_segment_state &LevelShared
 				}
 			}
 		} else {
-			const auto d = vm_vec_cross(a, b);
-			vm_vec_cross(e, c, d);
+			const auto d{vm_vec_cross(a, b)};
+			e = vm_vec_cross(c, d);
 			vm_vec_normalize_quick(e);
 		}
 

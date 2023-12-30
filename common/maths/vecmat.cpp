@@ -343,26 +343,25 @@ static void check_vec(vms_vector *v)
 //product of the magnitudes of the two source vectors.  This means it is
 //quite easy for this routine to overflow and underflow.  Be careful that
 //your inputs are ok.
-void vm_vec_cross(vms_vector &dest,const vms_vector &src0,const vms_vector &src1)
+vms_vector vm_vec_cross(const vms_vector &src0, const vms_vector &src1)
 {
-	quadint q;
+	quadint qx{};
+	quadint qy{};
+	quadint qz{};
 
-	Assert(&dest!=&src0 && &dest!=&src1);
+	fixmulaccum(&qx, src0.y, src1.z);
+	fixmulaccum(&qx, -src0.z, src1.y);
 
-	q.q = 0;
-	fixmulaccum(&q,src0.y,src1.z);
-	fixmulaccum(&q,-src0.z,src1.y);
-	dest.x = fixquadadjust(&q);
+	fixmulaccum(&qy, src0.z, src1.x);
+	fixmulaccum(&qy, -src0.x, src1.z);
 
-	q.q = 0;
-	fixmulaccum(&q,src0.z,src1.x);
-	fixmulaccum(&q,-src0.x,src1.z);
-	dest.y = fixquadadjust(&q);
-
-	q.q = 0;
-	fixmulaccum(&q,src0.x,src1.y);
-	fixmulaccum(&q,-src0.y,src1.x);
-	dest.z = fixquadadjust(&q);
+	fixmulaccum(&qz, src0.x, src1.y);
+	fixmulaccum(&qz, -src0.y, src1.x);
+	return vms_vector{
+		.x = fixquadadjust(&qx),
+		.y = fixquadadjust(&qy),
+		.z = fixquadadjust(&qz),
+	};
 }
 
 //computes non-normalized surface normal from three points. 
@@ -374,7 +373,7 @@ void vm_vec_perp(vms_vector &dest,const vms_vector &p0,const vms_vector &p1,cons
 	auto t1 = vm_vec_sub(p2,p1);
 	check_vec(&t0);
 	check_vec(&t1);
-	vm_vec_cross(dest,t0,t1);
+	dest = vm_vec_cross(t0, t1);
 }
 
 
@@ -399,7 +398,7 @@ fixang vm_vec_delta_ang_norm(const vms_vector &v0,const vms_vector &v1,const vms
 	fixang a;
 
 	a = fix_acos(vm_vec_dot(v0,v1));
-		if (vm_vec_dot(vm_vec_cross(v0,v1),fvec) < 0)
+	if (vm_vec_dot(vm_vec_cross(v0, v1), fvec) < 0)
 			a = -a;
 	return a;
 }
@@ -482,7 +481,7 @@ bad_vector2:
 				xvec.z = -zvec.x;
 
 				vm_vec_normalize(xvec);
-				vm_vec_cross(yvec,zvec,xvec);
+				yvec = vm_vec_cross(zvec, xvec);
 			}
 		}
 		else {						//use right vec
@@ -490,14 +489,14 @@ bad_vector2:
 			if (!vm_vec_copy_normalize(xvec,*rvec))
 				goto bad_vector2;
 
-			vm_vec_cross(yvec,zvec,xvec);
+			yvec = vm_vec_cross(zvec, xvec);
 
 			//normalize new perpendicular vector
 			if (!vm_vec_normalize(yvec))
 				goto bad_vector2;
 
 			//now recompute right vector, in case it wasn't entirely perpendiclar
-			vm_vec_cross(xvec,yvec,zvec);
+			xvec = vm_vec_cross(yvec, zvec);
 
 		}
 	}
@@ -506,14 +505,14 @@ bad_vector2:
 		if (!vm_vec_copy_normalize(yvec,*uvec))
 			goto bad_vector2;
 
-		vm_vec_cross(xvec,yvec,zvec);
+		xvec = vm_vec_cross(yvec, zvec);
 		
 		//normalize new perpendicular vector
 		if (!vm_vec_normalize(xvec))
 			goto bad_vector2;
 
 		//now recompute up vector, in case it wasn't entirely perpendiclar
-		vm_vec_cross(yvec,zvec,xvec);
+		yvec = vm_vec_cross(zvec, xvec);
 	}
 }
 

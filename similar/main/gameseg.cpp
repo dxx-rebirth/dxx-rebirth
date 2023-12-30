@@ -1207,7 +1207,7 @@ static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_se
 	auto &vert2 = *vcvertptr(sp.verts[vp2]);
 	vm_vec_normalized_dir(vec1, vert1, vcvertptr(sp.verts[vp[side_relative_vertnum::_0]]));
 	vm_vec_normalized_dir(vec2, vert2, vert1);
-	const auto cross0 = vm_vec_cross(vec1, vec2);
+	const auto cross0{vm_vec_cross(vec1, vec2)};
 
 	dot = vm_vec_dot(vec_to_center, cross0);
 	if (dot <= 0)
@@ -1219,7 +1219,7 @@ static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_se
 	//vm_vec_normalize(&vec2);
 	vm_vec_normalized_dir(vec1, vert2, vert1);
 	vm_vec_normalized_dir(vec2, vcvertptr(sp.verts[vp[side_relative_vertnum::_3]]), vert2);
-	const auto cross1 = vm_vec_cross(vec1, vec2);
+	const auto cross1{vm_vec_cross(vec1, vec2)};
 
 	dot = vm_vec_dot(vec_to_center, cross1);
 	if (dot <= 0)
@@ -1245,7 +1245,7 @@ static unsigned check_for_degenerate_segment(fvcvertptr &vcvertptr, const shared
 	vm_vec_normalize(rvec);
 	vm_vec_normalize(uvec);
 
-	const auto cross = vm_vec_cross(fvec, rvec);
+	const auto cross{vm_vec_cross(fvec, rvec)};
 	dot = vm_vec_dot(cross, uvec);
 
 	if (dot > 0)

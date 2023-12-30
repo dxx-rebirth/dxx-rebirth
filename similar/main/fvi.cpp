@@ -290,7 +290,7 @@ static std::optional<std::pair<fix, fix>> check_line_to_line(const vms_vector &p
 {
 	std::pair<vms_vector, vms_vector> rfvec;
 	auto &detf = rfvec.second;
-	vm_vec_cross(detf, v1, v2);
+	detf = vm_vec_cross(v1, v2);
 	const auto cross_mag2 = vm_vec_dot(detf, detf);
 
 	if (cross_mag2 == 0)
