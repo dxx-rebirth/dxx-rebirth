@@ -26,6 +26,19 @@ namespace dcx {
 constexpr vms_matrix vmd_identity_matrix = IDENTITY_MATRIX;
 constexpr vms_vector vmd_zero_vector{};
 
+namespace {
+
+vms_vector vm_vec_divide(const vms_vector &src, const fix m)
+{
+	return vms_vector{
+		.x = fixdiv(src.x, m),
+		.y = fixdiv(src.y, m),
+		.z = fixdiv(src.z, m),
+	};
+}
+
+}
+
 //adds two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_add2() if so
 vms_vector &vm_vec_add(vms_vector &dest,const vms_vector &src0,const vms_vector &src1)
@@ -224,17 +237,10 @@ vm_distance vm_vec_dist_quick(const vms_vector &v0,const vms_vector &v1)
 vm_magnitude vm_vec_copy_normalize(vms_vector &dest,const vms_vector &src)
 {
 	auto m = vm_vec_mag(src);
-	if (m) {
-		vm_vec_divide(dest, src, m);
+	if (likely(m)) {
+		dest = vm_vec_divide(src, m);
 	}
 	return m;
-}
-
-void vm_vec_divide(vms_vector &dest,const vms_vector &src, fix m)
-{
-	dest.x = fixdiv(src.x,m);
-	dest.y = fixdiv(src.y,m);
-	dest.z = fixdiv(src.z,m);
 }
 
 //normalize a vector. returns mag of source vec
@@ -247,8 +253,8 @@ vm_magnitude vm_vec_normalize(vms_vector &v)
 vm_magnitude vm_vec_copy_normalize_quick(vms_vector &dest,const vms_vector &src)
 {
 	auto m = vm_vec_mag_quick(src);
-	if (m) {
-		vm_vec_divide(dest, src, m);
+	if (likely(m)) {
+		dest = vm_vec_divide(src, m);
 	}
 	return m;
 }
