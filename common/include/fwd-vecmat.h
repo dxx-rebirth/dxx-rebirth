@@ -34,7 +34,6 @@ vms_vector &vm_vec_add (vms_vector &dest, const vms_vector &src0, const vms_vect
 vms_vector &_vm_vec_sub(vms_vector &dest, const vms_vector &src0, const vms_vector &src1);
 void vm_vec_add2 (vms_vector &dest, const vms_vector &src);
 void vm_vec_sub2 (vms_vector &dest, const vms_vector &src);
-void vm_vec_avg (vms_vector &dest, const vms_vector &src0, const vms_vector &src1);
 vms_vector &vm_vec_scale (vms_vector &dest, fix s);
 
 #define vm_vec_copy_scale(A,B,...)	vm_vec_copy_scale(A, ## __VA_ARGS__, B)

@@ -299,14 +299,9 @@ static inline vms_vector vm_vec_sub (const vms_vector &src0, const vms_vector &s
 	return vm_vec_sub(dest, src0, src1), dest;
 }
 
-//averages two vectors. returns ptr to dest
-//dest can equal either source
+//averages two vectors. returns average
 [[nodiscard]]
-static inline vms_vector vm_vec_avg (const vms_vector &src0, const vms_vector &src1)
-{
-	vms_vector dest;
-	return vm_vec_avg(dest, src0, src1), dest;
-}
+vms_vector vm_vec_avg(const vms_vector &src0, const vms_vector &src1);
 
 //scales and copies a vector.  returns ptr to dest
 #define vm_vec_copy_scale(A,B,...)	vm_vec_copy_scale(A, ## __VA_ARGS__, B)
