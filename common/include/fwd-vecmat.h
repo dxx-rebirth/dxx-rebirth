@@ -74,8 +74,6 @@ vm_magnitude vm_vec_normalized_dir_quick (vms_vector &dest, const vms_vector &en
 [[nodiscard]]
 fix vm_vec_dot (const vms_vector &v0, const vms_vector &v1);
 
-void vm_vec_normal (vms_vector &dest, const vms_vector &p0, const vms_vector &p1, const vms_vector &p2);
-
 [[nodiscard]]
 fixang vm_vec_delta_ang (const vms_vector &v0, const vms_vector &v1, const vms_vector &fvec);
 

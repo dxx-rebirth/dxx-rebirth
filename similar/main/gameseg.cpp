@@ -1316,7 +1316,7 @@ static void assign_side_normal(fvcvertptr &vcvertptr, vms_vector &n, const vertn
 {
 	verts_for_normal vfn{v0, v1, v2, vertnum_t{UINT32_MAX}};
 	const auto negate_flag = get_verts_for_normal(vfn);
-	vm_vec_normal(n, vcvertptr(vfn.vsorted[0]), vcvertptr(vfn.vsorted[1]), vcvertptr(vfn.vsorted[2]));
+	n = vm_vec_normal(vcvertptr(vfn.vsorted[0]), vcvertptr(vfn.vsorted[1]), vcvertptr(vfn.vsorted[2]));
 	if (negate_flag)
 		vm_vec_negate(n);
 }
@@ -1347,7 +1347,7 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 		auto &vvs1 = *vcvertptr(verts[vs[side_relative_vertnum::_1]]);
 		auto &vvs2 = *vcvertptr(verts[vs[side_relative_vertnum::_2]]);
 		auto &vvs3 = *vcvertptr(verts[vs[side_relative_vertnum::_3]]);
-		const auto &&norm = vm_vec_normal(vvs0, vvs1, vvs2);
+		const auto norm{vm_vec_normal(vvs0, vvs1, vvs2)};
 		const auto &&vec_13 =	vm_vec_sub(vvs3, vvs1);	//	vector from vertex 1 to vertex 3
 		dot = vm_vec_dot(norm, vec_13);
 
@@ -1356,8 +1356,8 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 		sidep->set_type(dot >= 0 ? (n0v3 = &vvs2, n1v1 = &vvs0, side_type::tri_02) : (n0v3 = &vvs3, n1v1 = &vvs1, side_type::tri_13));
 
 		//	Now, based on triangulation type, set the normals.
-		vm_vec_normal(sidep->normals[0], vvs0, vvs1, *n0v3);
-		vm_vec_normal(sidep->normals[1], *n1v1, vvs2, vvs3);
+		sidep->normals[0] = vm_vec_normal(vvs0, vvs1, *n0v3);
+		sidep->normals[1] = vm_vec_normal(*n1v1, vvs2, vvs3);
 	} else {
 		enumerated_array<vertnum_t, 4, side_relative_vertnum> v;
 
@@ -1422,7 +1422,7 @@ void create_walls_on_side(fvcvertptr &vcvertptr, shared_segment &sp, const siden
 	verts_for_normal vfn{v0, v1, v2, v3};
 	const auto negate_flag = get_verts_for_normal(vfn);
 	auto &vvm0 = *vcvertptr(vfn.vsorted[0]);
-	auto &&vn = vm_vec_normal(vvm0, vcvertptr(vfn.vsorted[1]), vcvertptr(vfn.vsorted[2]));
+	auto vn{vm_vec_normal(vvm0, vcvertptr(vfn.vsorted[1]), vcvertptr(vfn.vsorted[2]))};
 	const fix dist_to_plane = abs(vm_dist_to_plane(vcvertptr(vfn.vsorted[3]), vn, vvm0));
 
 	if (negate_flag)

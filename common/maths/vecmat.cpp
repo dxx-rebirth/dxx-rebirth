@@ -284,12 +284,9 @@ vm_magnitude vm_vec_normalized_dir(vms_vector &dest,const vms_vector &end,const 
 }
 
 //computes surface normal from three points. result is normalized
-//returns ptr to dest
-//dest CANNOT equal either source
-void vm_vec_normal(vms_vector &dest,const vms_vector &p0,const vms_vector &p1,const vms_vector &p2)
+vms_vector vm_vec_normal(const vms_vector &p0, const vms_vector &p1, const vms_vector &p2)
 {
-	dest = vm_vec_perp(p0, p1, p2);
-	vm_vec_normalize(dest);
+	return vm_vec_normalized(vm_vec_perp(p0, p1, p2));
 }
 
 //make sure a vector is reasonably sized to go into a cross product

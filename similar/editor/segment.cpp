@@ -1445,10 +1445,11 @@ static int check_seg_concavity(const shared_segment &s)
 	range_for (auto &sn, Side_to_verts)
 		for (unsigned vn = 0; vn <= 4; ++vn)
 		{
-			const auto n1 = vm_vec_normal(
+			const auto n1{vm_vec_normal(
 				vcvertptr(s.verts[sn[static_cast<side_relative_vertnum>(vn % 4)]]),
 				vcvertptr(s.verts[sn[static_cast<side_relative_vertnum>((vn + 1) % 4)]]),
-				vcvertptr(s.verts[sn[static_cast<side_relative_vertnum>((vn + 2) % 4)]]));
+				vcvertptr(s.verts[sn[static_cast<side_relative_vertnum>((vn + 2) % 4)]])
+			)};
 
 			//vm_vec_normalize(&n1);
 

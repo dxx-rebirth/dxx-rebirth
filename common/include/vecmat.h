@@ -343,11 +343,7 @@ static inline std::pair<vm_magnitude, vms_vector> vm_vec_normalize_quick_with_ma
 vms_vector vm_vec_cross(const vms_vector &src0, const vms_vector &src1);
 
 [[nodiscard]]
-static inline vms_vector vm_vec_normal(const vms_vector &p0, const vms_vector &p1, const vms_vector &p2)
-{
-	vms_vector dest;
-	return vm_vec_normal(dest, p0, p1, p2), dest;
-}
+vms_vector vm_vec_normal(const vms_vector &p0, const vms_vector &p1, const vms_vector &p2);
 
 [[nodiscard]]
 vms_vector vm_vec_perp (const vms_vector &p0, const vms_vector &p1, const vms_vector &p2);
