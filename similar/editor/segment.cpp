@@ -357,26 +357,6 @@ void med_extract_matrix_from_segment(const shared_segment &sp, vms_matrix &rotma
 
 
 	vm_vector_2_matrix(rotmat, forwardvec, &upvec, nullptr);
-
-#if 0
-	vms_matrix	rm;
-
-	extract_forward_vector_from_segment(sp,&rm.zrow);
-	extract_right_vector_from_segment(sp,&rm.xrow);
-	extract_up_vector_from_segment(sp,&rm.yrow);
-
-	vm_vec_normalize(&rm.xrow);
-	vm_vec_normalize(&rm.yrow);
-	vm_vec_normalize(&rm.zrow);
-
-	make_orthogonal(rotmat,&rm);
-
-	vm_vec_normalize(&rotmat->xrow);
-	vm_vec_normalize(&rotmat->yrow);
-	vm_vec_normalize(&rotmat->zrow);
-
-// *rotmat = rm; // include this line (and remove the call to make_orthogonal) if you don't want the matrix orthogonalized
-#endif
 }
 
 }

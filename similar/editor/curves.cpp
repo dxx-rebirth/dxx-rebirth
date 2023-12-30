@@ -148,14 +148,14 @@ int generate_curve(const fix r1scale, const fix r4scale)
 
     switch( Curside ) {
 		case sidenum_t::WLEFT:
-            extract_right_vector_from_segment(vcvertptr, cursegp, r1);
+			r1 = extract_right_vector_from_segment(vcvertptr, cursegp);
             vm_vec_scale(r1, -F1_0 );
             break;
 		case sidenum_t::WTOP:
             extract_up_vector_from_segment(vcvertptr, cursegp, r1);
             break;
 		case sidenum_t::WRIGHT:
-            extract_right_vector_from_segment(vcvertptr, cursegp, r1);
+			r1 = extract_right_vector_from_segment(vcvertptr, cursegp);
             break;
 		case sidenum_t::WBOTTOM:
             extract_up_vector_from_segment(vcvertptr, cursegp, r1);
@@ -175,7 +175,7 @@ int generate_curve(const fix r1scale, const fix r4scale)
 
     switch( Markedside ) {
 		case sidenum_t::WLEFT:
-            extract_right_vector_from_segment(vcvertptr, markedsegp, r4);
+			r4 = extract_right_vector_from_segment(vcvertptr, markedsegp);
             extract_up_vector_from_segment(vcvertptr, markedsegp, r4t);
             break;
 		case sidenum_t::WTOP:
@@ -185,7 +185,7 @@ int generate_curve(const fix r1scale, const fix r4scale)
             vm_vec_scale(r4t, -F1_0 );
             break;
 		case sidenum_t::WRIGHT:
-            extract_right_vector_from_segment(vcvertptr, markedsegp, r4);
+			r4 = extract_right_vector_from_segment(vcvertptr, markedsegp);
             vm_vec_scale(r4, -F1_0 );
             extract_up_vector_from_segment(vcvertptr, markedsegp, r4t);
             break;
@@ -255,7 +255,7 @@ int generate_curve(const fix r1scale, const fix r4scale)
     if (uangle >= F1_0 * 1/8) uangle -= F1_0 * 1/4;
     if (uangle <= -F1_0 * 1/8) uangle += F1_0 * 1/4;
     if (uangle <= -F1_0 * 1/8) uangle += F1_0 * 1/4;
-    extract_right_vector_from_segment(vcvertptr, cursegp, tvec);
+	tvec = extract_right_vector_from_segment(vcvertptr, cursegp);
     rangle = vm_vec_delta_ang( tvec, r4t, r4 );
     if (rangle >= F1_0/8) rangle -= F1_0/4;
     if (rangle >= F1_0/8) rangle -= F1_0/4;
@@ -313,7 +313,7 @@ void generate_banked_curve(const fix maxscale, vms_equation coeffs)
     if (uangle <= -F1_0 * 1/8) uangle += F1_0 * 1/4;
     if (uangle <= -F1_0 * 1/8) uangle += F1_0 * 1/4;
 
-	extract_right_vector_from_segment(vcvertptr, cursegp, b4r4t);
+	b4r4t = extract_right_vector_from_segment(vcvertptr, cursegp);
     rangle = vm_vec_delta_ang( b4r4t, r4t, r4 );
     if (rangle >= F1_0/8) rangle -= F1_0/4;
     if (rangle >= F1_0/8) rangle -= F1_0/4;
