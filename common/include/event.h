@@ -79,7 +79,7 @@ struct d_event
 {
 	const event_type type;
 	constexpr d_event(const event_type t) :
-		type(t)
+		type{t}
 	{
 	}
 };

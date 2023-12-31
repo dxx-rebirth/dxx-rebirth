@@ -30,13 +30,13 @@ class unique_span : std::unique_ptr<T[], Deleter>
 public:
 	constexpr unique_span() = default;
 	constexpr unique_span(base_type &&b, const std::size_t e) :
-		base_type(std::move(b)),
-		extent(e)
+		base_type{std::move(b)},
+		extent{e}
 	{
 	}
 	unique_span(const std::size_t e) :
-		base_type(new T[e]()),
-		extent(e)
+		base_type{new T[e]()},
+		extent{e}
 	{
 	}
 	unique_span(unique_span &&) = default;

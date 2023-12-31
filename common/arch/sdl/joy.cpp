@@ -52,7 +52,7 @@ struct d_event_joystickbutton : d_event
 {
 	const unsigned button;
 	constexpr d_event_joystickbutton(const event_type t, const unsigned b) :
-		d_event(t), button(b)
+		d_event{t}, button{b}
 	{
 	}
 };

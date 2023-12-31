@@ -90,8 +90,8 @@ class Mission_path
 {
 public:
 	Mission_path(const Mission_path &m) :
-		path(m.path),
-		filename(std::next(path.cbegin(), std::distance(m.path.cbegin(), m.filename)))
+		path{m.path},
+		filename{std::next(path.cbegin(), std::distance(m.path.cbegin(), m.filename))}
 	{
 	}
 	Mission_path &operator=(const Mission_path &m)
@@ -100,20 +100,20 @@ public:
 		filename = std::next(path.begin(), std::distance(m.path.cbegin(), m.filename));
 		return *this;
 	}
-	Mission_path(std::string &&p, const std::size_t offset) :
-		path(std::move(p)),
-		filename(std::next(path.cbegin(), offset))
+	Mission_path(std::string &&p, const std::ptrdiff_t offset) :
+		path{std::move(p)},
+		filename{std::next(path.cbegin(), {offset})}
 	{
 	}
 	Mission_path(Mission_path &&m) :
-		Mission_path(std::move(m).path, std::distance(m.path.cbegin(), m.filename))
+		Mission_path{std::move(m).path, std::distance(m.path.cbegin(), m.filename)}
 	{
 	}
 	Mission_path &operator=(Mission_path &&rhs)
 	{
-		std::size_t offset = std::distance(rhs.path.cbegin(), rhs.filename);
+		const auto offset{std::distance(rhs.path.cbegin(), rhs.filename)};
 		path = std::move(rhs.path);
-		filename = std::next(path.begin(), offset);
+		filename = std::next(path.begin(), {offset});
 		return *this;
 	}
 	/* Must be in this order for move constructor to work properly */
@@ -168,11 +168,11 @@ struct Mission : Mission_path
 	Mission(const Mission &) = delete;
 	Mission &operator=(const Mission &) = delete;
 	explicit Mission(const Mission_path &m) :
-		Mission_path(m)
+		Mission_path{m}
 	{
 	}
 	explicit Mission(Mission_path &&m) :
-		Mission_path(std::move(m))
+		Mission_path{std::move(m)}
 	{
 	}
 	~Mission();

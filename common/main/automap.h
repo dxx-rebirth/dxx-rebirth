@@ -61,7 +61,7 @@ constexpr std::integral_constant<std::size_t, 40> MARKER_MESSAGE_LEN{};
 struct marker_message_text_t : ntstring<MARKER_MESSAGE_LEN - 1>
 {
 	constexpr marker_message_text_t() :
-		ntstring()
+		ntstring{}
 	{
 	}
 };

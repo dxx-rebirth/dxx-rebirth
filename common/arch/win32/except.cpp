@@ -19,7 +19,7 @@ class RAII_Windows_FILE_HANDLE
 	const HANDLE m_h;
 public:
 	RAII_Windows_FILE_HANDLE(HANDLE &&h) :
-		m_h(h)
+		m_h{h}
 	{
 	}
 	~RAII_Windows_FILE_HANDLE()
@@ -43,7 +43,7 @@ class RAII_Windows_DynamicSharedObject
 {
 	HMODULE m_h;
 	RAII_Windows_DynamicSharedObject(HMODULE &&h) :
-		m_h(h)
+		m_h{h}
 	{
 	}
 	static RAII_Windows_DynamicSharedObject LoadInternal(std::array<wchar_t, MAX_PATH> &pathbuf, const unsigned lws, const wchar_t *const filename)

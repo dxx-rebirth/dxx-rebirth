@@ -56,7 +56,7 @@ public:
 	template <std::size_t N>
 		using scratch_buffer = std::array<char, N>;
 	location_wrapper(const char *const f = __builtin_FILE(), const unsigned l = __builtin_LINE()) :
-		file(f), line(l)
+		file{f}, line{l}
 	{
 	}
 	/* Return a span describing the unwritten area into which the caller can
@@ -99,7 +99,7 @@ public:
 	 */
 #if !DXX_HAVE_CXX_BUILTIN_FILE_LINE
 	location_value_wrapper(const T &v) :
-		value(v)
+		value{v}
 	{
 	}
 #endif
@@ -113,8 +113,8 @@ public:
 		= __builtin_LINE()
 #endif
 		) :
-		location_wrapper<capture_source_location>(f, l),
-		value(v)
+		location_wrapper<capture_source_location>{f, l},
+		value{v}
 	{
 	}
 	operator T() const

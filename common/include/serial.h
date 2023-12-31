@@ -468,7 +468,7 @@ class message
 	tuple_type t;
 public:
 	message(Args &&... args) :
-		t(detail::capture_value<Args>(std::forward<Args>(args))...)
+		t{detail::capture_value<Args>(std::forward<Args>(args))...}
 	{
 		(check_type<Args>(), ...);
 	}

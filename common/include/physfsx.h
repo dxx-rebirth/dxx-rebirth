@@ -459,7 +459,7 @@ public:
 	PHYSFS_computed_path_mount_deleter(const PHYSFS_computed_path_mount_deleter &) = default;
 	PHYSFS_computed_path_mount_deleter(PHYSFS_computed_path_mount_deleter &&) = default;
 	PHYSFS_computed_path_mount_deleter(std::default_delete<element_type> &&d) :
-		std::default_delete<element_type>(std::move(d))
+		std::default_delete<element_type>{std::move(d)}
 	{
 	}
 	PHYSFS_computed_path_mount_deleter &operator=(PHYSFS_computed_path_mount_deleter &&) = default;

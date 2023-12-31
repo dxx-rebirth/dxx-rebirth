@@ -512,9 +512,9 @@ static int read_mission_file(mission_list_type &mission_list, mission_candidate_
 	if (const auto mfile = PHYSFSX_openReadBuffered(pathname.data()).first)
 	{
 		std::string str_pathname = pathname.data();
-		const auto idx_last_slash = str_pathname.find_last_of('/');
-		const auto idx_filename = (idx_last_slash == str_pathname.npos) ? 0 : idx_last_slash + 1;
-		const auto idx_file_extension = str_pathname.find_first_of('.', idx_filename);
+		const auto idx_last_slash{str_pathname.find_last_of('/')};
+		const auto idx_filename{(idx_last_slash == str_pathname.npos) ? 0 : idx_last_slash + 1};
+		const auto idx_file_extension{str_pathname.find_first_of('.', {idx_filename})};
 		if (idx_file_extension == str_pathname.npos)
 			return 0;	//missing extension
 		if (idx_file_extension >= DXX_MAX_MISSION_PATH_LENGTH)

@@ -46,7 +46,7 @@ const std::array<GLfloat, 8> build_color_array_from_color_palette_index(const co
 }
 
 g3_draw_line_colors::g3_draw_line_colors(const color_palette_index color) :
-	color_array(build_color_array_from_color_palette_index(color))
+	color_array{build_color_array_from_color_palette_index(color)}
 {
 }
 #endif

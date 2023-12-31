@@ -61,11 +61,6 @@ class enumerated_sentinel
 {
 public:
 	sentinel_type m_sentinel;
-	constexpr enumerated_sentinel() = default;
-	constexpr enumerated_sentinel(sentinel_type &&iter) :
-		m_sentinel(std::move(iter))
-	{
-	}
 };
 
 template <typename range_index_type, typename range_iterator_type, typename sentinel_type>

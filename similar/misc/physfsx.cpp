@@ -277,10 +277,10 @@ bool PHYSFSX_init(int argc, char *argv[])
 #if defined(DXX_BUILD_DESCENT_II)
 RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(char *const name1, char *const name2, physfs_search_path position)
 {
-	auto pathname = std::make_unique<std::array<char, PATH_MAX>>();
+	auto pathname{std::make_unique<std::array<char, PATH_MAX>>()};
 	if (PHYSFSX_addRelToSearchPath(name1, *pathname.get(), position) == PHYSFS_ERR_OK ||
 		PHYSFSX_addRelToSearchPath(name2, *pathname.get(), position) == PHYSFS_ERR_OK)
-		return RAIIPHYSFS_ComputedPathMount(std::move(pathname));
+		return RAIIPHYSFS_ComputedPathMount{std::move(pathname)};
 	return nullptr;
 }
 #endif

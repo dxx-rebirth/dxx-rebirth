@@ -50,7 +50,7 @@ public:
 	 */
 	constexpr vm_distance() = default;
 	constexpr explicit vm_distance(const fix &f) :
-		d(f)
+		d{f}
 	{
 	}
 	template <typename T>

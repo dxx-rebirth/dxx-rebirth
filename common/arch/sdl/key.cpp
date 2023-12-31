@@ -385,7 +385,7 @@ struct d_event_keycommand : d_event
 {
 	const unsigned keycode;
 	constexpr d_event_keycommand(const event_type t, const unsigned k) :
-		d_event(t), keycode(k)
+		d_event{t}, keycode{k}
 	{
 	}
 };

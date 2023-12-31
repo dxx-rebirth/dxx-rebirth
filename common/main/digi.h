@@ -70,7 +70,7 @@ struct digi_sound_deleter : std::default_delete<uint8_t[]>
 	game_sound_offset offset{};
 	constexpr digi_sound_deleter() = default;
 	constexpr digi_sound_deleter(const game_sound_offset offset) :
-		offset(offset)
+		offset{offset}
 	{
 	}
 	constexpr bool must_free_buffer() const
@@ -98,16 +98,16 @@ struct digi_sound
 		using base_type::get_deleter;
 		using base_type::operator bool;
 		constexpr allocated_data() :
-			base_type()
+			base_type{}
 		{
 		}
 		allocated_data(const base_type::pointer p, const game_sound_offset o) :
-			base_type(p, o)
+			base_type{p, o}
 		{
 		}
 		/* This is only used in the Descent 1 build. */
 		explicit allocated_data(std::unique_ptr<uint8_t[]> p, const game_sound_offset o) :
-			allocated_data(p.release(), o)
+			allocated_data{p.release(), o}
 		{
 		}
 		/* Define reset() instead of inheriting via `using base_type::reset`,

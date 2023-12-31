@@ -380,7 +380,7 @@ class bm_rle_window : bm_rle_src_stride
 {
 public:
 	bm_rle_window(const grs_bitmap &src) :
-		bm_rle_src_stride(src, src.get_flag_mask(BM_FLAG_RLE_BIG))
+		bm_rle_src_stride{src, src.get_flag_mask(BM_FLAG_RLE_BIG)}
 	{
 	}
 	void skip_upper_rows(uint_fast32_t);

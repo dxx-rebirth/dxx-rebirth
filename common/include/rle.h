@@ -136,10 +136,10 @@ protected:
 public:
 	bm_rle_src_stride(const grs_bitmap &src, const unsigned rle_big) :
 		/* Jump threading should collapse the separate ?: uses */
-		src_bit_stride_size(rle_big ? sizeof(uint16_t) : sizeof(uint8_t)),
-		src_bit_load_mask(rle_big ? 0xffff : 0xff),
-		ptr_src_bit_lengths(&src.bm_data[4]),
-		src_bits(&ptr_src_bit_lengths[rle_big ? src.bm_h * 2 : src.bm_h])
+		src_bit_stride_size{rle_big ? unsigned{sizeof(uint16_t)} : unsigned{sizeof(uint8_t)}},
+		src_bit_load_mask{rle_big ? 0xffffu : 0xffu},
+		ptr_src_bit_lengths{&src.bm_data[4]},
+		src_bits{&ptr_src_bit_lengths[rle_big ? src.bm_h * 2 : src.bm_h]}
 	{
 	}
 	void advance_src_bits();
@@ -184,9 +184,9 @@ public:
 		dst_exhausted,
 	};
 	bm_rle_expand(const grs_bitmap &src) :
-		bm_rle_src_stride(src, src.get_flag_mask(BM_FLAG_RLE_BIG)),
-		end_src_bit_lengths(src_bits),
-		end_src_bm(end(src))
+		bm_rle_src_stride{src, src.get_flag_mask(BM_FLAG_RLE_BIG)},
+		end_src_bit_lengths{src_bits},
+		end_src_bm{end(src)}
 	{
 	}
 	/* Decode one row of the bitmap, then return control to the
