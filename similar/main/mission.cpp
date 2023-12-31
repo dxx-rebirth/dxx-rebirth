@@ -808,13 +808,13 @@ static mission_list_type build_mission_list(const mission_filter_mode mission_fi
 	add_builtin_mission_to_list(mission_list, builtin_mission_filename);  //read built-in first
 #endif
 	add_d1_builtin_mission_to_list(mission_list);
-	mission_candidate_search_path search_str = {{MISSION_DIR}};
-	DXX_POISON_MEMORY(std::span(std::next(search_str.begin(), sizeof(MISSION_DIR)), search_str.end()), 0xcc);
-	add_missions_to_list(mission_list, search_str, search_str.begin() + sizeof(MISSION_DIR) - 1, mission_filter);
+	mission_candidate_search_path search_str{{MISSION_DIR}};
+	DXX_POISON_MEMORY(std::span(search_str).subspan<sizeof(MISSION_DIR)>(), 0xcc);
+	add_missions_to_list(mission_list, search_str, std::next(search_str.begin(), sizeof(MISSION_DIR) - 1), mission_filter);
 	
 	// move original missions (in story-chronological order)
 	// to top of mission list
-	std::size_t top_place = 0;
+	std::size_t top_place{};
 	promote(mission_list, D1_MISSION_FILENAME, top_place); // original descent 1 mission
 #if defined(DXX_BUILD_DESCENT_II)
 	promote(mission_list, builtin_mission_filename, top_place); // d2 or d2demo
