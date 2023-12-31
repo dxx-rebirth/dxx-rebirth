@@ -404,8 +404,8 @@ public:
 	}
 protected:
 	template <integral_type v>
-		idx(const magic_constant<v> &, const allow_none_construction *) :
-			m_idx(v)
+		idx(const magic_constant<v> &, allow_none_construction) :
+			m_idx{v}
 	{
 		/* Prevent using `allow_none_construction` when the type permits
 		 * use of an invalid index.  `allow_none_construction` is intended
@@ -695,7 +695,7 @@ protected:
 		-- m_ptr;
 		return *this;
 	}
-	ptr(const allow_none_construction *)
+	ptr(allow_none_construction)
 		requires(
 			!allow_nullptr	// allow_none_construction is only needed where nullptr is not already legal
 		)
@@ -802,7 +802,7 @@ public:
 	{
 	}
 	template <integral_type v>
-		ptridx(const magic_constant<v> &m, const allow_none_construction *const n) :
+		ptridx(const magic_constant<v> &m, const allow_none_construction n) :
 			vptr_type(n),
 			vidx_type(m, n)
 	{

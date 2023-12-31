@@ -276,7 +276,7 @@ protected:
 		>::type;
 
 	class allow_end_construction;
-	class allow_none_construction;
+	class allow_none_construction {};
 	class assume_nothrow_index;
 	class rebind_policy;
 };
