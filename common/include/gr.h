@@ -350,24 +350,14 @@ static inline void gr_set_transparent(grs_bitmap &bm, bool bTransparent)
 
 namespace dcx {
 
-static inline void gr_set_font_fg_color(grs_canvas &canvas, int fg_color)
+static inline void gr_set_font_fg_color(grs_canvas &canvas, color_palette_index fg_color)
 {
 	canvas.cv_font_fg_color = fg_color;
 }
 
-static inline void gr_set_font_fg_color(grs_canvas &canvas, color_palette_index fg_color)
-{
-	canvas.cv_font_fg_color = static_cast<int>(fg_color);
-}
-
-static inline void gr_set_font_bg_color(grs_canvas &canvas, int bg_color)
-{
-	canvas.cv_font_bg_color = bg_color;
-}
-
 static inline void gr_set_font_bg_color(grs_canvas &canvas, color_palette_index bg_color)
 {
-	canvas.cv_font_bg_color = static_cast<int>(bg_color);
+	canvas.cv_font_bg_color = bg_color;
 }
 
 #define gr_set_fontcolor(C,F,B)	\
