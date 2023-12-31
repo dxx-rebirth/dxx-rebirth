@@ -246,14 +246,11 @@ static intersection_type check_line_to_face(vms_vector &newp, const vms_vector &
 	const auto &&[num_faces, vertex_list] = create_abs_vertex_lists(seg, s, side);
 
 	//use lowest point number
-	vertnum_t vertnum;
-	if (num_faces==2) {
-		vertnum = min(vertex_list[0],vertex_list[2]);
-	}
-	else {
-		auto b = begin(vertex_list);
-		vertnum = *std::min_element(b, std::next(b, 4));
-	}
+	const auto vertnum{
+		(num_faces == 2)
+			? std::min(vertex_list[0], vertex_list[2])
+			: *std::ranges::min_element(std::span(vertex_list).first<4>())
+	};
 
 	auto &vcvertptr = Vertices.vcptr;
 	auto pli = find_plane_line_intersection(newp, vcvertptr(vertnum), norm, p0, p1, rad);
