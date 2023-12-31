@@ -423,7 +423,7 @@ protected:
 		m_idx(check_index_range<index_range_error_type<array_managed_type>, std::less_equal>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, &a))
 	{
 	}
-	idx(index_type i, array_managed_type &, const assume_nothrow_index *) :
+	idx(index_type i, assume_nothrow_index) :
 		m_idx(i)
 	{
 	}
@@ -586,7 +586,7 @@ public:
 		m_ptr(std::next(a.begin(), static_cast<std::size_t>(check_index_range<index_range_error_type<array_managed_type>, std::less_equal>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, &a))))
 	{
 	}
-	ptr(index_type i, array_managed_type &a, const assume_nothrow_index *) :
+	ptr(index_type i, array_managed_type &a, assume_nothrow_index) :
 		m_ptr(&a[i])
 	{
 	}
@@ -818,9 +818,9 @@ public:
 		vidx_type(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, a, e)
 	{
 	}
-	ptridx(index_type i, array_managed_type &a, const assume_nothrow_index *e) :
+	ptridx(index_type i, array_managed_type &a, const assume_nothrow_index e) :
 		vptr_type(i, a, e),
-		vidx_type(i, a, e)
+		vidx_type{i, e}
 	{
 	}
 	ptridx(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS pointer_type p, array_managed_type &a) :
@@ -1055,7 +1055,7 @@ protected:
 		static guarded<P> check_untrusted_internal(const index_type i, A &a)
 		{
 			if (P::check_nothrow_index(i))
-				return P(i, a, static_cast<const assume_nothrow_index *>(nullptr));
+				return P{i, a, assume_nothrow_index{}};
 			else
 				return nullptr;
 		}
