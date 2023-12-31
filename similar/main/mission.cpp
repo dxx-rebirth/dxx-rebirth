@@ -148,9 +148,9 @@ struct mission_name_and_version
 
 mission_name_and_version::mission_name_and_version(Mission::descent_version_type const v, const char *const n) :
 #if defined(DXX_BUILD_DESCENT_II)
-	descent_version(v),
+	descent_version{v},
 #endif
-	name(n)
+	name{n}
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)v;
@@ -435,18 +435,14 @@ static int istok(const char *buf,const char *tok)
 }
 
 //returns ptr to string after '=' & white space, or NULL if no '='
-//adds 0 after parm at first white space
-static char *get_value(char *buf)
+static const char *get_value(const char *buf)
 {
-	char *t = strchr(buf,'=');
-
-	if (t) {
+	if (auto t = strchr(buf, '='))
+	{
 		while (isspace(static_cast<unsigned>(*++t)));
-
 		if (*t)
 			return t;
 	}
-
 	return NULL;		//error!
 }
 
@@ -903,7 +899,7 @@ static void set_briefing_filename(d_fname &f, const char *const v)
 	set_briefing_filename(f, {v, d});
 }
 
-static void record_briefing(d_fname &f, std::array<char, PATH_MAX> &buf)
+static void record_briefing(d_fname &f, const std::array<char, PATH_MAX> &buf)
 {
 	const auto v = get_value(buf.data());
 	if (!v)
@@ -928,8 +924,6 @@ namespace {
 
 static const char *load_mission(const mle *const mission)
 {
-	char *v;
-
 	Current_mission = std::make_unique<Mission>(static_cast<const Mission_path &>(*mission));
 	Current_mission->builtin_hogsize = mission->builtin_hogsize;
 	Current_mission->mission_name.copy_if(mission->mission_name);
@@ -1026,14 +1020,14 @@ static const char *load_mission(const mle *const mission)
 		if (istok(buf,"type"))
 			continue;						//already have name, go to next line
 		else if (istok(buf,"briefing")) {
-			record_briefing(Current_mission->briefing_text_filename, buf);
+			record_briefing(Current_mission->briefing_text_filename, buf.line());
 		}
 		else if (istok(buf,"ending")) {
-			record_briefing(Current_mission->ending_text_filename, buf);
+			record_briefing(Current_mission->ending_text_filename, buf.line());
 		}
 		else if (istok(buf,"num_levels")) {
-
-			if ((v=get_value(buf))!=NULL) {
+			if (const auto v{get_value(buf)})
+			{
 				char *ip;
 				const auto n_levels = strtoul(v, &ip, 10);
 				Assert(n_levels <= MAX_LEVELS_PER_MISSION);
@@ -1066,7 +1060,8 @@ static const char *load_mission(const mle *const mission)
 			}
 		}
 		else if (istok(buf,"num_secrets")) {
-			if ((v=get_value(buf))!=NULL) {
+			if (const auto v{get_value(buf)})
+			{
 				char *ip;
 				const auto n_levels = strtoul(v, &ip, 10);
 				Assert(n_levels <= MAX_SECRET_LEVELS_PER_MISSION);
@@ -1120,7 +1115,8 @@ static const char *load_mission(const mle *const mission)
 		else if (Current_mission->descent_version == Mission::descent_version_type::descent2a && buf[0] == '!') {
 			if (istok(buf+1,"ham")) {
 				Current_mission->alternate_ham_file = std::make_unique<d_fname>();
-				if ((v=get_value(buf))!=NULL) {
+				if (const auto v{get_value(buf)})
+				{
 					unsigned l = strlen(v);
 					if (l <= 4)
 						con_printf(CON_URGENT, "Mission %s has short HAM \"%s\".", Current_mission->path.c_str(), v);
