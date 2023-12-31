@@ -141,12 +141,12 @@ struct mission_name_and_version
 #if defined(DXX_BUILD_DESCENT_II)
 	const Mission::descent_version_type descent_version{};
 #endif
-	char *const name{};
+	const char *const name{};
 	mission_name_and_version() = default;
-	mission_name_and_version(Mission::descent_version_type, char *);
+	mission_name_and_version(Mission::descent_version_type, const char *);
 };
 
-mission_name_and_version::mission_name_and_version(Mission::descent_version_type const v, char *const n) :
+mission_name_and_version::mission_name_and_version(Mission::descent_version_type const v, const char *const n) :
 #if defined(DXX_BUILD_DESCENT_II)
 	descent_version(v),
 #endif
@@ -543,17 +543,19 @@ static int read_mission_file(mission_list_type &mission_list, mission_candidate_
 #if defined(DXX_BUILD_DESCENT_II)
 			mission->descent_version = nv.descent_version;
 #endif
-			char *t;
-			if ((t=strchr(p,';'))!=NULL)
+			const auto semicolon = strchr(p, ';');
+			/* If a semicolon exists, point to it.  Otherwise, point to the
+			 * null byte terminating the buffer.
+			 */
+			auto t = semicolon ? semicolon : std::next(p, strlen(p));
+			/* Iterate backward until either the beginning of the buffer or the
+			 * first non-whitespace character.
+			 */
+			for (; t != p && isspace(static_cast<unsigned>(*t));)
 			{
-				*t=0;
-				--t;
+				-- t;
 			}
-			else
-				t = p + strlen(p) - 1;
-			while (isspace(static_cast<unsigned>(*t)))
-				*t-- = 0; // remove trailing whitespace
-			mission->mission_name.copy_if(p, mission->mission_name.size() - 1);
+			mission->mission_name.copy_if(p, std::min<std::size_t>(mission->mission_name.size() - 1, std::distance(p, t)));
 		}
 		else {
 			mission_list.pop_back();
