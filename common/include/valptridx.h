@@ -365,20 +365,18 @@ public:
 	 * If moving from require_valid to anything, no check is needed.
 	 */
 	template <typename rpolicy>
-		idx(const idx<rpolicy> &rhs)
 		requires(
-			allow_nullptr || !rhs.allow_nullptr
+			allow_nullptr || !idx<rpolicy>::allow_nullptr
 		)
-		:
+		idx(const idx<rpolicy> &rhs) :
 			m_idx{rhs.get_unchecked_index()}
 	{
 	}
 	template <typename rpolicy>
-		idx(const idx<rpolicy> &rhs DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
 		requires(
-			!(allow_nullptr || !rhs.allow_nullptr)
+			!(allow_nullptr || !idx<rpolicy>::allow_nullptr)
 		)
-		:
+		idx(const idx<rpolicy> &rhs DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) :
 		/* If moving from allow_invalid to require_valid, check range.
 		 */
 			m_idx{check_index_range<index_range_error_type<array_managed_type>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS rhs.get_unchecked_index(), nullptr)}
@@ -392,7 +390,7 @@ public:
 		 * right hand side must be saved and checked for validity before
 		 * being used to initialize a require_valid type.
 		 */
-		static_assert(allow_nullptr || !rhs.allow_nullptr, "cannot move from allow_invalid to require_valid");
+		static_assert(allow_nullptr || !idx<rpolicy>::allow_nullptr, "cannot move from allow_invalid to require_valid");
 	}
 	idx(index_type i DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) :
 		m_idx{check_allowed_invalid_index(i) ? i : check_index_range<index_range_error_type<array_managed_type>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, nullptr)}
@@ -546,30 +544,27 @@ public:
 	{
 	}
 	template <typename rpolicy>
-		ptr(const ptr<rpolicy> &rhs)
 		requires(
-			allow_nullptr || !rhs.allow_nullptr
+			(allow_nullptr || !ptr<rpolicy>::allow_nullptr)
 		)
-		:
+		ptr(const ptr<rpolicy> &rhs) :
 			m_ptr{rhs.get_unchecked_pointer()}
 	{
 	}
 	template <typename rpolicy>
-		ptr(const ptr<rpolicy> &rhs DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
 		requires(
-			!(allow_nullptr || !rhs.allow_nullptr)
+			!(allow_nullptr || !ptr<rpolicy>::allow_nullptr)
 		)
-		:
+		ptr(const ptr<rpolicy> &rhs DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) :
 			m_ptr{rhs.get_unchecked_pointer()}
 	{
 		check_null_pointer_conversion<null_pointer_error_type<array_managed_type>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS m_ptr);
 	}
 	template <typename rpolicy>
-		ptr(ptr<rpolicy> &&rhs)
 		requires(
-			allow_nullptr || !rhs.allow_nullptr	// cannot move from allow_invalid to require_valid
+			(allow_nullptr || !ptr<rpolicy>::allow_nullptr)	// cannot move from allow_invalid to require_valid
 		)
-		:
+		ptr(ptr<rpolicy> &&rhs) :
 			m_ptr{rhs.get_unchecked_pointer()}
 	{
 		/* Prevent move from allow_invalid into require_valid.  The
@@ -764,21 +759,19 @@ public:
 	 */
 	ptridx(pointer_type p) = delete;
 	template <typename rpolicy>
-		ptridx(const ptridx<rpolicy> &rhs)
 		requires(
-			allow_nullptr || !rhs.allow_nullptr
+			allow_nullptr || !ptridx<rpolicy>::allow_nullptr
 		)
-		:
+		ptridx(const ptridx<rpolicy> &rhs) :
 			vptr_type{static_cast<const typename ptridx<rpolicy>::vptr_type &>(rhs)},
 			vidx_type{static_cast<const typename ptridx<rpolicy>::vidx_type &>(rhs)}
 	{
 	}
 	template <typename rpolicy>
-		ptridx(const ptridx<rpolicy> &rhs DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
 		requires(
-			!(allow_nullptr || !rhs.allow_nullptr)
+			!(allow_nullptr || !ptridx<rpolicy>::allow_nullptr)
 		)
-		:
+		ptridx(const ptridx<rpolicy> &rhs DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) :
 			vptr_type{static_cast<const typename ptridx<rpolicy>::vptr_type &>(rhs) DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_PASS_VARS},
 			vidx_type{static_cast<const typename ptridx<rpolicy>::vidx_type &>(rhs) DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_PASS_VARS}
 	{
