@@ -1,9 +1,10 @@
-name: ci
+name: debian arm64
 
 on:
   push:
     branches:
       - "main"
+  workflow_dispatch:
 
 jobs:
   docker:
