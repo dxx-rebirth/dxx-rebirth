@@ -691,9 +691,10 @@ protected:
 		return *this;
 	}
 	ptr(allow_none_construction)
-		requires(
+	// Remove the requires clause for gcc-10 compatibility
+	/*	requires(
 			!allow_nullptr	// allow_none_construction is only needed where nullptr is not already legal
-		)
+		) */
 		:
 		m_ptr(nullptr)
 	{
