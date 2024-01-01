@@ -22,4 +22,4 @@ WORKDIR /app
 COPY . .
 
 # Build the application using SCons
-RUN scons sdl2=1 sdlmixer=1 opengl=1
+RUN scons -j$(nproc) sdl2=1 sdlmixer=1 opengl=1
