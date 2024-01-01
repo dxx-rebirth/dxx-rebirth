@@ -21,9 +21,11 @@ jobs:
       - name: Install GitHub CLI
         run: |
           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
-          sudo apt-add-repository https://cli.github.com/packages
-          sudo apt-get update
-          sudo apt-get install gh
+          curl -O -L https://github.com/cli/cli/releases/download/v2.0.0/gh_2.0.0_linux_amd64.deb
+          sudo dpkg -i gh_2.0.0_linux_amd64.deb
+          sudo apt-get install -f
+          rm gh_2.0.0_linux_amd64.deb
+
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
