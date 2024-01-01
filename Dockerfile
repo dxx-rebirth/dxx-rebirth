@@ -3,6 +3,8 @@ FROM debian:bullseye
 
 # Install necessary dependencies
 RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
     python3 \
     scons \
     libsdl2-dev \
