@@ -24,7 +24,6 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_TOKEN }}
 
-
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
