@@ -701,9 +701,10 @@ protected:
 	}
 	template <typename rpolicy>
 		ptr(ptr<rpolicy> &&rhs, const typename containing_type::rebind_policy *)
-		requires(
+	// Remove the requires clause for gcc-10 compatibility
+	/*	requires(
 			allow_nullptr || !rhs.allow_nullptr	// cannot rebind from allow_invalid to require_valid
-		)
+		) */
 		:
 			m_ptr{const_cast<managed_type *>(rhs.get_unchecked_pointer())}
 	{
