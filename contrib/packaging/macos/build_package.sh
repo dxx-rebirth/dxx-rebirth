@@ -9,29 +9,17 @@ build_app() {
     name="$1"
     prettyname="$2"
     
-    zipfilename="${prettyname}.app.zip"
-    
-    # Create a subdirectory for each app at the top level
-    mkdir -p ${prettyname}.app/${prettyname}
-
-    # Move the application content to the respective app directory
-    mv build/${prettyname}.app/* ${prettyname}.app/${prettyname}
-
-    # zip up and output to top-level dir
-    zip -r -X ${zipfilename} ${prettyname}.app
-    
-    # Clean up
-    rm -rf ${prettyname}.app
+    cd build
+        
+    cd ..
 }
 
-# Build D1X-Rebirth
+# Build both applications
 build_app "d1x-rebirth" "D1X-Rebirth"
-
-# Build D2X-Rebirth
 build_app "d2x-rebirth" "D2X-Rebirth"
 
-# zip up and output to top-level dir
-zip -r -X dxx-rebirth-macos.zip D1X-Rebirth D2X-Rebirth
+# Create a single zip file containing both applications
+zip -r -X DXX-Rebirth.zip D1X-Rebirth.app D2X-Rebirth.app
 
 # Clean up
-rm -rf D1X-Rebirth D2X-Rebirth
+rm -rf D1X-Rebirth.app D2X-Rebirth.app
