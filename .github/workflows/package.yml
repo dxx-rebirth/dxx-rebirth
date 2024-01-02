@@ -161,7 +161,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: linux-appimage-ubuntu-18.04
-          path: '*.zip'
+          path: '*.AppImage'
 
   ubuntu2004:
     if: ${{ true }}
@@ -243,7 +243,8 @@ jobs:
         with:
           name: linux-appimage-ubuntu-20.04
           path: |
-            *.zip
+            *.AppImage
+            *.AppImage.zsync
 
   ubuntu2204:
     name: Ubuntu 22.04
@@ -319,7 +320,8 @@ jobs:
         with:
           name: linux-appimage-ubuntu-22.04
           path: |
-            *.zip
+            *.AppImage
+            *.AppImage.zsync
 
   windows:
     name: Windows
@@ -426,8 +428,7 @@ jobs:
           GITHUB_CONTINUOUS_RELEASE_NAME: ${{needs.globalenv.outputs.github_continuous_release_name}}
         run: |
           ~/Applications/pyuploadtool-x86_64.AppImage \
-            linux-appimage-ubuntu-*/*.zip \
-            linux-appimage-ubuntu-*/*.zip \
+            linux-appimage-ubuntu-*/*.AppImage \
+            linux-appimage-ubuntu-*/*.AppImage.zsync \
             windows/*.zip \
             macos/*.zip
-
