@@ -95,7 +95,7 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - name: Clone Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Update package database
         run: |
@@ -171,7 +171,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Clone Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Update package database
         run: |
@@ -253,7 +253,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Clone Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Update package database
         run: |
@@ -350,7 +350,7 @@ jobs:
             mingw-w64-x86_64-physfs
         
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
               
       - name: Configure and build
         run: scons -j2 sdl2=1 sdlmixer=1
@@ -374,7 +374,7 @@ jobs:
     runs-on: macos-13
     steps:
       - name: Clone repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
        
       - name: Prepare environment
         run: export MACOSX_DEPLOYMENT_TARGET=13
