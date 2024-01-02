@@ -1,8 +1,6 @@
 #!/bin/bash
 set -x
 
-GIT_HASH=$(git rev-parse --short HEAD)
-
 # Grab latest AppImage package
 curl -s -L -O https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage || exit 3
 curl -s -L -O https://github.com/AppImage/AppImageKit/releases/download/continuous/AppRun-x86_64 || exit 3
@@ -13,7 +11,7 @@ build_appimage() {
     prettyname="$2"
 
     appdir="${name}.appdir"
-    appimagename="${prettyname}-${GIT_HASH}.AppImage"
+    appimagename="${prettyname}.AppImage"
 
     # Install
     mkdir "${appdir}"
@@ -48,11 +46,11 @@ build_appimage() {
 }
 
 # Build each subunit
-build_appimage "d1x-rebirth" "DXX-Rebirth"
-build_appimage "d2x-rebirth" "DXX-Rebirth"
+build_appimage "d1x-rebirth" "D1X-Rebirth"
+build_appimage "d2x-rebirth" "D2X-Rebirth"
 
 # Consolidate into a single zip file
-zip -r -X DXX-Rebirth.zip D1X-Rebirth-${GIT_HASH}.AppImage D1X-Rebirth-${GIT_HASH}.AppImage.zsync D2X-Rebirth-${GIT_HASH}.AppImage D2X-Rebirth-${GIT_HASH}.AppImage.zsync
+zip -r -X DXX-Rebirth.zip D1X-Rebirth.AppImage D1X-Rebirth.AppImage.zsync D2X-Rebirth.AppImage D2X-Rebirth.AppImage.zsync
 
 # Clean
-rm -f appimagetool* AppRun* D1X-Rebirth-${GIT_HASH}.AppImage D1X-Rebirth-${GIT_HASH}.AppImage.zsync D2X-Rebirth-${GIT_HASH}.AppImage D2X-Rebirth-${GIT_HASH}.AppImage.zsync
+rm -f appimagetool* AppRun* D1X-Rebirth.AppImage D1X-Rebirth.AppImage.zsync D2X-Rebirth.AppImage D2X-Rebirth.AppImage.zsync
