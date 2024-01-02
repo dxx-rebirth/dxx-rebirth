@@ -12,13 +12,13 @@ on:
 jobs:          
   macos:
     name: macOS Apps
-    runs-on: macos-12
+    runs-on: macos-latest
     steps:
       - name: Clone repository
         uses: actions/checkout@v3
        
       - name: Prepare environment
-        run: export MACOSX_DEPLOYMENT_TARGET=10.14
+        run: export MACOSX_DEPLOYMENT_TARGET=12
         
       - name: Install dependencies
         run: |
