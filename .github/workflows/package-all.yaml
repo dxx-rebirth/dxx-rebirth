@@ -1,8 +1,8 @@
 name: Package
 
 on:
-  push:
-    branches: [ package ]
+  #push:
+    #branches: [ master ]
 
   #pull_request:
   #  branches: [ master ]
