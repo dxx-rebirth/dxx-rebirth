@@ -7,7 +7,7 @@ build_app() {
     name="$1"
     prettyname="$2"
     
-    zipfilename="${prettyname}-win-${GIT_HASH}.zip"
+    zipfilename="${prettyname}-win.zip"
     outdir="."
 
     # Create a subdirectory for each app at the top level
