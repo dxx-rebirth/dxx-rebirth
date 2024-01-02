@@ -2780,8 +2780,7 @@ void multi_send_position(object &obj)
 {
 	int count=1;
 
-	quaternionpos qpp{};
-	create_quaternionpos(qpp, obj);
+	const auto qpp{build_quaternionpos(obj)};
 	multi_command<multiplayer_command_t::MULTI_POSITION> multibuf;
 	PUT_INTEL_SHORT(&multibuf[count], qpp.orient.w);							count += 2;
 	PUT_INTEL_SHORT(&multibuf[count], qpp.orient.x);							count += 2;

@@ -87,7 +87,7 @@ public:
 	const SDL_MOUSE_MOVE_INT_TYPE dx, dy;
 	const int16_t dz;
 	constexpr d_event_mouse_moved(const event_type t, const SDL_MOUSE_MOVE_INT_TYPE x, const SDL_MOUSE_MOVE_INT_TYPE y, const int16_t z) :
-		d_event(t), dx(x), dy(y), dz(z)
+		d_event{t}, dx{x}, dy{y}, dz{z}
 	{
 	}
 #undef SDL_MOUSE_MOVE_INT_TYPE

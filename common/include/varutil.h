@@ -19,7 +19,7 @@ public:
 	template <typename... Args>
 		requires(sizeof...(Args) <= maximum_arity)
 		cstring_tie(Args&&... args) :
-			array_t{{args...}}, m_count(sizeof...(Args))
+			array_t{{args...}}, m_count{sizeof...(Args)}
 	{
 	}
 	unsigned count() const { return m_count; }

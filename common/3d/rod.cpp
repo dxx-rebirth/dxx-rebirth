@@ -52,7 +52,7 @@ static clipping_code calc_rod_corners(rod_4point &rod_point_group, const g3s_poi
 
 	const auto top = vm_vec_normalized(top_point.p3_vec);
 
-	auto rod_norm = vm_vec_cross(delta_vec,top);
+	auto rod_norm{vm_vec_cross(delta_vec, top)};
 
 	vm_vec_normalize(rod_norm);
 

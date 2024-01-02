@@ -220,7 +220,7 @@ struct shortpos : prohibit_void_ptr<shortpos>
 };
 
 // Another compressed form for object position, velocity, orientation and rotvel using quaternion
-struct quaternionpos : prohibit_void_ptr<quaternionpos>
+struct quaternionpos
 {
 	using packed_size = std::integral_constant<std::size_t, sizeof(vms_quaternion) + sizeof(segnum_t) + (sizeof(vms_vector) * 3)>;
 	vms_quaternion orient;

@@ -347,9 +347,9 @@ public:
 	const color_palette_index color;
 	g3_draw_line_context(grs_canvas &canvas, color_palette_index color) :
 #if DXX_USE_OGL
-		g3_draw_line_colors(color),
+		g3_draw_line_colors{color},
 #endif
-		canvas(canvas), color(color)
+		canvas{canvas}, color{color}
 	{
 	}
 	g3_draw_line_context(const g3_draw_line_context &) = delete;

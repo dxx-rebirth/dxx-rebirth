@@ -831,12 +831,6 @@ static void physics_set_rotvel_and_saturate(fix &dest, fix delta)
 	}
 }
 
-static inline vms_angvec vm_extract_angles_vector(const vms_vector &v)
-{
-	vms_angvec a;
-	return vm_extract_angles_vector(a, v), a;
-}
-
 }
 
 //	------------------------------------------------------------------------------------------------------
@@ -857,8 +851,8 @@ void physics_turn_towards_vector(const vms_vector &goal_vector, object_base &obj
 	if (obj.control_source == object::control_type::morph)
 		rate *= 2;
 
-	const auto dest_angles = vm_extract_angles_vector(goal_vector);
-	const auto cur_angles = vm_extract_angles_vector(obj.orient.fvec);
+	const auto dest_angles{vm_extract_angles_vector(goal_vector)};
+	const auto cur_angles{vm_extract_angles_vector(obj.orient.fvec)};
 
 	delta_p = (dest_angles.p - cur_angles.p);
 	delta_h = (dest_angles.h - cur_angles.h);

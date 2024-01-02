@@ -1083,15 +1083,16 @@ void extract_shortpos_little(const vmobjptridx_t objp, const shortpos *spp)
 	obj_relink(vmobjptr, vmsegptr, objp, segp);
 }
 
-// create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
-void create_quaternionpos(quaternionpos &qpp, const object_base &objp)
+// create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead of orientation matrix
+quaternionpos build_quaternionpos(const object_base &objp)
 {
-	vms_quaternion_from_matrix(qpp.orient, objp.orient);
-
-	qpp.pos = objp.pos;
-	qpp.segment = objp.segnum;
-	qpp.vel = objp.mtype.phys_info.velocity;
-	qpp.rotvel = objp.mtype.phys_info.rotvel;
+	return quaternionpos{
+		.orient = vms_quaternion_from_matrix(objp.orient),
+		.pos = objp.pos,
+		.segment = objp.segnum,
+		.vel = objp.mtype.phys_info.velocity,
+		.rotvel = objp.mtype.phys_info.rotvel
+	};
 }
 
 void extract_quaternionpos(const vmobjptridx_t objp, quaternionpos &qpp)
@@ -1163,9 +1164,9 @@ void extract_forward_vector_from_segment(fvcvertptr &vcvertptr, const shared_seg
 //	Extract the right vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the left face of the segment
 // to the center of the right face of the segment.
-void extract_right_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp, vms_vector &vp)
+vms_vector extract_right_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp)
 {
-	vp = extract_vector_from_segment(vcvertptr, sp, sidenum_t::WLEFT, sidenum_t::WRIGHT);
+	return extract_vector_from_segment(vcvertptr, sp, sidenum_t::WLEFT, sidenum_t::WRIGHT);
 }
 
 // ------------------------------------------------------------------------------------------
@@ -1207,7 +1208,7 @@ static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_se
 	auto &vert2 = *vcvertptr(sp.verts[vp2]);
 	vm_vec_normalized_dir(vec1, vert1, vcvertptr(sp.verts[vp[side_relative_vertnum::_0]]));
 	vm_vec_normalized_dir(vec2, vert2, vert1);
-	const auto cross0 = vm_vec_cross(vec1, vec2);
+	const auto cross0{vm_vec_cross(vec1, vec2)};
 
 	dot = vm_vec_dot(vec_to_center, cross0);
 	if (dot <= 0)
@@ -1219,7 +1220,7 @@ static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_se
 	//vm_vec_normalize(&vec2);
 	vm_vec_normalized_dir(vec1, vert2, vert1);
 	vm_vec_normalized_dir(vec2, vcvertptr(sp.verts[vp[side_relative_vertnum::_3]]), vert2);
-	const auto cross1 = vm_vec_cross(vec1, vec2);
+	const auto cross1{vm_vec_cross(vec1, vec2)};
 
 	dot = vm_vec_dot(vec_to_center, cross1);
 	if (dot <= 0)
@@ -1233,19 +1234,19 @@ static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_se
 //	If so, set global Degenerate_segment_found and return 1, else return 0.
 static unsigned check_for_degenerate_segment(fvcvertptr &vcvertptr, const shared_segment &sp)
 {
-	vms_vector	fvec, rvec, uvec;
+	vms_vector	fvec, uvec;
 	fix			dot;
 	int			degeneracy_flag = 0;				// degeneracy flag for current segment
 
 	extract_forward_vector_from_segment(vcvertptr, sp, fvec);
-	extract_right_vector_from_segment(vcvertptr, sp, rvec);
+	auto rvec{extract_right_vector_from_segment(vcvertptr, sp)};
 	extract_up_vector_from_segment(vcvertptr, sp, uvec);
 
 	vm_vec_normalize(fvec);
 	vm_vec_normalize(rvec);
 	vm_vec_normalize(uvec);
 
-	const auto cross = vm_vec_cross(fvec, rvec);
+	const auto cross{vm_vec_cross(fvec, rvec)};
 	dot = vm_vec_dot(cross, uvec);
 
 	if (dot > 0)
@@ -1312,13 +1313,14 @@ static bool get_verts_for_normal(verts_for_normal &r)
 	return ((w[0] + 3) % 4) == w[1] || ((w[1] + 3) % 4) == w[2];
 }
 
-static void assign_side_normal(fvcvertptr &vcvertptr, vms_vector &n, const vertnum_t v0, const vertnum_t v1, const vertnum_t v2)
+static vms_vector assign_side_normal(fvcvertptr &vcvertptr, const vertnum_t v0, const vertnum_t v1, const vertnum_t v2)
 {
 	verts_for_normal vfn{v0, v1, v2, vertnum_t{UINT32_MAX}};
 	const auto negate_flag = get_verts_for_normal(vfn);
-	vm_vec_normal(n, vcvertptr(vfn.vsorted[0]), vcvertptr(vfn.vsorted[1]), vcvertptr(vfn.vsorted[2]));
+	auto n{vm_vec_normal(vcvertptr(vfn.vsorted[0]), vcvertptr(vfn.vsorted[1]), vcvertptr(vfn.vsorted[2]))};
 	if (negate_flag)
 		vm_vec_negate(n);
+	return n;
 }
 
 }
@@ -1347,7 +1349,7 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 		auto &vvs1 = *vcvertptr(verts[vs[side_relative_vertnum::_1]]);
 		auto &vvs2 = *vcvertptr(verts[vs[side_relative_vertnum::_2]]);
 		auto &vvs3 = *vcvertptr(verts[vs[side_relative_vertnum::_3]]);
-		const auto &&norm = vm_vec_normal(vvs0, vvs1, vvs2);
+		const auto norm{vm_vec_normal(vvs0, vvs1, vvs2)};
 		const auto &&vec_13 =	vm_vec_sub(vvs3, vvs1);	//	vector from vertex 1 to vertex 3
 		dot = vm_vec_dot(norm, vec_13);
 
@@ -1356,8 +1358,8 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 		sidep->set_type(dot >= 0 ? (n0v3 = &vvs2, n1v1 = &vvs0, side_type::tri_02) : (n0v3 = &vvs3, n1v1 = &vvs1, side_type::tri_13));
 
 		//	Now, based on triangulation type, set the normals.
-		vm_vec_normal(sidep->normals[0], vvs0, vvs1, *n0v3);
-		vm_vec_normal(sidep->normals[1], *n1v1, vvs2, vvs3);
+		sidep->normals[0] = vm_vec_normal(vvs0, vvs1, *n0v3);
+		sidep->normals[1] = vm_vec_normal(*n1v1, vvs2, vvs3);
 	} else {
 		enumerated_array<vertnum_t, 4, side_relative_vertnum> v;
 
@@ -1379,8 +1381,8 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 			s0v2 = v[side_relative_vertnum::_3];
 			s1v0 = v[side_relative_vertnum::_1];
 		}
-		assign_side_normal(vcvertptr, sidep->normals[0], v[side_relative_vertnum::_0], v[side_relative_vertnum::_1], s0v2);
-		assign_side_normal(vcvertptr, sidep->normals[1], s1v0, v[side_relative_vertnum::_2], v[side_relative_vertnum::_3]);
+		sidep->normals[0] = assign_side_normal(vcvertptr, v[side_relative_vertnum::_0], v[side_relative_vertnum::_1], s0v2);
+		sidep->normals[1] = assign_side_normal(vcvertptr, s1v0, v[side_relative_vertnum::_2], v[side_relative_vertnum::_3]);
 	}
 }
 
@@ -1422,7 +1424,7 @@ void create_walls_on_side(fvcvertptr &vcvertptr, shared_segment &sp, const siden
 	verts_for_normal vfn{v0, v1, v2, v3};
 	const auto negate_flag = get_verts_for_normal(vfn);
 	auto &vvm0 = *vcvertptr(vfn.vsorted[0]);
-	auto &&vn = vm_vec_normal(vvm0, vcvertptr(vfn.vsorted[1]), vcvertptr(vfn.vsorted[2]));
+	auto vn{vm_vec_normal(vvm0, vcvertptr(vfn.vsorted[1]), vcvertptr(vfn.vsorted[2]))};
 	const fix dist_to_plane = abs(vm_dist_to_plane(vcvertptr(vfn.vsorted[3]), vn, vvm0));
 
 	if (negate_flag)

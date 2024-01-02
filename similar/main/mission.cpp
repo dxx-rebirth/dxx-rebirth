@@ -141,16 +141,16 @@ struct mission_name_and_version
 #if defined(DXX_BUILD_DESCENT_II)
 	const Mission::descent_version_type descent_version{};
 #endif
-	char *const name{};
+	const char *const name{};
 	mission_name_and_version() = default;
-	mission_name_and_version(Mission::descent_version_type, char *);
+	mission_name_and_version(Mission::descent_version_type, const char *);
 };
 
-mission_name_and_version::mission_name_and_version(Mission::descent_version_type const v, char *const n) :
+mission_name_and_version::mission_name_and_version(Mission::descent_version_type const v, const char *const n) :
 #if defined(DXX_BUILD_DESCENT_II)
-	descent_version(v),
+	descent_version{v},
 #endif
-	name(n)
+	name{n}
 {
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)v;
@@ -435,18 +435,14 @@ static int istok(const char *buf,const char *tok)
 }
 
 //returns ptr to string after '=' & white space, or NULL if no '='
-//adds 0 after parm at first white space
-static char *get_value(char *buf)
+static const char *get_value(const char *buf)
 {
-	char *t = strchr(buf,'=');
-
-	if (t) {
+	if (auto t = strchr(buf, '='))
+	{
 		while (isspace(static_cast<unsigned>(*++t)));
-
 		if (*t)
 			return t;
 	}
-
 	return NULL;		//error!
 }
 
@@ -516,9 +512,9 @@ static int read_mission_file(mission_list_type &mission_list, mission_candidate_
 	if (const auto mfile = PHYSFSX_openReadBuffered(pathname.data()).first)
 	{
 		std::string str_pathname = pathname.data();
-		const auto idx_last_slash = str_pathname.find_last_of('/');
-		const auto idx_filename = (idx_last_slash == str_pathname.npos) ? 0 : idx_last_slash + 1;
-		const auto idx_file_extension = str_pathname.find_first_of('.', idx_filename);
+		const auto idx_last_slash{str_pathname.find_last_of('/')};
+		const auto idx_filename{(idx_last_slash == str_pathname.npos) ? 0 : idx_last_slash + 1};
+		const auto idx_file_extension{str_pathname.find_first_of('.', {idx_filename})};
 		if (idx_file_extension == str_pathname.npos)
 			return 0;	//missing extension
 		if (idx_file_extension >= DXX_MAX_MISSION_PATH_LENGTH)
@@ -543,17 +539,19 @@ static int read_mission_file(mission_list_type &mission_list, mission_candidate_
 #if defined(DXX_BUILD_DESCENT_II)
 			mission->descent_version = nv.descent_version;
 #endif
-			char *t;
-			if ((t=strchr(p,';'))!=NULL)
+			const auto semicolon = strchr(p, ';');
+			/* If a semicolon exists, point to it.  Otherwise, point to the
+			 * null byte terminating the buffer.
+			 */
+			auto t = semicolon ? semicolon : std::next(p, strlen(p));
+			/* Iterate backward until either the beginning of the buffer or the
+			 * first non-whitespace character.
+			 */
+			for (; t != p && isspace(static_cast<unsigned>(*t));)
 			{
-				*t=0;
-				--t;
+				-- t;
 			}
-			else
-				t = p + strlen(p) - 1;
-			while (isspace(static_cast<unsigned>(*t)))
-				*t-- = 0; // remove trailing whitespace
-			mission->mission_name.copy_if(p, mission->mission_name.size() - 1);
+			mission->mission_name.copy_if(p, std::min<std::size_t>(mission->mission_name.size() - 1, std::distance(p, t)));
 		}
 		else {
 			mission_list.pop_back();
@@ -810,13 +808,13 @@ static mission_list_type build_mission_list(const mission_filter_mode mission_fi
 	add_builtin_mission_to_list(mission_list, builtin_mission_filename);  //read built-in first
 #endif
 	add_d1_builtin_mission_to_list(mission_list);
-	mission_candidate_search_path search_str = {{MISSION_DIR}};
-	DXX_POISON_MEMORY(std::span(std::next(search_str.begin(), sizeof(MISSION_DIR)), search_str.end()), 0xcc);
-	add_missions_to_list(mission_list, search_str, search_str.begin() + sizeof(MISSION_DIR) - 1, mission_filter);
+	mission_candidate_search_path search_str{{MISSION_DIR}};
+	DXX_POISON_MEMORY(std::span(search_str).subspan<sizeof(MISSION_DIR)>(), 0xcc);
+	add_missions_to_list(mission_list, search_str, std::next(search_str.begin(), sizeof(MISSION_DIR) - 1), mission_filter);
 	
 	// move original missions (in story-chronological order)
 	// to top of mission list
-	std::size_t top_place = 0;
+	std::size_t top_place{};
 	promote(mission_list, D1_MISSION_FILENAME, top_place); // original descent 1 mission
 #if defined(DXX_BUILD_DESCENT_II)
 	promote(mission_list, builtin_mission_filename, top_place); // d2 or d2demo
@@ -901,7 +899,7 @@ static void set_briefing_filename(d_fname &f, const char *const v)
 	set_briefing_filename(f, {v, d});
 }
 
-static void record_briefing(d_fname &f, std::array<char, PATH_MAX> &buf)
+static void record_briefing(d_fname &f, const std::array<char, PATH_MAX> &buf)
 {
 	const auto v = get_value(buf.data());
 	if (!v)
@@ -926,8 +924,6 @@ namespace {
 
 static const char *load_mission(const mle *const mission)
 {
-	char *v;
-
 	Current_mission = std::make_unique<Mission>(static_cast<const Mission_path &>(*mission));
 	Current_mission->builtin_hogsize = mission->builtin_hogsize;
 	Current_mission->mission_name.copy_if(mission->mission_name);
@@ -1024,14 +1020,14 @@ static const char *load_mission(const mle *const mission)
 		if (istok(buf,"type"))
 			continue;						//already have name, go to next line
 		else if (istok(buf,"briefing")) {
-			record_briefing(Current_mission->briefing_text_filename, buf);
+			record_briefing(Current_mission->briefing_text_filename, buf.line());
 		}
 		else if (istok(buf,"ending")) {
-			record_briefing(Current_mission->ending_text_filename, buf);
+			record_briefing(Current_mission->ending_text_filename, buf.line());
 		}
 		else if (istok(buf,"num_levels")) {
-
-			if ((v=get_value(buf))!=NULL) {
+			if (const auto v{get_value(buf)})
+			{
 				char *ip;
 				const auto n_levels = strtoul(v, &ip, 10);
 				Assert(n_levels <= MAX_LEVELS_PER_MISSION);
@@ -1064,7 +1060,8 @@ static const char *load_mission(const mle *const mission)
 			}
 		}
 		else if (istok(buf,"num_secrets")) {
-			if ((v=get_value(buf))!=NULL) {
+			if (const auto v{get_value(buf)})
+			{
 				char *ip;
 				const auto n_levels = strtoul(v, &ip, 10);
 				Assert(n_levels <= MAX_SECRET_LEVELS_PER_MISSION);
@@ -1118,7 +1115,8 @@ static const char *load_mission(const mle *const mission)
 		else if (Current_mission->descent_version == Mission::descent_version_type::descent2a && buf[0] == '!') {
 			if (istok(buf+1,"ham")) {
 				Current_mission->alternate_ham_file = std::make_unique<d_fname>();
-				if ((v=get_value(buf))!=NULL) {
+				if (const auto v{get_value(buf)})
+				{
 					unsigned l = strlen(v);
 					if (l <= 4)
 						con_printf(CON_URGENT, "Mission %s has short HAM \"%s\".", Current_mission->path.c_str(), v);

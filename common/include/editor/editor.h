@@ -535,7 +535,8 @@ struct editor_dialog final : UI_DIALOG
 
 extern editor_dialog *EditorWindow;
 
-void med_point_2_vec(grs_canvas *canv,vms_vector &v,short sx,short sy);
+[[nodiscard]]
+vms_vector med_point_2_vec(grs_canvas *canv, short sx, short sy);
 
 //shutdown ui on the editor screen
 void close_editor_screen(void);

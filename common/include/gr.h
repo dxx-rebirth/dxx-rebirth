@@ -122,7 +122,7 @@ public:
 	grs_main_bitmap(const grs_main_bitmap &) = delete;
 	grs_main_bitmap &operator=(const grs_main_bitmap &) = delete;
 	grs_main_bitmap(grs_main_bitmap &&r) :
-		grs_bitmap(std::move(static_cast<grs_bitmap &>(r)))
+		grs_bitmap{std::move(static_cast<grs_bitmap &>(r))}
 	{
 		r.bm_data = nullptr;
 #if DXX_USE_OGL
@@ -205,13 +205,13 @@ public:
 	struct {
 		uint16_t width, height;
 	};
-	bool operator==(const screen_mode &rhs) const
+	constexpr bool operator==(const screen_mode &rhs) const
 	{
 		return wh == rhs.wh;
 	}
 	screen_mode() = default;
 	constexpr screen_mode(uint16_t &&w, uint16_t &&h) :
-		width(w), height(h)
+		width{w}, height{h}
 	{
 	}
 };
@@ -260,7 +260,7 @@ struct RAII_SDL_Surface
 	RAII_SDL_Surface(RAII_SDL_Surface &&) = default;
 	RAII_SDL_Surface &operator=(RAII_SDL_Surface &&) = default;
 	explicit RAII_SDL_Surface(SDL_Surface *const s) :
-		surface(s)
+		surface{s}
 	{
 	}
 };
@@ -350,24 +350,14 @@ static inline void gr_set_transparent(grs_bitmap &bm, bool bTransparent)
 
 namespace dcx {
 
-static inline void gr_set_font_fg_color(grs_canvas &canvas, int fg_color)
+static inline void gr_set_font_fg_color(grs_canvas &canvas, color_palette_index fg_color)
 {
 	canvas.cv_font_fg_color = fg_color;
 }
 
-static inline void gr_set_font_fg_color(grs_canvas &canvas, color_palette_index fg_color)
-{
-	canvas.cv_font_fg_color = static_cast<int>(fg_color);
-}
-
-static inline void gr_set_font_bg_color(grs_canvas &canvas, int bg_color)
-{
-	canvas.cv_font_bg_color = bg_color;
-}
-
 static inline void gr_set_font_bg_color(grs_canvas &canvas, color_palette_index bg_color)
 {
-	canvas.cv_font_bg_color = static_cast<int>(bg_color);
+	canvas.cv_font_bg_color = bg_color;
 }
 
 #define gr_set_fontcolor(C,F,B)	\

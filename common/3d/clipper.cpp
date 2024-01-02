@@ -16,8 +16,7 @@
 namespace dcx {
 
 #if !DXX_USE_OGL
-temporary_points_t::temporary_points_t() :
-	free_point_num(0)
+temporary_points_t::temporary_points_t()
 {
 	auto p = &temp_points.front();
 	range_for (auto &f, free_points)

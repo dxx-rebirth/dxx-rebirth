@@ -50,7 +50,7 @@ public:
 	 */
 	constexpr vm_distance() = default;
 	constexpr explicit vm_distance(const fix &f) :
-		d(f)
+		d{f}
 	{
 	}
 	template <typename T>
@@ -299,14 +299,9 @@ static inline vms_vector vm_vec_sub (const vms_vector &src0, const vms_vector &s
 	return vm_vec_sub(dest, src0, src1), dest;
 }
 
-//averages two vectors. returns ptr to dest
-//dest can equal either source
+//averages two vectors. returns average
 [[nodiscard]]
-static inline vms_vector vm_vec_avg (const vms_vector &src0, const vms_vector &src1)
-{
-	vms_vector dest;
-	return vm_vec_avg(dest, src0, src1), dest;
-}
+vms_vector vm_vec_avg(const vms_vector &src0, const vms_vector &src1);
 
 //scales and copies a vector.  returns ptr to dest
 #define vm_vec_copy_scale(A,B,...)	vm_vec_copy_scale(A, ## __VA_ARGS__, B)
@@ -345,25 +340,13 @@ static inline std::pair<vm_magnitude, vms_vector> vm_vec_normalize_quick_with_ma
 }
 
 [[nodiscard]]
-static inline vms_vector vm_vec_cross(const vms_vector &src0, const vms_vector &src1)
-{
-	vms_vector dest;
-	return vm_vec_cross(dest, src0, src1), dest;
-}
+vms_vector vm_vec_cross(const vms_vector &src0, const vms_vector &src1);
 
 [[nodiscard]]
-static inline vms_vector vm_vec_normal(const vms_vector &p0, const vms_vector &p1, const vms_vector &p2)
-{
-	vms_vector dest;
-	return vm_vec_normal(dest, p0, p1, p2), dest;
-}
+vms_vector vm_vec_normal(const vms_vector &p0, const vms_vector &p1, const vms_vector &p2);
 
 [[nodiscard]]
-static inline vms_vector vm_vec_perp (const vms_vector &p0, const vms_vector &p1, const vms_vector &p2)
-{
-	vms_vector dest;
-	return vm_vec_perp(dest, p0, p1, p2), dest;
-}
+vms_vector vm_vec_perp (const vms_vector &p0, const vms_vector &p1, const vms_vector &p2);
 
 [[nodiscard]]
 static inline vms_matrix vm_angles_2_matrix (const vms_angvec &a)
@@ -422,21 +405,6 @@ static inline vms_matrix vm_matrix_x_matrix(const vms_matrix &src0, const vms_ma
 	vms_matrix dest;
 	vm_matrix_x_matrix(dest, src0, src1);
 	return dest;
-}
-
-[[nodiscard]]
-static inline vms_angvec vm_extract_angles_matrix (const vms_matrix &m)
-{
-	vms_angvec a;
-	return vm_extract_angles_matrix(a, m), a;
-}
-
-//fills in fields of an angle vector
-static inline void vm_angvec_make(vms_angvec *v, fixang p, fixang b, fixang h)
-{
-	v->p = p;
-	v->b = b;
-	v->h = h;
 }
 
 extern const vms_vector vmd_zero_vector;

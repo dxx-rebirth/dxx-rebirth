@@ -526,9 +526,7 @@ class extract_rvec_from_segment
 public:
 	static vms_vector get(fvcvertptr &vcvertptr, const shared_segment &segp)
 	{
-		vms_vector v;
-		extract_right_vector_from_segment(vcvertptr, segp, v);
-		return v;
+		return extract_right_vector_from_segment(vcvertptr, segp);
 	}
 };
 
@@ -840,7 +838,6 @@ static void move_object_to_vector(const vms_vector &vec_through_screen, fix delt
 static void move_object_to_mouse_click_delta(fix delta_distance)
 {
 	short			xcrd,ycrd;
-	vms_vector	vec_through_screen;
 
 	if (Cur_object_index == object_none) {
 		editor_status("Cur_object_index == -1, cannot move that peculiar object...aborting!");
@@ -850,7 +847,7 @@ static void move_object_to_mouse_click_delta(fix delta_distance)
 	xcrd = GameViewBox->b1_drag_x1;
 	ycrd = GameViewBox->b1_drag_y1;
 
-	med_point_2_vec(&_canv_editor_game, vec_through_screen, xcrd, ycrd);
+	const auto vec_through_screen{med_point_2_vec(&_canv_editor_game, xcrd, ycrd)};
 
 	move_object_to_vector(vec_through_screen, delta_distance);
 

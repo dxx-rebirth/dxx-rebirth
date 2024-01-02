@@ -357,26 +357,6 @@ void med_extract_matrix_from_segment(const shared_segment &sp, vms_matrix &rotma
 
 
 	vm_vector_2_matrix(rotmat, forwardvec, &upvec, nullptr);
-
-#if 0
-	vms_matrix	rm;
-
-	extract_forward_vector_from_segment(sp,&rm.zrow);
-	extract_right_vector_from_segment(sp,&rm.xrow);
-	extract_up_vector_from_segment(sp,&rm.yrow);
-
-	vm_vec_normalize(&rm.xrow);
-	vm_vec_normalize(&rm.yrow);
-	vm_vec_normalize(&rm.zrow);
-
-	make_orthogonal(rotmat,&rm);
-
-	vm_vec_normalize(&rotmat->xrow);
-	vm_vec_normalize(&rotmat->yrow);
-	vm_vec_normalize(&rotmat->zrow);
-
-// *rotmat = rm; // include this line (and remove the call to make_orthogonal) if you don't want the matrix orthogonalized
-#endif
 }
 
 }
@@ -386,32 +366,50 @@ void med_extract_matrix_from_segment(const shared_segment &sp, vms_matrix &rotma
 //	and a side destside, return the rotation matrix which describes the orientation for the side.
 void update_matrix_based_on_side(vms_matrix &rotmat, const sidenum_t destside)
 {
-        vms_angvec      rotvec;
-
 	switch (destside) {
 		case sidenum_t::WLEFT:
-                        vm_angvec_make(&rotvec,0,0,-16384);
-			rotmat = vm_matrix_x_matrix(rotmat, vm_angles_2_matrix(rotvec));
+			rotmat = vm_matrix_x_matrix(rotmat, vm_angles_2_matrix(
+					vms_angvec{
+						.p = 0,
+						.b = 0,
+						.h = -16384
+					}));
 			break;
 
 		case sidenum_t::WTOP:
-                        vm_angvec_make(&rotvec,-16384,0,0);
-			rotmat = vm_matrix_x_matrix(rotmat, vm_angles_2_matrix(rotvec));
+			rotmat = vm_matrix_x_matrix(rotmat, vm_angles_2_matrix(
+					vms_angvec{
+						.p = -16384,
+						.b = 0,
+						.h = 0
+					}));
 			break;
 
 		case sidenum_t::WRIGHT:
-                        vm_angvec_make(&rotvec,0,0,16384);
-			rotmat = vm_matrix_x_matrix(rotmat, vm_angles_2_matrix(rotvec));
+			rotmat = vm_matrix_x_matrix(rotmat, vm_angles_2_matrix(
+					vms_angvec{
+						.p = 0,
+						.b = 0,
+						.h = 16384
+					}));
 			break;
 
 		case sidenum_t::WBOTTOM:
-                        vm_angvec_make(&rotvec,+16384,-32768,0);        // bank was -32768, but I think that was an erroneous compensation
-			rotmat = vm_matrix_x_matrix(rotmat, vm_angles_2_matrix(rotvec));
+			rotmat = vm_matrix_x_matrix(rotmat, vm_angles_2_matrix(
+					vms_angvec{
+						.p = 16384,
+						.b = -32768,        // bank was -32768, but I think that was an erroneous compensation
+						.h = 0
+					}));
 			break;
 
 		case sidenum_t::WFRONT:
-                        vm_angvec_make(&rotvec,0,0,-32768);
-			rotmat = vm_matrix_x_matrix(rotmat, vm_angles_2_matrix(rotvec));
+			rotmat = vm_matrix_x_matrix(rotmat, vm_angles_2_matrix(
+					vms_angvec{
+						.p = 0,
+						.b = 0,
+						.h = -32768
+					}));
 			break;
 
 		case sidenum_t::WBACK:
@@ -1465,10 +1463,11 @@ static int check_seg_concavity(const shared_segment &s)
 	range_for (auto &sn, Side_to_verts)
 		for (unsigned vn = 0; vn <= 4; ++vn)
 		{
-			const auto n1 = vm_vec_normal(
+			const auto n1{vm_vec_normal(
 				vcvertptr(s.verts[sn[static_cast<side_relative_vertnum>(vn % 4)]]),
 				vcvertptr(s.verts[sn[static_cast<side_relative_vertnum>((vn + 1) % 4)]]),
-				vcvertptr(s.verts[sn[static_cast<side_relative_vertnum>((vn + 2) % 4)]]));
+				vcvertptr(s.verts[sn[static_cast<side_relative_vertnum>((vn + 2) % 4)]])
+			)};
 
 			//vm_vec_normalize(&n1);
 

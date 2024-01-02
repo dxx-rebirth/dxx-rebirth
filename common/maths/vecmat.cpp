@@ -26,6 +26,19 @@ namespace dcx {
 constexpr vms_matrix vmd_identity_matrix = IDENTITY_MATRIX;
 constexpr vms_vector vmd_zero_vector{};
 
+namespace {
+
+vms_vector vm_vec_divide(const vms_vector &src, const fix m)
+{
+	return vms_vector{
+		.x = fixdiv(src.x, m),
+		.y = fixdiv(src.y, m),
+		.z = fixdiv(src.z, m),
+	};
+}
+
+}
+
 //adds two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_add2() if so
 vms_vector &vm_vec_add(vms_vector &dest,const vms_vector &src0,const vms_vector &src1)
@@ -72,11 +85,13 @@ static inline fix avg_fix(fix64 a, fix64 b)
 
 //averages two vectors. returns ptr to dest
 //dest can equal either source
-void vm_vec_avg(vms_vector &dest,const vms_vector &src0,const vms_vector &src1)
+vms_vector vm_vec_avg(const vms_vector &src0, const vms_vector &src1)
 {
-	dest.x = avg_fix(src0.x, src1.x);
-	dest.y = avg_fix(src0.y, src1.y);
-	dest.z = avg_fix(src0.z, src1.z);
+	return vms_vector{
+		.x = avg_fix(src0.x, src1.x),
+		.y = avg_fix(src0.y, src1.y),
+		.z = avg_fix(src0.z, src1.z),
+	};
 }
 
 //scales a vector in place.  returns ptr to vector
@@ -224,17 +239,10 @@ vm_distance vm_vec_dist_quick(const vms_vector &v0,const vms_vector &v1)
 vm_magnitude vm_vec_copy_normalize(vms_vector &dest,const vms_vector &src)
 {
 	auto m = vm_vec_mag(src);
-	if (m) {
-		vm_vec_divide(dest, src, m);
+	if (likely(m)) {
+		dest = vm_vec_divide(src, m);
 	}
 	return m;
-}
-
-void vm_vec_divide(vms_vector &dest,const vms_vector &src, fix m)
-{
-	dest.x = fixdiv(src.x,m);
-	dest.y = fixdiv(src.y,m);
-	dest.z = fixdiv(src.z,m);
 }
 
 //normalize a vector. returns mag of source vec
@@ -247,8 +255,8 @@ vm_magnitude vm_vec_normalize(vms_vector &v)
 vm_magnitude vm_vec_copy_normalize_quick(vms_vector &dest,const vms_vector &src)
 {
 	auto m = vm_vec_mag_quick(src);
-	if (m) {
-		vm_vec_divide(dest, src, m);
+	if (likely(m)) {
+		dest = vm_vec_divide(src, m);
 	}
 	return m;
 }
@@ -276,12 +284,9 @@ vm_magnitude vm_vec_normalized_dir(vms_vector &dest,const vms_vector &end,const 
 }
 
 //computes surface normal from three points. result is normalized
-//returns ptr to dest
-//dest CANNOT equal either source
-void vm_vec_normal(vms_vector &dest,const vms_vector &p0,const vms_vector &p1,const vms_vector &p2)
+vms_vector vm_vec_normal(const vms_vector &p0, const vms_vector &p1, const vms_vector &p2)
 {
-	vm_vec_perp(dest,p0,p1,p2);
-	vm_vec_normalize(dest);
+	return vm_vec_normalized(vm_vec_perp(p0, p1, p2));
 }
 
 //make sure a vector is reasonably sized to go into a cross product
@@ -335,38 +340,35 @@ static void check_vec(vms_vector *v)
 //product of the magnitudes of the two source vectors.  This means it is
 //quite easy for this routine to overflow and underflow.  Be careful that
 //your inputs are ok.
-void vm_vec_cross(vms_vector &dest,const vms_vector &src0,const vms_vector &src1)
+vms_vector vm_vec_cross(const vms_vector &src0, const vms_vector &src1)
 {
-	quadint q;
+	quadint qx{};
+	quadint qy{};
+	quadint qz{};
 
-	Assert(&dest!=&src0 && &dest!=&src1);
+	fixmulaccum(&qx, src0.y, src1.z);
+	fixmulaccum(&qx, -src0.z, src1.y);
 
-	q.q = 0;
-	fixmulaccum(&q,src0.y,src1.z);
-	fixmulaccum(&q,-src0.z,src1.y);
-	dest.x = fixquadadjust(&q);
+	fixmulaccum(&qy, src0.z, src1.x);
+	fixmulaccum(&qy, -src0.x, src1.z);
 
-	q.q = 0;
-	fixmulaccum(&q,src0.z,src1.x);
-	fixmulaccum(&q,-src0.x,src1.z);
-	dest.y = fixquadadjust(&q);
-
-	q.q = 0;
-	fixmulaccum(&q,src0.x,src1.y);
-	fixmulaccum(&q,-src0.y,src1.x);
-	dest.z = fixquadadjust(&q);
+	fixmulaccum(&qz, src0.x, src1.y);
+	fixmulaccum(&qz, -src0.y, src1.x);
+	return vms_vector{
+		.x = fixquadadjust(&qx),
+		.y = fixquadadjust(&qy),
+		.z = fixquadadjust(&qz),
+	};
 }
 
 //computes non-normalized surface normal from three points. 
-//returns ptr to dest
-//dest CANNOT equal either source
-void vm_vec_perp(vms_vector &dest,const vms_vector &p0,const vms_vector &p1,const vms_vector &p2)
+vms_vector vm_vec_perp(const vms_vector &p0, const vms_vector &p1, const vms_vector &p2)
 {
 	auto t0 = vm_vec_sub(p1,p0);
 	auto t1 = vm_vec_sub(p2,p1);
 	check_vec(&t0);
 	check_vec(&t1);
-	vm_vec_cross(dest,t0,t1);
+	return vm_vec_cross(t0, t1);
 }
 
 
@@ -391,7 +393,7 @@ fixang vm_vec_delta_ang_norm(const vms_vector &v0,const vms_vector &v1,const vms
 	fixang a;
 
 	a = fix_acos(vm_vec_dot(v0,v1));
-		if (vm_vec_dot(vm_vec_cross(v0,v1),fvec) < 0)
+	if (vm_vec_dot(vm_vec_cross(v0, v1), fvec) < 0)
 			a = -a;
 	return a;
 }
@@ -474,7 +476,7 @@ bad_vector2:
 				xvec.z = -zvec.x;
 
 				vm_vec_normalize(xvec);
-				vm_vec_cross(yvec,zvec,xvec);
+				yvec = vm_vec_cross(zvec, xvec);
 			}
 		}
 		else {						//use right vec
@@ -482,14 +484,14 @@ bad_vector2:
 			if (!vm_vec_copy_normalize(xvec,*rvec))
 				goto bad_vector2;
 
-			vm_vec_cross(yvec,zvec,xvec);
+			yvec = vm_vec_cross(zvec, xvec);
 
 			//normalize new perpendicular vector
 			if (!vm_vec_normalize(yvec))
 				goto bad_vector2;
 
 			//now recompute right vector, in case it wasn't entirely perpendiclar
-			vm_vec_cross(xvec,yvec,zvec);
+			xvec = vm_vec_cross(yvec, zvec);
 
 		}
 	}
@@ -498,14 +500,14 @@ bad_vector2:
 		if (!vm_vec_copy_normalize(yvec,*uvec))
 			goto bad_vector2;
 
-		vm_vec_cross(xvec,yvec,zvec);
+		xvec = vm_vec_cross(yvec, zvec);
 		
 		//normalize new perpendicular vector
 		if (!vm_vec_normalize(xvec))
 			goto bad_vector2;
 
 		//now recompute up vector, in case it wasn't entirely perpendiclar
-		vm_vec_cross(yvec,zvec,xvec);
+		yvec = vm_vec_cross(zvec, xvec);
 	}
 }
 
@@ -537,69 +539,65 @@ void _vm_matrix_x_matrix(vms_matrix &dest,const vms_matrix &src0,const vms_matri
 }
 
 //extract angles from a matrix 
-void vm_extract_angles_matrix(vms_angvec &a,const vms_matrix &m)
+vms_angvec vm_extract_angles_matrix(const vms_matrix &m)
 {
-	fix cosp;
+	const fixang ah{
+		(m.fvec.x == 0 && m.fvec.z == 0)
+			//zero head
+			? fixang{0}
+			: fix_atan2(m.fvec.z, m.fvec.x)
+	};
 
-	if (m.fvec.x==0 && m.fvec.z==0)		//zero head
-		a.h = 0;
-	else
-		a.h = fix_atan2(m.fvec.z,m.fvec.x);
-
-	const auto &&ah = fix_sincos(a.h);
-	const auto &sinh = ah.sin;
-	const auto &cosh = ah.cos;
-
-	if (abs(sinh) > abs(cosh))				//sine is larger, so use it
-		cosp = fixdiv(m.fvec.x,sinh);
-	else											//cosine is larger, so use it
-		cosp = fixdiv(m.fvec.z,cosh);
-
-	if (cosp==0 && m.fvec.y==0)
-		a.p = 0;
-	else
-		a.p = fix_atan2(cosp,-m.fvec.y);
-
-
-	if (cosp == 0)	//the cosine of pitch is zero.  we're pitched straight up. say no bank
-
-		a.b = 0;
-
-	else {
-		fix sinb,cosb;
-
-		sinb = fixdiv(m.rvec.y,cosp);
-		cosb = fixdiv(m.uvec.y,cosp);
-
-		if (sinb==0 && cosb==0)
-			a.b = 0;
-		else
-			a.b = fix_atan2(cosb,sinb);
-
-	}
+	const auto &&[sinh, cosh] = fix_sincos(ah);
+	const auto cosp{
+		(abs(sinh) > abs(cosh))
+			//sine is larger, so use it
+			? fixdiv(m.fvec.x, sinh)
+			//cosine is larger, so use it
+			: fixdiv(m.fvec.z, cosh)
+	};
+	return vms_angvec{
+		.p = (
+			(cosp == 0 && m.fvec.y == 0)
+			? fixang{0}
+			: fix_atan2(cosp, -m.fvec.y)
+			),
+		.b = (
+			(cosp == 0)	//the cosine of pitch is zero.  we're pitched straight up. say no bank
+			? fixang{0}
+			: ({
+				const auto sinb{fixdiv(m.rvec.y, cosp)};
+				const auto cosb{fixdiv(m.uvec.y, cosp)};
+				(sinb == 0 && cosb == 0)
+				? fixang{0}
+				: fix_atan2(cosb, sinb);
+			})
+		),
+		.h = ah
+	};
 }
 
 
 //extract heading and pitch from a vector, assuming bank==0
-static vms_angvec &vm_extract_angles_vector_normalized(vms_angvec &a,const vms_vector &v)
+static vms_angvec vm_extract_angles_vector_normalized(const vms_vector &v)
 {
-	a.b = 0;		//always zero bank
-	a.p = fix_asin(-v.y);
-	if (v.x == 0 && v.z == 0)
-		a.h = 0;
-	else
-		a.h = fix_atan2(v.z,v.x);
-	return a;
+	return vms_angvec{
+		.p = fix_asin(-v.y),
+		.b = 0,		//always zero bank
+		.h = (v.x == 0 && v.z == 0)
+			? fixang{0}
+			: fix_atan2(v.z, v.x)
+	};
 }
 
 //extract heading and pitch from a vector, assuming bank==0
-void vm_extract_angles_vector(vms_angvec &a,const vms_vector &v)
+vms_angvec vm_extract_angles_vector(const vms_vector &v)
 {
 	vms_vector t;
 	if (vm_vec_copy_normalize(t,v))
-		vm_extract_angles_vector_normalized(a,t);
+		return vm_extract_angles_vector_normalized(t);
 	else
-		a = {};
+		return {};
 }
 
 //compute the distance from a point to a plane.  takes the normalized normal
@@ -612,8 +610,9 @@ fix vm_dist_to_plane(const vms_vector &checkp,const vms_vector &norm,const vms_v
 }
 
 // convert vms_matrix to vms_quaternion
-void vms_quaternion_from_matrix(vms_quaternion &rq, const vms_matrix &m)
+vms_quaternion vms_quaternion_from_matrix(const vms_matrix &m)
 {
+	vms_quaternion rq{};
 	const auto rx = m.rvec.x;
 	const auto ry = m.rvec.y;
 	const auto rz = m.rvec.z;
@@ -654,6 +653,7 @@ void vms_quaternion_from_matrix(vms_quaternion &rq, const vms_matrix &m)
 	rq.x = qx / 2;
 	rq.y = qy / 2;
 	rq.z = qz / 2;
+	return rq;
 }
 
 // convert vms_quaternion to vms_matrix

@@ -1668,7 +1668,7 @@ void drop_afterburner_blobs(object &obj, int count, fix size_scale, fix lifetime
 	const auto pos_right = vm_vec_scale_add(pos_left, obj.orient.rvec, obj.size/2);
 
 	if (count == 1)
-		vm_vec_avg(pos_left, pos_left, pos_right);
+		pos_left = vm_vec_avg(pos_left, pos_right);
 
 	const auto &&objseg = Segments.vmptridx(obj.segnum);
 	{

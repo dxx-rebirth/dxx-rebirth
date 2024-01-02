@@ -63,7 +63,7 @@ protected:
 public:
 	base_font_scale_proportion() = default;
 	explicit constexpr base_font_scale_proportion(const float v) :
-		f(v)
+		f{v}
 	{
 	}
 	explicit operator float() const
@@ -106,7 +106,7 @@ class base_font_scaled_float
 	const float f;
 public:
 	explicit constexpr base_font_scaled_float(const float v) :
-		f(v)
+		f{v}
 	{
 	}
 	base_font_scaled_float(int) = delete;
@@ -133,7 +133,7 @@ class font_scale_float
 public:
 	using scaled = font_scaled_float<tag>;
 	explicit constexpr font_scale_float(const float s) :
-		scale(s)
+		scale{s}
 	{
 	}
 	font_scale_float(int) = delete;

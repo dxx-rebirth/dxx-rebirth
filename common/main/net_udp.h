@@ -118,7 +118,7 @@ struct player_acknowledgement_mask : enumerated_bitset<MAX_PLAYERS, std::conditi
 {
 public:
 	constexpr player_acknowledgement_mask() :
-		enumerated_bitset((1u << MAX_PLAYERS) - 1)
+		enumerated_bitset{(1u << MAX_PLAYERS) - 1}
 	{
 	}
 };

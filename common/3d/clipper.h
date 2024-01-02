@@ -30,7 +30,7 @@ namespace dcx {
 struct polygon_clip_points : std::array<g3s_point *, MAX_POINTS_IN_POLY> {};
 struct temporary_points_t
 {
-	uint_fast32_t free_point_num;
+	uint_fast32_t free_point_num{};
 	std::array<g3s_point, MAX_POINTS_IN_POLY> temp_points;
 	std::array<g3s_point *, MAX_POINTS_IN_POLY> free_points;
 	temporary_points_t();

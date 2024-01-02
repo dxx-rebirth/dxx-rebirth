@@ -96,11 +96,6 @@ public:
 	 * std::ranges::range<xrange<...>>.
 	 */
 	value_type value{};
-	constexpr xrange_endpoint() = default;
-	constexpr xrange_endpoint(value_type v) :
-		value(std::move(v))
-	{
-	}
 	constexpr operator value_type() const
 	{
 		return value;
@@ -240,7 +235,7 @@ public:
 	 */
 	constexpr xrange() = default;
 	constexpr xrange(B b, E e) :
-		begin_type(init_begin(std::move(b), e)), end_type(std::move(e))
+		begin_type{init_begin(std::move(b), e)}, end_type{std::move(e)}
 	{
 	}
 	/* Allow, but ignore, a third argument with the step size.  The
@@ -250,11 +245,11 @@ public:
 	 */
 	template <typename T, T step>
 		constexpr xrange(B b, E e, std::integral_constant<T, step>) :
-			xrange(std::move(b), std::move(e))
+			xrange{std::move(b), std::move(e)}
 	{
 	}
 	constexpr xrange(E e) :
-		begin_type(), end_type(std::move(e))
+		begin_type{}, end_type{std::move(e)}
 	{
 		static_assert(detail::xrange_is_unsigned<E>::value, "xrange(E) requires unsigned E; use xrange(B, E) if E must be signed");
 	}

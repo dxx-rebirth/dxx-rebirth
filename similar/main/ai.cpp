@@ -342,10 +342,9 @@ struct awareness_t : enumerated_array<player_awareness_type_t, MAX_SEGMENTS, seg
 
 static int ai_evaded;
 
-// These globals are set by a call to find_vector_intersection, which is a slow routine,
+// This is set by a call to find_vector_intersection, which is a slow routine,
 // so we don't want to call it again (for this object) unless we have to.
 static vms_vector  Hit_pos;
-static fvi_info    Hit_data;
 
 static bool silly_animation_angle(fixang vms_angvec::*const a, const vms_angvec &jp, const vms_angvec &pobjp, const int flinch_attack_scale, vms_angvec &goal_angles, vms_angvec &delta_angles)
 {
@@ -846,6 +845,7 @@ player_visibility_state player_is_visible_from_object(const d_robot_info_array &
 		}
 	} else
 		startseg			= obj.segnum;
+	fvi_info Hit_data;
 	const auto Hit_type = find_vector_intersection(fvi_query{
 		pos,
 		Believed_player_pos,
@@ -855,7 +855,6 @@ player_visibility_state player_is_visible_from_object(const d_robot_info_array &
 		FQ_TRANSWALL, // -- Why were we checking objects? | FQ_CHECK_OBJS;		//what about trans walls???
 		objp,
 	}, startseg, F1_0 / 4, Hit_data);
-
 	Hit_pos = Hit_data.hit_pnt;
 
 	if (Hit_type == fvi_hit_type::None)
@@ -2235,7 +2234,7 @@ static const shared_segment *boss_intersects_wall(fvcvertptr &vcvertptr, const o
 		if (ri == re)
 			return seg;
 		auto &vertex_pos = *vcvertptr(*ri);
-		vm_vec_avg(pos, vertex_pos, segcenter);
+		pos = vm_vec_avg(vertex_pos, segcenter);
 	}
 }
 

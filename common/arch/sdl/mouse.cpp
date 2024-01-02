@@ -47,7 +47,7 @@ static mouseinfo Mouse;
 }
 
 d_event_mousebutton::d_event_mousebutton(const event_type etype, const mbtn b) :
-	d_event{etype}, button(b)
+	d_event{etype}, button{b}
 {
 }
 

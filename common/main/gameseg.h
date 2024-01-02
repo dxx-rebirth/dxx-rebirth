@@ -189,17 +189,18 @@ void validate_segment_all(d_level_shared_segment_state &);
 void validate_segment(fvcvertptr &vcvertptr, vmsegptridx_t sp);
 
 //      Extract the forward vector from segment *sp, return in *vp.
-//      The forward vector is defined to be the vector from the the center of the front face of the segment
+//      The forward vector is defined to be the vector from the center of the front face of the segment
 // to the center of the back face of the segment.
 void extract_forward_vector_from_segment(fvcvertptr &, const shared_segment &sp, vms_vector &vp);
 
-//      Extract the right vector from segment *sp, return in *vp.
-//      The forward vector is defined to be the vector from the the center of the left face of the segment
+//      Extract the right vector from segment *sp, return it by value.
+//      The forward vector is defined to be the vector from the center of the left face of the segment
 // to the center of the right face of the segment.
-void extract_right_vector_from_segment(fvcvertptr &, const shared_segment &sp, vms_vector &vp);
+[[nodiscard]]
+vms_vector extract_right_vector_from_segment(fvcvertptr &, const shared_segment &sp);
 
 //      Extract the up vector from segment *sp, return in *vp.
-//      The forward vector is defined to be the vector from the the center of the bottom face of the segment
+//      The forward vector is defined to be the vector from the center of the bottom face of the segment
 // to the center of the top face of the segment.
 void extract_up_vector_from_segment(fvcvertptr &, const shared_segment &sp, vms_vector &vp);
 

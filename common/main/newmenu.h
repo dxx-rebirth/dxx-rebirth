@@ -100,8 +100,8 @@ public:
 	{
 		static constexpr std::integral_constant<nm_type, nm_type::input_menu> static_type{};
 		imenu_specific_type(input_common_type n, ntstring<NM_MAX_TEXT_LEN> &t) :
-			input_common_type(n),
-			saved_text(t)
+			input_common_type{n},
+			saved_text{t}
 		{
 		}
 		ntstring<NM_MAX_TEXT_LEN> &saved_text;
@@ -110,8 +110,8 @@ public:
 	{
 		static constexpr std::integral_constant<nm_type, nm_type::slider> static_type{};
 		slider_specific_type(number_slider_common_type n, ntstring<NM_MAX_TEXT_LEN> &t) :
-			number_slider_common_type(n),
-			saved_text(t)
+			number_slider_common_type{n},
+			saved_text{t}
 		{
 		}
 		ntstring<NM_MAX_TEXT_LEN> &saved_text;
@@ -155,13 +155,13 @@ public:
 		template <std::size_t len>
 			requires(len > 1 && std::in_range<uint16_t>(len))
 			nm_item_input(std::array<char, len> &text, const char *const allowed_chars = nullptr) :
-				allowed_chars(allowed_chars), text(text.data()), size(len)
+				allowed_chars{allowed_chars}, text{text.data()}, size{len}
 		{
 		}
 		template <std::size_t len>
 			requires(len != std::dynamic_extent && std::in_range<uint16_t>(len))
 			nm_item_input(const std::span<char, len> text) :
-				allowed_chars(nullptr), text(text.data()), size(len)
+				allowed_chars{nullptr}, text{text.data()}, size{len}
 		{
 		}
 	};

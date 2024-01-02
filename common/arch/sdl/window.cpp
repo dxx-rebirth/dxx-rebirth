@@ -29,7 +29,7 @@ static window *FirstWindow = nullptr;
 
 window::window(grs_canvas &src, const uint16_t x, const uint16_t y, const uint16_t w, const uint16_t h) :
 	// Default to visible and modal
-	prev(FrontWindow)
+	prev{FrontWindow}
 {
 	gr_init_sub_canvas(w_canv, src, {x}, {y}, {w}, {h});
 

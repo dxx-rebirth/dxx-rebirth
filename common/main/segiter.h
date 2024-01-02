@@ -53,7 +53,7 @@ public:
 		)
 		{
 			if (s.objects == object_none)
-				return T(object_none, static_cast<typename T::allow_none_construction *>(nullptr));
+				return T(object_none, typename T::allow_none_construction{});
 			auto opi = of(s.objects);
 #if DXX_SEGITER_DEBUG_OBJECT_LINKAGE
 			const object_base &o = opi;
