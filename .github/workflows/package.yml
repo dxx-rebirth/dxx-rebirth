@@ -389,11 +389,6 @@ jobs:
       - name: Package
         run: ./contrib/packaging/macos/build_package.sh
 
-      - name: Rename artifacts
-        run: |
-          mv D1X-Rebirth*.zip D1X-Rebirth-macos.app.zip
-          mv D2X-Rebirth*.zip D2X-Rebirth-macos.app.zip
-
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
