@@ -691,20 +691,18 @@ protected:
 		return *this;
 	}
 	ptr(allow_none_construction)
-	// Remove the requires clause for gcc-10 compatibility
-	/*	requires(
+		requires(
 			!allow_nullptr	// allow_none_construction is only needed where nullptr is not already legal
-		) */
+		)
 		:
 		m_ptr(nullptr)
 	{
 	}
 	template <typename rpolicy>
 		ptr(ptr<rpolicy> &&rhs, const typename containing_type::rebind_policy *)
-	// Remove the requires clause for gcc-10 compatibility
-	/*	requires(
+		requires(
 			allow_nullptr || !rhs.allow_nullptr	// cannot rebind from allow_invalid to require_valid
-		) */
+		)
 		:
 			m_ptr{const_cast<managed_type *>(rhs.get_unchecked_pointer())}
 	{
