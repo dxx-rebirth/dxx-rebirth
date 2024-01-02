@@ -151,7 +151,6 @@ window_event_result title_screen::event_handler(const d_event &event)
 #endif
 
 		case event_type::idle:
-			timer_delay2(50);
 
 			if (timer_query() > timer)
 			{
@@ -1650,7 +1649,6 @@ window_event_result briefing::event_handler(const d_event &event)
 		{
 			auto &canvas = w_canv;
 
-			timer_delay2(50);
 
 			if (!(this->new_screen || this->new_page))
 				while (!briefing_process_char(canvas, this) && !this->delay_count)

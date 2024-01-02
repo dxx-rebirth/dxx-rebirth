@@ -11,7 +11,6 @@
  *
  */
 
-#include <ranges>
 #include <SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,18 +30,6 @@
 
 namespace dcx {
 
-namespace {
-
-struct event_poll_state
-{
-	uint8_t clean_uniframe = 1;
-	const window *const front_window = window_get_front();
-	window_event_result highest_result = window_event_result::ignored;
-	void process_event_batch(ranges::subrange<const SDL_Event *>);
-};
-
-}
-
 #if SDL_MAJOR_VERSION == 2
 extern SDL_Window *g_pRebirthSDLMainWindow;
 
@@ -60,140 +47,73 @@ static void windowevent_handler(const SDL_WindowEvent &windowevent)
 }
 #endif
 
-namespace {
-
-static void event_notify_begin_loop()
-{
-	const d_event_begin_loop event;
-	event_send(event);
-}
-
-static void event_notify_end_loop()
-{
-	event_send(d_event_end_loop{});
-}
-
-}
-
 window_event_result event_poll()
 {
-	event_poll_state state;
-	event_notify_begin_loop();
+	window_event_result result = window_event_result::ignored;
 
-	for (;;)
-	{
-	// If the front window changes, exit this loop, otherwise unintended behavior can occur
-	// like pressing 'Return' really fast at 'Difficulty Level' causing multiple games to be started
-		if (state.front_window != window_get_front())
-			break;
-		std::array<SDL_Event, 128> events;
+	event_send(d_event_begin_loop{});
 
-		SDL_PumpEvents();
-#if SDL_MAJOR_VERSION == 1
-		const auto peep = SDL_PeepEvents(events.data(), events.size(), SDL_GETEVENT, SDL_ALLEVENTS);
-#elif SDL_MAJOR_VERSION == 2
-		const auto peep = SDL_PeepEvents(events.data(), events.size(), SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);
-#endif
-		if (peep <= 0)
-			break;
-		state.process_event_batch(unchecked_partial_range(events, static_cast<unsigned>(peep)));
-		if (state.highest_result == window_event_result::deleted)
-			break;
-	}
-	// Send the idle event if there were no other events (or they were ignored)
-	if (state.highest_result == window_event_result::ignored)
-	{
-		const d_event ievent{event_type::idle};
-		state.highest_result = std::max(event_send(ievent), state.highest_result);
-	}
-	else
-	{
-#if DXX_USE_EDITOR
-		event_reset_idle_seconds();
-#endif
-	}
-	mouse_cursor_autohide();
-	event_notify_end_loop();
-	return state.highest_result;
-}
-
-void event_poll_state::process_event_batch(const ranges::subrange<const SDL_Event *> events)
-{
-	for (auto &&event : events)
-	{
-		window_event_result result;
+	SDL_Event event;
+    while (SDL_PollEvent(&event)) {
 		switch(event.type) {
 #if SDL_MAJOR_VERSION == 2
 			case SDL_WINDOWEVENT:
 				windowevent_handler(event.window);
-				continue;
+				break;
 #endif
 			case SDL_KEYDOWN:
 			case SDL_KEYUP:
-				if (clean_uniframe)
-				{
-					clean_uniframe=0;
-					unicode_frame_buffer = {};
-				}
 				result = key_handler(&event.key);
 				break;
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_MOUSEBUTTONUP:
-				if (CGameArg.CtlNoMouse)
-					continue;
-				result = mouse_button_handler(&event.button);
+				if (!CGameArg.CtlNoMouse)
+					result = mouse_button_handler(&event.button);
 				break;
 			case SDL_MOUSEMOTION:
-				if (CGameArg.CtlNoMouse)
-					continue;
-				result = mouse_motion_handler(&event.motion);
+				if (!CGameArg.CtlNoMouse)
+					result = mouse_motion_handler(&event.motion);
 				break;
 			case SDL_JOYBUTTONDOWN:
 			case SDL_JOYBUTTONUP:
-				if (CGameArg.CtlNoJoystick)
-					continue;
-				result = joy_button_handler(&event.jbutton);
+				if (!CGameArg.CtlNoJoystick)
+					result = joy_button_handler(&event.jbutton);
 				break;
 			case SDL_JOYAXISMOTION:
-				if (CGameArg.CtlNoJoystick)
-					continue;
+				if (!CGameArg.CtlNoJoystick)
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
-				highest_result = std::max(joy_axisbutton_handler(&event.jaxis), highest_result);
+					result = joy_axisbutton_handler(&event.jaxis);
 #endif
-				result = joy_axis_handler(&event.jaxis);
+					result = joy_axis_handler(&event.jaxis);
 				break;
 			case SDL_JOYHATMOTION:
-				if (CGameArg.CtlNoJoystick)
-					continue;
-				result = joy_hat_handler(&event.jhat);
+				if (!CGameArg.CtlNoJoystick)
+					result = joy_hat_handler(&event.jhat);
 				break;
 			case SDL_JOYBALLMOTION:
-				continue;
+				break;
 			case SDL_QUIT: {
 				result = call_default_handler(d_event{event_type::quit});
 				break;
 			}
 			default:
-				continue;
+				break;
 		}
-		highest_result = std::max(result, highest_result);
 	}
-}
+	event_send(d_event_end_loop{});
 
-void event_flush()
-{
-	std::array<SDL_Event, 128> events;
-	for (;;)
-	{
-		SDL_PumpEvents();
-#if SDL_MAJOR_VERSION == 1
-		const auto peep = SDL_PeepEvents(events.data(), events.size(), SDL_GETEVENT, SDL_ALLEVENTS);
-#elif SDL_MAJOR_VERSION == 2
-		const auto peep = SDL_PeepEvents(events.data(), events.size(), SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);
+	if (result == window_event_result::deleted)
+		return result;
+	
+	// Send the idle event when all events are processed
+	const d_event ievent{event_type::idle};
+	result = event_send(ievent);
+	
+#if DXX_USE_EDITOR
+	event_reset_idle_seconds();
 #endif
-		if (peep != events.size())
-			break;
-	}
+	mouse_cursor_autohide();
+	return result;
 }
 
 window_event_result call_default_handler(const d_event &event)
@@ -228,6 +148,8 @@ window_event_result event_send(const d_event &event)
 // Uses the old system for now, but this may change
 window_event_result event_process(void)
 {
+    const Uint32 frameStart = SDL_GetTicks();
+	
 	window *wind = window_get_front();
 	window_event_result highest_result;
 
@@ -265,7 +187,7 @@ window_event_result event_process(void)
 		wind = window_get_next(*wind);
 	}
 
-	gr_flip();
+	gr_flip(frameStart);
 
 	return highest_result;
 }

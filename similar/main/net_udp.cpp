@@ -1349,7 +1349,6 @@ Possible reasons:\n\
 #endif
 		dj->last_time = timer_query();
 	}
-	timer_delay2(5);
 	net_udp_listen();
 
 	if (Netgame.protocol.udp.valid != 1)
@@ -5016,7 +5015,7 @@ static int net_udp_request_poll( newmenu *,const d_event &event, const unused_ne
 
 	if (num_ready == N_players) // All players have checked in or are disconnected
 	{
-		timer_delay_ms(50);
+		//timer_delay_ms(50);
 		return -2;
 	}
 	

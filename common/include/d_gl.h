@@ -18,12 +18,12 @@
 #		include <OpenGL/gl.h>
 #		include <OpenGL/glu.h>
 #	else
-#		define GL_GLEXT_PROTOTYPES
+//#		define GL_GLEXT_PROTOTYPES
 #		if DXX_USE_OGLES
 #			include <GLES/gl.h>
 #		else
-#			include <GL/gl.h>
-#			include <GL/glext.h>
+//#			include <GL/gl.h>
+//#			include <GL/glext.h>
 #		endif
 #	endif
 #endif

@@ -2940,7 +2940,6 @@ window_event_result polygon_models_viewer_window::event_handler(const d_event &e
 			}
 			return window_event_result::handled;
 		case event_type::window_draw:
-			timer_delay(F1_0/60);
 			{
 				auto &canvas = *grd_curcanv;
 				auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
@@ -3006,7 +3005,6 @@ window_event_result gamebitmaps_viewer_window::event_handler(const d_event &even
 			{
 				const bitmap_index bi{view_idx};
 				grs_bitmap *const bm = &GameBitmaps[bi];
-			timer_delay(F1_0/60);
 			PIGGY_PAGE_IN(bi);
 				auto &canvas = *grd_curcanv;
 				gr_clear_canvas(canvas, BM_XRGB(0,0,0));

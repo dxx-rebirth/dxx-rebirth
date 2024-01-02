@@ -547,7 +547,6 @@ window_event_result scores_menu::event_handler(const d_event &event)
 #endif
 
 		case event_type::idle:
-			timer_delay2(50);
 			break;
 
 		case event_type::window_draw:

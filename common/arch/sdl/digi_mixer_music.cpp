@@ -63,7 +63,7 @@ void current_music_t::reset(SDL_RWops *const rw)
 		reset();
 		return;
 	}
-	reset(Mix_LoadMUSType_RW(rw, MUS_NONE, SDL_TRUE));
+	reset(Mix_LoadMUSType_RW(rw, MUS_MID, SDL_TRUE));
 	if constexpr (SDL_MIXER_MAJOR_VERSION == 1)
 	{
 		/* In SDL_mixer-1, setting freesrc==SDL_TRUE only transfers ownership

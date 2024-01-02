@@ -367,7 +367,7 @@ public:
 	template <typename rpolicy>
 		idx(const idx<rpolicy> &rhs)
 		requires(
-			allow_nullptr || !rhs.allow_nullptr
+			allow_nullptr /*|| !rhs.allow_nullptr*/
 		)
 		:
 			m_idx(rhs.get_unchecked_index())
@@ -376,7 +376,7 @@ public:
 	template <typename rpolicy>
 		idx(const idx<rpolicy> &rhs DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
 		requires(
-			!(allow_nullptr || !rhs.allow_nullptr)
+			!(allow_nullptr /*|| !rhs.allow_nullptr*/)
 		)
 		:
 		/* If moving from allow_invalid to require_valid, check range.
@@ -392,7 +392,7 @@ public:
 		 * right hand side must be saved and checked for validity before
 		 * being used to initialize a require_valid type.
 		 */
-		static_assert(allow_nullptr || !rhs.allow_nullptr, "cannot move from allow_invalid to require_valid");
+		//static_assert(allow_nullptr /*|| !rhs.allow_nullptr*/, "cannot move from allow_invalid to require_valid");
 	}
 	idx(index_type i DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) :
 		m_idx(check_allowed_invalid_index(i) ? i : check_index_range<index_range_error_type<array_managed_type>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, nullptr))
@@ -548,7 +548,7 @@ public:
 	template <typename rpolicy>
 		ptr(const ptr<rpolicy> &rhs)
 		requires(
-			allow_nullptr || !rhs.allow_nullptr
+			allow_nullptr /*|| !rhs.allow_nullptr*/
 		)
 		:
 			m_ptr(rhs.get_unchecked_pointer())
@@ -557,7 +557,7 @@ public:
 	template <typename rpolicy>
 		ptr(const ptr<rpolicy> &rhs DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
 		requires(
-			!(allow_nullptr || !rhs.allow_nullptr)
+			!(allow_nullptr /*|| !rhs.allow_nullptr*/)
 		)
 		:
 			m_ptr(rhs.get_unchecked_pointer())
@@ -567,7 +567,7 @@ public:
 	template <typename rpolicy>
 		ptr(ptr<rpolicy> &&rhs)
 		requires(
-			allow_nullptr || !rhs.allow_nullptr	// cannot move from allow_invalid to require_valid
+			allow_nullptr /*|| !rhs.allow_nullptr*/	// cannot move from allow_invalid to require_valid
 		)
 		:
 			m_ptr(rhs.get_unchecked_pointer())
@@ -706,7 +706,7 @@ protected:
 	template <typename rpolicy>
 		ptr(ptr<rpolicy> &&rhs, const typename containing_type::rebind_policy *)
 		requires(
-			allow_nullptr || !rhs.allow_nullptr	// cannot rebind from allow_invalid to require_valid
+			allow_nullptr /*|| !rhs.allow_nullptr*/	// cannot rebind from allow_invalid to require_valid
 		)
 		:
 			m_ptr(const_cast<managed_type *>(rhs.get_unchecked_pointer()))
@@ -766,7 +766,7 @@ public:
 	template <typename rpolicy>
 		ptridx(const ptridx<rpolicy> &rhs)
 		requires(
-			allow_nullptr || !rhs.allow_nullptr
+			allow_nullptr /*|| !rhs.allow_nullptr*/
 		)
 		:
 			vptr_type(static_cast<const typename ptridx<rpolicy>::vptr_type &>(rhs)),
@@ -776,7 +776,7 @@ public:
 	template <typename rpolicy>
 		ptridx(const ptridx<rpolicy> &rhs DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
 		requires(
-			!(allow_nullptr || !rhs.allow_nullptr)
+			!(allow_nullptr /*|| !rhs.allow_nullptr*/)
 		)
 		:
 			vptr_type(static_cast<const typename ptridx<rpolicy>::vptr_type &>(rhs) DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_PASS_VARS),

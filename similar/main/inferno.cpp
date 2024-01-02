@@ -29,6 +29,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <gl4esinit.h>
+
 extern const char copyright[];
 
 const
@@ -766,6 +768,7 @@ static int main(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
+	initialize_gl4es();
 	mem_init();
 #if DXX_WORDS_NEED_ALIGNMENT
 	prctl(PR_SET_UNALIGN, PR_UNALIGN_NOPRINT, 0, 0, 0);

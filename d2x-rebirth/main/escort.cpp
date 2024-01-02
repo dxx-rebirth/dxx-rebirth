@@ -1946,7 +1946,6 @@ window_event_result escort_menu::event_handler(const d_event &event)
 		case event_type::key_command:
 			return event_key_command(event);
 		case event_type::idle:
-			timer_delay2(50);
 			break;
 		case event_type::window_draw:
 			show_escort_menu();

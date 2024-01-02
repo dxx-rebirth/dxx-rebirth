@@ -123,7 +123,6 @@ d_time_fix ThisLevelTime;
 namespace dcx {
 namespace {
 static fix64 last_timer_value;
-static fix64 sync_timer_value;
 }
 grs_subcanvas Screen_3d_window;							// The rectangle for rendering the mine to
 int	force_cockpit_redraw=0;
@@ -574,18 +573,6 @@ pause_game_world_time::~pause_game_world_time()
 	start_time();
 }
 
-namespace {
-
-static void game_flush_common_inputs()
-{
-	event_flush();
-	key_flush();
-	joy_flush();
-	mouse_flush();
-}
-
-}
-
 }
 
 namespace dsx {
@@ -593,7 +580,9 @@ namespace dsx {
 void game_flush_inputs(control_info &Controls)
 {
 	Controls = {};
-	game_flush_common_inputs();
+	key_flush();
+	joy_flush();
+	mouse_flush();
 }
 
 void game_flush_respawn_inputs(control_info &Controls)
@@ -633,36 +622,16 @@ void reset_time()
 
 void calc_frame_time()
 {
-	fix last_frametime = FrameTime;
+	const auto timer_value = timer_update();
+	FrameTime = timer_value - last_timer_value;
+	last_timer_value = timer_value;
 
-	const auto vsync = CGameCfg.VSync;
-	const auto bound = f1_0 / (likely(vsync) ? MAXIMUM_FPS : CGameArg.SysMaxFPS);
-	const auto may_sleep = !CGameArg.SysNoNiceFPS && !vsync;
-	for (;;)
-	{
-		const auto timer_value = timer_update();
-		FrameTime = timer_value - last_timer_value;
-		if (FrameTime > 0 && timer_value - sync_timer_value >= bound)
-		{
-			last_timer_value = timer_value;
-
-			sync_timer_value += bound;
-			if (sync_timer_value + bound < timer_value) {
-				sync_timer_value = timer_value;
-			}
-			break;
-		}
-		if (Game_mode & GM_MULTI)
-			multi_do_frame(); // during long wait, keep packets flowing
-		if (may_sleep)
-			timer_delay_ms(1);
-	}
+	if (Game_mode & GM_MULTI)
+		multi_do_frame(); // during long wait, keep packets flowing
 
 	if ( cheats.turbo )
 		FrameTime *= 2;
 
-	if (FrameTime < 0)				//if bogus frametime...
-		FrameTime = (last_frametime==0?1:last_frametime);		//...then use time from last frame
 
 	GameTime64 += FrameTime;
 

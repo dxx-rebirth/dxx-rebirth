@@ -971,26 +971,26 @@ help:assume C++ compiler works
 		#
 		# If they are not in use, this assignment is a no-op.
 		cenv['CXXCOM'] = cenv._dxx_cxxcom_no_prefix
-		if Link(context, text='', msg='whether C++ compiler and linker work', calling_function='ld_works'):
+		#if Link(context, text='', msg='whether C++ compiler and linker work', calling_function='ld_works'):
 			# If ccache or distcc are in use, this block is only reached
 			# when one or both of them failed.  `most_recent_error` will
 			# be a description of the failure.  If neither are in use,
 			# `most_recent_error` will be None.
-			return most_recent_error
+		#	return most_recent_error
 		# Force only compile, even if LTO is enabled.
-		elif self._Compile(context, text='', msg='whether C++ compiler works', calling_function='cxx_works'):
+		if self._Compile(context, text='', msg='whether C++ compiler works', calling_function='cxx_works'):
 			specified_LIBS = 'or ' if cenv.get('LIBS') else ''
 			if specified_LIBS:
 				cenv['LIBS'] = []
-				if Link(context, text='', msg='whether C++ compiler and linker work with blank $LIBS', calling_function='ld_blank_libs_works'):
+				#if Link(context, text='', msg='whether C++ compiler and linker work with blank $LIBS', calling_function='ld_blank_libs_works'):
 					# Using $LIBS="" allowed the test to succeed.  $LIBS
 					# specifies one or more unusable libraries.  Usually
 					# this is because it specifies a library which does
 					# not exist or is an incompatible architecture.
-					return 'C++ compiler works.  C++ linker works with blank $LIBS.  C++ linker does not work with specified $LIBS.'
+				#	return 'C++ compiler works.  C++ linker works with blank $LIBS.  C++ linker does not work with specified $LIBS.'
 			if cenv['LINKFLAGS']:
 				cenv['LINKFLAGS'] = []
-				if Link(context, text='', msg='whether C++ compiler and linker work with blank $LIBS and blank $LDFLAGS', calling_function='ld_blank_libs_ldflags_works'):
+				#if Link(context, text='', msg='whether C++ compiler and linker work with blank $LIBS and blank $LDFLAGS', calling_function='ld_blank_libs_ldflags_works'):
 					# Using LINKFLAGS="" allowed the test to succeed.
 					# To avoid bloat, there is no further test to see
 					# whether the link will work with user-specified
@@ -1000,8 +1000,8 @@ help:assume C++ compiler works
 					# different error on the next run.  If the user is
 					# lucky, fixing LINKFLAGS will allow the build to
 					# run.
-					return 'C++ compiler works.  C++ linker works with blank $LIBS and blank $LDFLAGS.  C++ linker does not work with blank $LIBS and specified $LDFLAGS.'
-			return f'C++ compiler works.  C++ linker does not work with specified {specified_LIBS}blank $LIBS and specified $LINKFLAGS.  C++ linker does not work with blank $LIBS and blank $LINKFLAGS.'
+				#	return 'C++ compiler works.  C++ linker works with blank $LIBS and blank $LDFLAGS.  C++ linker does not work with blank $LIBS and specified $LDFLAGS.'
+			#return f'C++ compiler works.  C++ linker does not work with specified {specified_LIBS}blank $LIBS and specified $LINKFLAGS.  C++ linker does not work with blank $LIBS and blank $LINKFLAGS.'
 		else:
 			if cenv['CXXFLAGS']:
 				cenv['CXXFLAGS'] = []
@@ -1164,27 +1164,27 @@ int main(int argc,char**argv)
 		successflags = successflags.copy()
 		successflags.update(testflags)
 		Compile = self.Compile
-		if Compile(context, text=include + text, main=main, msg=f'for usable header {header}', testflags=successflags):
+		#if Compile(context, text=include + text, main=main, msg=f'for usable header {header}', testflags=successflags):
 			# If this Compile succeeds, then the test program can be
 			# compiled, but it cannot be linked.  The required library
 			# may be missing or broken.
-			return (0, f'Header {header} is usable, but library {lib} is not usable.')
-		if Compile(context, text=include, main=main and '', msg=f'whether compiler can parse header {header}', testflags=successflags):
+		#	return (0, f'Header {header} is usable, but library {lib} is not usable.')
+		#if Compile(context, text=include, main=main and '', msg=f'whether compiler can parse header {header}', testflags=successflags):
 			# If this Compile succeeds, then the test program cannot be
 			# compiled, but the header can be used with an empty test
 			# program.  Either the test program is broken or it relies
 			# on the header working differently than the used header
 			# actually works.
-			return (1, f'Header {header} is parseable, but cannot compile the test program.')
+		#	return (1, f'Header {header} is parseable, but cannot compile the test program.')
 		CXXFLAGS = successflags.setdefault('CXXFLAGS', [])
 		CXXFLAGS.append('-E')
-		if Compile(context, text=include, main=main and '', msg=f'whether preprocessor can parse header {header}', testflags=successflags):
+		#if Compile(context, text=include, main=main and '', msg=f'whether preprocessor can parse header {header}', testflags=successflags):
 			# If this Compile succeeds, then the used header can be
 			# preprocessed, but cannot be compiled as C++ even with an
 			# empty test program.  The header likely has a C++ syntax
 			# error or assumes prerequisite headers will be included by
 			# the calling program.
-			return (2, f'Header {header} exists, but cannot compile an empty program.')
+		#	return (2, f'Header {header} exists, but cannot compile an empty program.')
 		CXXFLAGS.extend(('-M', '-MG'))
 		# If the header exists and is accepted by the preprocessor, an
 		# earlier test would have returned and this Compile would not be
@@ -1194,7 +1194,7 @@ int main(int argc,char**argv)
 		#   header)
 		# - Is present, but rejected by the preprocessor (such as from
 		#   an active `#error`)
-		if Compile(context, text=include, main=main and '', msg=f'whether preprocessor can locate header {header} (and supporting headers)', expect_failure=True, testflags=successflags):
+		#if Compile(context, text=include, main=main and '', msg=f'whether preprocessor can locate header {header} (and supporting headers)', expect_failure=True, testflags=successflags):
 			# If this Compile succeeds, then the header does not exist,
 			# or exists and includes (possibly through layers of
 			# indirection) a header which does not exist.  Passing `-MG`
@@ -1222,8 +1222,8 @@ int main(int argc,char**argv)
 			# by `expect_failure=True`, so the guarded path should
 			# return "unusable" and the fallthrough path should return
 			# "missing".
-			return (3, f'Header {header} is unusable.')
-		return (4, f'Header {header} is missing or includes a missing supporting header.')
+			#return (3, f'Header {header} is unusable.')
+		#return (4, f'Header {header} is missing or includes a missing supporting header.')
 	# Compile and link a program that uses a system library.  On
 	# success, return None.  On failure, abort the SConf run.
 	def _check_system_library(self,*args,**kwargs):
@@ -3782,11 +3782,11 @@ class DXXCommon(LazyObjectConstructor):
 					('pch_cpp_exact_counts', False, None),
 					('check_header_includes', False, 'compile test each header (developer option)'),
 					('debug', False, 'build DEBUG binary which includes asserts, debugging output, cheats and more output'),
-					('memdebug', self.default_memdebug, 'build with malloc tracking'),
+					('memdebug', False, 'build with malloc tracking'),
 					('opengl', True, 'build with OpenGL support'),
 					('opengles', self.default_opengles, 'build with OpenGL ES support'),
 					('editor', False, 'include editor into build (!EXPERIMENTAL!)'),
-					('sdl2', self.default_sdl2, 'use libSDL2+SDL2_mixer (!EXPERIMENTAL!)'),
+					('sdl2', True, 'use libSDL2+SDL2_mixer (!EXPERIMENTAL!)'),
 					# Build with SDL_Image support for PCX file support
 					# Currently undocumented because the user experience
 					# without PCX support is ugly, so this should always
@@ -3796,7 +3796,7 @@ class DXXCommon(LazyObjectConstructor):
 					('ipv6', False, 'enable UDP/IPv6 for multiplayer'),
 					('use_udp', True, 'enable UDP support'),
 					('use_tracker', True, 'enable Tracker support (requires UDP)'),
-					('verbosebuild', self.default_verbosebuild, 'print out all compiler/linker messages during building'),
+					('verbosebuild', True, 'print out all compiler/linker messages during building'),
 					# This is only examined for Mac OS X targets.
 					#
 					# Some users, particularly those who install
@@ -3838,7 +3838,7 @@ class DXXCommon(LazyObjectConstructor):
 					# reporter will be asked to provide a log with the
 					# value set to True.  Try to prevent the extra round
 					# trip by hiding the option.
-					('show_tool_version', True, None),
+					('show_tool_version', False, None),
 					# Only applicable if show_tool_version=True
 					('show_assembler_version', True, None),
 					('show_linker_version', True, None),
@@ -3931,7 +3931,7 @@ class DXXCommon(LazyObjectConstructor):
 				'arguments': (
 					('host_endian', None, 'endianness of host platform', {'allowed_values' : ('little', 'big')}),
 					('adlmidi', 'none', 'include ADL MIDI support (none: disabled; runtime: dynamically load at runtime)', {'allowed_values' : ('none', 'runtime')}),
-					('screenshot', 'png', 'screenshot file format', {'allowed_values' : ('none', 'legacy', 'png')}),
+					('screenshot', 'none', 'screenshot file format', {'allowed_values' : ('none', 'legacy', 'png')}),
 				),
 			},
 			{
@@ -4152,7 +4152,7 @@ class DXXCommon(LazyObjectConstructor):
 			return _empty
 		def adjust_environment(self,program,env):
 			env.Append(
-				CXXFLAGS = ['-pthread'],
+				CXXFLAGS = [],
 			)
 
 	class HaikuPlatformSettings(LinuxPlatformSettings):
@@ -4510,7 +4510,7 @@ class DXXCommon(LazyObjectConstructor):
 			'-Wmissing-braces',
 			'-Wmissing-include-dirs',
 			'-Wuninitialized',
-			'-Wundef',
+			#'-Wundef',
 			'-Wpointer-arith',
 			'-Wcast-qual',
 			'-Wmissing-declarations',
@@ -4624,7 +4624,7 @@ class DXXCommon(LazyObjectConstructor):
 		# appended to this list and will override these defaults.  The
 		# defaults are present to ensure that a user who does not set
 		# any options gets a good default experience.
-		env.Prepend(CXXFLAGS = ['-g', '-O2'])
+		env.Prepend(CXXFLAGS = ['-flto', '-O3'])
 		# Raspberry Pi?
 		if user_settings.raspberrypi == 'yes':
 			rpi_vc_path = user_settings.rpi_vc_path

@@ -21,7 +21,6 @@ enum class window_event_result : uint8_t;
 
 // Sends input events to event handlers
 window_event_result event_poll();
-void event_flush();
 
 // Set and call the default event handler
 window_event_result call_default_handler(const d_event &event);

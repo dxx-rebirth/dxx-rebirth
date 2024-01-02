@@ -151,9 +151,23 @@ static bool TestEGLError(const char* pszLocation)
 
 namespace dcx {
 
-void ogl_swap_buffers_internal(void)
+void ogl_swap_buffers_internal(int frameStart)
 {
 	sync_helper.before_swap();
+
+	const bool vsync = CGameCfg.VSync;
+	const int frameDelay = 1000 / (likely(vsync) ? MAXIMUM_FPS : CGameArg.SysMaxFPS);
+	const bool may_sleep = !CGameArg.SysNoNiceFPS && !vsync;
+	
+	// This measures how long this iteration of the loop took
+	const Uint32 frameTime = SDL_GetTicks() - frameStart;
+	
+	// This keeps us from displaying more frames
+	if (frameDelay > frameTime && may_sleep)
+    {
+		SDL_Delay(frameDelay - frameTime - CGameArg.OglSyncWait);
+    }
+	
 #if DXX_USE_OGLES && SDL_MAJOR_VERSION == 1
 	eglSwapBuffers(eglDisplay, eglSurface);
 #else
