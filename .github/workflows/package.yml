@@ -357,11 +357,6 @@ jobs:
       
       - name: Package
         run: ./contrib/packaging/windows/build_package.sh
-        
-      - name: Rename artifacts
-        run: |
-          mv D1X-Rebirth*.zip D1X-Rebirth-win.zip
-          mv D2X-Rebirth*.zip D2X-Rebirth-win.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
