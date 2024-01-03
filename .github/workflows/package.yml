@@ -31,13 +31,9 @@ jobs:
       github_continuous_release_type: ${{ steps.releaseinfo.outputs.GITHUB_CONTINUOUS_RELEASE_TYPE }}
       github_continuous_release_name: ${{ steps.releaseinfo.outputs.GITHUB_CONTINUOUS_RELEASE_NAME }}
       d1x_rebirth_appimage_output_u2004: ${{ steps.appimage.outputs.D1X_REBIRTH_OUTPUT_U2004 }}
-      d1x_rebirth_appimage_update_information_u2004: ${{ steps.appimage.outputs.D1X_REBIRTH_UPDATE_INFORMATION_U2004 }}
       d2x_rebirth_appimage_output_u2004: ${{ steps.appimage.outputs.D2X_REBIRTH_OUTPUT_U2004 }}
-      d2x_rebirth_appimage_update_information_u2004: ${{ steps.appimage.outputs.D2X_REBIRTH_UPDATE_INFORMATION_U2004 }}
       d1x_rebirth_appimage_output_u2204: ${{ steps.appimage.outputs.D1X_REBIRTH_OUTPUT_U2204 }}
-      d1x_rebirth_appimage_update_information_u2204: ${{ steps.appimage.outputs.D1X_REBIRTH_UPDATE_INFORMATION_U2204 }}
       d2x_rebirth_appimage_output_u2204: ${{ steps.appimage.outputs.D2X_REBIRTH_OUTPUT_U2204 }}
-      d2x_rebirth_appimage_update_information_u2204: ${{ steps.appimage.outputs.D2X_REBIRTH_UPDATE_INFORMATION_U2204 }}
     steps:
       - id: releaseinfo
         name: Set environments (1)
