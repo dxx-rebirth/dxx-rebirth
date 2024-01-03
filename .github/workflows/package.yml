@@ -88,32 +88,6 @@ jobs:
           echo "D2X_REBIRTH_OUTPUT_U2204=D2X-Rebirth-u2204-x86_64.AppImage" >> "$GITHUB_OUTPUT"
           echo "D1X_REBIRTH_UPDATE_INFORMATION_U2204=${D1X_REBIRTH_UPDATE_INFORMATION_U2204}" >> "$GITHUB_OUTPUT"
           echo "D2X_REBIRTH_UPDATE_INFORMATION_U2204=${D2X_REBIRTH_UPDATE_INFORMATION_U2204}" >> "$GITHUB_OUTPUT"
-
-  ubuntu1804:
-    if: ${{ false }}  # disable for now
-    name: Ubuntu 18.04
-    runs-on: ubuntu-18.04
-    steps:
-      - name: Clone Repository
-        uses: actions/checkout@v4
-
-      - name: Update package database
-        run: |
-          sudo apt-get update
-
-      - name: Install AppImage requirements
-        run: |
-          sudo apt-get install -y fuse libfuse2
-
-      - name: Install download tools
-        run: |
-          sudo apt-get install -y wget curl
-          
-      - name: Install AppImage stuff
-        run: |
-          mkdir ~/Applications
-          curl -s -L --output ~/Applications/linuxdeploy-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-          chmod 0755 ~/Applications/linuxdeploy-x86_64.AppImage
           
       - name: Install gcc / g++ 11
         run: |
@@ -324,7 +298,6 @@ jobs:
             *.AppImage.zsync
 
   windows:
-    if: ${{ false }}  # disable for now
     name: Windows
     runs-on: windows-2019
     
@@ -400,7 +373,6 @@ jobs:
     #if: ${{ false }}
     name: Create release and upload artifacts
     needs:
-      #- ubuntu1804
       - ubuntu2004
       - globalenv
       - ubuntu2204
