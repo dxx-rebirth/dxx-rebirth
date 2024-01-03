@@ -324,6 +324,7 @@ jobs:
             *.AppImage.zsync
 
   windows:
+    if: ${{ false }}  # disable for now
     name: Windows
     runs-on: windows-2019
     
