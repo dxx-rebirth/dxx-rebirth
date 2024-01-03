@@ -124,7 +124,6 @@ jobs:
       - name: Package AppImage d1x-rebirth
         env:
           OUTPUT: ${{needs.globalenv.outputs.d1x_rebirth_appimage_output_u2004}}
-          UPDATE_INFORMATION: ${{needs.globalenv.outputs.d1x_rebirth_appimage_update_information_u2004}}
         run: |
           ~/Applications/linuxdeploy-x86_64.AppImage \
             -oappimage \
@@ -136,7 +135,6 @@ jobs:
       - name: Package AppImage d2x-rebirth
         env:
           OUTPUT: ${{needs.globalenv.outputs.d2x_rebirth_appimage_output_u2004}}
-          UPDATE_INFORMATION: ${{needs.globalenv.outputs.d2x_rebirth_appimage_update_information_u2004}}
         run: |
           ~/Applications/linuxdeploy-x86_64.AppImage \
             -oappimage \
@@ -202,7 +200,6 @@ jobs:
       - name: Package AppImage d1x-rebirth
         env:
           OUTPUT: ${{needs.globalenv.outputs.d1x_rebirth_appimage_output_u2204}}
-          UPDATE_INFORMATION: ${{needs.globalenv.outputs.d1x_rebirth_appimage_update_information_u2204}}
         run: |
           ~/Applications/linuxdeploy-x86_64.AppImage \
             -oappimage \
@@ -214,7 +211,6 @@ jobs:
       - name: Package AppImage d2x-rebirth
         env:
           OUTPUT: ${{needs.globalenv.outputs.d2x_rebirth_appimage_output_u2204}}
-          UPDATE_INFORMATION: ${{needs.globalenv.outputs.d2x_rebirth_appimage_update_information_u2204}}
         run: |
           ~/Applications/linuxdeploy-x86_64.AppImage \
             -oappimage \
