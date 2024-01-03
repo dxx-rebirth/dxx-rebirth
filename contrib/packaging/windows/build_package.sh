@@ -36,7 +36,7 @@ build_app "d1x-rebirth" "D1X-Rebirth"
 build_app "d2x-rebirth" "D2X-Rebirth"
 
 # zip up and output to top-level dir
-zip -r -X dxx-rebirth-win.zip D1X-Rebirth D2X-Rebirth
+zip -r -X DXX-Rebirth-Win.zip D1X-Rebirth D2X-Rebirth
 
 # Clean up
 rm -rf D1X-Rebirth D2X-Rebirth
