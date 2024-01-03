@@ -243,7 +243,7 @@ jobs:
             --icon-file="d2x-rebirth/d2x-rebirth.png"
         
       - name: Zip AppImages and zsync files
-        run: zip -r -X DXX-Rebirth-ubuntu-20.04.zip . -i '*.AppImage' '*.zsync'
+        run: zip -r -X DXX-Rebirth-ubuntu-22.04.zip . -i '*.AppImage' '*.zsync'
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
