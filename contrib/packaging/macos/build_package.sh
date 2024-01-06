@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 
-export MACOSX_DEPLOYMENT_TARGET=10.14
+export MACOSX_DEPLOYMENT_TARGET=13
 
 GIT_HASH=$(git rev-parse --short HEAD)
 
