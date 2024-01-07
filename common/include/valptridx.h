@@ -522,7 +522,7 @@ public:
 	}
 
 	ptr(std::nullptr_t)
-		requires(allow_nullptr)	// This constructor always stores nullptr, so require a policy with `allow_nullptr == true`.
+		requires(policy::allow_nullptr)	// This constructor always stores nullptr, so require a policy with `allow_nullptr == true`.
 		:
 		m_ptr(nullptr)
 	{
@@ -692,18 +692,17 @@ protected:
 	}
 	ptr(allow_none_construction)
 		requires(
-			!allow_nullptr	// allow_none_construction is only needed where nullptr is not already legal
+			!policy::allow_nullptr	// allow_none_construction is only needed where nullptr is not already legal
 		)
 		:
 		m_ptr(nullptr)
 	{
 	}
 	template <typename rpolicy>
-		ptr(ptr<rpolicy> &&rhs, const typename containing_type::rebind_policy *)
 		requires(
-			allow_nullptr || !rhs.allow_nullptr	// cannot rebind from allow_invalid to require_valid
+			policy::allow_nullptr || !ptr<rpolicy>::allow_nullptr	// cannot rebind from allow_invalid to require_valid
 		)
-		:
+		ptr(ptr<rpolicy> &&rhs, const typename containing_type::rebind_policy *) :
 			m_ptr{const_cast<managed_type *>(rhs.get_unchecked_pointer())}
 	{
 	}
