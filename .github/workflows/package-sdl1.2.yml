@@ -43,7 +43,7 @@ jobs:
           else
             [ -z "${GITHUB_CONTINUOUS_RELEASE_TAG}" ] && export GITHUB_CONTINUOUS_RELEASE_TAG=SDL 1.2
             [ -z "${GITHUB_CONTINUOUS_RELEASE_TYPE}" ] && export GITHUB_CONTINUOUS_RELEASE_TYPE=prerelease
-            [ -z "${GITHUB_CONTINUOUS_RELEASE_NAME}" ] && export GITHUB_CONTINUOUS_RELEASE_NAME="Continuous Build - SDL1.2"
+            [ -z "${GITHUB_CONTINUOUS_RELEASE_NAME}" ] && export GITHUB_CONTINUOUS_RELEASE_NAME="Continuous Build - SDL1"
           fi
           if [ "${GITHUB_CONTINUOUS_RELEASE_TAG}" = "continuous" ]; then
             export GITHUB_CONTINUOUS_RELEASE_TYPE=prerelease
