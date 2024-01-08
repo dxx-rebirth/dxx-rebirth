@@ -1,4 +1,4 @@
-name: Package-SDL1.2
+name: Package-SDL1.2-Windows
 
 on:
   #push:
@@ -21,41 +21,7 @@ on:
         description: 'The title of the release'
         default: ''
         required: false
-jobs:
-  globalenv:
-    name: Global variables
-    runs-on: ubuntu-latest
-    outputs:
-      github_continuous_release_tag: ${{ steps.releaseinfo.outputs.GITHUB_CONTINUOUS_RELEASE_TAG }}
-      github_continuous_release_type: ${{ steps.releaseinfo.outputs.GITHUB_CONTINUOUS_RELEASE_TYPE }}
-      github_continuous_release_name: ${{ steps.releaseinfo.outputs.GITHUB_CONTINUOUS_RELEASE_NAME }}
-    steps:
-      - id: releaseinfo
-        name: Set environments (1)
-        run: |
-          export GITHUB_CONTINUOUS_RELEASE_TAG="${{ github.event.inputs.tag }}"
-          export GITHUB_CONTINUOUS_RELEASE_TYPE="${{ github.event.inputs.type }}"
-          export GITHUB_CONTINUOUS_RELEASE_NAME="${{ github.event.inputs.name }}"
-          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
-            [ -z "${GITHUB_CONTINUOUS_RELEASE_TAG}" ] && export GITHUB_CONTINUOUS_RELEASE_TAG="${GITHUB_REF_NAME}"
-            [ -z "${GITHUB_CONTINUOUS_RELEASE_TYPE}" ] && export GITHUB_CONTINUOUS_RELEASE_TYPE=stable
-            [ -z "${GITHUB_CONTINUOUS_RELEASE_NAME}" ] && export GITHUB_CONTINUOUS_RELEASE_NAME="${GITHUB_REF_NAME}"
-          else
-            [ -z "${GITHUB_CONTINUOUS_RELEASE_TAG}" ] && export GITHUB_CONTINUOUS_RELEASE_TAG=SDL1
-            [ -z "${GITHUB_CONTINUOUS_RELEASE_TYPE}" ] && export GITHUB_CONTINUOUS_RELEASE_TYPE=prerelease
-            [ -z "${GITHUB_CONTINUOUS_RELEASE_NAME}" ] && export GITHUB_CONTINUOUS_RELEASE_NAME="Continuous Build - SDL1"
-          fi
-          if [ "${GITHUB_CONTINUOUS_RELEASE_TAG}" = "continuous" ]; then
-            export GITHUB_CONTINUOUS_RELEASE_TYPE=prerelease
-            export GITHUB_CONTINUOUS_RELEASE_NAME="Continuous Build"
-          fi
-          echo "GITHUB_CONTINUOUS_RELEASE_TAG=${GITHUB_CONTINUOUS_RELEASE_TAG}" >> "$GITHUB_ENV"
-          echo "GITHUB_CONTINUOUS_RELEASE_TAG=${GITHUB_CONTINUOUS_RELEASE_TAG}" >> "$GITHUB_OUTPUT"
-          echo "GITHUB_CONTINUOUS_RELEASE_TYPE=${GITHUB_CONTINUOUS_RELEASE_TYPE}" >> "$GITHUB_ENV"
-          echo "GITHUB_CONTINUOUS_RELEASE_TYPE=${GITHUB_CONTINUOUS_RELEASE_TYPE}" >> "$GITHUB_OUTPUT"
-          echo "GITHUB_CONTINUOUS_RELEASE_NAME=${GITHUB_CONTINUOUS_RELEASE_NAME}" >> "$GITHUB_ENV"
-          echo "GITHUB_CONTINUOUS_RELEASE_NAME=${GITHUB_CONTINUOUS_RELEASE_NAME}" >> "$GITHUB_OUTPUT"
-          
+jobs:          
   windows:
     name: Windows
     runs-on: windows-2019
@@ -96,33 +62,3 @@ jobs:
         with:
           name: windows
           path: '*.zip'
-
-  upload:
-    #if: ${{ false }}
-    name: Create release and upload artifacts
-    needs:
-      - globalenv
-      - windows
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Install AppImage requirements
-        run: |
-          sudo apt-get install -y libfuse2
-
-      - name: Install AppImage stuff
-        run: |
-          mkdir ~/Applications
-          curl -s -L --output ~/Applications/pyuploadtool-x86_64.AppImage https://github.com/TheAssassin/pyuploadtool/releases/download/continuous/pyuploadtool-x86_64.AppImage
-          chmod 0755 ~/Applications/pyuploadtool-x86_64.AppImage
-          
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
-
-      - name: Create release and upload artifacts
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_CONTINUOUS_RELEASE_TAG: ${{needs.globalenv.outputs.github_continuous_release_tag}}
-          GITHUB_CONTINUOUS_RELEASE_TYPE: ${{needs.globalenv.outputs.github_continuous_release_type}}
-          GITHUB_CONTINUOUS_RELEASE_NAME: ${{needs.globalenv.outputs.github_continuous_release_name}}
-        run: |
-            windows/*.zip \
