@@ -522,7 +522,7 @@ public:
 	}
 
 	ptr(std::nullptr_t)
-		requires(allow_nullptr)	// This constructor always stores nullptr, so require a policy with `allow_nullptr == true`.
+		requires(policy::allow_nullptr)	// This constructor always stores nullptr, so require a policy with `allow_nullptr == true`.
 		:
 		m_ptr(nullptr)
 	{
@@ -616,7 +616,7 @@ public:
 		 * This serves as a basic check against casts that could remove
 		 * `const` incorrectly.
 		 */
-		return ptr(std::move(rhs), static_cast<const typename containing_type::rebind_policy *>(nullptr));
+		return ptr(std::move(rhs), typename containing_type::rebind_policy{});
 	}
 	pointer_type operator->() const &
 	{
@@ -692,18 +692,17 @@ protected:
 	}
 	ptr(allow_none_construction)
 		requires(
-			!allow_nullptr	// allow_none_construction is only needed where nullptr is not already legal
+			!policy::allow_nullptr	// allow_none_construction is only needed where nullptr is not already legal
 		)
 		:
 		m_ptr(nullptr)
 	{
 	}
 	template <typename rpolicy>
-		ptr(ptr<rpolicy> &&rhs, const typename containing_type::rebind_policy *)
 		requires(
-			allow_nullptr || !rhs.allow_nullptr	// cannot rebind from allow_invalid to require_valid
+			policy::allow_nullptr || !ptr<rpolicy>::allow_nullptr	// cannot rebind from allow_invalid to require_valid
 		)
-		:
+		ptr(ptr<rpolicy> &&rhs, typename containing_type::rebind_policy) :
 			m_ptr{const_cast<managed_type *>(rhs.get_unchecked_pointer())}
 	{
 	}
@@ -834,7 +833,7 @@ public:
 		requires(!std::is_same<policy, rpolicy>::value)
 		ptridx rebind_policy(ptridx<rpolicy> &&rhs) const
 	{
-		return ptridx(std::move(rhs), static_cast<const typename containing_type::rebind_policy *>(nullptr));
+		return ptridx(std::move(rhs), typename containing_type::rebind_policy{});
 	}
 	ptridx absolute_sibling(const index_type i DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) const
 	{
@@ -863,7 +862,7 @@ protected:
 		return *this;
 	}
 	template <typename rpolicy>
-		ptridx(ptridx<rpolicy> &&rhs, const typename containing_type::rebind_policy *const rebind) :
+		ptridx(ptridx<rpolicy> &&rhs, const typename containing_type::rebind_policy rebind) :
 			vptr_type{static_cast<typename ptridx<rpolicy>::vptr_type &&>(rhs), rebind},
 			vidx_type{static_cast<typename ptridx<rpolicy>::vidx_type &&>(rhs)}
 	{

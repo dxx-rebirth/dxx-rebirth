@@ -722,40 +722,56 @@ namespace dsx {
 void multi_sort_kill_list()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vcobjptr = Objects.vcptr;
 	// Sort the kills list each time a new kill is added
-	per_player_array<int> kills;
-	for (playernum_t i = 0; i < MAX_PLAYERS; ++i)
-	{
-		auto &player_info = vcobjptr(vcplayerptr(i)->objnum)->ctype.player_info;
-		if (Game_mode & GM_MULTI_COOP)
-		{
-			kills[i] = player_info.mission.score;
-		}
+	const auto build_kill_list_sort_key{[](fvcobjptr &vcobjptr, const game_mode_flags game_mode,
 #if defined(DXX_BUILD_DESCENT_II)
-		else
-		if (Show_kill_list == show_kill_list_mode::efficiency)
+		const show_kill_list_mode show_kill_list,
+#endif
+		const player &plr) -> int {
+		const auto o{plr.objnum};
+		if (o == object_none)
+			return -1;
+		auto &player_info = vcobjptr(o)->ctype.player_info;
+		if (game_mode & GM_MULTI_COOP)
+			return {player_info.mission.score};
+		const auto net_kills_total{player_info.net_kills_total};
+#if defined(DXX_BUILD_DESCENT_II)
+		if (show_kill_list == show_kill_list_mode::efficiency)
 		{
-			const auto kk = player_info.net_killed_total + player_info.net_kills_total;
-			// always draw the ones without any ratio last
-			kills[i] = kk <= 0
-				? kk - 1
-				: static_cast<int>(
-					static_cast<float>(player_info.net_kills_total) / (
-						static_cast<float>(player_info.net_killed_total) + static_cast<float>(player_info.net_kills_total)
-					) * 100.0
-				);
+			const auto kk{player_info.net_killed_total + net_kills_total};
+			if (kk <= 0)
+				// always draw the ones without any ratio last
+				return kk - 1;
+			const float net_kills_total_f = net_kills_total;
+			return static_cast<int>(net_kills_total_f / (
+					static_cast<float>(player_info.net_killed_total) + net_kills_total_f
+			) * 100.0f);
 		}
 #endif
-		else
-			kills[i] = player_info.net_kills_total;
-	}
-
-	const auto predicate = [&](unsigned a, unsigned b) {
-		return kills[a] > kills[b];
-	};
-	const auto &range = partial_range(sorted_kills, N_players);
-	std::sort(range.begin(), range.end(), predicate);
+		return {net_kills_total};
+	}};
+	const auto build_kill_list_sort_keys{[build_kill_list_sort_key](fvcobjptr &vcobjptr, const game_mode_flags game_mode,
+#if defined(DXX_BUILD_DESCENT_II)
+		const show_kill_list_mode show_kill_list,
+#endif
+		fvcplayerptr &vcplayerptr) -> per_player_array<int> {
+		per_player_array<int> kills;
+		for (auto &&[k, plr] : zip(kills, vcplayerptr))
+			k = build_kill_list_sort_key(vcobjptr, game_mode,
+#if defined(DXX_BUILD_DESCENT_II)
+				show_kill_list,
+#endif
+				plr);
+		return kills;
+	}};
+	const auto projection{[keys = build_kill_list_sort_keys(Objects.vcptr, Game_mode,
+#if defined(DXX_BUILD_DESCENT_II)
+		Show_kill_list,
+#endif
+		vcplayerptr)](const unsigned sk) {
+		return keys[sk];
+	}};
+	std::ranges::sort(partial_range(sorted_kills, N_players), std::ranges::greater{}, std::ref(projection));
 }
 
 namespace {

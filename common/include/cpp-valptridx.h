@@ -278,7 +278,7 @@ protected:
 	class allow_end_construction {};
 	class allow_none_construction {};
 	class assume_nothrow_index {};
-	class rebind_policy;
+	class rebind_policy {};
 };
 
 /* Map the four reporting styles from their `literal_as_type`
