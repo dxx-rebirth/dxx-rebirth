@@ -105,6 +105,16 @@ jobs:
       - windows
     runs-on: ubuntu-22.04
     steps:
+      - name: Install AppImage requirements
+        run: |
+          sudo apt-get install -y libfuse2
+
+      - name: Install AppImage stuff
+        run: |
+          mkdir ~/Applications
+          curl -s -L --output ~/Applications/pyuploadtool-x86_64.AppImage https://github.com/TheAssassin/pyuploadtool/releases/download/continuous/pyuploadtool-x86_64.AppImage
+          chmod 0755 ~/Applications/pyuploadtool-x86_64.AppImage
+          
       - name: Download artifacts
         uses: actions/download-artifact@v3
 
