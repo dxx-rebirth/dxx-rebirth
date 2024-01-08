@@ -41,7 +41,7 @@ jobs:
             [ -z "${GITHUB_CONTINUOUS_RELEASE_TYPE}" ] && export GITHUB_CONTINUOUS_RELEASE_TYPE=stable
             [ -z "${GITHUB_CONTINUOUS_RELEASE_NAME}" ] && export GITHUB_CONTINUOUS_RELEASE_NAME="${GITHUB_REF_NAME}"
           else
-            [ -z "${GITHUB_CONTINUOUS_RELEASE_TAG}" ] && export GITHUB_CONTINUOUS_RELEASE_TAG=SDL 1.2
+            [ -z "${GITHUB_CONTINUOUS_RELEASE_TAG}" ] && export GITHUB_CONTINUOUS_RELEASE_TAG=SDL1
             [ -z "${GITHUB_CONTINUOUS_RELEASE_TYPE}" ] && export GITHUB_CONTINUOUS_RELEASE_TYPE=prerelease
             [ -z "${GITHUB_CONTINUOUS_RELEASE_NAME}" ] && export GITHUB_CONTINUOUS_RELEASE_NAME="Continuous Build - SDL1"
           fi
@@ -86,7 +86,7 @@ jobs:
         uses: actions/checkout@v4
               
       - name: Configure and build
-        run: scons -j2 sdl2=1 sdlmixer=1
+        run: scons -j2 sdlmixer=1
       
       - name: Package
         run: ./contrib/packaging/windows/build_package.sh
