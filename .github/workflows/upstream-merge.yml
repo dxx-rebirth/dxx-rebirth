@@ -23,10 +23,10 @@ jobs:
           ref: package
           fetch-depth: 0
 
-      - name: Set Git config
-        run: |
-          git config --global user.name 'Markus Rathgeb'
-          git config --global user.email 'maggu2810@gmail.com'
+     # - name: Set Git config
+    #    run: |
+     #     git config --global user.name 'Markus Rathgeb'
+      #    git config --global user.email 'maggu2810@gmail.com'
 
       - name: Merge upstream
         #github_token: ${{ secrets.PAT}}
