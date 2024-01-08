@@ -1,0 +1,118 @@
+name: Package-SDL1.2
+
+on:
+  #push:
+  #  branches: [ package ]
+
+  #pull_request:
+  #  branches: [ master ]
+
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'The tag used for release'
+        default: ''
+        required: false
+      type:
+        description: 'The type of release to be published (supported values: stable, prerelease)'
+        default: ''
+        required: false
+      name:
+        description: 'The title of the release'
+        default: ''
+        required: false
+jobs:
+  globalenv:
+    name: Global variables
+    runs-on: ubuntu-latest
+    outputs:
+      github_continuous_release_tag: ${{ steps.releaseinfo.outputs.GITHUB_CONTINUOUS_RELEASE_TAG }}
+      github_continuous_release_type: ${{ steps.releaseinfo.outputs.GITHUB_CONTINUOUS_RELEASE_TYPE }}
+      github_continuous_release_name: ${{ steps.releaseinfo.outputs.GITHUB_CONTINUOUS_RELEASE_NAME }}
+    steps:
+      - id: releaseinfo
+        name: Set environments (1)
+        run: |
+          export GITHUB_CONTINUOUS_RELEASE_TAG="${{ github.event.inputs.tag }}"
+          export GITHUB_CONTINUOUS_RELEASE_TYPE="${{ github.event.inputs.type }}"
+          export GITHUB_CONTINUOUS_RELEASE_NAME="${{ github.event.inputs.name }}"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            [ -z "${GITHUB_CONTINUOUS_RELEASE_TAG}" ] && export GITHUB_CONTINUOUS_RELEASE_TAG="${GITHUB_REF_NAME}"
+            [ -z "${GITHUB_CONTINUOUS_RELEASE_TYPE}" ] && export GITHUB_CONTINUOUS_RELEASE_TYPE=stable
+            [ -z "${GITHUB_CONTINUOUS_RELEASE_NAME}" ] && export GITHUB_CONTINUOUS_RELEASE_NAME="${GITHUB_REF_NAME}"
+          else
+            [ -z "${GITHUB_CONTINUOUS_RELEASE_TAG}" ] && export GITHUB_CONTINUOUS_RELEASE_TAG=SDL 1.2
+            [ -z "${GITHUB_CONTINUOUS_RELEASE_TYPE}" ] && export GITHUB_CONTINUOUS_RELEASE_TYPE=prerelease
+            [ -z "${GITHUB_CONTINUOUS_RELEASE_NAME}" ] && export GITHUB_CONTINUOUS_RELEASE_NAME="Continuous Build - SDL1.2"
+          fi
+          if [ "${GITHUB_CONTINUOUS_RELEASE_TAG}" = "continuous" ]; then
+            export GITHUB_CONTINUOUS_RELEASE_TYPE=prerelease
+            export GITHUB_CONTINUOUS_RELEASE_NAME="Continuous Build"
+          fi
+          echo "GITHUB_CONTINUOUS_RELEASE_TAG=${GITHUB_CONTINUOUS_RELEASE_TAG}" >> "$GITHUB_ENV"
+          echo "GITHUB_CONTINUOUS_RELEASE_TAG=${GITHUB_CONTINUOUS_RELEASE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "GITHUB_CONTINUOUS_RELEASE_TYPE=${GITHUB_CONTINUOUS_RELEASE_TYPE}" >> "$GITHUB_ENV"
+          echo "GITHUB_CONTINUOUS_RELEASE_TYPE=${GITHUB_CONTINUOUS_RELEASE_TYPE}" >> "$GITHUB_OUTPUT"
+          echo "GITHUB_CONTINUOUS_RELEASE_NAME=${GITHUB_CONTINUOUS_RELEASE_NAME}" >> "$GITHUB_ENV"
+          echo "GITHUB_CONTINUOUS_RELEASE_NAME=${GITHUB_CONTINUOUS_RELEASE_NAME}" >> "$GITHUB_OUTPUT"
+          
+  windows:
+    name: Windows
+    runs-on: windows-2019
+    
+    defaults:
+      run:
+        shell: msys2 {0}
+    
+    steps:
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            git
+            zip
+            base-devel 
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-scons
+            mingw-w64-x86_64-pkgconf
+            mingw-w64-x86_64-SDL2
+            mingw-w64-x86_64-SDL2_image
+            mingw-w64-x86_64-SDL2_mixer
+            mingw-w64-x86_64-physfs
+        
+      - name: Clone repository
+        uses: actions/checkout@v4
+              
+      - name: Configure and build
+        run: scons -j2 sdl2=1 sdlmixer=1
+      
+      - name: Package
+        run: ./contrib/packaging/windows/build_package.sh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows
+          path: '*.zip'
+
+  upload:
+    #if: ${{ false }}
+    name: Create release and upload artifacts
+    needs:
+      - globalenv
+      - windows
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Create release and upload artifacts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_CONTINUOUS_RELEASE_TAG: ${{needs.globalenv.outputs.github_continuous_release_tag}}
+          GITHUB_CONTINUOUS_RELEASE_TYPE: ${{needs.globalenv.outputs.github_continuous_release_type}}
+          GITHUB_CONTINUOUS_RELEASE_NAME: ${{needs.globalenv.outputs.github_continuous_release_name}}
+        run: |
+            windows/*.zip \
