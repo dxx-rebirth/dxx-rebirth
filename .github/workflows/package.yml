@@ -3,6 +3,8 @@ name: Package
 on:
   push:
     branches: [ package ]
+    paths-ignore:
+      - '**/.github/**'
 
   #pull_request:
   #  branches: [ master ]
