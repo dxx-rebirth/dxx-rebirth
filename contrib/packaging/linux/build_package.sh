@@ -38,9 +38,6 @@ build_appimage() {
     # Package!
     "./appimagetool-x86_64.AppImage" --no-appstream --verbose "${appdir}" "${appimagename}"
 
-    # Generate .zsync file
-    "./appimagetool-x86_64.AppImage" --generate-zsync "${appimagename}"
-
     # Clean
     rm -rf "${appdir}"
 }
@@ -50,7 +47,7 @@ build_appimage "d1x-rebirth" "D1X-Rebirth"
 build_appimage "d2x-rebirth" "D2X-Rebirth"
 
 # Consolidate into a single zip file
-zip -r -X DXX-Rebirth.zip D1X-Rebirth.AppImage D1X-Rebirth.AppImage.zsync D2X-Rebirth.AppImage D2X-Rebirth.AppImage.zsync
+zip -r -X DXX-Rebirth.zip D1X-Rebirth.AppImage D2X-Rebirth.AppImage
 
 # Clean
-rm -f appimagetool* AppRun* D1X-Rebirth.AppImage D1X-Rebirth.AppImage.zsync D2X-Rebirth.AppImage D2X-Rebirth.AppImage.zsync
+rm -f appimagetool* AppRun* D1X-Rebirth.AppImage D2X-Rebirth.AppImage
