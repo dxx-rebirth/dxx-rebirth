@@ -2,7 +2,7 @@ name: Package
 
 on:
   push:
-    branches: [ package ]
+    branches: [ master ]
     paths-ignore:
       - '**/.github/**'
 
