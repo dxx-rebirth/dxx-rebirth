@@ -7,43 +7,35 @@ build_app() {
     name="$1"
     prettyname="$2"
     
-    zipfilename="${prettyname}-win-${GIT_HASH}.zip"
-    outdir="${prettyname}"
-    tmpdir="packagetemp"
-    
-    # Have to bundle in separate directory because of case-insensitivity clashes
-    mkdir ${tmpdir}
-    cd ${tmpdir}
-    
-    mkdir ${outdir}
-    mkdir ${outdir}/Demos
-    mkdir ${outdir}/Missions
-    mkdir ${outdir}/Screenshots
+    zipfilename="${prettyname}-win.zip"
+    outdir="."
 
-    # Copy executable and libraris
-    cp ../build/${name}/${name}.exe ${outdir}/
-    
-    # Copy in .dlls the old fashioned way. This assumes all the needed DLLs are 
-    # ones from the mingw64 installation
-    ldd ${outdir}/${name}.exe |grep mingw64 |sort |cut -d' ' -f3 |while read dll; do cp "${dll}" ${outdir}/; done
+    # Create a subdirectory for each app at the top level
+    mkdir -p ${outdir}/tmp/${prettyname}/Demos
+    mkdir -p ${outdir}/tmp/${prettyname}/Missions
+    mkdir -p ${outdir}/tmp/${prettyname}/Screenshots
 
-    # Copy in other resources
-    cp ../${name}/*.ini ${outdir}/
-    cp ../COPYING.txt ${outdir}/
-    cp ../GPL-3.txt ${outdir}/
-    cp ../README.md ${outdir}/
-    cp ../INSTALL.markdown ${outdir}/
-        
-    # zip up and output to top level dir
-    zip -r -X ../${zipfilename} ${outdir}
-    
-    cd ..
-    
-    rm -rf ${tmpdir}
+    # Copy executable and libraries to the respective app directory
+    cp build/${name}/${name}.exe ${outdir}/tmp/${prettyname}/
+
+    # Copy DLLs
+    ldd ${outdir}/tmp/${prettyname}/${name}.exe | grep mingw64 | sort | cut -d' ' -f3 | while read dll; do cp "${dll}" ${outdir}/tmp/${prettyname}/; done
+
+    # Copy other resources to the respective app directory
+    cp ${name}/*.ini ${outdir}/tmp/${prettyname}/
+    cp COPYING.txt ${outdir}/tmp/${prettyname}/
+    cp GPL-3.txt ${outdir}/tmp/${prettyname}/
+    cp README.md ${outdir}/tmp/${prettyname}/
+    cp INSTALL.markdown ${outdir}/tmp/${prettyname}/
 }
 
+# Build D1X-Rebirth
 build_app "d1x-rebirth" "D1X-Rebirth"
+
+# Build D2X-Rebirth
 build_app "d2x-rebirth" "D2X-Rebirth"
 
-# Clean up
-
+# zip up and output to top-level dir
+cd tmp
+zip -r -X ../DXX-Rebirth-Win.zip D1X-Rebirth D2X-Rebirth
+cd ..
