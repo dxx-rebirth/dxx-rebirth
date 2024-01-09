@@ -1,0 +1,41 @@
+name: Merge Upstream
+
+# You need to use a "Personal access token" to push to the repo,
+# if you would like to trigger another action (it does not work
+# with the default used github token).
+# Create token: https://github.com/settings/tokens?type=beta
+# Store token to security settings of repo: https://github.com/maggu2810/dxx-rebirth/settings/secrets/actions 
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  merging:
+    name: Merging
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT }}
+          ref: package
+          fetch-depth: 0
+
+     # - name: Set Git config
+    #    run: |
+     #     git config --global user.name 'Markus Rathgeb'
+      #    git config --global user.email 'maggu2810@gmail.com'
+
+      - name: Merge upstream
+        #github_token: ${{ secrets.PAT}}
+        run: |
+          git status
+          git remote add -f upstream "https://github.com/dxx-rebirth/dxx-rebirth.git"
+          git remote -v
+          git branch --all
+          git config --list
+          git merge upstream/master
+          git push 
+
