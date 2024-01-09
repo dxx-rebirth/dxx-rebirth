@@ -1,61 +1,56 @@
 #!/bin/bash
 set -x
 
-GIT_HASH=$(git rev-parse --short HEAD)
-
-#ARCH=x86_64
-
-
 # Grab latest AppImage package
 curl -s -L -O https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage || exit 3
-chmod a+x appimagetool-x86_64.AppImage
-
-# And the AppRun
 curl -s -L -O https://github.com/AppImage/AppImageKit/releases/download/continuous/AppRun-x86_64 || exit 3
-chmod a+x AppRun-x86_64
-
+chmod a+x appimagetool-x86_64.AppImage AppRun-x86_64
 
 build_appimage() {
     name="$1"
     prettyname="$2"
 
     appdir="${name}.appdir"
-    appimagename="${prettyname}-${GIT_HASH}.AppImage"
+    appimagename="${prettyname}.AppImage"
 
-    ## Install
-    # Copy resources into package dir
+    # Install
     mkdir "${appdir}"
 
-    # Executable
-    mkdir -p ${appdir}/usr/bin
-    cp build/${name}/${name} ${appdir}/usr/bin
+    # Copy resources into package dir
+    mkdir -p "${appdir}/usr/bin"
+    cp "build/${name}/${name}" "${appdir}/usr/bin"
 
-    # Icons
-    mkdir -p ${appdir}/usr/share/pixmaps
-    cp ${name}/${name}.xpm ${appdir}/usr/share/pixmaps
-    cp ${name}/${name}.xpm ${appdir}/
+    mkdir -p "${appdir}/usr/share/pixmaps"
+    cp "${name}/${name}.xpm" "${appdir}/usr/share/pixmaps"
+    cp "${name}/${name}.xpm" "${appdir}/"
 
-    mkdir -p ${appdir}/usr/share/icons/hicolor/128x128/apps/
-    cp ${name}/${name}.png ${appdir}/usr/share/icons/hicolor/128x128/apps/
-    cp ${name}/${name}.png ${appdir}/
+    mkdir -p "${appdir}/usr/share/icons/hicolor/128x128/apps/"
+    cp "${name}/${name}.png" "${appdir}/usr/share/icons/hicolor/128x128/apps/"
+    cp "${name}/${name}.png" "${appdir}/"
 
-    # Menu item
-    mkdir -p ${appdir}/usr/share/applications
-    cp ${name}/${name}.desktop ${appdir}/usr/share/applications
-    cp ${name}/${name}.desktop ${appdir}/
+    mkdir -p "${appdir}/usr/share/applications"
+    cp "${name}/${name}.desktop" "${appdir}/usr/share/applications"
+    cp "${name}/${name}.desktop" "${appdir}/"
 
-    ## Package
-    cp AppRun-x86_64 ${appdir}/AppRun
+    # Package
+    cp "AppRun-x86_64" "${appdir}/AppRun"
 
     # Package!
-    ./appimagetool-x86_64.AppImage --no-appstream --verbose "${appdir}" "${appimagename}"
+    "./appimagetool-x86_64.AppImage" --no-appstream --verbose "${appdir}" "${appimagename}"
 
-    rm -rf ${appdir}
+    # Generate .zsync file
+    "./appimagetool-x86_64.AppImage" --generate-zsync "${appimagename}"
+
+    # Clean
+    rm -rf "${appdir}"
 }
 
 # Build each subunit
-build_appimage "d1x-rebirth" "d1x-rebirth"
-build_appimage "d2x-rebirth" "d2x-rebirth"
+build_appimage "d1x-rebirth" "D1X-Rebirth"
+build_appimage "d2x-rebirth" "D2X-Rebirth"
+
+# Consolidate into a single zip file
+zip -r -X DXX-Rebirth.zip D1X-Rebirth.AppImage D1X-Rebirth.AppImage.zsync D2X-Rebirth.AppImage D2X-Rebirth.AppImage.zsync
 
 # Clean
-rm -f appimagetool* AppRun*
+rm -f appimagetool* AppRun* D1X-Rebirth.AppImage D1X-Rebirth.AppImage.zsync D2X-Rebirth.AppImage D2X-Rebirth.AppImage.zsync
