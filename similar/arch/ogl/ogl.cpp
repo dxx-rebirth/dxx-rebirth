@@ -1283,7 +1283,7 @@ void ogl_start_frame(grs_canvas &canvas)
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 
-	glClear(GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 
@@ -1402,7 +1402,7 @@ void ogl_end_frame(void){
 	glDisable(GL_DEPTH_TEST);
 }
 
-void gr_flip(void)
+void gr_flip(Uint32 frameStart)
 {
 	if (CGameArg.DbgRenderStats)
 	{
@@ -1411,8 +1411,7 @@ void gr_flip(void)
 	}
 
 	ogl_do_palfx();
-	ogl_swap_buffers_internal();
-	glClear(GL_COLOR_BUFFER_BIT);
+	ogl_swap_buffers_internal(frameStart);
 }
 
 // Allocate the pixel buffers 'pixels' and 'texbuf' based on current screen resolution

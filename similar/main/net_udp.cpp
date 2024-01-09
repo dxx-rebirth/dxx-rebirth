@@ -1349,7 +1349,6 @@ Possible reasons:\n\
 #endif
 		dj->last_time = timer_query();
 	}
-	timer_delay2(5);
 	net_udp_listen();
 
 	if (Netgame.protocol.udp.valid != 1)

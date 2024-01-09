@@ -420,7 +420,7 @@ void gr_palette_step_up(int r, int g, int b);
 color_palette_index gr_find_closest_color(int r, int g, int b);
 color_palette_index gr_find_closest_color_15bpp(packed_color_r5g5b5 rgb);
 
-void gr_flip();
+void gr_flip(Uint32 frameStart = 0);
 
 /*
  * must return 0 if windowed, 1 if fullscreen
