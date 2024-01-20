@@ -1119,8 +1119,8 @@ void newdemo_record_start_demo()
 	nd_record_v_primary_ammo = -1;
 	nd_record_v_secondary_ammo = -1;
 
-	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
-		nd_write_short(i == primary_weapon_index_t::VULCAN_INDEX ? player_info.vulcan_ammo : 0);
+	for (const uint8_t i : xrange(MAX_PRIMARY_WEAPONS))
+		nd_write_short(primary_weapon_index_t{i} == primary_weapon_index_t::VULCAN_INDEX ? player_info.vulcan_ammo : 0);
 
 	range_for (auto &i, player_info.secondary_ammo)
 		nd_write_short(i);
@@ -1911,11 +1911,11 @@ static int newdemo_read_demo_start(const purpose_type purpose)
 	}
 #endif
 
-	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
+	for (const uint8_t i : xrange(MAX_PRIMARY_WEAPONS))
 	{
 		short s;
 		nd_read_short(&s);
-		if (i == primary_weapon_index_t::VULCAN_INDEX)
+		if (primary_weapon_index_t{i} == primary_weapon_index_t::VULCAN_INDEX)
 			player_info.vulcan_ammo = s;
 		if (purpose == purpose_type::rewrite)
 			nd_write_short(s);
@@ -2008,7 +2008,7 @@ static int newdemo_read_demo_start(const purpose_type purpose)
 	}
 	if (purpose == purpose_type::rewrite)
 	{
-		nd_write_byte(Primary_weapon);
+		nd_write_byte(underlying_value(Primary_weapon.get_active()));
 		nd_write_byte(underlying_value(Secondary_weapon.get_active()));
 	}
 
@@ -3559,11 +3559,11 @@ window_event_result newdemo_goto_end(int to_rewrite)
 		nd_read_byte(&v);
 		player_info.Secondary_weapon = static_cast<secondary_weapon_index_t>(v);
 	}
-	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
+	for (const uint8_t i : xrange(MAX_PRIMARY_WEAPONS))
 	{
 		short s;
 		nd_read_short(&s);
-		if (i == primary_weapon_index_t::VULCAN_INDEX)
+		if (primary_weapon_index_t{i} == primary_weapon_index_t::VULCAN_INDEX)
 			player_info.vulcan_ammo = s;
 	}
 	range_for (auto &i, player_info.secondary_ammo)
@@ -4017,8 +4017,8 @@ static void newdemo_write_end()
 	nd_write_byte(static_cast<int8_t>(static_cast<secondary_weapon_index_t>(player_info.Secondary_weapon)));
 	byte_count += 8;
 
-	for (int i = 0; i < MAX_PRIMARY_WEAPONS; i++)
-		nd_write_short(i == primary_weapon_index_t::VULCAN_INDEX ? player_info.vulcan_ammo : 0);
+	for (const uint8_t i : xrange(MAX_PRIMARY_WEAPONS))
+		nd_write_short(primary_weapon_index_t{i} == primary_weapon_index_t::VULCAN_INDEX ? player_info.vulcan_ammo : 0);
 
 	range_for (auto &i, player_info.secondary_ammo)
 		nd_write_short(i);

@@ -576,7 +576,7 @@ static void init_ammo_and_energy(object &plrobj)
 	{
 		auto &energy = player_info.energy;
 #if defined(DXX_BUILD_DESCENT_II)
-		if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(OMEGA_INDEX))
+		if (player_info.primary_weapon_flags & HAS_OMEGA_FLAG)
 		{
 			const auto old_omega_charge = player_info.Omega_charge;
 			if (old_omega_charge < MAX_OMEGA_CHARGE)
@@ -708,7 +708,7 @@ void init_player_stats_new_ship(const playernum_t pnum)
 		set_primary_weapon(player_info, [=]{
 			range_for (auto i, PlayerCfg.PrimaryOrder)
 			{
-				if (i >= MAX_PRIMARY_WEAPONS)
+				if (underlying_value(i) >= MAX_PRIMARY_WEAPONS)
 					break;
 				if (i == primary_weapon_index_t::LASER_INDEX)
 					break;

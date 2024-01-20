@@ -5391,18 +5391,18 @@ static void MultiLevelInv_CountPlayerInventory()
 						accumulate_flags_count<player_flags, PLAYER_FLAG> powerup_flags(Current, player_info.powerup_flags);
 						accumulate_flags_count<player_info::primary_weapon_flag_type, unsigned> primary_weapon_flags(Current, player_info.primary_weapon_flags);
 						powerup_flags.process(PLAYER_FLAGS_QUAD_LASERS, POW_QUAD_FIRE);
-						primary_weapon_flags.process(HAS_PRIMARY_FLAG(VULCAN_INDEX), POW_VULCAN_WEAPON);
-						primary_weapon_flags.process(HAS_PRIMARY_FLAG(SPREADFIRE_INDEX), POW_SPREADFIRE_WEAPON);
-						primary_weapon_flags.process(HAS_PRIMARY_FLAG(PLASMA_INDEX), POW_PLASMA_WEAPON);
-						primary_weapon_flags.process(HAS_PRIMARY_FLAG(FUSION_INDEX), POW_FUSION_WEAPON);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::VULCAN_INDEX), POW_VULCAN_WEAPON);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::SPREADFIRE_INDEX), POW_SPREADFIRE_WEAPON);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::PLASMA_INDEX), POW_PLASMA_WEAPON);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::FUSION_INDEX), POW_FUSION_WEAPON);
 						powerup_flags.process(PLAYER_FLAGS_CLOAKED, POW_CLOAK);
 						powerup_flags.process(PLAYER_FLAGS_INVULNERABLE, POW_INVULNERABILITY);
                         // NOTE: The following can probably be simplified.
 #if defined(DXX_BUILD_DESCENT_II)
-						primary_weapon_flags.process(HAS_PRIMARY_FLAG(GAUSS_INDEX), POW_GAUSS_WEAPON);
-						primary_weapon_flags.process(HAS_PRIMARY_FLAG(HELIX_INDEX), POW_HELIX_WEAPON);
-						primary_weapon_flags.process(HAS_PRIMARY_FLAG(PHOENIX_INDEX), POW_PHOENIX_WEAPON);
-						primary_weapon_flags.process(HAS_PRIMARY_FLAG(OMEGA_INDEX), POW_OMEGA_WEAPON);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::GAUSS_INDEX), POW_GAUSS_WEAPON);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::HELIX_INDEX), POW_HELIX_WEAPON);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::PHOENIX_INDEX), POW_PHOENIX_WEAPON);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::OMEGA_INDEX), POW_OMEGA_WEAPON);
 						powerup_flags.process(PLAYER_FLAGS_MAP_ALL, POW_FULL_MAP);
 						powerup_flags.process(PLAYER_FLAGS_CONVERTER, POW_CONVERTER);
 						powerup_flags.process(PLAYER_FLAGS_AMMO_RACK, POW_AMMO_RACK);

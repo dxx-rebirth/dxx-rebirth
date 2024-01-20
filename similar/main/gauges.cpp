@@ -1399,21 +1399,35 @@ constexpr rgb_t hud_rgb_yellow = {30, 30, 0};
 static rgb_t hud_get_primary_weapon_fontcolor(const player_info &player_info, const primary_weapon_index_t consider_weapon)
 {
 	if (player_info.Primary_weapon == consider_weapon)
+		/* The currently active weapon is `consider_weapon` */
 		return hud_rgb_red;
 	else{
 		if (player_has_primary_weapon(player_info, consider_weapon).has_weapon())
 		{
+			/* The player has not armed this weapon, but could do so. */
 #if defined(DXX_BUILD_DESCENT_II)
-			const auto is_super = (consider_weapon >= 5);
-			const int base_weapon = is_super ? consider_weapon - 5 : consider_weapon;
-			if (player_info.Primary_last_was_super & (1 << base_weapon))
+			const auto is_super = is_super_weapon(consider_weapon);
+			const auto base_weapon = is_super ? primary_weapon_index_t{static_cast<uint8_t>(static_cast<uint8_t>(consider_weapon) - SUPER_WEAPON)} : consider_weapon;
+			if (player_info.Primary_last_was_super & HAS_PRIMARY_FLAG(base_weapon))
 			{
+				/* The player would select the super-weapon version on next press. */
 				if (is_super)
+					/* The weapon is a super-weapon, so it would be selected on
+					 * next press.
+					 */
 					return hud_rgb_green;
 				else
+					/* The weapon is not a super-weapon, so the player will
+					 * need to press twice to select it (once to make the
+					 * non-super active, then again to toggle to super).
+					 */
 					return hud_rgb_yellow;
 			}
+			/* Else the player will select the non-super weapon on next press */
 			else if (is_super)
+				/* The candidate weapon is a super-weapon, so the player will
+				 * need to press twice to select it.
+				 */
 				return hud_rgb_yellow;
 			else
 #endif
@@ -1513,7 +1527,7 @@ static void hud_printf_vulcan_ammo(grs_canvas &canvas, const player_info &player
 	hud_set_vulcan_ammo_fontcolor(player_info, has_weapon_uses_vulcan_ammo, canvas);
 	const char c =
 #if defined(DXX_BUILD_DESCENT_II)
-		((primary_weapon_flags & gauss_mask) && ((player_info.Primary_last_was_super & (1 << primary_weapon_index_t::VULCAN_INDEX)) || !(primary_weapon_flags & vulcan_mask)))
+		((primary_weapon_flags & gauss_mask) && ((player_info.Primary_last_was_super & HAS_VULCAN_FLAG) || !(primary_weapon_flags & vulcan_mask)))
 		? 'G'
 		: 
 #endif
@@ -2600,7 +2614,7 @@ void draw_keys_state::draw_all_cockpit_keys()
 	draw_one_key(GAUGE_RED_KEY_X, GAUGE_RED_KEY_Y, GAUGE_RED_KEY, PLAYER_FLAGS_RED_KEY);
 }
 
-static void draw_weapon_info_sub(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const int info_index, const gauge_box *const box, const int pic_x, const int pic_y, const char *const name, const int text_x, const int text_y)
+static void draw_weapon_info_sub(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const weapon_id_type info_index, const gauge_box *const box, const int pic_x, const int pic_y, const char *const name, const int text_x, const int text_y)
 {
 	//clear the window
 	const uint8_t color = BM_XRGB(0, 0, 0);
@@ -2632,7 +2646,7 @@ static void draw_weapon_info_sub(const hud_draw_context_hs_mr hudctx, const play
 
 		//	For laser, show level and quadness
 #if defined(DXX_BUILD_DESCENT_I)
-		if (info_index == primary_weapon_index_t::LASER_INDEX)
+		if (info_index == weapon_id_type::LASER_ID)
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (info_index == weapon_id_type::LASER_ID || info_index == weapon_id_type::SUPER_LASER_ID)
 #endif
@@ -2701,10 +2715,9 @@ static void draw_primary_weapon_info(const hud_draw_context_hs_mr hudctx, const 
 static void draw_secondary_weapon_info(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const secondary_weapon_index_t weapon_num)
 {
 	int x,y;
-	int info_index;
 
 	{
-		info_index = Secondary_weapon_to_weapon_info[weapon_num];
+		const auto info_index = Secondary_weapon_to_weapon_info[weapon_num];
 		const gauge_box *box;
 		int pic_x, pic_y, text_x, text_y;
 		auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;

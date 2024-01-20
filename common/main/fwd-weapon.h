@@ -86,7 +86,7 @@ enum class pig_hamfile_version : uint8_t;
 extern pig_hamfile_version Piggy_hamfile_version;
 #endif
 
-enum primary_weapon_index_t : uint8_t;
+enum class primary_weapon_index_t : uint8_t;
 enum class secondary_weapon_index_t : uint8_t;
 
 extern const enumerated_array<weapon_id_type, MAX_PRIMARY_WEAPONS, primary_weapon_index_t> Primary_weapon_to_weapon_info;

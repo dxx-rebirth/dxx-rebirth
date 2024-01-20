@@ -205,7 +205,7 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 #endif
 };
 
-enum primary_weapon_index_t : uint8_t
+enum class primary_weapon_index_t : uint8_t
 {
 	LASER_INDEX = 0,
 	VULCAN_INDEX = 1,
@@ -294,7 +294,7 @@ static constexpr secondary_weapon_index_t which_bomb(const player_info &)
 	return secondary_weapon_index_t::PROXIMITY_INDEX;
 }
 
-static constexpr int weapon_index_uses_vulcan_ammo(const unsigned id)
+static constexpr int weapon_index_uses_vulcan_ammo(const primary_weapon_index_t id)
 {
 	return id == primary_weapon_index_t::VULCAN_INDEX;
 }
@@ -313,7 +313,7 @@ static constexpr unsigned vulcan_ammo_scale(const unsigned v)
 secondary_weapon_index_t which_bomb(player_info &player_info);
 secondary_weapon_index_t which_bomb(const player_info &player_info);
 
-static constexpr int weapon_index_uses_vulcan_ammo(const unsigned id)
+static constexpr int weapon_index_uses_vulcan_ammo(const primary_weapon_index_t id)
 {
 	return id == primary_weapon_index_t::VULCAN_INDEX || id == primary_weapon_index_t::GAUSS_INDEX;
 }

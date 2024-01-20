@@ -2095,7 +2095,7 @@ int do_laser_firing(vmobjptridx_t objp, const primary_weapon_index_t weapon_num,
 	// Set values to be recognized during comunication phase, if we are the
 	//  one shooting
 	if ((Game_mode & GM_MULTI) && objp == get_local_player().objnum)
-		multi_send_fire(objp->orient, weapon_num, level, flags, Network_laser_track, object_none);
+		multi_send_fire(objp->orient, underlying_value(weapon_num), level, flags, Network_laser_track, object_none);
 	return 1;
 }
 

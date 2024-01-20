@@ -496,7 +496,7 @@ public:
 			return;
 		select_primary_weapon(pl_info, nullptr, primary_weapon_index_t::LASER_INDEX, 1);
 	}
-	static const char *get_weapon_name(uint8_t i)
+	static const char *get_weapon_name(const primary_weapon_index_t i)
 	{
 		return i == cycle_never_autoselect_below ? DXX_WEAPON_TEXT_NEVER_AUTOSELECT : PRIMARY_WEAPON_NAMES(i);
 	}
@@ -798,10 +798,11 @@ void do_primary_weapon_select(player_info &player_info, primary_weapon_index_t w
 
 	auto &Primary_weapon = player_info.Primary_weapon;
 	const auto current = Primary_weapon.get_active();
-	const auto last_was_super = player_info.Primary_last_was_super & (1 << weapon_num);
+	const auto last_was_super = player_info.Primary_last_was_super & HAS_PRIMARY_FLAG(weapon_num);
 	const auto has_flag = weapon_status.has_weapon_flag;
 
-	if (current == weapon_num || current == weapon_num+SUPER_WEAPON) {
+	if (current == weapon_num || current == static_cast<primary_weapon_index_t>(underlying_value(weapon_num) + SUPER_WEAPON))
+	{
 		//already have this selected, so toggle to other of normal/super version
 		weapon_num = get_alternate_weapon(current, weapon_num);
 		weapon_status = player_has_primary_weapon(player_info, weapon_num);
