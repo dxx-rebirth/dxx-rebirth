@@ -362,27 +362,28 @@ static primary_weapon_index_t get_mapped_weapon_index(const player_info &player_
 namespace dsx {
 has_primary_weapon_result player_has_primary_weapon(const player_info &player_info, primary_weapon_index_t weapon_num)
 {
-	has_primary_weapon_result return_value{};
-
 	//	Hack! If energy goes negative, you can't fire a weapon that doesn't require energy.
 	//	But energy should not go negative (but it does), so find out why it does!
 	auto &energy = player_info.energy;
 
 	const auto weapon_index = Primary_weapon_to_weapon_info[weapon_num];
 
-	if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num))
+	if (!(player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num)))
 	{
-		return_value = has_primary_weapon_result::weapon;
+		return has_primary_weapon_result{};
 	}
 
 		// Special case: Gauss cannon uses vulcan ammo.
 		if (weapon_index_uses_vulcan_ammo(weapon_num)) {
 			if (Weapon_info[weapon_index].ammo_usage <= player_info.vulcan_ammo)
-				return_value |= has_primary_weapon_result::ammo;
+				return has_primary_weapon_result::weapon | has_primary_weapon_result::ammo | has_primary_weapon_result::energy;
+			return has_primary_weapon_result::weapon | has_primary_weapon_result::energy;
 		}
-		/* Hack to work around check in do_primary_weapon_select */
-		else
-			return_value |= has_primary_weapon_result::ammo;
+	/* reject_unusable_primary_weapon_select checks
+	 * has_primary_weapon_result::ammo for all weapons.  Report ammo as present
+	 * for energy weapons to prevent a spurious "You don't have ammo for the"
+	 * error message. */
+	auto return_value = has_primary_weapon_result::weapon | has_primary_weapon_result::ammo;
 
 #if defined(DXX_BUILD_DESCENT_I)
 		//added on 1/21/99 by Victor Rachels... yet another hack
