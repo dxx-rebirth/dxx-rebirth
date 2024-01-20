@@ -951,9 +951,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 	{
 		case powerup_type_t::POW_CLOAK:
 			if (weapon_nearby(vcobjptridx, vcsegptr, del_obj, powerup_type_t::POW_CLOAK) != nullptr)
-			{
-				del_obj.contains_count = 0;
-			}
+				del_obj.contains.count = 0;
 			return;
 		case powerup_type_t::POW_VULCAN_WEAPON:
 			weapon_index = primary_weapon_index_t::VULCAN_INDEX;
@@ -1026,14 +1024,14 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	if ((weapon_index_uses_vulcan_ammo(weapon_index) || del_obj.contains.id.powerup == powerup_type_t::POW_VULCAN_AMMO) &&
 		player_info.vulcan_ammo >= VULCAN_AMMO_MAX)
-		del_obj.contains_count = 0;
+		del_obj.contains.count = 0;
 	else if (weapon_index != unset_weapon_index)
 	{
 		if (has_weapon(player_has_primary_weapon(player_info, weapon_index)) || weapon_nearby(vcobjptridx, vcsegptr, del_obj, del_obj.contains.id.powerup) != nullptr)
 		{
 			if (d_rand() > 16384) {
 #if defined(DXX_BUILD_DESCENT_I)
-				del_obj.contains_count = 1;
+				del_obj.contains.count = 1;
 #endif
 				del_obj.contains.type = contained_object_type::powerup;
 				if (weapon_index_uses_vulcan_ammo(weapon_index)) {
@@ -1044,7 +1042,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 				}
 			} else {
 #if defined(DXX_BUILD_DESCENT_I)
-				del_obj.contains_count = 0;
+				del_obj.contains.count = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
 				del_obj.contains.type = contained_object_type::powerup;
 				del_obj.contains.id.powerup = powerup_type_t::POW_SHIELD_BOOST;
@@ -1057,13 +1055,13 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 		{
 			if (d_rand() > 16384) {
 #if defined(DXX_BUILD_DESCENT_I)
-				del_obj.contains_count = 1;
+				del_obj.contains.count = 1;
 #endif
 				del_obj.contains.type = contained_object_type::powerup;
 				del_obj.contains.id.powerup = powerup_type_t::POW_ENERGY;
 			} else {
 #if defined(DXX_BUILD_DESCENT_I)
-				del_obj.contains_count = 0;
+				del_obj.contains.count = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
 				del_obj.contains.type = contained_object_type::powerup;
 				del_obj.contains.id.powerup = powerup_type_t::POW_SHIELD_BOOST;
@@ -1075,9 +1073,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 	//	If this robot was gated in by the boss and it now contains energy, make it contain nothing,
 	//	else the room gets full of energy.
 	if (del_obj.matcen_creator == BOSS_GATE_MATCEN_NUM && del_obj.contains.id.powerup == powerup_type_t::POW_ENERGY)
-	{
-		del_obj.contains_count = 0;
-	}
+		del_obj.contains.count = 0;
 
 	// Change multiplayer extra-lives into invulnerability
 	if ((Game_mode & GM_MULTI) && (del_obj.contains.id.powerup == powerup_type_t::POW_EXTRA_LIFE))
@@ -1330,7 +1326,7 @@ bool object_create_robot_egg(const d_robot_info_array &Robot_info, const contain
 
 bool object_create_robot_egg(const d_robot_info_array &Robot_info, object_base &objp)
 {
-	return object_create_robot_egg(Robot_info, objp.contains.type, objp.contains.id, objp.contains_count, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum));
+	return object_create_robot_egg(Robot_info, objp.contains.type, objp.contains.id, objp.contains.count, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum));
 }
 
 //	-------------------------------------------------------------------------------------------------------
@@ -1507,17 +1503,18 @@ void do_explosion_sequence(const d_robot_info_array &Robot_info, object &obj)
 			return object_create_explosion_without_damage(Vclip, vmsegptridx(del_obj->segnum), spawn_pos, fixmul(del_obj->size, EXPLOSION_SCALE), vclip_num);
 		}();
 
-		if ((del_obj->contains_count > 0) && !(Game_mode & GM_MULTI)) { // Multiplayer handled outside of this code!!
+		if (del_obj->contains.count > 0 && !(Game_mode & GM_MULTI)) { // Multiplayer handled outside of this code!!
 			//	If dropping a weapon that the player has, drop energy instead, unless it's vulcan, in which case drop vulcan ammo.
 			if (del_obj->contains.type == contained_object_type::powerup)
 				maybe_replace_powerup_with_energy(del_obj);
 			object_create_robot_egg(Robot_info, del_obj);
 		} else if ((del_obj->type == OBJ_ROBOT) && !(Game_mode & GM_MULTI)) { // Multiplayer handled outside this code!!
 			auto &robptr = Robot_info[get_robot_id(del_obj)];
-			if (robptr.contains_count) {
+			if (const auto contains_count = robptr.contains.count)
+			{
 				if (((d_rand() * 16) >> 15) < robptr.contains_prob) {
-					del_obj->contains_count = ((d_rand() * robptr.contains_count) >> 15) + 1;
 					del_obj->contains = robptr.contains;
+					del_obj->contains.count = ((d_rand() * contains_count) >> 15) + 1;
 					maybe_replace_powerup_with_energy(del_obj);
 					object_create_robot_egg(Robot_info, del_obj);
 				}

@@ -679,7 +679,7 @@ static icobjidx_t exists_in_mine_2(const unique_segment &segp, const std::option
 				 * current object is a robot that will drop that powerup, then
 				 * consider the robot to be a match.
 				 */
-				if (curobjp->contains_count)
+				if (curobjp->contains.count)
 					if (curobjp->contains.type == contained_object_type::powerup)
 						if (curobjp->contains.id.powerup == *objid)
 							return curobjp;

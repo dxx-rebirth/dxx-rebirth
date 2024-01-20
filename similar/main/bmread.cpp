@@ -1733,8 +1733,7 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 	 * build_contained_object_parameters_from_untrusted expects those values.
 	 * Convert the type here.
 	 */
-	current_robot_info.contains = build_contained_object_parameters_from_untrusted(contains_type ? underlying_value(contained_object_type::robot) : underlying_value(contained_object_type::powerup), contains_id);
-	current_robot_info.contains_count = contains_count;
+	current_robot_info.contains = build_contained_object_parameters_from_untrusted(contains_type ? underlying_value(contained_object_type::robot) : underlying_value(contained_object_type::powerup), contains_id, contains_count);
 	current_robot_info.contains_prob = contains_prob;
 #if defined(DXX_BUILD_DESCENT_II)
 	current_robot_info.companion = companion;

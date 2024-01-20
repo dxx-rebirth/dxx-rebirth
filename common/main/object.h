@@ -140,6 +140,7 @@ struct contained_object_parameters
 {
 	contained_object_type type;	// Type of object this robot contains (eg, spider contains powerup)
 	contained_object_id id;		// ID of object this robot contains (eg, id = blue type = key)
+	uint8_t count;	// number of objects of type:id this robot contains
 };
 #endif
 
@@ -414,7 +415,6 @@ struct object_base
 	fix     size;           // 3d size of object - for collision detection
 	fix     shields;        // Starts at maximum, when <0, object dies..
 	contained_object_parameters contains;
-	sbyte   contains_count; // number of objects of type:id this object contains
 	sbyte   matcen_creator; // Materialization center that created this object, high bit set if matcen-created
 	fix     lifeleft;       // how long until goes away, or 7fff if immortal
 	// -- Removed, MK, 10/16/95, using lifeleft instead: int     lightlevel;
@@ -792,7 +792,7 @@ namespace dcx {
 #ifdef dsx
 contained_object_type build_contained_object_type_from_untrusted(uint8_t untrusted);
 contained_object_id build_contained_object_id_from_untrusted(contained_object_type, uint8_t untrusted);
-contained_object_parameters build_contained_object_parameters_from_untrusted(uint8_t type, uint8_t id);
+contained_object_parameters build_contained_object_parameters_from_untrusted(uint8_t type, uint8_t id, uint8_t count);
 #endif
 
 static inline unsigned get_player_id(const object_base &o)

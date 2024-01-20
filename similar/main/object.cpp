@@ -205,19 +205,27 @@ contained_object_type build_contained_object_type_from_untrusted(const uint8_t u
 	}
 }
 
-contained_object_parameters build_contained_object_parameters_from_untrusted(const uint8_t untrusted_type, const uint8_t untrusted_id)
+contained_object_parameters build_contained_object_parameters_from_untrusted(const uint8_t untrusted_type, const uint8_t untrusted_id, const uint8_t untrusted_contains_count)
 {
+	if (untrusted_contains_count > 4)
+		/* This is an arbitrary cap, chosen to match GOODY_COUNT_MAX.  Any
+		 * value higher than this is likely an error, so force the object to
+		 * contain nothing instead.
+		 */
+		return {};
 	switch (const auto type = build_contained_object_type_from_untrusted(untrusted_type))
 	{
 		case contained_object_type::powerup:
 			return {
 				.type = type,
 				.id = contained_object_id{.powerup = build_contained_object_powerup_id_from_untrusted(untrusted_id)},
+				.count = untrusted_contains_count,
 			};
 		case contained_object_type::robot:
 			return {
 				.type = type,
 				.id = contained_object_id{.robot = build_contained_object_robot_id_from_untrusted(untrusted_id)},
+				.count = untrusted_contains_count,
 			};
 		default:
 			return {};
@@ -1239,7 +1247,7 @@ imobjptridx_t obj_create(d_level_unique_object_state &LevelUniqueObjectState, co
 	obj->control_source 		        = ctype;
 	obj->movement_source = mtype;
 	obj->render_type 			= rtype;
-        obj->contains_count                     = 0;
+	obj->contains.count                     = 0;
         obj->matcen_creator                     = 0;
 	obj->lifeleft 				= IMMORTAL_TIME;		//assume immortal
 	obj->attached_obj			= object_none;

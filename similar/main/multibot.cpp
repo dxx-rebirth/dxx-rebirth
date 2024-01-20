@@ -703,7 +703,7 @@ static void multi_send_create_robot_powerups(const object_base &del_obj)
 
 	loc += 1;
 	multibuf[loc] = Player_num;									loc += 1;
-	multibuf[loc] = del_obj.contains_count;					loc += 1;
+	multibuf[loc] = del_obj.contains.count;					loc += 1;
 	multibuf[loc] = underlying_value(del_obj.contains.type);	loc += 1;
 	multibuf[loc] = underlying_value(del_obj.contains.id.robot);	loc += 1;
 	PUT_INTEL_SEGNUM(&multibuf[loc], del_obj.segnum);		        loc += 2;
@@ -712,7 +712,7 @@ static void multi_send_create_robot_powerups(const object_base &del_obj)
 
 	memset(&multibuf[loc], -1, MAX_ROBOT_POWERUPS*sizeof(short));
 #if defined(DXX_BUILD_DESCENT_II)
-   if (del_obj.contains_count != Net_create_loc)
+   if (del_obj.contains.count != Net_create_loc)
 	  Int3();  //Get Jason, a bad thing happened
 #endif
 
@@ -944,7 +944,7 @@ int multi_explode_robot_sub(const d_robot_info_array &Robot_info, const vmobjptr
 	}
 
 	// Drop non-random KEY powerups locally only!
-	if (objrobot.contains_count > 0 && objrobot.contains.type == contained_object_type::powerup && (Game_mode & GM_MULTI_COOP) && objrobot.contains.id.powerup >= powerup_type_t::POW_KEY_BLUE && objrobot.contains.id.powerup <= powerup_type_t::POW_KEY_GOLD)
+	if (objrobot.contains.count > 0 && objrobot.contains.type == contained_object_type::powerup && (Game_mode & GM_MULTI_COOP) && objrobot.contains.id.powerup >= powerup_type_t::POW_KEY_BLUE && objrobot.contains.id.powerup <= powerup_type_t::POW_KEY_GOLD)
 	{
 		object_create_robot_egg(Robot_info, objrobot);
 	}
@@ -1250,8 +1250,8 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const multiplayer_rs
 
 	int loc = 1;
 	;					loc += 1;
-	uint8_t contains_count = buf[loc];			loc += 1;
-	if (contains_count == 0)
+	const uint8_t untrusted_contains_count{buf[loc]};			loc += 1;
+	if (untrusted_contains_count == 0)
 		return;
 	const uint8_t untrusted_contains_type = buf[loc];			loc += 1;
 	const uint8_t untrusted_contains_id = buf[loc];				loc += 1;
@@ -1268,7 +1268,7 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const multiplayer_rs
 	Net_create_loc = 0;
 	d_srand(1245L);
 
-	if (const auto contains_parameters{build_contained_object_parameters_from_untrusted(untrusted_contains_type, untrusted_contains_id)}; !object_create_robot_egg(LevelSharedRobotInfoState.Robot_info, contains_parameters.type, contains_parameters.id, contains_count, velocity, pos, vmsegptridx(segnum)))
+	if (const auto contains_parameters{build_contained_object_parameters_from_untrusted(untrusted_contains_type, untrusted_contains_id, untrusted_contains_count)}; !object_create_robot_egg(LevelSharedRobotInfoState.Robot_info, contains_parameters.type, contains_parameters.id, contains_parameters.count, velocity, pos, vmsegptridx(segnum)))
 		return; // Object buffer full
 
 	Assert((Net_create_loc > 0) && (Net_create_loc <= MAX_ROBOT_POWERUPS));
@@ -1302,7 +1302,7 @@ void multi_drop_robot_powerups(object &del_obj)
 	Net_create_loc = 0;
 
 	bool created = false;
-	if (del_obj.contains_count > 0)
+	if (del_obj.contains.count > 0)
 	{
 		//	If dropping a weapon that the player has, drop energy instead, unless it's vulcan, in which case drop vulcan ammo.
 		if (del_obj.contains.type == contained_object_type::powerup) {
@@ -1317,18 +1317,19 @@ void multi_drop_robot_powerups(object &del_obj)
 			}
 		}
 		d_srand(1245L);
-		if (del_obj.contains_count > 0)
+		if (del_obj.contains.count > 0)
 			created = object_create_robot_egg(LevelSharedRobotInfoState.Robot_info, del_obj);
 	}
 		
 	else if (del_obj.ctype.ai_info.REMOTE_OWNER == -1) // No random goodies for robots we weren't in control of
 		return;
 
-	else if (robptr.contains_count) {
+	else if (robptr.contains.count)
+	{
 		d_srand(static_cast<fix>(timer_query()));
 		if (((d_rand() * 16) >> 15) < robptr.contains_prob) {
-			del_obj.contains_count = ((d_rand() * robptr.contains_count) >> 15) + 1;
 			del_obj.contains = robptr.contains;
+			del_obj.contains.count = ((d_rand() * robptr.contains.count) >> 15) + 1;
 			if (del_obj.contains.type == contained_object_type::powerup)
 			 {
 				maybe_replace_powerup_with_energy(del_obj);
@@ -1337,7 +1338,7 @@ void multi_drop_robot_powerups(object &del_obj)
 			 }
 		
 			d_srand(1245L);
-			if (del_obj.contains_count > 0)
+			if (del_obj.contains.count > 0)
 				created = object_create_robot_egg(LevelSharedRobotInfoState.Robot_info, del_obj);
 		}
 	}

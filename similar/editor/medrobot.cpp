@@ -69,6 +69,7 @@ static contained_object_parameters Cur_goody = {
 	.id = contained_object_id{
 		.powerup = powerup_type_t::POW_EXTRA_LIFE
 	},
+	.count = 0,
 };
 
 }
@@ -210,8 +211,6 @@ static int med_set_ai_path()
 //#define	GOODY_ID_MAX_POWERUP	9
 #define	GOODY_COUNT_MAX	4
 
-int		Cur_goody_count = 0;
-
 static void update_goody_info(void)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -221,7 +220,6 @@ static void update_goody_info(void)
 		if (obj.type == OBJ_ROBOT)
 		{
 			obj.contains = Cur_goody;
-			obj.contains_count = Cur_goody_count;
 		}
 	}
 }
@@ -301,20 +299,14 @@ int GoodyPrevID()
 
 static int GoodyNextCount()
 {
-	Cur_goody_count++;
-	if (Cur_goody_count > GOODY_COUNT_MAX)
-		Cur_goody_count=0;
-
+	Cur_goody.count = Cur_goody.count > GOODY_COUNT_MAX ? 0 : (Cur_goody.count + 1);
 	update_goody_info();
 	return 1;
 }
 
 static int GoodyPrevCount()
 {
-	Cur_goody_count--;
-	if (Cur_goody_count < 0)
-		Cur_goody_count=GOODY_COUNT_MAX;
-
+	Cur_goody.count = Cur_goody.count == 0 ? GOODY_COUNT_MAX : (Cur_goody.count - 1);
 	update_goody_info();
 	return 1;
 }
@@ -353,10 +345,9 @@ static int LocalObjectSelectNextinSegment(void)
 		}
 
 		const auto &&objp = vmobjptr(Cur_object_index);
+		if (auto &c = objp->contains.count; c > GOODY_COUNT_MAX)
+			c = 0;
 		Cur_goody = objp->contains;
-		if (objp->contains_count < 0)
-			objp->contains_count = 0;
-		Cur_goody_count = objp->contains_count;
 	}
 
 	if (Cur_object_index != first_obj)
@@ -388,10 +379,9 @@ static int LocalObjectSelectNextinMine(void)
 		}
 
 		const auto &&objp = vmobjptr(Cur_object_index);
+		if (auto &c = objp->contains.count; c > GOODY_COUNT_MAX)
+			c = 0;
 		Cur_goody = objp->contains;
-		if (objp->contains_count < 0)
-			objp->contains_count = 0;
-		Cur_goody_count = objp->contains_count;
 	}
 
 	if (Cur_object_index != first_obj)
@@ -423,10 +413,9 @@ static int LocalObjectSelectPrevinMine(void)
 		}
 
 		const auto &&objp = vmobjptr(Cur_object_index);
+		if (auto &c = objp->contains.count; c > GOODY_COUNT_MAX)
+			c = 0;
 		Cur_goody = objp->contains;
-		if (objp->contains_count < 0)
-			objp->contains_count = 0;
-		Cur_goody_count = objp->contains_count;
 	}
 
 	if (Cur_object_index != first_obj)
@@ -451,7 +440,6 @@ static int LocalObjectDelete(void)
 	if (Cur_object_index != object_none) {
 		auto &objp = *vcobjptr(Cur_object_index);
 		Cur_goody = objp.contains;
-		Cur_goody_count = objp.contains_count;
 	}
 
 	auto &vcvertptr = Vertices.vcptr;
@@ -468,8 +456,6 @@ static int LocalObjectPlaceObject(void)
 	auto &vmobjptr = Objects.vmptr;
 	int	rval;
 
-	Cur_goody_count = 0;
-
 	if (Cur_object_type != OBJ_ROBOT)
 	{
 		Cur_object_type = OBJ_ROBOT;
@@ -477,13 +463,14 @@ static int LocalObjectPlaceObject(void)
 		Num_object_subtypes = LevelSharedRobotInfoState.N_robot_types;
 	}
 
+	Cur_goody.count = 0;
+
 	rval = ObjectPlaceObject();
 	if (rval == -1)
 		return -1;
 
 	const auto &&objp = vmobjptr(Cur_object_index);
 	objp->contains = Cur_goody;
-	objp->contains_count = Cur_goody_count;
 
 	auto &vcvertptr = Vertices.vcptr;
 	set_view_target_from_segment(vcvertptr, Cursegp);
@@ -513,7 +500,7 @@ int do_robot_dialog()
 	
 	// Close other windows
 	close_all_windows();
-	Cur_goody_count = 0;
+	Cur_goody.count = 0;
 
 	// Open a window with a quit button
 	MainWindow = window_create<robot_dialog>(TMAPBOX_X + 20, TMAPBOX_Y + 20, 765 - TMAPBOX_X, 545 - TMAPBOX_Y, DF_DIALOG);
@@ -685,7 +672,8 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 	// Redraw the contained object in the other little box
 	//------------------------------------------------------------
 		gr_set_current_canvas(containsViewBox->canvas);
-		if ((Cur_object_index != object_none ) && (Cur_goody_count > 0))	{
+		if (Cur_object_index != object_none && Cur_goody.count > 0)
+		{
 			draw_object_picture(*grd_curcanv, underlying_value(Cur_goody.id.robot), goody_angles, underlying_value(Cur_goody.type));
 			goody_angles.h += fixmul(0x1000, DeltaTime );
 		} else {
@@ -703,11 +691,10 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 		const char *type_text;
 
 		if (Cur_object_index != object_none) {
-			const auto &&obj = vmobjptr(Cur_object_index);
-			Cur_goody = obj->contains;
-			if (obj->contains_count < 0)
-				obj->contains_count = 0;
-			Cur_goody_count = obj->contains_count;
+			auto &&obj = *vmobjptr(Cur_object_index);
+			if (auto &c = obj.contains.count; c > GOODY_COUNT_MAX)
+				c = 0;
+			Cur_goody = obj.contains;
 		}
 
 		ui_dputs_at(MainWindow, GOODY_X, GOODY_Y,    " Type:");
@@ -731,7 +718,7 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 
 		ui_dputs_at( MainWindow, GOODY_X+108, GOODY_Y, type_text);
 		ui_dprintf_at( MainWindow, GOODY_X+108, GOODY_Y+24, "%-8s", id_text);
-		ui_dprintf_at( MainWindow, GOODY_X+108, GOODY_Y+48, "%i", Cur_goody_count);
+		ui_dprintf_at(MainWindow, GOODY_X+108, GOODY_Y+48, "%u", Cur_goody.count);
 
 		if ( Cur_object_index != object_none )	{
 			const auto id = get_robot_id(vcobjptr(Cur_object_index));
@@ -817,7 +804,7 @@ int do_object_dialog()
 	if ( MattWindow != NULL )
 		return 0;
 	
-	Cur_goody_count = 0;
+	Cur_goody.count = 0;
 
 	// Open a window with a quit button
 	MattWindow = window_create<object_dialog>(TMAPBOX_X + 20, TMAPBOX_Y + 20, 765 - TMAPBOX_X, 545 - TMAPBOX_Y, DF_DIALOG, *obj);

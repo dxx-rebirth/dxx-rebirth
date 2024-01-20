@@ -360,7 +360,7 @@ static void write_key_text(fvcobjptridx &vcobjptridx, segment_array &segments, f
 			}
 		}
 
-		if (const auto contains_count = objp->contains_count)
+		if (const auto contains_count = objp->contains.count)
 		{
 			if (objp->contains.type == contained_object_type::powerup)
 			{

@@ -409,8 +409,8 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 
 	const uint8_t untrusted_contains_type = PHYSFSX_readByte(f);
 	const uint8_t untrusted_contains_id = PHYSFSX_readByte(f);
-	obj->contains = build_contained_object_parameters_from_untrusted(untrusted_contains_type, untrusted_contains_id);
-	obj->contains_count = PHYSFSX_readByte(f);
+	const uint8_t untrusted_contains_count = PHYSFSX_readByte(f);
+	obj->contains = build_contained_object_parameters_from_untrusted(untrusted_contains_type, untrusted_contains_id, untrusted_contains_count);
 
 	switch (obj->movement_source) {
 
@@ -686,7 +686,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 
 	PHYSFSX_writeU8(f, underlying_value(obj.contains.type));
 	PHYSFSX_writeU8(f, underlying_value(obj.contains.id.robot));
-	PHYSFSX_writeU8(f, obj.contains_count);
+	PHYSFSX_writeU8(f, obj.contains.count);
 
 	switch (obj.movement_source) {
 

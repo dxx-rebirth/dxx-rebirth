@@ -400,10 +400,10 @@ static int read_d2_robot_info(PHYSFS_File *fp, robot_info &ri)
 	/*ri.weapon_type2 =*/ PHYSFSX_readByte(fp);
 	ri.n_guns = PHYSFSX_readByte(fp);
 	const uint8_t untrusted_contains_id = PHYSFSX_readByte(fp);
-	ri.contains_count = PHYSFSX_readByte(fp);
+	const uint8_t untrusted_contains_count = PHYSFSX_readByte(fp);
 	ri.contains_prob = PHYSFSX_readByte(fp);
 	const uint8_t untrusted_contains_type = PHYSFSX_readByte(fp);
-	ri.contains = build_contained_object_parameters_from_untrusted(untrusted_contains_type, untrusted_contains_id);
+	ri.contains = build_contained_object_parameters_from_untrusted(untrusted_contains_type, untrusted_contains_id, untrusted_contains_count);
 	/*ri.kamikaze =*/ PHYSFSX_readByte(fp);
 	ri.score_value = PHYSFSX_readShort(fp);
 	/*ri.badass =*/ PHYSFSX_readByte(fp);

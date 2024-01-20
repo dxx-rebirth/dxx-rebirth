@@ -238,10 +238,10 @@ void robot_info_read(PHYSFS_File *fp, robot_info &ri)
 	ri.n_guns = PHYSFSX_readByte(fp);
 #endif
 	const uint8_t contains_id = PHYSFSX_readByte(fp);
-	ri.contains_count = PHYSFSX_readByte(fp);
+	const uint8_t contains_count = PHYSFSX_readByte(fp);
 	ri.contains_prob = PHYSFSX_readByte(fp);
 	const auto contains_type = PHYSFSX_readByte(fp);
-	ri.contains = build_contained_object_parameters_from_untrusted(contains_type, contains_id);
+	ri.contains = build_contained_object_parameters_from_untrusted(contains_type, contains_id, contains_count);
 #if defined(DXX_BUILD_DESCENT_I)
 	ri.score_value = PHYSFSX_readInt(fp);
 #elif defined(DXX_BUILD_DESCENT_II)

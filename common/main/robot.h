@@ -100,7 +100,6 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	short   exp2_sound_num;
 	weapon_id_type weapon_type;
 	uint8_t   n_guns;         // how many different gun positions
-	sbyte   contains_count; //  Max number of things this instance can contain.
 	sbyte   contains_prob;  //  Probability that this instance will contain something in N/16
 	contained_object_parameters contains;  //  Type of thing contained, robot or powerup, in bitmaps.tbl, !0=robot, 0=powerup
 #if defined(DXX_BUILD_DESCENT_I)

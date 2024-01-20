@@ -352,7 +352,7 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 	obj_rw->last_pos    = obj.pos;
 	obj_rw->contains_type = underlying_value(obj.contains.type);
 	obj_rw->contains_id   = underlying_value(obj.contains.id.robot);
-	obj_rw->contains_count= obj.contains_count;
+	obj_rw->contains_count= obj.contains.count;
 	obj_rw->matcen_creator= obj.matcen_creator;
 	obj_rw->lifeleft      = obj.lifeleft;
 
@@ -560,8 +560,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 	obj.orient.uvec.z = obj_rw->orient.uvec.z;
 	obj.size          = obj_rw->size;
 	obj.shields       = obj_rw->shields;
-	obj.contains = build_contained_object_parameters_from_untrusted(obj_rw->contains_type, obj_rw->contains_id);
-	obj.contains_count= obj_rw->contains_count;
+	obj.contains = build_contained_object_parameters_from_untrusted(obj_rw->contains_type, obj_rw->contains_id, obj_rw->contains_count);
 	obj.matcen_creator= obj_rw->matcen_creator;
 	obj.lifeleft      = obj_rw->lifeleft;
 	
