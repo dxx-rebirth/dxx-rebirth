@@ -768,7 +768,10 @@ window_event_result start_endlevel_sequence()
 
 	start_endlevel_flythrough(fly_objects[0], vmobjptr(ConsoleObject), cur_fly_speed);		//initialize
 
-	HUD_init_message_literal(HM_DEFAULT, TXT_EXIT_SEQUENCE );
+	{
+		const auto &&m = TXT_EXIT_SEQUENCE;
+		HUD_init_message_literal(HM_DEFAULT, {m, strlen(m)});
+	}
 
 	outside_mine = ext_expl_playing = 0;
 

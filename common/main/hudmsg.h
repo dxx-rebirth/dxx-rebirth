@@ -4,16 +4,15 @@
  * project's Git history.  See COPYING.txt at the top level for license
  * terms and a link to the Git history.
  */
-#ifndef _HUD_MSG_H
-#define _HUD_MSG_H
 
+#pragma once
+
+#include <span>
 #include <stdarg.h>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "fmtcheck.h"
 #include "fwd-gr.h"
-
-#ifdef __cplusplus
 
 #define HUD_MAX_NUM_DISP	4
 #define HUD_MAX_NUM_STOR	20
@@ -33,8 +32,4 @@ void HUD_render_message_frame(grs_canvas &);
 #endif
 int HUD_init_message(int class_flag, const char * format, ... ) __attribute_format_printf(2, 3);
 int HUD_init_message_va(int class_flag, const char * format, va_list args) __attribute_format_printf(2, 0);
-int HUD_init_message_literal(int class_flag, const char *str);
-
-#endif
-
-#endif
+int HUD_init_message_literal(int class_flag, std::span<const char> str);

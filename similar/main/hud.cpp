@@ -223,13 +223,13 @@ int (HUD_init_message)(int class_flag, const char * format, ... )
 	return ret;
 }
 
-int HUD_init_message_literal(int class_flag, const char *str)
+int HUD_init_message_literal(int class_flag, const std::span<const char> str)
 {
 	if (!is_worth_showing(class_flag))
 		return 0;
-	int r = HUD_init_message_literal_worth_showing(class_flag, str);
+	int r = HUD_init_message_literal_worth_showing(class_flag, str.data());
 	if (r)
-		con_puts(CON_HUD, str);
+		con_puts(CON_HUD, str.data());
 	return r;
 }
 

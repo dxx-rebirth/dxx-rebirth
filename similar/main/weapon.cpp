@@ -491,7 +491,10 @@ public:
 	}
 	void abandon_auto_select()
 	{
-		HUD_init_message_literal(HM_DEFAULT, TXT_NO_PRIMARY);
+		{
+			const auto &&m = TXT_NO_PRIMARY;
+			HUD_init_message_literal(HM_DEFAULT, {m, strlen(m)});
+		}
 		if (pl_info.Primary_weapon == primary_weapon_index_t::LASER_INDEX)
 			return;
 		select_primary_weapon(pl_info, nullptr, primary_weapon_index_t::LASER_INDEX, 1);

@@ -1178,7 +1178,10 @@ wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmse
 		if ((w->flags & wall_flag::door_locked) && !special_boss_opening_allowed(seg, side))
 		{
 				if (show_message)
-					HUD_init_message_literal(HM_DEFAULT, TXT_CANT_OPEN_DOOR);
+				{
+					const auto &&m = TXT_CANT_OPEN_DOOR;
+					HUD_init_message_literal(HM_DEFAULT, {m, strlen(m)});
+				}
 			return wall_hit_process_t::WHP_NO_KEY;
 		}
 		else {

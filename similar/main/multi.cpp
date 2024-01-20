@@ -1302,7 +1302,8 @@ void multi_send_macro(const int fkey)
 
 	if (!PlayerCfg.NetworkMessageMacro[key][0u])
 	{
-		HUD_init_message_literal(HM_MULTI, TXT_NO_MACRO);
+		const auto &&m = TXT_NO_MACRO;
+		HUD_init_message_literal(HM_MULTI, {m, strlen(m)});
 		return;
 	}
 
@@ -1961,7 +1962,7 @@ static void multi_do_controlcen_destroy(const d_robot_info_array &Robot_info, fi
 			HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(vcplayerptr(who)->callsign), TXT_HAS_DEST_CONTROL);
 		}
 		else
-			HUD_init_message_literal(HM_MULTI, who == Player_num ? TXT_YOU_DEST_CONTROL : TXT_CONTROL_DESTROYED);
+			HUD_init_message_literal(HM_MULTI, who == Player_num ? ( { const auto &&m = TXT_YOU_DEST_CONTROL; std::span<const char>(m, strlen(m)); }) : ( { const auto &&m = TXT_CONTROL_DESTROYED; std::span<const char>(m, strlen(m)); }));
 
 		net_destroy_controlcen_object(Robot_info, objnum == object_none ? object_none : imobjptridx(objnum));
 	}
@@ -2611,11 +2612,17 @@ void multi_send_fire(const vms_matrix &orient, int laser_gun, const laser_level 
 void multi_send_destroy_controlcen(const objnum_t objnum, const playernum_t player)
 {
 	if (player == Player_num)
-		HUD_init_message_literal(HM_MULTI, TXT_YOU_DEST_CONTROL);
+	{
+		const auto &&m = TXT_YOU_DEST_CONTROL;
+		HUD_init_message_literal(HM_MULTI, {m, strlen(m)});
+	}
 	else if ((player > 0) && (player < N_players))
 		HUD_init_message(HM_MULTI, "%s %s", static_cast<const char *>(vcplayerptr(player)->callsign), TXT_HAS_DEST_CONTROL);
 	else
-		HUD_init_message_literal(HM_MULTI, TXT_CONTROL_DESTROYED);
+	{
+		const auto &&m = TXT_CONTROL_DESTROYED;
+		HUD_init_message_literal(HM_MULTI, {m, strlen(m)});
+	}
 
 	multi_command<multiplayer_command_t::MULTI_CONTROLCEN> multibuf;
 	PUT_INTEL_SHORT(&multibuf[1], objnum);

@@ -147,7 +147,7 @@ void (powerup_basic)(int redadd, int greenadd, int blueadd, int score, const cha
 
 void powerup_basic_str(int redadd, int greenadd, int blueadd, int score, const std::span<const char> str)
 {
-	HUD_init_message_literal(HM_DEFAULT, str.data());
+	HUD_init_message_literal(HM_DEFAULT, str);
 	_powerup_basic_nonhud(redadd, greenadd, blueadd, score);
 }
 

@@ -1715,7 +1715,10 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 			if (!cheats.enabled && gotcha != &game_cheats::enabled)
 				return window_event_result::ignored;
 			if (!cheats.enabled)
-				HUD_init_message_literal(HM_DEFAULT, TXT_CHEATS_ENABLED);
+			{
+				const auto &&m = TXT_CHEATS_ENABLED;
+				HUD_init_message_literal(HM_DEFAULT, {m, strlen(m)});
+			}
 #endif
 			cheats.*gotcha = !(cheats.*gotcha);
 			cheats.enabled = 1;
@@ -1730,7 +1733,10 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 #if defined(DXX_BUILD_DESCENT_I)
 	if (gotcha == &game_cheats::wowie)
 	{
-		HUD_init_message_literal(HM_DEFAULT, TXT_WOWIE_ZOWIE);
+		{
+			const auto &&m = TXT_WOWIE_ZOWIE;
+			HUD_init_message_literal(HM_DEFAULT, {m, strlen(m)});
+		}
 
 		player_info.primary_weapon_flags |= (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG);
 
@@ -1775,7 +1781,10 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 
 	if (gotcha == &game_cheats::wowie)
 	{
-		HUD_init_message_literal(HM_DEFAULT, TXT_WOWIE_ZOWIE);
+		{
+			const auto &&m = TXT_WOWIE_ZOWIE;
+			HUD_init_message_literal(HM_DEFAULT, {m, strlen(m)});
+		}
 
 		if (Piggy_hamfile_version < pig_hamfile_version::_3) // SHAREWARE
 		{
@@ -1815,7 +1824,10 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 
 	if (gotcha == &game_cheats::allkeys)
 	{
-		HUD_init_message_literal(HM_DEFAULT, TXT_ALL_KEYS);
+		{
+			const auto &&m = TXT_ALL_KEYS;
+			HUD_init_message_literal(HM_DEFAULT, {m, strlen(m)});
+		}
 		player_info.powerup_flags |= PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY;
 	}
 
@@ -1829,7 +1841,10 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 
 	if (gotcha == &game_cheats::shields)
 	{
-		HUD_init_message_literal(HM_DEFAULT, TXT_FULL_SHIELDS);
+		{
+			const auto &&m = TXT_FULL_SHIELDS;
+			HUD_init_message_literal(HM_DEFAULT, {m, strlen(m)});
+		}
 		plrobj.shields = MAX_SHIELDS;
 	}
 
@@ -1875,7 +1890,7 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 
 #if defined(DXX_BUILD_DESCENT_II)
 	if (gotcha == &game_cheats::fullautomap)
-		HUD_init_message_literal(HM_DEFAULT, cheats.fullautomap ? "FULL MAP!" : "REGULAR MAP");
+		HUD_init_message_literal(HM_DEFAULT, cheats.fullautomap ? std::span<const char>("FULL MAP!") : std::span<const char>("REGULAR MAP"));
 #endif
 
 	if (gotcha == &game_cheats::ghostphysics)
@@ -1923,12 +1938,12 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 
 	if (gotcha == &game_cheats::robotskillrobots)
 	{
-		HUD_init_message_literal(HM_DEFAULT, cheats.robotskillrobots?"Rabid robots!":"Kill the player!");
+		HUD_init_message_literal(HM_DEFAULT, cheats.robotskillrobots ? std::span<const char>("Rabid robots!") : std::span<const char>("Kill the player!"));
 	}
 
 	if (gotcha == &game_cheats::monsterdamage)
 	{
-		HUD_init_message_literal(HM_DEFAULT, cheats.monsterdamage?"Oh no, there goes Tokyo!":"What have you done, I'm shrinking!!");
+		HUD_init_message_literal(HM_DEFAULT, cheats.monsterdamage ? std::span<const char>("Oh no, there goes Tokyo!") : std::span<const char>("What have you done, I'm shrinking!!"));
 	}
 
 	if (gotcha == &game_cheats::buddyclone)
@@ -1955,7 +1970,7 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 
 	if (gotcha == &game_cheats::acid)
 	{
-		HUD_init_message_literal(HM_DEFAULT, cheats.acid?"Going up!":"Coming down!");
+		HUD_init_message_literal(HM_DEFAULT, cheats.acid ? std::span<const char>("Going up!") : std::span<const char>("Coming down!"));
 	}
 
 	return window_event_result::handled;

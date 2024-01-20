@@ -1518,7 +1518,7 @@ window_event_result dead_player_frame(const d_robot_info_array &Robot_info)
 				if (hostages_lost > 1)
 					HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_2, hostages_lost);
 				else
-					HUD_init_message_literal(HM_DEFAULT, hostages_lost == 1 ? TXT_SHIP_DESTROYED_1 : TXT_SHIP_DESTROYED_0);
+					HUD_init_message_literal(HM_DEFAULT, hostages_lost == 1 ? ( { const auto &&m = TXT_SHIP_DESTROYED_1; std::span<const char>(m, strlen(m)); } ) : ( { const auto &&m = TXT_SHIP_DESTROYED_0; std::span<const char>(m, strlen(m)); } ));
 
 				Player_dead_state = player_dead_state::exploded;
 				
