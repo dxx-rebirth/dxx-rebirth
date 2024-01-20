@@ -1992,11 +1992,11 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 			}
 		}
 		};
-		drop_armed_bomb(secondary_ammo[SMART_MINE_INDEX], weapon_id_type::SUPERPROX_ID);
+		drop_armed_bomb(secondary_ammo[secondary_weapon_index_t::SMART_MINE_INDEX], weapon_id_type::SUPERPROX_ID);
 
 		//	If the player had proximity bombs, maybe arm one of them.
 		if (Game_mode & GM_MULTI)
-			drop_armed_bomb(secondary_ammo[PROXIMITY_INDEX], weapon_id_type::PROXIMITY_ID);
+			drop_armed_bomb(secondary_ammo[secondary_weapon_index_t::PROXIMITY_INDEX], weapon_id_type::PROXIMITY_ID);
 #endif
 
 		//	If the player dies and he has powerful lasers, create the powerups here.
@@ -2067,25 +2067,25 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 		//	Drop the secondary weapons
 		//	Note, proximity weapon only comes in packets of 4.  So drop n/2, but a max of 3 (handled inside maybe_drop..)  Make sense?
 
-		maybe_drop_secondary_weapon_egg(playerobj, PROXIMITY_INDEX, secondary_ammo[PROXIMITY_INDEX] / 4);
+		maybe_drop_secondary_weapon_egg(playerobj, secondary_weapon_index_t::PROXIMITY_INDEX, secondary_ammo[secondary_weapon_index_t::PROXIMITY_INDEX] / 4);
 
-		maybe_drop_secondary_weapon_egg(playerobj, SMART_INDEX, secondary_ammo[SMART_INDEX]);
-		maybe_drop_secondary_weapon_egg(playerobj, MEGA_INDEX, secondary_ammo[MEGA_INDEX]);
+		maybe_drop_secondary_weapon_egg(playerobj, secondary_weapon_index_t::SMART_INDEX, secondary_ammo[secondary_weapon_index_t::SMART_INDEX]);
+		maybe_drop_secondary_weapon_egg(playerobj, secondary_weapon_index_t::MEGA_INDEX, secondary_ammo[secondary_weapon_index_t::MEGA_INDEX]);
 
 #if defined(DXX_BUILD_DESCENT_II)
-		maybe_drop_secondary_weapon_egg(playerobj, SMART_MINE_INDEX,(secondary_ammo[SMART_MINE_INDEX])/4);
-		maybe_drop_secondary_weapon_egg(playerobj, SMISSILE5_INDEX, secondary_ammo[SMISSILE5_INDEX]);
+		maybe_drop_secondary_weapon_egg(playerobj, secondary_weapon_index_t::SMART_MINE_INDEX, secondary_ammo[secondary_weapon_index_t::SMART_MINE_INDEX] / 4);
+		maybe_drop_secondary_weapon_egg(playerobj, secondary_weapon_index_t::SMISSILE5_INDEX, secondary_ammo[secondary_weapon_index_t::SMISSILE5_INDEX]);
 #endif
 
 		//	Drop the player's missiles in packs of 1 and/or 4
-		drop_missile_1_or_4(playerobj,HOMING_INDEX);
+		drop_missile_1_or_4(playerobj, secondary_weapon_index_t::HOMING_INDEX);
 #if defined(DXX_BUILD_DESCENT_II)
-		drop_missile_1_or_4(playerobj,GUIDED_INDEX);
+		drop_missile_1_or_4(playerobj, secondary_weapon_index_t::GUIDED_INDEX);
 #endif
-		drop_missile_1_or_4(playerobj,CONCUSSION_INDEX);
+		drop_missile_1_or_4(playerobj, secondary_weapon_index_t::CONCUSSION_INDEX);
 #if defined(DXX_BUILD_DESCENT_II)
-		drop_missile_1_or_4(playerobj,SMISSILE1_INDEX);
-		drop_missile_1_or_4(playerobj,SMISSILE4_INDEX);
+		drop_missile_1_or_4(playerobj, secondary_weapon_index_t::SMISSILE1_INDEX);
+		drop_missile_1_or_4(playerobj, secondary_weapon_index_t::SMISSILE4_INDEX);
 #endif
 
 		//	If player has vulcan ammo, but no vulcan or gauss cannon, drop the ammo.

@@ -595,7 +595,7 @@ static void init_ammo_and_energy(object &plrobj)
 			shields = StartingShields;
 	}
 	const unsigned minimum_missiles = get_starting_concussion_missile_count();
-	auto &concussion = player_info.secondary_ammo[CONCUSSION_INDEX];
+	auto &concussion = player_info.secondary_ammo[secondary_weapon_index_t::CONCUSSION_INDEX];
 	if (concussion < minimum_missiles)
 		concussion = minimum_missiles;
 }
@@ -675,9 +675,9 @@ void init_player_stats_new_ship(const playernum_t pnum)
 	plrobj->shields = StartingShields;
 	auto &player_info = plrobj->ctype.player_info;
 	player_info.energy = INITIAL_ENERGY;
-	player_info.secondary_ammo = {{
+	player_info.secondary_ammo = {{{
 		static_cast<uint8_t>(get_starting_concussion_missile_count())
-	}};
+	}}};
 	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : packed_spawn_granted_items{};
 	player_info.vulcan_ammo = map_granted_flags_to_vulcan_ammo(GrantedItems);
 	const auto granted_laser_level = map_granted_flags_to_laser_level(GrantedItems);
@@ -725,19 +725,19 @@ void init_player_stats_new_ship(const playernum_t pnum)
 				}
 #endif
 				if (HAS_PRIMARY_FLAG(i) & static_cast<unsigned>(granted_primary_weapon_flags))
-					return static_cast<primary_weapon_index_t>(i);
+					return i;
 			}
 			return primary_weapon_index_t::LASER_INDEX;
 		}());
 #if defined(DXX_BUILD_DESCENT_II)
 		auto primary_last_was_super = player_info.Primary_last_was_super;
-		for (uint_fast32_t i = primary_weapon_index_t::VULCAN_INDEX, mask = 1 << i; i != primary_weapon_index_t::SUPER_LASER_INDEX; ++i, mask <<= 1)
+		for (uint8_t i = static_cast<uint8_t>(primary_weapon_index_t::VULCAN_INDEX), mask = 1 << i; i != static_cast<uint8_t>(primary_weapon_index_t::SUPER_LASER_INDEX); ++i, mask <<= 1)
 		{
 			/* If no super granted, force to non-super. */
-			if (!(HAS_PRIMARY_FLAG(i + 5) & granted_primary_weapon_flags))
+			if (!(HAS_PRIMARY_FLAG(primary_weapon_index_t{static_cast<uint8_t>(i + 5)}) & granted_primary_weapon_flags))
 				primary_last_was_super &= ~mask;
 			/* If only super granted, force to super. */
-			else if (!(HAS_PRIMARY_FLAG(i) & granted_primary_weapon_flags))
+			else if (!(HAS_PRIMARY_FLAG(primary_weapon_index_t{i}) & granted_primary_weapon_flags))
 				primary_last_was_super |= mask;
 			/* else both granted, so leave as-is. */
 			else

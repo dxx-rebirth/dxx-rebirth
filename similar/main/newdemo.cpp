@@ -1413,7 +1413,9 @@ void newdemo_record_player_flags(uint flags)
 	nd_write_int((static_cast<short>(std::exchange(nd_record_v_player_flags, flags)) << 16) | static_cast<short>(flags));
 }
 
-void newdemo_record_player_weapon(int weapon_type, int weapon_num)
+namespace dsx {
+
+static void newdemo_record_player_weapon(int weapon_num, int weapon_type)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -1428,6 +1430,18 @@ void newdemo_record_player_weapon(int weapon_type, int weapon_num)
 		? static_cast<int8_t>(static_cast<secondary_weapon_index_t>(player_info.Secondary_weapon))
 		: static_cast<int8_t>(static_cast<primary_weapon_index_t>(player_info.Primary_weapon))
 	);
+}
+
+void newdemo_record_player_weapon(const primary_weapon_index_t weapon_num)
+{
+	newdemo_record_player_weapon(underlying_value(weapon_num), 0);
+}
+
+void newdemo_record_player_weapon(const secondary_weapon_index_t weapon_num)
+{
+	newdemo_record_player_weapon(underlying_value(weapon_num), 1);
+}
+
 }
 
 void newdemo_record_effect_blowup(segnum_t segment, sidenum_t side, const vms_vector &pnt)
@@ -1995,7 +2009,7 @@ static int newdemo_read_demo_start(const purpose_type purpose)
 	if (purpose == purpose_type::rewrite)
 	{
 		nd_write_byte(Primary_weapon);
-		nd_write_byte(Secondary_weapon);
+		nd_write_byte(underlying_value(Secondary_weapon.get_active()));
 	}
 
 // Next bit of code to fix problem that I introduced between 1.0 and 1.1
@@ -2010,7 +2024,7 @@ static int newdemo_read_demo_start(const purpose_type purpose)
 			auto flags = player_info.powerup_flags.get_player_flags();
 			energy = shield;
 			shield = static_cast<uint8_t>(flags);
-			Primary_weapon = static_cast<primary_weapon_index_t>(static_cast<uint8_t>(Secondary_weapon));
+			Primary_weapon = static_cast<primary_weapon_index_t>(Secondary_weapon.get_active());
 			Secondary_weapon = static_cast<secondary_weapon_index_t>(c);
 		} else
 			PHYSFS_seek(infile, PHYSFS_tell(infile) - 1);

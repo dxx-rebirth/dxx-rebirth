@@ -1185,11 +1185,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 	((u) == primary_weapon_index_t::OMEGA_INDEX) ? TXT_W_SFUSION :	\
 
 #define _D2X_SECONDARY_SUPER_WEAPON_NAMES(u)	\
-	((u) == SMISSILE1_INDEX) ? TXT_W_SMISSILE1 :	\
-	((u) == GUIDED_INDEX) ? TXT_W_SMISSILE2 :	\
-	((u) == SMART_MINE_INDEX) ? TXT_W_SMISSILE3 :	\
-	((u) == SMISSILE4_INDEX) ? TXT_W_SMISSILE4 :	\
-	((u) == SMISSILE5_INDEX) ? TXT_W_SMISSILE5 :	\
+	((u) == secondary_weapon_index_t::SMISSILE1_INDEX) ? TXT_W_SMISSILE1 :	\
+	((u) == secondary_weapon_index_t::GUIDED_INDEX) ? TXT_W_SMISSILE2 :	\
+	((u) == secondary_weapon_index_t::SMART_MINE_INDEX) ? TXT_W_SMISSILE3 :	\
+	((u) == secondary_weapon_index_t::SMISSILE4_INDEX) ? TXT_W_SMISSILE4 :	\
+	((u) == secondary_weapon_index_t::SMISSILE5_INDEX) ? TXT_W_SMISSILE5 :	\
 
 #define _D2X_PRIMARY_SUPER_WEAPON_NAMES_SHORT(u)	\
 	((u) == primary_weapon_index_t::SUPER_LASER_INDEX) ? TXT_W_SLASER_S :	\
@@ -1199,11 +1199,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 	((u) == primary_weapon_index_t::OMEGA_INDEX) ? TXT_W_SFUSION_S :	\
 
 #define _D2X_SECONDARY_SUPER_WEAPON_NAMES_SHORT(u)	\
-	((u) == SMISSILE1_INDEX) ? TXT_W_SMISSILE1_S :	\
-	((u) == GUIDED_INDEX) ? TXT_W_SMISSILE2_S :	\
-	((u) == SMART_MINE_INDEX) ? TXT_W_SMISSILE3_S :	\
-	((u) == SMISSILE4_INDEX) ? TXT_W_SMISSILE4_S :	\
-	((u) == SMISSILE5_INDEX) ? TXT_W_SMISSILE5_S :	\
+	((u) == secondary_weapon_index_t::SMISSILE1_INDEX) ? TXT_W_SMISSILE1_S :	\
+	((u) == secondary_weapon_index_t::GUIDED_INDEX) ? TXT_W_SMISSILE2_S :	\
+	((u) == secondary_weapon_index_t::SMART_MINE_INDEX) ? TXT_W_SMISSILE3_S :	\
+	((u) == secondary_weapon_index_t::SMISSILE4_INDEX) ? TXT_W_SMISSILE4_S :	\
+	((u) == secondary_weapon_index_t::SMISSILE5_INDEX) ? TXT_W_SMISSILE5_S :	\
 
 #endif
 
@@ -1218,11 +1218,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 	)
 
 #define SECONDARY_WEAPON_NAMES(u)	(	\
-	((u) == CONCUSSION_INDEX) ? TXT_W_C_MISSILE :	\
-	((u) == HOMING_INDEX) ? TXT_W_H_MISSILE :	\
-	((u) == PROXIMITY_INDEX) ? TXT_W_P_BOMB :	\
-	((u) == SMART_INDEX) ? TXT_W_S_MISSILE :	\
-	((u) == MEGA_INDEX) ? TXT_W_M_MISSILE :	\
+	((u) == secondary_weapon_index_t::CONCUSSION_INDEX) ? TXT_W_C_MISSILE :	\
+	((u) == secondary_weapon_index_t::HOMING_INDEX) ? TXT_W_H_MISSILE :	\
+	((u) == secondary_weapon_index_t::PROXIMITY_INDEX) ? TXT_W_P_BOMB :	\
+	((u) == secondary_weapon_index_t::SMART_INDEX) ? TXT_W_S_MISSILE :	\
+	((u) == secondary_weapon_index_t::MEGA_INDEX) ? TXT_W_M_MISSILE :	\
 	_D2X_SECONDARY_SUPER_WEAPON_NAMES((u))	\
 	(dxx_text_ensure_simple_expr(&(u), TXT_W_C_MISSILE))	\
 	)
@@ -1238,11 +1238,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 	)
 
 #define SECONDARY_WEAPON_NAMES_SHORT(u)	(	\
-	((u) == CONCUSSION_INDEX) ? TXT_W_C_MISSILE_S :	\
-	((u) == HOMING_INDEX) ? TXT_W_H_MISSILE_S :	\
-	((u) == PROXIMITY_INDEX) ? TXT_W_P_BOMB_S :	\
-	((u) == SMART_INDEX) ? TXT_W_S_MISSILE_S :	\
-	((u) == MEGA_INDEX) ? TXT_W_M_MISSILE_S :	\
+	((u) == secondary_weapon_index_t::CONCUSSION_INDEX) ? TXT_W_C_MISSILE_S :	\
+	((u) == secondary_weapon_index_t::HOMING_INDEX) ? TXT_W_H_MISSILE_S :	\
+	((u) == secondary_weapon_index_t::PROXIMITY_INDEX) ? TXT_W_P_BOMB_S :	\
+	((u) == secondary_weapon_index_t::SMART_INDEX) ? TXT_W_S_MISSILE_S :	\
+	((u) == secondary_weapon_index_t::MEGA_INDEX) ? TXT_W_M_MISSILE_S :	\
 	_D2X_SECONDARY_SUPER_WEAPON_NAMES_SHORT((u))	\
 	(dxx_text_ensure_simple_expr(&(u), TXT_W_C_MISSILE_S))	\
 	)

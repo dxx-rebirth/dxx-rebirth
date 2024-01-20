@@ -172,7 +172,7 @@ struct player_info
 	player_selected_weapon<primary_weapon_index_t> Primary_weapon;
 	player_selected_weapon<secondary_weapon_index_t> Secondary_weapon;
 	enum laser_level laser_level;
-	std::array<uint8_t, MAX_SECONDARY_WEAPONS>  secondary_ammo; // How much ammo of each type.
+	enumerated_array<uint8_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t>  secondary_ammo; // How much ammo of each type.
 	uint8_t Spreadfire_toggle;
 #if defined(DXX_BUILD_DESCENT_II)
 	uint8_t Primary_last_was_super;

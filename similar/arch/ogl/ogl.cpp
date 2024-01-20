@@ -498,7 +498,7 @@ void ogl_cache_level_textures(void)
 		auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 		// always have lasers, concs, flares.  Always shows player appearance, and at least concs are always available to disappear.
 		ogl_cache_weapon_textures(Vclip, Weapon_info, Primary_weapon_to_weapon_info[primary_weapon_index_t::LASER_INDEX]);
-		ogl_cache_weapon_textures(Vclip, Weapon_info, Secondary_weapon_to_weapon_info[CONCUSSION_INDEX]);
+		ogl_cache_weapon_textures(Vclip, Weapon_info, Secondary_weapon_to_weapon_info[secondary_weapon_index_t::CONCUSSION_INDEX]);
 		ogl_cache_weapon_textures(Vclip, Weapon_info, weapon_id_type::FLARE_ID);
 		ogl_cache_vclipn_textures(Vclip, vclip_index::player_appearance);
 		ogl_cache_vclipn_textures(Vclip, vclip_index::powerup_disappearance);

@@ -245,13 +245,14 @@ secondary_weapon_index_t read_update_which_proximity_mine_to_use(T &player_info)
 	//use the last one selected, unless there aren't any, in which case use
 	//the other if there are any
 	auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
-	const auto mask = 1 << PROXIMITY_INDEX;
-	const auto bomb = (Secondary_last_was_super & mask) ? SMART_MINE_INDEX : PROXIMITY_INDEX;
+	const auto mask = HAS_SECONDARY_FLAG(secondary_weapon_index_t::PROXIMITY_INDEX);
+	const auto [bomb, alt_bomb] = (Secondary_last_was_super & mask)
+		? std::pair(secondary_weapon_index_t::SMART_MINE_INDEX, secondary_weapon_index_t::PROXIMITY_INDEX)
+		: std::pair(secondary_weapon_index_t::PROXIMITY_INDEX, secondary_weapon_index_t::SMART_MINE_INDEX);
 	auto &secondary_ammo = player_info.secondary_ammo;
 	if (secondary_ammo[bomb])
 		/* Player has the requested bomb type available.  Use it. */
 		return bomb;
-	const auto alt_bomb = static_cast<secondary_weapon_index_t>(SMART_MINE_INDEX + PROXIMITY_INDEX - bomb);
 	if (secondary_ammo[alt_bomb])
 	{
 		/* Player has the alternate bomb type, but not the requested
@@ -346,16 +347,15 @@ static void do_weapon_n_item_stuff(object_array &Objects, control_info &Controls
 		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
 		auto &secondary_ammo = player_info.secondary_ammo;
 		int sound;
-		if (!secondary_ammo[PROXIMITY_INDEX] && !secondary_ammo[SMART_MINE_INDEX])
+		if (!secondary_ammo[secondary_weapon_index_t::PROXIMITY_INDEX] && !secondary_ammo[secondary_weapon_index_t::SMART_MINE_INDEX])
 		{
 			HUD_init_message_literal(HM_DEFAULT, "No bombs available!");
 			sound = SOUND_BAD_SELECTION;
 		}
 		else
 		{	
-			const auto mask = (1 << PROXIMITY_INDEX);
-			const char *desc;
-			const auto bomb = (Secondary_last_was_super & mask) ? (desc = "Proximity bombs", PROXIMITY_INDEX) : (desc = "Smart mines", SMART_MINE_INDEX);
+			const auto mask = HAS_SECONDARY_FLAG(secondary_weapon_index_t::PROXIMITY_INDEX);
+			const auto &&[desc, bomb] = (Secondary_last_was_super & mask) ? std::pair("Proximity bombs", secondary_weapon_index_t::PROXIMITY_INDEX) : std::pair("Smart mines", secondary_weapon_index_t::SMART_MINE_INDEX);
 			if (secondary_ammo[bomb] == 0)
 			{
 				HUD_init_message(HM_DEFAULT, "No %s available!", desc);
@@ -1792,9 +1792,9 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 
 		if (Piggy_hamfile_version < pig_hamfile_version::_3) // SHAREWARE
 		{
-			secondary_ammo[SMISSILE4_INDEX] = 0;
-			secondary_ammo[SMISSILE5_INDEX] = 0;
-			secondary_ammo[MEGA_INDEX] = 0;
+			secondary_ammo[secondary_weapon_index_t::SMISSILE4_INDEX] = 0;
+			secondary_ammo[secondary_weapon_index_t::SMISSILE5_INDEX] = 0;
+			secondary_ammo[secondary_weapon_index_t::MEGA_INDEX] = 0;
 		}
 
 		if (Newdemo_state == ND_STATE_RECORDING)
@@ -2053,7 +2053,7 @@ public:
 	DXX_MENUITEM(VERB, TEXT, TXT_SCORE, opt_txt_score)	\
 	DXX_MENUITEM(VERB, INPUT, score_text, opt_score)	\
 	DXX_MENUITEM(VERB, NUMBER, "Laser Level", opt_laser_level, menu_number_bias_wrapper<1>(plr_laser_level), static_cast<uint8_t>(laser_level::_1) + 1, static_cast<uint8_t>(DXX_MAXIMUM_LASER_LEVEL) + 1)	\
-	DXX_MENUITEM(VERB, NUMBER, "Concussion", opt_concussion, pl_info.secondary_ammo[CONCUSSION_INDEX], 0, 200)	\
+	DXX_MENUITEM(VERB, NUMBER, "Concussion", opt_concussion, pl_info.secondary_ammo[secondary_weapon_index_t::CONCUSSION_INDEX], 0, 200)	\
 
 struct wimp_menu_items
 {

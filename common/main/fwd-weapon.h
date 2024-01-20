@@ -87,7 +87,7 @@ extern pig_hamfile_version Piggy_hamfile_version;
 #endif
 
 enum primary_weapon_index_t : uint8_t;
-enum secondary_weapon_index_t : uint8_t;
+enum class secondary_weapon_index_t : uint8_t;
 
 extern const enumerated_array<weapon_id_type, MAX_PRIMARY_WEAPONS, primary_weapon_index_t> Primary_weapon_to_weapon_info;
 //for each primary weapon, what kind of powerup gives weapon
@@ -107,10 +107,6 @@ void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *f
 #endif
 						std::size_t offset);
 
-//given a weapon index, return the flag value
-#define  HAS_PRIMARY_FLAG(index)  (1<<(index))
-#define  HAS_SECONDARY_FLAG(index)  (1<<(index))
-
 // Weapon flags, if player->weapon_flags & WEAPON_FLAG is set, then the player has this weapon
 #define HAS_LASER_FLAG      HAS_PRIMARY_FLAG(primary_weapon_index_t::LASER_INDEX)
 #define HAS_VULCAN_FLAG     HAS_PRIMARY_FLAG(primary_weapon_index_t::VULCAN_INDEX)
@@ -128,10 +124,21 @@ void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *f
 #define HAS_PHOENIX_FLAG   HAS_PRIMARY_FLAG(primary_weapon_index_t::PHOENIX_INDEX)
 #define HAS_OMEGA_FLAG     HAS_PRIMARY_FLAG(primary_weapon_index_t::OMEGA_INDEX)
 #define SUPER_WEAPON        5
+
+static constexpr bool is_super_weapon(const primary_weapon_index_t i)
+{
+	return static_cast<unsigned>(i) >= SUPER_WEAPON;
+}
+
+static constexpr bool is_super_weapon(const secondary_weapon_index_t i)
+{
+	return static_cast<unsigned>(i) >= SUPER_WEAPON;
+}
+
 //flags whether the last time we use this weapon, it was the 'super' version
 #endif
 //for each Secondary weapon, which gun it fires out of
-extern const std::array<gun_num_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num;
+extern const enumerated_array<gun_num_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_weapon_to_gun_num;
 }
 
 namespace dcx {
@@ -174,10 +181,10 @@ void do_primary_weapon_select(player_info &, primary_weapon_index_t weapon_num);
 void do_secondary_weapon_select(player_info &, secondary_weapon_index_t weapon_num);
 void auto_select_primary_weapon(player_info &);
 void auto_select_secondary_weapon(player_info &);
-void set_primary_weapon(player_info &, uint_fast32_t weapon_num);
-void select_primary_weapon(player_info &, const char *weapon_name, uint_fast32_t weapon_num, int wait_for_rearm);
+void set_primary_weapon(player_info &, primary_weapon_index_t weapon_num);
+void select_primary_weapon(player_info &, const char *weapon_name, primary_weapon_index_t weapon_num, int wait_for_rearm);
 void set_secondary_weapon_to_concussion(player_info &);
-void select_secondary_weapon(player_info &, const char *weapon_name, uint_fast32_t weapon_num, int wait_for_rearm);
+void select_secondary_weapon(player_info &, const char *weapon_name, secondary_weapon_index_t weapon_num, int wait_for_rearm);
 
 }
 #endif

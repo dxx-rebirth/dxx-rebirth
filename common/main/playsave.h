@@ -160,8 +160,8 @@ struct player_config : prohibit_void_ptr<player_config>
 	RespawnPress RespawnMode;
 	uint8_t MouselookFlags;
 	uint8_t PitchLockFlags;
-	using primary_weapon_order = std::array<uint8_t, MAX_PRIMARY_WEAPONS + 1>;
-	using secondary_weapon_order = std::array<uint8_t, MAX_SECONDARY_WEAPONS + 1>;
+	using primary_weapon_order = std::array<primary_weapon_index_t, MAX_PRIMARY_WEAPONS + 1>;
+	using secondary_weapon_order = std::array<secondary_weapon_index_t, MAX_SECONDARY_WEAPONS + 1>;
 	primary_weapon_order PrimaryOrder;
 	secondary_weapon_order SecondaryOrder;
 	struct KeySettings {

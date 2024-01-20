@@ -1835,18 +1835,18 @@ static void multi_do_player_deres(const d_robot_info_array &Robot_info, object_a
 	count++;
 
 	auto &secondary_ammo = player_info.secondary_ammo;
-	secondary_ammo[HOMING_INDEX] = buf[count];                count++;
-	secondary_ammo[CONCUSSION_INDEX] = buf[count];count++;
-	secondary_ammo[SMART_INDEX] = buf[count];         count++;
-	secondary_ammo[MEGA_INDEX] = buf[count];          count++;
-	secondary_ammo[PROXIMITY_INDEX] = buf[count]; count++;
+	secondary_ammo[secondary_weapon_index_t::HOMING_INDEX] = buf[count];                count++;
+	secondary_ammo[secondary_weapon_index_t::CONCUSSION_INDEX] = buf[count];count++;
+	secondary_ammo[secondary_weapon_index_t::SMART_INDEX] = buf[count];         count++;
+	secondary_ammo[secondary_weapon_index_t::MEGA_INDEX] = buf[count];          count++;
+	secondary_ammo[secondary_weapon_index_t::PROXIMITY_INDEX] = buf[count]; count++;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	secondary_ammo[SMISSILE1_INDEX] = buf[count]; count++;
-	secondary_ammo[GUIDED_INDEX]    = buf[count]; count++;
-	secondary_ammo[SMART_MINE_INDEX]= buf[count]; count++;
-	secondary_ammo[SMISSILE4_INDEX] = buf[count]; count++;
-	secondary_ammo[SMISSILE5_INDEX] = buf[count]; count++;
+	secondary_ammo[secondary_weapon_index_t::SMISSILE1_INDEX] = buf[count]; count++;
+	secondary_ammo[secondary_weapon_index_t::GUIDED_INDEX]    = buf[count]; count++;
+	secondary_ammo[secondary_weapon_index_t::SMART_MINE_INDEX]= buf[count]; count++;
+	secondary_ammo[secondary_weapon_index_t::SMISSILE4_INDEX] = buf[count]; count++;
+	secondary_ammo[secondary_weapon_index_t::SMISSILE5_INDEX] = buf[count]; count++;
 #endif
 
 	player_info.vulcan_ammo = GET_INTEL_SHORT(&buf[count]); count += 2;
@@ -2706,18 +2706,18 @@ void multi_send_player_deres(deres_type_t type)
 	multibuf[count++] = game_mode_hoard() ? static_cast<char>(player_info.hoard.orbs) : 0;
 
 	auto &secondary_ammo = player_info.secondary_ammo;
-	multibuf[count++] = secondary_ammo[HOMING_INDEX];
-	multibuf[count++] = secondary_ammo[CONCUSSION_INDEX];
-	multibuf[count++] = secondary_ammo[SMART_INDEX];
-	multibuf[count++] = secondary_ammo[MEGA_INDEX];
-	multibuf[count++] = secondary_ammo[PROXIMITY_INDEX];
+	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::HOMING_INDEX];
+	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::CONCUSSION_INDEX];
+	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::SMART_INDEX];
+	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::MEGA_INDEX];
+	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::PROXIMITY_INDEX];
 
 #if defined(DXX_BUILD_DESCENT_II)
-	multibuf[count++] = secondary_ammo[SMISSILE1_INDEX];
-	multibuf[count++] = secondary_ammo[GUIDED_INDEX];
-	multibuf[count++] = secondary_ammo[SMART_MINE_INDEX];
-	multibuf[count++] = secondary_ammo[SMISSILE4_INDEX];
-	multibuf[count++] = secondary_ammo[SMISSILE5_INDEX];
+	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::SMISSILE1_INDEX];
+	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::GUIDED_INDEX];
+	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::SMART_MINE_INDEX];
+	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::SMISSILE4_INDEX];
+	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::SMISSILE5_INDEX];
 #endif
 
 	PUT_INTEL_SHORT(&multibuf[count], player_info.vulcan_ammo);
@@ -5199,18 +5199,18 @@ void multi_send_player_inventory(const multiplayer_data_priority priority)
 	multibuf[count++] = static_cast<char>(player_info.laser_level);
 
 	auto &secondary_ammo = player_info.secondary_ammo;
-	multibuf[count++] = secondary_ammo[HOMING_INDEX];
-	multibuf[count++] = secondary_ammo[CONCUSSION_INDEX];
-	multibuf[count++] = secondary_ammo[SMART_INDEX];
-	multibuf[count++] = secondary_ammo[MEGA_INDEX];
-	multibuf[count++] = secondary_ammo[PROXIMITY_INDEX];
+	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::HOMING_INDEX];
+	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::CONCUSSION_INDEX];
+	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::SMART_INDEX];
+	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::MEGA_INDEX];
+	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::PROXIMITY_INDEX];
 
 #if defined(DXX_BUILD_DESCENT_II)
-	multibuf[count++] = secondary_ammo[SMISSILE1_INDEX];
-	multibuf[count++] = secondary_ammo[GUIDED_INDEX];
-	multibuf[count++] = secondary_ammo[SMART_MINE_INDEX];
-	multibuf[count++] = secondary_ammo[SMISSILE4_INDEX];
-	multibuf[count++] = secondary_ammo[SMISSILE5_INDEX];
+	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::SMISSILE1_INDEX];
+	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::GUIDED_INDEX];
+	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::SMART_MINE_INDEX];
+	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::SMISSILE4_INDEX];
+	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::SMISSILE5_INDEX];
 #endif
 
 	PUT_INTEL_SHORT(&multibuf[count], player_info.vulcan_ammo);
@@ -5250,18 +5250,18 @@ static void multi_do_player_inventory(const playernum_t pnum, const multiplayer_
 	count++;
 
 	auto &secondary_ammo = player_info.secondary_ammo;
-	secondary_ammo[HOMING_INDEX] = buf[count];                count++;
-	secondary_ammo[CONCUSSION_INDEX] = buf[count];count++;
-	secondary_ammo[SMART_INDEX] = buf[count];         count++;
-	secondary_ammo[MEGA_INDEX] = buf[count];          count++;
-	secondary_ammo[PROXIMITY_INDEX] = buf[count]; count++;
+	secondary_ammo[secondary_weapon_index_t::HOMING_INDEX] = buf[count];                count++;
+	secondary_ammo[secondary_weapon_index_t::CONCUSSION_INDEX] = buf[count];count++;
+	secondary_ammo[secondary_weapon_index_t::SMART_INDEX] = buf[count];         count++;
+	secondary_ammo[secondary_weapon_index_t::MEGA_INDEX] = buf[count];          count++;
+	secondary_ammo[secondary_weapon_index_t::PROXIMITY_INDEX] = buf[count]; count++;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	secondary_ammo[SMISSILE1_INDEX] = buf[count]; count++;
-	secondary_ammo[GUIDED_INDEX]    = buf[count]; count++;
-	secondary_ammo[SMART_MINE_INDEX]= buf[count]; count++;
-	secondary_ammo[SMISSILE4_INDEX] = buf[count]; count++;
-	secondary_ammo[SMISSILE5_INDEX] = buf[count]; count++;
+	secondary_ammo[secondary_weapon_index_t::SMISSILE1_INDEX] = buf[count]; count++;
+	secondary_ammo[secondary_weapon_index_t::GUIDED_INDEX]    = buf[count]; count++;
+	secondary_ammo[secondary_weapon_index_t::SMART_MINE_INDEX]= buf[count]; count++;
+	secondary_ammo[secondary_weapon_index_t::SMISSILE4_INDEX] = buf[count]; count++;
+	secondary_ammo[secondary_weapon_index_t::SMISSILE5_INDEX] = buf[count]; count++;
 #endif
 
 	player_info.vulcan_ammo = GET_INTEL_SHORT(&buf[count]); count += 2;
@@ -5414,17 +5414,17 @@ static void MultiLevelInv_CountPlayerInventory()
                         }
 #endif
 		Current[POW_VULCAN_AMMO] += player_info.vulcan_ammo;
-		Current[POW_MISSILE_1] += player_info.secondary_ammo[CONCUSSION_INDEX];
-		Current[POW_HOMING_AMMO_1] += player_info.secondary_ammo[HOMING_INDEX];
-		Current[POW_PROXIMITY_WEAPON] += player_info.secondary_ammo[PROXIMITY_INDEX];
-		Current[POW_SMARTBOMB_WEAPON] += player_info.secondary_ammo[SMART_INDEX];
-		Current[POW_MEGA_WEAPON] += player_info.secondary_ammo[MEGA_INDEX];
+		Current[POW_MISSILE_1] += player_info.secondary_ammo[secondary_weapon_index_t::CONCUSSION_INDEX];
+		Current[POW_HOMING_AMMO_1] += player_info.secondary_ammo[secondary_weapon_index_t::HOMING_INDEX];
+		Current[POW_PROXIMITY_WEAPON] += player_info.secondary_ammo[secondary_weapon_index_t::PROXIMITY_INDEX];
+		Current[POW_SMARTBOMB_WEAPON] += player_info.secondary_ammo[secondary_weapon_index_t::SMART_INDEX];
+		Current[POW_MEGA_WEAPON] += player_info.secondary_ammo[secondary_weapon_index_t::MEGA_INDEX];
 #if defined(DXX_BUILD_DESCENT_II)
-		Current[POW_SMISSILE1_1] += player_info.secondary_ammo[SMISSILE1_INDEX];
-		Current[POW_GUIDED_MISSILE_1] += player_info.secondary_ammo[GUIDED_INDEX];
-		Current[POW_SMART_MINE] += player_info.secondary_ammo[SMART_MINE_INDEX];
-		Current[POW_MERCURY_MISSILE_1] += player_info.secondary_ammo[SMISSILE4_INDEX];
-		Current[POW_EARTHSHAKER_MISSILE] += player_info.secondary_ammo[SMISSILE5_INDEX];
+		Current[POW_SMISSILE1_1] += player_info.secondary_ammo[secondary_weapon_index_t::SMISSILE1_INDEX];
+		Current[POW_GUIDED_MISSILE_1] += player_info.secondary_ammo[secondary_weapon_index_t::GUIDED_INDEX];
+		Current[POW_SMART_MINE] += player_info.secondary_ammo[secondary_weapon_index_t::SMART_MINE_INDEX];
+		Current[POW_MERCURY_MISSILE_1] += player_info.secondary_ammo[secondary_weapon_index_t::SMISSILE4_INDEX];
+		Current[POW_EARTHSHAKER_MISSILE] += player_info.secondary_ammo[secondary_weapon_index_t::SMISSILE5_INDEX];
 #endif
                 }
 #if defined(DXX_BUILD_DESCENT_II)

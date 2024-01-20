@@ -2331,7 +2331,6 @@ void do_missile_firing(const secondary_weapon_index_t weapon, const vmobjptridx_
 
 	auto &plrobj = *plrobjidx;
 	auto &player_info = plrobj.ctype.player_info;
-	assert(weapon < MAX_SECONDARY_WEAPONS);
 	auto &Next_missile_fire_time = player_info.Next_missile_fire_time;
 	if (GameTime64 - Next_missile_fire_time <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that.
 		fire_frame_overhead = GameTime64 - Next_missile_fire_time;
@@ -2372,13 +2371,13 @@ void do_missile_firing(const secondary_weapon_index_t weapon, const vmobjptridx_
 			Next_missile_fire_time = GameTime64 + (F1_0/25) - fire_frame_overhead;
 
 		-- secondary_weapon_ammo;
-		if (weapon != CONCUSSION_INDEX)
+		if (weapon != secondary_weapon_index_t::CONCUSSION_INDEX)
 			maybe_drop_net_powerup(Secondary_weapon_to_powerup[weapon], 1, 0);
 
 #if defined(DXX_BUILD_DESCENT_I)
-		if (weapon == MEGA_INDEX)
+		if (weapon == secondary_weapon_index_t::MEGA_INDEX)
 #elif defined(DXX_BUILD_DESCENT_II)
-		if (weapon == MEGA_INDEX || weapon == SMISSILE5_INDEX)
+		if (weapon == secondary_weapon_index_t::MEGA_INDEX || weapon == secondary_weapon_index_t::SMISSILE5_INDEX)
 #endif
 		{
 			const vms_vector backward_vec{
@@ -2399,7 +2398,7 @@ void do_missile_firing(const secondary_weapon_index_t weapon, const vmobjptridx_
 		if (Game_mode & GM_MULTI)
 		{
 			const object &obj = *objnum;
-			multi_send_fire(plrobj.orient, weapon + MISSILE_ADJUST, laser_level::_1	/* unused */, gun_flag, obj.ctype.laser_info.track_goal, weapon_index_is_player_bomb(weapon) ? objnum : object_none);
+			multi_send_fire(plrobj.orient, underlying_value(weapon) + MISSILE_ADJUST, laser_level::_1	/* unused */, gun_flag, obj.ctype.laser_info.track_goal, weapon_index_is_player_bomb(weapon) ? objnum : object_none);
 		}
 
 		// don't autoselect if dropping prox and prox not current weapon

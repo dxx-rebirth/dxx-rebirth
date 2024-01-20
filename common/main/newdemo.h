@@ -99,7 +99,6 @@ extern void newdemo_record_palette_effect(short r, short g, short b);
 extern void newdemo_record_player_energy(int);
 extern void newdemo_record_player_shields(int);
 extern void newdemo_record_player_flags(unsigned);
-extern void newdemo_record_player_weapon(int, int);
 void newdemo_record_effect_blowup(segnum_t, sidenum_t, const vms_vector &);
 extern void newdemo_record_homing_distance(fix);
 extern void newdemo_record_letterbox(void);
@@ -109,6 +108,8 @@ extern void newdemo_record_multi_cloak(int pnum);
 extern void newdemo_record_multi_decloak(int pnum);
 #ifdef dsx
 namespace dsx {
+void newdemo_record_player_weapon(primary_weapon_index_t);
+void newdemo_record_player_weapon(secondary_weapon_index_t);
 void newdemo_record_wall_set_tmap_num1(vcsegidx_t seg, sidenum_t side, vcsegidx_t cseg, sidenum_t cside, texture1_value tmap);
 void newdemo_record_wall_set_tmap_num2(vcsegidx_t seg, sidenum_t side, vcsegidx_t cseg, sidenum_t cside, texture2_value tmap);
 extern void newdemo_set_new_level(int level_num);

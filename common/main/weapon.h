@@ -221,7 +221,7 @@ enum primary_weapon_index_t : uint8_t
 #endif
 };
 
-enum secondary_weapon_index_t : uint8_t
+enum class secondary_weapon_index_t : uint8_t
 {
 	CONCUSSION_INDEX = 0,
 	HOMING_INDEX = 1,
@@ -236,6 +236,17 @@ enum secondary_weapon_index_t : uint8_t
 	SMISSILE5_INDEX = 9,
 #endif
 };
+
+//given a weapon index, return the flag value
+static constexpr unsigned HAS_PRIMARY_FLAG(const primary_weapon_index_t w)
+{
+	return 1 << static_cast<unsigned>(w);
+}
+
+static constexpr unsigned HAS_SECONDARY_FLAG(const secondary_weapon_index_t w)
+{
+	return 1 << static_cast<unsigned>(w);
+}
 
 struct player_info;
 void delayed_autoselect(player_info &, const control_info &Controls);
@@ -280,7 +291,7 @@ namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static constexpr secondary_weapon_index_t which_bomb(const player_info &)
 {
-	return PROXIMITY_INDEX;
+	return secondary_weapon_index_t::PROXIMITY_INDEX;
 }
 
 static constexpr int weapon_index_uses_vulcan_ammo(const unsigned id)
@@ -288,9 +299,9 @@ static constexpr int weapon_index_uses_vulcan_ammo(const unsigned id)
 	return id == primary_weapon_index_t::VULCAN_INDEX;
 }
 
-static constexpr int weapon_index_is_player_bomb(const unsigned id)
+static constexpr int weapon_index_is_player_bomb(const secondary_weapon_index_t id)
 {
-	return id == PROXIMITY_INDEX;
+	return id == secondary_weapon_index_t::PROXIMITY_INDEX;
 }
 
 //multiply ammo by this before displaying
@@ -307,9 +318,9 @@ static constexpr int weapon_index_uses_vulcan_ammo(const unsigned id)
 	return id == primary_weapon_index_t::VULCAN_INDEX || id == primary_weapon_index_t::GAUSS_INDEX;
 }
 
-static constexpr int weapon_index_is_player_bomb(const unsigned id)
+static constexpr int weapon_index_is_player_bomb(const secondary_weapon_index_t id)
 {
-	return id == PROXIMITY_INDEX || id == SMART_MINE_INDEX;
+	return id == secondary_weapon_index_t::PROXIMITY_INDEX || id == secondary_weapon_index_t::SMART_MINE_INDEX;
 }
 
 //multiply ammo by this before displaying

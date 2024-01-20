@@ -219,7 +219,7 @@ static void check_weapon_reorder(std::array<weapon_type_out, N> &wo, const std::
 			m |= 1 << i;
 		else
 			break;
-		w = i;
+		w = weapon_type_out{static_cast<uint8_t>(i)};
 	}
 	/* If `m` is equal to the value below, then every desired element appeared
 	 * in the input sequence.  If the input sequence contained duplicates or
@@ -228,9 +228,9 @@ static void check_weapon_reorder(std::array<weapon_type_out, N> &wo, const std::
 	 */
 	if (m != ((1 << N) | ((1 << (N - 1)) - 1)))
 	{
-		wo[0] = cycle_never_autoselect_below;
-		range_for (const uint_fast32_t i, xrange(1u, N))
-			wo[i] = i - 1;
+		wo[0] = weapon_type_out{cycle_never_autoselect_below};
+		for (const uint8_t i : xrange(N - 1))
+			wo[i + 1] = weapon_type_out{i};
 	}
 }
 }
@@ -775,8 +775,11 @@ static int write_player_dxx(const char *filename)
 #endif
 			);
 #if defined(DXX_BUILD_DESCENT_I)
-		PHYSFSX_printf(fout,WEAPON_REORDER_PRIMARY_NAME_TEXT "=" WEAPON_REORDER_PRIMARY_VALUE_TEXT "\n",PlayerCfg.PrimaryOrder[0], PlayerCfg.PrimaryOrder[1], PlayerCfg.PrimaryOrder[2],PlayerCfg.PrimaryOrder[3], PlayerCfg.PrimaryOrder[4], PlayerCfg.PrimaryOrder[5]);
-		PHYSFSX_printf(fout,WEAPON_REORDER_SECONDARY_NAME_TEXT "=" WEAPON_REORDER_SECONDARY_VALUE_TEXT "\n",PlayerCfg.SecondaryOrder[0], PlayerCfg.SecondaryOrder[1], PlayerCfg.SecondaryOrder[2],PlayerCfg.SecondaryOrder[3], PlayerCfg.SecondaryOrder[4], PlayerCfg.SecondaryOrder[5]);
+		PHYSFSX_printf(fout,
+					WEAPON_REORDER_PRIMARY_NAME_TEXT "=" WEAPON_REORDER_PRIMARY_VALUE_TEXT "\n"
+					WEAPON_REORDER_SECONDARY_NAME_TEXT "=" WEAPON_REORDER_SECONDARY_VALUE_TEXT "\n",
+					underlying_value(PlayerCfg.PrimaryOrder[0]), underlying_value(PlayerCfg.PrimaryOrder[1]), underlying_value(PlayerCfg.PrimaryOrder[2]), underlying_value(PlayerCfg.PrimaryOrder[3]), underlying_value(PlayerCfg.PrimaryOrder[4]), underlying_value(PlayerCfg.PrimaryOrder[5]),
+					underlying_value(PlayerCfg.SecondaryOrder[0]), underlying_value(PlayerCfg.SecondaryOrder[1]), underlying_value(PlayerCfg.SecondaryOrder[2]), underlying_value(PlayerCfg.SecondaryOrder[3]), underlying_value(PlayerCfg.SecondaryOrder[4]), underlying_value(PlayerCfg.SecondaryOrder[5]));
 #endif
 		PHYSFSX_puts_literal(fout,
 #if defined(DXX_BUILD_DESCENT_I)

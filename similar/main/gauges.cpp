@@ -1302,24 +1302,25 @@ static void hud_show_afterburner(grs_canvas &canvas, const player_info &player_i
 #define convert_1s(s) do {char *p=s; while ((p=strchr(p,'1')) != NULL) *p=132;} while(0)
 #endif
 
-static inline const char *SECONDARY_WEAPON_NAMES_VERY_SHORT(const unsigned u)
+[[nodiscard]]
+static constexpr const char *SECONDARY_WEAPON_NAMES_VERY_SHORT(const secondary_weapon_index_t u)
 {
 	switch(u)
 	{
 		default:
 			Int3();
 			[[fallthrough]];
-		case CONCUSSION_INDEX:	return TXT_CONCUSSION;
-		case HOMING_INDEX:		return TXT_HOMING;
-		case PROXIMITY_INDEX:	return TXT_PROXBOMB;
-		case SMART_INDEX:		return TXT_SMART;
-		case MEGA_INDEX:		return TXT_MEGA;
+		case secondary_weapon_index_t::CONCUSSION_INDEX:	return TXT_CONCUSSION;
+		case secondary_weapon_index_t::HOMING_INDEX:		return TXT_HOMING;
+		case secondary_weapon_index_t::PROXIMITY_INDEX:	return TXT_PROXBOMB;
+		case secondary_weapon_index_t::SMART_INDEX:		return TXT_SMART;
+		case secondary_weapon_index_t::MEGA_INDEX:		return TXT_MEGA;
 #if defined(DXX_BUILD_DESCENT_II)
-		case SMISSILE1_INDEX:	return "Flash";
-		case GUIDED_INDEX:		return "Guided";
-		case SMART_MINE_INDEX:	return "SmrtMine";
-		case SMISSILE4_INDEX:	return "Mercury";
-		case SMISSILE5_INDEX:	return "Shaker";
+		case secondary_weapon_index_t::SMISSILE1_INDEX:	return "Flash";
+		case secondary_weapon_index_t::GUIDED_INDEX:		return "Guided";
+		case secondary_weapon_index_t::SMART_MINE_INDEX:	return "SmrtMine";
+		case secondary_weapon_index_t::SMISSILE4_INDEX:	return "Mercury";
+		case secondary_weapon_index_t::SMISSILE5_INDEX:	return "Shaker";
 #endif
 	}
 }
@@ -1346,7 +1347,7 @@ static void show_bomb_count(grs_canvas &canvas, const player_info &player_info, 
 		return;
 
 	gr_set_fontcolor(canvas, count
-		? (bomb == PROXIMITY_INDEX
+		? (bomb == secondary_weapon_index_t::PROXIMITY_INDEX
 			? gr_find_closest_color(55, 0, 0)
 			: BM_XRGB(59, 50, 21)
 		)
@@ -1430,35 +1431,50 @@ static void hud_set_primary_weapon_fontcolor(const player_info &player_info, con
 }
 
 [[nodiscard]]
-static rgb_t hud_get_secondary_weapon_fontcolor(const player_info &player_info, const int consider_weapon)
+static rgb_t hud_get_secondary_weapon_fontcolor(const player_info &player_info, const secondary_weapon_index_t consider_weapon)
 {
 	if (player_info.Secondary_weapon == consider_weapon)
+		/* The currently active weapon is `consider_weapon` */
 		return hud_rgb_red;
 	else{
 		if (player_info.secondary_ammo[consider_weapon])
 		{
+			/* The player has not armed this weapon, but has ammo for it. */
 #if defined(DXX_BUILD_DESCENT_II)
-			const auto is_super = (consider_weapon >= 5);
-			const int base_weapon = is_super ? consider_weapon - 5 : consider_weapon;
-			if (player_info.Secondary_last_was_super & (1 << base_weapon))
+			const auto is_super = is_super_weapon(consider_weapon);
+			const auto base_weapon = is_super ? secondary_weapon_index_t{static_cast<uint8_t>(static_cast<uint8_t>(consider_weapon) - SUPER_WEAPON)} : consider_weapon;
+			if (player_info.Secondary_last_was_super & HAS_SECONDARY_FLAG(base_weapon))
 			{
+				/* The player would select the super-weapon version on next press. */
 				if (is_super)
+					/* The weapon is a super-weapon, so it would be selected on
+					 * next press.
+					 */
 					return hud_rgb_green;
 				else
+					/* The weapon is not a super-weapon, so the player will
+					 * need to press twice to select it (once to make the
+					 * non-super active, then again to toggle to super).
+					 */
 					return hud_rgb_yellow;
 			}
+			/* Else the player will select the non-super weapon on next press */
 			else if (is_super)
+				/* The candidate weapon is a super-weapon, so the player will
+				 * need to press twice to select it.
+				 */
 				return hud_rgb_yellow;
 			else
 #endif
 				return hud_rgb_green;
 		}
 		else
+			/* The weapon has no ammo, so dim it out. */
 			return hud_rgb_dimgreen;
 	}
 }
 
-static void hud_set_secondary_weapon_fontcolor(const player_info &player_info, const unsigned consider_weapon, grs_canvas &canvas)
+static void hud_set_secondary_weapon_fontcolor(const player_info &player_info, const secondary_weapon_index_t consider_weapon, grs_canvas &canvas)
 {
 	auto rgb = hud_get_secondary_weapon_fontcolor(player_info, consider_weapon);
 	gr_set_fontcolor(canvas, gr_find_closest_color(rgb.r, rgb.g, rgb.b), -1);

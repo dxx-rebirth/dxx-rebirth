@@ -158,7 +158,7 @@ static T get_alternate_weapon(const T current_weapon, const T base_weapon)
 namespace dsx {
 
 //for each Secondary weapon, which gun it fires out of
-const std::array<gun_num_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num{{
+const enumerated_array<gun_num_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_weapon_to_gun_num{{{
 	gun_num_t::_4,
 	gun_num_t::_4,
 	gun_num_t::_7,
@@ -171,7 +171,7 @@ const std::array<gun_num_t, MAX_SECONDARY_WEAPONS> Secondary_weapon_to_gun_num{{
 	gun_num_t::_4,
 	gun_num_t::_7
 #endif
-}};
+}}};
 
 const enumerated_array<uint8_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_ammo_max{{
 	{
@@ -249,7 +249,7 @@ weapon_reorder_menu_items<cycle_weapon_state>::weapon_reorder_menu_items()
 	for (auto &&[i, mi] : enumerate(menu_items))
 	{
 		const auto o = cycle_weapon_state::get_weapon_by_order_slot(i);
-		mi.value = o;
+		mi.value = underlying_value(o);
 		nm_set_item_menu(mi, cycle_weapon_state::get_weapon_name(o));
 	}
 }
@@ -264,7 +264,7 @@ window_event_result weapon_reorder_menu<cycle_weapon_state>::event_handler(const
 			break;
 		case event_type::window_close:
 			for (auto &&[i, mi] : enumerate(menu_items))
-				cycle_weapon_state::get_weapon_by_order_slot(i) = mi.value;
+				cycle_weapon_state::get_weapon_by_order_slot(i) = static_cast<typename cycle_weapon_state::weapon_index_type>(mi.value);
 			break;
 		default:
 			break;
@@ -287,13 +287,19 @@ static void check_enum(Accessor &, polygon_model_index &pmi)
 namespace dsx {
 namespace {
 #if defined(DXX_BUILD_DESCENT_I)
-constexpr std::array<uint8_t, MAX_PRIMARY_WEAPONS + 1> DefaultPrimaryOrder{{ 4, 3, 2, 1, 0, 255 }};
-constexpr std::array<uint8_t, MAX_SECONDARY_WEAPONS + 1> DefaultSecondaryOrder{{ 4, 3, 1, 0, 255, 2 }};
+constexpr std::array<primary_weapon_index_t, MAX_PRIMARY_WEAPONS + 1> DefaultPrimaryOrder{{
+	primary_weapon_index_t::FUSION_INDEX, primary_weapon_index_t::PLASMA_INDEX, primary_weapon_index_t::SPREADFIRE_INDEX, primary_weapon_index_t::VULCAN_INDEX, primary_weapon_index_t::LASER_INDEX, primary_weapon_index_t{255}
+}};
+constexpr std::array<secondary_weapon_index_t, MAX_SECONDARY_WEAPONS + 1> DefaultSecondaryOrder{{
+	secondary_weapon_index_t::MEGA_INDEX, secondary_weapon_index_t::SMART_INDEX, secondary_weapon_index_t::HOMING_INDEX, secondary_weapon_index_t::CONCUSSION_INDEX, secondary_weapon_index_t{255}, secondary_weapon_index_t::PROXIMITY_INDEX
+}};
 #elif defined(DXX_BUILD_DESCENT_II)
-constexpr std::array<uint8_t, MAX_PRIMARY_WEAPONS + 1> DefaultPrimaryOrder={{9,8,7,6,5,4,3,2,1,0,255}};
-constexpr std::array<uint8_t, MAX_SECONDARY_WEAPONS + 1> DefaultSecondaryOrder={{9,8,4,3,1,5,0,255,7,6,2}};
-
-//flags whether the last time we use this weapon, it was the 'super' version
+constexpr std::array<primary_weapon_index_t, MAX_PRIMARY_WEAPONS + 1> DefaultPrimaryOrder={{
+	primary_weapon_index_t::OMEGA_INDEX, primary_weapon_index_t::PHOENIX_INDEX, primary_weapon_index_t::HELIX_INDEX, primary_weapon_index_t::GAUSS_INDEX, primary_weapon_index_t::SUPER_LASER_INDEX, primary_weapon_index_t::FUSION_INDEX, primary_weapon_index_t::PLASMA_INDEX, primary_weapon_index_t::SPREADFIRE_INDEX, primary_weapon_index_t::VULCAN_INDEX, primary_weapon_index_t::LASER_INDEX, primary_weapon_index_t{255}
+}};
+constexpr std::array<secondary_weapon_index_t, MAX_SECONDARY_WEAPONS + 1> DefaultSecondaryOrder={{
+	secondary_weapon_index_t::SMISSILE5_INDEX, secondary_weapon_index_t::SMISSILE4_INDEX, secondary_weapon_index_t::MEGA_INDEX, secondary_weapon_index_t::SMART_INDEX, secondary_weapon_index_t::HOMING_INDEX, secondary_weapon_index_t::SMISSILE1_INDEX, secondary_weapon_index_t::CONCUSSION_INDEX, secondary_weapon_index_t{255}, secondary_weapon_index_t::SMART_MINE_INDEX, secondary_weapon_index_t::GUIDED_INDEX, secondary_weapon_index_t::PROXIMITY_INDEX
+}};
 #endif
 
 static primary_weapon_index_t get_mapped_weapon_index(const player_info &player_info, const primary_weapon_index_t weapon_index)
@@ -460,7 +466,7 @@ public:
 	{
 		return maybe_select_weapon_by_type(get_weapon_by_order_slot(cur_order_slot));
 	}
-	bool maybe_select_weapon_by_type(const uint_fast32_t desired_weapon_idx) const
+	bool maybe_select_weapon_by_type(const weapon_index_type desired_weapon_idx) const
 	{
 		weapon_index_type desired_weapon = static_cast<weapon_index_type>(desired_weapon_idx);
 #if defined(DXX_BUILD_DESCENT_II)
@@ -521,7 +527,7 @@ public:
 	{
 		return maybe_select_weapon_by_type(get_weapon_by_order_slot(cur_order_slot));
 	}
-	bool maybe_select_weapon_by_type(const uint_fast32_t desired_weapon_idx)
+	bool maybe_select_weapon_by_type(const weapon_index_type desired_weapon_idx)
 	{
 		const weapon_index_type desired_weapon = static_cast<weapon_index_type>(desired_weapon_idx);
 		if (!player_has_secondary_weapon(pl_info, desired_weapon).has_all())
@@ -533,7 +539,7 @@ public:
 	{
 		HUD_init_message_literal(HM_DEFAULT, "No secondary weapons available!");
 	}
-	static const char *get_weapon_name(uint8_t i)
+	static const char *get_weapon_name(const secondary_weapon_index_t i)
 	{
 		return i == cycle_never_autoselect_below ? DXX_WEAPON_TEXT_NEVER_AUTOSELECT : SECONDARY_WEAPON_NAMES(i);
 	}
@@ -597,21 +603,23 @@ static inline void set_weapon_last_was_super(uint8_t &last, const uint8_t mask, 
 		last &= ~mask;
 }
 
-static inline void set_weapon_last_was_super(uint8_t &last, const uint_fast32_t weapon_num)
+template <typename T>
+static inline void set_weapon_last_was_super(uint8_t &last, const T eweapon_num)
 {
-	const bool is_super = weapon_num >= SUPER_WEAPON;
+	const bool is_super = is_super_weapon(eweapon_num);
+	const auto weapon_num = underlying_value(eweapon_num);
 	set_weapon_last_was_super(last, 1 << (is_super ? weapon_num - SUPER_WEAPON : weapon_num), is_super);
 }
 }
 #endif
 
-void set_primary_weapon(player_info &player_info, const uint_fast32_t weapon_num)
+void set_primary_weapon(player_info &player_info, const primary_weapon_index_t weapon_num)
 {
 	if (Newdemo_state == ND_STATE_RECORDING)
-		newdemo_record_player_weapon(0, weapon_num);
+		newdemo_record_player_weapon(weapon_num);
 	player_info.Fusion_charge=0;
 	player_info.Next_laser_fire_time = 0;
-	player_info.Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
+	player_info.Primary_weapon = weapon_num;
 #if defined(DXX_BUILD_DESCENT_II)
 	//save flag for whether was super version
 	auto &Primary_last_was_super = player_info.Primary_last_was_super;
@@ -621,15 +629,15 @@ void set_primary_weapon(player_info &player_info, const uint_fast32_t weapon_num
 
 //	------------------------------------------------------------------------------------
 //if message flag set, print message saying selected
-void select_primary_weapon(player_info &player_info, const char *const weapon_name, const uint_fast32_t weapon_num, const int wait_for_rearm)
+void select_primary_weapon(player_info &player_info, const char *const weapon_name, const primary_weapon_index_t weapon_num, const int wait_for_rearm)
 {
 	if (Newdemo_state==ND_STATE_RECORDING )
-		newdemo_record_player_weapon(0, weapon_num);
+		newdemo_record_player_weapon(weapon_num);
 
 	{
 		auto &Primary_weapon = player_info.Primary_weapon;
 		if (Primary_weapon != weapon_num) {
-			Primary_weapon = static_cast<primary_weapon_index_t>(weapon_num);
+			Primary_weapon = weapon_num;
 #ifndef FUSION_KEEPS_CHARGE
 			//added 8/6/98 by Victor Rachels to fix fusion charge bug
 			player_info.Fusion_charge=0;
@@ -678,23 +686,23 @@ void select_primary_weapon(player_info &player_info, const char *const weapon_na
 
 void set_secondary_weapon_to_concussion(player_info &player_info)
 {
-	const uint_fast32_t weapon_num = 0;
+	const auto weapon_num = secondary_weapon_index_t::CONCUSSION_INDEX;
 	if (Newdemo_state == ND_STATE_RECORDING)
-		newdemo_record_player_weapon(1, weapon_num);
+		newdemo_record_player_weapon(weapon_num);
 
 	player_info.Next_missile_fire_time = 0;
 	Global_missile_firing_count = 0;
-	player_info.Secondary_weapon = static_cast<secondary_weapon_index_t>(weapon_num);
+	player_info.Secondary_weapon = weapon_num;
 #if defined(DXX_BUILD_DESCENT_II)
 	//save flag for whether was super version
 	set_weapon_last_was_super(player_info.Secondary_last_was_super, weapon_num);
 #endif
 }
 
-void select_secondary_weapon(player_info &player_info, const char *const weapon_name, const uint_fast32_t weapon_num, const int wait_for_rearm)
+void select_secondary_weapon(player_info &player_info, const char *const weapon_name, const secondary_weapon_index_t weapon_num, const int wait_for_rearm)
 {
 	if (Newdemo_state==ND_STATE_RECORDING )
-		newdemo_record_player_weapon(1, weapon_num);
+		newdemo_record_player_weapon(weapon_num);
 
 	{
 		auto &Secondary_weapon = player_info.Secondary_weapon;
@@ -715,7 +723,7 @@ void select_secondary_weapon(player_info &player_info, const char *const weapon_
 			}
 
 		}
-		Secondary_weapon = static_cast<secondary_weapon_index_t>(weapon_num);
+		Secondary_weapon = weapon_num;
 #if defined(DXX_BUILD_DESCENT_II)
 		//save flag for whether was super version
 		set_weapon_last_was_super(player_info.Secondary_last_was_super, weapon_num);
@@ -729,7 +737,7 @@ void select_secondary_weapon(player_info &player_info, const char *const weapon_
 
 #if defined(DXX_BUILD_DESCENT_I)
 namespace {
-static bool reject_shareware_weapon_select(const uint_fast32_t weapon_num, const char *const weapon_name)
+static bool reject_shareware_weapon_select_impl(const uint_fast32_t weapon_num, const char *const weapon_name)
 {
 	// do special hud msg. for picking registered weapon in shareware version.
 	if (PCSharePig)
@@ -738,6 +746,13 @@ static bool reject_shareware_weapon_select(const uint_fast32_t weapon_num, const
 			return true;
 		}
 	return false;
+}
+
+template <typename T>
+requires(std::is_same<T, primary_weapon_index_t>::value || std::is_same<T, secondary_weapon_index_t>::value)
+static bool reject_shareware_weapon_select(const T weapon_num, const char *const weapon_name)
+{
+	return reject_shareware_weapon_select_impl(underlying_value(weapon_num), weapon_name);
 }
 
 static bool reject_unusable_primary_weapon_select(const player_info &player_info, const primary_weapon_index_t weapon_num, const char *const weapon_name)
@@ -844,10 +859,11 @@ void do_secondary_weapon_select(player_info &player_info, secondary_weapon_index
 	has_weapon_result weapon_status;
 
 	const auto current = player_info.Secondary_weapon.get_active();
-	const auto last_was_super = player_info.Secondary_last_was_super & (1 << weapon_num);
+	const auto last_was_super = player_info.Secondary_last_was_super & HAS_SECONDARY_FLAG(weapon_num);
 	const auto has_flag = weapon_status.has_weapon_flag | weapon_status.has_ammo_flag;
 
-	if (current == weapon_num || current == weapon_num+SUPER_WEAPON) {
+	if (current == weapon_num || current == static_cast<secondary_weapon_index_t>(underlying_value(weapon_num) + SUPER_WEAPON))
+	{
 		//already have this selected, so toggle to other of normal/super version
 		weapon_num = get_alternate_weapon(current, weapon_num);
 		weapon_status = player_has_secondary_weapon(player_info, weapon_num);
@@ -894,7 +910,7 @@ void auto_select_weapon(T t)
 	for (uint_fast32_t cur_order_slot = 0; cur_order_slot != t.max_weapons + 1; ++cur_order_slot)
 	{
 		const auto weapon_type = t.get_weapon_by_order_slot(cur_order_slot);
-		if (weapon_type >= t.max_weapons)
+		if (underlying_value(weapon_type) >= t.max_weapons)
 		{
 			t.abandon_auto_select();
 			return;
@@ -980,7 +996,7 @@ static void maybe_autoselect_primary_weapon(player_info &player_info, primary_we
 //called when one of these weapons is picked up
 //when you pick up a secondary, you always get the weapon & ammo for it
 //	Returns true if powerup picked up, else returns false.
-int pick_up_secondary(player_info &player_info, secondary_weapon_index_t weapon_index, int count, const control_info &Controls)
+int pick_up_secondary(player_info &player_info, const secondary_weapon_index_t weapon_index, const int count, const control_info &Controls)
 {
 	int	num_picked_up;
 	const auto max = PLAYER_MAX_AMMO(player_info.powerup_flags, Secondary_ammo_max[weapon_index]);
@@ -1027,9 +1043,9 @@ int pick_up_secondary(player_info &player_info, secondary_weapon_index_t weapon_
 			if (weapon_index_is_player_bomb(weapon_index) &&
 				!weapon_index_is_player_bomb(player_info.Secondary_weapon))
 			{
-				const auto mask = 1 << PROXIMITY_INDEX;
-				if (weapon_order < SOrderList((player_info.Secondary_last_was_super & mask) ? SMART_MINE_INDEX : PROXIMITY_INDEX))
-					set_weapon_last_was_super(player_info.Secondary_last_was_super, mask, weapon_index == SMART_MINE_INDEX);
+				const auto mask = HAS_SECONDARY_FLAG(secondary_weapon_index_t::PROXIMITY_INDEX);
+				if (weapon_order < SOrderList((player_info.Secondary_last_was_super & mask) ? secondary_weapon_index_t::SMART_MINE_INDEX : secondary_weapon_index_t::PROXIMITY_INDEX))
+					set_weapon_last_was_super(player_info.Secondary_last_was_super, mask, weapon_index == secondary_weapon_index_t::SMART_MINE_INDEX);
 			}
 #endif
 	}
@@ -1076,7 +1092,7 @@ void ReorderSecondary()
 namespace {
 
 template <typename T>
-static uint_fast32_t search_weapon_order_list(uint8_t goal)
+static uint_fast32_t search_weapon_order_list(const typename T::weapon_index_type goal)
 {
 	for (uint_fast32_t i = 0; i != T::max_weapons + 1; ++i)
 		if (T::get_weapon_by_order_slot(i) == goal)
