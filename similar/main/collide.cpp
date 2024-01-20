@@ -2001,13 +2001,17 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 
 		//	If the player dies and he has powerful lasers, create the powerups here.
 
-		std::pair<unsigned, powerup_type_t> laser_level_and_id;
-		if (
+		if (plr_laser_level != laser_level::_1)
+		{
+			auto &&[laser_count, laser_powerup] =
 #if defined(DXX_BUILD_DESCENT_II)
-			(plr_laser_level > MAX_LASER_LEVEL && (laser_level_and_id = {static_cast<unsigned>(plr_laser_level) - static_cast<unsigned>(MAX_LASER_LEVEL), powerup_type_t::POW_SUPER_LASER}, true)) ||
+				(plr_laser_level > MAX_LASER_LEVEL)
+				? std::tuple(static_cast<unsigned>(plr_laser_level) - static_cast<unsigned>(MAX_LASER_LEVEL), powerup_type_t::POW_SUPER_LASER)
+				:
 #endif
-			(plr_laser_level != laser_level::_1 && (laser_level_and_id = {static_cast<unsigned>(plr_laser_level), powerup_type_t::POW_LASER}, true)))
-			call_object_create_egg(playerobj, laser_level_and_id.first, laser_level_and_id.second);
+				std::tuple(static_cast<unsigned>(plr_laser_level), powerup_type_t::POW_LASER);
+			call_object_create_egg(playerobj, laser_count, laser_powerup);
+		}
 
 		//	Drop quad laser if appropos
 		if (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS)
