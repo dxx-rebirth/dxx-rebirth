@@ -351,7 +351,9 @@ struct ai_cloak_info_rw
 // Maximum number kept track of, will keep stealing, causes stolen weapons to be lost!
 struct d_thief_unique_state
 {
-	using stolen_item_storage = std::array<uint8_t, 10>;
+	static constexpr std::size_t MAX_STOLEN_ITEMS{10u};
+	static constexpr powerup_type_t stolen_item_type_none{UINT8_MAX};
+	using stolen_item_storage = std::array<powerup_type_t, MAX_STOLEN_ITEMS>;
 	unsigned Stolen_item_index;   // Used in ai.c for controlling rate of Thief flare firing.
 	stolen_item_storage Stolen_items;
 };

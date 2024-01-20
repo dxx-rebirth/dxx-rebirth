@@ -2235,13 +2235,13 @@ static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int count = 1;
-	char powerup_type;
-
 	if (Network_status == network_state::endlevel || LevelUniqueControlCenterState.Control_center_destroyed)
 		return;
 
 	count++;
-	powerup_type = buf[count++];
+	const uint8_t powerup_type{buf[count++]};
+	if (powerup_type >= MAX_POWERUP_TYPES)
+		return;
 	/* Casting the untrusted network input to segnum_t is safe here, since it
 	 * is immediately passed to `check_untrusted`, which validates that the
 	 * index is reasonable.
@@ -2254,7 +2254,7 @@ static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t
 	objnum_t objnum = GET_INTEL_SHORT(&buf[count]); count += 2;
 	const auto new_pos = multi_get_vector(buf.subspan<1 + 1 + 1 + 2 + 2, 12>());
 	count+=sizeof(vms_vector);
-	const auto &&my_objnum = drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, powerup_type, vmd_zero_vector, new_pos, segnum, true);
+	const auto &&my_objnum{drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, powerup_type_t{powerup_type}, vmd_zero_vector, new_pos, segnum, true)};
 	if (my_objnum == object_none)
 		return;
 
@@ -4003,10 +4003,12 @@ void multi_send_stolen_items ()
 
 namespace {
 
-static void multi_do_stolen_items(const multiplayer_rspan<multiplayer_command_t::MULTI_STOLEN_ITEMS> buf)
+static void multi_do_stolen_items(d_thief_unique_state &ThiefUniqueState, const multiplayer_rspan<multiplayer_command_t::MULTI_STOLEN_ITEMS> buf)
 {
-	auto &Stolen_items = LevelUniqueObjectState.ThiefState.Stolen_items;
-	std::copy_n(&buf[1], Stolen_items.size(), Stolen_items.begin());
+	for (auto &&[untrusted_network_powerup_value, local_stolen_item] : zip(buf.subspan<1>(), ThiefUniqueState.Stolen_items))
+	{
+		local_stolen_item = (untrusted_network_powerup_value < MAX_POWERUP_TYPES) ? powerup_type_t{untrusted_network_powerup_value} : ThiefUniqueState.stolen_item_type_none;
+	}
 }
 
 }
@@ -5854,7 +5856,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 			multi_do_guided(LevelUniqueObjectState, pnum, multi_subspan_first<multiplayer_command_t::MULTI_GUIDED>(data));
 			break;
 		case multiplayer_command_t::MULTI_STOLEN_ITEMS:
-			multi_do_stolen_items(multi_subspan_first<multiplayer_command_t::MULTI_STOLEN_ITEMS>(data));
+			multi_do_stolen_items(LevelUniqueObjectState.ThiefState, multi_subspan_first<multiplayer_command_t::MULTI_STOLEN_ITEMS>(data));
 			break;
 		case multiplayer_command_t::MULTI_WALL_STATUS:
 			multi_do_wall_status(vmwallptr, multi_subspan_first<multiplayer_command_t::MULTI_WALL_STATUS>(data));

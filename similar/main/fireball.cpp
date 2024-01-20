@@ -1082,7 +1082,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 	}
 }
 
-imobjptridx_t drop_powerup(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const d_vclip_array &Vclip, int id, const vms_vector &init_vel, const vms_vector &pos, vmsegptridx_t segnum, bool player)
+imobjptridx_t drop_powerup(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const d_vclip_array &Vclip, powerup_type_t id, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum, const bool player)
 {
 				int	rand_scale;
 				const auto old_mag = vm_vec_mag_quick(init_vel);
@@ -1174,7 +1174,7 @@ imobjptridx_t drop_powerup(d_level_unique_object_state &LevelUniqueObjectState, 
 	return objp;
 }
 
-bool drop_powerup(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const d_vclip_array &Vclip, int id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum, const bool player)
+bool drop_powerup(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const d_vclip_array &Vclip, const powerup_type_t id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum, const bool player)
 {
 	bool created = false;
 	for (const auto i : xrange(num))

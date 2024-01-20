@@ -5041,7 +5041,7 @@ int ai_restore_state(const d_robot_info_array &Robot_info, PHYSFS_File *fp, int 
 		BuddyState.Escort_goal_objidx = object_none;
 		BuddyState.Escort_goal_reachable = d_unique_buddy_state::Escort_goal_reachability::unreachable;
 
-		LevelUniqueObjectState.ThiefState.Stolen_items.fill(255);
+		LevelUniqueObjectState.ThiefState.Stolen_items.fill(LevelUniqueObjectState.ThiefState.stolen_item_type_none);
 	}
 
 	if (version >= 15) {
