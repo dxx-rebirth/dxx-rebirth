@@ -412,13 +412,13 @@ has_weapon_result player_has_primary_weapon(const player_info &player_info, prim
 	return return_value;
 }
 
-has_weapon_result player_has_secondary_weapon(const player_info &player_info, const secondary_weapon_index_t weapon_num)
+has_secondary_weapon_result player_has_secondary_weapon(const player_info &player_info, const secondary_weapon_index_t weapon_num)
 {
 	const auto secondary_ammo = player_info.secondary_ammo[weapon_num];
 	const auto weapon_index = Secondary_weapon_to_weapon_info[weapon_num];
 	if (secondary_ammo && Weapon_info[weapon_index].ammo_usage <= secondary_ammo)
-		return has_weapon_result::weapon | has_weapon_result::energy | has_weapon_result::ammo;
-	return has_weapon_result{};
+		return has_secondary_weapon_result::present;
+	return has_secondary_weapon_result::absent;
 }
 
 void InitWeaponOrdering ()
@@ -862,11 +862,10 @@ void do_secondary_weapon_select(player_info &player_info, secondary_weapon_index
 		return;
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
-	has_weapon_result weapon_status;
+	has_secondary_weapon_result weapon_status;
 
 	const auto current = player_info.Secondary_weapon.get_active();
 	const auto last_was_super = player_info.Secondary_last_was_super & HAS_SECONDARY_FLAG(weapon_num);
-	const auto has_flag = has_weapon_result::weapon | has_weapon_result::ammo;
 
 	if (current == weapon_num || current == static_cast<secondary_weapon_index_t>(underlying_value(weapon_num) + SUPER_WEAPON))
 	{
@@ -886,17 +885,19 @@ void do_secondary_weapon_select(player_info &player_info, secondary_weapon_index
 
 		//if don't have last-selected, try other version
 
-		if ((weapon_status & has_flag) != has_flag) {
+		if (weapon_status == has_secondary_weapon_result::absent)
+		{
 			weapon_num = get_alternate_weapon(weapon_num, weapon_num_save);
 			weapon_status = player_has_secondary_weapon(player_info, weapon_num);
-			if ((weapon_status & has_flag) != has_flag)
+			if (weapon_status == has_secondary_weapon_result::absent)
 				weapon_num = get_alternate_weapon(weapon_num, weapon_num_save);
 		}
 	}
 
 	//if we don't have the weapon we're switching to, give error & bail
 	const auto weapon_name = SECONDARY_WEAPON_NAMES(weapon_num);
-	if ((weapon_status & has_flag) != has_flag) {
+	if (weapon_status == has_secondary_weapon_result::absent)
+	{
 		HUD_init_message(HM_DEFAULT, "%s %s%s", TXT_HAVE_NO, weapon_name, TXT_SX);
 		digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
 		return;

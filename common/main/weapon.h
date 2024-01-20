@@ -61,6 +61,12 @@ enum class has_weapon_result : uint8_t
 	ammo = 4,
 };
 
+enum class has_secondary_weapon_result : uint8_t
+{
+	absent = 0,
+	present = 1,
+};
+
 static constexpr has_weapon_result operator&(const has_weapon_result r, const has_weapon_result m)
 {
 	return static_cast<has_weapon_result>(static_cast<uint8_t>(r) & static_cast<uint8_t>(m));
@@ -85,6 +91,11 @@ static constexpr bool has_all(const has_weapon_result r)
 {
 	constexpr auto m = has_weapon_result::weapon | has_weapon_result::energy | has_weapon_result::ammo;
 	return (r & m) == m;
+}
+
+static constexpr uint8_t has_all(const has_secondary_weapon_result r)
+{
+	return static_cast<uint8_t>(r);
 }
 
 }
