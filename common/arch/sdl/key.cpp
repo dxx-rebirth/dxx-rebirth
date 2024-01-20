@@ -11,6 +11,7 @@
  *
  */
 
+#include "dxxsconf.h"
 #include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,7 +30,6 @@
 #include "console.h"
 #include "args.h"
 
-#include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "compiler-range_for.h"
 #include <array>

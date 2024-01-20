@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include "dxxsconf.h"
 #include <stdio.h>
 #include <string.h>
 #include <SDL.h>
@@ -83,7 +84,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "physfs_list.h"
 
-#include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "compiler-range_for.h"
 #include "d_enumerate.h"

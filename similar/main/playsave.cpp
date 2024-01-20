@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include "dxxsconf.h"
 #include <stdexcept>
 #include <stdio.h>
 #include <string.h>

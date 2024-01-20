@@ -10,6 +10,7 @@
  *
  */
 
+#include "dxxsconf.h"
 #include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,7 +33,6 @@
 #include "cmd.h"
 #include "cvar.h"
 
-#include "dxxsconf.h"
 #include <array>
 
 #ifdef _WIN32

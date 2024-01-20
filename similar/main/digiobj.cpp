@@ -17,7 +17,7 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-
+#include "dxxsconf.h"
 #include <algorithm>
 #include <stdexcept>
 #include <stdlib.h>

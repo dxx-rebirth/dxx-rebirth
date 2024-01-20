@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include "dxxsconf.h"
 #include <stdio.h>		// for printf()
 #include <stdlib.h>		// for rand() and qsort()
 #include <string.h>		// for memset()
