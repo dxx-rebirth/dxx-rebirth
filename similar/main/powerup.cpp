@@ -287,9 +287,9 @@ struct player_hit_basic_sound_powerup : player_hit_basic_silent_powerup<r, g, b>
 
 using player_hit_silent_rb_powerup = player_hit_basic_silent_powerup<15, 0, 15>;
 
-struct player_hit_afterburner_powerup : player_hit_basic_sound_powerup<15, 15, 15, POW_AFTERBURNER>
+struct player_hit_afterburner_powerup : player_hit_basic_sound_powerup<15, 15, 15, powerup_type_t::POW_AFTERBURNER>
 {
-	using base_type = player_hit_basic_sound_powerup<15, 15, 15, POW_AFTERBURNER>;
+	using base_type = player_hit_basic_sound_powerup<15, 15, 15, powerup_type_t::POW_AFTERBURNER>;
 	using base_type::base_type;
 	template <PLAYER_FLAG player_flag>
 		void pickup(player_flags &powerup_flags) const
@@ -419,7 +419,7 @@ int do_powerup(const vmobjptridx_t obj)
 	auto id = get_powerup_id(obj);
 	switch (id)
 	{
-		case POW_EXTRA_LIFE:
+		case powerup_type_t::POW_EXTRA_LIFE:
 			get_local_player().lives++;
 			{
 				const auto &&m = TXT_EXTRA_LIFE;
@@ -427,10 +427,10 @@ int do_powerup(const vmobjptridx_t obj)
 			}
 			used=1;
 			break;
-		case POW_ENERGY:
+		case powerup_type_t::POW_ENERGY:
 			used = pick_up_energy(player_info);
 			break;
-		case POW_SHIELD_BOOST:
+		case powerup_type_t::POW_SHIELD_BOOST:
 			{
 				auto &shields = plrobj.shields;
 			if (shields < MAX_SHIELDS) {
@@ -449,7 +449,7 @@ int do_powerup(const vmobjptridx_t obj)
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, TXT_MAXED_OUT,TXT_SHIELD);
 			break;
 			}
-		case POW_LASER:
+		case powerup_type_t::POW_LASER:
 			if (player_info.laser_level >= MAX_LASER_LEVEL) {
 #if defined(DXX_BUILD_DESCENT_I)
 				player_info.laser_level = MAX_LASER_LEVEL;
@@ -468,23 +468,23 @@ int do_powerup(const vmobjptridx_t obj)
 			if (!used && !(Game_mode & GM_MULTI) )
 				used = pick_up_energy(player_info);
 			break;
-		case POW_MISSILE_1:
+		case powerup_type_t::POW_MISSILE_1:
 			used = pick_up_secondary(player_info, secondary_weapon_index_t::CONCUSSION_INDEX, 1, Controls);
 			break;
-		case POW_MISSILE_4:
+		case powerup_type_t::POW_MISSILE_4:
 			used = pick_up_secondary(player_info, secondary_weapon_index_t::CONCUSSION_INDEX, 4, Controls);
 			break;
 
-		case POW_KEY_BLUE:
+		case powerup_type_t::POW_KEY_BLUE:
 			used = pick_up_key(0, 0, 15, player_info.powerup_flags, PLAYER_FLAGS_BLUE_KEY, TXT_BLUE, id);
 			break;
-		case POW_KEY_RED:
+		case powerup_type_t::POW_KEY_RED:
 			used = pick_up_key(15, 0, 0, player_info.powerup_flags, PLAYER_FLAGS_RED_KEY, TXT_RED, id);
 			break;
-		case POW_KEY_GOLD:
+		case powerup_type_t::POW_KEY_GOLD:
 			used = pick_up_key(15, 15, 7, player_info.powerup_flags, PLAYER_FLAGS_GOLD_KEY, TXT_YELLOW, id);
 			break;
-		case POW_QUAD_FIRE:
+		case powerup_type_t::POW_QUAD_FIRE:
 			used = player_hit_powerup<PLAYER_FLAGS_QUAD_LASERS>(player_info, TXT_QUAD_LASERS, player_hit_quadlaser_powerup());
 			break;
 
@@ -495,7 +495,7 @@ int do_powerup(const vmobjptridx_t obj)
 			{
 			used = pick_up_primary(player_info,
 #if defined(DXX_BUILD_DESCENT_II)
-									(id == POW_GAUSS_WEAPON)
+									(id == powerup_type_t::POW_GAUSS_WEAPON)
 				? primary_weapon_index_t::GAUSS_INDEX
 				:
 #endif
@@ -511,7 +511,7 @@ int do_powerup(const vmobjptridx_t obj)
 				{
 					powerup_basic(7, 14, 21, VULCAN_AMMO_SCORE, "%s!", TXT_VULCAN_AMMO);
 					special_used = 1;
-					id = POW_VULCAN_AMMO;		//set new id for making sound at end of this function
+					id = powerup_type_t::POW_VULCAN_AMMO;		//set new id for making sound at end of this function
                                         if (Game_mode & GM_MULTI)
                                                 multi_send_vulcan_weapon_ammo_adjust(obj); // let other players know how much ammo we took.
 				}
@@ -630,15 +630,15 @@ int do_powerup(const vmobjptridx_t obj)
 	#endif
 
 #if defined(DXX_BUILD_DESCENT_II)
-		case POW_FULL_MAP:
+		case powerup_type_t::POW_FULL_MAP:
 			used = player_hit_powerup<PLAYER_FLAGS_MAP_ALL>(player_info, "the FULL MAP", player_hit_silent_rb_powerup("FULL MAP!"));
 			break;
 
-		case POW_CONVERTER:
+		case powerup_type_t::POW_CONVERTER:
 			used = player_hit_powerup<PLAYER_FLAGS_CONVERTER>(player_info, "the Converter", player_hit_silent_rb_powerup("Energy -> shield converter!"));
 			break;
 
-		case POW_SUPER_LASER:
+		case powerup_type_t::POW_SUPER_LASER:
 			if (player_info.laser_level >= MAX_SUPER_LASER_LEVEL)
 			{
 				player_info.laser_level = MAX_SUPER_LASER_LEVEL;
@@ -660,23 +660,23 @@ int do_powerup(const vmobjptridx_t obj)
 				used = pick_up_energy(player_info);
 			break;
 
-		case POW_AMMO_RACK:
-			used = player_hit_powerup<PLAYER_FLAGS_AMMO_RACK>(player_info, "the Ammo rack", player_hit_basic_sound_powerup<15, 0, 15, POW_AMMO_RACK>("AMMO RACK!"));
+		case powerup_type_t::POW_AMMO_RACK:
+			used = player_hit_powerup<PLAYER_FLAGS_AMMO_RACK>(player_info, "the Ammo rack", player_hit_basic_sound_powerup<15, 0, 15, powerup_type_t::POW_AMMO_RACK>("AMMO RACK!"));
 			break;
 
-		case POW_AFTERBURNER:
+		case powerup_type_t::POW_AFTERBURNER:
 			used = player_hit_powerup<PLAYER_FLAGS_AFTERBURNER>(player_info, "the Afterburner", player_hit_afterburner_powerup("AFTERBURNER!"));
 			break;
 
-		case POW_HEADLIGHT:
+		case powerup_type_t::POW_HEADLIGHT:
 			used = player_hit_powerup<PLAYER_FLAGS_HEADLIGHT>(player_info, "the Headlight boost", player_hit_headlight_powerup());
 			break;
 
-		case POW_FLAG_BLUE:
+		case powerup_type_t::POW_FLAG_BLUE:
 			used = player_hit_flag_powerup<team_number::red>(player_info, "BLUE FLAG!");
 		   break;
 
-		case POW_HOARD_ORB:
+		case powerup_type_t::POW_HOARD_ORB:
 			if (game_mode_hoard())			
 			{
 				auto &proximity = player_info.hoard.orbs;
@@ -691,12 +691,9 @@ int do_powerup(const vmobjptridx_t obj)
 			}
 		  break;	
 
-		case POW_FLAG_RED:
+		case powerup_type_t::POW_FLAG_RED:
 			used = player_hit_flag_powerup<team_number::blue>(player_info, "RED FLAG!");
 		   break;
-
-//		case POW_HOARD_ORB:
-
 #endif
 		default:
 			break;

@@ -1521,7 +1521,7 @@ static void filter_objects_from_level(const d_powerup_info_array &Powerup_info, 
 		if (obj.type == OBJ_POWERUP)
 		{
 			const auto powerup_id = get_powerup_id(obj);
-			if (powerup_id == POW_FLAG_RED || powerup_id == POW_FLAG_BLUE)
+			if (powerup_id == powerup_type_t::POW_FLAG_RED || powerup_id == powerup_type_t::POW_FLAG_BLUE)
 				bash_to_shield(Powerup_info, Vclip, obj);
 		}
 	}
@@ -2111,7 +2111,7 @@ window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, const
 
 void bash_to_shield(const d_powerup_info_array &Powerup_info, const d_vclip_array &Vclip, object_base &i)
 {
-	set_powerup_id(Powerup_info, Vclip, i, POW_SHIELD_BOOST);
+	set_powerup_id(Powerup_info, Vclip, i, powerup_type_t::POW_SHIELD_BOOST);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)

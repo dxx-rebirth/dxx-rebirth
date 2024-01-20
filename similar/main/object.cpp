@@ -806,57 +806,57 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 			if (PlayerCfg.AlphaBlendPowerups) // set nice transparency/blending for certrain objects
 				switch ( get_powerup_id(obj) )
 				{
-					case POW_EXTRA_LIFE:
-					case POW_ENERGY:
-					case POW_SHIELD_BOOST:
-					case POW_CLOAK:
-					case POW_INVULNERABILITY:
+					case powerup_type_t::POW_EXTRA_LIFE:
+					case powerup_type_t::POW_ENERGY:
+					case powerup_type_t::POW_SHIELD_BOOST:
+					case powerup_type_t::POW_CLOAK:
+					case powerup_type_t::POW_INVULNERABILITY:
 #if defined(DXX_BUILD_DESCENT_II)
-					case POW_HOARD_ORB:
+					case powerup_type_t::POW_HOARD_ORB:
 #endif
 						alpha = true;
 						gr_settransblend(canvas, gr_fade_level{7}, gr_blend::additive_a);
 						break;
-					case POW_LASER:
-					case POW_KEY_BLUE:
-					case POW_KEY_RED:
-					case POW_KEY_GOLD:
-					case POW_MISSILE_1:
-					case POW_MISSILE_4:
-					case POW_QUAD_FIRE:
-					case POW_VULCAN_WEAPON:
-					case POW_SPREADFIRE_WEAPON:
-					case POW_PLASMA_WEAPON:
-					case POW_FUSION_WEAPON:
-					case POW_PROXIMITY_WEAPON:
-					case POW_HOMING_AMMO_1:
-					case POW_HOMING_AMMO_4:
-					case POW_SMARTBOMB_WEAPON:
-					case POW_MEGA_WEAPON:
-					case POW_VULCAN_AMMO:
-					case POW_TURBO:
-					case POW_MEGAWOW:
+					case powerup_type_t::POW_LASER:
+					case powerup_type_t::POW_KEY_BLUE:
+					case powerup_type_t::POW_KEY_RED:
+					case powerup_type_t::POW_KEY_GOLD:
+					case powerup_type_t::POW_MISSILE_1:
+					case powerup_type_t::POW_MISSILE_4:
+					case powerup_type_t::POW_QUAD_FIRE:
+					case powerup_type_t::POW_VULCAN_WEAPON:
+					case powerup_type_t::POW_SPREADFIRE_WEAPON:
+					case powerup_type_t::POW_PLASMA_WEAPON:
+					case powerup_type_t::POW_FUSION_WEAPON:
+					case powerup_type_t::POW_PROXIMITY_WEAPON:
+					case powerup_type_t::POW_HOMING_AMMO_1:
+					case powerup_type_t::POW_HOMING_AMMO_4:
+					case powerup_type_t::POW_SMARTBOMB_WEAPON:
+					case powerup_type_t::POW_MEGA_WEAPON:
+					case powerup_type_t::POW_VULCAN_AMMO:
+					case powerup_type_t::POW_TURBO:
+					case powerup_type_t::POW_MEGAWOW:
 #if defined(DXX_BUILD_DESCENT_II)
-					case POW_FULL_MAP:
-					case POW_HEADLIGHT:
-					case POW_GAUSS_WEAPON:
-					case POW_HELIX_WEAPON:
-					case POW_PHOENIX_WEAPON:
-					case POW_OMEGA_WEAPON:
-					case POW_SUPER_LASER:
-					case POW_CONVERTER:
-					case POW_AMMO_RACK:
-					case POW_AFTERBURNER:
-					case POW_SMISSILE1_1:
-					case POW_SMISSILE1_4:
-					case POW_GUIDED_MISSILE_1:
-					case POW_GUIDED_MISSILE_4:
-					case POW_SMART_MINE:
-					case POW_MERCURY_MISSILE_1:
-					case POW_MERCURY_MISSILE_4:
-					case POW_EARTHSHAKER_MISSILE:
-					case POW_FLAG_BLUE:
-					case POW_FLAG_RED:
+					case powerup_type_t::POW_FULL_MAP:
+					case powerup_type_t::POW_HEADLIGHT:
+					case powerup_type_t::POW_GAUSS_WEAPON:
+					case powerup_type_t::POW_HELIX_WEAPON:
+					case powerup_type_t::POW_PHOENIX_WEAPON:
+					case powerup_type_t::POW_OMEGA_WEAPON:
+					case powerup_type_t::POW_SUPER_LASER:
+					case powerup_type_t::POW_CONVERTER:
+					case powerup_type_t::POW_AMMO_RACK:
+					case powerup_type_t::POW_AFTERBURNER:
+					case powerup_type_t::POW_SMISSILE1_1:
+					case powerup_type_t::POW_SMISSILE1_4:
+					case powerup_type_t::POW_GUIDED_MISSILE_1:
+					case powerup_type_t::POW_GUIDED_MISSILE_4:
+					case powerup_type_t::POW_SMART_MINE:
+					case powerup_type_t::POW_MERCURY_MISSILE_1:
+					case powerup_type_t::POW_MERCURY_MISSILE_4:
+					case powerup_type_t::POW_EARTHSHAKER_MISSILE:
+					case powerup_type_t::POW_FLAG_BLUE:
+					case powerup_type_t::POW_FLAG_RED:
 #endif
 						break;
 				}

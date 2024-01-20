@@ -1494,7 +1494,7 @@ imobjptridx_t spit_powerup(d_level_unique_object_state &LevelUniqueObjectState, 
 
 	// Give keys zero velocity so they can be tracked better in multi
 
-	if ((Game_mode & GM_MULTI) && (id >= POW_KEY_BLUE) && (id <= POW_KEY_GOLD))
+	if ((Game_mode & GM_MULTI) && (id >= powerup_type_t::POW_KEY_BLUE) && (id <= powerup_type_t::POW_KEY_GOLD))
 		vm_vec_zero(new_velocity);
 
 	//there's a piece of code which lets the player pick up a powerup if
@@ -1532,10 +1532,10 @@ imobjptridx_t spit_powerup(d_level_unique_object_state &LevelUniqueObjectState, 
 
 	switch (id)
 	{
-		case POW_MISSILE_1:
-		case POW_MISSILE_4:
-		case POW_SHIELD_BOOST:
-		case POW_ENERGY:
+		case powerup_type_t::POW_MISSILE_1:
+		case powerup_type_t::POW_MISSILE_4:
+		case powerup_type_t::POW_SHIELD_BOOST:
+		case powerup_type_t::POW_ENERGY:
 			obj.lifeleft = (d_rand() + F1_0*3) * 64;		//	Lives for 3 to 3.5 binary minutes (a binary minute is 64 seconds)
 			if (Game_mode & GM_MULTI)
 				obj.lifeleft /= 2;
@@ -1563,7 +1563,7 @@ void DropCurrentWeapon (player_info &player_info)
 			/* Sorry, no message.  Need to fall through in case player
 			 * wanted to drop a laser powerup.
 			 */
-			drop_type = POW_QUAD_FIRE;
+			drop_type = powerup_type_t::POW_QUAD_FIRE;
 			weapon_name = TXT_QUAD_LASERS;
 		}
 		else if (player_info.laser_level == laser_level::_1)
@@ -1587,7 +1587,7 @@ void DropCurrentWeapon (player_info &player_info)
 			return;
 		}
 		else
-			drop_type = POW_LASER;
+			drop_type = powerup_type_t::POW_LASER;
 	}
 	else
 	{
@@ -1641,7 +1641,7 @@ void DropCurrentWeapon (player_info &player_info)
 
 	if (Primary_weapon == primary_weapon_index_t::LASER_INDEX)
 	{
-		if (drop_type == POW_QUAD_FIRE)
+		if (drop_type == powerup_type_t::POW_QUAD_FIRE)
 			player_info.powerup_flags &= ~PLAYER_FLAGS_QUAD_LASERS;
 		else
 			-- player_info.laser_level;
@@ -1673,12 +1673,12 @@ void DropSecondaryWeapon (player_info &player_info)
 	// see if we drop single or 4-pack
 	switch (weapon_drop_id)
 	{
-		case POW_MISSILE_1:
-		case POW_HOMING_AMMO_1:
+		case powerup_type_t::POW_MISSILE_1:
+		case powerup_type_t::POW_HOMING_AMMO_1:
 #if defined(DXX_BUILD_DESCENT_II)
-		case POW_SMISSILE1_1:
-		case POW_GUIDED_MISSILE_1:
-		case POW_MERCURY_MISSILE_1:
+		case powerup_type_t::POW_SMISSILE1_1:
+		case powerup_type_t::POW_GUIDED_MISSILE_1:
+		case powerup_type_t::POW_MERCURY_MISSILE_1:
 #endif
 			if (secondary_ammo % 4)
 			{
@@ -1691,9 +1691,9 @@ void DropSecondaryWeapon (player_info &player_info)
 				weapon_drop_id = static_cast<powerup_type_t>(1 + static_cast<uint_fast32_t>(weapon_drop_id));
 			}
 			break;
-		case POW_PROXIMITY_WEAPON:
+		case powerup_type_t::POW_PROXIMITY_WEAPON:
 #if defined(DXX_BUILD_DESCENT_II)
-		case POW_SMART_MINE:
+		case powerup_type_t::POW_SMART_MINE:
 #endif
 			if (secondary_ammo < 4)
 			{
@@ -1705,49 +1705,49 @@ void DropSecondaryWeapon (player_info &player_info)
 				sub_ammo = 4;
 			}
 			break;
-		case POW_SMARTBOMB_WEAPON:
-		case POW_MEGA_WEAPON:
+		case powerup_type_t::POW_SMARTBOMB_WEAPON:
+		case powerup_type_t::POW_MEGA_WEAPON:
 #if defined(DXX_BUILD_DESCENT_II)
-		case POW_EARTHSHAKER_MISSILE:
+		case powerup_type_t::POW_EARTHSHAKER_MISSILE:
 #endif
 			sub_ammo = 1;
 			break;
-		case POW_EXTRA_LIFE:
-		case POW_ENERGY:
-		case POW_SHIELD_BOOST:
-		case POW_LASER:
-		case POW_KEY_BLUE:
-		case POW_KEY_RED:
-		case POW_KEY_GOLD:
-		case POW_MISSILE_4:
-		case POW_QUAD_FIRE:
-		case POW_VULCAN_WEAPON:
-		case POW_SPREADFIRE_WEAPON:
-		case POW_PLASMA_WEAPON:
-		case POW_FUSION_WEAPON:
-		case POW_HOMING_AMMO_4:
-		case POW_VULCAN_AMMO:
-		case POW_CLOAK:
-		case POW_TURBO:
-		case POW_INVULNERABILITY:
-		case POW_MEGAWOW:
+		case powerup_type_t::POW_EXTRA_LIFE:
+		case powerup_type_t::POW_ENERGY:
+		case powerup_type_t::POW_SHIELD_BOOST:
+		case powerup_type_t::POW_LASER:
+		case powerup_type_t::POW_KEY_BLUE:
+		case powerup_type_t::POW_KEY_RED:
+		case powerup_type_t::POW_KEY_GOLD:
+		case powerup_type_t::POW_MISSILE_4:
+		case powerup_type_t::POW_QUAD_FIRE:
+		case powerup_type_t::POW_VULCAN_WEAPON:
+		case powerup_type_t::POW_SPREADFIRE_WEAPON:
+		case powerup_type_t::POW_PLASMA_WEAPON:
+		case powerup_type_t::POW_FUSION_WEAPON:
+		case powerup_type_t::POW_HOMING_AMMO_4:
+		case powerup_type_t::POW_VULCAN_AMMO:
+		case powerup_type_t::POW_CLOAK:
+		case powerup_type_t::POW_TURBO:
+		case powerup_type_t::POW_INVULNERABILITY:
+		case powerup_type_t::POW_MEGAWOW:
 #if defined(DXX_BUILD_DESCENT_II)
-		case POW_GAUSS_WEAPON:
-		case POW_HELIX_WEAPON:
-		case POW_PHOENIX_WEAPON:
-		case POW_OMEGA_WEAPON:
-		case POW_SUPER_LASER:
-		case POW_FULL_MAP:
-		case POW_CONVERTER:
-		case POW_AMMO_RACK:
-		case POW_AFTERBURNER:
-		case POW_HEADLIGHT:
-		case POW_SMISSILE1_4:
-		case POW_GUIDED_MISSILE_4:
-		case POW_MERCURY_MISSILE_4:
-		case POW_FLAG_BLUE:
-		case POW_FLAG_RED:
-		case POW_HOARD_ORB:
+		case powerup_type_t::POW_GAUSS_WEAPON:
+		case powerup_type_t::POW_HELIX_WEAPON:
+		case powerup_type_t::POW_PHOENIX_WEAPON:
+		case powerup_type_t::POW_OMEGA_WEAPON:
+		case powerup_type_t::POW_SUPER_LASER:
+		case powerup_type_t::POW_FULL_MAP:
+		case powerup_type_t::POW_CONVERTER:
+		case powerup_type_t::POW_AMMO_RACK:
+		case powerup_type_t::POW_AFTERBURNER:
+		case powerup_type_t::POW_HEADLIGHT:
+		case powerup_type_t::POW_SMISSILE1_4:
+		case powerup_type_t::POW_GUIDED_MISSILE_4:
+		case powerup_type_t::POW_MERCURY_MISSILE_4:
+		case powerup_type_t::POW_FLAG_BLUE:
+		case powerup_type_t::POW_FLAG_RED:
+		case powerup_type_t::POW_HOARD_ORB:
 #endif
 			break;
 	}

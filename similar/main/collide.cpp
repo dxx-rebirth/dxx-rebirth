@@ -2001,42 +2001,42 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 
 		//	If the player dies and he has powerful lasers, create the powerups here.
 
-		std::pair<unsigned, int> laser_level_and_id;
+		std::pair<unsigned, powerup_type_t> laser_level_and_id;
 		if (
 #if defined(DXX_BUILD_DESCENT_II)
-			(plr_laser_level > MAX_LASER_LEVEL && (laser_level_and_id = {static_cast<unsigned>(plr_laser_level) - static_cast<unsigned>(MAX_LASER_LEVEL), POW_SUPER_LASER}, true)) ||
+			(plr_laser_level > MAX_LASER_LEVEL && (laser_level_and_id = {static_cast<unsigned>(plr_laser_level) - static_cast<unsigned>(MAX_LASER_LEVEL), powerup_type_t::POW_SUPER_LASER}, true)) ||
 #endif
-			(plr_laser_level != laser_level::_1 && (laser_level_and_id = {static_cast<unsigned>(plr_laser_level), POW_LASER}, true)))
+			(plr_laser_level != laser_level::_1 && (laser_level_and_id = {static_cast<unsigned>(plr_laser_level), powerup_type_t::POW_LASER}, true)))
 			call_object_create_egg(playerobj, laser_level_and_id.first, laser_level_and_id.second);
 
 		//	Drop quad laser if appropos
 		if (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS)
-			call_object_create_egg(playerobj, POW_QUAD_FIRE);
+			call_object_create_egg(playerobj, powerup_type_t::POW_QUAD_FIRE);
 
 		if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)
-			call_object_create_egg(playerobj, POW_CLOAK);
+			call_object_create_egg(playerobj, powerup_type_t::POW_CLOAK);
 
 #if defined(DXX_BUILD_DESCENT_II)
 		if (player_info.powerup_flags & PLAYER_FLAGS_MAP_ALL)
-			call_object_create_egg(playerobj, POW_FULL_MAP);
+			call_object_create_egg(playerobj, powerup_type_t::POW_FULL_MAP);
 
 		if (player_info.powerup_flags & PLAYER_FLAGS_AFTERBURNER)
-			call_object_create_egg(playerobj, POW_AFTERBURNER);
+			call_object_create_egg(playerobj, powerup_type_t::POW_AFTERBURNER);
 
 		if (player_info.powerup_flags & PLAYER_FLAGS_AMMO_RACK)
-			call_object_create_egg(playerobj, POW_AMMO_RACK);
+			call_object_create_egg(playerobj, powerup_type_t::POW_AMMO_RACK);
 
 		if (player_info.powerup_flags & PLAYER_FLAGS_CONVERTER)
-			call_object_create_egg(playerobj, POW_CONVERTER);
+			call_object_create_egg(playerobj, powerup_type_t::POW_CONVERTER);
 
 		if (player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT)
-			call_object_create_egg(playerobj, POW_HEADLIGHT);
+			call_object_create_egg(playerobj, powerup_type_t::POW_HEADLIGHT);
 
 		// drop the other enemies flag if you have it
 
 		if (game_mode_capture_flag() && (player_info.powerup_flags & PLAYER_FLAGS_FLAG))
 		{
-			call_object_create_egg(playerobj, get_team(get_player_id(playerobj)) == team_number::blue ? POW_FLAG_RED : POW_FLAG_BLUE);
+			call_object_create_egg(playerobj, get_team(get_player_id(playerobj)) == team_number::blue ? powerup_type_t::POW_FLAG_RED : powerup_type_t::POW_FLAG_BLUE);
 		}
 
 
@@ -2044,7 +2044,7 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 		{
 			// Drop hoard orbs
 			for (unsigned max_count = std::min<uint8_t>(player_info.hoard.orbs, player_info.max_hoard_orbs); max_count--;)
-				call_object_create_egg(playerobj, POW_HOARD_ORB);
+				call_object_create_egg(playerobj, powerup_type_t::POW_HOARD_ORB);
 		}
 #endif
 
@@ -2098,7 +2098,7 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 			if (amount)
 				for (;;)
 			{
-				call_object_create_egg(playerobj, POW_VULCAN_AMMO);
+				call_object_create_egg(playerobj, powerup_type_t::POW_VULCAN_AMMO);
 				if (amount <= VULCAN_AMMO_AMOUNT)
 					break;
 				amount -= VULCAN_AMMO_AMOUNT;
@@ -2107,8 +2107,8 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 
 		//	Always drop a shield and energy powerup.
 		if (Game_mode & GM_MULTI) {
-			call_object_create_egg(playerobj, POW_SHIELD_BOOST);
-			call_object_create_egg(playerobj, POW_ENERGY);
+			call_object_create_egg(playerobj, powerup_type_t::POW_SHIELD_BOOST);
+			call_object_create_egg(playerobj, powerup_type_t::POW_ENERGY);
 		}
 	}
 }
@@ -2348,13 +2348,13 @@ static void collide_player_and_powerup(const d_robot_info_array &, object &playe
 	else if ((Game_mode & GM_MULTI_COOP) && (get_player_id(playerobj) != Player_num))
 	{
 		switch (get_powerup_id(powerup)) {
-			case POW_KEY_BLUE:
+			case powerup_type_t::POW_KEY_BLUE:
 				playerobj.ctype.player_info.powerup_flags |= PLAYER_FLAGS_BLUE_KEY;
 				break;
-			case POW_KEY_RED:
+			case powerup_type_t::POW_KEY_RED:
 				playerobj.ctype.player_info.powerup_flags |= PLAYER_FLAGS_RED_KEY;
 				break;
-			case POW_KEY_GOLD:
+			case powerup_type_t::POW_KEY_GOLD:
 				playerobj.ctype.player_info.powerup_flags |= PLAYER_FLAGS_GOLD_KEY;
 				break;
 			default:

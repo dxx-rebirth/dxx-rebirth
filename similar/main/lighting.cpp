@@ -462,16 +462,16 @@ static g3s_lrgb compute_light_emission(const d_robot_info_array &Robot_info, d_l
 		{
 			switch (get_powerup_id(objp))
 			{
-				case POW_EXTRA_LIFE:
-				case POW_ENERGY:
-				case POW_SHIELD_BOOST:
-				case POW_KEY_BLUE:
-				case POW_KEY_RED:
-				case POW_KEY_GOLD:
-				case POW_CLOAK:
-				case POW_INVULNERABILITY:
+				case powerup_type_t::POW_EXTRA_LIFE:
+				case powerup_type_t::POW_ENERGY:
+				case powerup_type_t::POW_SHIELD_BOOST:
+				case powerup_type_t::POW_KEY_BLUE:
+				case powerup_type_t::POW_KEY_RED:
+				case powerup_type_t::POW_KEY_GOLD:
+				case powerup_type_t::POW_CLOAK:
+				case powerup_type_t::POW_INVULNERABILITY:
 #if defined(DXX_BUILD_DESCENT_II)
-				case POW_HOARD_ORB:
+				case powerup_type_t::POW_HOARD_ORB:
 #endif
 					compute_color = 1;
 					break;

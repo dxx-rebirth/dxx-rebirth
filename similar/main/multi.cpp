@@ -3312,47 +3312,47 @@ void update_item_state::process_powerup(const d_vclip_array &Vclip, fvmsegptridx
 	uint_fast32_t count;
 	switch (id)
 	{
-		case POW_LASER:
-		case POW_QUAD_FIRE:
-		case POW_VULCAN_WEAPON:
-		case POW_VULCAN_AMMO:
-		case POW_SPREADFIRE_WEAPON:
-		case POW_PLASMA_WEAPON:
-		case POW_FUSION_WEAPON:
+		case powerup_type_t::POW_LASER:
+		case powerup_type_t::POW_QUAD_FIRE:
+		case powerup_type_t::POW_VULCAN_WEAPON:
+		case powerup_type_t::POW_VULCAN_AMMO:
+		case powerup_type_t::POW_SPREADFIRE_WEAPON:
+		case powerup_type_t::POW_PLASMA_WEAPON:
+		case powerup_type_t::POW_FUSION_WEAPON:
 #if defined(DXX_BUILD_DESCENT_II)
-		case POW_SUPER_LASER:
-		case POW_GAUSS_WEAPON:
-		case POW_HELIX_WEAPON:
-		case POW_PHOENIX_WEAPON:
-		case POW_OMEGA_WEAPON:
+		case powerup_type_t::POW_SUPER_LASER:
+		case powerup_type_t::POW_GAUSS_WEAPON:
+		case powerup_type_t::POW_HELIX_WEAPON:
+		case powerup_type_t::POW_PHOENIX_WEAPON:
+		case powerup_type_t::POW_OMEGA_WEAPON:
 #endif
 			count = Netgame.DuplicatePowerups.get_primary_count();
 			break;
-		case POW_MISSILE_1:
-		case POW_MISSILE_4:
-		case POW_HOMING_AMMO_1:
-		case POW_HOMING_AMMO_4:
-		case POW_PROXIMITY_WEAPON:
-		case POW_SMARTBOMB_WEAPON:
-		case POW_MEGA_WEAPON:
+		case powerup_type_t::POW_MISSILE_1:
+		case powerup_type_t::POW_MISSILE_4:
+		case powerup_type_t::POW_HOMING_AMMO_1:
+		case powerup_type_t::POW_HOMING_AMMO_4:
+		case powerup_type_t::POW_PROXIMITY_WEAPON:
+		case powerup_type_t::POW_SMARTBOMB_WEAPON:
+		case powerup_type_t::POW_MEGA_WEAPON:
 #if defined(DXX_BUILD_DESCENT_II)
-		case POW_SMISSILE1_1:
-		case POW_SMISSILE1_4:
-		case POW_GUIDED_MISSILE_1:
-		case POW_GUIDED_MISSILE_4:
-		case POW_SMART_MINE:
-		case POW_MERCURY_MISSILE_1:
-		case POW_MERCURY_MISSILE_4:
-		case POW_EARTHSHAKER_MISSILE:
+		case powerup_type_t::POW_SMISSILE1_1:
+		case powerup_type_t::POW_SMISSILE1_4:
+		case powerup_type_t::POW_GUIDED_MISSILE_1:
+		case powerup_type_t::POW_GUIDED_MISSILE_4:
+		case powerup_type_t::POW_SMART_MINE:
+		case powerup_type_t::POW_MERCURY_MISSILE_1:
+		case powerup_type_t::POW_MERCURY_MISSILE_4:
+		case powerup_type_t::POW_EARTHSHAKER_MISSILE:
 #endif
 			count = Netgame.DuplicatePowerups.get_secondary_count();
 			break;
 #if defined(DXX_BUILD_DESCENT_II)
-		case POW_FULL_MAP:
-		case POW_CONVERTER:
-		case POW_AMMO_RACK:
-		case POW_AFTERBURNER:
-		case POW_HEADLIGHT:
+		case powerup_type_t::POW_FULL_MAP:
+		case powerup_type_t::POW_CONVERTER:
+		case powerup_type_t::POW_AMMO_RACK:
+		case powerup_type_t::POW_AFTERBURNER:
+		case powerup_type_t::POW_HEADLIGHT:
 			count = Netgame.DuplicatePowerups.get_accessory_count();
 			break;
 #endif
@@ -3436,11 +3436,11 @@ void multi_prep_level_objects(const d_powerup_info_array &Powerup_info, const d_
 	{
 		if ((o->type == OBJ_HOSTAGE) && !(Game_mode & GM_MULTI_COOP))
 		{
-			const auto &&objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, POW_SHIELD_BOOST, vmsegptridx(o->segnum), o->pos, &vmd_identity_matrix, Powerup_info[POW_SHIELD_BOOST].size, object::control_type::powerup, object::movement_type::physics, render_type::RT_POWERUP);
+			const auto &&objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, powerup_type_t::POW_SHIELD_BOOST, vmsegptridx(o->segnum), o->pos, &vmd_identity_matrix, Powerup_info[powerup_type_t::POW_SHIELD_BOOST].size, object::control_type::powerup, object::movement_type::physics, render_type::RT_POWERUP);
 			obj_delete(LevelUniqueObjectState, Segments, o);
 			if (objnum != object_none)
 			{
-				objnum->rtype.vclip_info.vclip_num = Powerup_info[POW_SHIELD_BOOST].vclip_num;
+				objnum->rtype.vclip_info.vclip_num = Powerup_info[powerup_type_t::POW_SHIELD_BOOST].vclip_num;
 				objnum->rtype.vclip_info.frametime = Vclip[objnum->rtype.vclip_info.vclip_num].frame_time;
 				objnum->rtype.vclip_info.framenum = 0;
 				objnum->mtype.phys_info.drag = 512;     //1024;
@@ -3454,20 +3454,20 @@ void multi_prep_level_objects(const d_powerup_info_array &Powerup_info, const d_
 		{
 			switch (const auto id = get_powerup_id(o))
 			{
-				case POW_EXTRA_LIFE:
-					set_powerup_id(Powerup_info, Vclip, o, POW_INVULNERABILITY);
+				case powerup_type_t::POW_EXTRA_LIFE:
+					set_powerup_id(Powerup_info, Vclip, o, powerup_type_t::POW_INVULNERABILITY);
 					[[fallthrough]];
-				case POW_INVULNERABILITY:
+				case powerup_type_t::POW_INVULNERABILITY:
 					if (inv_remaining)
 						-- inv_remaining;
 					else
-						set_powerup_id(Powerup_info, Vclip, o, POW_SHIELD_BOOST);
+						set_powerup_id(Powerup_info, Vclip, o, powerup_type_t::POW_SHIELD_BOOST);
 					continue;
-				case POW_CLOAK:
+				case powerup_type_t::POW_CLOAK:
 					if (cloak_remaining)
 						-- cloak_remaining;
 					else
-						set_powerup_id(Powerup_info, Vclip, o, POW_SHIELD_BOOST);
+						set_powerup_id(Powerup_info, Vclip, o, powerup_type_t::POW_SHIELD_BOOST);
 					continue;
 				default:
 					if (multi_powerup_is_allowed(id, AllowedItems, SpawnGrantedItems) == netflag_flag::None)
@@ -3648,54 +3648,54 @@ void powerup_shuffle_state::record_powerup(const vmobjptridx_t o)
 		/* record_powerup runs before object conversion or duplication,
 		 * so object types that anarchy converts still have their
 		 * original type when this switch runs.  Therefore,
-		 * POW_EXTRA_LIFE and the key powerups must be handled here,
+		 * powerup_type_t::POW_EXTRA_LIFE and the key powerups must be handled here,
 		 * even though they are converted to other objects before play
 		 * begins.  If they were not handled, no object could exchange
 		 * places with a converted object.
 		 */
-		case POW_EXTRA_LIFE:
-		case POW_ENERGY:
-		case POW_SHIELD_BOOST:
-		case POW_LASER:
-		case POW_KEY_BLUE:
-		case POW_KEY_RED:
-		case POW_KEY_GOLD:
-		case POW_MISSILE_1:
-		case POW_MISSILE_4:
-		case POW_QUAD_FIRE:
-		case POW_VULCAN_WEAPON:
-		case POW_SPREADFIRE_WEAPON:
-		case POW_PLASMA_WEAPON:
-		case POW_FUSION_WEAPON:
-		case POW_PROXIMITY_WEAPON:
-		case POW_HOMING_AMMO_1:
-		case POW_HOMING_AMMO_4:
-		case POW_SMARTBOMB_WEAPON:
-		case POW_MEGA_WEAPON:
-		case POW_VULCAN_AMMO:
-		case POW_CLOAK:
-		case POW_INVULNERABILITY:
+		case powerup_type_t::POW_EXTRA_LIFE:
+		case powerup_type_t::POW_ENERGY:
+		case powerup_type_t::POW_SHIELD_BOOST:
+		case powerup_type_t::POW_LASER:
+		case powerup_type_t::POW_KEY_BLUE:
+		case powerup_type_t::POW_KEY_RED:
+		case powerup_type_t::POW_KEY_GOLD:
+		case powerup_type_t::POW_MISSILE_1:
+		case powerup_type_t::POW_MISSILE_4:
+		case powerup_type_t::POW_QUAD_FIRE:
+		case powerup_type_t::POW_VULCAN_WEAPON:
+		case powerup_type_t::POW_SPREADFIRE_WEAPON:
+		case powerup_type_t::POW_PLASMA_WEAPON:
+		case powerup_type_t::POW_FUSION_WEAPON:
+		case powerup_type_t::POW_PROXIMITY_WEAPON:
+		case powerup_type_t::POW_HOMING_AMMO_1:
+		case powerup_type_t::POW_HOMING_AMMO_4:
+		case powerup_type_t::POW_SMARTBOMB_WEAPON:
+		case powerup_type_t::POW_MEGA_WEAPON:
+		case powerup_type_t::POW_VULCAN_AMMO:
+		case powerup_type_t::POW_CLOAK:
+		case powerup_type_t::POW_INVULNERABILITY:
 #if defined(DXX_BUILD_DESCENT_II)
-		case POW_GAUSS_WEAPON:
-		case POW_HELIX_WEAPON:
-		case POW_PHOENIX_WEAPON:
-		case POW_OMEGA_WEAPON:
+		case powerup_type_t::POW_GAUSS_WEAPON:
+		case powerup_type_t::POW_HELIX_WEAPON:
+		case powerup_type_t::POW_PHOENIX_WEAPON:
+		case powerup_type_t::POW_OMEGA_WEAPON:
 
-		case POW_SUPER_LASER:
-		case POW_FULL_MAP:
-		case POW_CONVERTER:
-		case POW_AMMO_RACK:
-		case POW_AFTERBURNER:
-		case POW_HEADLIGHT:
+		case powerup_type_t::POW_SUPER_LASER:
+		case powerup_type_t::POW_FULL_MAP:
+		case powerup_type_t::POW_CONVERTER:
+		case powerup_type_t::POW_AMMO_RACK:
+		case powerup_type_t::POW_AFTERBURNER:
+		case powerup_type_t::POW_HEADLIGHT:
 
-		case POW_SMISSILE1_1:
-		case POW_SMISSILE1_4:
-		case POW_GUIDED_MISSILE_1:
-		case POW_GUIDED_MISSILE_4:
-		case POW_SMART_MINE:
-		case POW_MERCURY_MISSILE_1:
-		case POW_MERCURY_MISSILE_4:
-		case POW_EARTHSHAKER_MISSILE:
+		case powerup_type_t::POW_SMISSILE1_1:
+		case powerup_type_t::POW_SMISSILE1_4:
+		case powerup_type_t::POW_GUIDED_MISSILE_1:
+		case powerup_type_t::POW_GUIDED_MISSILE_4:
+		case powerup_type_t::POW_SMART_MINE:
+		case powerup_type_t::POW_MERCURY_MISSILE_1:
+		case powerup_type_t::POW_MERCURY_MISSILE_4:
+		case powerup_type_t::POW_EARTHSHAKER_MISSILE:
 #endif
 			break;
 		default:
@@ -3851,7 +3851,7 @@ void multi_send_drop_weapon(const vmobjptridx_t objp, int seed)
 	ammo_count = objp->ctype.powerup_info.count;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (get_powerup_id(objp) == POW_OMEGA_WEAPON && ammo_count == F1_0)
+	if (get_powerup_id(objp) == powerup_type_t::POW_OMEGA_WEAPON && ammo_count == F1_0)
 		ammo_count = F1_0 - 1; //make fit in short
 #endif
 
@@ -4518,7 +4518,7 @@ static void DropOrb ()
 
 	seed = d_rand();
 
-	const auto &&objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, *ConsoleObject, POW_HOARD_ORB, seed);
+	const auto &&objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, *ConsoleObject, powerup_type_t::POW_HOARD_ORB, seed);
 	if (objnum == object_none)
 		return;
 
@@ -4559,7 +4559,7 @@ void DropFlag ()
 		return;
 	}
 	seed = d_rand();
-	const auto &&objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, *ConsoleObject, get_team(Player_num) == team_number::blue ? POW_FLAG_RED : POW_FLAG_BLUE, seed);
+	const auto &&objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, *ConsoleObject, get_team(Player_num) == team_number::blue ? powerup_type_t::POW_FLAG_RED : powerup_type_t::POW_FLAG_BLUE, seed);
 	if (objnum == object_none)
 	{
 		HUD_init_message_literal(HM_MULTI, "Failed to drop flag!");
@@ -4625,87 +4625,87 @@ netflag_flag multi_powerup_is_allowed(const powerup_type_t id, const netflag_fla
 	const auto AllowedItems = BaseAllowedItems & ~SpawnGrantedItems;
 	switch (id)
 	{
-		case POW_KEY_BLUE:
-		case POW_KEY_GOLD:
-		case POW_KEY_RED:
+		case powerup_type_t::POW_KEY_BLUE:
+		case powerup_type_t::POW_KEY_GOLD:
+		case powerup_type_t::POW_KEY_RED:
 			/* Callers only test whether the result is netflag_flag::None or
 			 * not, and do not expect a specific value. */
 			return static_cast<netflag_flag>(Game_mode & GM_MULTI_COOP);
-		case POW_INVULNERABILITY:
+		case powerup_type_t::POW_INVULNERABILITY:
 			return AllowedItems & netflag_flag::NETFLAG_DOINVUL;
-		case POW_CLOAK:
+		case powerup_type_t::POW_CLOAK:
 			return AllowedItems & netflag_flag::NETFLAG_DOCLOAK;
-		case POW_LASER:
+		case powerup_type_t::POW_LASER:
 			if (map_granted_flags_to_laser_level(Netgame.SpawnGrantedItems) >= MAX_LASER_LEVEL)
 				/* If players are granted maximum level lasers, then disallow
 				 * placing laser powerups.
 				 */
 				return netflag_flag::None;
 			return AllowedItems & netflag_flag::NETFLAG_DOLASER;
-		case POW_QUAD_FIRE:
+		case powerup_type_t::POW_QUAD_FIRE:
 			return AllowedItems & netflag_flag::NETFLAG_DOQUAD;
-		case POW_VULCAN_WEAPON:
+		case powerup_type_t::POW_VULCAN_WEAPON:
 			return AllowedItems & netflag_flag::NETFLAG_DOVULCAN;
-		case POW_SPREADFIRE_WEAPON:
+		case powerup_type_t::POW_SPREADFIRE_WEAPON:
 			return AllowedItems & netflag_flag::NETFLAG_DOSPREAD;
-		case POW_PLASMA_WEAPON:
+		case powerup_type_t::POW_PLASMA_WEAPON:
 			return AllowedItems & netflag_flag::NETFLAG_DOPLASMA;
-		case POW_FUSION_WEAPON:
+		case powerup_type_t::POW_FUSION_WEAPON:
 			return AllowedItems & netflag_flag::NETFLAG_DOFUSION;
-		case POW_HOMING_AMMO_1:
-		case POW_HOMING_AMMO_4:
+		case powerup_type_t::POW_HOMING_AMMO_1:
+		case powerup_type_t::POW_HOMING_AMMO_4:
 			return AllowedItems & netflag_flag::NETFLAG_DOHOMING;
-		case POW_PROXIMITY_WEAPON:
+		case powerup_type_t::POW_PROXIMITY_WEAPON:
 			return AllowedItems & netflag_flag::NETFLAG_DOPROXIM;
-		case POW_SMARTBOMB_WEAPON:
+		case powerup_type_t::POW_SMARTBOMB_WEAPON:
 			return AllowedItems & netflag_flag::NETFLAG_DOSMART;
-		case POW_MEGA_WEAPON:
+		case powerup_type_t::POW_MEGA_WEAPON:
 			return AllowedItems & netflag_flag::NETFLAG_DOMEGA;
-		case POW_VULCAN_AMMO:
+		case powerup_type_t::POW_VULCAN_AMMO:
 #if defined(DXX_BUILD_DESCENT_I)
 			return BaseAllowedItems & netflag_flag::NETFLAG_DOVULCAN;
 #elif defined(DXX_BUILD_DESCENT_II)
 			return BaseAllowedItems & (netflag_flag::NETFLAG_DOVULCAN | netflag_flag::NETFLAG_DOGAUSS);
 #endif
 #if defined(DXX_BUILD_DESCENT_II)
-		case POW_SUPER_LASER:
+		case powerup_type_t::POW_SUPER_LASER:
 			if (map_granted_flags_to_laser_level(Netgame.SpawnGrantedItems) >= MAX_SUPER_LASER_LEVEL)
 				/* If players are granted maximum level super lasers, then
 				 * disallow placing super laser powerups.
 				 */
 				return netflag_flag::None;
 			return AllowedItems & netflag_flag::NETFLAG_DOSUPERLASER;
-		case POW_GAUSS_WEAPON:
+		case powerup_type_t::POW_GAUSS_WEAPON:
 			return AllowedItems & netflag_flag::NETFLAG_DOGAUSS;
-		case POW_HELIX_WEAPON:
+		case powerup_type_t::POW_HELIX_WEAPON:
 			return AllowedItems & netflag_flag::NETFLAG_DOHELIX;
-		case POW_PHOENIX_WEAPON:
+		case powerup_type_t::POW_PHOENIX_WEAPON:
 			return AllowedItems & netflag_flag::NETFLAG_DOPHOENIX;
-		case POW_OMEGA_WEAPON:
+		case powerup_type_t::POW_OMEGA_WEAPON:
 			return AllowedItems & netflag_flag::NETFLAG_DOOMEGA;
-		case POW_SMISSILE1_1:
-		case POW_SMISSILE1_4:
+		case powerup_type_t::POW_SMISSILE1_1:
+		case powerup_type_t::POW_SMISSILE1_4:
 			return AllowedItems & netflag_flag::NETFLAG_DOFLASH;
-		case POW_GUIDED_MISSILE_1:
-		case POW_GUIDED_MISSILE_4:
+		case powerup_type_t::POW_GUIDED_MISSILE_1:
+		case powerup_type_t::POW_GUIDED_MISSILE_4:
 			return AllowedItems & netflag_flag::NETFLAG_DOGUIDED;
-		case POW_SMART_MINE:
+		case powerup_type_t::POW_SMART_MINE:
 			return AllowedItems & netflag_flag::NETFLAG_DOSMARTMINE;
-		case POW_MERCURY_MISSILE_1:
-		case POW_MERCURY_MISSILE_4:
+		case powerup_type_t::POW_MERCURY_MISSILE_1:
+		case powerup_type_t::POW_MERCURY_MISSILE_4:
 			return AllowedItems & netflag_flag::NETFLAG_DOMERCURY;
-		case POW_EARTHSHAKER_MISSILE:
+		case powerup_type_t::POW_EARTHSHAKER_MISSILE:
 			return AllowedItems & netflag_flag::NETFLAG_DOSHAKER;
-		case POW_AFTERBURNER:
+		case powerup_type_t::POW_AFTERBURNER:
 			return AllowedItems & netflag_flag::NETFLAG_DOAFTERBURNER;
-		case POW_CONVERTER:
+		case powerup_type_t::POW_CONVERTER:
 			return AllowedItems & netflag_flag::NETFLAG_DOCONVERTER;
-		case POW_AMMO_RACK:
+		case powerup_type_t::POW_AMMO_RACK:
 			return AllowedItems & netflag_flag::NETFLAG_DOAMMORACK;
-		case POW_HEADLIGHT:
+		case powerup_type_t::POW_HEADLIGHT:
 			return AllowedItems & netflag_flag::NETFLAG_DOHEADLIGHT;
-		case POW_FLAG_BLUE:
-		case POW_FLAG_RED:
+		case powerup_type_t::POW_FLAG_BLUE:
+		case powerup_type_t::POW_FLAG_RED:
 			return netflag_flag{game_mode_capture_flag()};
 #endif
 		default:
@@ -5295,10 +5295,10 @@ static void MultiLevelInv_CountLevelPowerups()
                 {
                         auto wid = get_weapon_id(objp);
                         if (wid == weapon_id_type::PROXIMITY_ID)
-                                MultiLevelInv.Current[POW_PROXIMITY_WEAPON]++;
+                                MultiLevelInv.Current[powerup_type_t::POW_PROXIMITY_WEAPON]++;
 #if defined(DXX_BUILD_DESCENT_II)
                         if (wid == weapon_id_type::SUPERPROX_ID)
-                                MultiLevelInv.Current[POW_SMART_MINE]++;
+                                MultiLevelInv.Current[powerup_type_t::POW_SMART_MINE]++;
 #endif
                 }
                 if (objp->type != OBJ_POWERUP)
@@ -5306,59 +5306,59 @@ static void MultiLevelInv_CountLevelPowerups()
                 auto pid = get_powerup_id(objp);
                 switch (pid)
                 {
-					case POW_VULCAN_WEAPON:
+					case powerup_type_t::POW_VULCAN_WEAPON:
 #if defined(DXX_BUILD_DESCENT_II)
-					case POW_GAUSS_WEAPON:
+					case powerup_type_t::POW_GAUSS_WEAPON:
 #endif
-						MultiLevelInv.Current[POW_VULCAN_AMMO] += objp->ctype.powerup_info.count; // add contained ammo so we do not lose this from level when used up
+						MultiLevelInv.Current[powerup_type_t::POW_VULCAN_AMMO] += objp->ctype.powerup_info.count; // add contained ammo so we do not lose this from level when used up
 						/* fall through to increment Current[pid] */
 						[[fallthrough]];
-                        case POW_LASER:
-                        case POW_QUAD_FIRE:
-                        case POW_SPREADFIRE_WEAPON:
-                        case POW_PLASMA_WEAPON:
-                        case POW_FUSION_WEAPON:
-                        case POW_MISSILE_1:
-                        case POW_HOMING_AMMO_1:
-                        case POW_SMARTBOMB_WEAPON:
-                        case POW_MEGA_WEAPON:
-                        case POW_CLOAK:
-                        case POW_INVULNERABILITY:
+                        case powerup_type_t::POW_LASER:
+                        case powerup_type_t::POW_QUAD_FIRE:
+                        case powerup_type_t::POW_SPREADFIRE_WEAPON:
+                        case powerup_type_t::POW_PLASMA_WEAPON:
+                        case powerup_type_t::POW_FUSION_WEAPON:
+                        case powerup_type_t::POW_MISSILE_1:
+                        case powerup_type_t::POW_HOMING_AMMO_1:
+                        case powerup_type_t::POW_SMARTBOMB_WEAPON:
+                        case powerup_type_t::POW_MEGA_WEAPON:
+                        case powerup_type_t::POW_CLOAK:
+                        case powerup_type_t::POW_INVULNERABILITY:
 #if defined(DXX_BUILD_DESCENT_II)
-                        case POW_SUPER_LASER:
-                        case POW_HELIX_WEAPON:
-                        case POW_PHOENIX_WEAPON:
-                        case POW_OMEGA_WEAPON:
-                        case POW_SMISSILE1_1:
-                        case POW_GUIDED_MISSILE_1:
-                        case POW_MERCURY_MISSILE_1:
-                        case POW_EARTHSHAKER_MISSILE:
-                        case POW_FULL_MAP:
-                        case POW_CONVERTER:
-                        case POW_AMMO_RACK:
-                        case POW_AFTERBURNER:
-                        case POW_HEADLIGHT:
-                        case POW_FLAG_BLUE:
-                        case POW_FLAG_RED:
+                        case powerup_type_t::POW_SUPER_LASER:
+                        case powerup_type_t::POW_HELIX_WEAPON:
+                        case powerup_type_t::POW_PHOENIX_WEAPON:
+                        case powerup_type_t::POW_OMEGA_WEAPON:
+                        case powerup_type_t::POW_SMISSILE1_1:
+                        case powerup_type_t::POW_GUIDED_MISSILE_1:
+                        case powerup_type_t::POW_MERCURY_MISSILE_1:
+                        case powerup_type_t::POW_EARTHSHAKER_MISSILE:
+                        case powerup_type_t::POW_FULL_MAP:
+                        case powerup_type_t::POW_CONVERTER:
+                        case powerup_type_t::POW_AMMO_RACK:
+                        case powerup_type_t::POW_AFTERBURNER:
+                        case powerup_type_t::POW_HEADLIGHT:
+                        case powerup_type_t::POW_FLAG_BLUE:
+                        case powerup_type_t::POW_FLAG_RED:
 #endif
                                 MultiLevelInv.Current[pid]++;
                                 break;
-                        case POW_MISSILE_4:
-                        case POW_HOMING_AMMO_4:
+                        case powerup_type_t::POW_MISSILE_4:
+                        case powerup_type_t::POW_HOMING_AMMO_4:
 #if defined(DXX_BUILD_DESCENT_II)
-                        case POW_SMISSILE1_4:
-                        case POW_GUIDED_MISSILE_4:
-                        case POW_MERCURY_MISSILE_4:
+                        case powerup_type_t::POW_SMISSILE1_4:
+                        case powerup_type_t::POW_GUIDED_MISSILE_4:
+                        case powerup_type_t::POW_MERCURY_MISSILE_4:
 #endif
                                 MultiLevelInv.Current[pid-1] += 4;
                                 break;
-                        case POW_PROXIMITY_WEAPON:
+                        case powerup_type_t::POW_PROXIMITY_WEAPON:
 #if defined(DXX_BUILD_DESCENT_II)
-                        case POW_SMART_MINE:
+                        case powerup_type_t::POW_SMART_MINE:
 #endif
                                 MultiLevelInv.Current[pid] += 4; // count the actual bombs
                                 break;
-                        case POW_VULCAN_AMMO:
+                        case powerup_type_t::POW_VULCAN_AMMO:
                                 MultiLevelInv.Current[pid] += VULCAN_AMMO_AMOUNT; // count the actual ammo
                                 break;
                         default:
@@ -5388,51 +5388,51 @@ static void MultiLevelInv_CountPlayerInventory()
                                  * We do not know exactly how many normal lasers the player collected before going super so assume they have all.
                                  * This loss possible is insignificant since we have super lasers and normal ones may respawn some time after this player dies.
                                  */
-			Current[POW_LASER] += 4;
-			Current[POW_SUPER_LASER] += static_cast<unsigned>(player_info.laser_level) - static_cast<unsigned>(MAX_LASER_LEVEL) + 1; // Laser levels start at 0!
+							Current[powerup_type_t::POW_LASER] += 4;
+							Current[powerup_type_t::POW_SUPER_LASER] += static_cast<unsigned>(player_info.laser_level) - static_cast<unsigned>(MAX_LASER_LEVEL) + 1; // Laser levels start at 0!
                         }
                         else
 #endif
-                        {
-			Current[POW_LASER] += static_cast<unsigned>(player_info.laser_level) + 1; // Laser levels start at 0!
+						{
+							Current[powerup_type_t::POW_LASER] += static_cast<unsigned>(player_info.laser_level) + 1; // Laser levels start at 0!
                         }
 						accumulate_flags_count<player_flags, PLAYER_FLAG> powerup_flags(Current, player_info.powerup_flags);
 						accumulate_flags_count<player_info::primary_weapon_flag_type, unsigned> primary_weapon_flags(Current, player_info.primary_weapon_flags);
-						powerup_flags.process(PLAYER_FLAGS_QUAD_LASERS, POW_QUAD_FIRE);
-						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::VULCAN_INDEX), POW_VULCAN_WEAPON);
-						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::SPREADFIRE_INDEX), POW_SPREADFIRE_WEAPON);
-						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::PLASMA_INDEX), POW_PLASMA_WEAPON);
-						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::FUSION_INDEX), POW_FUSION_WEAPON);
-						powerup_flags.process(PLAYER_FLAGS_CLOAKED, POW_CLOAK);
-						powerup_flags.process(PLAYER_FLAGS_INVULNERABLE, POW_INVULNERABILITY);
+						powerup_flags.process(PLAYER_FLAGS_QUAD_LASERS, powerup_type_t::POW_QUAD_FIRE);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::VULCAN_INDEX), powerup_type_t::POW_VULCAN_WEAPON);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::SPREADFIRE_INDEX), powerup_type_t::POW_SPREADFIRE_WEAPON);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::PLASMA_INDEX), powerup_type_t::POW_PLASMA_WEAPON);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::FUSION_INDEX), powerup_type_t::POW_FUSION_WEAPON);
+						powerup_flags.process(PLAYER_FLAGS_CLOAKED, powerup_type_t::POW_CLOAK);
+						powerup_flags.process(PLAYER_FLAGS_INVULNERABLE, powerup_type_t::POW_INVULNERABILITY);
                         // NOTE: The following can probably be simplified.
 #if defined(DXX_BUILD_DESCENT_II)
-						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::GAUSS_INDEX), POW_GAUSS_WEAPON);
-						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::HELIX_INDEX), POW_HELIX_WEAPON);
-						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::PHOENIX_INDEX), POW_PHOENIX_WEAPON);
-						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::OMEGA_INDEX), POW_OMEGA_WEAPON);
-						powerup_flags.process(PLAYER_FLAGS_MAP_ALL, POW_FULL_MAP);
-						powerup_flags.process(PLAYER_FLAGS_CONVERTER, POW_CONVERTER);
-						powerup_flags.process(PLAYER_FLAGS_AMMO_RACK, POW_AMMO_RACK);
-						powerup_flags.process(PLAYER_FLAGS_AFTERBURNER, POW_AFTERBURNER);
-						powerup_flags.process(PLAYER_FLAGS_HEADLIGHT, POW_HEADLIGHT);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::GAUSS_INDEX), powerup_type_t::POW_GAUSS_WEAPON);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::HELIX_INDEX), powerup_type_t::POW_HELIX_WEAPON);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::PHOENIX_INDEX), powerup_type_t::POW_PHOENIX_WEAPON);
+						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::OMEGA_INDEX), powerup_type_t::POW_OMEGA_WEAPON);
+						powerup_flags.process(PLAYER_FLAGS_MAP_ALL, powerup_type_t::POW_FULL_MAP);
+						powerup_flags.process(PLAYER_FLAGS_CONVERTER, powerup_type_t::POW_CONVERTER);
+						powerup_flags.process(PLAYER_FLAGS_AMMO_RACK, powerup_type_t::POW_AMMO_RACK);
+						powerup_flags.process(PLAYER_FLAGS_AFTERBURNER, powerup_type_t::POW_AFTERBURNER);
+						powerup_flags.process(PLAYER_FLAGS_HEADLIGHT, powerup_type_t::POW_HEADLIGHT);
                         if ((Game_mode & GM_CAPTURE) && (player_info.powerup_flags & PLAYER_FLAGS_FLAG))
                         {
-							++Current[(get_team(i) == team_number::blue) ? POW_FLAG_RED : POW_FLAG_BLUE];
+							++Current[(get_team(i) == team_number::blue) ? powerup_type_t::POW_FLAG_RED : powerup_type_t::POW_FLAG_BLUE];
                         }
 #endif
-		Current[POW_VULCAN_AMMO] += player_info.vulcan_ammo;
-		Current[POW_MISSILE_1] += player_info.secondary_ammo[secondary_weapon_index_t::CONCUSSION_INDEX];
-		Current[POW_HOMING_AMMO_1] += player_info.secondary_ammo[secondary_weapon_index_t::HOMING_INDEX];
-		Current[POW_PROXIMITY_WEAPON] += player_info.secondary_ammo[secondary_weapon_index_t::PROXIMITY_INDEX];
-		Current[POW_SMARTBOMB_WEAPON] += player_info.secondary_ammo[secondary_weapon_index_t::SMART_INDEX];
-		Current[POW_MEGA_WEAPON] += player_info.secondary_ammo[secondary_weapon_index_t::MEGA_INDEX];
+		Current[powerup_type_t::POW_VULCAN_AMMO] += player_info.vulcan_ammo;
+		Current[powerup_type_t::POW_MISSILE_1] += player_info.secondary_ammo[secondary_weapon_index_t::CONCUSSION_INDEX];
+		Current[powerup_type_t::POW_HOMING_AMMO_1] += player_info.secondary_ammo[secondary_weapon_index_t::HOMING_INDEX];
+		Current[powerup_type_t::POW_PROXIMITY_WEAPON] += player_info.secondary_ammo[secondary_weapon_index_t::PROXIMITY_INDEX];
+		Current[powerup_type_t::POW_SMARTBOMB_WEAPON] += player_info.secondary_ammo[secondary_weapon_index_t::SMART_INDEX];
+		Current[powerup_type_t::POW_MEGA_WEAPON] += player_info.secondary_ammo[secondary_weapon_index_t::MEGA_INDEX];
 #if defined(DXX_BUILD_DESCENT_II)
-		Current[POW_SMISSILE1_1] += player_info.secondary_ammo[secondary_weapon_index_t::SMISSILE1_INDEX];
-		Current[POW_GUIDED_MISSILE_1] += player_info.secondary_ammo[secondary_weapon_index_t::GUIDED_INDEX];
-		Current[POW_SMART_MINE] += player_info.secondary_ammo[secondary_weapon_index_t::SMART_MINE_INDEX];
-		Current[POW_MERCURY_MISSILE_1] += player_info.secondary_ammo[secondary_weapon_index_t::SMISSILE4_INDEX];
-		Current[POW_EARTHSHAKER_MISSILE] += player_info.secondary_ammo[secondary_weapon_index_t::SMISSILE5_INDEX];
+		Current[powerup_type_t::POW_SMISSILE1_1] += player_info.secondary_ammo[secondary_weapon_index_t::SMISSILE1_INDEX];
+		Current[powerup_type_t::POW_GUIDED_MISSILE_1] += player_info.secondary_ammo[secondary_weapon_index_t::GUIDED_INDEX];
+		Current[powerup_type_t::POW_SMART_MINE] += player_info.secondary_ammo[secondary_weapon_index_t::SMART_MINE_INDEX];
+		Current[powerup_type_t::POW_MERCURY_MISSILE_1] += player_info.secondary_ammo[secondary_weapon_index_t::SMISSILE4_INDEX];
+		Current[powerup_type_t::POW_EARTHSHAKER_MISSILE] += player_info.secondary_ammo[secondary_weapon_index_t::SMISSILE5_INDEX];
 #endif
                 }
 #if defined(DXX_BUILD_DESCENT_II)
@@ -5440,11 +5440,11 @@ static void MultiLevelInv_CountPlayerInventory()
                 {
                         range_for (auto &i, LevelUniqueObjectState.ThiefState.Stolen_items)
                         {
-						if (i >= Current.size() || i == POW_ENERGY || i == POW_SHIELD_BOOST)
+						if (i >= Current.size() || i == powerup_type_t::POW_ENERGY || i == powerup_type_t::POW_SHIELD_BOOST)
                                         continue;
 						auto &c = Current[i];
                                 // NOTE: We don't need to consider vulcan ammo or 4pack items as the thief should not steal those items.
-							if (i == POW_PROXIMITY_WEAPON || i == POW_SMART_MINE)
+							if (i == powerup_type_t::POW_PROXIMITY_WEAPON || i == powerup_type_t::POW_SMART_MINE)
 								c += 4;
                                 else
 								++c;
@@ -5478,11 +5478,11 @@ bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type)
 
         int req_amount = 1; // required amount of item to drop a powerup.
 
-        if (powerup_type == POW_VULCAN_AMMO)
+        if (powerup_type == powerup_type_t::POW_VULCAN_AMMO)
                 req_amount = VULCAN_AMMO_AMOUNT;
-        else if (powerup_type == POW_PROXIMITY_WEAPON
+        else if (powerup_type == powerup_type_t::POW_PROXIMITY_WEAPON
 #if defined(DXX_BUILD_DESCENT_II)
-                || powerup_type == POW_SMART_MINE
+                || powerup_type == powerup_type_t::POW_SMART_MINE
 #endif
         )
                 req_amount = 4;
@@ -5627,10 +5627,10 @@ void init_hoard_data(d_vclip_array &Vclip)
 	}
 
 	//Create obj powerup
-	Powerup_info[POW_HOARD_ORB].vclip_num = orb_vclip;
-	Powerup_info[POW_HOARD_ORB].hit_sound = -1; //Powerup_info[POW_SHIELD_BOOST].hit_sound;
-	Powerup_info[POW_HOARD_ORB].size = Powerup_info[POW_SHIELD_BOOST].size;
-	Powerup_info[POW_HOARD_ORB].light = Powerup_info[POW_SHIELD_BOOST].light;
+	Powerup_info[powerup_type_t::POW_HOARD_ORB].vclip_num = orb_vclip;
+	Powerup_info[powerup_type_t::POW_HOARD_ORB].hit_sound = -1;
+	Powerup_info[powerup_type_t::POW_HOARD_ORB].size = Powerup_info[powerup_type_t::POW_SHIELD_BOOST].size;
+	Powerup_info[powerup_type_t::POW_HOARD_ORB].light = Powerup_info[powerup_type_t::POW_SHIELD_BOOST].light;
 
 	//Create orb goal wall effect
 	const auto goal_eclip = Num_effects++;

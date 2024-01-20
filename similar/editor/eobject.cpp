@@ -194,7 +194,7 @@ int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_le
 			obj->rtype.vclip_info.frametime = Vclip[obj->rtype.vclip_info.vclip_num].play_time/Vclip[obj->rtype.vclip_info.vclip_num].num_frames;
 			obj->rtype.vclip_info.framenum = 0;
 
-			if (get_powerup_id(obj) == POW_VULCAN_WEAPON)
+			if (get_powerup_id(obj) == powerup_type_t::POW_VULCAN_WEAPON)
 				obj->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
 			else
 				obj->ctype.powerup_info.count = 1;

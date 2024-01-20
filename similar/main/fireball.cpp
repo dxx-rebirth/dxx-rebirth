@@ -949,35 +949,35 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 
 	switch (del_obj.contains.id.powerup)
 	{
-		case POW_CLOAK:
-			if (weapon_nearby(vcobjptridx, vcsegptr, del_obj, POW_CLOAK) != nullptr)
+		case powerup_type_t::POW_CLOAK:
+			if (weapon_nearby(vcobjptridx, vcsegptr, del_obj, powerup_type_t::POW_CLOAK) != nullptr)
 			{
 				del_obj.contains_count = 0;
 			}
 			return;
-		case POW_VULCAN_WEAPON:
+		case powerup_type_t::POW_VULCAN_WEAPON:
 			weapon_index = primary_weapon_index_t::VULCAN_INDEX;
 			break;
-		case POW_SPREADFIRE_WEAPON:
+		case powerup_type_t::POW_SPREADFIRE_WEAPON:
 			weapon_index = primary_weapon_index_t::SPREADFIRE_INDEX;
 			break;
-		case POW_PLASMA_WEAPON:
+		case powerup_type_t::POW_PLASMA_WEAPON:
 			weapon_index = primary_weapon_index_t::PLASMA_INDEX;
 			break;
-		case POW_FUSION_WEAPON:
+		case powerup_type_t::POW_FUSION_WEAPON:
 			weapon_index = primary_weapon_index_t::FUSION_INDEX;
 			break;
 #if defined(DXX_BUILD_DESCENT_II)
-		case POW_GAUSS_WEAPON:
+		case powerup_type_t::POW_GAUSS_WEAPON:
 			weapon_index = primary_weapon_index_t::GAUSS_INDEX;
 			break;
-		case POW_HELIX_WEAPON:
+		case powerup_type_t::POW_HELIX_WEAPON:
 			weapon_index = primary_weapon_index_t::HELIX_INDEX;
 			break;
-		case POW_PHOENIX_WEAPON:
+		case powerup_type_t::POW_PHOENIX_WEAPON:
 			weapon_index = primary_weapon_index_t::PHOENIX_INDEX;
 			break;
-		case POW_OMEGA_WEAPON:
+		case powerup_type_t::POW_OMEGA_WEAPON:
 			weapon_index = primary_weapon_index_t::OMEGA_INDEX;
 			break;
 #endif
@@ -1024,7 +1024,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 
 	//	Don't drop vulcan ammo if player maxed out.
 	auto &player_info = get_local_plrobj().ctype.player_info;
-	if ((weapon_index_uses_vulcan_ammo(weapon_index) || del_obj.contains.id.powerup == POW_VULCAN_AMMO) &&
+	if ((weapon_index_uses_vulcan_ammo(weapon_index) || del_obj.contains.id.powerup == powerup_type_t::POW_VULCAN_AMMO) &&
 		player_info.vulcan_ammo >= VULCAN_AMMO_MAX)
 		del_obj.contains_count = 0;
 	else if (weapon_index != unset_weapon_index)
@@ -1051,7 +1051,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 #endif
 			}
 		}
-	} else if (del_obj.contains.id.powerup == POW_QUAD_FIRE)
+	} else if (del_obj.contains.id.powerup == powerup_type_t::POW_QUAD_FIRE)
 	{
 		if ((player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS) || weapon_nearby(vcobjptridx, vcsegptr, del_obj, del_obj.contains.id.powerup) != nullptr)
 		{
@@ -1080,9 +1080,9 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 	}
 
 	// Change multiplayer extra-lives into invulnerability
-	if ((Game_mode & GM_MULTI) && (del_obj.contains.id.powerup == POW_EXTRA_LIFE))
+	if ((Game_mode & GM_MULTI) && (del_obj.contains.id.powerup == powerup_type_t::POW_EXTRA_LIFE))
 	{
-		del_obj.contains.id.powerup = POW_INVULNERABILITY;
+		del_obj.contains.id.powerup = powerup_type_t::POW_INVULNERABILITY;
 	}
 }
 
@@ -1095,8 +1095,8 @@ imobjptridx_t drop_powerup(d_level_unique_object_state &LevelUniqueObjectState, 
 				if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_ROBOTS)) {
 					rand_scale = 4;
 					//	extra life powerups are converted to invulnerability in multiplayer, for what is an extra life, anyway?
-					if (id == POW_EXTRA_LIFE)
-						id = POW_INVULNERABILITY;
+					if (id == powerup_type_t::POW_EXTRA_LIFE)
+						id = powerup_type_t::POW_INVULNERABILITY;
 				} else
 					rand_scale = 2;
 
@@ -1129,7 +1129,7 @@ imobjptridx_t drop_powerup(d_level_unique_object_state &LevelUniqueObjectState, 
 
 				// Give keys zero velocity so they can be tracked better in multi
 				auto &object_velocity = obj.mtype.phys_info.velocity;
-				if ((Game_mode & GM_MULTI) && (id >= POW_KEY_BLUE) && (id <= POW_KEY_GOLD))
+				if ((Game_mode & GM_MULTI) && (id >= powerup_type_t::POW_KEY_BLUE) && (id <= powerup_type_t::POW_KEY_GOLD))
 					object_velocity = {};
 				else
 				{
@@ -1153,22 +1153,22 @@ imobjptridx_t drop_powerup(d_level_unique_object_state &LevelUniqueObjectState, 
 
 				switch (id)
 				{
-					case POW_MISSILE_1:
-					case POW_MISSILE_4:
-					case POW_SHIELD_BOOST:
-					case POW_ENERGY:
+					case powerup_type_t::POW_MISSILE_1:
+					case powerup_type_t::POW_MISSILE_4:
+					case powerup_type_t::POW_SHIELD_BOOST:
+					case powerup_type_t::POW_ENERGY:
 						obj.lifeleft = (d_rand() + F1_0*3) * 64;		//	Lives for 3 to 3.5 binary minutes (a binary minute is 64 seconds)
 						if (Game_mode & GM_MULTI)
 							obj.lifeleft /= 2;
 						break;
 #if defined(DXX_BUILD_DESCENT_II)
-					case POW_OMEGA_WEAPON:
+					case powerup_type_t::POW_OMEGA_WEAPON:
 						if (!player)
 							obj.ctype.powerup_info.count = MAX_OMEGA_CHARGE;
 						break;
-					case POW_GAUSS_WEAPON:
+					case powerup_type_t::POW_GAUSS_WEAPON:
 #endif
-					case POW_VULCAN_WEAPON:
+					case powerup_type_t::POW_VULCAN_WEAPON:
 						if (!player)
 							obj.ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
 						break;
@@ -1279,7 +1279,7 @@ static bool drop_robot_egg(const d_robot_info_array &Robot_info, const contained
 			// sometimes drop shields.
 			if (d_rand() > 16384)
 			{
-				const auto &&objp = drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, POW_SHIELD_BOOST, init_vel, pos, segnum, false);
+				const auto &&objp = drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, powerup_type_t::POW_SHIELD_BOOST, init_vel, pos, segnum, false);
 				if (objp != object_none)
 					created = true;
 			}
@@ -1292,9 +1292,9 @@ static bool skip_create_egg_powerup(const object &player, powerup_type_t powerup
 {
 	fix current;
 	auto &player_info = player.ctype.player_info;
-	if (powerup == POW_SHIELD_BOOST)
+	if (powerup == powerup_type_t::POW_SHIELD_BOOST)
 		current = player.shields;
-	else if (powerup == POW_ENERGY)
+	else if (powerup == powerup_type_t::POW_ENERGY)
 		current = player_info.energy;
 	else
 		return false;

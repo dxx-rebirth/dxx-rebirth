@@ -2452,7 +2452,7 @@ static int mark_player_path_to_segment(const d_vclip_array &Vclip, fvmobjptridx 
 
 		seg_center = Point_segs[player_hide_index+i].point;
 
-		const auto &&obj = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, POW_ENERGY, vmsegptridx(Point_segs[player_hide_index+i].segnum), seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, object::control_type::powerup, object::movement_type::None, render_type::RT_POWERUP);
+		const auto &&obj = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, powerup_type_t::POW_ENERGY, vmsegptridx(Point_segs[player_hide_index+i].segnum), seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, object::control_type::powerup, object::movement_type::None, render_type::RT_POWERUP);
 		if (obj == object_none) {
 			Int3();		//	Unable to drop energy powerup for path
 			return 1;

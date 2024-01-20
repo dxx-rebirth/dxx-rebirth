@@ -239,7 +239,7 @@ static void verify_object(const d_level_shared_robot_info_state &LevelSharedRobo
 	if (obj.type == OBJ_POWERUP)
 	{
 		if ( get_powerup_id(obj) >= N_powerup_types )	{
-			set_powerup_id(Powerup_info, Vclip, obj, POW_SHIELD_BOOST);
+			set_powerup_id(Powerup_info, Vclip, obj, powerup_type_t::POW_SHIELD_BOOST);
 			assert(obj.render_type != render_type::RT_POLYOBJ);
 		}
 		obj.control_source = object::control_type::powerup;
@@ -528,14 +528,14 @@ static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
 				 * type OBJ_HOSTAGE.  Hostages are never weapons, so
 				 * prevent checking their IDs.
 				 */
-			if (get_powerup_id(obj) == POW_VULCAN_WEAPON)
+			if (get_powerup_id(obj) == powerup_type_t::POW_VULCAN_WEAPON)
 					obj->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
 
 #if defined(DXX_BUILD_DESCENT_II)
-			else if (get_powerup_id(obj) == POW_GAUSS_WEAPON)
+			else if (get_powerup_id(obj) == powerup_type_t::POW_GAUSS_WEAPON)
 					obj->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
 
-			else if (get_powerup_id(obj) == POW_OMEGA_WEAPON)
+			else if (get_powerup_id(obj) == powerup_type_t::POW_OMEGA_WEAPON)
 					obj->ctype.powerup_info.count = MAX_OMEGA_CHARGE;
 #endif
 			}
