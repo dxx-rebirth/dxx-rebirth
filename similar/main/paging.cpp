@@ -78,7 +78,8 @@ static void paging_touch_vclip(const vclip &vc, const unsigned line
 	}
 	catch (const range_type::partial_range_error &e)
 	{
-		con_puts(CON_URGENT, e.what());
+		const auto w = e.what();
+		con_puts(CON_URGENT, {w, strlen(w)});
 		return;
 	}
 	range_for (auto &i, u.r)

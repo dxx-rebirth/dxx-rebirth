@@ -11,6 +11,7 @@
 #include <array>
 #include <cstddef>
 #include <cstring>
+#include <span>
 #include <type_traits>
 #include "pstypes.h"
 #include "dxxsconf.h"
@@ -53,16 +54,8 @@ using con_priority_wrapper = location_value_wrapper<con_priority, DXX_CONSOLE_SH
 #undef DXX_CONSOLE_SHOW_FILE_LINE
 
 void con_init(void);
-void con_puts(con_priority_wrapper level, char *str, size_t len) __attribute_nonnull();
-void con_puts(con_priority_wrapper level, const char *str, size_t len) __attribute_nonnull();
-
-template <typename T>
-static inline void con_puts(const con_priority_wrapper level, T &&str)
-{
-	using rr = typename std::remove_reference<T>::type;
-	constexpr std::size_t len = std::extent<rr>::value;
-	con_puts(level, str, len && std::is_const<rr>::value ? len - 1 : strlen(str));
-}
+void con_puts(con_priority_wrapper level, std::span<char> str);
+void con_puts(con_priority_wrapper level, std::span<const char> str);
 
 void con_printf(con_priority_wrapper level, const char *fmt, ...) __attribute_format_printf(2, 3);
 #ifdef DXX_CONSTANT_TRUE

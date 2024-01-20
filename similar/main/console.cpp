@@ -259,22 +259,22 @@ static void con_force_puts(const con_priority priority, const std::span<char> bu
 
 }
 
-void con_puts(const con_priority_wrapper priority, char *const buffer, const size_t len)
+void con_puts(const con_priority_wrapper priority, const std::span<char> buffer)
 {
 	if (priority <= CGameArg.DbgVerbose)
 	{
 		typename con_priority_wrapper::scratch_buffer<CON_LINE_LENGTH> scratch_buffer;
-		auto &&b = priority.prepare_buffer(scratch_buffer, std::span<char>{buffer, len});
+		auto &&b = priority.prepare_buffer(scratch_buffer, buffer);
 		con_force_puts(priority, b);
 	}
 }
 
-void con_puts(const con_priority_wrapper priority, const char *const buffer, const size_t len)
+void con_puts(const con_priority_wrapper priority, const std::span<const char> buffer)
 {
 	if (priority <= CGameArg.DbgVerbose)
 	{
 		typename con_priority_wrapper::scratch_buffer<CON_LINE_LENGTH> scratch_buffer;
-		auto &&b = priority.prepare_buffer(scratch_buffer, std::span<const char>{buffer, len});
+		auto &&b = priority.prepare_buffer(scratch_buffer, buffer);
 		/* add given string to con_buffer */
 		con_add_buffer_line(priority, b);
 		con_print_file(b.data());

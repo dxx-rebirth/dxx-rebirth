@@ -134,13 +134,9 @@ void ogl_extensions_init()
 		glClientWaitSyncFunc = reinterpret_cast<PFNGLCLIENTWAITSYNCPROC>(SDL_GL_GetProcAddress("glClientWaitSync"));
 
 	}
-	const char *s;
-	if (glFenceSyncFunc && glDeleteSyncFunc && glClientWaitSyncFunc) {
-		ogl_have_ARB_sync=true;
-		s = "DXX-Rebirth: OpenGL: GL_ARB_sync available";
-	} else {
-		s = "DXX-Rebirth: OpenGL: GL_ARB_sync not available";
-	}
+	const auto s = (glFenceSyncFunc && glDeleteSyncFunc && glClientWaitSyncFunc)
+		? (ogl_have_ARB_sync = true, std::span<const char>{"DXX-Rebirth: OpenGL: GL_ARB_sync available"})
+		: std::span<const char>{"DXX-Rebirth: OpenGL: GL_ARB_sync not available"};
 	con_puts(CON_VERBOSE, s);
 }
 

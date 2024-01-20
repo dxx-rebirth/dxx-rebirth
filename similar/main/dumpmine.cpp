@@ -148,7 +148,7 @@ static const char *object_ids(const object_base &objp)
 static void err_puts(PHYSFS_File *f, const std::span<const char> str)
 {
 	++Errors_in_mine;
-	con_puts(CON_CRITICAL, str.data(), str.size());
+	con_puts(CON_CRITICAL, str);
 	PHYSFSX_puts(f, str);
 }
 
@@ -174,7 +174,7 @@ static void err_printf(PHYSFS_File *my_file, const char * format, ... )
 
 static void warning_puts(PHYSFS_File *f, const std::span<const char> str)
 {
-	con_puts(CON_URGENT, str.data(), str.size());
+	con_puts(CON_URGENT, str);
 	PHYSFSX_puts(f, str);
 }
 

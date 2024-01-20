@@ -382,7 +382,7 @@ static int ogl_init_window(int w, int h)
 			use_bpp=vinfo->vfmt->BitsPerPixel;
 			use_flags=SDL_SWSURFACE | SDL_ANYFORMAT;
 		} else {
-			con_printf(CON_URGENT, "Could not query video info");
+			con_puts(CON_URGENT, "Could not query video info");
 		}
 	}
 

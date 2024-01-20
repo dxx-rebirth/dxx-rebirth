@@ -378,7 +378,7 @@ void detect_escort_goal_accomplished(const vmobjptridx_t index)
 	const auto Escort_goal_objidx = BuddyState.Escort_goal_objidx;
 	if (Escort_goal_objidx == object_none)
 	{
-		con_printf(CON_URGENT, "BUG: buddy goal is reachable, but goal object is object_none");
+		con_puts(CON_URGENT, "BUG: buddy goal is reachable, but goal object is object_none");
 		return;
 	}
 

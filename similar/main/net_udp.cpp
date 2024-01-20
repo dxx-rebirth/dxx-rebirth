@@ -6653,7 +6653,7 @@ static void udp_tracker_verify_ack_timeout()
 	else if (TrackerAckStatus == TrackerAckState::TACK_INTERNAL)
 	{
 		con_puts(CON_NORMAL, "[Tracker] No external signal from game tracker.  Your game port does not seem to be reachable.");
-		con_puts(CON_NORMAL, Netgame.TrackerNATWarned == TrackerNATHolePunchWarn::UserEnabledHP ? "Clients will attempt hole-punching to join your game." : "Clients will only be able to join your game if specifically configured in your router.");
+		con_puts(CON_NORMAL, Netgame.TrackerNATWarned == TrackerNATHolePunchWarn::UserEnabledHP ? std::span<const char>("Clients will attempt hole-punching to join your game.") : std::span<const char>("Clients will only be able to join your game if specifically configured in your router."));
 	}
 	TrackerAckStatus = TrackerAckState::TACK_SEQCOMPL;
 }

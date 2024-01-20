@@ -39,7 +39,7 @@ namespace dcx {
 #if !DXX_USE_EDITOR || (!(defined(WIN32) || defined(__APPLE__) || defined(__MACH__)))
 static void warn_printf(const std::span<const char> s)
 {
-	con_puts(CON_URGENT, s.data());
+	con_puts(CON_URGENT, s);
 }
 #endif
 
@@ -73,7 +73,7 @@ namespace {
 
 static void print_exit_message(const std::span<const char> exit_message)
 {
-	con_puts(CON_CRITICAL, exit_message.data(), exit_message.size());
+	con_puts(CON_CRITICAL, exit_message);
 	msgbox_error(exit_message.data());
 }
 

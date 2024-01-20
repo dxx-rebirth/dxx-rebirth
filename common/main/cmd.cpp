@@ -378,7 +378,7 @@ static void cmd_echo(unsigned long argc, const char *const *const argv)
 			strncat(buf, " ", sizeof(buf) - strlen(buf) - 1);
 		strncat(buf, argv[i], sizeof(buf) - strlen(buf) - 1);
 	}
-	con_puts(CON_NORMAL, buf);
+	con_puts(CON_NORMAL, std::span<char>(buf, strlen(buf)));
 }
 
 /* execute script */
@@ -438,7 +438,7 @@ static void cmd_help(unsigned long argc, const char *const *const argv)
 		return;
 	}
 
-	con_puts(CON_NORMAL, cmd->help_text);
+	con_puts(CON_NORMAL, std::span<const char>(cmd->help_text, strlen(cmd->help_text)));
 }
 
 /* execute script */
