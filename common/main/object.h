@@ -76,7 +76,9 @@ enum object_type_t : uint8_t
 	OBJ_GHOST	= 12,  // what the player turns into when dead
 	OBJ_LIGHT	= 13,  // a light source, & not much else
 	OBJ_COOP	= 14,  // a cooperative player object.
+	/* if DXX_BUILD_DESCENT_II */
 	OBJ_MARKER	= 15,  // a map marker
+	/* endif */
 };
 
 enum class render_type : uint8_t
@@ -127,10 +129,19 @@ static inline bool valid_render_type(const uint8_t r)
 	}
 }
 
+#ifdef dsx
+union contained_object_id
+{
+	powerup_type_t powerup;
+	robot_id robot;
+};
+
 struct contained_object_parameters
 {
 	contained_object_type type;	// Type of object this robot contains (eg, spider contains powerup)
+	contained_object_id id;		// ID of object this robot contains (eg, id = blue type = key)
 };
+#endif
 
 }
 
@@ -403,7 +414,6 @@ struct object_base
 	fix     size;           // 3d size of object - for collision detection
 	fix     shields;        // Starts at maximum, when <0, object dies..
 	contained_object_parameters contains;
-	sbyte   contains_id;    // ID of object this object contains (eg, id = blue type = key)
 	sbyte   contains_count; // number of objects of type:id this object contains
 	sbyte   matcen_creator; // Materialization center that created this object, high bit set if matcen-created
 	fix     lifeleft;       // how long until goes away, or 7fff if immortal
@@ -779,7 +789,11 @@ window_event_result endlevel_move_all_objects(const d_level_shared_robot_info_st
 
 namespace dcx {
 
+#ifdef dsx
 contained_object_type build_contained_object_type_from_untrusted(uint8_t untrusted);
+contained_object_id build_contained_object_id_from_untrusted(contained_object_type, uint8_t untrusted);
+contained_object_parameters build_contained_object_parameters_from_untrusted(uint8_t type, uint8_t id);
+#endif
 
 static inline unsigned get_player_id(const object_base &o)
 {

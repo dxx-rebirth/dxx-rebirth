@@ -4615,12 +4615,12 @@ static void multi_do_drop_flag(const playernum_t pnum, const multiplayer_rspan<m
 }
 #endif
 
-netflag_flag multi_powerup_is_allowed(const unsigned id, const netflag_flag AllowedItems)
+netflag_flag multi_powerup_is_allowed(const powerup_type_t id, const netflag_flag AllowedItems)
 {
 	return multi_powerup_is_allowed(id, AllowedItems, map_granted_flags_to_netflag(Netgame.SpawnGrantedItems));
 }
 
-netflag_flag multi_powerup_is_allowed(const unsigned id, const netflag_flag BaseAllowedItems, const netflag_flag SpawnGrantedItems)
+netflag_flag multi_powerup_is_allowed(const powerup_type_t id, const netflag_flag BaseAllowedItems, const netflag_flag SpawnGrantedItems)
 {
 	const auto AllowedItems = BaseAllowedItems & ~SpawnGrantedItems;
 	switch (id)
@@ -6036,7 +6036,7 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 	obj_rw->size          = INTEL_INT(obj.size);
 	obj_rw->shields       = INTEL_INT(obj.shields);
 	obj_rw->contains_type = underlying_value(obj.contains.type);
-	obj_rw->contains_id   = obj.contains_id;
+	obj_rw->contains_id   = underlying_value(obj.contains.id.robot);
 	obj_rw->contains_count= obj.contains_count;
 	obj_rw->matcen_creator= obj.matcen_creator;
 	obj_rw->lifeleft      = INTEL_INT(obj.lifeleft);
@@ -6219,8 +6219,7 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 	obj.orient = build_native_endian_matrix_from_little_endian(obj_rw->orient);
 	obj.size          = INTEL_INT(obj_rw->size);
 	obj.shields       = INTEL_INT(obj_rw->shields);
-	obj.contains.type = build_contained_object_type_from_untrusted(obj_rw->contains_type);
-	obj.contains_id   = obj_rw->contains_id;
+	obj.contains = build_contained_object_parameters_from_untrusted(obj_rw->contains_type, obj_rw->contains_id);
 	obj.contains_count= obj_rw->contains_count;
 	obj.matcen_creator= obj_rw->matcen_creator;
 	obj.lifeleft      = INTEL_INT(obj_rw->lifeleft);

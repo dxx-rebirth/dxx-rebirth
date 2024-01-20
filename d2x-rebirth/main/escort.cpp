@@ -681,7 +681,7 @@ static icobjidx_t exists_in_mine_2(const unique_segment &segp, const std::option
 				 */
 				if (curobjp->contains_count)
 					if (curobjp->contains.type == contained_object_type::powerup)
-						if (curobjp->contains_id == *objid)
+						if (curobjp->contains.id.powerup == *objid)
 							return curobjp;
 	}
 	return object_none;

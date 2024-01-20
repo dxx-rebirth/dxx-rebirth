@@ -717,8 +717,8 @@ void MultiLevelInv_Recount();
 #ifdef dsx
 namespace dsx {
 extern bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type);
-netflag_flag multi_powerup_is_allowed(unsigned id, const netflag_flag AllowedItems);
-netflag_flag multi_powerup_is_allowed(unsigned id, const netflag_flag AllowedItems, const netflag_flag SpawnGrantedItems);
+netflag_flag multi_powerup_is_allowed(powerup_type_t id, const netflag_flag AllowedItems);
+netflag_flag multi_powerup_is_allowed(powerup_type_t id, const netflag_flag AllowedItems, const netflag_flag SpawnGrantedItems);
 void show_netgame_info(const netgame_info &netgame);
 void multi_send_player_inventory(multiplayer_data_priority priority);
 const char *multi_common_deny_save_game(const fvcobjptr &vcobjptr, ranges::subrange<const player *> player_range);

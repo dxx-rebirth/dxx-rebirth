@@ -947,7 +947,8 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 	if (del_obj.contains.type != contained_object_type::powerup)
 		return;
 
-	switch (del_obj.contains_id) {
+	switch (del_obj.contains.id.powerup)
+	{
 		case POW_CLOAK:
 			if (weapon_nearby(vcobjptridx, vcsegptr, del_obj, POW_CLOAK) != nullptr)
 			{
@@ -980,16 +981,55 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 			weapon_index = primary_weapon_index_t::OMEGA_INDEX;
 			break;
 #endif
+		case powerup_type_t::POW_EXTRA_LIFE:
+		case powerup_type_t::POW_ENERGY:
+		case powerup_type_t::POW_SHIELD_BOOST:
+		case powerup_type_t::POW_LASER:
+		case powerup_type_t::POW_KEY_BLUE:
+		case powerup_type_t::POW_KEY_RED:
+		case powerup_type_t::POW_KEY_GOLD:
+		case powerup_type_t::POW_MISSILE_1:
+		case powerup_type_t::POW_MISSILE_4:
+		case powerup_type_t::POW_QUAD_FIRE:
+		case powerup_type_t::POW_PROXIMITY_WEAPON:
+		case powerup_type_t::POW_HOMING_AMMO_1:
+		case powerup_type_t::POW_HOMING_AMMO_4:
+		case powerup_type_t::POW_SMARTBOMB_WEAPON:
+		case powerup_type_t::POW_MEGA_WEAPON:
+		case powerup_type_t::POW_VULCAN_AMMO:
+		case powerup_type_t::POW_TURBO:
+		case powerup_type_t::POW_INVULNERABILITY:
+		case powerup_type_t::POW_MEGAWOW:
+#if defined(DXX_BUILD_DESCENT_II)
+		case powerup_type_t::POW_SUPER_LASER:
+		case powerup_type_t::POW_FULL_MAP:
+		case powerup_type_t::POW_CONVERTER:
+		case powerup_type_t::POW_AMMO_RACK:
+		case powerup_type_t::POW_AFTERBURNER:
+		case powerup_type_t::POW_HEADLIGHT:
+		case powerup_type_t::POW_SMISSILE1_1:
+		case powerup_type_t::POW_SMISSILE1_4:
+		case powerup_type_t::POW_GUIDED_MISSILE_1:
+		case powerup_type_t::POW_GUIDED_MISSILE_4:
+		case powerup_type_t::POW_SMART_MINE:
+		case powerup_type_t::POW_MERCURY_MISSILE_1:
+		case powerup_type_t::POW_MERCURY_MISSILE_4:
+		case powerup_type_t::POW_EARTHSHAKER_MISSILE:
+		case powerup_type_t::POW_FLAG_BLUE:
+		case powerup_type_t::POW_FLAG_RED:
+		case powerup_type_t::POW_HOARD_ORB:
+#endif
+			break;
 	}
 
 	//	Don't drop vulcan ammo if player maxed out.
 	auto &player_info = get_local_plrobj().ctype.player_info;
-	if ((weapon_index_uses_vulcan_ammo(weapon_index) || del_obj.contains_id == POW_VULCAN_AMMO) &&
+	if ((weapon_index_uses_vulcan_ammo(weapon_index) || del_obj.contains.id.powerup == POW_VULCAN_AMMO) &&
 		player_info.vulcan_ammo >= VULCAN_AMMO_MAX)
 		del_obj.contains_count = 0;
 	else if (weapon_index != unset_weapon_index)
 	{
-		if (has_weapon(player_has_primary_weapon(player_info, weapon_index)) || weapon_nearby(vcobjptridx, vcsegptr, del_obj, static_cast<powerup_type_t>(del_obj.contains_id)) != nullptr)
+		if (has_weapon(player_has_primary_weapon(player_info, weapon_index)) || weapon_nearby(vcobjptridx, vcsegptr, del_obj, del_obj.contains.id.powerup) != nullptr)
 		{
 			if (d_rand() > 16384) {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -997,36 +1037,36 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 #endif
 				del_obj.contains.type = contained_object_type::powerup;
 				if (weapon_index_uses_vulcan_ammo(weapon_index)) {
-					del_obj.contains_id = POW_VULCAN_AMMO;
+					del_obj.contains.id.powerup = powerup_type_t::POW_VULCAN_AMMO;
 				}
 				else {
-					del_obj.contains_id = POW_ENERGY;
+					del_obj.contains.id.powerup = powerup_type_t::POW_ENERGY;
 				}
 			} else {
 #if defined(DXX_BUILD_DESCENT_I)
 				del_obj.contains_count = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
 				del_obj.contains.type = contained_object_type::powerup;
-				del_obj.contains_id = POW_SHIELD_BOOST;
+				del_obj.contains.id.powerup = powerup_type_t::POW_SHIELD_BOOST;
 #endif
 			}
 		}
-	} else if (del_obj.contains_id == POW_QUAD_FIRE)
+	} else if (del_obj.contains.id.powerup == POW_QUAD_FIRE)
 	{
-		if ((player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS) || weapon_nearby(vcobjptridx, vcsegptr, del_obj, static_cast<powerup_type_t>(del_obj.contains_id)) != nullptr)
+		if ((player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS) || weapon_nearby(vcobjptridx, vcsegptr, del_obj, del_obj.contains.id.powerup) != nullptr)
 		{
 			if (d_rand() > 16384) {
 #if defined(DXX_BUILD_DESCENT_I)
 				del_obj.contains_count = 1;
 #endif
 				del_obj.contains.type = contained_object_type::powerup;
-				del_obj.contains_id = POW_ENERGY;
+				del_obj.contains.id.powerup = powerup_type_t::POW_ENERGY;
 			} else {
 #if defined(DXX_BUILD_DESCENT_I)
 				del_obj.contains_count = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
 				del_obj.contains.type = contained_object_type::powerup;
-				del_obj.contains_id = POW_SHIELD_BOOST;
+				del_obj.contains.id.powerup = powerup_type_t::POW_SHIELD_BOOST;
 #endif
 			}
 		}
@@ -1034,15 +1074,15 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 
 	//	If this robot was gated in by the boss and it now contains energy, make it contain nothing,
 	//	else the room gets full of energy.
-	if (del_obj.matcen_creator == BOSS_GATE_MATCEN_NUM && del_obj.contains_id == POW_ENERGY && del_obj.contains.type == contained_object_type::powerup)
+	if (del_obj.matcen_creator == BOSS_GATE_MATCEN_NUM && del_obj.contains.id.powerup == powerup_type_t::POW_ENERGY)
 	{
 		del_obj.contains_count = 0;
 	}
 
 	// Change multiplayer extra-lives into invulnerability
-	if ((Game_mode & GM_MULTI) && (del_obj.contains_id == POW_EXTRA_LIFE))
+	if ((Game_mode & GM_MULTI) && (del_obj.contains.id.powerup == POW_EXTRA_LIFE))
 	{
-		del_obj.contains_id = POW_INVULNERABILITY;
+		del_obj.contains.id.powerup = POW_INVULNERABILITY;
 	}
 }
 
@@ -1156,18 +1196,18 @@ bool drop_powerup(d_level_unique_object_state &LevelUniqueObjectState, const d_l
 
 namespace {
 
-static bool drop_robot_egg(const d_robot_info_array &Robot_info, const contained_object_type type, const int id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum)
+static bool drop_robot_egg(const d_robot_info_array &Robot_info, const contained_object_type type, const contained_object_id id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum)
 {
 	if (!num)
 		return false;
 	switch (type)
 	{
 		case contained_object_type::powerup:
-			return drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, id, num, init_vel, pos, segnum, false);
+			return drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, id.powerup, num, init_vel, pos, segnum, false);
 		case contained_object_type::robot:
 			break;
 		default:
-			con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "ignoring invalid object type; expected OBJ_POWERUP or OBJ_ROBOT, got type=%i, id=%i"), underlying_value(type), id);
+			con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "ignoring invalid object type; expected OBJ_POWERUP or OBJ_ROBOT, got type=%i, id=%i"), underlying_value(type), underlying_value(id.powerup));
 			return false;
 	}
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
@@ -1197,7 +1237,7 @@ static bool drop_robot_egg(const d_robot_info_array &Robot_info, const contained
 //				new_pos.y += (d_rand()-16384)*7;
 //				new_pos.z += (d_rand()-16384)*6;
 
-				const auto rid = static_cast<robot_id>(id);
+				const auto rid = id.robot;
 				auto &robptr = Robot_info[rid];
 				const auto &&objp = robot_create(Robot_info, rid, segnum, new_pos, &vmd_identity_matrix, Polygon_models[robptr.model_num].rad, ai_behavior::AIB_NORMAL);
 				if (objp == object_none)
@@ -1271,7 +1311,7 @@ static bool skip_create_egg_powerup(const object &player, powerup_type_t powerup
 
 }
 
-bool object_create_robot_egg(const d_robot_info_array &Robot_info, const contained_object_type type, const int id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum)
+bool object_create_robot_egg(const d_robot_info_array &Robot_info, const contained_object_type type, const contained_object_id id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum)
 {
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1280,7 +1320,7 @@ bool object_create_robot_egg(const d_robot_info_array &Robot_info, const contain
 	{
 		if (type == contained_object_type::powerup)
 		{
-			if (skip_create_egg_powerup(get_local_plrobj(), static_cast<powerup_type_t>(id)))
+			if (skip_create_egg_powerup(get_local_plrobj(), id.powerup))
 				return false;
 		}
 	}
@@ -1290,7 +1330,7 @@ bool object_create_robot_egg(const d_robot_info_array &Robot_info, const contain
 
 bool object_create_robot_egg(const d_robot_info_array &Robot_info, object_base &objp)
 {
-	return object_create_robot_egg(Robot_info, objp.contains.type, objp.contains_id, objp.contains_count, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum));
+	return object_create_robot_egg(Robot_info, objp.contains.type, objp.contains.id, objp.contains_count, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum));
 }
 
 //	-------------------------------------------------------------------------------------------------------
@@ -1478,7 +1518,6 @@ void do_explosion_sequence(const d_robot_info_array &Robot_info, object &obj)
 				if (((d_rand() * 16) >> 15) < robptr.contains_prob) {
 					del_obj->contains_count = ((d_rand() * robptr.contains_count) >> 15) + 1;
 					del_obj->contains = robptr.contains;
-					del_obj->contains_id = robptr.contains_id;
 					maybe_replace_powerup_with_energy(del_obj);
 					object_create_robot_egg(Robot_info, del_obj);
 				}

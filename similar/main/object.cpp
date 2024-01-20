@@ -163,6 +163,20 @@ imobjptridx_t obj_find_first_of_type(fvmobjptridx &vmobjptridx, const object_typ
 
 namespace dcx {
 
+namespace {
+
+static powerup_type_t build_contained_object_powerup_id_from_untrusted(const uint8_t untrusted)
+{
+	return untrusted < MAX_POWERUP_TYPES ? powerup_type_t{untrusted} : powerup_type_t{};
+}
+
+static robot_id build_contained_object_robot_id_from_untrusted(const uint8_t untrusted)
+{
+	return untrusted < MAX_ROBOT_TYPES ? robot_id{untrusted} : robot_id{};
+}
+
+}
+
 icobjidx_t laser_info::get_last_hitobj() const
 {
 	if (!hitobj_count)
@@ -188,6 +202,25 @@ contained_object_type build_contained_object_type_from_untrusted(const uint8_t u
 			return contained_object_type{untrusted};
 		default:
 			return contained_object_type::None;
+	}
+}
+
+contained_object_parameters build_contained_object_parameters_from_untrusted(const uint8_t untrusted_type, const uint8_t untrusted_id)
+{
+	switch (const auto type = build_contained_object_type_from_untrusted(untrusted_type))
+	{
+		case contained_object_type::powerup:
+			return {
+				.type = type,
+				.id = contained_object_id{.powerup = build_contained_object_powerup_id_from_untrusted(untrusted_id)},
+			};
+		case contained_object_type::robot:
+			return {
+				.type = type,
+				.id = contained_object_id{.robot = build_contained_object_robot_id_from_untrusted(untrusted_id)},
+			};
+		default:
+			return {};
 	}
 }
 

@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "polyobj.h"
 #include "pack.h"
 #include "objnum.h"
+#include "fwd-powerup.h"
 #include "fwd-segment.h"
 
 #if defined(DXX_BUILD_DESCENT_II)

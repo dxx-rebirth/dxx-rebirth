@@ -399,11 +399,11 @@ static int read_d2_robot_info(PHYSFS_File *fp, robot_info &ri)
 	ri.weapon_type = weapon_type < N_weapon_types ? static_cast<weapon_id_type>(weapon_type) : weapon_id_type::LASER_ID_L1;
 	/*ri.weapon_type2 =*/ PHYSFSX_readByte(fp);
 	ri.n_guns = PHYSFSX_readByte(fp);
-	ri.contains_id = PHYSFSX_readByte(fp);
+	const uint8_t untrusted_contains_id = PHYSFSX_readByte(fp);
 	ri.contains_count = PHYSFSX_readByte(fp);
 	ri.contains_prob = PHYSFSX_readByte(fp);
-	const uint8_t contains_type = PHYSFSX_readByte(fp);
-	ri.contains.type = build_contained_object_type_from_untrusted(contains_type);
+	const uint8_t untrusted_contains_type = PHYSFSX_readByte(fp);
+	ri.contains = build_contained_object_parameters_from_untrusted(untrusted_contains_type, untrusted_contains_id);
 	/*ri.kamikaze =*/ PHYSFSX_readByte(fp);
 	ri.score_value = PHYSFSX_readShort(fp);
 	/*ri.badass =*/ PHYSFSX_readByte(fp);

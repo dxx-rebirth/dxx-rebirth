@@ -1728,7 +1728,12 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 	current_robot_info.attack_type = attack_type;
 	current_robot_info.boss_flag = boss_flag;
 
-	current_robot_info.contains_id = contains_id;
+	/* The input file uses zero/non-zero to pick powerup/robot.  Other input
+	 * sources store robot as OBJ_ROBOT and powerup as OBJ_POWERUP, so
+	 * build_contained_object_parameters_from_untrusted expects those values.
+	 * Convert the type here.
+	 */
+	current_robot_info.contains = build_contained_object_parameters_from_untrusted(contains_type ? underlying_value(contained_object_type::robot) : underlying_value(contained_object_type::powerup), contains_id);
 	current_robot_info.contains_count = contains_count;
 	current_robot_info.contains_prob = contains_prob;
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1755,11 +1760,6 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 	current_robot_info.behavior = behavior;		//	Default behavior for this robot, if coming out of matcen.
 	current_robot_info.aim = min(f2i(aim*255), 255);		//	how well this robot type can aim.  255=perfect
 #endif
-
-	if (contains_type)
-		current_robot_info.contains.type = contained_object_type::robot;
-	else
-		current_robot_info.contains.type = contained_object_type::powerup;
 
 	++LevelSharedRobotInfoState.N_robot_types;
 #if defined(DXX_BUILD_DESCENT_I)

@@ -64,8 +64,12 @@ static int GoodyPrevID();
 
 namespace {
 
-static contained_object_type Cur_goody_type = contained_object_type::powerup;
-static uint8_t Cur_goody_id;
+static contained_object_parameters Cur_goody = {
+	.type = contained_object_type::powerup,
+	.id = contained_object_id{
+		.powerup = powerup_type_t::POW_EXTRA_LIFE
+	},
+};
 
 }
 
@@ -216,8 +220,7 @@ static void update_goody_info(void)
 		auto &obj = *vmobjptr(Cur_object_index);
 		if (obj.type == OBJ_ROBOT)
 		{
-			obj.contains.type = Cur_goody_type;
-			obj.contains_id = Cur_goody_id;
+			obj.contains = Cur_goody;
 			obj.contains_count = Cur_goody_count;
 		}
 	}
@@ -241,12 +244,12 @@ static void GoodyClampIDLower(const contained_object_type type)
 	switch (type)
 	{
 		case contained_object_type::robot:
-			if (Cur_goody_id >= LevelSharedRobotInfoState.N_robot_types)
-				Cur_goody_id = {};
+			if (underlying_value(Cur_goody.id.robot) >= LevelSharedRobotInfoState.N_robot_types)
+				Cur_goody.id.robot = {};
 			break;
 		case contained_object_type::powerup:
-			if (Cur_goody_id >= N_powerup_types)
-				Cur_goody_id = {};
+			if (underlying_value(Cur_goody.id.powerup) >= N_powerup_types)
+				Cur_goody.id.powerup = {};
 			break;
 		default:
 			break;
@@ -258,12 +261,12 @@ static void GoodyClampIDUpper(const contained_object_type type)
 	switch (type)
 	{
 		case contained_object_type::robot:
-			if (const auto n = LevelSharedRobotInfoState.N_robot_types; Cur_goody_id >= n)
-				Cur_goody_id = n - 1;
+			if (const auto N_robot_types{LevelSharedRobotInfoState.N_robot_types}; underlying_value(Cur_goody.id.robot) >= N_robot_types)
+				Cur_goody.id.robot = static_cast<robot_id>(N_robot_types - 1);
 			break;
 		case contained_object_type::powerup:
-			if (const auto n = N_powerup_types; Cur_goody_id >= n)
-				Cur_goody_id = n - 1;
+			if (const auto n{N_powerup_types}; underlying_value(Cur_goody.id.powerup) >= n)
+				Cur_goody.id.powerup = static_cast<powerup_type_t>(n - 1);
 			break;
 		default:
 			break;
@@ -272,8 +275,8 @@ static void GoodyClampIDUpper(const contained_object_type type)
 
 static int GoodyToggleType()
 {
-	Cur_goody_type = (Cur_goody_type == contained_object_type::robot) ? contained_object_type::powerup : contained_object_type::robot;
-	GoodyClampIDLower(Cur_goody_type);
+	Cur_goody.type = (Cur_goody.type == contained_object_type::robot) ? contained_object_type::powerup : contained_object_type::robot;
+	GoodyClampIDLower(Cur_goody.type);
 
 	update_goody_info();
 	return 1;
@@ -281,16 +284,16 @@ static int GoodyToggleType()
 
 int GoodyNextID()
 {
-	Cur_goody_id++;
-	GoodyClampIDLower(Cur_goody_type);
+	Cur_goody.id.robot = static_cast<robot_id>(underlying_value(Cur_goody.id.robot) + 1);
+	GoodyClampIDLower(Cur_goody.type);
 	update_goody_info();
 	return 1;
 }
 
 int GoodyPrevID()
 {
-	Cur_goody_id--;
-	GoodyClampIDUpper(Cur_goody_type);
+	Cur_goody.id.robot = static_cast<robot_id>(underlying_value(Cur_goody.id.robot) - 1);
+	GoodyClampIDUpper(Cur_goody.type);
 
 	update_goody_info();
 	return 1;
@@ -350,8 +353,7 @@ static int LocalObjectSelectNextinSegment(void)
 		}
 
 		const auto &&objp = vmobjptr(Cur_object_index);
-		Cur_goody_type = objp->contains.type;
-		Cur_goody_id = objp->contains_id;
+		Cur_goody = objp->contains;
 		if (objp->contains_count < 0)
 			objp->contains_count = 0;
 		Cur_goody_count = objp->contains_count;
@@ -386,8 +388,7 @@ static int LocalObjectSelectNextinMine(void)
 		}
 
 		const auto &&objp = vmobjptr(Cur_object_index);
-		Cur_goody_type = objp->contains.type;
-		Cur_goody_id = objp->contains_id;
+		Cur_goody = objp->contains;
 		if (objp->contains_count < 0)
 			objp->contains_count = 0;
 		Cur_goody_count = objp->contains_count;
@@ -422,8 +423,7 @@ static int LocalObjectSelectPrevinMine(void)
 		}
 
 		const auto &&objp = vmobjptr(Cur_object_index);
-		Cur_goody_type = objp->contains.type;
-		Cur_goody_id = objp->contains_id;
+		Cur_goody = objp->contains;
 		if (objp->contains_count < 0)
 			objp->contains_count = 0;
 		Cur_goody_count = objp->contains_count;
@@ -450,8 +450,7 @@ static int LocalObjectDelete(void)
 
 	if (Cur_object_index != object_none) {
 		auto &objp = *vcobjptr(Cur_object_index);
-		Cur_goody_type = objp.contains.type;
-		Cur_goody_id = objp.contains_id;
+		Cur_goody = objp.contains;
 		Cur_goody_count = objp.contains_count;
 	}
 
@@ -483,8 +482,7 @@ static int LocalObjectPlaceObject(void)
 		return -1;
 
 	const auto &&objp = vmobjptr(Cur_object_index);
-	objp->contains.type = Cur_goody_type;
-	objp->contains_id = Cur_goody_id;
+	objp->contains = Cur_goody;
 	objp->contains_count = Cur_goody_count;
 
 	auto &vcvertptr = Vertices.vcptr;
@@ -688,7 +686,7 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 	//------------------------------------------------------------
 		gr_set_current_canvas(containsViewBox->canvas);
 		if ((Cur_object_index != object_none ) && (Cur_goody_count > 0))	{
-				draw_object_picture(*grd_curcanv, Cur_goody_id, goody_angles, underlying_value(Cur_goody_type));
+			draw_object_picture(*grd_curcanv, underlying_value(Cur_goody.id.robot), goody_angles, underlying_value(Cur_goody.type));
 			goody_angles.h += fixmul(0x1000, DeltaTime );
 		} else {
 			// no object, so just blank out
@@ -706,8 +704,7 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 
 		if (Cur_object_index != object_none) {
 			const auto &&obj = vmobjptr(Cur_object_index);
-			Cur_goody_type = obj->contains.type;
-			Cur_goody_id = obj->contains_id;
+			Cur_goody = obj->contains;
 			if (obj->contains_count < 0)
 				obj->contains_count = 0;
 			Cur_goody_count = obj->contains_count;
@@ -717,18 +714,18 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 		ui_dputs_at(MainWindow, GOODY_X, GOODY_Y+24, "   ID:");
 		ui_dputs_at(MainWindow, GOODY_X, GOODY_Y+48, "Count:");
 
-		switch (Cur_goody_type) {
+		switch (Cur_goody.type) {
 			case contained_object_type::robot:
 				type_text = "Robot  ";
-				id_text = Robot_names[static_cast<robot_id>(Cur_goody_id)].data();
+				id_text = Robot_names[Cur_goody.id.robot].data();
 				break;
 			default:
-				editor_status_fmt("Illegal contained object type (%i), changing to powerup.", underlying_value(std::exchange(Cur_goody_type, contained_object_type::powerup)));
-				Cur_goody_id = 0;
+				editor_status_fmt("Illegal contained object type (%i), changing to powerup.", underlying_value(std::exchange(Cur_goody.type, contained_object_type::powerup)));
+				Cur_goody.id.powerup = {};
 				[[fallthrough]];
 			case contained_object_type::powerup:
 				type_text = "Powerup";
-				id_text = Powerup_names[Cur_goody_id].data();
+				id_text = Powerup_names[Cur_goody.id.powerup].data();
 				break;
 		}
 
