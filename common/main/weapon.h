@@ -54,7 +54,7 @@ enum class laser_level : uint8_t
 	/* endif */
 };
 
-enum class has_weapon_result : uint8_t
+enum class has_primary_weapon_result : uint8_t
 {
 	weapon = 1,
 	energy = 2,
@@ -67,29 +67,29 @@ enum class has_secondary_weapon_result : uint8_t
 	present = 1,
 };
 
-static constexpr has_weapon_result operator&(const has_weapon_result r, const has_weapon_result m)
+static constexpr has_primary_weapon_result operator&(const has_primary_weapon_result r, const has_primary_weapon_result m)
 {
-	return static_cast<has_weapon_result>(static_cast<uint8_t>(r) & static_cast<uint8_t>(m));
+	return static_cast<has_primary_weapon_result>(static_cast<uint8_t>(r) & static_cast<uint8_t>(m));
 }
 
-static constexpr has_weapon_result operator|(const has_weapon_result r, const has_weapon_result m)
+static constexpr has_primary_weapon_result operator|(const has_primary_weapon_result r, const has_primary_weapon_result m)
 {
-	return static_cast<has_weapon_result>(static_cast<uint8_t>(r) | static_cast<uint8_t>(m));
+	return static_cast<has_primary_weapon_result>(static_cast<uint8_t>(r) | static_cast<uint8_t>(m));
 }
 
-static constexpr has_weapon_result &operator|=(has_weapon_result &r, const has_weapon_result m)
+static constexpr has_primary_weapon_result &operator|=(has_primary_weapon_result &r, const has_primary_weapon_result m)
 {
-	return r = static_cast<has_weapon_result>(static_cast<uint8_t>(r) | static_cast<uint8_t>(m));
+	return r = static_cast<has_primary_weapon_result>(static_cast<uint8_t>(r) | static_cast<uint8_t>(m));
 }
 
-static constexpr uint8_t has_weapon(const has_weapon_result r)
+static constexpr uint8_t has_weapon(const has_primary_weapon_result r)
 {
-	return static_cast<uint8_t>(r & has_weapon_result::weapon);
+	return static_cast<uint8_t>(r & has_primary_weapon_result::weapon);
 }
 
-static constexpr bool has_all(const has_weapon_result r)
+static constexpr bool has_all(const has_primary_weapon_result r)
 {
-	constexpr auto m = has_weapon_result::weapon | has_weapon_result::energy | has_weapon_result::ammo;
+	constexpr auto m = has_primary_weapon_result::weapon | has_primary_weapon_result::energy | has_primary_weapon_result::ammo;
 	return (r & m) == m;
 }
 

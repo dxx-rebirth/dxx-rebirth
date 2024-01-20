@@ -48,7 +48,7 @@ void weapon_info_write(PHYSFS_File *, const weapon_info &);
 
 namespace dcx {
 enum class laser_level : uint8_t;
-enum class has_weapon_result : uint8_t;
+enum class has_primary_weapon_result : uint8_t;
 enum class has_secondary_weapon_result : uint8_t;
 }
 
@@ -199,7 +199,7 @@ void select_secondary_weapon(player_info &, const char *weapon_name, secondary_w
 //      HAS_AMMO_FLAG
 #ifdef dsx
 namespace dsx {
-has_weapon_result player_has_primary_weapon(const player_info &, primary_weapon_index_t weapon_num);
+has_primary_weapon_result player_has_primary_weapon(const player_info &, primary_weapon_index_t weapon_num);
 has_secondary_weapon_result player_has_secondary_weapon(const player_info &, secondary_weapon_index_t weapon_num);
 
 //called when one of these weapons is picked up

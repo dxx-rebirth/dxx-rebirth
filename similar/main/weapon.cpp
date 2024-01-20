@@ -355,14 +355,14 @@ static primary_weapon_index_t get_mapped_weapon_index(const player_info &player_
 //	------------------------------------------------------------------------------------
 //	Return:
 // Bits set:
-//		has_weapon_result::weapon
-//		has_weapon_result::energy
-//		has_weapon_result::ammo
+//		has_primary_weapon_result::weapon
+//		has_primary_weapon_result::energy
+//		has_primary_weapon_result::ammo
 // See weapon.h for bit values
 namespace dsx {
-has_weapon_result player_has_primary_weapon(const player_info &player_info, primary_weapon_index_t weapon_num)
+has_primary_weapon_result player_has_primary_weapon(const player_info &player_info, primary_weapon_index_t weapon_num)
 {
-	has_weapon_result return_value{};
+	has_primary_weapon_result return_value{};
 
 	//	Hack! If energy goes negative, you can't fire a weapon that doesn't require energy.
 	//	But energy should not go negative (but it does), so find out why it does!
@@ -372,17 +372,17 @@ has_weapon_result player_has_primary_weapon(const player_info &player_info, prim
 
 	if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num))
 	{
-		return_value = has_weapon_result::weapon;
+		return_value = has_primary_weapon_result::weapon;
 	}
 
 		// Special case: Gauss cannon uses vulcan ammo.
 		if (weapon_index_uses_vulcan_ammo(weapon_num)) {
 			if (Weapon_info[weapon_index].ammo_usage <= player_info.vulcan_ammo)
-				return_value |= has_weapon_result::ammo;
+				return_value |= has_primary_weapon_result::ammo;
 		}
 		/* Hack to work around check in do_primary_weapon_select */
 		else
-			return_value |= has_weapon_result::ammo;
+			return_value |= has_primary_weapon_result::ammo;
 
 #if defined(DXX_BUILD_DESCENT_I)
 		//added on 1/21/99 by Victor Rachels... yet another hack
@@ -390,12 +390,12 @@ has_weapon_result player_has_primary_weapon(const player_info &player_info, prim
 		if(weapon_num == primary_weapon_index_t::FUSION_INDEX)
 		{
 			if (energy >= F1_0*2)
-				return_value |= has_weapon_result::energy;
+				return_value |= has_primary_weapon_result::energy;
 		}
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (weapon_num == primary_weapon_index_t::OMEGA_INDEX) {	// Hack: Make sure player has energy to omega
 			if (energy > 0 || player_info.Omega_charge)
-				return_value |= has_weapon_result::energy;
+				return_value |= has_primary_weapon_result::energy;
 		}
 #endif
 		else
@@ -407,7 +407,7 @@ has_weapon_result player_has_primary_weapon(const player_info &player_info, prim
 			 * preference to coercing negative player energy to zero.
 			 */
 			if (energy_usage <= 0 || energy_usage <= energy)
-				return_value |= has_weapon_result::energy;
+				return_value |= has_primary_weapon_result::energy;
 		}
 	return return_value;
 }
@@ -765,7 +765,7 @@ static bool reject_unusable_primary_weapon_select(const player_info &player_info
 	const char *prefix;
 	if (!has_weapon(weapon_status))
 		prefix = TXT_DONT_HAVE;
-	else if ((weapon_status & has_weapon_result::ammo) == has_weapon_result{})
+	else if ((weapon_status & has_primary_weapon_result::ammo) == has_primary_weapon_result{})
 		prefix = TXT_DONT_HAVE_AMMO;
 	else
 		return false;
@@ -798,7 +798,7 @@ void do_primary_weapon_select(player_info &player_info, primary_weapon_index_t w
 		return;
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
-	has_weapon_result weapon_status;
+	has_primary_weapon_result weapon_status;
 
 	auto &Primary_weapon = player_info.Primary_weapon;
 	const auto current = Primary_weapon.get_active();
