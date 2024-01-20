@@ -355,14 +355,14 @@ static primary_weapon_index_t get_mapped_weapon_index(const player_info &player_
 //	------------------------------------------------------------------------------------
 //	Return:
 // Bits set:
-//		HAS_WEAPON_FLAG
-//		HAS_ENERGY_FLAG
-//		HAS_AMMO_FLAG
+//		has_weapon_result::weapon
+//		has_weapon_result::energy
+//		has_weapon_result::ammo
 // See weapon.h for bit values
 namespace dsx {
 has_weapon_result player_has_primary_weapon(const player_info &player_info, primary_weapon_index_t weapon_num)
 {
-	int	return_value = 0;
+	has_weapon_result return_value{};
 
 	//	Hack! If energy goes negative, you can't fire a weapon that doesn't require energy.
 	//	But energy should not go negative (but it does), so find out why it does!
@@ -371,16 +371,18 @@ has_weapon_result player_has_primary_weapon(const player_info &player_info, prim
 	const auto weapon_index = Primary_weapon_to_weapon_info[weapon_num];
 
 	if (player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num))
-			return_value |= has_weapon_result::has_weapon_flag;
+	{
+		return_value = has_weapon_result::weapon;
+	}
 
 		// Special case: Gauss cannon uses vulcan ammo.
 		if (weapon_index_uses_vulcan_ammo(weapon_num)) {
 			if (Weapon_info[weapon_index].ammo_usage <= player_info.vulcan_ammo)
-				return_value |= has_weapon_result::has_ammo_flag;
+				return_value |= has_weapon_result::ammo;
 		}
 		/* Hack to work around check in do_primary_weapon_select */
 		else
-			return_value |= has_weapon_result::has_ammo_flag;
+			return_value |= has_weapon_result::ammo;
 
 #if defined(DXX_BUILD_DESCENT_I)
 		//added on 1/21/99 by Victor Rachels... yet another hack
@@ -388,12 +390,12 @@ has_weapon_result player_has_primary_weapon(const player_info &player_info, prim
 		if(weapon_num == primary_weapon_index_t::FUSION_INDEX)
 		{
 			if (energy >= F1_0*2)
-				return_value |= has_weapon_result::has_energy_flag;
+				return_value |= has_weapon_result::energy;
 		}
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (weapon_num == primary_weapon_index_t::OMEGA_INDEX) {	// Hack: Make sure player has energy to omega
 			if (energy > 0 || player_info.Omega_charge)
-				return_value |= has_weapon_result::has_energy_flag;
+				return_value |= has_weapon_result::energy;
 		}
 #endif
 		else
@@ -405,19 +407,18 @@ has_weapon_result player_has_primary_weapon(const player_info &player_info, prim
 			 * preference to coercing negative player energy to zero.
 			 */
 			if (energy_usage <= 0 || energy_usage <= energy)
-				return_value |= has_weapon_result::has_energy_flag;
+				return_value |= has_weapon_result::energy;
 		}
 	return return_value;
 }
 
 has_weapon_result player_has_secondary_weapon(const player_info &player_info, const secondary_weapon_index_t weapon_num)
 {
-	int	return_value = 0;
 	const auto secondary_ammo = player_info.secondary_ammo[weapon_num];
 	const auto weapon_index = Secondary_weapon_to_weapon_info[weapon_num];
 	if (secondary_ammo && Weapon_info[weapon_index].ammo_usage <= secondary_ammo)
-		return_value = has_weapon_result::has_weapon_flag | has_weapon_result::has_energy_flag | has_weapon_result::has_ammo_flag;
-	return return_value;
+		return has_weapon_result::weapon | has_weapon_result::energy | has_weapon_result::ammo;
+	return has_weapon_result{};
 }
 
 void InitWeaponOrdering ()
@@ -484,7 +485,7 @@ public:
 				desired_weapon = primary_weapon_index_t::LASER_INDEX;
 		}
 #endif
-		if (!player_has_primary_weapon(pl_info, desired_weapon).has_all())
+		if (!has_all(player_has_primary_weapon(pl_info, desired_weapon)))
 			return false;
 		select_primary_weapon(pl_info, PRIMARY_WEAPON_NAMES(desired_weapon), desired_weapon, 1);
 		return true;
@@ -533,7 +534,7 @@ public:
 	bool maybe_select_weapon_by_type(const weapon_index_type desired_weapon_idx)
 	{
 		const weapon_index_type desired_weapon = static_cast<weapon_index_type>(desired_weapon_idx);
-		if (!player_has_secondary_weapon(pl_info, desired_weapon).has_all())
+		if (!has_all(player_has_secondary_weapon(pl_info, desired_weapon)))
 			return false;
 		select_secondary_weapon(pl_info, SECONDARY_WEAPON_NAMES(desired_weapon), desired_weapon, 1);
 		return true;
@@ -762,9 +763,9 @@ static bool reject_unusable_primary_weapon_select(const player_info &player_info
 {
 	const auto weapon_status = player_has_primary_weapon(player_info, weapon_num);
 	const char *prefix;
-	if (!weapon_status.has_weapon())
+	if (!has_weapon(weapon_status))
 		prefix = TXT_DONT_HAVE;
-	else if (!weapon_status.has_ammo())
+	else if ((weapon_status & has_weapon_result::ammo) == has_weapon_result{})
 		prefix = TXT_DONT_HAVE_AMMO;
 	else
 		return false;
@@ -775,7 +776,7 @@ static bool reject_unusable_primary_weapon_select(const player_info &player_info
 static bool reject_unusable_secondary_weapon_select(const player_info &player_info, const secondary_weapon_index_t weapon_num, const char *const weapon_name)
 {
 	const auto weapon_status = player_has_secondary_weapon(player_info, weapon_num);
-	if (weapon_status.has_all())
+	if (has_all(weapon_status))
 		return false;
 	HUD_init_message(HM_DEFAULT, "%s %s%s", TXT_HAVE_NO, weapon_name, TXT_SX);
 	return true;
@@ -802,7 +803,6 @@ void do_primary_weapon_select(player_info &player_info, primary_weapon_index_t w
 	auto &Primary_weapon = player_info.Primary_weapon;
 	const auto current = Primary_weapon.get_active();
 	const auto last_was_super = player_info.Primary_last_was_super & HAS_PRIMARY_FLAG(weapon_num);
-	const auto has_flag = weapon_status.has_weapon_flag;
 
 	if (current == weapon_num || current == static_cast<primary_weapon_index_t>(underlying_value(weapon_num) + SUPER_WEAPON))
 	{
@@ -822,17 +822,19 @@ void do_primary_weapon_select(player_info &player_info, primary_weapon_index_t w
 
 		//if don't have last-selected, try other version
 
-		if ((weapon_status.flags() & has_flag) != has_flag) {
+		if (!has_weapon(weapon_status))
+		{
 			weapon_num = get_alternate_weapon(weapon_num, weapon_num_save);
 			weapon_status = player_has_primary_weapon(player_info, weapon_num);
-			if ((weapon_status.flags() & has_flag) != has_flag)
+			if (!has_weapon(weapon_status))
 				weapon_num = get_alternate_weapon(weapon_num, weapon_num_save);
 		}
 	}
 
 	//if we don't have the weapon we're switching to, give error & bail
 	const auto weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
-	if ((weapon_status.flags() & has_flag) != has_flag) {
+	if (!has_weapon(weapon_status))
+	{
 		{
 			if (weapon_num == primary_weapon_index_t::SUPER_LASER_INDEX)
 				return; 		//no such thing as super laser, so no error
@@ -864,7 +866,7 @@ void do_secondary_weapon_select(player_info &player_info, secondary_weapon_index
 
 	const auto current = player_info.Secondary_weapon.get_active();
 	const auto last_was_super = player_info.Secondary_last_was_super & HAS_SECONDARY_FLAG(weapon_num);
-	const auto has_flag = weapon_status.has_weapon_flag | weapon_status.has_ammo_flag;
+	const auto has_flag = has_weapon_result::weapon | has_weapon_result::ammo;
 
 	if (current == weapon_num || current == static_cast<secondary_weapon_index_t>(underlying_value(weapon_num) + SUPER_WEAPON))
 	{
@@ -884,17 +886,17 @@ void do_secondary_weapon_select(player_info &player_info, secondary_weapon_index
 
 		//if don't have last-selected, try other version
 
-		if ((weapon_status.flags() & has_flag) != has_flag) {
+		if ((weapon_status & has_flag) != has_flag) {
 			weapon_num = get_alternate_weapon(weapon_num, weapon_num_save);
 			weapon_status = player_has_secondary_weapon(player_info, weapon_num);
-			if ((weapon_status.flags() & has_flag) != has_flag)
+			if ((weapon_status & has_flag) != has_flag)
 				weapon_num = get_alternate_weapon(weapon_num, weapon_num_save);
 		}
 	}
 
 	//if we don't have the weapon we're switching to, give error & bail
 	const auto weapon_name = SECONDARY_WEAPON_NAMES(weapon_num);
-	if ((weapon_status.flags() & has_flag) != has_flag) {
+	if ((weapon_status & has_flag) != has_flag) {
 		HUD_init_message(HM_DEFAULT, "%s %s%s", TXT_HAVE_NO, weapon_name, TXT_SX);
 		digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
 		return;
@@ -933,13 +935,13 @@ namespace dsx {
 // Weapon type: 0==primary, 1==secondary
 void auto_select_primary_weapon(player_info &player_info)
 {
-	if (!player_has_primary_weapon(player_info, player_info.Primary_weapon).has_all())
+	if (!has_all(player_has_primary_weapon(player_info, player_info.Primary_weapon)))
 		auto_select_weapon(cycle_primary_state(player_info));
 }
 
 void auto_select_secondary_weapon(player_info &player_info)
 {
-	if (!player_has_secondary_weapon(player_info, player_info.Secondary_weapon).has_all())
+	if (!has_all(player_has_secondary_weapon(player_info, player_info.Secondary_weapon)))
 		auto_select_weapon(cycle_secondary_state(player_info));
 }
 
@@ -952,7 +954,7 @@ void delayed_autoselect(player_info &player_info, const control_info &Controls)
 		const auto delayed_primary = Primary_weapon.get_delayed();
 		if (delayed_primary != primary_weapon)
 		{
-			if (player_has_primary_weapon(player_info, delayed_primary).has_all())
+			if (has_all(player_has_primary_weapon(player_info, delayed_primary)))
 				select_primary_weapon(player_info, nullptr, delayed_primary, 1);
 			else
 				Primary_weapon.set_delayed(primary_weapon);
@@ -965,7 +967,7 @@ void delayed_autoselect(player_info &player_info, const control_info &Controls)
 		const auto delayed_secondary = Secondary_weapon.get_delayed();
 		if (delayed_secondary != secondary_weapon)
 		{
-			if (player_has_secondary_weapon(player_info, delayed_secondary).has_all())
+			if (has_all(player_has_secondary_weapon(player_info, delayed_secondary)))
 				select_secondary_weapon(player_info, nullptr, delayed_secondary, 1);
 			else
 				Secondary_weapon.set_delayed(secondary_weapon);

@@ -54,6 +54,39 @@ enum class laser_level : uint8_t
 	/* endif */
 };
 
+enum class has_weapon_result : uint8_t
+{
+	weapon = 1,
+	energy = 2,
+	ammo = 4,
+};
+
+static constexpr has_weapon_result operator&(const has_weapon_result r, const has_weapon_result m)
+{
+	return static_cast<has_weapon_result>(static_cast<uint8_t>(r) & static_cast<uint8_t>(m));
+}
+
+static constexpr has_weapon_result operator|(const has_weapon_result r, const has_weapon_result m)
+{
+	return static_cast<has_weapon_result>(static_cast<uint8_t>(r) | static_cast<uint8_t>(m));
+}
+
+static constexpr has_weapon_result &operator|=(has_weapon_result &r, const has_weapon_result m)
+{
+	return r = static_cast<has_weapon_result>(static_cast<uint8_t>(r) | static_cast<uint8_t>(m));
+}
+
+static constexpr uint8_t has_weapon(const has_weapon_result r)
+{
+	return static_cast<uint8_t>(r & has_weapon_result::weapon);
+}
+
+static constexpr bool has_all(const has_weapon_result r)
+{
+	constexpr auto m = has_weapon_result::weapon | has_weapon_result::energy | has_weapon_result::ammo;
+	return (r & m) == m;
+}
+
 }
 
 namespace dsx {
@@ -251,42 +284,6 @@ static constexpr unsigned HAS_SECONDARY_FLAG(const secondary_weapon_index_t w)
 struct player_info;
 void delayed_autoselect(player_info &, const control_info &Controls);
 
-}
-
-class has_weapon_result
-{
-	uint8_t m_result;
-public:
-	static constexpr auto has_weapon_flag = std::integral_constant<uint8_t, 1>{};
-	static constexpr auto has_energy_flag = std::integral_constant<uint8_t, 2>{};
-	static constexpr auto has_ammo_flag   = std::integral_constant<uint8_t, 4>{};
-	has_weapon_result() = default;
-	constexpr has_weapon_result(uint8_t r) : m_result(r)
-	{
-	}
-	uint8_t has_weapon() const
-	{
-		return m_result & has_weapon_flag;
-	}
-	uint8_t has_energy() const
-	{
-		return m_result & has_energy_flag;
-	}
-	uint8_t has_ammo() const
-	{
-		return m_result & has_ammo_flag;
-	}
-	uint8_t flags() const
-	{
-		return m_result;
-	}
-	bool has_all() const
-	{
-		return m_result == (has_weapon_flag | has_energy_flag | has_ammo_flag);
-	}
-};
-
-namespace dsx {
 //return which bomb will be dropped next time the bomb key is pressed
 #if defined(DXX_BUILD_DESCENT_I)
 static constexpr secondary_weapon_index_t which_bomb(const player_info &)

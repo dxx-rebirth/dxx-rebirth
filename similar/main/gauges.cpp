@@ -1402,7 +1402,7 @@ static rgb_t hud_get_primary_weapon_fontcolor(const player_info &player_info, co
 		/* The currently active weapon is `consider_weapon` */
 		return hud_rgb_red;
 	else{
-		if (player_has_primary_weapon(player_info, consider_weapon).has_weapon())
+		if (has_weapon(player_has_primary_weapon(player_info, consider_weapon)))
 		{
 			/* The player has not armed this weapon, but could do so. */
 #if defined(DXX_BUILD_DESCENT_II)
@@ -3184,9 +3184,9 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, int reticl
 
 	missile_ready = allowed_to_fire_missile(player_info);
 	auto &Primary_weapon = player_info.Primary_weapon;
-	primary_bm_num = (laser_ready && player_has_primary_weapon(player_info, Primary_weapon).has_all());
+	primary_bm_num = (laser_ready && has_all(player_has_primary_weapon(player_info, Primary_weapon)));
 	auto &Secondary_weapon = player_info.Secondary_weapon;
-	secondary_bm_num = (missile_ready && player_has_secondary_weapon(player_info, Secondary_weapon).has_all());
+	secondary_bm_num = (missile_ready && has_all(player_has_secondary_weapon(player_info, Secondary_weapon)));
 
 	if (primary_bm_num && Primary_weapon == primary_weapon_index_t::LASER_INDEX && (player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS))
 		primary_bm_num++;

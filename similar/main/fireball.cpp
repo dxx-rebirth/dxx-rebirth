@@ -989,7 +989,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 		del_obj.contains_count = 0;
 	else if (weapon_index != unset_weapon_index)
 	{
-		if (player_has_primary_weapon(player_info, weapon_index).has_weapon() || weapon_nearby(vcobjptridx, vcsegptr, del_obj, static_cast<powerup_type_t>(del_obj.contains_id)) != nullptr)
+		if (has_weapon(player_has_primary_weapon(player_info, weapon_index)) || weapon_nearby(vcobjptridx, vcsegptr, del_obj, static_cast<powerup_type_t>(del_obj.contains_id)) != nullptr)
 		{
 			if (d_rand() > 16384) {
 #if defined(DXX_BUILD_DESCENT_I)
