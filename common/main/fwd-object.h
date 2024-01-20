@@ -235,11 +235,6 @@ imsegptridx_t find_object_seg(const d_level_shared_segment_state &, d_level_uniq
 // numbers used when debugging is on
 void fix_object_segs();
 
-// Interface to object_create_egg, puts count objects of type type, id
-// = id in objp and then drops them.
-void call_object_create_egg(const object_base &objp, unsigned count, int id);
-imobjptridx_t call_object_create_egg(const object_base &objp, int id);
-
 void dead_player_end();
 
 // Extract information from an object (objp->orient, objp->pos,

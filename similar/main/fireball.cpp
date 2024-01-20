@@ -1332,12 +1332,12 @@ bool object_create_robot_egg(const d_robot_info_array &Robot_info, object_base &
 //	-------------------------------------------------------------------------------------------------------
 //	Put count objects of type type (eg, powerup), id = id (eg, energy) into *objp, then drop them!  Yippee!
 //	Returns created object number.
-imobjptridx_t call_object_create_egg(const object_base &objp, const int id)
+imobjptridx_t call_object_create_egg(const object_base &objp, const powerup_type_t id)
 {
 	return drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, id, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum), true);
 }
 
-void call_object_create_egg(const object_base &objp, const unsigned count, const int id)
+void call_object_create_egg(const object_base &objp, const unsigned count, const powerup_type_t id)
 {
 	if (count > 0) {
 		drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, id, count, objp.mtype.phys_info.velocity, objp.pos, vmsegptridx(objp.segnum), true);

@@ -69,5 +69,10 @@ void do_powerup_frame(const d_vclip_array &Vclip, vmobjptridx_t obj);
 void do_megawow_powerup(object &plrobj, int quantity);
 
 void powerup_basic_str(int redadd, int greenadd, int blueadd, int score, std::span<const char> str);
+
+// Interface to object_create_egg, puts count objects of type type, id
+// = id in objp and then drops them.
+imobjptridx_t call_object_create_egg(const object_base &objp, powerup_type_t id);
+void call_object_create_egg(const object_base &objp, unsigned count, powerup_type_t id);
 }
 #endif

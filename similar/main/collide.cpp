@@ -1915,7 +1915,7 @@ static void drop_missile_1_or_4(const object &playerobj, const secondary_weapon_
 	if (num_missiles > 10)
 		num_missiles = 10;
 
-	call_object_create_egg(playerobj, num_missiles / 4, powerup_id + 1);
+	call_object_create_egg(playerobj, num_missiles / 4, static_cast<powerup_type_t>(static_cast<uint8_t>(powerup_id) + 1));
 	call_object_create_egg(playerobj, num_missiles % 4, powerup_id);
 }
 
