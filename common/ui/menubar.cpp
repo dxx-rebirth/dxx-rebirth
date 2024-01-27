@@ -804,11 +804,9 @@ int menubar_init(grs_canvas &canvas, const char *const file)
 		return 0;
 	}
 
-	PHYSFSX_gets_line_t<200> buffer;
-	while ( PHYSFSX_fgets( buffer, infile) != NULL )
+	for (PHYSFSX_gets_line_t<200> buffer; PHYSFSX_fgets(buffer, infile);)
 	{
 		if ( buffer[0] == ';' ) continue;
-		
 		CommaParse(0, buf1, buffer.line());
 		char *p;
 		const auto mi = strtoul(buf1, &p, 10);
@@ -864,7 +862,6 @@ int menubar_init(grs_canvas &canvas, const char *const file)
 				con_printf(CON_URGENT, "%s:%u: unknown function \"%s\" in \"%s\"", __FILE__, __LINE__, buf1, file);
 			}
 		}
-				
 		item.x = menu.x;
 		item.y = menu.y;
 
@@ -877,7 +874,6 @@ int menubar_init(grs_canvas &canvas, const char *const file)
 			w = r.width + 2;
 			h = r.height + 2;
 		}
-								
 		if (mi == 0)
 		{
 			menu.h = h;
@@ -885,7 +881,6 @@ int menubar_init(grs_canvas &canvas, const char *const file)
 			item.x = menu.x + menu.w;
 
 			item.y = menu.y;
-			
 			auto &next_menu = menu_allocate(Menu[ii + 1]);
 			next_menu.x = menu.x + menu.w;
 			next_menu.y = menu.h - 2;
@@ -908,7 +903,6 @@ int menubar_init(grs_canvas &canvas, const char *const file)
 			item.h = h;
 			menu.h += h;
 		}
-	
 		if (ii >= menu.NumItems)
 		{
 			menu.NumItems = ii + 1;
@@ -916,7 +910,6 @@ int menubar_init(grs_canvas &canvas, const char *const file)
 
 		if (mi >= num_menus)
 			num_menus = mi + 1;
-
 	}
 	return 1;
 }

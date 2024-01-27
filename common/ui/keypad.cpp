@@ -465,8 +465,7 @@ int ui_pad_read( int n, const char * filename )
 
 	// Get the keycodes...
 
-	PHYSFSX_gets_line_t<200> line_buffer;
-	while (PHYSFSX_fgets(line_buffer, infile))
+	for (PHYSFSX_gets_line_t<200> line_buffer; PHYSFSX_fgets(line_buffer, infile);)
 	{
 		if (!line_buffer[0])
 			continue;

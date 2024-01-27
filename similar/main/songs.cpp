@@ -230,9 +230,8 @@ static void songs_init()
 	}
 	else
 	{
-		PHYSFSX_gets_line_t<81> inputline;
 		std::vector<bim_song_info> main_songs, secret_songs;
-		while (PHYSFSX_fgets(inputline, fp))
+		for (PHYSFSX_gets_line_t<81> inputline; PHYSFSX_fgets(inputline, fp);)
 		{
 			if (!inputline[0])
 				continue;

@@ -559,9 +559,7 @@ static int read_mission_file(mission_list_type &mission_list, mission_candidate_
 			return 0;
 		}
 
-		{
-			PHYSFSX_gets_line_t<4096> temp;
-		if (PHYSFSX_fgets(temp,mfile))
+		if (PHYSFSX_gets_line_t<4096> temp; PHYSFSX_fgets(temp, mfile))
 		{
 			if (istok(temp,"type"))
 			{
@@ -569,7 +567,6 @@ static int read_mission_file(mission_list_type &mission_list, mission_candidate_
 				if (const auto p = get_value(temp))
 					mission->anarchy_only_flag = istok(p, "anarchy") ? Mission::anarchy_only_level::only_anarchy_games : Mission::anarchy_only_level::allow_any_game;
 			}
-		}
 		}
 		return 1;
 	}

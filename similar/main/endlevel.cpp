@@ -1361,9 +1361,8 @@ try_again:
 
 	var = 0;
 
-	PHYSFSX_gets_line_t<LINE_LEN> line;
-	while (PHYSFSX_fgets(line,ifile)) {
-
+	for (PHYSFSX_gets_line_t<LINE_LEN> line; PHYSFSX_fgets(line, ifile);)
+	{
 		if (have_binary)
 			decode_text_line (line);
 
