@@ -976,7 +976,7 @@ static int load_game_data(
 	{
 		// read newline-terminated string, not sure what version this changed.
 		if (!PHYSFSX_fgets(Current_level_name, LoadFile))
-			*Current_level_name = 0;
+			Current_level_name.next()[0]=0;
 	}
 	else
 		Current_level_name.next()[0]=0;

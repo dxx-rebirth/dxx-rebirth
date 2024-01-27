@@ -208,37 +208,38 @@ static inline int PHYSFSX_fseek(PHYSFS_File *fp, long int offset, int where)
 }
 
 template <std::size_t N>
-struct PHYSFSX_gets_line_t
+struct PHYSFSX_gets_line_t :
+#if DXX_HAVE_POISON
+	/* Force onto heap to improve checker accuracy */
+	private std::unique_ptr<std::array<char, N>>
+#else
+	private std::array<char, N>
+#endif
 {
 	PHYSFSX_gets_line_t() = default;
 	PHYSFSX_gets_line_t(const PHYSFSX_gets_line_t &) = delete;
 	PHYSFSX_gets_line_t &operator=(const PHYSFSX_gets_line_t &) = delete;
 	using line_t = std::array<char, N>;
 #if DXX_HAVE_POISON
-	/* Force onto heap to improve checker accuracy */
-	std::unique_ptr<line_t> m_line;
-	const line_t &line() const { return *m_line.get(); }
-	line_t &line() { return *m_line.get(); }
+	using base_type = std::unique_ptr<line_t>;
+	const line_t &line() const { return *this->base_type::get(); }
+	line_t &line() { return *this->base_type::get(); }
 	std::span<char, N> next()
 	{
-		m_line = std::make_unique<line_t>();
-		return *m_line.get();
+		static_cast<base_type &>(*this) = std::make_unique<line_t>();
+		return line();
 	}
+	typename line_t::reference operator[](const typename line_t::size_type i) { return line()[i]; }
+	typename line_t::const_reference operator[](const typename line_t::size_type i) const { return line()[i]; }
 #else
-	line_t m_line;
-	const line_t &line() const { return m_line; }
-	line_t &line() { return m_line; }
-	std::span<char, N> next() { return m_line; }
+	const line_t &line() const { return *this; }
+	line_t &line() { return *this; }
+	std::span<char, N> next() { return line(); }
+	using line_t::operator[];
 #endif
-	operator line_t &() { return line(); }
-	operator const line_t &() const { return line(); }
 	operator char *() { return line().data(); }
 	operator const char *() const { return line().data(); }
-	typename line_t::reference operator[](typename line_t::size_type i) { return line()[i]; }
-	typename line_t::reference operator[](int i) { return operator[](static_cast<typename line_t::size_type>(i)); }
-	typename line_t::const_reference operator[](typename line_t::size_type i) const { return line()[i]; }
-	typename line_t::const_reference operator[](int i) const { return operator[](static_cast<typename line_t::size_type>(i)); }
-	constexpr std::size_t size() const { return N; }
+	static constexpr std::size_t size() { return N; }
 	typename line_t::const_iterator begin() const { return line().begin(); }
 	typename line_t::const_iterator end() const { return line().end(); }
 };
@@ -254,9 +255,9 @@ struct PHYSFSX_gets_line_t<0>
 	const std::size_t m_length;
 	PHYSFSX_gets_line_t(const std::size_t n) :
 #if !DXX_HAVE_POISON
-		m_line(DXX_ALLOCATE_PHYSFS_LINE(n)),
+		m_line{DXX_ALLOCATE_PHYSFS_LINE(n)},
 #endif
-		m_length(n)
+		m_length{n}
 	{
 	}
 	char *line() { return m_line.get(); }
@@ -272,7 +273,7 @@ struct PHYSFSX_gets_line_t<0>
 	std::size_t size() const { return m_length; }
 	operator const char *() const { return m_line.get(); }
 	const char *begin() const { return *this; }
-	const char *end() const { return begin() + m_length; }
+	const char *end() const { return std::next(begin(), m_length); }
 	operator const void *() const = delete;
 #undef DXX_ALLOCATE_PHYSFS_LINE
 };

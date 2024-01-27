@@ -809,7 +809,7 @@ int menubar_init(grs_canvas &canvas, const char *const file)
 	{
 		if ( buffer[0] == ';' ) continue;
 		
-		CommaParse( 0, buf1, buffer );
+		CommaParse(0, buf1, buffer.line());
 		char *p;
 		const auto mi = strtoul(buf1, &p, 10);
 		if (mi >= Menu.size())
@@ -818,7 +818,7 @@ int menubar_init(grs_canvas &canvas, const char *const file)
 			break;
 		}
 
-		CommaParse( 1, buf1, buffer );
+		CommaParse(1, buf1, buffer.line());
 		const auto ii = strtoul(buf1, &p, 10);
 		auto &menu = menu_allocate(Menu[mi]);
 		if (ii >= menu.Item.size())
@@ -828,7 +828,7 @@ int menubar_init(grs_canvas &canvas, const char *const file)
 		}
 		auto &item = menu.Item[ii];
 
-		CommaParse( 2, buf1, buffer );
+		CommaParse(2, buf1, buffer.line());
 		ul_xlate(buf1);
 
 		item.Text = d_strdup(buf1[0] == '-' ? buf1 : (snprintf(buf2, sizeof(buf2), " %.197s ", buf1), buf2));
@@ -842,7 +842,7 @@ int menubar_init(grs_canvas &canvas, const char *const file)
 				break;
 		}
 
-		CommaParse( 3, buf1, buffer );
+		CommaParse(3, buf1, buffer.line());
 		if (buf1[0]=='{' && buf1[1] =='}')
 			item.Hotkey = -1;
 		else			{
@@ -853,7 +853,7 @@ int menubar_init(grs_canvas &canvas, const char *const file)
 				item.Hotkey = i;
 			}
 		}
-		CommaParse( 4, buf1, buffer );
+		CommaParse(4, buf1, buffer.line());
 
 		if (buf1[0])
 		{
