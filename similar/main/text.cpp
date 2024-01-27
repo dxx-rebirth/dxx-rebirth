@@ -222,7 +222,7 @@ void load_text()
 
 //edited 05/17/99 Matt Mueller - malloc an extra byte, and null terminate.
 		text = std::make_unique<char[]>(len + 1);
-		PHYSFS_read(ifile,text,1,len);
+		PHYSFS_readBytes(ifile, text.get(), len);
 		text[len]=0;
 //end edit -MM
 	} else {
