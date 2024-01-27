@@ -140,11 +140,11 @@ constexpr std::uint16_t MULTI_PROTO_VERSION{16};
 #define MAX_MESSAGE_LEN 35
 
 #if defined(DXX_BUILD_DESCENT_I)
-#define MAX_NET_CREATE_OBJECTS 20
 #define MAX_MULTI_MESSAGE_LEN  90 //didn't change it, just moved it up
+constexpr std::size_t MAX_NET_CREATE_OBJECTS{20u};
 #elif defined(DXX_BUILD_DESCENT_II)
-#define MAX_NET_CREATE_OBJECTS  40
 #define MAX_MULTI_MESSAGE_LEN   120
+constexpr std::size_t MAX_NET_CREATE_OBJECTS{40u};
 
 #endif
 
