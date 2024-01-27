@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 #include "args.h"
 #include <memory>
+#include "d_range.h"
 
 #ifdef GENERATE_BUILTIN_TEXT_TABLE
 #include <ctype.h>
@@ -45,6 +46,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define IDX_TEXT_OVERWRITTEN	350
 #define SHAREWARE_TEXTSIZE  14677
 #endif
+
+namespace dcx {
 
 namespace {
 
@@ -58,39 +61,22 @@ static constexpr uint8_t decode_char(const uint8_t c)
 	return {std::rotl(c2, 1)};
 }
 
+static std::pair<PHYSFS_sint64, std::unique_ptr<char[]>> load_blob_from_file(const char *const filename, const RAIIPHYSFS_File file)
+{
+	const auto len{PHYSFS_fileLength(file)};
+	auto p{std::make_unique_for_overwrite<char[]>(len + 1)};
+	const auto bytes_read{PHYSFS_readBytes(file, p.get(), len)};
+	if (bytes_read < 0)
+		Error("Failed to read file %s: \"%s\"", filename, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
+	else if (bytes_read > len)
+		/* This should never happen. */
+		Error("Failed to read file %s: read more bytes than requested", filename);
+	else
+		return {bytes_read, std::move(p)};
 }
 
-//decode an encoded line of text of bitmaps.tbl
-void decode_text_line(char *p)
+static void parse_blob_as_text_strings(const char *const filename, char *tptr, const bool have_binary, const PHYSFS_sint64 bytes_read)
 {
-	for (; const char c = *p; p++)
-		*p = decode_char(c);
-}
-
-// decode buffer of text, preserves newlines
-void decode_text(char *ptr, unsigned len)
-{
-	for (; len--; ptr++)
-	{
-		const char c = *ptr;
-		if (c != '\n')
-			*ptr = decode_char(c);
-	}
-}
-
-//load all the text strings for Descent
-namespace dsx {
-
-#ifdef USE_BUILTIN_ENGLISH_TEXT_STRINGS
-static
-#endif
-std::array<const char *, N_TEXT_STRINGS> Text_string;
-
-void load_text()
-{
-	int len,i, have_binary = 0;
-	char *tptr;
-	const char *filename="descent.tex";
 #if defined(DXX_BUILD_DESCENT_I)
 	static const char *const extra_strings[] = {
 		"done",
@@ -201,62 +187,24 @@ void load_text()
 		"Robot painting OFF",
 		"Robot painting with texture %d"
 	};
+	(void)bytes_read;
 #endif
 
-	if (!CGameArg.DbgAltTex.empty())
-		filename = CGameArg.DbgAltTex.c_str();
-
-	if (auto &&[tfile, physfserr] = PHYSFSX_openReadBuffered(filename); !tfile)
+	for (const auto i : xrange(N_TEXT_STRINGS))
 	{
-		const auto texfilename = filename;
-		filename="descent.txb";
-		auto &&[ifile, physfserr2] = PHYSFSX_openReadBuffered(filename);
-		if (!ifile)
-		{
-			Error("Failed to open file %s, DESCENT.TXB: \"%s\", \"%s\"", texfilename, PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
-			return;
-		}
-		have_binary = 1;
-
-		len = PHYSFS_fileLength(ifile);
-
-//edited 05/17/99 Matt Mueller - malloc an extra byte, and null terminate.
-		text = std::make_unique<char[]>(len + 1);
-		PHYSFS_readBytes(ifile, text.get(), len);
-		text[len]=0;
-//end edit -MM
-	} else {
-		int c;
-		char * p;
-
-		len = PHYSFS_fileLength(tfile);
-
-//edited 05/17/99 Matt Mueller - malloc an extra byte, and null terminate.
-		text = std::make_unique<char[]>(len + 1);
-		//fread(text,1,len,tfile);
-		p = text.get();
-		do {
-			c = PHYSFSX_fgetc( tfile );
-			if ( c != 13 )
-				*p++ = c;
-		} while ( c!=EOF );
-		*p=0;
-//end edit -MM
-	}
-
-	for (i=0,tptr=text.get();i<N_TEXT_STRINGS;i++) {
-		char *p;
-
 #if defined(DXX_BUILD_DESCENT_I)
-		if (!tptr && i >= N_TEXT_STRINGS_MIN)	// account for non-registered 1.4/1.5 text files
+		if (!tptr)
 		{
-			Text_string[i-1] = extra_strings[i - N_TEXT_STRINGS_MIN - 1];
-			Text_string[i] = extra_strings[i - N_TEXT_STRINGS_MIN];
-			continue;
-		}
-		else if (!tptr && i < N_TEXT_STRINGS_MIN)
-		{
-			Error("Not enough strings in text file - expecting %d (or at least %d), found %d",N_TEXT_STRINGS,N_TEXT_STRINGS_MIN,i);
+			if (i >= N_TEXT_STRINGS_MIN)	// account for non-registered 1.4/1.5 text files
+			{
+				Text_string[i - 1] = extra_strings[i - N_TEXT_STRINGS_MIN - 1];
+				Text_string[i] = extra_strings[i - N_TEXT_STRINGS_MIN];
+				continue;
+			}
+			else
+			{
+				Error("Not enough strings in text file - expecting %d (or at least %d), found %d", N_TEXT_STRINGS, N_TEXT_STRINGS_MIN, i);
+			}
 		}
 #endif
 		Text_string[i] = tptr;
@@ -267,20 +215,40 @@ void load_text()
 #if defined(DXX_BUILD_DESCENT_II)
 		if (!tptr)
 		{
-			if (i == 644) break;    /* older datafiles */
+			if (i == 644)	/* older datafiles */
+			{
+				if (bytes_read == SHAREWARE_TEXTSIZE)
+				{
+					Text_string[173] = Text_string[172];
+					Text_string[172] = Text_string[171];
+					Text_string[171] = Text_string[170];
+					Text_string[170] = Text_string[169];
+					Text_string[169] = "Windows Joystick";
+				}
+
+				Text_string[644] = "Z1";
+				Text_string[645] = "UN";
+				Text_string[646] = "P1";
+				Text_string[647] = "R1";
+				Text_string[648] = "Y1";
+				break;
+			}
 
 			Error("Not enough strings in text file - expecting %d, found %d\n", N_TEXT_STRINGS, i);
 		}
 #endif
-		if ( tptr ) *tptr++ = 0;
+		if (tptr)
+			*tptr++ = 0;
 
 		if (have_binary)
 			decode_text_line(ts);
 
 		//scan for special chars (like \n)
-		if ((p = strchr(ts, '\\')) != NULL) {
-			for (char *q = p; assert(*p == '\\'), *p;) {
-			char newchar;
+		if (auto p = strchr(ts, '\\'))
+		{
+			for (auto q = p; assert(*p == '\\'), *p;)
+			{
+				char newchar;
 
 				if (p[1] == 'n') newchar = '\n';
 				else if (p[1] == 't') newchar = '\t';
@@ -305,7 +273,7 @@ void load_text()
 			}
 		}
 
-          switch(i) {
+		switch(i) {
 #if defined(DXX_BUILD_DESCENT_I)
 			case 116:
 				if (!d_stricmp(ts, "SPREADFIRE")) // This string is too long to fit in the cockpit-box
@@ -317,38 +285,81 @@ void load_text()
 				  
 			  case IDX_TEXT_OVERWRITTEN:
 				{
-				  static const char extra[] = "\n<Ctrl-C> converts format\nIntel <-> PowerPC";
-				std::size_t l = strlen(ts);
-				overwritten_text = std::make_unique<char[]>(l + sizeof(extra));
-				char *o = overwritten_text.get();
-				std::copy_n(extra, sizeof(extra), std::copy_n(ts, l, o));
-				Text_string[i] = o;
-				  break;
+					static const char extra[] = "\n<Ctrl-C> converts format\nIntel <-> PowerPC";
+					std::size_t l = strlen(ts);
+					overwritten_text = std::make_unique<char[]>(l + sizeof(extra));
+					char *o = overwritten_text.get();
+					std::copy_n(extra, sizeof(extra), std::copy_n(ts, l, o));
+					Text_string[i] = o;
+					break;
 				}
           }
-
 	}
+}
 
-#if defined(DXX_BUILD_DESCENT_II)
-	if (i == 644)
+static std::unique_ptr<char[]> load_text_from_texfile(const char *const filename, RAIIPHYSFS_File texfile)
+{
+	auto &&[bytes_read, p] = load_blob_from_file(filename, std::move(texfile));
+	const auto pg = p.get();
+	const auto iter_remove = std::remove(pg, std::next(pg, bytes_read), '\r');
+	*iter_remove = 0;
+	parse_blob_as_text_strings(filename, p.get(), false, bytes_read);
+	return p;
+}
+
+static std::unique_ptr<char[]> load_text_from_txbfile(const char *const filename, RAIIPHYSFS_File txbfile)
+{
+	auto &&[bytes_read, p] = load_blob_from_file(filename, std::move(txbfile));
+	p[bytes_read] = 0;
+	parse_blob_as_text_strings(filename, p.get(), true, bytes_read);
+	return p;
+}
+
+static std::unique_ptr<char[]> load_text_from_file(const char *const texfilename)
+{
+	if (auto &&[texfile, physfserr] = PHYSFSX_openReadBuffered(texfilename); texfile)
+		return load_text_from_texfile(texfilename, std::move(texfile));
+#define DXX_TXB_FILENAME	"descent.txb"
+	else if (auto &&[txbfile, physfserr2] = PHYSFSX_openReadBuffered(DXX_TXB_FILENAME); txbfile)
+		return load_text_from_txbfile(DXX_TXB_FILENAME, std::move(txbfile));
+	else
+		Error("Failed to open files %s, " DXX_TXB_FILENAME ": \"%s\", \"%s\"", texfilename, PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
+#undef DXX_TXB_FILENAME
+}
+
+}
+
+}
+
+//decode an encoded line of text of bitmaps.tbl
+void decode_text_line(char *p)
+{
+	for (; const char c = *p; p++)
+		*p = decode_char(c);
+}
+
+// decode buffer of text, preserves newlines
+void decode_text(char *ptr, unsigned len)
+{
+	for (; len--; ptr++)
 	{
-		if (len == SHAREWARE_TEXTSIZE)
-		{
-			Text_string[173] = Text_string[172];
-			Text_string[172] = Text_string[171];
-			Text_string[171] = Text_string[170];
-			Text_string[170] = Text_string[169];
-			Text_string[169] = "Windows Joystick";
-		}
-
-		Text_string[644] = "Z1";
-		Text_string[645] = "UN";
-		Text_string[646] = "P1";
-		Text_string[647] = "R1";
-		Text_string[648] = "Y1";
+		const char c = *ptr;
+		if (c != '\n')
+			*ptr = decode_char(c);
 	}
-#endif
+}
 
+//load all the text strings for Descent
+namespace dsx {
+
+#ifdef USE_BUILTIN_ENGLISH_TEXT_STRINGS
+static
+#endif
+std::array<const char *, N_TEXT_STRINGS> Text_string;
+
+void load_text()
+{
+	auto &&local_text = load_text_from_file(CGameArg.DbgAltTex.empty() ? "descent.tex" : CGameArg.DbgAltTex.c_str());
 #ifdef GENERATE_BUILTIN_TEXT_TABLE
 	for (unsigned u = 0; u < std::size(Text_string); ++u)
 	{
@@ -369,9 +380,7 @@ void load_text()
 		printf("\"\n");
 	}	
 #endif
-
-	//Assert(tptr==text+len || tptr==text+len-2);
-
+	text = std::move(local_text);
 }
 }
 

@@ -636,7 +636,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TXT_ROBOT_PAINTING_ON 		dxx_gettext(620, "Robot painting with texture %d")
 
 #define N_TEXT_STRINGS_MIN				514
-#define N_TEXT_STRINGS                  621
+#define N_TEXT_STRINGS                  621u
 
 #elif defined(DXX_BUILD_DESCENT_II)
 #define TXT_COPYRIGHT           dxx_gettext(11, "Copyright (C) 1994-1996 Parallax Software Corporation")
@@ -1166,7 +1166,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //hey: there's a lot of empty slots up from 173-192, where
 //the commandline help used to be.  Add new things there
 
-#define N_TEXT_STRINGS          649
+#define N_TEXT_STRINGS          649u
 #endif
 
 #define dxx_text_ensure_simple_expr(E,T)	((void)(E), (Int3()), (T))
