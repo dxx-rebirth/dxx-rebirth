@@ -96,6 +96,19 @@ PHYSFS_sint64 __wrap_PHYSFS_read(PHYSFS_File *const handle, void *const buffer, 
 	}
 	return __real_PHYSFS_read(handle, buffer, objSize, objCount);
 }
+
+__attribute__((__used__,__noinline__,__noclone__))
+PHYSFS_sint64 __wrap_PHYSFS_readBytes(PHYSFS_File *const handle, void *const buffer, const PHYSFS_uint64 len)
+{
+	{
+		auto p = reinterpret_cast<uint8_t *>(buffer);
+#if DXX_HAVE_POISON_OVERWRITE
+		std::memset(p, 0xbd, len);
+#endif
+		DXX_MAKE_MEM_UNDEFINED(std::span(p, len));
+	}
+	return __real_PHYSFS_readBytes(handle, buffer, len);
+}
 #endif
 
 #ifdef DXX_ENABLE_wrap_PHYSFS_write

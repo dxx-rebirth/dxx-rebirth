@@ -18,6 +18,11 @@ PHYSFS_sint64 __real_PHYSFS_read(PHYSFS_File *const handle, void *const buffer, 
 {
 	return (PHYSFS_read)(handle, buffer, objSize, objCount);
 }
+
+PHYSFS_sint64 __real_PHYSFS_readBytes(PHYSFS_File *const handle, void *const buffer, const PHYSFS_uint64 len)
+{
+	return (PHYSFS_readBytes)(handle, buffer, len);
+}
 #endif
 
 #if DXX_ENABLE_wrap_PHYSFS_write

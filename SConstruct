@@ -1493,7 +1493,9 @@ static void terminate_handler()
 	PHYSFS_close(f);
 	f = PHYSFS_openRead("a");
 	PHYSFS_sint64 r = PHYSFS_read(f, b, 1, 1);
+	PHYSFS_sint64 rb = PHYSFS_readBytes(f, b, 1);
 	(void)r;
+	(void)rb;
 	PHYSFS_close(f);
 	PHYSFS_mount("", nullptr, 0);
 	PHYSFS_unmount("");
@@ -4876,6 +4878,7 @@ SConf test results
 		if user_settings.wrap_PHYSFS_read:
 			add_flags['LINKFLAGS'].extend((
 					'-Wl,--wrap,PHYSFS_read',
+					'-Wl,--wrap,PHYSFS_readBytes',
 					'-Wl,--wrap,PHYSFS_readSBE16',
 					'-Wl,--wrap,PHYSFS_readSBE32',
 					'-Wl,--wrap,PHYSFS_readSLE16',
