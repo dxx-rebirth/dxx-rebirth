@@ -785,6 +785,7 @@ window_event_result dead_player_frame(const d_robot_info_array &Robot_info);
 // move all objects for the current frame
 window_event_result game_move_all_objects(const d_level_shared_robot_info_state &LevelSharedRobotInfoState);     // moves all objects
 window_event_result endlevel_move_all_objects(const d_level_shared_robot_info_state &LevelSharedRobotInfoState);
+
 }
 
 namespace dcx {

@@ -526,7 +526,7 @@ void ogl_cache_level_textures(void)
 					(
 						(
 							(id == powerup_type_t::POW_PROXIMITY_WEAPON && (s = secondary_weapon_index_t::PROXIMITY_INDEX, true)) ||
-							((id == powerup_type_t::POW_HOMING_AMMO_1 || id == POW_HOMING_AMMO_4) && (s = secondary_weapon_index_t::HOMING_INDEX, true)) ||
+							((id == powerup_type_t::POW_HOMING_AMMO_1 || id == powerup_type_t::POW_HOMING_AMMO_4) && (s = secondary_weapon_index_t::HOMING_INDEX, true)) ||
 							(id == powerup_type_t::POW_SMARTBOMB_WEAPON && (s = secondary_weapon_index_t::SMART_INDEX, true)) ||
 							(id == powerup_type_t::POW_MEGA_WEAPON && (s = secondary_weapon_index_t::MEGA_INDEX, true))
 						) && (w = Secondary_weapon_to_weapon_info[s], true)

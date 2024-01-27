@@ -677,7 +677,7 @@ static icobjidx_t exists_in_mine_2(const unique_segment &segp, const std::option
 				 */
 				if (curobjp->contains.count)
 					if (curobjp->contains.type == contained_object_type::powerup)
-						if (curobjp->contains.id.powerup == *objid)
+						if (curobjp->contains.id.powerup == powerup_type_t{*objid})
 							return curobjp;
 	}
 	return object_none;
@@ -886,6 +886,11 @@ static imsegidx_t escort_get_goal_segment(const object &buddy_obj, const object_
 	return segment_none;
 }
 
+static inline imsegidx_t escort_get_goal_segment(const object &buddy_obj, const powerup_type_t objid, const player_flags powerup_flags)
+{
+	return escort_get_goal_segment(buddy_obj, OBJ_POWERUP, underlying_value(objid), powerup_flags);
+}
+
 static void set_escort_goal_non_object(d_unique_buddy_state &BuddyState)
 {
 	BuddyState.Escort_goal_objidx = object_none;
@@ -912,13 +917,13 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const robot_inf
 	} else {
 		switch (Escort_goal_object) {
 			case ESCORT_GOAL_BLUE_KEY:
-				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, powerup_type_t::POW_KEY_BLUE, powerup_flags);
+				goal_seg = escort_get_goal_segment(objp, powerup_type_t::POW_KEY_BLUE, powerup_flags);
 				break;
 			case ESCORT_GOAL_GOLD_KEY:
-				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, powerup_type_t::POW_KEY_GOLD, powerup_flags);
+				goal_seg = escort_get_goal_segment(objp, powerup_type_t::POW_KEY_GOLD, powerup_flags);
 				break;
 			case ESCORT_GOAL_RED_KEY:
-				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, powerup_type_t::POW_KEY_RED, powerup_flags);
+				goal_seg = escort_get_goal_segment(objp, powerup_type_t::POW_KEY_RED, powerup_flags);
 				break;
 			case ESCORT_GOAL_CONTROLCEN:
 				goal_seg = escort_get_goal_segment(objp, OBJ_CNTRLCEN, std::nullopt, powerup_flags);
@@ -934,7 +939,7 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const robot_inf
 					escort_go_to_goal(objp, robptr, aip, goal_seg);
 				return;
 			case ESCORT_GOAL_ENERGY:
-				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, powerup_type_t::POW_ENERGY, powerup_flags);
+				goal_seg = escort_get_goal_segment(objp, powerup_type_t::POW_ENERGY, powerup_flags);
 				break;
 			case ESCORT_GOAL_ENERGYCEN:
 				{
@@ -949,7 +954,7 @@ static void escort_create_path_to_goal(const vmobjptridx_t objp, const robot_inf
 				return;
 				}
 			case ESCORT_GOAL_SHIELD:
-				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, powerup_type_t::POW_SHIELD_BOOST, powerup_flags);
+				goal_seg = escort_get_goal_segment(objp, powerup_type_t::POW_SHIELD_BOOST, powerup_flags);
 				break;
 			case ESCORT_GOAL_POWERUP:
 				goal_seg = escort_get_goal_segment(objp, OBJ_POWERUP, std::nullopt, powerup_flags);
@@ -1032,7 +1037,7 @@ static escort_goal_t escort_set_goal_object(const object &Buddy_objp, const play
 			/* Player already has this key, so no need to get it again.
 			 */
 			return false;
-		const auto &&e = exists_in_mine(Buddy_objp, start_search_seg, OBJ_POWERUP, powerup_key, -1, pl_flags);
+		const auto &&e = exists_in_mine(Buddy_objp, start_search_seg, OBJ_POWERUP, underlying_value(powerup_key), -1, pl_flags);
 		/* For compatibility with classic Descent 2, test only whether
 		 * the key exists, but ignore whether it can be reached by the
 		 * guide bot.

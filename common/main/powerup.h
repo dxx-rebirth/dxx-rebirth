@@ -42,7 +42,7 @@ struct powerup_type_info : public prohibit_void_ptr<powerup_type_info>
 #ifdef dsx
 namespace dsx {
 
-enum powerup_type_t : uint8_t
+enum class powerup_type_t : uint8_t
 {
 	POW_EXTRA_LIFE = 0,
 	POW_ENERGY = 1,
@@ -104,7 +104,7 @@ enum powerup_type_t : uint8_t
 #endif
 };
 
-using d_powerup_info_array = std::array<powerup_type_info, MAX_POWERUP_TYPES>;
+using d_powerup_info_array = enumerated_array<powerup_type_info, MAX_POWERUP_TYPES, powerup_type_t>;
 extern d_powerup_info_array Powerup_info;
 }
 #endif

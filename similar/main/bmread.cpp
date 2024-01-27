@@ -2524,12 +2524,15 @@ void bm_read_powerup(int unused_flag)
 	}
 
 	// Initialize powerup array
-	Powerup_info[n].light = F1_0/3;		//	Default lighting value.
-	Powerup_info[n].vclip_num = vclip_index::None;
-	Powerup_info[n].hit_sound = sound_none;
-	Powerup_info[n].size = DEFAULT_POWERUP_SIZE;
+	const powerup_type_t pn{n};
+	auto &pin = Powerup_info[pn];
+	pin.light = F1_0 / 3;		//	Default lighting value.
+	pin.vclip_num = vclip_index::None;
+	pin.hit_sound = sound_none;
+	pin.size = DEFAULT_POWERUP_SIZE;
 #if DXX_USE_EDITOR
-	Powerup_names[n][0] = 0;
+	auto &name = Powerup_names[pn];
+	name[0] = 0;
 #endif
 
 	// Process arguments
@@ -2542,21 +2545,20 @@ void bm_read_powerup(int unused_flag)
 			equal_ptr++;
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
 			if (!d_stricmp( arg, "vclip_num" ))	{
-				Powerup_info[n].vclip_num = build_vclip_index_from_untrusted(atoi(equal_ptr));
+				pin.vclip_num = build_vclip_index_from_untrusted(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "light" ))	{
-				Powerup_info[n].light = fl2f(atof(equal_ptr));
+				pin.light = fl2f(atof(equal_ptr));
 			} else if (!d_stricmp( arg, "hit_sound" ))	{
-				Powerup_info[n].hit_sound = atoi(equal_ptr);
+				pin.hit_sound = atoi(equal_ptr);
 			} else if (!d_stricmp( arg, "name" )) {
 #if DXX_USE_EDITOR
-				auto &name = Powerup_names[n];
 				const auto len = strlen(equal_ptr);
 				assert(len < name.size());	//	Oops, name too long.
 				memcpy(name.data(), &equal_ptr[1], len - 2);
 				name[len - 2] = 0;
 #endif
 			} else if (!d_stricmp( arg, "size" ))	{
-				Powerup_info[n].size = fl2f(atof(equal_ptr));
+				pin.size = fl2f(atof(equal_ptr));
 			}
 #if defined(DXX_BUILD_DESCENT_II)
 			else {

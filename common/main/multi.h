@@ -898,9 +898,9 @@ struct netgame_info : prohibit_void_ptr<netgame_info>
  */
 struct multi_level_inv
 {
-        std::array<uint32_t, MAX_POWERUP_TYPES> Initial; // initial (level start) count of this powerup type
-        std::array<uint32_t, MAX_POWERUP_TYPES> Current; // current count of this powerup type
-        std::array<fix, MAX_POWERUP_TYPES> RespawnTimer; // incremented by FrameTime if initial-current > 0 and triggers respawn after 2 seconds. Since we deal with a certain delay from clients, their inventory updates may happen a while after they remove the powerup object and we do not want to respawn it on accident during that time window!
+	enumerated_array<uint32_t, MAX_POWERUP_TYPES, powerup_type_t> Initial; // initial (level start) count of this powerup type
+	enumerated_array<uint32_t, MAX_POWERUP_TYPES, powerup_type_t> Current; // current count of this powerup type
+	enumerated_array<fix, MAX_POWERUP_TYPES, powerup_type_t> RespawnTimer; // incremented by FrameTime if initial-current > 0 and triggers respawn after 2 seconds. Since we deal with a certain delay from clients, their inventory updates may happen a while after they remove the powerup object and we do not want to respawn it on accident during that time window!
 };
 
 namespace multi

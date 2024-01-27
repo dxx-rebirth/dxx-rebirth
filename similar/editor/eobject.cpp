@@ -180,7 +180,7 @@ int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_le
 		case OBJ_POWERUP:
 		{
 			objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, object_id,
-					segp, object_pos, &seg_matrix, Powerup_info[object_id].size,
+					segp, object_pos, &seg_matrix, Powerup_info[(powerup_type_t{object_id})].size,
 					object::control_type::powerup, object::movement_type::None, render_type::RT_POWERUP);
 
 			if ( objnum == object_none)

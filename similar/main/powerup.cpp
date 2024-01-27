@@ -63,7 +63,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 
 namespace dcx {
-unsigned N_powerup_types;
+uint8_t N_powerup_types;
 }
 namespace dsx {
 d_powerup_info_array Powerup_info;
@@ -316,7 +316,7 @@ struct player_hit_headlight_powerup
 			? PLAYER_FLAG::HEADLIGHT_PRESENT_AND_ON
 			: PLAYER_FLAG::HEADLIGHT;
 		powerup_basic(15, 0, 15, 0, "HEADLIGHT BOOST! (Headlight is O%s)", active ? "N" : "FF");
-		multi_digi_play_sample(Powerup_info[POW_HEADLIGHT].hit_sound, F1_0);
+		multi_digi_play_sample(Powerup_info[powerup_type_t::POW_HEADLIGHT].hit_sound, F1_0);
 		if (active && (Game_mode & GM_MULTI))
 			multi_send_flags (Player_num);
 	}
@@ -488,9 +488,9 @@ int do_powerup(const vmobjptridx_t obj)
 			used = player_hit_powerup<PLAYER_FLAGS_QUAD_LASERS>(player_info, TXT_QUAD_LASERS, player_hit_quadlaser_powerup());
 			break;
 
-		case	POW_VULCAN_WEAPON:
+		case	powerup_type_t::POW_VULCAN_WEAPON:
 #if defined(DXX_BUILD_DESCENT_II)
-		case	POW_GAUSS_WEAPON:
+		case	powerup_type_t::POW_GAUSS_WEAPON:
 #endif
 			{
 			used = pick_up_primary(player_info,
@@ -519,26 +519,26 @@ int do_powerup(const vmobjptridx_t obj)
 			break;
 		}
 
-		case	POW_SPREADFIRE_WEAPON:
+		case	powerup_type_t::POW_SPREADFIRE_WEAPON:
 			used = pick_up_primary_or_energy(player_info, primary_weapon_index_t::SPREADFIRE_INDEX);
 			break;
-		case	POW_PLASMA_WEAPON:
+		case	powerup_type_t::POW_PLASMA_WEAPON:
 			used = pick_up_primary_or_energy(player_info, primary_weapon_index_t::PLASMA_INDEX);
 			break;
-		case	POW_FUSION_WEAPON:
+		case	powerup_type_t::POW_FUSION_WEAPON:
 			used = pick_up_primary_or_energy(player_info, primary_weapon_index_t::FUSION_INDEX);
 			break;
 
 #if defined(DXX_BUILD_DESCENT_II)
-		case	POW_HELIX_WEAPON:
+		case	powerup_type_t::POW_HELIX_WEAPON:
 			used = pick_up_primary_or_energy(player_info, primary_weapon_index_t::HELIX_INDEX);
 			break;
 
-		case	POW_PHOENIX_WEAPON:
+		case	powerup_type_t::POW_PHOENIX_WEAPON:
 			used = pick_up_primary_or_energy(player_info, primary_weapon_index_t::PHOENIX_INDEX);
 			break;
 
-		case	POW_OMEGA_WEAPON:
+		case	powerup_type_t::POW_OMEGA_WEAPON:
 			used = pick_up_primary(player_info, primary_weapon_index_t::OMEGA_INDEX);
 			if (used)
 				player_info.Omega_charge = obj->ctype.powerup_info.count;
@@ -547,51 +547,51 @@ int do_powerup(const vmobjptridx_t obj)
 			break;
 #endif
 
-		case	POW_PROXIMITY_WEAPON:
+		case	powerup_type_t::POW_PROXIMITY_WEAPON:
 			used = pick_up_secondary(player_info, secondary_weapon_index_t::PROXIMITY_INDEX, 4, Controls);
 			break;
-		case	POW_SMARTBOMB_WEAPON:
+		case	powerup_type_t::POW_SMARTBOMB_WEAPON:
 			used = pick_up_secondary(player_info, secondary_weapon_index_t::SMART_INDEX, 1, Controls);
 			break;
-		case	POW_MEGA_WEAPON:
+		case	powerup_type_t::POW_MEGA_WEAPON:
 			used = pick_up_secondary(player_info, secondary_weapon_index_t::MEGA_INDEX, 1, Controls);
 			break;
 #if defined(DXX_BUILD_DESCENT_II)
-		case	POW_SMISSILE1_1:
+		case	powerup_type_t::POW_SMISSILE1_1:
 			used = pick_up_secondary(player_info, secondary_weapon_index_t::SMISSILE1_INDEX, 1, Controls);
 			break;
-		case	POW_SMISSILE1_4:
+		case	powerup_type_t::POW_SMISSILE1_4:
 			used = pick_up_secondary(player_info, secondary_weapon_index_t::SMISSILE1_INDEX, 4, Controls);
 			break;
-		case	POW_GUIDED_MISSILE_1:
+		case	powerup_type_t::POW_GUIDED_MISSILE_1:
 			used = pick_up_secondary(player_info, secondary_weapon_index_t::GUIDED_INDEX, 1, Controls);
 			break;
-		case	POW_GUIDED_MISSILE_4:
+		case	powerup_type_t::POW_GUIDED_MISSILE_4:
 			used = pick_up_secondary(player_info, secondary_weapon_index_t::GUIDED_INDEX, 4, Controls);
 			break;
-		case	POW_SMART_MINE:
+		case	powerup_type_t::POW_SMART_MINE:
 			used = pick_up_secondary(player_info, secondary_weapon_index_t::SMART_MINE_INDEX, 4, Controls);
 			break;
-		case	POW_MERCURY_MISSILE_1:
+		case	powerup_type_t::POW_MERCURY_MISSILE_1:
 			used = pick_up_secondary(player_info, secondary_weapon_index_t::SMISSILE4_INDEX, 1, Controls);
 			break;
-		case	POW_MERCURY_MISSILE_4:
+		case	powerup_type_t::POW_MERCURY_MISSILE_4:
 			used = pick_up_secondary(player_info, secondary_weapon_index_t::SMISSILE4_INDEX, 4, Controls);
 			break;
-		case	POW_EARTHSHAKER_MISSILE:
+		case	powerup_type_t::POW_EARTHSHAKER_MISSILE:
 			used = pick_up_secondary(player_info, secondary_weapon_index_t::SMISSILE5_INDEX, 1, Controls);
 			break;
 #endif
-		case	POW_VULCAN_AMMO:
+		case	powerup_type_t::POW_VULCAN_AMMO:
 			used = pick_up_vulcan_ammo(player_info);
 			break;
-		case	POW_HOMING_AMMO_1:
+		case	powerup_type_t::POW_HOMING_AMMO_1:
 			used = pick_up_secondary(player_info, secondary_weapon_index_t::HOMING_INDEX, 1, Controls);
 			break;
-		case	POW_HOMING_AMMO_4:
+		case	powerup_type_t::POW_HOMING_AMMO_4:
 			used = pick_up_secondary(player_info, secondary_weapon_index_t::HOMING_INDEX, 4, Controls);
 			break;
-		case	POW_CLOAK:
+		case	powerup_type_t::POW_CLOAK:
 			if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED) {
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_ARE,TXT_CLOAKED);
 				break;
@@ -605,7 +605,7 @@ int do_powerup(const vmobjptridx_t obj)
 				used = 1;
 				break;
 			}
-		case	POW_INVULNERABILITY:
+		case	powerup_type_t::POW_INVULNERABILITY:
 			{
 				auto &pl_flags = player_info.powerup_flags;
 				if (pl_flags & PLAYER_FLAGS_INVULNERABLE) {
@@ -623,7 +623,7 @@ int do_powerup(const vmobjptridx_t obj)
 				break;
 			}
 	#ifndef RELEASE
-		case	POW_MEGAWOW:
+		case	powerup_type_t::POW_MEGAWOW:
 			do_megawow_powerup(plrobj, 50);
 			used = 1;
 			break;

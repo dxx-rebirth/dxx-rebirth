@@ -26,6 +26,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-object.h"
 #include "fwd-vclip.h"
 
+#if DXX_USE_EDITOR
+#include "fwd-d_array.h"
+#endif
+
 namespace dcx {
 
 constexpr std::integral_constant<unsigned, 196> VULCAN_WEAPON_AMMO_AMOUNT{};
@@ -37,14 +41,14 @@ struct powerup_type_info;
 void powerup_type_info_read(PHYSFS_File *fp, powerup_type_info &pti);
 void powerup_type_info_write(PHYSFS_File *fp, const powerup_type_info &pti);
 
-extern unsigned N_powerup_types;
+extern uint8_t N_powerup_types;
 
 }
 
 #ifdef dsx
 namespace dsx {
 
-enum powerup_type_t : uint8_t;
+enum class powerup_type_t : uint8_t;
 
 #if defined(DXX_BUILD_DESCENT_I)
 constexpr std::integral_constant<unsigned, 392*2> VULCAN_AMMO_MAX{};
@@ -56,7 +60,7 @@ constexpr std::integral_constant<unsigned, 50> MAX_POWERUP_TYPES{};
 #endif
 
 #if DXX_USE_EDITOR
-using powerup_names_array = std::array<std::array<char, POWERUP_NAME_LENGTH>, MAX_POWERUP_TYPES>;
+using powerup_names_array = enumerated_array<std::array<char, POWERUP_NAME_LENGTH>, MAX_POWERUP_TYPES, powerup_type_t>;
 extern powerup_names_array Powerup_names;
 #endif
 

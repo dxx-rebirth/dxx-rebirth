@@ -922,11 +922,11 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 			{
 				const auto id = get_powerup_id(objp);
 				unsigned r, g, b;
-				if (id== powerup_type_t::POW_KEY_RED)
+				if (id == powerup_type_t::POW_KEY_RED)
 					r = 63 * 2, g = 5 * 2, b = 5 * 2;
-				else if (id== powerup_type_t::POW_KEY_BLUE)
+				else if (id == powerup_type_t::POW_KEY_BLUE)
 					r = 5 * 2, g = 5 * 2, b = 63 * 2;
-				else if (id== powerup_type_t::POW_KEY_GOLD)
+				else if (id == powerup_type_t::POW_KEY_GOLD)
 					r = 63 * 2, g = 63 * 2, b = 10 * 2;
 				else
 					break;

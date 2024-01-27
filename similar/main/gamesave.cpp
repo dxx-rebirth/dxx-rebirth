@@ -238,7 +238,8 @@ static void verify_object(const d_level_shared_robot_info_state &LevelSharedRobo
 
 	if (obj.type == OBJ_POWERUP)
 	{
-		if ( get_powerup_id(obj) >= N_powerup_types )	{
+		if (underlying_value(get_powerup_id(obj)) >= N_powerup_types)
+		{
 			set_powerup_id(Powerup_info, Vclip, obj, powerup_type_t::POW_SHIELD_BOOST);
 			assert(obj.render_type != render_type::RT_POLYOBJ);
 		}

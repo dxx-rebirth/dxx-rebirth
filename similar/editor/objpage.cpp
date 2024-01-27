@@ -90,7 +90,7 @@ void draw_object_picture(grs_canvas &canvas, const unsigned id, const vms_angvec
 			break;
 
 		case OBJ_POWERUP:
-			if (const auto vclip_num = Powerup_info[id].vclip_num; Vclip.valid_index(vclip_num))
+			if (const auto vclip_num = Powerup_info[static_cast<powerup_type_t>(id)].vclip_num; Vclip.valid_index(vclip_num))
 			{
 				auto &v = Vclip[vclip_num];
 				PIGGY_PAGE_IN(v.frames[0]);

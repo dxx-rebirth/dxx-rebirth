@@ -3023,7 +3023,7 @@ void multi_send_create_powerup(const powerup_type_t powerup_type, const vcsegidx
 	count += 1;
 	multi_command<multiplayer_command_t::MULTI_CREATE_POWERUP> multibuf;
 	multibuf[count] = Player_num;                                      count += 1;
-	multibuf[count] = powerup_type;                                 count += 1;
+	multibuf[count] = underlying_value(powerup_type);                                 count += 1;
 	PUT_INTEL_SEGNUM(&multibuf[count], segnum);     count += 2;
 	PUT_INTEL_SHORT(&multibuf[count], objnum );     count += 2;
 	multi_put_vector(&multibuf[count], pos);
@@ -3370,7 +3370,7 @@ void update_item_state::process_powerup(const d_vclip_array &Vclip, fvmsegptridx
 	{
 		assert(o.movement_source == object::movement_type::None);
 		assert(o.render_type == render_type::RT_POWERUP);
-		const auto &&no = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, id, segp, vm_vec_avg(o.pos, vcvertptr(seg_verts[static_cast<segment_relative_vertnum>(i % seg_verts.size())])), &vmd_identity_matrix, o.size, object::control_type::powerup, object::movement_type::None, render_type::RT_POWERUP);
+		const auto &&no = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, underlying_value(id), segp, vm_vec_avg(o.pos, vcvertptr(seg_verts[static_cast<segment_relative_vertnum>(i % seg_verts.size())])), &vmd_identity_matrix, o.size, object::control_type::powerup, object::movement_type::None, render_type::RT_POWERUP);
 		if (no == object_none)
 			return;
 		m_modified.set(no);
@@ -3386,7 +3386,7 @@ void update_item_state::process_powerup(const d_vclip_array &Vclip, fvmsegptridx
 class accumulate_object_count
 {
 protected:
-	using array_reference = std::array<uint32_t, MAX_POWERUP_TYPES> &;
+	using array_reference = enumerated_array<uint32_t, MAX_POWERUP_TYPES, powerup_type_t> &;
 	array_reference current;
 	accumulate_object_count(array_reference a) : current(a)
 	{
@@ -3398,11 +3398,11 @@ class accumulate_flags_count : accumulate_object_count
 {
 	const F &flags;
 public:
-	accumulate_flags_count(array_reference a, const F &f) :
-		accumulate_object_count(a), flags(f)
+	accumulate_flags_count(array_reference current, const F &f) :
+		accumulate_object_count{current}, flags(f)
 	{
 	}
-	void process(const M mask, const unsigned id) const
+	void process(const M mask, const powerup_type_t id) const
 	{
 		if (flags & mask)
 			++current[id];
@@ -3436,7 +3436,10 @@ void multi_prep_level_objects(const d_powerup_info_array &Powerup_info, const d_
 	{
 		if ((o->type == OBJ_HOSTAGE) && !(Game_mode & GM_MULTI_COOP))
 		{
-			const auto &&objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, powerup_type_t::POW_SHIELD_BOOST, vmsegptridx(o->segnum), o->pos, &vmd_identity_matrix, Powerup_info[powerup_type_t::POW_SHIELD_BOOST].size, object::control_type::powerup, object::movement_type::physics, render_type::RT_POWERUP);
+			/* In non-cooperative multiplayer games, replace hostage powerups
+			 * with shield powerups.
+			 */
+			const auto &&objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, underlying_value(powerup_type_t::POW_SHIELD_BOOST), vmsegptridx(o->segnum), o->pos, &vmd_identity_matrix, Powerup_info[powerup_type_t::POW_SHIELD_BOOST].size, object::control_type::powerup, object::movement_type::physics, render_type::RT_POWERUP);
 			obj_delete(LevelUniqueObjectState, Segments, o);
 			if (objnum != object_none)
 			{
@@ -3997,7 +4000,7 @@ void multi_send_stolen_items ()
 {
 	multi_command<multiplayer_command_t::MULTI_STOLEN_ITEMS> multibuf;
 	auto &Stolen_items = LevelUniqueObjectState.ThiefState.Stolen_items;
-	std::copy(Stolen_items.begin(), Stolen_items.end(), std::next(multibuf.begin()));
+	std::transform(Stolen_items.begin(), Stolen_items.end(), std::next(multibuf.begin()), underlying_value<powerup_type_t>);
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
@@ -5352,7 +5355,7 @@ static void MultiLevelInv_CountLevelPowerups()
                         case powerup_type_t::POW_GUIDED_MISSILE_4:
                         case powerup_type_t::POW_MERCURY_MISSILE_4:
 #endif
-                                MultiLevelInv.Current[pid-1] += 4;
+                                MultiLevelInv.Current[static_cast<powerup_type_t>(underlying_value(pid) - 1)] += 4;
                                 break;
                         case powerup_type_t::POW_PROXIMITY_WEAPON:
 #if defined(DXX_BUILD_DESCENT_II)
@@ -5442,7 +5445,7 @@ static void MultiLevelInv_CountPlayerInventory()
                 {
                         range_for (auto &i, LevelUniqueObjectState.ThiefState.Stolen_items)
                         {
-						if (i >= Current.size() || i == powerup_type_t::POW_ENERGY || i == powerup_type_t::POW_SHIELD_BOOST)
+							if (!Current.valid_index(i) || i == powerup_type_t::POW_ENERGY || i == powerup_type_t::POW_SHIELD_BOOST)
                                         continue;
 						auto &c = Current[i];
                                 // NOTE: We don't need to consider vulcan ammo or 4pack items as the thief should not steal those items.
@@ -5506,20 +5509,25 @@ void MultiLevelInv_Repopulate(fix frequency)
                 return;
 
 	MultiLevelInv_Recount(); // recount current items
-        for (unsigned i = 0; i < MAX_POWERUP_TYPES; i++)
-        {
-		if (MultiLevelInv_AllowSpawn(static_cast<powerup_type_t>(i)))
-                        MultiLevelInv.RespawnTimer[i] += frequency;
-                else
-                        MultiLevelInv.RespawnTimer[i] = 0;
+	for (const uint8_t i : constant_xrange<uint8_t, uint8_t{0}, uint8_t{MAX_POWERUP_TYPES}>{})
+	{
+		const powerup_type_t pi{i};
+		auto &rt = MultiLevelInv.RespawnTimer[pi];
+		if (MultiLevelInv_AllowSpawn(pi))
+			rt += frequency;
+		else
+		{
+			rt = 0;
+			continue;
+		}
 
-                if (MultiLevelInv.RespawnTimer[i] >= F1_0*2)
-                {
-                        con_printf(CON_VERBOSE, "MultiLevelInv_Repopulate type: %i - Init: %i Cur: %i", i, MultiLevelInv.Initial[i], MultiLevelInv.Current[i]);
-                        MultiLevelInv.RespawnTimer[i] = 0;
-			maybe_drop_net_powerup(static_cast<powerup_type_t>(i), 0, 1);
-                }
-        }
+		if (rt >= F1_0*2)
+		{
+			con_printf(CON_VERBOSE, "MultiLevelInv_Repopulate type: %i - Init: %i Cur: %i", i, MultiLevelInv.Initial[pi], MultiLevelInv.Current[pi]);
+			rt = 0;
+			maybe_drop_net_powerup(pi, 0, 1);
+		}
+	}
 }
 
 }

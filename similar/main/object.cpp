@@ -2330,7 +2330,7 @@ unsigned laser_parent_object_exists(fvcobjptr &vcobjptr, const laser_parent &l)
 
 void set_powerup_id(const d_powerup_info_array &Powerup_info, const d_vclip_array &Vclip, object_base &o, powerup_type_t id)
 {
-	o.id = id;
+	o.id = underlying_value(id);
 	o.size = Powerup_info[id].size;
 	const auto vclip_num = Powerup_info[id].vclip_num;
 	o.rtype.vclip_info.vclip_num = vclip_num;

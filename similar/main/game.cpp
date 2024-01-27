@@ -1097,7 +1097,7 @@ static void do_cloak_stuff()
 				pl_flags &= ~PLAYER_FLAGS_CLOAKED;
 				if (i == Player_num) {
 					multi_digi_play_sample(SOUND_CLOAK_OFF, F1_0);
-					maybe_drop_net_powerup(POW_CLOAK, 1, 0);
+					maybe_drop_net_powerup(powerup_type_t::POW_CLOAK, 1, 0);
 					if ( Newdemo_state != ND_STATE_PLAYBACK )
 						multi_send_decloak(); // For demo recording
 				}
@@ -1123,7 +1123,7 @@ static void do_invulnerable_stuff(player_info &player_info)
 				multi_digi_play_sample(SOUND_INVULNERABILITY_OFF, F1_0);
 				if (Game_mode & GM_MULTI)
 				{
-					maybe_drop_net_powerup(POW_INVULNERABILITY, 1, 0);
+					maybe_drop_net_powerup(powerup_type_t::POW_INVULNERABILITY, 1, 0);
 				}
 		}
 	}
@@ -2452,7 +2452,7 @@ static int mark_player_path_to_segment(const d_vclip_array &Vclip, fvmobjptridx 
 
 		seg_center = Point_segs[player_hide_index+i].point;
 
-		const auto &&obj = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, powerup_type_t::POW_ENERGY, vmsegptridx(Point_segs[player_hide_index+i].segnum), seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, object::control_type::powerup, object::movement_type::None, render_type::RT_POWERUP);
+		const auto &&obj = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, underlying_value(powerup_type_t::POW_ENERGY), vmsegptridx(Point_segs[player_hide_index+i].segnum), seg_center, &vmd_identity_matrix, Powerup_info[powerup_type_t::POW_ENERGY].size, object::control_type::powerup, object::movement_type::None, render_type::RT_POWERUP);
 		if (obj == object_none) {
 			Int3();		//	Unable to drop energy powerup for path
 			return 1;

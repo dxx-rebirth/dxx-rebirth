@@ -1917,7 +1917,7 @@ void do_laser_firing_player(object &plrobj)
 					v = 0;
 				else
 					v -= ammo_used;
-				maybe_drop_net_powerup(POW_VULCAN_AMMO, 1, 0);
+				maybe_drop_net_powerup(powerup_type_t::POW_VULCAN_AMMO, 1, 0);
 			}
 		} else {
 #if defined(DXX_BUILD_DESCENT_II)

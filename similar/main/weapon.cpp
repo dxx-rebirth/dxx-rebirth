@@ -1482,7 +1482,7 @@ void process_super_mines_frame(void)
 
 //this function is for when the player intentionally drops a powerup
 //this function is based on drop_powerup()
-imobjptridx_t spit_powerup(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const d_vclip_array &Vclip, const object_base &spitter, const unsigned id, const unsigned seed)
+imobjptridx_t spit_powerup(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const d_vclip_array &Vclip, const object_base &spitter, const powerup_type_t id, const unsigned seed)
 {
 	d_srand(seed);
 
@@ -1494,7 +1494,7 @@ imobjptridx_t spit_powerup(d_level_unique_object_state &LevelUniqueObjectState, 
 
 	// Give keys zero velocity so they can be tracked better in multi
 
-	if ((Game_mode & GM_MULTI) && (id >= powerup_type_t::POW_KEY_BLUE) && (id <= powerup_type_t::POW_KEY_GOLD))
+	if ((Game_mode & GM_MULTI) && id >= powerup_type_t::POW_KEY_BLUE && id <= powerup_type_t::POW_KEY_GOLD)
 		vm_vec_zero(new_velocity);
 
 	//there's a piece of code which lets the player pick up a powerup if
@@ -1512,7 +1512,7 @@ imobjptridx_t spit_powerup(d_level_unique_object_state &LevelUniqueObjectState, 
 		}
 	}
 
-	const auto &&objp = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, id, vmsegptridx(spitter.segnum), new_pos, &vmd_identity_matrix, Powerup_info[id].size, object::control_type::powerup, object::movement_type::physics, render_type::RT_POWERUP);
+	const auto &&objp = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, underlying_value(id), vmsegptridx(spitter.segnum), new_pos, &vmd_identity_matrix, Powerup_info[id].size, object::control_type::powerup, object::movement_type::physics, render_type::RT_POWERUP);
 
 	if (objp == object_none)
 		return objp;
