@@ -570,7 +570,7 @@ static void briefing_init(briefing *br, short level_num)
 //	Load Descent briefing text.
 static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &buf)
 {
-	int len, have_binary = 0;
+	int have_binary = 0;
 	auto e = end(filename);
 	auto ext = std::find(begin(filename), e, '.');
 	if (ext == e)
@@ -582,7 +582,7 @@ static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &bu
 	if (!tfile)
 		return (0);
 
-	len = PHYSFS_fileLength(tfile);
+	const auto len{PHYSFS_fileLength(tfile)};
 	buf = std::make_unique<char[]>(len + 1);
 	PHYSFS_read(tfile, buf.get(), 1, len);
 #if defined(DXX_BUILD_DESCENT_I)
@@ -593,7 +593,7 @@ static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &bu
 	*endbuf = 0;
 
 	if (have_binary)
-		decode_text(buf.get(), len);
+		decode_text(std::span(buf.get(), len));
 
 	return (1);
 }

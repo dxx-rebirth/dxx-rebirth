@@ -339,13 +339,12 @@ void decode_text_line(char *p)
 }
 
 // decode buffer of text, preserves newlines
-void decode_text(char *ptr, unsigned len)
+void decode_text(std::span<char> ptr)
 {
-	for (; len--; ptr++)
+	for (auto &c : ptr)
 	{
-		const char c = *ptr;
 		if (c != '\n')
-			*ptr = decode_char(c);
+			c = decode_char(c);
 	}
 }
 
