@@ -74,8 +74,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_zip.h"
 #include "partial_range.h"
 
-char Gamesave_current_filename[PATH_MAX];
-
 int Gamesave_current_version;
 
 #if defined(DXX_BUILD_DESCENT_I)
