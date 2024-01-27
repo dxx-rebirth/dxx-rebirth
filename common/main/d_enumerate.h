@@ -63,12 +63,12 @@ public:
 	sentinel_type m_sentinel;
 };
 
-template <typename range_index_type, typename range_iterator_type, typename sentinel_type>
+template <typename range_index_type, std::input_or_output_iterator range_iterator_type, std::sentinel_for<range_iterator_type> sentinel_type>
 class enumerated_iterator
 {
 	using adjust_iterator_dereference_type = d_enumerate::detail::adjust_iterator_dereference_type<range_index_type, typename std::remove_cv<decltype(*std::declval<range_iterator_type>())>::type>;
-	range_iterator_type m_iter;
-	range_index_type m_idx;
+	range_iterator_type m_iter{};
+	range_index_type m_idx{};
 public:
 	using index_type = range_index_type;
 	using iterator_category = typename std::iterator_traits<range_iterator_type>::iterator_category;
@@ -76,6 +76,7 @@ public:
 	using difference_type = std::ptrdiff_t;
 	using pointer = value_type *;
 	using reference = value_type &;
+	constexpr enumerated_iterator() = default;
 	constexpr enumerated_iterator(range_iterator_type &&iter, index_type idx) :
 		m_iter{std::move(iter)}, m_idx{std::move(idx)}
 	{
@@ -86,6 +87,11 @@ public:
 			return std::tuple_cat(std::tuple<index_type>(m_idx), *m_iter);
 		else
 			return {m_idx, *m_iter};
+	}
+	value_type operator[](const difference_type d) const
+		requires(std::random_access_iterator<range_iterator_type>)
+	{
+		return *(*this + d);
 	}
 	enumerated_iterator &operator++()
 	{
@@ -126,13 +132,96 @@ public:
 		-- * this;
 		return result;
 	}
+	enumerated_iterator &operator+=(const difference_type d)
+		requires(std::random_access_iterator<range_iterator_type>)
+	{
+		std::advance(m_iter, d);
+		if constexpr (std::is_enum<index_type>::value)
+			m_idx = static_cast<index_type>(static_cast<typename std::underlying_type<index_type>::type>(m_idx) + d);
+		else
+			m_idx += d;
+		return *this;
+	}
+	enumerated_iterator &operator-=(const difference_type d)
+		requires(std::random_access_iterator<range_iterator_type>)
+	{
+		std::advance(m_iter, -d);
+		if constexpr (std::is_enum<index_type>::value)
+			m_idx = static_cast<index_type>(static_cast<typename std::underlying_type<index_type>::type>(m_idx) - d);
+		else
+			m_idx -= d;
+		return *this;
+	}
+	difference_type operator-(const enumerated_iterator &rhs) const
+		requires(std::random_access_iterator<range_iterator_type>)
+	{
+		return {m_iter - rhs.m_iter};
+	}
+	bool operator==(const enumerated_iterator &i) const = default;
+	constexpr auto operator<=>(const enumerated_iterator &i) const
+	{
+		/* Check the iterator, but skip the index.  The index is tracked
+		 * internally and not mutable by callers.
+		 *
+		 * `enumerated_iterator` instances are meant be compared only if both
+		 * instances come from the same `enumerate` range.  Comparing two
+		 * instances derived from different ranges is undefined.
+		 *
+		 * If two instances come from the same `enumerate` range, then equality
+		 * of their `m_iter` implies equality of their `m_idx`, and inequality
+		 * of `m_iter` implies the same inequality for `m_idx`, so comparing
+		 * the `m_idx` is redundant.
+		 *
+		 * If two instances come from different `enumerate` ranges, both
+		 * `enumerate` ranges track the same underlying range, and the ranges
+		 * have the same starting `m_idx`, then for this purpose, those ranges
+		 * are equivalent and the preceding paragraph applies.
+		 *
+		 * If two instances come from different `enumerate` ranges, and the
+		 * `enumerate` ranges do not track the same underlying range, then
+		 * comparing their iterators is undefined, so ignoring their `m_idx` is
+		 * irrelevant.
+		 *
+		 * If two instances come from different `enumerate` ranges, the
+		 * `enumerate` ranges track the same underlying range, and the
+		 * `enumerate` ranges have different starting `m_idx`, then this
+		 * comparison can report the iterators as equal when they are not.
+		 * Since such comparison is undefined, omit the test to save on logic
+		 * that is unnecessary in all defined cases.
+		 */
+		return m_iter <=> i.m_iter;
+	}
 	constexpr bool operator==(const enumerated_sentinel<sentinel_type> &i) const
 	{
 		return m_iter == i.m_sentinel;
 	}
 };
 
-template <typename range_iterator_type, typename range_sentinel_type, typename range_index_type>
+template <typename range_index_type, std::random_access_iterator range_iterator_type, typename sentinel_type>
+auto operator+(const enumerated_iterator<range_index_type, range_iterator_type, sentinel_type> &i, const std::ptrdiff_t d)
+{
+	auto r{i};
+	r += d;
+	return r;
+}
+
+template <typename range_index_type, std::random_access_iterator range_iterator_type, typename sentinel_type>
+auto operator+(const std::ptrdiff_t d, const enumerated_iterator<range_index_type, range_iterator_type, sentinel_type> &i)
+{
+	auto r{i};
+	r += d;
+	return r;
+}
+
+template <typename range_index_type, std::random_access_iterator range_iterator_type, typename sentinel_type>
+auto operator-(const enumerated_iterator<range_index_type, range_iterator_type, sentinel_type> &i, const std::ptrdiff_t d)
+{
+	auto r{i};
+	r -= d;
+	return r;
+}
+
+template <std::input_or_output_iterator range_iterator_type, std::sentinel_for<range_iterator_type> range_sentinel_type, typename range_index_type>
 class enumerate : ranges::subrange<range_iterator_type, range_sentinel_type>
 {
 	using base_type = ranges::subrange<range_iterator_type, range_sentinel_type>;
@@ -145,13 +234,12 @@ class enumerate : ranges::subrange<range_iterator_type, range_sentinel_type>
 public:
 	using base_type::size;
 	using index_type = range_index_type;
-	template <typename range_type>
-		/* Block using `enumerate` on an ephemeral range, since the storage
+	template <ranges::borrowed_range range_type>
+		/* Require that range_type satisfy borrowed_range since the storage
 		 * owned by the range must exist until the `enumerate` object is
-		 * fully consumed.  If `range_type &&` is an ephemeral range, then its
-		 * storage may cease to exist after this constructor returns.
+		 * fully consumed.  If `range_type` does not satisfy borrowed range,
+		 * then its storage may cease to exist after this constructor returns.
 		 */
-		requires(ranges::borrowed_range<range_type>)
 		enumerate(range_type &&t, index_type i = index_type{}) :
 			base_type{std::forward<range_type>(t)}, m_idx{std::move(i)}
 	{
@@ -166,9 +254,8 @@ public:
 	}
 };
 
-template <typename range_iterator_type, typename range_sentinel_type, typename index_type>
+template <std::input_or_output_iterator range_iterator_type, std::sentinel_for<range_iterator_type> range_sentinel_type, typename index_type>
 inline constexpr bool std::ranges::enable_borrowed_range<enumerate<range_iterator_type, range_sentinel_type, index_type>> = true;
 
-template <typename range_type, typename index_type = decltype(d_enumerate::detail::array_index_type(static_cast<typename std::remove_reference<range_type>::type *>(nullptr)))>
-requires(ranges::borrowed_range<range_type>)
+template <ranges::borrowed_range range_type, typename index_type = decltype(d_enumerate::detail::array_index_type(static_cast<typename std::remove_reference<range_type>::type *>(nullptr)))>
 enumerate(range_type &&r, index_type start = {/* value ignored for deduction guide */}) -> enumerate</* range_iterator_type = */ decltype(std::ranges::begin(std::declval<range_type &>())), /* range_sentinel_type = */ decltype(std::ranges::end(std::declval<range_type &>())), index_type>;
