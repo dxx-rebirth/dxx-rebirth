@@ -39,8 +39,8 @@ namespace dcx {
 enum class vclip_index : uint8_t
 {
 	player_hit = 1,
-	small_explosion = 2,
 	volatile_wall_hit = 5,
+	small_explosion = 2,
 	morphing_robot = 10,
 	big_player_explosion = 58,
 	player_appearance = 61,
