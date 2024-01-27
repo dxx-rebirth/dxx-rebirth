@@ -2743,7 +2743,44 @@ static void draw_secondary_weapon_info(const hud_draw_context_hs_mr hudctx, cons
 			x=SECONDARY_AMMO_X;
 			y=SECONDARY_AMMO_Y;
 		}
-		draw_weapon_info_sub(hudctx, player_info, info_index, box, pic_x, pic_y, SECONDARY_WEAPON_NAMES_SHORT(weapon_num), hudctx.xscale(text_x), hudctx.yscale(text_y));
+		const char *weapon_name;
+		switch (weapon_num)
+		{
+			default:	// unreachable
+			case secondary_weapon_index_t::CONCUSSION_INDEX:	// reachable
+				weapon_name = TXT_W_C_MISSILE_S;
+				break;
+			case secondary_weapon_index_t::HOMING_INDEX:
+				weapon_name = TXT_W_H_MISSILE_S;
+				break;
+			case secondary_weapon_index_t::PROXIMITY_INDEX:
+				weapon_name = TXT_W_P_BOMB_S;
+				break;
+			case secondary_weapon_index_t::SMART_INDEX:
+				weapon_name = TXT_W_S_MISSILE_S;
+				break;
+			case secondary_weapon_index_t::MEGA_INDEX:
+				weapon_name = TXT_W_M_MISSILE_S;
+				break;
+#if defined(DXX_BUILD_DESCENT_II)
+			case secondary_weapon_index_t::SMISSILE1_INDEX:
+				weapon_name = TXT_W_SMISSILE1_S;
+				break;
+			case secondary_weapon_index_t::GUIDED_INDEX:
+				weapon_name = TXT_W_SMISSILE2_S;
+				break;
+			case secondary_weapon_index_t::SMART_MINE_INDEX:
+				weapon_name = TXT_W_SMISSILE3_S;
+				break;
+			case secondary_weapon_index_t::SMISSILE4_INDEX:
+				weapon_name = TXT_W_SMISSILE4_S;
+				break;
+			case secondary_weapon_index_t::SMISSILE5_INDEX:
+				weapon_name = TXT_W_SMISSILE5_S;
+				break;
+#endif
+		}
+		draw_weapon_info_sub(hudctx, player_info, info_index, box, pic_x, pic_y, weapon_name, hudctx.xscale(text_x), hudctx.yscale(text_y));
 		if (PlayerCfg.HudMode != HudType::Standard)
 		{
 #if defined(DXX_BUILD_DESCENT_II)

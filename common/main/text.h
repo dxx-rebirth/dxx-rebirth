@@ -1175,7 +1175,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _D2X_PRIMARY_SUPER_WEAPON_NAMES(u)
 #define _D2X_SECONDARY_SUPER_WEAPON_NAMES(u)
 #define _D2X_PRIMARY_SUPER_WEAPON_NAMES_SHORT(u)
-#define _D2X_SECONDARY_SUPER_WEAPON_NAMES_SHORT(u)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define _D2X_PRIMARY_SUPER_WEAPON_NAMES(u)	\
 	((u) == primary_weapon_index_t::SUPER_LASER_INDEX) ? TXT_W_SLASER :	\
@@ -1197,13 +1196,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 	((u) == primary_weapon_index_t::HELIX_INDEX) ? TXT_W_SSPREADFIRE_S :	\
 	((u) == primary_weapon_index_t::PHOENIX_INDEX) ? TXT_W_SPLASMA_S :	\
 	((u) == primary_weapon_index_t::OMEGA_INDEX) ? TXT_W_SFUSION_S :	\
-
-#define _D2X_SECONDARY_SUPER_WEAPON_NAMES_SHORT(u)	\
-	((u) == secondary_weapon_index_t::SMISSILE1_INDEX) ? TXT_W_SMISSILE1_S :	\
-	((u) == secondary_weapon_index_t::GUIDED_INDEX) ? TXT_W_SMISSILE2_S :	\
-	((u) == secondary_weapon_index_t::SMART_MINE_INDEX) ? TXT_W_SMISSILE3_S :	\
-	((u) == secondary_weapon_index_t::SMISSILE4_INDEX) ? TXT_W_SMISSILE4_S :	\
-	((u) == secondary_weapon_index_t::SMISSILE5_INDEX) ? TXT_W_SMISSILE5_S :	\
 
 #endif
 
@@ -1235,16 +1227,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 	((u) == primary_weapon_index_t::FUSION_INDEX) ? TXT_W_FUSION_S :	\
 	_D2X_PRIMARY_SUPER_WEAPON_NAMES_SHORT((u))	\
 	(dxx_text_ensure_simple_expr(&(u), TXT_W_LASER_S))	\
-	)
-
-#define SECONDARY_WEAPON_NAMES_SHORT(u)	(	\
-	((u) == secondary_weapon_index_t::CONCUSSION_INDEX) ? TXT_W_C_MISSILE_S :	\
-	((u) == secondary_weapon_index_t::HOMING_INDEX) ? TXT_W_H_MISSILE_S :	\
-	((u) == secondary_weapon_index_t::PROXIMITY_INDEX) ? TXT_W_P_BOMB_S :	\
-	((u) == secondary_weapon_index_t::SMART_INDEX) ? TXT_W_S_MISSILE_S :	\
-	((u) == secondary_weapon_index_t::MEGA_INDEX) ? TXT_W_M_MISSILE_S :	\
-	_D2X_SECONDARY_SUPER_WEAPON_NAMES_SHORT((u))	\
-	(dxx_text_ensure_simple_expr(&(u), TXT_W_C_MISSILE_S))	\
 	)
 
 #define MENU_DIFFICULTY_TEXT(u)	(	\
