@@ -115,10 +115,6 @@ struct cw_removal_predicate
 struct find_cloaked_wall_predicate
 {
 	const vmwallidx_t w;
-	find_cloaked_wall_predicate(const vmwallidx_t i) :
-		w(i)
-	{
-	}
 	bool operator()(const cloaking_wall &cw) const
 	{
 		return cw.front_wallnum == w || cw.back_wallnum == w;
@@ -542,7 +538,7 @@ void start_wall_cloak(const vmsegptridx_t seg, const sidenum_t side)
 	{	//decloaking, so reuse door
 		const auto &&r = ranges::subrange(CloakingWalls.vmptr);
 		const auto &&re = r.end();
-		const auto &&i = ranges::find_if(r.begin(), re, find_cloaked_wall_predicate(w));
+		const auto &&i = ranges::find_if(r.begin(), re, find_cloaked_wall_predicate{w});
 		if (i == re)
 		{
 			d_debugbreak();
@@ -619,7 +615,7 @@ void start_wall_decloak(const vmsegptridx_t seg, const sidenum_t side)
 	if (w->state == wall_state::cloaking) {	//cloaking, so reuse door
 		const auto &&r = ranges::subrange(CloakingWalls.vmptr);
 		const auto &&re = r.end();
-		const auto &&i = ranges::find_if(r.begin(), re, find_cloaked_wall_predicate(w));
+		const auto &&i = ranges::find_if(r.begin(), re, find_cloaked_wall_predicate{w});
 		if (i == re)
 		{
 			d_debugbreak();
