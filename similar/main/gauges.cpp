@@ -125,6 +125,36 @@ union weapon_index
 	}
 };
 
+static constexpr const char *PRIMARY_WEAPON_NAMES_SHORT(const primary_weapon_index_t weapon_index)
+{
+	switch (weapon_index)
+	{
+		default:	// unreachable
+		case primary_weapon_index_t::LASER_INDEX:	// reachable
+			return TXT_W_LASER_S;
+		case primary_weapon_index_t::VULCAN_INDEX:
+			return TXT_W_VULCAN_S;
+		case primary_weapon_index_t::SPREADFIRE_INDEX:
+			return TXT_W_SPREADFIRE_S;
+		case primary_weapon_index_t::PLASMA_INDEX:
+			return TXT_W_PLASMA_S;
+		case primary_weapon_index_t::FUSION_INDEX:
+			return TXT_W_FUSION_S;
+#if defined(DXX_BUILD_DESCENT_II)
+		case primary_weapon_index_t::SUPER_LASER_INDEX:
+			return TXT_W_SLASER_S;
+		case primary_weapon_index_t::GAUSS_INDEX:
+			return TXT_W_SVULCAN_S;
+		case primary_weapon_index_t::HELIX_INDEX:
+			return TXT_W_SSPREADFIRE_S;
+		case primary_weapon_index_t::PHOENIX_INDEX:
+			return TXT_W_SPLASMA_S;
+		case primary_weapon_index_t::OMEGA_INDEX:
+			return TXT_W_SFUSION_S;
+#endif
+	}
+}
+
 }
 
 //bitmap numbers for gauges
