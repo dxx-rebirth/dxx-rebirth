@@ -4028,7 +4028,8 @@ public:
 		DXX_UDP_MENU_OPTIONS(ENUM)
 	};
 	more_game_options_menu_items(const unsigned game_is_cooperative) :
-		game_is_cooperative(game_is_cooperative)
+		game_is_cooperative(game_is_cooperative),
+		AutosaveInterval{build_human_readable_time(Netgame.MPGameplayOptions.AutosaveInterval)}
 	{
 		const auto edifficulty = Netgame.difficulty;
 		const auto difficulty = underlying_value(edifficulty);
@@ -4054,7 +4055,6 @@ public:
 		const unsigned TrackerNATWarned = Netgame.TrackerNATWarned == TrackerNATHolePunchWarn::UserEnabledHP;
 #endif
 		const unsigned PlayTimeAllowed = std::chrono::duration_cast<std::chrono::duration<int, netgame_info::play_time_allowed_abi_ratio>>(Netgame.PlayTimeAllowed).count();
-		format_human_readable_time(AutosaveInterval, Netgame.MPGameplayOptions.AutosaveInterval);
 		DXX_UDP_MENU_OPTIONS(ADD);
 #if DXX_USE_TRACKER
 		const auto &tracker_addr = CGameArg.MplTrackerAddr;

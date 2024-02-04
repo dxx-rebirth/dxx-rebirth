@@ -259,12 +259,14 @@ static window_event_result get_absolute_path(ntstring<PATH_MAX - 1> &full_path, 
 
 }
 
-void format_human_readable_time(human_readable_mmss_time<uint16_t> &buf, const std::chrono::duration<uint16_t, std::chrono::seconds::period> duration)
+human_readable_mmss_time<uint16_t> build_human_readable_time(const std::chrono::duration<uint16_t, std::chrono::seconds::period> duration)
 {
 	const auto &&split_interval = std::div(duration.count(), static_cast<int>(std::chrono::minutes::period::num));
+	human_readable_mmss_time<uint16_t> buf{};
 	const std::size_t bufsize{std::size(buf)};
 	if (unlikely(static_cast<std::size_t>(snprintf(std::data(buf), bufsize, "%im%is", split_interval.quot, split_interval.rem)) >= bufsize))
 		buf[0] = 0;
+	return buf;
 }
 
 template <typename Rep, std::size_t S>
@@ -2760,13 +2762,13 @@ struct gameplay_config_menu_items
 	DSX_GAMEPLAY_MENU_OPTIONS(DECL);
 	std::array<newmenu_item, DSX_GAMEPLAY_MENU_OPTIONS(COUNT)> m;
 	human_readable_mmss_time<decltype(d_gameplay_options::AutosaveInterval)::rep> AutosaveInterval;
-	gameplay_config_menu_items()
+	gameplay_config_menu_items() :
+		AutosaveInterval{build_human_readable_time(PlayerCfg.SPGameplayOptions.AutosaveInterval)}
 	{
 #if defined(DXX_BUILD_DESCENT_II)
 		auto thief_absent = PlayerCfg.ThiefModifierFlags & ThiefModifier::Absent;
 		auto thief_cannot_steal_energy_weapons = PlayerCfg.ThiefModifierFlags & ThiefModifier::NoEnergyWeapons;
 #endif
-		format_human_readable_time(AutosaveInterval, PlayerCfg.SPGameplayOptions.AutosaveInterval);
 		DSX_GAMEPLAY_MENU_OPTIONS(ADD);
 	}
 };
