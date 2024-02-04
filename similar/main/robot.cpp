@@ -328,7 +328,7 @@ void robot_info_read(const NamedPHYSFS_File fp, robot_info &ri)
 void jointpos_read(const NamedPHYSFS_File fp, jointpos &jp)
 {
 	jp.jointnum = PHYSFSX_readShort(fp);
-	PHYSFSX_readAngleVec(&jp.angles, fp);
+	PHYSFSX_readAngleVec(fp, jp.angles);
 }
 
 #if 0

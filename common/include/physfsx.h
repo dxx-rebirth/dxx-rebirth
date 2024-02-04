@@ -369,9 +369,15 @@ T PHYSFSX_read_helper<T, F>::operator()(const NamedPHYSFS_File file, const char 
 }
 
 template <typename T1, int (*F)(PHYSFS_File *, T1 *), typename T2, T1 T2::* ... m>
-static void PHYSFSX_read_sequence_helper(const char *const filename, const unsigned line, const char *const func, const NamedPHYSFS_File file, T2 *const i)
+struct PHYSFSX_read_sequence_helper
 {
-	if (unlikely(!F(file.fp, &(i->*m)) || ...))
+	void operator()(const NamedPHYSFS_File file, T2 &i, const char *filename = __builtin_FILE(), unsigned line = __builtin_LINE(), const char *func = __builtin_FUNCTION()) const;
+};
+
+template <typename T1, int (*F)(PHYSFS_File *, T1 *), typename T2, T1 T2::* ... m>
+void PHYSFSX_read_sequence_helper<T1, F, T2, m...>::operator()(const NamedPHYSFS_File file, T2 &i, const char *const filename, const unsigned line, const char *const func) const
+{
+	if (unlikely(!F(file.fp, &(i.*m)) || ...))
 		PHYSFSX_read_helper_report_error(filename, line, func, file);
 }
 
@@ -385,18 +391,8 @@ static constexpr PHYSFSX_read_helper<int16_t, PHYSFS_readSLE16> PHYSFSX_readShor
 static constexpr PHYSFSX_read_helper<int32_t, PHYSFS_readSLE32> PHYSFSX_readInt{};
 static constexpr PHYSFSX_read_helper<fix, PHYSFS_readSLE32> PHYSFSX_readFix{};
 static constexpr PHYSFSX_read_helper<fixang, PHYSFS_readSLE16> PHYSFSX_readFixAng{};
-#define PHYSFSX_readVector(F,V)	(PHYSFSX_read_sequence_helper<fix, PHYSFS_readSLE32, vms_vector, &vms_vector::x, &vms_vector::y, &vms_vector::z>(__FILE__, __LINE__, __func__, (F), &(V)))
-#define PHYSFSX_readAngleVec(V,F)	(PHYSFSX_read_sequence_helper<fixang, PHYSFS_readSLE16, vms_angvec, &vms_angvec::p, &vms_angvec::b, &vms_angvec::h>(__FILE__, __LINE__, __func__, (F), (V)))
-
-static inline void PHYSFSX_readMatrix(const char *const filename, const unsigned line, const char *const func, vms_matrix *const m, const NamedPHYSFS_File file)
-{
-	auto &PHYSFSX_readVector = PHYSFSX_read_sequence_helper<fix, PHYSFS_readSLE32, vms_vector, &vms_vector::x, &vms_vector::y, &vms_vector::z>;
-	(PHYSFSX_readVector)(filename, line, func, file, &m->rvec);
-	(PHYSFSX_readVector)(filename, line, func, file, &m->uvec);
-	(PHYSFSX_readVector)(filename, line, func, file, &m->fvec);
-}
-
-#define PHYSFSX_readMatrix(M,F)	((PHYSFSX_readMatrix)(__FILE__, __LINE__, __func__, (M), (F)))
+static constexpr PHYSFSX_read_sequence_helper<fix, PHYSFS_readSLE32, vms_vector, &vms_vector::x, &vms_vector::y, &vms_vector::z> PHYSFSX_readVector{};
+static constexpr PHYSFSX_read_sequence_helper<fixang, PHYSFS_readSLE16, vms_angvec, &vms_angvec::p, &vms_angvec::b, &vms_angvec::h> PHYSFSX_readAngleVec{};
 
 class PHYSFS_File_deleter
 {

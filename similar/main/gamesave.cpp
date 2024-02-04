@@ -396,7 +396,9 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 	obj->attached_obj   = object_none;
 
 	PHYSFSX_readVector(f, obj->pos);
-	PHYSFSX_readMatrix(&obj->orient,f);
+	PHYSFSX_readVector(f, obj->orient.rvec);
+	PHYSFSX_readVector(f, obj->orient.uvec);
+	PHYSFSX_readVector(f, obj->orient.fvec);
 
 	obj->size           = PHYSFSX_readFix(f);
 	obj->shields        = PHYSFSX_readFix(f);
@@ -579,7 +581,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 			);
 
 			range_for (auto &i, obj->rtype.pobj_info.anim_angles)
-				PHYSFSX_readAngleVec(&i, f);
+				PHYSFSX_readAngleVec(f, i);
 
 			obj->rtype.pobj_info.subobj_flags	= PHYSFSX_readInt(f);
 
