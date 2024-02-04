@@ -97,7 +97,7 @@ void drop_afterburner_blobs(object &obj, int count, fix size_scale, fix lifetime
 /*
  * reads n expl_wall structs from a PHYSFS_File and swaps if specified
  */
-void expl_wall_read_n_swap(fvmwallptr &, PHYSFS_File *fp, int swap, unsigned);
+void expl_wall_read_n_swap(fvmwallptr &, PHYSFS_File *fp, physfsx_endian swap, unsigned);
 void expl_wall_write(fvcwallptr &, PHYSFS_File *);
 extern fix	Flash_effect;
 #endif

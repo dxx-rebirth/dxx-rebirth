@@ -1726,7 +1726,7 @@ void drop_afterburner_blobs(object &obj, int count, fix size_scale, fix lifetime
 /*
  * reads n expl_wall structs from a PHYSFS_File and swaps if specified
  */
-void expl_wall_read_n_swap(fvmwallptr &vmwallptr, PHYSFS_File *const fp, const int swap, const unsigned count)
+void expl_wall_read_n_swap(fvmwallptr &vmwallptr, PHYSFS_File *const fp, const physfsx_endian swap, const unsigned count)
 {
 	assert(!Num_exploding_walls);
 	unsigned num_exploding_walls = 0;
@@ -1739,7 +1739,7 @@ void expl_wall_read_n_swap(fvmwallptr &vmwallptr, PHYSFS_File *const fp, const i
 	{
 		disk_expl_wall d;
 		PHYSFS_read(fp, &d, sizeof(d), 1);
-		if (swap)
+		if (swap != physfsx_endian::native)
 		{
 			d.segnum = SWAPINT(d.segnum);
 			d.sidenum = SWAPINT(d.sidenum);

@@ -30,9 +30,9 @@ const player &get_player_controlling_guidebot(const d_unique_buddy_state & /* re
 }
 #endif
 
-void player_rw_swap(player_rw *p, int swap)
+void player_rw_swap(player_rw *p, const physfsx_endian swap)
 {
-	if (!swap)
+	if (swap == physfsx_endian::native)
 		return;
 
 	p->objnum = SWAPINT(p->objnum);

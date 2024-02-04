@@ -83,7 +83,7 @@ DXX_VALPTRIDX_DECLARE_SUBTYPE(dcx::, player, playernum_t, MAX_PLAYERS);
 namespace dsx {
 struct player_rw;
 struct player_info;
-void player_rw_swap(player_rw *p, int swap);
+void player_rw_swap(player_rw *p, physfsx_endian swap);
 int allowed_to_fire_missile(const player_info &);
 #if defined(DXX_BUILD_DESCENT_II)
 fix get_omega_energy_consumption(fix delta_charge);

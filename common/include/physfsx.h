@@ -137,22 +137,24 @@ PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_File *file, V **v, PHYSFS_uint32 S, PHY
 #define PHYSFS_read(F,V,S,C)	PHYSFSX_check_read(F,V,S,C)
 #define PHYSFS_write(F,V,S,C)	PHYSFSX_check_write(F,V,S,C)
 
-static inline PHYSFS_sint16 PHYSFSX_readSXE16(PHYSFS_File *file, int swap)
+enum class physfsx_endian : bool
 {
-	PHYSFS_sint16 val;
+	native,
+	foreign,
+};
 
-	PHYSFS_read(file, &val, sizeof(val), 1);
-
-	return swap ? SWAPSHORT(val) : val;
+static inline PHYSFS_sint16 PHYSFSX_readSXE16(PHYSFS_File *file, const physfsx_endian swap)
+{
+	PHYSFS_sint16 val{};
+	PHYSFS_readBytes(file, &val, sizeof(val));
+	return swap != physfsx_endian::native ? SWAPSHORT(val) : val;
 }
 
-static inline PHYSFS_sint32 PHYSFSX_readSXE32(PHYSFS_File *file, int swap)
+static inline PHYSFS_sint32 PHYSFSX_readSXE32(PHYSFS_File *file, const physfsx_endian swap)
 {
-	PHYSFS_sint32 val;
-
-	PHYSFS_read(file, &val, sizeof(val), 1);
-
-	return swap ? SWAPINT(val) : val;
+	PHYSFS_sint32 val{};
+	PHYSFS_readBytes(file, &val, sizeof(val));
+	return swap != physfsx_endian::native ? SWAPINT(val) : val;
 }
 
 static inline int PHYSFSX_writeU8(PHYSFS_File *file, PHYSFS_uint8 val)

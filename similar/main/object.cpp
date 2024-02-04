@@ -2613,9 +2613,9 @@ void wake_up_rendered_objects(const object &viewer, window_rendered_data &window
 #endif
 
 // Swap endianess of given object_rw if swap == 1
-void object_rw_swap(object_rw *obj, int swap)
+void object_rw_swap(object_rw *obj, const physfsx_endian swap)
 {
-	if (!swap)
+	if (swap == physfsx_endian::native)
 		return;
 
 	obj->signature     = SWAPINT(obj->signature);

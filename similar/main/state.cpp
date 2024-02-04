@@ -896,7 +896,7 @@ static void state_write_player(PHYSFS_File *fp, const player &pl, const relocate
 	PHYSFS_write(fp, &pl_rw, sizeof(pl_rw), 1);
 }
 
-static void state_read_player(PHYSFS_File *fp, player &pl, int swap, player_info &pl_info, relocated_player_data &rpd)
+static void state_read_player(PHYSFS_File *fp, player &pl, const physfsx_endian swap, player_info &pl_info, relocated_player_data &rpd)
 {
 	player_rw pl_rw;
 	PHYSFS_read(fp, &pl_rw, sizeof(pl_rw), 1);
@@ -1843,7 +1843,6 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	int version, coop_player_got[MAX_PLAYERS], coop_org_objnum = get_local_player().objnum;
-	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
 	int current_level;
 	char id[5];
 	fix tmptime32 = 0;
@@ -1874,11 +1873,11 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 //Read version
 	//Check for swapped file here, as dgss_id is written as a string (i.e. endian independent)
 	PHYSFS_read(fp, &version, sizeof(int), 1);
-	if (version & 0xffff0000)
-	{
-		swap = 1;
-		version = SWAPINT(version);
-	}
+	const physfsx_endian swap{
+		(version & 0xffff0000)
+			? (version = SWAPINT(version), physfsx_endian::foreign)
+			: physfsx_endian::native
+	};	// if file is not endian native, have to swap all shorts and ints
 
 	if (version < STATE_COMPATIBLE_VERSION)	{
 		return 0;
@@ -2588,7 +2587,6 @@ namespace dcx {
 int state_get_game_id(const d_game_unique_state::savegame_file_path &filename)
 {
 	int version;
-	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
 	char id[5];
 	callsign_t saved_callsign;
 
@@ -2612,11 +2610,11 @@ int state_get_game_id(const d_game_unique_state::savegame_file_path &filename)
 //Read version
 	//Check for swapped file here, as dgss_id is written as a string (i.e. endian independent)
 	PHYSFS_read(fp, &version, sizeof(int), 1);
-	if (version & 0xffff0000)
-	{
-		swap = 1;
-		version = SWAPINT(version);
-	}
+	const physfsx_endian swap{
+		(version & 0xffff0000)
+			? (version = SWAPINT(version), physfsx_endian::foreign)
+			: physfsx_endian::native
+	};	// if file is not endian native, have to swap all shorts and ints
 
 	if (version < STATE_COMPATIBLE_VERSION)	{
 		return 0;
