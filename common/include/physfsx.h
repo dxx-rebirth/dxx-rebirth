@@ -143,13 +143,6 @@ enum class physfsx_endian : bool
 	foreign,
 };
 
-static inline PHYSFS_sint16 PHYSFSX_readSXE16(PHYSFS_File *file, const physfsx_endian swap)
-{
-	PHYSFS_sint16 val{};
-	PHYSFS_readBytes(file, &val, sizeof(val));
-	return swap != physfsx_endian::native ? SWAPSHORT(val) : val;
-}
-
 static inline PHYSFS_sint32 PHYSFSX_readSXE32(PHYSFS_File *file, const physfsx_endian swap)
 {
 	PHYSFS_sint32 val{};
@@ -370,6 +363,17 @@ T PHYSFSX_read_helper<T, F>::operator()(const NamedPHYSFS_File file, const char 
 	return i;
 }
 
+template <typename T, T (*swap_value)(const T &)>
+struct PHYSFSX_read_swap_helper
+{
+	T operator()(PHYSFS_File *const file, physfsx_endian swap) const
+	{
+		T val{};
+		PHYSFS_readBytes(file, &val, sizeof(val));
+		return swap != physfsx_endian::native ? swap_value(val) : val;
+	}
+};
+
 template <typename T1, int (*F)(PHYSFS_File *, T1 *), typename T2, T1 T2::* ... m>
 struct PHYSFSX_read_sequence_helper
 {
@@ -393,6 +397,10 @@ static constexpr PHYSFSX_read_helper<int16_t, PHYSFS_readSLE16> PHYSFSX_readShor
 static constexpr PHYSFSX_read_helper<int32_t, PHYSFS_readSLE32> PHYSFSX_readInt{};
 static constexpr PHYSFSX_read_helper<fix, PHYSFS_readSLE32> PHYSFSX_readFix{};
 static constexpr PHYSFSX_read_helper<fixang, PHYSFS_readSLE16> PHYSFSX_readFixAng{};
+
+static constexpr PHYSFSX_read_swap_helper<PHYSFS_sint16, SWAPSHORT> PHYSFSX_readSXE16{};
+static constexpr PHYSFSX_read_swap_helper<PHYSFS_uint16, SWAPSHORT> PHYSFSX_readUXE16{};
+
 static constexpr PHYSFSX_read_sequence_helper<fix, PHYSFS_readSLE32, vms_vector, &vms_vector::x, &vms_vector::y, &vms_vector::z> PHYSFSX_readVector{};
 static constexpr PHYSFSX_read_sequence_helper<fixang, PHYSFS_readSLE16, vms_angvec, &vms_angvec::p, &vms_angvec::b, &vms_angvec::h> PHYSFSX_readAngleVec{};
 

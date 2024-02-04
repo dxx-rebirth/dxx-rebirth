@@ -4838,9 +4838,9 @@ namespace dcx {
 
 static void PHYSFSX_readAngleVecX(PHYSFS_File *file, vms_angvec &v, const physfsx_endian swap)
 {
-	v.p = PHYSFSX_readSXE16(file, swap);
-	v.b = PHYSFSX_readSXE16(file, swap);
-	v.h = PHYSFSX_readSXE16(file, swap);
+	v.p = {PHYSFSX_readSXE16(file, swap)};
+	v.b = {PHYSFSX_readSXE16(file, swap)};
+	v.h = {PHYSFSX_readSXE16(file, swap)};
 }
 
 }
@@ -4861,7 +4861,7 @@ static void ai_local_read_swap(ai_local *ail, const physfsx_endian swap, const N
 		ail->previous_visibility = static_cast<player_visibility_state>(PHYSFSX_readByte(fp));
 		ail->rapidfire_count = PHYSFSX_readByte(fp);
 		{
-			const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readSXE16(fp, swap))};
+			const segnum_t s{PHYSFSX_readUXE16(fp, swap)};
 			ail->goal_segment = imsegidx_t::check_nothrow_index(s) ? s : segment_none;
 		}
 		PHYSFSX_readSXE32(fp, swap);
@@ -5061,7 +5061,7 @@ int ai_restore_state(const d_robot_info_array &Robot_info, const NamedPHYSFS_Fil
 		for (const auto i : Num_boss_gate_segs)
 		{
 			(void)i;
-			const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readSXE16(fp, swap))};
+			const segnum_t s{PHYSFSX_readUXE16(fp, swap)};
 			Boss_gate_segs.emplace_back(s);
 		}
 
@@ -5069,7 +5069,7 @@ int ai_restore_state(const d_robot_info_array &Robot_info, const NamedPHYSFS_Fil
 		for (const auto i : Num_boss_teleport_segs)
 		{
 			(void)i;
-			const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readSXE16(fp, swap))};
+			const segnum_t s{PHYSFSX_readUXE16(fp, swap)};
 			Boss_teleport_segs.emplace_back(s);
 		}
 	}

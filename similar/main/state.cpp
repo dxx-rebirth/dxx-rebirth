@@ -2230,10 +2230,9 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	{
 		for (const auto j : MAX_SIDES_PER_SEGMENT)
 		{
-			const uint16_t wall_num = PHYSFSX_readSXE16(fp, swap);
-			segp->shared_segment::sides[j].wall_num = wallnum_t{wall_num};
-			TempTmapNum[segp][j] = static_cast<texture1_value>(PHYSFSX_readSXE16(fp, swap));
-			TempTmapNum2[segp][j] = static_cast<texture2_value>(PHYSFSX_readSXE16(fp, swap));
+			segp->shared_segment::sides[j].wall_num = wallnum_t{PHYSFSX_readUXE16(fp, swap)};
+			TempTmapNum[segp][j] = texture1_value{PHYSFSX_readUXE16(fp, swap)};
+			TempTmapNum2[segp][j] = texture2_value{PHYSFSX_readUXE16(fp, swap)};
 		}
 	}
 
