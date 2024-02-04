@@ -93,7 +93,7 @@ static station_number build_station_number_from_untrusted(uint8_t untrusted)
 /*
  * reads a segment2 structure from a PHYSFS_File
  */
-static void segment2_read(const msmusegment s2, PHYSFS_File *fp)
+static void segment2_read(const msmusegment s2, const NamedPHYSFS_File fp)
 {
 	s2.s.special = build_segment_special_from_untrusted(PHYSFSX_readByte(fp));
 	s2.s.matcen_num = build_materialization_center_number_from_untrusted(PHYSFSX_readByte(fp));
@@ -400,7 +400,7 @@ struct me mine_editor;
 
 namespace {
 
-static void read_children(shared_segment &segp, const sidemask_t bit_mask, PHYSFS_File *const LoadFile)
+static void read_children(shared_segment &segp, const sidemask_t bit_mask, const NamedPHYSFS_File LoadFile)
 {
 	for (const auto bit : MAX_SIDES_PER_SEGMENT)
 	{
@@ -413,7 +413,7 @@ static void read_children(shared_segment &segp, const sidemask_t bit_mask, PHYSF
 	}
 }
 
-static void read_verts(shared_segment &segp, PHYSFS_File *const LoadFile)
+static void read_verts(shared_segment &segp, const NamedPHYSFS_File LoadFile)
 {
 	// Read short Segments[segnum].verts[MAX_VERTICES_PER_SEGMENT]
 	range_for (auto &v, segp.verts)
@@ -425,7 +425,7 @@ static void read_verts(shared_segment &segp, PHYSFS_File *const LoadFile)
 	}
 }
 
-static void read_special(shared_segment &segp, const sidemask_t bit_mask, PHYSFS_File *const LoadFile)
+static void read_special(shared_segment &segp, const sidemask_t bit_mask, const NamedPHYSFS_File LoadFile)
 {
 	if (bit_mask & build_sidemask(MAX_SIDES_PER_SEGMENT))
 	{
@@ -446,7 +446,7 @@ static void read_special(shared_segment &segp, const sidemask_t bit_mask, PHYSFS
 
 namespace dsx {
 
-int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *const Gamesave_current_filename)
+int load_mine_data_compiled(const NamedPHYSFS_File LoadFile, const char *const Gamesave_current_filename)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();

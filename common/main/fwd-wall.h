@@ -191,8 +191,8 @@ void wall_frame_process(const d_robot_info_array &Robot_info);
 
 //set the tmap_num or tmap_num2 field for a wall/door
 void wall_set_tmap_num(const wclip &, vmsegptridx_t seg, sidenum_t side, vmsegptridx_t csegp, sidenum_t cside, unsigned frame_num);
-void wclip_read(PHYSFS_File *, wclip &wc);
-void wall_read(PHYSFS_File *fp, wall &w);
+void wclip_read(NamedPHYSFS_File, wclip &wc);
+void wall_read(NamedPHYSFS_File fp, wall &w);
 void wall_write(PHYSFS_File *fp, const wall &w, short version);
 
 void wall_close_door_ref(fvmsegptridx &vmsegptridx, wall_array &Walls, const wall_animations_array &WallAnims, active_door &);
@@ -204,15 +204,15 @@ namespace dsx {
 void start_wall_cloak(vmsegptridx_t seg, sidenum_t side);
 void start_wall_decloak(vmsegptridx_t seg, sidenum_t side);
 
-void cloaking_wall_read(cloaking_wall &cw, PHYSFS_File *fp);
+void cloaking_wall_read(cloaking_wall &cw, NamedPHYSFS_File fp);
 void cloaking_wall_write(const cloaking_wall &cw, PHYSFS_File *fp);
 void blast_nearby_glass(const object &objp, fix damage);
 }
 #endif
 
-void v16_wall_read(PHYSFS_File *fp, v16_wall &w);
-void v19_wall_read(PHYSFS_File *fp, v19_wall &w);
+void v16_wall_read(NamedPHYSFS_File fp, v16_wall &w);
+void v19_wall_read(NamedPHYSFS_File fp, v19_wall &w);
 
-void active_door_read(PHYSFS_File *fp, active_door &ad);
+void active_door_read(NamedPHYSFS_File fp, active_door &ad);
 void active_door_write(PHYSFS_File *fp, const active_door &ad);
 #endif

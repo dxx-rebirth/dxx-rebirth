@@ -69,7 +69,7 @@ static std::optional<delta_light_index> build_delta_light_index_from_untrusted(c
 /*
  * reads a delta_light structure from a PHYSFS_File
  */
-void delta_light_read(delta_light *dl, PHYSFS_File *fp)
+void delta_light_read(delta_light *dl, const NamedPHYSFS_File fp)
 {
 	{
 		const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(fp))};
@@ -87,7 +87,7 @@ void delta_light_read(delta_light *dl, PHYSFS_File *fp)
 /*
  * reads a dl_index structure from a PHYSFS_File
  */
-void dl_index_read(dl_index *di, PHYSFS_File *fp)
+void dl_index_read(dl_index *di, const NamedPHYSFS_File fp)
 {
 	{
 		const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(fp))};
@@ -95,7 +95,7 @@ void dl_index_read(dl_index *di, PHYSFS_File *fp)
 	}
 	di->sidenum = build_sidenum_from_untrusted(PHYSFSX_readByte(fp)).value_or(sidenum_t::WLEFT);
 	const auto count = PHYSFSX_readByte(fp);
-	if (const auto i = build_delta_light_index_from_untrusted(PHYSFSX_readShort(fp)); i)
+	if (const auto i{build_delta_light_index_from_untrusted(PHYSFSX_readShort(fp))}; i)
 	{
 		di->count = count;
 		di->index = *i;

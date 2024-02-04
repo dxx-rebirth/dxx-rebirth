@@ -339,29 +339,39 @@ static inline int PHYSFSX_writeVector(PHYSFS_File *file, const vms_vector &v)
 	return 1;
 }
 
+struct NamedPHYSFS_File
+{
+	PHYSFS_File *const fp;
+	const char *const filename;
+	operator PHYSFS_File *() const
+	{
+		return fp;
+	}
+};
+
 [[noreturn]]
 __attribute_cold
-void PHYSFSX_read_helper_report_error(const char *const filename, const unsigned line, const char *const func, PHYSFS_File *const file);
+void PHYSFSX_read_helper_report_error(const char *filename, unsigned line, const char *func, NamedPHYSFS_File file);
 
 template <typename T, auto F>
 struct PHYSFSX_read_helper
 {
-	T operator()(PHYSFS_File *file, const char *filename = __builtin_FILE(), unsigned line = __builtin_LINE(), const char *func = __builtin_FUNCTION()) const;
+	T operator()(NamedPHYSFS_File file, const char *filename = __builtin_FILE(), unsigned line = __builtin_LINE(), const char *func = __builtin_FUNCTION()) const;
 };
 
 template <typename T, auto F>
-T PHYSFSX_read_helper<T, F>::operator()(PHYSFS_File *const file, const char *const filename, const unsigned line, const char *const func) const
+T PHYSFSX_read_helper<T, F>::operator()(const NamedPHYSFS_File file, const char *const filename, const unsigned line, const char *const func) const
 {
 	T i;
-	if (!F(file, &i))
+	if (!F(file.fp, &i))
 		PHYSFSX_read_helper_report_error(filename, line, func, file);
 	return i;
 }
 
 template <typename T1, int (*F)(PHYSFS_File *, T1 *), typename T2, T1 T2::* ... m>
-static void PHYSFSX_read_sequence_helper(const char *const filename, const unsigned line, const char *const func, PHYSFS_File *const file, T2 *const i)
+static void PHYSFSX_read_sequence_helper(const char *const filename, const unsigned line, const char *const func, const NamedPHYSFS_File file, T2 *const i)
 {
-	if (unlikely(!F(file, &(i->*m)) || ...))
+	if (unlikely(!F(file.fp, &(i->*m)) || ...))
 		PHYSFSX_read_helper_report_error(filename, line, func, file);
 }
 
@@ -378,7 +388,7 @@ static constexpr PHYSFSX_read_helper<fixang, PHYSFS_readSLE16> PHYSFSX_readFixAn
 #define PHYSFSX_readVector(F,V)	(PHYSFSX_read_sequence_helper<fix, PHYSFS_readSLE32, vms_vector, &vms_vector::x, &vms_vector::y, &vms_vector::z>(__FILE__, __LINE__, __func__, (F), &(V)))
 #define PHYSFSX_readAngleVec(V,F)	(PHYSFSX_read_sequence_helper<fixang, PHYSFS_readSLE16, vms_angvec, &vms_angvec::p, &vms_angvec::b, &vms_angvec::h>(__FILE__, __LINE__, __func__, (F), (V)))
 
-static inline void PHYSFSX_readMatrix(const char *const filename, const unsigned line, const char *const func, vms_matrix *const m, PHYSFS_File *const file)
+static inline void PHYSFSX_readMatrix(const char *const filename, const unsigned line, const char *const func, vms_matrix *const m, const NamedPHYSFS_File file)
 {
 	auto &PHYSFSX_readVector = PHYSFSX_read_sequence_helper<fix, PHYSFS_readSLE32, vms_vector, &vms_vector::x, &vms_vector::y, &vms_vector::z>;
 	(PHYSFSX_readVector)(filename, line, func, file, &m->rvec);
@@ -420,6 +430,21 @@ public:
 		bool operator==(T) const = delete;
 	template <typename T>
 		bool operator!=(T) const = delete;
+};
+
+class RAIINamedPHYSFS_File : public RAIIPHYSFS_File
+{
+public:
+	const char *filename{};
+	RAIINamedPHYSFS_File() = default;
+	RAIINamedPHYSFS_File(PHYSFS_File *fp, const char *filename) :
+		RAIIPHYSFS_File{fp}, filename{filename}
+	{
+	}
+	operator NamedPHYSFS_File() const
+	{
+		return {this->operator PHYSFS_File *(), filename};
+	}
 };
 
 typedef char file_extension_t[5];
@@ -488,7 +513,7 @@ extern int PHYSFSX_rename(const char *oldpath, const char *newpath);
 
 #define PHYSFSX_exists(F,I)	((I) ? PHYSFSX_exists_ignorecase(F) : PHYSFS_exists(F))
 int PHYSFSX_exists_ignorecase(const char *filename);
-std::pair<RAIIPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openReadBuffered(const char *filename);
+std::pair<RAIINamedPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openReadBuffered(const char *filename);
 std::pair<RAIIPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openWriteBuffered(const char *filename);
 extern void PHYSFSX_addArchiveContent();
 extern void PHYSFSX_removeArchiveContent();

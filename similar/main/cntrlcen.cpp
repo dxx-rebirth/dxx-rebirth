@@ -553,7 +553,7 @@ void special_reactor_stuff()
 /*
  * reads n reactor structs from a PHYSFS_File
  */
-void reactor_read_n(PHYSFS_File *fp, ranges::subrange<reactor *> r)
+void reactor_read_n(const NamedPHYSFS_File fp, std::ranges::subrange<reactor *> r)
 {
 	range_for (auto &i, r)
 	{
@@ -573,7 +573,7 @@ namespace dcx {
 DEFINE_SERIAL_UDT_TO_MESSAGE(v1_control_center_triggers, cct, (cct.num_links, cct.seg, cct.side));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(v1_control_center_triggers, 42);
 
-v1_control_center_triggers::v1_control_center_triggers(PHYSFS_File *fp)
+v1_control_center_triggers::v1_control_center_triggers(const NamedPHYSFS_File fp)
 {
 	PHYSFSX_serialize_read(fp, *this);
 }
@@ -588,7 +588,7 @@ v1_control_center_triggers::v1_control_center_triggers(const control_center_trig
 /*
  * reads n control_center_triggers structs from a PHYSFS_File and swaps if specified
  */
-void control_center_triggers_read(control_center_triggers &cct, PHYSFS_File *fp)
+void control_center_triggers_read(control_center_triggers &cct, const NamedPHYSFS_File fp)
 {
 	const v1_control_center_triggers v1cct{fp};
 	cct = {};

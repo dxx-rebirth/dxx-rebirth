@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include <physfs.h>
+#include <ranges>
 
 #include "backports-ranges.h"
 #include "fwd-object.h"
@@ -35,6 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-window.h"
 
 #include "fwd-partial_range.h"
+#include "physfsx.h"
 
 namespace dcx {
 
@@ -48,7 +50,7 @@ struct control_center_triggers : public prohibit_void_ptr<control_center_trigger
 
 struct v1_control_center_triggers
 {
-	v1_control_center_triggers(PHYSFS_File *);
+	v1_control_center_triggers(NamedPHYSFS_File);
 	v1_control_center_triggers(const control_center_triggers &);
 	static constexpr std::integral_constant<std::size_t, 10> max_links{};
 	uint16_t num_links;
@@ -61,7 +63,7 @@ extern control_center_triggers ControlCenterTriggers;
 /*
  * reads 1 control_center_triggers struct from a PHYSFS_File
  */
-void control_center_triggers_read(control_center_triggers &cct, PHYSFS_File *fp);
+void control_center_triggers_read(control_center_triggers &cct, NamedPHYSFS_File fp);
 void control_center_triggers_write(const control_center_triggers &cct, PHYSFS_File *fp);
 
 }
@@ -105,7 +107,7 @@ extern unsigned Num_reactors;
 /*
  * reads n reactor structs from a PHYSFS_File
  */
-void reactor_read_n(PHYSFS_File *fp, ranges::subrange<reactor *> r);
+void reactor_read_n(NamedPHYSFS_File fp, std::ranges::subrange<reactor *> r);
 #endif
 
 extern std::array<reactor, MAX_REACTORS> Reactors;

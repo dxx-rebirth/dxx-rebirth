@@ -1673,7 +1673,7 @@ namespace dsx {
 /*
  * reads a wclip structure from a PHYSFS_File
  */
-void wclip_read(PHYSFS_File *fp, wclip &wc)
+void wclip_read(const NamedPHYSFS_File fp, wclip &wc)
 {
 	PHYSFSX_serialize_read(fp, wc);
 }
@@ -1701,7 +1701,7 @@ ASSERT_SERIAL_UDT_MESSAGE_SIZE(wrap_v16_wall, 9);
 /*
  * reads a v16_wall structure from a PHYSFS_File
  */
-void v16_wall_read(PHYSFS_File *fp, v16_wall &w)
+void v16_wall_read(const NamedPHYSFS_File fp, v16_wall &w)
 {
 	PHYSFSX_serialize_read(fp, w);
 }
@@ -1720,7 +1720,7 @@ ASSERT_SERIAL_UDT_MESSAGE_SIZE(wrap_v19_wall, 21);
 /*
  * reads a v19_wall structure from a PHYSFS_File
  */
-void v19_wall_read(PHYSFS_File *fp, v19_wall &w)
+void v19_wall_read(const NamedPHYSFS_File fp, v19_wall &w)
 {
 	PHYSFSX_serialize_read(fp, w);
 }
@@ -1737,7 +1737,7 @@ namespace dsx {
 /*
  * reads a wall structure from a PHYSFS_File
  */
-void wall_read(PHYSFS_File *fp, wall &w)
+void wall_read(const NamedPHYSFS_File fp, wall &w)
 {
 	PHYSFSX_serialize_read(fp, w);
 	w.flags &= ~wall_flag::exploding;
@@ -1751,7 +1751,7 @@ ASSERT_SERIAL_UDT_MESSAGE_SIZE(active_door, 16);
 /*
  * reads an active_door structure from a PHYSFS_File
  */
-void active_door_read(PHYSFS_File *fp, active_door &ad)
+void active_door_read(const NamedPHYSFS_File fp, active_door &ad)
 {
 	PHYSFSX_serialize_read(fp, ad);
 }
@@ -1780,7 +1780,8 @@ DEFINE_SERIAL_UDT_TO_MESSAGE(dsx::cloaking_wall, cw, (cw.front_wallnum, cw.back_
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(dsx::cloaking_wall, 40);
 
 namespace dsx {
-void cloaking_wall_read(cloaking_wall &cw, PHYSFS_File *fp)
+
+void cloaking_wall_read(cloaking_wall &cw, const NamedPHYSFS_File fp)
 {
 	PHYSFSX_serialize_read(fp, cw);
 }

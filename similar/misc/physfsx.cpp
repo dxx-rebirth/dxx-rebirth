@@ -536,7 +536,7 @@ int PHYSFSX_exists_ignorecase(const char *filename)
 }
 
 //Open a file for reading, set up a buffer
-std::pair<RAIIPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openReadBuffered(const char *filename)
+std::pair<RAIINamedPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openReadBuffered(const char *filename)
 {
 	PHYSFS_uint64 bufSize;
 	char filename2[PATH_MAX];
@@ -549,10 +549,16 @@ std::pair<RAIIPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openReadBuffered(const char
 #endif
 	snprintf(filename2, sizeof(filename2), "%s", filename);
 	PHYSFSEXT_locateCorrectCase(filename2);
-	
-	RAIIPHYSFS_File fp{PHYSFS_openRead(filename2)};
+
+	/* Use the original filename in any error messages.  This is close enough
+	 * that the user should be able to identify the bad file, and avoids the
+	 * need to allocate and return storage for the filename.  In almost all
+	 * cases, the filename will never be seen, since it is only shown if an
+	 * error occurs when reading the file.
+	 */
+	RAIINamedPHYSFS_File fp{PHYSFS_openRead(filename2), filename};
 	if (!fp)
-		return {nullptr, PHYSFS_getLastErrorCode()};
+		return {std::move(fp), PHYSFS_getLastErrorCode()};
 	
 	bufSize = PHYSFS_fileLength(fp);
 	while (!PHYSFS_setBuffer(fp, bufSize) && bufSize)
@@ -651,9 +657,9 @@ void PHYSFSX_removeArchiveContent()
 	}
 }
 
-void PHYSFSX_read_helper_report_error(const char *const filename, const unsigned line, const char *const func, PHYSFS_File *const file)
+void PHYSFSX_read_helper_report_error(const char *const filename, const unsigned line, const char *const func, const NamedPHYSFS_File file)
 {
-	(Error)(filename, line, func, "reading at %lu", static_cast<unsigned long>((PHYSFS_tell)(file)));
+	(Error)(filename, line, func, "reading file %s at %lu", file.filename, static_cast<unsigned long>((PHYSFS_tell)(file.fp)));
 }
 
 RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(char *const name, physfs_search_path position)

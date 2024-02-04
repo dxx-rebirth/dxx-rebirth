@@ -99,7 +99,7 @@ static int32_t get_sig(PHYSFS_File *f)
 
 #define put_sig(sig, f) PHYSFS_writeSBE32(f, sig)
 
-static int parse_bmhd(PHYSFS_File *ifile,iff_bitmap_header *bmheader)
+static int parse_bmhd(const NamedPHYSFS_File ifile, iff_bitmap_header *const bmheader)
 {
 	PHYSFS_readSBE16(ifile, &bmheader->w);
 	PHYSFS_readSBE16(ifile, &bmheader->h);
@@ -262,7 +262,7 @@ static int parse_body(PHYSFS_File *ifile,long len,iff_bitmap_header *bmheader)
 
 namespace {
 //modify passed bitmap
-static int parse_delta(PHYSFS_File *ifile,long len,iff_bitmap_header *bmheader)
+static int parse_delta(const NamedPHYSFS_File ifile, long len, iff_bitmap_header *const bmheader)
 {
 	auto p = bmheader->raw_data.get();
 	long chunk_end = PHYSFS_tell(ifile) + len;
@@ -340,7 +340,7 @@ static void skip_chunk(PHYSFS_File *ifile,long len)
 
 //read an ILBM or PBM file
 // Pass pointer to opened file, and to empty bitmap_header structure, and form length
-static int iff_parse_ilbm_pbm(PHYSFS_File *ifile,long form_type,iff_bitmap_header *bmheader,int form_len,grs_bitmap *prev_bm)
+static int iff_parse_ilbm_pbm(const NamedPHYSFS_File ifile, long form_type, iff_bitmap_header *bmheader, int form_len, grs_bitmap *prev_bm)
 {
 	int sig,len;
 	long start_pos,end_pos;
@@ -533,7 +533,7 @@ static void copy_iff_to_grs(grs_bitmap &bm,iff_bitmap_header &bmheader)
 
 //if bm->bm_data is set, use it (making sure w & h are correct), else
 //allocate the memory
-static int iff_parse_bitmap(PHYSFS_File *ifile, grs_bitmap &bm, const bm_mode bitmap_type, palette_array_t *const palette, grs_bitmap *const prev_bm)
+static int iff_parse_bitmap(const NamedPHYSFS_File ifile, grs_bitmap &bm, const bm_mode bitmap_type, palette_array_t *const palette, grs_bitmap *const prev_bm)
 {
 	int ret;			//return code
 	iff_bitmap_header bmheader;

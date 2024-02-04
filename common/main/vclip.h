@@ -81,7 +81,7 @@ namespace dcx {
 /*
  * reads n vclip structs from a PHYSFS_File
  */
-void vclip_read(PHYSFS_File *fp, vclip &vc);
+void vclip_read(NamedPHYSFS_File fp, vclip &vc);
 #if 0
 void vclip_write(PHYSFS_File *fp, const vclip &vc);
 #endif

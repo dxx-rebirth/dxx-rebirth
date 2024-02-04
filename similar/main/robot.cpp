@@ -179,7 +179,7 @@ namespace {
 /*
  * reads n jointlist structs from a PHYSFS_File
  */
-static void jointlist_read(PHYSFS_File *fp, std::array<jointlist, N_ANIM_STATES> &jl)
+static void jointlist_read(const NamedPHYSFS_File fp, std::array<jointlist, N_ANIM_STATES> &jl)
 {
 	range_for (auto &i, jl)
 	{
@@ -213,7 +213,7 @@ imobjptridx_t robot_create(const d_robot_info_array &Robot_info, const robot_id 
 /*
  * reads n robot_info structs from a PHYSFS_File
  */
-void robot_info_read(PHYSFS_File *fp, robot_info &ri)
+void robot_info_read(const NamedPHYSFS_File fp, robot_info &ri)
 {
 	ri.model_num = build_polygon_model_index_from_untrusted(PHYSFSX_readInt(fp));
 #if defined(DXX_BUILD_DESCENT_I)
@@ -325,7 +325,7 @@ void robot_info_read(PHYSFS_File *fp, robot_info &ri)
 /*
  * reads n jointpos structs from a PHYSFS_File
  */
-void jointpos_read(PHYSFS_File *fp, jointpos &jp)
+void jointpos_read(const NamedPHYSFS_File fp, jointpos &jp)
 {
 	jp.jointnum = PHYSFSX_readShort(fp);
 	PHYSFSX_readAngleVec(&jp.angles, fp);

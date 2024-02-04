@@ -103,7 +103,7 @@ extern const enumerated_array<uint8_t, MAX_SECONDARY_WEAPONS, secondary_weapon_i
  */
 using weapon_info_array = std::array<weapon_info, MAX_WEAPON_TYPES>;
 extern weapon_info_array Weapon_info;
-void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *fp,
+void weapon_info_read_n(weapon_info_array &wi, std::size_t count, NamedPHYSFS_File fp,
 #if defined(DXX_BUILD_DESCENT_II)
 						pig_hamfile_version file_version,
 #endif

@@ -722,7 +722,7 @@ DEFINE_SERIAL_UDT_TO_MESSAGE(d1mi_v26, p, D1_MATCEN_V26_MEMBERLIST);
 DEFINE_SERIAL_UDT_TO_MESSAGE(d1cmi_v26, p, D1_MATCEN_V26_MEMBERLIST);
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(d1mi_v26, 20);
 
-void matcen_info_read(PHYSFS_File *fp, matcen_info &mi, int version)
+void matcen_info_read(const NamedPHYSFS_File fp, matcen_info &mi, int version)
 {
 	if (version > 25)
 		PHYSFSX_serialize_read<const d1mi_v26>(fp, mi);
@@ -784,7 +784,7 @@ void fuelcen_check_for_hoard_goal(object &plrobj, const shared_segment &segp)
 /*
  * reads an d1_matcen_info structure from a PHYSFS_File
  */
-void d1_matcen_info_read(PHYSFS_File *fp, matcen_info &mi)
+void d1_matcen_info_read(const NamedPHYSFS_File fp, matcen_info &mi)
 {
 	PHYSFSX_serialize_read<const d1mi_v25>(fp, mi);
 	mi.robot_flags[1] = 0;
@@ -793,7 +793,7 @@ void d1_matcen_info_read(PHYSFS_File *fp, matcen_info &mi)
 DEFINE_SERIAL_UDT_TO_MESSAGE(matcen_info, m, (m.robot_flags, serial::pad<sizeof(fix) * 2>(), m.segnum, m.fuelcen_num, serial::pad<1>()));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(matcen_info, 20);
 
-void matcen_info_read(PHYSFS_File *fp, matcen_info &mi)
+void matcen_info_read(const NamedPHYSFS_File fp, matcen_info &mi)
 {
 	PHYSFSX_serialize_read(fp, mi);
 }
@@ -815,7 +815,7 @@ void matcen_info_write(PHYSFS_File *fp, const matcen_info &mi, short version)
 DEFINE_SERIAL_UDT_TO_MESSAGE(FuelCenter, fc, (fc.Type, serial::pad<3>(), serial::sign_extend<int>(fc.segnum), fc.Flag, fc.Enabled, fc.Lives, serial::pad<1>(), fc.Capacity, serial::pad<sizeof(fix)>(), fc.Timer, fc.Disable_time, serial::pad<3 * sizeof(fix)>()));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(FuelCenter, 40);
 
-void fuelcen_read(PHYSFS_File *fp, FuelCenter &fc)
+void fuelcen_read(const NamedPHYSFS_File fp, FuelCenter &fc)
 {
 	PHYSFSX_serialize_read(fp, fc);
 }

@@ -31,10 +31,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <physfs.h>
 #include "d_array.h"
 #include "inferno.h"
 #include "pack.h"
+#include "physfsx.h"
 
 namespace dcx {
 
@@ -202,7 +202,7 @@ void free_model(polymodel &po);
 /*
  * reads a polymodel structure from a PHYSFS_File
  */
-void polymodel_read(polymodel &pm, PHYSFS_File *fp);
+void polymodel_read(polymodel &pm, NamedPHYSFS_File fp);
 }
 #if 0
 void polymodel_write(PHYSFS_File *fp, const polymodel &pm);

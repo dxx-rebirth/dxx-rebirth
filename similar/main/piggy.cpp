@@ -143,7 +143,7 @@ static int Piggy_bitmap_cache_next;
 static uint8_t *Piggy_bitmap_cache_data;
 static enumerated_array<uint8_t, MAX_BITMAP_FILES, bitmap_index> GameBitmapFlags;
 static enumerated_array<bitmap_index, MAX_BITMAP_FILES, bitmap_index> GameBitmapXlat;
-static RAIIPHYSFS_File Piggy_fp;
+static RAIINamedPHYSFS_File Piggy_fp;
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -269,7 +269,7 @@ static int piggy_is_needed(const int soundnum)
 /*
  * reads a DiskSoundHeader structure from a PHYSFS_File
  */
-static DiskSoundHeader DiskSoundHeader_read(PHYSFS_File *fp)
+static DiskSoundHeader DiskSoundHeader_read(const NamedPHYSFS_File fp)
 {
 	DiskSoundHeader dsh{};
 	PHYSFS_read(fp, dsh.name, 8, 1);
@@ -287,7 +287,7 @@ static DiskSoundHeader DiskSoundHeader_read(PHYSFS_File *fp)
  */
 namespace dsx {
 namespace {
-static DiskBitmapHeader DiskBitmapHeader_read(PHYSFS_File *fp)
+static DiskBitmapHeader DiskBitmapHeader_read(const NamedPHYSFS_File fp)
 {
 	DiskBitmapHeader dbh{};
 	PHYSFS_read(fp, dbh.name, 8, 1);
@@ -308,7 +308,7 @@ static DiskBitmapHeader DiskBitmapHeader_read(PHYSFS_File *fp)
 /*
  * reads a descent 1 DiskBitmapHeader structure from a PHYSFS_File
  */
-static void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, PHYSFS_File *fp)
+static void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, const NamedPHYSFS_File fp)
 {
 	PHYSFS_read(fp, dbh->name, 8, 1);
 	dbh->dflags = PHYSFSX_readByte(fp);
@@ -1804,7 +1804,7 @@ static int get_d1_colormap(palette_array_t &d1_palette, std::array<color_palette
 
 #define JUST_IN_CASE 132 /* is enough for d1 pc registered */
 static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
-                     PHYSFS_File *d1_Piggy_fp, /* read from this file */
+                     const NamedPHYSFS_File d1_Piggy_fp, /* read from this file */
                      int bitmap_data_start, /* specific to file */
                      DiskBitmapHeader *bmh, /* header info for bitmap */
                      uint8_t **next_bitmap, /* where to write it (if 0, use malloc) */
@@ -1867,7 +1867,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 
 #define D1_MAX_TEXTURES 800
 
-static void bm_read_d1_tmap_nums(PHYSFS_File *d1pig)
+static void bm_read_d1_tmap_nums(const NamedPHYSFS_File d1pig)
 {
 	int i;
 
@@ -1887,13 +1887,14 @@ static void bm_read_d1_tmap_nums(PHYSFS_File *d1pig)
 
 // this function is at the same position in the d1 shareware piggy loading 
 // algorithm as bm_load_sub in main/bmread.c
-static int get_d1_bm_index(char *filename, PHYSFS_File *d1_pig) {
+static int get_d1_bm_index(char *filename, const NamedPHYSFS_File d1_pig)
+{
 	int i, N_bitmaps;
 	DiskBitmapHeader bmh;
 	if (const auto p = strchr (filename, '.'))
 		*p = '\0'; // remove extension
 	PHYSFS_seek(d1_pig, 0);
-	N_bitmaps = PHYSFSX_readInt (d1_pig);
+	N_bitmaps = PHYSFSX_readInt(d1_pig);
 	PHYSFS_seek(d1_pig, 8);
 	for (i = 1; i <= N_bitmaps; i++) {
 		DiskBitmapHeader_d1_read(&bmh, d1_pig);
@@ -1904,7 +1905,7 @@ static int get_d1_bm_index(char *filename, PHYSFS_File *d1_pig) {
 }
 
 // imitate the algorithm of gamedata_read_tbl in main/bmread.c
-static void read_d1_tmap_nums_from_hog(PHYSFS_File *d1_pig)
+static void read_d1_tmap_nums_from_hog(const NamedPHYSFS_File d1_pig)
 {
 #define LINEBUF_SIZE 600
 	int reading_textures = 0;
@@ -2194,7 +2195,7 @@ namespace dcx {
 /*
  * reads a bitmap_index structure from a PHYSFS_File
  */
-void bitmap_index_read(PHYSFS_File *fp, bitmap_index &bi)
+void bitmap_index_read(const NamedPHYSFS_File fp, bitmap_index &bi)
 {
 	const auto i = GameBitmaps.valid_index(PHYSFSX_readShort(fp));
 	bi = i ? *i : bitmap_index::None;
@@ -2203,7 +2204,7 @@ void bitmap_index_read(PHYSFS_File *fp, bitmap_index &bi)
 /*
  * reads n bitmap_index structs from a PHYSFS_File
  */
-void bitmap_index_read_n(PHYSFS_File *fp, const ranges::subrange<bitmap_index *> r)
+void bitmap_index_read_n(const NamedPHYSFS_File fp, const std::ranges::subrange<bitmap_index *> r)
 {
 	for (auto &bi : r)
 	{

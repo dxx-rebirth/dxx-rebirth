@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_array.h"
 #include "inferno.h"
 #include <cstdint>
+#include "physfsx.h"
 
 namespace dcx {
 
@@ -198,9 +199,9 @@ void load_robot_replacements(const d_fname &level_name);
 int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_vclip_array &Vclip, int pc_shareware);
 #endif
 
-void bm_read_all(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_vclip_array &Vclip, PHYSFS_File * fp);
+void bm_read_all(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_vclip_array &Vclip, NamedPHYSFS_File fp);
 #if defined(DXX_BUILD_DESCENT_I)
-void properties_read_cmp(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_vclip_array &Vclip, PHYSFS_File * fp);
+void properties_read_cmp(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_vclip_array &Vclip, NamedPHYSFS_File fp);
 #endif
 int ds_load(int skip, const char * filename );
 int compute_average_pixel(grs_bitmap *n);

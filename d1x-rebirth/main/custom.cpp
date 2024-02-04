@@ -106,7 +106,7 @@ constexpr std::integral_constant<uint8_t, 0x80> BM_FLAG_CUSTOMIZED{};
 static enumerated_array<bitmap_original, MAX_BITMAP_FILES, bitmap_index> BitmapOriginal;
 static std::array<snd_info, MAX_SOUND_FILES> SoundOriginal;
 
-static int load_pig1(PHYSFS_File *f, unsigned num_bitmaps, unsigned num_sounds, unsigned &num_custom, std::unique_ptr<custom_info[]> &ci)
+static int load_pig1(const NamedPHYSFS_File f, unsigned num_bitmaps, unsigned num_sounds, unsigned &num_custom, std::unique_ptr<custom_info[]> &ci)
 {
 	int data_ofs;
 	int i;
@@ -178,7 +178,7 @@ static int load_pig1(PHYSFS_File *f, unsigned num_bitmaps, unsigned num_sounds, 
 	return 0;
 }
 
-static int load_pog(PHYSFS_File *f, int pog_sig, int pog_ver, unsigned &num_custom, std::unique_ptr<custom_info[]> &ci)
+static int load_pog(const NamedPHYSFS_File f, int pog_sig, int pog_ver, unsigned &num_custom, std::unique_ptr<custom_info[]> &ci)
 {
 	int data_ofs;
 	int num_bitmaps;
@@ -381,7 +381,7 @@ static int load_pigpog(const d_fname &pogname)
 	return rc;
 }
 
-static int read_d2_robot_info(PHYSFS_File *fp, robot_info &ri)
+static int read_d2_robot_info(const NamedPHYSFS_File fp, robot_info &ri)
 {
 	int j;
 

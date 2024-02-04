@@ -91,8 +91,3 @@ void omega_charge_frame(player_info &);
 #endif
 }
 #endif
-
-/*
- * reads a player_ship structure from a PHYSFS_File
- */
-void player_ship_read(player_ship *ps, PHYSFS_File *fp);

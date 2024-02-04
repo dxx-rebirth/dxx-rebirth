@@ -31,7 +31,7 @@ public:
 };
 
 template <typename T, typename E = PHYSFSX_short_read>
-void PHYSFSX_serialize_read(PHYSFS_File *fp, T &t)
+void PHYSFSX_serialize_read(const NamedPHYSFS_File fp, T &t)
 {
 	const size_t maximum_size = serial::message_type<T>::maximum_size;
 	uint8_t buf[maximum_size];

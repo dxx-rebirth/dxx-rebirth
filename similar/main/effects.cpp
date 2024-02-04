@@ -186,7 +186,7 @@ ASSERT_SERIAL_UDT_MESSAGE_SIZE(eclip, 130);
 /*
  * reads n eclip structs from a PHYSFS_File
  */
-void eclip_read(PHYSFS_File *fp, eclip &ec)
+void eclip_read(NamedPHYSFS_File fp, eclip &ec)
 {
 	PHYSFSX_serialize_read(fp, ec);
 }

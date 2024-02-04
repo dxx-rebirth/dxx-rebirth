@@ -4848,7 +4848,7 @@ static void PHYSFSX_readAngleVecX(PHYSFS_File *file, vms_angvec &v, int swap)
 namespace dsx {
 namespace {
 
-static void ai_local_read_swap(ai_local *ail, int swap, PHYSFS_File *fp)
+static void ai_local_read_swap(ai_local *ail, int swap, const NamedPHYSFS_File fp)
 {
 	{
 		fix tmptime32 = 0;
@@ -4942,7 +4942,7 @@ static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS
 
 }
 
-int ai_restore_state(const d_robot_info_array &Robot_info, PHYSFS_File *fp, int version, int swap)
+int ai_restore_state(const d_robot_info_array &Robot_info, const NamedPHYSFS_File fp, int version, int swap)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 #if defined(DXX_BUILD_DESCENT_II)

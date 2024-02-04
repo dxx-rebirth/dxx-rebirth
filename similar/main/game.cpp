@@ -2496,7 +2496,7 @@ namespace dsx {
 /*
  * reads a flickering_light structure from a PHYSFS_File
  */
-void flickering_light_read(flickering_light &fl, PHYSFS_File *fp)
+void flickering_light_read(flickering_light &fl, const NamedPHYSFS_File fp)
 {
 	{
 		const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(fp))};

@@ -326,7 +326,7 @@ static void verify_object(const d_level_shared_robot_info_state &LevelSharedRobo
 //}
 
 //reads one object of the given version from the given file
-static void read_object(const vmobjptr_t obj,PHYSFS_File *f,int version)
+static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int version)
 {
 	DXX_POISON_MEMORY(std::span<object>(&*obj, 1), 0xfd);
 	obj->signature = object_signature_t{0};
@@ -906,7 +906,7 @@ static int load_game_data(
 #if defined(DXX_BUILD_DESCENT_II)
 	d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
-	fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, PHYSFS_File *LoadFile)
+	fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, const NamedPHYSFS_File LoadFile)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;

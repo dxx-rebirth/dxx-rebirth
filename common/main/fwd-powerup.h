@@ -38,7 +38,7 @@ constexpr uint16_t VULCAN_AMMO_AMOUNT = 49*2;
 constexpr std::integral_constant<unsigned, 16> POWERUP_NAME_LENGTH{};
 struct powerup_type_info;
 
-void powerup_type_info_read(PHYSFS_File *fp, powerup_type_info &pti);
+void powerup_type_info_read(NamedPHYSFS_File fp, powerup_type_info &pti);
 void powerup_type_info_write(PHYSFS_File *fp, const powerup_type_info &pti);
 
 extern uint8_t N_powerup_types;

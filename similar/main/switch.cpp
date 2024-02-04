@@ -575,7 +575,7 @@ window_event_result check_trigger(const vcsegptridx_t seg, const sidenum_t side,
  * reads a v29_trigger structure from a PHYSFS_File
  */
 #if defined(DXX_BUILD_DESCENT_I)
-void v26_trigger_read(PHYSFS_File *fp, trigger &t)
+void v26_trigger_read(const NamedPHYSFS_File fp, trigger &t)
 {
 	switch (const auto type = static_cast<trigger_action>(PHYSFSX_readByte(fp)))
 	{
@@ -618,9 +618,9 @@ void v26_trigger_read(PHYSFS_File *fp, trigger &t)
 	}
 }
 
-void v25_trigger_read(PHYSFS_File *fp, trigger *t)
+void v25_trigger_read(const NamedPHYSFS_File fp, trigger *t)
 #elif defined(DXX_BUILD_DESCENT_II)
-void v29_trigger_read(v29_trigger *t, PHYSFS_File *fp)
+void v29_trigger_read(v29_trigger *t, const NamedPHYSFS_File fp)
 #endif
 {
 #if defined(DXX_BUILD_DESCENT_I)
@@ -649,7 +649,7 @@ void v29_trigger_read(v29_trigger *t, PHYSFS_File *fp)
 /*
  * reads a v30_trigger structure from a PHYSFS_File
  */
-extern void v30_trigger_read(v30_trigger *t, PHYSFS_File *fp)
+void v30_trigger_read(v30_trigger *t, const NamedPHYSFS_File fp)
 {
 	t->flags = PHYSFSX_readShort(fp);
 	t->num_links = PHYSFSX_readByte(fp);
@@ -709,7 +709,7 @@ static void v30_trigger_to_v31_trigger(trigger &t, const v30_trigger &trig)
 	}
 }
 
-static void v29_trigger_read_as_v30(PHYSFS_File *fp, v30_trigger &trig)
+static void v29_trigger_read_as_v30(const NamedPHYSFS_File fp, v30_trigger &trig)
 {
 	v29_trigger trig29;
 	v29_trigger_read(&trig29, fp);
@@ -723,14 +723,14 @@ static void v29_trigger_read_as_v30(PHYSFS_File *fp, v30_trigger &trig)
 
 }
 
-void v29_trigger_read_as_v31(PHYSFS_File *fp, trigger &t)
+void v29_trigger_read_as_v31(const NamedPHYSFS_File fp, trigger &t)
 {
 	v30_trigger trig;
 	v29_trigger_read_as_v30(fp, trig);
 	v30_trigger_to_v31_trigger(t, trig);
 }
 
-void v30_trigger_read_as_v31(PHYSFS_File *fp, trigger &t)
+void v30_trigger_read_as_v31(const NamedPHYSFS_File fp, trigger &t)
 {
 	v30_trigger trig;
 	v30_trigger_read(&trig, fp);
@@ -791,7 +791,7 @@ DEFINE_SERIAL_UDT_TO_MESSAGE(trigger, t, (t.type, t.flags, t.num_links, serial::
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(trigger, 52);
 #endif
 
-void trigger_read(PHYSFS_File *fp, trigger &t)
+void trigger_read(const NamedPHYSFS_File fp, trigger &t)
 {
 	PHYSFSX_serialize_read(fp, t);
 }

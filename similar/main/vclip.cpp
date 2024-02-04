@@ -99,7 +99,8 @@ void draw_weapon_vclip(const d_vclip_array &Vclip, const weapon_info_array &Weap
 DEFINE_VCLIP_SERIAL_UDT();
 
 namespace dcx {
-void vclip_read(PHYSFS_File *fp, vclip &vc)
+
+void vclip_read(const NamedPHYSFS_File fp, vclip &vc)
 {
 	PHYSFSX_serialize_read(fp, vc);
 }

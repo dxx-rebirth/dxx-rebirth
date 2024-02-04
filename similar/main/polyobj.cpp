@@ -622,7 +622,7 @@ ASSERT_SERIAL_UDT_MESSAGE_SIZE(polymodel, 12 + (10 * 4) + (10 * 3 * sizeof(vms_v
 /*
  * reads a polymodel structure from a PHYSFS_File
  */
-void polymodel_read(polymodel &pm, PHYSFS_File *fp)
+void polymodel_read(polymodel &pm, const NamedPHYSFS_File fp)
 {
 	pm.model_data.reset();
 	PHYSFSX_serialize_read(fp, pm);

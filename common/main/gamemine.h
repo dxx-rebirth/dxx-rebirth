@@ -25,9 +25,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#include <physfs.h>
 #include "fwd-segment.h"
 #include "maths.h"
+#include "physfsx.h"
 
 #define TMAP_NUM_MASK 0x3FFF
 
@@ -136,7 +136,7 @@ extern struct me mine_editor;
 // returns 0=everything ok, 1=old version, -1=error
 #ifdef dsx
 namespace dsx {
-int load_mine_data_compiled(PHYSFS_File *LoadFile, const char *Gamesave_current_filename);
+int load_mine_data_compiled(NamedPHYSFS_File LoadFile, const char *Gamesave_current_filename);
 }
 #endif
 #define TMAP_NUM_MASK 0x3FFF

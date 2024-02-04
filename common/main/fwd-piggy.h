@@ -26,12 +26,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include <span>
-#include <physfs.h>
 #include "dsx-ns.h"
 #include "fwd-inferno.h"
 #include "fwd-gr.h"
 #include "fwd-partial_range.h"
 #include "sounds.h"
+#include "physfsx.h"
 
 #define D1_SHARE_BIG_PIGSIZE    5092871 // v1.0 - 1.4 before RLE compression
 #define D1_SHARE_10_PIGSIZE     2529454 // v1.0 - 1.2
@@ -134,7 +134,7 @@ namespace dcx {
 /*
  * reads a bitmap_index structure from a PHYSFS_File
  */
-void bitmap_index_read(PHYSFS_File *fp, bitmap_index &bi);
+void bitmap_index_read(NamedPHYSFS_File fp, bitmap_index &bi);
 }
 
 void remove_char( char * s, char c );	// in piggy.c

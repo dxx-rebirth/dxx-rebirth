@@ -1859,7 +1859,7 @@ void weapon_info_write(PHYSFS_File *fp, const weapon_info &w)
  */
 namespace dsx {
 
-void weapon_info_read_n(weapon_info_array &wi, std::size_t count, PHYSFS_File *fp,
+void weapon_info_read_n(weapon_info_array &wi, std::size_t count, const NamedPHYSFS_File fp,
 #if defined(DXX_BUILD_DESCENT_II)
 						const pig_hamfile_version file_version,
 #endif

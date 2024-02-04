@@ -891,7 +891,7 @@ namespace {
 /*
  * reads a grs_font structure from a PHYSFS_File
  */
-static void grs_font_read(grs_font *gf, PHYSFS_File *fp)
+static void grs_font_read(grs_font *gf, NamedPHYSFS_File fp)
 {
 	gf->ft_w = PHYSFSX_readShort(fp);
 	gf->ft_h = PHYSFSX_readShort(fp);
