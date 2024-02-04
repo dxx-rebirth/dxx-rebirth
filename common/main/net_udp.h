@@ -92,7 +92,7 @@ constexpr std::integral_constant<unsigned, 12> UDP_NETGAMES_PPAGE{}; // Netgames
 #endif
 
 // Structure keeping lite game infos (for netlist, etc.)
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef dsx
 struct UDP_netgame_info_lite : public prohibit_void_ptr<UDP_netgame_info_lite>
 {
 	struct _sockaddr                game_addr;
@@ -111,7 +111,7 @@ struct UDP_netgame_info_lite : public prohibit_void_ptr<UDP_netgame_info_lite>
 	network_state game_status;
 	ubyte                           numconnected;
 	ubyte                           max_numplayers;
-	bit_game_flags game_flag;
+	netgame_rule_flags game_flag;
 };
 
 struct player_acknowledgement_mask : enumerated_bitset<MAX_PLAYERS, std::conditional<std::is_same<std::size_t, unsigned>::value, unsigned long, playernum_t>::type>

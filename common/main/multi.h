@@ -625,40 +625,52 @@ extern per_player_array<std::array<bitmap_index, N_PLAYER_SHIP_TEXTURES>> multi_
 extern char RefuseThisPlayer,WaitForRefuseAnswer,RefuseTeam,RefusePlayerName[12];
 extern fix64 RefuseTimeLimit;
 #define REFUSE_INTERVAL (F1_0*8)
-}
 
 #ifdef dsx
-namespace dsx {
-struct bit_game_flags {
-	unsigned closed : 1;
-	unsigned : 1;
-	unsigned show_on_map : 1;
+enum class netgame_rule_flags : uint8_t
+{
+	None = 0,
 	/*
-	 * These #define are written to .NGP files and to the network.
+	 * These values are written to .NGP files and to the network.
 	 * Changing them breaks ABI compatibility.
-	 * The bit flags need not match in value, and are converted below in
-	 * pack_game_flags / unpack_game_flags.
 	 */
-#define NETGAME_FLAG_CLOSED             1
-#define NETGAME_FLAG_SHOW_MAP           4
-#if defined(DXX_BUILD_DESCENT_II)
-	unsigned hoard : 1;
-	unsigned team_hoard : 1;
-	unsigned endlevel : 1;
-	unsigned forming : 1;
-#define NETGAME_FLAG_HOARD              8
-#define NETGAME_FLAG_TEAM_HOARD         16
-#define NETGAME_FLAG_REALLY_ENDLEVEL    32
-#define NETGAME_FLAG_REALLY_FORMING     64
-#endif
-} __pack__;
+	closed = 1,
+	show_all_players_on_automap = 4,
+	/* if DXX_BUILD_DESCENT_II */
+	hoard = 8,
+	team_hoard = 16,
+	really_endlevel = 32,
+	really_forming = 64,
+	/* endif */
+};
+
+[[nodiscard]]
+constexpr netgame_rule_flags operator~(const netgame_rule_flags a)
+{
+	return netgame_rule_flags{static_cast<uint8_t>(~static_cast<uint8_t>(a))};
 }
 
-namespace dcx {
-struct packed_game_flags
+[[nodiscard]]
+constexpr netgame_rule_flags operator&(const netgame_rule_flags a, const netgame_rule_flags b)
 {
-	unsigned char value;
-};
+	return netgame_rule_flags{static_cast<uint8_t>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b))};
+}
+
+constexpr netgame_rule_flags &operator&=(netgame_rule_flags &a, const netgame_rule_flags b)
+{
+	return a = a & b;
+}
+
+[[nodiscard]]
+constexpr netgame_rule_flags operator|(const netgame_rule_flags a, const netgame_rule_flags b)
+{
+	return netgame_rule_flags{static_cast<uint8_t>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b))};
+}
+
+constexpr netgame_rule_flags &operator|=(netgame_rule_flags &a, const netgame_rule_flags b)
+{
+	return a = a | b;
+}
 
 #if DXX_USE_TRACKER
 enum TrackerNATHolePunchWarn : uint8_t
@@ -668,39 +680,11 @@ enum TrackerNATHolePunchWarn : uint8_t
 	UserRejectedHP,
 };
 #endif
+#endif
 }
 
+#ifdef dsx
 namespace dsx {
-
-static inline bit_game_flags unpack_game_flags(const packed_game_flags *p)
-{
-	bit_game_flags flags;
-	flags.closed = !!(p->value & NETGAME_FLAG_CLOSED);
-	flags.show_on_map = !!(p->value & NETGAME_FLAG_SHOW_MAP);
-#if defined(DXX_BUILD_DESCENT_II)
-	flags.hoard = !!(p->value & NETGAME_FLAG_HOARD);
-	flags.team_hoard = !!(p->value & NETGAME_FLAG_TEAM_HOARD);
-	flags.endlevel = !!(p->value & NETGAME_FLAG_REALLY_ENDLEVEL);
-	flags.forming = !!(p->value & NETGAME_FLAG_REALLY_FORMING);
-#endif
-	return flags;
-}
-
-static inline packed_game_flags pack_game_flags(const bit_game_flags *flags)
-{
-	packed_game_flags p;
-	p.value =
-		(flags->closed ? NETGAME_FLAG_CLOSED : 0) |
-		(flags->show_on_map ? NETGAME_FLAG_SHOW_MAP : 0) |
-#if defined(DXX_BUILD_DESCENT_II)
-		(flags->hoard ? NETGAME_FLAG_HOARD : 0) |
-		(flags->team_hoard ? NETGAME_FLAG_TEAM_HOARD : 0) |
-		(flags->endlevel ? NETGAME_FLAG_REALLY_ENDLEVEL : 0) |
-		(flags->forming ? NETGAME_FLAG_REALLY_FORMING : 0) |
-#endif
-		0;
-	return p;
-}
 
 #define NETGAME_NAME_LEN	25
 
@@ -842,7 +826,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>
 	ubyte   					numplayers;
 	ubyte   					max_numplayers;
 	ubyte   					numconnected;
-	bit_game_flags game_flag;
+	netgame_rule_flags game_flag;
 	ubyte   					team_vector;
 	uint8_t						SecludedSpawns;
 	uint8_t MouselookFlags;

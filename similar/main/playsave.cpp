@@ -1672,10 +1672,7 @@ void read_netgame_profile(netgame_info *ng)
 		else if (cmp(lb, eq, GameFlagsStr))
 		{
 			if (auto r = convert_integer<uint8_t>(value))
-			{
-				const packed_game_flags p{*r};
-				ng->game_flag = unpack_game_flags(&p);
-			}
+				ng->game_flag = netgame_rule_flags{*r};
 		}
 		else if (cmp(lb, eq, AllowedItemsStr))
 		{
@@ -1763,7 +1760,7 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, GameModeStr "=%i\n", underlying_value(ng->gamemode));
 	PHYSFSX_printf(file, RefusePlayersStr "=%i\n", ng->RefusePlayers);
 	PHYSFSX_printf(file, DifficultyStr "=%i\n", underlying_value(ng->difficulty));
-	PHYSFSX_printf(file, GameFlagsStr "=%i\n", pack_game_flags(&ng->game_flag).value);
+	PHYSFSX_printf(file, GameFlagsStr "=%i\n", underlying_value(ng->game_flag));
 	PHYSFSX_printf(file, AllowedItemsStr "=%i\n", underlying_value(ng->AllowedItems));
 	PHYSFSX_printf(file, SpawnGrantedItemsStr "=%i\n", underlying_value(ng->SpawnGrantedItems.mask));
 	PHYSFSX_printf(file, DuplicatePrimariesStr "=%" PRIuFAST32 "\n", ng->DuplicatePowerups.get_primary_count());

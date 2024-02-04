@@ -881,7 +881,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 #endif
 	
 	// Draw player(s)...
-	const unsigned show_all_players = (Game_mode & GM_MULTI_COOP) || Netgame.game_flag.show_on_map;
+	const unsigned show_all_players = (Game_mode & GM_MULTI_COOP) || underlying_value(Netgame.game_flag & netgame_rule_flags::show_all_players_on_automap);
 	if (show_all_players || (Game_mode & GM_TEAM))
 	{
 		const auto local_player_team = get_team(Player_num);
