@@ -260,35 +260,35 @@ struct d_flickering_light_state
 //Cheats
 struct game_cheats : prohibit_void_ptr<game_cheats>
 {
-	int enabled;
-	int wowie;
-	int allkeys;
-	int invul;
-	int shields;
-	int killreactor;
-	int exitpath;
-	int levelwarp;
-	int fullautomap;
-	int ghostphysics;
-	int rapidfire;
-	int turbo;
-	int robotfiringsuspended;
-	int acid;
+	int8_t enabled;
+	int8_t wowie;
+	int8_t allkeys;
+	int8_t invul;
+	int8_t shields;
+	int8_t killreactor;
+	int8_t exitpath;
+	int8_t levelwarp;
+	int8_t fullautomap;
+	int8_t ghostphysics;
+	int8_t rapidfire;
+	int8_t turbo;
+	int8_t robotfiringsuspended;
+	int8_t acid;
 #if defined(DXX_BUILD_DESCENT_I)
-	int wowie2;
-	int cloak;
-	int extralife;
-	int baldguy;
+	int8_t wowie2;
+	int8_t cloak;
+	int8_t extralife;
+	int8_t baldguy;
 #elif defined(DXX_BUILD_DESCENT_II)
-	int lamer;
-	int accessory;
-	int bouncyfire;
-	int homingfire;
-	int killallrobots;
-	int robotskillrobots;
-	int monsterdamage;
-	int buddyclone;
-	int buddyangry;
+	int8_t lamer;
+	int8_t accessory;
+	int8_t bouncyfire;
+	int8_t homingfire;
+	int8_t killallrobots;
+	int8_t robotskillrobots;
+	int8_t monsterdamage;
+	int8_t buddyclone;
+	int8_t buddyangry;
 #endif
 };
 

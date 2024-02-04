@@ -1431,9 +1431,9 @@ int state_save_all_sub(const char *filename, const char *desc)
 	}
 
 // Save cheats enabled
-	PHYSFS_write(fp, &cheats.enabled, sizeof(int), 1);
+	PHYSFS_writeULE32(fp, cheats.enabled ? UINT32_MAX : 0);
 #if defined(DXX_BUILD_DESCENT_I)
-	PHYSFS_write(fp, &cheats.turbo, sizeof(int), 1);
+	PHYSFS_writeULE32(fp, cheats.turbo ? UINT32_MAX : 0);
 #endif
 
 //Finish all morph objects
@@ -1594,16 +1594,15 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 	PHYSFS_write(fp, &state_game_id, sizeof(unsigned), 1);
 	{
-		const int i = 0;
-	PHYSFS_write(fp, &cheats.rapidfire, sizeof(int), 1);
+	PHYSFS_writeULE32(fp, cheats.rapidfire ? UINT32_MAX : 0);
 #if defined(DXX_BUILD_DESCENT_I)
-	PHYSFS_write(fp, &i, sizeof(int), 1); // was Ugly_robot_cheat
-	PHYSFS_write(fp, &i, sizeof(int), 1); // was Ugly_robot_texture
-	PHYSFS_write(fp, &cheats.ghostphysics, sizeof(int), 1);
+	PHYSFS_writeULE32(fp, 0); // was Ugly_robot_cheat
+	PHYSFS_writeULE32(fp, 0); // was Ugly_robot_texture
+	PHYSFS_writeULE32(fp, cheats.ghostphysics ? UINT32_MAX : 0);
 #endif
-	PHYSFS_write(fp, &i, sizeof(int), 1); // was Lunacy
+	PHYSFS_writeULE32(fp, 0); // was Lunacy
 #if defined(DXX_BUILD_DESCENT_II)
-	PHYSFS_write(fp, &i, sizeof(int), 1); // was Lunacy, too... and one was Ugly robot stuff a long time ago...
+	PHYSFS_writeULE32(fp, 0); // was Lunacy, too... and one was Ugly robot stuff a long time ago...
 
 	// Save automap marker info
 
@@ -2082,9 +2081,9 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 
 // Restore the cheats enabled flag
 	game_disable_cheats(); // disable cheats first
-	cheats.enabled = PHYSFSX_readSXE32(fp, swap);
+	cheats.enabled = !!PHYSFSX_readULE32(fp);
 #if defined(DXX_BUILD_DESCENT_I)
-	cheats.turbo = PHYSFSX_readSXE32(fp, swap);
+	cheats.turbo = !!PHYSFSX_readULE32(fp);
 #endif
 
 	Do_appearance_effect = 0;			// Don't do this for middle o' game stuff.
@@ -2302,12 +2301,12 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 
 	if ( version >= 7 )	{
 		state_game_id = PHYSFSX_readSXE32(fp, swap);
-		cheats.rapidfire = PHYSFSX_readSXE32(fp, swap);
+		cheats.rapidfire = !!PHYSFSX_readULE32(fp);
 		// PHYSFSX_readSXE32(fp, swap); // was Lunacy
 		// PHYSFSX_readSXE32(fp, swap); // was Lunacy, too... and one was Ugly robot stuff a long time ago...
 		PHYSFSX_skipBytes<8>(fp);
 #if defined(DXX_BUILD_DESCENT_I)
-		cheats.ghostphysics = PHYSFSX_readSXE32(fp, swap);
+		cheats.ghostphysics = !!PHYSFSX_readULE32(fp);
 		PHYSFSX_skipBytes<4>(fp);
 #endif
 	}

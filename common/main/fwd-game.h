@@ -271,7 +271,7 @@ void reset_rear_view(void);
 
 void game_leave_menus(void);
 
-int cheats_enabled();
+int8_t cheats_enabled();
 void game_disable_cheats();
 void toggle_cockpit(void);
 extern fix Show_view_text_timer;

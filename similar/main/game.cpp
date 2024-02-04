@@ -1709,7 +1709,7 @@ void reset_rear_view(void)
 	select_cockpit(PlayerCfg.CockpitMode[0]);
 }
 
-int cheats_enabled()
+int8_t cheats_enabled()
 {
 	return cheats.enabled;
 }

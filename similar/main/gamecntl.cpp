@@ -1589,7 +1589,7 @@ static window_event_result HandleTestKey(const d_level_shared_robot_info_state &
 struct cheat_code
 {
 	const char string[CHEAT_MAX_LEN];
-	int game_cheats::*stateptr;
+	int8_t game_cheats::*stateptr;
 };
 
 constexpr cheat_code cheat_codes[] = {
@@ -1694,7 +1694,6 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
-	int game_cheats::*gotcha;
 
 	if (Game_mode & GM_MULTI)
 		return window_event_result::ignored;
@@ -1702,6 +1701,7 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 	static std::array<char, CHEAT_MAX_LEN> cheat_buffer;
 	std::move(std::next(cheat_buffer.begin()), cheat_buffer.end(), cheat_buffer.begin());
 	cheat_buffer.back() = key_ascii();
+	int8_t game_cheats::*gotcha;
 	for (unsigned i = 0;; i++)
 	{
 		if (i >= std::size(cheat_codes))
