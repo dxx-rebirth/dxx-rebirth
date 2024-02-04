@@ -210,12 +210,6 @@ static void delete_player_saved_games(const char *const name)
 template <typename T>
 using select_file_subfunction = window_event_result (*)(T *, const char *);
 
-void format_human_readable_time(char *const data, std::size_t size, const int duration_seconds)
-{
-	const auto &&split_interval = std::div(duration_seconds, static_cast<int>(std::chrono::minutes::period::num));
-	snprintf(data, size, "%im%is", split_interval.quot, split_interval.rem);
-}
-
 std::pair<std::chrono::seconds, bool> parse_human_readable_time(const char *const buf)
 {
 	char *p{};
@@ -265,12 +259,12 @@ static window_event_result get_absolute_path(ntstring<PATH_MAX - 1> &full_path, 
 
 }
 
-template <typename Rep, std::size_t S>
-void format_human_readable_time(std::array<char, S> &buf, const std::chrono::duration<Rep, std::chrono::seconds::period> duration)
+void format_human_readable_time(human_readable_mmss_time<uint16_t> &buf, const std::chrono::duration<uint16_t, std::chrono::seconds::period> duration)
 {
-	static_assert(S >= std::tuple_size<human_readable_mmss_time<Rep>>::value, "array is too small");
-	static_assert(std::numeric_limits<Rep>::max() <= std::numeric_limits<int>::max(), "Rep allows too large a value");
-	format_human_readable_time(buf.data(), buf.size(), duration.count());
+	const auto &&split_interval = std::div(duration.count(), static_cast<int>(std::chrono::minutes::period::num));
+	const std::size_t bufsize{std::size(buf)};
+	if (unlikely(static_cast<std::size_t>(snprintf(std::data(buf), bufsize, "%im%is", split_interval.quot, split_interval.rem)) >= bufsize))
+		buf[0] = 0;
 }
 
 template <typename Rep, std::size_t S>
@@ -281,7 +275,6 @@ void parse_human_readable_time(std::chrono::duration<Rep, std::chrono::seconds::
 		duration = r.first;
 }
 
-template void format_human_readable_time(human_readable_mmss_time<autosave_interval_type::rep> &buf, autosave_interval_type);
 template void parse_human_readable_time(autosave_interval_type &, const human_readable_mmss_time<autosave_interval_type::rep> &buf);
 
 }

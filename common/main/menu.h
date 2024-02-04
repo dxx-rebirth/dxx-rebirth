@@ -36,8 +36,7 @@ namespace dcx {
 template <typename Rep>
 using human_readable_mmss_time = std::array<char, number_to_text_length<std::numeric_limits<Rep>::max() / 60> + number_to_text_length<60> + sizeof("ms")>;
 
-template <typename Rep, std::size_t S>
-void format_human_readable_time(std::array<char, S> &buf, const std::chrono::duration<Rep, std::chrono::seconds::period> duration);
+void format_human_readable_time(human_readable_mmss_time<uint16_t> &buf, const std::chrono::duration<uint16_t, std::chrono::seconds::period> duration);
 
 template <typename Rep, std::size_t S>
 void parse_human_readable_time(std::chrono::duration<Rep, std::chrono::seconds::period> &duration, const std::array<char, S> &buf);
