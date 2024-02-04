@@ -210,31 +210,32 @@ static void delete_player_saved_games(const char *const name)
 template <typename T>
 using select_file_subfunction = window_event_result (*)(T *, const char *);
 
-std::pair<std::chrono::seconds, bool> parse_human_readable_time(const char *const buf)
+[[nodiscard]]
+std::optional<std::chrono::seconds> parse_human_readable_time(const char *const buf)
 {
-	char *p{};
-	const std::chrono::minutes m(strtoul(buf, &p, 10));
-	if (*p == 0)
+	char *endptr_minutes{};
+	const std::chrono::minutes m{strtoul(buf, &endptr_minutes, 10)};
+	if (*endptr_minutes == 0)
 		/* Assume that a pure-integer string is a count of minutes. */
-		return {m, true};
-	const auto c0 = *p;
-	if (c0 == 'm')
+		return m;
+	if (const auto c0{*endptr_minutes}; c0 == 'm')
 	{
-		const std::chrono::seconds s(strtoul(p + 1, &p, 10));
-		if (*p == 's')
+		char *endptr_seconds{};
+		const std::chrono::seconds s{strtoul(endptr_minutes + 1, &endptr_seconds, 10)};
+		if (*endptr_seconds == 's')
 			/* The trailing 's' is optional, but no character other than
 			 * the optional 's' can follow the number.
 			 */
-			++p;
-		if (*p == 0)
-			return {m + s, true};
+			++endptr_seconds;
+		if (*endptr_seconds == 0)
+			return m + s;
 	}
-	else if (c0 == 's' && p[1] == 0)
+	else if (c0 == 's' && endptr_minutes[1] == 0)
 		/* Input is only seconds.  Use `.count()` to extract the raw
 		 * value without scaling.
 		 */
-		return {std::chrono::seconds(m.count()), true};
-	return {{}, false};
+		return std::chrono::seconds{m.count()};
+	return std::nullopt;
 }
 
 #if DXX_USE_SDLMIXER
@@ -273,8 +274,8 @@ template <typename Rep, std::size_t S>
 void parse_human_readable_time(std::chrono::duration<Rep, std::chrono::seconds::period> &duration, const std::array<char, S> &buf)
 {
 	const auto &&r = parse_human_readable_time(buf.data());
-	if (r.second)
-		duration = r.first;
+	if (r)
+		duration = *r;
 }
 
 template void parse_human_readable_time(autosave_interval_type &, const human_readable_mmss_time<autosave_interval_type::rep> &buf);
