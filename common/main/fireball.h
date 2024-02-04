@@ -45,7 +45,8 @@ namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II)
 struct disk_expl_wall
 {
-	int segnum, sidenum;
+	uint32_t segnum;
+	int sidenum;
 	fix time;
 };
 static_assert(sizeof(disk_expl_wall) == 12, "sizeof(disk_expl_wall) wrong");

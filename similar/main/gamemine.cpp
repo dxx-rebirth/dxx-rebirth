@@ -406,8 +406,8 @@ static void read_children(shared_segment &segp, const sidemask_t bit_mask, const
 	{
 		if (bit_mask & build_sidemask(bit))
 		{
-			const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(LoadFile))};
-			segp.children[bit] = (imsegidx_t::check_nothrow_index(s) || s == segment_exit) ? s : segment_none;
+			const segnum_t child_segment{PHYSFSX_readULE16(LoadFile)};
+			segp.children[bit] = (imsegidx_t::check_nothrow_index(child_segment) || child_segment == segment_exit) ? child_segment : segment_none;
 		} else
 			segp.children[bit] = segment_none;
 	}
@@ -418,7 +418,7 @@ static void read_verts(shared_segment &segp, const NamedPHYSFS_File LoadFile)
 	// Read short Segments[segnum].verts[MAX_VERTICES_PER_SEGMENT]
 	range_for (auto &v, segp.verts)
 	{
-		const std::size_t i = PHYSFSX_readShort(LoadFile);
+		const std::size_t i{PHYSFSX_readULE16(LoadFile)};
 		if (i >= MAX_VERTICES)
 			throw std::invalid_argument("vertex number too large");
 		v = static_cast<vertnum_t>(i);

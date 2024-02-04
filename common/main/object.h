@@ -302,7 +302,7 @@ struct laser_info_rw
 	short   parent_num;         // The object's parent's number
 	int     parent_signature;   // The object's parent's signature...
 	fix     creation_time;      // Absolute time of creation.
-	short   last_hitobj;        // For persistent weapons (survive object collision), object it most recently hit.
+	uint16_t   last_hitobj;        // For persistent weapons (survive object collision), object it most recently hit.
 	short   track_goal;         // Object this object is tracking.
 	fix     multiplier;         // Power if this is a fusion bolt (or other super weapon to be added).
 } __pack__;

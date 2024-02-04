@@ -389,13 +389,16 @@ static inline int PHYSFSX_readS8(PHYSFS_File *const file, int8_t *const b)
 
 static constexpr PHYSFSX_read_helper<int8_t, PHYSFSX_readS8> PHYSFSX_readByte{};
 static constexpr PHYSFSX_read_helper<int16_t, PHYSFS_readSLE16> PHYSFSX_readShort{};
+static constexpr PHYSFSX_read_helper<uint16_t, PHYSFS_readULE16> PHYSFSX_readULE16{};
 static constexpr PHYSFSX_read_helper<int32_t, PHYSFS_readSLE32> PHYSFSX_readInt{};
+static constexpr PHYSFSX_read_helper<uint32_t, PHYSFS_readULE32> PHYSFSX_readULE32{};
 static constexpr PHYSFSX_read_helper<fix, PHYSFS_readSLE32> PHYSFSX_readFix{};
 static constexpr PHYSFSX_read_helper<fixang, PHYSFS_readSLE16> PHYSFSX_readFixAng{};
 
 static constexpr PHYSFSX_read_swap_helper<PHYSFS_sint16, SWAPSHORT> PHYSFSX_readSXE16{};
 static constexpr PHYSFSX_read_swap_helper<PHYSFS_uint16, SWAPSHORT> PHYSFSX_readUXE16{};
 static constexpr PHYSFSX_read_swap_helper<PHYSFS_sint32, SWAPINT> PHYSFSX_readSXE32{};
+static constexpr PHYSFSX_read_swap_helper<PHYSFS_uint32, SWAPINT> PHYSFSX_readUXE32{};
 
 static constexpr PHYSFSX_read_sequence_helper<fix, PHYSFS_readSLE32, vms_vector, &vms_vector::x, &vms_vector::y, &vms_vector::z> PHYSFSX_readVector{};
 static constexpr PHYSFSX_read_sequence_helper<fixang, PHYSFS_readSLE16, vms_angvec, &vms_angvec::p, &vms_angvec::b, &vms_angvec::h> PHYSFSX_readAngleVec{};
