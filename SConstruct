@@ -2412,6 +2412,18 @@ where the cast is useless.
 		)
 
 	@_custom_test
+	def check_compiler_size_t_cast_unsigned_int(self,context):
+		context.sconf.Define('DXX_size_t_cast_unsigned_int', 'static_cast<unsigned>'
+			if self.Compile(context, text='''
+#include <cstddef>
+''', main='''
+	std::size_t i{1000};
+	unsigned u{static_cast<unsigned>(i)};
+	(void)u;
+''', msg='whether to cast std::size_t to unsigned int')
+			else '')
+
+	@_custom_test
 	def check_strcasecmp_present(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_STRCASECMP']}):
 		main = '''
 	return !strcasecmp(argv[0], argv[0] + 1) && !strncasecmp(argv[0] + 1, argv[0], 1);

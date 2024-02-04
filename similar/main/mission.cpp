@@ -74,9 +74,28 @@ using std::min;
 
 #define CON_PRIORITY_DEBUG_MISSION_LOAD	CON_DEBUG
 
+namespace dcx {
+
 namespace {
 
 using mission_candidate_search_path = std::array<char, PATH_MAX>;
+
+auto prepare_mission_list_count_dirbuf(const std::size_t immediate_directories)
+{
+	std::array<char, sizeof("DIR:99999; ")> dirbuf;
+	/* Limit the count of directories to what can be formatted
+	 * successfully without truncation.  If a user has more than this
+	 * many directories, an empty string will be used instead of showing
+	 * the actual count.
+	 */
+	if (immediate_directories && immediate_directories <= 99999)
+		std::snprintf(std::data(dirbuf), std::size(dirbuf), "DIR:%u; ", DXX_size_t_cast_unsigned_int(immediate_directories));
+	else
+		dirbuf.front() = 0;
+	return dirbuf;
+}
+
+}
 
 }
 
@@ -158,28 +177,12 @@ mission_name_and_version::mission_name_and_version(Mission::descent_version_type
 #endif
 }
 
-const char *prepare_mission_list_count_dirbuf(std::array<char, 12> &dirbuf, const std::size_t immediate_directories)
-{
-	/* Limit the count of directories to what can be formatted
-	 * successfully without truncation.  If a user has more than this
-	 * many directories, an empty string will be used instead of showing
-	 * the actual count.
-	 */
-	if (immediate_directories && immediate_directories <= 99999)
-	{
-		snprintf(dirbuf.data(), dirbuf.size(), "DIR:%zu; ", immediate_directories);
-		return dirbuf.data();
-	}
-	return "";
-}
-
 mle::mle(const char *const name, std::vector<mle> &&d) :
 	Mission_path(name, 0), directory(std::move(d))
 {
 	mission_subdir_stats ss;
 	ss.count(directory);
-	std::array<char, 12> dirbuf;
-	snprintf(mission_name.data(), mission_name.size(), "%s/ [%sMSN:L%zu;T%zu]", name, prepare_mission_list_count_dirbuf(dirbuf, ss.immediate_directories), ss.immediate_missions, ss.total_missions);
+	snprintf(mission_name.data(), mission_name.size(), "%s/ [%sMSN:L%zu;T%zu]", name, std::data(prepare_mission_list_count_dirbuf(ss.immediate_directories)), ss.immediate_missions, ss.total_missions);
 }
 
 static const mle *compare_mission_predicate_to_leaf(const mission_entry_predicate mission_predicate, const mle &candidate, const char *candidate_filesystem_name)
@@ -1267,9 +1270,8 @@ protected:
 	{
 		mission_subdir_stats ss;
 		ss.count(ml);
-		std::array<char, 12> dirbuf;
 		char buf[128];
-		const auto r = 1u + std::snprintf(buf, sizeof(buf), "%s\n[%sMSN:LOCAL %zu; TOTAL %zu]", message, prepare_mission_list_count_dirbuf(dirbuf, ss.immediate_directories), ss.immediate_missions, ss.total_missions);
+		const auto r = 1u + std::snprintf(buf, sizeof(buf), "%s\n[%sMSN:LOCAL %zu; TOTAL %zu]", message, std::data(prepare_mission_list_count_dirbuf(ss.immediate_directories)), ss.immediate_missions, ss.total_missions);
 		unique_menu_tagged_string<menu_title_tag> p = std::make_unique<char[]>(r);
 		std::memcpy(p.get(), buf, r);
 		return p;
