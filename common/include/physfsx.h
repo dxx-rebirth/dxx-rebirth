@@ -369,7 +369,7 @@ static void PHYSFSX_read_sequence_helper(const char *const filename, const unsig
 
 static inline int PHYSFSX_readS8(PHYSFS_File *const file, int8_t *const b)
 {
-	return (PHYSFS_read(file, b, sizeof(*b), 1) == 1);
+	return PHYSFS_readBytes(file, b, sizeof(*b)) == sizeof(*b);
 }
 
 static constexpr PHYSFSX_read_helper<int8_t, PHYSFSX_readS8> PHYSFSX_readByte{};
