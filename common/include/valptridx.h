@@ -524,7 +524,7 @@ public:
 	ptr(std::nullptr_t)
 		requires(policy::allow_nullptr)	// This constructor always stores nullptr, so require a policy with `allow_nullptr == true`.
 		:
-		m_ptr(nullptr)
+		m_ptr{nullptr}
 	{
 	}
 	template <integral_type v>
@@ -532,7 +532,7 @@ public:
 			static_cast<std::size_t>(v) >= array_size	// Require that the index be invalid, since a valid index should compute a non-nullptr here, but with no array, no pointer can be computed.
 		)
 		ptr(const magic_constant<v> &) :
-			ptr(nullptr)
+			ptr{nullptr}
 	{
 	}
 	template <integral_type v>
@@ -715,6 +715,24 @@ struct strong_typedef : T
 	using T::T;
 	template <typename O>
 		requires(std::is_constructible<T, O &&>::value)
+		/* This constructor is explicit if the requires expression is false.
+		 * - if std::is_constructible is not satisfied, this constructor is
+		 *   disabled by the above `requires` constraint
+		 * - if std::is_constructible is satisfied and `explicit(true) T(O &&)`
+		 *   exists, then this `requires` is an invalid expression (because the
+		 *   conversion from `O &&` to `T` is implicit, and thus cannot use the
+		 *   `explicit(true)` constructor), so this constructor is
+		 *   `explicit(not false)` -> `explicit(true)`, matching the `T`
+		 *   constructor
+		 * - if std::is_constructible is satisfied and `explicit(false) T(O &&)`
+		 *   exists, then this `requires` is a valid expression, so this
+		 *   constructor is `explicit(not true)` -> `explicit(false)`
+		 */
+		explicit(
+			not requires(void (*f)(T), O &&o) {
+				{ (*f)(std::forward<O>(o)) };
+			}
+		)
 		strong_typedef(O &&o) :
 			T(std::forward<O>(o))
 	{
@@ -902,7 +920,7 @@ class valptridx<managed_type>::guarded
 public:
 	__attribute_cold
 	guarded(std::nullptr_t) :
-		m_dummy(), m_state(empty)
+		m_dummy{}, m_state{empty}
 	{
 	}
 	guarded(guarded_type &&v) :
