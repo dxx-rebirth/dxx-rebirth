@@ -358,12 +358,10 @@ T PHYSFSX_read_helper<T, F>::operator()(PHYSFS_File *const file, const char *con
 	return i;
 }
 
-template <typename T1, int (*F)(PHYSFS_File *, T1 *), typename T2, T1 T2::*m1, T1 T2::*m2, T1 T2::*m3>
+template <typename T1, int (*F)(PHYSFS_File *, T1 *), typename T2, T1 T2::* ... m>
 static void PHYSFSX_read_sequence_helper(const char *const filename, const unsigned line, const char *const func, PHYSFS_File *const file, T2 *const i)
 {
-	if (unlikely(!F(file, &(i->*m1)) ||
-		!F(file, &(i->*m2)) ||
-		!F(file, &(i->*m3))))
+	if (unlikely(!F(file, &(i->*m)) || ...))
 		PHYSFSX_read_helper_report_error(filename, line, func, file);
 }
 
