@@ -109,7 +109,7 @@ using mission_list_type = std::vector<mle>;
 //mission list entry
 struct mle : Mission_path
 {
-	int     builtin_hogsize;    // if it's the built-in mission, used for determining the version
+	descent_hog_size builtin_hogsize;    // if it's the built-in mission, used for determining the version
 	ntstring<75> mission_name;
 #if defined(DXX_BUILD_DESCENT_II)
 	descent_version_type descent_version;    // descent 1 or descent 2?
@@ -375,7 +375,7 @@ static void load_mission_shareware()
     
     switch (Current_mission->builtin_hogsize)
 	{
-		case MAC_SHARE_MISSION_HOGSIZE:
+		case descent_hog_size::d2_mac_shareware:
 			{
 				constexpr unsigned last_level = 4;
 				allocate_levels(last_level, 1);
@@ -390,7 +390,7 @@ static void load_mission_shareware()
 		default:
 			Int3();
 			[[fallthrough]];
-		case SHAREWARE_MISSION_HOGSIZE:
+		case descent_hog_size::d2_shareware:
 			{
 				constexpr unsigned last_level = 3;
 				allocate_levels(last_level, 0);
@@ -609,10 +609,10 @@ static void add_d1_builtin_mission_to_list(mission_list_type &mission_list)
 
 	mission->anarchy_only_flag = Mission::anarchy_only_level::allow_any_game;
 #if defined(DXX_BUILD_DESCENT_I)
-	mission->builtin_hogsize = underlying_value(size);
+	mission->builtin_hogsize = size;
 #elif defined(DXX_BUILD_DESCENT_II)
 	mission->descent_version = Mission::descent_version_type::descent1;
-	mission->builtin_hogsize = 0;
+	mission->builtin_hogsize = descent_hog_size::None;
 #endif
 }
 
@@ -628,26 +628,25 @@ static void set_hardcoded_mission(mission_list_type &mission_list, const char (&
 
 static void add_builtin_mission_to_list(mission_list_type &mission_list, d_fname &name)
 {
-    int size = PHYSFSX_fsize("descent2.hog");
-    
-	if (size == -1)
-		size = PHYSFSX_fsize("d2demo.hog");
+    descent_hog_size size{PHYSFSX_fsize("descent2.hog")};
+	if (size == descent_hog_size{-1})
+		size = descent_hog_size{PHYSFSX_fsize("d2demo.hog")};
 
 	switch (size) {
-	case SHAREWARE_MISSION_HOGSIZE:
-	case MAC_SHARE_MISSION_HOGSIZE:
+		case descent_hog_size::d2_shareware:
+		case descent_hog_size::d2_mac_shareware:
 		set_hardcoded_mission(mission_list, SHAREWARE_MISSION_FILENAME, SHAREWARE_MISSION_NAME);
 		break;
-	case OEM_MISSION_HOGSIZE:
+		case descent_hog_size::d2_oem_v11:
 		set_hardcoded_mission(mission_list, OEM_MISSION_FILENAME, OEM_MISSION_NAME);
 		break;
 	default:
-		Warning("Unknown hogsize %d, trying %s", size, FULL_MISSION_FILENAME MISSION_EXTENSION_DESCENT_II);
+			Warning("Unknown hogsize %d, trying %s", underlying_value(size), FULL_MISSION_FILENAME MISSION_EXTENSION_DESCENT_II);
 		Int3();
 		[[fallthrough]];
-	case FULL_MISSION_HOGSIZE:
-	case FULL_10_MISSION_HOGSIZE:
-	case MAC_FULL_MISSION_HOGSIZE:
+		case descent_hog_size::d2_full:
+		case descent_hog_size::d2_full_v10:
+		case descent_hog_size::d2_mac_full:
 		{
 			mission_candidate_search_path full_mission_filename = {{FULL_MISSION_FILENAME MISSION_EXTENSION_DESCENT_II}};
 			if (!read_mission_file(mission_list, full_mission_filename))
@@ -732,7 +731,7 @@ static void add_missions_to_list(mission_list_type &mission_list, mission_candid
 			{
 				if (mission_filter != mission_filter_mode::exclude_anarchy || mission_list.back().anarchy_only_flag == Mission::anarchy_only_level::allow_any_game)
 				{
-					mission_list.back().builtin_hogsize = 0;
+					mission_list.back().builtin_hogsize = descent_hog_size::None;
 				}
 				else
 					mission_list.pop_back();
@@ -771,7 +770,7 @@ static void promote (mission_list_type &mission_list, const char *const name, st
 Mission::~Mission()
 {
     // May become more complex with the editor
-	if (!path.empty() && builtin_hogsize == 0)
+	if (!path.empty() && builtin_hogsize == descent_hog_size::None)
 		{
 			char hogpath[PATH_MAX];
 			snprintf(hogpath, sizeof(hogpath), "%s.hog", path.c_str());
@@ -960,13 +959,13 @@ static const char *load_mission(const mle *const mission)
 #if defined(DXX_BUILD_DESCENT_II)
 	if (PLAYING_BUILTIN_MISSION) {
 		switch (Current_mission->builtin_hogsize) {
-		case SHAREWARE_MISSION_HOGSIZE:
-		case MAC_SHARE_MISSION_HOGSIZE:
+			case descent_hog_size::d2_shareware:
+			case descent_hog_size::d2_mac_shareware:
 			Current_mission->briefing_text_filename = "brief2.txb";
 			Current_mission->ending_text_filename = BIMD2_ENDING_FILE_SHARE;
 			load_mission_shareware();
 			return nullptr;
-		case OEM_MISSION_HOGSIZE:
+			case descent_hog_size::d2_oem_v11:
 			Current_mission->briefing_text_filename = "brief2o.txb";
 			Current_mission->ending_text_filename = BIMD2_ENDING_FILE_OEM;
 			load_mission_oem();
@@ -974,9 +973,9 @@ static const char *load_mission(const mle *const mission)
 		default:
 			Int3();
 			[[fallthrough]];
-		case FULL_MISSION_HOGSIZE:
-		case FULL_10_MISSION_HOGSIZE:
-		case MAC_FULL_MISSION_HOGSIZE:
+		case descent_hog_size::d2_full:
+		case descent_hog_size::d2_full_v10:
+		case descent_hog_size::d2_mac_full:
 			Current_mission->briefing_text_filename = "robot.txb";
 			// continue on... (use d2.mn2 from hogfile)
 			break;
@@ -1554,7 +1553,7 @@ void create_new_mission(void)
 {
 	Current_mission = std::make_unique<Mission>(Mission_path(MISSION_DIR "new_miss", sizeof(MISSION_DIR) - 1));		// limited to eight characters because of savegame format
 	Current_mission->mission_name.copy_if("Untitled");
-	Current_mission->builtin_hogsize = 0;
+	Current_mission->builtin_hogsize = descent_hog_size::None;
 	Current_mission->anarchy_only_flag = Mission::anarchy_only_level::allow_any_game;
 	
 	Current_mission->level_names = std::make_unique<d_fname[]>(1);
