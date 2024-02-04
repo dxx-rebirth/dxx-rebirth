@@ -430,7 +430,7 @@ typedef char file_extension_t[5];
 __attribute_nonnull()
 int PHYSFSX_checkMatchingExtension(const char *filename, const ranges::subrange<const file_extension_t *> range);
 
-enum class physfs_search_path : int
+enum class physfs_search_path : bool
 {
 	prepend,
 	append,

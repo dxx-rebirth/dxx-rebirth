@@ -33,19 +33,19 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dsx {
 
-enum class play_movie_warn_missing : uint8_t
+enum class play_movie_warn_missing : bool
 {
 	verbose,
 	urgent,
 };
 
-enum class movie_play_status : uint8_t
+enum class movie_play_status : bool
 {
 	skipped,   // movie wasn't present
 	started,	// movie was present and started; it may or may not have completed
 };
 
-enum class movie_resolution : uint8_t
+enum class movie_resolution : bool
 {
 	high,
 	low,

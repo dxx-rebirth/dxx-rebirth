@@ -70,7 +70,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef dsx
 namespace dcx {
 
-enum class weapon_sound_flag : uint8_t
+enum class weapon_sound_flag : bool
 {
 	silent,
 	audible,

@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-enum class kmatrix_result : uint8_t
+enum class kmatrix_result : bool
 {
 	abort,
 	proceed,

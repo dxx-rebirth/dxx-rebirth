@@ -103,7 +103,7 @@ enum {
 	optgrp_autoselect_firing,
 };
 
-enum class main_menu_item_index
+enum class main_menu_item_index : uint8_t
 {
 	start_new_singleplayer_game = 0,
 	load_existing_singleplayer_game,
@@ -132,7 +132,7 @@ struct main_menu_items
 };
 
 #if DXX_USE_UDP
-enum class netgame_menu_item_index
+enum class netgame_menu_item_index : uint8_t
 {
 	start_new_multiplayer_game,
 	list_multiplayer_games,
@@ -239,7 +239,7 @@ std::optional<std::chrono::seconds> parse_human_readable_time(const char *const 
 }
 
 #if DXX_USE_SDLMIXER
-enum class select_dir_flag : uint8_t
+enum class select_dir_flag : bool
 {
 	files_only,
 	directories_or_files,

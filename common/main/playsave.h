@@ -107,7 +107,7 @@ enum class HudType : uint8_t
 	Hidden,
 };
 
-enum class RespawnPress : uint8_t
+enum class RespawnPress : bool
 {
 	Any,
 	Fire,

@@ -106,7 +106,7 @@ static int get_message_num(const char *&message)
 	return num;
 }
 
-enum class title_load_location : uint8_t
+enum class title_load_location : bool
 {
 	anywhere,
 	from_hog_only,
@@ -495,7 +495,7 @@ public:
 
 struct briefing : window
 {
-	enum class animating_bitmap_type : uint8_t
+	enum class animating_bitmap_type : bool
 	{
 		loop,
 		reset,

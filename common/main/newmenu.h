@@ -260,19 +260,19 @@ public:
 		}
 };
 
-enum class tab_processing_flag : uint8_t
+enum class tab_processing_flag : bool
 {
 	ignore,
 	process,
 };
 
-enum class tiny_mode_flag : uint8_t
+enum class tiny_mode_flag : bool
 {
 	normal,
 	tiny,
 };
 
-enum class draw_box_flag : uint8_t
+enum class draw_box_flag : bool
 {
 	none,
 	menu_background,

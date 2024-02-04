@@ -688,7 +688,7 @@ static inline player_marker_index &operator++(player_marker_index &i)
 
 struct d_unique_buddy_state
 {
-	enum class Escort_goal_reachability : uint8_t
+	enum class Escort_goal_reachability : bool
 	{
 		unreachable,
 		reachable,

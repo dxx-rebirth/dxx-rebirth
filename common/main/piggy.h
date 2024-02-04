@@ -75,7 +75,7 @@ enum class properties_init_result : int8_t
 	shareware,
 };
 #elif defined(DXX_BUILD_DESCENT_II)
-enum class properties_init_result : int8_t
+enum class properties_init_result : bool
 {
 	failure,
 	success,

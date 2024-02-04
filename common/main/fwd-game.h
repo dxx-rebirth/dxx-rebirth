@@ -155,7 +155,7 @@ void calc_frame_time(void);
 #ifdef dsx
 namespace dsx {
 
-enum class next_level_request_secret_flag : uint8_t;
+enum class next_level_request_secret_flag : bool;
 
 struct game_window;
 extern game_window *Game_wind;

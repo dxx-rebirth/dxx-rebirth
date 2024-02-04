@@ -12,7 +12,7 @@
 
 namespace d2x {
 
-enum class MVE_StepStatus
+enum class MVE_StepStatus : bool
 {
 	Continue = 0,
 	EndOfFile = 1,

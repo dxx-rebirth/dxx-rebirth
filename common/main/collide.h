@@ -38,7 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef dsx
 namespace dcx {
 
-enum class apply_damage_player : uint8_t
+enum class apply_damage_player : bool
 {
 	always,
 	check_for_friendly,

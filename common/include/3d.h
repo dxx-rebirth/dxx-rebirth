@@ -359,7 +359,7 @@ public:
 //specifies 2d drawing routines to use instead of defaults.  Passing
 //NULL for either or both restores defaults
 #if DXX_USE_OGL
-enum class tmap_drawer_constant : uint_fast8_t
+enum class tmap_drawer_constant : bool
 {
 	polygon,
 	flat,

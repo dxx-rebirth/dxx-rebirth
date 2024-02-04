@@ -202,7 +202,7 @@ struct UDP_frame_info : prohibit_void_ptr<UDP_frame_info>
 	quaternionpos			qpp;
 };
 
-enum class join_netgame_status_code : unsigned
+enum class join_netgame_status_code : uint8_t
 {
 	game_in_disallowed_state,
 	game_has_capacity,

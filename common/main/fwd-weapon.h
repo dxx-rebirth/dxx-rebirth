@@ -49,7 +49,7 @@ void weapon_info_write(PHYSFS_File *, const weapon_info &);
 namespace dcx {
 enum class laser_level : uint8_t;
 enum class has_primary_weapon_result : uint8_t;
-enum class has_secondary_weapon_result : uint8_t;
+enum class has_secondary_weapon_result : bool;
 }
 
 namespace dsx {

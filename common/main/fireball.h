@@ -77,7 +77,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj);
 
 namespace dcx {
 void init_exploding_walls();
-enum class explosion_vclip_stage : int
+enum class explosion_vclip_stage : bool
 {
 	s0,
 	s1,

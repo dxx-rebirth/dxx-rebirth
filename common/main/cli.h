@@ -23,7 +23,7 @@
 
 #include <cstdint>
 
-enum class CLI_insert_type : uint8_t
+enum class CLI_insert_type : bool
 {
 	insert,
 	overwrite,

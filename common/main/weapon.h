@@ -61,10 +61,10 @@ enum class has_primary_weapon_result : uint8_t
 	ammo = 4,
 };
 
-enum class has_secondary_weapon_result : uint8_t
+enum class has_secondary_weapon_result : bool
 {
-	absent = 0,
-	present = 1,
+	absent,
+	present,
 };
 
 static constexpr has_primary_weapon_result operator&(const has_primary_weapon_result r, const has_primary_weapon_result m)
@@ -133,7 +133,7 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 		None = 0xff,
 	};
 	// Flag: set if this object is matter (as opposed to energy)
-	enum class matter_flag : uint8_t
+	enum class matter_flag : bool
 	{
 		energy,
 		matter,
@@ -145,7 +145,7 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 		always,
 		twice,
 	};
-	enum class persistence_flag : uint8_t
+	enum class persistence_flag : bool
 	{
 		terminate_on_impact,
 		persistent,

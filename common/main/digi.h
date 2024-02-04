@@ -52,7 +52,7 @@ enum class sound_channel : uint8_t
 struct sound_object;
 extern int digi_volume;
 
-enum class sound_stack : uint8_t
+enum class sound_stack : bool
 {
 	allow_stacking,
 	cancel_previous,

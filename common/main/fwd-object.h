@@ -119,7 +119,7 @@ struct polyobj_info_rw;
 
 struct obj_position;
 
-enum class collision_result : uint8_t
+enum class collision_result : bool
 {
 	ignore = 0,	// Ignore this collision
 	check = 1,	// Check for this collision

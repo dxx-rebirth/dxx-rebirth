@@ -60,7 +60,7 @@ extern int Player_highest_level;
 // starts a new game on the given level
 namespace dsx {
 
-enum class next_level_request_secret_flag : uint8_t
+enum class next_level_request_secret_flag : bool
 {
 	only_normal_level,
 #if defined(DXX_BUILD_DESCENT_I)

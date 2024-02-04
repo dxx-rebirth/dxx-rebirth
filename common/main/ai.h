@@ -293,19 +293,19 @@ static inline std::size_t operator-(point_seg_array_t::iterator i, point_seg_arr
 	return std::distance(p.begin(), i);
 }
 
-enum class create_path_random_flag : uint8_t
+enum class create_path_random_flag : bool
 {
 	nonrandom,
 	random,
 };
 
-enum class create_path_safety_flag : uint8_t
+enum class create_path_safety_flag : bool
 {
 	unsafe,
 	safe,
 };
 
-enum class create_path_result : uint8_t
+enum class create_path_result : bool
 {
 	early,
 	finished,
