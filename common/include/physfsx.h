@@ -143,13 +143,6 @@ enum class physfsx_endian : bool
 	foreign,
 };
 
-static inline PHYSFS_sint32 PHYSFSX_readSXE32(PHYSFS_File *file, const physfsx_endian swap)
-{
-	PHYSFS_sint32 val{};
-	PHYSFS_readBytes(file, &val, sizeof(val));
-	return swap != physfsx_endian::native ? SWAPINT(val) : val;
-}
-
 static inline int PHYSFSX_writeU8(PHYSFS_File *file, PHYSFS_uint8 val)
 {
 	return PHYSFS_write(file, &val, 1, 1);
@@ -400,9 +393,17 @@ static constexpr PHYSFSX_read_helper<fixang, PHYSFS_readSLE16> PHYSFSX_readFixAn
 
 static constexpr PHYSFSX_read_swap_helper<PHYSFS_sint16, SWAPSHORT> PHYSFSX_readSXE16{};
 static constexpr PHYSFSX_read_swap_helper<PHYSFS_uint16, SWAPSHORT> PHYSFSX_readUXE16{};
+static constexpr PHYSFSX_read_swap_helper<PHYSFS_sint32, SWAPINT> PHYSFSX_readSXE32{};
 
 static constexpr PHYSFSX_read_sequence_helper<fix, PHYSFS_readSLE32, vms_vector, &vms_vector::x, &vms_vector::y, &vms_vector::z> PHYSFSX_readVector{};
 static constexpr PHYSFSX_read_sequence_helper<fixang, PHYSFS_readSLE16, vms_angvec, &vms_angvec::p, &vms_angvec::b, &vms_angvec::h> PHYSFSX_readAngleVec{};
+
+template <std::size_t N>
+static auto PHYSFSX_skipBytes(PHYSFS_File *const fp)
+{
+	std::array<uint8_t, N> skip;
+	return PHYSFS_readBytes(fp, std::data(skip), std::size(skip));
+}
 
 class PHYSFS_File_deleter
 {

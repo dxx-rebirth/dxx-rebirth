@@ -1843,9 +1843,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	int version, coop_player_got[MAX_PLAYERS], coop_org_objnum = get_local_player().objnum;
-	int current_level;
 	char id[5];
-	fix tmptime32 = 0;
 	std::array<per_side_array<texture1_value>, MAX_SEGMENTS> TempTmapNum;
 	std::array<per_side_array<texture2_value>, MAX_SEGMENTS> TempTmapNum2;
 
@@ -1907,7 +1905,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	PHYSFS_seek(fp, PHYSFS_tell(fp) + 768);
 #endif
 // Read the Between levels flag...
-	PHYSFSX_readSXE32(fp, swap);
+	PHYSFSX_skipBytes<4>(fp);
 
 // Read the mission info...
 	savegame_mission_path mission_pathname{};
@@ -1967,12 +1965,11 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	}
 
 //Read level info
-	current_level = PHYSFSX_readSXE32(fp, swap);
-	PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32)); // skip Next_level_num
+	const auto current_level{PHYSFSX_readSXE32(fp, swap)};
+	PHYSFSX_skipBytes<4>(fp);	// skip Next_level_num
 
 //Restore GameTime
-	tmptime32 = PHYSFSX_readSXE32(fp, swap);
-	GameTime64 = static_cast<fix64>(tmptime32);
+	GameTime64 = fix64{fix{PHYSFSX_readSXE32(fp, swap)}};
 
 // Start new game....
 	callsign_t org_callsign;
@@ -2105,7 +2102,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 
 	//Read objects, and pop 'em into their respective segments.
 	{
-		const int i = PHYSFSX_readSXE32(fp, swap);
+		const auto i{PHYSFSX_readSXE32(fp, swap)};
 	Objects.set_count(i);
 	}
 	range_for (const auto &&objp, vmobjptr)
@@ -2239,10 +2236,10 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	//Restore the fuelcen info
 	LevelUniqueControlCenterState.Control_center_destroyed = PHYSFSX_readSXE32(fp, swap);
 #if defined(DXX_BUILD_DESCENT_I)
-	LevelUniqueControlCenterState.Countdown_seconds_left = PHYSFSX_readSXE32(fp, swap);
+	LevelUniqueControlCenterState.Countdown_seconds_left = {PHYSFSX_readSXE32(fp, swap)};
 	LevelUniqueControlCenterState.Countdown_timer = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
-	LevelUniqueControlCenterState.Countdown_timer = PHYSFSX_readSXE32(fp, swap);
+	LevelUniqueControlCenterState.Countdown_timer = {PHYSFSX_readSXE32(fp, swap)};
 #endif
 	const unsigned Num_robot_centers = PHYSFSX_readSXE32(fp, swap);
 	LevelSharedRobotcenterState.Num_robot_centers = Num_robot_centers;
@@ -2267,11 +2264,8 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 
 	// Restore the control cen info
 	LevelUniqueControlCenterState.Control_center_been_hit = PHYSFSX_readSXE32(fp, swap);
-	{
-		const int cc = PHYSFSX_readSXE32(fp, swap);
-		LevelUniqueControlCenterState.Control_center_player_been_seen = static_cast<player_visibility_state>(cc);
-	}
-	LevelUniqueControlCenterState.Frametime_until_next_fire = PHYSFSX_readSXE32(fp, swap);
+	LevelUniqueControlCenterState.Control_center_player_been_seen = static_cast<player_visibility_state>(PHYSFSX_readSXE32(fp, swap));
+	LevelUniqueControlCenterState.Frametime_until_next_fire = {PHYSFSX_readSXE32(fp, swap)};
 	LevelUniqueControlCenterState.Control_center_present = PHYSFSX_readSXE32(fp, swap);
 	LevelUniqueControlCenterState.Dead_controlcen_object_num = PHYSFSX_readSXE32(fp, swap);
 	if (LevelUniqueControlCenterState.Control_center_destroyed)
@@ -2315,11 +2309,12 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	if ( version >= 7 )	{
 		state_game_id = PHYSFSX_readSXE32(fp, swap);
 		cheats.rapidfire = PHYSFSX_readSXE32(fp, swap);
-		PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32)); // PHYSFSX_readSXE32(fp, swap); // was Lunacy
-		PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32)); // PHYSFSX_readSXE32(fp, swap); // was Lunacy, too... and one was Ugly robot stuff a long time ago...
+		// PHYSFSX_readSXE32(fp, swap); // was Lunacy
+		// PHYSFSX_readSXE32(fp, swap); // was Lunacy, too... and one was Ugly robot stuff a long time ago...
+		PHYSFSX_skipBytes<8>(fp);
 #if defined(DXX_BUILD_DESCENT_I)
 		cheats.ghostphysics = PHYSFSX_readSXE32(fp, swap);
-		PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32)); // PHYSFSX_readSXE32(fp, swap);
+		PHYSFSX_skipBytes<4>(fp);
 #endif
 	}
 
@@ -2336,12 +2331,9 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		}
 	}
 	else {
-		int num;
-
 		// skip dummy info
-
-		num = PHYSFSX_readSXE32(fp, swap);           // was NumOfMarkers
-		PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32)); // PHYSFSX_readSXE32(fp, swap); // was CurMarker
+		const auto num{PHYSFSX_readSXE32(fp, swap)};           // was NumOfMarkers
+		PHYSFSX_skipBytes<4>(fp);	// was CurMarker
 
 		PHYSFS_seek(fp, PHYSFS_tell(fp) + num * (sizeof(vms_vector) + 40));
 
@@ -2351,9 +2343,9 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 
 	if (version>=11) {
 		if (secret != secret_restore::survived)
-			Afterburner_charge = PHYSFSX_readSXE32(fp, swap);
+			Afterburner_charge = {PHYSFSX_readSXE32(fp, swap)};
 		else {
-			PHYSFSX_readSXE32(fp, swap);
+			PHYSFSX_skipBytes<4>(fp);
 		}
 	}
 	if (version>=12) {
@@ -2385,12 +2377,11 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	}
 
 	if (version >= 12) {
-		Flash_effect = PHYSFSX_readSXE32(fp, swap);
-		tmptime32 = PHYSFSX_readSXE32(fp, swap);
-		Time_flash_last_played = static_cast<fix64>(tmptime32);
-		PaletteRedAdd = PHYSFSX_readSXE32(fp, swap);
-		PaletteGreenAdd = PHYSFSX_readSXE32(fp, swap);
-		PaletteBlueAdd = PHYSFSX_readSXE32(fp, swap);
+		Flash_effect = {PHYSFSX_readSXE32(fp, swap)};
+		Time_flash_last_played = fix64{fix{PHYSFSX_readSXE32(fp, swap)}};
+		PaletteRedAdd = {PHYSFSX_readSXE32(fp, swap)};
+		PaletteGreenAdd = {PHYSFSX_readSXE32(fp, swap)};
+		PaletteBlueAdd = {PHYSFSX_readSXE32(fp, swap)};
 	} else {
 		Flash_effect = 0;
 		Time_flash_last_played = 0;
@@ -2440,7 +2431,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	}
 	if (version >= 22)
 	{
-		auto i = PHYSFSX_readSXE32(fp, swap);
+		const auto i{PHYSFSX_readSXE32(fp, swap)};
 		if (secret != secret_restore::survived)
 		{
 			player_info.Omega_charge = i;
@@ -2532,13 +2523,13 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 			PHYSFS_read(fp, a.data(), a.size(), 1);
 			Netgame.mission_name.copy_if(a);
 		}
-		Netgame.levelnum = PHYSFSX_readSXE32(fp, swap);
+		Netgame.levelnum = {PHYSFSX_readSXE32(fp, swap)};
 		PHYSFS_read(fp, &Netgame.difficulty, sizeof(ubyte), 1);
 		PHYSFS_read(fp, &Netgame.game_status, sizeof(ubyte), 1);
 		PHYSFS_read(fp, &Netgame.numplayers, sizeof(ubyte), 1);
 		PHYSFS_read(fp, &Netgame.max_numplayers, sizeof(ubyte), 1);
 		PHYSFS_read(fp, &Netgame.numconnected, sizeof(ubyte), 1);
-		Netgame.level_time = PHYSFSX_readSXE32(fp, swap);
+		Netgame.level_time = {PHYSFSX_readSXE32(fp, swap)};
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++)
 		{
 			const auto &&objp = vmobjptr(vcplayerptr(i)->objnum);

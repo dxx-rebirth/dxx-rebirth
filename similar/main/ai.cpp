@@ -4864,10 +4864,9 @@ static void ai_local_read_swap(ai_local *ail, const physfsx_endian swap, const N
 			const segnum_t s{PHYSFSX_readUXE16(fp, swap)};
 			ail->goal_segment = imsegidx_t::check_nothrow_index(s) ? s : segment_none;
 		}
-		PHYSFSX_readSXE32(fp, swap);
-		PHYSFSX_readSXE32(fp, swap);
-		ail->next_action_time = PHYSFSX_readSXE32(fp, swap);
-		ail->next_fire = PHYSFSX_readSXE32(fp, swap);
+		PHYSFSX_skipBytes<8>(fp);
+		ail->next_action_time = {PHYSFSX_readSXE32(fp, swap)};
+		ail->next_fire = {PHYSFSX_readSXE32(fp, swap)};
 #elif defined(DXX_BUILD_DESCENT_II)
 		ail->player_awareness_type = static_cast<player_awareness_type_t>(PHYSFSX_readSXE32(fp, swap));
 		ail->retry_count = PHYSFSX_readSXE32(fp, swap);
@@ -4876,21 +4875,21 @@ static void ai_local_read_swap(ai_local *ail, const physfsx_endian swap, const N
 		ail->previous_visibility = static_cast<player_visibility_state>(PHYSFSX_readSXE32(fp, swap));
 		ail->rapidfire_count = PHYSFSX_readSXE32(fp, swap);
 		{
-			const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readSXE32(fp, swap))};
+			const segnum_t s{static_cast<uint16_t>(PHYSFSX_readSXE32(fp, swap))};
 			ail->goal_segment = imsegidx_t::check_nothrow_index(s) ? s : segment_none;
 		}
-		ail->next_action_time = PHYSFSX_readSXE32(fp, swap);
-		ail->next_fire = PHYSFSX_readSXE32(fp, swap);
-		ail->next_fire2 = PHYSFSX_readSXE32(fp, swap);
+		ail->next_action_time = {PHYSFSX_readSXE32(fp, swap)};
+		ail->next_fire = {PHYSFSX_readSXE32(fp, swap)};
+		ail->next_fire2 = {PHYSFSX_readSXE32(fp, swap)};
 #endif
-		ail->player_awareness_time = PHYSFSX_readSXE32(fp, swap);
-		tmptime32 = PHYSFSX_readSXE32(fp, swap);
+		ail->player_awareness_time = {PHYSFSX_readSXE32(fp, swap)};
+		tmptime32 = {PHYSFSX_readSXE32(fp, swap)};
 		ail->time_player_seen = static_cast<fix64>(tmptime32);
-		tmptime32 = PHYSFSX_readSXE32(fp, swap);
+		tmptime32 = {PHYSFSX_readSXE32(fp, swap)};
 		ail->time_player_sound_attacked = static_cast<fix64>(tmptime32);
-		tmptime32 = PHYSFSX_readSXE32(fp, swap);
+		tmptime32 = {PHYSFSX_readSXE32(fp, swap)};
 		ail->next_misc_sound_time = static_cast<fix64>(tmptime32);
-		ail->time_since_processed = PHYSFSX_readSXE32(fp, swap);
+		ail->time_since_processed = {PHYSFSX_readSXE32(fp, swap)};
 		
 		range_for (auto &j, ail->goal_angles)
 			PHYSFSX_readAngleVecX(fp, j, swap);
@@ -4911,9 +4910,9 @@ namespace dcx {
 
 static void PHYSFSX_readVectorX(PHYSFS_File *file, vms_vector &v, const physfsx_endian swap)
 {
-	v.x = PHYSFSX_readSXE32(file, swap);
-	v.y = PHYSFSX_readSXE32(file, swap);
-	v.z = PHYSFSX_readSXE32(file, swap);
+	v.x = {PHYSFSX_readSXE32(file, swap)};
+	v.y = {PHYSFSX_readSXE32(file, swap)};
+	v.z = {PHYSFSX_readSXE32(file, swap)};
 }
 
 }
@@ -4924,15 +4923,13 @@ namespace {
 static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, const physfsx_endian swap, PHYSFS_File *fp)
 {
 	int i;
-	fix tmptime32 = 0;
-	
 	for (i = 0; i < n; i++, ci++)
 	{
-		tmptime32 = PHYSFSX_readSXE32(fp, swap);
-		ci->last_time = static_cast<fix64>(tmptime32);
+		const fix tmptime32{PHYSFSX_readSXE32(fp, swap)};
+		ci->last_time = fix64{tmptime32};
 #if defined(DXX_BUILD_DESCENT_II)
 		{
-			const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readSXE32(fp, swap))};
+			const segnum_t s{static_cast<uint16_t>(PHYSFSX_readSXE32(fp, swap))};
 			ci->last_segment = imsegidx_t::check_nothrow_index(s) ? s : segment_none;
 		}
 #endif
@@ -4952,10 +4949,9 @@ int ai_restore_state(const d_robot_info_array &Robot_info, const NamedPHYSFS_Fil
 #endif
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	fix tmptime32 = 0;
 
-	PHYSFSX_readSXE32(fp, swap);
-	Overall_agitation = PHYSFSX_readSXE32(fp, swap);
+	PHYSFSX_skipBytes<4>(fp);
+	Overall_agitation = {PHYSFSX_readSXE32(fp, swap)};
 	range_for (object &obj, Objects)
 	{
 		ai_local discard;
@@ -4963,11 +4959,9 @@ int ai_restore_state(const d_robot_info_array &Robot_info, const NamedPHYSFS_Fil
 	}
 	PHYSFSX_serialize_read(fp, Point_segs);
 	ai_cloak_info_read_n_swap(Ai_cloak_info.data(), Ai_cloak_info.size(), swap, fp);
-	tmptime32 = PHYSFSX_readSXE32(fp, swap);
-	BossUniqueState.Boss_cloak_start_time = static_cast<fix64>(tmptime32);
-	tmptime32 = PHYSFSX_readSXE32(fp, swap);
-	tmptime32 = PHYSFSX_readSXE32(fp, swap);
-	BossUniqueState.Last_teleport_time = static_cast<fix64>(tmptime32);
+	BossUniqueState.Boss_cloak_start_time = fix64{fix{PHYSFSX_readSXE32(fp, swap)}};
+	PHYSFSX_skipBytes<4>(fp);
+	BossUniqueState.Last_teleport_time = fix64{fix{PHYSFSX_readSXE32(fp, swap)}};
 
 	// If boss teleported, set the looping 'see' sound -kreatordxx
 	// Also make sure any bosses that were generated/released during the game have teleport segs
@@ -4989,38 +4983,31 @@ int ai_restore_state(const d_robot_info_array &Robot_info, const NamedPHYSFS_Fil
 			}
 		}
 	
-#if defined(DXX_BUILD_DESCENT_II)
-	LevelSharedBossState.Boss_teleport_interval =
+#if defined(DXX_BUILD_DESCENT_I)
+	PHYSFSX_skipBytes<12>(fp);
+#elif defined(DXX_BUILD_DESCENT_II)
+	LevelSharedBossState.Boss_teleport_interval = {PHYSFSX_readSXE32(fp, swap)};
+	LevelSharedBossState.Boss_cloak_interval = {PHYSFSX_readSXE32(fp, swap)};
+	PHYSFSX_skipBytes<4>(fp);
 #endif
-		PHYSFSX_readSXE32(fp, swap);
-#if defined(DXX_BUILD_DESCENT_II)
-	LevelSharedBossState.Boss_cloak_interval =
-#endif
-		PHYSFSX_readSXE32(fp, swap);
-	PHYSFSX_readSXE32(fp, swap);
-	tmptime32 = PHYSFSX_readSXE32(fp, swap);
-	BossUniqueState.Last_gate_time = static_cast<fix64>(tmptime32);
-	GameUniqueState.Boss_gate_interval = PHYSFSX_readSXE32(fp, swap);
-	tmptime32 = PHYSFSX_readSXE32(fp, swap);
-	BossUniqueState.Boss_dying_start_time = static_cast<fix64>(tmptime32);
+	BossUniqueState.Last_gate_time = fix64{fix{PHYSFSX_readSXE32(fp, swap)}};
+	GameUniqueState.Boss_gate_interval = {PHYSFSX_readSXE32(fp, swap)};
+	BossUniqueState.Boss_dying_start_time = fix64{fix{PHYSFSX_readSXE32(fp, swap)}};
 	BossUniqueState.Boss_dying = PHYSFSX_readSXE32(fp, swap);
 	BossUniqueState.Boss_dying_sound_playing = PHYSFSX_readSXE32(fp, swap);
 #if defined(DXX_BUILD_DESCENT_I)
 	(void)version;
 	BossUniqueState.Boss_hit_this_frame = PHYSFSX_readSXE32(fp, swap);
-	PHYSFSX_readSXE32(fp, swap);
+	PHYSFSX_skipBytes<4>(fp);
 #elif defined(DXX_BUILD_DESCENT_II)
-	tmptime32 = PHYSFSX_readSXE32(fp, swap);
-	BossUniqueState.Boss_hit_time = static_cast<fix64>(tmptime32);
+	BossUniqueState.Boss_hit_time = fix64{fix{PHYSFSX_readSXE32(fp, swap)}};
 
 	if (version >= 8) {
-		PHYSFSX_readSXE32(fp, swap);
-		tmptime32 = PHYSFSX_readSXE32(fp, swap);
-		BuddyState.Escort_last_path_created = static_cast<fix64>(tmptime32);
+		PHYSFSX_skipBytes<4>(fp);
+		BuddyState.Escort_last_path_created = fix64{fix{PHYSFSX_readSXE32(fp, swap)}};
 		BuddyState.Escort_goal_object = static_cast<escort_goal_t>(PHYSFSX_readSXE32(fp, swap));
 		BuddyState.Escort_special_goal = static_cast<escort_goal_t>(PHYSFSX_readSXE32(fp, swap));
-		const int egi = PHYSFSX_readSXE32(fp, swap);
-		if (static_cast<unsigned>(egi) < Objects.size())
+		if (const int egi{PHYSFSX_readSXE32(fp, swap)}; static_cast<unsigned>(egi) < Objects.size())
 		{
 			BuddyState.Escort_goal_objidx = egi;
 			BuddyState.Escort_goal_reachable = d_unique_buddy_state::Escort_goal_reachability::reachable;
