@@ -42,8 +42,8 @@ DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::, object, objnum_t, MAX_OBJECTS);
 namespace dsx {
 DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(object, obj);
 
-static constexpr valptridx<object>::magic_constant<0xffff> object_none{};
-static constexpr valptridx<object>::magic_constant<0> object_first{};
+static constexpr valptridx<object>::magic_constant<objnum_t{0xffff}> object_none{};
+static constexpr valptridx<object>::magic_constant<objnum_t{0}> object_first{};
 
 #if defined(DXX_BUILD_DESCENT_I)
 constexpr std::integral_constant<unsigned, 15> MAX_OBJECT_TYPES{};

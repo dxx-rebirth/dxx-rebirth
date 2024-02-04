@@ -389,10 +389,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 	}
 	obj->flags          = PHYSFSX_readByte(f);
 
-	{
-		const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(f))};
-		obj->segnum = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
-	}
+	obj->segnum = read_untrusted_segnum_le16(f);
 	obj->attached_obj   = object_none;
 
 	PHYSFSX_readVector(f, obj->pos);
@@ -468,10 +465,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 			obj->ctype.ai_info.SKIP_AI_COUNT = ai_info_flags[7];
 			obj->ctype.ai_info.REMOTE_OWNER = ai_info_flags[8];
 			obj->ctype.ai_info.REMOTE_SLOT_NUM = ai_info_flags[9];
-			{
-				const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(f))};
-				obj->ctype.ai_info.hide_segment = imsegidx_t::check_nothrow_index(s) ? s : segment_none;
-			}
+			obj->ctype.ai_info.hide_segment = read_untrusted_segnum_le16(f);
 			obj->ctype.ai_info.hide_index			= PHYSFSX_readShort(f);
 			obj->ctype.ai_info.path_length			= PHYSFSX_readShort(f);
 			obj->ctype.ai_info.cur_path_index		= PHYSFSX_readShort(f);
@@ -1404,10 +1398,7 @@ int load_level(
 		Secret_return_orient.uvec.y = 0;
 		Secret_return_orient.uvec.z = F1_0;
 	} else {
-		{
-			const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readInt(LoadFile))};
-			LevelSharedSegmentState.Secret_return_segment = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
-		}
+		LevelSharedSegmentState.Secret_return_segment = read_untrusted_segnum_le32(LoadFile);
 		Secret_return_orient.rvec.x = PHYSFSX_readInt(LoadFile);
 		Secret_return_orient.rvec.y = PHYSFSX_readInt(LoadFile);
 		Secret_return_orient.rvec.z = PHYSFSX_readInt(LoadFile);

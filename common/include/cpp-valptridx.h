@@ -305,7 +305,7 @@ struct literal_type_to_policy<decltype("exception"_literal_as_type)> : std::inte
 };
 
 template <
-	typename INTEGRAL_TYPE,
+	typename INDEX_TYPE,
 	std::size_t array_size_value,
 	untyped_utilities::report_error_style report_const_error_value,
 	untyped_utilities::report_error_style report_mutable_error_value
@@ -313,7 +313,26 @@ template <
 class specialized_type_parameters : public untyped_utilities
 {
 public:
-	using integral_type = INTEGRAL_TYPE;
+	using index_type = INDEX_TYPE;
+	/* integral_type must be a primitive integer type capable of holding all
+	 * legal values used with managed_type.  Legal values are valid indexes in
+	 * array_managed_type and any magic out-of-range values.
+	 *
+	 * `std::underlying_type<index_type>` only defines an inner typedef `type`
+	 * if `std::is_enum_v<index_type>` is true, so using
+	 * `std::underlying_type<index_type>::type` as an argument to
+	 * `std::conditional_t` for a non-enum will err before the compiler
+	 * discards the enum path.  Solve this by giving `std::conditional_t` only
+	 * the outer type, then access `::type` from the result of
+	 * `std::conditional_t`.  For the false path, wrap `index_type` in
+	 * `std::type_identity`, so that the final `::type` is well-formed and
+	 * resolves to `index_type`.
+	 */
+	using integral_type = typename std::conditional_t<
+		std::is_enum_v<index_type>,
+		std::underlying_type<index_type>,
+		std::type_identity<index_type>
+			>::type;
 	static constexpr std::integral_constant<std::size_t, array_size_value> array_size{};
 	using report_error_uses_exception = std::integral_constant<bool,
 		report_const_error_value == untyped_utilities::report_error_style::exception ||
@@ -384,11 +403,11 @@ public:
 #define DXX_VALPTRIDX_REPORT_ERROR_STYLE_default	exception
 #endif
 
-#define DXX_VALPTRIDX_DECLARE_SUBTYPE(NS_TYPE,MANAGED_TYPE,INTEGRAL_TYPE,ARRAY_SIZE_VALUE)	\
+#define DXX_VALPTRIDX_DECLARE_SUBTYPE(NS_TYPE,MANAGED_TYPE,INDEX_TYPE,ARRAY_SIZE_VALUE)	\
 	template <>	\
 	struct valptridx_specialized_types<NS_TYPE MANAGED_TYPE> {	\
 		using type = valptridx_detail::specialized_type_parameters<	\
-			INTEGRAL_TYPE,	\
+			INDEX_TYPE,	\
 			ARRAY_SIZE_VALUE,	\
 			valptridx_detail::untyped_utilities::error_style_dispatch<DXX_VALPTRIDX_ERROR_STYLE_DISPATCH_PARAMETERS(const, MANAGED_TYPE)>::value,	\
 			valptridx_detail::untyped_utilities::error_style_dispatch<DXX_VALPTRIDX_ERROR_STYLE_DISPATCH_PARAMETERS(mutable, MANAGED_TYPE)>::value	\

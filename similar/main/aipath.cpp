@@ -1503,16 +1503,18 @@ void attempt_to_resume_path(const d_robot_info_array &Robot_info, const vmobjptr
 namespace {
 
 __attribute_used
-static void test_create_path_many(fvmobjptridx &vmobjptridx, fimsegptridx &imsegptridx)
+static void test_create_path_many(fvmobjptridx &vmobjptridx, const d_level_shared_segment_state &LevelSharedSegmentState, const unsigned long seed)
 {
-	std::array<point_seg, 200> point_segs;
-	int			i;
-
-	const unsigned Test_size = 1000;
-	for (i=0; i<Test_size; i++) {
-		Cursegp = imsegptridx(static_cast<segnum_t>((d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX));
-		Markedsegp = imsegptridx(static_cast<segnum_t>((d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX));
-		create_path_points(vmobjptridx(object_first), create_path_unused_robot_info, Cursegp, Markedsegp, point_segs.begin(), MAX_PATH_LENGTH, create_path_random_flag::nonrandom, create_path_safety_flag::unsafe, segment_none);
+	auto &SSegments = LevelSharedSegmentState.get_segments();
+	std::minstd_rand mrd{seed};
+	std::uniform_int_distribution<std::underlying_type_t<segnum_t>> uid{0u, SSegments.get_count()};
+	for (const auto i : constant_xrange<std::size_t, 0, 1000u>{})
+	{
+		(void)i;
+		const vcsegidx_t start_segment{segnum_t{uid(mrd)}};
+		const vcsegidx_t end_segment{segnum_t{uid(mrd)}};
+		std::array<point_seg, 200> point_segs;
+		create_path_points(vmobjptridx(object_first), create_path_unused_robot_info, start_segment, end_segment, point_segs.begin(), MAX_PATH_LENGTH, create_path_random_flag::nonrandom, create_path_safety_flag::unsafe, segment_none);
 	}
 }
 

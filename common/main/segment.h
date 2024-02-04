@@ -648,6 +648,13 @@ public:
 	}
 };
 
+#ifdef dsx
+imsegidx_t read_untrusted_segnum_le16(NamedPHYSFS_File fp);
+imsegidx_t read_untrusted_segnum_le32(NamedPHYSFS_File fp);
+imsegidx_t read_untrusted_segnum_xe16(NamedPHYSFS_File fp, physfsx_endian swap);
+imsegidx_t read_untrusted_segnum_xe32(NamedPHYSFS_File fp, physfsx_endian swap);
+#endif
+
 }
 
 #ifdef dsx

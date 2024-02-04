@@ -5979,10 +5979,10 @@ void net_udp_process_pdata(const std::span<const uint8_t> data, const _sockaddr 
 	pd.qpp.orient.z = GET_INTEL_SHORT(&data[len]);					len += 2;
 	pd.qpp.pos = multi_get_vector(data.subspan<3 + 8, 12>());
 	len += 12;
-	if (const auto s = segnum_t{GET_INTEL_SHORT(&data[len])}; vmsegidx_t::check_nothrow_index(s))
+	if (const auto s{vmsegidx_t::check_nothrow_index(GET_INTEL_SHORT(&data[len]))})
 	{
 		len += 2;
-		pd.qpp.segment = s;
+		pd.qpp.segment = *s;
 	}
 	else
 		return;

@@ -79,12 +79,9 @@ protected:
 	using const_pointer_type = const managed_type *;
 	using const_reference_type = const managed_type &;
 	using mutable_pointer_type = managed_type *;
-	/* integral_type must be a primitive integer type capable of holding
-	 * all legal values used with managed_type.  Legal values are valid
-	 * indexes in array_managed_type and any magic out-of-range values.
-	 */
 	using typename specialized_types::integral_type;
-	using index_type = integral_type;	// deprecated; should be dedicated UDT
+	using typename specialized_types::index_type;
+	static_assert(std::is_enum_v<index_type> || std::unsigned_integral<index_type>);
 	using array_base_storage_type = typename std::conditional_t<std::is_integral<index_type>::value, array_base_storage_integral, array_base_storage_enum<index_type>>::type;
 
 public:

@@ -6,6 +6,8 @@
  */
 #pragma once
 
+#include <limits>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -274,11 +276,41 @@ public:
 	static constexpr bool allow_nullptr{false};
 	[[nodiscard]]
 	static constexpr std::false_type check_allowed_invalid_index(index_type) { return {}; }
-	[[nodiscard]]
-	static constexpr bool check_nothrow_index(index_type i)
-	{
-		return std::less<std::size_t>()(static_cast<std::size_t>(i), array_size);
-	}
+	template <typename input_index_type>
+		[[nodiscard]]
+		static constexpr std::optional<index_type> check_nothrow_index(input_index_type entry_index)
+#if !defined(__clang_major__) || (__clang_major__ >= 16)
+			/* <clang-16 fails to handle the second clause correctly:
+```
+common/include/valptridx.h:281:46: note: candidate template ignored: substitution failure [with input_index_type = dcx::wallnum_t]: invalid operands to binary expression ('std::numeric_limits<dcx::wallnum_t>::type' (aka 'dcx::wallnum_t') and 'std::numeric_limits<unsigned short>::type' (aka 'unsigned short'))
+```
+			 * A `requires` expression should be short-circuited, so since
+			 * `std::unsigned_integral<input_index_type>` is not satisfied for
+			 * `input_index_type` of `dcx::wallnum_t`, the second expression
+			 * should never have been examined.
+			 *
+			 * gcc (all supported versions) and clang-16 get this right.  When
+			 * clang-15 is no longer supported, the preprocessor guard can be
+			 * removed.
+			 */
+			requires(
+				std::same_as<index_type, input_index_type> ||
+				/* Require that the input_index_type can represent all values
+				 * that the underlying `index_type` can represent.
+				 */
+				(std::unsigned_integral<input_index_type> && std::numeric_limits<input_index_type>::max() >= std::numeric_limits<integral_type>::max())
+			)
+#endif
+		{
+			return std::less<std::size_t>()(static_cast<std::size_t>(entry_index), array_size)
+				/* This static_cast may truncate the type to a smaller size
+				 * (such as `uint32_t` -> `uint16_t`), but will not change the
+				 * value, since `entry_index` is less than array_size, and
+				 * array_size must be representable in `index_type`.
+				 */
+				? std::optional<index_type>(static_cast<index_type>(entry_index))
+				: std::nullopt;
+		}
 };
 
 template <typename managed_type>
@@ -287,14 +319,17 @@ class valptridx<managed_type>::partial_policy::allow_invalid
 public:
 	static constexpr bool allow_nullptr{true};
 	[[nodiscard]]
-	static constexpr bool check_allowed_invalid_index(index_type i)
+	static constexpr auto check_allowed_invalid_index(const index_type i)
 	{
-		return i == static_cast<index_type>(~0);
+		return i == index_type{std::numeric_limits<integral_type>::max()};
 	}
+	template <typename input_index_type>
 	[[nodiscard]]
-	static constexpr bool check_nothrow_index(index_type i)
+	static constexpr std::optional<index_type> check_nothrow_index(const input_index_type entry_index)
 	{
-		return check_allowed_invalid_index(i) || require_valid::check_nothrow_index(i);
+		return check_allowed_invalid_index(entry_index)
+			? std::optional<index_type>(static_cast<index_type>(entry_index))
+			: require_valid::check_nothrow_index(entry_index);
 	}
 };
 
@@ -545,7 +580,8 @@ public:
 	}
 	template <typename rpolicy>
 		requires(
-			(allow_nullptr || !ptr<rpolicy>::allow_nullptr)
+			(std::convertible_to<typename ptr<rpolicy>::pointer_type, pointer_type>) &&
+			(policy::allow_nullptr || !ptr<rpolicy>::allow_nullptr)
 		)
 		ptr(const ptr<rpolicy> &rhs) :
 			m_ptr{rhs.get_unchecked_pointer()}
@@ -553,7 +589,8 @@ public:
 	}
 	template <typename rpolicy>
 		requires(
-			!(allow_nullptr || !ptr<rpolicy>::allow_nullptr)
+			(std::convertible_to<typename ptr<rpolicy>::pointer_type, pointer_type>) &&
+			!(policy::allow_nullptr || !ptr<rpolicy>::allow_nullptr)
 		)
 		ptr(const ptr<rpolicy> &rhs DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) :
 			m_ptr{rhs.get_unchecked_pointer()}
@@ -562,7 +599,8 @@ public:
 	}
 	template <typename rpolicy>
 		requires(
-			(allow_nullptr || !ptr<rpolicy>::allow_nullptr)	// cannot move from allow_invalid to require_valid
+			(std::convertible_to<typename ptr<rpolicy>::pointer_type, pointer_type>) &&
+			(policy::allow_nullptr || !ptr<rpolicy>::allow_nullptr)	// cannot move from allow_invalid to require_valid
 		)
 		ptr(ptr<rpolicy> &&rhs) :
 			m_ptr{rhs.get_unchecked_pointer()}
@@ -714,18 +752,18 @@ struct strong_typedef : T
 {
 	using T::T;
 	template <typename O>
-		requires(std::is_constructible<T, O &&>::value)
+		requires(std::constructible_from<T, O &&>)
 		/* This constructor is explicit if the requires expression is false.
-		 * - if std::is_constructible is not satisfied, this constructor is
+		 * - if std::constructible_from is not satisfied, this constructor is
 		 *   disabled by the above `requires` constraint
-		 * - if std::is_constructible is satisfied and `explicit(true) T(O &&)`
-		 *   exists, then this `requires` is an invalid expression (because the
-		 *   conversion from `O &&` to `T` is implicit, and thus cannot use the
-		 *   `explicit(true)` constructor), so this constructor is
-		 *   `explicit(not false)` -> `explicit(true)`, matching the `T`
+		 * - if std::constructible_from is satisfied and `explicit(true) T(O
+		 *   &&)` exists, then this `requires` is an invalid expression
+		 *   (because the conversion from `O &&` to `T` is implicit, and thus
+		 *   cannot use the `explicit(true)` constructor), so this constructor
+		 *   is `explicit(not false)` -> `explicit(true)`, matching the `T`
 		 *   constructor
-		 * - if std::is_constructible is satisfied and `explicit(false) T(O &&)`
-		 *   exists, then this `requires` is a valid expression, so this
+		 * - if std::constructible_from is satisfied and `explicit(false) T(O
+		 *   &&)` exists, then this `requires` is a valid expression, so this
 		 *   constructor is `explicit(not true)` -> `explicit(false)`
 		 */
 		explicit(
@@ -1068,14 +1106,17 @@ protected:
 			else
 				return nullptr;
 		}
-	template <typename P, typename T, typename A>
-		static guarded<P> check_untrusted_internal(T &&, A &) = delete;
-	template <typename P, typename A>
+	template <typename P, typename index_type, typename array_type>
+		static guarded<P> check_untrusted_internal(index_type &&, array_type &) = delete;
+	template <typename P, typename index_type, typename array_type>
+		requires(
+			std::constructible_from<typename P::index_type, index_type>
+		)
 		[[nodiscard]]
 		/* C++ does not allow `static operator()()` until C++23, so name it
 		 * `call_operator` instead.
 		 */
-		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const typename P::index_type i, A &a)
+		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const index_type i, array_type &a)
 		{
 			return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, a);
 		}
@@ -1094,8 +1135,6 @@ protected:
 			DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_VOID_VARS();
 			return P(m, a);
 		}
-	template <typename P, typename T, typename A>
-		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS T &&, A &a) = delete;
 	basic_ival_member_factory() = default;
 public:
 	basic_ival_member_factory(const basic_ival_member_factory &) = delete;
@@ -1154,7 +1193,7 @@ protected:
 	 * when trying to pass a const pointer to a mutable factory.
 	 */
 	template <typename P>
-		requires(std::is_same<const array_managed_type, typename P::array_managed_type>::value)
+		requires(std::same_as<const array_managed_type, typename P::array_managed_type>)
 		[[nodiscard]]
 		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const typename P::const_pointer_type p, const array_managed_type &a)
 		{

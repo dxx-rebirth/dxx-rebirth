@@ -1745,13 +1745,8 @@ void expl_wall_read_n_swap(fvmwallptr &vmwallptr, PHYSFS_File *const fp, const p
 			d.sidenum = SWAPINT(d.sidenum);
 			d.time = SWAPINT(d.time);
 		}
-		const auto s = segnum_t{static_cast<uint16_t>(d.segnum)};
-		if (!vmsegidx_t::check_nothrow_index(s))
-			continue;
-		const icsegidx_t dseg = s;
-		if (dseg == segment_none)
-			continue;
-		range_for (auto &&wp, vmwallptr)
+		if (const auto s{vcsegidx_t::check_nothrow_index(d.segnum)})
+			for (const vcsegidx_t dseg{*s}; auto &&wp : vmwallptr)
 		{
 			auto &w = *wp;
 			if (w.segnum != dseg)

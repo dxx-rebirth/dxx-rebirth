@@ -852,9 +852,9 @@ void multi_do_robot_position(const playernum_t pnum, const multiplayer_rspan<mul
 	qpp.orient.z = GET_INTEL_SHORT(&buf[loc]);					loc += 2;
 	qpp.pos = multi_get_vector(buf.subspan<5 + 8, 12>());
 	loc += 12;
-	if (const auto s = segnum_t{GET_INTEL_SHORT(&buf[loc])}; vmsegidx_t::check_nothrow_index(s))
+	if (const auto s{vmsegidx_t::check_nothrow_index(GET_INTEL_SHORT(&buf[loc]))})
 	{
-		qpp.segment = s;
+		qpp.segment = *s;
 		loc += 2;
 	}
 	else
@@ -1255,8 +1255,8 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const multiplayer_rs
 		return;
 	const uint8_t untrusted_contains_type = buf[loc];			loc += 1;
 	const uint8_t untrusted_contains_id = buf[loc];				loc += 1;
-	const auto segnum = segnum_t{GET_INTEL_SHORT(&buf[loc])};	loc += 2;
-	if (!vmsegidx_t::check_nothrow_index(segnum))
+	const auto segnum{vmsegidx_t::check_nothrow_index(GET_INTEL_SHORT(&buf[loc]))};	loc += 2;
+	if (!segnum)
 		return;
 	const auto pos = multi_get_vector(buf.subspan<7, 12>());
 	loc += 12;
@@ -1268,7 +1268,7 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const multiplayer_rs
 	Net_create_loc = 0;
 	d_srand(1245L);
 
-	if (const auto contains_parameters{build_contained_object_parameters_from_untrusted(untrusted_contains_type, untrusted_contains_id, untrusted_contains_count)}; !object_create_robot_egg(LevelSharedRobotInfoState.Robot_info, contains_parameters.type, contains_parameters.id, contains_parameters.count, velocity, pos, vmsegptridx(segnum)))
+	if (const auto contains_parameters{build_contained_object_parameters_from_untrusted(untrusted_contains_type, untrusted_contains_id, untrusted_contains_count)}; !object_create_robot_egg(LevelSharedRobotInfoState.Robot_info, contains_parameters.type, contains_parameters.id, contains_parameters.count, velocity, pos, vmsegptridx(*segnum)))
 		return; // Object buffer full
 
 	Assert((Net_create_loc > 0) && (Net_create_loc <= MAX_ROBOT_POWERUPS));

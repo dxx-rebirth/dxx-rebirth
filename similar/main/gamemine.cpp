@@ -407,7 +407,9 @@ static void read_children(shared_segment &segp, const sidemask_t bit_mask, const
 		if (bit_mask & build_sidemask(bit))
 		{
 			const segnum_t child_segment{PHYSFSX_readULE16(LoadFile)};
-			segp.children[bit] = (imsegidx_t::check_nothrow_index(child_segment) || child_segment == segment_exit) ? child_segment : segment_none;
+			segp.children[bit] = unlikely(child_segment == segment_exit)
+				? child_segment
+				: vmsegidx_t::check_nothrow_index(child_segment).value_or(segment_none);
 		} else
 			segp.children[bit] = segment_none;
 	}

@@ -4860,10 +4860,7 @@ static void ai_local_read_swap(ai_local *ail, const physfsx_endian swap, const N
 		ail->mode = static_cast<ai_mode>(PHYSFSX_readByte(fp));
 		ail->previous_visibility = static_cast<player_visibility_state>(PHYSFSX_readByte(fp));
 		ail->rapidfire_count = PHYSFSX_readByte(fp);
-		{
-			const segnum_t s{PHYSFSX_readUXE16(fp, swap)};
-			ail->goal_segment = imsegidx_t::check_nothrow_index(s) ? s : segment_none;
-		}
+		ail->goal_segment = read_untrusted_segnum_xe16(fp, swap);
 		PHYSFSX_skipBytes<8>(fp);
 		ail->next_action_time = {PHYSFSX_readSXE32(fp, swap)};
 		ail->next_fire = {PHYSFSX_readSXE32(fp, swap)};
@@ -4874,10 +4871,7 @@ static void ai_local_read_swap(ai_local *ail, const physfsx_endian swap, const N
 		ail->mode = static_cast<ai_mode>(PHYSFSX_readSXE32(fp, swap));
 		ail->previous_visibility = static_cast<player_visibility_state>(PHYSFSX_readSXE32(fp, swap));
 		ail->rapidfire_count = PHYSFSX_readSXE32(fp, swap);
-		{
-			const segnum_t s{static_cast<uint16_t>(PHYSFSX_readSXE32(fp, swap))};
-			ail->goal_segment = imsegidx_t::check_nothrow_index(s) ? s : segment_none;
-		}
+		ail->goal_segment = read_untrusted_segnum_xe32(fp, swap);
 		ail->next_action_time = {PHYSFSX_readSXE32(fp, swap)};
 		ail->next_fire = {PHYSFSX_readSXE32(fp, swap)};
 		ail->next_fire2 = {PHYSFSX_readSXE32(fp, swap)};
@@ -4920,7 +4914,7 @@ static void PHYSFSX_readVectorX(PHYSFS_File *file, vms_vector &v, const physfsx_
 namespace dsx {
 namespace {
 
-static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, const physfsx_endian swap, PHYSFS_File *fp)
+static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, const physfsx_endian swap, const NamedPHYSFS_File fp)
 {
 	int i;
 	for (i = 0; i < n; i++, ci++)
@@ -4928,10 +4922,7 @@ static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, const physfsx_en
 		const fix tmptime32{PHYSFSX_readSXE32(fp, swap)};
 		ci->last_time = fix64{tmptime32};
 #if defined(DXX_BUILD_DESCENT_II)
-		{
-			const segnum_t s{static_cast<uint16_t>(PHYSFSX_readSXE32(fp, swap))};
-			ci->last_segment = imsegidx_t::check_nothrow_index(s) ? s : segment_none;
-		}
+		ci->last_segment = read_untrusted_segnum_xe32(fp, swap);
 #endif
 		PHYSFSX_readVectorX(fp, ci->last_position, swap);
 	}

@@ -1751,9 +1751,9 @@ static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum,
 	qpp.orient.z = GET_INTEL_SHORT(&buf[count]);					count += 2;
 	qpp.pos = multi_get_vector(buf.subspan<9, 12>());
 	count += 12;
-	if (const auto s = segnum_t{GET_INTEL_SHORT(&buf[count])}; vmsegidx_t::check_nothrow_index(s))
+	if (const auto s{vmsegidx_t::check_nothrow_index(GET_INTEL_SHORT(&buf[count]))})
 	{
-		qpp.segment = s;
+		qpp.segment = *s;
 		count += 2;
 	}
 	else
@@ -6220,10 +6220,7 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 		obj.render_type = render_type::RT_NONE;
 	}
 	obj.flags         = obj_rw->flags;
-	{
-		const auto s = segnum_t{INTEL_SHORT(obj_rw->segnum)};
-		obj.segnum = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
-	}
+	obj.segnum = vmsegidx_t::check_nothrow_index(INTEL_SHORT(obj_rw->segnum)).value_or(segment_none);
 	obj.attached_obj = object_none;
 	obj.pos         = build_native_endian_vector_from_little_endian(obj_rw->pos);
 	obj.orient = build_native_endian_matrix_from_little_endian(obj_rw->orient);
@@ -6261,8 +6258,8 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 			obj.ctype.laser_info.parent_signature = object_signature_t{static_cast<uint16_t>(INTEL_INT(obj_rw->ctype.laser_info.parent_signature))};
 			obj.ctype.laser_info.creation_time    = INTEL_INT(obj_rw->ctype.laser_info.creation_time);
 			/* `last_hitobj` is untrusted network data, so it must be checked before use. */
-			if (const auto last_hitobj = INTEL_SHORT(obj_rw->ctype.laser_info.last_hitobj); vcobjidx_t::check_nothrow_index(last_hitobj))
-				obj.ctype.laser_info.reset_hitobj(last_hitobj);
+			if (const auto last_hitobj{vcobjidx_t::check_nothrow_index(INTEL_SHORT(obj_rw->ctype.laser_info.last_hitobj))})
+				obj.ctype.laser_info.reset_hitobj(*last_hitobj);
 			else
 				obj.ctype.laser_info.clear_hitobj();
 			obj.ctype.laser_info.track_goal       = INTEL_SHORT(obj_rw->ctype.laser_info.track_goal);
@@ -6301,10 +6298,7 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 			obj.ctype.ai_info.SKIP_AI_COUNT = obj_rw->ctype.ai_info.flags[7];
 			obj.ctype.ai_info.REMOTE_OWNER = obj_rw->ctype.ai_info.flags[8];
 			obj.ctype.ai_info.REMOTE_SLOT_NUM = obj_rw->ctype.ai_info.flags[9];
-			{
-				const auto s = segnum_t{INTEL_SHORT(obj_rw->ctype.ai_info.hide_segment)};
-				obj.ctype.ai_info.hide_segment = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
-			}
+			obj.ctype.ai_info.hide_segment = vmsegidx_t::check_nothrow_index(INTEL_SHORT(obj_rw->ctype.ai_info.hide_segment)).value_or(segment_none);
 			obj.ctype.ai_info.hide_index             = INTEL_SHORT(obj_rw->ctype.ai_info.hide_index);
 			obj.ctype.ai_info.path_length            = INTEL_SHORT(obj_rw->ctype.ai_info.path_length);
 			obj.ctype.ai_info.cur_path_index         =
