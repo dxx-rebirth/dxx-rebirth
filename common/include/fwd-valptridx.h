@@ -64,16 +64,16 @@ class valptridx :
 	{
 		using type = std::array<managed_type, array_size>;
 	};
-	/* Note: integral_type must be an `enum` type, but
-	 * `requires(std::is_enum<integral_type>::value)` cannot be checked
-	 * here, because the name `array_base_storage_enum<integral_type>` may be
+	/* Note: index_type must be an `enum` type, but
+	 * `requires(std::is_enum<index_type>::value)` cannot be checked
+	 * here, because the name `array_base_storage_enum<index_type>` may be
 	 * formed for non-enum types, but the internal type `type` will not be
 	 * used in those cases.
 	 */
-	template <typename integral_type>
+	template <typename index_type>
 	struct array_base_storage_enum
 	{
-		using type = dcx::enumerated_array<managed_type, array_size, integral_type>;
+		using type = dcx::enumerated_array<managed_type, array_size, index_type>;
 	};
 protected:
 	using const_pointer_type = const managed_type *;
@@ -85,7 +85,7 @@ protected:
 	 */
 	using typename specialized_types::integral_type;
 	using index_type = integral_type;	// deprecated; should be dedicated UDT
-	using array_base_storage_type = typename std::conditional<std::is_integral<integral_type>::value, array_base_storage_integral, array_base_storage_enum<integral_type>>::type::type;
+	using array_base_storage_type = typename std::conditional_t<std::is_integral<index_type>::value, array_base_storage_integral, array_base_storage_enum<index_type>>::type;
 
 public:
 	class array_managed_type;
@@ -221,11 +221,11 @@ public:
 	template <typename T>
 		using null_pointer_error_type = typename specialized_types::template dispatch_null_pointer_error<T, null_pointer_exception>;
 
-	template <integral_type constant>
+	template <index_type constant>
 		class magic_constant
 		{
 		public:
-			constexpr operator integral_type() const { return constant; }	// integral_type conversion deprecated
+			constexpr operator index_type() const { return constant; }
 		};
 };
 

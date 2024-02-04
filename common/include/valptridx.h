@@ -401,7 +401,7 @@ public:
 	{
 	}
 protected:
-	template <integral_type v>
+	template <index_type v>
 		idx(const magic_constant<v> &, allow_none_construction) :
 			m_idx{v}
 	{
@@ -430,9 +430,9 @@ protected:
 	{
 	}
 public:
-	template <integral_type v>
+	template <index_type v>
 		constexpr idx(const magic_constant<v> &) :
-			m_idx(v)
+			m_idx{v}
 	{
 		/* If the policy requires a valid index (indicated by
 		 * `allow_nullptr == false`), then require that the magic index be
@@ -449,7 +449,7 @@ public:
 	{
 		return m_idx == i;
 	}
-	template <integral_type v>
+	template <index_type v>
 		constexpr bool operator==(const magic_constant<v> &) const
 		{
 			static_assert(allow_nullptr || static_cast<std::size_t>(v) < array_size, "invalid magic index not allowed for this policy");
@@ -527,7 +527,7 @@ public:
 		m_ptr{nullptr}
 	{
 	}
-	template <integral_type v>
+	template <index_type v>
 		requires(
 			static_cast<std::size_t>(v) >= array_size	// Require that the index be invalid, since a valid index should compute a non-nullptr here, but with no array, no pointer can be computed.
 		)
@@ -535,7 +535,7 @@ public:
 			ptr{nullptr}
 	{
 	}
-	template <integral_type v>
+	template <index_type v>
 		requires(
 			static_cast<std::size_t>(v) < array_size	// valid magic index required when using array
 		)
@@ -799,19 +799,19 @@ public:
 			vidx_type{static_cast<typename ptridx<rpolicy>::vidx_type &&>(rhs)}
 	{
 	}
-	template <integral_type v>
+	template <index_type v>
 		ptridx(const magic_constant<v> &m) :
 			vptr_type{m},
 			vidx_type{m}
 	{
 	}
-	template <integral_type v>
+	template <index_type v>
 		ptridx(const magic_constant<v> &m, array_managed_type &a) :
 			vptr_type{m, a},
 			vidx_type{m}
 	{
 	}
-	template <integral_type v>
+	template <index_type v>
 		ptridx(const magic_constant<v> &m, const allow_none_construction n) :
 			vptr_type{n},
 			vidx_type{m, n}
@@ -1008,16 +1008,15 @@ public:
 #undef DXX_VALPTRIDX_ACCESS_SUBTYPE_MEMBER_FACTORIES
 	using typename array_base_storage_type::reference;
 	using typename array_base_storage_type::const_reference;
-	reference operator[](const integral_type &n)
+	reference operator[](const index_type n)
 		{
 			return array_base_storage_type::operator[](n);
 		}
-	const_reference operator[](const integral_type &n) const
+	const_reference operator[](const index_type n) const
 		{
 			return array_base_storage_type::operator[](n);
 		}
-	template <typename T>
-		reference operator[](const T &) const = delete;
+	reference operator[](auto) const = delete;
 #if DXX_HAVE_POISON_UNDEFINED
 	array_managed_type();
 #else
@@ -1073,16 +1072,16 @@ protected:
 		static guarded<P> check_untrusted_internal(T &&, A &) = delete;
 	template <typename P, typename A>
 		[[nodiscard]]
-		/* C++ does not allow `static operator()()`, so name it
+		/* C++ does not allow `static operator()()` until C++23, so name it
 		 * `call_operator` instead.
 		 */
 		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const typename P::index_type i, A &a)
 		{
 			return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, a);
 		}
-	template <typename P, containing_type::integral_type v, typename A>
+	template <typename P, containing_type::index_type v>
 		[[nodiscard]]
-		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const containing_type::magic_constant<v> &m, A &a)
+		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const containing_type::magic_constant<v> &m, auto &a)
 		{
 			/*
 			 * All call_operator definitions must have the macro which
