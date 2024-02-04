@@ -422,7 +422,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 
 			obj->mtype.phys_info.mass		= PHYSFSX_readFix(f);
 			obj->mtype.phys_info.drag		= PHYSFSX_readFix(f);
-			PHYSFSX_readFix(f);	/* brakes */
+			PHYSFSX_skipBytes<4>(f);	/* brakes */
 
 			PHYSFSX_readVector(f, obj->mtype.phys_info.rotvel);
 			PHYSFSX_readVector(f, obj->mtype.phys_info.rotthrust);
@@ -477,8 +477,9 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 			obj->ctype.ai_info.cur_path_index		= PHYSFSX_readShort(f);
 
 			if (version <= 25) {
-				PHYSFSX_readShort(f);	//				obj->ctype.ai_info.follow_path_start_seg	= 
-				PHYSFSX_readShort(f);	//				obj->ctype.ai_info.follow_path_end_seg		= 
+				//				obj->ctype.ai_info.follow_path_start_seg	= 
+				//				obj->ctype.ai_info.follow_path_end_seg		= 
+				PHYSFSX_skipBytes<4>(f);
 			}
 
 			break;
@@ -1356,13 +1357,11 @@ int load_level(
 	(void)sig;
 
 	if (Gamesave_current_version < 5)
-		PHYSFSX_readInt(LoadFile);       //was hostagetext_offset
+		PHYSFSX_skipBytes<4>(LoadFile);		//was hostagetext_offset
 	init_exploding_walls();
 #if defined(DXX_BUILD_DESCENT_II)
 	if (Gamesave_current_version >= 8) {    //read dummy data
-		PHYSFSX_readInt(LoadFile);
-		PHYSFSX_readShort(LoadFile);
-		PHYSFSX_readByte(LoadFile);
+		PHYSFSX_skipBytes<4 + 2 + 1>(LoadFile);
 	}
 
 	if (Gamesave_current_version > 1)

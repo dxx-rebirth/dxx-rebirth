@@ -269,8 +269,7 @@ void robot_info_read(const NamedPHYSFS_File fp, robot_info &ri)
 	range_for (auto &j, ri.turn_time)
 		j = PHYSFSX_readFix(fp);
 #if defined(DXX_BUILD_DESCENT_I)
-	for (unsigned j = 0; j < NDL * 2; j++)
-			PHYSFSX_readFix(fp);
+	PHYSFSX_skipBytes<4 * (NDL * 2)>(fp);
 #endif
 	range_for (auto &j, ri.max_speed)
 		j = PHYSFSX_readFix(fp);

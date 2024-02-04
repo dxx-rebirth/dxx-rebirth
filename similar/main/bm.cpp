@@ -275,9 +275,7 @@ static void tmap_info_read(tmap_info &ti, const NamedPHYSFS_File fp)
 	uint8_t flags;
 	PHYSFS_read(fp, &flags, 1, 1);
 	ti.flags = tmapinfo_flags{flags};
-	PHYSFSX_readByte(fp);
-	PHYSFSX_readByte(fp);
-	PHYSFSX_readByte(fp);
+	PHYSFSX_skipBytes<3>(fp);
 	ti.lighting = PHYSFSX_readFix(fp);
 	ti.damage = PHYSFSX_readFix(fp);
 	ti.eclip_num = PHYSFSX_readShort(fp);

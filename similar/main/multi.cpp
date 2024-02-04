@@ -5674,7 +5674,7 @@ void init_hoard_data(d_vclip_array &Vclip)
 	}
 
 	//Load and remap bitmap data for goal texture
-	PHYSFSX_readShort(ifile);        //skip frame count
+	PHYSFSX_skipBytes<2>(ifile);		//skip frame count
 	PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
 	range_for (auto &i, partial_const_range(Effects[goal_eclip].vc.frames, n_goal_frames))
 	{

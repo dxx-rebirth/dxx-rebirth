@@ -76,7 +76,7 @@ void delta_light_read(delta_light *dl, const NamedPHYSFS_File fp)
 		dl->segnum = vmsegidx_t::check_nothrow_index(s) ? s : segment_none;
 	}
 	dl->sidenum = build_sidenum_from_untrusted(PHYSFSX_readByte(fp)).value_or(sidenum_t::WLEFT);
-	PHYSFSX_readByte(fp);
+	PHYSFSX_skipBytes<1>(fp);
 	dl->vert_light[side_relative_vertnum::_0] = PHYSFSX_readByte(fp);
 	dl->vert_light[side_relative_vertnum::_1] = PHYSFSX_readByte(fp);
 	dl->vert_light[side_relative_vertnum::_2] = PHYSFSX_readByte(fp);

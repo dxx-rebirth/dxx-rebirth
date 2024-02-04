@@ -605,7 +605,7 @@ void v26_trigger_read(const NamedPHYSFS_File fp, trigger &t)
 		t.flags |= TRIGGER_ONE_SHOT;
 	t.num_links = PHYSFSX_readShort(fp);
 	t.value = PHYSFSX_readInt(fp);
-	PHYSFSX_readInt(fp);
+	PHYSFSX_skipBytes<4>(fp);
 	for (unsigned i=0; i < MAX_WALLS_PER_LINK; i++ )
 	{
 		const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(fp))};
@@ -624,14 +624,13 @@ void v29_trigger_read(v29_trigger *t, const NamedPHYSFS_File fp)
 #endif
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	PHYSFSX_readByte(fp);
+	PHYSFSX_skipBytes<1>(fp);
 #elif defined(DXX_BUILD_DESCENT_II)
 	t->type = PHYSFSX_readByte(fp);
 #endif
 	t->flags = PHYSFSX_readShort(fp);
 	t->value = PHYSFSX_readFix(fp);
-	PHYSFSX_readFix(fp);
-	PHYSFSX_readByte(fp);
+	PHYSFSX_skipBytes<5>(fp);
 	t->num_links = PHYSFSX_readShort(fp);
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
 	{
@@ -655,7 +654,7 @@ void v30_trigger_read(v30_trigger *t, const NamedPHYSFS_File fp)
 	t->num_links = PHYSFSX_readByte(fp);
 	t->pad = PHYSFSX_readByte(fp);
 	t->value = PHYSFSX_readFix(fp);
-	PHYSFSX_readFix(fp);
+	PHYSFSX_skipBytes<4>(fp);
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
 	{
 		const auto s = segnum_t{static_cast<uint16_t>(PHYSFSX_readShort(fp))};

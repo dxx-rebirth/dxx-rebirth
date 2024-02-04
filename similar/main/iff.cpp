@@ -109,7 +109,7 @@ static int parse_bmhd(const NamedPHYSFS_File ifile, iff_bitmap_header *const bmh
 	bmheader->nplanes = PHYSFSX_readByte(ifile);
 	bmheader->masking = PHYSFSX_readByte(ifile);
 	bmheader->compression = PHYSFSX_readByte(ifile);
-	PHYSFSX_readByte(ifile);        /* skip pad */
+	PHYSFSX_skipBytes<1>(ifile);		/* skip pad */
 	
 	PHYSFS_readSBE16(ifile, &bmheader->transparentcolor);
 	bmheader->xaspect = PHYSFSX_readByte(ifile);
@@ -307,7 +307,7 @@ static int parse_delta(const NamedPHYSFS_File ifile, long len, iff_bitmap_header
 					*p++ = PHYSFSX_readByte(ifile);
 
 				if (cnt==-1)
-					PHYSFSX_readByte(ifile);
+					PHYSFSX_skipBytes<1>(ifile);
 			}
 
 		}

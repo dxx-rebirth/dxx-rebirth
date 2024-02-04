@@ -348,6 +348,7 @@ struct PHYSFSX_read_helper
 };
 
 template <typename T, auto F>
+[[nodiscard]]
 T PHYSFSX_read_helper<T, F>::operator()(const NamedPHYSFS_File file, const char *const filename, const unsigned line, const char *const func) const
 {
 	T i;
@@ -359,6 +360,7 @@ T PHYSFSX_read_helper<T, F>::operator()(const NamedPHYSFS_File file, const char 
 template <typename T, T (*swap_value)(const T &)>
 struct PHYSFSX_read_swap_helper
 {
+	[[nodiscard]]
 	T operator()(PHYSFS_File *const file, physfsx_endian swap) const
 	{
 		T val{};

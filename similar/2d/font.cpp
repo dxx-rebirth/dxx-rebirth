@@ -899,9 +899,9 @@ static void grs_font_read(grs_font *gf, NamedPHYSFS_File fp)
 	gf->ft_baseline = PHYSFSX_readShort(fp);
 	gf->ft_minchar = PHYSFSX_readByte(fp);
 	gf->ft_maxchar = PHYSFSX_readByte(fp);
-	PHYSFSX_readShort(fp);
+	PHYSFSX_skipBytes<2>(fp);
 	gf->ft_data = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(PHYSFSX_readInt(fp)) - GRS_FONT_SIZE);
-	PHYSFSX_readInt(fp);
+	PHYSFSX_skipBytes<4>(fp);
 	gf->ft_widths = reinterpret_cast<uint16_t *>(static_cast<uintptr_t>(PHYSFSX_readInt(fp)) - GRS_FONT_SIZE);
 	gf->ft_kerndata = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(PHYSFSX_readInt(fp)) - GRS_FONT_SIZE);
 }
