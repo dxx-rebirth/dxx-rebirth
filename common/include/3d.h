@@ -362,27 +362,16 @@ public:
 //specifies 2d drawing routines to use instead of defaults.  Passing
 //NULL for either or both restores defaults
 #if DXX_USE_OGL
-enum class tmap_drawer_constant : bool
+enum class tmap_drawer_type : bool
 {
 	polygon,
 	flat,
+	draw_tmap = polygon,
+	draw_tmap_flat = flat,
 };
 
-#define draw_tmap tmap_drawer_constant::polygon
-#define draw_tmap_flat tmap_drawer_constant::flat
-
-class tmap_drawer_type
-{
-	tmap_drawer_constant type;
-public:
-	constexpr tmap_drawer_type(tmap_drawer_constant t) : type(t)
-	{
-	}
-	bool operator==(tmap_drawer_constant t) const
-		{
-			return type == t;
-		}
-};
+using tmap_drawer_type::draw_tmap_flat;
+using tmap_drawer_type::draw_tmap;
 #else
 void g3_draw_line(const g3_draw_line_context &, cg3s_point &p0, cg3s_point &p1, temporary_points_t &);
 constexpr std::integral_constant<std::size_t, 100> MAX_POINTS_IN_POLY{};
