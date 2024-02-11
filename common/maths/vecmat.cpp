@@ -292,17 +292,17 @@ vms_vector vm_vec_normal(const vms_vector &p0, const vms_vector &p1, const vms_v
 	return vm_vec_normalized(vm_vec_perp(p0, p1, p2));
 }
 
+namespace {
+
 //make sure a vector is reasonably sized to go into a cross product
-static void check_vec(vms_vector *v)
+[[nodiscard]]
+static vms_vector check_vec(vms_vector v)
 {
-	fix check;
+	if (unlikely(v.x == 0 && v.y == 0 && v.z == 0))
+		return v;
 	int cnt = 0;
 
-	check = labs(v->x) | labs(v->y) | labs(v->z);
-	
-	if (check == 0)
-		return;
-
+	fix check = labs(v.x) | labs(v.y) | labs(v.z);
 	if (check & 0xfffc0000) {		//too big
 
 		while (check & 0xfff00000) {
@@ -315,9 +315,9 @@ static void check_vec(vms_vector *v)
 			check >>= 2;
 		}
 
-		v->x >>= cnt;
-		v->y >>= cnt;
-		v->z >>= cnt;
+		v.x >>= cnt;
+		v.y >>= cnt;
+		v.z >>= cnt;
 	}
 	else												//maybe too small
 		if ((check & 0xffff8000) == 0) {		//yep, too small
@@ -332,10 +332,13 @@ static void check_vec(vms_vector *v)
 				check <<= 2;
 			}
 
-			v->x >>= cnt;
-			v->y >>= cnt;
-			v->z >>= cnt;
+			v.x >>= cnt;
+			v.y >>= cnt;
+			v.z >>= cnt;
 		}
+	return v;
+}
+
 }
 
 //computes cross product of two vectors. 
@@ -367,10 +370,8 @@ vms_vector vm_vec_cross(const vms_vector &src0, const vms_vector &src1)
 //computes non-normalized surface normal from three points. 
 vms_vector vm_vec_perp(const vms_vector &p0, const vms_vector &p1, const vms_vector &p2)
 {
-	auto t0 = vm_vec_sub(p1,p0);
-	auto t1 = vm_vec_sub(p2,p1);
-	check_vec(&t0);
-	check_vec(&t1);
+	auto t0{check_vec(vm_vec_sub(p1, p0))};
+	auto t1{check_vec(vm_vec_sub(p2, p1))};
 	return vm_vec_cross(t0, t1);
 }
 
