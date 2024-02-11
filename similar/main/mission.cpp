@@ -296,7 +296,7 @@ static void allocate_shareware_levels(const unsigned count_regular_level, const 
 	for (const auto &&[idx, name] : enumerate(std::span(Current_mission->level_names.get(), count_regular_level), 1u))
 	{
 		cf_assert(idx <= count_regular_level);
-		snprintf(&name[0u], name.size(), "level%02u.sdl", idx);
+		snprintf(name.data(), name.size(), "level%02u.sdl", idx);
 	}
 }
 
@@ -305,7 +305,7 @@ static void build_rdl_regular_level_names(const unsigned count_regular_level, st
 	for (auto &&[idx, name] : enumerate(std::span(names.get(), count_regular_level), 1u))
 	{
 		cf_assert(idx <= count_regular_level);
-		snprintf(&name[0u], name.size(), "level%02u.rdl", idx);
+		snprintf(name.data(), name.size(), "level%02u.rdl", idx);
 	}
 }
 
@@ -314,7 +314,7 @@ static void build_rdl_secret_level_names(const unsigned count_secret_level, std:
 	for (auto &&[idx, name] : enumerate(std::span(names.get(), count_secret_level), 1u))
 	{
 		cf_assert(idx <= count_secret_level);
-		snprintf(&name[0u], name.size(), "levels%1u.rdl", idx);
+		snprintf(name.data(), name.size(), "levels%1u.rdl", idx);
 	}
 }
 
@@ -343,7 +343,7 @@ static void load_mission_d1()
 			build_rdl_regular_level_names(last_level - 1, Current_mission->level_names);
 			{
 				auto &ln = Current_mission->level_names[last_level - 1];
-				snprintf(&ln[0u], ln.size(), "saturn%02d.rdl", last_level);
+				snprintf(ln.data(), ln.size(), "saturn%02d.rdl", last_level);
 			}
 			build_rdl_secret_level_names(last_secret_level, Current_mission->secret_level_names);
 			Current_mission->secret_level_table[0] = 10;

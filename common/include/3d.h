@@ -357,7 +357,7 @@ static inline void g3_draw_tmap(grs_canvas &canvas, unsigned nv, const std::arra
 #endif
 	if (nv > N)
 		return;
-	_g3_draw_tmap(canvas, std::span(pointlist).first(nv), &uvl_list[0], &light_rgb[0], bm, tmap_drawer_ptr);
+	_g3_draw_tmap(canvas, std::span(pointlist).first(nv), uvl_list.data(), light_rgb.data(), bm, tmap_drawer_ptr);
 }
 
 template <std::size_t N>

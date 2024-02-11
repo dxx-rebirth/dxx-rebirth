@@ -568,7 +568,7 @@ requires(sizeof(T) == 1 && std::is_integral<T>::value)
 static inline void process_array(Accessor &accessor, A &a)
 {
 	using std::advance;
-	std::copy_n(static_cast<typename Accessor::pointer>(accessor), a.size(), &a[0]);
+	std::copy_n(static_cast<typename Accessor::pointer>(accessor), a.size(), a.data());
 	advance(accessor, a.size());
 }
 
@@ -620,7 +620,7 @@ requires(sizeof(T) == 1 && std::is_integral<T>::value)
 static inline void process_array(Accessor &accessor, const A &a)
 {
 	using std::advance;
-	std::copy_n(&a[0], a.size(), static_cast<typename Accessor::pointer>(accessor));
+	std::copy_n(a.data(), a.size(), static_cast<typename Accessor::pointer>(accessor));
 	advance(accessor, a.size());
 }
 

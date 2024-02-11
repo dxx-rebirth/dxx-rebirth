@@ -815,7 +815,7 @@ void record_screenshot_text_metadata(png_struct *const png_ptr, png_info *const 
 			auto &t = text_fields[idx++];
 			t.key = key_current_mission_path;
 			current_mission_path = current_mission->path;
-			t.text = &current_mission_path[0];
+			t.text = current_mission_path.data();
 			t.compression = PNG_TEXT_COMPRESSION_NONE;
 		}
 		{

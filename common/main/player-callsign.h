@@ -72,7 +72,7 @@ struct callsign_t
 	}
 	operator const char *() const
 	{
-		return &a[0];
+		return a.data();
 	};
 	[[nodiscard]]
 	constexpr bool operator==(const callsign_t &r) const = default;

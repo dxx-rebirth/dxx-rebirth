@@ -529,7 +529,7 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initvideobuffers(unsigned
 	/* TODO: * 4 causes crashes on some files */
 	/* only malloc once */
 	vBuffers.assign(width * height * 8, 0);
-	vBackBuf1 = &vBuffers[0];
+	vBackBuf1 = vBuffers.data();
 	if (truecolor) {
 		vBackBuf2 = reinterpret_cast<uint8_t *>(reinterpret_cast<uint16_t *>(vBackBuf1) + (width * height));
 	} else {

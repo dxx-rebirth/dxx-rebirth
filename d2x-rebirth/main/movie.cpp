@@ -617,12 +617,12 @@ static void draw_subtitles(const d_loaded_subtitle_state &SubtitleState, const i
 static PHYSFS_ErrorCode init_movie(const char *movielib, char resolution, int required, LoadedMovie &movie)
 {
 	std::array<char, FILENAME_LEN + 2> filename;
-	snprintf(&filename[0], filename.size(), "%s-%c.mvl", movielib, resolution);
-	auto r = PHYSFSX_addRelToSearchPath(&filename[0], movie.pathname, physfs_search_path::prepend);
+	snprintf(filename.data(), filename.size(), "%s-%c.mvl", movielib, resolution);
+	auto r = PHYSFSX_addRelToSearchPath(filename.data(), movie.pathname, physfs_search_path::prepend);
 	if (r != PHYSFS_ERR_OK)
 	{
 		movie.pathname[0] = 0;
-		con_printf(required ? CON_URGENT : CON_VERBOSE, "Failed to open movielib <%s>: %s", &filename[0], PHYSFS_getErrorByCode(r));
+		con_printf(required ? CON_URGENT : CON_VERBOSE, "Failed to open movielib <%s>: %s", filename.data(), PHYSFS_getErrorByCode(r));
 	}
 	return r;
 }
@@ -650,7 +650,7 @@ std::unique_ptr<BuiltinMovies> init_movies()
 BuiltinMovies::BuiltinMovies()
 {
 	for (auto &&[f, m] : zip(movielib_files, movies))
-		init_movie(&f[0], 1, m);
+		init_movie(f.data(), 1, m);
 }
 
 LoadedMovie::~LoadedMovie()

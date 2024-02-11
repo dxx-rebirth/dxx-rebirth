@@ -453,7 +453,7 @@ static int get_int()
 static void set_texture_fname(d_fname &fname, const char *name)
 {
 	fname.copy_if(name, FILENAME_LEN);
-	REMOVE_DOTS(&fname[0u]);
+	REMOVE_DOTS(fname.data());
 }
 
 }
@@ -467,7 +467,7 @@ static get_texture_result get_texture(d_level_unique_tmap_info_state::TmapInfo_a
 {
 	d_fname short_name;
 	short_name.copy_if(name, FILENAME_LEN);
-	REMOVE_DOTS(&short_name[0u]);
+	REMOVE_DOTS(short_name.data());
 	const unsigned t = texture_count;
 	for (const auto &&[i, ti] : enumerate(partial_range(TmapInfo, t)))
 	{

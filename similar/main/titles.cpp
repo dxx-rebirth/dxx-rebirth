@@ -1514,7 +1514,7 @@ static int new_briefing_screen(grs_canvas &canvas, briefing *br, int first)
 	else if (first)
 	{
 		br->cur_screen = br->level_num;
-		br->screen.reset(&Briefing_screens[0]);
+		br->screen.reset(Briefing_screens.data());
 		init_char_pos(br, br->screen->text_ulx, br->screen->text_uly-(8*(1+HIRESMODE)));
 	}
 	else

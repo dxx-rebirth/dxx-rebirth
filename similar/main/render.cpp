@@ -371,7 +371,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const si
 	{
 		const uint8_t color = BM_XRGB(63, 63, 63);
 		g3_draw_line_context context{canvas, color};
-		draw_outline(context, nv, &pointlist[0]);
+		draw_outline(context, nv, pointlist.data());
 	}
 #endif
 }

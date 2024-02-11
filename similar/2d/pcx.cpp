@@ -290,7 +290,7 @@ unsigned pcx_write_bitmap(PHYSFS_File *const PCXfile, const grs_bitmap *const bm
 		return 1;
 	}
 
-	retval = PHYSFS_write(PCXfile, &palette[0], sizeof(palette), 1);
+	retval = PHYSFS_write(PCXfile, palette.data(), palette.size(), 1);
 	if (retval !=1)	{
 		return 1;
 	}

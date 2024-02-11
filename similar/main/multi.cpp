@@ -5754,7 +5754,7 @@ void save_hoard_data(void)
 	PHYSFS_writeULE16(ofile, nframes);
 	PHYSFS_writeULE16(ofile, bm[0]->bm_w);
 	PHYSFS_writeULE16(ofile, bm[0]->bm_h);
-	PHYSFS_write(ofile, &palette[0], sizeof(palette[0]), palette.size());
+	PHYSFS_write(ofile, palette.data(), sizeof(palette[0]), palette.size());
 	range_for (auto &i, partial_const_range(bm, nframes))
 		PHYSFS_write(ofile, i->bm_data, i->bm_w * i->bm_h, 1);
 	}
@@ -5768,7 +5768,7 @@ void save_hoard_data(void)
 		assert(iff_error == IFF_NO_ERROR);
 	Assert(bm[0]->bm_w == 64 && bm[0]->bm_h == 64);
 	PHYSFS_writeULE16(ofile, nframes);
-	PHYSFS_write(ofile, &palette[0], sizeof(palette[0]), palette.size());
+	PHYSFS_write(ofile, palette.data(), sizeof(palette[0]), palette.size());
 	range_for (auto &i, partial_const_range(bm, nframes))
 		PHYSFS_write(ofile, i->bm_data, i->bm_w * i->bm_h, 1);
 	}
@@ -5781,7 +5781,7 @@ void save_hoard_data(void)
 		Assert(iff_error == IFF_NO_ERROR);
 		PHYSFS_writeULE16(ofile, icon.bm_w);
 		PHYSFS_writeULE16(ofile, icon.bm_h);
-		PHYSFS_write(ofile, &palette[0], sizeof(palette[0]), palette.size());
+		PHYSFS_write(ofile, palette.data(), sizeof(palette[0]), palette.size());
 		PHYSFS_write(ofile, icon.bm_data, icon.bm_w*icon.bm_h, 1);
 	}
 	range_for (auto &i, sounds)

@@ -863,7 +863,7 @@ static void reset_UDP_MyPort()
 static bool convert_text_portstring(const std::array<char, 6> &portstring, uint16_t &outport, bool allow_privileged, bool silent)
 {
 	char *porterror;
-	unsigned long myport = strtoul(&portstring[0], &porterror, 10);
+	unsigned long myport = strtoul(portstring.data(), &porterror, 10);
 	if (*porterror || static_cast<uint16_t>(myport) != myport || (!allow_privileged && myport < 1024))
 	{
 		if (!silent)
@@ -1206,15 +1206,15 @@ struct manual_join_menu_items : direct_join, manual_join_user_inputs
 		if (s_last_inputs.hostaddrbuf[0])
 			hostaddrbuf = s_last_inputs.hostaddrbuf;
 		else
-			snprintf(&hostaddrbuf[0], hostaddrbuf.size(), "%s", CGameArg.MplUdpHostAddr.c_str());
+			snprintf(hostaddrbuf.data(), hostaddrbuf.size(), "%s", CGameArg.MplUdpHostAddr.c_str());
 		if (s_last_inputs.hostportbuf[0])
 			hostportbuf = s_last_inputs.hostportbuf;
 		else
-			snprintf(&hostportbuf[0], hostportbuf.size(), "%hu", CGameArg.MplUdpHostPort ? CGameArg.MplUdpHostPort : UDP_PORT_DEFAULT);
+			snprintf(hostportbuf.data(), hostportbuf.size(), "%hu", CGameArg.MplUdpHostPort ? CGameArg.MplUdpHostPort : UDP_PORT_DEFAULT);
 		if (s_last_inputs.guestportbuf[0])
 			guestportbuf = s_last_inputs.guestportbuf;
 		else
-			snprintf(&guestportbuf[0], guestportbuf.size(), "%hu", UDP_MyPort);
+			snprintf(guestportbuf.data(), guestportbuf.size(), "%hu", UDP_MyPort);
 		nm_set_item_text(m[label_host_address], "GAME ADDRESS OR HOSTNAME:");
 		nm_set_item_text(m[label_host_port], "GAME PORT:");
 		nm_set_item_text(m[label_guest_port], "MY PORT:");
@@ -1259,8 +1259,8 @@ struct netgame_list_game_menu_items
 
 		for (auto &&[i, lj, mi] : enumerate(zip(ljtext, unchecked_partial_range(menus, header_rows + 0u, menus.size() - 1)), 1u))
 		{
-			snprintf(&lj[0], lj.size(), "%u.                                                                      ", i);
-			nm_set_item_menu(mi, &lj[0]);
+			snprintf(lj.data(), lj.size(), "%u.                                                                      ", i);
+			nm_set_item_menu(mi, lj.data());
 		}
 		nm_set_item_text(menus.back(), "\t");
 	}
@@ -1414,7 +1414,7 @@ window_event_result manual_join_menu::event_handler(const d_event &event)
 			if (!convert_text_portstring(hostportbuf, hostport, true, false))
 				return window_event_result::handled;
 			// Resolve address
-			if (udp_dns_filladdr(host_addr, &hostaddrbuf[0], hostport, false, false) < 0)
+			if (udp_dns_filladdr(host_addr, hostaddrbuf.data(), hostport, false, false) < 0)
 				return window_event_result::handled;
 			else
 			{
@@ -1650,7 +1650,7 @@ window_event_result netgame_list_game_menu::event_handler(const d_event &event)
 		if ((i+(NLPage*UDP_NETGAMES_PPAGE)) >= num_active_udp_games)
 		{
 			auto &p = ljtext[i];
-			snprintf(&p[0], p.size(), "%d.                                                                      ", (i + (NLPage * UDP_NETGAMES_PPAGE)) + 1);
+			snprintf(p.data(), p.size(), "%d.                                                                      ", (i + (NLPage * UDP_NETGAMES_PPAGE)) + 1);
 			continue;
 		}
 
@@ -1695,7 +1695,7 @@ window_event_result netgame_list_game_menu::event_handler(const d_event &event)
 		
 		const auto gamemode = underlying_value(augi.gamemode);
 		auto &p = ljtext[i];
-		snprintf(&p[0], p.size(), "%d.\t%.24s \t%.7s \t%3u/%u \t%.24s \t %s \t%s", (i + (NLPage * UDP_NETGAMES_PPAGE)) + 1, GameName.data(), (gamemode < std::size(GMNamesShrt)) ? GMNamesShrt[gamemode] : "INVALID", nplayers, augi.max_numplayers, MissName.data(), levelname, status);
+		snprintf(p.data(), p.size(), "%d.\t%.24s \t%.7s \t%3u/%u \t%.24s \t %s \t%s", (i + (NLPage * UDP_NETGAMES_PPAGE)) + 1, GameName.data(), (gamemode < std::size(GMNamesShrt)) ? GMNamesShrt[gamemode] : "INVALID", nplayers, augi.max_numplayers, MissName.data(), levelname, status);
 	}
 	return newmenu::event_handler(event);
 }
@@ -3990,7 +3990,7 @@ public:
 	}
 	void update_portstring()
 	{
-		snprintf(&portstring[0], portstring.size(), "%hu", UDP_MyPort);
+		snprintf(portstring.data(), portstring.size(), "%hu", UDP_MyPort);
 	}
 	void update_reactor_life_string(unsigned t)
 	{

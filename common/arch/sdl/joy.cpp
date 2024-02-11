@@ -373,7 +373,7 @@ void joy_init()
 				cf_assert(idx <= DXX_MAX_AXES_PER_JOYSTICK);
 				auto &text = joyaxis_text[joystick_n_axes];
 				value = joystick_n_axes++;
-				snprintf(&text[0], sizeof(text), "J%d A%u", i + 1, idx);
+				snprintf(text.data(), text.size(), "J%d A%u", i + 1, idx);
 			}
 #else
             const auto n_axes = 0;
@@ -399,7 +399,7 @@ void joy_init()
 				}
 				auto &text = joybutton_text[joystick_n_buttons];
 				value = joystick_n_buttons++;
-				snprintf(&text[0], sizeof(text), "J%u B%u", i + 1, idx);
+				snprintf(text.data(), text.size(), "J%u B%u", i + 1, idx);
 			}
 #endif
 #if DXX_MAX_HATS_PER_JOYSTICK

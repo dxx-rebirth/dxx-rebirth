@@ -451,8 +451,7 @@ void draw_polygon_model(grs_canvas &canvas, const tmap_drawer_type tmap_drawer_p
 	polygon_model_points robot_points;
 
 	if (flags == 0)		//draw entire object
-
-		g3_draw_polygon_model(&texture_list[0], robot_points, canvas, tmap_drawer_ptr, anim_angles, light, glow_values, po->model_data.get());
+		g3_draw_polygon_model(texture_list.data(), robot_points, canvas, tmap_drawer_ptr, anim_angles, light, glow_values, po->model_data.get());
 
 	else {
 		for (int i=0;flags;flags>>=1,i++)
@@ -461,7 +460,7 @@ void draw_polygon_model(grs_canvas &canvas, const tmap_drawer_type tmap_drawer_p
 
 				//if submodel, rotate around its center point, not pivot point
 				auto &&subctx = g3_start_instance_matrix();
-				g3_draw_polygon_model(&texture_list[0], robot_points, canvas, tmap_drawer_ptr, anim_angles, light, glow_values, &po->model_data[po->submodel_ptrs[i]]);
+				g3_draw_polygon_model(texture_list.data(), robot_points, canvas, tmap_drawer_ptr, anim_angles, light, glow_values, &po->model_data[po->submodel_ptrs[i]]);
 				g3_done_instance(subctx);
 			}	
 	}

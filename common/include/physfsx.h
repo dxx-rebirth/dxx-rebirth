@@ -115,7 +115,7 @@ static inline PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_File *file, const std::ar
 {
 	static_assert(std::is_standard_layout<V>::value && std::is_trivial<V>::value, "C++ array of non-POD elements written");
 	DXX_PHYSFS_CHECK_WRITE_CONSTANTS(S,C);
-	return PHYSFSX_check_write(file, &v[0], S, C);
+	return PHYSFSX_check_write(file, v.data(), S, C);
 }
 
 template <typename T, typename D>

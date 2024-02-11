@@ -1372,7 +1372,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 		PHYSFS_write(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
 #if defined(DXX_BUILD_DESCENT_II)
-		PHYSFS_write(fp, &gr_palette[0], sizeof(gr_palette[0]), gr_palette.size());
+		PHYSFS_write(fp, gr_palette.data(), sizeof(gr_palette[0]), gr_palette.size());
 #endif
 	}
 
