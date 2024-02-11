@@ -37,7 +37,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef dsx
 #if defined(DXX_BUILD_DESCENT_II)
-#define LASER_HELIX_MASK        7   // must match number of bits in flags
 #define MAX_SUPER_LASER_LEVEL   laser_level::_6   // Note, laser levels are numbered from 0.
 #endif
 

@@ -142,6 +142,11 @@ void Laser_render(grs_canvas &canvas, const object_base &obj)
 //}
 
 namespace {
+
+#if defined(DXX_BUILD_DESCENT_II)
+static constexpr unsigned LASER_HELIX_MASK{7};   // must match number of bits in flags
+#endif
+
 static bool ignore_proximity_weapon(const object &o)
 {
 	if (!is_proximity_bomb_or_player_smart_mine(get_weapon_id(o)))
