@@ -211,12 +211,8 @@ void create_walls_on_side(fvcvertptr &, shared_segment &sp, sidenum_t sidenum);
 void validate_segment_side(fvcvertptr &, vmsegptridx_t sp, sidenum_t sidenum);
 #endif
 
-void pick_random_point_in_seg(fvcvertptr &vcvertptr, vms_vector &new_pos, const shared_segment &sp, std::minstd_rand);
-static inline vms_vector pick_random_point_in_seg(fvcvertptr &vcvertptr, const shared_segment &sp, std::minstd_rand r)
-{
-	vms_vector v;
-	return pick_random_point_in_seg(vcvertptr, v, sp, r), v;
-}
+[[nodiscard]]
+vms_vector pick_random_point_in_seg(fvcvertptr &vcvertptr, const shared_segment &sp, std::minstd_rand r);
 
 int check_segment_connections(void);
 unsigned set_segment_depths(vcsegidx_t start_seg, const std::array<uint8_t, MAX_SEGMENTS> *limit, segment_depth_array_t &depths);

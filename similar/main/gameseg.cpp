@@ -1586,15 +1586,15 @@ void validate_segment_all(d_level_shared_segment_state &LevelSharedSegmentState)
 //	------------------------------------------------------------------------------------------------------
 //	Picks a random point in a segment like so:
 //		From center, go up to 50% of way towards any of the 8 vertices.
-void pick_random_point_in_seg(fvcvertptr &vcvertptr, vms_vector &new_pos, const shared_segment &sp, std::minstd_rand r)
+vms_vector pick_random_point_in_seg(fvcvertptr &vcvertptr, const shared_segment &sp, std::minstd_rand r)
 {
-	compute_segment_center(vcvertptr, new_pos, sp);
+	auto new_pos{compute_segment_center(vcvertptr, sp)};
 	const auto vnum = segment_relative_vertnum{std::uniform_int_distribution<uint8_t>(0, MAX_VERTICES_PER_SEGMENT - 1)(r)};
 	auto &&vec2 = vm_vec_sub(vcvertptr(sp.verts[vnum]), new_pos);
 	vm_vec_scale(vec2, std::uniform_int_distribution<fix>(0, f0_5 - 1)(r));          // always in 0..1/2 fix
 	vm_vec_add2(new_pos, vec2);
+	return new_pos;
 }
-
 
 //	----------------------------------------------------------------------------------------------------------
 //	Set the segment depth of all segments from start_seg in *segbuf.
