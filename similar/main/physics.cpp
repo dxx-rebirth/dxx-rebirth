@@ -70,7 +70,6 @@ namespace {
 static void do_physics_align_object(object_base &obj)
 {
 	vms_vector desired_upvec;
-	fixang delta_ang,roll_ang;
 	fix largest_d = INT32_MIN;
 	const shared_side *best_side = nullptr;
 	// bank player according to segment orientation
@@ -101,22 +100,26 @@ static void do_physics_align_object(object_base &obj)
 
 	if (labs(vm_vec_dot(desired_upvec, obj.orient.fvec)) < f1_0 / 2)
 	{
-		vms_angvec tangles;
-		
 		const auto temp_matrix = vm_vector_2_matrix(obj.orient.fvec, &desired_upvec, nullptr);
 
-		delta_ang = vm_vec_delta_ang(obj.orient.uvec, temp_matrix.uvec, obj.orient.fvec);
-
+		auto delta_ang{vm_vec_delta_ang(obj.orient.uvec, temp_matrix.uvec, obj.orient.fvec)};
 		delta_ang += obj.mtype.phys_info.turnroll;
 
 		if (abs(delta_ang) > DAMP_ANG) {
-			roll_ang = fixmul(FrameTime,ROLL_RATE);
-
-			if (abs(delta_ang) < roll_ang) roll_ang = delta_ang;
-			else if (delta_ang<0) roll_ang = -roll_ang;
-
-			tangles.p = tangles.h = 0;  tangles.b = roll_ang;
-			const auto &&rotmat = vm_angles_2_matrix(tangles);
+			const auto uncapped_roll_ang{fixmul(FrameTime, ROLL_RATE)};
+			const fixang roll_ang{
+				(uncapped_roll_ang > abs(delta_ang))
+					? delta_ang
+					: (delta_ang < 0
+						? static_cast<fixang>(-uncapped_roll_ang)
+						: static_cast<fixang>(uncapped_roll_ang))
+			};
+			const auto &&rotmat = vm_angles_2_matrix(
+				vms_angvec{
+					.p = fixang{0},
+					.b = roll_ang,
+					.h = fixang{0}
+				});
 			obj.orient = vm_matrix_x_matrix(obj.orient, rotmat);
 		}
 	}
@@ -165,7 +168,6 @@ namespace dsx {
 namespace {
 static void do_physics_sim_rot(object_base &obj)
 {
-	vms_angvec	tangles;
 	//fix		rotdrag_scale;
 	physics_info *pi;
 
@@ -222,30 +224,46 @@ static void do_physics_sim_rot(object_base &obj)
 	//now rotate object
 
 	//unrotate object for bank caused by turn
-	if (obj.mtype.phys_info.turnroll)
+	const auto turnroll{obj.mtype.phys_info.turnroll};
+	if (turnroll)
 	{
-		tangles.p = tangles.h = 0;
-		tangles.b = -obj.mtype.phys_info.turnroll;
-		const auto &&rotmat = vm_angles_2_matrix(tangles);
+		const auto &&rotmat = vm_angles_2_matrix(
+			vms_angvec{
+				.p = fixang{0},
+				.b = static_cast<fixang>(-turnroll),
+				.h = fixang{0}
+			});
 		obj.orient = vm_matrix_x_matrix(obj.orient, rotmat);
 	}
 
 	const auto frametime = FrameTime;
-	tangles.p = fixmul(obj.mtype.phys_info.rotvel.x, frametime);
-	tangles.h = fixmul(obj.mtype.phys_info.rotvel.y, frametime);
-	tangles.b = fixmul(obj.mtype.phys_info.rotvel.z, frametime);
 
-	obj.orient = vm_matrix_x_matrix(obj.orient, vm_angles_2_matrix(tangles));
+	{
+		const auto multiply_with_clamp = [](const fix rotvel, const fix frametime) -> fixang {
+			static constexpr fix min{std::numeric_limits<fixang>::min()};
+			static constexpr fix max{std::numeric_limits<fixang>::max()};
+			return std::clamp<fix>({fixmul(rotvel, frametime)}, min, max);
+		};
+		obj.orient = vm_matrix_x_matrix(obj.orient, vm_angles_2_matrix(
+				vms_angvec{
+					.p = multiply_with_clamp(obj.mtype.phys_info.rotvel.x, frametime),
+					.b = multiply_with_clamp(obj.mtype.phys_info.rotvel.z, frametime),
+					.h = multiply_with_clamp(obj.mtype.phys_info.rotvel.y, frametime)
+				}));
+	}
 
 	if (obj.mtype.phys_info.flags & PF_TURNROLL)
 		set_object_turnroll(obj);
 
 	//re-rotate object for bank caused by turn
-	if (obj.mtype.phys_info.turnroll)
+	if (turnroll)
 	{
-		tangles.p = tangles.h = 0;
-		tangles.b = obj.mtype.phys_info.turnroll;
-		obj.orient = vm_matrix_x_matrix(obj.orient, vm_angles_2_matrix(tangles));
+		obj.orient = vm_matrix_x_matrix(obj.orient, vm_angles_2_matrix(
+				vms_angvec{
+					.p = fixang{0},
+					.b = turnroll,
+					.h = fixang{0}
+				}));
 	}
 
 	check_and_fix_matrix(obj.orient);
