@@ -113,8 +113,7 @@ constexpr std::array<uint8_t, MAX_WEAPON_TYPES> Weapon_is_energy{{
 namespace dcx {
 void bump_one_object(object_base &obj0, const vms_vector &hit_dir, const fix damage)
 {
-	const auto hit_vec = vm_vec_copy_scale(hit_dir, damage);
-	phys_apply_force(obj0,hit_vec);
+	phys_apply_force(obj0, vm_vec_copy_scale(hit_dir, damage));
 }
 
 namespace {
@@ -337,8 +336,7 @@ static void bump_two_objects(const d_robot_info_array &Robot_info, const vmobjpt
 	{
 		object_base &t = *pt;
 		Assert(t.movement_source == object::movement_type::physics);
-		const auto force = vm_vec_copy_scale(t.mtype.phys_info.velocity, -t.mtype.phys_info.mass);
-		phys_apply_force(t,force);
+		phys_apply_force(t, vm_vec_copy_scale(t.mtype.phys_info.velocity, -t.mtype.phys_info.mass));
 		return;
 	}
 

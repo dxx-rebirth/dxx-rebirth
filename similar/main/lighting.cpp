@@ -94,7 +94,7 @@ static fix compute_player_light_emission_intensity(const object_base &objp)
 	const auto drag = phys_info.drag;
 	const fix k = fixmuldiv(phys_info.mass, drag, (F1_0 - drag));
 	// smooth thrust value like set_thrust_from_velocity()
-	const auto sthrust = vm_vec_copy_scale(phys_info.velocity, k);
+	const auto sthrust{vm_vec_copy_scale(phys_info.velocity, k)};
 	return std::max(static_cast<fix>(vm_vec_mag_quick(sthrust) / 4), F2_0) + F0_5;
 }
 

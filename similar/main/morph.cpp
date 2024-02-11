@@ -350,7 +350,7 @@ static void init_points(const polymodel &pm, const vms_vector *const box_size, c
 		fix k;
 
 		if (box_size && (k = compute_bounding_box_extents(*vp, *box_size) != INT32_MAX))
-			vm_vec_copy_scale(morph_vec, *vp, k);
+			morph_vec = vm_vec_copy_scale(*vp, k);
 		else
 			morph_vec = {};
 

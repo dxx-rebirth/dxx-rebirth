@@ -269,7 +269,7 @@ void draw_object_tmap_rod(grs_canvas &canvas, const d_level_unique_light_state *
 
 	auto &bitmap = GameBitmaps[bitmapi];
 
-	const auto delta = vm_vec_copy_scale(obj->orient.uvec,obj->size);
+	const auto delta{vm_vec_copy_scale(obj->orient.uvec, obj->size)};
 
 	const auto top_v = vm_vec_add(obj->pos,delta);
 	const auto bot_v = vm_vec_sub(obj->pos,delta);

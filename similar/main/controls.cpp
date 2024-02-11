@@ -91,7 +91,7 @@ void read_flying_controls(object &obj, control_info &Controls)
 		const auto &&rotmat = vm_angles_2_matrix(rotangs);
 		gmobj.orient = vm_matrix_x_matrix(gmobj.orient, rotmat);
 
-		vm_vec_copy_scale(gmobj.mtype.phys_info.velocity, gmobj.orient.fvec, speed);
+		gmobj.mtype.phys_info.velocity = vm_vec_copy_scale(gmobj.orient.fvec, speed);
 		if (Game_mode & GM_MULTI)
 			multi_send_guided_info(gmobj, 0);
 		return true;
@@ -154,7 +154,7 @@ void read_flying_controls(object &obj, control_info &Controls)
 #endif
 
 	// Set object's thrust vector for forward/backward
-	vm_vec_copy_scale(obj.mtype.phys_info.thrust, obj.orient.fvec, forward_thrust_time );
+	obj.mtype.phys_info.thrust = vm_vec_copy_scale(obj.orient.fvec, forward_thrust_time);
 	
 	// slide left/right
 	vm_vec_scale_add2(obj.mtype.phys_info.thrust, obj.orient.rvec, Controls.sideways_thrust_time );

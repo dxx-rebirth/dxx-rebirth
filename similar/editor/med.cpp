@@ -584,7 +584,7 @@ int SetPlayerFromCursegMinusOne()
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	const auto side_center{compute_center_point_on_side(vcvertptr, Cursegp, Curside)};
-	const auto view_vec2 = vm_vec_copy_scale(view_vec,view_dist);
+	const auto view_vec2{vm_vec_copy_scale(view_vec, view_dist)};
 	vm_vec_sub(ConsoleObject->pos,side_center,view_vec2);
 
 	auto &sv = Side_to_verts[Curside];
@@ -607,7 +607,7 @@ int SetPlayerFromCursegMinusOne()
 	}
 
 	view_dist = fixmul(view_dist,fixdiv(fixdiv(max,SIDE_VIEW_FRAC),corner_p[0].p3_z));
-	const auto view_vec3 = vm_vec_copy_scale(view_vec,view_dist);
+	const auto view_vec3{vm_vec_copy_scale(view_vec, view_dist)};
 	vm_vec_sub(ConsoleObject->pos,side_center,view_vec3);
 
 	//obj_relink(ConsoleObject-Objects, SEG_PTR_2_NUM(Cursegp) );

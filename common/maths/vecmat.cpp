@@ -97,16 +97,17 @@ vms_vector vm_vec_avg(const vms_vector &src0, const vms_vector &src1)
 //scales a vector in place.  returns ptr to vector
 vms_vector &vm_vec_scale(vms_vector &dest,fix s)
 {
-	return vm_vec_copy_scale(dest, dest, s);
+	return dest = vm_vec_copy_scale(dest, s);
 }
 
-//scales and copies a vector.  returns ptr to dest
-vms_vector &vm_vec_copy_scale(vms_vector &dest,const vms_vector &src,fix s)
+//scales and copies a vector.  returns scaled result
+vms_vector vm_vec_copy_scale(const vms_vector src, const fix s)
 {
-	dest.x = fixmul(src.x,s);
-	dest.y = fixmul(src.y,s);
-	dest.z = fixmul(src.z,s);
-	return dest;
+	return vms_vector{
+		.x = fixmul(src.x, s),
+		.y = fixmul(src.y, s),
+		.z = fixmul(src.z, s),
+	};
 }
 
 //scales a vector, adds it to another, and stores in a 3rd vector

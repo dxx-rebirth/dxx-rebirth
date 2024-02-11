@@ -36,8 +36,6 @@ void vm_vec_add2 (vms_vector &dest, const vms_vector &src);
 void vm_vec_sub2 (vms_vector &dest, const vms_vector &src);
 vms_vector &vm_vec_scale (vms_vector &dest, fix s);
 
-#define vm_vec_copy_scale(A,B,...)	vm_vec_copy_scale(A, ## __VA_ARGS__, B)
-vms_vector &vm_vec_copy_scale (vms_vector &dest, const vms_vector &src, fix s);
 void vm_vec_scale_add (vms_vector &dest, const vms_vector &src1, const vms_vector &src2, fix k);
 void vm_vec_scale_add2 (vms_vector &dest, const vms_vector &src, fix k);
 void vm_vec_scale2 (vms_vector &dest, fix n, fix d);

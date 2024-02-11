@@ -303,13 +303,9 @@ static inline vms_vector vm_vec_sub (const vms_vector &src0, const vms_vector &s
 [[nodiscard]]
 vms_vector vm_vec_avg(const vms_vector &src0, const vms_vector &src1);
 
-//scales and copies a vector.  returns ptr to dest
-#define vm_vec_copy_scale(A,B,...)	vm_vec_copy_scale(A, ## __VA_ARGS__, B)
+//scales a vector.  returns scaled result
 [[nodiscard]]
-static inline vms_vector vm_vec_copy_scale(vms_vector src, fix s)
-{
-	return vm_vec_scale(src, s), src;
-}
+vms_vector vm_vec_copy_scale(vms_vector src, fix s);
 
 //scales a vector, adds it to another, and stores in a 3rd vector
 //dest = src1 + k * src2

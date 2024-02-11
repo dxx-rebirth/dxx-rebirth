@@ -189,7 +189,7 @@ static void do_physics_sim_rot(object_base &obj)
 
 		if (obj.mtype.phys_info.flags & PF_USES_THRUST)
 		{
-			const auto accel = vm_vec_copy_scale(obj.mtype.phys_info.rotthrust, fixdiv(f1_0, obj.mtype.phys_info.mass));
+			const auto accel{vm_vec_copy_scale(obj.mtype.phys_info.rotthrust, fixdiv(f1_0, obj.mtype.phys_info.mass))};
 			while (count--) {
 				vm_vec_add2(obj.mtype.phys_info.rotvel, accel);
 				vm_vec_scale(obj.mtype.phys_info.rotvel, f1_0 - drag);
@@ -373,7 +373,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 
 		if (obj->mtype.phys_info.flags & PF_USES_THRUST) {
 
-			const auto accel = vm_vec_copy_scale(obj->mtype.phys_info.thrust,fixdiv(f1_0,obj->mtype.phys_info.mass));
+			const auto accel{vm_vec_copy_scale(obj->mtype.phys_info.thrust,fixdiv(f1_0,obj->mtype.phys_info.mass))};
 			have_accel = (accel.x || accel.y || accel.z);
 
 			while (count--) {
@@ -413,7 +413,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 		try_again = 0;
 
 		//Move the object
-		const auto frame_vec = vm_vec_copy_scale(obj->mtype.phys_info.velocity, sim_time);
+		const auto frame_vec{vm_vec_copy_scale(obj->mtype.phys_info.velocity, sim_time)};
 
 		if ( (frame_vec.x==0) && (frame_vec.y==0) && (frame_vec.z==0) )	
 			break;
@@ -725,7 +725,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 		)
 	{	
 		const auto moved_vec = vm_vec_sub(obj->pos,start_pos);
-		vm_vec_copy_scale(obj->mtype.phys_info.velocity,moved_vec,fixdiv(f1_0,FrameTime));
+		obj->mtype.phys_info.velocity = vm_vec_copy_scale(moved_vec, fixdiv(F1_0, FrameTime));
 	}
 
 	fix_illegal_wall_intersection(obj);
@@ -938,7 +938,7 @@ void set_thrust_from_velocity(object_base &obj)
 {
 	Assert(obj.movement_source == object::movement_type::physics);
 	auto &phys_info = obj.mtype.phys_info;
-	vm_vec_copy_scale(phys_info.thrust, phys_info.velocity,
+	phys_info.thrust = vm_vec_copy_scale(phys_info.velocity,
 		fixmuldiv(phys_info.mass, phys_info.drag, F1_0 - phys_info.drag)
 	);
 }

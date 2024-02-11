@@ -892,7 +892,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 
 			//create little explosion on wall
 
-			auto tpnt = vm_vec_copy_scale(ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*100);
+			auto tpnt{vm_vec_copy_scale(ConsoleObject->orient.rvec, (d_rand() - D_RAND_MAX / 2) * 100)};
 			vm_vec_scale_add2(tpnt,ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*100);
 			vm_vec_add2(tpnt,ConsoleObject->pos);
 
@@ -1447,7 +1447,6 @@ try_again:
 
 				if (var==5)
 					satellite_pos = tm.fvec;
-					//vm_vec_copy_scale(&satellite_pos,&tm.fvec,SATELLITE_DIST);
 				else
 					station_pos = tm.fvec;
 
@@ -1501,9 +1500,7 @@ try_again:
 		vm_vec_scale_add(satellite_pos,mine_exit_point,tv,SATELLITE_DIST);
 
 		const auto tm2 = vm_vector_2_matrix(tv,&surface_orient.uvec,nullptr);
-		vm_vec_copy_scale(satellite_upvec,tm2.uvec,SATELLITE_HEIGHT);
-
-
+		satellite_upvec = vm_vec_copy_scale(tm2.uvec, SATELLITE_HEIGHT);
 	}
 	endlevel_data_loaded = 1;
 }

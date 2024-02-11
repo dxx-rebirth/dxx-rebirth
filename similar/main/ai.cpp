@@ -4109,7 +4109,7 @@ _exit_cheat:
 					else
 					{
 						vm_vec_scale_add2(goal_vector, orient.rvec, (choice_count - selector) * F1_0);
-						vm_vec_copy_scale(goal_vector, orient.uvec, selector * F1_0);
+						goal_vector = vm_vec_copy_scale(orient.uvec, selector * F1_0);
 						vm_vec_normalize_quick(goal_vector);
 					}
 					if (vm_vec_dot(goal_vector, vec_to_player) > 0)
