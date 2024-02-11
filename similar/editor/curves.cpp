@@ -238,9 +238,11 @@ int generate_curve(const fix r1scale, const fix r4scale)
 			const auto tdest = vm_vec_rotate(vec_dir,rotmat);	// tdest := vec_dir in reference frame of Cursegp
 			vec_dir = tdest;
 
-            const auto rotmat2 = vm_vector_2_matrix(vec_dir,nullptr,nullptr);
-
+			{
+				vms_matrix rotmat2;
+				vm_vector_to_matrix(rotmat2, vec_dir);
             med_rotate_segment( Cursegp, rotmat2 );
+			}
 			prev_point = coord;
             Curside = Side_opposite[AttachSide];
 

@@ -37,6 +37,31 @@ vms_vector vm_vec_divide(const vms_vector &src, const fix m)
 	};
 }
 
+static void vm_vector_to_matrix_f(vms_matrix &m)
+{
+	if (m.fvec.x == 0 && m.fvec.z == 0) {		//forward vec is straight up or down
+		m.rvec = vms_vector{
+			.x = F1_0,
+			.y = 0,
+			.z = 0
+		};
+		m.uvec = vms_vector{
+			.x = 0,
+			.y = 0,
+			.z = (m.fvec.y < 0) ? F1_0 : -F1_0
+		};
+	}
+	else { 		//not straight up or down
+		m.rvec = vms_vector{
+			.x = m.fvec.z,
+			.y = 0,
+			.z = -m.fvec.x
+		};
+		vm_vec_normalize(m.rvec);
+		m.uvec = vm_vec_cross(m.fvec, m.rvec);
+	}
+}
+
 }
 
 //adds two vectors, fills in dest, returns ptr to dest
@@ -455,64 +480,50 @@ void vm_vec_ang_2_matrix(vms_matrix &m,const vms_vector &v,fixang a)
 //the up vector is used.  If only the forward vector is passed, a bank of
 //zero is assumed
 //returns ptr to matrix
-void vm_vector_2_matrix(vms_matrix &m,const vms_vector &fvec,const vms_vector *uvec,const vms_vector *rvec)
+void vm_vector_to_matrix(vms_matrix &m, const vms_vector &fvec)
 {
-	vms_vector &xvec=m.rvec,&yvec=m.uvec,&zvec=m.fvec;
-	if (!vm_vec_copy_normalize(zvec,fvec)) {
+	if (!vm_vec_copy_normalize(m.fvec, fvec))
+	{
 		Int3();		//forward vec should not be zero-length
 		return;
 	}
-	if (uvec == NULL) {
-		if (rvec == NULL) {		//just forward vec
-bad_vector2:
-	;
-			if (zvec.x==0 && zvec.z==0) {		//forward vec is straight up or down
+	vm_vector_to_matrix_f(m);
+}
 
-				m.rvec.x = f1_0;
-				m.uvec.z = (zvec.y < 0)?f1_0:-f1_0;
-
-				m.rvec.y = m.rvec.z = m.uvec.x = m.uvec.y = 0;
-			}
-			else { 		//not straight up or down
-
-				xvec.x = zvec.z;
-				xvec.y = 0;
-				xvec.z = -zvec.x;
-
-				vm_vec_normalize(xvec);
-				yvec = vm_vec_cross(zvec, xvec);
-			}
-		}
-		else {						//use right vec
-
-			if (!vm_vec_copy_normalize(xvec,*rvec))
-				goto bad_vector2;
-
-			yvec = vm_vec_cross(zvec, xvec);
-
-			//normalize new perpendicular vector
-			if (!vm_vec_normalize(yvec))
-				goto bad_vector2;
-
-			//now recompute right vector, in case it wasn't entirely perpendiclar
-			xvec = vm_vec_cross(yvec, zvec);
-
-		}
+void vm_vector_to_matrix_r(vms_matrix &m, const vms_vector &fvec, const vms_vector &rvec)
+{
+	if (!vm_vec_copy_normalize(m.fvec, fvec))
+	{
+		Int3();		//forward vec should not be zero-length
+		return;
 	}
-	else {		//use up vec
-
-		if (!vm_vec_copy_normalize(yvec,*uvec))
-			goto bad_vector2;
-
-		xvec = vm_vec_cross(yvec, zvec);
-		
+	if (!vm_vec_copy_normalize(m.rvec, rvec) ||
 		//normalize new perpendicular vector
-		if (!vm_vec_normalize(xvec))
-			goto bad_vector2;
-
-		//now recompute up vector, in case it wasn't entirely perpendiclar
-		yvec = vm_vec_cross(zvec, xvec);
+		!vm_vec_normalize(m.uvec = vm_vec_cross(m.fvec, m.rvec)))
+	{
+		vm_vector_to_matrix_f(m);
+		return;
 	}
+	//now recompute right vector, in case it wasn't entirely perpendicular
+	m.rvec = vm_vec_cross(m.uvec, m.fvec);
+}
+
+void vm_vector_to_matrix_u(vms_matrix &m, const vms_vector &fvec, const vms_vector &uvec)
+{
+	if (!vm_vec_copy_normalize(m.fvec, fvec))
+	{
+		Int3();		//forward vec should not be zero-length
+		return;
+	}
+	if (!vm_vec_copy_normalize(m.uvec, uvec) ||
+		//normalize new perpendicular vector
+		!vm_vec_normalize(m.rvec = vm_vec_cross(m.uvec, m.fvec)))
+	{
+		vm_vector_to_matrix_f(m);
+		return;
+	}
+	//now recompute up vector, in case it wasn't entirely perpendicular
+	m.uvec = vm_vec_cross(m.fvec, m.rvec);
 }
 
 

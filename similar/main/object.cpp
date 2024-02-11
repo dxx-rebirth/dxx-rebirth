@@ -1532,7 +1532,7 @@ window_event_result dead_player_frame(const d_robot_info_array &Robot_info)
 		if (time_dead < DEATH_SEQUENCE_EXPLODE_TIME + F1_0 * 2)
 		{
 			const auto fvec = vm_vec_sub(ConsoleObject->pos, Dead_player_camera->pos);
-			vm_vector_2_matrix(Dead_player_camera->orient, fvec, nullptr, nullptr);
+			vm_vector_to_matrix(Dead_player_camera->orient, fvec);
 			Dead_player_camera->mtype.phys_info = ConsoleObject->mtype.phys_info;
 
 			// the following "if" added by WraithX to get rid of camera "wiggle"

@@ -1079,7 +1079,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 				Endlevel_sequence = EL_CHASING;
 
 				vm_vec_normalized_dir_quick(tvec,station_pos,ConsoleObject->pos);
-				vm_vector_2_matrix(ConsoleObject->orient,tvec,&surface_orient.uvec,nullptr);
+				vm_vector_to_matrix_u(ConsoleObject->orient, tvec, surface_orient.uvec);
 
 				desired_fly_speed *= 2;
 			}
@@ -1266,7 +1266,7 @@ void do_endlevel_flythrough(d_level_unique_object_state &LevelUniqueObjectState,
 		const auto curcenter{compute_segment_center(vcvertptr, pseg)};
 		vm_vec_sub(flydata->headvec,nextcenter,curcenter);
 
-		const auto dest_orient = vm_vector_2_matrix(flydata->headvec,&pseg.sides[up_side].normals[0],nullptr);
+		const auto dest_orient{vm_vector_to_matrix_u(flydata->headvec, pseg.sides[up_side].normals[0])};
 		//where we want to be pointing
 		const auto dest_angles{vm_extract_angles_matrix(dest_orient)};
 
@@ -1496,7 +1496,7 @@ try_again:
 		const auto tv = vm_vec_rotate(satellite_pos,tm);
 		satellite_pos = vm_vec_scale_add(mine_exit_point, tv, SATELLITE_DIST);
 
-		const auto tm2 = vm_vector_2_matrix(tv,&surface_orient.uvec,nullptr);
+		const auto tm2{vm_vector_to_matrix_u(tv, surface_orient.uvec)};
 		satellite_upvec = vm_vec_copy_scale(tm2.uvec, SATELLITE_HEIGHT);
 	}
 	endlevel_data_loaded = 1;

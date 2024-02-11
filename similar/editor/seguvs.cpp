@@ -383,7 +383,7 @@ static void assign_uvs_to_side(fvcvertptr &vcvertptr, const vmsegptridx_t segp, 
 				}
 				else
 				{
-					const auto &m = vm_vector_2_matrix(tfvec, nullptr, &trvec);
+					const auto m{vm_vector_to_matrix_r(tfvec, trvec)};
 					fvec = m.fvec;
 					rvec = m.rvec;
 				}

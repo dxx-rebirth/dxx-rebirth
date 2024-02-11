@@ -762,7 +762,7 @@ void ai_turn_towards_vector(const vms_vector &goal_vector, object_base &objp, fi
 	}
 #endif
 
-	vm_vector_2_matrix(objp.orient, new_fvec, nullptr, &objp.orient.rvec);
+	vm_vector_to_matrix_r(objp.orient, new_fvec, objp.orient.rvec);
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -2414,7 +2414,7 @@ static void teleport_boss(const d_robot_info_array &Robot_info, const d_vclip_ar
 
 	//	make boss point right at player
 	const auto boss_dir = vm_vec_sub(target_pos, objp->pos);
-	vm_vector_2_matrix(objp->orient, boss_dir, nullptr, nullptr);
+	vm_vector_to_matrix(objp->orient, boss_dir);
 
 	digi_link_sound_to_pos(Vclip[vclip_index::morphing_robot].sound_num, rand_segp, sidenum_t::WLEFT, objp->pos, 0, F1_0);
 	digi_kill_sound_linked_to_object( objp);

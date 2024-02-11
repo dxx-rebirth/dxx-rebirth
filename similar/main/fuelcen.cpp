@@ -525,7 +525,7 @@ static void robotmaker_proc(const d_robot_info_array &Robot_info, const d_vclip_
 
 					// Make object faces player...
 					const auto direction = vm_vec_sub(ConsoleObject->pos,obj->pos );
-					vm_vector_2_matrix( obj->orient, direction, &obj->orient.uvec, nullptr);
+					vm_vector_to_matrix_u(obj->orient, direction, obj->orient.uvec);
 	
 					morph_start(LevelUniqueMorphObjectState, LevelSharedPolygonModelState, obj);
 					//robotcen->last_created_obj = obj;

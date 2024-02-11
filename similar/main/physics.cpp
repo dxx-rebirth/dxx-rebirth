@@ -62,7 +62,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //make sure matrix is orthogonal
 void check_and_fix_matrix(vms_matrix &m)
 {
-	m = vm_vector_2_matrix(m.fvec,&m.uvec,nullptr);
+	vm_vector_to_matrix_u(m, m.fvec, m.uvec);
 }
 
 namespace {
@@ -100,7 +100,7 @@ static void do_physics_align_object(object_base &obj)
 
 	if (labs(vm_vec_dot(desired_upvec, obj.orient.fvec)) < f1_0 / 2)
 	{
-		const auto temp_matrix = vm_vector_2_matrix(obj.orient.fvec, &desired_upvec, nullptr);
+		const auto temp_matrix{vm_vector_to_matrix_u(obj.orient.fvec, desired_upvec)};
 
 		auto delta_ang{vm_vec_delta_ang(obj.orient.uvec, temp_matrix.uvec, obj.orient.fvec)};
 		delta_ang += obj.mtype.phys_info.turnroll;
@@ -665,7 +665,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 						}
 
 						if (bounced && obj->type == OBJ_WEAPON)
-							vm_vector_2_matrix(obj->orient,obj->mtype.phys_info.velocity,&obj->orient.uvec,nullptr);
+							vm_vector_to_matrix_u(obj->orient, obj->mtype.phys_info.velocity, obj->orient.uvec);
 #endif
 
 						try_again = 1;

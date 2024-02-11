@@ -353,9 +353,7 @@ void med_extract_matrix_from_segment(const shared_segment &sp, vms_matrix &rotma
 		rotmat = vmd_identity_matrix;
 		return;
 	}
-
-
-	vm_vector_2_matrix(rotmat, forwardvec, &upvec, nullptr);
+	vm_vector_to_matrix_u(rotmat, forwardvec, upvec);
 }
 
 }
@@ -713,7 +711,7 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const csmuseg
 	// Do lots of hideous matrix stuff, about 3/4 of which could probably be simplified out.
 	med_extract_matrix_from_segment(destseg, rotmat);		// get orientation matrix for destseg (orthogonal rotation matrix)
 	update_matrix_based_on_side(rotmat,destside);
-	const auto rotmat1 = vm_vector_2_matrix(forvec,&upvec,nullptr);
+	const auto rotmat1{vm_vector_to_matrix_u(forvec, upvec)};
 	const auto rotmat4 = vm_matrix_x_matrix(rotmat,rotmat1);			// this is the desired orientation of the new segment
 	med_extract_matrix_from_segment(newseg, rotmat3);		// this is the current orientation of the new segment
 	vm_transpose_matrix(rotmat3);								// get the inverse of the current orientation matrix

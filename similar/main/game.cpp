@@ -687,7 +687,7 @@ void move_player_2_segment(const vmsegptridx_t seg, const sidenum_t side)
 	console->pos = compute_segment_center(vcvertptr, seg);
 	auto vp{compute_center_point_on_side(vcvertptr, seg, side)};
 	vm_vec_sub2(vp, console->pos);
-	vm_vector_2_matrix(console->orient, vp, nullptr, nullptr);
+	vm_vector_to_matrix(console->orient, vp);
 	obj_relink(vmobjptr, vmsegptr, console, seg);
 }
 #endif

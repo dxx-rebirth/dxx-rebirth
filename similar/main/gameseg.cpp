@@ -1144,7 +1144,7 @@ void extract_orient_from_segment(fvcvertptr &vcvertptr, vms_matrix &m, const sha
 	const auto uvec{extract_vector_from_segment(vcvertptr, seg, sidenum_t::WBOTTOM, sidenum_t::WTOP)};
 
 	//vector to matrix does normalizations and orthogonalizations
-	vm_vector_2_matrix(m, fvec, &uvec, nullptr);
+	vm_vector_to_matrix_u(m, fvec, uvec);
 }
 
 #if !DXX_USE_EDITOR

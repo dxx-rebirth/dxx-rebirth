@@ -83,7 +83,9 @@ void vm_angles_2_matrix (vms_matrix &m, const vms_angvec &a);
 void vm_vec_ang_2_matrix (vms_matrix &m, const vms_vector &v, fixang a);
 #endif
 
-void vm_vector_2_matrix (vms_matrix &m, const vms_vector &fvec, const vms_vector *uvec, const vms_vector *rvec);
+void vm_vector_to_matrix_r(vms_matrix &m, const vms_vector &fvec, const vms_vector &rvec);
+void vm_vector_to_matrix_u(vms_matrix &m, const vms_vector &fvec, const vms_vector &uvec);
+void vm_vector_to_matrix(vms_matrix &m, const vms_vector &fvec);
 void vm_vec_rotate (vms_vector &dest, const vms_vector &src, const vms_matrix &m);
 void _vm_matrix_x_matrix (vms_matrix &dest, const vms_matrix &src0, const vms_matrix &src1);
 [[nodiscard]]
