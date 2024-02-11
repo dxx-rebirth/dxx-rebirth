@@ -363,17 +363,19 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 		fading = true;
 	}
 
-	alternate_textures alt_textures;
+	const auto alt_textures{
 #if defined(DXX_BUILD_DESCENT_II)
-	if (fading)
+		!fading
+			? alternate_textures{}
+			:
 #endif
-	{
-		const unsigned ati = static_cast<unsigned>(obj.rtype.pobj_info.alt_textures) - 1;
-		if (ati < multi_player_textures.size())
-		{
-			alt_textures = multi_player_textures[ati];
-		}
-	}
+				({
+					const std::size_t ati{static_cast<std::size_t>(obj.rtype.pobj_info.alt_textures) - 1u};
+					ati < std::size(multi_player_textures)
+					? alternate_textures{multi_player_textures[ati]}
+					: alternate_textures{};
+				})
+	};
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	if (fading) {
@@ -509,11 +511,6 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 				cloak_duration = {GameTime64-F1_0*10, F1_0 * 20};
 			cloak_fade = {CLOAK_FADEIN_DURATION_ROBOT, CLOAK_FADEOUT_DURATION_ROBOT};
 		} else {
-			alternate_textures alt_textures;
-			const unsigned ati = static_cast<unsigned>(obj->rtype.pobj_info.alt_textures) - 1;
-			if (ati < multi_player_textures.size())
-				alt_textures = multi_player_textures[ati];
-
 #if defined(DXX_BUILD_DESCENT_II)
 			if (obj->type == OBJ_ROBOT)
 			{
@@ -529,6 +526,14 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 			}
 #endif
 
+			const auto alt_textures{
+				({
+					const std::size_t ati{static_cast<std::size_t>(obj->rtype.pobj_info.alt_textures) - 1u};
+					ati < std::size(multi_player_textures)
+					? alternate_textures{multi_player_textures[ati]}
+					: alternate_textures{};
+				})
+			};
 			const auto is_weapon_with_inner_model = (obj->type == OBJ_WEAPON && Weapon_info[get_weapon_id(obj)].model_num_inner != polygon_model_index::None);
 			bool draw_simple_model;
 			if (is_weapon_with_inner_model)
@@ -545,7 +550,6 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 							   &engine_glow_value,
 							   alt_textures);
 			}
-			
 			draw_polygon_model(Polygon_models, canvas, obj->pos,
 					   obj->orient,
 					   obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,

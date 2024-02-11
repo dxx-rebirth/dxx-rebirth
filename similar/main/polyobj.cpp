@@ -609,7 +609,7 @@ void draw_model_picture(grs_canvas &canvas, const polymodel &mn, const vms_angve
 		temp_pos.z = DEFAULT_VIEW_DIST;
 
 	const auto &&temp_orient = vm_angles_2_matrix(orient_angles);
-	draw_polygon_model(canvas, temp_pos, temp_orient, nullptr, mn, 0, lrgb, nullptr, nullptr);
+	draw_polygon_model(canvas, temp_pos, temp_orient, nullptr, mn, 0, lrgb, nullptr, alternate_textures{});
 	g3_end_frame();
 }
 
