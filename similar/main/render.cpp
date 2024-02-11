@@ -352,16 +352,16 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const si
 
 #if DXX_USE_EDITOR
 	if (Render_only_bottom && sidenum == sidenum_t::WBOTTOM)
-		g3_draw_tmap(canvas, nv, pointlist, uvl_copy, dyn_light, GameBitmaps[Textures[Bottom_bitmap_num]]);
+		g3_draw_tmap(canvas, nv, pointlist, uvl_copy, dyn_light, GameBitmaps[Textures[Bottom_bitmap_num]], draw_tmap);
 	else
 #endif
 
 #if DXX_USE_OGL
 		if (bm2){
-			g3_draw_tmap_2(canvas, nv, pointlist, uvl_copy, dyn_light, *bm, *bm2, get_texture_rotation_low(tmap2));
+			g3_draw_tmap_2(canvas, nv, pointlist, uvl_copy, dyn_light, *bm, *bm2, get_texture_rotation_low(tmap2), draw_tmap);
 		}else
 #endif
-			g3_draw_tmap(canvas, nv, pointlist, uvl_copy, dyn_light, *bm);
+			g3_draw_tmap(canvas, nv, pointlist, uvl_copy, dyn_light, *bm, draw_tmap);
 
 	if (alpha)
 		gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal); // revert any transparency / blending setting back to normal
@@ -419,7 +419,7 @@ static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const sidenu
 #else
 			const auto save_lighting = Lighting_on;
 			Lighting_on = 2;
-			g3_draw_tmap(canvas, nv, pointlist, uvl_copy, dyn_light, *bm);
+			g3_draw_tmap(canvas, nv, pointlist, uvl_copy, dyn_light, *bm, tmap_drawer_ptr);
 			Lighting_on = save_lighting;
 #endif
 		}

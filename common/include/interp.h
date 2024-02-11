@@ -41,7 +41,7 @@ struct glow_values_t : public std::array<fix, glow_array_size> {};
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
-void g3_draw_polygon_model(grs_bitmap *const *model_bitmaps, polygon_model_points &Interp_point_list, grs_canvas &, submodel_angles anim_angles, g3s_lrgb model_light, const glow_values_t *glow_values, const uint8_t *p);
+void g3_draw_polygon_model(grs_bitmap *const *model_bitmaps, polygon_model_points &Interp_point_list, grs_canvas &, tmap_drawer_type tmap_drawer_ptr, submodel_angles anim_angles, g3s_lrgb model_light, const glow_values_t *glow_values, const uint8_t *p);
 
 //init code for bitmap models
 int16_t g3_init_polygon_model(std::span<uint8_t> model);
@@ -54,7 +54,7 @@ void g3_validate_polygon_model(std::span<uint8_t> model);
 #ifdef dsx
 namespace dsx {
 //alternate interpreter for morphing object
-void g3_draw_morphing_model(grs_canvas &, const uint8_t *model_ptr, grs_bitmap *const *model_bitmaps, submodel_angles anim_angles, g3s_lrgb light, const vms_vector *new_points, polygon_model_points &Interp_point_list);
+void g3_draw_morphing_model(grs_canvas &, tmap_drawer_type tmap_drawer_ptr, const uint8_t *model_ptr, grs_bitmap *const *model_bitmaps, submodel_angles anim_angles, g3s_lrgb light, const vms_vector *new_points, polygon_model_points &Interp_point_list);
 
 // check a polymodel for it's color and return it
 int g3_poly_get_color(const uint8_t *model_ptr);

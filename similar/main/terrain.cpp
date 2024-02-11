@@ -121,7 +121,7 @@ static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const in
 			.g = lightval_i1j0,
 			.b = lightval_i1j0,
 		},
-	}}), *terrain_bm);
+	}}), *terrain_bm, draw_tmap);
 	std::aligned_union<0, g3_draw_line_context>::type outline_context;
 	static_assert(std::is_trivially_destructible<g3_draw_line_context>::value);
 	const auto draw_terrain_outline = terrain_outline;
@@ -175,7 +175,7 @@ static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const in
 			.g = lightval_i1j0,
 			.b = lightval_i1j0,
 		},
-	}}), *terrain_bm);
+	}}), *terrain_bm, draw_tmap);
 	if (draw_terrain_outline)
 	{
 #if !DXX_USE_OGL

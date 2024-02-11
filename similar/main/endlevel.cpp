@@ -561,7 +561,7 @@ void draw_exit_model(grs_canvas &canvas)
 	auto model_pos{vm_vec_scale_add(mine_exit_point, mine_exit_orient.fvec, i2f(f))};
 	vm_vec_scale_add2(model_pos,mine_exit_orient.uvec,i2f(u));
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	draw_polygon_model(Polygon_models, canvas, model_pos, mine_exit_orient, nullptr, mine_destroyed ? destroyed_exit_modelnum : exit_modelnum, 0, lrgb, nullptr, alternate_textures{});
+	draw_polygon_model(Polygon_models, canvas, draw_tmap, model_pos, mine_exit_orient, nullptr, mine_destroyed ? destroyed_exit_modelnum : exit_modelnum, 0, lrgb, nullptr, alternate_textures{});
 }
 
 #define SATELLITE_DIST		i2f(1024)
@@ -610,7 +610,7 @@ static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas,
 			if (! (p.p3_flags & projection_flag::overflow)) {
 				push_interpolation_method save_im(0);
 				//gr_bitmapm(f2i(p.p3_sx)-32,f2i(p.p3_sy)-32,satellite_bitmap);
-				g3_draw_rod_tmap(canvas, *satellite_bitmap, p, SATELLITE_WIDTH, top_pnt, SATELLITE_WIDTH, lrgb);
+				g3_draw_rod_tmap(canvas, *satellite_bitmap, p, SATELLITE_WIDTH, top_pnt, SATELLITE_WIDTH, lrgb, draw_tmap);
 			}
 		}
 	}

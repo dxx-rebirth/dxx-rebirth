@@ -567,7 +567,7 @@ static void draw_model(grs_canvas &canvas, polygon_model_points &robot_points, p
 			// so we need to reread them all in.
 			// Make sure that they can all fit in memory.
 			const auto morph_vecs = md->get_morph_vecs();
-			g3_draw_morphing_model(canvas, &pm->model_data[pm->submodel_ptrs[submodel_num]], &texture_list[0], anim_angles, light, &morph_vecs[md->submodel_startpoints[submodel_num]], robot_points);
+			g3_draw_morphing_model(canvas, draw_tmap, &pm->model_data[pm->submodel_ptrs[submodel_num]], &texture_list[0], anim_angles, light, &morph_vecs[md->submodel_startpoints[submodel_num]], robot_points);
 		}
 		else {
 			const auto &&orient = vm_angles_2_matrix(anim_angles[mn]);

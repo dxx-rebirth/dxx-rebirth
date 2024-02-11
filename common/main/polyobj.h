@@ -93,10 +93,10 @@ struct polymodel : prohibit_void_ptr<polymodel>
 class submodel_angles
 {
 	using array_type = const std::array<vms_angvec, MAX_SUBMODELS>;
-	array_type *p;
+	array_type *p{};
 public:
-	submodel_angles(std::nullptr_t) : p(nullptr) {}
-	submodel_angles(array_type &a) : p(&a) {}
+	submodel_angles(std::nullptr_t) : p{nullptr} {}
+	submodel_angles(array_type &a) : p{&a} {}
 	explicit operator bool() const { return p != nullptr; }
 	typename array_type::const_reference operator[](std::size_t i) const
 	{
@@ -167,8 +167,8 @@ public:
 #ifdef dsx
 namespace dsx {
 // draw a polygon model
-void draw_polygon_model(const enumerated_array<polymodel, MAX_POLYGON_MODELS, polygon_model_index> &, grs_canvas &, const vms_vector &pos, const vms_matrix &orient, submodel_angles anim_angles, const polygon_model_index model_num, unsigned flags, g3s_lrgb light, const glow_values_t *glow_values, alternate_textures);
-void draw_polygon_model(grs_canvas &, const vms_vector &pos, const vms_matrix &orient, submodel_angles anim_angles, const polymodel &model_num, unsigned flags, g3s_lrgb light, const glow_values_t *glow_values, alternate_textures);
+void draw_polygon_model(const enumerated_array<polymodel, MAX_POLYGON_MODELS, polygon_model_index> &, grs_canvas &, tmap_drawer_type tmap_drawer_ptr, const vms_vector &pos, const vms_matrix &orient, submodel_angles anim_angles, const polygon_model_index model_num, unsigned flags, g3s_lrgb light, const glow_values_t *glow_values, alternate_textures);
+void draw_polygon_model(grs_canvas &, tmap_drawer_type tmap_drawer_ptr, const vms_vector &pos, const vms_matrix &orient, submodel_angles anim_angles, const polymodel &model_num, unsigned flags, g3s_lrgb light, const glow_values_t *glow_values, alternate_textures);
 }
 #endif
 

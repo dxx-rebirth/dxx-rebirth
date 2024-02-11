@@ -26,8 +26,6 @@
 
 namespace dcx {
 
-tmap_drawer_type tmap_drawer_ptr = draw_tmap;
-
 #if DXX_USE_OGL
 namespace {
 
@@ -49,16 +47,7 @@ g3_draw_line_colors::g3_draw_line_colors(const color_palette_index color) :
 	color_array{build_color_array_from_color_palette_index(color)}
 {
 }
-#endif
-
-//specifies 2d drawing routines to use instead of defaults.  Passing
-//NULL for either or both restores defaults
-void g3_set_special_render(tmap_drawer_type tmap_drawer)
-{
-	tmap_drawer_ptr = tmap_drawer;
-}
-
-#if !DXX_USE_OGL
+#else
 namespace {
 
 //deal with a clipped line
@@ -123,7 +112,7 @@ bool do_facing_check(const std::array<cg3s_point *, 3> &vertlist)
 #if !DXX_USE_OGL
 namespace {
 
-static void must_clip_tmap_face(grs_canvas &, int nv, g3s_codes cc, grs_bitmap &bm, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1);
+static void must_clip_tmap_face(grs_canvas &, std::size_t nv, g3s_codes cc, grs_bitmap &bm, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1, tmap_drawer_type tmap_drawer_ptr);
 
 //deal with face that must be clipped
 static void must_clip_flat_face(grs_canvas &canvas, int nv, g3s_codes cc, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1, const uint8_t color)
@@ -202,8 +191,7 @@ void _g3_draw_poly(grs_canvas &canvas, const std::span<cg3s_point *const> pointl
 }
 
 //draw a texture-mapped face.
-//returns 1 if off screen, 0 if drew
-void _g3_draw_tmap(grs_canvas &canvas, const std::span<cg3s_point *const> pointlist, const g3s_uvl *const uvl_list, const g3s_lrgb *const light_rgb, grs_bitmap &bm)
+void _g3_draw_tmap(grs_canvas &canvas, const std::span<cg3s_point *const> pointlist, const g3s_uvl *const uvl_list, const g3s_lrgb *const light_rgb, grs_bitmap &bm, const tmap_drawer_type tmap_drawer_ptr)
 {
 	g3s_codes cc;
 
@@ -233,7 +221,7 @@ void _g3_draw_tmap(grs_canvas &canvas, const std::span<cg3s_point *const> pointl
 
 	if (cc.uor != clipping_code::None)
 	{
-		must_clip_tmap_face(canvas, pointlist.size(), cc, bm, Vbuf0, Vbuf1);
+		must_clip_tmap_face(canvas, pointlist.size(), cc, bm, Vbuf0, Vbuf1, tmap_drawer_ptr);
 		return;
 	}
 
@@ -254,7 +242,7 @@ void _g3_draw_tmap(grs_canvas &canvas, const std::span<cg3s_point *const> pointl
 
 namespace {
 
-static void must_clip_tmap_face(grs_canvas &canvas, int nv, g3s_codes cc, grs_bitmap &bm, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1)
+static void must_clip_tmap_face(grs_canvas &canvas, const std::size_t nv, g3s_codes cc, grs_bitmap &bm, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1, const tmap_drawer_type tmap_drawer_ptr)
 {
 	temporary_points_t tp;
 	auto &bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc,tp);
@@ -265,7 +253,6 @@ static void must_clip_tmap_face(grs_canvas &canvas, int nv, g3s_codes cc, grs_bi
 
 			if (!(p->p3_flags&projection_flag::projected))
 				g3_project_point(*p);
-	
 			if (p->p3_flags&projection_flag::overflow) {
 				Int3();		//should not overflow after clip
 				goto free_points;

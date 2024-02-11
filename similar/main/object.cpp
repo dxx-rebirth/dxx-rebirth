@@ -285,7 +285,7 @@ void draw_object_tmap_rod(grs_canvas &canvas, const d_level_unique_light_state *
 	{
 		light.r = light.g = light.b = f1_0;
 	}
-	g3_draw_rod_tmap(canvas, bitmap, bot_p, obj->size, top_p, obj->size, light);
+	g3_draw_rod_tmap(canvas, bitmap, bot_p, obj->size, top_p, obj->size, light, draw_tmap);
 }
 
 //used for robot engine glow
@@ -380,7 +380,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	if (fading) {
 		glow[0] = fixmul(glow[0],light_scale);
-		draw_polygon_model(Polygon_models, canvas, obj.pos,
+		draw_polygon_model(Polygon_models, canvas, draw_tmap, obj.pos,
 				   obj.orient,
 				   obj.rtype.pobj_info.anim_angles,
 				   obj.rtype.pobj_info.model_num, obj.rtype.pobj_info.subobj_flags,
@@ -394,15 +394,14 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 	}
 	else {
 		gr_settransblend(canvas, static_cast<gr_fade_level>(cloak_value), gr_blend::normal);
-		g3_set_special_render(draw_tmap_flat);		//use special flat drawer
-		draw_polygon_model(Polygon_models, canvas, obj.pos,
+		//use special flat drawer
+		draw_polygon_model(Polygon_models, canvas, draw_tmap_flat, obj.pos,
 				   obj.orient,
 				   obj.rtype.pobj_info.anim_angles,
 				   obj.rtype.pobj_info.model_num, obj.rtype.pobj_info.subobj_flags,
 				   light,
 				   &glow,
 				   alt_textures );
-		g3_set_special_render(draw_tmap);
 		gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal);
 	}
 
@@ -486,7 +485,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 
 		//fill whole array, in case simple model needs more
 		bm_ptrs.fill(Textures[obj->rtype.pobj_info.tmap_override]);
-		draw_polygon_model(Polygon_models, canvas, obj->pos,
+		draw_polygon_model(Polygon_models, canvas, draw_tmap, obj->pos,
 				   obj->orient,
 				   obj->rtype.pobj_info.anim_angles,
 				   obj->rtype.pobj_info.model_num,
@@ -541,7 +540,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 				gr_settransblend(canvas, GR_FADE_OFF, gr_blend::additive_a);
 				draw_simple_model = static_cast<fix>(vm_vec_dist_quick(Viewer->pos, obj->pos)) < Simple_model_threshhold_scale * F1_0*2;
 				if (draw_simple_model)
-					draw_polygon_model(Polygon_models, canvas, obj->pos,
+					draw_polygon_model(Polygon_models, canvas, draw_tmap, obj->pos,
 							   obj->orient,
 							   obj->rtype.pobj_info.anim_angles,
 							   Weapon_info[get_weapon_id(obj)].model_num_inner,
@@ -550,7 +549,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 							   &engine_glow_value,
 							   alt_textures);
 			}
-			draw_polygon_model(Polygon_models, canvas, obj->pos,
+			draw_polygon_model(Polygon_models, canvas, draw_tmap, obj->pos,
 					   obj->orient,
 					   obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,
 					   obj->rtype.pobj_info.subobj_flags,
@@ -563,7 +562,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 #if !DXX_USE_OGL // in software rendering must draw inner model last
 				gr_settransblend(canvas, GR_FADE_OFF, gr_blend::additive_a);
 				if (draw_simple_model)
-					draw_polygon_model(Polygon_models, canvas, obj->pos,
+					draw_polygon_model(Polygon_models, canvas, tmap_drawer_ptr, obj->pos,
 							   obj->orient,
 							   obj->rtype.pobj_info.anim_angles,
 							   Weapon_info[obj->id].model_num_inner,
