@@ -322,7 +322,7 @@ int ObjectPlaceObject(void)
 
 	//update_due_to_new_segment();
 	auto &vcvertptr = Vertices.vcptr;
-	const auto cur_object_loc = compute_segment_center(vcvertptr, Cursegp);
+	const auto cur_object_loc{compute_segment_center(vcvertptr, Cursegp)};
 
 	old_cur_object_index = Cur_object_index;
 	const auto rval = place_object(LevelUniqueObjectState, LevelSharedPolygonModelState, LevelSharedRobotInfoState.Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, Cursegp, cur_object_loc, Cur_object_type, Cur_object_id);
@@ -344,7 +344,7 @@ int ObjectPlaceObjectTmap(void)
 	int	old_cur_object_index;
 	//update_due_to_new_segment();
 	auto &vcvertptr = Vertices.vcptr;
-	const auto cur_object_loc = compute_segment_center(vcvertptr, Cursegp);
+	const auto cur_object_loc{compute_segment_center(vcvertptr, Cursegp)};
 
 	old_cur_object_index = Cur_object_index;
 	const auto rval = place_object(LevelUniqueObjectState, LevelSharedPolygonModelState, LevelSharedRobotInfoState.Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, Cursegp, cur_object_loc, Cur_object_type, Cur_object_id);
@@ -615,7 +615,7 @@ int	ObjectSetDefault(void)
 
 	const auto &&objp = vmobjptr(Cur_object_index);
 	auto &vcvertptr = Vertices.vcptr;
-	compute_segment_center(vcvertptr, objp->pos, vcsegptr(objp->segnum));
+	objp->pos = compute_segment_center(vcvertptr, vcsegptr(objp->segnum));
 
 	Update_flags |= UF_WORLD_CHANGED;
 

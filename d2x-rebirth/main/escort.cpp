@@ -1438,7 +1438,7 @@ void recreate_thief(const d_robot_info_array &Robot_info, const robot_id thief_i
 	const auto segnum = choose_thief_recreation_segment(vcsegptr, LevelUniqueWallSubsystemState.Walls.vcptr, ConsoleObject->segnum);
 	const auto &&segp = vmsegptridx(segnum);
 	auto &vcvertptr = Vertices.vcptr;
-	const auto &&center_point = compute_segment_center(vcvertptr, segp);
+	const auto center_point{compute_segment_center(vcvertptr, segp)};
 
 	const auto &&new_obj = create_morph_robot(Robot_info, segp, center_point, thief_id);
 	if (new_obj == object_none)

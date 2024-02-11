@@ -227,7 +227,7 @@ void trigger_matcen(const vmsegptridx_t segp)
 
 	//	Create a bright object in the segment.
 	auto &vcvertptr = Vertices.vcptr;
-	auto &&pos = compute_segment_center(vcvertptr, segp);
+	auto pos{compute_segment_center(vcvertptr, segp)};
 	const auto &&delta = vm_vec_sub(vcvertptr(segp->verts.front()), pos);
 	vm_vec_scale_add2(pos, delta, F1_0/2);
 	const auto &&objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_LIGHT, 0, segp, pos, nullptr, 0, object::control_type::light, object::movement_type::None, render_type::RT_NONE);
@@ -421,7 +421,7 @@ static void robotmaker_proc(const d_robot_info_array &Robot_info, const d_vclip_
 		}
 		else
 		{
-			const auto center = compute_segment_center(vcvertptr, segp);
+			const auto center{compute_segment_center(vcvertptr, segp)};
 			const auto dist_to_player = vm_vec_dist_quick( ConsoleObject->pos, center );
 			top_time = dist_to_player/64 + d_rand() * 2 + F1_0*2;
 			if ( top_time > ROBOT_GEN_TIME )
@@ -470,7 +470,7 @@ static void robotmaker_proc(const d_robot_info_array &Robot_info, const d_vclip_
 				}
 			}
 
-			const auto &&cur_object_loc = compute_segment_center(vcvertptr, csegp);
+			const auto cur_object_loc{compute_segment_center(vcvertptr, csegp)};
 			const auto &&robotcen_segp = vmsegptridx(robotcen->segnum);
 			// HACK!!! The 10 under here should be something equal to the 1/2 the size of the segment.
 			auto obj = object_create_explosion_without_damage(Vclip, robotcen_segp, cur_object_loc, i2f(10), vclip_index::morphing_robot);
@@ -492,7 +492,7 @@ static void robotmaker_proc(const d_robot_info_array &Robot_info, const d_vclip_
 			robotcen->Flag = 0;
 
 			robotcen->Timer = 0;
-			const auto &&cur_object_loc = compute_segment_center(vcvertptr, vcsegptr(robotcen->segnum));
+			const auto cur_object_loc{compute_segment_center(vcvertptr, vcsegptr(robotcen->segnum))};
 
 			// If this is the first materialization, set to valid robot.
 			{

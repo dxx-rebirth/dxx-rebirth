@@ -1877,7 +1877,7 @@ static int save_level_sub(
 			if (plr->segnum > Highest_segment_index)
 				plr->segnum = segment_first;
 			auto &vcvertptr = Vertices.vcptr;
-			compute_segment_center(vcvertptr, plr->pos, vcsegptr(plr->segnum));
+			plr->pos = compute_segment_center(vcvertptr, vcsegptr(plr->segnum));
 		}
 	}
  

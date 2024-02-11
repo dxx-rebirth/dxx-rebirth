@@ -684,7 +684,7 @@ void move_player_2_segment(const vmsegptridx_t seg, const sidenum_t side)
 	auto &vmobjptridx = Objects.vmptridx;
 	const auto &&console = vmobjptridx(ConsoleObject);
 	auto &vcvertptr = Vertices.vcptr;
-	compute_segment_center(vcvertptr, console->pos, seg);
+	console->pos = compute_segment_center(vcvertptr, seg);
 	auto vp = compute_center_point_on_side(vcvertptr, seg, side);
 	vm_vec_sub2(vp, console->pos);
 	vm_vector_2_matrix(console->orient, vp, nullptr, nullptr);

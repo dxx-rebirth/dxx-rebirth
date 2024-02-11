@@ -505,7 +505,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 					obj_relink(vmobjptr, Segments.vmptr, obj, n);
 				}
 				else {
-					compute_segment_center(vcvertptr, obj->pos, obj_segp);
+					obj->pos = compute_segment_center(vcvertptr, obj_segp);
 					obj->pos.x += obj;
 				}
 				if (obj->type == OBJ_WEAPON)
@@ -782,7 +782,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 				obj_relink(vmobjptr, Segments.vmptr, obj, Segments.vmptridx(n));
 			}
 			else {
-				compute_segment_center(vcvertptr, obj->pos, obj_segp);
+				obj->pos = compute_segment_center(vcvertptr, obj_segp);
 				obj->pos.x += obj;
 			}
 			if (obj->type == OBJ_WEAPON)

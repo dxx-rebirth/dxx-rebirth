@@ -1726,7 +1726,7 @@ void set_pos_from_return_segment(void)
 	const auto &&plobjnum = vmobjptridx(get_local_player().objnum);
 	const auto &&segp = vmsegptridx(LevelSharedSegmentState.Secret_return_segment);
 	auto &vcvertptr = Vertices.vcptr;
-	compute_segment_center(vcvertptr, plobjnum->pos, segp);
+	plobjnum->pos = compute_segment_center(vcvertptr, segp);
 	obj_relink(vmobjptr, vmsegptr, plobjnum, segp);
 	plobjnum->orient = LevelSharedSegmentState.Secret_return_orient;
 	reset_player_object(*plobjnum);

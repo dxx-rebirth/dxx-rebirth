@@ -49,7 +49,7 @@ static vm_magnitude compute_dist(const shared_segment &seg, const vms_vector &po
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
-	auto delta = compute_segment_center(vcvertptr, seg);
+	auto delta{compute_segment_center(vcvertptr, seg)};
 	vm_vec_sub2(delta,pos);
 	return vm_vec_mag(delta);
 }

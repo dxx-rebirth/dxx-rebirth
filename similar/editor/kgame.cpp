@@ -145,7 +145,7 @@ int SaveGameData()
 				auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 				auto &Vertices = LevelSharedVertexState.get_vertices();
 				auto &vcvertptr = Vertices.vcptr;
-				compute_segment_center(vcvertptr, save_pos, save_segp);
+				save_pos = compute_segment_center(vcvertptr, save_segp);
 			}
 
 			obj_relink(vmobjptr, vmsegptr, vmobjptridx(ConsoleObject), found_save_segnum);

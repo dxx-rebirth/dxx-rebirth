@@ -2355,7 +2355,7 @@ void fix_object_segs()
 			{
 				const auto pos = o->pos;
 				const auto segnum = o->segnum;
-				compute_segment_center(vcvertptr, o->pos, vcsegptr(segnum));
+				o->pos = compute_segment_center(vcvertptr, vcsegptr(segnum));
 				con_printf(CON_URGENT, "Object %hu claims segment %hu, but has position {%i,%i,%i}; moving to %hu:{%i,%i,%i}", o.get_unchecked_index(), oldsegnum, pos.x, pos.y, pos.z, segnum, o->pos.x, o->pos.y, o->pos.z);
 			}
 		}

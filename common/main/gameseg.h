@@ -67,13 +67,9 @@ static inline vms_vector compute_center_point_on_side(fvcvertptr &vcvertptr, con
 	vms_vector v;
 	return compute_center_point_on_side(vcvertptr, v, sp, side), v;
 }
-void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &vp, const shared_segment &sp);
-static inline vms_vector compute_segment_center(fvcvertptr &vcvertptr, const shared_segment &sp)
-{
-	vms_vector v;
-	compute_segment_center(vcvertptr, v, sp);
-	return v;
-}
+
+[[nodiscard]]
+vms_vector compute_segment_center(fvcvertptr &vcvertptr, const shared_segment &sp);
 
 // Fill in array with four absolute point numbers for a given side
 void get_side_verts(side_vertnum_list_t &vertlist, const shared_segment &seg, sidenum_t sidenum);

@@ -291,7 +291,7 @@ static sidenum_t find_exit_side(const d_level_shared_segment_state &LevelSharedS
 
 	const shared_segment &pseg = LevelSharedSegmentState.get_segments().vcptr(obj.segnum);
 	auto &vcvertptr = Vertices.vcptr;
-	const auto segcenter = compute_segment_center(vcvertptr, pseg);
+	const auto segcenter{compute_segment_center(vcvertptr, pseg)};
 
 	sidenum_t best_side = side_none;
 	for (const auto &&[i, child] : enumerate(pseg.children))
@@ -1236,9 +1236,10 @@ void do_endlevel_flythrough(d_level_unique_object_state &LevelUniqueObjectState,
 		//where we are heading (center of exit_side)
 		auto &vcvertptr = Vertices.vcptr;
 		auto dest_point = compute_center_point_on_side(vcvertptr, pseg, exit_side);
-		const vms_vector nextcenter = (pseg.children[exit_side] == segment_exit)
+		const vms_vector nextcenter{(pseg.children[exit_side] == segment_exit)
 			? dest_point
-			: compute_segment_center(vcvertptr, vcsegptr(pseg.children[exit_side]));
+			: compute_segment_center(vcvertptr, vcsegptr(pseg.children[exit_side]))
+		};
 
 		//update target point and movement points
 
@@ -1265,7 +1266,7 @@ void do_endlevel_flythrough(d_level_unique_object_state &LevelUniqueObjectState,
 		auto step_size = vm_vec_normalize_quick(flydata->step);
 		vm_vec_scale(flydata->step,flydata->speed);
 
-		const auto curcenter = compute_segment_center(vcvertptr, pseg);
+		const auto curcenter{compute_segment_center(vcvertptr, pseg)};
 		vm_vec_sub(flydata->headvec,nextcenter,curcenter);
 
 		const auto dest_orient = vm_vector_2_matrix(flydata->headvec,&pseg.sides[up_side].normals[0],nullptr);
@@ -1480,7 +1481,7 @@ try_again:
 
 	const auto &&exit_seg = vmsegptr(exit_segnum);
 	auto &vcvertptr = Vertices.vcptr;
-	compute_segment_center(vcvertptr, mine_exit_point, exit_seg);
+	mine_exit_point = compute_segment_center(vcvertptr, exit_seg);
 	extract_orient_from_segment(vcvertptr, mine_exit_orient, exit_seg);
 	compute_center_point_on_side(vcvertptr, mine_side_exit_point, exit_seg, exit_side);
 

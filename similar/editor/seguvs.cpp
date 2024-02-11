@@ -933,7 +933,7 @@ static void cast_light_from_side(const vmsegptridx_t segp, const sidenum_t light
 	auto &vcvertptr = Vertices.vcptr;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
-	const auto segment_center = compute_segment_center(vcvertptr, segp);
+	const auto segment_center{compute_segment_center(vcvertptr, segp)};
 	//	Do for four lights, one just inside each corner of side containing light.
 	range_for (const auto lightnum, Side_to_verts[light_side])
 	{
@@ -960,7 +960,7 @@ static void cast_light_from_side(const vmsegptridx_t segp, const sidenum_t light
 				i.flag = 0;
 
 			//	efficiency hack (I hope!), for faraway segments, don't check each point.
-			const auto r_segment_center = compute_segment_center(vcvertptr, rsegp);
+			const auto r_segment_center{compute_segment_center(vcvertptr, rsegp)};
 			dist_to_rseg = vm_vec_dist_quick(r_segment_center, segment_center);
 
 			if (dist_to_rseg <= LIGHT_DISTANCE_THRESHOLD) {
@@ -1086,7 +1086,7 @@ static void cast_light_from_side_to_center(const vmsegptridx_t segp, const siden
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
-	const auto &&segment_center = compute_segment_center(vcvertptr, segp);
+	const auto segment_center{compute_segment_center(vcvertptr, segp)};
 	//	Do for four lights, one just inside each corner of side containing light.
 	range_for (const auto lightnum, Side_to_verts[light_side])
 	{
@@ -1100,7 +1100,7 @@ static void cast_light_from_side_to_center(const vmsegptridx_t segp, const siden
 			fix			dist_to_rseg;
 //if ((segp == &Segments[Bugseg]) && (rsegp == &Segments[Bugseg]))
 //	Int3();
-			const auto r_segment_center = compute_segment_center(vcvertptr, rsegp);
+			const auto r_segment_center{compute_segment_center(vcvertptr, rsegp)};
 			dist_to_rseg = vm_vec_dist_quick(r_segment_center, segment_center);
 
 			if (dist_to_rseg <= LIGHT_DISTANCE_THRESHOLD) {

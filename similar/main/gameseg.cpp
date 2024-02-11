@@ -125,13 +125,13 @@ static void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &r, c
 	vm_vec_copy_scale(r, vp, F1_0 / 4);
 }
 
-static void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &r, const std::array<vertnum_t, MAX_VERTICES_PER_SEGMENT> &verts)
+static vms_vector compute_segment_center(fvcvertptr &vcvertptr, const std::array<vertnum_t, MAX_VERTICES_PER_SEGMENT> &verts)
 {
-	vms_vector vp;
-	vm_vec_zero(vp);
+	vms_vector vp{};
 	range_for (auto &v, verts)
 		vm_vec_add2(vp, vcvertptr(v));
-	vm_vec_copy_scale(r, vp, F1_0 / 8);
+	vm_vec_scale(vp, F1_0 / 8);
+	return vp;
 }
 
 [[noreturn]]
@@ -162,9 +162,9 @@ void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &vp, const s
 // ------------------------------------------------------------------------------------------
 // Compute segment center.
 //	The center point is defined to be the average of the 8 points defining the segment.
-void compute_segment_center(fvcvertptr &vcvertptr, vms_vector &vp, const shared_segment &sp)
+vms_vector compute_segment_center(fvcvertptr &vcvertptr, const shared_segment &sp)
 {
-	compute_segment_center(vcvertptr, vp, sp.verts);
+	return compute_segment_center(vcvertptr, sp.verts);
 }
 
 // -----------------------------------------------------------------------------
@@ -946,7 +946,7 @@ fcd_done1: ;
 
 		this_seg = seg_queue[qtail].end;
 		parent_seg = seg_queue[qtail].start;
-		compute_segment_center(vcvertptr, point_segs[num_points].point, vcsegptr(this_seg));
+		point_segs[num_points].point = compute_segment_center(vcvertptr, vcsegptr(this_seg));
 		num_points++;
 
 		if (parent_seg == seg0)
@@ -956,7 +956,7 @@ fcd_done1: ;
 			Assert(qtail >= 0);
 	}
 
-	compute_segment_center(vcvertptr, point_segs[num_points].point,seg0);
+	point_segs[num_points].point = compute_segment_center(vcvertptr, seg0);
 	num_points++;
 
 	if (num_points == 1) {
@@ -1194,7 +1194,7 @@ static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_se
 	fix			dot;
 	int			degeneracy_flag = 0;
 
-	const auto segc = compute_segment_center(vcvertptr, sp);
+	const auto segc{compute_segment_center(vcvertptr, sp)};
 	const auto &&sidec = compute_center_point_on_side(vcvertptr, sp, sidenum);
 	const auto vec_to_center = vm_vec_sub(segc, sidec);
 
@@ -1659,7 +1659,7 @@ static void apply_light_to_segment(visited_segment_bitarray_t &visited, const vm
 	{
 		visited_ref = true;
 		auto &vcvertptr = Vertices.vcptr;
-		const auto r_segment_center = compute_segment_center(vcvertptr, segp);
+		const auto r_segment_center{compute_segment_center(vcvertptr, segp)};
 		dist_to_rseg = vm_vec_dist_quick(r_segment_center, segment_center);
 	
 		if (dist_to_rseg <= LIGHT_DISTANCE_THRESHOLD) {
@@ -1714,7 +1714,7 @@ static void change_segment_light(const vmsegptridx_t segp, const sidenum_t siden
 		const auto light_intensity = TmapInfo[get_texture_index(sidep.tmap_num)].lighting + TmapInfo[get_texture_index(sidep.tmap_num2)].lighting;
 		if (light_intensity) {
 			auto &vcvertptr = Vertices.vcptr;
-			const auto segment_center = compute_segment_center(vcvertptr, segp);
+			const auto segment_center{compute_segment_center(vcvertptr, segp)};
 			visited_segment_bitarray_t visited;
 			apply_light_to_segment(visited, segp, segment_center, light_intensity * dir, 0);
 		}

@@ -946,7 +946,7 @@ int med_delete_segment(const vmsegptridx_t sp)
 			//if an object is in the seg, delete it
 			//if the object is the player, move to new curseg
 			if (objnum == ConsoleObject)	{
-				compute_segment_center(vcvertptr, ConsoleObject->pos,Cursegp);
+				ConsoleObject->pos = compute_segment_center(vcvertptr, Cursegp);
 				obj_relink(vmobjptr, vmsegptr, objnum, Cursegp);
 			} else
 				obj_delete(LevelUniqueObjectState, Segments, objnum);
@@ -1433,8 +1433,8 @@ void create_coordinate_axes_from_segment(const shared_segment &sp, std::array<ve
 
 	auto &vcvertptr = Vertices.vcptr;
 	auto &vmvertptr = Vertices.vmptr;
-	const auto &&v0 = vmvertptr(vertnums[0]);
-	compute_segment_center(vcvertptr, v0, sp);
+	vms_vector &v0{*vmvertptr(vertnums[0])};
+	v0 = compute_segment_center(vcvertptr, sp);
 
 	t = rotmat.rvec;
 	vm_vec_scale(t,i2f(32));

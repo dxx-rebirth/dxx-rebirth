@@ -695,7 +695,7 @@ static unsigned disallowed_cc_dist(fvcsegptr &vcsegptr, fvcvertptr &vcvertptr, c
 			return 1;
 	}
 	//bail if not far enough from original position
-	const auto &&tempv = compute_segment_center(vcvertptr, sseg);
+	const auto tempv{compute_segment_center(vcvertptr, sseg)};
 	if (find_connected_distance(player_pos, player_seg, tempv, segp, -1, wall_is_doorway_mask::fly) < static_cast<fix>(i2f(20) * cur_drop_depth))
 		return 1;
 	return 0;

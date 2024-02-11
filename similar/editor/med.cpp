@@ -546,7 +546,7 @@ static void move_player_2_segment_and_rotate(const vmsegptridx_t seg, const side
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
-	compute_segment_center(vcvertptr, ConsoleObject->pos,seg);
+	ConsoleObject->pos = compute_segment_center(vcvertptr, seg);
 	auto vp = compute_center_point_on_side(vcvertptr, seg, side);
 	vm_vec_sub2(vp,ConsoleObject->pos);
 

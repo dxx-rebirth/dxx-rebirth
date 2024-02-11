@@ -1263,7 +1263,7 @@ static void kill_and_so_forth(const d_robot_info_array &Robot_info, fvmobjptridx
 				{
 					const auto &&segp = vmsegptridx(w.segnum);
 					auto &vcvertptr = Vertices.vcptr;
-					compute_segment_center(vcvertptr, ConsoleObject->pos, segp);
+					ConsoleObject->pos = compute_segment_center(vcvertptr, segp);
 					obj_relink(vmobjptr, vmsegptr, vmobjptridx(ConsoleObject), segp);
 					return;
 				}

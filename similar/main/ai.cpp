@@ -1904,7 +1904,7 @@ void move_towards_segment_center(const robot_info &robptr, const d_level_shared_
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &SSegments = LevelSharedSegmentState.get_segments();
-	const auto &&segment_center = compute_segment_center(Vertices.vcptr, SSegments.vcptr(segnum));
+	const auto segment_center{compute_segment_center(Vertices.vcptr, SSegments.vcptr(segnum))};
 	vm_vec_normalized_dir_quick(vec_to_center, segment_center, objp.pos);
 	move_towards_vector(robptr, objp, vec_to_center, 1);
 }
@@ -2222,8 +2222,8 @@ namespace {
 static const shared_segment *boss_intersects_wall(fvcvertptr &vcvertptr, const object_base &boss_objp, const vcsegptridx_t segp)
 {
 	const auto size = boss_objp.size;
-	const auto &&segcenter = compute_segment_center(vcvertptr, segp);
-	const auto &&r = ranges::subrange(segp->verts);
+	const auto segcenter{compute_segment_center(vcvertptr, segp)};
+	const auto &&r{std::ranges::subrange(segp->verts)};
 	const auto re = r.end();
 	auto pos = segcenter;
 	for (auto ri = r.begin();; ++ri)
@@ -2275,7 +2275,7 @@ void create_buddy_bot(const d_level_shared_robot_info_state &LevelSharedRobotInf
 		if (!ri.companion)
 			continue;
 		const auto &&segp = vmsegptridx(ConsoleObject->segnum);
-		const auto &&object_pos = compute_segment_center(Vertices.vcptr, segp);
+		const auto object_pos{compute_segment_center(Vertices.vcptr, segp)};
 		create_morph_robot(LevelSharedRobotInfoState.Robot_info, segp, object_pos, idx);
 		break;
 	}
@@ -2407,7 +2407,7 @@ static void teleport_boss(const d_robot_info_array &Robot_info, const d_vclip_ar
 	const auto &&rand_segp = vmsegptridx(rand_segnum);
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
-	compute_segment_center(vcvertptr, objp->pos, rand_segp);
+	objp->pos = compute_segment_center(vcvertptr, rand_segp);
 	obj_relink(vmobjptr, vmsegptr, objp, rand_segp);
 
 	BossUniqueState.Last_teleport_time = {GameTime64};
