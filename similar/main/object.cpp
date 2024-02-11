@@ -305,22 +305,18 @@ namespace {
 //do special cloaked render
 static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, const g3s_lrgb light, glow_values_t glow, const fix64 cloak_start_time, const fix total_cloaked_time, const fix Cloak_fadein_duration, const fix Cloak_fadeout_duration)
 {
-	fix cloak_delta_time;
 	fix light_scale=F1_0;
 	int cloak_value=0;
-	int fading=0;		//if true, fading, else cloaking
+	bool fading{};		//if true, fading, else cloaking
 
-	cloak_delta_time = GameTime64 - cloak_start_time;
-
-	if (cloak_delta_time < Cloak_fadein_duration/2) {
+	if (const auto cloak_delta_time{GameTime64 - cloak_start_time}; cloak_delta_time < Cloak_fadein_duration/2) {
 
 #if defined(DXX_BUILD_DESCENT_I)
 		light_scale = Cloak_fadein_duration/2 - cloak_delta_time;
 #elif defined(DXX_BUILD_DESCENT_II)
 		light_scale = fixdiv(Cloak_fadein_duration/2 - cloak_delta_time,Cloak_fadein_duration/2);
 #endif
-		fading = 1;
-
+		fading = true;
 	}
 	else if (cloak_delta_time < Cloak_fadein_duration) {
 
@@ -349,7 +345,6 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 		}
 
 		cloak_value = CLOAKED_FADE_LEVEL - cloak_delta;
-	
 	} else if (GameTime64 < (cloak_start_time + total_cloaked_time) -Cloak_fadeout_duration/2) {
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -365,7 +360,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 #elif defined(DXX_BUILD_DESCENT_II)
 		light_scale = fixdiv(Cloak_fadeout_duration/2 - (total_cloaked_time - cloak_delta_time),Cloak_fadeout_duration/2);
 #endif
-		fading = 1;
+		fading = true;
 	}
 
 	alternate_textures alt_textures;
@@ -382,17 +377,16 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	if (fading) {
-		g3s_lrgb new_light;
-
-		new_light.r = fixmul(light.r,light_scale);
-		new_light.g = fixmul(light.g,light_scale);
-		new_light.b = fixmul(light.b,light_scale);
 		glow[0] = fixmul(glow[0],light_scale);
 		draw_polygon_model(Polygon_models, canvas, obj.pos,
 				   obj.orient,
 				   obj.rtype.pobj_info.anim_angles,
 				   obj.rtype.pobj_info.model_num, obj.rtype.pobj_info.subobj_flags,
-				   new_light,
+				   g3s_lrgb{
+						.r = fixmul(light.r, light_scale),
+						.g = fixmul(light.g, light_scale),
+						.b = fixmul(light.b, light_scale)
+				   },
 				   &glow,
 				   alt_textures );
 	}
