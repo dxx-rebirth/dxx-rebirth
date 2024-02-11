@@ -123,20 +123,20 @@ void g3_project_point(g3s_point &p)
 #endif
 }
 
+#if DXX_USE_EDITOR
 //from a 2d point, compute the vector through that point
 void g3_point_2_vec(vms_vector &v,short sx,short sy)
 {
-	vms_vector tempv;
-	vms_matrix tempm;
-
-	tempv.x =  fixmuldiv(fixdiv((sx<<16) - Canv_w2,Canv_w2),Matrix_scale.z,Matrix_scale.x);
-	tempv.y = -fixmuldiv(fixdiv((sy<<16) - Canv_h2,Canv_h2),Matrix_scale.z,Matrix_scale.y);
-	tempv.z = f1_0;
-
-	vm_vec_normalize(tempv);
-	tempm = vm_transposed_matrix(Unscaled_matrix);
-	vm_vec_rotate(v,tempv,tempm);
+	vm_vec_rotate(v, vm_vec_normalized(
+			vms_vector{
+				.x =  fixmuldiv(fixdiv((sx << 16) - Canv_w2, Canv_w2), Matrix_scale.z, Matrix_scale.x),
+				.y = -fixmuldiv(fixdiv((sy << 16) - Canv_h2, Canv_h2), Matrix_scale.z, Matrix_scale.y),
+				.z = f1_0
+			}
+			),
+		vm_transposed_matrix(Unscaled_matrix));
 }
+#endif
 
 void g3_rotate_delta_vec(vms_vector &dest,const vms_vector &src)
 {

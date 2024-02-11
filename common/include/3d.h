@@ -226,10 +226,13 @@ static inline g3s_point g3_rotate_point(const vms_vector &src)
 void g3_project_point(g3s_point &point);
 
 //calculate the depth of a point - returns the z coord of the rotated point
+[[nodiscard]]
 fix g3_calc_point_depth(const vms_vector &pnt);
 
+#if DXX_USE_EDITOR
 //from a 2d point, compute the vector through that point
 void g3_point_2_vec(vms_vector &v,short sx,short sy);
+#endif
 
 //code a point.  fills in the p3_codes field of the point, and returns the codes
 clipping_code g3_code_point(g3s_point &point);
