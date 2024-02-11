@@ -343,12 +343,11 @@ void make_orthogonal(vms_matrix *rmat,vms_matrix *smat)
 void med_extract_matrix_from_segment(const shared_segment &sp, vms_matrix &rotmat)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
-	vms_vector	upvec;
 
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	const auto forwardvec{extract_forward_vector_from_segment(vcvertptr, sp)};
-	extract_up_vector_from_segment(vcvertptr, sp, upvec);
+	const auto upvec{extract_up_vector_from_segment(vcvertptr, sp)};
 
 	if (((forwardvec.x == 0) && (forwardvec.y == 0) && (forwardvec.z == 0)) || ((upvec.x == 0) && (upvec.y == 0) && (upvec.z == 0))) {
 		rotmat = vmd_identity_matrix;

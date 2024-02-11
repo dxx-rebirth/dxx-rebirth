@@ -397,7 +397,6 @@ static int	PerturbCursideCommon(fix amount)
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	int			saveSegSizeMode = SegSizeMode;
-	vms_vector	uvec;
 	SegSizeMode = SEGSIZEMODE_CURSIDE;
 
 	Modified_vertex_index = 0;
@@ -405,7 +404,7 @@ static int	PerturbCursideCommon(fix amount)
 	auto &vcvertptr = Vertices.vcptr;
 	const auto fvec{extract_forward_vector_from_segment(vcvertptr, Cursegp)};
 	const auto rvec{extract_right_vector_from_segment(vcvertptr, Cursegp)};
-	extract_up_vector_from_segment(vcvertptr, Cursegp, uvec);
+	const auto uvec{extract_up_vector_from_segment(vcvertptr, Cursegp)};
 
 	const auto fmag = vm_vec_mag(fvec);
 	const auto rmag = vm_vec_mag(rvec);

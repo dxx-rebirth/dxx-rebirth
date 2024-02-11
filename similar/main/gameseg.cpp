@@ -1173,9 +1173,9 @@ vms_vector extract_right_vector_from_segment(fvcvertptr &vcvertptr, const shared
 //	Extract the up vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the bottom face of the segment
 // to the center of the top face of the segment.
-void extract_up_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp, vms_vector &vp)
+vms_vector extract_up_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp)
 {
-	vp = extract_vector_from_segment(vcvertptr, sp, sidenum_t::WBOTTOM, sidenum_t::WTOP);
+	return extract_vector_from_segment(vcvertptr, sp, sidenum_t::WBOTTOM, sidenum_t::WTOP);
 }
 
 #if !DXX_USE_EDITOR
@@ -1234,13 +1234,12 @@ static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_se
 //	If so, set global Degenerate_segment_found and return 1, else return 0.
 static unsigned check_for_degenerate_segment(fvcvertptr &vcvertptr, const shared_segment &sp)
 {
-	vms_vector	uvec;
 	fix			dot;
 	int			degeneracy_flag = 0;				// degeneracy flag for current segment
 
 	auto fvec{extract_forward_vector_from_segment(vcvertptr, sp)};
 	auto rvec{extract_right_vector_from_segment(vcvertptr, sp)};
-	extract_up_vector_from_segment(vcvertptr, sp, uvec);
+	auto uvec{extract_up_vector_from_segment(vcvertptr, sp)};
 
 	vm_vec_normalize(fvec);
 	vm_vec_normalize(rvec);

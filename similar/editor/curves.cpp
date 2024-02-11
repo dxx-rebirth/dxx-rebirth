@@ -152,13 +152,13 @@ int generate_curve(const fix r1scale, const fix r4scale)
             vm_vec_scale(r1, -F1_0 );
             break;
 		case sidenum_t::WTOP:
-            extract_up_vector_from_segment(vcvertptr, cursegp, r1);
+			r1 = extract_up_vector_from_segment(vcvertptr, cursegp);
             break;
 		case sidenum_t::WRIGHT:
 			r1 = extract_right_vector_from_segment(vcvertptr, cursegp);
             break;
 		case sidenum_t::WBOTTOM:
-            extract_up_vector_from_segment(vcvertptr, cursegp, r1);
+			r1 = extract_up_vector_from_segment(vcvertptr, cursegp);
             vm_vec_scale(r1, -F1_0 );
             break;
 		case sidenum_t::WBACK:
@@ -176,10 +176,10 @@ int generate_curve(const fix r1scale, const fix r4scale)
     switch( Markedside ) {
 		case sidenum_t::WLEFT:
 			r4 = extract_right_vector_from_segment(vcvertptr, markedsegp);
-            extract_up_vector_from_segment(vcvertptr, markedsegp, r4t);
+			r4t = extract_up_vector_from_segment(vcvertptr, markedsegp);
             break;
 		case sidenum_t::WTOP:
-            extract_up_vector_from_segment(vcvertptr, markedsegp, r4);
+			r4 = extract_up_vector_from_segment(vcvertptr, markedsegp);
             vm_vec_scale(r4, -F1_0 );
 			r4t = extract_forward_vector_from_segment(vcvertptr, markedsegp);
             vm_vec_scale(r4t, -F1_0 );
@@ -187,20 +187,20 @@ int generate_curve(const fix r1scale, const fix r4scale)
 		case sidenum_t::WRIGHT:
 			r4 = extract_right_vector_from_segment(vcvertptr, markedsegp);
             vm_vec_scale(r4, -F1_0 );
-            extract_up_vector_from_segment(vcvertptr, markedsegp, r4t);
+			r4t = extract_up_vector_from_segment(vcvertptr, markedsegp);
             break;
 		case sidenum_t::WBOTTOM:
-            extract_up_vector_from_segment(vcvertptr, markedsegp, r4);
+			r4 = extract_up_vector_from_segment(vcvertptr, markedsegp);
 			r4t = extract_forward_vector_from_segment(vcvertptr, markedsegp);
             break;
 		case sidenum_t::WBACK:
 			r4 = extract_forward_vector_from_segment(vcvertptr, markedsegp);
             vm_vec_scale(r4, -F1_0 );
-            extract_up_vector_from_segment(vcvertptr, markedsegp, r4t);
+			r4t = extract_up_vector_from_segment(vcvertptr, markedsegp);
             break;
 		case sidenum_t::WFRONT:
 			r4 = extract_forward_vector_from_segment(vcvertptr, markedsegp);
-            extract_up_vector_from_segment(vcvertptr, markedsegp, r4t);
+			r4t = extract_up_vector_from_segment(vcvertptr, markedsegp);
             break;
         }
 
@@ -249,7 +249,7 @@ int generate_curve(const fix r1scale, const fix r4scale)
         } else return 0;
 	}
 
-    extract_up_vector_from_segment(vcvertptr, cursegp, tvec);
+	tvec = extract_up_vector_from_segment(vcvertptr, cursegp);
     uangle = vm_vec_delta_ang( tvec, r4t, r4 );
     if (uangle >= F1_0 * 1/8) uangle -= F1_0 * 1/4;
     if (uangle >= F1_0 * 1/8) uangle -= F1_0 * 1/4;
@@ -306,7 +306,7 @@ void generate_banked_curve(const fix maxscale, vms_equation coeffs)
 
 		const shared_segment &cursegp = Cursegp;
 		auto &vcvertptr = Vertices.vcptr;
-		extract_up_vector_from_segment(vcvertptr, cursegp, b4r4t);
+		b4r4t = extract_up_vector_from_segment(vcvertptr, cursegp);
     uangle = vm_vec_delta_ang( b4r4t, r4t, r4 );
     if (uangle >= F1_0 * 1/8) uangle -= F1_0 * 1/4;
     if (uangle >= F1_0 * 1/8) uangle -= F1_0 * 1/4;

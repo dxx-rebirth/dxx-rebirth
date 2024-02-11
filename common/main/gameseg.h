@@ -200,10 +200,11 @@ vms_vector extract_forward_vector_from_segment(fvcvertptr &, const shared_segmen
 [[nodiscard]]
 vms_vector extract_right_vector_from_segment(fvcvertptr &, const shared_segment &sp);
 
-//      Extract the up vector from segment *sp, return in *vp.
+//      Extract the up vector from segment *sp, return it by value.
 //      The forward vector is defined to be the vector from the center of the bottom face of the segment
 // to the center of the top face of the segment.
-void extract_up_vector_from_segment(fvcvertptr &, const shared_segment &sp, vms_vector &vp);
+[[nodiscard]]
+vms_vector extract_up_vector_from_segment(fvcvertptr &, const shared_segment &sp);
 
 void create_walls_on_side(fvcvertptr &, shared_segment &sp, sidenum_t sidenum);
 
