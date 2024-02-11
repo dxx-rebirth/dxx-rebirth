@@ -261,7 +261,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 	g3_rotate_delta_vec(delta_i, vm_vec_copy_scale(surface_orient.rvec, GRID_SCALE));
 	g3_rotate_delta_vec(delta_j, vm_vec_copy_scale(surface_orient.fvec, GRID_SCALE));
 
-	auto start_point = vm_vec_scale_add(org_point,surface_orient.rvec,-(org_i - low_i)*GRID_SCALE);
+	auto start_point{vm_vec_scale_add(org_point, surface_orient.rvec, -(org_i - low_i) * GRID_SCALE)};
 	vm_vec_scale_add2(start_point,surface_orient.fvec,-(org_j - low_j)*GRID_SCALE);
 
 	{

@@ -1671,7 +1671,7 @@ unsigned do_exploding_wall_frame(const d_robot_info_array &Robot_info, wall &w1)
 	{
 		//calc expl position
 
-		auto pos = vm_vec_scale_add(v1,vv0,d_rand() * 2);
+		auto pos{vm_vec_scale_add(v1, vv0, d_rand() * 2)};
 		vm_vec_scale_add2(pos,vv1,d_rand() * 2);
 
 		const fix size = EXPL_WALL_FIREBALL_SIZE + (2 * EXPL_WALL_FIREBALL_SIZE * e / EXPL_WALL_TOTAL_FIREBALLS);
@@ -1698,9 +1698,9 @@ unsigned do_exploding_wall_frame(const d_robot_info_array &Robot_info, wall &w1)
 //creates afterburner blobs behind the specified object
 void drop_afterburner_blobs(object &obj, int count, fix size_scale, fix lifetime)
 {
-	auto pos_left = vm_vec_scale_add(obj.pos, obj.orient.fvec, -obj.size);
+	auto pos_left{vm_vec_scale_add(obj.pos, obj.orient.fvec, -obj.size)};
 	vm_vec_scale_add2(pos_left, obj.orient.rvec, -obj.size/4);
-	const auto pos_right = vm_vec_scale_add(pos_left, obj.orient.rvec, obj.size/2);
+	const auto pos_right{vm_vec_scale_add(pos_left, obj.orient.rvec, obj.size / 2)};
 
 	if (count == 1)
 		pos_left = vm_vec_avg(pos_left, pos_right);

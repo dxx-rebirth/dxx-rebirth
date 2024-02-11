@@ -203,7 +203,7 @@ static void move_towards_outside(const d_level_shared_segment_state &LevelShared
 		if (segment_size > F1_0*40)
 			segment_size = F1_0*40;
 
-		auto goal_pos = vm_vec_scale_add(psegs[i].point, e, segment_size/4);
+		auto goal_pos{vm_vec_scale_add(psegs[i].point, e, segment_size / 4)};
 
 		count = 3;
 		while (count) {

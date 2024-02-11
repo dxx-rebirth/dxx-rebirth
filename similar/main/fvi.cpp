@@ -216,9 +216,8 @@ static intersection_type check_sphere_to_face(const vms_vector &pnt, const vms_v
 			return intersection_type::None;    //too far part end point
 
 		//find closest point on edge to check point
-
 		else {
-			vm_vec_scale_add(closest_point,v0,edgevec,d);
+			closest_point = vm_vec_scale_add(v0, edgevec, d);
 		}
 
 		const auto dist = vm_vec_dist2(checkp,closest_point);
@@ -368,8 +367,8 @@ static intersection_type special_check_line_to_face(vms_vector &newp, const vms_
 	
 	//now, edge_t & move_t determine closest points.  calculate the points.
 
-	const auto closest_point_edge = vm_vec_scale_add(edge_v0,edge_vec,edge_t2);
-	const auto closest_point_move = vm_vec_scale_add(p0,move_vec,move_t2);
+	const auto closest_point_edge{vm_vec_scale_add(edge_v0, edge_vec, edge_t2)};
+	const auto closest_point_move{vm_vec_scale_add(p0, move_vec, move_t2)};
 
 	//find dist between closest points
 
@@ -384,7 +383,7 @@ static intersection_type special_check_line_to_face(vms_vector &newp, const vms_
 
 		//now figure out where we hit
 
-		vm_vec_scale_add(newp,p0,move_vec,move_t-rad);
+		newp = vm_vec_scale_add(p0, move_vec, move_t - rad);
 		return intersection_type::Edge;
 	}
 	else
@@ -428,7 +427,7 @@ static vm_distance_squared check_vector_to_sphere_1(vms_vector &intp,const vms_v
 	if (w_dist > mag_d+sphere_rad)
 		return vm_distance_squared::minimum_value();		//cannot hit
 
-	const auto closest_point = vm_vec_scale_add(p0,dn,w_dist);
+	const auto closest_point{vm_vec_scale_add(p0, dn, w_dist)};
 
 	const auto dist2 = vm_vec_dist2(closest_point,sphere_pos);
 	const fix64 sphere_rad64 = sphere_rad;
@@ -452,7 +451,7 @@ static vm_distance_squared check_vector_to_sphere_1(vms_vector &intp,const vms_v
 			}
 		}
 
-		vm_vec_scale_add(intp,p0,dn,int_dist);         //calc intersection point
+		intp = vm_vec_scale_add(p0, dn, int_dist);         //calc intersection point
 		return vm_distance_squared{static_cast<fix64>(int_dist) * int_dist};
 	}
 	else

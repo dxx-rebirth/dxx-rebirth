@@ -676,7 +676,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 					//vm_vec_scale(vm_vec_sub(&pos_hit, ppos1, ppos0), fixdiv(size0, size0 + size1));
 					//vm_vec_add2(&pos_hit, ppos0);
 					auto pos_hit = vm_vec_sub(ppos1, ppos0);
-					vm_vec_scale_add(pos_hit,ppos0,pos_hit,fixdiv(size0, size0 + size1));
+					pos_hit = vm_vec_scale_add(ppos0, pos_hit, fixdiv(size0, size0 + size1));
 
 					old_vel = obj->mtype.phys_info.velocity;
 					collide_two_objects(Robot_info, obj, hit, pos_hit);
@@ -759,7 +759,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 				const auto vertnum = *std::min_element(b, std::next(b, 4));
 
 				dist = vm_dist_to_plane(start_pos, s.normals[0], vcvertptr(vertnum));
-				vm_vec_scale_add(obj->pos, start_pos, s.normals[0], obj->size-dist);
+				obj->pos = vm_vec_scale_add(start_pos, s.normals[0], obj->size - dist);
 				update_object_seg(vmobjptr, LevelSharedSegmentState, LevelUniqueSegmentState, obj);
 
 			}

@@ -2166,7 +2166,7 @@ static int newdemo_read_frame_information(int rewrite)
 					break;
 				}
 				// offset to compensate inaccuracy between object and viewer
-				vm_vec_scale_add(obj->pos, obj->pos, obj->orient.fvec, F1_0*5 );
+				obj->pos = vm_vec_scale_add(obj->pos, obj->orient.fvec, F1_0 * 5);
 				nd_render_extras (WhichWindow,obj);
 			}
 			else

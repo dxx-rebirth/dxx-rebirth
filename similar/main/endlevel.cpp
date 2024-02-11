@@ -321,15 +321,13 @@ static void draw_mine_exit_cover(grs_canvas &canvas)
 	const int of = 10;
 	const fix u = i2f(6), d = i2f(9), ur = i2f(14), dr = i2f(17);
 	const uint8_t color = BM_XRGB(0, 0, 0);
-	vms_vector v;
 	g3s_point p0, p1, p2, p3;
 
-	vm_vec_scale_add(v,mine_exit_point,mine_exit_orient.fvec,i2f(of));
+	const auto v{vm_vec_scale_add(mine_exit_point, mine_exit_orient.fvec, i2f(of))};
 
 	auto mrd = mine_exit_orient.rvec;
 	{
-		vms_vector vu;
-		vm_vec_scale_add(vu, v, mine_exit_orient.uvec, u);
+		const auto vu{vm_vec_scale_add(v, mine_exit_orient.uvec, u)};
 		auto mru = mrd;
 		vm_vec_scale(mru, ur);
 		vms_vector p;
@@ -337,8 +335,7 @@ static void draw_mine_exit_cover(grs_canvas &canvas)
 		g3_rotate_point(p1, (vm_vec_sub(p, vu, mru), p));
 	}
 	{
-		vms_vector vd;
-		vm_vec_scale_add(vd, v, mine_exit_orient.uvec, -d);
+		const auto vd{vm_vec_scale_add(v, mine_exit_orient.uvec, -d)};
 		vm_vec_scale(mrd, dr);
 		vms_vector p;
 		g3_rotate_point(p2, (vm_vec_sub(p, vd, mrd), p));
@@ -561,7 +558,7 @@ void draw_exit_model(grs_canvas &canvas)
 		draw_mine_exit_cover(canvas);
 	}
 
-	auto model_pos = vm_vec_scale_add(mine_exit_point,mine_exit_orient.fvec,i2f(f));
+	auto model_pos{vm_vec_scale_add(mine_exit_point, mine_exit_orient.fvec, i2f(f))};
 	vm_vec_scale_add2(model_pos,mine_exit_orient.uvec,i2f(u));
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	draw_polygon_model(Polygon_models, canvas, model_pos, mine_exit_orient, nullptr, mine_destroyed ? destroyed_exit_modelnum : exit_modelnum, 0, lrgb, nullptr, nullptr);
@@ -866,7 +863,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 		if ((explosion_wait1-=FrameTime) < 0) {
 			static int sound_count;
 
-			auto tpnt = vm_vec_scale_add(ConsoleObject->pos,ConsoleObject->orient.fvec,-ConsoleObject->size*5);
+			auto tpnt{vm_vec_scale_add(ConsoleObject->pos, ConsoleObject->orient.fvec, -ConsoleObject->size * 5)};
 			vm_vec_scale_add2(tpnt,ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*15);
 			vm_vec_scale_add2(tpnt,ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*15);
 
@@ -1484,7 +1481,7 @@ try_again:
 	extract_orient_from_segment(vcvertptr, mine_exit_orient, exit_seg);
 	mine_side_exit_point = compute_center_point_on_side(vcvertptr, exit_seg, exit_side);
 
-	vm_vec_scale_add(mine_ground_exit_point,mine_exit_point,mine_exit_orient.uvec,-i2f(20));
+	mine_ground_exit_point = vm_vec_scale_add(mine_exit_point, mine_exit_orient.uvec, -i2f(20));
 
 	//compute orientation of surface
 	{
@@ -1494,10 +1491,10 @@ try_again:
 
 		vms_matrix tm = vm_transposed_matrix(surface_orient);
 		const auto tv0 = vm_vec_rotate(station_pos,tm);
-		vm_vec_scale_add(station_pos,mine_exit_point,tv0,STATION_DIST);
+		station_pos = vm_vec_scale_add(mine_exit_point, tv0, STATION_DIST);
 
 		const auto tv = vm_vec_rotate(satellite_pos,tm);
-		vm_vec_scale_add(satellite_pos,mine_exit_point,tv,SATELLITE_DIST);
+		satellite_pos = vm_vec_scale_add(mine_exit_point, tv, SATELLITE_DIST);
 
 		const auto tm2 = vm_vector_2_matrix(tv,&surface_orient.uvec,nullptr);
 		satellite_upvec = vm_vec_copy_scale(tm2.uvec, SATELLITE_HEIGHT);

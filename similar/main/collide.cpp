@@ -1314,7 +1314,7 @@ static void collide_weapon_and_controlcen(const d_robot_info_array &Robot_info, 
 			const auto mag = vm_vec_mag(obj2weapon);
 			if(mag < controlcen->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 			{
-				vm_vec_scale_add(collision_point, controlcen->pos, obj2weapon, fixdiv(controlcen->size, mag)); 
+				collision_point = vm_vec_scale_add(controlcen->pos, obj2weapon, fixdiv(controlcen->size, mag)); 
 				weapon->pos = collision_point;
 			}
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1710,7 +1710,7 @@ static void collide_robot_and_weapon(const d_robot_info_array &Robot_info, const
 		const auto mag = vm_vec_mag(obj2weapon);
 		if(mag < robot->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 		{
-			vm_vec_scale_add(collision_point, robot->pos, obj2weapon, fixdiv(robot->size, mag)); 
+			collision_point = vm_vec_scale_add(robot->pos, obj2weapon, fixdiv(robot->size, mag)); 
 			weapon->pos = collision_point;
 		}
 #if defined(DXX_BUILD_DESCENT_I)
@@ -2220,7 +2220,7 @@ static void collide_player_and_weapon(const d_robot_info_array &Robot_info, cons
 		const auto mag = vm_vec_mag(obj2weapon);
 		if(mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 		{
-			vm_vec_scale_add(collision_point, playerobj->pos, obj2weapon, fixdiv(playerobj->size, mag)); 
+			collision_point = vm_vec_scale_add(playerobj->pos, obj2weapon, fixdiv(playerobj->size, mag)); 
 			weapon->pos = collision_point;
 		}
 #if defined(DXX_BUILD_DESCENT_I)

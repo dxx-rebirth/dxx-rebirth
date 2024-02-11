@@ -310,11 +310,7 @@ vms_vector vm_vec_copy_scale(vms_vector src, fix s);
 //scales a vector, adds it to another, and stores in a 3rd vector
 //dest = src1 + k * src2
 [[nodiscard]]
-static inline vms_vector vm_vec_scale_add(const vms_vector &src1, const vms_vector &src2, fix k)
-{
-	vms_vector dest;
-	return vm_vec_scale_add(dest, src1, src2, k), dest;
-}
+vms_vector vm_vec_scale_add(const vms_vector &src1, const vms_vector &src2, fix k);
 
 [[nodiscard]]
 static inline vms_vector vm_vec_normalized(vms_vector v)

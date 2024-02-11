@@ -995,7 +995,7 @@ static void cast_light_from_side(const vmsegptridx_t segp, const sidenum_t light
 
 									const auto r_vector_to_center = vm_vec_sub(r_segment_center, vert_location);
 									const auto inverse_segment_magnitude = fixdiv(F1_0/3, vm_vec_mag(r_vector_to_center));
-									const auto vert_location_1 = vm_vec_scale_add(vert_location, r_vector_to_center, inverse_segment_magnitude);
+									const auto vert_location_1{vm_vec_scale_add(vert_location, r_vector_to_center, inverse_segment_magnitude)};
 									vert_location = vert_location_1;
 
 									if (!quick_light) {
@@ -1093,7 +1093,7 @@ static void cast_light_from_side_to_center(const vmsegptridx_t segp, const siden
 		const auto light_vertex_num = segp->verts[lightnum];
 		auto &vert_light_location = *vcvertptr(light_vertex_num);
 		const auto vector_to_center = vm_vec_sub(segment_center, vert_light_location);
-		const auto light_location = vm_vec_scale_add(vert_light_location, vector_to_center, F1_0/64);
+		const auto light_location{vm_vec_scale_add(vert_light_location, vector_to_center, F1_0 / 64)};
 
 		for (const csmusegment &&rsegp : vmsegptr)
 		{

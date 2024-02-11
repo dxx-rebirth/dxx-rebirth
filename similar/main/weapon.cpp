@@ -1486,7 +1486,7 @@ imobjptridx_t spit_powerup(d_level_unique_object_state &LevelUniqueObjectState, 
 {
 	d_srand(seed);
 
-	auto new_velocity = vm_vec_scale_add(spitter.mtype.phys_info.velocity, spitter.orient.fvec, i2f(SPIT_SPEED));
+	auto new_velocity{vm_vec_scale_add(spitter.mtype.phys_info.velocity, spitter.orient.fvec, i2f(SPIT_SPEED))};
 
 	new_velocity.x += (d_rand() - 16384) * SPIT_SPEED * 2;
 	new_velocity.y += (d_rand() - 16384) * SPIT_SPEED * 2;
@@ -1502,7 +1502,7 @@ imobjptridx_t spit_powerup(d_level_unique_object_state &LevelUniqueObjectState, 
 	//combined radii.  So we need to create powerups pretty far out from
 	//the player.
 
-	const auto new_pos = vm_vec_scale_add(spitter.pos, spitter.orient.fvec, spitter.size);
+	const auto new_pos{vm_vec_scale_add(spitter.pos, spitter.orient.fvec, spitter.size)};
 
 	if (Game_mode & GM_MULTI)
 	{

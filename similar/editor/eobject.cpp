@@ -825,7 +825,7 @@ static void move_object_to_vector(const vms_vector &vec_through_screen, fix delt
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
 	const auto &&objp = vmobjptridx(Cur_object_index);
-	const auto result = vm_vec_scale_add(Viewer->pos, vec_through_screen, vm_vec_dist(Viewer->pos, objp->pos) + delta_distance);
+	const auto result{vm_vec_scale_add(Viewer->pos, vec_through_screen, vm_vec_dist(Viewer->pos, objp->pos) + delta_distance)};
 	move_object_to_position(objp, result);
 }
 

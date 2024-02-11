@@ -475,7 +475,7 @@ static bool create_omega_blobs(d_level_unique_object_state &LevelUniqueObjectSta
 			vm_vec_scale_add2(perturb_vec, make_random_vector(), F1_0/4);
 		}
 
-		const auto temp_pos = vm_vec_scale_add(blob_pos, perturb_vec, perturb_array[i]);
+		const auto temp_pos{vm_vec_scale_add(blob_pos, perturb_vec, perturb_array[i])};
 
 		const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, temp_pos, last_segnum);
 		if (segnum != segment_none) {
@@ -613,8 +613,8 @@ static void do_omega_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t parent
 	//	If couldn't lock on anything, fire straight ahead.
 	if (lock_objnum == object_none) {
 		fvi_info		hit_data;
-		const auto &&perturbed_fvec = vm_vec_scale_add(parent_objp->orient.fvec, make_random_vector(), F1_0/16);
-		vm_vec_scale_add(goal_pos, firing_pos, perturbed_fvec, MAX_OMEGA_DIST);
+		const auto perturbed_fvec{vm_vec_scale_add(parent_objp->orient.fvec, make_random_vector(), F1_0 / 16)};
+		goal_pos = vm_vec_scale_add(firing_pos, perturbed_fvec, MAX_OMEGA_DIST);
 		if (firing_segnum == segment_none)
 			return;
 		const auto fate = find_vector_intersection(fvi_query{
@@ -854,7 +854,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 	if (parent->type == OBJ_PLAYER && weapon_info.render != WEAPON_RENDER_NONE && weapon_type != weapon_id_type::FLARE_ID)
 #endif
 	{
-	 	const auto end_pos = vm_vec_scale_add(obj->pos, direction, (laser_length/2) );
+	 	const auto end_pos{vm_vec_scale_add(obj->pos, direction, (laser_length / 2))};
 		const auto &&end_segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, end_pos, Segments.vmptridx(obj->segnum));
 		if (end_segnum != obj->segnum) {
 			if (end_segnum != segment_none) {

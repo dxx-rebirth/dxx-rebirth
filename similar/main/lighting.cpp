@@ -165,7 +165,7 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 						{
 							fvi_info		hit_data;
 
-							const auto tvec = vm_vec_scale_add(obj.pos, obj.orient.fvec, F1_0*200);
+							const auto tvec{vm_vec_scale_add(obj.pos, obj.orient.fvec, F1_0 * 200)};
 							const auto fate = find_vector_intersection(fvi_query{
 								obj.pos,
 								tvec,
