@@ -231,7 +231,8 @@ fix g3_calc_point_depth(const vms_vector &pnt);
 
 #if DXX_USE_EDITOR
 //from a 2d point, compute the vector through that point
-void g3_point_2_vec(vms_vector &v,short sx,short sy);
+[[nodiscard]]
+vms_vector g3_point_2_vec(short sx, short sy);
 #endif
 
 //code a point.  fills in the p3_codes field of the point, and returns the codes

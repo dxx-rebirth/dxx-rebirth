@@ -329,8 +329,7 @@ vms_vector med_point_2_vec(grs_canvas *const canv, const short sx, const short s
 
 	g3_start_frame(*grd_curcanv);
 	g3_set_view_matrix(Viewer->pos,Viewer->orient,Render_zoom);
-	vms_vector v;
-	g3_point_2_vec(v,sx,sy);
+	const auto v{g3_point_2_vec(sx, sy)};
 	g3_end_frame();
 	return v;
 }

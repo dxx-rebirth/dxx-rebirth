@@ -125,8 +125,9 @@ void g3_project_point(g3s_point &p)
 
 #if DXX_USE_EDITOR
 //from a 2d point, compute the vector through that point
-void g3_point_2_vec(vms_vector &v,short sx,short sy)
+vms_vector g3_point_2_vec(short sx,short sy)
 {
+	vms_vector v;
 	vm_vec_rotate(v, vm_vec_normalized(
 			vms_vector{
 				.x =  fixmuldiv(fixdiv((sx << 16) - Canv_w2, Canv_w2), Matrix_scale.z, Matrix_scale.x),
@@ -135,6 +136,7 @@ void g3_point_2_vec(vms_vector &v,short sx,short sy)
 			}
 			),
 		vm_transposed_matrix(Unscaled_matrix));
+	return v;
 }
 #endif
 
