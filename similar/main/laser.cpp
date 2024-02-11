@@ -582,16 +582,12 @@ void omega_charge_frame(player_info &player_info)
 			Omega_charge = MAX_OMEGA_CHARGE;
 
 		const auto energy_used = get_omega_energy_consumption(Omega_charge - old_omega_charge);
-		energy -= energy_used;
-		if (energy < 0)
-			energy = 0;
+		energy = (energy > energy_used) ? energy - energy_used : 0;
 	}
 
 }
 
 namespace {
-
-// -- fix	Last_omega_muzzle_flash_time;
 
 // ---------------------------------------------------------------------------------
 //	*objp is the object firing the omega cannon
@@ -1531,15 +1527,16 @@ void Flare_create(const vmobjptridx_t obj)
 		const auto &&flare = Laser_player_fire(LevelSharedRobotInfoState.Robot_info, obj, weapon_id_type::FLARE_ID, gun_num_t::center, weapon_sound_flag::audible, plrobj.orient.fvec, object_none);
 		if (flare == object_none)
 			return;
-		energy -= energy_usage;
-
-		if (energy <= 0)
-		{
-			energy = 0;
+		const fix next_energy{
+			energy > energy_usage
+			? energy - energy_usage
+			: 0
+		};
+		energy = next_energy;
 #if defined(DXX_BUILD_DESCENT_I)
+		if (next_energy == 0)
 			auto_select_primary_weapon(player_info);
 #endif
-		}
 
 		if (Game_mode & GM_MULTI)
 			multi_send_fire(plrobj.orient, FLARE_ADJUST, laser_level::_1	/* unused */, 0, object_none, object_none);
@@ -1924,8 +1921,9 @@ void do_laser_firing_player(object &plrobj)
 				)
 			);
 
-			pl_energy -= (energy_used * rval) / Weapon_info[weapon_index].fire_count;
-			if (pl_energy < 0)
+			if (const auto all_shots_energy_used{(energy_used * rval) / Weapon_info[weapon_index].fire_count}; pl_energy > all_shots_energy_used)
+				pl_energy -= all_shots_energy_used;
+			else
 				pl_energy = 0;
 
 			if (uses_vulcan_ammo) {
