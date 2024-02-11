@@ -221,7 +221,7 @@ static intersection_type check_sphere_to_face(const vms_vector &pnt, const vms_v
 		}
 
 		const auto dist = vm_vec_dist2(checkp,closest_point);
-		const fix64 rad64 = rad;
+		const fix64 rad64{rad};
 		if (dist > vm_distance_squared{rad64 * rad64})
 			return intersection_type::None;
 		return intersection_type::Edge;
@@ -378,9 +378,13 @@ static intersection_type special_check_line_to_face(vms_vector &newp, const vms_
 
 	//note massive tolerance here
 	const vm_distance fudge_rad{(rad * 15) / 20};
-	if (closest_dist.d2 < fudge_rad || closest_dist < fudge_rad * fudge_rad)		//we hit.  figure out where
+	/* First test whether the square of the closest distance is less than the
+	 * radius.  If yes, then the intersection is very close, and the
+	 * multiplication can be skipped.  If no, test whether the square of the
+	 * closest distance is less than the square of the radius.
+	 */
+	if (underlying_value(closest_dist) < fudge_rad || closest_dist < fudge_rad * fudge_rad)		//we hit.  figure out where
 	{
-
 		//now figure out where we hit
 
 		newp = vm_vec_scale_add(p0, move_vec, move_t - rad);
@@ -409,28 +413,28 @@ static vm_distance_squared check_vector_to_sphere_1(vms_vector &intp,const vms_v
 	const auto mag_d = vm_vec_copy_normalize(dn,d);
 
 	if (mag_d == 0) {
-		const auto int_dist = vm_vec_mag2(w);
+		const auto int_dist{vm_vec_mag2(w)};
 		intp = p0;
 		if (int_dist < sphere_rad)
-			return int_dist;
-		const fix64 sphere_rad64 = sphere_rad;
+			return build_vm_distance_squared(int_dist);
+		const fix64 sphere_rad64{sphere_rad};
 		if (int_dist < vm_magnitude_squared{static_cast<uint64_t>(sphere_rad64 * sphere_rad64)})
-			return int_dist;
-		return vm_distance_squared::minimum_value();
+			return build_vm_distance_squared(int_dist);
+		return vm_distance_squared::minimum_value;
 	}
 
 	const fix w_dist = vm_vec_dot(dn,w);
 
 	if (w_dist < 0)		//moving away from object
-		return vm_distance_squared::minimum_value();
+		return vm_distance_squared::minimum_value;
 
 	if (w_dist > mag_d+sphere_rad)
-		return vm_distance_squared::minimum_value();		//cannot hit
+		return vm_distance_squared::minimum_value;		//cannot hit
 
 	const auto closest_point{vm_vec_scale_add(p0, dn, w_dist)};
 
-	const auto dist2 = vm_vec_dist2(closest_point,sphere_pos);
-	const fix64 sphere_rad64 = sphere_rad;
+	const auto dist2{vm_vec_dist2(closest_point, sphere_pos)};
+	const fix64 sphere_rad64{sphere_rad};
 	const vm_distance_squared sphere_rad_squared{sphere_rad64 * sphere_rad64};
 	if (dist2 < sphere_rad_squared)
 	{
@@ -447,7 +451,7 @@ static vm_distance_squared check_vector_to_sphere_1(vms_vector &intp,const vms_v
 				intp = p0; //don't move at all
 				return vm_distance_squared{static_cast<fix64>(1)}; // note that we do not calculate a valid collision point. This is up to collision handling.
 			} else {
-				return vm_distance_squared::minimum_value();
+				return vm_distance_squared::minimum_value;
 			}
 		}
 
@@ -455,7 +459,7 @@ static vm_distance_squared check_vector_to_sphere_1(vms_vector &intp,const vms_v
 		return vm_distance_squared{static_cast<fix64>(int_dist) * int_dist};
 	}
 	else
-		return vm_distance_squared::minimum_value();
+		return vm_distance_squared::minimum_value;
 }
 
 /*
@@ -793,7 +797,7 @@ static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &int
 	int startmask,endmask;	//mask of faces
 	//@@int sidemask;				//mask of sides - can be on back of face but not side
 	vms_vector closest_hit_point{}; 	//where we hit
-	auto closest_d = vm_distance_squared::maximum_value();					//distance to hit point
+	auto closest_d{vm_distance_squared::maximum_value};					//distance to hit point
 	auto hit_type = fvi_hit_type::None;							//what sort of hit
 	segnum_t hit_seg=segment_none;
 	segnum_t hit_none_seg=segment_none;
@@ -873,8 +877,7 @@ static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &int
 
 			vms_vector hit_point;
 			const auto &&d = check_vector_to_object(Robot_info, hit_point, fq.p0, fq.p1, fudged_rad, objnum, thisobjnum);
-
-			if (d)          //we have intersection
+			if (d != vm_distance_squared{0})          //we have intersection
 				if (d < closest_d) {
 					fvi_hit_object = objnum;
 					Assert(fvi_hit_object!=object_none);

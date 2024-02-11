@@ -201,7 +201,7 @@ vm_distance vm_vec_dist(const vms_vector &v0,const vms_vector &v1)
 
 vm_distance_squared vm_vec_dist2(const vms_vector &v0,const vms_vector &v1)
 {
-	return vm_vec_mag2(vm_vec_sub(v0,v1));
+	return build_vm_distance_squared(vm_vec_mag2(vm_vec_sub(v0,v1)));
 }
 
 //computes an approximation of the magnitude of the vector

@@ -1053,7 +1053,7 @@ class render_compare_context_t
 	typedef render_state_t::per_segment_state_t::distant_object distant_object;
 	struct element
 	{
-		fix64 dist_squared;
+		vm_distance_squared dist_squared;
 #if defined(DXX_BUILD_DESCENT_II)
 		const object *objp;
 #endif
@@ -1084,7 +1084,7 @@ bool render_compare_context_t::operator()(const distant_object &a, const distant
 {
 	auto &doa = operator[](a.objnum);
 	auto &dob = operator[](b.objnum);
-	const auto delta_dist_squared = doa.dist_squared - dob.dist_squared;
+	const auto delta_dist_squared = underlying_value(doa.dist_squared) - underlying_value(dob.dist_squared);
 
 #if defined(DXX_BUILD_DESCENT_II)
 	const auto obj_a = doa.objp;

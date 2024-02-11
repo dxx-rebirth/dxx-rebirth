@@ -130,65 +130,23 @@ public:
 	}
 };
 
-class vm_distance_squared
+enum class vm_distance_squared : fix64
 {
-public:
-	fix64 d2;
-	vm_distance_squared(const fix &) = delete;
-	constexpr explicit vm_distance_squared(const fix64 &f2) :
-		d2(f2)
-	{
-	}
-	constexpr vm_distance_squared(vm_magnitude_squared m) :
-		d2{static_cast<int64_t>(static_cast<uint64_t>(m))}
-	{
-	}
-	[[nodiscard]]
-	constexpr bool operator<(const vm_distance_squared &rhs) const
-	{
-		return d2 < rhs.d2;
-	}
-	[[nodiscard]]
-	constexpr bool operator>(const vm_distance_squared &rhs) const
-	{
-		return d2 > rhs.d2;
-	}
-	[[nodiscard]]
-	constexpr bool operator>=(const vm_distance_squared &rhs) const
-	{
-		return !(*this < rhs);
-	}
-	template <typename T>
-		vm_distance_squared &operator-=(T &&rhs)
-		{
-			return *this = (*this - std::forward<T>(rhs));
-		}
-	constexpr vm_distance_squared operator-(const fix &) const = delete;
-	[[nodiscard]]
-	constexpr vm_distance_squared operator-(const fix64 &f2) const
-	{
-		return vm_distance_squared{d2 - f2};
-	}
-	[[nodiscard]]
-	constexpr explicit operator bool() const { return d2; }
-	template <typename T>
-		constexpr operator T() const = delete;
-	[[nodiscard]]
-	constexpr operator fix64() const
-	{
-		return d2;
-	}
-	[[nodiscard]]
-	static constexpr vm_distance_squared maximum_value()
-	{
-		return vm_distance_squared{INT64_MAX};
-	}
-	[[nodiscard]]
-	static constexpr vm_distance_squared minimum_value()
-	{
-		return vm_distance_squared{static_cast<fix64>(0)};
-	}
+	minimum_value = 0,
+	maximum_value = INT64_MAX,
 };
+
+[[nodiscard]]
+static constexpr vm_distance_squared build_vm_distance_squared(const vm_magnitude_squared m)
+{
+	return vm_distance_squared{static_cast<int64_t>(static_cast<uint64_t>(m))};
+}
+
+[[nodiscard]]
+static constexpr auto operator<=>(const vm_distance_squared a, const vm_distance_squared b)
+{
+	return static_cast<fix64>(a) <=> static_cast<fix64>(b);
+}
 
 constexpr vm_distance_squared vm_distance::operator*(const vm_distance &rhs) const
 {
@@ -199,12 +157,6 @@ constexpr vm_distance_squared vm_distance::operator*(const vm_distance &rhs) con
 constexpr bool operator<(const vm_magnitude_squared a, const fix &b)
 {
 	return static_cast<uint64_t>(a) < b;
-}
-
-[[nodiscard]]
-constexpr bool operator<(const vm_magnitude_squared a, const vm_distance_squared b)
-{
-	return static_cast<uint64_t>(a) < static_cast<uint64_t>(b.operator fix64());
 }
 
 #define DEFINE_SERIAL_VMS_VECTOR_TO_MESSAGE()	\

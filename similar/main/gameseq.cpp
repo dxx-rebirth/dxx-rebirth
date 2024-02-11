@@ -330,7 +330,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 		const shared_segment &seg = *vcsegptr(segnum);
 		auto &plr = *Players.vcptr(i);
 		auto &old_player_obj = *vcobjptr(plr.objnum);
-		const vm_distance_squared size2(fixmul64(old_player_obj.size * old_player_obj.size, size_scalar));
+		const vm_distance_squared size2{fixmul64(old_player_obj.size * old_player_obj.size, size_scalar)};
 		auto &v0 = *vcvertptr(seg.verts[segment_relative_vertnum::_0]);
 		sidemask_t capacity_flag{};
 		if (vm_vec_dist2(v0, vcvertptr(seg.verts[segment_relative_vertnum::_1])) > size2)

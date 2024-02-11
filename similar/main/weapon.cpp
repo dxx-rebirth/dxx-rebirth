@@ -1426,6 +1426,12 @@ static bool immediate_detonate_smart_mine(const vcobjptridx_t smart_mine, const 
 
 }
 
+[[nodiscard]]
+static constexpr vm_distance_squared operator-(const vm_distance_squared a, const vm_distance_squared b)
+{
+	return vm_distance_squared{underlying_value(a) - underlying_value(b)};
+}
+
 //	Call this once/frame to process all super mines in the level.
 void process_super_mines_frame(void)
 {
@@ -1466,9 +1472,8 @@ void process_super_mines_frame(void)
 			if (likely(distance_threshold_squared < dist_squared))
 				/* Cheap check, some false negatives */
 				continue;
-			const fix64 j_size = jo->size;
-			const fix64 j_size_squared = j_size * j_size;
-			if (dist_squared - j_size_squared >= distance_threshold_squared)
+			const fix64 j_size{jo->size};
+			if (dist_squared - vm_distance_squared{j_size * j_size} >= distance_threshold_squared)
 				/* Accurate check */
 				continue;
 			if (immediate_detonate_smart_mine(io, jo))

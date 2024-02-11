@@ -255,7 +255,7 @@ namespace dcx {
 namespace {
 
 constexpr vm_distance MAX_SMART_DISTANCE(F1_0*150);
-constexpr vm_distance_squared MAX_SMART_DISTANCE_SQUARED = MAX_SMART_DISTANCE * MAX_SMART_DISTANCE;
+constexpr vm_distance_squared MAX_SMART_DISTANCE_SQUARED{MAX_SMART_DISTANCE * MAX_SMART_DISTANCE};
 static void do_muzzle_stuff(segnum_t segnum, const vms_vector &pos)
 {
 	auto &m = Muzzle_data[Muzzle_queue_index];
@@ -1213,7 +1213,7 @@ imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjp
 		auto vec_to_curobj = vm_vec_sub(curobjp->pos, curpos);
 		auto dist = vm_vec_mag2(vec_to_curobj);
 
-		if (dist < max_trackable_dist) {
+		if (build_vm_distance_squared(dist) < max_trackable_dist) {
 			vm_vec_normalize(vec_to_curobj);
 			dot = vm_vec_dot(vec_to_curobj, tracker->orient.fvec);
 			if (is_proximity)
@@ -1228,7 +1228,6 @@ imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjp
 				}
 			}
 		}
-
 	}
 	return best_objnum;
 }

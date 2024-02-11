@@ -15,7 +15,7 @@ struct vms_vector;
 
 class vm_distance;
 class vm_magnitude;
-class vm_distance_squared;
+enum class vm_distance_squared : fix64;
 enum class vm_magnitude_squared : uint64_t;
 struct vms_angvec;
 struct vms_matrix;
