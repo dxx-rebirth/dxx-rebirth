@@ -1155,9 +1155,9 @@ namespace {
 //	Extract the forward vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the front face of the segment
 // to the center of the back face of the segment.
-void extract_forward_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp, vms_vector &vp)
+vms_vector extract_forward_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp)
 {
-	vp = extract_vector_from_segment(vcvertptr, sp, sidenum_t::WFRONT, sidenum_t::WBACK);
+	return extract_vector_from_segment(vcvertptr, sp, sidenum_t::WFRONT, sidenum_t::WBACK);
 }
 
 // ------------------------------------------------------------------------------------------
@@ -1234,11 +1234,11 @@ static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_se
 //	If so, set global Degenerate_segment_found and return 1, else return 0.
 static unsigned check_for_degenerate_segment(fvcvertptr &vcvertptr, const shared_segment &sp)
 {
-	vms_vector	fvec, uvec;
+	vms_vector	uvec;
 	fix			dot;
 	int			degeneracy_flag = 0;				// degeneracy flag for current segment
 
-	extract_forward_vector_from_segment(vcvertptr, sp, fvec);
+	auto fvec{extract_forward_vector_from_segment(vcvertptr, sp)};
 	auto rvec{extract_right_vector_from_segment(vcvertptr, sp)};
 	extract_up_vector_from_segment(vcvertptr, sp, uvec);
 

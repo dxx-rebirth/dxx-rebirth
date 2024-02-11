@@ -227,7 +227,7 @@ static int segsize_common(int dimension, fix amount)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	vms_vector	uvec, rvec, fvec, scalevec;
+	vms_vector	uvec, rvec, scalevec;
 
 	Degenerate_segment_found = 0;
 
@@ -236,7 +236,7 @@ static int segsize_common(int dimension, fix amount)
 	med_extract_up_vector_from_segment_side(Cursegp, Curside, uvec);
 	med_extract_right_vector_from_segment_side(Cursegp, Curside, rvec);
 	auto &vcvertptr = Vertices.vcptr;
-	extract_forward_vector_from_segment(vcvertptr, Cursegp, fvec);
+	const auto fvec{extract_forward_vector_from_segment(vcvertptr, Cursegp)};
 
 	scalevec.x = vm_vec_mag(rvec);
 	scalevec.y = vm_vec_mag(uvec);
@@ -397,13 +397,13 @@ static int	PerturbCursideCommon(fix amount)
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	int			saveSegSizeMode = SegSizeMode;
-	vms_vector	fvec, uvec;
+	vms_vector	uvec;
 	SegSizeMode = SEGSIZEMODE_CURSIDE;
 
 	Modified_vertex_index = 0;
 
 	auto &vcvertptr = Vertices.vcptr;
-	extract_forward_vector_from_segment(vcvertptr, Cursegp, fvec);
+	const auto fvec{extract_forward_vector_from_segment(vcvertptr, Cursegp)};
 	const auto rvec{extract_right_vector_from_segment(vcvertptr, Cursegp)};
 	extract_up_vector_from_segment(vcvertptr, Cursegp, uvec);
 

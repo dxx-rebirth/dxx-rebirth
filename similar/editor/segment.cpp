@@ -343,11 +343,11 @@ void make_orthogonal(vms_matrix *rmat,vms_matrix *smat)
 void med_extract_matrix_from_segment(const shared_segment &sp, vms_matrix &rotmat)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
-	vms_vector	forwardvec,upvec;
+	vms_vector	upvec;
 
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
-	extract_forward_vector_from_segment(vcvertptr, sp, forwardvec);
+	const auto forwardvec{extract_forward_vector_from_segment(vcvertptr, sp)};
 	extract_up_vector_from_segment(vcvertptr, sp, upvec);
 
 	if (((forwardvec.x == 0) && (forwardvec.y == 0) && (forwardvec.z == 0)) || ((upvec.x == 0) && (upvec.y == 0) && (upvec.z == 0))) {
@@ -1397,12 +1397,12 @@ void med_create_new_segment_from_cursegp(void)
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	vms_vector	scalevec;
-	vms_vector	uvec, rvec, fvec;
+	vms_vector	uvec, rvec;
 
 	med_extract_up_vector_from_segment_side(Cursegp, Curside, uvec);
 	med_extract_right_vector_from_segment_side(Cursegp, Curside, rvec);
 	auto &vcvertptr = Vertices.vcptr;
-	extract_forward_vector_from_segment(vcvertptr, Cursegp, fvec);
+	const auto fvec{extract_forward_vector_from_segment(vcvertptr, Cursegp)};
 
 	scalevec.x = vm_vec_mag(rvec);
 	scalevec.y = vm_vec_mag(uvec);

@@ -515,9 +515,7 @@ class extract_fvec_from_segment
 public:
 	static vms_vector get(fvcvertptr &vcvertptr, const shared_segment &segp)
 	{
-		vms_vector v;
-		extract_forward_vector_from_segment(vcvertptr, segp, v);
-		return v;
+		return extract_forward_vector_from_segment(vcvertptr, segp);
 	}
 };
 
