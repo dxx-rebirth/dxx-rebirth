@@ -144,7 +144,7 @@ int generate_curve(const fix r1scale, const fix r4scale)
 
 	const shared_segment &cursegp = Cursegp;
 	auto &vcvertptr = Vertices.vcptr;
-	compute_center_point_on_side(vcvertptr, p1, cursegp, Curside);
+	p1 = compute_center_point_on_side(vcvertptr, cursegp, Curside);
 
     switch( Curside ) {
 		case sidenum_t::WLEFT:
@@ -171,7 +171,7 @@ int generate_curve(const fix r1scale, const fix r4scale)
         }            
 
 	const shared_segment &markedsegp = Markedsegp;
-	compute_center_point_on_side(vcvertptr, p4, markedsegp, Markedside);
+	p4 = compute_center_point_on_side(vcvertptr, markedsegp, Markedside);
 
     switch( Markedside ) {
 		case sidenum_t::WLEFT:

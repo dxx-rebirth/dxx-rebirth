@@ -1585,8 +1585,7 @@ void explode_wall(fvcvertptr &vcvertptr, const vcsegptridx_t segnum, const siden
 	++ Num_exploding_walls;
 
 	//play one long sound for whole door wall explosion
-	const auto &&pos = compute_center_point_on_side(vcvertptr, segnum, sidenum);
-	digi_link_sound_to_pos( SOUND_EXPLODING_WALL,segnum, sidenum, pos, 0, F1_0 );
+	digi_link_sound_to_pos(sound_effect::SOUND_EXPLODING_WALL, segnum, sidenum, compute_center_point_on_side(vcvertptr, segnum, sidenum), 0, F1_0);
 }
 
 unsigned do_exploding_wall_frame(const d_robot_info_array &Robot_info, wall &w1)

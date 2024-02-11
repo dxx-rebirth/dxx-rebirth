@@ -364,7 +364,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 		 */
 		for (auto &&[side, displacement] : zip(displacement_sides, vec_displacement))
 		{
-			const auto &&center_on_side = compute_center_point_on_side(vcvertptr, seg, side);
+			const auto center_on_side{compute_center_point_on_side(vcvertptr, seg, side)};
 			displacement = vm_vec_sub(center_on_side, old_player_init.pos);
 		}
 		const auto displace_player = [&](const unsigned plridx, object_base &plrobj, const unsigned displacement_direction) {
@@ -872,7 +872,7 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 						}
 #endif
 
-						const auto &&pnt = compute_center_point_on_side(vcvertptr, seg, sidenum);
+						const auto pnt{compute_center_point_on_side(vcvertptr, seg, sidenum)};
 						digi_link_sound_to_pos(sn, seg, sidenum, pnt, 1, F1_0/2);
 					}
 			}

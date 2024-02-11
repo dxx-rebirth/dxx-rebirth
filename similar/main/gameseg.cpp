@@ -116,13 +116,13 @@ namespace {
 // How far a point can be from a plane, and still be "in" the plane
 #define PLANE_DIST_TOLERANCE	250
 
-static void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &r, const enumerated_array<vertnum_t, MAX_VERTICES_PER_SEGMENT, segment_relative_vertnum> &verts, const sidenum_t side)
+static vms_vector compute_center_point_on_side(fvcvertptr &vcvertptr, const enumerated_array<vertnum_t, MAX_VERTICES_PER_SEGMENT, segment_relative_vertnum> &verts, const sidenum_t side)
 {
-	vms_vector vp;
-	vm_vec_zero(vp);
+	vms_vector vp{};
 	range_for (auto &v, Side_to_verts[side])
 		vm_vec_add2(vp, vcvertptr(verts[v]));
-	vm_vec_copy_scale(r, vp, F1_0 / 4);
+	vm_vec_scale(vp, F1_0 / 4);
+	return vp;
 }
 
 static vms_vector compute_segment_center(fvcvertptr &vcvertptr, const std::array<vertnum_t, MAX_VERTICES_PER_SEGMENT> &verts)
@@ -154,9 +154,9 @@ static void get_side_verts(side_vertnum_list_t &vertlist, const enumerated_array
 // ------------------------------------------------------------------------------------------
 // Compute the center point of a side of a segment.
 //	The center point is defined to be the average of the 4 points defining the side.
-void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &vp, const shared_segment &sp, const sidenum_t side)
+vms_vector compute_center_point_on_side(fvcvertptr &vcvertptr, const shared_segment &sp, const sidenum_t side)
 {
-	compute_center_point_on_side(vcvertptr, vp, sp.verts, side);
+	return compute_center_point_on_side(vcvertptr, sp.verts, side);
 }
 
 // ------------------------------------------------------------------------------------------
@@ -1195,7 +1195,7 @@ static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_se
 	int			degeneracy_flag = 0;
 
 	const auto segc{compute_segment_center(vcvertptr, sp)};
-	const auto &&sidec = compute_center_point_on_side(vcvertptr, sp, sidenum);
+	const auto sidec{compute_center_point_on_side(vcvertptr, sp, sidenum)};
 	const auto vec_to_center = vm_vec_sub(segc, sidec);
 
 	//vm_vec_sub(&vec1, &Vertices[sp->verts[vp[1]]], &Vertices[sp->verts[vp[0]]]);

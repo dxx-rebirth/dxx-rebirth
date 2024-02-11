@@ -2279,7 +2279,7 @@ static vms_vector find_exit_direction(vms_vector result, const object &objp, con
 	for (const auto side : MAX_SIDES_PER_SEGMENT)
 		if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, side) & WALL_IS_DOORWAY_FLAG::fly)
 		{
-			const auto &&exit_point = compute_center_point_on_side(vcvertptr, segp, side);
+			const auto exit_point{compute_center_point_on_side(vcvertptr, segp, side)};
 			vm_vec_add2(result, vm_vec_normalized_quick(vm_vec_sub(exit_point, objp.pos)));
 			break;
 		}

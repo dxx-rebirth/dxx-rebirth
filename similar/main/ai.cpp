@@ -4207,7 +4207,7 @@ _exit_cheat:
 			if (!ai_multiplayer_awareness(obj, 62))
 				return;
 			auto &vcvertptr = Vertices.vcptr;
-			const auto &&center_point = compute_center_point_on_side(vcvertptr, vcsegptr(obj->segnum), aip->GOALSIDE);
+			const auto center_point{compute_center_point_on_side(vcvertptr, vcsegptr(obj->segnum), aip->GOALSIDE)};
 			const auto goal_vector = vm_vec_normalized_quick(vm_vec_sub(center_point, obj->pos));
 			ai_turn_towards_vector(goal_vector, obj, robptr.turn_time[Difficulty_level]);
 			move_towards_vector(robptr, obj, goal_vector, 0);

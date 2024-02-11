@@ -206,8 +206,7 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 					if ((TmapInfo[get_texture_index(segp->unique_segment::sides[side].tmap_num)].flags & tmapinfo_flag::force_field))
 					{
 						ret |= 2;
-						const auto &&pos = compute_center_point_on_side(vcvertptr, segp, side);
-						digi_link_sound_to_pos( SOUND_FORCEFIELD_OFF, segp, side, pos, 0, F1_0 );
+						digi_link_sound_to_pos(sound_effect::SOUND_FORCEFIELD_OFF, segp, side, compute_center_point_on_side(vcvertptr, segp, side), 0, F1_0);
 						digi_kill_sound_linked_to_segment(segp,side,SOUND_FORCEFIELD_HUM);
 						wall0.type = new_wall_type;
 						if (wall1)
@@ -225,8 +224,7 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 					{
 						ret |= 2;
 						{
-						const auto &&pos = compute_center_point_on_side(vcvertptr, segp, side);
-						digi_link_sound_to_pos(SOUND_FORCEFIELD_HUM,segp,side,pos,1, F1_0/2);
+							digi_link_sound_to_pos(sound_effect::SOUND_FORCEFIELD_HUM, segp, side, compute_center_point_on_side(vcvertptr, segp, side), 1, F1_0 / 2);
 						}
 					case trigger_action::illusory_wall:
 						wall0.type = new_wall_type;
@@ -292,8 +290,7 @@ static void do_il_off(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr, fvmwallp
 {
 	const auto &&op = [&vcvertptr, &vmwallptr](const vcsegptridx_t seg, const sidenum_t side) {
 		wall_illusion_off(vmwallptr, seg, side);
-		const auto &&cp = compute_center_point_on_side(vcvertptr, seg, side);
-		digi_link_sound_to_pos(SOUND_WALL_REMOVED, seg, side, cp, 0, F1_0);
+		digi_link_sound_to_pos(sound_effect::SOUND_WALL_REMOVED, seg, side, compute_center_point_on_side(vcvertptr, seg, side), 0, F1_0);
 	};
 	trigger_wall_op(t, vcsegptridx, op);
 }

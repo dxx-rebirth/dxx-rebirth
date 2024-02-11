@@ -300,7 +300,7 @@ static sidenum_t find_exit_side(const d_level_shared_segment_state &LevelSharedS
 
 		if (child != segment_none)
 		{
-			auto sidevec = compute_center_point_on_side(vcvertptr, pseg, i);
+			auto sidevec{compute_center_point_on_side(vcvertptr, pseg, i)};
 			vm_vec_normalized_dir_quick(sidevec,sidevec,segcenter);
 			d = vm_vec_dot(sidevec,prefvec);
 
@@ -1235,7 +1235,7 @@ void do_endlevel_flythrough(d_level_unique_object_state &LevelUniqueObjectState,
 
 		//where we are heading (center of exit_side)
 		auto &vcvertptr = Vertices.vcptr;
-		auto dest_point = compute_center_point_on_side(vcvertptr, pseg, exit_side);
+		auto dest_point{compute_center_point_on_side(vcvertptr, pseg, exit_side)};
 		const vms_vector nextcenter{(pseg.children[exit_side] == segment_exit)
 			? dest_point
 			: compute_segment_center(vcvertptr, vcsegptr(pseg.children[exit_side]))
@@ -1250,7 +1250,7 @@ void do_endlevel_flythrough(d_level_unique_object_state &LevelUniqueObjectState,
 			for (const auto i : MAX_SIDES_PER_SEGMENT)
 				if (i!=entry_side && i!=exit_side && i!=up_side && i!=Side_opposite[up_side])
 				 {
-					 compute_center_point_on_side(vcvertptr, *isp, pseg, i);
+					 *isp = compute_center_point_on_side(vcvertptr, pseg, i);
 					 ++ isp;
 					 if (isp == sp.end())
 						 break;
@@ -1483,7 +1483,7 @@ try_again:
 	auto &vcvertptr = Vertices.vcptr;
 	mine_exit_point = compute_segment_center(vcvertptr, exit_seg);
 	extract_orient_from_segment(vcvertptr, mine_exit_orient, exit_seg);
-	compute_center_point_on_side(vcvertptr, mine_side_exit_point, exit_seg, exit_side);
+	mine_side_exit_point = compute_center_point_on_side(vcvertptr, exit_seg, exit_side);
 
 	vm_vec_scale_add(mine_ground_exit_point,mine_exit_point,mine_exit_orient.uvec,-i2f(20));
 

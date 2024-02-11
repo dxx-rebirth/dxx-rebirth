@@ -97,7 +97,7 @@ static uint_fast32_t insert_center_points(segment_array &segments, point_seg *ps
 		if (connect_side == side_none)			//	Try to blow past the assert, this should at least prevent a hang.
 			connect_side = sidenum_t::WLEFT;
 		auto &vcvertptr = Vertices.vcptr;
-		const auto &&center_point = compute_center_point_on_side(vcvertptr, seg1, connect_side);
+		const auto center_point{compute_center_point_on_side(vcvertptr, seg1, connect_side)};
 		auto new_point = vm_vec_sub(psegs[i-1].point, center_point);
 		new_point.x /= 16;
 		new_point.y /= 16;
@@ -373,7 +373,7 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 #if defined(DXX_BUILD_DESCENT_II)
 				Assert(this_seg != segment_none);
 				if (((cur_seg == avoid_seg) || (this_seg == avoid_seg)) && (ConsoleObject->segnum == avoid_seg)) {
-					const auto &&center_point = compute_center_point_on_side(vcvertptr, segp, snum);
+					const auto center_point{compute_center_point_on_side(vcvertptr, segp, snum)};
 					fvi_info		hit_data;
 	
 					const auto hit_type = find_vector_intersection(fvi_query{

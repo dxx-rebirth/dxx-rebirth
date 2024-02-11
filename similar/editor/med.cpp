@@ -547,7 +547,7 @@ static void move_player_2_segment_and_rotate(const vmsegptridx_t seg, const side
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
 	ConsoleObject->pos = compute_segment_center(vcvertptr, seg);
-	auto vp = compute_center_point_on_side(vcvertptr, seg, side);
+	auto vp{compute_center_point_on_side(vcvertptr, seg, side)};
 	vm_vec_sub2(vp,ConsoleObject->pos);
 
 	auto &sv = Side_to_verts[Curside];
@@ -583,7 +583,7 @@ int SetPlayerFromCursegMinusOne()
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
-	const auto &&side_center = compute_center_point_on_side(vcvertptr, Cursegp, Curside);
+	const auto side_center{compute_center_point_on_side(vcvertptr, Cursegp, Curside)};
 	const auto view_vec2 = vm_vec_copy_scale(view_vec,view_dist);
 	vm_vec_sub(ConsoleObject->pos,side_center,view_vec2);
 

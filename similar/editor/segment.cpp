@@ -724,11 +724,11 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const csmuseg
 
 	// Compute and rotate the center point of the attaching face.
 	auto &vcvertptr = Vertices.vcptr;
-	const auto &&vc0 = compute_center_point_on_side(vcvertptr, newseg, newside);
+	const auto vc0{compute_center_point_on_side(vcvertptr, newseg, newside)};
 	const auto vr = vm_vec_rotate(vc0,rotmat2);
 
 	// Now translate the new segment so that the center point of the attaching faces are the same.
-	const auto &&vc1 = compute_center_point_on_side(vcvertptr, destseg, destside);
+	const auto vc1{compute_center_point_on_side(vcvertptr, destseg, destside)};
 	const auto xlate_vec = vm_vec_sub(vc1,vr);
 
 	// Now rotate the free vertices in the segment
@@ -1591,7 +1591,7 @@ std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_closest_threshold_se
 		return std::nullopt;
 
 	auto &vcvertptr = Vertices.vcptr;
-	const auto &&vsc = compute_center_point_on_side(vcvertptr, sp, side);
+	const auto vsc{compute_center_point_on_side(vcvertptr, sp, side)};
 
 	closest_seg_dist = JOINT_THRESHOLD;
 
@@ -1604,7 +1604,7 @@ std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_closest_threshold_se
 			{
 				if (!IS_CHILD(value))
 				{
-					const auto &&vtc = compute_center_point_on_side(vcvertptr, segp, idx);
+					const auto vtc{compute_center_point_on_side(vcvertptr, segp, idx)};
 					const auto current_dist = vm_vec_dist(vsc, vtc);
 					if (closest_seg_dist > current_dist)
 					{

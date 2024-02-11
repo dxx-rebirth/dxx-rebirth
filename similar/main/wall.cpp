@@ -503,7 +503,7 @@ void wall_open_door(const vmsegptridx_t seg, const sidenum_t side)
 	{
 		// NOTE THE LINK TO ABOVE!!!!
 		auto &vcvertptr = Vertices.vcptr;
-		const auto &&cp = compute_center_point_on_side(vcvertptr, seg, side);
+		const auto cp{compute_center_point_on_side(vcvertptr, seg, side)};
 		const auto open_sound = WallAnims[w->clip_num].open_sound;
 		if (open_sound > -1)
 			digi_link_sound_to_pos(open_sound, seg, side, cp, 0, F1_0);
@@ -576,8 +576,7 @@ void start_wall_cloak(const vmsegptridx_t seg, const sidenum_t side)
 
 	if ( Newdemo_state != ND_STATE_PLAYBACK ) {
 		auto &vcvertptr = Vertices.vcptr;
-		const auto &&cp = compute_center_point_on_side(vcvertptr, seg, side);
-		digi_link_sound_to_pos( SOUND_WALL_CLOAK_ON, seg, side, cp, 0, F1_0 );
+		digi_link_sound_to_pos(sound_effect::SOUND_WALL_CLOAK_ON, seg, side, compute_center_point_on_side(vcvertptr, seg, side), 0, F1_0);
 	}
 
 	for (auto &&[front_ls, back_ls, s0_uvls, s1_uvls] : zip(
@@ -661,8 +660,7 @@ void start_wall_decloak(const vmsegptridx_t seg, const sidenum_t side)
 
 	if ( Newdemo_state != ND_STATE_PLAYBACK ) {
 		auto &vcvertptr = Vertices.vcptr;
-		const auto &&cp = compute_center_point_on_side(vcvertptr, seg, side);
-		digi_link_sound_to_pos( SOUND_WALL_CLOAK_OFF, seg, side, cp, 0, F1_0 );
+		digi_link_sound_to_pos(sound_effect::SOUND_WALL_CLOAK_OFF, seg, side, compute_center_point_on_side(vcvertptr, seg, side), 0, F1_0);
 	}
 
 	for (auto &&[front_ls, back_ls, s0_uvls, s1_uvls] : zip(
@@ -837,7 +835,7 @@ void wall_close_door(wall_array &Walls, const vmsegptridx_t seg, const sidenum_t
 	{
 		// NOTE THE LINK TO ABOVE!!!!
 		auto &vcvertptr = Vertices.vcptr;
-		const auto &&cp = compute_center_point_on_side(vcvertptr, seg, side);
+		const auto cp{compute_center_point_on_side(vcvertptr, seg, side)};
 		const auto open_sound = WallAnims[w->clip_num].open_sound;
 		if (open_sound > -1)
 			digi_link_sound_to_pos(open_sound, seg, side, cp, 0, F1_0);
@@ -1606,7 +1604,7 @@ void blast_nearby_glass_context::process_segment(const vmsegptridx_t segp, const
 		{
 			if (can_blast(tmap_num2))
 			{
-				const auto &&pnt = compute_center_point_on_side(vcvertptr, segp, sidenum);
+				const auto pnt{compute_center_point_on_side(vcvertptr, segp, sidenum)};
 				dist = vm_vec_dist_quick(pnt, objp.pos);
 				if (dist < damage/2) {
 					dist = find_connected_distance(pnt, segp, objp.pos, segp.absolute_sibling(objp.segnum), MAX_BLAST_GLASS_DEPTH, wall_is_doorway_mask::rendpast);

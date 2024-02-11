@@ -61,12 +61,8 @@ using vertex_vertnum_array_list = std::array<vertex_vertnum_pair, 6>;
 [[nodiscard]]
 sidenum_t find_connect_side(vcsegidx_t base_seg, const shared_segment &con_seg);
 
-void compute_center_point_on_side(fvcvertptr &vcvertptr, vms_vector &vp, const shared_segment &sp, sidenum_t side);
-static inline vms_vector compute_center_point_on_side(fvcvertptr &vcvertptr, const shared_segment &sp, const sidenum_t side)
-{
-	vms_vector v;
-	return compute_center_point_on_side(vcvertptr, v, sp, side), v;
-}
+[[nodiscard]]
+vms_vector compute_center_point_on_side(fvcvertptr &vcvertptr, const shared_segment &sp, sidenum_t side);
 
 [[nodiscard]]
 vms_vector compute_segment_center(fvcvertptr &vcvertptr, const shared_segment &sp);
