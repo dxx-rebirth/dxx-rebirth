@@ -140,9 +140,9 @@ vms_vector g3_point_2_vec(short sx,short sy)
 }
 #endif
 
-void g3_rotate_delta_vec(vms_vector &dest,const vms_vector &src)
+vms_vector g3_rotate_delta_vec(const vms_vector &src)
 {
-	vm_vec_rotate(dest,src,View_matrix);
+	return vm_vec_rotate(src, View_matrix);
 }
 
 void g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &deltav)

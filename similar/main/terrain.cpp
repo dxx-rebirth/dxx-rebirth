@@ -228,7 +228,7 @@ vms_vector &terrain_y_cache::operator()(uint_fast32_t h)
 	else
 	{
 		ycf = 1;
-		g3_rotate_delta_vec(dyp, vm_vec_copy_scale(surface_orient.uvec, h * HEIGHT_SCALE));
+		dyp = g3_rotate_delta_vec(vm_vec_copy_scale(surface_orient.uvec, h * HEIGHT_SCALE));
 	}
 	return dyp;
 }
@@ -237,7 +237,6 @@ vms_vector &terrain_y_cache::operator()(uint_fast32_t h)
 
 void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_vector &org_point,int org_2dx,int org_2dy)
 {
-	vms_vector delta_i,delta_j;		//delta_y;
 	g3s_point p,save_p_low,save_p_high;
 	g3s_point last_p2;
 	int i,j;
@@ -258,8 +257,8 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 	Interpolation_method = 1;
 #endif
 
-	g3_rotate_delta_vec(delta_i, vm_vec_copy_scale(surface_orient.rvec, GRID_SCALE));
-	g3_rotate_delta_vec(delta_j, vm_vec_copy_scale(surface_orient.fvec, GRID_SCALE));
+	auto delta_i{g3_rotate_delta_vec(vm_vec_copy_scale(surface_orient.rvec, GRID_SCALE))};
+	auto delta_j{g3_rotate_delta_vec(vm_vec_copy_scale(surface_orient.fvec, GRID_SCALE))};
 
 	auto start_point{vm_vec_scale_add(org_point, surface_orient.rvec, -(org_i - low_i) * GRID_SCALE)};
 	vm_vec_scale_add2(start_point,surface_orient.fvec,-(org_j - low_j)*GRID_SCALE);

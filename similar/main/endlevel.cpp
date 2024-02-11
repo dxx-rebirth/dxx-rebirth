@@ -374,7 +374,7 @@ void draw_stars(grs_canvas &canvas, const d_unique_endlevel_state::starfield_typ
 			intensity-=3;
 		}
 
-		g3_rotate_delta_vec(p.p3_vec, si);
+		p.p3_vec = g3_rotate_delta_vec(si);
 		g3_code_point(p);
 
 		if (p.p3_codes == clipping_code::None)
@@ -594,12 +594,10 @@ static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas,
 	}
 
 	{	//draw satellite
-
-		vms_vector delta;
 		g3s_point top_pnt;
 
 		const auto p = g3_rotate_point(satellite_pos);
-		g3_rotate_delta_vec(delta,satellite_upvec);
+		const auto delta{g3_rotate_delta_vec(satellite_upvec)};
 
 		g3_add_delta_vec(top_pnt,p,delta);
 

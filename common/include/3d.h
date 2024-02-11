@@ -239,7 +239,8 @@ vms_vector g3_point_2_vec(short sx, short sy);
 clipping_code g3_code_point(g3s_point &point);
 
 //delta rotation functions
-void g3_rotate_delta_vec(vms_vector &dest,const vms_vector &src);
+[[nodiscard]]
+vms_vector g3_rotate_delta_vec(const vms_vector &src);
 
 void g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &deltav);
 
