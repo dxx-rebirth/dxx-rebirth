@@ -276,6 +276,19 @@ static void report_invalid_weapon_render_type(const int weapon_type, const weapo
 	throw std::runtime_error(buf);
 }
 
+[[nodiscard]]
+static vms_vector build_homing_weapon_initial_vector(const object_base &parent, const object_base *const goal_obj)
+{
+	if (goal_obj == nullptr)
+		return make_random_vector();
+	vms_vector vector_to_goal;
+	//	Create a vector towards the goal, then add some noise to it.
+	vm_vec_normalized_dir_quick(vector_to_goal, goal_obj->pos, parent.pos);
+	vm_vec_scale_add2(vector_to_goal, make_random_vector(), F1_0 / 4);
+	vm_vec_normalize_quick(vector_to_goal);
+	return vector_to_goal;
+}
+
 }
 }
 
@@ -2144,19 +2157,7 @@ namespace {
 //	if goal_obj == -1, then create random vector
 static imobjptridx_t create_homing_missile(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, const imobjptridx_t goal_obj, weapon_id_type objtype, const weapon_sound_flag make_sound)
 {
-	vms_vector	vector_to_goal;
-	//vms_vector	goal_pos;
-
-	if (goal_obj == object_none) {
-		make_random_vector(vector_to_goal);
-	} else {
-		vm_vec_normalized_dir_quick(vector_to_goal, goal_obj->pos, objp->pos);
-		vm_vec_scale_add2(vector_to_goal, make_random_vector(), F1_0/4);
-		vm_vec_normalize_quick(vector_to_goal);
-	}
-
-	//	Create a vector towards the goal, then add some noise to it.
-	const auto &&objnum = Laser_create_new(vector_to_goal, objp->pos, vmsegptridx(objp->segnum), objp, objtype, make_sound);
+	const auto &&objnum = Laser_create_new(build_homing_weapon_initial_vector(objp, static_cast<const object *>(goal_obj)), objp->pos, vmsegptridx(objp->segnum), objp, objtype, make_sound);
 	if (objnum != object_none)
 	{
 	// Fixed to make sure the right person gets credit for the kill
