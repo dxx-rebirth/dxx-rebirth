@@ -423,9 +423,9 @@ void draw_polygon_model(grs_canvas &canvas, const vms_vector &pos, const vms_mat
 		const unsigned n_textures = po->n_textures;
 		std::array<bitmap_index, MAX_POLYOBJ_TEXTURES> texture_list_index;
 		auto &&tlir = partial_range(texture_list_index, n_textures);
-		if (alt_textures)
+		if (const std::span<const bitmap_index> a{alt_textures}; !a.empty())
 		{
-			for (auto &&[at, tli] : zip(unchecked_partial_range(static_cast<const bitmap_index *>(alt_textures), n_textures), tlir))
+			for (auto &&[at, tli] : zip(a.first(n_textures), tlir))
 				tli = at;
 		}
 		else

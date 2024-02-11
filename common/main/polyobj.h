@@ -151,14 +151,15 @@ namespace dcx {
 
 class alternate_textures
 {
-	const bitmap_index *p = nullptr;
+	std::span<const bitmap_index> p{};
 public:
-	alternate_textures() = default;
+	constexpr alternate_textures() = default;
 	template <std::size_t N>
-		alternate_textures(const std::array<bitmap_index, N> &a) : p(a.data())
+		constexpr alternate_textures(const std::array<bitmap_index, N> &a) :
+			p{a}
 	{
 	}
-	operator const bitmap_index *() const { return p; }
+	constexpr operator std::span<const bitmap_index>() const { return p; }
 };
 
 }
