@@ -2750,9 +2750,16 @@ static void requires_borrowed_range(R &&) {}
 		raise SCons.Errors.StopError("C++ compiler does not support std::ranges.")
 
 	__preferred_compiler_options = (
+		# Support for option '-fstrict-flex-arrays':
+		# <=gcc-12: no
+		# >=gcc-13: yes
+		# <=clang-16: no
+		# >=clang-17: untested
+		'-fstrict-flex-arrays',
 		'-fvisibility=hidden',
 		'-Wduplicated-branches',
 		'-Wduplicated-cond',
+		'-Wstrict-flex-arrays',
 		'-Wsuggest-attribute=noreturn',
 		'-Wsuggest-final-types',
 		'-Wsuggest-override',
