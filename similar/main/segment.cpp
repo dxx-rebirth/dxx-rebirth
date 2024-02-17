@@ -30,6 +30,16 @@ struct composite_side
 DEFINE_SERIAL_UDT_TO_MESSAGE(composite_side, s, (s.sside.wall_num, s.uside.tmap_num, s.uside.tmap_num2));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(composite_side, 6);
 
+static imsegidx_t build_segnum_from_optional_segnum(std::optional<segnum_t> value)
+{
+	return value.value_or(segment_none);
+}
+
+static imsegidx_t build_segnum_from_untrusted_value(auto value)
+{
+	return build_segnum_from_optional_segnum(vmsegidx_t::check_nothrow_index(value));
+}
+
 }
 
 std::optional<sidenum_t> build_sidenum_from_untrusted(const uint8_t untrusted)
@@ -55,22 +65,22 @@ void segment_side_wall_tmap_write(PHYSFS_File *fp, const shared_side &sside, con
 
 imsegidx_t read_untrusted_segnum_le16(NamedPHYSFS_File fp)
 {
-	return vmsegidx_t::check_nothrow_index(PHYSFSX_readULE16(fp)).value_or(segment_none);
+	return build_segnum_from_untrusted_value(PHYSFSX_readULE16(fp));
 }
 
 imsegidx_t read_untrusted_segnum_le32(NamedPHYSFS_File fp)
 {
-	return vmsegidx_t::check_nothrow_index(PHYSFSX_readULE32(fp)).value_or(segment_none);
+	return build_segnum_from_untrusted_value(PHYSFSX_readULE32(fp));
 }
 
 imsegidx_t read_untrusted_segnum_xe16(NamedPHYSFS_File fp, const physfsx_endian swap)
 {
-	return vmsegidx_t::check_nothrow_index(PHYSFSX_readUXE16(fp, swap)).value_or(segment_none);
+	return build_segnum_from_untrusted_value(PHYSFSX_readUXE16(fp, swap));
 }
 
 imsegidx_t read_untrusted_segnum_xe32(NamedPHYSFS_File fp, const physfsx_endian swap)
 {
-	return vmsegidx_t::check_nothrow_index(PHYSFSX_readUXE32(fp, swap)).value_or(segment_none);
+	return build_segnum_from_untrusted_value(PHYSFSX_readUXE32(fp, swap));
 }
 
 }
