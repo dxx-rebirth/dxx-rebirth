@@ -311,7 +311,7 @@ public:
 		++e;
 		return true;
 	}
-	operator std::pair<const vcobjidx_t *, const vcobjidx_t *>() const
+	operator std::ranges::subrange<const vcobjidx_t *>() const
 	{
 		return {a.begin(), e};
 	}
