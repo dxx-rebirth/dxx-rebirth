@@ -75,8 +75,9 @@ static std::pair<PHYSFS_sint64, std::unique_ptr<char[]>> load_blob_from_file(con
 		return {bytes_read, std::move(p)};
 }
 
-static void parse_blob_as_text_strings(const char *const filename, char *tptr, const bool have_binary, const PHYSFS_sint64 bytes_read)
+static std::unique_ptr<char[]> parse_blob_as_text_strings(const char *const filename, std::unique_ptr<char[]> loaded_blob, const bool have_binary, const PHYSFS_sint64 bytes_read)
 {
+	char *tptr = loaded_blob.get();
 #if defined(DXX_BUILD_DESCENT_I)
 	static const char *const extra_strings[] = {
 		"done",
@@ -295,6 +296,7 @@ static void parse_blob_as_text_strings(const char *const filename, char *tptr, c
 				}
           }
 	}
+	return loaded_blob;
 }
 
 static std::unique_ptr<char[]> load_text_from_texfile(const char *const filename, RAIIPHYSFS_File texfile)
@@ -303,16 +305,14 @@ static std::unique_ptr<char[]> load_text_from_texfile(const char *const filename
 	const auto pg = p.get();
 	const auto iter_remove = std::remove(pg, std::next(pg, bytes_read), '\r');
 	*iter_remove = 0;
-	parse_blob_as_text_strings(filename, p.get(), false, bytes_read);
-	return p;
+	return parse_blob_as_text_strings(filename, std::move(p), false, bytes_read);
 }
 
 static std::unique_ptr<char[]> load_text_from_txbfile(const char *const filename, RAIIPHYSFS_File txbfile)
 {
 	auto &&[bytes_read, p] = load_blob_from_file(filename, std::move(txbfile));
 	p[bytes_read] = 0;
-	parse_blob_as_text_strings(filename, p.get(), true, bytes_read);
-	return p;
+	return parse_blob_as_text_strings(filename, std::move(p), true, bytes_read);
 }
 
 static std::unique_ptr<char[]> load_text_from_file(const char *const texfilename)
