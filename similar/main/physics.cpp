@@ -282,38 +282,31 @@ static void fix_illegal_wall_intersection(const vmobjptridx_t obj)
 
 class ignore_objects_array_t
 {
-	using array_t = std::array<vcobjidx_t, MAX_IGNORE_OBJS>;
-	array_t::iterator e;
-	union {
-		array_t a;
-	};
-public:
-	/* The iterator should be initialized in a
-	 * member-initialization-list.  However, clang complains that the
-	 * union is uninitialized during the member-initialization-list, but
-	 * accepts the still-uninitialized union member once the constructor
-	 * body starts.  Assign the iterator in the body to silence this
-	 * useless clang warning.
-	 *
-	 * Known bad:
-	 *	clang-5
-	 *	clang-7
-	 */
-	ignore_objects_array_t()
+	using object_index_array = std::array<vcobjidx_t, MAX_IGNORE_OBJS>;
+	object_index_array::iterator iter_first_uninitialized;
+	std::array<std::byte, sizeof(object_index_array)> storage;
+	object_index_array &array()
 	{
-		e = a.begin();
+		return *reinterpret_cast<object_index_array *>(&storage);
 	}
-	bool push_back(const vcobjidx_t o)
+	const object_index_array &array() const
 	{
-		if (unlikely(e == a.end()))
-			return false;
-		std::uninitialized_fill_n(e, 1, o);
-		++e;
-		return true;
+		return *reinterpret_cast<const object_index_array *>(&storage);
+	}
+public:
+	ignore_objects_array_t() :
+		iter_first_uninitialized(array().begin())
+	{
+	}
+	vcobjidx_t *push_back(const vcobjidx_t o)
+	{
+		if (likely(iter_first_uninitialized != array().end()))
+			return std::construct_at(std::to_address(iter_first_uninitialized++), o);
+		return nullptr;
 	}
 	operator std::ranges::subrange<const vcobjidx_t *>() const
 	{
-		return {a.begin(), e};
+		return {array().begin(), iter_first_uninitialized};
 	}
 };
 
