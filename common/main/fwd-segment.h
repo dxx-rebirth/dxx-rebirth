@@ -185,10 +185,6 @@ int add_light(const d_level_shared_destructible_light_state &LevelSharedDestruct
 
 namespace dcx {
 
-template <unsigned bits>
-class visited_segment_mask_t;
-using visited_segment_bitarray_t = visited_segment_mask_t<1>;
-
 constexpr std::integral_constant<int, -1> edge_none{};
 
 }
