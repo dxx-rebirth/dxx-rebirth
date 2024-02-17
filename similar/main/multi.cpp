@@ -1633,12 +1633,10 @@ namespace {
 
 static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_FIRE> buf, const icobjidx_t Network_laser_track, const std::optional<uint16_t> remote_objnum)
 {
-	sbyte flags;
-
 	// Act out the actual shooting
 	const uint8_t untrusted_raw_weapon = buf[2];
 
-	flags = buf[4];
+	const auto flags{buf[4]};
 
 	const auto shot_orientation = multi_get_vector(buf.subspan<5, 12>());
 
