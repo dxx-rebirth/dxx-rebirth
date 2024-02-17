@@ -293,6 +293,7 @@ static void find_min_max(const polymodel &pm, const unsigned submodel_num, vms_v
 }
 
 constexpr fix morph_rate{F1_0 * 3};
+constexpr fix indeterminate_box_extent{INT32_MAX};
 
 static fix update_bounding_box_extent(const vms_vector &vp, const vms_vector &box_size, fix vms_vector::*const p, const fix entry_extent)
 {
@@ -305,22 +306,20 @@ static fix update_bounding_box_extent(const vms_vector &vp, const vms_vector &bo
 	return std::min(entry_extent, fixdiv(box_size_p, abs_vp_p));
 }
 
-static fix compute_bounding_box_extents(const vms_vector &vp, const vms_vector &box_size)
+static fix compute_bounding_box_extents(const vms_vector &vp, const vms_vector *const box_size)
 {
-	fix k{INT32_MAX};
-
-	k = update_bounding_box_extent(vp, box_size, &vms_vector::x, k);
-	k = update_bounding_box_extent(vp, box_size, &vms_vector::y, k);
-	k = update_bounding_box_extent(vp, box_size, &vms_vector::z, k);
-
-	return k;
+	return box_size
+		? update_bounding_box_extent(
+			vp, *box_size, &vms_vector::z,
+			update_bounding_box_extent(
+				vp, *box_size, &vms_vector::y,
+				update_bounding_box_extent(
+					vp, *box_size, &vms_vector::x, indeterminate_box_extent
+				)
+			)
+		)
+		: indeterminate_box_extent;
 }
-
-}
-
-}
-
-namespace {
 
 static void init_points(const polymodel &pm, const vms_vector *const box_size, const unsigned submodel_num, morph_data *const md)
 {
@@ -347,9 +346,8 @@ static void init_points(const polymodel &pm, const vms_vector *const box_size, c
 		auto &morph_vec{std::get<1>(z)};
 		auto &morph_delta{std::get<2>(z)};
 		auto &morph_time{std::get<3>(z)};
-		fix k;
 
-		if (box_size && (k = compute_bounding_box_extents(*vp, *box_size) != INT32_MAX))
+		if (const fix k{compute_bounding_box_extents(*vp, box_size)}; k != indeterminate_box_extent)
 			morph_vec = vm_vec_copy_scale(*vp, k);
 		else
 			morph_vec = {};
@@ -400,7 +398,10 @@ static void update_points(const polymodel &pm, const unsigned submodel_num, morp
 
 }
 
+}
+
 namespace dsx {
+
 //process the morphing object for one frame
 void do_morph_frame(object &obj)
 {
@@ -514,6 +515,7 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 
 	init_points(pm,&box_size,0,md);
 }
+
 }
 
 namespace {
