@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <stdlib.h>
 #include <math.h>
+#include <type_traits>
 
 #include "dxxerror.h"
 #include "maths.h"
@@ -87,13 +88,13 @@ fixang fix_atan2(fix cos,fix sin)
 [[nodiscard]]
 static unsigned fixdivquadlongu(quadint n, uint64_t d)
 {
-	return n.q / d;
+	return static_cast<std::underlying_type_t<quadint>>(n) / d;
 }
 
 uint32_t quad_sqrt(const quadint iq)
 {
-	const uint32_t low = static_cast<uint32_t>(iq.q);
-	const int32_t high = static_cast<int32_t>(iq.q >> 32);
+	const uint32_t low{static_cast<uint32_t>(iq)};
+	const int32_t high{static_cast<int32_t>(static_cast<std::underlying_type_t<quadint>>(iq) >> 32)};
 	int i, cnt;
 	uint32_t r,old_r,t;
 
@@ -138,12 +139,8 @@ uint32_t quad_sqrt(const quadint iq)
 	} while (!(r==t || r==old_r));
 
 	t = fixdivquadlongu(iq,r);
-	quadint tq;
-	//edited 05/17/99 Matt Mueller - tq.high is undefined here.. so set them to = 0
-	tq.q = 0;
-	//end edit -MM
-	fixmulaccum(&tq,r,t);
-	if (tq.q != iq.q)
+	const auto tq{fixmulaccum({}, r, t)};
+	if (tq != iq)
 		r++;
 
 	return r;

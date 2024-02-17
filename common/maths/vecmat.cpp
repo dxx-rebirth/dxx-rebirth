@@ -175,27 +175,15 @@ void vm_vec_scale2(vms_vector &dest,fix n,fix d)
 [[nodiscard]]
 static fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector &v)
 {
-#if 0
-	quadint q;
-
-	q.low = q.high = 0;
-
-	fixmulaccum(&q,x,v->x);
-	fixmulaccum(&q,y,v->y);
-	fixmulaccum(&q,z,v->z);
-
-	return fixquadadjust(&q);
-#else
-	int64_t x0 = x;
-	int64_t x1 = v.x;
-	int64_t y0 = y;
-	int64_t y1 = v.y;
-	int64_t z0 = z;
-	int64_t z1 = v.z;
-	int64_t p = (x0 * x1) + (y0 * y1) + (z0 * z1);
+	const int64_t x0{x};
+	const int64_t x1{v.x};
+	const int64_t y0{y};
+	const int64_t y1{v.y};
+	const int64_t z0{z};
+	const int64_t z1{v.z};
+	const int64_t p{(x0 * x1) + (y0 * y1) + (z0 * z1)};
 	/* Convert back to fix and return. */
 	return p >> 16;
-#endif
 }
 
 fix vm_vec_dot(const vms_vector &v0,const vms_vector &v1)
@@ -213,9 +201,7 @@ vm_magnitude_squared vm_vec_mag2(const vms_vector &v)
 
 vm_magnitude vm_vec_mag(const vms_vector &v)
 {
-	quadint q;
-	q.q = static_cast<uint64_t>(vm_vec_mag2(v));
-	return vm_magnitude{quad_sqrt(q)};
+	return vm_magnitude{quad_sqrt(quadint{static_cast<int64_t>(vm_vec_mag2(v))})};
 }
 
 //computes the distance between two points. (does sub and mag)
@@ -373,22 +359,18 @@ static vms_vector check_vec(vms_vector v)
 //your inputs are ok.
 vms_vector vm_vec_cross(const vms_vector &src0, const vms_vector &src1)
 {
-	quadint qx{};
-	quadint qy{};
-	quadint qz{};
+	const auto qx0{fixmulaccum({}, src0.y, src1.z)};
+	const auto qx1{fixmulaccum(qx0, -src0.z, src1.y)};
 
-	fixmulaccum(&qx, src0.y, src1.z);
-	fixmulaccum(&qx, -src0.z, src1.y);
+	const auto qy0{fixmulaccum({}, src0.z, src1.x)};
+	const auto qy1{fixmulaccum(qy0, -src0.x, src1.z)};
 
-	fixmulaccum(&qy, src0.z, src1.x);
-	fixmulaccum(&qy, -src0.x, src1.z);
-
-	fixmulaccum(&qz, src0.x, src1.y);
-	fixmulaccum(&qz, -src0.y, src1.x);
+	const auto qz0{fixmulaccum({}, src0.x, src1.y)};
+	const auto qz1{fixmulaccum(qz0, -src0.y, src1.x)};
 	return vms_vector{
-		.x = fixquadadjust(&qx),
-		.y = fixquadadjust(&qy),
-		.z = fixquadadjust(&qz),
+		.x = fixquadadjust(qx1),
+		.y = fixquadadjust(qy1),
+		.z = fixquadadjust(qz1),
 	};
 }
 
