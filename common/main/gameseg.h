@@ -34,7 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <utility>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include <array>
+#include "d_array.h"
 
 namespace dcx {
 struct segmasks
@@ -44,7 +44,9 @@ struct segmasks
    sidemask_t centermask;   //which sides center point is on back of (6 bits)
 };
 
-struct segment_depth_array_t : public std::array<ubyte, MAX_SEGMENTS> {};
+struct segment_depth_array_t : public enumerated_array<uint8_t, MAX_SEGMENTS, segnum_t>
+{
+};
 
 struct side_vertnum_list_t : std::array<vertnum_t, 4> {};
 
