@@ -772,7 +772,7 @@ struct strong_typedef : T
 			}
 		)
 		strong_typedef(O &&o) :
-			T(std::forward<O>(o))
+			T{std::forward<O>(o)}
 	{
 	}
 	strong_typedef() = default;

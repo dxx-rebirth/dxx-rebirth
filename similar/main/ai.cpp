@@ -4998,9 +4998,9 @@ int ai_restore_state(const d_robot_info_array &Robot_info, const NamedPHYSFS_Fil
 		BuddyState.Escort_last_path_created = fix64{fix{PHYSFSX_readSXE32(fp, swap)}};
 		BuddyState.Escort_goal_object = static_cast<escort_goal_t>(PHYSFSX_readSXE32(fp, swap));
 		BuddyState.Escort_special_goal = static_cast<escort_goal_t>(PHYSFSX_readSXE32(fp, swap));
-		if (const int egi{PHYSFSX_readSXE32(fp, swap)}; static_cast<unsigned>(egi) < Objects.size())
+		if (const auto o{vcobjidx_t::check_nothrow_index(PHYSFSX_readUXE32(fp, swap))})
 		{
-			BuddyState.Escort_goal_objidx = egi;
+			BuddyState.Escort_goal_objidx = *o;
 			BuddyState.Escort_goal_reachable = d_unique_buddy_state::Escort_goal_reachability::reachable;
 		}
 		else
