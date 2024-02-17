@@ -16,13 +16,6 @@ template <bool capture_source_location = false>
 class location_wrapper
 {
 public:
-	location_wrapper() = default;
-	/* Allow callers to pass explicit file/line, for signature
-	 * compatibility with `location_wrapper<true>`.
-	 */
-	location_wrapper(const char *, unsigned)
-	{
-	}
 	/* This must be a template to be compatible with the `scratch_buffer`
 	 * template-typedef in `location_wrapper<true>`.
 	 */
@@ -50,15 +43,11 @@ public:
 template <>
 class location_wrapper<true>
 {
-	const char *file;
-	unsigned line;
+	const char *file{__builtin_FILE()};
+	unsigned line{__builtin_LINE()};
 public:
 	template <std::size_t N>
 		using scratch_buffer = std::array<char, N>;
-	location_wrapper(const char *const f = __builtin_FILE(), const unsigned l = __builtin_LINE()) :
-		file{f}, line{l}
-	{
-	}
 	/* Return a span describing the unwritten area into which the caller can
 	 * place further text.
 	 */
@@ -94,26 +83,7 @@ class location_value_wrapper : public location_wrapper<capture_source_location>
 {
 	T value;
 public:
-	/* Allow callers to pass explicit file/line, for signature
-	 * compatibility with `location_value_wrapper<T, true>`.
-	 */
-#if !DXX_HAVE_CXX_BUILTIN_FILE_LINE
-	location_value_wrapper(const T &v) :
-		value{v}
-	{
-	}
-#endif
-	location_value_wrapper(const T &v,
-		const char *const f
-#if DXX_HAVE_CXX_BUILTIN_FILE_LINE
-		= __builtin_FILE()
-#endif
-		, const unsigned l
-#if DXX_HAVE_CXX_BUILTIN_FILE_LINE
-		= __builtin_LINE()
-#endif
-		) :
-		location_wrapper<capture_source_location>{f, l},
+	constexpr location_value_wrapper(const T &v) :
 		value{v}
 	{
 	}

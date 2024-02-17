@@ -1879,6 +1879,11 @@ return __builtin_expect(argc == 1, 1) ? 1 : 0;
 			self.Compile(context, text='''
 static void f(const char * = __builtin_FILE(), unsigned = __builtin_LINE())
 {
+	struct A
+	{
+		unsigned line{__builtin_LINE()};
+	};
+	static_assert(A{}.line == __LINE__);
 }
 ''', main='f();', msg='whether compiler accepts __builtin_FILE, __builtin_LINE'))
 
