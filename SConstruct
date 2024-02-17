@@ -2379,7 +2379,7 @@ $ x86_64-pc-linux-gnu-g++-5.4.0 -x c++ -S -Wformat -o /dev/null -
 	return SDL_Swap32(argc);
 ''', msg='whether compiler argument -Wuseless-cast works with SDL', successflags=flags):
 			return
-		# <=clang-3.7 does not understand -Wuseless-cast
+		# <=clang-16 does not understand -Wuseless-cast
 		# This test does not influence the compile environment, but is
 		# run to distinguish in the output whether the failure is
 		# because the compiler does not accept -Wuseless-cast or because
