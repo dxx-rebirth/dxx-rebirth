@@ -49,9 +49,8 @@ struct morph_data : prohibit_void_ptr<morph_data>
 	{
 		MAX_VECS = 5000u,
 	};
-	struct max_vectors
+	enum class max_vectors : std::size_t
 	{
-		const std::size_t count;
 	};
 	static void *operator new(std::size_t bytes) = delete;	/* require caller to use placement-form to specify the number of vectors to allocate */
 	static void operator delete(void *p)

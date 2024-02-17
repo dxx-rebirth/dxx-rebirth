@@ -188,7 +188,7 @@ std::size_t count_model_points(const polymodel &pm, const polygon_model_index mo
 
 void *morph_data::operator new(std::size_t, const max_vectors max_vecs)
 {
-	return ::operator new(sizeof(morph_data) + (max_vecs.count * (sizeof(fix) + sizeof(vms_vector) + sizeof(vms_vector))));
+	return ::operator new(sizeof(morph_data) + (underlying_value(max_vecs) * (sizeof(fix) + sizeof(vms_vector) + sizeof(vms_vector))));
 }
 
 morph_data::ptr morph_data::create(object_base &o, const polymodel &pm, const polygon_model_index model_idx)
@@ -219,19 +219,19 @@ morph_data::morph_data(object_base &o, const max_vectors m) :
 
 std::span<fix> morph_data::get_morph_times()
 {
-	return {reinterpret_cast<fix *>(this + 1), max_vecs.count};
+	return {reinterpret_cast<fix *>(this + 1), {underlying_value(max_vecs)}};
 }
 
 std::span<vms_vector> morph_data::get_morph_vecs()
 {
 	const auto t{get_morph_times()};
-	return {reinterpret_cast<vms_vector *>(t.data() + t.size()), max_vecs.count};
+	return {reinterpret_cast<vms_vector *>(t.data() + t.size()), {underlying_value(max_vecs)}};
 }
 
 std::span<vms_vector> morph_data::get_morph_deltas()
 {
 	const auto v{get_morph_vecs()};
-	return {v.data() + v.size(), max_vecs.count};
+	return {v.data() + v.size(), {underlying_value(max_vecs)}};
 }
 
 d_level_unique_morph_object_state::~d_level_unique_morph_object_state() = default;
