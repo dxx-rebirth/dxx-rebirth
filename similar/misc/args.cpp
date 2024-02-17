@@ -90,8 +90,10 @@ class nesting_depth_exceeded
 {
 };
 
-static void AppendIniArgs(const char *filename, Arglist &Args)
+[[nodiscard]]
+static Arglist BuildArglistFromIni(const char *filename)
 {
+	Arglist Args;
 	if (auto f = PHYSFSX_openReadBuffered(filename).first)
 	{
 		for (PHYSFSX_gets_line_t<1024> line; Args.size() < MAX_ARGS && PHYSFSX_fgets(line, f);)
@@ -105,6 +107,7 @@ static void AppendIniArgs(const char *filename, Arglist &Args)
 			}
 		}
 	}
+	return Args;
 }
 
 static std::string &&arg_string(Arglist::iterator &pp, Arglist::const_iterator end)
@@ -188,9 +191,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &&Args);
 
 static void ReadIniArgs(Inilist &ini)
 {
-	Arglist Args;
-	AppendIniArgs(ini.back().filename.c_str(), Args);
-	ReadCmdArgs(ini, std::move(Args));
+	ReadCmdArgs(ini, BuildArglistFromIni(ini.back().filename.c_str()));
 	ini.pop_back();
 }
 
