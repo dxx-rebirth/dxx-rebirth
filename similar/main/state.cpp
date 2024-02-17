@@ -2314,7 +2314,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 #if defined(DXX_BUILD_DESCENT_II)
 	if (version >= 17) {
 		range_for (auto &i, MarkerState.imobjidx)
-			i = PHYSFSX_readSXE32(fp, swap);
+			i = vcobjidx_t::check_nothrow_index(PHYSFSX_readUXE32(fp, swap)).value_or(object_none);
 		PHYSFS_seek(fp, PHYSFS_tell(fp) + (NUM_MARKERS)*(CALLSIGN_LEN+1)); // PHYSFS_read(fp, MarkerOwner, sizeof(MarkerOwner), 1); // skip obsolete MarkerOwner
 		range_for (auto &i, MarkerState.message)
 		{
