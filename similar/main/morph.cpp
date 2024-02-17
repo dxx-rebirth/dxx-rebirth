@@ -284,7 +284,7 @@ static void find_min_max(const polymodel &pm, const unsigned submodel_num, vms_v
 
 	minv = maxv = *vp;
 
-	range_for (auto &v, unchecked_partial_range(vp + 1, nverts - 1))
+	for (auto &v : std::span(vp, nverts).template subspan<1>())
 	{
 		update_bounds(minv, maxv, v, &vms_vector::x);
 		update_bounds(minv, maxv, v, &vms_vector::y);
