@@ -109,8 +109,8 @@ public:
 		filename = std::next(path.begin(), std::distance(m.path.cbegin(), m.filename));
 		return *this;
 	}
-	Mission_path(std::string &&p, const std::ptrdiff_t offset) :
-		path{std::move(p)},
+	Mission_path(std::string_view p, const std::ptrdiff_t offset) :
+		path{p},
 		filename{std::next(path.cbegin(), {offset})}
 	{
 	}

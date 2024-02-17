@@ -525,27 +525,30 @@ namespace dsx {
 
 namespace {
 
-static const mle *read_mission_file(mission_list_type &mission_list, mission_candidate_search_path &pathname, const descent_hog_size descent_hog_size, const mission_filter_mode mission_filter)
+static const mle *read_mission_file(mission_list_type &mission_list, std::string_view str_pathname, const descent_hog_size descent_hog_size, const mission_filter_mode mission_filter)
 {
-	if (const auto mfile = PHYSFSX_openReadBuffered(pathname.data()).first)
+	if (const auto mfile = PHYSFSX_openReadBuffered(str_pathname.data()).first)
 	{
-		std::string str_pathname = pathname.data();
 		const auto idx_last_slash{str_pathname.find_last_of('/')};
+		/* If no slash is found, the filename starts at the beginning of the
+		 * view.  If a slash is found, the filename starts at the next
+		 * character after the slash.
+		 */
 		const auto idx_filename{(idx_last_slash == str_pathname.npos) ? 0 : idx_last_slash + 1};
 		const auto idx_file_extension{str_pathname.find_first_of('.', {idx_filename})};
 		if (idx_file_extension == str_pathname.npos)
 			return nullptr;	//missing extension
 		if (idx_file_extension >= DXX_MAX_MISSION_PATH_LENGTH)
 			return nullptr;	// path too long, would be truncated in save game files
-		str_pathname.resize(idx_file_extension);
 #if defined(DXX_BUILD_DESCENT_I)
 		constexpr auto descent_version = Mission::descent_version_type::descent1;
 #elif defined(DXX_BUILD_DESCENT_II)
 		// look if it's .mn2 or .msn
-		auto descent_version = (pathname[idx_file_extension + 3] == MISSION_EXTENSION_DESCENT_II[3])
+		const auto descent_version = (str_pathname[idx_file_extension + 3] == MISSION_EXTENSION_DESCENT_II[3])
 			? Mission::descent_version_type::descent2
 			: Mission::descent_version_type::descent1;
 #endif
+		str_pathname.remove_suffix(str_pathname.size() - idx_file_extension);
 
 		PHYSFSX_gets_line_t<80> buf;
 		const auto &&nv = get_any_mission_type_name_value(buf, mfile, descent_version);
@@ -590,7 +593,7 @@ static const mle *read_mission_file(mission_list_type &mission_list, mission_can
 			 * [0, DXX_MAX_MISSION_PATH_LENGTH) can be represented by
 			 * `std::ptrdiff_t`, so no narrowing occurs.
 			 */
-			Mission_path{std::move(str_pathname), static_cast<std::ptrdiff_t>(idx_filename)},
+			Mission_path{str_pathname, static_cast<std::ptrdiff_t>(idx_filename)},
 			descent_hog_size,
 #if defined(DXX_BUILD_DESCENT_II)
 			nv.descent_version,
@@ -676,7 +679,7 @@ static void add_builtin_mission_to_list(mission_list_type &mission_list, d_fname
 	case descent_hog_size::d2_full:
 	case descent_hog_size::d2_full_v10:
 	case descent_hog_size::d2_mac_full:
-		if (mission_candidate_search_path full_mission_filename{{FULL_MISSION_FILENAME MISSION_EXTENSION_DESCENT_II}}; !(mission = read_mission_file(mission_list, full_mission_filename, size, mission_filter_mode::include_anarchy)))
+		if (const std::string_view full_mission_filename{{FULL_MISSION_FILENAME MISSION_EXTENSION_DESCENT_II}}; !(mission = read_mission_file(mission_list, full_mission_filename, size, mission_filter_mode::include_anarchy)))
 				Error("Could not find required mission file <%s>", FULL_MISSION_FILENAME MISSION_EXTENSION_DESCENT_II);
 	}
 	name.copy_if(mission->path.c_str(), FILENAME_LEN);
@@ -748,8 +751,7 @@ static void add_missions_to_list(mission_list_type &mission_list, mission_candid
 				|| !d_strnicmp(ext, MISSION_EXTENSION_DESCENT_II)
 #endif
 			))
-			read_mission_file(mission_list, path, descent_hog_size::None, mission_filter);
-		
+			read_mission_file(mission_list, path.data(), descent_hog_size::None, mission_filter);
 		if (mission_list.size() >= MAX_MISSIONS)
 		{
 			break;
