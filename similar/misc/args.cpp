@@ -184,17 +184,17 @@ static void InitGameArg()
 	::dcx::InitGameArg();
 }
 
-static void ReadCmdArgs(Inilist &ini, Arglist &Args);
+static void ReadCmdArgs(Inilist &ini, Arglist &&Args);
 
 static void ReadIniArgs(Inilist &ini)
 {
 	Arglist Args;
 	AppendIniArgs(ini.back().filename.c_str(), Args);
-	ReadCmdArgs(ini, Args);
+	ReadCmdArgs(ini, std::move(Args));
 	ini.pop_back();
 }
 
-static void ReadCmdArgs(Inilist &ini, Arglist &Args)
+static void ReadCmdArgs(Inilist &ini, Arglist &&Args)
 {
 	for (Arglist::iterator pp = Args.begin(), end = Args.end(); pp != end; ++pp)
 	{
@@ -496,7 +496,7 @@ static std::string ConstructIniStackExplanation(const Inilist &ini)
 
 namespace dsx {
 
-bool InitArgs( int argc,char **argv )
+bool InitArgs(std::span<char *> argv)
 {
 	InitGameArg();
 
@@ -512,13 +512,7 @@ bool InitArgs( int argc,char **argv )
 			ini.emplace_back(INI_FILENAME);
 			ReadIniArgs(ini);
 		}
-		{
-			Arglist Args;
-			Args.reserve(argc);
-			range_for (auto &i, unchecked_partial_range(argv, 1u, static_cast<unsigned>(argc)))
-				Args.push_back(i);
-			ReadCmdArgs(ini, Args);
-		}
+		ReadCmdArgs(ini, {argv.begin(), argv.end()});
 		PostProcessGameArg();
 		return true;
 	} catch(const missing_parameter& e) {

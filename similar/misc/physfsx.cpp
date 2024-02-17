@@ -199,7 +199,7 @@ bool PHYSFSX_init(int argc, char *argv[])
 #endif
 	con_printf(CON_DEBUG, "PHYSFS: temporarily append base directory \"%s\" to search path", base_dir);
 	PHYSFS_mount(base_dir, nullptr, 1);
-	if (!InitArgs( argc,argv ))
+	if (!InitArgs(std::span(argv, argc).template subspan<1>()))
 		return false;
 	PHYSFS_unmount(base_dir);
 	
