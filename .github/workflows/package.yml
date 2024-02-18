@@ -29,10 +29,10 @@ jobs:
       github_continuous_release_tag: ${{ steps.releaseinfo.outputs.GITHUB_CONTINUOUS_RELEASE_TAG }}
       github_continuous_release_type: ${{ steps.releaseinfo.outputs.GITHUB_CONTINUOUS_RELEASE_TYPE }}
       github_continuous_release_name: ${{ steps.releaseinfo.outputs.GITHUB_CONTINUOUS_RELEASE_NAME }}
-      d1x_rebirth_appimage_output_u2004: ${{ steps.appimage.outputs.D1X_REBIRTH_OUTPUT_U2004 }}
-      d2x_rebirth_appimage_output_u2004: ${{ steps.appimage.outputs.D2X_REBIRTH_OUTPUT_U2004 }}
-      d1x_rebirth_appimage_output_u2204: ${{ steps.appimage.outputs.D1X_REBIRTH_OUTPUT_U2204 }}
-      d2x_rebirth_appimage_output_u2204: ${{ steps.appimage.outputs.D2X_REBIRTH_OUTPUT_U2204 }}
+      d1x_rebirth_appimage_output_u2004: D1X-Rebirth-u2004-x86_64.AppImage
+      d2x_rebirth_appimage_output_u2004: D2X-Rebirth-u2004-x86_64.AppImage
+      d1x_rebirth_appimage_output_u2204: D1X-Rebirth-u2204-x86_64.AppImage
+      d2x_rebirth_appimage_output_u2204: D2X-Rebirth-u2204-x86_64.AppImage
     steps:
       - id: releaseinfo
         name: Set environments (1)
@@ -59,15 +59,6 @@ jobs:
           echo "GITHUB_CONTINUOUS_RELEASE_TYPE=${GITHUB_CONTINUOUS_RELEASE_TYPE}" >> "$GITHUB_OUTPUT"
           echo "GITHUB_CONTINUOUS_RELEASE_NAME=${GITHUB_CONTINUOUS_RELEASE_NAME}" >> "$GITHUB_ENV"
           echo "GITHUB_CONTINUOUS_RELEASE_NAME=${GITHUB_CONTINUOUS_RELEASE_NAME}" >> "$GITHUB_OUTPUT"
-      - id: appimage
-        name: Set environments (2)
-        run: |
-          #OUTPUT="d1x-rebirth-$(git rev-parse --short HEAD).AppImage"
-          #OUTPUT="d2x-rebirth-$(git rev-parse --short HEAD).AppImage"
-          echo "D1X_REBIRTH_OUTPUT_U2004=D1X-Rebirth-u2004-x86_64.AppImage" >> "$GITHUB_OUTPUT"
-          echo "D2X_REBIRTH_OUTPUT_U2004=D2X-Rebirth-u2004-x86_64.AppImage" >> "$GITHUB_OUTPUT"
-          echo "D1X_REBIRTH_OUTPUT_U2204=D1X-Rebirth-u2204-x86_64.AppImage" >> "$GITHUB_OUTPUT"
-          echo "D2X_REBIRTH_OUTPUT_U2204=D2X-Rebirth-u2204-x86_64.AppImage" >> "$GITHUB_OUTPUT"
   ubuntu2004:
     if: ${{ true }}
     name: Ubuntu 20.04
