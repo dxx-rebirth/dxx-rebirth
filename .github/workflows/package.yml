@@ -36,29 +36,29 @@ jobs:
     steps:
       - id: releaseinfo
         name: Set environments (1)
+        env:
+          GITHUB_CONTINUOUS_RELEASE_TAG: ${{ github.event.inputs.tag }}
+          GITHUB_CONTINUOUS_RELEASE_TYPE: ${{ github.event.inputs.type }}
+          GITHUB_CONTINUOUS_RELEASE_NAME: ${{ github.event.inputs.name }}
         run: |
-          export GITHUB_CONTINUOUS_RELEASE_TAG="${{ github.event.inputs.tag }}"
-          export GITHUB_CONTINUOUS_RELEASE_TYPE="${{ github.event.inputs.type }}"
-          export GITHUB_CONTINUOUS_RELEASE_NAME="${{ github.event.inputs.name }}"
-          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
-            [ -z "${GITHUB_CONTINUOUS_RELEASE_TAG}" ] && export GITHUB_CONTINUOUS_RELEASE_TAG="${GITHUB_REF_NAME}"
-            [ -z "${GITHUB_CONTINUOUS_RELEASE_TYPE}" ] && export GITHUB_CONTINUOUS_RELEASE_TYPE=stable
-            [ -z "${GITHUB_CONTINUOUS_RELEASE_NAME}" ] && export GITHUB_CONTINUOUS_RELEASE_NAME="${GITHUB_REF_NAME}"
+          if [[ "$GITHUB_REF_TYPE" = tag ]]; then
+            : \
+              "${GITHUB_CONTINUOUS_RELEASE_TAG:=$GITHUB_REF_NAME}" \
+              "${GITHUB_CONTINUOUS_RELEASE_TYPE:=stable}" \
+              "${GITHUB_CONTINUOUS_RELEASE_NAME:=$GITHUB_REF_NAME}"
           else
-            [ -z "${GITHUB_CONTINUOUS_RELEASE_TAG}" ] && export GITHUB_CONTINUOUS_RELEASE_TAG=continuous
-            [ -z "${GITHUB_CONTINUOUS_RELEASE_TYPE}" ] && export GITHUB_CONTINUOUS_RELEASE_TYPE=prerelease
-            [ -z "${GITHUB_CONTINUOUS_RELEASE_NAME}" ] && export GITHUB_CONTINUOUS_RELEASE_NAME="Continuous Build"
+            : \
+              "${GITHUB_CONTINUOUS_RELEASE_TAG:=continuous}"
           fi
-          if [ "${GITHUB_CONTINUOUS_RELEASE_TAG}" = "continuous" ]; then
-            export GITHUB_CONTINUOUS_RELEASE_TYPE=prerelease
-            export GITHUB_CONTINUOUS_RELEASE_NAME="Continuous Build"
+          if [[ "$GITHUB_CONTINUOUS_RELEASE_TAG" = continuous ]]; then
+            GITHUB_CONTINUOUS_RELEASE_TYPE=prerelease
+            GITHUB_CONTINUOUS_RELEASE_NAME='Continuous Build'
           fi
-          echo "GITHUB_CONTINUOUS_RELEASE_TAG=${GITHUB_CONTINUOUS_RELEASE_TAG}" >> "$GITHUB_ENV"
-          echo "GITHUB_CONTINUOUS_RELEASE_TAG=${GITHUB_CONTINUOUS_RELEASE_TAG}" >> "$GITHUB_OUTPUT"
-          echo "GITHUB_CONTINUOUS_RELEASE_TYPE=${GITHUB_CONTINUOUS_RELEASE_TYPE}" >> "$GITHUB_ENV"
-          echo "GITHUB_CONTINUOUS_RELEASE_TYPE=${GITHUB_CONTINUOUS_RELEASE_TYPE}" >> "$GITHUB_OUTPUT"
-          echo "GITHUB_CONTINUOUS_RELEASE_NAME=${GITHUB_CONTINUOUS_RELEASE_NAME}" >> "$GITHUB_ENV"
-          echo "GITHUB_CONTINUOUS_RELEASE_NAME=${GITHUB_CONTINUOUS_RELEASE_NAME}" >> "$GITHUB_OUTPUT"
+          printf '%s=%s\n' \
+            GITHUB_CONTINUOUS_RELEASE_TAG "$GITHUB_CONTINUOUS_RELEASE_TAG" \
+            GITHUB_CONTINUOUS_RELEASE_TYPE "$GITHUB_CONTINUOUS_RELEASE_TYPE" \
+            GITHUB_CONTINUOUS_RELEASE_NAME "$GITHUB_CONTINUOUS_RELEASE_NAME" \
+            > "$GITHUB_OUTPUT"
   ubuntu2004:
     if: ${{ true }}
     name: Ubuntu 20.04
