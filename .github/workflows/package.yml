@@ -26,9 +26,6 @@ jobs:
     name: Global variables
     runs-on: ubuntu-latest
     outputs:
-      github_continuous_release_tag: ${{ steps.releaseinfo.outputs.GITHUB_CONTINUOUS_RELEASE_TAG }}
-      github_continuous_release_type: ${{ steps.releaseinfo.outputs.GITHUB_CONTINUOUS_RELEASE_TYPE }}
-      github_continuous_release_name: ${{ steps.releaseinfo.outputs.GITHUB_CONTINUOUS_RELEASE_NAME }}
       d1x_rebirth_appimage_output_u2004: D1X-Rebirth-u2004-x86_64.AppImage
       d2x_rebirth_appimage_output_u2004: D2X-Rebirth-u2004-x86_64.AppImage
       d1x_rebirth_appimage_output_u2204: D1X-Rebirth-u2204-x86_64.AppImage
@@ -252,7 +249,7 @@ jobs:
           path: '*.zip'
   upload:
     #if: ${{ false }}
-    name: Create release and upload artifacts
+    name: Create prerelease from artifacts
     needs:
       - ubuntu2004
       - globalenv
@@ -261,25 +258,18 @@ jobs:
       - macos
     runs-on: ubuntu-22.04
     steps:
-      - name: Install AppImage requirements
-        run: |
-          sudo apt-get install -y libfuse2
-      - name: Install AppImage stuff
-        run: |
-          mkdir ~/Applications
-          curl -s -L --output ~/Applications/pyuploadtool-x86_64.AppImage https://github.com/TheAssassin/pyuploadtool/releases/download/continuous/pyuploadtool-x86_64.AppImage
-          chmod 0755 ~/Applications/pyuploadtool-x86_64.AppImage
       - name: Download artifacts
         uses: actions/download-artifact@v3
-      - name: Create release and upload artifacts
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_CONTINUOUS_RELEASE_TAG: ${{needs.globalenv.outputs.github_continuous_release_tag}}
-          GITHUB_CONTINUOUS_RELEASE_TYPE: ${{needs.globalenv.outputs.github_continuous_release_type}}
-          GITHUB_CONTINUOUS_RELEASE_NAME: ${{needs.globalenv.outputs.github_continuous_release_name}}
-        run: |
-          ~/Applications/pyuploadtool-x86_64.AppImage \
-            linux-appimage-ubuntu-*/*.zip \
-            linux-appimage-ubuntu-*/*.zip \
-            windows/*.zip \
+      - name: Create prerelease from artifacts
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: true
+          files: |
+            linux-appimage-ubuntu-*/*.zip
+            linux-appimage-ubuntu-*/*.zip
+            windows/*.zip
             macos/*.zip
+          fail_on_unmatched_files: true
+          generate_release_notes: false
+        permissions:
+          contents: write
