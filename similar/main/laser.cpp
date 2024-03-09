@@ -847,9 +847,9 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 			if (parent == Viewer)
 			{
 				// Make your own vulcan gun  1/2 as loud.
-				digi_play_sample(weapon_info.flash_sound, weapon_type == weapon_id_type::VULCAN_ID ? (F0_5 / 2) : F0_5);
+				digi_play_sample(weapon_info.flash_sound, weapon_type == weapon_id_type::VULCAN_ID ? F0_5 : F1_0);
 			} else {
-				digi_link_sound_to_pos(weapon_info.flash_sound, segnum.absolute_sibling(obj->segnum), sidenum_t::WLEFT, obj->pos, 0, F0_5);
+				digi_link_sound_to_pos(weapon_info.flash_sound, segnum.absolute_sibling(obj->segnum), sidenum_t::WLEFT, obj->pos, 0, F1_0);
 			}
 		}
 	}
