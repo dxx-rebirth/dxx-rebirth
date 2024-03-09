@@ -638,7 +638,7 @@ void select_primary_weapon(player_info &player_info, const char *const weapon_na
 			auto &Next_laser_fire_time = player_info.Next_laser_fire_time;
 			if (wait_for_rearm)
 			{
-				multi_digi_play_sample_once(SOUND_GOOD_SELECTION_PRIMARY, F0_5);
+				multi_digi_play_sample_once(SOUND_GOOD_SELECTION_PRIMARY, F1_0);
 				Next_laser_fire_time = GameTime64 + REARM_TIME;
 			}
 			else
@@ -702,7 +702,7 @@ void select_secondary_weapon(player_info &player_info, const char *const weapon_
 			auto &Next_missile_fire_time = player_info.Next_missile_fire_time;
 			if (wait_for_rearm)
 			{
-				multi_digi_play_sample_once(SOUND_GOOD_SELECTION_SECONDARY, F0_5);
+				multi_digi_play_sample_once(SOUND_GOOD_SELECTION_SECONDARY, F1_0);
 				Next_missile_fire_time = GameTime64 + REARM_TIME;
 			}
 			else
