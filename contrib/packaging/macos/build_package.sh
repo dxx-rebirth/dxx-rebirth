@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 
-export MACOSX_DEPLOYMENT_TARGET=10.14
+export MACOSX_DEPLOYMENT_TARGET=14
 
 GIT_HASH=$(git rev-parse --short HEAD)
 
@@ -12,7 +12,7 @@ build_app() {
     cd build
     
     # Create a single zip file containing both applications
-    zip -r -X ../DXX-Rebirth-MacOS.zip D1X-Rebirth.app D2X-Rebirth.app
+    zip -r -X ../DXX-Rebirth-MacOS-14.zip D1X-Rebirth.app D2X-Rebirth.app
     
     cd ..
 }

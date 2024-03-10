@@ -6,13 +6,10 @@ on:
 jobs:
   package:
     name: macOS
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4
-
-      - name: Prepare Environment
-        run: export MACOSX_DEPLOYMENT_TARGET=13
 
       - name: Install Dependencies
         run: brew bundle --verbose
@@ -23,7 +20,7 @@ jobs:
           # For a idea of a fix see: https://superuser.com/a/1277306
           export PKG_CONFIG_PATH=/usr/local/opt/readline/lib/pkgconfig
           # run build
-          scons -j`nproc` opengl=1 sdl2=1 macos_add_frameworks=0 macos_bundle_libs=1
+          scons -j4 opengl=1 sdl2=1 macos_add_frameworks=0 macos_bundle_libs=1
 
       - name: Package
         run: ./contrib/packaging/macos/build_package.sh
