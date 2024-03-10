@@ -1,37 +1,37 @@
-name: Package - macOS
-
+name: Package - MacOS
 on:
-  #push:
-  #  branches: [ master ]
-
-  #pull_request:
-  #  branches: [ master ]
-
   workflow_dispatch:
+    #Empty for now - no parameters yet
+  workflow_call:
+    #Empty for now - no parameters yet
 
-jobs:          
+jobs:
   macos:
-    name: macOS Apps
-    runs-on: macos-12
+    name: OS 13
+    runs-on: macos-13
     steps:
-      - name: Clone repository
-        uses: actions/checkout@v3
-       
-      - name: Prepare environment
-        run: export MACOSX_DEPLOYMENT_TARGET=10.14
-        
-      - name: Install dependencies
+      - name: Clone Repository
+        uses: actions/checkout@v4
+
+      - name: Prepare Environment
+        run: export MACOSX_DEPLOYMENT_TARGET=13
+
+      - name: Install Dependencies
+        run: brew bundle --verbose
+
+      - name: Configure and Build
         run: |
-          brew bundle --verbose
-          
-      - name: Configure and build
-        run: scons -j2 opengl=1 sdl2=1 sdlmixer=1 macos_add_frameworks=0 macos_bundle_libs=1
-      
+          # I do not know why, but readline is not found by pkg-config
+          # For a idea of a fix see: https://superuser.com/a/1277306
+          export PKG_CONFIG_PATH=/usr/local/opt/readline/lib/pkgconfig
+          # run build
+          scons -j2 opengl=1 sdl2=1 sdlmixer=1 macos_add_frameworks=0 macos_bundle_libs=1
+
       - name: Package
         run: ./contrib/packaging/macos/build_package.sh
-        
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
         with:
           name: macos
-          path: '*.zip'          
+          path: '*.zip'

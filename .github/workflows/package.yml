@@ -1,275 +1,40 @@
-name: Package
+name: Package All and Create Release
 on:
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - '**/.github/**'
-  #pull_request:
-  #  branches: [ master ]
   workflow_dispatch:
     inputs:
-      tag:
-        description: The tag used for release
-        default: ''
-        required: false
-      type:
-        description: 'The type of release to be published (supported values: stable, prerelease)'
-        default: ''
-        required: false
-      name:
-        description: The title of the release
-        default: ''
-        required: false
+      tag_name:
+        description: Tag Name (new or existing)
+        required: true
+        type: string
+      prerelease:
+        description: Pre-release?
+        default: true
+        type: boolean
+      force_release:
+        description: Force release, even if builds fail?
+        type: boolean
+
 jobs:
-  globalenv:
-    name: Global variables
-    runs-on: ubuntu-latest
-    outputs:
-      d1x_rebirth_appimage_output_u2004: D1X-Rebirth-u2004-x86_64.AppImage
-      d2x_rebirth_appimage_output_u2004: D2X-Rebirth-u2004-x86_64.AppImage
-      d1x_rebirth_appimage_output_u2204: D1X-Rebirth-u2204-x86_64.AppImage
-      d2x_rebirth_appimage_output_u2204: D2X-Rebirth-u2204-x86_64.AppImage
-    steps:
-      - id: releaseinfo
-        name: Set environments (1)
-        env:
-          GITHUB_CONTINUOUS_RELEASE_TAG: ${{ github.event.inputs.tag }}
-          GITHUB_CONTINUOUS_RELEASE_TYPE: ${{ github.event.inputs.type }}
-          GITHUB_CONTINUOUS_RELEASE_NAME: ${{ github.event.inputs.name }}
-        run: |
-          if [[ "$GITHUB_REF_TYPE" = tag ]]; then
-            : \
-              "${GITHUB_CONTINUOUS_RELEASE_TAG:=$GITHUB_REF_NAME}" \
-              "${GITHUB_CONTINUOUS_RELEASE_TYPE:=stable}" \
-              "${GITHUB_CONTINUOUS_RELEASE_NAME:=$GITHUB_REF_NAME}"
-          else
-            : \
-              "${GITHUB_CONTINUOUS_RELEASE_TAG:=continuous}"
-          fi
-          if [[ "$GITHUB_CONTINUOUS_RELEASE_TAG" = continuous ]]; then
-            GITHUB_CONTINUOUS_RELEASE_TYPE=prerelease
-            GITHUB_CONTINUOUS_RELEASE_NAME='Continuous Build'
-          fi
-          printf '%s=%s\n' \
-            GITHUB_CONTINUOUS_RELEASE_TAG "$GITHUB_CONTINUOUS_RELEASE_TAG" \
-            GITHUB_CONTINUOUS_RELEASE_TYPE "$GITHUB_CONTINUOUS_RELEASE_TYPE" \
-            GITHUB_CONTINUOUS_RELEASE_NAME "$GITHUB_CONTINUOUS_RELEASE_NAME" \
-            > "$GITHUB_OUTPUT"
-  ubuntu2004:
-    if: ${{ true }}
-    name: Ubuntu 20.04
-    needs:
-      - globalenv
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Clone Repository
-        uses: actions/checkout@v4
-      - name: Update package database
-        run: |
-          sudo apt-get update
-      - name: Install AppImage requirements
-        run: |
-          sudo apt-get install -y fuse libfuse2
-      - name: Install download tools
-        run: |
-          sudo apt-get install -y wget curl
-      - name: Install AppImage stuff
-        run: |
-          mkdir ~/Applications
-          curl -s -L --output ~/Applications/linuxdeploy-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-          chmod 0755 ~/Applications/linuxdeploy-x86_64.AppImage
-      - name: Install gcc / g++ 11
-        run: |
-          sudo apt install -y software-properties-common
-          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-          sudo apt install -y gcc-11 g++-11
-      - name: Install Python and SCons
-        run: |
-          sudo apt install -y python3
-          mkdir ~/venv
-          python3 -m venv ~/venv
-          . ~/venv/bin/activate && pip install Scons==4.0.1
-      - name: Install dxx-rebirth dependencies
-        run: |
-          sudo apt install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libphysfs-dev libpng-dev
-      - name: Configure and build
-        run: . ~/venv/bin/activate && scons -j`nproc` opengl=1 sdl2=1 sdlmixer=1
-        env:
-          CC: gcc-11
-          CXX: g++-11
-      - name: Package AppImage d1x-rebirth
-        env:
-          OUTPUT: ${{needs.globalenv.outputs.d1x_rebirth_appimage_output_u2004}}
-        run: |
-          ~/Applications/linuxdeploy-x86_64.AppImage \
-            -oappimage \
-            --appdir="d1x-rebirth.appdir" \
-            --executable="build/d1x-rebirth/d1x-rebirth" \
-            --desktop-file="d1x-rebirth/d1x-rebirth.desktop" \
-            --icon-file="d1x-rebirth/d1x-rebirth.png"
-      - name: Package AppImage d2x-rebirth
-        env:
-          OUTPUT: ${{needs.globalenv.outputs.d2x_rebirth_appimage_output_u2004}}
-        run: |
-          ~/Applications/linuxdeploy-x86_64.AppImage \
-            -oappimage \
-            --appdir="d2x-rebirth.appdir" \
-            --executable="build/d2x-rebirth/d2x-rebirth" \
-            --desktop-file="d2x-rebirth/d2x-rebirth.desktop" \
-            --icon-file="d2x-rebirth/d2x-rebirth.png"
-      - name: Zip AppImages
-        run: zip -r -X DXX-Rebirth-ubuntu-20.04.zip . -i '*.AppImage'
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: linux-appimage-ubuntu-20.04
-          path: '*.zip'
-  ubuntu2204:
-    name: Ubuntu 22.04
-    needs:
-      - globalenv
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Clone Repository
-        uses: actions/checkout@v4
-      - name: Update package database
-        run: |
-          sudo apt-get update
-      - name: Install AppImage requirements
-        run: |
-          sudo apt-get install -y libfuse2
-      - name: Install download tools
-        run: |
-          sudo apt-get install -y wget curl
-      - name: Install AppImage stuff
-        run: |
-          mkdir ~/Applications
-          curl -s -L --output ~/Applications/linuxdeploy-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-          chmod 0755 ~/Applications/linuxdeploy-x86_64.AppImage
-      - name: Install gcc / g++ 11
-        run: |
-          sudo apt install -y gcc-11 g++-11
-      - name: Install Python and SCons
-        run: |
-          sudo apt install -y python3 scons
-      - name: Install dxx-rebirth dependencies
-        run: |
-          sudo apt install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libphysfs-dev libpng-dev
-      - name: Configure and build
-        run: scons -j`nproc` opengl=1 sdl2=1 sdlmixer=1
-        env:
-          CC: gcc-11
-          CXX: g++-11
-      - name: Package AppImage d1x-rebirth
-        env:
-          OUTPUT: ${{needs.globalenv.outputs.d1x_rebirth_appimage_output_u2204}}
-        run: |
-          ~/Applications/linuxdeploy-x86_64.AppImage \
-            -oappimage \
-            --appdir="d1x-rebirth.appdir" \
-            --executable="build/d1x-rebirth/d1x-rebirth" \
-            --desktop-file="d1x-rebirth/d1x-rebirth.desktop" \
-            --icon-file="d1x-rebirth/d1x-rebirth.png"
-      - name: Package AppImage d2x-rebirth
-        env:
-          OUTPUT: ${{needs.globalenv.outputs.d2x_rebirth_appimage_output_u2204}}
-        run: |
-          ~/Applications/linuxdeploy-x86_64.AppImage \
-            -oappimage \
-            --appdir="d2x-rebirth.appdir" \
-            --executable="build/d2x-rebirth/d2x-rebirth" \
-            --desktop-file="d2x-rebirth/d2x-rebirth.desktop" \
-            --icon-file="d2x-rebirth/d2x-rebirth.png"
-      - name: Zip AppImages and
-        run: zip -r -X DXX-Rebirth-ubuntu-22.04.zip . -i '*.AppImage'
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: linux-appimage-ubuntu-22.04
-          path: '*.zip'
+  linux:
+    name: Package Linux
+    uses: ./.github/workflows/package-linux.yml
+
   windows:
-    name: Windows
-    runs-on: windows-2019
-    defaults:
-      run:
-        shell: msys2 {0}
-    steps:
-      - name: Setup MSYS2
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: MINGW64
-          update: true
-          install: >-
-            git
-            zip
-            base-devel
-            mingw-w64-x86_64-toolchain
-            mingw-w64-x86_64-scons
-            mingw-w64-x86_64-pkgconf
-            mingw-w64-x86_64-SDL2
-            mingw-w64-x86_64-SDL2_image
-            mingw-w64-x86_64-SDL2_mixer
-            mingw-w64-x86_64-physfs
-      - name: Clone repository
-        uses: actions/checkout@v4
-      - name: Configure and build
-        run: scons -j2 sdl2=1 sdlmixer=1
-      - name: Package
-        run: ./contrib/packaging/windows/build_package.sh
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: windows
-          path: '*.zip'
+    name: Package Windows
+    uses: ./.github/workflows/package-windows.yml
+
   macos:
-    name: macOS Apps
-    runs-on: macos-13
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
-      - name: Prepare environment
-        run: export MACOSX_DEPLOYMENT_TARGET=13
-      - name: Install dependencies
-        run: |
-          brew bundle --verbose
-      - name: Configure and build
-        run: |
-          # I do not know why, but readline is not found by pkg-config
-          # For a idea of a fix see: https://superuser.com/a/1277306
-          export PKG_CONFIG_PATH=/usr/local/opt/readline/lib/pkgconfig
-          # run build
-          scons -j2 opengl=1 sdl2=1 sdlmixer=1 macos_add_frameworks=0 macos_bundle_libs=1
-      - name: Package
-        run: ./contrib/packaging/macos/build_package.sh
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: macos
-          path: '*.zip'
-  upload:
-    #if: ${{ false }}
-    name: Create prerelease from artifacts
+    name: Package MacOS
+    uses: ./.github/workflows/package-macos.yml
+
+  release:
+    # Skips 'needs' if conditions met - https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idneeds
+    if: ${{ inputs.force_release }}
     needs:
-      - ubuntu2004
-      - globalenv
-      - ubuntu2204
+      - linux
       - windows
       - macos
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
-      - name: Create prerelease from artifacts
-        uses: softprops/action-gh-release@v1
-        with:
-          prerelease: true
-          files: |
-            linux-appimage-ubuntu-*/*.zip
-            linux-appimage-ubuntu-*/*.zip
-            windows/*.zip
-            macos/*.zip
-          fail_on_unmatched_files: true
-          generate_release_notes: false
-    permissions:
-      contents: write
+    uses: ./.github/workflows/release.yml
+    with:
+      tag_name: ${{ inputs.tag_name }}
+      prerelease: ${{ inputs.prerelease }}

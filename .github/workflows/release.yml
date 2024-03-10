@@ -1,0 +1,31 @@
+name: Create Release
+on:
+  workflow_call:
+    inputs:
+      tag_name:
+        default: ${{ github.ref }}
+        type: string
+      prerelease:
+        default: true
+        type: boolean
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Display Artifacts
+        run: ls -R
+
+      - name: Create Prerelease
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ inputs.tag_name }}
+          prerelease: ${{ inputs.prerelease }}
+          files: |
+            linux-appimage-ubuntu-*/*.zip
+            windows/*.zip
+            macos/*.zip
