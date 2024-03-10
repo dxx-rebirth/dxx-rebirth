@@ -10,9 +10,6 @@ on:
         description: Pre-release?
         default: true
         type: boolean
-      force_release:
-        description: Force release, even if builds fail?
-        type: boolean
 
 jobs:
   linux:
@@ -28,8 +25,7 @@ jobs:
     uses: ./.github/workflows/package-macos.yml
 
   release:
-    # Skips 'needs' if conditions met - https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idneeds
-    if: ${{ inputs.force_release }}
+    name: Release
     needs:
       - linux
       - windows
