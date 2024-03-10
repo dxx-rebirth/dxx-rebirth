@@ -47,7 +47,7 @@ build_appimage "d1x-rebirth" "D1X-Rebirth"
 build_appimage "d2x-rebirth" "D2X-Rebirth"
 
 # Consolidate into a single zip file
-zip -r -X DXX-Rebirth.zip D1X-Rebirth.AppImage D2X-Rebirth.AppImage
+zip -r -X DXX-Rebirth-Linux.zip D1X-Rebirth.AppImage D2X-Rebirth.AppImage
 
 # Clean
 rm -f appimagetool* AppRun* D1X-Rebirth.AppImage D2X-Rebirth.AppImage

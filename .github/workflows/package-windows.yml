@@ -1,9 +1,7 @@
 name: Package - Windows
 on:
   workflow_dispatch:
-    #Empty for now - no parameters yet
   workflow_call:
-    #Empty for now - no parameters yet
 
 jobs:
   package:
