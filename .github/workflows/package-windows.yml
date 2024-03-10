@@ -6,8 +6,8 @@ on:
     #Empty for now - no parameters yet
 
 jobs:
-  windows:
-    name: Windows
+  package:
+    name: MINGW64
     runs-on: windows-2019
     defaults:
       run:

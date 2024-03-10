@@ -26,6 +26,6 @@ jobs:
           tag_name: ${{ inputs.tag_name }}
           prerelease: ${{ inputs.prerelease }}
           files: |
-            linux-appimage-ubuntu-*/*.zip
+            linux-appimage/*.zip
             windows/*.zip
             macos/*.zip

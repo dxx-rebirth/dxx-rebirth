@@ -6,8 +6,8 @@ on:
     #Empty for now - no parameters yet
 
 jobs:
-  ubuntu2204:
-    name: Ubuntu 22.04
+  package:
+    name: GCC 11
     runs-on: ubuntu-22.04
     steps:
       - name: Clone Repository
@@ -16,23 +16,8 @@ jobs:
       - name: Update Package Database
         run: sudo apt-get update
 
-      - name: Install AppImage Requirements
-        run: sudo apt-get install -y libfuse2
-
-      - name: Install Download Tools
-        run: sudo apt-get install -y wget curl
-
-      - name: Install AppImage Stuff
-        run: |
-          mkdir ~/Applications
-          curl -s -L --output ~/Applications/linuxdeploy-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-          chmod 0755 ~/Applications/linuxdeploy-x86_64.AppImage
-
-      - name: Install gcc and g++
-        run: sudo apt install -y gcc-11 g++-11
-
-      - name: Install Python and SCons
-        run: sudo apt install -y python3 scons
+      - name: Install Build Dependencies
+        run: sudo apt install -y gcc-11 g++-11 python3 scons
 
       - name: Install dxx-rebirth Dependencies
         run: sudo apt install -y libsdl1.2-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libphysfs-dev libpng-dev
@@ -43,33 +28,14 @@ jobs:
           CC: gcc-11
           CXX: g++-11
 
-      - name: Package AppImage d1x-rebirth
-        env:
-          OUTPUT: D1X-Rebirth-u2204-x86_64.AppImage
-        run: |
-          ~/Applications/linuxdeploy-x86_64.AppImage \
-            -oappimage \
-            --appdir="d1x-rebirth.appdir" \
-            --executable="build/d1x-rebirth/d1x-rebirth" \
-            --desktop-file="d1x-rebirth/d1x-rebirth.desktop" \
-            --icon-file="d1x-rebirth/d1x-rebirth.png"
+      - name: Install AppImage Requirements
+        run: sudo apt-get install -y libfuse2 wget curl
 
-      - name: Package AppImage d2x-rebirth
-        env:
-          OUTPUT: D2X-Rebirth-u2204-x86_64.AppImage
-        run: |
-          ~/Applications/linuxdeploy-x86_64.AppImage \
-            -oappimage \
-            --appdir="d2x-rebirth.appdir" \
-            --executable="build/d2x-rebirth/d2x-rebirth" \
-            --desktop-file="d2x-rebirth/d2x-rebirth.desktop" \
-            --icon-file="d2x-rebirth/d2x-rebirth.png"
-
-      - name: Zip AppImages
-        run: zip -r -X DXX-Rebirth-ubuntu-22.04.zip . -i '*.AppImage'
+      - name: Package
+        run: ./contrib/packaging/linux/build_package.sh
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: linux-appimage-ubuntu-22.04
+          name: linux-appimage
           path: '*.zip'
