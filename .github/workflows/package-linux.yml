@@ -42,10 +42,10 @@ jobs:
           . ~/venv/bin/activate && pip install Scons==4.0.1
 
       - name: Install dxx-rebirth Dependencies
-        run: sudo apt install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libphysfs-dev libpng-dev
+        run: sudo apt install -y libsdl1.2-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libphysfs-dev libpng-dev
 
       - name: Configure and Build
-        run: . ~/venv/bin/activate && scons -j`nproc` opengl=1 sdl2=1 sdlmixer=1
+        run: . ~/venv/bin/activate && scons -j`nproc`
         env:
           CC: gcc-11
           CXX: g++-11
@@ -112,10 +112,10 @@ jobs:
         run: sudo apt install -y python3 scons
 
       - name: Install dxx-rebirth Dependencies
-        run: sudo apt install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libphysfs-dev libpng-dev
+        run: sudo apt install -y libsdl1.2-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libphysfs-dev libpng-dev
 
       - name: Configure and Build
-        run: scons -j`nproc` opengl=1 sdl2=1 sdlmixer=1
+        run: scons -j`nproc`
         env:
           CC: gcc-11
           CXX: g++-11

@@ -25,16 +25,16 @@ jobs:
             mingw-w64-x86_64-toolchain
             mingw-w64-x86_64-scons
             mingw-w64-x86_64-pkgconf
-            mingw-w64-x86_64-SDL2
-            mingw-w64-x86_64-SDL2_image
-            mingw-w64-x86_64-SDL2_mixer
+            mingw-w64-x86_64-SDL
+            mingw-w64-x86_64-SDL_image
+            mingw-w64-x86_64-SDL_mixer
             mingw-w64-x86_64-physfs
 
       - name: Clone Repository
         uses: actions/checkout@v4
 
       - name: Configure and Build
-        run: scons -j`nproc` sdl2=1 sdlmixer=1
+        run: scons -j`nproc`
 
       - name: Package
         run: ./contrib/packaging/windows/build_package.sh

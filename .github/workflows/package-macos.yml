@@ -25,7 +25,7 @@ jobs:
           # For a idea of a fix see: https://superuser.com/a/1277306
           export PKG_CONFIG_PATH=/usr/local/opt/readline/lib/pkgconfig
           # run build
-          scons -j`nproc` opengl=1 sdl2=1 sdlmixer=1 macos_add_frameworks=0 macos_bundle_libs=1
+          scons -j`nproc` opengl=1 sdl2=1 macos_add_frameworks=0 macos_bundle_libs=1
 
       - name: Package
         run: ./contrib/packaging/macos/build_package.sh
