@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure and Build
-        run: scons -j2 sdl2=1 sdlmixer=1
+        run: scons -j`nproc` sdl2=1 sdlmixer=1
 
       - name: Package
         run: ./contrib/packaging/windows/build_package.sh
