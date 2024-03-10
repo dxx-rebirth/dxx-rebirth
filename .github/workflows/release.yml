@@ -1,18 +1,26 @@
-name: Create Release
+name: Package All and Create Release
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       tag_name:
-        default: ${{ github.ref }}
+        description: Tag Name (new or existing)
+        required: true
         type: string
       prerelease:
+        description: Pre-release?
         default: true
         type: boolean
 
 jobs:
+  package:
+    name: Package All
+    uses: ./.github/workflows/ci.yml
+
   release:
     name: Create Release
     runs-on: ubuntu-22.04
+    needs:
+      - package
     steps:
       - name: Download Artifacts
         uses: actions/download-artifact@v4

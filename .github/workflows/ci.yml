@@ -1,0 +1,25 @@
+name: Continuous Integration
+on:
+  workflow_dispatch:
+  workflow_call:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '**/.github/**'
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  linux:
+    name: Package Linux
+    uses: ./.github/workflows/package-linux.yml
+
+  windows:
+    name: Package Windows
+    uses: ./.github/workflows/package-windows.yml
+
+  macos:
+   name: Package MacOS
+   uses: ./.github/workflows/package-macos.yml
