@@ -22,6 +22,9 @@ jobs:
 
       - name: Configure and Build
         run: scons -j`nproc`
+        env:
+          CC: gcc-13
+          CXX: g++-13
 
       - name: Install AppImage Requirements
         run: sudo apt-get install -y libfuse2 wget curl
