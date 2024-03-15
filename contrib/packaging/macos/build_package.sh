@@ -12,7 +12,7 @@ build_app() {
     cd build
     
     # Create a single zip file containing both applications
-    zip -r -X ../DXX-Rebirth-MacOS-14.zip D1X-Rebirth.app D2X-Rebirth.app
+    zip -r -X ../DXX-Rebirth-MacOS14-`uname -m`.zip D1X-Rebirth.app D2X-Rebirth.app
     
     cd ..
 }

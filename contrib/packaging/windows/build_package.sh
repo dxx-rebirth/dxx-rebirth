@@ -36,4 +36,4 @@ build_app "d2x-rebirth" "D2X-Rebirth"
 
 # zip up and output to top-level dir
 cd tmp
-zip -r -X ../DXX-Rebirth-Win.zip D1X-Rebirth D2X-Rebirth
+zip -r -X ../DXX-Rebirth-Win-`uname -m`.zip D1X-Rebirth D2X-Rebirth
