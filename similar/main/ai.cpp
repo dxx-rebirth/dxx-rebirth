@@ -229,29 +229,30 @@ point_seg_array_t::iterator       Point_segs_free_ptr;
 
 // ------ John: End of variables which must be saved as part of gamesave. -----
 
-//	0	mech
-//	1	green claw
-//	2	spider
-//	3	josh
-//	4	violet
-//	5	cloak vulcan
-//	6	cloak mech
-//	7	brain
-//	8	onearm
-//	9	plasma
-//	10	toaster
-//	11	bird
-//	12	missile bird
-//	13	polyhedron
-//	14	baby spider
-//	15	mini boss
-//	16	super mech
-//	17	shareware boss
-//	18	cloak-green	; note, gating in this guy benefits player, cloak objects
-//	19	vulcan
-//	20	toad
-//	21	4-claw
-//	22	quad-laser
+// --- robot ids ---
+// 0 mech / Medium Hulk
+// 1 green claw / Medium Lifter
+// 2 spider / Processing Robot
+// 3 josh / Class 1 Drone
+// 4 violet / Class 2 Drone
+// 5 cloak vulcan / Cloaked Vulcan
+// 6 cloak mech / Cloaked Hulk
+// 7 brain / Class 2 Supervisor Robot
+// 8 onearm / Secondary Lifter
+// 9 plasma / Class 1 Heavy (Plasma) Driller
+// 10 toaster
+// 11 bird / Class 2 Platform Robot (Laser)
+// 12 missile bird / Class 2 Platform Robot (Missile)
+// 13 polyhedron
+// 14 baby spider
+// 15 mini boss
+// 16 super mech / Super Heavy Hulk
+// 17 shareware boss
+// 18 cloak-green	; note, gating in this guy benefits player, cloak objects / Cloaked Lifter
+// 19 vulcan / Class 1 (Vulcan) Driller
+// 20 toad / Small Hulk
+// 21 4-claw / Advanced Lifter
+// 22 quad-laser / PTMC Defense Prototype
 // 23 super boss
 
 // byte	Super_boss_gate_list[] = {0, 1, 2, 9, 11, 16, 18, 19, 21, 22, 0, 9, 9, 16, 16, 18, 19, 19, 22, 22};
