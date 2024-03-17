@@ -10,22 +10,22 @@ build_app() {
     outdir="."
 
     # Create a subdirectory for each app at the top level
-    mkdir -p ${outdir}/tmp/${prettyname}/Demos
-    mkdir -p ${outdir}/tmp/${prettyname}/Missions
-    mkdir -p ${outdir}/tmp/${prettyname}/Screenshots
+    mkdir -p "${outdir}/tmp/${prettyname}/Demos"
+    mkdir -p "${outdir}/tmp/${prettyname}/Missions"
+    mkdir -p "${outdir}/tmp/${prettyname}/Screenshots"
 
     # Copy executable and libraries to the respective app directory
-    cp build/${name}/${name}.exe ${outdir}/tmp/${prettyname}/
+    cp "build/${name}/${name}.exe" "${outdir}/tmp/${prettyname}/"
 
     # Copy DLLs
-    ldd ${outdir}/tmp/${prettyname}/${name}.exe | grep mingw64 | sort | cut -d' ' -f3 | while read dll; do cp "${dll}" ${outdir}/tmp/${prettyname}/; done
+    ldd "${outdir}/tmp/${prettyname}/${name}.exe" | grep mingw64 | sort | cut -d' ' -f3 | while read dll; do cp "${dll}" "${outdir}/tmp/${prettyname}/"; done
 
     # Copy other resources to the respective app directory
-    cp ${name}/*.ini ${outdir}/tmp/${prettyname}/
-    cp COPYING.txt ${outdir}/tmp/${prettyname}/
-    cp GPL-3.txt ${outdir}/tmp/${prettyname}/
-    cp README.md ${outdir}/tmp/${prettyname}/
-    cp INSTALL.markdown ${outdir}/tmp/${prettyname}/
+    cp "${name}/"*.ini "${outdir}/tmp/${prettyname}/"
+    cp COPYING.txt "${outdir}/tmp/${prettyname}/"
+    cp GPL-3.txt "${outdir}/tmp/${prettyname}/"
+    cp README.md "${outdir}/tmp/${prettyname}/"
+    cp INSTALL.markdown "${outdir}/tmp/${prettyname}/"
 }
 
 # Build D1X-Rebirth
