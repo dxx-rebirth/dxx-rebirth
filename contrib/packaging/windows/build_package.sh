@@ -1,8 +1,6 @@
 #!/bin/bash
 set -x
 
-GIT_HASH=$(git rev-parse --short HEAD)
-
 build_app() {
     name="$1"
     prettyname="$2"
