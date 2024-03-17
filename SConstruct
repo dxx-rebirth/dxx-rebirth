@@ -464,6 +464,33 @@ class ConfigureTests(_ConfigureTests):
 	__python_import_struct = None
 	_cxx_conformance_cxx20 = 20
 	__cxx_std_required_features = CxxRequiredFeatures([
+		# As of this writing, <gcc-12 is already unsupported, but some
+		# platforms, such as Ubuntu 22.04, still try to use gcc-11 by default.
+		# Use this test both to verify that Class Template Argument Deduction
+		# is generally supported, since it is used in the game, and to exclude
+		# an unsupported compiler that does not accept CTAD in one of the
+		# contexts the game uses.
+		Cxx20RequiredFeature('class template argument deduction', '''
+struct Outer_%(N)s
+{
+	template <typename byte_type>
+	struct Inner
+	{
+		constexpr Inner(byte_type &)
+		{
+		}
+	};
+	/* <gcc-12 does not allow declaring a deduction guide in the immediately
+	 * enclosing scope:
+```
+error: deduction guide 'Outer_test_class_20template_20argument
+_20deduction::Inner(byte_type&) -> Outer_test_class_20template_20argument_20deduction::Inner<byte_type>' must be declared at namespace scope
+```
+	 */
+	template <typename byte_type>
+		Inner(byte_type &) -> Inner<byte_type>;
+};
+'''),
 		Cxx20RequiredFeature('explicitly defaulted operator==', '''
 struct A_%(N)s
 {
