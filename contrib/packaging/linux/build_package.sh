@@ -2,8 +2,13 @@
 set -x
 
 # Grab latest AppImage package
-curl -s -L -O https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage || exit 3
-curl -s -L -O https://github.com/AppImage/AppImageKit/releases/download/continuous/AppRun-x86_64 || exit 3
+curl	\
+	--silent	\
+	--show-error	\
+	--location	\
+	--output '#1'	\
+	https://github.com/AppImage/AppImageKit/releases/download/continuous/'{appimagetool-x86_64.AppImage,AppRun-x86_64}'	\
+	|| exit 3
 chmod a+x appimagetool-x86_64.AppImage AppRun-x86_64
 
 build_appimage() {
