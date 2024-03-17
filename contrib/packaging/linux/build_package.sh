@@ -1,5 +1,6 @@
 #!/bin/bash
-set -x
+
+set -eux -o pipefail
 
 # Grab latest AppImage package
 curl	\

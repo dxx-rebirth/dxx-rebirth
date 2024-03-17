@@ -1,5 +1,6 @@
 #!/bin/bash
-set -x
+
+set -eux -o pipefail
 
 build_app() {
     name="$1"
