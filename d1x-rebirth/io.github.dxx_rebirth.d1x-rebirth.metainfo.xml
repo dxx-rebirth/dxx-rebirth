@@ -48,24 +48,36 @@
   </description>
   <screenshots>
     <screenshot type="default">
-      <image type="source">https://raw.githubusercontent.com/dxx-rebirth/dxx-rebirth/master/d1x-rebirth/screenshots/screen01.png</image>
-      <caption>Descent 1 game intro</caption>
+      <image type="source">https://raw.githubusercontent.com/dxx-rebirth/dxx-rebirth/master/d1x-rebirth/screenshots/retromode.png</image>
+      <caption>"Retro mode": the default graphics setup, like the original game but in high resolution</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://raw.githubusercontent.com/dxx-rebirth/dxx-rebirth/master/d1x-rebirth/screenshots/screen02.png</image>
-      <caption>OpenGL-enabled transparency effects</caption>
+      <image type="source">https://raw.githubusercontent.com/dxx-rebirth/dxx-rebirth/master/d1x-rebirth/screenshots/texturefiltering.png</image>
+      <caption>Texture filtering enabled</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://raw.githubusercontent.com/dxx-rebirth/dxx-rebirth/master/d1x-rebirth/screenshots/screen03.png</image>
-      <caption>Briefing videos</caption>
+      <image type="source">https://raw.githubusercontent.com/dxx-rebirth/dxx-rebirth/master/d1x-rebirth/screenshots/texturefilter-comparison.png</image>
+      <caption>A comparison of texture filtering options</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://raw.githubusercontent.com/dxx-rebirth/dxx-rebirth/master/d1x-rebirth/screenshots/screen04.png</image>
-      <caption>Smooth lighting in OpenGL mode</caption>
+      <image type="source">https://raw.githubusercontent.com/dxx-rebirth/dxx-rebirth/master/d1x-rebirth/screenshots/alternatehud.png</image>
+      <caption>Alternate HUD configurations</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://raw.githubusercontent.com/dxx-rebirth/dxx-rebirth/master/d1x-rebirth/screenshots/screen05.png</image>
-      <caption>Comparison of pixel-perfect and OpenGL smoothed rendering</caption>
+      <image type="source">https://raw.githubusercontent.com/dxx-rebirth/dxx-rebirth/master/d1x-rebirth/screenshots/transparency-colouredlight.png</image>
+      <caption>Transparency and coloured dynamic lights</caption>
+    </screenshot>
+    <screenshot>
+      <image type="source">https://raw.githubusercontent.com/dxx-rebirth/dxx-rebirth/master/d1x-rebirth/screenshots/persistent-debris.png</image>
+      <caption>Persistent debris from robot explosions</caption>
+    </screenshot>
+    <screenshot>
+      <image type="source">https://raw.githubusercontent.com/dxx-rebirth/dxx-rebirth/master/d1x-rebirth/screenshots/highres-reticle.png</image>
+      <caption>High-resolution reticle options</caption>
+    </screenshot>
+    <screenshot>
+      <image type="source">https://raw.githubusercontent.com/dxx-rebirth/dxx-rebirth/master/d1x-rebirth/screenshots/alternate-reticle.png</image>
+      <caption>Multiple alternate reticle options</caption>
     </screenshot>
   </screenshots>
   <categories>
