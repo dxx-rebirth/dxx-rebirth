@@ -917,6 +917,27 @@ help:assume C++ compiler works
 		user_settings = self.user_settings
 		use_distcc = user_settings.distcc
 		use_ccache = user_settings.ccache
+		text = '''
+/* When compiling using gcc, defining a virtual function requires linking to a
+ * symbol from gcc libstdc++.  If the linker is `gcc`, rather than `g++`, (which
+ * can happen if the user sets `CXX=gcc`), then libstdc++ is not linked, and the
+ * build fails with an error like:
+
+```
+undefined reference to `vtable for __cxxabiv1::__class_type_info'
+```
+
+ * Test for that combination here, so that the test will report that the C++
+ * linker does not work, rather than waiting for the user to get a link
+ * failure in the game binary at the end of the build.
+ */
+struct test_virtual_function_supported
+{
+	virtual void a();
+};
+
+void test_virtual_function_supported::a() {}
+'''
 		if user_settings.show_tool_version:
 			CXX = cenv['CXX']
 			self._show_tool_version(context, CXX, 'C++ compiler')
@@ -947,17 +968,17 @@ help:assume C++ compiler works
 		ToolchainInformation.show_partial_environ(cenv, user_settings, context.Display, self.msgprefix)
 		if use_ccache:
 			if use_distcc:
-				if Link(context, text='', msg='whether ccache, distcc, C++ compiler, and linker work', calling_function='ccache_distcc_ld_works'):
+				if Link(context, text=text, msg='whether ccache, distcc, C++ compiler, and linker work', calling_function='ccache_distcc_ld_works'):
 					return
 				most_recent_error = 'ccache and C++ linker work, but distcc does not work.'
 				# Disable distcc so that the next call to self.Link tests only
 				# ccache+linker.
 				del cenv['ENV']['CCACHE_PREFIX']
-			if Link(context, text='', msg='whether ccache, C++ compiler, and linker work', calling_function='ccache_ld_works'):
+			if Link(context, text=text, msg='whether ccache, C++ compiler, and linker work', calling_function='ccache_ld_works'):
 				return most_recent_error
 			most_recent_error = 'C++ linker works, but ccache does not work.'
 		elif use_distcc:
-			if Link(context, text='', msg='whether distcc, C++ compiler, and linker work', calling_function='distcc_ld_works'):
+			if Link(context, text=text, msg='whether distcc, C++ compiler, and linker work', calling_function='distcc_ld_works'):
 				return
 			most_recent_error = 'C++ linker works, but distcc does not work.'
 		else:
@@ -971,18 +992,18 @@ help:assume C++ compiler works
 		#
 		# If they are not in use, this assignment is a no-op.
 		cenv['CXXCOM'] = cenv._dxx_cxxcom_no_prefix
-		if Link(context, text='', msg='whether C++ compiler and linker work', calling_function='ld_works'):
+		if Link(context, text=text, msg='whether C++ compiler and linker work', calling_function='ld_works'):
 			# If ccache or distcc are in use, this block is only reached
 			# when one or both of them failed.  `most_recent_error` will
 			# be a description of the failure.  If neither are in use,
 			# `most_recent_error` will be None.
 			return most_recent_error
 		# Force only compile, even if LTO is enabled.
-		elif self._Compile(context, text='', msg='whether C++ compiler works', calling_function='cxx_works'):
+		elif self._Compile(context, text=text, msg='whether C++ compiler works', calling_function='cxx_works'):
 			specified_LIBS = 'or ' if cenv.get('LIBS') else ''
 			if specified_LIBS:
 				cenv['LIBS'] = []
-				if Link(context, text='', msg='whether C++ compiler and linker work with blank $LIBS', calling_function='ld_blank_libs_works'):
+				if Link(context, text=text, msg='whether C++ compiler and linker work with blank $LIBS', calling_function='ld_blank_libs_works'):
 					# Using $LIBS="" allowed the test to succeed.  $LIBS
 					# specifies one or more unusable libraries.  Usually
 					# this is because it specifies a library which does
@@ -990,7 +1011,7 @@ help:assume C++ compiler works
 					return 'C++ compiler works.  C++ linker works with blank $LIBS.  C++ linker does not work with specified $LIBS.'
 			if cenv['LINKFLAGS']:
 				cenv['LINKFLAGS'] = []
-				if Link(context, text='', msg='whether C++ compiler and linker work with blank $LIBS and blank $LDFLAGS', calling_function='ld_blank_libs_ldflags_works'):
+				if Link(context, text=text, msg='whether C++ compiler and linker work with blank $LIBS and blank $LDFLAGS', calling_function='ld_blank_libs_ldflags_works'):
 					# Using LINKFLAGS="" allowed the test to succeed.
 					# To avoid bloat, there is no further test to see
 					# whether the link will work with user-specified
@@ -1005,7 +1026,7 @@ help:assume C++ compiler works
 		else:
 			if cenv['CXXFLAGS']:
 				cenv['CXXFLAGS'] = []
-				if self._Compile(context, text='', msg='whether C++ compiler works with blank $CXXFLAGS', calling_function='cxx_blank_cxxflags_works'):
+				if self._Compile(context, text=text, msg='whether C++ compiler works with blank $CXXFLAGS', calling_function='cxx_blank_cxxflags_works'):
 					return 'C++ compiler works with blank $CXXFLAGS.  C++ compiler does not work with specified $CXXFLAGS.'
 			return 'C++ compiler does not work.'
 	implicit_tests.append(_implicit_test.RecordedTest('check_cxx20', "assume C++ compiler supports C++20"))
