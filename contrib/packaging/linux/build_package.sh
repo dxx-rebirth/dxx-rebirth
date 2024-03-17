@@ -24,22 +24,22 @@ build_appimage() {
 
     # Copy resources into package dir
     mkdir -p "${appdir}/usr/bin"
-    cp "build/${name}/${name}" "${appdir}/usr/bin"
+    cp --link "build/${name}/${name}" "${appdir}/usr/bin"
 
     mkdir -p "${appdir}/usr/share/pixmaps"
-    cp "${name}/${name}.xpm" "${appdir}/usr/share/pixmaps"
-    cp "${name}/${name}.xpm" "${appdir}/"
+    cp --link "${name}/${name}.xpm" "${appdir}/usr/share/pixmaps"
+    cp --link "${name}/${name}.xpm" "${appdir}/"
 
     mkdir -p "${appdir}/usr/share/icons/hicolor/128x128/apps/"
-    cp "${name}/${name}.png" "${appdir}/usr/share/icons/hicolor/128x128/apps/"
-    cp "${name}/${name}.png" "${appdir}/"
+    cp --link "${name}/${name}.png" "${appdir}/usr/share/icons/hicolor/128x128/apps/"
+    cp --link "${name}/${name}.png" "${appdir}/"
 
     mkdir -p "${appdir}/usr/share/applications"
-    cp "${name}/${name}.desktop" "${appdir}/usr/share/applications"
-    cp "${name}/${name}.desktop" "${appdir}/"
+    cp --link "${name}/${name}.desktop" "${appdir}/usr/share/applications"
+    cp --link "${name}/${name}.desktop" "${appdir}/"
 
     # Package
-    cp "AppRun-x86_64" "${appdir}/AppRun"
+    cp --link "AppRun-x86_64" "${appdir}/AppRun"
 
     # Package!
     "./appimagetool-x86_64.AppImage" --no-appstream --verbose "${appdir}" "${appimagename}"
