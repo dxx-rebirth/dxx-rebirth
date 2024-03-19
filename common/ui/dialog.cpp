@@ -75,7 +75,6 @@ window_event_result UI_DIALOG::event_handler(const d_event &event)
 	switch (event.type)
 	{
 		case event_type::idle:
-			timer_delay2(50);
 			[[fallthrough]];
 		case event_type::mouse_button_down:
 		case event_type::mouse_button_up:

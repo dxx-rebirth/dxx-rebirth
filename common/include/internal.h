@@ -68,7 +68,7 @@ static inline void OGL_VIEWPORT(const unsigned x, const unsigned y, const unsign
 
 #ifdef dsx
 //platform specific funcs
-void ogl_swap_buffers_internal();
+void ogl_swap_buffers_internal(Uint32 frameStart);
 #endif
 }
 

@@ -127,8 +127,6 @@ void hmp_stop(hmp_file *hmp)
 		hmp->stop = 1;
 		//PumpMessages();
 		midiStreamStop(hmp->hmidi);
-		while (hmp->bufs_in_mm)
-			timer_delay(1);
 	}
 	while ((mhdr = hmp->evbuf)) {
 		midiOutUnprepareHeader(reinterpret_cast<HMIDIOUT>(hmp->hmidi), mhdr, sizeof(MIDIHDR));
@@ -565,8 +563,6 @@ void hmp_reset()
 			}
 		}
 		midiOutUnprepareHeader(hmidi, &mhdr, sizeof(MIDIHDR));
-
-		timer_delay(F1_0/20);
 	}
 	else
 	{

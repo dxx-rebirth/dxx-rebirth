@@ -256,7 +256,6 @@ window_event_result movie_pause_window::event_handler(const d_event &event)
 			else
 				return result;
 		case event_type::idle:
-			timer_delay(F1_0 / 4);
 			break;
 
 		case event_type::window_draw:

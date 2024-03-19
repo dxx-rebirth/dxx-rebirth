@@ -1075,9 +1075,6 @@ void LoadLevel(int level_num,int page_in_textures)
 		show_boxed_message(*grd_curcanv, TXT_LOADING);
 		gr_flip();
 	}
-#ifdef RELEASE
-	timer_delay(F1_0);
-#endif
 
 	load_endlevel_data(level_num);
 #if defined(DXX_BUILD_DESCENT_I)

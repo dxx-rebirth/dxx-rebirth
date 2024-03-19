@@ -366,7 +366,6 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 			break;
 		case event_type::window_draw:
 			{
-			timer_delay2(50);
 			gr_set_default_canvas();
 			kmatrix_redraw(*grd_curcanv, this);
 
