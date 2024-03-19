@@ -5,8 +5,10 @@ on:
 
 jobs:
   package:
-    name: macOS
+    name: OS 14
     runs-on: macos-14
+    env:
+        MACOSX_DEPLOYMENT_TARGET: 14
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4

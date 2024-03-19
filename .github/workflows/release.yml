@@ -10,6 +10,9 @@ on:
         description: Pre-release?
         default: true
         type: boolean
+  push:
+    tags:
+      - "v*.*"
 
 jobs:
   package:
@@ -31,8 +34,9 @@ jobs:
         run: ls -R
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@9d7c94cfd0a1f3ed45544c887983e9fa900f0564
         with:
-          tag_name: ${{ inputs.tag_name }}
-          prerelease: ${{ inputs.prerelease }}
+          tag_name: ${{ inputs.tag_name || github.ref_name }}
+          prerelease: ${{ inputs.prerelease || contains(github.ref_name, '-') }}
+          generate_release_notes: true
           files: '*/*.zip'
