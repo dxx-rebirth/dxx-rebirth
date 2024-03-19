@@ -3,9 +3,9 @@ set -eux -o pipefail
 
 arch=$(uname -m)
 
-# Grab latest AppImage package
+# Grab AppImage package at specific version
 curl --silent --show-error --location --output "#1" \
-    https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/"{linuxdeploy-x86_64.AppImage}" || exit 3
+    https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20240109-1/"{linuxdeploy-x86_64.AppImage}" || exit 3
 chmod a+x linuxdeploy-x86_64.AppImage
 
 build_appimage() {
