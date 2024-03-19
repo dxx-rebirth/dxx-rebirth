@@ -1,59 +1,30 @@
 #!/bin/bash
-
 set -eux -o pipefail
 
+arch=$(uname -m)
+
 # Grab latest AppImage package
-curl	\
-	--silent	\
-	--show-error	\
-	--location	\
-	--output '#1'	\
-	https://github.com/AppImage/AppImageKit/releases/download/continuous/'{appimagetool-x86_64.AppImage,AppRun-x86_64}'	\
-	|| exit 3
-chmod a+x appimagetool-x86_64.AppImage AppRun-x86_64
+curl --silent --show-error --location --output "#1" \
+    https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/"{linuxdeploy-x86_64.AppImage}" || exit 3
+chmod a+x linuxdeploy-x86_64.AppImage
 
 build_appimage() {
     name="$1"
     prettyname="$2"
 
-    appdir="${name}.appdir"
-    appimagename="${prettyname}.AppImage"
-
-    # Install
-    mkdir "${appdir}"
-
-    # Copy resources into package dir
-    mkdir -p "${appdir}/usr/bin"
-    cp --link "build/${name}/${name}" "${appdir}/usr/bin"
-
-    mkdir -p "${appdir}/usr/share/pixmaps"
-    cp --link "${name}/${name}.xpm" "${appdir}/usr/share/pixmaps"
-    cp --link "${name}/${name}.xpm" "${appdir}/"
-
-    mkdir -p "${appdir}/usr/share/icons/hicolor/128x128/apps/"
-    cp --link "${name}/${name}.png" "${appdir}/usr/share/icons/hicolor/128x128/apps/"
-    cp --link "${name}/${name}.png" "${appdir}/"
-
-    mkdir -p "${appdir}/usr/share/applications"
-    cp --link "${name}/${name}.desktop" "${appdir}/usr/share/applications"
-    cp --link "${name}/${name}.desktop" "${appdir}/"
-
-    # Package
-    cp --link "AppRun-x86_64" "${appdir}/AppRun"
-
     # Package!
-    "./appimagetool-x86_64.AppImage" --no-appstream --verbose "${appdir}" "${appimagename}"
-
-    # Clean
-    rm -rf "${appdir}"
+    export OUTPUT="${prettyname}.AppImage"
+    ./linuxdeploy-x86_64.AppImage \
+        --output appimage \
+        --appdir="${name}.appdir" \
+        --executable="build/${name}/${name}" \
+        --desktop-file="${name}/${name}.desktop" \
+        --icon-file="${name}/${name}.png"
 }
 
-# Build each subunit
+# Build each app
 build_appimage "d1x-rebirth" "D1X-Rebirth"
 build_appimage "d2x-rebirth" "D2X-Rebirth"
 
-# Consolidate into a single zip file
-zip -r -X DXX-Rebirth-Linux-AppImage-`uname -m`.zip D1X-Rebirth.AppImage D2X-Rebirth.AppImage
-
-# Clean
-rm -f appimagetool* AppRun* D1X-Rebirth.AppImage D2X-Rebirth.AppImage
+# Consolidate both apps into a single zip file
+zip -r -X "DXX-Rebirth-Linux-AppImage-${arch}.zip" "D1X-Rebirth.AppImage" "D2X-Rebirth.AppImage"

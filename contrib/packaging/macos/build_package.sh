@@ -1,22 +1,8 @@
 #!/bin/bash
-set -x
+set -eux -o pipefail
 
-export MACOSX_DEPLOYMENT_TARGET=14
+arch=$(uname -m)
 
-GIT_HASH=$(git rev-parse --short HEAD)
-
-build_app() {
-    name="$1"
-    prettyname="$2"
-    
-    cd build
-    
-    # Create a single zip file containing both applications
-    zip -r -X ../DXX-Rebirth-MacOS14-`uname -m`.zip D1X-Rebirth.app D2X-Rebirth.app
-    
-    cd ..
-}
-
-# Build both applications
-build_app "d1x-rebirth" "D1X-Rebirth"
-build_app "d2x-rebirth" "D2X-Rebirth"
+# Consolidate both apps into a single zip file
+cd "./build"
+zip -r -X "../DXX-Rebirth-MacOS${MACOSX_DEPLOYMENT_TARGET}-${arch}.zip" "D1X-Rebirth.app" "D2X-Rebirth.app"
