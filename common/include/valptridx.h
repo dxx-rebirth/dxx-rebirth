@@ -47,7 +47,7 @@ protected:
 	 */
 	using count_type = typename std::conditional<(array_size <= UINT8_MAX), uint8_t, typename std::conditional<(array_size <= UINT16_MAX), uint16_t, void>::type>::type;
 	union {
-		count_type count;
+		count_type count{};
 		/*
 		 * Use DXX_VALPTRIDX_FOR_EACH_PPI_TYPE to generate empty union
 		 * members based on basic_{i,v}val_member_factory
@@ -59,10 +59,14 @@ protected:
 		DXX_VALPTRIDX_FOR_EACH_PPI_TYPE(DXX_VALPTRIDX_DEFINE_MEMBER_FACTORIES, managed_type,,);
 #undef DXX_VALPTRIDX_DEFINE_MEMBER_FACTORIES
 	};
+#if __GNUC__ >= 13
+	constexpr array_base_count_type() = default;	// requires fix for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=98423 (>=gcc-13)
+#else
 	constexpr array_base_count_type() :
-		count(0)
+		count{}
 	{
 	}
+#endif
 public:
 	count_type get_count() const
 	{
