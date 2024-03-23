@@ -67,7 +67,7 @@ char *PHYSFSX_fgets_t::get(const std::span<char> buf, PHYSFS_File *const fp)
 			 * to replay on the next call.
 			 */
 			*p = 0;
-			if (++p != e && *p != '\n')
+			if (++p == e || *p != '\n')
 				--p;
 		}
 		else
