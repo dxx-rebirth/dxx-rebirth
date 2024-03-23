@@ -13,6 +13,7 @@
 #include <cstring>
 #include <iterator>
 #include <optional>
+#include <ranges>
 #include <type_traits>
 #include "dxxsconf.h"
 #include "ntstring.h"
@@ -21,6 +22,23 @@ template <std::size_t N>
 static inline bool cmp(const char *token, const char *equal, const char (&name)[N])
 {
 	return &token[N - 1] == equal && !strncmp(token, name, N - 1);
+}
+
+template <std::size_t N>
+requires(N > 1)
+[[nodiscard]]
+static inline bool compare_nonterminated_name(const auto &candidate, const char (&name)[N])
+{
+	/* C++ rules for string literals guarantee that `name` has a trailing null
+	 * terminator.  Callers pass `candidate` with no trailing null terminator,
+	 * so the simple invocation of `std::ranges::equal(range, range)` will
+	 * always fail to match.
+	 *
+	 * `compare_nonterminated_name` considers the candidate equal to the name
+	 * if the name without the null terminator compares equal to the candidate,
+	 * so use `std::prev` to exclude the terminator.
+	 */
+	return std::ranges::equal(std::ranges::begin(candidate), std::ranges::end(candidate), std::ranges::begin(name), std::prev(std::ranges::end(name)));
 }
 
 template <std::integral T>
