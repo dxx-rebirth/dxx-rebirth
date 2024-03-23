@@ -4955,6 +4955,8 @@ SConf test results
 					'-Wl,--wrap,PHYSFS_readSBE32',
 					'-Wl,--wrap,PHYSFS_readSLE16',
 					'-Wl,--wrap,PHYSFS_readSLE32',
+					'-Wl,--wrap,PHYSFS_readULE16',
+					'-Wl,--wrap,PHYSFS_readULE32',
 					))
 		if user_settings.wrap_PHYSFS_write:
 			add_flags['LINKFLAGS'].extend((
