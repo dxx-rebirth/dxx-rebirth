@@ -389,11 +389,8 @@ int ui_pad_read( int n, const char * filename )
 	auto &kpn = *(KeyPad[n] = std::make_unique<UI_KEYPAD>());
 
 	PHYSFSX_gets_line_t<100> buffer;
-	while ( linenumber < 22)
+	while (linenumber < 22 && PHYSFSX_fgets(buffer, infile))
 	{
-		if (!PHYSFSX_fgets(buffer, infile))
-			break;
-
 		auto &line = buffer.line();
 		const auto lb = line.begin();
 		const auto le = line.end();
