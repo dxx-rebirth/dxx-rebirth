@@ -38,38 +38,46 @@ const std::array<file_extension_t, 1> archive_exts{{"dxa"}};
 
 char *PHYSFSX_fgets_t::get(const std::span<char> buf, PHYSFS_File *const fp)
 {
-	const PHYSFS_sint64 r = PHYSFS_read(fp, buf.data(), 1, buf.size() - 1);
+	/* Tell PHYSFS not to use the last byte of the buffer, so that this
+	 * function can always write to the byte after the last byte read from the
+	 * file.
+	 */
+	const PHYSFS_sint64 r{PHYSFS_read(fp, buf.data(), 1, buf.size() - 1)};
 	if (r <= 0)
-		return DXX_POISON_MEMORY(buf, 0xcc), nullptr;
-	auto p = buf.begin();
-	const auto cleanup = [&]{
-		return *p = 0, DXX_POISON_MEMORY(buf.subspan((p + 1) - buf.begin()), 0xcc), &*p;
-	};
-	const auto e = std::next(p, r);
-	for (;;)
 	{
-		if (p == e)
+		DXX_POISON_MEMORY(buf, 0xcc);
+		return {};
+	}
+	const auto bb{buf.begin()};
+	auto p{bb};
+	for (const auto e{std::next(bb, r)}; p != e; ++p)
+	{
+		if (const char c{*p}; c == 0 || c == '\n')
 		{
-			return cleanup();
-		}
-		char c = *p;
-		if (c == 0)
-			break;
-		if (c == '\n')
-		{
-			break;
+			/* Do nothing - and skip the `continue` below that handles most
+			 * characters.
+			 */
 		}
 		else if (c == '\r')
 		{
+			/* If a Carriage Return is found, stop here.  If the next byte is a
+			 * newline, then consider it included in the string, so that the
+			 * seek does not cause the newline to replay on the next call.
+			 * Otherwise, set `p` such that the seek will cause that next byte
+			 * to replay on the next call.
+			 */
 			*p = 0;
 			if (++p != e && *p != '\n')
 				--p;
-			break;
 		}
-		++p;
+		else
+			continue;
+		PHYSFS_seek(fp, PHYSFS_tell(fp) + p - e + 1);
+		break;
 	}
-	PHYSFS_seek(fp, PHYSFS_tell(fp) + p - e + 1);
-	return cleanup();
+	*p = 0;
+	DXX_POISON_MEMORY(buf.subspan((p + 1) - bb), 0xcc);
+	return p;
 }
 
 int PHYSFSX_checkMatchingExtension(const char *filename, const ranges::subrange<const file_extension_t *> range)
