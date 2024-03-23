@@ -52,7 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_levelstate.h"
 #include "d_range.h"
 #include "d_zip.h"
-#include "cast_range_result.h"
+#include "partial_range.h"
 
 using std::min;
 
@@ -1735,10 +1735,16 @@ static void change_light(const d_level_shared_destructible_light_state &LevelSha
 {
 	const fix ds = dir * DL_SCALE;
 	auto &Dl_indices = LevelSharedDestructibleLightState.Dl_indices;
-	const auto &&pr = cast_range_result<const dl_index &>(Dl_indices.vcptr);
-	const auto &&er = std::equal_range(pr.begin(), pr.end(), dl_index{segnum, sidenum, 0, {}});
+	struct projector
+	{
+		const dl_index &operator()(const valptridx<dl_index>::vcptr v) const
+		{
+			return v;
+		}
+	};
+	const auto &&er = std::ranges::equal_range(Dl_indices.vcptr, dl_index{segnum.get_unchecked_index(), sidenum, {}, {}}, {}, projector{});
 	auto &Delta_lights = LevelSharedDestructibleLightState.Delta_lights;
-	range_for (auto &i, partial_range_t<const dl_index *>(er.first.base().base(), er.second.base().base()))
+	for (const dl_index &i : er)
 	{
 		const std::size_t idx = underlying_value(i.index);
 		for (auto &j : partial_const_range(Delta_lights, idx, idx + i.count))
