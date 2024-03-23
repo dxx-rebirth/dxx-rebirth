@@ -24,7 +24,7 @@ void discard_arguments(auto &&...)
 {
 }
 
-template <std::size_t... N, typename... range_iterator_type>
+template <std::size_t... N, std::input_or_output_iterator... range_iterator_type>
 void increment_iterator(std::tuple<range_iterator_type...> &iterator, std::index_sequence<N...>)
 {
 	/* Order of evaluation is irrelevant, so pass the results to a
@@ -34,13 +34,13 @@ void increment_iterator(std::tuple<range_iterator_type...> &iterator, std::index
 	discard_arguments(++(std::get<N>(iterator))...);
 }
 
-template <std::size_t... N, typename... range_iterator_type>
+template <std::size_t... N, std::bidirectional_iterator... range_iterator_type>
 void decrement_iterator(std::tuple<range_iterator_type...> &iterator, std::index_sequence<N...>)
 {
 	discard_arguments(--(std::get<N>(iterator))...);
 }
 
-template <std::size_t... N, typename... range_iterator_type>
+template <std::size_t... N, std::input_or_output_iterator... range_iterator_type>
 auto dereference_iterator(const std::tuple<range_iterator_type...> &iterator, std::index_sequence<N...>)
 {
 	/* std::make_tuple is not appropriate here, because the result of
@@ -64,7 +64,7 @@ auto dereference_iterator(const std::tuple<range_iterator_type...> &iterator, st
  * Given a tuple of iterator types, return the most-derived iterator_category
  * that all the iterator types satisfy.
  */
-template <typename... range_iterator_type>
+template <std::input_or_output_iterator... range_iterator_type>
 typename std::common_type<typename std::iterator_traits<range_iterator_type>::iterator_category...>::type common_iterator_category(std::tuple<range_iterator_type...>);
 
 /* The overloads of get_static_size are declared, but never defined.  They
@@ -207,7 +207,7 @@ static constexpr auto capture_end_iterator(range &&r)
 		return std::ranges::end(r);
 }
 
-template <typename sentinel_type, std::size_t... N, typename... rangeN>
+template <typename sentinel_type, std::size_t... N, std::ranges::input_range... rangeN>
 requires(sizeof...(N) == sizeof...(rangeN))
 static constexpr auto capture_end_iterators(std::index_sequence<N...>, rangeN &&...r)
 {
@@ -372,6 +372,7 @@ template <
 	>
 	concept zip_input_constraints = (
 		sizeof...(rangeN) > 0 &&
+		(std::ranges::input_range<rangeN> && ...) &&
 		(ranges::borrowed_range<rangeN> && ...) &&
 		zip_static_size_bounds_check<
 			examine_end_range,
@@ -397,7 +398,7 @@ class zip : zip_iterator<range_iterator_type, range_sentinel_type>
 public:
 	using index_type = range_index_type;
 	using iterator = zip_iterator<range_iterator_type, range_sentinel_type>;
-	template <typename... rangeN>
+	template <std::ranges::input_range... rangeN>
 		requires(
 			sizeof...(rangeN) > 0 &&
 			(ranges::borrowed_range<rangeN> && ...)
@@ -407,7 +408,7 @@ public:
 			m_end{d_zip::detail::capture_end_iterators<range_sentinel_type>(typename iterator::index_sequence_type(), rN...)}
 	{
 	}
-	template <zip_sequence_length_selector examine_end_range, typename... rangeN>
+	template <zip_sequence_length_selector examine_end_range, std::ranges::input_range... rangeN>
 		/* Delegate to the no-selector constructor, since the selector is not
 		 * needed by the constructor.  The selector affected the type of
 		 * `range_sentinel_type`, which in turn affects how `m_end` is
@@ -434,7 +435,7 @@ inline constexpr bool std::ranges::enable_borrowed_range<zip<range_index_type, r
 template <zip_sequence_length_selector selector>
 using zip_sequence_selector = std::integral_constant<zip_sequence_length_selector, selector>;
 
-template <zip_sequence_length_selector examine_end_range, typename... rangeN>
+template <zip_sequence_length_selector examine_end_range, std::ranges::input_range... rangeN>
 requires(
 	zip_input_constraints<examine_end_range, rangeN...>
 )
@@ -453,7 +454,7 @@ zip(zip_sequence_selector<examine_end_range>, rangeN &&... rN) -> zip<
  * template-id specified by the deduction guide can use the same text in both
  * the explicit-selector and implicit-selector guides.
  */
-template <typename... rangeN, zip_sequence_length_selector examine_end_range = zip_sequence_length_selector{1}>
+template <std::ranges::input_range... rangeN, zip_sequence_length_selector examine_end_range = zip_sequence_length_selector{1}>
 requires(
 	zip_input_constraints<examine_end_range, rangeN...>
 )
