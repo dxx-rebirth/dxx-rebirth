@@ -36,7 +36,7 @@ namespace dcx {
 
 const std::array<file_extension_t, 1> archive_exts{{"dxa"}};
 
-char *PHYSFSX_fgets_t::get(const std::span<char> buf, PHYSFS_File *const fp)
+PHYSFSX_fgets_t::result PHYSFSX_fgets_t::get(const std::span<char> buf, PHYSFS_File *const fp)
 {
 	/* Tell PHYSFS not to use the last byte of the buffer, so that this
 	 * function can always write to the byte after the last byte read from the
@@ -77,7 +77,7 @@ char *PHYSFSX_fgets_t::get(const std::span<char> buf, PHYSFS_File *const fp)
 	}
 	*p = 0;
 	DXX_POISON_MEMORY(buf.subspan((p + 1) - bb), 0xcc);
-	return p;
+	return {bb, p};
 }
 
 int PHYSFSX_checkMatchingExtension(const char *filename, const ranges::subrange<const file_extension_t *> range)

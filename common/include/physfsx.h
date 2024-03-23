@@ -268,11 +268,9 @@ struct PHYSFSX_gets_line_t<0>
 
 class PHYSFSX_fgets_t
 {
-	[[nodiscard]]
-	static char *get(std::span<char> buf, PHYSFS_File *const fp);
 	template <std::size_t Extent>
 		[[nodiscard]]
-		static char *get(const std::span<char, Extent> buf, std::size_t offset, PHYSFS_File *const fp)
+		static auto get(const std::span<char, Extent> buf, const std::size_t offset, PHYSFS_File *const fp)
 	{
 		if (offset > buf.size())
 			throw std::invalid_argument("offset too large");
@@ -282,19 +280,35 @@ public:
 	template <std::size_t n>
 		[[nodiscard]]
 		__attribute_nonnull()
-		char *operator()(PHYSFSX_gets_line_t<n> &buf, PHYSFS_File *const fp, std::size_t offset = 0) const
+		auto operator()(PHYSFSX_gets_line_t<n> &buf, PHYSFS_File *const fp, const std::size_t offset = 0) const
 		{
 			return get(buf.next(), offset, fp);
 		}
 	template <std::size_t n>
 		[[nodiscard]]
 		__attribute_nonnull()
-		char *operator()(ntstring<n> &buf, PHYSFS_File *const fp, std::size_t offset = 0) const
+		auto operator()(ntstring<n> &buf, PHYSFS_File *const fp, const std::size_t offset = 0) const
 		{
 			auto r = get(std::span(buf), offset, fp);
 			buf.back() = 0;
 			return r;
 		}
+	struct result : std::ranges::subrange<std::span<char>::iterator>
+	{
+		using std::ranges::subrange<std::span<char>::iterator>::subrange;
+		explicit operator bool() const
+		{
+			/* get() indicates a failure to read data (including failure due to
+			 * end-of-file) by returning a value-initialized `result`.  Treat a
+			 * value-initialized iterator as false, so that callers can readily
+			 * detect this case.
+			 */
+			return begin() != std::span<char>::iterator{};
+		}
+	};
+private:
+	[[nodiscard]]
+	static result get(std::span<char> buf, PHYSFS_File *const fp);
 };
 
 constexpr PHYSFSX_fgets_t PHYSFSX_fgets{};

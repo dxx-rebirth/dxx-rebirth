@@ -154,13 +154,14 @@ int ReadConfigFile()
 	}
 
 	// to be fully safe, assume the whole cfg consists of one big line
-	for (PHYSFSX_gets_line_t<0> line(PHYSFS_fileLength(infile) + 1); const char *const eol = PHYSFSX_fgets(line, infile);)
+	for (PHYSFSX_gets_line_t<0> line(PHYSFS_fileLength(infile) + 1); const auto rc{PHYSFSX_fgets(line, infile)};)
 	{
-		const auto lb = line.begin();
-		auto eq = std::find(lb, eol, '=');
+		const auto eol{rc.end()};
+		const auto lb{rc.begin()};
+		const auto eq{std::ranges::find(lb, eol, '=')};
 		if (eq == eol)
 			continue;
-		auto value = std::next(eq);
+		const auto value{std::next(eq)};
 		if (const std::ranges::subrange name{lb, eq}; compare_nonterminated_name(name, DigiVolumeStr))
 		{
 			if (const auto r = convert_integer<uint8_t>(value))

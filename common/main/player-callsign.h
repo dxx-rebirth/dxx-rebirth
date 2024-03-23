@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
+#include <ranges>
 #include <span>
 #include "dxxsconf.h"
 #include <array>
@@ -46,8 +47,13 @@ struct callsign_t
 	void copy_lower(const std::span<const char, Extent> sc)
 	{
 		a = {};
-		const auto s = sc.data();
-		std::transform(s, std::next(s, std::min(a.size() - 1, sc.size())), begin(a), lower_predicate);
+		const auto input_begin{std::ranges::begin(sc)};
+		std::ranges::transform(input_begin, std::next(input_begin, std::min(a.size() - 1, sc.size())), std::ranges::begin(a), lower_predicate);
+	}
+	template <std::size_t Extent>
+	void copy_lower(const std::span<char, Extent> sc)
+	{
+		copy_lower(std::span<const char, Extent>(sc.begin(), sc.size()));
 	}
 	void lower()
 	{
