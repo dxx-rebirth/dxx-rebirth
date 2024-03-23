@@ -10,16 +10,15 @@
  *
  */
 
-#ifndef _SONGS_H
-#define _SONGS_H
+#pragma once
 
+#include <array>
 #include <SDL_version.h>
-#ifdef __cplusplus
 #include "dxxsconf.h"
 
 struct bim_song_info
 {
-	char    filename[16];
+	std::array<char, 16> filename;
 };
 
 #define SONG_TITLE              0
@@ -73,8 +72,3 @@ void songs_set_volume(int volume);
 }
 
 void songs_uninit();
-
-#endif
-
-#endif
-
