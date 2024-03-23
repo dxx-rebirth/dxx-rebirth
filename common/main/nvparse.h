@@ -19,12 +19,6 @@
 #include "ntstring.h"
 
 template <std::size_t N>
-static inline bool cmp(const char *token, const char *equal, const char (&name)[N])
-{
-	return &token[N - 1] == equal && !strncmp(token, name, N - 1);
-}
-
-template <std::size_t N>
 requires(N > 1)
 [[nodiscard]]
 static inline bool compare_nonterminated_name(const auto &candidate, const char (&name)[N])
