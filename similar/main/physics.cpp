@@ -216,8 +216,7 @@ static void do_physics_sim_rot(object_base &obj)
 	//now rotate object
 
 	//unrotate object for bank caused by turn
-	const auto turnroll{obj.mtype.phys_info.turnroll};
-	if (turnroll)
+	if (const auto turnroll{obj.mtype.phys_info.turnroll})
 	{
 		const auto &&rotmat = vm_angles_2_matrix(
 			vms_angvec{
@@ -248,7 +247,11 @@ static void do_physics_sim_rot(object_base &obj)
 		set_object_turnroll(obj);
 
 	//re-rotate object for bank caused by turn
-	if (turnroll)
+	/* The call to `set_object_turnroll` may have changed
+	 * `.phys_info.turnroll`, so it must be reread here.  The value loaded
+	 * above is stale.
+	 */
+	if (const auto turnroll{obj.mtype.phys_info.turnroll})
 	{
 		obj.orient = vm_matrix_x_matrix(obj.orient, vm_angles_2_matrix(
 				vms_angvec{
