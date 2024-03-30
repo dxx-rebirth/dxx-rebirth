@@ -697,9 +697,9 @@ static void draw_coordinate_axes(void)
 	const auto &&av11 = vmvertptr(Axes_verts[11]);
 	const auto &&av12 = vmvertptr(Axes_verts[12]);
 	const auto &&av14 = vmvertptr(Axes_verts[14]);
-	const auto &&xvec = vm_vec_sub(av1, av0);
-	const auto &&yvec = vm_vec_sub(av2, av0);
-	const auto &&zvec = vm_vec_sub(av3, av0);
+	const auto &&xvec{vm_vec_sub(av1, av0)};
+	const auto &&yvec{vm_vec_sub(av2, av0)};
+	const auto &&zvec{vm_vec_sub(av3, av0)};
 
 	// Create the letter X
 	tvec = xvec;

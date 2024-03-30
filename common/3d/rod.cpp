@@ -36,7 +36,7 @@ static clipping_code calc_rod_corners(rod_4point &rod_point_group, const g3s_poi
 	//compute vector from one point to other, do cross product with vector
 	//from eye to get perpendiclar
 
-	auto delta_vec = vm_vec_sub(bot_point.p3_vec,top_point.p3_vec);
+	auto delta_vec{vm_vec_sub(bot_point.p3_vec, top_point.p3_vec)};
 
 	//unscale for aspect
 

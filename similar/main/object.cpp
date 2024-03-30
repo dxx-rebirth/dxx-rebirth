@@ -272,10 +272,9 @@ void draw_object_tmap_rod(grs_canvas &canvas, const d_level_unique_light_state *
 	const auto delta{vm_vec_copy_scale(obj->orient.uvec, obj->size)};
 
 	const auto top_v = vm_vec_add(obj->pos,delta);
-	const auto bot_v = vm_vec_sub(obj->pos,delta);
 
 	const auto top_p = g3_rotate_point(top_v);
-	const auto bot_p = g3_rotate_point(bot_v);
+	const auto bot_p{g3_rotate_point(vm_vec_sub(obj->pos, delta))};
 
 	if (LevelUniqueLightState)
 	{
@@ -1454,7 +1453,7 @@ static void set_camera_pos(vms_vector &camera_pos, const vcobjptridx_t objp)
 		//	Camera is too close to player object, so move it away.
 		fvi_info		hit_data;
 
-		auto player_camera_vec = vm_vec_sub(camera_pos, objp->pos);
+		auto player_camera_vec{vm_vec_sub(camera_pos, objp->pos)};
 		if ((player_camera_vec.x == 0) && (player_camera_vec.y == 0) && (player_camera_vec.z == 0))
 			player_camera_vec.x += F1_0/16;
 
@@ -1528,7 +1527,7 @@ window_event_result dead_player_frame(const d_robot_info_array &Robot_info)
 		// the following line uncommented by WraithX, 4-12-00
 		if (time_dead < DEATH_SEQUENCE_EXPLODE_TIME + F1_0 * 2)
 		{
-			const auto fvec = vm_vec_sub(ConsoleObject->pos, Dead_player_camera->pos);
+			const auto fvec{vm_vec_sub(ConsoleObject->pos, Dead_player_camera->pos)};
 			vm_vector_to_matrix(Dead_player_camera->orient, fvec);
 			Dead_player_camera->mtype.phys_info = ConsoleObject->mtype.phys_info;
 

@@ -662,8 +662,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 					const fix size0{hit->size};
 					const fix size1{obj->size};
 					Assert(size0+size1 != 0);	// Error, both sizes are 0, so how did they collide, anyway?!?
-					auto pos_hit{vm_vec_sub(ppos1, ppos0)};
-					pos_hit = vm_vec_scale_add(ppos0, pos_hit, fixdiv(size0, size0 + size1));
+					auto pos_hit{vm_vec_scale_add(ppos0, vm_vec_sub(ppos1, ppos0), fixdiv(size0, size0 + size1))};
 
 					old_vel = obj->mtype.phys_info.velocity;
 					collide_two_objects(Robot_info, obj, hit, pos_hit);

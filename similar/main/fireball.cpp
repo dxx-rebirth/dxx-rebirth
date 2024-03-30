@@ -1661,8 +1661,8 @@ unsigned do_exploding_wall_frame(const d_robot_info_array &Robot_info, wall &w1)
 	auto &v1 = *vcvertptr(vertnum_list[1]);
 	auto &v2 = *vcvertptr(vertnum_list[2]);
 
-	const auto &&vv0 = vm_vec_sub(v0, v1);
-	const auto &&vv1 = vm_vec_sub(v2, v1);
+	const auto &&vv0{vm_vec_sub(v0, v1)};
+	const auto &&vv1{vm_vec_sub(v2, v1)};
 
 	//now create all the next explosions
 

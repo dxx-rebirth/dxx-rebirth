@@ -264,7 +264,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 	vm_vec_scale_add2(start_point,surface_orient.fvec,-(org_j - low_j)*GRID_SCALE);
 
 	{
-		const auto tv = vm_vec_sub(Viewer->pos,start_point);
+		const auto tv{vm_vec_sub(Viewer->pos, start_point)};
 	viewer_i = vm_vec_dot(tv,surface_orient.rvec) / GRID_SCALE;
 	viewer_j = vm_vec_dot(tv,surface_orient.fvec) / GRID_SCALE;
 	}

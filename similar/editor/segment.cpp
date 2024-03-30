@@ -727,7 +727,7 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const csmuseg
 
 	// Now translate the new segment so that the center point of the attaching faces are the same.
 	const auto vc1{compute_center_point_on_side(vcvertptr, destseg, destside)};
-	const auto xlate_vec = vm_vec_sub(vc1,vr);
+	const auto xlate_vec{vm_vec_sub(vc1, vr)};
 
 	// Now rotate the free vertices in the segment
 	// Create and add the 4 new vertices.

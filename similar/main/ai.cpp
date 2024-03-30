@@ -2413,8 +2413,7 @@ static void teleport_boss(const d_robot_info_array &Robot_info, const d_vclip_ar
 	BossUniqueState.Last_teleport_time = {GameTime64};
 
 	//	make boss point right at player
-	const auto boss_dir = vm_vec_sub(target_pos, objp->pos);
-	vm_vector_to_matrix(objp->orient, boss_dir);
+	vm_vector_to_matrix(objp->orient, vm_vec_sub(target_pos, objp->pos));
 
 	digi_link_sound_to_pos(Vclip[vclip_index::morphing_robot].sound_num, rand_segp, sidenum_t::WLEFT, objp->pos, 0, F1_0);
 	digi_kill_sound_linked_to_object( objp);

@@ -43,8 +43,7 @@ clipping_code g3_code_point(g3s_point &p)
 //rotates a point. returns codes.  does not check if already rotated
 clipping_code g3_rotate_point(g3s_point &dest,const vms_vector &src)
 {
-	const auto tempv = vm_vec_sub(src,View_position);
-	vm_vec_rotate(dest.p3_vec,tempv,View_matrix);
+	vm_vec_rotate(dest.p3_vec, vm_vec_sub(src, View_position), View_matrix);
 	dest.p3_flags = {};	//no projected
 	return g3_code_point(dest);
 }

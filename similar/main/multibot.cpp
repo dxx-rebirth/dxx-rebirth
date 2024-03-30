@@ -1068,7 +1068,7 @@ void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_a
 	
 	obj->matcen_creator = untrusted_fuelcen_num | 0x80;
 //	extract_orient_from_segment(&obj->orient, &Segments[robotcen->segnum]);
-	const auto direction = vm_vec_sub(ConsoleObject->pos, obj->pos );
+	const auto direction{vm_vec_sub(ConsoleObject->pos, obj->pos)};
 	vm_vector_to_matrix_u(obj->orient, direction, obj->orient.uvec);
 	morph_start(LevelUniqueMorphObjectState, LevelSharedPolygonModelState, obj);
 
@@ -1132,7 +1132,7 @@ void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_
 	obj_relink(vmobjptr, vmsegptr, boss_obj, teleport_segnum);
 	BossUniqueState.Last_teleport_time = {GameTime64};
 
-	const auto boss_dir = vm_vec_sub(vcobjptr(vcplayerptr(pnum)->objnum)->pos, boss_obj->pos);
+	const auto boss_dir{vm_vec_sub(vcobjptr(vcplayerptr(pnum)->objnum)->pos, boss_obj->pos)};
 	vm_vector_to_matrix(boss_obj->orient, boss_dir);
 
 	digi_link_sound_to_pos(Vclip[vclip_index::morphing_robot].sound_num, teleport_segnum, sidenum_t::WLEFT, boss_obj->pos, 0, F1_0);

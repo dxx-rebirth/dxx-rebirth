@@ -193,9 +193,10 @@ static void extract_vector_from_segment_side(const shared_segment &sp, const sid
 	auto &sv = Side_to_verts[side];
 	auto &verts = sp.verts;
 	auto &vcvertptr = Vertices.vcptr;
-	const auto v1 = vm_vec_sub(vcvertptr(verts[sv[vra]]), vcvertptr(verts[sv[vla]]));
-	const auto v2 = vm_vec_sub(vcvertptr(verts[sv[vrb]]), vcvertptr(verts[sv[vlb]]));
-	vm_vec_add(vp, v1, v2);
+	vm_vec_add(vp,
+		vm_vec_sub(vcvertptr(verts[sv[vra]]), vcvertptr(verts[sv[vla]])),
+		vm_vec_sub(vcvertptr(verts[sv[vrb]]), vcvertptr(verts[sv[vlb]]))
+	);
 	vm_vec_scale(vp, F1_0/2);
 }
 

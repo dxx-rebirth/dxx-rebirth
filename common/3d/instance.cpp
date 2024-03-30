@@ -27,13 +27,10 @@ g3_instance_context g3_start_instance_matrix()
 
 g3_instance_context g3_start_instance_matrix(const vms_vector &pos, const vms_matrix &orient)
 {
-	auto r = g3_start_instance_matrix();
-	//step 1: subtract object position from view position
-
-		const auto tempv = vm_vec_sub(View_position, pos);
-		//step 2: rotate view vector through object matrix
-
-	vm_vec_rotate(View_position, tempv, orient);
+	auto r{g3_start_instance_matrix()};
+	//step 1: vm_vec_sub: subtract object position from view position
+	//step 2: vm_vec_rotate: rotate view vector through object matrix
+	vm_vec_rotate(View_position, vm_vec_sub(View_position, pos), orient);
 
 		//step 3: rotate object matrix through view_matrix (vm = ob * vm)
 	View_matrix = vm_matrix_x_matrix(vm_transposed_matrix(orient), View_matrix);

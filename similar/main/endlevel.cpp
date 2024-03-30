@@ -328,18 +328,16 @@ static void draw_mine_exit_cover(grs_canvas &canvas)
 	auto mrd = mine_exit_orient.rvec;
 	{
 		const auto vu{vm_vec_scale_add(v, mine_exit_orient.uvec, u)};
-		auto mru = mrd;
+		auto mru{mrd};
 		vm_vec_scale(mru, ur);
-		vms_vector p;
-		g3_rotate_point(p0, (vm_vec_add(p, vu, mru), p));
-		g3_rotate_point(p1, (vm_vec_sub(p, vu, mru), p));
+		g3_rotate_point(p0, vm_vec_add(vu, mru));
+		g3_rotate_point(p1, vm_vec_sub(vu, mru));
 	}
 	{
 		const auto vd{vm_vec_scale_add(v, mine_exit_orient.uvec, -d)};
 		vm_vec_scale(mrd, dr);
-		vms_vector p;
-		g3_rotate_point(p2, (vm_vec_sub(p, vd, mrd), p));
-		g3_rotate_point(p3, (vm_vec_add(p, vd, mrd), p));
+		g3_rotate_point(p2, vm_vec_sub(vd, mrd));
+		g3_rotate_point(p3, vm_vec_add(vd, mrd));
 	}
 	const std::array<cg3s_point *, 4> pointlist{{
 		&p0,
@@ -831,7 +829,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 	if (!outside_mine) {
 
 		if (Endlevel_sequence==EL_OUTSIDE) {
-			const auto tvec = vm_vec_sub(ConsoleObject->pos,mine_side_exit_point);
+			const auto tvec{vm_vec_sub(ConsoleObject->pos, mine_side_exit_point)};
 			if (vm_vec_dot(tvec,mine_exit_orient.fvec) > 0) {
 				vms_vector mov_vec;
 

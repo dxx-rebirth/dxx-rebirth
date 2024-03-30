@@ -188,12 +188,11 @@ static intersection_type check_sphere_to_face(const vms_vector &pnt, const vms_v
 
 		//check if we are touching an edge or point
 
-		const auto checkvec = vm_vec_sub(checkp,v0);
 		const auto edgelen = vm_vec_normalized_dir(edgevec,v1,v0);
 		
 		//find point dist from planes of ends of edge
 
-		const auto d = vm_vec_dot(edgevec,checkvec);
+		const auto d = vm_vec_dot(edgevec, vm_vec_sub(checkp, v0));
 		if (d < 0)
 			return intersection_type::None;
 		else if (d > edgelen)
