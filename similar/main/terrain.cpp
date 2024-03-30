@@ -67,7 +67,6 @@ static std::unique_ptr<uint8_t[]> light_array;
 #define LIGHTVAL(_i,_j) (static_cast<fix>(LIGHT(_i, _j)) << 8)
 
 static grs_bitmap *terrain_bm;
-static int terrain_outline=0;
 static int org_i,org_j;
 static void build_light_table();
 
@@ -122,23 +121,6 @@ static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const in
 			.b = lightval_i1j0,
 		},
 	}}), *terrain_bm, draw_tmap);
-	std::aligned_union<0, g3_draw_line_context>::type outline_context;
-	static_assert(std::is_trivially_destructible<g3_draw_line_context>::value);
-	const auto draw_terrain_outline = terrain_outline;
-	if (draw_terrain_outline)
-	{
-		const uint8_t color = BM_XRGB(31, 0, 0);
-#if !DXX_USE_OGL
-		const int lsave = Lighting_on;
-		Lighting_on=0;
-#endif
-		auto context = new(&outline_context) g3_draw_line_context(canvas, color);
-		g3_draw_line(*context, *pointlist[0], *pointlist[1]);
-		g3_draw_line(*context, *pointlist[2], *pointlist[0]);
-#if !DXX_USE_OGL
-		Lighting_on=lsave;
-#endif
-	}
 
 	pointlist[0] = &p1;
 	pointlist[1] = &p2;
@@ -176,20 +158,6 @@ static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const in
 			.b = lightval_i1j0,
 		},
 	}}), *terrain_bm, draw_tmap);
-	if (draw_terrain_outline)
-	{
-#if !DXX_USE_OGL
-		const int lsave = Lighting_on;
-		Lighting_on=0;
-#endif
-		auto &context = *reinterpret_cast<g3_draw_line_context *>(&outline_context);
-		g3_draw_line(context, *pointlist[0], *pointlist[1]);
-		g3_draw_line(context, *pointlist[1], *pointlist[2]);
-		g3_draw_line(context, *pointlist[2], *pointlist[0]);
-#if !DXX_USE_OGL
-		Lighting_on=lsave;
-#endif
-	}
 
 	if (i==org_i && j==org_j)
 		mine_tiles_drawn |= 1;
