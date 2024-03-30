@@ -4,6 +4,8 @@
 
 # needed imports
 from collections import (defaultdict, Counter as collections_counter)
+import collections.abc
+from dataclasses import dataclass
 import base64
 import binascii
 import errno
@@ -11,6 +13,7 @@ import itertools
 import shlex
 import subprocess
 import sys
+import typing
 import os
 import SCons.Util
 import SCons.Script
@@ -18,10 +21,10 @@ import SCons.Script
 # Disable injecting tools into default namespace
 SCons.Defaults.DefaultEnvironment(tools = [])
 
-def message(program,msg):
+def message(program, msg: str):
 	print(f'{program.program_message_prefix}: {msg}')
 
-def get_Werror_sequence(active_cxxflags, warning_flags):
+def get_Werror_sequence(active_cxxflags: list[str], warning_flags: collections.abc.Sequence[str]) -> list[str]:
 	# The leading -W is passed in each element in warning_flags so that if
 	# -Werror is already set, the warning_flags can be returned as-is.  This
 	# also means that the warning flag is written in the caller as it will be
@@ -51,14 +54,23 @@ class StaticSubprocess:
 	# SConstruct run, but before the next, will not cause any
 	# inconsistencies.
 	shlex_split = shlex.split
+
+	@dataclass(eq=False)
 	class CachedCall:
-		def __init__(self,out,err,returncode):
-			self.out = out
-			self.err = err
-			self.returncode = returncode
+		out: bytes
+		err: bytes
+		returncode: int
+
+	@dataclass(eq=False)
+	class CachedVersionCall:
+		version_head: str
+		def __init__(self, out: bytes, err: bytes, returncode: int):
+			oe = out or err
+			self.version_head = oe.splitlines()[0].decode() if not returncode and oe else None
+
 	# @staticmethod delayed so that default arguments pick up the
 	# undecorated form.
-	def pcall(args,stderr=None,_call_cache={},_CachedCall=CachedCall):
+	def pcall(args: list[bytes | str], stderr=None, CachedCall=CachedCall, _call_cache: dict[str, CachedCall]={}) -> CachedCall:
 		# Use repr since callers may construct the same argument
 		# list independently.
 		## >>> a = ['git', '--version']
@@ -77,33 +89,28 @@ class StaticSubprocess:
 			return c
 		p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=stderr)
 		(o, e) = p.communicate()
-		_call_cache[a] = c = _CachedCall(o, e, p.wait())
+		_call_cache[a] = c = CachedCall(o, e, p.wait())
 		return c
-	def qcall(args,stderr=None,_pcall=pcall,_shlex_split=shlex_split):
+	def qcall(args: str, stderr=None, _pcall=pcall, _shlex_split=shlex_split) -> CachedCall:
 		return _pcall(_shlex_split(args),stderr)
-	@staticmethod
-	def get_version_head(cmd,_pcall=pcall,_shlex_split=shlex_split):
+	@classmethod
+	def get_version_head(cls, cmd: bytes | str, _pcall=pcall, _shlex_split=shlex_split) -> str:
 		# If cmd is bytes, then it is output from a program and should
 		# not be reparsed.
-		v = _pcall(([cmd] if isinstance(cmd, bytes) else _shlex_split(cmd)) + ['--version'], stderr=subprocess.PIPE)
-		try:
-			return v.__version_head
-		except AttributeError:
-			v.__version_head = r = (v.out or v.err).splitlines()[0].decode() if not v.returncode and (v.out or v.err) else None
-			return r
+		return _pcall(([cmd] if isinstance(cmd, bytes) else _shlex_split(cmd)) + ['--version'], stderr=subprocess.PIPE, CachedCall=cls.CachedVersionCall).version_head
 	pcall = staticmethod(pcall)
 	qcall = staticmethod(qcall)
 	shlex_split = staticmethod(shlex_split)
 
 class ToolchainInformation(StaticSubprocess):
 	@staticmethod
-	def get_tool_path(env,tool,_qcall=StaticSubprocess.qcall):
+	def get_tool_path(env: SCons.Environment, tool: str, _qcall=StaticSubprocess.qcall):
 		# Include $LINKFLAGS since -fuse-ld=gold influences the path
 		# printed for the linker.
 		tool = env.subst(f'$CXX $CXXFLAGS $LINKFLAGS -print-prog-name={tool}')
 		return tool, _qcall(tool).out.strip()
 	@staticmethod
-	def show_partial_environ(env, user_settings, f, msgprefix, append_newline='\n'):
+	def show_partial_environ(env: SCons.Environment, user_settings, f: collections.abc.Callable[[str], None], msgprefix: str, append_newline='\n'):
 		f(f'{msgprefix}: CHOST: {(user_settings.CHOST)!r}{append_newline}')
 		for v in (
 			'CXX',
@@ -132,15 +139,13 @@ class ToolchainInformation(StaticSubprocess):
 			f(f'{msgprefix}: ${v}: {(penv.get(v, None))!r}{append_newline}')
 
 class Git(StaticSubprocess):
+	@dataclass(eq=False)
 	class ComputedExtraVersion:
+		describe: str
+		status: str
+		diffstat_HEAD: str
+		revparse_HEAD: str
 		__slots__ = ('describe', 'status', 'diffstat_HEAD', 'revparse_HEAD')
-		def __init__(self,describe,status,diffstat_HEAD,revparse_HEAD):
-			self.describe = describe
-			self.status = status
-			self.diffstat_HEAD = diffstat_HEAD
-			self.revparse_HEAD = revparse_HEAD
-		def __repr__(self):
-			return f'ComputedExtraVersion({self.describe!r},{self.status!r},{self.diffstat_HEAD!r},{self.revparse_HEAD!r})'
 	UnknownExtraVersion = (
 		# If the string is alphanumeric, then `git archive` has rewritten the
 		# string to be a commit ID.  Use that commit ID as a guessed default
@@ -149,9 +154,9 @@ class Git(StaticSubprocess):
 		# Otherwise, assume that this is a checked-in copy.
 		ComputedExtraVersion(None, None, None, None)
 		)
-	# None when unset.  Instance of ComputedExtraVersion once cached.
-	__computed_extra_version = None
-	__path_git = None
+	# None until computed, then ComputedExtraVersion once cached.
+	__computed_extra_version: typing.ClassVar[None | ComputedExtraVersion] = None
+	__path_git: typing.ClassVar[None | list[str]] = None
 	# `__pcall_missing_git`, `__pcall_found_git`, and `pcall` must have
 	# compatible signatures.  In any given run, there will be at most
 	# one call to `pcall`, which then patches itself out of the call
@@ -177,7 +182,7 @@ class Git(StaticSubprocess):
 			return None
 		return g.out
 	@classmethod
-	def compute_extra_version(cls,_spcall=spcall):
+	def compute_extra_version(cls, _spcall=spcall) -> ComputedExtraVersion:
 		c = cls.__computed_extra_version
 		if c is None:
 			v = cls.__compute_extra_version()
@@ -195,7 +200,7 @@ class Git(StaticSubprocess):
 	#	'*' if there are unstaged changes else ''
 	#	'+' if there are staged changes else ''
 	@classmethod
-	def __compute_extra_version(cls):
+	def __compute_extra_version(cls) -> None | str:
 		try:
 			g = cls.pcall(['describe', '--tags', '--abbrev=12'], stderr=subprocess.PIPE)
 		except OSError as e:
@@ -211,28 +216,25 @@ class Git(StaticSubprocess):
 		).decode()
 
 class _ConfigureTests:
+	@dataclass(eq=False)
 	class Collector:
-		class RecordedTest:
-			__slots__ = ('desc', 'name', 'predicate')
-			def __init__(self,name,desc,predicate=()):
-				self.name = name
-				self.desc = desc
-				# predicate is a sequence of zero-or-more functions that
-				# take a UserSettings object as the only argument.
-				# A recorded test is only passed to the SConf logic if
-				# at most zero predicates return a false-like value.
-				#
-				# Callers use this to exclude from execution tests which
-				# make no sense in the current environment, such as a
-				# Windows-specific test when building for a
-				# Linux target.
-				self.predicate = predicate
-			def __repr__(self):
-				return f'_ConfigureTests.Collector.RecordedTest({self.name!r}, {self.desc!r}, {self.predicate!r})'
+		record: collections.abc.Callable[['ConfigureTest'], None]
 
-		def __init__(self,record):
-			self.record = record
-		def __call__(self,f):
+		@dataclass(eq=False, slots=True)
+		class RecordedTest:
+			name: str
+			desc: str
+			# predicate is a sequence of zero-or-more functions that take a
+			# UserSettings object as the only argument.  A recorded test is
+			# only passed to the SConf logic if at most zero predicates return
+			# a false-like value.
+			#
+			# Callers use this to exclude from execution tests which make no
+			# sense in the current environment, such as a Windows-specific test
+			# when building for a Linux target.
+			predicate: tuple[collections.abc.Callable[['UserSettings'], bool]] = ()
+
+		def __call__(self, f: collections.abc.Callable) -> collections.abc.Callable:
 			desc = None
 			doc = getattr(f, '__doc__', None)
 			if doc is not None:
@@ -270,7 +272,7 @@ class ConfigureTests(_ConfigureTests):
 
 	class CxxRequiredFeature:
 		__slots__ = ('main', 'name', 'text')
-		def __init__(self,name,text,main=''):
+		def __init__(self, name: str, text: str, main: str = ''):
 			self.name = name
 			# Avoid generating consecutive underscores if the input
 			# string has multiple adjacent unacceptable characters.
@@ -290,7 +292,7 @@ class ConfigureTests(_ConfigureTests):
 		std = 20
 	class CxxRequiredFeatures:
 		__slots__ = ('features', 'main', 'text')
-		def __init__(self,features):
+		def __init__(self, features: list['CxxRequiredFeature']):
 			self.features = features
 			s = '/* C++{} {} */\n{}'.format
 			self.main = '\n'.join((s(f.std, f.name, f.main) for f in features if f.main))
@@ -320,14 +322,14 @@ class ConfigureTests(_ConfigureTests):
 		# One empty list for all the defaults.  The comprehension
 		# creates copies, so it is safe for the default value to be
 		# shared.
-		def __init__(self,env,keyviews,_l=[]):
+		def __init__(self, env: SCons.Environment, keyviews, _l=[]):
 			self.flags = {k: env.get(k, _l).copy() for k in itertools.chain.from_iterable(keyviews)}
-		def restore(self,env):
+		def restore(self, env: SCons.Environment):
 			env.Replace(**self.flags)
-		def __getitem__(self,name):
+		def __getitem__(self, name: str):
 			return self.flags.__getitem__(name)
 	class ForceVerboseLog(PreservedEnvironment):
-		def __init__(self,env):
+		def __init__(self, env: SCons.Environment):
 			# Force verbose output to sconf.log
 			self.flags = {}
 			for k in (
@@ -3070,9 +3072,9 @@ class FilterHelpText:
 		return f' {opt:{self._sconf_align if opt[:6] == "sconf_" else 15}}  {help}{f""" [{"; ".join(l)}]""" if l else ""}\n'
 
 class PCHManager:
+	@dataclass(eq=False)
 	class ScannedFile:
-		def __init__(self,candidates):
-			self.candidates = candidates
+		candidates: defaultdict(set)
 
 	syspch_cpp_filename = None
 	ownpch_cpp_filename = None
@@ -3086,7 +3088,7 @@ class PCHManager:
 	_re_singleline_comments_sub = None
 	# Source files are tracked at class scope because all builds share
 	# the same source tree.
-	_cls_scanned_files = None
+	_cls_scanned_files: dict[str, ScannedFile] = None
 
 	# Import required modules when the first PCHManager is created.
 	@classmethod
@@ -3610,7 +3612,7 @@ class DXXCommon(LazyObjectConstructor):
 	# writing all the records for a build into a single file, even
 	# though the build will use multiple SCons.Environment instances to
 	# compile its source files.
-	compilation_database_dict_fn_to_entries = {}
+	compilation_database_dict_fn_to_entries: dict[str, tuple[SCons.Environment, list]] = {}
 
 	class RuntimeTest(LazyObjectConstructor):
 		nodefaultlibs = True
