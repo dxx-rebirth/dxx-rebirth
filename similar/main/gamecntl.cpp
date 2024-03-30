@@ -1182,7 +1182,7 @@ static void kill_all_robots(void)
 	//int	boss_index = -1;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 
-	// Kill all bots except for Buddy bot and boss.  However, if only boss and buddy left, kill boss.
+	// Kill all bots except for Buddy bot and boss.  However, if only boss and buddy left, kill buddy.
 	range_for (const auto &&objp, vmobjptr)
 	{
 		if (objp->type == OBJ_ROBOT)
