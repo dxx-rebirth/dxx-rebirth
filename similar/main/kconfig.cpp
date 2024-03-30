@@ -1250,6 +1250,8 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 
 void kconfig_end_loop(control_info &Controls, const fix frametime)
 {
+	static constexpr unsigned FREE_PITCH_FACTOR{1};
+	static constexpr unsigned LOCKED_PITCH_FACTOR{2};
 #if DXX_MAX_AXES_PER_JOYSTICK
 	std::array<fix, JOY_MAX_AXES> joy_axis{};
 	for (auto &&[i, o, raw_joy_axis] : enumerate(zip(joy_axis, Controls.raw_joy_axis)))
