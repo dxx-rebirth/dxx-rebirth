@@ -23,14 +23,17 @@
 namespace dsx {
 
 template <typename T>
-class segment_object_range_t
+class objects_in
 {
 	class iterator;
-	class sentinel;
+	class sentinel
+	{
+	};
 	const iterator b;
 public:
-	segment_object_range_t(const unique_segment &s, auto &object_factory, auto &segment_factory) :
-		b(construct(s, object_factory, segment_factory))
+	[[nodiscard]]
+	objects_in(const unique_segment &s, auto &object_factory, auto &segment_factory) :
+		b{construct(s, object_factory, segment_factory)}
 	{
 	}
 	const iterator &begin() const { return b; }
@@ -53,7 +56,7 @@ public:
 		)
 		{
 			if (s.objects == object_none)
-				return T(object_none, typename T::allow_none_construction{});
+				return T{object_none, typename T::allow_none_construction{}};
 			auto opi = of(s.objects);
 #if DXX_SEGITER_DEBUG_OBJECT_LINKAGE
 			const object_base &o = opi;
@@ -71,12 +74,7 @@ public:
 };
 
 template <typename T>
-class segment_object_range_t<T>::sentinel
-{
-};
-
-template <typename T>
-class segment_object_range_t<T>::iterator :
+class objects_in<T>::iterator :
 	T
 {
 	using T::m_ptr;
@@ -133,11 +131,7 @@ public:
 	}
 };
 
-[[nodiscard]]
-static inline auto objects_in(const unique_segment &s, auto &object_factory, auto &segment_factory) -> segment_object_range_t<decltype(object_factory(object_first))>
-{
-	return {s, object_factory, segment_factory};
-}
+objects_in(const unique_segment &s, auto &object_factory, auto & /* segment_factory */) -> objects_in<decltype(object_factory(s.objects))>;
 
 }
 #endif
