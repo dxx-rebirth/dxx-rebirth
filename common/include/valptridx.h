@@ -346,7 +346,7 @@ class valptridx<managed_type>::partial_policy::apply_cv_policy
 public:
 	using array_managed_type = apply_cv_qualifier<valptridx<managed_type>::array_managed_type>;
 	using pointer = apply_cv_qualifier<managed_type> *;
-	using reference_type = apply_cv_qualifier<managed_type> &;
+	using reference = apply_cv_qualifier<managed_type> &;
 };
 
 template <typename managed_type>
@@ -533,7 +533,7 @@ public:
 	using allow_none_construction = typename containing_type::allow_none_construction;
 	using typename policy::array_managed_type;
 	using typename policy::pointer;
-	using typename policy::reference_type;
+	using typename policy::reference;
 
 	ptr() = delete;
 	/* Override template matches to make same-type copy/move trivial */
@@ -555,7 +555,7 @@ public:
 			DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_VOID_VARS();
 		return p;
 	}
-	reference_type get_checked_reference(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS) const
+	reference get_checked_reference(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS) const
 	{
 		return *get_nonnull_pointer(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VA());
 	}
@@ -638,11 +638,11 @@ public:
 		if constexpr (!allow_nullptr)
 			check_null_pointer<null_pointer_error_type<array_managed_type>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS p, a);
 	}
-	ptr(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS reference_type r, array_managed_type &a) :
+	ptr(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS reference r, array_managed_type &a) :
 		m_ptr{(check_implicit_index_range_ref<index_mismatch_error_type<array_managed_type>, index_range_error_type<array_managed_type>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS r, a), &r)}
 	{
 	}
-	ptr(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS reference_type r, index_type i, array_managed_type &a) :
+	ptr(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS reference r, index_type i, array_managed_type &a) :
 		m_ptr{(check_explicit_index_range_ref<index_mismatch_error_type<array_managed_type>, index_range_error_type<array_managed_type>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS r, i, a), &r)}
 	{
 	}
@@ -664,11 +664,11 @@ public:
 	{
 		return get_nonnull_pointer();
 	}
-	operator reference_type() const &
+	operator reference() const &
 	{
 		return get_checked_reference();
 	}
-	reference_type operator*() const &
+	reference operator*() const &
 	{
 		return get_checked_reference();
 	}
@@ -681,12 +681,12 @@ public:
 		static_assert(!allow_nullptr, "operator-> not allowed with allow_invalid policy");
 		return operator->();
 	}
-	operator reference_type() const &&
+	operator reference() const &&
 	{
 		static_assert(!allow_nullptr, "implicit reference not allowed with allow_invalid policy");
 		return *this;
 	}
-	reference_type operator*() const &&
+	reference operator*() const &&
 	{
 		static_assert(!allow_nullptr, "operator* not allowed with allow_invalid policy");
 		return *this;
