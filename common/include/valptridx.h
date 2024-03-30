@@ -801,7 +801,7 @@ public:
 	using vptr_type = ptr<policy>;
 	using vidx_type = idx<policy>;
 	using typename vidx_type::array_managed_type;
-	using index_type = typename vidx_type::index_type;
+	using typename vidx_type::index_type;
 	using typename vidx_type::integral_type;
 	using typename vptr_type::pointer;
 	using vptr_type::allow_nullptr;
