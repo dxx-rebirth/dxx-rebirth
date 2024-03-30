@@ -2440,10 +2440,10 @@ void multi_reset_player_object(object &objp)
 	//Init physics for a non-console player
 	Assert((objp.type == OBJ_PLAYER) || (objp.type == OBJ_GHOST));
 
-	vm_vec_zero(objp.mtype.phys_info.velocity);
-	vm_vec_zero(objp.mtype.phys_info.thrust);
-	vm_vec_zero(objp.mtype.phys_info.rotvel);
-	vm_vec_zero(objp.mtype.phys_info.rotthrust);
+	objp.mtype.phys_info.velocity = {};
+	objp.mtype.phys_info.thrust = {};
+	objp.mtype.phys_info.rotvel = {};
+	objp.mtype.phys_info.rotthrust = {};
 	objp.mtype.phys_info.turnroll = 0;
 	objp.mtype.phys_info.mass = Player_ship->mass;
 	objp.mtype.phys_info.drag = Player_ship->drag;
@@ -3446,7 +3446,7 @@ void multi_prep_level_objects(const d_powerup_info_array &Powerup_info, const d_
 				objnum->rtype.vclip_info.framenum = 0;
 				objnum->mtype.phys_info.drag = 512;     //1024;
 				objnum->mtype.phys_info.mass = F1_0;
-				vm_vec_zero(objnum->mtype.phys_info.velocity);
+				objnum->mtype.phys_info.velocity = {};
 			}
 			continue;
 		}

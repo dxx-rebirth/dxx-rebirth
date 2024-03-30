@@ -657,7 +657,7 @@ static void object_create_debris(fvmsegptridx &vmsegptridx, const object_base &p
 
 	// -- used to be: Notice, not random! vm_vec_make(&obj->mtype.phys_info.rotvel,10*0x2000/3,10*0x4000/3,10*0x7000/3);
 	obj->mtype.phys_info.rotvel = {d_rand() + 0x1000, d_rand()*2 + 0x4000, d_rand()*3 + 0x2000};
-	vm_vec_zero(obj->mtype.phys_info.rotthrust);
+	obj->mtype.phys_info.rotthrust = {};
 
 	obj->lifeleft = 3*DEBRIS_LIFE/4 + fixmul(d_rand(), DEBRIS_LIFE);	//	Some randomness, so they don't all go away at the same time.
 

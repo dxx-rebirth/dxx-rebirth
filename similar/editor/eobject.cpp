@@ -243,7 +243,7 @@ int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_le
 
 			//set Physics info
 
-			vm_vec_zero(obj->mtype.phys_info.velocity);
+			obj->mtype.phys_info.velocity = {};
 			obj->mtype.phys_info.mass = Player_ship->mass;
 			obj->mtype.phys_info.drag = Player_ship->drag;
 			obj->mtype.phys_info.flags |= PF_TURNROLL | PF_LEVELLING | PF_WIGGLE;

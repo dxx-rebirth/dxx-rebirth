@@ -896,10 +896,10 @@ void reset_player_object(object_base &ConsoleObject)
 {
 	//Init physics
 
-	vm_vec_zero(ConsoleObject.mtype.phys_info.velocity);
-	vm_vec_zero(ConsoleObject.mtype.phys_info.thrust);
-	vm_vec_zero(ConsoleObject.mtype.phys_info.rotvel);
-	vm_vec_zero(ConsoleObject.mtype.phys_info.rotthrust);
+	ConsoleObject.mtype.phys_info.velocity = {};
+	ConsoleObject.mtype.phys_info.thrust = {};
+	ConsoleObject.mtype.phys_info.rotvel = {};
+	ConsoleObject.mtype.phys_info.rotthrust = {};
 	ConsoleObject.mtype.phys_info.turnroll = 0;
 	ConsoleObject.mtype.phys_info.mass = Player_ship->mass;
 	ConsoleObject.mtype.phys_info.drag = Player_ship->drag;
@@ -1671,8 +1671,8 @@ static void start_player_death_sequence(object &player)
 	PaletteRedAdd = 40;
 	Player_dead_state = player_dead_state::yes;
 
-	vm_vec_zero(player.mtype.phys_info.rotthrust);
-	vm_vec_zero(player.mtype.phys_info.thrust);
+	player.mtype.phys_info.rotthrust = {};
+	player.mtype.phys_info.thrust = {};
 
 	const auto &&objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_CAMERA, 0, vmsegptridx(player.segnum), player.pos, &player.orient, 0, object::control_type::None, object::movement_type::None, render_type::RT_NONE);
 	Viewer_save = Viewer;

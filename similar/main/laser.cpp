@@ -343,7 +343,7 @@ static imobjptridx_t create_weapon_object(int weapon_type,const vmsegptridx_t se
 
 	obj->mtype.phys_info.mass = Weapon_info[weapon_type].mass;
 	obj->mtype.phys_info.drag = Weapon_info[weapon_type].drag;
-	vm_vec_zero(obj->mtype.phys_info.thrust);
+	obj->mtype.phys_info.thrust = {};
 
 	const auto bounce{Weapon_info[weapon_type].bounce};
 	if (bounce == weapon_info::bounce_type::always)

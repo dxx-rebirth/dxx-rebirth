@@ -593,7 +593,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 
 						LevelUniqueStuckObjectState.add_stuck_object(vcwallptr, obj, Segments.vmptr(WallHitSeg), WallHitSide);
 
-						vm_vec_zero(obj->mtype.phys_info.velocity);
+						obj->mtype.phys_info.velocity = {};
 						obj_stopped = 1;
 						try_again = 0;
 					}

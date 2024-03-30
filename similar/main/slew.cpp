@@ -58,7 +58,7 @@ int slew_stop()
 	if (!slew_obj || slew_obj->control_source != object::control_type::slew)
 		return 0;
 
-	vm_vec_zero(slew_obj->mtype.phys_info.velocity);
+	slew_obj->mtype.phys_info.velocity = {};
 	return 1;
 }
 

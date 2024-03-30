@@ -186,25 +186,6 @@ struct vms_quaternion
 
 //Macros/functions to fill in fields of structures
 
-//macro to set a vector to zero.  we could do this with an in-line assembly
-//macro, but it's probably better to let the compiler optimize it.
-//Note: NO RETURN VALUE
-static inline void vm_vec_zero(vms_vector &v)
-{
-	v = {};
-}
-
-//macro set set a matrix to the identity. Note: NO RETURN VALUE
-
-// DPH (18/9/98): Begin mod to fix linefeed problem under linux. Uses an
-// inline function instead of a multi-line macro to fix CR/LF problems.
-
-// DPH (19/8/98): End changes.
-
-//Global constants
-
-//Here's a handy constant
-
 //negate a vector
 static inline void vm_vec_negate(vms_vector &v)
 {
