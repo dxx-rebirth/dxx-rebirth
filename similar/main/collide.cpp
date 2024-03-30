@@ -799,7 +799,8 @@ static window_event_result collide_weapon_and_wall(
 		}
 	#endif
 
-	if ((weapon->mtype.phys_info.velocity.x == 0) && (weapon->mtype.phys_info.velocity.y == 0) && (weapon->mtype.phys_info.velocity.z == 0)) {
+	if (weapon->mtype.phys_info.velocity == vms_vector{})
+	{
 		Int3();	//	Contact Matt: This is impossible.  A weapon with 0 velocity hit a wall, which doesn't move.
 		return window_event_result::ignored;
 	}

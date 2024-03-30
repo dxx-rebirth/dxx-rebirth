@@ -1454,7 +1454,7 @@ static void set_camera_pos(vms_vector &camera_pos, const vcobjptridx_t objp)
 		fvi_info		hit_data;
 
 		auto player_camera_vec{vm_vec_sub(camera_pos, objp->pos)};
-		if ((player_camera_vec.x == 0) && (player_camera_vec.y == 0) && (player_camera_vec.z == 0))
+		if (player_camera_vec == vms_vector{})
 			player_camera_vec.x += F1_0/16;
 
 		auto hit_type = fvi_hit_type::Wall;

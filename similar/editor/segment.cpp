@@ -349,7 +349,8 @@ void med_extract_matrix_from_segment(const shared_segment &sp, vms_matrix &rotma
 	const auto forwardvec{extract_forward_vector_from_segment(vcvertptr, sp)};
 	const auto upvec{extract_up_vector_from_segment(vcvertptr, sp)};
 
-	if (((forwardvec.x == 0) && (forwardvec.y == 0) && (forwardvec.z == 0)) || ((upvec.x == 0) && (upvec.y == 0) && (upvec.z == 0))) {
+	if (forwardvec == vms_vector{} || upvec == vms_vector{})
+	{
 		rotmat = vmd_identity_matrix;
 		return;
 	}

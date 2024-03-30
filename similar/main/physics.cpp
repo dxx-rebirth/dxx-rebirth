@@ -648,12 +648,11 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 			}
 
 			case fvi_hit_type::Object:		{
-				vms_vector old_vel;
-
 				// Mark the hit object so that on a retry the fvi code
 				// ignores this object.
 
 				Assert(hit_info.hit_object != object_none);
+				const auto old_vel{obj->mtype.phys_info.velocity};
 				//	Calculcate the hit point between the two objects.
 				{
 					const auto &&hit = obj.absolute_sibling(hit_info.hit_object);
@@ -664,7 +663,6 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 					Assert(size0+size1 != 0);	// Error, both sizes are 0, so how did they collide, anyway?!?
 					auto pos_hit{vm_vec_scale_add(ppos0, vm_vec_sub(ppos1, ppos0), fixdiv(size0, size0 + size1))};
 
-					old_vel = obj->mtype.phys_info.velocity;
 					collide_two_objects(Robot_info, obj, hit, pos_hit);
 				}
 
@@ -672,7 +670,8 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 				if ( !(obj->flags&OF_SHOULD_BE_DEAD)  )	{
 					//obj->pos = save_pos;
 
-					if (obj->mtype.phys_info.flags&PF_PERSISTENT || (old_vel.x == obj->mtype.phys_info.velocity.x && old_vel.y == obj->mtype.phys_info.velocity.y && old_vel.z == obj->mtype.phys_info.velocity.z)) {
+					if ((obj->mtype.phys_info.flags & PF_PERSISTENT) || old_vel == obj->mtype.phys_info.velocity)
+					{
 						//if (Objects[hit_info.hit_object].type == OBJ_POWERUP)
 						if (ignore_obj_list.push_back(hit_info.hit_object))
 						try_again = 1;
@@ -825,7 +824,7 @@ void physics_turn_towards_vector(const vms_vector &goal_vector, object_base &obj
 	// If no one moves, will be facing goal_vector in 1 second.
 
 	//	Detect null vector.
-	if ((goal_vector.x == 0) && (goal_vector.y == 0) && (goal_vector.z == 0))
+	if (goal_vector == vms_vector{})
 		return;
 
 	//	Make morph objects turn more slowly.

@@ -375,8 +375,7 @@ static void assign_uvs_to_side(fvcvertptr &vcvertptr, const vmsegptridx_t segp, 
 		struct frvec {
 			vms_vector fvec, rvec;
 			frvec(const vms_vector &tfvec, const vms_vector &trvec) {
-				if ((tfvec.x == 0 && tfvec.y == 0 && tfvec.z == 0) ||
-					(trvec.x == 0 && trvec.y == 0 && trvec.z == 0))
+				if (tfvec == vms_vector{} || trvec == vms_vector{})
 				{
 					fvec = vmd_identity_matrix.fvec;
 					rvec = vmd_identity_matrix.rvec;
@@ -1003,7 +1002,8 @@ static void cast_light_from_side(const vmsegptridx_t segp, const sidenum_t light
 										hash_info	*hashp = &fvi_cache[hash_value];
 										while (1) {
 											if (hashp->flag) {
-												if ((hashp->vector.x == vector_to_light.x) && (hashp->vector.y == vector_to_light.y) && (hashp->vector.z == vector_to_light.z)) {
+												if (hashp->vector == vector_to_light)
+												{
 													hit_type = hashp->hit_type;
 													Hash_hits++;
 													break;

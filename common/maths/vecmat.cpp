@@ -309,7 +309,7 @@ namespace {
 [[nodiscard]]
 static vms_vector check_vec(vms_vector v)
 {
-	if (unlikely(v.x == 0 && v.y == 0 && v.z == 0))
+	if (unlikely(v == vms_vector{}))
 		return v;
 	int cnt = 0;
 
