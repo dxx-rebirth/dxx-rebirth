@@ -20,28 +20,43 @@ namespace d_zip {
 
 namespace detail {
 
-void discard_arguments(auto &&...)
+template <zip_sequence_length_selector examine_end_range, typename... range_sentinel_type>
+requires(
+	examine_end_range != zip_sequence_length_selector{} &&
+	sizeof...(range_sentinel_type) > 0
+)
+struct zip_sentinel : public std::tuple<range_sentinel_type...>
 {
-}
+	using std::tuple<range_sentinel_type...>::tuple;
+};
 
-template <std::size_t... N, std::input_or_output_iterator... range_iterator_type>
-void increment_iterator(std::tuple<range_iterator_type...> &iterator, std::index_sequence<N...>)
+template <std::size_t... range_index>
+struct for_index_sequence
 {
-	/* Order of evaluation is irrelevant, so pass the results to a
-	 * discarding function.  This permits the compiler to evaluate the
-	 * expression elements in any order.
+	/* This class is never instantiated, but a constructor is declared to
+	 * support Class Template Argument Deduction.
 	 */
-	discard_arguments(++(std::get<N>(iterator))...);
-}
+	for_index_sequence(std::index_sequence<range_index...>);
+	/* Run-time functions.  These are defined and called. */
+	template <std::input_or_output_iterator... range_iterator_type>
+		static void increment_iterator(std::tuple<range_iterator_type...> &iterator)
+		{
+			(static_cast<void>(++(std::get<range_index>(iterator))), ...);
+		}
+	template <std::bidirectional_iterator... range_iterator_type>
+		static void decrement_iterator(std::tuple<range_iterator_type...> &iterator)
+		{
+			(static_cast<void>(--(std::get<range_index>(iterator))), ...);
+		}
+	template <std::input_or_output_iterator... range_iterator_type>
+		static auto dereference_iterator(const std::tuple<range_iterator_type...> &iterator);
+	template <typename zip_iterator, zip_sequence_length_selector examine_end_range, typename... zip_sentinel_elements>
+		static constexpr bool compare_zip_iterators(const zip_iterator &iterator, const zip_sentinel<examine_end_range, zip_sentinel_elements...> &sentinel);
+};
 
-template <std::size_t... N, std::bidirectional_iterator... range_iterator_type>
-void decrement_iterator(std::tuple<range_iterator_type...> &iterator, std::index_sequence<N...>)
-{
-	discard_arguments(--(std::get<N>(iterator))...);
-}
-
-template <std::size_t... N, std::input_or_output_iterator... range_iterator_type>
-auto dereference_iterator(const std::tuple<range_iterator_type...> &iterator, std::index_sequence<N...>)
+template <std::size_t... range_index>
+template <std::input_or_output_iterator... range_iterator_type>
+auto for_index_sequence<range_index...>::dereference_iterator(const std::tuple<range_iterator_type...> &iterator)
 {
 	/* std::make_tuple is not appropriate here, because the result of
 	 * dereferencing the iterator may be a reference, and the resulting
@@ -54,18 +69,9 @@ auto dereference_iterator(const std::tuple<range_iterator_type...> &iterator, st
 	 * dereferencing the iterator is not a reference.
 	 */
 	return std::tuple<
-		decltype(*(std::get<N>(iterator)))...
-		>(*(std::get<N>(iterator))...);
+		decltype(*(std::get<range_index>(iterator)))...
+		>(*(std::get<range_index>(iterator))...);
 }
-
-/* This is declared, but never defined.  It is used only for a decltype()
- * expression.
- *
- * Given a tuple of iterator types, return the most-derived iterator_category
- * that all the iterator types satisfy.
- */
-template <std::input_or_output_iterator... range_iterator_type>
-typename std::common_type<typename std::iterator_traits<range_iterator_type>::iterator_category...>::type common_iterator_category(std::tuple<range_iterator_type...>);
 
 /* The overloads of get_static_size are declared, but never defined.  They
  * exist only for use in decltype() expressions.
@@ -82,14 +88,13 @@ typename std::tuple_size<T>::type get_static_size(const T &);
 std::nullptr_t get_static_size(...);
 
 /* Given a zip_sequence_length_selector and an index N in a sequence, evaluate
- * to std::true_type if the element at index N is examined, and otherwise
- * std::false_type.
+ * to true if the element at index N is examined, and otherwise false.
  *
- * This is a convenience type to keep the test in one place, rather than
+ * This is a convenience variable to keep the test in one place, rather than
  * duplicating the cast+mask everywhere it is needed.
  */
 template <zip_sequence_length_selector examine_end_range, std::size_t N>
-using examine_zip_element = std::integral_constant<bool, (N < 32 && (static_cast<uint32_t>(examine_end_range) & (1u << N)))>;
+inline constexpr bool examine_zip_element{(N < 32 && (static_cast<uint32_t>(examine_end_range) & (1u << N)))};
 
 /* Given a zip_sequence_length_selector and a sequence of static sizes In,
  * return a new sequence of static sizes On where:
@@ -100,7 +105,7 @@ using examine_zip_element = std::integral_constant<bool, (N < 32 && (static_cast
  * not be selected at runtime.
  */
 template <zip_sequence_length_selector examine_end_range, std::size_t... indexN, typename... sizeN>
-std::tuple<typename std::conditional<examine_zip_element<examine_end_range, indexN>::value, sizeN, std::nullptr_t>::type ...> get_examined_static_size(std::index_sequence<indexN...>, std::tuple<sizeN...>);
+std::tuple<typename std::conditional<examine_zip_element<examine_end_range, indexN>, sizeN, std::nullptr_t>::type ...> get_examined_static_size(std::index_sequence<indexN...>, std::tuple<sizeN...>);
 
 template <typename>
 struct minimum_static_size;
@@ -167,16 +172,6 @@ template <
 	>
 index_type range_index_type(std::tuple<range_type...> *);
 
-template <zip_sequence_length_selector examine_end_range, typename... range_sentinel_type>
-requires(
-	examine_end_range != zip_sequence_length_selector{} &&
-	sizeof...(range_sentinel_type) > 0
-)
-struct zip_sentinel : public std::tuple<range_sentinel_type...>
-{
-	using std::tuple<range_sentinel_type...>::tuple;
-};
-
 /* Given as inputs:
  * - a selector mask
  * - a tuple of iterator types <In>
@@ -187,12 +182,12 @@ struct zip_sentinel : public std::tuple<range_sentinel_type...>
  * The resulting tuple will then collapse down, avoiding the need to save
  * non-selected types In in the end iterator.
  */
-template <zip_sequence_length_selector examine_end_range, typename... range_type, std::size_t... range_index>
+template <zip_sequence_length_selector examine_end_range, std::ranges::range... range_type, std::size_t... range_index>
 requires(examine_end_range != zip_sequence_length_selector{} && sizeof...(range_index) == sizeof...(range_type))
 auto iterator_end_type(std::tuple<range_type...>, std::index_sequence<range_index...>) -> zip_sentinel<
 	examine_end_range,
 	typename std::conditional<
-		examine_zip_element<examine_end_range, range_index>::value,
+		examine_zip_element<examine_end_range, range_index>,
 		decltype(std::ranges::end(std::declval<range_type &&>())),
 		decltype(std::ignore)
 	>::type ...
@@ -207,11 +202,10 @@ static constexpr auto capture_end_iterator(range &&r)
 		return std::ranges::end(r);
 }
 
-template <typename sentinel_type, std::size_t... N, std::ranges::input_range... rangeN>
-requires(sizeof...(N) == sizeof...(rangeN))
-static constexpr auto capture_end_iterators(std::index_sequence<N...>, rangeN &&...r)
+template <typename sentinel_type, typename... range_sentinel_types, std::ranges::input_range... rangeN>
+static constexpr auto capture_end_iterators(rangeN &&...r)
 {
-	return sentinel_type(capture_end_iterator<decltype(std::get<N>(std::declval<sentinel_type>()))>(r)...);
+	return sentinel_type(capture_end_iterator<range_sentinel_types>(r)...);
 }
 
 template <bool mask, std::size_t N, typename zip_iterator, typename zip_sentinel>
@@ -236,14 +230,15 @@ static constexpr auto compare_zip_iterator(const zip_iterator &l, const zip_sent
 	}
 }
 
-template <typename zip_iterator, zip_sequence_length_selector examine_end_range, typename... zip_sentinel_elements, std::size_t... N>
-constexpr bool compare_zip_iterators(const zip_iterator &iterator, const zip_sentinel<examine_end_range, zip_sentinel_elements...> &sentinel, std::index_sequence<N...>)
+template <std::size_t... N>
+template <typename zip_iterator, zip_sequence_length_selector examine_end_range, typename... zip_sentinel_elements>
+constexpr bool for_index_sequence<N...>::compare_zip_iterators(const zip_iterator &iterator, const zip_sentinel<examine_end_range, zip_sentinel_elements...> &sentinel)
 {
 	/* Note the use of `||`, which is atypical for an equality comparison.  By
 	 * design, a zip iterator should terminate when any of the component
 	 * sequences reaches its end, so use of `||` is correct for that purpose.
 	 */
-	return (compare_zip_iterator<examine_zip_element<examine_end_range, N>::value, N>(iterator, sentinel) || ... || false);
+	return (compare_zip_iterator<examine_zip_element<examine_end_range, N>, N>(iterator, sentinel) || ... || false);
 }
 
 }
@@ -275,30 +270,36 @@ constexpr bool compare_zip_iterators(const zip_iterator &iterator, const zip_sen
 	}
 
  */
-template <typename range_iterator_type, typename range_sentinel_type>
-class zip_iterator : range_iterator_type
+template <typename range_iterator_tuple, typename range_sentinel_type>
+class zip_iterator;
+
+template <std::input_or_output_iterator... range_iterator_types, typename range_sentinel_type>
+class zip_iterator<std::tuple<range_iterator_types...>, range_sentinel_type> : std::tuple<range_iterator_types...>
 {
+	using range_iterator_tuple = std::tuple<range_iterator_types...>;
 protected:
-	using index_sequence_type = std::make_index_sequence<std::tuple_size<range_iterator_type>::value>;
+	using for_index_sequence = decltype(d_zip::detail::for_index_sequence(std::make_index_sequence<sizeof...(range_iterator_types)>()));
 public:
-	using range_iterator_type::range_iterator_type;
+	using range_iterator_tuple::range_iterator_tuple;
 	using difference_type = typename std::incrementable_traits<
-		typename std::remove_reference<
-			decltype(
-				std::get<0>(std::declval<const range_iterator_type &>())
-			)>::type
-		>::difference_type;
-	using value_type = decltype(d_zip::detail::dereference_iterator(std::declval<range_iterator_type>(), index_sequence_type()));
+		typename std::remove_reference_t<
+			std::tuple_element_t<0, range_iterator_tuple>
+		>>::difference_type;
+	using value_type = decltype(for_index_sequence::dereference_iterator(std::declval<range_iterator_tuple>()));
 	using pointer = value_type *;
 	using reference = value_type &;
-	using iterator_category = decltype(d_zip::detail::common_iterator_category(std::declval<range_iterator_type>()));
+	/*
+	 * Given a tuple of iterator types, return the most-derived iterator_category
+	 * that all the iterator types satisfy.
+	 */
+	using iterator_category = typename std::common_type<typename std::iterator_traits<range_iterator_types>::iterator_category...>::type;
 	auto operator*() const
 	{
-		return d_zip::detail::dereference_iterator(*this, index_sequence_type());
+		return for_index_sequence::dereference_iterator(static_cast<const range_iterator_tuple &>(*this));
 	}
 	zip_iterator &operator++()
 	{
-		d_zip::detail::increment_iterator(*this, index_sequence_type());
+		for_index_sequence::increment_iterator(static_cast<range_iterator_tuple &>(*this));
 		return *this;
 	}
 	/* operator++(int) is currently unused, but is required to satisfy
@@ -313,7 +314,7 @@ public:
 	zip_iterator &operator--()
 		requires(std::derived_from<std::bidirectional_iterator_tag, iterator_category>)
 	{
-		d_zip::detail::decrement_iterator(*this, index_sequence_type());
+		for_index_sequence::decrement_iterator(static_cast<range_iterator_tuple &>(*this));
 		return *this;
 	}
 	zip_iterator operator--(int)
@@ -326,12 +327,12 @@ public:
 	auto operator-(const zip_iterator &i) const
 		requires(std::derived_from<std::random_access_iterator_tag, iterator_category>)
 	{
-		return std::get<0>(static_cast<const range_iterator_type &>(*this)) - std::get<0>(static_cast<const range_iterator_type &>(i));
+		return std::get<0>(static_cast<const range_iterator_tuple &>(*this)) - std::get<0>(static_cast<const range_iterator_tuple &>(i));
 	}
 	constexpr bool operator==(const zip_iterator &) const = default;
 	constexpr bool operator==(const range_sentinel_type &i) const
 	{
-		return d_zip::detail::compare_zip_iterators<range_iterator_type>(*this, i, index_sequence_type());
+		return for_index_sequence::template compare_zip_iterators<range_iterator_tuple>(*this, i);
 	}
 };
 
@@ -373,6 +374,7 @@ template <
 	concept zip_input_constraints = (
 		sizeof...(rangeN) > 0 &&
 		(std::ranges::input_range<rangeN> && ...) &&
+		/* Require borrowed ranges, because zip will return iterators that point into the ranges. */
 		(std::ranges::borrowed_range<rangeN> && ...) &&
 		zip_static_size_bounds_check<
 			examine_end_range,
@@ -381,23 +383,25 @@ template <
 	);
 
 /* Class Template Argument Deduction cannot implicitly deduce the template type
- * arguments for `zip` because `range_sentinel_type` is not used directly as an
- * argument to any constructor, but instead is derived from the
- * `zip_sequence_length_selector`, which is not part of the type signature of
- * `zip` because the selector is not needed in `zip` after the constructor
- * completes, so putting it in the type is unnecessary.
+ * arguments for `zip` because none of the types are used directly as an
+ * argument to any constructor, but instead are derived from properties of the
+ * constructor arguments.
  *
  * Explicit deduction guides are provided below to handle constructing `zip`
  * without specifying template argument types.
  */
-template <typename range_index_type, typename range_iterator_type, typename range_sentinel_type>
-class zip : zip_iterator<range_iterator_type, range_sentinel_type>
+template <typename range_index_type, typename range_iterator_type, typename zip_sentinel_type>
+class zip;
+
+template <typename range_index_type, typename range_iterator_type, zip_sequence_length_selector examine_end_range, typename... range_sentinel_types>
+class zip<range_index_type, range_iterator_type, d_zip::detail::zip_sentinel<examine_end_range, range_sentinel_types...>> : zip_iterator<range_iterator_type, d_zip::detail::zip_sentinel<examine_end_range, range_sentinel_types...>>
 {
+	using sentinel_type = d_zip::detail::zip_sentinel<examine_end_range, range_sentinel_types...>;
 	[[no_unique_address]]
-	range_sentinel_type m_end;
+	sentinel_type m_end;
 public:
 	using index_type = range_index_type;
-	using iterator = zip_iterator<range_iterator_type, range_sentinel_type>;
+	using iterator = zip_iterator<range_iterator_type, sentinel_type>;
 	template <std::ranges::input_range... rangeN>
 		requires(
 			sizeof...(rangeN) > 0 &&
@@ -405,13 +409,13 @@ public:
 		)
 		constexpr zip(rangeN &&... rN) :
 			iterator{std::ranges::begin(rN)...},
-			m_end{d_zip::detail::capture_end_iterators<range_sentinel_type>(typename iterator::index_sequence_type(), rN...)}
+			m_end{d_zip::detail::capture_end_iterators<sentinel_type, range_sentinel_types...>(rN...)}
 	{
 	}
-	template <zip_sequence_length_selector examine_end_range, std::ranges::input_range... rangeN>
+	template <std::ranges::input_range... rangeN>
 		/* Delegate to the no-selector constructor, since the selector is not
 		 * needed by the constructor.  The selector affected the type of
-		 * `range_sentinel_type`, which in turn affects how `m_end` is
+		 * `zip_sentinel_type`, which in turn affects how `m_end` is
 		 * constructed.
 		 */
 		constexpr zip(std::integral_constant<zip_sequence_length_selector, examine_end_range>, rangeN &&... rN) :
@@ -419,9 +423,9 @@ public:
 	{
 	}
 	[[nodiscard]]
-	iterator begin() const { return *this; }
+	constexpr iterator begin() const { return *this; }
 	[[nodiscard]]
-	range_sentinel_type end() const
+	constexpr auto end() const
 	{
 		return m_end;
 	}
