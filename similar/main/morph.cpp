@@ -263,32 +263,33 @@ static void assign_min(fix &a, const fix &b)
 	a = std::min(a, b);
 }
 
-static void update_bounds(vms_vector &minv, vms_vector &maxv, const vms_vector &v, fix vms_vector::*const p)
+static void update_bounds(std::ranges::min_max_result<vms_vector> &minmaxv, const vms_vector &v, fix vms_vector::*const p)
 {
-	assign_max(maxv.*p, v.*p);
-	assign_min(minv.*p, v.*p);
+	assign_max(minmaxv.max.*p, v.*p);
+	assign_min(minmaxv.min.*p, v.*p);
 }
 
 //takes pm, fills in min & max
-static void find_min_max(const polymodel &pm, const unsigned submodel_num, vms_vector &minv, vms_vector &maxv)
+static std::ranges::min_max_result<vms_vector> find_min_max(const polymodel &pm, const unsigned submodel_num)
 {
 	const auto &&sd{parse_model_data_header(pm, submodel_num)};
 	const auto nverts{sd.nverts};
 	if (!nverts)
-	{
-		minv = maxv = {};
-		return;
-	}
+		return {};
 	const auto vp{reinterpret_cast<const vms_vector *>(sd.body)};
 
-	minv = maxv = *vp;
+	std::ranges::min_max_result<vms_vector> result{
+		.min = *vp,
+		.max = *vp
+	};
 
 	for (auto &v : std::span(vp, nverts).template subspan<1>())
 	{
-		update_bounds(minv, maxv, v, &vms_vector::x);
-		update_bounds(minv, maxv, v, &vms_vector::y);
-		update_bounds(minv, maxv, v, &vms_vector::z);
+		update_bounds(result, v, &vms_vector::x);
+		update_bounds(result, v, &vms_vector::y);
+		update_bounds(result, v, &vms_vector::z);
 	}
+	return result;
 }
 
 constexpr fix morph_rate{F1_0 * 3};
@@ -441,9 +442,6 @@ void init_morphs(d_level_unique_morph_object_state &LevelUniqueMorphObjectState)
 //make the object morph
 void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState, d_level_shared_polygon_model_state &LevelSharedPolygonModelState, object_base &obj)
 {
-	vms_vector pmmin,pmmax;
-	vms_vector box_size;
-
 	auto &morph_objects{LevelUniqueMorphObjectState.morph_objects};
 	const auto mob{morph_objects.begin()};
 	const auto moe{morph_objects.end()};
@@ -479,11 +477,13 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 
 	obj.mtype.phys_info.rotvel = morph_rotvel;
 
-	find_min_max(pm,0,pmmin,pmmax);
+	const auto &&[pmmin, pmmax] = find_min_max(pm, 0);
 
-	box_size.x = max(-pmmin.x,pmmax.x) / 2;
-	box_size.y = max(-pmmin.y,pmmax.y) / 2;
-	box_size.z = max(-pmmin.z,pmmax.z) / 2;
+	const vms_vector box_size{
+		.x = max(-pmmin.x, pmmax.x) / 2,
+		.y = max(-pmmin.y, pmmax.y) / 2,
+		.z = max(-pmmin.z, pmmax.z) / 2
+	};
 
 	//clear all points
 	const auto morph_times{md->get_morph_times()};
