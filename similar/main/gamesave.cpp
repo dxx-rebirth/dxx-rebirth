@@ -1009,9 +1009,8 @@ static int load_game_data(
 	//===================== READ WALL INFO ============================
 
 	auto &vmwallptr = Walls.vmptr;
-	range_for (const auto &&vw, vmwallptr)
+	for (auto &nw : vmwallptr)
 	{
-		auto &nw = *vw;
 		if (game_top_fileinfo_version >= 20)
 			wall_read(LoadFile, nw); // v20 walls and up.
 		else if (game_top_fileinfo_version >= 17) {
@@ -1057,9 +1056,8 @@ static int load_game_data(
 	//==================== READ TRIGGER INFO ==========================
 
 	auto &vmtrgptr = Triggers.vmptr;
-	range_for (const auto vt, vmtrgptr)
+	for (auto &i : vmtrgptr)
 	{
-		auto &i = *vt;
 #if defined(DXX_BUILD_DESCENT_I)
 		if (game_top_fileinfo_version <= 25)
 			v25_trigger_read(LoadFile, &i);
@@ -1183,9 +1181,8 @@ static int load_game_data(
 	ActiveDoors.set_count(0);
 
 	//go through all walls, killing references to invalid triggers
-	range_for (const auto &&p, vmwallptr)
+	for (auto &w : vmwallptr)
 	{
-		auto &w = *p;
 		if (underlying_value(w.trigger) >= Triggers.get_count())
 		{
 			w.trigger = trigger_none;	//kill trigger
@@ -1215,12 +1212,10 @@ static int load_game_data(
 	//	Go through all triggers, stuffing controlling_trigger field in Walls.
 	{
 #if defined(DXX_BUILD_DESCENT_II)
-		range_for (const auto &&w, vmwallptr)
-			w->controlling_trigger = trigger_none;
+		for (auto &w : vmwallptr)
+			w.controlling_trigger = trigger_none;
 #endif
-
-		auto &vctrgptridx = Triggers.vcptridx;
-		range_for (const auto &&t, vctrgptridx)
+		for (const auto &&t : Triggers.vcptridx)
 		{
 			auto &tr = *t;
 			for (unsigned l = 0; l < tr.num_links; ++l)
@@ -1641,8 +1636,8 @@ namespace {
 static unsigned compute_num_delta_light_records(fvcdlindexptr &vcdlindexptr)
 {
 	unsigned total = 0;
-	range_for (const auto &&i, vcdlindexptr)
-		total += i->count;
+	for (auto &i : vcdlindexptr)
+		total += i.count;
 	return total;
 
 }
@@ -1726,7 +1721,7 @@ static int save_game_data(
 	//==================== SAVE OBJECT INFO ===========================
 
 	object_offset = PHYSFS_tell(SaveFile);
-	range_for (const auto &&objp, vcobjptr)
+	for (auto &objp : vcobjptr)
 	{
 		write_object(objp, game_top_fileinfo_version, SaveFile);
 	}
@@ -1735,16 +1730,15 @@ static int save_game_data(
 
 	walls_offset = PHYSFS_tell(SaveFile);
 	auto &vcwallptr = Walls.vcptr;
-	range_for (const auto &&w, vcwallptr)
-		wall_write(SaveFile, *w, game_top_fileinfo_version);
+	for (auto &w : vcwallptr)
+		wall_write(SaveFile, w, game_top_fileinfo_version);
 
 	//==================== SAVE TRIGGER INFO =============================
 
 	triggers_offset = PHYSFS_tell(SaveFile);
 	auto &vctrgptr = Triggers.vcptr;
-	range_for (const auto vt, vctrgptr)
+	for (auto &t : vctrgptr)
 	{
-		auto &t = *vt;
 		if (game_top_fileinfo_version <= 29)
 			v29_trigger_write(SaveFile, t);
 		else if (game_top_fileinfo_version <= 30)
@@ -1771,8 +1765,8 @@ static int save_game_data(
 	{
 		dl_indices_offset = PHYSFS_tell(SaveFile);
 		auto &Dl_indices = LevelSharedDestructibleLightState.Dl_indices;
-		range_for (const auto &&i, Dl_indices.vcptr)
-			dl_index_write(i, SaveFile);
+		for (const auto &i : Dl_indices.vcptr)
+			dl_index_write(&i, SaveFile);
 
 		delta_light_offset = PHYSFS_tell(SaveFile);
 		auto &Delta_lights = LevelSharedDestructibleLightState.Delta_lights;

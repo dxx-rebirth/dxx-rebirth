@@ -479,40 +479,49 @@ void do_controlcen_frame(const d_robot_info_array &Robot_info, const vmobjptridx
 void init_controlcen_for_level(const d_robot_info_array &Robot_info)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
-	imobjptr_t cntrlcen_objnum = nullptr, boss_objnum = nullptr;
+	object *cntrlcen_objp{nullptr};
+	const object *boss_objp{nullptr};
 
 	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptridx = Objects.vmptridx;
-	range_for (const auto &&objp, vmobjptridx)
+	for (auto &obj : Objects.vmptr)
 	{
-		if (objp->type == OBJ_CNTRLCEN)
+		if (obj.type == OBJ_CNTRLCEN)
 		{
-			if (cntrlcen_objnum == nullptr)
-				cntrlcen_objnum = objp;
+			if (cntrlcen_objp == nullptr)
+				cntrlcen_objp = &obj;
 		}
-		else if (objp->type == OBJ_ROBOT && Robot_info[get_robot_id(objp)].boss_flag != boss_robot_id::None)
+		else if (obj.type == OBJ_ROBOT && Robot_info[get_robot_id(obj)].boss_flag != boss_robot_id::None)
 		{
-			if (boss_objnum == nullptr)
-				boss_objnum = objp;
+			if (boss_objp == nullptr)
+				boss_objp = &obj;
 		}
 	}
 
-	if (boss_objnum != nullptr && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_ROBOTS)))
+	if (boss_objp != nullptr && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_ROBOTS)))
 	{
-		if (cntrlcen_objnum != nullptr)
+		/* If boss is present ... */
+		if (cntrlcen_objp != nullptr)
 		{
-			auto &objp = *cntrlcen_objnum;
-			objp.type = OBJ_GHOST;
-			objp.control_source = object::control_type::None;
-			objp.render_type = render_type::RT_NONE;
+			/* If a control center is also present, then remove the control
+			 * center.
+			 *
+			 * Stock levels with a boss also define a control center.  In
+			 * anarchy games, the boss is removed and the control center kept,
+			 * so that players can destroy the control center to advance to the
+			 * next level.  In anarchy-with-robots games and non-anarchy games,
+			 * the boss is kept, and this block removes the control center, so
+			 * that players must destroy the boss to advance to the next level.
+			 */
+			cntrlcen_objp->type = OBJ_GHOST;
+			cntrlcen_objp->control_source = object::control_type::None;
+			cntrlcen_objp->render_type = render_type::RT_NONE;
 			LevelUniqueControlCenterState.Control_center_present = 0;
 		}
 	}
-	else if (cntrlcen_objnum != nullptr)
+	else if (cntrlcen_objp != nullptr)
 	{
 		//	Compute all gun positions.
-		object &objp = cntrlcen_objnum;
-		calc_controlcen_gun_point(objp);
+		calc_controlcen_gun_point(*cntrlcen_objp);
 		LevelUniqueControlCenterState.Control_center_present = 1;
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -521,15 +530,15 @@ void init_controlcen_for_level(const d_robot_info_array &Robot_info)
 		const unsigned secret_level_shield_multiplier = 150;
 		const auto Reactor_strength = LevelSharedControlCenterState.Reactor_strength;
 		if (Reactor_strength != -1)
-			objp.shields = i2f(Reactor_strength);
+			cntrlcen_objp->shields = i2f(Reactor_strength);
 		else
 #endif
 		{		//use old defaults
 			//	Boost control center strength at higher levels.
 			if (Current_level_num >= 0)
-				objp.shields = F1_0*200 + (F1_0*200/4) * Current_level_num;
+				cntrlcen_objp->shields = F1_0*200 + (F1_0*200/4) * Current_level_num;
 			else
-				objp.shields = F1_0*200 - Current_level_num*F1_0*secret_level_shield_multiplier;
+				cntrlcen_objp->shields = F1_0*200 - Current_level_num*F1_0*secret_level_shield_multiplier;
 		}
 	}
 

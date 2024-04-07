@@ -617,9 +617,8 @@ void validate_all_paths(void)
 #if PATH_VALIDATION
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	range_for (const auto &&objp, vmobjptr)
+	for (auto &obj : vmobjptr)
 	{
-		auto &obj = *objp;
 		if (obj.type == OBJ_ROBOT) {
 			auto &aip = obj.ctype.ai_info;
 			if (obj.control_source == object::control_type::ai)
@@ -1403,9 +1402,8 @@ void ai_path_garbage_collect()
 #ifndef NDEBUG
 	{
 	auto &vcobjptr = Objects.vcptr;
-	range_for (const auto &&objp, vcobjptr)
+	for (auto &obj : vcobjptr)
 	{
-		auto &obj = *objp;
 		const auto &aip = obj.ctype.ai_info;
 
 		if (obj.type == OBJ_ROBOT && obj.control_source == object::control_type::ai)
@@ -1450,9 +1448,8 @@ void ai_reset_all_paths(void)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	range_for (const auto &&objp, vmobjptr)
+	for (auto &obj : vmobjptr)
 	{
-		auto &obj = *objp;
 		if (obj.type == OBJ_ROBOT && obj.control_source == object::control_type::ai)
 		{
 			obj.ctype.ai_info.hide_index = -1;

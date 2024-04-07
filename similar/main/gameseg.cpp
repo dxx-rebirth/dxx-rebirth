@@ -692,7 +692,7 @@ icsegptridx_t find_point_seg(const d_level_shared_segment_state &LevelSharedSegm
 		auto &Segments = LevelSharedSegmentState.get_segments();
 		auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 		auto &Vertices = LevelSharedVertexState.get_vertices();
-		range_for (const auto &&segp, Segments.vmptridx)
+		for (const auto &&segp : Segments.vmptridx)
 		{
 			if (get_seg_masks(Vertices.vcptr, p, segp, 0).centermask == sidemask_t{})
 				return segp;
@@ -1566,7 +1566,7 @@ void validate_segment_all(d_level_shared_segment_state &LevelSharedSegmentState)
 	auto &Segments = LevelSharedSegmentState.get_segments();
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	range_for (const auto &&segp, Segments.vmptridx)
+	for (const auto &&segp : Segments.vmptridx)
 	{
 #if DXX_USE_EDITOR
 		if (segp->shared_segment::segnum != segment_none)
@@ -1733,16 +1733,8 @@ static void change_light(const d_level_shared_destructible_light_state &LevelSha
 {
 	const fix ds = dir * DL_SCALE;
 	auto &Dl_indices = LevelSharedDestructibleLightState.Dl_indices;
-	struct projector
-	{
-		const dl_index &operator()(const valptridx<dl_index>::vcptr v) const
-		{
-			return v;
-		}
-	};
-	const auto &&er = std::ranges::equal_range(Dl_indices.vcptr, dl_index{segnum.get_unchecked_index(), sidenum, {}, {}}, {}, projector{});
 	auto &Delta_lights = LevelSharedDestructibleLightState.Delta_lights;
-	for (const dl_index &i : er)
+	for (const dl_index &i : std::ranges::equal_range(Dl_indices.vcptr, dl_index{segnum.get_unchecked_index(), sidenum, {}, {}}))
 	{
 		const std::size_t idx = underlying_value(i.index);
 		for (auto &j : partial_const_range(Delta_lights, idx, idx + i.count))
@@ -1896,8 +1888,8 @@ static void ambient_mark_bfs(const vmsegptridx_t segp, segment_lava_depth_array 
 void set_ambient_sound_flags()
 {
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
-	range_for (const auto &&segp, vmsegptr)
-		segp->s2_flags = {};
+	for (auto &seg : vmsegptr)
+		seg.s2_flags = {};
 	//	Now, all segments containing ambient lava or water sound makers are flagged.
 	//	Additionally flag all segments which are within range of them.
 	//	Mark all segments which are sources of the sound.

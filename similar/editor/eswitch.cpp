@@ -257,10 +257,9 @@ int remove_trigger_num(trigger_array &Triggers, fvmwallptr &vmwallptr, const trg
 		auto r = partial_range(Triggers, static_cast<unsigned>(trigger_num), Triggers.get_count());
 		Triggers.set_count(Triggers.get_count() - 1);
 		std::move(std::next(r.begin()), r.end(), r.begin());
-	
-		range_for (const auto &&w, vmwallptr)
+		for (auto &w : vmwallptr)
 		{
-			auto &trigger = w->trigger;
+			auto &trigger{w.trigger};
 			if (trigger == trigger_num)
 				trigger = trigger_none;	// a trigger can be shared by multiple walls
 			else if (trigger > trigger_num && trigger != trigger_none)
@@ -301,8 +300,8 @@ static int trigger_turn_all_ON()
 {
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &vmtrgptr = Triggers.vmptr;
-	range_for (const auto t, vmtrgptr)
-		t->flags &= ~trigger_behavior_flags::disabled;
+	for (auto &t : vmtrgptr)
+		t.flags &= ~trigger_behavior_flags::disabled;
 	return 1;
 }
 #endif

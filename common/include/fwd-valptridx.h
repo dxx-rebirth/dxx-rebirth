@@ -106,6 +106,8 @@ protected:
 		class basic_ival_member_factory;
 	template <typename Pc, typename Pm>
 		class basic_vval_member_factory;
+	template <typename T>
+		class factory_range_iterator;
 	using typename specialized_types::allow_end_construction;
 	using typename specialized_types::assume_nothrow_index;
 

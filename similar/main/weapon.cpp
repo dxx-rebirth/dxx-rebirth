@@ -1249,10 +1249,10 @@ void weapons_homing_all()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	range_for(auto &&objp, vmobjptr)
-		if (objp->type == OBJ_WEAPON)
-			objp->ctype.laser_info.track_goal = object_none;
-	range_for (auto &w, Weapon_info)
+	for(auto &obj : vmobjptr)
+		if (obj.type == OBJ_WEAPON)
+			obj.ctype.laser_info.track_goal = object_none;
+	for (auto &w : Weapon_info)
 		w.homing_flag |= 2;
 }
 

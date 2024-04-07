@@ -614,12 +614,12 @@ static void draw_group_segments(void)
 static void draw_special_segments(void)
 {
 	// Highlight matcens, fuelcens, etc.
-	range_for (const auto &&segp, vcsegptr)
+	for (auto &seg : vcsegptr)
 	{
-		if (segp->segnum != segment_none)
+		if (seg.segnum != segment_none)
 		{
 			unsigned r, g, b;
-			switch(segp->special)
+			switch (seg.special)
 			{
 				case segment_special::fuelcen:
 					r = 29 * 2, g = 27 * 2, b = 13 * 2;
@@ -633,9 +633,7 @@ static void draw_special_segments(void)
 				default:
 					continue;
 			}
-			const auto color = gr_find_closest_color(r, g, b);
-			g3_draw_line_context context{*grd_curcanv, color};
-			draw_segment(context, segp);
+			draw_segment(g3_draw_line_context{*grd_curcanv, /* color = */ gr_find_closest_color(r, g, b)}, seg);
 		}
 	}
 }

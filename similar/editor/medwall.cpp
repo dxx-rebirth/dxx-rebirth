@@ -700,9 +700,8 @@ int wall_restore_all()
 	auto &WallAnims = GameSharedState.WallAnims;
 	auto &vcwallptr = Walls.vcptr;
 	auto &vmwallptr = Walls.vmptr;
-	range_for (const auto &&wp, vmwallptr)
+	for (auto &w : vmwallptr)
 	{
-		auto &w = *wp;
 		if (w.flags & wall_flag::blasted)
 		{
 			w.hps = WALL_HPS;
@@ -711,10 +710,10 @@ int wall_restore_all()
 	}
 
 	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
-	range_for (auto &&i, ActiveDoors.vmptr)
+	for (auto &i : ActiveDoors.vmptr)
 		wall_close_door_ref(Segments.vmptridx, Walls, WallAnims, i);
 
-	for (csmusegment &&i : vmsegptr)
+	for (csmusegment i : vmsegptr)
 		for (auto &&[ss, us] : zip(i.s.sides, i.u.sides))
 		{
 			const auto wall_num = ss.wall_num;
@@ -729,8 +728,8 @@ int wall_restore_all()
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &vmtrgptr = Triggers.vmptr;
-	range_for (const auto i, vmtrgptr)
-		i->flags &= ~trigger_behavior_flags::disabled;
+	for (auto &i : vmtrgptr)
+		i.flags &= ~trigger_behavior_flags::disabled;
 #endif
 	Update_flags |= UF_GAME_VIEW_CHANGED;
 
@@ -779,10 +778,10 @@ int wall_remove_side(const vmsegptridx_t seg, const sidenum_t side)
 			Walls.set_count(num_walls - 2);
 		}
 
-		range_for (const auto &&segp, vmsegptr)
+		for (auto &seg : vmsegptr)
 		{
-			if (segp->segnum != segment_none)
-				range_for (auto &w, segp->shared_segment::sides)
+			if (seg.segnum != segment_none)
+				for (auto &w : seg.shared_segment::sides)
 					if (w.wall_num != wall_none && w.wall_num > upper_wallnum)
 						w.wall_num = static_cast<wallnum_t>(static_cast<unsigned>(w.wall_num) - 2u);
 		}
@@ -790,9 +789,8 @@ int wall_remove_side(const vmsegptridx_t seg, const sidenum_t side)
 		// Destroy any links to the deleted wall.
 		auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 		auto &vmtrgptr = Triggers.vmptr;
-		range_for (const auto vt, vmtrgptr)
+		for (auto &t : vmtrgptr)
 		{
-			auto &t = *vt;
 			for (int l=0;l < t.num_links;l++)
 				if (t.seg[l] == seg && t.side[l] == side) {
 					for (int t1=0;t1 < t.num_links-1;t1++) {
@@ -1203,13 +1201,14 @@ void check_wall_validity(void)
 
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
-	range_for (const auto &&w, vcwallptr)
+	for (auto &&wi : Walls.vcptridx)
 	{
-		segnum_t	segnum;
-		segnum = w->segnum;
-		const auto sidenum = w->sidenum;
+		auto &w{*wi};
+		const segnum_t segnum{w.segnum};
+		const auto sidenum{w.sidenum};
 
-		if (vcwallptr(vcsegptr(segnum)->shared_segment::sides[sidenum].wall_num) != w) {
+		if (vcsegptr(segnum)->shared_segment::sides[sidenum].wall_num != wi)
+		{
 			if (!Validate_walls)
 				return;
 			Int3();		//	Error! Your mine has been invalidated!

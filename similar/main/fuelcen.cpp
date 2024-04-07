@@ -436,9 +436,8 @@ static void robotmaker_proc(const d_robot_info_array &Robot_info, const d_vclip_
 			const auto biased_matcen_creator = underlying_value(numrobotcen) ^ 0x80;
 
 			//	Make sure this robotmaker hasn't put out its max without having any of them killed.
-			range_for (const auto &&objp, vcobjptr)
+			for (auto &obj : vcobjptr)
 			{
-				auto &obj = *objp;
 				if (obj.type == OBJ_ROBOT)
 					if (obj.matcen_creator == biased_matcen_creator)
 						count++;

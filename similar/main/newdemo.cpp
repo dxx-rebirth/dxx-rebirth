@@ -1657,9 +1657,8 @@ void newdemo_set_new_level(int level_num)
 		auto &Walls = LevelUniqueWallSubsystemState.Walls;
 		auto &vcwallptr = Walls.vcptr;
 		nd_write_int(Walls.get_count());
-		range_for (const auto &&wp, vcwallptr)
+		for (auto &w : vcwallptr)
 		{
-			auto &w = *wp;
 			nd_write_byte (w.type);
 			nd_write_byte (underlying_value(w.flags));
 			nd_write_byte (underlying_value(w.state));
@@ -1699,9 +1698,8 @@ static void newdemo_record_oneframeevent_update(int wallupdate)
 	{
 		auto &Walls = LevelUniqueWallSubsystemState.Walls;
 		auto &vcwallptr = Walls.vcptr;
-		range_for (const auto &&wp, vcwallptr)
+		for (auto &w : vcwallptr)
 		{
-			auto &w = *wp;
 			auto seg = &Segments[w.segnum];
 			const auto side = w.sidenum;
 			// actually this is kinda stupid: when playing ther same tmap will be put on front and back side of the wall ... for doors this is stupid so just record the front side which will do for doors just fine ...
@@ -3325,10 +3323,9 @@ static int newdemo_read_frame_information(int rewrite)
 				Walls.set_count(num_walls);
 				if (rewrite)
 					nd_write_int (Walls.get_count());
-				range_for (const auto &&wp, vmwallptr)
+				for (auto &w : vmwallptr)
 				// restore the walls
 				{
-					auto &w = *wp;
 					nd_read_byte(&w.type);
 					uint8_t wf;
 					nd_read_byte(&wf);
@@ -3682,9 +3679,10 @@ static window_event_result interpolate_frame(fix d_play, fix d_recorded)
 	if (InterpolStep <= 0)
 	{
 		range_for (auto &i, partial_range(cur_objs, num_cur_objs)) {
-			range_for (const auto &&objp, vmobjptr)
+			for (auto &obj : vmobjptr)
 			{
-				if (i.signature == objp->signature) {
+				if (i.signature == obj.signature)
+				{
 					const auto rtype = i.render_type;
 					fix delta_x, delta_y, delta_z;
 
@@ -3698,14 +3696,14 @@ static window_event_result interpolate_frame(fix d_play, fix d_recorded)
 
 						fvec1 = i.orient.fvec;
 						vm_vec_scale(fvec1, F1_0-factor);
-						fvec2 = objp->orient.fvec;
+						fvec2 = obj.orient.fvec;
 						vm_vec_scale(fvec2, factor);
 						vm_vec_add2(fvec1, fvec2);
 						const auto mag1 = vm_vec_normalize_quick(fvec1);
 						if (mag1 > F1_0/256) {
 							rvec1 = i.orient.rvec;
 							vm_vec_scale(rvec1, F1_0-factor);
-							rvec2 = objp->orient.rvec;
+							rvec2 = obj.orient.rvec;
 							vm_vec_scale(rvec2, factor);
 							vm_vec_add2(rvec1, rvec2);
 							vm_vec_normalize_quick(rvec1); // Note: Doesn't matter if this is null, if null, vm_vector_to_matrix will just use fvec1
@@ -3716,9 +3714,9 @@ static window_event_result interpolate_frame(fix d_play, fix d_recorded)
 					// Interpolate the object position.  This is just straight linear
 					// interpolation.
 
-					delta_x = objp->pos.x - i.pos.x;
-					delta_y = objp->pos.y - i.pos.y;
-					delta_z = objp->pos.z - i.pos.z;
+					delta_x = obj.pos.x - i.pos.x;
+					delta_y = obj.pos.y - i.pos.y;
+					delta_z = obj.pos.z - i.pos.z;
 
 					delta_x = fixmul(delta_x, factor);
 					delta_y = fixmul(delta_y, factor);
@@ -3910,11 +3908,12 @@ window_event_result newdemo_playback_one_frame()
 					//  interpolated position and orientation can be preserved.
 
 					range_for (auto &i, partial_const_range(cur_objs, 1 + num_objs)) {
-						range_for (const auto &&objp, vmobjptr)
+						for (auto &obj : vmobjptr)
 						{
-							if (i.signature == objp->signature) {
-								objp->orient = i.orient;
-								objp->pos = i.pos;
+							if (i.signature == obj.signature)
+							{
+								obj.orient = i.orient;
+								obj.pos = i.pos;
 								break;
 							}
 						}

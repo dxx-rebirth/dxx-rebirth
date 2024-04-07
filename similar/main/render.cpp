@@ -1149,7 +1149,7 @@ static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const
 	{
 		const auto segnum = rstate.Render_list[nn];
 		if (segnum != segment_none) {
-			range_for (const auto obj, objects_in(vcsegptr(segnum), Objects.vcptridx, vcsegptr))
+			for (const auto obj : objects_in(vcsegptr(segnum), Objects.vcptridx, vcsegptr))
 			{
 				int list_pos;
 				if (obj->type == OBJ_NONE)

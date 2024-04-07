@@ -158,10 +158,10 @@ static void propagate_light_intensity(const csmusegment segp, const sidenum_t si
 //	on user-defined light sources.
 int LightAmbientLighting()
 {
-	range_for (const auto &&segp, vmsegptr)
+	for (auto &seg : vmsegptr)
 	{
 		for (const auto side : MAX_SIDES_PER_SEGMENT)
-			propagate_light_intensity(segp, side);
+			propagate_light_intensity(seg, side);
 	}
 	return 0;
 }

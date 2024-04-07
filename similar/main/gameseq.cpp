@@ -942,9 +942,8 @@ static ushort netmisc_calc_checksum()
 	int t;
 
 	sum1 = sum2 = 0;
-	range_for (auto &&segp, vcsegptr)
+	for (const cscusegment i : vcsegptr)
 	{
-		const cscusegment i = *segp;
 		for (auto &&[sside, uside] : zip(i.s.sides, i.u.sides))
 		{
 			do_checksum_calc(reinterpret_cast<const uint8_t *>(&(sside.get_type())), 1, &sum1, &sum2);
@@ -1516,9 +1515,8 @@ static int Entered_from_level;
 
 static void filter_objects_from_level(const d_powerup_info_array &Powerup_info, const d_vclip_array &Vclip, fvmobjptr &vmobjptr)
 {
-	for (const auto &&objp : vmobjptr)
+	for (auto &obj : vmobjptr)
 	{
-		object_base &obj = *objp;
 		if (obj.type == OBJ_POWERUP)
 		{
 			const auto powerup_id = get_powerup_id(obj);

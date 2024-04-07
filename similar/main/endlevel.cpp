@@ -681,12 +681,12 @@ window_event_result start_endlevel_sequence()
 #if defined(DXX_BUILD_DESCENT_II)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	//	Dematerialize Buddy!
-	range_for (const auto &&objp, vmobjptr)
+	for (auto &obj : vmobjptr)
 	{
-		if (objp->type == OBJ_ROBOT)
-			if (Robot_info[get_robot_id(objp)].companion) {
-				object_create_explosion_without_damage(Vclip, vmsegptridx(objp->segnum), objp->pos, F1_0 * 7 / 2, vclip_index::powerup_disappearance);
-				objp->flags |= OF_SHOULD_BE_DEAD;
+		if (obj.type == OBJ_ROBOT)
+			if (Robot_info[get_robot_id(obj)].companion) {
+				object_create_explosion_without_damage(Vclip, vmsegptridx(obj.segnum), obj.pos, F1_0 * 7 / 2, vclip_index::powerup_disappearance);
+				obj.flags |= OF_SHOULD_BE_DEAD;
 			}
 	}
 #endif

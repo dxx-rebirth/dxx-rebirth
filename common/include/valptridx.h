@@ -6,15 +6,16 @@
  */
 #pragma once
 
+#include <iterator>
 #include <limits>
 #include <optional>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
+#include <utility>
 #include "fwd-valptridx.h"
 #include "pack.h"
 #include "compiler-poison.h"
-#include "selfiter.h"
 
 #ifdef DXX_CONSTANT_TRUE
 #ifdef DXX_HAVE_ATTRIBUTE_WARNING
@@ -1171,6 +1172,111 @@ public:
 };
 
 template <typename managed_type>
+template <typename T>
+class valptridx<managed_type>::factory_range_iterator :
+	T
+{
+public:
+	/* This static_assert is eager: it will reject a type T that
+	 * would be dangerous if used in the affected algorithms,
+	 * regardless of whether the program attempts such a use.  This
+	 * is acceptable since the modification to fix this assertion
+	 * should not break any intended uses of the type.  To pass the
+	 * assertion, the type T must define:
+
+	T &operator=(T &&) && = delete;
+
+	 * If normal move assignment is desired, also define:
+
+	T &operator=(T &&) & = default;
+
+	 */
+	static_assert(!std::is_assignable<T &&, T &&>::value, "Accessibility of `T::operator=(T &&) &&` permits generation of incorrect code when passing factory_range_iterator<T> to some algorithms.  Explicitly delete `T::operator=(T &&) &&` to inhibit this assertion.");
+	using iterator_category = std::bidirectional_iterator_tag;
+	/* If `T::vidx_type` is a type, then `value_type` is `T`.  Otherwise,
+	 * `value_type` is `managed_type`.  This allows `value_type` to be the
+	 * underlying type when `T == ptr`, which produces a flatter type
+	 * hierarchy.
+	 */
+	using value_type = std::conditional_t<(requires { typename T::vidx_type; }), T, managed_type>;
+	using difference_type = std::ptrdiff_t;
+	using typename T::pointer;
+	using typename T::reference;
+	/* A default constructor must be declared to satisfy constraints from
+	 * std::ranges algorithms.  The declaration must be visible in an unrelated
+	 * context, so it is public here.  However, it must not be used in normal
+	 * operation.  Therefore, the default constructor is declared in order to
+	 * satisfy the library's concept check, but never implemented, since even
+	 * the library's algorithms never default construct an instance of this.
+	 *
+	 * std::sentinel_for ->
+	 * std::semiregular ->
+	 * std::default_initializable ->
+	 * requires { T{}; }
+	 */
+	factory_range_iterator();
+	factory_range_iterator(T i) :
+		T{std::move(i)}
+	{
+	}
+	T base() const
+	{
+		return *this;
+	}
+	/* Inherit the base type `operator*`.  If the base type is a `ptridx`, then
+	 * define `operator*` to return a copy of the underlying `ptridx`, so that
+	 * the caller can capture both the pointer and the index.  If the base type
+	 * is not a `ptridx`, rely on the inherited `operator*` and do not define
+	 * one here.  The inherited version will return a reference to the
+	 * underlying `managed_type`, avoiding the use of a temporary.
+	 */
+	using T::operator*;
+	value_type operator*() const &
+		requires(!std::is_same_v<value_type, managed_type>)
+	{
+		return *this;
+	}
+	/* Some STL algorithms require:
+	 *
+	 *	!!std::is_same<decltype(iter), decltype(++iter)>::value
+	 *
+	 * If this requirement is not met, template argument deduction
+	 * fails when the algorithm calls a helper function.
+	 *
+	 * If not for this requirement, `using T::operator++` would have
+	 * been sufficient here.
+	 */
+	factory_range_iterator &operator++()
+	{
+		/* Use a static_cast instead of ignoring the return value and
+		 * returning `*this`, to encourage the compiler to implement
+		 * this as a tail-call since
+		 *
+		 *	`offsetof(factory_range_iterator, T) == 0`
+		 */
+		return static_cast<factory_range_iterator &>(this->T::operator++());
+	}
+	/* operator++(int) is currently unused, but is required to satisfy
+	 * the concept check on forward iterator.
+	 */
+	factory_range_iterator operator++(int)
+	{
+		auto result{*this};
+		this->T::operator++();
+		return result;
+	}
+	factory_range_iterator &operator--()
+	{
+		return static_cast<factory_range_iterator &>(this->T::operator--());
+	}
+	constexpr bool operator==(const factory_range_iterator &rhs) const = default;
+	constexpr bool operator==(const pointer rhs) const
+	{
+		return static_cast<const T &>(*this) == rhs;
+	}
+};
+
+template <typename managed_type>
 template <typename Pc, typename Pm>
 class valptridx<managed_type>::basic_vval_member_factory :
 	public basic_ival_member_factory<Pc, Pm>
@@ -1179,7 +1285,7 @@ protected:
 	using basic_ival_member_factory<Pc, Pm>::get_array;
 	using basic_ival_member_factory<Pc, Pm>::call_operator;
 	template <typename P>
-		using iterator = self_return_iterator<P>;
+		using iterator = factory_range_iterator<P>;
 	template <typename P, typename policy, typename A>
 		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const typename valptridx<managed_type>::template wrapper<valptridx<managed_type>::idx<policy>> i, A &a)
 		{

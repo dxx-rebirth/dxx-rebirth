@@ -1746,9 +1746,8 @@ void expl_wall_read_n_swap(fvmwallptr &vmwallptr, PHYSFS_File *const fp, const p
 			d.time = SWAPINT(d.time);
 		}
 		if (const auto s{vcsegidx_t::check_nothrow_index(d.segnum)})
-			for (const vcsegidx_t dseg{*s}; auto &&wp : vmwallptr)
+			for (const vcsegidx_t dseg{*s}; auto &w : vmwallptr)
 		{
-			auto &w = *wp;
 			if (w.segnum != dseg)
 				continue;
 			if (underlying_value(w.sidenum) != d.sidenum)
@@ -1766,9 +1765,8 @@ void expl_wall_write(fvcwallptr &vcwallptr, PHYSFS_File *const fp)
 {
 	const unsigned num_exploding_walls = Num_exploding_walls;
 	PHYSFS_write(fp, &num_exploding_walls, sizeof(unsigned), 1);
-	range_for (auto &&wp, vcwallptr)
+	for (auto &e : vcwallptr)
 	{
-		auto &e = *wp;
 		if (!(e.flags & wall_flag::exploding))
 			continue;
 		disk_expl_wall d;

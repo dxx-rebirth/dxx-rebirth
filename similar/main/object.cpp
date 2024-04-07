@@ -118,7 +118,7 @@ object *ConsoleObject;					//the object that is the player
 void object_goto_next_viewer(const object_array &Objects, const object *&viewer)
 {
 	const auto initial_viewer = viewer;
-	const object *const oe = *Objects.vcptr.end();
+	const auto oe{Objects.vcptr.end()};
 	/* Preconditions:
 	 * - There exists an integer `i` such that `i < MAX_OBJECTS` and
 	 *   `&Objects[i] == initial_viewer`.
@@ -138,7 +138,7 @@ void object_goto_next_viewer(const object_array &Objects, const object *&viewer)
 			 * necessary, so if an object can be found without wrapping, then
 			 * `begin()` never needs to be called.
 			 */
-			candidate_object = *Objects.vcptr.begin();
+			candidate_object = &*Objects.vcptr.begin();
 		auto &objp = *candidate_object;
 		if (objp.type != OBJ_NONE)
 		{
@@ -1109,15 +1109,15 @@ static void free_object_slots(uint_fast32_t num_used)
 	if (MAX_OBJECTS - num_already_free < num_used)
 		return;
 
-	range_for (const auto &&objp, vmobjptr)
+	for (auto &obj : vmobjptr)
 	{
-		if (objp->flags & OF_SHOULD_BE_DEAD)
+		if (obj.flags & OF_SHOULD_BE_DEAD)
 		{
 			num_already_free++;
 			if (MAX_OBJECTS - num_already_free < num_used)
 				return;
 		} else
-			switch (objp->type)
+			switch (obj.type)
 			{
 				case OBJ_NONE:
 					num_already_free++;
@@ -1130,7 +1130,7 @@ static void free_object_slots(uint_fast32_t num_used)
 				case OBJ_FIREBALL:
 				case OBJ_WEAPON:
 				case OBJ_DEBRIS:
-					obj_list[olind++] = objp;
+					obj_list[olind++] = &obj;
 					break;
 				case OBJ_ROBOT:
 				case OBJ_HOSTAGE:
@@ -1746,7 +1746,7 @@ void obj_relink_all(void)
 		useg.objects = object_none;
 	}
 
-	range_for (const auto &&obj, Objects.vmptridx)
+	for (const auto &&obj : Objects.vmptridx)
 	{
 		if (obj->type != OBJ_NONE)
 		{

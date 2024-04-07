@@ -227,10 +227,9 @@ void multi_strip_robots(const int playernum)
 #else
 #define DXX_partial_range_vobjptr_skip_distance
 #endif
-		range_for (const auto &&objp, partial_range(vmobjptr, DXX_partial_range_vobjptr_skip_distance(1u), vmobjptr.count()))
+		for (auto &obj : partial_range(vmobjptr, DXX_partial_range_vobjptr_skip_distance(1u), vmobjptr.count()))
 #undef DXX_partial_range_vobjptr_skip_distance
 		{
-			auto &obj = *objp;
 			if (obj.type == OBJ_ROBOT && obj.ctype.ai_info.REMOTE_OWNER == playernum)
 			{
 				assert(obj.control_source == object::control_type::ai || obj.control_source == object::control_type::None || obj.control_source == object::control_type::morph);

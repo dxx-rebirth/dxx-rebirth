@@ -833,10 +833,10 @@ void set_vertex_counts(void)
 	Vertex_active = {};
 
 	// Count number of occurrences of each vertex.
-	range_for (const auto &&segp, vmsegptr)
+	for (auto &seg : vmsegptr)
 	{
-		if (segp->segnum != segment_none)
-			range_for (auto &v, segp->verts)
+		if (seg.segnum != segment_none)
+			for (auto &v : seg.verts)
 			{
 				if (!Vertex_active[v])
 					Num_vertices++;

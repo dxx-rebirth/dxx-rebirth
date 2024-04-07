@@ -904,25 +904,22 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 		}
 	}
 
-	range_for (const auto &&objp, vcobjptr)
+	for (auto &obj : vcobjptr)
 	{
-		switch( objp->type )	{
+		switch(obj.type)
+		{
 		case OBJ_HOSTAGE:
-			{
-			auto sphere_point = g3_rotate_point(objp->pos);
-			g3_draw_sphere(canvas, sphere_point, objp->size, am.hostage_color);
-			}
+			g3_draw_sphere(canvas, /* sphere_point = */ g3_rotate_point(obj.pos), obj.size, am.hostage_color);
 			break;
 		case OBJ_POWERUP:
-			if (LevelUniqueAutomapState.Automap_visited[objp->segnum]
+			if (LevelUniqueAutomapState.Automap_visited[obj.segnum]
 #ifndef NDEBUG
 				|| Automap_debug_show_all_segments
 #endif
 				)
 			{
-				const auto id = get_powerup_id(objp);
 				unsigned r, g, b;
-				if (id == powerup_type_t::POW_KEY_RED)
+				if (const auto id{get_powerup_id(obj)}; id == powerup_type_t::POW_KEY_RED)
 					r = 63 * 2, g = 5 * 2, b = 5 * 2;
 				else if (id == powerup_type_t::POW_KEY_BLUE)
 					r = 5 * 2, g = 5 * 2, b = 63 * 2;
@@ -930,11 +927,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 					r = 63 * 2, g = 63 * 2, b = 10 * 2;
 				else
 					break;
-				{
-					const auto color = gr_find_closest_color(r, g, b);
-				auto sphere_point = g3_rotate_point(objp->pos);
-				g3_draw_sphere(canvas, sphere_point, objp->size * 4, color);
-				}
+				g3_draw_sphere(canvas, /* sphere_point = */ g3_rotate_point(obj.pos), obj.size * 4, /* color = */ gr_find_closest_color(r, g, b));
 			}
 			break;
 			default:

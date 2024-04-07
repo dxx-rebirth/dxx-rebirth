@@ -2118,9 +2118,8 @@ static imobjptridx_t create_gated_robot(const d_robot_info_array &Robot_info, co
 #endif
 
 	unsigned count = 0;
-	range_for (const auto &&objp, vcobjptr)
+	for (auto &obj : vcobjptr)
 	{
-		auto &obj = *objp;
 		if (obj.type == OBJ_ROBOT)
 			if (obj.matcen_creator == BOSS_GATE_MATCEN_NUM)
 				count++;
@@ -3346,18 +3345,18 @@ void do_ai_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoStat
 			compute_vis_and_vec(Robot_info, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 			if (player_is_visible(player_visibility.visibility))
 			{
-				icobjptr_t min_obj = nullptr;
+				const object *min_obj{nullptr};
 				fix min_dist = F1_0*200, cur_dist;
 
-				range_for (const auto &&objp, vcobjptr)
+				for (auto &obj_search : vcobjptr)
 				{
-					if (objp->type == OBJ_ROBOT && objp != obj)
+					if (&obj_search != obj && obj_search.type == OBJ_ROBOT)
 					{
-						cur_dist = vm_vec_dist_quick(obj->pos, objp->pos);
+						cur_dist = vm_vec_dist_quick(obj->pos, obj_search.pos);
 						if (cur_dist < F1_0*100)
-							if (object_to_object_visibility(obj, objp, FQ_TRANSWALL))
+							if (object_to_object_visibility(obj, obj_search, FQ_TRANSWALL))
 								if (cur_dist < min_dist) {
-									min_obj = objp;
+									min_obj = &obj_search;
 									min_dist = cur_dist;
 								}
 					}
@@ -4567,9 +4566,8 @@ static void set_player_awareness_all(fvmobjptr &vmobjptr, fvcsegptridx &vcsegptr
 	if (!process_awareness_events(vcsegptridx, LevelUniqueRobotAwarenessState, New_awareness))
 		return;
 
-	range_for (const auto &&objp, vmobjptr)
+	for (auto &obj : vmobjptr)
 	{
-		object &obj = objp;
 		if (obj.type == OBJ_ROBOT && obj.control_source == object::control_type::ai)
 		{
 			auto &ailp = obj.ctype.ai_info.ail;
@@ -4609,10 +4607,10 @@ void do_ai_frame_all(const d_robot_info_array &Robot_info)
 		// Clear if supposed misisle camera is not a weapon, or just every so often, just in case.
 		if (((d_tick_count & 0x0f) == 0) || (Ai_last_missile_camera->type != OBJ_WEAPON)) {
 			Ai_last_missile_camera = nullptr;
-			range_for (const auto &&objp, vmobjptr)
+			for (auto &obj : vmobjptr)
 			{
-				if (objp->type == OBJ_ROBOT)
-					objp->ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
+				if (obj.type == OBJ_ROBOT)
+					obj.ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
 			}
 		}
 	}

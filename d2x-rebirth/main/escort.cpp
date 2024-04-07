@@ -526,10 +526,10 @@ static int marker_exists_in_mine(const game_marker_index id)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
-	range_for (const auto &&objp, vcobjptr)
+	for (auto &obj : vcobjptr)
 	{
-		if (objp->type == OBJ_MARKER)
-			if (get_marker_id(objp) == id)
+		if (obj.type == OBJ_MARKER)
+			if (get_marker_id(obj) == id)
 				return 1;
 	}
 	return 0;
@@ -621,11 +621,11 @@ static robot_id get_boss_id(void)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	range_for (const auto &&objp, vcobjptr)
+	for (auto &obj : vcobjptr)
 	{
-		if (objp->type == OBJ_ROBOT)
+		if (obj.type == OBJ_ROBOT)
 		{
-			const auto objp_id = get_robot_id(objp);
+			const auto objp_id{get_robot_id(obj)};
 			if (Robot_info[objp_id].boss_flag != boss_robot_id::None)
 				return objp_id;
 		}
@@ -730,9 +730,9 @@ static std::pair<icobjidx_t, d_unique_buddy_state::Escort_goal_reachability> exi
 	//	Couldn't find what we're looking for by looking at connectivity.
 	//	See if it's in the mine.  It could be hidden behind a trigger or switch
 	//	which the buddybot doesn't understand.
-	range_for (const auto &&segnum, vcsegptr)
+	for (auto &seg : vcsegptr)
 		{
-		const auto &&objnum = exists_in_mine_2(segnum, objtype, objid, special);
+		const auto &&objnum{exists_in_mine_2(seg, objtype, objid, special)};
 			if (objnum != object_none)
 				return {objnum, d_unique_buddy_state::Escort_goal_reachability::unreachable};
 		}

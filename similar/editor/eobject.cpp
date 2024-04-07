@@ -270,9 +270,9 @@ static int compute_num_players(void)
 	auto &vcobjptr = Objects.vcptr;
 	int	count = 0;
 
-	range_for (const auto &&objp, vcobjptr)
+	for (auto &obj : vcobjptr)
 	{
-		if (objp->type == OBJ_PLAYER)
+		if (obj.type == OBJ_PLAYER)
 			count++;
 	}
 
@@ -470,7 +470,7 @@ int ObjectDelete(void)
 //	Return value:	0 = in mine, 1 = not in mine
 static int move_object_within_mine(fvmobjptr &vmobjptr, segment_array &Segments, fvcvertptr &vcvertptr, const vmobjptridx_t obj, const vms_vector &newpos)
 {
-	range_for (const auto &&segp, Segments.vmptridx)
+	for (const auto &&segp : Segments.vmptridx)
 	{
 		if (get_seg_masks(vcvertptr, obj->pos, segp, 0).centermask == sidemask_t{})
 		{

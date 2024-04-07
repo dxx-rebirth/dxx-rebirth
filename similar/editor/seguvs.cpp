@@ -244,10 +244,10 @@ static void assign_default_lighting(unique_segment &segp)
 
 void assign_default_lighting_all(void)
 {
-	range_for (const auto &&segp, vmsegptr)
+	for (auto &seg : vmsegptr)
 	{
-		if (segp->segnum != segment_none)
-			assign_default_lighting(segp);
+		if (seg.segnum != segment_none)
+			assign_default_lighting(seg);
 	}
 }
 
@@ -951,7 +951,7 @@ static void cast_light_from_side(const vmsegptridx_t segp, const sidenum_t light
 // -- Old way, before 5/8/95 --		inverse_segment_magnitude = fixdiv(F1_0/5, vm_vec_mag(&vector_to_center));
 // -- Old way, before 5/8/95 --		vm_vec_scale_add(&light_location, &light_location, &vector_to_center, inverse_segment_magnitude);
 
-		range_for (const auto &&rsegp, vmsegptr)
+		for (auto &rseg : vmsegptr)
 		{
 			fix			dist_to_rseg;
 
@@ -959,13 +959,13 @@ static void cast_light_from_side(const vmsegptridx_t segp, const sidenum_t light
 				i.flag = 0;
 
 			//	efficiency hack (I hope!), for faraway segments, don't check each point.
-			const auto r_segment_center{compute_segment_center(vcvertptr, rsegp)};
+			const auto r_segment_center{compute_segment_center(vcvertptr, rseg)};
 			dist_to_rseg = vm_vec_dist_quick(r_segment_center, segment_center);
 
 			if (dist_to_rseg <= LIGHT_DISTANCE_THRESHOLD) {
-				for (const auto &&[sidenum, srside, urside] : enumerate(zip(rsegp->shared_segment::sides, rsegp->unique_segment::sides)))
+				for (const auto &&[sidenum, srside, urside] : enumerate(zip(rseg.shared_segment::sides, rseg.unique_segment::sides)))
 				{
-					if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, rsegp, static_cast<sidenum_t>(sidenum)) != wall_is_doorway_result::no_wall)
+					if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, rseg, static_cast<sidenum_t>(sidenum)) != wall_is_doorway_result::no_wall)
 					{
 						auto &side_normalp = srside.normals[0];	//	kinda stupid? always use vector 0.
 
@@ -973,7 +973,7 @@ static void cast_light_from_side(const vmsegptridx_t segp, const sidenum_t light
 						for (const auto vertnum : MAX_VERTICES_PER_SIDE)
 						{
 							const auto segment_relative_vert = sv_side[vertnum];
-							const auto abs_vertnum = rsegp->verts[segment_relative_vert];
+							const auto abs_vertnum{rseg.verts[segment_relative_vert]};
 							vms_vector vert_location = *vcvertptr(abs_vertnum);
 							const fix distance_to_point = vm_vec_dist_quick(vert_location, light_location);
 							const auto vector_to_light = vm_vec_normalized(vm_vec_sub(light_location, vert_location));
@@ -1052,7 +1052,7 @@ static void cast_light_from_side(const vmsegptridx_t segp, const sidenum_t light
 								}	//	end if (light_at_point...
 							}	// end if (light_dot >...
 						}	//	end for (vertnum=0...
-					}	//	end if (rsegp...
+					}	//	end if (rseg...
 				}	//	end for (sidenum=0...
 			}	//	end if (dist_to_rseg...
 
@@ -1094,7 +1094,7 @@ static void cast_light_from_side_to_center(const vmsegptridx_t segp, const siden
 		auto &vert_light_location = *vcvertptr(light_vertex_num);
 		const auto light_location{vm_vec_scale_add(vert_light_location, /* vector_to_center = */ vm_vec_sub(segment_center, vert_light_location), F1_0 / 64)};
 
-		for (const csmusegment &&rsegp : vmsegptr)
+		for (const csmusegment rsegp : vmsegptr)
 		{
 			fix			dist_to_rseg;
 //if ((segp == &Segments[Bugseg]) && (rsegp == &Segments[Bugseg]))

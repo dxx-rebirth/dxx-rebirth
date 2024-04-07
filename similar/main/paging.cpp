@@ -342,10 +342,10 @@ static void paging_touch_segment(const d_eclip_array &Effects, const d_robot_inf
 
 static void paging_touch_walls(const Textures_array &Textures, const wall_animations_array &WallAnims, const fvcwallptr &vcwallptr)
 {
-	range_for (const auto &&wp, vcwallptr)
+	for (auto &w : vcwallptr)
 	{
-		auto &w = *wp;
-		if ( w.clip_num > -1 )	{
+		if (w.clip_num > -1)
+		{
 			const auto &anim = WallAnims[w.clip_num];
 			range_for (auto &j, partial_range(anim.frames, anim.num_frames))
 				PIGGY_PAGE_IN(Textures[j]);
@@ -369,7 +369,7 @@ void paging_touch_all(const d_vclip_array &Vclip)
 	gr_flip();
 #endif
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	range_for (const auto &&segp, vcsegptr)
+	for (const cscusegment segp : vcsegptr)
 	{
 		paging_touch_segment(Effects, Robot_info, Textures, Vclip, Weapon_info, vcobjptridx, vcsegptr, segp);
 	}	

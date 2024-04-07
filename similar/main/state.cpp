@@ -1437,11 +1437,11 @@ int state_save_all_sub(const char *filename, const char *desc)
 #endif
 
 //Finish all morph objects
-	range_for (const auto &&objp, vmobjptr)
+	for (auto &obj : vmobjptr)
 	{
-		if (objp->type != OBJ_NONE && objp->render_type == render_type::RT_MORPH)
+		if (obj.type != OBJ_NONE && obj.render_type == render_type::RT_MORPH)
 		{
-			if (const auto umd = find_morph_data(LevelUniqueMorphObjectState, objp))
+			if (const auto umd = find_morph_data(LevelUniqueMorphObjectState, obj))
 			{
 				const auto md = umd->get();
 				md->obj->control_source = md->morph_save_control_type;
@@ -1450,10 +1450,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 				md->obj->mtype.phys_info = md->morph_save_phys_info;
 				umd->reset();
 			} else {						//maybe loaded half-morphed from disk
-				objp->flags |= OF_SHOULD_BE_DEAD;
-				objp->render_type = render_type::RT_POLYOBJ;
-				objp->control_source = object::control_type::None;
-				objp->movement_source = object::movement_type::None;
+				obj.flags |= OF_SHOULD_BE_DEAD;
+				obj.render_type = render_type::RT_POLYOBJ;
+				obj.control_source = object::control_type::None;
+				obj.movement_source = object::movement_type::None;
 			}
 		}
 	}
@@ -1466,11 +1466,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 	{
 		object_rw None{};
 		None.type = OBJ_NONE;
-		range_for (const auto &&objp, vcobjptr)
+		for (auto &obj : vcobjptr)
 		{
 			object_rw obj_rw;
-			auto &obj = *objp;
-			PHYSFS_write(fp, obj.type == OBJ_NONE ? &None : (state_object_to_object_rw(objp, &obj_rw), &obj_rw), sizeof(obj_rw), 1);
+			PHYSFS_write(fp, obj.type == OBJ_NONE ? &None : (state_object_to_object_rw(obj, &obj_rw), &obj_rw), sizeof(obj_rw), 1);
 		}
 	}
 	
@@ -1482,8 +1481,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 		const int i = Walls.get_count();
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	}
-	range_for (const auto &&w, vcwallptr)
-		wall_write(fp, *w, 0x7fff);
+	for (auto &w : vcwallptr)
+		wall_write(fp, w, 0x7fff);
 
 #if defined(DXX_BUILD_DESCENT_II)
 //Save exploding wall info
@@ -1498,8 +1497,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 		const int i = ActiveDoors.get_count();
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	}
-		range_for (auto &&ad, ActiveDoors.vcptr)
-		active_door_write(fp, ad);
+		for (auto &ad : ActiveDoors.vcptr)
+			active_door_write(fp, ad);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1510,8 +1509,8 @@ int state_save_all_sub(const char *filename, const char *desc)
 		const int i = CloakingWalls.get_count();
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	}
-		range_for (auto &&w, CloakingWalls.vcptr)
-		cloaking_wall_write(w, fp);
+		for (auto &w : CloakingWalls.vcptr)
+			cloaking_wall_write(w, fp);
 	}
 #endif
 
@@ -1522,14 +1521,14 @@ int state_save_all_sub(const char *filename, const char *desc)
 		unsigned num_triggers = Triggers.get_count();
 		PHYSFS_write(fp, &num_triggers, sizeof(int), 1);
 	}
-	range_for (const trigger &vt, Triggers.vcptr)
-		trigger_write(fp, vt);
+		for (auto &vt : Triggers.vcptr)
+			trigger_write(fp, vt);
 	}
 
 //Save tmap info
-	range_for (const auto &&segp, vcsegptr)
+	for (auto &seg : vcsegptr)
 	{
-		for (auto &&[ss, us] : zip(segp->shared_segment::sides, segp->unique_segment::sides))	// d_zip
+		for (auto &&[ss, us] : zip(seg.shared_segment::sides, seg.unique_segment::sides))	// d_zip
 		{
 			segment_side_wall_tmap_write(fp, ss, us);
 		}
@@ -2098,12 +2097,12 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		const auto i{PHYSFSX_readSXE32(fp, swap)};
 	Objects.set_count(i);
 	}
-	range_for (const auto &&objp, vmobjptr)
+	for (auto &obj : vmobjptr)
 	{
 		object_rw obj_rw;
 		PHYSFS_read(fp, &obj_rw, sizeof(obj_rw), 1);
 		object_rw_swap(&obj_rw, swap);
-		state_object_rw_to_object(&obj_rw, objp);
+		state_object_rw_to_object(&obj_rw, obj);
 	}
 
 	range_for (const auto &&obj, vmobjptridx)
@@ -2168,15 +2167,14 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	{
 		auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	Walls.set_count(PHYSFSX_readSXE32(fp, swap));
-	range_for (const auto &&w, Walls.vmptr)
-		wall_read(fp, *w);
+		for (auto &w : Walls.vmptr)
+			wall_read(fp, w);
 
 #if defined(DXX_BUILD_DESCENT_II)
 	//now that we have the walls, check if any sounds are linked to
 	//walls that are now open
-	range_for (const auto &&wp, Walls.vcptr)
+	for (const auto &w : Walls.vcptr)
 	{
-		auto &w = *wp;
 		if (w.type == WALL_OPEN)
 			digi_kill_sound_linked_to_segment(w.segnum,w.sidenum,-1);	//-1 means kill any sound
 	}
@@ -2193,8 +2191,8 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	{
 		auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
 	ActiveDoors.set_count(PHYSFSX_readSXE32(fp, swap));
-	range_for (auto &&ad, ActiveDoors.vmptr)
-		active_door_read(fp, ad);
+		for (auto &ad : ActiveDoors.vmptr)
+			active_door_read(fp, ad);
 	}
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -2202,7 +2200,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		unsigned num_cloaking_walls = PHYSFSX_readSXE32(fp, swap);
 		auto &CloakingWalls = LevelUniqueWallSubsystemState.CloakingWalls;
 		CloakingWalls.set_count(num_cloaking_walls);
-		range_for (auto &&w, CloakingWalls.vmptr)
+		for (auto &w : CloakingWalls.vmptr)
 			cloaking_wall_read(w, fp);
 	}
 #endif
@@ -2211,8 +2209,8 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	{
 		auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	Triggers.set_count(PHYSFSX_readSXE32(fp, swap));
-	range_for (trigger &t, Triggers.vmptr)
-		trigger_read(fp, t);
+		for (auto &t : Triggers.vmptr)
+			trigger_read(fp, t);
 	}
 
 	//Restore tmap info (to temp values so we can use compiled-in tmap info to compute static_light

@@ -3603,14 +3603,14 @@ void multi_apply_goal_textures()
 		tex_blue = build_texture1_value(find_goal_texture(LevelUniqueTmapInfoState, tmapinfo_flag::goal_blue));
 		tex_red = build_texture1_value(find_goal_texture(LevelUniqueTmapInfoState, tmapinfo_flag::goal_red));
 	}
-	range_for (const auto &&seg, vmsegptr)
+	for (auto &seg : vmsegptr)
 	{
 		texture1_value tex;
-		if (seg->special == segment_special::goal_blue)
+		if (seg.special == segment_special::goal_blue)
 		{
 			tex = tex_blue;
 		}
-		else if (seg->special == segment_special::goal_red)
+		else if (seg.special == segment_special::goal_red)
 		{
 			// Make both textures the same if Hoard mode
 			tex = tex_red;

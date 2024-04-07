@@ -2471,9 +2471,9 @@ static int net_udp_verify_objects(int remote, int local)
 	if ((remote-local) > 10)
 		return(2);
 
-	range_for (const auto &&objp, vcobjptr)
+	for (auto &obj : vcobjptr)
 	{
-		if (objp->type == OBJ_PLAYER || objp->type == OBJ_GHOST)
+		if (obj.type == OBJ_PLAYER || obj.type == OBJ_GHOST)
 			nplayers++;
 	}
 
