@@ -616,10 +616,7 @@ class visited_segment_mask_t
 	static constexpr auto make_maskproxy(auto &a, const segnum_t s)
 	{
 		const auto segnum{static_cast<std::underlying_type_t<segnum_t>>(s)};
-		const std::size_t idx{segnum / divisor};
-		if (idx >= a.size())
-			throw std::out_of_range("index exceeds segment range");
-		return maskproxy_assignable_type{{segnum % divisor}, a[idx]};
+		return maskproxy_assignable_type{{segnum % divisor}, a.at({segnum / divisor})};
 	}
 public:
 	auto operator[](const segnum_t segnum)
