@@ -265,10 +265,8 @@ static void assign_min(fix &a, const fix &b)
 
 static void update_bounds(vms_vector &minv, vms_vector &maxv, const vms_vector &v, fix vms_vector::*const p)
 {
-	auto &mx = maxv.*p;
-	assign_max(mx, v.*p);
-	auto &mn = minv.*p;
-	assign_min(mn, v.*p);
+	assign_max(maxv.*p, v.*p);
+	assign_min(minv.*p, v.*p);
 }
 
 //takes pm, fills in min & max
@@ -332,28 +330,19 @@ static void init_points(const polymodel &pm, const vms_vector *const box_size, c
 	md->n_morphing_points[submodel_num] = 0;
 	md->submodel_startpoints[submodel_num] = startpoint;
 
-	const auto morph_times{md->get_morph_times()};
-	const auto morph_vecs{md->get_morph_vecs()};
-	const auto morph_deltas{md->get_morph_deltas()};
-	auto &&zr = zip(
-		unchecked_partial_range(reinterpret_cast<const vms_vector *>(sd.body), sd.nverts),
-		partial_range(morph_vecs, startpoint, endpoint),
-		partial_range(morph_deltas, startpoint, endpoint),
-		partial_range(morph_times, startpoint, endpoint)
-	);
-	range_for (auto &&z, zr)
+	for (auto &&[vp, morph_vec, morph_delta, morph_time] : zip(
+			unchecked_partial_range(reinterpret_cast<const vms_vector *>(sd.body), sd.nverts),
+			partial_range(md->get_morph_vecs(), startpoint, endpoint),
+			partial_range(md->get_morph_deltas(), startpoint, endpoint),
+			partial_range(md->get_morph_times(), startpoint, endpoint)
+	))
 	{
-		const auto vp{&std::get<0>(z)};
-		auto &morph_vec{std::get<1>(z)};
-		auto &morph_delta{std::get<2>(z)};
-		auto &morph_time{std::get<3>(z)};
-
-		if (const fix k{compute_bounding_box_extents(*vp, box_size)}; k != indeterminate_box_extent)
-			morph_vec = vm_vec_copy_scale(*vp, k);
+		if (const fix k{compute_bounding_box_extents(vp, box_size)}; k != indeterminate_box_extent)
+			morph_vec = vm_vec_copy_scale(vp, k);
 		else
 			morph_vec = {};
 
-		const auto dist{vm_vec_normalized_dir_quick(morph_delta, *vp, morph_vec)};
+		const auto dist{vm_vec_normalized_dir_quick(morph_delta, vp, morph_vec)};
 		morph_time = fixdiv(dist, morph_rate);
 
 		if (morph_time != 0)
@@ -369,25 +358,17 @@ static void update_points(const polymodel &pm, const unsigned submodel_num, morp
 	const unsigned startpoint{sd.startpoint};
 	const unsigned endpoint{startpoint + sd.nverts};
 
-	const auto morph_times{md->get_morph_times()};
-	const auto morph_vecs{md->get_morph_vecs()};
-	const auto morph_deltas{md->get_morph_deltas()};
-	auto &&zr = zip(
-		unchecked_partial_range(reinterpret_cast<const vms_vector *>(sd.body), sd.nverts),
-		partial_range(morph_vecs, startpoint, endpoint),
-		partial_range(morph_deltas, startpoint, endpoint),
-		partial_range(morph_times, startpoint, endpoint)
-	);
-	range_for (auto &&z, zr)
+	for (auto &&[vp, morph_vec, morph_delta, morph_time] : zip(
+			unchecked_partial_range(reinterpret_cast<const vms_vector *>(sd.body), sd.nverts),
+			partial_range(md->get_morph_vecs(), startpoint, endpoint),
+			partial_range(md->get_morph_deltas(), startpoint, endpoint),
+			partial_range(md->get_morph_times(), startpoint, endpoint)
+	))
 	{
-		const auto vp{&std::get<0>(z)};
-		auto &morph_vec{std::get<1>(z)};
-		auto &morph_delta{std::get<2>(z)};
-		auto &morph_time{std::get<3>(z)};
 		if (morph_time)		//not done yet
 		{
 			if ((morph_time -= FrameTime) <= 0) {
-				morph_vec = *vp;
+				morph_vec = vp;
 				morph_time = 0;
 				md->n_morphing_points[submodel_num]--;
 			}
