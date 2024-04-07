@@ -746,14 +746,6 @@ fvi_hit_type find_vector_intersection(const fvi_query fq, const segnum_t startse
 
 namespace {
 
-[[nodiscard]]
-static bool obj_in_list(const vcobjidx_t objnum, const std::pair<const vcobjidx_t *, const vcobjidx_t *> obj_list)
-{
-	if (unlikely(!obj_list.first))
-		return false;
-	return std::find(obj_list.first, obj_list.second, objnum) != obj_list.second;
-}
-
 static int check_trans_wall(const vms_vector &pnt, vcsegptridx_t seg, sidenum_t sidenum, int facenum);
 }
 }
@@ -814,7 +806,7 @@ static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &int
 				continue;
 			if (laser_are_related(objnum, thisobjnum))
 				continue;
-			if (obj_in_list(objnum, fq.ignore_obj_list))
+			if (std::ranges::find(fq.ignore_obj_list, objnum) != fq.ignore_obj_list.end())
 				continue;
 			int fudged_rad = rad;
 
