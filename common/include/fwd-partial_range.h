@@ -6,5 +6,7 @@
  */
 #pragma once
 
-template <typename range_iterator, typename range_index_type = void>
+#include <ranges>
+
+template <std::input_or_output_iterator range_iterator, typename range_index_type = void>
 class partial_range_t;

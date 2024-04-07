@@ -45,8 +45,7 @@
 #endif
 #endif
 
-namespace partial_range_detail
-{
+namespace partial_range_detail {
 
 #define REPORT_FORMAT_STRING	 "%s:%u: %s %lu past %p end %lu \"%s\""
 /* Given the length of a filename (in `NF`) and the length of an
@@ -60,7 +59,7 @@ namespace partial_range_detail
  * stack space on a cold path.
  */
 template <std::size_t NF, std::size_t NE>
-constexpr std::size_t required_buffer_size = ((sizeof(REPORT_FORMAT_STRING) + sizeof("65535") + (sizeof("18446744073709551615") * 2) + sizeof("0x0000000000000000") + (NF + NE + sizeof("begin"))) | 0xff) + 1;
+constexpr std::size_t required_buffer_size{((sizeof(REPORT_FORMAT_STRING) + sizeof("65535") + (sizeof("18446744073709551615") * 2) + sizeof("0x0000000000000000") + (NF + NE + sizeof("begin"))) | 0xff) + 1};
 
 template <std::size_t N>
 	/* This is only used on a path that will throw an exception, so mark
@@ -68,31 +67,32 @@ template <std::size_t N>
 	 * ill-formed data on input, these exceptions never happen.
 	 */
 __attribute_cold
-std::string prepare_error_string(unsigned long d, const char *estr, const char *file, unsigned line, const char *desc, unsigned long expr, const uintptr_t t)
+std::string prepare_error_string(const unsigned long d, const char *const estr, const char *const file, const unsigned line, const char *const desc, const unsigned long expr, const uintptr_t t)
 {
 	std::array<char, N> buf;
-	const auto bufdata = std::data(buf);
-	const auto bufsize = std::size(buf);
-	const auto written = std::snprintf(bufdata, bufsize, REPORT_FORMAT_STRING, file, line, desc, expr, reinterpret_cast<const void *>(t), d, estr);
+	const auto bufdata{std::data(buf)};
+	const auto bufsize{std::size(buf)};
+	const auto written{std::snprintf(bufdata, bufsize, REPORT_FORMAT_STRING, file, line, desc, expr, reinterpret_cast<const void *>(t), d, estr)};
 	return {bufdata, written < 0 ? 0 : std::min(bufsize, static_cast<std::size_t>(written))};
 }
 #undef REPORT_FORMAT_STRING
 
-template <typename>
+template <std::ranges::borrowed_range>
 void range_index_type(...);
 
 template <
-	typename range_type,
+	std::ranges::random_access_range range_type,
 	/* If `range_type::index_type` is not defined, fail.
-	 * If `range_type::index_type` is void, fail.
 	 */
-	typename index_type = typename std::remove_reference<typename std::remove_reference<range_type>::type::index_type &>::type>
+	typename index_type = typename std::remove_reference_t<range_type>::index_type
 	/* If `range_type::index_type` is not a suitable argument to
 	 * range_type::operator[](), fail.
 	 */
+	>
 	requires(
-		requires(range_type &r, index_type i) {
-			r.operator[](i);
+		std::ranges::borrowed_range<range_type> &&
+		requires(range_type &&r, index_type i) {
+			r[i];
 		}
 	)
 index_type range_index_type(std::nullptr_t);
@@ -103,7 +103,7 @@ index_type range_index_type(std::nullptr_t);
 struct partial_range_error;
 #endif
 
-template <typename range_iterator, typename range_index_type>
+template <std::input_or_output_iterator range_iterator, typename range_index_type>
 class partial_range_t : std::ranges::subrange<range_iterator>
 {
 	using base_type = std::ranges::subrange<range_iterator>;
@@ -149,13 +149,13 @@ public:
 	}
 };
 
-template <typename range_iterator, typename range_index_type>
+template <std::input_or_output_iterator range_iterator, typename range_index_type>
 inline constexpr bool std::ranges::enable_borrowed_range<partial_range_t<range_iterator, range_index_type>> = std::ranges::enable_borrowed_range<std::ranges::subrange<range_iterator>>;
 
 #if DXX_PARTIAL_RANGE_MINIMIZE_ERROR_TYPE
 struct partial_range_error
 #else
-template <typename range_iterator, typename range_index_type>
+template <std::input_or_output_iterator range_iterator, typename range_index_type>
 struct partial_range_t<range_iterator, range_index_type>::partial_range_error
 #endif
 	final : std::out_of_range
@@ -170,8 +170,7 @@ struct partial_range_t<range_iterator, range_index_type>::partial_range_error
 	}
 };
 
-namespace partial_range_detail
-{
+namespace partial_range_detail {
 
 template <typename range_exception, std::size_t required_buffer_size>
 __attribute_always_inline()
@@ -220,7 +219,7 @@ template <typename range_exception, std::size_t required_buffer_size, typename P
 __attribute_always_inline()
 inline void check_range_object_size(const char *file, unsigned line, const char *estr, P &ref, const std::size_t index_begin, const std::size_t index_end)
 {
-	const auto ptr = std::addressof(ref);
+	const auto ptr{std::addressof(ref)};
 	/* Get the size of the object, according to the compiler's data
 	 * analysis.  If a size is known, check that the index values are in
 	 * range.  If no size is known, do nothing.
@@ -233,7 +232,7 @@ inline void check_range_object_size(const char *file, unsigned line, const char 
 	 * the object is visible in the translation unit evaluating this
 	 * function.
 	 */
-	const std::size_t bos = __builtin_object_size(ptr, 1);
+	const std::size_t bos{__builtin_object_size(ptr, 1)};
 	if (bos != static_cast<std::size_t>(-1))
 		check_range_bounds<range_exception, required_buffer_size>(file, line, estr, reinterpret_cast<uintptr_t>(ptr), index_begin, index_end, bos / sizeof(P));
 }
@@ -269,14 +268,12 @@ std::size_t cast_index_to_size(const index_type i)
 	 * the underlying range uses.
 	 */
 	static_assert(decltype(check_range_index_type_vs_provided_index_type(static_cast<typename std::remove_reference<range_type>::type *>(nullptr), static_cast<index_type *>(nullptr)))::value);
-	return static_cast<std::size_t>(i);
+	return {static_cast<typename std::underlying_type<index_type>::type>(i)};
 }
 
-template <typename range_type, typename index_type>
-requires(std::is_integral<index_type>::value)
+template <typename range_type, std::unsigned_integral index_type /* integral index_type must be unsigned */>
 std::size_t cast_index_to_size(const index_type i)
 {
-	static_assert(std::is_unsigned<index_type>::value, "integral index_type must be unsigned");
 	/* Omit enforcement of range_type::index_type vs index_type, since many
 	 * call sites provide numeric length limits.
 	static_assert(decltype(check_range_index_type_vs_provided_index_type<range_type, index_type>(nullptr))::value);
@@ -294,7 +291,7 @@ template <
 	std::size_t required_buffer_size,
 #endif
 	typename index_type,
-	typename iterator_type
+	std::input_or_output_iterator iterator_type
 	>
 [[nodiscard]]
 inline partial_range_t<iterator_type, index_type> unchecked_partial_range_advance(
@@ -319,7 +316,7 @@ inline partial_range_t<iterator_type, index_type> unchecked_partial_range_advanc
 		partial_range_detail::check_range_object_size<typename partial_range_t<iterator_type, index_type>::partial_range_error, required_buffer_size>(file, line, estr, *range_begin, index_begin, index_end);
 	}
 #endif
-	auto range_end = range_begin;
+	auto range_end{range_begin};
 	/* Use <= so that (index_begin == 0) makes the expression
 	 * always-true, so the compiler will optimize out the test.
 	 */
@@ -336,24 +333,18 @@ template <
 #if DXX_HAVE_BUILTIN_OBJECT_SIZE
 	std::size_t required_buffer_size,
 #endif
-	typename range_type,
+	std::ranges::borrowed_range range_type,
 	typename index_begin_type,
 	typename index_end_type,
-	typename iterator_type = decltype(std::begin(std::declval<range_type &>()))
+	std::input_or_output_iterator iterator_type = decltype(std::ranges::begin(std::declval<range_type &>()))
 	>
-	requires(
-		requires(iterator_type i) {
-			*i;
-			requires !std::is_void<decltype(*i)>::value;	// dereference of iterator must not be void
-		}
-	)
 [[nodiscard]]
 __attribute_always_inline()
 inline auto (unchecked_partial_range)(
 #if DXX_HAVE_BUILTIN_OBJECT_SIZE
 	const char *const file, const unsigned line, const char *const estr,
 #endif
-	range_type &range, const index_begin_type &index_begin, const index_end_type &index_end)
+	range_type &&range, const index_begin_type &index_begin, const index_end_type &index_end)
 {
 	return unchecked_partial_range_advance<
 #if DXX_HAVE_BUILTIN_OBJECT_SIZE
@@ -363,7 +354,7 @@ inline auto (unchecked_partial_range)(
 #if DXX_HAVE_BUILTIN_OBJECT_SIZE
 			file, line, estr,
 #endif
-			std::begin(range),
+			std::ranges::begin(std::forward<range_type>(range)),
 			partial_range_detail::cast_index_to_size<range_type, index_begin_type>(index_begin),
 			partial_range_detail::cast_index_to_size<range_type, index_end_type>(index_end)
 		);
@@ -373,35 +364,29 @@ template <
 #if DXX_HAVE_BUILTIN_OBJECT_SIZE
 	std::size_t required_buffer_size,
 #endif
-	typename iterator_type,
-	typename index_begin_type,
-	typename index_end_type
-	>
-	requires(
-		std::is_unsigned<index_begin_type>::value &&	// offset to partial_range must be unsigned
-		std::is_unsigned<index_end_type>::value &&	// length to partial_range must be unsigned
 	/* C arrays (`int a[5];`) can match both the overload that calls
 	 * `std::begin(range)` and the overload that calls
 	 * `operator*(range)`, leading to an ambiguity.  Some supporting
 	 * libraries define C arrays, which callers use partial_range on, so
-	 * the array use cannot be converted to std::array.  Use
-	 * this requires clause to disable this overload in the case of a C array.
+	 * the array use cannot be converted to `std::array`.  Use the concept
+	 * `std::input_or_output_iterator` to disable this overload in the case of
+	 * a C array, since C arrays do not satisfy `std::weakly_incrementable`.
 	 *
-	 * C++ std::array does not permit `operator*(range)`, and so is disabled by
-	 * the `requires { *i; }` check.
+	 * C++ `std::array` does not permit `operator*(range)`, and so
+	 * `std::input_or_output_iterator` disables it by both the dereference
+	 * check and the std::weakly_incrementable check.
 	 */
-		!std::is_array<iterator_type>::value &&
-		requires(iterator_type i) {
-			*i;
-			requires !std::is_void<decltype(*i)>::value;	// dereference of iterator must not be void
-		}
-	)
+	std::input_or_output_iterator iterator_type
+	>
 [[nodiscard]]
 inline auto (unchecked_partial_range)(
 #if DXX_HAVE_BUILTIN_OBJECT_SIZE
 	const char *const file, const unsigned line, const char *const estr,
 #endif
-	iterator_type iterator, const index_begin_type &index_begin, const index_end_type &index_end)
+	iterator_type iterator,
+	const std::unsigned_integral auto index_begin,	// offset to partial_range must be unsigned
+	const std::unsigned_integral auto index_end	// length to partial_range must be unsigned
+)
 {
 	/* Do not try to guess an index_type when supplied an iterator.  Use
 	 * `void` to state that no index_type is available.  Callers which
@@ -452,16 +437,16 @@ inline auto (unchecked_partial_range)(
 
 template <
 	std::size_t required_buffer_size,
-	typename range_type,
+	std::ranges::borrowed_range range_type,
 	typename index_begin_type,
 	typename index_end_type,
-	typename iterator_type = decltype(std::begin(std::declval<range_type &>()))
+	typename iterator_type = decltype(std::ranges::begin(std::declval<range_type &&>()))
 	>
 [[nodiscard]]
-inline auto (partial_range)(const char *const file, const unsigned line, const char *const estr, range_type &range, const index_begin_type &index_begin, const index_end_type &index_end)
+inline auto (partial_range)(const char *const file, const unsigned line, const char *const estr, range_type &&range, const index_begin_type &index_begin, const index_end_type &index_end)
 {
-	const auto sz_begin = partial_range_detail::cast_index_to_size<range_type, index_begin_type>(index_begin);
-	const auto sz_end = partial_range_detail::cast_index_to_size<range_type, index_end_type>(index_end);
+	const auto sz_begin{partial_range_detail::cast_index_to_size<range_type, index_begin_type>(index_begin)};
+	const auto sz_end{partial_range_detail::cast_index_to_size<range_type, index_end_type>(index_end)};
 	partial_range_detail::check_range_bounds<
 		typename partial_range_t<iterator_type, decltype(partial_range_detail::range_index_type<range_type>(nullptr))>::partial_range_error,
 		required_buffer_size
@@ -474,57 +459,43 @@ inline auto (partial_range)(const char *const file, const unsigned line, const c
 #if DXX_HAVE_BUILTIN_OBJECT_SIZE
 			file, line, estr,
 #endif
-			range, sz_begin, sz_end
+			std::forward<range_type>(range), sz_begin, sz_end
 		);
 }
 
 template <
 	std::size_t required_buffer_size,
-	typename range_type,
+	std::ranges::borrowed_range range_type,
 	typename index_end_type
 	>
 [[nodiscard]]
-inline auto (partial_range)(const char *const file, const unsigned line, const char *const estr, range_type &range, const index_end_type &index_end)
+inline auto (partial_range)(const char *const file, const unsigned line, const char *const estr, range_type &&range, const index_end_type &index_end)
 {
-	return partial_range<required_buffer_size, range_type, index_end_type, index_end_type>(file, line, estr, range, index_end_type{}, index_end);
+	return partial_range<required_buffer_size, range_type, index_end_type, index_end_type>(file, line, estr, std::forward<range_type>(range), index_end_type{}, index_end);
 }
 
 template <
 	std::size_t required_buffer_size,
-	typename range_type,
+	std::ranges::borrowed_range range_type,
 	typename index_begin_type,
 	typename index_end_type
 	>
 [[nodiscard]]
-inline auto (partial_const_range)(const char *const file, const unsigned line, const char *const estr, const range_type &range, const index_begin_type &index_begin, const index_end_type &index_end)
+inline auto (partial_const_range)(const char *const file, const unsigned line, const char *const estr, range_type &&range, const index_begin_type &index_begin, const index_end_type &index_end)
 {
-	return partial_range<required_buffer_size, const range_type, index_begin_type, index_end_type>(file, line, estr, range, index_begin, index_end);
+	return partial_range<required_buffer_size, const range_type, index_begin_type, index_end_type>(file, line, estr, std::forward<const range_type>(range), index_begin, index_end);
 }
 
 template <
 	std::size_t required_buffer_size,
-	typename range_type,
+	std::ranges::borrowed_range range_type,
 	typename index_end_type
 	>
 [[nodiscard]]
-inline auto (partial_const_range)(const char *const file, const unsigned line, const char *const estr, const range_type &range, const index_end_type &index_end)
+inline auto (partial_const_range)(const char *const file, const unsigned line, const char *const estr, range_type &&range, const index_end_type &index_end)
 {
-	return partial_range<required_buffer_size, const range_type, index_end_type>(file, line, estr, range, index_end);
+	return partial_range<required_buffer_size, const range_type, index_end_type>(file, line, estr, std::forward<const range_type>(range), index_end);
 }
-
-/* Explicitly block use on rvalue t because returned partial_range_t<I>
- * will outlive the rvalue.
- */
-template <typename T,
-	typename index_begin_type,
-	typename index_end_type
-	>
-partial_range_t<decltype(begin(std::declval<T &&>()))> (partial_const_range)(const char *file, const unsigned line, const char *estr, const T &&t, const index_begin_type &index_begin, const index_end_type &index_end) = delete;
-
-template <typename T,
-	typename index_end_type
-	>
-partial_range_t<decltype(begin(std::declval<T &&>()))> (partial_const_range)(const char *file, const unsigned line, const char *estr, const T &&t, const index_end_type &index_end) = delete;
 
 #if DXX_HAVE_BUILTIN_OBJECT_SIZE
 /* This macro is conditionally defined, because in the #else case, a
