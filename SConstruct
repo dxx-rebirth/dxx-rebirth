@@ -506,6 +506,12 @@ struct A_%(N)s
 	static_assert(a1 == a2);
 	static_assert(!(a1 != a2));
 '''),
+		Cxx20RequiredFeature('std::make_unique_for_overwrite', '''
+#include <memory>
+''', '''
+	std::make_unique_for_overwrite<int>();
+	std::make_unique_for_overwrite<int[]>(1);
+'''),
 		Cxx20RequiredFeature('requires clause', '''
 template <typename T>
 requires(sizeof(T) >= 1)

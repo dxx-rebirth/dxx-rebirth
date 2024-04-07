@@ -214,7 +214,7 @@ struct PHYSFSX_gets_line_t :
 	line_t &line() { return *this->base_type::get(); }
 	std::span<char, N> next()
 	{
-		static_cast<base_type &>(*this) = std::make_unique<line_t>();
+		static_cast<base_type &>(*this) = std::make_unique_for_overwrite<line_t>();
 		return line();
 	}
 	typename line_t::reference operator[](const typename line_t::size_type i) { return line()[i]; }
@@ -235,7 +235,7 @@ struct PHYSFSX_gets_line_t :
 template <>
 struct PHYSFSX_gets_line_t<0>
 {
-#define DXX_ALLOCATE_PHYSFS_LINE(n)	std::make_unique<char[]>(n)
+#define DXX_ALLOCATE_PHYSFS_LINE(n)	std::make_unique_for_overwrite<char[]>(n)
 #if !DXX_HAVE_POISON
 	const
 #endif

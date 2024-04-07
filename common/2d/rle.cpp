@@ -331,7 +331,7 @@ void gr_bitmap_rle_compress(grs_bitmap &bmp)
 		return 0;
 	}();
 
-	const auto rle_data = std::make_unique<uint8_t[]>(MAX_BMP_SIZE(bm_w, bm_h));
+	const auto rle_data{std::make_unique_for_overwrite<uint8_t[]>(MAX_BMP_SIZE(bm_w, bm_h))};
 	if (!large_rle)
 		doffset = 4 + bm_h;
 	else
@@ -537,7 +537,7 @@ void rle_swap_0_255(grs_bitmap &bmp)
 
 	rle_big = bmp.get_flag_mask(BM_FLAG_RLE_BIG);
 
-	const auto temp = std::make_unique<uint8_t[]>(MAX_BMP_SIZE(bmp.bm_w, bmp.bm_h));
+	const auto temp{std::make_unique_for_overwrite<uint8_t[]>(MAX_BMP_SIZE(bmp.bm_w, bmp.bm_h))};
 
 	const std::size_t pointer_offset = rle_big ? 4 + 2 * bmp.bm_h : 4 + bmp.bm_h;
 	auto ptr = &bmp.bm_data[pointer_offset];
@@ -592,7 +592,7 @@ void rle_remap(grs_bitmap &bmp, std::array<color_palette_index, 256> &colormap)
 
 	rle_big = bmp.get_flag_mask(BM_FLAG_RLE_BIG);
 
-	const auto temp = std::make_unique<color_palette_index[]>(MAX_BMP_SIZE(bmp.bm_w, bmp.bm_h) + 30000);
+	const auto temp{std::make_unique_for_overwrite<color_palette_index[]>(MAX_BMP_SIZE(bmp.bm_w, bmp.bm_h) + 30000)};
 
 	const std::size_t pointer_offset = rle_big ? 4 + 2 * bmp.bm_h : 4 + bmp.bm_h;
 	auto ptr = &bmp.get_bitmap_data()[pointer_offset];
