@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdexcept>
 #include <stdio.h>
 #include <string.h>
+#include <ranges>
 #if !defined(_MSC_VER) && !defined(macintosh)
 #include <unistd.h>
 #endif
@@ -1275,7 +1276,7 @@ namespace {
  *   pointer to end().  The caller must check that the first unused
  *   element is not end().
  */
-static std::array<std::array<hli, MAX_MISSIONS>::pointer, 2> find_hli_entry(const ranges::subrange<hli *> r, const Mission_path &m)
+static std::array<std::array<hli, MAX_MISSIONS>::pointer, 2> find_hli_entry(const std::ranges::subrange<hli *> r, const Mission_path &m)
 {
 	const auto mission_filename = m.filename;
 	const auto mission_length = std::distance(mission_filename, m.path.end());
@@ -1290,7 +1291,7 @@ static std::array<std::array<hli, MAX_MISSIONS>::pointer, 2> find_hli_entry(cons
 	const auto &&a = [p = &*mission_filename](const hli &h) {
 		return !d_stricmp(h.Shortname.data(), p);
 	};
-	const auto &&i = ranges::find_if(r, a);
+	const auto &&i{std::ranges::find_if(r, a)};
 	return {{&*i, r.end()}};
 }
 }

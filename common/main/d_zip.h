@@ -12,7 +12,7 @@
 #include <type_traits>
 #include "dxxsconf.h"
 #include <utility>
-#include "backports-ranges.h"
+#include <ranges>
 
 enum class zip_sequence_length_selector : uint32_t;
 
@@ -373,7 +373,7 @@ template <
 	concept zip_input_constraints = (
 		sizeof...(rangeN) > 0 &&
 		(std::ranges::input_range<rangeN> && ...) &&
-		(ranges::borrowed_range<rangeN> && ...) &&
+		(std::ranges::borrowed_range<rangeN> && ...) &&
 		zip_static_size_bounds_check<
 			examine_end_range,
 			std::tuple<decltype(d_zip::detail::get_static_size(std::declval<rangeN>()))...>
@@ -401,7 +401,7 @@ public:
 	template <std::ranges::input_range... rangeN>
 		requires(
 			sizeof...(rangeN) > 0 &&
-			(ranges::borrowed_range<rangeN> && ...)
+			(std::ranges::borrowed_range<rangeN> && ...)
 		)
 		constexpr zip(rangeN &&... rN) :
 			iterator{std::ranges::begin(rN)...},

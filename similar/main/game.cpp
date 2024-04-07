@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <ranges>
 #include <SDL.h>
 #include <ctime>
 #if DXX_USE_SCREENSHOT_FORMAT_PNG
@@ -2272,7 +2273,7 @@ static std::pair<d_flickering_light_state::Flickering_light_array_t::iterator, d
 		return f.segnum == segnum && f.sidenum == sidenum;	//found it!
 	};
 	const auto &&pe = pr.end();
-	return {ranges::find_if(pr.begin(), pe, predicate), pe};
+	return {std::ranges::find_if(pr.begin(), pe, predicate), pe};
 }
 
 static void update_flicker(d_flickering_light_state &fls, const vmsegidx_t segnum, const sidenum_t sidenum, const fix timer)

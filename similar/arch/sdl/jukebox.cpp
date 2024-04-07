@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ranges>
 
 #include "hudmsg.h"
 #include "songs.h"
@@ -23,7 +24,6 @@
 #include "u_mem.h"
 #include "physfs_list.h"
 
-#include "backports-ranges.h"
 #include "partial_range.h"
 #include <memory>
 
@@ -37,8 +37,8 @@ namespace {
 
 struct m3u_bytes
 {
-	using range_type = ranges::subrange<char *>;
-	using ptr_range_type = ranges::subrange<char **>;
+	using range_type = std::ranges::subrange<char *>;
+	using ptr_range_type = std::ranges::subrange<char **>;
 	using alloc_type = std::unique_ptr<char *[]>;
 	range_type range{nullptr, nullptr};
 	ptr_range_type ptr_range{nullptr, nullptr};

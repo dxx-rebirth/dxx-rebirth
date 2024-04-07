@@ -25,12 +25,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <ranges>
 #include "fwd-robot.h"
 #include "game.h"
 
 #include "pack.h"
 #include "aistruct.h"
-#include "backports-ranges.h"
 #include "weapon_id.h"
 #include "object.h"
 #include "fwd-partial_range.h"
@@ -237,7 +237,7 @@ struct d_level_shared_robot_joint_state : ::dcx::d_level_shared_robot_joint_stat
 //  On exit:
 //      Returns number of joints in list.
 //      jp_list_ptr is stuffed with a pointer to a static array of joint positions.  This pointer is valid forever.
-ranges::subrange<const jointpos *> robot_get_anim_state(const d_robot_info_array &, const std::array<jointpos, MAX_ROBOT_JOINTS> &, robot_id robot_type, robot_gun_number gun_num, robot_animation_state state);
+std::ranges::subrange<const jointpos *> robot_get_anim_state(const d_robot_info_array &, const std::array<jointpos, MAX_ROBOT_JOINTS> &, robot_id robot_type, robot_gun_number gun_num, robot_animation_state state);
 
 /*
  * reads n robot_info structs from a PHYSFS_File

@@ -27,6 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <ranges>
 #include "gr.h"
 #include "inferno.h"
 #include "segment.h"
@@ -595,7 +596,7 @@ void med_combine_duplicate_vertices(enumerated_array<uint8_t, MAX_VERTICES, vert
 			return;
 		if (vlp[v]) {
 			auto &vvp = *v;
-			for (auto &&w : ranges::subrange(i, range.end()))
+			for (auto &&w : std::ranges::subrange(i, range.end()))
 				if (vlp[w]) {	//	used to be Vertex_active[w]
 					if (vnear(vvp, *w)) {
 						change_vertex_occurrences(vmsegptr, v, w);

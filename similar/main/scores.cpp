@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 #include <sstream>
+#include <ranges>
 #include <ctype.h>
 
 #include "scores.h"
@@ -291,7 +292,7 @@ void scores_maybe_add_player()
 	const auto end_score_stats = std::end(scores.stats);
 	/* Find the position at which the player's score should be placed.
 	 */
-	const auto &&iter_position = ranges::find_if(begin_score_stats, end_score_stats, predicate);
+	const auto &&iter_position{std::ranges::find_if(begin_score_stats, end_score_stats, predicate)};
 	const auto position = std::distance(begin_score_stats, iter_position);
 	/* If iter_position == end_score_stats, then the player's score does
 	 * not beat any of the existing high scores.  Include a special case

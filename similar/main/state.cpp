@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <ranges>
 
 #include "pstypes.h"
 #include "inferno.h"
@@ -75,7 +76,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
-#include "backports-ranges.h"
 #include "compiler-range_for.h"
 #include "d_levelstate.h"
 #include "d_range.h"
@@ -1659,7 +1659,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 			std::array<uint8_t, MAX_SEGMENTS> light_subtracted;
 			std::array<uint8_t, MAX_SEGMENTS_ORIGINAL> light_subtracted_original;
 		};
-		const ranges::subrange r{vcsegptr};
+		const std::ranges::subrange r{vcsegptr};
 		/* For compatibility with old game versions, always write at
 		 * least MAX_SEGMENTS_ORIGINAL entries.  If the level is larger
 		 * than that, then write as many entries as needed for the

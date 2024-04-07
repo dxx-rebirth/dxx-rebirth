@@ -25,6 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdio.h>
 #include <string.h>
+#include <ranges>
 
 #include "gr.h"
 #include "ui.h"
@@ -562,7 +563,7 @@ static int med_copy_group(const unsigned delta_flag, const vmsegptridx_t base_se
 	auto gb = GroupList[current_group].segments.begin();
 	auto ge = GroupList[current_group].segments.end();
 	auto gp = Groupsegp[current_group];
-	const auto &&gi = ranges::find_if(gb, ge, [gp](const segnum_t segnum) { return vcsegptr(segnum) == gp; });
+	const auto &&gi{std::ranges::find_if(gb, ge, [gp](const segnum_t segnum) { return vcsegptr(segnum) == gp; })};
 	int gs_index = (gi == ge) ? 0 : std::distance(gb, gi);
 
 	GroupList[new_current_group] = GroupList[current_group];

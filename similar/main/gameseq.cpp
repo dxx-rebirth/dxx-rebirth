@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ranges>
 #if !defined(_MSC_VER) && !defined(macintosh)
 #include <unistd.h>
 #endif
@@ -1314,7 +1315,7 @@ static void DoEndLevelScoreGlitz()
 
 	struct glitz_menu : passive_newmenu
 	{
-		glitz_menu(grs_canvas &canvas, menu_subtitle subtitle, const ranges::subrange<newmenu_item *> items) :
+		glitz_menu(grs_canvas &canvas, menu_subtitle subtitle, const std::ranges::subrange<newmenu_item *> items) :
 			passive_newmenu(menu_title{nullptr}, subtitle, menu_filename{GLITZ_BACKGROUND}, tiny_mode_flag::normal, tab_processing_flag::ignore, adjusted_citem::create(items, 0), canvas, draw_box_flag::none)
 		{
 		}

@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdexcept>
 #include <stdio.h>
 #include <string.h>
+#include <ranges>
 #include "pstypes.h"
 #include "strutil.h"
 #include "console.h"
@@ -1199,7 +1200,7 @@ static int load_game_data(
 		{
 			const auto i = (*iter).get_unchecked_index();
 		//	Find which wall this trigger is connected to.
-			const auto &&w = ranges::find(wr, i, &wall::trigger);
+			const auto &&w{std::ranges::find(wr, i, &wall::trigger)};
 		if (w == wr.end())
 		{
 				remove_trigger_num(Triggers, Walls.vmptr, i);

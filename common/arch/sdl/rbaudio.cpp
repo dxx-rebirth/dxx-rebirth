@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ranges>
 
 #include <SDL.h>
 
@@ -90,7 +91,7 @@ void RBAInit()
 		if (s_cd && CD_INDRIVE(SDL_CDStatus(s_cd)))
 		{
 			const auto &&r = partial_const_range(s_cd->track, static_cast<unsigned>(s_cd->numtracks));
-			if (ranges::find(r, SDL_AUDIO_TRACK, &SDL_CDtrack::type) != r.end())
+			if (std::ranges::find(r, SDL_AUDIO_TRACK, &SDL_CDtrack::type) != r.end())
 			{
 				initialised = 1;
 				RBAList();

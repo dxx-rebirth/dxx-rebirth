@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <ctype.h>
 #include <functional>
+#include <ranges>
 
 #include "pstypes.h"
 #include "dxxerror.h"
@@ -128,7 +129,7 @@ void newmenu_free_background()	{
 	nm_background1.reset();
 }
 
-newmenu_layout::adjusted_citem newmenu_layout::adjusted_citem::create(const ranges::subrange<newmenu_item *> items, int citem)
+newmenu_layout::adjusted_citem newmenu_layout::adjusted_citem::create(const std::ranges::subrange<newmenu_item *> items, int citem)
 {
 	if (citem < 0)
 		citem = 0;
@@ -524,7 +525,7 @@ static void strip_end_whitespace( char * text )
 
 }
 
-int newmenu_do2(const menu_title title, const menu_subtitle subtitle, const ranges::subrange<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const menu_filename filename)
+int newmenu_do2(const menu_title title, const menu_subtitle subtitle, const std::ranges::subrange<newmenu_item *> items, const newmenu_subfunction subfunction, void *const userdata, const int citem, const menu_filename filename)
 {
 	if (items.size() < 1)
 		return -1;
@@ -686,13 +687,13 @@ static void newmenu_scroll(newmenu *const menu, const int amount)
 	const auto predicate = [](const newmenu_item &n) {
 		return n.type != nm_type::text;
 	};
-	const auto &&first = ranges::find_if(range, predicate);
+	const auto &&first{std::ranges::find_if(range, predicate)};
 	if (first == range.end())
 		/* This should not happen.  If every entry is of type `nm_type::text`,
 		 * then `menu->all_text` should have been true.
 		 */
 		return;
-	const auto &&rlast = ranges::find_if(std::reverse_iterator(range.end()), std::reverse_iterator(first), predicate).base();
+	const auto &&rlast{std::ranges::find_if(std::reverse_iterator(range.end()), std::reverse_iterator(first), predicate).base()};
 	/* `first == rlast` should not happen, since that would mean that
 	 * there are no elements in `range` for which `predicate` is true.
 	 * If there are no such elements, then `first == range.end()` should

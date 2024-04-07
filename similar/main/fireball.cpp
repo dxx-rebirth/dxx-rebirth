@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <algorithm>
 #include <numeric>
 #include <random>
+#include <ranges>
 #include <optional>
 #include <stdlib.h>
 #include <stdio.h>
@@ -787,7 +788,7 @@ static vmsegptridx_t choose_drop_segment(fvmsegptridx &vmsegptridx, fvcvertptr &
 	std::optional<vmsegptridx_t> fallback_drop;
 	for (const unsigned candidate_depth : xrange(std::uniform_int_distribution(net_drop_max_depth_lower + 0u, net_drop_max_depth_upper + 0u)(mrd), net_drop_min_depth, xrange_descending()))
 	{
-		for (const auto pnum : ranges::subrange(candidate_drop_players.begin(), end_drop_players))
+		for (const auto pnum : std::ranges::subrange(candidate_drop_players.begin(), end_drop_players))
 		{
 			auto &plr = *vcplayerptr(pnum);
 			auto &plrobj = *vcobjptr(plr.objnum);

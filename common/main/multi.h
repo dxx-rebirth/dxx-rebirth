@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <span>
 #include <type_traits>
+#include <ranges>
 #include "dxxsconf.h"
 #include "fwd-partial_range.h"
 #include "player.h"
@@ -64,10 +65,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ntstring.h"
 #include "compiler-static_assert.h"
 #include <array>
-
-#ifdef dsx
-#include "backports-ranges.h"
-#endif
 
 namespace dcx {
 
@@ -518,7 +515,7 @@ void multi_disconnect_player(playernum_t);
 namespace dsx {
 void multi_initiate_save_game();
 void multi_initiate_restore_game();
-void multi_execute_save_game(d_game_unique_state::save_slot slot, const d_game_unique_state::savegame_description &desc, ranges::subrange<const player *> player_range);
+void multi_execute_save_game(d_game_unique_state::save_slot slot, const d_game_unique_state::savegame_description &desc, std::ranges::subrange<const player *> player_range);
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void multi_send_got_flag (playernum_t) {}
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -705,8 +702,8 @@ netflag_flag multi_powerup_is_allowed(powerup_type_t id, const netflag_flag Allo
 netflag_flag multi_powerup_is_allowed(powerup_type_t id, const netflag_flag AllowedItems, const netflag_flag SpawnGrantedItems);
 void show_netgame_info(const netgame_info &netgame);
 void multi_send_player_inventory(multiplayer_data_priority priority);
-const char *multi_common_deny_save_game(const fvcobjptr &vcobjptr, ranges::subrange<const player *> player_range);
-const char *multi_interactive_deny_save_game(const fvcobjptr &vcobjptr, ranges::subrange<const player *> player_range, const d_level_unique_control_center_state &);
+const char *multi_common_deny_save_game(const fvcobjptr &vcobjptr, std::ranges::subrange<const player *> player_range);
+const char *multi_interactive_deny_save_game(const fvcobjptr &vcobjptr, std::ranges::subrange<const player *> player_range, const d_level_unique_control_center_state &);
 void multi_check_for_killgoal_winner(const d_robot_info_array &Robot_info);
 }
 #endif
@@ -719,7 +716,7 @@ void multi_send_door_open_specific(playernum_t pnum, vcsegidx_t segnum, sidenum_
 void multi_send_wall_status_specific(playernum_t pnum, wallnum_t wallnum, uint8_t type, wall_flags flags, wall_state state);
 void multi_send_light_specific (playernum_t pnum, vcsegptridx_t segnum, sidemask_t val);
 void multi_send_capture_bonus (playernum_t pnum);
-int multi_all_players_alive(const fvcobjptr &, ranges::subrange<const player *>);
+int multi_all_players_alive(const fvcobjptr &, std::ranges::subrange<const player *>);
 void multi_send_seismic(fix);
 void multi_send_drop_blobs(playernum_t);
 void multi_send_sound_function (char,char);

@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <ranges>
 #if !defined(_WIN32) && !defined(macintosh)
 #include <unistd.h>
 #endif

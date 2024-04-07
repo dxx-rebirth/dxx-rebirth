@@ -11,10 +11,10 @@
 #include <cstdio>
 #include <string>
 #include <type_traits>
+#include <ranges>
 #include "fwd-partial_range.h"
 #include <memory>
 #include "dxxsconf.h"
-#include "backports-ranges.h"
 
 /* If no value was specified for DXX_PARTIAL_RANGE_MINIMIZE_ERROR_TYPE,
  * then define it to true for NDEBUG builds and false for debug builds.
@@ -104,9 +104,9 @@ struct partial_range_error;
 #endif
 
 template <typename range_iterator, typename range_index_type>
-class partial_range_t : ranges::subrange<range_iterator>
+class partial_range_t : std::ranges::subrange<range_iterator>
 {
-	using base_type = ranges::subrange<range_iterator>;
+	using base_type = std::ranges::subrange<range_iterator>;
 public:
 	static_assert(!std::is_reference<range_iterator>::value);
 	using iterator = range_iterator;
@@ -150,7 +150,7 @@ public:
 };
 
 template <typename range_iterator, typename range_index_type>
-inline constexpr bool std::ranges::enable_borrowed_range<partial_range_t<range_iterator, range_index_type>> = std::ranges::enable_borrowed_range<::ranges::subrange<range_iterator>>;
+inline constexpr bool std::ranges::enable_borrowed_range<partial_range_t<range_iterator, range_index_type>> = std::ranges::enable_borrowed_range<std::ranges::subrange<range_iterator>>;
 
 #if DXX_PARTIAL_RANGE_MINIMIZE_ERROR_TYPE
 struct partial_range_error

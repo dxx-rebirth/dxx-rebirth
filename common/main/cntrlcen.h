@@ -25,10 +25,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <ranges>
 #include <physfs.h>
 #include <ranges>
 
-#include "backports-ranges.h"
 #include "fwd-object.h"
 #include "pack.h"
 #include "fwd-robot.h"

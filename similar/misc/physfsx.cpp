@@ -80,7 +80,7 @@ PHYSFSX_fgets_t::result PHYSFSX_fgets_t::get(const std::span<char> buf, PHYSFS_F
 	return {bb, p};
 }
 
-int PHYSFSX_checkMatchingExtension(const char *filename, const ranges::subrange<const file_extension_t *> range)
+int PHYSFSX_checkMatchingExtension(const char *filename, const std::ranges::subrange<const file_extension_t *> range)
 {
 	const char *ext = strrchr(filename, '.');
 	if (!ext)
@@ -518,7 +518,7 @@ static PHYSFSX_uncounted_list PHYSFSX_findPredicateFiles(const char *path, auto 
 
 // Find files at path that have an extension listed in exts
 // The extension list exts must be NULL-terminated, with each ext beginning with a '.'
-PHYSFSX_uncounted_list PHYSFSX_findFiles(const char *path, const ranges::subrange<const file_extension_t *> exts)
+PHYSFSX_uncounted_list PHYSFSX_findFiles(const char *path, const std::ranges::subrange<const file_extension_t *> exts)
 {
 	const auto predicate = [&](const char *i) {
 		return PHYSFSX_checkMatchingExtension(i, exts);
@@ -528,7 +528,7 @@ PHYSFSX_uncounted_list PHYSFSX_findFiles(const char *path, const ranges::subrang
 
 // Same function as above but takes a real directory as second argument, only adding files originating from this directory.
 // This can be used to further seperate files in search path but it must be made sure realpath is properly formatted.
-PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const ranges::subrange<const file_extension_t *> exts)
+PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const std::ranges::subrange<const file_extension_t *> exts)
 {
 	const auto predicate = [&](const char *i) {
 		return PHYSFSX_checkMatchingExtension(i, exts) && (!strcmp(PHYSFS_getRealDir(i), realpath));

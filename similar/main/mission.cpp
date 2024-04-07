@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ranges>
 #include <ctype.h>
 #include <limits.h>
 
@@ -909,7 +910,7 @@ static void set_briefing_filename(d_fname &f, const char *const v)
 	auto a = [](char c) {
 		return !c || c == '.';
 	};
-	const auto &&i = ranges::find_if(v, next(v, f.size() - sizeof(tex)), a);
+	const auto &&i{std::ranges::find_if(v, next(v, f.size() - sizeof(tex)), a)};
 	std::size_t d = std::distance(v, i);
 	set_briefing_filename(f, {v, d});
 }
@@ -919,7 +920,7 @@ static void record_briefing(d_fname &f, const std::array<char, PATH_MAX> &buf)
 	const auto v = get_value(buf.data());
 	if (!v)
 		return;
-	const std::size_t d = std::distance(v, ranges::find_if(v, buf.end(), null_or_space));
+	const std::size_t d = std::distance(v, std::ranges::find_if(v, buf.end(), null_or_space));
 	if (d >= FILENAME_LEN)
 		return;
 	{
@@ -1062,7 +1063,7 @@ static const char *load_mission(const mle *const mission)
 					if (!PHYSFSX_fgets(buf, mfile))
 						break;
 					auto &line = buf.line();
-					const auto &&s = ranges::find_if(line, null_or_space);
+					const auto &&s{std::ranges::find_if(line, null_or_space)};
 					if (i.copy_if(line, std::distance(line.begin(), s)))
 					{
 						++level_names_loaded;
@@ -1109,7 +1110,7 @@ static const char *load_mission(const mle *const mission)
 					auto a = [](char c) {
 						return isspace(static_cast<unsigned>(c));
 					};
-					const auto &&s = ranges::find_if(lb, t, a);
+					const auto &&s{std::ranges::find_if(lb, t, a)};
 					if (name.copy_if(line, std::distance(lb, s)))
 					{
 						unsigned long ls = strtoul(t + 1, &ip, 10);

@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <ranges>
 #include "dxxsconf.h"
 #include <stdio.h>		// for printf()
 #include <stdlib.h>		// for rand() and qsort()
@@ -68,7 +69,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "escort.h"
 #include "vclip.h"
 #include "segiter.h"
-#include "backports-ranges.h"
 #include "compiler-range_for.h"
 #include "d_enumerate.h"
 #include "d_levelstate.h"
@@ -696,13 +696,13 @@ static std::pair<icsegidx_t, d_unique_buddy_state::Escort_goal_reachability> exi
 			return vcsegptr(s)->special == segment_special::fuelcen;
 		};
 		const auto &&rb = partial_const_range(bfs_list, length);
-		const auto &&i = ranges::find_if(rb, predicate);
+		const auto &&i{std::ranges::find_if(rb, predicate)};
 		if (i != rb.end())
 			return {*i, d_unique_buddy_state::Escort_goal_reachability::reachable};
 	}
 	{
-		const ranges::subrange rh{vcsegptridx};
-		const auto &&i = ranges::find(rh, segment_special::fuelcen, &shared_segment::special);
+		const std::ranges::subrange rh{vcsegptridx};
+		const auto &&i{std::ranges::find(rh, segment_special::fuelcen, &shared_segment::special)};
 		if (i != rh.end())
 			return {*i, d_unique_buddy_state::Escort_goal_reachability::unreachable};
 	}
@@ -1180,7 +1180,7 @@ static void do_buddy_dude_stuff(const vmobjptridx_t buddy_objp)
 	if (BuddyState.Buddy_last_missile_time + F1_0*2 < GameTime64) {
 		//	See if a robot potentially in view cone
 		auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-		const ranges::subrange rh{vmobjptridx};
+		const std::ranges::subrange rh{vmobjptridx};
 		range_for (const auto &&objp, rh)
 		{
 			if ((objp->type == OBJ_ROBOT) && !Robot_info[get_robot_id(objp)].companion)

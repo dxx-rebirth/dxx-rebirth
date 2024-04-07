@@ -28,6 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ranges>
 
 #include "dxxerror.h"
 #include "inferno.h"
@@ -471,7 +472,7 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 		auto &mo{*pmo.get()};
 		return mo.obj->type == OBJ_NONE || mo.obj->signature != mo.Morph_sig;
 	}};
-	const auto moi{ranges::find_if(mob, moe, mop)};
+	const auto moi{std::ranges::find_if(mob, moe, mop)};
 
 	if (moi == moe)		//no free slots
 		return;

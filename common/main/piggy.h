@@ -25,8 +25,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <ranges>
 #include "dsx-ns.h"
-#include "backports-ranges.h"
 #include "fwd-inferno.h"
 #include "fwd-piggy.h"
 #include "fwd-robot.h"

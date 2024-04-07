@@ -4,11 +4,11 @@
  * project's Git history.  See COPYING.txt at the top level for license
  * terms and a link to the Git history.
  */
+#include <ranges>
 #include "mve_audio.h"
 #include "dxxsconf.h"
 #include <array>
 #include "d_enumerate.h"
-#include "backports-ranges.h"
 
 constexpr std::array<int, 256> audio_exp_table{
 {
@@ -33,7 +33,7 @@ constexpr std::array<int, 256> audio_exp_table{
 
 static void processSwath(std::span<int16_t> fout, const uint8_t *const data, std::array<int32_t, 2> offsets)
 {
-	for (const auto &&[i, d] : enumerate(ranges::subrange(data, std::next(data, fout.size()))))
+	for (const auto &&[i, d] : enumerate(std::ranges::subrange(data, std::next(data, fout.size()))))
     {
 		auto &o = offsets[i & 1];
 		o += audio_exp_table[d];

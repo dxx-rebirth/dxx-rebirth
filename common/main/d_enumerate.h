@@ -8,9 +8,9 @@
 
 #include <iterator>
 #include "dxxsconf.h"
-#include "backports-ranges.h"
 #include <tuple>
 #include <type_traits>
+#include <ranges>
 
 namespace d_enumerate {
 
@@ -222,9 +222,9 @@ auto operator-(const enumerated_iterator<range_index_type, range_iterator_type, 
 }
 
 template <std::input_or_output_iterator range_iterator_type, std::sentinel_for<range_iterator_type> range_sentinel_type, typename range_index_type>
-class enumerate : ranges::subrange<range_iterator_type, range_sentinel_type>
+class enumerate : std::ranges::subrange<range_iterator_type, range_sentinel_type>
 {
-	using base_type = ranges::subrange<range_iterator_type, range_sentinel_type>;
+	using base_type = std::ranges::subrange<range_iterator_type, range_sentinel_type>;
 	using enumerated_iterator_type = enumerated_iterator<
 		range_index_type,
 		range_iterator_type,
@@ -234,7 +234,7 @@ class enumerate : ranges::subrange<range_iterator_type, range_sentinel_type>
 public:
 	using base_type::size;
 	using index_type = range_index_type;
-	template <ranges::borrowed_range range_type>
+	template <std::ranges::borrowed_range range_type>
 		/* Require that range_type satisfy borrowed_range since the storage
 		 * owned by the range must exist until the `enumerate` object is
 		 * fully consumed.  If `range_type` does not satisfy borrowed range,
@@ -257,5 +257,5 @@ public:
 template <std::input_or_output_iterator range_iterator_type, std::sentinel_for<range_iterator_type> range_sentinel_type, typename index_type>
 inline constexpr bool std::ranges::enable_borrowed_range<enumerate<range_iterator_type, range_sentinel_type, index_type>> = true;
 
-template <ranges::borrowed_range range_type, typename index_type = decltype(d_enumerate::detail::array_index_type(static_cast<typename std::remove_reference<range_type>::type *>(nullptr)))>
+template <std::ranges::borrowed_range range_type, typename index_type = decltype(d_enumerate::detail::array_index_type(static_cast<typename std::remove_reference<range_type>::type *>(nullptr)))>
 enumerate(range_type &&r, index_type start = {/* value ignored for deduction guide */}) -> enumerate</* range_iterator_type = */ decltype(std::ranges::begin(std::declval<range_type &>())), /* range_sentinel_type = */ decltype(std::ranges::end(std::declval<range_type &>())), index_type>;

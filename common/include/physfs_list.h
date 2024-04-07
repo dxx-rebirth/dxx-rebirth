@@ -19,7 +19,7 @@ typedef char file_extension_t[5];
 #include "dsx-ns.h"
 #include "fwd-partial_range.h"
 #include <array>
-#include "backports-ranges.h"
+#include <ranges>
 
 namespace dcx {
 
@@ -82,11 +82,11 @@ typedef PHYSFSX_counted_list_template<PHYSFS_list_deleter> PHYSFSX_counted_list;
 
 [[nodiscard]]
 __attribute_nonnull()
-PHYSFSX_uncounted_list PHYSFSX_findFiles(const char *path, ranges::subrange<const file_extension_t *> exts);
+PHYSFSX_uncounted_list PHYSFSX_findFiles(const char *path, std::ranges::subrange<const file_extension_t *> exts);
 
 [[nodiscard]]
 __attribute_nonnull()
-PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, ranges::subrange<const file_extension_t *> exts);
+PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, std::ranges::subrange<const file_extension_t *> exts);
 
 }
 #endif

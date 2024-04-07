@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cinttypes>
 #include <string.h>
 #include <stdarg.h>
+#include <ranges>
 #include <errno.h>
 
 #include "pstypes.h"
@@ -616,7 +617,7 @@ static void write_trigger_text(PHYSFS_File *my_file)
 
 		//	Find which wall this trigger is connected to.
 		const auto &&we = vcwallptr.end();
-		const auto &&wi = ranges::find(vcwallptr.begin(), we, i, &wall::trigger);
+		const auto &&wi{std::ranges::find(vcwallptr.begin(), we, i, &wall::trigger)};
 		if (wi == we)
 			err_printf(my_file, "Error: Trigger %i is not connected to any wall, so it can never be triggered.", underlying_value(i));
 		else

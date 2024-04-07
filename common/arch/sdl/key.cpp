@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ranges>
 
 #include <SDL.h>
 #include <SDL_version.h>
@@ -33,7 +34,6 @@
 #include "dsx-ns.h"
 #include "compiler-range_for.h"
 #include <array>
-#include "backports-ranges.h"
 
 namespace dcx {
 
@@ -513,7 +513,7 @@ window_event_result key_handler(const SDL_KeyboardEvent *const kevent)
 
 	//=====================================================
 	const auto re = key_properties.rend();
-	const auto &&fi = ranges::find(key_properties.rbegin(), re, event_keysym, &key_props::sym);
+	const auto &&fi{std::ranges::find(key_properties.rbegin(), re, event_keysym, &key_props::sym)};
 	if (fi == re)
 		return window_event_result::ignored;
 	unsigned keycode = std::distance(key_properties.begin(), std::next(fi).base());

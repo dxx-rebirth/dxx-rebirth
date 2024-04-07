@@ -17,6 +17,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <sys/time.h>
+#include <ranges>
 #include <SDL.h>
 #include "window.h"
 #include "event.h"
@@ -114,7 +115,7 @@ static void con_scrub_markup(const std::span<char> buffer)
 {
 	const auto b = buffer.begin();
 	const auto e = buffer.end();
-	const auto &&i = ranges::find_if(b, e, [](const char c) { return c == CC_COLOR || c == CC_LSPACING || c == CC_UNDERLINE; });
+	const auto &&i{std::ranges::find_if(b, e, [](const char c) { return c == CC_COLOR || c == CC_LSPACING || c == CC_UNDERLINE; })};
 	if (i == e)
 		return;
 	auto p1 = i;
