@@ -1191,8 +1191,6 @@ static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_se
 {
 	auto &vp = Side_to_verts[sidenum];
 	vms_vector	vec1, vec2;
-	fix			dot;
-	int			degeneracy_flag = 0;
 
 	const auto segc{compute_segment_center(vcvertptr, sp)};
 	const auto sidec{compute_center_point_on_side(vcvertptr, sp, sidenum)};
@@ -1210,9 +1208,8 @@ static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_se
 	vm_vec_normalized_dir(vec2, vert2, vert1);
 	const auto cross0{vm_vec_cross(vec1, vec2)};
 
-	dot = vm_vec_dot(vec_to_center, cross0);
-	if (dot <= 0)
-		degeneracy_flag |= 1;
+	if (vm_vec_dot(vec_to_center, cross0) <= 0)
+		return 1;
 
 	//vm_vec_sub(&vec1, &Vertices[sp->verts[vp[2]]], &Vertices[sp->verts[vp[1]]]);
 	//vm_vec_sub(&vec2, &Vertices[sp->verts[vp[3]]], &Vertices[sp->verts[vp[2]]]);
@@ -1222,11 +1219,9 @@ static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_se
 	vm_vec_normalized_dir(vec2, vcvertptr(sp.verts[vp[side_relative_vertnum::_3]]), vert2);
 	const auto cross1{vm_vec_cross(vec1, vec2)};
 
-	dot = vm_vec_dot(vec_to_center, cross1);
-	if (dot <= 0)
-		degeneracy_flag |= 1;
-
-	return degeneracy_flag;
+	if (vm_vec_dot(vec_to_center, cross1) <= 0)
+		return 1;
+	return 0;
 }
 
 //	----
