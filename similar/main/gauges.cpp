@@ -2459,18 +2459,18 @@ static void draw_afterburner_bar(const hud_draw_context_hs_mr hudctx, const int 
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
 	const auto afterburner_gauge_x = AFTERBURNER_GAUGE_X;
 	const auto afterburner_gauge_y = AFTERBURNER_GAUGE_Y;
-	const auto &&table = multires_gauge_graphic.is_hires()
+	const auto [table_data, table_size] = multires_gauge_graphic.is_hires()
 		? std::make_pair(afterburner_bar_table_hires.data(), afterburner_bar_table_hires.size())
 		: std::make_pair(afterburner_bar_table.data(), afterburner_bar_table.size());
 	hud_gauge_bitblt(hudctx, afterburner_gauge_x, afterburner_gauge_y, GAUGE_AFTERBURNER);
-	const unsigned not_afterburner = fixmul(f1_0 - afterburner, table.second);
-	if (not_afterburner > table.second)
+	const unsigned not_afterburner = fixmul(f1_0 - afterburner, table_size);
+	if (not_afterburner > table_size)
 		return;
 	const uint8_t color = BM_XRGB(0, 0, 0);
 	const int base_top = hudctx.yscale(afterburner_gauge_y - 1);
 	const int base_bottom = hudctx.yscale(afterburner_gauge_y);
 	int y = 0;
-	range_for (auto &ab, unchecked_partial_range(table.first, not_afterburner))
+	for (auto &ab : unchecked_partial_range(table_data, not_afterburner))
 	{
 		const int left = hudctx.xscale(afterburner_gauge_x + ab.l);
 		const int right = hudctx.xscale(afterburner_gauge_x + ab.r + 1);
