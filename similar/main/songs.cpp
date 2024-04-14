@@ -53,11 +53,11 @@ namespace {
 class user_configured_level_songs : std::unique_ptr<bim_song_info[]>
 {
 	using base_type = std::unique_ptr<bim_song_info[]>;
-	std::size_t count;
+	std::size_t count{};
 public:
 	using base_type::operator[];
 	using base_type::operator bool;
-	user_configured_level_songs() = default;
+	constexpr user_configured_level_songs() = default;
 	explicit user_configured_level_songs(const std::size_t length) :
 		base_type{std::make_unique<bim_song_info[]>(length)}, count{length}
 	{
