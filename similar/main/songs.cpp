@@ -100,7 +100,6 @@ void user_configured_level_songs::operator=(std::vector<bim_song_info> &&v)
 	std::move(v.begin(), v.end(), &this->operator[](0u));
 }
 
-int Songs_initialized = 0;
 static int Song_playing = -1; // -1 if no song playing, else the Descent song number
 #if DXX_USE_SDL_REDBOOK_AUDIO
 static int Redbook_playing = 0; // Redbook track num differs from Song_playing. We need this for Redbook repeat hooks.
@@ -243,7 +242,6 @@ namespace {
 static void songs_init()
 {
 	using namespace std::string_view_literals;
-	Songs_initialized = 0;
 
 	BIMSongs.reset();
 	BIMSecretSongs.reset();
@@ -282,6 +280,9 @@ static void songs_init()
 			}
 		}
 		BIMSongs = std::move(builtin_songs);
+		/* BIMSecretSongs remains unset.  There is no built-in default song
+		 * list for secret levels.
+		 */
 	}
 	else
 	{
@@ -324,7 +325,6 @@ static void songs_init()
 		BIMSecretSongs = std::move(secret_songs);
 	}
 
-	Songs_initialized = 1;
 	fp.reset();
 
 	if (CGameArg.SndNoMusic)
@@ -369,7 +369,6 @@ void songs_uninit()
 #endif
 	BIMSecretSongs.reset();
 	BIMSongs.reset();
-	Songs_initialized = 0;
 }
 
 //stop any songs - builtin, redbook or jukebox - that are currently playing
@@ -560,13 +559,13 @@ namespace dsx {
 int songs_play_song( int songnum, int repeat )
 {
 	songs_init();
-	if (!Songs_initialized)
-		return 0;
 
 	switch (CGameCfg.MusicType)
 	{
 		case music_type::Builtin:
 		{
+			if (!BIMSongs)
+				break;
 			// EXCEPTION: If SONG_ENDLEVEL is not available, continue playing level song.
 			auto &s = BIMSongs[songnum];
 			if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum == SONG_ENDLEVEL && !PHYSFSX_exists(std::data(s.filename), 1))
@@ -681,9 +680,6 @@ int songs_play_level_song( int levelnum, int offset )
 	Assert( levelnum != 0 );
 
 	songs_init();
-	if (!Songs_initialized)
-		return 0;
-	
 	songnum = (levelnum>0)?(levelnum-1):(-levelnum);
 
 	switch (CGameCfg.MusicType)
@@ -707,7 +703,7 @@ int songs_play_level_song( int levelnum, int offset )
 				if (songs_play_file(std::data(BIMSecretSongs[secretsongnum].filename), 1, nullptr))
 					Song_playing = secretsongnum;
 			}
-			else if ((count_level_songs = BIMSongs.size() - SONG_FIRST_LEVEL_SONG) > 0)
+			else if (BIMSongs && (count_level_songs = BIMSongs.size() - SONG_FIRST_LEVEL_SONG) > 0)
 			{
 				songnum = SONG_FIRST_LEVEL_SONG + (songnum % count_level_songs);
 				if (songs_play_file(std::data(BIMSongs[songnum].filename), 1, nullptr))
