@@ -52,8 +52,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //Global variables for physics system
 
-#define ROLL_RATE	0x2000
 #define TURNROLL_SCALE	(0x4ec4/2)
+constexpr fix ROLL_RATE{0x2000};
 constexpr fixang DAMP_ANG{0x400};	//min angle to bank
 
 //check point against each side of segment. return bitmask, where bit
