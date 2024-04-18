@@ -223,7 +223,11 @@ static void add_song(std::vector<bim_song_info> &songs, const std::ranges::subra
 		std::ranges::subrange<std::span<char>::iterator> input;
 		operator bim_song_info() const
 		{
-			bim_song_info r;
+			/* `input` does not include a terminating null, so zero initialize
+			 * `r` before copying `input` into it.  Zeroing the entire buffer
+			 * is cheap, and avoids a lookup of the length of the input buffer.
+			 */
+			bim_song_info r{};
 			std::ranges::copy(input, std::ranges::begin(r.filename));
 			return r;
 		}
