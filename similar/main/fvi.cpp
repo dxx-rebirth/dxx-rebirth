@@ -1172,9 +1172,18 @@ int check_trans_wall(const vms_vector &pnt, const vcsegptridx_t seg, const siden
 	const auto tmap_num{side.tmap_num};
 	const grs_bitmap &rbm = (side.tmap_num2 != texture2_value::None)
 		? texmerge_get_cached_bitmap(tmap_num, side.tmap_num2)
-		: ( [](GameBitmaps_array &GameBitmaps, const bitmap_index texture1) -> const grs_bitmap & {
+		/* gcc-13 issues a -Wdangling-reference warning if this lambda returns
+		 * a `const grs_bitmap &`, but no warning if the lambda returns a
+		 * `const grs_bitmap *` to the same storage, and then converts it into
+		 * a reference in the caller.  Since the storage is in `GameBitmaps`,
+		 * both uses are safe.
+		 *
+		 * gcc-14 improved its heuristics and no longer warns for the lambda
+		 * returning a `const grs_bitmap &`.
+		 */
+		: *( [](GameBitmaps_array &GameBitmaps, const bitmap_index texture1) -> const grs_bitmap * {
 			PIGGY_PAGE_IN(texture1);
-			return GameBitmaps[texture1];
+			return &GameBitmaps[texture1];
 		} (GameBitmaps, Textures[get_texture_index(tmap_num)]) );
 	const auto bm{rle_expand_texture(rbm)};
 
