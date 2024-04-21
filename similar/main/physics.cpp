@@ -64,6 +64,20 @@ void check_and_fix_matrix(vms_matrix &m)
 
 namespace {
 
+[[nodiscard]]
+static fixang multiply_with_clamp_to_fixang(const fix rotvel, const fix frametime)
+{
+	/* Express the minimum and maximum as `fix` so that the result of `fixmul`
+	 * is compared without truncation.  After `std::clamp` is applied, conversion
+	 * to `fixang` cannot modify the value, because all possible values in
+	 * [`min`, `max`] are representable in `fixang`, and `std::clamp` is
+	 * guaranteed to return a value in [`min`, `max`].
+	 */
+	static constexpr fix min{std::numeric_limits<fixang>::min()};
+	static constexpr fix max{std::numeric_limits<fixang>::max()};
+	return std::clamp<fix>({fixmul(rotvel, frametime)}, {min}, {max});
+}
+
 static void do_physics_align_object(object_base &obj)
 {
 	fix largest_d{INT32_MIN};
@@ -119,13 +133,13 @@ static void do_physics_align_object(object_base &obj)
 
 }
 
-static void set_object_turnroll(object_base &obj)
+static void set_object_turnroll(object_base &obj, const fix frametime)
 {
-	const fixang desired_bank = fixmul(-obj.mtype.phys_info.rotvel.y, TURNROLL_SCALE);
+	const fixang desired_bank{multiply_with_clamp_to_fixang({-obj.mtype.phys_info.rotvel.y}, {TURNROLL_SCALE})};
 	if (obj.mtype.phys_info.turnroll != desired_bank)
 	{
 		fixang delta_ang;
-		const fixang raw_max_roll = fixmul(ROLL_RATE, FrameTime);
+		const fixang raw_max_roll{multiply_with_clamp_to_fixang(ROLL_RATE, frametime)};
 		delta_ang = desired_bank - obj.mtype.phys_info.turnroll;
 		const fixang max_roll{
 			std::abs(delta_ang) < raw_max_roll
@@ -212,22 +226,15 @@ static void do_physics_sim_rot(object_base &obj)
 
 	const auto frametime{FrameTime};
 
-	{
-		const auto multiply_with_clamp = [](const fix rotvel, const fix frametime) -> fixang {
-			static constexpr fix min{std::numeric_limits<fixang>::min()};
-			static constexpr fix max{std::numeric_limits<fixang>::max()};
-			return std::clamp<fix>({fixmul(rotvel, frametime)}, min, max);
-		};
-		obj.orient = vm_matrix_x_matrix(obj.orient, vm_angles_2_matrix(
-				vms_angvec{
-					.p = multiply_with_clamp(obj.mtype.phys_info.rotvel.x, frametime),
-					.b = multiply_with_clamp(obj.mtype.phys_info.rotvel.z, frametime),
-					.h = multiply_with_clamp(obj.mtype.phys_info.rotvel.y, frametime)
-				}));
-	}
+	obj.orient = vm_matrix_x_matrix(obj.orient, vm_angles_2_matrix(
+			vms_angvec{
+				.p = multiply_with_clamp_to_fixang(obj.mtype.phys_info.rotvel.x, frametime),
+				.b = multiply_with_clamp_to_fixang(obj.mtype.phys_info.rotvel.z, frametime),
+				.h = multiply_with_clamp_to_fixang(obj.mtype.phys_info.rotvel.y, frametime)
+			}));
 
 	if (obj.mtype.phys_info.flags & PF_TURNROLL)
-		set_object_turnroll(obj);
+		set_object_turnroll(obj, frametime);
 
 	//re-rotate object for bank caused by turn
 	/* The call to `set_object_turnroll` may have changed
