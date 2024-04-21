@@ -897,9 +897,8 @@ namespace {
 //	Return true if current segment contains some object.
 static const object_base *segment_contains_powerup(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const unique_segment &segnum, const powerup_type_t obj_id)
 {
-	range_for (const object &objp, objects_in(segnum, vcobjptridx, vcsegptr))
+	for (auto &o : objects_in<const object_base>(segnum, vcobjptridx, vcsegptr))
 	{
-		auto &o = objp;
 		if (o.type == OBJ_POWERUP && get_powerup_id(o) == obj_id)
 			return &o;
 	}

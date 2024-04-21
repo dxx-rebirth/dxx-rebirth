@@ -730,7 +730,7 @@ static unsigned is_door_side_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vc
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
-	range_for (const object_base &obj, objects_in(seg, vcobjptridx, vcsegptr))
+	for (auto &obj : objects_in<const object_base>(seg, vcobjptridx, vcsegptr))
 	{
 #if defined(DXX_BUILD_DESCENT_II)
 		if (obj.type == OBJ_WEAPON)

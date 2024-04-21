@@ -393,10 +393,10 @@ static void med_rotate_group(const vms_matrix &rotmat, group::segment_array_type
 			vertex_list[v] = true;
 
 		//	Rotate center of all objects in group.
-		range_for (const auto objp, objects_in(sp, vmobjptridx, vcsegptr))
+		for (auto &obj : objects_in<object_base>(sp, vmobjptridx, vcsegptr))
 		{
-			const auto tv{vm_vec_rotate(vm_vec_sub(objp->pos, rotate_center), rotmat)};
-			vm_vec_add(objp->pos, tv, rotate_center);
+			const auto tv{vm_vec_rotate(vm_vec_sub(obj.pos, rotate_center), rotmat)};
+			vm_vec_add(obj.pos, tv, rotate_center);
 		}			
 	}
 
@@ -465,10 +465,10 @@ static void duplicate_group(enumerated_array<uint8_t, MAX_VERTICES, vertnum_t> &
 		const auto &&segp = vmsegptr(gs);
 		const auto &&new_segment_id = med_create_duplicate_segment(Segments, segp);
 		new_segments.emplace_back(new_segment_id);
-		range_for (const auto objp, objects_in(segp, vmobjptridx, vmsegptr))
+		for (auto &obj : objects_in<object>(segp, vmobjptridx, vmsegptr))
 		{
-			if (objp->type != OBJ_PLAYER) {
-				const auto &&new_obj_id = obj_create_copy(objp, vmsegptridx(new_segment_id));
+			if (obj.type != OBJ_PLAYER) {
+				const auto &&new_obj_id = obj_create_copy(obj, vmsegptridx(new_segment_id));
 				(void)new_obj_id; // FIXME!
 			}
 		}
@@ -630,8 +630,8 @@ static int med_copy_group(const unsigned delta_flag, const vmsegptridx_t base_se
 	//	Now, translate all object positions.
 	range_for(const auto &segnum, GroupList[new_current_group].segments)
 	{
-		range_for (const auto objp, objects_in(vmsegptr(segnum), vmobjptridx, vmsegptr))
-			vm_vec_sub2(objp->pos, srcv);
+		for (auto &obj : objects_in<object_base>(vmsegptr(segnum), vmobjptridx, vmsegptr))
+			vm_vec_sub2(obj.pos, srcv);
 	}
 
 	//	Now, rotate segments in group so orientation of group_seg is same as base_seg.
@@ -647,8 +647,8 @@ static int med_copy_group(const unsigned delta_flag, const vmsegptridx_t base_se
 	//	Now, xlate all object positions.
 	range_for(const auto &segnum, GroupList[new_current_group].segments)
 	{
-		range_for (const auto objp, objects_in(vmsegptr(segnum), vmobjptridx, vmsegptr))
-			vm_vec_add2(objp->pos, destv);
+		for (auto &obj : objects_in<object_base>(vmsegptr(segnum), vmobjptridx, vmsegptr))
+			vm_vec_add2(obj.pos, destv);
 	}
 
 	//	Now, copy all walls (ie, doors, illusionary, etc.) into the new group.
@@ -775,8 +775,8 @@ static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, const si
 	//	Now, move all object positions.
 	range_for(const auto &segnum, GroupList[current_group].segments)
 	{
-		range_for (const auto objp, objects_in(vmsegptr(segnum), vmobjptridx, vmsegptr))
-			vm_vec_sub2(objp->pos, srcv);
+		for (auto &obj : objects_in<object_base>(vmsegptr(segnum), vmobjptridx, vmsegptr))
+			vm_vec_sub2(obj.pos, srcv);
 	}
 
 	//	Now, rotate segments in group so orientation of group_seg is same as base_seg.
@@ -792,8 +792,8 @@ static int med_move_group(int delta_flag, const vmsegptridx_t base_seg, const si
 	//	Now, rotate all object positions.
 	range_for(const auto &segnum, GroupList[current_group].segments)
 	{
-		range_for (const auto objp, objects_in(vmsegptr(segnum), vmobjptridx, vmsegptr))
-			vm_vec_add2(objp->pos, destv);
+		for (auto &obj : objects_in<object_base>(vmsegptr(segnum), vmobjptridx, vmsegptr))
+			vm_vec_add2(obj.pos, destv);
 	}
 
 	//	Now, form joint on connecting sides.

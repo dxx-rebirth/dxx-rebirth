@@ -2087,7 +2087,7 @@ static int check_object_object_intersection(const vms_vector &pos, fix size, con
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
 	//	If this would intersect with another object (only check those in this segment), then try to move.
-	range_for (const object_base &curobj, objects_in(segp, vcobjptridx, vcsegptr))
+	for (auto &curobj : objects_in<const object_base>(segp, vcobjptridx, vcsegptr))
 	{
 		if (curobj.type == OBJ_PLAYER || curobj.type == OBJ_ROBOT || curobj.type == OBJ_CNTRLCEN)
 		{
@@ -3081,9 +3081,8 @@ static void make_nearby_robot_snipe(fvmsegptr &vmsegptr, const object &robot, co
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	range_for (auto &i, partial_const_range(bfs_list, bfs_length)) {
-		range_for (object &objp, objects_in(vmsegptr(i), vmobjptridx, vmsegptr))
+		for (auto &obj : objects_in<object>(vmsegptr(i), vmobjptridx, vmsegptr))
 		{
-			object &obj = objp;
 			if (obj.type != OBJ_ROBOT)
 				continue;
 			if (obj.ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)

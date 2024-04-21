@@ -336,7 +336,7 @@ static void paging_touch_segment(const d_eclip_array &Effects, const d_robot_inf
 		paging_touch_side(Effects, Textures, Vclip, segp, sn);
 	}
 
-	range_for (const object &objp, objects_in(segp, vcobjptridx, vcsegptr))
+	for (auto &objp : objects_in<const object_base>(segp, vcobjptridx, vcsegptr))
 		paging_touch_object(Robot_info, Textures, Vclip, Weapon_info, objp);
 }
 

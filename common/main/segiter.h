@@ -22,9 +22,15 @@
 
 namespace dsx {
 
-template <typename T>
+template <typename iterator_value_type>
 class objects_in
 {
+	/* These are never defined, and exist only for use in the decltype expression. */
+	static valptridx<object>::vcptridx iterator_base_dispatch(const object_base &);
+	static valptridx<object>::vmptridx iterator_base_dispatch(object_base &);
+	static valptridx<object>::vcptridx iterator_base_dispatch(valptridx<object>::vcptridx);
+	static valptridx<object>::vmptridx iterator_base_dispatch(valptridx<object>::vmptridx);
+	using iterator_base_type = decltype(iterator_base_dispatch(std::declval<iterator_value_type &>()));
 	class iterator;
 	class sentinel
 	{
@@ -38,7 +44,7 @@ public:
 	}
 	const iterator &begin() const { return b; }
 	static sentinel end() { return {}; }
-	static T construct(const unique_segment &s, auto &of, auto &sf)
+	static iterator_base_type construct(const unique_segment &s, auto &of, auto &sf)
 		requires(
 			std::convertible_to<decltype(of(s.objects)), const object_base &> &&
 			requires(const object_base o) {
@@ -56,8 +62,8 @@ public:
 		)
 		{
 			if (s.objects == object_none)
-				return T{object_none, typename T::allow_none_construction{}};
-			auto opi = of(s.objects);
+				return iterator_base_type{object_none, typename iterator_base_type::allow_none_construction{}};
+			iterator_base_type opi{of(s.objects)};
 #if DXX_SEGITER_DEBUG_OBJECT_LINKAGE
 			const object_base &o = opi;
 			/* Assert that the first object in the segment claims to be
@@ -73,28 +79,43 @@ public:
 		}
 };
 
-template <typename T>
-class objects_in<T>::iterator :
-	T
+template <typename iterator_value_type>
+class objects_in<iterator_value_type>::iterator :
+	objects_in<iterator_value_type>::iterator_base_type
 {
-	using T::m_ptr;
-	using T::m_idx;
+	using iterator_base_type = objects_in<iterator_value_type>::iterator_base_type;
+	using iterator_base_type::m_ptr;
+	using iterator_base_type::m_idx;
 public:
 	using iterator_category = std::forward_iterator_tag;
-	using value_type = T;
+	using value_type = iterator_value_type;
 	using difference_type = std::ptrdiff_t;
 	using pointer = void;
-	using reference = T;
-	iterator(T o) :
-		T(std::move(o))
+	/* If the result of `operator*()` is a reference, set `reference` as a type
+	 * alias for it.
+	 * If the result of `operator*()` is not a reference, set `reference` to
+	 * `void` to prevent using algorithms that may behave badly when given a
+	 * proxy object.
+	 */
+	using reference = typename std::conditional_t<std::is_same_v<iterator_base_type, iterator_value_type>, void, value_type &>;
+	[[nodiscard]]
+	constexpr iterator(iterator_base_type o) :
+		iterator_base_type{std::move(o)}
 	{
 	}
-	T operator *() const { return *this; }
+	/* If `std::is_same_v` is true, then return a copy of the underlying
+	 * iterator, so that the caller cannot modify the iterator of `this`.  If
+	 * `std::is_same_v` is false, then return the result of converting `this`
+	 * to `value_type &`, which will typically be `const object &` or
+	 * `object &`.
+	 */
+	[[nodiscard]]
+	typename std::conditional_t<std::is_same_v<iterator_base_type, value_type>, value_type, value_type &> operator *() const { return *this; }
 	iterator &operator++()
 	{
-		const auto oi = m_idx;
-		const auto op = m_ptr;
-		const auto ni = op->next;
+		const auto oi{m_idx};
+		const auto op{m_ptr};
+		const auto ni{op->next};
 		m_idx = ni;
 		/* If ni == object_none, then the iterator is at end() and there should
 		 * be no further reads of m_ptr.  Optimizing compilers will typically
@@ -121,15 +142,22 @@ public:
 		}
 		return *this;
 	}
+	[[nodiscard]]
 	constexpr bool operator==(const iterator &rhs) const
 	{
 		return m_idx == rhs.m_idx;
 	}
+	[[nodiscard]]
 	constexpr bool operator==(const sentinel &) const
 	{
 		return m_idx == object_none;
 	}
 };
+
+static_assert(std::same_as<decltype(std::declval<objects_in<object>>().begin().operator *()), object &>);
+static_assert(std::same_as<decltype(std::declval<objects_in<const object>>().begin().operator *()), const object &>);
+static_assert(std::same_as<decltype(std::declval<objects_in<vcobjptridx_t>>().begin().operator *()), vcobjptridx_t>);
+static_assert(std::same_as<decltype(std::declval<objects_in<vmobjptridx_t>>().begin().operator *()), vmobjptridx_t>);
 
 objects_in(const unique_segment &s, auto &object_factory, auto & /* segment_factory */) -> objects_in<decltype(object_factory(s.objects))>;
 

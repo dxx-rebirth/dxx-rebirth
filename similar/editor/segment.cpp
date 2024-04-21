@@ -562,7 +562,7 @@ static void compress_segments(void)
 		}	// end for s
 
 				//Update object segment pointers
-		for (object_base &objp : objects_in(suhole.u, vmobjptridx, vmsegptr))
+		for (auto &objp : objects_in<object_base>(suhole.u, vmobjptridx, vmsegptr))
 		{
 			assert(objp.segnum == seg);
 			objp.segnum = hole;

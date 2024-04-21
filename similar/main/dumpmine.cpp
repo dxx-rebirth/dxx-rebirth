@@ -400,7 +400,7 @@ static void write_control_center_text(fvcsegptridx &vcsegptridx, PHYSFS_File *my
 			count++;
 			PHYSFSX_printf(my_file, "Segment %3hu is a control center.\n", static_cast<uint16_t>(segp));
 			count2 = 0;
-			range_for (const object &objp, objects_in(segp, vcobjptridx, vcsegptr))
+			for (auto &objp : objects_in<const object_base>(segp, vcobjptridx, vcsegptr))
 			{
 				if (objp.type == OBJ_CNTRLCEN)
 					count2++;
