@@ -127,7 +127,7 @@ static void set_object_turnroll(object_base &obj)
 {
 	fixang desired_bank;
 
-	desired_bank = -fixmul(obj.mtype.phys_info.rotvel.y, TURNROLL_SCALE);
+	desired_bank = fixmul(-obj.mtype.phys_info.rotvel.y, TURNROLL_SCALE);
 
 	if (obj.mtype.phys_info.turnroll != desired_bank)
 	{
