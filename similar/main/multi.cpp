@@ -723,6 +723,9 @@ namespace dsx {
 
 void multi_sort_kill_list()
 {
+	const auto n_players{N_players};
+	if (n_players > std::size(sorted_kills))
+		return;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	// Sort the kills list each time a new kill is added
 	const auto build_kill_list_sort_key{[](fvcobjptr &vcobjptr, const game_mode_flags game_mode,
@@ -773,7 +776,7 @@ void multi_sort_kill_list()
 		vcplayerptr)](const unsigned sk) {
 		return keys[sk];
 	}};
-	std::ranges::sort(partial_range(sorted_kills, N_players), std::ranges::greater{}, std::ref(projection));
+	std::ranges::sort(std::span(sorted_kills).first(n_players), std::ranges::greater{}, std::ref(projection));
 }
 
 namespace {
