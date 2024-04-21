@@ -56,9 +56,6 @@ constexpr fix ROLL_RATE{0x2000};
 constexpr fixang DAMP_ANG{0x400};	//min angle to bank
 constexpr fix TURNROLL_SCALE{0x4ec4/2};
 
-//check point against each side of segment. return bitmask, where bit
-//set means behind that side
-
 //make sure matrix is orthogonal
 void check_and_fix_matrix(vms_matrix &m)
 {
@@ -69,16 +66,15 @@ namespace {
 
 static void do_physics_align_object(object_base &obj)
 {
-	fix largest_d = INT32_MIN;
-	const shared_side *best_side = nullptr;
+	fix largest_d{INT32_MIN};
+	const shared_side *best_side{nullptr};
 	// bank player according to segment orientation
 
 	//find side of segment that player is most alligned with
 
 	range_for (auto &i, vcsegptr(obj.segnum)->shared_segment::sides)
 	{
-		const auto d = vm_vec_dot(i.normals[0], obj.orient.uvec);
-
+		const auto d{vm_vec_dot(i.normals[0], obj.orient.uvec)};
 		if (largest_d < d)
 		{
 			largest_d = d;
@@ -111,12 +107,12 @@ static void do_physics_align_object(object_base &obj)
 						? static_cast<fixang>(-uncapped_roll_ang)
 						: static_cast<fixang>(uncapped_roll_ang))
 			};
-			const auto &&rotmat = vm_angles_2_matrix(
+			const auto &&rotmat{vm_angles_2_matrix(
 				vms_angvec{
 					.p = fixang{0},
 					.b = roll_ang,
 					.h = fixang{0}
-				});
+				})};
 			obj.orient = vm_matrix_x_matrix(obj.orient, rotmat);
 		}
 	}
@@ -125,27 +121,19 @@ static void do_physics_align_object(object_base &obj)
 
 static void set_object_turnroll(object_base &obj)
 {
-	fixang desired_bank;
-
-	desired_bank = fixmul(-obj.mtype.phys_info.rotvel.y, TURNROLL_SCALE);
-
+	const fixang desired_bank = fixmul(-obj.mtype.phys_info.rotvel.y, TURNROLL_SCALE);
 	if (obj.mtype.phys_info.turnroll != desired_bank)
 	{
-		fixang delta_ang,max_roll;
-
-		max_roll = fixmul(ROLL_RATE,FrameTime);
-
+		fixang delta_ang;
+		const fixang raw_max_roll = fixmul(ROLL_RATE, FrameTime);
 		delta_ang = desired_bank - obj.mtype.phys_info.turnroll;
-
-		if (labs(delta_ang) < max_roll)
-			max_roll = delta_ang;
-		else
-			if (delta_ang < 0)
-				max_roll = -max_roll;
-
+		const fixang max_roll{
+			std::abs(delta_ang) < raw_max_roll
+				? delta_ang
+				: (delta_ang < 0 ? static_cast<fixang>(-raw_max_roll) : raw_max_roll)
+		};
 		obj.mtype.phys_info.turnroll += max_roll;
 	}
-
 }
 
 }
@@ -172,14 +160,10 @@ static void do_physics_sim_rot(object_base &obj)
 
 	if (obj.mtype.phys_info.drag)
 	{
-		int count;
-		fix drag,r,k;
-
-		count = FrameTime / FT;
-		r = FrameTime % FT;
-		k = fixdiv(r,FT);
-
-		drag = (obj.mtype.phys_info.drag * 5) / 2;
+		const fix drag{(obj.mtype.phys_info.drag * 5) / 2};
+		int count{FrameTime / FT};
+		const fix r{FrameTime % FT};
+		const fix k{fixdiv(r, FT)};
 
 		if (obj.mtype.phys_info.flags & PF_USES_THRUST)
 		{
@@ -199,8 +183,7 @@ static void do_physics_sim_rot(object_base &obj)
 			if (! (obj.mtype.phys_info.flags & PF_FREE_SPINNING))
 #endif
 		{
-			fix total_drag=f1_0;
-
+			fix total_drag{F1_0};
 			while (count--)
 				total_drag = fixmul(total_drag,f1_0-drag);
 
@@ -218,12 +201,12 @@ static void do_physics_sim_rot(object_base &obj)
 	//unrotate object for bank caused by turn
 	if (const auto turnroll{obj.mtype.phys_info.turnroll})
 	{
-		const auto &&rotmat = vm_angles_2_matrix(
+		const auto &&rotmat{vm_angles_2_matrix(
 			vms_angvec{
 				.p = fixang{0},
 				.b = static_cast<fixang>(-turnroll),
 				.h = fixang{0}
-			});
+			})};
 		obj.orient = vm_matrix_x_matrix(obj.orient, rotmat);
 	}
 
@@ -260,7 +243,6 @@ static void do_physics_sim_rot(object_base &obj)
 					.h = fixang{0}
 				}));
 	}
-
 	check_and_fix_matrix(obj.orient);
 }
 
@@ -275,7 +257,7 @@ static void fix_illegal_wall_intersection(const vmobjptridx_t obj)
 		return;
 
 	auto &vcvertptr = Vertices.vcptr;
-	const auto &&hresult = sphere_intersects_wall(vcsegptridx, vcvertptr, obj->pos, vcsegptridx(obj->segnum), obj->size);
+	const auto &&hresult{sphere_intersects_wall(vcsegptridx, vcvertptr, obj->pos, vcsegptridx(obj->segnum), obj->size)};
 	if (hresult.seg)
 	{
 		vm_vec_scale_add2(obj->pos, hresult.seg->sides[hresult.side].normals[0], FrameTime*10);
@@ -357,17 +339,14 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 	//do thrust & drag
 	if (const fix drag{obj->mtype.phys_info.drag})
 	{
-		int count;
-		fix r,k,have_accel;
-
-		count = FrameTime / FT;
-		r = FrameTime % FT;
-		k = fixdiv(r,FT);
+		int count{FrameTime / FT};
+		const fix r{FrameTime % FT};
+		const fix k{fixdiv(r, FT)};
 
 		if (obj->mtype.phys_info.flags & PF_USES_THRUST) {
 
 			const auto accel{vm_vec_copy_scale(obj->mtype.phys_info.thrust,fixdiv(f1_0,obj->mtype.phys_info.mass))};
-			have_accel = (accel.x || accel.y || accel.z);
+			const bool have_accel{accel.x || accel.y || accel.z};
 
 			while (count--) {
 				if (have_accel)
@@ -384,7 +363,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 		}
 		else if (drag)
 		{
-			fix total_drag=f1_0;
+			fix total_drag{F1_0};
 
 			while (count--)
 				total_drag = fixmul(total_drag,f1_0-drag);
@@ -410,7 +389,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 		//Move the object
 		const auto frame_vec{vm_vec_copy_scale(obj->mtype.phys_info.velocity, sim_time)};
 
-		if ( (frame_vec.x==0) && (frame_vec.y==0) && (frame_vec.z==0) )	
+		if (frame_vec == vms_vector{})
 			break;
 
 		count++;
