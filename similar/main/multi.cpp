@@ -2005,8 +2005,6 @@ static void multi_do_remobj(fvmobjptr &vmobjptr, const multiplayer_rspan<multipl
 	// which remote list is it entered in
 	auto obj_owner = buf[3];
 
-	Assert(objnum >= 0);
-
 	if (objnum < 1)
 		return;
 
