@@ -60,11 +60,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_range.h"
 #include "d_zip.h"
 
-#define VERSION_NUMBER 		1
 #define SCORES_FILENAME 	"descent.hi"
 #define COOL_MESSAGE_LEN 	50
 namespace dcx {
 constexpr std::integral_constant<unsigned, 10> MAX_HIGH_SCORES{};
+constexpr std::uint8_t high_score_version{1};
 
 struct score_items_context
 {
@@ -154,7 +154,8 @@ static void scores_read(all_scores *scores)
 	}
 	// Read 'em in...
 	PHYSFS_read(fp, scores, sizeof(all_scores), 1);
-	if ( (scores->version!=VERSION_NUMBER)||(scores->signature[0]!='D')||(scores->signature[1]!='H')||(scores->signature[2]!='S') )	{
+	if (scores->version != high_score_version || scores->signature[0] != 'D' || scores->signature[1] != 'H' || scores->signature[2] != 'S')
+	{
 		*scores = {};
 		return;
 	}
@@ -172,7 +173,7 @@ static void scores_write(all_scores *scores)
 	scores->signature[0]='D';
 	scores->signature[1]='H';
 	scores->signature[2]='S';
-	scores->version = VERSION_NUMBER;
+	scores->version = high_score_version;
 	PHYSFS_write(fp, scores,sizeof(all_scores), 1);
 }
 
