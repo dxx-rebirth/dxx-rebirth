@@ -895,7 +895,7 @@ namespace {
 
 //	------------------------------------------------------------------------------------------------------
 //	Return true if current segment contains some object.
-static const object *segment_contains_powerup(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const unique_segment &segnum, const powerup_type_t obj_id)
+static const object_base *segment_contains_powerup(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const unique_segment &segnum, const powerup_type_t obj_id)
 {
 	range_for (const object &objp, objects_in(segnum, vcobjptridx, vcsegptr))
 	{
@@ -907,7 +907,7 @@ static const object *segment_contains_powerup(fvcobjptridx &vcobjptridx, fvcsegp
 }
 
 //	------------------------------------------------------------------------------------------------------
-static const object *powerup_nearby_aux(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const vcsegidx_t segnum, const powerup_type_t object_id, uint_fast32_t depth)
+static const object_base *powerup_nearby_aux(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const vcsegidx_t segnum, const powerup_type_t object_id, uint_fast32_t depth)
 {
 	const cscusegment &&segp = vcsegptr(segnum);
 	if (auto r = segment_contains_powerup(vcobjptridx, vcsegptr, segp, object_id))
@@ -925,7 +925,7 @@ static const object *powerup_nearby_aux(fvcobjptridx &vcobjptridx, fvcsegptr &vc
 
 //	------------------------------------------------------------------------------------------------------
 //	Return true if some powerup is nearby (within 3 segments).
-static const object *weapon_nearby(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const object_base &objp, const powerup_type_t weapon_id)
+static const object_base *weapon_nearby(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegptr, const object_base &objp, const powerup_type_t weapon_id)
 {
 	return powerup_nearby_aux(vcobjptridx, vcsegptr, objp.segnum, weapon_id, 2);
 }
