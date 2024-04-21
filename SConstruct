@@ -5235,6 +5235,19 @@ class DXXProgram(DXXCommon):
 		print(f'===== {self.PROGRAM_NAME} {extra_version} {compute_extra_version.revparse_HEAD} =====')
 		user_settings.register_variables(prefix, variables, filtered_help)
 
+	# Run `init()`, but decorate any exception that occurs with a description
+	# of the profile for this instance.  This allows the user to see which
+	# profile triggered the exception.
+	def init_with_decoration(self, substenv):
+		try:
+			self.init(substenv)
+		except Exception as e:
+			# Patch the exception's arguments instead of using Python exception
+			# chaining.  Using `raise Exception('') from e` causes SCons not to
+			# show the traceback for `e`.
+			e.args = (f'Failed to initialize profile {self._argument_prefix_list!r}: {e.args[0]}',) + e.args[1:]
+			raise
+
 	def init(self,substenv):
 		user_settings = self.user_settings
 		user_settings.read_variables(self, self.variables, substenv)
@@ -5662,7 +5675,7 @@ def main(register_program,_d1xp=D1XProgram,_d2xp=D2XProgram):
 	d2x=prefix-list  Enable D2X-Rebirth with prefix-list modifiers
 	dxx=VALUE        Equivalent to d1x=VALUE d2x=VALUE
 """ +	\
-		''.join([f'{d.program_message_prefix}:\n{d.init(substenv)}' for d in dxx])
+		''.join([f'{d.program_message_prefix}:\n{d.init_with_decoration(substenv)}' for d in dxx])
 	)
 	if not dxx:
 		return
