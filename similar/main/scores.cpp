@@ -63,6 +63,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SCORES_FILENAME 	"descent.hi"
 #define COOL_MESSAGE_LEN 	50
 namespace dcx {
+
+namespace {
+
 constexpr std::integral_constant<unsigned, 10> MAX_HIGH_SCORES{};
 constexpr std::uint8_t high_score_version{1};
 
@@ -74,6 +77,8 @@ struct score_items_context
 	{
 	}
 };
+
+}
 
 }
 
