@@ -23,7 +23,7 @@ namespace dcx {
 
 //#define USE_ISQRT 1
 
-constexpr vms_matrix vmd_identity_matrix = IDENTITY_MATRIX;
+constexpr vms_matrix vmd_identity_matrix{IDENTITY_MATRIX};
 constexpr vms_vector vmd_zero_vector{};
 
 namespace {
@@ -31,9 +31,9 @@ namespace {
 vms_vector vm_vec_divide(const vms_vector &src, const fix m)
 {
 	return vms_vector{
-		.x = fixdiv(src.x, m),
-		.y = fixdiv(src.y, m),
-		.z = fixdiv(src.z, m),
+		.x = fixdiv({src.x}, {m}),
+		.y = fixdiv({src.y}, {m}),
+		.z = fixdiv({src.z}, {m}),
 	};
 }
 
@@ -68,9 +68,11 @@ static void vm_vector_to_matrix_f(vms_matrix &m)
 //ok for dest to equal either source, but should use vm_vec_add2() if so
 vms_vector &vm_vec_add(vms_vector &dest,const vms_vector &src0,const vms_vector &src1)
 {
-	dest.x = src0.x + src1.x;
-	dest.y = src0.y + src1.y;
-	dest.z = src0.z + src1.z;
+	dest = vms_vector{
+		.x = src0.x + src1.x,
+		.y = src0.y + src1.y,
+		.z = src0.z + src1.z,
+	};
 	return dest;
 }
 
@@ -79,9 +81,11 @@ vms_vector &vm_vec_add(vms_vector &dest,const vms_vector &src0,const vms_vector 
 //ok for dest to equal either source, but should use vm_vec_sub2() if so
 vms_vector &_vm_vec_sub(vms_vector &dest,const vms_vector &src0,const vms_vector &src1)
 {
-	dest.x = src0.x - src1.x;
-	dest.y = src0.y - src1.y;
-	dest.z = src0.z - src1.z;
+	dest = vms_vector{
+		.x = src0.x - src1.x,
+		.y = src0.y - src1.y,
+		.z = src0.z - src1.z,
+	};
 	return dest;
 }
 
@@ -113,25 +117,25 @@ static inline fix avg_fix(fix64 a, fix64 b)
 vms_vector vm_vec_avg(const vms_vector &src0, const vms_vector &src1)
 {
 	return vms_vector{
-		.x = avg_fix(src0.x, src1.x),
-		.y = avg_fix(src0.y, src1.y),
-		.z = avg_fix(src0.z, src1.z),
+		.x = avg_fix({src0.x}, {src1.x}),
+		.y = avg_fix({src0.y}, {src1.y}),
+		.z = avg_fix({src0.z}, {src1.z}),
 	};
 }
 
 //scales a vector in place.  returns ptr to vector
-vms_vector &vm_vec_scale(vms_vector &dest,fix s)
+vms_vector &vm_vec_scale(vms_vector &dest, const fix s)
 {
-	return dest = vm_vec_copy_scale(dest, s);
+	return dest = vm_vec_copy_scale(dest, {s});
 }
 
 //scales and copies a vector.  returns scaled result
 vms_vector vm_vec_copy_scale(const vms_vector src, const fix s)
 {
 	return vms_vector{
-		.x = fixmul(src.x, s),
-		.y = fixmul(src.y, s),
-		.z = fixmul(src.z, s),
+		.x = fixmul({src.x}, {s}),
+		.y = fixmul({src.y}, {s}),
+		.z = fixmul({src.z}, {s}),
 	};
 }
 
@@ -140,9 +144,9 @@ vms_vector vm_vec_copy_scale(const vms_vector src, const fix s)
 vms_vector vm_vec_scale_add(const vms_vector &src1, const vms_vector &src2, const fix k)
 {
 	return vms_vector{
-		.x = src1.x + fixmul(src2.x, k),
-		.y = src1.y + fixmul(src2.y, k),
-		.z = src1.z + fixmul(src2.z, k),
+		.x = src1.x + fixmul({src2.x}, {k}),
+		.y = src1.y + fixmul({src2.y}, {k}),
+		.z = src1.z + fixmul({src2.z}, {k}),
 	};
 }
 
@@ -150,9 +154,9 @@ vms_vector vm_vec_scale_add(const vms_vector &src1, const vms_vector &src2, cons
 //dest += k * src
 void vm_vec_scale_add2(vms_vector &dest,const vms_vector &src,fix k)
 {
-	dest.x += fixmul(src.x,k);
-	dest.y += fixmul(src.y,k);
-	dest.z += fixmul(src.z,k);
+	dest.x += fixmul({src.x}, {k});
+	dest.y += fixmul({src.y}, {k});
+	dest.z += fixmul({src.z}, {k});
 }
 
 //scales a vector in place, taking n/d for scale.  returns ptr to vector
@@ -165,11 +169,12 @@ void vm_vec_scale2(vms_vector &dest,fix n,fix d)
 	dest.x = fl2f( f2fl(dest.x) * nd);
 	dest.y = fl2f( f2fl(dest.y) * nd);
 	dest.z = fl2f( f2fl(dest.z) * nd);
-#else
-	dest.x = fixmuldiv(dest.x,n,d);
-	dest.y = fixmuldiv(dest.y,n,d);
-	dest.z = fixmuldiv(dest.z,n,d);
 #endif
+	dest = vms_vector{
+		.x = fixmuldiv({dest.x}, {n}, {d}),
+		.y = fixmuldiv({dest.y}, {n}, {d}),
+		.z = fixmuldiv({dest.z}, {n}, {d}),
+	};
 }
 
 [[nodiscard]]
@@ -188,14 +193,14 @@ static fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector &v)
 
 fix vm_vec_dot(const vms_vector &v0,const vms_vector &v1)
 {
-	return vm_vec_dot3(v0.x, v0.y, v0.z, v1);
+	return vm_vec_dot3({v0.x}, {v0.y}, {v0.z}, v1);
 }
 
 vm_magnitude_squared vm_vec_mag2(const vms_vector &v)
 {
-	const int64_t x = v.x;
-	const int64_t y = v.y;
-	const int64_t z = v.z;
+	const int64_t x{v.x};
+	const int64_t y{v.y};
+	const int64_t z{v.z};
 	return vm_magnitude_squared{static_cast<uint64_t>((x * x) + (y * y) + (z * z))};
 }
 
@@ -219,25 +224,21 @@ vm_distance_squared vm_vec_dist2(const vms_vector &v0,const vms_vector &v1)
 //uses dist = largest + next_largest*3/8 + smallest*3/16
 vm_magnitude vm_vec_mag_quick(const vms_vector &v)
 {
-	fix a,b,c,bc;
-
-	a = labs(v.x);
-	b = labs(v.y);
-	c = labs(v.z);
+	fix a{std::abs(v.x)};
+	fix b{std::abs(v.y)};
 
 	if (a < b) {
 		std::swap(a, b);
 	}
 
+	fix c{std::abs(v.z)};
 	if (b < c) {
 		std::swap(b, c);
 		if (a < b) {
 			std::swap(a, b);
 		}
 	}
-
-	bc = (b>>2) + (c>>3);
-
+	const fix bc{(b >> 2) + (c >> 3)};
 	return vm_magnitude{static_cast<uint32_t>(a + bc + (bc>>1))};
 }
 
@@ -252,7 +253,7 @@ vm_distance vm_vec_dist_quick(const vms_vector &v0,const vms_vector &v1)
 //normalize a vector. returns mag of source vec
 vm_magnitude vm_vec_copy_normalize(vms_vector &dest,const vms_vector &src)
 {
-	auto m = vm_vec_mag(src);
+	const auto m{vm_vec_mag(src)};
 	if (likely(m)) {
 		dest = vm_vec_divide(src, m);
 	}
@@ -268,7 +269,7 @@ vm_magnitude vm_vec_normalize(vms_vector &v)
 //normalize a vector. returns mag of source vec. uses approx mag
 vm_magnitude vm_vec_copy_normalize_quick(vms_vector &dest,const vms_vector &src)
 {
-	auto m = vm_vec_mag_quick(src);
+	const auto m{vm_vec_mag_quick(src)};
 	if (likely(m)) {
 		dest = vm_vec_divide(src, m);
 	}
@@ -382,7 +383,6 @@ vms_vector vm_vec_perp(const vms_vector &p0, const vms_vector &p1, const vms_vec
 	return vm_vec_cross(t0, t1);
 }
 
-
 //computes the delta angle between two vectors. 
 //vectors need not be normalized. if they are, call vm_vec_delta_ang_norm()
 //the forward vector (third parameter) can be NULL, in which case the absolute
@@ -401,9 +401,7 @@ fixang vm_vec_delta_ang(const vms_vector &v0,const vms_vector &v1,const vms_vect
 //computes the delta angle between two normalized vectors. 
 fixang vm_vec_delta_ang_norm(const vms_vector &v0,const vms_vector &v1,const vms_vector &fvec)
 {
-	fixang a;
-
-	a = fix_acos(vm_vec_dot(v0,v1));
+	fixang a{fix_acos(vm_vec_dot(v0, v1))};
 	if (vm_vec_dot(vm_vec_cross(v0, v1), fvec) < 0)
 			a = -a;
 	return a;
@@ -425,13 +423,13 @@ static void sincos_2_matrix(vms_matrix &m, const fixang bank, const fix_sincos_r
 	m.rvec.y = fixmul(sinb,cosp);				//m4
 	m.uvec.y = fixmul(cosb,cosp);				//m5
 
-	const auto cbch = fixmul(cosb,cosh);
-	const auto sbsh = fixmul(sinb,sinh);
+	const auto cbch{fixmul(cosb, cosh)};
+	const auto sbsh{fixmul(sinb, sinh)};
 	m.rvec.x = cbch + fixmul(sinp,sbsh);		//m1
 	m.uvec.z = sbsh + fixmul(sinp,cbch);		//m8
 
-	const auto sbch = fixmul(sinb,cosh);
-	const auto cbsh = fixmul(cosb,sinh);
+	const auto sbch{fixmul(sinb, cosh)};
+	const auto cbsh{fixmul(cosb, sinh)};
 	m.uvec.x = fixmul(sinp,cbsh) - sbch;		//m2
 	m.rvec.z = fixmul(sinp,sbch) - cbsh;		//m7
 }
@@ -447,12 +445,10 @@ void vm_angles_2_matrix(vms_matrix &m,const vms_angvec &a)
 //computes a matrix from a forward vector and an angle
 void vm_vec_ang_2_matrix(vms_matrix &m,const vms_vector &v,fixang a)
 {
-	fix sinp,cosp,sinh,cosh;
-	sinp = -v.y;
-	cosp = fix_sqrt(f1_0 - fixmul(sinp,sinp));
-
-	sinh = fixdiv(v.x,cosp);
-	cosh = fixdiv(v.z,cosp);
+	const fix sinp{-v.y};
+	const fix cosp{fix_sqrt(F1_0 - fixmul(sinp, sinp))};
+	const fix sinh{fixdiv(v.x, cosp)};
+	const fix cosh{fixdiv(v.z, cosp)};
 	sincos_2_matrix(m, a, {sinp, cosp}, {sinh, cosh});
 }
 #endif
@@ -610,41 +606,41 @@ fix vm_dist_to_plane(const vms_vector &checkp,const vms_vector &norm,const vms_v
 vms_quaternion vms_quaternion_from_matrix(const vms_matrix &m)
 {
 	vms_quaternion rq{};
-	const auto rx = m.rvec.x;
-	const auto ry = m.rvec.y;
-	const auto rz = m.rvec.z;
-	const auto ux = m.uvec.x;
-	const auto uy = m.uvec.y;
-	const auto uz = m.uvec.z;
-	const auto fx = m.fvec.x;
-	const auto fy = m.fvec.y;
-	const auto fz = m.fvec.z;
-	const fix tr = rx + uy + fz;
+	const auto rx{m.rvec.x};
+	const auto ry{m.rvec.y};
+	const auto rz{m.rvec.z};
+	const auto ux{m.uvec.x};
+	const auto uy{m.uvec.y};
+	const auto uz{m.uvec.z};
+	const auto fx{m.fvec.x};
+	const auto fy{m.fvec.y};
+	const auto fz{m.fvec.z};
+	const fix tr{rx + uy + fz};
 	fix qw, qx, qy, qz;
 	if (tr > 0) {
-		fix s = fixmul(fix_sqrt(tr + fl2f(1.0)), fl2f(2.0));
-		qw = fixmul(fl2f(0.25), s);
-		qx = fixdiv(fy - uz, s);
-		qy = fixdiv(rz - fx, s);
-		qz = fixdiv(ux - ry, s);
+		const fix s{fixmul(fix_sqrt(tr + fl2f(1.0)), fl2f(2.0))};
+		qw = fixmul(fl2f(0.25), {s});
+		qx = fixdiv(fy - uz, {s});
+		qy = fixdiv(rz - fx, {s});
+		qz = fixdiv(ux - ry, {s});
 	} else if ((rx > uy) & (rx > fz)) {
-		fix s = fixmul(fix_sqrt(fl2f(1.0) + rx - uy - fz), fl2f(2.0));
-		qw = fixdiv(fy - uz, s);
-		qx = fixmul(fl2f(0.25), s);
-		qy = fixdiv(ry + ux, s);
-		qz = fixdiv(rz + fx, s);
+		const fix s{fixmul(fix_sqrt(fl2f(1.0) + rx - uy - fz), fl2f(2.0))};
+		qw = fixdiv(fy - uz, {s});
+		qx = fixmul(fl2f(0.25), {s});
+		qy = fixdiv(ry + ux, {s});
+		qz = fixdiv(rz + fx, {s});
 	} else if (uy > fz) { 
-		fix s = fixmul(fix_sqrt(fl2f(1.0) + uy - rx - fz), fl2f(2.0));
-		qw = fixdiv(rz - fx, s);
-		qx = fixdiv(ry + ux, s);
-		qy = fixmul(fl2f(0.25), s);
-		qz = fixdiv(uz + fy, s);
+		const fix s{fixmul(fix_sqrt(fl2f(1.0) + uy - rx - fz), fl2f(2.0))};
+		qw = fixdiv(rz - fx, {s});
+		qx = fixdiv(ry + ux, {s});
+		qy = fixmul(fl2f(0.25), {s});
+		qz = fixdiv(uz + fy, {s});
 	} else { 
-		fix s = fixmul(fix_sqrt(fl2f(1.0) + fz - rx - uy), fl2f(2.0));
-		qw = fixdiv(ux - ry, s);
-		qx = fixdiv(rz + fx, s);
-		qy = fixdiv(uz + fy, s);
-		qz = fixmul(fl2f(0.25), s);
+		const fix s{fixmul(fix_sqrt(fl2f(1.0) + fz - rx - uy), fl2f(2.0))};
+		qw = fixdiv(ux - ry, {s});
+		qx = fixdiv(rz + fx, {s});
+		qy = fixdiv(uz + fy, {s});
+		qz = fixmul(fl2f(0.25), {s});
 	}
 	rq.w = qw / 2;
 	rq.x = qx / 2;
@@ -656,34 +652,34 @@ vms_quaternion vms_quaternion_from_matrix(const vms_matrix &m)
 // convert vms_quaternion to vms_matrix
 void vms_matrix_from_quaternion(vms_matrix &m, const vms_quaternion &q)
 {
-	const fix qw2 = q.w * 2;
-	const fix qx2 = q.x * 2;
-	const fix qy2 = q.y * 2;
-	const fix qz2 = q.z * 2;
-	const fix sqw = fixmul(qw2, qw2);
-	const fix sqx = fixmul(qx2, qx2);
-	const fix sqy = fixmul(qy2, qy2);
-	const fix sqz = fixmul(qz2, qz2);
-	const fix invs = fixdiv(fl2f(1.0), (sqw + sqx + sqy + sqz));
+	const fix qw2{q.w * 2};
+	const fix qx2{q.x * 2};
+	const fix qy2{q.y * 2};
+	const fix qz2{q.z * 2};
+	const fix sqw{fixmul({qw2}, {qw2})};
+	const fix sqx{fixmul({qx2}, {qx2})};
+	const fix sqy{fixmul({qy2}, {qy2})};
+	const fix sqz{fixmul({qz2}, {qz2})};
+	const fix invs{fixdiv({fl2f(1.0)}, {sqw + sqx + sqy + sqz})};
 
-	m.rvec.x = fixmul(sqx - sqy - sqz + sqw, invs);
-	m.uvec.y = fixmul(-sqx + sqy - sqz + sqw, invs);
-	m.fvec.z = fixmul(-sqx - sqy + sqz + sqw, invs);
+	m.rvec.x = fixmul(sqx - sqy - sqz + sqw, {invs});
+	m.uvec.y = fixmul(-sqx + sqy - sqz + sqw, {invs});
+	m.fvec.z = fixmul(-sqx - sqy + sqz + sqw, {invs});
 	
-	const fix qxy = fixmul(qx2, qy2);
-	const fix qzw = fixmul(qz2, qw2);
-	m.uvec.x = fixmul(fixmul(fl2f(2.0), (qxy + qzw)), invs);
-	m.rvec.y = fixmul(fixmul(fl2f(2.0), (qxy - qzw)), invs);
+	const fix qxy{fixmul({qx2}, {qy2})};
+	const fix qzw{fixmul({qz2}, {qw2})};
+	m.uvec.x = fixmul(fixmul(fl2f(2.0), {qxy + qzw}), {invs});
+	m.rvec.y = fixmul(fixmul(fl2f(2.0), {qxy - qzw}), {invs});
 	
-	const fix qxz = fixmul(qx2, qz2);
-	const fix qyw = fixmul(qy2, qw2);
-	m.fvec.x = fixmul(fixmul(fl2f(2.0), (qxz - qyw)), invs);
-	m.rvec.z = fixmul(fixmul(fl2f(2.0), (qxz + qyw)), invs);
+	const fix qxz{fixmul({qx2}, {qz2})};
+	const fix qyw{fixmul({qy2}, {qw2})};
+	m.fvec.x = fixmul(fixmul(fl2f(2.0), {qxz - qyw}), {invs});
+	m.rvec.z = fixmul(fixmul(fl2f(2.0), {qxz + qyw}), {invs});
 	
-	const fix qyz = fixmul(qy2, qz2);
-	const fix qxw = fixmul(qx2, qw2);
-	m.fvec.y = fixmul(fixmul(fl2f(2.0), (qyz + qxw)), invs);
-	m.uvec.z = fixmul(fixmul(fl2f(2.0), (qyz - qxw)), invs);
+	const fix qyz{fixmul({qy2}, {qz2})};
+	const fix qxw{fixmul({qx2}, {qw2})};
+	m.fvec.y = fixmul(fixmul(fl2f(2.0), {qyz + qxw}), {invs});
+	m.uvec.z = fixmul(fixmul(fl2f(2.0), {qyz - qxw}), {invs});
 }
 
 }
