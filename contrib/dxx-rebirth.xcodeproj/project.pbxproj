@@ -286,7 +286,6 @@
 		14F8A95E1A2D6320003AA93A /* byteutil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = byteutil.h; sourceTree = "<group>"; };
 		14F8A9651A2D6320003AA93A /* compiler-make_unique.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "compiler-make_unique.h"; sourceTree = "<group>"; };
 		14F8A9661A2D6320003AA93A /* compiler-range_for.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "compiler-range_for.h"; sourceTree = "<group>"; };
-		14F8A9671A2D6320003AA93A /* compiler-static_assert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "compiler-static_assert.h"; sourceTree = "<group>"; };
 		14F8A9681A2D6320003AA93A /* compiler-type_traits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "compiler-type_traits.h"; sourceTree = "<group>"; };
 		14F8A9691A2D6320003AA93A /* console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = console.h; sourceTree = "<group>"; };
 		14F8A96A1A2D6320003AA93A /* countarray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = countarray.h; sourceTree = "<group>"; };
@@ -925,7 +924,6 @@
 				14F8A95E1A2D6320003AA93A /* byteutil.h */,
 				14F8A9651A2D6320003AA93A /* compiler-make_unique.h */,
 				14F8A9661A2D6320003AA93A /* compiler-range_for.h */,
-				14F8A9671A2D6320003AA93A /* compiler-static_assert.h */,
 				14F8A9681A2D6320003AA93A /* compiler-type_traits.h */,
 				14F8A9691A2D6320003AA93A /* console.h */,
 				14F8A96A1A2D6320003AA93A /* countarray.h */,

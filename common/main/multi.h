@@ -63,7 +63,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "digi.h"
 #include "pack.h"
 #include "ntstring.h"
-#include "compiler-static_assert.h"
 #include <array>
 
 namespace dcx {

@@ -17,7 +17,6 @@
 
 #include "dxxsconf.h"
 #include "compiler-range_for.h"
-#include "compiler-static_assert.h"
 #include <array>
 #include <memory>
 #include <utility>
