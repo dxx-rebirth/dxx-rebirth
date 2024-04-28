@@ -190,8 +190,19 @@ static inline void assign_builtin_song(bim_song_info &song, const char (&str)[N]
 	std::ranges::copy(str, std::ranges::begin(song.filename));
 }
 
-static void add_song(std::vector<bim_song_info> &songs, const std::ranges::subrange<std::span<char>::iterator> input)
+static void add_song(std::vector<bim_song_info> &songs, const std::ranges::subrange<std::span<char>::iterator> entry_input)
 {
+	/* Some versions of `descent.sng` are not a simple list of songs, but
+	 * instead have a song, whitespace, and then other text on the line.  The
+	 * original parser used sscanf to extract the filename, which caused the
+	 * extraction to stop on the first whitespace.  Implement an equivalent
+	 * early stop here, by scanning the input range for whitespace.  When no
+	 * whitespace is found, `input == entry_input`.
+	 */
+	const std::ranges::subrange<std::span<char>::iterator> input{
+		entry_input.begin(),
+		std::ranges::find_if(entry_input, [](const char c) { return std::isspace(static_cast<unsigned>(c)); })
+	};
 	if (input.size() >= std::tuple_size<decltype(bim_song_info::filename)>::value)
 		/* Drop excessively long filenames. */
 		return;
