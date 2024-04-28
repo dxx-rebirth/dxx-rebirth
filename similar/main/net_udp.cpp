@@ -2491,16 +2491,15 @@ static void net_udp_read_object_packet(const d_level_shared_robot_info_state &Le
 	// Object from another net player we need to sync with
 	sbyte obj_owner;
 	static int mode = 0, object_count = 0, my_pnum = 0;
-	int remote_objnum = 0, nobj = 0, loc = 5;
-	
-	nobj = GET_INTEL_INT(data + 1);
+	unsigned loc{5};
+	const int nobj{GET_INTEL_INT<int32_t>(&data[1])};
 
 	for (int i = 0; i < nobj; i++)
 	{
-		const unsigned uobjnum = GET_INTEL_INT(data + loc);
+		const unsigned uobjnum{GET_INTEL_INT(&data[loc])};
 		objnum_t objnum = uobjnum;                         loc += 4;
 		obj_owner = data[loc];                                      loc += 1;
-		remote_objnum = GET_INTEL_INT(data + loc);                  loc += 4;
+		const int remote_objnum{GET_INTEL_INT<int32_t>(&data[loc])};                  loc += 4;
 
 		if (objnum == object_none) 
 		{
@@ -5599,13 +5598,12 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, co
 void net_udp_noloss_got_ack(const std::span<const uint8_t> data)
 {
 	int len = 0;
-	uint32_t pkt_num = 0;
 	ubyte sender_pnum = 0, dest_pnum = 0;
 
 															len++;
 	sender_pnum = data[len];											len++;
 	dest_pnum = data[len];												len++;
-	pkt_num = GET_INTEL_INT(&data[len]);										len += 4;
+	const uint32_t pkt_num{GET_INTEL_INT(&data[len])};										len += 4;
 
 	for (int i = 0; i < UDP_mdata_queue_highest; i++)
 	{

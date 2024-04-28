@@ -79,8 +79,7 @@ static int32_t pof_read_int(const std::span<const uint8_t> bufp, std::size_t &Po
 {
 	const auto s = bufp.subspan(Pof_addr, 4);
 	Pof_addr += 4;
-	const auto r = GET_INTEL_INT(s.data());
-	return r;
+	return {GET_INTEL_INT<int32_t>(s.data())};
 }
 
 static std::size_t pof_cfread(void *const dst, const size_t elsize, const std::span<const uint8_t> bufp, std::size_t &Pof_addr)

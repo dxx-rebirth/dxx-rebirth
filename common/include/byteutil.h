@@ -108,11 +108,15 @@ static constexpr int32_t INTEL_INT(const int32_t &x)
 }
 #undef byteutil_choose_endian
 
+template <std::integral result_type = std::uint32_t>
+requires(
+	sizeof(result_type) == sizeof(uint32_t)
+)
 [[nodiscard]]
-static inline uint32_t GET_INTEL_INT(const auto *p)
+static inline result_type GET_INTEL_INT(const auto *p)
 {
-	uint32_t u;
-	byteutil_unaligned_copy(uint32_t, u, p);
+	result_type u;
+	byteutil_unaligned_copy(result_type, u, p);
 	return INTEL_INT(u);
 }
 

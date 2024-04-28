@@ -222,9 +222,9 @@ std::optional<network_state> build_network_state_from_untrusted(const uint8_t un
 vms_vector multi_get_vector(const std::span<const uint8_t, 12> buf)
 {
 	return vms_vector{
-		static_cast<int32_t>(GET_INTEL_INT(&buf[0])),
-		static_cast<int32_t>(GET_INTEL_INT(&buf[4])),
-		static_cast<int32_t>(GET_INTEL_INT(&buf[8])),
+		GET_INTEL_INT<int32_t>(&buf[0]),
+		GET_INTEL_INT<int32_t>(&buf[4]),
+		GET_INTEL_INT<int32_t>(&buf[8]),
 	};
 }
 
@@ -2277,7 +2277,7 @@ static void multi_do_play_sound(object_array &Objects, const playernum_t pnum, c
 
 	const unsigned sound_num = buf[2];
 	const uint8_t once = buf[3];
-	const fix volume = GET_INTEL_INT(&buf[4]);
+	const fix volume{GET_INTEL_INT<int32_t>(&buf[4])};
 
 	const auto objnum = plr.objnum;
 	digi_link_sound_to_object(sound_num, vcobjptridx(objnum), 0, volume, static_cast<sound_stack>(once));
@@ -2297,7 +2297,7 @@ static void multi_do_score(fvmobjptr &vmobjptr, const playernum_t pnum, const mu
 		return;
 	}
 
-	const int score = GET_INTEL_INT(&buf[2]);
+	const auto score{GET_INTEL_INT<int32_t>(&buf[2])};
 	if (Newdemo_state == ND_STATE_RECORDING) {
 		newdemo_record_multi_score(pnum, score);
 	}
@@ -2402,11 +2402,10 @@ static void multi_do_hostage_door_status(fvmsegptridx &vmsegptridx, wall_array &
 	// Update hit point status of a door
 
 	int count = 1;
-	fix hps;
 
 	const wallnum_t wallnum{GET_INTEL_SHORT(&buf[count])};
 	count += 2;
-	hps = GET_INTEL_INT(&buf[count]);           count += 4;
+	const fix hps{GET_INTEL_INT<int32_t>(&buf[count])};           count += 4;
 
 	auto &vmwallptr = Walls.vmptr;
 	auto &w = *vmwallptr(wallnum);
@@ -3879,7 +3878,7 @@ static void multi_do_drop_weapon(fvmobjptr &vmobjptr, const playernum_t pnum, co
 	const auto powerup_id = static_cast<powerup_type_t>(buf[1]);
 	const objnum_t remote_objnum = GET_INTEL_SHORT(&buf[2]);
 	const uint16_t ammo = GET_INTEL_SHORT(&buf[4]);
-	const auto seed = GET_INTEL_INT(&buf[6]);
+	const auto seed{GET_INTEL_INT(&buf[6])};
 	const auto &&objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, vmobjptr(vcplayerptr(pnum)->objnum), powerup_id, seed);
 	if (objnum == object_none)
 		return;
@@ -4104,7 +4103,7 @@ void multi_send_heartbeat ()
 
 static void multi_do_heartbeat(const multiplayer_rspan<multiplayer_command_t::MULTI_HEARTBEAT> buf)
 {
-	const fix num = GET_INTEL_INT(&buf[1]);
+	const fix num{GET_INTEL_INT<int32_t>(&buf[1])};
 	ThisLevelTime = d_time_fix(num);
 }
 
@@ -4171,7 +4170,7 @@ namespace {
 
 static void multi_do_seismic(multiplayer_rspan<multiplayer_command_t::MULTI_SEISMIC> buf)
 {
-	const fix duration = GET_INTEL_INT(&buf[1]);
+	const fix duration{GET_INTEL_INT<int32_t>(&buf[1])};
 	LevelUniqueSeismicState.Seismic_disturbance_end_time = GameTime64 + duration;
 	digi_play_sample (SOUND_SEISMIC_DISTURBANCE_START, F1_0);
 }
@@ -4227,7 +4226,7 @@ static void multi_do_flags(fvmobjptr &vmobjptr, const playernum_t pnum, const mu
 {
 	if (pnum!=Player_num)
 	{
-		const uint32_t flags = GET_INTEL_INT(&buf[2]);
+		const auto flags{GET_INTEL_INT(&buf[2])};
 		vmobjptr(vcplayerptr(pnum)->objnum)->ctype.player_info.powerup_flags = player_flags(flags);
 	}
 }
@@ -4603,7 +4602,7 @@ static void multi_do_drop_flag(const playernum_t pnum, const multiplayer_rspan<m
 	auto &vmobjptr = Objects.vmptr;
 	const auto powerup_id = static_cast<powerup_type_t>(buf[1]);
 	const objnum_t remote_objnum = GET_INTEL_SHORT(&buf[2]);
-	const int seed = GET_INTEL_INT(&buf[6]);
+	const auto seed{GET_INTEL_INT<int32_t>(&buf[6])};
 
 	const auto &&objp = vmobjptr(vcplayerptr(pnum)->objnum);
 
@@ -4933,11 +4932,10 @@ static void multi_do_save_game(const multiplayer_rspan<multiplayer_command_t::MU
 {
 	int count = 1;
 	ubyte slot;
-	uint id;
 	d_game_unique_state::savegame_description desc;
 
 	slot = buf[count];			count += 1;
-	id = GET_INTEL_INT(&buf[count]);			count += 4;
+	const auto id{GET_INTEL_INT(&buf[count])};			count += 4;
 	memcpy(desc.data(), &buf[count], desc.size());
 	desc.back() = 0;
 
@@ -4956,7 +4954,7 @@ static void multi_do_restore_game(const multiplayer_rspan<multiplayer_command_t:
 	ubyte slot;
 
 	slot = buf[count];			count += 1;
-	const unsigned id = GET_INTEL_INT(&buf[count]);			count += 4;
+	const unsigned id{GET_INTEL_INT(&buf[count])};			count += 4;
 
 	multi_restore_game( slot, id );
 }
