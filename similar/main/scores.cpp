@@ -74,7 +74,7 @@ struct score_items_context
 {
 	const font_x_scaled_float name, score, difficulty, levels, time_played;
 	score_items_context(const font_x_scale_float fspacx, const unsigned border_x) :
-		name(fspacx(51) + border_x), score(fspacx(134) + border_x), difficulty(fspacx(151) + border_x), levels(fspacx(217) + border_x), time_played(fspacx(261) + border_x)
+		name{fspacx(43) + border_x}, score{fspacx(134) + border_x}, difficulty{fspacx(151) + border_x}, levels{fspacx(217) + border_x}, time_played{fspacx(276) + border_x}
 	{
 	}
 };
@@ -723,16 +723,16 @@ window_event_result scores_menu::event_handler(const d_event &event)
 			auto &game_font = *GAME_FONT;
 			gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
 			gr_printf(canvas, game_font, 0x8000, fspacy(16) + border_y, "\"%s\"  - %s", cool_saying.data(), static_cast<const char *>(scores[0].name));
-			const font_x_scaled_float fspacx_line_number(fspacx(42) + border_x);
+			const font_x_scaled_float fspacx_line_number{fspacx(34) + border_x};
 			const score_items_context shared_item_context(fspacx, border_x);
 			gr_set_fontcolor(canvas, BM_XRGB(31, 26, 5), -1);
-			const auto x_header = fspacx(56) + border_x;
+			const auto x_header = fspacx(48) + border_x;
 			const auto fspacy_column_labels = fspacy(35) + border_y;
 			gr_string(canvas, game_font, x_header, fspacy_column_labels, TXT_NAME);
 			gr_string(canvas, game_font, x_header + fspacx(51), fspacy_column_labels, TXT_SCORE);
 			gr_string(canvas, game_font, x_header + fspacx(96), fspacy_column_labels, TXT_SKILL);
 			gr_string(canvas, game_font, x_header + fspacx(139), fspacy_column_labels, TXT_LEVELS);
-			gr_string(canvas, game_font, x_header + fspacx(182), fspacy_column_labels, TXT_TIME);
+			gr_string(canvas, game_font, x_header + fspacx(197), fspacy_column_labels, TXT_TIME);
 
 			if (citem < 0)
 				gr_string(canvas, game_font, 0x8000, fspacy(125) + fspacy_column_labels, TXT_PRESS_CTRL_R);
