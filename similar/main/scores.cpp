@@ -59,6 +59,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_levelstate.h"
 #include "d_range.h"
 #include "d_zip.h"
+#include "serial.h"
 
 #define SCORES_FILENAME 	"descent.hi"
 #define COOL_MESSAGE_LEN 	50
@@ -86,14 +87,13 @@ namespace dsx {
 
 namespace {
 
-#if defined(DXX_BUILD_DESCENT_I)
-#define DXX_SCORE_STRUCT_PACK	__pack__
-#elif defined(DXX_BUILD_DESCENT_II)
-#define DXX_SCORE_STRUCT_PACK
-#endif
-
 struct stats_info
 {
+#if defined(DXX_BUILD_DESCENT_I)
+	static constexpr std::size_t disk_size{24};
+#elif defined(DXX_BUILD_DESCENT_II)
+	static constexpr std::size_t disk_size{28};
+#endif
 	callsign_t name;
 	int		score;
 	sbyte   starting_level;
@@ -102,20 +102,42 @@ struct stats_info
 	short 	kill_ratio;		// 0-100
 	short	hostage_ratio;  // 
 	int		seconds;		// How long it took in seconds...
-} DXX_SCORE_STRUCT_PACK;
+};
 
 struct all_scores
 {
-	char			signature[3];			// DHS
-	sbyte           version;				// version
+#if defined(DXX_BUILD_DESCENT_I)
+	/* Descent 1 has `stats` immediately after `cool_saying`. */
+	static constexpr std::size_t offsetof_stats{54};
+	static constexpr std::size_t disk_size{294};
+#elif defined(DXX_BUILD_DESCENT_II)
+	/* Descent 2 has a 2 byte hole before `stats`. */
+	static constexpr std::size_t offsetof_stats{56};
+	static constexpr std::size_t disk_size{336};
+#endif
 	char			cool_saying[COOL_MESSAGE_LEN];
 	stats_info	stats[MAX_HIGH_SCORES];
-} DXX_SCORE_STRUCT_PACK;
+};
 #if defined(DXX_BUILD_DESCENT_I)
-static_assert(sizeof(all_scores) == 294, "high score size wrong");
+#define DXX_SCORE_STATS_INFO_PAD(AMOUNT)	/* In Descent 1, stats are stored with no padding, so discard the amount field. */
 #elif defined(DXX_BUILD_DESCENT_II)
-static_assert(sizeof(all_scores) == 336, "high score size wrong");
+#define DXX_SCORE_STATS_INFO_PAD(AMOUNT)	/* In Descent 2, stats are stored with padding determined by the ABI of the original DOS compiler, so propagate the amount field to `serial::pad`. */	\
+	serial::pad<AMOUNT, 0>(),
 #endif
+
+DEFINE_SERIAL_UDT_TO_MESSAGE(stats_info, s, (
+		s.name.a,
+		DXX_SCORE_STATS_INFO_PAD(3)
+		s.score,
+		s.starting_level,
+		s.ending_level,
+		s.diff_level,
+		DXX_SCORE_STATS_INFO_PAD(1)
+		s.kill_ratio,
+		s.hostage_ratio,
+		s.seconds)
+	);
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(stats_info, stats_info::disk_size);
 
 void scores_view(grs_canvas &canvas, const stats_info *last_game, int citem);
 
@@ -139,8 +161,6 @@ static void assign_builtin_placeholder_scores(all_scores &scores)
 
 static void scores_read(all_scores *scores)
 {
-	int fsize;
-
 	// clear score array...
 	*scores = {};
 
@@ -152,21 +172,44 @@ static void scores_read(all_scores *scores)
 		return;
 	}
 
-	fsize = PHYSFS_fileLength(fp);
-
-	if ( fsize != sizeof(all_scores) )	{
+	const auto fsize{PHYSFS_fileLength(fp)};
+	if (fsize != all_scores::disk_size)
+	{
+		con_printf(CON_NORMAL, "Ignoring high scores file \"" SCORES_FILENAME "\" due to unexpected size %" DXX_PRI_size_type, static_cast<std::size_t>(fsize));
 		return;
 	}
+	std::array<uint8_t, all_scores::disk_size> buf;
 	// Read 'em in...
-	PHYSFSX_readBytes(fp, scores, sizeof(all_scores));
-	if (scores->version != high_score_version || scores->signature[0] != 'D' || scores->signature[1] != 'H' || scores->signature[2] != 'S')
+	if (PHYSFSX_readBytes(fp, std::data(buf), std::size(buf)) != all_scores::disk_size)
 	{
-		*scores = {};
+		con_puts(CON_NORMAL, "Failed to read high scores file \"" SCORES_FILENAME "\"");
 		return;
+	}
+	if (buf[0] != 'D' ||	// Descent
+		buf[1] != 'H' ||	// High
+		buf[2] != 'S' ||	// Scores
+		buf[3] != high_score_version)
+	{
+		con_printf(CON_NORMAL, "Ignoring high scores file \"" SCORES_FILENAME "\" due to invalid header %.2x%.2x%.2x%.2x", buf[0], buf[1], buf[2], buf[3]);
+		return;
+	}
+	/* Skip the last byte, so that the value-initialized null at the end of
+	 * `all_scores::cool_saying` is retained.  On a well-formed file, this
+	 * produces the same result as including the last byte.  On an ill-formed
+	 * file, this guarantees null termination of `all_scores::cool_saying`.
+	 */
+	std::ranges::copy(std::span(buf).subspan<4, COOL_MESSAGE_LEN - 1>(), scores->cool_saying);
+	const auto stats_static_span{std::span(buf).subspan<all_scores::offsetof_stats>()};
+	static_assert(stats_static_span.extent == 10 * stats_info::disk_size);
+	static_assert(all_scores::offsetof_stats + stats_static_span.extent == all_scores::disk_size);
+	for (auto &&[idx, stats] : enumerate(scores->stats))
+	{
+		serial::reader::ne_bytebuffer b{stats_static_span.subspan(idx * stats_info::disk_size, stats_info::disk_size).data()};
+		serial::process_buffer(b, stats);
 	}
 }
 
-static void scores_write(all_scores *scores)
+static void scores_write(const all_scores *scores)
 {
 	RAIIPHYSFS_File fp{PHYSFS_openWrite(SCORES_FILENAME)};
 	if (!fp)
@@ -175,11 +218,21 @@ static void scores_write(all_scores *scores)
 		return;
 	}
 
-	scores->signature[0]='D';
-	scores->signature[1]='H';
-	scores->signature[2]='S';
-	scores->version = high_score_version;
-	PHYSFSX_writeBytes(fp, scores, sizeof(all_scores));
+	std::array<uint8_t, all_scores::disk_size> buf;
+	buf[0] = 'D';
+	buf[1] = 'H';
+	buf[2] = 'S';
+	buf[3] = high_score_version;
+	std::ranges::copy(scores->cool_saying, std::span(buf).subspan<4, COOL_MESSAGE_LEN>().begin());
+	const auto stats_static_span{std::span(buf).subspan<all_scores::offsetof_stats>()};
+	static_assert(stats_static_span.extent == 10 * stats_info::disk_size);
+	static_assert(all_scores::offsetof_stats + stats_static_span.extent == all_scores::disk_size);
+	for (auto &&[idx, stats] : enumerate(scores->stats))
+	{
+		serial::writer::ne_bytebuffer b{stats_static_span.subspan(idx * stats_info::disk_size, stats_info::disk_size).data()};
+		serial::process_buffer(b, stats);
+	}
+	PHYSFSX_writeBytes(fp, std::data(buf), std::size(buf));
 }
 
 static void scores_fill_struct(stats_info * stats)
