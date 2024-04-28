@@ -58,8 +58,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace {
 
-template <typename SF, typename O, typename... Oa>
-static inline void trigger_wall_op(const trigger &t, SF &segment_factory, const O &op, Oa &&... oargs)
+template <typename... Oa>
+static inline void trigger_wall_op(const trigger &t, auto &&segment_factory, auto &&op, Oa &&... oargs)
 {
 	for (unsigned i = 0, num_links = t.num_links; i != num_links; ++i)
 		op(std::forward<Oa>(oargs)..., segment_factory(t.seg[i]), static_cast<sidenum_t>(t.side[i]));

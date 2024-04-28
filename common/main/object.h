@@ -722,8 +722,8 @@ struct d_level_unique_control_center_state :
 
 class d_guided_missile_indices : per_player_array<imobjidx_t>
 {
-	template <typename R, typename F>
-		R get_player_active_guided_missile_tmpl(F &fvcobj, playernum_t pnum) const;
+	template <typename result_type, typename object_factory>
+		result_type get_player_active_guided_missile_tmpl(object_factory &fvcobj, playernum_t pnum) const;
 	static bool debug_check_current_object(const object_base &);
 public:
 	constexpr d_guided_missile_indices() :

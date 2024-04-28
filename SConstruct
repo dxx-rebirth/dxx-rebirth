@@ -493,6 +493,17 @@ _20deduction::Inner(byte_type&) -> Outer_test_class_20template_20argument_20dedu
 		Inner(byte_type &) -> Inner<byte_type>;
 };
 '''),
+		Cxx20RequiredFeature('abbreviated function templates', '''
+void f_%(N)s(auto &&)
+{
+}
+''',
+'''
+	f_%(N)s(0);
+	f_%(N)s(0u);
+	f_%(N)s("");
+	f_%(N)s(nullptr);
+'''),
 		Cxx20RequiredFeature('explicitly defaulted operator==', '''
 struct A_%(N)s
 {

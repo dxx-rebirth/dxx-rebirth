@@ -242,8 +242,8 @@ inline void check_range_object_size(const char *file, unsigned line, const char 
  * be present if iterator.operator*() returns a proxy object, rather
  * than a reference to an element in the container.
  */
-template <typename range_exception, std::size_t required_buffer_size, typename P>
-void check_range_object_size(const char *, unsigned, const char *, const P &&, std::size_t, std::size_t) {}
+template <typename range_exception, std::size_t required_buffer_size>
+void check_range_object_size(const char *, unsigned, const char *, const auto &&, std::size_t, std::size_t) {}
 #endif
 
 /* If no range_type::index_type is defined, then allow any index type. */

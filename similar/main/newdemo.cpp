@@ -289,9 +289,7 @@ static int _newdemo_read( void *buffer, int elsize, int nelem )
 	return num_read;
 }
 
-template <typename T>
-requires(std::is_integral<T>::value)
-static int newdemo_read(T *buffer, int elsize, int nelem)
+static int newdemo_read(std::integral auto *buffer, int elsize, int nelem)
 {
 	return _newdemo_read(buffer, elsize, nelem);
 }
@@ -335,9 +333,7 @@ static int _newdemo_write(const void *buffer, int elsize, int nelem )
 	return -1;
 }
 
-template <typename T>
-requires(std::is_integral<T>::value)
-static int newdemo_write(const T *buffer, int elsize, int nelem )
+static int newdemo_write(const std::integral auto *buffer, int elsize, int nelem)
 {
 	return _newdemo_write(buffer, elsize, nelem);
 }

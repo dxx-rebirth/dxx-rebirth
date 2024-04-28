@@ -190,7 +190,7 @@ auto iterator_end_type(std::tuple<range_type...>, std::index_sequence<range_inde
 	>::type ...
 >;
 
-template <typename end_iterator_type, typename range>
+template <typename end_iterator_type, std::ranges::input_range range>
 static constexpr auto capture_end_iterator(range &&r)
 {
 	if constexpr (std::is_same<const end_iterator_type &, const decltype(std::ignore) &>::value)

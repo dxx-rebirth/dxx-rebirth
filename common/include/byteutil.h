@@ -108,18 +108,16 @@ static constexpr int32_t INTEL_INT(const int32_t &x)
 }
 #undef byteutil_choose_endian
 
-template <typename T>
 [[nodiscard]]
-static inline uint32_t GET_INTEL_INT(const T *p)
+static inline uint32_t GET_INTEL_INT(const auto *p)
 {
 	uint32_t u;
 	byteutil_unaligned_copy(uint32_t, u, p);
 	return INTEL_INT(u);
 }
 
-template <typename T>
 [[nodiscard]]
-static inline uint16_t GET_INTEL_SHORT(const T *p)
+static inline uint16_t GET_INTEL_SHORT(const auto *p)
 {
 	uint16_t u;
 	byteutil_unaligned_copy(uint16_t, u, p);
@@ -137,10 +135,9 @@ static inline void PUT_INTEL_SHORT(uint16_t *d, const T s)
 	byteutil_unaligned_copy(uint16_t, *d, &u);
 }
 
-template <typename T>
-static inline void PUT_INTEL_SHORT(uint8_t *d, const T &s)
+static inline void PUT_INTEL_SHORT(uint8_t *d, const auto s)
 {
-	PUT_INTEL_SHORT<T>(reinterpret_cast<uint16_t *>(d), s);
+	PUT_INTEL_SHORT(reinterpret_cast<uint16_t *>(d), s);
 }
 
 template <typename T>
@@ -155,10 +152,9 @@ static inline void PUT_INTEL_INT(uint32_t *d, const T s)
 	byteutil_unaligned_copy(uint32_t, *d, &u);
 }
 
-template <typename T>
-static inline void PUT_INTEL_INT(uint8_t *d, const T &s)
+static inline void PUT_INTEL_INT(uint8_t *d, const auto s)
 {
-	PUT_INTEL_INT<T>(reinterpret_cast<uint32_t *>(d), s);
+	PUT_INTEL_INT(reinterpret_cast<uint32_t *>(d), s);
 }
 
 #undef byteutil_unaligned_copy

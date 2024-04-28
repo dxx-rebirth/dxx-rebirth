@@ -101,8 +101,7 @@ public:
 	{
 		return d > f;
 	}
-	template <typename T>
-		bool operator>(const T &t) const = delete;
+	bool operator>(const auto &t) const = delete;
 	[[nodiscard]]
 	constexpr explicit operator bool() const { return d; }
 #ifndef __clang__

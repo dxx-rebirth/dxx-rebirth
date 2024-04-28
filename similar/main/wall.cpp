@@ -1047,8 +1047,7 @@ static std::pair<wall *, wall *> wall_illusion_op(fvmwallptr &vmwallptr, const v
 	return {vmwallptr(wall0), vmwallptr(wall1)};
 }
 
-template <typename F>
-static void wall_illusion_op(fvmwallptr &vmwallptr, const vcsegptridx_t seg, const sidenum_t side, const F op)
+static void wall_illusion_op(fvmwallptr &vmwallptr, const vcsegptridx_t seg, const sidenum_t side, auto &&op)
 {
 	const auto &&r = wall_illusion_op(vmwallptr, seg, side);
 	if (r.first)

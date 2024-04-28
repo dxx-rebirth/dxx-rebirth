@@ -1799,8 +1799,8 @@ bool d_guided_missile_indices::debug_check_current_object(const object_base &obj
 	return true;
 }
 
-template <typename R, typename F>
-R d_guided_missile_indices::get_player_active_guided_missile_tmpl(F &fobjptr, const playernum_t pnum) const
+template <typename result_type, typename object_factory>
+result_type d_guided_missile_indices::get_player_active_guided_missile_tmpl(object_factory &fobjptr, const playernum_t pnum) const
 {
 	const auto gmidx = get_player_active_guided_missile(pnum);
 	if (gmidx == object_none)

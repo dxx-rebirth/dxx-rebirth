@@ -620,12 +620,12 @@ public:
 	explicit operator bool() { return static_cast<bool>(*const_cast<const RAIIsocket *>(this)); }
 	[[nodiscard]]
 	operator SOCKET() { return s; }
-	template <typename T> bool operator<(T) const = delete;
-	template <typename T> bool operator<=(T) const = delete;
-	template <typename T> bool operator>(T) const = delete;
-	template <typename T> bool operator>=(T) const = delete;
-	template <typename T> bool operator==(T) const = delete;
-	template <typename T> bool operator!=(T) const = delete;
+	bool operator<(auto &&) const = delete;
+	bool operator<=(auto &&) const = delete;
+	bool operator>(auto &&) const = delete;
+	bool operator>=(auto &&) const = delete;
+	bool operator==(auto &&) const = delete;
+	bool operator!=(auto &&) const = delete;
 };
 
 #ifdef DXX_HAVE_GETADDRINFO

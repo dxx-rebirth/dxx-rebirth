@@ -274,8 +274,7 @@ window_event_result weapon_reorder_menu<cycle_weapon_state>::event_handler(const
 
 }
 
-template <typename Accessor>
-static void check_enum(Accessor &, polygon_model_index &pmi)
+static void check_enum(auto && /* accessor */, polygon_model_index &pmi)
 {
 	pmi = build_polygon_model_index_from_untrusted(underlying_value(pmi));
 }
@@ -608,8 +607,7 @@ static inline void set_weapon_last_was_super(uint8_t &last, const uint8_t mask, 
 		last &= ~mask;
 }
 
-template <typename T>
-static inline void set_weapon_last_was_super(uint8_t &last, const T eweapon_num)
+static inline void set_weapon_last_was_super(uint8_t &last, const auto eweapon_num)
 {
 	const bool is_super = is_super_weapon(eweapon_num);
 	const auto weapon_num = underlying_value(eweapon_num);
@@ -912,8 +910,7 @@ void do_secondary_weapon_select(player_info &player_info, secondary_weapon_index
 
 namespace {
 
-template <typename T>
-void auto_select_weapon(T t)
+void auto_select_weapon(auto t)
 {
 	for (uint_fast32_t cur_order_slot = 0; cur_order_slot != t.max_weapons + 1; ++cur_order_slot)
 	{
@@ -1838,8 +1835,7 @@ struct v2_weapon_info : weapon_info
 
 }
 
-template <typename Accessor>
-void postprocess_udt(Accessor &, v2_weapon_info &w)
+void postprocess_udt(auto && /* accessor */, v2_weapon_info &w)
 {
 	w.children = weapon_id_type::unspecified;
 	w.multi_damage_scale = F1_0;

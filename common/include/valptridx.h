@@ -711,16 +711,11 @@ public:
 		{
 			return *this == rhs.get_unchecked_pointer();
 		}
-	template <typename U>
-		long operator-(U) const = delete;
-	template <typename R>
-		bool operator<(R) const = delete;
-	template <typename R>
-		bool operator>(R) const = delete;
-	template <typename R>
-		bool operator<=(R) const = delete;
-	template <typename R>
-		bool operator>=(R) const = delete;
+	long operator-(auto &&) const = delete;
+	bool operator<(auto &&) const = delete;
+	bool operator>(auto &&) const = delete;
+	bool operator<=(auto &&) const = delete;
+	bool operator>=(auto &&) const = delete;
 protected:
 	pointer m_ptr;
 	ptr &operator++()
@@ -1103,8 +1098,8 @@ protected:
 	{
 		return static_cast<array_managed_type &>(reinterpret_cast<array_base_count_type &>(*this));
 	}
-	template <typename P, typename A>
-		static guarded<P> check_untrusted_internal(const index_type i, A &a)
+	template <typename P>
+		static guarded<P> check_untrusted_internal(const index_type i, auto &a)
 		{
 			if (P::check_nothrow_index(i))
 				return P{i, a, assume_nothrow_index{}};

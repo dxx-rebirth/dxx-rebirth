@@ -62,9 +62,7 @@ struct enumerated_array : std::array<T, N>
 	{
 		return this->base_type::operator[](static_cast<std::size_t>(position));
 	}
-	template <typename I>
-		requires(std::is_integral_v<I>)
-		const_reference operator[](I) const = delete;
+	const_reference operator[](std::integral auto) const = delete;
 	[[nodiscard]]
 	static constexpr std::optional<E> valid_index(const std::size_t s)
 	{

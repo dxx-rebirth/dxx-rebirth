@@ -16,8 +16,7 @@
 	}
 
 #define DXX_VG_DECLARE_READ_HELPER	\
-template <typename T>	\
-static void dxx_vg_wrap_poison_value(T &);
+static void dxx_vg_wrap_poison_value(auto &);
 
 #define DXX_VG_DECLARE_WRITE_HELPER	\
 static void dxx_vg_wrap_check_value(const void *, const void *, unsigned long);
@@ -74,8 +73,7 @@ static void dxx_vg_wrap_check_value(const void *, const void *, unsigned long);
 #ifdef DXX_ENABLE_wrap_PHYSFS_read
 #include <cstring>
 
-template <typename T>
-static void dxx_vg_wrap_poison_value(T &val)
+static void dxx_vg_wrap_poison_value(auto &val)
 {
 	DXX_POISON_VAR(val, 0xbd);
 }

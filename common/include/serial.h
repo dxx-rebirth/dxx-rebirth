@@ -175,11 +175,9 @@ public:
 template <typename T>
 void udt_to_message(T &, missing_udt_specialization<T> = missing_udt_specialization<T>());
 
-template <typename Accessor, typename UDT>
-void preprocess_udt(Accessor &, UDT &) {}
+static void preprocess_udt(auto && /* accessor */, auto & /* udt */) {}
 
-template <typename Accessor, typename UDT>
-void postprocess_udt(Accessor &, UDT &) {}
+static void postprocess_udt(auto && /* accessor */, auto & /* udt */) {}
 
 template <typename Accessor, typename UDT>
 static inline void process_udt(Accessor &&accessor, UDT &udt)
@@ -187,8 +185,8 @@ static inline void process_udt(Accessor &&accessor, UDT &udt)
 	process_buffer(std::forward<Accessor &&>(accessor), udt_to_message(udt));
 }
 
-template <typename Accessor, typename E>
-void check_enum(Accessor &, E) {}
+template <typename E>
+void check_enum(auto && /* accessor */, E) {}
 
 template <typename T, typename D>
 struct base_bytebuffer_t : endian_access
@@ -563,6 +561,9 @@ static inline void process_integer(Accessor &buffer, A1 &a1)
 }
 
 template <typename Accessor, typename A, typename T = typename A::value_type>
+/* When the type is an array of byte-size integers (typically, `char` or
+ * `uint8_t`), enable this overload for more efficient copying.
+ */
 requires(sizeof(T) == 1 && std::is_integral<T>::value)
 static inline void process_array(Accessor &accessor, A &a)
 {
@@ -575,7 +576,7 @@ template <typename Accessor, typename extended_signed_type, typename wrapped_typ
 static inline void process_udt(Accessor &&accessor, const detail::sign_extend_type<extended_signed_type, wrapped_type> &v)
 {
 	extended_signed_type est;
-	process_integer<Accessor, extended_signed_type>(static_cast<Accessor &&>(accessor), est);
+	process_integer(static_cast<Accessor &&>(accessor), est);
 	v.get() = static_cast<wrapped_type>(est);
 }
 
@@ -627,7 +628,7 @@ template <typename Accessor, typename extended_signed_type, typename wrapped_typ
 static inline void process_udt(Accessor &&accessor, const detail::sign_extend_type<extended_signed_type, const wrapped_type> &v)
 {
 	const typename std::make_signed<wrapped_type>::type swt = v.get();
-	process_integer<Accessor, extended_signed_type>(static_cast<Accessor &&>(accessor), extended_signed_type{swt});
+	process_integer(static_cast<Accessor &&>(accessor), extended_signed_type{swt});
 }
 
 }

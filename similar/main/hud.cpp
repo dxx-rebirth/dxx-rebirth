@@ -39,8 +39,7 @@ struct hudmsg
 {
 	fix time;
 	ntstring<HUD_MESSAGE_LENGTH> message;
-	template <typename M>
-		hudmsg(const fix& t, M &&m) :
+	hudmsg(const fix &t, auto &&m) :
 		time(t)
 	{
 		message.copy_if(m);

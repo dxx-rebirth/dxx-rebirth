@@ -309,8 +309,8 @@ static int GotoNextWall() {
 	return 1;
 }
 
-template <typename I, typename P>
-I wraparound_find_if(const I begin, const I start, const I end, P &&predicate)
+template <typename I>
+I wraparound_find_if(const I begin, const I start, const I end, auto &&predicate)
 {
 	for (I iter = start;;)
 	{
@@ -333,8 +333,8 @@ I wraparound_find_if(const I begin, const I start, const I end, P &&predicate)
  * finding such an element, return `start` without calling
  * `predicate(*start)`.
  */
-template <typename I, typename P>
-I wraparound_backward_find_if(const I begin, const I start, const I end, P &&predicate)
+template <typename I>
+I wraparound_backward_find_if(const I begin, const I start, const I end, auto &&predicate)
 {
 	for (I iter = start;;)
 	{

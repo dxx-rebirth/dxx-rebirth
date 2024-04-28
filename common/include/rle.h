@@ -49,8 +49,7 @@ static inline uint8_t *end(grs_bitmap &b)
 	return &b.get_bitmap_data()[b.bm_h * b.bm_w];
 }
 
-template <typename T1, typename T2>
-static inline rle_position_t rle_end(const T1 &src, T2 &dst)
+static inline rle_position_t rle_end(const auto &src, auto &dst)
 {
 	return {end(src), end(dst)};
 }

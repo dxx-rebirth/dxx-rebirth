@@ -546,9 +546,9 @@ public:
 };
 #endif
 
-template <typename P, typename State>
+template <typename State>
 [[nodiscard]]
-static std::size_t dispatch_polymodel_op(const P p, State &state, const uint_fast32_t op)
+static std::size_t dispatch_polymodel_op(const auto p, State &state, const uint_fast32_t op)
 {
 	switch (op)
 	{
@@ -601,8 +601,7 @@ static std::size_t dispatch_polymodel_op(const P p, State &state, const uint_fas
 	}
 }
 
-template <typename P, typename State>
-static P iterate_polymodel(P p, State &state)
+static auto iterate_polymodel(auto p, auto &state)
 {
 	for (uint16_t op; (op = state.get_raw_opcode(p)) != OP_EOF;)
 		p += dispatch_polymodel_op(p, state, state.translate_opcode(p, op));

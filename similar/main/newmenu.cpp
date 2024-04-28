@@ -560,8 +560,7 @@ static void swap_menu_item_entries(newmenu_item &a, newmenu_item &b)
 	swap(a.value, b.value);
 }
 
-template <typename F>
-static inline void rotate_menu_item_subrange(F &&step_function, newmenu_item *const range_begin, const std::size_t start_index, const newmenu_item *const subrange_stop)
+static inline void rotate_menu_item_subrange(auto &&step_function, newmenu_item *const range_begin, const std::size_t start_index, const newmenu_item *const subrange_stop)
 {
 	const auto subrange_start = std::next(range_begin, start_index);
 	/* The terminating pointer is named `subrange_stop`, rather than `end`,
@@ -646,8 +645,7 @@ int newmenu_get_citem(newmenu *menu)
 
 namespace {
 
-template <typename S, typename O>
-static void update_menu_position(newmenu &menu, newmenu_item *const stop, int_fast32_t amount, S step, O overflow)
+static void update_menu_position(newmenu &menu, newmenu_item *const stop, int_fast32_t amount, auto &&step, auto &&overflow)
 {
 	auto icitem = menu.citem;
 	auto pcitem = std::next(menu.items.begin(), icitem);

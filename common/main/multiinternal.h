@@ -155,15 +155,14 @@ static inline void multi_send_data(const multi_command<C> &buf, const multiplaye
 	multi::dispatch->send_data(buf, priority);
 }
 
-template <typename T>
-static inline void multi_serialize_read(const uint8_t *const buf, T &t)
+static inline void multi_serialize_read(const uint8_t *const buf, auto &t)
 {
 	serial::reader::bytebuffer_t b(buf);
 	serial::process_buffer(b, t);
 }
 
-template <typename T, std::size_t Extent>
-static inline void multi_serialize_read(const std::span<const uint8_t, Extent> buf, T &t)
+template <std::size_t Extent>
+static inline void multi_serialize_read(const std::span<const uint8_t, Extent> buf, auto &t)
 {
 	multi_serialize_read(buf.data(), t);
 }

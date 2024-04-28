@@ -129,10 +129,8 @@ PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_File *file, exact_type<V> v, PHYSFS_uint
 template <typename V>
 PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_File *file, exact_type<V> v, PHYSFS_uint32 S, PHYSFS_uint32 C) = delete;
 
-template <typename V>
-PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_File *file, V **v, PHYSFS_uint32 S, PHYSFS_uint32 C) = delete;
-template <typename V>
-PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_File *file, V **v, PHYSFS_uint32 S, PHYSFS_uint32 C) = delete;
+PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_File *file, auto **v, PHYSFS_uint32 S, PHYSFS_uint32 C) = delete;
+PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_File *file, auto **v, PHYSFS_uint32 S, PHYSFS_uint32 C) = delete;
 #define PHYSFS_read(F,V,S,C)	PHYSFSX_check_read(F,V,S,C)
 #define PHYSFS_write(F,V,S,C)	PHYSFSX_check_write(F,V,S,C)
 
@@ -451,10 +449,8 @@ public:
 			release();
 		return r;
 	}
-	template <typename T>
-		bool operator==(T) const = delete;
-	template <typename T>
-		bool operator!=(T) const = delete;
+	bool operator==(auto &&) const = delete;
+	bool operator!=(auto &&) const = delete;
 };
 
 class RAIINamedPHYSFS_File : public RAIIPHYSFS_File

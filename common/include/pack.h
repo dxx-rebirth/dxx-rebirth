@@ -13,14 +13,10 @@ public:
 	operator volatile void *() const = delete;
 	operator const void *() const = delete;
 	operator const volatile void *() const = delete;
-	template <typename U>
-		bool operator<(U &&) const = delete;
-	template <typename U>
-		bool operator<=(U &&) const = delete;
-	template <typename U>
-		bool operator>(U &&) const = delete;
-	template <typename U>
-		bool operator>=(U &&) const = delete;
+	bool operator<(auto &&) const = delete;
+	bool operator<=(auto &&) const = delete;
+	bool operator>(auto &&) const = delete;
+	bool operator>=(auto &&) const = delete;
 	constexpr exact_type(T *t) : p(t) {}
 	// Conversion to the exact type is permitted
 	[[nodiscard]]

@@ -61,8 +61,7 @@ static void gr_linear_rep_movsdm(uint8_t *const dest, const uint8_t *const src, 
 }
 #endif
 
-template <typename F>
-static void gr_for_each_bitmap_line(grs_canvas &canvas, const unsigned x, const unsigned y, const grs_bitmap &bm, F f)
+static void gr_for_each_bitmap_line(grs_canvas &canvas, const unsigned x, const unsigned y, const grs_bitmap &bm, auto &&f)
 {
 	const size_t src_width = bm.bm_w;
 	const uintptr_t src_rowsize = bm.bm_rowsize;
@@ -111,8 +110,7 @@ static void gr_ubitmap00m(grs_canvas &canvas, const unsigned x, const unsigned y
 }
 #endif
 
-template <typename F>
-static inline void gr_for_each_bitmap_byte(grs_canvas &canvas, const uint_fast32_t bx, const uint_fast32_t by, const grs_bitmap &bm, F f)
+static inline void gr_for_each_bitmap_byte(grs_canvas &canvas, const uint_fast32_t bx, const uint_fast32_t by, const grs_bitmap &bm, auto &&f)
 {
 	auto src = bm.bm_data;
 	const auto ey = by + bm.bm_h;
@@ -385,8 +383,7 @@ public:
 	}
 	void skip_upper_rows(uint_fast32_t);
 	uint8_t *init(uint_fast32_t dx, uint_fast32_t dy, uint_fast32_t sy, grs_bitmap &dest);
-	template <typename F>
-		void apply(uint_fast32_t w, uint_fast32_t h, uint_fast32_t sx, uint8_t *dbits, uint_fast32_t bm_rowsize, F &&f);
+	void apply(uint_fast32_t w, uint_fast32_t h, uint_fast32_t sx, uint8_t *dbits, uint_fast32_t bm_rowsize, auto &&f);
 #if !DXX_USE_OGL
 	using bm_rle_src_stride::src_bits;
 	using bm_rle_src_stride::advance_src_bits;
@@ -405,8 +402,7 @@ uint8_t *bm_rle_window::init(const uint_fast32_t dx, const uint_fast32_t dy, con
 	return &dest.get_bitmap_data()[(dest.bm_rowsize * dy) + dx];
 }
 
-template <typename F>
-void bm_rle_window::apply(const uint_fast32_t w, const uint_fast32_t h, const uint_fast32_t sx, uint8_t *dbits, const uint_fast32_t bm_rowsize, F &&f)
+void bm_rle_window::apply(const uint_fast32_t w, const uint_fast32_t h, const uint_fast32_t sx, uint8_t *dbits, const uint_fast32_t bm_rowsize, auto &&f)
 {
 	// No interlacing, copy the whole buffer.
 	for (uint_fast32_t i = h; i; --i)

@@ -200,9 +200,9 @@ void get_side_verts(side_vertnum_list_t &vertlist, const shared_segment &segp, c
 
 namespace {
 
-template <typename T, typename V>
+template <typename V>
 [[nodiscard]]
-static uint_fast32_t create_vertex_lists_from_values(T &va, const shared_segment &segp, const shared_side &sidep, const V &&f0, const V &&f1, const V &&f2, const V &&f3)
+static uint_fast32_t create_vertex_lists_from_values(auto &va, const shared_segment &segp, const shared_side &sidep, const V &&f0, const V &&f1, const V &&f2, const V &&f3)
 {
 	const auto type = sidep.get_type();
 	if (type == side_type::tri_13)
@@ -239,8 +239,7 @@ static uint_fast32_t create_vertex_lists_from_values(T &va, const shared_segment
 	}
 }
 
-template <typename T, typename F>
-static inline uint_fast32_t create_vertex_lists_by_predicate(T &va, const shared_segment &segp, const shared_side &sidep, const F &&f)
+static inline uint_fast32_t create_vertex_lists_by_predicate(auto &&va, const shared_segment &segp, const shared_side &sidep, const auto &&f)
 {
 	return create_vertex_lists_from_values(va, segp, sidep, f(side_relative_vertnum::_0), f(side_relative_vertnum::_1), f(side_relative_vertnum::_2), f(side_relative_vertnum::_3));
 }
