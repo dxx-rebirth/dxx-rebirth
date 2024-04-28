@@ -65,7 +65,7 @@ static std::pair<PHYSFS_sint64, std::unique_ptr<char[]>> load_blob_from_file(con
 {
 	const auto len{PHYSFS_fileLength(file)};
 	auto p{std::make_unique_for_overwrite<char[]>(len + 1)};
-	const auto bytes_read{PHYSFS_readBytes(file, p.get(), len)};
+	const auto bytes_read{PHYSFSX_readBytes(file, p.get(), len)};
 	if (bytes_read < 0)
 		Error("Failed to read file %s: \"%s\"", filename, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
 	else if (bytes_read > len)

@@ -273,7 +273,7 @@ static int piggy_is_needed(const int soundnum)
 static DiskSoundHeader DiskSoundHeader_read(const NamedPHYSFS_File fp)
 {
 	DiskSoundHeader dsh{};
-	PHYSFS_read(fp, dsh.name, 8, 1);
+	PHYSFSX_readBytes(fp, dsh.name, 8);
 	dsh.length = PHYSFSX_readInt(fp);
 	dsh.data_length = PHYSFSX_readInt(fp);
 	dsh.offset = PHYSFSX_readInt(fp);
@@ -291,7 +291,7 @@ namespace {
 static DiskBitmapHeader DiskBitmapHeader_read(const NamedPHYSFS_File fp)
 {
 	DiskBitmapHeader dbh{};
-	PHYSFS_read(fp, dbh.name, 8, 1);
+	PHYSFSX_readBytes(fp, dbh.name, 8);
 	dbh.dflags = PHYSFSX_readByte(fp);
 	dbh.width = PHYSFSX_readByte(fp);
 	dbh.height = PHYSFSX_readByte(fp);
@@ -311,7 +311,7 @@ static DiskBitmapHeader DiskBitmapHeader_read(const NamedPHYSFS_File fp)
  */
 static void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, const NamedPHYSFS_File fp)
 {
-	PHYSFS_read(fp, dbh->name, 8, 1);
+	PHYSFSX_readBytes(fp, dbh->name, 8);
 	dbh->dflags = PHYSFSX_readByte(fp);
 	dbh->width = PHYSFSX_readByte(fp);
 	dbh->height = PHYSFSX_readByte(fp);
@@ -1034,7 +1034,6 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 	#if 1 //ndef EDITOR
 	{
 		bm_read_all(LevelSharedRobotInfoState, Vclip, ham_fp);
-		//PHYSFS_read( ham_fp, GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1 );
 		range_for (auto &i, GameBitmapXlat)
 		{
 			const auto bi = GameBitmapXlat.valid_index(PHYSFSX_readShort(ham_fp));
@@ -1188,7 +1187,7 @@ void piggy_read_sounds(int pc_shareware)
 			/* Sounds.size() is the D2-compatible size, but this
 			 * statement must read a D1 length, so use MAX_SOUNDS.
 			 */
-			if (PHYSFS_read(array, Sounds, MAX_SOUNDS, 1) != 1)	// make the 'Sounds' index array match with the sounds we're about to read in
+			if (PHYSFSX_readBytes(array, Sounds, MAX_SOUNDS) != MAX_SOUNDS)	// make the 'Sounds' index array match with the sounds we're about to read in
 			{
 				con_printf(CON_URGENT,"Warning: Can't read Sounds/sounds.array: %s", PHYSFS_getLastError());
 				return;
@@ -1233,11 +1232,11 @@ void piggy_read_sounds(int pc_shareware)
 				{
 					const auto compressed_length = SoundCompressed[i];
 					lastbuf.resize(compressed_length);
-					PHYSFS_read(Piggy_fp, lastbuf.data(), compressed_length, 1);
+					PHYSFSX_readBytes(Piggy_fp, lastbuf.data(), compressed_length);
 					sound_decompress(lastbuf.data(), compressed_length, snd.data.get());
 				}
 				else
-					PHYSFS_read(Piggy_fp, snd.data.get(), snd.length, 1);
+					PHYSFSX_readBytes(Piggy_fp, snd.data.get(), snd.length);
 			}
 		}
 	}
@@ -1266,7 +1265,7 @@ void piggy_read_sounds(void)
 				// Read in the sound data!!!
 				snd.data = digi_sound::allocated_data{ptr, current_sound_offset};
 				ptr += snd.length;
-				PHYSFS_read(fp, snd.data.get(), snd.length, 1);
+				PHYSFSX_readBytes(fp, snd.data.get(), snd.length);
 			}
 			else
 				snd.data.reset();
@@ -1317,7 +1316,7 @@ void piggy_bitmap_page_in(GameBitmaps_array &GameBitmaps, const bitmap_index ent
 			}
 			memcpy( &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], &zsize, sizeof(int) );
 			Piggy_bitmap_cache_next += sizeof(int);
-			PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], 1, zsize-4 );
+			PHYSFSX_readBytes(Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], zsize - 4);
 			if (MacPig)
 			{
 				rle_swap_0_255(*bmp);
@@ -1334,7 +1333,7 @@ void piggy_bitmap_page_in(GameBitmaps_array &GameBitmaps, const bitmap_index ent
 				piggy_bitmap_page_out_all();
 				goto ReDoIt;
 			}
-			PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next+4], 1, zsize-4 );
+			PHYSFSX_readBytes(Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next + 4], zsize - 4);
 			PUT_INTEL_INT(&Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], zsize);
 			gr_set_bitmap_data(*bmp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next]);
 
@@ -1371,7 +1370,7 @@ void piggy_bitmap_page_in(GameBitmaps_array &GameBitmaps, const bitmap_index ent
 				piggy_bitmap_page_out_all();
 				goto ReDoIt;
 			}
-			PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], 1, bmp->bm_h*bmp->bm_w );
+			PHYSFSX_readBytes(Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], bmp->bm_h * bmp->bm_w);
 #if defined(DXX_BUILD_DESCENT_I)
 			Piggy_bitmap_cache_next+=bmp->bm_h*bmp->bm_w;
 			if (MacPig)
@@ -1772,7 +1771,7 @@ void load_bitmap_replacements(const std::span<const char, FILENAME_LEN> level_na
 			GameBitmapOffset[bi] = pig_bitmap_offset::None; // don't try to read bitmap from current pigfile
 		}
 
-		PHYSFS_read(ifile,Bitmap_replacement_data,1,bitmap_data_size);
+		PHYSFSX_readBytes(ifile, Bitmap_replacement_data, bitmap_data_size);
 
 		range_for (const auto i, unchecked_partial_range(indices.get(), n_bitmaps))
 		{
@@ -1795,7 +1794,7 @@ static int get_d1_colormap(palette_array_t &d1_palette, std::array<color_palette
 	auto palette_file = PHYSFSX_openReadBuffered(D1_PALETTE).first;
 	if (!palette_file || PHYSFS_fileLength(palette_file) != 9472)
 		return -1;
-	PHYSFS_read( palette_file, &d1_palette[0], sizeof(d1_palette[0]), d1_palette.size() );
+	PHYSFSX_readBytes(palette_file, d1_palette, sizeof(d1_palette[0]) * std::size(d1_palette));
 	build_colormap_good(d1_palette, colormap);
 	// don't change transparencies:
 	colormap[254] = color_palette_index{254};
@@ -1839,7 +1838,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 	}
 	if (!data) return;
 
-	PHYSFS_read(d1_Piggy_fp, data, 1, zsize);
+	PHYSFSX_readBytes(d1_Piggy_fp, data, zsize);
 	gr_set_bitmap_data(*bitmap, data);
 	switch(pigsize) {
 	case D1_MAC_PIGSIZE:

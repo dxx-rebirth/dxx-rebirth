@@ -158,7 +158,7 @@ static void scores_read(all_scores *scores)
 		return;
 	}
 	// Read 'em in...
-	PHYSFS_read(fp, scores, sizeof(all_scores), 1);
+	PHYSFSX_readBytes(fp, scores, sizeof(all_scores));
 	if (scores->version != high_score_version || scores->signature[0] != 'D' || scores->signature[1] != 'H' || scores->signature[2] != 'S')
 	{
 		*scores = {};

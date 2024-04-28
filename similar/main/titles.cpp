@@ -584,7 +584,7 @@ static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &bu
 
 	const auto len{PHYSFS_fileLength(tfile)};
 	buf = std::make_unique<char[]>(len + 1);
-	PHYSFS_read(tfile, buf.get(), 1, len);
+	PHYSFSX_readBytes(tfile, buf.get(), len);
 #if defined(DXX_BUILD_DESCENT_I)
 	const auto endbuf = &buf[len];
 #elif defined(DXX_BUILD_DESCENT_II)

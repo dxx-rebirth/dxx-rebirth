@@ -181,8 +181,8 @@ void gr_use_palette_table(const char * filename )
 	fsize	= PHYSFS_fileLength( fp );
 	Assert( fsize == 9472 );
 	(void)fsize;
-	PHYSFS_read( fp, &gr_palette[0], sizeof(gr_palette[0]), gr_palette.size() );
-	PHYSFS_read( fp, gr_fade_table, 256*34, 1 );
+	PHYSFSX_readBytes(fp, gr_palette, sizeof(gr_palette[0]) * std::size(gr_palette));
+	PHYSFSX_readBytes(fp, gr_fade_table, 256*34);
 	fp.reset();
 
 	// This is the TRANSPARENCY COLOR

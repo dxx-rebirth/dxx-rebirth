@@ -305,8 +305,7 @@ void robot_info_read(const NamedPHYSFS_File fp, robot_info &ri)
 	ri.death_roll = PHYSFSX_readByte(fp);
 
 	ri.flags = PHYSFSX_readByte(fp);
-	std::array<char, 3> pad;
-	PHYSFS_read(fp, pad, pad.size(), 1);
+	PHYSFSX_skipBytes<3>(fp);
 
 	ri.deathroll_sound = PHYSFSX_readByte(fp);
 	ri.glow = PHYSFSX_readByte(fp);

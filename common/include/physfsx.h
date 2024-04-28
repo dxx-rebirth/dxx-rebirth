@@ -45,56 +45,55 @@
 #include <memory>
 
 #ifdef DXX_CONSTANT_TRUE
-#define _DXX_PHYSFS_CHECK_SIZE(S,C,v)	DXX_CONSTANT_TRUE((std::size_t{S} * std::size_t{C}) > (v))
-#define DXX_PHYSFS_CHECK_READ_SIZE_OBJECT_SIZE(S,C,v)	\
-	(void)(__builtin_object_size(v, 1) != static_cast<size_t>(-1) && _DXX_PHYSFS_CHECK_SIZE(S,C,__builtin_object_size(v, 1)) && (DXX_ALWAYS_ERROR_FUNCTION("read size exceeds element size"), 0))
-#define DXX_PHYSFS_CHECK_READ_SIZE_ARRAY_SIZE(S,C)	\
-	(void)(_DXX_PHYSFS_CHECK_SIZE(S,C,sizeof(v)) && (DXX_ALWAYS_ERROR_FUNCTION("read size exceeds array size"), 0))
-#define DXX_PHYSFS_CHECK_WRITE_SIZE_OBJECT_SIZE(S,C,v)	\
-	(void)(__builtin_object_size(v, 1) != static_cast<size_t>(-1) && _DXX_PHYSFS_CHECK_SIZE(S,C,__builtin_object_size(v, 1)) && (DXX_ALWAYS_ERROR_FUNCTION("write size exceeds element size"), 0))
-#define DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(S,C)	\
-	((void)(dxx_builtin_constant_p(S) || dxx_builtin_constant_p(C) || \
+#define _DXX_PHYSFS_CHECK_SIZE(ELEMENT_SIZE,ELEMENT_COUNT,BUFFER_SIZE)	DXX_CONSTANT_TRUE((std::size_t{ELEMENT_SIZE} * std::size_t{ELEMENT_COUNT}) > (BUFFER_SIZE))
+#define DXX_PHYSFS_CHECK_READ_SIZE_OBJECT_SIZE(ELEMENT_SIZE,BUFFER_PTR)	\
+	(void)(__builtin_object_size(BUFFER_PTR, 1) != static_cast<size_t>(-1) && _DXX_PHYSFS_CHECK_SIZE(ELEMENT_SIZE, 1, __builtin_object_size(BUFFER_PTR, 1)) && (DXX_ALWAYS_ERROR_FUNCTION("read size exceeds element size"), 0))
+#define DXX_PHYSFS_CHECK_WRITE_SIZE_OBJECT_SIZE(ELEMENT_SIZE,ELEMENT_COUNT,BUFFER_PTR)	\
+	(void)(__builtin_object_size(BUFFER_PTR, 1) != static_cast<size_t>(-1) && _DXX_PHYSFS_CHECK_SIZE(ELEMENT_SIZE, ELEMENT_COUNT, __builtin_object_size(BUFFER_PTR, 1)) && (DXX_ALWAYS_ERROR_FUNCTION("write size exceeds element size"), 0))
+#define DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(ELEMENT_SIZE,ELEMENT_COUNT)	\
+	((void)(dxx_builtin_constant_p(ELEMENT_SIZE) || dxx_builtin_constant_p(ELEMENT_COUNT) || \
 		(DXX_ALWAYS_ERROR_FUNCTION("array element size is not constant"), 0)))
-#define DXX_PHYSFS_CHECK_WRITE_SIZE_ARRAY_SIZE(S,C)	\
-	((void)(_DXX_PHYSFS_CHECK_SIZE(S,C,sizeof(v)) && \
+#define DXX_PHYSFS_CHECK_WRITE_SIZE_ARRAY_SIZE(ELEMENT_SIZE, ELEMENT_COUNT)	\
+	((void)(_DXX_PHYSFS_CHECK_SIZE(ELEMENT_SIZE, ELEMENT_COUNT, sizeof(v)) && \
 		(DXX_ALWAYS_ERROR_FUNCTION("write size exceeds array size"), 0)))
 #else
-#define DXX_PHYSFS_CHECK_READ_SIZE_OBJECT_SIZE(S,C,v)	((void)0)
-#define DXX_PHYSFS_CHECK_READ_SIZE_ARRAY_SIZE(S,C)	((void)0)
-#define DXX_PHYSFS_CHECK_WRITE_SIZE_OBJECT_SIZE(S,C,v)	((void)0)
-#define DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(S,C) ((void)0)
-#define DXX_PHYSFS_CHECK_WRITE_SIZE_ARRAY_SIZE(S,C) ((void)0)
+#define DXX_PHYSFS_CHECK_READ_SIZE_OBJECT_SIZE(ELEMENT_SIZE,BUFFER_PTR)	((void)(ELEMENT_SIZE), (void)(BUFFER_PTR))
+#define DXX_PHYSFS_CHECK_WRITE_SIZE_OBJECT_SIZE(ELEMENT_SIZE,ELEMENT_COUNT,BUFFER_PTR)	((void)(ELEMENT_SIZE), (void)(ELEMENT_COUNT), (void)(BUFFER_PTR))
+#define DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(ELEMENT_SIZE,ELEMENT_COUNT)	((void)(ELEMENT_SIZE), (void)(ELEMENT_COUNT))
+#define DXX_PHYSFS_CHECK_WRITE_SIZE_ARRAY_SIZE(ELEMENT_SIZE,ELEMENT_COUNT) ((void)(ELEMENT_SIZE), (void)(ELEMENT_COUNT))
 #endif
 
-#define DXX_PHYSFS_CHECK_WRITE_CONSTANTS(S,C)	\
-	((void)(DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(S,C),	\
-	DXX_PHYSFS_CHECK_WRITE_SIZE_ARRAY_SIZE(S,C), 0))	\
+#define DXX_PHYSFS_CHECK_WRITE_CONSTANTS(ELEMENT_SIZE,ELEMENT_COUNT)	\
+	((void)(DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(ELEMENT_SIZE, ELEMENT_COUNT),	\
+	DXX_PHYSFS_CHECK_WRITE_SIZE_ARRAY_SIZE(ELEMENT_SIZE, ELEMENT_COUNT), 0))	\
 
 namespace dcx {
 
 template <typename V>
 __attribute_always_inline()
-static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_File *file, V *v, const PHYSFS_uint32 S, const PHYSFS_uint32 C)
+static inline PHYSFS_sint64 PHYSFSX_check_readBytes(PHYSFS_File *const file, V *const buffer, const PHYSFS_uint64 len)
 {
 	static_assert(std::is_standard_layout<V>::value && std::is_trivial<V>::value, "non-POD value read");
-	DXX_PHYSFS_CHECK_READ_SIZE_OBJECT_SIZE(S, C, v);
-	return PHYSFS_read(file, v, S, C);
+	DXX_PHYSFS_CHECK_READ_SIZE_OBJECT_SIZE(len, buffer);
+	return {PHYSFS_readBytes(file, buffer, {len})};
 }
 
 template <typename V, std::size_t N>
 __attribute_always_inline()
-static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_File *file, std::array<V, N> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
+static inline PHYSFS_sint64 PHYSFSX_check_readBytes(PHYSFS_File *const file, std::array<V, N> &buffer, const PHYSFS_uint64 len)
 {
 	static_assert(std::is_standard_layout<V>::value && std::is_trivial<V>::value, "C++ array of non-POD elements read");
-	DXX_PHYSFS_CHECK_READ_SIZE_ARRAY_SIZE(S, C);
-	return PHYSFSX_check_read(file, &v[0], S, C);
+#ifdef DXX_CONSTANT_TRUE
+	(void)(_DXX_PHYSFS_CHECK_SIZE(1, len, sizeof(V) * std::size(buffer)) && (DXX_ALWAYS_ERROR_FUNCTION("read size exceeds array size"), 0));
+#endif
+	return {PHYSFSX_check_readBytes(file, std::data(buffer), {len})};
 }
 
 template <typename V, typename D>
 __attribute_always_inline()
-static inline PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_File *file, const std::unique_ptr<V, D> &v, PHYSFS_uint32 S, PHYSFS_uint32 C)
+static inline PHYSFS_sint64 PHYSFSX_check_readBytes(PHYSFS_File *const file, const std::unique_ptr<V, D> &v, const PHYSFS_uint64 len)
 {
-	return PHYSFSX_check_read(file, v.get(), S, C);
+	return {PHYSFSX_check_readBytes(file, v.get(), {len})};
 }
 
 template <typename V>
@@ -125,13 +124,13 @@ static inline PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_File *file, const std::un
 }
 
 template <typename V>
-PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_File *file, exact_type<V> v, PHYSFS_uint32 S, PHYSFS_uint32 C) = delete;
+PHYSFS_sint64 PHYSFSX_check_readBytes(PHYSFS_File *file, exact_type<V> v, PHYSFS_uint64 C) = delete;
 template <typename V>
 PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_File *file, exact_type<V> v, PHYSFS_uint32 S, PHYSFS_uint32 C) = delete;
 
-PHYSFS_sint64 PHYSFSX_check_read(PHYSFS_File *file, auto **v, PHYSFS_uint32 S, PHYSFS_uint32 C) = delete;
+PHYSFS_sint64 PHYSFSX_check_readBytes(PHYSFS_File *file, auto **v, PHYSFS_uint64 C) = delete;
 PHYSFS_sint64 PHYSFSX_check_write(PHYSFS_File *file, auto **v, PHYSFS_uint32 S, PHYSFS_uint32 C) = delete;
-#define PHYSFS_read(F,V,S,C)	PHYSFSX_check_read(F,V,S,C)
+#define PHYSFSX_readBytes(HANDLE, BUFFER, LEN)	PHYSFSX_check_readBytes(HANDLE, BUFFER, LEN)
 #define PHYSFS_write(F,V,S,C)	PHYSFSX_check_write(F,V,S,C)
 
 enum class physfsx_endian : bool
@@ -164,7 +163,7 @@ static inline int PHYSFSX_fgetc(PHYSFS_File *const fp)
 {
 	unsigned char c;
 
-	if (PHYSFS_read(fp, &c, 1, 1) != 1)
+	if (PHYSFSX_readBytes(fp, &c, 1) != 1)
 		return EOF;
 
 	return c;
@@ -375,7 +374,7 @@ struct PHYSFSX_read_swap_helper
 	T operator()(PHYSFS_File *const file, physfsx_endian swap) const
 	{
 		T val{};
-		PHYSFS_readBytes(file, &val, sizeof(val));
+		PHYSFSX_readBytes(file, &val, sizeof(val));
 		return swap != physfsx_endian::native ? swap_value(val) : val;
 	}
 };
@@ -395,7 +394,7 @@ void PHYSFSX_read_sequence_helper<T1, F, T2, m...>::operator()(const NamedPHYSFS
 
 static inline int PHYSFSX_readS8(PHYSFS_File *const file, int8_t *const b)
 {
-	return PHYSFS_readBytes(file, b, sizeof(*b)) == sizeof(*b);
+	return PHYSFSX_readBytes(file, b, sizeof(*b)) == sizeof(*b);
 }
 
 static constexpr PHYSFSX_read_helper<int8_t, PHYSFSX_readS8> PHYSFSX_readByte{};

@@ -279,19 +279,18 @@ static void my_extract_shortpos(object_base &objp, const shortpos *const spp)
 	objp.mtype.phys_info.velocity.z = (spp->velz << VEL_PRECISION);
 }
 
-static int _newdemo_read( void *buffer, int elsize, int nelem )
+static int _newdemo_read(void *const buffer, const std::size_t elsize, const std::size_t nelem)
 {
-	int num_read;
-	num_read = (PHYSFS_read)(infile, buffer, elsize, nelem);
+	const auto num_read{(PHYSFS_readBytes)(infile, buffer, elsize * nelem)};
 	if (num_read < nelem || PHYSFS_eof(infile))
 		nd_playback_v_bad_read = -1;
 
 	return num_read;
 }
 
-static int newdemo_read(std::integral auto *buffer, int elsize, int nelem)
+static int newdemo_read(std::integral auto *const buffer, const std::size_t elsize, const std::size_t nelem)
 {
-	return _newdemo_read(buffer, elsize, nelem);
+	return _newdemo_read(buffer, {elsize}, {nelem});
 }
 
 namespace dsx {

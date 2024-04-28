@@ -893,7 +893,7 @@ static void state_write_player(PHYSFS_File *fp, const player &pl, const relocate
 static void state_read_player(PHYSFS_File *fp, player &pl, const physfsx_endian swap, player_info &pl_info, relocated_player_data &rpd)
 {
 	player_rw pl_rw;
-	PHYSFS_read(fp, &pl_rw, sizeof(pl_rw), 1);
+	PHYSFSX_readBytes(fp, &pl_rw, sizeof(pl_rw));
 	player_rw_swap(&pl_rw, swap);
 	state_player_rw_to_player(&pl_rw, &pl, pl_info, rpd);
 }
@@ -953,13 +953,13 @@ uint8_t read_savegame_properties(const std::size_t savegame_index, d_game_unique
 		return 0;
 	//Read id
 	char id[4]{};
-	if (PHYSFS_read(fp, id, sizeof(id), 1) != 1)
+	if (PHYSFSX_readBytes(fp, id, sizeof(id)) != sizeof(id))
 		return 0;
 	if (memcmp(id, dgss_id, 4))
 		return 0;
 	//Read version
 	unsigned version;
-	if (PHYSFS_read(fp, &version, sizeof(version), 1) != 1)
+	if (PHYSFSX_readBytes(fp, &version, sizeof(version)) != sizeof(version))
 		return 0;
 	if (!(version >= STATE_COMPATIBLE_VERSION || SWAPINT(version) >= STATE_COMPATIBLE_VERSION))
 		return 0;
@@ -971,20 +971,20 @@ uint8_t read_savegame_properties(const std::size_t savegame_index, d_game_unique
 	d_game_unique_state::savegame_description desc_storage;
 	d_game_unique_state::savegame_description &desc = dsc ? *dsc : desc_storage;
 	// Read description
-	if (PHYSFS_read(fp, desc.data(), desc.size(), 1) != 1)
+	if (const std::size_t buffer_size{std::size(desc)}; PHYSFSX_readBytes(fp, std::data(desc), buffer_size) != buffer_size)
 		return 0;
 	desc.back() = 0;
 	if (sc_bmp)
 	{
 		// Read thumbnail
 		grs_bitmap_ptr bmp = gr_create_bitmap(THUMBNAIL_W, THUMBNAIL_H);
-		if (PHYSFS_read(fp, bmp->get_bitmap_data(), THUMBNAIL_W * THUMBNAIL_H, 1) != 1)
+		if (constexpr std::size_t buffer_size{THUMBNAIL_W * THUMBNAIL_H}; PHYSFSX_readBytes(fp, bmp->get_bitmap_data(), buffer_size) != buffer_size)
 			return 0;
 #if defined(DXX_BUILD_DESCENT_II)
 		if (version >= 9)
 		{
 			palette_array_t pal;
-			if (PHYSFS_read(fp, &pal[0], pal.size(), sizeof(pal[0])) != sizeof(pal[0]))
+			if (constexpr std::size_t buffer_size{sizeof(pal[0]) * std::size(pal)}; PHYSFSX_readBytes(fp, pal, buffer_size) != buffer_size)
 				return 0;
 			gr_remap_bitmap_good(*bmp.get(), pal, -1, -1);
 		}
@@ -1163,7 +1163,7 @@ static int copy_file(const char *old_file, const char *new_file)
 	const auto pbuf = buf.get();
 	while (!PHYSFS_eof(in_file))
 	{
-		const auto bytes_read = PHYSFS_read(in_file, pbuf, 1, buf_size);
+		const auto bytes_read{PHYSFSX_readBytes(in_file, pbuf, buf_size)};
 		if (bytes_read < 0)
 			Error("Cannot read from file <%s>: %s", old_file, PHYSFS_getLastError());
 
@@ -1834,8 +1834,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	auto &vmobjptridx = Objects.vmptridx;
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Station = LevelUniqueFuelcenterState.Station;
-	int version, coop_player_got[MAX_PLAYERS], coop_org_objnum = get_local_player().objnum;
-	char id[5];
+	int coop_player_got[MAX_PLAYERS], coop_org_objnum = get_local_player().objnum;
 	std::array<per_side_array<texture1_value>, MAX_SEGMENTS> TempTmapNum;
 	std::array<per_side_array<texture2_value>, MAX_SEGMENTS> TempTmapNum2;
 
@@ -1855,14 +1854,16 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	if ( !fp ) return 0;
 
 //Read id
-	PHYSFS_read(fp, id, sizeof(char) * 4, 1);
+	char id[5]{};
+	PHYSFSX_readBytes(fp, id, sizeof(char) * 4);
 	if ( memcmp( id, dgss_id, 4 )) {
 		return 0;
 	}
 
 //Read version
 	//Check for swapped file here, as dgss_id is written as a string (i.e. endian independent)
-	PHYSFS_read(fp, &version, sizeof(int), 1);
+	int version{};
+	PHYSFSX_readBytes(fp, &version, sizeof(int));
 	const physfsx_endian swap{
 		(version & 0xffff0000)
 			? (version = SWAPINT(version), physfsx_endian::foreign)
@@ -1878,7 +1879,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	{
 		callsign_t saved_callsign;
 		state_game_id = PHYSFSX_readSXE32(fp, swap);
-		PHYSFS_read(fp, &saved_callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
+		PHYSFSX_readBytes(fp, &saved_callsign, sizeof(char) * CALLSIGN_LEN + 1);
 		if (!(saved_callsign == get_local_player().callsign)) // check the callsign of the palyer who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
 		{
 			return 0;
@@ -1887,7 +1888,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 
 // Read description
 	d_game_unique_state::savegame_description desc;
-	PHYSFS_read(fp, desc.data(), 20, 1);
+	PHYSFSX_readBytes(fp, desc.data(), 20);
 	desc.back() = 0;
 
 // Skip the current screen shot...
@@ -1901,7 +1902,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 
 // Read the mission info...
 	savegame_mission_path mission_pathname{};
-	PHYSFS_read(fp, mission_pathname.original.data(), mission_pathname.original.size(), 1);
+	PHYSFSX_readBytes(fp, mission_pathname.original.data(), mission_pathname.original.size());
 	mission_name_type name_match_mode;
 	mission_entry_predicate mission_predicate;
 	switch (static_cast<savegame_mission_name_abi>(mission_pathname.original.back()))
@@ -1915,7 +1916,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 			break;
 		case savegame_mission_name_abi::pathname:	/* Save game with extended mission name */
 			{
-				PHYSFS_read(fp, mission_pathname.full.data(), mission_pathname.full.size(), 1);
+				PHYSFSX_readBytes(fp, mission_pathname.full.data(), mission_pathname.full.size());
 				if (mission_pathname.full.back())
 				{
 					struct error_unknown_mission_format : passive_messagebox
@@ -2058,15 +2059,15 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	auto &Primary_weapon = pl_info.Primary_weapon;
 // Restore the weapon states
 	{
-		int8_t v;
-		PHYSFS_read(fp, &v, sizeof(int8_t), 1);
-		Primary_weapon = static_cast<primary_weapon_index_t>(v);
+		uint8_t v{};
+		PHYSFSX_readBytes(fp, &v, sizeof(v));
+		Primary_weapon = primary_weapon_index_t{v};
 	}
 	auto &Secondary_weapon = pl_info.Secondary_weapon;
 	{
-		int8_t v;
-		PHYSFS_read(fp, &v, sizeof(int8_t), 1);
-		Secondary_weapon = static_cast<secondary_weapon_index_t>(v);
+		uint8_t v{};
+		PHYSFSX_readBytes(fp, &v, sizeof(v));
+		Secondary_weapon = secondary_weapon_index_t{v};
 	}
 
 	select_primary_weapon(pl_info, nullptr, Primary_weapon, 0);
@@ -2100,7 +2101,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	for (auto &obj : vmobjptr)
 	{
 		object_rw obj_rw;
-		PHYSFS_read(fp, &obj_rw, sizeof(obj_rw), 1);
+		PHYSFSX_readBytes(fp, &obj_rw, sizeof(obj_rw));
 		object_rw_swap(&obj_rw, swap);
 		state_object_rw_to_object(&obj_rw, obj);
 	}
@@ -2270,7 +2271,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	// Restore the automap visited info
 		Automap_visited = {};
 		DXX_MAKE_MEM_UNDEFINED(std::span(Automap_visited));
-		PHYSFS_read(fp, Automap_visited.data(), sizeof(uint8_t), std::max<std::size_t>(Highest_segment_index + 1, MAX_SEGMENTS_ORIGINAL));
+		PHYSFSX_readBytes(fp, Automap_visited.data(), std::max<std::size_t>(Highest_segment_index + 1, MAX_SEGMENTS_ORIGINAL));
 	}
 
 	{
@@ -2313,11 +2314,11 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	if (version >= 17) {
 		range_for (auto &i, MarkerState.imobjidx)
 			i = vcobjidx_t::check_nothrow_index(PHYSFSX_readUXE32(fp, swap)).value_or(object_none);
-		PHYSFS_seek(fp, PHYSFS_tell(fp) + (NUM_MARKERS)*(CALLSIGN_LEN+1)); // PHYSFS_read(fp, MarkerOwner, sizeof(MarkerOwner), 1); // skip obsolete MarkerOwner
+		PHYSFS_seek(fp, PHYSFS_tell(fp) + (NUM_MARKERS)*(CALLSIGN_LEN+1)); // skip obsolete MarkerOwner
 		range_for (auto &i, MarkerState.message)
 		{
 			std::array<char, MARKER_MESSAGE_LEN> a;
-			PHYSFS_read(fp, a.data(), a.size(), 1);
+			PHYSFSX_readBytes(fp, a, a.size());
 			i.copy_if(a);
 		}
 	}
@@ -2350,14 +2351,14 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		 * MAX_*_WEAPONS for each.  Read into a temporary, then copy the
 		 * meaningful elements to the live data.
 		 */
-		PHYSFS_read(fp, &last_was_super, MAX_PRIMARY_WEAPONS, 1);
+		PHYSFSX_readBytes(fp, &last_was_super, MAX_PRIMARY_WEAPONS);
 		Primary_last_was_super = 0;
 		for (uint8_t j = static_cast<uint8_t>(primary_weapon_index_t::VULCAN_INDEX); j != static_cast<uint8_t>(primary_weapon_index_t::SUPER_LASER_INDEX); ++j)
 		{
 			if (last_was_super[j])
 				Primary_last_was_super |= HAS_PRIMARY_FLAG(primary_weapon_index_t{j});
 		}
-		PHYSFS_read(fp, &last_was_super, MAX_SECONDARY_WEAPONS, 1);
+		PHYSFSX_readBytes(fp, &last_was_super, MAX_SECONDARY_WEAPONS);
 		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
 		Secondary_last_was_super = 0;
 		for (uint8_t j = static_cast<uint8_t>(secondary_weapon_index_t::CONCUSSION_INDEX); j != static_cast<uint8_t>(secondary_weapon_index_t::SMISSILE1_INDEX); ++j)
@@ -2387,14 +2388,14 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		{
 			for (unique_segment &useg : vmsegptr)
 			{
-				PHYSFS_read(fp, &useg.light_subtracted, sizeof(useg.light_subtracted), 1);
+				PHYSFSX_readBytes(fp, &useg.light_subtracted, sizeof(useg.light_subtracted));
 			}
 		}
 		else
 		{
 			range_for (unique_segment &i, partial_range(Segments, MAX_SEGMENTS_ORIGINAL))
 			{
-				PHYSFS_read(fp, &i.light_subtracted, sizeof(i.light_subtracted), 1);
+				PHYSFSX_readBytes(fp, &i.light_subtracted, sizeof(i.light_subtracted));
 			}
 		}
 		apply_all_changed_light(LevelSharedDestructibleLightState, Segments.vmptridx);
@@ -2506,20 +2507,20 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		}
 		{
 			std::array<char, MISSION_NAME_LEN + 1> a;
-			PHYSFS_read(fp, a.data(), a.size(), 1);
+			PHYSFSX_readBytes(fp, a, a.size());
 			Netgame.mission_title.copy_if(a);
 		}
 		{
 			std::array<char, 9> a;
-			PHYSFS_read(fp, a.data(), a.size(), 1);
+			PHYSFSX_readBytes(fp, a, a.size());
 			Netgame.mission_name.copy_if(a);
 		}
 		Netgame.levelnum = {PHYSFSX_readSXE32(fp, swap)};
-		PHYSFS_read(fp, &Netgame.difficulty, sizeof(ubyte), 1);
-		PHYSFS_read(fp, &Netgame.game_status, sizeof(ubyte), 1);
-		PHYSFS_read(fp, &Netgame.numplayers, sizeof(ubyte), 1);
-		PHYSFS_read(fp, &Netgame.max_numplayers, sizeof(ubyte), 1);
-		PHYSFS_read(fp, &Netgame.numconnected, sizeof(ubyte), 1);
+		PHYSFSX_readBytes(fp, &Netgame.difficulty, sizeof(ubyte));
+		PHYSFSX_readBytes(fp, &Netgame.game_status, sizeof(ubyte));
+		PHYSFSX_readBytes(fp, &Netgame.numplayers, sizeof(ubyte));
+		PHYSFSX_readBytes(fp, &Netgame.max_numplayers, sizeof(ubyte));
+		PHYSFSX_readBytes(fp, &Netgame.numconnected, sizeof(ubyte));
 		Netgame.level_time = {PHYSFSX_readSXE32(fp, swap)};
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++)
 		{
@@ -2567,8 +2568,6 @@ namespace dcx {
 
 int state_get_game_id(const d_game_unique_state::savegame_file_path &filename)
 {
-	int version;
-	char id[5];
 	callsign_t saved_callsign;
 
 	#ifndef NDEBUG
@@ -2583,14 +2582,16 @@ int state_get_game_id(const d_game_unique_state::savegame_file_path &filename)
 	if ( !fp ) return 0;
 
 //Read id
-	PHYSFS_read(fp, id, sizeof(char) * 4, 1);
+	char id[5]{};
+	PHYSFSX_readBytes(fp, id, sizeof(char) * 4);
 	if ( memcmp( id, dgss_id, 4 )) {
 		return 0;
 	}
 
 //Read version
 	//Check for swapped file here, as dgss_id is written as a string (i.e. endian independent)
-	PHYSFS_read(fp, &version, sizeof(int), 1);
+	int version{};
+	PHYSFSX_readBytes(fp, &version, sizeof(int));
 	const physfsx_endian swap{
 		(version & 0xffff0000)
 			? (version = SWAPINT(version), physfsx_endian::foreign)
@@ -2603,7 +2604,7 @@ int state_get_game_id(const d_game_unique_state::savegame_file_path &filename)
 
 // Read Coop state_game_id to validate the savegame we are about to load matches the others
 	state_game_id = PHYSFSX_readSXE32(fp, swap);
-	PHYSFS_read(fp, &saved_callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
+	PHYSFSX_readBytes(fp, &saved_callsign, sizeof(char) * CALLSIGN_LEN + 1);
 	if (!(saved_callsign == get_local_player().callsign)) // check the callsign of the palyer who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
 		return 0;
 

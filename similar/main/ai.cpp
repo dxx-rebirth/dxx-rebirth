@@ -5006,7 +5006,7 @@ int ai_restore_state(const d_robot_info_array &Robot_info, const NamedPHYSFS_Fil
 		}
 		{
 			auto &Stolen_items = LevelUniqueObjectState.ThiefState.Stolen_items;
-			PHYSFS_read(fp, &Stolen_items, sizeof(Stolen_items[0]) * Stolen_items.size(), 1);
+			PHYSFSX_readBytes(fp, &Stolen_items, sizeof(Stolen_items[0]) * Stolen_items.size());
 		}
 	} else {
 		BuddyState.Escort_last_path_created = 0;

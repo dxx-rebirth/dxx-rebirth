@@ -174,7 +174,7 @@ static std::pair<std::unique_ptr<uint8_t[]>, std::size_t> load_physfs_blob(const
 		return {};
 	}
 	auto encoded_buffer = std::make_unique<uint8_t[]>(fsize);
-	if (PHYSFS_read(file, encoded_buffer.get(), 1, fsize) < fsize)
+	if (PHYSFSX_readBytes(file, encoded_buffer.get(), fsize) != fsize)
 	{
 		con_printf(CON_VERBOSE, "%s:%u: failed to read \"%s\"", __FILE__, __LINE__, filename);
 		return {};

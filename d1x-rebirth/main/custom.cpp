@@ -141,10 +141,8 @@ static int load_pig1(const NamedPHYSFS_File f, unsigned num_bitmaps, unsigned nu
 
 	while (i--)
 	{
-		if (PHYSFS_read(f, &bmh, sizeof(DiskBitmapHeader), 1) < 1)
-		{
+		if (PHYSFSX_readBytes(f, &bmh, sizeof(DiskBitmapHeader)) != sizeof(DiskBitmapHeader))
 			return -1;
-		}
 
 		snprintf(name, sizeof(name), "%.8s%c%d", bmh.name, (bmh.dflags & DBM_FLAG_ABM) ? '#' : 0, bmh.dflags & 63);
 
@@ -160,10 +158,8 @@ static int load_pig1(const NamedPHYSFS_File f, unsigned num_bitmaps, unsigned nu
 
 	while (i--)
 	{
-		if (PHYSFS_read(f, &sndh, sizeof(DiskSoundHeader), 1) < 1)
-		{
+		if (PHYSFSX_readBytes(f, &sndh, sizeof(DiskSoundHeader)) != sizeof(DiskSoundHeader))
 			return -1;
-		}
 
 		memcpy(name, sndh.name, 8);
 		name[8] = 0;
@@ -237,10 +233,8 @@ static int load_pog(const NamedPHYSFS_File f, int pog_sig, int pog_ver, unsigned
 #endif
 	for (int i = num_bitmaps; i--;)
 	{
-		if (PHYSFS_read(f, &bmh, sizeof(DiskBitmapHeader2), 1) < 1)
-		{
+		if (PHYSFSX_readBytes(f, &bmh, sizeof(DiskBitmapHeader2)) != sizeof(DiskBitmapHeader2))
 			return -1;
-		}
 
 		cip->offset = bmh.offset + data_ofs;
 		cip->flags = bmh.flags & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT | BM_FLAG_NO_LIGHTING | BM_FLAG_RLE);
@@ -345,10 +339,8 @@ static int load_pigpog(const d_fname &pogname)
 				j -= 4;
 			}
 
-			if (PHYSFS_read(f, p, 1, j) < 1)
-			{
+			if (PHYSFSX_readBytes(f, p, j) != j)
 				return rc;
-			}
 		}
 		else if (replacement_idx + 1 < 0)
 		{
@@ -370,10 +362,8 @@ static int load_pigpog(const d_fname &pogname)
 				snd->length = j;
 			snd->data = digi_sound::allocated_data{std::move(p), game_sound_offset{}};
 
-			if (PHYSFS_read(f, p.get(), j, 1) < 1)
-			{
+			if (PHYSFSX_readBytes(f, p.get(), j) != j)
 				return rc;
-			}
 		}
 		cip++;
 	}
@@ -552,7 +542,7 @@ static void load_hxm(const d_fname &hxmname)
 				polymodel_read(*pm, f);
 				const auto model_data_size = pm->model_data_size;
 				pm->model_data = std::make_unique<uint8_t[]>(model_data_size);
-				if (PHYSFS_read(f, pm->model_data, model_data_size, 1) < 1)
+				if (PHYSFSX_readBytes(f, pm->model_data, model_data_size) != model_data_size)
 				{
 					pm->model_data.reset();
 					return;

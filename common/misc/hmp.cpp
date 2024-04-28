@@ -68,7 +68,7 @@ hmp_open_result hmp_open(const char *const filename)
 	const auto data_error = [](hmp_open_error e) {
 		return hmp_open_result{nullptr, e, PHYSFS_ErrorCode{}};
 	};
-	if (PHYSFS_read(fp, buf, 1, 8) != 8)
+	if (constexpr std::size_t buffer_size{std::size(buf)}; PHYSFSX_readBytes(fp, std::data(buf), buffer_size) != buffer_size)
 		return physfs_error(hmp_open_error::physfs_read_header);
 	if (memcmp(buf, "HMIMIDIP", 8))
 		return data_error(hmp_open_error::content_header);
@@ -77,7 +77,7 @@ hmp_open_result hmp_open(const char *const filename)
 		return physfs_error(hmp_open_error::physfs_seek0);
 
 	unsigned num_tracks;
-	if (PHYSFS_read(fp, &num_tracks, 4, 1) != 1)
+	if (PHYSFSX_readBytes(fp, &num_tracks, 4) != 4)
 		return physfs_error(hmp_open_error::physfs_read_tracks);
 
 	if ((num_tracks < 1) || (num_tracks > HMP_TRACKS))
@@ -87,7 +87,7 @@ hmp_open_result hmp_open(const char *const filename)
 
 	if (!PHYSFS_seek(fp, 0x38))
 		return physfs_error(hmp_open_error::physfs_seek1);
-	if (PHYSFS_read(fp, &tempo, 4, 1) != 1)
+	if (PHYSFSX_readBytes(fp, &tempo, 4) != 4)
 		return physfs_error(hmp_open_error::physfs_read_tempo);
 	hmp->tempo = INTEL_INT(tempo);
 
@@ -100,15 +100,15 @@ hmp_open_result hmp_open(const char *const filename)
 		/* Discard tdata[0] and tdata[2].  They are read to avoid needing a
 		 * seek operation to skip them.
 		 */
-		if (PHYSFS_read(fp, tdata.data(), sizeof(tdata[0]), tdata.size()) != tdata.size())
+		if (constexpr std::size_t buffer_size{std::size(tdata) * sizeof(tdata[0])}; PHYSFSX_readBytes(fp, std::data(tdata), buffer_size) != buffer_size)
 			return physfs_error(hmp_open_error::physfs_read_track_length);
 
-		int data = tdata[1];
+		int data{tdata[1]};
 		data -= 12;
 		i.len = data;
 		i.data = std::make_unique<uint8_t[]>(data);
 		/* finally, read track data */
-		if (PHYSFS_read(fp, i.data.get(), data, 1) != 1)
+		if (PHYSFSX_readBytes(fp, i.data.get(), data) != data)
 			return physfs_error(hmp_open_error::physfs_read_track_data);
 		i.loop_set = 0;
 	}

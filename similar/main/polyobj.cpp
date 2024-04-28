@@ -155,7 +155,7 @@ static void read_model_file(polymodel &pm, const char *const filename, robot_inf
 
 	std::size_t Pof_addr = 0;
 	std::array<uint8_t, MODEL_BUF_SIZE> model_storage;
-	const std::size_t Pof_file_end = PHYSFS_read(ifile, model_storage.data(), 1, model_storage.size());
+	const std::size_t Pof_file_end = PHYSFSX_readBytes(ifile, model_storage.data(), model_storage.size());
 	const std::span model_buf{model_storage.data(), Pof_file_end};
 	ifile.reset();
 	const int model_id = pof_read_int(model_buf, Pof_addr);
@@ -326,7 +326,7 @@ void read_model_guns(const char *filename, reactor &r)
 
 	std::size_t Pof_addr = 0;
 	std::array<uint8_t, MODEL_BUF_SIZE> model_storage;
-	const std::size_t Pof_file_end = PHYSFS_read(ifile, model_storage.data(), 1, model_storage.size());
+	const std::size_t Pof_file_end = PHYSFSX_readBytes(ifile, model_storage.data(), model_storage.size());
 	const std::span model_buf{model_storage.data(), Pof_file_end};
 	ifile.reset();
 
@@ -644,7 +644,7 @@ void polygon_model_data_read(polymodel *pm, PHYSFS_File *fp)
 {
 	auto model_data_size = pm->model_data_size;
 	pm->model_data = std::make_unique<uint8_t[]>(model_data_size);
-	PHYSFS_read(fp, pm->model_data, sizeof(uint8_t), model_data_size);
+	PHYSFSX_readBytes(fp, pm->model_data, model_data_size);
 	/* Aligning model data changes pm->model_data_size.  Reload it
 	 * afterward.
 	 */

@@ -173,7 +173,7 @@ static int parse_body(PHYSFS_File *ifile,long len,iff_bitmap_header *bmheader)
 		int y;
 
 		for (y=bmheader->h;y;y--) {
-			PHYSFS_read(ifile, p, width, depth);
+			PHYSFSX_readBytes(ifile, p, width * depth);
 			p += bmheader->w;
 
 			if (bmheader->masking == mskHasMask)
@@ -209,7 +209,7 @@ static int parse_body(PHYSFS_File *ifile,long len,iff_bitmap_header *bmheader)
 					PHYSFSX_fseek(ifile, nn, SEEK_CUR);
 				else
 				{
-					PHYSFS_read(ifile, p, nn, 1);
+					PHYSFSX_readBytes(ifile, p, nn);
 					p += nn;
 				}
 				if (wid_cnt==-1) PHYSFSX_fseek(ifile, 1, SEEK_CUR);

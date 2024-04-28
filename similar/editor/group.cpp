@@ -1170,7 +1170,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 	if (!PHYSFS_seek(LoadFile, 0))
 		Error( "Error seeking to 0 in group.c" );
 
-	if (PHYSFS_read( LoadFile, &group_top_fileinfo, sizeof(group_top_fileinfo),1 )!=1)
+	if (PHYSFSX_readBytes(LoadFile, &group_top_fileinfo, sizeof(group_top_fileinfo)) != sizeof(group_top_fileinfo))
 		Error( "Error reading top_fileinfo in group.c" );
 
 	// Check version number
@@ -1194,7 +1194,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 	if (!PHYSFS_seek(LoadFile, 0))
 		Error( "Error seeking to 0b in group.c" );
 
-	if (PHYSFS_read( LoadFile, &group_fileinfo, group_top_fileinfo.fileinfo_sizeof,1 )!=1)
+	if (const auto buffer_size{group_top_fileinfo.fileinfo_sizeof}; PHYSFSX_readBytes(LoadFile, &group_fileinfo, buffer_size) != buffer_size)
 		Error( "Error reading group_fileinfo in group.c" );
 
 	//===================== READ HEADER INFO ========================
@@ -1208,7 +1208,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 		if (!PHYSFS_seek(LoadFile, group_fileinfo.header_offset))
 			Error( "Error seeking to header_offset in group.c" );
 
-		if (PHYSFS_read( LoadFile, &group_header, group_fileinfo.header_size,1 )!=1)
+		if (const auto buffer_size{group_fileinfo.header_size}; PHYSFSX_readBytes(LoadFile, &group_header, buffer_size) != buffer_size)
 			Error( "Error reading group_header in group.c" );
 	}
 
@@ -1226,7 +1226,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 		if (!PHYSFS_seek(LoadFile, group_fileinfo.editor_offset))
 			Error( "Error seeking to editor_offset in group.c" );
 
-		if (PHYSFS_read( LoadFile, &group_editor, group_fileinfo.editor_size,1 )!=1)
+		if (const auto buffer_size{group_fileinfo.editor_size}; PHYSFSX_readBytes(LoadFile, &group_editor, buffer_size) != buffer_size)
 			Error( "Error reading group_editor in group.c" );
 
 	}
@@ -1242,7 +1242,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 			for (unsigned i = 0; i< group_header.num_vertices; ++i)
 			{
 				vertex tvert;
-				if (PHYSFS_read( LoadFile, &tvert, sizeof(tvert),1 )!=1)
+				if (PHYSFSX_readBytes(LoadFile, &tvert, sizeof(tvert)) != sizeof(tvert))
 					Error( "Error reading tvert in group.c" );
 				vertex_ids.emplace_back(med_create_duplicate_vertex(tvert));
 			}
@@ -1259,7 +1259,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 		segment_ids.clear();
 		for (unsigned i = 0; i < group_header.num_segments; ++i)
 		{
-			if (PHYSFS_read( LoadFile, &tseg, sizeof(segment),1 )!=1)
+			if (PHYSFSX_readBytes(LoadFile, &tseg, sizeof(segment)) != sizeof(segment))
 				Error( "Error reading tseg in group.c" );
 				
 			group::segment_array_type_t::value_type s = get_free_segment_number(Segments);
@@ -1316,7 +1316,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 		range_for (auto &i, partial_range(old_tmap_list, group_fileinfo.texture_howmany))
 		{
 			std::array<char, FILENAME_LEN> a;
-			if (PHYSFS_read(LoadFile, a.data(), std::min(static_cast<size_t>(group_fileinfo.texture_sizeof), a.size()), 1) != 1)
+			if (const auto buffer_size{std::min(static_cast<size_t>(group_fileinfo.texture_sizeof), a.size())}; PHYSFSX_readBytes(LoadFile, a.data(), buffer_size) != buffer_size)
 				Error( "Error reading old_tmap_list[i] in gamemine.c" );
 			i.copy_if(a);
 		}

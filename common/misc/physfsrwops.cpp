@@ -137,13 +137,14 @@ static SDL_RWops_callback_seek_position physfsrwops_seek(SDL_RWops *rw, const SD
 static SDL_RWops_callback_read_position physfsrwops_read(SDL_RWops *const rw, void *const ptr, const SDL_RWops_callback_read_position size, const SDL_RWops_callback_read_position maxnum)
 {
     PHYSFS_File *handle = reinterpret_cast<PHYSFS_File *>(rw->hidden.unknown.data1);
-    PHYSFS_sint64 rc = (PHYSFS_read)(handle, ptr, size, maxnum);
-    if (rc != maxnum)
+	const auto count{size * maxnum};
+	const auto rc{PHYSFS_readBytes(handle, ptr, count)};
+	if (rc != count)
     {
         if (!PHYSFS_eof(handle)) /* not EOF? Must be an error. */
             SDL_SetError("PhysicsFS error: %s", PHYSFS_getLastError());
     } /* if */
-    return rc;
+	return rc;
 } /* physfsrwops_read */
 
 

@@ -192,7 +192,7 @@ int mix_play_file(const char *filename, int loop, void (*const entry_hook_finish
 		{
 			const auto len = PHYSFS_fileLength(filehandle);
 			current_music_hndlbuf.resize(len);
-			const auto bufsize{PHYSFS_read(filehandle, current_music_hndlbuf.data(), sizeof(char), len)};
+			const auto bufsize{PHYSFSX_readBytes(filehandle, current_music_hndlbuf.data(), len)};
 			current_music_type = load_mus_data(std::span(current_music_hndlbuf).first(bufsize), loop, hook_finished_track);
 			if (current_music_type != CurrentMusicType::None)
 				return 1;

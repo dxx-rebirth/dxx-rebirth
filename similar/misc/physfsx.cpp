@@ -42,7 +42,7 @@ PHYSFSX_fgets_t::result PHYSFSX_fgets_t::get(const std::span<char> buf, PHYSFS_F
 	 * function can always write to the byte after the last byte read from the
 	 * file.
 	 */
-	const PHYSFS_sint64 r{PHYSFS_read(fp, buf.data(), 1, buf.size() - 1)};
+	const PHYSFS_sint64 r{PHYSFSX_readBytes(fp, buf.data(), buf.size() - 1)};
 	if (r <= 0)
 	{
 		DXX_POISON_MEMORY(buf, 0xcc);

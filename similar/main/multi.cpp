@@ -5664,21 +5664,21 @@ void init_hoard_data(d_vclip_array &Vclip)
 	}
 
 	//Load and remap bitmap data for orb
-	PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
+	PHYSFSX_readBytes(ifile, palette, sizeof(palette[0]) * std::size(palette));
 	range_for (auto &i, partial_const_range(vcorb.frames, n_orb_frames))
 	{
 		grs_bitmap *const bm = &GameBitmaps[i];
-		PHYSFS_read(ifile,bm->get_bitmap_data(),1,orb_w*orb_h);
+		PHYSFSX_readBytes(ifile, bm->get_bitmap_data(), orb_w * orb_h);
 		gr_remap_bitmap_good(*bm, palette, 255, -1);
 	}
 
 	//Load and remap bitmap data for goal texture
 	PHYSFSX_skipBytes<2>(ifile);		//skip frame count
-	PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
+	PHYSFSX_readBytes(ifile, palette, sizeof(palette[0]) * std::size(palette));
 	range_for (auto &i, partial_const_range(Effects[goal_eclip].vc.frames, n_goal_frames))
 	{
 		grs_bitmap *const bm = &GameBitmaps[i];
-		PHYSFS_read(ifile,bm->get_bitmap_data(),1,64*64);
+		PHYSFSX_readBytes(ifile, bm->get_bitmap_data(), 64 * 64);
 		gr_remap_bitmap_good(*bm, palette, 255, -1);
 	}
 
@@ -5694,8 +5694,8 @@ void init_hoard_data(d_vclip_array &Vclip)
 		const unsigned extent = icon_w * icon_h;
 		RAIIdmem<uint8_t[]> bitmap_data2;
 		MALLOC(bitmap_data2, uint8_t[], extent);
-		PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
-		PHYSFS_read(ifile, bitmap_data2.get(), 1, extent);
+		PHYSFSX_readBytes(ifile, palette, sizeof(palette[0]) * std::size(palette));
+		PHYSFSX_readBytes(ifile, bitmap_data2.get(), extent);
 		gr_init_main_bitmap(i, bm_mode::linear, 0, 0, icon_w, icon_h, icon_w, std::move(bitmap_data2));
 		gr_set_transparent(i, 1);
 		gr_remap_bitmap_good(i, palette, 255, -1);
@@ -5719,7 +5719,7 @@ void init_hoard_data(d_vclip_array &Vclip)
 		auto &gs = GameSounds[Num_sound_files+i];
 		gs.length = len;
 		gs.data = digi_sound::allocated_data{std::make_unique<uint8_t[]>(len), game_sound_offset{}};
-		PHYSFS_read(ifile, gs.data.get(), 1, len);
+		PHYSFSX_readBytes(ifile, gs.data.get(), len);
 
 		if (SndDigiSampleRate == sound_sample_rate::_11k)
 		{
@@ -5789,7 +5789,7 @@ void save_hoard_data(void)
 		int size;
 		size = PHYSFS_fileLength(ifile);
 		const auto buf = std::make_unique<uint8_t[]>(size);
-		PHYSFS_read(ifile, buf, size, 1);
+		PHYSFSX_readBytes(ifile, buf, size);
 		PHYSFS_writeULE32(ofile, size);
 		PHYSFS_write(ofile, buf, size, 1);
 	}

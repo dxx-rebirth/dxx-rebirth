@@ -448,7 +448,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 			obj->ctype.ai_info.behavior				= static_cast<ai_behavior>(PHYSFSX_readByte(f));
 
 			std::array<int8_t, 11> ai_info_flags{};
-			PHYSFS_read(f, ai_info_flags.data(), 1, 11);
+			PHYSFSX_readBytes(f, ai_info_flags.data(), 11);
 			{
 				const uint8_t gun_num = ai_info_flags[0];
 				obj->ctype.ai_info.CURRENT_GUN = (gun_num < MAX_GUNS) ? robot_gun_number{gun_num} : robot_gun_number{};
@@ -981,7 +981,7 @@ static int load_game_data(
 	if (game_top_fileinfo_version >= 19) {	//load pof names
 		const unsigned N_save_pof_names = PHYSFSX_readShort(LoadFile);
 		if (N_save_pof_names < MAX_POLYGON_MODELS)
-			PHYSFS_read(LoadFile,Save_pof_names,N_save_pof_names,FILENAME_LEN);
+			PHYSFSX_readBytes(LoadFile, Save_pof_names, N_save_pof_names * FILENAME_LEN);
 		else
 			LevelError("Level contains bogus N_save_pof_names %#x; ignoring", N_save_pof_names);
 	}

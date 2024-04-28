@@ -137,9 +137,9 @@ namespace {
 
 static void tmap_info_read(tmap_info &ti, const NamedPHYSFS_File fp)
 {
-	PHYSFS_read(fp.fp, ti.filename, 13, 1);
+	PHYSFSX_readBytes(fp.fp, ti.filename, 13);
 	uint8_t flags;
-	PHYSFS_read(fp.fp, &flags, 1, 1);
+	PHYSFSX_readBytes(fp.fp, &flags, 1);
 	ti.flags = tmapinfo_flags{flags};
 	ti.lighting = PHYSFSX_readFix(fp);
 	ti.damage = PHYSFSX_readFix(fp);
@@ -175,8 +175,8 @@ void properties_read_cmp(d_level_shared_robot_info_state &LevelSharedRobotInfoSt
 	range_for (tmap_info &ti, TmapInfo)
 		tmap_info_read(ti, fp);
 
-	PHYSFS_read(fp, Sounds, sizeof(Sounds[0]), MAX_SOUNDS);
-	PHYSFS_read(fp, AltSounds, sizeof(AltSounds[0]), MAX_SOUNDS);
+	PHYSFSX_readBytes(fp, Sounds, MAX_SOUNDS);
+	PHYSFSX_readBytes(fp, AltSounds, MAX_SOUNDS);
 	
 	Num_vclips = PHYSFSX_readInt(fp);
 	range_for (vclip &vc, Vclip)
@@ -238,14 +238,14 @@ void properties_read_cmp(d_level_shared_robot_info_state &LevelSharedRobotInfoSt
 	Num_cockpits = PHYSFSX_readInt(fp);
 	bitmap_index_read_n(fp, cockpit_bitmap);
 
-	PHYSFS_read(fp, Sounds, sizeof(Sounds[0]), MAX_SOUNDS);
-	PHYSFS_read(fp, AltSounds, sizeof(AltSounds[0]), MAX_SOUNDS);
+	PHYSFSX_readBytes(fp, Sounds, MAX_SOUNDS);
+	PHYSFSX_readBytes(fp, AltSounds, MAX_SOUNDS);
 
 	Num_total_object_types = PHYSFSX_readInt(fp);
-	PHYSFS_read( fp, ObjType, sizeof(ubyte), MAX_OBJTYPE );
+	PHYSFSX_readBytes(fp, ObjType, MAX_OBJTYPE);
 	{
 		std::array<uint8_t, std::size(ObjId)> o;
-		PHYSFS_read(fp, o.data(), sizeof(uint8_t), std::size(o));
+		PHYSFSX_readBytes(fp, o, std::size(o));
 		std::transform(o.begin(), o.end(), ObjId.begin(), build_polygon_model_index_from_untrusted);
 	}
 	range_for (auto &i, ObjStrength)
@@ -273,7 +273,7 @@ namespace {
 static void tmap_info_read(tmap_info &ti, const NamedPHYSFS_File fp)
 {
 	uint8_t flags;
-	PHYSFS_read(fp, &flags, 1, 1);
+	PHYSFSX_readBytes(fp, &flags, 1);
 	ti.flags = tmapinfo_flags{flags};
 	PHYSFSX_skipBytes<3>(fp);
 	ti.lighting = PHYSFSX_readFix(fp);
@@ -317,9 +317,11 @@ void bm_read_all(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_v
 	range_for (tmap_info &ti, partial_range(TmapInfo, NumTextures))
 		tmap_info_read(ti, fp);
 
-	t = PHYSFSX_readInt(fp);
-	PHYSFS_read( fp, Sounds, sizeof(ubyte), t );
-	PHYSFS_read( fp, AltSounds, sizeof(ubyte), t );
+	{
+		const auto t{PHYSFSX_readInt(fp)};
+		PHYSFSX_readBytes(fp, Sounds, t);
+		PHYSFSX_readBytes(fp, AltSounds, t);
+	}
 
 	Num_vclips = PHYSFSX_readInt(fp);
 	range_for (vclip &vc, partial_range(Vclip, Num_vclips))
@@ -384,21 +386,12 @@ void bm_read_all(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_v
 	Num_cockpits = PHYSFSX_readInt(fp);
 	bitmap_index_read_n(fp, partial_range(cockpit_bitmap, Num_cockpits));
 
-//@@	PHYSFS_read( fp, &Num_total_object_types, sizeof(int), 1 );
-//@@	PHYSFS_read( fp, ObjType, sizeof(byte), Num_total_object_types );
-//@@	PHYSFS_read( fp, ObjId, sizeof(byte), Num_total_object_types );
-//@@	PHYSFS_read( fp, ObjStrength, sizeof(fix), Num_total_object_types );
-
 	First_multi_bitmap_num = PHYSFSX_readInt(fp);
 
 	Num_reactors = PHYSFSX_readInt(fp);
 	reactor_read_n(fp, partial_range(Reactors, Num_reactors));
 
 	LevelSharedPolygonModelState.Marker_model_num = build_polygon_model_index_from_untrusted(PHYSFSX_readInt(fp));
-
-	//@@PHYSFS_read( fp, &N_controlcen_guns, sizeof(int), 1 );
-	//@@PHYSFS_read( fp, controlcen_gun_points, sizeof(vms_vector), N_controlcen_guns );
-	//@@PHYSFS_read( fp, controlcen_gun_dirs, sizeof(vms_vector), N_controlcen_guns );
 
 	if (Piggy_hamfile_version < pig_hamfile_version::_3) { // D1
 		exit_modelnum = build_polygon_model_index_from_untrusted(PHYSFSX_readInt(fp));

@@ -33,9 +33,9 @@ public:
 template <typename T, typename E = PHYSFSX_short_read>
 void PHYSFSX_serialize_read(const NamedPHYSFS_File fp, T &t)
 {
-	const size_t maximum_size = serial::message_type<T>::maximum_size;
+	const std::size_t maximum_size{serial::message_type<T>::maximum_size};
 	uint8_t buf[maximum_size];
-	if (PHYSFS_read(fp, buf, sizeof(buf[0]), maximum_size) != maximum_size)
+	if (PHYSFSX_readBytes(fp, buf, maximum_size) != maximum_size)
 		throw E(fp);
 	serial::reader::bytebuffer_t b(buf);
 	serial::process_buffer(b, t);

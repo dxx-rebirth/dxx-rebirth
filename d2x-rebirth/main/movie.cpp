@@ -477,7 +477,7 @@ static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const std::spa
 {
 	if (filename.empty())
 		return 0;
-	int size,read_count;
+	int size;
 	char *p;
 	int have_binary = 0;
 
@@ -514,7 +514,7 @@ static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const std::spa
 	size = PHYSFS_fileLength(ifile);
 
 	const auto subtitle_raw_data = (SubtitleState.subtitle_raw_data = std::make_unique<char[]>(size + 1)).get();
-	read_count = PHYSFS_read(ifile, subtitle_raw_data, 1, size);
+	const auto read_count{PHYSFSX_readBytes(ifile, subtitle_raw_data, size)};
 	ifile.reset();
 
 	if (read_count != size) {

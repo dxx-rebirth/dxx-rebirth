@@ -1031,12 +1031,12 @@ int read_player_file()
 		
 	}
 	else {	//read new highest level info
-		if (PHYSFS_read(file,PlayerCfg.HighestLevels,sizeof(hli),PlayerCfg.NHighestLevels) != PlayerCfg.NHighestLevels)
+		if (const std::size_t buffer_size{sizeof(hli) * PlayerCfg.NHighestLevels}; PHYSFSX_readBytes(file, PlayerCfg.HighestLevels, buffer_size) != buffer_size)
 			goto read_player_file_failed;
 	}
 
 	if ( saved_game_version != 7 ) {	// Read old & SW saved games.
-		if (PHYSFS_read(file,saved_games,sizeof(saved_games),1) != 1)
+		if (PHYSFSX_readBytes(file, saved_games, sizeof(saved_games)) != sizeof(saved_games))
 			goto read_player_file_failed;
 	}
 
@@ -1091,7 +1091,7 @@ int read_player_file()
 		PlayerCfg.NHighestLevels = SWAPSHORT(PlayerCfg.NHighestLevels);
 	Assert(PlayerCfg.NHighestLevels <= MAX_MISSIONS);
 
-	if (PHYSFS_read(file, PlayerCfg.HighestLevels, sizeof(hli), PlayerCfg.NHighestLevels) != PlayerCfg.NHighestLevels)
+	if (const std::size_t buffer_size{sizeof(hli) * PlayerCfg.NHighestLevels}; PHYSFSX_readBytes(file, PlayerCfg.HighestLevels, buffer_size) != buffer_size)
 		goto read_player_file_failed;
 #endif
 
@@ -1106,7 +1106,7 @@ int read_player_file()
 #endif
 
 		for (auto &i : PlayerCfg.NetworkMessageMacro)
-			if (PHYSFS_read(file, i, len, 1) != 1)
+			if (PHYSFSX_readBytes(file, i, len) != len)
 				goto read_player_file_failed;
 	}
 
@@ -1114,31 +1114,31 @@ int read_player_file()
 	{
 		ubyte dummy_joy_sens;
 
-		if (PHYSFS_read(file, &PlayerCfg.KeySettings.Keyboard, sizeof(PlayerCfg.KeySettings.Keyboard), 1) != 1)
+		if (PHYSFSX_readBytes(file, &PlayerCfg.KeySettings.Keyboard, sizeof(PlayerCfg.KeySettings.Keyboard)) != sizeof(PlayerCfg.KeySettings.Keyboard))
 			goto read_player_file_failed;
 #if DXX_MAX_JOYSTICKS
 		auto &KeySettingsJoystick = PlayerCfg.KeySettings.Joystick;
 #else
 		std::array<uint8_t, MAX_CONTROLS> KeySettingsJoystick;
 #endif
-		if (PHYSFS_read(file, &KeySettingsJoystick, sizeof(KeySettingsJoystick), 1) != 1)
+		if (PHYSFSX_readBytes(file, &KeySettingsJoystick, sizeof(KeySettingsJoystick)) != sizeof(KeySettingsJoystick))
 			goto read_player_file_failed;
 		PHYSFS_seek( file, PHYSFS_tell(file)+(sizeof(ubyte)*MAX_CONTROLS*3) ); // Skip obsolete Flightstick/Thrustmaster/Gravis map fields
-		if (PHYSFS_read(file, &PlayerCfg.KeySettings.Mouse, sizeof(PlayerCfg.KeySettings.Mouse), 1) != 1)
+		if (PHYSFSX_readBytes(file, &PlayerCfg.KeySettings.Mouse, sizeof(PlayerCfg.KeySettings.Mouse)) != sizeof(PlayerCfg.KeySettings.Mouse))
 			goto read_player_file_failed;
 		PHYSFS_seek( file, PHYSFS_tell(file)+(sizeof(ubyte)*MAX_CONTROLS) ); // Skip obsolete Cyberman map field
 #if defined(DXX_BUILD_DESCENT_I)
-		if (PHYSFS_read(file, &PlayerCfg.ControlType, sizeof(ubyte), 1 )!=1)
+		if (PHYSFSX_readBytes(file, &PlayerCfg.ControlType, sizeof(uint8_t)) != sizeof(uint8_t))
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (player_file_version>=20)
 			PHYSFS_seek( file, PHYSFS_tell(file)+(sizeof(ubyte)*MAX_CONTROLS) ); // Skip obsolete Winjoy map field
 		uint8_t control_type_dos, control_type_win;
-		if (PHYSFS_read(file, &control_type_dos, sizeof(ubyte), 1) != 1)
+		if (PHYSFSX_readBytes(file, &control_type_dos, sizeof(uint8_t)) != sizeof(uint8_t))
 			goto read_player_file_failed;
-		else if (player_file_version >= 21 && PHYSFS_read(file, &control_type_win, sizeof(ubyte), 1) != 1)
+		else if (player_file_version >= 21 && PHYSFSX_readBytes(file, &control_type_win, sizeof(uint8_t)) != sizeof(uint8_t))
 #endif
 			goto read_player_file_failed;
-		else if (PHYSFS_read(file, &dummy_joy_sens, sizeof(ubyte), 1) !=1 )
+		else if (PHYSFSX_readBytes(file, &dummy_joy_sens, sizeof(uint8_t)) != sizeof(uint8_t))
 			goto read_player_file_failed;
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -1146,7 +1146,7 @@ int read_player_file()
 	
 		std::array<uint8_t, 22> weapon_file_order{};
 		std::array<uint8_t, 11> primary_order, secondary_order;
-		PHYSFS_read(file, weapon_file_order.data(), weapon_file_order.size(), 1);
+		PHYSFSX_readBytes(file, weapon_file_order.data(), weapon_file_order.size());
 		range_for (const unsigned i, xrange(11u))
 		{
 			primary_order[i] = weapon_file_order[i * 2];

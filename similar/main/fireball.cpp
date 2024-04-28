@@ -1737,7 +1737,7 @@ void expl_wall_read_n_swap(fvmwallptr &vmwallptr, PHYSFS_File *const fp, const p
 	for (unsigned i = count; i--;)
 	{
 		disk_expl_wall d;
-		PHYSFS_read(fp, &d, sizeof(d), 1);
+		PHYSFSX_readBytes(fp, &d, sizeof(d));
 		if (swap != physfsx_endian::native)
 		{
 			d.segnum = SWAPINT(d.segnum);

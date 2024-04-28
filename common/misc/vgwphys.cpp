@@ -79,23 +79,6 @@ static void dxx_vg_wrap_poison_value(auto &val)
 }
 
 __attribute__((__used__,__noinline__,__noclone__))
-PHYSFS_sint64 __wrap_PHYSFS_read(PHYSFS_File *const handle, void *const buffer, const PHYSFS_uint32 objSize, const PHYSFS_uint32 objCount)
-{
-	{
-		auto p = reinterpret_cast<uint8_t *>(buffer);
-#if DXX_HAVE_POISON_OVERWRITE
-		std::memset(p, 0xbd, static_cast<size_t>(objSize) * static_cast<size_t>(objCount));
-#endif
-		/* Mark each object individually so that any diagnosed errors are
-		 * more precise.
-		 */
-		for (PHYSFS_uint32 i = objCount; i--; p += objSize)
-			DXX_MAKE_MEM_UNDEFINED(std::span(p, objSize));
-	}
-	return __real_PHYSFS_read(handle, buffer, objSize, objCount);
-}
-
-__attribute__((__used__,__noinline__,__noclone__))
 PHYSFS_sint64 __wrap_PHYSFS_readBytes(PHYSFS_File *const handle, void *const buffer, const PHYSFS_uint64 len)
 {
 	{
