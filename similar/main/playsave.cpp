@@ -1459,50 +1459,53 @@ void write_player_file()
 	errno_ret = EZERO;
 
 	//write higest level info
-	if ((PHYSFS_write( file, PlayerCfg.HighestLevels, sizeof(hli), PlayerCfg.NHighestLevels) != PlayerCfg.NHighestLevels)) {
+	if (const auto count{PlayerCfg.NHighestLevels * sizeof(hli)}; PHYSFSX_writeBytes(file, PlayerCfg.HighestLevels, count) != count)
+	{
 		errno_ret = errno;
 		return;
 	}
 
-	if (PHYSFS_write( file, saved_games,sizeof(saved_games),1) != 1) {
+	if (PHYSFSX_writeBytes(file, saved_games, sizeof(saved_games)) != sizeof(saved_games))
+	{
 		errno_ret = errno;
 		return;
 	}
 
 	range_for (auto &i, PlayerCfg.NetworkMessageMacro)
-		if (PHYSFS_write(file, i.data(), i.size(), 1) != 1) {
+		if (PHYSFSX_writeBytes(file, i.data(), i.size()) != i.size())
+		{
 		errno_ret = errno;
 		return;
 	}
 
 	//write kconfig info
 	{
-		if (PHYSFS_write(file, PlayerCfg.KeySettings.Keyboard, sizeof(PlayerCfg.KeySettings.Keyboard), 1) != 1)
+		if (PHYSFSX_writeBytes(file, PlayerCfg.KeySettings.Keyboard, sizeof(PlayerCfg.KeySettings.Keyboard)) != sizeof(PlayerCfg.KeySettings.Keyboard))
 			errno_ret=errno;
 #if DXX_MAX_JOYSTICKS
 		auto &KeySettingsJoystick = PlayerCfg.KeySettings.Joystick;
 #else
 		const std::array<uint8_t, MAX_CONTROLS> KeySettingsJoystick{};
 #endif
-		if (PHYSFS_write(file, KeySettingsJoystick, sizeof(KeySettingsJoystick), 1) != 1)
+		if (PHYSFSX_writeBytes(file, KeySettingsJoystick, sizeof(KeySettingsJoystick)) != sizeof(KeySettingsJoystick))
 			errno_ret=errno;
 		for (unsigned i = 0; i < MAX_CONTROLS*3; i++)
-			if (PHYSFS_write(file, "0", sizeof(ubyte), 1) != 1) // Skip obsolete Flightstick/Thrustmaster/Gravis map fields
+			if (PHYSFSX_writeBytes(file, "0", sizeof(ubyte)) != sizeof(ubyte)) // Skip obsolete Flightstick/Thrustmaster/Gravis map fields
 				errno_ret=errno;
-		if (PHYSFS_write(file, PlayerCfg.KeySettings.Mouse, sizeof(PlayerCfg.KeySettings.Mouse), 1) != 1)
+		if (PHYSFSX_writeBytes(file, PlayerCfg.KeySettings.Mouse, sizeof(PlayerCfg.KeySettings.Mouse)) != sizeof(PlayerCfg.KeySettings.Mouse))
 			errno_ret=errno;
 		{
 			std::array<uint8_t, MAX_CONTROLS> cyberman{};
-			if (PHYSFS_write(file, cyberman.data(), cyberman.size(), 1) != 1)	// Skip obsolete Cyberman map field
+			if (PHYSFSX_writeBytes(file, cyberman.data(), cyberman.size()) != cyberman.size())	// Skip obsolete Cyberman map field
 				errno_ret=errno;
 		}
 	
 		if(errno_ret == EZERO)
 		{
 			ubyte old_avg_joy_sensitivity = 8;
-			if (PHYSFS_write( file,  &PlayerCfg.ControlType, sizeof(ubyte), 1 )!=1)
+			if (PHYSFSX_writeBytes(file, &PlayerCfg.ControlType, sizeof(ubyte)) != sizeof(ubyte))
 				errno_ret=errno;
-			else if (PHYSFS_write( file, &old_avg_joy_sensitivity, sizeof(ubyte), 1 )!=1)
+			else if (PHYSFSX_writeBytes(file, &old_avg_joy_sensitivity, sizeof(ubyte)) != sizeof(ubyte))
 				errno_ret=errno;
 		}
 	}
@@ -1532,11 +1535,11 @@ void write_player_file()
 
 	//write higest level info
 	PHYSFS_writeULE16(file, PlayerCfg.NHighestLevels);
-	if ((PHYSFS_write(file, PlayerCfg.HighestLevels, sizeof(hli), PlayerCfg.NHighestLevels) != PlayerCfg.NHighestLevels))
+	if (const auto count{sizeof(hli) * PlayerCfg.NHighestLevels}; PHYSFSX_writeBytes(file, PlayerCfg.HighestLevels, count) != count)
 		goto write_player_file_failed;
 
 	range_for (auto &i, PlayerCfg.NetworkMessageMacro)
-		if (PHYSFS_write(file, i.data(), i.size(), 1) != 1)
+		if (PHYSFSX_writeBytes(file, i.data(), i.size()) != i.size())
 		goto write_player_file_failed;
 
 	//write kconfig info
@@ -1545,35 +1548,35 @@ void write_player_file()
 		ubyte old_avg_joy_sensitivity = 8;
 		ubyte control_type_dos = PlayerCfg.ControlType;
 
-		if (PHYSFS_write(file, PlayerCfg.KeySettings.Keyboard, sizeof(PlayerCfg.KeySettings.Keyboard), 1) != 1)
+		if (PHYSFSX_writeBytes(file, PlayerCfg.KeySettings.Keyboard, sizeof(PlayerCfg.KeySettings.Keyboard)) != sizeof(PlayerCfg.KeySettings.Keyboard))
 			goto write_player_file_failed;
 #if DXX_MAX_JOYSTICKS
 		auto &KeySettingsJoystick = PlayerCfg.KeySettings.Joystick;
 #else
 		const std::array<uint8_t, MAX_CONTROLS> KeySettingsJoystick{};
 #endif
-		if (PHYSFS_write(file, KeySettingsJoystick, sizeof(KeySettingsJoystick), 1) != 1)
+		if (PHYSFSX_writeBytes(file, KeySettingsJoystick, sizeof(KeySettingsJoystick)) != sizeof(KeySettingsJoystick))
 			goto write_player_file_failed;
 		for (unsigned i = 0; i < MAX_CONTROLS*3; i++)
-			if (PHYSFS_write(file, "0", sizeof(ubyte), 1) != 1) // Skip obsolete Flightstick/Thrustmaster/Gravis map fields
+			if (PHYSFSX_writeBytes(file, "0", sizeof(ubyte)) != sizeof(ubyte)) // Skip obsolete Flightstick/Thrustmaster/Gravis map fields
 				goto write_player_file_failed;
-		if (PHYSFS_write(file, PlayerCfg.KeySettings.Mouse, sizeof(PlayerCfg.KeySettings.Mouse), 1) != 1)
+		if (PHYSFSX_writeBytes(file, PlayerCfg.KeySettings.Mouse, sizeof(PlayerCfg.KeySettings.Mouse)) != sizeof(PlayerCfg.KeySettings.Mouse))
 			goto write_player_file_failed;
 		for (unsigned i = 0; i < MAX_CONTROLS*2; i++)
-			if (PHYSFS_write(file, "0", sizeof(ubyte), 1) != 1) // Skip obsolete Cyberman/Winjoy map fields
+			if (PHYSFSX_writeBytes(file, "0", sizeof(ubyte)) != sizeof(ubyte)) // Skip obsolete Cyberman/Winjoy map fields
 				goto write_player_file_failed;
-		if (PHYSFS_write(file, &control_type_dos, sizeof(ubyte), 1) != 1)
+		if (PHYSFSX_writeBytes(file, &control_type_dos, sizeof(ubyte)) != sizeof(ubyte))
 			goto write_player_file_failed;
 		ubyte control_type_win = 0;
-		if (PHYSFS_write(file, &control_type_win, sizeof(ubyte), 1) != 1)
+		if (PHYSFSX_writeBytes(file, &control_type_win, sizeof(ubyte)) != sizeof(ubyte))
 			goto write_player_file_failed;
-		if (PHYSFS_write(file, &old_avg_joy_sensitivity, sizeof(ubyte), 1) != 1)
+		if (PHYSFSX_writeBytes(file, &old_avg_joy_sensitivity, sizeof(ubyte)) != sizeof(ubyte))
 			goto write_player_file_failed;
 
 		range_for (const unsigned i, xrange(11u))
 		{
-			PHYSFS_write(file, &PlayerCfg.PrimaryOrder[i], sizeof(ubyte), 1);
-			PHYSFS_write(file, &PlayerCfg.SecondaryOrder[i], sizeof(ubyte), 1);
+			PHYSFSX_writeBytes(file, &PlayerCfg.PrimaryOrder[i], sizeof(ubyte));
+			PHYSFSX_writeBytes(file, &PlayerCfg.SecondaryOrder[i], sizeof(ubyte));
 		}
 
 		PHYSFS_writeULE32(file, static_cast<unsigned>(PlayerCfg.Cockpit3DView[gauge_inset_window_view::primary]));

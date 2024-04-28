@@ -1040,7 +1040,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	group_fileinfo.texture_sizeof    =   13;  // num characters in a name
 
 	// Write the fileinfo
-	PHYSFS_write( SaveFile, &group_fileinfo, sizeof(group_fileinfo), 1);
+	PHYSFSX_writeBytes(SaveFile, &group_fileinfo, sizeof(group_fileinfo));
 
 	//===================== SAVE HEADER INFO ========================
 
@@ -1049,7 +1049,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 
 	// Write the editor info
 	header_offset = PHYSFS_tell(SaveFile);
-	PHYSFS_write( SaveFile, &group_header, sizeof(group_header), 1);
+	PHYSFSX_writeBytes(SaveFile, &group_header, sizeof(group_header));
 
 	//===================== SAVE EDITOR INFO ==========================
 	group_editor.newsegment_offset   =   -1; // To be written
@@ -1064,7 +1064,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	group_editor.Groupside		 =   Groupside[current_group];
 
 	editor_offset = PHYSFS_tell(SaveFile);
-	PHYSFS_write( SaveFile, &group_editor, sizeof(group_editor), 1);
+	PHYSFSX_writeBytes(SaveFile, &group_editor, sizeof(group_editor));
 
 
 	//===================== SAVE VERTEX INFO ==========================
@@ -1073,7 +1073,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	range_for (const auto &gv, vertex_ids)
 	{
 		const vertex tvert = *vcvertptr(gv);
-		PHYSFS_write(SaveFile, &tvert, sizeof(tvert), 1);
+		PHYSFSX_writeBytes(SaveFile, &tvert, sizeof(tvert));
 	}
 
 	//===================== SAVE SEGMENT INFO =========================
@@ -1095,7 +1095,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 			if (i != vertex_ids.end())
 				tseg.verts[j] = std::distance(vertex_ids.begin(), i);
 		}
-		PHYSFS_write( SaveFile, &tseg, sizeof(tseg), 1);
+		PHYSFSX_writeBytes(SaveFile, &tseg, sizeof(tseg));
 
 	 }
 
@@ -1106,7 +1106,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	for (unsigned i = 0, n = NumTextures; i < n; ++i)
 	{
 		current_tmap_list[i] = TmapInfo[i].filename;
-		PHYSFS_write(SaveFile, current_tmap_list[i].data(), current_tmap_list[i].size(), 1);
+		PHYSFSX_writeBytes(SaveFile, current_tmap_list[i].data(), current_tmap_list[i].size());
 	}
 
 	//============= REWRITE FILE INFO, TO SAVE OFFSETS ===============
@@ -1120,7 +1120,7 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	
 	// Write the fileinfo
 	PHYSFS_seek(SaveFile, 0);  // Move to TOF
-	PHYSFS_write( SaveFile, &group_fileinfo, sizeof(group_fileinfo), 1);
+	PHYSFSX_writeBytes(SaveFile, &group_fileinfo, sizeof(group_fileinfo));
 
 	//==================== CLOSE THE FILE =============================
 	return 0;

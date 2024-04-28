@@ -48,7 +48,7 @@ void PHYSFSX_serialize_write(PHYSFS_File *fp, const T &t)
 	uint8_t buf[maximum_size];
 	serial::writer::bytebuffer_t b(buf);
 	serial::process_buffer(b, t);
-	if (PHYSFS_write(fp, buf, sizeof(buf[0]), maximum_size) != maximum_size)
+	if (PHYSFS_writeBytes(fp, buf, maximum_size) != maximum_size)
 		throw E(fp);
 }
 

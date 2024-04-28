@@ -1763,7 +1763,7 @@ void expl_wall_read_n_swap(fvmwallptr &vmwallptr, PHYSFS_File *const fp, const p
 void expl_wall_write(fvcwallptr &vcwallptr, PHYSFS_File *const fp)
 {
 	const unsigned num_exploding_walls = Num_exploding_walls;
-	PHYSFS_write(fp, &num_exploding_walls, sizeof(unsigned), 1);
+	PHYSFSX_writeBytes(fp, &num_exploding_walls, sizeof(unsigned));
 	for (auto &e : vcwallptr)
 	{
 		if (!(e.flags & wall_flag::exploding))
@@ -1772,7 +1772,7 @@ void expl_wall_write(fvcwallptr &vcwallptr, PHYSFS_File *const fp)
 		d.segnum = e.segnum;
 		d.sidenum = underlying_value(e.sidenum);
 		d.time = e.explode_time_elapsed;
-		PHYSFS_write(fp, &d, sizeof(d), 1);
+		PHYSFSX_writeBytes(fp, &d, sizeof(d));
 	}
 }
 

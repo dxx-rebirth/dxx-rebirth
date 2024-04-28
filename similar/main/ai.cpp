@@ -4718,47 +4718,47 @@ int ai_save_state(PHYSFS_File *fp)
 	fix tmptime32 = 0;
 
 	const int Ai_initialized = 0;
-	PHYSFS_write(fp, &Ai_initialized, sizeof(int), 1);
-	PHYSFS_write(fp, &Overall_agitation, sizeof(int), 1);
+	PHYSFSX_writeBytes(fp, &Ai_initialized, sizeof(int));
+	PHYSFSX_writeBytes(fp, &Overall_agitation, sizeof(int));
 	{
 		ai_local_rw zero{};
 		range_for (const auto &i, Objects)
 		{
 			ai_local_rw ail_rw;
-			PHYSFS_write(fp, i.type == OBJ_ROBOT ? (state_ai_local_to_ai_local_rw(&i.ctype.ai_info.ail, &ail_rw), &ail_rw) : &zero, sizeof(ail_rw), 1);
+			PHYSFSX_writeBytes(fp, i.type == OBJ_ROBOT ? (state_ai_local_to_ai_local_rw(&i.ctype.ai_info.ail, &ail_rw), &ail_rw) : &zero, sizeof(ail_rw));
 		}
 	}
 	PHYSFSX_serialize_write(fp, Point_segs);
-	//PHYSFS_write(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1);
+	//PHYSFSX_writeBytes(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO);
 	range_for (auto &i, Ai_cloak_info)
 	{
 		ai_cloak_info_rw aic_rw;
 		state_ai_cloak_info_to_ai_cloak_info_rw(&i, &aic_rw);
-		PHYSFS_write(fp, &aic_rw, sizeof(aic_rw), 1);
+		PHYSFSX_writeBytes(fp, &aic_rw, sizeof(aic_rw));
 	}
 	const auto gametime{GameTime64};
 	{
 		const auto Boss_cloak_start_time = BossUniqueState.Boss_cloak_start_time;
 		tmptime32 = build_savegametime_from_gametime(gametime, Boss_cloak_start_time);
-	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
+	PHYSFSX_writeBytes(fp, &tmptime32, sizeof(fix));
 		tmptime32 = build_savegametime_from_gametime(gametime, Boss_cloak_start_time + Boss_cloak_duration);
-	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
+	PHYSFSX_writeBytes(fp, &tmptime32, sizeof(fix));
 	}
 	{
 		const auto Last_teleport_time = BossUniqueState.Last_teleport_time;
 		tmptime32 = build_savegametime_from_gametime(gametime, Last_teleport_time);
-	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
+	PHYSFSX_writeBytes(fp, &tmptime32, sizeof(fix));
 	}
 	{
 		const fix Boss_teleport_interval = LevelSharedBossState.Boss_teleport_interval;
-		PHYSFS_write(fp, &Boss_teleport_interval, sizeof(fix), 1);
+		PHYSFSX_writeBytes(fp, &Boss_teleport_interval, sizeof(fix));
 		const fix Boss_cloak_interval = LevelSharedBossState.Boss_cloak_interval;
-		PHYSFS_write(fp, &Boss_cloak_interval, sizeof(fix), 1);
+		PHYSFSX_writeBytes(fp, &Boss_cloak_interval, sizeof(fix));
 	}
-	PHYSFS_write(fp, &Boss_cloak_duration, sizeof(fix), 1);
+	PHYSFSX_writeBytes(fp, &Boss_cloak_duration, sizeof(fix));
 	tmptime32 = build_savegametime_from_gametime(gametime, BossUniqueState.Last_gate_time);
-	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
-	PHYSFS_write(fp, &GameUniqueState.Boss_gate_interval, sizeof(fix), 1);
+	PHYSFSX_writeBytes(fp, &tmptime32, sizeof(fix));
+	PHYSFSX_writeBytes(fp, &GameUniqueState.Boss_gate_interval, sizeof(fix));
 	{
 		const auto Boss_dying_start_time = BossUniqueState.Boss_dying_start_time;
 	if (Boss_dying_start_time == 0) // if Boss not dead, yet we expect this to be 0, so do not convert!
@@ -4771,58 +4771,58 @@ int ai_save_state(PHYSFS_File *fp)
 		if (tmptime32 == 0) // now if our converted value went 0 we should do something against it
 			tmptime32 = -1;
 	}
-	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
+	PHYSFSX_writeBytes(fp, &tmptime32, sizeof(fix));
 	}
 	{
 	const int boss_dying = BossUniqueState.Boss_dying;
-	PHYSFS_write(fp, &boss_dying, sizeof(int), 1);
+	PHYSFSX_writeBytes(fp, &boss_dying, sizeof(int));
 	}
 	const int boss_dying_sound_playing = BossUniqueState.Boss_dying_sound_playing;
-	PHYSFS_write(fp, &boss_dying_sound_playing, sizeof(int), 1);
+	PHYSFSX_writeBytes(fp, &boss_dying_sound_playing, sizeof(int));
 #if defined(DXX_BUILD_DESCENT_I)
 	const int boss_hit_this_frame = BossUniqueState.Boss_hit_this_frame;
-	PHYSFS_write(fp, &boss_hit_this_frame, sizeof(int), 1);
+	PHYSFSX_writeBytes(fp, &boss_hit_this_frame, sizeof(int));
 	const int Boss_been_hit = 0;
-	PHYSFS_write(fp, &Boss_been_hit, sizeof(int), 1);
+	PHYSFSX_writeBytes(fp, &Boss_been_hit, sizeof(int));
 #elif defined(DXX_BUILD_DESCENT_II)
 	tmptime32 = build_savegametime_from_gametime(gametime, BossUniqueState.Boss_hit_time);
-	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
+	PHYSFSX_writeBytes(fp, &tmptime32, sizeof(fix));
 	PHYSFS_writeSLE32(fp, -1);
 	tmptime32 = build_savegametime_from_gametime(gametime, BuddyState.Escort_last_path_created);
-	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
+	PHYSFSX_writeBytes(fp, &tmptime32, sizeof(fix));
 	{
 		const uint32_t Escort_goal_object = BuddyState.Escort_goal_object;
-	PHYSFS_write(fp, &Escort_goal_object, sizeof(Escort_goal_object), 1);
+	PHYSFSX_writeBytes(fp, &Escort_goal_object, sizeof(Escort_goal_object));
 	}
 	{
 		const uint32_t Escort_special_goal = BuddyState.Escort_special_goal;
-	PHYSFS_write(fp, &Escort_special_goal, sizeof(Escort_special_goal), 1);
+	PHYSFSX_writeBytes(fp, &Escort_special_goal, sizeof(Escort_special_goal));
 	}
 	{
 		const int egi = BuddyState.Escort_goal_reachable == d_unique_buddy_state::Escort_goal_reachability::unreachable ? -2 : BuddyState.Escort_goal_objidx.get_unchecked_index();
-		PHYSFS_write(fp, &egi, sizeof(int), 1);
+		PHYSFSX_writeBytes(fp, &egi, sizeof(int));
 	}
 	{
 		auto &Stolen_items = LevelUniqueObjectState.ThiefState.Stolen_items;
-		PHYSFS_write(fp, &Stolen_items, sizeof(Stolen_items[0]) * Stolen_items.size(), 1);
+		PHYSFSX_writeBytes(fp, &Stolen_items, sizeof(Stolen_items[0]) * Stolen_items.size());
 	}
 
 	{
 		int temp;
 		temp = Point_segs_free_ptr - Point_segs;
-		PHYSFS_write(fp, &temp, sizeof(int), 1);
+		PHYSFSX_writeBytes(fp, &temp, sizeof(int));
 	}
 
 	unsigned Num_boss_teleport_segs = Boss_teleport_segs.size();
-	PHYSFS_write(fp, &Num_boss_teleport_segs, sizeof(Num_boss_teleport_segs), 1);
+	PHYSFSX_writeBytes(fp, &Num_boss_teleport_segs, sizeof(Num_boss_teleport_segs));
 	unsigned Num_boss_gate_segs = Boss_gate_segs.size();
-	PHYSFS_write(fp, &Num_boss_gate_segs, sizeof(Num_boss_gate_segs), 1);
+	PHYSFSX_writeBytes(fp, &Num_boss_gate_segs, sizeof(Num_boss_gate_segs));
 
 	if (Num_boss_gate_segs)
-		PHYSFS_write(fp, &Boss_gate_segs[0], sizeof(Boss_gate_segs[0]), Num_boss_gate_segs);
+		PHYSFSX_writeBytes(fp, Boss_gate_segs.data(), sizeof(Boss_gate_segs[0]) * Num_boss_gate_segs);
 
 	if (Num_boss_teleport_segs)
-		PHYSFS_write(fp, &Boss_teleport_segs[0], sizeof(Boss_teleport_segs[0]), Num_boss_teleport_segs);
+		PHYSFSX_writeBytes(fp, Boss_teleport_segs.data(), sizeof(Boss_teleport_segs[0]) * Num_boss_teleport_segs);
 #endif
 
 	return 1;

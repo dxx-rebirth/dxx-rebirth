@@ -887,7 +887,7 @@ static void state_write_player(PHYSFS_File *fp, const player &pl, const relocate
 {
 	player_rw pl_rw;
 	state_player_to_player_rw(rpd, &pl, &pl_rw, pl_info);
-	PHYSFS_write(fp, &pl_rw, sizeof(pl_rw), 1);
+	PHYSFSX_writeBytes(fp, &pl_rw, sizeof(pl_rw));
 }
 
 static void state_read_player(PHYSFS_File *fp, player &pl, const physfsx_endian swap, player_info &pl_info, relocated_player_data &rpd)
@@ -1167,7 +1167,7 @@ static int copy_file(const char *old_file, const char *new_file)
 		if (bytes_read < 0)
 			Error("Cannot read from file <%s>: %s", old_file, PHYSFS_getLastError());
 
-		if (PHYSFS_write(out_file, pbuf, 1, bytes_read) < bytes_read)
+		if (PHYSFSX_writeBytes(out_file, pbuf, bytes_read) < bytes_read)
 			Error("Cannot write to file <%s>: %s", new_file, PHYSFS_getLastError());
 	}
 	if (!out_file.close())
@@ -1321,23 +1321,23 @@ int state_save_all_sub(const char *filename, const char *desc)
 	pause_game_world_time p;
 
 //Save id
-	PHYSFS_write(fp, dgss_id, sizeof(char) * 4, 1);
+	PHYSFSX_writeBytes(fp, dgss_id, sizeof(char) * 4);
 
 //Save version
 	{
 		const int i = STATE_VERSION;
-	PHYSFS_write(fp, &i, sizeof(int), 1);
+		PHYSFSX_writeBytes(fp, &i, sizeof(int));
 	}
 
 // Save Coop state_game_id and this Player's callsign. Oh the redundancy... we have this one later on but Coop games want to read this before loading a state so for easy access save this here, too
 	if (Game_mode & GM_MULTI_COOP)
 	{
-		PHYSFS_write(fp, &state_game_id, sizeof(unsigned), 1);
-		PHYSFS_write(fp, &get_local_player().callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
+		PHYSFSX_writeBytes(fp, &state_game_id, sizeof(unsigned));
+		PHYSFSX_writeBytes(fp, &get_local_player().callsign, sizeof(char) * CALLSIGN_LEN + 1);
 	}
 
 //Save description
-	PHYSFS_write(fp, desc, 20, 1);
+	PHYSFSX_writeBytes(fp, desc, 20);
 
 // Save the current screen shot...
 
@@ -1370,16 +1370,16 @@ int state_save_all_sub(const char *filename, const char *desc)
 #endif
 		}
 
-		PHYSFS_write(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
+		PHYSFSX_writeBytes(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H);
 #if defined(DXX_BUILD_DESCENT_II)
-		PHYSFS_write(fp, gr_palette.data(), sizeof(gr_palette[0]), gr_palette.size());
+		PHYSFSX_writeBytes(fp, gr_palette.data(), sizeof(gr_palette[0]) * gr_palette.size());
 #endif
 	}
 
 // Save the Between levels flag...
 	{
 		const int i = 0;
-	PHYSFS_write(fp, &i, sizeof(int), 1);
+		PHYSFSX_writeBytes(fp, &i, sizeof(int));
 	}
 
 // Save the mission info...
@@ -1391,19 +1391,18 @@ int state_save_all_sub(const char *filename, const char *desc)
 	auto Current_mission_pathname = Current_mission->path.c_str();
 	// Current_mission_filename is not necessarily 9 bytes long so for saving we use a proper string - preventing corruptions
 	snprintf(mission_pathname.full.data(), mission_pathname.full.size(), "%s", Current_mission_pathname);
-	PHYSFS_write(fp, &mission_pathname, sizeof(mission_pathname), 1);
+	PHYSFSX_writeBytes(fp, &mission_pathname, sizeof(mission_pathname));
 
 //Save level info
-	PHYSFS_write(fp, &Current_level_num, sizeof(int), 1);
+	PHYSFSX_writeBytes(fp, &Current_level_num, sizeof(int));
 	PHYSFS_writeULE32(fp, 0);
 
 //Save GameTime
 // NOTE: GameTime now is GameTime64 with fix64 since GameTime could only last 9 hrs. To even help old Savegames, we do not increment Savegame version but rather RESET GameTime64 to 0 on every save! ALL variables based on GameTime64 now will get the current GameTime64 value substracted and saved to fix size as well.
 	tmptime32 = 0;
-	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
+	PHYSFSX_writeBytes(fp, &tmptime32, sizeof(fix));
 
 //Save player info
-	//PHYSFS_write(fp, &Players[Player_num], sizeof(player), 1);
 	const auto &plrobj = get_local_plrobj();
 	auto &player_info = plrobj.ctype.player_info;
 	state_write_player(fp, get_local_player(), relocated_player_data{
@@ -1417,17 +1416,17 @@ int state_save_all_sub(const char *filename, const char *desc)
 // Save the current weapon info
 	{
 		const int8_t v = static_cast<int8_t>(player_info.Primary_weapon.get_active());
-		PHYSFS_write(fp, &v, sizeof(int8_t), 1);
+		PHYSFSX_writeBytes(fp, &v, sizeof(int8_t));
 	}
 	{
 		const int8_t v = static_cast<int8_t>(player_info.Secondary_weapon.get_active());
-		PHYSFS_write(fp, &v, sizeof(int8_t), 1);
+		PHYSFSX_writeBytes(fp, &v, sizeof(int8_t));
 	}
 
 // Save the difficulty level
 	{
 		const int Difficulty_level = underlying_value(GameUniqueState.Difficulty_level);
-	PHYSFS_write(fp, &Difficulty_level, sizeof(int), 1);
+		PHYSFSX_writeBytes(fp, &Difficulty_level, sizeof(int));
 	}
 
 // Save cheats enabled
@@ -1461,7 +1460,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 //Save object info
 	{
 		const int i = Highest_object_index+1;
-	PHYSFS_write(fp, &i, sizeof(int), 1);
+		PHYSFSX_writeBytes(fp, &i, sizeof(int));
 	}
 	{
 		object_rw None{};
@@ -1469,7 +1468,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		for (auto &obj : vcobjptr)
 		{
 			object_rw obj_rw;
-			PHYSFS_write(fp, obj.type == OBJ_NONE ? &None : (state_object_to_object_rw(obj, &obj_rw), &obj_rw), sizeof(obj_rw), 1);
+			PHYSFSX_writeBytes(fp, obj.type == OBJ_NONE ? &None : (state_object_to_object_rw(obj, &obj_rw), &obj_rw), sizeof(obj_rw));
 		}
 	}
 	
@@ -1479,7 +1478,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		auto &vcwallptr = Walls.vcptr;
 	{
 		const int i = Walls.get_count();
-	PHYSFS_write(fp, &i, sizeof(int), 1);
+		PHYSFSX_writeBytes(fp, &i, sizeof(int));
 	}
 	for (auto &w : vcwallptr)
 		wall_write(fp, w, 0x7fff);
@@ -1495,7 +1494,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
 	{
 		const int i = ActiveDoors.get_count();
-	PHYSFS_write(fp, &i, sizeof(int), 1);
+		PHYSFSX_writeBytes(fp, &i, sizeof(int));
 	}
 		for (auto &ad : ActiveDoors.vcptr)
 			active_door_write(fp, ad);
@@ -1507,7 +1506,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		auto &CloakingWalls = LevelUniqueWallSubsystemState.CloakingWalls;
 	{
 		const int i = CloakingWalls.get_count();
-	PHYSFS_write(fp, &i, sizeof(int), 1);
+		PHYSFSX_writeBytes(fp, &i, sizeof(int));
 	}
 		for (auto &w : CloakingWalls.vcptr)
 			cloaking_wall_write(w, fp);
@@ -1519,7 +1518,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	{
 		unsigned num_triggers = Triggers.get_count();
-		PHYSFS_write(fp, &num_triggers, sizeof(int), 1);
+		PHYSFSX_writeBytes(fp, &num_triggers, sizeof(int));
 	}
 		for (auto &vt : Triggers.vcptr)
 			trigger_write(fp, vt);
@@ -1537,15 +1536,15 @@ int state_save_all_sub(const char *filename, const char *desc)
 // Save the fuelcen info
 	{
 		const int Control_center_destroyed = LevelUniqueControlCenterState.Control_center_destroyed;
-	PHYSFS_write(fp, &Control_center_destroyed, sizeof(int), 1);
+		PHYSFSX_writeBytes(fp, &Control_center_destroyed, sizeof(int));
 	}
 #if defined(DXX_BUILD_DESCENT_I)
-	PHYSFS_write(fp, &LevelUniqueControlCenterState.Countdown_seconds_left, sizeof(int), 1);
+	PHYSFSX_writeBytes(fp, &LevelUniqueControlCenterState.Countdown_seconds_left, sizeof(int));
 #elif defined(DXX_BUILD_DESCENT_II)
-	PHYSFS_write(fp, &LevelUniqueControlCenterState.Countdown_timer, sizeof(int), 1);
+	PHYSFSX_writeBytes(fp, &LevelUniqueControlCenterState.Countdown_timer, sizeof(int));
 #endif
 	const unsigned Num_robot_centers = LevelSharedRobotcenterState.Num_robot_centers;
-	PHYSFS_write(fp, &Num_robot_centers, sizeof(int), 1);
+	PHYSFSX_writeBytes(fp, &Num_robot_centers, sizeof(int));
 	range_for (auto &r, partial_const_range(RobotCenters, Num_robot_centers))
 #if defined(DXX_BUILD_DESCENT_I)
 		matcen_info_write(fp, r, STATE_MATCEN_VERSION);
@@ -1554,7 +1553,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 #endif
 	control_center_triggers_write(ControlCenterTriggers, fp);
 	const auto Num_fuelcenters = LevelUniqueFuelcenterState.Num_fuelcenters;
-	PHYSFS_write(fp, &Num_fuelcenters, sizeof(int), 1);
+	PHYSFSX_writeBytes(fp, &Num_fuelcenters, sizeof(int));
 	range_for (auto &s, partial_range(Station, Num_fuelcenters))
 	{
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1568,30 +1567,30 @@ int state_save_all_sub(const char *filename, const char *desc)
 // Save the control cen info
 	{
 		const int Control_center_been_hit = LevelUniqueControlCenterState.Control_center_been_hit;
-	PHYSFS_write(fp, &Control_center_been_hit, sizeof(int), 1);
+		PHYSFSX_writeBytes(fp, &Control_center_been_hit, sizeof(int));
 	}
 	{
 		const auto cc = static_cast<int>(LevelUniqueControlCenterState.Control_center_player_been_seen);
-		PHYSFS_write(fp, &cc, sizeof(int), 1);
+		PHYSFSX_writeBytes(fp, &cc, sizeof(int));
 	}
-	PHYSFS_write(fp, &LevelUniqueControlCenterState.Frametime_until_next_fire, sizeof(int), 1);
+	PHYSFSX_writeBytes(fp, &LevelUniqueControlCenterState.Frametime_until_next_fire, sizeof(int));
 	{
 		const int Control_center_present = LevelUniqueControlCenterState.Control_center_present;
-	PHYSFS_write(fp, &Control_center_present, sizeof(int), 1);
+		PHYSFSX_writeBytes(fp, &Control_center_present, sizeof(int));
 	}
 	{
 		const auto Dead_controlcen_object_num = LevelUniqueControlCenterState.Dead_controlcen_object_num;
 	int dead_controlcen_object_num = Dead_controlcen_object_num == object_none ? -1 : Dead_controlcen_object_num;
-	PHYSFS_write(fp, &dead_controlcen_object_num, sizeof(int), 1);
+		PHYSFSX_writeBytes(fp, &dead_controlcen_object_num, sizeof(int));
 	}
 
 // Save the AI state
 	ai_save_state( fp );
 
 // Save the automap visited info
-	PHYSFS_write(fp, LevelUniqueAutomapState.Automap_visited.data(), sizeof(uint8_t), std::max<std::size_t>(Highest_segment_index + 1, MAX_SEGMENTS_ORIGINAL));
+	PHYSFSX_writeBytes(fp, LevelUniqueAutomapState.Automap_visited.data(), std::max<std::size_t>(Highest_segment_index + 1, MAX_SEGMENTS_ORIGINAL));
 
-	PHYSFS_write(fp, &state_game_id, sizeof(unsigned), 1);
+	PHYSFSX_writeBytes(fp, &state_game_id, sizeof(unsigned));
 	{
 	PHYSFS_writeULE32(fp, cheats.rapidfire ? UINT32_MAX : 0);
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1609,13 +1608,13 @@ int state_save_all_sub(const char *filename, const char *desc)
 	{
 		if (m == object_none)
 			m = -1;
-		PHYSFS_write(fp, &m, sizeof(m), 1);
+		PHYSFSX_writeBytes(fp, &m, sizeof(m));
 	}
-	PHYSFS_seek(fp, PHYSFS_tell(fp) + (NUM_MARKERS)*(CALLSIGN_LEN+1)); // PHYSFS_write(fp, MarkerOwner, sizeof(MarkerOwner), 1); MarkerOwner is obsolete
+	PHYSFS_seek(fp, PHYSFS_tell(fp) + (NUM_MARKERS)*(CALLSIGN_LEN+1)); // MarkerOwner is obsolete
 	range_for (const auto &m, MarkerState.message)
-		PHYSFS_write(fp, m.data(), m.size(), 1);
+		PHYSFSX_writeBytes(fp, m.data(), m.size());
 
-	PHYSFS_write(fp, &Afterburner_charge, sizeof(fix), 1);
+	PHYSFSX_writeBytes(fp, &Afterburner_charge, sizeof(fix));
 
 	//save last was super information
 	{
@@ -1633,26 +1632,26 @@ int state_save_all_sub(const char *filename, const char *desc)
 			if (Primary_last_was_super & HAS_PRIMARY_FLAG(primary_weapon_index_t{j}))
 				last_was_super[j] = 1;
 		}
-		PHYSFS_write(fp, &last_was_super, MAX_PRIMARY_WEAPONS, 1);
+		PHYSFSX_writeBytes(fp, &last_was_super, MAX_PRIMARY_WEAPONS);
 		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
 		for (uint8_t j = static_cast<uint8_t>(secondary_weapon_index_t::CONCUSSION_INDEX); j != static_cast<uint8_t>(secondary_weapon_index_t::SMISSILE1_INDEX); ++j)
 		{
 			if (Secondary_last_was_super & HAS_SECONDARY_FLAG(secondary_weapon_index_t{j}))
 				last_was_super[j] = 1;
 		}
-		PHYSFS_write(fp, &last_was_super, MAX_SECONDARY_WEAPONS, 1);
+		PHYSFSX_writeBytes(fp, &last_was_super, MAX_SECONDARY_WEAPONS);
 	}
 
 	//	Save flash effect stuff
-	PHYSFS_write(fp, &Flash_effect, sizeof(int), 1);
+	PHYSFSX_writeBytes(fp, &Flash_effect, sizeof(int));
 	if (Time_flash_last_played - GameTime64 < F1_0*(-18000))
 		tmptime32 = F1_0*(-18000);
 	else
 		tmptime32 = Time_flash_last_played - GameTime64;
-	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
-	PHYSFS_write(fp, &PaletteRedAdd, sizeof(int), 1);
-	PHYSFS_write(fp, &PaletteGreenAdd, sizeof(int), 1);
-	PHYSFS_write(fp, &PaletteBlueAdd, sizeof(int), 1);
+	PHYSFSX_writeBytes(fp, &tmptime32, sizeof(fix));
+	PHYSFSX_writeBytes(fp, &PaletteRedAdd, sizeof(int));
+	PHYSFSX_writeBytes(fp, &PaletteGreenAdd, sizeof(int));
+	PHYSFSX_writeBytes(fp, &PaletteBlueAdd, sizeof(int));
 	{
 		union {
 			std::array<uint8_t, MAX_SEGMENTS> light_subtracted;
@@ -1677,11 +1676,11 @@ int state_save_all_sub(const char *filename, const char *desc)
 		auto j = light_subtracted.begin();
 		for (const unique_segment &useg : r)
 			*j++ = underlying_value(useg.light_subtracted);
-		PHYSFS_write(fp, light_subtracted.data(), sizeof(uint8_t), count);
+		PHYSFSX_writeBytes(fp, light_subtracted.data(), count);
 	}
-	PHYSFS_write(fp, &First_secret_visit, sizeof(First_secret_visit), 1);
+	PHYSFSX_writeBytes(fp, &First_secret_visit, sizeof(First_secret_visit));
 	auto &Omega_charge = player_info.Omega_charge;
-	PHYSFS_write(fp, &Omega_charge, sizeof(Omega_charge), 1);
+	PHYSFSX_writeBytes(fp, &Omega_charge, sizeof(Omega_charge));
 #endif
 	}
 
@@ -1699,15 +1698,15 @@ int state_save_all_sub(const char *filename, const char *desc)
 		{
 			state_write_player(fp, i, rpd, player_info);
 		}
-		PHYSFS_write(fp, Netgame.mission_title.data(), Netgame.mission_title.size(), 1);
-		PHYSFS_write(fp, Netgame.mission_name.data(), Netgame.mission_name.size(), 1);
-		PHYSFS_write(fp, &Netgame.levelnum, sizeof(int), 1);
-		PHYSFS_write(fp, &Netgame.difficulty, sizeof(ubyte), 1);
-		PHYSFS_write(fp, &Netgame.game_status, sizeof(ubyte), 1);
-		PHYSFS_write(fp, &Netgame.numplayers, sizeof(ubyte), 1);
-		PHYSFS_write(fp, &Netgame.max_numplayers, sizeof(ubyte), 1);
-		PHYSFS_write(fp, &Netgame.numconnected, sizeof(ubyte), 1);
-		PHYSFS_write(fp, &Netgame.level_time, sizeof(int), 1);
+		PHYSFSX_writeBytes(fp, Netgame.mission_title.data(), Netgame.mission_title.size());
+		PHYSFSX_writeBytes(fp, Netgame.mission_name.data(), Netgame.mission_name.size());
+		PHYSFSX_writeBytes(fp, &Netgame.levelnum, sizeof(int));
+		PHYSFSX_writeBytes(fp, &Netgame.difficulty, sizeof(ubyte));
+		PHYSFSX_writeBytes(fp, &Netgame.game_status, sizeof(ubyte));
+		PHYSFSX_writeBytes(fp, &Netgame.numplayers, sizeof(ubyte));
+		PHYSFSX_writeBytes(fp, &Netgame.max_numplayers, sizeof(ubyte));
+		PHYSFSX_writeBytes(fp, &Netgame.numconnected, sizeof(ubyte));
+		PHYSFSX_writeBytes(fp, &Netgame.level_time, sizeof(int));
 	}
 	return 1;
 }

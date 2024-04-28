@@ -739,10 +739,10 @@ static int write_body(PHYSFS_File *ofile,iff_bitmap_header *bitmap_header,int co
 
 		if (compression_on) {
 			total_len += newlen = rle_span(new_span,p,bitmap_header->w+odd);
-			PHYSFS_write(ofile,new_span,newlen,1);
+			PHYSFSX_writeBytes(ofile, new_span, newlen);
 		}
 		else
-			PHYSFS_write(ofile,p,bitmap_header->w+odd,1);
+			PHYSFSX_writeBytes(ofile, p, bitmap_header->w + odd);
 
 		p+=bitmap_header->row_size;	//bitmap_header->w;
 	}
@@ -792,10 +792,10 @@ int write_tiny(PHYSFS_File *ofile,iff_bitmap_header *bitmap_header,int compressi
 
 		if (compression_on) {
 			total_len += newlen = rle_span(new_span,tspan,new_w+odd);
-			PHYSFS_write(ofile,new_span,newlen,1);
+			PHYSFSX_writeBytes(ofile, new_span, newlen);
 		}
 		else
-			PHYSFS_write(ofile,p,new_w+odd,1);
+			PHYSFSX_writeBytes(ofile, p, new_w + odd);
 
 		p += skip * bitmap_header->row_size;		//bitmap_header->w;
 

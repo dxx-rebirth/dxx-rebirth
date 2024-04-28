@@ -1594,7 +1594,7 @@ static void terminate_handler()
 		(void)dir;
 	}
 	f = PHYSFS_openWrite("a");
-	PHYSFS_sint64 w = PHYSFS_write(f, b, 1, 1);
+	PHYSFS_sint64 w{PHYSFS_writeBytes(f, b, 1)};
 	(void)w;
 	PHYSFS_close(f);
 	f = PHYSFS_openRead("a");
@@ -4850,7 +4850,7 @@ SConf test results
 			value = getattr(user_settings, f'{flags}_unchecked')
 			if value:
 				add_flags[flags] += CLVar(value)
-		# Wrapping PHYSFS_readBytes / PHYSFS_write is only useful when
+		# Wrapping PHYSFS_readBytes / PHYSFS_writeBytes is only useful when
 		# Valgrind poisoning is enabled.  If Valgrind poisoning is not
 		# enabled, the wrappers are not built (unless the appropriate
 		# preprocessor define is added to $CPPFLAGS by the user).  The
@@ -4874,7 +4874,7 @@ SConf test results
 					))
 		if user_settings.wrap_PHYSFS_write:
 			add_flags['LINKFLAGS'].extend((
-					'-Wl,--wrap,PHYSFS_write',
+					'-Wl,--wrap,PHYSFS_writeBytes',
 					'-Wl,--wrap,PHYSFS_writeSBE16',
 					'-Wl,--wrap,PHYSFS_writeSBE32',
 					'-Wl,--wrap,PHYSFS_writeSLE16',

@@ -100,18 +100,12 @@ static void dxx_vg_wrap_check_value(const void *const ret, const void *const val
 }
 
 __attribute__((__used__,__noinline__,__noclone__))
-PHYSFS_sint64 __wrap_PHYSFS_write(PHYSFS_File *const handle, const void *const buffer, const PHYSFS_uint32 objSize, const PHYSFS_uint32 objCount)
+PHYSFS_sint64 __wrap_PHYSFS_writeBytes(PHYSFS_File *const handle, const void *const buffer, const PHYSFS_uint64 len)
 {
 	auto p = reinterpret_cast<const uint8_t *>(buffer);
-	/* Check each object individually so that any diagnosed errors are
-	 * more precise.
-	 */
-	for (PHYSFS_uint32 i = 0; i != objCount; ++i, p += objSize)
-	{
-		if (const auto o = VALGRIND_CHECK_MEM_IS_DEFINED(p, objSize))
-			con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "BUG: ret=%p buffer=%p i=%.3u/%.3u VALGRIND_CHECK_MEM_IS_DEFINED(%p, %u)=%p (offset=%p)"), __builtin_return_address(0), buffer, i, objCount, p, objSize, reinterpret_cast<void *>(o), reinterpret_cast<void *>(o - reinterpret_cast<uintptr_t>(p)));
-	}
-	return __real_PHYSFS_write(handle, buffer, objSize, objCount);
+	if (const auto o{VALGRIND_CHECK_MEM_IS_DEFINED(p, len)})
+		con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "BUG: ret=%p buffer=%p VALGRIND_CHECK_MEM_IS_DEFINED(%p, %" DXX_PRI_size_type ")=%p (offset=%p)"), __builtin_return_address(0), buffer, p, std::size_t{len}, reinterpret_cast<void *>(o), reinterpret_cast<void *>(o - reinterpret_cast<uintptr_t>(p)));
+	return __real_PHYSFS_writeBytes(handle, buffer, len);
 }
 #endif
 #endif

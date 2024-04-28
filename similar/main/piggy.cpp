@@ -1477,7 +1477,7 @@ static void piggy_write_pigfile(const std::span<const char, FILENAME_LEN> filena
 	write_int(PIGFILE_VERSION,pig_fp);
 
 	Num_bitmap_files--;
-	PHYSFS_write( pig_fp, &Num_bitmap_files, sizeof(int), 1 );
+	PHYSFSX_writeBytes(pig_fp, &Num_bitmap_files, sizeof(int));
 	Num_bitmap_files++;
 
 	bitmap_data_start = PHYSFS_tell(pig_fp);
@@ -1531,12 +1531,12 @@ static void piggy_write_pigfile(const std::span<const char, FILENAME_LEN> filena
 		if (bmp->get_flag_mask(BM_FLAG_RLE))
 		{
 			const auto size = reinterpret_cast<const int *>(bmp->bm_data);
-			PHYSFS_write( pig_fp, bmp->bm_data, sizeof(ubyte), *size );
+			PHYSFSX_writeBytes(pig_fp, bmp->bm_data, *size);
 			data_offset += *size;
 			if (fp1)
 				PHYSFSX_printf( fp1, ", and is already compressed to %d bytes.\n", *size );
 		} else {
-			PHYSFS_write( pig_fp, bmp->bm_data, sizeof(ubyte), bmp->bm_rowsize * bmp->bm_h );
+			PHYSFSX_writeBytes(pig_fp, bmp->bm_data, bmp->bm_rowsize * bmp->bm_h);
 			data_offset += bmp->bm_rowsize * bmp->bm_h;
 			if (fp1)
 				PHYSFSX_puts_literal( fp1, ".\n" );
@@ -1559,15 +1559,15 @@ static void piggy_write_pigfile(const std::span<const char, FILENAME_LEN> filena
 			bmh.flags &= ~BM_FLAG_PAGED_OUT;
 		}
 		bmh.avg_color = compute_average_pixel(&GameBitmaps[bi]);
-		PHYSFS_write(pig_fp, &bmh, sizeof(DiskBitmapHeader), 1);	// Mark as a bitmap
+		PHYSFSX_writeBytes(pig_fp, &bmh, sizeof(DiskBitmapHeader));	// Mark as a bitmap
 	}
 	PHYSFSX_printf( fp1, " Dumped %d assorted bitmaps.\n", Num_bitmap_files );
 }
 
 static void write_int(int i, PHYSFS_File *file)
 {
-	if (PHYSFS_write( file, &i, sizeof(i), 1) != 1)
-		Error( "Error reading int in gamesave.c" );
+	if (PHYSFSX_writeBytes(file, &i, sizeof(i)) != sizeof(i))
+		Error("Error writing int in " __FILE__);
 
 }
 #endif

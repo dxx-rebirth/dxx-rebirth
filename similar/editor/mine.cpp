@@ -401,7 +401,7 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 	mine_fileinfo.triggers_sizeof	  =	sizeof(trigger);  
 
 	// Write the fileinfo
-	PHYSFS_write( SaveFile, &mine_fileinfo, sizeof(mine_fileinfo), 1 );
+	PHYSFSX_writeBytes(SaveFile, &mine_fileinfo, sizeof(mine_fileinfo));
 
 	//===================== SAVE HEADER INFO ========================
 
@@ -412,7 +412,7 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 	if (header_offset != PHYSFS_tell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
 
-	PHYSFS_write( SaveFile, &mine_header, sizeof(mine_header), 1 );
+	PHYSFSX_writeBytes(SaveFile, &mine_header, sizeof(mine_header));
 
 	//===================== SAVE EDITOR INFO ==========================
 	mine_editor.current_seg         =   Cursegp;
@@ -433,21 +433,21 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 
 	if (editor_offset != PHYSFS_tell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
-	PHYSFS_write( SaveFile, &mine_editor, sizeof(mine_editor), 1 );
+	PHYSFSX_writeBytes(SaveFile, &mine_editor, sizeof(mine_editor));
 
 	//===================== SAVE TEXTURE INFO ==========================
 
 	if (texture_offset != PHYSFS_tell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
 	range_for (auto &i, partial_const_range(current_tmap_list, NumTextures))
-		PHYSFS_write(SaveFile, i.data(), i.size(), 1);
+		PHYSFSX_writeBytes(SaveFile, i.data(), i.size());
 	
 	//===================== SAVE VERTEX INFO ==========================
 
 	if (vertex_offset != PHYSFS_tell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	PHYSFS_write(SaveFile, Vertices, sizeof(vms_vector), LevelSharedVertexState.Num_vertices);
+	PHYSFSX_writeBytes(SaveFile, Vertices, sizeof(vms_vector) * LevelSharedVertexState.Num_vertices);
 
 	//===================== SAVE SEGMENT INFO =========================
 
@@ -461,12 +461,12 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 
 	if (newsegment_offset != PHYSFS_tell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
-	PHYSFS_write( SaveFile, &New_segment, sizeof(segment), 1 );
+	PHYSFSX_writeBytes(SaveFile, &New_segment, sizeof(segment));
 #endif
 
 	if (newseg_verts_offset != PHYSFS_tell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
-	PHYSFS_write( SaveFile, &Vertices[New_segment.verts.front()], sizeof(vms_vector), 8 );
+	PHYSFSX_writeBytes(SaveFile, &Vertices[New_segment.verts.front()], sizeof(vms_vector) * 8);
 
 	//==================== CLOSE THE FILE =============================
 

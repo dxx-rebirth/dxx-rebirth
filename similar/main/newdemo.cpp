@@ -322,7 +322,7 @@ static int _newdemo_write(const void *buffer, int elsize, int nelem )
 	nd_record_v_framebytes_written += total_size;
 	Newdemo_num_written += total_size;
 	Assert(outfile);
-	num_written = (PHYSFS_write)(outfile, buffer, elsize, nelem);
+	num_written = (PHYSFS_writeBytes)(outfile, buffer, elsize * nelem);
 
 	if (likely(num_written == nelem))
 		return num_written;

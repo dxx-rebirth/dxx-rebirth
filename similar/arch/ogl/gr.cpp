@@ -1190,8 +1190,8 @@ void write_bmp(PHYSFS_File *const TGAFile, const unsigned w, const unsigned h)
 	TGA.header[3] = HeightH;
 	TGA.header[4] = static_cast<GLbyte>(24);
 	TGA.header[5] = 0;
-	PHYSFS_write(TGAFile,&TGA,sizeof(TGA_header),1);
-	PHYSFS_write(TGAFile,buf, buffer_size_TGA * sizeof(unsigned char),1);
+	PHYSFSX_writeBytes(TGAFile, &TGA, sizeof(TGA_header));
+	PHYSFSX_writeBytes(TGAFile, buf, buffer_size_TGA);
 }
 #endif
 

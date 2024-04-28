@@ -749,7 +749,7 @@ void d_screenshot::png_warn_cb(png_struct *const png, const char *const str)
 void d_screenshot::png_write_cb(png_struct *const png, uint8_t *const buf, const png_size_t size)
 {
 	const auto file = reinterpret_cast<PHYSFS_File *>(png_get_io_ptr(png));
-	PHYSFS_write(file, buf, size, 1);
+	PHYSFSX_writeBytes(file, buf, size);
 }
 
 void d_screenshot::png_flush_cb(png_struct *const png)

@@ -736,7 +736,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 			ai_info_flags[7] = obj.ctype.ai_info.SKIP_AI_COUNT;
 			ai_info_flags[8] = obj.ctype.ai_info.REMOTE_OWNER;
 			ai_info_flags[9] = obj.ctype.ai_info.REMOTE_SLOT_NUM;
-			PHYSFS_write(f, ai_info_flags.data(), 1, 11);
+			PHYSFSX_writeBytes(f, ai_info_flags.data(), 11);
 			PHYSFS_writeSLE16(f, obj.ctype.ai_info.hide_segment);
 			PHYSFS_writeSLE16(f, obj.ctype.ai_info.hide_index);
 			PHYSFS_writeSLE16(f, obj.ctype.ai_info.path_length);
@@ -1667,7 +1667,7 @@ static int save_game_data(
 	PHYSFS_writeSLE16(SaveFile, 0x6705);	// signature
 	PHYSFS_writeSLE16(SaveFile, game_top_fileinfo_version);
 	PHYSFS_writeSLE32(SaveFile, 0);
-	PHYSFS_write(SaveFile, Current_level_name.line(), 15, 1);
+	PHYSFSX_writeBytes(SaveFile, Current_level_name.line(), 15);
 	PHYSFS_writeSLE32(SaveFile, Current_level_num);
 	offset_offset = PHYSFS_tell(SaveFile);	// write the offsets later
 	PHYSFS_writeSLE32(SaveFile, -1);
@@ -1711,7 +1711,7 @@ static int save_game_data(
 		const auto N_polygon_models = LevelSharedPolygonModelState.N_polygon_models;
 		PHYSFS_writeSLE16(SaveFile, N_polygon_models);
 		range_for (auto &i, partial_const_range(LevelSharedPolygonModelState.Pof_names, N_polygon_models))
-			PHYSFS_write(SaveFile, &i, sizeof(i), 1);
+			PHYSFSX_writeBytes(SaveFile, &i, sizeof(i));
 	}
 
 	//==================== SAVE PLAYER INFO ===========================

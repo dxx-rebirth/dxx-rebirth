@@ -151,10 +151,11 @@ static SDL_RWops_callback_read_position physfsrwops_read(SDL_RWops *const rw, vo
 static SDL_RWops_callback_write_position physfsrwops_write(SDL_RWops *const rw, const void *const ptr, const SDL_RWops_callback_write_position size, const SDL_RWops_callback_write_position num)
 {
     PHYSFS_File *handle = reinterpret_cast<PHYSFS_File *>(rw->hidden.unknown.data1);
-    PHYSFS_sint64 rc = (PHYSFS_write)(handle, reinterpret_cast<const uint8_t *>(ptr), size, num);
-    if (rc != num)
+	const auto count{size * num};
+	const auto rc{PHYSFS_writeBytes(handle, reinterpret_cast<const uint8_t *>(ptr), count)};
+    if (rc != count)
         SDL_SetError("PhysicsFS error: %s", PHYSFS_getLastError());
-    return rc;
+	return rc;
 } /* physfsrwops_write */
 
 

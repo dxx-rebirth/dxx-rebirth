@@ -251,7 +251,6 @@ pcx_result pcx_read_bitmap_or_default(const char *const filename, grs_main_bitma
 #if !DXX_USE_OGL && DXX_USE_SCREENSHOT_FORMAT_LEGACY
 unsigned pcx_write_bitmap(PHYSFS_File *const PCXfile, const grs_bitmap *const bmp, palette_array_t &palette)
 {
-	int retval;
 	ubyte data;
 	PCXHeader header{};
 
@@ -264,7 +263,7 @@ unsigned pcx_write_bitmap(PHYSFS_File *const PCXfile, const grs_bitmap *const bm
 	header.Ymax = bmp->bm_h-1;
 	header.BytesPerLine = bmp->bm_w;
 
-	if (PHYSFS_write(PCXfile, &header, PCXHEADER_SIZE, 1) != 1)
+	if (PHYSFSX_writeBytes(PCXfile, &header, PCXHEADER_SIZE) != PCXHEADER_SIZE)
 	{
 		return 1;
 	}
@@ -285,15 +284,14 @@ unsigned pcx_write_bitmap(PHYSFS_File *const PCXfile, const grs_bitmap *const bm
 
 	// Mark an extended palette
 	data = 12;
-	if (PHYSFS_write(PCXfile, &data, 1, 1) != 1)
+	if (PHYSFSX_writeBytes(PCXfile, &data, 1) != 1)
 	{
 		return 1;
 	}
 
-	retval = PHYSFS_write(PCXfile, palette.data(), palette.size(), 1);
-	if (retval !=1)	{
+	const auto retval{PHYSFSX_writeBytes(PCXfile, palette.data(), palette.size())};
+	if (retval != palette.size())
 		return 1;
-	}
 	return 0;
 }
 
@@ -340,7 +338,7 @@ int pcx_encode_line(const std::span<const uint8_t> in, PHYSFS_File *fp)
 
 static inline int PHYSFSX_putc(PHYSFS_File *file, uint8_t ch)
 {
-	if (PHYSFS_write(file, &ch, 1, 1) < 1)
+	if (PHYSFSX_writeBytes(file, &ch, 1) < 1)
 		return -1;
 	else
 		return ch;

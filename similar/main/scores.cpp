@@ -179,7 +179,7 @@ static void scores_write(all_scores *scores)
 	scores->signature[1]='H';
 	scores->signature[2]='S';
 	scores->version = high_score_version;
-	PHYSFS_write(fp, scores,sizeof(all_scores), 1);
+	PHYSFSX_writeBytes(fp, scores, sizeof(all_scores));
 }
 
 static void scores_fill_struct(stats_info * stats)

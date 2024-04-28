@@ -21,8 +21,8 @@ PHYSFS_sint64 __real_PHYSFS_readBytes(PHYSFS_File *const handle, void *const buf
 #endif
 
 #if DXX_ENABLE_wrap_PHYSFS_write
-PHYSFS_sint64 __real_PHYSFS_write(PHYSFS_File *const handle, const void *const buffer, const PHYSFS_uint32 objSize, const PHYSFS_uint32 objCount)
+PHYSFS_sint64 __real_PHYSFS_writeBytes(PHYSFS_File *const handle, const void *const buffer, const PHYSFS_uint64 len)
 {
-	return (PHYSFS_write)(handle, buffer, objSize, objCount);
+	return (PHYSFS_writeBytes)(handle, buffer, len);
 }
 #endif
