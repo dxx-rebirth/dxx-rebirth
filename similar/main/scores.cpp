@@ -116,7 +116,7 @@ struct all_scores
 	static constexpr std::size_t disk_size{336};
 #endif
 	char			cool_saying[COOL_MESSAGE_LEN];
-	stats_info	stats[MAX_HIGH_SCORES];
+	std::array<stats_info, MAX_HIGH_SCORES>	stats;
 };
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_SCORE_STATS_INFO_PAD(AMOUNT)	/* In Descent 1, stats are stored with no padding, so discard the amount field. */
@@ -141,49 +141,150 @@ ASSERT_SERIAL_UDT_MESSAGE_SIZE(stats_info, stats_info::disk_size);
 
 void scores_view(grs_canvas &canvas, const stats_info *last_game, int citem);
 
-static void assign_builtin_placeholder_scores(all_scores &scores)
+[[nodiscard]]
+static all_scores build_builtin_placeholder_scores()
 {
+	static constexpr all_scores builtin_scores{
+		.cool_saying =
+#ifdef USE_BUILTIN_ENGLISH_TEXT_STRINGS
+			TXT_REGISTER_DESCENT,
+#else
+			{},	/* For !USE_BUILTIN_ENGLISH_TEXT_STRINGS, this requires data from an external file, so it cannot be set here. */
+#endif
+		.stats = {{
+			{
+				.name = {{"Parallax"}},
+				.score = 10000,
+				.starting_level = 0,
+				.ending_level = 0,
+				.diff_level = 0,
+				.kill_ratio = 0,
+				.hostage_ratio = 0,
+				.seconds = 0,
+			},
+			{
+				.name = {{"Matt"}},
+				.score = 9000,
+				.starting_level = 0,
+				.ending_level = 0,
+				.diff_level = 0,
+				.kill_ratio = 0,
+				.hostage_ratio = 0,
+				.seconds = 0,
+			},
+			{
+				.name = {{"Mike"}},
+				.score = 8000,
+				.starting_level = 0,
+				.ending_level = 0,
+				.diff_level = 0,
+				.kill_ratio = 0,
+				.hostage_ratio = 0,
+				.seconds = 0,
+			},
+			{
+				.name = {{"Adam"}},
+				.score = 7000,
+				.starting_level = 0,
+				.ending_level = 0,
+				.diff_level = 0,
+				.kill_ratio = 0,
+				.hostage_ratio = 0,
+				.seconds = 0,
+			},
+			{
+				.name = {{"Mark"}},
+				.score = 6000,
+				.starting_level = 0,
+				.ending_level = 0,
+				.diff_level = 0,
+				.kill_ratio = 0,
+				.hostage_ratio = 0,
+				.seconds = 0,
+			},
+			{
+				.name = {{"Jasen"}},
+				.score = 5000,
+				.starting_level = 0,
+				.ending_level = 0,
+				.diff_level = 0,
+				.kill_ratio = 0,
+				.hostage_ratio = 0,
+				.seconds = 0,
+			},
+			{
+				.name = {{"Samir"}},
+				.score = 4000,
+				.starting_level = 0,
+				.ending_level = 0,
+				.diff_level = 0,
+				.kill_ratio = 0,
+				.hostage_ratio = 0,
+				.seconds = 0,
+			},
+			{
+				.name = {{"Doug"}},
+				.score = 3000,
+				.starting_level = 0,
+				.ending_level = 0,
+				.diff_level = 0,
+				.kill_ratio = 0,
+				.hostage_ratio = 0,
+				.seconds = 0,
+			},
+			{
+				.name = {{"Dan"}},
+				.score = 2000,
+				.starting_level = 0,
+				.ending_level = 0,
+				.diff_level = 0,
+				.kill_ratio = 0,
+				.hostage_ratio = 0,
+				.seconds = 0,
+			},
+			{
+				.name = {{"Jason"}},
+				.score = 1000,
+				.starting_level = 0,
+				.ending_level = 0,
+				.diff_level = 0,
+				.kill_ratio = 0,
+				.hostage_ratio = 0,
+				.seconds = 0,
+			},
+		}}
+	};
+#ifdef USE_BUILTIN_ENGLISH_TEXT_STRINGS
+	return builtin_scores;
+#else
+	auto scores{builtin_scores};
 	strcpy(scores.cool_saying, TXT_REGISTER_DESCENT);
-	scores.stats[0].name = "Parallax";
-	scores.stats[1].name = "Matt";
-	scores.stats[2].name = "Mike";
-	scores.stats[3].name = "Adam";
-	scores.stats[4].name = "Mark";
-	scores.stats[5].name = "Jasen";
-	scores.stats[6].name = "Samir";
-	scores.stats[7].name = "Doug";
-	scores.stats[8].name = "Dan";
-	scores.stats[9].name = "Jason";
-
-	for (auto &&[idx, stat] : enumerate(scores.stats))
-		stat.score = (10 - idx) * 1000;
+	return scores;
+#endif
 }
 
-static void scores_read(all_scores *scores)
+[[nodiscard]]
+static all_scores scores_read()
 {
-	// clear score array...
-	*scores = {};
-
 	RAIIPHYSFS_File fp{PHYSFS_openRead(SCORES_FILENAME)};
 	if (!fp)
 	{
 	 	// No error message needed, code will work without a scores file
-		assign_builtin_placeholder_scores(*scores);
-		return;
+		return build_builtin_placeholder_scores();
 	}
 
 	const auto fsize{PHYSFS_fileLength(fp)};
 	if (fsize != all_scores::disk_size)
 	{
 		con_printf(CON_NORMAL, "Ignoring high scores file \"" SCORES_FILENAME "\" due to unexpected size %" DXX_PRI_size_type, static_cast<std::size_t>(fsize));
-		return;
+		return build_builtin_placeholder_scores();
 	}
 	std::array<uint8_t, all_scores::disk_size> buf;
 	// Read 'em in...
 	if (PHYSFSX_readBytes(fp, std::data(buf), std::size(buf)) != all_scores::disk_size)
 	{
 		con_puts(CON_NORMAL, "Failed to read high scores file \"" SCORES_FILENAME "\"");
-		return;
+		return build_builtin_placeholder_scores();
 	}
 	if (buf[0] != 'D' ||	// Descent
 		buf[1] != 'H' ||	// High
@@ -191,22 +292,24 @@ static void scores_read(all_scores *scores)
 		buf[3] != high_score_version)
 	{
 		con_printf(CON_NORMAL, "Ignoring high scores file \"" SCORES_FILENAME "\" due to invalid header %.2x%.2x%.2x%.2x", buf[0], buf[1], buf[2], buf[3]);
-		return;
+		return build_builtin_placeholder_scores();
 	}
+	all_scores scores{};
 	/* Skip the last byte, so that the value-initialized null at the end of
 	 * `all_scores::cool_saying` is retained.  On a well-formed file, this
 	 * produces the same result as including the last byte.  On an ill-formed
 	 * file, this guarantees null termination of `all_scores::cool_saying`.
 	 */
-	std::ranges::copy(std::span(buf).subspan<4, COOL_MESSAGE_LEN - 1>(), scores->cool_saying);
+	std::ranges::copy(std::span(buf).subspan<4, COOL_MESSAGE_LEN - 1>(), scores.cool_saying);
 	const auto stats_static_span{std::span(buf).subspan<all_scores::offsetof_stats>()};
 	static_assert(stats_static_span.extent == 10 * stats_info::disk_size);
 	static_assert(all_scores::offsetof_stats + stats_static_span.extent == all_scores::disk_size);
-	for (auto &&[idx, stats] : enumerate(scores->stats))
+	for (auto &&[idx, stats] : enumerate(scores.stats))
 	{
 		serial::reader::ne_bytebuffer b{stats_static_span.subspan(idx * stats_info::disk_size, stats_info::disk_size).data()};
 		serial::process_buffer(b, stats);
 	}
+	return scores;
 }
 
 static void scores_write(const all_scores *scores)
@@ -337,12 +440,11 @@ void scores_maybe_add_player()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	all_scores scores;
 	stats_info last_game;
 
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		return;
-	scores_read(&scores);
+	auto scores{scores_read()};
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	const auto predicate = [player_mission_score = player_info.mission.score](const stats_info &stats) {
 		return player_mission_score > stats.score;
@@ -579,10 +681,8 @@ window_event_result scores_menu::event_handler(const d_event &event)
 						if (nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_NO, TXT_YES), menu_subtitle{TXT_RESET_HIGH_SCORES}) == 1)
 						{
 							PHYSFS_delete(SCORES_FILENAME);
-							all_scores scores{};
-							assign_builtin_placeholder_scores(scores);
-							auto oss = build_locale_stringstream();
-							prepare_scores(scores, oss);
+							auto oss{build_locale_stringstream()};
+							prepare_scores(build_builtin_placeholder_scores(), oss);
 							return window_event_result::handled;
 						}
 					}
@@ -679,8 +779,7 @@ void scores_view(grs_canvas &canvas, const stats_info *const last_game, int cite
 {
 	const auto &&fspacx290 = FSPACX(290);
 	const auto &&fspacy170 = FSPACY(170);
-	all_scores scores;
-	scores_read(&scores);
+	auto scores{scores_read()};
 	const auto border_x = get_border_x(canvas);
 	const auto border_y = get_border_y(canvas);
 	auto menu = window_create<scores_menu>(canvas, ((canvas.cv_bitmap.bm_w - fspacx290) / 2) - border_x, ((canvas.cv_bitmap.bm_h - fspacy170) / 2) - border_y, fspacx290 + (border_x * 2), fspacy170 + (border_y * 2), citem, scores, last_game);
