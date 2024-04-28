@@ -665,12 +665,6 @@ static void hmptrk2mid(ubyte* data, int size, std::vector<uint8_t> &midbuf)
 	}
 }
 
-struct be_bytebuffer_t : serial::writer::bytebuffer_t
-{
-	be_bytebuffer_t(pointer u) : bytebuffer_t(u) {}
-	static constexpr bytebuffer_t::big_endian_type endian{};
-};
-
 const std::array<uint8_t, 10> magic_header{{
 	'M', 'T', 'h', 'd',
 	0, 0, 0, 6,
@@ -709,7 +703,7 @@ hmpmid_result hmp2mid(const char *hmp_name)
 	std::vector<uint8_t> midbuf;
 	// write MIDI-header
 	midbuf.resize(serial::message_type<decltype(mh)>::maximum_size);
-	be_bytebuffer_t bb(midbuf.data());
+	serial::writer::be_bytebuffer bb{midbuf.data()};
 	serial::process_buffer(bb, mh);
 
 	// tracks
@@ -720,7 +714,7 @@ hmpmid_result hmp2mid(const char *hmp_name)
 		auto midtrklenpos = midbuf.size() - 4;
 		hmptrk2mid(hmp->trks[i].data.get(), hmp->trks[i].len, midbuf);
 		auto size_after = midbuf.size();
-		be_bytebuffer_t bbmi(&midbuf[midtrklenpos]);
+		serial::writer::be_bytebuffer bbmi{&midbuf[midtrklenpos]};
 		serial::process_buffer(bbmi, static_cast<int32_t>(size_after - size_before));
 	}
 	return {midbuf, hmp_open_error::None};

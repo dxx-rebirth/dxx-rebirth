@@ -44,7 +44,7 @@ DEFINE_SERIAL_MUTABLE_UDT_TO_MESSAGE(simple_serial_test_struct, s, (s.a, s.b));
 BOOST_AUTO_TEST_CASE(read_uint16_10)
 {
 	constexpr uint8_t buf[2]{1, 0};
-	serial::reader::bytebuffer_t b(buf);
+	serial::reader::le_bytebuffer b{buf};
 	uint16_t u = 0;
 	process_integer(b, u);
 	BOOST_TEST(u == 1);
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(read_uint16_10)
 BOOST_AUTO_TEST_CASE(read_uint16_01)
 {
 	constexpr uint8_t buf[2]{0, 1};
-	serial::reader::bytebuffer_t b(buf);
+	serial::reader::le_bytebuffer b{buf};
 	uint16_t u = 0;
 	process_integer(b, u);
 	BOOST_TEST(u == 0x100);
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE(read_uint16_01)
 BOOST_AUTO_TEST_CASE(read_uint32_0010)
 {
 	constexpr uint8_t buf[4]{0, 0, 1, 0};
-	serial::reader::bytebuffer_t b(buf);
+	serial::reader::le_bytebuffer b{buf};
 	uint32_t u = 0;
 	process_integer(b, u);
 	BOOST_TEST(u == 0x10000);
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(read_uint32_0010)
 BOOST_AUTO_TEST_CASE(read_uint8_array_to_std_array)
 {
 	constexpr uint8_t buf[4]{1, 2, 3, 4};
-	serial::reader::bytebuffer_t b(buf);
+	serial::reader::le_bytebuffer b{buf};
 	std::array<uint8_t, 3> u{};
 	process_array(b, u);
 	BOOST_TEST(u[0] == 1);
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(read_uint8_array_to_std_array)
 BOOST_AUTO_TEST_CASE(read_uint8_array_to_uint16_array)
 {
 	constexpr uint8_t buf[]{1, 2, 3, 4, 5, 6, 7, 8};
-	serial::reader::bytebuffer_t b(buf);
+	serial::reader::le_bytebuffer b{buf};
 	std::array<uint16_t, 4> u{};
 	process_buffer(b, u[0], u[1], u[3], u[2]);
 	BOOST_TEST(u[0] == 0x201);
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(read_uint8_array_to_uint16_array)
 BOOST_AUTO_TEST_CASE(read_uint8_array_to_uint32_array)
 {
 	constexpr uint8_t buf[]{1, 2, 3, 4, 5, 6, 7, 8};
-	serial::reader::bytebuffer_t b(buf);
+	serial::reader::le_bytebuffer b{buf};
 	std::array<uint32_t, 2> u{};
 	process_buffer(b, u);
 	BOOST_TEST(u[0] == 0x4030201);
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(read_uint8_array_to_uint32_array)
 BOOST_AUTO_TEST_CASE(read_struct)
 {
 	constexpr uint8_t buf[]{1, 2, 3, 4};
-	serial::reader::bytebuffer_t b(buf);
+	serial::reader::le_bytebuffer b{buf};
 	simple_serial_test_struct s{0x1234, 0x5678};
 	process_buffer(b, s);
 	BOOST_TEST(s.a == 0x201);
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(read_sign_extend)
 {
 	constexpr int8_t expected = -5;
 	constexpr uint8_t buf[2]{static_cast<uint8_t>(expected), 0xff};
-	serial::reader::bytebuffer_t b(buf);
+	serial::reader::le_bytebuffer b{buf};
 	int8_t value = 1;
 	process_buffer(b, serial::sign_extend<int16_t>(value));
 	BOOST_TEST(value == expected);
@@ -124,14 +124,14 @@ BOOST_AUTO_TEST_CASE(read_sign_extend)
 BOOST_AUTO_TEST_CASE(read_pad)
 {
 	constexpr uint8_t buf[2]{0, 0xff};
-	serial::reader::bytebuffer_t b(buf);
+	serial::reader::le_bytebuffer b{buf};
 	process_buffer(b, serial::pad<2>());
 }
 
 BOOST_AUTO_TEST_CASE(write_uint16)
 {
 	uint8_t buf[2]{};
-	serial::writer::bytebuffer_t b(buf);
+	serial::writer::le_bytebuffer b{buf};
 	constexpr uint16_t u = 0x100;
 	process_integer(b, u);
 	constexpr uint8_t expected[] = {0, 1};
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE(write_uint16)
 BOOST_AUTO_TEST_CASE(write_uint32)
 {
 	uint8_t buf[4]{};
-	serial::writer::bytebuffer_t b(buf);
+	serial::writer::le_bytebuffer b{buf};
 	constexpr uint32_t u = 0x12345678;
 	process_integer(b, u);
 	BOOST_TEST(buf[0] == 0x78);
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(write_uint32)
 BOOST_AUTO_TEST_CASE(write_uint8_array)
 {
 	uint8_t buf[4]{0xff, 0xfe, 0xfd, 0xfc};
-	serial::writer::bytebuffer_t b(buf);
+	serial::writer::le_bytebuffer b{buf};
 	constexpr std::array<uint8_t, 3> u{{1, 2, 3}};
 	process_array(b, u);
 	BOOST_TEST(buf[0] == 1);
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE(write_uint8_array)
 BOOST_AUTO_TEST_CASE(write_uint16_array)
 {
 	uint8_t buf[]{81, 82, 83, 84, 85, 86, 87, 88};
-	serial::writer::bytebuffer_t b(buf);
+	serial::writer::le_bytebuffer b{buf};
 	constexpr std::array<uint16_t, 4> u{{0x201, 0x403, 0x605, 0x807}};
 	process_buffer(b, u[0], u[1], u[3], u[2]);
 	BOOST_TEST(buf[0] == 1);
@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE(write_uint16_array)
 BOOST_AUTO_TEST_CASE(write_sign_extend)
 {
 	uint8_t buf[2]{};
-	serial::writer::bytebuffer_t b(buf);
+	serial::writer::le_bytebuffer b{buf};
 	constexpr int8_t value = 0x100 - 5;
 	process_buffer(b, serial::sign_extend<int16_t>(value));
 	BOOST_TEST(buf[0] == 0xfb);
@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE(write_sign_extend)
 BOOST_AUTO_TEST_CASE(write_pad)
 {
 	uint8_t buf[2]{};
-	serial::writer::bytebuffer_t b(buf);
+	serial::writer::le_bytebuffer b{buf};
 	process_buffer(b, serial::pad<2, 0x85>());
 	BOOST_TEST(buf[0] == 0x85);
 	BOOST_TEST(buf[1] == 0x85);

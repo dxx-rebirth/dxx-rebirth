@@ -188,33 +188,27 @@ static inline void process_udt(Accessor &&accessor, UDT &udt)
 template <typename E>
 void check_enum(auto && /* accessor */, E) {}
 
-template <typename T, typename D>
-struct base_bytebuffer_t : endian_access
+template <typename buffer_value_type>
+struct bytebuffer : endian_access
 {
-public:
 	using iterator_category = std::random_access_iterator_tag;
-	using value_type = T;
+	using value_type = buffer_value_type;
 	using difference_type = std::ptrdiff_t;
-	using pointer = T *;
-	using reference = T &;
-	// Default bytebuffer_t usage to little endian
-	static constexpr endian_access::little_endian_type endian{};
-	base_bytebuffer_t(pointer u) : p(u) {}
+	using pointer = value_type *;
+	using reference = value_type &;
+	constexpr bytebuffer(const pointer u) : p{u} {}
 	operator pointer() const { return p; }
-	D &operator++()
+	void operator++()
 	{
 		++p;
-		return *static_cast<D *>(this);
 	}
-	D &operator--()
+	void operator--()
 	{
 		--p;
-		return *static_cast<D *>(this);
 	}
-	D &operator+=(const difference_type d)
+	void operator+=(const difference_type d)
 	{
 		p += d;
-		return *static_cast<D *>(this);
 	}
 	operator const void *() const = delete;
 protected:
@@ -531,13 +525,17 @@ static_assert(check_bswap<uint64_t, 0x201000000000000ull, 0x102>);
 
 namespace reader {
 
-class bytebuffer_t : public detail::base_bytebuffer_t<const uint8_t, bytebuffer_t>
+template <std::endian endian_value>
+struct bytebuffer : detail::bytebuffer<const uint8_t>
 {
-public:
-	using base_bytebuffer_t::base_bytebuffer_t;
-	explicit bytebuffer_t(const bytebuffer_t &) = default;
-	bytebuffer_t(bytebuffer_t &&) = default;
+	using detail::bytebuffer<const uint8_t>::bytebuffer;
+	explicit bytebuffer(const bytebuffer &) = default;
+	bytebuffer(bytebuffer &&) = default;
+	static constexpr std::integral_constant<std::endian, endian_value> endian{};
 };
+using be_bytebuffer = bytebuffer<std::endian::big>;
+using le_bytebuffer = bytebuffer<std::endian::little>;
+using ne_bytebuffer = bytebuffer<std::endian::native>;
 
 template <typename A1, std::size_t BYTES>
 static inline void unaligned_copy(const uint8_t *src, unaligned_storage<A1, BYTES> &dst)
@@ -584,13 +582,17 @@ static inline void process_udt(Accessor &&accessor, const detail::sign_extend_ty
 
 namespace writer {
 
-class bytebuffer_t : public detail::base_bytebuffer_t<uint8_t, bytebuffer_t>
+template <std::endian endian_value>
+struct bytebuffer : detail::bytebuffer<uint8_t>
 {
-public:
-	using base_bytebuffer_t::base_bytebuffer_t;
-	explicit bytebuffer_t(const bytebuffer_t &) = default;
-	bytebuffer_t(bytebuffer_t &&) = default;
+	using detail::bytebuffer<uint8_t>::bytebuffer;
+	explicit bytebuffer(const bytebuffer &) = default;
+	bytebuffer(bytebuffer &&) = default;
+	static constexpr std::integral_constant<std::endian, endian_value> endian{};
 };
+using be_bytebuffer = bytebuffer<std::endian::big>;
+using le_bytebuffer = bytebuffer<std::endian::little>;
+using ne_bytebuffer = bytebuffer<std::endian::native>;
 
 /* If unaligned_copy is manually inlined into the caller, then gcc
  * inlining of copy_n creates a loop instead of a store.

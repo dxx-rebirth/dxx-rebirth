@@ -157,7 +157,7 @@ static inline void multi_send_data(const multi_command<C> &buf, const multiplaye
 
 static inline void multi_serialize_read(const uint8_t *const buf, auto &t)
 {
-	serial::reader::bytebuffer_t b(buf);
+	serial::reader::le_bytebuffer b{buf};
 	serial::process_buffer(b, t);
 }
 
@@ -172,7 +172,7 @@ static inline void multi_serialize_write(const multiplayer_data_priority priorit
 {
 	constexpr size_t maximum_size = serial::message_type<T>::maximum_size;
 	uint8_t buf[maximum_size];
-	serial::writer::bytebuffer_t b(buf);
+	serial::writer::le_bytebuffer b{buf};
 	serial::process_buffer(b, t);
 	multi::dispatch->send_data(buf, priority);
 }
