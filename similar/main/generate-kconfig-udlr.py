@@ -81,7 +81,7 @@ class NodeVisitor(ast.NodeVisitor):
 		try:
 			return self.constants[node.id]
 		except KeyError as e:
-			raise InputException(f'{self.source}:{self.lno}: {self.name!r} expression {self.expr!r} uses undefined name {node.id}' % (self.source, self.lno, self.name, self.expr, node.id))
+			raise InputException(f'{self.source}:{self.lno}: {self.name!r} expression {self.expr!r} uses undefined name {node.id}')
 
 	# Resolve numbers by returning the value as-is.
 	@staticmethod
