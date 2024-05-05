@@ -11,7 +11,7 @@ EAPI=7
 
 # Python is only used to execute SCons.  It is not used by any of the installed
 # components.
-PYTHON_COMPAT=( python3_10 python3_11 )
+PYTHON_COMPAT=( python3_11 python3_12 )
 
 inherit desktop eutils python-any-r1 scons-utils toolchain-funcs xdg
 if [[ "$PV" = 9999 ]]; then
