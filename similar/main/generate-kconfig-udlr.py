@@ -84,9 +84,11 @@ class NodeVisitor(ast.NodeVisitor):
 			raise InputException(f'{self.source}:{self.lno}: {self.name!r} expression {self.expr!r} uses undefined name {node.id}')
 
 	# Resolve numbers by returning the value as-is.
-	@staticmethod
-	def visit_Num(node):
-		return node.n
+	def visit_Constant(self,node):
+		result = node.value
+		if not isinstance(result, int):
+			raise InputException(f'{self.source}:{self.lno}: {self.name!r} expression {self.expr!r} uses unsupported constant {type(result)}')
+		return result
 
 class Main:
 	def __init__(self):
