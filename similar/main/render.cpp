@@ -1283,7 +1283,20 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
 	g3_set_view_matrix(Viewer_eye,
 		(Rear_view && Viewer == ConsoleObject)
 		? vm_matrix_x_matrix(Viewer->orient, vm_angles_2_matrix(vms_angvec{0, 0, INT16_MAX}))
-		: Viewer->orient, Render_zoom);
+		: Viewer->orient, /* Render_zoom = */ {
+		(Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)
+			/* In competitive multiplayer, ignore command line adjustment, for fairness.
+			 * In all other game modes, allow the adjustment.
+			 */
+			? Render_zoom
+			/* Negative values cull the entire scene, which is not useful.
+			 * Very small values are hard to play in, and so are likely not
+			 * useful.  However, this test will allow some unusable values
+			 * rather than trying to identify a minimum value that is still
+			 * useful.
+			 */
+			: std::max(40, CGameArg.SysRenderZoomAdjustment + Render_zoom)
+	});
 
 	if (Clear_window == 1) {
 		if (Clear_window_color == -1)

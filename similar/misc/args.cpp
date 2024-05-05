@@ -146,6 +146,7 @@ static void arg_port_number(Arglist::iterator &pp, Arglist::const_iterator end, 
 static void InitGameArg()
 {
 	CGameArg.SysMaxFPS = MAXIMUM_FPS;
+	CGameArg.SysRenderZoomAdjustment = 0;
 #if DXX_USE_UDP
 	CGameArg.MplUdpHostAddr = UDP_MANUAL_ADDR_DEFAULT;
 #if DXX_USE_TRACKER
@@ -208,6 +209,8 @@ static void ReadCmdArgs(Inilist &ini, Arglist &&Args)
 			CGameArg.SysNoNiceFPS = true;
 		else if (!d_stricmp(p, "-maxfps"))
 			CGameArg.SysMaxFPS = arg_integer(pp, end);
+		else if (!d_stricmp(p, "-render-zoom"))
+			CGameArg.SysRenderZoomAdjustment = arg_integer(pp, end);
 		else if (!d_stricmp(p, "-hogdir"))
 			CGameArg.SysHogDir = arg_string(pp, end);
 #if PHYSFS_VER_MAJOR >= 2

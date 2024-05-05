@@ -126,6 +126,7 @@ struct CArg : prohibit_void_ptr<CArg>
 #endif
 	bool SysNoNiceFPS;
 	int SysMaxFPS;
+	int SysRenderZoomAdjustment;
 	uint16_t MplUdpHostPort;
 	uint16_t MplUdpMyPort;
 #if DXX_USE_TRACKER
