@@ -596,7 +596,7 @@ static int main(int argc, char *argv[])
 		}
 	}
 	
-	ReadConfigFile();
+	ReadConfigFile(CGameCfg, GameCfg);
 
 	PHYSFSX_addArchiveContent();
 
@@ -729,7 +729,7 @@ static int main(int argc, char *argv[])
 				InterfaceUniqueState.PilotName.copy(std::span<const char>(b, std::distance(b, &filename[j - 4])));
 				InterfaceUniqueState.update_window_title();
 				read_player_file();
-				WriteConfigFile();
+				WriteConfigFile(CGameCfg, GameCfg);
 			}
 		}
 	}
@@ -762,7 +762,7 @@ static int main(int argc, char *argv[])
 			window_close(wind);
 	}
 
-	WriteConfigFile();
+	WriteConfigFile(CGameCfg, GameCfg);
 
 	con_puts(CON_DEBUG, "Cleanup...");
 	close_game();

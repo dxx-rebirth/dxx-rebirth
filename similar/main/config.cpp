@@ -40,6 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "u_mem.h"
 #include "physfsx.h"
+#include "strutil.h"
 #include "nvparse.h"
 #if DXX_USE_OGL
 #include "ogl_init.h"
@@ -47,7 +48,19 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <memory>
 
 namespace dcx {
+
+#define DXX_DESCENT_CFG_NAME	"descent.cfg"
+
 CCfg CGameCfg;
+
+namespace {
+
+/* This is declared for use in `decltype`, and never defined. */
+template <std::size_t N>
+	std::integral_constant<std::size_t, N> field_value_length(const std::array<char, N> &);
+
+}
+
 }
 
 namespace dsx {
@@ -85,13 +98,149 @@ Cfg GameCfg;
 #define ADLMIDINumChipsStr	"ADLMIDI_NumberOfChips"
 #define ADLMIDIBankStr	"ADLMIDI_Bank"
 #define ADLMIDIEnabledStr	"ADLMIDI_Enabled"
+#define DXX_DESCENT_CFG_ADLMIDI_BLOCK(VERB_d)	\
+	VERB_d(ADLMIDINumChipsStr, CGameCfg.ADLMIDI_num_chips)	\
+	VERB_d(ADLMIDIBankStr, CGameCfg.ADLMIDI_bank)	\
+	VERB_d(ADLMIDIEnabledStr, CGameCfg.ADLMIDI_enabled)	\
+
+#else
+#define DXX_DESCENT_CFG_ADLMIDI_BLOCK(VERB_d)	/* ADLMIDI is disabled - expand to nothing */
 #endif
 #define VSyncStr "VSync"
 #define MultisampleStr "Multisample"
 #define FPSIndicatorStr "FPSIndicator"
 #define GrabinputStr "GrabInput"
 
-int ReadConfigFile()
+namespace {
+
+#if defined(DXX_BUILD_DESCENT_I)
+#define D2X_DESCENT_CFG_TEXT(VERB_d)	/* For Descent 1, expand to nothing */
+
+#elif defined(DXX_BUILD_DESCENT_II)
+#define D2X_DESCENT_CFG_TEXT(VERB_d)	/* For Descent 2, expand to values specific to D2. */	\
+	VERB_d(MovieTexFiltStr, GameCfg.MovieTexFilt)	\
+	VERB_d(MovieSubtitlesStr, GameCfg.MovieSubtitles)	\
+
+#endif
+
+#define DXX_DESCENT_CFG_TEXT(VERB_d,VERB_s)	\
+	VERB_d(DigiVolumeStr, CGameCfg.DigiVolume)	\
+	VERB_d(MusicVolumeStr, CGameCfg.MusicVolume)	\
+	VERB_d(ReverseStereoStr, CGameCfg.ReverseStereo)	\
+	VERB_d(OrigTrackOrderStr, CGameCfg.OrigTrackOrder)	\
+	VERB_d(MusicTypeStr, underlying_value(CGameCfg.MusicType))	\
+	VERB_d(CMLevelMusicPlayOrderStr, static_cast<int>(CGameCfg.CMLevelMusicPlayOrder))	\
+	VERB_d(CMLevelMusicTrack0Str, CGameCfg.CMLevelMusicTrack[0])	\
+	VERB_d(CMLevelMusicTrack1Str, CGameCfg.CMLevelMusicTrack[1])	\
+	VERB_s(CMLevelMusicPathStr, CGameCfg.CMLevelMusicPath)	\
+	VERB_s(CMMiscMusic0Str, CGameCfg.CMMiscMusic[SONG_TITLE])	\
+	VERB_s(CMMiscMusic1Str, CGameCfg.CMMiscMusic[SONG_BRIEFING])	\
+	VERB_s(CMMiscMusic2Str, CGameCfg.CMMiscMusic[SONG_ENDLEVEL])	\
+	VERB_s(CMMiscMusic3Str, CGameCfg.CMMiscMusic[SONG_ENDGAME])	\
+	VERB_s(CMMiscMusic4Str, CGameCfg.CMMiscMusic[SONG_CREDITS])	\
+	VERB_d(GammaLevelStr, CGameCfg.GammaLevel)	\
+	VERB_s(LastPlayerStr, InterfaceUniqueState.PilotName.a)	\
+	VERB_s(LastMissionStr, CGameCfg.LastMission)	\
+	VERB_d(ResolutionXStr, SM_W(Game_screen_mode))	\
+	VERB_d(ResolutionYStr, SM_H(Game_screen_mode))	\
+	VERB_d(AspectXStr, CGameCfg.AspectX)	\
+	VERB_d(AspectYStr, CGameCfg.AspectY)	\
+	VERB_d(WindowModeStr, CGameCfg.WindowMode)	\
+	VERB_d(TexFiltStr, underlying_value(CGameCfg.TexFilt))	\
+	VERB_d(TexAnisStr, CGameCfg.TexAnisotropy)	\
+	D2X_DESCENT_CFG_TEXT(VERB_d)	\
+	DXX_DESCENT_CFG_ADLMIDI_BLOCK(VERB_d)	\
+	VERB_d(VSyncStr, CGameCfg.VSync)	\
+	VERB_d(MultisampleStr, CGameCfg.Multisample)	\
+	VERB_d(FPSIndicatorStr, CGameCfg.FPSIndicator)	\
+	VERB_d(GrabinputStr, CGameCfg.Grabinput)	\
+
+struct descent_cfg_file_prepared_text
+{
+#define DXX_DESCENT_CFG_FIELD_NAME_LENGTH(NAME)	+ sizeof(NAME) /* includes the trailing null, so there is no need to add 1 for the equal sign */ + 1 /* trailing newline */
+#define DXX_DESCENT_CFG_FIELD_LENGTH_d(NAME, VALUE)	DXX_DESCENT_CFG_FIELD_NAME_LENGTH(NAME) + 1 /* for negative sign, if needed */ + number_to_text_length<std::numeric_limits<typename std::remove_reference_t<decltype(VALUE)>>::max()> + 1 /* for newline */
+#define DXX_DESCENT_CFG_FIELD_LENGTH_s(NAME, VALUE)	DXX_DESCENT_CFG_FIELD_NAME_LENGTH(NAME) + decltype(field_value_length(VALUE))::value
+	/* Declare a function to bring the macro's variable names into scope so
+	 * that `DXX_DESCENT_CFG_TEXT` can refer to them.  It is never defined.
+	 */
+	static auto configuration_text_file_length(const CCfg &CGameCfg, const Cfg &GameCfg) -> std::integral_constant<std::size_t, DXX_DESCENT_CFG_TEXT(DXX_DESCENT_CFG_FIELD_LENGTH_d, DXX_DESCENT_CFG_FIELD_LENGTH_s)>;
+	using buffer_type = std::array<char, decltype(configuration_text_file_length(std::declval<CCfg>(), std::declval<Cfg>()))::value>;
+#undef DXX_DESCENT_CFG_FIELD_LENGTH_s
+#undef DXX_DESCENT_CFG_FIELD_LENGTH_d
+#undef DXX_DESCENT_CFG_FIELD_NAME_LENGTH
+	std::size_t written;
+	buffer_type buf;
+};
+
+static bool cfg_file_unchanged(const descent_cfg_file_prepared_text &current_cfg_text)
+{
+	const auto &&[f, physfserr]{PHYSFSX_openReadBuffered(DXX_DESCENT_CFG_NAME)};
+	if (!f)
+	{
+		/* If the file cannot be read, assume that a new file must be written. */
+		con_printf(physfserr == PHYSFS_ERR_NOT_FOUND ? CON_VERBOSE : CON_NORMAL, "Failed to read \"" DXX_DESCENT_CFG_NAME "\": %s", PHYSFS_getErrorByCode(physfserr));
+		return false;
+	}
+	const auto existing_file_size{PHYSFS_fileLength(f)};
+	if (existing_file_size != current_cfg_text.written)
+	{
+		/* The file is of a different length, so its contents must be
+		 * different.  A new file must be written.
+		 */
+		con_printf(CON_VERBOSE, "Replacing configuration file \"" DXX_DESCENT_CFG_NAME "\" due to size mismatch: current=%" DXX_PRI_size_type "; new=%" DXX_PRI_size_type, static_cast<std::size_t>(existing_file_size), current_cfg_text.written);
+		return false;
+	}
+	descent_cfg_file_prepared_text::buffer_type previous_cfg_text;
+	if (const auto rb{PHYSFS_readBytes(f, previous_cfg_text.data(), previous_cfg_text.size())}; rb != existing_file_size)
+	{
+		/* Log this at a higher level because it is strange for the file to
+		 * change size between when `PHYSFS_fileLength` examines it and when
+		 * `PHYSFS_readBytes` reads it.
+		 */
+		con_printf(CON_NORMAL, "Replacing configuration file \"" DXX_DESCENT_CFG_NAME "\" due to read count mismatch: expected=%" DXX_PRI_size_type "; read=%" DXX_PRI_size_type, static_cast<std::size_t>(existing_file_size), static_cast<std::size_t>(rb));
+		return false;
+	}
+	const auto pcbegin{previous_cfg_text.begin()};
+	const auto pcend{std::next(pcbegin, existing_file_size)};
+	const auto ccbegin{current_cfg_text.buf.begin()};
+	const auto ccend{std::next(ccbegin, existing_file_size)};
+	/* The two ranges are of equal length, so `in1 == pcend` if and only if `in2 == ccend`. */
+	if (const auto mm{std::ranges::mismatch(pcbegin, pcend, ccbegin, ccend)}; mm.in1 != pcend)
+	{
+		con_printf(CON_VERBOSE, "Replacing configuration file \"" DXX_DESCENT_CFG_NAME "\" due to content mismatch at offset %" DXX_PRI_size_type, mm.in1 - pcbegin);
+		return false;
+	}
+	con_puts(CON_VERBOSE, "Retaining configuration file \"" DXX_DESCENT_CFG_NAME "\"");
+	return true;
+}
+
+static auto build_cfg_file_text(const CCfg &CGameCfg, const Cfg &GameCfg)
+{
+#if defined(DXX_BUILD_DESCENT_I)
+	(void)GameCfg;	/* Only Descent 2 uses this variable. */
+#endif
+	descent_cfg_file_prepared_text result;
+	const auto written{std::snprintf(result.buf.data(), result.buf.size(),
+#define DXX_DESCENT_CFG_FIELD_FORMAT_d(unused_name, unused_value)	"%s=%d\n"
+#define DXX_DESCENT_CFG_FIELD_FORMAT_s(unused_name, unused_value)	"%s=%s\n"
+		DXX_DESCENT_CFG_TEXT(DXX_DESCENT_CFG_FIELD_FORMAT_d, DXX_DESCENT_CFG_FIELD_FORMAT_s)
+#undef DXX_DESCENT_CFG_FIELD_FORMAT_s
+#undef DXX_DESCENT_CFG_FIELD_FORMAT_d
+#define DXX_DESCENT_CFG_FIELD_VALUE_d(NAME, VALUE)	, NAME, VALUE
+#define DXX_DESCENT_CFG_FIELD_VALUE_s(NAME, VALUE)	, NAME, (VALUE).data()
+		DXX_DESCENT_CFG_TEXT(DXX_DESCENT_CFG_FIELD_VALUE_d, DXX_DESCENT_CFG_FIELD_VALUE_s)
+#undef DXX_DESCENT_CFG_FIELD_VALUE_s
+#undef DXX_DESCENT_CFG_FIELD_VALUE_d
+	)};
+	if (static_cast<std::size_t>(written) >= result.buf.size())
+		result.buf[0] = 0;
+	result.written = written;
+	return result;
+}
+
+}
+
+void ReadConfigFile(CCfg &CGameCfg, Cfg &GameCfg)
 {
 	// set defaults
 	CGameCfg.DigiVolume = 8;
@@ -146,11 +295,14 @@ int ReadConfigFile()
 	CGameCfg.FPSIndicator = 0;
 	CGameCfg.Grabinput = true;
 
-
-	auto infile = PHYSFSX_openReadBuffered("descent.cfg").first;
+	auto &&[infile, physfserr]{PHYSFSX_openReadBuffered(DXX_DESCENT_CFG_NAME)};
 	if (!infile)
 	{
-		return 1;
+		/* "File not found" is less important, and happens naturally on a first
+		 * install.  Log it at a lower verbosity level.
+		 */
+		con_printf(physfserr == PHYSFS_ERR_NOT_FOUND ? CON_VERBOSE : CON_NORMAL, "Failed to read \"" DXX_DESCENT_CFG_NAME "\": %s", PHYSFS_getErrorByCode(physfserr));
+		return;
 	}
 
 	// to be fully safe, assume the whole cfg consists of one big line
@@ -289,54 +441,20 @@ int ReadConfigFile()
 		Game_screen_mode.width = CGameCfg.ResolutionX;
 		Game_screen_mode.height = CGameCfg.ResolutionY;
 	}
-
-	return 0;
 }
 
-int WriteConfigFile()
+int WriteConfigFile(const CCfg &CGameCfg, const Cfg &GameCfg)
 {
-	auto infile = PHYSFSX_openWriteBuffered("descent.cfg").first;
-	if (!infile)
+	const auto current_cfg_text{build_cfg_file_text(CGameCfg, GameCfg)};
+	if (cfg_file_unchanged(current_cfg_text))
+		return 0;
+	auto &&[outfile, physfserr]{PHYSFSX_openWriteBuffered(DXX_DESCENT_CFG_NAME)};
+	if (!outfile)
 	{
+		con_printf(CON_NORMAL, "Failed to write \"" DXX_DESCENT_CFG_NAME "\": %s", PHYSFS_getErrorByCode(physfserr));
 		return 1;
 	}
-	PHYSFSX_printf(infile, "%s=%d\n", DigiVolumeStr, CGameCfg.DigiVolume);
-	PHYSFSX_printf(infile, "%s=%d\n", MusicVolumeStr, CGameCfg.MusicVolume);
-	PHYSFSX_printf(infile, "%s=%d\n", ReverseStereoStr, CGameCfg.ReverseStereo);
-	PHYSFSX_printf(infile, "%s=%d\n", OrigTrackOrderStr, CGameCfg.OrigTrackOrder);
-	PHYSFSX_printf(infile, "%s=%d\n", MusicTypeStr, underlying_value(CGameCfg.MusicType));
-	PHYSFSX_printf(infile, "%s=%d\n", CMLevelMusicPlayOrderStr, static_cast<int>(CGameCfg.CMLevelMusicPlayOrder));
-	PHYSFSX_printf(infile, "%s=%d\n", CMLevelMusicTrack0Str, CGameCfg.CMLevelMusicTrack[0]);
-	PHYSFSX_printf(infile, "%s=%d\n", CMLevelMusicTrack1Str, CGameCfg.CMLevelMusicTrack[1]);
-	PHYSFSX_printf(infile, "%s=%s\n", CMLevelMusicPathStr, CGameCfg.CMLevelMusicPath.data());
-	PHYSFSX_printf(infile, "%s=%s\n", CMMiscMusic0Str, CGameCfg.CMMiscMusic[SONG_TITLE].data());
-	PHYSFSX_printf(infile, "%s=%s\n", CMMiscMusic1Str, CGameCfg.CMMiscMusic[SONG_BRIEFING].data());
-	PHYSFSX_printf(infile, "%s=%s\n", CMMiscMusic2Str, CGameCfg.CMMiscMusic[SONG_ENDLEVEL].data());
-	PHYSFSX_printf(infile, "%s=%s\n", CMMiscMusic3Str, CGameCfg.CMMiscMusic[SONG_ENDGAME].data());
-	PHYSFSX_printf(infile, "%s=%s\n", CMMiscMusic4Str, CGameCfg.CMMiscMusic[SONG_CREDITS].data());
-	PHYSFSX_printf(infile, "%s=%d\n", GammaLevelStr, CGameCfg.GammaLevel);
-	PHYSFSX_printf(infile, "%s=%s\n", LastPlayerStr, static_cast<const char *>(InterfaceUniqueState.PilotName));
-	PHYSFSX_printf(infile, "%s=%s\n", LastMissionStr, static_cast<const char *>(CGameCfg.LastMission));
-	PHYSFSX_printf(infile, "%s=%i\n", ResolutionXStr, SM_W(Game_screen_mode));
-	PHYSFSX_printf(infile, "%s=%i\n", ResolutionYStr, SM_H(Game_screen_mode));
-	PHYSFSX_printf(infile, "%s=%i\n", AspectXStr, CGameCfg.AspectX);
-	PHYSFSX_printf(infile, "%s=%i\n", AspectYStr, CGameCfg.AspectY);
-	PHYSFSX_printf(infile, "%s=%i\n", WindowModeStr, CGameCfg.WindowMode);
-	PHYSFSX_printf(infile, "%s=%i\n", TexFiltStr, underlying_value(CGameCfg.TexFilt));
-	PHYSFSX_printf(infile, "%s=%i\n", TexAnisStr, CGameCfg.TexAnisotropy);
-#if defined(DXX_BUILD_DESCENT_II)
-	PHYSFSX_printf(infile, "%s=%i\n", MovieTexFiltStr, GameCfg.MovieTexFilt);
-	PHYSFSX_printf(infile, "%s=%i\n", MovieSubtitlesStr, GameCfg.MovieSubtitles);
-#endif
-#if DXX_USE_ADLMIDI
-	PHYSFSX_printf(infile, "%s=%i\n", ADLMIDINumChipsStr, CGameCfg.ADLMIDI_num_chips);
-	PHYSFSX_printf(infile, "%s=%i\n", ADLMIDIBankStr, CGameCfg.ADLMIDI_bank);
-	PHYSFSX_printf(infile, "%s=%i\n", ADLMIDIEnabledStr, CGameCfg.ADLMIDI_enabled);
-#endif
-	PHYSFSX_printf(infile, "%s=%i\n", VSyncStr, CGameCfg.VSync);
-	PHYSFSX_printf(infile, "%s=%i\n", MultisampleStr, CGameCfg.Multisample);
-	PHYSFSX_printf(infile, "%s=%i\n", FPSIndicatorStr, CGameCfg.FPSIndicator);
-	PHYSFSX_printf(infile, "%s=%i\n", GrabinputStr, CGameCfg.Grabinput);
+	PHYSFSX_writeBytes(outfile, current_cfg_text.buf.data(), current_cfg_text.written);
 	return 0;
 }
 

@@ -1439,7 +1439,7 @@ void write_player_file()
 	if ( Newdemo_state == ND_STATE_PLAYBACK )
 		return;
 
-	errno_ret = WriteConfigFile();
+	errno_ret = WriteConfigFile(CGameCfg, GameCfg);
 
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plx"), static_cast<const char *>(InterfaceUniqueState.PilotName));
 	write_player_dxx(filename);

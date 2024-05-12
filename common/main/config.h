@@ -106,8 +106,8 @@ extern struct Cfg GameCfg;
 //#define EXT_MUSIC_ON (GameCfg.SndEnableRedbook)		// JukeboxOn shouldn't do anything if it's not supported
 //#endif
 
-extern int ReadConfigFile(void);
-extern int WriteConfigFile(void);
+void ReadConfigFile(CCfg &, Cfg &);
+int WriteConfigFile(const CCfg &, const Cfg &);
 }
 #endif
 

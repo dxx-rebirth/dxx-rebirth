@@ -540,7 +540,7 @@ window_event_result pilot_selection_listbox::callback_handler(const d_event &eve
 			if (read_player_file() != EZERO)
 				return window_event_result::handled;		// abort close!
 
-			WriteConfigFile();		// Update lastplr
+			WriteConfigFile(CGameCfg, GameCfg);		// Update lastplr
 			break;
 
 		default:
