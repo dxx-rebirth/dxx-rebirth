@@ -527,17 +527,13 @@ static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegpt
 		}
 
 		//	Determine whether to detriangulate side: (speed hack, assumes Tulate_min_ratio == F1_0*2, should fixmul(min_dot, Tulate_min_ratio))
-		if (DETRIANGULATION && ((min_dot+F1_0/256 > max_dot) || ((Viewer->segnum != segp) &&  (min_dot > Tulate_min_dot) && (max_dot < min_dot*2)))) {
-			fix	n0_dot_n1;
-
+		if (DETRIANGULATION && (min_dot + F1_0 / 256 > max_dot || (Viewer->segnum != segp && min_dot > Tulate_min_dot && max_dot < min_dot * 2)) &&
 			//	The other detriangulation code doesn't deal well with badly non-planar sides.
-			n0_dot_n1 = vm_vec_dot(normals[0], normals[1]);
-			if (n0_dot_n1 < Min_n0_n1_dot)
-				goto im_so_ashamed;
-
+			vm_vec_dot(normals[0], normals[1]) >= Min_n0_n1_dot
+			)
+		{
 			check_render_face(canvas, is_quad, segp, sidenum, 0, vertnum_list, uside.tmap_num, uside.tmap_num2, uside.uvls, wid_flags);
 		} else {
-im_so_ashamed: ;
 			if (sside.get_type() == side_type::tri_02)
 			{
 				if (v_dot_n0 >= 0) {
