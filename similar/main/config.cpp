@@ -295,8 +295,6 @@ int ReadConfigFile()
 
 int WriteConfigFile()
 {
-	CGameCfg.GammaLevel = gr_palette_get_gamma();
-
 	auto infile = PHYSFSX_openWriteBuffered("descent.cfg").first;
 	if (!infile)
 	{

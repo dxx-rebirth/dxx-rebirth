@@ -2085,7 +2085,11 @@ window_event_result graphics_config_menu::event_handler(const d_event &event)
 		{
 			auto &citem = static_cast<const d_change_event &>(event).citem;
 			if (citem == opt_gr_brightness)
-				gr_palette_set_gamma(m[citem].value);
+			{
+				const auto GammaLevel{m[citem].value};
+				CGameCfg.GammaLevel = GammaLevel;
+				gr_palette_set_gamma(GammaLevel);
+			}
 #if DXX_USE_OGL
 			else if (citem == opt_filter_anisotropy && ogl_maxanisotropy <= 1.0 && m[opt_filter_anisotropy].value)
 			{
