@@ -9,6 +9,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cassert>
 #include <cctype>
 #include <cstddef>
 #include <ranges>
@@ -20,11 +21,10 @@
 
 struct callsign_t
 {
-	static const std::size_t array_length = CALLSIGN_LEN + 1;
+	static constexpr std::size_t array_length{CALLSIGN_LEN + 1};
 	operator const void *() const = delete;
-	using array_t = std::array<char, array_length>;
-	typedef char elements_t[array_length];
-	array_t a;
+	std::array<char, array_length> a;
+	[[nodiscard]]
 	static char lower_predicate(char c)
 	{
 		return std::tolower(static_cast<unsigned>(c));
@@ -40,7 +40,7 @@ struct callsign_t
 		 * long.
 		 */
 		a = {};
-		std::copy_n(s.data(), std::min(a.size() - 1, s.size()), begin(a));
+		std::ranges::copy_n(s.begin(), std::min(array_length - 1, s.size()), a.begin());
 	}
 	template <std::size_t Extent>
 		requires(Extent == std::dynamic_extent || Extent <= array_length)
@@ -48,7 +48,7 @@ struct callsign_t
 	{
 		a = {};
 		const auto input_begin{std::ranges::begin(sc)};
-		std::ranges::transform(input_begin, std::next(input_begin, std::min(a.size() - 1, sc.size())), std::ranges::begin(a), lower_predicate);
+		std::ranges::transform(input_begin, std::next(input_begin, std::min(array_length - 1, sc.size())), a.begin(), lower_predicate);
 	}
 	template <std::size_t Extent>
 	void copy_lower(const std::span<char, Extent> sc)
@@ -57,25 +57,34 @@ struct callsign_t
 	}
 	void lower()
 	{
-		auto ba = begin(a);
-		a.back() = 0;
-		std::transform(ba, std::prev(end(a)), ba, lower_predicate);
+		const auto ba{a.begin()};
+		/* The buffer should be null-terminated before calling `lower()`. */
+		assert(!a.back());
+		std::ranges::transform(ba, std::prev(a.end()), ba, lower_predicate);
 	}
 	[[nodiscard]]
-	elements_t &buffer()
+		auto &buffer()
 	{
-		return *reinterpret_cast<elements_t *>(a.data());
+		return *reinterpret_cast<char(*)[array_length]>(a.data());
 	}
 	template <std::size_t N>
 		void operator=(const char (&s)[N])
 		{
 			copy(std::span(s));
 		}
-	void fill(char c) { a.fill(c); }
-	const char &operator[](std::size_t i) const
+	void fill(const char c)
+	{
+		a.fill(c);
+	}
+	/* Only expose the `const` version of `operator[]`.  Callers should not use
+	 * `operator[]` to modify the underlying array.
+	 */
+	[[nodiscard]]
+	constexpr const char &operator[](const std::size_t i) const
 	{
 		return a[i];
 	}
+	[[nodiscard]]
 	operator const char *() const
 	{
 		return a.data();
