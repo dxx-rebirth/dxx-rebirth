@@ -111,10 +111,6 @@ public:
 	using little_endian_type = std::integral_constant<std::endian, std::endian::little>;
 	using big_endian_type = std::integral_constant<std::endian, std::endian::big>;
 	using native_endian_type = std::integral_constant<std::endian, std::endian::native>;
-	/* If this static_assert fails, then endian_skip_byteswap may return the
-	 * wrong result.
-	 */
-	static_assert(std::endian::little == std::endian::native || std::endian::big == std::endian::native, "host byte order must be little endian or big endian");
 };
 
 	/* Implementation details - avoid namespace pollution */
@@ -376,6 +372,10 @@ using class_type = message_type<decltype(udt_to_message(std::declval<T>()))>;
 
 static constexpr uint8_t endian_skip_byteswap(std::endian E)
 {
+	/* If this static_assert fails, then the comparison may return the wrong
+	 * result.
+	 */
+	static_assert(std::endian::little == std::endian::native || std::endian::big == std::endian::native, "host byte order must be little endian or big endian");
 	return E == std::endian::native;
 }
 
