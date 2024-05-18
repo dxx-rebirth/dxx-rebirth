@@ -16,18 +16,16 @@
 namespace dcx {
 
 #if !DXX_USE_OGL
-temporary_points_t::temporary_points_t()
-{
-	auto p = &temp_points.front();
-	range_for (auto &f, free_points)
-		f = p++;
-}
+temporary_points_t::temporary_points_t() = default;
 
 namespace {
 
 static g3s_point &get_temp_point(temporary_points_t &t)
 {
-	auto &p = *t.free_points.at(t.free_point_num++);
+	auto &p{t.free_points_used
+		? *t.free_points.at(--t.free_points_used)
+		: t.temp_points.at(t.temporary_points_used++)
+	};
 	p.p3_flags = projection_flag::temp_point;
 	return p;
 }
@@ -39,7 +37,7 @@ void temporary_points_t::free_temp_point(g3s_point &p)
 	if (!(p.p3_flags & projection_flag::temp_point))
 		throw std::invalid_argument("freeing non-temporary point");
 	p.p3_flags &= ~projection_flag::temp_point;
-	free_points.at(--free_point_num) = &p;
+	free_points.at(free_points_used++) = &p;
 }
 
 namespace {
