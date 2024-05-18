@@ -5,19 +5,12 @@
  * terms and a link to the Git history.
  */
 /*
- * 
- * Header for clipper.c
- * 
+ * Header for clipper.cpp
  */
 
 #pragma once
-
-#ifdef __cplusplus
 #include "dxxsconf.h"
 #include <cstdint>
-
-struct g3s_codes;
-struct g3s_point;
 
 #if !DXX_USE_OGL
 #include "dsx-ns.h"
@@ -41,6 +34,5 @@ const polygon_clip_points &clip_polygon(polygon_clip_points &src, polygon_clip_p
 void clip_line(g3s_point *&p0, g3s_point *&p1, clipping_code codes_or, temporary_points_t &);
 
 }
-#endif
 
 #endif
