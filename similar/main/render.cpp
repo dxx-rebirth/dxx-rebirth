@@ -420,7 +420,7 @@ static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const sidenu
 #else
 			const auto save_lighting = Lighting_on;
 			Lighting_on = 2;
-			g3_draw_tmap(canvas, nv, pointlist, uvl_copy, dyn_light, *bm, tmap_drawer_ptr);
+			g3_draw_tmap(canvas, nv, pointlist, uvl_copy, dyn_light, *bm, draw_tmap);
 			Lighting_on = save_lighting;
 #endif
 		}
