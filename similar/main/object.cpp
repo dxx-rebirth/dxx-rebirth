@@ -561,7 +561,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 #if !DXX_USE_OGL // in software rendering must draw inner model last
 				gr_settransblend(canvas, GR_FADE_OFF, gr_blend::additive_a);
 				if (draw_simple_model)
-					draw_polygon_model(Polygon_models, canvas, tmap_drawer_ptr, obj->pos,
+					draw_polygon_model(Polygon_models, canvas, draw_tmap, obj->pos,
 							   obj->orient,
 							   obj->rtype.pobj_info.anim_angles,
 							   Weapon_info[obj->id].model_num_inner,
