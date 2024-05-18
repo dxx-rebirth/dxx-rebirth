@@ -112,6 +112,19 @@ struct movie_pause_window : window
 	virtual window_event_result event_handler(const d_event &) override;
 };
 
+static constexpr bool valid_palette_color_range(const unsigned start, const unsigned count)
+{
+	if (start == 0)
+		return false;
+	if (start > 254)
+		return false;
+	if (count > 254)
+		return false;
+	if (start + count > 255)
+		return false;
+	return true;
+}
+
 }
 
 unsigned MovieFileRead(SDL_RWops *const handle, const std::span<uint8_t> buf)
@@ -211,15 +224,30 @@ void MovieSetPalette(const unsigned char *p, unsigned start, unsigned count)
 {
 	if (count == 0)
 		return;
-
-	//Color 0 should be black, and we get color 255
-	Assert(start>=1 && start+count-1<=254);
+	static_assert(valid_palette_color_range(1, 254));
+	static_assert(!valid_palette_color_range(1, 255));
+	static_assert(!valid_palette_color_range(1, 256));
+	static_assert(!valid_palette_color_range(0, 254));
+	static_assert(!valid_palette_color_range(2, 254));
+	if (!valid_palette_color_range(start, count))
+	{
+		/* Color 0 is reserved by the movie subsystem to be black.
+		 * Color 255 is reserved to be the subtitle color.
+		 * Colors above 255 are not supported.
+		 */
+		con_printf(CON_URGENT, "Rebirth: error: movie palette tried to write color range [%u, %u]", start, count);
+		return;
+	}
 
 	//Set color 0 to be black
-	gr_palette[0].r = gr_palette[0].g = gr_palette[0].b = 0;
+	gr_palette[0] = {};
 
 	//Set color 255 to be our subtitle color
-	gr_palette[255].r = gr_palette[255].g = gr_palette[255].b = 50;
+	gr_palette[255] = rgb_t{
+		.r = 50,
+		.g = 50,
+		.b = 50,
+	};
 
 	//movie libs palette into our array
 	memcpy(&gr_palette[start],p+start*3,count*3);
