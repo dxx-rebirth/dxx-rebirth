@@ -260,6 +260,13 @@ constexpr std::integral_constant<std::size_t, 64> MAX_POINTS_PER_POLY{};
 //radius, but not to the distance from the eye
 void g3_draw_sphere(grs_canvas &, cg3s_point &pnt, fix rad, uint8_t color);
 
+#if !DXX_USE_OGL
+static inline void g3_draw_sphere(grs_canvas &canvas, g3s_point &&pnt, fix rad, uint8_t color)
+{
+	g3_draw_sphere(canvas, pnt, rad, color);
+}
+#endif
+
 //@@//return ligting value for a point
 //@@fix g3_compute_lighting_value(g3s_point *rotated_point,fix normval);
 
