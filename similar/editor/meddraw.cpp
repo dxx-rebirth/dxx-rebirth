@@ -94,14 +94,13 @@ static void draw_seg_objects(grs_canvas &canvas, const unique_segment &seg)
 	auto &vcobjptridx = Objects.vcptridx;
 	range_for (const auto obj, objects_in(seg, vcobjptridx, vcsegptr))
 	{
-		auto sphere_point = g3_rotate_point(obj->pos);
 		const uint8_t color = (obj->type == OBJ_PLAYER && static_cast<icobjptridx_t::index_type>(obj) > 0)
 			? BM_XRGB(0,  25, 0)
 			: (obj == ConsoleObject
 				? PLAYER_COLOR
 				: ROBOT_COLOR
 			);
-		g3_draw_sphere(canvas, sphere_point, obj->size, color);
+		g3_draw_sphere(canvas, /* sphere_point = */ g3_rotate_point(obj->pos), obj->size, color);
 	}
 }
 
