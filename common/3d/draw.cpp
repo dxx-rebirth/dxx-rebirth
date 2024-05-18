@@ -31,10 +31,10 @@ namespace {
 
 const std::array<GLfloat, 8> build_color_array_from_color_palette_index(const color_palette_index color)
 {
-	auto &&rgb = PAL2T(color);
-	const GLfloat color_r = rgb.r / 63.0;
-	const GLfloat color_g = rgb.g / 63.0;
-	const GLfloat color_b = rgb.b / 63.0;
+	auto &&rgb{PAL2T(color)};
+	const GLfloat color_r{rgb.r / 63.0f};
+	const GLfloat color_g{rgb.g / 63.0f};
+	const GLfloat color_b{rgb.b / 63.0f};
 	return {{
 		color_r, color_g, color_b, 1.0,
 		color_r, color_g, color_b, 1.0,
@@ -118,7 +118,7 @@ static void must_clip_tmap_face(grs_canvas &, std::size_t nv, g3s_codes cc, grs_
 static void must_clip_flat_face(grs_canvas &canvas, std::size_t nv, g3s_codes cc, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1, const uint8_t color)
 {
 	temporary_points_t tp;
-	auto &bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc,tp);
+	auto &bufptr{clip_polygon(Vbuf0, Vbuf1, &nv, &cc, tp)};
 
 	if (nv > 0 && (cc.uor & clipping_code::behind) == clipping_code::None && cc.uand == clipping_code::None)
 	{
@@ -152,7 +152,7 @@ void _g3_draw_poly(grs_canvas &canvas, const std::span<cg3s_point *const> pointl
 	g3s_codes cc;
 
 	polygon_clip_points Vbuf0, Vbuf1;
-	auto &bufptr = Vbuf0;
+	auto &bufptr{Vbuf0};
 
 	for (const auto &&[pl, bp] : zip(pointlist, bufptr))
 	{
@@ -245,11 +245,11 @@ namespace {
 static void must_clip_tmap_face(grs_canvas &canvas, std::size_t nv, g3s_codes cc, grs_bitmap &bm, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1, const tmap_drawer_type tmap_drawer_ptr)
 {
 	temporary_points_t tp;
-	auto &bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc,tp);
+	auto &bufptr{clip_polygon(Vbuf0, Vbuf1, &nv, &cc, tp)};
 	if (nv && (cc.uor & clipping_code::behind) == clipping_code::None && cc.uand == clipping_code::None)
 	{
 		for (int i=0;i<nv;i++) {
-			g3s_point *p = bufptr[i];
+			auto *const p{bufptr[i]};
 
 			if (!(p->p3_flags&projection_flag::projected))
 				g3_project_point(*p);
@@ -280,12 +280,12 @@ void g3_draw_sphere(grs_canvas &canvas, cg3s_point &pnt, const fix rad, const ui
 			g3_project_point(pnt);
 
 		if (! (pnt.p3_flags & projection_flag::overflow)) {
-			const auto r2 = fixmul(rad, Matrix_scale.x);
+			const auto r2{fixmul(rad, Matrix_scale.x)};
 #ifndef __powerc
-			const auto ot = checkmuldiv(r2, Canv_w2, pnt.p3_z);
+			const auto ot{checkmuldiv(r2, Canv_w2, pnt.p3_z)};
 			if (!ot)
 				return;
-			const auto t = *ot;
+			const auto t{*ot};
 #else
 			if (pnt.p3_z == 0)
 				return;
