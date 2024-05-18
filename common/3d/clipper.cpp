@@ -27,9 +27,7 @@ namespace {
 
 static g3s_point &get_temp_point(temporary_points_t &t)
 {
-	if (t.free_point_num >= t.free_points.size())
-		throw std::out_of_range("not enough free points");
-	auto &p = *t.free_points[t.free_point_num++];
+	auto &p = *t.free_points.at(t.free_point_num++);
 	p.p3_flags = projection_flag::temp_point;
 	return p;
 }
@@ -40,10 +38,8 @@ void temporary_points_t::free_temp_point(g3s_point &p)
 {
 	if (!(p.p3_flags & projection_flag::temp_point))
 		throw std::invalid_argument("freeing non-temporary point");
-	if (--free_point_num >= free_points.size())
-		throw std::out_of_range("too many free points");
-	free_points[free_point_num] = &p;
 	p.p3_flags &= ~projection_flag::temp_point;
+	free_points.at(--free_point_num) = &p;
 }
 
 namespace {
