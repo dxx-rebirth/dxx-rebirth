@@ -49,6 +49,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_zip.h"
 #include "partial_range.h"
 
+#if !DXX_USE_OGL
+#include "texmap.h"
+#endif
+
 using std::max;
 
 namespace dcx {

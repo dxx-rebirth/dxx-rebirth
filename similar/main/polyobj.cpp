@@ -48,6 +48,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "render.h"
 #if DXX_USE_OGL
 #include "ogl_init.h"
+#else
+#include "texmap.h"
 #endif
 #include "bm.h"
 
