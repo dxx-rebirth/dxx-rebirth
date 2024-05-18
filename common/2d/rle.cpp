@@ -40,11 +40,26 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_range.h"
 
 namespace dcx {
+
 namespace {
+
+struct rle_cache_element
+{
+	const grs_bitmap *rle_bitmap;
+	grs_bitmap_ptr expanded_bitmap;
+	int last_used;
+};
 
 constexpr uint8_t RLE_CODE{0xe0};
 constexpr uint8_t NOT_RLE_CODE{0x1f};
 static_assert((RLE_CODE | NOT_RLE_CODE) == 0xff, "RLE mask error");
+
+static uint8_t rle_cache_initialized;
+static int rle_counter;
+static int rle_next;
+
+static std::array<rle_cache_element, 32> rle_cache;
+
 static inline int IS_RLE_CODE(const uint8_t &x)
 {
 	return (x & RLE_CODE) == RLE_CODE;
@@ -366,18 +381,6 @@ void gr_bitmap_rle_compress(grs_bitmap &bmp)
 }
 
 namespace {
-
-struct rle_cache_element
-{
-	const grs_bitmap *rle_bitmap;
-	grs_bitmap_ptr expanded_bitmap;
-	int last_used;
-};
-
-static int rle_cache_initialized;
-static int rle_counter;
-static int rle_next;
-static std::array<rle_cache_element, 32> rle_cache;
 
 static void rle_cache_init()
 {
