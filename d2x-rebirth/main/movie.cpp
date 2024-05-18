@@ -79,7 +79,7 @@ struct subtitle {
 
 struct d_loaded_subtitle_state
 {
-	unsigned Num_subtitles = 0;
+	unsigned Num_subtitles{};
 	std::unique_ptr<char[]> subtitle_raw_data;
 	std::array<subtitle, 500> Subtitles
 #ifndef NDEBUG
@@ -116,8 +116,8 @@ struct movie_pause_window : window
 
 unsigned MovieFileRead(SDL_RWops *const handle, const std::span<uint8_t> buf)
 {
-	const auto count = buf.size();
-	const auto numread = SDL_RWread(handle, buf.data(), 1, count);
+	const auto count{buf.size()};
+	const auto numread{SDL_RWread(handle, buf.data(), 1, count)};
 	return (numread == count);
 }
 
@@ -140,7 +140,7 @@ movie_play_status PlayMovie(const std::span<const char> subtitles, const char *c
 	if (CGameArg.SndDisableSdlMixer)
 		digi_close();
 
-	const auto ret = RunMovie(name, subtitles, !GameArg.GfxSkipHiresMovie, must_have, !CGameArg.SndNoSound ? MVE_play_sounds::enabled : MVE_play_sounds::silent, -1, -1);
+	const auto ret{RunMovie(name, subtitles, !GameArg.GfxSkipHiresMovie, must_have, !CGameArg.SndNoSound ? MVE_play_sounds::enabled : MVE_play_sounds::silent, -1, -1)};
 
 	// MD2211: if using SDL_Mixer, we never reinit the sound system
 	if (!CGameArg.SndNoSound
@@ -156,7 +156,7 @@ void MovieShowFrame(const uint8_t *buf, int dstx, int dsty, int bufw, int bufh, 
 {
 	grs_bitmap source_bm;
 	static palette_array_t old_pal;
-	float scale = 1.0;
+	float scale{1.0f};
 
 	if (old_pal != gr_palette)
 	{
@@ -229,9 +229,9 @@ namespace {
 
 struct movie : window, mixin_trackable_window
 {
-	MVE_StepStatus result = MVE_StepStatus::EndOfFile;
+	MVE_StepStatus result{MVE_StepStatus::EndOfFile};
 	uint8_t paused{};
-	int frame_num = 0;
+	int frame_num{};
 	const MVESTREAM_ptr_t pMovie;
 	d_loaded_subtitle_state SubtitleState;
 	movie(grs_canvas &src, MVESTREAM_ptr_t mvestream) :
@@ -251,7 +251,7 @@ window_event_result movie_pause_window::event_handler(const d_event &event)
 				return window_event_result::ignored;
 			[[fallthrough]];
 		case event_type::key_command:
-			if (const auto result = call_default_handler(event); result == window_event_result::ignored)
+			if (const auto result{call_default_handler(event)}; result == window_event_result::ignored)
 				return window_event_result::close;
 			else
 				return result;
@@ -261,15 +261,14 @@ window_event_result movie_pause_window::event_handler(const d_event &event)
 
 		case event_type::window_draw:
 		{
-			const char *msg = TXT_PAUSE;
-			int y;
+			const char *msg{TXT_PAUSE};
 
 			gr_set_default_canvas();
-			auto &canvas = *grd_curcanv;
-			const auto &game_font = *GAME_FONT;
-			const auto h = gr_get_string_size(game_font, msg).height;
+			auto &canvas{*grd_curcanv};
+			const auto &game_font{*GAME_FONT};
+			const auto h{gr_get_string_size(game_font, msg).height};
 
-			y = (grd_curscreen->get_screen_height() - h) / 2;
+			const auto y{(grd_curscreen->get_screen_height() - h) / 2};
 
 			gr_set_fontcolor(canvas, 255, -1);
 
@@ -298,7 +297,7 @@ window_event_result movie::event_handler(const d_event &event)
 
 		case event_type::key_command:
 			{
-				const auto key = event_key_get(event);
+				const auto key{event_key_get(event)};
 
 			// If ESCAPE pressed, then quit movie.
 			if (key == KEY_ESC) {
@@ -308,7 +307,7 @@ window_event_result movie::event_handler(const d_event &event)
 			// If PAUSE pressed, then pause movie
 			if ((key == KEY_PAUSE) || (key == KEY_COMMAND + KEY_P))
 			{
-				if (auto pause_window = window_create<movie_pause_window>(w_canv))
+				if (auto pause_window{window_create<movie_pause_window>(w_canv)})
 				{
 					(void)pause_window;
 					MVE_rmHoldMovie();
@@ -320,7 +319,7 @@ window_event_result movie::event_handler(const d_event &event)
 
 		case event_type::window_draw:
 			{
-				const auto f = frame_num;
+				const auto f{frame_num};
 			if (!paused)
 			{
 				result = MVE_rmStepMovie(*pMovie);
@@ -357,7 +356,7 @@ movie_play_status RunMovie(const char *const filename, const std::span<const cha
 
 	// Open Movie file.  If it doesn't exist, no movie, just return.
 
-	auto &&[filehndl, physfserr] = PHYSFSRWOPS_openRead(filename);
+	auto &&[filehndl, physfserr]{PHYSFSRWOPS_openRead(filename)};
 	if (!filehndl)
 	{
 		con_printf(warn_missing == play_movie_warn_missing::verbose ? CON_VERBOSE : CON_URGENT, "Failed to open movie <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
@@ -368,8 +367,8 @@ movie_play_status RunMovie(const char *const filename, const std::span<const cha
 	{
 		return movie_play_status::skipped;
 	}
-	const auto reshow = hide_menus();
-	auto wind = window_create<movie>(grd_curscreen->sc_canvas, std::move(mvestream));
+	const auto reshow{hide_menus()};
+	auto wind{window_create<movie>(grd_curscreen->sc_canvas, std::move(mvestream))};
 	init_subtitles(wind->SubtitleState, subtitles);
 
 #if DXX_USE_OGL
@@ -381,7 +380,7 @@ movie_play_status RunMovie(const char *const filename, const std::span<const cha
 	gr_set_mode(hires_flag ? screen_mode{640, 480} : screen_mode{320, 200});
 #endif
 
-	for (const auto exists = wind->track(); *exists;)
+	for (const auto exists{wind->track()}; *exists;)
 		event_process();
 	wind = nullptr;
 
@@ -404,7 +403,7 @@ movie_play_status RunMovie(const char *const filename, const std::span<const cha
 //returns 1 if frame updated ok
 int RotateRobot(MVESTREAM *const pMovie)
 {
-	auto err = MVE_rmStepMovie(*pMovie);
+	auto err{MVE_rmStepMovie(*pMovie)};
 	gr_palette_load(gr_palette);
 
 	if (err == MVE_StepStatus::EndOfFile)     //end of movie, so reset
@@ -434,7 +433,7 @@ const MVESTREAM *InitRobotMovie(const char *filename, MVESTREAM_ptr_t &pMovie)
 
 	con_printf(CON_DEBUG, "RoboFile=%s", filename);
 
-	auto &&[RoboFile, physfserr] = PHYSFSRWOPS_openRead(filename);
+	auto &&[RoboFile, physfserr]{PHYSFSRWOPS_openRead(filename)};
 	if (!RoboFile)
 	{
 		con_printf(CON_URGENT, "Failed to open movie <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
@@ -477,9 +476,8 @@ static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const std::spa
 {
 	if (filename.empty())
 		return 0;
-	int size;
 	char *p;
-	int have_binary = 0;
+	int have_binary{};
 
 	SubtitleState.Num_subtitles = 0;
 
@@ -489,7 +487,7 @@ static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const std::spa
 		return 0;
 	}
 
-	auto &&[ifile, physfserr] = PHYSFSX_openReadBuffered(filename.data());		//try text version
+	auto &&[ifile, physfserr]{PHYSFSX_openReadBuffered(filename.data())};		//try text version
 
 	if (!ifile) {								//no text version, try binary version
 		std::array<char, FILENAME_LEN> filename2;
@@ -498,7 +496,7 @@ static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const std::spa
 			con_printf(CON_NORMAL, "Rebirth: skipping subtitles because cannot open \"%s\" (\"%s\")", filename.data(), PHYSFS_getErrorByCode(physfserr));
 			return 0;
 		}
-		auto &&[ifile2, physfserr2] = PHYSFSX_openReadBuffered(filename2.data());
+		auto &&[ifile2, physfserr2]{PHYSFSX_openReadBuffered(filename2.data())};
 		if (!ifile2)
 		{
 			con_printf(CON_VERBOSE, "Rebirth: skipping subtitles because cannot open \"%s\" or \"%s\" (\"%s\", \"%s\")", filename.data(), filename2.data(), PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
@@ -511,9 +509,8 @@ static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const std::spa
 	else
 		con_printf(CON_VERBOSE, "Rebirth: found text subtitles in \"%s\"", filename.data());
 
-	size = PHYSFS_fileLength(ifile);
-
-	const auto subtitle_raw_data = (SubtitleState.subtitle_raw_data = std::make_unique<char[]>(size + 1)).get();
+	const auto size{PHYSFS_fileLength(ifile)};
+	const auto subtitle_raw_data{(SubtitleState.subtitle_raw_data = std::make_unique<char[]>(size + 1)).get()};
 	const auto read_count{PHYSFSX_readBytes(ifile, subtitle_raw_data, size)};
 	ifile.reset();
 
@@ -526,9 +523,7 @@ static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const std::spa
 	p = subtitle_raw_data;
 
 	while (p && p < subtitle_raw_data+size) {
-		char *endp;
-
-		endp = strchr(p,'\n');
+		char *const endp{strchr(p,'\n')};
 		if (endp) {
 			if (endp[-1] == '\r')
 				endp[-1] = 0;		//handle 0d0a pair
@@ -539,9 +534,9 @@ static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const std::spa
 			decode_text_line(p);
 
 		if (*p != ';') {
-			const auto Num_subtitles = SubtitleState.Num_subtitles;
-			auto &Subtitles = SubtitleState.Subtitles;
-			auto &s = Subtitles[SubtitleState.Num_subtitles++];
+			const auto Num_subtitles{SubtitleState.Num_subtitles};
+			auto &Subtitles{SubtitleState.Subtitles};
+			auto &s{Subtitles[SubtitleState.Num_subtitles++]};
 			s.first_frame = atoi(p);
 			p = next_field(p); if (!p) continue;
 			s.last_frame = atoi(p);
@@ -567,7 +562,7 @@ static void draw_subtitles(const d_loaded_subtitle_state &SubtitleState, const i
 	static int next_subtitle;
 	static unsigned num_active_subtitles;
 	int y;
-	int must_erase=0;
+	uint8_t must_erase{};
 
 	if (frame_num == 0) {
 		num_active_subtitles = 0;
@@ -577,8 +572,8 @@ static void draw_subtitles(const d_loaded_subtitle_state &SubtitleState, const i
 	}
 
 	//get rid of any subtitles that have expired
-	auto &Subtitles = SubtitleState.Subtitles;
-	for (int t=0;t<num_active_subtitles;)
+	auto &Subtitles{SubtitleState.Subtitles};
+	for (int t{}; t < num_active_subtitles;)
 		if (frame_num > Subtitles[active_subtitles[t]].last_frame) {
 			int t2;
 			for (t2=t;t2<num_active_subtitles-1;t2++)
@@ -598,7 +593,7 @@ static void draw_subtitles(const d_loaded_subtitle_state &SubtitleState, const i
 	}
 
 	//find y coordinate for first line of subtitles
-	const auto &&line_spacing = LINE_SPACING(*grd_curcanv->cv_font, *GAME_FONT);
+	const auto &&line_spacing{LINE_SPACING(*grd_curcanv->cv_font, *GAME_FONT)};
 	y = grd_curcanv->cv_bitmap.bm_h - (line_spacing * (MAX_ACTIVE_SUBTITLES + 2));
 
 	//erase old subtitles if necessary
@@ -620,7 +615,7 @@ static PHYSFS_ErrorCode init_movie(const char *movielib, char resolution, int re
 	std::array<char, FILENAME_LEN + 2> filename;
 	if (static_cast<std::size_t>(snprintf(filename.data(), filename.size(), "%.8s-%c.mvl", movielib, resolution)) > filename.size())
 		return PHYSFS_ERR_BAD_FILENAME;
-	auto r = PHYSFSX_addRelToSearchPath(filename.data(), movie.pathname, physfs_search_path::prepend);
+	const auto r{PHYSFSX_addRelToSearchPath(filename.data(), movie.pathname, physfs_search_path::prepend)};
 	if (r != PHYSFS_ERR_OK)
 	{
 		movie.pathname[0] = 0;
@@ -633,7 +628,7 @@ static std::pair<PHYSFS_ErrorCode, movie_resolution> init_movie(const char *movi
 {
 	if (!GameArg.GfxSkipHiresMovie)
 	{
-		if (auto r = init_movie(movielib, 'h', required, movie); r == PHYSFS_ERR_OK)
+		if (const auto r{init_movie(movielib, 'h', required, movie)}; r == PHYSFS_ERR_OK)
 			return {r, movie_resolution::high};
 	}
 	return {init_movie(movielib, 'l', required, movie), movie_resolution::low};
@@ -657,7 +652,7 @@ BuiltinMovies::BuiltinMovies()
 
 LoadedMovie::~LoadedMovie()
 {
-	const auto movielib = pathname.data();
+	const auto movielib{pathname.data()};
 	if (!*movielib)
 		return;
 	if (!PHYSFS_unmount(movielib))
@@ -670,8 +665,8 @@ std::unique_ptr<LoadedMovieWithResolution> init_extra_robot_movie(const char *mo
 {
 	if (GameArg.SysNoMovies)
 		return nullptr;
-	auto r = std::make_unique<LoadedMovieWithResolution>();
-	if (auto &&[code, resolution] = init_movie(movielib, 0, *r); code != PHYSFS_ERR_OK)
+	auto r{std::make_unique<LoadedMovieWithResolution>()};
+	if (const auto &&[code, resolution]{init_movie(movielib, 0, *r)}; code != PHYSFS_ERR_OK)
 		return nullptr;
 	else
 	{
