@@ -115,7 +115,7 @@ namespace {
 static void must_clip_tmap_face(grs_canvas &, std::size_t nv, g3s_codes cc, grs_bitmap &bm, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1, tmap_drawer_type tmap_drawer_ptr);
 
 //deal with face that must be clipped
-static void must_clip_flat_face(grs_canvas &canvas, int nv, g3s_codes cc, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1, const uint8_t color)
+static void must_clip_flat_face(grs_canvas &canvas, std::size_t nv, g3s_codes cc, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1, const uint8_t color)
 {
 	temporary_points_t tp;
 	auto &bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc,tp);
@@ -242,7 +242,7 @@ void _g3_draw_tmap(grs_canvas &canvas, const std::span<cg3s_point *const> pointl
 
 namespace {
 
-static void must_clip_tmap_face(grs_canvas &canvas, const std::size_t nv, g3s_codes cc, grs_bitmap &bm, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1, const tmap_drawer_type tmap_drawer_ptr)
+static void must_clip_tmap_face(grs_canvas &canvas, std::size_t nv, g3s_codes cc, grs_bitmap &bm, polygon_clip_points &Vbuf0, polygon_clip_points &Vbuf1, const tmap_drawer_type tmap_drawer_ptr)
 {
 	temporary_points_t tp;
 	auto &bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc,tp);

@@ -137,7 +137,7 @@ void clip_line(g3s_point *&p0, g3s_point *&p1, const clipping_code codes_or, tem
 
 namespace {
 
-static int clip_plane(const clipping_code plane_flag, polygon_clip_points &src, polygon_clip_points &dest, int *nv, g3s_codes *const cc, temporary_points_t &tp)
+static int clip_plane(const clipping_code plane_flag, polygon_clip_points &src, polygon_clip_points &dest, std::size_t *const nv, g3s_codes *const cc, temporary_points_t &tp)
 {
 	//copy first two verts to end
 	src[*nv] = src[0];
@@ -185,7 +185,7 @@ static int clip_plane(const clipping_code plane_flag, polygon_clip_points &src, 
 
 }
 
-const polygon_clip_points &clip_polygon(polygon_clip_points &rsrc,polygon_clip_points &rdest,int *nv,g3s_codes *cc, temporary_points_t &tp)
+const polygon_clip_points &clip_polygon(polygon_clip_points &rsrc, polygon_clip_points &rdest, std::size_t *nv, g3s_codes *const cc, temporary_points_t &tp)
 {
 	polygon_clip_points *src = &rsrc, *dest = &rdest;
 	for (uint8_t plane_step = 1; plane_step < 16; plane_step <<= 1)
