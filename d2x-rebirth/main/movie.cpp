@@ -618,7 +618,8 @@ static void draw_subtitles(const d_loaded_subtitle_state &SubtitleState, const i
 static PHYSFS_ErrorCode init_movie(const char *movielib, char resolution, int required, LoadedMovie &movie)
 {
 	std::array<char, FILENAME_LEN + 2> filename;
-	snprintf(filename.data(), filename.size(), "%s-%c.mvl", movielib, resolution);
+	if (static_cast<std::size_t>(snprintf(filename.data(), filename.size(), "%.8s-%c.mvl", movielib, resolution)) > filename.size())
+		return PHYSFS_ERR_BAD_FILENAME;
 	auto r = PHYSFSX_addRelToSearchPath(filename.data(), movie.pathname, physfs_search_path::prepend);
 	if (r != PHYSFS_ERR_OK)
 	{
