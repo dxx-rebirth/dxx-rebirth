@@ -614,6 +614,7 @@ static void draw_subtitles(const d_loaded_subtitle_state &SubtitleState, const i
 		}
 }
 
+[[nodiscard]]
 static PHYSFS_ErrorCode init_movie(const char *movielib, char resolution, int required, LoadedMovie &movie)
 {
 	std::array<char, FILENAME_LEN + 2> filename;
