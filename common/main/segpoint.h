@@ -29,4 +29,4 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "3d.h"
 #include "d_array.h"
 
-extern enumerated_array<g3s_point, MAX_VERTICES, vertnum_t> Segment_points;
+extern enumerated_array<g3s_reusable_point, MAX_VERTICES, vertnum_t> Segment_points;

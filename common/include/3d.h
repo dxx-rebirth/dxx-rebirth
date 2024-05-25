@@ -135,8 +135,12 @@ static constexpr projection_flag operator~(const projection_flag a)
 	return static_cast<projection_flag>(~static_cast<uint8_t>(a));
 }
 
-//Used to store rotated points for mines.  Has frame count to indictate
-//if rotated, and flag to indicate if projected.
+/*
+ * This stores a point that has been rotated about the Viewer's orientation
+ * matrix.  p3_flags tracks whether the point has been projected into screen
+ * coordinates (`projected`) and, if so, whether the resulting coordinates are
+ * outside the screen's viewable area (`overflow`).
+ */
 struct g3s_point {
 	vms_vector p3_vec;  //x,y,z of rotated point
 #if !DXX_USE_OGL
@@ -145,6 +149,21 @@ struct g3s_point {
 	fix p3_sx,p3_sy;    //screen x&y
 	clipping_code p3_codes;     //clipping codes
 	projection_flag p3_flags;     //projected?
+};
+
+/* Store the frame count at which this point was last updated.  If the stored
+ * count matches the current frame generation, then the other members are valid
+ * for this frame and do not need to be recomputed.  If the stored count does
+ * not match the current frame generation, then the data is stale, may be
+ * invalid, and should be recomputed.
+ *
+ * In the unlikely case that the viewer has not moved or rotated at all since
+ * the frame in which this was computed, stale data might match what will be
+ * recomputed.  However, this case is sufficiently uncommon that it is not
+ * worth detecting it solely to avoid recomputing the rotation.
+ */
+struct g3s_reusable_point : g3s_point
+{
 	uint16_t p3_last_generation;
 };
 
