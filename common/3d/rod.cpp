@@ -127,7 +127,6 @@ void g3_draw_rod_tmap(grs_canvas &canvas, grs_bitmap &bitmap, const g3s_point &b
 
 #if !DXX_USE_OGL
 //draws a bitmap with the specified 3d width & height 
-//returns 1 if off screen, 0 if drew
 void g3_draw_bitmap(grs_canvas &canvas, const vms_vector &pos, fix width, fix height, grs_bitmap &bm)
 {
 	g3s_point pnt;
