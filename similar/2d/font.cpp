@@ -261,9 +261,7 @@ static int gr_internal_string0_template(grs_canvas &canvas, const grs_font &cv_f
 				};
 
 				const uint8_t c = *text_ptr;
-				const auto &result = get_char_width<int>(cv_font, c, text_ptr[1]);
-				const auto &width = result.width;
-				const auto &spacing = result.spacing;
+				const auto [width, spacing]{get_char_width<int>(cv_font, c, text_ptr[1])};
 
 				const unsigned letter = c - cv_font.ft_minchar;
 
@@ -391,9 +389,7 @@ static void gr_internal_color_string(grs_canvas &canvas, const grs_font &cv_font
 
 			letter = static_cast<uint8_t>(*text_ptr) - cv_font.ft_minchar;
 
-			const auto &result = get_char_width<int>(cv_font, text_ptr[0], text_ptr[1]);
-			const auto &width = result.width;
-			const auto &spacing = result.spacing;
+			const auto [width, spacing]{get_char_width<int>(cv_font, text_ptr[0], text_ptr[1])};
 
 			if (!INFONT(letter)) {	//not in font, draw as space
 				xx += spacing;
@@ -654,9 +650,7 @@ static void ogl_internal_string(grs_canvas &canvas, const grs_font &cv_font, con
 			}
 
 			const auto letter = c0 - cv_font.ft_minchar;
-
-			const auto &result = get_char_width<int>(cv_font, c0, text_ptr[1]);
-			const auto &spacing = result.spacing;
+			const auto spacing{get_char_width<int>(cv_font, c0, text_ptr[1]).spacing};
 
 			per_character_row_state state;
 			if (!INFONT(letter) || c0 <= 0x06) //not in font, draw as space
@@ -816,9 +810,7 @@ gr_string_size gr_get_string_size(const grs_font &cv_font, const char *s, const 
 				remaining_chars_this_line = max_chars_per_line;
 			}
 
-			const auto &result = get_char_width<float>(cv_font, s[0], s[1]);
-			const auto &spacing = result.spacing;
-			string_width_f += spacing;
+			string_width_f += get_char_width<float>(cv_font, s[0], s[1]).spacing;
 			s++;
 			if (!--remaining_chars_this_line)
 				break;
@@ -830,12 +822,11 @@ gr_string_size gr_get_string_size(const grs_font &cv_font, const char *s, const 
 std::pair<const char *, unsigned> gr_get_string_wrap(const grs_font &cv_font, const char *s, unsigned limit)
 {
 	assert(s);
-	float string_width_f=0.0;
+	float string_width_f{0.f};
 	const float limit_f = limit;
 	for (uint8_t c; (c = *s); ++s)
 	{
-		const auto &&spacing = get_char_width<float>(cv_font, c, s[1]).spacing;
-		const float next_string_width = string_width_f + spacing;
+		const float next_string_width{string_width_f + get_char_width<float>(cv_font, c, s[1]).spacing};
 		if (next_string_width >= limit_f)
 			break;
 		string_width_f = next_string_width;
@@ -1148,9 +1139,7 @@ static int gr_internal_string_clipped_template(grs_canvas &canvas, const grs_fon
 						: false),
 				};
 				const uint8_t c = *text_ptr;
-				const auto &result = get_char_width<int>(cv_font, c, text_ptr[1]);
-				const auto &width = result.width;
-				const auto &spacing = result.spacing;
+				const auto [width, spacing]{get_char_width<int>(cv_font, c, text_ptr[1])};
 
 				letter = c - cv_font.ft_minchar;
 
