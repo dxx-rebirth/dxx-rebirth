@@ -823,7 +823,7 @@ void draw_tmap(grs_canvas &canvas, const grs_bitmap &rbp, const std::span<const 
 		tvp.y2d = vp->p3_sy;
 
 		//	Check for overflow on fixdiv.  Will overflow on vp->z <= something small.  Allow only as low as 256.
-		auto clipped_p3_z = std::max(256, vp->p3_z);
+		auto clipped_p3_z = std::max(256, vp->p3_vec.z);
 		tvp.z = fixdiv(F1_0*12, clipped_p3_z);
 		tvp.u = vp->p3_u << 6; //* bp->bm_w;
 		tvp.v = vp->p3_v << 6; //* bp->bm_h;

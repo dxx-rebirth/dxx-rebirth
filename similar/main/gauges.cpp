@@ -3659,7 +3659,7 @@ void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &canvas, co
 				{
 					const fix x = player_point.p3_sx;
 					const fix y = player_point.p3_sy;
-					const fix dy = -fixmuldiv(fixmul(objp->size, Matrix_scale.y), i2f(canvas.cv_bitmap.bm_h) / 2, player_point.p3_z);
+					const fix dy = -fixmuldiv(fixmul(objp->size, Matrix_scale.y), i2f(canvas.cv_bitmap.bm_h) / 2, player_point.p3_vec.z);
 					const fix dx = fixmul(dy, grd_curscreen->sc_aspect);
 					/* Set the text to show */
 					const auto name = is_bounty_target

@@ -53,12 +53,12 @@ static g3s_point &clip_edge(const clipping_code plane_flag, g3s_point *on_pnt, g
 
 	if ((plane_flag & (clipping_code::off_right | clipping_code::off_left)) != clipping_code::None)
 	{
-		a = on_pnt->p3_x;
-		b = off_pnt->p3_x;
+		a = on_pnt->p3_vec.x;
+		b = off_pnt->p3_vec.x;
 	}
 	else {
-		a = on_pnt->p3_y;
-		b = off_pnt->p3_y;
+		a = on_pnt->p3_vec.y;
+		b = off_pnt->p3_vec.y;
 	}
 
 	if ((plane_flag & (clipping_code::off_left | clipping_code::off_bot)) != clipping_code::None)
@@ -67,22 +67,22 @@ static g3s_point &clip_edge(const clipping_code plane_flag, g3s_point *on_pnt, g
 		b = -b;
 	}
 
-	kn = a - on_pnt->p3_z;						//xs-zs
-	kd = kn - b + off_pnt->p3_z;				//xs-zs-xe+ze
+	kn = a - on_pnt->p3_vec.z;						//xs-zs
+	kd = kn - b + off_pnt->p3_vec.z;				//xs-zs-xe+ze
 
 	auto &tmp = get_temp_point(tp);
 
 	psx_ratio = fixdiv( kn, kd );
-	tmp.p3_x = on_pnt->p3_x + fixmul( (off_pnt->p3_x-on_pnt->p3_x), psx_ratio);
-	tmp.p3_y = on_pnt->p3_y + fixmul( (off_pnt->p3_y-on_pnt->p3_y), psx_ratio);
+	tmp.p3_vec.x = on_pnt->p3_vec.x + fixmul( (off_pnt->p3_vec.x-on_pnt->p3_vec.x), psx_ratio);
+	tmp.p3_vec.y = on_pnt->p3_vec.y + fixmul( (off_pnt->p3_vec.y-on_pnt->p3_vec.y), psx_ratio);
 
 	if ((plane_flag & (clipping_code::off_top | clipping_code::off_bot)) != clipping_code::None)
-		tmp.p3_z = tmp.p3_y;
+		tmp.p3_vec.z = tmp.p3_vec.y;
 	else
-		tmp.p3_z = tmp.p3_x;
+		tmp.p3_vec.z = tmp.p3_vec.x;
 
 	if ((plane_flag & (clipping_code::off_left | clipping_code::off_bot)) != clipping_code::None)
-		tmp.p3_z = -tmp.p3_z;
+		tmp.p3_vec.z = -tmp.p3_vec.z;
 
 	if (on_pnt->p3_flags & projection_flag::uvs) {
 // PSX_HACK!!!!

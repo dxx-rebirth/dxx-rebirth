@@ -282,14 +282,14 @@ void g3_draw_sphere(grs_canvas &canvas, cg3s_point &pnt, const fix rad, const ui
 		if (! (pnt.p3_flags & projection_flag::overflow)) {
 			const auto r2{fixmul(rad, Matrix_scale.x)};
 #ifndef __powerc
-			const auto ot{checkmuldiv(r2, Canv_w2, pnt.p3_z)};
+			const auto ot{checkmuldiv(r2, Canv_w2, pnt.p3_vec.z)};
 			if (!ot)
 				return;
 			const auto t{*ot};
 #else
-			if (pnt.p3_z == 0)
+			if (pnt.p3_vec.z == 0)
 				return;
-			const fix t = fl2f(((f2fl(r2) * fCanv_w2) / f2fl(pnt.p3_z)));
+			const fix t = fl2f(((f2fl(r2) * fCanv_w2) / f2fl(pnt.p3_vec.z)));
 #endif
 			gr_disk(canvas, pnt.p3_sx, pnt.p3_sy, t, color);
 		}

@@ -503,10 +503,10 @@ static void DrawMarkerNumber(grs_canvas &canvas, const automap &am, const game_m
 		const auto ay1 = i.y1 * MarkerScale;
 		auto FromPoint = BasePoint;
 		auto ToPoint = BasePoint;
-		FromPoint.p3_x += fixmul(fl2f(ax0), scale_x);
-		FromPoint.p3_y += fixmul(fl2f(ay0), scale_y);
-		ToPoint.p3_x += fixmul(fl2f(ax1), scale_x);
-		ToPoint.p3_y += fixmul(fl2f(ay1), scale_y);
+		FromPoint.p3_vec.x += fixmul(fl2f(ax0), scale_x);
+		FromPoint.p3_vec.y += fixmul(fl2f(ay0), scale_y);
+		ToPoint.p3_vec.x += fixmul(fl2f(ax1), scale_x);
+		ToPoint.p3_vec.y += fixmul(fl2f(ay1), scale_y);
 		g3_code_point(FromPoint);
 		g3_code_point(ToPoint);
 		g3_project_point(FromPoint);
@@ -1290,7 +1290,7 @@ void draw_all_edges(automap &am)
 			if ((!(e->flags & EF_SECRET)) && (e->color == am.wall_normal_color))
 				continue; 	// If a line isn't secret and is normal color, then don't draw it
 		}
-		distance = Segment_points[e->verts[1]].p3_z;
+		distance = Segment_points[e->verts[1]].p3_vec.z;
 
 		if (min_distance>distance )
 			min_distance = distance;
@@ -1331,7 +1331,7 @@ void draw_all_edges(automap &am)
 	std::sort(range.begin(), range.end(), [](const Edge_info *const a, const Edge_info *const b) {
 		const auto &v1 = a->verts[0];
 		const auto &v2 = b->verts[0];
-		return Segment_points[v1].p3_z < Segment_points[v2].p3_z;
+		return Segment_points[v1].p3_vec.z < Segment_points[v2].p3_vec.z;
 	});
 	// Draw the bright ones
 	range_for (const auto e, range)
@@ -1339,7 +1339,7 @@ void draw_all_edges(automap &am)
 		const auto p1 = &Segment_points[e->verts[0]];
 		const auto p2 = &Segment_points[e->verts[1]];
 		fix dist;
-		dist = p1->p3_z - min_distance;
+		dist = p1->p3_vec.z - min_distance;
 		// Make distance be 1.0 to 0.0, where 0.0 is 10 segments away;
 		if ( dist < 0 ) dist=0;
 		if ( dist >= am.farthest_dist ) continue;

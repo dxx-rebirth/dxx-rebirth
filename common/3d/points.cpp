@@ -21,19 +21,19 @@ clipping_code g3_code_point(g3s_point &p)
 {
 	clipping_code cc{};
 
-	if (p.p3_x > p.p3_z)
+	if (p.p3_vec.x > p.p3_vec.z)
 		cc |= clipping_code::off_right;
 
-	if (p.p3_y > p.p3_z)
+	if (p.p3_vec.y > p.p3_vec.z)
 		cc |= clipping_code::off_top;
 
-	if (p.p3_x < -p.p3_z)
+	if (p.p3_vec.x < -p.p3_vec.z)
 		cc |= clipping_code::off_left;
 
-	if (p.p3_y < -p.p3_z)
+	if (p.p3_vec.y < -p.p3_vec.z)
 		cc |= clipping_code::off_bot;
 
-	if (p.p3_z < 0)
+	if (p.p3_vec.z < 0)
 		cc |= clipping_code::behind;
 
 	return p.p3_codes = cc;
@@ -92,10 +92,10 @@ void g3_project_point(g3s_point &p)
 	if ((p.p3_flags & projection_flag::projected) || (p.p3_codes & clipping_code::behind) != clipping_code::None)
 		return;
 
-	const auto pz = p.p3_z;
-	const auto otx = checkmuldiv(p.p3_x, Canv_w2, pz);
+	const auto pz = p.p3_vec.z;
+	const auto otx = checkmuldiv(p.p3_vec.x, Canv_w2, pz);
 	std::optional<int32_t> oty;
-	if (otx && (oty = checkmuldiv(p.p3_y, Canv_h2, pz)))
+	if (otx && (oty = checkmuldiv(p.p3_vec.y, Canv_h2, pz)))
 	{
 		p.p3_sx = Canv_w2 + *otx;
 		p.p3_sy = Canv_h2 - *oty;
@@ -109,14 +109,14 @@ void g3_project_point(g3s_point &p)
 	if ((p.p3_flags & projection_flag::projected) || (p.p3_codes & clipping_code::behind) != clipping_code::None)
 		return;
 	
-	if ( p.p3_z <= 0 )	{
+	if ( p.p3_vec.z <= 0 )	{
 		p.p3_flags |= projection_flag::overflow;
 		return;
 	}
 
-	fz = f2fl(p.p3_z);
-	p.p3_sx = fl2f(fCanv_w2 + (f2fl(p.p3_x)*fCanv_w2 / fz));
-	p.p3_sy = fl2f(fCanv_h2 - (f2fl(p.p3_y)*fCanv_h2 / fz));
+	fz = f2fl(p.p3_vec.z);
+	p.p3_sx = fl2f(fCanv_w2 + (f2fl(p.p3_vec.x)*fCanv_w2 / fz));
+	p.p3_sy = fl2f(fCanv_h2 - (f2fl(p.p3_vec.y)*fCanv_h2 / fz));
 
 	p.p3_flags |= projection_flag::projected;
 #endif
