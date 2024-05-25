@@ -16,28 +16,34 @@
 
 namespace dcx {
 
-//code a point.  fills in the p3_codes field of the point, and returns the codes
-clipping_code g3_code_point(g3s_point &p)
+namespace {
+
+clipping_code build_g3_clipping_code_from_viewer_relative_position(const vms_vector &viewer_relative_position)
 {
 	clipping_code cc{};
 
-	if (p.p3_vec.x > p.p3_vec.z)
+	if (viewer_relative_position.x > viewer_relative_position.z)
 		cc |= clipping_code::off_right;
 
-	if (p.p3_vec.y > p.p3_vec.z)
+	if (viewer_relative_position.y > viewer_relative_position.z)
 		cc |= clipping_code::off_top;
 
-	if (p.p3_vec.x < -p.p3_vec.z)
+	if (viewer_relative_position.x < -viewer_relative_position.z)
 		cc |= clipping_code::off_left;
 
-	if (p.p3_vec.y < -p.p3_vec.z)
+	if (viewer_relative_position.y < -viewer_relative_position.z)
 		cc |= clipping_code::off_bot;
 
-	if (p.p3_vec.z < 0)
+	if (viewer_relative_position.z < 0)
 		cc |= clipping_code::behind;
+	return cc;
+}
 
-	return p.p3_codes = cc;
+}
 
+clipping_code g3_code_point(g3s_point &p)
+{
+	return p.p3_codes = build_g3_clipping_code_from_viewer_relative_position(p.p3_vec);
 }
 
 //rotates a point. returns codes.  does not check if already rotated
