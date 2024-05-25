@@ -644,25 +644,21 @@ namespace dcx {
 // returns possible (fullscreen) resolutions if any.
 uint_fast32_t gr_list_modes(std::array<screen_mode, 50> &gsmodes)
 {
-	SDL_Rect** modes;
 	int modesnum = 0;
-#if DXX_USE_OGLES
-	int sdl_check_flags = SDL_FULLSCREEN; // always use Fullscreen as lead.
-#else
-	int sdl_check_flags = SDL_OPENGL | SDL_FULLSCREEN; // always use Fullscreen as lead.
-#endif
+	constexpr Uint32 sdl_check_flags{ // always use Fullscreen as lead.
+		DXX_USE_OGLES
+			? SDL_FULLSCREEN
+			: (SDL_OPENGL | SDL_FULLSCREEN)
+	};
 
 	if (sdl_no_modeswitch) {
 		/* TODO: we could use the tvservice to list resolutions on the RPi */
 		return 0;
 	}
 
-	modes = SDL_ListModes(NULL, sdl_check_flags);
-
-	if (modes == reinterpret_cast<SDL_Rect **>(0)) // check if we get any modes - if not, return 0
+	SDL_Rect **const modes{SDL_ListModes(NULL, sdl_check_flags)};
+	if (modes == nullptr) // check if we get any modes - if not, return 0
 		return 0;
-
-
 	if (modes == reinterpret_cast<SDL_Rect**>(-1))
 	{
 		return 0; // can obviously use any resolution... strange!
