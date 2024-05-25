@@ -54,23 +54,25 @@ clipping_code g3_rotate_point(g3s_point &dest,const vms_vector &src)
 	return g3_code_point(dest);
 }
 
-//checks for overflow & divides if ok, fillig in r
-//returns true if div is ok, else false
-std::optional<int32_t> checkmuldiv(fix a,fix b,fix c)
+/* Multiply `a` and `b` into a 64-bit result.  Check whether ((a * b) / c) will
+ * overflow when stored into a 32-bit signed integer.  If the quotient does not
+ * overflow a 32-bit value, then return a std::optional that contains the
+ * quotient.  If the quotient does overflow, then return a std::optional that
+ * does not contain a value.
+ */
+std::optional<int32_t> checkmuldiv(const fix a, const fix b, const fix c)
 {
-	const int64_t a64 = a;
-	const int64_t b64 = b;
 	/* product will be negative if and only if the sign bits of the input
 	 * values require it.  Storing the result in a 64-bit value ensures that
 	 * overflow cannot occur, and so the sign bit cannot be incorrectly set as
 	 * a side effect of overflow.
 	 */
-	const int64_t product = a64 * b64;
+	const int64_t product{int64_t{a} * int64_t{b}};
 	/* absolute_product will be positive, because the only negative number that
 	 * remains negative after negation is too large to be produced by the
 	 * multiplication of 2 32-bit signed inputs.
 	 */
-	const auto absolute_product = (product < 0) ? -product : product;
+	const auto absolute_product{(product < 0) ? -product : product};
 	if ((absolute_product >> 31) >= c)
 		/* If this branch is taken, then the division would produce a value
 		 * that cannot be correctly represented in `int32_t`.  Return a failure
@@ -86,8 +88,11 @@ std::optional<int32_t> checkmuldiv(fix a,fix b,fix c)
 		 */
 		return std::nullopt;
 	else {
-		const int64_t c64 = c;
-		return static_cast<int32_t>(product / c64);
+		/* According to language rules, this is a narrowing conversion.
+		 * However, runtime logic above ensured that this path is only reached
+		 * if the value is not changed by the narrowing conversion.
+		 */
+		return static_cast<int32_t>(product / int64_t{c});
 	}
 }
 
