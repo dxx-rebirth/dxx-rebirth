@@ -113,16 +113,16 @@ struct automap : ::dcx::window
 	fix64			t1, t2;
 	static_assert(PF_WIGGLE < UINT8_MAX, "storing PF_WIGGLE into old_wiggle would truncate the value");
 	uint8_t			old_wiggle;
-	uint8_t			leave_mode = 0;
+	uint8_t			leave_mode{};
 	uint8_t			pause_game;
 	vms_angvec		tangles;
-	int max_segments_away = 0;
-	int segment_limit = 1;
+	int max_segments_away{};
+	int segment_limit{1};
 
 	// Edge list variables
-	int num_edges = 0;
+	int num_edges{};
 	unsigned max_edges; //set each frame
-	unsigned end_valid_edges = 0;
+	unsigned end_valid_edges{};
 	std::unique_ptr<Edge_info[]>		edges;
 	std::unique_ptr<Edge_info *[]>			drawingListBright;
 
@@ -132,12 +132,12 @@ struct automap : ::dcx::window
 	grs_main_bitmap		automap_background;
 
 	// Rendering variables
-	fix			zoom = 0x9000;
+	fix			zoom{0x9000};
 	vms_vector		view_target;
 	vms_vector		view_position;
-	fix			farthest_dist = (F1_0 * 20 * 50); // 50 segments away
+	fix			farthest_dist{(F1_0 * 20 * 50)}; // 50 segments away
 	vms_matrix		viewMatrix;
-	fix			viewDist = 0;
+	fix			viewDist{};
 
 	segment_depth_array_t depth_array;
 	color_t			wall_normal_color;
@@ -198,7 +198,7 @@ namespace dcx {
 #define K_FONT_COLOR_20         BM_XRGB(20, 20, 20 )
 #define K_GREEN_31              BM_XRGB(0, 31, 0)
 
-int Automap_active = 0;
+uint8_t Automap_active;
 
 namespace {
 
@@ -227,14 +227,14 @@ static void init_automap_colors(automap &am)
 
 void adjust_segment_limit(automap &am, const unsigned SegmentLimit)
 {
-	const auto &depth_array = am.depth_array;
+	const auto &depth_array{am.depth_array};
 	const auto predicate = [&depth_array, SegmentLimit](const segnum_t &e1) {
 		return depth_array[e1] <= SegmentLimit;
 	};
 	for (auto &i : unchecked_partial_range(am.edges.get(), am.end_valid_edges))
 	{
 		// Unchecked for speed
-		const auto &&range = unchecked_partial_range(i.segnum, i.num_faces);
+		const auto &&range{unchecked_partial_range(i.segnum, i.num_faces)};
 		if (std::any_of(range.begin(), range.end(), predicate))
 			i.flags &= ~EF_TOO_FAR;
 		else
@@ -268,7 +268,7 @@ static void recompute_automap_segment_visibility(const d_level_unique_automap_st
 #ifdef RELEASE
 constexpr
 #endif
-static float MarkerScale = 2.0;
+static float MarkerScale{2.0f};
 static unsigned Marker_index;
 
 struct marker_delete_are_you_sure_menu : std::array<newmenu_item, 2>, newmenu
@@ -299,7 +299,7 @@ window_event_result marker_delete_are_you_sure_menu::event_handler(const d_event
 	{
 		case event_type::newmenu_selected:
 		{
-			const auto citem = static_cast<const d_select_event &>(event).citem;
+			const auto citem{static_cast<const d_select_event &>(event).citem};
 			if (citem == 0)
 				/* User chose Yes */
 				handle_selected_yes();
@@ -314,16 +314,16 @@ window_event_result marker_delete_are_you_sure_menu::event_handler(const d_event
 
 std::pair<imobjidx_t *, game_marker_index> marker_delete_are_you_sure_menu::get_marker_object(d_marker_state &MarkerState)
 {
-	const auto HighlightMarker = MarkerState.HighlightMarker;
+	const auto HighlightMarker{MarkerState.HighlightMarker};
 	if (!MarkerState.imobjidx.valid_index(HighlightMarker))
 		return {nullptr, HighlightMarker};
-	auto &mo = MarkerState.imobjidx[HighlightMarker];
+	auto &mo{MarkerState.imobjidx[HighlightMarker]};
 	return {mo == object_none ? nullptr : &mo, HighlightMarker};
 }
 
 void marker_delete_are_you_sure_menu::handle_selected_yes() const
 {
-	const auto [mo, HighlightMarker] = get_marker_object(MarkerState);
+	const auto &&[mo, HighlightMarker]{get_marker_object(MarkerState)};
 	if (!mo)
 		/* Check that the selected marker is still a valid object. */
 		return;
@@ -387,13 +387,13 @@ unsigned d_marker_state::get_markers_per_player(const game_mode_flags game_mode,
 
 xrange<player_marker_index> get_player_marker_range(const unsigned maxdrop)
 {
-	const auto base = player_marker_index::_0;
+	const auto base{player_marker_index::_0};
 	return {base, static_cast<player_marker_index>(static_cast<unsigned>(base) + maxdrop)};
 }
 
 playernum_t get_marker_owner(const game_mode_flags game_mode, const game_marker_index gmi, const unsigned max_numplayers)
 {
-	const auto ugmi = static_cast<unsigned>(gmi);
+	const auto ugmi{static_cast<unsigned>(gmi)};
 	if (game_mode & GM_MULTI_COOP)
 	{
 		/* This is split out to encourage the compiler to recognize that
@@ -414,7 +414,7 @@ namespace {
 
 xrange<game_marker_index> get_game_marker_range(const game_mode_flags game_mode, const unsigned max_numplayers, const unsigned player_num, const unsigned maxdrop)
 {
-	const auto base = convert_player_marker_index_to_game_marker_index(game_mode, max_numplayers, player_num, player_marker_index::_0);
+	const auto base{convert_player_marker_index_to_game_marker_index(game_mode, max_numplayers, player_num, player_marker_index::_0)};
 	return {base, static_cast<game_marker_index>(static_cast<unsigned>(base) + maxdrop)};
 }
 
@@ -433,7 +433,7 @@ static void DrawMarkerNumber(grs_canvas &canvas, const automap &am, const game_m
 	{
 		float x0, y0, x1, y1;
 	};
-	static constexpr enumerated_array<std::array<xy, 5>, 9, player_marker_index> sArray = {{{
+	static constexpr enumerated_array<std::array<xy, 5>, 9, player_marker_index> sArray{{{
 		{{
 			{-0.25, 0.75, 0, 1},
 			{0, 1, 0, -1},
@@ -489,20 +489,20 @@ static void DrawMarkerNumber(grs_canvas &canvas, const automap &am, const game_m
 			{-1, 0, -1, 1},
 		 }}
 	}}};
-	static constexpr enumerated_array<uint_fast8_t, 9, player_marker_index> NumOfPoints = {{{3, 5, 4, 3, 5, 5, 2, 5, 4}}};
+	static constexpr enumerated_array<uint_fast8_t, 9, player_marker_index> NumOfPoints{{{3, 5, 4, 3, 5, 5, 2, 5, 4}}};
 
-	const auto color = (gmi == MarkerState.HighlightMarker ? am.white_63 : am.blue_48);
+	const auto color{gmi == MarkerState.HighlightMarker ? am.white_63 : am.blue_48};
 	const g3_draw_line_context text_line_context{canvas, color};
-	const auto scale_x = Matrix_scale.x;
-	const auto scale_y = Matrix_scale.y;
+	const auto scale_x{Matrix_scale.x};
+	const auto scale_y{Matrix_scale.y};
 	range_for (const auto &i, unchecked_partial_range(sArray[pmi], NumOfPoints[pmi]))
 	{
-		const auto ax0 = i.x0 * MarkerScale;
-		const auto ay0 = i.y0 * MarkerScale;
-		const auto ax1 = i.x1 * MarkerScale;
-		const auto ay1 = i.y1 * MarkerScale;
-		auto FromPoint = BasePoint;
-		auto ToPoint = BasePoint;
+		const auto ax0{i.x0 * MarkerScale};
+		const auto ay0{i.y0 * MarkerScale};
+		const auto ax1{i.x1 * MarkerScale};
+		const auto ay1{i.y1 * MarkerScale};
+		auto FromPoint{BasePoint};
+		auto ToPoint{BasePoint};
 		FromPoint.p3_vec.x += fixmul(fl2f(ax0), scale_x);
 		FromPoint.p3_vec.y += fixmul(fl2f(ay0), scale_y);
 		ToPoint.p3_vec.x += fixmul(fl2f(ax1), scale_x);
@@ -517,7 +517,7 @@ static void DrawMarkerNumber(grs_canvas &canvas, const automap &am, const game_m
 
 static void DropMarker(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, const object &plrobj, const game_marker_index marker_num, const player_marker_index player_marker_num)
 {
-	auto &marker_objidx = MarkerState.imobjidx[marker_num];
+	auto &marker_objidx{MarkerState.imobjidx[marker_num]};
 	if (marker_objidx != object_none)
 		obj_delete(LevelUniqueObjectState, Segments, vmobjptridx(marker_objidx));
 
@@ -531,16 +531,16 @@ static void DropMarker(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, con
 
 void DropBuddyMarker(object &objp)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptridx = Objects.vmptridx;
+	auto &Objects{LevelUniqueObjectState.Objects};
+	auto &vmobjptridx{Objects.vmptridx};
 
-	constexpr auto marker_num = game_marker_index::GuidebotDeathSite;
+	constexpr auto marker_num{game_marker_index::GuidebotDeathSite};
 	static_assert(MarkerState.message.valid_index(marker_num), "not enough markers");
 
-	auto &MarkerMessage = MarkerState.message[marker_num];
+	auto &MarkerMessage{MarkerState.message[marker_num]};
 	snprintf(MarkerMessage.data(), MarkerMessage.size(), "RIP: %s", static_cast<const char *>(PlayerCfg.GuidebotName));
 
-	auto &marker_objidx = MarkerState.imobjidx[marker_num];
+	auto &marker_objidx{MarkerState.imobjidx[marker_num]};
 	if (marker_objidx != object_none)
 		obj_delete(LevelUniqueObjectState, Segments, vmobjptridx(marker_objidx));
 
@@ -555,22 +555,22 @@ static void DrawMarkers(fvcobjptr &vcobjptr, grs_canvas &canvas, automap &am)
 {
 	static int cyc=10,cycdir=1;
 
-	const auto game_mode = Game_mode;
-	const auto max_numplayers = Netgame.max_numplayers;
-	const auto maxdrop = MarkerState.get_markers_per_player(game_mode, max_numplayers);
-	const auto &&game_marker_range = get_game_marker_range(game_mode, max_numplayers, Player_num, maxdrop);
-	const auto &&player_marker_range = get_player_marker_range(maxdrop);
-	const auto &&zipped_marker_range = zip(game_marker_range, player_marker_range, unchecked_partial_range(&MarkerState.imobjidx[*game_marker_range.begin()], maxdrop));
-	const auto &&mb = zipped_marker_range.begin();
-	const auto &&me = zipped_marker_range.end();
-	auto iter = mb;
+	const auto game_mode{Game_mode};
+	const auto max_numplayers{Netgame.max_numplayers};
+	const auto maxdrop{MarkerState.get_markers_per_player(game_mode, max_numplayers)};
+	const auto &&game_marker_range{get_game_marker_range(game_mode, max_numplayers, Player_num, maxdrop)};
+	const auto &&player_marker_range{get_player_marker_range(maxdrop)};
+	const auto &&zipped_marker_range{zip(game_marker_range, player_marker_range, unchecked_partial_range(&MarkerState.imobjidx[*game_marker_range.begin()], maxdrop))};
+	const auto &&mb{zipped_marker_range.begin()};
+	const auto &&me{zipped_marker_range.end()};
+	auto iter{mb};
 	/* Find the first marker object in the player's marker range that is
 	 * not object_none.  If every marker object in the range is
 	 * object_none, then there are no markers to draw, so return.
 	 */
 	for (;;)
 	{
-		auto &&[gmi, pmi, objidx] = *iter;
+		auto &&[gmi, pmi, objidx]{*iter};
 		(void)gmi;
 		(void)pmi;
 		if (objidx != object_none)
@@ -581,7 +581,7 @@ static void DrawMarkers(fvcobjptr &vcobjptr, grs_canvas &canvas, automap &am)
 	/* A marker was found, so at least one marker will be drawn.  Set up
 	 * colors for the markers.
 	 */
-	const auto current_cycle_color = cyc;
+	const auto current_cycle_color{cyc};
 	const std::array<color_t, 3> colors{{
 		gr_find_closest_color_current(current_cycle_color, 0, 0),
 		gr_find_closest_color_current(current_cycle_color + 10, 0, 0),
@@ -589,13 +589,13 @@ static void DrawMarkers(fvcobjptr &vcobjptr, grs_canvas &canvas, automap &am)
 	}};
 	for (; iter != me; ++iter)
 	{
-		auto &&[gmi, pmi, objidx] = *iter;
+		auto &&[gmi, pmi, objidx]{*iter};
 		if (objidx != object_none)
 		{
 			/* Use cg3s_point so that the type is const for OpenGL and
 			 * mutable for SDL-only.
 			 */
-			cg3s_point &&sphere_point = g3_rotate_point(vcobjptr(objidx)->pos);
+			cg3s_point &&sphere_point{g3_rotate_point(vcobjptr(objidx)->pos)};
 			g3_draw_sphere(canvas, sphere_point, MARKER_SPHERE_SIZE, colors[0]);
 			g3_draw_sphere(canvas, sphere_point, MARKER_SPHERE_SIZE / 2, colors[1]);
 			g3_draw_sphere(canvas, sphere_point, MARKER_SPHERE_SIZE / 4, colors[2]);
@@ -642,37 +642,25 @@ namespace {
 static void draw_player(const g3_draw_line_context &context, const object_base &obj)
 {
 	// Draw Console player -- shaped like a ellipse with an arrow.
-	auto sphere_point = g3_rotate_point(obj.pos);
-	const auto obj_size = obj.size;
+	auto sphere_point{g3_rotate_point(obj.pos)};
+	const auto obj_size{obj.size};
 	g3_draw_sphere(context.canvas, sphere_point, obj_size, context.color);
 
 	// Draw shaft of arrow
 	const auto head_pos{vm_vec_scale_add(obj.pos, obj.orient.fvec, obj_size * 2)};
 	{
-	auto &&arrow_point = g3_rotate_point(vm_vec_scale_add(obj.pos, obj.orient.fvec, obj_size * 3));
+	auto &&arrow_point{g3_rotate_point(vm_vec_scale_add(obj.pos, obj.orient.fvec, obj_size * 3))};
 	g3_draw_line(context, sphere_point, arrow_point);
 
 	// Draw right head of arrow
-	{
-		const auto rhead_pos{vm_vec_scale_add(head_pos, obj.orient.rvec, obj_size)};
-		auto head_point = g3_rotate_point(rhead_pos);
-		g3_draw_line(context, arrow_point, head_point);
-	}
+		g3_draw_line(context, arrow_point, /* head_point = */ g3_rotate_point(/* rhead_pos = */ vm_vec_scale_add(head_pos, obj.orient.rvec, obj_size)));
 
 	// Draw left head of arrow
-	{
-		const auto lhead_pos{vm_vec_scale_add(head_pos, obj.orient.rvec, -obj_size)};
-		auto head_point = g3_rotate_point(lhead_pos);
-		g3_draw_line(context, arrow_point, head_point);
-	}
+		g3_draw_line(context, arrow_point, /* head_point = */ g3_rotate_point(/* lhead_pos = */ vm_vec_scale_add(head_pos, obj.orient.rvec, -obj_size)));
 	}
 
 	// Draw player's up vector
-	{
-		const auto arrow_pos{vm_vec_scale_add(obj.pos, obj.orient.uvec, obj_size * 2)};
-	auto arrow_point = g3_rotate_point(arrow_pos);
-		g3_draw_line(context, sphere_point, arrow_point);
-	}
+	g3_draw_line(context, sphere_point, /* arrow_point = */ g3_rotate_point(/* arrow_pos = */ vm_vec_scale_add(obj.pos, obj.orient.uvec, obj_size * 2)));
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -691,7 +679,7 @@ static void name_frame(grs_canvas &canvas, automap &am)
 	gr_set_fontcolor(canvas, am.green_31, -1);
 	char		name_level_left[128];
 
-	auto &game_font = *GAME_FONT;
+	auto &game_font{*GAME_FONT};
 #if defined(DXX_BUILD_DESCENT_I)
 	const char *name_level;
 	if (Current_level_num > 0)
@@ -710,23 +698,23 @@ static void name_frame(grs_canvas &canvas, automap &am)
 	else
 		snprintf(name_level_left, sizeof(name_level_left), "Secret Level %i",-Current_level_num);
 
-	const char *const current_level_name = Current_level_name;
+	const char *const current_level_name{Current_level_name};
 	if (PLAYING_BUILTIN_MISSION && Current_level_num > 0)
 		snprintf(name_level_right, sizeof(name_level_right), "%s %d: %s", system_name[(Current_level_num-1)/4], ((Current_level_num - 1) % 4) + 1, current_level_name);
 	else
 		snprintf(name_level_right, sizeof(name_level_right), " %s", current_level_name);
 
 	gr_string(canvas, game_font, (SWIDTH / 64), (SHEIGHT / 48), name_level_left);
-	const auto &&[wr, h] = gr_get_string_size(game_font, name_level_right);
+	const auto &&[wr, h]{gr_get_string_size(game_font, name_level_right)};
 	gr_string(canvas, game_font, canvas.cv_bitmap.bm_w - wr - (SWIDTH / 64), (SHEIGHT / 48), name_level_right, wr, h);
 #endif
 }
 
 static void automap_apply_input(automap &am, const vms_matrix &plrorient, const vms_vector &plrpos)
 {
-	constexpr int SLIDE_SPEED = 350;
-	constexpr int ZOOM_SPEED_FACTOR = 500;	//(1500)
-	constexpr int ROT_SPEED_DIVISOR = 115000;
+	constexpr int SLIDE_SPEED{350};
+	constexpr int ZOOM_SPEED_FACTOR{500};	//(1500)
+	constexpr int ROT_SPEED_DIVISOR{115000};
 	if (PlayerCfg.AutomapFreeFlight)
 	{
 		if (am.controls.state.fire_primary)
@@ -745,7 +733,7 @@ static void automap_apply_input(automap &am, const vms_matrix &plrorient, const 
 			tangles.h = fixdiv(am.controls.heading_time, ROT_SPEED_DIVISOR);
 			tangles.b = fixdiv(am.controls.bank_time, ROT_SPEED_DIVISOR * 2);
 
-			const auto &&tempm = vm_angles_2_matrix(tangles);
+			const auto &&tempm{vm_angles_2_matrix(tangles)};
 			am.viewMatrix = vm_matrix_x_matrix(am.viewMatrix, tempm);
 			check_and_fix_matrix(am.viewMatrix);
 		}
@@ -782,12 +770,9 @@ static void automap_apply_input(automap &am, const vms_matrix &plrorient, const 
 
 		if (am.controls.vertical_thrust_time || am.controls.sideways_thrust_time)
 		{
-			vms_angvec      tangles1;
-			vms_vector      old_vt;
-
-			old_vt = am.view_target;
-			tangles1 = am.tangles;
-			const auto &&tempm = vm_angles_2_matrix(tangles1);
+			vms_vector old_vt{am.view_target};
+			vms_angvec tangles1{am.tangles};
+			const auto &&tempm{vm_angles_2_matrix(tangles1)};
 			vm_matrix_x_matrix(am.viewMatrix, plrorient, tempm);
 			vm_vec_scale_add2(am.view_target, am.viewMatrix.uvec, am.controls.vertical_thrust_time * SLIDE_SPEED);
 			vm_vec_scale_add2(am.view_target, am.viewMatrix.rvec, am.controls.sideways_thrust_time * SLIDE_SPEED);
@@ -795,7 +780,7 @@ static void automap_apply_input(automap &am, const vms_matrix &plrorient, const 
 				am.view_target = old_vt;
 		}
 
-		const auto &&tempm = vm_angles_2_matrix(am.tangles);
+		const auto &&tempm{vm_angles_2_matrix(am.tangles)};
 		vm_matrix_x_matrix(am.viewMatrix, plrorient, tempm);
 
 		clamp_fix_lh(am.viewDist, ZOOM_MIN_VALUE, ZOOM_MAX_VALUE);
@@ -808,7 +793,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 		am.leave_mode = 1;
 
 	{
-		auto &canvas = am.w_canv;
+		auto &canvas{am.w_canv};
 		show_fullscr(canvas, am.automap_background);
 		gr_set_fontcolor(canvas, BM_XRGB(20, 20, 20), -1);
 	{
@@ -825,8 +810,8 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 		int x;
 		int y0, y1, y2;
 #if defined(DXX_BUILD_DESCENT_I)
-		const auto s1 = TXT_SLIDE_UPDOWN;
-		const auto &s2 = "F9/F10 Changes viewing distance";
+		const auto s1{TXT_SLIDE_UPDOWN};
+		const auto &s2{"F9/F10 Changes viewing distance"};
 	if (!MacHog)
 	{
 			x = SWIDTH / 4.923;
@@ -843,21 +828,21 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 			y2 = 61 * (SHEIGHT / 480.);
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
-		const auto &s1 = "F9/F10 Changes viewing distance";
-		const auto s2 = TXT_AUTOMAP_MARKER;
+		const auto &s1{"F9/F10 Changes viewing distance"};
+		const auto s2{TXT_AUTOMAP_MARKER};
 		x = SWIDTH / 10.666;
 		y0 = SHEIGHT / 1.126;
 		y1 = SHEIGHT / 1.083;
 		y2 = SHEIGHT / 1.043;
 #endif
-		auto &game_font = *GAME_FONT;
+		auto &game_font{*GAME_FONT};
 		gr_string(canvas, game_font, x, y0, TXT_TURN_SHIP);
 		gr_string(canvas, game_font, x, y1, s1);
 		gr_string(canvas, game_font, x, y2, s2);
 	}
 
 	}
-	auto &canvas = am.automap_view;
+	auto &canvas{am.automap_view};
 
 	gr_clear_canvas(canvas, BM_XRGB(0,0,0));
 
@@ -872,8 +857,8 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 	draw_all_edges(am);
 
 	// Draw player...
-	const auto &self_ship_rgb = player_rgb[get_player_or_team_color(Player_num)];
-	const auto closest_color = BM_XRGB(self_ship_rgb.r, self_ship_rgb.g, self_ship_rgb.b);
+	const auto &self_ship_rgb{player_rgb[get_player_or_team_color(Player_num)]};
+	const auto closest_color{BM_XRGB(self_ship_rgb.r, self_ship_rgb.g, self_ship_rgb.b)};
 	draw_player(g3_draw_line_context{canvas, closest_color}, vcobjptr(get_local_player().objnum));
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -881,23 +866,23 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 #endif
 	
 	// Draw player(s)...
-	const unsigned show_all_players = (Game_mode & GM_MULTI_COOP) || underlying_value(Netgame.game_flag & netgame_rule_flags::show_all_players_on_automap);
+	const unsigned show_all_players{(Game_mode & GM_MULTI_COOP) || underlying_value(Netgame.game_flag & netgame_rule_flags::show_all_players_on_automap)};
 	if (show_all_players || (Game_mode & GM_TEAM))
 	{
-		const auto local_player_team = get_team(Player_num);
-		const auto n_players = N_players;
+		const auto local_player_team{get_team(Player_num)};
+		const auto n_players{N_players};
 		for (const auto iu : xrange(n_players))
 		{
-			const auto i = static_cast<playernum_t>(iu);
+			const auto i{static_cast<playernum_t>(iu)};
 			if (i == Player_num)
 				continue;
 			if (show_all_players || local_player_team == get_team(i))
 			{
-				auto &plr = *vcplayerptr(i);
-				auto &objp = *vcobjptr(plr.objnum);
+				auto &plr{*vcplayerptr(i)};
+				auto &objp{*vcobjptr(plr.objnum)};
 				if (objp.type == OBJ_PLAYER)
 				{
-					const auto &other_ship_rgb = player_rgb[get_player_or_team_color(i)];
+					const auto &other_ship_rgb{player_rgb[get_player_or_team_color(i)]};
 					draw_player(g3_draw_line_context{canvas, BM_XRGB(other_ship_rgb.r, other_ship_rgb.g, other_ship_rgb.b)}, objp);
 				}
 			}
@@ -941,11 +926,10 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 
 #if defined(DXX_BUILD_DESCENT_II)
 	{
-		const auto HighlightMarker = MarkerState.HighlightMarker;
+		const auto HighlightMarker{MarkerState.HighlightMarker};
 		if (MarkerState.message.valid_index(HighlightMarker))
 		{
-			auto &m = MarkerState.message[HighlightMarker];
-			auto &p = m[0u];
+			auto &p{MarkerState.message[HighlightMarker][0u]};
 			gr_printf(canvas, *canvas.cv_font, (SWIDTH / 64), (SHEIGHT / 18), "Marker %u%c %s", static_cast<unsigned>(HighlightMarker) + 1, p ? ':' : 0, &p);
 		}
 	}
@@ -953,16 +937,16 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 
 	if (PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
 	{
-		const auto gwidth = canvas.cv_bitmap.bm_w;
-		const auto gheight = canvas.cv_bitmap.bm_h;
-		auto &raw_mouse_axis = am.controls.raw_mouse_axis;
+		const auto gwidth{canvas.cv_bitmap.bm_w};
+		const auto gheight{canvas.cv_bitmap.bm_h};
+		auto &raw_mouse_axis{am.controls.raw_mouse_axis};
 		show_mousefs_indicator(canvas, raw_mouse_axis[0], raw_mouse_axis[1], raw_mouse_axis[2], gwidth - (gheight / 8), gheight - (gheight / 8), gheight / 5);
 	}
 
 	am.t2 = timer_query();
-	const auto vsync = CGameCfg.VSync;
-	const auto bound = F1_0 / (vsync ? MAXIMUM_FPS : CGameArg.SysMaxFPS);
-	const auto may_sleep = !CGameArg.SysNoNiceFPS && !vsync;
+	const auto vsync{CGameCfg.VSync};
+	const auto bound{F1_0 / (vsync ? MAXIMUM_FPS : CGameArg.SysMaxFPS)};
+	const auto may_sleep{!CGameArg.SysNoNiceFPS && !vsync};
 	while (am.t2 - am.t1 < bound) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
 	{
 		if (Game_mode & GM_MULTI)
@@ -993,10 +977,10 @@ static void recompute_automap_segment_visibility(const d_level_unique_automap_st
 static window_event_result automap_key_command(const d_event &event, automap &am)
 {
 #if defined(DXX_BUILD_DESCENT_I) || !defined(NDEBUG)
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptr = Objects.vmptr;
+	auto &Objects{LevelUniqueObjectState.Objects};
+	auto &vmobjptr{Objects.vmptr};
 #endif
-	int c = event_key_get(event);
+	int c{event_key_get(event)};
 
 	switch (c)
 	{
@@ -1019,7 +1003,7 @@ static window_event_result automap_key_command(const d_event &event, automap &am
 			{
 				cheats.fullautomap = !cheats.fullautomap;
 				// if cheat of map powerup, work with full depth
-				auto &plrobj = get_local_plrobj();
+				auto &plrobj{get_local_plrobj()};
 				recompute_automap_segment_visibility(LevelUniqueAutomapState, plrobj, am);
 			}
 			return window_event_result::handled;
@@ -1027,7 +1011,7 @@ static window_event_result automap_key_command(const d_event &event, automap &am
 #ifndef NDEBUG
 		case KEY_DEBUGGED+KEY_F: 	{
 				Automap_debug_show_all_segments = !Automap_debug_show_all_segments;
-				auto &plrobj = get_local_plrobj();
+				auto &plrobj{get_local_plrobj()};
 				recompute_automap_segment_visibility(LevelUniqueAutomapState, plrobj, am);
 			}
 			return window_event_result::handled;
@@ -1057,13 +1041,13 @@ static window_event_result automap_key_command(const d_event &event, automap &am
 		case KEY_9:
 		case KEY_0:
 			{
-				const auto game_mode = Game_mode;
-				const auto max_numplayers = Netgame.max_numplayers;
-				const auto maxdrop = MarkerState.get_markers_per_player(game_mode, max_numplayers);
+				const auto game_mode{Game_mode};
+				const auto max_numplayers{Netgame.max_numplayers};
+				const auto maxdrop{MarkerState.get_markers_per_player(game_mode, max_numplayers)};
 				const uint8_t marker_num = c - KEY_1;
 				if (marker_num <= maxdrop)
 				{
-					const auto gmi = convert_player_marker_index_to_game_marker_index(game_mode, max_numplayers, Player_num, player_marker_index{marker_num});
+					const auto gmi{convert_player_marker_index_to_game_marker_index(game_mode, max_numplayers, Player_num, player_marker_index{marker_num})};
 					if (MarkerState.imobjidx[gmi] != object_none)
 						MarkerState.HighlightMarker = gmi;
 				}
@@ -1073,7 +1057,7 @@ static window_event_result automap_key_command(const d_event &event, automap &am
 			return window_event_result::handled;
 		case KEY_D+KEY_CTRLED:
 			{
-				if (const auto [mo, HighlightMarker] = marker_delete_are_you_sure_menu::get_marker_object(MarkerState); mo == nullptr)
+				if (const auto &&[mo, HighlightMarker]{marker_delete_are_you_sure_menu::get_marker_object(MarkerState)}; mo == nullptr)
 				{
 					(void)HighlightMarker;
 					/* If the selected index is not a valid marker, do
@@ -1081,7 +1065,7 @@ static window_event_result automap_key_command(const d_event &event, automap &am
 					 */
 					return window_event_result::handled;
 				}
-				auto menu = window_create<marker_delete_are_you_sure_menu>(grd_curscreen->sc_canvas, LevelUniqueObjectState, Segments, MarkerState);
+				auto menu{window_create<marker_delete_are_you_sure_menu>(grd_curscreen->sc_canvas, LevelUniqueObjectState, Segments, MarkerState)};
 				(void)menu;
 			}
 			return window_event_result::handled;
@@ -1123,9 +1107,9 @@ static window_event_result automap_process_input(const d_event &event, automap &
 
 window_event_result automap::event_handler(const d_event &event)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vcobjptr = Objects.vcptr;
-	auto &vmobjptr = Objects.vmptr;
+	auto &Objects{LevelUniqueObjectState.Objects};
+	auto &vcobjptr{Objects.vcptr};
+	auto &vmobjptr{Objects.vmptr};
 	switch (event.type)
 	{
 		case event_type::window_activated:
@@ -1160,14 +1144,14 @@ window_event_result automap::event_handler(const d_event &event)
 			return automap_process_input(event, *this);
 		case event_type::key_command:
 		{
-			window_event_result kret = automap_key_command(event, *this);
+			window_event_result kret{automap_key_command(event, *this)};
 			if (kret == window_event_result::ignored)
 				kret = automap_process_input(event, *this);
 			return kret;
 		}
 		case event_type::window_draw:
 			{
-				auto &plrobj = get_local_plrobj();
+				auto &plrobj{get_local_plrobj()};
 				automap_apply_input(*this, plrobj.orient, plrobj.pos);
 			}
 			draw_automap(vcobjptr, *this);
@@ -1206,11 +1190,11 @@ window_event_result automap::event_handler(const d_event &event)
 
 void do_automap()
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptr = Objects.vmptr;
+	auto &Objects{LevelUniqueObjectState.Objects};
+	auto &vmobjptr{Objects.vmptr};
 	palette_array_t pal;
-	auto am = window_create<automap>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
-	const auto max_edges = LevelSharedSegmentState.Num_segments * 12;
+	auto am{window_create<automap>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT)};
+	const auto max_edges{LevelSharedSegmentState.Num_segments * 12};
 	am->max_edges = max_edges;
 	am->edges = std::make_unique<Edge_info[]>(max_edges);
 	am->drawingListBright = std::make_unique<Edge_info *[]>(max_edges);
@@ -1234,7 +1218,7 @@ void do_automap()
 	if ( am->viewDist==0 )
 		am->viewDist = ZOOM_DEFAULT;
 
-	auto &plrobj = get_local_plrobj();
+	auto &plrobj{get_local_plrobj()};
 	am->viewMatrix = plrobj.orient;
 	am->tangles.p = PITCH_DEFAULT;
 	am->tangles.h  = 0;
@@ -1253,7 +1237,7 @@ void do_automap()
 	// ZICO - code from above to show frame in OGL correctly. Redundant, but better readable.
 	// KREATOR - Now applies to all platforms so double buffering is supported
 	{
-		const auto pcx_error = pcx_read_bitmap_or_default(MAP_BACKGROUND_FILENAME, am->automap_background, pal);
+		const auto pcx_error{pcx_read_bitmap_or_default(MAP_BACKGROUND_FILENAME, am->automap_background, pal)};
 		if (pcx_error != pcx_result::SUCCESS)
 			con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "automap: File %s - PCX error: %s"), MAP_BACKGROUND_FILENAME, pcx_errormsg(pcx_error));
 		gr_remap_bitmap_good(am->automap_background, pal, -1, -1);
@@ -1269,19 +1253,17 @@ namespace {
 
 void draw_all_edges(automap &am)
 {
-	auto &canvas = am.automap_view;
-	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
-	auto &Vertices = LevelSharedVertexState.get_vertices();
-	int j;
-	unsigned nbright = 0;
-	ubyte nfacing,nnfacing;
+	auto &canvas{am.automap_view};
+	auto &LevelSharedVertexState{LevelSharedSegmentState.get_vertex_state()};
+	auto &Vertices{LevelSharedVertexState.get_vertices()};
+	unsigned nbright{0};
 	fix distance;
-	fix min_distance = INT32_MAX;
+	fix min_distance{INT32_MAX};
 
-	auto &vcvertptr = Vertices.vcptr;
+	auto &vcvertptr{Vertices.vcptr};
 	range_for (auto &i, unchecked_partial_range(am.edges.get(), am.end_valid_edges))
 	{
-		const auto e = &i;
+		const auto e{&i};
 		if (!(e->flags & EF_USED)) continue;
 
 		if ( e->flags & EF_TOO_FAR) continue;
@@ -1297,9 +1279,10 @@ void draw_all_edges(automap &am)
 
 		if (rotate_list(vcvertptr, e->verts).uand == clipping_code::None)
 		{			//all off screen?
-			nfacing = nnfacing = 0;
-			auto &tv1 = *vcvertptr(e->verts[0]);
-			j = 0;
+			uint8_t nfacing{};
+			uint8_t nnfacing{};
+			auto &tv1{*vcvertptr(e->verts[0])};
+			int j{0};
 			while( j<e->num_faces && (nfacing==0 || nnfacing==0) )	{
 				if (!g3_check_normal_facing(tv1, vcsegptr(e->segnum[j])->shared_segment::sides[e->sides[j]].normals[0]))
 					nfacing++;
@@ -1327,26 +1310,26 @@ void draw_all_edges(automap &am)
 	if ( min_distance < 0 ) min_distance = 0;
 
 	// Sort the bright ones using a shell sort
-	const auto &&range = unchecked_partial_range(am.drawingListBright.get(), nbright);
+	const auto &&range{unchecked_partial_range(am.drawingListBright.get(), nbright)};
 	std::sort(range.begin(), range.end(), [](const Edge_info *const a, const Edge_info *const b) {
-		const auto &v1 = a->verts[0];
-		const auto &v2 = b->verts[0];
+		const auto &v1{a->verts[0]};
+		const auto &v2{b->verts[0]};
 		return Segment_points[v1].p3_vec.z < Segment_points[v2].p3_vec.z;
 	});
 	// Draw the bright ones
 	range_for (const auto e, range)
 	{
-		const auto p1 = &Segment_points[e->verts[0]];
-		const auto p2 = &Segment_points[e->verts[1]];
-		fix dist;
-		dist = p1->p3_vec.z - min_distance;
+		const auto p1{&Segment_points[e->verts[0]]};
+		const auto p2{&Segment_points[e->verts[1]]};
+		fix dist{p1->p3_vec.z - min_distance};
 		// Make distance be 1.0 to 0.0, where 0.0 is 10 segments away;
 		if ( dist < 0 ) dist=0;
 		if ( dist >= am.farthest_dist ) continue;
 
-		const auto color = (e->flags & EF_NO_FADE)
+		const auto color{(e->flags & EF_NO_FADE)
 			? e->color
-			: gr_fade_table[static_cast<gr_fade_level>(f2i((F1_0 - fixdiv(dist, am.farthest_dist)) * 31))][e->color];	
+			: gr_fade_table[static_cast<gr_fade_level>(f2i((F1_0 - fixdiv(dist, am.farthest_dist)) * 31))][e->color]
+		};
 		g3_draw_line(g3_draw_line_context{canvas, color}, *p1, *p2);
 	}
 }
@@ -1360,14 +1343,14 @@ void draw_all_edges(automap &am)
 //finds edge, filling in edge_ptr. if found old edge, returns index, else return -1
 static std::pair<Edge_info &, std::size_t> automap_find_edge(automap &am, const vertnum_t v0, const vertnum_t v1)
 {
-	const auto &&hash_object = std::hash<vertnum_t>{};
-	const auto initial_hash_slot = (hash_object(v0) ^ (hash_object(v1) << 10)) % am.max_edges;
+	const auto &&hash_object{std::hash<vertnum_t>{}};
+	const auto initial_hash_slot{(hash_object(v0) ^ (hash_object(v1) << 10)) % am.max_edges};
 
-	for (auto current_hash_slot = initial_hash_slot;;)
+	for (auto current_hash_slot{initial_hash_slot};;)
 	{
-		auto &e = am.edges[current_hash_slot];
-		const auto ev0 = e.verts[0];
-		const auto ev1 = e.verts[1];
+		auto &e{am.edges[current_hash_slot]};
+		const auto ev0{e.verts[0]};
+		const auto ev1{e.verts[1]};
 		if (e.num_faces == 0)
 			return {e, current_hash_slot};
 		if (v1 == ev1 && v0 == ev0)
@@ -1398,8 +1381,8 @@ static void add_one_edge(automap &am, vertnum_t va, vertnum_t vb, const uint8_t 
 	if ( va > vb )	{
 		std::swap(va, vb);
 	}
-	const auto &&ef = automap_find_edge(am, va, vb);
-	const auto e = &ef.first;
+	const auto &&ef{automap_find_edge(am, va, vb)};
+	const auto e{&ef.first};
 		
 	if (ef.second != UINT32_MAX)
 	{
@@ -1411,7 +1394,7 @@ static void add_one_edge(automap &am, vertnum_t va, vertnum_t vb, const uint8_t 
 		e->sides[0] = side;
 		e->segnum[0] = segnum;
 		++ am.num_edges;
-		const auto i = ef.second + 1;
+		const auto i{ef.second + 1};
 		if (am.end_valid_edges < i)
 			am.end_valid_edges = i;
 	} else {
@@ -1436,26 +1419,26 @@ static void add_one_unknown_edge(automap &am, vertnum_t va, vertnum_t vb)
 		std::swap(va, vb);
 	}
 
-	const auto &&ef = automap_find_edge(am, va, vb);
+	const auto &&ef{automap_find_edge(am, va, vb)};
 	if (ef.second == UINT32_MAX)
 		ef.first.flags |= EF_FRONTIER;		// Mark as a border edge
 }
 
 static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automap &am, const vcsegptridx_t seg)
 {
-	auto &ControlCenterState = LevelUniqueObjectState.ControlCenterState;
-	auto &WallAnims = GameSharedState.WallAnims;
+	auto &ControlCenterState{LevelUniqueObjectState.ControlCenterState};
+	auto &WallAnims{GameSharedState.WallAnims};
 #if defined(DXX_BUILD_DESCENT_II)
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptr = Objects.vmptr;
+	auto &Objects{LevelUniqueObjectState.Objects};
+	auto &vmobjptr{Objects.vmptr};
 #endif
 	for (const auto sn : MAX_SIDES_PER_SEGMENT)
 	{
-		uint8_t hidden_flag = 0;
-		uint8_t is_grate = 0;
-		uint8_t no_fade = 0;
+		uint8_t hidden_flag{0};
+		uint8_t is_grate{0};
+		uint8_t no_fade{0};
 
-		uint8_t color = 255;
+		uint8_t color{255};
 		if (seg->shared_segment::children[sn] == segment_none) {
 			color = am.wall_normal_color;
 		}
@@ -1480,14 +1463,14 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 			break;
 		}
 
-		const auto wall_num = seg->shared_segment::sides[sn].wall_num;
+		const auto wall_num{seg->shared_segment::sides[sn].wall_num};
 		if (wall_num != wall_none)
 		{
-			auto &w = *vcwallptr(wall_num);
+			auto &w{*vcwallptr(wall_num)};
 #if defined(DXX_BUILD_DESCENT_II)
-			auto trigger_num = w.trigger;
-			auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
-			auto &vmtrgptr = Triggers.vmptr;
+			auto trigger_num{w.trigger};
+			auto &Triggers{LevelUniqueWallSubsystemState.Triggers};
+			auto &vmtrgptr{Triggers.vmptr};
 			if (trigger_num != trigger_none && vmtrgptr(trigger_num)->type == trigger_action::secret_exit)
 				{
 			    color = BM_XRGB( 29, 0, 31 );
@@ -1505,13 +1488,13 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 				{
 					no_fade = EF_NO_FADE;
 				} else if (!(WallAnims[w.clip_num].flags & WCF_HIDDEN)) {
-					const auto connected_seg = seg->shared_segment::children[sn];
+					const auto connected_seg{seg->shared_segment::children[sn]};
 					if (connected_seg != segment_none) {
-						const shared_segment &vcseg = *vcsegptr(connected_seg);
-						const auto &connected_side = find_connect_side(seg, vcseg);
+						const shared_segment &vcseg{*vcsegptr(connected_seg)};
+						const auto &connected_side{find_connect_side(seg, vcseg)};
 						if (connected_side == side_none)
 							break;
-						auto &wall = *vcwallptr(vcseg.sides[connected_side].wall_num);
+						auto &wall{*vcwallptr(vcseg.sides[connected_side].wall_num)};
 						switch (wall.keys)
 						{
 							case wall_key::blue:
@@ -1561,13 +1544,13 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 			if (!Automap_debug_show_all_segments)
 #endif
 			{
-			auto &player_info = get_local_plrobj().ctype.player_info;
+			auto &player_info{get_local_plrobj().ctype.player_info};
 				if ((cheats.fullautomap || player_info.powerup_flags & PLAYER_FLAGS_MAP_ALL) && !LevelUniqueAutomapState.Automap_visited[seg])
 				color = am.wall_revealed_color;
 			}
 			Here:
 #endif
-			const auto vertex_list = get_side_verts(seg,sn);
+			const auto vertex_list{get_side_verts(seg,sn)};
 			const uint8_t flags = hidden_flag | no_fade;
 			add_one_edge(am, vertex_list[0], vertex_list[1], color, sn, seg, flags);
 			add_one_edge(am, vertex_list[1], vertex_list[2], color, sn, seg, flags);
@@ -1593,7 +1576,7 @@ static void add_unknown_segment_edges(automap &am, const shared_segment &seg)
 		// Only add edges that have no children
 		if (child == segment_none)
 		{
-			const auto vertex_list = get_side_verts(seg, static_cast<sidenum_t>(sn));
+			const auto vertex_list{get_side_verts(seg, static_cast<sidenum_t>(sn))};
 	
 			add_one_unknown_edge( am, vertex_list[0], vertex_list[1] );
 			add_one_unknown_edge( am, vertex_list[1], vertex_list[2] );
@@ -1614,8 +1597,8 @@ void automap_build_edge_list(automap &am, int add_all_edges)
 	am.num_edges = 0;
 	am.end_valid_edges = 0;
 
-	auto &Walls = LevelUniqueWallSubsystemState.Walls;
-	auto &vcwallptr = Walls.vcptr;
+	auto &Walls{LevelUniqueWallSubsystemState.Walls};
+	auto &vcwallptr{Walls.vcptr};
 	if (add_all_edges)	{
 		// Cheating, add all edges as visited
 		range_for (const auto &&segp, vcsegptridx)
@@ -1654,21 +1637,21 @@ void automap_build_edge_list(automap &am, int add_all_edges)
 	// Find unnecessary lines (These are lines that don't have to be drawn because they have small curvature)
 	for (auto &i : unchecked_partial_range(am.edges.get(), am.end_valid_edges))
 	{
-		const auto e = &i;
+		const auto e{&i};
 		if (!(e->flags&EF_USED)) continue;
 
-		const auto num_faces = e->num_faces;
+		const auto num_faces{e->num_faces};
 		if (num_faces < 2)
 			continue;
-		for (unsigned e1 = 0; e1 < num_faces; ++e1)
+		for (unsigned e1{0}; e1 < num_faces; ++e1)
 		{
-			const auto e1segnum = e->segnum[e1];
-			const auto &e1siden0 = vcsegptr(e1segnum)->shared_segment::sides[e->sides[e1]].normals[0];
-			for (unsigned e2 = 1; e2 < num_faces; ++e2)
+			const auto e1segnum{e->segnum[e1]};
+			const auto &e1siden0{vcsegptr(e1segnum)->shared_segment::sides[e->sides[e1]].normals[0]};
+			for (unsigned e2{1}; e2 < num_faces; ++e2)
 			{
 				if (e1 == e2)
 					continue;
-				const auto e2segnum = e->segnum[e2];
+				const auto e2segnum{e->segnum[e2]};
 				if (e1segnum == e2segnum)
 					continue;
 				if (vm_vec_dot(e1siden0, vcsegptr(e2segnum)->shared_segment::sides[e->sides[e2]].normals[0]) > (F1_0 - (F1_0 / 10)))
@@ -1689,18 +1672,18 @@ void automap_build_edge_list(automap &am, int add_all_edges)
 void InitMarkerInput ()
 {
 	//find free marker slot
-	const auto game_mode = Game_mode;
-	const auto max_numplayers = Netgame.max_numplayers;
-	const auto maxdrop = MarkerState.get_markers_per_player(game_mode, max_numplayers);
-	const auto &&game_marker_range = get_game_marker_range(game_mode, max_numplayers, Player_num, maxdrop);
-	const auto &&player_marker_range = get_player_marker_range(maxdrop);
-	const auto &&zipped_marker_range = zip(player_marker_range, unchecked_partial_range(&MarkerState.imobjidx[*game_marker_range.begin()], maxdrop));
-	const auto &&mb = zipped_marker_range.begin();
-	const auto &&me = zipped_marker_range.end();
-	auto iter = mb;
+	const auto game_mode{Game_mode};
+	const auto max_numplayers{Netgame.max_numplayers};
+	const auto maxdrop{MarkerState.get_markers_per_player(game_mode, max_numplayers)};
+	const auto &&game_marker_range{get_game_marker_range(game_mode, max_numplayers, Player_num, maxdrop)};
+	const auto &&player_marker_range{get_player_marker_range(maxdrop)};
+	const auto &&zipped_marker_range{zip(player_marker_range, unchecked_partial_range(&MarkerState.imobjidx[*game_marker_range.begin()], maxdrop))};
+	const auto &&mb{zipped_marker_range.begin()};
+	const auto &&me{zipped_marker_range.end()};
+	auto iter{mb};
 	for (;;)
 	{
-		auto &&[pmi, objidx] = *iter;
+		auto &&[pmi, objidx]{*iter};
 		if (objidx == object_none)		//found free slot!
 		{
 			MarkerState.MarkerBeingDefined = pmi;
@@ -1731,9 +1714,9 @@ void InitMarkerInput ()
 
 window_event_result MarkerInputMessage(int key, control_info &Controls)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptr = Objects.vmptr;
-	auto &vmobjptridx = Objects.vmptridx;
+	auto &Objects{LevelUniqueObjectState.Objects};
+	auto &vmobjptr{Objects.vmptr};
+	auto &vmobjptridx{Objects.vmptridx};
 	switch( key )
 	{
 		case KEY_LEFT:
@@ -1745,9 +1728,9 @@ window_event_result MarkerInputMessage(int key, control_info &Controls)
 			break;
 		case KEY_ENTER:
 			{
-				const auto player_marker_num = MarkerState.MarkerBeingDefined;
+				const auto player_marker_num{MarkerState.MarkerBeingDefined};
 				MarkerState.LastMarkerDropped = player_marker_num;
-				const auto game_marker_num = convert_player_marker_index_to_game_marker_index(Game_mode, Netgame.max_numplayers, Player_num, player_marker_num);
+				const auto game_marker_num{convert_player_marker_index_to_game_marker_index(Game_mode, Netgame.max_numplayers, Player_num, player_marker_num)};
 				MarkerState.message[game_marker_num] = Marker_input;
 				DropMarker(vmobjptridx, vmsegptridx, get_local_plrobj(), game_marker_num, player_marker_num);
 			}
@@ -1760,7 +1743,7 @@ window_event_result MarkerInputMessage(int key, control_info &Controls)
 			break;
 		default:
 		{
-			int ascii = key_ascii();
+			int ascii{key_ascii()};
 			if ((ascii < 255 ))
 				if (Marker_index < Marker_input.size() - 1)
 				{
