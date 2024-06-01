@@ -68,7 +68,8 @@ static inline PHYSFS_sint64 PHYSFSX_check_readBytes(PHYSFS_File *const file, std
 {
 	static_assert(std::is_standard_layout<V>::value && std::is_trivial<V>::value, "C++ array of non-POD elements read");
 #ifdef DXX_CONSTANT_TRUE
-	(void)(_DXX_PHYSFS_CHECK_SIZE(len, sizeof(V) * std::size(buffer)) && (DXX_ALWAYS_ERROR_FUNCTION("read size exceeds array size"), 0));
+	if (constexpr size_t compiler_determined_buffer_size{sizeof(V) * N}; _DXX_PHYSFS_CHECK_SIZE(len, compiler_determined_buffer_size))
+		DXX_ALWAYS_ERROR_FUNCTION("read size exceeds array size");
 #endif
 	return {PHYSFSX_check_readBytes(file, std::data(buffer), {len})};
 }
