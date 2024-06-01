@@ -1911,7 +1911,6 @@ static void read_d1_tmap_nums_from_hog(const NamedPHYSFS_File d1_pig)
 	int reading_textures = 0;
 	short texture_count = 0;
 	int bitmaps_tbl_is_binary = 0;
-	int i;
 
 	auto &&[bitmaps, physfserr] = PHYSFSX_openReadBuffered("bitmaps.tbl");
 	if (!bitmaps) {
@@ -1936,7 +1935,7 @@ static void read_d1_tmap_nums_from_hog(const NamedPHYSFS_File d1_pig)
 		if (bitmaps_tbl_is_binary)
 			decode_text_line((inputline));
 		else
-			while (inputline[(i=strlen(inputline))-2]=='\\')
+			for (std::size_t i; inputline[(i=strlen(inputline))-2]=='\\';)
 			{
 				if (!PHYSFSX_fgets(inputline, bitmaps, i - 2)) // strip comments
 					break;
