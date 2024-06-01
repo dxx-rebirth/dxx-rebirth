@@ -456,7 +456,6 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 	int sbytes = 0;
 	int N_sounds;
 	int size;
-	int pigsize;
 	GameSounds = {};
 
 	static_assert(GameBitmapXlat.size() == GameBitmaps.size(), "size mismatch");
@@ -501,29 +500,28 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 		return properties_init_result::use_gamedata_read_tbl;	// need to run gamedata_read_tbl
 	}
 
-	pigsize = PHYSFS_fileLength(Piggy_fp);
 	unsigned Pigdata_start;
-	switch (pigsize) {
-		case D1_SHARE_BIG_PIGSIZE:
-		case D1_SHARE_10_PIGSIZE:
-		case D1_SHARE_PIGSIZE:
+	switch (descent1_pig_size{PHYSFS_fileLength(Piggy_fp)}) {
+		case descent1_pig_size::d1_share_big_pigsize:
+		case descent1_pig_size::d1_share_10_pigsize:
+		case descent1_pig_size::d1_share_pigsize:
 			PCSharePig = 1;
 			Pigdata_start = 0;
 			break;
-		case D1_10_BIG_PIGSIZE:
-		case D1_10_PIGSIZE:
+		case descent1_pig_size::d1_10_big_pigsize:
+		case descent1_pig_size::d1_10_pigsize:
 			Pigdata_start = 0;
 			break;
 		default:
 			Warning_puts("Unknown size for " DEFAULT_PIGFILE_REGISTERED);
 			Int3();
 			[[fallthrough]];
-		case D1_MAC_PIGSIZE:
-		case D1_MAC_SHARE_PIGSIZE:
+		case descent1_pig_size::d1_mac_pigsize:
+		case descent1_pig_size::d1_mac_share_pigsize:
 			MacPig = 1;
 			[[fallthrough]];
-		case D1_PIGSIZE:
-		case D1_OEM_PIGSIZE:
+		case descent1_pig_size::d1_pigsize:
+		case descent1_pig_size::d1_oem_pigsize:
 			Pigdata_start = PHYSFSX_readInt(Piggy_fp );
 			break;
 	}
@@ -1193,7 +1191,7 @@ void piggy_read_sounds(int pc_shareware)
 				return;
 			}
 		}
-		else if (PHYSFSX_fsize(DEFAULT_PIGFILE_REGISTERED) == D1_MAC_SHARE_PIGSIZE)
+		else if (descent1_pig_size{PHYSFSX_fsize(DEFAULT_PIGFILE_REGISTERED)} == descent1_pig_size::d1_mac_share_pigsize)
 		{
 			con_printf(CON_URGENT,"Warning: Missing Sounds/sounds.array for Mac data files");
 			return;
@@ -1811,7 +1809,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 					 palette_array_t &d1_palette, /* what palette the bitmap has */
 					 std::array<color_palette_index, 256> &colormap) /* how to translate bitmap's colors */
 {
-	int zsize, pigsize = PHYSFS_fileLength(d1_Piggy_fp);
+	int zsize;
 	uint8_t *data;
 	int width;
 
@@ -1840,9 +1838,12 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 
 	PHYSFSX_readBytes(d1_Piggy_fp, data, zsize);
 	gr_set_bitmap_data(*bitmap, data);
-	switch(pigsize) {
-	case D1_MAC_PIGSIZE:
-	case D1_MAC_SHARE_PIGSIZE:
+	switch (descent1_pig_size{PHYSFS_fileLength(d1_Piggy_fp)})
+	{
+		default:
+			break;
+		case descent1_pig_size::d1_mac_pigsize:
+		case descent1_pig_size::d1_mac_share_pigsize:
 		if (bmh->flags & BM_FLAG_RLE)
 			rle_swap_0_255(*bitmap);
 		else
@@ -2014,7 +2015,6 @@ void load_d1_bitmap_replacements()
 	uint8_t * next_bitmap;
 	palette_array_t d1_palette;
 	char *p;
-	int pigsize;
 
 	auto &&[d1_Piggy_fp, physfserr] = PHYSFSX_openReadBuffered(D1_PIGFILE);
 #define D1_PIG_LOAD_FAILED "Failed loading " D1_PIGFILE
@@ -2030,13 +2030,13 @@ void load_d1_bitmap_replacements()
 	if (get_d1_colormap( d1_palette, colormap ) != 0)
 		Warning_puts("Failed to load Descent 1 color palette");
 
-	pigsize = PHYSFS_fileLength(d1_Piggy_fp);
-	switch (pigsize) {
-	case D1_SHARE_BIG_PIGSIZE:
-	case D1_SHARE_10_PIGSIZE:
-	case D1_SHARE_PIGSIZE:
-	case D1_10_BIG_PIGSIZE:
-	case D1_10_PIGSIZE:
+	switch (descent1_pig_size{PHYSFS_fileLength(d1_Piggy_fp)})
+	{
+		case descent1_pig_size::d1_share_big_pigsize:
+		case descent1_pig_size::d1_share_10_pigsize:
+		case descent1_pig_size::d1_share_pigsize:
+		case descent1_pig_size::d1_10_big_pigsize:
+		case descent1_pig_size::d1_10_pigsize:
 		pig_data_start = 0;
 		// OK, now we need to read d1_tmap_nums by emulating d1's gamedata_read_tbl()
 		read_d1_tmap_nums_from_hog(d1_Piggy_fp);
@@ -2045,10 +2045,10 @@ void load_d1_bitmap_replacements()
 		Warning_puts("Unknown size for " D1_PIGFILE);
 		Int3();
 		[[fallthrough]];
-	case D1_PIGSIZE:
-	case D1_OEM_PIGSIZE:
-	case D1_MAC_PIGSIZE:
-	case D1_MAC_SHARE_PIGSIZE:
+		case descent1_pig_size::d1_pigsize:
+		case descent1_pig_size::d1_oem_pigsize:
+		case descent1_pig_size::d1_mac_pigsize:
+		case descent1_pig_size::d1_mac_share_pigsize:
 		pig_data_start = PHYSFSX_readInt(d1_Piggy_fp );
 		bm_read_d1_tmap_nums(d1_Piggy_fp); //was: bm_read_all_d1(fp);
 		//for (i = 0; i < 1800; i++) GameBitmapXlat[i] = PHYSFSX_readShort(d1_Piggy_fp);
@@ -2120,7 +2120,6 @@ grs_bitmap *read_extra_bitmap_d1_pig(const std::span<const char> name, grs_bitma
 		int pig_data_start, bitmap_header_start, bitmap_data_start;
 		int N_bitmaps;
 		palette_array_t d1_palette;
-		int pigsize;
 		auto &&[d1_Piggy_fp, physfserr] = PHYSFSX_openReadBuffered(D1_PIGFILE);
 		if (!d1_Piggy_fp)
 		{
@@ -2132,23 +2131,23 @@ grs_bitmap *read_extra_bitmap_d1_pig(const std::span<const char> name, grs_bitma
 		if (get_d1_colormap( d1_palette, colormap ) != 0)
 			Warning_puts("Failed to load Descent 1 color palette");
 
-		pigsize = PHYSFS_fileLength(d1_Piggy_fp);
-		switch (pigsize) {
-		case D1_SHARE_BIG_PIGSIZE:
-		case D1_SHARE_10_PIGSIZE:
-		case D1_SHARE_PIGSIZE:
-		case D1_10_BIG_PIGSIZE:
-		case D1_10_PIGSIZE:
+		switch (descent1_pig_size{PHYSFS_fileLength(d1_Piggy_fp)})
+		{
+			case descent1_pig_size::d1_share_big_pigsize:
+			case descent1_pig_size::d1_share_10_pigsize:
+			case descent1_pig_size::d1_share_pigsize:
+			case descent1_pig_size::d1_10_big_pigsize:
+			case descent1_pig_size::d1_10_pigsize:
 			pig_data_start = 0;
 			break;
 		default:
 			Warning_puts("Unknown size for " D1_PIGFILE);
 			Int3();
 			[[fallthrough]];
-		case D1_PIGSIZE:
-		case D1_OEM_PIGSIZE:
-		case D1_MAC_PIGSIZE:
-		case D1_MAC_SHARE_PIGSIZE:
+			case descent1_pig_size::d1_pigsize:
+			case descent1_pig_size::d1_oem_pigsize:
+			case descent1_pig_size::d1_mac_pigsize:
+			case descent1_pig_size::d1_mac_share_pigsize:
 			pig_data_start = PHYSFSX_readInt(d1_Piggy_fp );
 
 			break;

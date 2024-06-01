@@ -33,16 +33,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "sounds.h"
 #include "physfsx.h"
 
-#define D1_SHARE_BIG_PIGSIZE    5092871 // v1.0 - 1.4 before RLE compression
-#define D1_SHARE_10_PIGSIZE     2529454 // v1.0 - 1.2
-#define D1_SHARE_PIGSIZE        2509799 // v1.4
-#define D1_10_BIG_PIGSIZE       7640220 // v1.0 before RLE compression
-#define D1_10_PIGSIZE           4520145 // v1.0
-#define D1_PIGSIZE              4920305 // v1.4 - 1.5 (Incl. OEM v1.4a)
-#define D1_OEM_PIGSIZE          5039735 // v1.0
-#define D1_MAC_PIGSIZE          3975533
-#define D1_MAC_SHARE_PIGSIZE    2714487
-
 namespace dcx {
 
 enum class game_sound_offset : int

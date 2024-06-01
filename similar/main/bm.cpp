@@ -770,24 +770,23 @@ int load_exit_models()
 	else if ((exit_hamfile = PHYSFSX_openReadBuffered(D1_PIGFILE).first))
 	{
 		int offset, offset2;
-		int hamsize;
-		hamsize = PHYSFS_fileLength(exit_hamfile);
-		switch (hamsize) { //total hack for loading models
-		case D1_PIGSIZE:
+		switch (descent1_pig_size{PHYSFS_fileLength(exit_hamfile)})
+		{ //total hack for loading models
+			case descent1_pig_size::d1_pigsize:
 			offset = 91848;     /* and 92582  */
 			offset2 = 383390;   /* and 394022 */
 			break;
 		default:
-		case D1_SHARE_BIG_PIGSIZE:
-		case D1_SHARE_10_PIGSIZE:
-		case D1_SHARE_PIGSIZE:
-		case D1_10_BIG_PIGSIZE:
-		case D1_10_PIGSIZE:
+			case descent1_pig_size::d1_share_big_pigsize:
+			case descent1_pig_size::d1_share_10_pigsize:
+			case descent1_pig_size::d1_share_pigsize:
+			case descent1_pig_size::d1_10_big_pigsize:
+			case descent1_pig_size::d1_10_pigsize:
 			Int3();             /* exit models should be in .pofs */
 			[[fallthrough]];
-		case D1_OEM_PIGSIZE:
-		case D1_MAC_PIGSIZE:
-		case D1_MAC_SHARE_PIGSIZE:
+			case descent1_pig_size::d1_oem_pigsize:
+			case descent1_pig_size::d1_mac_pigsize:
+			case descent1_pig_size::d1_mac_share_pigsize:
 			// unload the textures that we already loaded
 			bm_unload_last_objbitmaps(N_ObjBitmaps - start_num);
 			con_puts(CON_NORMAL, "Can't load exit models!");

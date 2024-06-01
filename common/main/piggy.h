@@ -55,7 +55,24 @@ struct BitmapFile
 	std::array<char, 13> name;
 };
 
+/* Both engines need this type.  Descent 1 needs it directly.  Descent 2 needs
+ * it for the functionality that tries to load Descent 1 data.
+ */
+enum class descent1_pig_size : PHYSFS_sint64
+{
+	d1_share_big_pigsize = 5092871,	 // v1.0 - 1.4 before RLE compression
+	d1_share_10_pigsize = 2529454,	 // v1.0 - 1.2
+	d1_share_pigsize = 2509799,		 // v1.4
+	d1_10_big_pigsize = 7640220,	 // v1.0 before RLE compression
+	d1_10_pigsize = 4520145,		 // v1.0
+	d1_pigsize = 4920305,			 // v1.4 - 1.5 (Incl. OEM v1.4a)
+	d1_oem_pigsize = 5039735,		 // v1.0
+	d1_mac_pigsize = 3975533,
+	d1_mac_share_pigsize = 2714487,
+};
+
 void bitmap_index_read_n(NamedPHYSFS_File fp, std::ranges::subrange<bitmap_index *> r);
+
 }
 
 #ifdef dsx
