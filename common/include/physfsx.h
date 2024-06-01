@@ -44,10 +44,6 @@
 #include <array>
 #include <memory>
 
-#ifdef DXX_CONSTANT_TRUE
-#define _DXX_PHYSFS_CHECK_SIZE(ELEMENT_SIZE,BUFFER_SIZE)	DXX_CONSTANT_TRUE(std::size_t{ELEMENT_SIZE} > (BUFFER_SIZE))
-#endif
-
 namespace dcx {
 
 template <typename V>
@@ -56,7 +52,7 @@ static inline PHYSFS_sint64 PHYSFSX_check_readBytes(PHYSFS_File *const file, V *
 {
 	static_assert(std::is_standard_layout<V>::value && std::is_trivial<V>::value, "non-POD value read");
 #if defined(DXX_HAVE_BUILTIN_OBJECT_SIZE) && defined(DXX_CONSTANT_TRUE)
-	if (const size_t compiler_determined_buffer_size{__builtin_object_size(buffer, 1)}; compiler_determined_buffer_size != static_cast<size_t>(-1) && _DXX_PHYSFS_CHECK_SIZE(len, compiler_determined_buffer_size))
+	if (const size_t compiler_determined_buffer_size{__builtin_object_size(buffer, 1)}; compiler_determined_buffer_size != static_cast<size_t>(-1) && DXX_CONSTANT_TRUE(len > compiler_determined_buffer_size))
 		DXX_ALWAYS_ERROR_FUNCTION("read size exceeds element size");
 #endif
 	return {PHYSFS_readBytes(file, buffer, {len})};
@@ -68,7 +64,7 @@ static inline PHYSFS_sint64 PHYSFSX_check_readBytes(PHYSFS_File *const file, std
 {
 	static_assert(std::is_standard_layout<V>::value && std::is_trivial<V>::value, "C++ array of non-POD elements read");
 #ifdef DXX_CONSTANT_TRUE
-	if (constexpr size_t compiler_determined_buffer_size{sizeof(V) * N}; _DXX_PHYSFS_CHECK_SIZE(len, compiler_determined_buffer_size))
+	if (constexpr size_t compiler_determined_buffer_size{sizeof(V) * N}; DXX_CONSTANT_TRUE(len > compiler_determined_buffer_size))
 		DXX_ALWAYS_ERROR_FUNCTION("read size exceeds array size");
 #endif
 	return {PHYSFSX_check_readBytes(file, std::data(buffer), {len})};
@@ -87,7 +83,7 @@ static inline PHYSFS_sint64 PHYSFSX_check_writeBytes(PHYSFS_File *file, const V 
 {
 	static_assert(std::is_standard_layout<V>::value && std::is_trivial<V>::value, "non-POD value written");
 #if defined(DXX_HAVE_BUILTIN_OBJECT_SIZE) && defined(DXX_CONSTANT_TRUE)
-	if (const size_t compiler_determined_buffer_size{__builtin_object_size(buffer, 1)}; compiler_determined_buffer_size != static_cast<size_t>(-1) && _DXX_PHYSFS_CHECK_SIZE(len, compiler_determined_buffer_size))
+	if (const size_t compiler_determined_buffer_size{__builtin_object_size(buffer, 1)}; compiler_determined_buffer_size != static_cast<size_t>(-1) && DXX_CONSTANT_TRUE(len > compiler_determined_buffer_size))
 		DXX_ALWAYS_ERROR_FUNCTION("write size exceeds element size");
 #endif
 	return {PHYSFS_writeBytes(file, buffer, len)};
@@ -99,7 +95,7 @@ static inline PHYSFS_sint64 PHYSFSX_check_writeBytes(PHYSFS_File *file, const st
 {
 	static_assert(std::is_standard_layout<V>::value && std::is_trivial<V>::value, "C++ array of non-POD elements written");
 #ifdef DXX_CONSTANT_TRUE
-	if (constexpr size_t compiler_determined_buffer_size{sizeof(V) * N}; _DXX_PHYSFS_CHECK_SIZE(len, compiler_determined_buffer_size))
+	if (constexpr size_t compiler_determined_buffer_size{sizeof(V) * N}; DXX_CONSTANT_TRUE(len > compiler_determined_buffer_size))
 		DXX_ALWAYS_ERROR_FUNCTION("write size exceeds array size");
 #endif
 	return {PHYSFSX_check_writeBytes(file, buffer.data(), len)};
