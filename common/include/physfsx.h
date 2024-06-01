@@ -98,6 +98,10 @@ __attribute_always_inline()
 static inline PHYSFS_sint64 PHYSFSX_check_writeBytes(PHYSFS_File *file, const std::array<V, N> &buffer, const PHYSFS_uint64 len)
 {
 	static_assert(std::is_standard_layout<V>::value && std::is_trivial<V>::value, "C++ array of non-POD elements written");
+#ifdef DXX_CONSTANT_TRUE
+	if (constexpr size_t compiler_determined_buffer_size{sizeof(V) * N}; _DXX_PHYSFS_CHECK_SIZE(len, compiler_determined_buffer_size))
+		DXX_ALWAYS_ERROR_FUNCTION("write size exceeds array size");
+#endif
 	return {PHYSFSX_check_writeBytes(file, buffer.data(), len)};
 }
 
