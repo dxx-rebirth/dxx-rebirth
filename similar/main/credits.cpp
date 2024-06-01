@@ -162,7 +162,7 @@ window_event_result credits_window::event_handler(const d_event &event)
 						if (have_bin_file) // is this a binary tbl file
 							decode_text_line (buffer[buffer_line]);
 #if defined(DXX_BUILD_DESCENT_I)
-						p = strchr(&buffer[buffer_line][0],'\n');
+						p = strchr(&buffer[buffer_line][0u],'\n');
 						if (p) *p = '\0';
 #elif defined(DXX_BUILD_DESCENT_II)
 						p = buffer[buffer_line];
@@ -182,7 +182,7 @@ window_event_result credits_window::event_handler(const d_event &event)
 #endif	
 					} else	{
 						//fseek( file, 0, SEEK_SET);
-						buffer[buffer_line][0] = 0;
+						buffer[buffer_line][0u] = 0;
 						done++;
 					}
 				} while (extra_inc--);
