@@ -1357,9 +1357,9 @@ int load_level(
 	if (Gamesave_current_version > 1)
 	{
 		if (!PHYSFSX_fgets(Current_level_palette, LoadFile))
-			Current_level_palette[0] = 0;
+			Current_level_palette[0u] = 0;
 	}
-	if (Gamesave_current_version <= 1 || Current_level_palette[0]==0) // descent 1 level
+	if (Gamesave_current_version <= 1 || Current_level_palette[0u]==0) // descent 1 level
 		strcpy(Current_level_palette.next().data(), DEFAULT_LEVEL_PALETTE);
 
 	if (Gamesave_current_version >= 3)
