@@ -50,13 +50,9 @@
 	(void)(__builtin_object_size(BUFFER_PTR, 1) != static_cast<size_t>(-1) && _DXX_PHYSFS_CHECK_SIZE(ELEMENT_SIZE, __builtin_object_size(BUFFER_PTR, 1)) && (DXX_ALWAYS_ERROR_FUNCTION("read size exceeds element size"), 0))
 #define DXX_PHYSFS_CHECK_WRITE_SIZE_OBJECT_SIZE(ELEMENT_SIZE,BUFFER_PTR)	\
 	(void)(__builtin_object_size(BUFFER_PTR, 1) != static_cast<size_t>(-1) && _DXX_PHYSFS_CHECK_SIZE(ELEMENT_SIZE, __builtin_object_size(BUFFER_PTR, 1)) && (DXX_ALWAYS_ERROR_FUNCTION("write size exceeds element size"), 0))
-#define DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(ELEMENT_SIZE,ELEMENT_COUNT)	\
-	((void)(dxx_builtin_constant_p(ELEMENT_SIZE) || dxx_builtin_constant_p(ELEMENT_COUNT) || \
-		(DXX_ALWAYS_ERROR_FUNCTION("array element size is not constant"), 0)))
 #else
 #define DXX_PHYSFS_CHECK_READ_SIZE_OBJECT_SIZE(ELEMENT_SIZE,BUFFER_PTR)	((void)(ELEMENT_SIZE), (void)(BUFFER_PTR))
 #define DXX_PHYSFS_CHECK_WRITE_SIZE_OBJECT_SIZE(ELEMENT_SIZE,BUFFER_PTR)	((void)(ELEMENT_SIZE), (void)(BUFFER_PTR))
-#define DXX_PHYSFS_CHECK_WRITE_ELEMENT_SIZE_CONSTANT(ELEMENT_SIZE,ELEMENT_COUNT)	((void)(ELEMENT_SIZE), (void)(ELEMENT_COUNT))
 #endif
 
 namespace dcx {
