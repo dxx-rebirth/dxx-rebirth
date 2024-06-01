@@ -1128,7 +1128,7 @@ static const char *load_mission(const mle *const mission)
 			}
 		}
 #if defined(DXX_BUILD_DESCENT_II)
-		else if (Current_mission->descent_version == Mission::descent_version_type::descent2a && buf[0] == '!') {
+		else if (Current_mission->descent_version == Mission::descent_version_type::descent2a && buf[0u] == '!') {
 			if (istok(buf+1,"ham")) {
 				Current_mission->alternate_ham_file = std::make_unique<d_fname>();
 				if (const auto v{get_value(buf)})
