@@ -599,7 +599,6 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 
 	for (PHYSFSX_gets_line_t<LINEBUF_SIZE> inputline; PHYSFSX_fgets(inputline, InfoFile);)
 	{
-		int l;
 		const char *temp_ptr;
 		int skip;
 
@@ -607,7 +606,8 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 		if (have_bin_tbl) {				// is this a binary tbl file
 			decode_text_line (inputline);
 		} else {
-			while (inputline[(l=strlen(inputline))-2]=='\\') {
+			for (std::size_t l; inputline[(l=strlen(inputline))-2]=='\\';)
+			{
 				if (!isspace(inputline[l-3])) {		//if not space before backslash...
 					inputline[l-2] = ' ';				//add one
 					l++;
