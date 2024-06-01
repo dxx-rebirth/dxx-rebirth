@@ -46,10 +46,6 @@
 
 #ifdef DXX_CONSTANT_TRUE
 #define _DXX_PHYSFS_CHECK_SIZE(ELEMENT_SIZE,BUFFER_SIZE)	DXX_CONSTANT_TRUE(std::size_t{ELEMENT_SIZE} > (BUFFER_SIZE))
-#define DXX_PHYSFS_CHECK_READ_SIZE_OBJECT_SIZE(ELEMENT_SIZE,BUFFER_PTR)	\
-	(void)(__builtin_object_size(BUFFER_PTR, 1) != static_cast<size_t>(-1) && _DXX_PHYSFS_CHECK_SIZE(ELEMENT_SIZE, __builtin_object_size(BUFFER_PTR, 1)) && (DXX_ALWAYS_ERROR_FUNCTION("read size exceeds element size"), 0))
-#else
-#define DXX_PHYSFS_CHECK_READ_SIZE_OBJECT_SIZE(ELEMENT_SIZE,BUFFER_PTR)	((void)(ELEMENT_SIZE), (void)(BUFFER_PTR))
 #endif
 
 namespace dcx {
@@ -59,7 +55,10 @@ __attribute_always_inline()
 static inline PHYSFS_sint64 PHYSFSX_check_readBytes(PHYSFS_File *const file, V *const buffer, const PHYSFS_uint64 len)
 {
 	static_assert(std::is_standard_layout<V>::value && std::is_trivial<V>::value, "non-POD value read");
-	DXX_PHYSFS_CHECK_READ_SIZE_OBJECT_SIZE(len, buffer);
+#if defined(DXX_HAVE_BUILTIN_OBJECT_SIZE) && defined(DXX_CONSTANT_TRUE)
+	if (const size_t compiler_determined_buffer_size{__builtin_object_size(buffer, 1)}; compiler_determined_buffer_size != static_cast<size_t>(-1) && _DXX_PHYSFS_CHECK_SIZE(len, compiler_determined_buffer_size))
+		DXX_ALWAYS_ERROR_FUNCTION("read size exceeds element size");
+#endif
 	return {PHYSFS_readBytes(file, buffer, {len})};
 }
 
