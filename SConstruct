@@ -17,6 +17,7 @@ import typing
 import os
 import SCons.Util
 import SCons.Script
+from functools import cached_property
 
 # Disable injecting tools into default namespace
 SCons.Defaults.DefaultEnvironment(tools = [])
@@ -2870,30 +2871,6 @@ scons: dylibbundler stderr: {p.err!r}
 		ToolchainInformation.show_partial_environ(context.env, self.user_settings, context.Display, self.msgprefix)
 
 ConfigureTests.register_preferred_compiler_options()
-
-class cached_property:
-	__slots__ = 'method',
-	def __init__(self,f):
-		self.method = f
-	def __get__(self,instance,cls):
-		# This should never be accessed directly on the class.
-		assert instance is not None
-		method = self.method
-		name = method.__name__
-		# Python will rewrite double-underscore references to the
-		# attribute while processing references inside the class, but
-		# will not rewrite the key used to store the computed value
-		# below, so subsequent accesses will not find the computed value
-		# and will instead call this getter again.  For now, disable
-		# attempts to use double-underscore properties instead of trying
-		# to handle their names correctly.
-		assert not name.startswith('__')
-		d = instance.__dict__
-		# After the first access, Python should find the cached value in
-		# the instance dictionary instead of calling __get__ again.
-		assert name not in d
-		d[name] = r = method(instance)
-		return r
 
 class LazyObjectConstructor:
 	class LazyObjectState:
