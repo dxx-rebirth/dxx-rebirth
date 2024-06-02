@@ -3579,11 +3579,18 @@ class DXXCommon(LazyObjectConstructor):
 					self.host_platform,
 					os.path.basename(self.CXX) if self.CXX else None,
 				]
-				compiler_flags = '\n'.join((getattr(self, attr) or '').strip() for attr in ['CPPFLAGS', 'CXXFLAGS'])
+				compiler_flags = [(getattr(self, attr) or '').strip() for attr in ('CPPFLAGS', 'CXXFLAGS')]
+				compiler_flags.append(str(not not self.sharepath))
+				compiler_flags = '\n'.join(compiler_flags)
 				if compiler_flags:
-					# Mix in CRC of CXXFLAGS to get reasonable uniqueness
-					# when flags are changed.  A full hash is
-					# unnecessary here.
+					# Mix in CRC of compiler flags to get reasonable uniqueness
+					# when flags are changed.  This allows multiple builds with
+					# varying flags to be built without overwriting each
+					# other's outputs.  A full hash is unnecessary here, since
+					# an accidental collision is unlikely, and the only
+					# negative consequence of such a collision is that the
+					# build will overwrite objects that would need to be built
+					# again later when the flags are switched back.
 					fields.append(f'{(binascii.crc32(compiler_flags.encode())):08x}')
 				if self.pch:
 					fields.append(f'p{self.pch}')
