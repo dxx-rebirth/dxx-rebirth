@@ -4502,7 +4502,6 @@ class DXXCommon(LazyObjectConstructor):
 
 		cxxflags = get_Werror_sequence(user_settings.CXXFLAGS, (
 			'-Wextra',
-			'-Wformat=2',
 			'-Wmissing-braces',
 			'-Wmissing-include-dirs',
 			'-Wuninitialized',
@@ -4515,6 +4514,7 @@ class DXXCommon(LazyObjectConstructor):
 		cxxflags[0:0] = (
 			'-ftabstop=4',
 			'-Wall',
+			'-Wformat=2',
 			)
 		if self.user_settings.lto:
 			# clang does not support `=N` syntax, so use the bare form `-flto`
