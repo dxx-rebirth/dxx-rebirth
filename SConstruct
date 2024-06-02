@@ -4599,12 +4599,16 @@ class DXXCommon(LazyObjectConstructor):
 					# used.
 					continue
 				if denv is None:
-					# Lazy load denv.
+					# Lazy load denv, so that its creation can be skipped if
+					# the user set all the required values.
 					denv = Environment(tools = tools)
 				# If the option in the base environment, ignoring both
 				# user_settings and the process environment, matches the
 				# option in the customized environment, then assume that
 				# this is an SCons default, not a user-chosen value.
+				#
+				# Override SCons default values with a CHOST qualified form.
+				# Keep user-chosen values as the user set them.
 				value = denv.get(cc)
 				if value and env.get(cc) == value:
 					env[cc] = f'{CHOST}-{value}'
