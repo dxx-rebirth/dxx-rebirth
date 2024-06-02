@@ -4594,8 +4594,7 @@ class DXXCommon(LazyObjectConstructor):
 		if CHOST:
 			denv = None
 			for cc in chost_aware_tools:
-				value = kw.get(cc)
-				if value is not None:
+				if cc in kw:
 					# If the user set a value, that value is always
 					# used.
 					continue
