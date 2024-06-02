@@ -4516,6 +4516,19 @@ class DXXCommon(LazyObjectConstructor):
 			'-ftabstop=4',
 			'-Wall',
 			)
+		if self.user_settings.lto:
+			# clang does not support `=N` syntax, so use the bare form `-flto`
+			# for `user_settings.lto=1`.  This allows `lto=1` to do the right
+			# thing for clang users.  gcc effectively treats `-flto` as
+			# `-flto=1`.
+			#
+			# Users who set `user_settings.lto=2` (or higher) need a compiler that
+			# understands the `=N` syntax.  This script makes no attempt to
+			# detect whether the compiler understands that syntax.
+			#
+			# The list of flags is prepended to the compiler options, so a
+			# user-specified CXXFLAGS can override `-flto` later, if needed.
+			cxxflags.append(f'-flto={self.user_settings.lto}' if self.user_settings.lto > 1 else '-flto')
 		env.Prepend(CXXFLAGS = cxxflags)
 		env.Append(
 			CXXFLAGS = ['-funsigned-char'],
@@ -4546,11 +4559,6 @@ class DXXCommon(LazyObjectConstructor):
 			if value is not None:
 				add_flags[flags] = CLVar(value)
 		env.Append(**add_flags)
-		if self.user_settings.lto:
-			env.Append(CXXFLAGS = [
-				# clang does not support =N syntax
-				f'-flto={self.user_settings.lto}' if self.user_settings.lto > 1 else '-flto',
-			])
 
 	@cached_property
 	def platform_settings(self):
