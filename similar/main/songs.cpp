@@ -190,7 +190,7 @@ static inline void assign_builtin_song(bim_song_info &song, const char (&str)[N]
 	std::ranges::copy(str, std::ranges::begin(song.filename));
 }
 
-static void add_song(std::vector<bim_song_info> &songs, const std::ranges::subrange<std::span<char>::iterator> entry_input)
+static void add_song(const char *const filename, const unsigned lineno, std::vector<bim_song_info> &songs, const std::ranges::subrange<std::span<char>::iterator> entry_input)
 {
 	/* Some versions of `descent.sng` are not a simple list of songs, but
 	 * instead have a song, whitespace, and then other text on the line.  The
@@ -203,21 +203,45 @@ static void add_song(std::vector<bim_song_info> &songs, const std::ranges::subra
 		entry_input.begin(),
 		std::ranges::find_if(entry_input, [](const char c) { return std::isspace(static_cast<unsigned>(c)); })
 	};
-	if (input.size() >= std::tuple_size<decltype(bim_song_info::filename)>::value)
+	static constexpr std::size_t maximum_song_filename_characters_to_print{20 /* arbitrary cap to balance full output versus flooding the user's terminal */};
+	const auto clamp_filename_characters_count{[](const std::size_t actual_size) -> int {
+		return static_cast<int>(std::min(actual_size, maximum_song_filename_characters_to_print));
+	}};
+	const auto get_filename_truncation_hint_text{[](const std::size_t actual_size) {
+		return actual_size > maximum_song_filename_characters_to_print ? " (truncated)" : "";
+	}};
+	const std::size_t input_size{input.size()};
+	if (const std::size_t limit{std::tuple_size<decltype(bim_song_info::filename)>::value - 1}; input_size > limit)
+	{
 		/* Drop excessively long filenames. */
+		con_printf(CON_NORMAL, "warning: song file \"%s\":%u: ignoring excessively long filename; maximum allowed length is %" DXX_PRI_size_type ", but found %" DXX_PRI_size_type " (\"%.*s\"%s)", filename, lineno, limit, input_size, clamp_filename_characters_count(input_size), input.data(), get_filename_truncation_hint_text(input_size));
 		return;
+	}
 	auto &&reverse_input{std::ranges::views::reverse(input)};
 	if (const auto &&ri_dot{std::ranges::find(reverse_input, '.')}; ri_dot == reverse_input.end())
+	{
 		/* Drop filenames that lack a dot. */
+		con_printf(CON_NORMAL, "warning: song file \"%s\":%u: ignoring filename with no dot (\"%.*s\"%s)", filename, lineno, clamp_filename_characters_count(input_size), input.data(), get_filename_truncation_hint_text(input_size));
 		return;
+	}
 	/* Due to `std::reverse_iterator` rules, `reverse_iterator::operator*()`
 	 * returns `*std::prev(reverse_iterator::base())`, so `find` returns an
 	 * iterator one forward of the '.'.  Therefore, `.base()` points to the
 	 * first character in the extension, not to the dot.
 	 */
-	else if (!is_valid_song_extension({ri_dot.base(), input.end()}))
+	else if (const std::ranges::subrange extension{ri_dot.base(), input.end()}; !is_valid_song_extension(extension))
+	{
 		/* Drop filenames that lack a valid song extension. */
+#if DXX_USE_SDLMIXER
+#define DXX_ADD_SONG_EXTENSION_HINT	"s: " SONG_EXT_MID ", " SONG_EXT_OGG ", " SONG_EXT_FLAC ", " SONG_EXT_MP3 ", "
+#else
+#define DXX_ADD_SONG_EXTENSION_HINT	": "
+#endif
+		const std::size_t extension_size{extension.size()};
+		con_printf(CON_NORMAL, "warning: song file \"%s\":%u: ignoring filename with unacceptable filename extension (\"%.*s\"%s) on filename (\"%.*s\"%s); acceptable value" DXX_ADD_SONG_EXTENSION_HINT SONG_EXT_HMP, filename, lineno, clamp_filename_characters_count(extension_size), extension.data(), get_filename_truncation_hint_text(extension_size), clamp_filename_characters_count(input_size), input.data(), get_filename_truncation_hint_text(input_size));
+#undef DXX_ADD_SONG_EXTENSION_HINT
 		return;
+	}
 	/* The input is not a `bim_song_info`, so a direct use of
 	 * `emplace_back(input)` is not well-formed.
 	 *
@@ -245,6 +269,7 @@ static void add_song(std::vector<bim_song_info> &songs, const std::ranges::subra
 	};
 	auto &e{songs.emplace_back(emplace_subrange{input})};
 	assert(!e.filename.back());
+	con_printf(CON_VERBOSE, "note: song file \"%s\":%u: adding filename \"%s\"", filename, lineno, e.filename.data());
 }
 
 }
@@ -303,8 +328,10 @@ static void songs_init()
 	else
 	{
 		std::vector<bim_song_info> main_songs, secret_songs;
+		unsigned lineno{0};
 		for (PHYSFSX_gets_line_t<81> inputline; const auto result{PHYSFSX_fgets(inputline, fp)};)
 		{
+			++lineno;
 			if (result.empty())
 				continue;
 			{
@@ -315,11 +342,11 @@ static void songs_init()
 					if (result.size() > secret_label.size() &&
 						std::ranges::equal(std::span(result.begin(), secret_label.size()), secret_label))
 					{
-						add_song(secret_songs, result.next(secret_label.size()));
+						add_song(fp.filename, lineno, secret_songs, result.next(secret_label.size()));
 						continue;
 					}
 				}
-				add_song(main_songs, result);
+				add_song(fp.filename, lineno, main_songs, result);
 			}
 		}
 #if defined(DXX_BUILD_DESCENT_I)
