@@ -397,7 +397,9 @@ static void songs_init()
 
 	songs_set_volume(CGameCfg.MusicVolume);
 }
+
 }
+
 }
 
 void songs_uninit()
@@ -558,7 +560,27 @@ static void play_credits_track()
 }
 #endif
 #endif
+
+#if DXX_USE_SDL_REDBOOK_AUDIO
+static void play_redbook_track_if_available(const int songnum, const int redbook_track, const int num_tracks, const int repeat)
+{
+	if (redbook_track > num_tracks)
+		return;
+#if defined(DXX_BUILD_DESCENT_I)
+	constexpr auto repeat_func{&redbook_repeat_func};
+#elif defined(DXX_BUILD_DESCENT_II)
+	constexpr auto repeat_func{&play_credits_track};
+#endif
+	if (RBAPlayTracks(redbook_track, redbook_track, repeat ? repeat_func : nullptr))
+	{
+		Redbook_playing = redbook_track;
+		Song_playing = songnum;
+	}
 }
+#endif
+
+}
+
 }
 
 // play a filename as music, depending on filename extension.
@@ -623,47 +645,27 @@ void songs_play_song(int songnum, int repeat)
 
 #if defined(DXX_BUILD_DESCENT_I)
 			Song_playing = -1;
-			if ((songnum < SONG_ENDGAME) && (songnum + 2 <= num_tracks))
+			if (songnum < SONG_ENDGAME)
 			{
-				if (RBAPlayTracks(songnum + 2, songnum + 2, repeat ? redbook_repeat_func : NULL))
-				{
-					Redbook_playing = songnum + 2;
-					Song_playing = songnum;
-				}
+				play_redbook_track_if_available(songnum, songnum + 2, num_tracks, repeat);
 			}
-			else if ((songnum == SONG_ENDGAME) && (REDBOOK_ENDGAME_TRACK <= num_tracks)) // The endgame track is the last track
+			else if (songnum == SONG_ENDGAME) // The endgame track is the last track
 			{
-				if (RBAPlayTracks(REDBOOK_ENDGAME_TRACK, REDBOOK_ENDGAME_TRACK, repeat ? redbook_repeat_func : NULL))
-				{
-					Redbook_playing = REDBOOK_ENDGAME_TRACK;
-					Song_playing = songnum;
-				}
+				play_redbook_track_if_available(songnum, REDBOOK_ENDGAME_TRACK, num_tracks, repeat);
 			}
-			else if ((songnum > SONG_ENDGAME) && (songnum + 1 <= num_tracks))
+			else if (songnum > SONG_ENDGAME)
 			{
-				if (RBAPlayTracks(songnum + 1, songnum + 1, repeat ? redbook_repeat_func : NULL))
-				{
-					Redbook_playing = songnum + 1;
-					Song_playing = songnum;
-				}
+				play_redbook_track_if_available(songnum, songnum + 1, num_tracks, repeat);
 			}
 #elif defined(DXX_BUILD_DESCENT_II)
 			//Song_playing = -1;		// keep playing current music if chosen song is unavailable (e.g. SONG_ENDLEVEL)
-			if ((songnum == SONG_TITLE) && (REDBOOK_TITLE_TRACK <= num_tracks))
+			if (songnum == SONG_TITLE)
 			{
-				if (RBAPlayTracks(REDBOOK_TITLE_TRACK, REDBOOK_TITLE_TRACK, repeat ? play_credits_track : NULL))
-				{
-					Redbook_playing = REDBOOK_TITLE_TRACK;
-					Song_playing = songnum;
-				}
+				play_redbook_track_if_available(songnum, REDBOOK_TITLE_TRACK, num_tracks, repeat);
 			}
-			else if ((songnum == SONG_CREDITS) && (REDBOOK_CREDITS_TRACK <= num_tracks))
+			else if (songnum == SONG_CREDITS)
 			{
-				if (RBAPlayTracks(REDBOOK_CREDITS_TRACK, REDBOOK_CREDITS_TRACK, repeat ? play_credits_track : NULL))
-				{
-					Redbook_playing = REDBOOK_CREDITS_TRACK;
-					Song_playing = songnum;
-				}
+				play_redbook_track_if_available(songnum, REDBOOK_CREDITS_TRACK, num_tracks, repeat);
 			}
 #endif
 			break;
