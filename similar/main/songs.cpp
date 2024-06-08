@@ -713,7 +713,8 @@ static void redbook_first_song_func()
 
 // play track given by levelnum (depending on the music type and it's playing behaviour) or increment/decrement current track number via offset value
 namespace dsx {
-int songs_play_level_song( int levelnum, int offset )
+
+void songs_play_level_song(int levelnum, int offset)
 {
 	int songnum;
 
@@ -727,7 +728,7 @@ int songs_play_level_song( int levelnum, int offset )
 		case music_type::Builtin:
 		{
 			if (offset)
-				return Song_playing;
+				return;
 
 			Song_playing = -1;
 			/* count_level_songs excludes songs assigned to non-levels,
@@ -761,7 +762,7 @@ int songs_play_level_song( int levelnum, int offset )
 			{
 				// we have just been told to play the same as we do already -> ignore
 				if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum + SONG_FIRST_LEVEL_SONG == Song_playing)
-					return Song_playing;
+					return;
 
 #if defined(DXX_BUILD_DESCENT_I)
 				int bn_tracks = n_tracks;
@@ -809,7 +810,7 @@ int songs_play_level_song( int levelnum, int offset )
 					static int last_songnum = -1;
 
 					if (Song_playing >= SONG_FIRST_LEVEL_SONG)
-						return Song_playing;
+						return;
 
 					// As soon as we start a new level, go to next track
 					if (last_songnum != -1 && songnum != last_songnum)
@@ -847,7 +848,7 @@ int songs_play_level_song( int levelnum, int offset )
 	if (Song_playing == -1)
 		songs_stop_all();
 #endif
-	return Song_playing;
+	return;
 }
 }
 
