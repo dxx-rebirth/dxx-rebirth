@@ -37,6 +37,19 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-piggy.h"
 #include <utility>
 
+namespace dcx {
+
+#ifdef _WIN32
+// Windows native-MIDI stuff.
+void digi_win32_pause_midi_song();
+void digi_win32_resume_midi_song();
+void digi_win32_stop_midi_song();
+void digi_win32_set_midi_volume(int mvolume);
+int digi_win32_play_midi_song(const char * filename, int loop);
+#endif
+
+}
+
 #ifdef dsx
 namespace dcx {
 
@@ -227,14 +240,6 @@ extern void digi_start_sound_queued( short soundnum, fix volume );
 extern int Dont_start_sound_objects;
 void digi_select_system();
 
-#ifdef _WIN32
-// Windows native-MIDI stuff.
-void digi_win32_set_midi_volume( int mvolume );
-int digi_win32_play_midi_song(const char * filename, int loop );
-void digi_win32_pause_midi_song();
-void digi_win32_resume_midi_song();
-void digi_win32_stop_midi_song();
-#endif
 void digi_end_soundobj(sound_object &);
 void SoundQ_end();
 #ifndef NDEBUG

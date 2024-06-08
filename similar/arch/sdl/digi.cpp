@@ -137,9 +137,9 @@ sound_function_pointers_t &sound_function_pointers_t::operator=(const sound_func
 }
 #endif
 
-}
-
 static sound_function_pointers_t fptr;
+
+}
 
 }
 
@@ -251,65 +251,5 @@ int  digi_is_channel_playing(const sound_channel channel)
 
 void digi_stop_all_channels() { fptr->stop_all_channels(); }
 void digi_set_digi_volume(int dvolume) { fptr->set_digi_volume(dvolume); }
-
-#ifdef _WIN32
-// Windows native-MIDI stuff.
-static uint8_t digi_win32_midi_song_playing;
-static uint8_t already_playing;
-static std::unique_ptr<hmp_file> cur_hmp;
-
-void digi_win32_set_midi_volume( int mvolume )
-{
-	hmp_setvolume(cur_hmp.get(), mvolume*MIDI_VOLUME_SCALE/8);
-}
-
-int digi_win32_play_midi_song( const char * filename, int loop )
-{
-	if (!already_playing)
-	{
-		hmp_reset();
-		already_playing = 1;
-	}
-	digi_win32_stop_midi_song();
-
-	if (filename == NULL)
-		return 0;
-
-	if ((cur_hmp = std::get<0>(hmp_open(filename))))
-	{
-		/* 
-		 * FIXME: to be implemented as soon as we have some kind or checksum function - replacement for ugly hack in hmp.c for descent.hmp
-		 * if (***filesize check*** && ***CRC32 or MD5 check***)
-		 *	(((*cur_hmp).trks)[1]).data[6] = 0x6C;
-		 */
-		if (hmp_play(cur_hmp.get(),loop) != 0)
-			return 0;	// error
-		digi_win32_midi_song_playing = 1;
-		digi_win32_set_midi_volume(CGameCfg.MusicVolume);
-		return 1;
-	}
-
-	return 0;
-}
-
-void digi_win32_pause_midi_song()
-{
-	hmp_pause(cur_hmp.get());
-}
-
-void digi_win32_resume_midi_song()
-{
-	hmp_resume(cur_hmp.get());
-}
-
-void digi_win32_stop_midi_song()
-{
-	if (!digi_win32_midi_song_playing)
-		return;
-	digi_win32_midi_song_playing = 0;
-	cur_hmp.reset();
-	hmp_reset();
-}
-#endif
 
 }

@@ -19,6 +19,7 @@
 #include <stdlib.h>
 
 #include "args.h"
+#include "digi.h"
 #include "hmp.h"
 #include "adlmidi_dynamic.h"
 #include "digi_mixer_music.h"
@@ -136,6 +137,13 @@ static CurrentMusicType current_music_type = CurrentMusicType::None;
 
 static CurrentMusicType load_mus_data(std::span<const uint8_t> data, int loop, void (*const hook_finished_track)());
 static CurrentMusicType load_mus_file(const char *filename, int loop, void (*const hook_finished_track)());
+
+#ifdef _WIN32
+// Windows native-MIDI stuff.
+static std::unique_ptr<hmp_file> cur_hmp;
+static uint8_t digi_win32_midi_song_playing;
+static uint8_t already_playing;
+#endif
 
 }
 
@@ -328,5 +336,60 @@ static void mix_adlmidi(void *, Uint8 *stream, int len)
 #endif
 
 }
+
+#ifdef _WIN32
+void digi_win32_pause_midi_song()
+{
+	hmp_pause(cur_hmp.get());
+}
+
+void digi_win32_resume_midi_song()
+{
+	hmp_resume(cur_hmp.get());
+}
+
+void digi_win32_stop_midi_song()
+{
+	if (!digi_win32_midi_song_playing)
+		return;
+	digi_win32_midi_song_playing = 0;
+	cur_hmp.reset();
+	hmp_reset();
+}
+
+void digi_win32_set_midi_volume( int mvolume )
+{
+	hmp_setvolume(cur_hmp.get(), mvolume*MIDI_VOLUME_SCALE/8);
+}
+
+int digi_win32_play_midi_song( const char * filename, int loop )
+{
+	if (!already_playing)
+	{
+		hmp_reset();
+		already_playing = 1;
+	}
+	digi_win32_stop_midi_song();
+
+	if (filename == NULL)
+		return 0;
+
+	if ((cur_hmp = std::get<0>(hmp_open(filename))))
+	{
+		/*
+		 * FIXME: to be implemented as soon as we have some kind or checksum function - replacement for ugly hack in hmp.c for descent.hmp
+		 * if (***filesize check*** && ***CRC32 or MD5 check***)
+		 *	(((*cur_hmp).trks)[1]).data[6] = 0x6C;
+		 */
+		if (hmp_play(cur_hmp.get(),loop) != 0)
+			return 0;	// error
+		digi_win32_midi_song_playing = 1;
+		digi_win32_set_midi_volume(CGameCfg.MusicVolume);
+		return 1;
+	}
+
+	return 0;
+}
+#endif
 
 }
