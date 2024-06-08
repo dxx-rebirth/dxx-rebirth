@@ -595,7 +595,8 @@ int songs_play_file(const char *filename, int repeat, void (*hook_finished_track
 }
 
 namespace dsx {
-int songs_play_song( int songnum, int repeat )
+
+void songs_play_song(int songnum, int repeat)
 {
 	songs_init();
 
@@ -608,7 +609,7 @@ int songs_play_song( int songnum, int repeat )
 			// EXCEPTION: If SONG_ENDLEVEL is not available, continue playing level song.
 			auto &s = BIMSongs[songnum];
 			if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum == SONG_ENDLEVEL && !PHYSFSX_exists(std::data(s.filename), 1))
-				return Song_playing;
+				return;
 
 			Song_playing = -1;
 			if (songs_play_file(std::data(s.filename), repeat, nullptr))
@@ -673,7 +674,7 @@ int songs_play_song( int songnum, int repeat )
 		{
 			// EXCEPTION: If SONG_ENDLEVEL is undefined, continue playing level song.
 			if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum == SONG_ENDLEVEL && !CGameCfg.CMMiscMusic[songnum].front())
-				return Song_playing;
+				return;
 
 			Song_playing = -1;
 #if defined(DXX_BUILD_DESCENT_I)
@@ -695,7 +696,7 @@ int songs_play_song( int songnum, int repeat )
 			break;
 	}
 
-	return Song_playing;
+	return;
 }
 }
 
