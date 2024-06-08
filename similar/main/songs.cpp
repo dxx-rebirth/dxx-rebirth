@@ -243,7 +243,8 @@ static void add_song(std::vector<bim_song_info> &songs, const std::ranges::subra
 			return r;
 		}
 	};
-	songs.emplace_back(emplace_subrange{input});
+	auto &e{songs.emplace_back(emplace_subrange{input})};
+	assert(!e.filename.back());
 }
 
 }
