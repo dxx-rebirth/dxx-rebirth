@@ -287,14 +287,12 @@ static void songs_init()
 	BIMSongs.reset();
 	BIMSecretSongs.reset();
 
-	int canUseExtensions = 0;
 	// try dxx-r.sng - a songfile specifically for dxx which level authors CAN use (dxx does not care if descent.sng contains MP3/OGG/etc. as well) besides the normal descent.sng containing files other versions of the game cannot play. this way a mission can contain a DOS-Descent compatible OST (hmp files) as well as a OST using MP3, OGG, etc.
 	auto fp = PHYSFSX_openReadBuffered("dxx-r.sng").first;
 
+	const bool canUseExtensions{!!fp};	// can use extensions ONLY if dxx-r.sng
 	if (!fp) // try to open regular descent.sng
 		fp = PHYSFSX_openReadBuffered("descent.sng").first;
-	else
-		canUseExtensions = 1; // can use extensions ONLY if dxx-r.sng
 
 	if (!fp) // No descent.sng available. Define a default song-set
 	{
@@ -327,6 +325,17 @@ static void songs_init()
 	}
 	else
 	{
+		const auto use_secret_songs{[](const bool canUseExtensions, const PHYSFSX_fgets_t::result &result) {
+			if (!canUseExtensions)
+				return canUseExtensions;
+			/* If extensions are allowed, check whether this line uses an
+			 * extension directive.
+			 */
+			if (constexpr std::string_view secret_label{"!Rebirth.secret "sv}; result.size() > secret_label.size() &&
+				std::ranges::equal(std::span(result.begin(), secret_label.size()), secret_label))
+				return canUseExtensions;
+			return false;
+		}};
 		std::vector<bim_song_info> main_songs, secret_songs;
 		unsigned lineno{0};
 		for (PHYSFSX_gets_line_t<81> inputline; const auto result{PHYSFSX_fgets(inputline, fp)};)
@@ -334,20 +343,7 @@ static void songs_init()
 			++lineno;
 			if (result.empty())
 				continue;
-			{
-				if (canUseExtensions)
-				{
-					const std::string_view secret_label{"!Rebirth.secret "sv};
-					// extension stuffs
-					if (result.size() > secret_label.size() &&
-						std::ranges::equal(std::span(result.begin(), secret_label.size()), secret_label))
-					{
-						add_song(fp.filename, lineno, secret_songs, result.next(secret_label.size()));
-						continue;
-					}
-				}
-				add_song(fp.filename, lineno, main_songs, result);
-			}
+			add_song(fp.filename, lineno, use_secret_songs(canUseExtensions, result) ? secret_songs : main_songs, result);
 		}
 #if defined(DXX_BUILD_DESCENT_I)
 		// HACK: If Descent.hog is patched from 1.0 to 1.5, descent.sng is turncated. So let's patch it up here
