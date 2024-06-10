@@ -423,7 +423,6 @@ window_event_result console_window::event_handler(const d_event &event)
 			return window_event_result::handled;
 
 		case event_type::window_draw:
-			timer_delay2(50);
 			if (con_state == con_state::opening)
 			{
 				if (con_size < CON_LINES_ONSCREEN && timer_query() >= last_scroll_time+(F1_0/30))

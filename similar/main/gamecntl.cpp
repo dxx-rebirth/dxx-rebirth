@@ -468,7 +468,6 @@ window_event_result pause_window::event_handler(const d_event &event)
 			break;
 
 		case event_type::idle:
-			timer_delay2(50);
 			break;
 
 		case event_type::window_draw:

@@ -962,13 +962,10 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 	am.t2 = timer_query();
 	const auto vsync = CGameCfg.VSync;
 	const auto bound = F1_0 / (vsync ? MAXIMUM_FPS : CGameArg.SysMaxFPS);
-	const auto may_sleep = !CGameArg.SysNoNiceFPS && !vsync;
 	while (am.t2 - am.t1 < bound) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
 	{
 		if (Game_mode & GM_MULTI)
 			multi_do_frame(); // during long wait, keep packets flowing
-		if (may_sleep)
-			timer_delay(F1_0>>8);
 		am.t2 = timer_update();
 	}
 	if (am.pause_game)

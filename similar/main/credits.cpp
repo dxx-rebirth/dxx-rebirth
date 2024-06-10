@@ -142,13 +142,7 @@ window_event_result credits_window::event_handler(const d_event &event)
 			}
 			break;
 		case event_type::window_draw:
-			{
-#if defined(DXX_BUILD_DESCENT_I)
-			timer_delay(F1_0/17);
-#elif defined(DXX_BUILD_DESCENT_II)
-			timer_delay(F1_0/28);
-#endif
-			
+			{			
 			if (row == 0)
 			{
 				do {

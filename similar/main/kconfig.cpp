@@ -771,10 +771,6 @@ window_event_result kc_menu::event_handler(const d_event &event)
 			kconfig_mouse(*this, event);
 			break;
 		case event_type::window_draw:
-			if (changing)
-				timer_delay(f0_1/10);
-			else
-				timer_delay2(50);
 			kconfig_draw(*this);
 			break;
 		case event_type::window_close:
