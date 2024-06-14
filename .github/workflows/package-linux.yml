@@ -41,7 +41,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            libphysfs1 libsdl1.2 libsdl-image1.2 libsdl-mixer1.2 libpng \
+            libphysfs1 libsdl1.2-compat libsdl-image1.2 libsdl-mixer1.2 libpng \
             libfuse2 wget curl
 
       - name: Clone Repository
