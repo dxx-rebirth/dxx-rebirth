@@ -49,8 +49,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: linux-loose
+          path: build/
 
       - name: Package AppImage
         run: |
-          ls -la
+          ls -la ./build
           contrib/packaging/linux/build_package.sh
