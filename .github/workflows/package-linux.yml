@@ -13,15 +13,12 @@ jobs:
       - name: Clone Repository
         uses: actions/checkout@v4
 
-      - name: Update Package Database
+      - name: Install build tools and dependencies
         run: |
-          apt-get update &&
+          apt-get update
           apt install -y \
-              # Build tools \
               gcc-13 g++-13 python3 scons \
-              # Dependencies \
               libsdl1.2-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libphysfs-dev libpng-dev \
-              # AppImage build requirements \
               libfuse2 wget curl
 
       - name: Configure and Build
