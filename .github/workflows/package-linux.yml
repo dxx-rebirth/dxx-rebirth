@@ -38,7 +38,11 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: Install AppImage dependencies
-        run: sudo apt-get update && sudo apt-get install -y libphysfs1 libfuse2 wget curl
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libphysfs1 libsdl1.2 libsdl-image1.2 libsdl-mixer1.2 libpng \
+            libfuse2 wget curl
 
       - name: Clone Repository
         uses: actions/checkout@v4
