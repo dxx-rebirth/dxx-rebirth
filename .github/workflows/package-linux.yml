@@ -52,6 +52,5 @@ jobs:
 
       - name: Package AppImage
         run: |
-          mv linux-loose/build .
-          rmdir linux-loose
+          ls -la
           contrib/packaging/linux/build_package.sh
