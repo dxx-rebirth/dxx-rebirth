@@ -4,11 +4,9 @@ on:
   workflow_call:
 
 jobs:
-  package:
+  build:
     name: GCC 13
-    runs-on: ubuntu-latest
-    container:
-      image: "ubuntu:24.04"
+    runs-on: "ubuntu:24.04"
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4
@@ -27,11 +25,5 @@ jobs:
           CC: gcc-13
           CXX: g++-13
 
-      - name: Package
-        run: ./contrib/packaging/linux/build_package.sh
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux
-          path: '*.zip'
+      - name: Package AppImage
+        run: contrib/packaging/linux/build_package.sh
