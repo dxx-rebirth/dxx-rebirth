@@ -30,9 +30,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-loose
-          path: |
-            build/d1x-rebirth/d1x-rebirth
-            build/d2x-rebirth/d2x-rebirth
+          path: build
 
   package:
     name: Package AppImage
