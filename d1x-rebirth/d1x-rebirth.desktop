@@ -1,11 +1,10 @@
 [Desktop Entry]
-Name=Descent 1
+Name=D1X-Rebirth
 Version=1.0
-Comment=DXX-Rebirth source port of Descent: First Strike from 1995...
+Comment=DXX-Rebirth source port of Descent: First Strike (1995)
 Exec=d1x-rebirth
 Icon=d1x-rebirth
 Terminal=false
 Type=Application
 Categories=Game;ActionGame;
 StartupNotify=false
-
