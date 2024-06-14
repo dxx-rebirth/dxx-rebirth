@@ -40,7 +40,7 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: Install AppImage dependencies
-        run: apt-get update && apt-get install -y libfuse2 wget curl
+        run: sudo apt-get update && sudo apt-get install -y libfuse2 wget curl
 
       - name: Clone Repository
         uses: actions/checkout@v4
