@@ -6,28 +6,29 @@ on:
 jobs:
   package:
     name: GCC 13
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+    container:
+      image: "ubuntu:24.04"
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4
 
       - name: Update Package Database
-        run: sudo apt-get update
-
-      - name: Install Build Dependencies
-        run: sudo apt install -y gcc-13 g++-13 python3 scons
-
-      - name: Install dxx-rebirth Dependencies
-        run: sudo apt install -y libsdl1.2-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libphysfs-dev libpng-dev
+        run: |
+          apt-get update &&
+          apt install -y
+              # Build tools
+              gcc-13 g++-13 python3 scons
+              # Dependencies
+              libsdl1.2-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libphysfs-dev libpng-dev
+              # AppImage build requirements
+              libfuse2 wget curl
 
       - name: Configure and Build
         run: scons -j`nproc`
         env:
           CC: gcc-13
           CXX: g++-13
-
-      - name: Install AppImage Requirements
-        run: sudo apt-get install -y libfuse2 wget curl
 
       - name: Package
         run: ./contrib/packaging/linux/build_package.sh
