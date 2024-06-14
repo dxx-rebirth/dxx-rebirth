@@ -57,3 +57,9 @@ jobs:
         run: |
           ls -la ./build
           contrib/packaging/linux/build_package.sh
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-appimage
+          path: '*.zip'
