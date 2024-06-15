@@ -5,7 +5,7 @@ on:
 
 jobs:
   package:
-    name: GCC 13
+    name: GCC 12
     runs-on: ubuntu-22.04
     steps:
       - name: Clone Repository
@@ -16,7 +16,7 @@ jobs:
           sudo apt-get update
 
           sudo apt install -y
-          gcc-13 g++-13
+          gcc-12 g++-12
           python3
           scons
           libsdl1.2-dev
@@ -28,8 +28,7 @@ jobs:
       - name: Configure and Build
         run: scons -j`nproc`
         env:
-          CC: gcc-13
-          CXX: g++-13
+          CXX: g++-12
 
       - name: Install AppImage Requirements
         run: sudo apt-get install -y libfuse2 wget curl
