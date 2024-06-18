@@ -8,6 +8,7 @@ on:
 jobs:
   tag:
     name: Create tag
+    id: create_tag
     runs-on: ubuntu-22.04
     permissions:
       contents: write
@@ -18,7 +19,9 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create release
-        uses: release.yml
-        with:
-          tag_name: ${{ steps.tag_version.outputs.new_tag }}
+  release:
+    name: Create release
+    needs: create_tag
+    uses: ./.github/workflows/release.yml
+    with:
+        tag_name: ${{ needs.create_tag.steps.tag_version.outputs.new_tag }}
