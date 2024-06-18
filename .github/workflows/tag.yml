@@ -17,3 +17,8 @@ jobs:
         uses: mathieudutour/github-tag-action@v6.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create release
+        uses: release.yml
+        with:
+          tag_name: ${{ steps.tag_version.outputs.new_tag }}
