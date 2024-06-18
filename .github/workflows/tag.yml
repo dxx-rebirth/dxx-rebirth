@@ -8,7 +8,6 @@ on:
 jobs:
   tag:
     name: Create tag
-    id: create_tag
     runs-on: ubuntu-22.04
     permissions:
       contents: write
@@ -21,7 +20,7 @@ jobs:
 
   release:
     name: Create release
-    needs: create_tag
+    needs: tag
     uses: ./.github/workflows/release.yml
     with:
-        tag_name: ${{ needs.create_tag.steps.tag_version.outputs.new_tag }}
+        tag_name: ${{ needs.tag.steps.tag_version.outputs.new_tag }}
