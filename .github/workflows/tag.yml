@@ -21,6 +21,8 @@ jobs:
   release:
     name: Create release
     needs: tag
+    permissions:
+      contents: write
     uses: ./.github/workflows/release.yml
     with:
         tag_name: ${{ needs.tag.steps.tag_version.outputs.new_tag }}
