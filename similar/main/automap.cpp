@@ -653,14 +653,17 @@ static void draw_player(const g3_draw_line_context &context, const object_base &
 	g3_draw_line(context, sphere_point, arrow_point);
 
 	// Draw right head of arrow
-		g3_draw_line(context, arrow_point, /* head_point = */ g3_rotate_point(/* rhead_pos = */ vm_vec_scale_add(head_pos, obj.orient.rvec, obj_size)));
+		auto lhead_point = g3_rotate_point(/* rhead_pos = */ vm_vec_scale_add(head_pos, obj.orient.rvec, obj_size));
+		g3_draw_line(context, arrow_point, lhead_point);
 
 	// Draw left head of arrow
-		g3_draw_line(context, arrow_point, /* head_point = */ g3_rotate_point(/* lhead_pos = */ vm_vec_scale_add(head_pos, obj.orient.rvec, -obj_size)));
+		auto rhead_point = g3_rotate_point(/* lhead_pos = */ vm_vec_scale_add(head_pos, obj.orient.rvec, -obj_size));
+		g3_draw_line(context, arrow_point, rhead_point);
 	}
 
 	// Draw player's up vector
-	g3_draw_line(context, sphere_point, /* arrow_point = */ g3_rotate_point(/* arrow_pos = */ vm_vec_scale_add(obj.pos, obj.orient.uvec, obj_size * 2)));
+	auto arrow_point = g3_rotate_point(/* arrow_pos = */ vm_vec_scale_add(obj.pos, obj.orient.uvec, obj_size * 2));
+	g3_draw_line(context, sphere_point, arrow_point);
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
