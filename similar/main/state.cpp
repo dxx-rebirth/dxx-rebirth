@@ -1298,7 +1298,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	if (!fp)
 	{
 		const auto errstr = PHYSFS_getErrorByCode(physfserr);
-		con_printf(CON_URGENT, "Failed to open %s: %s", filename, errstr);
+		con_printf(CON_URGENT, "Failed to open savegame %s: %s", filename, errstr);
 		struct error_writing_savegame :
 			std::array<char, 96>,
 			passive_messagebox
