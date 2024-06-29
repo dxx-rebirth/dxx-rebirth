@@ -50,9 +50,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_levelstate.h"
 #include "partial_range.h"
 
-int New_file_format_load = 1; // "new file format" is everything newer than d1 shareware
+namespace dcx {
+
+namespace {
+
+static uint8_t New_file_format_load{1}; // "new file format" is everything newer than d1 shareware
+
+}
+
+}
 
 namespace dsx {
+
 namespace {
 
 static segment_special build_segment_special_from_untrusted(uint8_t untrusted)
@@ -108,6 +117,7 @@ static void segment2_read(const msmusegment s2, const NamedPHYSFS_File fp)
 	s2.s.s2_flags = {};
 	s2.u.static_light = PHYSFSX_readFix(fp);
 }
+
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
