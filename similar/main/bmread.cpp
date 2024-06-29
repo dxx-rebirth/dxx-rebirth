@@ -286,7 +286,6 @@ namespace {
 static bitmap_index bm_load_sub(const int skip, const char *const filename)
 {
 	palette_array_t newpal;
-	int iff_error;		//reference parm to avoid warning message
 
 	if (skip) {
 		return bitmap_index{};
@@ -308,8 +307,8 @@ static bitmap_index bm_load_sub(const int skip, const char *const filename)
 	}
 
 	grs_bitmap n;
-	iff_error = iff_read_bitmap(filename, n, &newpal);
-	if (iff_error != IFF_NO_ERROR)		{
+	if (const auto iff_error{iff_read_bitmap(filename, n, &newpal)}; iff_error != iff_status_code::no_error)
+	{
 		Error("File <%s> - IFF error: %s, line %d",filename,iff_errormsg(iff_error),linenum);
 	}
 
@@ -362,12 +361,12 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 	}
 	}
 
-	auto read_result = iff_read_animbrush(filename);
+	auto read_result{iff_read_animbrush(filename)};
 	auto &bm = read_result.bm;
 	auto &newpal = read_result.palette;
 	*nframes = read_result.n_bitmaps;
-	const auto iff_error = read_result.status;
-	if (iff_error != IFF_NO_ERROR)	{
+	if (const auto iff_error{read_result.status}; iff_error != iff_status_code::no_error)
+	{
 		Error("File <%s> - IFF error: %s, line %d",filename,iff_errormsg(iff_error),linenum);
 	}
 

@@ -870,12 +870,10 @@ void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 				auto &bm = read_result.bm;
 				auto &newpal = read_result.palette;
 				const auto nframes = read_result.n_bitmaps;
-				const auto iff_error = read_result.status;
-
-				if (iff_error != IFF_NO_ERROR)  {
+				if (const auto iff_error{read_result.status}; iff_error != iff_status_code::no_error)
+				{
 					Error("File %s - IFF error: %s",abmname,iff_errormsg(iff_error));
 				}
-			
 				for (fnum=0;fnum<nframes; fnum++)       {
 					int SuperX;
 
@@ -915,14 +913,12 @@ void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 
 				grs_bitmap n;
 				palette_array_t newpal;
-				int iff_error;
 				char bbmname[FILENAME_LEN];
 				int SuperX;
 
 				snprintf(bbmname, sizeof(bbmname), "%.8s.bbm", abn.data());
-				iff_error = iff_read_bitmap(bbmname, n, &newpal);
-
-				if (iff_error != IFF_NO_ERROR)          {
+				if (const auto iff_error{iff_read_bitmap(bbmname, n, &newpal)}; iff_error != iff_status_code::no_error)
+				{
 					Error("File %s - IFF error: %s",bbmname,iff_errormsg(iff_error));
 				}
 

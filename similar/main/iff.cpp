@@ -40,6 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 
 #include "dxxsconf.h"
+#include "d_underlying_value.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
 #include <memory>
@@ -90,6 +91,7 @@ ubyte iff_has_transparency;	// 0=no transparency, 1=iff_transparent_color is val
 #define dlta_sig MAKE_SIG('D','L','T','A')
 
 namespace {
+
 static int32_t get_sig(PHYSFS_File *f)
 {
 	int s;
@@ -99,7 +101,8 @@ static int32_t get_sig(PHYSFS_File *f)
 
 #define put_sig(sig, f) PHYSFS_writeSBE32(f, sig)
 
-static int parse_bmhd(const NamedPHYSFS_File ifile, iff_bitmap_header *const bmheader)
+[[nodiscard]]
+static iff_status_code parse_bmhd(const NamedPHYSFS_File ifile, iff_bitmap_header *const bmheader)
 {
 	PHYSFS_readSBE16(ifile, &bmheader->w);
 	PHYSFS_readSBE16(ifile, &bmheader->h);
@@ -126,19 +129,23 @@ static int parse_bmhd(const NamedPHYSFS_File ifile, iff_bitmap_header *const bmh
 		iff_has_transparency = 1;
 
 	else if (bmheader->masking != mskNone && bmheader->masking != mskHasMask)
-		return IFF_UNKNOWN_MASK;
+		return iff_status_code::unknown_mask;
 
 //  debug("w,h=%d,%d x,y=%d,%d\n",w,h,x,y);
 //  debug("nplanes=%d, masking=%d ,compression=%d, transcolor=%d\n",nplanes,masking,compression,transparentcolor);
 
-	return IFF_NO_ERROR;
+	return iff_status_code::no_error;
 }
+
 }
 
 //  the buffer pointed to by raw_data is stuffed with a pointer to decompressed pixel data
 namespace dsx {
+
 namespace {
-static int parse_body(PHYSFS_File *ifile,long len,iff_bitmap_header *bmheader)
+
+[[nodiscard]]
+static iff_status_code parse_body(PHYSFS_File *ifile,long len,iff_bitmap_header *bmheader)
 {
 	auto p = bmheader->raw_data.get();
 	int width,depth;
@@ -243,11 +250,11 @@ static int parse_body(PHYSFS_File *ifile,long len,iff_bitmap_header *bmheader)
 	else
 		if (PHYSFS_tell(ifile)!=end_pos || p!=data_end) {
 //			debug("IFF Error: p=%x, data_end=%x, cnt=%d\n",p,data_end,cnt);
-			return IFF_CORRUPT;
+			return iff_status_code::corrupt;
 		}
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (p!=data_end)				//if we don't have the whole bitmap...
-		return IFF_CORRUPT;		//...the give an error
+		return iff_status_code::corrupt;		//...the give an error
 
 	//Pretend we read the whole chuck, because if we didn't, it's because
 	//we didn't read the last mask like or the last rle record for padding
@@ -255,14 +262,16 @@ static int parse_body(PHYSFS_File *ifile,long len,iff_bitmap_header *bmheader)
 	//we got the while bitmap, and that's what really counts.
 #endif
 
-	return IFF_NO_ERROR;
+	return iff_status_code::no_error;
 }
 }
 }
 
 namespace {
 //modify passed bitmap
-static int parse_delta(const NamedPHYSFS_File ifile, long len, iff_bitmap_header *const bmheader)
+
+[[nodiscard]]
+static iff_status_code parse_delta(const NamedPHYSFS_File ifile, long len, iff_bitmap_header *const bmheader)
 {
 	auto p = bmheader->raw_data.get();
 	long chunk_end = PHYSFS_tell(ifile) + len;
@@ -314,19 +323,19 @@ static int parse_delta(const NamedPHYSFS_File ifile, long len, iff_bitmap_header
 
 		if (cnt == -1) {
 			if (!bmheader->w)
-				return IFF_CORRUPT;
+				return iff_status_code::corrupt;
 		}
 		else if (cnt)
-			return IFF_CORRUPT;
+			return iff_status_code::corrupt;
 	}
 
 	if (PHYSFS_tell(ifile) == chunk_end-1)		//pad
 		PHYSFSX_fseek(ifile, 1, SEEK_CUR);
 
 	if (PHYSFS_tell(ifile) != chunk_end)
-		return IFF_CORRUPT;
+		return iff_status_code::corrupt;
 	else
-		return IFF_NO_ERROR;
+		return iff_status_code::no_error;
 }
 
 //  the buffer pointed to by raw_data is stuffed with a pointer to bitplane pixel data
@@ -340,7 +349,8 @@ static void skip_chunk(PHYSFS_File *ifile,long len)
 
 //read an ILBM or PBM file
 // Pass pointer to opened file, and to empty bitmap_header structure, and form length
-static int iff_parse_ilbm_pbm(const NamedPHYSFS_File ifile, long form_type, iff_bitmap_header *bmheader, int form_len, grs_bitmap *prev_bm)
+[[nodiscard]]
+static iff_status_code iff_parse_ilbm_pbm(const NamedPHYSFS_File ifile, long form_type, iff_bitmap_header *bmheader, int form_len, grs_bitmap *prev_bm)
 {
 	int sig,len;
 	long start_pos,end_pos;
@@ -360,24 +370,21 @@ static int iff_parse_ilbm_pbm(const NamedPHYSFS_File ifile, long form_type, iff_
 				switch (sig) {
 
 					case bmhd_sig: {
-						int ret;
 						int save_w=bmheader->w,save_h=bmheader->h;
 
-						ret = parse_bmhd(ifile, bmheader);
-
-						if (ret != IFF_NO_ERROR)
+						if (const auto ret{parse_bmhd(ifile, bmheader)}; ret != iff_status_code::no_error)
 							return ret;
 
 						if (bmheader->raw_data) {
 
 							if (save_w != bmheader->w  ||  save_h != bmheader->h)
-								return IFF_BM_MISMATCH;
+								return iff_status_code::bm_mismatch;
 
 						}
 						else {
 							MALLOC(bmheader->raw_data, uint8_t[], bmheader->w * bmheader->h);
 							if (!bmheader->raw_data)
-								return IFF_NO_MEM;
+								return iff_status_code::no_mem;
 						}
 
 						break;
@@ -386,7 +393,8 @@ static int iff_parse_ilbm_pbm(const NamedPHYSFS_File ifile, long form_type, iff_
 
 					case anhd_sig:
 
-						if (!prev_bm) return IFF_CORRUPT;
+						if (!prev_bm)
+							return iff_status_code::corrupt;
 
 						bmheader->w = prev_bm->bm_w;
 						bmheader->h = prev_bm->bm_h;
@@ -416,15 +424,13 @@ static int iff_parse_ilbm_pbm(const NamedPHYSFS_File ifile, long form_type, iff_
 
 					case body_sig:
 					{
-						int r;
-						if ((r=parse_body(ifile,len,bmheader))!=IFF_NO_ERROR)
+						if (const auto r{parse_body(ifile,len,bmheader)}; r != iff_status_code::no_error)
 							return r;
 						break;
 					}
 					case dlta_sig:
 					{
-						int r;
-						if ((r=parse_delta(ifile,len,bmheader))!=IFF_NO_ERROR)
+						if (const auto r{parse_delta(ifile,len,bmheader)}; r != iff_status_code::no_error)
 							return r;
 						break;
 					}
@@ -435,13 +441,14 @@ static int iff_parse_ilbm_pbm(const NamedPHYSFS_File ifile, long form_type, iff_
 			}
 
 	if (PHYSFS_tell(ifile) != start_pos-4+form_len)
-		return IFF_CORRUPT;
+		return iff_status_code::corrupt;
 
-	return IFF_NO_ERROR;    /* ok! */
+	return iff_status_code::no_error;    /* ok! */
 }
 
 //convert an ILBM file to a PBM file
-static int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
+[[nodiscard]]
+static iff_status_code convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 {
 	int x,p;
 	int bytes_per_row,byteofs;
@@ -449,7 +456,8 @@ static int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 
 	RAIIdmem<uint8_t[]> new_data;
 	MALLOC(new_data, uint8_t[], bmheader->w * bmheader->h);
-	if (new_data == NULL) return IFF_NO_MEM;
+	if (new_data == nullptr)
+		return iff_status_code::no_mem;
 
 	auto destptr = new_data.get();
 
@@ -481,16 +489,18 @@ static int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 	bmheader->raw_data = std::move(new_data);
 
 	bmheader->type = TYPE_PBM;
-
-	return IFF_NO_ERROR;
+	return iff_status_code::no_error;
 }
+
 }
 
 #define INDEX_TO_15BPP(i) (static_cast<short>((((palptr[(i)].r/2)&31)<<10)+(((palptr[(i)].g/2)&31)<<5)+((palptr[(i)].b/2 )&31)))
 
 namespace dsx {
+
 namespace {
-static int convert_rgb15(grs_bitmap &bm,iff_bitmap_header &bmheader)
+
+static iff_status_code convert_rgb15(grs_bitmap &bm,iff_bitmap_header &bmheader)
 {
 	palette_array_t::iterator palptr = begin(bmheader.palette);
 
@@ -502,8 +512,8 @@ static int convert_rgb15(grs_bitmap &bm,iff_bitmap_header &bmheader)
 #elif defined(DXX_BUILD_DESCENT_II)
 	uint16_t *new_data;
 	MALLOC(new_data, ushort, bm.bm_w * bm.bm_h * 2);
-	if (new_data == NULL)
-		return IFF_NO_MEM;
+	if (new_data == nullptr)
+		return iff_status_code::no_mem;
 
 	unsigned newptr = 0;
 	for (int y=0; y < bm.bm_h; y++) {
@@ -518,13 +528,16 @@ static int convert_rgb15(grs_bitmap &bm,iff_bitmap_header &bmheader)
 
 	bm.bm_rowsize *= 2;				//two bytes per row
 #endif
-	return IFF_NO_ERROR;
+	return iff_status_code::no_error;
 
 }
+
 }
+
 }
 
 namespace {
+
 //copy an iff header structure to a grs_bitmap structure
 static void copy_iff_to_grs(grs_bitmap &bm,iff_bitmap_header &bmheader)
 {
@@ -533,9 +546,9 @@ static void copy_iff_to_grs(grs_bitmap &bm,iff_bitmap_header &bmheader)
 
 //if bm->bm_data is set, use it (making sure w & h are correct), else
 //allocate the memory
-static int iff_parse_bitmap(const NamedPHYSFS_File ifile, grs_bitmap &bm, const bm_mode bitmap_type, palette_array_t *const palette, grs_bitmap *const prev_bm)
+[[nodiscard]]
+static iff_status_code iff_parse_bitmap(const NamedPHYSFS_File ifile, grs_bitmap &bm, const bm_mode bitmap_type, palette_array_t *const palette, grs_bitmap *const prev_bm)
 {
-	int ret;			//return code
 	iff_bitmap_header bmheader;
 	int sig,form_len;
 	long form_type;
@@ -545,7 +558,7 @@ static int iff_parse_bitmap(const NamedPHYSFS_File ifile, grs_bitmap &bm, const 
 	sig=get_sig(ifile);
 
 	if (sig != form_sig) {
-		return IFF_NOT_IFF;
+		return iff_status_code::not_iff;
 	}
 
 	PHYSFS_readSBE32(ifile, &form_len);
@@ -553,22 +566,20 @@ static int iff_parse_bitmap(const NamedPHYSFS_File ifile, grs_bitmap &bm, const 
 	form_type = get_sig(ifile);
 
 	if (form_type == anim_sig)
-		ret = IFF_FORM_ANIM;
+		return iff_status_code::form_anim;
 	else if ((form_type == pbm_sig) || (form_type == ilbm_sig))
-		ret = iff_parse_ilbm_pbm(ifile,form_type,&bmheader,form_len,prev_bm);
-	else
-		ret = IFF_UNKNOWN_FORM;
-
-	if (ret != IFF_NO_ERROR) {		//got an error parsing
-		return ret;
+	{
+		if (const auto ret{iff_parse_ilbm_pbm(ifile, form_type, &bmheader, form_len, prev_bm)}; ret != iff_status_code::no_error)
+		{		//got an error parsing
+			return ret;
+		}
 	}
+	else
+		return iff_status_code::unknown_form;
 
 	//If IFF file is ILBM, convert to PPB
 	if (bmheader.type == TYPE_ILBM) {
-
-		ret = convert_ilbm_to_pbm(&bmheader);
-
-		if (ret != IFF_NO_ERROR)
+		if (const auto ret{convert_ilbm_to_pbm(&bmheader)}; ret != iff_status_code::no_error)
 			return ret;
 	}
 
@@ -582,26 +593,22 @@ static int iff_parse_bitmap(const NamedPHYSFS_File ifile, grs_bitmap &bm, const 
 	//Now do post-process if required
 
 	if (bitmap_type == bm_mode::rgb15) {
-		ret = convert_rgb15(bm, bmheader);
-		if (ret != IFF_NO_ERROR)
-			return ret;
+		return convert_rgb15(bm, bmheader);
 	}
-
-	return ret;
+	return iff_status_code::no_error;
 }
+
 }
 
 //returns error codes - see IFF.H.  see GR.H for bitmap_type
-int iff_read_bitmap(const char *const ifilename, grs_bitmap &bm, palette_array_t *const palette)
+iff_status_code iff_read_bitmap(const char *const ifilename, grs_bitmap &bm, palette_array_t *const palette)
 {
-	int ret;			//return code
 	auto ifile = PHYSFSX_openReadBuffered(ifilename).first;
 	if (!ifile)
-		return IFF_NO_FILE;
+		return iff_status_code::no_file;
 
 	assert(bm.bm_data == nullptr);
-	ret = iff_parse_bitmap(ifile, bm, bm_mode::linear, palette, nullptr);
-	return ret;
+	return iff_parse_bitmap(ifile, bm, bm_mode::linear, palette, nullptr);
 }
 
 #define BMHD_SIZE 20
@@ -911,7 +918,7 @@ iff_read_result iff_read_animbrush(const char *ifilename)
 	auto ifile = PHYSFSX_openReadBuffered(ifilename).first;
 	if (!ifile)
 	{
-		result.status = IFF_NO_FILE;
+		result.status = iff_status_code::no_file;
 		return result;
 	}
 
@@ -919,14 +926,14 @@ iff_read_result iff_read_animbrush(const char *ifilename)
 	PHYSFS_readSBE32(ifile, &form_len);
 
 	if (sig != form_sig) {
-		result.status = IFF_NOT_IFF;
+		result.status = iff_status_code::not_iff;
 		return result;
 	}
 
 	form_type = get_sig(ifile);
 
 	if ((form_type == pbm_sig) || (form_type == ilbm_sig))
-		result.status = IFF_FORM_BITMAP;
+		result.status = iff_status_code::form_bitmap;
 	else if (form_type == anim_sig) {
 		int anim_end = PHYSFS_tell(ifile) + form_len - 4;
 
@@ -941,9 +948,7 @@ iff_read_result iff_read_animbrush(const char *ifilename)
 			 * do not require RGB conversion, so pass a mode that skips
 			 * the conversion.
 			 */
-			const auto ret = iff_parse_bitmap(ifile, *n.get(), bm_mode::linear, n_bitmaps > 0 ? nullptr : &result.palette, prev_bm);
-
-			if (ret != IFF_NO_ERROR)
+			if (const auto ret{iff_parse_bitmap(ifile, *n.get(), bm_mode::linear, n_bitmaps > 0 ? nullptr : &result.palette, prev_bm)}; ret != iff_status_code::no_error)
 			{
 				result.status = ret;
 				return result;
@@ -952,10 +957,10 @@ iff_read_result iff_read_animbrush(const char *ifilename)
 		}
 
 		if (PHYSFS_tell(ifile) < anim_end)	//ran out of room
-			result.status = IFF_TOO_MANY_BMS;
+			result.status = iff_status_code::too_many_bms;
 	}
 	else
-		result.status = IFF_UNKNOWN_FORM;
+		result.status = iff_status_code::unknown_form;
 	return result;
 }
 
@@ -977,18 +982,14 @@ constexpr char error_messages[] = {
 
 
 //function to return pointer to error message
-const char *iff_errormsg(int error_number)
+const char *iff_errormsg(const iff_status_code status)
 {
-	const char *p = error_messages;
-
+	auto error_number{underlying_value(status)};
+	const char *p{error_messages};
 	while (error_number--) {
-
 		if (!p) return NULL;
-
 		p += strlen(p)+1;
-
 	}
-
 	return p;
 
 }

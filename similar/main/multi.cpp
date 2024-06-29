@@ -5746,8 +5746,7 @@ void save_hoard_data(void)
 		auto &bm = read_result.bm;
 		auto &palette = read_result.palette;
 		const auto nframes = read_result.n_bitmaps;
-		const auto iff_error = read_result.status;
-		assert(iff_error == IFF_NO_ERROR);
+		assert(read_result.status == iff_status_code::no_error);
 	PHYSFS_writeULE16(ofile, nframes);
 	PHYSFS_writeULE16(ofile, bm[0]->bm_w);
 	PHYSFS_writeULE16(ofile, bm[0]->bm_h);
@@ -5761,8 +5760,7 @@ void save_hoard_data(void)
 		auto &bm = read_result.bm;
 		auto &palette = read_result.palette;
 		const auto nframes = read_result.n_bitmaps;
-		const auto iff_error = read_result.status;
-		assert(iff_error == IFF_NO_ERROR);
+		assert(read_result.status == iff_status_code::no_error);
 	Assert(bm[0]->bm_w == 64 && bm[0]->bm_h == 64);
 	PHYSFS_writeULE16(ofile, nframes);
 	PHYSFSX_writeBytes(ofile, palette.data(), sizeof(palette[0]) * palette.size());
@@ -5774,8 +5772,9 @@ void save_hoard_data(void)
 	{
 		palette_array_t palette;
 		grs_bitmap icon;
-		const auto iff_error = iff_read_bitmap(i ? "orbb.bbm" : "orb.bbm", icon, &palette);
-		Assert(iff_error == IFF_NO_ERROR);
+		const auto iff_error{iff_read_bitmap(i ? "orbb.bbm" : "orb.bbm", icon, &palette)};
+		(void)iff_error;
+		assert(iff_error == iff_status_code::no_error);
 		PHYSFS_writeULE16(ofile, icon.bm_w);
 		PHYSFS_writeULE16(ofile, icon.bm_h);
 		PHYSFSX_writeBytes(ofile, palette.data(), sizeof(palette[0]) * palette.size());

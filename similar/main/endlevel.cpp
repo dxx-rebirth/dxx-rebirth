@@ -1376,11 +1376,10 @@ try_again:
 		switch (var) {
 
 			case 0: {						//ground terrain
-				int iff_error;
 				palette_array_t pal;
 				terrain_bm_instance.reset();
-				iff_error = iff_read_bitmap(p, terrain_bm_instance, &pal);
-				if (iff_error != IFF_NO_ERROR) {
+				if (const auto iff_error{iff_read_bitmap(p, terrain_bm_instance, &pal)}; iff_error != iff_status_code::no_error)
+				{
 					con_printf(CON_DEBUG, "Can't load exit terrain from file %s: IFF error: %s",
                                                 p, iff_errormsg(iff_error));
 					endlevel_data_loaded = 0; // won't be able to play endlevel sequence
@@ -1408,11 +1407,10 @@ try_again:
 				break;
 
 			case 4: {						//planet bitmap
-				int iff_error;
 				palette_array_t pal;
 				satellite_bm_instance.reset();
-				iff_error = iff_read_bitmap(p, satellite_bm_instance, &pal);
-				if (iff_error != IFF_NO_ERROR) {
+				if (const auto iff_error{iff_read_bitmap(p, satellite_bm_instance, &pal)}; iff_error != iff_status_code::no_error)
+				{
 					con_printf(CON_DEBUG, "Can't load exit satellite from file %s: IFF error: %s",
                                                 p, iff_errormsg(iff_error));
 					endlevel_data_loaded = 0; // won't be able to play endlevel sequence

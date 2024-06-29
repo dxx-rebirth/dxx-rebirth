@@ -856,15 +856,14 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 #endif
 		} else if (ch == 'B') {
 			palette_array_t		temp_palette;
-			int		iff_error;
 			const auto bitmap_name = get_message_name(br->message, ".bbm");
 			br->robot_canv.reset();
 			br->guy_bitmap.reset();
-			iff_error = iff_read_bitmap(&bitmap_name[0], br->guy_bitmap, &temp_palette);
+			const auto iff_error{iff_read_bitmap(&bitmap_name[0], br->guy_bitmap, &temp_palette)};
+			assert(iff_error == iff_status_code::no_error);
 #if defined(DXX_BUILD_DESCENT_II)
 			gr_remap_bitmap_good( br->guy_bitmap, temp_palette, -1, -1 );
 #endif
-			Assert(iff_error == IFF_NO_ERROR);
 			(void)iff_error;
 
 			br->prev_ch = 10;

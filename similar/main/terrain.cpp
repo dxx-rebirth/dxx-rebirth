@@ -374,12 +374,11 @@ void free_height_array()
 void load_terrain(const char *filename)
 {
 	grs_bitmap height_bitmap;
-	int iff_error;
 	int i,j;
 	ubyte h,min_h,max_h;
 
-	iff_error = iff_read_bitmap(filename, height_bitmap, NULL);
-	if (iff_error != IFF_NO_ERROR) {
+	if (const auto iff_error{iff_read_bitmap(filename, height_bitmap, NULL)}; iff_error != iff_status_code::no_error)
+	{
 		Error("File %s - IFF error: %s",filename,iff_errormsg(iff_error));
 	}
 	grid_w = height_bitmap.bm_w;

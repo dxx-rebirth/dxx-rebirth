@@ -33,9 +33,27 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 constexpr std::integral_constant<std::size_t, 30> MAX_BITMAPS_PER_BRUSH{};
 
+//Error codes for read & write routines
+enum class iff_status_code : unsigned
+{
+	no_error       = 0,   //everything is fine, have a nice day
+	no_mem         = 1,   //not enough mem for loading or processing
+	unknown_form   = 2,   //IFF file, but not a bitmap
+	not_iff        = 3,   //this isn't even an IFF file
+	no_file        = 4,   //cannot find or open file
+	bad_bm_type    = 5,   //tried to save invalid type, like bm_mode::rgb15
+	corrupt        = 6,   //bad data in file
+	form_anim      = 7,   //this is an anim, with non-anim load rtn
+	form_bitmap    = 8,   //this is not an anim, with anim load rtn
+	too_many_bms   = 9,   //anim read had more bitmaps than room for
+	unknown_mask   = 10,  //unknown masking type
+	read_error     = 11,  //error reading from file
+	bm_mismatch    = 12,  //bm being loaded doesn't match bm loaded into
+};
+
 struct iff_read_result
 {
-	int status;
+	iff_status_code status;
 	unsigned n_bitmaps{};
 	palette_array_t palette;
 	std::array<std::unique_ptr<grs_main_bitmap>, MAX_BITMAPS_PER_BRUSH> bm;
@@ -43,7 +61,8 @@ struct iff_read_result
 
 //Prototypes for IFF library functions
 
-int iff_read_bitmap(const char *ifilename, grs_bitmap &bm, palette_array_t *palette);
+[[nodiscard]]
+iff_status_code iff_read_bitmap(const char *ifilename, grs_bitmap &bm, palette_array_t *palette);
 	//reads an IFF file into a grs_bitmap structure. fills in palette if not null
 	//returns error codes - see IFF.H.  see GR.H for bitmap_type
 	//MEM DETAILS:  This routines assumes that you already have the grs_bitmap
@@ -70,24 +89,8 @@ int iff_write_bitmap(const char *ofilename,grs_bitmap *bm,palette_array_t *palet
 	//returns error codes - see IFF.H.
 
 //function to return pointer to error message
-const char *iff_errormsg(int error_number);
-
-
-//Error codes for read & write routines
-
-#define IFF_NO_ERROR        0   //everything is fine, have a nice day
-#define IFF_NO_MEM          1   //not enough mem for loading or processing
-#define IFF_UNKNOWN_FORM    2   //IFF file, but not a bitmap
-#define IFF_NOT_IFF         3   //this isn't even an IFF file
-#define IFF_NO_FILE         4   //cannot find or open file
-#define IFF_BAD_BM_TYPE     5   //tried to save invalid type, like bm_mode::rgb15
-#define IFF_CORRUPT         6   //bad data in file
-#define IFF_FORM_ANIM       7   //this is an anim, with non-anim load rtn
-#define IFF_FORM_BITMAP     8   //this is not an anim, with anim load rtn
-#define IFF_TOO_MANY_BMS    9   //anim read had more bitmaps than room for
-#define IFF_UNKNOWN_MASK    10  //unknown masking type
-#define IFF_READ_ERROR      11  //error reading from file
-#define IFF_BM_MISMATCH     12  //bm being loaded doesn't match bm loaded into
+[[nodiscard]]
+const char *iff_errormsg(iff_status_code error_number);
 
 #endif
 

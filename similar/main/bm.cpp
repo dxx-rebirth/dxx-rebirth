@@ -621,11 +621,8 @@ namespace {
 static grs_bitmap *read_extra_bitmap_iff(const char * filename, grs_bitmap &n)
 {
 	palette_array_t newpal;
-	int iff_error;		//reference parm to avoid warning message
-
-	//MALLOC( new, grs_bitmap, 1 );
-	iff_error = iff_read_bitmap(filename, n, &newpal);
-	if (iff_error != IFF_NO_ERROR)		{
+	if (const auto iff_error{iff_read_bitmap(filename, n, &newpal)}; iff_error != iff_status_code::no_error)
+	{
 		con_printf(CON_DEBUG, "Error loading exit model bitmap <%s> - IFF error: %s", filename, iff_errormsg(iff_error));
 		return nullptr;
 	}
