@@ -34,7 +34,18 @@
 
 namespace dcx {
 
-const std::array<file_extension_t, 1> archive_exts{{"dxa"}};
+namespace {
+
+constexpr std::array<file_extension_t, 1> archive_exts{{"dxa"}};
+
+static void add_data_directory_to_search_path()
+{
+	std::array<char, PATH_MAX> pathname;
+	static char relname[]{"data"};
+	PHYSFSX_addRelToSearchPath(relname, pathname, physfs_search_path::append);	// 'Data' subdirectory
+}
+
+}
 
 PHYSFSX_fgets_t::result PHYSFSX_fgets_t::get(const std::span<char> buf, PHYSFS_File *const fp)
 {
@@ -249,11 +260,7 @@ bool PHYSFSX_init(int argc, char *argv[])
 	}
 #endif
 	
-	std::array<char, PATH_MAX> pathname;
-	{
-		static char relname[]{"data"};
-		PHYSFSX_addRelToSearchPath(relname, pathname, physfs_search_path::append);	// 'Data' subdirectory
-	}
+	add_data_directory_to_search_path();
 	
 	// For Macintosh, add the 'Resources' directory in the .app bundle to the searchpaths
 #if defined(__APPLE__) && defined(__MACH__)
