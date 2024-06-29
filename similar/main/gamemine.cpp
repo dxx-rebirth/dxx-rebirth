@@ -123,7 +123,7 @@ static void segment2_read(const msmusegment s2, const NamedPHYSFS_File fp)
 #if defined(DXX_BUILD_DESCENT_I)
 #elif defined(DXX_BUILD_DESCENT_II)
 
-int d1_pig_present = 0; // can descent.pig from descent 1 be loaded?
+uint8_t d1_pig_present = 0; // can descent.pig from descent 1 be loaded?
 
 /* Converts descent 1 texture numbers to descent 2 texture numbers.
  * Textures from d1 which are unique to d1 have extra spaces around "return".
