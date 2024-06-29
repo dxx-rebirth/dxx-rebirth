@@ -4477,7 +4477,10 @@ class DXXCommon(LazyObjectConstructor):
 			)
 			del nonblank_builddir
 
-		cxxflags = get_Werror_sequence(user_settings.CXXFLAGS, (
+		cxxflags = [
+			'-ftabstop=4',
+			'-Wall',
+			'-Wformat=2',
 			'-Wextra',
 			'-Wmissing-braces',
 			'-Wmissing-include-dirs',
@@ -4487,12 +4490,7 @@ class DXXCommon(LazyObjectConstructor):
 			'-Wcast-qual',
 			'-Wmissing-declarations',
 			'-Wvla',
-			))
-		cxxflags[0:0] = (
-			'-ftabstop=4',
-			'-Wall',
-			'-Wformat=2',
-			)
+			]
 		if self.user_settings.lto:
 			# clang does not support `=N` syntax, so use the bare form `-flto`
 			# for `user_settings.lto=1`.  This allows `lto=1` to do the right
