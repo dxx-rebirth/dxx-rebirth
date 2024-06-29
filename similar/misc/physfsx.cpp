@@ -50,6 +50,7 @@ PHYSFSX_fgets_t::result PHYSFSX_fgets_t::get(const std::span<char> buf, PHYSFS_F
 	}
 	const auto bb{buf.begin()};
 	auto p{bb};
+	std::ptrdiff_t buffer_end_adjustment{0};
 	for (const auto e{std::next(bb, r)}; p != e; ++p)
 	{
 		if (const char c{*p}; c == 0 || c == '\n')
@@ -69,6 +70,11 @@ PHYSFSX_fgets_t::result PHYSFSX_fgets_t::get(const std::span<char> buf, PHYSFS_F
 			*p = 0;
 			if (++p == e || *p != '\n')
 				--p;
+			else
+				/* Increment `buffer_end_adjustment` so that the returned span does
+				 * not include the null that was previously a Carriage Return.
+				 */
+				++ buffer_end_adjustment;
 		}
 		else
 			continue;
@@ -77,7 +83,7 @@ PHYSFSX_fgets_t::result PHYSFSX_fgets_t::get(const std::span<char> buf, PHYSFS_F
 	}
 	*p = 0;
 	DXX_POISON_MEMORY(buf.subspan((p + 1) - bb), 0xcc);
-	return {bb, p};
+	return {bb, p - buffer_end_adjustment};
 }
 
 int PHYSFSX_checkMatchingExtension(const char *filename, const std::ranges::subrange<const file_extension_t *> range)
