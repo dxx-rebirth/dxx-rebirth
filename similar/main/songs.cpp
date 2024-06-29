@@ -135,6 +135,28 @@ void songs_set_volume(int volume)
 
 namespace {
 
+struct deferred_physfs_pathname
+{
+	std::optional<const char *> dirname;
+	const char *const physfs_virtual_path;
+	deferred_physfs_pathname(const char *p) :
+		physfs_virtual_path{p}
+	{
+	}
+	const char *get_dirname();
+};
+
+const char *deferred_physfs_pathname::get_dirname()
+{
+	if (!dirname)
+	{
+		const auto r{PHYSFS_getRealDir(physfs_virtual_path)};
+		dirname = r;
+		return r;
+	}
+	return *dirname;
+}
+
 static bool is_valid_song_extension(const std::ranges::subrange<std::span<char>::iterator> extension)
 {
 	/* This is a special purpose tolower, which only works due to the special
@@ -190,7 +212,7 @@ static inline void assign_builtin_song(bim_song_info &song, const char (&str)[N]
 	std::ranges::copy(str, std::ranges::begin(song.filename));
 }
 
-static void add_song(const char *const filename, const unsigned lineno, std::vector<bim_song_info> &songs, const std::ranges::subrange<std::span<char>::iterator> entry_input)
+static void add_song(deferred_physfs_pathname &pathname, const unsigned lineno, std::vector<bim_song_info> &songs, const std::ranges::subrange<std::span<char>::iterator> entry_input)
 {
 	/* Some versions of `descent.sng` are not a simple list of songs, but
 	 * instead have a song, whitespace, and then other text on the line.  The
@@ -214,14 +236,14 @@ static void add_song(const char *const filename, const unsigned lineno, std::vec
 	if (const std::size_t limit{std::tuple_size<decltype(bim_song_info::filename)>::value - 1}; input_size > limit)
 	{
 		/* Drop excessively long filenames. */
-		con_printf(CON_NORMAL, "warning: song file \"%s\":%u: ignoring excessively long filename; maximum allowed length is %" DXX_PRI_size_type ", but found %" DXX_PRI_size_type " (\"%.*s\"%s)", filename, lineno, limit, input_size, clamp_filename_characters_count(input_size), input.data(), get_filename_truncation_hint_text(input_size));
+		con_printf(CON_NORMAL, "warning: song file \"%s\"/\"%s\":%u: ignoring excessively long filename; maximum allowed length is %" DXX_PRI_size_type ", but found %" DXX_PRI_size_type " (\"%.*s\"%s)", pathname.get_dirname(), pathname.physfs_virtual_path, lineno, limit, input_size, clamp_filename_characters_count(input_size), input.data(), get_filename_truncation_hint_text(input_size));
 		return;
 	}
 	auto &&reverse_input{std::ranges::views::reverse(input)};
 	if (const auto &&ri_dot{std::ranges::find(reverse_input, '.')}; ri_dot == reverse_input.end())
 	{
 		/* Drop filenames that lack a dot. */
-		con_printf(CON_NORMAL, "warning: song file \"%s\":%u: ignoring filename with no dot (\"%.*s\"%s)", filename, lineno, clamp_filename_characters_count(input_size), input.data(), get_filename_truncation_hint_text(input_size));
+		con_printf(CON_NORMAL, "warning: song file \"%s\"/\"%s\":%u: ignoring filename with no dot (\"%.*s\"%s[%" DXX_PRI_size_type "])", pathname.get_dirname(), pathname.physfs_virtual_path, lineno, clamp_filename_characters_count(input_size), input.data(), get_filename_truncation_hint_text(input_size), input_size);
 		return;
 	}
 	/* Due to `std::reverse_iterator` rules, `reverse_iterator::operator*()`
@@ -238,7 +260,7 @@ static void add_song(const char *const filename, const unsigned lineno, std::vec
 #define DXX_ADD_SONG_EXTENSION_HINT	": "
 #endif
 		const std::size_t extension_size{extension.size()};
-		con_printf(CON_NORMAL, "warning: song file \"%s\":%u: ignoring filename with unacceptable filename extension (\"%.*s\"%s) on filename (\"%.*s\"%s); acceptable value" DXX_ADD_SONG_EXTENSION_HINT SONG_EXT_HMP, filename, lineno, clamp_filename_characters_count(extension_size), extension.data(), get_filename_truncation_hint_text(extension_size), clamp_filename_characters_count(input_size), input.data(), get_filename_truncation_hint_text(input_size));
+		con_printf(CON_NORMAL, "warning: song file \"%s\"/\"%s\":%u: ignoring filename with unacceptable filename extension (\"%.*s\"%s[%" DXX_PRI_size_type "]) on filename (\"%.*s\"%s[%" DXX_PRI_size_type "]); acceptable value" DXX_ADD_SONG_EXTENSION_HINT SONG_EXT_HMP, pathname.get_dirname(), pathname.physfs_virtual_path, lineno, clamp_filename_characters_count(extension_size), extension.data(), get_filename_truncation_hint_text(extension_size), extension_size, clamp_filename_characters_count(input_size), input.data(), get_filename_truncation_hint_text(input_size), input_size);
 #undef DXX_ADD_SONG_EXTENSION_HINT
 		return;
 	}
@@ -269,13 +291,19 @@ static void add_song(const char *const filename, const unsigned lineno, std::vec
 	};
 	auto &e{songs.emplace_back(emplace_subrange{input})};
 	assert(!e.filename.back());
-	con_printf(CON_VERBOSE, "note: song file \"%s\":%u: adding filename \"%s\"", filename, lineno, e.filename.data());
+	/* Check verbosity before preparing arguments, so that the dirname is not
+	 * computed if the con_printf call will not use it.
+	 */
+	if (CON_VERBOSE <= CGameArg.DbgVerbose)
+		con_printf(CON_VERBOSE, "note: song file \"%s\"/\"%s\":%u: adding filename \"%s\"", pathname.get_dirname(), pathname.physfs_virtual_path, lineno, e.filename.data());
 }
 
 }
+
 }
 
 namespace dsx {
+
 namespace {
 
 // Set up everything for our music
@@ -338,12 +366,13 @@ static void songs_init()
 		}};
 		std::vector<bim_song_info> main_songs, secret_songs;
 		unsigned lineno{0};
+		deferred_physfs_pathname deferred_pathname{fp.filename};
 		for (PHYSFSX_gets_line_t<81> inputline; const auto result{PHYSFSX_fgets(inputline, fp)};)
 		{
 			++lineno;
 			if (result.empty())
 				continue;
-			add_song(fp.filename, lineno, use_secret_songs(canUseExtensions, result) ? secret_songs : main_songs, result);
+			add_song(deferred_pathname, lineno, use_secret_songs(canUseExtensions, result) ? secret_songs : main_songs, result);
 		}
 #if defined(DXX_BUILD_DESCENT_I)
 		// HACK: If Descent.hog is patched from 1.0 to 1.5, descent.sng is turncated. So let's patch it up here
