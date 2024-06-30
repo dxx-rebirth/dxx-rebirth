@@ -2011,7 +2011,7 @@ window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, const
 		multi_prep_level_objects(Powerup_info, Vclip);
 		if (multi::dispatch->level_sync() == window_event_result::close) // After calling this, Player_num is set
 		{
-			songs_play_song( SONG_TITLE, 1 ); // level song already plays but we fail to start level...
+			songs_play_song(song_number::title, 1); // level song already plays but we fail to start level...
 			return window_event_result::close;
 		}
 	}

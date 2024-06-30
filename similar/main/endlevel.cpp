@@ -748,7 +748,7 @@ window_event_result start_endlevel_sequence()
 		multi_send_endlevel_start(multi_endlevel_type::normal);
 		multi::dispatch->do_protocol_frame(1, 1);
 	}
-	songs_play_song( SONG_ENDLEVEL, 0 );
+	songs_play_song(song_number::endlevel, 0);
 
 	Endlevel_sequence = EL_FLYTHROUGH;
 
@@ -929,7 +929,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 #endif
 				{
 
-					//songs_play_song( SONG_ENDLEVEL, 0 );
+					//songs_play_song(song_number::endlevel, 0);
 
 					Endlevel_sequence = EL_LOOKBACK;
 

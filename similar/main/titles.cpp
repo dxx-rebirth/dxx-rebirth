@@ -222,7 +222,7 @@ static int DefineBriefingBox(const grs_bitmap &, const char *&buf);
 void show_titles(void)
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	songs_play_song(SONG_TITLE, 1);
+	songs_play_song(song_number::title, 1);
 #endif
 	if (CGameArg.SysNoTitles)
 		return;
@@ -271,7 +271,7 @@ void show_titles(void)
 		if (played == movie_play_status::skipped)
 		{
 			con_puts(CON_DEBUG, "Playing title song...");
-			songs_play_song( SONG_TITLE, 1);
+			songs_play_song(song_number::title, 1);
 			song_playing = 1;
 			con_puts(CON_DEBUG, "Showing logo screens...");
 
@@ -313,7 +313,7 @@ void show_titles(void)
 	if (!song_playing)
 	{
 		con_puts(CON_DEBUG, "Playing title song...");
-		songs_play_song( SONG_TITLE, 1);
+		songs_play_song(song_number::title, 1);
 	}
 	con_puts(CON_DEBUG, "Showing logo screen...");
 	const auto filename = hiresmode ? "descentb.pcx" : "descent.pcx";
@@ -1543,7 +1543,7 @@ static int new_briefing_screen(grs_canvas &canvas, briefing *br, int first)
 	br->prev_ch = -1;
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (songs_is_playing() == -1 && !br->hum_channel)
+	if (songs_is_playing() == song_number::None && !br->hum_channel)
 		br->hum_channel.reset(digi_start_sound(digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, sound_pan{0x7fff}, 1, -1, -1, sound_object_none));
 #endif
 
@@ -1722,8 +1722,8 @@ void do_briefing_screens(const d_fname &filename, int level_num)
 	else
 #endif
 	{
-		if ((songs_is_playing() != SONG_BRIEFING) && (songs_is_playing() != SONG_ENDGAME))
-			songs_play_song( SONG_BRIEFING, 1 );
+		if (const auto s{songs_is_playing()}; s != song_number::briefing && s != song_number::endgame)
+			songs_play_song(song_number::briefing, 1);
 	}
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1754,20 +1754,20 @@ void do_end_briefing_screens(const d_fname &filename)
 
 	if (EMULATING_D1)
 	{
-		unsigned song;
+		song_number song;
 		if (d_stricmp(filename, BIMD1_ENDING_FILE_OEM) == 0)
 		{
-			song = SONG_ENDGAME;
+			song = song_number::endgame;
 			level_num_screen = ENDING_LEVEL_NUM_OEMSHARE;
 		}
 		else if (d_stricmp(filename, BIMD1_ENDING_FILE_SHARE) == 0)
 		{
-			song = SONG_BRIEFING;
+			song = song_number::briefing;
 			level_num_screen = ENDING_LEVEL_NUM_OEMSHARE;
 		}
 		else
 		{
-			song = SONG_ENDGAME;
+			song = song_number::endgame;
 			level_num_screen = ENDING_LEVEL_NUM_REGISTER;
 		}
 		songs_play_song(song, 1);
@@ -1775,9 +1775,9 @@ void do_end_briefing_screens(const d_fname &filename)
 #if defined(DXX_BUILD_DESCENT_II)
 	else if (PLAYING_BUILTIN_MISSION)
 	{
-		unsigned song;
-		if ((d_stricmp(filename, BIMD2_ENDING_FILE_OEM) == 0 && (song = SONG_TITLE, true)) ||
-			(d_stricmp(filename, BIMD2_ENDING_FILE_SHARE) == 0 && (song = SONG_ENDGAME, true)))
+		song_number song;
+		if ((d_stricmp(filename, BIMD2_ENDING_FILE_OEM) == 0 && (song = song_number::title, true)) ||
+			(d_stricmp(filename, BIMD2_ENDING_FILE_SHARE) == 0 && (song = song_number::endgame, true)))
 		{
 			songs_play_song(song, 1);
 			level_num_screen = 1;
@@ -1785,7 +1785,7 @@ void do_end_briefing_screens(const d_fname &filename)
 	}
 	else
 	{
-		songs_play_song( SONG_ENDGAME, 1 );
+		songs_play_song(song_number::endgame, 1);
 		level_num_screen = Current_mission->last_level + 1;
 	}
 #endif

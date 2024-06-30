@@ -243,7 +243,7 @@ window_event_result credits_window::event_handler(const d_event &event)
 
 		case event_type::window_close:
 			songs_set_volume(CGameCfg.MusicVolume);
-			songs_play_song( SONG_TITLE, 1 );
+			songs_play_song(song_number::title, 1);
 			break;
 		default:
 			break;
@@ -262,7 +262,7 @@ static void credits_show_common(RAIIPHYSFS_File file, const int have_bin_file)
 #endif
 
 	pcx_read_bitmap_or_default(STARS_BACKGROUND, cr->backdrop, backdrop_palette);
-	songs_play_song( SONG_CREDITS, 1 );
+	songs_play_song(song_number::credits, 1);
 
 	gr_remap_bitmap_good(cr->backdrop,backdrop_palette, -1, -1);
 

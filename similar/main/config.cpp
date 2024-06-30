@@ -133,11 +133,11 @@ namespace {
 	VERB_d(CMLevelMusicTrack0Str, CGameCfg.CMLevelMusicTrack[0])	\
 	VERB_d(CMLevelMusicTrack1Str, CGameCfg.CMLevelMusicTrack[1])	\
 	VERB_s(CMLevelMusicPathStr, CGameCfg.CMLevelMusicPath)	\
-	VERB_s(CMMiscMusic0Str, CGameCfg.CMMiscMusic[SONG_TITLE])	\
-	VERB_s(CMMiscMusic1Str, CGameCfg.CMMiscMusic[SONG_BRIEFING])	\
-	VERB_s(CMMiscMusic2Str, CGameCfg.CMMiscMusic[SONG_ENDLEVEL])	\
-	VERB_s(CMMiscMusic3Str, CGameCfg.CMMiscMusic[SONG_ENDGAME])	\
-	VERB_s(CMMiscMusic4Str, CGameCfg.CMMiscMusic[SONG_CREDITS])	\
+	VERB_s(CMMiscMusic0Str, CGameCfg.CMMiscMusic[song_number::title])	\
+	VERB_s(CMMiscMusic1Str, CGameCfg.CMMiscMusic[song_number::briefing])	\
+	VERB_s(CMMiscMusic2Str, CGameCfg.CMMiscMusic[song_number::endlevel])	\
+	VERB_s(CMMiscMusic3Str, CGameCfg.CMMiscMusic[song_number::endgame])	\
+	VERB_s(CMMiscMusic4Str, CGameCfg.CMMiscMusic[song_number::credits])	\
 	VERB_d(GammaLevelStr, CGameCfg.GammaLevel)	\
 	VERB_s(LastPlayerStr, InterfaceUniqueState.PilotName.a)	\
 	VERB_s(LastMissionStr, CGameCfg.LastMission)	\
@@ -358,15 +358,15 @@ void ReadConfigFile(CCfg &CGameCfg, Cfg &GameCfg)
 		else if (compare_nonterminated_name(name, CMLevelMusicPathStr))
 			convert_string(CGameCfg.CMLevelMusicPath, value, eol);
 		else if (compare_nonterminated_name(name, CMMiscMusic0Str))
-			convert_string(CGameCfg.CMMiscMusic[SONG_TITLE], value, eol);
+			convert_string(CGameCfg.CMMiscMusic[song_number::title], value, eol);
 		else if (compare_nonterminated_name(name, CMMiscMusic1Str))
-			convert_string(CGameCfg.CMMiscMusic[SONG_BRIEFING], value, eol);
+			convert_string(CGameCfg.CMMiscMusic[song_number::briefing], value, eol);
 		else if (compare_nonterminated_name(name, CMMiscMusic2Str))
-			convert_string(CGameCfg.CMMiscMusic[SONG_ENDLEVEL], value, eol);
+			convert_string(CGameCfg.CMMiscMusic[song_number::endlevel], value, eol);
 		else if (compare_nonterminated_name(name, CMMiscMusic3Str))
-			convert_string(CGameCfg.CMMiscMusic[SONG_ENDGAME], value, eol);
+			convert_string(CGameCfg.CMMiscMusic[song_number::endgame], value, eol);
 		else if (compare_nonterminated_name(name, CMMiscMusic4Str))
-			convert_string(CGameCfg.CMMiscMusic[SONG_CREDITS], value, eol);
+			convert_string(CGameCfg.CMMiscMusic[song_number::credits], value, eol);
 		else if (compare_nonterminated_name(name, GammaLevelStr))
 		{
 			convert_integer(CGameCfg.GammaLevel, value);

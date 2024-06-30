@@ -780,7 +780,7 @@ window_event_result main_menu::event_handler(const d_event &event)
 					Screen_mode = -1;
 #endif
 					PlayMovie("intro.tex", "intro.mve", play_movie_warn_missing::verbose);
-					songs_play_song(SONG_TITLE,1);
+					songs_play_song(song_number::title, 1);
 					set_screen_mode(SCREEN_MENU);
 				}
 				else
@@ -2504,15 +2504,15 @@ namespace {
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank4)	\
 	DXX_MENUITEM(VERB, TEXT, "Non-level music:", opt_label_nonlevel_music)	\
 	DXX_MENU_ITEM_BROWSE(VERB, "Main menu", opt_sm_cm_mtype3_file1_b)	\
-	DXX_MENUITEM(VERB, INPUT, CGameCfg.CMMiscMusic[SONG_TITLE], opt_sm_cm_mtype3_file1)	\
+	DXX_MENUITEM(VERB, INPUT, CGameCfg.CMMiscMusic[song_number::title], opt_sm_cm_mtype3_file1)	\
 	DXX_MENU_ITEM_BROWSE(VERB, "Briefing", opt_sm_cm_mtype3_file2_b)	\
-	DXX_MENUITEM(VERB, INPUT, CGameCfg.CMMiscMusic[SONG_BRIEFING], opt_sm_cm_mtype3_file2)	\
+	DXX_MENUITEM(VERB, INPUT, CGameCfg.CMMiscMusic[song_number::briefing], opt_sm_cm_mtype3_file2)	\
 	DXX_MENU_ITEM_BROWSE(VERB, "Credits", opt_sm_cm_mtype3_file3_b)	\
-	DXX_MENUITEM(VERB, INPUT, CGameCfg.CMMiscMusic[SONG_CREDITS], opt_sm_cm_mtype3_file3)	\
+	DXX_MENUITEM(VERB, INPUT, CGameCfg.CMMiscMusic[song_number::credits], opt_sm_cm_mtype3_file3)	\
 	DXX_MENU_ITEM_BROWSE(VERB, "Escape sequence", opt_sm_cm_mtype3_file4_b)	\
-	DXX_MENUITEM(VERB, INPUT, CGameCfg.CMMiscMusic[SONG_ENDLEVEL], opt_sm_cm_mtype3_file4)	\
+	DXX_MENUITEM(VERB, INPUT, CGameCfg.CMMiscMusic[song_number::endlevel], opt_sm_cm_mtype3_file4)	\
 	DXX_MENU_ITEM_BROWSE(VERB, "Game ending", opt_sm_cm_mtype3_file5_b)	\
-	DXX_MENUITEM(VERB, INPUT, CGameCfg.CMMiscMusic[SONG_ENDGAME], opt_sm_cm_mtype3_file5)	\
+	DXX_MENUITEM(VERB, INPUT, CGameCfg.CMMiscMusic[song_number::endgame], opt_sm_cm_mtype3_file5)	\
 
 #else
 #define DXX_SOUND_JUKEBOX_MENU_ITEM(VERB)
@@ -2572,7 +2572,7 @@ struct sound_menu : sound_menu_items, newmenu
 #if DXX_USE_SDLMIXER
 	ntstring<PATH_MAX - 1> &current_music = Game_wind
 		? CGameCfg.CMLevelMusicPath
-		: CGameCfg.CMMiscMusic[SONG_TITLE];
+		: CGameCfg.CMMiscMusic[song_number::title];
 	ntstring<PATH_MAX - 1> old_music = current_music;
 #endif
 	sound_menu(grs_canvas &src) :
@@ -2683,15 +2683,15 @@ window_event_result sound_menu::event_handler(const d_event &event)
 									  CGameCfg.CMLevelMusicPath);	// just copy the absolute path
 			}
 			else if (citem == opt_sm_cm_mtype3_file1_b)
-				SELECT_SONG(menu_title{"Select main menu music" WINDOWS_DRIVE_CHANGE_TEXT}, SONG_TITLE);
+				SELECT_SONG(menu_title{"Select main menu music" WINDOWS_DRIVE_CHANGE_TEXT}, song_number::title);
 			else if (citem == opt_sm_cm_mtype3_file2_b)
-				SELECT_SONG(menu_title{"Select briefing music" WINDOWS_DRIVE_CHANGE_TEXT}, SONG_BRIEFING);
+				SELECT_SONG(menu_title{"Select briefing music" WINDOWS_DRIVE_CHANGE_TEXT}, song_number::briefing);
 			else if (citem == opt_sm_cm_mtype3_file3_b)
-				SELECT_SONG(menu_title{"Select credits music" WINDOWS_DRIVE_CHANGE_TEXT}, SONG_CREDITS);
+				SELECT_SONG(menu_title{"Select credits music" WINDOWS_DRIVE_CHANGE_TEXT}, song_number::credits);
 			else if (citem == opt_sm_cm_mtype3_file4_b)
-				SELECT_SONG(menu_title{"Select escape sequence music" WINDOWS_DRIVE_CHANGE_TEXT}, SONG_ENDLEVEL);
+				SELECT_SONG(menu_title{"Select escape sequence music" WINDOWS_DRIVE_CHANGE_TEXT}, song_number::endlevel);
 			else if (citem == opt_sm_cm_mtype3_file5_b)
-				SELECT_SONG(menu_title{"Select game ending music" WINDOWS_DRIVE_CHANGE_TEXT}, SONG_ENDGAME);
+				SELECT_SONG(menu_title{"Select game ending music" WINDOWS_DRIVE_CHANGE_TEXT}, song_number::endgame);
 #endif
 			return window_event_result::handled;	// stay in menu
 		}
@@ -2703,7 +2703,7 @@ window_event_result sound_menu::event_handler(const d_event &event)
 				if (Game_wind)
 					songs_play_level_song(Current_level_num, 0);
 				else
-					songs_play_song(SONG_TITLE, 1);
+					songs_play_song(song_number::title, 1);
 			}
 #endif
 			break;
@@ -2719,7 +2719,7 @@ window_event_result sound_menu::event_handler(const d_event &event)
 		if (Game_wind)
 			songs_play_level_song( Current_level_num, 0 );
 		else
-			songs_play_song(SONG_TITLE, 1);
+			songs_play_song(song_number::title, 1);
 	}
 	return newmenu::event_handler(event);
 }
