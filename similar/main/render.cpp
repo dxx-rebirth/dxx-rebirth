@@ -66,6 +66,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_levelstate.h"
 #include "d_enumerate.h"
 #include "d_range.h"
+#include "d_zip.h"
 #include "partial_range.h"
 #include "segiter.h"
 
@@ -309,11 +310,9 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const si
 	const auto need_flashing_lights = (control_center_destroyed | Seismic_tremor_magnitude);	//make lights flash
 	auto &Dynamic_light = LevelUniqueLightState.Dynamic_light;
 	//set light values for each vertex & build pointlist
-	range_for (const uint_fast32_t i, xrange(nv))
+	for (auto &&[dli, uvli, vpi] : zip(std::span(dyn_light).first(nv), uvl_copy, vp))
 	{
-		auto &dli = dyn_light[i];
-		auto &uvli = uvl_copy[i];
-		auto &Dlvpi = Dynamic_light[vp[i]];
+		auto &Dlvpi = Dynamic_light[vpi];
 		dli.r = dli.g = dli.b = uvli.l;
 		//the uvl struct has static light already in it
 
