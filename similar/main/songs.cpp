@@ -127,8 +127,6 @@ song_number songs_is_playing()
 	return Song_playing;
 }
 
-#define EXTMUSIC_VOLUME_SCALE	(255)
-
 //takes volume in range 0..8
 //NOTE that we do not check what is playing right now (except Redbook) This is because here we don't (want) know WHAT we're playing - let the subfunctions do it (i.e. digi_win32_set_music_volume() knows if a MIDI plays or not)
 void songs_set_volume(int volume)
