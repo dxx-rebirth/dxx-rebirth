@@ -53,8 +53,6 @@ enum class vclip_index : uint8_t
 	None = UINT8_MAX
 };
 
-#define VCLIP_MAX_FRAMES            30
-
 // vclip flags
 #define VF_ROD      1       // draw as a rod, not a blob
 
@@ -65,7 +63,7 @@ struct vclip : public prohibit_void_ptr<vclip>
 	fix             frame_time;         // time (in seconds) of each frame
 	uint8_t         flags;
 	short           sound_num;
-	std::array<bitmap_index, VCLIP_MAX_FRAMES>    frames;
+	std::array<bitmap_index, 30>    frames;
 	fix             light_value;
 };
 
