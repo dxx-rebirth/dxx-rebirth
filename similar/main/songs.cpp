@@ -60,7 +60,6 @@ class user_configured_level_songs : std::unique_ptr<bim_song_info[]>
 	using base_type = std::unique_ptr<bim_song_info[]>;
 	std::size_t count{};
 public:
-	using base_type::operator bool;
 	constexpr user_configured_level_songs() = default;
 	explicit user_configured_level_songs(const std::size_t length) :
 		base_type{std::make_unique<bim_song_info[]>(length)}, count{length}
@@ -678,7 +677,7 @@ void songs_play_song(const song_number songnum, const int repeat)
 	{
 		case music_type::Builtin:
 		{
-			if (!BIMSongs)
+			if (underlying_value(songnum) >= BIMSongs.size())
 				break;
 			// EXCEPTION: If song_number::endlevel is not available, continue playing level song.
 			auto &s = BIMSongs[songnum];
