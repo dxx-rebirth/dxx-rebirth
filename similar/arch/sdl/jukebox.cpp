@@ -37,12 +37,9 @@ namespace {
 
 struct m3u_bytes
 {
-	using range_type = std::ranges::subrange<char *>;
-	using ptr_range_type = std::ranges::subrange<char **>;
-	using alloc_type = std::unique_ptr<char *[]>;
-	range_type range{nullptr, nullptr};
-	ptr_range_type ptr_range{nullptr, nullptr};
-	alloc_type alloc;
+	std::ranges::subrange<char *> range;
+	std::ranges::subrange<char **> ptr_range;
+	std::unique_ptr<char *[]> alloc;
 };
 
 class FILE_deleter
