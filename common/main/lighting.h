@@ -33,8 +33,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "3d.h"
 #include "d_array.h"
 
-#define MAX_LIGHT       0x10000     // max value
-
 #define MIN_LIGHT_DIST  (F1_0*4)
 
 namespace dcx {

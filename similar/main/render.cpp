@@ -113,6 +113,18 @@ namespace dcx {
 //Global vars for window clip test
 int Window_clip_left,Window_clip_top,Window_clip_right,Window_clip_bot;
 
+namespace {
+
+static void add_light_and_saturate(fix &l, const fix add)
+{
+	static constexpr fix MAX_LIGHT{0x10000};	// max value
+	l = (l >= MAX_LIGHT || add >= MAX_LIGHT)
+		? MAX_LIGHT
+		: std::min(l + add, MAX_LIGHT);
+}
+
+}
+
 }
 
 #if DXX_USE_EDITOR
@@ -309,10 +321,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const si
 		if (need_flashing_lights)	//make lights flash
 			uvli.l = fixmul(flash_scale, uvli.l);
 		//add in dynamic light (from explosions, etc.)
-		uvli.l += (Dlvpi.r + Dlvpi.g + Dlvpi.b) / 3;
-		//saturate at max value
-		if (uvli.l > MAX_LIGHT)
-			uvli.l = MAX_LIGHT;
+		add_light_and_saturate(uvli.l, (Dlvpi.r + Dlvpi.g + Dlvpi.b) / 3);
 
 		// And now the same for the ACTUAL (rgb) light we want to use
 
@@ -326,16 +335,9 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const si
 		}
 
 		// add light color
-		dli.r += Dlvpi.r;
-		dli.g += Dlvpi.g;
-		dli.b += Dlvpi.b;
-		// saturate at max value
-		if (dli.r > MAX_LIGHT)
-			dli.r = MAX_LIGHT;
-		if (dli.g > MAX_LIGHT)
-			dli.g = MAX_LIGHT;
-		if (dli.b > MAX_LIGHT)
-			dli.b = MAX_LIGHT;
+		add_light_and_saturate(dli.r, Dlvpi.r);
+		add_light_and_saturate(dli.g, Dlvpi.g);
+		add_light_and_saturate(dli.b, Dlvpi.b);
 		if (PlayerCfg.AlphaEffects) // due to additive blending, transparent sprites will become invivible in font of white surfaces (lamps). Fix that with a little desaturation
 		{
 			dli.r *= .93;
