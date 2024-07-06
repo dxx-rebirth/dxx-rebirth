@@ -1367,7 +1367,7 @@ int main(int argc,char**argv)
 
 	@_custom_test
 	def _check_user_settings_words_need_alignment(self,context):
-		self._result_check_user_setting(context, self.user_settings.words_need_alignment, 'DXX_WORDS_NEED_ALIGNMENT', 'word alignment fixups')
+		self._result_check_user_setting(context, self.user_settings.words_need_alignment, 'word alignment fixups', cpp_defines_with_condition_value=('DXX_WORDS_NEED_ALIGNMENT',))
 
 	@_custom_test
 	def _check_user_settings_opengl(self,context):
@@ -1382,41 +1382,46 @@ int main(int argc,char**argv)
 			"software renderer"
 }''')
 
-	def _result_check_user_setting(self,context,condition,CPPDEFINES,label,int=int,str=str):
-		if isinstance(CPPDEFINES, str):
-			self._define_macro(context, CPPDEFINES, int(condition))
-		elif condition:
-			self.successful_flags['CPPDEFINES'].extend(CPPDEFINES)
+	def _result_check_user_setting(self, context, condition, label, cpp_defines_if_enabled: typing.Optional[tuple[tuple]]=None, cpp_defines_with_condition_value: typing.Optional[tuple[str]]=None, int=int):
+		assert cpp_defines_if_enabled or cpp_defines_with_condition_value
+		if cpp_defines_if_enabled and condition:
+			for d in cpp_defines_if_enabled:
+				assert isinstance(d[0], str), repr(d)
+			self.successful_flags['CPPDEFINES'].extend(cpp_defines_if_enabled)
+		if cpp_defines_with_condition_value:
+			for d in cpp_defines_with_condition_value:
+				assert isinstance(d, str)
+				self._define_macro(context, d, int(condition))
 		context.Result(f'{self.msgprefix}: checking whether to enable {label}...{"yes" if condition else "no"}')
 
 	@_custom_test
 	def _check_user_settings_debug(self,context,_CPPDEFINES=(('NDEBUG',), ('RELEASE',))):
-		self._result_check_user_setting(context, not self.user_settings.debug, _CPPDEFINES, 'release options')
+		self._result_check_user_setting(context, not self.user_settings.debug, 'release options', cpp_defines_if_enabled=_CPPDEFINES)
 
 	@_custom_test
 	def _check_user_settings_memdebug(self,context,_CPPDEFINES=(('DEBUG_MEMORY_ALLOCATIONS',),)):
-		self._result_check_user_setting(context, self.user_settings.memdebug, _CPPDEFINES, 'memory allocation tracking')
+		self._result_check_user_setting(context, self.user_settings.memdebug, 'memory allocation tracking', cpp_defines_if_enabled=_CPPDEFINES)
 
 	@_custom_test
-	def _check_user_settings_editor(self,context,_CPPDEFINES='DXX_USE_EDITOR'):
-		self._result_check_user_setting(context, self.user_settings.editor, _CPPDEFINES, 'level editor')
+	def _check_user_settings_editor(self,context,_CPPDEFINES=('DXX_USE_EDITOR',)):
+		self._result_check_user_setting(context, self.user_settings.editor, 'level editor', cpp_defines_with_condition_value=_CPPDEFINES)
 
 	@_custom_test
-	def _check_user_settings_ipv6(self,context,_CPPDEFINES='DXX_USE_IPv6'):
-		self._result_check_user_setting(context, self.user_settings.ipv6, _CPPDEFINES, 'IPv6 support')
+	def _check_user_settings_ipv6(self,context,_CPPDEFINES=('DXX_USE_IPv6',)):
+		self._result_check_user_setting(context, self.user_settings.ipv6, 'IPv6 support', cpp_defines_with_condition_value=_CPPDEFINES)
 
 	@_custom_test
-	def _check_user_settings_stereo_render(self,context,_CPPDEFINES='DXX_USE_STEREOSCOPIC_RENDER'):
-		self._result_check_user_setting(context, self.user_settings.use_stereo_render, _CPPDEFINES, 'stereoscopic rendering')
+	def _check_user_settings_stereo_render(self,context,_CPPDEFINES=('DXX_USE_STEREOSCOPIC_RENDER',)):
+		self._result_check_user_setting(context, self.user_settings.use_stereo_render, 'stereoscopic rendering', cpp_defines_with_condition_value=_CPPDEFINES)
 
 	@_custom_test
-	def _check_user_settings_udp(self,context,_CPPDEFINES='DXX_USE_UDP'):
-		self._result_check_user_setting(context, self.user_settings.use_udp, _CPPDEFINES, 'multiplayer over UDP')
+	def _check_user_settings_udp(self,context,_CPPDEFINES=('DXX_USE_UDP',)):
+		self._result_check_user_setting(context, self.user_settings.use_udp, 'multiplayer over UDP', cpp_defines_with_condition_value=_CPPDEFINES)
 
 	@_custom_test
-	def _check_user_settings_tracker(self,context,_CPPDEFINES='DXX_USE_TRACKER'):
+	def _check_user_settings_tracker(self,context,_CPPDEFINES=('DXX_USE_TRACKER',)):
 		use_tracker = self.user_settings.use_tracker
-		self._result_check_user_setting(context, use_tracker, _CPPDEFINES, 'UDP game tracker')
+		self._result_check_user_setting(context, use_tracker, 'UDP game tracker', cpp_defines_with_condition_value=_CPPDEFINES)
 
 	@_implicit_test
 	def check_libpng(self,context,
@@ -1532,9 +1537,9 @@ struct d_screenshot
 		self.__defined_macros += f'#define {_CPPDEFINES_WIN32_WINNT[0]} {_CPPDEFINES_WIN32_WINNT[1]}\n'
 
 	@_guarded_test_windows
-	def check_dbghelp_header(self,context,_CPPDEFINES='DXX_ENABLE_WINDOWS_MINIDUMP'):
+	def check_dbghelp_header(self,context,_CPPDEFINES=('DXX_ENABLE_WINDOWS_MINIDUMP',)):
 		windows_minidump = self.user_settings.windows_minidump
-		self._result_check_user_setting(context, windows_minidump, _CPPDEFINES, 'minidump on exception')
+		self._result_check_user_setting(context, windows_minidump, 'minidump on exception', cpp_defines_if_enabled=_CPPDEFINES)
 		if not windows_minidump:
 			return
 		include_dbghelp_header = '''
