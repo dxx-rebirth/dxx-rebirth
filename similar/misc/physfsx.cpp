@@ -166,8 +166,6 @@ bool PHYSFSX_init(int argc, char *argv[])
 	const char *path = getenv(home_environ_var);
 	if (!path)
 	{
-		path = getenv(&home_environ_var[4]);
-		if (!path)
 # if !(defined(__APPLE__) && defined(__MACH__))
 	path = "~/.d" DESCENT_PATH_NUMBER "x-rebirth/";
 # else
