@@ -268,14 +268,6 @@ int PHYSFSX_checkSupportedArchiveTypes()
 
 namespace dcx {
 
-int PHYSFSX_rename(const char *oldpath, const char *newpath)
-{
-	std::array<char, PATH_MAX> old, n;
-	if (!PHYSFSX_getRealPath(oldpath, old) || !PHYSFSX_getRealPath(newpath, n))
-		return -1;
-	return (rename(old.data(), n.data()) == 0);
-}
-
 static PHYSFSX_uncounted_list trim_physfs_list(PHYSFSX_uncounted_list list, char **const iter_first_unused)
 {
 	*iter_first_unused = nullptr;

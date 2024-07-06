@@ -230,4 +230,12 @@ int PHYSFSX_getRealPath(const char *stdPath, std::array<char, PATH_MAX> &realPat
 	return 1;
 }
 
+int PHYSFSX_rename(const char *oldpath, const char *newpath)
+{
+	std::array<char, PATH_MAX> old, n;
+	if (!PHYSFSX_getRealPath(oldpath, old) || !PHYSFSX_getRealPath(newpath, n))
+		return -1;
+	return (rename(old.data(), n.data()) == 0);
+}
+
 }
