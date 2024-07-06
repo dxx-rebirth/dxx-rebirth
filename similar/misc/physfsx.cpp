@@ -125,6 +125,62 @@ int PHYSFSX_checkMatchingExtension(const char *filename, const std::ranges::subr
 
 namespace dsx {
 
+#if DXX_ENABLE_ENVIRONMENT_VARIABLE_DXX_REBIRTH_HOME
+static void check_add_environment_rebirth_home(const char *const home_environ_var, const char *const fallback_home_path)
+{
+	char fullPath[PATH_MAX + 5];
+	const char *path = getenv(home_environ_var);
+	if (!path)
+	{
+		path = fallback_home_path;
+	}
+	if (path[0] == '~') // yes, this tilde can be put before non-unix paths.
+	{
+		const char *home = PHYSFS_getUserDir();
+		path++;
+		// prepend home to the path
+		if (*path == *PHYSFS_getDirSeparator())
+			path++;
+		snprintf(fullPath, sizeof(fullPath), "%s%s", home, path);
+	}
+	else
+	{
+		fullPath[sizeof(fullPath) - 1] = 0;
+		strncpy(fullPath, path, sizeof(fullPath) - 1);
+	}
+	PHYSFS_setWriteDir(fullPath);
+	auto writedir{PHYSFS_getWriteDir()};
+	if (!writedir)
+	{                                               // need to make it
+		char *p;
+		char ancestor[PATH_MAX + 5];    // the directory which actually exists
+		char child[PATH_MAX + 5];               // the directory relative to the above we're trying to make
+		strcpy(ancestor, fullPath);
+		const auto separator = *PHYSFS_getDirSeparator();
+		while (!PHYSFS_getWriteDir() && (p = strrchr(ancestor, separator)))
+		{
+			if (p[1] == 0)
+			{                                       // separator at the end (intended here, for safety)
+				*p = 0;                 // kill this separator
+				if (!(p = strrchr(ancestor, separator)))
+					break;          // give up, this is (usually) the root directory
+			}
+			p[1] = 0;                       // go to parent
+			PHYSFS_setWriteDir(ancestor);
+		}
+		strcpy(child, fullPath + strlen(ancestor));
+		if (separator != '/')
+			for (p = child; (p = strchr(p, separator)); p++)
+				*p = '/';
+		PHYSFS_mkdir(child);
+		PHYSFS_setWriteDir(fullPath);
+		writedir = PHYSFS_getWriteDir();
+	}
+	con_printf(CON_DEBUG, "PHYSFS: append write directory \"%s\" to search path", writedir);
+	PHYSFS_mount(writedir, nullptr, 1);
+}
+#endif
+
 static void setup_hogdir_path()
 {
 	//tell PHYSFS where hogdir is
@@ -198,75 +254,22 @@ bool PHYSFSX_init(int argc, char *argv[])
 #if (defined(__APPLE__) && defined(__MACH__))	// others?
 	chdir(base_dir);	// make sure relative hogdir paths work
 #endif
-	
-	const char *writedir;
+
 #if DXX_ENABLE_ENVIRONMENT_VARIABLE_DXX_REBIRTH_HOME
 #if defined(DXX_BUILD_DESCENT_I)
 #define DESCENT_PATH_NUMBER	"1"
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DESCENT_PATH_NUMBER	"2"
 #endif
+#if !(defined(__APPLE__) && defined(__MACH__))
+#define DXX_FALLBACK_HOME_PATH	"~/.d" DESCENT_PATH_NUMBER "x-rebirth/"
+#else
+#define DXX_FALLBACK_HOME_PATH	"~/Library/Preferences/D" DESCENT_PATH_NUMBER "X Rebirth/"
+#endif
 #define DXX_HOME_ENVIRONMENT_VARIABLE	"D" DESCENT_PATH_NUMBER "X_REBIRTH_HOME"
-	char fullPath[PATH_MAX + 5];
-	const char *path = getenv(DXX_HOME_ENVIRONMENT_VARIABLE);
+	check_add_environment_rebirth_home(DXX_HOME_ENVIRONMENT_VARIABLE, DXX_FALLBACK_HOME_PATH);
+#undef DXX_FALLBACK_HOME_PATH
 #undef DXX_HOME_ENVIRONMENT_VARIABLE
-	if (!path)
-	{
-# if !(defined(__APPLE__) && defined(__MACH__))
-	path = "~/.d" DESCENT_PATH_NUMBER "x-rebirth/";
-# else
-	path = "~/Library/Preferences/D" DESCENT_PATH_NUMBER "X Rebirth/";
-# endif
-#undef DESCENT_PATH_NUMBER
-	}
-	
-	if (path[0] == '~') // yes, this tilde can be put before non-unix paths.
-	{
-		const char *home = PHYSFS_getUserDir();
-		path++;
-		// prepend home to the path
-		if (*path == *PHYSFS_getDirSeparator())
-			path++;
-		snprintf(fullPath, sizeof(fullPath), "%s%s", home, path);
-	}
-	else
-	{
-		fullPath[sizeof(fullPath) - 1] = 0;
-		strncpy(fullPath, path, sizeof(fullPath) - 1);
-	}
-	
-	PHYSFS_setWriteDir(fullPath);
-	if (!(writedir = PHYSFS_getWriteDir()))
-	{                                               // need to make it
-		char *p;
-		char ancestor[PATH_MAX + 5];    // the directory which actually exists
-		char child[PATH_MAX + 5];               // the directory relative to the above we're trying to make
-		
-		strcpy(ancestor, fullPath);
-		const auto separator = *PHYSFS_getDirSeparator();
-		while (!PHYSFS_getWriteDir() && (p = strrchr(ancestor, separator)))
-		{
-			if (p[1] == 0)
-			{                                       // separator at the end (intended here, for safety)
-				*p = 0;                 // kill this separator
-				if (!(p = strrchr(ancestor, separator)))
-					break;          // give up, this is (usually) the root directory
-			}
-			
-			p[1] = 0;                       // go to parent
-			PHYSFS_setWriteDir(ancestor);
-		}
-		
-		strcpy(child, fullPath + strlen(ancestor));
-		if (separator != '/')
-			for (p = child; (p = strchr(p, separator)); p++)
-				*p = '/';
-		PHYSFS_mkdir(child);
-		PHYSFS_setWriteDir(fullPath);
-		writedir = PHYSFS_getWriteDir();
-	}
-	con_printf(CON_DEBUG, "PHYSFS: append write directory \"%s\" to search path", writedir);
-	PHYSFS_mount(writedir, nullptr, 1);
 #endif
 	con_printf(CON_DEBUG, "PHYSFS: temporarily append base directory \"%s\" to search path", base_dir);
 	PHYSFS_mount(base_dir, nullptr, 1);
