@@ -5169,7 +5169,8 @@ class DXXProgram(DXXCommon):
 			# Patch the exception's arguments instead of using Python exception
 			# chaining.  Using `raise Exception('') from e` causes SCons not to
 			# show the traceback for `e`.
-			e.args = (f'Failed to initialize profile {self._argument_prefix_list!r}: {e.args[0]}',) + e.args[1:]
+			a = e.args or ()
+			e.args = (f'Failed to initialize profile {self._argument_prefix_list!r}{f": {a[0]}" if a else ""}',) + a[1:]
 			raise
 
 	def init(self,substenv):
