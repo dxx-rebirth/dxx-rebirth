@@ -3230,7 +3230,7 @@ const std::array<xy, 4> cross_offsets{{
 
 //draw the reticle
 namespace dsx {
-void show_reticle(grs_canvas &canvas, const player_info &player_info, int reticle_type, int secondary_display)
+void show_reticle(grs_canvas &canvas, const player_info &player_info, enum reticle_type reticle_type, int secondary_display)
 {
 	int x,y,size;
 	int laser_ready,missile_ready;
@@ -3275,7 +3275,7 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, int reticl
 		int x0, x1, y0, y1;
 	switch (reticle_type)
 	{
-		case RET_TYPE_CLASSIC:
+		case reticle_type::classic:
 		{
 			const local_multires_gauge_graphic multires_gauge_graphic{};
 			const hud_draw_context_hs_mr hudctx(canvas, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic);
@@ -3298,12 +3298,12 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, int reticl
 			hud_bitblt_free(canvas, x + hud_scale_ar(secondary_offsets[ofs].x), y + hud_scale_ar(secondary_offsets[ofs].y), hud_scale_ar(secondary.bm_w), hud_scale_ar(secondary.bm_h), secondary);
 			return;
 		}
-		case RET_TYPE_CLASSIC_REBOOT:
+		case reticle_type::classic_reboot:
 #if DXX_USE_OGL
 			ogl_draw_vertex_reticle(canvas, cross_bm_num,primary_bm_num,secondary_bm_num,BM_XRGB(PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2]),PlayerCfg.ReticleRGBA[3],PlayerCfg.ReticleSize);
 #endif
 			return;
-		case RET_TYPE_X:
+		case reticle_type::x:
 			{
 			gr_uline(canvas, i2f(x-(size/2)), i2f(y-(size/2)), i2f(x-(size/5)), i2f(y-(size/5)), color); // top-left
 			gr_uline(canvas, i2f(x+(size/2)), i2f(y-(size/2)), i2f(x+(size/5)), i2f(y-(size/5)), color); // top-right
@@ -3319,7 +3319,7 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, int reticl
 				return;
 			}
 			break;
-		case RET_TYPE_DOT:
+		case reticle_type::dot:
 			{
 				gr_disk(canvas, i2f(x), i2f(y), i2f(size/5), color);
 			if (secondary_display && secondary_bm_num == 1)
@@ -3332,7 +3332,7 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, int reticl
 				return;
 			}
 			break;
-		case RET_TYPE_CIRCLE:
+		case reticle_type::circle:
 			{
 				gr_ucircle(canvas, i2f(x), i2f(y), i2f(size/4), color);
 			if (secondary_display && secondary_bm_num == 1)
@@ -3345,7 +3345,7 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, int reticl
 				return;
 			}
 			break;
-		case RET_TYPE_CROSS_V1:
+		case reticle_type::cross_v1:
 			{
 			gr_uline(canvas, i2f(x),i2f(y-(size/2)),i2f(x),i2f(y+(size/2)+1), color); // horiz
 			gr_uline(canvas, i2f(x-(size/2)),i2f(y),i2f(x+(size/2)+1),i2f(y), color); // vert
@@ -3359,7 +3359,7 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, int reticl
 				return;
 			}
 			break;
-		case RET_TYPE_CROSS_V2:
+		case reticle_type::cross_v2:
 			{
 			gr_uline(canvas, i2f(x), i2f(y-(size/2)), i2f(x), i2f(y-(size/6)), color); // vert-top
 			gr_uline(canvas, i2f(x), i2f(y+(size/2)), i2f(x), i2f(y+(size/6)), color); // vert-bottom
@@ -3375,7 +3375,7 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, int reticl
 				return;
 			}
 			break;
-		case RET_TYPE_ANGLE:
+		case reticle_type::angle:
 			{
 			gr_uline(canvas, i2f(x),i2f(y),i2f(x),i2f(y+(size/2)), color); // vert
 			gr_uline(canvas, i2f(x),i2f(y),i2f(x+(size/2)),i2f(y), color); // horiz
@@ -3389,7 +3389,7 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, int reticl
 				return;
 			}
 			break;
-		case RET_TYPE_NONE:
+		case reticle_type::none:
 		default:
 			return;
 	}
@@ -4102,7 +4102,7 @@ void do_cockpit_window_view(grs_canvas &canvas, const gauge_inset_window_view wi
 	}
 
 	if (player_info)	// only non-nullptr for weapon_box_user::guided
-		show_reticle(window_canv, *player_info, RET_TYPE_CROSS_V1, 0);
+		show_reticle(window_canv, *player_info, reticle_type::cross_v1, 0);
 
 	if (PlayerCfg.CockpitMode[1] == cockpit_mode_t::full_screen)
 	{

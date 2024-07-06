@@ -827,7 +827,7 @@ void game_render_frame_mono(const d_robot_info_array &Robot_info, const control_
 		gr_string(canvas, game_font, 0x8000, FSPACY(1), "Guided Missile View");
 
 		auto &player_info = get_local_plrobj().ctype.player_info;
-		show_reticle(canvas, player_info, RET_TYPE_CROSS_V1, 0);
+		show_reticle(canvas, player_info, reticle_type::cross_v1, 0);
 
 		HUD_render_message_frame(canvas);
 

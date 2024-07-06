@@ -1808,11 +1808,12 @@ struct reticle_config_menu_items
 		reticle_config_menu_items()
 		{
 			DXX_RETICLE_CONFIG_MENU(ADD);
-			auto i = PlayerCfg.ReticleType;
-#if !DXX_USE_OGL
-			if (i > 1)
-				--i;
-#endif
+			auto i{underlying_value(PlayerCfg.ReticleType)};
+			if constexpr (!DXX_USE_OGL)
+			{
+				if (i > 1)
+					--i;
+			}
 			m[opt_reticle_classic + i].value = 1;
 		}
 	};
@@ -1838,7 +1839,7 @@ window_event_result reticle_config_menu::event_handler(const d_event &event)
 					if (i != opt_reticle_classic)
 						++i;
 #endif
-					PlayerCfg.ReticleType = i - opt_reticle_classic;
+					PlayerCfg.ReticleType = static_cast<reticle_type>(i - opt_reticle_classic);
 					break;
 				}
 			DXX_RETICLE_CONFIG_MENU(READ);

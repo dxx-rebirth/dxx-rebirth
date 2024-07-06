@@ -42,6 +42,21 @@ enum class gauge_inset_window_view : unsigned
 };
 
 void show_mousefs_indicator(grs_canvas &canvas, int mx, int my, int mz, int x, int y, int size);
+
+// defines for the reticle(s)
+enum class reticle_type : uint8_t
+{
+	classic       = 0,
+	classic_reboot = 1,
+	none          = 2,
+	x             = 3,
+	dot           = 4,
+	circle        = 5,
+	cross_v1      = 6,
+	cross_v2      = 7,
+	angle         = 8,
+};
+
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -71,7 +86,7 @@ void draw_hud(const d_robot_info_array &Robot_info, grs_canvas &, const object &
 void close_gauges(void);
 #ifdef dsx
 namespace dsx {
-void show_reticle(grs_canvas &canvas, const player_info &, int reticle_type, int secondary_display);
+void show_reticle(grs_canvas &canvas, const player_info &, reticle_type, int secondary_display);
 void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &, game_mode_flags);
 }
 #endif
@@ -135,17 +150,6 @@ void do_cockpit_window_view(gauge_inset_window_view win, weapon_box_user user);
 #define GAUGE_HUD_NUMMODES 4
 
 extern int	Color_0_31_0;
-
-// defines for the reticle(s)
-#define RET_TYPE_CLASSIC        0
-#define RET_TYPE_CLASSIC_REBOOT 1
-#define RET_TYPE_NONE           2
-#define RET_TYPE_X              3
-#define RET_TYPE_DOT            4
-#define RET_TYPE_CIRCLE         5
-#define RET_TYPE_CROSS_V1       6
-#define RET_TYPE_CROSS_V2       7
-#define RET_TYPE_ANGLE          8
 
 #define RET_COLOR_DEFAULT_R     0
 #define RET_COLOR_DEFAULT_G     32

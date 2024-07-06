@@ -289,7 +289,7 @@ void new_player_config()
 	PlayerCfg.MouseFSDead = 0;
 	PlayerCfg.MouseFSIndicator = 1;
 	PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = cockpit_mode_t::full_cockpit;
-	PlayerCfg.ReticleType = RET_TYPE_CLASSIC;
+	PlayerCfg.ReticleType = reticle_type::classic;
 	PlayerCfg.ReticleRGBA[0] = RET_COLOR_DEFAULT_R; PlayerCfg.ReticleRGBA[1] = RET_COLOR_DEFAULT_G; PlayerCfg.ReticleRGBA[2] = RET_COLOR_DEFAULT_B; PlayerCfg.ReticleRGBA[3] = RET_COLOR_DEFAULT_A;
 	PlayerCfg.ReticleSize = 0;
 	PlayerCfg.HudMode = HudType::Standard;
@@ -479,7 +479,15 @@ static void read_player_dxx(const char *filename)
 				if(!strcmp(line,COCKPIT_HUD_NAME_TEXT))
 					PlayerCfg.HudMode = static_cast<HudType>(atoi(value));
 				else if(!strcmp(line,COCKPIT_RETICLE_TYPE_NAME_TEXT))
-					PlayerCfg.ReticleType = atoi(value);
+				{
+					/* Require that the input be an integer and be a recognized
+					 * value for the `reticle_type` enum.  Integers above the
+					 * highest `reticle_type` are ignored.
+					 */
+					if (const auto r{convert_integer<uint8_t>(value)}; r)
+						if (const auto v{*r}; v <= underlying_value(reticle_type::angle))
+							PlayerCfg.ReticleType = reticle_type{v};
+				}
 				else if(!strcmp(line,COCKPIT_RETICLE_COLOR_NAME_TEXT))
 					sscanf(value,"%i,%i,%i,%i",&PlayerCfg.ReticleRGBA[0],&PlayerCfg.ReticleRGBA[1],&PlayerCfg.ReticleRGBA[2],&PlayerCfg.ReticleRGBA[3]);
 				else if(!strcmp(line,COCKPIT_RETICLE_SIZE_NAME_TEXT))
@@ -828,7 +836,7 @@ static int write_player_dxx(const char *filename)
 		PHYSFSX_printf(fout, COCKPIT_MODE_NAME_TEXT "=%i\n", underlying_value(PlayerCfg.CockpitMode[0]));
 #endif
 		PHYSFSX_printf(fout,COCKPIT_HUD_NAME_TEXT "=%u\n", static_cast<unsigned>(PlayerCfg.HudMode));
-		PHYSFSX_printf(fout,COCKPIT_RETICLE_TYPE_NAME_TEXT "=%i\n",PlayerCfg.ReticleType);
+		PHYSFSX_printf(fout,COCKPIT_RETICLE_TYPE_NAME_TEXT "=%i\n", underlying_value(PlayerCfg.ReticleType));
 		PHYSFSX_printf(fout,COCKPIT_RETICLE_COLOR_NAME_TEXT "=%i,%i,%i,%i\n",PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2],PlayerCfg.ReticleRGBA[3]);
 		PHYSFSX_printf(fout,COCKPIT_RETICLE_SIZE_NAME_TEXT "=%i\n",PlayerCfg.ReticleSize);
 		PHYSFSX_puts_literal(fout,
@@ -1525,7 +1533,7 @@ void write_player_file()
 	PHYSFS_seek(file,PHYSFS_tell(file)+2*(sizeof(PHYSFS_uint16))); // skip Game_window_w, Game_window_h
 	PHYSFSX_writeU8(file, underlying_value(PlayerCfg.DefaultDifficulty));
 	PHYSFSX_writeU8(file, PlayerCfg.AutoLeveling);
-	PHYSFSX_writeU8(file, PlayerCfg.ReticleType==RET_TYPE_NONE?0:1);
+	PHYSFSX_writeU8(file, PlayerCfg.ReticleType == reticle_type::none ? 0 : 1);
 	PHYSFSX_writeU8(file, underlying_value(PlayerCfg.CockpitMode[0]));
 	PHYSFS_seek(file,PHYSFS_tell(file)+sizeof(PHYSFS_uint8)); // skip Default_display_mode
 	PHYSFSX_writeU8(file, static_cast<uint8_t>(PlayerCfg.MissileViewEnabled));

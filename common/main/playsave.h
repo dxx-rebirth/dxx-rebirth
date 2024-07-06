@@ -92,6 +92,8 @@ struct hli
 
 namespace dcx {
 
+enum class reticle_type : uint8_t;
+
 enum class FiringAutoselectMode : uint8_t
 {
 	Immediate,
@@ -196,9 +198,9 @@ struct player_config : prohibit_void_ptr<player_config>
 	enumerated_array<ntstring<MAX_MESSAGE_LEN - 1>, 4, multi_macro_message_index> NetworkMessageMacro;
 	int NetlifeKills;
 	int NetlifeKilled;
-	ubyte ReticleType;
 	std::array<int, 4> ReticleRGBA;
 	int ReticleSize;
+	reticle_type ReticleType;
 #if defined(DXX_BUILD_DESCENT_II)
 	MissileViewMode MissileViewEnabled;
 	uint8_t ThiefModifierFlags;
