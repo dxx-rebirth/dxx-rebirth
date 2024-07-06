@@ -63,19 +63,19 @@ PHYSFSX_fgets_t::result PHYSFSX_fgets_t::get(const std::span<char> buf, PHYSFS_F
 	return {bb, p - buffer_end_adjustment};
 }
 
-int PHYSFSX_checkMatchingExtension(const char *filename, const std::ranges::subrange<const file_extension_t *> range)
+const file_extension_t *PHYSFSX_checkMatchingExtension(const char *filename, const std::ranges::subrange<const file_extension_t *> range)
 {
 	const char *ext{strrchr(filename, '.')};
 	if (!ext)
-		return 0;
+		return nullptr;
 	++ext;
 	// see if the file is of a type we want
 	for (auto &k : range)
 	{
 		if (!d_stricmp(ext, k))
-			return 1;
+			return &k;
 	}
-	return 0;
+	return nullptr;
 }
 
 }
