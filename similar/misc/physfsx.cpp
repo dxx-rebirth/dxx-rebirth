@@ -125,6 +125,33 @@ int PHYSFSX_checkMatchingExtension(const char *filename, const std::ranges::subr
 
 namespace dsx {
 
+static void setup_hogdir_path()
+{
+	//tell PHYSFS where hogdir is
+	if (!CGameArg.SysHogDir.empty())
+	{
+		const auto p{CGameArg.SysHogDir.c_str()};
+		con_printf(CON_DEBUG, "PHYSFS: append argument hog directory \"%s\" to search path", p);
+		PHYSFS_mount(p, nullptr, 1);
+	}
+#if DXX_USE_SHAREPATH
+	else if (!CGameArg.SysNoHogDir)
+	{
+		con_puts(CON_DEBUG, "PHYSFS: append built-in sharepath directory \"" DXX_SHAREPATH "\" to search path");
+		PHYSFS_mount(DXX_SHAREPATH, nullptr, 1);
+	}
+	else
+	{
+		con_puts(CON_DEBUG, "PHYSFS: skipping built-in sharepath \"" DXX_SHAREPATH "\"");
+	}
+#else
+	else
+	{
+		con_puts(CON_DEBUG, "PHYSFS: no built-in sharepath");
+	}
+#endif
+}
+
 // Initialise PhysicsFS, set up basic search paths and add arguments from .ini file.
 // The .ini file can be in either the user directory or the same directory as the program.
 // The user directory is searched first.
@@ -221,30 +248,7 @@ bool PHYSFSX_init(int argc, char *argv[])
 			Error("can't set write dir: %s\n", PHYSFS_getLastError());
 		PHYSFS_mount(writedir, nullptr, 0);
 	}
-	
-	//tell PHYSFS where hogdir is
-	if (!CGameArg.SysHogDir.empty())
-	{
-		const auto p = CGameArg.SysHogDir.c_str();
-		con_printf(CON_DEBUG, "PHYSFS: append argument hog directory \"%s\" to search path", p);
-		PHYSFS_mount(p, nullptr, 1);
-	}
-#if DXX_USE_SHAREPATH
-	else if (!CGameArg.SysNoHogDir)
-	{
-		con_puts(CON_DEBUG, "PHYSFS: append sharepath directory \"" DXX_SHAREPATH "\" to search path");
-		PHYSFS_mount(DXX_SHAREPATH, nullptr, 1);
-	}
-	else
-	{
-		con_puts(CON_DEBUG, "PHYSFS: skipping built-in sharepath \"" DXX_SHAREPATH "\"");
-	}
-#else
-	else
-	{
-		con_puts(CON_DEBUG, "PHYSFS: no built-in sharepath");
-	}
-#endif
+	setup_hogdir_path();
 	
 	add_data_directory_to_search_path();
 	
