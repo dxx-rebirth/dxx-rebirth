@@ -83,24 +83,6 @@ uint8_t gr_palette_gamma_param;
 
 }
 
-palette_array_t gr_palette;
-palette_array_t gr_current_pal;
-gft_array1 gr_fade_table;
-
-ubyte gr_palette_gamma = 0;
-
-void copy_bound_palette(palette_array_t &d, const palette_array_t &s)
-{
-	auto a = [](rgb_t c) {
-		constexpr uint8_t bound{63};
-		c.r = std::min(c.r, bound);
-		c.g = std::min(c.g, bound);
-		c.b = std::min(c.b, bound);
-		return c;
-	};
-	std::transform(s.begin(), s.end(), d.begin(), a);
-}
-
 void gr_palette_set_gamma( int gamma )
 {
 	if ( gamma < 0 ) gamma = 0;

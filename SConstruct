@@ -4676,6 +4676,7 @@ class DXXArchive(DXXCommon):
 'common/2d/disc.cpp',
 'common/2d/gpixel.cpp',
 'common/2d/line.cpp',
+'common/2d/palette.cpp',
 'common/2d/pixel.cpp',
 'common/2d/rect.cpp',
 'common/2d/rle.cpp',
