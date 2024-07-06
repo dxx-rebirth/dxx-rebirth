@@ -55,21 +55,6 @@ static void add_data_directory_to_search_path()
 
 }
 
-int PHYSFSX_checkMatchingExtension(const char *filename, const std::ranges::subrange<const file_extension_t *> range)
-{
-	const char *ext{strrchr(filename, '.')};
-	if (!ext)
-		return 0;
-	++ext;
-	// see if the file is of a type we want
-	for (auto &k : range)
-	{
-		if (!d_stricmp(ext, k))
-			return 1;
-	}
-	return 0;
-}
-
 }
 
 namespace dsx {

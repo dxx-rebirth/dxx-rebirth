@@ -8,6 +8,7 @@
 #include "dxxsconf.h"
 #include "compiler-poison.h"
 #include "physfsx.h"
+#include "strutil.h"
 
 namespace dcx {
 
@@ -60,6 +61,21 @@ PHYSFSX_fgets_t::result PHYSFSX_fgets_t::get(const std::span<char> buf, PHYSFS_F
 	*p = 0;
 	DXX_POISON_MEMORY(buf.subspan((p + 1) - bb), 0xcc);
 	return {bb, p - buffer_end_adjustment};
+}
+
+int PHYSFSX_checkMatchingExtension(const char *filename, const std::ranges::subrange<const file_extension_t *> range)
+{
+	const char *ext{strrchr(filename, '.')};
+	if (!ext)
+		return 0;
+	++ext;
+	// see if the file is of a type we want
+	for (auto &k : range)
+	{
+		if (!d_stricmp(ext, k))
+			return 1;
+	}
+	return 0;
 }
 
 }
