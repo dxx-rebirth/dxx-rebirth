@@ -32,6 +32,14 @@
 #include "d_enumerate.h"
 #include "partial_range.h"
 
+#ifndef DXX_ENABLE_ENVIRONMENT_VARIABLE_DXX_REBIRTH_HOME
+#if defined(__unix__)
+#define DXX_ENABLE_ENVIRONMENT_VARIABLE_DXX_REBIRTH_HOME	1
+#else
+#define DXX_ENABLE_ENVIRONMENT_VARIABLE_DXX_REBIRTH_HOME	0
+#endif
+#endif
+
 namespace dcx {
 
 namespace {
@@ -122,9 +130,6 @@ namespace dsx {
 // The user directory is searched first.
 bool PHYSFSX_init(int argc, char *argv[])
 {
-#if defined(__unix__) || defined(__APPLE__) || defined(__MACH__)
-	char fullPath[PATH_MAX + 5];
-#endif
 #ifdef macintosh	// Mac OS 9
 	char base_dir[PATH_MAX];
 	int bundle = 0;
@@ -156,14 +161,16 @@ bool PHYSFSX_init(int argc, char *argv[])
 #endif
 	
 	const char *writedir;
-#if defined(__unix__)
+#if DXX_ENABLE_ENVIRONMENT_VARIABLE_DXX_REBIRTH_HOME
 #if defined(DXX_BUILD_DESCENT_I)
 #define DESCENT_PATH_NUMBER	"1"
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DESCENT_PATH_NUMBER	"2"
 #endif
-	const auto &home_environ_var = "D" DESCENT_PATH_NUMBER "X_REBIRTH_HOME";
-	const char *path = getenv(home_environ_var);
+#define DXX_HOME_ENVIRONMENT_VARIABLE	"D" DESCENT_PATH_NUMBER "X_REBIRTH_HOME"
+	char fullPath[PATH_MAX + 5];
+	const char *path = getenv(DXX_HOME_ENVIRONMENT_VARIABLE);
+#undef DXX_HOME_ENVIRONMENT_VARIABLE
 	if (!path)
 	{
 # if !(defined(__APPLE__) && defined(__MACH__))
@@ -171,6 +178,7 @@ bool PHYSFSX_init(int argc, char *argv[])
 # else
 	path = "~/Library/Preferences/D" DESCENT_PATH_NUMBER "X Rebirth/";
 # endif
+#undef DESCENT_PATH_NUMBER
 	}
 	
 	if (path[0] == '~') // yes, this tilde can be put before non-unix paths.
