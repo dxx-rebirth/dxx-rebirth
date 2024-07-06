@@ -300,7 +300,7 @@ void new_player_config()
 	PlayerCfg.ThiefModifierFlags = 0;
 	PlayerCfg.MissileViewEnabled = MissileViewMode::EnabledSelfOnly;
 	PlayerCfg.HeadlightActiveDefault = true;
-	PlayerCfg.GuidedInBigWindow = 0;
+	PlayerCfg.GuidedInBigWindow = false;
 	PlayerCfg.GuidebotName = "GUIDE-BOT";
 	PlayerCfg.GuidebotNameReal = PlayerCfg.GuidebotName;
 	PlayerCfg.EscortHotKeys = 1;

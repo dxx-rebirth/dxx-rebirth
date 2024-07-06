@@ -205,7 +205,7 @@ struct player_config : prohibit_void_ptr<player_config>
 	MissileViewMode MissileViewEnabled;
 	uint8_t ThiefModifierFlags;
 	bool HeadlightActiveDefault;
-	int GuidedInBigWindow;
+	bool GuidedInBigWindow;
 	ntstring<GUIDEBOT_NAME_LEN> GuidebotName, GuidebotNameReal;
 	int EscortHotKeys;
 #endif
