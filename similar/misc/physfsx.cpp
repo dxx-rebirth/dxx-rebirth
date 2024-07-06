@@ -237,18 +237,6 @@ RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(char *const name1, c
 
 namespace dcx {
 
-int PHYSFSX_fsize(const char *hogname)
-{
-	char hogname2[PATH_MAX];
-
-	snprintf(hogname2, sizeof(hogname2), "%s", hogname);
-	PHYSFSEXT_locateCorrectCase(hogname2);
-
-	if (RAIIPHYSFS_File fp{PHYSFS_openRead(hogname2)})
-		return PHYSFS_fileLength(fp);
-	return -1;
-}
-
 void PHYSFSX_listSearchPathContent()
 {
 	if (!(CON_DEBUG <= CGameArg.DbgVerbose))
