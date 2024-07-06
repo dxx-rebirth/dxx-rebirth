@@ -79,11 +79,6 @@ color_palette_index gr_find_closest_color_palette(const int r, const int g, cons
 
 static unsigned Num_computed_colors;
 
-struct color_record {
-	uint8_t r, g, b;
-	color_palette_index color_num;
-};
-
 uint8_t gr_palette_gamma_param;
 
 }
@@ -183,21 +178,26 @@ void reset_computed_colors()
 
 color_palette_index gr_find_closest_color(const int r, const int g, const int b)
 {
+	struct color_record {
+		uint8_t r, g, b;
+		color_palette_index color_num;
+	};
 	static std::array<color_record, 32> Computed_colors;
-	const auto num_computed_colors = Num_computed_colors;
+	const auto num_computed_colors{Num_computed_colors};
 	//	If we've already computed this color, return it!
-	for (unsigned i = 0; i < num_computed_colors; ++i)
+	for (auto &&[i, c] : enumerate(std::span(Computed_colors).first(num_computed_colors)))
 	{
-		auto &c = Computed_colors[i];
 		if (r == c.r && g == c.g && b == c.b)
 		{
-			const auto color_num = c.color_num;
+			const auto color_num{c.color_num};
 			if (i)
-			{
-						std::swap(Computed_colors[i-1], c);
-					}
-					return color_num;
-				}
+				/* Move the color toward the beginning of the range, so that
+				 * recently popular colors require fewer steps to find on a
+				 * subsequent call.
+				 */
+				std::swap(Computed_colors[i - 1], c);
+			return color_num;
+		}
 	}
 //	Add a computed color to list of computed colors in Computed_colors.
 //	If list wasn't full already, increment Num_computed_colors.
