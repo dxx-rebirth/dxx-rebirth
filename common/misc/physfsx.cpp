@@ -290,4 +290,35 @@ int PHYSFSX_exists_ignorecase(const char *filename)
 	return !PHYSFSEXT_locateCorrectCase(filename2);
 }
 
+//Open a file for reading, set up a buffer
+std::pair<RAIINamedPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openReadBuffered(const char *filename)
+{
+	PHYSFS_uint64 bufSize;
+	char filename2[PATH_MAX];
+#if 0
+	if (filename[0] == '\x01')
+	{
+		//FIXME: don't look in dir, only in hogfile
+		filename++;
+	}
+#endif
+	snprintf(filename2, sizeof(filename2), "%s", filename);
+	PHYSFSEXT_locateCorrectCase(filename2);
+
+	/* Use the original filename in any error messages.  This is close enough
+	 * that the user should be able to identify the bad file, and avoids the
+	 * need to allocate and return storage for the filename.  In almost all
+	 * cases, the filename will never be seen, since it is only shown if an
+	 * error occurs when reading the file.
+	 */
+	RAIINamedPHYSFS_File fp{PHYSFS_openRead(filename2), filename};
+	if (!fp)
+		return {std::move(fp), PHYSFS_getLastErrorCode()};
+	
+	bufSize = PHYSFS_fileLength(fp);
+	while (!PHYSFS_setBuffer(fp, bufSize) && bufSize)
+		bufSize /= 2;	// even if the error isn't memory full, for a 20MB file it'll only do this 8 times
+	return {std::move(fp), PHYSFS_ERR_OK};
+}
+
 }
