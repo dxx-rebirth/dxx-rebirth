@@ -306,7 +306,7 @@ void new_player_config()
 	PlayerCfg.EscortHotKeys = 1;
 #endif
 	PlayerCfg.PersistentDebris = 0;
-	PlayerCfg.PRShot = 0;
+	PlayerCfg.PRShot = false;
 	PlayerCfg.NoRedundancy = 0;
 	PlayerCfg.MultiMessages = 0;
         PlayerCfg.MultiPingHud = 0;
@@ -531,7 +531,10 @@ static void read_player_dxx(const char *filename)
 				if(!strcmp(line,TOGGLES_PERSISTENTDEBRIS_NAME_TEXT))
 					PlayerCfg.PersistentDebris = atoi(value);
 				if(!strcmp(line,TOGGLES_PRSHOT_NAME_TEXT))
-					PlayerCfg.PRShot = atoi(value);
+				{
+					if (const auto r{convert_integer<uint8_t>(value)}; r)
+						PlayerCfg.PRShot = *r;
+				}
 				if(!strcmp(line,TOGGLES_NOREDUNDANCY_NAME_TEXT))
 					PlayerCfg.NoRedundancy = atoi(value);
 				if(!strcmp(line,TOGGLES_MULTIMESSAGES_NAME_TEXT))

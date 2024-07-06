@@ -210,7 +210,7 @@ struct player_config : prohibit_void_ptr<player_config>
 	int EscortHotKeys;
 #endif
 	int PersistentDebris;
-	int PRShot;
+	bool PRShot;
 	ubyte NoRedundancy;
 	ubyte MultiMessages;
         ubyte MultiPingHud;
