@@ -39,7 +39,7 @@ namespace dcx {
 #define MEMSTATS 0
 #define FULL_MEM_CHECKING 1
 
-#ifdef DEBUG_MEMORY_ALLOCATIONS
+#if DXX_USE_DEBUG_MEMORY_ALLOCATOR
 #if defined(FULL_MEM_CHECKING)
 
 #define CHECKSIZE 16

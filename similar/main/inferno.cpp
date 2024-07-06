@@ -648,7 +648,7 @@ static int main(int argc, char *argv[])
 	show_titles();
 
 	set_screen_mode(SCREEN_MENU);
-#ifdef DEBUG_MEMORY_ALLOCATIONS
+#if DXX_USE_DEBUG_MEMORY_ALLOCATOR
 	/* Memdebug runs before global destructors, so it incorrectly
 	 * reports as leaked any allocations that would be freed by a global
 	 * destructor.  This local will force the newmenu globals to be

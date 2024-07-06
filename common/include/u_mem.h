@@ -39,7 +39,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-#ifdef DEBUG_MEMORY_ALLOCATIONS
+#if DXX_USE_DEBUG_MEMORY_ALLOCATOR
 void mem_init(void);
 
 void mem_display_blocks();

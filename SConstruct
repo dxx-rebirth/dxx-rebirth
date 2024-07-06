@@ -1399,8 +1399,8 @@ int main(int argc,char**argv)
 		self._result_check_user_setting(context, not self.user_settings.debug, 'release options', cpp_defines_if_enabled=_CPPDEFINES)
 
 	@_custom_test
-	def _check_user_settings_memdebug(self,context,_CPPDEFINES=(('DEBUG_MEMORY_ALLOCATIONS',),)):
-		self._result_check_user_setting(context, self.user_settings.memdebug, 'memory allocation tracking', cpp_defines_if_enabled=_CPPDEFINES)
+	def _check_user_settings_memdebug(self,context,_CPPDEFINES=('DXX_USE_DEBUG_MEMORY_ALLOCATOR',)):
+		self._result_check_user_setting(context, self.user_settings.memdebug, 'memory allocation tracking', cpp_defines_with_condition_value=_CPPDEFINES)
 
 	@_custom_test
 	def _check_user_settings_editor(self,context,_CPPDEFINES=('DXX_USE_EDITOR',)):
