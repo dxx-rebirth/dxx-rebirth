@@ -11,7 +11,7 @@
  */
 
 #include <cstdlib>
-#if !defined(macintosh) && !defined(_MSC_VER)
+#if !defined(_MSC_VER)
 #include <sys/param.h>
 #endif
 #if defined(__APPLE__) && defined(__MACH__)
@@ -130,31 +130,10 @@ namespace dsx {
 // The user directory is searched first.
 bool PHYSFSX_init(int argc, char *argv[])
 {
-#ifdef macintosh	// Mac OS 9
-	char base_dir[PATH_MAX];
-	int bundle = 0;
-#else
 #define base_dir PHYSFS_getBaseDir()
-#endif
-	
 	if (!PHYSFS_init(argv[0]))
 		Error("Failed to init PhysFS: %s", PHYSFS_getLastError());
 	PHYSFS_permitSymbolicLinks(1);
-	
-#ifdef macintosh
-	strcpy(base_dir, PHYSFS_getBaseDir());
-	if (strstr(base_dir, ".app:Contents:MacOSClassic"))	// the Mac OS 9 program is still in the .app bundle
-	{
-		char *p;
-		
-		bundle = 1;
-		if (base_dir[strlen(base_dir) - 1] == ':')
-			base_dir[strlen(base_dir) - 1] = '\0';
-		p = strrchr(base_dir, ':'); *p = '\0';	// path to 'Contents'
-		p = strrchr(base_dir, ':'); *p = '\0';	// path to bundle
-		p = strrchr(base_dir, ':'); *p = '\0';	// path to directory containing bundle
-	}
-#endif
 	
 #if (defined(__APPLE__) && defined(__MACH__))	// others?
 	chdir(base_dir);	// make sure relative hogdir paths work
@@ -287,16 +266,6 @@ bool PHYSFSX_init(int argc, char *argv[])
 				CFRelease(resourcesURL);
 			}
 		}
-	}
-#elif defined(macintosh)
-	if (bundle)
-	{
-		base_dir[strlen(base_dir)] = ':';	// go back in the bundle
-		base_dir[strlen(base_dir)] = ':';	// go back in 'Contents'
-		strncat(base_dir, ":Resources:", PATH_MAX - 1 - strlen(base_dir));
-		base_dir[PATH_MAX - 1] = '\0';
-		con_printf(CON_DEBUG, "PHYSFS: append bundle directory \"%s\" to search path", base_dir);
-		PHYSFS_mount(base_dir, nullptr, 1);
 	}
 #endif
 	return true;
