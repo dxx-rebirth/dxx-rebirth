@@ -106,27 +106,6 @@ void copy_bound_palette(palette_array_t &d, const palette_array_t &s)
 	std::transform(s.begin(), s.end(), d.begin(), a);
 }
 
-}
-
-namespace dcx {
-
-namespace {
-
-static void diminish_entry(rgb_t &c)
-{
-	c.r >>= 2;
-	c.g >>= 2;
-	c.b >>= 2; 
-}
-
-}
-
-void diminish_palette(palette_array_t &palette)
-{
-	range_for (rgb_t &c, palette)
-		diminish_entry(c);
-}
-
 void gr_palette_set_gamma( int gamma )
 {
 	if ( gamma < 0 ) gamma = 0;

@@ -49,7 +49,6 @@ struct palette_array_t : public std::array<rgb_t, 256> {};
 #endif
 
 void copy_bound_palette(palette_array_t &d, const palette_array_t &s);
-void diminish_palette(palette_array_t &palette);
 extern void gr_palette_set_gamma( int gamma );
 extern int gr_palette_get_gamma();
 void gr_palette_load( palette_array_t &pal );
