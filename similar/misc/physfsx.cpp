@@ -73,19 +73,20 @@ PHYSFSX_fgets_t::result PHYSFSX_fgets_t::get(const std::span<char> buf, PHYSFS_F
 		else if (c == '\r')
 		{
 			/* If a Carriage Return is found, stop here.  If the next byte is a
-			 * newline, then consider it included in the string, so that the
-			 * seek does not cause the newline to replay on the next call.
-			 * Otherwise, set `p` such that the seek will cause that next byte
-			 * to replay on the next call.
+			 * newline, then update `p` to consider the newline included in the
+			 * string, so that the seek does not cause the newline to replay on
+			 * the next call.  Otherwise, leave `p` such that the seek will
+			 * cause that next byte to replay on the next call.
 			 */
 			*p = 0;
-			if (++p == e || *p != '\n')
-				--p;
-			else
+			if (const auto p2{std::next(p)}; p2 != e && *p2 == '\n')
+			{
+				p = p2;
 				/* Increment `buffer_end_adjustment` so that the returned span does
 				 * not include the null that was previously a Carriage Return.
 				 */
 				++ buffer_end_adjustment;
+			}
 		}
 		else
 			continue;
