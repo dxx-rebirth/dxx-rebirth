@@ -15,8 +15,6 @@
 #include "maths.h"
 #include "fwd-vecmat.h"
 
-struct g3s_point;
-
 namespace dcx {
 
 extern fix Canv_w2,Canv_h2;				//fixed-point width,height/2

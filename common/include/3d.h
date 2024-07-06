@@ -135,20 +135,36 @@ static constexpr projection_flag operator~(const projection_flag a)
 	return static_cast<projection_flag>(~static_cast<uint8_t>(a));
 }
 
+namespace dcx {
+
+struct g3_instance_context
+{
+	const vms_matrix matrix;
+	const vms_vector position;
+};
+
+struct g3_rotated_point
+{
+	vms_vector p3_vec;
+protected:
+	g3_rotated_point() = default;
+};
+
 /*
  * This stores a point that has been rotated about the Viewer's orientation
  * matrix.  p3_flags tracks whether the point has been projected into screen
  * coordinates (`projected`) and, if so, whether the resulting coordinates are
  * outside the screen's viewable area (`overflow`).
  */
-struct g3s_point {
-	vms_vector p3_vec;  //x,y,z of rotated point
+struct g3s_point : g3_rotated_point
+{
 #if !DXX_USE_OGL
-	fix p3_u,p3_v,p3_l; //u,v,l coords
+	fix p3_u, p3_v, p3_l; //u,v,l coords
 #endif
-	fix p3_sx,p3_sy;    //screen x&y
+	fix p3_sx, p3_sy;    //screen x&y
 	clipping_code p3_codes;     //clipping codes
 	projection_flag p3_flags;     //projected?
+	g3s_point() = default;
 };
 
 /* Store the frame count at which this point was last updated.  If the stored
@@ -165,19 +181,7 @@ struct g3s_point {
 struct g3s_reusable_point : g3s_point
 {
 	uint16_t p3_last_generation;
-};
-
-#ifdef __cplusplus
-//Functions in library
-
-//Frame setup functions:
-
-namespace dcx {
-
-struct g3_instance_context
-{
-	const vms_matrix matrix;
-	const vms_vector position;
+	g3s_reusable_point() = default;
 };
 
 #if DXX_USE_OGL
@@ -406,5 +410,3 @@ static inline void g3_check_and_draw_tmap(grs_canvas &canvas, const std::array<c
 void g3_draw_line(const g3_draw_line_context &context, cg3s_point &p0, cg3s_point &p1);
 
 }
-
-#endif
