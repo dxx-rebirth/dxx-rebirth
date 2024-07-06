@@ -37,7 +37,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 
 #include "d_enumerate.h"
-#include "d_underlying_value.h"
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "compiler-range_for.h"
@@ -173,16 +172,6 @@ color_palette_index gr_find_closest_color(const int r, const int g, const int b)
 	cc.g = g;
 	cc.b = b;
 	return cc.color_num = gr_find_closest_color_palette(r, g, b, gr_palette);
-}
-
-color_palette_index gr_find_closest_color_15bpp(const packed_color_r5g5b5 rgb)
-{
-	const auto urgb = underlying_value(rgb);
-	return gr_find_closest_color(
-		((urgb >> 9) & 62),
-		((urgb >> 4) & 62),
-		((urgb << 1) & 62)
-		);
 }
 
 color_palette_index gr_find_closest_color_current(const int r, const int g, const int b)

@@ -19,6 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <algorithm>
 #include <cstdint>
+#include "d_underlying_value.h"
 #include "fwd-gr.h"
 
 namespace dcx {
@@ -61,6 +62,16 @@ void gr_palette_set_gamma(uint8_t gamma)
 uint8_t gr_palette_get_gamma()
 {
 	return gr_palette_gamma_param;
+}
+
+color_palette_index gr_find_closest_color_15bpp(const packed_color_r5g5b5 rgb)
+{
+	const auto urgb = underlying_value(rgb);
+	return gr_find_closest_color(
+		((urgb >> 9) & 62),
+		((urgb >> 4) & 62),
+		((urgb << 1) & 62)
+		);
 }
 
 }
