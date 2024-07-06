@@ -11,11 +11,18 @@
 #include "console.h"
 #include "d_enumerate.h"
 #include "ignorecase.h"
+#include "newdemo.h"
 #include "physfs_list.h"
 #include "physfsx.h"
 #include "strutil.h"
 
 namespace dcx {
+
+namespace {
+
+constexpr std::array<file_extension_t, 1> archive_exts{{"dxa"}};
+
+}
 
 PHYSFSX_fgets_t::result PHYSFSX_fgets_t::get(const std::span<char> buf, PHYSFS_File *const fp)
 {
@@ -331,6 +338,84 @@ std::pair<RAIIPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openWriteBuffered(const cha
 	while (!PHYSFS_setBuffer(fp, bufSize) && bufSize)
 		bufSize /= 2;
 	return {std::move(fp), PHYSFS_ERR_OK};
+}
+
+static uint8_t add_archives_to_search_path()
+{
+	uint8_t content_updated{};
+	// find files in Searchpath ...
+	// if found, add them...
+	const auto s{PHYSFSX_findFiles("", archive_exts)};
+	if (!s)
+		return content_updated;
+	for (const auto i : s)
+	{
+		std::array<char, PATH_MAX> realfile;
+		if (PHYSFSX_getRealPath(i, realfile) && PHYSFS_mount(realfile.data(), nullptr, 0))
+		{
+			con_printf(CON_DEBUG, "PHYSFS: Added %s to Search Path",realfile.data());
+			content_updated = 1;
+		}
+	}
+	return content_updated;
+}
+
+static uint8_t add_demo_files_to_search_path(uint8_t content_updated)
+{
+	// find files in DEMO_DIR ...
+	// if found, add them...
+	for (const auto i : PHYSFSX_findFiles(DEMO_DIR, archive_exts))
+	{
+		char demofile[PATH_MAX];
+		snprintf(demofile, sizeof(demofile), DEMO_DIR "%s", i);
+		std::array<char, PATH_MAX> realfile;
+		if (PHYSFSX_getRealPath(demofile, realfile) && PHYSFS_mount(realfile.data(), DEMO_DIR, 0))
+		{
+			con_printf(CON_DEBUG, "PHYSFS: Added %s to " DEMO_DIR, realfile.data());
+			content_updated = 1;
+		}
+	}
+	return content_updated;
+}
+
+/*
+ * Add archives to the game.
+ * 1) archives from Sharepath/Data to extend/replace builtin game content
+ * 2) archived demos
+ */
+void PHYSFSX_addArchiveContent()
+{
+	con_puts(CON_DEBUG, "PHYSFS: Adding archives to the game.");
+	auto content_updated{add_archives_to_search_path()};
+	content_updated = add_demo_files_to_search_path(content_updated);
+	if (content_updated)
+	{
+		con_puts(CON_DEBUG, "Game content updated!");
+		PHYSFSX_listSearchPathContent();
+	}
+}
+
+// Removes content added above when quitting game
+void PHYSFSX_removeArchiveContent()
+{
+	// find files in Searchpath ...
+	// if found, remove them...
+	for (const auto i : PHYSFSX_findFiles("", archive_exts))
+	{
+		std::array<char, PATH_MAX> realfile;
+		if (PHYSFSX_getRealPath(i, realfile))
+			PHYSFS_unmount(realfile.data());
+	}
+	// find files in DEMO_DIR ...
+	// if found, remove them...
+	for (const auto i : PHYSFSX_findFiles(DEMO_DIR, archive_exts))
+	{
+		char demofile[PATH_MAX];
+		snprintf(demofile, sizeof(demofile), DEMO_DIR "%s", i);
+		std::array<char, PATH_MAX> realfile;
+		if (PHYSFSX_getRealPath(demofile, realfile))
+			PHYSFS_unmount(realfile.data());
+	}
 }
 
 }
