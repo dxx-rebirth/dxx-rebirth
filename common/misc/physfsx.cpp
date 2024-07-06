@@ -161,4 +161,73 @@ void PHYSFSX_listSearchPathContent()
 			con_printf(CON_DEBUG, "PHYSFS: found file #%" DXX_PRI_size_type ": %s", idx, entry);
 }
 
+int PHYSFSX_getRealPath(const char *stdPath, std::array<char, PATH_MAX> &realPath)
+{
+	DXX_POISON_MEMORY(std::span(realPath), 0xdd);
+	const char *realDir = PHYSFS_getRealDir(stdPath);
+	if (!realDir)
+	{
+		realDir = PHYSFS_getWriteDir();
+		if (!realDir)
+			return 0;
+	}
+	const auto realDirSize = strlen(realDir);
+	if (realDirSize >= realPath.size())
+		return 0;
+	auto mountpoint = PHYSFS_getMountPoint(realDir);
+	if (!mountpoint)
+		return 0;
+	std::copy_n(realDir, realDirSize + 1, realPath.begin());
+#ifdef _unix__
+	auto &sep = "/";
+	assert(!strcmp(PHYSFS_getDirSeparator(), sep));
+#else
+	const auto sep = PHYSFS_getDirSeparator();
+#endif
+	const auto sepSize = strlen(sep);
+	auto realPathUsed = realDirSize;
+	if (realDirSize >= sepSize)
+	{
+		const auto p = std::next(realPath.begin(), realDirSize - sepSize);
+		if (strcmp(p, sep)) // no sep at end of realPath
+		{
+			realPathUsed += sepSize;
+			std::copy_n(sep, sepSize, &realPath[realDirSize]);
+		}
+	}
+	if (*mountpoint == '/')
+		++mountpoint;
+	if (*stdPath == '/')
+		++stdPath;
+	const auto ml = strlen(mountpoint);
+	if (!strncmp(mountpoint, stdPath, ml))
+		stdPath += ml;
+	else
+	{
+		/* Virtual path is not under the virtual mount point that
+		 * provides the path.
+		 */
+		assert(false);
+	}
+	const auto stdPathLen = strlen(stdPath) + 1;
+	if (realPathUsed + stdPathLen >= realPath.size())
+		return 0;
+#ifdef __unix__
+	/* Separator is "/" and physfs internal separator is "/".  Copy
+	 * through.
+	 */
+	std::copy_n(stdPath, stdPathLen, &realPath[realPathUsed]);
+#else
+	/* Separator might be / on non-unix, but the fallback path works
+	 * regardless of whether separator is "/".
+	 */
+	const auto csep = *sep;
+	const auto a = [csep](char c) {
+		return c == '/' ? csep : c;
+	};
+	std::transform(stdPath, &stdPath[stdPathLen], &realPath[realPathUsed], a);
+#endif
+	return 1;
+}
+
 }
