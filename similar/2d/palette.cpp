@@ -79,24 +79,6 @@ color_palette_index gr_find_closest_color_palette(const int r, const int g, cons
 
 static unsigned Num_computed_colors;
 
-uint8_t gr_palette_gamma_param;
-
-}
-
-void gr_palette_set_gamma(uint8_t gamma)
-{
-        if ( gamma > 16 ) gamma = 16;      //was 8
-
-	if (gr_palette_gamma_param != gamma )	{
-		gr_palette_gamma_param = gamma;
-		gr_palette_gamma = gamma;
-		gr_palette_load( gr_palette );
-	}
-}
-
-uint8_t gr_palette_get_gamma()
-{
-	return gr_palette_gamma_param;
 }
 
 }

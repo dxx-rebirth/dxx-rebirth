@@ -23,6 +23,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
+namespace {
+
+uint8_t gr_palette_gamma_param;
+
+}
+
 palette_array_t gr_palette;
 palette_array_t gr_current_pal;
 gft_array1 gr_fade_table;
@@ -39,6 +45,22 @@ void copy_bound_palette(palette_array_t &d, const palette_array_t &s)
 			.b = std::min(c.b, bound)
 		};
 	});
+}
+
+void gr_palette_set_gamma(uint8_t gamma)
+{
+        if ( gamma > 16 ) gamma = 16;      //was 8
+
+	if (gr_palette_gamma_param != gamma )	{
+		gr_palette_gamma_param = gamma;
+		gr_palette_gamma = gamma;
+		gr_palette_load( gr_palette );
+	}
+}
+
+uint8_t gr_palette_get_gamma()
+{
+	return gr_palette_gamma_param;
 }
 
 }
