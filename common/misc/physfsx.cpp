@@ -418,4 +418,9 @@ void PHYSFSX_removeArchiveContent()
 	}
 }
 
+void PHYSFSX_read_helper_report_error(const char *const filename, const unsigned line, const char *const func, const NamedPHYSFS_File file)
+{
+	(Error)(filename, line, func, "reading file %s at %lu", file.filename, static_cast<unsigned long>((PHYSFS_tell)(file.fp)));
+}
+
 }
