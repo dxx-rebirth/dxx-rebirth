@@ -238,4 +238,49 @@ int PHYSFSX_rename(const char *oldpath, const char *newpath)
 	return (rename(old.data(), n.data()) == 0);
 }
 
+static PHYSFSX_uncounted_list trim_physfs_list(PHYSFSX_uncounted_list list, char **const iter_first_unused)
+{
+	*iter_first_unused = nullptr;
+	const auto old_begin = list.get();
+	const auto r = reinterpret_cast<char **>(realloc(old_begin, (iter_first_unused - old_begin + 1) * sizeof(char *)));	// save a bit of memory (or a lot?)
+	/* iter_first_unused, old_begin are now invalid since realloc may have moved the block */
+	return r ? PHYSFSX_uncounted_list{(list.release(), r)} : std::move(list);
+}
+
+static PHYSFSX_uncounted_list PHYSFSX_findPredicateFiles(const char *path, auto &&predicate)
+{
+	PHYSFSX_uncounted_list list{PHYSFS_enumerateFiles(path)};
+	if (!list)
+		return nullptr;	// out of memory: not so good
+	char **j = list.get();
+	for (const auto i : list)
+	{
+		if (predicate(i))
+			*j++ = i;
+		else
+			free(i);
+	}
+	return trim_physfs_list(std::move(list), j);
+}
+
+// Find files at path that have an extension listed in exts
+// The extension list exts must be NULL-terminated, with each ext beginning with a '.'
+PHYSFSX_uncounted_list PHYSFSX_findFiles(const char *path, const std::ranges::subrange<const file_extension_t *> exts)
+{
+	const auto predicate = [&](const char *i) {
+		return PHYSFSX_checkMatchingExtension(i, exts);
+	};
+	return PHYSFSX_findPredicateFiles(path, predicate);
+}
+
+// Same function as above but takes a real directory as second argument, only adding files originating from this directory.
+// This can be used to further seperate files in search path but it must be made sure realpath is properly formatted.
+PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const std::ranges::subrange<const file_extension_t *> exts)
+{
+	const auto predicate = [&](const char *i) {
+		return PHYSFSX_checkMatchingExtension(i, exts) && (!strcmp(PHYSFS_getRealDir(i), realpath));
+	};
+	return PHYSFSX_findPredicateFiles(path, predicate);
+}
+
 }
