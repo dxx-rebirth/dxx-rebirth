@@ -984,8 +984,6 @@ void _g3_draw_tmap(grs_canvas &canvas, const std::span<cg3s_point *const> pointl
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
-}
-
 /*
  * Everything texturemapped with secondary texture (walls with secondary texture)
  */
@@ -1069,8 +1067,6 @@ void _g3_draw_tmap_2(grs_canvas &canvas, const std::span<const g3s_point *const>
 	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array.flat.data());
 	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
 }
-
-namespace dcx {
 
 /*
  * 2d Sprites (Fireaballs, powerups, explosions). NOT hostages

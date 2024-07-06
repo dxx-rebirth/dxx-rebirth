@@ -109,14 +109,14 @@ bool ogl_ubitblt(unsigned w, unsigned h, unsigned dx, unsigned dy, unsigned sx, 
 void ogl_upixelc(const grs_bitmap &, unsigned x, unsigned y, color_palette_index c);
 color_palette_index ogl_ugpixel(const grs_bitmap &bitmap, unsigned x, unsigned y);
 void ogl_ulinec(grs_canvas &, int left, int top, int right, int bot, int c);
+void _g3_draw_tmap_2(grs_canvas &, std::span<const g3s_point *const> pointlist, std::span<const g3s_uvl, 4> uvl_list, std::span<const g3s_lrgb, 4> light_rgb, grs_bitmap &bmbot, grs_bitmap &bm, texture2_rotation_low orient, tmap_drawer_type tmap_drawer_ptr);
+
 }
 #ifdef dsx
 namespace dsx {
 void ogl_cache_level_textures();
 }
 #endif
-
-void _g3_draw_tmap_2(grs_canvas &, std::span<const g3s_point *const> pointlist, std::span<const g3s_uvl, 4> uvl_list, std::span<const g3s_lrgb, 4> light_rgb, grs_bitmap &bmbot, grs_bitmap &bm, texture2_rotation_low orient, tmap_drawer_type tmap_drawer_ptr);
 
 template <std::size_t N>
 static inline void g3_draw_tmap_2(grs_canvas &canvas, const unsigned nv, const std::array<cg3s_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bmbot, grs_bitmap &bm, const texture2_rotation_low orient, const tmap_drawer_type tmap_drawer_ptr)
