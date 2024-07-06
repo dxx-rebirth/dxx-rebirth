@@ -152,6 +152,18 @@ static void setup_hogdir_path()
 #endif
 }
 
+static void setup_final_fallback_write_directory(const char *const base_dir)
+{
+	if (!PHYSFS_getWriteDir())
+	{
+		PHYSFS_setWriteDir(base_dir);
+		auto writedir{PHYSFS_getWriteDir()};
+		if (!writedir)
+			Error("can't set write dir: %s\n", PHYSFS_getLastError());
+		PHYSFS_mount(writedir, nullptr, 0);
+	}
+}
+
 #if defined(__APPLE__) && defined(__MACH__)
 static void setup_osx_resource_path()
 {
@@ -261,14 +273,8 @@ bool PHYSFSX_init(int argc, char *argv[])
 	if (!InitArgs(std::span(argv, argc).template subspan<1>()))
 		return false;
 	PHYSFS_unmount(base_dir);
-	
-	if (!PHYSFS_getWriteDir())
-	{
-		PHYSFS_setWriteDir(base_dir);
-		if (!(writedir = PHYSFS_getWriteDir()))
-			Error("can't set write dir: %s\n", PHYSFS_getLastError());
-		PHYSFS_mount(writedir, nullptr, 0);
-	}
+
+	setup_final_fallback_write_directory(base_dir);
 	setup_hogdir_path();
 	
 	add_data_directory_to_search_path();
