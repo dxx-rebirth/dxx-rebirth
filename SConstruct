@@ -4707,6 +4707,7 @@ class DXXArchive(DXXCommon):
 'common/misc/hmp.cpp',
 'common/misc/ignorecase.cpp',
 'common/misc/physfsrwops.cpp',
+'common/misc/physfsx.cpp',
 'common/misc/strutil.cpp',
 'common/misc/vgrphys.cpp',
 'common/misc/vgwphys.cpp',
