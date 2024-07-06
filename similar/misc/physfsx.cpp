@@ -268,13 +268,6 @@ int PHYSFSX_checkSupportedArchiveTypes()
 
 namespace dcx {
 
-int PHYSFSX_exists_ignorecase(const char *filename)
-{
-	char filename2[PATH_MAX];
-	snprintf(filename2, sizeof(filename2), "%s", filename);
-	return !PHYSFSEXT_locateCorrectCase(filename2);
-}
-
 //Open a file for reading, set up a buffer
 std::pair<RAIINamedPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openReadBuffered(const char *filename)
 {

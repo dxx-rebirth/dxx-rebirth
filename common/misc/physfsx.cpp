@@ -283,4 +283,11 @@ PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *r
 	return PHYSFSX_findPredicateFiles(path, predicate);
 }
 
+int PHYSFSX_exists_ignorecase(const char *filename)
+{
+	char filename2[PATH_MAX];
+	snprintf(filename2, sizeof(filename2), "%s", filename);
+	return !PHYSFSEXT_locateCorrectCase(filename2);
+}
+
 }
