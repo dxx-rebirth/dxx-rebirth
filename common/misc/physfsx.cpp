@@ -6,9 +6,12 @@
  */
 
 #include "dxxsconf.h"
+#include "args.h"
 #include "compiler-poison.h"
 #include "console.h"
+#include "d_enumerate.h"
 #include "ignorecase.h"
+#include "physfs_list.h"
 #include "physfsx.h"
 #include "strutil.h"
 
@@ -140,6 +143,22 @@ int PHYSFSX_fsize(const char *hogname)
 	if (RAIIPHYSFS_File fp{PHYSFS_openRead(hogname2)})
 		return PHYSFS_fileLength(fp);
 	return -1;
+}
+
+void PHYSFSX_listSearchPathContent()
+{
+	if (!(CON_DEBUG <= CGameArg.DbgVerbose))
+		/* Skip retrieving the path contents if the verbosity level will
+		 * prevent showing the results.
+		 */
+		return;
+	con_puts(CON_DEBUG, "PHYSFS: Listing contents of Search Path.");
+	if (const auto s{PHYSFSX_uncounted_list{PHYSFS_getSearchPath()}})
+		for (const auto &&[idx, entry] : enumerate(s))
+			con_printf(CON_DEBUG, "PHYSFS: search path entry #%" DXX_PRI_size_type ": %s", idx, entry);
+	if (const auto s{PHYSFSX_uncounted_list{PHYSFS_enumerateFiles("")}})
+		for (const auto &&[idx, entry] : enumerate(s))
+			con_printf(CON_DEBUG, "PHYSFS: found file #%" DXX_PRI_size_type ": %s", idx, entry);
 }
 
 }
