@@ -237,26 +237,6 @@ RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(char *const name1, c
 
 namespace dcx {
 
-void PHYSFSX_removeRelFromSearchPath(const char *relname)
-{
-	char relname2[PATH_MAX];
-
-	snprintf(relname2, sizeof(relname2), "%s", relname);
-	PHYSFSEXT_locateCorrectCase(relname2);
-
-	std::array<char, PATH_MAX> pathname;
-	if (!PHYSFSX_getRealPath(relname2, pathname))
-	{
-		con_printf(CON_DEBUG, "PHYSFS: ignoring unmap request: no canonical path for relative name \"%s\"", relname2);
-		return;
-	}
-	auto r = PHYSFS_unmount(pathname.data());
-	if (r)
-		con_printf(CON_DEBUG, "PHYSFS: unmap canonical directory \"%s\" (relative name \"%s\")", pathname.data(), relname);
-	else
-		con_printf(CON_VERBOSE, "PHYSFS: failed to unmap canonical directory \"%s\" (relative name \"%s\"): \"%s\"", pathname.data(), relname, PHYSFS_getLastError());
-}
-
 int PHYSFSX_fsize(const char *hogname)
 {
 	char hogname2[PATH_MAX];
