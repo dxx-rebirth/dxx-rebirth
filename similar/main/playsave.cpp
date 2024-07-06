@@ -299,7 +299,7 @@ void new_player_config()
 	PlayerCfg.Cockpit3DView = {};
 	PlayerCfg.ThiefModifierFlags = 0;
 	PlayerCfg.MissileViewEnabled = MissileViewMode::EnabledSelfOnly;
-	PlayerCfg.HeadlightActiveDefault = 1;
+	PlayerCfg.HeadlightActiveDefault = true;
 	PlayerCfg.GuidedInBigWindow = 0;
 	PlayerCfg.GuidebotName = "GUIDE-BOT";
 	PlayerCfg.GuidebotNameReal = PlayerCfg.GuidebotName;

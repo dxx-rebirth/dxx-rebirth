@@ -311,7 +311,7 @@ struct player_hit_headlight_powerup
 		}
 	void process(player_flags &powerup_flags) const
 	{
-		const auto active = PlayerCfg.HeadlightActiveDefault;
+		const auto active{PlayerCfg.HeadlightActiveDefault};
 		powerup_flags |= active
 			? PLAYER_FLAG::HEADLIGHT_PRESENT_AND_ON
 			: PLAYER_FLAG::HEADLIGHT;
