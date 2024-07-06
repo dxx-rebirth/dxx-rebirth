@@ -423,4 +423,12 @@ void PHYSFSX_read_helper_report_error(const char *const filename, const unsigned
 	(Error)(filename, line, func, "reading file %s at %lu", file.filename, static_cast<unsigned long>((PHYSFS_tell)(file.fp)));
 }
 
+RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(char *const name, physfs_search_path position)
+{
+	auto pathname = std::make_unique<std::array<char, PATH_MAX>>();
+	if (PHYSFSX_addRelToSearchPath(name, *pathname.get(), position) == PHYSFS_ERR_OK)
+		return RAIIPHYSFS_ComputedPathMount(std::move(pathname));
+	return nullptr;
+}
+
 }

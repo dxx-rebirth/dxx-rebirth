@@ -263,15 +263,3 @@ int PHYSFSX_checkSupportedArchiveTypes()
 }
 
 }
-
-namespace dcx {
-
-RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(char *const name, physfs_search_path position)
-{
-	auto pathname = std::make_unique<std::array<char, PATH_MAX>>();
-	if (PHYSFSX_addRelToSearchPath(name, *pathname.get(), position) == PHYSFS_ERR_OK)
-		return RAIIPHYSFS_ComputedPathMount(std::move(pathname));
-	return nullptr;
-}
-
-}
