@@ -268,19 +268,6 @@ int PHYSFSX_checkSupportedArchiveTypes()
 
 namespace dcx {
 
-//Open a file for writing, set up a buffer
-std::pair<RAIIPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openWriteBuffered(const char *filename)
-{
-	PHYSFS_uint64 bufSize = 1024*1024;	// hmm, seems like an OK size.
-	
-	RAIIPHYSFS_File fp{PHYSFS_openWrite(filename)};
-	if (!fp)
-		return {nullptr, PHYSFS_getLastErrorCode()};
-	while (!PHYSFS_setBuffer(fp, bufSize) && bufSize)
-		bufSize /= 2;
-	return {std::move(fp), PHYSFS_ERR_OK};
-}
-
 static uint8_t add_archives_to_search_path()
 {
 	uint8_t content_updated{};
