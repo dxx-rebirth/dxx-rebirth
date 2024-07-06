@@ -305,7 +305,7 @@ void new_player_config()
 	PlayerCfg.GuidebotNameReal = PlayerCfg.GuidebotName;
 	PlayerCfg.EscortHotKeys = 1;
 #endif
-	PlayerCfg.PersistentDebris = 0;
+	PlayerCfg.PersistentDebris = false;
 	PlayerCfg.PRShot = false;
 	PlayerCfg.NoRedundancy = 0;
 	PlayerCfg.MultiMessages = 0;
@@ -529,7 +529,10 @@ static void read_player_dxx(const char *filename)
 					PlayerCfg.SPGameplayOptions.AutosaveInterval = std::chrono::seconds(l);
 				}
 				if(!strcmp(line,TOGGLES_PERSISTENTDEBRIS_NAME_TEXT))
-					PlayerCfg.PersistentDebris = atoi(value);
+				{
+					if (const auto r{convert_integer<uint8_t>(value)}; r)
+						PlayerCfg.PersistentDebris = *r;
+				}
 				if(!strcmp(line,TOGGLES_PRSHOT_NAME_TEXT))
 				{
 					if (const auto r{convert_integer<uint8_t>(value)}; r)

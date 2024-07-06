@@ -209,7 +209,7 @@ struct player_config : prohibit_void_ptr<player_config>
 	ntstring<GUIDEBOT_NAME_LEN> GuidebotName, GuidebotNameReal;
 	int EscortHotKeys;
 #endif
-	int PersistentDebris;
+	bool PersistentDebris;
 	bool PRShot;
 	ubyte NoRedundancy;
 	ubyte MultiMessages;
