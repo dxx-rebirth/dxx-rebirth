@@ -152,6 +152,27 @@ static void setup_hogdir_path()
 #endif
 }
 
+#if defined(__APPLE__) && defined(__MACH__)
+static void setup_osx_resource_path()
+{
+	CFBundleRef mainBundle = CFBundleGetMainBundle();
+	if (mainBundle)
+	{
+		CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
+		if (resourcesURL)
+		{
+			char fullPath[PATH_MAX + 5];
+			if (CFURLGetFileSystemRepresentation(resourcesURL, TRUE, reinterpret_cast<uint8_t *>(fullPath), sizeof(fullPath)))
+			{
+				con_printf(CON_DEBUG, "PHYSFS: append resources directory \"%s\" to search path", fullPath);
+				PHYSFS_mount(fullPath, nullptr, 1);
+			}
+			CFRelease(resourcesURL);
+		}
+	}
+}
+#endif
+
 // Initialise PhysicsFS, set up basic search paths and add arguments from .ini file.
 // The .ini file can be in either the user directory or the same directory as the program.
 // The user directory is searched first.
@@ -254,23 +275,7 @@ bool PHYSFSX_init(int argc, char *argv[])
 	
 	// For Macintosh, add the 'Resources' directory in the .app bundle to the searchpaths
 #if defined(__APPLE__) && defined(__MACH__)
-	{
-		CFBundleRef mainBundle = CFBundleGetMainBundle();
-		if (mainBundle)
-		{
-			CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
-			if (resourcesURL)
-			{
-				if (CFURLGetFileSystemRepresentation(resourcesURL, TRUE, reinterpret_cast<uint8_t *>(fullPath), sizeof(fullPath)))
-				{
-					con_printf(CON_DEBUG, "PHYSFS: append resources directory \"%s\" to search path", fullPath);
-					PHYSFS_mount(fullPath, nullptr, 1);
-				}
-			
-				CFRelease(resourcesURL);
-			}
-		}
-	}
+	setup_osx_resource_path();
 #endif
 	return true;
 }
