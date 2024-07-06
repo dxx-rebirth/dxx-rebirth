@@ -83,9 +83,8 @@ uint8_t gr_palette_gamma_param;
 
 }
 
-void gr_palette_set_gamma( int gamma )
+void gr_palette_set_gamma(uint8_t gamma)
 {
-	if ( gamma < 0 ) gamma = 0;
         if ( gamma > 16 ) gamma = 16;      //was 8
 
 	if (gr_palette_gamma_param != gamma )	{
@@ -95,7 +94,7 @@ void gr_palette_set_gamma( int gamma )
 	}
 }
 
-int gr_palette_get_gamma()
+uint8_t gr_palette_get_gamma()
 {
 	return gr_palette_gamma_param;
 }
