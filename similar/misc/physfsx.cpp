@@ -237,36 +237,6 @@ RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(char *const name1, c
 
 namespace dcx {
 
-// Add a searchpath, but that searchpath is relative to an existing searchpath
-// It will add the first one it finds and return 1, if it doesn't find any it returns 0
-PHYSFS_ErrorCode PHYSFSX_addRelToSearchPath(char *const relname2, std::array<char, PATH_MAX> &pathname, physfs_search_path add_to_end)
-{
-	PHYSFSEXT_locateCorrectCase(relname2);
-
-	if (!PHYSFSX_getRealPath(relname2, pathname))
-	{
-		/* This failure is not reported as an error, because callers
-		 * probe for files that users may not have, and do not need.
-		 */
-		con_printf(CON_DEBUG, "PHYSFS: ignoring map request: no canonical path for relative name \"%s\"", relname2);
-		return PHYSFS_ERR_OK;
-	}
-
-	auto r = PHYSFS_mount(pathname.data(), nullptr, static_cast<int>(add_to_end));
-	const auto action = add_to_end != physfs_search_path::prepend ? "append" : "insert";
-	if (r)
-	{
-		con_printf(CON_DEBUG, "PHYSFS: %s canonical directory \"%s\" to search path from relative name \"%s\"", action, pathname.data(), relname2);
-		return PHYSFS_ERR_OK;
-	}
-	else
-	{
-		const auto err = PHYSFS_getLastErrorCode();
-		con_printf(CON_VERBOSE, "PHYSFS: failed to %s canonical directory \"%s\" to search path from relative name \"%s\": \"%s\"", action, pathname.data(), relname2, PHYSFS_getErrorByCode(err));
-		return err;
-	}
-}
-
 void PHYSFSX_removeRelFromSearchPath(const char *relname)
 {
 	char relname2[PATH_MAX];

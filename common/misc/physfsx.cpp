@@ -7,6 +7,8 @@
 
 #include "dxxsconf.h"
 #include "compiler-poison.h"
+#include "console.h"
+#include "ignorecase.h"
 #include "physfsx.h"
 #include "strutil.h"
 
@@ -76,6 +78,36 @@ const file_extension_t *PHYSFSX_checkMatchingExtension(const char *filename, con
 			return &k;
 	}
 	return nullptr;
+}
+
+// Add a searchpath, but that searchpath is relative to an existing searchpath
+// It will add the first one it finds and return a PhysFS error code, if it doesn't find any it returns PHYSFS_ERR_OK
+PHYSFS_ErrorCode PHYSFSX_addRelToSearchPath(char *const relname2, std::array<char, PATH_MAX> &pathname, physfs_search_path add_to_end)
+{
+	PHYSFSEXT_locateCorrectCase(relname2);
+
+	if (!PHYSFSX_getRealPath(relname2, pathname))
+	{
+		/* This failure is not reported as an error, because callers
+		 * probe for files that users may not have, and do not need.
+		 */
+		con_printf(CON_DEBUG, "PHYSFS: ignoring map request: no canonical path for relative name \"%s\"", relname2);
+		return PHYSFS_ERR_OK;
+	}
+
+	auto r = PHYSFS_mount(pathname.data(), nullptr, static_cast<int>(add_to_end));
+	const auto action = add_to_end != physfs_search_path::prepend ? "append" : "insert";
+	if (r)
+	{
+		con_printf(CON_DEBUG, "PHYSFS: %s canonical directory \"%s\" to search path from relative name \"%s\"", action, pathname.data(), relname2);
+		return PHYSFS_ERR_OK;
+	}
+	else
+	{
+		const auto err = PHYSFS_getLastErrorCode();
+		con_printf(CON_VERBOSE, "PHYSFS: failed to %s canonical directory \"%s\" to search path from relative name \"%s\": \"%s\"", action, pathname.data(), relname2, PHYSFS_getErrorByCode(err));
+		return err;
+	}
 }
 
 }
