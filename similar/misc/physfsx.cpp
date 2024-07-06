@@ -246,11 +246,10 @@ static void setup_osx_resource_path()
 // The user directory is searched first.
 bool PHYSFSX_init(int argc, char *argv[])
 {
-#define base_dir PHYSFS_getBaseDir()
 	if (!PHYSFS_init(argv[0]))
 		Error("Failed to init PhysFS: %s", PHYSFS_getLastError());
 	PHYSFS_permitSymbolicLinks(1);
-	
+	const auto base_dir{PHYSFS_getBaseDir()};
 #if (defined(__APPLE__) && defined(__MACH__))	// others?
 	chdir(base_dir);	// make sure relative hogdir paths work
 #endif
