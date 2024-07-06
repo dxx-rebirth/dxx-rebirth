@@ -4764,6 +4764,7 @@ class DXXArchive(DXXCommon):
 ))
 	get_objects_arch_sdlmixer = DXXCommon.create_lazy_object_getter((
 'common/arch/sdl/digi_mixer_music.cpp',
+'common/arch/sdl/jukebox.cpp',
 ))
 	class Win32PlatformSettings(DXXCommon.Win32PlatformSettings):
 		__get_platform_objects = LazyObjectConstructor.create_lazy_object_getter((
@@ -4934,7 +4935,6 @@ class DXXProgram(DXXCommon):
 	))
 	get_objects_similar_arch_sdlmixer = DXXCommon.create_lazy_object_states_getter((LazyObjectState(sources=(
 'similar/arch/sdl/digi_mixer.cpp',
-'similar/arch/sdl/jukebox.cpp',
 ),
 		transform_target=_apply_target_name,
 	),

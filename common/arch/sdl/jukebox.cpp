@@ -299,10 +299,6 @@ static void jukebox_hook_next()
 	jukebox_play();
 }
 
-}
-
-namespace dsx {
-
 // Play tracks from Jukebox directory. Play track specified in GameCfg.CMLevelMusicTrack[0] and loop depending on CGameCfg.CMLevelMusicPlayOrder
 int jukebox_play()
 {
@@ -350,7 +346,6 @@ int jukebox_play()
 	}
 
 	HUD_init_message(HM_DEFAULT, "%s %s%s", JUKEBOX_HUDMSG_PLAYING, prefix, music_filename);
-
 	return 1;
 }
 
