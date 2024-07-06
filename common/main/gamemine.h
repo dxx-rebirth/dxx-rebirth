@@ -29,8 +29,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "physfsx.h"
 
-#define TMAP_NUM_MASK 0x3FFF
-
 #if defined(DXX_BUILD_DESCENT_I)
 #define MINE_VERSION					17	// Current version expected
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -139,7 +137,6 @@ namespace dsx {
 int load_mine_data_compiled(NamedPHYSFS_File LoadFile, const char *Gamesave_current_filename);
 }
 #endif
-#define TMAP_NUM_MASK 0x3FFF
 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
@@ -147,7 +144,7 @@ namespace dsx {
 extern uint8_t d1_pig_present;
 
 /* stuff for loading descent.pig of descent 1 */
-uint16_t convert_d1_tmap_num(uint16_t d1_tmap_num);
+texture_index convert_d1_tmap_num(texture_index d1_tmap_num);
 
 }
 #endif

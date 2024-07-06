@@ -125,12 +125,14 @@ static void segment2_read(const msmusegment s2, const NamedPHYSFS_File fp)
 
 uint8_t d1_pig_present = 0; // can descent.pig from descent 1 be loaded?
 
+namespace {
+
 /* Converts descent 1 texture numbers to descent 2 texture numbers.
  * Textures from d1 which are unique to d1 have extra spaces around "return".
  * If we can load the original d1 pig, we make sure this function is bijective.
  * This function was updated using the file config/convtabl.ini from devil 2.2.
  */
-uint16_t convert_d1_tmap_num(const uint16_t d1_tmap_num)
+static texture_index convert_d1_tmap_num_unrotated(const texture_index d1_tmap_num)
 {
 	switch (d1_tmap_num) {
 	case 0: case 2: case 4: case 5:
@@ -376,17 +378,20 @@ uint16_t convert_d1_tmap_num(const uint16_t d1_tmap_num)
 			if (d1_tmap_num < 494) return d1_tmap_num + 141;
 			if (d1_tmap_num < 584) return d1_tmap_num + 147;
 		}
-		{ // handle rare case where orientation != 0
-			short tmap_num = d1_tmap_num &  TMAP_NUM_MASK;
-			short orient = d1_tmap_num & ~TMAP_NUM_MASK;
-			if (orient != 0) {
-				return orient | convert_d1_tmap_num(tmap_num);
-			} else {
-				Warning("Failed to convert unknown Descent 1 texture #%d.", tmap_num);
+				Warning("Failed to convert unknown Descent 1 texture #%d.", d1_tmap_num);
 				return d1_tmap_num;
-			}
-		}
 	}
+}
+
+}
+
+texture_index convert_d1_tmap_num(const texture_index d1_tmap_num)
+{
+	constexpr uint16_t TMAP_NUM_MASK{0x3fff};
+	/* Mask off the rotation bits, if any.  Convert the base texture number.
+	 * Restore the masked rotation bits.
+	 */
+	return convert_d1_tmap_num_unrotated(d1_tmap_num & TMAP_NUM_MASK) | (d1_tmap_num & ~TMAP_NUM_MASK);
 }
 #endif
 
