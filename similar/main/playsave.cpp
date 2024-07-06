@@ -303,7 +303,7 @@ void new_player_config()
 	PlayerCfg.GuidedInBigWindow = false;
 	PlayerCfg.GuidebotName = "GUIDE-BOT";
 	PlayerCfg.GuidebotNameReal = PlayerCfg.GuidebotName;
-	PlayerCfg.EscortHotKeys = 1;
+	PlayerCfg.EscortHotKeys = true;
 #endif
 	PlayerCfg.PersistentDebris = false;
 	PlayerCfg.PRShot = false;
@@ -511,7 +511,10 @@ static void read_player_dxx(const char *filename)
 					PlayerCfg.BombGauge = atoi(value);
 #elif defined(DXX_BUILD_DESCENT_II)
 				if(!strcmp(line,TOGGLES_ESCORTHOTKEYS_NAME_TEXT))
-					PlayerCfg.EscortHotKeys = atoi(value);
+				{
+					if (const auto r{convert_integer<uint8_t>(value)}; r)
+						PlayerCfg.EscortHotKeys = *r;
+				}
 				else if (!strcmp(line, TOGGLES_THIEF_ABSENCE_SP))
 				{
 					if (strtoul(value, 0, 10))

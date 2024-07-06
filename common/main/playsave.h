@@ -207,7 +207,7 @@ struct player_config : prohibit_void_ptr<player_config>
 	bool HeadlightActiveDefault;
 	bool GuidedInBigWindow;
 	ntstring<GUIDEBOT_NAME_LEN> GuidebotName, GuidebotNameReal;
-	int EscortHotKeys;
+	bool EscortHotKeys;
 #endif
 	bool PersistentDebris;
 	bool PRShot;
