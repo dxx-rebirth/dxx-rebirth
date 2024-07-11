@@ -66,10 +66,6 @@
       <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/main/d2x/screenshots/freeflight-map.png</image>
       <caption>Free movement on the in-game map</caption>
     </screenshot>
-    <screenshot>
-      <image type="source">https://raw.githubusercontent.com/dxx-rebirth/dxx-rebirth/master/d2x-rebirth/screenshots/alternate-reticle-x.png</image>
-      <caption>Multiple alternate reticle options</caption>
-    </screenshot>
   </screenshots>
   <categories>
     <category>Game</category>
