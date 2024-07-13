@@ -40,8 +40,8 @@ void swap_0_255(grs_bitmap &bmp)
 
 void remove_char( char * s, char c )
 {
-	char *p = strchr(s,c);
-	if (p) *p = '\0';
+	if (const auto p{strchr(s, c)})
+		*p = '\0';
 }
 
 }
