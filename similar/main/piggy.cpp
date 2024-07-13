@@ -303,24 +303,26 @@ static DiskBitmapHeader DiskBitmapHeader_read(const NamedPHYSFS_File fp)
 	dbh.offset = PHYSFSX_readInt(fp);
 	return dbh;
 }
-}
 
 #if defined(DXX_BUILD_DESCENT_II)
 /*
  * reads a descent 1 DiskBitmapHeader structure from a PHYSFS_File
  */
-static void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, const NamedPHYSFS_File fp)
+static DiskBitmapHeader DiskBitmapHeader_d1_read(const NamedPHYSFS_File fp)
 {
-	PHYSFSX_readBytes(fp, dbh->name, 8);
-	dbh->dflags = PHYSFSX_readByte(fp);
-	dbh->width = PHYSFSX_readByte(fp);
-	dbh->height = PHYSFSX_readByte(fp);
-	dbh->wh_extra = 0;
-	dbh->flags = PHYSFSX_readByte(fp);
-	dbh->avg_color = PHYSFSX_readByte(fp);
-	dbh->offset = PHYSFSX_readInt(fp);
+	DiskBitmapHeader dbh{};
+	PHYSFSX_readBytes(fp, dbh.name, 8);
+	dbh.dflags = PHYSFSX_readByte(fp);
+	dbh.width = PHYSFSX_readByte(fp);
+	dbh.height = PHYSFSX_readByte(fp);
+	dbh.flags = PHYSFSX_readByte(fp);
+	dbh.avg_color = PHYSFSX_readByte(fp);
+	dbh.offset = PHYSFSX_readInt(fp);
+	return dbh;
 }
 #endif
+
+}
 
 bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const std::span<const char> name, const int in_file)
 {
@@ -1777,7 +1779,7 @@ static int get_d1_colormap(palette_array_t &d1_palette, std::array<color_palette
 static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
                      const NamedPHYSFS_File d1_Piggy_fp, /* read from this file */
                      int bitmap_data_start, /* specific to file */
-                     DiskBitmapHeader *bmh, /* header info for bitmap */
+                     const DiskBitmapHeader *const bmh, /* header info for bitmap */
                      uint8_t **next_bitmap, /* where to write it (if 0, use malloc) */
 					 palette_array_t &d1_palette, /* what palette the bitmap has */
 					 std::array<color_palette_index, 256> &colormap) /* how to translate bitmap's colors */
@@ -1864,14 +1866,13 @@ static void bm_read_d1_tmap_nums(const NamedPHYSFS_File d1pig)
 static int get_d1_bm_index(char *filename, const NamedPHYSFS_File d1_pig)
 {
 	int i, N_bitmaps;
-	DiskBitmapHeader bmh;
-	if (const auto p = strchr (filename, '.'))
+	if (const auto p{strchr(filename, '.')})
 		*p = '\0'; // remove extension
 	PHYSFS_seek(d1_pig, 0);
 	N_bitmaps = PHYSFSX_readInt(d1_pig);
 	PHYSFS_seek(d1_pig, 8);
 	for (i = 1; i <= N_bitmaps; i++) {
-		DiskBitmapHeader_d1_read(&bmh, d1_pig);
+		const auto bmh{DiskBitmapHeader_d1_read(d1_pig)};
 		if (!d_strnicmp(bmh.name, filename, 8))
 			return i;
 	}
@@ -1981,7 +1982,6 @@ static bitmap_index d2_index_for_d1_index(short d1_index)
 #define D1_BITMAPS_SIZE 300000
 void load_d1_bitmap_replacements()
 {
-	DiskBitmapHeader bmh;
 	int pig_data_start, bitmap_header_start, bitmap_data_start;
 	int N_bitmaps;
 	short d1_index;
@@ -2052,7 +2052,7 @@ void load_d1_bitmap_replacements()
 		if (d2_index != bitmap_index::None)
 		{
 			PHYSFS_seek(d1_Piggy_fp, bitmap_header_start + (d1_index - 1) * DISKBITMAPHEADER_D1_SIZE);
-			DiskBitmapHeader_d1_read(&bmh, d1_Piggy_fp);
+			const auto bmh{DiskBitmapHeader_d1_read(d1_Piggy_fp)};
 
 			bitmap_read_d1( &GameBitmaps[d2_index], d1_Piggy_fp, bitmap_data_start, &bmh, &next_bitmap, d1_palette, colormap );
 			Assert(next_bitmap - Bitmap_replacement_data.get() < D1_BITMAPS_SIZE);
@@ -2143,8 +2143,7 @@ grs_bitmap *read_extra_bitmap_d1_pig(const std::span<const char> name, grs_bitma
 				con_printf(CON_DEBUG, "Failed to find bitmap: %s", name.data());
 				return nullptr;
 			}
-			DiskBitmapHeader bmh;
-			DiskBitmapHeader_d1_read(&bmh, d1_Piggy_fp);
+			const auto bmh{DiskBitmapHeader_d1_read(d1_Piggy_fp)};
 			if (!d_strnicmp(bmh.name, name.data(), std::min<std::size_t>(8u, name.size())))
 			{
 				bitmap_read_d1(&n, d1_Piggy_fp, bitmap_data_start, &bmh, 0, d1_palette, colormap);
