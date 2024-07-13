@@ -220,16 +220,23 @@ static inline void full_palette_save(void)
 	palette_save();
 }
 #endif
+
 namespace dsx {
+
 #if defined(DXX_BUILD_DESCENT_I)
-static constexpr uint8_t game_mode_capture_flag(game_mode_flags)
+/* For flags which are only valid for Descent 2, define a special case that
+ * always returns false in Descent 1, without examining the flag.
+ */
+struct test_game_mode_d2x_flag
 {
-	return 0;
-}
-static constexpr uint8_t game_mode_hoard(game_mode_flags)
-{
-	return 0;
-}
+	constexpr std::false_type operator()(game_mode_flags) const	// C++23 static
+	{
+		return {};
+	}
+};
+
+constexpr test_game_mode_d2x_flag game_mode_capture_flag{};
+constexpr test_game_mode_d2x_flag game_mode_hoard{};
 #elif defined(DXX_BUILD_DESCENT_II)
 static inline uint16_t game_mode_capture_flag(const game_mode_flags mode)
 {
