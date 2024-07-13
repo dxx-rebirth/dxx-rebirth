@@ -17,6 +17,7 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#include <ranges>
 #include "digi.h"
 #include "gr.h"
 
@@ -27,14 +28,14 @@ unsigned Num_sound_files;
 
 void swap_0_255(grs_bitmap &bmp)
 {
-	auto a = [](uint8_t &c) {
+	std::ranges::for_each(
+		std::span(bmp.get_bitmap_data(), bmp.bm_h * bmp.bm_w),
+		[](uint8_t &c) {
 		if (c == 0)
 			c = 255;
 		else if (c == 255)
 			c = 0;
-	};
-	auto d = bmp.get_bitmap_data();
-	std::for_each(d, d + (bmp.bm_h * bmp.bm_w), a);
+	});
 }
 
 void remove_char( char * s, char c )
