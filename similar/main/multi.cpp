@@ -4547,13 +4547,13 @@ void DropFlag ()
 	auto &vmobjptr = Objects.vmptr;
 	int seed;
 
-	if (!game_mode_capture_flag() && !game_mode_hoard())
-		return;
 	if (game_mode_hoard())
 	{
 		DropOrb();
 		return;
 	}
+	else if (!game_mode_capture_flag())
+		return;
 
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	if (!(player_info.powerup_flags & PLAYER_FLAGS_FLAG))
