@@ -692,7 +692,7 @@ void init_player_stats_new_ship(const playernum_t pnum)
 		? MAX_OMEGA_CHARGE
 		: 0;
 	player_info.Omega_recharge_delay = 0;
-	if (game_mode_hoard())
+	if (game_mode_hoard(Game_mode))
 		player_info.hoard.orbs = 0;
 #endif
 	player_info.powerup_flags |= map_granted_flags_to_player_flags(GrantedItems);

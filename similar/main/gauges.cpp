@@ -1232,7 +1232,8 @@ static void hud_show_keys(const hud_draw_context_mr hudctx, const hud_ar_scale_f
 #if defined(DXX_BUILD_DESCENT_II)
 static void hud_show_orbs(grs_canvas &canvas, const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	if (game_mode_hoard()) {
+	if (game_mode_hoard(Game_mode))
+	{
 		const auto &&fspacy1 = FSPACY(1);
 		int x, y = LINE_SPACING(*canvas.cv_font, *GAME_FONT) + fspacy1;
 		const auto &&hud_scale_ar = HUD_SCALE_AR(grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic);
@@ -1267,7 +1268,8 @@ static void hud_show_orbs(grs_canvas &canvas, const player_info &player_info, co
 
 static void hud_show_flag(grs_canvas &canvas, const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
-	if (game_mode_capture_flag() && (player_info.powerup_flags & PLAYER_FLAGS_FLAG)) {
+	if (game_mode_capture_flag(Game_mode) && (player_info.powerup_flags & PLAYER_FLAGS_FLAG))
+	{
 		int x, y = GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h + 2, icon;
 		const auto &&fspacy1 = FSPACY(1);
 		if (PlayerCfg.CockpitMode[1] == cockpit_mode_t::full_cockpit)
@@ -3646,7 +3648,7 @@ void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &canvas, co
 #if defined(DXX_BUILD_DESCENT_I)
 			is_bounty_target;
 #elif defined(DXX_BUILD_DESCENT_II)
-			(is_bounty_target || ((game_mode_capture_flag() || game_mode_hoard()) && (pl_flags & PLAYER_FLAGS_FLAG)));
+			(is_bounty_target || ((game_mode_capture_flag(Game_mode) || game_mode_hoard(Game_mode)) && (pl_flags & PLAYER_FLAGS_FLAG)));
 #endif
 
 		if ((show_name || show_typing || show_indi) && see_object(Robot_info, vcobjptridx, objp))
@@ -3729,9 +3731,9 @@ void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &canvas, co
 								int r, g, b;
 							} c{};
 #if defined(DXX_BUILD_DESCENT_II)
-						if (game_mode_capture_flag())
+						if (game_mode_capture_flag(Game_mode))
 								((get_team(pnum) == team_number::blue) ? c.r : c.b) = 31;
-						else if (game_mode_hoard())
+						else if (game_mode_hoard(Game_mode))
 						{
 								((Game_mode & GM_TEAM)
 									? ((get_team(pnum) == team_number::blue) ? c.b : c.r)

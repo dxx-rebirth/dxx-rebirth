@@ -301,7 +301,7 @@ static fix compute_player_light_emission_intensity(d_level_unique_headlight_stat
 	}
 	uint8_t hoard_orbs;
 	// If hoard game and player, add extra light based on how many orbs you have Pulse as well.
-	if (game_mode_hoard() && (hoard_orbs = objp.ctype.player_info.hoard.orbs))
+	if (game_mode_hoard(Game_mode) && (hoard_orbs = objp.ctype.player_info.hoard.orbs))
 	{
 		const fix hoardlight = 1 + (i2f(hoard_orbs) / 2);
 		const auto s = fix_sin(static_cast<fix>(GameTime64 >> 1) & 0xFFFF); // probably a bad way to do it

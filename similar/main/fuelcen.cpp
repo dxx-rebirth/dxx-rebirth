@@ -731,7 +731,7 @@ void matcen_info_read(const NamedPHYSFS_File fp, matcen_info &mi, int version)
 #elif defined(DXX_BUILD_DESCENT_II)
 void fuelcen_check_for_goal(object &plrobj, const shared_segment &segp)
 {
-	Assert (game_mode_capture_flag());
+	assert(game_mode_capture_flag(Game_mode));
 
 	team_number check_team;
 	powerup_type_t powerup_to_drop;
@@ -761,7 +761,7 @@ void fuelcen_check_for_goal(object &plrobj, const shared_segment &segp)
 
 void fuelcen_check_for_hoard_goal(object &plrobj, const shared_segment &segp)
 {
-	Assert (game_mode_hoard());
+	assert(game_mode_hoard(Game_mode));
 
    if (Player_dead_state != player_dead_state::no)
 		return;

@@ -240,9 +240,9 @@ static void kmatrix_redraw(grs_canvas &canvas, kmatrix_window *const km)
 		multi_sort_kill_list();
 		const auto title =
 #if defined(DXX_BUILD_DESCENT_II)
-			game_mode_capture_flag()
+			game_mode_capture_flag(Game_mode)
 			? "CAPTURE THE FLAG SUMMARY"
-			: game_mode_hoard()
+			: game_mode_hoard(Game_mode)
 				? "HOARD SUMMARY"
 				:
 #endif

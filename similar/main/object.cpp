@@ -1638,7 +1638,7 @@ static void start_player_death_sequence(object &player)
 	{
 #if defined(DXX_BUILD_DESCENT_II)
 		// If Hoard, increase number of orbs by 1. Only if you haven't killed yourself. This prevents cheating
-		if (game_mode_hoard())
+		if (game_mode_hoard(Game_mode))
 		{
 			auto &player_info = player.ctype.player_info;
 			auto &proximity = player_info.hoard.orbs;
@@ -1859,9 +1859,9 @@ static window_event_result object_move_one(const d_level_shared_robot_info_state
 	if ((obj->type==OBJ_PLAYER) && (Player_num==get_player_id(obj)))	{
 		const auto &&segp = vmsegptr(obj->segnum);
 #if defined(DXX_BUILD_DESCENT_II)
-		if (game_mode_capture_flag())
+		if (game_mode_capture_flag(Game_mode))
 			fuelcen_check_for_goal(obj, segp);
-		else if (game_mode_hoard())
+		else if (game_mode_hoard(Game_mode))
 			fuelcen_check_for_hoard_goal(obj, segp);
 #endif
 

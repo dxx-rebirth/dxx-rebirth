@@ -222,22 +222,22 @@ static inline void full_palette_save(void)
 #endif
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
-static constexpr uint8_t game_mode_capture_flag()
+static constexpr uint8_t game_mode_capture_flag(game_mode_flags)
 {
 	return 0;
 }
-static constexpr uint8_t game_mode_hoard()
+static constexpr uint8_t game_mode_hoard(game_mode_flags)
 {
 	return 0;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-static inline uint16_t game_mode_capture_flag()
+static inline uint16_t game_mode_capture_flag(const game_mode_flags mode)
 {
-	return (Game_mode & GM_CAPTURE);
+	return mode & GM_CAPTURE;
 }
-static inline uint16_t game_mode_hoard()
+static inline uint16_t game_mode_hoard(const game_mode_flags mode)
 {
-	return (Game_mode & GM_HOARD);
+	return mode & GM_HOARD;
 }
 
 //Flickering light system

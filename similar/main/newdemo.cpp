@@ -3352,10 +3352,10 @@ static int newdemo_read_frame_information(int rewrite)
 					break;
 
 				Game_mode = Newdemo_game_mode;
-				if (game_mode_hoard())
+				if (game_mode_hoard(Game_mode))
 					init_hoard_data(Vclip);
 
-				if (game_mode_capture_flag() || game_mode_hoard())
+				if (game_mode_capture_flag(Game_mode) || game_mode_hoard(Game_mode))
 					multi_apply_goal_textures ();
 				Game_mode = GM_NORMAL;
 			}

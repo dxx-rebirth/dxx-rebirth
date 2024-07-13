@@ -291,7 +291,7 @@ static void show_netplayerinfo(grs_canvas &canvas)
 	// additional information about game - hoard, ranking
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (game_mode_hoard())
+	if (game_mode_hoard(Game_mode))
 	{
 		if (hoard_highest_record_stats.player >= Players.size())
 			gr_string(canvas, game_font, 0x8000, y, "There is no record yet for this level.");

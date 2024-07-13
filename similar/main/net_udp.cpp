@@ -2768,7 +2768,7 @@ void net_udp_update_netgame()
 
 	if (HoardEquipped())
 	{
-		const auto is_hoard_game{game_mode_hoard()};
+		const auto is_hoard_game{game_mode_hoard(Game_mode)};
 		const auto game_flag_no_hoard{Netgame.game_flag & ~(netgame_rule_flags::hoard | netgame_rule_flags::team_hoard)};
 		Netgame.game_flag = is_hoard_game
 			? (

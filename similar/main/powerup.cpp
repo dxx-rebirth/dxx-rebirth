@@ -178,7 +178,7 @@ void do_megawow_powerup(object &plrobj, const int quantity)
 	const auto laser_level = MAX_LASER_LEVEL;
 #elif defined(DXX_BUILD_DESCENT_II)
 	player_info.Omega_charge = MAX_OMEGA_CHARGE;
-	if (game_mode_hoard())
+	if (game_mode_hoard(Game_mode))
 		player_info.hoard.orbs = player_info.max_hoard_orbs;
 	const auto laser_level = MAX_SUPER_LASER_LEVEL;
 #endif
@@ -325,7 +325,7 @@ struct player_hit_headlight_powerup
 template <team_number TEAM>
 static int player_hit_flag_powerup(player_info &player_info, const std::span<const char> desc)
 {
-	if (!game_mode_capture_flag())
+	if (!game_mode_capture_flag(Game_mode))
 		return 0;
 	const auto pnum = Player_num;
 	if (get_team(pnum) == TEAM)
@@ -677,7 +677,7 @@ int do_powerup(const vmobjptridx_t obj)
 		   break;
 
 		case powerup_type_t::POW_HOARD_ORB:
-			if (game_mode_hoard())			
+			if (game_mode_hoard(Game_mode))
 			{
 				auto &proximity = player_info.hoard.orbs;
 				if (proximity < player_info.max_hoard_orbs)

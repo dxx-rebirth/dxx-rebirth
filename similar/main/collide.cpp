@@ -2037,13 +2037,13 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 
 		// drop the other enemies flag if you have it
 
-		if (game_mode_capture_flag() && (player_info.powerup_flags & PLAYER_FLAGS_FLAG))
+		if (game_mode_capture_flag(Game_mode) && (player_info.powerup_flags & PLAYER_FLAGS_FLAG))
 		{
 			call_object_create_egg(playerobj, get_team(get_player_id(playerobj)) == team_number::blue ? powerup_type_t::POW_FLAG_RED : powerup_type_t::POW_FLAG_BLUE);
 		}
 
 
-		if (game_mode_hoard())
+		if (game_mode_hoard(Game_mode))
 		{
 			// Drop hoard orbs
 			for (unsigned max_count = std::min<uint8_t>(player_info.hoard.orbs, player_info.max_hoard_orbs); max_count--;)

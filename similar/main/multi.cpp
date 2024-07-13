@@ -905,7 +905,7 @@ static void multi_compute_kill(const d_robot_info_array &Robot_info, const imobj
 	kill_matrix[killer_pnum][killed_pnum] += 1;
 	if (killer_pnum == killed_pnum)
 	{
-		if (!game_mode_hoard())
+		if (!game_mode_hoard(Game_mode))
 		{
 			if (Game_mode & GM_TEAM)
 			{
@@ -953,7 +953,7 @@ static void multi_compute_kill(const d_robot_info_array &Robot_info, const imobj
 			if (killed_team == killer_team)
 				adjust = -1;
 		}
-		if (!game_mode_hoard())
+		if (!game_mode_hoard(Game_mode))
 		{
 			if (is_team_game)
 			{
@@ -1399,7 +1399,7 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 				if (vcplayerptr(i)->connected != player_connection_status::disconnected && !d_strnicmp(static_cast<const char *>(vcplayerptr(i)->callsign), &Network_message[name_index], nlen - name_index))
 				{
 #if defined(DXX_BUILD_DESCENT_II)
-					if (game_mode_capture_flag() && (vmobjptr(vcplayerptr(i)->objnum)->ctype.player_info.powerup_flags & PLAYER_FLAGS_FLAG))
+					if (game_mode_capture_flag(Game_mode) && (vmobjptr(vcplayerptr(i)->objnum)->ctype.player_info.powerup_flags & PLAYER_FLAGS_FLAG))
 					{
 						HUD_init_message_literal(HM_MULTI, "Can't move player because s/he has a flag!");
 						return;
@@ -1834,7 +1834,7 @@ static void multi_do_player_deres(const d_robot_info_array &Robot_info, object_a
 	player_info.primary_weapon_flags = GET_WEAPON_FLAGS(buf, count);
 	player_info.laser_level = laser_level{buf[count]};
 	count++;
-	if (game_mode_hoard())
+	if (game_mode_hoard(Game_mode))
 		player_info.hoard.orbs = buf[count];
 	count++;
 
@@ -2710,7 +2710,7 @@ void multi_send_player_deres(deres_type_t type)
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	PUT_WEAPON_FLAGS(multibuf, count, player_info.primary_weapon_flags);
 	multibuf[count++] = static_cast<char>(player_info.laser_level);
-	multibuf[count++] = game_mode_hoard() ? static_cast<char>(player_info.hoard.orbs) : 0;
+	multibuf[count++] = game_mode_hoard(Game_mode) ? static_cast<char>(player_info.hoard.orbs) : 0;
 
 	auto &secondary_ammo = player_info.secondary_ammo;
 	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::HOMING_INDEX];
@@ -3532,10 +3532,10 @@ void multi_prep_level_player(void)
 	Viewer = ConsoleObject = &get_local_plrobj();
 
 #if defined(DXX_BUILD_DESCENT_II)
-	if (game_mode_hoard())
+	if (game_mode_hoard(Game_mode))
 		init_hoard_data(Vclip);
 
-	if (game_mode_capture_flag() || game_mode_hoard())
+	if (game_mode_capture_flag(Game_mode) || game_mode_hoard(Game_mode))
 		multi_apply_goal_textures();
 #endif
 
@@ -3596,7 +3596,7 @@ const tmap_info &find_required_goal_texture(const d_level_unique_tmap_info_state
 void multi_apply_goal_textures()
 {
 	texture1_value tex_blue, tex_red;
-	if (game_mode_hoard())
+	if (game_mode_hoard(Game_mode))
 		tex_blue = tex_red = build_texture1_value(find_goal_texture(LevelUniqueTmapInfoState, tmapinfo_flag::goal_hoard));
 	else
 	{
@@ -4300,7 +4300,7 @@ static void multi_do_sound_function(const playernum_t pnum, const multiplayer_rs
 void multi_send_capture_bonus (const playernum_t pnum)
 {
 	multi_command<multiplayer_command_t::MULTI_CAPTURE_BONUS> multibuf;
-	Assert (game_mode_capture_flag());
+	assert(game_mode_capture_flag(Game_mode));
 
 	multibuf[1]=pnum;
 
@@ -4311,7 +4311,7 @@ void multi_send_capture_bonus (const playernum_t pnum)
 void multi_send_orb_bonus (const playernum_t pnum, const uint8_t hoard_orbs)
 {
 	multi_command<multiplayer_command_t::MULTI_ORB_BONUS> multibuf;
-	Assert (game_mode_hoard());
+	assert(game_mode_hoard(Game_mode));
 
 	multibuf[1]=pnum;
 	multibuf[2] = hoard_orbs;
@@ -4491,7 +4491,7 @@ static void multi_do_got_orb (const playernum_t pnum)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	Assert (game_mode_hoard());
+	assert(game_mode_hoard(Game_mode));
 
 	digi_play_sample((Game_mode & GM_TEAM) && get_team(pnum) == get_team(Player_num)
 		? SOUND_FRIEND_GOT_ORB
@@ -4508,7 +4508,7 @@ static void DropOrb ()
 	auto &vmobjptr = Objects.vmptr;
 	int seed;
 
-	if (!game_mode_hoard())
+	if (!game_mode_hoard(Game_mode))
 		Int3(); // How did we get here? Get Leighton!
 
 	auto &player_info = get_local_plrobj().ctype.player_info;
@@ -4547,12 +4547,12 @@ void DropFlag ()
 	auto &vmobjptr = Objects.vmptr;
 	int seed;
 
-	if (game_mode_hoard())
+	if (game_mode_hoard(Game_mode))
 	{
 		DropOrb();
 		return;
 	}
-	else if (!game_mode_capture_flag())
+	else if (!game_mode_capture_flag(Game_mode))
 		return;
 
 	auto &player_info = get_local_plrobj().ctype.player_info;
@@ -4572,7 +4572,7 @@ void DropFlag ()
 	HUD_init_message_literal(HM_MULTI, "Flag dropped!");
 	digi_play_sample (SOUND_DROP_WEAPON,F1_0);
 
-	if (game_mode_capture_flag())
+	if (game_mode_capture_flag(Game_mode))
 		multi_send_drop_flag(objnum,seed);
 
 	player_info.powerup_flags &=~(PLAYER_FLAGS_FLAG);
@@ -4611,7 +4611,7 @@ static void multi_do_drop_flag(const playernum_t pnum, const multiplayer_rspan<m
 		return;
 
 	map_objnum_local_to_remote(objnum, remote_objnum, pnum);
-	if (!game_mode_hoard())
+	if (!game_mode_hoard(Game_mode))
 		objp->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);
 }
 
@@ -4709,7 +4709,7 @@ netflag_flag multi_powerup_is_allowed(const powerup_type_t id, const netflag_fla
 			return AllowedItems & netflag_flag::NETFLAG_DOHEADLIGHT;
 		case powerup_type_t::POW_FLAG_BLUE:
 		case powerup_type_t::POW_FLAG_RED:
-			return netflag_flag{game_mode_capture_flag()};
+			return netflag_flag{game_mode_capture_flag(Game_mode)};
 #endif
 		default:
 			return netflag_flag{1};
