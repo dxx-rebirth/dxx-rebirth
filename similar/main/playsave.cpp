@@ -915,7 +915,7 @@ int read_player_file()
 
 	memset(filename, '\0', PATH_MAX);
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(InterfaceUniqueState.PilotName));
-	if (!PHYSFSX_exists(filename,0))
+	if (!PHYSFS_exists(filename))
 		return ENOENT;
 	auto &&[file, physfserr] = PHYSFSX_openReadBuffered(filename);
 	if (!file)

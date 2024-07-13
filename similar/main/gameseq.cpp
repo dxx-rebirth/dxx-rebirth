@@ -1363,7 +1363,7 @@ int p_secret_level_destroyed(void)
 	if (First_secret_visit) {
 		return 0;		//	Never been there, can't have been destroyed.
 	} else {
-		if (PHYSFSX_exists(SECRETC_FILENAME,0))
+		if (PHYSFS_exists(SECRETC_FILENAME))
 		{
 			return 0;
 		} else {
@@ -1445,7 +1445,7 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 		if (First_secret_visit) {
 			do_screen_message(TXT_SECRET_EXIT);
 		} else {
-			if (PHYSFSX_exists(SECRETC_FILENAME,0))
+			if (PHYSFS_exists(SECRETC_FILENAME))
 			{
 				do_screen_message(TXT_SECRET_EXIT);
 			} else {
@@ -1482,7 +1482,7 @@ static void StartNewLevelSecret(int level_num, int page_in_textures)
 		reset_special_effects();
 		StartSecretLevel();
 	} else {
-		if (PHYSFSX_exists(SECRETC_FILENAME,0))
+		if (PHYSFS_exists(SECRETC_FILENAME))
 		{
 			auto &player_info = get_local_plrobj().ctype.player_info;
 			const auto pw_save = player_info.Primary_weapon;
@@ -1549,7 +1549,7 @@ window_event_result ExitSecretLevel()
 		state_save_all(secret_save::c, blind_save::no);
 	}
 
-	if (PHYSFSX_exists(SECRETB_FILENAME,0))
+	if (PHYSFS_exists(SECRETB_FILENAME))
 	{
 		do_screen_message_fmt(TXT_SECRET_RETURN);
 		auto &player_info = get_local_plrobj().ctype.player_info;
@@ -1898,7 +1898,7 @@ window_event_result DoPlayerDead()
 		do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
 #if defined(DXX_BUILD_DESCENT_II)
 		if (Current_level_num < 0) {
-			if (PHYSFSX_exists(SECRETB_FILENAME,0))
+			if (PHYSFS_exists(SECRETB_FILENAME))
 			{
 				do_screen_message_fmt(TXT_SECRET_RETURN);
 				state_restore_all(1, secret_restore::died, SECRETB_FILENAME, blind_save::no);			//	2 means you died
@@ -1932,7 +1932,7 @@ window_event_result DoPlayerDead()
 		}
 #if defined(DXX_BUILD_DESCENT_II)
 	} else if (Current_level_num < 0) {
-		if (PHYSFSX_exists(SECRETB_FILENAME,0))
+		if (PHYSFS_exists(SECRETB_FILENAME))
 		{
 			do_screen_message_fmt(TXT_SECRET_RETURN);
 			if (!LevelUniqueControlCenterState.Control_center_destroyed)

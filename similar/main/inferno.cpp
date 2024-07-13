@@ -538,7 +538,7 @@ static int main(int argc, char *argv[])
 	}
 	con_puts(CON_NORMAL, "Copyright (C) 2005-2013 Christian Beckhaeuser, 2013-2017 Kp");
 #elif defined(DXX_BUILD_DESCENT_II)
-	con_printf(CON_NORMAL, "%s%s  %s", DESCENT_VERSION, PHYSFSX_exists(MISSION_DIR "d2x.hog",1) ? "  Vertigo Enhanced" : "", g_descent_build_datetime); // D2X version
+	con_printf(CON_NORMAL, "%s%s  %s", DESCENT_VERSION, PHYSFSX_exists_ignorecase(MISSION_DIR "d2x.hog") ? "  Vertigo Enhanced" : "", g_descent_build_datetime); // D2X version
 	con_puts(CON_NORMAL, "This is a MODIFIED version of Descent 2, based on " BASED_VERSION ".");
 	{
 		const auto &&m = TXT_COPYRIGHT;
@@ -724,7 +724,7 @@ static int main(int argc, char *argv[])
 				strcpy(&filename[j], ".plr");
 				j += 4;
 			}
-			if(PHYSFSX_exists(filename,0))
+			if (PHYSFS_exists(filename))
 			{
 				InterfaceUniqueState.PilotName.copy(std::span<const char>(b, std::distance(b, &filename[j - 4])));
 				InterfaceUniqueState.update_window_title();

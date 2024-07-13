@@ -200,9 +200,9 @@ static void show_title_screen(const char *const filename, title_load_location /*
 static void show_first_found_title_screen(const char *oem, const char *share, const char *macshare)
 {
 	const char *filename = oem;
-	if ((PHYSFSX_exists(filename, 1)) ||
-		(filename = share, PHYSFSX_exists(filename, 1)) ||
-		(filename = macshare, PHYSFSX_exists(filename, 1))
+	if ((PHYSFSX_exists_ignorecase(filename)) ||
+		(filename = share, PHYSFSX_exists_ignorecase(filename)) ||
+		(filename = macshare, PHYSFSX_exists_ignorecase(filename))
 		)
 		show_title_screen(filename, title_load_location::from_hog_only);
 }
@@ -236,8 +236,8 @@ void show_titles(void)
 	const bool resolution_at_least_640_480 = (SWIDTH >= 640 && SHEIGHT >= 480);
 	auto &logo_hires_pcx = "logoh.pcx";
 	auto &descent_hires_pcx = "descenth.pcx";
-	show_title_screen((resolution_at_least_640_480 && PHYSFSX_exists(logo_hires_pcx, 1)) ? logo_hires_pcx : "logo.pcx", title_load_location::from_hog_only);
-	show_title_screen((resolution_at_least_640_480 && PHYSFSX_exists(descent_hires_pcx, 1)) ? descent_hires_pcx : "descent.pcx", title_load_location::from_hog_only);
+	show_title_screen((resolution_at_least_640_480 && PHYSFSX_exists_ignorecase(logo_hires_pcx)) ? logo_hires_pcx : "logo.pcx", title_load_location::from_hog_only);
+	show_title_screen((resolution_at_least_640_480 && PHYSFSX_exists_ignorecase(descent_hires_pcx)) ? descent_hires_pcx : "descent.pcx", title_load_location::from_hog_only);
 #elif defined(DXX_BUILD_DESCENT_II)
 	int song_playing = 0;
 
@@ -251,7 +251,7 @@ void show_titles(void)
 			char filename[12];
 			strcpy(filename, hiresmode ? "pre_i1b.pcx" : "pre_i1.pcx");
 
-			while (PHYSFSX_exists(filename,0))
+			while (PHYSFS_exists(filename))
 			{
 				show_title_screen(filename, title_load_location::anywhere);
 				filename[5]++;
@@ -302,7 +302,7 @@ void show_titles(void)
 		{
 			char filename[12];
 			strcpy(filename, hiresmode ? "oem1b.pcx" : "oem1.pcx");
-			while (PHYSFSX_exists(filename,0))
+			while (PHYSFS_exists(filename))
 			{
 				show_title_screen(filename, title_load_location::anywhere);
 				filename[3]++;
@@ -317,7 +317,7 @@ void show_titles(void)
 	}
 	con_puts(CON_DEBUG, "Showing logo screen...");
 	const auto filename = hiresmode ? "descentb.pcx" : "descent.pcx";
-	if (PHYSFSX_exists(filename,1))
+	if (PHYSFSX_exists_ignorecase(filename))
 		show_title_screen(filename, title_load_location::from_hog_only);
 #endif
 }
@@ -848,7 +848,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			std::copy(begin_filename, end_filename, std::begin(fname));
 			std::copy_n(begin_filename, idx_separator, std::begin(fnameb));
 			std::copy_n("b.pcx", 6, std::next(std::begin(fnameb), idx_separator));
-			auto &use_fname = ((HIRESMODE && PHYSFSX_exists(fnameb.data(), 1)) || !PHYSFSX_exists(fname.data(), 1))
+			auto &use_fname = ((HIRESMODE && PHYSFSX_exists_ignorecase(fnameb.data())) || !PHYSFSX_exists_ignorecase(fname.data()))
 				? fnameb
 				: fname;
 			if (!load_briefing_screen(canvas, br, use_fname.data()))
@@ -1353,7 +1353,7 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 		if (len_fname2 + sizeof(hires_pcx) < fname2a.size())
 		{
 			strcpy(ptr, hires_pcx);
-			if (!PHYSFSX_exists(fname2a.data(), 1))
+			if (!PHYSFSX_exists_ignorecase(fname2a.data()))
 				snprintf(fname2a.data(), fname2a.size(), "%s", fname);
 		}
 	}

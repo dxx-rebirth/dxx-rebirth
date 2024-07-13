@@ -231,8 +231,8 @@ static void nm_draw_background1(grs_canvas &canvas, const menu_filename filename
 
 }
 
-#define MENU_BACKGROUND_BITMAP_HIRES (PHYSFSX_exists("scoresb.pcx",1)?"scoresb.pcx":"scores.pcx")
-#define MENU_BACKGROUND_BITMAP_LORES (PHYSFSX_exists("scores.pcx",1)?"scores.pcx":"scoresb.pcx")
+#define MENU_BACKGROUND_BITMAP_HIRES (PHYSFSX_exists_ignorecase("scoresb.pcx") ? "scoresb.pcx" : "scores.pcx")
+#define MENU_BACKGROUND_BITMAP_LORES (PHYSFSX_exists_ignorecase("scores.pcx") ? "scores.pcx" : "scoresb.pcx")
 #define MENU_BACKGROUND_BITMAP (HIRESMODE?MENU_BACKGROUND_BITMAP_HIRES:MENU_BACKGROUND_BITMAP_LORES)
 
 // Draws the frame background for menus

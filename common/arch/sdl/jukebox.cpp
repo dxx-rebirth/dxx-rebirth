@@ -130,7 +130,7 @@ static std::unique_ptr<FILE, FILE_deleter> open_m3u_from_disk(const char *const 
 	std::array<char, PATH_MAX> absbuf;
 	return std::unique_ptr<FILE, FILE_deleter>(fopen(
 	// it's a child of Sharepath, build full path
-		(PHYSFSX_exists(cfgpath, 0) && PHYSFSX_getRealPath(cfgpath, absbuf)
+		(PHYSFS_exists(cfgpath) && PHYSFSX_getRealPath(cfgpath, absbuf)
 			? absbuf.data()
 			: cfgpath), "rb")
 	);

@@ -5560,7 +5560,7 @@ int HoardEquipped()
 
 	if (unlikely(checked == -1))
 	{
-		checked = PHYSFSX_exists("hoard.ham",1);
+		checked = PHYSFSX_exists_ignorecase("hoard.ham");
 	}
 	return (checked);
 }

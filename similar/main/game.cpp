@@ -969,7 +969,7 @@ void save_screen_shot(int automap_flag)
 #endif
 #endif
 
-	if (!PHYSFSX_exists(SCRNS_DIR,0))
+	if (!PHYSFS_exists(SCRNS_DIR))
 		PHYSFS_mkdir(SCRNS_DIR); //try making directory
 
 	pause_game_world_time p;

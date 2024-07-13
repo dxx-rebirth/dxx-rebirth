@@ -355,10 +355,10 @@ static void songs_init()
 			const auto d{s.filename.data()};
 			const auto fs{s.filename.size()};
 			std::snprintf(d, fs, "game%02u.hmp", i + 1);
-			if (PHYSFSX_exists(d, 1))
+			if (PHYSFSX_exists_ignorecase(d))
 				continue;
 			std::snprintf(d, fs, "game%u.hmp", i);
-			if (PHYSFSX_exists(d, 1))
+			if (PHYSFSX_exists_ignorecase(d))
 				continue;
 			else
 			{
@@ -679,7 +679,7 @@ void songs_play_song(const song_number songnum, const int repeat)
 				break;
 			// EXCEPTION: If song_number::endlevel is not available, continue playing level song.
 			auto &s = BIMSongs[songnum];
-			if (songnum == song_number::endlevel && Song_playing >= song_number::first_level_song && !PHYSFSX_exists(s.filename.data(), 1))
+			if (songnum == song_number::endlevel && Song_playing >= song_number::first_level_song && !PHYSFSX_exists_ignorecase(s.filename.data()))
 				return;
 
 			Song_playing = song_number::None;

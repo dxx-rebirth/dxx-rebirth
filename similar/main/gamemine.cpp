@@ -473,7 +473,7 @@ int load_mine_data_compiled(const NamedPHYSFS_File LoadFile, const char *const G
 #if defined(DXX_BUILD_DESCENT_II)
 	LevelSharedSeismicState.Level_shake_frequency = 0;
 	LevelSharedSeismicState.Level_shake_duration = 0;
-	d1_pig_present = PHYSFSX_exists(D1_PIGFILE,1);
+	d1_pig_present = PHYSFSX_exists_ignorecase(D1_PIGFILE);
 #endif
 	if (!strcmp(strchr(Gamesave_current_filename, '.'), ".sdl"))
 		New_file_format_load = 0; // descent 1 shareware

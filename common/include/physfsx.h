@@ -518,7 +518,6 @@ RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(char *const name, ph
 
 extern int PHYSFSX_rename(const char *oldpath, const char *newpath);
 
-#define PHYSFSX_exists(F,I)	((I) ? PHYSFSX_exists_ignorecase(F) : PHYSFS_exists(F))
 int PHYSFSX_exists_ignorecase(const char *filename);
 std::pair<RAIINamedPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openReadBuffered(const char *filename);
 std::pair<RAIIPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openWriteBuffered(const char *filename);

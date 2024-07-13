@@ -483,7 +483,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 	Piggy_fp = PHYSFSX_openReadBuffered(DEFAULT_PIGFILE_REGISTERED).first;
 	if (!Piggy_fp)
 	{
-		if (!PHYSFSX_exists("BITMAPS.TBL",1) && !PHYSFSX_exists("BITMAPS.BIN",1))
+		if (!PHYSFSX_exists_ignorecase("BITMAPS.TBL") && !PHYSFSX_exists_ignorecase("BITMAPS.BIN"))
 			Error("Cannot find " DEFAULT_PIGFILE_REGISTERED " or BITMAPS.TBL");
 		return properties_init_result::use_gamedata_read_tbl;	// need to run gamedata_read_tbl
 	}
@@ -519,7 +519,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 	properties_init_result retval;
 	if (PCSharePig)
 		retval = properties_init_result::shareware;	// run gamedata_read_tbl in shareware mode
-	else if (GameArg.EdiNoBm || (!PHYSFSX_exists("BITMAPS.TBL",1) && !PHYSFSX_exists("BITMAPS.BIN",1)))
+	else if (GameArg.EdiNoBm || (!PHYSFSX_exists_ignorecase("BITMAPS.TBL") && !PHYSFSX_exists_ignorecase("BITMAPS.BIN")))
 	{
 		properties_read_cmp(LevelSharedRobotInfoState, Vclip, Piggy_fp);	// Note connection to above if!!!
 		range_for (auto &i, GameBitmapXlat)

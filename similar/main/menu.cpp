@@ -424,7 +424,7 @@ static int MakeNewPlayerFile(int allow_abort)
 		}
 		text.lower();
 		snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%s.plr"), name);
-		if (PHYSFSX_exists(filename, 0))
+		if (PHYSFS_exists(filename))
 		{
 			nm_messagebox(menu_title{nullptr}, {TXT_OK}, "%s '%s' %s", TXT_PLAYER, name, TXT_ALREADY_EXISTS);
 			continue;
@@ -485,15 +485,15 @@ static window_event_result player_menu_keycommand( listbox *lb,const d_event &ev
 						delete_player_saved_games( items[citem] );
 						// delete PLX file
 						snprintf(plxfile, sizeof(plxfile), PLAYER_DIRECTORY_STRING("%.8s.plx"), items[citem]);
-						if (PHYSFSX_exists(plxfile,0))
+						if (PHYSFS_exists(plxfile))
 							PHYSFS_delete(plxfile);
 						// delete EFF file
 						snprintf(efffile, sizeof(efffile), PLAYER_DIRECTORY_STRING("%.8s.eff"), items[citem]);
-						if (PHYSFSX_exists(efffile,0))
+						if (PHYSFS_exists(efffile))
 							PHYSFS_delete(efffile);
 						// delete NGP file
 						snprintf(ngpfile, sizeof(ngpfile), PLAYER_DIRECTORY_STRING("%.8s.ngp"), items[citem]);
-						if (PHYSFSX_exists(ngpfile,0))
+						if (PHYSFS_exists(ngpfile))
 							PHYSFS_delete(ngpfile);
 					}
 
@@ -2384,7 +2384,7 @@ static int select_file_recursive(const menu_title title, const std::array<char, 
 	std::array<char, PATH_MAX> new_path;
 
 	// Check for a PhysicsFS path first, saves complication!
-	if (strncmp(orig_path, sep, strlen(sep)) && PHYSFSX_exists(orig_path, 0) && PHYSFSX_getRealPath(orig_path, new_path))
+	if (strncmp(orig_path, sep, strlen(sep)) && PHYSFS_exists(orig_path) && PHYSFSX_getRealPath(orig_path, new_path))
 		orig_path = new_path.data();
 
 	try {
