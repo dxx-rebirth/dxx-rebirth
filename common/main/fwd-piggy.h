@@ -119,17 +119,16 @@ void load_d1_bitmap_replacements();
 grs_bitmap *read_extra_bitmap_d1_pig(std::span<const char> name, grs_bitmap &out);
 void read_sndfile(int required);
 #endif
-}
-int piggy_find_sound(std::span<const char> name);
-
-void piggy_read_bitmap_data(grs_bitmap * bmp);
-
-namespace dcx {
 /*
  * reads a bitmap_index structure from a PHYSFS_File
  */
 void bitmap_index_read(NamedPHYSFS_File fp, bitmap_index &bi);
+void bitmap_index_read_n(NamedPHYSFS_File fp, std::ranges::subrange<bitmap_index *> r);
+
 }
+int piggy_find_sound(std::span<const char> name);
+
+void piggy_read_bitmap_data(grs_bitmap * bmp);
 
 #define REMOVE_EOL(s)		remove_char((s),'\n')
 #define REMOVE_COMMENTS(s)	remove_char((s),';')

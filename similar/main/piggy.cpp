@@ -1580,10 +1580,7 @@ void piggy_close()
 #endif
 }
 
-}
-
 #if defined(DXX_BUILD_DESCENT_II)
-namespace dsx {
 namespace {
 
 #if DXX_USE_EDITOR
@@ -2161,11 +2158,8 @@ grs_bitmap *read_extra_bitmap_d1_pig(const std::span<const char> name, grs_bitma
 #endif
 	return &n;
 }
-
-}
 #endif
 
-namespace dcx {
 /*
  * reads a bitmap_index structure from a PHYSFS_File
  */
@@ -2186,4 +2180,5 @@ void bitmap_index_read_n(const NamedPHYSFS_File fp, const std::ranges::subrange<
 		bi = i ? *i : bitmap_index::None;
 	}
 }
+
 }

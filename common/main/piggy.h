@@ -71,8 +71,6 @@ enum class descent1_pig_size : PHYSFS_sint64
 	d1_mac_share_pigsize = 2714487,
 };
 
-void bitmap_index_read_n(NamedPHYSFS_File fp, std::ranges::subrange<bitmap_index *> r);
-
 }
 
 #ifdef dsx
