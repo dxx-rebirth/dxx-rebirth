@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <ranges>
 #include <span>
 #include "dsx-ns.h"
 #include "fwd-inferno.h"
@@ -43,6 +44,9 @@ struct digi_sound;
 extern digi_sound bogus_sound;
 extern unsigned Num_sound_files;
 struct BitmapFile;
+
+void swap_0_255(grs_bitmap &bmp);
+void remove_char(char * s, char c);	// in piggy.cpp
 
 }
 
@@ -127,7 +131,6 @@ namespace dcx {
 void bitmap_index_read(NamedPHYSFS_File fp, bitmap_index &bi);
 }
 
-void remove_char( char * s, char c );	// in piggy.c
 #define REMOVE_EOL(s)		remove_char((s),'\n')
 #define REMOVE_COMMENTS(s)	remove_char((s),';')
 #define REMOVE_DOTS(s)  	remove_char((s),'.')
@@ -144,7 +147,6 @@ extern hashtable AllDigiSndNames;
 #elif defined(DXX_BUILD_DESCENT_II)
 extern enumerated_array<BitmapFile, MAX_BITMAP_FILES, bitmap_index> AllBitmaps;
 #endif
-void swap_0_255(grs_bitmap &bmp);
 
 enum class pig_bitmap_offset : unsigned
 {

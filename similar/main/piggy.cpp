@@ -233,9 +233,6 @@ static void write_int(int i,PHYSFS_File *file);
 
 namespace dcx {
 
-digi_sound bogus_sound;
-unsigned Num_sound_files;
-
 namespace {
 
 struct BitmapNameFromHeader
@@ -281,13 +278,16 @@ static DiskSoundHeader DiskSoundHeader_read(const NamedPHYSFS_File fp)
 }
 
 }
+
 }
 
 /*
  * reads a DiskBitmapHeader structure from a PHYSFS_File
  */
 namespace dsx {
+
 namespace {
+
 static DiskBitmapHeader DiskBitmapHeader_read(const NamedPHYSFS_File fp)
 {
 	DiskBitmapHeader dbh{};
@@ -321,22 +321,6 @@ static void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, const NamedPHYSFS_Fi
 	dbh->offset = PHYSFSX_readInt(fp);
 }
 #endif
-
-}
-
-void swap_0_255(grs_bitmap &bmp)
-{
-	auto a = [](uint8_t &c) {
-		if (c == 0)
-			c = 255;
-		else if (c == 255)
-			c = 0;
-	};
-	auto d = bmp.get_bitmap_data();
-	std::for_each(d, d + (bmp.bm_h * bmp.bm_w), a);
-}
-
-namespace dsx {
 
 bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const std::span<const char> name, const int in_file)
 {
@@ -437,7 +421,9 @@ int piggy_find_sound(const std::span<const char> name)
 }
 
 namespace dsx {
+
 namespace {
+
 static void piggy_close_file()
 {
 	if (Piggy_fp)
@@ -1594,12 +1580,6 @@ void piggy_close()
 #endif
 }
 
-}
-
-void remove_char( char * s, char c )
-{
-	char *p = strchr(s,c);
-	if (p) *p = '\0';
 }
 
 #if defined(DXX_BUILD_DESCENT_II)

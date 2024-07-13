@@ -4703,6 +4703,7 @@ class DXXArchive(DXXCommon):
 'common/main/cli.cpp',
 'common/main/cmd.cpp',
 'common/main/cvar.cpp',
+'common/main/piggy.cpp',
 'common/maths/fixc.cpp',
 'common/maths/rand.cpp',
 'common/maths/tables.cpp',
