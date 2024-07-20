@@ -221,6 +221,8 @@ enum class mission_name_type
 	guess,
 };
 
+extern char descent_hog_basename[12];
+
 }
 
 namespace dsx {
@@ -261,6 +263,9 @@ const char *load_mission_by_name (mission_entry_predicate mission_name, mission_
 #if DXX_USE_EDITOR
 void create_new_mission(void);
 #endif
+
+extern char descent2_hog_basename[13];
+extern char d2demo_hog_basename[11];
 
 }
 

@@ -131,6 +131,8 @@ GameBitmaps_array GameBitmaps;
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define DBM_FLAG_LARGE 	128		// Flags added onto the flags struct in b
+
+static char default_pigfile_registered[]{DEFAULT_PIGFILE_REGISTERED};
 static
 #endif
 enumerated_array<BitmapFile, MAX_BITMAP_FILES, bitmap_index> AllBitmaps;
@@ -1175,7 +1177,7 @@ void piggy_read_sounds(int pc_shareware)
 				return;
 			}
 		}
-		else if (descent1_pig_size{PHYSFSX_fsize(DEFAULT_PIGFILE_REGISTERED)} == descent1_pig_size::d1_mac_share_pigsize)
+		else if (descent1_pig_size{PHYSFSX_fsize(default_pigfile_registered)} == descent1_pig_size::d1_mac_share_pigsize)
 		{
 			con_printf(CON_URGENT,"Warning: Missing Sounds/sounds.array for Mac data files");
 			return;

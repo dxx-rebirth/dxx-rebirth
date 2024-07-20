@@ -77,6 +77,8 @@ using std::min;
 
 namespace dcx {
 
+char descent_hog_basename[]{"descent.hog"};
+
 namespace {
 
 using mission_candidate_search_path = std::array<char, PATH_MAX>;
@@ -101,6 +103,9 @@ auto prepare_mission_list_count_dirbuf(const std::size_t immediate_directories)
 }
 
 namespace dsx {
+
+char descent2_hog_basename[]{"descent2.hog"};
+char d2demo_hog_basename[]{"d2demo.hog"};
 
 namespace {
 
@@ -325,7 +330,7 @@ static void build_rdl_secret_level_names(const unsigned count_secret_level, std:
 
 static void load_mission_d1()
 {
-	switch (descent_hog_size{PHYSFSX_fsize("descent.hog")})
+	switch (descent_hog_size{PHYSFSX_fsize(descent_hog_basename)})
 	{
 		case descent_hog_size::pc_shareware_v14:
 		case descent_hog_size::pc_shareware_v10:
@@ -630,7 +635,7 @@ static std::span<const char> get_d1_mission_name_from_descent_hog_size(const des
 
 static void add_d1_builtin_mission_to_list(mission_list_type &mission_list)
 {
-	const descent_hog_size size{PHYSFSX_fsize("descent.hog")};
+	const descent_hog_size size{PHYSFSX_fsize(descent_hog_basename)};
 	if (size == descent_hog_size{-1})
 		return;
 
@@ -660,9 +665,9 @@ static const mle *set_hardcoded_mission(mission_list_type &mission_list, const c
 
 static void add_builtin_mission_to_list(mission_list_type &mission_list, d_fname &name)
 {
-    descent_hog_size size{PHYSFSX_fsize("descent2.hog")};
+    descent_hog_size size{PHYSFSX_fsize(descent2_hog_basename)};
 	if (size == descent_hog_size{-1})
-		size = descent_hog_size{PHYSFSX_fsize("d2demo.hog")};
+		size = descent_hog_size{PHYSFSX_fsize(d2demo_hog_basename)};
 
 	const mle *mission;
 	switch (size) {
@@ -954,8 +959,7 @@ static const char *load_mission(const mle *const mission)
 #endif
 	{
 		std::array<char, PATH_MAX> pathname;
-		static char relname[]{"descent.hog"};
-		if (const auto r = PHYSFSX_addRelToSearchPath(relname, pathname, physfs_search_path::prepend); r != PHYSFS_ERR_OK)
+		if (const auto r = PHYSFSX_addRelToSearchPath(descent_hog_basename, pathname, physfs_search_path::prepend); r != PHYSFS_ERR_OK)
 #if defined(DXX_BUILD_DESCENT_I)
 			Error("descent.hog not available!\n%s", PHYSFS_getErrorByCode(r));
 #elif defined(DXX_BUILD_DESCENT_II)

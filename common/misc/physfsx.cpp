@@ -140,14 +140,10 @@ void PHYSFSX_removeRelFromSearchPath(const char *relname)
 		con_printf(CON_VERBOSE, "PHYSFS: failed to unmap canonical directory \"%s\" (relative name \"%s\"): \"%s\"", pathname.data(), relname, PHYSFS_getLastError());
 }
 
-int PHYSFSX_fsize(const char *hogname)
+int PHYSFSX_fsize(char *const filename)
 {
-	char hogname2[PATH_MAX];
-
-	snprintf(hogname2, sizeof(hogname2), "%s", hogname);
-	PHYSFSEXT_locateCorrectCase(hogname2);
-
-	if (RAIIPHYSFS_File fp{PHYSFS_openRead(hogname2)})
+	PHYSFSEXT_locateCorrectCase(filename);
+	if (RAIIPHYSFS_File fp{PHYSFS_openRead(filename)})
 		return PHYSFS_fileLength(fp);
 	return -1;
 }
