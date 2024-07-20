@@ -911,7 +911,6 @@ static int write_player_dxx(const char *filename)
 //read in the player's saved games.  returns errno (0 == no error)
 int read_player_file()
 {
-	char filename[PATH_MAX];
 #if defined(DXX_BUILD_DESCENT_I)
 	int shareware_file = -1;
 	int player_file_size;
@@ -923,14 +922,16 @@ int read_player_file()
 
 	Assert(Player_num < MAX_PLAYERS);
 
-	memset(filename, '\0', PATH_MAX);
-	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(InterfaceUniqueState.PilotName));
-	if (!PHYSFS_exists(filename))
-		return ENOENT;
-	auto &&[file, physfserr] = PHYSFSX_openReadBuffered(filename);
+	std::array<char, sizeof(PLAYER_DIRECTORY_TEXT ".plr") + CALLSIGN_LEN> filename;
+	const auto plr_filename_length{std::snprintf(filename.data(), filename.size(), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(InterfaceUniqueState.PilotName))};
+	if (plr_filename_length >= filename.size())
+		return -1;
+	auto &&[file, physfserr]{PHYSFSX_openReadBuffered(filename.data())};
 	if (!file)
 	{
-		nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "Failed to open PLR file\n%s\n\n%s", filename, PHYSFS_getErrorByCode(physfserr));
+		if (physfserr == PHYSFS_ERR_NOT_FOUND)
+			return ENOENT;
+		nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "Failed to open PLR file\n%s\n\n%s", filename.data(), PHYSFS_getErrorByCode(physfserr));
 		return -1;
 	}
 
@@ -1280,9 +1281,8 @@ int read_player_file()
 		write_player_file();
 #endif
 
-	filename[strlen(filename) - 4] = 0;
-	strcat(filename, ".plx");
-	read_player_dxx(filename);
+	filename[plr_filename_length - 1] = 'x';
+	read_player_dxx(filename.data());
 	kc_set_controls();
 
 	return EZERO;
