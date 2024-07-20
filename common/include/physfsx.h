@@ -467,10 +467,10 @@ enum class physfs_search_path : bool
 };
 
 PHYSFS_ErrorCode PHYSFSX_addRelToSearchPath(char *relname, std::array<char, PATH_MAX> &realPath, physfs_search_path);
-void PHYSFSX_removeRelFromSearchPath(const char *relname);
 
 /* Callee may change the case of the characters in the supplied buffer, but
  * will not make the filename longer or shorter. */
+void PHYSFSX_removeRelFromSearchPath(char *relname);
 [[nodiscard]]
 int PHYSFSX_fsize(char *hogname);
 

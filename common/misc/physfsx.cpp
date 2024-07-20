@@ -120,17 +120,14 @@ PHYSFS_ErrorCode PHYSFSX_addRelToSearchPath(char *const relname2, std::array<cha
 	}
 }
 
-void PHYSFSX_removeRelFromSearchPath(const char *relname)
+void PHYSFSX_removeRelFromSearchPath(char *const relname)
 {
-	char relname2[PATH_MAX];
-
-	snprintf(relname2, sizeof(relname2), "%s", relname);
-	PHYSFSEXT_locateCorrectCase(relname2);
+	PHYSFSEXT_locateCorrectCase(relname);
 
 	std::array<char, PATH_MAX> pathname;
-	if (!PHYSFSX_getRealPath(relname2, pathname))
+	if (!PHYSFSX_getRealPath(relname, pathname))
 	{
-		con_printf(CON_DEBUG, "PHYSFS: ignoring unmap request: no canonical path for relative name \"%s\"", relname2);
+		con_printf(CON_DEBUG, "PHYSFS: ignoring unmap request: no canonical path for relative name \"%s\"", relname);
 		return;
 	}
 	auto r = PHYSFS_unmount(pathname.data());

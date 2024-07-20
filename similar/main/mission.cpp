@@ -973,7 +973,7 @@ static const char *load_mission(const mle *const mission)
 	}
 #if defined(DXX_BUILD_DESCENT_II)
 	else
-		PHYSFSX_removeRelFromSearchPath("descent.hog");
+		PHYSFSX_removeRelFromSearchPath(descent_hog_basename);
 #endif
 
 #if defined(DXX_BUILD_DESCENT_II)
