@@ -190,13 +190,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SAVE_FILE_ID MAKE_SIG('D','P','L','R')
 
 struct player_config PlayerCfg;
+
 namespace dsx {
+
 namespace {
+
 #if defined(DXX_BUILD_DESCENT_I)
-static void plyr_read_stats();
+static constexpr char eff_extension[3]{'e', 'f', 'f'};
+static void plyr_read_stats(std::span<char>);
 static std::array<saved_game_sw, N_SAVE_SLOTS> saved_games;
 #elif defined(DXX_BUILD_DESCENT_II)
-static inline void plyr_read_stats() {}
+static inline void plyr_read_stats(std::span<char>) {}
 static int get_lifetime_checksum (int a,int b);
 #endif
 
@@ -370,8 +374,6 @@ namespace dsx {
 namespace {
 static void read_player_dxx(const char *filename)
 {
-	plyr_read_stats();
-
 	auto f = PHYSFSX_openReadBuffered(filename).first;
 	if (!f)
 		return;
@@ -645,23 +647,11 @@ static const uint8_t *decode_stat(const uint8_t *p,int *v,const char *effcode)
 	return p+(i*2);
 }
 
-static std::pair<int /* kills */, int /* deaths */> plyr_read_stats_v()
+static std::pair<int /* kills */, int /* deaths */> plyr_read_stats_v(const std::span<char> filename)
 {
 	int k1=-1,k2=0,d1=-1,d2=0;
-	auto &&f{[](const char *const callsign) -> RAIIPHYSFS_File {
-		std::array<char, sizeof(PLAYER_EFFECTIVENESS_FILENAME_FORMAT) - 2 /* subtract out the literal "%s" */ + CALLSIGN_LEN /* add back in the length  of the player's callsign that the "%s" inserts */> filename;
-		if (std::snprintf(filename.data(), filename.size(), PLAYER_EFFECTIVENESS_FILENAME_FORMAT, callsign) >= filename.size())
-			return nullptr;
-		auto &&[f, pe] = PHYSFSX_openReadBuffered(filename.data());
-		if (pe != PHYSFS_ERR_OK && pe != PHYSFS_ERR_NOT_FOUND)
-			/* "File not found" is normal on a new install, so do not warn about
-			 * it.
-			 */
-			con_printf(CON_NORMAL, "error: failed to open player effectiveness file \"%s\": %s", filename.data(), PHYSFS_getErrorByCode(pe));
-		return std::move(f);
-	}(get_local_player().callsign)};
 	int k{}, d{};
-	if (f)
+	if (auto &&[f, pe] = PHYSFSX_openReadBuffered(filename.data()); f)
 	{
 		PHYSFSX_gets_line_t<256> line;
 		if (!PHYSFS_eof(f) && PHYSFSX_fgets(line, f))
@@ -693,15 +683,26 @@ static std::pair<int /* kills */, int /* deaths */> plyr_read_stats_v()
 		if (k1 != k2 || k1 != k || d1 != d2 || d1 != d)
 			k = d = 0;
 	}
+	else if (pe != PHYSFS_ERR_NOT_FOUND)
+	{
+		/* "File not found" is normal on a new install, so do not warn about
+		 * it.
+		 */
+		con_printf(CON_NORMAL, "error: failed to open player effectiveness file \"%s\": %s", filename.data(), PHYSFS_getErrorByCode(pe));
+	}
 	return {k, d};
 }
 
-static void plyr_read_stats()
+/* This changes the extension on the filename referenced by `filename`.
+ */
+static void plyr_read_stats(const std::span<char> filename)
 {
-	auto &&[NetlifeKills, NetlifeKilled] = plyr_read_stats_v();
+	std::ranges::copy(eff_extension, std::ranges::begin(filename.last<3>()));
+	auto &&[NetlifeKills, NetlifeKilled] = plyr_read_stats_v(filename);
 	PlayerCfg.NetlifeKills = NetlifeKills;
 	PlayerCfg.NetlifeKilled = NetlifeKilled;
 }
+
 }
 
 void plyr_save_stats()
@@ -1283,6 +1284,7 @@ int read_player_file()
 
 	filename[plr_filename_length - 1] = 'x';
 	read_player_dxx(filename.data());
+	plyr_read_stats(std::span(filename).first(plr_filename_length));
 	kc_set_controls();
 
 	return EZERO;
