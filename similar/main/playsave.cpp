@@ -645,10 +645,9 @@ static const uint8_t *decode_stat(const uint8_t *p,int *v,const char *effcode)
 	return p+(i*2);
 }
 
-static void plyr_read_stats_v(int *k, int *d)
+static std::pair<int /* kills */, int /* deaths */> plyr_read_stats_v()
 {
 	int k1=-1,k2=0,d1=-1,d2=0;
-	*k=0;*d=0;//in case the file doesn't exist.
 	auto &&f{[](const char *const callsign) -> RAIIPHYSFS_File {
 		std::array<char, sizeof(PLAYER_EFFECTIVENESS_FILENAME_FORMAT) - 2 /* subtract out the literal "%s" */ + CALLSIGN_LEN /* add back in the length  of the player's callsign that the "%s" inserts */> filename;
 		if (std::snprintf(filename.data(), filename.size(), PLAYER_EFFECTIVENESS_FILENAME_FORMAT, callsign) >= filename.size())
@@ -661,6 +660,7 @@ static void plyr_read_stats_v(int *k, int *d)
 			con_printf(CON_NORMAL, "error: failed to open player effectiveness file \"%s\": %s", filename.data(), PHYSFS_getErrorByCode(pe));
 		return std::move(f);
 	}(get_local_player().callsign)};
+	int k{}, d{};
 	if (f)
 	{
 		PHYSFSX_gets_line_t<256> line;
@@ -668,13 +668,13 @@ static void plyr_read_stats_v(int *k, int *d)
 		{
 			 const char *value=splitword(line,':');
 			 if(!strcmp(line,"kills") && value)
-				*k=atoi(value);
+				k=atoi(value);
 		}
 		if (!PHYSFS_eof(f) && PHYSFSX_fgets(line, f))
 		{
 			 const char *value=splitword(line,':');
 			 if(!strcmp(line,"deaths") && value)
-				*d=atoi(value);
+				d=atoi(value);
 		}
 		if (!PHYSFS_eof(f) && PHYSFSX_fgets(line, f))
 		{
@@ -690,16 +690,17 @@ static void plyr_read_stats_v(int *k, int *d)
 				 }
 			 }
 		}
-		if (k1!=k2 || k1!=*k || d1!=d2 || d1!=*d)
-		{
-			*k=0;*d=0;
-		}
+		if (k1 != k2 || k1 != k || d1 != d2 || d1 != d)
+			k = d = 0;
 	}
+	return {k, d};
 }
 
 static void plyr_read_stats()
 {
-	plyr_read_stats_v(&PlayerCfg.NetlifeKills,&PlayerCfg.NetlifeKilled);
+	auto &&[NetlifeKills, NetlifeKilled] = plyr_read_stats_v();
+	PlayerCfg.NetlifeKills = NetlifeKills;
+	PlayerCfg.NetlifeKilled = NetlifeKilled;
 }
 }
 
