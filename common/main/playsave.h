@@ -72,7 +72,7 @@ struct saved_game_sw
 	int		auto_leveling_on;		//does player have autoleveling on?
 } __pack__;
 
-void plyr_save_stats();
+void plyr_save_stats(const char *callsign, int kills, int deaths);
 }
 #endif
 #endif

@@ -705,14 +705,14 @@ static void plyr_read_stats(const std::span<char> filename)
 
 }
 
-void plyr_save_stats()
+void plyr_save_stats(const char *const callsign, int kills, int deaths)
 {
-	int kills = PlayerCfg.NetlifeKills,deaths = PlayerCfg.NetlifeKilled, neg, i;
+	int neg, i;
 	char filename[PATH_MAX];
 	std::array<uint8_t, 16> buf, buf2;
 	uint8_t a;
 	memset(filename, '\0', PATH_MAX);
-	snprintf(filename,sizeof(filename),PLAYER_EFFECTIVENESS_FILENAME_FORMAT,static_cast<const char *>(get_local_player().callsign));
+	snprintf(filename, sizeof(filename), PLAYER_EFFECTIVENESS_FILENAME_FORMAT, callsign);
 	auto f = PHYSFSX_openWriteBuffered(filename).first;
 	if(!f)
 		return; //broken!

@@ -1164,7 +1164,7 @@ void multi_leave_game()
 	multi::dispatch->leave_game();
 
 #if defined(DXX_BUILD_DESCENT_I)
-	plyr_save_stats();
+	plyr_save_stats(InterfaceUniqueState.PilotName, PlayerCfg.NetlifeKills, PlayerCfg.NetlifeKilled);
 #endif
 
 	multi_quit_game = 0;	// quit complete
