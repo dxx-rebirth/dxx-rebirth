@@ -647,12 +647,21 @@ static const uint8_t *decode_stat(const uint8_t *p,int *v,const char *effcode)
 
 static void plyr_read_stats_v(int *k, int *d)
 {
-	char filename[PATH_MAX];
 	int k1=-1,k2=0,d1=-1,d2=0;
 	*k=0;*d=0;//in case the file doesn't exist.
-	memset(filename, '\0', PATH_MAX);
-	snprintf(filename,sizeof(filename),PLAYER_EFFECTIVENESS_FILENAME_FORMAT,static_cast<const char *>(get_local_player().callsign));
-	if (auto f = PHYSFSX_openReadBuffered(filename).first)
+	auto &&f{[](const char *const callsign) -> RAIIPHYSFS_File {
+		std::array<char, sizeof(PLAYER_EFFECTIVENESS_FILENAME_FORMAT) - 2 /* subtract out the literal "%s" */ + CALLSIGN_LEN /* add back in the length  of the player's callsign that the "%s" inserts */> filename;
+		if (std::snprintf(filename.data(), filename.size(), PLAYER_EFFECTIVENESS_FILENAME_FORMAT, callsign) >= filename.size())
+			return nullptr;
+		auto &&[f, pe] = PHYSFSX_openReadBuffered(filename.data());
+		if (pe != PHYSFS_ERR_OK && pe != PHYSFS_ERR_NOT_FOUND)
+			/* "File not found" is normal on a new install, so do not warn about
+			 * it.
+			 */
+			con_printf(CON_NORMAL, "error: failed to open player effectiveness file \"%s\": %s", filename.data(), PHYSFS_getErrorByCode(pe));
+		return std::move(f);
+	}(get_local_player().callsign)};
+	if (f)
 	{
 		PHYSFSX_gets_line_t<256> line;
 		if (!PHYSFS_eof(f) && PHYSFSX_fgets(line, f))
