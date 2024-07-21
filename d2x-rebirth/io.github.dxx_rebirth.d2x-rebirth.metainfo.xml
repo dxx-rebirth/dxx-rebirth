@@ -39,31 +39,31 @@
   </description>
   <screenshots>
     <screenshot type="default">
-      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/main/d2x/screenshots/dynamic-lights.png</image>
+      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/c6e7e79eebe92905f84f07a635ffab5122a94bd1/d2x/screenshots/dynamic-lights.png</image>
       <caption>Colored dynamic lighting</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/main/d2x/screenshots/custom-missions.png</image>
+      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/c6e7e79eebe92905f84f07a635ffab5122a94bd1/d2x/screenshots/custom-missions.png</image>
       <caption>Support for custom missions</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/main/d2x/screenshots/hud.png</image>
+      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/c6e7e79eebe92905f84f07a635ffab5122a94bd1/d2x/screenshots/hud.png</image>
       <caption>Alternate HUD configurations</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/main/d2x/screenshots/debris.png</image>
+      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/c6e7e79eebe92905f84f07a635ffab5122a94bd1/d2x/screenshots/debris.png</image>
       <caption>Persistent robot debris</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/main/d2x/screenshots/moodylights.png</image>
+      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/c6e7e79eebe92905f84f07a635ffab5122a94bd1/d2x/screenshots/moodylights.png</image>
       <caption>Moody hardware-accelerated level lighting</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/main/d2x/screenshots/video-subtitles.png</image>
+      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/c6e7e79eebe92905f84f07a635ffab5122a94bd1/d2x/screenshots/video-subtitles.png</image>
       <caption>Subtitles for FMV cutscenes</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/main/d2x/screenshots/freeflight-map.png</image>
+      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/c6e7e79eebe92905f84f07a635ffab5122a94bd1/d2x/screenshots/freeflight-map.png</image>
       <caption>Free movement on the in-game map</caption>
     </screenshot>
   </screenshots>

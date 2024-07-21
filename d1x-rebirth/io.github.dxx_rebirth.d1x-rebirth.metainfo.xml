@@ -39,35 +39,35 @@
   </description>
   <screenshots>
     <screenshot type="default">
-      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/main/d1x/screenshots/retromode.png</image>
+      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/c6e7e79eebe92905f84f07a635ffab5122a94bd1/d1x/screenshots/retromode.png</image>
       <caption>"Retro mode": the default graphics setup, like the original game but in high resolution</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/main/d1x/screenshots/texturefiltering.png</image>
+      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/c6e7e79eebe92905f84f07a635ffab5122a94bd1/d1x/screenshots/texturefiltering.png</image>
       <caption>Texture filtering enabled</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/main/d1x/screenshots/texturefilter-comparison.png</image>
+      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/c6e7e79eebe92905f84f07a635ffab5122a94bd1/d1x/screenshots/texturefilter-comparison.png</image>
       <caption>A comparison of texture filtering options</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/main/d1x/screenshots/alternatehud.png</image>
+      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/c6e7e79eebe92905f84f07a635ffab5122a94bd1/d1x/screenshots/alternatehud.png</image>
       <caption>Alternate HUD configurations</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/main/d1x/screenshots/transparency-colouredlight.png</image>
+      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/c6e7e79eebe92905f84f07a635ffab5122a94bd1/d1x/screenshots/transparency-colouredlight.png</image>
       <caption>Transparency and coloured dynamic lights</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/main/d1x/screenshots/persistent-debris.png</image>
+      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/c6e7e79eebe92905f84f07a635ffab5122a94bd1/d1x/screenshots/persistent-debris.png</image>
       <caption>Persistent debris from robot explosions</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/main/d1x/screenshots/highres-reticle.png</image>
+      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/c6e7e79eebe92905f84f07a635ffab5122a94bd1/d1x/screenshots/highres-reticle.png</image>
       <caption>High-resolution reticle options</caption>
     </screenshot>
     <screenshot>
-      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/main/d1x/screenshots/alternate-reticle.png</image>
+      <image type="source">https://gitlab.com/fpiesche/dxx-rebirth-assets/-/raw/c6e7e79eebe92905f84f07a635ffab5122a94bd1/d1x/screenshots/alternate-reticle.png</image>
       <caption>Multiple alternate reticle options</caption>
     </screenshot>
   </screenshots>
