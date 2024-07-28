@@ -1895,11 +1895,14 @@ static void maybe_drop_primary_vulcan_based_weapon(const object &playerobj, cons
 static void maybe_drop_primary_vulcan_weapons(const object &playerobj)
 {
 	auto &player_info = playerobj.ctype.player_info;
+	const auto has_weapons{player_info.primary_weapon_flags & HAS_VULCAN_AND_GAUSS_FLAGS};
+	if (!has_weapons)
+		return;
 	const auto total_vulcan_ammo = player_info.vulcan_ammo;
 	auto vulcan_ammo = total_vulcan_ammo;
 #if defined(DXX_BUILD_DESCENT_II)
 	auto gauss_ammo = vulcan_ammo;
-	if ((player_info.primary_weapon_flags & HAS_VULCAN_AND_GAUSS_FLAGS) == HAS_VULCAN_AND_GAUSS_FLAGS)
+	if (has_weapons == HAS_VULCAN_AND_GAUSS_FLAGS)
 	{
 		//if both vulcan & gauss, each gets half
 		vulcan_ammo /= 2;
@@ -2068,7 +2071,8 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 		}
 #endif
 
-		//Drop the vulcan, gauss, and ammo
+		/* Drop the Vulcan Cannon and Gauss Cannon, if the player has them.
+		 */
 		maybe_drop_primary_vulcan_weapons(playerobj);
 
 		//	Drop the rest of the primary weapons
