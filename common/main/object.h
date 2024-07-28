@@ -187,6 +187,7 @@ struct player_info
 	enumerated_array<uint8_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t>  secondary_ammo; // How much ammo of each type.
 	uint8_t Spreadfire_toggle;
 #if defined(DXX_BUILD_DESCENT_II)
+	static constexpr uint8_t max_hoard_orbs{12};
 	uint8_t Primary_last_was_super;
 	uint8_t Secondary_last_was_super;
 	uint8_t Helix_orientation;
@@ -204,10 +205,6 @@ struct player_info
 		struct {
 			uint8_t orbs;
 		} hoard;
-	};
-	enum
-	{
-		max_hoard_orbs = 12,
 	};
 	fix64   cloak_time;             // Time cloaked
 	fix64   invulnerable_time;      // Time invulnerable

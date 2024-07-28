@@ -2066,8 +2066,7 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 		if (game_mode_hoard(Game_mode))
 		{
 			// Drop hoard orbs
-			for (unsigned max_count = std::min<uint8_t>(player_info.hoard.orbs, player_info.max_hoard_orbs); max_count--;)
-				call_object_create_egg(playerobj, powerup_type_t::POW_HOARD_ORB);
+			call_object_create_egg(playerobj, std::min(player_info.hoard.orbs, player_info.max_hoard_orbs), powerup_type_t::POW_HOARD_ORB);
 		}
 #endif
 
