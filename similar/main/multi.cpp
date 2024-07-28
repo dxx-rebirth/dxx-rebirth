@@ -4607,15 +4607,15 @@ static void multi_do_drop_flag(const playernum_t pnum, const multiplayer_rspan<m
 	const objnum_t remote_objnum = GET_INTEL_SHORT(&buf[2]);
 	const auto seed{GET_INTEL_INT<int32_t>(&buf[6])};
 
-	const auto &&objp = vmobjptr(vcplayerptr(pnum)->objnum);
+	auto &plrobj{*vmobjptr(vcplayerptr(pnum)->objnum)};
 
-	const imobjidx_t objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, objp, powerup_id, seed);
+	const imobjidx_t objnum{spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, plrobj, powerup_id, seed)};
 	if (objnum == object_none)
 		return;
 
 	map_objnum_local_to_remote(objnum, remote_objnum, pnum);
 	if (!game_mode_hoard(Game_mode))
-		objp->ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);
+		plrobj.ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_FLAG);
 }
 
 }
