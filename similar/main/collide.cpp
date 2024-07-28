@@ -1870,12 +1870,10 @@ static imobjptridx_t maybe_drop_primary_weapon_egg(const object &playerobj, cons
 		return object_none;
 }
 
-static void maybe_drop_secondary_weapon_egg(const object_base &playerobj, const secondary_weapon_index_t weapon_index, const int count)
+static void maybe_drop_secondary_weapon_egg(const object_base &playerobj, const secondary_weapon_index_t weapon_index, const unsigned count)
 {
 	const auto powerup_num = Secondary_weapon_to_powerup[weapon_index];
-		int max_count = min(count, 3);
-		for (int i=0; i<max_count; i++)
-			call_object_create_egg(playerobj, powerup_num);
+	call_object_create_egg(playerobj, std::min(count, 3u), powerup_num);
 }
 
 static void maybe_drop_primary_vulcan_based_weapon(const object &playerobj, const primary_weapon_index_t weapon_index, const uint16_t ammo)
