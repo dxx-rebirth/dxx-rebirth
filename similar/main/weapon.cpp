@@ -1550,14 +1550,14 @@ imobjptridx_t spit_powerup(d_level_unique_object_state &LevelUniqueObjectState, 
 
 void DropCurrentWeapon (player_info &player_info)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &Objects{LevelUniqueObjectState.Objects};
 	if (LevelUniqueObjectState.num_objects >= Objects.size())
 		return;
 
 	powerup_type_t drop_type;
-	const auto &Primary_weapon = player_info.Primary_weapon;
-	const auto GrantedItems = (Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : netgrant_flag::None;
-	auto weapon_name = PRIMARY_WEAPON_NAMES(Primary_weapon);
+	const auto &Primary_weapon{player_info.Primary_weapon};
+	const auto GrantedItems{(Game_mode & GM_MULTI) ? Netgame.SpawnGrantedItems : netgrant_flag::None};
+	auto weapon_name{PRIMARY_WEAPON_NAMES(Primary_weapon)};
 	if (Primary_weapon == primary_weapon_index_t::LASER_INDEX)
 	{
 		if ((player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS) && !GrantedItems.has_quad_laser())
@@ -1601,8 +1601,8 @@ void DropCurrentWeapon (player_info &player_info)
 		drop_type = Primary_weapon_to_powerup[Primary_weapon];
 	}
 
-	const auto seed = d_rand();
-	const auto objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, *ConsoleObject, drop_type, seed);
+	const auto seed{d_rand()};
+	const auto objnum{spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, *ConsoleObject, drop_type, seed)};
 	if (objnum == object_none)
 	{
 		HUD_init_message(HM_DEFAULT, "Failed to drop %s!", weapon_name);
@@ -1617,24 +1617,22 @@ void DropCurrentWeapon (player_info &player_info)
 	if (weapon_index_uses_vulcan_ammo(Primary_weapon)) {
 
 		//if it's one of these, drop some ammo with the weapon
-		auto &plr_vulcan_ammo = player_info.vulcan_ammo;
-		auto ammo = plr_vulcan_ammo;
+		auto &plr_vulcan_ammo{player_info.vulcan_ammo};
+		auto ammo{plr_vulcan_ammo};
 #if defined(DXX_BUILD_DESCENT_II)
-		const auto HAS_VULCAN_AND_GAUSS_FLAGS = HAS_VULCAN_FLAG | HAS_GAUSS_FLAG;
+		const auto HAS_VULCAN_AND_GAUSS_FLAGS{HAS_VULCAN_FLAG | HAS_GAUSS_FLAG};
 		if ((player_info.primary_weapon_flags & HAS_VULCAN_AND_GAUSS_FLAGS) == HAS_VULCAN_AND_GAUSS_FLAGS)
 			ammo /= 2;		//if both vulcan & gauss, drop half
 #endif
 
 		plr_vulcan_ammo -= ammo;
-
-			objnum->ctype.powerup_info.count = ammo;
+		objnum->ctype.powerup_info.count = ammo;
 	}
 #if defined(DXX_BUILD_DESCENT_II)
-	if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX) {
+	else if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX) {
 
 		//dropped weapon has current energy
-
-			objnum->ctype.powerup_info.count = player_info.Omega_charge;
+		objnum->ctype.powerup_info.count = player_info.Omega_charge;
 	}
 #endif
 
