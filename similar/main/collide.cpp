@@ -1876,12 +1876,20 @@ static void maybe_drop_secondary_weapon_egg(const object_base &playerobj, const 
 	call_object_create_egg(playerobj, std::min(count, 3u), powerup_num);
 }
 
+static void maybe_drop_primary_weapon_with_adjustment(const object &playerobj, const primary_weapon_index_t weapon_index, auto adjust)
+{
+	if (const auto objp{maybe_drop_primary_weapon_egg(playerobj, weapon_index)}; objp != object_none)
+		adjust(*objp);
+}
+
 static void maybe_drop_primary_vulcan_based_weapon(const object &playerobj, const primary_weapon_index_t weapon_index, const uint16_t ammo)
 {
-	const auto objnum = maybe_drop_primary_weapon_egg(playerobj, weapon_index);
-	if (objnum != object_none)
+	maybe_drop_primary_weapon_with_adjustment(playerobj, weapon_index,
+		[ammo](object &weapon) {
 		//make sure gun has at least as much as a powerup
-		objnum->ctype.powerup_info.count = std::max(ammo, VULCAN_AMMO_AMOUNT);
+			weapon.ctype.powerup_info.count = std::max(ammo, VULCAN_AMMO_AMOUNT);
+		}
+	);
 }
 
 static void maybe_drop_primary_vulcan_weapons(const object &playerobj)
@@ -1903,6 +1911,17 @@ static void maybe_drop_primary_vulcan_weapons(const object &playerobj)
 	maybe_drop_primary_vulcan_based_weapon(playerobj, primary_weapon_index_t::GAUSS_INDEX, gauss_ammo);
 #endif
 }
+
+#if defined(DXX_BUILD_DESCENT_II)
+static void maybe_drop_primary_omega_weapon(const object &playerobj)
+{
+	maybe_drop_primary_weapon_with_adjustment(playerobj, primary_weapon_index_t::OMEGA_INDEX,
+		[&playerobj](object &weapon) {
+			weapon.ctype.powerup_info.count = (get_player_id(playerobj) == Player_num) ? playerobj.ctype.player_info.Omega_charge : MAX_OMEGA_CHARGE;
+		}
+	);
+}
+#endif
 
 static void drop_missile_1_or_4(const object &playerobj, const secondary_weapon_index_t missile_index)
 {
@@ -2060,9 +2079,7 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 #if defined(DXX_BUILD_DESCENT_II)
 		maybe_drop_primary_weapon_egg(playerobj, primary_weapon_index_t::HELIX_INDEX);
 		maybe_drop_primary_weapon_egg(playerobj, primary_weapon_index_t::PHOENIX_INDEX);
-
-		if (const auto objnum = maybe_drop_primary_weapon_egg(playerobj, primary_weapon_index_t::OMEGA_INDEX); objnum != object_none)
-			objnum->ctype.powerup_info.count = (get_player_id(playerobj) == Player_num) ? playerobj->ctype.player_info.Omega_charge : MAX_OMEGA_CHARGE;
+		maybe_drop_primary_omega_weapon(playerobj);
 #endif
 
 		//	Drop the secondary weapons
