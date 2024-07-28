@@ -4523,7 +4523,10 @@ static void DropOrb ()
 
 	const auto &&objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, *ConsoleObject, powerup_type_t::POW_HOARD_ORB, seed);
 	if (objnum == object_none)
+	{
+		HUD_init_message_literal(HM_MULTI, "Failed to drop orb!");
 		return;
+	}
 
 	HUD_init_message_literal(HM_MULTI, "Orb dropped!");
 	digi_play_sample (SOUND_DROP_WEAPON,F1_0);
