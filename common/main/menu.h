@@ -56,7 +56,7 @@ extern int DoMenu();
 extern void do_options_menu();
 
 #if defined(DXX_BUILD_DESCENT_I)
-#define Menu_pcx_name (((SWIDTH >= 640 && SHEIGHT >= 480) && PHYSFSX_exists_ignorecase("menuh.pcx")) ? "menuh.pcx" : "menu.pcx")
+#define Menu_pcx_name (((SWIDTH >= 640 && SHEIGHT >= 480) && PHYSFS_exists("menuh.pcx")) ? "menuh.pcx" : "menu.pcx")
 #define STARS_BACKGROUND (((SWIDTH >= 640 && SHEIGHT >= 480) && PHYSFSX_exists_ignorecase("starsb.pcx")) ? "starsb.pcx" : "stars.pcx")
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MENU_PCX_MAC_SHARE ("menub.pcx")
@@ -65,7 +65,7 @@ extern void do_options_menu();
 #define MENU_PCX_FULL (HIRESMODE?"menub.pcx":"menu.pcx")
 
 // name of background bitmap
-#define Menu_pcx_name (PHYSFSX_exists_ignorecase(MENU_PCX_FULL) ? MENU_PCX_FULL : (PHYSFSX_exists_ignorecase(MENU_PCX_OEM) ? MENU_PCX_OEM : PHYSFSX_exists_ignorecase(MENU_PCX_SHAREWARE) ? MENU_PCX_SHAREWARE : MENU_PCX_MAC_SHARE))
+#define Menu_pcx_name (PHYSFS_exists(MENU_PCX_FULL) ? MENU_PCX_FULL : (PHYSFS_exists(MENU_PCX_OEM) ? MENU_PCX_OEM : PHYSFS_exists(MENU_PCX_SHAREWARE) ? MENU_PCX_SHAREWARE : MENU_PCX_MAC_SHARE))
 #define STARS_BACKGROUND ((HIRESMODE && PHYSFSX_exists_ignorecase("starsb.pcx")) ? "starsb.pcx" : PHYSFSX_exists_ignorecase("stars.pcx") ? "stars.pcx" : "starsb.pcx")
 #endif
 
