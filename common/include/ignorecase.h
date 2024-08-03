@@ -80,6 +80,7 @@ namespace dcx {
  *  \return zero if match was found, -1 if the final element (the file itself)
  *               is missing, -2 if one of the parent directories is missing.
  */
+[[nodiscard]]
 int PHYSFSEXT_locateCorrectCase(char *buf);
 
 /* end of ignorecase.h ... */
