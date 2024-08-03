@@ -755,7 +755,7 @@ int load_exit_models()
 		polygon_model_data_read(&pem, exit_hamfile);
 		polygon_model_data_read(&pdem, exit_hamfile);
 	}
-	else if (PHYSFSX_exists_ignorecase("exit01.pof") && PHYSFSX_exists_ignorecase("exit01d.pof"))
+	else if (PHYSFS_exists("exit01.pof") && PHYSFS_exists("exit01d.pof"))
 	{
 		exit_modelnum = load_polygon_model("exit01.pof", 3, start_num, NULL);
 		destroyed_exit_modelnum = load_polygon_model("exit01d.pof", 3, start_num + 3, NULL);
