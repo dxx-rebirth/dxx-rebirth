@@ -64,9 +64,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MAKE_CREDITS_PAIR(F)	std::span<const char>(F ".tex", sizeof(F) + 1)
 #define CREDITS_FILE    		(	\
-	PHYSFSX_exists_ignorecase("mcredits.tex")	\
+	PHYSFS_exists("mcredits.tex")	\
 		? MAKE_CREDITS_PAIR("mcredits")	\
-		: PHYSFSX_exists_ignorecase("ocredits.tex")	\
+		: PHYSFS_exists("ocredits.tex")	\
 			? MAKE_CREDITS_PAIR("ocredits") 	\
 			: MAKE_CREDITS_PAIR("credits")	\
 	)
