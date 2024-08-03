@@ -96,6 +96,8 @@ std::array<alias, MAX_ALIASES> alias_list;
 pig_hamfile_version Piggy_hamfile_version;
 uint8_t Pigfile_initialized;
 
+char descent_pig_basename[]{D1_PIGFILE};
+
 }
 #endif
 
@@ -1991,7 +1993,7 @@ void load_d1_bitmap_replacements()
 	palette_array_t d1_palette;
 	char *p;
 
-	auto &&[d1_Piggy_fp, physfserr] = PHYSFSX_openReadBuffered(D1_PIGFILE);
+	auto &&[d1_Piggy_fp, physfserr] = PHYSFSX_openReadBuffered(descent_pig_basename);
 #define D1_PIG_LOAD_FAILED "Failed loading " D1_PIGFILE
 	if (!d1_Piggy_fp) {
 		Warning("Failed to open " D1_PIGFILE ": %s", PHYSFS_getErrorByCode(physfserr));
@@ -2095,7 +2097,7 @@ grs_bitmap *read_extra_bitmap_d1_pig(const std::span<const char> name, grs_bitma
 		int pig_data_start, bitmap_header_start, bitmap_data_start;
 		int N_bitmaps;
 		palette_array_t d1_palette;
-		auto &&[d1_Piggy_fp, physfserr] = PHYSFSX_openReadBuffered(D1_PIGFILE);
+		auto &&[d1_Piggy_fp, physfserr] = PHYSFSX_openReadBuffered(descent_pig_basename);
 		if (!d1_Piggy_fp)
 		{
 			Warning("Failed to open " D1_PIGFILE ": %s", PHYSFS_getErrorByCode(physfserr));

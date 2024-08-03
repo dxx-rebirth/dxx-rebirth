@@ -905,7 +905,8 @@ static void set_briefing_filename(d_fname &f, const std::span<const char> v)
 {
 	f.copy_if(v.data(), v.size());
 	f.copy_if(v.size(), tex);
-	if (!PHYSFSX_exists_ignorecase(static_cast<const char *>(f)) && !(f.copy_if(v.size() + 1, "txb"), PHYSFSX_exists_ignorecase(static_cast<const char *>(f)))) // check if this file exists ...
+	if (!PHYSFSX_exists_ignorecase(f.data()) &&
+		!(f.copy_if(v.size() + 1, "txb"), PHYSFSX_exists_ignorecase(f.data()))) // check if this file exists ...
 		f = {};
 }
 

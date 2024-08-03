@@ -94,7 +94,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 constexpr std::integral_constant<int8_t, -1> owner_none{};
 
 namespace dsx {
+
 namespace {
+
 static void MultiLevelInv_Repopulate(fix frequency);
 void multi_new_bounty_target_with_sound(playernum_t, const char *callsign);
 static void multi_reset_object_texture(object_base &objp);
@@ -128,19 +130,30 @@ static constexpr netgrant_flag operator|(const netgrant_flag a, const netgrant_f
 }
 
 }
+
 }
+
 namespace {
+
 static void multi_send_heartbeat();
 static void multi_send_ranking(netplayer_info::player_rank);
 static void multi_send_gmode_update();
+
 }
+
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
+
 namespace {
+
+static char hoard_ham_basename[]{"hoard.ham"};
+
 static void multi_do_capture_bonus(const playernum_t pnum);
 static void multi_do_orb_bonus(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_ORB_BONUS> buf);
 static void multi_send_drop_flag(vmobjptridx_t objnum,int seed);
+
 }
+
 }
 #endif
 namespace dcx {
@@ -5563,7 +5576,7 @@ int HoardEquipped()
 
 	if (unlikely(checked == -1))
 	{
-		checked = PHYSFSX_exists_ignorecase("hoard.ham");
+		checked = PHYSFSX_exists_ignorecase(hoard_ham_basename);
 	}
 	return (checked);
 }
@@ -5597,7 +5610,7 @@ void init_hoard_data(d_vclip_array &Vclip)
 	hoard_resources.bm_idx = bitmap_index{bitmap_num};
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 
-	auto &&[ifile, physfserr] = PHYSFSX_openReadBuffered("hoard.ham");
+	auto &&[ifile, physfserr] = PHYSFSX_openReadBuffered(hoard_ham_basename);
 	if (!ifile)
 		Error("Failed to open <hoard.ham>: %s", PHYSFS_getErrorByCode(physfserr));
 
@@ -5740,7 +5753,7 @@ void save_hoard_data(void)
 				"teamorb.raw","teamorb.r22",    //SOUND_FRIEND_GOT_ORB
 				"enemyorb.raw","enemyorb.r22",  //SOUND_OPPONENT_GOT_ORB
 				"OPSCORE1.raw","OPSCORE1.r22"}; //SOUND_OPPONENT_HAS_SCORED
-	auto ofile = PHYSFSX_openWriteBuffered("hoard.ham").first;
+	auto ofile{PHYSFSX_openWriteBuffered(hoard_ham_basename).first};
 	if (!ofile)
 		return;
 

@@ -55,6 +55,7 @@ void remove_char(char * s, char c);	// in piggy.cpp
 #define MAX_ALIASES 20
 
 namespace dsx {
+extern char descent_pig_basename[12];
 struct alias;
 #if DXX_USE_EDITOR
 extern std::array<alias, MAX_ALIASES> alias_list;

@@ -473,6 +473,8 @@ PHYSFS_ErrorCode PHYSFSX_addRelToSearchPath(char *relname, std::array<char, PATH
 void PHYSFSX_removeRelFromSearchPath(char *relname);
 [[nodiscard]]
 int PHYSFSX_fsize(char *hogname);
+[[nodiscard]]
+int PHYSFSX_exists_ignorecase(char *filename);
 
 extern void PHYSFSX_listSearchPathContent();
 [[nodiscard]]
@@ -523,7 +525,6 @@ RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(char *const name, ph
 
 extern int PHYSFSX_rename(const char *oldpath, const char *newpath);
 
-int PHYSFSX_exists_ignorecase(const char *filename);
 std::pair<RAIINamedPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openReadBuffered(const char *filename);
 std::pair<RAIIPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openWriteBuffered(const char *filename);
 extern void PHYSFSX_addArchiveContent();
