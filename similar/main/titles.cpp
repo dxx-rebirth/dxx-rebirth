@@ -200,9 +200,9 @@ static void show_title_screen(const char *const filename, title_load_location /*
 static void show_first_found_title_screen(const char *oem, const char *share, const char *macshare)
 {
 	const char *filename = oem;
-	if ((PHYSFSX_exists_ignorecase(filename)) ||
-		(filename = share, PHYSFSX_exists_ignorecase(filename)) ||
-		(filename = macshare, PHYSFSX_exists_ignorecase(filename))
+	if ((PHYSFS_exists(filename)) ||
+		(filename = share, PHYSFS_exists(filename)) ||
+		(filename = macshare, PHYSFS_exists(filename))
 		)
 		show_title_screen(filename, title_load_location::from_hog_only);
 }
@@ -236,8 +236,8 @@ void show_titles(void)
 	const bool resolution_at_least_640_480 = (SWIDTH >= 640 && SHEIGHT >= 480);
 	auto &logo_hires_pcx = "logoh.pcx";
 	auto &descent_hires_pcx = "descenth.pcx";
-	show_title_screen((resolution_at_least_640_480 && PHYSFSX_exists_ignorecase(logo_hires_pcx)) ? logo_hires_pcx : "logo.pcx", title_load_location::from_hog_only);
-	show_title_screen((resolution_at_least_640_480 && PHYSFSX_exists_ignorecase(descent_hires_pcx)) ? descent_hires_pcx : "descent.pcx", title_load_location::from_hog_only);
+	show_title_screen((resolution_at_least_640_480 && PHYSFS_exists(logo_hires_pcx)) ? logo_hires_pcx : "logo.pcx", title_load_location::from_hog_only);
+	show_title_screen((resolution_at_least_640_480 && PHYSFS_exists(descent_hires_pcx)) ? descent_hires_pcx : "descent.pcx", title_load_location::from_hog_only);
 #elif defined(DXX_BUILD_DESCENT_II)
 	int song_playing = 0;
 
@@ -317,7 +317,7 @@ void show_titles(void)
 	}
 	con_puts(CON_DEBUG, "Showing logo screen...");
 	const auto filename = hiresmode ? "descentb.pcx" : "descent.pcx";
-	if (PHYSFSX_exists_ignorecase(filename))
+	if (PHYSFS_exists(filename))
 		show_title_screen(filename, title_load_location::from_hog_only);
 #endif
 }
