@@ -107,7 +107,8 @@ void gr_use_palette_table(const char * filename )
 	// even if only the d2 mac shareware datafiles are present.
 	// However, if the pig file is present but the palette file isn't,
 	// the textures in the level will look wierd...
-		auto &&[fp2, physfserr2] = PHYSFSX_openReadBuffered(DEFAULT_LEVEL_PALETTE);
+		static char default_level_palette[]{DEFAULT_LEVEL_PALETTE};
+		auto &&[fp2, physfserr2] = PHYSFSX_openReadBuffered_updateCase(default_level_palette);
 		if (!fp)
 			Error("Failed to open both palette file <%s> and default palette file <" DEFAULT_LEVEL_PALETTE ">: (\"%s\", \"%s\")", filename, PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
 		fp = std::move(fp2);

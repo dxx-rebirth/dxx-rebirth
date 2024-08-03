@@ -1014,7 +1014,7 @@ static const char *load_mission(const mle *const mission)
 	std::array<char, PATH_MAX> mission_filename;
 	snprintf(mission_filename.data(), mission_filename.size(), "%s%s", mission->path.c_str(), msn_extension);
 
-	auto &&[mfile, physfserr] = PHYSFSX_openReadBuffered(mission_filename.data());
+	auto &&[mfile, physfserr] = PHYSFSX_openReadBuffered_updateCase(mission_filename.data());
 	if (!mfile) {
 		Current_mission.reset();
 		con_printf(CON_NORMAL, DXX_STRINGIZE_FL(__FILE__, __LINE__, "error: failed to open mission \"%s\": %s"), mission_filename.data(), PHYSFS_getErrorByCode(physfserr));

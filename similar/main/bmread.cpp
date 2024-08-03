@@ -414,7 +414,7 @@ int ds_load(int skip, const char * filename )	{
 	if (i!=255)	{
 		return i;
 	}
-	if (auto cfp = PHYSFSX_openReadBuffered(rawname).first)
+	if (auto cfp{PHYSFSX_openReadBuffered_updateCase(rawname).first})
 	{
 		digi_sound n;
 		n.length	= PHYSFS_fileLength( cfp );

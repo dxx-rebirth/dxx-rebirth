@@ -4269,7 +4269,7 @@ void newdemo_start_playback(const char * filename)
 		}
 	}
 
-	infile = PHYSFSX_openReadBuffered(filename2).first;
+	infile = PHYSFSX_openReadBuffered_updateCase(filename2).first;
 
 	if (!infile) {
 		return;
@@ -4347,7 +4347,7 @@ int newdemo_swap_endian(const char *filename)
 	else
 		return 0;
 
-	infile = PHYSFSX_openReadBuffered(inpath).first;
+	infile = PHYSFSX_openReadBuffered_updateCase(inpath).first;
 	if (!infile)
 		goto read_error;
 

@@ -1325,7 +1325,7 @@ int load_level(
 	{
 		filename = filename_storage.data(); 
 		snprintf(filename_storage.data(), filename_storage.size(), "%.*s%s", DXX_ptrdiff_cast_int(std::distance(Current_mission->path.cbegin(), Current_mission->filename)), Current_mission->path.c_str(), filename_passed);
-		auto &&[fp, physfserr] = PHYSFSX_openReadBuffered(filename);
+		auto &&[fp, physfserr] = PHYSFSX_openReadBuffered_updateCase(filename_storage.data());
 		if (!fp)
 		{
 #if DXX_USE_EDITOR

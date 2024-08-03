@@ -484,7 +484,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 		GameBitmapOffset[(bitmap_index{0})] = pig_bitmap_offset::None;
 	}
 	
-	Piggy_fp = PHYSFSX_openReadBuffered(DEFAULT_PIGFILE_REGISTERED).first;
+	Piggy_fp = PHYSFSX_openReadBuffered_updateCase(default_pigfile_registered).first;
 	if (!Piggy_fp)
 	{
 		if (!PHYSFS_exists("BITMAPS.TBL") && !PHYSFS_exists("BITMAPS.BIN"))

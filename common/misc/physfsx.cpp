@@ -22,6 +22,28 @@ namespace {
 
 constexpr std::array<file_extension_t, 1> archive_exts{{"dxa"}};
 
+std::pair<RAIINamedPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openReadBuffered_internal(char *const filename, const char *const reported_filename)
+{
+	PHYSFS_uint64 bufSize;
+	if (PHYSFSEXT_locateCorrectCase(filename))
+		return {RAIINamedPHYSFS_File{}, PHYSFS_ERR_NOT_FOUND};
+	/* Use the specified filename in any error messages.  This may be the
+	 * modified filename or may be the original, depending on whether the
+	 * modified filename is a temporary.  Even if the original filename is
+	 * used, it should be close enough that the user should be able to identify
+	 * the bad file, and avoids the need to allocate and return storage for the
+	 * filename.  In almost all cases, the filename will never be seen, since
+	 * it is only shown if an error occurs when reading the file.
+	 */
+	RAIINamedPHYSFS_File fp{PHYSFS_openRead(filename), reported_filename};
+	if (!fp)
+		return {std::move(fp), PHYSFS_getLastErrorCode()};
+	bufSize = PHYSFS_fileLength(fp);
+	while (!PHYSFS_setBuffer(fp, bufSize) && bufSize)
+		bufSize /= 2;	// even if the error isn't memory full, for a 20MB file it'll only do this 8 times
+	return {std::move(fp), PHYSFS_ERR_OK};
+}
+
 }
 
 PHYSFSX_fgets_t::result PHYSFSX_fgets_t::get(const std::span<char> buf, PHYSFS_File *const fp)
@@ -290,35 +312,26 @@ int PHYSFSX_exists_ignorecase(char *filename)
 }
 
 //Open a file for reading, set up a buffer
+std::pair<RAIINamedPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openReadBuffered_updateCase(char *const filename)
+{
+	/* The caller provided the filename buffer, so use that buffer for the
+	 * reported filename.
+	 */
+	return PHYSFSX_openReadBuffered_internal(filename, filename);
+}
+
+//Open a file for reading, set up a buffer
 std::pair<RAIINamedPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openReadBuffered(const char *filename)
 {
-	PHYSFS_uint64 bufSize;
 	char filename2[PATH_MAX];
-#if 0
-	if (filename[0] == '\x01')
-	{
-		//FIXME: don't look in dir, only in hogfile
-		filename++;
-	}
-#endif
 	snprintf(filename2, sizeof(filename2), "%s", filename);
-	if (PHYSFSEXT_locateCorrectCase(filename2))
-		return {RAIINamedPHYSFS_File{}, PHYSFS_ERR_NOT_FOUND};
-
 	/* Use the original filename in any error messages.  This is close enough
 	 * that the user should be able to identify the bad file, and avoids the
 	 * need to allocate and return storage for the filename.  In almost all
 	 * cases, the filename will never be seen, since it is only shown if an
 	 * error occurs when reading the file.
 	 */
-	RAIINamedPHYSFS_File fp{PHYSFS_openRead(filename2), filename};
-	if (!fp)
-		return {std::move(fp), PHYSFS_getLastErrorCode()};
-	
-	bufSize = PHYSFS_fileLength(fp);
-	while (!PHYSFS_setBuffer(fp, bufSize) && bufSize)
-		bufSize /= 2;	// even if the error isn't memory full, for a 20MB file it'll only do this 8 times
-	return {std::move(fp), PHYSFS_ERR_OK};
+	return PHYSFSX_openReadBuffered_internal(filename2, filename);
 }
 
 //Open a file for writing, set up a buffer

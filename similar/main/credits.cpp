@@ -290,7 +290,7 @@ void credits_show()
 	{
 		char nfile[32];
 		snprintf(nfile, sizeof(nfile), "%.*sxb", static_cast<int>(credits_file.size()), credits_file.data());
-		auto &&[file2, physfserr2] = PHYSFSX_openReadBuffered(nfile);
+		auto &&[file2, physfserr2] = PHYSFSX_openReadBuffered_updateCase(nfile);
 		if (!file2)
 			Error("Failed to open CREDITS.TEX and CREDITS.TXB file: \"%s\", \"%s\"\n", PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
 		file = std::move(file2);

@@ -524,7 +524,7 @@ static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const std::spa
 			con_printf(CON_NORMAL, "Rebirth: skipping subtitles because cannot open \"%s\" (\"%s\")", filename.data(), PHYSFS_getErrorByCode(physfserr));
 			return 0;
 		}
-		auto &&[ifile2, physfserr2]{PHYSFSX_openReadBuffered(filename2.data())};
+		auto &&[ifile2, physfserr2]{PHYSFSX_openReadBuffered_updateCase(filename2.data())};
 		if (!ifile2)
 		{
 			con_printf(CON_VERBOSE, "Rebirth: skipping subtitles because cannot open \"%s\" or \"%s\" (\"%s\", \"%s\")", filename.data(), filename2.data(), PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));

@@ -534,7 +534,7 @@ void load_robot_replacements(const d_fname &level_name)
 		return;
 	}
 
-	auto fp = PHYSFSX_openReadBuffered(ifile_name.data()).first;
+	auto fp{PHYSFSX_openReadBuffered_updateCase(ifile_name.data()).first};
 	if (!fp)		//no robot replacement file
 		return;
 
@@ -738,7 +738,8 @@ int load_exit_models()
 		return 1;
 	}
 
-	if (auto exit_hamfile = PHYSFSX_openReadBuffered("exit.ham").first)
+	static char exit_ham_basename[]{"exit.ham"};
+	if (auto exit_hamfile{PHYSFSX_openReadBuffered(exit_ham_basename).first})
 	{
 		const auto em = static_cast<polygon_model_index>(N_polygon_models);
 		const auto dem = static_cast<polygon_model_index>(N_polygon_models + 1);
@@ -765,7 +766,7 @@ int load_exit_models()
 		ogl_cache_polymodel_textures(destroyed_exit_modelnum);
 #endif
 	}
-	else if ((exit_hamfile = PHYSFSX_openReadBuffered(descent_pig_basename).first))
+	else if ((exit_hamfile = PHYSFSX_openReadBuffered_updateCase(descent_pig_basename).first))
 	{
 		int offset, offset2;
 		switch (descent1_pig_size{PHYSFS_fileLength(exit_hamfile)})

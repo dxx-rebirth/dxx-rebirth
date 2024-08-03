@@ -55,6 +55,8 @@ CCfg CGameCfg;
 
 namespace {
 
+static char dxx_descent_cfg_name[]{DXX_DESCENT_CFG_NAME};
+
 /* This is declared for use in `decltype`, and never defined. */
 template <std::size_t N>
 	std::integral_constant<std::size_t, N> field_value_length(const std::array<char, N> &);
@@ -174,7 +176,7 @@ struct descent_cfg_file_prepared_text
 
 static bool cfg_file_unchanged(const descent_cfg_file_prepared_text &current_cfg_text)
 {
-	const auto &&[f, physfserr]{PHYSFSX_openReadBuffered(DXX_DESCENT_CFG_NAME)};
+	const auto &&[f, physfserr]{PHYSFSX_openReadBuffered_updateCase(dxx_descent_cfg_name)};
 	if (!f)
 	{
 		/* If the file cannot be read, assume that a new file must be written. */
@@ -295,7 +297,7 @@ void ReadConfigFile(CCfg &CGameCfg, Cfg &GameCfg)
 	CGameCfg.FPSIndicator = 0;
 	CGameCfg.Grabinput = true;
 
-	auto &&[infile, physfserr]{PHYSFSX_openReadBuffered(DXX_DESCENT_CFG_NAME)};
+	auto &&[infile, physfserr]{PHYSFSX_openReadBuffered_updateCase(dxx_descent_cfg_name)};
 	if (!infile)
 	{
 		/* "File not found" is less important, and happens naturally on a first

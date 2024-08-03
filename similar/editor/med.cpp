@@ -304,7 +304,8 @@ static void medkey_init()
 
 	KeyFunction = {};
 
-	if (auto keyfile = PHYSFSX_openReadBuffered("GLOBAL.KEY").first)
+	static char global_key_basename[]{"GLOBAL.KEY"};
+	if (auto keyfile{PHYSFSX_openReadBuffered(global_key_basename).first})
 	{
 		for (PHYSFSX_gets_line_t<200> line_buffer; PHYSFSX_fgets(line_buffer, keyfile);)
 		{
