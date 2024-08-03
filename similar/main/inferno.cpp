@@ -623,7 +623,7 @@ static int main(int argc, char *argv[])
 	// Load the palette stuff. Returns non-zero if error.
 	con_puts(CON_DEBUG, "Initializing palette system...");
 #if defined(DXX_BUILD_DESCENT_I)
-	gr_use_palette_table( "PALETTE.256" );
+	gr_use_palette_table("palette.256");
 #elif defined(DXX_BUILD_DESCENT_II)
 	gr_use_palette_table(D2_DEFAULT_PALETTE );
 #endif
