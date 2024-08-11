@@ -29,6 +29,24 @@
 #include "console.h"
 #include "physfsrwops.h"
 
+#if SDL_MIXER_MAJOR_VERSION == 1
+/* SDL_mixer-1 is inconsistent in its memory management.  On success, it takes
+ * ownership.  On failure, it may free the resource immediately or may leave it
+ * allocated, with no indication which was done.  Therefore, for simplicity,
+ * always manage the object in Rebirth code.
+ */
+#define DXX_USE_SDL_RWOPS_MANAGEMENT	0
+#else
+/* SDL_mixer-2 (and possibly later versions, though that has not been checked)
+ * are consistent, and can handle the memory management internally.  For
+ * completeness, provide a compile-time knob for Rebirth to manage this, but
+ * default it to delegate to SDL_mixer.
+ */
+#ifndef DXX_USE_SDL_RWOPS_MANAGEMENT
+#define DXX_USE_SDL_RWOPS_MANAGEMENT	1
+#endif
+#endif
+
 namespace dcx {
 
 namespace {
@@ -41,17 +59,48 @@ struct Music_delete
 	}
 };
 
-class current_music_t : std::unique_ptr<Mix_Music, Music_delete>
+class current_music_t :
+#if !DXX_USE_SDL_RWOPS_MANAGEMENT
+	/* If the memory management is not delegated to SDL, then an additional
+	 * `std::unique_ptr` is needed to track and free the memory.  Based on code
+	 * inspection, SDL_mixer does not appear to access the `SDL_RWops`
+	 * structure while processing the `Mix_FreeMusic` call.  However, since
+	 * logically the `Mix_Music` depends on the `SDL_RWops`, it seems safer to
+	 * assume that `Mix_FreeMusic` might access the `SDL_RWops`, and arrange
+	 * for the lifetime of `SDL_RWops` to exceed the lifetime of the
+	 * `Mix_Music`.  Therefore, the `SDL_RWops` is stored earlier in the class
+	 * than the `Mix_Music`, and is destroyed later.
+	 *
+	 * If the memory management is delegated to SDL, then no additional storage
+	 * is needed.
+	 */
+	RWops_ptr,
+#endif
+	std::unique_ptr<Mix_Music, Music_delete>
 {
 	using music_pointer = std::unique_ptr<Mix_Music, Music_delete>;
 public:
+#if DXX_USE_SDL_RWOPS_MANAGEMENT
+	/* Inherit the zero-argument form of `reset`, since the `reset()` method on
+	 * this class would only be a call to `music_pointer::reset()`.  Prohibit
+	 * use of the one-argument form of `reset`, since it would not be visible
+	 * in the `#else` case.
+	 */
 	using music_pointer::reset;
-	void reset(SDL_RWops *rw);
+	void reset(auto) = delete;
+#else
+	void reset()
+	{
+		music_pointer::reset();
+		RWops_ptr::reset();
+	}
+#endif
+	void reset(RWops_ptr rw);
 	using music_pointer::operator bool;
 	using music_pointer::get;
 };
 
-void current_music_t::reset(SDL_RWops *const rw)
+void current_music_t::reset(RWops_ptr rw)
 {
 	if (!rw)
 	{
@@ -64,20 +113,42 @@ void current_music_t::reset(SDL_RWops *const rw)
 		reset();
 		return;
 	}
-	reset(Mix_LoadMUSType_RW(rw, MUS_NONE, SDL_TRUE));
-	if constexpr (SDL_MIXER_MAJOR_VERSION == 1)
+	const auto music{Mix_LoadMUSType_RW(rw.get(), MUS_NONE, DXX_USE_SDL_RWOPS_MANAGEMENT)};
+	music_pointer::reset(music);
+#if DXX_USE_SDL_RWOPS_MANAGEMENT
+	/* The `SDL_RWops` is now owned by SDL_mixer, so clear the
+	 * `std::unique_ptr` to avoid freeing the `SDL_RWops`.
+	 *
+	 * If the load failed, then the `SDL_RWops` has already been freed.
+	 * If the load succeeded, then SDL_mixer will free the `SDL_RWops` when the
+	 * `Mix_Music` is destroyed.
+	 */
+	rw.release();
+#else
+	if (music)
 	{
-		/* In SDL_mixer-1, setting freesrc==SDL_TRUE only transfers ownership
-		 * of the RWops structure on success.  On failure, the structure is
-		 * still owned by the caller, and must be freed here.
+		/* The `SDL_RWops` remains owned by Rebirth, but must remain alive
+		 * until the `Mix_Music` is destroyed, so transfer the `SDL_RWops` into
+		 * the class to extend its lifetime.
 		 *
-		 * In SDL_mixer-2, setting freesrc==SDL_TRUE always transfers ownership
-		 * of the RWops structure.  On failure, SDL_mixer-2 will free the RWops
-		 * before returning, so the structure must not be freed here.
+		 * The previous `Mix_Music`, if any, was freed by the
+		 * `music_pointer::reset` above, so the previous `SDL_RWops`, if any,
+		 * can now be freed safely.
 		 */
-		if (!*this)
-			SDL_RWclose(rw);
+		RWops_ptr::operator=(std::move(rw));
 	}
+	else
+	{
+		/* If `!music`, the SDL_RWops is owned by Rebirth, but not needed since
+		 * there is no music to use it.  Allow it to expire at the end of the
+		 * function.
+		 *
+		 * Clear the prior RWops_ptr, if any, since it corresponds to the prior
+		 * music that was freed above.
+		 */
+		RWops_ptr::reset();
+	}
+#endif
 }
 
 static current_music_t current_music;
@@ -275,8 +346,7 @@ static CurrentMusicType load_mus_data(const std::span<const uint8_t> data, int l
 	else
 #endif
 	{
-		const auto rw = SDL_RWFromConstMem(data.data(), data.size());
-		current_music.reset(rw);
+		current_music.reset(RWops_ptr{SDL_RWFromConstMem(data.data(), data.size())});
 		if (current_music)
 		{
 			mix_set_music_type_sdlmixer(loop, hook_finished_track);
@@ -299,8 +369,7 @@ static CurrentMusicType load_mus_file(const char *filename, int loop, void (*con
 	else
 #endif
 	{
-		const auto rw = SDL_RWFromFile(filename, "rb");
-		current_music.reset(rw);
+		current_music.reset(RWops_ptr{SDL_RWFromFile(filename, "rb")});
 		if (current_music)
 		{
 			mix_set_music_type_sdlmixer(loop, hook_finished_track);
