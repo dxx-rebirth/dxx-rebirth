@@ -61,8 +61,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_zip.h"
 #include "partial_range.h"
 
-#define PLAYER_EFFECTIVENESS_FILENAME_FORMAT	PLAYER_DIRECTORY_STRING("%s.eff")
-
 #define GameNameStr "game_name"
 #define GameModeStr "gamemode"
 #define RefusePlayersStr "RefusePlayers"
@@ -708,12 +706,13 @@ static void plyr_read_stats(const std::span<char> filename)
 void plyr_save_stats(const char *const callsign, int kills, int deaths)
 {
 	int neg, i;
-	char filename[PATH_MAX];
 	std::array<uint8_t, 16> buf, buf2;
 	uint8_t a;
-	memset(filename, '\0', PATH_MAX);
-	snprintf(filename, sizeof(filename), PLAYER_EFFECTIVENESS_FILENAME_FORMAT, callsign);
-	auto f = PHYSFSX_openWriteBuffered(filename).first;
+	std::array<char, sizeof(PLAYER_DIRECTORY_TEXT ".eff") + CALLSIGN_LEN> filename;
+	const auto plr_filename_length{std::snprintf(filename.data(), filename.size(), PLAYER_DIRECTORY_STRING("%.8s.eff"), callsign)};
+	if (plr_filename_length >= filename.size())
+		return;
+	auto f{PHYSFSX_openWriteBuffered(filename.data()).first};
 	if(!f)
 		return; //broken!
 
