@@ -100,7 +100,7 @@ PHYSFSX_case_search_result PHYSFSEXT_locateCorrectCase(char *buf)
         return PHYSFSX_case_search_result::success;  /* Uh...I guess that's success. */
 
 	char *prevptr = nullptr;
-	const auto step{[&]{
+	const auto step{[&prevptr, buf]{
 		return locateOneElement(prevptr ? prevptr + 1 : buf, prevptr, buf);
 	}};
 	for (auto ptr = buf; (ptr = strchr(ptr + 1, '/')); prevptr = ptr)
