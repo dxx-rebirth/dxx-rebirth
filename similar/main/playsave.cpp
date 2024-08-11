@@ -705,77 +705,67 @@ static void plyr_read_stats(const std::span<char> filename)
 
 void plyr_save_stats(const char *const callsign, int kills, int deaths)
 {
-	int neg, i;
-	std::array<uint8_t, 16> buf, buf2;
-	uint8_t a;
+	struct effectiveness_key
+	{
+		enum : std::size_t { buffer_size = 16 };
+		std::array<char, buffer_size> buf1{}, buf2{};
+		char i;
+		static effectiveness_key build(int count, const std::span<const char, 18> eff1, const std::span<const char, 18> eff2)
+		{
+			effectiveness_key result;
+			const unsigned negate{count < 0 ? (count = -count, 1u) : 0u};
+			unsigned i{};
+			for (; count; ++i)
+			{
+				const uint8_t truncated_count{static_cast<uint8_t>(count)};
+				{
+					const uint8_t a1 = truncated_count ^ eff1[i + negate];
+					result.buf1[i * 2] = (a1 & 0xF) + 33;
+					result.buf1[i * 2 + 1] = (a1 >> 4) + 33;
+				}
+				{
+					const uint8_t a2 = truncated_count ^ eff2[i + negate];
+					result.buf2[i * 2] = (a2 & 0xF) + 33;
+					result.buf2[i * 2 + 1] = (a2 >> 4) + 33;
+				}
+				count >>= 8;
+			}
+			result.i = i + (negate ? 'a' : 'A');
+			return result;
+		}
+	private:
+		/* Require use of the helper method `build`. */
+		constexpr effectiveness_key() = default;
+	};
+	std::array<char, 26 /* fixed bytes */ + (2 * 12) /* 2 maximum length integers */ + (2 * 2 * effectiveness_key::buffer_size) /* 2 maximum length effectiveness_key buffers */> file_contents;
+	const auto ekills{effectiveness_key::build(kills, effcode1, effcode2)};
+	const auto edeaths{effectiveness_key::build(deaths, effcode3, effcode4)};
+	const auto content_length{
+		std::snprintf(
+			file_contents.data(), file_contents.size(),
+			"kills:%i\n"
+			"deaths:%i\n"
+			"key:01 "
+			"%c%s %c%s "
+			"%c%s %c%s\n",
+			kills, deaths,
+			ekills.i, ekills.buf1.data(), ekills.i, ekills.buf2.data(),
+			edeaths.i, edeaths.buf1.data(), edeaths.i, edeaths.buf2.data()
+		)
+	};
+	if (content_length >= file_contents.size())
+		return;
 	std::array<char, sizeof(PLAYER_DIRECTORY_TEXT ".eff") + CALLSIGN_LEN> filename;
 	const auto plr_filename_length{std::snprintf(filename.data(), filename.size(), PLAYER_DIRECTORY_STRING("%.8s.eff"), callsign)};
 	if (plr_filename_length >= filename.size())
 		return;
-	auto f{PHYSFSX_openWriteBuffered(filename.data()).first};
-	if(!f)
-		return; //broken!
-
-	PHYSFSX_printf(f,"kills:%i\n",kills);
-	PHYSFSX_printf(f,"deaths:%i\n",deaths);
-	PHYSFSX_puts_literal(f, "key:01 ");
-
-	if (kills < 0)
-	{
-		neg=1;
-		kills*=-1;
-	}
+	if (RAIIPHYSFS_File f{PHYSFS_openWrite(filename.data())})
+		PHYSFS_writeBytes(f, file_contents.data(), content_length);
 	else
-		neg=0;
-
-	for (i=0;kills;i++)
 	{
-		a=(kills & 0xFF) ^ effcode1[i+neg];
-		buf[i*2]=(a&0xF)+33;
-		buf[i*2+1]=(a>>4)+33;
-		a=(kills & 0xFF) ^ effcode2[i+neg];
-		buf2[i*2]=(a&0xF)+33;
-		buf2[i*2+1]=(a>>4)+33;
-		kills>>=8;
+		const auto pe{PHYSFS_getLastErrorCode()};
+		con_printf(CON_NORMAL, "error: failed to open player effectiveness file for write \"%s\": %s", filename.data(), PHYSFS_getErrorByCode(pe));
 	}
-
-	buf[i*2]=0;
-	buf2[i*2]=0;
-
-	if (neg)
-		i+='a';
-	else
-		i+='A';
-
-	PHYSFSX_printf(f,"%c%s %c%s ",i,buf.data(),i,buf2.data());
-
-	if (deaths < 0)
-	{
-		neg=1;
-		deaths*=-1;
-	}else
-		neg=0;
-
-	for (i=0;deaths;i++)
-	{
-		a=(deaths & 0xFF) ^ effcode3[i+neg];
-		buf[i*2]=(a&0xF)+33;
-		buf[i*2+1]=(a>>4)+33;
-		a=(deaths & 0xFF) ^ effcode4[i+neg];
-		buf2[i*2]=(a&0xF)+33;
-		buf2[i*2+1]=(a>>4)+33;
-		deaths>>=8;
-	}
-
-	buf[i*2]=0;
-	buf2[i*2]=0;
-
-	if (neg)
-		i+='a';
-	else
-		i+='A';
-
-	PHYSFSX_printf(f, "%c%s %c%s\n", i, buf.data(), i, buf2.data());
 }
 #endif
 
