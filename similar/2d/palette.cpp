@@ -94,6 +94,63 @@ static unsigned Num_computed_colors;
 
 namespace dsx {
 
+namespace {
+
+RAIIPHYSFS_File gr_open_palette_file(const char *const filename)
+{
+	if (auto [fp_requested_palette, physfserr_requested_palette]{PHYSFSX_openReadBuffered(filename)}; fp_requested_palette)
+	{
+		/* gcc interprets `return fp_requested_palette;` to move
+		 * `fp_requested_palette` to the caller.
+		 *
+		 * clang interprets `return fp_requested_palette;` to copy
+		 * `fp_requested_palette` to the caller, then errors out because the
+		 * copy constructor is inaccessible.
+		 *
+		 * Use an explicit `std::move` to cause clang to use the move
+		 * constructor.  From inspection, gcc generates the same code with an
+		 * explicit `std::move` as with an implicit move, so this is not a
+		 * pessimizing move.  However, for future proofing, only call
+		 * `std::move` when using clang.
+		 *
+		 * clang version results:
+		 * <clang-16: untested
+		 * clang-16: fails
+		 * clang-17: fails
+		 * >clang-17: untested
+		 */
+		return
+#ifdef __clang__
+			std::move
+#endif
+			(fp_requested_palette);
+	}
+	else
+	{
+#if defined(DXX_BUILD_DESCENT_I)
+		Error("Failed to open palette file <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr_requested_palette));
+#elif defined(DXX_BUILD_DESCENT_II)
+	// the following is a hack to enable the loading of d2 levels
+	// even if only the d2 mac shareware datafiles are present.
+	// However, if the pig file is present but the palette file isn't,
+	// the textures in the level will look wierd...
+		static char default_level_palette[]{DEFAULT_LEVEL_PALETTE};
+		if (auto [fp_fallback_default_palette, physfserr_fallback_default_palette]{PHYSFSX_openReadBuffered_updateCase(default_level_palette)}; fp_fallback_default_palette)
+		{
+			return
+#ifdef __clang__
+				std::move
+#endif
+				(fp_fallback_default_palette);
+		}
+		else
+			Error("Failed to open both palette file <%s> and default palette file <" DEFAULT_LEVEL_PALETTE ">: (\"%s\", \"%s\")", filename, PHYSFS_getErrorByCode(physfserr_requested_palette), PHYSFS_getErrorByCode(physfserr_fallback_default_palette));
+#endif
+	}
+}
+
+}
+
 #if defined(DXX_BUILD_DESCENT_II)
 void gr_copy_palette(palette_array_t &gr_palette, const palette_array_t &pal)
 {
@@ -105,25 +162,8 @@ void gr_copy_palette(palette_array_t &gr_palette, const palette_array_t &pal)
 
 void gr_use_palette_table(const char * filename )
 {
+	auto fp{gr_open_palette_file(filename)};
 	int fsize;
-
-	auto &&[fp, physfserr] = PHYSFSX_openReadBuffered(filename);
-	if (!fp)
-	{
-#if defined(DXX_BUILD_DESCENT_I)
-		Error("Failed to open palette file <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr));
-#elif defined(DXX_BUILD_DESCENT_II)
-	// the following is a hack to enable the loading of d2 levels
-	// even if only the d2 mac shareware datafiles are present.
-	// However, if the pig file is present but the palette file isn't,
-	// the textures in the level will look wierd...
-		static char default_level_palette[]{DEFAULT_LEVEL_PALETTE};
-		auto &&[fp2, physfserr2] = PHYSFSX_openReadBuffered_updateCase(default_level_palette);
-		if (!fp)
-			Error("Failed to open both palette file <%s> and default palette file <" DEFAULT_LEVEL_PALETTE ">: (\"%s\", \"%s\")", filename, PHYSFS_getErrorByCode(physfserr), PHYSFS_getErrorByCode(physfserr2));
-		fp = std::move(fp2);
-#endif
-	}
 
 	fsize	= PHYSFS_fileLength( fp );
 	Assert( fsize == 9472 );
