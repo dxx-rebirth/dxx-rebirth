@@ -25,7 +25,7 @@ constexpr std::array<file_extension_t, 1> archive_exts{{"dxa"}};
 std::pair<RAIINamedPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openReadBuffered_internal(char *const filename, const char *const reported_filename)
 {
 	PHYSFS_uint64 bufSize;
-	if (PHYSFSEXT_locateCorrectCase(filename))
+	if (PHYSFSEXT_locateCorrectCase(filename) != PHYSFSX_case_search_result::success)
 		return {RAIINamedPHYSFS_File{}, PHYSFS_ERR_NOT_FOUND};
 	/* Use the specified filename in any error messages.  This may be the
 	 * modified filename or may be the original, depending on whether the
@@ -116,7 +116,7 @@ const file_extension_t *PHYSFSX_checkMatchingExtension(const char *filename, con
 // It will add the first one it finds and return a PhysFS error code, if it doesn't find any it returns PHYSFS_ERR_OK
 PHYSFS_ErrorCode PHYSFSX_addRelToSearchPath(char *const relname2, std::array<char, PATH_MAX> &pathname, physfs_search_path add_to_end)
 {
-	if (PHYSFSEXT_locateCorrectCase(relname2) ||
+	if (PHYSFSEXT_locateCorrectCase(relname2) != PHYSFSX_case_search_result::success ||
 		!PHYSFSX_getRealPath(relname2, pathname))
 	{
 		/* This failure is not reported as an error, because callers
@@ -144,7 +144,7 @@ PHYSFS_ErrorCode PHYSFSX_addRelToSearchPath(char *const relname2, std::array<cha
 void PHYSFSX_removeRelFromSearchPath(char *const relname)
 {
 	std::array<char, PATH_MAX> pathname;
-	if (PHYSFSEXT_locateCorrectCase(relname) ||
+	if (PHYSFSEXT_locateCorrectCase(relname) != PHYSFSX_case_search_result::success ||
 		!PHYSFSX_getRealPath(relname, pathname))
 	{
 		con_printf(CON_DEBUG, "PHYSFS: ignoring unmap request: no canonical path for relative name \"%s\"", relname);
@@ -159,7 +159,7 @@ void PHYSFSX_removeRelFromSearchPath(char *const relname)
 
 int PHYSFSX_fsize(char *const filename)
 {
-	if (PHYSFSEXT_locateCorrectCase(filename))
+	if (PHYSFSEXT_locateCorrectCase(filename) != PHYSFSX_case_search_result::success)
 	{
 		/* Fall through to the final return. */
 	}
@@ -308,7 +308,7 @@ PHYSFSX_uncounted_list PHYSFSX_findabsoluteFiles(const char *path, const char *r
 
 int PHYSFSX_exists_ignorecase(char *filename)
 {
-	return !PHYSFSEXT_locateCorrectCase(filename);
+	return PHYSFSEXT_locateCorrectCase(filename) == PHYSFSX_case_search_result::success;
 }
 
 //Open a file for reading, set up a buffer

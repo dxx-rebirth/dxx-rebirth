@@ -92,14 +92,14 @@ static int locateOneElement(char *const sptr, char *const ptr, const char *buf)
 
 }
 
-int PHYSFSEXT_locateCorrectCase(char *buf)
+PHYSFSX_case_search_result PHYSFSEXT_locateCorrectCase(char *buf)
 {
     int rc;
 
     while (*buf == '/')  /* skip any '/' at start of string... */
         buf++;
 	if (!*buf)
-        return(0);  /* Uh...I guess that's success. */
+        return PHYSFSX_case_search_result::success;  /* Uh...I guess that's success. */
 
 	char *prevptr = nullptr;
 	const auto a = [&]{
@@ -111,11 +111,11 @@ int PHYSFSEXT_locateCorrectCase(char *buf)
         rc = a();
         *ptr = '/'; /* restore path separator */
         if (!rc)
-            return(-2);  /* missing element in path. */
+            return PHYSFSX_case_search_result::directory_missing;  /* missing element in path. */
     } /* while */
 
     /* check final element... */
-    return a() ? 0 : -1;
+    return a() ? PHYSFSX_case_search_result::success : PHYSFSX_case_search_result::file_missing;
 } /* PHYSFSEXT_locateCorrectCase */
 
 }
@@ -124,7 +124,7 @@ int PHYSFSEXT_locateCorrectCase(char *buf)
 #define con_printf(A,B,...)	printf(B "\n", ##__VA_ARGS__)
 int main(int argc, char **argv)
 {
-    int rc;
+    PHYSFSX_case_search_result rc;
     char buf[128];
     PHYSFS_File *f;
 
@@ -182,32 +182,32 @@ int main(int argc, char **argv)
 
     strcpy(buf, "/a/b/c/x.txt");
     rc = PHYSFSEXT_locateCorrectCase(buf);
-    if ((rc != 0) || (strcmp(buf, "/a/b/c/x.txt") != 0))
+    if ((rc != PHYSFSX_case_search_result::success) || (strcmp(buf, "/a/b/c/x.txt") != 0))
         con_printf(CON_DEBUG,"test 1 failed");
 
     strcpy(buf, "/a/B/c/x.txt");
     rc = PHYSFSEXT_locateCorrectCase(buf);
-    if ((rc != 0) || (strcmp(buf, "/a/b/c/x.txt") != 0))
+    if ((rc != PHYSFSX_case_search_result::success) || (strcmp(buf, "/a/b/c/x.txt") != 0))
         con_printf(CON_DEBUG,"test 2 failed");
 
     strcpy(buf, "/a/b/C/x.txt");
     rc = PHYSFSEXT_locateCorrectCase(buf);
-    if ((rc != 0) || (strcmp(buf, "/a/b/C/X.txt") != 0))
+    if ((rc != PHYSFSX_case_search_result::success) || (strcmp(buf, "/a/b/C/X.txt") != 0))
         con_printf(CON_DEBUG,"test 3 failed");
 
     strcpy(buf, "/a/b/c/X.txt");
     rc = PHYSFSEXT_locateCorrectCase(buf);
-    if ((rc != 0) || (strcmp(buf, "/a/b/c/x.txt") != 0))
+    if ((rc != PHYSFSX_case_search_result::success) || (strcmp(buf, "/a/b/c/x.txt") != 0))
         con_printf(CON_DEBUG,"test 4 failed");
 
     strcpy(buf, "/a/b/c/z.txt");
     rc = PHYSFSEXT_locateCorrectCase(buf);
-    if ((rc != -1) || (strcmp(buf, "/a/b/c/z.txt") != 0))
+    if ((rc != PHYSFSX_case_search_result::file_missing) || (strcmp(buf, "/a/b/c/z.txt") != 0))
         con_printf(CON_DEBUG,"test 5 failed");
 
     strcpy(buf, "/A/B/Z/z.txt");
     rc = PHYSFSEXT_locateCorrectCase(buf);
-    if ((rc != -2) || (strcmp(buf, "/a/b/Z/z.txt") != 0))
+    if ((rc != PHYSFSX_case_search_result::directory_missing) || (strcmp(buf, "/a/b/Z/z.txt") != 0))
         con_printf(CON_DEBUG,"test 6 failed");
 
     con_printf(CON_DEBUG,"Testing completed.");

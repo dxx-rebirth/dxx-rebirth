@@ -52,9 +52,14 @@
  */
 
 
-#ifdef __cplusplus
-
 namespace dcx {
+
+enum class PHYSFSX_case_search_result : int8_t
+{
+	directory_missing = -2,
+	file_missing = -1,
+	success = 0,
+};
 
 /**
  * \fn int PHYSFSEXT_locateCorrectCase(char *buf)
@@ -81,11 +86,8 @@ namespace dcx {
  *               is missing, -2 if one of the parent directories is missing.
  */
 [[nodiscard]]
-int PHYSFSEXT_locateCorrectCase(char *buf);
+PHYSFSX_case_search_result PHYSFSEXT_locateCorrectCase(char *buf);
 
 /* end of ignorecase.h ... */
 
 }
-
-#endif
-
