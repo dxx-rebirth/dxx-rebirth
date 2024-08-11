@@ -57,10 +57,10 @@ static std::optional<std::size_t> caseInsensitiveStringCompare(const char *x, co
 	}
 } /* caseInsensitiveStringCompare */
 
-static int locateOneElement(char *const sptr, char *const ptr, const char *buf)
+static PHYSFSX_case_search_result locateOneElement(char *const sptr, char *const ptr, const char *buf)
 {
     if (const auto r = PHYSFS_exists(buf))
-        return r;  /* quick rejection: exists in current case. */
+        return PHYSFSX_case_search_result::success;  /* quick rejection: exists in current case. */
 
 	struct search_result : PHYSFSX_uncounted_list
 	{
@@ -76,46 +76,44 @@ static int locateOneElement(char *const sptr, char *const ptr, const char *buf)
 		/* Failed to list the directory.  No names are available, so there is
 		 * no list to iterate.
 		 */
-		return 0;
+		return PHYSFSX_case_search_result::file_missing;
 	for (const auto i : s)
     {
 		if (const auto o = caseInsensitiveStringCompare(i, sptr))
         {
 			std::memcpy(sptr, i, *o); /* found a match. Overwrite with this case. */
-            return(1);
+            return PHYSFSX_case_search_result::success;
         } /* if */
     } /* for */
 
     /* no match at all... */
-    return(0);
+    return PHYSFSX_case_search_result::file_missing;
 } /* locateOneElement */
 
 }
 
 PHYSFSX_case_search_result PHYSFSEXT_locateCorrectCase(char *buf)
 {
-    int rc;
-
     while (*buf == '/')  /* skip any '/' at start of string... */
         buf++;
 	if (!*buf)
         return PHYSFSX_case_search_result::success;  /* Uh...I guess that's success. */
 
 	char *prevptr = nullptr;
-	const auto a = [&]{
+	const auto step{[&]{
 		return locateOneElement(prevptr ? prevptr + 1 : buf, prevptr, buf);
-	};
+	}};
 	for (auto ptr = buf; (ptr = strchr(ptr + 1, '/')); prevptr = ptr)
     {
         *ptr = '\0';  /* block this path section off */
-        rc = a();
+		const auto rc{step()};
         *ptr = '/'; /* restore path separator */
-        if (!rc)
+        if (rc != PHYSFSX_case_search_result::success)
             return PHYSFSX_case_search_result::directory_missing;  /* missing element in path. */
     } /* while */
 
     /* check final element... */
-    return a() ? PHYSFSX_case_search_result::success : PHYSFSX_case_search_result::file_missing;
+    return step();
 } /* PHYSFSEXT_locateCorrectCase */
 
 }
