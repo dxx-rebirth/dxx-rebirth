@@ -200,7 +200,7 @@ static void mix_set_music_type_adl(int loop, void (*const hook_finished_track)()
 }
 #endif
 
-enum class CurrentMusicType
+enum class CurrentMusicType : uint8_t
 {
 	None,
 #if DXX_USE_ADLMIDI
@@ -209,7 +209,7 @@ enum class CurrentMusicType
 	SDLMixer,
 };
 
-static CurrentMusicType current_music_type = CurrentMusicType::None;
+static CurrentMusicType current_music_type{CurrentMusicType::None};
 
 static CurrentMusicType load_mus_data(const char *filename, std::span<const uint8_t> data, int loop, void (*const hook_finished_track)());
 static CurrentMusicType load_mus_file(const char *filename, int loop, void (*const hook_finished_track)());
