@@ -88,6 +88,29 @@ color_palette_index gr_find_closest_color_palette(const int r, const int g, cons
 
 static unsigned Num_computed_colors;
 
+void gr_read_palette_file_bytes(RAIIPHYSFS_File fp)
+{
+	if (const auto fsize{PHYSFS_fileLength(fp)}; unlikely(fsize != 9472))
+	{
+		/* This can only happen if an ill-formed data file is provided. */
+		gr_palette = {};
+		gr_fade_table = {};
+		return;
+	}
+	PHYSFSX_readBytes(fp, gr_palette, sizeof(gr_palette[0]) * gr_palette.size());
+	PHYSFSX_readBytes(fp, gr_fade_table, 256*34);
+}
+
+void gr_read_palette_file(RAIIPHYSFS_File fp)
+{
+	Num_computed_colors = 0;	//	Flush palette cache.
+	gr_read_palette_file_bytes(std::move(fp));
+
+	// This is the TRANSPARENCY COLOR
+	for (auto &i : gr_fade_table)
+		i[255] = 255;
+}
+
 }
 
 }
@@ -162,20 +185,7 @@ void gr_copy_palette(palette_array_t &gr_palette, const palette_array_t &pal)
 
 void gr_use_palette_table(const char * filename )
 {
-	auto fp{gr_open_palette_file(filename)};
-	int fsize;
-
-	fsize	= PHYSFS_fileLength( fp );
-	Assert( fsize == 9472 );
-	(void)fsize;
-	PHYSFSX_readBytes(fp, gr_palette, sizeof(gr_palette[0]) * std::size(gr_palette));
-	PHYSFSX_readBytes(fp, gr_fade_table, 256*34);
-	fp.reset();
-
-	// This is the TRANSPARENCY COLOR
-	for (auto &i : gr_fade_table)
-		i[255] = 255;
-	Num_computed_colors = 0;	//	Flush palette cache.
+	gr_read_palette_file(gr_open_palette_file(filename));
 }
 
 }
