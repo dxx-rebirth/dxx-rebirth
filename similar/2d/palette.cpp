@@ -39,8 +39,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_enumerate.h"
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include "compiler-range_for.h"
-#include "partial_range.h"
 #include <array>
 
 namespace dcx {
@@ -61,7 +59,19 @@ color_palette_index gr_find_closest_color_palette(const int r, const int g, cons
 	unsigned best_value = UINT_MAX;
 	color_palette_index best_index{};
 	// only go to 255, 'cause we dont want to check the transparent color.
-	for (auto &&[candidate_idx, candidate_rgb] : enumerate(unchecked_partial_range(palette, palette.size() - 1)))
+	/* Do not use `palette.size() - 1` here.  That only works in compilers
+	 * which implement P2280R4, due to use of a reference parameter in a
+	 * constant expression, even though the value referenced has no effect on
+	 * the result of `size()`.
+	 *
+	 * <gcc-14 rejects it.
+	 * >=gcc-14 accept it.
+	 * <clang-16: untested
+	 * clang-16: fails
+	 * clang-17: fails
+	 * >clang-17: untested
+	 */
+	for (auto &&[candidate_idx, candidate_rgb] : enumerate(std::span(palette).first<255>()))
 	{
 		const auto candidate_value = get_squared_color_delta(r, g, b, candidate_rgb);
 		if (best_value > candidate_value)
@@ -123,7 +133,7 @@ void gr_use_palette_table(const char * filename )
 	fp.reset();
 
 	// This is the TRANSPARENCY COLOR
-	range_for (auto &i, gr_fade_table)
+	for (auto &i : gr_fade_table)
 		i[255] = 255;
 #if defined(DXX_BUILD_DESCENT_II)
 	Num_computed_colors = 0;	//	Flush palette cache.
