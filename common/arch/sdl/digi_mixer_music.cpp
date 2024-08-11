@@ -95,12 +95,13 @@ public:
 		RWops_ptr::reset();
 	}
 #endif
-	void reset(RWops_ptr rw);
+	[[nodiscard]]
+	uintptr_t reset(RWops_ptr rw);
 	using music_pointer::operator bool;
 	using music_pointer::get;
 };
 
-void current_music_t::reset(RWops_ptr rw)
+uintptr_t current_music_t::reset(RWops_ptr rw)
 {
 	if (!rw)
 	{
@@ -111,7 +112,7 @@ void current_music_t::reset(RWops_ptr rw)
 		 * useful.
 		 */
 		reset();
-		return;
+		return 0;
 	}
 	const auto music{Mix_LoadMUSType_RW(rw.get(), MUS_NONE, DXX_USE_SDL_RWOPS_MANAGEMENT)};
 	music_pointer::reset(music);
@@ -149,6 +150,10 @@ void current_music_t::reset(RWops_ptr rw)
 		RWops_ptr::reset();
 	}
 #endif
+	/* Return the pointer as an integer, because callers should only check for
+	 * success versus failure, and should not dereference the `Mix_Music *`.
+	 */
+	return reinterpret_cast<uintptr_t>(music);
 }
 
 static current_music_t current_music;
@@ -206,7 +211,7 @@ enum class CurrentMusicType
 
 static CurrentMusicType current_music_type = CurrentMusicType::None;
 
-static CurrentMusicType load_mus_data(std::span<const uint8_t> data, int loop, void (*const hook_finished_track)());
+static CurrentMusicType load_mus_data(const char *filename, std::span<const uint8_t> data, int loop, void (*const hook_finished_track)());
 static CurrentMusicType load_mus_file(const char *filename, int loop, void (*const hook_finished_track)());
 
 #ifdef _WIN32
@@ -233,7 +238,7 @@ int mix_play_file(const char *filename, int loop, void (*const entry_hook_finish
 		if (auto &&[v, hoe] = hmp2mid(filename); hoe == hmp_open_error::None)
 		{
 			current_music_hndlbuf = std::move(v);
-			current_music_type = load_mus_data(current_music_hndlbuf, loop, hook_finished_track);
+			current_music_type = load_mus_data(filename, current_music_hndlbuf, loop, hook_finished_track);
 			if (current_music_type != CurrentMusicType::None)
 				return 1;
 		}
@@ -269,13 +274,15 @@ int mix_play_file(const char *filename, int loop, void (*const entry_hook_finish
 	{
 		if (RAIIPHYSFS_File filehandle{PHYSFS_openRead(filename)})
 		{
-			const auto len = PHYSFS_fileLength(filehandle);
+			const auto len{PHYSFS_fileLength(filehandle)};
 			current_music_hndlbuf.resize(len);
 			const auto bufsize{PHYSFSX_readBytes(filehandle, current_music_hndlbuf.data(), len)};
-			current_music_type = load_mus_data(std::span(current_music_hndlbuf).first(bufsize), loop, hook_finished_track);
+			current_music_type = load_mus_data(filename, std::span(current_music_hndlbuf).first(bufsize), loop, hook_finished_track);
 			if (current_music_type != CurrentMusicType::None)
 				return 1;
 		}
+		else
+			con_printf(CON_VERBOSE, "warning: failed to open PhysFS file \"%s\"", filename);
 	}
 
 	con_printf(CON_CRITICAL, "Music %s could not be loaded: %s", filename, Mix_GetError());
@@ -334,7 +341,7 @@ void mix_pause_resume_music()
 
 namespace {
 
-static CurrentMusicType load_mus_data(const std::span<const uint8_t> data, int loop, void (*const hook_finished_track)())
+static CurrentMusicType load_mus_data(const char *const filename, const std::span<const uint8_t> data, int loop, void (*const hook_finished_track)())
 {
 #if DXX_USE_ADLMIDI
 	const auto adlmidi = get_adlmidi();
@@ -346,19 +353,19 @@ static CurrentMusicType load_mus_data(const std::span<const uint8_t> data, int l
 	else
 #endif
 	{
-		current_music.reset(RWops_ptr{SDL_RWFromConstMem(data.data(), data.size())});
-		if (current_music)
+		if (current_music.reset(RWops_ptr{SDL_RWFromConstMem(data.data(), data.size())}))
 		{
 			mix_set_music_type_sdlmixer(loop, hook_finished_track);
 			return CurrentMusicType::SDLMixer;
 		}
+		else
+			con_printf(CON_VERBOSE, "warning: failed to load music from data from file \"%s\"", filename);
 	}
 	return CurrentMusicType::None;
 }
 
 static CurrentMusicType load_mus_file(const char *filename, int loop, void (*const hook_finished_track)())
 {
-	CurrentMusicType type = CurrentMusicType::None;
 #if DXX_USE_ADLMIDI
 	const auto adlmidi = get_adlmidi();
 	if (adlmidi && adl_openFile(adlmidi, filename) == 0)
@@ -368,15 +375,23 @@ static CurrentMusicType load_mus_file(const char *filename, int loop, void (*con
 	}
 	else
 #endif
+	if (RWops_ptr rw{SDL_RWFromFile(filename, "rb")})
 	{
-		current_music.reset(RWops_ptr{SDL_RWFromFile(filename, "rb")});
-		if (current_music)
+		if (current_music.reset(std::move(rw)))
 		{
 			mix_set_music_type_sdlmixer(loop, hook_finished_track);
 			return CurrentMusicType::SDLMixer;
 		}
+		else
+			con_printf(CON_VERBOSE, "warning: failed to load music from filesystem file \"%s\"", filename);
 	}
-	return type;
+	else
+		/* The caller speculatively tries to treat inputs variously as PhysFS
+		 * files and filesystem files.  Failure to open this path as a
+		 * filesystem file is not necessarily an error.
+		 */
+		con_printf(CON_VERBOSE, "warning: failed to open filesystem file \"%s\"", filename);
+	return CurrentMusicType::None;
 }
 
 #if DXX_USE_ADLMIDI
