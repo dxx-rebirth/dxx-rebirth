@@ -135,9 +135,7 @@ void gr_use_palette_table(const char * filename )
 	// This is the TRANSPARENCY COLOR
 	for (auto &i : gr_fade_table)
 		i[255] = 255;
-#if defined(DXX_BUILD_DESCENT_II)
 	Num_computed_colors = 0;	//	Flush palette cache.
-#endif
 }
 
 }
