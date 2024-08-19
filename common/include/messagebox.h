@@ -15,10 +15,11 @@
 #pragma once
 
 #include <span>
+#include <SDL.h>
 
 namespace dcx {
 
-#if defined(WIN32) || defined(__APPLE__) || defined(__MACH__)
+#if defined(WIN32) || defined(__APPLE__) || defined(__MACH__) || SDL_MAJOR_VERSION == 2
 // Display a warning in a messagebox
 void msgbox_warning(std::span<const char> message);
 
