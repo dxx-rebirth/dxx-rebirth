@@ -4793,6 +4793,16 @@ class DXXArchive(DXXCommon):
 			'common/arch/cocoa/messagebox.mm',
 		))
 
+	class LinuxPlatformSettings(DXXCommon.LinuxPlatformSettings):
+		__get_sdl2_objects = LazyObjectConstructor.create_lazy_object_getter((
+'common/arch/sdl/messagebox.cpp',
+))
+		def get_platform_objects(self):
+			result = ()
+			if self.user_settings.sdl2:
+				result += self.__get_sdl2_objects()
+			return result
+
 	def __init__(self,user_settings):
 		user_settings = user_settings.clone()
 		super().__init__(user_settings)
