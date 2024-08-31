@@ -13,7 +13,7 @@ BOOST_AUTO_TEST_CASE(zip_empty)
 {
 	bool empty = true;
 	std::array<int, 0> a;
-	for (auto &&v : zip(a))
+	for (auto &&v : zip(a, a))
 	{
 		(void)v;
 		empty = false;
@@ -124,7 +124,8 @@ BOOST_AUTO_TEST_CASE(zip_selection_11_short_second)
  */
 BOOST_AUTO_TEST_CASE(zip_xrange)
 {
-	for (auto &&v : zip(xrange(1u)))
+	std::array<int, 1> a;
+	for (auto &&v : zip(xrange(1u), a))
 	{
 		BOOST_TEST(std::get<0>(v) == 0);
 	}
@@ -151,12 +152,11 @@ enum class e2 : unsigned char;
 static_assert(assert_index_type<e1, decltype(zip(std::declval<custom_index_type<e1>&>(), std::declval<custom_index_type<e1>&>()))>);
 static_assert(assert_index_type<void, decltype(zip(std::declval<custom_index_type<e1>&>(), std::declval<custom_index_type<e2>&>()))>);
 
-static_assert(std::same_as<std::nullptr_t, decltype(d_zip::detail::get_static_size(std::declval<int *>()))>);
-static_assert(std::same_as<std::nullptr_t, decltype(d_zip::detail::get_static_size(std::declval<std::vector<int>::iterator>()))>);
-static_assert(std::same_as<std::integral_constant<std::size_t, 5>, decltype(d_zip::detail::get_static_size(std::declval<int (&)[5]>()))>);
-static_assert(std::same_as<std::integral_constant<std::size_t, 6>, decltype(d_zip::detail::get_static_size(std::declval<std::array<int, 6> &>()))>);
+static_assert(d_zip::detail::range_static_extent{std::dynamic_extent} == d_zip::detail::range_static_size<std::vector<int>>);
+static_assert(d_zip::detail::range_static_extent{5} == d_zip::detail::range_static_size<int[5]>);
+static_assert(d_zip::detail::range_static_extent{6} == d_zip::detail::range_static_size<std::array<int, 6>>);
 
-static_assert(std::ranges::borrowed_range<decltype(zip(std::declval<int (&)[1]>()))>);
+static_assert(std::ranges::borrowed_range<decltype(zip(std::declval<int (&)[1]>(), std::declval<char (&)[1]>()))>);
 
 struct difference_range
 {
@@ -180,10 +180,11 @@ struct difference_range
 static_assert(std::ranges::range<difference_range &>);
 static_assert(std::ranges::input_range<difference_range &>);
 static_assert(std::ranges::borrowed_range<difference_range &>);
-static_assert(std::same_as<difference_range::iterator::difference_type, decltype(zip(std::declval<difference_range &>()).begin())::difference_type>);
+static_assert(std::same_as<difference_range::iterator::difference_type, decltype(zip(std::declval<difference_range &>(), std::declval<difference_range &>()).begin())::difference_type>);
 
-static_assert(std::same_as<std::nullptr_t, d_zip::detail::minimum_static_size<std::tuple<std::nullptr_t>>::type>);
-static_assert(std::same_as<std::integral_constant<std::size_t, 1>, d_zip::detail::minimum_static_size<std::tuple<std::integral_constant<std::size_t, 1>, std::nullptr_t>>::type>);
-static_assert(std::same_as<std::integral_constant<std::size_t, 1>, d_zip::detail::minimum_static_size<std::tuple<std::nullptr_t, std::integral_constant<std::size_t, 1>>>::type>);
-static_assert(std::same_as<std::integral_constant<std::size_t, 2>, d_zip::detail::minimum_static_size<std::tuple<std::nullptr_t, std::integral_constant<std::size_t, 2>, std::integral_constant<std::size_t, 3>>>::type>);
-static_assert(std::same_as<std::integral_constant<std::size_t, 2>, d_zip::detail::minimum_static_size<std::tuple<std::nullptr_t, std::integral_constant<std::size_t, 3>, std::nullptr_t, std::integral_constant<std::size_t, 2>>>::type>);
+static_assert(d_zip::detail::range_static_extent{std::dynamic_extent} == d_zip::detail::minimum_static_size(d_zip::detail::range_extent_sequence<d_zip::detail::range_static_extent{std::dynamic_extent}>()));
+static_assert(d_zip::detail::range_static_extent{1} == d_zip::detail::minimum_static_size(d_zip::detail::range_extent_sequence<d_zip::detail::range_static_extent{1}, d_zip::detail::range_static_extent{std::dynamic_extent}>()));
+static_assert(d_zip::detail::range_static_extent{1} == d_zip::detail::minimum_static_size(d_zip::detail::range_extent_sequence<d_zip::detail::range_static_extent{std::dynamic_extent}, d_zip::detail::range_static_extent{1}>()));
+static_assert(d_zip::detail::range_static_extent{1} == d_zip::detail::minimum_static_size(d_zip::detail::range_extent_sequence<d_zip::detail::range_static_extent{std::dynamic_extent}, d_zip::detail::range_static_extent{1}>()));
+static_assert(d_zip::detail::range_static_extent{2} == d_zip::detail::minimum_static_size(d_zip::detail::range_extent_sequence<d_zip::detail::range_static_extent{std::dynamic_extent}, d_zip::detail::range_static_extent{2}, d_zip::detail::range_static_extent{3}>()));
+static_assert(d_zip::detail::range_static_extent{2} == d_zip::detail::minimum_static_size(d_zip::detail::range_extent_sequence<d_zip::detail::range_static_extent{std::dynamic_extent}, d_zip::detail::range_static_extent{3}, d_zip::detail::range_static_extent{std::dynamic_extent}, d_zip::detail::range_static_extent{2}>()));
