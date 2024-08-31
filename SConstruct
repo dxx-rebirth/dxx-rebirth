@@ -887,13 +887,12 @@ I%(N)s a%(N)s()
 				return 0
 		return r
 	def _check_macro(self,context,macro_name,macro_value,test,_comment_not_supported=comment_not_supported,**kwargs):
-		r = self.Compile(context, text=f'''
+		self._define_macro(context, macro_name, macro_value if (
+			self.Compile(context, text=f'''
 #define {macro_name} {macro_value}
 {test}
 ''', **kwargs)
-		if not r:
-			macro_value = _comment_not_supported
-		self._define_macro(context, macro_name, macro_value)
+			) else _comment_not_supported)
 	def _define_macro(self,context,macro_name,macro_value):
 		context.sconf.Define(macro_name, macro_value)
 		self.__defined_macros += f'#define {macro_name} {macro_value}\n'
