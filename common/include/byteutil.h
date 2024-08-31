@@ -120,11 +120,15 @@ static inline result_type GET_INTEL_INT(const auto *p)
 	return INTEL_INT(u);
 }
 
+template <std::integral result_type = std::uint16_t>
+requires(
+	sizeof(result_type) == sizeof(uint16_t)
+)
 [[nodiscard]]
-static inline uint16_t GET_INTEL_SHORT(const auto *p)
+static inline result_type GET_INTEL_SHORT(const auto *p)
 {
-	uint16_t u;
-	byteutil_unaligned_copy(uint16_t, u, p);
+	result_type u;
+	byteutil_unaligned_copy(result_type, u, p);
 	return INTEL_SHORT(u);
 }
 

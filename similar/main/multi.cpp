@@ -1787,7 +1787,7 @@ static void multi_do_reappear(const playernum_t pnum, const multiplayer_rspan<mu
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
-	const objnum_t objnum = GET_INTEL_SHORT(&buf[2]);
+	const objnum_t objnum{GET_INTEL_SHORT(&buf[2])};
 
 	const auto &&uobj = vcobjptr.check_untrusted(objnum);
 	if (!uobj)
@@ -1885,12 +1885,9 @@ static void multi_do_player_deres(const d_robot_info_array &Robot_info, object_a
 
 	range_for (const auto i, partial_const_range(Net_create_objnums, std::min(Net_create_loc, static_cast<unsigned>(remote_created))))
 	{
-		short s;
-
-		s = GET_INTEL_SHORT(&buf[count]);
-
-		if ((s > 0) && (i > 0))
-			map_objnum_local_to_remote(static_cast<short>(i), s, pnum);
+		const int16_t s{GET_INTEL_SHORT<int16_t>(&buf[count])};
+		if (s > 0)
+			map_objnum_local_to_remote(i, s, pnum);
 		count += 2;
 	}
 	range_for (const auto i, partial_const_range(Net_create_objnums, remote_created, Net_create_loc))
@@ -1928,7 +1925,7 @@ static void multi_do_kill_host(object_array &Objects, const playernum_t pnum, co
 		return;
 	const auto killed = vcplayerptr(pnum)->objnum;
 	count += 1;
-	objnum_t killer = GET_INTEL_SHORT(&buf[count]);
+	objnum_t killer{GET_INTEL_SHORT(&buf[count])};
 	if (killer > 0)
 		killer = objnum_remote_to_local(killer, buf[count+2]);
 	Netgame.team_vector = buf[5];
@@ -1954,7 +1951,7 @@ static void multi_do_kill_client(object_array &Objects, const playernum_t pnum, 
 
 	const auto killed = vcplayerptr(pnum)->objnum;
 	count += 1;
-	objnum_t killer = GET_INTEL_SHORT(&buf[count]);
+	objnum_t killer{GET_INTEL_SHORT(&buf[count])};
 	if (killer > 0)
 		killer = objnum_remote_to_local(killer, buf[count+2]);
 
@@ -1969,7 +1966,7 @@ static void multi_do_kill_client(object_array &Objects, const playernum_t pnum, 
 static void multi_do_controlcen_destroy(const d_robot_info_array &Robot_info, fimobjptridx &imobjptridx, const multiplayer_rspan<multiplayer_command_t::MULTI_CONTROLCEN> buf)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
-	objnum_t objnum = GET_INTEL_SHORT(&buf[1]);
+	const objnum_t objnum{GET_INTEL_SHORT(&buf[1])};
 	const playernum_t who = buf[3];
 
 	if (LevelUniqueControlCenterState.Control_center_destroyed != 1)
@@ -2017,7 +2014,7 @@ static void multi_do_escape(fvmobjptridx &vmobjptridx, const playernum_t pnum, c
 static void multi_do_remobj(fvmobjptr &vmobjptr, const multiplayer_rspan<multiplayer_command_t::MULTI_REMOVE_OBJECT> buf)
 {
 	// which object to remove
-	const objnum_t objnum = GET_INTEL_SHORT(&buf[1]);
+	const objnum_t objnum{GET_INTEL_SHORT(&buf[1])};
 	// which remote list is it entered in
 	auto obj_owner = buf[3];
 
@@ -2229,13 +2226,12 @@ static void multi_do_controlcen_fire(const multiplayer_rspan<multiplayer_command
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
 	int gun_num;
-	objnum_t objnum;
 	int count = 1;
 
 	const auto to_target = multi_get_vector(buf.subspan<1, 12>());
 	count += 12;
 	gun_num = buf[count];                       count += 1;
-	objnum = GET_INTEL_SHORT(&buf[count]);      count += 2;
+	const objnum_t objnum{GET_INTEL_SHORT(&buf[count])};      count += 2;
 
 	const auto &&uobj = vmobjptridx.check_untrusted(objnum);
 	if (!uobj)
@@ -2264,7 +2260,7 @@ static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t
 		return;
 	const auto &&segnum = *useg;
 	count += 2;
-	objnum_t objnum = GET_INTEL_SHORT(&buf[count]); count += 2;
+	const objnum_t objnum{GET_INTEL_SHORT(&buf[count])}; count += 2;
 	const auto new_pos = multi_get_vector(buf.subspan<1 + 1 + 1 + 2 + 2, 12>());
 	count+=sizeof(vms_vector);
 	const auto &&my_objnum{drop_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, powerup_type_t{powerup_type}, vmd_zero_vector, new_pos, segnum, true)};
@@ -3889,8 +3885,8 @@ namespace {
 static void multi_do_drop_weapon(fvmobjptr &vmobjptr, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_DROP_WEAPON> buf)
 {
 	const auto powerup_id = static_cast<powerup_type_t>(buf[1]);
-	const objnum_t remote_objnum = GET_INTEL_SHORT(&buf[2]);
-	const uint16_t ammo = GET_INTEL_SHORT(&buf[4]);
+	const objnum_t remote_objnum{GET_INTEL_SHORT(&buf[2])};
+	const uint16_t ammo{GET_INTEL_SHORT(&buf[4])};
 	const auto seed{GET_INTEL_INT(&buf[6])};
 	const auto &&objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, vmobjptr(vcplayerptr(pnum)->objnum), powerup_id, seed);
 	if (objnum == object_none)
@@ -3926,7 +3922,7 @@ namespace {
 static void multi_do_vulcan_weapon_ammo_adjust(fvmobjptr &vmobjptr, const multiplayer_rspan<multiplayer_command_t::MULTI_VULWPN_AMMO_ADJ> buf)
 {
 	// which object to update
-	const objnum_t objnum = GET_INTEL_SHORT(&buf[1]);
+	const objnum_t objnum{GET_INTEL_SHORT(&buf[1])};
 	// which remote list is it entered in
 	auto obj_owner = buf[3];
 
@@ -3953,7 +3949,7 @@ static void multi_do_vulcan_weapon_ammo_adjust(fvmobjptr &vmobjptr, const multip
 		Network_send_objnum = -1;
 	}
 
-	const auto ammo = GET_INTEL_SHORT(&buf[4]);
+	const auto ammo{GET_INTEL_SHORT(&buf[4])};
 		obj->ctype.powerup_info.count = ammo;
 }
 
@@ -4617,7 +4613,7 @@ static void multi_do_drop_flag(const playernum_t pnum, const multiplayer_rspan<m
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	const auto powerup_id = static_cast<powerup_type_t>(buf[1]);
-	const objnum_t remote_objnum = GET_INTEL_SHORT(&buf[2]);
+	const objnum_t remote_objnum{GET_INTEL_SHORT(&buf[2])};
 	const auto seed{GET_INTEL_INT<int32_t>(&buf[6])};
 
 	auto &plrobj{*vmobjptr(vcplayerptr(pnum)->objnum)};

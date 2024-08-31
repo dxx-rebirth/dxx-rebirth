@@ -900,11 +900,11 @@ ssize_t dxx_recvfrom(const int sockfd, const socket_data_buffer msg, const int f
 
 static game_info_request_result net_udp_check_game_info_request(const upid_rspan<upid::game_info_lite_req> data, std::integral_constant<upid, upid::game_info_lite_req>)
 {
-	if (const auto sender_major_version = GET_INTEL_SHORT(&(data[5])); sender_major_version != DXX_VERSION_MAJORi)
+	if (const auto sender_major_version{GET_INTEL_SHORT(&data[5])}; sender_major_version != DXX_VERSION_MAJORi)
 		return game_info_request_result::version_mismatch;
-	if (const auto sender_minor_version = GET_INTEL_SHORT(&(data[7])); sender_minor_version != DXX_VERSION_MINORi)
+	if (const auto sender_minor_version{GET_INTEL_SHORT(&data[7])}; sender_minor_version != DXX_VERSION_MINORi)
 		return game_info_request_result::version_mismatch;
-	if (const auto sender_micro_version = GET_INTEL_SHORT(&(data[9])); sender_micro_version != DXX_VERSION_MICROi)
+	if (const auto sender_micro_version{GET_INTEL_SHORT(&data[9])}; sender_micro_version != DXX_VERSION_MICROi)
 		return game_info_request_result::version_mismatch;
 	return game_info_request_result::accept;
 }
@@ -913,7 +913,7 @@ static game_info_request_result net_udp_check_game_info_request(const upid_rspan
 static game_info_request_result net_udp_check_game_info_request(const upid_rspan<upid::game_info_req> data, std::integral_constant<upid, upid::game_info_req>)
 {
 	{
-		if (const auto sender_proto_version = GET_INTEL_SHORT(&data[11]); sender_proto_version != MULTI_PROTO_VERSION)
+		if (const auto sender_proto_version{GET_INTEL_SHORT(&data[11])}; sender_proto_version != MULTI_PROTO_VERSION)
 			return game_info_request_result::version_mismatch;
 	}
 	return net_udp_check_game_info_request(data.template first<upid_length<upid::game_info_lite_req>>(), std::integral_constant<upid, upid::game_info_lite_req>());

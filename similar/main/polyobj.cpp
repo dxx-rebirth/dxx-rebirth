@@ -104,8 +104,7 @@ static int16_t pof_read_short(const std::span<const uint8_t> bufp, std::size_t &
 {
 	const auto s = bufp.subspan(Pof_addr, 2);
 	Pof_addr += 2;
-	const auto r = GET_INTEL_SHORT(s.data());
-	return r;
+	return {GET_INTEL_SHORT<int16_t>(s.data())};
 }
 
 static void pof_skip_string(int max_char, const std::span<const uint8_t> bufp, std::size_t &Pof_addr)

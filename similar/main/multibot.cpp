@@ -771,9 +771,8 @@ void multi_do_release_robot(const playernum_t pnum, const multiplayer_rspan<mult
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	short remote_botnum;
 
-	remote_botnum = GET_INTEL_SHORT(&buf[2]);
+	const auto remote_botnum{GET_INTEL_SHORT<int16_t>(&buf[2])};
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[4]);
 
 	if (botnum > Highest_object_index)
@@ -804,12 +803,11 @@ void multi_do_robot_position(const playernum_t pnum, const multiplayer_rspan<mul
 	auto &vmobjptridx = Objects.vmptridx;
 	// Process robot movement sent by another player
 
-	short remote_botnum;
 	int loc = 1;
 
 	;										loc += 1;
 
-	remote_botnum = GET_INTEL_SHORT(&buf[loc]);
+	const auto remote_botnum{GET_INTEL_SHORT<int16_t>(&buf[loc])};
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[loc+2]); loc += 3;
 
 	if (botnum > Highest_object_index)
@@ -881,7 +879,7 @@ void multi_do_robot_fire(const multiplayer_rspan<multiplayer_command_t::MULTI_RO
 	// Send robot fire event
 	int loc = 1;
                                                                                         loc += 1; // pnum
-	const short remote_botnum = GET_INTEL_SHORT(&buf[loc]);
+	const auto remote_botnum{GET_INTEL_SHORT<int16_t>(&buf[loc])};
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[loc+2]);                loc += 3;
 	const auto gun_num = buf[loc];                                                      loc += 1;
 	const auto fire = multi_get_vector(buf.subspan<6, 12>());
@@ -1024,8 +1022,7 @@ void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_a
 	const auto untrusted_fuelcen_num = buf[2];
 	const auto untrusted_robot_type = buf[5];
 
-	objnum_t objnum;
-	objnum = GET_INTEL_SHORT(&buf[3]);
+	const objnum_t objnum{GET_INTEL_SHORT(&buf[3])};
 
 	const auto trusted_fuelcen_num = ({
 		const auto o = LevelUniqueFuelcenterState.Station.valid_index(untrusted_fuelcen_num);
@@ -1274,9 +1271,7 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const multiplayer_rs
 
 	range_for (const auto i, partial_const_range(Net_create_objnums, Net_create_loc))
 	{
-		short s;
-		
-		s = GET_INTEL_SHORT(&buf[loc]);
+		const auto s{GET_INTEL_SHORT<int16_t>(&buf[loc])};
 		if ( s != -1)
 			map_objnum_local_to_remote(i, s, pnum);
 		else
