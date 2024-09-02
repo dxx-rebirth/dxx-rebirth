@@ -63,6 +63,8 @@ See [COPYING.txt](COPYING.txt) and [GPL-3.txt](GPL-3.txt)
 ## 5. Contact:
 
 - https://www.dxx-rebirth.com/
+- zico [at] dxx-rebirth [dot] com
+
 
 ## 6. Issue Reporting
 
