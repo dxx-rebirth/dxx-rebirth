@@ -625,7 +625,7 @@ void explode_badass_player(const d_robot_info_array &Robot_info, const vmobjptri
 
 namespace {
 
-static void object_create_debris(fvmsegptridx &vmsegptridx, const object_base &parent, const int subobj_num, const fix subobject_radius)
+static void object_create_debris(fvmsegptridx &vmsegptridx, const object_base &parent, const submodel_index subobj_num, const fix subobject_radius)
 {
 	Assert(parent.type == OBJ_ROBOT || parent.type == OBJ_PLAYER);
 
@@ -634,12 +634,10 @@ static void object_create_debris(fvmsegptridx &vmsegptridx, const object_base &p
 	if ( obj == object_none )
 		return;				// Not enough debris slots!
 
-	Assert(subobj_num < 32);
-
 	//Set polygon-object-specific data
 
 	obj->rtype.pobj_info.model_num = parent.rtype.pobj_info.model_num;
-	obj->rtype.pobj_info.subobj_flags = 1<<subobj_num;
+	obj->rtype.pobj_info.subobj_flags = 1 << underlying_value(subobj_num);
 	obj->rtype.pobj_info.tmap_override = parent.rtype.pobj_info.tmap_override;
 
 	//Set physics data for this object
@@ -1371,11 +1369,19 @@ static void explode_model(object_base &obj)
 	auto &pm{LevelSharedPolygonModelState.Polygon_models[model_num]};
 	const auto n_models{pm.n_models};
 	if (n_models > 1) {
-		for (unsigned i{1}; i < n_models; ++i)
+		/* Limit the range to the first `n_models`, since later elements are
+		 * not valid for this model.
+		 *
+		 * Skip over the first element, because Descent has always done that.
+		 */
+		for (const auto &&[i, submodel_rad] : enumerate(std::span(pm.submodel_rads).first(n_models).template subspan<1>(), submodel_index{})
+		)
+		{
 #if defined(DXX_BUILD_DESCENT_II)
-			if (!(i == 5 && obj.type == OBJ_ROBOT && get_robot_id(obj) == robot_id::energy_bandit))	//energy sucker energy part
+			if (!(i == submodel_index{5} && obj.type == OBJ_ROBOT && get_robot_id(obj) == robot_id::energy_bandit))	//energy sucker energy part
 #endif
-				object_create_debris(vmsegptridx, obj, i, pm.submodel_rads[i]);
+				object_create_debris(vmsegptridx, obj, i, submodel_rad);
+		}
 
 		//make parent object only draw center part
 		obj.rtype.pobj_info.subobj_flags = 1;

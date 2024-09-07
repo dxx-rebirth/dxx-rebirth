@@ -193,11 +193,17 @@ static void read_model_file(polymodel &pm, const char *const filename, robot_inf
 			}
 			
 			case ID_SOBJ: {		//Subobject header
-				int n;
-
-				n = pof_read_short(model_buf, Pof_addr);
-
-				Assert(n < MAX_SUBMODELS);
+				const auto n{pof_read_short(model_buf, Pof_addr)};
+				const auto on{pm.submodel_rads.valid_index(n)};
+				if (!on)
+					/* This leaves the position pointer in an incorrect
+					 * location, but it only happens on ill-formed input.
+					 * Older versions of the game would have undefined behavior
+					 * on this input, so defining the result to be an incorrect
+					 * position is fine.
+					 */
+					break;
+				const submodel_index sn{*on};
 
 				pm.submodel_parents[n] = pof_read_short(model_buf, Pof_addr);
 
@@ -205,7 +211,7 @@ static void read_model_file(polymodel &pm, const char *const filename, robot_inf
 				pof_read_vec(pm.submodel_pnts[n], model_buf, Pof_addr);
 				pof_read_vec(pm.submodel_offsets[n], model_buf, Pof_addr);
 
-				pm.submodel_rads[n] = pof_read_int(model_buf, Pof_addr);		//radius
+				pm.submodel_rads[sn] = pof_read_int(model_buf, Pof_addr);		//radius
 				pm.submodel_ptrs[n] = pof_read_int(model_buf, Pof_addr);	//offset
 
 				break;

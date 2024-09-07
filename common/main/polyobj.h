@@ -66,7 +66,12 @@ extern enumerated_array<polygon_model_index, MAX_POLYGON_MODELS, polygon_model_i
 #endif
 
 namespace dcx {
-constexpr std::integral_constant<unsigned, 10> MAX_SUBMODELS{};
+
+constexpr std::size_t MAX_SUBMODELS{10};
+enum class submodel_index : uint8_t
+{
+	/* Valid values are [0 .. (MAX_SUBMODELS - 1)]. */
+};
 
 //used to describe a polygon model
 struct polymodel : prohibit_void_ptr<polymodel>
@@ -78,7 +83,7 @@ struct polymodel : prohibit_void_ptr<polymodel>
 	std::array<vms_vector, MAX_SUBMODELS> submodel_offsets;
 	std::array<vms_vector, MAX_SUBMODELS> submodel_norms;   // norm for sep plane
 	std::array<vms_vector, MAX_SUBMODELS> submodel_pnts;    // point on sep plane
-	std::array<fix, MAX_SUBMODELS> submodel_rads;       // radius for each submodel
+	enumerated_array<fix, MAX_SUBMODELS, submodel_index> submodel_rads;       // radius for each submodel
 	std::array<ubyte, MAX_SUBMODELS> submodel_parents;    // what is parent for each submodel
 	std::array<vms_vector, MAX_SUBMODELS> submodel_mins;
 	std::array<vms_vector, MAX_SUBMODELS> submodel_maxs;

@@ -8,18 +8,17 @@
 #include <algorithm>
 #include <bit>
 #include <cassert>
-#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <initializer_list>
 #include <tuple>
-#include <type_traits>
 
 #include "dxxsconf.h"
 #include "compiler-range_for.h"
 #include <array>
 #include <memory>
 #include <utility>
+#include "fwd-d_array.h"
 
 namespace serial {
 
@@ -68,6 +67,11 @@ public:
 
 template <typename T>
 class is_cxx_array<const T> : public is_cxx_array<T>
+{
+};
+
+template <typename T, std::size_t N, typename E>
+class is_cxx_array<enumerated_array<T, N, E>> : public is_cxx_array<std::array<T, N>>
 {
 };
 
