@@ -24,7 +24,6 @@ constexpr std::array<file_extension_t, 1> archive_exts{{"dxa"}};
 
 std::pair<RAIINamedPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openReadBuffered_internal(char *const filename, const char *const reported_filename)
 {
-	PHYSFS_uint64 bufSize;
 	if (PHYSFSEXT_locateCorrectCase(filename) != PHYSFSX_case_search_result::success)
 		return {RAIINamedPHYSFS_File{}, PHYSFS_ERR_NOT_FOUND};
 	/* Use the specified filename in any error messages.  This may be the
@@ -35,13 +34,14 @@ std::pair<RAIINamedPHYSFS_File, PHYSFS_ErrorCode> PHYSFSX_openReadBuffered_inter
 	 * filename.  In almost all cases, the filename will never be seen, since
 	 * it is only shown if an error occurs when reading the file.
 	 */
-	RAIINamedPHYSFS_File fp{PHYSFS_openRead(filename), reported_filename};
+	RAIIPHYSFS_File fp{PHYSFS_openRead(filename)};
 	if (!fp)
-		return {std::move(fp), PHYSFS_getLastErrorCode()};
+		return {RAIINamedPHYSFS_File{}, PHYSFS_getLastErrorCode()};
+	PHYSFS_uint64 bufSize;
 	bufSize = PHYSFS_fileLength(fp);
 	while (!PHYSFS_setBuffer(fp, bufSize) && bufSize)
 		bufSize /= 2;	// even if the error isn't memory full, for a 20MB file it'll only do this 8 times
-	return {std::move(fp), PHYSFS_ERR_OK};
+	return {RAIINamedPHYSFS_File{std::move(fp), reported_filename}, PHYSFS_ERR_OK};
 }
 
 }

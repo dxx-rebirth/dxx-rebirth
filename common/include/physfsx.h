@@ -444,6 +444,10 @@ class RAIINamedPHYSFS_File : public RAIIPHYSFS_File
 public:
 	const char *filename{};
 	RAIINamedPHYSFS_File() = default;
+	RAIINamedPHYSFS_File(RAIIPHYSFS_File fp, const char *filename) :
+		RAIIPHYSFS_File{std::move(fp)}, filename{filename}
+	{
+	}
 	RAIINamedPHYSFS_File(PHYSFS_File *fp, const char *filename) :
 		RAIIPHYSFS_File{fp}, filename{filename}
 	{
