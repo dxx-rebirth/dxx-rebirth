@@ -402,20 +402,16 @@ static bool can_collide(const object *const weapon_object, const object_base &it
 
 imobjptridx_t object_create_explosion_without_damage(const d_vclip_array &Vclip, const vmsegptridx_t segnum, const vms_vector &position, const fix size, const vclip_index vclip_type)
 {
-	const auto &&obj_fireball = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_FIREBALL, underlying_value(vclip_type), segnum, position, &vmd_identity_matrix, size,
-					object::control_type::explosion, object::movement_type::None, render_type::RT_FIREBALL);
-
-	if (obj_fireball == object_none)
+	const auto &&obj_fireball{obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_FIREBALL, underlying_value(vclip_type), segnum, position, &vmd_identity_matrix, size, object::control_type::explosion, object::movement_type::None, render_type::RT_FIREBALL)};
+	if (obj_fireball)
 	{
-		return object_none;
+		object &o = *obj_fireball;
+		//now set explosion-specific data
+		o.lifeleft = Vclip[vclip_type].play_time;
+		o.ctype.expl_info.spawn_time = -1;
+		o.ctype.expl_info.delete_objnum = object_none;
+		o.ctype.expl_info.delete_time = -1;
 	}
-
-	//now set explosion-specific data
-
-	obj_fireball->lifeleft = Vclip[vclip_type].play_time;
-	obj_fireball->ctype.expl_info.spawn_time = -1;
-	obj_fireball->ctype.expl_info.delete_objnum = object_none;
-	obj_fireball->ctype.expl_info.delete_time = -1;
 	return obj_fireball;
 }
 
