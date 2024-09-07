@@ -203,15 +203,20 @@ static void init_debris_object(object_base &debris, const object_base &parent, c
 	debris.rtype.pobj_info.tmap_override = parent.rtype.pobj_info.tmap_override;
 
 	//Set physics data for this object
-	debris.mtype.phys_info.velocity.x = D_RAND_MAX/2 - d_rand();
-	debris.mtype.phys_info.velocity.y = D_RAND_MAX/2 - d_rand();
-	debris.mtype.phys_info.velocity.z = D_RAND_MAX/2 - d_rand();
-	vm_vec_normalize_quick(debris.mtype.phys_info.velocity);
-	vm_vec_scale(debris.mtype.phys_info.velocity,i2f(10 + (30 * d_rand() / D_RAND_MAX)));
+	debris.mtype.phys_info.velocity = /* added_scaled_random_velocity = */ vm_vec_add(
+		/* scaled_random_velocity = */ vm_vec_copy_scale(
+			/* normalized_random_velocity = */ vm_vec_normalized_quick(
+				/* random_velocity = */ vms_vector{
+					.x = D_RAND_MAX/2 - d_rand(),
+					.y = D_RAND_MAX/2 - d_rand(),
+					.z = D_RAND_MAX/2 - d_rand()
+				}
+			),
+			i2f(10 + (30 * d_rand() / D_RAND_MAX))
+		),
+		parent.mtype.phys_info.velocity
+	);
 
-	vm_vec_add2(debris.mtype.phys_info.velocity, parent.mtype.phys_info.velocity);
-
-	// -- used to be: Notice, not random! vm_vec_make(&debris.mtype.phys_info.rotvel,10*0x2000/3,10*0x4000/3,10*0x7000/3);
 	debris.mtype.phys_info.rotvel = {d_rand() + 0x1000, d_rand()*2 + 0x4000, d_rand()*3 + 0x2000};
 	debris.mtype.phys_info.rotthrust = {};
 
