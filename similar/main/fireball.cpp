@@ -1205,18 +1205,11 @@ static bool drop_robot_egg(const d_robot_info_array &Robot_info, const contained
 	}
 	auto &Polygon_models{LevelSharedPolygonModelState.Polygon_models};
 	bool created{false};
+	const auto [normalized_init_magnitude, normalized_init_vel]{vm_vec_normalize_quick_with_magnitude(init_vel)};
+	const fix scale_magnitude{(F1_0 * 32 + normalized_init_magnitude) * 2};
 	for (const auto count : xrange(num))
 	{
-		auto new_velocity{vm_vec_normalized_quick(init_vel)};
-		const auto old_mag{vm_vec_mag_quick(init_vel)};
 		(void)count;
-
-				new_velocity.x += (d_rand()-16384)*2;
-				new_velocity.y += (d_rand()-16384)*2;
-				new_velocity.z += (d_rand()-16384)*2;
-
-				vm_vec_normalize_quick(new_velocity);
-				vm_vec_scale(new_velocity, (F1_0*32 + old_mag) * 2);
 				auto new_pos{pos};
 				//	This is dangerous, could be outside mine.
 //				new_pos.x += (d_rand()-16384)*8;
@@ -1242,8 +1235,16 @@ static bool drop_robot_egg(const d_robot_info_array &Robot_info, const contained
 				obj.rtype.pobj_info.subobj_flags = 0;
 
 				//set Physics info
-		
-				obj.mtype.phys_info.velocity = new_velocity;
+		obj.mtype.phys_info.velocity = /* scaled_perturbed_new_velocity = */ vm_vec_copy_scale(
+			/* normalized_perturbed_new_velocity = */ vm_vec_normalized_quick(
+				/* perturbed_new_velocity = */ vms_vector{
+					.x = normalized_init_vel.x + (d_rand() - 16384) * 2,
+					.y = normalized_init_vel.y + (d_rand() - 16384) * 2,
+					.z = normalized_init_vel.z + (d_rand() - 16384) * 2
+				}
+			),
+			scale_magnitude
+		);
 
 				obj.mtype.phys_info.mass = robptr.mass;
 				obj.mtype.phys_info.drag = robptr.drag;
