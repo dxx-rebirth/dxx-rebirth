@@ -1210,20 +1210,13 @@ static bool drop_robot_egg(const d_robot_info_array &Robot_info, const contained
 		auto new_velocity{vm_vec_normalized_quick(init_vel)};
 		const auto old_mag{vm_vec_mag_quick(init_vel)};
 		(void)count;
-				int	rand_scale;
-
-				//	We want powerups to move more in network mode.
-//				if (Game_mode & GM_MULTI)
-//					rand_scale = 4;
-//				else
-					rand_scale = 2;
 
 				new_velocity.x += (d_rand()-16384)*2;
 				new_velocity.y += (d_rand()-16384)*2;
 				new_velocity.z += (d_rand()-16384)*2;
 
 				vm_vec_normalize_quick(new_velocity);
-				vm_vec_scale(new_velocity, (F1_0*32 + old_mag) * rand_scale);
+				vm_vec_scale(new_velocity, (F1_0*32 + old_mag) * 2);
 				auto new_pos{pos};
 				//	This is dangerous, could be outside mine.
 //				new_pos.x += (d_rand()-16384)*8;
