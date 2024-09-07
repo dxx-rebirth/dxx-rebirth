@@ -625,12 +625,11 @@ void explode_badass_player(const d_robot_info_array &Robot_info, const vmobjptri
 
 namespace {
 
-static void object_create_debris(fvmsegptridx &vmsegptridx, const object_base &parent, int subobj_num)
+static void object_create_debris(fvmsegptridx &vmsegptridx, const object_base &parent, const int subobj_num, const fix subobject_radius)
 {
 	Assert(parent.type == OBJ_ROBOT || parent.type == OBJ_PLAYER);
 
-	auto &Polygon_models{LevelSharedPolygonModelState.Polygon_models};
-	const auto &&obj{obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_DEBRIS, 0, vmsegptridx(parent.segnum), parent.pos, &parent.orient, Polygon_models[parent.rtype.pobj_info.model_num].submodel_rads[subobj_num], object::control_type::debris, object::movement_type::physics, render_type::RT_POLYOBJ)};
+	const auto &&obj{obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_DEBRIS, 0, vmsegptridx(parent.segnum), parent.pos, &parent.orient, subobject_radius, object::control_type::debris, object::movement_type::physics, render_type::RT_POLYOBJ)};
 
 	if ( obj == object_none )
 		return;				// Not enough debris slots!
@@ -1369,14 +1368,14 @@ static void explode_model(object_base &obj)
 		? (obj.rtype.pobj_info.model_num = dying_model_num)
 		: poly_model_num
 	};
-	auto &Polygon_models{LevelSharedPolygonModelState.Polygon_models};
-	const auto n_models{Polygon_models[model_num].n_models};
+	auto &pm{LevelSharedPolygonModelState.Polygon_models[model_num]};
+	const auto n_models{pm.n_models};
 	if (n_models > 1) {
 		for (unsigned i{1}; i < n_models; ++i)
 #if defined(DXX_BUILD_DESCENT_II)
 			if (!(i == 5 && obj.type == OBJ_ROBOT && get_robot_id(obj) == robot_id::energy_bandit))	//energy sucker energy part
 #endif
-				object_create_debris(vmsegptridx, obj, i);
+				object_create_debris(vmsegptridx, obj, i, pm.submodel_rads[i]);
 
 		//make parent object only draw center part
 		obj.rtype.pobj_info.subobj_flags = 1;
