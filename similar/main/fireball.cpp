@@ -629,40 +629,40 @@ static void object_create_debris(fvmsegptridx &vmsegptridx, const object_base &p
 {
 	Assert(parent.type == OBJ_ROBOT || parent.type == OBJ_PLAYER);
 
-	const auto &&obj{obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_DEBRIS, 0, vmsegptridx(parent.segnum), parent.pos, &parent.orient, subobject_radius, object::control_type::debris, object::movement_type::physics, render_type::RT_POLYOBJ)};
-
-	if ( obj == object_none )
+	const auto objpi{obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_DEBRIS, 0, vmsegptridx(parent.segnum), parent.pos, &parent.orient, subobject_radius, object::control_type::debris, object::movement_type::physics, render_type::RT_POLYOBJ)};
+	if (!objpi)
 		return;				// Not enough debris slots!
+	auto &obj = *objpi;
 
 	//Set polygon-object-specific data
 
-	obj->rtype.pobj_info.model_num = parent.rtype.pobj_info.model_num;
-	obj->rtype.pobj_info.subobj_flags = 1 << underlying_value(subobj_num);
-	obj->rtype.pobj_info.tmap_override = parent.rtype.pobj_info.tmap_override;
+	obj.rtype.pobj_info.model_num = parent.rtype.pobj_info.model_num;
+	obj.rtype.pobj_info.subobj_flags = 1 << underlying_value(subobj_num);
+	obj.rtype.pobj_info.tmap_override = parent.rtype.pobj_info.tmap_override;
 
 	//Set physics data for this object
 
-	obj->mtype.phys_info.velocity.x = D_RAND_MAX/2 - d_rand();
-	obj->mtype.phys_info.velocity.y = D_RAND_MAX/2 - d_rand();
-	obj->mtype.phys_info.velocity.z = D_RAND_MAX/2 - d_rand();
-	vm_vec_normalize_quick(obj->mtype.phys_info.velocity);
-	vm_vec_scale(obj->mtype.phys_info.velocity,i2f(10 + (30 * d_rand() / D_RAND_MAX)));
+	obj.mtype.phys_info.velocity.x = D_RAND_MAX/2 - d_rand();
+	obj.mtype.phys_info.velocity.y = D_RAND_MAX/2 - d_rand();
+	obj.mtype.phys_info.velocity.z = D_RAND_MAX/2 - d_rand();
+	vm_vec_normalize_quick(obj.mtype.phys_info.velocity);
+	vm_vec_scale(obj.mtype.phys_info.velocity,i2f(10 + (30 * d_rand() / D_RAND_MAX)));
 
-	vm_vec_add2(obj->mtype.phys_info.velocity, parent.mtype.phys_info.velocity);
+	vm_vec_add2(obj.mtype.phys_info.velocity, parent.mtype.phys_info.velocity);
 
-	// -- used to be: Notice, not random! vm_vec_make(&obj->mtype.phys_info.rotvel,10*0x2000/3,10*0x4000/3,10*0x7000/3);
-	obj->mtype.phys_info.rotvel = {d_rand() + 0x1000, d_rand()*2 + 0x4000, d_rand()*3 + 0x2000};
-	obj->mtype.phys_info.rotthrust = {};
+	// -- used to be: Notice, not random! vm_vec_make(&obj.mtype.phys_info.rotvel,10*0x2000/3,10*0x4000/3,10*0x7000/3);
+	obj.mtype.phys_info.rotvel = {d_rand() + 0x1000, d_rand()*2 + 0x4000, d_rand()*3 + 0x2000};
+	obj.mtype.phys_info.rotthrust = {};
 
-	obj->lifeleft = 3*DEBRIS_LIFE/4 + fixmul(d_rand(), DEBRIS_LIFE);	//	Some randomness, so they don't all go away at the same time.
+	obj.lifeleft = 3*DEBRIS_LIFE/4 + fixmul(d_rand(), DEBRIS_LIFE);	//	Some randomness, so they don't all go away at the same time.
 
-	obj->mtype.phys_info.mass = fixmuldiv(parent.mtype.phys_info.mass, obj->size, parent.size);
-	obj->mtype.phys_info.drag = 0; //fl2f(0.2);		//parent->mtype.phys_info.drag;
+	obj.mtype.phys_info.mass = fixmuldiv(parent.mtype.phys_info.mass, obj.size, parent.size);
+	obj.mtype.phys_info.drag = 0; //fl2f(0.2);		//parent->mtype.phys_info.drag;
 
 	if (PERSISTENT_DEBRIS)
 	{
-		obj->mtype.phys_info.flags |= PF_BOUNCE;
-		obj->mtype.phys_info.drag = 128;
+		obj.mtype.phys_info.flags |= PF_BOUNCE;
+		obj.mtype.phys_info.drag = 128;
 	}
 }
 
