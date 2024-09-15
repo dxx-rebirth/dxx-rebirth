@@ -2104,7 +2104,7 @@ void bm_read_player_ship(void)
 		 * `plr_gun_point` (bound to an element of `Player_ship->gun_points`).
 		 *
 		 * If there are submodels:
-		 * - Copy the submodel index into a local `mn`
+		 * - Copy the submodel index into a local `gun_submodel_idx`
 		 * - Copy the r.gun_points vector into a local `pnt`
 		 * - Redirect `ppnt` to the local.
 		 * - Update the local as needed from the polygon models.
@@ -2112,18 +2112,18 @@ void bm_read_player_ship(void)
 		 *
 		 * This minimizes unnecessary copying.
 		 */
-		for (auto &&[rpnt, rmn, plr_gun_point] : zip(partial_range(r.gun_points, r.n_guns), r.gun_submodels, Player_ship->gun_points))
+		for (auto &&[ref_gun_point, ref_gun_submodel_idx, plr_gun_point] : zip(partial_range(r.gun_points, r.n_guns), r.gun_submodels, Player_ship->gun_points))
 		{
-			auto ppnt = &rpnt;
-			/* Create a local copy to be modified by the `while` loop. */
+			auto ppnt{&ref_gun_point};
+			/* Create a local copy to be modified by inner `for` loop. */
 			vms_vector pnt;
-			if (auto mn = rmn)
+			if (auto gun_submodel_idx{ref_gun_submodel_idx})
 			{
 			//instance up the tree for this gun
-				pnt = rpnt;
+				pnt = ref_gun_point;
 				ppnt = &pnt;
-				for (; mn && mn < std::size(pm.submodel_offsets); mn = pm.submodel_parents[mn])
-					vm_vec_add2(pnt, pm.submodel_offsets[mn]);
+				for (; gun_submodel_idx && gun_submodel_idx < pm.submodel_offsets.size(); gun_submodel_idx = pm.submodel_parents[gun_submodel_idx])
+					vm_vec_add2(pnt, pm.submodel_offsets[gun_submodel_idx]);
 			}
 			plr_gun_point = *ppnt;
 		}
