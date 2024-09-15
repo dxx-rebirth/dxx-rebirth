@@ -17,6 +17,9 @@
 
 enum class zip_sequence_length_selector : uint32_t;
 
+template <zip_sequence_length_selector selector>
+using zip_sequence_selector = std::integral_constant<zip_sequence_length_selector, selector>;
+
 namespace d_zip {
 
 namespace detail {
@@ -68,6 +71,7 @@ requires(
 )
 struct zip_sentinel : public std::tuple<range_sentinel_type...>
 {
+	using selector = zip_sequence_selector<examine_end_range>;
 	template <std::ranges::input_range... rangeN>
 	constexpr explicit zip_sentinel(rangeN &&...r) :
 		std::tuple<range_sentinel_type...>{
@@ -395,16 +399,9 @@ template <
  * Explicit deduction guides are provided below to handle constructing `zip`
  * without specifying template argument types.
  */
-template <typename range_index_type, typename range_iterator_type, typename zip_sentinel_type>
-class zip;
-
-template <typename range_index_type, typename range_iterator_type, zip_sequence_length_selector examine_end_range, typename... range_sentinel_types>
-class zip<range_index_type, range_iterator_type, d_zip::detail::zip_sentinel<examine_end_range, range_sentinel_types...>> : zip_iterator<range_iterator_type, d_zip::detail::zip_sentinel<examine_end_range, range_sentinel_types...>>
+template <typename range_index_type, typename range_iterator_type, typename sentinel_type>
+struct zip : std::ranges::subrange<zip_iterator<range_iterator_type, sentinel_type>, sentinel_type>
 {
-	using sentinel_type = d_zip::detail::zip_sentinel<examine_end_range, range_sentinel_types...>;
-	[[no_unique_address]]
-	sentinel_type m_end;
-public:
 	using index_type = range_index_type;
 	using iterator = zip_iterator<range_iterator_type, sentinel_type>;
 	template <std::ranges::input_range... rangeN>
@@ -413,8 +410,7 @@ public:
 			(std::ranges::borrowed_range<rangeN> && ...)
 		)
 		constexpr zip(rangeN &&... rN) :
-			iterator{std::ranges::begin(rN)...},
-			m_end{rN...}
+			std::ranges::subrange<iterator, sentinel_type>{iterator{std::ranges::begin(rN)...}, sentinel_type{rN...}}
 	{
 	}
 	template <std::ranges::input_range... rangeN>
@@ -423,16 +419,9 @@ public:
 		 * `zip_sentinel_type`, which in turn affects how `m_end` is
 		 * constructed.
 		 */
-		constexpr zip(std::integral_constant<zip_sequence_length_selector, examine_end_range>, rangeN &&... rN) :
+		constexpr zip(sentinel_type::selector, rangeN &&... rN) :
 			zip{std::forward<rangeN>(rN)...}
 	{
-	}
-	[[nodiscard]]
-	constexpr iterator begin() const { return *this; }
-	[[nodiscard]]
-	constexpr auto end() const
-	{
-		return m_end;
 	}
 };
 
@@ -440,9 +429,6 @@ public:
  * its iterators reference. */
 template <typename range_index_type, typename range_iterator_type, typename range_sentinel_type>
 inline constexpr bool std::ranges::enable_borrowed_range<zip<range_index_type, range_iterator_type, range_sentinel_type>> = true;
-
-template <zip_sequence_length_selector selector>
-using zip_sequence_selector = std::integral_constant<zip_sequence_length_selector, selector>;
 
 template <zip_sequence_length_selector examine_end_range, std::ranges::input_range... rangeN>
 requires(
