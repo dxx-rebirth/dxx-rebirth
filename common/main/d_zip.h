@@ -52,6 +52,15 @@ requires(
 )
 inline constexpr range_static_extent range_static_size<Range>{decltype(std::span(std::declval<Range &>()))::extent};
 
+template <bool ignore, std::ranges::input_range range>
+static constexpr auto capture_end_iterator(range &&r)
+{
+	if constexpr (ignore)
+		return std::ignore;
+	else
+		return std::ranges::end(r);
+}
+
 template <zip_sequence_length_selector examine_end_range, typename... range_sentinel_type>
 requires(
 	examine_end_range != zip_sequence_length_selector{} &&
@@ -59,7 +68,15 @@ requires(
 )
 struct zip_sentinel : public std::tuple<range_sentinel_type...>
 {
-	using std::tuple<range_sentinel_type...>::tuple;
+	template <std::ranges::input_range... rangeN>
+	constexpr explicit zip_sentinel(rangeN &&...r) :
+		std::tuple<range_sentinel_type...>{
+			capture_end_iterator<
+				std::is_same_v<const range_sentinel_type &, const decltype(std::ignore) &>
+				>(r)...
+		}
+	{
+	}
 };
 
 template <std::size_t... range_index>
@@ -189,21 +206,6 @@ auto iterator_end_type(std::tuple<range_type...>, std::index_sequence<range_inde
 		decltype(std::ignore)
 	>::type ...
 >;
-
-template <typename end_iterator_type, std::ranges::input_range range>
-static constexpr auto capture_end_iterator(range &&r)
-{
-	if constexpr (std::is_same<const end_iterator_type &, const decltype(std::ignore) &>::value)
-		return std::ignore;
-	else
-		return std::ranges::end(r);
-}
-
-template <typename sentinel_type, typename... range_sentinel_types, std::ranges::input_range... rangeN>
-static constexpr auto capture_end_iterators(rangeN &&...r)
-{
-	return sentinel_type(capture_end_iterator<range_sentinel_types>(r)...);
-}
 
 template <bool mask, std::size_t N, typename zip_iterator, typename zip_sentinel>
 static constexpr auto compare_zip_iterator(const zip_iterator &l, const zip_sentinel &r)
@@ -412,7 +414,7 @@ public:
 		)
 		constexpr zip(rangeN &&... rN) :
 			iterator{std::ranges::begin(rN)...},
-			m_end{d_zip::detail::capture_end_iterators<sentinel_type, range_sentinel_types...>(rN...)}
+			m_end{rN...}
 	{
 	}
 	template <std::ranges::input_range... rangeN>
