@@ -633,7 +633,7 @@ static void play_redbook_track_if_available(const song_number songnum, const int
 }
 
 // play a filename as music, depending on filename extension.
-int songs_play_file(const char *filename, int repeat, void (*hook_finished_track)())
+int songs_play_file(char *filename, int repeat, void (*hook_finished_track)())
 {
 	songs_stop_all();
 #if defined(_WIN32) || DXX_USE_SDLMIXER
@@ -683,7 +683,7 @@ void songs_play_song(const song_number songnum, const int repeat)
 				return;
 
 			Song_playing = song_number::None;
-			if (songs_play_file(std::data(s.filename), repeat, nullptr))
+			if (songs_play_file(s.filename.data(), repeat, nullptr))
 				Song_playing = songnum;
 			break;
 		}

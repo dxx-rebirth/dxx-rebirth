@@ -302,7 +302,6 @@ static void jukebox_hook_next()
 // Play tracks from Jukebox directory. Play track specified in GameCfg.CMLevelMusicTrack[0] and loop depending on CGameCfg.CMLevelMusicPlayOrder
 int jukebox_play()
 {
-	const char *music_filename;
 
 	if (!JukeboxSongs.list)
 		return 0;
@@ -311,7 +310,7 @@ int jukebox_play()
 		CGameCfg.CMLevelMusicTrack[0] + 1 > CGameCfg.CMLevelMusicTrack[1])
 		return 0;
 
-	music_filename = JukeboxSongs.list[CGameCfg.CMLevelMusicTrack[0]];
+	auto music_filename{JukeboxSongs.list[CGameCfg.CMLevelMusicTrack[0]]};
 	if (!music_filename)
 		return 0;
 
@@ -319,7 +318,7 @@ int jukebox_play()
 	auto &cfgpath = CGameCfg.CMLevelMusicPath;
 	const size_t musiclen = strlen(cfgpath.data());
 	{
-	const char *LevelMusicPath;
+	char *LevelMusicPath;
 	std::unique_ptr<char[]> full_filename;
 	if (musiclen > 4 && !d_stricmp(&cfgpath[musiclen - 4], ".m3u"))	// if it's from an M3U playlist
 		LevelMusicPath = music_filename;

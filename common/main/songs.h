@@ -60,7 +60,7 @@ song_number songs_is_playing();
 #define songs_play_song(songnum,repeat)	songs_play_song(songnum)
 #endif
 #endif
-int songs_play_file(const char *filename, int repeat, void (*hook_finished_track)());
+int songs_play_file(char *filename, int repeat, void (*hook_finished_track)());
 #ifdef dsx
 namespace dsx {
 void songs_play_song(song_number songnum, int repeat);
