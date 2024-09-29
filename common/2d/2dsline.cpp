@@ -24,13 +24,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <algorithm>
-#include <string.h>
+#include <ranges>
+#include <span>
 #include "gr.h"
 #include "grdef.h"
 
 namespace dcx {
-
-#define gr_linear_stosd(D,C,N)	memset(D,C,N)
 
 #if DXX_USE_OGL
 namespace {
@@ -44,12 +43,12 @@ void gr_uscanline(grs_canvas &canvas, const unsigned x1, const unsigned x2, cons
 		case bm_mode::ogl:
 #endif
 			{
-				const auto data = &canvas.cv_bitmap.get_bitmap_data()[canvas.cv_bitmap.bm_rowsize * y + x1];
 				const auto count = x2 - x1 + 1;
+				const std::span<uint8_t> data{&canvas.cv_bitmap.get_bitmap_data()[canvas.cv_bitmap.bm_rowsize * y + x1], count};
 				if (const auto cv_fade_level{canvas.cv_fade_level}; gr_fade_table.valid_index(cv_fade_level))
-					std::transform(data, data + count, data, [&t = gr_fade_table[cv_fade_level]](const uint8_t c) { return t[c]; });
+					std::ranges::transform(data, data.begin(), [&t = gr_fade_table[cv_fade_level]](const uint8_t c) { return t[c]; });
 				else
-					gr_linear_stosd(data, static_cast<uint8_t>(color), count);
+					std::ranges::fill(data, color);
 			}
 			break;
 		case bm_mode::ilbm:
