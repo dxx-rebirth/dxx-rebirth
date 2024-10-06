@@ -709,7 +709,7 @@ void create_path_to_guidebot_player_segment(const vmobjptridx_t objp, const robo
 	if (plr.objnum == object_none)
 		return;
 	auto &plrobj = *Objects.vcptr(plr.objnum);
-	const auto goal_segment = plrobj.segnum;
+	const auto goal_segment{plrobj.segnum};
 	create_path_to_segment(objp, robptr, max_length, safety_flag, goal_segment);
 }
 //	-------------------------------------------------------------------------------------------------------
@@ -911,7 +911,7 @@ static void create_path(const vmobjptridx_t objp, const robot_info &robptr)
 	auto &obj = *objp;
 	ai_static *const aip = &obj.ctype.ai_info;
 
-	const auto start_seg = obj.segnum;
+	const auto start_seg{obj.segnum};
 	const auto end_seg = obj.ctype.ai_info.ail.goal_segment;
 
 	if (end_seg == segment_none)

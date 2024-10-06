@@ -167,7 +167,7 @@ namespace {
 static wall_is_doorway_result wall_is_doorway(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, fvcwallptr &vcwallptr, const shared_side &sside, const unique_side &uside)
 {
 	auto &w = *vcwallptr(sside.wall_num);
-	const auto type = w.type;
+	const auto type{w.type};
 	if (type == WALL_OPEN)
 		return wall_is_doorway_result::no_wall;
 
@@ -176,7 +176,7 @@ static wall_is_doorway_result wall_is_doorway(const GameBitmaps_array &GameBitma
 		return wall_is_doorway_result::cloaked_wall;
 #endif
 
-	const auto flags = w.flags;
+	const auto flags{w.flags};
 	if (type == WALL_ILLUSION) {
 		if (flags & wall_flag::illusion_off)
 			return wall_is_doorway_result::no_wall;
@@ -687,7 +687,7 @@ void wall_close_door_ref(fvmsegptridx &vmsegptridx, wall_array &Walls, const wal
 		wall &w = *Walls.vmptr(p);
 
 		const auto &&seg = vmsegptridx(w.segnum);
-		const auto side = w.sidenum;
+		const auto side{w.sidenum};
 		w.state = wall_state::closed;
 
 		assert(seg->shared_segment::sides[side].wall_num != wall_none);		//Closing door on illegal wall
@@ -868,7 +868,7 @@ static bool do_door_open(active_door &d)
 		LevelUniqueStuckObjectState.kill_stuck_objects(vmobjptr, d.back_wallnum[p]);
 
 		const auto &&seg = vmsegptridx(w.segnum);
-		const auto side = w.sidenum;
+		const auto side{w.sidenum};
 
 		if (seg->shared_segment::sides[side].wall_num == wall_none)
 		{
@@ -960,7 +960,7 @@ static bool do_door_close(active_door &d)
 		auto &wp = *vmwallptr(p);
 
 		const auto &&seg = vmsegptridx(wp.segnum);
-		const auto side = wp.sidenum;
+		const auto side{wp.sidenum};
 
 		if (seg->shared_segment::sides[side].wall_num == wall_none) {
 			return false;

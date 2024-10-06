@@ -539,7 +539,7 @@ static bool choose_missile_viewer()
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
-	const auto MissileViewEnabled = PlayerCfg.MissileViewEnabled;
+	const auto MissileViewEnabled{PlayerCfg.MissileViewEnabled};
 	if (unlikely(MissileViewEnabled == MissileViewMode::None))
 		return false;
 	const auto need_new_missile_viewer = []{

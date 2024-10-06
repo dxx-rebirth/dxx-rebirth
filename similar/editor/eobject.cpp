@@ -61,7 +61,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //returns the number of the first object in a segment, skipping the player
 static objnum_t get_first_object(fvcobjptr &vcobjptr, const unique_segment &seg)
 {
-	const auto id = seg.objects;
+	const auto id{seg.objects};
 	if (id == object_none)
 		return object_none;
 	auto &o = *vcobjptr(id);

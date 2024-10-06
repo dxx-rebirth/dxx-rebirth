@@ -165,7 +165,7 @@ static void audio_mixcallback(void *, Uint8 *stream, int len)
 				vl = 0x10000;
 				vr = x * 2;
 			}
-			const auto sl_volume = sl.volume;
+			const auto sl_volume{sl.volume};
 			vl = fixmul(vl, sl_volume);
 			vr = fixmul(vr, sl_volume);
 			while (sp < streamend) {

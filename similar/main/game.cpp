@@ -636,7 +636,7 @@ void calc_frame_time()
 {
 	fix last_frametime = FrameTime;
 
-	const auto vsync = CGameCfg.VSync;
+	const auto vsync{CGameCfg.VSync};
 	const auto bound = f1_0 / (likely(vsync) ? MAXIMUM_FPS : CGameArg.SysMaxFPS);
 	const auto may_sleep = !CGameArg.SysNoNiceFPS && !vsync;
 	for (;;)
@@ -2240,7 +2240,7 @@ static void flicker_lights(const d_level_shared_destructible_light_state &LevelS
 		if (f.timer == flicker_timer_disabled)		//disabled
 			continue;
 		const auto &&segp = vmsegptridx(f.segnum);
-		const auto sidenum = f.sidenum;
+		const auto sidenum{f.sidenum};
 		{
 			auto &side = segp->unique_segment::sides[sidenum];
 			if (!(TmapInfo[get_texture_index(side.tmap_num)].lighting || TmapInfo[get_texture_index(side.tmap_num2)].lighting))

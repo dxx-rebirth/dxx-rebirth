@@ -624,7 +624,7 @@ static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas,
 	draw_exit_model(canvas);
 	if (ext_expl_playing)
 	{
-		const auto alpha = PlayerCfg.AlphaBlendMineExplosion;
+		const auto alpha{PlayerCfg.AlphaBlendMineExplosion};
 		if (alpha) // set nice transparency/blending for the big explosion
 			gr_settransblend(canvas, GR_FADE_OFF, gr_blend::additive_c);
 		draw_fireball(Vclip, canvas, vcobjptridx(external_explosion));

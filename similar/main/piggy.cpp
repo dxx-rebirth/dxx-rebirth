@@ -1206,7 +1206,7 @@ void piggy_read_sounds(int pc_shareware)
 		{
 			if ( piggy_is_needed(i) )
 			{
-				const auto current_sound_offset = d.offset;
+				const auto current_sound_offset{d.offset};
 				const auto sound_offset = underlying_value(current_sound_offset);
 				PHYSFS_seek(Piggy_fp, sound_offset);
 

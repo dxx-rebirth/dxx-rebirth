@@ -200,7 +200,7 @@ static void menu_hide(MENU &menu)
 
 static void menu_move_bar_to(MENU &menu, const int number)
 {
-	const auto old_item = menu.CurrentItem;
+	const auto old_item{menu.CurrentItem};
 	menu.CurrentItem = number;
 
 	if (menu.Displayed && number != old_item)

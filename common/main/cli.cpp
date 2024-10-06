@@ -239,7 +239,7 @@ unsigned CLIState::draw(unsigned y, unsigned line_spacing)
 	for (unsigned i = std::min(last_wrap_line + 1, wraps.size());; --last_wrap_line)
 	{
 		const auto &w = wraps[last_wrap_line % wraps.size()];
-		const auto p = w.first;
+		const auto p{w.first};
 		if (!p)
 		{
 			assert(p);

@@ -861,7 +861,7 @@ static void escort_go_to_goal(const vmobjptridx_t objp, const robot_info &robptr
 		if (plrobj.type != OBJ_PLAYER)
 			return;
 		buddy_message_ignore_time("Cannot reach %s.", goal_text_index < Escort_goal_text.size() ? Escort_goal_text[goal_text_index] : "<unknown>");
-		const auto goal_segment = plrobj.segnum;
+		const auto goal_segment{plrobj.segnum};
 		const fix dist_to_player = find_connected_distance(objp->pos, vmsegptridx(objp->segnum), plrobj.pos, vmsegptridx(goal_segment), 100, wall_is_doorway_mask::fly);
 		if (dist_to_player > MIN_ESCORT_DISTANCE)
 			create_path_to_segment(objp, robptr, Max_escort_length, create_path_safety_flag::safe, goal_segment);

@@ -1696,7 +1696,7 @@ static void newdemo_record_oneframeevent_update(int wallupdate)
 		for (auto &w : vcwallptr)
 		{
 			auto seg = &Segments[w.segnum];
-			const auto side = w.sidenum;
+			const auto side{w.sidenum};
 			// actually this is kinda stupid: when playing ther same tmap will be put on front and back side of the wall ... for doors this is stupid so just record the front side which will do for doors just fine ...
 			auto &uside = seg->unique_segment::sides[side];
 			if (const auto tmap_num = uside.tmap_num; tmap_num != texture1_value::None)

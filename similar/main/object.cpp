@@ -242,7 +242,7 @@ void draw_object_blob(GameBitmaps_array &GameBitmaps, const object_base &Viewer,
 	auto &bm = GameBitmaps[bmi];
 	PIGGY_PAGE_IN( bmi );
 
-	const auto osize = obj.size;
+	const auto osize{obj.size};
 	// draw these with slight offset to viewer preventing too much ugly clipping
 	auto pos = obj.pos;
 	if (obj.type == OBJ_FIREBALL && get_fireball_id(obj) == vclip_index::volatile_wall_hit)
@@ -1018,7 +1018,7 @@ void obj_link_unchecked(fvmobjptr &vmobjptr, const vmobjptridx_t obj, const vmse
 
 void obj_unlink(fvmobjptr &vmobjptr, fvmsegptr &vmsegptr, object_base &obj)
 {
-	const auto next = obj.next;
+	const auto next{obj.next};
 	/* It is a bug elsewhere if vmsegptr ever fails here.  However, it is
 	 * expensive to check, so only force verification in debug builds.
 	 *

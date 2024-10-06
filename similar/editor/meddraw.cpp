@@ -439,10 +439,10 @@ static void draw_special_wall(const shared_segment &seg, const sidenum_t side)
 	auto &vcwallptr = Walls.vcptr;
 	auto &w = *vcwallptr(seg.sides[side].wall_num);
 	const auto get_color = [=]() {
-		const auto type = w.type;
+		const auto type{w.type};
 		if (type != WALL_OPEN)
 		{
-			const auto flags = w.flags;
+			const auto flags{w.flags};
 			if (flags & wall_flag::door_locked)
 				return (flags & wall_flag::door_auto) ? WALL_AUTO_DOOR_LOCKED_COLOR : WALL_DOOR_LOCKED_COLOR;
 			if (flags & wall_flag::door_auto)

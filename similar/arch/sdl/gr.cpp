@@ -92,7 +92,7 @@ int gr_set_mode(screen_mode mode)
 	SDL_WM_SetIcon( SDL_LoadBMP( DXX_SDL_WINDOW_ICON_BITMAP ), NULL );
 
 	const auto sdl_video_flags = ::sdl_video_flags;
-	const auto DbgBpp = CGameArg.DbgBpp;
+	const auto DbgBpp{CGameArg.DbgBpp};
 	if(SDL_VideoModeOK(SM_W(mode), SM_H(mode), DbgBpp, sdl_video_flags))
 	{
 	}

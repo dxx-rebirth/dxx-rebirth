@@ -555,7 +555,7 @@ static window_event_result HandleEndlevelKey(int key)
 static int HandleDeathInput(const d_event &event, control_info &Controls)
 {
 	const auto input_aborts_death_sequence = [&]() {
-		const auto RespawnMode = PlayerCfg.RespawnMode;
+		const auto RespawnMode{PlayerCfg.RespawnMode};
 		if (event.type == event_type::key_command)
 		{
 			const auto key = event_key_get(event);

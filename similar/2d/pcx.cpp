@@ -89,7 +89,7 @@ static pcx_result pcx_read_bitmap(const char *const filename, grs_main_bitmap &b
 		return pcx_result::ERROR_OPENING;
 	}
 	const auto &s = *surface.surface.get();
-	const auto fmt = s.format;
+	const auto fmt{s.format};
 	if (!fmt || fmt->BitsPerPixel != 8)
 		return pcx_result::ERROR_WRONG_VERSION;
 	const auto fpal = fmt->palette;

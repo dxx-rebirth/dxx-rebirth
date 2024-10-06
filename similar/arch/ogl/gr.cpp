@@ -510,7 +510,7 @@ void gr_toggle_fullscreen()
 	{
 		if (sdl_no_modeswitch == 0) {
 			auto gsm = Game_screen_mode;
-			const auto DbgBpp = CGameArg.DbgBpp;
+			const auto DbgBpp{CGameArg.DbgBpp};
 			if (!SDL_VideoModeOK(gsm.width, gsm.height, DbgBpp, local_sdl_video_flags))
 			{
 				con_printf(CON_URGENT, "Cannot set %ix%i. Fallback to 640x480", gsm.width, gsm.height);

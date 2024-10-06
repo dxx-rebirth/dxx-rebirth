@@ -259,7 +259,7 @@ static std::array<kc_mitem, std::size(kc_rebirth)> kcm_rebirth;
 
 static void kconfig_start_changing(kc_menu &menu)
 {
-	const auto citem = menu.citem;
+	const auto citem{menu.citem};
 	if (menu.items[citem].type == kc_type::invert)
 	{
 		menu.changing = 0;		// in case we were changing something else
@@ -273,7 +273,7 @@ static void kconfig_start_changing(kc_menu &menu)
 
 static void kc_set_exclusive_binding(kc_menu &menu, kc_mitem &mitem, const kc_type type, const unsigned value)
 {
-	const auto nitems = menu.nitems;
+	const auto nitems{menu.nitems};
 	for (auto &&[iterate_mitem, iterate_item] : zip(unchecked_partial_range(menu.mitems, nitems), unchecked_partial_range(menu.items, nitems)))
 	{
 		if (&iterate_mitem != &mitem && iterate_mitem.value == value && iterate_item.type == type)
@@ -471,7 +471,7 @@ static void kconfig_draw(kc_menu &menu)
 	unsigned citem = menu.citem;
 	const char *current_label = NULL;
 	const char *litem = menu.litems;
-	const auto nitems = menu.nitems;
+	const auto nitems{menu.nitems};
 	for (const auto i : xrange(nitems))
 	{
 		auto next_label = (i + 1 >= menu.nitems || menu.items[i + 1].y != menu.items[i].y) ? litem : nullptr;
@@ -563,7 +563,7 @@ static window_event_result kconfig_mouse(kc_menu &menu, const d_event &event)
 		const auto [mx, my, mz] = mouse_get_pos();
 		const auto &&fspacx = FSPACX();
 		const auto &&fspacy = FSPACY();
-		const auto nitems = menu.nitems;
+		const auto nitems{menu.nitems};
 		for (const auto i : xrange(nitems))
 		{
 			item_height = get_item_height(*canvas.cv_font, menu.items[i], menu.mitems[i]);

@@ -322,7 +322,7 @@ window_event_result savegame_chooser_newmenu::event_handler(const d_event &event
 
 static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw)
 {
-	const auto otype = obj.type;
+	const auto otype{obj.type};
 	obj_rw->type = otype;
 	obj_rw->signature     = static_cast<uint16_t>(obj.signature);
 	obj_rw->id            = obj.id;
@@ -1691,7 +1691,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		 * shields are ignored, and using local everywhere is cheaper
 		 * than using it only for the one slot where it may matter.
 		 */
-		const auto shields = plrobj.shields;
+		const auto shields{plrobj.shields};
 		const relocated_player_data rpd{shields, 0, 0, 0, 0};
 		// I know, I know we only allow 4 players in coop. I screwed that up. But if we ever allow 8 players in coop, who's gonna laugh then?
 		range_for (auto &i, partial_const_range(Players, MAX_PLAYERS))

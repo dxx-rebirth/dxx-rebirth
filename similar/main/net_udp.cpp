@@ -1706,7 +1706,7 @@ window_event_result netgame_list_game_menu::event_handler(const d_event &event)
 void net_udp_list_join_game(grs_canvas &canvas)
 {
 	net_udp_init();
-	const auto gamemyport = CGameArg.MplUdpMyPort;
+	const auto gamemyport{CGameArg.MplUdpMyPort};
 	if (udp_open_socket(UDP_Socket[0], gamemyport >= 1024 ? gamemyport : UDP_PORT_DEFAULT) < 0)
 		return;
 
@@ -4022,7 +4022,7 @@ public:
 		game_is_cooperative(game_is_cooperative),
 		AutosaveInterval{build_human_readable_time(Netgame.MPGameplayOptions.AutosaveInterval)}
 	{
-		const auto edifficulty = Netgame.difficulty;
+		const auto edifficulty{Netgame.difficulty};
 		const auto difficulty = underlying_value(edifficulty);
 		update_difficulty_string(edifficulty);
 		update_packstring();
@@ -4165,7 +4165,7 @@ window_event_result grant_powerup_menu::event_handler(const d_event &event)
 
 static void net_udp_set_grant_power()
 {
-	const auto SpawnGrantedItems = Netgame.SpawnGrantedItems;
+	const auto SpawnGrantedItems{Netgame.SpawnGrantedItems};
 	auto menu = window_create<grant_powerup_menu>(map_granted_flags_to_laser_level(SpawnGrantedItems), SpawnGrantedItems, grd_curscreen->sc_canvas);
 	(void)menu;
 }
@@ -6020,7 +6020,7 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 	auto &vmobjptridx = Objects.vmptridx;
 	const unsigned TheirPlayernum = pd->Player_num;
 	auto &tplr = *vmplayerptr(TheirPlayernum);
-	const auto TheirObjnum = tplr.objnum;
+	const auto TheirObjnum{tplr.objnum};
 
 	if (multi_i_am_master())
 	{

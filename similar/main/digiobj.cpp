@@ -131,7 +131,7 @@ static std::pair<sound_objects_t::iterator, sound_objects_t::iterator> find_soun
 	{
 		constexpr uint8_t used_obj = SOF_USED | SOF_LINK_TO_OBJ;
 		auto &so = *i;
-		const auto flags = so.flags;
+		const auto flags{so.flags};
 		if (flags == 0)
 			free_sound_object = i;
 		else if (so.soundnum == soundnum && (flags & used_obj) == used_obj)
@@ -606,7 +606,7 @@ void digi_sync_sounds()
 		if (s.flags & SOF_USED)
 		{
 			oldvolume = s.volume;
-			const auto oldpan = s.pan;
+			const auto oldpan{s.pan};
 
 			if ( !(s.flags & SOF_PLAY_FOREVER) )	{
 			 	// Check if its done.
@@ -654,7 +654,7 @@ void digi_sync_sounds()
 				if ( s.volume < 1 )	{
 					// Sound is too far away, so stop it from playing.
 
-					const auto c = s.channel;
+					const auto c{s.channel};
 					if (c != sound_channel::None)
 					{
 						s.channel = sound_channel::None;
@@ -696,7 +696,7 @@ void digi_pause_digi_sounds()
 	{
 		if (!(s.flags & SOF_USED))
 			continue;
-		const auto c = s.channel;
+		const auto c{s.channel};
 		if (c != sound_channel::None)
 		{
 			s.channel = sound_channel::None;

@@ -123,7 +123,7 @@ const std::array<char[9], MAX_OBJECT_TYPES> Object_type_names{{
 // ----------------------------------------------------------------------------
 static const char *object_types(const object_base &objp)
 {
-	const auto type = objp.type;
+	const auto type{objp.type};
 	assert(type == OBJ_NONE || type < MAX_OBJECT_TYPES);
 	return &Object_type_names[type][0];
 }
@@ -494,7 +494,7 @@ static void write_matcen_text(PHYSFS_File *my_file)
 		}
 		int	trigger_count=0;
 
-		const auto segnum = station.segnum;
+		const auto segnum{station.segnum};
 		PHYSFSX_printf(my_file, "FuelCenter[%02i].Segment = %04i  ", underlying_value(i), segnum);
 		PHYSFSX_printf(my_file, "Segment[%04i].matcen_num = %02i  ", segnum, underlying_value(Segments[segnum].matcen_num));
 
@@ -544,7 +544,7 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 #endif
 
 		auto segnum = w.segnum;
-		const auto sidenum = w.sidenum;
+		const auto sidenum{w.sidenum};
 
 		if (const auto actual_wall_num = Segments[segnum].shared_segment::sides[sidenum].wall_num; actual_wall_num != wp)
 			err_printf(my_file, "Error: Wall %hu points at segment %i, side %i, but that segment doesn't point back (it's wall_num = %hi)", i, segnum, underlying_value(sidenum), underlying_value(actual_wall_num));

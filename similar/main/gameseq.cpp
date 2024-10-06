@@ -327,7 +327,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 		 * large enough in each dimension to support adding more ships.
 		 */
 		const auto &pi = Player_init[i];
-		const auto segnum = pi.segnum;
+		const auto segnum{pi.segnum};
 		const shared_segment &seg = *vcsegptr(segnum);
 		auto &plr = *Players.vcptr(i);
 		auto &old_player_obj = *vcobjptr(plr.objnum);
@@ -434,7 +434,7 @@ static void gameseq_init_network_players(const d_robot_info_array &Robot_info, o
 #if defined(DXX_BUILD_DESCENT_II)
 	const auto remove_thief = Netgame.ThiefModifierFlags & ThiefModifier::Absent;
 	const auto multiplayer = Game_mode & GM_MULTI;
-	const auto retain_guidebot = Netgame.AllowGuidebot;
+	const auto retain_guidebot{Netgame.AllowGuidebot};
 #endif
 	auto &vmobjptridx = Objects.vmptridx;
 	range_for (const auto &&o, vmobjptridx)

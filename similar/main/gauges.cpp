@@ -1933,7 +1933,7 @@ static void hud_show_shield(grs_canvas &canvas, const object &plrobj, const grs_
 	{
 		gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), -1);
 
-		const auto shields = plrobj.shields;
+		const auto shields{plrobj.shields};
 		gr_printf(canvas, game_font, FSPACX(1), current_y, "%s: %i", TXT_SHIELD, shields >= 0 ? f2ir(shields) : 0);
 	}
 

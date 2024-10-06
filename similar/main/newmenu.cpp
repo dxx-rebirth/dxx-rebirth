@@ -1702,7 +1702,7 @@ void listbox_delete_item(listbox &lb, int item)
 {
 	Assert(item >= 0);
 
-	const auto nitems = lb.nitems;
+	const auto nitems{lb.nitems};
 	if (nitems <= 0)
 		return;
 	if (item < nitems - 1)

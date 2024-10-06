@@ -1898,7 +1898,7 @@ void move_towards_segment_center(const robot_info &robptr, const d_level_shared_
    Make move to segment center smoother by using move_towards vector.
    Bot's should not jump around and maybe even intersect with each other!
    In case it breaks something what I do not see, yet, old code is still there. */
-	const auto segnum = objp.segnum;
+	const auto segnum{objp.segnum};
 	vms_vector	vec_to_center;
 
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -1933,7 +1933,7 @@ int ai_door_is_openable(
 	auto &wall = *vcwallptr(wall_num);
 	//	The mighty console object can open all doors (for purposes of determining paths).
 	if (&obj == ConsoleObject) {
-		const auto wt = wall.type;
+		const auto wt{wall.type};
 		if (wt == WALL_DOOR)
 		{
 			static_assert(WALL_DOOR != 0, "WALL_DOOR must be nonzero for this shortcut to work properly.");
@@ -1949,7 +1949,7 @@ int ai_door_is_openable(
 
 		if (wall_num != wall_none)
 		{
-			const auto wt = wall.type;
+			const auto wt{wall.type};
 			if (wt == WALL_DOOR && wall.keys == wall_key::none && !(wall.flags & wall_flag::door_locked))
 			{
 				static_assert(WALL_DOOR != 0, "WALL_DOOR must be nonzero for this shortcut to work properly.");
@@ -1961,7 +1961,7 @@ int ai_door_is_openable(
 	auto &WallAnims = GameSharedState.WallAnims;
 	if (robptr->companion)
 	{
-		const auto wt = wall.type;
+		const auto wt{wall.type};
 		if (wall.flags & wall_flag::buddy_proof) {
 			if (wt == WALL_DOOR && wall.state == wall_state::closed)
 				return 0;
@@ -2032,7 +2032,7 @@ int ai_door_is_openable(
 	{
 		if (wall_num != wall_none)
 		{
-			const auto wt = wall.type;
+			const auto wt{wall.type};
 			if (wt == WALL_DOOR && (wall.keys == wall_key::none) && !(wall.flags & wall_flag::door_locked))
 			{
 				static_assert(WALL_DOOR != 0, "WALL_DOOR must be nonzero for this shortcut to work properly.");

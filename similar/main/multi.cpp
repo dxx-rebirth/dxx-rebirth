@@ -830,7 +830,7 @@ static void multi_compute_kill(const d_robot_info_array &Robot_info, const imobj
 
 	// Both object numbers are localized already!
 
-	const auto killed_type = killed.type;
+	const auto killed_type{killed.type};
 	if ((killed_type != OBJ_PLAYER) && (killed_type != OBJ_GHOST))
 	{
 		Int3(); // compute_kill passed non-player object!
@@ -2288,7 +2288,7 @@ static void multi_do_play_sound(object_array &Objects, const playernum_t pnum, c
 	const uint8_t once = buf[3];
 	const fix volume{GET_INTEL_INT<int32_t>(&buf[4])};
 
-	const auto objnum = plr.objnum;
+	const auto objnum{plr.objnum};
 	digi_link_sound_to_object(sound_num, vcobjptridx(objnum), 0, volume, static_cast<sound_stack>(once));
 }
 
@@ -3435,7 +3435,7 @@ void multi_prep_level_objects(const d_powerup_info_array &Powerup_info, const d_
 
 	constexpr unsigned MAX_ALLOWED_INVULNERABILITY = 3;
 	constexpr unsigned MAX_ALLOWED_CLOAK = 3;
-	const auto AllowedItems = Netgame.AllowedItems;
+	const auto AllowedItems{Netgame.AllowedItems};
 	const auto SpawnGrantedItems = map_granted_flags_to_netflag(Netgame.SpawnGrantedItems);
 	unsigned inv_remaining = (AllowedItems & netflag_flag::NETFLAG_DOINVUL) != netflag_flag::None ? MAX_ALLOWED_INVULNERABILITY : 0;
 	unsigned cloak_remaining = (AllowedItems & netflag_flag::NETFLAG_DOCLOAK) != netflag_flag::None ? MAX_ALLOWED_CLOAK : 0;
@@ -3822,7 +3822,7 @@ int multi_all_players_alive(const fvcobjptr &vcobjptr, const std::ranges::subran
 {
 	range_for (auto &plr, player_range)
 	{
-		const auto connected = plr.connected;
+		const auto connected{plr.connected};
 		if (connected == player_connection_status::playing)
 		{
 			if (vcobjptr(plr.objnum)->type == OBJ_GHOST) // player alive?
@@ -5713,7 +5713,7 @@ void init_hoard_data(d_vclip_array &Vclip)
 
 	//Load sounds for orb game
 	hoard_resources.snd_idx = Num_sound_files;
-	const auto SndDigiSampleRate = GameArg.SndDigiSampleRate;
+	const auto SndDigiSampleRate{GameArg.SndDigiSampleRate};
 	range_for (const unsigned i, xrange(4u))
 	{
 		int len;

@@ -766,7 +766,7 @@ void fuelcen_check_for_hoard_goal(object &plrobj, const shared_segment &segp)
    if (Player_dead_state != player_dead_state::no)
 		return;
 
-	const auto special = segp.special;
+	const auto special{segp.special};
 	if (special == segment_special::goal_blue || special == segment_special::goal_red)
 	{
 		auto &player_info = plrobj.ctype.player_info;

@@ -1078,7 +1078,7 @@ namespace {
 
 static int redraw_messagestream(grs_canvas &canvas, const grs_font &cv_font, const msgstream &stream, const int lastcolor)
 {
-	const auto nextcolor = stream.color;
+	const auto nextcolor{stream.color};
 	if (lastcolor != nextcolor)
 		gr_set_fontcolor(canvas, nextcolor, -1);
 	gr_string(canvas, cv_font, stream.x + 1, stream.y, stream.ch.data());

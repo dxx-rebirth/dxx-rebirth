@@ -1104,7 +1104,7 @@ void extract_quaternionpos(const vmobjptridx_t objp, quaternionpos &qpp)
 	objp->mtype.phys_info.velocity = qpp.vel;
 	objp->mtype.phys_info.rotvel = qpp.rotvel;
         
-	const auto segnum = qpp.segment;
+	const auto segnum{qpp.segment};
 	Assert(segnum <= Highest_segment_index);
 	obj_relink(vmobjptr, vmsegptr, objp, vmsegptridx(segnum));
 }

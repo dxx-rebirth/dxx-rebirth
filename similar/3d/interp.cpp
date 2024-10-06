@@ -372,8 +372,8 @@ public:
 	void op_sortnorm(const uint8_t *const p)
 	{
 		const auto &&offsets = get_sortnorm_offsets(p);
-		const auto a = offsets.first;
-		const auto b = offsets.second;
+		const auto a{offsets.first};
+		const auto b{offsets.second};
 		g3_draw_polygon_model(model_bitmaps, Interp_point_list, canvas, tmap_drawer_ptr, anim_angles, model_light, glow_values, p + a);
 		g3_draw_polygon_model(model_bitmaps, Interp_point_list, canvas, tmap_drawer_ptr, anim_angles, model_light, glow_values, p + b);
 	}
