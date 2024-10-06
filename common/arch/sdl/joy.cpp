@@ -376,7 +376,7 @@ void joy_init()
 				snprintf(text.data(), text.size(), "J%d A%u", i + 1, idx);
 			}
 #else
-            const auto n_axes = 0;
+            const auto n_axes{0};
 #endif
 
 			const auto n_buttons = check_warn_joy_support_limit(SDL_JoystickNumButtons(handle), "button", DXX_MAX_BUTTONS_PER_JOYSTICK);

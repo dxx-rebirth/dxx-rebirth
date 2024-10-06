@@ -717,8 +717,8 @@ window_event_result scores_menu::event_handler(const d_event &event)
 				auto &canvas = w_canv;
 			nm_draw_background(w_canv, 0, 0, w_canv.cv_bitmap.bm_w, w_canv.cv_bitmap.bm_h);
 			auto &medium3_font = *MEDIUM3_FONT;
-			const auto border_x = BORDERX;
-			const auto border_y = BORDERY;
+			const auto border_x{BORDERX};
+			const auto border_y{BORDERY};
 			gr_string(canvas, medium3_font, 0x8000, border_y, TXT_HIGH_SCORES);
 			auto &game_font = *GAME_FONT;
 			gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);

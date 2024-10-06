@@ -1540,7 +1540,7 @@ window_event_result ExitSecretLevel()
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		return window_event_result::ignored;
 
-	const auto g = Game_wind;
+	const auto g{Game_wind};
 	if (g)
 		g->set_visible(0);
 
@@ -1614,7 +1614,7 @@ void EnterSecretLevel(void)
 
 	Assert(! (Game_mode & GM_MULTI) );
 
-	const auto g = Game_wind;
+	const auto g{Game_wind};
 	if (g)
 		g->set_visible(0);
 
@@ -1673,7 +1673,7 @@ window_event_result (PlayerFinishedLevel)(
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	const auto g = Game_wind;
+	const auto g{Game_wind};
 	if (g)
 		g->set_visible(0);
 
@@ -1920,7 +1920,7 @@ window_event_result DoPlayerDead()
 #endif
                 {
 
-					const auto g = Game_wind;
+					const auto g{Game_wind};
 					if (g)
 						g->set_visible(0);
 			result = AdvanceLevel(next_level_request_secret_flag::only_normal_level);			//if finished, go on to next level
@@ -2232,7 +2232,7 @@ class respawn_locations
 public:
 	respawn_locations(fvmobjptr &vmobjptr, fvcsegptridx &vcsegptridx)
 	{
-		const auto player_num = Player_num;
+		const auto player_num{Player_num};
 		const auto find_closest_player = [player_num, &vmobjptr, &vcsegptridx](const obj_position &candidate) {
 			fix closest_dist = INT32_MAX;
 			const auto &&candidate_segp = vcsegptridx(candidate.segnum);

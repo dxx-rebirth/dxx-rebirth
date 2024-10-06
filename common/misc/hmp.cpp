@@ -210,7 +210,7 @@ static int get_event(hmp_file *hmp, event *ev) {
 			fndtrk = trk;
 		}
 	}
-	const auto trk = fndtrk;
+	const auto trk{fndtrk};
 	if (!trk)
 			return HMP_EOF;
 

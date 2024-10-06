@@ -806,8 +806,8 @@ static void kconfig_sub(const char *litems, const kc_item * items,kc_mitem *mite
 	const auto &&fspacy = FSPACY();
 	const uint16_t target_window_width = fspacx(320);
 	const uint16_t target_window_height = fspacy(220);
-	const auto swidth = SWIDTH;
-	const auto sheight = SHEIGHT;
+	const auto swidth{SWIDTH};
+	const auto sheight{SHEIGHT};
 	const auto window_width = std::min(swidth, target_window_width);
 	const auto window_height = std::min(sheight, target_window_height);
 	auto menu = window_create<kc_menu>(grd_curscreen->sc_canvas, (swidth - window_width) / 2, (sheight - window_height) / 2, window_width, window_height);
@@ -1057,7 +1057,7 @@ static void clamp_kconfig_control_with_overrun(fix &value, const fix &bound, fix
 {
 	/* Assume no integer overflow here */
 	value += excess;
-	const auto ivalue = value;
+	const auto ivalue{value};
 	clamp_symmetric_value(value, bound);
 	excess = ivalue - value;
 	clamp_symmetric_value(excess, ebound);
@@ -1065,7 +1065,7 @@ static void clamp_kconfig_control_with_overrun(fix &value, const fix &bound, fix
 
 static unsigned allow_uncapped_turning()
 {
-	const auto game_mode = Game_mode;
+	const auto game_mode{Game_mode};
 	if (!(game_mode & GM_MULTI))
 		return PlayerCfg.MouselookFlags & MouselookMode::Singleplayer;
 	return PlayerCfg.MouselookFlags &
@@ -1077,7 +1077,7 @@ static unsigned allow_uncapped_turning()
 
 static unsigned release_pitch_lock()
 {
-	const auto game_mode = Game_mode;
+	const auto game_mode{Game_mode};
 	if(!(game_mode & GM_MULTI)) {
 		return PlayerCfg.PitchLockFlags & MouselookMode::Singleplayer;
 	}
@@ -1105,7 +1105,7 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 	}
 #endif
 
-	const auto frametime = FrameTime;
+	const auto frametime{FrameTime};
 
 	switch (event.type)
 	{

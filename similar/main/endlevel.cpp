@@ -513,7 +513,7 @@ static movie_play_status start_endlevel_movie()
 
 	//Assert(PLAYING_BUILTIN_MISSION); //only play movie for built-in mission
 
-	const auto current_level_num = Current_level_num;
+	const auto current_level_num{Current_level_num};
 	if (is_SHAREWARE)
 		return movie_play_status::skipped;
 	if (!is_D2_OEM)
@@ -664,7 +664,7 @@ window_event_result start_endlevel_sequence()
 #if defined(DXX_BUILD_DESCENT_II)
 		if (PLAYING_BUILTIN_MISSION) // only play movie for built-in mission
 		{
-			const auto g = Game_wind;
+			const auto g{Game_wind};
 			g->set_visible(0);	// suspend the game, including drawing
 			start_endlevel_movie();
 			g->set_visible(1);
@@ -705,7 +705,7 @@ window_event_result start_endlevel_sequence()
 	if (PLAYING_BUILTIN_MISSION) // only play movie for built-in mission
 		if (!(Game_mode & GM_MULTI))
 		{
-			const auto g = Game_wind;
+			const auto g{Game_wind};
 			g->set_visible(0);	// suspend the game, including drawing
 			endlevel_movie_played = start_endlevel_movie();
 			g->set_visible(1);

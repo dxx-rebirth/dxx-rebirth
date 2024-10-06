@@ -409,7 +409,7 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_audioframedata(const mve_
 			const auto DigiVolume = CGameCfg.DigiVolume;
 			/* At volume 0 (minimum), no sound is wanted. */
 			if (DigiVolume && major == mve_opcode::audioframedata) {
-				const auto flags = mve_audio_flags;
+				const auto flags{mve_audio_flags};
 				if (flags & MVE_AUDIO_FLAGS_COMPRESSED) {
 					/* HACK: +4 mveaudio_uncompress adds 4 more bytes */
 					nsamp += 4;

@@ -254,7 +254,7 @@ void multi_put_vector(uint8_t *const buf, const vms_vector &v)
 	 * a store to `buf` may change the result of a subsequent load from an
 	 * aliased vms_vector.
 	 */
-	const auto lv = v;
+	const auto lv{v};
 	PUT_INTEL_INT(&buf[0], lv.x);
 	PUT_INTEL_INT(&buf[4], lv.y);
 	PUT_INTEL_INT(&buf[8], lv.z);
@@ -797,7 +797,7 @@ namespace {
 static void print_kill_goal_tables(fvcobjptr &vcobjptr)
 {
 	const auto &local_player = get_local_player();
-	const auto pnum = Player_num;
+	const auto pnum{Player_num};
 	con_printf(CON_NORMAL, "Kill goal statistics: player #%u \"%s\"", pnum, static_cast<const char *>(local_player.callsign));
 	for (auto &&[idx, i] : enumerate(Players))
 	{
@@ -1551,7 +1551,7 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 
 static void multi_define_macro_end(control_info &Controls)
 {
-	const auto defining = multi_defining_message;
+	const auto defining{multi_defining_message};
 	if (!PlayerCfg.NetworkMessageMacro.valid_index(defining))
 		return;
 	multi_defining_message = multi_macro_message_index::None;
@@ -2084,7 +2084,7 @@ void multi_disconnect_player(const playernum_t pnum)
 
 	if (pnum == multi_who_is_master()) // Host has left - Quit game!
 	{
-		const auto g = Game_wind;
+		const auto g{Game_wind};
 		if (g)
 			g->set_visible(0);
 		struct host_left_game : passive_messagebox
@@ -2374,7 +2374,7 @@ static void multi_do_drop_marker(object_array &Objects, fvmsegptridx &vmsegptrid
 		return;
 
 	const auto mesnum = buf[2];
-	const auto game_mode = Game_mode;
+	const auto game_mode{Game_mode};
 	const auto max_numplayers = Netgame.max_numplayers;
 	if (mesnum >= MarkerState.get_markers_per_player(game_mode, max_numplayers))
 		return;
@@ -2656,7 +2656,7 @@ void multi_send_markers()
 	auto &vcobjptr = Objects.vcptr;
 	// send marker positions/text to new player
 
-	const auto game_mode = Game_mode;
+	const auto game_mode{Game_mode};
 	const auto max_numplayers = Netgame.max_numplayers;
 	auto &&player_marker_range = get_player_marker_range(MarkerState.get_markers_per_player(game_mode, max_numplayers));
 	for (const playernum_t pnum : xrange(max_numplayers))
@@ -2924,7 +2924,7 @@ void multi_send_cloak()
 	// Broadcast a change in our pflags (made to support cloaking)
 
 	multi_command<multiplayer_command_t::MULTI_CLOAK> multibuf;
-	const auto pnum = Player_num;
+	const auto pnum{Player_num};
 	multibuf[1] = pnum;
 
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
@@ -3187,7 +3187,7 @@ void multi_consistency_error(int reset)
 	if (++count < 10)
 		return;
 
-	const auto g = Game_wind;
+	const auto g{Game_wind};
 	if (g)
 		g->set_visible(0);
 	nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{TXT_CONSISTENCY_ERROR});
@@ -3248,7 +3248,7 @@ uint_fast32_t map_granted_flags_to_primary_weapon_flags(const packed_spawn_grant
 uint16_t map_granted_flags_to_vulcan_ammo(const packed_spawn_granted_items p)
 {
 	auto &grant = p.mask;
-	const auto amount = VULCAN_WEAPON_AMMO_AMOUNT;
+	const auto amount{VULCAN_WEAPON_AMMO_AMOUNT};
 	return
 #if defined(DXX_BUILD_DESCENT_II)
 		((grant & netgrant_flag::NETGRANT_GAUSS) != netgrant_flag::None ? amount : 0) +
@@ -3758,7 +3758,7 @@ void multi_update_objects_for_non_cooperative()
 	// Go through the object list and remove any objects not used in
 	// 'Anarchy!' games.
 
-	const auto game_mode = Game_mode;
+	const auto game_mode{Game_mode};
 	/* Shuffle objects before object duplication runs.  Otherwise,
 	 * duplication-eligible items would be duplicated, then scattered,
 	 * causing the original site to be a treasure trove of swapped

@@ -1077,7 +1077,7 @@ void read_sndfile(const int required)
 	int i;
 	int sbytes = 0;
 
-	const auto filename = DEFAULT_SNDFILE;
+	const auto filename{DEFAULT_SNDFILE};
 	auto &&[snd_fp, physfserr] = PHYSFSX_openReadBuffered(filename);
 	if (!snd_fp)
 	{
@@ -2067,7 +2067,7 @@ void load_d1_bitmap_replacements()
 			if ((p = strchr(abname.data(), '#')) /* d2 BM is animated */
 			     && !(bmh.dflags & DBM_FLAG_ABM) ) { /* d1 bitmap is not animated */
 				int len = p - abname.data();
-				const auto num_bitmap_files = Num_bitmap_files;
+				const auto num_bitmap_files{Num_bitmap_files};
 				for (const uint16_t i : xrange(num_bitmap_files))
 				{
 					const bitmap_index bi{i};

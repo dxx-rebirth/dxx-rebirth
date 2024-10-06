@@ -884,10 +884,10 @@ unsigned write_screenshot_png(PHYSFS_File *const file, const struct tm *const tm
 			record_screenshot_time(*tm, ss.png_ptr, ss.info_ptr);
 		png_set_write_fn(ss.png_ptr, file, &d_screenshot::png_write_cb, &d_screenshot::png_flush_cb);
 #if DXX_USE_OGL
-		const auto color_type = PNG_COLOR_TYPE_RGB;
+		const auto color_type{PNG_COLOR_TYPE_RGB};
 #else
 		png_set_PLTE(ss.png_ptr, ss.info_ptr, reinterpret_cast<const png_color *>(pal.data()), pal.size());
-		const auto color_type = PNG_COLOR_TYPE_PALETTE;
+		const auto color_type{PNG_COLOR_TYPE_PALETTE};
 #endif
 		png_set_IHDR(ss.png_ptr, ss.info_ptr, bm_w, bm_h, 8 /* always 256 colors */, color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 #ifdef PNG_TEXT_SUPPORTED
@@ -1981,7 +1981,7 @@ window_event_result GameProcessFrame(const d_level_shared_robot_info_state &Leve
 	auto &player_info = plrobj.ctype.player_info;
 	auto &local_player_shields_ref = plrobj.shields;
 	fix player_shields = local_player_shields_ref;
-	const auto player_was_dead = Player_dead_state;
+	const auto player_was_dead{Player_dead_state};
 	auto result = window_event_result::ignored;
 
 	state_poll_autosave_game(GameUniqueState, LevelUniqueObjectState);
@@ -2134,7 +2134,7 @@ window_event_result GameProcessFrame(const d_level_shared_robot_info_state &Leve
 	//if the player is taking damage, give up guided missile control
 	if (local_player_shields_ref != player_shields)
 	{
-		const auto player_num = Player_num;
+		const auto player_num{Player_num};
 		if (const auto &&gimobj = LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(vmobjptr, player_num))
 			release_local_guided_missile(LevelUniqueObjectState, player_num, *gimobj);
 	}
@@ -2212,7 +2212,7 @@ static void slide_textures(void)
 					const auto tiv = ti.slide_v;
 					if (tiu || tiv)
 					{
-						const auto frametime = FrameTime;
+						const auto frametime{FrameTime};
 						const auto ua = fixmul(frametime, tiu << 8);
 						const auto va = fixmul(frametime, tiv << 8);
 						auto &uvls = side.uvls;

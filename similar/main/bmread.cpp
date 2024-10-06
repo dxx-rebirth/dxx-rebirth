@@ -2510,7 +2510,7 @@ void bm_read_powerup(int unused_flag)
 
 	Assert(N_powerup_types < MAX_POWERUP_TYPES);
 
-	const auto n = N_powerup_types;
+	const auto n{N_powerup_types};
 	N_powerup_types++;
 
 	if (unused_flag) {
@@ -2589,7 +2589,7 @@ void bm_read_hostage()
 
 	Assert(N_hostage_types < MAX_HOSTAGE_TYPES);
 
-	const auto n = N_hostage_types;
+	const auto n{N_hostage_types};
 	N_hostage_types++;
 
 	// Process arguments

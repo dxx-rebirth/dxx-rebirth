@@ -245,7 +245,7 @@ static void apply_force_damage(const d_robot_info_array &Robot_info, const vmobj
 			if (!result)
 				break;
 
-			const auto console = ConsoleObject;
+			const auto console{ConsoleObject};
 			if ((other_type == OBJ_PLAYER && other_obj == console) ||
 				(other_type == OBJ_WEAPON && laser_parent_is_player(vcobjptr, other_obj->ctype.laser_info, *console)))
 				add_points_to_score(console->ctype.player_info, robptr.score_value, Game_mode);
@@ -2323,7 +2323,7 @@ void collide_player_and_materialization_center(const vmobjptridx_t objp)
 	bump_one_object(objp, exit_dir, 64*F1_0);
 
 #if defined(DXX_BUILD_DESCENT_I)
-	const auto killer = object_none;
+	const auto killer{object_none};
 #elif defined(DXX_BUILD_DESCENT_II)
 	auto &&killer = objp;	//	Changed, MK, 2/19/96, make killer the player, so if you die in matcen, will say you killed yourself
 #endif

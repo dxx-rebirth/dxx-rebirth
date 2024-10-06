@@ -117,7 +117,7 @@ object *ConsoleObject;					//the object that is the player
 //set viewer object to next object in array
 void object_goto_next_viewer(const object_array &Objects, const object *&viewer)
 {
-	const auto initial_viewer = viewer;
+	const auto initial_viewer{viewer};
 	const auto oe{Objects.vcptr.end()};
 	/* Preconditions:
 	 * - There exists an integer `i` such that `i < MAX_OBJECTS` and

@@ -117,7 +117,7 @@ static void scale_vert(const shared_segment &sp, const vertnum_t vertex_ind, con
 		}
 		case SEGSIZEMODE_EDGE: {
 			auto &sv = Side_to_verts[Curside];
-			const auto edge = Curedge;
+			const auto edge{Curedge};
 			range_for (const int v, xrange(2u))
 				if (verts[sv[next_side_vertex(edge, v)]] == vertex_ind)
 					scale_vert_aux(vertex_ind, vp, scale_factor);

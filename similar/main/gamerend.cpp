@@ -104,7 +104,7 @@ static void game_draw_multi_message(grs_canvas &canvas)
 	std::array<char, 64> buffer;
 	if (sending != msgsend_state::none)
 		std::snprintf(std::data(buffer), std::size(buffer), "%s: %s_", TXT_MESSAGE, Network_message.data());
-	else if (const auto defining = multi_defining_message; defining != multi_macro_message_index::None)
+	else if (const auto defining{multi_defining_message}; defining != multi_macro_message_index::None)
 		/* Use 1-based counting for user-visible text. */
 		std::snprintf(std::data(buffer), std::size(buffer), "%s #%d: %s_", TXT_MACRO, 1 + underlying_value(defining), Network_message.data());
 	else
@@ -564,7 +564,7 @@ static bool choose_missile_viewer()
 	};
 	/* Find new missile */
 	object *local_player_missile = nullptr, *other_player_missile = nullptr;
-	const auto game_mode = Game_mode;
+	const auto game_mode{Game_mode};
 	const auto local_player_objnum = get_local_player().objnum;
 	range_for (object &o, vmobjptr)
 	{
@@ -791,7 +791,7 @@ void game_render_frame_mono(const d_robot_info_array &Robot_info, const control_
 			? LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(LevelUniqueObjectState.get_objects().vmptr, Player_num)
 			: nullptr))
 	{
-		const auto viewer_save = Viewer;
+		const auto viewer_save{Viewer};
 
 		if (PlayerCfg.CockpitMode[1] == cockpit_mode_t::full_cockpit || PlayerCfg.CockpitMode[1] == cockpit_mode_t::rear_view)
 		{

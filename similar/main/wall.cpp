@@ -254,7 +254,7 @@ void wall_init(d_level_unique_wall_subsystem_state &LevelUniqueWallSubsystemStat
 //set the tmap_num or tmap_num2 field for a wall/door
 void wall_set_tmap_num(const wclip &anim, const vmsegptridx_t seg, const sidenum_t side, const vmsegptridx_t csegp, const sidenum_t cside, const unsigned frame_num)
 {
-	const auto newdemo_state = Newdemo_state;
+	const auto newdemo_state{Newdemo_state};
 	if (newdemo_state == ND_STATE_PLAYBACK)
 		return;
 

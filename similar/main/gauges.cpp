@@ -1546,11 +1546,11 @@ static void hud_set_vulcan_ammo_fontcolor(const player_info &player_info, const 
 static void hud_printf_vulcan_ammo(grs_canvas &canvas, const player_info &player_info, const int x, const int y)
 {
 	const unsigned primary_weapon_flags = player_info.primary_weapon_flags;
-	const auto vulcan_mask = HAS_VULCAN_FLAG;
+	const auto vulcan_mask{HAS_VULCAN_FLAG};
 #if defined(DXX_BUILD_DESCENT_I)
-	const auto gauss_mask = vulcan_mask;
+	const auto gauss_mask{vulcan_mask};
 #elif defined(DXX_BUILD_DESCENT_II)
-	const auto gauss_mask = HAS_GAUSS_FLAG;
+	const auto gauss_mask{HAS_GAUSS_FLAG};
 #endif
 	const auto fmt_vulcan_ammo = vulcan_ammo_scale(player_info.vulcan_ammo);
 	const unsigned has_weapon_uses_vulcan_ammo = (primary_weapon_flags & (gauss_mask | vulcan_mask));
@@ -1981,7 +1981,7 @@ static void sb_show_lives(const hud_draw_context_hs_mr hudctx, const hud_ar_scal
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		return;
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
-	const auto y = SB_LIVES_Y;
+	const auto y{SB_LIVES_Y};
 
 	auto &canvas = hudctx.canvas;
 	gr_set_fontcolor(canvas, BM_XRGB(0, 20, 0), -1);
@@ -2044,7 +2044,7 @@ static void common_add_points_to_score(const int points, int &score, const game_
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_player_score(points);
 
-	const auto prev_score = score;
+	const auto prev_score{score};
 	score += points;
 
 	if (Game_mode & GM_MULTI)
@@ -2459,8 +2459,8 @@ static void draw_afterburner_bar(const hud_draw_context_hs_mr hudctx, const int 
 
 	// Draw afterburner bar
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
-	const auto afterburner_gauge_x = AFTERBURNER_GAUGE_X;
-	const auto afterburner_gauge_y = AFTERBURNER_GAUGE_Y;
+	const auto afterburner_gauge_x{AFTERBURNER_GAUGE_X};
+	const auto afterburner_gauge_y{AFTERBURNER_GAUGE_Y};
 	const auto [table_data, table_size] = multires_gauge_graphic.is_hires()
 		? std::make_pair(afterburner_bar_table_hires.data(), afterburner_bar_table_hires.size())
 		: std::make_pair(afterburner_bar_table.data(), afterburner_bar_table.size());
@@ -3051,7 +3051,7 @@ static void sb_draw_energy_bar(const hud_draw_context_hs_mr hudctx, const unsign
 	auto &canvas = hudctx.canvas;
 	if (energy <= 100)
 	{
-		const auto color = 0;
+		const auto color{0};
 		const int erase_x0 = i2f(hudctx.xscale(SB_ENERGY_GAUGE_X));
 		const int erase_x1 = i2f(hudctx.xscale(SB_ENERGY_GAUGE_X + SB_ENERGY_GAUGE_W));
 		const int erase_y_base = hudctx.yscale(SB_ENERGY_GAUGE_Y);
@@ -3081,7 +3081,7 @@ static void sb_draw_afterburner(const hud_draw_context_hs_mr hudctx, const playe
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
 	hud_gauge_bitblt(hudctx, SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, SB_GAUGE_AFTERBURNER);
 
-	const auto color = 0;
+	const auto color{0};
 	const int erase_x0 = i2f(hudctx.xscale(SB_AFTERBURNER_GAUGE_X));
 	const int erase_x1 = i2f(hudctx.xscale(SB_AFTERBURNER_GAUGE_X + (SB_AFTERBURNER_GAUGE_W)));
 	const int erase_y_base = hudctx.yscale(SB_AFTERBURNER_GAUGE_Y);
@@ -3152,7 +3152,7 @@ static void draw_invulnerable_ship(const hud_draw_context_hs_mr hudctx, const ob
 	{
 		static fix time;
 		auto ltime = time + FrameTime;
-		const auto old_invulnerable_frame = invulnerable_frame;
+		const auto old_invulnerable_frame{invulnerable_frame};
 		while (ltime > INV_FRAME_TIME)
 		{
 			ltime -= INV_FRAME_TIME;
@@ -3638,7 +3638,7 @@ void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &canvas, co
 		const auto &&objp = vcobjptridx(objnum);
 		const auto &pl_flags = objp->ctype.player_info.powerup_flags;
 		const auto is_friend = (Game_mode & GM_MULTI_COOP || (Game_mode & GM_TEAM && get_team(pnum) == get_team(Player_num)));
-		const auto show_friend_name = Show_reticle_name;
+		const auto show_friend_name{Show_reticle_name};
 		const auto is_cloaked = pl_flags & PLAYER_FLAGS_CLOAKED;
 		const auto show_enemy_name = Show_reticle_name && Netgame.ShowEnemyNames && !is_cloaked;
 		const auto show_name = is_friend ? show_friend_name : show_enemy_name;
@@ -4050,7 +4050,7 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const weapon_box_
 void do_cockpit_window_view(grs_canvas &canvas, const gauge_inset_window_view win, const object &viewer, const int rear_view_flag, const weapon_box_user user, const char *const label, const player_info *const player_info)
 {
 	grs_subcanvas window_canv;
-	const auto viewer_save = Viewer;
+	const auto viewer_save{Viewer};
 	static int window_x,window_y;
 	int rear_view_save = Rear_view;
 

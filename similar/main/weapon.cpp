@@ -810,7 +810,7 @@ void do_primary_weapon_select(player_info &player_info, primary_weapon_index_t w
 		weapon_status = player_has_primary_weapon(player_info, weapon_num);
 	}
 	else {
-		const auto weapon_num_save = weapon_num;
+		const auto weapon_num_save{weapon_num};
 
 		//go to last-select version of requested missile
 
@@ -873,7 +873,7 @@ void do_secondary_weapon_select(player_info &player_info, secondary_weapon_index
 		weapon_status = player_has_secondary_weapon(player_info, weapon_num);
 	}
 	else {
-		const auto weapon_num_save = weapon_num;
+		const auto weapon_num_save{weapon_num};
 
 		//go to last-select version of requested missile
 
@@ -1170,7 +1170,7 @@ namespace {
 static void maybe_autoselect_vulcan_weapon(player_info &player_info)
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	const auto weapon_flag_mask = HAS_VULCAN_FLAG;
+	const auto weapon_flag_mask{HAS_VULCAN_FLAG};
 #elif defined(DXX_BUILD_DESCENT_II)
 	const auto weapon_flag_mask = HAS_VULCAN_FLAG | HAS_GAUSS_FLAG;
 #endif
@@ -1181,7 +1181,7 @@ static void maybe_autoselect_vulcan_weapon(player_info &player_info)
 	auto weapon_index = primary_weapon_index_t::VULCAN_INDEX;
 #if defined(DXX_BUILD_DESCENT_I)
 	const auto weapon_order_vulcan = POrderList(primary_weapon_index_t::VULCAN_INDEX);
-	const auto better = weapon_order_vulcan;
+	const auto better{weapon_order_vulcan};
 #elif defined(DXX_BUILD_DESCENT_II)
 	/* If a weapon is missing, pretend its auto-select priority is equal
 	 * to cutpoint.  Priority at or worse than cutpoint is never
@@ -1217,7 +1217,7 @@ int pick_up_vulcan_ammo(player_info &player_info, uint_fast32_t ammo_count, cons
 {
 	const auto max = PLAYER_MAX_AMMO(player_info.powerup_flags, VULCAN_AMMO_MAX);
 	auto &plr_vulcan_ammo = player_info.vulcan_ammo;
-	const auto old_ammo = plr_vulcan_ammo;
+	const auto old_ammo{plr_vulcan_ammo};
 	if (old_ammo >= max)
 		return 0;
 

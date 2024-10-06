@@ -131,7 +131,7 @@ void (UserError)(const char *fmt,...)
 
 void Warning_puts(const char *str)
 {
-	const auto warn = warn_func;
+	const auto warn{warn_func};
 #if DXX_USE_EDITOR
 	if (warn == NULL)
 		return;
@@ -146,7 +146,7 @@ void (Warning)(const char *fmt,...)
 {
 	va_list arglist;
 
-	const auto warn = warn_func;
+	const auto warn{warn_func};
 #if DXX_USE_EDITOR
 	if (warn == NULL)
 		return;

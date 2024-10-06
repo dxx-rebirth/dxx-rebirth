@@ -1486,7 +1486,7 @@ static void move_away_from_player(const d_robot_info_array &Robot_info, const vm
 {
 	physics_info	*pptr = &objp->mtype.phys_info;
 
-	const auto frametime = FrameTime;
+	const auto frametime{FrameTime};
 	pptr->velocity.x -= fixmul(vec_to_player.x, frametime*16);
 	pptr->velocity.y -= fixmul(vec_to_player.y, frametime*16);
 	pptr->velocity.z -= fixmul(vec_to_player.z, frametime*16);

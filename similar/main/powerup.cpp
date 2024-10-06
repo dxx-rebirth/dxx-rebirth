@@ -175,12 +175,12 @@ void do_megawow_powerup(object &plrobj, const int quantity)
 	plrobj.shields = F1_0*200;
 	player_info.powerup_flags |= PLAYER_FLAGS_QUAD_LASERS;
 #if defined(DXX_BUILD_DESCENT_I)
-	const auto laser_level = MAX_LASER_LEVEL;
+	const auto laser_level{MAX_LASER_LEVEL};
 #elif defined(DXX_BUILD_DESCENT_II)
 	player_info.Omega_charge = MAX_OMEGA_CHARGE;
 	if (game_mode_hoard(Game_mode))
 		player_info.hoard.orbs = player_info.max_hoard_orbs;
-	const auto laser_level = MAX_SUPER_LASER_LEVEL;
+	const auto laser_level{MAX_SUPER_LASER_LEVEL};
 #endif
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_laser_level(player_info.laser_level, laser_level);
@@ -327,7 +327,7 @@ static int player_hit_flag_powerup(player_info &player_info, const std::span<con
 {
 	if (!game_mode_capture_flag(Game_mode))
 		return 0;
-	const auto pnum = Player_num;
+	const auto pnum{Player_num};
 	if (get_team(pnum) == TEAM)
 	{
 		player_info.powerup_flags |= PLAYER_FLAGS_FLAG;

@@ -570,7 +570,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 					 * this as a placeholder to make the code match the
 					 * force field handling in Descent 2.
 					 */
-					const auto forcefield_bounce = false;
+					const auto forcefield_bounce{false};
 #elif defined(DXX_BUILD_DESCENT_II)
 					const unique_segment &useg = vcsegptr(WallHitSeg);
 					auto &uside = useg.sides[WallHitSide];

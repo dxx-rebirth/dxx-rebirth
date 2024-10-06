@@ -656,7 +656,7 @@ void create_path_to_segment(const vmobjptridx_t objp, const robot_info &robptr, 
 
 	segnum_t			start_seg;
 	start_seg = obj.segnum;
-	const auto end_seg = goal_segment;
+	const auto end_seg{goal_segment};
 
 	if (end_seg == segment_none) {
 		;
@@ -695,7 +695,7 @@ void create_path_to_believed_player_segment(const vmobjptridx_t objp, const robo
 #if defined(DXX_BUILD_DESCENT_I)
 	const auto goal_segment = ConsoleObject->segnum;
 #elif defined(DXX_BUILD_DESCENT_II)
-	const auto goal_segment = Believed_player_seg;
+	const auto goal_segment{Believed_player_seg};
 #endif
 	create_path_to_segment(objp, robptr, max_length, safety_flag, goal_segment);
 }

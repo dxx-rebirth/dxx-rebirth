@@ -243,7 +243,7 @@ void show_titles(void)
 
 #define MOVIE_REQUIRED 1	//(!is_D2_OEM && !is_SHAREWARE && !is_MAC_SHARE)	// causes segfault
 
-	const auto hiresmode = HIRESMODE;
+	const auto hiresmode{HIRESMODE};
 	{       //show bundler screens
 		const auto played = PlayMovie({}, "pre_i.mve", play_movie_warn_missing::verbose);
 		if (played == movie_play_status::skipped)
@@ -817,14 +817,14 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			br->got_z=1;
 			br->dumb_adjust=1;
 			auto p = br->message;
-			const auto begin_filename = p;
+			const auto begin_filename{p};
 			const char *separator = nullptr;
 			for (char c; (c = *p) != 0 && c != '\n'; ++p)
 			{
 				if (c == '.' && !separator)
 					separator = p;
 			}
-			const auto end_filename = p;
+			const auto end_filename{p};
 			/* This is inconsistent, but preserves the original game
 			 * logic.
 			 */

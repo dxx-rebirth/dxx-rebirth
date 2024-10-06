@@ -133,7 +133,7 @@ static void print_clock(grs_canvas &canvas, const grs_font &cv_font)
 	if (!strftime(message.data(), message.size(), "%m-%d %H:%M:%S", &Editor_time_of_day))
 		message[0] = 0;
 	const auto &&[w, h] = gr_get_string_size(cv_font, message.data());
-	const auto color = CGREY;
+	const auto color{CGREY};
 	gr_rect(canvas, 700, 0, 799, h + 1, color);
 	gr_string(canvas, cv_font, 700, 0, message.data(), w, h);
 	gr_set_fontcolor(canvas, CBLACK, CWHITE);

@@ -929,7 +929,7 @@ int rotate_segment_new(const vms_angvec &pbh)
 	
 	selected_segs_save = GroupList[current_group].segments;
 	GroupList[ROT_GROUP].segments.clear();
-	const auto newseg = Cursegp;
+	const auto newseg{Cursegp};
 	const auto newseg_side = Side_opposite[Curside];
 
 	// Create list of segments to rotate.

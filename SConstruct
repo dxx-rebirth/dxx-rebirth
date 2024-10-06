@@ -1458,10 +1458,10 @@ struct d_screenshot
 	png_set_tIME(ss.png_ptr, ss.info_ptr, &pt);
 #endif
 #if DXX_USE_OGL
-	const auto color_type = PNG_COLOR_TYPE_RGB;
+	const auto color_type{PNG_COLOR_TYPE_RGB};
 #else
 	png_set_PLTE(ss.png_ptr, ss.info_ptr, reinterpret_cast<const png_color *>(&ss), 256 * 3);
-	const auto color_type = PNG_COLOR_TYPE_PALETTE;
+	const auto color_type{PNG_COLOR_TYPE_PALETTE};
 #endif
 	png_set_IHDR(ss.png_ptr, ss.info_ptr, 1, 1, 8, color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 #ifdef PNG_TEXT_SUPPORTED

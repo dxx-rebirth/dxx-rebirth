@@ -150,7 +150,7 @@ static void kmatrix_draw_names(grs_canvas &canvas, const grs_font &cv_font, cons
 	if (const auto m = Current_mission.get())
 	{
 		gr_string(canvas, cv_font, 0x8000, fspacy(30), m->mission_name.data());
-		if (const auto level_num = Current_level_num; level_num > 0 && level_num <= m->last_level)
+		if (const auto level_num{Current_level_num}; level_num > 0 && level_num <= m->last_level)
 			gr_printf(canvas, cv_font, 0x8000, fspacy(42), "%s [%u/%u]", Current_level_name.line().data(), level_num, m->last_level);
 	}
 }
@@ -158,11 +158,11 @@ static void kmatrix_draw_names(grs_canvas &canvas, const grs_font &cv_font, cons
 static void kmatrix_draw_coop_names(grs_canvas &canvas, const grs_font &cv_font, const font_y_scale_float fspacy)
 {
 	gr_set_fontcolor(canvas, BM_XRGB(63, 31, 31),-1);
-	const auto centerscreen = CENTERSCREEN;
+	const auto centerscreen{CENTERSCREEN};
 	if (const auto m = Current_mission.get())
 	{
 		gr_string(canvas, cv_font, 0x8000, fspacy(30), m->mission_name.data());
-		if (const auto level_num = Current_level_num; level_num > 0 && level_num <= m->last_level)
+		if (const auto level_num{Current_level_num}; level_num > 0 && level_num <= m->last_level)
 			gr_printf(canvas, cv_font, 0x8000, fspacy(42), "%s [%u/%u]", Current_level_name.line().data(), level_num, m->last_level);
 	}
 	const auto &&fspacy_header = fspacy(58);
@@ -288,7 +288,7 @@ static void kmatrix_redraw_coop(grs_canvas &canvas, fvcobjptr &vcobjptr, const f
 	const auto &&fspacx = FSPACX();
 	kmatrix_draw_coop_names(canvas, game_font, fspacy);
 	const auto x_callsign = fspacx(CENTERING_OFFSET(N_players));
-	const auto x_centerscreen = CENTERSCREEN;
+	const auto x_centerscreen{CENTERSCREEN};
 	const auto &&fspacx50 = fspacx(50);
 	const auto rgb60_40_10 = BM_XRGB(60, 40, 10);
 

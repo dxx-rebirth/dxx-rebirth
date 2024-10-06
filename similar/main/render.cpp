@@ -302,7 +302,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const si
 
 	std::array<g3s_lrgb, 4>		dyn_light;
 #if defined(DXX_BUILD_DESCENT_I)
-	const auto Seismic_tremor_magnitude = 0;
+	const auto Seismic_tremor_magnitude{0};
 #elif defined(DXX_BUILD_DESCENT_II)
 	const auto Seismic_tremor_magnitude = LevelUniqueSeismicState.Seismic_tremor_magnitude;
 #endif
@@ -419,7 +419,7 @@ static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const sidenu
 			const uint8_t color = 1;
 			g3_draw_poly(canvas, nv, pointlist, color);
 #else
-			const auto save_lighting = Lighting_on;
+			const auto save_lighting{Lighting_on};
 			Lighting_on = 2;
 			g3_draw_tmap(canvas, nv, pointlist, uvl_copy, dyn_light, *bm, draw_tmap);
 			Lighting_on = save_lighting;
@@ -700,7 +700,7 @@ void render_start_frame()
 g3s_codes rotate_list(fvcvertptr &vcvertptr, const std::span<const vertnum_t> pointnumlist)
 {
 	g3s_codes cc;
-	const auto current_generation = s_current_generation;
+	const auto current_generation{s_current_generation};
 	const auto cheats_acid = cheats.acid;
 	const float f = likely(!cheats_acid)
 		? 0.0f /* unused */
@@ -1135,7 +1135,7 @@ namespace {
 
 static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const vms_vector &Viewer_eye, render_state_t &rstate)
 {
-	const auto viewer = Viewer;
+	const auto viewer{Viewer};
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;

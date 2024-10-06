@@ -598,7 +598,7 @@ static void RegisterPlayer()
 	/* Index of the first undefined element */
 	auto idx_next_string = 0u;
 	m[idx_next_string++] = TXT_CREATE_NEW;
-	const auto idx_first_player_string = idx_next_string;
+	const auto idx_first_player_string{idx_next_string};
 
 	range_for (const auto f, list)
 	{

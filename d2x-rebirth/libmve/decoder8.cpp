@@ -27,7 +27,7 @@ static void dispatchDecoder(const uint8_t *vBackBuf1, const uint8_t *vBackBuf2, 
 
 void decodeFrame8(const uint8_t *const vBackBuf2, const std::size_t width, const std::size_t height, unsigned char *pFrame, std::span<const uint8_t> pMap, const unsigned char *pData, int dataRemain)
 {
-	const auto vBackBuf1 = pFrame;
+	const auto vBackBuf1{pFrame};
 	int xb, yb;
 
 	xb = width >> 3;

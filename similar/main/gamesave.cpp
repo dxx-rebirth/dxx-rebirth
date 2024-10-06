@@ -863,7 +863,7 @@ namespace {
 static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, const sidenum_t sidenum)
 {
 	auto &rwn0 = side.wall_num;
-	const auto wn0 = rwn0;
+	const auto wn0{rwn0};
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
 	auto &w0 = *vcwallptr(wn0);

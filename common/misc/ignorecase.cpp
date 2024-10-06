@@ -43,7 +43,7 @@ namespace {
 /* I'm not screwing around with stricmp vs. strcasecmp... */
 static std::optional<std::size_t> caseInsensitiveStringCompare(const char *x, const char *y)
 {
-	const auto sx = x;
+	const auto sx{x};
 	for (;;)
     {
 		const auto ux = toupper(static_cast<unsigned>(*x));

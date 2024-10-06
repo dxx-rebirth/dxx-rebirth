@@ -396,7 +396,7 @@ static int ogl_init_window(int w, int h)
 #endif
 	}
 #elif SDL_MAJOR_VERSION == 2
-	const auto SDLWindow = g_pRebirthSDLMainWindow;
+	const auto SDLWindow{g_pRebirthSDLMainWindow};
 	if (!(SDL_GetWindowFlags(SDLWindow) & SDL_WINDOW_FULLSCREEN))
 		SDL_SetWindowSize(SDLWindow, w, h);
 #endif
@@ -549,7 +549,7 @@ void gr_toggle_fullscreen()
 	}
 	CGameCfg.WindowMode = !(local_sdl_video_flags & SDL_FULLSCREEN);
 #elif SDL_MAJOR_VERSION == 2
-	const auto SDLWindow = g_pRebirthSDLMainWindow;
+	const auto SDLWindow{g_pRebirthSDLMainWindow};
 	const auto is_fullscreen_before_change = SDL_GetWindowFlags(SDLWindow) & SDL_WINDOW_FULLSCREEN;
 	CGameCfg.WindowMode = !!is_fullscreen_before_change;
 	if (!is_fullscreen_before_change)
@@ -557,7 +557,7 @@ void gr_toggle_fullscreen()
 	SDL_SetWindowFullscreen(SDLWindow, is_fullscreen_before_change ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
 	if (is_fullscreen_before_change)
 	{
-		const auto mode = Game_screen_mode;
+		const auto mode{Game_screen_mode};
 		SDL_SetWindowPosition(SDLWindow, g_iRebirthWindowX, g_iRebirthWindowY);
 		SDL_SetWindowSize(SDLWindow, SM_W(mode), SM_H(mode));
 	}
@@ -844,7 +844,7 @@ int gr_init()
 #if defined(__APPLE__) && defined(__MACH__)
 	sdl_window_flags |= SDL_WINDOW_ALLOW_HIGHDPI;
 #endif
-	const auto mode = Game_screen_mode;
+	const auto mode{Game_screen_mode};
 	const auto SDLWindow = SDL_CreateWindow(DESCENT_VERSION, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SM_W(mode), SM_H(mode), sdl_window_flags);
 	if (!SDLWindow)
 		return -1;

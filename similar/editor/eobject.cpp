@@ -565,7 +565,7 @@ static int ObjectMove()
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptridx = Objects.vmptridx;
-	const auto i = Cur_object_index;
+	const auto i{Cur_object_index};
 	if (i == object_none)
 		return ObjectMoveFailed();
 	const auto &&obj = vmobjptridx(i);

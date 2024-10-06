@@ -52,7 +52,7 @@ int AssignTexture2(void)
 		const unique_segment &useg = *Cursegp;
 		auto &uside = useg.sides[Curside];
 		const auto tmap_num2 = uside.tmap_num2;
-	const auto ctexnum = CurrentTexture;
+	const auto ctexnum{CurrentTexture};
 	texture2_value newtexnum;
 	texture2_rotation_high orient;
 	if (ctexnum == get_texture_index(tmap_num2))

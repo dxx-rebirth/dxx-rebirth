@@ -106,7 +106,7 @@ static void texpage_show_current()
 {
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	gr_set_current_canvas(TmapCurrent->canvas);
-	const auto ct = CurrentTexture;
+	const auto ct{CurrentTexture};
 	auto &t = Textures[ct];
 	PIGGY_PAGE_IN(t);
 	gr_ubitmap(*grd_curcanv, GameBitmaps[t]);

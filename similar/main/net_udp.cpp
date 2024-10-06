@@ -272,7 +272,7 @@ net_udp_select_teams_menu_items::net_udp_select_teams_menu_items(const unsigned 
 unsigned net_udp_select_teams_menu_items::setup_team_sensitive_entries(const unsigned num_players)
 {
 	const unsigned blue_team_first_player = idx_label_blue_team + 1;
-	const auto tv = team_vector;
+	const auto tv{team_vector};
 	auto mi = std::next(m.begin(), blue_team_first_player);
 	unsigned ir = blue_team_first_player;
 	for (auto &&[i, ngp] : enumerate(partial_range(Netgame.players, num_players)))
@@ -3088,7 +3088,7 @@ static void net_udp_process_game_info_light(const std::span<const uint8_t> buf, 
 	const auto data = buf.data();
 	uint_fast32_t len = 0;
 	{
-		const auto menu = netgame_list_menu;
+		const auto menu{netgame_list_menu};
 		if (!menu)
 			return;
 		UDP_netgame_info_lite recv_game;
@@ -3287,7 +3287,7 @@ static void net_udp_process_dump(const upid_rspan<upid::dump> data, const _socka
 		case kick_player_reason::pkttimeout:
 		case kick_player_reason::kicked:
 			{
-				const auto g = Game_wind;
+				const auto g{Game_wind};
 			if (g)
 				g->set_visible(0);
 			nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{
@@ -4724,7 +4724,7 @@ namespace {
 
 static int net_udp_send_sync(void)
 {
-	const auto supported_start_positions_on_level = NumNetPlayerPositions;
+	const auto supported_start_positions_on_level{NumNetPlayerPositions};
 	// Check if there are enough starting positions
 	if (supported_start_positions_on_level < Netgame.max_numplayers)
 	{
@@ -5508,7 +5508,7 @@ static void net_udp_noloss_add_queue_pkt(fix64 time, const std::span<const uint8
 		else // I am just a client. I gotta go.
 		{
 			Netgame.PacketLossPrevention = 0; // Disable PLP - otherwise we get stuck in an infinite loop here. NOTE: We could as well clean the whole queue to continue protect our disconnect signal bit it's not that important - we just wanna leave.
-			const auto g = Game_wind;
+			const auto g{Game_wind};
 			if (g)
 				g->set_visible(0);
 			nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"You left the game. You failed\nsending important packets.\nSorry."});
@@ -5702,7 +5702,7 @@ void net_udp_noloss_process_queue(fix64 time)
 				else // We are client, so we gotta go.
 				{
 					Netgame.PacketLossPrevention = 0; // Disable PLP - otherwise we get stuck in an infinite loop here. NOTE: We could as well clean the whole queue to continue protect our disconnect signal bit it's not that important - we just wanna leave.
-					const auto g = Game_wind;
+					const auto g{Game_wind};
 					if (g)
 						g->set_visible(0);
 					nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"You left the game. You failed\nsending important packets.\nSorry."});

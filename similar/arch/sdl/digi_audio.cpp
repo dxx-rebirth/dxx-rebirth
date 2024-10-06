@@ -257,7 +257,7 @@ sound_channel digi_audio_start_sound(short soundnum, fix volume, sound_pan pan, 
 
 	RAII_SDL_LockAudio lock_audio{};
 
-	const auto starting_channel = next_channel;
+	const auto starting_channel{next_channel};
 
 	while(1)
 	{
@@ -300,7 +300,7 @@ sound_channel digi_audio_start_sound(short soundnum, fix volume, sound_pan pan, 
 	if (soundobj || looping || volume > F1_0)
 		SoundSlots[next_channel].persistent = 1;
 
-	const auto i = next_channel;
+	const auto i{next_channel};
 	next_channel = next(next_channel);
 
 	return i;

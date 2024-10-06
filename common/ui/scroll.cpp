@@ -114,7 +114,7 @@ window_event_result UI_GADGET_SCROLLBAR::event_handler(UI_DIALOG &dlg, const d_e
 		return window_event_result::ignored;
 	}
 
-	const auto op = position;
+	const auto op{position};
 
 	moved = 0;
 

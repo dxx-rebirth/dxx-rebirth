@@ -92,7 +92,7 @@ void gr_set_default_canvas(DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_N_DEFN_VARS)
 void gr_set_current_canvas(grs_canvas &canv DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DEFN_VARS)
 {
 #if DXX_DEBUG_CURRENT_CANVAS_ORIGIN > 0
-	const auto which = g_cc_which;
+	const auto which{g_cc_which};
 	g_cc_which = (g_cc_which + 1) % DXX_DEBUG_CURRENT_CANVAS_ORIGIN;
 	g_cc_file[which] = file;
 	g_cc_line[which] = line;

@@ -772,7 +772,7 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const csmuseg
 int med_attach_segment(const vmsegptridx_t destseg, const csmusegment newseg, const sidenum_t destside, const sidenum_t newside)
 {
 	int		rval;
-	const auto ocursegp = Cursegp;
+	const auto ocursegp{Cursegp};
 
 	vms_angvec	tang = {0,0,0};
 	const auto &&rotmat = vm_angles_2_matrix(tang);

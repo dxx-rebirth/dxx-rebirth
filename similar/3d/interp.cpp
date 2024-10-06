@@ -133,7 +133,7 @@ public:
 		if (const auto model_length = model.size(); offset_of_value >= model_length || offset_of_value + size >= model_length)
 		{
 			auto &opref = *wp(p);
-			const auto badop = opref;
+			const auto badop{opref};
 			opref = OP_EOF;
 			const unsigned long uml = model_length;
 			const long ofb = offset_from_base;

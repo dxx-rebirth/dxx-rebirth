@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE(enumerate_bidirectional)
 		BOOST_CHECK_EQUAL(val, 1);
 	}
 	{
-		const auto j = i;
+		const auto j{i};
 		BOOST_CHECK_EQUAL(j, i);
 		++i;
 		BOOST_CHECK_EQUAL(j, en.begin());

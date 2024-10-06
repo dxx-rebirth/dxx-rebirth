@@ -346,7 +346,7 @@ namespace {
 
 static void digi_pause_looping_sound()
 {
-	const auto c = digi_looping_channel;
+	const auto c{digi_looping_channel};
 	if (c != sound_channel::None)
 	{
 		digi_looping_channel = sound_channel::None;
@@ -600,7 +600,7 @@ void digi_sync_sounds()
 		return;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
-	const auto viewer = Viewer;
+	const auto viewer{Viewer};
 	range_for (auto &s, SoundObjects)
 	{
 		if (s.flags & SOF_USED)
@@ -799,7 +799,7 @@ namespace {
 
 void SoundQ_process()
 {
-	if (const auto channel = SoundQ_channel; channel != sound_channel::None)
+	if (const auto channel{SoundQ_channel}; channel != sound_channel::None)
 	{
 		if (digi_is_channel_playing(channel))
 			return;

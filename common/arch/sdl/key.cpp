@@ -530,7 +530,7 @@ window_event_result key_handler(const SDL_KeyboardEvent *const kevent)
 	{
 		// now update the key props
 		keyd_pressed.update(keycode, key_state);
-		const auto raw_keycode = keycode;
+		const auto raw_keycode{keycode};
 		keycode |= keyd_pressed.get_modifiers();
 
 		// We allowed the key to be added to the queue for now,
@@ -569,7 +569,7 @@ static void restore_sticky_key(const uint8_t *keystate, const unsigned i)
 #if SDL_MAJOR_VERSION == 1
 	const auto ki = key_properties[i].sym;
 #elif SDL_MAJOR_VERSION == 2
-	const auto ki = i;
+	const auto ki{i};
 #endif
 	const auto v = keystate[ki];	// do not flush status of sticky keys
 	keyd_pressed.update_pressed(i, v);

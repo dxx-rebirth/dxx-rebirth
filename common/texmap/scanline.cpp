@@ -480,7 +480,7 @@ static void c_tmap_scanline_per()
 	auto dest = &write_buffer[fx_xleft + (bytes_per_row * fx_y)];
 
 	if (!Transparency_on)	{
-		const auto pixPtrLocalCopy = pixptr;
+		const auto pixPtrLocalCopy{pixptr};
 		auto &fadeTableLocalCopy = gr_fade_table;
 
 		x = fx_xright-fx_xleft+1; // x = number of pixels in scanline

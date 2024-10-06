@@ -94,7 +94,7 @@ static window_event_result send_singleclick(const bool pressed, const mbtn butto
 static window_event_result maybe_send_doubleclick(const fix64 now, const mbtn button)
 {
 	auto &when = Mouse.time_lastpressed[button];
-	const auto then = when;
+	const auto then{when};
 	when = now;
 	if (now > then + F1_0/5)
 		return window_event_result::ignored;

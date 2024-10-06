@@ -454,7 +454,7 @@ void stretch_uvs_from_curedge(const vmsegptridx_t segp, const sidenum_t side)
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	uvl			uv0,uv1;
 
-	const auto v0 = Curedge;
+	const auto v0{Curedge};
 	const auto v1 = next_side_vertex(v0);
 
 	const auto &uvls = segp->unique_segment::sides[side].uvls;

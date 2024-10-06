@@ -1426,7 +1426,7 @@ static window_event_result HandleTestKey(const d_level_shared_robot_info_state &
 
 		case KEY_E + KEY_DEBUGGED:
 		{
-			const auto g = Game_wind;
+			const auto g{Game_wind};
 			g->set_visible(0);	// don't let the game do anything while we set the editor up
 			auto old_gamestate = gamestate;
 			gamestate = editor_gamestate::unsaved;	// saved game editing mode
@@ -1673,7 +1673,7 @@ void levelwarp_menu::handle_close_event()
 	 */
 	if (l > Current_mission->last_level)
 		return;
-	const auto g = Game_wind;
+	const auto g{Game_wind};
 	g->set_visible(0);
 	StartNewLevel(l);
 	g->set_visible(1);
@@ -2235,7 +2235,7 @@ window_event_result ReadControls(const d_level_shared_robot_info_state &LevelSha
 	if (!Endlevel_sequence && Newdemo_state != ND_STATE_PLAYBACK)
 	{
 		kconfig_read_controls(Controls, event, 0);
-		const auto Player_is_dead = Player_dead_state;
+		const auto Player_is_dead{Player_dead_state};
 		if (Player_is_dead != player_dead_state::no && HandleDeathInput(event, Controls))
 			return window_event_result::handled;
 

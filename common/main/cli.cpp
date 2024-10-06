@@ -191,7 +191,7 @@ unsigned CLIState::draw(unsigned y, unsigned line_spacing)
 	const auto canvas_width = grd_curcanv->cv_bitmap.bm_w;
 	const unsigned max_pixels_per_line = canvas_width - (margin_width * 2) - prompt_width;
 	const unsigned unknown_cursor_line = ~0u;
-	const auto line_position = m_line_position;
+	const auto line_position{m_line_position};
 	const auto line_begin = m_line.c_str();
 	std::size_t last_wrap_line = 0;
 	unsigned cursor_line = unknown_cursor_line;
@@ -362,7 +362,7 @@ void CLIState::cursor_end()
 
 void CLIState::cursor_del()
 {
-	const auto l = m_line_position;
+	const auto l{m_line_position};
 	if (l >= m_line.size())
 		return;
 	m_line.erase(next(m_line.begin(), l));

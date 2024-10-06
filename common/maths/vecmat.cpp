@@ -437,7 +437,7 @@ static void sincos_2_matrix(vms_matrix &m, const fixang bank, const fix_sincos_r
 //computes a matrix from a set of three angles.  returns ptr to matrix
 void vm_angles_2_matrix(vms_matrix &m,const vms_angvec &a)
 {
-	const auto al = a;
+	const auto al{a};
 	sincos_2_matrix(m, al.b, fix_sincos(al.p), fix_sincos(al.h));
 }
 

@@ -595,7 +595,7 @@ void reorder_newmenu::event_key_command(const d_event &event)
 	switch(event_key_get(event))
 	{
 		case KEY_SHIFTED+KEY_UP:
-			if (const auto ci = citem; ci > 0)
+			if (const auto ci{citem}; ci > 0)
 			{
 				const auto ni = -- citem;
 				const auto begin = items.begin();
@@ -605,7 +605,7 @@ void reorder_newmenu::event_key_command(const d_event &event)
 			}
 			break;
 		case KEY_SHIFTED+KEY_DOWN:
-			if (const auto ci = citem; ci < items.size() - 1)
+			if (const auto ci{citem}; ci < items.size() - 1)
 			{
 				const auto ni = ++ citem;
 				const auto begin = items.begin();
@@ -617,7 +617,7 @@ void reorder_newmenu::event_key_command(const d_event &event)
 		case KEY_PAGEUP + KEY_SHIFTED:
 			{
 				const auto begin = items.begin();
-				const auto stop = begin;
+				const auto stop{begin};
 				rotate_menu_item_subrange(std::minus<void>(), begin, citem, stop);
 			}
 			break;
@@ -1326,7 +1326,7 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 
 	int aw = 0;
 	auto iterative_layout_body_width = 0u;
-	const auto initial_layout_height = iterative_layout_max_height;
+	const auto initial_layout_height{iterative_layout_max_height};
 
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacy = FSPACY();

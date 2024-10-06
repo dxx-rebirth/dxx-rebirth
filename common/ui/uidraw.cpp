@@ -53,9 +53,9 @@ void ui_draw_shad(grs_canvas &canvas, const unsigned x1, const unsigned y1, cons
 
 void ui_draw_box_out(grs_canvas &canvas, const unsigned x1, const unsigned y1, const unsigned x2, const unsigned y2)
 {
-	const auto color = CWHITE;
-	const auto cbright = CBRIGHT;
-	const auto cgrey = CGREY;
+	const auto color{CWHITE};
+	const auto cbright{CBRIGHT};
+	const auto cgrey{CGREY};
 	gr_urect(canvas, x1 + 2, y1 + 2, x2 - 2, y2 - 2, color);
 
 	ui_draw_shad(canvas, x1 + 0, y1 + 0, x2 - 0, y2 - 0, cbright, cgrey);
@@ -64,8 +64,8 @@ void ui_draw_box_out(grs_canvas &canvas, const unsigned x1, const unsigned y1, c
 
 void ui_draw_box_in(grs_canvas &canvas, const unsigned x1, const unsigned y1, const unsigned x2, const unsigned y2)
 {
-	const auto cbright = CBRIGHT;
-	const auto cgrey = CGREY;
+	const auto cbright{CBRIGHT};
+	const auto cgrey{CGREY};
 	ui_draw_shad(canvas, x1, y1, x2, y2, cgrey, cbright);
 	ui_draw_shad(canvas, x1 + 1, y1 + 1, x2 - 1, y2 - 1, cgrey, cbright);
 }
