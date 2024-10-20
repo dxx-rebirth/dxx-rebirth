@@ -8,7 +8,7 @@ The DXX-Rebirth maintainers have no control over the sites linked below.  The ma
 ### Prerequisites
 
 * [Python 3.x](https://www.python.org/) to run [scons](https://www.scons.org/), the processor for SConstruct scripts.
-[Python 3.11](https://www.python.org/downloads/release/python-3117/) is recommended.
+[Python 3.12](https://www.python.org/downloads/release/python-3127/) is recommended.
 * C++ compiler with support for selected C++20 features.  One of:
     * [gcc](https://gcc.gnu.org/) 12, 13, or 14
     * [clang](https://clang.llvm.org/) 16.0 or later
