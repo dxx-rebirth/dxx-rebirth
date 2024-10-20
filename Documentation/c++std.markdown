@@ -1,7 +1,7 @@
 DXX-Rebirth requires a compiler that implements the C++20 standard.  A fully conforming compiler is recommended, but some omissions can be handled by SConf tests that enable a fallback to emulate the feature.
 
 # Required C++11 features
-DXX-Rebirth code uses C++20 features present in >=clang-15.0 and >=gcc-12.  Some of these features are probed in the SConf tests so that an error can be reported if the feature is missing.  However, since these are considered the minimum supported compiler versions, and existing SConf tests reject older compilers, some C++20 features that are new in gcc-12 may be used without a corresponding test in SConf.
+DXX-Rebirth code uses C++20 features present in >=clang-16.0 and >=gcc-12.  Some of these features are probed in the SConf tests so that an error can be reported if the feature is missing.  However, since these are considered the minimum supported compiler versions, and existing SConf tests reject older compilers, some C++20 features that are new in gcc-12 may be used without a corresponding test in SConf.
 
 These C++11 features are required to build DXX-Rebirth:
 

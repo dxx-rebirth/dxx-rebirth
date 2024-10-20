@@ -11,7 +11,7 @@ The DXX-Rebirth maintainers have no control over the sites linked below.  The ma
 [Python 3.11](https://www.python.org/downloads/release/python-3117/) is recommended.
 * C++ compiler with support for selected C++20 features.  One of:
     * [gcc](https://gcc.gnu.org/) 12, 13, or 14
-    * [clang](https://clang.llvm.org/) 15.0 or later
+    * [clang](https://clang.llvm.org/) 16.0 or later
     * Microsoft Visual Studio is **not** supported at this time.
 	  Visual Studio 2022 release notes indicate it has sufficient C++ support
 	  that it should be able to compile Rebirth.  However, due to limitations
