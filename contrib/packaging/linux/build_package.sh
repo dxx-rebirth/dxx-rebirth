@@ -5,6 +5,7 @@ arch=$(uname -m)
 
 # Grab AppImage package at specific version
 curl \
+	--fail \
     --silent \
     --show-error \
     --location \
