@@ -81,8 +81,6 @@ DEPEND=">=dev-games/physfs-3[hog,mvl,zip]
 DXX_RDEPEND_USE_FREEDATA_FRAGMENT='
 	${USE}? ( games-action/descent${ENGINE}-freedata[${USE}] )
 '
-# Block <0.59.100 due to file collision.
-#
 # If USE=data, then require a game data package.
 # The build process does not use the game data, nor change how the game
 # is built based on what game data will be used.  At startup, the game
@@ -95,7 +93,6 @@ DXX_RDEPEND_USE_FREEDATA_FRAGMENT='
 # extras are enabled.
 DXX_RDEPEND_ENGINE_FRAGMENT='
 	d${ENGINE}x? (
-		!<games-action/d${ENGINE}x-rebirth-0.59.100
 		data? (
 			|| (
 				games-action/descent${ENGINE}-data
