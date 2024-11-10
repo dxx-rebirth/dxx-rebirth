@@ -135,7 +135,7 @@ unset DXX_RDEPEND_USE_SDL_VERSION_FRAGMENT
 # dependency is only in DEPEND, instead of being in both DEPEND and
 # RDEPEND.
 DEPEND+='
-	valgrind? ( dev-util/valgrind )
+	valgrind? ( dev-debug/valgrind )
 '
 
 # This ebuild builds d1x-rebirth, d2x-rebirth, or both.  Building none
