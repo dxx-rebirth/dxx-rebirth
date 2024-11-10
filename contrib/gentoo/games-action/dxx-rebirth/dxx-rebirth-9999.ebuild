@@ -7,7 +7,8 @@
 # project's Git history.  See COPYING.txt at the top level for license
 # terms and a link to the Git history.
 
-EAPI=7
+EAPI=8
+DESCRIPTION="Descent Rebirth - enhanced Descent 1 & 2 engine"
 
 # Python is only used to execute SCons.  It is not used by any of the installed
 # components.
@@ -39,7 +40,6 @@ else
 	RESTRICT='mirror'
 fi
 
-DESCRIPTION="Descent Rebirth - enhanced Descent 1 & 2 engine"
 HOMEPAGE="https://www.dxx-rebirth.com/"
 
 LICENSE="DXX-Rebirth GPL-3"
