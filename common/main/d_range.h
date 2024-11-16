@@ -21,26 +21,6 @@ using xrange_descending = std::false_type;
 
 namespace detail {
 
-template <typename T>
-struct xrange_is_unsigned : std::is_unsigned<T>
-{
-	/* For the general case, delegate to std::is_unsigned.
-	 * xrange requires that the type not be a reference, so there is no
-	 * need to use std::remove_reference<T> here.
-	 */
-};
-
-template <typename T, T v>
-struct xrange_is_unsigned<std::integral_constant<T, v>> : std::is_unsigned<T>
-{
-	/* For the special case that the value is a std::integral_constant,
-	 * examine the underlying integer type.
-	 * std::is_unsigned<std::integral_constant<unsigned, N>> is
-	 * std::false_type, but xrange_is_unsigned should yield
-	 * std::true_type in that case.
-	 */
-};
-
 template <typename B, typename E, typename step_type>
 struct xrange_check_constant_endpoints : std::true_type
 {
@@ -249,7 +229,24 @@ public:
 	constexpr xrange(E e) :
 		begin_type{}, end_type{std::move(e)}
 	{
-		static_assert(detail::xrange_is_unsigned<E>::value, "xrange(E) requires unsigned E; use xrange(B, E) if E must be signed");
+		static_assert(
+			/* For the general case, delegate to `std::is_unsigned_v`.
+			 * xrange requires that the type not be a reference, so there is no
+			 * need to use `std::remove_reference<E>` here.
+			 */
+			requires { requires std::is_unsigned_v<E>; } or
+			(
+				/* For the special case that the value is a
+				 * `std::integral_constant`, examine the underlying integer
+				 * type.
+				 * `std::is_unsigned_v<std::integral_constant<unsigned, N>>` is
+				 * false, but this requires expression should yield true in
+				 * that case.
+				 */
+				requires { E::value; typename E::value_type; } and
+				requires { requires std::is_same_v<std::integral_constant<typename E::value_type, E::value>, E>; } and
+				requires { requires std::is_unsigned_v<typename E::value_type>; }
+			), "xrange(E) requires unsigned E; use xrange(B, E) if E must be signed");
 	}
 	iterator begin() const
 	{
