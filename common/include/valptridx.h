@@ -1218,14 +1218,18 @@ public:
 	{
 		return *this;
 	}
-	/* Inherit the base type `operator*`.  If the base type is a `ptridx`, then
-	 * define `operator*` to return a copy of the underlying `ptridx`, so that
-	 * the caller can capture both the pointer and the index.  If the base type
-	 * is not a `ptridx`, rely on the inherited `operator*` and do not define
-	 * one here.  The inherited version will return a reference to the
+	/* Delegate to the base type `operator*` when possible.  If the base type
+	 * is a `ptridx`, then define `operator*` to return a copy of the
+	 * underlying `ptridx`, so that the caller can capture both the pointer and
+	 * the index.  If the base type is not a `ptridx`, delegate to the base
+	 * type `operator*`.  The base version will return a reference to the
 	 * underlying `managed_type`, avoiding the use of a temporary.
 	 */
-	using T::operator*;
+	decltype(auto) operator*() const &
+		requires(std::is_same_v<value_type, managed_type>)
+	{
+		return this->T::operator*();
+	}
 	value_type operator*() const &
 		requires(!std::is_same_v<value_type, managed_type>)
 	{
