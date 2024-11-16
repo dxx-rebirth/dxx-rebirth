@@ -250,12 +250,10 @@ public:
 	}
 	/* Allow, but ignore, a third argument with the step size.  The
 	 * argument must be here for class template argument deduction to
-	 * work.  step_type is included in the class template argument list,
-	 * and so does not need to be recorded in the object.
+	 * work.
 	 */
-	template <typename T, T step>
-		constexpr xrange(B b, E e, std::integral_constant<T, step>) :
-			xrange{std::move(b), std::move(e)}
+	constexpr xrange(B b, E e, step_type) :
+		xrange{std::move(b), std::move(e)}
 	{
 	}
 	constexpr xrange(E e) :
