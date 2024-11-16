@@ -220,9 +220,19 @@ protected:
 			(void)e;
 		return b;
 	}
+private:
+	/* gcc-15 rejects `using end_type::operator typename end_type::value_type;`
+	 * Use `using end_type::operator end_value_type` with a local type as an
+	 * indirection in, rather than looking up the type from the base.
+	 *
+	 * - compiles in gcc-12, gcc-13, gcc-14
+	 * - compiles in clang-15, clang-16, clang-17
+	 * - fails to compile in gcc-15
+	 */
+	using end_value_type = typename end_type::value_type;
 public:
 	using end_type::value;
-	using end_type::operator typename end_type::value_type;
+	using end_type::operator end_value_type;
 	/* If the endpoints are both integral constants, then they will have a
 	 * default constructor that this explicitly defaulted default constructor
 	 * can call.  They will have no non-static data members, so their default
