@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <concepts>
 #include <cstdint>
 #include <string.h>    // for memcpy
 #include <type_traits>
