@@ -15,6 +15,7 @@
 #include <optional>
 #include <ranges>
 #include <type_traits>
+#include <utility>
 #include "dxxsconf.h"
 #include "ntstring.h"
 
