@@ -134,6 +134,7 @@ struct UDP_mdata_info : prohibit_void_ptr<UDP_mdata_info>
 	std::array<uint8_t, UPID_MDATA_BUF_SIZE> mbuf;
 };
 
+#ifdef dsx
 // structure to store MDATA to maybe resend
 struct UDP_mdata_store : prohibit_void_ptr<UDP_mdata_store>
 {
@@ -146,6 +147,7 @@ struct UDP_mdata_store : prohibit_void_ptr<UDP_mdata_store>
 	player_acknowledgement_mask player_ack;		// 0 if player has not ACK'd this packet, 1 if ACK'd or not connected
 	std::array<uint8_t, UPID_MDATA_BUF_SIZE> data;		// extra data of a packet - contains all multibuf data we don't want to loose
 };
+#endif
 
 // structure to keep track of MDATA packets we already got, which we expect from another player and the pkt_num for the next packet we want to send to another player
 struct UDP_mdata_check : public prohibit_void_ptr<UDP_mdata_check>
