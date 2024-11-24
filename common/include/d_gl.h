@@ -5,6 +5,7 @@
  * terms and a link to the Git history.
  */
 
+#include "dxxsconf.h"
 #if !DXX_USE_OGL
 #error "This file can only be included in OpenGL enabled builds."
 #endif
@@ -12,7 +13,6 @@
 #ifdef _WIN32
 #include "loadgl.h"
 #else
-#include "dxxsconf.h"
 #	define GL_GLEXT_LEGACY
 #	if defined(__APPLE__) && defined(__MACH__)
 #		include <OpenGL/gl.h>
