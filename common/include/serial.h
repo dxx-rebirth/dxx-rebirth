@@ -71,7 +71,7 @@ class is_cxx_array<const T> : public is_cxx_array<T>
 };
 
 template <typename T, std::size_t N, typename E>
-class is_cxx_array<enumerated_array<T, N, E>> : public is_cxx_array<std::array<T, N>>
+class is_cxx_array<dcx::enumerated_array<T, N, E>> : public is_cxx_array<std::array<T, N>>
 {
 };
 
