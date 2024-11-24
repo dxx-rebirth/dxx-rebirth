@@ -25,8 +25,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#ifdef __cplusplus
 #include "fwd-object.h"
+#include "fwd-vclip.h"
 #include <array>
 
 #define HOSTAGE_SIZE        i2f(5)  // 3d size of a hostage
@@ -52,6 +52,4 @@ extern std::array<vclip_index, MAX_HOSTAGE_TYPES> Hostage_vclip_num;    // for e
 namespace dsx {
 void hostage_rescue();
 }
-#endif
-
 #endif
