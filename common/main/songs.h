@@ -16,6 +16,7 @@
 #include <climits>
 #include <SDL_version.h>
 #include "dxxsconf.h"
+#include "dsx-ns.h"
 
 namespace dcx {
 
