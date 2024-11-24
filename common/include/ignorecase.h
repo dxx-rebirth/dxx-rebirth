@@ -51,6 +51,7 @@
  *  \author Ryan C. Gordon.
  */
 
+#include <cstdint>
 
 namespace dcx {
 
