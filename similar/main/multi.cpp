@@ -105,7 +105,7 @@ static void multi_update_objects_for_non_cooperative();
 static void multi_restore_game(unsigned slot, unsigned id);
 static void multi_save_game(unsigned slot, unsigned id, const d_game_unique_state::savegame_description &desc);
 static void multi_add_lifetime_killed();
-#if !(!defined(RELEASE) && defined(DXX_BUILD_DESCENT_II))
+#if !(!defined(RELEASE) && DXX_BUILD_DESCENT == 2)
 static void multi_add_lifetime_kills(int count);
 #endif
 
@@ -4800,7 +4800,7 @@ static void multi_adjust_lifetime_ranking(int &k, const int count)
 }
 }
 
-#if !(!defined(RELEASE) && defined(DXX_BUILD_DESCENT_II))
+#if !(!defined(RELEASE) && DXX_BUILD_DESCENT == 2)
 namespace {
 #endif
 void multi_add_lifetime_kills(const int count)
@@ -4810,7 +4810,7 @@ void multi_add_lifetime_kills(const int count)
 
 	multi_adjust_lifetime_ranking(PlayerCfg.NetlifeKills, count);
 }
-#if !(!defined(RELEASE) && defined(DXX_BUILD_DESCENT_II))
+#if !(!defined(RELEASE) && DXX_BUILD_DESCENT == 2)
 }
 #endif
 

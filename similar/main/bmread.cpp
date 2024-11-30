@@ -492,7 +492,7 @@ static get_texture_result get_texture(d_level_unique_tmap_info_state::TmapInfo_a
 
 #define LINEBUF_SIZE 600
 
-#if defined(DXX_BUILD_DESCENT_I) || (defined(DXX_BUILD_DESCENT_II) && DXX_USE_EDITOR)
+#if DXX_BUILD_DESCENT == 1 || (DXX_BUILD_DESCENT == 2 && DXX_USE_EDITOR)
 //-----------------------------------------------------------------
 // Initializes all properties and bitmaps from BITMAPS.TBL file.
 // This is called when the editor is IN.
@@ -893,7 +893,7 @@ void verify_textures()
 #endif
 }
 
-#if defined(DXX_BUILD_DESCENT_II) && DXX_USE_EDITOR
+#if DXX_BUILD_DESCENT == 2 && DXX_USE_EDITOR
 void bm_read_alias()
 {
 	Assert(Num_aliases < MAX_ALIASES);

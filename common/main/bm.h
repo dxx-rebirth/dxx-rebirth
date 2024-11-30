@@ -194,7 +194,7 @@ void compute_average_rgb(grs_bitmap *bm, std::array<fix, 3> &rgb);
 namespace dsx {
 extern enumerated_array<bitmap_index, N_COCKPIT_BITMAPS, cockpit_mode_t> cockpit_bitmap;
 void load_robot_replacements(const d_fname &level_name);
-#if defined(DXX_BUILD_DESCENT_I) || (defined(DXX_BUILD_DESCENT_II) && DXX_USE_EDITOR)
+#if DXX_BUILD_DESCENT == 1 || (DXX_BUILD_DESCENT == 2 && DXX_USE_EDITOR)
 // Initializes all bitmaps from BITMAPS.TBL file.
 int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_vclip_array &Vclip, int pc_shareware);
 #endif

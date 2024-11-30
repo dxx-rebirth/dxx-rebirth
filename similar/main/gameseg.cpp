@@ -607,7 +607,7 @@ int check_segment_connections(void)
 // Used to become a constant based on editor, but I wanted to be able to set
 // this for omega blob find_point_seg calls.
 // Would be better to pass a paremeter to the routine...--MK, 01/17/96
-#if defined(DXX_BUILD_DESCENT_II) || DXX_USE_EDITOR
+#if DXX_BUILD_DESCENT == 2 || DXX_USE_EDITOR
 int	Doing_lighting_hack_flag=0;
 #else
 #define Doing_lighting_hack_flag 0

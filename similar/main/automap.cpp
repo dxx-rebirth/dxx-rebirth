@@ -979,7 +979,7 @@ static void recompute_automap_segment_visibility(const d_level_unique_automap_st
 
 static window_event_result automap_key_command(const d_event &event, automap &am)
 {
-#if defined(DXX_BUILD_DESCENT_I) || !defined(NDEBUG)
+#if DXX_BUILD_DESCENT == 1 || !defined(NDEBUG)
 	auto &Objects{LevelUniqueObjectState.Objects};
 	auto &vmobjptr{Objects.vmptr};
 #endif

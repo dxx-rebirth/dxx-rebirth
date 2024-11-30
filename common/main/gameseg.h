@@ -84,7 +84,7 @@ enum class wall_is_doorway_mask : uint8_t;
 
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_II) || DXX_USE_EDITOR
+#if DXX_BUILD_DESCENT == 2 || DXX_USE_EDITOR
 extern int	Doing_lighting_hack_flag;
 #endif
 

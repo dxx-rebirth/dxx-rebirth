@@ -386,7 +386,7 @@ int piggy_register_sound(digi_sound &snd, const std::span<const char> name)
 bitmap_index piggy_find_bitmap(const std::span<const char> entry_name)
 {
 	auto name = entry_name;
-#if defined(DXX_BUILD_DESCENT_II) && DXX_USE_EDITOR
+#if DXX_BUILD_DESCENT == 2 && DXX_USE_EDITOR
 	size_t namelen;
 	const auto t = strchr(name.data(), '#');
 	if (t != nullptr)
