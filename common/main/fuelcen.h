@@ -126,7 +126,7 @@ fix repaircen_give_shields(const shared_segment &segp, fix MaxAmountCanTake);
 
 #ifdef dsx
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 typedef d1_matcen_info matcen_info;
 void matcen_info_read(NamedPHYSFS_File fp, matcen_info &ps, int version);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -164,7 +164,7 @@ extern void init_all_matcens(void);
 /*
  * reads a matcen_info structure from a PHYSFS_File
  */
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void fuelcen_check_for_hoard_goal(object &plrobj, const shared_segment &segp);
 
 /*

@@ -363,7 +363,7 @@ void paging_touch_all(const d_vclip_array &Vclip)
 	auto &vcobjptridx = Objects.vcptridx;
 	pause_game_world_time p;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	gr_set_default_canvas();
 	show_boxed_message(*grd_curcanv, TXT_LOADING);
 	gr_flip();

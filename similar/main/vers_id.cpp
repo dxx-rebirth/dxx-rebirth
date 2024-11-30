@@ -7,7 +7,7 @@
 #include "dxxsconf.h"
 #include "vers_id.h"
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define DXX_NAME_NUMBER	'1'
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_NAME_NUMBER	'2'

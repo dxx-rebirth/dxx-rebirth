@@ -78,7 +78,7 @@ static void do_link(const trigger &t)
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 namespace {
 //close a door
@@ -280,7 +280,7 @@ static void do_il_on(fvcsegptridx &vcsegptridx, fvmwallptr &vmwallptr, const tri
 namespace dsx {
 namespace {
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static void do_il_off(fvcsegptridx &vcsegptridx, fvmwallptr &vmwallptr, const trigger &t)
 {
 	trigger_wall_op(t, vcsegptridx, wall_illusion_off, vmwallptr);
@@ -304,7 +304,7 @@ static void do_il_off(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr, fvmwallp
 // 'close' will still close the game window
 window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num, const playernum_t pnum, const unsigned shot)
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 #endif
@@ -319,7 +319,7 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vmwallptr = Walls.vmptr;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	(void)shot;
 	if (pnum == Player_num) {
 		auto &player_info = plrobj.ctype.player_info;
@@ -530,7 +530,7 @@ window_event_result check_trigger(const vcsegptridx_t seg, const sidenum_t side,
 	if ((Game_mode & GM_MULTI) && (get_local_player().connected != player_connection_status::playing)) // as a host we may want to handle triggers for our clients. so this function may be called when we are not playing.
 		return window_event_result::ignored;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (objnum == &plrobj)
 #elif defined(DXX_BUILD_DESCENT_II)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
@@ -538,7 +538,7 @@ window_event_result check_trigger(const vcsegptridx_t seg, const sidenum_t side,
 #endif
 	{
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		if ( Newdemo_state == ND_STATE_PLAYBACK )
 			return window_event_result::ignored;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -571,7 +571,7 @@ window_event_result check_trigger(const vcsegptridx_t seg, const sidenum_t side,
 /*
  * reads a v29_trigger structure from a PHYSFS_File
  */
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 void v26_trigger_read(const NamedPHYSFS_File fp, trigger &t)
 {
 	switch (const auto type = static_cast<trigger_action>(PHYSFSX_readByte(fp)))
@@ -617,7 +617,7 @@ void v25_trigger_read(const NamedPHYSFS_File fp, trigger *t)
 void v29_trigger_read(v29_trigger *t, const NamedPHYSFS_File fp)
 #endif
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	PHYSFSX_skipBytes<1>(fp);
 #elif defined(DXX_BUILD_DESCENT_II)
 	t->type = PHYSFSX_readByte(fp);
@@ -635,7 +635,7 @@ void v29_trigger_read(v29_trigger *t, const NamedPHYSFS_File fp)
 	}
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 /*
  * reads a v30_trigger structure from a PHYSFS_File
  */
@@ -770,7 +770,7 @@ void process_udt(Accessor &accessor, serialize_wide_trigger_side_numbers<array_t
 
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 DEFINE_SERIAL_UDT_TO_MESSAGE(trigger, t, (serial::pad<1>(), t.flags, t.value, serial::pad<5>(), t.num_links, serial::pad<1, 0>(), t.seg, serialize_wide_trigger_side_numbers{t.side}));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(trigger, 54);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -792,7 +792,7 @@ void v29_trigger_write(PHYSFS_File *fp, const trigger &rt)
 {
 	const trigger *t = &rt;
 	PHYSFSX_writeU8(fp, 0);		// unused 'type'
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	PHYSFS_writeSLE16(fp, t->flags);
 #elif defined(DXX_BUILD_DESCENT_II)
 	const auto one_shot_flag = (t->flags & trigger_behavior_flags::one_shot) ? TRIGGER_ONE_SHOT : TRIGGER_FLAG{0};
@@ -862,7 +862,7 @@ namespace dsx {
 void v30_trigger_write(PHYSFS_File *fp, const trigger &rt)
 {
 	const trigger *t = &rt;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	uint8_t action;
 	if (t->flags & TRIGGER_CONTROL_DOORS)
 		action = static_cast<uint8_t>(trigger_action::open_door); // door
@@ -883,7 +883,7 @@ void v30_trigger_write(PHYSFS_File *fp, const trigger &rt)
 	PHYSFSX_writeU8(fp, static_cast<uint8_t>(t->type));
 #endif
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	PHYSFS_writeSLE16(fp, t->flags);
 #elif defined(DXX_BUILD_DESCENT_II)
 	const auto one_shot_flag = (t->flags & trigger_behavior_flags::one_shot) ? TRIGGER_ONE_SHOT : TRIGGER_FLAG{0};
@@ -953,7 +953,7 @@ namespace dsx {
 void v31_trigger_write(PHYSFS_File *fp, const trigger &rt)
 {
 	const trigger *t = &rt;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	uint8_t action;
 	if (t->flags & TRIGGER_CONTROL_DOORS)
 		action = static_cast<uint8_t>(trigger_action::open_door); // door
@@ -974,7 +974,7 @@ void v31_trigger_write(PHYSFS_File *fp, const trigger &rt)
 	PHYSFSX_writeU8(fp, static_cast<uint8_t>(t->type));
 #endif
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	PHYSFSX_writeU8(fp, (t->flags & TRIGGER_ONE_SHOT) ? 2 : 0);		// flags
 #elif defined(DXX_BUILD_DESCENT_II)
 	PHYSFSX_writeU8(fp, static_cast<uint8_t>(t->flags));

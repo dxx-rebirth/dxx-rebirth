@@ -48,7 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "menu.h"
 #include "config.h"
 #include "physfsx.h"
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #include "mission.h"
 #include "gamepal.h"
 #include "args.h"
@@ -58,7 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define ROW_SPACING			(SHEIGHT / 17)
 #define NUM_LINES			20 //14
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define MAKE_CREDITS_PAIR(F)	std::span<const char, sizeof(F) + 1>(F ".tex", sizeof(F) + 1)
 #define CREDITS_FILE 			MAKE_CREDITS_PAIR("credits")
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -143,7 +143,7 @@ window_event_result credits_window::event_handler(const d_event &event)
 			break;
 		case event_type::window_draw:
 			{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			timer_delay(F1_0/17);
 #elif defined(DXX_BUILD_DESCENT_II)
 			timer_delay(F1_0/28);
@@ -153,7 +153,7 @@ window_event_result credits_window::event_handler(const d_event &event)
 			{
 				do {
 					buffer_line = (buffer_line + 1) % NUM_LINES;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				get_line:;
 #endif
 					if (PHYSFSX_fgets(buffer[buffer_line], file))
@@ -161,7 +161,7 @@ window_event_result credits_window::event_handler(const d_event &event)
 						char *p;
 						if (have_bin_file) // is this a binary tbl file
 							decode_text_line (buffer[buffer_line]);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 						p = strchr(&buffer[buffer_line][0u],'\n');
 						if (p) *p = '\0';
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -257,7 +257,7 @@ static void credits_show_common(RAIIPHYSFS_File file, const int have_bin_file)
 	auto cr = window_create<credits_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, std::move(file), have_bin_file);
 
 	set_screen_mode(SCREEN_MENU);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	gr_use_palette_table( "credits.256" );
 #endif
 

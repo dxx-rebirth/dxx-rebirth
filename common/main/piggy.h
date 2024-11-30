@@ -34,7 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 struct alias
 {
@@ -85,7 +85,7 @@ static inline void _piggy_page_in(GameBitmaps_array &GameBitmaps, bitmap_index b
         piggy_bitmap_page_in(GameBitmaps, bmp);
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 enum class properties_init_result : int8_t
 {
 	skip_gamedata_read_tbl,
@@ -102,7 +102,7 @@ enum class properties_init_result : bool
 
 properties_init_result properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 enum class pig_hamfile_version : uint8_t
 {
 	_0,

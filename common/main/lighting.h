@@ -47,7 +47,7 @@ struct d_level_unique_light_state
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 struct d_level_unique_headlight_state
 {
 	unsigned Num_headlights{};
@@ -72,7 +72,7 @@ namespace dsx {
 g3s_lrgb compute_object_light(const d_level_unique_light_state &LevelUniqueLightState, vcobjptridx_t obj);
 
 // turn headlight boost on & off
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void toggle_headlight_active(object &);
 #endif
 }

@@ -32,7 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern const char copyright[];
 
 const
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORATION";
 #elif defined(DXX_BUILD_DESCENT_II)
 char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPORATION";
@@ -81,7 +81,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "config.h"
 #include "multi.h"
 #include "gameseq.h"
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #include "gamepal.h"
 #include "movie.h"
 #endif
@@ -119,7 +119,7 @@ namespace dsx {
 
 int Screen_mode=-1;					//game screen or editor screen?
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 uint8_t HiresGFXAvailable;
 int MacHog = 0;	// using a Mac hogfile?
 #endif
@@ -464,7 +464,7 @@ static int main(int argc, char *argv[])
 	if (!PHYSFSX_checkSupportedArchiveTypes())
 		return(0);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	const auto descent_hog = make_PHYSFSX_ComputedPathMount(descent_hog_basename, physfs_search_path::append);
 #define DXX_NAME_NUMBER	"1"
 #define DXX_HOGFILE_NAMES	"descent.hog"
@@ -507,7 +507,7 @@ static int main(int argc, char *argv[])
 		UserError_puts(DXX_MISSING_HOGFILE_ERROR_TEXT);
 	}
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	switch (descent_hog_size{PHYSFSX_fsize(descent_hog_basename)})
 	{
 		case descent_hog_size::mac_shareware:
@@ -522,7 +522,7 @@ static int main(int argc, char *argv[])
 	load_text();
 
 	//print out the banner title
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	con_printf(CON_NORMAL, "%s  %s", DESCENT_VERSION, g_descent_build_datetime); // D1X version
 	con_puts(CON_NORMAL, "This is a MODIFIED version of Descent, based on " BASED_VERSION ".");
 	{
@@ -609,7 +609,7 @@ static int main(int argc, char *argv[])
 #if !DXX_USE_OGL
 	select_tmap(CGameArg.DbgTexMap);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	Lighting_on = 1;
 #endif
 #endif
@@ -623,7 +623,7 @@ static int main(int argc, char *argv[])
 
 	// Load the palette stuff. Returns non-zero if error.
 	con_puts(CON_DEBUG, "Initializing palette system...");
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	gr_use_palette_table("palette.256");
 #elif defined(DXX_BUILD_DESCENT_II)
 	gr_use_palette_table(D2_DEFAULT_PALETTE );
@@ -632,7 +632,7 @@ static int main(int argc, char *argv[])
 	con_puts(CON_DEBUG, "Initializing font system...");
 	gamefont_init();	// must load after palette data loaded.
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	con_puts(CON_DEBUG, "Initializing movie libraries...");
 	auto &&loaded_builtin_movies = init_movies();		//init movie libraries
 	/* clang does not recognize that creating the variable for the
@@ -670,7 +670,7 @@ static int main(int argc, char *argv[])
 	con_puts(CON_DEBUG, "Doing gamedata_init...");
 	gamedata_init(LevelSharedRobotInfoState);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #if DXX_USE_EDITOR
 	if (GameArg.EdiSaveHoardData) {
 		save_hoard_data();
@@ -685,14 +685,14 @@ static int main(int argc, char *argv[])
 	con_puts(CON_DEBUG, "Initializing texture caching system...");
 	texmerge_init();		// 10 cache bitmaps
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	piggy_init_pigfile("groupa.pig");	//get correct pigfile
 #endif
 
 	con_puts(CON_DEBUG, "Running game...");
 	init_game();
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	key_flush();
 #endif
 	{
@@ -732,7 +732,7 @@ static int main(int argc, char *argv[])
 		}
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #if DXX_USE_EDITOR
 	if (!GameArg.EdiAutoLoad.empty()) {
 		/* Any number >= FILENAME_LEN works */

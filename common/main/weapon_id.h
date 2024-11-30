@@ -27,7 +27,7 @@ enum weapon_id_type : uint8_t
 	FLARE_ID = 9,   //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
 	CLS2_DRONE_LASER = 10,
 	VULCAN_ID = 11,  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	/* Descent shipped with two spreadfire weapons.  One cost 0.5 energy
 	 * to fire; the other cost 1.0 energy to fire.  The two have
 	 * differing flight speeds.  For reasons unknown, the original code
@@ -49,7 +49,7 @@ enum weapon_id_type : uint8_t
 	MEGA_ID = 18,
 
 	PLAYER_SMART_HOMING_ID = 19,
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	SPREADFIRE_ID = 20,
 #endif
 	SUPER_MECH_MISS = 21,
@@ -61,7 +61,7 @@ enum weapon_id_type : uint8_t
 	SPIDER_ROBOT_FIRE = 27,
 	ROBOT_MEGA_ID = 28,
 	ROBOT_SMART_HOMING_ID = 29,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	SUPER_LASER_ID = 30,  // 30,31 are super lasers (level 5,6)
 	LASER_ID_L5 = SUPER_LASER_ID,
 	LASER_ID_L6,

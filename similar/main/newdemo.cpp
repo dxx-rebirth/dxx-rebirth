@@ -128,7 +128,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define ND_EVENT_PRIMARY_AMMO			39	// with old/new ammo count
 #define ND_EVENT_SECONDARY_AMMO			40	// with old/new ammo count
 #define ND_EVENT_DOOR_OPENING			41	// with segment/side
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define ND_EVENT_LASER_LEVEL			42	// with old/new level
 #define ND_EVENT_LINK_SOUND_TO_OBJ		43	// record digi_link_sound_to_object3
 #define ND_EVENT_KILL_SOUND_TO_OBJ		44	// record digi_kill_sound_linked_to_object
@@ -149,7 +149,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define INTERPOLATE_PLAYBACK			2
 #define INTERPOL_FACTOR				(F1_0 + (F1_0/5))
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define DEMO_VERSION_SHAREWARE		5
 #define DEMO_VERSION				13
 #define DEMO_GAME_TYPE_SHAREWARE	1
@@ -178,7 +178,7 @@ int Newdemo_vcr_state = 0;
 int Newdemo_show_percentage=1;
 sbyte Newdemo_do_interpolate = 1;
 int Newdemo_num_written;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 ubyte DemoDoRight=0,DemoDoLeft=0;
 object DemoRightExtra,DemoLeftExtra;
 
@@ -198,7 +198,7 @@ static int nd_playback_v_framecount;
 static fix nd_playback_total, nd_recorded_total, nd_recorded_time;
 static sbyte nd_playback_v_style;
 static ubyte nd_playback_v_dead = 0, nd_playback_v_rear = 0;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static ubyte nd_playback_v_guided = 0;
 int nd_playback_v_juststarted=0;
 #endif
@@ -211,7 +211,7 @@ static short nd_record_v_framebytes_written = 0;
 static int nd_record_v_recordframe = 1;
 static fix64 nd_record_v_recordframe_last_time = 0;
 static sbyte nd_record_v_no_space;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static int nd_record_v_juststarted = 0;
 static std::array<sbyte, MAX_OBJECTS> nd_record_v_objs,
 	nd_record_v_viewobjs;
@@ -230,7 +230,7 @@ static int nd_record_v_secondary_ammo = -1;
 namespace dsx {
 static void newdemo_record_oneframeevent_update(int wallupdate);
 }
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static int shareware = 0;	// reading shareware demo?
 #elif defined(DXX_BUILD_DESCENT_II)
 constexpr std::integral_constant<int, 0> shareware{};
@@ -461,7 +461,7 @@ static void nd_read_int(int *i)
 		*i = SWAPINT(*i);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static void nd_read_int(unsigned *i)
 {
 	newdemo_read(i, 4, 1);
@@ -611,7 +611,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 	obj->signature = object_signature_t{static_cast<uint16_t>(shortsig)};
 	nd_read_shortpos(obj);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (obj->type == OBJ_ROBOT && get_robot_id(obj) == robot_id::special_reactor)
 		Int3();
 #endif
@@ -631,7 +631,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 		obj->control_source = object::control_type::ai;
 		// (MarkA and MikeK said we should not do the crazy last secret stuff with multiple reactors...
 		// This necessary code is our vindication. --MK, 2/15/96)
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (get_robot_id(obj) == robot_id::special_reactor)
 			obj->movement_source = object::movement_type::None;
 		else
@@ -858,7 +858,7 @@ static void nd_write_object(const vcobjptridx_t objp)
 	int life;
 	short shortsig = 0;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (obj.type == OBJ_ROBOT && get_robot_id(obj) == robot_id::special_reactor)
 		Int3();
 #endif
@@ -1132,13 +1132,13 @@ void newdemo_record_start_demo()
 	nd_write_byte(static_cast<int8_t>(static_cast<primary_weapon_index_t>(player_info.Primary_weapon)));
 	nd_write_byte(static_cast<int8_t>(static_cast<secondary_weapon_index_t>(player_info.Secondary_weapon)));
 	nd_record_v_start_frame = nd_record_v_frame_number = 0;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	nd_record_v_player_afterburner = 0;
 	nd_record_v_juststarted=1;
 #endif
 	nd_rbe();
 	newdemo_set_new_level(Current_level_num);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	newdemo_record_oneframeevent_update(1);
 #elif defined(DXX_BUILD_DESCENT_II)
 	newdemo_record_oneframeevent_update(0);
@@ -1170,7 +1170,7 @@ void newdemo_record_start_frame(fix frame_time )
 		nd_record_v_recordframe=1;
 
 		pause_game_world_time p;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 
 		for (int i=0;i<MAX_OBJECTS;i++)
 		{
@@ -1201,7 +1201,7 @@ void newdemo_record_render_object(const vmobjptridx_t obj)
 {
 	if (!nd_record_v_recordframe)
 		return;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (nd_record_v_objs[obj])
 		return;
 	if (nd_record_v_viewobjs[obj])
@@ -1218,7 +1218,7 @@ void newdemo_record_viewer_object(const vcobjptridx_t obj)
 {
 	if (!nd_record_v_recordframe)
 		return;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (nd_record_v_viewobjs[obj] && (nd_record_v_viewobjs[obj]-1)==RenderingType)
 		return;
 	if (nd_record_v_rendering[RenderingType])
@@ -1227,7 +1227,7 @@ void newdemo_record_viewer_object(const vcobjptridx_t obj)
 
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_VIEWER_OBJECT);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	nd_record_v_viewobjs[obj]=RenderingType+1;
 	nd_record_v_rendering[RenderingType]=1;
 	nd_write_byte(RenderingType);
@@ -1287,7 +1287,7 @@ void newdemo_record_wall_hit_process(const segnum_t segnum, const sidenum_t side
 
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void newdemo_record_guided_start ()
 {
 	nd_write_byte (ND_EVENT_START_GUIDED);
@@ -1375,7 +1375,7 @@ void newdemo_record_player_energy(int energy)
 
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void newdemo_record_player_afterburner(fix afterburner)
 {
 	if ((nd_record_v_player_afterburner>>9) == (afterburner>>9))
@@ -1623,7 +1623,7 @@ void newdemo_record_laser_level(const laser_level old_level, const laser_level n
 
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void newdemo_record_cloaking_wall(wallnum_t front_wall_num, wallnum_t back_wall_num, ubyte type, const wall_state state, fix cloak_value, fix l0, fix l1, fix l2, fix l3)
 {
 	pause_game_world_time p;
@@ -1646,7 +1646,7 @@ void newdemo_set_new_level(int level_num)
 	nd_write_byte(ND_EVENT_NEW_LEVEL);
 	nd_write_byte(static_cast<int8_t>(level_num));
 	nd_write_byte(static_cast<int8_t>(Current_level_num));
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (nd_record_v_juststarted==1)
 	{
 		auto &Walls = LevelUniqueWallSubsystemState.Walls;
@@ -1687,7 +1687,7 @@ static void newdemo_record_oneframeevent_update(int wallupdate)
 	else
 		newdemo_record_restore_rearview();
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	// This will record tmaps for all walls and properly show doors which were opened before demo recording started.
 	if (wallupdate)
 	{
@@ -1734,7 +1734,7 @@ static int newdemo_read_demo_start(const purpose_type purpose)
 	fix nd_GameTime32 = 0;
 
 	Rear_view=0;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	shareware = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
@@ -1750,7 +1750,7 @@ static int newdemo_read_demo_start(const purpose_type purpose)
 	nd_read_byte(&version);
 	if (purpose == purpose_type::rewrite)
 		nd_write_byte(version);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (version == DEMO_VERSION_SHAREWARE)
 		shareware = 1;
 	else if (version < DEMO_VERSION) {
@@ -1764,7 +1764,7 @@ static int newdemo_read_demo_start(const purpose_type purpose)
 	nd_read_byte(&game_type);
 	if (purpose == purpose_type::rewrite)
 		nd_write_byte(game_type);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if ((game_type == DEMO_GAME_TYPE_SHAREWARE) && shareware)
 		;	// all good
 	else if (game_type != DEMO_GAME_TYPE) {
@@ -1794,7 +1794,7 @@ static int newdemo_read_demo_start(const purpose_type purpose)
 	int recorded_demo_game_mode;
 	nd_read_int(&recorded_demo_game_mode);
 	Newdemo_game_mode = static_cast<game_mode_flags>(recorded_demo_game_mode);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (purpose == purpose_type::rewrite)
 	{
 		nd_write_fix(nd_GameTime32);
@@ -1885,7 +1885,7 @@ static int newdemo_read_demo_start(const purpose_type purpose)
 			Game_mode = GM_NORMAL;
 		} else
 		{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			auto &player_info = get_local_plrobj().ctype.player_info;
 			nd_read_int(&player_info.mission.score);      // Note link to above if!
 			if (purpose == purpose_type::rewrite)
@@ -1894,7 +1894,7 @@ static int newdemo_read_demo_start(const purpose_type purpose)
 		}
 	}
 	auto &player_info = get_local_plrobj().ctype.player_info;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (!(Newdemo_game_mode & GM_MULTI))
 	{
 		auto &score = player_info.mission.score;
@@ -1938,7 +1938,7 @@ static int newdemo_read_demo_start(const purpose_type purpose)
 	nd_read_string(current_mission);
 	if (purpose == purpose_type::rewrite)
 		nd_write_string(current_mission);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (!shareware)
 	{
 		if (purpose != purpose_type::rewrite && load_mission_by_name(mission_entry_predicate{current_mission}, mission_name_type::guess))
@@ -2009,7 +2009,7 @@ static int newdemo_read_demo_start(const purpose_type purpose)
 // check the next byte -- it _will_ be a load_new_level event.  If it is
 // not, then we must shift all bytes up by one.
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (shareware)
 	{
 		nd_read_byte(&c);
@@ -2024,7 +2024,7 @@ static int newdemo_read_demo_start(const purpose_type purpose)
 	}
 #endif
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	nd_playback_v_juststarted=1;
 #endif
 	player_info.energy = i2f(energy);
@@ -2103,7 +2103,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &vcwallptr = Walls.vcptr;
 #endif
 	auto &vmwallptr = Walls.vmptr;
@@ -2139,7 +2139,7 @@ static int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_VIEWER_OBJECT:        // Followed by an object structure
 		{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			sbyte WhichWindow;
 			nd_read_byte (&WhichWindow);
 			if (rewrite)
@@ -2366,7 +2366,7 @@ static int newdemo_read_frame_information(int rewrite)
 			nd_read_int(&iside);
 			nd_read_objnum32(objnum);
 			int shot;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			shot = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
 			nd_read_int(&shot);
@@ -2377,7 +2377,7 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_int(segnum);
 				nd_write_int(iside);
 				nd_write_int(objnum);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				break;
 #elif defined(DXX_BUILD_DESCENT_II)
 				nd_write_int(shot);
@@ -2398,7 +2398,7 @@ static int newdemo_read_frame_information(int rewrite)
 						const auto wall_num = sside.wall_num;
                         if (wall_num != wall_none)
                         {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 							auto &w = *vcwallptr(wall_num);
 							auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 							auto &vctrgptr = Triggers.vcptr;
@@ -2524,7 +2524,7 @@ static int newdemo_read_frame_information(int rewrite)
 				HUD_init_message_literal( HM_DEFAULT, hud_msg );
 			break;
 			}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case ND_EVENT_START_GUIDED:
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				nd_playback_v_guided = 1;
@@ -2589,7 +2589,7 @@ static int newdemo_read_frame_information(int rewrite)
 			break;
 		}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case ND_EVENT_PLAYER_AFTERBURNER: {
 			ubyte afterburner;
 			ubyte old_afterburner;
@@ -2772,7 +2772,7 @@ static int newdemo_read_frame_information(int rewrite)
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
 			{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				check_effect_blowup(LevelSharedDestructibleLightState, Vclip, vmsegptridx(segnum), static_cast<sidenum_t>(side), pnt, nullptr, 0, 0);
 #elif defined(DXX_BUILD_DESCENT_II)
 				auto &LevelSharedDestructibleLightState = LevelSharedSegmentState.DestructibleLights;
@@ -2808,7 +2808,7 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_playback_v_dead = 0;
 			break;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case ND_EVENT_CHANGE_COCKPIT: {
 			int dummy;
 			nd_read_int (&dummy);
@@ -3050,7 +3050,7 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_byte(pnum);
 				break;
 			}
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
 				vmplayerptr(static_cast<unsigned>(pnum))->connected = player_connection_status::disconnected;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
@@ -3126,7 +3126,7 @@ static int newdemo_read_frame_information(int rewrite)
 			else
 				break;
 			auto &player_info = get_local_plrobj().ctype.player_info;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (player_info.Primary_weapon == primary_weapon_index_t::OMEGA_INDEX) // If Omega cannon, we need to update Omega_charge - not stored in primary_ammo
 				player_info.Omega_charge = (value<=0?f1_0:value);
 			else
@@ -3207,7 +3207,7 @@ static int newdemo_read_frame_information(int rewrite)
 			break;
 		}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case ND_EVENT_CLOAKING_WALL: {
 			uint8_t type, state, cloak_value;
 			wallnum_t back_wall_num, front_wall_num;
@@ -3273,7 +3273,7 @@ static int newdemo_read_frame_information(int rewrite)
 			{
 				nd_write_byte (new_level);
 				nd_write_byte (old_level);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				break;
 #elif defined(DXX_BUILD_DESCENT_II)
 				load_level_robots(new_level);	// for correct robot info reading (specifically boss flag)
@@ -3310,7 +3310,7 @@ static int newdemo_read_frame_information(int rewrite)
 
                         if (!rewrite)
                                 stop_time();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (nd_playback_v_juststarted)
 			{
 				unsigned num_walls;
@@ -3392,7 +3392,7 @@ static int newdemo_read_frame_information(int rewrite)
 		if (PlayerCfg.CockpitMode[1] != cockpit_mode_t::letterbox)
 			select_cockpit(cockpit_mode_t::letterbox);
 	}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	else if (nd_playback_v_guided)
 	{
 		Rear_view = 0;
@@ -3469,17 +3469,17 @@ window_event_result newdemo_goto_end(int to_rewrite)
 			LoadLevel(level,1);
 	}
 	else
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (level != Current_level_num)
 #endif
 	{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		load_level_robots(level);	// for correct robot info reading (specifically boss flag)
 #endif
 		Current_level_num = level;
 	}
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (shareware)
 	{
 		if (Newdemo_game_mode & GM_MULTI) {
@@ -4295,7 +4295,7 @@ void newdemo_start_playback(const char * filename)
 	nd_playback_v_at_eof = 0;
 	nd_playback_v_framecount = 0;
 	nd_playback_v_style = NORMAL_PLAYBACK;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	init_seismic_disturbances();
 	//turn off 3d views on cockpit
 	PlayerCfg.Cockpit3DView = {};
@@ -4327,7 +4327,7 @@ void newdemo_stop_playback()
 	get_local_player().callsign = nd_playback_v_save_callsign;
 	Rear_view=0;
 	nd_playback_v_dead = nd_playback_v_rear = 0;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	nd_playback_v_guided = 0;
 #endif
 	Newdemo_game_mode = Game_mode = {};
@@ -4401,7 +4401,7 @@ read_error:
 	return nd_playback_v_at_eof;
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static void nd_render_extras (ubyte which,const object &obj)
 {
 	ubyte w=which>>4;

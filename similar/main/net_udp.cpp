@@ -66,7 +66,7 @@
 #include <array>
 #include <utility>
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define UDP_REQ_ID "D1XR" // ID string for a request packet
 #elif defined(DXX_BUILD_DESCENT_II)
 #define UDP_REQ_ID "D2XR" // ID string for a request packet
@@ -1824,13 +1824,13 @@ namespace multi {
 namespace udp {
 
 int dispatch_table::end_current_level(
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	next_level_request_secret_flag *const secret
 #endif
 	) const
 {
 	// Do whatever needs to be done between levels
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	{
 		// We do not really check if a player has actually found a secret level... yeah, I am too lazy! So just go there and pretend we did!
 		range_for (const auto i, unchecked_partial_range(Current_mission->secret_level_table.get(), Current_mission->n_secret_levels))
@@ -1978,7 +1978,7 @@ static void net_udp_new_player(const UDP_sequence_addplayer_packet &their, const
 	multi_make_ghost_player(pnum);
 
 	multi_send_score();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	multi_sort_kill_list();
 #endif
 
@@ -2168,7 +2168,7 @@ int dispatch_table::objnum_is_past(const objnum_t objnum) const
 }
 
 namespace {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static void net_udp_send_door_updates(void)
 {
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
@@ -2381,7 +2381,7 @@ void net_udp_send_objects(const Network_player_added network_player_added)
 		if ((objp->type != OBJ_POWERUP) && (objp->type != OBJ_PLAYER) &&
 				(objp->type != OBJ_CNTRLCEN) && (objp->type != OBJ_GHOST) &&
 				(objp->type != OBJ_ROBOT) && (objp->type != OBJ_HOSTAGE)
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				&& !(objp->type == OBJ_WEAPON && get_weapon_id(objp) == weapon_id_type::PMINE_ID)
 #endif
 				)
@@ -2445,7 +2445,7 @@ void net_udp_send_objects(const Network_player_added network_player_added)
 			Network_send_objects = 0;
 			obj_count = 0;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			Network_sending_extras=3; // start to send extras
 #elif defined(DXX_BUILD_DESCENT_II)
 			Network_sending_extras=9; // start to send extras
@@ -2629,7 +2629,7 @@ void net_udp_send_rejoin_sync(const Network_player_added network_player_added, c
 	Netgame.monitor_vector = net_udp_create_monitor_vector();
 
 	net_udp_send_game_info(UDP_sync_player.udp_addr, &UDP_sync_player.udp_addr, upid::sync);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	net_udp_send_door_updates();
 #endif
 
@@ -2760,7 +2760,7 @@ void net_udp_update_netgame()
 		if (i.connected != player_connection_status::disconnected)
 			Netgame.numconnected++;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 // This is great: D2 1.0 and 1.1 ignore upper part of the game_flags field of
 //	the lite_info struct when you're sitting on the join netgame screen.  We can
 //	"sneak" Hoard information into this field.  This is better than sending 
@@ -2794,7 +2794,7 @@ void net_udp_update_netgame()
 		auto &player_info = objp.ctype.player_info;
 		Netgame.killed[i] = player_info.net_killed_total;
 		Netgame.player_kills[i] = player_info.net_kills_total;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		Netgame.player_score[i] = player_info.mission.score;
 #endif
 		Netgame.net_player_flags[i] = player_info.powerup_flags;
@@ -2945,7 +2945,7 @@ static std::span<const uint8_t> net_udp_prepare_heavy_game_info(const d_level_un
 	/* In cooperative games, never shuffle. */
 	PUT_INTEL_INT(&buf[len], (Game_mode & GM_MULTI_COOP) ? 0 : Netgame.ShufflePowerupSeed);			len += 4;
 	buf[len] = Netgame.SecludedSpawns;			len += 1;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	buf[len] = Netgame.SpawnGrantedItems.mask;			len += 1;
 	buf[len] = Netgame.DuplicatePowerups.get_packed_field();			len += 1;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -3128,7 +3128,7 @@ static void net_udp_process_game_info_light(const std::span<const uint8_t> buf, 
 			return;
 		}
 		*i = std::move(recv_game);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		// See if this is really a Hoard game
 		// If so, adjust all the data accordingly
 		if (HoardEquipped())
@@ -3197,7 +3197,7 @@ static void net_udp_process_game_info_heavy(const uint8_t *data, uint_fast32_t, 
 		Netgame.AllowedItems = static_cast<netflag_flag>(GET_INTEL_INT(&data[len]));				len += 4;
 		Netgame.ShufflePowerupSeed = GET_INTEL_INT(&(data[len]));		len += 4;
 		Netgame.SecludedSpawns = data[len];		len += 1;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		Netgame.SpawnGrantedItems = netgrant_flag{data[len]};		len += 1;
 		Netgame.DuplicatePowerups.set_packed_field(data[len]);			len += 1;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -3763,7 +3763,7 @@ static int net_udp_start_poll(newmenu *, const d_event &event, start_poll_menu_i
 #define DXX_UDP_MENU_TRACKER_OPTION(VERB)
 #endif
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define D2X_UDP_MENU_OPTIONS(VERB)	\
 
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -3779,7 +3779,7 @@ static int net_udp_start_poll(newmenu *, const d_event &event, start_poll_menu_i
 constexpr std::integral_constant<unsigned, F1_0 * 60> reactor_invul_time_mini_scale{};
 constexpr std::integral_constant<unsigned, 5 * reactor_invul_time_mini_scale> reactor_invul_time_scale{};
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define D2X_DUPLICATE_POWERUP_OPTIONS(VERB)	                           \
 
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -3878,7 +3878,7 @@ static void net_udp_set_power (void)
 	(void)menu;
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define D2X_GRANT_POWERUP_MENU(VERB)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define D2X_GRANT_POWERUP_MENU(VERB)	\
@@ -3925,7 +3925,7 @@ protected:
 	char KillText[sizeof("Kill goal: 000 kills")];
 	char extraPrimary[sizeof("Primaries: 0")];
 	char extraSecondary[sizeof("Secondaries: 0")];
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	char extraAccessory[sizeof("Accessories: 0")];
 #endif
 #if DXX_USE_TRACKER
@@ -3978,7 +3978,7 @@ public:
 	{
 		snprintf(extraSecondary, sizeof(extraSecondary), "Secondaries: %u", secondary);
 	}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	void update_extra_accessory_string(unsigned accessory)
 	{
 		snprintf(extraAccessory, sizeof(extraAccessory), "Accessories: %u", accessory);
@@ -4034,7 +4034,7 @@ public:
 		update_kill_goal_string();
 		auto primary = Netgame.DuplicatePowerups.get_primary_count();
 		auto secondary = Netgame.DuplicatePowerups.get_secondary_count();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		auto accessory = Netgame.DuplicatePowerups.get_accessory_count();
 		const auto thief_absent = Netgame.ThiefModifierFlags & ThiefModifier::Absent;
 		const auto thief_cannot_steal_energy_weapons = Netgame.ThiefModifierFlags & ThiefModifier::NoEnergyWeapons;
@@ -4064,7 +4064,7 @@ public:
 	void read() const
 	{
 		unsigned primary, secondary;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		unsigned accessory;
 		uint8_t thief_absent;
 		uint8_t thief_cannot_steal_energy_weapons;
@@ -4085,7 +4085,7 @@ public:
 		auto &items = Netgame.DuplicatePowerups;
 		items.set_primary_count(primary);
 		items.set_secondary_count(secondary);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		items.set_accessory_count(accessory);
 		Netgame.ThiefModifierFlags =
 			(thief_absent ? ThiefModifier::Absent : 0) |
@@ -4223,7 +4223,7 @@ window_event_result more_game_options_menu::event_handler(const d_event &event)
 				auto secondary = menus[opt_extra_secondary].value;
 				update_extra_secondary_string(secondary);
 			}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			else if(citem == opt_extra_accessory)
 			{
 				auto accessory = menus[opt_extra_accessory].value;
@@ -4282,7 +4282,7 @@ struct param_opt
 	};
 	int start_game, mode, mode_end, moreopts;
 	int closed, refuse, maxnet, anarchy, team_anarchy, robot_anarchy, coop, bounty;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	int capture, hoard, team_hoard;
 #endif
 	std::array<char, sizeof("S100")> slevel{{"1"}};
@@ -4310,7 +4310,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 		case event_type::newmenu_changed:
 		{
 			auto &citem = static_cast<const d_change_event &>(event).citem;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			if (citem == opt->team_anarchy)
 			{
 				menus[opt->closed].value = 1;
@@ -4339,7 +4339,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 			if (citem == opt->level)
 			{
 				auto &slevel = opt->slevel;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				if (tolower(static_cast<unsigned>(slevel[0])) == 's')
 					Netgame.levelnum = -strtol(&slevel[1], 0, 0);
 				else
@@ -4360,7 +4360,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 				else if (menus[opt->team_anarchy].value) {
 					Netgame.gamemode = network_game_type::team_anarchy;
 				}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				else if (menus[opt->capture].value)
 					Netgame.gamemode = network_game_type::capture_flag;
 				else if (HoardEquipped() && menus[opt->hoard].value)
@@ -4395,7 +4395,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 		case event_type::newmenu_selected:
 		{
 			auto &citem = static_cast<const d_select_event &>(event).citem;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			if (Netgame.levelnum < Current_mission->last_secret_level || Netgame.levelnum > Current_mission->last_level || Netgame.levelnum == 0)
 #elif defined(DXX_BUILD_DESCENT_II)
 			if (Netgame.levelnum < 1 || Netgame.levelnum > Current_mission->last_level)
@@ -4449,7 +4449,7 @@ window_event_result net_udp_setup_game()
 	Netgame.max_numplayers = MAX_PLAYERS;
 	Netgame.KillGoal=0;
 	Netgame.PlayTimeAllowed = {};
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	Netgame.RefusePlayers=0;
 #elif defined(DXX_BUILD_DESCENT_II)
 	Netgame.Allow_marker_view=1;
@@ -4475,7 +4475,7 @@ window_event_result net_udp_setup_game()
 
 	read_netgame_profile(&Netgame);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (!HoardEquipped() && (Netgame.gamemode == network_game_type::hoard || Netgame.gamemode == network_game_type::team_hoard)) // did we restore a hoard mode but don't have hoard installed right now? then fall back to anarchy!
 		Netgame.gamemode = network_game_type::anarchy;
 #endif
@@ -4494,7 +4494,7 @@ window_event_result net_udp_setup_game()
 
 #define DXX_LEVEL_FORMAT_LEADER	"%s (1-%d"
 #define DXX_LEVEL_FORMAT_TRAILER	")"
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (Current_mission->last_secret_level == -1)
 		/* Exactly one secret level */
 		snprintf(level_text, sizeof(level_text), DXX_LEVEL_FORMAT_LEADER ", S1" DXX_LEVEL_FORMAT_TRAILER, TXT_LEVEL_, Current_mission->last_level);
@@ -4518,7 +4518,7 @@ window_event_result net_udp_setup_game()
 	nm_set_item_radio(m[optnum], TXT_TEAM_ANARCHY, Netgame.gamemode == network_game_type::team_anarchy, 0); opt.team_anarchy=optnum; optnum++;
 	nm_set_item_radio(m[optnum], TXT_ANARCHY_W_ROBOTS, Netgame.gamemode == network_game_type::robot_anarchy, 0); opt.robot_anarchy=optnum; optnum++;
 	nm_set_item_radio(m[optnum], TXT_COOPERATIVE, Netgame.gamemode == network_game_type::cooperative, 0); opt.coop=optnum; optnum++;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	nm_set_item_radio(m[optnum], "Capture the flag", Netgame.gamemode == network_game_type::capture_flag, 0); opt.capture=optnum; optnum++;
 
 	if (HoardEquipped())
@@ -4597,7 +4597,7 @@ static void net_udp_set_game_mode(const network_game_type gamemode)
 		Game_mode = game_mode_flags::anarchy_with_robots;
 	else if (gamemode == network_game_type::cooperative) 
 		Game_mode = game_mode_flags::cooperative;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	else if (gamemode == network_game_type::capture_flag)
 		{
 		 Game_mode = game_mode_flags::capture_flag;
@@ -4679,7 +4679,7 @@ void net_udp_read_sync_packet(const uint8_t *data, uint_fast32_t data_len, const
 		throw multi::local_player_not_playing();
 	}
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	{
 		auto &player_info = get_local_plrobj().ctype.player_info;
 		PlayerCfg.NetlifeKills -= player_info.net_kills_total;
@@ -4910,7 +4910,7 @@ abort:
 		i.rank = netplayer_info::player_rank::None;
 	}
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (Netgame.gamemode == network_game_type::team_anarchy)
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (Netgame.gamemode == network_game_type::team_anarchy ||
@@ -5131,7 +5131,7 @@ int net_udp_do_join_game()
 	{
 		mission_entry_predicate mission_predicate;
 		mission_predicate.filesystem_name = Netgame.mission_name;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		/* FIXME: This should be set to true and the version set
 		 * accordingly.  However, currently the host does not provide
 		 * the mission version to the guests.
@@ -5160,7 +5160,7 @@ int net_udp_do_join_game()
 	}
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (is_D2_OEM)
 	{
 		if (Netgame.levelnum>8)
@@ -5269,7 +5269,7 @@ void dispatch_table::leave_game() const
 
 	get_local_player().connected = player_connection_status::disconnected;
 	change_playernum_to(0);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	write_player_file();
 #endif
 
@@ -5419,7 +5419,7 @@ void dispatch_table::do_protocol_frame(int force, int listen) const
 	{
 		last_pdata_time = time;
 		net_udp_send_pdata();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
                 multi_send_thief_frame();
 #endif
 	}
@@ -6081,7 +6081,7 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 namespace {
 
@@ -6216,7 +6216,7 @@ void net_udp_do_refuse_stuff(const UDP_sequence_request_packet &their, const str
 
 	if (!WaitForRefuseAnswer)
 	{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		digi_play_sample (SOUND_CONTROL_CENTER_WARNING_SIREN,F1_0*2);
 #elif defined(DXX_BUILD_DESCENT_II)
 		digi_play_sample (SOUND_HUD_JOIN_REQUEST,F1_0*2);
@@ -6326,7 +6326,7 @@ void net_udp_send_extras ()
 
 	Assert (Player_joining_extras>-1);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (Network_sending_extras==3 && (Netgame.PlayTimeAllowed.count() || Netgame.KillGoal))
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (Network_sending_extras==9)
@@ -6340,7 +6340,7 @@ void net_udp_send_extras ()
 	if (Network_sending_extras==5 && (Netgame.PlayTimeAllowed.count() || Netgame.KillGoal))
 #endif
 		multi_send_kill_goal_counts();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (Network_sending_extras==4)
 		net_udp_send_smash_lights(Player_joining_extras);
 	if (Network_sending_extras==3)
@@ -6396,7 +6396,7 @@ window_event_result show_game_info_menu::event_handler(const d_event &event)
 
 const std::array<char, 512> &show_game_info_menu::setup_subtitle_text(std::array<char, 512> &rinfo, const netgame_info &netgame)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define DXX_SECRET_LEVEL_FORMAT	"%s"
 #define DXX_SECRET_LEVEL_PARAMETER	(netgame.levelnum >= 0 ? "" : "S"), \
 	netgame.levelnum < 0 ? -netgame.levelnum :	/* else portion provided by invoker */
@@ -6406,7 +6406,7 @@ const std::array<char, 512> &show_game_info_menu::setup_subtitle_text(std::array
 #endif
 	const auto gamemode = underlying_value(netgame.gamemode);
 	const unsigned
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	players = netgame.numplayers;
 #elif defined(DXX_BUILD_DESCENT_II)
 	players = netgame.numconnected;

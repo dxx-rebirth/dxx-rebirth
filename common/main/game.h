@@ -167,7 +167,7 @@ struct d_game_shared_state : ::dcx::d_game_shared_state
 	wall_animations_array WallAnims;
 };
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 struct d_game_unique_state : ::dcx::d_game_unique_state
 {
 	fix Final_boss_countdown_time;
@@ -214,7 +214,7 @@ enum class cockpit_mode_t : uint8_t
 }
 
 #ifdef dsx
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static inline void full_palette_save(void)
 {
 	palette_save();
@@ -223,7 +223,7 @@ static inline void full_palette_save(void)
 
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 /* For flags which are only valid for Descent 2, define a special case that
  * always returns false in Descent 1, without examining the flag.
  */
@@ -281,7 +281,7 @@ struct game_cheats : prohibit_void_ptr<game_cheats>
 	int8_t turbo;
 	int8_t robotfiringsuspended;
 	int8_t acid;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	int8_t wowie2;
 	int8_t cloak;
 	int8_t extralife;

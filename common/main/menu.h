@@ -56,7 +56,7 @@ extern int DoMenu();
 extern void do_options_menu();
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define Menu_pcx_name (((SWIDTH >= 640 && SHEIGHT >= 480) && PHYSFS_exists("menuh.pcx")) ? "menuh.pcx" : "menu.pcx")
 #define STARS_BACKGROUND (((SWIDTH >= 640 && SHEIGHT >= 480) && PHYSFS_exists("starsb.pcx")) ? "starsb.pcx" : "stars.pcx")
 #elif defined(DXX_BUILD_DESCENT_II)

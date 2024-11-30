@@ -37,7 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-segment.h"
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #include "fwd-object.h"
 #include "fwd-vclip.h"
 #endif
@@ -120,7 +120,7 @@ enum class ai_behavior : uint8_t
 	AIB_NORMAL = 0x81,
 	AIB_RUN_FROM = 0x83,
 	AIB_STATION = 0x85,
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	AIB_HIDE = 0x82,
 	AIB_FOLLOW_PATH = 0x84,
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -131,7 +131,7 @@ enum class ai_behavior : uint8_t
 };
 
 #define MIN_BEHAVIOR    0x80
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define	MAX_BEHAVIOR	0x85
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MAX_BEHAVIOR    0x86
@@ -147,7 +147,7 @@ enum class ai_mode : uint8_t
 	AIM_RUN_FROM_OBJECT = 4,
 	AIM_FOLLOW_PATH_2 = 6,
 	AIM_OPEN_DOOR = 7,
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	AIM_HIDE = 5,
 #elif defined(DXX_BUILD_DESCENT_II)
 	AIM_BEHIND = 5,
@@ -196,7 +196,7 @@ enum class ai_mode : uint8_t
 //} oai_state;
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #define SUB_FLAGS_GUNSEG        0x01
 #define SUB_FLAGS_SPROX         0x02    // If set, then this bot drops a super prox, not a prox, when it's time to drop something
 #define SUB_FLAGS_CAMERA_AWAKE  0x04    // If set, a camera (on a missile) woke this robot up, so don't fire at player.  Can look real stupid!
@@ -220,7 +220,7 @@ struct ai_local : public prohibit_void_ptr<ai_local>
 	segnum_t      goal_segment{};                    // goal segment for current path
 	fix        next_action_time = 0;              // time in seconds until something happens, mode dependent
 	fix        next_fire = 0;                     // time in seconds until can fire again
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	fix        next_fire2 = 0;                    // time in seconds until can fire again from second weapon
 #endif
 	fix        player_awareness_time = 0;         // time in seconds robot will be aware of player, 0 means not aware of player
@@ -241,7 +241,7 @@ struct ai_static : public prohibit_void_ptr<ai_static>
 	ai_static_state CURRENT_STATE;
 	ai_static_state GOAL_STATE;
 	int8_t PATH_DIR;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	int8_t SUBMODE;					//	submode, eg AISM_HIDING if mode == AIM_HIDE
 #elif defined(DXX_BUILD_DESCENT_II)
 	int8_t SUB_FLAGS;				// bit 0: Set -> Robot's current gun in different segment than robot's center.
@@ -254,7 +254,7 @@ struct ai_static : public prohibit_void_ptr<ai_static>
 	segnum_t hide_segment{};           // Segment to go to for hiding.
 	short hide_index{};             // Index in Path_seg_points
 	short path_length{};            // Length of hide path.
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	short cur_path_index{};         // Current index in path.
 #elif defined(DXX_BUILD_DESCENT_II)
 	sbyte cur_path_index{};         // Current index in path.
@@ -262,7 +262,7 @@ struct ai_static : public prohibit_void_ptr<ai_static>
 #endif
 	objnum_t danger_laser_num{};
 	object_signature_t danger_laser_signature;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	fix64 dying_start_time{};       // Time at which this robot started dying.
 #endif
 	ai_local ail;
@@ -276,7 +276,7 @@ struct ai_static_rw
 	uint16_t hide_segment;           // Segment to go to for hiding.
 	short   hide_index;             // Index in Path_seg_points
 	short   path_length;            // Length of hide path.
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	short   cur_path_index;         // Current index in path.
 	short   follow_path_start_seg;  // Start segment for robot which follows path.
 	short   follow_path_end_seg;    // End segment for robot which follows path.
@@ -297,7 +297,7 @@ static_assert(sizeof(ai_static_rw) == 30);
 struct ai_local_rw
 {
 // These used to be bytes, changed to ints so I could set watchpoints on them.
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	sbyte      player_awareness_type;           // type of awareness of player
 	sbyte      retry_count;                     // number of retries in physics last time this object got moved.
 	sbyte      consecutive_retries;             // number of retries in consecutive frames (ie, without a retry_count of 0)
@@ -317,7 +317,7 @@ struct ai_local_rw
 #endif
 	fix        next_action_time;              // time in seconds until something happens, mode dependent
 	fix        next_fire;                     // time in seconds until can fire again
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	fix        next_fire2;                    // time in seconds until can fire again from second weapon
 #endif
 	fix        player_awareness_time;         // time in seconds robot will be aware of player, 0 means not aware of player
@@ -334,7 +334,7 @@ struct ai_local_rw
 struct ai_cloak_info : public prohibit_void_ptr<ai_cloak_info>
 {
 	fix64       last_time;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	segnum_t         last_segment;
 #endif
 	vms_vector  last_position;
@@ -344,13 +344,13 @@ struct ai_cloak_info : public prohibit_void_ptr<ai_cloak_info>
 struct ai_cloak_info_rw
 {
 	fix         last_time;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	int         last_segment;
 #endif
 	vms_vector  last_position;
 };
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 
 // Maximum number kept track of, will keep stealing, causes stolen weapons to be lost!
 struct d_thief_unique_state

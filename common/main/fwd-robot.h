@@ -54,7 +54,7 @@ struct d_level_shared_robot_joint_state;
 #ifdef dsx
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 //robot info flags
 #define RIF_BIG_RADIUS  1   //pad the radius to fix robots firing through walls
 #define RIF_THIEF       2   //this guy steals!
@@ -63,7 +63,7 @@ namespace dsx {
 //  Robot information
 struct robot_info;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 // maximum number of robot types
 constexpr std::integral_constant<unsigned, 30> MAX_ROBOT_TYPES{};
 constexpr std::integral_constant<unsigned, 600> MAX_ROBOT_JOINTS{};

@@ -99,7 +99,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 #include "maths.h"
 #include "hudmsg.h"
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #include <climits>
 #include "gamepal.h"
 #include "movie.h"
@@ -165,7 +165,7 @@ static void powerup_grab_cheat_all();
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 d_flickering_light_state Flickering_light_state;
 namespace {
 static void slide_textures(void);
@@ -262,7 +262,7 @@ void init_cockpit()
 #if !DXX_USE_OGL
 	if (PlayerCfg.CockpitMode[1] != cockpit_mode_t::letterbox)
 	{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		int HiresGFXAvailable = !GameArg.GfxSkipHiresGFX;
 #endif
 		const auto full_screen_mode = HiresGFXAvailable
@@ -286,7 +286,7 @@ void init_cockpit()
 		{
 			unsigned x1 = 0, y1 = 0, x2 = SWIDTH, y2 = (SHEIGHT*2)/3;
 			const auto mode =
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				HIRESMODE
 				? static_cast<cockpit_mode_t>(static_cast<uint8_t>(cockpit_mode_t::rear_view) + (Num_cockpits / 2))
 				:
@@ -491,7 +491,7 @@ int set_screen_mode(int sm)
 		}
 			break;
 #endif
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case SCREEN_MOVIE:
 		{
 			const screen_mode movie_mode{MOVIE_WIDTH, MOVIE_HEIGHT};
@@ -1132,7 +1132,7 @@ static void do_invulnerable_stuff(player_info &player_info)
 
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static inline void do_afterburner_stuff(object_array &)
 {
 }
@@ -1209,7 +1209,7 @@ void PALETTE_FLASH_ADD(int _dr, int _dg, int _db)
 	PaletteGreenAdd += _dg;
 	PaletteBlueAdd += _db;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (Flash_effect)
 		maxval = 60;
 	else
@@ -1285,7 +1285,7 @@ static void diminish_palette_towards_normal(void)
 			dec_amount++; // make sure we decrement by something
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (Flash_effect) {
 		int	force_do = 0;
 		static fix Flash_step_up_timer = 0;
@@ -1340,7 +1340,7 @@ int	Redsave, Bluesave, Greensave;
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static
 #endif
 void palette_save(void)
@@ -1356,7 +1356,7 @@ void palette_restore(void)
 	PaletteRedAdd = Redsave; PaletteBlueAdd = Bluesave; PaletteGreenAdd = Greensave;
 	gr_palette_step_up( PaletteRedAdd*brightness_correction, PaletteGreenAdd*brightness_correction, PaletteBlueAdd*brightness_correction );
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	//	Forces flash effect to fixup palette next frame.
 	Time_flash_last_played = 0;
 #endif
@@ -1389,7 +1389,7 @@ int allowed_to_fire_missile(const player_info &player_info)
 	return 1;
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void full_palette_save(void)
 {
 	palette_save();
@@ -1452,7 +1452,7 @@ namespace {
 	DXX_MENUITEM(VERB, TEXT, "Alt-F2/F3\t  SAVE/LOAD COOP GAME", NETHELP_SAVELOAD)
 #endif
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #define _DXX_HELP_MENU_D2_DXX_F4(VERB)	DXX_MENUITEM(VERB, TEXT, TXT_HELP_F4, HELP_F4)
 #define _DXX_HELP_MENU_D2_DXX_FEATURES(VERB)	\
 	DXX_MENUITEM(VERB, TEXT, "Shift-F1/F2\t  Cycle left/right window", HELP_SF1_2)	\
@@ -1718,7 +1718,7 @@ int8_t cheats_enabled()
 //turns off all cheats & resets cheater flag
 void game_disable_cheats()
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (cheats.homingfire)
 		weapons_homing_all_reset();
 #endif
@@ -1893,7 +1893,7 @@ void close_game()
 	restore_effect_bitmap_icons();
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 object *Missile_viewer=NULL;
 object_signature_t Missile_viewer_sig;
@@ -1990,7 +1990,7 @@ window_event_result GameProcessFrame(const d_level_shared_robot_info_state &Leve
 	do_afterburner_stuff(Objects);
 	do_cloak_stuff();
 	do_invulnerable_stuff(player_info);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	init_ai_frame(player_info.powerup_flags, Controls);
 	result = do_final_boss_frame();
 
@@ -2043,7 +2043,7 @@ window_event_result GameProcessFrame(const d_level_shared_robot_info_state &Leve
 	if (result == window_event_result::close)
 		return result;	// skip everything else - don't set Player_dead_state again
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	process_super_mines_frame();
 	do_seismic_stuff();
 	do_ambient_sounds(vcsegptr(ConsoleObject->segnum)->s2_flags);
@@ -2125,7 +2125,7 @@ window_event_result GameProcessFrame(const d_level_shared_robot_info_state &Leve
 		create_player_appearance_effect(Vclip, *ConsoleObject);
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	omega_charge_frame(player_info);
 	slide_textures();
 	auto &LevelSharedDestructibleLightState = LevelSharedSegmentState.DestructibleLights;
@@ -2152,7 +2152,7 @@ window_event_result GameProcessFrame(const d_level_shared_robot_info_state &Leve
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void compute_slide_segs()
 {
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
@@ -2356,7 +2356,7 @@ bool FireLaser(player_info &player_info, const control_info &Controls)
 			if (Fusion_next_sound_time < GameTime64) {
 				if (Fusion_charge > F1_0*2) {
 					digi_play_sample( 11, F1_0 );
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 					if(Game_mode & GM_MULTI)
 						multi_send_play_sound(11, F1_0, sound_stack::allow_stacking);
 #endif
@@ -2492,7 +2492,7 @@ int create_special_path(void)
 #endif
 
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 /*
  * reads a flickering_light structure from a PHYSFS_File

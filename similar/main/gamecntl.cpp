@@ -87,7 +87,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ai.h"
 #include "rbaudio.h"
 #include "switch.h"
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #include "escort.h"
 #include "movie.h"
 #endif
@@ -153,7 +153,7 @@ int allowed_to_fire_flare(player_info &player_info)
 	auto &Next_flare_fire_time = player_info.Next_flare_fire_time;
 	if (Next_flare_fire_time > GameTime64)
 		return 0;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (player_info.energy < Weapon_info[weapon_id_type::FLARE_ID].energy_usage)
 #define	FLARE_BIG_DELAY	(F1_0*2)
 		Next_flare_fire_time = GameTime64 + FLARE_BIG_DELAY;
@@ -167,7 +167,7 @@ int allowed_to_fire_flare(player_info &player_info)
 
 // Functions ------------------------------------------------------------------
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #define CONVERTER_RATE  20		//10 units per second xfer rate
 #define CONVERTER_SCALE  2		//2 units energy -> 1 unit shields
 
@@ -235,7 +235,7 @@ static void update_vcr_state(void)
 }
 
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 
 namespace {
 
@@ -324,7 +324,7 @@ static void do_weapon_n_item_stuff(object_array &Objects, control_info &Controls
 		else
 			do_primary_weapon_select(player_info, static_cast<primary_weapon_index_t>(weapon_num));
 	}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (auto &headlight = Controls.state.headlight)
 	{
 		if (std::exchange(headlight, 0) & 1)
@@ -342,7 +342,7 @@ static void do_weapon_n_item_stuff(object_array &Objects, control_info &Controls
 		for (uint_fast32_t i = std::exchange(Controls.state.drop_bomb, 0); i--;)
 			do_missile_firing(bomb, plrobjidx);
 	}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (Controls.state.toggle_bomb > 0)
 	{
 		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
@@ -709,7 +709,7 @@ static window_event_result HandleDemoKey(int key)
 	return window_event_result::handled;
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 //switch a cockpit window to the next function
 static int select_next_window_function(const gauge_inset_window_view w)
 {
@@ -807,7 +807,7 @@ static window_event_result HandleSystemKey(int key)
 				}
 				return window_event_result::handled;
 			}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 // fleshed these out because F1 and F2 aren't sequenctial keycodes on mac -- MWA
 
 			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_1:)
@@ -965,7 +965,7 @@ static window_event_result HandleSystemKey(int key)
 				state_restore_all(1, secret_restore::none, nullptr, blind_save::yes);
 			break;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_4:)
 		case KEY_F4 + KEY_SHIFTED:
 			do_escort_menu();
@@ -1059,7 +1059,7 @@ static window_event_result HandleGameKey(int key, control_info &Controls)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	switch (key) {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case KEY_1 + KEY_SHIFTED:
 		case KEY_2 + KEY_SHIFTED:
 		case KEY_3 + KEY_SHIFTED:
@@ -1152,7 +1152,7 @@ static window_event_result HandleGameKey(int key, control_info &Controls)
 				DropSecondaryWeapon(get_local_plrobj().ctype.player_info);
 				break;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			case KEY_0 + KEY_ALTED:
 				DropFlag ();
 				game_flush_inputs(Controls);
@@ -1174,7 +1174,7 @@ static window_event_result HandleGameKey(int key, control_info &Controls)
 	return window_event_result::handled;
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static void kill_all_robots(void)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1273,7 +1273,7 @@ static void kill_and_so_forth(const d_robot_info_array &Robot_info, fvmobjptridx
 }
 
 #ifndef RELEASE
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static void kill_all_snipers(void) __attribute_used;
 static void kill_all_snipers(void)
 {
@@ -1353,7 +1353,7 @@ static window_event_result HandleTestKey(const d_level_shared_robot_info_state &
 			do_controlcen_destroyed_stuff(object_none);
 			break;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	case KEY_DEBUGGED+KEY_ALTED+KEY_D:
 			PlayerCfg.NetlifeKills=4000; PlayerCfg.NetlifeKilled=5;
 			multi_add_lifetime_kills(1);
@@ -1442,7 +1442,7 @@ static window_event_result HandleTestKey(const d_level_shared_robot_info_state &
 			return window_event_result::close;
 		}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	case KEY_Q + KEY_SHIFTED + KEY_DEBUGGED:
 		{
 			palette_array_t save_pal;
@@ -1477,7 +1477,7 @@ static window_event_result HandleTestKey(const d_level_shared_robot_info_state &
 		case KEY_DEBUGGED+KEY_SHIFTED+KEY_LAPOSTRO: Viewer=ConsoleObject; break;
 		case KEY_DEBUGGED+KEY_O: toggle_outline_mode(); break;
 		case KEY_DEBUGGED+KEY_T:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		{
 			static int Toggle_var;
 			Toggle_var = !Toggle_var;
@@ -1595,7 +1595,7 @@ struct cheat_code
 };
 
 constexpr cheat_code cheat_codes[] = {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	{ "gabbagabbahey", &game_cheats::enabled },
 	{ "scourge", &game_cheats::wowie },
 	{ "bigred", &game_cheats::wowie2 },
@@ -1713,7 +1713,7 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 		if (d_strnicmp(cheat_codes[i].string, &cheat_buffer[CHEAT_MAX_LEN-cheatlen], cheatlen)==0)
 		{
 			gotcha = cheat_codes[i].stateptr;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			if (!cheats.enabled && gotcha != &game_cheats::enabled)
 				return window_event_result::ignored;
 			if (!cheats.enabled)
@@ -1732,7 +1732,7 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 	auto &player_info = plrobj.ctype.player_info;
 	player_info.mission.score = 0;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (gotcha == &game_cheats::wowie)
 	{
 		{
@@ -1850,7 +1850,7 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 		plrobj.shields = MAX_SHIELDS;
 	}
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (gotcha == &game_cheats::cloak)
 	{
 		auto &pl_flags = player_info.powerup_flags;
@@ -1890,7 +1890,7 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 		(void)menu;
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (gotcha == &game_cheats::fullautomap)
 		HUD_init_message_literal(HM_DEFAULT, cheats.fullautomap ? std::span<const char>("FULL MAP!") : std::span<const char>("REGULAR MAP"));
 #endif
@@ -1903,13 +1903,13 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 	if (gotcha == &game_cheats::rapidfire)
 	{
 		HUD_init_message(HM_DEFAULT, "Rapid fire %s!", cheats.rapidfire?TXT_ON:TXT_OFF);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
                 if (cheats.rapidfire)
 					do_megawow_powerup(plrobj, 200);
 #endif
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (gotcha == &game_cheats::bouncyfire)
 	{
 		
@@ -1932,7 +1932,7 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 		HUD_init_message(HM_DEFAULT, "Robot firing %s!", cheats.robotfiringsuspended?TXT_OFF:TXT_ON);
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (gotcha == &game_cheats::killallrobots)
 	{
 		kill_all_robots();
@@ -2047,7 +2047,7 @@ public:
 	}
 };
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define WIMP_MENU_DXX(VERB)
 #elif defined(DXX_BUILD_DESCENT_II)
 /* Adding an afterburner like this adds it at 0% charge.  This is OK for
@@ -2178,7 +2178,7 @@ window_event_result ReadControls(const d_level_shared_robot_info_state &LevelSha
 	if (event.type == event_type::key_command)
 	{
 		key = event_key_get(event);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (MarkerState.DefiningMarkerMessage())
 		{
 			return MarkerInputMessage(key, Controls);

@@ -35,7 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // font you say fontnum+flag where flag is 0 for lowres, 1 for hires
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define GFONT_BIG_1     MacPig	// the Mac data doesn't have this in hires, in the automap the scaled/hires one won't fit
 #elif defined(DXX_BUILD_DESCENT_II)
 #define GFONT_BIG_1     0

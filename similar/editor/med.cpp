@@ -88,7 +88,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "newmenu.h"
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #include "gamepal.h"
 #endif
 
@@ -254,7 +254,7 @@ int	GotoGameScreen()
 			create_new_mission();
 			Current_level_num = 1;
 			if (save_level(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 					LevelSharedSegmentState.DestructibleLights,
 #endif
 					"GAMESAVE.LVL"))
@@ -413,7 +413,7 @@ void init_editor()
 		close_editor();
 		return;
 	}
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	gr_use_palette_table( "palette.256" );
 	gr_palette_load( gr_palette );
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -895,7 +895,7 @@ static void close_editor()
 
 				case editor_gamestate::saved:
 					state_restore_all_sub(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 						LevelSharedSegmentState.DestructibleLights, secret_restore::none,
 #endif
 						PLAYER_DIRECTORY_STRING("gamesave.sge")
@@ -958,7 +958,7 @@ void gamestate_restore_check()
 			Save_position.segnum = ConsoleObject->segnum;
 
 			if (!state_restore_all_sub(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 					LevelSharedSegmentState.DestructibleLights, secret_restore::none,
 #endif
 					PLAYER_DIRECTORY_STRING("gamesave.sge")
@@ -988,7 +988,7 @@ int RestoreGameState()
 		return 0;
 
 	if (!state_restore_all_sub(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			LevelSharedSegmentState.DestructibleLights, secret_restore::none,
 #endif
 			PLAYER_DIRECTORY_STRING("gamesave.sge")

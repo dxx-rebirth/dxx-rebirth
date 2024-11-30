@@ -83,7 +83,7 @@ static void multi_delete_controlled_robot(const vmobjptridx_t objnum);
 //
 
 #define STANDARD_EXPL_DELAY (F1_0/4)
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define MIN_CONTROL_TIME	F1_0*2
 #define ROBOT_TIMEOUT		F1_0*3
 
@@ -262,7 +262,7 @@ int multi_add_controlled_robot(const vmobjptridx_t objnum, int agitation)
 	// Try to add a new robot to the controlled list, return 1 if added, 0 if not.
 
 	auto &objrobot = *objnum;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (Robot_info[get_robot_id(objrobot)].boss_flag != boss_robot_id::None) // this is a boss, so make sure he gets a slot
 		agitation=(agitation*3)+Player_num;  
@@ -300,7 +300,7 @@ int multi_add_controlled_robot(const vmobjptridx_t objnum, int agitation)
 		i = first_free_robot;
 
 	else if ((agitation > lowest_agitation)
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			 && (lowest_agitation <= MAX_TO_DELETE)
 #endif
 	) // Replace some old robot with a more agitated one
@@ -429,7 +429,7 @@ void multi_send_robot_frame()
 }
 
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 /*
  * The thief bot moves around even when not controlled by a player. Due to its erratic and random behaviour, it's movement will diverge heavily between players and cause it to teleport when a player takes over.
  * To counter this, let host update positions when no one controls it OR the client which does.
@@ -632,7 +632,7 @@ struct boss_create_robot
 };
 DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_BOSS_CREATE_ROBOT, boss_create_robot, b, (b.objnum, b.objrobot, b.where, b.robot_type));
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 struct update_buddy_state
 {
 	uint8_t Looking_for_marker;
@@ -660,7 +660,7 @@ void multi_send_boss_teleport(const vmobjptridx_t bossobj, const vcsegidx_t wher
 	// Boss is up for grabs after teleporting
 	Assert((bossobj->ctype.ai_info.REMOTE_SLOT_NUM >= 0) && (bossobj->ctype.ai_info.REMOTE_SLOT_NUM < MAX_ROBOTS_CONTROLLED));
 	multi_delete_controlled_robot(bossobj);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	bossobj->ctype.ai_info.REMOTE_SLOT_NUM = HANDS_OFF_PERIOD; // Hands-off period!
 #endif
 	multi_send_boss_action<boss_teleport>(bossobj, where);
@@ -710,7 +710,7 @@ static void multi_send_create_robot_powerups(const object_base &del_obj)
 	loc += 12;
 
 	memset(&multibuf[loc], -1, MAX_ROBOT_POWERUPS*sizeof(short));
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
    if (del_obj.contains.count != Net_create_loc)
 	  Int3();  //Get Jason, a bad thing happened
 #endif
@@ -896,7 +896,7 @@ void multi_do_robot_fire(const multiplayer_rspan<multiplayer_command_t::MULTI_RO
 	switch (gun_num)
 	{
 		case underlying_value(robot_gun_number::proximity):
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case underlying_value(robot_gun_number::smart_mine):
 #endif
 			break;
@@ -908,12 +908,12 @@ void multi_do_robot_fire(const multiplayer_rspan<multiplayer_command_t::MULTI_RO
 	const pt_weapon pw =
 	// Do the firing
 		(gun_num == underlying_value(robot_gun_number::proximity)
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		|| gun_num == underlying_value(robot_gun_number::smart_mine)
 #endif
 		)
 		? pt_weapon(vm_vec_add(botp->pos, fire), 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			gun_num != underlying_value(robot_gun_number::proximity) ? weapon_id_type::SUPERPROX_ID :
 #endif
 			weapon_id_type::PROXIMITY_ID)
@@ -955,7 +955,7 @@ int multi_explode_robot_sub(const d_robot_info_array &Robot_info, const vmobjptr
 		multi_drop_robot_powerups(robot);
 	}
 	const auto robot_id = get_robot_id(objrobot);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (robot_is_thief(Robot_info[robot_id]))
 		drop_stolen_items_local(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, vmsegptridx(objrobot.segnum), objrobot.mtype.phys_info.velocity, objrobot.pos, LevelUniqueObjectState.ThiefState.Stolen_items);
 #endif
@@ -966,20 +966,20 @@ int multi_explode_robot_sub(const d_robot_info_array &Robot_info, const vmobjptr
 		else
 			return (0);
 	}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	else if (Robot_info[robot_id].death_roll) {
 		start_robot_death_sequence(robot);
 	}
 #endif
 	else
 	{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (robot_id == robot_id::special_reactor)
 			special_reactor_stuff();
 #endif
 		// Kamikaze, explode right away, IN YOUR FACE!
 		explode_object(LevelUniqueObjectState, Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, robot,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 					   Robot_info[robot_id].kamikaze ? 1 :
 #endif
 					   STANDARD_EXPL_DELAY);
@@ -1073,7 +1073,7 @@ void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_a
 	Assert(obj->ctype.ai_info.REMOTE_OWNER == -1);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void multi_send_escort_goal(const d_unique_buddy_state &BuddyState)
 {
 	update_buddy_state b;
@@ -1164,7 +1164,7 @@ void multi_do_boss_cloak(const multiplayer_rspan<multiplayer_command_t::MULTI_BO
 		return;
 	}
 	BossUniqueState.Boss_hit_this_frame = 0;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	BossUniqueState.Boss_hit_time = -F1_0*10;
 #endif
 	BossUniqueState.Boss_cloak_start_time = {GameTime64};
@@ -1353,7 +1353,7 @@ void multi_robot_request_change(const vmobjptridx_t robot, int player_num)
 	if (!(Game_mode & GM_MULTI_ROBOTS))
 		return;
 	auto &objrobot = *robot;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (objrobot.ctype.ai_info.REMOTE_OWNER != Player_num)
 		return;
 #endif

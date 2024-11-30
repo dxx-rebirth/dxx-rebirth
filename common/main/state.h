@@ -26,7 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #define SECRETB_FILENAME	PLAYER_DIRECTORY_STRING("secret.sgb")
 #define SECRETC_FILENAME	PLAYER_DIRECTORY_STRING("secret.sgc")
 #endif
@@ -48,7 +48,7 @@ namespace dsx {
 enum class secret_save : uint8_t
 {
 	none,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	b,
 	c,
 #endif
@@ -57,7 +57,7 @@ enum class secret_save : uint8_t
 enum class secret_restore : uint8_t
 {
 	none,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	survived,
 	died,
 #endif
@@ -97,7 +97,7 @@ int state_save_all_sub(const char *filename, const char *desc);
 d_game_unique_state::save_slot state_get_save_file(grs_canvas &canvas, d_game_unique_state::savegame_file_path &fname, d_game_unique_state::savegame_description *dsc, blind_save);
 d_game_unique_state::save_slot state_get_restore_file(grs_canvas &canvas, d_game_unique_state::savegame_file_path &fname, blind_save);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 int state_restore_all_sub(const char *filename);
 static inline void set_pos_from_return_segment(void)
 {

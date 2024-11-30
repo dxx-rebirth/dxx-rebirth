@@ -52,7 +52,7 @@ static std::unique_ptr<UI_GADGET_USERBOX> TmapCurrent;
 
 texture_index CurrentTexture;		// Used globally
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define DXX_TEXTURE_INITIALIZER(D1, D2)	D1
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_TEXTURE_INITIALIZER(D1, D2)	D2
@@ -301,13 +301,13 @@ void do_replacements_all(void)
 	for (int i = 0; i < Current_mission->last_level; ++i)
 	{
 		load_level(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			LevelSharedSegmentState.DestructibleLights,
 #endif
 			Current_mission->level_names[i]);
 		do_replacements();
 		save_level(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			LevelSharedSegmentState.DestructibleLights,
 #endif
 			Current_mission->level_names[i]);
@@ -316,13 +316,13 @@ void do_replacements_all(void)
 	for (int i = 0; i < -Current_mission->last_secret_level; ++i)
 	{
 		load_level(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			LevelSharedSegmentState.DestructibleLights,
 #endif
 			Current_mission->secret_level_names[i]);
 		do_replacements();
 		save_level(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			LevelSharedSegmentState.DestructibleLights,
 #endif
 			Current_mission->secret_level_names[i]);

@@ -810,7 +810,7 @@ static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &int
 				continue;
 			int fudged_rad = rad;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			//	If this is a powerup, don't do collision if flag FQ_IGNORE_POWERUPS is set
 			if (objnum->type == OBJ_POWERUP)
 				if (fq.flags & FQ_IGNORE_POWERUPS)
@@ -831,7 +831,7 @@ static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &int
 			{
 				if (objnum->type == OBJ_ROBOT)
 				{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 					if (!((*Robot_info)[get_robot_id(objnum)].attack_type && robptrthis->attack_type))
 #endif
 					// -- MK: 11/18/95, 4claws glomming together...this is easy.  -- if (!(Robot_info[Objects[objnum].id].attack_type && Robot_info[Objects[thisobjnum].id].attack_type))
@@ -926,7 +926,7 @@ static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &int
 
 						if ((wid_flag & WALL_IS_DOORWAY_FLAG::fly) ||
 							(
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 								(wid_flag == wall_is_doorway_result::transparent_wall) &&
 #elif defined(DXX_BUILD_DESCENT_II)
 								((wid_flag & WALL_IS_DOORWAY_FLAG::render) && (wid_flag & WALL_IS_DOORWAY_FLAG::rendpast)) &&
@@ -1126,7 +1126,7 @@ fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const cscusegment seg, cons
 
 	const fix k1{-fixdiv(cross(&checkp, &vec0) + cross(&vec0, &p1), cross(&vec0, &vec1))};
 	const fix k0{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		(vec0.i)
 #elif defined(DXX_BUILD_DESCENT_II)
 		(abs(vec0.i) > abs(vec0.j))
@@ -1157,7 +1157,7 @@ int check_trans_wall(const vms_vector &pnt, const vcsegptridx_t seg, const siden
 	auto &side = seg->unique_segment::sides[sidenum];
 	int bmx,bmy;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #ifndef NDEBUG
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
@@ -1194,7 +1194,7 @@ int check_trans_wall(const vms_vector &pnt, const vcsegptridx_t seg, const siden
 //something doesn't work, and you want to make it negative again, you
 //should figure out what's going on.
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	return (gr_gpixel (*bm, bmx, bmy) == TRANSPARENCY_COLOR);
 #elif defined(DXX_BUILD_DESCENT_II)
 	return (bm->bm_data[bmy*bm->bm_w+bmx] == TRANSPARENCY_COLOR);

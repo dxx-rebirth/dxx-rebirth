@@ -151,7 +151,7 @@ void gamefont_choose_game_font(int scrx,int scry){
 		}
 
 		// keep proportions
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define DXX_FONT_SCALE_MULTIPLIER	1
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_FONT_SCALE_MULTIPLIER	100
@@ -207,7 +207,7 @@ void gamefont_init()
 
 		if (!CGameArg.GfxSkipHiresFNT)
 			addfontconf(i,640,480,Gamefont_filenames_h[i]); // ZICO - addition to use D2 fonts if available
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		if (MacHog && (i != 0))
 			addfontconf(i,640,480,Gamefont_filenames_l[i]); // Mac fonts are hires (except for the "big" one)
 		else

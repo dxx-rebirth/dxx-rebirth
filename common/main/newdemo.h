@@ -70,7 +70,7 @@ enum class sound_pan : int;
 }
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 extern ubyte DemoDoRight,DemoDoLeft;
 extern struct object DemoRightExtra,DemoLeftExtra;
 #endif
@@ -131,7 +131,7 @@ void newdemo_record_door_opening(segnum_t segnum, sidenum_t side);
 #ifdef dsx
 void newdemo_record_laser_level(laser_level old_level, laser_level new_level);
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void newdemo_record_player_afterburner(fix afterburner);
 void newdemo_record_cloaking_wall(wallnum_t front_wall_num, wallnum_t back_wall_num, ubyte type, wall_state state, fix cloak_value, fix l0, fix l1, fix l2, fix l3);
 void newdemo_record_guided_start();

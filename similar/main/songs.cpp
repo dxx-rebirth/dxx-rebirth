@@ -394,7 +394,7 @@ static void songs_init()
 				continue;
 			add_song(deferred_pathname, lineno, use_secret_songs(canUseExtensions, result) ? secret_songs : main_songs, result);
 		}
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		// HACK: If Descent.hog is patched from 1.0 to 1.5, descent.sng is turncated. So let's patch it up here
 		constexpr std::size_t truncated_song_count = 12;
 		if (!canUseExtensions &&
@@ -516,7 +516,7 @@ void songs_pause_resume(void)
 #endif
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 /*
  * This list may not be exhaustive!!
  */
@@ -569,7 +569,7 @@ static int songs_have_cd()
 	con_printf(CON_DEBUG, "CD-ROM disc ID is 0x%08lx", discid);
 
 	switch (discid) {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		case D1_MAC_OEM_DISCID:	// Doesn't work with your Mac Descent CD? Please tell!
 			return 1;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -592,7 +592,7 @@ static int songs_have_cd()
 }
 #endif
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #if DXX_USE_SDL_REDBOOK_AUDIO
 static void redbook_repeat_func()
 {
@@ -615,7 +615,7 @@ static void play_redbook_track_if_available(const song_number songnum, const int
 {
 	if (redbook_track > num_tracks)
 		return;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	constexpr auto repeat_func{&redbook_repeat_func};
 #elif defined(DXX_BUILD_DESCENT_II)
 	constexpr auto repeat_func{&play_credits_track};
@@ -692,7 +692,7 @@ void songs_play_song(const song_number songnum, const int repeat)
 		{
 			const auto num_tracks{RBAGetNumberOfTracks()};
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			Song_playing = song_number::None;
 			if (songnum < song_number::endgame)
 			{
@@ -728,7 +728,7 @@ void songs_play_song(const song_number songnum, const int repeat)
 				return;
 
 			Song_playing = song_number::None;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			int play = songs_play_file(CGameCfg.CMMiscMusic[songnum].data(), repeat, NULL);
 #elif defined(DXX_BUILD_DESCENT_II)
 			const auto use_credits_track{songnum == song_number::title && CGameCfg.OrigTrackOrder};
@@ -822,7 +822,7 @@ void songs_play_level_song(int levelnum, int offset)
 				if (Song_playing >= song_number::first_level_song && songnum == Song_playing)
 					return;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				const int bn_tracks{n_tracks};
 #elif defined(DXX_BUILD_DESCENT_II)
 				const int bn_tracks{n_tracks + 1};
@@ -854,7 +854,7 @@ void songs_play_level_song(int levelnum, int offset)
 			Song_playing = song_number::None;
 			if (RBAEnabled() && (tracknum <= n_tracks))
 			{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				const auto have_cd{songs_have_cd()};
 				const auto play{RBAPlayTracks(tracknum, !have_cd ? n_tracks : tracknum, have_cd ? redbook_repeat_func : redbook_first_song_func)};
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -914,7 +914,7 @@ void songs_play_level_song(int levelnum, int offset)
 			break;
 	}
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	// If we couldn't play the song, most likely because it wasn't specified, play no music.
 	if (Song_playing == song_number::None)
 		songs_stop_all();

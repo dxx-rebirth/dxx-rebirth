@@ -95,7 +95,7 @@ namespace dsx {
 d_game_shared_state GameSharedState;
 d_game_unique_state GameUniqueState;
 d_level_shared_boss_state LevelSharedBossState;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 d_level_shared_control_center_state LevelSharedControlCenterState;
 #endif
 d_level_unique_effects_clip_state LevelUniqueEffectsClipState;
@@ -109,7 +109,7 @@ d_level_shared_robot_joint_state LevelSharedRobotJointState;
 d_level_unique_wall_subsystem_state LevelUniqueWallSubsystemState;
 d_level_unique_tmap_info_state LevelUniqueTmapInfoState;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 d_level_shared_seismic_state LevelSharedSeismicState;
 d_level_unique_seismic_state LevelUniqueSeismicState;
 #endif
@@ -154,7 +154,7 @@ void reset_globals_for_new_game()
 #if DXX_VALPTRIDX_ENABLE_FULL_TEMPLATE_INSTANTIATION
 template class valptridx<dcx::active_door>;
 template class valptridx<dcx::vertex>;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 template class valptridx<dsx::cloaking_wall>;
 #endif
 template class valptridx<dsx::object>;
@@ -202,7 +202,7 @@ struct instantiation_guard<T, false>
 
 template class instantiation_guard<dcx::active_door>::type::index_range_exception;
 template class instantiation_guard<dcx::vertex>::type::index_range_exception;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 template class instantiation_guard<dsx::cloaking_wall>::type::index_range_exception;
 #endif
 

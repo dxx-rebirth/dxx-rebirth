@@ -99,7 +99,7 @@ static_assert(static_cast<uint8_t>(boss_robot_id::alien2) == 26);
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #include "player-flags.h"
 namespace dsx {
 #define NUM_D2_BOSSES 8
@@ -161,7 +161,7 @@ struct d_level_shared_boss_state : ::dcx::d_level_shared_boss_state
 	// Time between cloaks
 	using D1_Boss_cloak_interval = std::integral_constant<fix, F1_0 * 10>;
 	using D1_Boss_teleport_interval = std::integral_constant<fix, F1_0 * 8>;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	static constexpr D1_Boss_cloak_interval Boss_cloak_interval{};
 	static constexpr D1_Boss_teleport_interval Boss_teleport_interval{};
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -174,7 +174,7 @@ extern d_level_shared_boss_state LevelSharedBossState;
 void move_towards_segment_center(const robot_info &robptr, const d_level_shared_segment_state &, object_base &objp);
 imobjptridx_t gate_in_robot(const d_robot_info_array &Robot_info, robot_id type, vmsegptridx_t segnum);
 void do_ai_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, vmobjptridx_t objp);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define do_ai_frame_all(Robot_info) do_ai_frame_all()
 #elif defined(DXX_BUILD_DESCENT_II)
 #undef do_ai_frame_all
@@ -184,7 +184,7 @@ void do_ai_frame_all(const d_robot_info_array &Robot_info);
 extern void create_all_paths(void);
 namespace dsx {
 void create_path_to_station(vmobjptridx_t objp, const robot_info &robptr, int max_length);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define ai_follow_path(Robot_info,o,pv,vec)	ai_follow_path(Robot_info,o,pv)
 #else
 #undef ai_follow_path
@@ -209,7 +209,7 @@ static inline vms_vector make_random_vector()
 #ifdef dsx
 namespace dsx {
 void init_robots_for_level();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 int polish_path(vmobjptridx_t objp, point_seg *psegs, int num_points);
 void move_towards_player(const d_robot_info_array &Robot_info, object &objp, const vms_vector &vec_to_player);
 #endif
@@ -222,7 +222,7 @@ void attempt_to_resume_path(const d_robot_info_array &Robot_info, vmobjptridx_t 
 void do_ai_robot_hit_attack(const d_robot_info_array &Robot_info, vmobjptridx_t robot, vmobjptridx_t player, const vms_vector &collision_point);
 int ai_door_is_openable(
 	const object &, const robot_info *,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	player_flags,
 #endif
 	const shared_segment &segp, sidenum_t sidenum);
@@ -230,7 +230,7 @@ player_visibility_state player_is_visible_from_object(const d_robot_info_array &
 extern void ai_reset_all_paths(void);   // Reset all paths.  Call at the start of a level.
 int ai_multiplayer_awareness(vmobjptridx_t objp, int awareness_level);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 // In escort.c
 void do_escort_frame(vmobjptridx_t objp, const robot_info &robptr, const object &plrobj, player_visibility_state player_visibility);
 void do_snipe_frame(vmobjptridx_t objp, const robot_info &robptr, fix dist_to_player, player_visibility_state player_visibility, const vms_vector &vec_to_player);
@@ -243,7 +243,7 @@ void start_boss_death_sequence(d_level_unique_boss_state &BossUniqueState, const
 extern void ai_init_boss_for_ship(void);
 void init_ai_for_ship();
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 extern vms_vector Last_fired_upon_player_pos;
 
 #define MIN_ESCORT_DISTANCE     (F1_0*40)
@@ -318,7 +318,7 @@ namespace dsx {
 
 constexpr const robot_info *create_path_unused_robot_info = nullptr;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define do_ai_robot_hit(robot,robptr,type)	do_ai_robot_hit(robot,type)
 #elif defined(DXX_BUILD_DESCENT_II)
 #undef do_ai_robot_hit

@@ -92,7 +92,7 @@ Cfg GameCfg;
 #define WindowModeStr "WindowMode"
 #define TexFiltStr "TexFilt"
 #define TexAnisStr "TexAnisotropy"
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #define MovieTexFiltStr "MovieTexFilt"
 #define MovieSubtitlesStr "MovieSubtitles"
 #endif
@@ -115,7 +115,7 @@ Cfg GameCfg;
 
 namespace {
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define D2X_DESCENT_CFG_TEXT(VERB_d)	/* For Descent 1, expand to nothing */
 
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -218,7 +218,7 @@ static bool cfg_file_unchanged(const descent_cfg_file_prepared_text &current_cfg
 
 static auto build_cfg_file_text(const CCfg &CGameCfg, const Cfg &GameCfg)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	(void)GameCfg;	/* Only Descent 2 uses this variable. */
 #endif
 	descent_cfg_file_prepared_text result;
@@ -262,7 +262,7 @@ void ReadConfigFile(CCfg &CGameCfg, Cfg &GameCfg)
 #if defined(__APPLE__) && defined(__MACH__)
 	CGameCfg.OrigTrackOrder = true;
 	const auto userdir = PHYSFS_getUserDir();
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	CGameCfg.CMLevelMusicPlayOrder = LevelMusicPlayOrder::Level;
 	CGameCfg.CMLevelMusicPath = "descent.m3u";
 	snprintf(CGameCfg.CMMiscMusic[song_number::title].data(), CGameCfg.CMMiscMusic[song_number::title].size(), "%s%s", userdir, "Music/iTunes/iTunes Music/Insanity/Descent/02 Primitive Rage.mp3");
@@ -288,7 +288,7 @@ void ReadConfigFile(CCfg &CGameCfg, Cfg &GameCfg)
 	CGameCfg.TexFilt = opengl_texture_filter::classic;
 #endif
 	CGameCfg.TexAnisotropy = 0;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	GameCfg.MovieTexFilt = 0;
 	GameCfg.MovieSubtitles = 0;
 #endif
@@ -414,7 +414,7 @@ void ReadConfigFile(CCfg &CGameCfg, Cfg &GameCfg)
 		}
 		else if (compare_nonterminated_name(name, TexAnisStr))
 			convert_integer(CGameCfg.TexAnisotropy, value);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		else if (compare_nonterminated_name(name, MovieTexFiltStr))
 			convert_integer(GameCfg.MovieTexFilt, value);
 		else if (compare_nonterminated_name(name, MovieSubtitlesStr))

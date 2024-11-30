@@ -73,7 +73,7 @@ static segment_special build_segment_special_from_untrusted(uint8_t untrusted)
 		case static_cast<uint8_t>(segment_special::repaircen):
 		case static_cast<uint8_t>(segment_special::controlcen):
 		case static_cast<uint8_t>(segment_special::robotmaker):
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case static_cast<uint8_t>(segment_special::goal_blue):
 		case static_cast<uint8_t>(segment_special::goal_red):
 #endif
@@ -120,7 +120,7 @@ static void segment2_read(const msmusegment s2, const NamedPHYSFS_File fp)
 
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #elif defined(DXX_BUILD_DESCENT_II)
 
 uint8_t d1_pig_present = 0; // can descent.pig from descent 1 be loaded?
@@ -470,7 +470,7 @@ int load_mine_data_compiled(const NamedPHYSFS_File LoadFile, const char *const G
 	ubyte   compiled_version;
 	short   temp_short;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	LevelSharedSeismicState.Level_shake_frequency = 0;
 	LevelSharedSeismicState.Level_shake_duration = 0;
 	d1_pig_present = PHYSFSX_exists_ignorecase(descent_pig_basename);
@@ -583,7 +583,7 @@ int load_mine_data_compiled(const NamedPHYSFS_File LoadFile, const char *const G
 			if (segp.s.children[sidenum] == segment_none || segp.s.sides[sidenum].wall_num != wall_none)	{
 				// Read short Segments[segnum].sides[sidenum].tmap_num;
 				const uint16_t temp_tmap1_num = PHYSFSX_readShort(LoadFile);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				uside.tmap_num = build_texture1_value(convert_tmap(temp_tmap1_num & 0x7fff));
 
 				if (New_file_format_load && !(temp_tmap1_num & 0x8000))

@@ -150,7 +150,7 @@ RAIIPHYSFS_File gr_open_palette_file(const char *const filename)
 	}
 	else
 	{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		Error("Failed to open palette file <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr_requested_palette));
 #elif defined(DXX_BUILD_DESCENT_II)
 	// the following is a hack to enable the loading of d2 levels
@@ -174,7 +174,7 @@ RAIIPHYSFS_File gr_open_palette_file(const char *const filename)
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void gr_copy_palette(palette_array_t &gr_palette, const palette_array_t &pal)
 {
 	gr_palette = pal;

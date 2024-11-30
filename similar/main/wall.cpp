@@ -81,7 +81,7 @@ struct find_active_door_predicate
 }
 
 }
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #include "collide.h"
 namespace dsx {
 constexpr std::integral_constant<unsigned, F1_0> CLOAKING_WALL_TIME{};
@@ -171,7 +171,7 @@ static wall_is_doorway_result wall_is_doorway(const GameBitmaps_array &GameBitma
 	if (type == WALL_OPEN)
 		return wall_is_doorway_result::no_wall;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (unlikely(type == WALL_CLOAKED))
 		return wall_is_doorway_result::cloaked_wall;
 #endif
@@ -243,7 +243,7 @@ void wall_init(d_level_unique_wall_subsystem_state &LevelUniqueWallSubsystemStat
 	}
 	auto &ActiveDoors = LevelUniqueWallSubsystemState.ActiveDoors;
 	ActiveDoors.set_count(0);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &CloakingWalls = LevelUniqueWallSubsystemState.CloakingWalls;
 	CloakingWalls.set_count(0);
 #endif
@@ -416,7 +416,7 @@ void wall_open_door(const vmsegptridx_t seg, const sidenum_t side)
 	if (w->state == wall_state::opening ||		//already opening
 		w->state == wall_state::waiting)		//open, waiting to close
 		return;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (w->state == wall_state::open)			//open, & staying open
 		return;
 #endif
@@ -512,7 +512,7 @@ void wall_open_door(const vmsegptridx_t seg, const sidenum_t side)
 	}
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 //-----------------------------------------------------------------
 // start the transition from closed -> open wall
 void start_wall_cloak(const vmsegptridx_t seg, const sidenum_t side)
@@ -732,7 +732,7 @@ static unsigned is_door_side_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vc
 	auto &vcvertptr = Vertices.vcptr;
 	for (auto &obj : objects_in<const object_base>(seg, vcobjptridx, vcsegptr))
 	{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (obj.type == OBJ_WEAPON)
 			continue;
 		if (obj.type == OBJ_FIREBALL)
@@ -759,7 +759,7 @@ static unsigned is_door_obstructed(fvcobjptridx &vcobjptridx, fvcsegptr &vcsegpt
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 //-----------------------------------------------------------------
 // Closes a door
 void wall_close_door(wall_array &Walls, const vmsegptridx_t seg, const sidenum_t side)
@@ -908,7 +908,7 @@ static bool do_door_open(active_door &d)
 			if (!(w.flags & wall_flag::door_auto))
 			{
 				remove = true;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				w.state = wall_state::open;
 				w1.state = wall_state::open;
 #endif
@@ -943,7 +943,7 @@ static bool do_door_close(active_door &d)
 	if (w0.flags & wall_flag::door_auto)
 		if (is_door_obstructed(vcobjptridx, vcsegptr, seg0, w0.sidenum))
 		{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			digi_kill_sound_linked_to_segment(w0.segnum, w0.sidenum, -1);
 			wall_open_door(seg0, w0.sidenum);		//re-open door
 #endif
@@ -966,7 +966,7 @@ static bool do_door_close(active_door &d)
 			return false;
 		}
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		//if here, must be auto door
 //don't assert here, because now we have triggers to close non-auto doors
 		assert(wp.flags & wall_flag::door_auto);
@@ -1121,7 +1121,7 @@ wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmse
 		newdemo_record_wall_hit_process( seg, side, damage, playernum );
 
 	if (w->type == WALL_BLASTABLE) {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (obj.ctype.laser_info.parent_type == OBJ_PLAYER)
 #endif
 			wall_damage(seg, side, damage);
@@ -1135,7 +1135,7 @@ wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmse
 	//	messages because he probably didn't intentionally hit the door.
 	if (obj.type == OBJ_PLAYER)
 		show_message = (vm_vec_dot(obj.orient.fvec, obj.mtype.phys_info.velocity) > 0);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	else if (obj.type == OBJ_ROBOT)
 		show_message = 0;
 	else if (obj.type == OBJ_WEAPON && obj.ctype.laser_info.parent_type == OBJ_ROBOT)
@@ -1184,7 +1184,7 @@ wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmse
 				wall_open_door(seg, side);
 				if (Game_mode & GM_MULTI)
 				{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 					const wall_flags flags{};
 #elif defined(DXX_BUILD_DESCENT_II)
 					const auto flags = w->flags;
@@ -1230,7 +1230,7 @@ void wall_toggle(fvmwallptr &vmwallptr, const vmsegptridx_t segp, const sidenum_
 
 bool ad_removal_predicate::operator()(active_door &d) const
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
 #endif
@@ -1248,7 +1248,7 @@ bool ad_removal_predicate::operator()(active_door &d) const
 		if (wall *const w1 = Walls.imptr(d.back_wallnum[0]))
 			w1->flags |= wall_flag::door_opened;
 		if (d.time > DOOR_WAIT_TIME)
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (!is_door_obstructed(vcobjptridx, vcsegptr, vcsegptridx(w.segnum), w.sidenum))
 #endif
 			{
@@ -1259,7 +1259,7 @@ bool ad_removal_predicate::operator()(active_door &d) const
 	return false;
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace {
 
 static void copy_cloaking_wall_light_to_wall(std::array<uvl, 4> &back_uvls, std::array<uvl, 4> &front_uvls, const cloaking_wall &d)
@@ -1426,7 +1426,7 @@ void wall_frame_process(const d_robot_info_array &Robot_info)
 		auto &&i = std::remove_if(r.begin(), r.end(), ad_removal_predicate());
 		ActiveDoors.set_count(std::distance(r.begin(), i));
 	}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (Newdemo_state != ND_STATE_PLAYBACK)
 	{
 		auto &CloakingWalls = LevelUniqueWallSubsystemState.CloakingWalls;
@@ -1509,7 +1509,7 @@ void d_level_unique_stuck_object_state::kill_stuck_objects(fvmobjptr &vmobjptr, 
 		if (so.wallnum != wallnum)
 			return false;
 		auto &obj = *vmobjptr(so.objnum);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define DXX_WEAPON_LIFELEFT	F1_0/4
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_WEAPON_LIFELEFT	F1_0/8
@@ -1540,7 +1540,7 @@ void d_level_unique_stuck_object_state::init_stuck_objects()
 }
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 // -----------------------------------------------------------------------------------
 #define	MAX_BLAST_GLASS_DEPTH	5
 
@@ -1722,7 +1722,7 @@ void v19_wall_read(const NamedPHYSFS_File fp, v19_wall &w)
 	PHYSFSX_serialize_read(fp, w);
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define _SERIAL_UDT_WALL_D2X_MEMBERS	serial::pad<2>()
 #elif defined(DXX_BUILD_DESCENT_II)
 #define _SERIAL_UDT_WALL_D2X_MEMBERS	w.controlling_trigger, w.cloak_value
@@ -1772,7 +1772,7 @@ void wall_write(PHYSFS_File *fp, const wall &w, short version)
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 DEFINE_SERIAL_UDT_TO_MESSAGE(dsx::cloaking_wall, cw, (cw.front_wallnum, cw.back_wallnum, cw.front_ls, cw.back_ls, cw.time));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(dsx::cloaking_wall, 40);
 

@@ -85,14 +85,14 @@ int do_centers_dialog()
 
 	// Close other windows.	
 	close_trigger_window();
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	hostage_close_window();
 #endif
 	close_wall_window();
 	robot_close_window();
 
 	// Open a window with a quit button
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	const unsigned x = TMAPBOX_X+20;
 	const unsigned width = 765-TMAPBOX_X;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -105,7 +105,7 @@ int do_centers_dialog()
 
 static window_event_result centers_dialog_created(centers_dialog *const c)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	int i = 80;
 #elif defined(DXX_BUILD_DESCENT_II)
 	int i = 40;
@@ -117,12 +117,12 @@ static window_event_result centers_dialog_created(centers_dialog *const c)
 	c->centerFlag[segment_special::repaircen] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "RepairCen");	i += 24;
 	c->centerFlag[segment_special::controlcen] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "ControlCen");	i += 24;
 	c->centerFlag[segment_special::robotmaker] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "RobotCen");		i += 24;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	c->centerFlag[segment_special::goal_blue] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "Blue Goal");		i += 24;
 	c->centerFlag[segment_special::goal_red] = ui_add_gadget_radio(*c, 18, i, 16, 16, 0, "Red Goal");		i += 24;
 #endif
 	// These are the checkboxes for each robot flag.
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	const unsigned d = 2;
 #elif defined(DXX_BUILD_DESCENT_II)
 	const unsigned d = 6;

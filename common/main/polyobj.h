@@ -54,7 +54,7 @@ enum class polygon_simpler_model_index : uint8_t
 namespace dsx {
 struct robot_info;
 struct glow_values_t;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 85> MAX_POLYGON_MODELS{};
 #elif defined(DXX_BUILD_DESCENT_II)
 constexpr std::integral_constant<unsigned, 200> MAX_POLYGON_MODELS{};
@@ -136,7 +136,7 @@ struct d_level_shared_polygon_model_state : ::dcx::d_level_shared_polygon_model_
 	enumerated_array<polymodel, MAX_POLYGON_MODELS, polygon_model_index> Polygon_models;
 	// array of names of currently-loaded models
 	enumerated_array<char[FILENAME_LEN], MAX_POLYGON_MODELS, polygon_model_index> Pof_names;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	//the model number of the marker object
 	polygon_model_index Marker_model_num = polygon_model_index::None;
 	bool Exit_models_loaded;
@@ -184,7 +184,7 @@ void draw_polygon_model(grs_canvas &, tmap_drawer_type tmap_drawer_ptr, const vm
 void draw_model_picture(grs_canvas &, const polymodel &mn, const vms_angvec &orient_angles);
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define MAX_POLYOBJ_TEXTURES 50
 #elif defined(DXX_BUILD_DESCENT_II)
 
@@ -196,7 +196,7 @@ constexpr std::integral_constant<unsigned, 166> N_D2_POLYGON_MODELS{};
 namespace dcx {
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 /* This function exists in both games and has the same implementation in
  * both, but is static in Descent 1.  Declare it in the header only for
  * Descent 2.

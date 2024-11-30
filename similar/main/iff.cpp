@@ -240,7 +240,7 @@ static iff_status_code parse_body(PHYSFS_File *ifile,long len,iff_bitmap_header 
 
 		}
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (bmheader->masking==mskHasMask && p==data_end && PHYSFS_tell(ifile)==end_pos-2)		//I don't know why...
 		PHYSFSX_fseek(ifile, 1, SEEK_CUR);		//...but if I do this it works
 
@@ -504,7 +504,7 @@ static iff_status_code convert_rgb15(grs_bitmap &bm,iff_bitmap_header &bmheader)
 {
 	palette_array_t::iterator palptr = begin(bmheader.palette);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	for (int y=0; y < bm.bm_h; y++) {
 		for (int x=0; x < bmheader.w; x++)
 			gr_bm_pixel(*grd_curcanv, bm, x, y, INDEX_TO_15BPP(bm.get_bitmap_data()[y * bmheader.w + x]));

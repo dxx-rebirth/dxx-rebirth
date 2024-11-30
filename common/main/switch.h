@@ -54,7 +54,7 @@ enum class trigger_action : uint8_t
 	secret_exit = 4,   // Go to secret level
 	illusion_off = 5,   // Turn an illusion off
 	illusion_on = 6,   // Turn an illusion on
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	close_door = 1,	// Close a door
 	unlock_door = 7,	// Unlock a door
 	lock_door = 8,	// Lock a door
@@ -66,7 +66,7 @@ enum class trigger_action : uint8_t
 #endif
 };
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #define NUM_TRIGGER_TYPES   14
 
 // Trigger flags
@@ -140,7 +140,7 @@ enum TRIGGER_FLAG : uint16_t
 	ILLUSION_OFF =     128,    // Switch Illusion OFF trigger
 	SECRET_EXIT =      256,    // Exit to secret level
 	ILLUSION_ON =      512,    // Switch Illusion ON trigger
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	UNLOCK_DOORS =    1024,    // Unlocks a door
 	OPEN_WALL =       2048,    // Makes a wall open
 	CLOSE_WALL =      4096,    // Makes a wall closed
@@ -157,7 +157,7 @@ enum TRIGGER_FLAG : uint16_t
 #define TRIGGER_ILLUSION_OFF TRIGGER_FLAG::ILLUSION_OFF
 #define TRIGGER_SECRET_EXIT TRIGGER_FLAG::SECRET_EXIT
 #define TRIGGER_ILLUSION_ON TRIGGER_FLAG::ILLUSION_ON
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #define TRIGGER_UNLOCK_DOORS TRIGGER_FLAG::UNLOCK_DOORS
 #define TRIGGER_OPEN_WALL TRIGGER_FLAG::OPEN_WALL
 #define TRIGGER_CLOSE_WALL TRIGGER_FLAG::CLOSE_WALL
@@ -175,7 +175,7 @@ namespace dsx {
 
 struct trigger : public prohibit_void_ptr<trigger>
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	uint16_t flags;
 #elif defined(DXX_BUILD_DESCENT_II)
 	trigger_action type;       //what this trigger does
@@ -206,7 +206,7 @@ window_event_result check_trigger_sub(object &, trgnum_t trigger_num, playernum_
 
 static inline int trigger_is_exit(const trigger *t)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	return t->flags & TRIGGER_EXIT;
 #elif defined(DXX_BUILD_DESCENT_II)
 	return t->type == trigger_action::normal_exit;
@@ -215,19 +215,19 @@ static inline int trigger_is_exit(const trigger *t)
 
 static inline int trigger_is_matcen(const trigger &t)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	return t.flags & TRIGGER_MATCEN;
 #elif defined(DXX_BUILD_DESCENT_II)
 	return t.type == trigger_action::matcen;
 #endif
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 void v25_trigger_read(NamedPHYSFS_File fp, trigger *);
 void v26_trigger_read(NamedPHYSFS_File fp, trigger &);
 #endif
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 /*
  * reads a v29_trigger structure from a PHYSFS_File
  */

@@ -122,7 +122,7 @@ const vms_vector &robot_gun_point::build(const robot_info &robptr, const object_
 	return **this;
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define	BOSS_DEATH_SOUND_DURATION	0x2ae14		//	2.68 seconds
 
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -174,7 +174,7 @@ static robot_gun_number robot_advance_current_gun_prefer_second(const robot_info
 	const uint8_t next_gun = 1 + static_cast<uint8_t>(gun);
 	if (next_gun >= robptr.n_guns)
 	{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (robptr.n_guns != 1 && robptr.weapon_type2 != weapon_none)
 			return robot_gun_number::_1;
 		else
@@ -300,7 +300,7 @@ std::optional<ai_static_state> build_ai_state_from_untrusted(const uint8_t untru
 }
 #define	MAX_GATE_INDEX	(Super_boss_gate_list.size())
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 
 
@@ -468,7 +468,7 @@ namespace dsx {
 
 weapon_id_type get_robot_weapon(const robot_info &ri, const robot_gun_number gun_num)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	(void)gun_num;
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (ri.weapon_type2 != weapon_none && gun_num == robot_gun_number::_0)
@@ -486,7 +486,7 @@ static int ready_to_fire_weapon1(const ai_local &ailp, fix threshold)
 
 static int ready_to_fire_weapon2(const robot_info &robptr, const ai_local &ailp, fix threshold)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	(void)robptr;
 	(void)ailp;
 	(void)threshold;
@@ -522,7 +522,7 @@ ai_mode ai_behavior_to_mode(ai_behavior behavior)
 			return ai_mode::AIM_RUN_FROM_OBJECT;
 		case ai_behavior::AIB_STATION:
 			return ai_mode::AIM_STILL;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		case ai_behavior::AIB_HIDE:
 			return ai_mode::AIM_HIDE;
 		case ai_behavior::AIB_FOLLOW_PATH:
@@ -545,7 +545,7 @@ ai_mode ai_behavior_to_mode(ai_behavior behavior)
 //	Call every time the player starts a new ship.
 void ai_init_boss_for_ship(void)
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	BossUniqueState.Boss_hit_time = -F1_0*10;
 #endif
@@ -563,7 +563,7 @@ static void boss_init_all_segments(const segment_array &Segments, const object &
 	init_boss_segments(Segments, boss_objnum, Boss_gate_segs, 0, 0);
 	
 	init_boss_segments(Segments, boss_objnum, Boss_teleport_segs, 1, 0);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (Boss_teleport_segs.size() < 2)
 		init_boss_segments(Segments, boss_objnum, Boss_teleport_segs, 1, 1);
 #endif
@@ -598,7 +598,7 @@ void init_ai_object(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 	}
 
 	auto &robptr = Robot_info[get_robot_id(obj)];
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (robot_is_companion(robptr)) {
 		auto &BuddyState = LevelUniqueObjectState.BuddyState;
 		BuddyState.Buddy_objnum = objp;
@@ -654,7 +654,7 @@ void init_ai_object(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 	
 	aip->REMOTE_OWNER = -1;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	aip->dying_sound_playing = 0;
 	aip->dying_start_time = 0;
 #endif
@@ -695,7 +695,7 @@ void init_ai_objects(const d_robot_info_array &Robot_info)
 
 	const auto Difficulty_level = underlying_value(GameUniqueState.Difficulty_level);
 #define D1_Boss_gate_interval	F1_0*5 - Difficulty_level*F1_0/2
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	GameUniqueState.Boss_gate_interval = D1_Boss_gate_interval;
 #elif defined(DXX_BUILD_DESCENT_II)
 	ai_do_cloak_stuff();
@@ -752,7 +752,7 @@ void ai_turn_towards_vector(const vms_vector &goal_vector, object_base &objp, fi
 		}
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (const auto Seismic_tremor_magnitude = LevelUniqueSeismicState.Seismic_tremor_magnitude)
 	{
@@ -765,7 +765,7 @@ void ai_turn_towards_vector(const vms_vector &goal_vector, object_base &objp, fi
 	vm_vector_to_matrix_r(objp.orient, new_fvec, objp.orient.rvec);
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 namespace {
 static void ai_turn_randomly(const vms_vector &vec_to_player, object_base &obj, const fix rate, const player_visibility_state previous_visibility)
 {
@@ -817,7 +817,7 @@ player_visibility_state player_is_visible_from_object(const d_robot_info_array &
 	auto &obj = *objp;
 	fix			dot;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	//	Assume that robot's gun tip is in same segment as robot's center.
 	if (obj.control_source == object::control_type::ai)
 		obj.ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_GUNSEG;
@@ -835,7 +835,7 @@ player_visibility_state player_is_visible_from_object(const d_robot_info_array &
 			move_towards_segment_center(robptr, LevelSharedSegmentState, obj);
 		} else
 		{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (segnum != obj.segnum) {
 				if (obj.control_source == object::control_type::ai)
 					obj.ctype.ai_info.SUB_FLAGS |= SUB_FLAGS_GUNSEG;
@@ -972,7 +972,7 @@ static void ai_frame_animation(object &objp)
 static void set_next_fire_time(object &objp, ai_local &ailp, const robot_info &robptr, const robot_gun_number gun_num)
 {
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	(void)objp;
 	(void)gun_num;
 	ailp.rapidfire_count++;
@@ -1041,7 +1041,7 @@ void do_ai_robot_hit_attack(const d_robot_info_array &Robot_info, const vmobjptr
 				if (vm_vec_dist_quick(plrobj.pos, robot->pos) < robot->size + plrobj.size + F1_0*2)
 				{
 					collide_player_and_nasty_robot(Robot_info, playerobj, robot, collision_point);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 					auto &energy = player_info.energy;
 					if (robptr.energy_drain && energy) {
 						energy -= robptr.energy_drain * F1_0;
@@ -1058,7 +1058,7 @@ void do_ai_robot_hit_attack(const d_robot_info_array &Robot_info, const vmobjptr
 }
 
 namespace {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 // --------------------------------------------------------------------------------------------------------------------
 //	Computes point at which projectile fired by robot can hit player given positions, player vel, elapsed time
 static fix compute_lead_component(fix player_pos, fix robot_pos, fix player_vel, fix elapsed_time)
@@ -1157,7 +1157,7 @@ static int lead_player(const object_base &objp, const vms_vector &fire_point, co
 //	center of the robot will not fire right at the player.  We need to aim the guns at the player.  Barring that, we cheat.
 //	When this routine is complete, the parameter vec_to_player should not be necessary.
 static void ai_fire_laser_at_player(const d_robot_info_array &Robot_info, const d_level_shared_segment_state &LevelSharedSegmentState, const vmobjptridx_t obj, const player_info &player_info, robot_gun_point &gun_point, const robot_gun_number gun_num
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 									, const vms_vector &believed_player_pos
 #endif
 									)
@@ -1181,7 +1181,7 @@ static void ai_fire_laser_at_player(const d_robot_info_array &Robot_info, const 
 	if (Player_dead_state == player_dead_state::exploded)
 		return;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	//	If this robot is only awake because a camera woke it up, don't fire.
 	if (obj->ctype.ai_info.SUB_FLAGS & SUB_FLAGS_CAMERA_AWAKE)
 		return;
@@ -1207,7 +1207,7 @@ static void ai_fire_laser_at_player(const d_robot_info_array &Robot_info, const 
 	}
 
 	auto &fire_point = gun_point.build(robptr, obj, gun_num);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	(void)LevelSharedSegmentState;
 	//	Set position to fire at based on difficulty level.
 	vms_vector bpp_diff = Believed_player_pos;
@@ -1347,7 +1347,7 @@ static void move_towards_vector(const robot_info &robptr, object_base &objp, con
 	const auto vel = vm_vec_normalized_quick(velocity);
 	fix dot = vm_vec_dot(vel, objp.orient.fvec);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	dot_based = 1;
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (robot_is_thief(robptr))
@@ -1374,7 +1374,7 @@ static void move_towards_vector(const robot_info &robptr, object_base &objp, con
 	fix max_speed = robptr.max_speed[Difficulty_level];
 
 	//	Green guy attacks twice as fast as he moves away.
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (robptr.attack_type == 1)
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (robptr.attack_type == 1 || robot_is_thief(robptr) || robptr.kamikaze)
@@ -1391,7 +1391,7 @@ static void move_towards_vector(const robot_info &robptr, object_base &objp, con
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static
 #endif
 void move_towards_player(const d_robot_info_array &Robot_info, object &objp, const vms_vector &vec_to_player)
@@ -1589,7 +1589,7 @@ static void ai_move_relative_to_player(const d_robot_info_array &Robot_info, con
 		move_towards_player(Robot_info, objp, vec_to_player);
 	}
 	else {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		if (dist_to_player < circle_distance)
 			move_away_from_player(Robot_info, objp, vec_to_player, 0);
 		else if (dist_to_player < circle_distance*2)
@@ -1646,7 +1646,7 @@ namespace {
 //	-------------------------------------------------------------------------------------------------------------------
 static void do_firing_stuff(object &obj, const player_flags powerup_flags, const robot_to_player_visibility_state &player_visibility)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (player_is_visible(player_visibility.visibility))
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (Dist_to_last_fired_upon_player_pos < FIRE_AT_NEARBY_PLAYER_THRESHOLD || player_is_visible(player_visibility.visibility))
@@ -1704,7 +1704,7 @@ void do_ai_robot_hit(const vmobjptridx_t objp, const robot_info &robptr, player_
 	{
 		if (type == player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION || type == player_awareness_type_t::PA_PLAYER_COLLISION)
 			switch (objp->ctype.ai_info.behavior) {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				case ai_behavior::AIB_HIDE:
 					objp->ctype.ai_info.SUBMODE = AISM_GOHIDE;
 					break;
@@ -1799,7 +1799,7 @@ static void compute_vis_and_vec(const d_robot_info_array &Robot_info, const vmob
 				}
 			}
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			if (Player_dead_state != player_dead_state::exploded)
 #endif
 			if (ailp.previous_visibility != player_visibility.visibility && player_visibility.visibility == player_visibility_state::visible_and_in_field_of_view)
@@ -1828,7 +1828,7 @@ static void compute_vis_and_vec(const d_robot_info_array &Robot_info, const vmob
 			ailp.previous_visibility = player_visibility.visibility;
 		}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		//	@mk, 09/21/95: If player view is not obstructed and awareness is at least as high as a nearby collision,
 		//	act is if robot is looking at player.
 		if (ailp.player_awareness_type >= player_awareness_type_t::PA_NEARBY_ROBOT_FIRED)
@@ -1843,7 +1843,7 @@ static void compute_vis_and_vec(const d_robot_info_array &Robot_info, const vmob
 	player_visibility.initialized = 1;
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static void compute_buddy_vis_vec(const vmobjptridx_t buddy_obj, const vms_vector &buddy_pos, robot_to_player_visibility_state &player_visibility, const robot_info &robptr)
 {
 	if (player_visibility.initialized)
@@ -1915,7 +1915,7 @@ void move_towards_segment_center(const robot_info &robptr, const d_level_shared_
 //	objp == NULL means treat as buddy.
 int ai_door_is_openable(
 	const object &obj, const robot_info *const robptr,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	const player_flags powerup_flags,
 #endif
 	const shared_segment &segp, const sidenum_t sidenum)
@@ -1943,7 +1943,7 @@ int ai_door_is_openable(
 	if (!robptr)
 		return 0;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (get_robot_id(obj) == robot_id::brain || obj.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM)
 	{
 
@@ -2053,7 +2053,7 @@ namespace {
 //	Return side of openable door in segment, if any.  If none, return side_none.
 static std::optional<sidenum_t> openable_doors_in_segment(fvcwallptr &vcwallptr, const shared_segment &segp)
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &WallAnims = GameSharedState.WallAnims;
 #endif
 	for (const auto &&[idx, value] : enumerate(segp.sides))
@@ -2070,7 +2070,7 @@ static std::optional<sidenum_t> openable_doors_in_segment(fvcwallptr &vcwallptr,
 				continue;
 			if (w.flags & wall_flag::door_locked)
 				continue;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (WallAnims[w.clip_num].flags & WCF_HIDDEN)
 				continue;
 #endif
@@ -2109,7 +2109,7 @@ static imobjptridx_t create_gated_robot(const d_robot_info_array &Robot_info, co
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	const auto Gate_interval = GameUniqueState.Boss_gate_interval;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	const unsigned maximum_gated_robots = 2 * underlying_value(Difficulty_level) + 3;
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (GameTime64 - BossUniqueState.Last_gate_time < Gate_interval)
@@ -2143,7 +2143,7 @@ static imobjptridx_t create_gated_robot(const d_robot_info_array &Robot_info, co
 		return object_none;
 	}
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	const ai_behavior default_behavior = (object_id == robot_id::toaster) //	This is a toaster guy!
 	? ai_behavior::AIB_RUN_FROM
 	: ai_behavior::AIB_NORMAL;
@@ -2172,7 +2172,7 @@ static imobjptridx_t create_gated_robot(const d_robot_info_array &Robot_info, co
 	objp->shields = robptr.strength;
 	objp->matcen_creator = BOSS_GATE_MATCEN_NUM;	//	flag this robot as having been created by the boss.
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	objp->lifeleft = F1_0*30;	//	Gated in robots only live 30 seconds.
 #endif
 
@@ -2260,7 +2260,7 @@ static void pae_aux(const vcsegptridx_t segnum, const player_awareness_type_t ty
 
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 // --------------------------------------------------------------------------------------------------------------------
 //	Create a Buddy bot.
 //	This automatically happens when you bring up the Buddy menu in a debug version.
@@ -2297,7 +2297,7 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 	constexpr unsigned QUEUE_SIZE = 256;
 	auto &vcsegptridx = segments.vcptridx;
 	auto &vmsegptr = segments.vmptr;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	one_wall_hack = 0;
 #endif
 
@@ -2338,7 +2338,7 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 				const auto w = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, static_cast<sidenum_t>(sidenum));
 				if ((w & WALL_IS_DOORWAY_FLAG::fly) || one_wall_hack)
 				{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 					//	If we get here and w == wall_is_doorway_result::wall, then we want to process through this wall, else not.
 					if (IS_CHILD(csegnum)) {
 						if (one_wall_hack)
@@ -2420,7 +2420,7 @@ static void teleport_boss(const d_robot_info_array &Robot_info, const d_vclip_ar
 	//	After a teleport, boss can fire right away.
 	ai_local		*ailp = &objp->ctype.ai_info.ail;
 	ailp->next_fire = 0;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	ailp->next_fire2 = 0;
 #endif
 	boss_link_see_sound(Robot_info, objp);
@@ -2441,7 +2441,7 @@ void start_boss_death_sequence(d_level_unique_boss_state &BossUniqueState, const
 }
 
 //	----------------------------------------------------------------------------------------------------------
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 namespace {
 static void do_boss_dying_frame(const d_robot_info_array &Robot_info, const vmobjptridx_t objp)
 {
@@ -2645,7 +2645,7 @@ fix	Prev_boss_shields = -1;
 namespace dsx {
 namespace {
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define do_d1_boss_stuff(Robot_info,FS,FO,PV)	do_d1_boss_stuff(Robot_info,FS,FO)
 #endif
 
@@ -2662,7 +2662,7 @@ static void do_d1_boss_stuff(const d_robot_info_array &Robot_info, fvmsegptridx 
 	}
 #endif
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (!EMULATING_D1 && !player_is_visible(player_visibility) && !BossUniqueState.Boss_hit_this_frame)
 		return;
 #endif
@@ -2749,7 +2749,7 @@ static void do_super_boss_stuff(const d_robot_info_array &Robot_info, fvmsegptri
 	}
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static void do_d2_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, const player_visibility_state player_visibility)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
@@ -2832,7 +2832,7 @@ static int maybe_ai_do_actual_firing_stuff(object &obj)
 	return 0;
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmobjptridx &vmobjptridx, const vmobjptridx_t obj, ai_static *const aip, ai_local &ailp, const robot_info &robptr, const fix dist_to_player, robot_gun_point &gun_point, const robot_to_player_visibility_state &player_visibility, const int object_animates, const player_info &player_info, robot_gun_number)
 {
 	auto &vec_to_player = player_visibility.vec_to_player;
@@ -3186,7 +3186,7 @@ static bool skip_ai_for_time_splice(const vcobjptridx_t robot, const robot_info 
 		return false;
 	const auto &aip = robot->ctype.ai_info;
 	const auto &ailp = aip.ail;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	(void)robptr;
 	if (static_cast<uint8_t>(ailp.player_awareness_type) < static_cast<uint8_t>(player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION) - 1)
 	{ // If robot got hit, he gets to attack player always!
@@ -3237,7 +3237,7 @@ void do_ai_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoStat
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	auto &vcobjptr = Objects.vcptr;
 	ailp.next_action_time -= FrameTime;
@@ -3245,7 +3245,7 @@ void do_ai_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoStat
 
 	if (aip->SKIP_AI_COUNT) {
 		aip->SKIP_AI_COUNT--;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (obj->mtype.phys_info.flags & PF_USES_THRUST) {
 			obj->mtype.phys_info.rotthrust.x = (obj->mtype.phys_info.rotthrust.x * 15)/16;
 			obj->mtype.phys_info.rotthrust.y = (obj->mtype.phys_info.rotthrust.y * 15)/16;
@@ -3258,7 +3258,7 @@ void do_ai_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoStat
 	}
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Station = LevelUniqueFuelcenterState.Station;
 #endif
 	auto &robptr = Robot_info[get_robot_id(obj)];
@@ -3290,7 +3290,7 @@ void do_ai_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoStat
 		case ai_behavior::AIB_NORMAL:
 		case ai_behavior::AIB_RUN_FROM:
 		case ai_behavior::AIB_STATION:
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		case ai_behavior::AIB_HIDE:
 		case ai_behavior::AIB_FOLLOW_PATH:
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -3312,7 +3312,7 @@ void do_ai_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoStat
 	if (!ready_to_fire_weapon1(ailp, -F1_0*8))
 		ailp.next_fire -= FrameTime;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	Believed_player_pos = Ai_cloak_info[objnum & (MAX_AI_CLOAK_INFO-1)].last_position;
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (robptr.weapon_type2 != weapon_none) {
@@ -3331,7 +3331,7 @@ void do_ai_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoStat
 	auto &player_info = plrobj.ctype.player_info;
 	robot_to_player_visibility_state player_visibility;
 	auto &vec_to_player = player_visibility.vec_to_player;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (!(player_info.powerup_flags & PLAYER_FLAGS_CLOAKED))
 		Believed_player_pos = ConsoleObject->pos;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -3386,7 +3386,7 @@ _exit_cheat:
 	// If this robot can fire, compute visibility from gun position.
 	// Don't want to compute visibility twice, as it is expensive.  (So is call to calc_gun_point).
 	robot_gun_point gun_point;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (ready_to_fire_any_weapon(robptr, ailp, 0) && (dist_to_player < F1_0*200) && (robptr.n_guns) && !(robptr.attack_type))
 #elif defined(DXX_BUILD_DESCENT_II)
 	if ((player_is_visible(previous_visibility) || !(obj_ref & 3)) && ready_to_fire_any_weapon(robptr, ailp, 0) && (dist_to_player < F1_0*200) && (robptr.n_guns) && !(robptr.attack_type))
@@ -3395,7 +3395,7 @@ _exit_cheat:
 		// Since we passed ready_to_fire_any_weapon(), either next_fire or next_fire2 <= 0.  calc_gun_point from relevant one.
 		// If both are <= 0, we will deal with the mess in ai_do_actual_firing_stuff
 		const auto gun_num =
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			(!ready_to_fire_weapon1(ailp, 0))
 			? robot_gun_number::_0
 			:
@@ -3432,7 +3432,7 @@ _exit_cheat:
 			break;
 			
 		default:
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			(void)boss_flag;
 			Int3();	//	Bogus boss flag value.
 			break;
@@ -3446,7 +3446,7 @@ _exit_cheat:
 			
 			compute_vis_and_vec(Robot_info, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 			
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			auto pv = player_visibility.visibility;
 			// If player cloaked, visibility is screwed up and superboss will gate in robots when not supposed to.
 			if (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED) {
@@ -3466,7 +3466,7 @@ _exit_cheat:
 	
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - 
 	// Occasionally make non-still robots make a path to the player.  Based on agitation and distance from player.
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if ((aip->behavior != ai_behavior::AIB_RUN_FROM) && (aip->behavior != ai_behavior::AIB_STILL) && !(Game_mode & GM_MULTI))
 #elif defined(DXX_BUILD_DESCENT_II)
 	if ((aip->behavior != ai_behavior::AIB_SNIPE) && (aip->behavior != ai_behavior::AIB_RUN_FROM) && (aip->behavior != ai_behavior::AIB_STILL) && !(Game_mode & GM_MULTI) && (robot_is_companion(robptr) != 1) && (robot_is_thief(robptr) != 1))
@@ -3493,7 +3493,7 @@ _exit_cheat:
 		if (ailp.consecutive_retries > 3)
 		{
 			switch (ailp.mode) {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				case ai_mode::AIM_GOTO_PLAYER:
 					move_towards_segment_center(robptr, LevelSharedSegmentState, obj);
 					create_path_to_guidebot_player_segment(obj, robptr, 100, create_path_safety_flag::safe);
@@ -3506,7 +3506,7 @@ _exit_cheat:
 					create_path_to_believed_player_segment(obj, robptr, 4 + Overall_agitation/8 + underlying_value(Difficulty_level), create_path_safety_flag::safe);
 					break;
 				case ai_mode::AIM_STILL:
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 					if (!((aip->behavior == ai_behavior::AIB_STILL) || (aip->behavior == ai_behavior::AIB_STATION)))	//	Behavior is still, so don't follow path.
 #elif defined(DXX_BUILD_DESCENT_II)
 					if (robptr.attack_type)
@@ -3527,7 +3527,7 @@ _exit_cheat:
 					create_n_segment_path(obj, robptr, 5, segment_none);
 					ailp.mode = ai_mode::AIM_RUN_FROM_OBJECT;
 					break;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				case ai_mode::AIM_HIDE:
 					move_towards_segment_center(robptr, LevelSharedSegmentState, obj);
 					obj->mtype.phys_info.velocity = {};
@@ -3573,7 +3573,7 @@ _exit_cheat:
 		const shared_segment &seg = *vcsegptr(obj->segnum);
 		if (seg.special == segment_special::robotmaker)
 		{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (Station[seg.station_idx].Enabled)
 #endif
 		{
@@ -3613,7 +3613,7 @@ _exit_cheat:
 				ai_multi_send_robot_position(obj, -1);
 
 				if (!(ailp.mode == ai_mode::AIM_FOLLOW_PATH && aip->cur_path_index < aip->path_length - 1))
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 					if ((aip->behavior != ai_behavior::AIB_SNIPE) && (aip->behavior != ai_behavior::AIB_RUN_FROM))
 #endif
 					{
@@ -3627,7 +3627,7 @@ _exit_cheat:
 
 	//	Make sure that if this guy got hit or bumped, then he's chasing player.
 	if (ailp.player_awareness_type == player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION || ailp.player_awareness_type >= player_awareness_type_t::PA_PLAYER_COLLISION)
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	{
 		if (aip->behavior != ai_behavior::AIB_STILL && aip->behavior != ai_behavior::AIB_FOLLOW_PATH && aip->behavior != ai_behavior::AIB_RUN_FROM && get_robot_id(obj) != robot_id::brain)
 			ailp.mode = ai_mode::AIM_CHASE_OBJECT;
@@ -3713,7 +3713,7 @@ _exit_cheat:
 					ai_multi_send_robot_position(obj, -1);
 				}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				if (ailp.next_action_time < 0)
 				{
 					compute_vis_and_vec(Robot_info, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
@@ -3740,7 +3740,7 @@ _exit_cheat:
 			break;
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (aip->behavior == ai_behavior::AIB_SNIPE) {
 		if ((Game_mode & GM_MULTI) && !robot_is_thief(robptr)) {
 			aip->behavior = ai_behavior::AIB_NORMAL;
@@ -3843,7 +3843,7 @@ _exit_cheat:
 					ailp.goal_segment = aip->hide_segment;
 					create_path_to_station(obj, robptr, 15);
 				} // -- this looks like a dumb thing to do...robots following paths far away from you! else create_n_segment_path(obj, 5, -1);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				else
 					create_n_segment_path(obj, robptr, 5, segment_none);
 #endif
@@ -3881,7 +3881,7 @@ _exit_cheat:
 						ai_do_actual_firing_stuff(Robot_info, vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 					return;
 				}
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				create_path_to_believed_player_segment(obj, robptr, 10, create_path_safety_flag::safe);
 				ai_multi_send_robot_position(obj, -1);
 #endif
@@ -3896,7 +3896,7 @@ _exit_cheat:
 				if ((obj_ref & 1) && ((aip->GOAL_STATE == AIS_SRCH) || (aip->GOAL_STATE == AIS_LOCK))) {
 					if (player_is_visible(player_visibility.visibility))
 						ai_turn_towards_vector(vec_to_player, obj, robptr.turn_time[Difficulty_level]);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 					else
 						ai_turn_randomly(vec_to_player, obj, robptr.turn_time[Difficulty_level], previous_visibility);
 #endif
@@ -3950,7 +3950,7 @@ _exit_cheat:
 				const auto fire_vec = vm_vec_negated(obj->orient.fvec);
 				const auto fire_pos = vm_vec_add(obj->pos, fire_vec);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				ailp.next_fire = F1_0*5;		//	Drop a proximity bomb every 5 seconds.
 				const auto weapon_id =
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -3966,7 +3966,7 @@ _exit_cheat:
 				{
 					ai_multi_send_robot_position(obj, -1);
 					const auto gun_num =
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 						(aip->SUB_FLAGS & SUB_FLAGS_SPROX)
 						? robot_gun_number::smart_mine
 						:
@@ -3978,7 +3978,7 @@ _exit_cheat:
 			}
 			break;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case ai_mode::AIM_GOTO_PLAYER:
 		case ai_mode::AIM_GOTO_OBJECT:
 			ai_follow_path(Robot_info, obj, player_visibility_state::visible_and_in_field_of_view, &vec_to_player);    // Follows path as if player can see robot.
@@ -4014,7 +4014,7 @@ _exit_cheat:
 			else if (aip->CURRENT_STATE == AIS_FLIN)
 				aip->GOAL_STATE = AIS_LOCK;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			if ((aip->behavior != ai_behavior::AIB_FOLLOW_PATH) && (aip->behavior != ai_behavior::AIB_RUN_FROM))
 				do_firing_stuff(obj, player_info.powerup_flags, player_visibility);
 
@@ -4065,7 +4065,7 @@ _exit_cheat:
 			break;
 		}
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		case ai_mode::AIM_HIDE:
 #elif defined(DXX_BUILD_DESCENT_II)
 		case ai_mode::AIM_BEHIND:
@@ -4080,7 +4080,7 @@ _exit_cheat:
 
 			compute_vis_and_vec(Robot_info, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			ai_follow_path(Robot_info, obj, player_visibility.visibility, nullptr);
 #elif defined(DXX_BUILD_DESCENT_II)
 			if (player_visibility.visibility == player_visibility_state::visible_and_in_field_of_view)
@@ -4138,7 +4138,7 @@ _exit_cheat:
 
 				// turn towards vector if visible this time or last time, or rand
 				// new!
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				if (player_is_visible(player_visibility.visibility) || player_is_visible(previous_visibility) || ((d_rand() > 0x4000) && !(Game_mode & GM_MULTI)))
 #elif defined(DXX_BUILD_DESCENT_II)
 				if (player_visibility.visibility == player_visibility_state::visible_and_in_field_of_view || previous_visibility == player_visibility_state::visible_and_in_field_of_view) // -- MK, 06/09/95:  || ((d_rand() > 0x4000) && !(Game_mode & GM_MULTI)))
@@ -4154,7 +4154,7 @@ _exit_cheat:
 				}
 
 				do_firing_stuff(obj, player_info.powerup_flags, player_visibility);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				if (player_is_visible(player_visibility.visibility)) //	Change, MK, 01/03/94 for Multiplayer reasons.  If robots can't see you (even with eyes on back of head), then don't do evasion.
 #elif defined(DXX_BUILD_DESCENT_II)
 				if (player_visibility.visibility == player_visibility_state::visible_and_in_field_of_view) // Changed @mk, 09/21/95: Require that they be looking to evade.  Change, MK, 01/03/95 for Multiplayer reasons.  If robots can't see you (even with eyes on back of head), then don't do evasion.
@@ -4213,7 +4213,7 @@ _exit_cheat:
 			break;
 		}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case ai_mode::AIM_SNIPE_WAIT:
 			break;
 		case ai_mode::AIM_SNIPE_RETREAT:
@@ -4251,7 +4251,7 @@ _exit_cheat:
 	compute_vis_and_vec(Robot_info, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 	if (player_visibility.visibility == player_visibility_state::visible_and_in_field_of_view)
 	{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		if (ailp.player_awareness_type == player_awareness_type_t::PA_NONE)
 			ailp.player_awareness_type = player_awareness_type_t::PA_PLAYER_COLLISION;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -4337,7 +4337,7 @@ _exit_cheat:
 
 				compute_vis_and_vec(Robot_info, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				if (player_is_visible(player_visibility.visibility))
 				{
 					ai_turn_towards_vector(vec_to_player, obj, robptr.turn_time[Difficulty_level]);
@@ -4360,7 +4360,7 @@ _exit_cheat:
 					if (!ai_multiplayer_awareness(obj, 68))
 						return;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 					if (player_is_visible(player_visibility.visibility))
 					{
 						ai_turn_towards_vector(vec_to_player, obj, robptr.turn_time[Difficulty_level]);
@@ -4380,7 +4380,7 @@ _exit_cheat:
 			case AIS_FIRE:
 				compute_vis_and_vec(Robot_info, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				if (player_is_visible(player_visibility.visibility))
 				{
 					if (!ai_multiplayer_awareness(obj, (ROBOT_FIRE_AGITATION-1))) 
@@ -4416,7 +4416,7 @@ _exit_cheat:
 			case AIS_RECO:
 				if (!(obj_ref & 3)) {
 					compute_vis_and_vec(Robot_info, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 					if (player_is_visible(player_visibility.visibility))
 					{
 						if (!ai_multiplayer_awareness(obj, 69))
@@ -4460,7 +4460,7 @@ void ai_do_cloak_stuff(void)
 {
 	range_for (auto &i, Ai_cloak_info) {
 		i.last_time = {GameTime64};
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		i.last_segment = ConsoleObject->segnum;
 #endif
 		i.last_position = ConsoleObject->pos;
@@ -4468,7 +4468,7 @@ void ai_do_cloak_stuff(void)
 
 	// Make work for control centers.
 	Believed_player_pos = Ai_cloak_info[0].last_position;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	Believed_player_seg = Ai_cloak_info[0].last_segment;
 #endif
 }
@@ -4547,7 +4547,7 @@ static unsigned process_awareness_events(fvcsegptridx &vcsegptridx, d_level_uniq
 		result = Num_awareness_events;
 		New_awareness.fill(player_awareness_type_t::PA_NONE);
 		const unsigned allowed_recursions_remaining =
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			!EMULATING_D1 ? 3 :
 #endif
 			4;
@@ -4576,7 +4576,7 @@ static void set_player_awareness_all(fvmobjptr &vmobjptr, fvcsegptridx &vcsegptr
 				ailp.player_awareness_type = na;
 				ailp.player_awareness_time = PLAYER_AWARENESS_INITIAL_TIME;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			// Clear the bit that says this robot is only awake because a camera woke it up.
 				obj.ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
 #endif
@@ -4598,7 +4598,7 @@ void do_ai_frame_all(const d_robot_info_array &Robot_info)
 
 	set_player_awareness_all(vmobjptr, vcsegptridx, LevelUniqueRobotAwarenessState);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &vmobjptridx = Objects.vmptridx;
 	if (Ai_last_missile_camera)
@@ -4633,7 +4633,7 @@ void init_robots_for_level(void)
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	BossUniqueState.Boss_dying_start_time = 0;
 	Overall_agitation = 0;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	GameUniqueState.Final_boss_countdown_time = 0;
 	Ai_last_missile_camera = nullptr;
 #endif
@@ -4651,7 +4651,7 @@ static void state_ai_local_to_ai_local_rw(const ai_local *ail, ai_local_rw *ail_
 	ail_rw->previous_visibility        = static_cast<int8_t>(ail->previous_visibility);
 	ail_rw->rapidfire_count            = ail->rapidfire_count;
 	ail_rw->goal_segment               = underlying_value(ail->goal_segment);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	ail_rw->last_see_time              = 0;
 	ail_rw->last_attack_time           = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -4681,7 +4681,7 @@ static void state_ai_local_to_ai_local_rw(const ai_local *ail, ai_local_rw *ail_
 static void state_ai_cloak_info_to_ai_cloak_info_rw(const ai_cloak_info *const aic, ai_cloak_info_rw *const aic_rw)
 {
 	aic_rw->last_time = build_savegametime_from_gametime(GameTime64, aic->last_time);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	aic_rw->last_segment    = aic->last_segment;
 #endif
 	aic_rw->last_position.x = aic->last_position.x;
@@ -4709,7 +4709,7 @@ namespace dsx {
 int ai_save_state(PHYSFS_File *fp)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Boss_gate_segs = LevelSharedBossState.Gate_segs;
 	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
@@ -4779,7 +4779,7 @@ int ai_save_state(PHYSFS_File *fp)
 	}
 	const int boss_dying_sound_playing = BossUniqueState.Boss_dying_sound_playing;
 	PHYSFSX_writeBytes(fp, &boss_dying_sound_playing, sizeof(int));
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	const int boss_hit_this_frame = BossUniqueState.Boss_hit_this_frame;
 	PHYSFSX_writeBytes(fp, &boss_hit_this_frame, sizeof(int));
 	const int Boss_been_hit = 0;
@@ -4849,7 +4849,7 @@ static void ai_local_read_swap(ai_local *ail, const physfsx_endian swap, const N
 	{
 		fix tmptime32 = 0;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		ail->player_awareness_type = static_cast<player_awareness_type_t>(PHYSFSX_readByte(fp));
 		ail->retry_count = PHYSFSX_readByte(fp);
 		ail->consecutive_retries = PHYSFSX_readByte(fp);
@@ -4917,7 +4917,7 @@ static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, const physfsx_en
 	{
 		const fix tmptime32{PHYSFSX_readSXE32(fp, swap)};
 		ci->last_time = fix64{tmptime32};
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		ci->last_segment = read_untrusted_segnum_xe32(fp, swap);
 #endif
 		PHYSFSX_readVectorX(fp, ci->last_position, swap);
@@ -4929,7 +4929,7 @@ static void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, const physfsx_en
 int ai_restore_state(const d_robot_info_array &Robot_info, const NamedPHYSFS_File fp, int version, const physfsx_endian swap)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Boss_gate_segs = LevelSharedBossState.Gate_segs;
 	auto &Boss_teleport_segs = LevelSharedBossState.Teleport_segs;
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
@@ -4970,7 +4970,7 @@ int ai_restore_state(const d_robot_info_array &Robot_info, const NamedPHYSFS_Fil
 			}
 		}
 	
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	PHYSFSX_skipBytes<12>(fp);
 #elif defined(DXX_BUILD_DESCENT_II)
 	LevelSharedBossState.Boss_teleport_interval = {PHYSFSX_readSXE32(fp, swap)};
@@ -4982,7 +4982,7 @@ int ai_restore_state(const d_robot_info_array &Robot_info, const NamedPHYSFS_Fil
 	BossUniqueState.Boss_dying_start_time = fix64{fix{PHYSFSX_readSXE32(fp, swap)}};
 	BossUniqueState.Boss_dying = PHYSFSX_readSXE32(fp, swap);
 	BossUniqueState.Boss_dying_sound_playing = PHYSFSX_readSXE32(fp, swap);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	(void)version;
 	BossUniqueState.Boss_hit_this_frame = PHYSFSX_readSXE32(fp, swap);
 	PHYSFSX_skipBytes<4>(fp);

@@ -72,7 +72,7 @@ cockpit_mode_t last_drawn_cockpit = cockpit_mode_t{UINT8_MAX};
 
 namespace dsx {
 namespace {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static inline void game_draw_marker_message(grs_canvas &)
 {
 }
@@ -290,7 +290,7 @@ static void show_netplayerinfo(grs_canvas &canvas)
 
 	// additional information about game - hoard, ranking
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (game_mode_hoard(Game_mode))
 	{
 		if (hoard_highest_record_stats.player >= Players.size())
@@ -392,7 +392,7 @@ static void render_countdown_gauge(grs_canvas &canvas)
 	int Countdown_seconds_left;
 	if (!Endlevel_sequence && LevelUniqueControlCenterState.Control_center_destroyed && (Countdown_seconds_left = LevelUniqueControlCenterState.Countdown_seconds_left) > -1)
 	{ // && (Countdown_seconds_left<127))
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (!is_D2_OEM && !is_MAC_SHARE && !is_SHAREWARE)    // no countdown on registered only
 		{
 			//	On last level, we don't want a countdown.
@@ -465,7 +465,7 @@ static void game_draw_hud_stuff(const d_robot_info_array &Robot_info, grs_canvas
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 
 ubyte RenderingType=0;
 ubyte DemoDoingRight=0,DemoDoingLeft=0;
@@ -783,7 +783,7 @@ void game_render_frame_mono(const d_robot_info_array &Robot_info, const control_
 	gr_set_current_canvas(Screen_3d_window);
 	{
 	auto &canvas = *grd_curcanv;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	if (const auto &&gimobj = (
@@ -836,7 +836,7 @@ void game_render_frame_mono(const d_robot_info_array &Robot_info, const control_
 	else
 #endif
 	{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (BigWindowSwitch)
 		{
 			force_cockpit_redraw=1;
@@ -882,7 +882,7 @@ void game_render_frame_mono(const d_robot_info_array &Robot_info, const control_
 		}
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	gr_set_default_canvas();
 	show_extra_views(*grd_curcanv);		//missile view, buddy bot, etc.
 #endif
@@ -937,7 +937,7 @@ static void update_cockpits(grs_canvas &canvas)
 {
 	const auto raw_cockpit_mode = PlayerCfg.CockpitMode[1];
 	auto mode =
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		HIRESMODE
 			? static_cast<cockpit_mode_t>(underlying_value(raw_cockpit_mode) + (Num_cockpits / 2))
 			:

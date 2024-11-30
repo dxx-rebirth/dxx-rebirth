@@ -102,7 +102,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	uint8_t   n_guns;         // how many different gun positions
 	sbyte   contains_prob;  //  Probability that this instance will contain something in N/16
 	contained_object_parameters contains;  //  Type of thing contained, robot or powerup, in bitmaps.tbl, !0=robot, 0=powerup
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #elif defined(DXX_BUILD_DESCENT_II)
 	sbyte   kamikaze;       //  !0 means commits suicide when hits you, strength thereof. 0 means no.
 
@@ -118,7 +118,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 
 	enumerated_array<fix, NDL, Difficulty_level_type>     field_of_view, // compare this value with forward_vector.dot.vector_to_player, if field_of_view <, then robot can see player
 		firing_wait,   //  time in seconds between shots
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		firing_wait2,  //  time in seconds between shots
 #endif
 		turn_time,     // time in seconds to rotate 360 degrees in a dimension
@@ -134,7 +134,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	ubyte   attack_sound;   //  sound robot makes when it attacks the player
 	ubyte   claw_sound;     //  sound robot makes as it claws you (attack_type should be 1)
 	boss_robot_id boss_flag;      //  0 = not boss, 1 = boss.  Is that surprising?
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	ubyte   taunt_sound;    //  sound robot makes after you die
 
 	sbyte   companion;      //  Companion robot, leads you to things.
@@ -159,7 +159,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	int     always_0xabcd;      // debugging
 };
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static inline int robot_is_companion(const robot_info &)
 {
 	return 0;
@@ -190,7 +190,7 @@ struct d_level_shared_robot_info_state
 	d_robot_info_array Robot_info;
 };
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 // returns ptr to escort robot, or NULL
 imobjptridx_t find_escort(fvmobjptridx &vmobjptridx, const d_robot_info_array &Robot_info);
 #endif
@@ -253,7 +253,7 @@ namespace dsx {
 
 static inline void boss_link_see_sound(const d_robot_info_array &Robot_info, const vcobjptridx_t objp)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	(void)Robot_info;
 	constexpr unsigned soundnum = SOUND_BOSS_SHARE_SEE;
 #elif defined(DXX_BUILD_DESCENT_II)

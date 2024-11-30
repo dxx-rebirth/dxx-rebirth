@@ -61,7 +61,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 #include <memory>
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #include "custom.h"
 #include "snddecom.h"
 #define DEFAULT_PIGFILE_REGISTERED      "descent.pig"
@@ -112,13 +112,13 @@ struct SoundFile
 };
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace {
 #endif
 hashtable AllBitmapsNames;
 hashtable AllDigiSndNames;
 enumerated_array<pig_bitmap_offset, MAX_BITMAP_FILES, bitmap_index> GameBitmapOffset;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static std::unique_ptr<uint8_t[]> Bitmap_replacement_data;
 static std::array<char, FILENAME_LEN> Current_pigfile;
 }
@@ -131,7 +131,7 @@ std::array<digi_sound, MAX_SOUND_FILES> GameSounds;
 GameBitmaps_array GameBitmaps;
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define DBM_FLAG_LARGE 	128		// Flags added onto the flags struct in b
 
 static char default_pigfile_registered[]{DEFAULT_PIGFILE_REGISTERED};
@@ -151,7 +151,7 @@ static enumerated_array<bitmap_index, MAX_BITMAP_FILES, bitmap_index> GameBitmap
 static RAIINamedPHYSFS_File Piggy_fp;
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define PIGGY_BUFFER_SIZE (2048*1024)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define PIGFILE_ID              MAKE_SIG('G','I','P','P') //PPIG
@@ -163,7 +163,7 @@ static RAIINamedPHYSFS_File Piggy_fp;
 ubyte bogus_bitmap_initialized=0;
 std::array<uint8_t, 64 * 64> bogus_data;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 grs_bitmap bogus_bitmap;
 int MacPig = 0;	// using the Macintosh pigfile?
 int PCSharePig = 0; // using PC Shareware pigfile?
@@ -185,14 +185,14 @@ struct DiskBitmapHeader
 	ubyte dflags;           // bits 0-5 anim frame num, bit 6 abm flag
 	ubyte width;            // low 8 bits here, 4 more bits in wh_extra
 	ubyte height;           // low 8 bits here, 4 more bits in wh_extra
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	ubyte wh_extra;         // bits 0-3 width, bits 4-7 height
 #endif
 	ubyte flags;
 	ubyte avg_color;
 	int offset;
 } __pack__;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static_assert(sizeof(DiskBitmapHeader) == 0x11, "sizeof(DiskBitmapHeader) must be 0x11");
 #elif defined(DXX_BUILD_DESCENT_II)
 static_assert(sizeof(DiskBitmapHeader) == 0x12, "sizeof(DiskBitmapHeader) must be 0x12");
@@ -213,7 +213,7 @@ struct DiskSoundHeader
 namespace dsx {
 namespace {
 static void piggy_bitmap_page_out_all();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 
 /* the inverse of the d2 Textures array, but for the descent 1 pigfile.
  * "Textures" looks up a d2 bitmap index given a d2 tmap_num.
@@ -299,7 +299,7 @@ static DiskBitmapHeader DiskBitmapHeader_read(const NamedPHYSFS_File fp)
 	dbh.dflags = PHYSFSX_readByte(fp);
 	dbh.width = PHYSFSX_readByte(fp);
 	dbh.height = PHYSFSX_readByte(fp);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	dbh.wh_extra = PHYSFSX_readByte(fp);
 #endif
 	dbh.flags = PHYSFSX_readByte(fp);
@@ -308,7 +308,7 @@ static DiskBitmapHeader DiskBitmapHeader_read(const NamedPHYSFS_File fp)
 	return dbh;
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 /*
  * reads a descent 1 DiskBitmapHeader structure from a PHYSFS_File
  */
@@ -334,7 +334,7 @@ bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const std::span<const char> 
 	const bitmap_index temp{static_cast<uint16_t>(Num_bitmap_files)};
 
 	if (!in_file) {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #if DXX_USE_EDITOR
 		if ( GameArg.EdiMacData )
 			swap_0_255(bmp);
@@ -348,7 +348,7 @@ bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const std::span<const char> 
 	std::memcpy(abn.data(), name.data(), std::min(abn.size() - 1, name.size()));
 	abn.back() = 0;
 	hashtable_insert(&AllBitmapsNames, AllBitmaps[temp].name.data(), Num_bitmap_files);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	GameBitmaps[temp] = bmp;
 #endif
 	if ( !in_file ) {
@@ -372,7 +372,7 @@ int piggy_register_sound(digi_sound &snd, const std::span<const char> name)
 	hashtable_insert(&AllDigiSndNames, asn.data(), Num_sound_files);
 	auto &gs = GameSounds[Num_sound_files];
 	gs = std::move(snd);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 //added/moved on 11/13/99 by Victor Rachels to ready for changing freq
 //#ifdef ALLEGRO
         GameSounds[Num_sound_files].freq = snd.freq;
@@ -435,14 +435,14 @@ static void piggy_close_file()
 	if (Piggy_fp)
 	{
 		Piggy_fp.reset();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		Current_pigfile[0] = 0;
 #endif
 	}
 }
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 properties_init_result properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	int sbytes = 0;
@@ -1157,7 +1157,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 }
 #endif
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 void piggy_read_sounds(int pc_shareware)
 {
 	uint8_t * ptr;
@@ -1285,14 +1285,14 @@ void piggy_bitmap_page_in(GameBitmaps_array &GameBitmaps, const bitmap_index ent
 		PHYSFS_seek(Piggy_fp, static_cast<unsigned>(GameBitmapOffset[xlat_bitmap_index]));
 
 		gr_set_bitmap_flags(*bmp, GameBitmapFlags[xlat_bitmap_index]);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		gr_set_bitmap_data (*bmp, &Piggy_bitmap_cache_data [Piggy_bitmap_cache_next]);
 #endif
 
 		if (bmp->get_flag_mask(BM_FLAG_RLE))
 		{
 			int zsize = PHYSFSX_readInt(Piggy_fp);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 
 			// GET JOHN NOW IF YOU GET THIS ASSERT!!!
 			Assert( Piggy_bitmap_cache_next+zsize < Piggy_bitmap_cache_size );
@@ -1357,7 +1357,7 @@ void piggy_bitmap_page_in(GameBitmaps_array &GameBitmaps, const bitmap_index ent
 				goto ReDoIt;
 			}
 			PHYSFSX_readBytes(Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], bmp->bm_h * bmp->bm_w);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			Piggy_bitmap_cache_next+=bmp->bm_h*bmp->bm_w;
 			if (MacPig)
 				swap_0_255(*bmp);
@@ -1439,7 +1439,7 @@ void piggy_load_level_data()
 }
 
 namespace {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #if DXX_USE_EDITOR
 
 static void piggy_write_pigfile(const std::span<const char, FILENAME_LEN> filename)
@@ -1572,7 +1572,7 @@ static void free_bitmap_replacements()
 
 void piggy_close()
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	custom_close();
 #endif
 	piggy_close_file();
@@ -1580,13 +1580,13 @@ void piggy_close()
 	SoundBits.reset();
 	for (auto &gs : partial_range(GameSounds, Num_sound_files))
 		gs.data.reset();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	free_bitmap_replacements();
 	free_d1_tmap_nums();
 #endif
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace {
 
 #if DXX_USE_EDITOR
@@ -1611,7 +1611,7 @@ constexpr char gauge_bitmap_names[][9] = {
 	"targ05",
 	"targ06",
 	"gauge18",
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	"targ01pc",
 	"targ02pc",
 	"targ03pc",

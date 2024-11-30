@@ -85,7 +85,7 @@ imsegidx_t read_untrusted_segnum_xe32(NamedPHYSFS_File fp, const physfsx_endian 
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 
 static std::optional<delta_light_index> build_delta_light_index_from_untrusted(const uint16_t i)

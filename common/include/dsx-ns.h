@@ -33,7 +33,7 @@
  *	DXX_HAVE_CXX_DISAMBIGUATE_USING_NAMESPACE for how this is detected.
  */
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-#	if defined(DXX_BUILD_DESCENT_I)
+#	if DXX_BUILD_DESCENT == 1
 #		define dsx d1x
 #	else
 #		define dsx d2x

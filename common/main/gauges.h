@@ -60,7 +60,7 @@ enum class reticle_type : uint8_t
 }
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define MAX_GAUGE_BMS_PC 80u		//	increased from 56 to 80 by a very unhappy MK on 10/24/94.
 #define MAX_GAUGE_BMS_MAC 85u
 #define MAX_GAUGE_BMS (MacPig ? MAX_GAUGE_BMS_MAC : MAX_GAUGE_BMS_PC)
@@ -123,7 +123,7 @@ public:
 constexpr rgb_array_wrapper player_rgb{};
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 
 enum class weapon_box_user : uint8_t

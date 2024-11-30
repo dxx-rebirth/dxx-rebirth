@@ -34,7 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define D2X_LEVEL_FILE_EXTENSION	"RL2"
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define	NUM_SHAREWARE_LEVELS	7
 #define	NUM_REGISTERED_LEVELS	23
 
@@ -53,12 +53,12 @@ int get_level_name(void);
 #ifdef dsx
 namespace dsx {
 int load_level(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
 	const char *filename);
 int save_level(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
 	const char *filename);

@@ -30,7 +30,7 @@
 	DXX_STRINGIZE(DXX_VERSION_MICROiu)
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define BASED_VERSION "Registered v1.5 Jan 5, 1996"
 #elif defined(DXX_BUILD_DESCENT_II)
 #define BASED_VERSION "Full Version v1.2"

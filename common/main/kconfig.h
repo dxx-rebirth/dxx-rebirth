@@ -103,7 +103,7 @@ enum class dxx_kconfig_ui_kc_rebirth : unsigned;
 
 struct state_control_info
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	/* Avoid creating a typedef for a single use.  Qualify the name so
 	 * that it can be found.
 	 */
@@ -133,7 +133,7 @@ struct control_info : ::dcx::control_info,
 	, ::dcx::control_info::joystick_axis_values
 #endif
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	using typename state_control_info::state_controls_t;
 #endif
 };
@@ -150,7 +150,7 @@ void kconfig_end_loop(control_info &, const fix frametime);
 #define MOUSEFS_DELTA_RANGE 512
 #ifdef dsx
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 50> MAX_CONTROLS{};
 #elif defined(DXX_BUILD_DESCENT_II)
 constexpr std::integral_constant<unsigned, 60> MAX_CONTROLS{};		// there are actually 48, so this leaves room for more

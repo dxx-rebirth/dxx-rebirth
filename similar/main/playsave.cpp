@@ -88,7 +88,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TrackerNATHPStr "trackernat"
 #define NGPVersionStr "ngp version"
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define PLX_OPTION_HEADER_TEXT	"[D1X Options]"
 #define WEAPON_REORDER_HEADER_TEXT "[weapon reorder]"
 #define WEAPON_REORDER_PRIMARY_NAME_TEXT	"primary"
@@ -193,7 +193,7 @@ namespace dsx {
 
 namespace {
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static constexpr char eff_extension[3]{'e', 'f', 'f'};
 static void plyr_read_stats(std::span<char>);
 static std::array<saved_game_sw, N_SAVE_SLOTS> saved_games;
@@ -241,7 +241,7 @@ static void check_weapon_reorder(std::array<weapon_type_out, N> &wo, const std::
 
 void new_player_config()
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	range_for (auto &i, saved_games)
 		i.name[0] = 0;
 #endif
@@ -295,7 +295,7 @@ void new_player_config()
 	PlayerCfg.ReticleRGBA[0] = RET_COLOR_DEFAULT_R; PlayerCfg.ReticleRGBA[1] = RET_COLOR_DEFAULT_G; PlayerCfg.ReticleRGBA[2] = RET_COLOR_DEFAULT_B; PlayerCfg.ReticleRGBA[3] = RET_COLOR_DEFAULT_A;
 	PlayerCfg.ReticleSize = 0;
 	PlayerCfg.HudMode = HudType::Standard;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	PlayerCfg.BombGauge = 1;
 #elif defined(DXX_BUILD_DESCENT_II)
 	PlayerCfg.Cockpit3DView = {};
@@ -321,7 +321,7 @@ void new_player_config()
 	PlayerCfg.DynLightColor = 0;
 
 	// Default taunt macros
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	PlayerCfg.NetworkMessageMacro[multi_macro_message_index::_0].copy_if(TXT_DEF_MACRO_1);
 	PlayerCfg.NetworkMessageMacro[multi_macro_message_index::_1].copy_if(TXT_DEF_MACRO_2);
 	PlayerCfg.NetworkMessageMacro[multi_macro_message_index::_2].copy_if(TXT_DEF_MACRO_3);
@@ -379,7 +379,7 @@ static void read_player_dxx(const char *filename)
 	PlayerCfg.SPGameplayOptions.AutosaveInterval = std::chrono::minutes(10);
 	for (PHYSFSX_gets_line_t<50> line; PHYSFSX_fgets(line,f);)
 	{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		if (!strcmp(line, WEAPON_REORDER_HEADER_TEXT))
 		{
 			while(PHYSFSX_fgets(line, f) && strcmp(line, END_TEXT))
@@ -471,7 +471,7 @@ static void read_player_dxx(const char *filename)
 				const char *value=splitword(line,'=');
 				if (!value)
 					continue;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				if(!strcmp(line,COCKPIT_MODE_NAME_TEXT))
 					PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = static_cast<cockpit_mode_t>(atoi(value));
 				else
@@ -498,7 +498,7 @@ static void read_player_dxx(const char *filename)
 		{
 			PlayerCfg.MouselookFlags = 0;
 			PlayerCfg.PitchLockFlags = 0;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			PlayerCfg.ThiefModifierFlags = 0;
 #endif
 			while(PHYSFSX_fgets(line,f) && strcmp(line,END_TEXT))
@@ -506,7 +506,7 @@ static void read_player_dxx(const char *filename)
 				const char *value=splitword(line,'=');
 				if (!value)
 					continue;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				if(!strcmp(line,TOGGLES_BOMBGAUGE_NAME_TEXT))
 					PlayerCfg.BombGauge = atoi(value);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -611,7 +611,7 @@ static void read_player_dxx(const char *filename)
 }
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 namespace {
 constexpr char effcode1[]="d1xrocks_SKCORX!D";
 constexpr char effcode2[]="AObe)7Rn1 -+/zZ'0";
@@ -789,11 +789,11 @@ static int write_player_dxx(const char *filename)
 	{
 		PHYSFSX_puts_literal(fout,
 							PLX_OPTION_HEADER_TEXT "\n"
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 							WEAPON_REORDER_HEADER_TEXT "\n"
 #endif
 			);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		PHYSFSX_printf(fout,
 					WEAPON_REORDER_PRIMARY_NAME_TEXT "=" WEAPON_REORDER_PRIMARY_VALUE_TEXT "\n"
 					WEAPON_REORDER_SECONDARY_NAME_TEXT "=" WEAPON_REORDER_SECONDARY_VALUE_TEXT "\n",
@@ -801,7 +801,7 @@ static int write_player_dxx(const char *filename)
 					underlying_value(PlayerCfg.SecondaryOrder[0]), underlying_value(PlayerCfg.SecondaryOrder[1]), underlying_value(PlayerCfg.SecondaryOrder[2]), underlying_value(PlayerCfg.SecondaryOrder[3]), underlying_value(PlayerCfg.SecondaryOrder[4]), underlying_value(PlayerCfg.SecondaryOrder[5]));
 #endif
 		PHYSFSX_puts_literal(fout,
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 							END_TEXT "\n"
 #endif
 							KEYBOARD_HEADER_TEXT "\n");
@@ -841,7 +841,7 @@ static int write_player_dxx(const char *filename)
 							END_TEXT "\n"
 							COCKPIT_HEADER_TEXT "\n"
 							);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		PHYSFSX_printf(fout, COCKPIT_MODE_NAME_TEXT "=%i\n", underlying_value(PlayerCfg.CockpitMode[0]));
 #endif
 		PHYSFSX_printf(fout,COCKPIT_HUD_NAME_TEXT "=%u\n", static_cast<unsigned>(PlayerCfg.HudMode));
@@ -852,7 +852,7 @@ static int write_player_dxx(const char *filename)
 							END_TEXT "\n"
 							TOGGLES_HEADER_TEXT "\n"
 							);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		PHYSFSX_printf(fout,TOGGLES_BOMBGAUGE_NAME_TEXT "=%i\n",PlayerCfg.BombGauge);
 #elif defined(DXX_BUILD_DESCENT_II)
 		PHYSFSX_printf(fout,TOGGLES_ESCORTHOTKEYS_NAME_TEXT "=%i\n",PlayerCfg.EscortHotKeys);
@@ -901,7 +901,7 @@ static int write_player_dxx(const char *filename)
 //read in the player's saved games.  returns errno (0 == no error)
 int read_player_file()
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	int shareware_file = -1;
 	int player_file_size;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -927,7 +927,7 @@ int read_player_file()
 
 	new_player_config(); // Set defaults!
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	// Unfortunatly d1x has been writing both shareware and registered
 	// player files with a saved_game_version of 7 and 8, whereas the
 	// original decent used 4 for shareware games and 7 for registered
@@ -943,7 +943,7 @@ int read_player_file()
 #endif
 	int id;
 	PHYSFS_readSLE32(file, &id);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	short saved_game_version, player_struct_version;
 	saved_game_version = PHYSFSX_readShort(file);
 	player_struct_version = PHYSFSX_readShort(file);
@@ -969,7 +969,7 @@ int read_player_file()
 		return -1;
 	}
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (saved_game_version < COMPATIBLE_SAVED_GAME_VERSION || player_struct_version < COMPATIBLE_PLAYER_STRUCT_VERSION) {
 		struct error_invalid_player_file_version : passive_messagebox
 		{
@@ -1117,7 +1117,7 @@ int read_player_file()
 	{
 		int len;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		len = shareware_file? 25:35;
 #elif defined(DXX_BUILD_DESCENT_II)
 		len = MAX_MESSAGE_LEN;
@@ -1145,7 +1145,7 @@ int read_player_file()
 		if (PHYSFSX_readBytes(file, &PlayerCfg.KeySettings.Mouse, sizeof(PlayerCfg.KeySettings.Mouse)) != sizeof(PlayerCfg.KeySettings.Mouse))
 			goto read_player_file_failed;
 		PHYSFS_seek( file, PHYSFS_tell(file)+(sizeof(ubyte)*MAX_CONTROLS) ); // Skip obsolete Cyberman map field
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		if (PHYSFSX_readBytes(file, &PlayerCfg.ControlType, sizeof(uint8_t)) != sizeof(uint8_t))
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (player_file_version>=20)
@@ -1159,7 +1159,7 @@ int read_player_file()
 		else if (PHYSFSX_readBytes(file, &dummy_joy_sens, sizeof(uint8_t)) != sizeof(uint8_t))
 			goto read_player_file_failed;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		PlayerCfg.ControlType = control_type_dos;
 	
 		std::array<uint8_t, 22> weapon_file_order{};
@@ -1191,7 +1191,7 @@ int read_player_file()
 #endif
 	}
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if ( saved_game_version != 7 ) 	{
 		int i, found=0;
 		
@@ -1266,7 +1266,7 @@ int read_player_file()
 	}
 #endif
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (rewrite_it)
 		write_player_file();
 #endif
@@ -1331,7 +1331,7 @@ void set_highest_level(const uint8_t best_levelnum_this_game)
 
 	auto ii = i[0];
 	const hli *d1_preferred = nullptr;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	const hli *d2_preferred = nullptr, *d2x_preferred = nullptr;
 #endif
 	range_for (auto &m, r)
@@ -1344,7 +1344,7 @@ void set_highest_level(const uint8_t best_levelnum_this_game)
 		const auto ms = m.Shortname.data();
 		if (!d1_preferred && !strcmp(D1_MISSION_FILENAME, ms))
 			d1_preferred = preferred = &PlayerCfg.HighestLevels[0];
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		else if (!d2_preferred && !strcmp(FULL_MISSION_FILENAME, ms))
 			d2_preferred = preferred = &PlayerCfg.HighestLevels[1];
 		else if (!d2x_preferred && !strcmp("d2x", ms))
@@ -1357,7 +1357,7 @@ void set_highest_level(const uint8_t best_levelnum_this_game)
 		std::swap(*preferred, m);
 	}
 	const unsigned reserved_slots = !!d1_preferred
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		+ !!d2_preferred + !!d2x_preferred
 #endif
 		;
@@ -1419,7 +1419,7 @@ int get_highest_level(void)
 	const Mission_path &mission = *Current_mission;
 	// Destination Saturn.
 	const auto &&r = partial_range(PlayerCfg.HighestLevels, PlayerCfg.NHighestLevels);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	unsigned highest_saturn_level = 0;
 	if (!*mission.filename)
 		range_for (auto &m, r)
@@ -1432,7 +1432,7 @@ int get_highest_level(void)
 	if (ii == ie)
 		return 0;
 	auto LevelNum = ii->LevelNum;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	/* Override `LevelNum` of the full campaign with the player's
 	 * progress in the OEM mini-campaign, so that users who switch can
 	 * keep their progress.
@@ -1468,7 +1468,7 @@ void write_player_file()
 
 	//Write out player's info
 	PHYSFS_writeULE32(file, SAVE_FILE_ID);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	PHYSFS_writeULE16(file, SAVED_GAME_VERSION);
 	PHYSFS_writeULE16(file, PLAYER_STRUCT_VERSION);
 	PHYSFS_writeSLE32(file, PlayerCfg.NHighestLevels);
@@ -1631,7 +1631,7 @@ void write_player_file()
 }
 
 namespace {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static int get_lifetime_checksum (int a,int b)
 {
   int num;
@@ -1711,7 +1711,7 @@ void read_netgame_profile(netgame_info *ng)
 			convert_duplicate_powerup_integer<packed_netduplicate_items::primary_shift, packed_netduplicate_items::primary_width>(ng->DuplicatePowerups, value);
 		else if (compare_nonterminated_name(name, DuplicateSecondariesStr))
 			convert_duplicate_powerup_integer<packed_netduplicate_items::secondary_shift, packed_netduplicate_items::secondary_width>(ng->DuplicatePowerups, value);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		else if (compare_nonterminated_name(name, DuplicateAccessoriesStr))
 			convert_duplicate_powerup_integer<packed_netduplicate_items::accessory_shift, packed_netduplicate_items::accessory_width>(ng->DuplicatePowerups, value);
 		else if (compare_nonterminated_name(name, AllowMarkerViewStr))
@@ -1791,7 +1791,7 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, SpawnGrantedItemsStr "=%i\n", underlying_value(ng->SpawnGrantedItems.mask));
 	PHYSFSX_printf(file, DuplicatePrimariesStr "=%" PRIuFAST32 "\n", ng->DuplicatePowerups.get_primary_count());
 	PHYSFSX_printf(file, DuplicateSecondariesStr "=%" PRIuFAST32 "\n", ng->DuplicatePowerups.get_secondary_count());
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	PHYSFSX_printf(file, DuplicateAccessoriesStr "=%" PRIuFAST32 "\n", ng->DuplicatePowerups.get_accessory_count());
 	PHYSFSX_printf(file, AllowMarkerViewStr "=%i\n", ng->Allow_marker_view);
 	PHYSFSX_printf(file, AlwaysLightingStr "=%i\n", ng->AlwaysLighting);

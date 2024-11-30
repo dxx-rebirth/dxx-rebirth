@@ -371,7 +371,7 @@ const FUNCTION med_functions[] = {
 // In robot.c
 {	"do-robot-dialog",							0, do_robot_dialog },
 {	"do-object-dialog",							0, do_object_dialog },
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 {	"do-hostage-dialog",							0, do_hostage_dialog },
 #endif
 

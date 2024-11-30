@@ -64,7 +64,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "jukebox.h" // for jukebox_exts
 #endif
 #include "config.h"
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #include "movie.h"
 #endif
 #include "gamepal.h"
@@ -743,7 +743,7 @@ window_event_result main_menu::event_handler(const d_event &event)
 			RegisterPlayer();
 			break;
 		case event_type::window_activated:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			load_palette(MENU_PALETTE, load_palette_use::background, load_palette_change_screen::delayed);		//get correct palette
 #endif
 			keyd_time_when_last_pressed = timer_query();		// .. 20 seconds from now!
@@ -763,7 +763,7 @@ window_event_result main_menu::event_handler(const d_event &event)
 			break;
 
 		case event_type::idle:
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define DXX_DEMO_KEY_DELAY	45
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_DEMO_KEY_DELAY	25
@@ -772,7 +772,7 @@ window_event_result main_menu::event_handler(const d_event &event)
 			{
 				keyd_time_when_last_pressed = timer_query();			// Reset timer so that disk won't thrash if no demos.
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				int n_demos = newdemo_count_demos();
 				if ((d_rand() % (n_demos+1)) == 0 && !CGameArg.SysAutoDemo)
 				{
@@ -1930,7 +1930,7 @@ static void hud_style_config()
 	(void)menu;
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define DSX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
 	DXX_MENUITEM(VERB, CHECK, "Always-on Bomb Counter",opt_d2bomb,PlayerCfg.BombGauge)	\
 
@@ -1993,7 +1993,7 @@ window_event_result hud_config_menu::event_handler(const d_event &event)
 		}
 		case event_type::window_close:
 			DSX_HUD_MENU_OPTIONS(READ);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			PlayerCfg.MissileViewEnabled = m[opt_missileview_selfandallies].value
 				? MissileViewMode::EnabledSelfAndAllies
 				: (m[opt_missileview_selfonly].value
@@ -2044,7 +2044,7 @@ struct graphics_config_menu_items
 	DXX_MENUITEM(VERB, CHECK, "VSync", opt_gr_vsync, CGameCfg.VSync)	\
 	DXX_MENUITEM(VERB, CHECK, "4x multisampling", opt_gr_multisample, CGameCfg.Multisample)	\
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define D2X_OGL_GRAPHICS_MENU(VERB)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define D2X_OGL_GRAPHICS_MENU(VERB)	\
@@ -2130,7 +2130,7 @@ window_event_result graphics_config_menu::event_handler(const d_event &event)
 					break;
 				}
 			CGameCfg.TexAnisotropy = m[opt_filter_anisotropy].value;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			GameCfg.MovieTexFilt = m[opt_gr_movietexfilt].value;
 #endif
 			PlayerCfg.AlphaEffects = m[opt_gr_alphafx].value;
@@ -2463,7 +2463,7 @@ string_array_t browser_storage::construct_string_list(const char *orig_path, phy
 namespace dsx {
 namespace {
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define DSX_REDBOOK_PLAYORDER_TEXT	"force mac cd track order"
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DSX_REDBOOK_PLAYORDER_TEXT	"force descent ][ cd track order"
@@ -2731,7 +2731,7 @@ void do_sound_menu()
 	(void)menu;
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define DSX_GAME_SPECIFIC_OPTIONS(VERB)	\
 
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -2772,7 +2772,7 @@ struct gameplay_config_menu_items
 	gameplay_config_menu_items() :
 		AutosaveInterval{build_human_readable_time(PlayerCfg.SPGameplayOptions.AutosaveInterval)}
 	{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		auto thief_absent = PlayerCfg.ThiefModifierFlags & ThiefModifier::Absent;
 		auto thief_cannot_steal_energy_weapons = PlayerCfg.ThiefModifierFlags & ThiefModifier::NoEnergyWeapons;
 #endif
@@ -2804,7 +2804,7 @@ window_event_result gameplay_config_menu::event_handler(const d_event &event)
 		}
 		case event_type::window_close:
 			{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				uint8_t thief_absent;
 				uint8_t thief_cannot_steal_energy_weapons;
 #endif
@@ -2814,7 +2814,7 @@ window_event_result gameplay_config_menu::event_handler(const d_event &event)
 					: (m[opt_autoselect_firing_immediate].value
 					   ? FiringAutoselectMode::Immediate
 					   : FiringAutoselectMode::Never);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				PlayerCfg.ThiefModifierFlags =
 					(thief_absent ? ThiefModifier::Absent : 0) |
 					(thief_cannot_steal_energy_weapons ? ThiefModifier::NoEnergyWeapons : 0);
@@ -2898,7 +2898,7 @@ window_event_result polygon_models_viewer_window::event_handler(const d_event &e
 	switch (event.type)
 	{
 		case event_type::window_activated:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			gr_use_palette_table("groupa.256");
 #endif
 			key_toggle_repeat(1);
@@ -2964,7 +2964,7 @@ window_event_result polygon_models_viewer_window::event_handler(const d_event &e
 			}
 			break;
 		case event_type::window_close:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			load_palette(MENU_PALETTE, load_palette_use::background, load_palette_change_screen::delayed);
 #endif
 			key_toggle_repeat(0);
@@ -2991,7 +2991,7 @@ window_event_result gamebitmaps_viewer_window::event_handler(const d_event &even
 	switch (event.type)
 	{
 		case event_type::window_activated:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			gr_use_palette_table("groupa.256");
 #endif
 			key_toggle_repeat(1);
@@ -3035,7 +3035,7 @@ window_event_result gamebitmaps_viewer_window::event_handler(const d_event &even
 			}
 			break;
 		case event_type::window_close:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			load_palette(MENU_PALETTE, load_palette_use::background, load_palette_change_screen::delayed);
 #endif
 			key_toggle_repeat(0);

@@ -403,7 +403,7 @@ struct shared_side::illegal_type : std::runtime_error
 
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 enum class delta_light_index : uint16_t
 {
 };
@@ -643,7 +643,7 @@ imsegidx_t read_untrusted_segnum_xe32(NamedPHYSFS_File fp, physfsx_endian swap);
 #ifdef dsx
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 struct d_level_shared_segment_state : ::dcx::d_level_shared_segment_state
 {
 	d_level_shared_destructible_light_state DestructibleLights;

@@ -143,7 +143,7 @@ void Laser_render(grs_canvas &canvas, const object_base &obj)
 
 namespace {
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static constexpr unsigned LASER_HELIX_MASK{7};   // must match number of bits in flags
 #endif
 
@@ -151,14 +151,14 @@ static bool ignore_proximity_weapon(const object &o)
 {
 	if (!is_proximity_bomb_or_player_smart_mine(get_weapon_id(o)))
 		return false;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	return GameTime64 > o.ctype.laser_info.creation_time + F1_0*2;
 #elif defined(DXX_BUILD_DESCENT_II)
 	return GameTime64 > o.ctype.laser_info.creation_time + F1_0*4;
 #endif
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static bool ignore_phoenix_weapon(const object &)
 {
 	return false;
@@ -204,7 +204,7 @@ bool laser_are_related(const vcobjptridx_t o1, const vcobjptridx_t o2)
 	{
 		if (laser_parent_is_object(o2->ctype.laser_info, o1))
 		{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			//	o2 is a weapon, o1 is the parent of 2, so if o2 is PROXIMITY_BOMB and o1 is player, they are related only if o1 < 2.0 seconds old
 			if (ignore_proximity_weapon(o2) || ignore_guided_missile_weapon(o2) || ignore_phoenix_weapon(o2))
 			{
@@ -231,7 +231,7 @@ bool laser_are_related(const vcobjptridx_t o1, const vcobjptridx_t o2)
 		if (is_proximity_bomb_or_player_smart_mine(o1id) || is_proximity_bomb_or_player_smart_mine(o2id))
 		{
 			//	If neither is older than 1/2 second, then can't blow up!
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (!(GameTime64 > o1li.creation_time + F1_0/2 || GameTime64 > o2li.creation_time + F1_0/2))
 				return 1;
 			else
@@ -241,7 +241,7 @@ bool laser_are_related(const vcobjptridx_t o1, const vcobjptridx_t o2)
 			return 1;
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	//	Anything can cause a collision with a robot super prox mine.
 	if (!(
 		o1id == weapon_id_type::ROBOT_SUPERPROX_ID || o2id == weapon_id_type::ROBOT_SUPERPROX_ID ||
@@ -349,7 +349,7 @@ static imobjptridx_t create_weapon_object(int weapon_type,const vmsegptridx_t se
 	if (bounce == weapon_info::bounce_type::always)
 		obj->mtype.phys_info.flags |= PF_BOUNCE;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (bounce == weapon_info::bounce_type::twice || cheats.bouncyfire)
 		obj->mtype.phys_info.flags |= PF_BOUNCE+PF_BOUNCES_TWICE;
 #endif
@@ -359,7 +359,7 @@ static imobjptridx_t create_weapon_object(int weapon_type,const vmsegptridx_t se
 }
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace {
 //	-------------------------------------------------------------------------------------------------------------------------------
 //	***** HEY ARTISTS!! *****
@@ -711,7 +711,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 	}
 	const auto &weapon_info = Weapon_info[weapon_type];
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	//	Do the special Omega Cannon stuff.  Then return on account of everything that follows does
 	//	not apply to the Omega Cannon.
 	if (weapon_type == weapon_id_type::OMEGA_ID) {
@@ -733,7 +733,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 	if (parent->type == OBJ_PLAYER) {
 		if (weapon_type == weapon_id_type::FUSION_ID) {
 			int	fusion_scale;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 				fusion_scale = 2;
 			else
@@ -749,13 +749,13 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 			else
 				obj->ctype.laser_info.multiplier = F1_0*fusion_scale;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			//	Fusion damage was boosted by mk on 3/27 (for reg 1.1 release), but we only want it to apply to single player games.
 			if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 				obj->ctype.laser_info.multiplier /= 2;
 #endif
 		}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		/* Descent 1 attempted to penalize laser damage, but did so
 		 * incorrectly, so it never applied to the player's weapons.
 		 * Therefore, this penalty check is applied only in the Descent 2
@@ -777,7 +777,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 
 	//	Make children of smart bomb bounce so if they hit a wall right away, they
 	//	won't detonate.  The frame interval code will clear this bit after 1/2 second.
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if ((weapon_type == weapon_id_type::PLAYER_SMART_HOMING_ID) || (weapon_type == weapon_id_type::ROBOT_SMART_HOMING_ID))
 #elif defined(DXX_BUILD_DESCENT_II)
 	if ((weapon_type == weapon_id_type::PLAYER_SMART_HOMING_ID) || (weapon_type == weapon_id_type::SMART_MINE_HOMING_ID) || (weapon_type == weapon_id_type::ROBOT_SMART_HOMING_ID) || (weapon_type == weapon_id_type::ROBOT_SMART_MINE_HOMING_ID) || (weapon_type == weapon_id_type::EARTHSHAKER_MEGA_ID))
@@ -858,7 +858,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 	// Move 1 frame, so that the end-tip of the laser is touching the gun barrel.
 	// This also jitters the laser a bit so that it doesn't alias.
 	//	Don't do for weapons created by weapons.
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (parent->type != OBJ_WEAPON && weapon_info.render != WEAPON_RENDER_NONE && weapon_type != weapon_id_type::FLARE_ID)
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (parent->type == OBJ_PLAYER && weapon_info.render != WEAPON_RENDER_NONE && weapon_type != weapon_id_type::FLARE_ID)
@@ -885,7 +885,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 		parent_speed = 0;
 
 	auto weapon_speed{weapon_info.speed[Difficulty_level]};
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (weapon_info.speedvar != 128)
 	{
 		fix	randval;
@@ -897,7 +897,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 #endif
 
 	//	Ugly hack (too bad we're on a deadline), for homing missiles dropped by smart bomb, start them out slower.
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (weapon_type == weapon_id_type::PLAYER_SMART_HOMING_ID || weapon_type == weapon_id_type::ROBOT_SMART_HOMING_ID)
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (weapon_type == weapon_id_type::PLAYER_SMART_HOMING_ID || weapon_type == weapon_id_type::SMART_MINE_HOMING_ID || weapon_type == weapon_id_type::ROBOT_SMART_HOMING_ID || weapon_type == weapon_id_type::ROBOT_SMART_MINE_HOMING_ID || weapon_type == weapon_id_type::EARTHSHAKER_MEGA_ID)
@@ -1022,7 +1022,7 @@ int object_to_object_visibility(const vcobjptridx_t obj1, const object_base &obj
 
 namespace {
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static fix get_scaled_min_trackable_dot()
 {
 	if (EMULATING_D1)
@@ -1052,7 +1052,7 @@ static int object_is_trackable(const imobjptridx_t objp, const vmobjptridx_t tra
 	//	Don't track player if he's cloaked.
 	if ((objp == get_local_player().objnum) && (objp->ctype.player_info.powerup_flags & PLAYER_FLAGS_CLOAKED))
 		return 0;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 #endif
 
@@ -1060,7 +1060,7 @@ static int object_is_trackable(const imobjptridx_t objp, const vmobjptridx_t tra
 	if (objp->type == OBJ_ROBOT) {
 		if (objp->ctype.ai_info.CLOAKED)
 			return 0;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		//	Your missiles don't track your escort.
 		if (Robot_info[get_robot_id(objp)].companion)
 			if (tracker->ctype.laser_info.parent_type == OBJ_PLAYER)
@@ -1070,7 +1070,7 @@ static int object_is_trackable(const imobjptridx_t objp, const vmobjptridx_t tra
 	auto vector_to_goal{vm_vec_normalized_quick(vm_vec_sub(objp->pos, tracker->pos))};
 	*dot = vm_vec_dot(vector_to_goal, tracker->orient.fvec);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if ((*dot < get_scaled_min_trackable_dot()) && (*dot > F1_0*9/10)) {
 		vm_vec_normalize(vector_to_goal);
 		*dot = vm_vec_dot(vector_to_goal, tracker->orient.fvec);
@@ -1097,7 +1097,7 @@ static imobjptridx_t call_find_homing_object_complete(const vms_vector &curpos, 
 				return find_homing_object_complete( curpos, tracker, OBJ_PLAYER, OBJ_ROBOT);
 		} else {
 			int	goal2_type{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				(cheats.robotskillrobots)
 				? OBJ_ROBOT
 				:
@@ -1119,7 +1119,7 @@ static imobjptridx_t find_homing_object(const vms_vector &curpos, const vmobjptr
 	//	Contact Mike: This is a bad and stupid thing.  Who called this routine with an illegal laser type??
 #ifndef NDEBUG
 	const auto tracker_id{get_weapon_id(tracker)};
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (tracker_id != weapon_id_type::OMEGA_ID)
 #endif
 		assert(Weapon_info[tracker_id].homing_flag);
@@ -1143,7 +1143,7 @@ imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjp
 	auto &vmobjptridx = Objects.vmptridx;
 
 	const auto tracker_id{get_weapon_id(tracker)};
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (tracker_id != weapon_id_type::OMEGA_ID)
 	//	Contact Mike: This is a bad and stupid thing.  Who called this routine with an illegal laser type??
@@ -1155,7 +1155,7 @@ imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjp
 
 	const fix64 HOMING_MAX_TRACKABLE_DIST{F1_0 * 250};
 	const auto max_trackable_dist{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		(tracker_id == weapon_id_type::OMEGA_ID)
 		? vm_distance_squared{(OMEGA_MAX_TRACKABLE_DIST * OMEGA_MAX_TRACKABLE_DIST)}
 		:
@@ -1163,7 +1163,7 @@ imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjp
 		vm_distance_squared{HOMING_MAX_TRACKABLE_DIST * HOMING_MAX_TRACKABLE_DIST}
 	};
 	const auto min_trackable_dot{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		(tracker_id == weapon_id_type::OMEGA_ID)
 		? OMEGA_MIN_TRACKABLE_DOT
 		:
@@ -1179,7 +1179,7 @@ imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjp
 
 		if ((curobjp->type != track_obj_type1) && (curobjp->type != track_obj_type2))
 		{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if ((curobjp->type == OBJ_WEAPON) && (is_proximity_bomb_or_player_smart_mine(get_weapon_id(curobjp)))) {
 				auto &cur_laser_info = curobjp->ctype.laser_info;
 				auto &tracker_laser_info = tracker->ctype.laser_info;
@@ -1214,7 +1214,7 @@ imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjp
 			if (curobjp->ctype.ai_info.CLOAKED)
 				continue;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			//	Your missiles don't track your escort.
 			if (Robot_info[get_robot_id(curobjp)].companion)
 				if (tracker->ctype.laser_info.parent_type == OBJ_PLAYER)
@@ -1281,7 +1281,7 @@ namespace {
 //	Computes and returns a fairly precise dot product.
 static imobjptridx_t track_track_goal(fvcobjptr &vcobjptr, const imobjptridx_t track_goal, const vmobjptridx_t tracker, fix *dot, fix tick_count)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (object_is_trackable(track_goal, tracker, dot))
 #elif defined(DXX_BUILD_DESCENT_II)
 	//	Every 8 frames for each object, scan all objects.
@@ -1324,7 +1324,7 @@ static imobjptridx_t track_track_goal(fvcobjptr &vcobjptr, const imobjptridx_t t
 		else {
 			goal2_type = -1;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (cheats.robotskillrobots)
 				goal2_type = OBJ_ROBOT;
 #endif
@@ -1365,7 +1365,7 @@ static imobjptridx_t Laser_player_fire_spread_delay(const d_robot_info_array &Ro
 		fvi_query::unused_ignore_obj_list,
 		&LevelUniqueObjectState,
 		&Robot_info,
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		0,
 #elif defined(DXX_BUILD_DESCENT_II)
 		FQ_IGNORE_POWERUPS,
@@ -1406,7 +1406,7 @@ static imobjptridx_t Laser_player_fire_spread_delay(const d_robot_info_array &Ro
 	if (objnum == object_none)
 		return object_none;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	create_awareness_event(obj, player_awareness_type_t::PA_WEAPON_WALL_COLLISION, LevelUniqueRobotAwarenessState);
 
 	//	Omega cannon is a hack, not surprisingly.  Don't want to do the rest of this stuff.
@@ -1466,7 +1466,7 @@ static imobjptridx_t Laser_player_fire_spread_delay(const d_robot_info_array &Ro
 	//	If the object firing the laser is the player, then indicate the laser object so robots can dodge.
 	//	New by MK on 6/8/95, don't let robots evade proximity bombs, thereby decreasing uselessness of bombs.
 	if (obj == ConsoleObject)
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (!is_proximity_bomb_or_player_smart_mine(get_weapon_id(objnum)))
 #endif
 		Player_fired_laser_this_frame = objnum;
@@ -1510,7 +1510,7 @@ void Flare_create(const vmobjptridx_t obj)
 	auto &&plrobj = *obj;
 	auto &player_info = plrobj.ctype.player_info;
 	auto &energy = player_info.energy;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (energy > 0)
 #endif
 	{
@@ -1523,7 +1523,7 @@ void Flare_create(const vmobjptridx_t obj)
 			: 0
 		};
 		energy = next_energy;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		if (next_energy == 0)
 			auto_select_primary_weapon(player_info);
 #endif
@@ -1536,7 +1536,7 @@ void Flare_create(const vmobjptridx_t obj)
 
 namespace {
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static constexpr int HOMING_MISSILE_SCALE{8};
 #elif defined(DXX_BUILD_DESCENT_II)
 static constexpr int HOMING_MISSILE_SCALE{16};
@@ -1581,7 +1581,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 		return;
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (omega_cleanup(vcobjptr, obj))
 		return;
 #endif
@@ -1603,7 +1603,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 	}
 
 	//	For homing missiles, turn towards target. (unless it's the guided missile)
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (Weapon_info[get_weapon_id(obj)].homing_flag)
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (Weapon_info[get_weapon_id(obj)].homing_flag && !is_active_guided_missile(LevelUniqueObjectState, obj))
@@ -1615,7 +1615,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 		if (obj->ctype.laser_info.creation_time + HOMING_FLY_STRAIGHT_TIME < GameTime64)
 		{
 			//	If it's time to do tracking, then it's time to grow up, stop bouncing and start exploding!.
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			if ((get_weapon_id(obj) == weapon_id_type::ROBOT_SMART_HOMING_ID) || (get_weapon_id(obj) == weapon_id_type::PLAYER_SMART_HOMING_ID))
 #elif defined(DXX_BUILD_DESCENT_II)
 			if ((get_weapon_id(obj) == weapon_id_type::ROBOT_SMART_MINE_HOMING_ID) || (get_weapon_id(obj) == weapon_id_type::ROBOT_SMART_HOMING_ID) || (get_weapon_id(obj) == weapon_id_type::SMART_MINE_HOMING_ID) || (get_weapon_id(obj) == weapon_id_type::PLAYER_SMART_HOMING_ID) || (get_weapon_id(obj) == weapon_id_type::EARTHSHAKER_MEGA_ID))
@@ -1648,7 +1648,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 						if (speed > max_speed)
 							speed = max_speed;
 					}
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 					dot = vm_vec_dot(temp_vec, vector_to_object);
 #endif
 					vm_vec_add2(temp_vec, vector_to_object);
@@ -1656,7 +1656,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 					if (Weapon_info[get_weapon_id(obj)].render != WEAPON_RENDER_POLYMODEL)
 						vm_vec_add2(temp_vec, vector_to_object);
 					vm_vec_normalize_quick(temp_vec);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 					vm_vec_scale(temp_vec, speed);
 					obj->mtype.phys_info.velocity = temp_vec;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1668,7 +1668,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 					//	For hardest turn, it will lose 2 seconds per second.
 					{
 						fix absdot{abs(F1_0 - dot)};
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 						if (absdot > F1_0/8) {
 							if (absdot > F1_0/4)
 								absdot = F1_0/4;
@@ -1709,7 +1709,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 					if (speed > max_speed)
 						speed = max_speed;
 				}
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				dot = vm_vec_dot(temp_vec, vector_to_object);
 #endif
 				vm_vec_add2(temp_vec, vector_to_object);
@@ -1717,7 +1717,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 				if (Weapon_info[get_weapon_id(obj)].render != WEAPON_RENDER_POLYMODEL)
 					vm_vec_add2(temp_vec, vector_to_object);
 				vm_vec_normalize_quick(temp_vec);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				vm_vec_scale(temp_vec, speed);
 				obj->mtype.phys_info.velocity = temp_vec;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1731,7 +1731,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 					fix	lifelost, absdot;
 
 					absdot = abs(F1_0 - dot);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 					if (absdot > F1_0/8) {
 						if (absdot > F1_0/4)
 							absdot = F1_0/4;
@@ -1754,7 +1754,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 
 	//	Make sure weapon is not moving faster than allowed speed.
 	const auto &weapon_info = Weapon_info[get_weapon_id(obj)];
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (weapon_info.thrust != 0)
 #endif
 	{
@@ -1762,7 +1762,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 		if (weapon_speed > weapon_info.speed[Difficulty_level])
 		{
 			//	Only slow down if not allowed to move.  Makes sense, huh?  Allows proxbombs to get moved by physics force. --MK, 2/13/96
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (weapon_info.speed[Difficulty_level])
 #endif
 			{
@@ -1815,7 +1815,7 @@ void do_laser_firing_player(object &plrobj)
 
 	auto &pl_energy = player_info.energy;
 	const auto base_energy_used{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		(Primary_weapon == primary_weapon_index_t::OMEGA_INDEX)
 		? 0	//	Omega consumes energy when recharging, not when firing.
 		:
@@ -1824,7 +1824,7 @@ void do_laser_firing_player(object &plrobj)
 	};
 
 	const auto energy_used{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	//	MK, 01/26/96, Helix use 2x energy in multiplayer.  bitmaps.tbl parm should have been reduced for single player.
 		(weapon_index == weapon_id_type::HELIX_ID && (Game_mode & GM_MULTI))
 		? base_energy_used * 2
@@ -1861,7 +1861,7 @@ void do_laser_firing_player(object &plrobj)
 				case primary_weapon_index_t::FUSION_INDEX:
 				default:
 					break;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				case primary_weapon_index_t::HELIX_INDEX:
 					flags |= (player_info.Helix_orientation++ & LASER_HELIX_MASK);
 					break;
@@ -1880,7 +1880,7 @@ void do_laser_firing_player(object &plrobj)
 			Next_laser_fire_time = GameTime64 - fire_frame_overhead + (unlikely(cheats.rapidfire)
 				? (F1_0 / 25)
 				: (
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 					weapon_index == weapon_id_type::OMEGA_ID
 					? OMEGA_BASE_TIME
 					:
@@ -1903,7 +1903,7 @@ void do_laser_firing_player(object &plrobj)
 				maybe_drop_net_powerup(powerup_type_t::POW_VULCAN_AMMO, 1, 0);
 			}
 		} else {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			Next_laser_fire_time = {GameTime64};	//	Prevents shots-to-fire from building up.
 #endif
 			break;	//	Couldn't fire weapon, so abort.
@@ -1939,7 +1939,7 @@ int do_laser_firing(vmobjptridx_t objp, const primary_weapon_index_t weapon_num,
 				case laser_level::_4:
 					weapon_type = weapon_id_type::LASER_ID_L4;
 					break;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				case laser_level::_5:
 					weapon_type = weapon_id_type::LASER_ID_L5;
 					break;
@@ -2024,7 +2024,7 @@ int do_laser_firing(vmobjptridx_t objp, const primary_weapon_index_t weapon_num,
 
 		}
 			break;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case primary_weapon_index_t::GAUSS_INDEX: {
 			if (Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::GAUSS_ID, gun_num_t::center, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, weapon_sound_flag::audible, shot_orientation, object_none) == object_none)
 				return 0;
@@ -2154,7 +2154,7 @@ static void create_smart_children(object_array &Objects, const vmobjptridx_t obj
 	weapon_id_type blob_id;
 
 	std::array<objnum_t, MAX_OBJDISTS> objlist;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 #endif
 	{
@@ -2180,7 +2180,7 @@ static void create_smart_children(object_array &Objects, const vmobjptridx_t obj
 					if (parent.type == OBJ_ROBOT)
 						continue;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 					//	Your shots won't track the buddy.
 					if (parent.type == OBJ_PLAYER)
 						if (Robot_info[get_robot_id(curobjp)].companion)
@@ -2205,7 +2205,7 @@ static void create_smart_children(object_array &Objects, const vmobjptridx_t obj
 		}
 
 		//	Get type of weapon for child from parent.
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		if (parent.type == OBJ_PLAYER)
 		{
 			blob_id = weapon_id_type::PLAYER_SMART_HOMING_ID;
@@ -2249,20 +2249,20 @@ void create_weapon_smart_children(const vmobjptridx_t objp)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	const auto wid{get_weapon_id(objp)};
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (wid != weapon_id_type::SMART_ID)
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (Weapon_info[wid].children == weapon_id_type::unspecified)
 #endif
 		return;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (wid == weapon_id_type::EARTHSHAKER_ID)
 		blast_nearby_glass(objp, Weapon_info[weapon_id_type::EARTHSHAKER_ID].strength[GameUniqueState.Difficulty_level]);
 #endif
 	create_smart_children(Objects, objp, NUM_SMART_CHILDREN, {objp->ctype.laser_info.parent_type, objp->ctype.laser_info.parent_num});
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 
 void create_robot_smart_children(const vmobjptridx_t objp, const uint_fast32_t num_smart_children)
 {
@@ -2300,7 +2300,7 @@ void do_missile_firing(const secondary_weapon_index_t weapon, const vmobjptridx_
 	if (GameTime64 - Next_missile_fire_time <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that.
 		fire_frame_overhead = GameTime64 - Next_missile_fire_time;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	const auto &&gimobj = LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(LevelUniqueObjectState.get_objects().vmptr, Player_num);
 	if (gimobj != nullptr)
 	{
@@ -2340,7 +2340,7 @@ void do_missile_firing(const secondary_weapon_index_t weapon, const vmobjptridx_
 		if (weapon != secondary_weapon_index_t::CONCUSSION_INDEX)
 			maybe_drop_net_powerup(Secondary_weapon_to_powerup[weapon], 1, 0);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		if (weapon == secondary_weapon_index_t::MEGA_INDEX)
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (weapon == secondary_weapon_index_t::MEGA_INDEX || weapon == secondary_weapon_index_t::SMISSILE5_INDEX)

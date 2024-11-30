@@ -51,7 +51,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int	New_file_format_save = 1;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 
 namespace {
@@ -656,7 +656,7 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 				auto tmap_num = seg.u.sides[sidenum].tmap_num;
 				auto tmap_num2 = seg.u.sides[sidenum].tmap_num2;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				if (Gamesave_current_version <= 3)	// convert texture numbers back to d1
 				{
 					tmap_num = build_texture1_value(convert_to_d1_tmap_num(get_texture_index(tmap_num)));
@@ -686,7 +686,7 @@ int save_mine_data_compiled(PHYSFS_File *SaveFile)
 
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (Gamesave_current_version > 5)
 		for (auto &s : segment_range)
 			segment2_write(s, SaveFile);

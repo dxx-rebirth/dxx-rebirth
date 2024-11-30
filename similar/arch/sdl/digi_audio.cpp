@@ -197,7 +197,7 @@ int digi_audio_init()
 		Error("SDL audio initialisation failed: %s.",SDL_GetError());
 	}
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	/* Descent 1 sounds are always 11Khz. */
 	WaveSpec.freq = underlying_value(sound_sample_rate::_11k);
 #elif defined(DXX_BUILD_DESCENT_II)

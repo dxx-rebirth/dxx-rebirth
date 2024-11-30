@@ -95,7 +95,7 @@ static objnum_t obj_detach_one(object_array &Objects, object &sub);
 static int is_proximity_bomb_or_any_smart_mine(const weapon_id_type id)
 {
 	const auto r = is_proximity_bomb_or_player_smart_mine(id);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (r)
 		return r;
 	// superprox dropped by robots have their own ID not considered by is_proximity_bomb_or_player_smart_mine() and since that function is used in many other places, I didn't feel safe to add this weapon type in it
@@ -310,7 +310,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 
 	if (const auto cloak_delta_time{GameTime64 - cloak_start_time}; cloak_delta_time < Cloak_fadein_duration/2) {
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		light_scale = Cloak_fadein_duration/2 - cloak_delta_time;
 #elif defined(DXX_BUILD_DESCENT_II)
 		light_scale = fixdiv(Cloak_fadein_duration/2 - cloak_delta_time,Cloak_fadein_duration/2);
@@ -319,7 +319,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 	}
 	else if (cloak_delta_time < Cloak_fadein_duration) {
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		cloak_value = f2i((cloak_delta_time - Cloak_fadein_duration/2) * CLOAKED_FADE_LEVEL);
 #elif defined(DXX_BUILD_DESCENT_II)
 		cloak_value = f2i(fixdiv(cloak_delta_time - Cloak_fadein_duration/2,Cloak_fadein_duration/2) * CLOAKED_FADE_LEVEL);
@@ -346,7 +346,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 		cloak_value = CLOAKED_FADE_LEVEL - cloak_delta;
 	} else if (GameTime64 < (cloak_start_time + total_cloaked_time) -Cloak_fadeout_duration/2) {
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		cloak_value = f2i((total_cloaked_time - Cloak_fadeout_duration/2 - cloak_delta_time) * CLOAKED_FADE_LEVEL);
 #elif defined(DXX_BUILD_DESCENT_II)
 		cloak_value = f2i(fixdiv(total_cloaked_time - Cloak_fadeout_duration/2 - cloak_delta_time,Cloak_fadeout_duration/2) * CLOAKED_FADE_LEVEL);
@@ -354,7 +354,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 
 	} else {
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		light_scale = Cloak_fadeout_duration/2 - (total_cloaked_time - cloak_delta_time);
 #elif defined(DXX_BUILD_DESCENT_II)
 		light_scale = fixdiv(Cloak_fadeout_duration/2 - (total_cloaked_time - cloak_delta_time),Cloak_fadeout_duration/2);
@@ -363,7 +363,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 	}
 
 	const auto alt_textures{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		!fading
 			? alternate_textures{}
 			:
@@ -414,7 +414,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 	g3s_lrgb light;
 	glow_values_t engine_glow_value;
 	engine_glow_value[0] = 0;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	engine_glow_value[1] = -1;		//element 0 is for engine glow, 1 for headlight
 #endif
 
@@ -423,7 +423,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 		? g3s_lrgb{F1_0 * 2, F1_0 * 2, F1_0 * 2}
 		: compute_object_light(LevelUniqueLightState, obj);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	//make robots brighter according to robot glow field
 	if (obj->type == OBJ_ROBOT)
 	{
@@ -456,7 +456,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 		}
 		else {
 			const auto speed = vm_vec_mag_quick(obj->mtype.phys_info.velocity);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			engine_glow_value[0] += (fixdiv(speed,MAX_VELOCITY)*4)/5;
 #elif defined(DXX_BUILD_DESCENT_II)
 			engine_glow_value[0] += (fixdiv(speed,MAX_VELOCITY)*3)/5;
@@ -464,7 +464,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 		}
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	//set value for player headlight
 	if (obj->type == OBJ_PLAYER) {
 		auto &player_flags = obj->ctype.player_info.powerup_flags;
@@ -509,7 +509,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 				cloak_duration = {GameTime64-F1_0*10, F1_0 * 20};
 			cloak_fade = {CLOAK_FADEIN_DURATION_ROBOT, CLOAK_FADEOUT_DURATION_ROBOT};
 		} else {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (obj->type == OBJ_ROBOT)
 			{
 			//	Snipers get bright when they fire.
@@ -710,7 +710,7 @@ void create_small_fireball_on_object(const vmobjptridx_t objp, fix size_scale, i
 
 	vm_vec_add2(pos, rand_vec);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	size = fixmul(size_scale, F1_0 + d_rand()*4);
 #elif defined(DXX_BUILD_DESCENT_II)
 	size = fixmul(size_scale, F1_0/2 + d_rand()*4/2);
@@ -765,7 +765,7 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 			break; //doesn't render, like the player
 
 		case render_type::RT_POLYOBJ:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if ( PlayerCfg.AlphaBlendMarkers && obj->type == OBJ_MARKER ) // set nice transparency/blending for certrain objects
 			{
 				alpha = true;
@@ -816,7 +816,7 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 					case powerup_type_t::POW_SHIELD_BOOST:
 					case powerup_type_t::POW_CLOAK:
 					case powerup_type_t::POW_INVULNERABILITY:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 					case powerup_type_t::POW_HOARD_ORB:
 #endif
 						alpha = true;
@@ -841,7 +841,7 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 					case powerup_type_t::POW_VULCAN_AMMO:
 					case powerup_type_t::POW_TURBO:
 					case powerup_type_t::POW_MEGAWOW:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 					case powerup_type_t::POW_FULL_MAP:
 					case powerup_type_t::POW_HEADLIGHT:
 					case powerup_type_t::POW_GAUSS_WEAPON:
@@ -974,7 +974,7 @@ void special_reset_objects(d_level_unique_object_state &LevelUniqueObjectState, 
 	assert(Objects.front().type != OBJ_NONE);		//0 should be used
 
 	DXX_POISON_VAR(LevelUniqueObjectState.free_obj_list, 0xfd);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	/* Descent 1 does not have a guidebot, so there is nothing to fix up.  For
 	 * simplicity, both games pass the parameter.
 	 */
@@ -985,7 +985,7 @@ void special_reset_objects(d_level_unique_object_state &LevelUniqueObjectState, 
 	for (objnum_t i = MAX_OBJECTS; i--;)
 	{
 		const auto &obj = *Objects.vcptr(i);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (obj.type == OBJ_ROBOT)
 		{
 			auto &robptr = Robot_info[get_robot_id(obj)];
@@ -999,7 +999,7 @@ void special_reset_objects(d_level_unique_object_state &LevelUniqueObjectState, 
 			if (i > Highest_object_index)
 				Objects.set_count(i + 1);
 	}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	LevelUniqueObjectState.BuddyState.Buddy_objnum = Buddy_objnum;
 #endif
 	LevelUniqueObjectState.num_objects = num_objects;
@@ -1303,7 +1303,7 @@ imobjptridx_t obj_weapon_create(d_level_unique_object_state &LevelUniqueObjectSt
 	obj.ctype.laser_info.creation_time = {GameTime64};
 	obj.ctype.laser_info.clear_hitobj();
 	obj.ctype.laser_info.multiplier = F1_0;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	obj.ctype.laser_info.last_afterburner_time = 0;
 #endif
 	return objp;
@@ -1337,7 +1337,7 @@ void obj_delete(d_level_unique_object_state &LevelUniqueObjectState, segment_arr
 	Assert(obj->type != OBJ_NONE);
 	Assert(obj != ConsoleObject);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (obj->type==OBJ_WEAPON && get_weapon_id(obj)==weapon_id_type::GUIDEDMISS_ID && obj->ctype.laser_info.parent_type==OBJ_PLAYER)
 	{
 		const auto pnum = get_player_id(Objects.vcptr(obj->ctype.laser_info.parent_num));
@@ -1575,7 +1575,7 @@ window_event_result dead_player_frame(const d_robot_info_array &Robot_info)
 				ConsoleObject->flags &= ~OF_SHOULD_BE_DEAD;		//don't really kill player
 				ConsoleObject->render_type = render_type::RT_NONE;				//..just make him disappear
 				ConsoleObject->type = OBJ_GHOST;						//..and kill intersections
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				player_info.powerup_flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
 #endif
 			}
@@ -1615,7 +1615,7 @@ namespace {
 static void start_player_death_sequence(object &player)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &vmobjptr = Objects.vmptr;
 #endif
 	auto &vmobjptridx = Objects.vmptridx;
@@ -1636,7 +1636,7 @@ static void start_player_death_sequence(object &player)
 
 	if (Game_mode & GM_MULTI)
 	{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		// If Hoard, increase number of orbs by 1. Only if you haven't killed yourself. This prevents cheating
 		if (game_mode_hoard(Game_mode))
 		{
@@ -1779,7 +1779,7 @@ static void spin_object(object_base &obj)
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 imobjidx_t d_guided_missile_indices::get_player_active_guided_missile(const playernum_t pnum) const
 {
 	return operator[](pnum);
@@ -1845,7 +1845,7 @@ namespace {
 //move an object for the current frame
 static window_event_result object_move_one(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const vmobjptridx_t obj, control_info &Controls)
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 #endif
@@ -1858,7 +1858,7 @@ static window_event_result object_move_one(const d_level_shared_robot_info_state
 
 	if ((obj->type==OBJ_PLAYER) && (Player_num==get_player_id(obj)))	{
 		const auto &&segp = vmsegptr(obj->segnum);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (game_mode_capture_flag(Game_mode))
 			fuelcen_check_for_goal(obj, segp);
 		else if (game_mode_hoard(Game_mode))
@@ -1883,7 +1883,7 @@ static window_event_result object_move_one(const d_level_shared_robot_info_state
 		if (lifeleft != IMMORTAL_TIME) //if not immortal...
 		{
 			lifeleft -= FrameTime; //...inevitable countdown towards death
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (obj->type == OBJ_MARKER)
 			{
 				if (lifeleft < F1_0*1000)
@@ -1893,7 +1893,7 @@ static window_event_result object_move_one(const d_level_shared_robot_info_state
 			obj->lifeleft = lifeleft;
 		}
 	}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	Drop_afterburner_blob_flag = 0;
 #endif
 
@@ -1976,7 +1976,7 @@ static window_event_result object_move_one(const d_level_shared_robot_info_state
 		obj->flags |= OF_SHOULD_BE_DEAD;
 		if ( obj->type==OBJ_WEAPON && Weapon_info[get_weapon_id(obj)].damage_radius )
 			explode_badass_weapon(LevelSharedRobotInfoState.Robot_info, obj, obj->pos);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		else if ( obj->type==OBJ_ROBOT)	//make robots explode
 			explode_object(LevelUniqueObjectState, LevelSharedRobotInfoState.Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, obj, 0);
 #endif
@@ -2001,7 +2001,7 @@ static window_event_result object_move_one(const d_level_shared_robot_info_state
 			break;
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
 #endif
@@ -2012,7 +2012,7 @@ static window_event_result object_move_one(const d_level_shared_robot_info_state
 		if (previous_segment != obj->segnum && phys_visited_segs.nsegs > 1)
 		{
 			auto seg0 = vmsegptridx(phys_visited_segs.seglist[0]);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			int	old_level = Current_level_num;
 #endif
 			range_for (const auto i, partial_const_range(phys_visited_segs.seglist, 1u, phys_visited_segs.nsegs))
@@ -2022,7 +2022,7 @@ static window_event_result object_move_one(const d_level_shared_robot_info_state
 				if (connect_side != side_none)
 				{
 					result = check_trigger(seg0, connect_side, get_local_plrobj(), obj, 0);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				//maybe we've gone on to the next level.  if so, bail!
 				if (Current_level_num != old_level)
 					return window_event_result::ignored;
@@ -2031,7 +2031,7 @@ static window_event_result object_move_one(const d_level_shared_robot_info_state
 				seg0 = seg1;
 			}
 		}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		{
 			bool under_lavafall = false;
 
@@ -2072,7 +2072,7 @@ static window_event_result object_move_one(const d_level_shared_robot_info_state
 #endif
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	//see if guided missile has flown through exit trigger
 	if (obj == LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(Player_num))
 	{
@@ -2252,7 +2252,7 @@ void reset_objects(d_level_unique_object_state &LevelUniqueObjectState, const un
 	auto &Objects = LevelUniqueObjectState.get_objects();
 	assert(LevelUniqueObjectState.num_objects < Objects.size());
 	Objects.set_count(n_objs);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (LevelUniqueObjectState.BuddyState.Buddy_objnum.get_unchecked_index() >= n_objs)
 		LevelUniqueObjectState.BuddyState.Buddy_objnum = object_none;
 #endif
@@ -2395,7 +2395,7 @@ void fix_object_segs()
 
 namespace {
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define object_is_clearable_weapon(W,a,b)	object_is_clearable_weapon(a,b)
 #endif
 static unsigned object_is_clearable_weapon(const weapon_info_array &Weapon_info, const object_base obj, const unsigned clear_all)
@@ -2403,7 +2403,7 @@ static unsigned object_is_clearable_weapon(const weapon_info_array &Weapon_info,
 	if (!(obj.type == OBJ_WEAPON))
 		return 0;
 	const auto weapon_id = get_weapon_id(obj);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (Weapon_info[weapon_id].flags & WIF_PLACABLE)
 		return 0;
 #endif
@@ -2537,7 +2537,7 @@ static void obj_detach_all(object_array &Objects, object_base &parent)
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 //creates a marker object in the world.  returns the object number
 imobjptridx_t drop_marker_object(const vms_vector &pos, const vmsegptridx_t segnum, const vms_matrix &orient, const game_marker_index marker_num)
 {
@@ -2695,7 +2695,7 @@ void object_rw_swap(object_rw *obj, const physfsx_endian swap)
 			obj->ctype.ai_info.hide_segment           = SWAPSHORT(obj->ctype.ai_info.hide_segment);
 			obj->ctype.ai_info.hide_index             = SWAPSHORT(obj->ctype.ai_info.hide_index);
 			obj->ctype.ai_info.path_length            = SWAPSHORT(obj->ctype.ai_info.path_length);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			obj->ctype.ai_info.cur_path_index         = SWAPSHORT(obj->ctype.ai_info.cur_path_index);
 #elif defined(DXX_BUILD_DESCENT_II)
 			obj->ctype.ai_info.dying_start_time       = SWAPINT(obj->ctype.ai_info.dying_start_time);
@@ -2710,7 +2710,7 @@ void object_rw_swap(object_rw *obj, const physfsx_endian swap)
 			
 		case object::control_type::powerup:
 			obj->ctype.powerup_info.count         = SWAPINT(obj->ctype.powerup_info.count);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			obj->ctype.powerup_info.creation_time = SWAPINT(obj->ctype.powerup_info.creation_time);
 			obj->ctype.powerup_info.flags         = SWAPINT(obj->ctype.powerup_info.flags);
 #endif

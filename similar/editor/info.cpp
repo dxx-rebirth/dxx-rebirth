@@ -147,7 +147,7 @@ static ai_type_name &get_ai_behavior(ai_behavior num)
 			return "STILL       ";
 		case ai_behavior::AIB_NORMAL:
 			return "NORMAL      ";
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		case ai_behavior::AIB_HIDE:
 			return "HIDE        ";
 		case ai_behavior::AIB_FOLLOW_PATH:

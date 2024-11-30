@@ -77,7 +77,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int Gamesave_current_version;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define GAME_VERSION					25
 #elif defined(DXX_BUILD_DESCENT_II)
 #define GAME_VERSION            32
@@ -118,7 +118,7 @@ static int is_real_level(const char *filename)
 int Gamesave_num_players=0;
 
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 namespace {
 
 using savegame_pof_names_type = enumerated_array<char[FILENAME_LEN], 167, polygon_model_index>;
@@ -181,7 +181,7 @@ static void verify_object(const d_level_shared_robot_info_state &LevelSharedRobo
 		if (obj.render_type == render_type::RT_POLYOBJ)
 		{
 			auto &ri = Robot_info[get_robot_id(obj)];
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			assert(ri.model_num != polygon_model_index::None);
 				//if you fail this assert, it means that a robot in this level
 				//hasn't been loaded, possibly because he's marked as
@@ -211,7 +211,7 @@ static void verify_object(const d_level_shared_robot_info_state &LevelSharedRobo
 			//@@	obj.size = obj.size*3/4;
 		}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (get_robot_id(obj) == robot_id::special_reactor)						//special "reactor" robots
 			obj.movement_source = object::movement_type::None;
 #endif
@@ -254,7 +254,7 @@ static void verify_object(const d_level_shared_robot_info_state &LevelSharedRobo
 			assert(obj.render_type != render_type::RT_POLYOBJ);
 		}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		const auto weapon_id = get_weapon_id(obj);
 		if (weapon_id == weapon_id_type::PMINE_ID)
 		{		//make sure pmines have correct values
@@ -276,7 +276,7 @@ static void verify_object(const d_level_shared_robot_info_state &LevelSharedRobo
 		obj.render_type = render_type::RT_POLYOBJ;
 		obj.control_source = object::control_type::cntrlcen;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		// Make model number is correct...	
 		for (int i=0; i<Num_total_object_types; i++ )	
 			if ( ObjType[i] == OL_CONTROL_CENTER )		{
@@ -336,7 +336,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 
 	if (obj->type == OBJ_ROBOT)
 	{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		if (const auto id = underlying_value(get_robot_id(obj)); id >= 24)
 			set_robot_id(obj, static_cast<robot_id>(id % 24));
 #endif
@@ -456,7 +456,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 			obj->ctype.ai_info.CURRENT_STATE = build_ai_state_from_untrusted(ai_info_flags[1]).value();
 			obj->ctype.ai_info.GOAL_STATE = build_ai_state_from_untrusted(ai_info_flags[2]).value();
 			obj->ctype.ai_info.PATH_DIR = ai_info_flags[3];
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			obj->ctype.ai_info.SUBMODE = ai_info_flags[4];
 #elif defined(DXX_BUILD_DESCENT_II)
 			obj->ctype.ai_info.SUB_FLAGS = ai_info_flags[4];
@@ -496,7 +496,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 			obj->ctype.laser_info.parent_type		= PHYSFSX_readShort(f);
 			obj->ctype.laser_info.parent_num		= PHYSFSX_readShort(f);
 			obj->ctype.laser_info.parent_signature	= object_signature_t{static_cast<uint16_t>(PHYSFSX_readInt(f))};
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			obj->ctype.laser_info.last_afterburner_time = 0;
 #endif
 			obj->ctype.laser_info.clear_hitobj();
@@ -528,7 +528,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 			if (get_powerup_id(obj) == powerup_type_t::POW_VULCAN_WEAPON)
 					obj->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			else if (get_powerup_id(obj) == powerup_type_t::POW_GAUSS_WEAPON)
 					obj->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
 
@@ -569,7 +569,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 			int tmo;
 
 			obj->rtype.pobj_info.model_num = build_polygon_model_index_from_untrusted(
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				convert_polymod(LevelSharedPolygonModelState.N_polygon_models, PHYSFSX_readInt(f))
 #elif defined(DXX_BUILD_DESCENT_II)
 				PHYSFSX_readInt(f)
@@ -584,7 +584,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 			tmo = PHYSFSX_readInt(f);
 
 #if !DXX_USE_EDITOR
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			obj->rtype.pobj_info.tmap_override	= convert_tmap(tmo);
 #elif defined(DXX_BUILD_DESCENT_II)
 			obj->rtype.pobj_info.tmap_override	= tmo;
@@ -612,7 +612,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 		case render_type::RT_POWERUP:
 		case render_type::RT_FIREBALL:
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			obj->rtype.vclip_info.vclip_num	= convert_vclip(Vclip, PHYSFSX_readInt(f));
 #elif defined(DXX_BUILD_DESCENT_II)
 			obj->rtype.vclip_info.vclip_num	= build_vclip_index_from_untrusted(PHYSFSX_readInt(f));
@@ -660,7 +660,7 @@ namespace dsx {
 namespace {
 static void write_object(const object &obj, short version, PHYSFS_File *f)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	(void)version;
 #endif
 	PHYSFSX_writeU8(f, obj.type);
@@ -726,7 +726,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 			ai_info_flags[1] = obj.ctype.ai_info.CURRENT_STATE;
 			ai_info_flags[2] = obj.ctype.ai_info.GOAL_STATE;
 			ai_info_flags[3] = obj.ctype.ai_info.PATH_DIR;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			ai_info_flags[4] = obj.ctype.ai_info.SUBMODE;
 #elif defined(DXX_BUILD_DESCENT_II)
 			ai_info_flags[4] = obj.ctype.ai_info.SUB_FLAGS;
@@ -742,7 +742,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 			PHYSFS_writeSLE16(f, obj.ctype.ai_info.path_length);
 			PHYSFS_writeSLE16(f, obj.ctype.ai_info.cur_path_index);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			PHYSFS_writeSLE16(f, segment_none);
 			PHYSFS_writeSLE16(f, segment_none);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -781,7 +781,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 
 		case object::control_type::powerup:
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			PHYSFS_writeSLE32(f, obj.ctype.powerup_info.count);
 #elif defined(DXX_BUILD_DESCENT_II)
 			if (version >= 25)
@@ -901,7 +901,7 @@ static void validate_segment_wall(const vcsegptridx_t seg, shared_side &side, co
 }
 
 static int load_game_data(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
 	fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, const NamedPHYSFS_File LoadFile)
@@ -952,7 +952,7 @@ static int load_game_data(
 	LevelSharedRobotcenterState.Num_robot_centers = Num_robot_centers;
 	PHYSFSX_fseek(LoadFile, 4, SEEK_CUR);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #elif defined(DXX_BUILD_DESCENT_II)
 	unsigned num_delta_lights;
 	unsigned Num_static_lights;
@@ -1025,7 +1025,7 @@ static int load_game_data(
 			nw.flags = wf;
 			nw.hps		= w.hps;
 			nw.trigger	= static_cast<trgnum_t>(w.trigger);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			nw.clip_num	= convert_wclip(w.clip_num);
 #elif defined(DXX_BUILD_DESCENT_II)
 			nw.clip_num	= w.clip_num;
@@ -1044,7 +1044,7 @@ static int load_game_data(
 			nw.flags = wf;
 			nw.hps		= w.hps;
 			nw.trigger	= static_cast<trgnum_t>(w.trigger);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			nw.clip_num	= convert_wclip(w.clip_num);
 #elif defined(DXX_BUILD_DESCENT_II)
 			nw.clip_num	= w.clip_num;
@@ -1058,7 +1058,7 @@ static int load_game_data(
 	auto &vmtrgptr = Triggers.vmptr;
 	for (auto &i : vmtrgptr)
 	{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		if (game_top_fileinfo_version <= 25)
 			v25_trigger_read(LoadFile, &i);
 		else {
@@ -1086,7 +1086,7 @@ static int load_game_data(
 
 	for (auto &&[i, r] : enumerate(partial_range(RobotCenters, Num_robot_centers)))
 	{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		matcen_info_read(LoadFile, r, game_top_fileinfo_version);
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (game_top_fileinfo_version < 27) {
@@ -1102,7 +1102,7 @@ static int load_game_data(
 					r.fuelcen_num = seg.station_idx;
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	//================ READ DL_INDICES INFO ===============
 
 	{
@@ -1211,7 +1211,7 @@ static int load_game_data(
 	//	MK, 10/17/95: Make walls point back at the triggers that control them.
 	//	Go through all triggers, stuffing controlling_trigger field in Walls.
 	{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		for (auto &w : vmwallptr)
 			w.controlling_trigger = trigger_none;
 #endif
@@ -1228,7 +1228,7 @@ static int load_game_data(
 					if (Segments[seg_num].special != segment_special::robotmaker)
 						con_printf(CON_URGENT, "matcen %u triggers non-matcen segment %hu", underlying_value(t.get_unchecked_index()), seg_num);
 				}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				else if (tr.type != trigger_action::light_off && tr.type != trigger_action::light_on)
 				{	//light triggers don't require walls
 					const auto side_num = tr.side[l];
@@ -1264,7 +1264,7 @@ static int load_game_data(
 	fix_object_segs();
 
 	if (game_top_fileinfo_version < GAME_VERSION
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	    && !(game_top_fileinfo_version == 25 && GAME_VERSION == 26)
 #endif
 		)
@@ -1277,7 +1277,7 @@ static int load_game_data(
 
 // ----------------------------------------------------------------------------
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define LEVEL_FILE_VERSION		1
 #elif defined(DXX_BUILD_DESCENT_II)
 #define LEVEL_FILE_VERSION      8
@@ -1294,7 +1294,7 @@ static int load_game_data(
 const char *Level_being_loaded=NULL;
 #endif
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 int no_old_level_file_error=0;
 #endif
 
@@ -1302,7 +1302,7 @@ int no_old_level_file_error=0;
 //returns 0 if success, else error code
 namespace dsx {
 int load_level(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
 	const char * filename_passed)
@@ -1349,7 +1349,7 @@ int load_level(
 	if (Gamesave_current_version < 5)
 		PHYSFSX_skipBytes<4>(LoadFile);		//was hostagetext_offset
 	init_exploding_walls();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (Gamesave_current_version >= 8) {    //read dummy data
 		PHYSFSX_skipBytes<4 + 2 + 1>(LoadFile);
 	}
@@ -1419,7 +1419,7 @@ int load_level(
 	auto &vmvertptr = Vertices.vmptr;
 	if (Current_mission && !d_stricmp("Descent: First Strike", Current_mission->mission_name) && !d_stricmp("level19.rdl", filename) && PHYSFS_fileLength(LoadFile) == 136706)
 		vmvertptr(vertnum_t{1905u})->z = -385 * F1_0;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	/* !!!HACK!!!
 	 * Descent 2 - Level 12: MAGNACORE STATION has a segment (104) with illegal dimensions.
 	 * HACK to fix this by moving the Vertex and fixing the associated Normals.
@@ -1467,7 +1467,7 @@ int load_level(
 
 	PHYSFS_seek(LoadFile, gamedata_offset);
 	game_err = load_game_data(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		LevelSharedDestructibleLightState,
 #endif
 		vmobjptridx, vmsegptridx, LoadFile);
@@ -1478,12 +1478,12 @@ int load_level(
 
 	//======================== CLOSE FILE =============================
 	LoadFile.reset();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	set_ambient_sound_flags();
 #endif
 
 #if DXX_USE_EDITOR
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	//If an old version, ask the use if he wants to save as new version
 	if (((LEVEL_FILE_VERSION>1) && Gamesave_current_version < LEVEL_FILE_VERSION) || mine_err==1 || game_err==1) {
 		gr_palette_load(gr_palette);
@@ -1525,7 +1525,7 @@ int load_level(
 	}
 
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	compute_slide_segs();
 #endif
 	return 0;
@@ -1573,7 +1573,7 @@ int create_new_mine(void)
 	
 	Current_level_num = 1;		// make level 1 (for now)
 	Current_level_name.next()[0] = 0;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	Gamesave_current_version = LEVEL_FILE_VERSION;
 #elif defined(DXX_BUILD_DESCENT_II)
 	Gamesave_current_version = GAME_VERSION;
@@ -1632,7 +1632,7 @@ int	Errors_in_mine;
 namespace dsx {
 namespace {
 // -----------------------------------------------------------------------------
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static unsigned compute_num_delta_light_records(fvcdlindexptr &vcdlindexptr)
 {
 	unsigned total = 0;
@@ -1646,7 +1646,7 @@ static unsigned compute_num_delta_light_records(fvcdlindexptr &vcdlindexptr)
 // -----------------------------------------------------------------------------
 // Save game
 static int save_game_data(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
 	PHYSFS_File *SaveFile)
@@ -1654,7 +1654,7 @@ static int save_game_data(
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	short game_top_fileinfo_version = Gamesave_current_version >= 5 ? 31 : GAME_VERSION;
 #elif defined(DXX_BUILD_DESCENT_II)
 	short game_top_fileinfo_version = Gamesave_current_version >= 5 ? 31 : 25;
@@ -1687,7 +1687,7 @@ static int save_game_data(
 	const auto Num_robot_centers = LevelSharedRobotcenterState.Num_robot_centers;
 	WRITE_HEADER_ENTRY(matcen_info, Num_robot_centers);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	unsigned num_delta_lights = 0;
 	if (game_top_fileinfo_version >= 29)
 	{
@@ -1701,7 +1701,7 @@ static int save_game_data(
 	if (game_top_fileinfo_version >= 31)
 #endif
 		PHYSFSX_printf(SaveFile, "%s\n", static_cast<const char *>(Current_level_name));
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	else if (game_top_fileinfo_version >= 14)
 		PHYSFSX_writeString(SaveFile, Current_level_name);
 
@@ -1760,7 +1760,7 @@ static int save_game_data(
 		matcen_info_write(SaveFile, r, game_top_fileinfo_version);
 
 	//================ SAVE DELTA LIGHT INFO ===============
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (game_top_fileinfo_version >= 29)
 	{
 		dl_indices_offset = PHYSFS_tell(SaveFile);
@@ -1790,7 +1790,7 @@ static int save_game_data(
 	WRITE_OFFSET(triggers, 6);
 	WRITE_OFFSET(control, 3);
 	WRITE_OFFSET(matcen, 3);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (game_top_fileinfo_version >= 29)
 	{
 		WRITE_OFFSET(dl_indices, 3);
@@ -1807,7 +1807,7 @@ static int save_game_data(
 // -----------------------------------------------------------------------------
 // Save game
 static int save_level_sub(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
 	fvmobjptridx &vmobjptridx, const char *const filename)
@@ -1836,7 +1836,7 @@ static int save_level_sub(
 //	else
 	{
 		auto &level_file_extension =
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			(Gamesave_current_version > 3)
 			? D2X_LEVEL_FILE_EXTENSION
 			:
@@ -1886,14 +1886,14 @@ static int save_level_sub(
 	//save placeholders
 	PHYSFS_writeSLE32(SaveFile, minedata_offset);
 	PHYSFS_writeSLE32(SaveFile, gamedata_offset);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	int hostagetext_offset = 0;
 	PHYSFS_writeSLE32(SaveFile, hostagetext_offset);
 #endif
 
 	//Now write the damn data
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (Gamesave_current_version >= 8)
 	{
 		//write the version 8 data (to make file unreadable by 1.0 & 1.1)
@@ -1936,18 +1936,18 @@ static int save_level_sub(
 		save_mine_data_compiled(SaveFile);
 	gamedata_offset = PHYSFS_tell(SaveFile);
 	save_game_data(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		LevelSharedDestructibleLightState,
 #endif
 		SaveFile);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	hostagetext_offset = PHYSFS_tell(SaveFile);
 #endif
 
 	PHYSFS_seek(SaveFile, sizeof(int) + sizeof(Gamesave_current_version));
 	PHYSFS_writeSLE32(SaveFile, minedata_offset);
 	PHYSFS_writeSLE32(SaveFile, gamedata_offset);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	PHYSFS_writeSLE32(SaveFile, hostagetext_offset);
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (Gamesave_current_version < 5)
@@ -1968,7 +1968,7 @@ static int save_level_sub(
 }
 
 int save_level(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
 	const char * filename)
@@ -1979,7 +1979,7 @@ int save_level(
 
 	// Save compiled version...
 	r1 = save_level_sub(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		LevelSharedDestructibleLightState,
 #endif
 		vmobjptridx, filename);

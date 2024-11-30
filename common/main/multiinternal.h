@@ -72,7 +72,7 @@
         VALUE(MULTI_PLAYER_INV           , DXX_MP_SIZE_PLAYER_INVENTORY)	\
 	D2X_MP_COMMANDS(VALUE)	\
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define DXX_MP_SIZE_ENDLEVEL_START	3
 #define DXX_MP_SIZE_PLAYER_RELATED	58
 #define DXX_MP_SIZE_PLAYER_INVENTORY	15
@@ -199,7 +199,7 @@ void multi_do_claim_robot(playernum_t pnum, const multiplayer_rspan<multiplayer_
 void multi_do_robot_position(playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_POSITION> buf);
 void multi_do_release_robot(playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_RELEASE> buf);
 void multi_do_robot_fire(multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_FIRE> buf);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void multi_recv_escort_goal(d_unique_buddy_state &, multiplayer_rspan<multiplayer_command_t::MULTI_UPDATE_BUDDY_STATE> buf);
 #endif
 void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_array &Vclip, playernum_t pnum, multiplayer_rspan<multiplayer_command_t::MULTI_BOSS_TELEPORT> buf);

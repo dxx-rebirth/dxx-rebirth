@@ -136,7 +136,7 @@ constexpr std::uint16_t MULTI_PROTO_VERSION{16};
 #define MAX_MESSAGE_LEN 35
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 constexpr std::size_t MAX_NET_CREATE_OBJECTS{20u};
 #elif defined(DXX_BUILD_DESCENT_II)
 constexpr std::size_t MAX_NET_CREATE_OBJECTS{40u};
@@ -172,7 +172,7 @@ constexpr std::size_t MAX_NET_CREATE_OBJECTS{40u};
 
 #define MULTI_GAME_TYPE_COUNT	8
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 13> MULTI_GAME_NAME_LENGTH{};
 constexpr std::integral_constant<unsigned, 18> MULTI_ALLOW_POWERUP_TEXT_LENGTH{};
 #define MULTI_ALLOW_POWERUP_MAX 12
@@ -237,7 +237,7 @@ struct dispatch_table
 	virtual void kick_player(const _sockaddr &dump_addr, kick_player_reason why) const = 0;
 	virtual void disconnect_player(int playernum) const = 0;
 	virtual int end_current_level(
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		next_level_request_secret_flag *secret
 #endif
 		) const = 0;
@@ -254,7 +254,7 @@ enum netflag_bit : uint8_t
 };
 // Bitmask for netgame_info->AllowedItems to set allowed items in Netgame
 enum class netflag_flag :
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	uint16_t
 #elif defined(DXX_BUILD_DESCENT_II)
 	uint32_t
@@ -272,7 +272,7 @@ enum netgrant_bit : uint8_t
 };
 #define define_netgrant_bit_mask(NAME,STR)	NAME = 1u << static_cast<uint8_t>(netgrant_bit::BIT_##NAME),
 enum netgrant_flag :
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	uint8_t
 #elif defined(DXX_BUILD_DESCENT_II)
 	uint16_t
@@ -295,7 +295,7 @@ struct packed_spawn_granted_items
 	}
 	explicit operator bool() const { return mask != netgrant_flag::None; }
 	bool has_quad_laser() const { return mask & NETGRANT_QUAD; }
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	bool has_afterburner() const { return mask & NETGRANT_AFTERBURNER; }
 #endif
 };
@@ -309,13 +309,13 @@ public:
 		primary_width = 3,
 		secondary_shift = primary_shift + primary_width,
 		secondary_width = 3,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		accessory_shift = secondary_shift + secondary_width,
 		accessory_width = 3,
 #endif
 	};
 private:
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	typedef uint8_t count_type;
 #elif defined(DXX_BUILD_DESCENT_II)
 	typedef uint16_t count_type;
@@ -347,7 +347,7 @@ public:
 	}
 	DEFINE_ACCESSOR(primary);
 	DEFINE_ACCESSOR(secondary);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	DEFINE_ACCESSOR(accessory);
 #endif
 	count_type get_packed_field() const
@@ -434,11 +434,11 @@ namespace dsx {
 enum class multi_endlevel_type : bool
 {
 	normal,
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	secret,
 #endif
 };
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 void multi_send_endlevel_start(multi_endlevel_type);
 #elif defined(DXX_BUILD_DESCENT_II)
 void multi_send_endlevel_start();
@@ -464,7 +464,7 @@ void multi_digi_play_sample_once(int soundnum, fix max_volume);
 void multi_send_score(void);
 void multi_send_trigger(trgnum_t trigger);
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 void multi_send_flags(playernum_t);
 struct marker_message_text_t;
@@ -514,7 +514,7 @@ namespace dsx {
 void multi_initiate_save_game();
 void multi_initiate_restore_game();
 void multi_execute_save_game(d_game_unique_state::save_slot slot, const d_game_unique_state::savegame_description &desc, std::ranges::subrange<const player *> player_range);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static inline void multi_send_got_flag (playernum_t) {}
 #elif defined(DXX_BUILD_DESCENT_II)
 void multi_send_got_flag (playernum_t);
@@ -598,7 +598,7 @@ extern void multi_send_message_start();
 void multi_send_msgsend_state(msgsend_state state);
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 extern std::array<grs_main_bitmap, 2> Orb_icons;
 struct hoard_highest_record
@@ -707,7 +707,7 @@ const char *multi_common_deny_save_game(const fvcobjptr &vcobjptr, std::ranges::
 const char *multi_interactive_deny_save_game(const fvcobjptr &vcobjptr, std::ranges::subrange<const player *> player_range, const d_level_unique_control_center_state &);
 void multi_check_for_killgoal_winner(const d_robot_info_array &Robot_info);
 }
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 extern void multi_send_stolen_items();
 void multi_send_trigger_specific(playernum_t pnum, trgnum_t trig);
@@ -776,7 +776,7 @@ struct netplayer_info : prohibit_void_ptr<netplayer_info>
 };
 
 #ifdef dsx
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 struct ThiefModifier
 {
 	enum Flags : uint8_t {
@@ -833,7 +833,7 @@ struct netgame_info : prohibit_void_ptr<netgame_info>
 	packed_netduplicate_items DuplicatePowerups;
 	unsigned ShufflePowerupSeed;
 	d_mp_gameplay_options MPGameplayOptions;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	uint8_t Allow_marker_view;
 	uint8_t AlwaysLighting;
 	uint8_t ThiefModifierFlags;

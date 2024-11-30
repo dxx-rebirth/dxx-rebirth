@@ -130,7 +130,7 @@ static inline PHYSFS_sint64 PHYSFSX_writeU8(PHYSFS_File *file, PHYSFS_uint8 val)
 }
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static inline PHYSFS_sint64 PHYSFSX_writeString(PHYSFS_File *file, const char *s)
 {
 	return {PHYSFS_writeBytes(file, s, strlen(s) + 1)};
@@ -547,7 +547,7 @@ namespace dsx {
 
 bool PHYSFSX_init(int argc, char *argv[]);
 int PHYSFSX_checkSupportedArchiveTypes();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(char *name1, char *name2, physfs_search_path);
 #endif
 

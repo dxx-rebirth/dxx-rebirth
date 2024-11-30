@@ -44,7 +44,7 @@ void do_end_briefing_screens(const d_fname &filename);
 #endif
 extern char * get_briefing_screen( int level_num );
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void show_loading_screen(uint8_t *title_pal);
 extern void show_endgame_briefing(void);
 namespace dsx {

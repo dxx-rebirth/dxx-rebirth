@@ -203,7 +203,7 @@ int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_le
 		case OBJ_CNTRLCEN: 
 		{
 			const auto model_num =
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			ObjId[object_type];
 #elif defined(DXX_BUILD_DESCENT_II)
 			Reactors[object_id].model_num;

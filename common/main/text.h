@@ -137,7 +137,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TXT_W_FUSION            dxx_gettext(108, "Fusion Cannon")
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define TXT_COPYRIGHT           dxx_gettext(11, "Copyright (C) 1994, 1995 Parallax Software Corporation")
 #define TXT_REGISTER_DESCENT    dxx_gettext(56, "CD-Enhanced Descent Coming Summer '95!")
 #define TXT_W_C_MISSILE			dxx_gettext(109, "Concussion Missile")
@@ -1171,7 +1171,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define dxx_text_ensure_simple_expr(E,T)	((void)(E), (Int3()), (T))
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define _D2X_PRIMARY_SUPER_WEAPON_NAMES(u)
 #define _D2X_SECONDARY_SUPER_WEAPON_NAMES(u)
 #elif defined(DXX_BUILD_DESCENT_II)

@@ -29,7 +29,7 @@ struct polygon_model_points : std::array<g3s_point, 1000> {};
 
 #ifdef dsx
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define glow_array_size	1
 #elif defined(DXX_BUILD_DESCENT_II)
 #define glow_array_size	2
@@ -45,7 +45,7 @@ void g3_draw_polygon_model(grs_bitmap *const *model_bitmaps, polygon_model_point
 
 //init code for bitmap models
 int16_t g3_init_polygon_model(std::span<uint8_t> model);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 void g3_validate_polygon_model(std::span<uint8_t> model);
 #endif
 }

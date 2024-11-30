@@ -36,7 +36,7 @@ struct dispatch_table final : multi::dispatch_table
 	virtual void kick_player(const _sockaddr &dump_addr, kick_player_reason why) const override;
 	virtual void disconnect_player(int playernum) const override;
 	virtual int end_current_level(
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		next_level_request_secret_flag *secret
 #endif
 		) const override;

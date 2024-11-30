@@ -126,7 +126,7 @@ struct player_rw
 	ubyte   laser_level;            // Current level of the laser.
 	sbyte   starting_level;         // What level the player started on.
 	short   killer_objnum;          // Who killed me.... (-1 if no one)
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	ubyte		primary_weapon_flags;					//	bit set indicates the player has this weapon.
 	ubyte		secondary_weapon_flags;					//	bit set indicates the player has this weapon.
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -142,7 +142,7 @@ struct player_rw
 	};
 	ushort  secondary_ammo[MAX_SECONDARY_WEAPONS]; // How much ammo of each type.
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	ushort  pad; // Pad because increased weapon_flags from byte to short -YW 3/22/95
 #endif
 	//  -- make sure you're 4 byte aligned now
@@ -156,7 +156,7 @@ struct player_rw
 	fix     cloak_time;             // Time cloaked
 	fix     invulnerable_time;      // Time invulnerable
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	short   KillGoalCount;          // Num of players killed this level
 #endif
 	short   net_killed_total;       // Number of times killed total
@@ -173,7 +173,7 @@ struct player_rw
 	sbyte   hours_level;            // Hours played (since time_total can only go up to 9 hours)
 	sbyte   hours_total;            // Hours played (since time_total can only go up to 9 hours)
 } __pack__;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static_assert(sizeof(player_rw) == 116, "wrong size player_rw");
 #elif defined(DXX_BUILD_DESCENT_II)
 static_assert(sizeof(player_rw) == 142, "wrong size player_rw");

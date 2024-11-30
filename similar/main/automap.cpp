@@ -160,7 +160,7 @@ namespace {
 struct automap : ::dcx::automap
 {
 	using ::dcx::automap::automap;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	color_t white_63;
 	color_t blue_48;
 	color_t wall_revealed_color;
@@ -171,7 +171,7 @@ struct automap : ::dcx::automap
 
 static void init_automap_subcanvas(grs_subcanvas &view, grs_canvas &container)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (MacHog)
 		gr_init_sub_canvas(view, container, 38*(SWIDTH/640.0), 77*(SHEIGHT/480.0), 564*(SWIDTH/640.0), 381*(SHEIGHT/480.0));
 	else
@@ -264,7 +264,7 @@ static void recompute_automap_segment_visibility(const d_level_unique_automap_st
 	adjust_segment_limit(am, am.segment_limit);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #ifdef RELEASE
 constexpr
 #endif
@@ -362,7 +362,7 @@ void init_automap_colors(automap &am)
 #define	MAX_DROP_MULTI_COMPETITIVE	2
 #define	MAX_DROP_SINGLE	9
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 marker_message_text_t Marker_input;
 
 d_marker_state MarkerState;
@@ -426,7 +426,7 @@ xrange<game_marker_index> get_game_marker_range(const game_mode_flags game_mode,
 namespace {
 
 static void draw_all_edges(automap &am);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static void DrawMarkerNumber(grs_canvas &canvas, const automap &am, const game_marker_index gmi, const player_marker_index pmi, const g3s_point &BasePoint)
 {
 	struct xy
@@ -631,7 +631,7 @@ static void ClearMarkers()
 
 void automap_clear_visited(d_level_unique_automap_state &LevelUniqueAutomapState)
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	ClearMarkers();
 #endif
 	::dcx::automap_clear_visited(LevelUniqueAutomapState);
@@ -666,7 +666,7 @@ static void draw_player(const g3_draw_line_context &context, const object_base &
 	g3_draw_line(context, sphere_point, arrow_point);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 //name for each group.  maybe move somewhere else
 constexpr char system_name[][17] = {
 			"Zeta Aquilae",
@@ -683,7 +683,7 @@ static void name_frame(grs_canvas &canvas, automap &am)
 	char		name_level_left[128];
 
 	auto &game_font{*GAME_FONT};
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	const char *name_level;
 	if (Current_level_num > 0)
 	{
@@ -801,7 +801,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 		gr_set_fontcolor(canvas, BM_XRGB(20, 20, 20), -1);
 	{
 		int x, y;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (MacHog)
 			x = 80 * (SWIDTH / 640.), y = 36 * (SHEIGHT / 480.);
 	else
@@ -812,7 +812,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 	{
 		int x;
 		int y0, y1, y2;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		const auto s1{TXT_SLIDE_UPDOWN};
 		const auto &s2{"F9/F10 Changes viewing distance"};
 	if (!MacHog)
@@ -864,7 +864,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 	const auto closest_color{BM_XRGB(self_ship_rgb.r, self_ship_rgb.g, self_ship_rgb.b)};
 	draw_player(g3_draw_line_context{canvas, closest_color}, vcobjptr(get_local_player().objnum));
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	DrawMarkers(vcobjptr, canvas, am);
 #endif
 	
@@ -927,7 +927,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 
 	name_frame(canvas, am);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	{
 		const auto HighlightMarker{MarkerState.HighlightMarker};
 		if (MarkerState.message.valid_index(HighlightMarker))
@@ -966,7 +966,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 	am.t1 = am.t2;
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define MAP_BACKGROUND_FILENAME (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFS_exists("maph.pcx")) ? "maph.pcx" : "map.pcx")
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MAP_BACKGROUND_FILENAME ((HIRESMODE && PHYSFS_exists("mapb.pcx")) ? "mapb.pcx" : "map.pcx")
@@ -1000,7 +1000,7 @@ static window_event_result automap_key_command(const d_event &event, automap &am
 				return window_event_result::close;
 			}
 			return window_event_result::handled;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		case KEY_ALTED+KEY_F:           // Alt+F shows full map, if cheats enabled
 			if (cheats.enabled) 	 
 			{
@@ -1032,7 +1032,7 @@ static window_event_result automap_key_command(const d_event &event, automap &am
 				adjust_segment_limit(am, am.segment_limit);
 			}
 			return window_event_result::handled;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case KEY_1:
 		case KEY_2:
 		case KEY_3:
@@ -1402,7 +1402,7 @@ static void add_one_edge(automap &am, vertnum_t va, vertnum_t vb, const uint8_t 
 			am.end_valid_edges = i;
 	} else {
 		if ( color != am.wall_normal_color )
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (color != am.wall_revealed_color)
 #endif
 				e->color = color;
@@ -1431,7 +1431,7 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 {
 	auto &ControlCenterState{LevelUniqueObjectState.ControlCenterState};
 	auto &WallAnims{GameSharedState.WallAnims};
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Objects{LevelUniqueObjectState.Objects};
 	auto &vmobjptr{Objects.vmptr};
 #endif
@@ -1470,7 +1470,7 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 		if (wall_num != wall_none)
 		{
 			auto &w{*vcwallptr(wall_num)};
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			auto trigger_num{w.trigger};
 			auto &Triggers{LevelUniqueWallSubsystemState.Triggers};
 			auto &vmtrgptr{Triggers.vmptr};
@@ -1540,7 +1540,7 @@ static void add_segment_edges(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr, automa
 			color = BM_XRGB(31,0,31);
 
 		if ( color != 255 )	{
-#if defined(DXX_BUILD_DESCENT_II) 
+#if DXX_BUILD_DESCENT == 2
 			// If they have a map powerup, draw unvisited areas in dark blue.
 			// NOTE: D1 originally had this part of code but w/o cheat-check. It's only supposed to draw blue with powerup that does not exist in D1. So make this D2-only
 #ifndef NDEBUG
@@ -1671,7 +1671,7 @@ void automap_build_edge_list(automap &am, int add_all_edges)
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void InitMarkerInput ()
 {
 	//find free marker slot

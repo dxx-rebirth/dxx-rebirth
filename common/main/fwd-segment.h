@@ -125,7 +125,7 @@ constexpr constant_xrange<side_relative_vertnum, side_relative_vertnum{0}, side_
 DXX_VALPTRIDX_DECLARE_SUBTYPE(dcx::, vertex, vertnum_t, MAX_VERTICES);
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<std::size_t, 5> MAX_CENTER_TYPES{};
 #elif defined(DXX_BUILD_DESCENT_II)
 constexpr std::integral_constant<std::size_t, 7> MAX_CENTER_TYPES{};
@@ -152,7 +152,7 @@ void segment_side_wall_tmap_write(PHYSFS_File *fp, const shared_side &sside, con
 void add_segment_to_group(segnum_t segment_num, int group_num);
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 struct delta_light;
 struct dl_index;

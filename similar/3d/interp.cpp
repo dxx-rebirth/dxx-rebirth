@@ -174,7 +174,7 @@ namespace dsx {
 namespace {
 
 static int16_t init_model_sub(uint8_t *model_sub_ptr, const std::span<const uint8_t> model_base);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static void validate_model_sub(uint8_t *model_sub_ptr, const std::span<const uint8_t> model_base);
 #endif
 
@@ -193,7 +193,7 @@ public:
 		if (nv > MAX_POINTS_PER_POLY)
 			return;
 		if (g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0) {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			color = (w(p+28));
 #elif defined(DXX_BUILD_DESCENT_II)
 			color = gr_find_closest_color_15bpp(packed_color_r5g5b5{w(p + 28)});
@@ -207,7 +207,7 @@ public:
 	}
 	void op_subcall(const uint8_t *const p)
 	{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		color = g3_poly_get_color(p+w(p+16));
 #elif defined(DXX_BUILD_DESCENT_II)
 		(void)p;
@@ -317,7 +317,7 @@ public:
 	{
 		if (nv > MAX_POINTS_PER_POLY)
 			return;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		fix effective_glow_value;
 		if (glow_values && glow_num < glow_values->size())
 		{
@@ -330,7 +330,7 @@ public:
 #endif
 		if (g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0)
 		{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				const uint8_t color = w(p + 28);
 #elif defined(DXX_BUILD_DESCENT_II)
 				//					DPH: Now we treat this color as 15bpp
@@ -500,7 +500,7 @@ public:
 
 class init_model_sub_state :
 	public model_load_state<init_model_sub_state>
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	, public interpreter_ignore_op_flatpoly
 #endif
 {
@@ -516,7 +516,7 @@ public:
 		if (highest_texture_num < t)
 			highest_texture_num = t;
 	}
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	void op_flatpoly(uint8_t *const p, const uint_fast32_t nv) const
 	{
 		//must have 3 or more points
@@ -528,7 +528,7 @@ public:
 #endif
 };
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 class validate_model_sub_state :
 	public model_load_state<validate_model_sub_state>,
 	public interpreter_ignore_op_flatpoly
@@ -952,7 +952,7 @@ int16_t g3_init_polygon_model(const std::span<uint8_t> model)
 	return init_model_sub(model.data(), model);
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 namespace {
 
 static void validate_model_sub(uint8_t *const model_sub_ptr, const std::span<const uint8_t> model_base)

@@ -75,7 +75,7 @@ static constexpr tmapinfo_flag operator|(tmapinfo_flag a, tmapinfo_flag b)
 
 #ifdef dsx
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 800> MAX_TEXTURES{};
 #elif defined(DXX_BUILD_DESCENT_II)
 constexpr std::integral_constant<unsigned, 1200> MAX_TEXTURES{};
@@ -83,7 +83,7 @@ constexpr std::integral_constant<unsigned, 1200> MAX_TEXTURES{};
 
 struct tmap_info : prohibit_void_ptr<tmap_info>
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	d_fname filename;
 	tmapinfo_flags flags;
 	fix			lighting;		// 0 to 1
@@ -149,7 +149,7 @@ namespace dsx {
 
 int gamedata_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 
 #define OL_ROBOT 				1
 #define OL_HOSTAGE 			2
@@ -200,13 +200,13 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 #endif
 
 void bm_read_all(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_vclip_array &Vclip, NamedPHYSFS_File fp);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 void properties_read_cmp(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_vclip_array &Vclip, NamedPHYSFS_File fp);
 #endif
 int ds_load(int skip, const char * filename );
 int compute_average_pixel(grs_bitmap *n);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 int load_exit_models();
 //these values are the number of each item in the release of d2
 //extra items added after the release get written in an additional hamfile

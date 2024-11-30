@@ -41,7 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "wall.h"
 #include "laser.h"
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #include "bm.h"
 #include "player.h"
 #define MAX_OBJECT_VEL	i2f(100)
@@ -193,7 +193,7 @@ static void do_physics_sim_rot(object_base &obj)
 			vm_vec_scale(obj.mtype.phys_info.rotvel, f1_0 - fixmul(k, drag));
 		}
 		else
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (! (obj.mtype.phys_info.flags & PF_FREE_SPINNING))
 #endif
 		{
@@ -319,7 +319,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 	const auto orig_segnum{obj->segnum};
 	bool Player_ScrapeFrame=false;
 	auto result = window_event_result::handled;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	bool bounced{};
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 #endif
@@ -543,7 +543,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 
 				if ((wall_part != 0 && moved_time>0 && (hit_speed=-fixdiv(wall_part,moved_time))>0) || obj->type == OBJ_WEAPON || obj->type == OBJ_DEBRIS)
 					result = collide_object_with_wall(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 						LevelSharedSegmentState.DestructibleLights,
 #endif
 						Robot_info, obj, hit_speed, Segments.vmptridx(WallHitSeg), WallHitSide, hit_info.hit_pnt);
@@ -559,12 +559,12 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 				Assert( WallHitSeg != segment_none );
 
 				if ( !(obj->flags&OF_SHOULD_BE_DEAD) )	{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 					if (!cheats.bouncyfire)
 #endif
 					Assert(!(obj->mtype.phys_info.flags & PF_STICK && obj->mtype.phys_info.flags & PF_BOUNCE));	//can't be bounce and stick
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 					/*
 					 * Force fields are not supported in Descent 1.  Use
 					 * this as a placeholder to make the code match the
@@ -597,7 +597,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 						if (forcefield_bounce || (obj->mtype.phys_info.flags & PF_BOUNCE)) {		//bounce off wall
 							wall_part *= 2;	//Subtract out wall part twice to achieve bounce
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 							if (forcefield_bounce) {
 								check_vel = 1;				//check for max velocity
 								if (obj->type == OBJ_PLAYER)
@@ -617,7 +617,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 
 						vm_vec_scale_add2(obj->mtype.phys_info.velocity,hit_info.hit_wallnorm,-wall_part);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 						if (check_vel) {
 							fix vel = vm_vec_mag_quick(obj->mtype.phys_info.velocity);
 
@@ -694,7 +694,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 
 	// After collision with objects and walls, set velocity from actual movement
 	if (!obj_stopped
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		&& !bounced 
 #endif
 		&& ((obj->type == OBJ_PLAYER) || (obj->type == OBJ_ROBOT) || (obj->type == OBJ_DEBRIS)) 
@@ -857,7 +857,7 @@ void phys_apply_rot(object &obj, const vms_vector &force_vec)
 	if (obj.movement_source != object::movement_type::physics)
 		return;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 #endif
 	const auto vecmag{vm_vec_mag(force_vec)};
@@ -870,7 +870,7 @@ void phys_apply_rot(object &obj, const vms_vector &force_vec)
 		if (obj.type == OBJ_ROBOT) {
 			if (rate < F1_0/4)
 				rate = F1_0/4;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			obj.ctype.ai_info.SKIP_AI_COUNT = 2;
 #elif defined(DXX_BUILD_DESCENT_II)
 			//	Changed by mk, 10/24/95, claw guys should not slow down when attacking!

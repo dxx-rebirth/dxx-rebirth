@@ -68,7 +68,7 @@ void multi_send_robot_frame();
 namespace dsx {
 int multi_explode_robot_sub(const d_robot_info_array &Robot_info, vmobjptridx_t botnum);
 void multi_robot_request_change(vmobjptridx_t robot, int playernum);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void multi_send_thief_frame();
 #endif
 }

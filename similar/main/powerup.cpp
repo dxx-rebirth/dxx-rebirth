@@ -73,7 +73,7 @@ void do_powerup_frame(const d_vclip_array &Vclip, const vmobjptridx_t obj)
 {
 	vclip_info *vci = &obj->rtype.vclip_info;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	const fix fudge = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
 	long objnum = obj;
@@ -93,7 +93,7 @@ void do_powerup_frame(const d_vclip_array &Vclip, const vmobjptridx_t obj)
 		if (vci->framenum > vc_num_frames1)
 			vci->framenum=0;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (objnum&1)
 		{
 			if (-- vci->framenum > vc_num_frames1)
@@ -157,7 +157,7 @@ void do_megawow_powerup(object &plrobj, const int quantity)
 {
 	powerup_basic_str(30, 0, 30, 1, "MEGA-WOWIE-ZOWIE!");
 	auto &player_info = plrobj.ctype.player_info;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	player_info.primary_weapon_flags = (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
 #elif defined(DXX_BUILD_DESCENT_II)
 	player_info.primary_weapon_flags = (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG) | (HAS_GAUSS_FLAG | HAS_HELIX_FLAG | HAS_PHOENIX_FLAG | HAS_OMEGA_FLAG);
@@ -174,7 +174,7 @@ void do_megawow_powerup(object &plrobj, const int quantity)
 	player_info.energy = F1_0*200;
 	plrobj.shields = F1_0*200;
 	player_info.powerup_flags |= PLAYER_FLAGS_QUAD_LASERS;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	const auto laser_level{MAX_LASER_LEVEL};
 #elif defined(DXX_BUILD_DESCENT_II)
 	player_info.Omega_charge = MAX_OMEGA_CHARGE;
@@ -199,7 +199,7 @@ static int pick_up_energy(player_info &player_info)
 		fix boost;
 		const auto Difficulty_level = GameUniqueState.Difficulty_level;
 		boost = 3 * F1_0 + 3 * F1_0 * (NDL - underlying_value(Difficulty_level));
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (Difficulty_level == Difficulty_level_type::_0)
 			boost += boost/2;
 #endif
@@ -243,7 +243,7 @@ static int pick_up_key(const int r, const int g, const int b, player_flags &play
 	player_flags |= key_flag;
 	powerup_basic(r, g, b, KEY_SCORE, "%s %s", key_name, TXT_ACCESS_GRANTED);
 	multi_digi_play_sample(Powerup_info[id].hit_sound, F1_0);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	invalidate_escort_goal(BuddyState);
 #endif
@@ -251,7 +251,7 @@ static int pick_up_key(const int r, const int g, const int b, player_flags &play
 }
 
 //	returns true if powerup consumed
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 template <int r, int g, int b>
 struct player_hit_basic_silent_powerup
 {
@@ -436,7 +436,7 @@ int do_powerup(const vmobjptridx_t obj)
 			if (shields < MAX_SHIELDS) {
 				const auto Difficulty_level = GameUniqueState.Difficulty_level;
 				fix boost = 3 * F1_0 + 3 * F1_0 * (NDL - underlying_value(Difficulty_level));
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				if (Difficulty_level == Difficulty_level_type::_0)
 					boost += boost/2;
 #endif
@@ -451,7 +451,7 @@ int do_powerup(const vmobjptridx_t obj)
 			}
 		case powerup_type_t::POW_LASER:
 			if (player_info.laser_level >= MAX_LASER_LEVEL) {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				player_info.laser_level = MAX_LASER_LEVEL;
 #endif
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, TXT_MAXED_OUT,TXT_LASER);
@@ -489,12 +489,12 @@ int do_powerup(const vmobjptridx_t obj)
 			break;
 
 		case	powerup_type_t::POW_VULCAN_WEAPON:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case	powerup_type_t::POW_GAUSS_WEAPON:
 #endif
 			{
 			used = pick_up_primary(player_info,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 									(id == powerup_type_t::POW_GAUSS_WEAPON)
 				? primary_weapon_index_t::GAUSS_INDEX
 				:
@@ -529,7 +529,7 @@ int do_powerup(const vmobjptridx_t obj)
 			used = pick_up_primary_or_energy(player_info, primary_weapon_index_t::FUSION_INDEX);
 			break;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case	powerup_type_t::POW_HELIX_WEAPON:
 			used = pick_up_primary_or_energy(player_info, primary_weapon_index_t::HELIX_INDEX);
 			break;
@@ -556,7 +556,7 @@ int do_powerup(const vmobjptridx_t obj)
 		case	powerup_type_t::POW_MEGA_WEAPON:
 			used = pick_up_secondary(player_info, secondary_weapon_index_t::MEGA_INDEX, 1, Controls);
 			break;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case	powerup_type_t::POW_SMISSILE1_1:
 			used = pick_up_secondary(player_info, secondary_weapon_index_t::SMISSILE1_INDEX, 1, Controls);
 			break;
@@ -629,7 +629,7 @@ int do_powerup(const vmobjptridx_t obj)
 			break;
 	#endif
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case powerup_type_t::POW_FULL_MAP:
 			used = player_hit_powerup<PLAYER_FLAGS_MAP_ALL>(player_info, "the FULL MAP", player_hit_silent_rb_powerup("FULL MAP!"));
 			break;

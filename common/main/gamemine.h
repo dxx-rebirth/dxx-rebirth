@@ -30,7 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define MINE_VERSION					17	// Current version expected
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MINE_VERSION        20  // Current version expected
@@ -85,7 +85,7 @@ struct mfi {
 	int     unused_offset;      // was: doors_offset
 	int     unused_howmamy;     // was: doors_howmany
 	int     unused_sizeof;      // was: doors_sizeof
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	short   level_shake_frequency, level_shake_duration;
 	// Shakes every level_shake_frequency seconds
 	// for level_shake_duration seconds (on average, random).  In 16ths second.
@@ -139,7 +139,7 @@ namespace dsx {
 int load_mine_data_compiled(NamedPHYSFS_File LoadFile, const char *Gamesave_current_filename);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 
 extern uint8_t d1_pig_present;

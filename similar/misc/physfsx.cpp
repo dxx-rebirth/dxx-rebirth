@@ -187,7 +187,7 @@ bool PHYSFSX_init(int argc, char *argv[])
 #endif
 
 #if DXX_ENABLE_ENVIRONMENT_VARIABLE_DXX_REBIRTH_HOME
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define DESCENT_PATH_NUMBER	"1"
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DESCENT_PATH_NUMBER	"2"
@@ -220,7 +220,7 @@ bool PHYSFSX_init(int argc, char *argv[])
 	return true;
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(char *const name1, char *const name2, physfs_search_path position)
 {
 	auto pathname{std::make_unique<std::array<char, PATH_MAX>>()};

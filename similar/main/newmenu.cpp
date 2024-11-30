@@ -52,7 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vers_id.h"
 #include "timer.h"
 #include "args.h"
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #include "gamepal.h"
 #endif
 
@@ -188,7 +188,7 @@ namespace dsx {
 
 namespace {
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static const char *UP_ARROW_MARKER(const grs_font &, const grs_font &)
 {
 	return "+";  // 135
@@ -222,7 +222,7 @@ static void nm_draw_background1(grs_canvas &canvas, const menu_filename filename
 		gr_palette_load( gr_palette );
 		show_fullscr(canvas, nm_background1);
 	}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	strcpy(last_palette_loaded,"");		//force palette load next time
 #endif
 }

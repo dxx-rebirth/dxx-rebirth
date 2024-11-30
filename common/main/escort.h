@@ -17,12 +17,12 @@
 #include "fwd-vclip.h"
 
 #ifdef dsx
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #include "fwd-robot.h"
 #endif
 
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static inline void detect_escort_goal_accomplished(const vmobjptridx_t &)
 {
 }

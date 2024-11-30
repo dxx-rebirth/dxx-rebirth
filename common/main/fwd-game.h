@@ -170,7 +170,7 @@ void PALETTE_FLASH_ADD(int dr, int dg, int db);
 
 struct d_game_shared_state;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 struct d_game_unique_state;
 struct d_level_shared_seismic_state;
 struct d_level_unique_seismic_state;
@@ -190,7 +190,7 @@ void show_netgame_help();
 
 // put up the help message
 void show_newdemo_help();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void full_palette_save();	// all of the above plus gr_palette_load(gr_palette)
 
 //Flickering light system
@@ -224,7 +224,7 @@ bool allowed_to_fire_laser(const player_info &);
 void reset_globals_for_new_game();
 void check_rear_view(control_info &Controls);
 int create_special_path();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 extern uint8_t DemoDoingRight, DemoDoingLeft;
 extern fix64	Time_flash_last_played;
 
@@ -243,7 +243,7 @@ void move_player_2_segment(vmsegptridx_t seg, sidenum_t side);
 #endif
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 void palette_save();
 #endif
 #endif

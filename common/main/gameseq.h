@@ -63,7 +63,7 @@ namespace dsx {
 enum class next_level_request_secret_flag : bool
 {
 	only_normal_level,
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	use_secret,
 #endif
 };
@@ -81,7 +81,7 @@ void init_player_stats_game(playernum_t pnum);      //clear all stats
 // called when the player has finished a level
 // if secret flag is true, advance to secret level, else next normal level
 window_event_result PlayerFinishedLevel(
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	next_level_request_secret_flag secret_flag
 #endif
 	);
@@ -89,7 +89,7 @@ window_event_result PlayerFinishedLevel(
 // called when the player has died
 window_event_result DoPlayerDead(void);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define gameseq_remove_unused_players(Robot_info)	gameseq_remove_unused_players()
 #undef PlayerFinishedLevel
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -138,7 +138,7 @@ extern int	Do_appearance_effect;
 
 
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 int p_secret_level_destroyed();
 void do_cloak_invul_secret_stuff(fix64 old_gametime, player_info &player_info);
 #endif

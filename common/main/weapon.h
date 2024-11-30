@@ -154,7 +154,7 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 	matter_flag matter;
 	bounce_type bounce;
 	persistence_flag persistent;         // 0 = dies when it hits something, 1 = continues (eg, fusion cannon)
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	polygon_model_index	model_num;		// Model num if rendertype==2.
 	polygon_model_index	model_num_inner;// Model num of inner part if rendertype==2.
 
@@ -256,7 +256,7 @@ enum class primary_weapon_index_t : uint8_t
 	SPREADFIRE_INDEX = 2,
 	PLASMA_INDEX = 3,
 	FUSION_INDEX = 4,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	SUPER_LASER_INDEX = 5,
 	GAUSS_INDEX = 6,
 	HELIX_INDEX = 7,
@@ -272,7 +272,7 @@ enum class secondary_weapon_index_t : uint8_t
 	PROXIMITY_INDEX = 2,
 	SMART_INDEX = 3,
 	MEGA_INDEX = 4,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	SMISSILE1_INDEX = 5,
 	GUIDED_INDEX = 6,
 	SMART_MINE_INDEX = 7,
@@ -296,7 +296,7 @@ struct player_info;
 void delayed_autoselect(player_info &, const control_info &Controls);
 
 //return which bomb will be dropped next time the bomb key is pressed
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static constexpr secondary_weapon_index_t which_bomb(const player_info &)
 {
 	return secondary_weapon_index_t::PROXIMITY_INDEX;

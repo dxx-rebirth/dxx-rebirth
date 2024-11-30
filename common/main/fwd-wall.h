@@ -28,7 +28,7 @@ DXX_VALPTRIDX_DECLARE_SUBTYPE(dcx::, active_door, actdoornum_t, MAX_DOORS);
 
 #ifdef dsx
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<std::size_t, 30> MAX_WALL_ANIMS{};		// Maximum different types of doors
 #elif defined(DXX_BUILD_DESCENT_II)
 constexpr std::integral_constant<std::size_t, 60> MAX_WALL_ANIMS{};  // Maximum different types of doors
@@ -42,7 +42,7 @@ enum wall_type_t : uint8_t
 	WALL_ILLUSION = 3,   // Wall that appears to be there, but you can fly thru
 	WALL_OPEN = 4,   // Just an open side. (Trigger)
 	WALL_CLOSED = 5,   // Wall.  Used for transparent walls.
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	WALL_OVERLAY = 6,   // Goes over an actual solid side.  For triggers
 	WALL_CLOAKED = 7,   // Can see it, and see through it
 #endif
@@ -66,7 +66,7 @@ constexpr fix DOOR_WAIT_TIME = i2f(5);      // How long before auto door closes
 
 #ifdef dsx
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<std::size_t, 20> MAX_CLIP_FRAMES{};
 #elif defined(DXX_BUILD_DESCENT_II)
 constexpr std::integral_constant<std::size_t, 50> MAX_CLIP_FRAMES{};
@@ -115,7 +115,7 @@ struct wclip;
 constexpr std::integral_constant<std::size_t, 20> MAX_CLIP_FRAMES_D1{};
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 struct cloaking_wall;
 constexpr std::integral_constant<std::size_t, 10> MAX_CLOAKING_WALLS{};
@@ -160,7 +160,7 @@ void wall_illusion_off(fvmwallptr &, vcsegptridx_t seg, sidenum_t side);
 // Opens a door
 void wall_open_door(vmsegptridx_t seg, sidenum_t side);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #elif defined(DXX_BUILD_DESCENT_II)
 // Closes a door
 void wall_close_door(wall_array &Walls, vmsegptridx_t seg, sidenum_t side);
@@ -198,7 +198,7 @@ void wall_write(PHYSFS_File *fp, const wall &w, short version);
 void wall_close_door_ref(fvmsegptridx &vmsegptridx, wall_array &Walls, const wall_animations_array &WallAnims, active_door &);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 //start wall open <-> closed transitions
 namespace dsx {
 void start_wall_cloak(vmsegptridx_t seg, sidenum_t side);

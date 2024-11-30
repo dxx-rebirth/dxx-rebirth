@@ -109,7 +109,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_underlying_value.h"
 #include "d_zip.h"
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #include "custom.h"
 #define GLITZ_BACKGROUND	Menu_pcx_name
 
@@ -224,7 +224,7 @@ namespace dsx {
 namespace {
 static void init_player_stats_ship(object &, fix GameTime64);
 static window_event_result AdvanceLevel(
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #undef AdvanceLevel
 	next_level_request_secret_flag secret_flag
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -418,7 +418,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 }
 
 //added 10/12/95: delete buddy bot if coop game.  Probably doesn't really belong here. -MT
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define gameseq_init_network_players(Robot_info,Objects)	gameseq_init_network_players(Objects)
 #elif defined(DXX_BUILD_DESCENT_II)
 #undef gameseq_init_network_players
@@ -431,7 +431,7 @@ static void gameseq_init_network_players(const d_robot_info_array &Robot_info, o
 	ConsoleObject = &Objects.front();
 	unsigned j = 0, k = 0;
 	const auto multiplayer_coop = Game_mode & GM_MULTI_COOP;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	const auto remove_thief = Netgame.ThiefModifierFlags & ThiefModifier::Absent;
 	const auto multiplayer = Game_mode & GM_MULTI;
 	const auto retain_guidebot{Netgame.AllowGuidebot};
@@ -461,7 +461,7 @@ static void gameseq_init_network_players(const d_robot_info_array &Robot_info, o
 				obj_delete(LevelUniqueObjectState, Segments, o);
 			j++;
 		}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		else if (type == OBJ_ROBOT && multiplayer)
 		{
 			auto &ri = Robot_info[get_robot_id(o)];
@@ -517,7 +517,7 @@ void gameseq_remove_unused_players(const d_robot_info_array &Robot_info)
 		{
 			obj_delete(LevelUniqueObjectState, Segments, vmobjptridx(i.objnum));
 		}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (PlayerCfg.ThiefModifierFlags & ThiefModifier::Absent)
 		{
 			range_for (const auto &&o, vmobjptridx)
@@ -563,7 +563,7 @@ void init_player_stats_game(const playernum_t pnum)
 	player_info.mission.hostages_rescued_total = 0;
 
 	init_player_stats_new_ship(pnum);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (pnum == Player_num)
 		First_secret_visit = 1;
 #endif
@@ -576,7 +576,7 @@ static void init_ammo_and_energy(object &plrobj)
 	auto &player_info = plrobj.ctype.player_info;
 	{
 		auto &energy = player_info.energy;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (player_info.primary_weapon_flags & HAS_OMEGA_FLAG)
 		{
 			const auto old_omega_charge = player_info.Omega_charge;
@@ -603,7 +603,7 @@ static void init_ammo_and_energy(object &plrobj)
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 extern	ubyte	Last_afterburner_state;
 #endif
 
@@ -612,7 +612,7 @@ namespace {
 // Setup player for new level (After completion of previous level)
 static void init_player_stats_level(player &plr, object &plrobj, const secret_restore secret_flag)
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
 #endif
@@ -634,7 +634,7 @@ static void init_player_stats_level(player &plr, object &plrobj, const secret_re
 
 		auto &powerup_flags = player_info.powerup_flags;
 		powerup_flags &= ~(PLAYER_FLAGS_INVULNERABLE | PLAYER_FLAGS_CLOAKED);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		powerup_flags &= ~(PLAYER_FLAGS_MAP_ALL);
 #endif
 
@@ -651,14 +651,14 @@ static void init_player_stats_level(player &plr, object &plrobj, const secret_re
 	Player_dead_state = player_dead_state::no; // Added by RH
 	Dead_player_camera = NULL;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	Controls.state.afterburner = 0;
 	Last_afterburner_state = 0;
 
 	digi_kill_sound_linked_to_object(vcobjptridx(plr.objnum));
 #endif
 	init_gauges();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	Missile_viewer = NULL;
 #endif
 	init_player_stats_ship(plrobj, GameTime64);
@@ -686,7 +686,7 @@ void init_player_stats_new_ship(const playernum_t pnum)
 	const auto granted_primary_weapon_flags = HAS_LASER_FLAG | map_granted_flags_to_primary_weapon_flags(GrantedItems);
 	player_info.primary_weapon_flags = granted_primary_weapon_flags;
 	player_info.powerup_flags &= ~(PLAYER_FLAGS_QUAD_LASERS | PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	player_info.powerup_flags &= ~(PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_MAP_ALL | PLAYER_FLAGS_CONVERTER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_HEADLIGHT_ON | PLAYER_FLAGS_FLAG);
 	player_info.Omega_charge = (granted_primary_weapon_flags & HAS_OMEGA_FLAG)
 		? MAX_OMEGA_CHARGE
@@ -713,7 +713,7 @@ void init_player_stats_new_ship(const playernum_t pnum)
 					break;
 				if (i == primary_weapon_index_t::LASER_INDEX)
 					break;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				if (i == primary_weapon_index_t::SUPER_LASER_INDEX)
 				{
 					if (granted_laser_level <= laser_level::_4)
@@ -730,7 +730,7 @@ void init_player_stats_new_ship(const playernum_t pnum)
 			}
 			return primary_weapon_index_t::LASER_INDEX;
 		}());
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		auto primary_last_was_super = player_info.Primary_last_was_super;
 		for (uint8_t i = static_cast<uint8_t>(primary_weapon_index_t::VULCAN_INDEX), mask = 1 << i; i != static_cast<uint8_t>(primary_weapon_index_t::SUPER_LASER_INDEX); ++i, mask <<= 1)
 		{
@@ -755,7 +755,7 @@ void init_player_stats_new_ship(const playernum_t pnum)
 		Player_dead_state = player_dead_state::no;
 		player_info.Player_eggs_dropped = false;
 		Dead_player_camera = 0;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
 		Secondary_last_was_super = {};
 		Afterburner_charge = GrantedItems.has_afterburner() ? F1_0 : 0;
@@ -777,7 +777,7 @@ void init_player_stats_ship(object &plrobj, const fix GameTime64)
 	player_info.missile_gun = 0;
 	player_info.Spreadfire_toggle = 0;
 	player_info.killer_objnum = object_none;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	player_info.Omega_recharge_delay = 0;
 	player_info.Helix_orientation = 0;
 #endif
@@ -817,7 +817,7 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	digi_init_sounds();		//clear old sounds
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
 #endif
@@ -827,12 +827,12 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 		if (const auto tm2 = side.tmap_num2; tm2 != texture2_value::None)
 		{
 			const auto ec = TmapInfo[get_texture_index(tm2)].eclip_num;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (ec != eclip_none)
 #endif
 				return ec;
 		}
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		return eclip_none.value;
 #elif defined(DXX_BUILD_DESCENT_II)
 		return TmapInfo[get_texture_index(side.tmap_num)].eclip_num;
@@ -845,7 +845,7 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 		{
 			int sn;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sidenum);
 			if (!(wid & WALL_IS_DOORWAY_FLAG::render))
 				continue;
@@ -854,7 +854,7 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 			if (ec != eclip_none)
 			{
 					if ((sn=Effects[ec].sound_num)!=-1) {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 						auto csegnum = seg->children[sidenum];
 
 						//check for sound on other side of wall.  Don't add on
@@ -988,7 +988,7 @@ static ushort netmisc_calc_checksum()
 		}
 		s = INTEL_SHORT(i.u.objects);
 		do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		const auto special = underlying_value(i.s.special);
 		do_checksum_calc(&special, 1, &sum1, &sum2);
 		do_checksum_calc(reinterpret_cast<const uint8_t *>(&i.s.matcen_num), 1, &sum1, &sum2);
@@ -1006,7 +1006,7 @@ static ushort netmisc_calc_checksum()
 }
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 
 void load_level_robots(int level_num)
@@ -1045,7 +1045,7 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	assert(level_num <= Current_mission->last_level && level_num >= Current_mission->last_secret_level && level_num != 0);
 	const d_fname &level_name = get_level_file(level_num);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (!load_level(level_name))
 		Current_level_num=level_num;
 
@@ -1080,7 +1080,7 @@ void LoadLevel(int level_num,int page_in_textures)
 #endif
 
 	load_endlevel_data(level_num);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	load_custom_data(level_name);
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (EMULATING_D1)
@@ -1107,7 +1107,7 @@ void LoadLevel(int level_num,int page_in_textures)
 		songs_play_level_song( Current_level_num, 0 );
 
 	gr_palette_load(gr_palette);		//actually load the palette
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if ( page_in_textures )
 		piggy_load_level_data();
 #endif
@@ -1159,7 +1159,7 @@ void StartNewGame(const int start_level)
 
 	N_players = 1;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (start_level < 0)
 	{
 		/* Allow an autosave as soon as the user exits the secret level.
@@ -1183,7 +1183,7 @@ void StartNewGame(const int start_level)
 	plr.callsign = InterfaceUniqueState.PilotName;
 
 	game_disable_cheats();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	init_seismic_disturbances();
 #endif
 }
@@ -1202,7 +1202,7 @@ static void DoEndLevelScoreGlitz()
 	char				m_str[N_GLITZITEMS][32];
 	newmenu_item	m[N_GLITZITEMS];
 	int				i;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	gr_palette_load( gr_palette );
 #elif defined(DXX_BUILD_DESCENT_II)
 	int				mine_level;
@@ -1230,7 +1230,7 @@ static void DoEndLevelScoreGlitz()
 			case Difficulty_level_type::_2:
 			case Difficulty_level_type::_3:
 			case Difficulty_level_type::_4:
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				skill_points = level_points * (d - 1) / 2;
 #elif defined(DXX_BUILD_DESCENT_II)
 				skill_points = level_points * d / 4;
@@ -1240,7 +1240,7 @@ static void DoEndLevelScoreGlitz()
 		}
 
 		hostage_points = player_info.mission.hostages_on_board * 500 * (d + 1);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		shield_points = f2i(plrobj.shields) * 10 * (d + 1);
 		energy_points = f2i(player_info.energy) * 5 * (d + 1);
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1324,7 +1324,7 @@ static void DoEndLevelScoreGlitz()
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace {
 //	-----------------------------------------------------------------------------------------------------
 //called when the player is starting a level (new game or new ship)
@@ -1404,7 +1404,7 @@ static void do_screen_message(const char *msg)
 }
 
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace {
 void do_screen_message_fmt(const char *) = delete;
 
@@ -1666,7 +1666,7 @@ void EnterSecretLevel(void)
 
 //called when the player has finished a level
 window_event_result (PlayerFinishedLevel)(
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	const next_level_request_secret_flag secret_flag
 #endif
 	)
@@ -1680,7 +1680,7 @@ window_event_result (PlayerFinishedLevel)(
 	//credit the player for hostages
 	auto &player_info = get_local_plrobj().ctype.player_info;
 	player_info.mission.hostages_rescued_total += player_info.mission.hostages_on_board;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (!(Game_mode & GM_MULTI) && secret_flag != next_level_request_secret_flag::only_normal_level) {
 		using items_type = std::array<newmenu_item, 1>;
 		struct message_menu : items_type, passive_newmenu
@@ -1712,7 +1712,7 @@ window_event_result (PlayerFinishedLevel)(
 	return result;
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #define MOVIE_REQUIRED 1
 #define ENDMOVIE "end"
 #endif
@@ -1733,7 +1733,7 @@ static void DoEndGame()
 
 	if (PLAYING_BUILTIN_MISSION && !(Game_mode & GM_MULTI))
 	{ //only built-in mission, & not multi
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		auto played = PlayMovie(ENDMOVIE ".tex", ENDMOVIE ".mve", play_movie_warn_missing::urgent);
 		if (played == movie_play_status::skipped)
 #endif
@@ -1763,7 +1763,7 @@ static void DoEndGame()
 	if (PLAYING_BUILTIN_MISSION && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
 		gr_set_default_canvas();
 		gr_clear_canvas(*grd_curcanv, BM_XRGB(0,0,0));
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		load_palette(D2_DEFAULT_PALETTE, load_palette_use::background, load_palette_change_screen::delayed);
 #endif
 		scores_maybe_add_player();
@@ -1774,7 +1774,7 @@ static void DoEndGame()
 //if secret_flag is true, advance to secret level, else next normal one
 //	Return true if game over.
 static window_event_result (AdvanceLevel)(
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	next_level_request_secret_flag secret_flag
 #endif
 	)
@@ -1782,7 +1782,7 @@ static window_event_result (AdvanceLevel)(
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto rval = window_event_result::handled;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	// Loading a level can write over homing_flag.
 	// So for simplicity, reset the homing weapon cheat here.
 	if (cheats.homingfire)
@@ -1810,7 +1810,7 @@ static window_event_result (AdvanceLevel)(
 	{
 		int result;
 		result = multi::dispatch->end_current_level(
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			&secret_flag
 #endif
 			); // Wait for other players to reach this point
@@ -1828,7 +1828,7 @@ static window_event_result (AdvanceLevel)(
 		rval = window_event_result::close;
 
 	} else {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		const auto Next_level_num = find_next_level(secret_flag, Current_level_num, *Current_mission.get());
 #elif defined(DXX_BUILD_DESCENT_II)
 		int8_t Next_level_num;
@@ -1896,7 +1896,7 @@ window_event_result DoPlayerDead()
 		plr.connected = player_connection_status::died_in_mine;
 
 		do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (Current_level_num < 0) {
 			if (PHYSFS_exists(SECRETB_FILENAME))
 			{
@@ -1930,7 +1930,7 @@ window_event_result DoPlayerDead()
 			if (g)
 				g->set_visible(1);
 		}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	} else if (Current_level_num < 0) {
 		if (PHYSFS_exists(SECRETB_FILENAME))
 		{
@@ -1970,7 +1970,7 @@ window_event_result DoPlayerDead()
 
 //called when the player is starting a new level for normal game mode and restore state
 //	secret_flag set if came from a secret level
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, const int level_num, const int page_in_textures)
 #elif defined(DXX_BUILD_DESCENT_II)
 window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, const int level_num, const int page_in_textures, const secret_restore secret_flag)
@@ -1982,7 +1982,7 @@ window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, const
 	if (!(Game_mode & GM_MULTI)) {
 		last_drawn_cockpit = cockpit_mode_t{UINT8_MAX};
 	}
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	static constexpr std::integral_constant<secret_restore, secret_restore::none> secret_flag{};
 #elif defined(DXX_BUILD_DESCENT_II)
         BigWindowSwitch=0;
@@ -2026,7 +2026,7 @@ window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, const
 	GameUniqueState.total_hostages += LevelUniqueObjectState.total_hostages;
 	init_player_stats_level(get_local_player(), get_local_plrobj(), secret_flag);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	gr_use_palette_table( "palette.256" );
 #elif defined(DXX_BUILD_DESCENT_II)
 	load_palette(Current_level_palette.line(), load_palette_use::background, load_palette_change_screen::delayed);
@@ -2053,7 +2053,7 @@ window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, const
 
 	LevelUniqueControlCenterState.Control_center_destroyed = 0;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	set_screen_mode(SCREEN_GAME);
 #endif
 
@@ -2064,7 +2064,7 @@ window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, const
 	init_all_matcens();
 	reset_palette_add();
 	LevelUniqueStuckObjectState.init_stuck_objects();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	init_smega_detonates();
 	init_thief_for_level();
 	if (!(Game_mode & GM_MULTI))
@@ -2113,7 +2113,7 @@ void bash_to_shield(const d_powerup_info_array &Powerup_info, const d_vclip_arra
 	set_powerup_id(Powerup_info, Vclip, i, powerup_type_t::POW_SHIELD_BOOST);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace {
 
 struct intro_movie_t {
@@ -2206,7 +2206,7 @@ window_event_result StartNewLevel(int level_num)
 	state_set_immediate_autosave(GameUniqueState);
 	ThisLevelTime = {};
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (!(Game_mode & GM_MULTI)) {
 		do_briefing_screens(Current_mission->briefing_text_filename, level_num);
 	}
@@ -2335,7 +2335,7 @@ void copy_defaults_to_robot(const d_robot_info_array &Robot_info, object_base &o
 	//	Boost shield for Thief and Buddy based on level.
 	fix shields = robptr.strength;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	const auto &Difficulty_level = GameUniqueState.Difficulty_level;
 	if ((robot_is_thief(robptr)) || (robot_is_companion(robptr))) {
 		shields = (shields * (abs(Current_level_num)+7))/8;

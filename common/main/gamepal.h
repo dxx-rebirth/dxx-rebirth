@@ -33,7 +33,7 @@ struct PHYSFSX_gets_line_t;
 }
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #include <span>
 #include "inferno.h"
 

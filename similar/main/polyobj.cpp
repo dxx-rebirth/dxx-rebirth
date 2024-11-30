@@ -383,7 +383,7 @@ void read_model_guns(const char *filename, reactor &r)
 namespace dcx {
 
 //free up a model, getting rid of all its memory
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static
 #endif
 void free_model(polymodel &po)
@@ -477,7 +477,7 @@ void free_polygon_models(d_level_shared_polygon_model_state &LevelSharedPolygonM
 {
 	for (auto &i : partial_range(LevelSharedPolygonModelState.Polygon_models, LevelSharedPolygonModelState.N_polygon_models))
 		free_model(i);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	LevelSharedPolygonModelState.Exit_models_loaded = false;
 #endif
 }
@@ -661,7 +661,7 @@ void polygon_model_data_read(polymodel *pm, PHYSFS_File *fp)
 	}
 	if constexpr (words_bigendian)
 		swap_polygon_model_data(pm->model_data.get());
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	g3_validate_polygon_model(std::span{pm->model_data.get(), model_data_size});
 #elif defined(DXX_BUILD_DESCENT_II)
 	g3_init_polygon_model(std::span{pm->model_data.get(), model_data_size});

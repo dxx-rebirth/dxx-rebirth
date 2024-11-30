@@ -186,7 +186,7 @@ void flash_frame()
 		return;
 
 //	flash_ang += fixmul(FLASH_CYCLE_RATE,FrameTime);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (const auto Seismic_tremor_magnitude = LevelUniqueSeismicState.Seismic_tremor_magnitude)
 	{
 		fix	added_flash;
@@ -205,7 +205,7 @@ void flash_frame()
 		flash_ang += fixmul(Flash_rate,FrameTime);
 		flash_scale = fix_fastsin(flash_ang);
 		flash_scale = (flash_scale + f1_0)/2;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (GameUniqueState.Difficulty_level == Difficulty_level_type::_0)
 			flash_scale = (flash_scale+F1_0*3)/4;
 #endif
@@ -217,7 +217,7 @@ void flash_frame()
 namespace {
 static inline int is_alphablend_eclip(int eclip_num)
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (eclip_num == ECLIP_NUM_FORCE_FIELD || eclip_num == ECLIP_NUM_FORCE_FIELD2)
 		return 1;
 #endif
@@ -245,7 +245,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const si
 		pointlist[i] = &Segment_points[vp[i]];
 	}
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	(void)segp;
 	(void)wid_flags;
 #if !DXX_USE_EDITOR
@@ -301,7 +301,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const si
 	assert(!bm->get_flag_mask(BM_FLAG_PAGED_OUT));
 
 	std::array<g3s_lrgb, 4>		dyn_light;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	const auto Seismic_tremor_magnitude{0};
 #elif defined(DXX_BUILD_DESCENT_II)
 	const auto Seismic_tremor_magnitude = LevelUniqueSeismicState.Seismic_tremor_magnitude;
@@ -633,7 +633,7 @@ static void do_render_object(grs_canvas &canvas, const d_level_unique_light_stat
 	object_rendered[obj] = true;
 	#endif
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
    if (Newdemo_state==ND_STATE_PLAYBACK)  
 	 {
 	  if ((DemoDoingLeft==6 || DemoDoingRight==6) && obj->type==OBJ_PLAYER)
@@ -753,7 +753,7 @@ static void render_segment(fvcvertptr &vcvertptr, fvcwallptr &vcwallptr, const v
 	if (rotate_list(vcvertptr, seg->verts).uand == clipping_code::None)
 	{		//all off screen?
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (Viewer->type != OBJ_ROBOT)
 #endif
 		{
@@ -1052,7 +1052,7 @@ class render_compare_context_t
 	struct element
 	{
 		vm_distance_squared dist_squared;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		const object *objp;
 #endif
 	};
@@ -1068,7 +1068,7 @@ public:
 			const auto objnum{t.objnum};
 			auto &objp = *vcobjptr(objnum);
 			auto &e = (*this)[objnum];
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			e.objp = &objp;
 #endif
 			e.dist_squared = vm_vec_dist2(objp.pos, Viewer_eye);
@@ -1084,7 +1084,7 @@ bool render_compare_context_t::operator()(const distant_object &a, const distant
 	auto &dob = operator[](b.objnum);
 	const auto delta_dist_squared = underlying_value(doa.dist_squared) - underlying_value(dob.dist_squared);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	const auto obj_a{doa.objp};
 	const auto obj_b{dob.objp};
 
@@ -1162,7 +1162,7 @@ static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const
 				auto new_segnum = segnum;
 				list_pos = nn;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				int did_migrate;
 				if (obj->type != OBJ_CNTRLCEN)		//don't migrate controlcen
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1170,7 +1170,7 @@ static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const
 				if (obj->type != OBJ_CNTRLCEN && !(obj->type==OBJ_ROBOT && get_robot_id(obj) == robot_id::special_reactor))		//don't migrate controlcen
 #endif
 				do {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 					did_migrate = 0;
 #endif
 					if (const auto sidemask = get_seg_masks(vcvertptr, obj->pos, vcsegptr(new_segnum), obj->size).sidemask; sidemask != sidemask_t{})
@@ -1180,7 +1180,7 @@ static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const
 							const auto sf = build_sidemask(sn);
 							if (sidemask & sf)
 							{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 								const cscusegment &&seg = vcsegptr(obj->segnum);
 #elif defined(DXX_BUILD_DESCENT_II)
 								const cscusegment &&seg = vcsegptr(new_segnum);
@@ -1195,7 +1195,7 @@ static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const
 										if (rstate.Render_list[checknp] == child) {
 											new_segnum = child;
 											list_pos = checknp;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 											did_migrate = 1;
 #endif
 										}
@@ -1311,7 +1311,7 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
 }
 
 window_rendered_data::window_rendered_data()
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	: time(timer_query())
 #endif
 {
@@ -1530,7 +1530,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 
 	unsigned first_terminal_seg;
 #if DXX_USE_EDITOR
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (_search_mode || eye_offset>0)
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (_search_mode)
@@ -1661,7 +1661,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 					{
 						const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sn);
 						if (wid == wall_is_doorway_result::transparent_wall || wid == wall_is_doorway_result::transillusory_wall
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 							|| (wid & WALL_IS_DOORWAY_FLAG::cloaked)
 #endif
 							)
@@ -1710,7 +1710,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 					{
 						const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sn);
 						if (wid == wall_is_doorway_result::transparent_wall || wid == wall_is_doorway_result::transillusory_wall
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 							|| (wid & WALL_IS_DOORWAY_FLAG::cloaked)
 #endif
 							)

@@ -355,7 +355,7 @@ void connected_segment_raw_distances::builder::visit_segment(const vcsegidx_t cu
 
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 fix	Flash_effect=0;
 constexpr int	PK1=1, PK2=8;
 #endif
@@ -368,7 +368,7 @@ static bool can_collide(const object *const weapon_object, const object_base &it
 	 * caller originally expected it would be.  For this function, the
 	 * distinction is currently irrelevant.
 	 */
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	(void)weapon_object;
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (weapon_object == &iter_object)
@@ -380,7 +380,7 @@ static bool can_collide(const object *const weapon_object, const object_base &it
 #endif
 	switch (iter_object.type)
 	{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case OBJ_WEAPON:
 			return is_proximity_bomb_or_player_smart_mine_or_placed_mine(get_weapon_id(iter_object));
 #endif
@@ -425,7 +425,7 @@ static imobjptridx_t object_create_explosion_with_damage(const d_robot_info_arra
 	const auto &&obj_fireball{object_create_explosion_without_damage(Vclip, segnum, position, size, vclip_type)};
 	if (obj_fireball == object_none)
 		return object_none;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Objects{LevelUniqueObjectState.Objects};
 #endif
 	if (maxdamage > 0) {
@@ -457,7 +457,7 @@ static imobjptridx_t object_create_explosion_with_damage(const d_robot_info_arra
 						vm_vec_scale(vm_vec_sub(pos_hit, obj_fireball->pos, obj_iter->pos), fixdiv(obj_iter->size, obj_iter->size + dist));
 						switch (obj_iter->type)
 						{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 							case OBJ_WEAPON:
 								phys_apply_force(obj_iter, vforce);
 
@@ -473,7 +473,7 @@ static imobjptridx_t object_create_explosion_with_damage(const d_robot_info_arra
 							case OBJ_ROBOT:
 								{
 								phys_apply_force(obj_iter, vforce);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 								//	If not a boss, stun for 2 seconds at 32 force, 1 second at 16 force
 								fix flash;
 								if (obj_explosion_origin != object_none && obj_explosion_origin->type == OBJ_WEAPON && Robot_info[get_robot_id(obj_iter)].boss_flag == boss_robot_id::None && (flash = Weapon_info[get_weapon_id(obj_explosion_origin)].flash))
@@ -504,7 +504,7 @@ static imobjptridx_t object_create_explosion_with_damage(const d_robot_info_arra
 								}
 								if (obj_iter->shields >= 0)
 								{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 									const auto &robot_info{Robot_info[get_robot_id(obj_iter)]};
 									/* Descent 1 bosses produce an index that
 									 * is not valid for this array, so they
@@ -517,7 +517,7 @@ static imobjptridx_t object_create_explosion_with_damage(const d_robot_info_arra
 										if (obj_explosion_origin != object_none && parent == get_local_player().objnum)
 											add_points_to_score(ConsoleObject->ctype.player_info, Robot_info[get_robot_id(obj_iter)].score_value, Game_mode);
 								}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 								if (obj_explosion_origin != object_none && Robot_info[get_robot_id(obj_iter)].companion && !(obj_explosion_origin->type == OBJ_WEAPON && Weapon_info[get_weapon_id(obj_explosion_origin)].flash))
 								{
 									static const char ouch_str[]{"ouch! " "ouch! " "ouch! " "ouch! "};
@@ -537,7 +537,7 @@ static imobjptridx_t object_create_explosion_with_damage(const d_robot_info_arra
 								break;
 							case OBJ_PLAYER:	{
 								icobjptridx_t killer{object_none};
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 								//	Hack! Warning! Test code!
 								fix flash;
 								if (obj_explosion_origin != object_none && obj_explosion_origin->type == OBJ_WEAPON && (flash = Weapon_info[get_weapon_id(obj_explosion_origin)].flash) && get_player_id(obj_iter) == Player_num)
@@ -573,7 +573,7 @@ static imobjptridx_t object_create_explosion_with_damage(const d_robot_info_arra
 								phys_apply_rot(obj_iter, vforce2);
 								if (obj_iter->shields >= 0)
 								{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 									if (GameUniqueState.Difficulty_level == Difficulty_level_type::_0)
 									damage /= 4;
 #endif
@@ -618,7 +618,7 @@ void explode_badass_weapon(const d_robot_info_array &Robot_info, const vmobjptri
 	const weapon_info *const wi{&Weapon_info[weapon_id]};
 
 	Assert(wi->damage_radius);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (weapon_id == weapon_id_type::EARTHSHAKER_ID || weapon_id == weapon_id_type::ROBOT_EARTHSHAKER_ID)
 		smega_rock_stuff();
 #endif
@@ -714,7 +714,7 @@ static vmsegptridx_t choose_drop_segment(fvmsegptridx &vmsegptridx, fvcvertptr &
 	const auto end_drop_players = [&candidate_drop_players, drop_pnum]() {
 		const auto b{candidate_drop_players.begin()};
 		auto r{b};
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		/* Build a list of active players, excluding the initiator and
 		 * anyone from the same team as the initiator.
 		 */
@@ -959,7 +959,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 		case powerup_type_t::POW_FUSION_WEAPON:
 			weapon_index = primary_weapon_index_t::FUSION_INDEX;
 			break;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case powerup_type_t::POW_GAUSS_WEAPON:
 			weapon_index = primary_weapon_index_t::GAUSS_INDEX;
 			break;
@@ -992,7 +992,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 		case powerup_type_t::POW_TURBO:
 		case powerup_type_t::POW_INVULNERABILITY:
 		case powerup_type_t::POW_MEGAWOW:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case powerup_type_t::POW_SUPER_LASER:
 		case powerup_type_t::POW_FULL_MAP:
 		case powerup_type_t::POW_CONVERTER:
@@ -1024,7 +1024,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 		if (has_weapon(player_has_primary_weapon(player_info, weapon_index)) || weapon_nearby(vcobjptridx, vcsegptr, del_obj, del_obj.contains.id.powerup) != nullptr)
 		{
 			if (d_rand() > 16384) {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				del_obj.contains.count = 1;
 #endif
 				del_obj.contains.type = contained_object_type::powerup;
@@ -1035,7 +1035,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 					del_obj.contains.id.powerup = powerup_type_t::POW_ENERGY;
 				}
 			} else {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				del_obj.contains.count = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
 				del_obj.contains.type = contained_object_type::powerup;
@@ -1048,13 +1048,13 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 		if ((player_info.powerup_flags & PLAYER_FLAGS_QUAD_LASERS) || weapon_nearby(vcobjptridx, vcsegptr, del_obj, del_obj.contains.id.powerup) != nullptr)
 		{
 			if (d_rand() > 16384) {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				del_obj.contains.count = 1;
 #endif
 				del_obj.contains.type = contained_object_type::powerup;
 				del_obj.contains.id.powerup = powerup_type_t::POW_ENERGY;
 			} else {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				del_obj.contains.count = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
 				del_obj.contains.type = contained_object_type::powerup;
@@ -1097,7 +1097,7 @@ imobjptridx_t drop_powerup(d_level_unique_object_state &LevelUniqueObjectState, 
 						con_printf(CON_URGENT, DXX_STRINGIZE_FL("%s", __LINE__, "unable to record network object; Net_create_loc=%u"), __FILE__, Net_create_loc);
 						return object_none;
 					}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 					if ((Game_mode & GM_NETWORK) && Network_status == network_state::endlevel)
 					 return object_none;
 #endif
@@ -1107,7 +1107,7 @@ imobjptridx_t drop_powerup(d_level_unique_object_state &LevelUniqueObjectState, 
 				if (objp == object_none)
 					return objp;
 				auto &obj{*objp};
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				if (player)
 					obj.flags |= OF_PLAYER_DROPPED;
 #endif
@@ -1151,7 +1151,7 @@ imobjptridx_t drop_powerup(d_level_unique_object_state &LevelUniqueObjectState, 
 						if (Game_mode & GM_MULTI)
 							obj.lifeleft /= 2;
 						break;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 					case powerup_type_t::POW_OMEGA_WEAPON:
 						if (!player)
 							obj.ctype.powerup_info.count = MAX_OMEGA_CHARGE;
@@ -1258,7 +1258,7 @@ static bool drop_robot_egg(const d_robot_info_array &Robot_info, const contained
 				obj.ctype.ai_info.REMOTE_OWNER = -1;
 			}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			// At JasenW's request, robots which contain robots
 			// sometimes drop shields.
 			if (d_rand() > 16384)
@@ -1271,7 +1271,7 @@ static bool drop_robot_egg(const d_robot_info_array &Robot_info, const contained
 	return created;
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static bool skip_create_egg_powerup(const object &player, powerup_type_t powerup)
 {
 	fix current;
@@ -1297,7 +1297,7 @@ static bool skip_create_egg_powerup(const object &player, powerup_type_t powerup
 
 bool object_create_robot_egg(const d_robot_info_array &Robot_info, const contained_object_type type, const contained_object_id id, const unsigned num, const vms_vector &init_vel, const vms_vector &pos, const vmsegptridx_t segnum)
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Objects{LevelUniqueObjectState.Objects};
 	auto &vmobjptr{Objects.vmptr};
 	if (!(Game_mode & GM_MULTI))
@@ -1377,7 +1377,7 @@ static void explode_model(object_base &obj)
 		for (const auto &&[i, submodel_rad] : enumerate(std::span(pm.submodel_rads).first(n_models).template subspan<1>(), submodel_index{})
 		)
 		{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (!(i == submodel_index{5} && obj.type == OBJ_ROBOT && get_robot_id(obj) == robot_id::energy_bandit))	//energy sucker energy part
 #endif
 				object_create_debris(vmsegptridx, obj, i, submodel_rad);
@@ -1489,7 +1489,7 @@ void do_explosion_sequence(const d_robot_info_array &Robot_info, object &obj)
 
 		const auto &&expl_obj{[&]{
 			const auto vclip_num{get_explosion_vclip(Robot_info, del_obj, explosion_vclip_stage::s1)};
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (del_obj->type == OBJ_ROBOT)
 			{
 				const auto &ri{Robot_info[get_robot_id(del_obj)]};
@@ -1516,7 +1516,7 @@ void do_explosion_sequence(const d_robot_info_array &Robot_info, object &obj)
 					object_create_robot_egg(Robot_info, del_obj);
 				}
 			}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (robot_is_thief(robptr))
 				drop_stolen_items_local(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, vmsegptridx(del_obj->segnum), del_obj->mtype.phys_info.velocity, del_obj->pos, LevelUniqueObjectState.ThiefState.Stolen_items);
 			else if (robot_is_companion(robptr))
@@ -1565,7 +1565,7 @@ void do_explosion_sequence(const d_robot_info_array &Robot_info, object &obj)
 
 #define EXPL_WALL_TIME					UINT16_MAX
 #define EXPL_WALL_TOTAL_FIREBALLS	32
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define EXPL_WALL_FIREBALL_SIZE 		0x48000	//smallest size
 #elif defined(DXX_BUILD_DESCENT_II)
 #define EXPL_WALL_FIREBALL_SIZE 		(0x48000*6/10)	//smallest size
@@ -1691,7 +1691,7 @@ unsigned do_exploding_wall_frame(const d_robot_info_array &Robot_info, wall &w1)
 	return walls_updated;
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 //creates afterburner blobs behind the specified object
 void drop_afterburner_blobs(object &obj, int count, fix size_scale, fix lifetime)
 {

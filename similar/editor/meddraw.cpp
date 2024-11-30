@@ -220,7 +220,7 @@ int Show_triangulations=0;
 #define ET_EMPTY		255	//this entry in array is empty
 
 static
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 constexpr
 #endif
 std::array<color_palette_index, 3> edge_colors{{54, 59, 64}};
@@ -880,7 +880,7 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,cons
 namespace dsx {
 void meddraw_init_views( grs_canvas * canvas)
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	// sticking these here so the correct D2 colors are used
 	edge_colors[0] = BM_XRGB(45/2,45/2,45/2);
 	edge_colors[1] = BM_XRGB(45/3,45/3,45/3);

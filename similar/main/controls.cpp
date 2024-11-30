@@ -37,7 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "controls.h"
 #include "palette.h"
 #include "kconfig.h"
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #include "laser.h"
 #include "multi.h"
 #include "vclip.h"
@@ -56,7 +56,7 @@ using std::max;
 
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 fix Afterburner_charge;
 #endif
 
@@ -66,7 +66,7 @@ void read_flying_controls(object &obj, control_info &Controls)
 
 	Assert(FrameTime > 0); 		//Get MATT if hit this!
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (obj.type != OBJ_PLAYER || get_player_id(obj) != Player_num)
 		return;	//references to player_ship require that this obj be the player
 
@@ -107,7 +107,7 @@ void read_flying_controls(object &obj, control_info &Controls)
 
 	forward_thrust_time = Controls.forward_thrust_time;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &player_info = obj.ctype.player_info;
 	if (player_info.powerup_flags & PLAYER_FLAGS_AFTERBURNER)
 	{

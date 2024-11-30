@@ -49,7 +49,7 @@ enum class apply_damage_player : bool
 namespace dsx {
 void collide_two_objects(const d_robot_info_array &Robot_info, vmobjptridx_t A, vmobjptridx_t B, vms_vector &collision_point);
 window_event_result collide_object_with_wall(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState,
 #endif
 	const d_robot_info_array &Robot_info, vmobjptridx_t A, fix hitspeed, vmsegptridx_t hitseg, sidenum_t hitwall, const vms_vector &hitpt);
@@ -68,7 +68,7 @@ void collide_player_and_nasty_robot(const d_robot_info_array &Robot_info, vmobjp
 namespace dcx {
 void bump_one_object(object_base &obj0, const vms_vector &hit_dir, fix damage);
 }
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define check_effect_blowup(DestructibleLightsState,Vclip,seg,side,pnt,blower,force_blowup_flag,remote) check_effect_blowup(Vclip,seg,side,pnt)
 #endif
 namespace dsx {
@@ -81,11 +81,11 @@ enum class volatile_wall_result : int8_t
 {
 	none = -1,
 	lava,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	water,
 #endif
 };
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 window_event_result do_final_boss_frame(void);
 void do_final_boss_hacks(void);
 volatile_wall_result check_volatile_wall(vmobjptridx_t obj, const unique_side &seg);

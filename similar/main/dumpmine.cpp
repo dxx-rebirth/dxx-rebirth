@@ -68,7 +68,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dsx {
 namespace {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 using perm_tmap_buffer_type = enumerated_array<int, MAX_TEXTURES, bitmap_index>;
 using level_tmap_buffer_type = enumerated_array<int8_t, MAX_TEXTURES, bitmap_index>;
 using wall_buffer_type = std::array<int, MAX_WALL_ANIMS>;
@@ -115,7 +115,7 @@ const std::array<char[9], MAX_OBJECT_TYPES> Object_type_names{{
 	"GHOST   ",
 	"LIGHT   ",
 	"COOP    ",
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	"MARKER  ",
 #endif
 }};
@@ -262,7 +262,7 @@ static void write_exit_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 	if (count == 0)
 		err_puts_literal(my_file, "Error: No external wall in this mine.");
 	else if (count != 1) {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		warning_printf(my_file, "Warning: %i external walls in this mine.", count);
 		warning_printf(my_file, "(If %i are secret exits, then no problem.)", count-1); 
 #endif
@@ -529,7 +529,7 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 
 	PHYSFSX_puts_literal(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_puts_literal(my_file, "Walls:\n");
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 #endif
 	range_for (auto &&wp, vcwallptridx)
@@ -538,7 +538,7 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 		const auto i = underlying_value(wallnum_t{wp});
 		PHYSFSX_printf(my_file, "Wall %03hu: seg=%3i, side=%2i, linked_wall=%3hu, type=%s, flags=%4x, hps=%3i, trigger=%2i, clip_num=%2i, keys=%2i, state=%i\n", i, w.segnum, underlying_value(w.sidenum), underlying_value(wallnum_t{w.linked_wall}), Wall_names[w.type], underlying_value(w.flags), w.hps >> 16, underlying_value(w.trigger), w.clip_num, underlying_value(w.keys), underlying_value(w.state));
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (const auto utw = underlying_value(w.trigger); utw >= Triggers.get_count())
 			PHYSFSX_printf(my_file, "Wall %03hu points to invalid trigger %u\n", i, utw);
 #endif
@@ -585,7 +585,7 @@ static void write_player_text(fvcobjptridx &vcobjptridx, PHYSFS_File *my_file)
 		}
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (num_players != MAX_PLAYERS)
 		err_printf(my_file, "Error: %i player objects.  %i are required.", num_players, MAX_PLAYERS);
 #endif
@@ -605,7 +605,7 @@ static void write_trigger_text(PHYSFS_File *my_file)
 	for (auto &&t : vctrgptridx)
 	{
 		const auto i = static_cast<trgnum_t>(t);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		PHYSFSX_printf(my_file, "Trigger %03i: flags=%04x, value=%08x, time=%8x, num_links=%i ", underlying_value(i), t->flags, static_cast<unsigned>(t->value), 0, t->num_links);
 #elif defined(DXX_BUILD_DESCENT_II)
 		PHYSFSX_printf(my_file, "Trigger %03i: type=%02x flags=%04x, value=%08x, time=%8x, num_links=%i ", underlying_value(i),
@@ -697,7 +697,7 @@ void write_game_text_file(const char *filename)
 namespace dsx {
 namespace {
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 const char Shareware_level_names[NUM_SHAREWARE_LEVELS][12] = {
 	"level01.rdl",
 	"level02.rdl",
@@ -735,17 +735,17 @@ const char Registered_level_names[NUM_REGISTERED_LEVELS][12] = {
 };
 #endif
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static int Ignore_tmap_num2_error;
 #endif
 
 // ----------------------------------------------------------------------------
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define determine_used_textures_level(load_level_flag,shareware_flag,level_num,tmap_buf,wall_buffer_type,level_tmap_buf,max_tmap)	determine_used_textures_level(load_level_flag,shareware_flag,level_num,tmap_buf,wall_buffer_type,level_tmap_buf,max_tmap)
 #endif
 static void determine_used_textures_level(int load_level_flag, int shareware_flag, int level_num, perm_tmap_buffer_type &tmap_buf, wall_buffer_type &wall_buf, level_tmap_buffer_type &level_tmap_buf, int max_tmap)
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 #endif
@@ -753,7 +753,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
 
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &WallAnims = GameSharedState.WallAnims;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	tmap_buf = {};
 
 	if (load_level_flag) {
@@ -913,7 +913,7 @@ namespace dsx {
 namespace {
 static void say_used_tmaps(PHYSFS_File *const my_file, const perm_tmap_buffer_type &tb)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	int	count = 0;
 
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
@@ -936,7 +936,7 @@ static void say_used_tmaps(PHYSFS_File *const my_file, const perm_tmap_buffer_ty
 #endif
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 //	-----------------------------------------------------------------------------
 static void say_used_once_tmaps(PHYSFS_File *const my_file, const perm_tmap_buffer_type &tb, const level_tmap_buffer_type &tb_lnum)
 {
@@ -967,7 +967,7 @@ static void say_used_once_tmaps(PHYSFS_File *const my_file, const perm_tmap_buff
 // ----------------------------------------------------------------------------
 static void say_unused_tmaps(PHYSFS_File *my_file, perm_tmap_buffer_type &perm_tmap_buf)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	const unsigned bound = LevelUniqueTmapInfoState.Num_tmaps;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	auto &tmap_name_source = TmapInfo;
@@ -983,7 +983,7 @@ static void say_unused_tmaps(PHYSFS_File *my_file, perm_tmap_buffer_type &perm_t
 				? 'U'
 				: ' ';
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			const auto filename = static_cast<const char *>(tmap_name.filename);
 #elif defined(DXX_BUILD_DESCENT_II)
 			const auto filename = tmap_name.name.data();
@@ -995,7 +995,7 @@ static void say_unused_tmaps(PHYSFS_File *my_file, perm_tmap_buffer_type &perm_t
 		}
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 // ----------------------------------------------------------------------------
 static void say_unused_walls(PHYSFS_File *my_file, const wall_buffer_type &tb)
 {
@@ -1087,7 +1087,7 @@ static void say_totals_all(void)
 		return;
 	}
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
 	for (unsigned i = 0; i < NUM_SHAREWARE_LEVELS; ++i)
@@ -1138,7 +1138,7 @@ say_totals_all();
 	level_tmap_buffer_type level_tmap_buf;
 	level_tmap_buf.fill(-1);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	perm_tmap_buffer_type temp_tmap_buf;
 	wall_buffer_type perm_wall_buf{};
 

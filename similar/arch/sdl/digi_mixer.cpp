@@ -167,7 +167,7 @@ enum class upscale_factor : uint8_t
 	 * source, because the numeric value is used to compute how much buffer
 	 * space to allocate.  Do not renumber these constants.
 	 */
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	from_22khz_to_44khz = 2,
 #endif
 	from_11khz_to_44khz = 4,
@@ -231,7 +231,7 @@ static constexpr std::array<int32_t, FILTER_LEN> coeffs_quarterband{{
 		20326, 9275, 0, -5011, -5490, -3050, 0, 1907, 2127, 1178, 0, -702,
 		-751, -395, 0, 205, 200, 94, 0, -35, -25, -7, 0, 0
 }}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 ,
 // Coefficient set for half-band (e.g. 22050 -> 44100)
 coeffs_halfband{{
@@ -285,7 +285,7 @@ static auto upsample(const std::span<const uint8_t> input, const upscale_factor 
 	switch (upFactor)
 	{
 		case upscale_factor::from_11khz_to_44khz:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case upscale_factor::from_22khz_to_44khz:
 #endif
 			break;
@@ -335,7 +335,7 @@ static auto convert_audio(const std::span<const uint8_t> input, const std::size_
 	// We expect a 4x upscaling 11025 -> 44100
 	// But maybe 2x for d2x in some cases
 	auto &coeffs =
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		(upFactor == upscale_factor::from_22khz_to_44khz)
 		? coeffs_halfband
 		/* Otherwise, assume upscale_factor::from_11khz_to_44khz */
@@ -453,7 +453,7 @@ static void mixdigi_convert_sound(const unsigned sound_idx, RAIIMix_Chunk &sci, 
 					upscale_factor r;
 					if (freq == underlying_value(sound_sample_rate::_11k))
 						r = upscale_factor::from_11khz_to_44khz;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 					else if (freq == underlying_value(sound_sample_rate::_22k))
 						r = upscale_factor::from_22khz_to_44khz;
 #endif
@@ -503,7 +503,7 @@ static Mix_Chunk &mixdigi_convert_sound(const unsigned i)
 	if (!sci.abuf)
 	{
 		auto &gs = GameSounds[i];
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		const auto freq{gs.freq};
 #elif defined(DXX_BUILD_DESCENT_II)
 		const auto freq = underlying_value(GameArg.SndDigiSampleRate);

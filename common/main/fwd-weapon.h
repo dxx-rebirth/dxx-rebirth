@@ -36,7 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-powerup.h"
 
 #ifdef dsx
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #define MAX_SUPER_LASER_LEVEL   laser_level::_6   // Note, laser levels are numbered from 0.
 #endif
 
@@ -64,7 +64,7 @@ struct weapon_info;
 #define WEAPON_RENDER_POLYMODEL     weapon_info::render_type::polymodel
 #define WEAPON_RENDER_VCLIP         weapon_info::render_type::vclip
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 30> MAX_WEAPON_TYPES{};
 
 constexpr std::integral_constant<unsigned, 5> MAX_PRIMARY_WEAPONS{};
@@ -98,7 +98,7 @@ extern const enumerated_array<uint8_t, MAX_SECONDARY_WEAPONS, secondary_weapon_i
 using weapon_info_array = std::array<weapon_info, MAX_WEAPON_TYPES>;
 extern weapon_info_array Weapon_info;
 void weapon_info_read_n(weapon_info_array &wi, std::size_t count, NamedPHYSFS_File fp,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 						pig_hamfile_version file_version,
 #endif
 						std::size_t offset);
@@ -111,7 +111,7 @@ void weapon_info_read_n(weapon_info_array &wi, std::size_t count, NamedPHYSFS_Fi
 #define HAS_FUSION_FLAG     HAS_PRIMARY_FLAG(primary_weapon_index_t::FUSION_INDEX)
 
 #define NUM_SMART_CHILDREN  6   // Number of smart children created by default.
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define	NUM_SHAREWARE_WEAPONS	3		//in shareware, old get first 3 of each
 #elif defined(DXX_BUILD_DESCENT_II)
 #define HAS_SUPER_LASER_FLAG	HAS_PRIMARY_FLAG(primary_weapon_index_t::SUPER_LASER_INDEX)
@@ -213,7 +213,7 @@ int pick_up_vulcan_ammo(player_info &player_info, uint_fast32_t ammo_count, bool
 //this function is for when the player intentionally drops a powerup
 imobjptridx_t spit_powerup(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const d_vclip_array &Vclip, const object_base &spitter, powerup_type_t id, unsigned seed);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void attempt_to_steal_item(vmobjptridx_t objp, const robot_info &, object &playerobjp);
 
 #define SMEGA_ID    40
@@ -233,7 +233,7 @@ void CyclePrimary(player_info &);
 void CycleSecondary(player_info &);
 void ReorderPrimary();
 void ReorderSecondary();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void check_to_use_primary_super_laser(player_info &player_info);
 void init_seismic_disturbances(void);
 void process_super_mines_frame(void);

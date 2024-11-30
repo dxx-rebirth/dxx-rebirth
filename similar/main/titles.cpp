@@ -54,7 +54,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "piggy.h"
 #include "songs.h"
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #include "movie.h"
 #include "physfsrwops.h"
 #endif
@@ -67,11 +67,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 #include <memory>
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 constexpr std::true_type EMULATING_D1{};
 #endif
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #define	SHAREWARE_ENDING_FILENAME	"ending.tex"
 #endif
 #define DEFAULT_BRIEFING_BKG		"brief03.pcx"
@@ -212,7 +212,7 @@ static void show_first_found_title_screen(const char *oem, const char *share, co
 }
 
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 int intro_played;
 namespace {
 static int DefineBriefingBox(const grs_bitmap &, const char *&buf);
@@ -221,12 +221,12 @@ static int DefineBriefingBox(const grs_bitmap &, const char *&buf);
 
 void show_titles(void)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	songs_play_song(song_number::title, 1);
 #endif
 	if (CGameArg.SysNoTitles)
 		return;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 
 	show_first_found_title_screen(
 		"macplay.pcx",	// Mac Shareware
@@ -390,7 +390,7 @@ static std::array<char, 32> get_message_name(const char *&message, const char *c
 namespace dsx {
 namespace {
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 
 static std::array<briefing_screen, 60> Briefing_screens{{
 	{"brief03.pcx",0,3,8,8,257,177}
@@ -475,7 +475,7 @@ constexpr const briefing_screen *get_d1_briefing_screens(const descent_hog_size 
 	return D1_Briefing_screens_full;
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 using briefing_screen_deleter = std::default_delete<briefing_screen>;
 #elif defined(DXX_BUILD_DESCENT_II)
 class briefing_screen_deleter : std::default_delete<briefing_screen>
@@ -522,7 +522,7 @@ struct briefing : window
 	door_direction door_dir;
 	uint8_t door_div_count;
 	int8_t prev_ch;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	uint8_t got_z;
 	uint8_t dumb_adjust;
 	uint8_t chattering;
@@ -555,7 +555,7 @@ static void briefing_init(briefing *br, short level_num)
 	br->cur_screen = 0;
 	br->background_name.back() = 0;
 	strncpy(br->background_name.data(), DEFAULT_BRIEFING_BKG, br->background_name.size() - 1);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	br->RoboFile = {};
 #endif
 	br->robot_num = 0;
@@ -585,7 +585,7 @@ static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &bu
 	const auto len{PHYSFS_fileLength(tfile)};
 	buf = std::make_unique<char[]>(len + 1);
 	PHYSFSX_readBytes(tfile, buf.get(), len);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	const auto endbuf = &buf[len];
 #elif defined(DXX_BUILD_DESCENT_II)
 	const auto endbuf = std::remove(&buf[0], &buf[len], 13);
@@ -598,7 +598,7 @@ static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &bu
 	return (1);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static void set_briefing_fontcolor(struct briefing &br);
 static int get_new_message_num(const char *&message)
 {
@@ -680,7 +680,7 @@ static void put_char_delay(const grs_font &cv_font, briefing *const br, const ch
 	const auto w = gr_get_string_size(cv_font, m.ch.data()).width;
 	br->text_x += w;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (!EMULATING_D1 && !br->chattering) {
 		br->printing_channel.reset(digi_start_sound(digi_xlat_sound(SOUND_BRIEFING_PRINTING), F1_0, sound_pan{0x7fff}, 1, -1, -1, sound_object_none));
 		br->chattering=1;
@@ -703,7 +703,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 	char ch = *br->message++;
 	if (ch == '$') {
 		ch = *br->message++;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (ch=='D') {
 			br->cur_screen = DefineBriefingBox(canvas.cv_bitmap, br->message);
 			br->screen.reset(&Briefing_screens[br->cur_screen]);
@@ -735,7 +735,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			br->prev_ch = 10;							//	read to eoln
 		} else if (ch == 'R') {
 			br->robot_canv.reset();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (auto &RoboFile = br->RoboFile) {
 				RoboFile.reset();
 				DeInitRobotMovie(br->pMovie);
@@ -745,12 +745,12 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			if (EMULATING_D1) {
 				init_spinning_robot(canvas, *br);
 				br->robot_num = get_message_num(br->message);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				while (*br->message++ != 10)
 					;
 #endif
 			} else {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				std::array<char, 8> robot_name_storage{{"RBA.MVE"}};  // matt don't change this!
 				const char *spinRobotName = robot_name_storage.data();
 				const char robot_movie_selector_character = *br->message++;
@@ -808,11 +808,11 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			br->prev_ch = 10;
 			br->bitmap_name = get_message_name(br->message, "#0");
 		} else if (ch=='A') {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			br->line_adjustment=1-br->line_adjustment;
 #endif
 		} else if (ch=='Z') {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			std::array<char, 15> fname, fnameb;
 			br->got_z=1;
 			br->dumb_adjust=1;
@@ -861,14 +861,14 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			br->guy_bitmap.reset();
 			const auto iff_error{iff_read_bitmap(&bitmap_name[0], br->guy_bitmap, &temp_palette)};
 			assert(iff_error == iff_status_code::no_error);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			gr_remap_bitmap_good( br->guy_bitmap, temp_palette, -1, -1 );
 #endif
 			(void)iff_error;
 
 			br->prev_ch = 10;
 		} else if (ch == 'S') {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			br->chattering = 0;
 			br->printing_channel.reset();
 #endif
@@ -876,7 +876,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			br->new_screen = 1;
 			return 1;
 		} else if (ch == 'P') {		//	New page.
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (!br->got_z) {
 				Int3(); // Hey ryan!!!! You gotta load a screen before you start
 				// printing to it! You know, $Z !!!
@@ -898,7 +898,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 
 			return 1;
 		}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		else if (ch == ':') {
 			br->prev_ch = 10;
 			auto p = br->message;
@@ -981,7 +981,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 	} else if (ch == 10) {
 		if (br->prev_ch != '\\') {
 			br->prev_ch = ch;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (br->dumb_adjust)
 				br->dumb_adjust--;
 			else
@@ -989,7 +989,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 				br->text_y += FSPACY(5)+FSPACY(5)*3/5;
 			br->text_x = br->screen->text_ulx;
 			if (br->text_y > br->screen->text_uly + br->screen->text_height) {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				const descent_hog_size size{PHYSFSX_fsize(descent_hog_basename)};
 				auto &bs = get_d1_briefing_screens(size)[br->cur_screen];
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1006,7 +1006,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			br->prev_ch = ch;
 		}
 	} else {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (!br->got_z) {
 			LevelError("briefing wrote to screen without using $Z to load a screen; loading default.");
 			//Int3(); // Hey ryan!!!! You gotta load a screen before you start
@@ -1021,7 +1021,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 	return 0;
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static void set_briefing_fontcolor()
 #elif defined(DXX_BUILD_DESCENT_II)
 static void set_briefing_fontcolor(briefing &br)
@@ -1048,7 +1048,7 @@ static void set_briefing_fontcolor(briefing &br)
 		colors[2] = {8, 31, 54};
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (br.RoboFile)
 	{
 		colors[0] = {0, 31, 0};
@@ -1269,7 +1269,7 @@ static int init_new_page(grs_canvas &canvas, briefing *br)
 	br->streamcount=0;
 	br->guy_bitmap.reset();
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (auto &RoboFile = br->RoboFile)
 	{
 		RoboFile.reset();
@@ -1282,7 +1282,7 @@ static int init_new_page(grs_canvas &canvas, briefing *br)
 	return r;
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static int DefineBriefingBox(const grs_bitmap &cv_bitmap, const char *&buf)
 {
 	int i=0;
@@ -1323,7 +1323,7 @@ static void free_briefing_screen(briefing *br);
 //	loads a briefing screen
 static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const char *const fname)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	const descent_hog_size descent_hog_size{PHYSFSX_fsize(descent_hog_basename)};
 	char forigin[PATH_MAX];
 	decltype(br->background_name) fname2a;
@@ -1432,7 +1432,7 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 static void free_briefing_screen(briefing *br)
 {
 	br->background.reset();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (auto &RoboFile = br->RoboFile)
 	{
 		RoboFile.reset();
@@ -1440,7 +1440,7 @@ static void free_briefing_screen(briefing *br)
 	}
 #endif
 	br->robot_canv.reset();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	br->printing_channel.reset();
 #endif
 	if (EMULATING_D1)
@@ -1457,7 +1457,7 @@ static int new_briefing_screen(grs_canvas &canvas, briefing *br, int first)
 		? std::size(D1_Briefing_screens_share)
 		: std::size(D1_Briefing_screens_full)
 	);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 
 	if (!first)
 		br->cur_screen++;
@@ -1542,7 +1542,7 @@ static int new_briefing_screen(grs_canvas &canvas, briefing *br, int first)
 	br->guy_bitmap.reset();
 	br->prev_ch = -1;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (songs_is_playing() == song_number::None && !br->hum_channel)
 		br->hum_channel.reset(digi_start_sound(digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, sound_pan{0x7fff}, 1, -1, -1, sound_object_none));
 #endif
@@ -1614,7 +1614,7 @@ window_event_result briefing::event_handler(const d_event &event)
 
 			switch (key)
 			{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				case KEY_ALTED + KEY_B: // B - ALTED... BALT... BALD... get it? 
 					cheats.baldguy = !cheats.baldguy;
 					break;
@@ -1667,7 +1667,7 @@ window_event_result briefing::event_handler(const d_event &event)
 				show_briefing_bitmap(canvas, &this->guy_bitmap);
 			if (this->bitmap_name[0] != 0)
 				show_animated_bitmap(canvas, this);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (auto pMovie = this->pMovie.get())
 				RotateRobot(pMovie);
 #endif
@@ -1692,7 +1692,7 @@ window_event_result briefing::event_handler(const d_event &event)
 		}
 		case event_type::window_close:
 			free_briefing_screen(this);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			this->hum_channel.reset();
 #endif
 			break;
@@ -1716,7 +1716,7 @@ void do_briefing_screens(const d_fname &filename, int level_num)
 		return;
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (!(EMULATING_D1 || is_SHAREWARE || is_MAC_SHARE || is_D2_OEM || !PLAYING_BUILTIN_MISSION))
 		songs_stop_all();
 	else
@@ -1726,7 +1726,7 @@ void do_briefing_screens(const d_fname &filename, int level_num)
 			songs_play_song(song_number::briefing, 1);
 	}
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	set_screen_mode( SCREEN_MENU );
 #elif defined(DXX_BUILD_DESCENT_II)
 	// set screen correctly for robot movies
@@ -1772,7 +1772,7 @@ void do_end_briefing_screens(const d_fname &filename)
 		}
 		songs_play_song(song, 1);
 	}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	else if (PLAYING_BUILTIN_MISSION)
 	{
 		song_number song;

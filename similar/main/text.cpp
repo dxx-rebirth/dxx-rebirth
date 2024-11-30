@@ -40,7 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ctype.h>
 #endif
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define IDX_TEXT_OVERWRITTEN	330
 #elif defined(DXX_BUILD_DESCENT_II)
 #define IDX_TEXT_OVERWRITTEN	350
@@ -78,7 +78,7 @@ static std::pair<PHYSFS_sint64, std::unique_ptr<char[]>> load_blob_from_file(con
 static std::unique_ptr<char[]> parse_blob_as_text_strings(const char *const filename, std::unique_ptr<char[]> loaded_blob, const bool have_binary, const PHYSFS_sint64 bytes_read)
 {
 	char *tptr = loaded_blob.get();
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	static const char *const extra_strings[] = {
 		"done",
 		"I am a",
@@ -193,7 +193,7 @@ static std::unique_ptr<char[]> parse_blob_as_text_strings(const char *const file
 
 	for (const auto i : xrange(N_TEXT_STRINGS))
 	{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		if (!tptr)
 		{
 			if (i >= N_TEXT_STRINGS_MIN)	// account for non-registered 1.4/1.5 text files
@@ -213,7 +213,7 @@ static std::unique_ptr<char[]> parse_blob_as_text_strings(const char *const file
 
 		tptr = strchr(tptr,'\n');
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (!tptr)
 		{
 			if (i == 644)	/* older datafiles */
@@ -275,7 +275,7 @@ static std::unique_ptr<char[]> parse_blob_as_text_strings(const char *const file
 		}
 
 		switch(i) {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			case 116:
 				if (!d_stricmp(ts, "SPREADFIRE")) // This string is too long to fit in the cockpit-box
 				{

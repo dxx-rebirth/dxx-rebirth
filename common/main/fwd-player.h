@@ -36,7 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // Values for special flags
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #define PLAYER_MAX_AMMO(powerup_flags,BASE)	((powerup_flags & PLAYER_FLAGS_AMMO_RACK) ? BASE * 2 : BASE)
 
 #define AFTERBURNER_MAX_TIME    (F1_0*5)    // Max time afterburner can be on.
@@ -49,7 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define INVULNERABLE_TIME_MAX   (F1_0*30)
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define PLAYER_STRUCT_VERSION 	16		//increment this every time player struct changes
 #define PLAYER_MAX_AMMO(powerup_flags,BASE)	(static_cast<void>(powerup_flags), BASE)
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -89,7 +89,7 @@ struct player_rw;
 struct player_info;
 void player_rw_swap(player_rw *p, physfsx_endian swap);
 int allowed_to_fire_missile(const player_info &);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 fix get_omega_energy_consumption(fix delta_charge);
 void omega_charge_frame(player_info &);
 #endif

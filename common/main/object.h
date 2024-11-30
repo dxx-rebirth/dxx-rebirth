@@ -50,7 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-poison.h"
 #include "physics_info.h"
 #include "player-flags.h"
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #include "escort.h"
 #endif
 #include <array>
@@ -164,14 +164,14 @@ struct player_info
 	fix     energy;                 // Amount of energy remaining.
 	fix     homing_object_dist;     // Distance of nearest homing object.
 	fix Fusion_charge;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	fix Omega_charge;
 	fix Omega_recharge_delay;
 #endif
 	player_flags powerup_flags;
 	objnum_t   killer_objnum;          // Who killed me.... (-1 if no one)
 	uint16_t vulcan_ammo;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	using primary_weapon_flag_type = uint8_t;
 #elif defined(DXX_BUILD_DESCENT_II)
 	using primary_weapon_flag_type = uint16_t;
@@ -186,7 +186,7 @@ struct player_info
 	enum laser_level laser_level;
 	enumerated_array<uint8_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t>  secondary_ammo; // How much ammo of each type.
 	uint8_t Spreadfire_toggle;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	static constexpr uint8_t max_hoard_orbs{12};
 	uint8_t Primary_last_was_super;
 	uint8_t Secondary_last_was_super;
@@ -348,7 +348,7 @@ namespace dsx {
 struct powerup_info_rw
 {
 	int     count;          // how many/much we pick up (vulcan cannon only?)
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 // Same as above but structure Savegames/Multiplayer objects expect
 	fix     creation_time;  // Absolute time of creation.
 	int     flags;          // spat by player?
@@ -469,7 +469,7 @@ enum class object_base::movement_type : uint8_t
 
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 struct laser_info : public ::dcx::laser_info
 {
 	fix64 last_afterburner_time = 0;	//	Time at which this object last created afterburner blobs.
@@ -641,7 +641,7 @@ imobjptridx_t obj_create(d_level_unique_object_state &LevelUniqueObjectState, co
 [[nodiscard]]
 imobjptridx_t obj_weapon_create(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const weapon_info_array &Weapon_info, unsigned id, vmsegptridx_t segnum, const vms_vector &pos, fix size, render_type rtype);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 
 /* game_marker_index values are assigned as the object.id field for
  * marker objects, and are used as an index into most marker-related
@@ -763,7 +763,7 @@ static inline weapon_id_type get_weapon_id(const object_base &o)
 	return static_cast<weapon_id_type>(o.id);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static inline game_marker_index get_marker_id(const object_base &o)
 {
 	return game_marker_index{o.id};
@@ -836,7 +836,7 @@ void check_warn_object_type(const object_base &, object_type_t, const char *file
 #define get_fireball_id(O)	(check_warn_object_type(O, OBJ_FIREBALL, __FILE__, __LINE__), get_fireball_id(O))
 #define get_robot_id(O)	(check_warn_object_type(O, OBJ_ROBOT, __FILE__, __LINE__), get_robot_id(O))
 #define get_weapon_id(O)	(check_warn_object_type(O, OBJ_WEAPON, __FILE__, __LINE__), get_weapon_id(O))
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #define get_marker_id(O)	(check_warn_object_type(O, OBJ_MARKER, __FILE__, __LINE__), get_marker_id(O))
 #endif
 #define set_player_id(O,I)	(check_warn_object_type(O, OBJ_PLAYER, __FILE__, __LINE__), set_player_id(O, I))

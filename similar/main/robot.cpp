@@ -216,7 +216,7 @@ imobjptridx_t robot_create(const d_robot_info_array &Robot_info, const robot_id 
 void robot_info_read(const NamedPHYSFS_File fp, robot_info &ri)
 {
 	ri.model_num = build_polygon_model_index_from_untrusted(PHYSFSX_readInt(fp));
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	ri.n_guns = PHYSFSX_readInt(fp);
 #endif
 	range_for (auto &j, ri.gun_points)
@@ -230,7 +230,7 @@ void robot_info_read(const NamedPHYSFS_File fp, robot_info &ri)
 	ri.exp2_vclip_num = build_vclip_index_from_untrusted(PHYSFSX_readShort(fp));
 	ri.exp2_sound_num = PHYSFSX_readShort(fp);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	ri.weapon_type = static_cast<weapon_id_type>(PHYSFSX_readShort(fp));
 #elif defined(DXX_BUILD_DESCENT_II)
 	ri.weapon_type = static_cast<weapon_id_type>(PHYSFSX_readByte(fp));
@@ -242,7 +242,7 @@ void robot_info_read(const NamedPHYSFS_File fp, robot_info &ri)
 	ri.contains_prob = PHYSFSX_readByte(fp);
 	const auto contains_type = PHYSFSX_readByte(fp);
 	ri.contains = build_contained_object_parameters_from_untrusted(contains_type, contains_id, contains_count);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	ri.score_value = PHYSFSX_readInt(fp);
 #elif defined(DXX_BUILD_DESCENT_II)
 	ri.kamikaze = PHYSFSX_readByte(fp);
@@ -262,13 +262,13 @@ void robot_info_read(const NamedPHYSFS_File fp, robot_info &ri)
 		j = PHYSFSX_readFix(fp);
 	range_for (auto &j, ri.firing_wait)
 		j = PHYSFSX_readFix(fp);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	range_for (auto &j, ri.firing_wait2)
 		j = PHYSFSX_readFix(fp);
 #endif
 	range_for (auto &j, ri.turn_time)
 		j = PHYSFSX_readFix(fp);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	PHYSFSX_skipBytes<4 * (NDL * 2)>(fp);
 #endif
 	range_for (auto &j, ri.max_speed)
@@ -282,7 +282,7 @@ void robot_info_read(const NamedPHYSFS_File fp, robot_info &ri)
 
 	ri.cloak_type = PHYSFSX_readByte(fp);
 	ri.attack_type = PHYSFSX_readByte(fp);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	const uint8_t boss_flag = PHYSFSX_readByte(fp);
 	ri.boss_flag = (boss_flag == static_cast<uint8_t>(boss_robot_id::d1_1) || boss_flag == static_cast<uint8_t>(boss_robot_id::d1_superboss)) ? boss_robot_id{boss_flag} : boss_robot_id::None;
 #endif
@@ -290,7 +290,7 @@ void robot_info_read(const NamedPHYSFS_File fp, robot_info &ri)
 	ri.see_sound = PHYSFSX_readByte(fp);
 	ri.attack_sound = PHYSFSX_readByte(fp);
 	ri.claw_sound = PHYSFSX_readByte(fp);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	ri.taunt_sound = PHYSFSX_readByte(fp);
 
 	const uint8_t boss_flag = PHYSFSX_readByte(fp);

@@ -57,7 +57,7 @@ namespace dsx {
 struct window_rendered_data
 {
 	window_rendered_data();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	const fix64 time;
 #endif
 	std::vector<objnum_t> rendered_robots;
@@ -105,7 +105,7 @@ fix Render_zoom;     // the player's zoom factor
 
 #ifdef dsx
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<uint8_t, 0> RenderingType{};
 #elif defined(DXX_BUILD_DESCENT_II)
 extern uint8_t RenderingType;

@@ -182,7 +182,7 @@ namespace {
 
 static void InitGameArg()
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	GameArg.SndDigiSampleRate = sound_sample_rate::_22k;
 #endif
 	::dcx::InitGameArg();
@@ -242,7 +242,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &&Args)
 			CGameArg.SysNoBorders = true;
 		else if (!d_stricmp(p, "-notitles"))
 			CGameArg.SysNoTitles = true;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		else if (!d_stricmp(p, "-nomovies"))
 			GameArg.SysNoMovies 		= 1;
 #endif
@@ -270,7 +270,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &&Args)
 			CGameArg.SndNoSound		= 1;
 		else if (!d_stricmp(p, "-nomusic"))
 			CGameArg.SndNoMusic = true;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		else if (!d_stricmp(p, "-sound11k"))
 			GameArg.SndDigiSampleRate = sound_sample_rate::_11k;
 #endif
@@ -306,7 +306,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &&Args)
 
 		else if (!d_stricmp(p, "-lowresfont"))
 			CGameArg.GfxSkipHiresFNT = true;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		else if (!d_stricmp(p, "-lowresgraphics"))
 			GameArg.GfxSkipHiresGFX	= 1;
 		else if (!d_stricmp(p, "-lowresmovies"))
@@ -363,7 +363,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &&Args)
 #endif
 #endif
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		else if (!d_stricmp(p, "-nobm"))
 			GameArg.EdiNoBm 		= 1;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -508,7 +508,7 @@ bool InitArgs(std::span<char *> argv)
 	try {
 		{
 			assert(ini.empty());
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			const auto INI_FILENAME = "d1x.ini";
 #elif defined(DXX_BUILD_DESCENT_II)
 			const auto INI_FILENAME = "d2x.ini";

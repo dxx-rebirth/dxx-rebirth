@@ -45,7 +45,7 @@ DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(object, obj);
 static constexpr valptridx<object>::magic_constant<objnum_t{0xffff}> object_none{};
 static constexpr valptridx<object>::magic_constant<objnum_t{0}> object_first{};
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 15> MAX_OBJECT_TYPES{};
 #elif defined(DXX_BUILD_DESCENT_II)
 constexpr std::integral_constant<unsigned, 16> MAX_OBJECT_TYPES{};
@@ -63,7 +63,7 @@ constexpr std::integral_constant<object_flag_t, 4> OF_DESTROYED{};   // this has
 constexpr std::integral_constant<object_flag_t, 8> OF_SILENT{};   // this makes no sound when it hits a wall.  Added by MK for weapons, if you extend it to other types, do it completely!
 constexpr std::integral_constant<object_flag_t, 16> OF_ATTACHED{};  // this object is a fireball attached to another object
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 constexpr std::integral_constant<object_flag_t, 64> OF_PLAYER_DROPPED{};  // this object was dropped by the player...
 #endif
 #endif
@@ -78,7 +78,7 @@ constexpr std::integral_constant<physics_flag_t, 0x10> PF_STICK{};    // object 
 constexpr std::integral_constant<physics_flag_t, 0x20> PF_PERSISTENT{};    // object keeps going even after it hits another object (eg, fusion cannon)
 constexpr std::integral_constant<physics_flag_t, 0x40> PF_USES_THRUST{};    // this object uses its thrust
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 constexpr std::integral_constant<physics_flag_t, 0x80> PF_BOUNCED_ONCE{};    // Weapon has bounced once.
 constexpr std::integral_constant<physics_flag_t, 0x100> PF_FREE_SPINNING{};   // Drag does not apply to rotation of this object
 constexpr std::integral_constant<physics_flag_t, 0x200> PF_BOUNCES_TWICE{};   // This weapon bounces twice, then dies
@@ -134,7 +134,7 @@ enum class collision_result : bool
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 4> MAX_CONTROLCEN_GUNS{};
 #elif defined(DXX_BUILD_DESCENT_II)
 constexpr std::integral_constant<unsigned, 8> MAX_CONTROLCEN_GUNS{};
@@ -273,7 +273,7 @@ void obj_attach(object_array &Objects, vmobjptridx_t parent, vmobjptridx_t sub);
 
 void create_small_fireball_on_object(vmobjptridx_t objp, fix size_scale, int sound_flag);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 extern int Drop_afterburner_blob_flag;		//ugly hack
 enum class game_marker_index : uint8_t;
 enum class player_marker_index : uint8_t;

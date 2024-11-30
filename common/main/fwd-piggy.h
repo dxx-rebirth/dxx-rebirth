@@ -51,7 +51,7 @@ void remove_char(char * s, char c);	// in piggy.cpp
 }
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #define D1_PIGFILE              "descent.pig"
 #define MAX_ALIASES 20
 
@@ -72,7 +72,7 @@ extern uint8_t Pigfile_initialized;
 enum class bitmap_index : uint16_t;
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 extern int MacPig;
 extern int PCSharePig;
 
@@ -90,7 +90,7 @@ int piggy_register_sound(digi_sound &snd, std::span<const char> name);
 bitmap_index piggy_find_bitmap(std::span<const char> name);
 void piggy_load_level_data();
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 1800> MAX_BITMAP_FILES{};
 #define PIGGY_PC_SHAREWARE 2
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -104,7 +104,7 @@ extern std::array<digi_sound, MAX_SOUND_FILES> GameSounds;
 extern GameBitmaps_array GameBitmaps;
 void piggy_bitmap_page_in(GameBitmaps_array &, bitmap_index bmp);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 void piggy_read_sounds(int pc_shareware);
 #elif defined(DXX_BUILD_DESCENT_II)
 void piggy_init_pigfile(std::span<const char> filename);
@@ -145,7 +145,7 @@ extern ubyte bogus_bitmap_initialized;
 #define space_tab " \t"
 #define equal_space " \t="
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #include "hash.h"
 extern hashtable AllBitmapsNames;
 extern hashtable AllDigiSndNames;

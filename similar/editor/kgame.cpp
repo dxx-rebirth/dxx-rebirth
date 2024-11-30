@@ -128,7 +128,7 @@ int SaveGameData()
 				Perm_player_segnum=segment_none;		//position was bogus
 		}
 		saved_flag = save_level(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			LevelSharedSegmentState.DestructibleLights,
 #endif
 			game_filename.data());
@@ -168,7 +168,7 @@ if (SafetyCheck())  {
 		{
 		checkforgamext(game_filename);
 		if (load_level(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				LevelSharedSegmentState.DestructibleLights,
 #endif
 				game_filename.data()))

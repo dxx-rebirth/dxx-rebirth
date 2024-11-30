@@ -140,7 +140,7 @@ static constexpr const char *PRIMARY_WEAPON_NAMES_SHORT(const primary_weapon_ind
 			return TXT_W_PLASMA_S;
 		case primary_weapon_index_t::FUSION_INDEX:
 			return TXT_W_FUSION_S;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case primary_weapon_index_t::SUPER_LASER_INDEX:
 			return TXT_W_SLASER_S;
 		case primary_weapon_index_t::GAUSS_INDEX:
@@ -189,7 +189,7 @@ static constexpr const char *PRIMARY_WEAPON_NAMES_SHORT(const primary_weapon_ind
 #define KEY_ICON_RED			70
 
 //Coordinats for gauges
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define GAUGE_BLUE_KEY_X_L		45
 #define GAUGE_BLUE_KEY_X_H		91
 #define GAUGE_GOLD_KEY_X_L		44
@@ -253,7 +253,7 @@ static constexpr const char *PRIMARY_WEAPON_NAMES_SHORT(const primary_weapon_ind
 #define RIGHT_ENERGY_GAUGE_W 	((multires_gauge_graphic.get(133, 64)))
 #define RIGHT_ENERGY_GAUGE_H 	((multires_gauge_graphic.get(21, 8)))
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define SB_ENERGY_GAUGE_Y 		((multires_gauge_graphic.get(390, 155)))
 #define SB_ENERGY_GAUGE_H 		((multires_gauge_graphic.get(82, 41)))
 #define SB_ENERGY_NUM_Y 		((multires_gauge_graphic.get(457, 190)))
@@ -562,7 +562,7 @@ static CockpitWeaponBoxFrameBitmaps WinBoxOverlay;
 
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define PAGE_IN_GAUGE(x,g)	PAGE_IN_GAUGE(x)
 std::array<bitmap_index, MAX_GAUGE_BMS_MAC> Gauges; // Array of all gauge bitmaps.
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -576,7 +576,7 @@ namespace {
 static inline void PAGE_IN_GAUGE(int x, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	const auto &g =
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		multires_gauge_graphic.is_hires() ? Gauges_hires :
 #endif
 		Gauges;
@@ -880,7 +880,7 @@ struct gauge_inset_window
 	fix fade_value{};
 	weapon_index old_weapon{};
 	weapon_box_state box_state{weapon_box_state::set};
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	weapon_box_user user{weapon_box_user::weapon};
 	uint8_t overlap_dirty{};
 	fix time_static_played{};
@@ -916,14 +916,14 @@ namespace dsx {
 
 namespace {
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define hud_gauge_bitblt_draw_context	hud_draw_context_hs
 #elif defined(DXX_BUILD_DESCENT_II)
 #define hud_gauge_bitblt_draw_context	hud_draw_context_hs_mr
 #endif
 static void hud_gauge_bitblt(const hud_gauge_bitblt_draw_context hudctx, const unsigned x, const unsigned y, const unsigned gauge)
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
 #endif
 	PAGE_IN_GAUGE(gauge, multires_gauge_graphic);
@@ -1229,7 +1229,7 @@ static void hud_show_keys(const hud_draw_context_mr hudctx, const hud_ar_scale_f
 	}
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static void hud_show_orbs(grs_canvas &canvas, const player_info &player_info, const local_multires_gauge_graphic multires_gauge_graphic)
 {
 	if (game_mode_hoard(Game_mode))
@@ -1315,7 +1315,7 @@ static void hud_show_energy(grs_canvas &canvas, const player_info &player_info, 
 		newdemo_record_player_energy(f2ir(energy));
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define convert_1s(s)
 #elif defined(DXX_BUILD_DESCENT_II)
 static void hud_show_afterburner(grs_canvas &canvas, const player_info &player_info, const grs_font &game_font, const unsigned current_y)
@@ -1347,7 +1347,7 @@ static constexpr const char *SECONDARY_WEAPON_NAMES_VERY_SHORT(const secondary_w
 		case secondary_weapon_index_t::PROXIMITY_INDEX:	return TXT_PROXBOMB;
 		case secondary_weapon_index_t::SMART_INDEX:		return TXT_SMART;
 		case secondary_weapon_index_t::MEGA_INDEX:		return TXT_MEGA;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case secondary_weapon_index_t::SMISSILE1_INDEX:	return "Flash";
 		case secondary_weapon_index_t::GUIDED_INDEX:		return "Guided";
 		case secondary_weapon_index_t::SMART_MINE_INDEX:	return "SmrtMine";
@@ -1365,7 +1365,7 @@ namespace {
 
 static void show_bomb_count(grs_canvas &canvas, const player_info &player_info, const int x, const int y, const int bg_color, const int always_show, const int right_align)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (!PlayerCfg.BombGauge)
 		return;
 #endif
@@ -1423,7 +1423,7 @@ constexpr rgb_t hud_rgb_gray = {6, 6, 6};
 namespace dsx {
 namespace {
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 constexpr rgb_t hud_rgb_yellow = {30, 30, 0};
 #endif
 
@@ -1437,7 +1437,7 @@ static rgb_t hud_get_primary_weapon_fontcolor(const player_info &player_info, co
 		if (has_weapon(player_has_primary_weapon(player_info, consider_weapon)))
 		{
 			/* The player has not armed this weapon, but could do so. */
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			const auto is_super = is_super_weapon(consider_weapon);
 			const auto base_weapon = is_super ? primary_weapon_index_t{static_cast<uint8_t>(static_cast<uint8_t>(consider_weapon) - SUPER_WEAPON)} : consider_weapon;
 			if (player_info.Primary_last_was_super & HAS_PRIMARY_FLAG(base_weapon))
@@ -1486,7 +1486,7 @@ static rgb_t hud_get_secondary_weapon_fontcolor(const player_info &player_info, 
 		if (player_info.secondary_ammo[consider_weapon])
 		{
 			/* The player has not armed this weapon, but has ammo for it. */
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			const auto is_super = is_super_weapon(consider_weapon);
 			const auto base_weapon = is_super ? secondary_weapon_index_t{static_cast<uint8_t>(static_cast<uint8_t>(consider_weapon) - SUPER_WEAPON)} : consider_weapon;
 			if (player_info.Secondary_last_was_super & HAS_SECONDARY_FLAG(base_weapon))
@@ -1547,7 +1547,7 @@ static void hud_printf_vulcan_ammo(grs_canvas &canvas, const player_info &player
 {
 	const unsigned primary_weapon_flags = player_info.primary_weapon_flags;
 	const auto vulcan_mask{HAS_VULCAN_FLAG};
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	const auto gauss_mask{vulcan_mask};
 #elif defined(DXX_BUILD_DESCENT_II)
 	const auto gauss_mask{HAS_GAUSS_FLAG};
@@ -1558,7 +1558,7 @@ static void hud_printf_vulcan_ammo(grs_canvas &canvas, const player_info &player
 		return;
 	hud_set_vulcan_ammo_fontcolor(player_info, has_weapon_uses_vulcan_ammo, canvas);
 	const char c =
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		((primary_weapon_flags & gauss_mask) && ((player_info.Primary_last_was_super & HAS_VULCAN_FLAG) || !(primary_weapon_flags & vulcan_mask)))
 		? 'G'
 		: 
@@ -1633,7 +1633,7 @@ static void hud_show_primary_weapons_mode(grs_canvas &canvas, const player_info 
 				int vx, vy;
 				if (PlayerCfg.CockpitMode[1] == cockpit_mode_t::full_screen ? (
 						vertical ? (
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 							vx = x, vy = y, true
 #else
 							false
@@ -1649,7 +1649,7 @@ static void hud_show_primary_weapons_mode(grs_canvas &canvas, const player_info 
 			}
 		}
 	}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	x = orig_x;
 	y = orig_y;
 	if (vertical)
@@ -1742,7 +1742,7 @@ static void hud_show_secondary_weapons_mode(grs_canvas &canvas, const player_inf
 		}
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	x = orig_x;
 	y = orig_y;
 	if (vertical)
@@ -1791,7 +1791,7 @@ static void hud_show_weapons(grs_canvas &canvas, const object &plrobj, const grs
 
 	if (PlayerCfg.HudMode == HudType::Alternate1)
 	{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		constexpr unsigned multiplier = 1;
 #elif defined(DXX_BUILD_DESCENT_II)
 		constexpr unsigned multiplier = 2;
@@ -1835,7 +1835,7 @@ static void hud_show_weapons(grs_canvas &canvas, const object &plrobj, const grs
 				break;
 
 			case primary_weapon_index_t::VULCAN_INDEX:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			case primary_weapon_index_t::GAUSS_INDEX:
 #endif
 				snprintf(weapon_str, sizeof(weapon_str), "%s: %u", weapon_name, vulcan_ammo_scale(player_info.vulcan_ammo));
@@ -1846,13 +1846,13 @@ static void hud_show_weapons(grs_canvas &canvas, const object &plrobj, const grs
 			case primary_weapon_index_t::SPREADFIRE_INDEX:
 			case primary_weapon_index_t::PLASMA_INDEX:
 			case primary_weapon_index_t::FUSION_INDEX:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			case primary_weapon_index_t::HELIX_INDEX:
 			case primary_weapon_index_t::PHOENIX_INDEX:
 #endif
 				disp_primary_weapon_name = weapon_name;
 				break;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			case primary_weapon_index_t::OMEGA_INDEX:
 				snprintf(weapon_str, sizeof(weapon_str), "%s: %03i", weapon_name, player_info.Omega_charge * 100 / MAX_OMEGA_CHARGE);
 				convert_1s(weapon_str);
@@ -1964,7 +1964,7 @@ static void hud_show_lives(const hud_draw_context_hs_mr hudctx, const hud_ar_sca
 	{
 		gr_set_curfont(canvas, game_font);
 		gr_set_fontcolor(canvas, BM_XRGB(0, 20, 0), -1);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
 #endif
 		PAGE_IN_GAUGE(GAUGE_LIVES, multires_gauge_graphic);
@@ -2244,7 +2244,7 @@ static void draw_wbu_overlay(const hud_draw_context_hs_mr hudctx)
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
 	const auto raw_cockpit_mode = PlayerCfg.CockpitMode[1];
 	const auto cockpit_idx =
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		multires_gauge_graphic.is_hires()
 		? static_cast<cockpit_mode_t>(underlying_value(raw_cockpit_mode) + (Num_cockpits / 2))
 		:
@@ -2346,7 +2346,7 @@ static void draw_energy_bar(grs_canvas &canvas, const hud_draw_context_hs_mr hud
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 namespace {
 static void draw_afterburner_bar(const hud_draw_context_hs_mr hudctx, const int afterburner)
@@ -2568,7 +2568,7 @@ static void draw_player_ship(const hud_draw_context_hs_mr hudctx, const player_i
 	}
 
 	const auto color = get_player_or_team_color(Player_num);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
 #endif
 	PAGE_IN_GAUGE(GAUGE_SHIPS+color, multires_gauge_graphic);
@@ -2650,7 +2650,7 @@ static void draw_weapon_info_sub(const hud_draw_context_hs_mr hudctx, const play
 	//clear the window
 	const uint8_t color = BM_XRGB(0, 0, 0);
 	{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		constexpr unsigned bottom_bias = 1;
 #elif defined(DXX_BUILD_DESCENT_II)
 		constexpr unsigned bottom_bias = 0;
@@ -2658,7 +2658,7 @@ static void draw_weapon_info_sub(const hud_draw_context_hs_mr hudctx, const play
 		gr_rect(hudctx.canvas, hudctx.xscale(box->left), hudctx.yscale(box->top), hudctx.xscale(box->right), hudctx.yscale(box->bot + bottom_bias), color);
 	}
 	const auto picture = 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	// !SHAREWARE
 		(Piggy_hamfile_version >= pig_hamfile_version::_3 && hudctx.multires_gauge_graphic.is_hires()) ?
 			Weapon_info[info_index].hires_picture :
@@ -2676,7 +2676,7 @@ static void draw_weapon_info_sub(const hud_draw_context_hs_mr hudctx, const play
 		gr_string(canvas, *canvas.cv_font, text_x, text_y, name);
 
 		//	For laser, show level and quadness
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		if (info_index == weapon_id_type::LASER_ID)
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (info_index == weapon_id_type::LASER_ID || info_index == weapon_id_type::SUPER_LASER_ID)
@@ -2692,7 +2692,7 @@ static void draw_weapon_info_sub(const hud_draw_context_hs_mr hudctx, const play
 
 static void draw_primary_weapon_info(const hud_draw_context_hs_mr hudctx, const player_info &player_info, const primary_weapon_index_t weapon_num, const laser_level level)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	(void)level;
 #endif
 	int x,y;
@@ -2700,7 +2700,7 @@ static void draw_primary_weapon_info(const hud_draw_context_hs_mr hudctx, const 
 	{
 		const auto weapon_id = Primary_weapon_to_weapon_info[weapon_num];
 		const auto info_index = 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			(weapon_id == weapon_id_type::LASER_ID && level > MAX_LASER_LEVEL)
 			? weapon_id_type::SUPER_LASER_ID
 			:
@@ -2735,7 +2735,7 @@ static void draw_primary_weapon_info(const hud_draw_context_hs_mr hudctx, const 
 		draw_weapon_info_sub(hudctx, player_info, info_index, box, pic_x, pic_y, PRIMARY_WEAPON_NAMES_SHORT(weapon_num), hudctx.xscale(text_x), hudctx.yscale(text_y));
 		if (PlayerCfg.HudMode != HudType::Standard)
 		{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (inset_window[gauge_inset_window_view::primary].user == weapon_box_user::weapon)
 #endif
 				hud_show_primary_weapons_mode(hudctx.canvas, player_info, 1, hudctx.xscale(x), hudctx.yscale(y));
@@ -2793,7 +2793,7 @@ static void draw_secondary_weapon_info(const hud_draw_context_hs_mr hudctx, cons
 			case secondary_weapon_index_t::MEGA_INDEX:
 				weapon_name = TXT_W_M_MISSILE_S;
 				break;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			case secondary_weapon_index_t::SMISSILE1_INDEX:
 				weapon_name = TXT_W_SMISSILE1_S;
 				break;
@@ -2814,7 +2814,7 @@ static void draw_secondary_weapon_info(const hud_draw_context_hs_mr hudctx, cons
 		draw_weapon_info_sub(hudctx, player_info, info_index, box, pic_x, pic_y, weapon_name, hudctx.xscale(text_x), hudctx.yscale(text_y));
 		if (PlayerCfg.HudMode != HudType::Standard)
 		{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (inset_window[gauge_inset_window_view::secondary].user == weapon_box_user::weapon)
 #endif
 				hud_show_secondary_weapons_mode(hudctx.canvas, player_info, 1, hudctx.xscale(x), hudctx.yscale(y));
@@ -2929,7 +2929,7 @@ static void draw_weapon_box(const hud_draw_context_hs_mr hudctx, const player_in
 
 namespace dsx {
 namespace {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static void draw_static(const d_vclip_array &Vclip, const hud_draw_context_hs_mr hudctx, const gauge_inset_window_view win)
 {
 	const vclip *const vc = &Vclip[vclip_index::monitor_static];
@@ -2976,7 +2976,7 @@ static void draw_static(const d_vclip_array &Vclip, const hud_draw_context_hs_mr
 
 static void draw_weapon_box0(const hud_draw_context_hs_mr hudctx, const player_info &player_info)
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	const auto user = inset_window[gauge_inset_window_view::primary].user;
 	if (user == weapon_box_user::weapon)
 #endif
@@ -2993,7 +2993,7 @@ static void draw_weapon_box0(const hud_draw_context_hs_mr hudctx, const player_i
 				nd_ammo = player_info.vulcan_ammo;
 				ammo_count = vulcan_ammo_scale(nd_ammo);
 			}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			else if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX)
 			{
 				auto &Omega_charge = player_info.Omega_charge;
@@ -3008,7 +3008,7 @@ static void draw_weapon_box0(const hud_draw_context_hs_mr hudctx, const player_i
 			draw_primary_ammo_info(hudctx, ammo_count);
 		}
 	}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	else if (user == weapon_box_user::post_missile_static)
 		draw_static(Vclip, hudctx, gauge_inset_window_view::primary);
 #endif
@@ -3016,7 +3016,7 @@ static void draw_weapon_box0(const hud_draw_context_hs_mr hudctx, const player_i
 
 static void draw_weapon_box1(const hud_draw_context_hs_mr hudctx, const player_info &player_info)
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (inset_window[gauge_inset_window_view::secondary].user == weapon_box_user::weapon)
 #endif
 	{
@@ -3030,7 +3030,7 @@ static void draw_weapon_box1(const hud_draw_context_hs_mr hudctx, const player_i
 			draw_secondary_ammo_info(hudctx, ammo);
 		}
 	}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	else if (inset_window[gauge_inset_window_view::secondary].user == weapon_box_user::post_missile_static)
 		draw_static(Vclip, hudctx, gauge_inset_window_view::secondary);
 #endif
@@ -3065,7 +3065,7 @@ static void sb_draw_energy_bar(const hud_draw_context_hs_mr hudctx, const unsign
 	//draw numbers
 	gr_set_fontcolor(canvas, BM_XRGB(25, 18, 6), -1);
 	const auto ew = gr_get_string_size(*canvas.cv_font, get_gauge_width_string(energy)).width;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	unsigned y = SB_ENERGY_NUM_Y;
 #elif defined(DXX_BUILD_DESCENT_II)
 	unsigned y = SB_ENERGY_GAUGE_Y + SB_ENERGY_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4);
@@ -3073,7 +3073,7 @@ static void sb_draw_energy_bar(const hud_draw_context_hs_mr hudctx, const unsign
 	gr_printf(canvas, *canvas.cv_font, (grd_curscreen->get_screen_width() / 3) - (ew / 2), hudctx.yscale(y), "%d", energy);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static void sb_draw_afterburner(const hud_draw_context_hs_mr hudctx, const player_info &player_info)
 {
 	auto &ab_str = "AB";
@@ -3239,7 +3239,7 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, enum retic
 	int cross_bm_num,primary_bm_num,secondary_bm_num;
 	int gauge_index;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (Newdemo_state==ND_STATE_PLAYBACK && Viewer->type != OBJ_PLAYER)
 		 return;
 #endif
@@ -3645,7 +3645,7 @@ void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &canvas, co
 		const auto show_typing = is_friend || !is_cloaked;
 		const auto is_bounty_target = (Game_mode & GM_BOUNTY) && pnum == Bounty_target;
 		const auto show_indi = (is_friend || !is_cloaked) &&
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			is_bounty_target;
 #elif defined(DXX_BUILD_DESCENT_II)
 			(is_bounty_target || ((game_mode_capture_flag(Game_mode) || game_mode_hoard(Game_mode)) && (pl_flags & PLAYER_FLAGS_FLAG)));
@@ -3730,7 +3730,7 @@ void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &canvas, co
 							struct {
 								int r, g, b;
 							} c{};
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 						if (game_mode_capture_flag(Game_mode))
 								((get_team(pnum) == team_number::blue) ? c.r : c.b) = 31;
 						else if (game_mode_hoard(Game_mode))
@@ -3774,7 +3774,7 @@ void draw_hud(const d_robot_info_array &Robot_info, grs_canvas &canvas, const ob
 		int ammo;
 		auto &Primary_weapon = player_info.Primary_weapon;
 		if ((Primary_weapon == primary_weapon_index_t::VULCAN_INDEX && (ammo = player_info.vulcan_ammo, true))
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			||
 			(Primary_weapon == primary_weapon_index_t::OMEGA_INDEX && (ammo = player_info.Omega_charge, true))
 #endif
@@ -3848,12 +3848,12 @@ void draw_hud(const d_robot_info_array &Robot_info, grs_canvas &canvas, const ob
 			current_y -= line_spacing;
 			hud_show_shield(canvas, plrobj, game_font, current_y);
 			current_y -= line_spacing;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			hud_show_afterburner(canvas, player_info, game_font, current_y);
 			current_y -= line_spacing;
 #endif
 			hud_show_weapons(canvas, plrobj, game_font, Game_mode & GM_MULTI);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			if (!PCSharePig)
 #endif
 			{
@@ -3874,7 +3874,7 @@ void draw_hud(const d_robot_info_array &Robot_info, grs_canvas &canvas, const ob
 			show_time(canvas, *canvas.cv_font);
 #endif
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (PlayerCfg.CockpitMode[1] != cockpit_mode_t::letterbox && PlayerCfg.CockpitMode[1] != cockpit_mode_t::rear_view)
 		{
 			hud_show_flag(canvas, player_info, multires_gauge_graphic);
@@ -3941,7 +3941,7 @@ void render_gauges(grs_canvas &canvas, const game_mode_flags Game_mode)
 			newdemo_record_player_energy(energy);
 		draw_energy_bar(*grd_curcanv, hudctx, energy);
 		gr_set_default_canvas();
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		if (PlayerCfg.HudMode == HudType::Standard)
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (Newdemo_state==ND_STATE_RECORDING )
@@ -3974,7 +3974,7 @@ void render_gauges(grs_canvas &canvas, const game_mode_flags Game_mode)
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_player_energy(energy);
 		sb_draw_energy_bar(hudctx, energy);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		if (PlayerCfg.HudMode == HudType::Standard)
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (Newdemo_state==ND_STATE_RECORDING )
@@ -4008,7 +4008,7 @@ void render_gauges(grs_canvas &canvas, const game_mode_flags Game_mode)
 			sb_show_score_added(hudctx);
 		}
 	}
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	else
 		draw_player_ship(hudctx, player_info, cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
 #endif
@@ -4024,7 +4024,7 @@ void update_laser_weapon_info(void)
 		old_weapon = {};
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 
 //draws a 3d view into one of the cockpit windows.  win is 0 for left,
 //1 for right.  viewer is object.  NULL object means give up window

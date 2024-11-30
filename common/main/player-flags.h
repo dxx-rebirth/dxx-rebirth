@@ -24,7 +24,7 @@ enum class PLAYER_FLAG : uint32_t
 	 * `CLOAKED`.
 	 */
 	PLAYER_CLOAKED = 2048,		// Player is cloaked for awhile
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	HAS_TEAM_FLAG = 16,			// Player has his team's flag
 	AMMO_RACK = 128,	// Player has ammo rack
 	CONVERTER = 256,	// Player has energy->shield converter
@@ -52,7 +52,7 @@ constexpr PLAYER_FLAG operator|(const PLAYER_FLAG a, const PLAYER_FLAG b)
 #define PLAYER_FLAGS_MAP_ALL	PLAYER_FLAG::MAP_ALL
 #define PLAYER_FLAGS_QUAD_LASERS	PLAYER_FLAG::QUAD_LASERS
 #define PLAYER_FLAGS_CLOAKED	PLAYER_FLAG::PLAYER_CLOAKED
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #define PLAYER_FLAGS_FLAG	PLAYER_FLAG::HAS_TEAM_FLAG
 #define PLAYER_FLAGS_AMMO_RACK	PLAYER_FLAG::AMMO_RACK
 #define PLAYER_FLAGS_CONVERTER	PLAYER_FLAG::CONVERTER

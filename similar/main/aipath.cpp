@@ -64,7 +64,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dsx {
 namespace {
 static void ai_path_set_orient_and_vel(const d_robot_info_array &Robot_info, object &objp, const vms_vector &goal_point
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 								, player_visibility_state player_visibility, const vms_vector *vec_to_player
 #endif
 								);
@@ -103,7 +103,7 @@ static uint_fast32_t insert_center_points(segment_array &segments, point_seg *ps
 		new_point.y /= 16;
 		new_point.z /= 16;
 		vm_vec_sub(psegs[2*i-1].point, center_point, new_point);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		const auto &&segp = segments.imptridx(psegs[2*i].segnum);
 		const auto &&temp_segnum = find_point_seg(LevelSharedSegmentState, psegs[2*i-1].point, segp);
 		if (temp_segnum == segment_none) {
@@ -116,7 +116,7 @@ static uint_fast32_t insert_center_points(segment_array &segments, point_seg *ps
 		count++;
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	//	Now, remove unnecessary center points.
 	//	A center point is unnecessary if it is close to the line between the two adjacent points.
 	//	MK, OPTIMIZE!  Can get away with about half the math since every vector gets computed twice.
@@ -136,7 +136,7 @@ static uint_fast32_t insert_center_points(segment_array &segments, point_seg *ps
 	return count;
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 //	-----------------------------------------------------------------------------------------------------------
 //	Move points halfway to outside of segment.
 static void move_towards_outside(const d_level_shared_segment_state &LevelSharedSegmentState, point_seg *const psegs, const unsigned num_points, const vmobjptridx_t objp, const create_path_random_flag rand_flag)
@@ -267,7 +267,7 @@ static void move_towards_outside(const d_level_shared_segment_state &LevelShared
 //	If end_seg == -2, then end seg will never be found and this routine will drop out due to depth (probably called by create_n_segment_path).
 std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t objp, const robot_info *const robptr, const vcsegidx_t start_seg, icsegidx_t end_seg, point_seg_array_t::iterator psegs, const unsigned max_depth, create_path_random_flag random_flag, const create_path_safety_flag safety_flag, icsegidx_t avoid_seg)
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 #endif
@@ -314,7 +314,7 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 
 	per_side_array<sidenum_t> side_traversal_translation;
 	std::iota(side_traversal_translation.begin(), side_traversal_translation.end(), sidenum_t{});
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	/* Descent 1 can only shuffle once, before the loop begins.
 	 * Descent 2 can shuffle on every pass of the loop.
 	 */
@@ -333,7 +333,7 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 #endif
 	while (cur_seg != end_seg) {
 		const cscusegment &&segp = vcsegptr(cur_seg);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		/* If path randomness is enabled, conditionally shuffle based on
 		 * the value of shuffle_random_flag.  Since shuffle_random_flag
 		 * is initialized to 0 above, it is guaranteed to shuffle on the
@@ -360,7 +360,7 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 		{
 			if (!IS_CHILD(segp.s.children[snum]))
 				continue;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define AI_DOOR_OPENABLE_PLAYER_FLAGS
 #elif defined(DXX_BUILD_DESCENT_II)
 #define AI_DOOR_OPENABLE_PLAYER_FLAGS	player_info.powerup_flags,
@@ -370,7 +370,7 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 #undef AI_DOOR_OPENABLE_PLAYER_FLAGS
 			{
 				const auto this_seg = segp.s.children[snum];
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				Assert(this_seg != segment_none);
 				if (((cur_seg == avoid_seg) || (this_seg == avoid_seg)) && (ConsoleObject->segnum == avoid_seg)) {
 					const auto center_point{compute_center_point_on_side(vcvertptr, segp, snum)};
@@ -403,7 +403,7 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 					}	// end if (depth[...
 				}	// end if (!visited...
 			}	// if (WALL_IS_DOORWAY(...
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 dont_add: ;
 #endif
 		}
@@ -435,7 +435,7 @@ cpp_done1: ;
 	else
 		qtail = -1;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #if DXX_USE_EDITOR
 	Selected_segs.clear();
 	#endif
@@ -450,7 +450,7 @@ cpp_done1: ;
 		psegs->point = compute_segment_center(vcvertptr, vcsegptr(this_seg));
 		psegs++;
 		l_num_points++;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #if DXX_USE_EDITOR
 		Selected_segs.emplace_back(this_seg);
 		#endif
@@ -499,7 +499,7 @@ cpp_done1: ;
 	validate_path(3, original_psegs, l_num_points);
 #endif
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 // -- MK, 10/30/95 -- This code causes apparent discontinuities in the path, moving a point
 //	into a new segment.  It is not necessarily bad, but it makes it hard to track down actual
 //	discontinuity problems.
@@ -515,7 +515,7 @@ cpp_done1: ;
 	return std::make_pair(create_path_result::finished, l_num_points);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 //	-------------------------------------------------------------------------------------------------------
 //	polish_path
 //	Takes an existing path and makes it nicer.
@@ -662,12 +662,12 @@ void create_path_to_segment(const vmobjptridx_t objp, const robot_info &robptr, 
 		;
 	} else {
 		aip->path_length = create_path_points(objp, &robptr, start_seg, end_seg, Point_segs_free_ptr, max_length, create_path_random_flag::random, safety_flag, segment_none).second;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		aip->path_length = polish_path(objp, Point_segs_free_ptr, aip->path_length);
 #endif
 		aip->hide_index = Point_segs_free_ptr - Point_segs;
 		aip->cur_path_index = 0;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #ifndef NDEBUG
 		validate_path(6, Point_segs_free_ptr, aip->path_length);
 #endif
@@ -680,7 +680,7 @@ void create_path_to_segment(const vmobjptridx_t objp, const robot_info &robptr, 
 		}
 //		Assert(Point_segs_free_ptr - Point_segs + MAX_PATH_LENGTH*2 < MAX_POINT_SEGS);
 		aip->PATH_DIR = 1;		//	Initialize to moving forward.
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		aip->SUBMODE = AISM_GOHIDE;		//	This forces immediate movement.
 #endif
 		ailp->mode = ai_mode::AIM_FOLLOW_PATH;
@@ -692,7 +692,7 @@ void create_path_to_segment(const vmobjptridx_t objp, const robot_info &robptr, 
 //	Change, 10/07/95: Used to create path to ConsoleObject->pos.  Now creates path to Believed_player_pos.
 void create_path_to_believed_player_segment(const vmobjptridx_t objp, const robot_info &robptr, const unsigned max_length, const create_path_safety_flag safety_flag)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	const auto goal_segment = ConsoleObject->segnum;
 #elif defined(DXX_BUILD_DESCENT_II)
 	const auto goal_segment{Believed_player_seg};
@@ -700,7 +700,7 @@ void create_path_to_believed_player_segment(const vmobjptridx_t objp, const robo
 	create_path_to_segment(objp, robptr, max_length, safety_flag, goal_segment);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void create_path_to_guidebot_player_segment(const vmobjptridx_t objp, const robot_info &robptr, const unsigned max_length, const create_path_safety_flag safety_flag)
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
@@ -773,12 +773,12 @@ void create_path_to_station(const vmobjptridx_t objp, const robot_info &robptr, 
 		;
 	} else {
 		aip->path_length = create_path_points(objp, &robptr, start_seg, end_seg, Point_segs_free_ptr, max_length, create_path_random_flag::random, create_path_safety_flag::safe, segment_none).second;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		aip->path_length = polish_path(objp, Point_segs_free_ptr, aip->path_length);
 #endif
 		aip->hide_index = Point_segs_free_ptr - Point_segs;
 		aip->cur_path_index = 0;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #ifndef NDEBUG
 		validate_path(7, Point_segs_free_ptr, aip->path_length);
 #endif
@@ -837,12 +837,12 @@ void create_n_segment_path(const vmobjptridx_t objp, const robot_info &robptr, u
 	}
 
 	aip->PATH_DIR = 1;		//	Initialize to moving forward.
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	aip->SUBMODE = -1;		//	Don't know what this means.
 #endif
 	ailp->mode = ai_mode::AIM_FOLLOW_PATH;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	//	If this robot is visible (player_visibility is not available) and it's running away, move towards outside with
 	//	randomness to prevent a stream of bots from going away down the center of a corridor.
 	if (player_is_visible(ailp->previous_visibility))
@@ -903,7 +903,7 @@ void create_n_segment_path_to_door(const vmobjptridx_t objp, const robot_info &r
 //	Sets	objp->ctype.ai_info.hide_index,		a pointer into Point_segs, the first point_seg of the path.
 //			objp->ctype.ai_info.path_length,		length of path
 //			Point_segs_free_ptr				global pointer into Point_segs array
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 namespace {
 
 static void create_path(const vmobjptridx_t objp, const robot_info &robptr)
@@ -949,7 +949,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 	ai_static *const aip = &obj.ctype.ai_info;
 
 	vms_vector	goal_point, new_goal_point;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 #endif
 	auto &robptr = Robot_info[get_robot_id(obj)];
@@ -963,7 +963,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 			//--Int3_if((aip->path_length != 0));
 			ailp->mode = ai_mode::AIM_RUN_FROM_OBJECT;
 		} else {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			create_path(objp, robptr);
 #elif defined(DXX_BUILD_DESCENT_II)
 			create_n_segment_path(objp, robptr, 5, segment_none);
@@ -973,7 +973,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 	}
 
 	if ((aip->hide_index + aip->path_length > Point_segs_free_ptr - Point_segs) && (aip->path_length>0)) {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		Int3();	//	Contact Mike: Bad.  Path goes into what is believed to be free space.
 		//	This is debugging code.  Figure out why garbage collection
 		//	didn't compress this object's path information.
@@ -983,7 +983,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 	}
 
 	if (aip->path_length < 2) {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		if (ailp->mode == ai_mode::AIM_RUN_FROM_OBJECT)
 #elif defined(DXX_BUILD_DESCENT_II)
 		if ((aip->behavior == ai_behavior::AIB_SNIPE) || (ailp->mode == ai_mode::AIM_RUN_FROM_OBJECT))
@@ -991,7 +991,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 		{
 			create_n_segment_path(objp, robptr, AVOID_SEG_LENGTH, ConsoleObject->segnum == obj.segnum ? segment_none : ConsoleObject->segnum);			//	Can't avoid segment player is in, robot is already in it! (That's what the -1 is for)
 				//--Int3_if((aip->path_length != 0));
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (aip->behavior == ai_behavior::AIB_SNIPE) {
 				if (robot_is_thief(robptr))
 					ailp->mode = ai_mode::AIM_THIEF_ATTACK;	//	It gets bashed in create_n_segment_path
@@ -1003,7 +1003,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 				ailp->mode = ai_mode::AIM_RUN_FROM_OBJECT;	//	It gets bashed in create_n_segment_path
 			}
 		}
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		else {
 			ailp->mode = ai_mode::AIM_STILL;
 		}
@@ -1017,7 +1017,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 #endif
 	}
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	Assert((aip->PATH_DIR == -1) || (aip->PATH_DIR == 1));
 
 	if ((aip->SUBMODE == AISM_HIDING) && (aip->behavior == ai_behavior::AIB_HIDE))
@@ -1041,7 +1041,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 
 			return;
 		} else
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (!(d_tick_count ^ ((objp) & 0x07)))
 #endif
 			{		//	Done 1/8 ticks.
@@ -1054,7 +1054,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 			for (i=aip->cur_path_index; i<aip->path_length; i++) {
 				if (curpsp[i].segnum == player_segnum) {
 					create_n_segment_path(objp, robptr, AVOID_SEG_LENGTH, player_segnum != obj.segnum ? player_segnum : segment_none);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 					Assert(aip->path_length != 0);
 #endif
 					ailp->mode = ai_mode::AIM_RUN_FROM_OBJECT;	//	It gets bashed in create_n_segment_path
@@ -1075,7 +1075,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 		if (ailp->mode == ai_mode::AIM_RUN_FROM_OBJECT) {
 			create_n_segment_path(objp, robptr, AVOID_SEG_LENGTH, ConsoleObject->segnum);
 			ailp->mode = ai_mode::AIM_RUN_FROM_OBJECT;	//	It gets bashed in create_n_segment_path
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			Assert(aip->path_length != 0);
 #endif
 		} else {
@@ -1091,7 +1091,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 	original_index = aip->cur_path_index;
 	const vm_distance threshold_distance{fixmul(vm_vec_mag_quick(obj.mtype.phys_info.velocity), FrameTime)*2 + F1_0*2};
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	new_goal_point = Point_segs[aip->hide_index + aip->cur_path_index].point;
 
 	//--Int3_if(((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length)));
@@ -1104,7 +1104,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 
 		//	See if next point wraps past end of path (in either direction), and if so, deal with it based on mode.
 		if ((aip->cur_path_index >= aip->path_length) || (aip->cur_path_index < 0)) {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			//	Buddy bot.  If he's in mode to get away from player and at end of line,
 			//	if player visible, then make a new path, else just return.
 			if (robot_is_companion(robptr)) {
@@ -1129,7 +1129,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 			}
 #endif
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			if (ailp->mode == ai_mode::AIM_HIDE) {
 				ailp->mode = ai_mode::AIM_STILL;
 				return;		// Stay here until bonked or hit by player.
@@ -1143,7 +1143,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 			else if (aip->behavior == ai_behavior::AIB_STATION) {
 				create_path_to_station(objp, robptr, 15);
 				if ((aip->hide_segment != Point_segs[aip->hide_index+aip->path_length-1].segnum)
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 					|| (aip->path_length == 0)
 #endif
 					) {
@@ -1151,12 +1151,12 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 				}
 				return;
 			} else if (ailp->mode == ai_mode::AIM_FOLLOW_PATH
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 					   && (aip->behavior != ai_behavior::AIB_FOLLOW_PATH)
 #endif
 					   ) {
 				create_path_to_believed_player_segment(objp, robptr, 10, create_path_safety_flag::safe);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				if (aip->hide_segment != Point_segs[aip->hide_index+aip->path_length-1].segnum) {
 					ailp->mode = ai_mode::AIM_STILL;
 					return;
@@ -1165,7 +1165,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 			} else if (ailp->mode == ai_mode::AIM_RUN_FROM_OBJECT) {
 				create_n_segment_path(objp, robptr, AVOID_SEG_LENGTH, ConsoleObject->segnum);
 				ailp->mode = ai_mode::AIM_RUN_FROM_OBJECT;	//	It gets bashed in create_n_segment_path
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				if (aip->path_length < 1) {
 					create_n_segment_path(objp, robptr, AVOID_SEG_LENGTH, ConsoleObject->segnum);
 					ailp->mode = ai_mode::AIM_RUN_FROM_OBJECT;	//	It gets bashed in create_n_segment_path
@@ -1208,7 +1208,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 					aip->cur_path_index = opposite_end_index;
 				} else {
 					aip->PATH_DIR = -aip->PATH_DIR;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 					aip->cur_path_index += aip->PATH_DIR;
 #endif
 				}
@@ -1229,7 +1229,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 
 	//	Set velocity (objp->mtype.phys_info.velocity) and orientation (objp->orient) for this object.
 	ai_path_set_orient_and_vel(Robot_info, objp, goal_point
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 							   , player_visibility, vec_to_player
 #endif
 							   );
@@ -1266,7 +1266,7 @@ namespace {
 //	----------------------------------------------------------------------------------------------------------
 //	Set orientation matrix and velocity for objp based on its desire to get to a point.
 void ai_path_set_orient_and_vel(const d_robot_info_array &Robot_info, object &objp, const vms_vector &goal_point
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 								, const player_visibility_state player_visibility, const vms_vector *const vec_to_player
 #endif
 								)
@@ -1283,7 +1283,7 @@ void ai_path_set_orient_and_vel(const d_robot_info_array &Robot_info, object &ob
 	max_speed = robptr.max_speed[Difficulty_level];
 	ai_local		*ailp = &objp.ctype.ai_info.ail;
 	if (ailp->mode == ai_mode::AIM_RUN_FROM_OBJECT
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		|| objp.ctype.ai_info.behavior == ai_behavior::AIB_SNIPE
 #endif
 		)
@@ -1314,7 +1314,7 @@ void ai_path_set_orient_and_vel(const d_robot_info_array &Robot_info, object &ob
 	if (dot < 0)
 		dot /= -4;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	//	If in snipe mode, can move fast even if not facing that direction.
 	if (objp.ctype.ai_info.behavior == ai_behavior::AIB_SNIPE)
 		if (dot < F1_0/2)
@@ -1327,11 +1327,11 @@ void ai_path_set_orient_and_vel(const d_robot_info_array &Robot_info, object &ob
 
 	fix rate;
 	if (ailp->mode == ai_mode::AIM_RUN_FROM_OBJECT
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		|| robot_is_companion(robptr) == 1 || objp.ctype.ai_info.behavior == ai_behavior::AIB_SNIPE
 #endif
 		) {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (ailp->mode == ai_mode::AIM_SNIPE_RETREAT_BACKWARDS) {
 			if (player_is_visible(player_visibility) && vec_to_player)
 				norm_vec_to_goal = *vec_to_player;
@@ -1367,7 +1367,7 @@ void ai_path_garbage_collect()
 	range_for (const auto &&objp, vcobjptridx)
 	{
 		if (objp->type == OBJ_ROBOT && (objp->control_source == object::control_type::ai
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			|| objp->control_source == object::control_type::morph
 #endif
 										  )) {
@@ -1470,7 +1470,7 @@ void attempt_to_resume_path(const d_robot_info_array &Robot_info, const vmobjptr
 	auto &robptr = Robot_info[get_robot_id(objp)];
 
 	if (aip->behavior == ai_behavior::AIB_STATION
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		&& robptr.companion != 1
 #endif
 		)

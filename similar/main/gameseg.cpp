@@ -101,7 +101,7 @@ struct verts_for_normal
 constexpr vm_distance fcd_abort_cache_value{F1_0 * 1000};
 constexpr vm_distance fcd_abort_return_value{-1};
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static constexpr sidemask_t &operator&=(sidemask_t &a, const sidemask_t b)
 {
 	return a = static_cast<sidemask_t>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
@@ -770,7 +770,7 @@ icsegptridx_t find_point_seg(const d_level_shared_segment_state &LevelSharedSegm
 //--repair-- 	return ((Lsegment_highest_segment_index == Highest_segment_index) && (Lsegment_highest_vertex_index == Highest_vertex_index));
 //--repair-- }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 namespace {
 static inline void add_to_fcd_cache(segnum_t seg0, segnum_t seg1, vm_distance dist)
 {
@@ -860,7 +860,7 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 		auto conn_side = find_connect_side(seg0, seg1);
 		if (conn_side != side_none)
 		{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg1, conn_side) & wid_flag)
 #endif
 			{
@@ -869,7 +869,7 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 		}
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	//	Periodically flush cache.
 	if ((GameTime64 - Last_fcd_flush_time > F1_0*2) || (GameTime64 < Last_fcd_flush_time)) {
 		flush_fcd_cache();
@@ -1613,7 +1613,7 @@ unsigned set_segment_depths(vcsegidx_t start_seg, const std::array<uint8_t, MAX_
 	return parent_depth+1;
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 //these constants should match the ones in seguvs
 #define	LIGHT_DISTANCE_THRESHOLD	(F1_0*80)
 #define	Magical_light_constant  (F1_0*16)

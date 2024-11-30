@@ -239,7 +239,7 @@ static void kmatrix_redraw(grs_canvas &canvas, kmatrix_window *const km)
 	{
 		multi_sort_kill_list();
 		const auto title =
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			game_mode_capture_flag(Game_mode)
 			? "CAPTURE THE FLAG SUMMARY"
 			: game_mode_hoard(Game_mode)
@@ -400,7 +400,7 @@ window_event_result kmatrix_window::event_handler(const d_event &event)
 				if (network != kmatrix_network::offline)
 					multi::dispatch->send_endlevel_packet();  // make sure
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				if (is_D2_OEM)
 				{
 					if (Current_level_num==8)

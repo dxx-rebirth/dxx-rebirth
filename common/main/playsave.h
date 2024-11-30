@@ -26,7 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #include "pstypes.h"
 #include "player.h"
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -56,7 +56,7 @@ enum class cockpit_3d_view : uint8_t
 #define GAME_NAME_LEN   25      // +1 for terminating zero = 26
 
 #ifdef dsx
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 namespace dsx {
 // NOTE: Obsolete structure - only kept for compability of shareware plr file
 struct saved_game_sw
@@ -189,7 +189,7 @@ struct player_config : prohibit_void_ptr<player_config>
 	int MouseFSDead;
 	int MouseFSIndicator;
 	std::array<cockpit_mode_t, 2> CockpitMode; // 0 saves the "real" cockpit, 1 also saves letterbox and rear. Used to properly switch between modes and restore the real one.
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	enumerated_array<cockpit_3d_view, 2, gauge_inset_window_view> Cockpit3DView = {{{
 		cockpit_3d_view::None,
 		cockpit_3d_view::None,
@@ -201,7 +201,7 @@ struct player_config : prohibit_void_ptr<player_config>
 	std::array<int, 4> ReticleRGBA;
 	int ReticleSize;
 	reticle_type ReticleType;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	MissileViewMode MissileViewEnabled;
 	uint8_t ThiefModifierFlags;
 	bool HeadlightActiveDefault;
@@ -215,7 +215,7 @@ struct player_config : prohibit_void_ptr<player_config>
 	ubyte MultiMessages;
         ubyte MultiPingHud;
 	ubyte NoRankings;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	ubyte BombGauge;
 #endif
 	ubyte AutomapFreeFlight;

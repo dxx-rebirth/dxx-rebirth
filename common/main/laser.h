@@ -45,7 +45,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_LASER_LEVEL         laser_level::_4   // Note, laser levels are numbered from 0.
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define DXX_MAXIMUM_LASER_LEVEL	laser_level::_4
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_MAXIMUM_LASER_LEVEL	MAX_SUPER_LASER_LEVEL
@@ -60,7 +60,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // Constants & functions governing homing missile behavior.
 #define NEWHOMER // activates the 30FPS-base capped homing projective code. Remove to restore original behavior.
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define HOMING_MIN_TRACKABLE_DOT        (3*F1_0/4)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define HOMING_MIN_TRACKABLE_DOT        (7*F1_0/8)
@@ -114,7 +114,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 // laser.
 imobjptridx_t Laser_create_new_easy(const d_robot_info_array &Robot_info, const vms_vector &direction, const vms_vector &position, vmobjptridx_t parent, weapon_id_type weapon_type, weapon_sound_flag make_sound);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 // give up control of the guided missile
 void release_local_guided_missile(d_level_unique_object_state &LevelUniqueObjectState, const playernum_t player_num, object &missile);
 void release_remote_guided_missile(d_level_unique_object_state &LevelUniqueObjectState, const playernum_t player_num);
@@ -159,7 +159,7 @@ static inline int is_proximity_bomb_or_player_smart_mine_or_placed_mine(const we
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 // Omega cannon stuff.
 #define MAX_OMEGA_CHARGE    (F1_0)  //  Maximum charge level for omega cannonw

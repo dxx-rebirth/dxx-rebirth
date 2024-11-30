@@ -19,7 +19,7 @@
 
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 const player &get_player_controlling_guidebot(const d_unique_buddy_state & /* reserved for future use */, const valptridx<player>::array_managed_type &Players)
 {
 	/* One day, the game may support letting someone other than player 0
@@ -40,7 +40,7 @@ void player_rw_swap(player_rw *p, const physfsx_endian swap)
 	p->energy = SWAPINT(p->energy);
 	p->shields = SWAPINT(p->shields);
 	p->killer_objnum = SWAPSHORT(p->killer_objnum);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	p->primary_weapon_flags = SWAPSHORT(p->primary_weapon_flags);
 #endif
 	p->vulcan_ammo = SWAPSHORT(p->vulcan_ammo);
@@ -52,7 +52,7 @@ void player_rw_swap(player_rw *p, const physfsx_endian swap)
 	p->time_total = SWAPINT(p->time_total);
 	p->cloak_time = SWAPINT(p->cloak_time);
 	p->invulnerable_time = SWAPINT(p->invulnerable_time);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	p->KillGoalCount = SWAPSHORT(p->KillGoalCount);
 #endif
 	p->net_killed_total = SWAPSHORT(p->net_killed_total);

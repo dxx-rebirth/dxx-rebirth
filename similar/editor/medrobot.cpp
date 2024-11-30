@@ -483,7 +483,7 @@ void close_all_windows(void)
 	close_trigger_window();
 	close_wall_window();
 	close_centers_window();
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	hostage_close_window();
 #endif
 	robot_close_window();
@@ -609,7 +609,7 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 				case ai_behavior::AIB_NORMAL:
 				case ai_behavior::AIB_RUN_FROM:
 				case ai_behavior::AIB_STATION:
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				case ai_behavior::AIB_HIDE:
 				case ai_behavior::AIB_FOLLOW_PATH:
 #elif defined(DXX_BUILD_DESCENT_II)

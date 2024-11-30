@@ -76,7 +76,7 @@ int Num_object_subtypes = 1;
 #endif
 
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 int Num_total_object_types;
 
 sbyte	ObjType[MAX_OBJTYPE];
@@ -121,7 +121,7 @@ std::array<object_bitmap_index, MAX_OBJ_BITMAPS> ObjBitmapPtrs;     // These poi
 void gamedata_close()
 {
 	free_polygon_models(LevelSharedPolygonModelState);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	bm_free_extra_objbitmaps();
 #endif
 	free_endlevel_data();
@@ -132,7 +132,7 @@ void gamedata_close()
 /*
  * reads n tmap_info structs from a PHYSFS_File
  */
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 namespace {
 
 static void tmap_info_read(tmap_info &ti, const NamedPHYSFS_File fp)

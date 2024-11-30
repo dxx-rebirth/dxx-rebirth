@@ -217,7 +217,7 @@ struct wall : public prohibit_void_ptr<wall>
 	trgnum_t trigger;            // Which trigger is associated with the wall.
 	sbyte   clip_num;           // Which animation associated with the wall.
 	wall_key keys;               // which keys are required
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	trgnum_t controlling_trigger;// which trigger causes something to happen here.  Not like "trigger" above, which is the trigger on this wall.
                                 //  Note: This gets stuffed at load time in gamemine.c.  Don't try to use it in the editor.  You will be sorry!
 	sbyte   cloak_value;        // if this wall is cloaked, the fade value
@@ -244,7 +244,7 @@ struct d_level_unique_active_door_state
 }
 
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 struct cloaking_wall : public prohibit_void_ptr<cloaking_wall>
 {
 	wallnum_t       front_wallnum;  // front wall numbers for this door
@@ -269,7 +269,7 @@ struct d_level_unique_wall_subsystem_state :
 	d_level_unique_active_door_state,
 	d_level_unique_trigger_state,
 	d_level_unique_wall_state
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	, d_level_unique_cloaking_wall_state
 #endif
 {

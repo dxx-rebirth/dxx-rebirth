@@ -725,7 +725,7 @@ int wall_restore_all()
 			}
  		}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Triggers = LevelUniqueWallSubsystemState.Triggers;
 	auto &vmtrgptr = Triggers.vmptr;
 	for (auto &i : vmtrgptr)

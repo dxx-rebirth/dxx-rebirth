@@ -57,7 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //ubyte	Default_secondary_ammo_level[MAX_SECONDARY_WEAPONS] = {3, 0, 0, 0, 0};
 
 //	Convert primary weapons to indices in Weapon_info array.
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 namespace dsx {
 const enumerated_array<weapon_id_type, MAX_PRIMARY_WEAPONS, primary_weapon_index_t> Primary_weapon_to_weapon_info{{
 	{
@@ -164,7 +164,7 @@ const enumerated_array<gun_num_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_
 	gun_num_t::_7,
 	gun_num_t::_7,
 	gun_num_t::_7,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	gun_num_t::_4,
 	gun_num_t::_4,
 	gun_num_t::_7,
@@ -176,7 +176,7 @@ const enumerated_array<gun_num_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_
 const enumerated_array<uint8_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_ammo_max{{
 	{
 		20, 10, 10, 5, 5,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		20, 20, 15, 10, 10
 #endif
 	}
@@ -190,7 +190,7 @@ const enumerated_array<powerup_type_t, MAX_PRIMARY_WEAPONS, primary_weapon_index
 		powerup_type_t::POW_SPREADFIRE_WEAPON,
 		powerup_type_t::POW_PLASMA_WEAPON,
 		powerup_type_t::POW_FUSION_WEAPON,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		powerup_type_t::POW_LASER,
 		powerup_type_t::POW_GAUSS_WEAPON,
 		powerup_type_t::POW_HELIX_WEAPON,
@@ -208,7 +208,7 @@ const enumerated_array<powerup_type_t, MAX_SECONDARY_WEAPONS, secondary_weapon_i
 		powerup_type_t::POW_PROXIMITY_WEAPON,
 		powerup_type_t::POW_SMARTBOMB_WEAPON,
 		powerup_type_t::POW_MEGA_WEAPON,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		powerup_type_t::POW_SMISSILE1_1,
 		powerup_type_t::POW_GUIDED_MISSILE_1,
 		powerup_type_t::POW_SMART_MINE,
@@ -285,7 +285,7 @@ static void check_enum(auto && /* accessor */, polygon_model_index &pmi)
 
 namespace dsx {
 namespace {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 constexpr std::array<primary_weapon_index_t, MAX_PRIMARY_WEAPONS + 1> DefaultPrimaryOrder{{
 	primary_weapon_index_t::FUSION_INDEX, primary_weapon_index_t::PLASMA_INDEX, primary_weapon_index_t::SPREADFIRE_INDEX, primary_weapon_index_t::VULCAN_INDEX, primary_weapon_index_t::LASER_INDEX, primary_weapon_index_t{255}
 }};
@@ -303,7 +303,7 @@ constexpr std::array<secondary_weapon_index_t, MAX_SECONDARY_WEAPONS + 1> Defaul
 
 static primary_weapon_index_t get_mapped_weapon_index(const player_info &player_info, const primary_weapon_index_t weapon_index)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	(void)player_info;
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (weapon_index == primary_weapon_index_t::LASER_INDEX && player_info.laser_level > MAX_LASER_LEVEL)
@@ -384,7 +384,7 @@ has_primary_weapon_result player_has_primary_weapon(const player_info &player_in
 	 * error message. */
 	auto return_value = has_primary_weapon_result::weapon | has_primary_weapon_result::ammo;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		//added on 1/21/99 by Victor Rachels... yet another hack
 		//fusion has 0 energy usage, HAS_ENERGY_FLAG was always true
 		if(weapon_num == primary_weapon_index_t::FUSION_INDEX)
@@ -470,7 +470,7 @@ public:
 	bool maybe_select_weapon_by_type(const weapon_index_type desired_weapon_idx) const
 	{
 		weapon_index_type desired_weapon = static_cast<weapon_index_type>(desired_weapon_idx);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		// some remapping for SUPER LASER which is not an actual weapon type at all
 		if (desired_weapon == primary_weapon_index_t::LASER_INDEX)
 		{
@@ -597,7 +597,7 @@ void CycleSecondary(player_info &player_info)
 	CycleWeapon(cycle_secondary_state(player_info), player_info.Secondary_weapon);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace {
 static inline void set_weapon_last_was_super(uint8_t &last, const uint8_t mask, const bool is_super)
 {
@@ -623,7 +623,7 @@ void set_primary_weapon(player_info &player_info, const primary_weapon_index_t w
 	player_info.Fusion_charge=0;
 	player_info.Next_laser_fire_time = 0;
 	player_info.Primary_weapon = weapon_num;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	//save flag for whether was super version
 	auto &Primary_last_was_super = player_info.Primary_last_was_super;
 	set_weapon_last_was_super(Primary_last_was_super, weapon_num);
@@ -657,7 +657,7 @@ void select_primary_weapon(player_info &player_info, const char *const weapon_na
 		}
 		else
 		{
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			if (wait_for_rearm)
 				/*
 				 * In Descent 1, requesting a weapon that is already
@@ -670,14 +670,14 @@ void select_primary_weapon(player_info &player_info, const char *const weapon_na
 				digi_play_sample(SOUND_ALREADY_SELECTED, F1_0);
 #endif
 		}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		//save flag for whether was super version
 		set_weapon_last_was_super(player_info.Primary_last_was_super, weapon_num);
 #endif
 	}
 	if (weapon_name)
 	{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (weapon_num == primary_weapon_index_t::LASER_INDEX)
 			HUD_init_message(HM_DEFAULT, "%s Level %u %s", weapon_name, static_cast<unsigned>(player_info.laser_level) + 1, TXT_SELECTED);
 		else
@@ -696,7 +696,7 @@ void set_secondary_weapon_to_concussion(player_info &player_info)
 	player_info.Next_missile_fire_time = 0;
 	Global_missile_firing_count = 0;
 	player_info.Secondary_weapon = weapon_num;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	//save flag for whether was super version
 	set_weapon_last_was_super(player_info.Secondary_last_was_super, weapon_num);
 #endif
@@ -727,7 +727,7 @@ void select_secondary_weapon(player_info &player_info, const char *const weapon_
 
 		}
 		Secondary_weapon = weapon_num;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		//save flag for whether was super version
 		set_weapon_last_was_super(player_info.Secondary_last_was_super, weapon_num);
 #endif
@@ -738,7 +738,7 @@ void select_secondary_weapon(player_info &player_info, const char *const weapon_
 	}
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 namespace {
 static bool reject_shareware_weapon_select_impl(const uint_fast32_t weapon_num, const char *const weapon_name)
 {
@@ -787,7 +787,7 @@ static bool reject_unusable_secondary_weapon_select(const player_info &player_in
 //	Select a weapon, primary or secondary.
 void do_primary_weapon_select(player_info &player_info, primary_weapon_index_t weapon_num)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
         //added on 10/9/98 by Victor Rachels to add laser cycle
         //end this section addition - Victor Rachels
 	const auto weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
@@ -850,7 +850,7 @@ void do_primary_weapon_select(player_info &player_info, primary_weapon_index_t w
 
 void do_secondary_weapon_select(player_info &player_info, secondary_weapon_index_t weapon_num)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
         //added on 10/9/98 by Victor Rachels to add laser cycle
         //end this section addition - Victor Rachels
 	// do special hud msg. for picking registered weapon in shareware version.
@@ -1041,7 +1041,7 @@ int pick_up_secondary(player_info &player_info, const secondary_weapon_index_t w
 		}
 		else if (want_switch())
 			select_secondary_weapon(player_info, nullptr, weapon_index, 1);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			//if it's a proxbomb or smart mine,
 			//we want to do a mini-auto-selection that applies to the drop bomb key
 
@@ -1148,7 +1148,7 @@ int pick_up_primary(player_info &player_info, const primary_weapon_index_t weapo
 	return 1;
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void check_to_use_primary_super_laser(player_info &player_info)
 {
 	if (!(player_info.primary_weapon_flags & HAS_SUPER_LASER_FLAG))
@@ -1169,7 +1169,7 @@ namespace {
 
 static void maybe_autoselect_vulcan_weapon(player_info &player_info)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	const auto weapon_flag_mask{HAS_VULCAN_FLAG};
 #elif defined(DXX_BUILD_DESCENT_II)
 	const auto weapon_flag_mask = HAS_VULCAN_FLAG | HAS_GAUSS_FLAG;
@@ -1179,7 +1179,7 @@ static void maybe_autoselect_vulcan_weapon(player_info &player_info)
 		return;
 	const auto cutpoint = POrderList(cycle_primary_state::cycle_never_autoselect_below);
 	auto weapon_index = primary_weapon_index_t::VULCAN_INDEX;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	const auto weapon_order_vulcan = POrderList(primary_weapon_index_t::VULCAN_INDEX);
 	const auto better{weapon_order_vulcan};
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1239,7 +1239,7 @@ int pick_up_vulcan_ammo(player_info &player_info, uint_fast32_t ammo_count, cons
 	return used;	//return amount used
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 // Homing weapons cheat
 
 void weapons_homing_all()
@@ -1573,7 +1573,7 @@ void DropCurrentWeapon (player_info &player_info)
 			HUD_init_message_literal(HM_DEFAULT, "You cannot drop your base weapon!");
 			return;
 		}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		else if (player_info.laser_level > MAX_LASER_LEVEL)
 		{
 			/* Disallow dropping any super lasers until someone requests
@@ -1610,7 +1610,7 @@ void DropCurrentWeapon (player_info &player_info)
 	}
 
 	HUD_init_message(HM_DEFAULT, "%s dropped!", weapon_name);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	digi_play_sample (SOUND_DROP_WEAPON,F1_0);
 #endif
 
@@ -1619,7 +1619,7 @@ void DropCurrentWeapon (player_info &player_info)
 		//if it's one of these, drop some ammo with the weapon
 		auto &plr_vulcan_ammo{player_info.vulcan_ammo};
 		auto ammo{plr_vulcan_ammo};
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		const auto HAS_VULCAN_AND_GAUSS_FLAGS{HAS_VULCAN_FLAG | HAS_GAUSS_FLAG};
 		if ((player_info.primary_weapon_flags & HAS_VULCAN_AND_GAUSS_FLAGS) == HAS_VULCAN_AND_GAUSS_FLAGS)
 			ammo /= 2;		//if both vulcan & gauss, drop half
@@ -1628,7 +1628,7 @@ void DropCurrentWeapon (player_info &player_info)
 		plr_vulcan_ammo -= ammo;
 		objnum->ctype.powerup_info.count = ammo;
 	}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	else if (Primary_weapon == primary_weapon_index_t::OMEGA_INDEX) {
 
 		//dropped weapon has current energy
@@ -1675,7 +1675,7 @@ void DropSecondaryWeapon (player_info &player_info)
 	{
 		case powerup_type_t::POW_MISSILE_1:
 		case powerup_type_t::POW_HOMING_AMMO_1:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case powerup_type_t::POW_SMISSILE1_1:
 		case powerup_type_t::POW_GUIDED_MISSILE_1:
 		case powerup_type_t::POW_MERCURY_MISSILE_1:
@@ -1692,7 +1692,7 @@ void DropSecondaryWeapon (player_info &player_info)
 			}
 			break;
 		case powerup_type_t::POW_PROXIMITY_WEAPON:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case powerup_type_t::POW_SMART_MINE:
 #endif
 			if (secondary_ammo < 4)
@@ -1707,7 +1707,7 @@ void DropSecondaryWeapon (player_info &player_info)
 			break;
 		case powerup_type_t::POW_SMARTBOMB_WEAPON:
 		case powerup_type_t::POW_MEGA_WEAPON:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case powerup_type_t::POW_EARTHSHAKER_MISSILE:
 #endif
 			sub_ammo = 1;
@@ -1731,7 +1731,7 @@ void DropSecondaryWeapon (player_info &player_info)
 		case powerup_type_t::POW_TURBO:
 		case powerup_type_t::POW_INVULNERABILITY:
 		case powerup_type_t::POW_MEGAWOW:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case powerup_type_t::POW_GAUSS_WEAPON:
 		case powerup_type_t::POW_HELIX_WEAPON:
 		case powerup_type_t::POW_PHOENIX_WEAPON:
@@ -1762,7 +1762,7 @@ void DropSecondaryWeapon (player_info &player_info)
 		HUD_init_message(HM_DEFAULT, "Failed to drop %s%s!", weapon_name, sub_ammo > 1 ? "s" : "");
 		return;
 	}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	digi_play_sample(SOUND_DROP_WEAPON, F1_0);
 #endif
 
@@ -1778,7 +1778,7 @@ void DropSecondaryWeapon (player_info &player_info)
 	}
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 //	---------------------------------------------------------------------------------------
 //	Do seismic disturbance stuff including the looping sounds with changing volume.
 void do_seismic_stuff(void)
@@ -1822,7 +1822,7 @@ class is_cxx_array<enumerated_array<T, NDL, Difficulty_level_type>> : public is_
 
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 DEFINE_SERIAL_UDT_TO_MESSAGE(dsx::weapon_info, w, (w.render, w.model_num, w.model_num_inner, w.persistent, w.flash_vclip, w.flash_sound, w.robot_hit_vclip, w.robot_hit_sound, w.wall_hit_vclip, w.wall_hit_sound, w.fire_count, w.ammo_usage, w.weapon_vclip, w.destroyable, w.matter, w.bounce, w.homing_flag, w.dum1, w.dum2, w.dum3, w.energy_usage, w.fire_wait, w.bitmap, w.blob_size, w.flash_size, w.impact_size, w.strength, w.speed, w.mass, w.drag, w.thrust, w.po_len_to_width_ratio, w.light, w.lifetime, w.damage_radius, w.picture));
 #elif defined(DXX_BUILD_DESCENT_II)
 namespace {
@@ -1859,13 +1859,13 @@ void weapon_info_write(PHYSFS_File *fp, const weapon_info &w)
 namespace dsx {
 
 void weapon_info_read_n(weapon_info_array &wi, std::size_t count, const NamedPHYSFS_File fp,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 						const pig_hamfile_version file_version,
 #endif
 						std::size_t offset)
 {
 	auto r = partial_range(wi, offset, count);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #elif defined(DXX_BUILD_DESCENT_II)
 	if (file_version < pig_hamfile_version::_3)
 	{

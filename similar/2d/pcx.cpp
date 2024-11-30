@@ -153,7 +153,7 @@ static pcx_result pcx_support_not_compiled(const char *const filename, grs_main_
 
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 namespace dsx {
 
 namespace {

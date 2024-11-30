@@ -125,7 +125,7 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 	{
 		fix obji_64 = ((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3)*64;
 		sbyte is_marker = 0;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (objnum && objnum->type == OBJ_MARKER)
 				is_marker = 1;
 #endif
@@ -154,7 +154,7 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 			int	headlight_shift = 0;
 			fix	max_headlight_dist = F1_0*200;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (objnum)
 			{
 				const object &obj = *objnum;
@@ -275,7 +275,7 @@ const std::array<fix, 16> Obj_light_xlate{{0x1234, 0x3321, 0x2468, 0x1735,
 			    0x2123, 0x39af, 0x0f03, 0x132a,
 			    0x3123, 0x29af, 0x1f03, 0x032a
 }};
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define compute_player_light_emission_intensity(LevelUniqueHeadlightState, obj)	compute_player_light_emission_intensity(obj)
 #define compute_light_emission(Robot_info, LevelUniqueHeadlightState, Vclip, obj)	compute_light_emission(Vclip, obj)
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -288,7 +288,7 @@ const std::array<fix, 16> Obj_light_xlate{{0x1234, 0x3321, 0x2468, 0x1735,
 namespace dsx {
 namespace {
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static fix compute_player_light_emission_intensity(d_level_unique_headlight_state &LevelUniqueHeadlightState, const object &objp)
 {
 	if (objp.ctype.player_info.powerup_flags & PLAYER_FLAGS_HEADLIGHT_ON)
@@ -400,7 +400,7 @@ static g3s_lrgb compute_light_emission(const d_robot_info_array &Robot_info, d_l
 			light_intensity = compute_fireball_light_emission_intensity(Vclip, objp);
 			break;
 		case OBJ_ROBOT:
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			light_intensity = F1_0/2;	// F1_0*Robot_info[obj->id].lightcast;
 #elif defined(DXX_BUILD_DESCENT_II)
 			light_intensity = F1_0*Robot_info[get_robot_id(objp)].lightcast;
@@ -416,7 +416,7 @@ static g3s_lrgb compute_light_emission(const d_robot_info_array &Robot_info, d_l
 				light_intensity = tval;
 			break;
 		}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case OBJ_MARKER:
 		{
 			fix lightval = objp.lifeleft;
@@ -455,7 +455,7 @@ static g3s_lrgb compute_light_emission(const d_robot_info_array &Robot_info, d_l
 			break;
 		case OBJ_FIREBALL:
 		case OBJ_WEAPON:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case OBJ_MARKER:
 #endif
 			compute_color = 1;
@@ -472,7 +472,7 @@ static g3s_lrgb compute_light_emission(const d_robot_info_array &Robot_info, d_l
 				case powerup_type_t::POW_KEY_GOLD:
 				case powerup_type_t::POW_CLOAK:
 				case powerup_type_t::POW_INVULNERABILITY:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				case powerup_type_t::POW_HOARD_ORB:
 #endif
 					compute_color = 1;
@@ -517,7 +517,7 @@ void set_dynamic_light(const d_robot_info_array &Robot_info, render_state_t &rst
 	std::array<segnum_t, MAX_VERTICES> vert_segnum_list;
 	static fix light_time; 
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	LevelUniqueLightState.Num_headlights = 0;
 #endif
 
@@ -566,7 +566,7 @@ void set_dynamic_light(const d_robot_info_array &Robot_info, render_state_t &rst
 
 // ---------------------------------------------------------
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 
 void toggle_headlight_active(object &player)
 {
@@ -693,7 +693,7 @@ g3s_lrgb compute_object_light(const d_level_unique_light_state &LevelUniqueLight
 	//Finally, add in dynamic light for this segment
 	auto &Dynamic_light = LevelUniqueLightState.Dynamic_light;
 	const auto &&seg_dl = compute_seg_dynamic_light(Dynamic_light, objsegp);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	//Next, add in (NOTE: WHITE) headlight on this object
 	const fix mlight = compute_headlight_light_on_object(LevelUniqueLightState, obj);
 	light.r += mlight;

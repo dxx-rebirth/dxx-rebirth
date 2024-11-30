@@ -79,7 +79,7 @@ const enumerated_array<char[11], MAX_CENTER_TYPES, segment_special> Special_name
 	{"REPAIRCEN"},
 	{"CONTROLCEN"},
 	{"ROBOTMAKER"},
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	{"GOAL_RED"},
 	{"GOAL_BLUE"},
 #endif
@@ -123,7 +123,7 @@ void fuelcen_create(const vmsegptridx_t segp)
 	switch(station_type)
 	{
 		case segment_special::nothing:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case segment_special::goal_blue:
 		case segment_special::goal_red:
 #endif
@@ -211,7 +211,7 @@ void trigger_matcen(const vmsegptridx_t segp)
 		return;
 
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	//	MK: 11/18/95, At insane, matcens work forever!
 	if (Difficulty_level != Difficulty_level_type::_4)
 #endif
@@ -304,7 +304,7 @@ imobjptridx_t create_morph_robot(const d_robot_info_array &Robot_info, const vms
 {
 	ai_behavior default_behavior;
 	auto &robptr = Robot_info[object_id];
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	default_behavior = ai_behavior::AIB_NORMAL;
 	if (object_id == robot_id::toaster)						//	This is a toaster guy!
 		default_behavior = ai_behavior::AIB_RUN_FROM;
@@ -341,7 +341,7 @@ imobjptridx_t create_morph_robot(const d_robot_info_array &Robot_info, const vms
 
 	create_n_segment_path(obj, robptr, 6, segment_none);		//	Create a 6 segment path from creation point.
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (default_behavior == ai_behavior::AIB_RUN_FROM)
 		obj->ctype.ai_info.ail.mode = ai_mode::AIM_RUN_FROM_OBJECT;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -559,7 +559,7 @@ void fuelcen_update_all(const d_robot_info_array &Robot_info)
 
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, F1_0 / 3> FUELCEN_SOUND_DELAY{};
 #elif defined(DXX_BUILD_DESCENT_II)
 //play every half second
@@ -575,7 +575,7 @@ fix fuelcen_give_fuel(const shared_segment &segp, fix MaxAmountCanTake)
 	{
 		fix amount;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		detect_escort_goal_fuelcen_accomplished();
 #endif
 
@@ -703,7 +703,7 @@ DEFINE_SERIAL_UDT_TO_MESSAGE(d1cmi_v25, p, D1_MATCEN_V25_MEMBERLIST);
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(d1mi_v25, 16);
 
 namespace dsx {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 struct d1mi_v26
 {
 	matcen_info *m;
@@ -801,7 +801,7 @@ void matcen_info_read(const NamedPHYSFS_File fp, matcen_info &mi)
 void matcen_info_write(PHYSFS_File *fp, const matcen_info &mi, short version)
 {
 	if (version >= 27)
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		PHYSFSX_serialize_write<d1cmi_v26>(fp, mi);
 #elif defined(DXX_BUILD_DESCENT_II)
 		PHYSFSX_serialize_write(fp, mi);

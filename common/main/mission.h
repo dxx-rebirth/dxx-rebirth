@@ -42,7 +42,7 @@ constexpr std::integral_constant<uint8_t, 127> MAX_SECRET_LEVELS_PER_MISSION{};	
 #define MISSION_NAME_LEN                25
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define D1_MISSION_FILENAME             ""
 #elif defined(DXX_BUILD_DESCENT_II)
 #define D1_MISSION_FILENAME             "descent"
@@ -67,7 +67,7 @@ enum class descent_hog_size : int
 	pc_shareware_v14 = 2339773, // v1.4
 	pc_shareware_v10 = 2365676, // v1.0 - 1.2
 	mac_shareware = 3370339,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #define SHAREWARE_MISSION_FILENAME  "d2demo"
 #define SHAREWARE_MISSION_NAME      "Descent 2 Demo"
 	d2_shareware = 2292566, // v1.0 (d2demo.hog)
@@ -86,7 +86,7 @@ enum class descent_hog_size : int
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #include "movie.h"
 #endif
 
@@ -134,7 +134,7 @@ public:
 	std::string::const_iterator filename;          // filename without extension
 	enum class descent_version_type : uint8_t
 	{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		/* These values are written to the binary savegame as part of
 		 * the mission name.  If the values are reordered or renumbered,
 		 * old savegames will be unable to find the matching mission
@@ -170,7 +170,7 @@ struct Mission : Mission_path
 	uint8_t	last_level{};
 	int8_t	last_secret_level{};
 	uint8_t	n_secret_levels{};
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	descent_version_type descent_version;	// descent 1 or descent 2?
 	std::unique_ptr<d_fname> alternate_ham_file;
 	std::unique_ptr<LoadedMovieWithResolution> extra_robot_movie;
@@ -193,7 +193,7 @@ struct Mission : Mission_path
 typedef std::unique_ptr<Mission> Mission_ptr;
 extern Mission_ptr Current_mission; // current mission
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 /* Wrap in parentheses to avoid precedence problems.  Put constant on
  * the left to silence clang's overzealous -Wparentheses-equality messages.
  */
@@ -227,7 +227,7 @@ extern char descent_hog_basename[12];
 
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 //values for d2 built-in mission
 #define BIMD2_ENDING_FILE_OEM		"end2oem.txb"
 #define BIMD2_ENDING_FILE_SHARE		"ending2.txb"
@@ -244,7 +244,7 @@ struct mission_entry_predicate
 	 * In both cases, the file extension is omitted.
 	 */
 	const char *filesystem_name;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	bool check_version;
 	Mission::descent_version_type descent_version;
 #endif

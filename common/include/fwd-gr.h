@@ -61,7 +61,7 @@ enum class packed_color_r5g5b5 : int16_t
 #define SHEIGHT (grd_curscreen->get_screen_height())
 
 #ifdef DXX_BUILD_DESCENT
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 namespace dsx {
 extern uint8_t HiresGFXAvailable;
 }
@@ -287,7 +287,7 @@ grs_font_ptr gr_init_font(grs_canvas &canvas, std::span<const char> fontfile);
 #ifdef dsx
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define DXX_SDL_WINDOW_CAPTION	"Descent"
 #define DXX_SDL_WINDOW_ICON_BITMAP	"d1x-rebirth.bmp"
 #elif defined(DXX_BUILD_DESCENT_II)

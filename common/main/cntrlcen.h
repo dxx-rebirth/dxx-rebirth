@@ -74,7 +74,7 @@ void control_center_triggers_write(const control_center_triggers &cct, PHYSFS_Fi
 namespace dsx {
 
 struct reactor {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	polygon_model_index model_num;
 #endif
 	int n_guns;
@@ -87,7 +87,7 @@ struct reactor {
 // fills in arrays gun_points & gun_dirs, returns the number of guns read
 void read_model_guns(const char *filename, reactor &);
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 1> MAX_REACTORS{};
 constexpr std::integral_constant<unsigned, 1> Num_reactors{};
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -114,7 +114,7 @@ extern std::array<reactor, MAX_REACTORS> Reactors;
 
 static inline polygon_model_index get_reactor_model_number(const uint8_t id)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	return polygon_model_index{id};
 #elif defined(DXX_BUILD_DESCENT_II)
 	return Reactors[id].model_num;
@@ -123,7 +123,7 @@ static inline polygon_model_index get_reactor_model_number(const uint8_t id)
 
 static inline reactor &get_reactor_definition(int id)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	(void)id;
 	return Reactors[0];
 #elif defined(DXX_BUILD_DESCENT_II)

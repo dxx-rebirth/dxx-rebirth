@@ -42,7 +42,7 @@ void do_automap();
 void automap_clear_visited(d_level_unique_automap_state &LevelUniqueAutomapState);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #include "object.h"
 #include "ntstring.h"
 #include "d_array.h"

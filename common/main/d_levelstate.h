@@ -34,7 +34,7 @@ struct d_level_unique_object_state
 	unsigned accumulated_robots;
 	unsigned total_hostages;
 	unsigned Debris_object_count = 0;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	d_unique_buddy_state BuddyState;
 	d_thief_unique_state ThiefState;
 	d_guided_missile_indices Guided_missile;

@@ -141,7 +141,7 @@ static void multi_send_gmode_update();
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 
 namespace {
@@ -280,7 +280,7 @@ fix Show_kill_list_timer = 0;
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 hoard_highest_record hoard_highest_record_stats;
 }
@@ -314,7 +314,7 @@ const GMNames_array GMNames = {{
 	"Team Anarchy",
 	"Robo Anarchy",
 	"Cooperative",
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	"Unknown",
 	"Unknown",
 	"Unknown",
@@ -330,7 +330,7 @@ const std::array<char[8], MULTI_GAME_TYPE_COUNT> GMNamesShrt = {{
 	"TEAM",
 	"ROBO",
 	"COOP",
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	"UNKNOWN",
 	"UNKNOWN",
 	"UNKNOWN",
@@ -613,7 +613,7 @@ kmatrix_result multi_endlevel_score()
 		// Reset keys
 		? ~player_flags(PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_GOLD_KEY | PLAYER_FLAGS_RED_KEY)
 		:
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		/* Nothing to clear.  Set a mask that has no effect when
 		 * applied, so that the loop does not need to retest the
 		 * conditional on each pass.
@@ -742,7 +742,7 @@ void multi_sort_kill_list()
 	auto &Objects = LevelUniqueObjectState.Objects;
 	// Sort the kills list each time a new kill is added
 	const auto build_kill_list_sort_key{[](fvcobjptr &vcobjptr, const game_mode_flags game_mode,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		const show_kill_list_mode show_kill_list,
 #endif
 		const player &plr) -> int {
@@ -753,7 +753,7 @@ void multi_sort_kill_list()
 		if (game_mode & GM_MULTI_COOP)
 			return {player_info.mission.score};
 		const auto net_kills_total{player_info.net_kills_total};
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (show_kill_list == show_kill_list_mode::efficiency)
 		{
 			const auto kk{player_info.net_killed_total + net_kills_total};
@@ -769,21 +769,21 @@ void multi_sort_kill_list()
 		return {net_kills_total};
 	}};
 	const auto build_kill_list_sort_keys{[build_kill_list_sort_key](fvcobjptr &vcobjptr, const game_mode_flags game_mode,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		const show_kill_list_mode show_kill_list,
 #endif
 		fvcplayerptr &vcplayerptr) -> per_player_array<int> {
 		per_player_array<int> kills;
 		for (auto &&[k, plr] : zip(kills, vcplayerptr))
 			k = build_kill_list_sort_key(vcobjptr, game_mode,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				show_kill_list,
 #endif
 				plr);
 		return kills;
 	}};
 	const auto projection{[keys = build_kill_list_sort_keys(Objects.vcptr, Game_mode,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		Show_kill_list,
 #endif
 		vcplayerptr)](const unsigned sk) {
@@ -818,7 +818,7 @@ static void net_destroy_controlcen(object_array &Objects, const d_robot_info_arr
 
 static void multi_compute_kill(const d_robot_info_array &Robot_info, const imobjptridx_t killer, object &killed)
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 #endif
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -849,7 +849,7 @@ static void multi_compute_kill(const d_robot_info_array &Robot_info, const imobj
 
 	digi_play_sample( SOUND_HUD_KILL, F3_0 );
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (LevelUniqueControlCenterState.Control_center_destroyed)
 		vmplayerptr(killed_pnum)->connected = player_connection_status::died_in_mine;
 #endif
@@ -880,7 +880,7 @@ static void multi_compute_kill(const d_robot_info_array &Robot_info, const imobj
 
 	else if ((killer_type != OBJ_PLAYER) && (killer_type != OBJ_GHOST))
 	{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (killer_type == OBJ_WEAPON && get_weapon_id(killer) == weapon_id_type::PMINE_ID)
 		{
 			if (killed_pnum == Player_num)
@@ -1046,7 +1046,7 @@ static void multi_compute_kill(const d_robot_info_array &Robot_info, const imobj
 
 	multi_sort_kill_list();
 	multi_show_player_list();
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	// clear the killed guys flags/headlights
 	killed.ctype.player_info.powerup_flags &= ~(PLAYER_FLAGS_HEADLIGHT_ON); 
 #endif
@@ -1176,7 +1176,7 @@ void multi_leave_game()
 	multi_send_quit();
 	multi::dispatch->leave_game();
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	plyr_save_stats(InterfaceUniqueState.PilotName, PlayerCfg.NetlifeKills, PlayerCfg.NetlifeKilled);
 #endif
 
@@ -1353,7 +1353,7 @@ static void kick_player(const player &plr, netplayer_info &nplr)
 	HUD_init_message(HM_MULTI, "Dumping %s...", static_cast<const char *>(plr.callsign));
 	multi_message_index = 0;
 	multi_sending_message[Player_num] = msgsend_state::none;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	multi_send_msgsend_state(msgsend_state::none);
 #endif
 }
@@ -1361,7 +1361,7 @@ static void kick_player(const player &plr, netplayer_info &nplr)
 static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjptr &vmobjptr, control_info &Controls)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	multi_message_index = 0;
 	multi_sending_message[Player_num] = msgsend_state::none;
 	multi_send_msgsend_state(msgsend_state::none);
@@ -1411,7 +1411,7 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 			for (unsigned i = 0; i < N_players; ++i)
 				if (vcplayerptr(i)->connected != player_connection_status::disconnected && !d_strnicmp(static_cast<const char *>(vcplayerptr(i)->callsign), &Network_message[name_index], nlen - name_index))
 				{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 					if (game_mode_capture_flag(Game_mode) && (vmobjptr(vcplayerptr(i)->objnum)->ctype.player_info.powerup_flags & PLAYER_FLAGS_FLAG))
 					{
 						HUD_init_message_literal(HM_MULTI, "Can't move player because s/he has a flag!");
@@ -1450,7 +1450,7 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 			HUD_init_message(HM_MULTI, "Only %s can kick others out!", static_cast<const char *>(Players[multi_who_is_master()].callsign));
 			multi_message_index = 0;
 			multi_sending_message[Player_num] = msgsend_state::none;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			multi_send_msgsend_state(msgsend_state::none);
 #endif
 			return;
@@ -1466,7 +1466,7 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 			HUD_init_message_literal(HM_MULTI, "You must specify a name to kick");
 			multi_message_index = 0;
 			multi_sending_message[Player_num] = msgsend_state::none;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			multi_send_msgsend_state(msgsend_state::none);
 #endif
 			return;
@@ -1482,7 +1482,7 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 					HUD_init_message_literal(HM_MULTI, "Invalid player number for kick.");
 					multi_message_index = 0;
 					multi_sending_message[Player_num] = msgsend_state::none;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 					multi_send_msgsend_state(msgsend_state::none);
 #endif
 					return;
@@ -1500,7 +1500,7 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 
 		    multi_message_index = 0;
 		    multi_sending_message[Player_num] = msgsend_state::none;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		    multi_send_msgsend_state(msgsend_state::none);
 #endif
 			return;
@@ -1524,13 +1524,13 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 		}
 		multi_message_index = 0;
 		multi_sending_message[Player_num] = msgsend_state::none;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		multi_send_msgsend_state(msgsend_state::none);
 #endif
 		return;
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	else
 #endif
 		HUD_init_message(HM_MULTI, "%s '%s'", TXT_SENDING, Network_message.data());
@@ -1538,7 +1538,7 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 	multi_send_message();
 	multi_message_feedback();
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	Network_message_reciever = 100;
 #elif defined(DXX_BUILD_DESCENT_II)
 	multi_message_index = 0;
@@ -1837,7 +1837,7 @@ static void multi_do_player_deres(const d_robot_info_array &Robot_info, object_a
 	// Stuff the Players structure to prepare for the explosion
 
 	count = 3;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define GET_WEAPON_FLAGS(buf,count)	buf[count++]
 #elif defined(DXX_BUILD_DESCENT_II)
 #define GET_WEAPON_FLAGS(buf,count)	(count += sizeof(uint16_t), GET_INTEL_SHORT(&buf[(count - sizeof(uint16_t))]))
@@ -1858,7 +1858,7 @@ static void multi_do_player_deres(const d_robot_info_array &Robot_info, object_a
 	secondary_ammo[secondary_weapon_index_t::MEGA_INDEX] = buf[count];          count++;
 	secondary_ammo[secondary_weapon_index_t::PROXIMITY_INDEX] = buf[count]; count++;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	secondary_ammo[secondary_weapon_index_t::SMISSILE1_INDEX] = buf[count]; count++;
 	secondary_ammo[secondary_weapon_index_t::GUIDED_INDEX]    = buf[count]; count++;
 	secondary_ammo[secondary_weapon_index_t::SMART_MINE_INDEX]= buf[count]; count++;
@@ -1908,7 +1908,7 @@ static void multi_do_player_deres(const d_robot_info_array &Robot_info, object_a
 	}
 
 	player_info.powerup_flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	player_info.powerup_flags &= ~PLAYER_FLAGS_FLAG;
 #endif
 	DXX_MAKE_VAR_UNDEFINED(player_info.cloak_time);
@@ -1986,13 +1986,13 @@ static void multi_do_escape(fvmobjptridx &vmobjptridx, const playernum_t pnum, c
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 	auto &plr = *vmplayerptr(pnum);
 	const auto &&objnum = vmobjptridx(plr.objnum);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	digi_kill_sound_linked_to_object (objnum);
 #endif
 
 	const char *txt;
 	player_connection_status connected;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (buf[2] == static_cast<uint8_t>(multi_endlevel_type::secret))
 	{
 		txt = TXT_HAS_FOUND_SECRET;
@@ -2182,7 +2182,7 @@ static void multi_do_door_open(fvmwallptr &vmwallptr, const multiplayer_rspan<mu
 	if (!uside)
 		return;
 	const auto side = *uside;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	ubyte flag= buf[4];
 #endif
 
@@ -2210,7 +2210,7 @@ static void multi_do_door_open(fvmwallptr &vmwallptr, const multiplayer_rspan<mu
 	{
 		wall_open_door(seg, side);
 	}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	w.flags = wall_flags{flag};
 #endif
 
@@ -2336,7 +2336,7 @@ static void multi_do_trigger(const playernum_t pnum, const multiplayer_rspan<mul
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace dsx {
 
 namespace {
@@ -2639,7 +2639,7 @@ void multi_send_destroy_controlcen(const objnum_t objnum, const playernum_t play
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void multi_send_drop_marker(const unsigned player, const vms_vector &position, const player_marker_index messagenum, const marker_message_text_t &text)
 {
 	multi_command<multiplayer_command_t::MULTI_MARKER> multibuf;
@@ -2672,7 +2672,7 @@ void multi_send_markers()
 }
 #endif
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 void multi_send_endlevel_start(const multi_endlevel_type secret)
 #elif defined(DXX_BUILD_DESCENT_II)
 void multi_send_endlevel_start()
@@ -2681,7 +2681,7 @@ void multi_send_endlevel_start()
 	multi_command<multiplayer_command_t::MULTI_ENDLEVEL_START> buf;
 	/* Obsolete - reclaim player number field on next multiplayer protocol version bump */
 	buf[1] = Player_num;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	buf[2] = static_cast<uint8_t>(secret);
 #endif
 
@@ -2711,7 +2711,7 @@ void multi_send_player_deres(deres_type_t type)
 	multibuf[count++] = Player_num;
 	multibuf[count++] = type;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define PUT_WEAPON_FLAGS(buf,count,value)	(buf[count] = value, ++count)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define PUT_WEAPON_FLAGS(buf,count,value)	((PUT_INTEL_SHORT(&buf[count], value)), count+=sizeof(uint16_t))
@@ -2728,7 +2728,7 @@ void multi_send_player_deres(deres_type_t type)
 	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::MEGA_INDEX];
 	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::PROXIMITY_INDEX];
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::SMISSILE1_INDEX];
 	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::GUIDED_INDEX];
 	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::SMART_MINE_INDEX];
@@ -2952,7 +2952,7 @@ void multi_send_door_open(const vcsegidx_t segnum, const sidenum_t side, const w
 	// When we open a door make sure everyone else opens that door
 	PUT_INTEL_SEGNUM(&multibuf[1], segnum);
 	multibuf[3] = underlying_value(side);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	(void)flag;
 #elif defined(DXX_BUILD_DESCENT_II)
 	multibuf[4] = underlying_value(flag);
@@ -2960,7 +2960,7 @@ void multi_send_door_open(const vcsegidx_t segnum, const sidenum_t side, const w
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void multi_send_door_open_specific(const playernum_t pnum, const vcsegidx_t segnum, const sidenum_t side, const wall_flags flag)
 {
 	// For sending doors only to a specific person (usually when they're joining)
@@ -3135,7 +3135,7 @@ void multi_send_trigger(const trgnum_t triggernum)
 
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void multi_send_effect_blowup(const vcsegidx_t segnum, const sidenum_t side, const vms_vector &pnt)
 {
 	// We blew up something connected to a trigger. Send this blowup result to other players shortly before MULTI_TRIGGER.
@@ -3220,7 +3220,7 @@ player_flags map_granted_flags_to_player_flags(const packed_spawn_granted_items 
 	const auto None = PLAYER_FLAG::None;
 	return player_flags(
 		((grant & netgrant_flag::NETGRANT_QUAD) != netgrant_flag::None ? PLAYER_FLAGS_QUAD_LASERS : None)
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		| ((grant & netgrant_flag::NETGRANT_AFTERBURNER) != netgrant_flag::None ? PLAYER_FLAGS_AFTERBURNER : None)
 		| ((grant & netgrant_flag::NETGRANT_AMMORACK) != netgrant_flag::None ? PLAYER_FLAGS_AMMO_RACK : None)
 		| ((grant & netgrant_flag::NETGRANT_CONVERTER) != netgrant_flag::None ? PLAYER_FLAGS_CONVERTER : None)
@@ -3236,7 +3236,7 @@ uint_fast32_t map_granted_flags_to_primary_weapon_flags(const packed_spawn_grant
 		| ((grant & netgrant_flag::NETGRANT_SPREAD) != netgrant_flag::None ? HAS_SPREADFIRE_FLAG : 0)
 		| ((grant & netgrant_flag::NETGRANT_PLASMA) != netgrant_flag::None ? HAS_PLASMA_FLAG : 0)
 		| ((grant & netgrant_flag::NETGRANT_FUSION) != netgrant_flag::None ? HAS_FUSION_FLAG : 0)
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		| ((grant & netgrant_flag::NETGRANT_GAUSS) != netgrant_flag::None ? HAS_GAUSS_FLAG : 0)
 		| ((grant & netgrant_flag::NETGRANT_HELIX) != netgrant_flag::None ? HAS_HELIX_FLAG : 0)
 		| ((grant & netgrant_flag::NETGRANT_PHOENIX) != netgrant_flag::None ? HAS_PHOENIX_FLAG : 0)
@@ -3250,7 +3250,7 @@ uint16_t map_granted_flags_to_vulcan_ammo(const packed_spawn_granted_items p)
 	auto &grant = p.mask;
 	const auto amount{VULCAN_WEAPON_AMMO_AMOUNT};
 	return
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		((grant & netgrant_flag::NETGRANT_GAUSS) != netgrant_flag::None ? amount : 0) +
 #endif
 		((grant & netgrant_flag::NETGRANT_VULCAN) != netgrant_flag::None ? amount : 0);
@@ -3261,7 +3261,7 @@ namespace {
 static constexpr netflag_flag map_granted_flags_to_netflag(const packed_spawn_granted_items grant)
 {
 	return (grant_shift_helper<BIT_NETGRANT_QUAD, BIT_NETFLAG_DOQUAD>(grant) & (netflag_flag::NETFLAG_DOQUAD | netflag_flag::NETFLAG_DOVULCAN | netflag_flag::NETFLAG_DOSPREAD | netflag_flag::NETFLAG_DOPLASMA | netflag_flag::NETFLAG_DOFUSION))
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		| (grant_shift_helper<BIT_NETGRANT_GAUSS, BIT_NETFLAG_DOGAUSS>(grant) & (netflag_flag::NETFLAG_DOGAUSS | netflag_flag::NETFLAG_DOHELIX | netflag_flag::NETFLAG_DOPHOENIX | netflag_flag::NETFLAG_DOOMEGA))
 		| (grant_shift_helper<BIT_NETGRANT_AFTERBURNER, BIT_NETFLAG_DOAFTERBURNER>(grant) & (netflag_flag::NETFLAG_DOAFTERBURNER | netflag_flag::NETFLAG_DOAMMORACK | netflag_flag::NETFLAG_DOCONVERTER | netflag_flag::NETFLAG_DOHEADLIGHT))
 #endif
@@ -3276,7 +3276,7 @@ struct assert_netgrant_map_result : std::true_type
 
 static_assert(assert_netgrant_map_result<netgrant_flag::NETGRANT_QUAD, netflag_flag::NETFLAG_DOQUAD>::value, "QUAD");
 static_assert(assert_netgrant_map_result<netgrant_flag::NETGRANT_QUAD | netgrant_flag::NETGRANT_PLASMA, netflag_flag::NETFLAG_DOQUAD | netflag_flag::NETFLAG_DOPLASMA>::value, "QUAD | PLASMA");
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 static_assert(assert_netgrant_map_result<netgrant_flag::NETGRANT_GAUSS, netflag_flag::NETFLAG_DOGAUSS>::value, "GAUSS");
 static_assert(assert_netgrant_map_result<netgrant_flag::NETGRANT_GAUSS | netgrant_flag::NETGRANT_PLASMA, netflag_flag::NETFLAG_DOGAUSS | netflag_flag::NETFLAG_DOPLASMA>::value, "GAUSS | PLASMA");
 static_assert(assert_netgrant_map_result<netgrant_flag::NETGRANT_GAUSS | netgrant_flag::NETGRANT_AFTERBURNER, netflag_flag::NETFLAG_DOGAUSS | netflag_flag::NETFLAG_DOAFTERBURNER>::value, "GAUSS | AFTERBURNER");
@@ -3327,7 +3327,7 @@ void update_item_state::process_powerup(const d_vclip_array &Vclip, fvmsegptridx
 		case powerup_type_t::POW_SPREADFIRE_WEAPON:
 		case powerup_type_t::POW_PLASMA_WEAPON:
 		case powerup_type_t::POW_FUSION_WEAPON:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case powerup_type_t::POW_SUPER_LASER:
 		case powerup_type_t::POW_GAUSS_WEAPON:
 		case powerup_type_t::POW_HELIX_WEAPON:
@@ -3343,7 +3343,7 @@ void update_item_state::process_powerup(const d_vclip_array &Vclip, fvmsegptridx
 		case powerup_type_t::POW_PROXIMITY_WEAPON:
 		case powerup_type_t::POW_SMARTBOMB_WEAPON:
 		case powerup_type_t::POW_MEGA_WEAPON:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case powerup_type_t::POW_SMISSILE1_1:
 		case powerup_type_t::POW_SMISSILE1_4:
 		case powerup_type_t::POW_GUIDED_MISSILE_1:
@@ -3355,7 +3355,7 @@ void update_item_state::process_powerup(const d_vclip_array &Vclip, fvmsegptridx
 #endif
 			count = Netgame.DuplicatePowerups.get_secondary_count();
 			break;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case powerup_type_t::POW_FULL_MAP:
 		case powerup_type_t::POW_CONVERTER:
 		case powerup_type_t::POW_AMMO_RACK:
@@ -3511,7 +3511,7 @@ void multi_prep_level_player(void)
 
 	Assert(NumNetPlayerPositions > 0);
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	hoard_highest_record_stats = {};
 	Drop_afterburner_blob_flag=0;
 #endif
@@ -3540,7 +3540,7 @@ void multi_prep_level_player(void)
 
 	Viewer = ConsoleObject = &get_local_plrobj();
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (game_mode_hoard(Game_mode))
 		init_hoard_data(Vclip);
 
@@ -3559,7 +3559,7 @@ void multi_prep_level_player(void)
 	imulti_new_game=0;
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace {
 
 void apply_segment_goal_texture(const d_level_unique_tmap_info_state &LevelUniqueTmapInfoState, unique_segment &seg, const texture1_value tex)
@@ -3641,7 +3641,7 @@ static int object_allowed_in_anarchy(const object_base &objp)
 		objp.type == OBJ_CNTRLCEN ||
 		objp.type == OBJ_HOSTAGE)
 		return 1;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (objp.type == OBJ_WEAPON && get_weapon_id(objp) == weapon_id_type::PMINE_ID)
 		return 1;
 #endif
@@ -3685,7 +3685,7 @@ void powerup_shuffle_state::record_powerup(const vmobjptridx_t o)
 		case powerup_type_t::POW_VULCAN_AMMO:
 		case powerup_type_t::POW_CLOAK:
 		case powerup_type_t::POW_INVULNERABILITY:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case powerup_type_t::POW_GAUSS_WEAPON:
 		case powerup_type_t::POW_HELIX_WEAPON:
 		case powerup_type_t::POW_PHOENIX_WEAPON:
@@ -3778,7 +3778,7 @@ void multi_update_objects_for_non_cooperative()
 			continue;
 		}
 		else if (!object_allowed_in_anarchy(objp) ) {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			// Before deleting object, if it's a robot, drop it's special powerup, if any
 			if (obj_type == OBJ_ROBOT)
 				if (objp->contains.count && objp->contains.type == contained_object_type::powerup)
@@ -3815,7 +3815,7 @@ void change_playernum_to(const playernum_t new_Player_num)
 
 namespace dsx {
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 static
 #endif
 int multi_all_players_alive(const fvcobjptr &vcobjptr, const std::ranges::subrange<const player *> player_range)
@@ -3860,7 +3860,7 @@ void multi_send_drop_weapon(const vmobjptridx_t objp, int seed)
 	multi_send_position(vmobjptridx(get_local_player().objnum));
 	ammo_count = objp->ctype.powerup_info.count;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (get_powerup_id(objp) == powerup_type_t::POW_OMEGA_WEAPON && ammo_count == F1_0)
 		ammo_count = F1_0 - 1; //make fit in short
 #endif
@@ -3955,7 +3955,7 @@ static void multi_do_vulcan_weapon_ammo_adjust(fvmobjptr &vmobjptr, const multip
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace {
 
 struct multi_guided_info
@@ -4165,7 +4165,7 @@ void multi_check_for_killgoal_winner(const d_robot_info_array &Robot_info)
 	net_destroy_controlcen(Objects, Robot_info);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 // Sync our seismic time with other players
 void multi_send_seismic(fix duration)
 {
@@ -4677,12 +4677,12 @@ netflag_flag multi_powerup_is_allowed(const powerup_type_t id, const netflag_fla
 		case powerup_type_t::POW_MEGA_WEAPON:
 			return AllowedItems & netflag_flag::NETFLAG_DOMEGA;
 		case powerup_type_t::POW_VULCAN_AMMO:
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			return BaseAllowedItems & netflag_flag::NETFLAG_DOVULCAN;
 #elif defined(DXX_BUILD_DESCENT_II)
 			return BaseAllowedItems & (netflag_flag::NETFLAG_DOVULCAN | netflag_flag::NETFLAG_DOGAUSS);
 #endif
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case powerup_type_t::POW_SUPER_LASER:
 			if (map_granted_flags_to_laser_level(Netgame.SpawnGrantedItems) >= MAX_SUPER_LASER_LEVEL)
 				/* If players are granted maximum level super lasers, then
@@ -4728,7 +4728,7 @@ netflag_flag multi_powerup_is_allowed(const powerup_type_t id, const netflag_fla
 	}
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void multi_send_finish_game ()
 {
 	multi_command<multiplayer_command_t::MULTI_FINISH_GAME> multibuf;
@@ -4790,7 +4790,7 @@ static void multi_adjust_lifetime_ranking(int &k, const int count)
 		if (!PlayerCfg.NoRankings)
 		{
 			HUD_init_message(HM_MULTI, "You have been %smoted to %s!", newrank > oldrank ? "pro" : "de", RankStrings[newrank]);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			digi_play_sample (SOUND_CONTROL_CENTER_WARNING_SIREN,F1_0*2);
 #elif defined(DXX_BUILD_DESCENT_II)
 			digi_play_sample (SOUND_BUDDY_MET_GOAL,F1_0*2);
@@ -4932,7 +4932,7 @@ static void multi_do_bounty(const multiplayer_rspan<multiplayer_command_t::MULTI
 
 void multi_new_bounty_target_with_sound(const playernum_t pnum, const char *const callsign)
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	digi_play_sample( SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0 * 3 );
 #elif defined(DXX_BUILD_DESCENT_II)
 	digi_play_sample( SOUND_BUDDY_MET_GOAL, F1_0 * 2 );
@@ -5135,11 +5135,11 @@ void multi_restore_game(const unsigned slot, const unsigned id)
 		return;
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &LevelSharedDestructibleLightState = LevelSharedSegmentState.DestructibleLights;
 #endif
 	state_restore_all_sub(
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		LevelSharedDestructibleLightState, secret_restore::none,
 #endif
 		filename.data());
@@ -5227,7 +5227,7 @@ void multi_send_player_inventory(const multiplayer_data_priority priority)
 	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::MEGA_INDEX];
 	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::PROXIMITY_INDEX];
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::SMISSILE1_INDEX];
 	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::GUIDED_INDEX];
 	multibuf[count++] = secondary_ammo[secondary_weapon_index_t::SMART_MINE_INDEX];
@@ -5260,7 +5260,7 @@ static void multi_do_player_inventory(const playernum_t pnum, const multiplayer_
 #endif
 
 	count = 2;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define GET_WEAPON_FLAGS(buf,count)	buf[count++]
 #elif defined(DXX_BUILD_DESCENT_II)
 #define GET_WEAPON_FLAGS(buf,count)	(count += sizeof(uint16_t), GET_INTEL_SHORT(&buf[(count - sizeof(uint16_t))]))
@@ -5278,7 +5278,7 @@ static void multi_do_player_inventory(const playernum_t pnum, const multiplayer_
 	secondary_ammo[secondary_weapon_index_t::MEGA_INDEX] = buf[count];          count++;
 	secondary_ammo[secondary_weapon_index_t::PROXIMITY_INDEX] = buf[count]; count++;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	secondary_ammo[secondary_weapon_index_t::SMISSILE1_INDEX] = buf[count]; count++;
 	secondary_ammo[secondary_weapon_index_t::GUIDED_INDEX]    = buf[count]; count++;
 	secondary_ammo[secondary_weapon_index_t::SMART_MINE_INDEX]= buf[count]; count++;
@@ -5310,7 +5310,7 @@ static void MultiLevelInv_CountLevelPowerups()
                         auto wid = get_weapon_id(objp);
                         if (wid == weapon_id_type::PROXIMITY_ID)
                                 MultiLevelInv.Current[powerup_type_t::POW_PROXIMITY_WEAPON]++;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
                         if (wid == weapon_id_type::SUPERPROX_ID)
                                 MultiLevelInv.Current[powerup_type_t::POW_SMART_MINE]++;
 #endif
@@ -5321,7 +5321,7 @@ static void MultiLevelInv_CountLevelPowerups()
                 switch (pid)
                 {
 					case powerup_type_t::POW_VULCAN_WEAPON:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 					case powerup_type_t::POW_GAUSS_WEAPON:
 #endif
 						MultiLevelInv.Current[powerup_type_t::POW_VULCAN_AMMO] += objp->ctype.powerup_info.count; // add contained ammo so we do not lose this from level when used up
@@ -5338,7 +5338,7 @@ static void MultiLevelInv_CountLevelPowerups()
                         case powerup_type_t::POW_MEGA_WEAPON:
                         case powerup_type_t::POW_CLOAK:
                         case powerup_type_t::POW_INVULNERABILITY:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
                         case powerup_type_t::POW_SUPER_LASER:
                         case powerup_type_t::POW_HELIX_WEAPON:
                         case powerup_type_t::POW_PHOENIX_WEAPON:
@@ -5359,7 +5359,7 @@ static void MultiLevelInv_CountLevelPowerups()
                                 break;
                         case powerup_type_t::POW_MISSILE_4:
                         case powerup_type_t::POW_HOMING_AMMO_4:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
                         case powerup_type_t::POW_SMISSILE1_4:
                         case powerup_type_t::POW_GUIDED_MISSILE_4:
                         case powerup_type_t::POW_MERCURY_MISSILE_4:
@@ -5367,7 +5367,7 @@ static void MultiLevelInv_CountLevelPowerups()
                                 MultiLevelInv.Current[static_cast<powerup_type_t>(underlying_value(pid) - 1)] += 4;
                                 break;
                         case powerup_type_t::POW_PROXIMITY_WEAPON:
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
                         case powerup_type_t::POW_SMART_MINE:
 #endif
                                 MultiLevelInv.Current[pid] += 4; // count the actual bombs
@@ -5395,7 +5395,7 @@ static void MultiLevelInv_CountPlayerInventory()
                                 continue;
 		auto &player_info = obj.ctype.player_info;
                         // NOTE: We do not need to consider Granted Spawn Items here. These are replaced with shields and even if not, the repopulation function will take care of it.
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
                         if (player_info.laser_level > MAX_LASER_LEVEL)
                         {
                                 /*
@@ -5420,7 +5420,7 @@ static void MultiLevelInv_CountPlayerInventory()
 						powerup_flags.process(PLAYER_FLAGS_CLOAKED, powerup_type_t::POW_CLOAK);
 						powerup_flags.process(PLAYER_FLAGS_INVULNERABLE, powerup_type_t::POW_INVULNERABILITY);
                         // NOTE: The following can probably be simplified.
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::GAUSS_INDEX), powerup_type_t::POW_GAUSS_WEAPON);
 						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::HELIX_INDEX), powerup_type_t::POW_HELIX_WEAPON);
 						primary_weapon_flags.process(HAS_PRIMARY_FLAG(primary_weapon_index_t::PHOENIX_INDEX), powerup_type_t::POW_PHOENIX_WEAPON);
@@ -5441,7 +5441,7 @@ static void MultiLevelInv_CountPlayerInventory()
 		Current[powerup_type_t::POW_PROXIMITY_WEAPON] += player_info.secondary_ammo[secondary_weapon_index_t::PROXIMITY_INDEX];
 		Current[powerup_type_t::POW_SMARTBOMB_WEAPON] += player_info.secondary_ammo[secondary_weapon_index_t::SMART_INDEX];
 		Current[powerup_type_t::POW_MEGA_WEAPON] += player_info.secondary_ammo[secondary_weapon_index_t::MEGA_INDEX];
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		Current[powerup_type_t::POW_SMISSILE1_1] += player_info.secondary_ammo[secondary_weapon_index_t::SMISSILE1_INDEX];
 		Current[powerup_type_t::POW_GUIDED_MISSILE_1] += player_info.secondary_ammo[secondary_weapon_index_t::GUIDED_INDEX];
 		Current[powerup_type_t::POW_SMART_MINE] += player_info.secondary_ammo[secondary_weapon_index_t::SMART_MINE_INDEX];
@@ -5449,7 +5449,7 @@ static void MultiLevelInv_CountPlayerInventory()
 		Current[powerup_type_t::POW_EARTHSHAKER_MISSILE] += player_info.secondary_ammo[secondary_weapon_index_t::SMISSILE5_INDEX];
 #endif
                 }
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
                 if (Game_mode & GM_MULTI_ROBOTS) // Add (possible) thief inventory
                 {
                         range_for (auto &i, LevelUniqueObjectState.ThiefState.Stolen_items)
@@ -5495,7 +5495,7 @@ bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type)
         if (powerup_type == powerup_type_t::POW_VULCAN_AMMO)
                 req_amount = VULCAN_AMMO_AMOUNT;
         else if (powerup_type == powerup_type_t::POW_PROXIMITY_WEAPON
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
                 || powerup_type == powerup_type_t::POW_SMART_MINE
 #endif
         )
@@ -5541,7 +5541,7 @@ void MultiLevelInv_Repopulate(fix frequency)
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 namespace {
 
 ///
@@ -5858,7 +5858,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 		case multiplayer_command_t::MULTI_VULWPN_AMMO_ADJ:
 			multi_do_vulcan_weapon_ammo_adjust(vmobjptr, multi_subspan_first<multiplayer_command_t::MULTI_VULWPN_AMMO_ADJ>(data));
 			break;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case multiplayer_command_t::MULTI_SOUND_FUNCTION:
 			multi_do_sound_function(pnum, multi_subspan_first<multiplayer_command_t::MULTI_SOUND_FUNCTION>(data));
 			break;
@@ -5907,7 +5907,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 		case multiplayer_command_t::MULTI_PLAY_SOUND:
 			multi_do_play_sound(Objects, pnum, multi_subspan_first<multiplayer_command_t::MULTI_PLAY_SOUND>(data));
 			break;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case multiplayer_command_t::MULTI_CAPTURE_BONUS:
 			multi_do_capture_bonus(pnum); break;
 		case multiplayer_command_t::MULTI_ORB_BONUS:
@@ -5948,7 +5948,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 		case multiplayer_command_t::MULTI_TRIGGER:
 			multi_do_trigger(pnum, multi_subspan_first<multiplayer_command_t::MULTI_TRIGGER>(data));
 			break;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		case multiplayer_command_t::MULTI_START_TRIGGER:
 			multi_do_start_trigger(multi_subspan_first<multiplayer_command_t::MULTI_START_TRIGGER>(data));
 			break;
@@ -6111,7 +6111,7 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 			obj_rw->ctype.ai_info.flags[1] = obj.ctype.ai_info.CURRENT_STATE;
 			obj_rw->ctype.ai_info.flags[2] = obj.ctype.ai_info.GOAL_STATE;
 			obj_rw->ctype.ai_info.flags[3] = obj.ctype.ai_info.PATH_DIR;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			obj_rw->ctype.ai_info.flags[4] = obj.ctype.ai_info.SUBMODE;
 #elif defined(DXX_BUILD_DESCENT_II)
 			obj_rw->ctype.ai_info.flags[4] = obj.ctype.ai_info.SUB_FLAGS;
@@ -6124,7 +6124,7 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 			obj_rw->ctype.ai_info.hide_segment           = INTEL_SHORT(obj.ctype.ai_info.hide_segment);
 			obj_rw->ctype.ai_info.hide_index             = INTEL_SHORT(obj.ctype.ai_info.hide_index);
 			obj_rw->ctype.ai_info.path_length            = INTEL_SHORT(obj.ctype.ai_info.path_length);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			obj_rw->ctype.ai_info.cur_path_index         = INTEL_SHORT(obj.ctype.ai_info.cur_path_index);
 #elif defined(DXX_BUILD_DESCENT_II)
 			obj_rw->ctype.ai_info.cur_path_index         = obj.ctype.ai_info.cur_path_index;
@@ -6134,7 +6134,7 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 				obj_rw->ctype.ai_info.danger_laser_signature = INTEL_INT(static_cast<uint16_t>(obj.ctype.ai_info.danger_laser_signature));
 			else
 				obj_rw->ctype.ai_info.danger_laser_signature = 0;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			obj_rw->ctype.ai_info.follow_path_start_seg  = segment_none;
 			obj_rw->ctype.ai_info.follow_path_end_seg    = segment_none;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -6153,7 +6153,7 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 			
 		case object::control_type::powerup:
 			obj_rw->ctype.powerup_info.count         = INTEL_INT(obj.ctype.powerup_info.count);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (const auto c = obj.ctype.powerup_info.creation_time - GameTime64; c < F1_0*(-18000))
 				obj_rw->ctype.powerup_info.creation_time = INTEL_INT(F1_0*(-18000));
 			else
@@ -6272,7 +6272,7 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 				obj.ctype.laser_info.clear_hitobj();
 			obj.ctype.laser_info.track_goal       = INTEL_SHORT(obj_rw->ctype.laser_info.track_goal);
 			obj.ctype.laser_info.multiplier       = INTEL_INT(obj_rw->ctype.laser_info.multiplier);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			obj.ctype.laser_info.last_afterburner_time = 0;
 #endif
 			break;
@@ -6296,7 +6296,7 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 			obj.ctype.ai_info.CURRENT_STATE = build_ai_state_from_untrusted(obj_rw->ctype.ai_info.flags[1]).value();
 			obj.ctype.ai_info.GOAL_STATE = build_ai_state_from_untrusted(obj_rw->ctype.ai_info.flags[2]).value();
 			obj.ctype.ai_info.PATH_DIR = obj_rw->ctype.ai_info.flags[3];
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			obj.ctype.ai_info.SUBMODE = obj_rw->ctype.ai_info.flags[4];
 #elif defined(DXX_BUILD_DESCENT_II)
 			obj.ctype.ai_info.SUB_FLAGS = obj_rw->ctype.ai_info.flags[4];
@@ -6310,7 +6310,7 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 			obj.ctype.ai_info.hide_index             = INTEL_SHORT(obj_rw->ctype.ai_info.hide_index);
 			obj.ctype.ai_info.path_length            = INTEL_SHORT(obj_rw->ctype.ai_info.path_length);
 			obj.ctype.ai_info.cur_path_index         =
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 				INTEL_SHORT(obj_rw->ctype.ai_info.cur_path_index);
 #elif defined(DXX_BUILD_DESCENT_II)
 				obj_rw->ctype.ai_info.cur_path_index;
@@ -6318,7 +6318,7 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 			obj.ctype.ai_info.danger_laser_num       = INTEL_SHORT(obj_rw->ctype.ai_info.danger_laser_num);
 			if (obj.ctype.ai_info.danger_laser_num != object_none)
 				obj.ctype.ai_info.danger_laser_signature = object_signature_t{static_cast<uint16_t>(INTEL_INT(obj_rw->ctype.ai_info.danger_laser_signature))};
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #elif defined(DXX_BUILD_DESCENT_II)
 			obj.ctype.ai_info.dying_sound_playing    = obj_rw->ctype.ai_info.dying_sound_playing;
 			obj.ctype.ai_info.dying_start_time       = INTEL_INT(obj_rw->ctype.ai_info.dying_start_time);
@@ -6332,7 +6332,7 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 			
 		case object::control_type::powerup:
 			obj.ctype.powerup_info.count         = INTEL_INT(obj_rw->ctype.powerup_info.count);
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			obj.ctype.powerup_info.creation_time = 0;
 			obj.ctype.powerup_info.flags         = 0;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -6415,7 +6415,7 @@ void show_netgame_info(const netgame_info &netgame)
 			duplicate_powerups_header,
 			duplicate_primaries,
 			duplicate_secondaries,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			duplicate_accessories,
 #endif
 			blank_3,
@@ -6436,7 +6436,7 @@ void show_netgame_info(const netgame_info &netgame)
 			allow_proximity_bombs,
 			allow_smart_missiles,
 			allow_mega_missiles,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			allow_super_laser_upgrade,
 			allow_gauss_cannon,
 			allow_helix_cannon,
@@ -6450,7 +6450,7 @@ void show_netgame_info(const netgame_info &netgame)
 #endif
 			allow_cloaking,
 			allow_invulnerability,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			allow_afterburner,
 			allow_ammo_rack,
 			allow_energy_converter,
@@ -6464,7 +6464,7 @@ void show_netgame_info(const netgame_info &netgame)
 			grant_spreadfire_cannon,
 			grant_plasma_cannon,
 			grant_fusion_cannon,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			grant_gauss_cannon,
 			grant_helix_cannon,
 			grant_phoenix_cannon,
@@ -6477,7 +6477,7 @@ void show_netgame_info(const netgame_info &netgame)
 			blank_6,
 			misc_options_header,
 			show_all_players_on_automap,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			allow_marker_camera,
 			indestructible_lights,
 			thief_permitted,
@@ -6531,7 +6531,7 @@ void show_netgame_info(const netgame_info &netgame)
 			array_snprintf(lines[kill_goal], "Kill Goal\t  %i", netgame.KillGoal * 5);
 			array_snprintf(lines[duplicate_primaries], "Primaries\t  %i", static_cast<int>(netgame.DuplicatePowerups.get_primary_count()));
 			array_snprintf(lines[duplicate_secondaries], "Secondaries\t  %i", static_cast<int>(netgame.DuplicatePowerups.get_secondary_count()));
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			array_snprintf(lines[duplicate_accessories], "Accessories\t  %i", static_cast<int>(netgame.DuplicatePowerups.get_accessory_count()));
 #endif
 			array_snprintf(lines[spawn_count], "Use * Furthest Spawn Sites\t  %i", netgame.SecludedSpawns+1);
@@ -6546,7 +6546,7 @@ void show_netgame_info(const netgame_info &netgame)
 			array_snprintf(lines[allow_proximity_bombs], "Proximity Bombs\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOPROXIM) != netflag_flag::None ? TXT_YES : TXT_NO);
 			array_snprintf(lines[allow_smart_missiles], "Smart Missiles\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOSMART) != netflag_flag::None ? TXT_YES : TXT_NO);
 			array_snprintf(lines[allow_mega_missiles], "Mega Missiles\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOMEGA) != netflag_flag::None ? TXT_YES : TXT_NO);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			array_snprintf(lines[allow_super_laser_upgrade], "Super Lasers\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOSUPERLASER) != netflag_flag::None ? TXT_YES : TXT_NO);
 			array_snprintf(lines[allow_gauss_cannon], "Gauss Cannon\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOGAUSS) != netflag_flag::None ? TXT_YES : TXT_NO);
 			array_snprintf(lines[allow_helix_cannon], "Helix Cannon\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOHELIX) != netflag_flag::None ? TXT_YES : TXT_NO);
@@ -6560,7 +6560,7 @@ void show_netgame_info(const netgame_info &netgame)
 #endif
 			array_snprintf(lines[allow_cloaking], "Cloaking\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOCLOAK) != netflag_flag::None ? TXT_YES : TXT_NO);
 			array_snprintf(lines[allow_invulnerability], "Invulnerability\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOINVUL) != netflag_flag::None ? TXT_YES : TXT_NO);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			array_snprintf(lines[allow_afterburner], "Afterburners\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOAFTERBURNER) != netflag_flag::None ? TXT_YES : TXT_NO);
 			array_snprintf(lines[allow_ammo_rack], "Ammo Rack\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOAMMORACK) != netflag_flag::None ? TXT_YES : TXT_NO);
 			array_snprintf(lines[allow_energy_converter], "Energy Converter\t  %s", (netgame.AllowedItems & netflag_flag::NETFLAG_DOCONVERTER) != netflag_flag::None ? TXT_YES : TXT_NO);
@@ -6572,7 +6572,7 @@ void show_netgame_info(const netgame_info &netgame)
 			array_snprintf(lines[grant_spreadfire_cannon], "Spreadfire Cannon\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, netgrant_flag::NETGRANT_SPREAD) != netgrant_flag::None ? TXT_YES : TXT_NO);
 			array_snprintf(lines[grant_plasma_cannon], "Plasma Cannon\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, netgrant_flag::NETGRANT_PLASMA) != netgrant_flag::None ? TXT_YES : TXT_NO);
 			array_snprintf(lines[grant_fusion_cannon], "Fusion Cannon\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, netgrant_flag::NETGRANT_FUSION) != netgrant_flag::None ? TXT_YES : TXT_NO);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			array_snprintf(lines[grant_gauss_cannon], "Gauss Cannon\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, netgrant_flag::NETGRANT_GAUSS) != netgrant_flag::None ? TXT_YES : TXT_NO);
 			array_snprintf(lines[grant_helix_cannon], "Helix Cannon\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, netgrant_flag::NETGRANT_HELIX) != netgrant_flag::None ? TXT_YES : TXT_NO);
 			array_snprintf(lines[grant_phoenix_cannon], "Phoenix Cannon\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, netgrant_flag::NETGRANT_PHOENIX) != netgrant_flag::None ? TXT_YES : TXT_NO);
@@ -6583,7 +6583,7 @@ void show_netgame_info(const netgame_info &netgame)
 			array_snprintf(lines[grant_headlight], "Headlight\t  %s", menu_bit_wrapper(netgame.SpawnGrantedItems.mask, netgrant_flag::NETGRANT_HEADLIGHT) != netgrant_flag::None ? TXT_YES : TXT_NO);
 #endif
 			array_snprintf(lines[show_all_players_on_automap], "Show All Players On Automap\t  %s", ((netgame.game_flag & netgame_rule_flags::show_all_players_on_automap) != netgame_rule_flags::None) ? TXT_YES : TXT_NO);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			array_snprintf(lines[allow_marker_camera], "Allow Marker Camera Views\t  %s", netgame.Allow_marker_view?TXT_YES:TXT_NO);
 			array_snprintf(lines[indestructible_lights], "Indestructible Lights\t  %s", netgame.AlwaysLighting?TXT_YES:TXT_NO);
 			array_snprintf(lines[thief_permitted], "Thief permitted\t  %s", (netgame.ThiefModifierFlags & ThiefModifier::Absent) ? TXT_NO : TXT_YES);

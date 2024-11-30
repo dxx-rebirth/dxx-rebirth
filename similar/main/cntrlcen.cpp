@@ -68,7 +68,7 @@ constexpr enumerated_array<uint8_t, NDL, Difficulty_level_type> D1_Alan_pavlish_
 
 namespace dsx {
 std::array<reactor, MAX_REACTORS> Reactors;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 unsigned Num_reactors;
 #endif
 
@@ -103,7 +103,7 @@ void calc_controlcen_gun_point(object &obj)
 
 namespace {
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 constexpr enumerated_array<uint8_t, NDL, Difficulty_level_type> D2_Alan_pavlish_reactor_times = {{{
 	90, 60, 45, 35, 30
 }}};
@@ -165,7 +165,7 @@ window_event_result do_controlcen_dead_frame()
 	const auto Dead_controlcen_object_num = LevelUniqueControlCenterState.Dead_controlcen_object_num;
 	if (Dead_controlcen_object_num != object_none && LevelUniqueControlCenterState.Countdown_seconds_left > 0)
 		if (d_rand() < FrameTime*4)
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define CC_FIREBALL_SCALE	F1_0*3
 #elif defined(DXX_BUILD_DESCENT_II)
 #define CC_FIREBALL_SCALE	F1_0
@@ -190,7 +190,7 @@ window_event_result do_countdown_frame()
 	if (!LevelUniqueControlCenterState.Control_center_destroyed)
 		return window_event_result::ignored;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (!is_D2_OEM && !is_MAC_SHARE && !is_SHAREWARE)   // get countdown in OEM and SHAREWARE only
 	{
 		// On last level, we don't want a countdown.
@@ -289,7 +289,7 @@ void do_controlcen_destroyed_stuff(const imobjidx_t objp)
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int i;
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if ((Game_mode & GM_MULTI_ROBOTS) && LevelUniqueControlCenterState.Control_center_destroyed)
 		return; // Don't allow resetting if control center and boss on same level
 #endif
@@ -305,7 +305,7 @@ void do_controlcen_destroyed_stuff(const imobjidx_t objp)
 
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
 	int Total_countdown_time;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	// If a secret level, delete secret.sgc to indicate that we can't return to our secret level.
 	if (Current_level_num < 0)
 		PHYSFS_delete(SECRETC_FILENAME);
@@ -381,7 +381,7 @@ void do_controlcen_frame(const d_robot_info_array &Robot_info, const vmobjptridx
 		return;
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	//	Periodically, make the reactor fall asleep if player not visible.
 	if (!EMULATING_D1 && (LevelUniqueControlCenterState.Control_center_been_hit || player_is_visible(LevelUniqueControlCenterState.Control_center_player_been_seen)))
 	{
@@ -436,7 +436,7 @@ void do_controlcen_frame(const d_robot_info_array &Robot_info, const vmobjptridx
 			Laser_create_new_easy(Robot_info, vec_to_goal, obj->ctype.reactor_info.gun_pos[best_gun_num], obj, weapon_id_type::CONTROLCEN_WEAPON_NUM, weapon_sound_flag::audible);
 
 			int count = 0;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			const unsigned scale_divisor = 4;
 			if (d_rand() < 32767/4)
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -457,7 +457,7 @@ void do_controlcen_frame(const d_robot_info_array &Robot_info, const vmobjptridx
 
 			const auto Difficulty_level = GameUniqueState.Difficulty_level;
 			delta_fire_time = (NDL - underlying_value(Difficulty_level)) * F1_0/4;
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			if (Difficulty_level == Difficulty_level_type::_0)
 				delta_fire_time += F1_0/2;
 #endif
@@ -524,7 +524,7 @@ void init_controlcen_for_level(const d_robot_info_array &Robot_info)
 		calc_controlcen_gun_point(*cntrlcen_objp);
 		LevelUniqueControlCenterState.Control_center_present = 1;
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		const unsigned secret_level_shield_multiplier = 100;
 #elif defined(DXX_BUILD_DESCENT_II)
 		const unsigned secret_level_shield_multiplier = 150;
@@ -549,7 +549,7 @@ void init_controlcen_for_level(const d_robot_info_array &Robot_info)
 	LevelUniqueControlCenterState.Dead_controlcen_object_num = object_none;
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 void special_reactor_stuff()
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;

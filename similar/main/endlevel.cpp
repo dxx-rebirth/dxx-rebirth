@@ -67,7 +67,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "digi.h"
 #include "songs.h"
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #include "movie.h"
 #endif
 #include "render.h"
@@ -495,7 +495,7 @@ static void do_endlevel_flythrough(d_level_unique_object_state &LevelUniqueObjec
 
 #define DEFAULT_SPEED i2f(16)
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 constexpr std::array<const char, 24> movie_table{{
 	'A','B','C','A',
 	'D','F','D','F',
@@ -661,7 +661,7 @@ window_event_result start_endlevel_sequence()
 		Newdemo_state = ND_STATE_PAUSED;
 
 	if (Newdemo_state == ND_STATE_PLAYBACK) {		// don't do this if in playback mode
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		if (PLAYING_BUILTIN_MISSION) // only play movie for built-in mission
 		{
 			const auto g{Game_wind};
@@ -678,7 +678,7 @@ window_event_result start_endlevel_sequence()
 		return window_event_result::ignored;				//don't start if dead!
 	con_puts(CON_NORMAL, "You have escaped the mine!");
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	//	Dematerialize Buddy!
 	for (auto &obj : vmobjptr)
@@ -698,7 +698,7 @@ window_event_result start_endlevel_sequence()
 		multi::dispatch->do_protocol_frame(1, 1);
 	}
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (!endlevel_data_loaded)
 #elif defined(DXX_BUILD_DESCENT_II)
 
@@ -716,7 +716,7 @@ window_event_result start_endlevel_sequence()
 	{
 		return PlayerFinishedLevel(next_level_request_secret_flag::only_normal_level);		//done with level
 	}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	int exit_models_loaded = 0;
 
 	if (Piggy_hamfile_version < pig_hamfile_version::_3)
@@ -922,7 +922,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 
 			if (ConsoleObject->segnum == PlayerUniqueEndlevelState.transition_segnum)
 			{
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				if (PLAYING_BUILTIN_MISSION && endlevel_movie_played != movie_play_status::skipped)
 					result = std::max(stop_endlevel_sequence(), result);
 				else
@@ -1314,7 +1314,7 @@ try_again:
 	else					//normal level
 		filename = Current_mission->level_names[level_num - 1];
 
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	if (!convert_ext(filename,"end"))
 		return;
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -1335,7 +1335,7 @@ try_again:
 
 		if (!ifile) {
 			if (level_num==1) {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				con_printf(CON_DEBUG, "Cannot load file text of binary version of <%s>",static_cast<const char *>(filename));
 				endlevel_data_loaded = 0; // won't be able to play endlevel sequence
 #endif

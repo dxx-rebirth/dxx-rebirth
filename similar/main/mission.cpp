@@ -51,7 +51,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "physfs_list.h"
 #include "event.h"
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #include "movie.h"
 #endif
 #include "null_sentinel_iterator.h"
@@ -69,7 +69,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 using std::min;
 
 #define MISSION_EXTENSION_DESCENT_I	".msn"
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 #define MISSION_EXTENSION_DESCENT_II	".mn2"
 #endif
 
@@ -117,7 +117,7 @@ struct mle : Mission_path
 {
 	static constexpr std::size_t maximum_mission_name_length{75};
 	descent_hog_size builtin_hogsize;    // if it's the built-in mission, used for determining the version
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	descent_version_type descent_version;    // descent 1 or descent 2?
 #endif
 	Mission::anarchy_only_level anarchy_only_flag;  // if true, mission is anarchy only
@@ -125,7 +125,7 @@ struct mle : Mission_path
 	ntstring<maximum_mission_name_length> mission_name;
 	mle(Mission_path &&m,
 		const descent_hog_size builtin_hogsize,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		const descent_version_type descent_version,
 #endif
 		const Mission::anarchy_only_level anarchy_only_flag,
@@ -133,7 +133,7 @@ struct mle : Mission_path
 		) :
 		Mission_path{std::move(m)},
 		builtin_hogsize{builtin_hogsize},
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		descent_version{descent_version},
 #endif
 		anarchy_only_flag{anarchy_only_flag}
@@ -178,7 +178,7 @@ struct mission_subdir_stats
 
 struct mission_name_and_version
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	const Mission::descent_version_type descent_version{};
 #endif
 	const char *const name{};
@@ -187,12 +187,12 @@ struct mission_name_and_version
 };
 
 mission_name_and_version::mission_name_and_version(Mission::descent_version_type const v, const char *const n) :
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	descent_version{v},
 #endif
 	name{n}
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	(void)v;
 #endif
 }
@@ -207,7 +207,7 @@ mle::mle(const char *const name, std::vector<mle> &&d) :
 
 static const mle *compare_mission_predicate_to_leaf(const mission_entry_predicate mission_predicate, const mle &candidate, const char *candidate_filesystem_name)
 {
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (mission_predicate.check_version && mission_predicate.descent_version != candidate.descent_version)
 	{
 		con_printf(CON_PRIORITY_DEBUG_MISSION_LOAD, DXX_STRINGIZE_FL(__FILE__, __LINE__, "mission version check requires %u, but found %u; skipping string comparison for mission \"%s\""), static_cast<unsigned>(mission_predicate.descent_version), static_cast<unsigned>(candidate.descent_version), candidate.path.data());
@@ -382,7 +382,7 @@ static void load_mission_d1()
 	}
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 //
 //  Special versions of mission routines for shareware
 //
@@ -476,7 +476,7 @@ static mission_name_and_version get_any_mission_type_name_value(PHYSFSX_gets_lin
 		return {};
 	if (istok(buf, "name"))
 		return {descent_version, get_value(buf)};
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (descent_version == Mission::descent_version_type::descent1)
 		/* If reading a Descent 1 `.msn` file, do not check for the
 		 * extended mission types.  D1X-Rebirth would ignore them, so
@@ -546,7 +546,7 @@ static const mle *read_mission_file(mission_list_type &mission_list, std::string
 			return nullptr;	//missing extension
 		if (idx_file_extension >= DXX_MAX_MISSION_PATH_LENGTH)
 			return nullptr;	// path too long, would be truncated in save game files
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 		constexpr auto descent_version = Mission::descent_version_type::descent1;
 #elif defined(DXX_BUILD_DESCENT_II)
 		// look if it's .mn2 or .msn
@@ -601,7 +601,7 @@ static const mle *read_mission_file(mission_list_type &mission_list, std::string
 			 */
 			Mission_path{str_pathname, static_cast<std::ptrdiff_t>(idx_filename)},
 			descent_hog_size,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 			nv.descent_version,
 #endif
 			anarchy_only_flag,
@@ -642,7 +642,7 @@ static void add_d1_builtin_mission_to_list(mission_list_type &mission_list)
 	mission_list.emplace_back(
 		Mission_path{D1_MISSION_FILENAME, 0},
 		size,
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		Mission::descent_version_type::descent1,	/* The Descent 1 builtin campaign is always treated as a Descent 1 mission. */
 #endif
 		Mission::anarchy_only_level::allow_any_game,
@@ -650,7 +650,7 @@ static void add_d1_builtin_mission_to_list(mission_list_type &mission_list)
 	);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 template <std::size_t N1, std::size_t N2>
 static const mle *set_hardcoded_mission(mission_list_type &mission_list, const char (&path)[N1], const char (&mission_name)[N2], const descent_hog_size descent_hog_size)
 {
@@ -753,7 +753,7 @@ static void add_missions_to_list(mission_list_type &mission_list, mission_candid
 		}
 		else if (il > 5 &&
 			((ext = &i[il - 5], !d_strnicmp(ext, MISSION_EXTENSION_DESCENT_I))
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 				|| !d_strnicmp(ext, MISSION_EXTENSION_DESCENT_II)
 #endif
 			))
@@ -824,7 +824,7 @@ static mission_list_type build_mission_list(const mission_filter_mode mission_fi
 
 	mission_list_type mission_list;
 	
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	d_fname builtin_mission_filename;
 	add_builtin_mission_to_list(mission_list, builtin_mission_filename);  //read built-in first
 #endif
@@ -837,7 +837,7 @@ static mission_list_type build_mission_list(const mission_filter_mode mission_fi
 	// to top of mission list
 	std::size_t top_place{};
 	promote(mission_list, D1_MISSION_FILENAME, top_place); // original descent 1 mission
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	promote(mission_list, builtin_mission_filename, top_place); // d2 or d2demo
 	promote(mission_list, "d2x", top_place); // vertigo
 #endif
@@ -849,7 +849,7 @@ static mission_list_type build_mission_list(const mission_filter_mode mission_fi
 
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 //values for built-in mission
 
 int load_mission_ham()
@@ -949,19 +949,19 @@ static const char *load_mission(const mle *const mission)
 	Current_mission = std::make_unique<Mission>(static_cast<const Mission_path &>(*mission));
 	Current_mission->builtin_hogsize = mission->builtin_hogsize;
 	Current_mission->mission_name.copy_if(mission->mission_name);
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	Current_mission->descent_version = mission->descent_version;
 #endif
 	Current_mission->anarchy_only_flag = mission->anarchy_only_flag;
 
 	// for Descent 1 missions, load descent.hog
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (EMULATING_D1)
 #endif
 	{
 		std::array<char, PATH_MAX> pathname;
 		if (const auto r = PHYSFSX_addRelToSearchPath(descent_hog_basename, pathname, physfs_search_path::prepend); r != PHYSFS_ERR_OK)
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 			Error("descent.hog not available!\n%s", PHYSFS_getErrorByCode(r));
 #elif defined(DXX_BUILD_DESCENT_II)
 			Warning("descent.hog not available!\n%s\nThis mission may be missing some files required for briefings and exit sequence.", PHYSFS_getErrorByCode(r));
@@ -972,12 +972,12 @@ static const char *load_mission(const mle *const mission)
 			return nullptr;
 		}
 	}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	else
 		PHYSFSX_removeRelFromSearchPath(descent_hog_basename);
 #endif
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (PLAYING_BUILTIN_MISSION) {
 		switch (Current_mission->builtin_hogsize) {
 			case descent_hog_size::d2_shareware:
@@ -1007,7 +1007,7 @@ static const char *load_mission(const mle *const mission)
 	//read mission from file
 
 	auto &msn_extension =
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	(mission->descent_version != Mission::descent_version_type::descent1) ? MISSION_EXTENSION_DESCENT_II :
 #endif
 		MISSION_EXTENSION_DESCENT_I;
@@ -1022,7 +1022,7 @@ static const char *load_mission(const mle *const mission)
 	}
 
 	//for non-builtin missions, load HOG
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	Current_mission->descent_version = mission->descent_version;
 	if (!PLAYING_BUILTIN_MISSION)
 #endif
@@ -1130,7 +1130,7 @@ static const char *load_mission(const mle *const mission)
 				Current_mission->secret_level_table = std::move(table);
 			}
 		}
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 		else if (Current_mission->descent_version == Mission::descent_version_type::descent2a && buf[0u] == '!') {
 			if (istok(buf+1,"ham")) {
 				Current_mission->alternate_ham_file = std::make_unique<d_fname>();
@@ -1165,7 +1165,7 @@ static const char *load_mission(const mle *const mission)
 		return "Failed to parse mission file";
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	// re-read default HAM file, in case this mission brings it's own version of it
 	free_polygon_models(LevelSharedPolygonModelState);
 
@@ -1500,7 +1500,7 @@ namespace {
 static int write_mission(void)
 {
 	auto &msn_extension =
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	(Current_mission->descent_version != Mission::descent_version_type::descent1) ? MISSION_EXTENSION_DESCENT_II :
 #endif
 	MISSION_EXTENSION_DESCENT_I;
@@ -1517,7 +1517,7 @@ static int write_mission(void)
 	}
 
 	const char *prefix = "";
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	switch (Current_mission->descent_version)
 	{
 		case Mission::descent_version_type::descent2x:
@@ -1559,7 +1559,7 @@ static int write_mission(void)
 			PHYSFSX_printf(mfile, "%s,%i\n", static_cast<const char *>(name), table_cell);
 	}
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (Current_mission->alternate_ham_file)
 		PHYSFSX_printf(mfile, "ham = %s\n", static_cast<const char *>(*Current_mission->alternate_ham_file.get()));
 #endif
@@ -1591,7 +1591,7 @@ void create_new_mission(void)
 	Current_mission->secret_level_table.reset();
 	Current_mission->secret_level_names.reset();
 
-#if defined(DXX_BUILD_DESCENT_II)
+#if DXX_BUILD_DESCENT == 2
 	if (Gamesave_current_version > 3)
 		Current_mission->descent_version = Mission::descent_version_type::descent2;	// custom ham not supported in editor (yet)
 	else
