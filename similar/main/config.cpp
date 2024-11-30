@@ -118,7 +118,7 @@ namespace {
 #if DXX_BUILD_DESCENT == 1
 #define D2X_DESCENT_CFG_TEXT(VERB_d)	/* For Descent 1, expand to nothing */
 
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define D2X_DESCENT_CFG_TEXT(VERB_d)	/* For Descent 2, expand to values specific to D2. */	\
 	VERB_d(MovieTexFiltStr, GameCfg.MovieTexFilt)	\
 	VERB_d(MovieSubtitlesStr, GameCfg.MovieSubtitles)	\
@@ -267,7 +267,7 @@ void ReadConfigFile(CCfg &CGameCfg, Cfg &GameCfg)
 	CGameCfg.CMLevelMusicPath = "descent.m3u";
 	snprintf(CGameCfg.CMMiscMusic[song_number::title].data(), CGameCfg.CMMiscMusic[song_number::title].size(), "%s%s", userdir, "Music/iTunes/iTunes Music/Insanity/Descent/02 Primitive Rage.mp3");
 	snprintf(CGameCfg.CMMiscMusic[song_number::credits].data(), CGameCfg.CMMiscMusic[song_number::credits].size(), "%s%s", userdir, "Music/iTunes/iTunes Music/Insanity/Descent/05 The Darkness Of Space.mp3");
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	CGameCfg.CMLevelMusicPath = "descent2.m3u";
 	snprintf(CGameCfg.CMMiscMusic[song_number::title].data(), CGameCfg.CMMiscMusic[song_number::title].size(), "%s%s", userdir, "Music/iTunes/iTunes Music/Redbook Soundtrack/Descent II, Macintosh CD-ROM/02 Title.mp3");
 	snprintf(CGameCfg.CMMiscMusic[song_number::credits].data(), CGameCfg.CMMiscMusic[song_number::credits].size(), "%s%s", userdir, "Music/iTunes/iTunes Music/Redbook Soundtrack/Descent II, Macintosh CD-ROM/03 Crawl.mp3");

@@ -366,7 +366,7 @@ static void ReadCmdArgs(Inilist &ini, Arglist &&Args)
 #if DXX_BUILD_DESCENT == 1
 		else if (!d_stricmp(p, "-nobm"))
 			GameArg.EdiNoBm 		= 1;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #if DXX_USE_EDITOR
 	// Editor Options
 
@@ -510,7 +510,7 @@ bool InitArgs(std::span<char *> argv)
 			assert(ini.empty());
 #if DXX_BUILD_DESCENT == 1
 			const auto INI_FILENAME = "d1x.ini";
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			const auto INI_FILENAME = "d2x.ini";
 #endif
 			ini.emplace_back(INI_FILENAME);

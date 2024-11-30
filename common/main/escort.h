@@ -26,7 +26,7 @@ namespace dsx {
 static inline void detect_escort_goal_accomplished(const vmobjptridx_t &)
 {
 }
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define GUIDEBOT_NAME_LEN 9
 struct netgame_info;
 extern void change_guidebot_name(void);

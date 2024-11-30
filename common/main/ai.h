@@ -164,7 +164,7 @@ struct d_level_shared_boss_state : ::dcx::d_level_shared_boss_state
 #if DXX_BUILD_DESCENT == 1
 	static constexpr D1_Boss_cloak_interval Boss_cloak_interval{};
 	static constexpr D1_Boss_teleport_interval Boss_teleport_interval{};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	fix Boss_cloak_interval;
 	fix Boss_teleport_interval;
 #endif
@@ -176,7 +176,7 @@ imobjptridx_t gate_in_robot(const d_robot_info_array &Robot_info, robot_id type,
 void do_ai_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, vmobjptridx_t objp);
 #if DXX_BUILD_DESCENT == 1
 #define do_ai_frame_all(Robot_info) do_ai_frame_all()
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #undef do_ai_frame_all
 #endif
 void do_ai_frame_all(const d_robot_info_array &Robot_info);
@@ -320,7 +320,7 @@ constexpr const robot_info *create_path_unused_robot_info = nullptr;
 
 #if DXX_BUILD_DESCENT == 1
 #define do_ai_robot_hit(robot,robptr,type)	do_ai_robot_hit(robot,type)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #undef do_ai_robot_hit
 void create_path_to_segment(vmobjptridx_t objp, const robot_info &robptr, segnum_t goalseg, unsigned max_length, create_path_safety_flag safety_flag);
 #endif

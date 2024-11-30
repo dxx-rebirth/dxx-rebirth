@@ -53,7 +53,7 @@ enum class powerup_type_t : uint8_t;
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 392*2> VULCAN_AMMO_MAX{};
 constexpr std::integral_constant<unsigned, 29> MAX_POWERUP_TYPES{};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 constexpr std::integral_constant<unsigned, 392*4> VULCAN_AMMO_MAX{};
 constexpr std::integral_constant<unsigned, 392> GAUSS_WEAPON_AMMO_AMOUNT{};
 constexpr std::integral_constant<unsigned, 50> MAX_POWERUP_TYPES{};

@@ -152,7 +152,7 @@ static ai_type_name &get_ai_behavior(ai_behavior num)
 			return "HIDE        ";
 		case ai_behavior::AIB_FOLLOW_PATH:
 			return "FOLLOW_PATH ";
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		case ai_behavior::AIB_BEHIND:
 			return "BEHIND      ";
 		case ai_behavior::AIB_SNIPE:

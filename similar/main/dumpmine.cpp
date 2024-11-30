@@ -72,7 +72,7 @@ namespace {
 using perm_tmap_buffer_type = enumerated_array<int, MAX_TEXTURES, bitmap_index>;
 using level_tmap_buffer_type = enumerated_array<int8_t, MAX_TEXTURES, bitmap_index>;
 using wall_buffer_type = std::array<int, MAX_WALL_ANIMS>;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 using perm_tmap_buffer_type = enumerated_array<int, MAX_BITMAP_FILES, bitmap_index>;
 using level_tmap_buffer_type = enumerated_array<int8_t, MAX_BITMAP_FILES, bitmap_index>;
 using wall_buffer_type = std::array<int, MAX_BITMAP_FILES>;
@@ -607,7 +607,7 @@ static void write_trigger_text(PHYSFS_File *my_file)
 		const auto i = static_cast<trgnum_t>(t);
 #if DXX_BUILD_DESCENT == 1
 		PHYSFSX_printf(my_file, "Trigger %03i: flags=%04x, value=%08x, time=%8x, num_links=%i ", underlying_value(i), t->flags, static_cast<unsigned>(t->value), 0, t->num_links);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		PHYSFSX_printf(my_file, "Trigger %03i: type=%02x flags=%04x, value=%08x, time=%8x, num_links=%i ", underlying_value(i),
 			static_cast<uint8_t>(t->type), static_cast<uint8_t>(t->flags), t->value, 0, t->num_links);
 #endif
@@ -806,7 +806,7 @@ static void determine_used_textures_level(int load_level_flag, int shareware_fla
                          }
                  }
          }
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	(void)load_level_flag;
 	(void)max_tmap;
 	(void)shareware_flag;
@@ -925,7 +925,7 @@ static void say_used_tmaps(PHYSFS_File *const my_file, const perm_tmap_buffer_ty
 			PHYSFSX_printf(my_file, "[%3i %8s (%4i)]%s", i, TmapInfo[i].filename.data(), tb[bi], count++ >= 4 ? (count = 0, "\n") : " ");
 		}
 	}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	for (const uint16_t i : xrange(std::size(tb)))
 	{
 		const bitmap_index bi{i};
@@ -971,7 +971,7 @@ static void say_unused_tmaps(PHYSFS_File *my_file, perm_tmap_buffer_type &perm_t
 	const unsigned bound = LevelUniqueTmapInfoState.Num_tmaps;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	auto &tmap_name_source = TmapInfo;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	const unsigned bound = MAX_BITMAP_FILES;
 	auto &tmap_name_source = AllBitmaps;
 #endif
@@ -985,7 +985,7 @@ static void say_unused_tmaps(PHYSFS_File *my_file, perm_tmap_buffer_type &perm_t
 
 #if DXX_BUILD_DESCENT == 1
 			const auto filename = static_cast<const char *>(tmap_name.filename);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			const auto filename = tmap_name.name.data();
 #endif
 			const char sep = (count++ >= 4)

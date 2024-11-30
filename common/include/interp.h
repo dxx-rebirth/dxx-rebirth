@@ -31,7 +31,7 @@ struct polygon_model_points : std::array<g3s_point, 1000> {};
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 #define glow_array_size	1
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define glow_array_size	2
 #endif
 struct glow_values_t : public std::array<fix, glow_array_size> {};

@@ -44,7 +44,7 @@ constexpr std::integral_constant<uint8_t, 127> MAX_SECRET_LEVELS_PER_MISSION{};	
 #ifdef DXX_BUILD_DESCENT
 #if DXX_BUILD_DESCENT == 1
 #define D1_MISSION_FILENAME             ""
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define D1_MISSION_FILENAME             "descent"
 #endif
 #endif

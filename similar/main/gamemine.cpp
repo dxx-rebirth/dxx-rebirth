@@ -121,7 +121,7 @@ static void segment2_read(const msmusegment s2, const NamedPHYSFS_File fp)
 }
 
 #if DXX_BUILD_DESCENT == 1
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 
 uint8_t d1_pig_present = 0; // can descent.pig from descent 1 be loaded?
 
@@ -593,7 +593,7 @@ int load_mine_data_compiled(const NamedPHYSFS_File LoadFile, const char *const G
 					const auto tmap_num2 = texture2_value{static_cast<uint16_t>(PHYSFSX_readShort(LoadFile))};
 					uside.tmap_num2 = build_texture2_value(convert_tmap(get_texture_index(tmap_num2)), get_texture_rotation_high(tmap_num2));
 				}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 				const uint16_t masked_temp_tmap1_num = New_file_format_load ? (temp_tmap1_num & 0x7fff) : temp_tmap1_num;
 				uside.tmap_num = build_texture1_value(masked_temp_tmap1_num);
 

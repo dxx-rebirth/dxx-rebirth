@@ -571,7 +571,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 					 * force field handling in Descent 2.
 					 */
 					const auto forcefield_bounce{false};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 					const unique_segment &useg = vcsegptr(WallHitSeg);
 					auto &uside = useg.sides[WallHitSide];
 					const auto forcefield_bounce{(TmapInfo[get_texture_index(uside.tmap_num)].flags & tmapinfo_flag::force_field)};		//bounce off a forcefield
@@ -872,7 +872,7 @@ void phys_apply_rot(object &obj, const vms_vector &force_vec)
 				rate = F1_0/4;
 #if DXX_BUILD_DESCENT == 1
 			obj.ctype.ai_info.SKIP_AI_COUNT = 2;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			//	Changed by mk, 10/24/95, claw guys should not slow down when attacking!
 			if (!Robot_info[get_robot_id(obj)].thief && !Robot_info[get_robot_id(obj)].attack_type) {
 				if (obj.ctype.ai_info.SKIP_AI_COUNT * FrameTime < 3*F1_0/4) {

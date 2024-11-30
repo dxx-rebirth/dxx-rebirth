@@ -103,7 +103,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	sbyte   contains_prob;  //  Probability that this instance will contain something in N/16
 	contained_object_parameters contains;  //  Type of thing contained, robot or powerup, in bitmaps.tbl, !0=robot, 0=powerup
 #if DXX_BUILD_DESCENT == 1
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	sbyte   kamikaze;       //  !0 means commits suicide when hits you, strength thereof. 0 means no.
 
 	sbyte   badass;         //  Dies with badass explosion, and strength thereof, 0 means NO.
@@ -169,7 +169,7 @@ static inline int robot_is_thief(const robot_info &)
 {
 	return 0;
 }
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 static inline int robot_is_companion(const robot_info &robptr)
 {
 	return robptr.companion;
@@ -256,7 +256,7 @@ static inline void boss_link_see_sound(const d_robot_info_array &Robot_info, con
 #if DXX_BUILD_DESCENT == 1
 	(void)Robot_info;
 	constexpr unsigned soundnum = SOUND_BOSS_SHARE_SEE;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	const unsigned soundnum = Robot_info[get_robot_id(objp)].see_sound;
 #endif
 	digi_link_sound_to_object2(soundnum, objp, 1, F1_0, sound_stack::allow_stacking, vm_distance{F1_0*512});	//	F1_0*512 means play twice as loud

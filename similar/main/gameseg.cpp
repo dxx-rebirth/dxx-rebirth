@@ -779,7 +779,7 @@ static inline void add_to_fcd_cache(segnum_t seg0, segnum_t seg1, vm_distance di
 	(void)dist;
 }
 }
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define	MIN_CACHE_FCD_DIST	(F1_0*80)	//	Must be this far apart for cache lookup to succeed.  Recognizes small changes in distance matter at small distances.
 namespace {
 

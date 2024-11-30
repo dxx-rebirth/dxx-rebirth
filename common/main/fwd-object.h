@@ -47,7 +47,7 @@ static constexpr valptridx<object>::magic_constant<objnum_t{0}> object_first{};
 
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 15> MAX_OBJECT_TYPES{};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 constexpr std::integral_constant<unsigned, 16> MAX_OBJECT_TYPES{};
 struct d_level_unique_control_center_state;
 #endif
@@ -136,7 +136,7 @@ namespace dsx {
 
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 4> MAX_CONTROLCEN_GUNS{};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 constexpr std::integral_constant<unsigned, 8> MAX_CONTROLCEN_GUNS{};
 struct d_unique_buddy_state;
 #endif

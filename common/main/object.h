@@ -173,7 +173,7 @@ struct player_info
 	uint16_t vulcan_ammo;
 #if DXX_BUILD_DESCENT == 1
 	using primary_weapon_flag_type = uint8_t;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	using primary_weapon_flag_type = uint16_t;
 #endif
 	primary_weapon_flag_type primary_weapon_flags;

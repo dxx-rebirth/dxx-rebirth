@@ -95,7 +95,7 @@ int do_centers_dialog()
 #if DXX_BUILD_DESCENT == 1
 	const unsigned x = TMAPBOX_X+20;
 	const unsigned width = 765-TMAPBOX_X;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	const unsigned x = 20;
 	const unsigned width = 740;
 #endif
@@ -107,7 +107,7 @@ static window_event_result centers_dialog_created(centers_dialog *const c)
 {
 #if DXX_BUILD_DESCENT == 1
 	int i = 80;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	int i = 40;
 #endif
 	c->quitButton = ui_add_gadget_button(*c, 20, 252, 48, 40, "Done", nullptr);
@@ -124,7 +124,7 @@ static window_event_result centers_dialog_created(centers_dialog *const c)
 	// These are the checkboxes for each robot flag.
 #if DXX_BUILD_DESCENT == 1
 	const unsigned d = 2;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	const unsigned d = 6;
 #endif
 	const auto N_robot_types = LevelSharedRobotInfoState.N_robot_types;

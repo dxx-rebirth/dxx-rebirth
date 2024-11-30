@@ -123,7 +123,7 @@ enum class ai_behavior : uint8_t
 #if DXX_BUILD_DESCENT == 1
 	AIB_HIDE = 0x82,
 	AIB_FOLLOW_PATH = 0x84,
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	AIB_BEHIND = 0x82,
 	AIB_SNIPE = 0x84,
 	AIB_FOLLOW = 0x86,
@@ -133,7 +133,7 @@ enum class ai_behavior : uint8_t
 #define MIN_BEHAVIOR    0x80
 #if DXX_BUILD_DESCENT == 1
 #define	MAX_BEHAVIOR	0x85
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define MAX_BEHAVIOR    0x86
 #endif
 
@@ -149,7 +149,7 @@ enum class ai_mode : uint8_t
 	AIM_OPEN_DOOR = 7,
 #if DXX_BUILD_DESCENT == 1
 	AIM_HIDE = 5,
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	AIM_BEHIND = 5,
 	AIM_GOTO_PLAYER = 8,   //  Only for escort behavior
 	AIM_GOTO_OBJECT = 9,   //  Only for escort behavior
@@ -243,7 +243,7 @@ struct ai_static : public prohibit_void_ptr<ai_static>
 	int8_t PATH_DIR;
 #if DXX_BUILD_DESCENT == 1
 	int8_t SUBMODE;					//	submode, eg AISM_HIDING if mode == AIM_HIDE
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	int8_t SUB_FLAGS;				// bit 0: Set -> Robot's current gun in different segment than robot's center.
 #endif
 	sidenum_t GOALSIDE;				// for guys who open doors, this is the side they are going after.
@@ -256,7 +256,7 @@ struct ai_static : public prohibit_void_ptr<ai_static>
 	short path_length{};            // Length of hide path.
 #if DXX_BUILD_DESCENT == 1
 	short cur_path_index{};         // Current index in path.
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	sbyte cur_path_index{};         // Current index in path.
 	sbyte dying_sound_playing{};    // !0 if this robot is playing its dying sound.
 #endif
@@ -282,7 +282,7 @@ struct ai_static_rw
 	short   follow_path_end_seg;    // End segment for robot which follows path.
 	int     danger_laser_signature;
 	short   danger_laser_num;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	sbyte   cur_path_index;         // Current index in path.
 	sbyte   dying_sound_playing;    // !0 if this robot is playing its dying sound.
 	short   danger_laser_num;
@@ -306,7 +306,7 @@ struct ai_local_rw
 	sbyte      rapidfire_count;                 // number of shots fired rapidly
 	short      goal_segment;                    // goal segment for current path
 	fix        last_see_time, last_attack_time; // For sound effects, time at which player last seen, attacked
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	int        player_awareness_type;         // type of awareness of player
 	int        retry_count;                   // number of retries in physics last time this object got moved.
 	int        consecutive_retries;           // number of retries in consecutive frames (ie, without a retry_count of 0)

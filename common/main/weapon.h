@@ -193,7 +193,7 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 //-- unused--   fix damage_force;           // Force of damage caused by weapon, used for missiles (not lasers) to apply to damage to things it did not hit
 // damage_force was a real mess.  Wasn't Difficulty_level based, and was being applied instead of weapon's actual strength.  Now use 2*strength instead. --MK, 01/19/95
 	bitmap_index    picture;    // a picture of the weapon for the cockpit
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	polygon_model_index   model_num;          // Model num if rendertype==2.
 	polygon_model_index   model_num_inner;    // Model num of inner part if rendertype==2.
 
@@ -317,7 +317,7 @@ static constexpr unsigned vulcan_ammo_scale(const unsigned v)
 {
 	return (v * 0xcc180u) >> 16;
 }
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 secondary_weapon_index_t which_bomb(player_info &player_info);
 secondary_weapon_index_t which_bomb(const player_info &player_info);
 

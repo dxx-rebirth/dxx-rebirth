@@ -152,7 +152,7 @@ RAIIPHYSFS_File gr_open_palette_file(const char *const filename)
 	{
 #if DXX_BUILD_DESCENT == 1
 		Error("Failed to open palette file <%s>: %s", filename, PHYSFS_getErrorByCode(physfserr_requested_palette));
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	// the following is a hack to enable the loading of d2 levels
 	// even if only the d2 mac shareware datafiles are present.
 	// However, if the pig file is present but the palette file isn't,

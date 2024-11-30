@@ -1609,7 +1609,7 @@ constexpr cheat_code cheat_codes[] = {
 	{ "porgys", &game_cheats::rapidfire },
 	{ "ahimsa", &game_cheats::robotfiringsuspended },
 	{ "baldguy", &game_cheats::baldguy },
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	{ "gabbagabbahey", &game_cheats::lamer },
 	{ "motherlode", &game_cheats::lamer },
 	{ "currygoat", &game_cheats::lamer },
@@ -1774,7 +1774,7 @@ static window_event_result FinalCheats(const d_level_shared_robot_info_state &Le
 		player_info.powerup_flags |= PLAYER_FLAGS_QUAD_LASERS;
 		update_laser_weapon_info();
 	}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (gotcha == &game_cheats::lamer)
 	{
 		plrobj.shields = player_info.energy = i2f(1);
@@ -2049,7 +2049,7 @@ public:
 
 #if DXX_BUILD_DESCENT == 1
 #define WIMP_MENU_DXX(VERB)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 /* Adding an afterburner like this adds it at 0% charge.  This is OK for
  * a cheat.  The player can change his energy up if he needs more.
  */

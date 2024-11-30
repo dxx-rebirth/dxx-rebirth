@@ -54,7 +54,7 @@ texture_index CurrentTexture;		// Used globally
 
 #if DXX_BUILD_DESCENT == 1
 #define DXX_TEXTURE_INITIALIZER(D1, D2)	D1
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define DXX_TEXTURE_INITIALIZER(D1, D2)	D2
 #endif
 

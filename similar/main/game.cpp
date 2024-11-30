@@ -1136,7 +1136,7 @@ static void do_invulnerable_stuff(player_info &player_info)
 static inline void do_afterburner_stuff(object_array &)
 {
 }
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 ubyte	Last_afterburner_state = 0;
 fix64	Time_flash_last_played;
 

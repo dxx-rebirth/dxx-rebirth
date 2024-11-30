@@ -66,7 +66,7 @@ enum class reticle_type : uint8_t
 #define MAX_GAUGE_BMS (MacPig ? MAX_GAUGE_BMS_MAC : MAX_GAUGE_BMS_PC)
 
 extern std::array<bitmap_index, MAX_GAUGE_BMS_MAC> Gauges;   // Array of all gauge bitmaps.
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define MAX_GAUGE_BMS 100u   // increased from 56 to 80 by a very unhappy MK on 10/24/94.
 
 extern std::array<bitmap_index, MAX_GAUGE_BMS> Gauges;      // Array of all gauge bitmaps.

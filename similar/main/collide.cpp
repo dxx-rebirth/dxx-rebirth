@@ -83,7 +83,7 @@ using std::min;
 
 #if DXX_BUILD_DESCENT == 1
 constexpr auto HAS_VULCAN_AND_GAUSS_FLAGS = HAS_VULCAN_FLAG;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 constexpr auto HAS_VULCAN_AND_GAUSS_FLAGS = HAS_VULCAN_FLAG | HAS_GAUSS_FLAG;
 #endif
 
@@ -146,7 +146,7 @@ static void collide_robot_and_wall(fvcwallptr &vcwallptr, object &robot, const v
 	const auto robot_id{get_robot_id(robot)};
 #if DXX_BUILD_DESCENT == 1
 	if (robot_id == robot_id::brain || robot.ctype.ai_info.behavior == ai_behavior::AIB_RUN_FROM)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
@@ -365,7 +365,7 @@ static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hit
 
 #if DXX_BUILD_DESCENT == 1
 	const int ForceFieldHit = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	int ForceFieldHit=0;
 	if (tmi1.flags & tmapinfo_flag::force_field)
 	{
@@ -394,7 +394,7 @@ static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hit
 	//	If the player has less than 10% shields, don't take damage from bump
 #if DXX_BUILD_DESCENT == 1
 	damage = hitspeed / WALL_DAMAGE_SCALE;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	// Note: Does quad damage if hit a force field - JL
 	damage = (hitspeed / WALL_DAMAGE_SCALE) * (ForceFieldHit*8 + 1);
 
@@ -560,7 +560,7 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 #if DXX_BUILD_DESCENT == 1
 	static constexpr std::integral_constant<int, 0> force_blowup_flag{};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	const auto wall_num = seg->shared_segment::sides[side].wall_num;
@@ -590,7 +590,7 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 		if (
 #if DXX_BUILD_DESCENT == 1
 			ec != eclip_none &&
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		//check if it's an animation (monitor) or casts light
 			ec == eclip_none
 			? tmi2.destroyed != -1
@@ -639,7 +639,7 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 
 #if DXX_BUILD_DESCENT == 1
 			if (gr_gpixel (*bm, x, y) != TRANSPARENCY_COLOR)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			if (force_blowup_flag || (bm->bm_data[y*bm->bm_w+x] != TRANSPARENCY_COLOR))
 #endif
 			{		//not trans, thus on effect
@@ -757,7 +757,7 @@ static window_event_result collide_weapon_and_wall(
 	if (weapon->mtype.phys_info.flags & PF_BOUNCE)
 		return window_event_result::ignored;
 	auto &uhitside = hitseg->unique_segment::sides[hitwall];
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	auto &vcobjptridx = Objects.vcptridx;
 	if (get_weapon_id(weapon) == weapon_id_type::OMEGA_ID)
 		if (!ok_to_do_omega_damage(weapon)) // see comment in laser.c
@@ -809,7 +809,7 @@ static window_event_result collide_weapon_and_wall(
 
 #if DXX_BUILD_DESCENT == 1
 	const unsigned robot_escort = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	const unsigned robot_escort = effect_parent_is_guidebot(vcobjptr, weapon->ctype.laser_info);
 	if (robot_escort) {
 		/* Guidebot is always associated with the host */
@@ -939,7 +939,7 @@ static window_event_result collide_weapon_and_wall(
 				if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
 #if DXX_BUILD_DESCENT == 1
 					explode_badass_weapon(Robot_info, weapon, weapon->pos);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 					explode_badass_weapon(Robot_info, weapon, hitpt);
 #endif
 				else
@@ -959,7 +959,7 @@ static window_event_result collide_weapon_and_wall(
 #if DXX_BUILD_DESCENT == 1
 			if (get_weapon_id(weapon) != weapon_id_type::FLARE_ID)
 				weapon->flags |= OF_SHOULD_BE_DEAD;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			if (((get_weapon_id(weapon) != weapon_id_type::FLARE_ID) || (weapon->ctype.laser_info.parent_type != OBJ_PLAYER)) && !(weapon->mtype.phys_info.flags & PF_BOUNCE))
 				weapon->flags |= OF_SHOULD_BE_DEAD;
 
@@ -1239,7 +1239,7 @@ static void maybe_kill_weapon(object_base &weapon, const object_base &other_obj)
 
 #if DXX_BUILD_DESCENT == 1
 	if (weapon.mtype.phys_info.flags & PF_PERSISTENT || other_obj.type == OBJ_WEAPON)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	//	Changed, 10/12/95, MK: Make weapon-weapon collisions always kill both weapons if not persistent.
 	//	Reason: Otherwise you can't use proxbombs to detonate incoming homing missiles (or mega missiles).
 	if (weapon.mtype.phys_info.flags & PF_PERSISTENT)
@@ -1285,7 +1285,7 @@ static void collide_weapon_and_controlcen(const d_robot_info_array &Robot_info, 
 
 #if DXX_BUILD_DESCENT == 1
 	fix explosion_size = ((controlcen->size/3)*3)/4;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (get_weapon_id(weapon) == weapon_id_type::OMEGA_ID)
 		if (!ok_to_do_omega_damage(weapon)) // see comment in laser.c
 			return;
@@ -1320,7 +1320,7 @@ static void collide_weapon_and_controlcen(const d_robot_info_array &Robot_info, 
 			}
 #if DXX_BUILD_DESCENT == 1
 			explode_badass_weapon(Robot_info, weapon, weapon->pos);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			explode_badass_weapon(Robot_info, weapon, collision_point);
 #endif
 		}
@@ -1716,7 +1716,7 @@ static void collide_robot_and_weapon(const d_robot_info_array &Robot_info, const
 		}
 #if DXX_BUILD_DESCENT == 1
 		explode_badass_weapon(Robot_info, weapon, weapon->pos);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		if (damage_flag != boss_weapon_collision_result::normal) {			//don't make badass sound
 
 			//this code copied from explode_badass_weapon()
@@ -1736,7 +1736,7 @@ static void collide_robot_and_weapon(const d_robot_info_array &Robot_info, const
 
 #if DXX_BUILD_DESCENT == 1
 	if ( (weapon->ctype.laser_info.parent_type==OBJ_PLAYER) && !(robot->flags & OF_EXPLODING) )
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if ( ((weapon->ctype.laser_info.parent_type==OBJ_PLAYER) || cheats.robotskillrobots) && !(robot->flags & OF_EXPLODING) )
 #endif
 	{
@@ -2244,7 +2244,7 @@ static void collide_player_and_weapon(const d_robot_info_array &Robot_info, cons
 		}
 #if DXX_BUILD_DESCENT == 1
 		explode_badass_weapon(Robot_info, weapon, weapon->pos);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		explode_badass_weapon(Robot_info, weapon, collision_point);
 #endif
 	}
@@ -2324,7 +2324,7 @@ void collide_player_and_materialization_center(const vmobjptridx_t objp)
 
 #if DXX_BUILD_DESCENT == 1
 	const auto killer{object_none};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	auto &&killer = objp;	//	Changed, MK, 2/19/96, make killer the player, so if you die in matcen, will say you killed yourself
 #endif
 	apply_damage_to_player(objp, killer, 4*F1_0, apply_damage_player::always);
@@ -2409,7 +2409,7 @@ int maybe_detonate_weapon(const d_robot_info_array &Robot_info, const vmobjptrid
 			if (weapon1->flags & OF_SHOULD_BE_DEAD) {
 #if DXX_BUILD_DESCENT == 1
 				explode_badass_weapon(Robot_info, weapon1, weapon1->pos);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 				explode_badass_weapon(Robot_info, weapon1, collision_point);
 #endif
 				digi_link_sound_to_pos(Weapon_info[get_weapon_id(weapon1)].robot_hit_sound, vcsegptridx(weapon1->segnum), sidenum_t::WLEFT, collision_point, 0, F1_0);
@@ -2455,7 +2455,7 @@ static void collide_weapon_and_weapon(const d_robot_info_array &Robot_info, cons
 		if (Weapon_info[get_weapon_id(weapon2)].destroyable)
 			if (maybe_detonate_weapon(Robot_info, weapon2, weapon1, collision_point))
 				maybe_kill_weapon(weapon1,weapon2);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		if (Weapon_info[get_weapon_id(weapon1)].destroyable)
 			if (maybe_detonate_weapon(Robot_info, weapon1, weapon2, collision_point))
 				maybe_detonate_weapon(Robot_info, weapon2, weapon1, collision_point);
@@ -2492,7 +2492,7 @@ static void collide_weapon_and_debris(const d_robot_info_array &Robot_info, cons
 #if DXX_BUILD_DESCENT == 1
 #define DXX_COLLISION_TABLE(NO,DO)	\
 
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define DXX_COLLISION_TABLE(NO,DO)	\
 	NO##_SAME_COLLISION(OBJ_MARKER)	\
 	DO##_COLLISION(OBJ_PLAYER, OBJ_MARKER, collide_player_and_marker)	\

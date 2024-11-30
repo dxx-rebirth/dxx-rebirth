@@ -153,7 +153,7 @@ void gamefont_choose_game_font(int scrx,int scry){
 		// keep proportions
 #if DXX_BUILD_DESCENT == 1
 #define DXX_FONT_SCALE_MULTIPLIER	1
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define DXX_FONT_SCALE_MULTIPLIER	100
 #endif
 		if (FNTScaleY*DXX_FONT_SCALE_MULTIPLIER < FNTScaleX*DXX_FONT_SCALE_MULTIPLIER)

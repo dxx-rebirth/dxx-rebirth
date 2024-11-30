@@ -104,7 +104,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SAVED_GAME_VERSION 8 //increment this every time saved_game struct changes
 #define COMPATIBLE_SAVED_GAME_VERSION 4
 #define COMPATIBLE_PLAYER_STRUCT_VERSION 16
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define PLX_OPTION_HEADER_TEXT	"[D2X OPTIONS]"
 //version 5  ->  6: added new highest level information
 //version 6  ->  7: stripped out the old saved_game array.
@@ -197,7 +197,7 @@ namespace {
 static constexpr char eff_extension[3]{'e', 'f', 'f'};
 static void plyr_read_stats(std::span<char>);
 static std::array<saved_game_sw, N_SAVE_SLOTS> saved_games;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 static inline void plyr_read_stats(std::span<char>) {}
 static int get_lifetime_checksum (int a,int b);
 #endif
@@ -297,7 +297,7 @@ void new_player_config()
 	PlayerCfg.HudMode = HudType::Standard;
 #if DXX_BUILD_DESCENT == 1
 	PlayerCfg.BombGauge = 1;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	PlayerCfg.Cockpit3DView = {};
 	PlayerCfg.ThiefModifierFlags = 0;
 	PlayerCfg.MissileViewEnabled = MissileViewMode::EnabledSelfOnly;
@@ -326,7 +326,7 @@ void new_player_config()
 	PlayerCfg.NetworkMessageMacro[multi_macro_message_index::_1].copy_if(TXT_DEF_MACRO_2);
 	PlayerCfg.NetworkMessageMacro[multi_macro_message_index::_2].copy_if(TXT_DEF_MACRO_3);
 	PlayerCfg.NetworkMessageMacro[multi_macro_message_index::_3].copy_if(TXT_DEF_MACRO_4);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	PlayerCfg.NetworkMessageMacro[multi_macro_message_index::_0] = "Why can't we all just get along?";
 	PlayerCfg.NetworkMessageMacro[multi_macro_message_index::_1] = "Hey, I got a present for ya";
 	PlayerCfg.NetworkMessageMacro[multi_macro_message_index::_2] = "I got a hankerin' for a spankerin'";
@@ -509,7 +509,7 @@ static void read_player_dxx(const char *filename)
 #if DXX_BUILD_DESCENT == 1
 				if(!strcmp(line,TOGGLES_BOMBGAUGE_NAME_TEXT))
 					PlayerCfg.BombGauge = atoi(value);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 				if(!strcmp(line,TOGGLES_ESCORTHOTKEYS_NAME_TEXT))
 				{
 					if (const auto r{convert_integer<uint8_t>(value)}; r)
@@ -854,7 +854,7 @@ static int write_player_dxx(const char *filename)
 							);
 #if DXX_BUILD_DESCENT == 1
 		PHYSFSX_printf(fout,TOGGLES_BOMBGAUGE_NAME_TEXT "=%i\n",PlayerCfg.BombGauge);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		PHYSFSX_printf(fout,TOGGLES_ESCORTHOTKEYS_NAME_TEXT "=%i\n",PlayerCfg.EscortHotKeys);
 		PHYSFSX_printf(fout, TOGGLES_THIEF_ABSENCE_SP "=%i\n", PlayerCfg.ThiefModifierFlags & ThiefModifier::Absent);
 		PHYSFSX_printf(fout, TOGGLES_THIEF_NO_ENERGY_WEAPONS_SP "=%i\n", PlayerCfg.ThiefModifierFlags & ThiefModifier::NoEnergyWeapons);
@@ -904,7 +904,7 @@ int read_player_file()
 #if DXX_BUILD_DESCENT == 1
 	int shareware_file = -1;
 	int player_file_size;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	int rewrite_it=0;
 	int swap = 0;
 	short player_file_version;
@@ -953,7 +953,7 @@ int read_player_file()
 		PlayerCfg.DefaultDifficulty = cast_clamp_difficulty(u);
 	}
 	PlayerCfg.AutoLeveling = PHYSFSX_readInt(file);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	player_file_version = PHYSFSX_readShort(file);
 #endif
 
@@ -1058,7 +1058,7 @@ int read_player_file()
 			goto read_player_file_failed;
 	}
 
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (player_file_version > 255) // bigendian file?
 		swap = 1;
 
@@ -1119,7 +1119,7 @@ int read_player_file()
 
 #if DXX_BUILD_DESCENT == 1
 		len = shareware_file? 25:35;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		len = MAX_MESSAGE_LEN;
 #endif
 
@@ -1147,7 +1147,7 @@ int read_player_file()
 		PHYSFS_seek( file, PHYSFS_tell(file)+(sizeof(ubyte)*MAX_CONTROLS) ); // Skip obsolete Cyberman map field
 #if DXX_BUILD_DESCENT == 1
 		if (PHYSFSX_readBytes(file, &PlayerCfg.ControlType, sizeof(uint8_t)) != sizeof(uint8_t))
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		if (player_file_version>=20)
 			PHYSFS_seek( file, PHYSFS_tell(file)+(sizeof(ubyte)*MAX_CONTROLS) ); // Skip obsolete Winjoy map field
 		uint8_t control_type_dos, control_type_win;
@@ -1209,7 +1209,7 @@ int read_player_file()
 		if (found)
 			write_player_file();
 	}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (player_file_version>=22)
 	{
 		PHYSFS_readSLE32(file, &PlayerCfg.NetlifeKills);
@@ -1535,7 +1535,7 @@ void write_player_file()
 		PHYSFS_delete(filename);			//delete bogus file
 		nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "%s\n\n%s",TXT_ERROR_WRITING_PLR, strerror(errno_ret));
 	}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	(void)errno_ret;
 	PHYSFS_writeULE16(file, PLAYER_FILE_VERSION);
 

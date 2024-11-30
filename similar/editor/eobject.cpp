@@ -205,7 +205,7 @@ int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_le
 			const auto model_num =
 #if DXX_BUILD_DESCENT == 1
 			ObjId[object_type];
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			Reactors[object_id].model_num;
 #endif
 			objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_CNTRLCEN, object_id, segp, object_pos,

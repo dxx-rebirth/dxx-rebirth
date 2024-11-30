@@ -199,7 +199,7 @@ static constexpr const char *PRIMARY_WEAPON_NAMES_SHORT(const primary_weapon_ind
 #define GAUGE_RED_KEY_Y_H		417
 #define LEFT_ENERGY_GAUGE_X_H 	137
 #define RIGHT_ENERGY_GAUGE_X 	((multires_gauge_graphic.get(380, 190)))
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define GAUGE_AFTERBURNER		20
 #define SB_GAUGE_AFTERBURNER		71
 #define FLAG_ICON_RED			72
@@ -284,7 +284,7 @@ static constexpr const char *PRIMARY_WEAPON_NAMES_SHORT(const primary_weapon_ind
 #define SB_SECONDARY_AMMO_X		(SB_SECONDARY_W_BOX_LEFT + (multires_gauge_graphic.get(14, 11)))	//(212+9)
 #define GET_GAUGE_INDEX(x)		(Gauges[x])
 
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define AFTERBURNER_GAUGE_X_L	45-1
 #define AFTERBURNER_GAUGE_Y_L	158
 #define AFTERBURNER_GAUGE_H_L	32
@@ -565,7 +565,7 @@ static CockpitWeaponBoxFrameBitmaps WinBoxOverlay;
 #if DXX_BUILD_DESCENT == 1
 #define PAGE_IN_GAUGE(x,g)	PAGE_IN_GAUGE(x)
 std::array<bitmap_index, MAX_GAUGE_BMS_MAC> Gauges; // Array of all gauge bitmaps.
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define PAGE_IN_GAUGE	PAGE_IN_GAUGE
 std::array<bitmap_index, MAX_GAUGE_BMS> Gauges,   // Array of all gauge bitmaps.
 	Gauges_hires;   // hires gauges
@@ -918,7 +918,7 @@ namespace {
 
 #if DXX_BUILD_DESCENT == 1
 #define hud_gauge_bitblt_draw_context	hud_draw_context_hs
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define hud_gauge_bitblt_draw_context	hud_draw_context_hs_mr
 #endif
 static void hud_gauge_bitblt(const hud_gauge_bitblt_draw_context hudctx, const unsigned x, const unsigned y, const unsigned gauge)
@@ -1317,7 +1317,7 @@ static void hud_show_energy(grs_canvas &canvas, const player_info &player_info, 
 
 #if DXX_BUILD_DESCENT == 1
 #define convert_1s(s)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 static void hud_show_afterburner(grs_canvas &canvas, const player_info &player_info, const grs_font &game_font, const unsigned current_y)
 {
 	if (! (player_info.powerup_flags & PLAYER_FLAGS_AFTERBURNER))
@@ -1549,7 +1549,7 @@ static void hud_printf_vulcan_ammo(grs_canvas &canvas, const player_info &player
 	const auto vulcan_mask{HAS_VULCAN_FLAG};
 #if DXX_BUILD_DESCENT == 1
 	const auto gauss_mask{vulcan_mask};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	const auto gauss_mask{HAS_GAUSS_FLAG};
 #endif
 	const auto fmt_vulcan_ammo = vulcan_ammo_scale(player_info.vulcan_ammo);
@@ -1793,7 +1793,7 @@ static void hud_show_weapons(grs_canvas &canvas, const object &plrobj, const grs
 	{
 #if DXX_BUILD_DESCENT == 1
 		constexpr unsigned multiplier = 1;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		constexpr unsigned multiplier = 2;
 #endif
 		hud_show_primary_weapons_mode(canvas, player_info, 0, canvas.cv_bitmap.bm_w, y - (line_spacing * 2 * multiplier));
@@ -2652,7 +2652,7 @@ static void draw_weapon_info_sub(const hud_draw_context_hs_mr hudctx, const play
 	{
 #if DXX_BUILD_DESCENT == 1
 		constexpr unsigned bottom_bias = 1;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		constexpr unsigned bottom_bias = 0;
 #endif
 		gr_rect(hudctx.canvas, hudctx.xscale(box->left), hudctx.yscale(box->top), hudctx.xscale(box->right), hudctx.yscale(box->bot + bottom_bias), color);
@@ -2678,7 +2678,7 @@ static void draw_weapon_info_sub(const hud_draw_context_hs_mr hudctx, const play
 		//	For laser, show level and quadness
 #if DXX_BUILD_DESCENT == 1
 		if (info_index == weapon_id_type::LASER_ID)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		if (info_index == weapon_id_type::LASER_ID || info_index == weapon_id_type::SUPER_LASER_ID)
 #endif
 		{
@@ -3067,7 +3067,7 @@ static void sb_draw_energy_bar(const hud_draw_context_hs_mr hudctx, const unsign
 	const auto ew = gr_get_string_size(*canvas.cv_font, get_gauge_width_string(energy)).width;
 #if DXX_BUILD_DESCENT == 1
 	unsigned y = SB_ENERGY_NUM_Y;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	unsigned y = SB_ENERGY_GAUGE_Y + SB_ENERGY_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4);
 #endif
 	gr_printf(canvas, *canvas.cv_font, (grd_curscreen->get_screen_width() / 3) - (ew / 2), hudctx.yscale(y), "%d", energy);
@@ -3647,7 +3647,7 @@ void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &canvas, co
 		const auto show_indi = (is_friend || !is_cloaked) &&
 #if DXX_BUILD_DESCENT == 1
 			is_bounty_target;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			(is_bounty_target || ((game_mode_capture_flag(Game_mode) || game_mode_hoard(Game_mode)) && (pl_flags & PLAYER_FLAGS_FLAG)));
 #endif
 
@@ -3943,7 +3943,7 @@ void render_gauges(grs_canvas &canvas, const game_mode_flags Game_mode)
 		gr_set_default_canvas();
 #if DXX_BUILD_DESCENT == 1
 		if (PlayerCfg.HudMode == HudType::Standard)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		if (Newdemo_state==ND_STATE_RECORDING )
 			newdemo_record_player_afterburner(Afterburner_charge);
 		draw_afterburner_bar(hudctx, Afterburner_charge);
@@ -3976,7 +3976,7 @@ void render_gauges(grs_canvas &canvas, const game_mode_flags Game_mode)
 		sb_draw_energy_bar(hudctx, energy);
 #if DXX_BUILD_DESCENT == 1
 		if (PlayerCfg.HudMode == HudType::Standard)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		if (Newdemo_state==ND_STATE_RECORDING )
 			newdemo_record_player_afterburner(Afterburner_charge);
 		sb_draw_afterburner(hudctx, player_info);

@@ -127,7 +127,7 @@ DXX_VALPTRIDX_DECLARE_SUBTYPE(dcx::, vertex, vertnum_t, MAX_VERTICES);
 #ifdef DXX_BUILD_DESCENT
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<std::size_t, 5> MAX_CENTER_TYPES{};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 constexpr std::integral_constant<std::size_t, 7> MAX_CENTER_TYPES{};
 #endif
 #endif

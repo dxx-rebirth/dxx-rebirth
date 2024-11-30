@@ -77,7 +77,7 @@ static constexpr tmapinfo_flag operator|(tmapinfo_flag a, tmapinfo_flag b)
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 800> MAX_TEXTURES{};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 constexpr std::integral_constant<unsigned, 1200> MAX_TEXTURES{};
 #endif
 
@@ -90,7 +90,7 @@ struct tmap_info : prohibit_void_ptr<tmap_info>
 	fix			damage;			//how much damage being against this does
 	unsigned eclip_num;		//if not -1, the eclip that changes this   
 #define N_COCKPIT_BITMAPS 4
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	fix     lighting;  //how much light this casts
 	fix     damage;    //how much damage being against this does (for lava)
 	uint16_t eclip_num; //the eclip that changes this, or -1
@@ -168,7 +168,7 @@ extern fix	ObjStrength[MAX_OBJTYPE];	// initial strength of each object
 
 constexpr std::integral_constant<unsigned, 210> MAX_OBJ_BITMAPS{};
 
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 
 extern int Robot_replacements_loaded;
 constexpr std::integral_constant<unsigned, 610> MAX_OBJ_BITMAPS{};

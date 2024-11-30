@@ -52,7 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if DXX_BUILD_DESCENT == 1
 #define PLAYER_STRUCT_VERSION 	16		//increment this every time player struct changes
 #define PLAYER_MAX_AMMO(powerup_flags,BASE)	(static_cast<void>(powerup_flags), BASE)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define PLAYER_STRUCT_VERSION   17  // increment this every time player struct changes
 #endif
 #endif

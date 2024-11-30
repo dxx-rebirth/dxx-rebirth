@@ -527,7 +527,7 @@ void songs_pause_resume(void)
 #define REDBOOK_ENDGAME_TRACK		(RBAGetNumberOfTracks())
 #define REDBOOK_FIRST_LEVEL_TRACK	(songs_have_cd() ? 6 : 1)
 #endif
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 /*
  * Some of these have different Track listings!
  * Which one is the "correct" order?
@@ -572,7 +572,7 @@ static int songs_have_cd()
 #if DXX_BUILD_DESCENT == 1
 		case D1_MAC_OEM_DISCID:	// Doesn't work with your Mac Descent CD? Please tell!
 			return 1;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	case D2_1_DISCID:
 	case D2_2_DISCID:
 	case D2_3_DISCID:
@@ -600,7 +600,7 @@ static void redbook_repeat_func()
 	RBAPlayTracks(Redbook_playing, 0, redbook_repeat_func);
 }
 #endif
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #if DXX_USE_SDL_REDBOOK_AUDIO || DXX_USE_SDLMIXER
 static void play_credits_track()
 {
@@ -617,7 +617,7 @@ static void play_redbook_track_if_available(const song_number songnum, const int
 		return;
 #if DXX_BUILD_DESCENT == 1
 	constexpr auto repeat_func{&redbook_repeat_func};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	constexpr auto repeat_func{&play_credits_track};
 #endif
 	if (RBAPlayTracks(redbook_track, redbook_track, repeat ? repeat_func : nullptr))
@@ -706,7 +706,7 @@ void songs_play_song(const song_number songnum, const int repeat)
 			{
 				play_redbook_track_if_available(songnum, underlying_value(songnum) + 1, num_tracks, repeat);
 			}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			// keep playing current music if chosen song is unavailable (e.g. SONG_ENDLEVEL)
 			if (songnum == song_number::title)
 			{
@@ -730,7 +730,7 @@ void songs_play_song(const song_number songnum, const int repeat)
 			Song_playing = song_number::None;
 #if DXX_BUILD_DESCENT == 1
 			int play = songs_play_file(CGameCfg.CMMiscMusic[songnum].data(), repeat, NULL);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			const auto use_credits_track{songnum == song_number::title && CGameCfg.OrigTrackOrder};
 			int play = songs_play_file(CGameCfg.CMMiscMusic[songnum].data(),
 							  // Play the credits track after the title track and loop the credits track if original CD track order was chosen
@@ -824,7 +824,7 @@ void songs_play_level_song(int levelnum, int offset)
 
 #if DXX_BUILD_DESCENT == 1
 				const int bn_tracks{n_tracks};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 				const int bn_tracks{n_tracks + 1};
 #endif
 				if (bn_tracks < REDBOOK_FIRST_LEVEL_TRACK)
@@ -857,7 +857,7 @@ void songs_play_level_song(int levelnum, int offset)
 #if DXX_BUILD_DESCENT == 1
 				const auto have_cd{songs_have_cd()};
 				const auto play{RBAPlayTracks(tracknum, !have_cd ? n_tracks : tracknum, have_cd ? redbook_repeat_func : redbook_first_song_func)};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 				const auto play{RBAPlayTracks(tracknum, n_tracks, redbook_first_song_func)};
 #endif
 				if (play)

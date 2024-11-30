@@ -142,7 +142,7 @@ static int8_t find_next_level(const next_level_request_secret_flag secret_flag, 
 
 }
 }
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #include "movie.h"
 #define GLITZ_BACKGROUND	STARS_BACKGROUND
 
@@ -227,7 +227,7 @@ static window_event_result AdvanceLevel(
 #if DXX_BUILD_DESCENT == 1
 #undef AdvanceLevel
 	next_level_request_secret_flag secret_flag
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define AdvanceLevel(secret_flag)	((void)secret_flag,AdvanceLevel())
 #endif
 	);
@@ -420,7 +420,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 //added 10/12/95: delete buddy bot if coop game.  Probably doesn't really belong here. -MT
 #if DXX_BUILD_DESCENT == 1
 #define gameseq_init_network_players(Robot_info,Objects)	gameseq_init_network_players(Objects)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #undef gameseq_init_network_players
 #endif
 static void gameseq_init_network_players(const d_robot_info_array &Robot_info, object_array &Objects)
@@ -834,7 +834,7 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 		}
 #if DXX_BUILD_DESCENT == 1
 		return eclip_none.value;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		return TmapInfo[get_texture_index(side.tmap_num)].eclip_num;
 #endif
 	};
@@ -1050,7 +1050,7 @@ void LoadLevel(int level_num,int page_in_textures)
 		Current_level_num=level_num;
 
 	gr_use_palette_table( "palette.256" );
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	gr_set_default_canvas();
 	gr_clear_canvas(*grd_curcanv, BM_XRGB(0, 0, 0));		//so palette switching is less obvious
 
@@ -1082,7 +1082,7 @@ void LoadLevel(int level_num,int page_in_textures)
 	load_endlevel_data(level_num);
 #if DXX_BUILD_DESCENT == 1
 	load_custom_data(level_name);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (EMULATING_D1)
 		load_d1_bitmap_replacements();
 	else
@@ -1204,7 +1204,7 @@ static void DoEndLevelScoreGlitz()
 	int				i;
 #if DXX_BUILD_DESCENT == 1
 	gr_palette_load( gr_palette );
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	int				mine_level;
 
 	//	Compute level player is on, deal with secret levels (negative numbers)
@@ -1232,7 +1232,7 @@ static void DoEndLevelScoreGlitz()
 			case Difficulty_level_type::_4:
 #if DXX_BUILD_DESCENT == 1
 				skill_points = level_points * (d - 1) / 2;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 				skill_points = level_points * d / 4;
 #endif
 				skill_points -= skill_points % 100;
@@ -1243,7 +1243,7 @@ static void DoEndLevelScoreGlitz()
 #if DXX_BUILD_DESCENT == 1
 		shield_points = f2i(plrobj.shields) * 10 * (d + 1);
 		energy_points = f2i(player_info.energy) * 5 * (d + 1);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		shield_points = f2i(plrobj.shields) * 5 * mine_level;
 		energy_points = f2i(player_info.energy) * 2 * mine_level;
 
@@ -1695,7 +1695,7 @@ window_event_result (PlayerFinishedLevel)(
 		};
 		run_blocking_newmenu<message_menu>(*grd_curcanv);
 	}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	constexpr auto secret_flag = next_level_request_secret_flag::only_normal_level;
 #endif
 	if (Game_mode & GM_NETWORK)
@@ -1830,7 +1830,7 @@ static window_event_result (AdvanceLevel)(
 	} else {
 #if DXX_BUILD_DESCENT == 1
 		const auto Next_level_num = find_next_level(secret_flag, Current_level_num, *Current_mission.get());
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		int8_t Next_level_num;
 
 		//NMN 04/08/07 If we are in a secret level and playing a D1
@@ -1972,7 +1972,7 @@ window_event_result DoPlayerDead()
 //	secret_flag set if came from a secret level
 #if DXX_BUILD_DESCENT == 1
 window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, const int level_num, const int page_in_textures)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, const int level_num, const int page_in_textures, const secret_restore secret_flag)
 #endif
 {
@@ -1984,7 +1984,7 @@ window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, const
 	}
 #if DXX_BUILD_DESCENT == 1
 	static constexpr std::integral_constant<secret_restore, secret_restore::none> secret_flag{};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
         BigWindowSwitch=0;
 #endif
 
@@ -2028,7 +2028,7 @@ window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, const
 
 #if DXX_BUILD_DESCENT == 1
 	gr_use_palette_table( "palette.256" );
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	load_palette(Current_level_palette.line(), load_palette_use::background, load_palette_change_screen::delayed);
 #endif
 	gr_palette_load(gr_palette);
@@ -2210,7 +2210,7 @@ window_event_result StartNewLevel(int level_num)
 	if (!(Game_mode & GM_MULTI)) {
 		do_briefing_screens(Current_mission->briefing_text_filename, level_num);
 	}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (level_num > 0) {
 		maybe_set_first_secret_visit(level_num);
 	}

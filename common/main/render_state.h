@@ -42,7 +42,7 @@ struct render_state_t
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 #define set_dynamic_light(Robot_info, render)	set_dynamic_light(render)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #undef set_dynamic_light
 #endif
 void set_dynamic_light(const d_robot_info_array &, render_state_t &);

@@ -278,7 +278,7 @@ const std::array<fix, 16> Obj_light_xlate{{0x1234, 0x3321, 0x2468, 0x1735,
 #if DXX_BUILD_DESCENT == 1
 #define compute_player_light_emission_intensity(LevelUniqueHeadlightState, obj)	compute_player_light_emission_intensity(obj)
 #define compute_light_emission(Robot_info, LevelUniqueHeadlightState, Vclip, obj)	compute_light_emission(Vclip, obj)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #undef compute_player_light_emission_intensity
 #undef compute_light_emission
 #endif
@@ -402,7 +402,7 @@ static g3s_lrgb compute_light_emission(const d_robot_info_array &Robot_info, d_l
 		case OBJ_ROBOT:
 #if DXX_BUILD_DESCENT == 1
 			light_intensity = F1_0/2;	// F1_0*Robot_info[obj->id].lightcast;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			light_intensity = F1_0*Robot_info[get_robot_id(objp)].lightcast;
 #endif
 			break;

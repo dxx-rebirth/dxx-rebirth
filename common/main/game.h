@@ -237,7 +237,7 @@ struct test_game_mode_d2x_flag
 
 constexpr test_game_mode_d2x_flag game_mode_capture_flag{};
 constexpr test_game_mode_d2x_flag game_mode_hoard{};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 static inline uint16_t game_mode_capture_flag(const game_mode_flags mode)
 {
 	return mode & GM_CAPTURE;
@@ -286,7 +286,7 @@ struct game_cheats : prohibit_void_ptr<game_cheats>
 	int8_t cloak;
 	int8_t extralife;
 	int8_t baldguy;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	int8_t lamer;
 	int8_t accessory;
 	int8_t bouncyfire;

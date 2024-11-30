@@ -238,7 +238,7 @@ void show_titles(void)
 	auto &descent_hires_pcx = "descenth.pcx";
 	show_title_screen((resolution_at_least_640_480 && PHYSFS_exists(logo_hires_pcx)) ? logo_hires_pcx : "logo.pcx", title_load_location::from_hog_only);
 	show_title_screen((resolution_at_least_640_480 && PHYSFS_exists(descent_hires_pcx)) ? descent_hires_pcx : "descent.pcx", title_load_location::from_hog_only);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	int song_playing = 0;
 
 #define MOVIE_REQUIRED 1	//(!is_D2_OEM && !is_SHAREWARE && !is_MAC_SHARE)	// causes segfault
@@ -477,7 +477,7 @@ constexpr const briefing_screen *get_d1_briefing_screens(const descent_hog_size 
 
 #if DXX_BUILD_DESCENT == 1
 using briefing_screen_deleter = std::default_delete<briefing_screen>;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 class briefing_screen_deleter : std::default_delete<briefing_screen>
 {
 	typedef std::default_delete<briefing_screen> base_deleter;
@@ -587,7 +587,7 @@ static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &bu
 	PHYSFSX_readBytes(tfile, buf.get(), len);
 #if DXX_BUILD_DESCENT == 1
 	const auto endbuf = &buf[len];
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	const auto endbuf = std::remove(&buf[0], &buf[len], 13);
 #endif
 	*endbuf = 0;
@@ -992,7 +992,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 #if DXX_BUILD_DESCENT == 1
 				const descent_hog_size size{PHYSFSX_fsize(descent_hog_basename)};
 				auto &bs = get_d1_briefing_screens(size)[br->cur_screen];
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 				auto &bs = Briefing_screens[br->cur_screen];
 #endif
 				if (!load_briefing_screen(canvas, br, bs.bs_name))
@@ -1023,7 +1023,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 
 #if DXX_BUILD_DESCENT == 1
 static void set_briefing_fontcolor()
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 static void set_briefing_fontcolor(briefing &br)
 #endif
 {
@@ -1391,7 +1391,7 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 	br->screen->text_width = rescale_x(canvas.cv_bitmap, br->screen->text_width);
 	br->screen->text_height = rescale_y(canvas.cv_bitmap, br->screen->text_height);
 	init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	free_briefing_screen(br);
 	const auto bndata = br->background_name.data();
 	if (fname != bndata)
@@ -1481,7 +1481,7 @@ static int new_briefing_screen(grs_canvas &canvas, briefing *br, int first)
 		return 0;
 
 	br->message = get_briefing_message(br, d1_briefing_screens[br->cur_screen].message_num);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	br->got_z = 0;
 
 	if (EMULATING_D1)
@@ -1728,7 +1728,7 @@ void do_briefing_screens(const d_fname &filename, int level_num)
 
 #if DXX_BUILD_DESCENT == 1
 	set_screen_mode( SCREEN_MENU );
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	// set screen correctly for robot movies
 	set_screen_mode( SCREEN_MOVIE );
 #endif

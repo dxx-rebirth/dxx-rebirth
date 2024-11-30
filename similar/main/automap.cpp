@@ -694,7 +694,7 @@ static void name_frame(grs_canvas &canvas, automap &am)
 		name_level = Current_level_name;
 
 	gr_string(canvas, game_font, (SWIDTH / 64), (SHEIGHT / 48), name_level);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	char	name_level_right[128];
 	if (Current_level_num > 0)
 		snprintf(name_level_left, sizeof(name_level_left), "%s %i",TXT_LEVEL, Current_level_num);
@@ -830,7 +830,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 			y1 = 44 * (SHEIGHT / 480.);
 			y2 = 61 * (SHEIGHT / 480.);
 	}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		const auto &s1{"F9/F10 Changes viewing distance"};
 		const auto s2{TXT_AUTOMAP_MARKER};
 		x = SWIDTH / 10.666;
@@ -968,7 +968,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 
 #if DXX_BUILD_DESCENT == 1
 #define MAP_BACKGROUND_FILENAME (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFS_exists("maph.pcx")) ? "maph.pcx" : "map.pcx")
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define MAP_BACKGROUND_FILENAME ((HIRESMODE && PHYSFS_exists("mapb.pcx")) ? "mapb.pcx" : "map.pcx")
 #endif
 

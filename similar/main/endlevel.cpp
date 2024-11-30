@@ -700,7 +700,7 @@ window_event_result start_endlevel_sequence()
 
 #if DXX_BUILD_DESCENT == 1
 	if (!endlevel_data_loaded)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 
 	if (PLAYING_BUILTIN_MISSION) // only play movie for built-in mission
 		if (!(Game_mode & GM_MULTI))
@@ -1317,7 +1317,7 @@ try_again:
 #if DXX_BUILD_DESCENT == 1
 	if (!convert_ext(filename,"end"))
 		return;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (!convert_ext(filename,"END"))
 		Error("Error converting filename <%s> for endlevel data\n",static_cast<const char *>(filename));
 #endif

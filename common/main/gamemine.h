@@ -32,7 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef DXX_BUILD_DESCENT
 #if DXX_BUILD_DESCENT == 1
 #define MINE_VERSION					17	// Current version expected
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define MINE_VERSION        20  // Current version expected
 #include "vecmat.h"
 #endif

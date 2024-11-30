@@ -195,7 +195,7 @@ public:
 		if (g3_check_normal_facing(*vp(p+4),*vp(p+16)) > 0) {
 #if DXX_BUILD_DESCENT == 1
 			color = (w(p+28));
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			color = gr_find_closest_color_15bpp(packed_color_r5g5b5{w(p + 28)});
 #endif
 		}
@@ -209,7 +209,7 @@ public:
 	{
 #if DXX_BUILD_DESCENT == 1
 		color = g3_poly_get_color(p+w(p+16));
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		(void)p;
 #endif
 	}
@@ -332,7 +332,7 @@ public:
 		{
 #if DXX_BUILD_DESCENT == 1
 				const uint8_t color = w(p + 28);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 				//					DPH: Now we treat this color as 15bpp
 				const uint8_t color = effective_glow_value == -2
 					? 255

@@ -23,7 +23,7 @@ vclip_index build_vclip_index_from_untrusted(std::size_t i);
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 #define VCLIP_MAXNUM	70
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define VCLIP_MAXNUM	110
 #endif
 

@@ -88,7 +88,7 @@ static void multi_delete_controlled_robot(const vmobjptridx_t objnum);
 #define ROBOT_TIMEOUT		F1_0*3
 
 #define MAX_TO_DELETE	67
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define MIN_CONTROL_TIME	F1_0*1
 #define ROBOT_TIMEOUT		F1_0*2
 #endif

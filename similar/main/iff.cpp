@@ -252,7 +252,7 @@ static iff_status_code parse_body(PHYSFS_File *ifile,long len,iff_bitmap_header 
 //			debug("IFF Error: p=%x, data_end=%x, cnt=%d\n",p,data_end,cnt);
 			return iff_status_code::corrupt;
 		}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (p!=data_end)				//if we don't have the whole bitmap...
 		return iff_status_code::corrupt;		//...the give an error
 
@@ -509,7 +509,7 @@ static iff_status_code convert_rgb15(grs_bitmap &bm,iff_bitmap_header &bmheader)
 		for (int x=0; x < bmheader.w; x++)
 			gr_bm_pixel(*grd_curcanv, bm, x, y, INDEX_TO_15BPP(bm.get_bitmap_data()[y * bmheader.w + x]));
 	}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	uint16_t *new_data;
 	MALLOC(new_data, ushort, bm.bm_w * bm.bm_h * 2);
 	if (new_data == nullptr)

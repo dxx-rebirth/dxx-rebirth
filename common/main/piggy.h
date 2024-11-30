@@ -92,7 +92,7 @@ enum class properties_init_result : int8_t
 	use_gamedata_read_tbl,
 	shareware,
 };
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 enum class properties_init_result : bool
 {
 	failure,

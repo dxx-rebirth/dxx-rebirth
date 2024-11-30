@@ -34,7 +34,7 @@ extern const char copyright[];
 const
 #if DXX_BUILD_DESCENT == 1
 char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORATION";
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPORATION";
 #endif
 
@@ -468,7 +468,7 @@ static int main(int argc, char *argv[])
 	const auto descent_hog = make_PHYSFSX_ComputedPathMount(descent_hog_basename, physfs_search_path::append);
 #define DXX_NAME_NUMBER	"1"
 #define DXX_HOGFILE_NAMES	"descent.hog"
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	const auto descent_hog = make_PHYSFSX_ComputedPathMount(descent2_hog_basename, d2demo_hog_basename, physfs_search_path::append);
 #define DXX_NAME_NUMBER	"2"
 #define DXX_HOGFILE_NAMES	"descent2.hog or d2demo.hog"
@@ -534,7 +534,7 @@ static int main(int argc, char *argv[])
 		con_puts(CON_NORMAL, {m, strlen(m)});
 	}
 	con_puts(CON_NORMAL, "Copyright (C) 2005-2013 Christian Beckhaeuser, 2013-2017 Kp");
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	static char d2x_hog_basename[]{MISSION_DIR "d2x.hog"};
 	con_printf(CON_NORMAL, "%s%s  %s", DESCENT_VERSION, PHYSFSX_exists_ignorecase(d2x_hog_basename) ? "  Vertigo Enhanced" : "", g_descent_build_datetime); // D2X version
 	con_puts(CON_NORMAL, "This is a MODIFIED version of Descent 2, based on " BASED_VERSION ".");
@@ -625,7 +625,7 @@ static int main(int argc, char *argv[])
 	con_puts(CON_DEBUG, "Initializing palette system...");
 #if DXX_BUILD_DESCENT == 1
 	gr_use_palette_table("palette.256");
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	gr_use_palette_table(D2_DEFAULT_PALETTE );
 #endif
 

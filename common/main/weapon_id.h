@@ -38,7 +38,7 @@ enum weapon_id_type : uint8_t
 	 * weapon used for all other purposes.
 	 */
 	CHEAP_SPREADFIRE_ID,
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	SPREADFIRE_ID = 12,  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
 #endif
 	PLASMA_ID = 13,  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.

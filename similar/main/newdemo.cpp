@@ -132,7 +132,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define ND_EVENT_LASER_LEVEL			42	// with old/new level
 #define ND_EVENT_LINK_SOUND_TO_OBJ		43	// record digi_link_sound_to_object3
 #define ND_EVENT_KILL_SOUND_TO_OBJ		44	// record digi_kill_sound_linked_to_object
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define ND_EVENT_LASER_LEVEL			42	// no data
 #define ND_EVENT_PLAYER_AFTERBURNER		43	// followed by byte old ab, current ab
 #define ND_EVENT_CLOAKING_WALL			44	// info changing while wall cloaking
@@ -154,7 +154,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define DEMO_VERSION				13
 #define DEMO_GAME_TYPE_SHAREWARE	1
 #define DEMO_GAME_TYPE				2
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define DEMO_VERSION				15      // last D1 version was 13
 #define DEMO_GAME_TYPE				3       // 1 was shareware, 2 registered
 #endif
@@ -232,7 +232,7 @@ static void newdemo_record_oneframeevent_update(int wallupdate);
 }
 #if DXX_BUILD_DESCENT == 1
 static int shareware = 0;	// reading shareware demo?
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 constexpr std::integral_constant<int, 0> shareware{};
 #endif
 
@@ -1140,7 +1140,7 @@ void newdemo_record_start_demo()
 	newdemo_set_new_level(Current_level_num);
 #if DXX_BUILD_DESCENT == 1
 	newdemo_record_oneframeevent_update(1);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	newdemo_record_oneframeevent_update(0);
 #endif
 }
@@ -1705,7 +1705,7 @@ static void newdemo_record_oneframeevent_update(int wallupdate)
 				newdemo_record_wall_set_tmap_num2(w.segnum,side,w.segnum,side,tmap_num2);
 		}
 	}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	(void)wallupdate;
 	if (Viewer == LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(LevelUniqueObjectState.get_objects().vmptr, Player_num))
 		newdemo_record_guided_start();
@@ -1736,7 +1736,7 @@ static int newdemo_read_demo_start(const purpose_type purpose)
 	Rear_view=0;
 #if DXX_BUILD_DESCENT == 1
 	shareware = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 #endif
 
@@ -1772,7 +1772,7 @@ static int newdemo_read_demo_start(const purpose_type purpose)
 
 		return 1;
 	}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (game_type < DEMO_GAME_TYPE) {
 		nm_messagebox(menu_title{nullptr}, {TXT_OK}, "%s %s\n%s", TXT_CANT_PLAYBACK, TXT_RECORDED, "    In Descent: First Strike");
 		return 1;
@@ -1950,7 +1950,7 @@ static int newdemo_read_demo_start(const purpose_type purpose)
 			return 1;
 		}
 	}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	{
 		mission_entry_predicate mission_predicate;
 		mission_predicate.filesystem_name = current_mission;
@@ -2368,7 +2368,7 @@ static int newdemo_read_frame_information(int rewrite)
 			int shot;
 #if DXX_BUILD_DESCENT == 1
 			shot = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			nd_read_int(&shot);
 #endif
 			if (nd_playback_v_bad_read) { done = -1; break; }
@@ -2379,7 +2379,7 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_int(objnum);
 #if DXX_BUILD_DESCENT == 1
 				break;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 				nd_write_int(shot);
 #endif
 			}
@@ -2774,7 +2774,7 @@ static int newdemo_read_frame_information(int rewrite)
 			{
 #if DXX_BUILD_DESCENT == 1
 				check_effect_blowup(LevelSharedDestructibleLightState, Vclip, vmsegptridx(segnum), static_cast<sidenum_t>(side), pnt, nullptr, 0, 0);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 				auto &LevelSharedDestructibleLightState = LevelSharedSegmentState.DestructibleLights;
 			//create a dummy object which will be the weapon that hits
 			//the monitor. the blowup code wants to know who the parent of the
@@ -3055,7 +3055,7 @@ static int newdemo_read_frame_information(int rewrite)
 				vmplayerptr(static_cast<unsigned>(pnum))->connected = player_connection_status::disconnected;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
 				vmplayerptr(static_cast<unsigned>(pnum))->connected = player_connection_status::playing;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
 				vmplayerptr(static_cast<unsigned>(pnum))->connected = player_connection_status::playing;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
@@ -3275,7 +3275,7 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_byte (old_level);
 #if DXX_BUILD_DESCENT == 1
 				break;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 				load_level_robots(new_level);	// for correct robot info reading (specifically boss flag)
 #endif
 			}

@@ -82,7 +82,7 @@ int Num_total_object_types;
 sbyte	ObjType[MAX_OBJTYPE];
 std::array<polygon_model_index, MAX_OBJTYPE> ObjId;
 fix	ObjStrength[MAX_OBJTYPE];
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 //the polygon model number to use for the marker
 unsigned N_ObjBitmaps;
 namespace {
@@ -268,7 +268,7 @@ void properties_read_cmp(d_level_shared_robot_info_state &LevelSharedRobotInfoSt
 	LevelUniqueTmapInfoState.Num_tmaps = TextureEffects + std::count_if(effect_range.begin(), effect_range.end(), [](const eclip &e) { return e.changing_wall_texture >= 0; });
         #endif
 }
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 namespace {
 static void tmap_info_read(tmap_info &ti, const NamedPHYSFS_File fp)
 {

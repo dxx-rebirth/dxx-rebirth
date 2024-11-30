@@ -189,7 +189,7 @@ bool PHYSFSX_init(int argc, char *argv[])
 #if DXX_ENABLE_ENVIRONMENT_VARIABLE_DXX_REBIRTH_HOME
 #if DXX_BUILD_DESCENT == 1
 #define DESCENT_PATH_NUMBER	"1"
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define DESCENT_PATH_NUMBER	"2"
 #endif
 #if !(defined(__APPLE__) && defined(__MACH__))

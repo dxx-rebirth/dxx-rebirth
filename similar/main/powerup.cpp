@@ -75,7 +75,7 @@ void do_powerup_frame(const d_vclip_array &Vclip, const vmobjptridx_t obj)
 
 #if DXX_BUILD_DESCENT == 1
 	const fix fudge = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	long objnum = obj;
 	const fix fudge = (FrameTime * (objnum&3)) >> 4;
 #endif
@@ -159,7 +159,7 @@ void do_megawow_powerup(object &plrobj, const int quantity)
 	auto &player_info = plrobj.ctype.player_info;
 #if DXX_BUILD_DESCENT == 1
 	player_info.primary_weapon_flags = (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	player_info.primary_weapon_flags = (HAS_LASER_FLAG | HAS_VULCAN_FLAG | HAS_SPREADFIRE_FLAG | HAS_PLASMA_FLAG | HAS_FUSION_FLAG) | (HAS_GAUSS_FLAG | HAS_HELIX_FLAG | HAS_PHOENIX_FLAG | HAS_OMEGA_FLAG);
 #endif
 	player_info.vulcan_ammo = VULCAN_AMMO_MAX;
@@ -176,7 +176,7 @@ void do_megawow_powerup(object &plrobj, const int quantity)
 	player_info.powerup_flags |= PLAYER_FLAGS_QUAD_LASERS;
 #if DXX_BUILD_DESCENT == 1
 	const auto laser_level{MAX_LASER_LEVEL};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	player_info.Omega_charge = MAX_OMEGA_CHARGE;
 	if (game_mode_hoard(Game_mode))
 		player_info.hoard.orbs = player_info.max_hoard_orbs;

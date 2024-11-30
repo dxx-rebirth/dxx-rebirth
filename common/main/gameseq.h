@@ -92,7 +92,7 @@ window_event_result DoPlayerDead(void);
 #if DXX_BUILD_DESCENT == 1
 #define gameseq_remove_unused_players(Robot_info)	gameseq_remove_unused_players()
 #undef PlayerFinishedLevel
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #undef gameseq_remove_unused_players
 #define PlayerFinishedLevel(secret_flag)	((void)secret_flag,PlayerFinishedLevel())
 // load just the hxm file

@@ -79,7 +79,7 @@ const enumerated_array<weapon_id_type, MAX_SECONDARY_WEAPONS, secondary_weapon_i
 }};
 
 }
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #include "fvi.h"
 
 namespace dsx {
@@ -292,7 +292,7 @@ constexpr std::array<primary_weapon_index_t, MAX_PRIMARY_WEAPONS + 1> DefaultPri
 constexpr std::array<secondary_weapon_index_t, MAX_SECONDARY_WEAPONS + 1> DefaultSecondaryOrder{{
 	secondary_weapon_index_t::MEGA_INDEX, secondary_weapon_index_t::SMART_INDEX, secondary_weapon_index_t::HOMING_INDEX, secondary_weapon_index_t::CONCUSSION_INDEX, secondary_weapon_index_t{255}, secondary_weapon_index_t::PROXIMITY_INDEX
 }};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 constexpr std::array<primary_weapon_index_t, MAX_PRIMARY_WEAPONS + 1> DefaultPrimaryOrder={{
 	primary_weapon_index_t::OMEGA_INDEX, primary_weapon_index_t::PHOENIX_INDEX, primary_weapon_index_t::HELIX_INDEX, primary_weapon_index_t::GAUSS_INDEX, primary_weapon_index_t::SUPER_LASER_INDEX, primary_weapon_index_t::FUSION_INDEX, primary_weapon_index_t::PLASMA_INDEX, primary_weapon_index_t::SPREADFIRE_INDEX, primary_weapon_index_t::VULCAN_INDEX, primary_weapon_index_t::LASER_INDEX, primary_weapon_index_t{255}
 }};
@@ -305,7 +305,7 @@ static primary_weapon_index_t get_mapped_weapon_index(const player_info &player_
 {
 #if DXX_BUILD_DESCENT == 1
 	(void)player_info;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (weapon_index == primary_weapon_index_t::LASER_INDEX && player_info.laser_level > MAX_LASER_LEVEL)
 		return primary_weapon_index_t::SUPER_LASER_INDEX;
 #endif
@@ -392,7 +392,7 @@ has_primary_weapon_result player_has_primary_weapon(const player_info &player_in
 			if (energy >= F1_0*2)
 				return_value |= has_primary_weapon_result::energy;
 		}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		if (weapon_num == primary_weapon_index_t::OMEGA_INDEX) {	// Hack: Make sure player has energy to omega
 			if (energy > 0 || player_info.Omega_charge)
 				return_value |= has_primary_weapon_result::energy;
@@ -796,7 +796,7 @@ void do_primary_weapon_select(player_info &player_info, primary_weapon_index_t w
 		digi_play_sample(SOUND_BAD_SELECTION, F1_0);
 		return;
 	}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	has_primary_weapon_result weapon_status;
 
 	auto &Primary_weapon = player_info.Primary_weapon;
@@ -860,7 +860,7 @@ void do_secondary_weapon_select(player_info &player_info, secondary_weapon_index
 		digi_play_sample(SOUND_BAD_SELECTION, F1_0);
 		return;
 	}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	has_secondary_weapon_result weapon_status;
 
 	const auto current = player_info.Secondary_weapon.get_active();
@@ -1171,7 +1171,7 @@ static void maybe_autoselect_vulcan_weapon(player_info &player_info)
 {
 #if DXX_BUILD_DESCENT == 1
 	const auto weapon_flag_mask{HAS_VULCAN_FLAG};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	const auto weapon_flag_mask = HAS_VULCAN_FLAG | HAS_GAUSS_FLAG;
 #endif
 	const auto primary_weapon_flags = player_info.primary_weapon_flags;
@@ -1182,7 +1182,7 @@ static void maybe_autoselect_vulcan_weapon(player_info &player_info)
 #if DXX_BUILD_DESCENT == 1
 	const auto weapon_order_vulcan = POrderList(primary_weapon_index_t::VULCAN_INDEX);
 	const auto better{weapon_order_vulcan};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	/* If a weapon is missing, pretend its auto-select priority is equal
 	 * to cutpoint.  Priority at or worse than cutpoint is never
 	 * auto-selected.
@@ -1824,7 +1824,7 @@ class is_cxx_array<enumerated_array<T, NDL, Difficulty_level_type>> : public is_
 
 #if DXX_BUILD_DESCENT == 1
 DEFINE_SERIAL_UDT_TO_MESSAGE(dsx::weapon_info, w, (w.render, w.model_num, w.model_num_inner, w.persistent, w.flash_vclip, w.flash_sound, w.robot_hit_vclip, w.robot_hit_sound, w.wall_hit_vclip, w.wall_hit_sound, w.fire_count, w.ammo_usage, w.weapon_vclip, w.destroyable, w.matter, w.bounce, w.homing_flag, w.dum1, w.dum2, w.dum3, w.energy_usage, w.fire_wait, w.bitmap, w.blob_size, w.flash_size, w.impact_size, w.strength, w.speed, w.mass, w.drag, w.thrust, w.po_len_to_width_ratio, w.light, w.lifetime, w.damage_radius, w.picture));
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 namespace {
 
 struct v2_weapon_info : weapon_info
@@ -1866,7 +1866,7 @@ void weapon_info_read_n(weapon_info_array &wi, std::size_t count, const NamedPHY
 {
 	auto r = partial_range(wi, offset, count);
 #if DXX_BUILD_DESCENT == 1
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (file_version < pig_hamfile_version::_3)
 	{
 		range_for (auto &w, r)

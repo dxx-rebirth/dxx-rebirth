@@ -61,7 +61,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if DXX_BUILD_DESCENT == 1
 #define MAKE_CREDITS_PAIR(F)	std::span<const char, sizeof(F) + 1>(F ".tex", sizeof(F) + 1)
 #define CREDITS_FILE 			MAKE_CREDITS_PAIR("credits")
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define MAKE_CREDITS_PAIR(F)	std::span<const char>(F ".tex", sizeof(F) + 1)
 #define CREDITS_FILE    		(	\
 	PHYSFS_exists("mcredits.tex")	\
@@ -145,7 +145,7 @@ window_event_result credits_window::event_handler(const d_event &event)
 			{
 #if DXX_BUILD_DESCENT == 1
 			timer_delay(F1_0/17);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			timer_delay(F1_0/28);
 #endif
 			
@@ -164,7 +164,7 @@ window_event_result credits_window::event_handler(const d_event &event)
 #if DXX_BUILD_DESCENT == 1
 						p = strchr(&buffer[buffer_line][0u],'\n');
 						if (p) *p = '\0';
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 						p = buffer[buffer_line];
 						if (p[0] == ';')
 							goto get_line;

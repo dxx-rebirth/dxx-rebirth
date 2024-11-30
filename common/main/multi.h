@@ -138,7 +138,7 @@ constexpr std::uint16_t MULTI_PROTO_VERSION{16};
 #ifdef DXX_BUILD_DESCENT
 #if DXX_BUILD_DESCENT == 1
 constexpr std::size_t MAX_NET_CREATE_OBJECTS{20u};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 constexpr std::size_t MAX_NET_CREATE_OBJECTS{40u};
 #endif
 
@@ -179,7 +179,7 @@ constexpr std::integral_constant<unsigned, 18> MULTI_ALLOW_POWERUP_TEXT_LENGTH{}
 #define D2X_MP_NETFLAGS(VALUE)
 #define DXX_GRANT_LASER_LEVEL_BITS	2
 #define D2X_MP_NETGRANT(VALUE)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 constexpr std::integral_constant<unsigned, 17> MULTI_GAME_NAME_LENGTH{};
 constexpr std::integral_constant<unsigned, 21> MULTI_ALLOW_POWERUP_TEXT_LENGTH{};
 #define MULTI_ALLOW_POWERUP_MAX 26
@@ -256,7 +256,7 @@ enum netflag_bit : uint8_t
 enum class netflag_flag :
 #if DXX_BUILD_DESCENT == 1
 	uint16_t
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	uint32_t
 #endif
 {
@@ -274,7 +274,7 @@ enum netgrant_bit : uint8_t
 enum netgrant_flag :
 #if DXX_BUILD_DESCENT == 1
 	uint8_t
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	uint16_t
 #endif
 {
@@ -317,7 +317,7 @@ public:
 private:
 #if DXX_BUILD_DESCENT == 1
 	typedef uint8_t count_type;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	typedef uint16_t count_type;
 #endif
 	count_type count;
@@ -440,7 +440,7 @@ enum class multi_endlevel_type : bool
 };
 #if DXX_BUILD_DESCENT == 1
 void multi_send_endlevel_start(multi_endlevel_type);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 void multi_send_endlevel_start();
 static inline void multi_send_endlevel_start(multi_endlevel_type)
 {
@@ -516,7 +516,7 @@ void multi_initiate_restore_game();
 void multi_execute_save_game(d_game_unique_state::save_slot slot, const d_game_unique_state::savegame_description &desc, std::ranges::subrange<const player *> player_range);
 #if DXX_BUILD_DESCENT == 1
 static inline void multi_send_got_flag (playernum_t) {}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 void multi_send_got_flag (playernum_t);
 #endif
 }

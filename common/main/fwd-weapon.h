@@ -70,7 +70,7 @@ constexpr std::integral_constant<unsigned, 30> MAX_WEAPON_TYPES{};
 constexpr std::integral_constant<unsigned, 5> MAX_PRIMARY_WEAPONS{};
 constexpr std::integral_constant<unsigned, 5> MAX_SECONDARY_WEAPONS{};
 
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 // weapon info flags
 #define WIF_PLACABLE        1   // can be placed by level designer
 constexpr std::integral_constant<unsigned, 70> MAX_WEAPON_TYPES{};
@@ -113,7 +113,7 @@ void weapon_info_read_n(weapon_info_array &wi, std::size_t count, NamedPHYSFS_Fi
 #define NUM_SMART_CHILDREN  6   // Number of smart children created by default.
 #if DXX_BUILD_DESCENT == 1
 #define	NUM_SHAREWARE_WEAPONS	3		//in shareware, old get first 3 of each
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define HAS_SUPER_LASER_FLAG	HAS_PRIMARY_FLAG(primary_weapon_index_t::SUPER_LASER_INDEX)
 #define HAS_GAUSS_FLAG     HAS_PRIMARY_FLAG(primary_weapon_index_t::GAUSS_INDEX)
 #define HAS_HELIX_FLAG     HAS_PRIMARY_FLAG(primary_weapon_index_t::HELIX_INDEX)

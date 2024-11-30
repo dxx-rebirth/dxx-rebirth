@@ -30,7 +30,7 @@ DXX_VALPTRIDX_DECLARE_SUBTYPE(dcx::, active_door, actdoornum_t, MAX_DOORS);
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<std::size_t, 30> MAX_WALL_ANIMS{};		// Maximum different types of doors
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 constexpr std::integral_constant<std::size_t, 60> MAX_WALL_ANIMS{};  // Maximum different types of doors
 #endif
 
@@ -68,7 +68,7 @@ constexpr fix DOOR_WAIT_TIME = i2f(5);      // How long before auto door closes
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<std::size_t, 20> MAX_CLIP_FRAMES{};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 constexpr std::integral_constant<std::size_t, 50> MAX_CLIP_FRAMES{};
 #endif
 }
@@ -161,7 +161,7 @@ void wall_illusion_off(fvmwallptr &, vcsegptridx_t seg, sidenum_t side);
 void wall_open_door(vmsegptridx_t seg, sidenum_t side);
 
 #if DXX_BUILD_DESCENT == 1
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 // Closes a door
 void wall_close_door(wall_array &Walls, vmsegptridx_t seg, sidenum_t side);
 #endif

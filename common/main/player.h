@@ -129,7 +129,7 @@ struct player_rw
 #if DXX_BUILD_DESCENT == 1
 	ubyte		primary_weapon_flags;					//	bit set indicates the player has this weapon.
 	ubyte		secondary_weapon_flags;					//	bit set indicates the player has this weapon.
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	ushort  primary_weapon_flags;   // bit set indicates the player has this weapon.
 	ushort  secondary_weapon_flags; // bit set indicates the player has this weapon.
 #endif
@@ -175,7 +175,7 @@ struct player_rw
 } __pack__;
 #if DXX_BUILD_DESCENT == 1
 static_assert(sizeof(player_rw) == 116, "wrong size player_rw");
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 static_assert(sizeof(player_rw) == 142, "wrong size player_rw");
 #endif
 

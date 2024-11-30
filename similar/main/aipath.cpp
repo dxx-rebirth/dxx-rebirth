@@ -320,7 +320,7 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 	 */
 	if (random_flag != create_path_random_flag::nonrandom)
 		std::shuffle(side_traversal_translation.begin(), side_traversal_translation.end(), std::minstd_rand(d_rand()));
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	/* If shuffling is enabled, always shuffle on the first pass of the
 	 * loop.
 	 */
@@ -362,7 +362,7 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 				continue;
 #if DXX_BUILD_DESCENT == 1
 #define AI_DOOR_OPENABLE_PLAYER_FLAGS
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define AI_DOOR_OPENABLE_PLAYER_FLAGS	player_info.powerup_flags,
 			auto &player_info = get_local_plrobj().ctype.player_info;
 #endif
@@ -694,7 +694,7 @@ void create_path_to_believed_player_segment(const vmobjptridx_t objp, const robo
 {
 #if DXX_BUILD_DESCENT == 1
 	const auto goal_segment = ConsoleObject->segnum;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	const auto goal_segment{Believed_player_seg};
 #endif
 	create_path_to_segment(objp, robptr, max_length, safety_flag, goal_segment);
@@ -965,7 +965,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 		} else {
 #if DXX_BUILD_DESCENT == 1
 			create_path(objp, robptr);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			create_n_segment_path(objp, robptr, 5, segment_none);
 #endif
 			//--Int3_if((aip->path_length != 0));
@@ -985,7 +985,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 	if (aip->path_length < 2) {
 #if DXX_BUILD_DESCENT == 1
 		if (ailp->mode == ai_mode::AIM_RUN_FROM_OBJECT)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		if ((aip->behavior == ai_behavior::AIB_SNIPE) || (ailp->mode == ai_mode::AIM_RUN_FROM_OBJECT))
 #endif
 		{
@@ -1008,7 +1008,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 			ailp->mode = ai_mode::AIM_STILL;
 		}
 		return;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		else if (robot_is_companion(robptr) == 0) {
 			ailp->mode = ai_mode::AIM_STILL;
 			aip->path_length = 0;
@@ -1134,7 +1134,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 				ailp->mode = ai_mode::AIM_STILL;
 				return;		// Stay here until bonked or hit by player.
 			}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			if (aip->behavior == ai_behavior::AIB_FOLLOW) {
 				create_n_segment_path(objp, robptr, 10, ConsoleObject->segnum);
 				//--Int3_if(((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length)));

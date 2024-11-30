@@ -79,7 +79,7 @@ int Gamesave_current_version;
 
 #if DXX_BUILD_DESCENT == 1
 #define GAME_VERSION					25
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define GAME_VERSION            32
 #endif
 #define GAME_COMPATIBLE_VERSION 22
@@ -154,7 +154,7 @@ static unsigned convert_polymod(const unsigned N_polygon_models, const unsigned 
     return (polymod >= N_polygon_models) ? polymod % N_polygon_models : polymod;
 }
 }
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 namespace {
 using savegame_pof_names_type = enumerated_array<char[FILENAME_LEN], MAX_POLYGON_MODELS, polygon_model_index>;
 }
@@ -284,7 +284,7 @@ static void verify_object(const d_level_shared_robot_info_state &LevelSharedRobo
 				obj.shields = ObjStrength[i];
 				break;		
 			}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		if (Gamesave_current_version <= 1) { // descent 1 reactor
 			set_reactor_id(obj, 0);                         // used to be only one kind of reactor
 			obj.rtype.pobj_info.model_num = Reactors[0].model_num;// descent 1 reactor
@@ -458,7 +458,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 			obj->ctype.ai_info.PATH_DIR = ai_info_flags[3];
 #if DXX_BUILD_DESCENT == 1
 			obj->ctype.ai_info.SUBMODE = ai_info_flags[4];
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			obj->ctype.ai_info.SUB_FLAGS = ai_info_flags[4];
 #endif
 			obj->ctype.ai_info.GOALSIDE = build_sidenum_from_untrusted(ai_info_flags[5]).value();
@@ -571,7 +571,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 			obj->rtype.pobj_info.model_num = build_polygon_model_index_from_untrusted(
 #if DXX_BUILD_DESCENT == 1
 				convert_polymod(LevelSharedPolygonModelState.N_polygon_models, PHYSFSX_readInt(f))
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 				PHYSFSX_readInt(f)
 #endif
 			);
@@ -586,7 +586,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 #if !DXX_USE_EDITOR
 #if DXX_BUILD_DESCENT == 1
 			obj->rtype.pobj_info.tmap_override	= convert_tmap(tmo);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			obj->rtype.pobj_info.tmap_override	= tmo;
 #endif
 			#else
@@ -614,7 +614,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 
 #if DXX_BUILD_DESCENT == 1
 			obj->rtype.vclip_info.vclip_num	= convert_vclip(Vclip, PHYSFSX_readInt(f));
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			obj->rtype.vclip_info.vclip_num	= build_vclip_index_from_untrusted(PHYSFSX_readInt(f));
 #endif
 			obj->rtype.vclip_info.frametime	= PHYSFSX_readFix(f);
@@ -728,7 +728,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 			ai_info_flags[3] = obj.ctype.ai_info.PATH_DIR;
 #if DXX_BUILD_DESCENT == 1
 			ai_info_flags[4] = obj.ctype.ai_info.SUBMODE;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			ai_info_flags[4] = obj.ctype.ai_info.SUB_FLAGS;
 #endif
 			ai_info_flags[5] = underlying_value(obj.ctype.ai_info.GOALSIDE);
@@ -745,7 +745,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 #if DXX_BUILD_DESCENT == 1
 			PHYSFS_writeSLE16(f, segment_none);
 			PHYSFS_writeSLE16(f, segment_none);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			if (version <= 25)
 			{
 				PHYSFS_writeSLE16(f, -1);	//obj.ctype.ai_info.follow_path_start_seg
@@ -783,7 +783,7 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 
 #if DXX_BUILD_DESCENT == 1
 			PHYSFS_writeSLE32(f, obj.ctype.powerup_info.count);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			if (version >= 25)
 				PHYSFS_writeSLE32(f, obj.ctype.powerup_info.count);
 #endif
@@ -953,7 +953,7 @@ static int load_game_data(
 	PHYSFSX_fseek(LoadFile, 4, SEEK_CUR);
 
 #if DXX_BUILD_DESCENT == 1
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	unsigned num_delta_lights;
 	unsigned Num_static_lights;
 	if (game_top_fileinfo_version >= 29) {
@@ -1027,7 +1027,7 @@ static int load_game_data(
 			nw.trigger	= static_cast<trgnum_t>(w.trigger);
 #if DXX_BUILD_DESCENT == 1
 			nw.clip_num	= convert_wclip(w.clip_num);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			nw.clip_num	= w.clip_num;
 #endif
 			nw.keys		= static_cast<wall_key>(w.keys);
@@ -1046,7 +1046,7 @@ static int load_game_data(
 			nw.trigger	= static_cast<trgnum_t>(w.trigger);
 #if DXX_BUILD_DESCENT == 1
 			nw.clip_num	= convert_wclip(w.clip_num);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			nw.clip_num	= w.clip_num;
 #endif
 			nw.keys		= static_cast<wall_key>(w.keys);
@@ -1064,7 +1064,7 @@ static int load_game_data(
 		else {
 			v26_trigger_read(LoadFile, i);
 		}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		if (game_top_fileinfo_version < 31)
 		{
 			if (game_top_fileinfo_version < 30) {
@@ -1088,7 +1088,7 @@ static int load_game_data(
 	{
 #if DXX_BUILD_DESCENT == 1
 		matcen_info_read(LoadFile, r, game_top_fileinfo_version);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		if (game_top_fileinfo_version < 27) {
 			d1_matcen_info_read(LoadFile, r);
 		}
@@ -1279,7 +1279,7 @@ static int load_game_data(
 
 #if DXX_BUILD_DESCENT == 1
 #define LEVEL_FILE_VERSION		1
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define LEVEL_FILE_VERSION      8
 #endif
 //1 -> 2  add palette name
@@ -1491,7 +1491,7 @@ int load_level(
 						"you like to save it as a current version level?"}) == 1)
 			save_level(filename);
 	}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	//If a Descent 1 level and the Descent 1 pig isn't present, pretend it's a Descent 2 level.
 	if (EditorWindow && (Gamesave_current_version <= 3) && !d1_pig_present)
 	{
@@ -1575,7 +1575,7 @@ int create_new_mine(void)
 	Current_level_name.next()[0] = 0;
 #if DXX_BUILD_DESCENT == 1
 	Gamesave_current_version = LEVEL_FILE_VERSION;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	Gamesave_current_version = GAME_VERSION;
 	
 	strcpy(Current_level_palette.next().data(), DEFAULT_LEVEL_PALETTE);
@@ -1656,7 +1656,7 @@ static int save_game_data(
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 #if DXX_BUILD_DESCENT == 1
 	short game_top_fileinfo_version = Gamesave_current_version >= 5 ? 31 : GAME_VERSION;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	short game_top_fileinfo_version = Gamesave_current_version >= 5 ? 31 : 25;
 	int	dl_indices_offset=0, delta_light_offset=0;
 #endif
@@ -1949,7 +1949,7 @@ static int save_level_sub(
 	PHYSFS_writeSLE32(SaveFile, gamedata_offset);
 #if DXX_BUILD_DESCENT == 1
 	PHYSFS_writeSLE32(SaveFile, hostagetext_offset);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (Gamesave_current_version < 5)
 		PHYSFS_writeSLE32(SaveFile, PHYSFS_fileLength(SaveFile));
 #endif

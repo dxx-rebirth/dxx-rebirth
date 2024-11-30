@@ -76,7 +76,7 @@ namespace {
 static inline void game_draw_marker_message(grs_canvas &)
 {
 }
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 static void game_draw_marker_message(grs_canvas &canvas)
 {
 	if (MarkerState.DefiningMarkerMessage())

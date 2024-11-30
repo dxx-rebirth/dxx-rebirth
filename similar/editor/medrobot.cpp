@@ -612,7 +612,7 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 #if DXX_BUILD_DESCENT == 1
 				case ai_behavior::AIB_HIDE:
 				case ai_behavior::AIB_FOLLOW_PATH:
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 				case ai_behavior::AIB_BEHIND:
 				case ai_behavior::AIB_SNIPE:
 				case ai_behavior::AIB_FOLLOW:

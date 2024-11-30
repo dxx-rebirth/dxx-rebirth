@@ -118,7 +118,7 @@ static inline window_event_result StartNewLevelSub(const d_robot_info_array &Rob
 {
 	return StartNewLevelSub(Robot_info, level_num, page_in_textures);
 }
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, secret_restore, const char *filename);
 void set_pos_from_return_segment(void);
 int state_save_all(secret_save, blind_save);

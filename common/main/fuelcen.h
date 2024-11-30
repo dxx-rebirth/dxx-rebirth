@@ -129,7 +129,7 @@ namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 typedef d1_matcen_info matcen_info;
 void matcen_info_read(NamedPHYSFS_File fp, matcen_info &ps, int version);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 struct matcen_info : public prohibit_void_ptr<matcen_info>
 {
 	std::array<unsigned, 2>     robot_flags; // Up to 64 different robots

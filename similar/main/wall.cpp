@@ -1186,7 +1186,7 @@ wall_hit_process_t wall_hit_process(const player_flags powerup_flags, const vmse
 				{
 #if DXX_BUILD_DESCENT == 1
 					const wall_flags flags{};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 					const auto flags = w->flags;
 #endif
 					multi_send_door_open(seg, side,flags);
@@ -1511,7 +1511,7 @@ void d_level_unique_stuck_object_state::kill_stuck_objects(fvmobjptr &vmobjptr, 
 		auto &obj = *vmobjptr(so.objnum);
 #if DXX_BUILD_DESCENT == 1
 #define DXX_WEAPON_LIFELEFT	F1_0/4
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define DXX_WEAPON_LIFELEFT	F1_0/8
 #endif
 		assert(obj.type == OBJ_WEAPON);
@@ -1724,7 +1724,7 @@ void v19_wall_read(const NamedPHYSFS_File fp, v19_wall &w)
 
 #if DXX_BUILD_DESCENT == 1
 #define _SERIAL_UDT_WALL_D2X_MEMBERS	serial::pad<2>()
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define _SERIAL_UDT_WALL_D2X_MEMBERS	w.controlling_trigger, w.cloak_value
 #endif
 DEFINE_SERIAL_UDT_TO_MESSAGE(wall, w, (serial::sign_extend<int>(w.segnum), w.sidenum, serial::pad<3, 0>(), w.hps, w.linked_wall, serial::pad<2, 0>(), w.type, w.flags, w.state, w.trigger, w.clip_num, w.keys, _SERIAL_UDT_WALL_D2X_MEMBERS));

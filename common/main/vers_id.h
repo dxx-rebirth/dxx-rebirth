@@ -32,7 +32,7 @@
 #ifdef DXX_BUILD_DESCENT
 #if DXX_BUILD_DESCENT == 1
 #define BASED_VERSION "Registered v1.5 Jan 5, 1996"
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define BASED_VERSION "Full Version v1.2"
 #endif
 #endif

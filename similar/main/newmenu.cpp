@@ -198,7 +198,7 @@ static const char *DOWN_ARROW_MARKER(const grs_font &, const grs_font &)
 {
 	return "+";  // 136
 }
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 static const char *UP_ARROW_MARKER(const grs_font &cv_font, const grs_font &game_font)
 {
 	return &cv_font == &game_font ? "\202" : "\207";  // 135

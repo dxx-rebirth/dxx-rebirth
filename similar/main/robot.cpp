@@ -232,7 +232,7 @@ void robot_info_read(const NamedPHYSFS_File fp, robot_info &ri)
 
 #if DXX_BUILD_DESCENT == 1
 	ri.weapon_type = static_cast<weapon_id_type>(PHYSFSX_readShort(fp));
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	ri.weapon_type = static_cast<weapon_id_type>(PHYSFSX_readByte(fp));
 	ri.weapon_type2 = static_cast<weapon_id_type>(PHYSFSX_readByte(fp));
 	ri.n_guns = PHYSFSX_readByte(fp);
@@ -244,7 +244,7 @@ void robot_info_read(const NamedPHYSFS_File fp, robot_info &ri)
 	ri.contains = build_contained_object_parameters_from_untrusted(contains_type, contains_id, contains_count);
 #if DXX_BUILD_DESCENT == 1
 	ri.score_value = PHYSFSX_readInt(fp);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	ri.kamikaze = PHYSFSX_readByte(fp);
 
 	ri.score_value = PHYSFSX_readShort(fp);

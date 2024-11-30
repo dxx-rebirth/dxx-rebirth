@@ -9,7 +9,7 @@
 
 #if DXX_BUILD_DESCENT == 1
 #define DXX_NAME_NUMBER	'1'
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define DXX_NAME_NUMBER	'2'
 #else
 #error "Must set DXX_BUILD_DESCENT_I or DXX_BUILD_DESCENT_II"

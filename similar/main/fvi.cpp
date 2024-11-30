@@ -928,7 +928,7 @@ static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &int
 							(
 #if DXX_BUILD_DESCENT == 1
 								(wid_flag == wall_is_doorway_result::transparent_wall) &&
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 								((wid_flag & WALL_IS_DOORWAY_FLAG::render) && (wid_flag & WALL_IS_DOORWAY_FLAG::rendpast)) &&
 #endif
 								((fq.flags & FQ_TRANSWALL) || (fq.flags & FQ_TRANSPOINT && check_trans_wall(hit_point,startseg,side,face))))) {
@@ -1128,7 +1128,7 @@ fvi_hitpoint find_hitpoint_uv(const vms_vector &pnt, const cscusegment seg, cons
 	const fix k0{
 #if DXX_BUILD_DESCENT == 1
 		(vec0.i)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		(abs(vec0.i) > abs(vec0.j))
 #endif
 		? fixdiv(fixmul(-k1, vec1.i) + checkp.i - p1.i, vec0.i)
@@ -1196,7 +1196,7 @@ int check_trans_wall(const vms_vector &pnt, const vcsegptridx_t seg, const siden
 
 #if DXX_BUILD_DESCENT == 1
 	return (gr_gpixel (*bm, bmx, bmy) == TRANSPARENCY_COLOR);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	return (bm->bm_data[bmy*bm->bm_w+bmx] == TRANSPARENCY_COLOR);
 #endif
 }

@@ -285,7 +285,7 @@ static void do_il_off(fvcsegptridx &vcsegptridx, fvmwallptr &vmwallptr, const tr
 {
 	trigger_wall_op(t, vcsegptridx, wall_illusion_off, vmwallptr);
 }
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 static void do_il_off(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr, fvmwallptr &vmwallptr, const trigger &t)
 {
 	const auto &&op = [&vcvertptr, &vmwallptr](const vcsegptridx_t seg, const sidenum_t side) {
@@ -370,7 +370,7 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 	if (trigger.flags & TRIGGER_ILLUSION_OFF) {
 		do_il_off(vcsegptridx, vmwallptr, trigger);
 	}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (trigger.flags & trigger_behavior_flags::disabled)
 		return window_event_result::handled;		// don't send trigger hit to other players
 
@@ -532,7 +532,7 @@ window_event_result check_trigger(const vcsegptridx_t seg, const sidenum_t side,
 
 #if DXX_BUILD_DESCENT == 1
 	if (objnum == &plrobj)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (objnum == &plrobj || (objnum->type == OBJ_ROBOT && Robot_info[get_robot_id(objnum)].companion))
 #endif
@@ -541,7 +541,7 @@ window_event_result check_trigger(const vcsegptridx_t seg, const sidenum_t side,
 #if DXX_BUILD_DESCENT == 1
 		if ( Newdemo_state == ND_STATE_PLAYBACK )
 			return window_event_result::ignored;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		if ( Newdemo_state == ND_STATE_RECORDING )
 			newdemo_record_trigger( seg, side, objnum,shot);
 #endif
@@ -613,13 +613,13 @@ void v26_trigger_read(const NamedPHYSFS_File fp, trigger &t)
 }
 
 void v25_trigger_read(const NamedPHYSFS_File fp, trigger *t)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 void v29_trigger_read(v29_trigger *t, const NamedPHYSFS_File fp)
 #endif
 {
 #if DXX_BUILD_DESCENT == 1
 	PHYSFSX_skipBytes<1>(fp);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	t->type = PHYSFSX_readByte(fp);
 #endif
 	t->flags = PHYSFSX_readShort(fp);
@@ -773,7 +773,7 @@ void process_udt(Accessor &accessor, serialize_wide_trigger_side_numbers<array_t
 #if DXX_BUILD_DESCENT == 1
 DEFINE_SERIAL_UDT_TO_MESSAGE(trigger, t, (serial::pad<1>(), t.flags, t.value, serial::pad<5>(), t.num_links, serial::pad<1, 0>(), t.seg, serialize_wide_trigger_side_numbers{t.side}));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(trigger, 54);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 DEFINE_SERIAL_UDT_TO_MESSAGE(trigger, t, (t.type, t.flags, t.num_links, serial::pad<1>(), t.value, serial::pad<4>(), t.seg, serialize_wide_trigger_side_numbers{t.side}));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(trigger, 52);
 #endif
@@ -794,7 +794,7 @@ void v29_trigger_write(PHYSFS_File *fp, const trigger &rt)
 	PHYSFSX_writeU8(fp, 0);		// unused 'type'
 #if DXX_BUILD_DESCENT == 1
 	PHYSFS_writeSLE16(fp, t->flags);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	const auto one_shot_flag = (t->flags & trigger_behavior_flags::one_shot) ? TRIGGER_ONE_SHOT : TRIGGER_FLAG{0};
 	switch (t->type)
 	{
@@ -879,13 +879,13 @@ void v30_trigger_write(PHYSFS_File *fp, const trigger &rt)
 	else
 		action = 0;
 	PHYSFSX_writeU8(fp, action);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	PHYSFSX_writeU8(fp, static_cast<uint8_t>(t->type));
 #endif
 
 #if DXX_BUILD_DESCENT == 1
 	PHYSFS_writeSLE16(fp, t->flags);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	const auto one_shot_flag = (t->flags & trigger_behavior_flags::one_shot) ? TRIGGER_ONE_SHOT : TRIGGER_FLAG{0};
 	switch (t->type)
 	{
@@ -970,13 +970,13 @@ void v31_trigger_write(PHYSFS_File *fp, const trigger &rt)
 	else
 		action = 0;
 	PHYSFSX_writeU8(fp, action);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	PHYSFSX_writeU8(fp, static_cast<uint8_t>(t->type));
 #endif
 
 #if DXX_BUILD_DESCENT == 1
 	PHYSFSX_writeU8(fp, (t->flags & TRIGGER_ONE_SHOT) ? 2 : 0);		// flags
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	PHYSFSX_writeU8(fp, static_cast<uint8_t>(t->flags));
 #endif
 

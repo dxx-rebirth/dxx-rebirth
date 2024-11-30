@@ -64,7 +64,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #if DXX_BUILD_DESCENT == 1
 #include "fuelcen.h"
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #include "gamepal.h"
 #include "interp.h"
 #endif
@@ -169,7 +169,7 @@ namespace {
 static unsigned		clip_count;
 static unsigned		clip_num;
 static uint16_t		frames;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 static char 		*arg;
 static short 		clip_count = 0;
 static short 		clip_num;
@@ -217,7 +217,7 @@ static void bm_read_weapon(char *&arg, int skip, int unused_flag);
 static void bm_read_powerup(char *&arg, int unused_flag);
 static void bm_read_hostage(char *&arg);
 static void verify_textures();
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #if DXX_USE_EDITOR
 static void bm_read_alias(void);
 #endif
@@ -255,14 +255,14 @@ int compute_average_pixel(grs_bitmap *n)
 #if DXX_BUILD_DESCENT == 1
 	for (unsigned row = 0; row < bm_h; row++)
 		for (unsigned column = 0; column < bm_w; column++)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	for (auto counter = product; counter--;)
 #endif
 	{
 #if DXX_BUILD_DESCENT == 1
 		const auto color = gr_gpixel (*n, column, row);
 		const auto &p = gr_palette[color];
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		const auto &p = gr_palette[*pptr++];
 #endif
 		total_red += p.r;
@@ -293,7 +293,7 @@ static bitmap_index bm_load_sub(const int skip, const char *const filename)
 
 #if DXX_BUILD_DESCENT == 1
 	const auto &&fname = removeext(filename);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	std::array<char, 20> fname{};
 	const auto path = d_splitpath(filename);
 	if (path.base_end - path.base_start >= fname.size())
@@ -326,7 +326,7 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 		Assert( bogus_bitmap_initialized != 0 );
 #if DXX_BUILD_DESCENT == 1
 		bmp[0] = piggy_register_bitmap(bogus_bitmap, "bogus", 0);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		bmp[0] = {};		//index of bogus bitmap==0 (I think)		//&bogus_bitmap;
 #endif
 		*nframes = 1;
@@ -336,7 +336,7 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 
 #if DXX_BUILD_DESCENT == 1
 	const auto &&fname = removeext(filename);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	const auto path = d_splitpath(filename);
 #endif
 
@@ -346,7 +346,7 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 		std::array<char, 24> tempname;
 #if DXX_BUILD_DESCENT == 1
 		const auto len = snprintf(tempname.data(), tempname.size(), "%.16s#%d", fname.data(), i);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		const auto len = snprintf(tempname.data(), tempname.size(), "%.*s#%d", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start, i);
 #endif
 		const auto bi = piggy_find_bitmap(std::span<const char>(tempname.data(), len));
@@ -381,7 +381,7 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 		cf_assert(i < bm.size());
 #if DXX_BUILD_DESCENT == 1
 		snprintf(tempname.data(), tempname.size(), "%s#%" PRIuFAST32, fname.data(), i);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		snprintf(tempname.data(), tempname.size(), "%.*s#%" PRIuFAST32, DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start, i );
 #endif
 		gr_remap_bitmap_good(*bm[i].get(), newpal, iff_has_transparency ? iff_transparent_color : -1, SuperX);
@@ -406,7 +406,7 @@ int ds_load(int skip, const char * filename )	{
 	const auto &&fname = removeext(filename);
 #if DXX_BUILD_DESCENT == 1
 	snprintf(rawname, sizeof(rawname), "Sounds/%s.raw", fname.data());
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	snprintf(rawname, sizeof(rawname), "Sounds/%s.r%s", fname.data(), (GameArg.SndDigiSampleRate == sound_sample_rate::_22k) ? "22" : "aw");
 #endif
 
@@ -510,7 +510,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 	ObjType[0] = OL_PLAYER;
 	ObjId[0] = {};
 	Num_total_object_types = 1;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	// Open BITMAPS.TBL for reading.
 	have_bin_tbl = 0;
 	auto InfoFile = PHYSFSX_openReadBuffered("BITMAPS.TBL").first;
@@ -641,7 +641,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 
 #if DXX_BUILD_DESCENT == 1
 		char *arg = strtok( inputline, space_tab );
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		arg = strtok( inputline, space_tab );
 #endif
 		if (arg && arg[0] == '@')
@@ -660,7 +660,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 			else IFTOK("$GAUGES")		{current_bm_type = bm_type::gauges;   clip_count = 0;}
 #if DXX_BUILD_DESCENT == 1
 			else IFTOK("$SOUND") 		bm_read_sound(arg, skip, pc_shareware);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			else IFTOK("$GAUGES_HIRES"){current_bm_type = bm_type::gauges_hires; clip_count = 0;}
 			else IFTOK("$ALIAS")			bm_read_alias();
 			else IFTOK("$SOUND") 		bm_read_sound(skip);
@@ -677,7 +677,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 				obj_eclip=0;
 #if DXX_BUILD_DESCENT == 1
 				dest_bm.clear();
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 				dest_bm=NULL;
 #endif
 				dest_vclip = vclip_index::None;
@@ -742,7 +742,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 				else
 					dest_bm.clear();
 			}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			else IFTOK("dest_bm")			dest_bm = strtok( NULL, space_tab );
 #endif
 			else IFTOK("dest_vclip")		dest_vclip = build_vclip_index_from_untrusted(get_int());
@@ -776,7 +776,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 			else IFTOK("$WEAPON_UNUSED")	{bm_read_weapon(arg, skip, 1);		continue;}
 			else IFTOK("$OBJECT")			{bm_read_object(arg, skip);		continue;}
 			else IFTOK("$PLAYER_SHIP")		{bm_read_player_ship(arg, skip);	continue;}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			else IFTOK("$ROBOT_AI") 		bm_read_robot_ai(LevelSharedRobotInfoState.Robot_info, skip);
 
 			else IFTOK("$POWERUP")			{bm_read_powerup(0);		continue;}
@@ -812,7 +812,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 				// Load bitmap and process it below:
 #if DXX_BUILD_DESCENT == 1
 				texture_count = bm_read_some_file(Vclip, texture_count, dest_bm, arg, skip);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 				texture_count = bm_read_some_file(Vclip, texture_count, skip);
 #endif
 
@@ -935,7 +935,7 @@ static void set_texture_name(d_level_unique_tmap_info_state::TmapInfo_array &Tma
 
 #if DXX_BUILD_DESCENT == 1
 static std::size_t bm_read_eclip(std::size_t texture_count, const std::string &dest_bm, const char *const arg, int skip)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 static std::size_t bm_read_eclip(std::size_t texture_count, int skip)
 #endif
 {
@@ -1045,7 +1045,7 @@ static std::size_t bm_read_eclip(std::size_t texture_count, int skip)
 
 #if DXX_BUILD_DESCENT == 1
 	if (!dest_bm.empty())
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (dest_bm)
 #endif
 	{			//deal with bitmap for blown up clip
@@ -1055,7 +1055,7 @@ static std::size_t bm_read_eclip(std::size_t texture_count, int skip)
 			texture_count = r.texture_count;
 			Effects[clip_num].dest_bm_num = r.idx_updated_texture;
 		}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		Effects[clip_num].dest_bm_num = dest_bm_num;
 #endif
 
@@ -1081,7 +1081,7 @@ static std::size_t bm_read_eclip(std::size_t texture_count, int skip)
 
 #if DXX_BUILD_DESCENT == 1
 static void bm_read_gauges(const char *const arg, int skip)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 static void bm_read_gauges(int skip)
 #endif
 {
@@ -1106,7 +1106,7 @@ static void bm_read_gauges(int skip)
 
 #if DXX_BUILD_DESCENT == 1
 static std::size_t bm_read_wclip(std::size_t texture_count, char *const arg, int skip)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 static void bm_read_gauges_hires()
 {
 	unsigned i, num_abm_frames;
@@ -1164,7 +1164,7 @@ static std::size_t bm_read_wclip(std::size_t texture_count, int skip)
 		abm_flag = 0;
 #if DXX_BUILD_DESCENT == 1
 		ab_load(skip, arg, bm, &nframes );
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		ab_load(0, arg, bm, &nframes );
 #endif
 		wa.num_frames = nframes;
@@ -1195,7 +1195,7 @@ static std::size_t bm_read_wclip(std::size_t texture_count, int skip)
 
 #if DXX_BUILD_DESCENT == 1
 static void bm_read_vclip(d_vclip_array &Vclip, const char *const arg, int skip)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 static void bm_read_vclip(d_vclip_array &Vclip, int skip)
 #endif
 {
@@ -1320,7 +1320,7 @@ static void clear_to_end_of_line(char *&arg)
 {
 	arg = NULL;
 }
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 static void clear_to_end_of_line()
 {
 	arg = strtok( NULL, space_tab );
@@ -1331,7 +1331,7 @@ static void clear_to_end_of_line()
 
 #if DXX_BUILD_DESCENT == 1
 static void bm_read_sound(char *&arg, int skip, int pc_shareware)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 void bm_read_sound(int skip)
 #endif
 {
@@ -1340,7 +1340,7 @@ void bm_read_sound(int skip)
 	const int read_sound_num = get_int();
 #if DXX_BUILD_DESCENT == 1
 	alt_sound_num = pc_shareware ? read_sound_num : get_int();
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	alt_sound_num = get_int();
 #endif
 
@@ -1373,7 +1373,7 @@ void bm_read_sound(int skip)
 // ------------------------------------------------------------------------------
 #if DXX_BUILD_DESCENT == 1
 static void bm_read_robot_ai(d_robot_info_array &Robot_info, char *&arg, const int skip)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 void bm_read_robot_ai(d_robot_info_array &Robot_info, const int skip)
 #endif
 {
@@ -1393,7 +1393,7 @@ void bm_read_robot_ai(d_robot_info_array &Robot_info, const int skip)
 		Num_robot_ais++;
 #if DXX_BUILD_DESCENT == 1
 		clear_to_end_of_line(arg);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		clear_to_end_of_line();
 #endif
 		return;
@@ -1413,7 +1413,7 @@ void bm_read_robot_ai(d_robot_info_array &Robot_info, const int skip)
 		shield;							//	shield strength of this robot
 	get4fix(fire_power);
 	get4fix(shield);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 //	get4fix(robptr->fire_power);
 //	get4fix(robptr->shield);
 #endif
@@ -1476,7 +1476,7 @@ static grs_bitmap *load_polymodel_bitmap(int skip, const char *name)
 // ------------------------------------------------------------------------------
 #if DXX_BUILD_DESCENT == 1
 static void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, char *&arg, int skip)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, int skip)
 #endif
 {
@@ -1526,7 +1526,7 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 #if DXX_BUILD_DESCENT == 1
 		Num_total_object_types++;
 		clear_to_end_of_line(arg);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		clear_to_end_of_line();
 #endif
 		return;
@@ -1705,7 +1705,7 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 #if DXX_BUILD_DESCENT == 1
 	ObjType[Num_total_object_types] = OL_ROBOT;
 	ObjId[Num_total_object_types] = static_cast<polygon_model_index>(LevelSharedRobotInfoState.N_robot_types);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if ((glow > i2f(15)) || (glow < 0) || (glow != 0 && glow < 0x1000)) {
 		Int3();
 	}
@@ -1762,7 +1762,7 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 	++LevelSharedRobotInfoState.N_robot_types;
 #if DXX_BUILD_DESCENT == 1
 	Num_total_object_types++;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	current_bm_type = bm_type::none;
 #endif
 }
@@ -1770,7 +1770,7 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 #if DXX_BUILD_DESCENT == 1
 //read a polygon object of some sort
 void bm_read_object(char *&arg, int skip)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 //read a reactor model
 void bm_read_reactor(void)
 #endif
@@ -1782,7 +1782,7 @@ void bm_read_reactor(void)
 #if DXX_BUILD_DESCENT == 1
 	int type = -1;
 	fix strength=0;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	assert(Num_reactors < Reactors.size());
 #endif
 
@@ -1827,7 +1827,7 @@ void bm_read_reactor(void)
 			else if (!d_stricmp( arg, "strength" )) {
 				strength = fl2f(atof(equal_ptr));
 			}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			else {
 				Int3();
 			}
@@ -1835,7 +1835,7 @@ void bm_read_reactor(void)
 		} else {			// Must be a texture specification...
 #if DXX_BUILD_DESCENT == 1
 			load_polymodel_bitmap(skip, arg);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			load_polymodel_bitmap(0, arg);
 #endif
 		}
@@ -1872,7 +1872,7 @@ void bm_read_reactor(void)
 		exit_modelnum = model_num;
 		destroyed_exit_modelnum = Dead_modelnums[model_num];
 	}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	Reactors[Num_reactors].model_num = model_num;
 	read_model_guns(model_name, Reactors[Num_reactors]);
 
@@ -1973,7 +1973,7 @@ void bm_read_exitmodel()
 
 #if DXX_BUILD_DESCENT == 1
 void bm_read_player_ship(char *&arg, int skip)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 void bm_read_player_ship(void)
 #endif
 {
@@ -2056,7 +2056,7 @@ void bm_read_player_ship(void)
 		{
 #if DXX_BUILD_DESCENT == 1
 			load_polymodel_bitmap(skip, arg);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			load_polymodel_bitmap(0, arg);
 #endif
 		}
@@ -2132,7 +2132,7 @@ void bm_read_player_ship(void)
 
 #if DXX_BUILD_DESCENT == 1
 std::size_t bm_read_some_file(d_vclip_array &Vclip, std::size_t texture_count, const std::string &dest_bm, char *&arg, int skip)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 std::size_t bm_read_some_file(d_vclip_array &Vclip, std::size_t texture_count, int skip)
 #endif
 {
@@ -2153,7 +2153,7 @@ std::size_t bm_read_some_file(d_vclip_array &Vclip, std::size_t texture_count, i
 	case bm_type::gauges:
 #if DXX_BUILD_DESCENT == 1
 		bm_read_gauges(arg, skip);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		bm_read_gauges(skip);
 		return texture_count;
 	case bm_type::gauges_hires:
@@ -2163,14 +2163,14 @@ std::size_t bm_read_some_file(d_vclip_array &Vclip, std::size_t texture_count, i
 	case bm_type::vclip:
 #if DXX_BUILD_DESCENT == 1
 		bm_read_vclip(Vclip, arg, skip);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		bm_read_vclip(Vclip, skip);
 #endif
 		return texture_count;
 	case bm_type::eclip:
 #if DXX_BUILD_DESCENT == 1
 		texture_count = bm_read_eclip(texture_count, dest_bm, arg, skip);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		texture_count = bm_read_eclip(texture_count, skip);
 #endif
 		return texture_count;
@@ -2190,7 +2190,7 @@ std::size_t bm_read_some_file(d_vclip_array &Vclip, std::size_t texture_count, i
 		texture_count = bm_read_wclip(texture_count, arg, skip);
 		return texture_count;
 	default:
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		texture_count = bm_read_wclip(texture_count, skip);
 		return texture_count;
 #endif
@@ -2208,7 +2208,7 @@ std::size_t bm_read_some_file(d_vclip_array &Vclip, std::size_t texture_count, i
 //	If unused_flag is set, then this is just a placeholder.  Don't actually reference vclips or load bbms.
 #if DXX_BUILD_DESCENT == 1
 void bm_read_weapon(char *&arg, int skip, int unused_flag)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 void bm_read_weapon(int skip, int unused_flag)
 #endif
 {
@@ -2231,7 +2231,7 @@ void bm_read_weapon(int skip, int unused_flag)
 	if (unused_flag) {
 #if DXX_BUILD_DESCENT == 1
 		clear_to_end_of_line(arg);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		clear_to_end_of_line();
 #endif
 		return;
@@ -2240,7 +2240,7 @@ void bm_read_weapon(int skip, int unused_flag)
 	if (skip) {
 #if DXX_BUILD_DESCENT == 1
 		clear_to_end_of_line(arg);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		clear_to_end_of_line();
 #endif
 		return;
@@ -2358,7 +2358,7 @@ void bm_read_weapon(int skip, int unused_flag)
 				{
 #if DXX_BUILD_DESCENT == 1
 					i = i2f(atoi(equal_ptr));
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 					i = fl2f(atof(equal_ptr));
 #endif
 					equal_ptr = strtok(NULL, space_tab);
@@ -2463,7 +2463,7 @@ void bm_read_weapon(int skip, int unused_flag)
 			bm = load_polymodel_bitmap(skip, arg);
 #if DXX_BUILD_DESCENT == 1
 			if (bm && ! lighted)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			if (! lighted)
 #endif
 				bm->add_flags(BM_FLAG_NO_LIGHTING);
@@ -2502,7 +2502,7 @@ void bm_read_weapon(int skip, int unused_flag)
 
 #if DXX_BUILD_DESCENT == 1
 void bm_read_powerup(char *&arg, int unused_flag)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 void bm_read_powerup(int unused_flag)
 #endif
 {
@@ -2516,7 +2516,7 @@ void bm_read_powerup(int unused_flag)
 	if (unused_flag) {
 #if DXX_BUILD_DESCENT == 1
 		clear_to_end_of_line(arg);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		clear_to_end_of_line();
 #endif
 		return;
@@ -2581,7 +2581,7 @@ void bm_read_powerup(int unused_flag)
 
 #if DXX_BUILD_DESCENT == 1
 void bm_read_hostage(char *&arg)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 void bm_read_hostage()
 #endif
 {
@@ -2632,7 +2632,7 @@ void bm_read_hostage()
 #if DXX_BUILD_DESCENT == 1
 DEFINE_SERIAL_UDT_TO_MESSAGE(tmap_info, t, (static_cast<const std::array<char, 13> &>(t.filename), t.flags, t.lighting, t.damage, t.eclip_num));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(tmap_info, 26);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 DEFINE_SERIAL_UDT_TO_MESSAGE(tmap_info, t, (t.flags, serial::pad<3>(), t.lighting, t.damage, t.eclip_num, t.destroyed, t.slide_u, t.slide_v));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(tmap_info, 20);
 #endif

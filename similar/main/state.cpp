@@ -88,7 +88,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define STATE_VERSION 7
 #define STATE_MATCEN_VERSION 25 // specific version of metcen info written into D1 savegames. Currenlty equal to GAME_VERSION (see gamesave.cpp). If changed, then only along with STATE_VERSION.
 #define STATE_COMPATIBLE_VERSION 6
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define STATE_VERSION 22
 #define STATE_COMPATIBLE_VERSION 20
 #endif
@@ -421,7 +421,7 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 			obj_rw->ctype.ai_info.flags[3] = obj.ctype.ai_info.PATH_DIR;
 #if DXX_BUILD_DESCENT == 1
 			obj_rw->ctype.ai_info.flags[4] = obj.ctype.ai_info.SUBMODE;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			obj_rw->ctype.ai_info.flags[4] = obj.ctype.ai_info.SUB_FLAGS;
 #endif
 			obj_rw->ctype.ai_info.flags[5] = underlying_value(obj.ctype.ai_info.GOALSIDE);
@@ -441,7 +441,7 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 #if DXX_BUILD_DESCENT == 1
 			obj_rw->ctype.ai_info.follow_path_start_seg  = segment_none;
 			obj_rw->ctype.ai_info.follow_path_end_seg    = segment_none;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			obj_rw->ctype.ai_info.dying_sound_playing    = obj.ctype.ai_info.dying_sound_playing;
 			if (obj.ctype.ai_info.dying_start_time == 0) // if bot not dead, anything but 0 will kill it
 				obj_rw->ctype.ai_info.dying_start_time = 0;
@@ -639,7 +639,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 			obj.ctype.ai_info.PATH_DIR = obj_rw->ctype.ai_info.flags[3];
 #if DXX_BUILD_DESCENT == 1
 			obj.ctype.ai_info.SUBMODE = obj_rw->ctype.ai_info.flags[4];
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			obj.ctype.ai_info.SUB_FLAGS = obj_rw->ctype.ai_info.flags[4];
 #endif
 			obj.ctype.ai_info.GOALSIDE = build_sidenum_from_untrusted(obj_rw->ctype.ai_info.flags[5]).value();
@@ -655,7 +655,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 			if (obj.ctype.ai_info.danger_laser_num != object_none)
 				obj.ctype.ai_info.danger_laser_signature = object_signature_t{static_cast<uint16_t>(obj_rw->ctype.ai_info.danger_laser_signature)};
 #if DXX_BUILD_DESCENT == 1
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			obj.ctype.ai_info.dying_sound_playing    = obj_rw->ctype.ai_info.dying_sound_playing;
 			obj.ctype.ai_info.dying_start_time       = obj_rw->ctype.ai_info.dying_start_time;
 #endif
@@ -671,7 +671,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 #if DXX_BUILD_DESCENT == 1
 			obj.ctype.powerup_info.creation_time = 0;
 			obj.ctype.powerup_info.flags         = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			obj.ctype.powerup_info.creation_time = obj_rw->ctype.powerup_info.creation_time;
 			obj.ctype.powerup_info.flags         = obj_rw->ctype.powerup_info.flags;
 #endif
@@ -756,7 +756,7 @@ deny_save_result deny_save_game(fvcobjptr &vcobjptr, const d_level_unique_contro
 {
 #if DXX_BUILD_DESCENT == 1
 	(void)GameUniqueState;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (Current_level_num < 0)
 		return deny_save_result::denied;
 	if (GameUniqueState.Final_boss_countdown_time)		//don't allow save while final boss is dying
@@ -795,7 +795,7 @@ static void state_player_to_player_rw(const relocated_player_data &rpd, const pl
 #if DXX_BUILD_DESCENT == 1
 	// make sure no side effects for Mac demo
 	pl_rw->secondary_weapon_flags    = 0x0f | (pl_info.secondary_ammo[secondary_weapon_index_t::MEGA_INDEX] > 0) << underlying_value(secondary_weapon_index_t::MEGA_INDEX);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	// make sure no side effects for PC demo
 	pl_rw->secondary_weapon_flags    = 0xef | (pl_info.secondary_ammo[secondary_weapon_index_t::MEGA_INDEX] > 0) << underlying_value(secondary_weapon_index_t::MEGA_INDEX)
 											| (pl_info.secondary_ammo[secondary_weapon_index_t::SMISSILE4_INDEX] > 0) << underlying_value(secondary_weapon_index_t::SMISSILE4_INDEX)	// mercury missile
@@ -865,7 +865,7 @@ static void state_player_rw_to_player(const player_rw *pl_rw, player *pl, player
 	pl_info.invulnerable_time         = pl_rw->invulnerable_time;
 #if DXX_BUILD_DESCENT == 1
 	pl_info.KillGoalCount = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	pl_info.KillGoalCount             = pl_rw->KillGoalCount;
 #endif
 	pl_info.net_killed_total          = pl_rw->net_killed_total;
@@ -1144,7 +1144,7 @@ d_game_unique_state::save_slot state_get_restore_file(grs_canvas &canvas, d_game
 }
 
 #if DXX_BUILD_DESCENT == 1
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 namespace {
 
 //	-----------------------------------------------------------------------------------
@@ -1187,13 +1187,13 @@ static void format_secret_sgc_filename(std::array<char, PATH_MAX> &fname, const 
 //	-----------------------------------------------------------------------------------
 #if DXX_BUILD_DESCENT == 1
 int state_save_all(const blind_save blind_save)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 int state_save_all(const secret_save secret, const blind_save blind_save)
 #endif
 {
 #if DXX_BUILD_DESCENT == 1
 	static constexpr std::integral_constant<secret_save, secret_save::none> secret{};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	if (Current_level_num < 0 && secret == secret_save::none)
 	{
@@ -1540,7 +1540,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	}
 #if DXX_BUILD_DESCENT == 1
 	PHYSFSX_writeBytes(fp, &LevelUniqueControlCenterState.Countdown_seconds_left, sizeof(int));
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	PHYSFSX_writeBytes(fp, &LevelUniqueControlCenterState.Countdown_timer, sizeof(int));
 #endif
 	const unsigned Num_robot_centers = LevelSharedRobotcenterState.Num_robot_centers;
@@ -1548,7 +1548,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	range_for (auto &r, partial_const_range(RobotCenters, Num_robot_centers))
 #if DXX_BUILD_DESCENT == 1
 		matcen_info_write(fp, r, STATE_MATCEN_VERSION);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		matcen_info_write(fp, r, 0x7f);
 #endif
 	control_center_triggers_write(ControlCenterTriggers, fp);
@@ -1734,14 +1734,14 @@ void set_pos_from_return_segment(void)
 //	-----------------------------------------------------------------------------------
 #if DXX_BUILD_DESCENT == 1
 int state_restore_all(const int in_game, std::nullptr_t, const blind_save blind)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 int state_restore_all(const int in_game, const secret_restore secret, const char *const filename_override, const blind_save blind)
 #endif
 {
 
 #if DXX_BUILD_DESCENT == 1
 	static constexpr std::integral_constant<secret_restore, secret_restore::none> secret{};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (in_game && Current_level_num < 0 && secret == secret_restore::none)
 	{
 		HUD_init_message_literal(HM_DEFAULT,  "Can't restore in secret level!" );
@@ -1823,7 +1823,7 @@ int state_restore_all(const int in_game, const secret_restore secret, const char
 
 #if DXX_BUILD_DESCENT == 1
 int state_restore_all_sub(const char *filename)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, const secret_restore secret, const char *const filename)
 #endif
 {
@@ -1839,7 +1839,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 
 #if DXX_BUILD_DESCENT == 1
 	static constexpr std::integral_constant<secret_restore, secret_restore::none> secret{};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	const auto old_gametime{GameTime64};
 #endif
@@ -2229,7 +2229,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 #if DXX_BUILD_DESCENT == 1
 	LevelUniqueControlCenterState.Countdown_seconds_left = {PHYSFSX_readSXE32(fp, swap)};
 	LevelUniqueControlCenterState.Countdown_timer = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	LevelUniqueControlCenterState.Countdown_timer = {PHYSFSX_readSXE32(fp, swap)};
 #endif
 	const unsigned Num_robot_centers = PHYSFSX_readSXE32(fp, swap);
@@ -2237,7 +2237,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	range_for (auto &r, partial_range(RobotCenters, Num_robot_centers))
 #if DXX_BUILD_DESCENT == 1
 		matcen_info_read(fp, r, STATE_MATCEN_VERSION);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		matcen_info_read(fp, r);
 #endif
 	control_center_triggers_read(ControlCenterTriggers, fp);

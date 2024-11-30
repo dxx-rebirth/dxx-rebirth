@@ -67,7 +67,7 @@ struct robot_info;
 // maximum number of robot types
 constexpr std::integral_constant<unsigned, 30> MAX_ROBOT_TYPES{};
 constexpr std::integral_constant<unsigned, 600> MAX_ROBOT_JOINTS{};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 // maximum number of robot types
 constexpr std::integral_constant<unsigned, 85> MAX_ROBOT_TYPES{};
 constexpr std::integral_constant<unsigned, 1600> MAX_ROBOT_JOINTS{};

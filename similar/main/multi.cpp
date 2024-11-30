@@ -318,7 +318,7 @@ const GMNames_array GMNames = {{
 	"Unknown",
 	"Unknown",
 	"Unknown",
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	"Capture the Flag",
 	"Hoard",
 	"Team Hoard",
@@ -334,7 +334,7 @@ const std::array<char[8], MULTI_GAME_TYPE_COUNT> GMNamesShrt = {{
 	"UNKNOWN",
 	"UNKNOWN",
 	"UNKNOWN",
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	"FLAG",
 	"HOARD",
 	"TMHOARD",
@@ -619,7 +619,7 @@ kmatrix_result multi_endlevel_score()
 		 * conditional on each pass.
 		 */
 		player_flags(~0u)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		// Clear capture flag
 		~player_flags(PLAYER_FLAGS_FLAG)
 #endif
@@ -1366,7 +1366,7 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 	multi_sending_message[Player_num] = msgsend_state::none;
 	multi_send_msgsend_state(msgsend_state::none);
 	key_toggle_repeat(0);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	Network_message_reciever = 100;
 #endif
 
@@ -1540,7 +1540,7 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 
 #if DXX_BUILD_DESCENT == 1
 	Network_message_reciever = 100;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	multi_message_index = 0;
 	multi_sending_message[Player_num] = msgsend_state::none;
 	multi_send_msgsend_state(msgsend_state::none);
@@ -1839,7 +1839,7 @@ static void multi_do_player_deres(const d_robot_info_array &Robot_info, object_a
 	count = 3;
 #if DXX_BUILD_DESCENT == 1
 #define GET_WEAPON_FLAGS(buf,count)	buf[count++]
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define GET_WEAPON_FLAGS(buf,count)	(count += sizeof(uint16_t), GET_INTEL_SHORT(&buf[(count - sizeof(uint16_t))]))
 #endif
 	const auto &&objp = vmobjptridx(vcplayerptr(pnum)->objnum);
@@ -2674,7 +2674,7 @@ void multi_send_markers()
 
 #if DXX_BUILD_DESCENT == 1
 void multi_send_endlevel_start(const multi_endlevel_type secret)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 void multi_send_endlevel_start()
 #endif
 {
@@ -2713,7 +2713,7 @@ void multi_send_player_deres(deres_type_t type)
 
 #if DXX_BUILD_DESCENT == 1
 #define PUT_WEAPON_FLAGS(buf,count,value)	(buf[count] = value, ++count)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define PUT_WEAPON_FLAGS(buf,count,value)	((PUT_INTEL_SHORT(&buf[count], value)), count+=sizeof(uint16_t))
 #endif
 	auto &player_info = get_local_plrobj().ctype.player_info;
@@ -2954,7 +2954,7 @@ void multi_send_door_open(const vcsegidx_t segnum, const sidenum_t side, const w
 	multibuf[3] = underlying_value(side);
 #if DXX_BUILD_DESCENT == 1
 	(void)flag;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	multibuf[4] = underlying_value(flag);
 #endif
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
@@ -4679,7 +4679,7 @@ netflag_flag multi_powerup_is_allowed(const powerup_type_t id, const netflag_fla
 		case powerup_type_t::POW_VULCAN_AMMO:
 #if DXX_BUILD_DESCENT == 1
 			return BaseAllowedItems & netflag_flag::NETFLAG_DOVULCAN;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			return BaseAllowedItems & (netflag_flag::NETFLAG_DOVULCAN | netflag_flag::NETFLAG_DOGAUSS);
 #endif
 #if DXX_BUILD_DESCENT == 2
@@ -4792,7 +4792,7 @@ static void multi_adjust_lifetime_ranking(int &k, const int count)
 			HUD_init_message(HM_MULTI, "You have been %smoted to %s!", newrank > oldrank ? "pro" : "de", RankStrings[newrank]);
 #if DXX_BUILD_DESCENT == 1
 			digi_play_sample (SOUND_CONTROL_CENTER_WARNING_SIREN,F1_0*2);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			digi_play_sample (SOUND_BUDDY_MET_GOAL,F1_0*2);
 #endif
 		}
@@ -4934,7 +4934,7 @@ void multi_new_bounty_target_with_sound(const playernum_t pnum, const char *cons
 {
 #if DXX_BUILD_DESCENT == 1
 	digi_play_sample( SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0 * 3 );
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	digi_play_sample( SOUND_BUDDY_MET_GOAL, F1_0 * 2 );
 #endif
 	multi_new_bounty_target(pnum, callsign);
@@ -5262,7 +5262,7 @@ static void multi_do_player_inventory(const playernum_t pnum, const multiplayer_
 	count = 2;
 #if DXX_BUILD_DESCENT == 1
 #define GET_WEAPON_FLAGS(buf,count)	buf[count++]
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define GET_WEAPON_FLAGS(buf,count)	(count += sizeof(uint16_t), GET_INTEL_SHORT(&buf[(count - sizeof(uint16_t))]))
 #endif
 	const auto &&objp = vmobjptridx(vcplayerptr(pnum)->objnum);
@@ -6113,7 +6113,7 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 			obj_rw->ctype.ai_info.flags[3] = obj.ctype.ai_info.PATH_DIR;
 #if DXX_BUILD_DESCENT == 1
 			obj_rw->ctype.ai_info.flags[4] = obj.ctype.ai_info.SUBMODE;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			obj_rw->ctype.ai_info.flags[4] = obj.ctype.ai_info.SUB_FLAGS;
 #endif
 			obj_rw->ctype.ai_info.flags[5] = underlying_value(obj.ctype.ai_info.GOALSIDE);
@@ -6126,7 +6126,7 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 			obj_rw->ctype.ai_info.path_length            = INTEL_SHORT(obj.ctype.ai_info.path_length);
 #if DXX_BUILD_DESCENT == 1
 			obj_rw->ctype.ai_info.cur_path_index         = INTEL_SHORT(obj.ctype.ai_info.cur_path_index);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			obj_rw->ctype.ai_info.cur_path_index         = obj.ctype.ai_info.cur_path_index;
 #endif
 			obj_rw->ctype.ai_info.danger_laser_num       = INTEL_SHORT(obj.ctype.ai_info.danger_laser_num);
@@ -6137,7 +6137,7 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 #if DXX_BUILD_DESCENT == 1
 			obj_rw->ctype.ai_info.follow_path_start_seg  = segment_none;
 			obj_rw->ctype.ai_info.follow_path_end_seg    = segment_none;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			obj_rw->ctype.ai_info.dying_sound_playing    = obj.ctype.ai_info.dying_sound_playing;
 			if (obj.ctype.ai_info.dying_start_time == 0) // if bot not dead, anything but 0 will kill it
 				obj_rw->ctype.ai_info.dying_start_time = 0;
@@ -6298,7 +6298,7 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 			obj.ctype.ai_info.PATH_DIR = obj_rw->ctype.ai_info.flags[3];
 #if DXX_BUILD_DESCENT == 1
 			obj.ctype.ai_info.SUBMODE = obj_rw->ctype.ai_info.flags[4];
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			obj.ctype.ai_info.SUB_FLAGS = obj_rw->ctype.ai_info.flags[4];
 #endif
 			obj.ctype.ai_info.GOALSIDE = build_sidenum_from_untrusted(obj_rw->ctype.ai_info.flags[5]).value();
@@ -6312,14 +6312,14 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 			obj.ctype.ai_info.cur_path_index         =
 #if DXX_BUILD_DESCENT == 1
 				INTEL_SHORT(obj_rw->ctype.ai_info.cur_path_index);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 				obj_rw->ctype.ai_info.cur_path_index;
 #endif
 			obj.ctype.ai_info.danger_laser_num       = INTEL_SHORT(obj_rw->ctype.ai_info.danger_laser_num);
 			if (obj.ctype.ai_info.danger_laser_num != object_none)
 				obj.ctype.ai_info.danger_laser_signature = object_signature_t{static_cast<uint16_t>(INTEL_INT(obj_rw->ctype.ai_info.danger_laser_signature))};
 #if DXX_BUILD_DESCENT == 1
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			obj.ctype.ai_info.dying_sound_playing    = obj_rw->ctype.ai_info.dying_sound_playing;
 			obj.ctype.ai_info.dying_start_time       = INTEL_INT(obj_rw->ctype.ai_info.dying_start_time);
 #endif
@@ -6335,7 +6335,7 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 #if DXX_BUILD_DESCENT == 1
 			obj.ctype.powerup_info.creation_time = 0;
 			obj.ctype.powerup_info.flags         = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			obj.ctype.powerup_info.creation_time = INTEL_INT(obj_rw->ctype.powerup_info.creation_time);
 			obj.ctype.powerup_info.flags         = INTEL_INT(obj_rw->ctype.powerup_info.flags);
 #endif

@@ -548,7 +548,7 @@ static const mle *read_mission_file(mission_list_type &mission_list, std::string
 			return nullptr;	// path too long, would be truncated in save game files
 #if DXX_BUILD_DESCENT == 1
 		constexpr auto descent_version = Mission::descent_version_type::descent1;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		// look if it's .mn2 or .msn
 		const auto descent_version = (str_pathname[idx_file_extension + 3] == MISSION_EXTENSION_DESCENT_II[3])
 			? Mission::descent_version_type::descent2
@@ -963,7 +963,7 @@ static const char *load_mission(const mle *const mission)
 		if (const auto r = PHYSFSX_addRelToSearchPath(descent_hog_basename, pathname, physfs_search_path::prepend); r != PHYSFS_ERR_OK)
 #if DXX_BUILD_DESCENT == 1
 			Error("descent.hog not available!\n%s", PHYSFS_getErrorByCode(r));
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			Warning("descent.hog not available!\n%s\nThis mission may be missing some files required for briefings and exit sequence.", PHYSFS_getErrorByCode(r));
 #endif
 		if (!d_stricmp(Current_mission->path.c_str(), D1_MISSION_FILENAME))

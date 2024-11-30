@@ -505,7 +505,7 @@ static Mix_Chunk &mixdigi_convert_sound(const unsigned i)
 		auto &gs = GameSounds[i];
 #if DXX_BUILD_DESCENT == 1
 		const auto freq{gs.freq};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		const auto freq = underlying_value(GameArg.SndDigiSampleRate);
 #endif
 		//proceed only if not converted yet

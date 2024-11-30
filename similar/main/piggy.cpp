@@ -66,7 +66,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "snddecom.h"
 #define DEFAULT_PIGFILE_REGISTERED      "descent.pig"
 
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define DEFAULT_PIGFILE_REGISTERED      "groupa.pig"
 #define DEFAULT_PIGFILE_SHAREWARE       "d2demo.pig"
 #define DEFAULT_HAMFILE_REGISTERED      "descent2.ham"
@@ -153,7 +153,7 @@ static RAIINamedPHYSFS_File Piggy_fp;
 
 #if DXX_BUILD_DESCENT == 1
 #define PIGGY_BUFFER_SIZE (2048*1024)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define PIGFILE_ID              MAKE_SIG('G','I','P','P') //PPIG
 #define PIGFILE_VERSION         2
 #define PIGGY_BUFFER_SIZE (2400*1024)
@@ -170,7 +170,7 @@ int PCSharePig = 0; // using PC Shareware pigfile?
 namespace {
 static std::array<int, MAX_SOUND_FILES> SoundCompressed;
 }
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define BM_FLAGS_TO_COPY (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT \
                          | BM_FLAG_NO_LIGHTING | BM_FLAG_RLE | BM_FLAG_RLE_BIG)
 #endif
@@ -194,7 +194,7 @@ struct DiskBitmapHeader
 } __pack__;
 #if DXX_BUILD_DESCENT == 1
 static_assert(sizeof(DiskBitmapHeader) == 0x11, "sizeof(DiskBitmapHeader) must be 0x11");
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 static_assert(sizeof(DiskBitmapHeader) == 0x12, "sizeof(DiskBitmapHeader) must be 0x12");
 
 #define DISKBITMAPHEADER_D1_SIZE 17 // no wh_extra
@@ -624,7 +624,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 
 	return retval;
 }
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 
 //initialize a pigfile, reading headers
 //returns the size of all the bitmap data
@@ -1227,7 +1227,7 @@ void piggy_read_sounds(int pc_shareware)
 		}
 	}
 }
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 void piggy_read_sounds(void)
 {
 	uint8_t * ptr;
@@ -1309,7 +1309,7 @@ void piggy_bitmap_page_in(GameBitmaps_array &GameBitmaps, const bitmap_index ent
 				memcpy(&zsize, bmp->bm_data, 4);
 			}
 			Piggy_bitmap_cache_next += zsize-4;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			const pigfile_size pigsize{static_cast<uint32_t>(PHYSFS_fileLength(Piggy_fp))};
 
 			// GET JOHN NOW IF YOU GET THIS ASSERT!!!
@@ -1361,7 +1361,7 @@ void piggy_bitmap_page_in(GameBitmaps_array &GameBitmaps, const bitmap_index ent
 			Piggy_bitmap_cache_next+=bmp->bm_h*bmp->bm_w;
 			if (MacPig)
 				swap_0_255(*bmp);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			const pigfile_size pigsize{static_cast<uint32_t>(PHYSFS_fileLength(Piggy_fp))};
 			gr_set_bitmap_data(*bmp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next]);
 			Piggy_bitmap_cache_next+=bmp->bm_h*bmp->bm_w;
@@ -1616,7 +1616,7 @@ constexpr char gauge_bitmap_names[][9] = {
 	"targ02pc",
 	"targ03pc",
 	"gaug18pc"
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	"gauge01b",
 	"gauge02b",
 	"gauge06b",

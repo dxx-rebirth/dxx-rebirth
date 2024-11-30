@@ -36,7 +36,7 @@ namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 60> MAX_EFFECTS{};
 constexpr std::integral_constant<uint32_t, UINT32_MAX> eclip_none{};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 constexpr std::integral_constant<unsigned, 110> MAX_EFFECTS{};
 constexpr std::integral_constant<uint16_t, UINT16_MAX> eclip_none{};
 #endif

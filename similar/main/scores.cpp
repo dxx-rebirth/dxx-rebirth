@@ -91,7 +91,7 @@ struct stats_info
 {
 #if DXX_BUILD_DESCENT == 1
 	static constexpr std::size_t disk_size{24};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	static constexpr std::size_t disk_size{28};
 #endif
 	callsign_t name;
@@ -110,7 +110,7 @@ struct all_scores
 	/* Descent 1 has `stats` immediately after `cool_saying`. */
 	static constexpr std::size_t offsetof_stats{54};
 	static constexpr std::size_t disk_size{294};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	/* Descent 2 has a 2 byte hole before `stats`. */
 	static constexpr std::size_t offsetof_stats{56};
 	static constexpr std::size_t disk_size{336};
@@ -120,7 +120,7 @@ struct all_scores
 };
 #if DXX_BUILD_DESCENT == 1
 #define DXX_SCORE_STATS_INFO_PAD(AMOUNT)	/* In Descent 1, stats are stored with no padding, so discard the amount field. */
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define DXX_SCORE_STATS_INFO_PAD(AMOUNT)	/* In Descent 2, stats are stored with padding determined by the ABI of the original DOS compiler, so propagate the amount field to `serial::pad`. */	\
 	serial::pad<AMOUNT, 0>(),
 #endif

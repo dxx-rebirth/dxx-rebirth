@@ -107,7 +107,7 @@ fix Render_zoom;     // the player's zoom factor
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<uint8_t, 0> RenderingType{};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 extern uint8_t RenderingType;
 #endif
 }

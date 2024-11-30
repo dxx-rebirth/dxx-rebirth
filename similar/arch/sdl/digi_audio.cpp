@@ -200,7 +200,7 @@ int digi_audio_init()
 #if DXX_BUILD_DESCENT == 1
 	/* Descent 1 sounds are always 11Khz. */
 	WaveSpec.freq = underlying_value(sound_sample_rate::_11k);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	/* Descent 2 sounds are available in both 11Khz and 22Khz.  The user may
 	 * pick at program start time which to use.
 	 */

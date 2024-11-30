@@ -251,7 +251,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const si
 #if !DXX_USE_EDITOR
 	(void)sidenum;
 #endif
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	//handle cloaked walls
 	if (wid_flags & WALL_IS_DOORWAY_FLAG::cloaked) {
 		const auto wall_num = segp.shared_segment::sides[sidenum].wall_num;
@@ -303,7 +303,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const si
 	std::array<g3s_lrgb, 4>		dyn_light;
 #if DXX_BUILD_DESCENT == 1
 	const auto Seismic_tremor_magnitude{0};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	const auto Seismic_tremor_magnitude = LevelUniqueSeismicState.Seismic_tremor_magnitude;
 #endif
 	const auto control_center_destroyed = LevelUniqueControlCenterState.Control_center_destroyed;
@@ -1165,7 +1165,7 @@ static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const
 #if DXX_BUILD_DESCENT == 1
 				int did_migrate;
 				if (obj->type != OBJ_CNTRLCEN)		//don't migrate controlcen
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 				const int did_migrate = 0;
 				if (obj->type != OBJ_CNTRLCEN && !(obj->type==OBJ_ROBOT && get_robot_id(obj) == robot_id::special_reactor))		//don't migrate controlcen
 #endif
@@ -1182,7 +1182,7 @@ static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const
 							{
 #if DXX_BUILD_DESCENT == 1
 								const cscusegment &&seg = vcsegptr(obj->segnum);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 								const cscusegment &&seg = vcsegptr(new_segnum);
 #endif
 		
@@ -1532,7 +1532,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 #if DXX_USE_EDITOR
 #if DXX_BUILD_DESCENT == 1
 	if (_search_mode || eye_offset>0)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (_search_mode)
 #endif
 	{

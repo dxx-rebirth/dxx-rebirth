@@ -312,7 +312,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 
 #if DXX_BUILD_DESCENT == 1
 		light_scale = Cloak_fadein_duration/2 - cloak_delta_time;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		light_scale = fixdiv(Cloak_fadein_duration/2 - cloak_delta_time,Cloak_fadein_duration/2);
 #endif
 		fading = true;
@@ -321,7 +321,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 
 #if DXX_BUILD_DESCENT == 1
 		cloak_value = f2i((cloak_delta_time - Cloak_fadein_duration/2) * CLOAKED_FADE_LEVEL);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		cloak_value = f2i(fixdiv(cloak_delta_time - Cloak_fadein_duration/2,Cloak_fadein_duration/2) * CLOAKED_FADE_LEVEL);
 #endif
 
@@ -348,7 +348,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 
 #if DXX_BUILD_DESCENT == 1
 		cloak_value = f2i((total_cloaked_time - Cloak_fadeout_duration/2 - cloak_delta_time) * CLOAKED_FADE_LEVEL);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		cloak_value = f2i(fixdiv(total_cloaked_time - Cloak_fadeout_duration/2 - cloak_delta_time,Cloak_fadeout_duration/2) * CLOAKED_FADE_LEVEL);
 #endif
 
@@ -356,7 +356,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 
 #if DXX_BUILD_DESCENT == 1
 		light_scale = Cloak_fadeout_duration/2 - (total_cloaked_time - cloak_delta_time);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		light_scale = fixdiv(Cloak_fadeout_duration/2 - (total_cloaked_time - cloak_delta_time),Cloak_fadeout_duration/2);
 #endif
 		fading = true;
@@ -458,7 +458,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 			const auto speed = vm_vec_mag_quick(obj->mtype.phys_info.velocity);
 #if DXX_BUILD_DESCENT == 1
 			engine_glow_value[0] += (fixdiv(speed,MAX_VELOCITY)*4)/5;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			engine_glow_value[0] += (fixdiv(speed,MAX_VELOCITY)*3)/5;
 #endif
 		}
@@ -712,7 +712,7 @@ void create_small_fireball_on_object(const vmobjptridx_t objp, fix size_scale, i
 
 #if DXX_BUILD_DESCENT == 1
 	size = fixmul(size_scale, F1_0 + d_rand()*4);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	size = fixmul(size_scale, F1_0/2 + d_rand()*4/2);
 #endif
 
@@ -979,7 +979,7 @@ void special_reset_objects(d_level_unique_object_state &LevelUniqueObjectState, 
 	 * simplicity, both games pass the parameter.
 	 */
 	(void)Robot_info;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	icobjidx_t Buddy_objnum = object_none;
 #endif
 	for (objnum_t i = MAX_OBJECTS; i--;)
@@ -2697,7 +2697,7 @@ void object_rw_swap(object_rw *obj, const physfsx_endian swap)
 			obj->ctype.ai_info.path_length            = SWAPSHORT(obj->ctype.ai_info.path_length);
 #if DXX_BUILD_DESCENT == 1
 			obj->ctype.ai_info.cur_path_index         = SWAPSHORT(obj->ctype.ai_info.cur_path_index);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			obj->ctype.ai_info.dying_start_time       = SWAPINT(obj->ctype.ai_info.dying_start_time);
 #endif
 			obj->ctype.ai_info.danger_laser_num       = SWAPSHORT(obj->ctype.ai_info.danger_laser_num);

@@ -153,7 +153,7 @@ static bool ignore_proximity_weapon(const object &o)
 		return false;
 #if DXX_BUILD_DESCENT == 1
 	return GameTime64 > o.ctype.laser_info.creation_time + F1_0*2;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	return GameTime64 > o.ctype.laser_info.creation_time + F1_0*4;
 #endif
 }
@@ -168,7 +168,7 @@ static bool ignore_guided_missile_weapon(const object &)
 {
 	return false;
 }
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 static bool ignore_phoenix_weapon(const object &o)
 {
 	return get_weapon_id(o) == weapon_id_type::PHOENIX_ID && GameTime64 > o.ctype.laser_info.creation_time + F1_0/4;
@@ -779,7 +779,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 	//	won't detonate.  The frame interval code will clear this bit after 1/2 second.
 #if DXX_BUILD_DESCENT == 1
 	if ((weapon_type == weapon_id_type::PLAYER_SMART_HOMING_ID) || (weapon_type == weapon_id_type::ROBOT_SMART_HOMING_ID))
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if ((weapon_type == weapon_id_type::PLAYER_SMART_HOMING_ID) || (weapon_type == weapon_id_type::SMART_MINE_HOMING_ID) || (weapon_type == weapon_id_type::ROBOT_SMART_HOMING_ID) || (weapon_type == weapon_id_type::ROBOT_SMART_MINE_HOMING_ID) || (weapon_type == weapon_id_type::EARTHSHAKER_MEGA_ID))
 #endif
 		obj->mtype.phys_info.flags |= PF_BOUNCE;
@@ -860,7 +860,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 	//	Don't do for weapons created by weapons.
 #if DXX_BUILD_DESCENT == 1
 	if (parent->type != OBJ_WEAPON && weapon_info.render != WEAPON_RENDER_NONE && weapon_type != weapon_id_type::FLARE_ID)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (parent->type == OBJ_PLAYER && weapon_info.render != WEAPON_RENDER_NONE && weapon_type != weapon_id_type::FLARE_ID)
 #endif
 	{
@@ -899,7 +899,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 	//	Ugly hack (too bad we're on a deadline), for homing missiles dropped by smart bomb, start them out slower.
 #if DXX_BUILD_DESCENT == 1
 	if (weapon_type == weapon_id_type::PLAYER_SMART_HOMING_ID || weapon_type == weapon_id_type::ROBOT_SMART_HOMING_ID)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (weapon_type == weapon_id_type::PLAYER_SMART_HOMING_ID || weapon_type == weapon_id_type::SMART_MINE_HOMING_ID || weapon_type == weapon_id_type::ROBOT_SMART_HOMING_ID || weapon_type == weapon_id_type::ROBOT_SMART_MINE_HOMING_ID || weapon_type == weapon_id_type::EARTHSHAKER_MEGA_ID)
 #endif
 		weapon_speed /= 4;
@@ -1283,7 +1283,7 @@ static imobjptridx_t track_track_goal(fvcobjptr &vcobjptr, const imobjptridx_t t
 {
 #if DXX_BUILD_DESCENT == 1
 	if (object_is_trackable(track_goal, tracker, dot))
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	//	Every 8 frames for each object, scan all objects.
 	if (object_is_trackable(track_goal, tracker, dot) && (((tracker ^ tick_count) % 8) != 0))
 #endif
@@ -1367,7 +1367,7 @@ static imobjptridx_t Laser_player_fire_spread_delay(const d_robot_info_array &Ro
 		&Robot_info,
 #if DXX_BUILD_DESCENT == 1
 		0,
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		FQ_IGNORE_POWERUPS,
 #endif
 		obj,
@@ -1538,7 +1538,7 @@ namespace {
 
 #if DXX_BUILD_DESCENT == 1
 static constexpr int HOMING_MISSILE_SCALE{8};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 static constexpr int HOMING_MISSILE_SCALE{16};
 
 static bool is_active_guided_missile(d_level_unique_object_state &LevelUniqueObjectState, const vcobjptridx_t obj)
@@ -1605,7 +1605,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 	//	For homing missiles, turn towards target. (unless it's the guided missile)
 #if DXX_BUILD_DESCENT == 1
 	if (Weapon_info[get_weapon_id(obj)].homing_flag)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (Weapon_info[get_weapon_id(obj)].homing_flag && !is_active_guided_missile(LevelUniqueObjectState, obj))
 #endif
 	{
@@ -1617,7 +1617,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 			//	If it's time to do tracking, then it's time to grow up, stop bouncing and start exploding!.
 #if DXX_BUILD_DESCENT == 1
 			if ((get_weapon_id(obj) == weapon_id_type::ROBOT_SMART_HOMING_ID) || (get_weapon_id(obj) == weapon_id_type::PLAYER_SMART_HOMING_ID))
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			if ((get_weapon_id(obj) == weapon_id_type::ROBOT_SMART_MINE_HOMING_ID) || (get_weapon_id(obj) == weapon_id_type::ROBOT_SMART_HOMING_ID) || (get_weapon_id(obj) == weapon_id_type::SMART_MINE_HOMING_ID) || (get_weapon_id(obj) == weapon_id_type::PLAYER_SMART_HOMING_ID) || (get_weapon_id(obj) == weapon_id_type::EARTHSHAKER_MEGA_ID))
 #endif
 			{
@@ -1659,7 +1659,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 #if DXX_BUILD_DESCENT == 1
 					vm_vec_scale(temp_vec, speed);
 					obj->mtype.phys_info.velocity = temp_vec;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 					obj->mtype.phys_info.velocity = temp_vec;
 					vm_vec_scale(obj->mtype.phys_info.velocity, speed);
 #endif
@@ -1674,7 +1674,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 								absdot = F1_0/4;
 							obj->lifeleft -= fixmul(absdot*16, HOMING_TURN_TIME);
 						}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 						obj->lifeleft -= fixmul(absdot*32, HOMING_TURN_TIME);
 #endif
 					}
@@ -1720,7 +1720,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 #if DXX_BUILD_DESCENT == 1
 				vm_vec_scale(temp_vec, speed);
 				obj->mtype.phys_info.velocity = temp_vec;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 				obj->mtype.phys_info.velocity = temp_vec;
 				vm_vec_scale(obj->mtype.phys_info.velocity, speed);
 #endif
@@ -1738,7 +1738,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 						lifelost = fixmul(absdot*16, FrameTime);
 						obj->lifeleft -= lifelost;
 					}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 					lifelost = fixmul(absdot*32, FrameTime);
 					obj->lifeleft -= lifelost;
 #endif
@@ -2212,7 +2212,7 @@ static void create_smart_children(object_array &Objects, const vmobjptridx_t obj
 		} else {
 			blob_id = ((N_weapon_types<weapon_id_type::ROBOT_SMART_HOMING_ID)?(weapon_id_type::PLAYER_SMART_HOMING_ID):(weapon_id_type::ROBOT_SMART_HOMING_ID)); // NOTE: Shareware & reg 1.0 do not have their own Smart structure for bots. It was introduced in 1.4 to make Smart blobs from lvl 7 boss easier to dodge. So if we do not have this type, revert to player's Smart behaviour..,
 		}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		if (objp->type == OBJ_WEAPON) {
 			blob_id = Weapon_info[get_weapon_id(objp)].children;
 			Assert(blob_id != weapon_none);		//	Hmm, missing data in bitmaps.tbl.  Need "children=NN" parameter.
@@ -2251,7 +2251,7 @@ void create_weapon_smart_children(const vmobjptridx_t objp)
 	const auto wid{get_weapon_id(objp)};
 #if DXX_BUILD_DESCENT == 1
 	if (wid != weapon_id_type::SMART_ID)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (Weapon_info[wid].children == weapon_id_type::unspecified)
 #endif
 		return;
@@ -2342,7 +2342,7 @@ void do_missile_firing(const secondary_weapon_index_t weapon, const vmobjptridx_
 
 #if DXX_BUILD_DESCENT == 1
 		if (weapon == secondary_weapon_index_t::MEGA_INDEX)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		if (weapon == secondary_weapon_index_t::MEGA_INDEX || weapon == secondary_weapon_index_t::SMISSILE5_INDEX)
 #endif
 		{

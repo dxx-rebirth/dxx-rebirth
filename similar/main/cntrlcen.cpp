@@ -167,7 +167,7 @@ window_event_result do_controlcen_dead_frame()
 		if (d_rand() < FrameTime*4)
 #if DXX_BUILD_DESCENT == 1
 #define CC_FIREBALL_SCALE	F1_0*3
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define CC_FIREBALL_SCALE	F1_0
 #endif
 			create_small_fireball_on_object(vmobjptridx(Dead_controlcen_object_num), CC_FIREBALL_SCALE, 1);
@@ -439,7 +439,7 @@ void do_controlcen_frame(const d_robot_info_array &Robot_info, const vmobjptridx
 #if DXX_BUILD_DESCENT == 1
 			const unsigned scale_divisor = 4;
 			if (d_rand() < 32767/4)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 			const unsigned scale_divisor = 6;
 			int			rand_prob;
 			//	some of time, based on level, fire another thing, not directly at player, so it might hit him if he's constantly moving.
@@ -526,7 +526,7 @@ void init_controlcen_for_level(const d_robot_info_array &Robot_info)
 
 #if DXX_BUILD_DESCENT == 1
 		const unsigned secret_level_shield_multiplier = 100;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		const unsigned secret_level_shield_multiplier = 150;
 		const auto Reactor_strength = LevelSharedControlCenterState.Reactor_strength;
 		if (Reactor_strength != -1)

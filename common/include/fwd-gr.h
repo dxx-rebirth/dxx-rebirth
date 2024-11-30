@@ -66,7 +66,7 @@ namespace dsx {
 extern uint8_t HiresGFXAvailable;
 }
 #define HIRESMODE HiresGFXAvailable		// descent.pig either contains hires or lowres graphics, not both
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define HIRESMODE (SWIDTH >= 640 && SHEIGHT >= 480 && !GameArg.GfxSkipHiresGFX)
 #endif
 #endif
@@ -290,7 +290,7 @@ namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 #define DXX_SDL_WINDOW_CAPTION	"Descent"
 #define DXX_SDL_WINDOW_ICON_BITMAP	"d1x-rebirth.bmp"
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define DXX_SDL_WINDOW_CAPTION	"Descent II"
 #define DXX_SDL_WINDOW_ICON_BITMAP	"d2x-rebirth.bmp"
 void gr_copy_palette(palette_array_t &gr_palette, const palette_array_t &pal);

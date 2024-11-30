@@ -308,7 +308,7 @@ imobjptridx_t create_morph_robot(const d_robot_info_array &Robot_info, const vms
 	default_behavior = ai_behavior::AIB_NORMAL;
 	if (object_id == robot_id::toaster)						//	This is a toaster guy!
 		default_behavior = ai_behavior::AIB_RUN_FROM;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	default_behavior = robptr.behavior;
 #endif
 
@@ -344,7 +344,7 @@ imobjptridx_t create_morph_robot(const d_robot_info_array &Robot_info, const vms
 #if DXX_BUILD_DESCENT == 1
 	if (default_behavior == ai_behavior::AIB_RUN_FROM)
 		obj->ctype.ai_info.ail.mode = ai_mode::AIM_RUN_FROM_OBJECT;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	obj->ctype.ai_info.ail.mode = ai_behavior_to_mode(default_behavior);
 #endif
 
@@ -561,7 +561,7 @@ namespace dsx {
 
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, F1_0 / 3> FUELCEN_SOUND_DELAY{};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 //play every half second
 constexpr std::integral_constant<unsigned, F1_0 / 4> FUELCEN_SOUND_DELAY{};
 #endif
@@ -728,7 +728,7 @@ void matcen_info_read(const NamedPHYSFS_File fp, matcen_info &mi, int version)
 	else
 		PHYSFSX_serialize_read<const d1mi_v25>(fp, mi);
 }
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 void fuelcen_check_for_goal(object &plrobj, const shared_segment &segp)
 {
 	assert(game_mode_capture_flag(Game_mode));
@@ -803,7 +803,7 @@ void matcen_info_write(PHYSFS_File *fp, const matcen_info &mi, short version)
 	if (version >= 27)
 #if DXX_BUILD_DESCENT == 1
 		PHYSFSX_serialize_write<d1cmi_v26>(fp, mi);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 		PHYSFSX_serialize_write(fp, mi);
 #endif
 	else

@@ -212,7 +212,7 @@ int check_segment_connections(void);
 unsigned set_segment_depths(vcsegidx_t start_seg, const std::array<uint8_t, MAX_SEGMENTS> *limit, segment_depth_array_t &depths);
 #if DXX_BUILD_DESCENT == 1
 static inline void flush_fcd_cache() {}
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 void flush_fcd_cache();
 void apply_all_changed_light(const d_level_shared_destructible_light_state &LevelSharedDestructibleLightState, fvmsegptridx &vmsegptridx);
 void	set_ambient_sound_flags(void);

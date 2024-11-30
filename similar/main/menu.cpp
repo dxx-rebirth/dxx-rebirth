@@ -765,7 +765,7 @@ window_event_result main_menu::event_handler(const d_event &event)
 		case event_type::idle:
 #if DXX_BUILD_DESCENT == 1
 #define DXX_DEMO_KEY_DELAY	45
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define DXX_DEMO_KEY_DELAY	25
 #endif
 			if (keyd_time_when_last_pressed + i2f(DXX_DEMO_KEY_DELAY) < timer_query() || CGameArg.SysAutoDemo)
@@ -1934,7 +1934,7 @@ static void hud_style_config()
 #define DSX_GAME_SPECIFIC_HUDOPTIONS(VERB)	\
 	DXX_MENUITEM(VERB, CHECK, "Always-on Bomb Counter",opt_d2bomb,PlayerCfg.BombGauge)	\
 
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 enum {
 	optgrp_missileview,
 };
@@ -2046,7 +2046,7 @@ struct graphics_config_menu_items
 
 #if DXX_BUILD_DESCENT == 1
 #define D2X_OGL_GRAPHICS_MENU(VERB)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define D2X_OGL_GRAPHICS_MENU(VERB)	\
 	DXX_MENUITEM(VERB, CHECK, "Cutscene Smoothing", opt_gr_movietexfilt, GameCfg.MovieTexFilt)
 #endif
@@ -2465,7 +2465,7 @@ namespace {
 
 #if DXX_BUILD_DESCENT == 1
 #define DSX_REDBOOK_PLAYORDER_TEXT	"force mac cd track order"
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define DSX_REDBOOK_PLAYORDER_TEXT	"force descent ][ cd track order"
 #endif
 
@@ -2734,7 +2734,7 @@ void do_sound_menu()
 #if DXX_BUILD_DESCENT == 1
 #define DSX_GAME_SPECIFIC_OPTIONS(VERB)	\
 
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define DSX_GAME_SPECIFIC_OPTIONS(VERB)	\
 	DXX_MENUITEM(VERB, CHECK, "Headlight on when picked up", opt_headlighton,PlayerCfg.HeadlightActiveDefault )	\
 	DXX_MENUITEM(VERB, CHECK, "Escort robot hot keys",opt_escorthotkey,PlayerCfg.EscortHotKeys)	\

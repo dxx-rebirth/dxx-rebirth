@@ -90,7 +90,7 @@ void read_model_guns(const char *filename, reactor &);
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 1> MAX_REACTORS{};
 constexpr std::integral_constant<unsigned, 1> Num_reactors{};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 constexpr std::integral_constant<unsigned, 7> MAX_REACTORS{};
 #define DEFAULT_CONTROL_CENTER_EXPLOSION_TIME 30    // Note: Usually uses Alan_pavlish_reactor_times, but can be overridden in editor.
 
@@ -116,7 +116,7 @@ static inline polygon_model_index get_reactor_model_number(const uint8_t id)
 {
 #if DXX_BUILD_DESCENT == 1
 	return polygon_model_index{id};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	return Reactors[id].model_num;
 #endif
 }
@@ -126,7 +126,7 @@ static inline reactor &get_reactor_definition(int id)
 #if DXX_BUILD_DESCENT == 1
 	(void)id;
 	return Reactors[0];
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	return Reactors[id];
 #endif
 }

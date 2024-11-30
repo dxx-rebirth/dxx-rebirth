@@ -42,7 +42,7 @@ namespace dsx {
 int convert_tmap(int tmap);	// for gamemine.c
 }
 #define DXX_LEVEL_FILE_EXTENSION	D1X_LEVEL_FILE_EXTENSION
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define DXX_LEVEL_FILE_EXTENSION	D2X_LEVEL_FILE_EXTENSION
 #endif
 #endif

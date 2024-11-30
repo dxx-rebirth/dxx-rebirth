@@ -93,7 +93,7 @@ void piggy_load_level_data();
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 1800> MAX_BITMAP_FILES{};
 #define PIGGY_PC_SHAREWARE 2
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 // Upped for CD Enhanced
 constexpr std::integral_constant<unsigned, 2620> MAX_BITMAP_FILES{};
 #endif
@@ -106,7 +106,7 @@ void piggy_bitmap_page_in(GameBitmaps_array &, bitmap_index bmp);
 
 #if DXX_BUILD_DESCENT == 1
 void piggy_read_sounds(int pc_shareware);
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 void piggy_init_pigfile(std::span<const char> filename);
 void piggy_read_sounds(void);
 
@@ -149,7 +149,7 @@ extern ubyte bogus_bitmap_initialized;
 #include "hash.h"
 extern hashtable AllBitmapsNames;
 extern hashtable AllDigiSndNames;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 extern enumerated_array<BitmapFile, MAX_BITMAP_FILES, bitmap_index> AllBitmaps;
 #endif
 #endif

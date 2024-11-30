@@ -177,7 +177,7 @@ struct trigger : public prohibit_void_ptr<trigger>
 {
 #if DXX_BUILD_DESCENT == 1
 	uint16_t flags;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	trigger_action type;       //what this trigger does
 	trigger_behavior_flags flags;
 #endif
@@ -208,7 +208,7 @@ static inline int trigger_is_exit(const trigger *t)
 {
 #if DXX_BUILD_DESCENT == 1
 	return t->flags & TRIGGER_EXIT;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	return t->type == trigger_action::normal_exit;
 #endif
 }
@@ -217,7 +217,7 @@ static inline int trigger_is_matcen(const trigger &t)
 {
 #if DXX_BUILD_DESCENT == 1
 	return t.flags & TRIGGER_MATCEN;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	return t.type == trigger_action::matcen;
 #endif
 }

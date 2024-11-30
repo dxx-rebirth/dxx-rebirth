@@ -56,7 +56,7 @@ struct robot_info;
 struct glow_values_t;
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 85> MAX_POLYGON_MODELS{};
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 constexpr std::integral_constant<unsigned, 200> MAX_POLYGON_MODELS{};
 #endif
 
@@ -186,7 +186,7 @@ void draw_model_picture(grs_canvas &, const polymodel &mn, const vms_angvec &ori
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #if DXX_BUILD_DESCENT == 1
 #define MAX_POLYOBJ_TEXTURES 50
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 
 #define MAX_POLYOBJ_TEXTURES 100
 constexpr std::integral_constant<unsigned, 166> N_D2_POLYGON_MODELS{};

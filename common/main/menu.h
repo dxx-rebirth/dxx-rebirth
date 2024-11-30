@@ -59,7 +59,7 @@ extern void do_options_menu();
 #if DXX_BUILD_DESCENT == 1
 #define Menu_pcx_name (((SWIDTH >= 640 && SHEIGHT >= 480) && PHYSFS_exists("menuh.pcx")) ? "menuh.pcx" : "menu.pcx")
 #define STARS_BACKGROUND (((SWIDTH >= 640 && SHEIGHT >= 480) && PHYSFS_exists("starsb.pcx")) ? "starsb.pcx" : "stars.pcx")
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define MENU_PCX_MAC_SHARE ("menub.pcx")
 #define MENU_PCX_SHAREWARE ("menud.pcx")
 #define MENU_PCX_OEM (HIRESMODE?"menuob.pcx":"menuo.pcx")

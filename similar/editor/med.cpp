@@ -416,7 +416,7 @@ void init_editor()
 #if DXX_BUILD_DESCENT == 1
 	gr_use_palette_table( "palette.256" );
 	gr_palette_load( gr_palette );
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	load_palette(Current_level_palette, load_palette_use::level, load_palette_change_screen::immediate);
 #endif
 	

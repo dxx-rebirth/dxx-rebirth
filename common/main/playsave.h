@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if DXX_BUILD_DESCENT == 1
 #include "pstypes.h"
 #include "player.h"
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #include "escort.h"
 
 enum class MissileViewMode : uint8_t

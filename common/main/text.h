@@ -638,7 +638,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define N_TEXT_STRINGS_MIN				514
 #define N_TEXT_STRINGS                  621u
 
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define TXT_COPYRIGHT           dxx_gettext(11, "Copyright (C) 1994-1996 Parallax Software Corporation")
 #define TXT_REGISTER_DESCENT    dxx_gettext(56, "D2 Strategy Guide available at 1-800-531-2343!")
 #define TXT_HELP_F4             dxx_gettext(93, "F4\t  Drop marker")
@@ -1174,7 +1174,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if DXX_BUILD_DESCENT == 1
 #define _D2X_PRIMARY_SUPER_WEAPON_NAMES(u)
 #define _D2X_SECONDARY_SUPER_WEAPON_NAMES(u)
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define _D2X_PRIMARY_SUPER_WEAPON_NAMES(u)	\
 	((u) == primary_weapon_index_t::SUPER_LASER_INDEX) ? TXT_W_SLASER :	\
 	((u) == primary_weapon_index_t::GAUSS_INDEX) ? TXT_W_SVULCAN :	\

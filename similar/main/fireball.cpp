@@ -370,7 +370,7 @@ static bool can_collide(const object *const weapon_object, const object_base &it
 	 */
 #if DXX_BUILD_DESCENT == 1
 	(void)weapon_object;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	if (weapon_object == &iter_object)
 		return false;
 	if (iter_object.type == OBJ_NONE)
@@ -1037,7 +1037,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 			} else {
 #if DXX_BUILD_DESCENT == 1
 				del_obj.contains.count = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 				del_obj.contains.type = contained_object_type::powerup;
 				del_obj.contains.id.powerup = powerup_type_t::POW_SHIELD_BOOST;
 #endif
@@ -1056,7 +1056,7 @@ void maybe_replace_powerup_with_energy(object_base &del_obj)
 			} else {
 #if DXX_BUILD_DESCENT == 1
 				del_obj.contains.count = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 				del_obj.contains.type = contained_object_type::powerup;
 				del_obj.contains.id.powerup = powerup_type_t::POW_SHIELD_BOOST;
 #endif
@@ -1567,7 +1567,7 @@ void do_explosion_sequence(const d_robot_info_array &Robot_info, object &obj)
 #define EXPL_WALL_TOTAL_FIREBALLS	32
 #if DXX_BUILD_DESCENT == 1
 #define EXPL_WALL_FIREBALL_SIZE 		0x48000	//smallest size
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define EXPL_WALL_FIREBALL_SIZE 		(0x48000*6/10)	//smallest size
 #endif
 
