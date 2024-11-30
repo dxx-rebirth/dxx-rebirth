@@ -633,7 +633,7 @@ enum class netgame_rule_flags : uint8_t
 	 */
 	closed = 1,
 	show_all_players_on_automap = 4,
-	/* if DXX_BUILD_DESCENT_II */
+	/* if DXX_BUILD_DESCENT == 2 */
 	hoard = 8,
 	team_hoard = 16,
 	really_endlevel = 32,

@@ -85,7 +85,7 @@ enum class boss_robot_id : uint8_t
 	None = 0,
 	d1_1 = 1,
 	d1_superboss = 2,
-	/* if DXX_BUILD_DESCENT_II */
+	/* if DXX_BUILD_DESCENT == 2 */
 	cool = 21,
 	water,
 	fire,

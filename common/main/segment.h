@@ -297,7 +297,7 @@ struct shared_segment
 	segment_special special;    // what type of center this is
 	materialization_center_number matcen_num; // which center segment is associated with.
 	station_number station_idx;
-	/* if DXX_BUILD_DESCENT_II */
+	/* if DXX_BUILD_DESCENT == 2 */
 	sound_ambient_flags s2_flags;
 	/* endif */
 	per_side_array<shared_side> sides;
@@ -308,7 +308,7 @@ struct unique_segment
 	objnum_t objects;    // pointer to objects in this segment
 	//      If bit n (1 << n) is set, then side #n in segment has had light subtracted from original (editor-computed) value.
 	sidemask_t light_subtracted;
-	/* if DXX_BUILD_DESCENT_II */
+	/* if DXX_BUILD_DESCENT == 2 */
 	sidemask_t slide_textures;
 	/* endif */
 	fix     static_light;

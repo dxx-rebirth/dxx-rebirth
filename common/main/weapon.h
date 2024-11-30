@@ -48,7 +48,7 @@ enum class laser_level : uint8_t
 	_2,
 	_3,
 	_4,
-	/* if DXX_BUILD_DESCENT_II */
+	/* if DXX_BUILD_DESCENT == 2 */
 	_5,
 	_6,
 	/* endif */

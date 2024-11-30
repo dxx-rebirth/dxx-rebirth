@@ -98,7 +98,7 @@ enum class bm_type : uint8_t
 	wclip = 13,
 	robot = 14,
 	gauges = 20,
-	/* if DXX_BUILD_DESCENT_II */
+	/* if DXX_BUILD_DESCENT == 2 */
 	gauges_hires = 21,
 	/* endif */
 };

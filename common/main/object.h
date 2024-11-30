@@ -76,7 +76,7 @@ enum object_type_t : uint8_t
 	OBJ_GHOST	= 12,  // what the player turns into when dead
 	OBJ_LIGHT	= 13,  // a light source, & not much else
 	OBJ_COOP	= 14,  // a cooperative player object.
-	/* if DXX_BUILD_DESCENT_II */
+	/* if DXX_BUILD_DESCENT == 2 */
 	OBJ_MARKER	= 15,  // a map marker
 	/* endif */
 };

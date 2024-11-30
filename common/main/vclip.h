@@ -45,7 +45,7 @@ enum class vclip_index : uint8_t
 	big_player_explosion = 58,
 	player_appearance = 61,
 	powerup_disappearance = 62,
-	/* if DXX_BUILD_DESCENT_II */
+	/* if DXX_BUILD_DESCENT == 2 */
 	water_hit = 84,
 	afterburner_blob = 95,
 	monitor_static = 99,

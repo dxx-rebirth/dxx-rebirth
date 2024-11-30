@@ -53,7 +53,7 @@ enum class robot_id : uint8_t
 	brain = 7,
 	toaster = 10,
 	baby_spider = 14,
-	/* if DXX_BUILD_DESCENT_II */
+	/* if DXX_BUILD_DESCENT == 2 */
 	energy_bandit = 44,
 	special_reactor = 65,
 	/* endif */

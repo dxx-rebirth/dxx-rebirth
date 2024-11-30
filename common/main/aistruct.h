@@ -88,7 +88,7 @@ enum class robot_gun_number : uint8_t
 	 */
 	_0,
 	_1,
-	/* if DXX_BUILD_DESCENT_II */
+	/* if DXX_BUILD_DESCENT == 2 */
 	smart_mine = 0xfe,
 	/* endif */
 	proximity = 0xff,

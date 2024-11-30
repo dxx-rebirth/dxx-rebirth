@@ -66,7 +66,7 @@ enum class wall_is_doorway_result : uint8_t
 	transillusory_wall  = static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::fly) | static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::render) | static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::rendpast),   // 1/1/1        transparent illusory wall
 	no_wall             = static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::fly) | static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::rendpast),   //  1/0/1       no wall, can fly through
 	external            = static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::external),   // 0/0/0/1  do not see it, do not fly through it
-	/* if DXX_BUILD_DESCENT_II */
+	/* if DXX_BUILD_DESCENT == 2 */
 	cloaked_wall        = static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::render) | static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::rendpast) | static_cast<uint8_t>(WALL_IS_DOORWAY_FLAG::cloaked),
 	/* endif */
 };
@@ -139,7 +139,7 @@ enum class wall_flag : uint8_t
 	door_auto = 1u << 4,	// Door automatically closes after time.
 	illusion_off = 1u << 5,	// Illusionary wall is shut off.
 	exploding = 1u << 6,
-	/* if DXX_BUILD_DESCENT_II */
+	/* if DXX_BUILD_DESCENT == 2 */
 	buddy_proof = 1u << 7,	// Buddy assumes he cannot get through this wall.
 	/* endif */
 };
@@ -152,7 +152,7 @@ enum class wall_state : uint8_t
 	opening,	// Door is opening.
 	waiting,	// Waiting to close
 	closing,	// Door is closing
-	/* if DXX_BUILD_DESCENT_II */
+	/* if DXX_BUILD_DESCENT == 2 */
 	open,		// Door is open, and staying open
 	cloaking,	// Wall is going from closed -> open
 	decloaking,	// Wall is going from open -> closed

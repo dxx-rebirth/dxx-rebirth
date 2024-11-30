@@ -122,7 +122,7 @@ enum sound_effect : unsigned
 	SOUND_NASTY_ROBOT_HIT_2 = 191,     //      ding.raw        ; tearing metal 2
 #endif
 	/* endif */
-	/* if DXX_BUILD_DESCENT_II */
+	/* if DXX_BUILD_DESCENT == 2 */
 	SOUND_LASER_HIT_WATER = 232,
 	SOUND_MISSILE_HIT_WATER = 233,
 	SOUND_DROP_WEAPON = 39,

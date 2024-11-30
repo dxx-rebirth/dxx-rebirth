@@ -43,7 +43,7 @@ struct grs_bitmap;
 enum class tmapinfo_flag : uint8_t
 {
 	lava = 1 << 0,		//this material blows up when hit
-	/* if DXX_BUILD_DESCENT_II */
+	/* if DXX_BUILD_DESCENT == 2 */
 	water = 1 << 1,		//this material is water
 	force_field = 1 << 2,	//this is force field - flares don't stick
 	goal_blue = 1 << 3,	//this is used to remap the blue goal

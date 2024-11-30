@@ -82,7 +82,7 @@ enum class WALL_IS_DOORWAY_FLAG : uint8_t
 	render = 2,
 	rendpast = 4,
 	external = 8,
-	/* if DXX_BUILD_DESCENT_II */
+	/* if DXX_BUILD_DESCENT == 2 */
 	cloaked = 16,
 	/* endif */
 };
