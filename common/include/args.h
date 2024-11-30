@@ -146,7 +146,7 @@ struct CArg : prohibit_void_ptr<CArg>
 extern CArg CGameArg;
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 struct Arg : prohibit_void_ptr<Arg>
 {

@@ -35,7 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-window.h"
 #include "fwd-segment.h"
 #include "objnum.h"
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #include "robot.h"
 #endif
 #include "physfsx.h"
@@ -194,7 +194,7 @@ extern mine_filename_type mine_filename;
 
 extern	int		SegSizeMode;			// Mode = 0/1 = not/is legal to move bound vertices, 
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void init_editor(void);
 //	Initialize all vertices to inactive status.
@@ -204,7 +204,7 @@ extern void init_all_vertices(void);
 
 void med_combine_duplicate_vertices(enumerated_array<uint8_t, MAX_VERTICES, vertnum_t> &);
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 // Attach side newside of newseg to side destside of destseg.
 // Copies *newseg into global array Segments, increments Num_segments.
@@ -264,13 +264,13 @@ extern   int medlisp_update_screen();
 //    Num_segments
 //    Num_vertices
 //    Cursegp = pointer to only segment.
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 extern	int create_new_mine(void);
 
 }
 #endif
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 //	Create a segment given center, dimensions, rotation matrix.
 //	Note that the created segment will always have planar sides and rectangular cross sections.
@@ -330,7 +330,7 @@ extern int generate_curve( fix r1scale, fix r4scale );
 // Deletes existing curve generated in generate_curve().
 extern void delete_curve();
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void med_extract_matrix_from_segment(const shared_segment &sp, vms_matrix &rotmat);
 
@@ -451,7 +451,7 @@ extern editor_view FrontView;
 extern editor_view RightView;
 
 extern int SafetyCheck();
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 int save_mine_data_compiled(PHYSFS_File *SaveFile);
 
@@ -470,7 +470,7 @@ extern	int	Degenerate_segment_found;
 
 namespace dcx {
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 //	Returns true if vertex vi is contained in exactly one segment, else returns false.
 int is_free_vertex(const fvcsegptr &vcsegptr, vertnum_t vi);
 #endif
@@ -541,7 +541,7 @@ vms_vector med_point_2_vec(grs_canvas *canv, short sx, short sy);
 //shutdown ui on the editor screen
 void close_editor_screen(void);
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 //    From eobject.c
 int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_polygon_model_state &LevelSharedPolygonModelState, const d_robot_info_array &Robot_info, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, vmsegptridx_t segp, const vms_vector &object_pos, short object_type, uint8_t object_id);

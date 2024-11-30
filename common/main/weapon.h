@@ -37,7 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-valptridx.h"
 #include "fwd-weapon.h"
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #include <array>
 
 namespace dcx {

@@ -35,7 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "fwd-powerup.h"
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #if DXX_BUILD_DESCENT == 2
 #define MAX_SUPER_LASER_LEVEL   laser_level::_6   // Note, laser levels are numbered from 0.
 #endif
@@ -169,7 +169,7 @@ public:
 };
 
 }
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 struct player_info;
@@ -191,7 +191,7 @@ void select_secondary_weapon(player_info &, const char *weapon_name, secondary_w
 //      HAS_WEAPON_FLAG
 //      HAS_ENERGY_FLAG
 //      HAS_AMMO_FLAG
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 has_primary_weapon_result player_has_primary_weapon(const player_info &, primary_weapon_index_t weapon_num);
 has_secondary_weapon_result player_has_secondary_weapon(const player_info &, secondary_weapon_index_t weapon_num);

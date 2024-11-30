@@ -35,7 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 #include <array>
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dcx {
 
 struct control_info
@@ -148,7 +148,7 @@ void kconfig_end_loop(control_info &, const fix frametime);
 #define CONTROL_USING_JOYSTICK	1
 #define CONTROL_USING_MOUSE		2
 #define MOUSEFS_DELTA_RANGE 512
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 50> MAX_CONTROLS{};

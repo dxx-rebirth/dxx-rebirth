@@ -47,7 +47,7 @@ void parse_human_readable_time(std::chrono::duration<Rep, std::chrono::seconds::
 extern int hide_menus(void);
 extern void show_menus(void);
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 // returns number of item chosen
 extern int DoMenu();

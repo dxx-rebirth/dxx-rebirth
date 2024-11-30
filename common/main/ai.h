@@ -38,7 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "fwd-object.h"
 #include "fwd-segment.h"
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #include "countarray.h"
 #include "d_array.h"
 #include "aistruct.h"
@@ -50,7 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dcx {
 struct point_seg;
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 struct awareness_event
 {
 	segnum_t segnum;				// segment the event occurred in
@@ -77,7 +77,7 @@ struct PHYSFS_File;
 
 #define ROBOT_FIRE_AGITATION 94
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dcx {
 
 enum class boss_robot_id : uint8_t
@@ -206,7 +206,7 @@ static inline vms_vector make_random_vector()
 }
 
 }
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void init_robots_for_level();
 #if DXX_BUILD_DESCENT == 2

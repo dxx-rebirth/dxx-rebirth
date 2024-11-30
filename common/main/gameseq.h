@@ -34,7 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-window.h"
 #include "powerup.h"
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 
 namespace dcx {
 template <std::size_t>
@@ -122,7 +122,7 @@ void open_message_window(void);
 void close_message_window(void);
 
 // create flash for player appearance
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void create_player_appearance_effect(const d_vclip_array &Vclip, const object_base &player_obj);
 void bash_to_shield(const d_powerup_info_array &Powerup_info, const d_vclip_array &Vclip, object_base &i);

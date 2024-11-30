@@ -29,7 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include      "fuelcen.h"
 
 // In centers.c
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 int do_centers_dialog(void);
 void close_centers_window();

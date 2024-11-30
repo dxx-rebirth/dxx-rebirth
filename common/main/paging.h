@@ -27,7 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _PAGING_H
 #define _PAGING_H
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 
 #include "fwd-vclip.h"
 

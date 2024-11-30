@@ -142,7 +142,7 @@ extern SDL_Window *g_pRebirthSDLMainWindow;
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 int gr_set_mode(screen_mode mode);
 void gr_set_mode_from_window_size();
@@ -206,7 +206,7 @@ void gr_bm_pixel(grs_canvas &, grs_bitmap &bm, uint_fast32_t x, uint_fast32_t y,
 void gr_set_bitmap_data(grs_bitmap &bm, const uint8_t *data);
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 //=========================================================================
@@ -284,7 +284,7 @@ grs_font_ptr gr_init_font(grs_canvas &canvas, std::span<const char> fontfile);
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 #if DXX_BUILD_DESCENT == 1

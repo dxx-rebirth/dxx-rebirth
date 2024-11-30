@@ -170,7 +170,7 @@ static inline auto FSPACY(const int &y)
 	return FSPACY()(y);
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void gamefont_init();
 }

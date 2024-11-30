@@ -106,7 +106,7 @@ extern void newdemo_record_rearview(void);
 extern void newdemo_record_restore_cockpit(void);
 extern void newdemo_record_multi_cloak(int pnum);
 extern void newdemo_record_multi_decloak(int pnum);
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void newdemo_record_player_weapon(primary_weapon_index_t);
 void newdemo_record_player_weapon(secondary_weapon_index_t);
@@ -128,7 +128,7 @@ extern void newdemo_record_primary_ammo(int new_ammo);
 extern void newdemo_record_secondary_ammo(int new_ammo);
 void newdemo_record_door_opening(segnum_t segnum, sidenum_t side);
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 void newdemo_record_laser_level(laser_level old_level, laser_level new_level);
 namespace dsx {
 #if DXX_BUILD_DESCENT == 2
@@ -145,7 +145,7 @@ void newdemo_record_trigger(vcsegidx_t segnum, sidenum_t side, objnum_t objnum, 
 // Functions called during playback process...
 extern void newdemo_object_move_all();
 extern window_event_result newdemo_playback_one_frame();
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 extern window_event_result newdemo_goto_end(int to_rewrite);
 }
@@ -153,7 +153,7 @@ extern window_event_result newdemo_goto_end(int to_rewrite);
 extern window_event_result newdemo_goto_beginning();
 
 // Interactive functions to control playback/record;
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 extern void newdemo_stop_playback();
 }

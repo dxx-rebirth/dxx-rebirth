@@ -42,7 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define CLOAK_SCORE             0
 #define INVULNERABILITY_SCORE   0
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 void scores_view_menu(grs_canvas &);

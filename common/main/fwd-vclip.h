@@ -19,7 +19,7 @@ extern unsigned Num_vclips;
 vclip_index build_vclip_index_from_untrusted(std::size_t i);
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 #define VCLIP_MAXNUM	70

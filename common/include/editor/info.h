@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-window.h"
 #include "dsx-ns.h"
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 class window *info_window_create(void);

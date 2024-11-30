@@ -153,7 +153,7 @@ enum class StereoFormat : uint8_t
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 struct game_window final : window
@@ -213,7 +213,7 @@ enum class cockpit_mode_t : uint8_t
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #if DXX_BUILD_DESCENT == 1
 static inline void full_palette_save(void)
 {

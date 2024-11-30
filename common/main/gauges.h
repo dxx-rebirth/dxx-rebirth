@@ -84,7 +84,7 @@ void draw_hud(const d_robot_info_array &Robot_info, grs_canvas &, const object &
 }
 #endif
 void close_gauges(void);
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void show_reticle(grs_canvas &canvas, const player_info &, reticle_type, int secondary_display);
 void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &, game_mode_flags);
@@ -96,7 +96,7 @@ void player_dead_message(grs_canvas &);
 
 // from testgaug.c
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 extern void update_laser_weapon_info(void);
 void play_homing_warning(const player_info &);

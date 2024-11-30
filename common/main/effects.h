@@ -101,7 +101,7 @@ void eclip_read(NamedPHYSFS_File fp, eclip &ec);
 void eclip_write(PHYSFS_File *fp, const eclip &ec);
 #endif
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 using d_eclip_array = std::array<eclip, MAX_EFFECTS>;

@@ -11,7 +11,7 @@
 #include <cstdint>
 #include "dsx-ns.h"
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 enum weapon_id_type : uint8_t

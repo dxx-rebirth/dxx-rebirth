@@ -428,7 +428,7 @@ void multi_do_ping_frame();
 void multi_init_objects(void);
 window_event_result multi_do_frame();
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 enum class multi_endlevel_type : bool
@@ -484,7 +484,7 @@ void multi_send_bounty( void );
 
 void multi_consistency_error(int reset);
 window_event_result multi_level_sync();
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void multi_send_vulcan_weapon_ammo_adjust(const vmobjptridx_t objnum);
 void multi_send_hostage_door_status(vcwallptridx_t wallnum);
@@ -500,7 +500,7 @@ void multi_define_macro(int key);
 void multi_send_macro(int key);
 int multi_get_kill_list(playernum_array_t &sorted_kills);
 void multi_new_game(void);
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void multi_sort_kill_list(void);
 }
@@ -509,7 +509,7 @@ void multi_reset_stuff(void);
 team_number get_team(playernum_t pnum);
 void multi_disconnect_player(playernum_t);
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void multi_initiate_save_game();
 void multi_initiate_restore_game();
@@ -623,7 +623,7 @@ extern char RefuseThisPlayer,WaitForRefuseAnswer,RefuseTeam,RefusePlayerName[12]
 extern fix64 RefuseTimeLimit;
 #define REFUSE_INTERVAL (F1_0*8)
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 enum class netgame_rule_flags : uint8_t
 {
 	None = 0,
@@ -680,7 +680,7 @@ enum TrackerNATHolePunchWarn : uint8_t
 #endif
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 #define NETGAME_NAME_LEN	25
@@ -775,7 +775,7 @@ struct netplayer_info : prohibit_void_ptr<netplayer_info>
 	fix64							LastPacketTime;
 };
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #if DXX_BUILD_DESCENT == 2
 struct ThiefModifier
 {

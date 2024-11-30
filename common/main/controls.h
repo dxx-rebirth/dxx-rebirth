@@ -28,7 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 #include "fwd-object.h"
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #include "kconfig.h"
 namespace dsx {
 void read_flying_controls(object &obj, control_info &Controls);

@@ -64,7 +64,7 @@ struct fvi_info : prohibit_void_ptr<fvi_info>
 #define FQ_GET_SEGLIST	8		//build a list of segments
 #define FQ_IGNORE_POWERUPS	16		//ignore powerups
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dcx {
 struct fvi_hitpoint
 {

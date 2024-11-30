@@ -134,7 +134,7 @@ extern struct me mine_editor;
 
 // loads from an already-open file
 // returns 0=everything ok, 1=old version, -1=error
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 int load_mine_data_compiled(NamedPHYSFS_File LoadFile, const char *Gamesave_current_filename);
 }

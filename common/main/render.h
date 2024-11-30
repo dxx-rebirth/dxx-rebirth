@@ -51,7 +51,7 @@ extern const enumerated_array<
 }
 #endif
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 struct window_rendered_data
@@ -82,7 +82,7 @@ extern unsigned Max_linear_depth; //	Deepest segment at which linear extern inte
 extern int Clear_window;    // 1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
 
 // cycle the flashing light for when mine destroyed
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void flash_frame();
 
@@ -103,7 +103,7 @@ const
 #endif
 fix Render_zoom;     // the player's zoom factor
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<uint8_t, 0> RenderingType{};
@@ -131,7 +131,7 @@ void render_start_frame(void);
 // this frame
 g3s_codes rotate_list(fvcvertptr &vcvertptr, std::span<const vertnum_t> pointnumlist);
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void render_frame(grs_canvas &, fix eye_offset, window_rendered_data &);  //draws the world into the current canvas
 void render_mine(grs_canvas &, const vms_vector &, vcsegidx_t start_seg_num, fix eye_offset, window_rendered_data &);

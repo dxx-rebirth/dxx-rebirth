@@ -46,7 +46,7 @@ enum class kmatrix_network : uint8_t
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #include "kconfig.h"
 
 namespace dsx {

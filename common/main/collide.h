@@ -35,7 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-window.h"
 #include "robot.h"
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dcx {
 
 enum class apply_damage_player : bool

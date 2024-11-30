@@ -120,7 +120,7 @@ struct v19_wall : public prohibit_void_ptr<v19_wall>
 	wallnum_t linked_wall;            // number of linked wall
 };
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 class d_level_unique_stuck_object_state
 {
 protected:
@@ -188,7 +188,7 @@ static constexpr auto operator|(const wall_flag f1, const wall_flag f2)
 
 //End old wall structures
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 /* No shared state is possible for this structure, but include the

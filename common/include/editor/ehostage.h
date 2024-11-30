@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dsx-ns.h"
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 extern int do_hostage_dialog();

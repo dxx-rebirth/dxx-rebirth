@@ -11,7 +11,7 @@
 
 #ifdef __cplusplus
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dcx {
 enum class sound_pan : int;
 enum class sound_channel : uint8_t;

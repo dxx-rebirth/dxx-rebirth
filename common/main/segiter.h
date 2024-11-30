@@ -1,7 +1,7 @@
 #pragma once
 
 #include "dsx-ns.h"
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #include <iterator>
 #include <type_traits>
 #include "dxxsconf.h"

@@ -38,7 +38,7 @@ struct render_state_t
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 #define set_dynamic_light(Robot_info, render)	set_dynamic_light(render)

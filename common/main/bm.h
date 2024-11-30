@@ -73,7 +73,7 @@ static constexpr tmapinfo_flag operator|(tmapinfo_flag a, tmapinfo_flag b)
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 800> MAX_TEXTURES{};
@@ -143,7 +143,7 @@ void bm_close();
 // Initializes the Texture[] array of bmd_bitmap structures.
 void init_textures();
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 
 namespace dsx {
 

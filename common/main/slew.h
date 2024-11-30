@@ -38,7 +38,7 @@ void slew_init(vmobjptr_t obj);                // say this is slew obj
 #endif
 int slew_stop(void);                            // Stops object
 void slew_reset_orient();                   // Resets orientation
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 int slew_frame(int dont_check_keys);        // Does slew frame
 }

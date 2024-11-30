@@ -11,7 +11,7 @@
 #include "fwd-event.h"
 #include "fwd-gr.h"
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 struct arch_atexit

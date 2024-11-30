@@ -27,7 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <type_traits>
 #include "dsx-ns.h"
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 
 #include "pstypes.h"
 #include "vecmat.h"
@@ -129,7 +129,7 @@ static inline bool valid_render_type(const uint8_t r)
 	}
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 union contained_object_id
 {
 	powerup_type_t powerup;
@@ -787,7 +787,7 @@ window_event_result endlevel_move_all_objects(const d_level_shared_robot_info_st
 
 namespace dcx {
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 contained_object_type build_contained_object_type_from_untrusted(uint8_t untrusted);
 contained_object_id build_contained_object_id_from_untrusted(contained_object_type, uint8_t untrusted);
 contained_object_parameters build_contained_object_parameters_from_untrusted(uint8_t type, uint8_t id, uint8_t count);

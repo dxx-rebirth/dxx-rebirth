@@ -1224,7 +1224,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void decode_text_line(char *text_line); // decryption for bitmaps.tbl
 void decode_text(std::span<char> text);  // decryption for briefings, etc.
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void load_text(void);
 #ifndef USE_BUILTIN_ENGLISH_TEXT_STRINGS

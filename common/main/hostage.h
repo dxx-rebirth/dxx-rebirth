@@ -50,7 +50,7 @@ extern std::array<vclip_index, MAX_HOSTAGE_TYPES> Hostage_vclip_num;    // for e
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void hostage_rescue();
 }

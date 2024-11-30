@@ -51,7 +51,7 @@ struct d_level_shared_robot_joint_state;
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 #if DXX_BUILD_DESCENT == 2

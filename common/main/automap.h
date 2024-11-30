@@ -36,7 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dcx {
 extern uint8_t Automap_active;
 }
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void do_automap();
 void automap_clear_visited(d_level_unique_automap_state &LevelUniqueAutomapState);

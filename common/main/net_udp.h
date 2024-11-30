@@ -21,7 +21,7 @@
 #include <array>
 
 // Exported functions
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 namespace multi {
 namespace udp {
@@ -92,7 +92,7 @@ constexpr std::integral_constant<unsigned, 12> UDP_NETGAMES_PPAGE{}; // Netgames
 #endif
 
 // Structure keeping lite game infos (for netlist, etc.)
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 struct UDP_netgame_info_lite : public prohibit_void_ptr<UDP_netgame_info_lite>
 {
 	struct _sockaddr                game_addr;
@@ -134,7 +134,7 @@ struct UDP_mdata_info : prohibit_void_ptr<UDP_mdata_info>
 	std::array<uint8_t, UPID_MDATA_BUF_SIZE> mbuf;
 };
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 // structure to store MDATA to maybe resend
 struct UDP_mdata_store : prohibit_void_ptr<UDP_mdata_store>
 {

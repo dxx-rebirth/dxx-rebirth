@@ -10,7 +10,7 @@
 #include "object.h"
 #include "morph.h"
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dcx {
 
 struct d_level_unique_morph_object_state

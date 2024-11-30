@@ -82,7 +82,7 @@ extern unsigned N_players;   // Number of players ( >1 means a net game, eh?)
 extern playernum_t Player_num;  // The player number who is on the console.
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 DXX_VALPTRIDX_DECLARE_SUBTYPE(dcx::, player, playernum_t, MAX_PLAYERS);
 namespace dsx {
 struct player_rw;

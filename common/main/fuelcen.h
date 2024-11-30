@@ -56,7 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //   he got.
 
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 // Destroys all fuel centers, clears segment backpointer array.
 void fuelcen_reset();
@@ -119,12 +119,12 @@ struct d_level_unique_fuelcenter_state
 
 extern d_level_unique_fuelcenter_state LevelUniqueFuelcenterState;
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 fix repaircen_give_shields(const shared_segment &segp, fix MaxAmountCanTake);
 #endif
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 typedef d1_matcen_info matcen_info;

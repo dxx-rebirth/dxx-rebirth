@@ -39,7 +39,7 @@ namespace dcx {
 extern unsigned Num_exploding_walls;
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 #if DXX_BUILD_DESCENT == 2

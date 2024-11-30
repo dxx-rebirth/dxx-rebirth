@@ -33,7 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "polyobj.h"
 #include "dsx-ns.h"
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #include "object.h"
 #include <array>
 #include <memory>

@@ -30,7 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstdint>
 #include <type_traits>
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #include <physfs.h>
 #endif
 
@@ -116,7 +116,7 @@ void reset_time();       // called when starting level
 /* The implementation is common, but is only called from similar code, so
  * omit the declaration when used in a common-only context.
  */
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 // If automap_flag == 1, then call automap routine to write message.
 #if DXX_USE_SCREENSHOT_FORMAT_LEGACY
 void write_bmp(PHYSFS_File *, unsigned w, unsigned h);
@@ -152,7 +152,7 @@ void calc_frame_time(void);
 
 #define MAX_PALETTE_ADD 30
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 enum class next_level_request_secret_flag : bool;

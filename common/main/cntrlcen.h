@@ -68,7 +68,7 @@ void control_center_triggers_write(const control_center_triggers &cct, PHYSFS_Fi
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #include "vecmat.h"
 
 namespace dsx {

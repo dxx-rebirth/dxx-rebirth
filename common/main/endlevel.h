@@ -49,7 +49,7 @@ void free_endlevel_data();
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoState);
 window_event_result stop_endlevel_sequence();

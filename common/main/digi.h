@@ -51,7 +51,7 @@ int digi_win32_play_midi_song(const char * filename, int loop);
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dcx {
 
 enum class sound_pan : int

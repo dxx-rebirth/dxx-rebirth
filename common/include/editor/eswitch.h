@@ -29,7 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-segment.h"
 #include "dsx-ns.h"
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #include "fwd-wall.h"
 namespace dsx {
 int bind_wall_to_trigger();

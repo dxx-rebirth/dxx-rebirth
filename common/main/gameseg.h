@@ -59,7 +59,7 @@ struct vertex_vertnum_pair
 };
 using vertex_vertnum_array_list = std::array<vertex_vertnum_pair, 6>;
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 [[nodiscard]]
 sidenum_t find_connect_side(vcsegidx_t base_seg, const shared_segment &con_seg);
 
@@ -82,7 +82,7 @@ enum class wall_is_doorway_mask : uint8_t;
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_II) || DXX_USE_EDITOR
 extern int	Doing_lighting_hack_flag;

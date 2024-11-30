@@ -26,7 +26,7 @@ DXX_VALPTRIDX_DECLARE_SUBTYPE(dcx::, active_door, actdoornum_t, MAX_DOORS);
 
 #include "fwd-valptridx.h"
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<std::size_t, 30> MAX_WALL_ANIMS{};		// Maximum different types of doors
@@ -64,7 +64,7 @@ constexpr fix DOOR_OPEN_TIME = i2f(2);      // How long takes to open
 constexpr fix DOOR_WAIT_TIME = i2f(5);      // How long before auto door closes
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<std::size_t, 20> MAX_CLIP_FRAMES{};

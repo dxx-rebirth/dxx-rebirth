@@ -48,7 +48,7 @@ extern int wall_remove_blastable();
 
 // Adds a wall. (visually)
 extern int wall_add_to_curside();
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 int wall_add_to_markedside(fvcvertptr &vcvertptr, wall_array &Walls, int8_t type);
 #endif
  

@@ -50,7 +50,7 @@ enum class polygon_simpler_model_index : uint8_t
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 struct robot_info;
 struct glow_values_t;
@@ -125,7 +125,7 @@ void init_polygon_models(d_level_shared_polygon_model_state &);
 void align_polygon_model_data(polymodel *pm);
 
 }
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 /* Individual levels can customize the polygon models through robot overrides,
@@ -169,7 +169,7 @@ public:
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 // draw a polygon model
 void draw_polygon_model(const enumerated_array<polymodel, MAX_POLYGON_MODELS, polygon_model_index> &, grs_canvas &, tmap_drawer_type tmap_drawer_ptr, const vms_vector &pos, const vms_matrix &orient, submodel_angles anim_angles, const polygon_model_index model_num, unsigned flags, g3s_lrgb light, const glow_values_t *glow_values, alternate_textures);
@@ -218,7 +218,7 @@ void polymodel_write(PHYSFS_File *fp, const polymodel &pm);
 /*
  * routine which allocates, reads, and inits a polymodel's model_data
  */
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void polygon_model_data_read(polymodel *pm, PHYSFS_File *fp);
 polygon_model_index build_polygon_model_index_from_untrusted(unsigned i);

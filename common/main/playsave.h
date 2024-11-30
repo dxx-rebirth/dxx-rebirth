@@ -55,7 +55,7 @@ enum class cockpit_3d_view : uint8_t
 #define N_SAVE_SLOTS    10
 #define GAME_NAME_LEN   25      // +1 for terminating zero = 26
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #if DXX_BUILD_DESCENT == 1
 namespace dsx {
 // NOTE: Obsolete structure - only kept for compability of shareware plr file
@@ -83,7 +83,7 @@ struct hli
 	uint8_t LevelNum;
 };
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #include "kconfig.h"
 #include "multi.h"
 #include "fwd-game.h"
@@ -249,7 +249,7 @@ extern struct player_config PlayerCfg;
 #endif
 
 // Used to save kconfig values to disk.
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 extern const struct player_config::KeySettings DefaultKeySettings;

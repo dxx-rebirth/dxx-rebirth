@@ -43,7 +43,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "objnum.h"
 #include "pack.h"
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 // Returns true if segnum references a child, else returns false.
 // Note that -1 means no connection, -2 means a connection to the outside world.
@@ -285,7 +285,7 @@ struct unique_side
 	enumerated_array<uvl, 4, side_relative_vertnum>     uvls;
 };
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 struct shared_segment
 {
 #if DXX_USE_EDITOR
@@ -358,7 +358,7 @@ struct group
 	}
 };
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #define Highest_segment_index static_cast<segnum_t>(Segments.get_count() - 1)
 DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORIES(segment, seg, Segments);
 #endif
@@ -384,7 +384,7 @@ static constexpr vertnum_t operator++(vertnum_t &v)
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 struct shared_side::illegal_type : std::runtime_error
 {
 	const shared_segment *const m_segment;
@@ -444,7 +444,7 @@ struct d_level_shared_destructible_light_state
 
 namespace dcx {
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 struct d_level_shared_vertex_state
 {
 #if DXX_USE_EDITOR
@@ -631,7 +631,7 @@ public:
 
 using visited_segment_bitarray_t = visited_segment_mask_t<1>;
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 imsegidx_t read_untrusted_segnum_le16(NamedPHYSFS_File fp);
 imsegidx_t read_untrusted_segnum_le32(NamedPHYSFS_File fp);
 imsegidx_t read_untrusted_segnum_xe16(NamedPHYSFS_File fp, physfsx_endian swap);
@@ -640,7 +640,7 @@ imsegidx_t read_untrusted_segnum_xe32(NamedPHYSFS_File fp, physfsx_endian swap);
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 #if DXX_BUILD_DESCENT == 2

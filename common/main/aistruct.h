@@ -110,7 +110,7 @@ std::optional<ai_static_state> build_ai_state_from_untrusted(uint8_t untrusted);
 #define AI_DIR_FORWARD  1
 #define AI_DIR_BACKWARD (-AI_DIR_FORWARD)
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 enum class ai_behavior : uint8_t
@@ -204,7 +204,7 @@ enum class ai_mode : uint8_t
 #endif
 
 // This is the stuff that is permanent for an AI object.
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 // Rather temporal AI stuff.
@@ -391,7 +391,7 @@ constexpr std::integral_constant<unsigned, 2500> MAX_POINT_SEGS{};
 //extern fix        Last_uncloaked_time;
 //extern vms_vector Last_uncloaked_position;
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 extern void ai_do_cloak_stuff(void);
 }

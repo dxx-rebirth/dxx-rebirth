@@ -45,7 +45,7 @@ extern uint8_t N_powerup_types;
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 enum class powerup_type_t : uint8_t;

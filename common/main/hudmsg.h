@@ -25,7 +25,7 @@
 
 extern int HUD_toolong;
 extern void HUD_clear_messages();
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void HUD_render_message_frame(grs_canvas &);
 }

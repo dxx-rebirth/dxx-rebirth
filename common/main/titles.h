@@ -35,7 +35,7 @@ struct d_fname;
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 extern void show_titles(void);
 void do_briefing_screens(const d_fname &filename, int level_num);

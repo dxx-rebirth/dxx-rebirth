@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __cplusplus
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 int ObjectSelectNextInMine(void);
 int ObjectSelectPrevInMine(void);

@@ -50,7 +50,7 @@ extern std::array<int, MAX_ROBOTS_CONTROLLED> robot_agitation;
 extern std::bitset<MAX_ROBOTS_CONTROLLED> robot_fired;
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 int multi_can_move_robot(vmobjptridx_t objnum, int agitation);
 void multi_send_robot_position(object &objnum, multi_send_robot_position_priority fired);
 void multi_send_robot_fire(vmobjptridx_t objnum, robot_gun_number gun_num, const vms_vector &fire);

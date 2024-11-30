@@ -24,7 +24,7 @@ constexpr std::integral_constant<std::size_t, 9000> MAX_SEGMENTS{};
 enum segnum_t : uint16_t;
 struct d_level_unique_automap_state;
 }
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dcx {
 struct shared_segment;
 struct unique_segment;
@@ -52,7 +52,7 @@ constexpr std::size_t MAX_SEGMENTS_ORIGINAL = 900;
 constexpr std::integral_constant<std::size_t, 4 * MAX_SEGMENTS_ORIGINAL> MAX_SEGMENT_VERTICES_ORIGINAL{};
 constexpr std::integral_constant<std::size_t, 4 * MAX_SEGMENTS> MAX_SEGMENT_VERTICES{};
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(segment, seg);
 
 static constexpr valptridx<segment>::magic_constant<segnum_t{0xfffe}> segment_exit{};
@@ -60,7 +60,7 @@ static constexpr valptridx<segment>::magic_constant<segnum_t{0xffff}> segment_no
 static constexpr valptridx<segment>::magic_constant<segnum_t{0}> segment_first{};
 #endif
 }
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void delete_segment_from_group(vmsegptridx_t segment_num, unsigned group_num);
 }

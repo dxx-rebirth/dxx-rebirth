@@ -50,7 +50,7 @@ void LoadGame(void);
 void SaveGame(void);
 int get_level_name(void);
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 int load_level(
 #if DXX_BUILD_DESCENT == 2

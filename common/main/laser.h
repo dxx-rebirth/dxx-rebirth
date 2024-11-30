@@ -71,7 +71,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define HOMING_TURN_TIME                (F1_0/30)
 #endif
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dcx {
 
 enum class weapon_sound_flag : bool
@@ -143,7 +143,7 @@ struct muzzle_info
 extern std::array<muzzle_info, MUZZLE_QUEUE_MAX> Muzzle_data;
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace d1x {
 
 static inline int is_proximity_bomb_or_player_smart_mine(const weapon_id_type id)

@@ -16,7 +16,7 @@
 #include "fwd-object.h"
 #include "fwd-vclip.h"
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #if DXX_BUILD_DESCENT == 2
 #include "fwd-robot.h"
 #endif

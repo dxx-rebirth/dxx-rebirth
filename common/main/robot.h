@@ -82,7 +82,7 @@ struct d_level_shared_robot_joint_state {
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 constexpr auto weapon_none = weapon_id_type::unspecified;
 
 namespace dsx {
@@ -248,7 +248,7 @@ std::ranges::subrange<const jointpos *> robot_get_anim_state(const d_robot_info_
 #if 0
 void jointpos_write(PHYSFS_File *fp, const jointpos &jp);
 #endif
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 static inline void boss_link_see_sound(const d_robot_info_array &Robot_info, const vcobjptridx_t objp)

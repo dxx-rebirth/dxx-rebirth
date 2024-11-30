@@ -78,7 +78,7 @@ struct d_game_view_unique_state
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 /**

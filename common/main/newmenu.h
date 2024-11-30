@@ -42,7 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fmtcheck.h"
 #include "ntstring.h"
 #include "partial_range.h"
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #include "gamefont.h"
 #include "window.h"
 

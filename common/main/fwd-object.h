@@ -32,7 +32,7 @@ enum class gun_num_t : uint8_t;
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 struct object;
 struct d_level_unique_object_state;
@@ -177,7 +177,7 @@ extern player_dead_state Player_dead_state;          // !0 means player is dead!
 extern objnum_t Player_fired_laser_this_frame;
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 // Draw a blob-type object, like a fireball
 void draw_object_blob(GameBitmaps_array &GameBitmaps, const object_base &Viewer, grs_canvas &, const object_base &obj, bitmap_index bitmap);

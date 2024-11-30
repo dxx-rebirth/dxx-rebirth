@@ -542,7 +542,7 @@ extern void PHYSFSX_addArchiveContent();
 extern void PHYSFSX_removeArchiveContent();
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 bool PHYSFSX_init(int argc, char *argv[]);

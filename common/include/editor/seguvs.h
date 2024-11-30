@@ -29,7 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 
 void assign_light_to_side(unique_side &);
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 static inline void assign_light_to_side(unique_segment &sp, const sidenum_t sidenum)
 {
 	assign_light_to_side(sp.sides[sidenum]);

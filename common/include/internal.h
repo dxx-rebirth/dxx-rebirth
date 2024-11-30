@@ -66,7 +66,7 @@ static inline void OGL_VIEWPORT(const unsigned x, const unsigned y, const unsign
 	}
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 //platform specific funcs
 void ogl_swap_buffers_internal();
 #endif

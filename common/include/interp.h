@@ -27,7 +27,7 @@ class submodel_angles;
 struct polygon_model_points : std::array<g3s_point, 1000> {};
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 #define glow_array_size	1
@@ -51,7 +51,7 @@ void g3_validate_polygon_model(std::span<uint8_t> model);
 }
 #endif
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 //alternate interpreter for morphing object
 void g3_draw_morphing_model(grs_canvas &, tmap_drawer_type tmap_drawer_ptr, const uint8_t *model_ptr, grs_bitmap *const *model_bitmaps, submodel_angles anim_angles, g3s_lrgb light, const vms_vector *new_points, polygon_model_points &Interp_point_list);

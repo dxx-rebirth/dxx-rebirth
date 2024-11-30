@@ -41,7 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern unsigned state_game_id;
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #include "fwd-player.h"
 namespace dsx {
 
@@ -84,7 +84,7 @@ int state_get_game_id(const d_game_unique_state::savegame_file_path &filename);
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 deny_save_result deny_save_game(fvcobjptr &vcobjptr, const d_level_unique_control_center_state &LevelUniqueControlCenterState);
 deny_save_result deny_save_game(fvcobjptr &vcobjptr, const d_level_unique_control_center_state &LevelUniqueControlCenterState, const d_game_unique_state &GameUniqueState);

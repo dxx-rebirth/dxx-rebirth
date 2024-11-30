@@ -113,7 +113,7 @@ void ogl_ulinec(grs_canvas &, int left, int top, int right, int bot, int c);
 void _g3_draw_tmap_2(grs_canvas &, std::span<const g3s_point *const> pointlist, std::span<const g3s_uvl, 4> uvl_list, std::span<const g3s_lrgb, 4> light_rgb, grs_bitmap &bmbot, grs_bitmap &bm, texture2_rotation_low orient, tmap_drawer_type tmap_drawer_ptr);
 
 }
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void ogl_cache_level_textures();
 }

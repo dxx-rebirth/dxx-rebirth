@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #include "maths.h"
 #include <SDL.h>
 #include "digi_audio.h"

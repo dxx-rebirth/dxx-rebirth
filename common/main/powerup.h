@@ -39,7 +39,7 @@ struct powerup_type_info : public prohibit_void_ptr<powerup_type_info>
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 enum class powerup_type_t : uint8_t

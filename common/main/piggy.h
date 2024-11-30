@@ -75,7 +75,7 @@ enum class descent1_pig_size : PHYSFS_sint64
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 #  define  PIGGY_PAGE_IN(bmp) _piggy_page_in(GameBitmaps, bmp)

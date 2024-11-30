@@ -17,7 +17,7 @@
 #include "dxxsconf.h"
 #include "fmtcheck.h"
 #include "d_srcloc.h"
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 #include "kconfig.h"
 #endif
 
@@ -71,7 +71,7 @@ void con_printf(con_priority_wrapper level, const char *fmt, ...) __attribute_fo
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 void con_showup(control_info &Controls);
