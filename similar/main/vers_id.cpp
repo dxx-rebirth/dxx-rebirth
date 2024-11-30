@@ -7,14 +7,6 @@
 #include "dxxsconf.h"
 #include "vers_id.h"
 
-#if DXX_BUILD_DESCENT == 1
-#define DXX_NAME_NUMBER	'1'
-#elif DXX_BUILD_DESCENT == 2
-#define DXX_NAME_NUMBER	'2'
-#else
-#error "Must set DXX_BUILD_DESCENT_I or DXX_BUILD_DESCENT_II"
-#endif
-
 #ifndef DXX_VERSID_BUILD_DATE
 #define DXX_VERSID_BUILD_DATE	__DATE__
 #endif
@@ -24,7 +16,7 @@
 #endif
 
 // "D1X-Rebirth " or "D2X-Rebirth "
-constexpr char g_descent_version[]{'D', DXX_NAME_NUMBER, 'X', '-', 'R', 'e', 'b', 'i', 'r', 't', 'h', ' ', DESCENT_VERSION_EXTRA, 0};
+constexpr char g_descent_version[]{'D', DXX_BUILD_DESCENT + '0', 'X', '-', 'R', 'e', 'b', 'i', 'r', 't', 'h', ' ', DESCENT_VERSION_EXTRA, 0};
 constexpr char g_descent_build_datetime[21] = DXX_VERSID_BUILD_DATE " " DXX_VERSID_BUILD_TIME;
 
 #ifdef DXX_RBE
