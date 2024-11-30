@@ -113,7 +113,7 @@ enum sound_effect : unsigned
 	ROBOT_CLAW_SOUND_DEFAULT = 190,
 	SOUND_CHEATER_FULL_DATA = 200,
 
-	/* if DXX_BUILD_DESCENT_I */
+	/* if DXX_BUILD_DESCENT == 1 */
 	/* Not used even there */
 #if 0
 	SOUND_BOSS_SHARE_ATTACK = 184,
