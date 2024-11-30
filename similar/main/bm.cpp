@@ -576,7 +576,6 @@ void load_robot_replacements(const d_fname &level_name)
 			Error("Polygon model (%u) out of range in (%s).  Range = [0..%u].", i, static_cast<const char *>(level_name), N_polygon_models - 1);
 
 		auto &m = Polygon_models[pmi];
-		free_model(m);
 		polymodel_read(m, fp);
 		polygon_model_data_read(&m, fp);
 
