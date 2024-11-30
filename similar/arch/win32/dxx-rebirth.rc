@@ -72,9 +72,9 @@ END
 BEGIN
     "#include ""afxres.h""\r\n"
     "#include ""vers_id.h""\r\n"
-	"#if defined(DXX_BUILD_DESCENT_I)\r\n"
+	"#if DXX_BUILD_DESCENT == 1\r\n"
 	"#define DXX_ICON_NUMBER	""1""\r\n"
-	"#elif defined(DXX_BUILD_DESCENT_II)\r\n"
+	"#elif DXX_BUILD_DESCENT == 2\r\n"
 	"#define DXX_ICON_NUMBER	""2""\r\n"
 	"#endif\r\n"
 	"1	RT_MANIFEST	""dxx-rebirth.manifest""\r\n"
