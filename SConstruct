@@ -5265,26 +5265,31 @@ class DXXProgram(DXXCommon):
 		versid_build_environ = ['CXX', 'CPPFLAGS', 'CXXFLAGS', 'LINKFLAGS']
 		versid_cppdefines = env['CPPDEFINES'].copy()
 		extra_version = user_settings.extra_version
-		if extra_version is None:
-			extra_version = f'v{self.VERSION_MAJOR}.{self.VERSION_MINOR}{f".{self.VERSION_MICRO}" if self.VERSION_MICRO else ""}'
+		# Possible results:
+		# extra_version is unset, git is available: use only git
+		# extra_version is unset, git is not available: use version from SConstruct
+		# extra_version is set, git is available: use "extra_version git_version"
+		# extra_version is set, git is not available: use "extra_version"
 		git_describe_version_describe_output = git_describe_version.describe
-		if git_describe_version_describe_output and not (extra_version and (extra_version == git_describe_version_describe_output or (extra_version[0] == 'v' and extra_version[1:] == git_describe_version_describe_output))):
-			# Suppress duplicate output
-			if extra_version:
-				extra_version += ' '
-			extra_version += git_describe_version_describe_output
+		if extra_version is None:
+			extra_version =	git_describe_version_describe_output or	f'v{self.VERSION_MAJOR}.{self.VERSION_MINOR}{f".{self.VERSION_MICRO}" if self.VERSION_MICRO else ""}'
+		else:
+			if git_describe_version_describe_output:
+				extra_version = f'{extra_version} {git_describe_version_describe_output}'
+			# else use only extra_version as it was set in user_settings
 		get_version_head = StaticSubprocess.get_version_head
 		ld_path = ToolchainInformation.get_tool_path(env, 'ld')[1]
 		_quote_cppdefine_as_char_initializer = self._quote_cppdefine_as_char_initializer
 		versid_cppdefines.extend([_quote_cppdefine_as_char_initializer(k, env.get(k, '')) for k in versid_build_environ])
-		versid_cppdefines.extend((
+		if extra_version:
 			# VERSION_EXTRA is special.  Format it as a string so that
 			# it can be pasted into g_descent_version (in vers_id.cpp)
 			# and look normal when printed as part of the startup
 			# banner.  Since it is pasted into g_descent_version, it is
 			# NOT included in versid_build_environ as an independent
 			# field.
-			('DESCENT_VERSION_EXTRA', ','.join(map(str, map(ord, extra_version)))),
+			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', ','.join(map(str, map(ord, extra_version)))))
+		versid_cppdefines.extend((
 			_quote_cppdefine_as_char_initializer('CXX_version', get_version_head(env['CXX'])),
 			_quote_cppdefine_as_char_initializer('LINK', ld_path.decode()),
 			_quote_cppdefine_as_char_initializer('git_status', git_describe_version.status),
