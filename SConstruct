@@ -5207,12 +5207,11 @@ class DXXProgram(DXXCommon):
 				('DXX_SHAREPATH', self._quote_cppdefine(sharepath, f=str)),
 				) if sharepath else ()
 		SCons.Script.Main.progress_display(f'{self.program_message_prefix}: default sharepath is {(sharepath or None)!r}')
-		env.Append(
-			CPPDEFINES = [
-				self.env_CPPDEFINES,
+		CPPDEFINES = list(self.env_CPPDEFINES)
 		# For PRIi64
-				('__STDC_FORMAT_MACROS',),
-			],
+		CPPDEFINES.append(('__STDC_FORMAT_MACROS',))
+		env.Append(
+			CPPDEFINES = CPPDEFINES,
 			CPPPATH = [os.path.join(self.srcdir, 'main')],
 			LIBS = ['m'],
 		)
@@ -5455,7 +5454,7 @@ class D1XProgram(DXXProgram):
 	target = \
 	srcdir = 'd1x-rebirth'
 	shortname = 'd1x'
-	env_CPPDEFINES = ('DXX_BUILD_DESCENT_I',)
+	env_CPPDEFINES = ('DXX_BUILD_DESCENT_I',), ('DXX_BUILD_DESCENT', 1)
 
 	# general source files
 	def get_objects_common(self,
@@ -5502,7 +5501,7 @@ class D2XProgram(DXXProgram):
 	target = \
 	srcdir = 'd2x-rebirth'
 	shortname = 'd2x'
-	env_CPPDEFINES = ('DXX_BUILD_DESCENT_II',)
+	env_CPPDEFINES = ('DXX_BUILD_DESCENT_II',), ('DXX_BUILD_DESCENT', 2)
 
 	# general source files
 	def get_objects_common(self,
