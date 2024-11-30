@@ -2919,10 +2919,11 @@ class LazyObjectConstructor:
 				transform_target = s.transform_target
 				transform_env = s.transform_env
 				StaticObject_hook = s.StaticObject_hook
+				StaticObject_kwargs = {} if transform_env is None else transform_env(self, env)
 				for srcname in s.sources:
 					target = builddir.File(prepare_target_name(transform_target(self, srcname), OBJSUFFIX))
 					s = StaticObject(target=target, source=srcname,
-							**({} if transform_env is None else transform_env(self, env))
+							**StaticObject_kwargs
 							)
 					append(s)
 					if StaticObject_hook is not None:
