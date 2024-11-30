@@ -847,7 +847,7 @@ I%(N)s a%(N)s()
 		# When LTO is used, the optimizer is deferred to link time.
 		# Force all tests to be Link tests when LTO is enabled.
 		self.Compile = self.Link if user_settings.lto else self._Compile
-		self.custom_tests = [t for t in self.custom_tests if all(predicate(user_settings) for predicate in t.predicate)]
+		self.custom_tests = tuple(t for t in self.custom_tests if all(predicate(user_settings) for predicate in t.predicate))
 	def _quote_macro_value(v):
 		return v.strip().replace('\n', ' \\\n')
 	def _check_sconf_forced(self,calling_function):
@@ -2261,7 +2261,7 @@ using namespace B;
 			return
 		# Some failed.  Run each test separately and report to the user
 		# which ones failed.
-		failures = [f.name for f in _features.features if not _Compile(context, text=f.text, main=f.main, msg=f'for C++{f.std} {f.name}')]
+		failures = tuple(f.name for f in _features.features if not _Compile(context, text=f.text, main=f.main, msg=f'for C++{f.std} {f.name}'))
 		raise SCons.Errors.StopError((f'C++ compiler does not support {", ".join(failures)}.'
 		) if failures else 'C++ compiler supports each feature individually, but not all of them together.  Please report this as a bug in the Rebirth configure script.')
 
@@ -5539,7 +5539,7 @@ class D2XProgram(DXXProgram):
 
 def register_program(program,other_program,variables,filtered_help,append,_itertools_product=itertools.product):
 	s = program.shortname
-	l = [v for (k,v) in ARGLIST if k == s or k == 'dxx'] or [other_program.shortname not in ARGUMENTS]
+	l = [v for (k,v) in ARGLIST if k == s or k == 'dxx'] or (other_program.shortname not in ARGUMENTS,)
 	# Legacy case: build one configuration.
 	if len(l) == 1:
 		try:
@@ -5552,7 +5552,7 @@ def register_program(program,other_program,variables,filtered_help,append,_itert
 			# profiles.  This is slightly less efficient, but reduces
 			# maintenance by not having multiple sites that call
 			# program().
-			l = ['']
+			l = '',
 		except ValueError:
 			# If not an integer, treat this as a configuration profile.
 			pass
