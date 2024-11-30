@@ -27,14 +27,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _PAGING_H
 #define _PAGING_H
 
-#ifdef __cplusplus
-
 #ifdef dsx
+
+#include "fwd-vclip.h"
+
 namespace dsx {
 void paging_touch_all(const d_vclip_array &Vclip);
 
 }
-#endif
 #endif
 
 #endif /* _PAGING_H */
