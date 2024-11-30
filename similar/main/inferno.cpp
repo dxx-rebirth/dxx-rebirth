@@ -153,10 +153,16 @@ static void print_commandline_help()
 #define DXX_if_defined_01(V,F)	DXX_if_defined4(F,,V)
 
 #define DXX_COMMAND_LINE_HELP_unix(V)	DXX_if_defined(__unix__, (V))
-#define DXX_COMMAND_LINE_HELP_D1(V)	DXX_if_defined(DXX_BUILD_DESCENT_I, (V))
-#define DXX_COMMAND_LINE_HELP_D2(V)	DXX_if_defined(DXX_BUILD_DESCENT_II, (V))
 #define DXX_STRINGIZE2(X)	#X
 #define DXX_STRINGIZE(X)	DXX_STRINGIZE2(X)
+
+#if DXX_BUILD_DESCENT == 1
+#define DXX_COMMAND_LINE_HELP_D1(V)	V
+#define DXX_COMMAND_LINE_HELP_D2(V)
+#elif DXX_BUILD_DESCENT == 2
+#define DXX_COMMAND_LINE_HELP_D1(V)
+#define DXX_COMMAND_LINE_HELP_D2(V)	V
+#endif
 
 #if DXX_USE_OGL
 #define DXX_COMMAND_LINE_HELP_OGL(V)	V
