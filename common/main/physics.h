@@ -39,7 +39,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //#define FL_REVERSE 3
 
 // Simulate a physics object for this frame
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef DXX_BUILD_DESCENT
 struct phys_visited_seglist
 {
 	unsigned nsegs;

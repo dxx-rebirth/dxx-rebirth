@@ -32,7 +32,7 @@
  *	clang versions which handle this.  See the SConstruct test for
  *	DXX_HAVE_CXX_DISAMBIGUATE_USING_NAMESPACE for how this is detected.
  */
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef DXX_BUILD_DESCENT
 #	if DXX_BUILD_DESCENT == 1
 #		define dsx d1x
 #	else

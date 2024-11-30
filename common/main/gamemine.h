@@ -46,7 +46,7 @@ struct mtfi {
 	int     fileinfo_sizeof;
 };    // Should be same as first two fields below...
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef DXX_BUILD_DESCENT
 struct mfi {
 	ushort  fileinfo_signature;
 	ushort  fileinfo_version;

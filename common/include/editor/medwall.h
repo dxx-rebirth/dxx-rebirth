@@ -56,7 +56,7 @@ int wall_add_to_markedside(fvcvertptr &vcvertptr, wall_array &Walls, int8_t type
 extern int wall_remove();
 
 // Removes a specific side.
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef DXX_BUILD_DESCENT
 int wall_remove_side(vmsegptridx_t seg, sidenum_t side);
 #endif
 

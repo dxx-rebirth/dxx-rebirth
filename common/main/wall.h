@@ -48,7 +48,7 @@ constexpr uint8_t operator&(const wall_key a, const wall_key b)
 	return underlying_value(a) & underlying_value(b);
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef DXX_BUILD_DESCENT
 enum class wall_is_doorway_mask : uint8_t
 {
 	None = 0,

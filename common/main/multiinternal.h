@@ -22,7 +22,7 @@
 
 #define define_multiplayer_command(NAME,SIZE)	NAME,
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef DXX_BUILD_DESCENT
 #define for_each_multiplayer_command(VALUE)	\
 	VALUE(MULTI_POSITION              , 1 + quaternionpos::packed_size::value)	\
 	VALUE(MULTI_REAPPEAR              , 4)	\

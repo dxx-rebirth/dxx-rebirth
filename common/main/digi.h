@@ -104,7 +104,7 @@ extern void digi_close();
 // Volume is max at F1_0.
 extern void digi_play_sample( int sndnum, fix max_volume );
 extern void digi_play_sample_once( int sndnum, fix max_volume );
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef DXX_BUILD_DESCENT
 void digi_link_sound_to_object(unsigned soundnum, vcobjptridx_t objnum, uint8_t forever, fix max_volume, sound_stack once);
 void digi_kill_sound_linked_to_segment(vmsegidx_t segnum, sidenum_t sidenum, int soundnum);
 void digi_link_sound_to_pos(unsigned soundnum, vcsegptridx_t segnum, sidenum_t sidenum, const vms_vector &pos, int forever, fix max_volume);

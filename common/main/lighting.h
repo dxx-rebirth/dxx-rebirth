@@ -44,7 +44,7 @@ struct d_level_unique_light_state
 
 }
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 #if DXX_BUILD_DESCENT == 2

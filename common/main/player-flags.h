@@ -9,7 +9,7 @@
 
 #include <cstdint>
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef DXX_BUILD_DESCENT
 // Values for special flags
 enum class PLAYER_FLAG : uint32_t
 {

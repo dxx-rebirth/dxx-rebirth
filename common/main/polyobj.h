@@ -183,7 +183,7 @@ void draw_polygon_model(grs_canvas &, tmap_drawer_type tmap_drawer_ptr, const vm
 // canvas.
 void draw_model_picture(grs_canvas &, const polymodel &mn, const vms_angvec &orient_angles);
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef DXX_BUILD_DESCENT
 #if DXX_BUILD_DESCENT == 1
 #define MAX_POLYOBJ_TEXTURES 50
 #elif DXX_BUILD_DESCENT == 2

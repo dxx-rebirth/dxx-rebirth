@@ -36,7 +36,7 @@ namespace dsx {
 void meddraw_init_views( grs_canvas * canvas);
 }
 #endif
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+#ifdef DXX_BUILD_DESCENT
 void draw_world(grs_canvas *screen_canvas,editor_view *v,vmsegptridx_t mine_ptr,int depth);
 void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,vmsegptridx_t mine_ptr,int depth);
 #endif
