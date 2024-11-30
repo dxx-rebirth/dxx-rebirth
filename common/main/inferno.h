@@ -86,7 +86,7 @@ namespace dsx {
  **/
 
 extern int Screen_mode;			// editor screen or game screen?
-#ifdef DXX_BUILD_DESCENT_I
+#if DXX_BUILD_DESCENT == 1
 extern int MacHog;
 #endif
 

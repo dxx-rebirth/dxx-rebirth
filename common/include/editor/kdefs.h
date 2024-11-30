@@ -71,7 +71,7 @@ int RotateGroup();
 
 // In segment.c
 int ToggleBottom();
-#ifdef DXX_BUILD_DESCENT_II
+#if DXX_BUILD_DESCENT == 2
 int select_segment_by_number();
 int select_segment_with_powerup();
 #endif
@@ -170,7 +170,7 @@ int CallLisp();
 int ExitEditor();
 int ShowAbout();
 int ExchangeMarkandCurseg();
-#ifdef DXX_BUILD_DESCENT_II
+#if DXX_BUILD_DESCENT == 2
 int CopySegtoMarked();
 #endif
 int med_keypad_goto_prev();
@@ -187,7 +187,7 @@ int	TexFlipY();
 int	TexSlideUp();
 int	TexSlideLeft();
 int	TexSetDefault();
-#ifdef DXX_BUILD_DESCENT_II
+#if DXX_BUILD_DESCENT == 2
 int	TexSetDefaultSelected();
 #endif
 int	TexSlideRight();
@@ -206,7 +206,7 @@ int	TexSlideDownBig();
 int	TexRotateRightBig();
 int	TexStretchDown();
 int	TexStretchUp();
-#ifdef DXX_BUILD_DESCENT_II
+#if DXX_BUILD_DESCENT == 2
 int	TexChangeAll();
 int	TexChangeAll2();
 #endif
@@ -321,7 +321,7 @@ extern int wall_assign_door_8(void);
 extern int do_wall_dialog(void);
 extern int check_walls(void);
 extern int delete_all_walls(void);
-#ifdef DXX_BUILD_DESCENT_II
+#if DXX_BUILD_DESCENT == 2
 extern int delete_all_controlcen_triggers(void);
 #endif
 
@@ -343,7 +343,7 @@ extern int robotmaker_create_from_curseg();
 extern int fuelcen_reset_all();
 extern int RestoreGameState();
 extern int fuelcen_delete_from_curseg();
-#ifdef DXX_BUILD_DESCENT_II
+#if DXX_BUILD_DESCENT == 2
 extern int goal_blue_create_from_curseg();
 extern int goal_red_create_from_curseg();
 #endif

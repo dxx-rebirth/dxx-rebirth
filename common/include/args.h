@@ -150,10 +150,10 @@ extern CArg CGameArg;
 namespace dsx {
 struct Arg : prohibit_void_ptr<Arg>
 {
-#ifdef DXX_BUILD_DESCENT_I
+#if DXX_BUILD_DESCENT == 1
 	bool EdiNoBm;
 #endif
-#ifdef DXX_BUILD_DESCENT_II
+#if DXX_BUILD_DESCENT == 2
 	bool SysNoMovies;
 	bool GfxSkipHiresMovie;
 	bool GfxSkipHiresGFX;

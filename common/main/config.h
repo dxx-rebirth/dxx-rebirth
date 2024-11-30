@@ -92,7 +92,7 @@ extern struct CCfg CGameCfg;
 namespace dsx {
 struct Cfg : prohibit_void_ptr<Cfg>
 {
-#ifdef DXX_BUILD_DESCENT_II
+#if DXX_BUILD_DESCENT == 2
 	bool MovieSubtitles;
 	int MovieTexFilt;
 #endif

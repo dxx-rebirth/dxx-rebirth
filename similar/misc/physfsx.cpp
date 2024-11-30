@@ -235,7 +235,7 @@ RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(char *const name1, c
 int PHYSFSX_checkSupportedArchiveTypes()
 {
 	int hog_sup = 0;
-#ifdef DXX_BUILD_DESCENT_II
+#if DXX_BUILD_DESCENT == 2
 	int mvl_sup = 0;
 #endif
 
@@ -246,7 +246,7 @@ int PHYSFSX_checkSupportedArchiveTypes()
 		con_printf(CON_DEBUG, "PHYSFS: Supported archive: [%s], which is [%s].", iextension, i->description);
 		if (!d_stricmp(iextension, "HOG"))
 			hog_sup = 1;
-#ifdef DXX_BUILD_DESCENT_II
+#if DXX_BUILD_DESCENT == 2
 		else if (!d_stricmp(iextension, "MVL"))
 			mvl_sup = 1;
 #endif
@@ -254,7 +254,7 @@ int PHYSFSX_checkSupportedArchiveTypes()
 
 	if (!hog_sup)
 		con_puts(CON_CRITICAL, "PHYSFS: HOG not supported. The game will not work without!");
-#ifdef DXX_BUILD_DESCENT_II
+#if DXX_BUILD_DESCENT == 2
 	if (!mvl_sup)
 		con_puts(CON_URGENT, "PHYSFS: MVL not supported. Won't be able to play movies!");
 #endif
