@@ -2930,8 +2930,7 @@ class LazyObjectConstructor:
 						StaticObject_hook(self, env, srcname, target, s)
 			# Convert to a tuple so that attempting to modify a cached
 			# result raises an error.
-			value = tuple(value)
-			cache[name] = value
+			cache[name] = value = tuple(value)
 		return value
 
 	def create_lazy_object_states_getter(states,__lazy_objects=__lazy_objects):
