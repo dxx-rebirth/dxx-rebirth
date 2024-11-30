@@ -9,6 +9,7 @@
 #ifdef dsx
 #include "maths.h"
 #include <SDL.h>
+#include "digi_audio.h"
 
 #ifndef DXX_FEATURE_EXTERNAL_RESAMPLER_SDL_NATIVE
 #define DXX_FEATURE_EXTERNAL_RESAMPLER_SDL_NATIVE	1
