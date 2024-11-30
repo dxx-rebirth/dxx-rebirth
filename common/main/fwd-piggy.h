@@ -50,6 +50,7 @@ void remove_char(char * s, char c);	// in piggy.cpp
 
 }
 
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_II)
 #define D1_PIGFILE              "descent.pig"
 #define MAX_ALIASES 20
@@ -65,19 +66,22 @@ extern unsigned Num_aliases;
 extern uint8_t Pigfile_initialized;
 }
 #endif
+#endif
 
 // an index into the bitmap collection of the piggy file
 enum class bitmap_index : uint16_t;
 
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_I)
 extern int MacPig;
 extern int PCSharePig;
 
 extern grs_bitmap bogus_bitmap;
 #endif
+#endif
 extern std::array<uint8_t, 64 * 64> bogus_data;
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 void piggy_close();
@@ -140,12 +144,14 @@ extern ubyte bogus_bitmap_initialized;
 #endif
 #define space_tab " \t"
 #define equal_space " \t="
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_I)
 #include "hash.h"
 extern hashtable AllBitmapsNames;
 extern hashtable AllDigiSndNames;
 #elif defined(DXX_BUILD_DESCENT_II)
 extern enumerated_array<BitmapFile, MAX_BITMAP_FILES, bitmap_index> AllBitmaps;
+#endif
 #endif
 
 enum class pig_bitmap_offset : unsigned

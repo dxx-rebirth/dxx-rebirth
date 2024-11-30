@@ -15,11 +15,12 @@
 #include "maths.h"
 #include "fwd-object.h"
 #include "fwd-vclip.h"
+
+#ifdef dsx
 #if defined(DXX_BUILD_DESCENT_II)
 #include "fwd-robot.h"
 #endif
 
-#ifdef dsx
 namespace dsx {
 #if defined(DXX_BUILD_DESCENT_I)
 static inline void detect_escort_goal_accomplished(const vmobjptridx_t &)

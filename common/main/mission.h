@@ -41,16 +41,18 @@ constexpr std::integral_constant<uint8_t, 127> MAX_LEVELS_PER_MISSION{};
 constexpr std::integral_constant<uint8_t, 127> MAX_SECRET_LEVELS_PER_MISSION{};	// KREATOR - increased from 6 (limited by Demo and Multiplayer code)
 #define MISSION_NAME_LEN                25
 
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_I)
 #define D1_MISSION_FILENAME             ""
 #elif defined(DXX_BUILD_DESCENT_II)
 #define D1_MISSION_FILENAME             "descent"
 #endif
+#endif
 #define D1_MISSION_NAME                 "Descent: First Strike"
 #define D1_OEM_MISSION_NAME             "Destination Saturn"
 #define D1_SHAREWARE_MISSION_NAME       "Descent Demo"
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 enum class descent_hog_size : int
@@ -83,10 +85,11 @@ enum class descent_hog_size : int
 };
 
 }
-#endif
 
 #if defined(DXX_BUILD_DESCENT_II)
 #include "movie.h"
+#endif
+
 #endif
 
 //where the missions go
@@ -94,6 +97,7 @@ enum class descent_hog_size : int
 
 constexpr std::integral_constant<std::size_t, 128> DXX_MAX_MISSION_PATH_LENGTH{};
 
+#ifdef DXX_BUILD_DESCENT
 /* Path and filename must be kept in sync. */
 class Mission_path
 {
@@ -145,7 +149,6 @@ public:
 	};
 };
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 
 struct Mission : Mission_path
@@ -204,13 +207,10 @@ extern Mission_ptr Current_mission; // current mission
 #define ANARCHY_ONLY_MISSION	(Mission::anarchy_only_level::only_anarchy_games == Current_mission->anarchy_only_flag)
 
 }
-#endif
 
 //values for d1 built-in mission
 #define BIMD1_ENDING_FILE_OEM		"endsat.txb"
 #define BIMD1_ENDING_FILE_SHARE		"ending.txb"
-
-#ifdef dsx
 
 namespace dcx {
 

@@ -55,6 +55,7 @@ extern int DoMenu();
 #endif
 extern void do_options_menu();
 
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_I)
 #define Menu_pcx_name (((SWIDTH >= 640 && SHEIGHT >= 480) && PHYSFS_exists("menuh.pcx")) ? "menuh.pcx" : "menu.pcx")
 #define STARS_BACKGROUND (((SWIDTH >= 640 && SHEIGHT >= 480) && PHYSFS_exists("starsb.pcx")) ? "starsb.pcx" : "stars.pcx")
@@ -67,6 +68,7 @@ extern void do_options_menu();
 // name of background bitmap
 #define Menu_pcx_name (PHYSFS_exists(MENU_PCX_FULL) ? MENU_PCX_FULL : (PHYSFS_exists(MENU_PCX_OEM) ? MENU_PCX_OEM : PHYSFS_exists(MENU_PCX_SHAREWARE) ? MENU_PCX_SHAREWARE : MENU_PCX_MAC_SHARE))
 #define STARS_BACKGROUND ((HIRESMODE && PHYSFS_exists("starsb.pcx")) ? "starsb.pcx" : PHYSFS_exists("stars.pcx") ? "stars.pcx" : "starsb.pcx")
+#endif
 #endif
 
 #endif /* _MENU_H */

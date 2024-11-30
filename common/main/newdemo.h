@@ -69,13 +69,13 @@ namespace dcx {
 enum class sound_pan : int;
 }
 
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_II)
 extern ubyte DemoDoRight,DemoDoLeft;
 extern struct object DemoRightExtra,DemoLeftExtra;
 #endif
 
 // Functions called during recording process...
-#ifdef dsx
 namespace dsx {
 extern void newdemo_record_start_demo();
 extern void newdemo_record_start_frame(fix frame_time );

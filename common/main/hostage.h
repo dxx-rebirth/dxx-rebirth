@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define HOSTAGE_SIZE        i2f(5)  // 3d size of a hostage
 
 #define MAX_HOSTAGE_TYPES   1       //only one hostage bitmap
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_I)
 namespace dsx {
 
@@ -39,6 +40,7 @@ namespace dsx {
 int hostage_is_valid( int hostage_num );
 #endif
 }
+#endif
 #endif
 
 namespace dcx {

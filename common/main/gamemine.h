@@ -29,11 +29,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "physfsx.h"
 
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_I)
 #define MINE_VERSION					17	// Current version expected
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MINE_VERSION        20  // Current version expected
 #include "vecmat.h"
+#endif
 #endif
 #define COMPATIBLE_VERSION  16  // Oldest version that can safely be loaded.
 
@@ -136,7 +138,6 @@ extern struct me mine_editor;
 namespace dsx {
 int load_mine_data_compiled(NamedPHYSFS_File LoadFile, const char *Gamesave_current_filename);
 }
-#endif
 
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
@@ -147,4 +148,5 @@ extern uint8_t d1_pig_present;
 texture_index convert_d1_tmap_num(texture_index d1_tmap_num);
 
 }
+#endif
 #endif

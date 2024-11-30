@@ -25,7 +25,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#ifdef __cplusplus
 #include "fwd-gr.h"
 
 // What graphics modes the game & editor open
@@ -34,12 +33,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SCREEN_MENU		0	// viewing the menu screen
 #define SCREEN_GAME		1	// viewing the menu screen
 #define SCREEN_EDITOR		2	// viewing the editor screen
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_II)
 #define SCREEN_MOVIE		3	// viewing a movie
 #endif
 
 //from game.c
-#ifdef dsx
 namespace dsx {
 int set_screen_mode(int sm);	// True = editor screen
 }
@@ -51,5 +50,3 @@ extern const std::array<int8_t, 64> fades;
 //About the screen
 extern grs_subcanvas		Screen_3d_window;		// The rectangle for rendering the mine to
 }
-
-#endif

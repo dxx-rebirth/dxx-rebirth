@@ -28,13 +28,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _GAMESAVE_H
 
 #include "pstypes.h"
-
-#ifdef __cplusplus
 #include "fwd-segment.h"
 
 #define D1X_LEVEL_FILE_EXTENSION	"RDL"
 #define D2X_LEVEL_FILE_EXTENSION	"RL2"
 
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_I)
 #define	NUM_SHAREWARE_LEVELS	7
 #define	NUM_REGISTERED_LEVELS	23
@@ -45,6 +44,7 @@ int convert_tmap(int tmap);	// for gamemine.c
 #define DXX_LEVEL_FILE_EXTENSION	D1X_LEVEL_FILE_EXTENSION
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_LEVEL_FILE_EXTENSION	D2X_LEVEL_FILE_EXTENSION
+#endif
 #endif
 void LoadGame(void);
 void SaveGame(void);
@@ -73,7 +73,5 @@ extern int Gamesave_num_org_robots;
 extern void write_game_text_file(const char *filename);
 
 extern int Errors_in_mine;
-
-#endif
 
 #endif /* _GAMESAVE_H */

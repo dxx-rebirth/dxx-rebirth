@@ -129,11 +129,13 @@ static inline PHYSFS_sint64 PHYSFSX_writeU8(PHYSFS_File *file, PHYSFS_uint8 val)
 	return {PHYSFS_writeBytes(file, &val, 1)};
 }
 
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_II)
 static inline PHYSFS_sint64 PHYSFSX_writeString(PHYSFS_File *file, const char *s)
 {
 	return {PHYSFS_writeBytes(file, s, strlen(s) + 1)};
 }
+#endif
 #endif
 
 static inline auto PHYSFSX_puts(PHYSFS_File *file, const std::span<const char> s)

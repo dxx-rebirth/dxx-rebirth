@@ -136,6 +136,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TXT_W_PLASMA            dxx_gettext(107, "Plasma Cannon")
 #define TXT_W_FUSION            dxx_gettext(108, "Fusion Cannon")
 
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_I)
 #define TXT_COPYRIGHT           dxx_gettext(11, "Copyright (C) 1994, 1995 Parallax Software Corporation")
 #define TXT_REGISTER_DESCENT    dxx_gettext(56, "CD-Enhanced Descent Coming Summer '95!")
@@ -1188,6 +1189,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 	((u) == secondary_weapon_index_t::SMISSILE4_INDEX) ? TXT_W_SMISSILE4 :	\
 	((u) == secondary_weapon_index_t::SMISSILE5_INDEX) ? TXT_W_SMISSILE5 :	\
 
+#endif
 #endif
 
 #define PRIMARY_WEAPON_NAMES(u)	(	\

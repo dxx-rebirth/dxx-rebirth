@@ -36,9 +36,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-powerup.h"
 #include "fwd-segment.h"
 
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_II)
 #include "fwd-object.h"
 #include "fwd-vclip.h"
+#endif
 #endif
 
 #define GREEN_GUY   1
@@ -193,10 +195,12 @@ enum class ai_mode : uint8_t
 //	vms_vector movement_vector; // movement vector for one second
 //} oai_state;
 
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_II)
 #define SUB_FLAGS_GUNSEG        0x01
 #define SUB_FLAGS_SPROX         0x02    // If set, then this bot drops a super prox, not a prox, when it's time to drop something
 #define SUB_FLAGS_CAMERA_AWAKE  0x04    // If set, a camera (on a missile) woke this robot up, so don't fire at player.  Can look real stupid!
+#endif
 #endif
 
 // This is the stuff that is permanent for an AI object.

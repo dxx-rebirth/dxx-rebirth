@@ -44,8 +44,10 @@ namespace dcx {
 
 struct palette_array_t : public std::array<rgb_t, 256> {};
 
+#ifdef DXX_BUILD_DESCENT
 #ifdef DXX_BUILD_DESCENT_II
 #define DEFAULT_LEVEL_PALETTE "groupa.256" //don't confuse with D2_DEFAULT_PALETTE
+#endif
 #endif
 
 void copy_bound_palette(palette_array_t &d, const palette_array_t &s);

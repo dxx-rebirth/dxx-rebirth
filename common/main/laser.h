@@ -44,10 +44,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_LASER_LEVEL         laser_level::_4   // Note, laser levels are numbered from 0.
 
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_I)
 #define DXX_MAXIMUM_LASER_LEVEL	laser_level::_4
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_MAXIMUM_LASER_LEVEL	MAX_SUPER_LASER_LEVEL
+#endif
 #endif
 
 #define MAX_LASER_BITMAPS   6
@@ -57,10 +59,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // Constants & functions governing homing missile behavior.
 #define NEWHOMER // activates the 30FPS-base capped homing projective code. Remove to restore original behavior.
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_I)
 #define HOMING_MIN_TRACKABLE_DOT        (3*F1_0/4)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define HOMING_MIN_TRACKABLE_DOT        (7*F1_0/8)
+#endif
 #endif
 #define HOMING_FLY_STRAIGHT_TIME        (F1_0/8)
 #ifdef NEWHOMER

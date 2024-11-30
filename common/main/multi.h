@@ -135,14 +135,13 @@ constexpr std::uint16_t MULTI_PROTO_VERSION{16};
 
 #define MAX_MESSAGE_LEN 35
 
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_I)
 constexpr std::size_t MAX_NET_CREATE_OBJECTS{20u};
 #elif defined(DXX_BUILD_DESCENT_II)
 constexpr std::size_t MAX_NET_CREATE_OBJECTS{40u};
-
 #endif
 
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #define NETFLAG_LABEL_QUAD	 "Quad Lasers"
 #define NETFLAG_LABEL_VULCAN	 "Vulcan cannon"
 #define NETFLAG_LABEL_SPREAD	 "Spreadfire cannon"
@@ -464,6 +463,7 @@ void multi_digi_play_sample(int sndnum, fix max_volume);
 void multi_digi_play_sample_once(int soundnum, fix max_volume);
 void multi_send_score(void);
 void multi_send_trigger(trgnum_t trigger);
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 void multi_send_flags(playernum_t);
@@ -478,6 +478,7 @@ void multi_send_effect_blowup(vcsegidx_t segnum, sidenum_t side, const vms_vecto
 void multi_add_lifetime_kills(int count);
 #endif
 }
+#endif
 #endif
 void multi_send_bounty( void );
 
@@ -596,6 +597,7 @@ void multi_put_vector(uint8_t *buf, const vms_vector &v);
 extern void multi_send_message_start();
 void multi_send_msgsend_state(msgsend_state state);
 
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 extern std::array<grs_main_bitmap, 2> Orb_icons;
@@ -607,6 +609,7 @@ struct hoard_highest_record
 
 extern hoard_highest_record hoard_highest_record_stats;
 }
+#endif
 #endif
 namespace dcx {
 extern playernum_t Bounty_target;
@@ -692,7 +695,8 @@ void change_playernum_to(playernum_t new_pnum);
 // Multiplayer powerup capping
 void MultiLevelInv_InitializeCount();
 void MultiLevelInv_Recount();
-#ifdef dsx
+void multi_send_kill_goal_counts();
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 extern bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type);
 netflag_flag multi_powerup_is_allowed(powerup_type_t id, const netflag_flag AllowedItems);
@@ -703,8 +707,6 @@ const char *multi_common_deny_save_game(const fvcobjptr &vcobjptr, std::ranges::
 const char *multi_interactive_deny_save_game(const fvcobjptr &vcobjptr, std::ranges::subrange<const player *> player_range, const d_level_unique_control_center_state &);
 void multi_check_for_killgoal_winner(const d_robot_info_array &Robot_info);
 }
-#endif
-extern void multi_send_kill_goal_counts();
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 extern void multi_send_stolen_items();
@@ -728,6 +730,7 @@ int HoardEquipped();
 void save_hoard_data(void);
 #endif
 }
+#endif
 #endif
 
 //how to encode missiles & flares in weapon packets

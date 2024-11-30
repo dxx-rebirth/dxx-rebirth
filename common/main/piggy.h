@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "physfsx.h"
 
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 struct alias
@@ -41,6 +42,7 @@ struct alias
 	std::array<char, FILENAME_LEN> file_name;
 };
 }
+#endif
 #endif
 
 // an index into the bitmap collection of the piggy file

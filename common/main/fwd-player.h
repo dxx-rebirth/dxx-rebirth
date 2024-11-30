@@ -35,10 +35,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define INITIAL_LIVES               3   // start off with 3 lives
 
 // Values for special flags
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_II)
 #define PLAYER_MAX_AMMO(powerup_flags,BASE)	((powerup_flags & PLAYER_FLAGS_AMMO_RACK) ? BASE * 2 : BASE)
 
 #define AFTERBURNER_MAX_TIME    (F1_0*5)    // Max time afterburner can be on.
+#endif
 #endif
 #define CALLSIGN_LEN                8       // so can use as filename (was: 12)
 
@@ -46,11 +48,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define CLOAK_TIME_MAX          (F1_0*30)
 #define INVULNERABLE_TIME_MAX   (F1_0*30)
 
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_I)
 #define PLAYER_STRUCT_VERSION 	16		//increment this every time player struct changes
 #define PLAYER_MAX_AMMO(powerup_flags,BASE)	(static_cast<void>(powerup_flags), BASE)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define PLAYER_STRUCT_VERSION   17  // increment this every time player struct changes
+#endif
 #endif
 #include "dxxsconf.h"
 #include "dsx-ns.h"

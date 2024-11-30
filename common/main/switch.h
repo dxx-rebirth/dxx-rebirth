@@ -44,6 +44,7 @@ constexpr std::integral_constant<std::size_t, 100> MAX_TRIGGERS{};
 constexpr std::integral_constant<unsigned, 10> MAX_WALLS_PER_LINK{};
 }
 
+#ifdef DXX_BUILD_DESCENT
 // Trigger types
 enum class trigger_action : uint8_t
 {
@@ -165,7 +166,6 @@ enum TRIGGER_FLAG : uint16_t
 
 //the trigger really should have both a type & a flags, since most of the
 //flags bits are exclusive of the others.
-#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 enum class trgnum_t : uint8_t
 {
 	None = UINT8_MAX

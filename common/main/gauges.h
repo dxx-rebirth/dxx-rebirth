@@ -59,6 +59,7 @@ enum class reticle_type : uint8_t
 
 }
 
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_GAUGE_BMS_PC 80u		//	increased from 56 to 80 by a very unhappy MK on 10/24/94.
 #define MAX_GAUGE_BMS_MAC 85u
@@ -74,7 +75,6 @@ extern std::array<bitmap_index, MAX_GAUGE_BMS> Gauges_hires;    // hires gauges
 
 // Flags for gauges/hud stuff
 
-#ifdef dsx
 namespace dsx {
 void add_points_to_score(player_info &, unsigned points, game_mode_flags);
 void add_bonus_points_to_score(player_info &, unsigned points, game_mode_flags);
@@ -122,6 +122,7 @@ public:
 
 constexpr rgb_array_wrapper player_rgb{};
 
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_II)
 namespace dsx {
 
@@ -145,6 +146,7 @@ enum class weapon_box_user : uint8_t
 void do_cockpit_window_view(grs_canvas &, gauge_inset_window_view win, const object &viewer, int rear_view_flag, weapon_box_user user, const char *label, const player_info * = nullptr);
 void do_cockpit_window_view(gauge_inset_window_view win, weapon_box_user user);
 }
+#endif
 #endif
 
 #define GAUGE_HUD_NUMMODES 4

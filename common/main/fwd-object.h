@@ -62,8 +62,10 @@ constexpr std::integral_constant<object_flag_t, 2> OF_SHOULD_BE_DEAD{};   // thi
 constexpr std::integral_constant<object_flag_t, 4> OF_DESTROYED{};   // this has been killed, and is showing the dead version
 constexpr std::integral_constant<object_flag_t, 8> OF_SILENT{};   // this makes no sound when it hits a wall.  Added by MK for weapons, if you extend it to other types, do it completely!
 constexpr std::integral_constant<object_flag_t, 16> OF_ATTACHED{};  // this object is a fireball attached to another object
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_II)
 constexpr std::integral_constant<object_flag_t, 64> OF_PLAYER_DROPPED{};  // this object was dropped by the player...
+#endif
 #endif
 
 // physics flags
@@ -75,10 +77,12 @@ constexpr std::integral_constant<physics_flag_t, 0x08> PF_WIGGLE{};    // wiggle
 constexpr std::integral_constant<physics_flag_t, 0x10> PF_STICK{};    // object sticks (stops moving) when hits wall
 constexpr std::integral_constant<physics_flag_t, 0x20> PF_PERSISTENT{};    // object keeps going even after it hits another object (eg, fusion cannon)
 constexpr std::integral_constant<physics_flag_t, 0x40> PF_USES_THRUST{};    // this object uses its thrust
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_II)
 constexpr std::integral_constant<physics_flag_t, 0x80> PF_BOUNCED_ONCE{};    // Weapon has bounced once.
 constexpr std::integral_constant<physics_flag_t, 0x100> PF_FREE_SPINNING{};   // Drag does not apply to rotation of this object
 constexpr std::integral_constant<physics_flag_t, 0x200> PF_BOUNCES_TWICE{};   // This weapon bounces twice, then dies
+#endif
 #endif
 
 namespace dcx {
@@ -127,7 +131,7 @@ enum class collision_result : bool
 
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -153,7 +157,7 @@ namespace dcx {
 extern int Num_robot_types;
 }
 
-#ifdef dsx
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 extern object *ConsoleObject;       // pointer to the object that is the player
 extern const object *Viewer;              // which object we are seeing from

@@ -19,9 +19,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#ifdef __cplusplus
 #include "dsx-ns.h"
 
+#ifdef DXX_BUILD_DESCENT
 // In khelp.c
 int DoHelp();
 
@@ -117,7 +117,6 @@ int SelectLeft();
 int SelectRight();
 
 // In ksegsize.c
-#ifdef dsx
 namespace dsx {
 int IncreaseSegLength();
 int DecreaseSegLength();
@@ -144,7 +143,6 @@ int IncreaseSegHeightDefault();
 int DecreaseSegHeightDefault();
 int do_trigger_dialog();
 }
-#endif
 
 //	In ktmap.c
 int AssignTexture();
@@ -214,7 +212,6 @@ int	TexChangeAll2();
 #endif
 
 //	object.c
-#ifdef dsx
 namespace dsx {
 int	ObjectPlaceObject();
 int	ObjectMakeCoop();
@@ -253,7 +250,6 @@ int ObjectChangeRotation();
 
 int  	ObjectResetObject();
 }
-#endif
 
 //	elight.c
 int	LightSelectNextVertex();
@@ -272,12 +268,10 @@ int	LightSetDefaultAll();
 int	LightAmbientLighting();
 
 // seguvs.c
-#ifdef dsx
 namespace dsx {
 int fix_bogus_uvs_on_side();
 int fix_bogus_uvs_all();
 }
-#endif
 int set_average_light_on_curside(void);
 int set_average_light_on_all(void);
 int set_average_light_on_all_quick(void);
@@ -359,4 +353,3 @@ extern int do_robot_dialog();
 extern int do_object_dialog();
 
 #endif
-

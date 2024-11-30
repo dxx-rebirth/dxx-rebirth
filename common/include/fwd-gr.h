@@ -60,6 +60,7 @@ enum class packed_color_r5g5b5 : int16_t
 #define SWIDTH  (grd_curscreen->get_screen_width())
 #define SHEIGHT (grd_curscreen->get_screen_height())
 
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_I)
 namespace dsx {
 extern uint8_t HiresGFXAvailable;
@@ -67,6 +68,7 @@ extern uint8_t HiresGFXAvailable;
 #define HIRESMODE HiresGFXAvailable		// descent.pig either contains hires or lowres graphics, not both
 #elif defined(DXX_BUILD_DESCENT_II)
 #define HIRESMODE (SWIDTH >= 640 && SHEIGHT >= 480 && !GameArg.GfxSkipHiresGFX)
+#endif
 #endif
 #define MAX_BMP_SIZE(width, height) (4 + ((width) + 2) * (height))
 

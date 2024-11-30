@@ -195,6 +195,7 @@ constexpr std::integral_constant<unsigned, 166> N_D2_POLYGON_MODELS{};
 
 namespace dcx {
 
+#ifdef DXX_BUILD_DESCENT
 #if defined(DXX_BUILD_DESCENT_II)
 /* This function exists in both games and has the same implementation in
  * both, but is static in Descent 1.  Declare it in the header only for
@@ -202,6 +203,7 @@ namespace dcx {
  */
 // free up a model, getting rid of all its memory
 void free_model(polymodel &po);
+#endif
 #endif
 
 /*

@@ -32,8 +32,8 @@ template <std::size_t>
 struct PHYSFSX_gets_line_t;
 }
 
-#if defined(DXX_BUILD_DESCENT_I)
-#elif defined(DXX_BUILD_DESCENT_II)
+#ifdef DXX_BUILD_DESCENT
+#if defined(DXX_BUILD_DESCENT_II)
 #include <span>
 #include "inferno.h"
 
@@ -66,4 +66,5 @@ int load_palette(std::span<const char> name, load_palette_use used_for_level, lo
 void load_palette_for_pig(std::span<const char> name);
 
 }
+#endif
 #endif
