@@ -4,23 +4,23 @@ The goal of the namespace TODO item is to move all Rebirth symbols into one of t
 
 To be common, code must not:
 
-* Contain `#ifdef DXX_BUILD_DESCENT_I` or `#ifdef DXX_BUILD_DESCENT_II` or equivalent preprocessor directives:
+* Examine the preprocessor symbol `DXX_BUILD_DESCENT`:
 ```c++
 int f()
 {
 	// not common because the return statement varies by game
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	return 1;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	return 4;
 #endif
 }
 ```
 * Use any macro which is defined inside a game-specific preprocessor directive:
 ```c++
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define MY_MACRO	2
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define MY_MACRO	4
 #endif
 
@@ -34,7 +34,7 @@ int f()
 struct A
 {
 	int a;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	int b;
 #endif
 };
@@ -48,9 +48,9 @@ int f(A &a)
 ```c++
 int f()
 {
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	return 1;
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 	return 4;
 #endif
 }
@@ -68,12 +68,12 @@ To be common, data variables must:
 * Be the same type in both games.
 
 To be common, user defined types must not:
-* Contain `#ifdef DXX_BUILD_DESCENT_I` or `#ifdef DXX_BUILD_DESCENT_II` or equivalent preprocessor directives.
+* Examine the preprocessor symbol `DXX_BUILD_DESCENT`.
 * Depend on any macro which is defined inside a game-specific preprocessor directive:
 ```c++
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 #define MY_MACRO	2
-#elif defined(DXX_BUILD_DESCENT_II)
+#elif DXX_BUILD_DESCENT == 2
 #define MY_MACRO	4
 #endif
 struct A
@@ -86,7 +86,7 @@ struct A
 struct A
 {
 	int a;
-#if defined(DXX_BUILD_DESCENT_I)
+#if DXX_BUILD_DESCENT == 1
 	int b;
 #endif
 };
