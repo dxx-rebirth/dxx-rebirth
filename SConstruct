@@ -5459,7 +5459,7 @@ class D1XProgram(DXXProgram):
 	target = \
 	srcdir = 'd1x-rebirth'
 	shortname = 'd1x'
-	env_CPPDEFINES = ('DXX_BUILD_DESCENT_I',), ('DXX_BUILD_DESCENT', 1)
+	env_CPPDEFINES = ('DXX_BUILD_DESCENT', 1),
 
 	# general source files
 	def get_objects_common(self,
@@ -5506,7 +5506,7 @@ class D2XProgram(DXXProgram):
 	target = \
 	srcdir = 'd2x-rebirth'
 	shortname = 'd2x'
-	env_CPPDEFINES = ('DXX_BUILD_DESCENT_II',), ('DXX_BUILD_DESCENT', 2)
+	env_CPPDEFINES = ('DXX_BUILD_DESCENT', 2),
 
 	# general source files
 	def get_objects_common(self,
