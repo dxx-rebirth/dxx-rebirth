@@ -144,7 +144,7 @@ extern int force_cockpit_redraw;
 #define	SHOW_EXIT_PATH	1
 
 //sets the rgb values for palette flash
-#define PALETTE_FLASH_SET(_r,_g,_b) PaletteRedAdd=(_r), PaletteGreenAdd=(_g), PaletteBlueAdd=(_b)
+#define PALETTE_FLASH_SET(_r,_g,_b) (static_cast<void>(PaletteRedAdd = {_r}), static_cast<void>(PaletteGreenAdd = {_g}), static_cast<void>(PaletteBlueAdd = {_b}))
 
 // from game.c
 void close_game(void);
