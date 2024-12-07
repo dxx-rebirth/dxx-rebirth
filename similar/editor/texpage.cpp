@@ -220,7 +220,7 @@ struct replacement
 	texture_index old;
 };
 
-int	Num_replacements=0;
+int Num_replacements{0};
 static std::array<replacement, MAX_REPLACEMENTS> Replacement_list;
 
 }

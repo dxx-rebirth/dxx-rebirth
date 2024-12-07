@@ -123,7 +123,7 @@ static void segment2_read(const msmusegment s2, const NamedPHYSFS_File fp)
 #if DXX_BUILD_DESCENT == 1
 #elif DXX_BUILD_DESCENT == 2
 
-uint8_t d1_pig_present = 0; // can descent.pig from descent 1 be loaded?
+uint8_t d1_pig_present{0}; // can descent.pig from descent 1 be loaded?
 
 namespace {
 

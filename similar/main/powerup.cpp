@@ -192,7 +192,7 @@ namespace {
 
 static int pick_up_energy(player_info &player_info)
 {
-	int	used=0;
+	int used{0};
 
 	auto &energy = player_info.energy;
 	if (energy < MAX_ENERGY) {
@@ -224,7 +224,7 @@ static int pick_up_primary_or_energy(player_info &player_info, const primary_wea
 
 static int pick_up_vulcan_ammo(player_info &player_info)
 {
-	int	used=0;
+	int used{0};
 	if (pick_up_vulcan_ammo(player_info, VULCAN_AMMO_AMOUNT, false)) {
 		powerup_basic(7, 14, 21, VULCAN_AMMO_SCORE, "%s!", TXT_VULCAN_AMMO);
 		used = 1;
@@ -379,8 +379,8 @@ int do_powerup(const vmobjptridx_t obj)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
-	int used=0;
-	int special_used=0;		//for when hitting vulcan cannon gets vulcan ammo
+	int used{0};
+	int special_used{0};		//for when hitting vulcan cannon gets vulcan ammo
 
 	if (Player_dead_state != player_dead_state::no ||
 		ConsoleObject->type == OBJ_GHOST ||

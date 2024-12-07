@@ -72,7 +72,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 unsigned NumTextures;
 
 #if DXX_USE_EDITOR
-int Num_object_subtypes = 1;
+int Num_object_subtypes{1};
 #endif
 
 namespace dsx {
@@ -521,7 +521,7 @@ void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
 	}
 }
 
-int Robot_replacements_loaded = 0;
+int Robot_replacements_loaded{0};
 
 void load_robot_replacements(const d_fname &level_name)
 {

@@ -527,7 +527,7 @@ static window_event_result robot_dialog_created(robot_dialog *const r)
 	// The little box the robots will spin in.
 	r->containsViewBox = ui_add_gadget_userbox(*r, 10, 202, 100, 80);
 	// A bunch of buttons...
-	int i = 135;
+	int i{135};
 	r->prev_robot_type = ui_add_gadget_button(*r, 190, i, 53, 26, "<<Typ", 			RobotPrevType);
 	r->next_robot_type = ui_add_gadget_button(*r, 247, i, 53, 26, "Typ>>", 			RobotNextType);							i += 29;		
 	r->next_segment = ui_add_gadget_button(*r, 190, i, 110, 26, "Next in Seg", LocalObjectSelectNextinSegment);	i += 29;		
@@ -574,7 +574,7 @@ window_event_result robot_dialog::callback_handler(const d_event &event)
 	fix	DeltaTime;
 	fix64	Temp;
 	int	first_object_index;
-	int keypress = 0;
+	int keypress{0};
 	window_event_result rval = window_event_result::ignored;
 	if (event.type == event_type::key_command)
 		keypress = event_key_get(event);
@@ -844,7 +844,7 @@ window_event_result object_dialog::callback_handler(const d_event &event)
 			break;
 	}
 	const auto &&obj = vmobjptr(Cur_object_index);
-	int keypress = 0;
+	int keypress{0};
 	window_event_result rval = window_event_result::ignored;
 	if (event.type == event_type::key_command)
 		keypress = event_key_get(event);

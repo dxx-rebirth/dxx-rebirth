@@ -998,7 +998,7 @@ savegame_newmenu_items::savegame_newmenu_items(d_game_unique_state::savegame_des
 	caller_savegame_description(savegame_description),
 	savegame_file_path(savegame_file_path)
 {
-	unsigned nsaves = 0;
+	unsigned nsaves{0};
 	/* Always start at offset `decorative_item_count` to skip the fixed
 	 * text leader.  Conditionally subtract 1 if the call is for saving,
 	 * since interactive saves should not access the last slot.  The
@@ -1287,7 +1287,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 	auto &LevelUniqueMorphObjectState = LevelUniqueObjectState.MorphObjectState;
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Station = LevelUniqueFuelcenterState.Station;
-	fix tmptime32 = 0;
+	fix tmptime32{0};
 
 	#ifndef NDEBUG
 	if (CGameArg.SysUsePlayersDir && strncmp(filename, PLAYER_DIRECTORY_TEXT, sizeof(PLAYER_DIRECTORY_TEXT) - 1))

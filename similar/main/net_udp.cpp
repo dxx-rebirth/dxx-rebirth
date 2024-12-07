@@ -726,7 +726,7 @@ using socket_data_buffer = std::span<uint8_t>;
 class start_poll_menu_items
 {
 	/* The host must play */
-	unsigned playercount = 1;
+	unsigned playercount{1};
 public:
 	std::array<newmenu_item, MAX_PLAYERS + 4> m;
 	unsigned get_player_count() const
@@ -1089,7 +1089,7 @@ int udp_dns_filladdr(sockaddr_ref addr, const char *host, uint16_t port, bool nu
 // Open socket
 static int udp_open_socket(RAIIsocket &sock, int port)
 {
-	int bcast = 1;
+	int bcast{1};
 
 	// close stale socket
 	struct _sockaddr sAddr;   // my address information
@@ -1152,7 +1152,7 @@ static ssize_t udp_receive_packet(RAIIsocket &sock, const socket_data_buffer msg
 		return 0;
 #endif
 	ssize_t msglen;
-		int flags = 0;
+		int flags{0};
 #ifdef MSG_DONTWAIT
 		flags |= MSG_DONTWAIT;
 #endif
@@ -1273,8 +1273,8 @@ netgame_list_game_menu *netgame_list_menu;
 
 struct netgame_list_game_menu : netgame_list_game_menu_items, direct_join, newmenu
 {
-	unsigned num_active_udp_games = 0;
-	uint8_t num_active_udp_changed = 1;
+	unsigned num_active_udp_games{0};
+	uint8_t num_active_udp_changed{1};
 	std::array<UDP_netgame_info_lite, UDP_MAX_NETGAMES> Active_udp_games{};
 	netgame_list_game_menu(grs_canvas &src) :
 		newmenu(menu_title{"NETGAMES"}, menu_subtitle{nullptr}, menu_filename{nullptr}, tiny_mode_flag::tiny, tab_processing_flag::process, adjusted_citem::create(menus, 0), src)
@@ -1487,7 +1487,7 @@ static void copy_truncate_string(const grs_font &cv_font, const font_x_scaled_fl
 window_event_result netgame_list_game_menu::event_handler(const d_event &event)
 {
 	// Polling loop for Join Game menu
-	int newpage = 0;
+	int newpage{0};
 	static int NLPage = 0;
 	switch (event.type)
 	{
@@ -1645,7 +1645,7 @@ window_event_result netgame_list_game_menu::event_handler(const d_event &event)
 	for (int i = 0; i < UDP_NETGAMES_PPAGE; i++)
 	{
 		const auto &augi = Active_udp_games[(i + (NLPage * UDP_NETGAMES_PPAGE))];
-		int nplayers = 0;
+		int nplayers{0};
 		char levelname[8];
 
 		if ((i+(NLPage*UDP_NETGAMES_PPAGE)) >= num_active_udp_games)
@@ -1736,7 +1736,7 @@ namespace {
 static void net_udp_send_sequence_packet(const UDP_sequence_request_packet &seq, const _sockaddr &recv_addr)
 {
 	std::array<uint8_t, upid_length<upid::request>> buf;
-	int len = 0;
+	int len{0};
 	buf[0] = underlying_value(seq.type);						len++;
 	memcpy(&buf[len], seq.callsign.operator const char *(), CALLSIGN_LEN+1);		len += CALLSIGN_LEN+1;
 	buf[len] = seq.Current_level_num;				len++;
@@ -1747,7 +1747,7 @@ static void net_udp_send_sequence_packet(const UDP_sequence_request_packet &seq,
 static void net_udp_send_sequence_packet(const UDP_sequence_addplayer_packet &seq, const _sockaddr &recv_addr)
 {
 	std::array<uint8_t, upid_length<upid::addplayer>> buf;
-	int len = 0;
+	int len{0};
 	buf[0] = underlying_value(seq.type);						len++;
 	memcpy(&buf[len], seq.callsign.operator const char *(), CALLSIGN_LEN+1);		len += CALLSIGN_LEN+1;
 	buf[len] = seq.player_num;				len++;
@@ -2063,7 +2063,7 @@ static void net_udp_welcome_player(const UDP_sequence_request_packet &their, con
 		
 			int oldest_player = -1;
 			fix64 oldest_time = timer_query();
-			int activeplayers = 0;
+			int activeplayers{0};
 
 			Assert(N_players == Netgame.max_numplayers);
 
@@ -2278,8 +2278,8 @@ static unsigned net_udp_create_monitor_vector(void)
 			blown_bitmaps.insert_unique(i.dest_bm_num);
 		}
 	}
-	unsigned monitor_num = 0;
-	unsigned vector = 0;
+	unsigned monitor_num{0};
+	unsigned vector{0};
 	range_for (const auto &&seg, vcsegptridx)
 	{
 		range_for (auto &j, seg->unique_segment::sides)
@@ -2336,7 +2336,7 @@ void net_udp_send_objects(const Network_player_added network_player_added)
 	auto &vmobjptr = Objects.vmptr;
 	uint8_t player_num = UDP_sync_player.player_num;
 	static int obj_count = 0;
-	unsigned loc = 0, obj_count_frame = 0;
+	unsigned loc{0}, obj_count_frame = 0;
 	static fix64 last_send_time = 0;
 	
 	if (last_send_time + (F1_0/50) > timer_query())
@@ -2466,7 +2466,7 @@ static int net_udp_verify_objects(int remote, int local)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
-	int nplayers = 0;
+	int nplayers{0};
 
 	if ((remote-local) > 10)
 		return(2);
@@ -2814,7 +2814,7 @@ void dispatch_table::send_endlevel_packet() const
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
-	int len = 0;
+	int len{0};
 
 	if (multi_i_am_master())
 	{
@@ -3086,7 +3086,7 @@ static void net_udp_process_game_info_light(const std::span<const uint8_t> buf, 
 									  )
 {
 	const auto data = buf.data();
-	uint_fast32_t len = 0;
+	uint_fast32_t len{0};
 	{
 		const auto menu{netgame_list_menu};
 		if (!menu)
@@ -3164,7 +3164,7 @@ static void net_udp_process_game_info_light(const std::span<const uint8_t> buf, 
 
 static void net_udp_process_game_info_heavy(const uint8_t *data, uint_fast32_t, const _sockaddr &game_addr)
 {
-	uint_fast32_t len = 0;
+	uint_fast32_t len{0};
 	{
 		Netgame.players[0].protocol.udp.addr = game_addr;
 
@@ -3565,8 +3565,8 @@ void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_a
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	int len = 0;
-	ubyte tmpvar = 0;
+	int len{0};
+	ubyte tmpvar{0};
 	
 	if (multi_i_am_master())
 	{
@@ -3650,7 +3650,7 @@ void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_a
 static int net_udp_sync_poll( newmenu *,const d_event &event, const unused_newmenu_userdata_t *)
 {
 	static fix64 t1 = 0;
-	int rval = 0;
+	int rval{0};
 
 	if (event.type != event_type::window_draw)
 		return 0;
@@ -4371,7 +4371,7 @@ static int net_udp_game_param_handler( newmenu *menu,const d_event &event, param
 				else if( menus[opt->bounty].value )
 					Netgame.gamemode = network_game_type::bounty;
 		 		else if (ANARCHY_ONLY_MISSION) {
-					int i = 0;
+					int i{0};
 		 			nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{TXT_ANARCHY_ONLY_MISSION});
 					for (i = opt->mode; i <= opt->mode_end; i++)
 						menus[i].value = 0;
@@ -4485,7 +4485,7 @@ window_event_result net_udp_setup_game()
 
 	Netgame.levelnum = 1;
 
-	unsigned optnum = 0;
+	unsigned optnum{0};
 	opt.start_game=optnum;
 	nm_set_item_menu(  m[optnum], "Start Game"); optnum++;
 	nm_set_item_text(m[optnum], TXT_DESCRIPTION); optnum++;
@@ -4793,7 +4793,7 @@ static int net_udp_select_players()
 
 	if (Netgame.ShufflePowerupSeed)
 	{
-		unsigned seed = 0;
+		unsigned seed{0};
 		try {
 			seed = std::random_device()();
 			if (!seed)
@@ -4969,7 +4969,7 @@ static int net_udp_start_game()
 static int net_udp_wait_for_sync(void)
 {
 	char text[60];
-	int choice=0;
+	int choice{0};
 	
 	Network_status = network_state::waiting;
 
@@ -5006,7 +5006,7 @@ static int net_udp_wait_for_sync(void)
 static int net_udp_request_poll( newmenu *,const d_event &event, const unused_newmenu_userdata_t *)
 {
 	// Polling loop for waiting-for-requests menu
-	int num_ready = 0;
+	int num_ready{0};
 
 	if (event.type != event_type::window_draw)
 		return 0;
@@ -5079,7 +5079,7 @@ namespace udp {
 /* Do required syncing after each level, before starting new one */
 window_event_result dispatch_table::level_sync() const
 {
-	int result = 0;
+	int result{0};
 
 	UDP_MData = {};
 	net_udp_noloss_init_mdata_queue();
@@ -5287,7 +5287,7 @@ static void net_udp_flush(RAIIsocket &s)
 {
 	if (!s)
 		return;
-	unsigned i = 0;
+	unsigned i{0};
 	struct _sockaddr sender_addr;
 	std::array<uint8_t, UPID_MAX_SIZE> packet;
 	while (udp_receive_packet(s, packet, sender_addr) > 0)
@@ -5548,7 +5548,7 @@ static void net_udp_noloss_add_queue_pkt(fix64 time, const std::span<const uint8
 static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, const _sockaddr &sender_addr)
 {
 	ubyte pkt_sender_pnum = sender_pnum;
-	int len = 0;
+	int len{0};
 
 	// If we are a client, we get all our packets from the host.
 	if (!multi_i_am_master())
@@ -5597,8 +5597,8 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, co
 /* We got an ACK by a player. Set this player slot to positive! */
 void net_udp_noloss_got_ack(const std::span<const uint8_t> data)
 {
-	int len = 0;
-	ubyte sender_pnum = 0, dest_pnum = 0;
+	int len{0};
+	ubyte sender_pnum{0}, dest_pnum = 0;
 
 															len++;
 	sender_pnum = data[len];											len++;
@@ -5642,7 +5642,7 @@ void net_udp_noloss_clear_mdata_trace(ubyte player_num)
  */
 void net_udp_noloss_process_queue(fix64 time)
 {
-	int total_len = 0;
+	int total_len{0};
 
 	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
@@ -5652,7 +5652,7 @@ void net_udp_noloss_process_queue(fix64 time)
 
 	for (int queuec = 0; queuec < UDP_mdata_queue_highest; queuec++)
 	{
-		int needack = 0;
+		int needack{0};
 
 		// This might happen if we get out ACK's in the wrong order. So ignore that packet for now. It'll resolve itself.
 		if (!UDP_mdata_queue[queuec].used)
@@ -5674,7 +5674,7 @@ void net_udp_noloss_process_queue(fix64 time)
 					UDP_mdata_queue[queuec].pkt_timestamp[plc] = time;
 					std::array<uint8_t, sizeof(UDP_mdata_info)> buf{};
 
-					unsigned len = 0;
+					unsigned len{0};
 					// Prepare the packet and send it
 					buf[len] = underlying_value(upid::mdata_pneedack);													len++;
 					buf[len] = UDP_mdata_queue[queuec].Player_num;								len++;
@@ -5759,7 +5759,7 @@ void dispatch_table::send_data_direct(const std::span<const uint8_t> data, const
 		needack = 0;
 
 	std::array<uint8_t, sizeof(UDP_mdata_info)> buf{};
-	unsigned len = 0;
+	unsigned len{0};
 	buf[0] = needack
 		? underlying_value(upid::mdata_pneedack)
 		: underlying_value(upid::mdata_pnorm);
@@ -5805,7 +5805,7 @@ void net_udp_send_mdata(int needack, fix64 time)
 
 	std::array<uint8_t, sizeof(UDP_mdata_info)> buf{};
 
-	unsigned len = 0;
+	unsigned len{0};
 	buf[0] = needack
 		? underlying_value(upid::mdata_pneedack)
 		: underlying_value(upid::mdata_pnorm);
@@ -5917,7 +5917,7 @@ void net_udp_send_pdata()
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	std::array<uint8_t, 3 + quaternionpos::packed_size::value> buf;
-	int len = 0;
+	int len{0};
 
 	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
@@ -5960,7 +5960,7 @@ void net_udp_send_pdata()
 void net_udp_process_pdata(const std::span<const uint8_t> data, const _sockaddr &sender_addr)
 {
 	UDP_frame_info pd;
-	int len = 0;
+	int len{0};
 
 	if (!((Game_mode & GM_NETWORK) && (Network_status == network_state::playing || Network_status == network_state::endlevel)))
 		return;
@@ -6128,7 +6128,7 @@ void net_udp_ping_frame(fix64 time)
 	if ((PingTime + F1_0) < time)
 	{
 		std::array<uint8_t, upid_length<upid::ping>> buf{};
-		int len = 0;
+		int len{0};
 		
 		buf[0] = underlying_value(upid::ping);							len++;
 		memcpy(&buf[len], &time, 8);						len += 8;
@@ -6151,7 +6151,7 @@ void net_udp_ping_frame(fix64 time)
 void net_udp_process_ping(const upid_rspan<upid::ping> data, const _sockaddr &sender_addr)
 {
 	std::array<uint8_t, upid_length<upid::pong>> buf;
-	int len = 0;
+	int len{0};
 
 	if (Netgame.players[0].protocol.udp.addr != sender_addr)
 		return;
@@ -6548,7 +6548,7 @@ static int udp_tracker_register()
 static int udp_tracker_reqgames()
 {
 	std::array<uint8_t, 2 + sizeof(UDP_REQ_ID) + sizeof("00000.00000.00000.00000")> pBuf{};
-	unsigned len = 1;
+	unsigned len{1};
 
 	pBuf[0] = UPID_TRACKER_REQGAMES;
 	len += snprintf(reinterpret_cast<char *>(&pBuf[1]), sizeof(pBuf)-1, UDP_REQ_ID DXX_VERSION_STR ".%hu", MULTI_PROTO_VERSION );
@@ -6570,7 +6570,7 @@ static int udp_tracker_process_game(const std::span<const uint8_t> buf, const _s
 	const char *p0 = NULL, *p1 = NULL, *p3 = NULL;
 	char sIP[47]{};
 	std::array<char, 6> sPort{};
-	uint16_t iPort = 0;
+	uint16_t iPort{0};
 
 	const auto data = buf.data();
 	const auto data_len = buf.size();

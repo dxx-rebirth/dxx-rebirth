@@ -291,7 +291,7 @@ static intersection_type special_check_line_to_face(vms_vector &newp, const vms_
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	fix edge_t2 = 0;
+	fix edge_t2{0};
 	int edgenum;
 	auto &s = seg.sides[side];
 
@@ -878,7 +878,7 @@ static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &int
 	{                             //on the back of at least one face
 		//for each face we are on the back of, check if intersected
 
-		int bit = 1;
+		int bit{1};
 		for (const auto side : MAX_SIDES_PER_SEGMENT)
 		{
 			if (endmask < bit)
@@ -1216,7 +1216,7 @@ static sphere_intersects_wall_result sphere_intersects_wall(fvcsegptridx &vcsegp
 	if (facemask != 0) {				//on the back of at least one face
 		//for each face we are on the back of, check if intersected
 
-		int bit = 1;
+		int bit{1};
 		for (const auto side : MAX_SIDES_PER_SEGMENT)
 		{
 			if (facemask < bit)

@@ -136,9 +136,9 @@ newmenu_layout::adjusted_citem newmenu_layout::adjusted_citem::create(const std:
 	const std::size_t nitems = items.size();
 	if (citem > nitems - 1)
 		citem = nitems - 1;
-	uint_fast32_t i = 0;
+	uint_fast32_t i{0};
 	const auto begin = items.begin();
-	uint8_t all_text = 0;
+	uint8_t all_text{0};
 	while (std::next(begin, citem)->type == nm_type::text)
 	{
 		if (++ citem >= nitems)
@@ -321,7 +321,7 @@ static void nm_string(grs_canvas &canvas, const grs_font &cv_font, const int w1,
 	{
 		i = fspacx(i) + x;
 	}
-	unsigned t = 0;
+	unsigned t{0};
 	char measure[2];
 	measure[1] = 0;
 	for (unsigned i = 0; const char c = s[i]; ++i)
@@ -1040,7 +1040,7 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 {
 	int k = event_key_get(event);
 	int old_choice;
-	int changed = 0;
+	int changed{0};
 	window_event_result rval = window_event_result::handled;
 
 	if (keyd_pressed[KEY_NUMLOCK])
@@ -1324,7 +1324,7 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 
 	iterative_layout_max_height += FSPACY(5);		//put some space between titles & body
 
-	int aw = 0;
+	int aw{0};
 	auto iterative_layout_body_width = 0u;
 	const auto initial_layout_height{iterative_layout_max_height};
 
@@ -1415,7 +1415,7 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 	}
 	menu.h = iterative_layout_max_height;
 
-	int right_offset = 0;
+	int right_offset{0};
 
 	range_for (auto &i, menu.items)
 	{
@@ -1426,7 +1426,7 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 
 	menu.w = iterative_layout_body_width + right_offset;
 
-	int twidth = 0;
+	int twidth{0};
 	if (menu.w < iterative_layout_max_width)
 	{
 		twidth = (iterative_layout_max_width - menu.w) / 2;
@@ -1479,7 +1479,7 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 static window_event_result newmenu_draw(newmenu *menu)
 {
 	auto &menu_canvas = menu->w_canv;
-	int th = 0, ty, sx, sy;
+	int th{0}, ty, sx, sy;
 
 	if (menu->swidth != SWIDTH || menu->sheight != SHEIGHT || menu->fntscalex != FNTScaleX || menu->fntscaley != FNTScaleY)
 	{
@@ -1927,7 +1927,7 @@ void listbox_layout::create_structure()
 		w += fspacx10;
 		if (w > max_box_width)
 		{
-			unsigned mmc = 1;
+			unsigned mmc{1};
 			for (;; ++mmc)
 			{
 				const auto w2 = gr_get_string_size(medium3_font, i, mmc).width;
@@ -2062,7 +2062,7 @@ static window_event_result listbox_draw(listbox *lb)
 					prev_citem = lb->citem;
 				}
 
-				unsigned srcoffset = 0;
+				unsigned srcoffset{0};
 				if (i == lb->citem)
 				{
 					const auto tq = timer_query();

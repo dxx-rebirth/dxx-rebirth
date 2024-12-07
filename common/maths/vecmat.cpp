@@ -312,7 +312,7 @@ static vms_vector check_vec(vms_vector v)
 {
 	if (unlikely(v == vms_vector{}))
 		return v;
-	int cnt = 0;
+	int cnt{0};
 
 	fix check = labs(v.x) | labs(v.y) | labs(v.z);
 	if (check & 0xfffc0000) {		//too big

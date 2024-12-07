@@ -127,8 +127,8 @@ constexpr char MacrosHelpText[] = "MED Macros Functions\n\n" \
 
 int DoHelp()
 {
-	int help_key = 2;
-    int more_key = 2;
+	int help_key{2};
+    int more_key{2};
     while (help_key > 1)
 	{
         help_key = ui_messagebox( -2, -2, 5, MainHelpText, "Ok", "Segment", "Keypad", "View", "More");

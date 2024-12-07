@@ -124,7 +124,7 @@ struct v19_wall : public prohibit_void_ptr<v19_wall>
 class d_level_unique_stuck_object_state
 {
 protected:
-	unsigned Num_stuck_objects = 0;
+	unsigned Num_stuck_objects{0};
 	std::array<stuckobj, 32> Stuck_objects;
 public:
 	void init_stuck_objects();

@@ -1060,7 +1060,7 @@ static const char *load_mission(const mle *const mission)
 						continue;
 				}
 				auto names = std::make_unique<d_fname[]>(n_levels);
-				uint8_t level_names_loaded = 0;
+				uint8_t level_names_loaded{0};
 				for (auto &i : unchecked_partial_range(names.get(), n_levels))
 				{
 					if (!PHYSFSX_fgets(buf, mfile))
@@ -1094,7 +1094,7 @@ static const char *load_mission(const mle *const mission)
 						continue;
 				}
 				Current_mission->n_secret_levels = n_levels;
-				uint8_t level_names_loaded = 0;
+				uint8_t level_names_loaded{0};
 				auto names = std::make_unique<d_fname[]>(n_levels);
 				auto table = std::make_unique<uint8_t[]>(n_levels);
 				for (auto &&[name, table_cell] : zip(unchecked_partial_range(names.get(), n_levels), unchecked_partial_range(table.get(), n_levels)))

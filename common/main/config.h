@@ -58,11 +58,11 @@ struct CCfg : prohibit_void_ptr<CCfg>
 	uint8_t AspectX;
 	uint8_t AspectY;
 #if DXX_USE_ADLMIDI
-	int ADLMIDI_num_chips = 6;
+	int ADLMIDI_num_chips{6};
 	/* See common/include/adlmidi_dynamic.h for the symbolic name and for other
 	 * values.
 	 */
-	int ADLMIDI_bank = 31;
+	int ADLMIDI_bank{31};
 	bool ADLMIDI_enabled;
 #endif
 	bool VSync;

@@ -73,7 +73,7 @@ struct wall_dialog : UI_DIALOG
 	std::array<std::unique_ptr<UI_GADGET_RADIO>, 4> keyFlag;
 	wallnum_t old_wall_num = wall_none;		// Set to some dummy value so everything works ok on the first frame.
 	fix64 time;
-	int framenum = 0;
+	int framenum{0};
 	virtual window_event_result callback_handler(const d_event &) override;
 };
 
@@ -448,7 +448,7 @@ static window_event_result wall_dialog_created(wall_dialog *const wd)
 {
 	wd->quitButton = ui_add_gadget_button(*wd, 20, 252, 48, 40, "Done", nullptr);
 	// These are the checkboxes for each door flag.
-	int i = 80;
+	int i{80};
 	wd->doorFlag[0] = ui_add_gadget_checkbox(*wd, 22, i, 16, 16, 0, "Locked"); i += 24;
 	wd->doorFlag[1] = ui_add_gadget_checkbox(*wd, 22, i, 16, 16, 0, "Auto"); i += 24;
 	wd->doorFlag[2] = ui_add_gadget_checkbox(*wd, 22, i, 16, 16, 0, "Illusion OFF"); i += 24;
@@ -495,7 +495,7 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 	}
 	fix DeltaTime;
 	fix64 Temp;
-	int keypress = 0;
+	int keypress{0};
 	window_event_result rval = window_event_result::ignored;
 	if (event.type == event_type::key_command)
 		keypress = event_key_get(event);
@@ -1046,7 +1046,7 @@ int check_walls()
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	std::array<count_wall, MAX_WALLS> CountedWalls;
 
-	unsigned wall_count = 0;
+	unsigned wall_count{0};
 	range_for (const auto &&segp, vmsegptridx)
 	{
 		if (segp->segnum != segment_none) {

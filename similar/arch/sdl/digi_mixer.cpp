@@ -265,7 +265,7 @@ static auto filter_fir(const unique_span<int8_t> signal_storage, const std::span
 		if (min_idx > max_idx)
 			continue;
 
-		int32_t cur_output = 0;  // Increase bit size for fixed point expansion
+		int32_t cur_output{0};  // Increase bit size for fixed point expansion
 		// Sum over each sample * coefficient in this column
 		for (const auto kk : xrange(min_idx, max_idx + 1))
 		{

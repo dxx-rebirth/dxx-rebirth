@@ -1655,7 +1655,7 @@ void DropSecondaryWeapon (player_info &player_info)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	int seed;
-	ushort sub_ammo=0;
+	ushort sub_ammo{0};
 
 	if (LevelUniqueObjectState.num_objects >= Objects.size())
 		return;

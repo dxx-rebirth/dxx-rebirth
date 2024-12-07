@@ -313,7 +313,7 @@ static void write_exception_dump(dxx_trap_context &dtc, const unsigned pid, cons
 	std::array<char, 92> musTextVersion;
 	std::array<char, 44> musTextDateTime;
 	std::array<char, 512> musTextExceptionMessage;
-	unsigned UserStreamCount = 0;
+	unsigned UserStreamCount{0};
 	{
 		auto &m = mus[UserStreamCount++];
 		m.Type = MINIDUMP_STREAM_TYPE::CommentStreamA;

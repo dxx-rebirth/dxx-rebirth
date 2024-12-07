@@ -150,7 +150,7 @@ window_event_result rename_guidebot_menu::event_handler(const d_event &event)
 	{
 		case event_type::window_close:
 			{
-				uint8_t changed = 0;
+				uint8_t changed{0};
 				if (PlayerCfg.GuidebotName != guidebot_name_buffer)
 				{
 					PlayerCfg.GuidebotName = guidebot_name_buffer;
@@ -1819,7 +1819,7 @@ static int attempt_to_steal_item_2(object &thief, object &player_num)
 //	updating Stolen_items information, deselecting, etc.
 void attempt_to_steal_item(const vmobjptridx_t thiefp, const robot_info &robptr, object &player_num)
 {
-	int	rval = 0;
+	int rval{0};
 
 	auto &thief = *thiefp;
 	if (thief.ctype.ai_info.dying_start_time)

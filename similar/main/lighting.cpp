@@ -124,7 +124,7 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 	if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
 	{
 		fix obji_64 = ((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3)*64;
-		sbyte is_marker = 0;
+		sbyte is_marker{0};
 #if DXX_BUILD_DESCENT == 2
 		if (objnum && objnum->type == OBJ_MARKER)
 				is_marker = 1;
@@ -151,7 +151,7 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 				}
 			}
 		} else {
-			int	headlight_shift = 0;
+			int headlight_shift{0};
 			fix	max_headlight_dist = F1_0*200;
 
 #if DXX_BUILD_DESCENT == 2
@@ -184,7 +184,7 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 			range_for (const unsigned vv, xrange(n_render_vertices))
 			{
 				fix			dist;
-				int			apply_light = 0;
+				int apply_light{0};
 
 				const auto vertnum = render_vertices[vv];
 				auto vsegnum = vert_segnum_list[vv];
@@ -388,8 +388,8 @@ static g3s_lrgb build_object_color(GameBitmaps_array &GameBitmaps, const object_
 
 static g3s_lrgb compute_light_emission(const d_robot_info_array &Robot_info, d_level_unique_headlight_state &LevelUniqueHeadlightState, const d_vclip_array &Vclip, const vcobjptridx_t obj)
 {
-	int compute_color = 0;
-	fix light_intensity = 0;
+	int compute_color{0};
+	fix light_intensity{0};
 	const object &objp = obj;
 	switch (objp.type)
 	{
@@ -530,7 +530,7 @@ void set_dynamic_light(const d_robot_info_array &Robot_info, render_state_t &rst
 
 	//	Create list of vertices that need to be looked at for setting of ambient light.
 	auto &Dynamic_light = LevelUniqueLightState.Dynamic_light;
-	uint_fast32_t n_render_vertices = 0;
+	uint_fast32_t n_render_vertices{0};
 	range_for (const auto segnum, partial_const_range(rstate.Render_list, rstate.N_render_segs))
 	{
 		if (segnum != segment_none) {

@@ -44,7 +44,7 @@
 
 namespace d2x {
 
-int g_spdFactorNum=0;
+int g_spdFactorNum{0};
 static int g_spdFactorDenom=10;
 
 static int16_t get_short(const unsigned char *data)
@@ -151,7 +151,7 @@ static void timer_stop(void)
 
 static void timer_start(void)
 {
-	int nsec=0;
+	int nsec{0};
 	gettimeofday(&timer_expire, NULL);
 	timer_expire.tv_usec += micro_frame_delay;
 	if (timer_expire.tv_usec > 1000000)
@@ -165,7 +165,7 @@ static void timer_start(void)
 
 static void do_timer_wait(void)
 {
-	int nsec=0;
+	int nsec{0};
 	struct timespec ts;
 	struct timeval tv;
 	if (! timer_started)
@@ -238,7 +238,7 @@ static void mve_audio_callback(void *const vstream, unsigned char *stream, int l
 {
 	auto &mvestream = *reinterpret_cast<MVESTREAM *>(vstream);
 #ifdef DXX_REPORT_TOTAL_LENGTH
-	int total=0;
+	int total{0};
 #endif
 	if (mvestream.mve_audio_bufhead == mvestream.mve_audio_buftail)
 		return /* 0 */;

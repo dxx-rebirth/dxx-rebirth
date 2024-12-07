@@ -214,7 +214,7 @@ static void check_weapon_reorder(std::array<weapon_type_out, N> &wo, const std::
 	 * element will be missing.
 	 */
 	constexpr weapon_type_from_file cycle_never_autoselect_below{255};
-	uint_fast32_t m = 0;
+	uint_fast32_t m{0};
 	for (auto &&[w, i] : zip(wo, in))
 	{
 		if (i == cycle_never_autoselect_below)
@@ -581,7 +581,7 @@ static void read_player_dxx(const char *filename)
 		else if (!strcmp(line,PLX_VERSION_HEADER_TEXT)) // know the version this pilot was used last with - allow modifications
 		{
 #if 0
-			int v1=0,v2=0,v3=0;
+			int v1{0},v2=0,v3=0;
 #endif
 			while(PHYSFSX_fgets(line,f) && strcmp(line,END_TEXT))
 			{
@@ -772,7 +772,7 @@ void plyr_save_stats(const char *const callsign, int kills, int deaths)
 namespace {
 static int write_player_dxx(const char *filename)
 {
-	int rc=0;
+	int rc{0};
 	char tempfile[PATH_MAX];
 
 	strcpy(tempfile,filename);
@@ -905,8 +905,8 @@ int read_player_file()
 	int shareware_file = -1;
 	int player_file_size;
 #elif DXX_BUILD_DESCENT == 2
-	int rewrite_it=0;
-	int swap = 0;
+	int rewrite_it{0};
+	int swap{0};
 	short player_file_version;
 #endif
 
@@ -1364,7 +1364,7 @@ void set_highest_level(const uint8_t best_levelnum_this_game)
 	auto &hl = PlayerCfg.HighestLevels;
 	const auto irs = &hl[reserved_slots];
 
-	uint8_t previous_best_levelnum = 0;
+	uint8_t previous_best_levelnum{0};
 	if (ii == ie)
 	{
 		/*
@@ -1420,7 +1420,7 @@ int get_highest_level(void)
 	// Destination Saturn.
 	const auto &&r = partial_range(PlayerCfg.HighestLevels, PlayerCfg.NHighestLevels);
 #if DXX_BUILD_DESCENT == 1
-	unsigned highest_saturn_level = 0;
+	unsigned highest_saturn_level{0};
 	if (!*mission.filename)
 		range_for (auto &m, r)
 			if (!d_stricmp("DESTSAT", m.Shortname.data()))
@@ -1520,7 +1520,7 @@ void write_player_file()
 	
 		if(errno_ret == EZERO)
 		{
-			ubyte old_avg_joy_sensitivity = 8;
+			ubyte old_avg_joy_sensitivity{8};
 			if (PHYSFSX_writeBytes(file, &PlayerCfg.ControlType, sizeof(ubyte)) != sizeof(ubyte))
 				errno_ret=errno;
 			else if (PHYSFSX_writeBytes(file, &old_avg_joy_sensitivity, sizeof(ubyte)) != sizeof(ubyte))
@@ -1563,7 +1563,7 @@ void write_player_file()
 	//write kconfig info
 	{
 
-		ubyte old_avg_joy_sensitivity = 8;
+		ubyte old_avg_joy_sensitivity{8};
 		ubyte control_type_dos = PlayerCfg.ControlType;
 
 		if (PHYSFSX_writeBytes(file, PlayerCfg.KeySettings.Keyboard, sizeof(PlayerCfg.KeySettings.Keyboard)) != sizeof(PlayerCfg.KeySettings.Keyboard))
@@ -1585,7 +1585,7 @@ void write_player_file()
 				goto write_player_file_failed;
 		if (PHYSFSX_writeBytes(file, &control_type_dos, sizeof(ubyte)) != sizeof(ubyte))
 			goto write_player_file_failed;
-		ubyte control_type_win = 0;
+		ubyte control_type_win{0};
 		if (PHYSFSX_writeBytes(file, &control_type_win, sizeof(ubyte)) != sizeof(ubyte))
 			goto write_player_file_failed;
 		if (PHYSFSX_writeBytes(file, &old_avg_joy_sensitivity, sizeof(ubyte)) != sizeof(ubyte))

@@ -239,7 +239,7 @@ void cmd_enqueue(int insert, const char *input)
 	auto iter = before_end(l);
 	while (*input) {
 		optr = output;
-		int quoted = 0;
+		int quoted{0};
 		
 		/* Strip leading spaces */
 		while(isspace(*input) || *input == ';')

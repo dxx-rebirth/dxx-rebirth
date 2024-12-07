@@ -186,7 +186,7 @@ static void patternRow4Pixels2(const std::size_t width, unsigned short *pFrame,
     unsigned char mask=0x03;
     unsigned char shift=0;
 	/* ORIGINAL VERSION IS BUGGY
-	   int skip=1;
+	   int skip{1};
 
 	   while (mask != 0)
 	   {
@@ -236,7 +236,7 @@ static void patternQuadrant4Pixels(const std::size_t width, unsigned short *pFra
 								   unsigned char pat3, const std::array<uint16_t, 4> &p)
 {
     unsigned long mask = 0x00000003UL;
-    int shift=0;
+    int shift{0};
     int i;
     unsigned long pat = (pat3 << 24) | (pat2 << 16) | (pat1 << 8) | pat0;
 
@@ -271,7 +271,7 @@ static void patternRow2Pixels2(const std::size_t width, unsigned short *pFrame, 
     unsigned char mask=0x1;
 
 	/* ORIGINAL VERSION IS BUGGY
-	   int skip=1;
+	   int skip{1};
 	   while (mask != 0x10)
 	   {
 	   pel = p[(mask & pat) ? 1 : 0];

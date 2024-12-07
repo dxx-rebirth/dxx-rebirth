@@ -121,7 +121,7 @@ static window_event_result hostage_dialog_created(hostage_dialog *const h)
 {
 	h->quitButton = ui_add_gadget_button(*h, 20, 222, 48, 40, "Done", nullptr);
 	// A bunch of buttons...
-	int i = 90;
+	int i{90};
 	h->delete_object = ui_add_gadget_button(*h, 155, i, 140, 26, "Delete", ObjectDelete);	i += 29;
 	h->new_object = ui_add_gadget_button(*h, 155, i, 140, 26, "Create New", PlaceHostage);	i += 29;
 	return window_event_result::ignored;
@@ -146,7 +146,7 @@ window_event_result hostage_dialog::callback_handler(const d_event &event)
 		default:
 			break;
 	}
-	int keypress = 0;
+	int keypress{0};
 	if (event.type == event_type::key_command)
 		keypress = event_key_get(event);
 

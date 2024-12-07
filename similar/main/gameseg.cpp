@@ -298,7 +298,7 @@ segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const sh
 
 	//check point against each side of segment. return bitmask
 
-	int facebit = 1;
+	int facebit{1};
 	for (const auto sn : MAX_SIDES_PER_SEGMENT)
 	{
 		const auto sidebit = build_sidemask(sn);
@@ -394,7 +394,7 @@ static sidemask_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp
 
 	//check point against each side of segment. return bitmask
 	side_dists = {};
-	int facebit = 1;
+	int facebit{1};
 	for (const auto sn : MAX_SIDES_PER_SEGMENT)
 	{
 		const auto sidebit = build_sidemask(sn);
@@ -512,7 +512,7 @@ static void invert_shared_side_triangle_type(shared_side &s)
 //heavy-duty error checking
 int check_segment_connections(void)
 {
-	int errors=0;
+	int errors{0};
 
 	range_for (const auto &&seg, vmsegptridx)
 	{
@@ -608,7 +608,7 @@ int check_segment_connections(void)
 // this for omega blob find_point_seg calls.
 // Would be better to pass a paremeter to the routine...--MK, 01/17/96
 #if DXX_BUILD_DESCENT == 2 || DXX_USE_EDITOR
-int	Doing_lighting_hack_flag=0;
+int Doing_lighting_hack_flag{0};
 #else
 #define Doing_lighting_hack_flag 0
 #endif
@@ -637,7 +637,7 @@ static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 	auto &children = oldsegnum->shared_segment::children;
 	for (;;) {
 		std::optional<sidenum_t> biggest_side;
-		fix biggest_val = 0;
+		fix biggest_val{0};
 		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
 		{
 			const auto bit = build_sidemask(sidenum);
@@ -834,7 +834,7 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	segnum_t		cur_seg;
-	int		qtail = 0, qhead = 0;
+	int qtail{0}, qhead = 0;
 	seg_seg	seg_queue[MAX_SEGMENTS];
 	int		cur_depth;
 	int		num_points;

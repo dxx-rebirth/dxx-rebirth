@@ -311,7 +311,7 @@ static color_palette_index get_console_color_by_priority(const int priority)
 
 static void con_draw(grs_canvas &canvas)
 {
-	int i = 0, y = 0;
+	int i{0}, y = 0;
 
 	if (con_size <= 0)
 		return;

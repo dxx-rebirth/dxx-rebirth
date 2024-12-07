@@ -86,7 +86,7 @@ static int do_slew_movement(const vmobjptridx_t obj, int check_keys, const contr
 	constexpr int SLIDE_SPEED = 700;
 	constexpr int ZOOM_SPEED_FACTOR = 1000;	//(1500)
 
-	int moved = 0;
+	int moved{0};
 	vms_vector svel;				//scaled velocity (per this frame)
 	vms_angvec rotang;
 

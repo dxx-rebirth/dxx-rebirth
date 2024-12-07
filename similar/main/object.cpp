@@ -130,7 +130,7 @@ void object_goto_next_viewer(const object_array &Objects, const object *&viewer)
 	 * If both preconditions hold, then:
 	 * - The loop will always find and return a value.
 	 */
-	unsigned limit = 0;
+	unsigned limit{0};
 	for (auto candidate_object = initial_viewer; ++candidate_object != initial_viewer && limit < MAX_OBJECTS; ++limit)
 	{
 		if (unlikely(candidate_object == oe))
@@ -305,7 +305,7 @@ namespace {
 static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, const g3s_lrgb light, glow_values_t glow, const fix64 cloak_start_time, const fix total_cloaked_time, const fix Cloak_fadein_duration, const fix Cloak_fadeout_duration)
 {
 	fix light_scale=F1_0;
-	int cloak_value=0;
+	int cloak_value{0};
 	bool fading{};		//if true, fading, else cloaking
 
 	if (const auto cloak_delta_time{GameTime64 - cloak_start_time}; cloak_delta_time < Cloak_fadein_duration/2) {
@@ -1444,7 +1444,7 @@ namespace {
 //	Camera is less than size of player away from
 static void set_camera_pos(vms_vector &camera_pos, const vcobjptridx_t objp)
 {
-	int	count = 0;
+	int count{0};
 	fix	camera_player_dist;
 	fix	far_scale;
 

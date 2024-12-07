@@ -335,7 +335,7 @@ int do_trigger_dialog()
 static window_event_result trigger_dialog_created(trigger_dialog *const t)
 {
 	// These are the checkboxes for each door flag.
-	int i = 44;
+	int i{44};
 #if DXX_BUILD_DESCENT == 1
 	t->triggerFlag[0] = ui_add_gadget_checkbox(*t, 22, i, 16, 16, 0, "Door Control");  	i+=22;
 	t->triggerFlag[1] = ui_add_gadget_checkbox(*t, 22, i, 16, 16, 0, "Shield damage"); 	i+=22;
@@ -384,7 +384,7 @@ window_event_result trigger_dialog::callback_handler(const d_event &event)
 		default:
 			break;
 	}
-	int keypress = 0;
+	int keypress{0};
 	window_event_result rval = window_event_result::ignored;
 
 	Assert(MainWindow != NULL);

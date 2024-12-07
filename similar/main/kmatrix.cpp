@@ -203,7 +203,7 @@ struct kmatrix_window : window
 	}
 	grs_main_bitmap background;
 	fix64 end_time = -1;
-	fix64 last_endlevel_time = 0;
+	fix64 last_endlevel_time{0};
 	kmatrix_network network;
 	kmatrix_result &result;
 };
@@ -325,7 +325,7 @@ namespace dsx {
 window_event_result kmatrix_window::event_handler(const d_event &event)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
-	int k = 0;
+	int k{0};
 	switch (event.type)
 	{
 		case event_type::key_command:

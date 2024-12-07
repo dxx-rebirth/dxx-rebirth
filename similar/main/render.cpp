@@ -83,13 +83,13 @@ using std::max;
 #if DXX_USE_OGL
 int Render_depth = MAX_RENDER_SEGS; //how many segments deep to render
 #else
-int Render_depth = 20; //how many segments deep to render
-unsigned Max_linear_depth = 50; // Deepest segment at which linear interpolation will be used.
+int Render_depth{20}; //how many segments deep to render
+unsigned Max_linear_depth{50}; // Deepest segment at which linear interpolation will be used.
 #endif
 
 //used for checking if points have been rotated
 int	Clear_window_color=-1;
-int	Clear_window=2;	// 1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
+int Clear_window{2};	// 1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
 
 // When any render function needs to know what's looking at it, it should 
 // access Viewer members.
@@ -129,9 +129,9 @@ static void add_light_and_saturate(fix &l, const fix add)
 }
 
 #if DXX_USE_EDITOR
-int	Render_only_bottom=0;
-int	Bottom_bitmap_num = 9;
-int _search_mode = 0;			//true if looking for curseg,side,face
+int Render_only_bottom{0};
+int Bottom_bitmap_num{9};
+int _search_mode{0};			//true if looking for curseg,side,face
 short _search_x,_search_y;	//pixel we're looking at
 namespace {
 static int found_face;
@@ -146,7 +146,7 @@ constexpr int _search_mode = 0;
 #ifdef NDEBUG		//if no debug code, set these vars to constants
 #else
 
-int Outline_mode=0;
+int Outline_mode{0};
 
 int toggle_outline_mode(void)
 {
@@ -408,7 +408,7 @@ static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const sidenu
 		ogl_end_frame();
 #endif
 		{
-		uint8_t color = 0;
+		uint8_t color{0};
 			gr_pixel(canvas.cv_bitmap, _search_x, _search_y, color);	//set our search pixel to color zero
 		}
 #if DXX_USE_OGL
@@ -568,7 +568,7 @@ static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegpt
 #if DXX_USE_EDITOR
 static void render_object_search(grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const vmobjptridx_t obj)
 {
-	int changed=0;
+	int changed{0};
 
 	//note that we draw each pixel object twice, since we cannot control
 	//what color the object draws in, so we try color 0, then color 1,
@@ -622,7 +622,7 @@ static void render_object_search(grs_canvas &canvas, const d_level_unique_light_
 
 static void do_render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const vmobjptridx_t obj, window_rendered_data &window)
 {
-	int count = 0;
+	int count{0};
 
 	#ifndef NDEBUG
 	if (object_rendered[obj]) {		//already rendered this...
@@ -1222,7 +1222,7 @@ static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const
 }
 }
 
-int Rear_view=0;
+int Rear_view{0};
 
 namespace dsx {
 //renders onto current canvas
@@ -1414,8 +1414,8 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 				const auto ch = seg->shared_segment::children[siden];
 				{
 					{
-						short min_x=32767,max_x=-32767,min_y=32767,max_y=-32767;
-						int no_proj_flag=0;	//a point wasn't projected
+						short min_x{32767},max_x=-32767,min_y=32767,max_y=-32767;
+						int no_proj_flag{0};	//a point wasn't projected
 						clipping_code codes_and_3d{0xff};
 						auto codes_and_2d = codes_and_3d;
 						range_for (const auto i, Side_to_verts[siden])

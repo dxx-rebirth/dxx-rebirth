@@ -153,7 +153,7 @@ static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptr
 static void DoEndGame();
 }
 PHYSFSX_gets_line_t<FILENAME_LEN> Current_level_palette;
-int	First_secret_visit = 1;
+int First_secret_visit{1};
 }
 #endif
 
@@ -190,18 +190,18 @@ namespace dcx {
 //Current_level_num starts at 1 for the first level
 //-1,-2,-3 are secret levels
 //0 used to mean not a real level loaded (i.e. editor generated level), but this hack has been removed
-int	Current_level_num=1;
+int Current_level_num{1};
 PHYSFSX_gets_line_t<LEVEL_NAME_LEN> Current_level_name;
 
 // Global variables describing the player
-unsigned	N_players=1;	// Number of players ( >1 means a net game, eh?)
+unsigned N_players{1};	// Number of players ( >1 means a net game, eh?)
 playernum_t Player_num;	// The player number who is on the console.
 fix StartingShields=INITIAL_SHIELDS;
 per_player_array<obj_position> Player_init;
 
 // Global variables telling what sort of game we have
 unsigned NumNetPlayerPositions;
-int	Do_appearance_effect=0;
+int Do_appearance_effect{0};
 
 namespace {
 
@@ -319,7 +319,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 	 * will be deemed too small to support displacement.
 	 */
 	constexpr fix size_scalar = 0x18000;	// 1.5 in fixed point
-	unsigned segments_with_spare_capacity = 0;
+	unsigned segments_with_spare_capacity{0};
 	auto &vcvertptr = Vertices.vcptr;
 	for (const auto i : preplaced_start_range)
 	{
@@ -370,7 +370,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 		}
 		const auto displace_player = [&](const unsigned plridx, object_base &plrobj, const unsigned displacement_direction) {
 			vms_vector disp{};
-			unsigned dimensions = 0;
+			unsigned dimensions{0};
 			for (const auto &&[i, side] : enumerate(displacement_sides))
 			{
 				if (!(player_init_segment_capacity_flag[old_player_idx] & build_sidemask(side)))
@@ -429,7 +429,7 @@ static void gameseq_init_network_players(const d_robot_info_array &Robot_info, o
 	// Initialize network player start locations and object numbers
 
 	ConsoleObject = &Objects.front();
-	unsigned j = 0, k = 0;
+	unsigned j{0}, k = 0;
 	const auto multiplayer_coop = Game_mode & GM_MULTI_COOP;
 #if DXX_BUILD_DESCENT == 2
 	const auto remove_thief = Netgame.ThiefModifierFlags & ThiefModifier::Absent;
@@ -1259,16 +1259,16 @@ static void DoEndLevelScoreGlitz()
 
 	auto &plr = get_local_player();
 
-	unsigned c = 0;
+	unsigned c{0};
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_SHIELD_BONUS, shield_points);		// Return at start to lower menu...
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_ENERGY_BONUS, energy_points);
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_HOSTAGE_BONUS, hostage_points);
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_SKILL_BONUS, skill_points);
 
 	const unsigned hostages_on_board = player_info.mission.hostages_on_board;
-	unsigned all_hostage_points = 0;
-	unsigned endgame_points = 0;
-	uint8_t	is_last_level = 0;
+	unsigned all_hostage_points{0};
+	unsigned endgame_points{0};
+	uint8_t is_last_level{0};
 	auto &hostage_text = m_str[c++];
 	if (cheats.enabled)
 		snprintf(hostage_text, sizeof(hostage_text), "Hostages saved:   \t%u", hostages_on_board);
@@ -2287,7 +2287,7 @@ static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptr
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	reset_cruise();
-	int NewPlayer=0;
+	int NewPlayer{0};
 
 	if (! ((Game_mode & GM_MULTI) && !(Game_mode&GM_MULTI_COOP)) ) // If not deathmatch
 		NewPlayer = Player_num;
@@ -2296,7 +2296,7 @@ static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptr
 		const respawn_locations locations(vmobjptr, vcsegptridx);
 		if (!locations.get_usable_sites())
 			return;
-		uint_fast32_t trys=0;
+		uint_fast32_t trys{0};
 		d_srand(static_cast<fix>(timer_update()));
 		do {
 			trys++;

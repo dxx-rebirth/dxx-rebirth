@@ -127,12 +127,12 @@ static fix64 last_timer_value;
 static fix64 sync_timer_value;
 }
 grs_subcanvas Screen_3d_window;							// The rectangle for rendering the mine to
-int	force_cockpit_redraw=0;
+int force_cockpit_redraw{0};
 int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 
-int	Game_suspended=0; //if non-zero, nothing moves but player
+int Game_suspended{0}; //if non-zero, nothing moves but player
 game_mode_flags Game_mode;
-int	Global_missile_firing_count = 0;
+int Global_missile_firing_count{0};
 
 std::optional<Difficulty_level_type> build_difficulty_level_from_untrusted(const int8_t untrusted)
 {
@@ -204,8 +204,8 @@ screen_mode Game_screen_mode = initial_large_game_screen_mode;
 #if DXX_USE_STEREOSCOPIC_RENDER
 StereoFormat VR_stereo;
 fix  VR_eye_width = F1_0;
-int  VR_eye_offset = 0;
-int  VR_sync_width = 20;
+int VR_eye_offset{0};
+int VR_sync_width{20};
 grs_subcanvas VR_hud_left;
 grs_subcanvas VR_hud_right;
 #endif
@@ -284,7 +284,7 @@ void init_cockpit()
 
 		case cockpit_mode_t::rear_view:
 		{
-			unsigned x1 = 0, y1 = 0, x2 = SWIDTH, y2 = (SHEIGHT*2)/3;
+			unsigned x1{0}, y1 = 0, x2 = SWIDTH, y2 = (SHEIGHT*2)/3;
 			const auto mode =
 #if DXX_BUILD_DESCENT == 2
 				HIRESMODE
@@ -785,7 +785,7 @@ void record_screenshot_text_metadata(png_struct *const png_ptr, png_info *const 
 	ntstring<MISSION_NAME_LEN> current_mission_name;
 	char current_level_number[4];
 	char viewer_segment[sizeof("65536")];
-	unsigned idx = 0;
+	unsigned idx{0};
 	char key_descent_version[] = "Rebirth.version";
 	{
 		auto &t = text_fields[idx++];
@@ -1137,7 +1137,7 @@ static inline void do_afterburner_stuff(object_array &)
 {
 }
 #elif DXX_BUILD_DESCENT == 2
-ubyte	Last_afterburner_state = 0;
+ubyte Last_afterburner_state{0};
 fix64	Time_flash_last_played;
 
 #define AFTERBURNER_LOOP_START	((GameArg.SndDigiSampleRate == sound_sample_rate::_22k)?32027:(32027/2))		//20098
@@ -1264,7 +1264,7 @@ namespace {
 //	Diminish palette effects towards normal.
 static void diminish_palette_towards_normal(void)
 {
-	int	dec_amount = 0;
+	int dec_amount{0};
 	float brightness_correction = 1-(static_cast<float>(gr_palette_get_gamma())/64); // to compensate for brightness setting of the game
 
 	// Diminish at DIMINISH_RATE units/second.
@@ -1287,7 +1287,7 @@ static void diminish_palette_towards_normal(void)
 
 #if DXX_BUILD_DESCENT == 2
 	if (Flash_effect) {
-		int	force_do = 0;
+		int force_do{0};
 		static fix Flash_step_up_timer = 0;
 
 		// Part of hack system to force update of palette after exiting a menu.

@@ -1175,7 +1175,7 @@ imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjp
 	fix	max_dot{-F1_0 * 2};
 	range_for (const auto &&curobjp, vmobjptridx)
 	{
-		int			is_proximity = 0;
+		int is_proximity{0};
 
 		if ((curobjp->type != track_obj_type1) && (curobjp->type != track_obj_type2))
 		{
@@ -1802,7 +1802,7 @@ void do_laser_firing_player(object &plrobj)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	int		rval = 0;
+	int rval{0};
 
 	if (Player_dead_state != player_dead_state::no)
 		return;
@@ -1839,7 +1839,7 @@ void do_laser_firing_player(object &plrobj)
 	auto &Next_laser_fire_time = player_info.Next_laser_fire_time;
 	while (Next_laser_fire_time <= GameTime64) {
 		if	(sufficient_energy(energy_used, pl_energy) && sufficient_ammo(ammo_used, uses_vulcan_ammo, player_info.vulcan_ammo)) {
-			int	fire_frame_overhead = 0;
+			int fire_frame_overhead{0};
 
 			if (GameTime64 - Next_laser_fire_time <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that.
 				fire_frame_overhead = GameTime64 - Next_laser_fire_time;
@@ -2150,7 +2150,7 @@ static void create_smart_children(object_array &Objects, const vmobjptridx_t obj
 {
 	auto &vcobjptridx = Objects.vcptridx;
 	auto &vcobjptr = Objects.vcptr;
-	unsigned numobjs = 0;
+	unsigned numobjs{0};
 	weapon_id_type blob_id;
 
 	std::array<objnum_t, MAX_OBJDISTS> objlist;
@@ -2291,8 +2291,8 @@ void release_remote_guided_missile(d_level_unique_object_state &LevelUniqueObjec
 //changed on 31/3/10 by kreatordxx to distinguish between drop bomb and secondary fire
 void do_missile_firing(const secondary_weapon_index_t weapon, const vmobjptridx_t plrobjidx)
 {
-	int gun_flag=0;
-	fix fire_frame_overhead = 0;
+	int gun_flag{0};
+	fix fire_frame_overhead{0};
 
 	auto &plrobj = *plrobjidx;
 	auto &player_info = plrobj.ctype.player_info;

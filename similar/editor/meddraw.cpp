@@ -148,7 +148,7 @@ static void check_segment(const vmsegptridx_t seg)
 		g3_end_frame();
 #endif
 		{
-		uint8_t color = 0;
+		uint8_t color{0};
 		gr_pixel(grd_curcanv->cv_bitmap, Search_x, Search_y, color);	//set our search pixel to color zero
 		}
 #if DXX_USE_OGL
@@ -209,7 +209,7 @@ static void draw_side_edge(const shared_segment &seg, const sidenum_t side, cons
 }
 
 __attribute__((used))
-int Show_triangulations=0;
+int Show_triangulations{0};
 
 //edge types - lower number types have precedence
 #define ET_FACING		0	//this edge on a facing face
@@ -856,7 +856,7 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,cons
 #if DXX_USE_OGL
 	g3_end_frame();
 #endif
-	uint8_t color = 0;
+	uint8_t color{0};
 	gr_pixel(grd_curcanv->cv_bitmap, x, y, color);	//set our search pixel to color zero
 #if DXX_USE_OGL
 	g3_start_frame(*grd_curcanv);

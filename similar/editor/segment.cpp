@@ -54,7 +54,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 #include "segiter.h"
 
-int	Do_duplicate_vertex_check = 0;		// Gets set to 1 in med_create_duplicate_vertex, means to check for duplicate vertices in compress_mine
+int Do_duplicate_vertex_check{0};		// Gets set to 1 in med_create_duplicate_vertex, means to check for duplicate vertices in compress_mine
 
 //	Remap all vertices in polygons in a segment through translation table xlate_verts.
 int ToggleBottom(void)
@@ -73,7 +73,7 @@ namespace dcx {
 // -------------------------------------------------------------------------------
 int is_free_vertex(const fvcsegptr &vcsegptr, const vertnum_t vi)
 {
-	unsigned count = 0;
+	unsigned count{0};
 	for (const shared_segment &s : vcsegptr)
 	{
 		auto sp = &s;
@@ -809,7 +809,7 @@ static void update_num_vertices(void)
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	// Now count the number of vertices.
-	unsigned n = 0;
+	unsigned n{0};
 	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
 	range_for (const auto v, partial_range(Vertex_active, Vertices.get_count()))
 		if (v)
@@ -828,7 +828,7 @@ void set_vertex_counts(void)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertex_active = LevelSharedVertexState.get_vertex_active();
-	unsigned Num_vertices = 0;
+	unsigned Num_vertices{0};
 
 	Vertex_active = {};
 
@@ -1088,7 +1088,7 @@ static int get_index_of_best_fit(const shared_segment &seg1, const sidenum_t sid
 {
 	int	firstv;
 	fix	min_distance;
-	int	best_index=0;
+	int best_index{0};
 
 	min_distance = F1_0*30000;
 

@@ -155,8 +155,8 @@ static void set_object_turnroll(object_base &obj, const fix frametime)
 #define MAX_IGNORE_OBJS 100
 
 #ifndef NDEBUG
-int	Total_retries=0, Total_sims=0;
-int	Dont_move_ai_objects=0;
+int Total_retries{0}, Total_sims=0;
+int Dont_move_ai_objects{0};
 #endif
 
 #define FT (f1_0/64)
@@ -383,7 +383,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 		}
 	}
 
-	int count = 0;
+	int count{0};
 	auto &vcvertptr = Vertices.vcptr;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
 	auto &vcwallptr = Walls.vcptr;
@@ -405,7 +405,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 		if (count > 8) break; // in original code this was 3 for all non-player objects. still leave us some limit in case fvi goes apeshit.
 
 		const auto new_pos = vm_vec_add(obj->pos,frame_vec);
-		int flags = 0;
+		int flags{0};
 		if (obj->type == OBJ_WEAPON)
 			flags |= FQ_TRANSPOINT;
 
@@ -534,7 +534,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 		switch( fate )		{
 
 			case fvi_hit_type::Wall:		{
-				fix hit_speed=0;
+				fix hit_speed{0};
 
 				// Find hit speed	
 

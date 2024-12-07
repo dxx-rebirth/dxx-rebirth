@@ -212,22 +212,22 @@ struct ai_local : public prohibit_void_ptr<ai_local>
 {
 // These used to be bytes, changed to ints so I could set watchpoints on them.
 	player_awareness_type_t player_awareness_type = player_awareness_type_t::PA_NONE;           // type of awareness of player
-	uint8_t retry_count = 0;                     // number of retries in physics last time this object got moved.
-	uint8_t consecutive_retries = 0;             // number of retries in consecutive frames (ie, without a retry_count of 0)
+	uint8_t retry_count{0};                     // number of retries in physics last time this object got moved.
+	uint8_t consecutive_retries{0};             // number of retries in consecutive frames (ie, without a retry_count of 0)
 	player_visibility_state previous_visibility{};             // Visibility of player last time we checked.
-	uint8_t rapidfire_count = 0;                 // number of shots fired rapidly
+	uint8_t rapidfire_count{0};                 // number of shots fired rapidly
 	ai_mode mode{};                            // current mode within behavior
 	segnum_t      goal_segment{};                    // goal segment for current path
-	fix        next_action_time = 0;              // time in seconds until something happens, mode dependent
-	fix        next_fire = 0;                     // time in seconds until can fire again
+	fix next_action_time{0};              // time in seconds until something happens, mode dependent
+	fix next_fire{0};                     // time in seconds until can fire again
 #if DXX_BUILD_DESCENT == 2
-	fix        next_fire2 = 0;                    // time in seconds until can fire again from second weapon
+	fix next_fire2{0};                    // time in seconds until can fire again from second weapon
 #endif
-	fix        player_awareness_time = 0;         // time in seconds robot will be aware of player, 0 means not aware of player
-	fix        time_since_processed = 0;          // time since this robot last processed in do_ai_frame
-	fix64      time_player_seen = 0;              // absolute time in seconds at which player was last seen, might cause to go into follow_path mode
-	fix64      time_player_sound_attacked = 0;    // absolute time in seconds at which player was last seen with visibility of 2.
-	fix64      next_misc_sound_time = 0;          // absolute time in seconds at which this robot last made an angry or lurking sound.
+	fix player_awareness_time{0};         // time in seconds robot will be aware of player, 0 means not aware of player
+	fix time_since_processed{0};          // time since this robot last processed in do_ai_frame
+	fix64 time_player_seen{0};              // absolute time in seconds at which player was last seen, might cause to go into follow_path mode
+	fix64 time_player_sound_attacked{0};    // absolute time in seconds at which player was last seen with visibility of 2.
+	fix64 next_misc_sound_time{0};          // absolute time in seconds at which this robot last made an angry or lurking sound.
 	std::array<vms_angvec, MAX_SUBMODELS> goal_angles{};    // angles for each subobject
 	std::array<vms_angvec, MAX_SUBMODELS> delta_angles{};   // angles for each subobject
 	enumerated_array<ai_static_state, MAX_SUBMODELS, robot_gun_number> goal_state{};     // Goal state for this sub-object

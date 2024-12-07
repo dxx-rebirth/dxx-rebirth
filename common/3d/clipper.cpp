@@ -139,7 +139,7 @@ static int clip_plane(const clipping_code plane_flag, polygon_clip_points &src, 
 
 	*cc = {};
 
-	uint_fast32_t j = 0;
+	uint_fast32_t j{0};
 	for (int i=1;i<=*nv;i++) {
 
 		if ((src[i]->p3_codes & plane_flag) != clipping_code::None)

@@ -250,7 +250,7 @@ struct laser_parent
 
 struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
 {
-	fix64 creation_time = 0;      // Absolute time of creation.
+	fix64 creation_time{0};      // Absolute time of creation.
 	/* hitobj_pos specifies the next position to which a value should be
 	 * written.  That position may have a defined value if the array has
 	 * wrapped, but should be treated as write-only in the general case.
@@ -379,9 +379,9 @@ struct polyobj_info : prohibit_void_ptr<polyobj_info>
 {
 	polygon_model_index model_num{};// which polygon model
 	std::array<vms_angvec, MAX_SUBMODELS> anim_angles{}; // angles for each subobject
-	int     subobj_flags = 0;       // specify which subobjs to draw
-	int     tmap_override = 0;      // if this is not -1, map all face to this
-	int     alt_textures = 0;       // if not -1, use these textures instead
+	int subobj_flags{0};       // specify which subobjs to draw
+	int tmap_override{0};      // if this is not -1, map all face to this
+	int alt_textures{0};       // if not -1, use these textures instead
 };
 
 struct polyobj_info_rw
@@ -472,7 +472,7 @@ namespace dsx {
 #if DXX_BUILD_DESCENT == 2
 struct laser_info : public ::dcx::laser_info
 {
-	fix64 last_afterburner_time = 0;	//	Time at which this object last created afterburner blobs.
+	fix64 last_afterburner_time{0};	//	Time at which this object last created afterburner blobs.
 };
 #endif
 

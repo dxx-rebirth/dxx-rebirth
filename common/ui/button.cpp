@@ -43,7 +43,7 @@ namespace dcx {
 #define BUTTON_EXTRA_WIDTH  15
 #define BUTTON_EXTRA_HEIGHT 2
 
-int ui_button_any_drawn = 0;
+int ui_button_any_drawn{0};
 
 gr_string_size ui_get_button_size(const grs_font &cv_font, const char *text)
 {

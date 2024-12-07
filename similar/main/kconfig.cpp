@@ -92,7 +92,7 @@ const std::array<uint8_t, 19> system_keys{{
 	KEY_CAPSLOCK, KEY_SCROLLOCK, KEY_NUMLOCK
 }};
 
-fix Cruise_speed=0;
+fix Cruise_speed{0};
 
 #define INFO_Y (188)
 
@@ -178,10 +178,10 @@ struct kc_menu : window
 	kc_mitem	*mitems;
 	const char	*title;
 	unsigned	nitems;
-	unsigned	citem = 0;
-	uint8_t changing = 0;
+	unsigned citem{0};
+	uint8_t changing{0};
 	ubyte	q_fade_i;	// for flashing the question mark
-	uint8_t mouse_state = 0;
+	uint8_t mouse_state{0};
 	std::array<int, 3>	old_maxis;
 #if DXX_MAX_AXES_PER_JOYSTICK
 	std::array<int, JOY_MAX_AXES>	old_jaxis;
@@ -878,7 +878,7 @@ static void kc_drawinput(grs_canvas &canvas, const grs_font &cv_font, const kc_i
 
 static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 {
-	ubyte keycode = 255;
+	ubyte keycode{255};
 
 	assert(event.type == event_type::key_command);
 	keycode = event_key_get_raw(event);
@@ -896,7 +896,7 @@ static void kc_change_key( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
 static void kc_change_joybutton( kc_menu &menu,const d_event &event, kc_mitem &mitem )
 {
-	int button = 255;
+	int button{255};
 
 	assert(event.type == event_type::joystick_button_down);
 	button = event_joystick_get_button(event);
@@ -1179,7 +1179,7 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 #if DXX_MAX_AXES_PER_JOYSTICK
 		case event_type::joystick_moved:
 		{
-			int joy_null_value = 0;
+			int joy_null_value{0};
 			if (!(PlayerCfg.ControlType & CONTROL_USING_JOYSTICK))
 				break;
 			const auto &av = event_joystick_get_axis(event);

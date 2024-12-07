@@ -35,7 +35,7 @@ namespace dcx {
 
 namespace {
 
-int num_joysticks = 0;
+int num_joysticks{0};
 
 std::vector<unsigned> joy_key_map;
 
@@ -351,7 +351,7 @@ void joy_init()
 
 	const auto n = check_warn_joy_support_limit(SDL_NumJoysticks(), "joystick", DXX_MAX_JOYSTICKS);
 	cf_assert(n <= DXX_MAX_JOYSTICKS);
-	unsigned joystick_n_buttons = 0, joystick_n_axes = 0;
+	unsigned joystick_n_buttons{0}, joystick_n_axes = 0;
 	range_for (const unsigned i, xrange(n))
 	{
 		auto &joystick = SDL_Joysticks[num_joysticks];

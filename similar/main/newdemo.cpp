@@ -173,13 +173,13 @@ namespace dcx {
 game_mode_flags Newdemo_game_mode;
 }
 // Some globals
-int Newdemo_state = 0;
-int Newdemo_vcr_state = 0;
-int Newdemo_show_percentage=1;
-sbyte Newdemo_do_interpolate = 1;
+int Newdemo_state{0};
+int Newdemo_vcr_state{0};
+int Newdemo_show_percentage{1};
+sbyte Newdemo_do_interpolate{1};
 int Newdemo_num_written;
 #if DXX_BUILD_DESCENT == 2
-ubyte DemoDoRight=0,DemoDoLeft=0;
+ubyte DemoDoRight{0},DemoDoLeft=0;
 object DemoRightExtra,DemoLeftExtra;
 
 static void nd_render_extras (ubyte which,const object &obj);
@@ -200,7 +200,7 @@ static sbyte nd_playback_v_style;
 static ubyte nd_playback_v_dead = 0, nd_playback_v_rear = 0;
 #if DXX_BUILD_DESCENT == 2
 static ubyte nd_playback_v_guided = 0;
-int nd_playback_v_juststarted=0;
+int nd_playback_v_juststarted{0};
 #endif
 
 // record variables
@@ -397,7 +397,7 @@ static void nd_write_shortpos(const object_base &obj)
 	const auto rtype = obj.render_type;
 	if ((rtype == render_type::RT_POLYOBJ || rtype == render_type::RT_HOSTAGE || rtype == render_type::RT_MORPH) || obj.type == OBJ_CAMERA)
 	{
-		uint8_t mask = 0;
+		uint8_t mask{0};
 		range_for (auto &i, sp.bytemat)
 		{
 			nd_write_byte(i);
@@ -569,7 +569,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	short shortsig = 0;
+	short shortsig{0};
 	const auto &pl_info = get_local_plrobj().ctype.player_info;
 	const auto saved = (&pl_info == &obj->ctype.player_info)
 		? std::pair<fix, player_info>(obj->shields, pl_info)
@@ -856,7 +856,7 @@ static void nd_write_object(const vcobjptridx_t objp)
 	auto &obj = *objp;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	int life;
-	short shortsig = 0;
+	short shortsig{0};
 
 #if DXX_BUILD_DESCENT == 2
 	if (obj.type == OBJ_ROBOT && get_robot_id(obj) == robot_id::special_reactor)
@@ -1728,10 +1728,10 @@ static int newdemo_read_demo_start(const purpose_type purpose)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	sbyte version=0, game_type=0, c=0;
-	ubyte energy=0, shield=0;
+	sbyte version{0}, game_type=0, c=0;
+	ubyte energy{0}, shield=0;
 	char current_mission[9];
-	fix nd_GameTime32 = 0;
+	fix nd_GameTime32{0};
 
 	Rear_view=0;
 #if DXX_BUILD_DESCENT == 1
@@ -3448,10 +3448,10 @@ window_event_result newdemo_goto_end(int to_rewrite)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	short frame_length=0, byte_count=0, bshort=0;
-	sbyte level=0, bbyte=0, c=0, cloaked=0;
-	ubyte energy=0, shield=0;
-	int loc=0, bint=0;
+	short frame_length{0}, byte_count=0, bshort=0;
+	sbyte level{0}, bbyte=0, c=0, cloaked=0;
+	ubyte energy{0}, shield=0;
+	int loc{0}, bint=0;
 
 	PHYSFSX_fseek(infile, -2, SEEK_END);
 	nd_read_byte(&level);
@@ -3872,7 +3872,7 @@ window_event_result newdemo_playback_one_frame()
 
 
 		if ((nd_playback_v_style == INTERPOLATE_PLAYBACK) && Newdemo_do_interpolate) {
-			fix d_play = 0;
+			fix d_play{0};
 
 			if (nd_recorded_total - nd_playback_total < FrameTime) {
 				d_recorded = nd_recorded_total - nd_playback_total;
@@ -3980,7 +3980,7 @@ static void newdemo_write_end()
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
-	sbyte cloaked = 0;
+	sbyte cloaked{0};
 	unsigned short byte_count = 0;
 	nd_write_byte(ND_EVENT_EOF);
 	nd_write_short(nd_record_v_framebytes_written - 1);
@@ -4059,7 +4059,7 @@ static bool guess_demo_name(ntstring<PATH_MAX - 16> &filename)
 	if (!strcmp(p, "."))
 		p = "%Y%m%d.%H%M%S-$p-$m";
 	std::size_t i = 0;
-	time_t t = 0;
+	time_t t{0};
 	tm *ptm = nullptr;
 	for (;; ++p)
 	{
@@ -4216,7 +4216,7 @@ try_again:
 //returns the number of demo files on the disk
 int newdemo_count_demos()
 {
-	int NumFiles=0;
+	int NumFiles{0};
 
 	range_for (const auto i, PHYSFSX_findFiles(DEMO_DIR, demo_file_extensions))
 	{
@@ -4241,7 +4241,7 @@ void newdemo_start_playback(const char * filename)
 	else
 	{
 		// Randomly pick a filename
-		int NumFiles = 0, RandFileNum;
+		int NumFiles{0}, RandFileNum;
 
 		rnd_demo = purpose_type::random_play;
 		NumFiles = newdemo_count_demos();
@@ -4340,7 +4340,7 @@ void newdemo_stop_playback()
 int newdemo_swap_endian(const char *filename)
 {
 	char inpath[PATH_MAX+FILENAME_LEN] = DEMO_DIR;
-	int complete = 0;
+	int complete{0};
 
 	if (filename)
 		strcat(inpath, filename);

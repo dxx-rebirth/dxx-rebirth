@@ -45,7 +45,7 @@ namespace dcx {
 namespace {
 
 struct ITEM {
-	short x = 0, y = 0, w = 0, h = 0;
+	short x{0}, y = 0, w = 0, h = 0;
 	short Hotkey = -1;
 	int   			(*user_function)(void) = nullptr;
 	std::unique_ptr<char[]> Text;
@@ -54,12 +54,12 @@ struct ITEM {
 
 struct MENU {
 	window *wind = nullptr;
-	short x = 0, y = 0, w = 0, h = 0;
-	uint8_t ShowBar = 0;
-	uint8_t CurrentItem = 0;
-	uint16_t NumItems = 0;
-	uint8_t Displayed = 0;
-	uint8_t Active = 0;
+	short x{0}, y = 0, w = 0, h = 0;
+	uint8_t ShowBar{0};
+	uint8_t CurrentItem{0};
+	uint16_t NumItems{0};
+	uint8_t Displayed{0};
+	uint8_t Active{0};
 	std::array<ITEM, 32> Item;
 };
 
@@ -280,7 +280,7 @@ static int state2_alt_down;
 
 static window_event_result do_state_0(const d_event &event)
 {
-	int keypress = 0;
+	int keypress{0};
 	if (event.type == event_type::key_command)
 		keypress = event_key_get(event);
 
@@ -361,7 +361,7 @@ static window_event_result do_state_0(const d_event &event)
 
 static window_event_result do_state_1(const d_event &event)
 {
-	int keypress = 0;
+	int keypress{0};
 	window_event_result rval = window_event_result::ignored;
 	if (event.type == event_type::key_command)
 		keypress = event_key_get(event);
@@ -422,7 +422,7 @@ static window_event_result do_state_1(const d_event &event)
 static window_event_result do_state_2(const d_event &event)
 {
 	int i;
-	int keypress = 0;
+	int keypress{0};
 	window_event_result rval = window_event_result::ignored;
 	if (event.type == event_type::key_command)
 		keypress = event_key_get(event);
@@ -535,7 +535,7 @@ static window_event_result do_state_2(const d_event &event)
 
 window_event_result menu_window::event_handler(const d_event &event)
 {
-	int keypress = 0;
+	int keypress{0};
 	
 	if (state != 3)
 		return window_event_result::ignored;
@@ -748,7 +748,7 @@ window_event_result menubar_window::event_handler(const d_event &event)
 
 static void CommaParse(uint_fast32_t n, char * dest, const PHYSFSX_gets_line_t<200>::line_t &source)
 {
-	int i = 0, j=0, cn = 0;
+	int i{0}, j=0, cn = 0;
 
 	// Go to the n'th comma
 	while (cn < n )

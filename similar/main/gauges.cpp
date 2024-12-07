@@ -2471,7 +2471,7 @@ static void draw_afterburner_bar(const hud_draw_context_hs_mr hudctx, const int 
 	const uint8_t color = BM_XRGB(0, 0, 0);
 	const int base_top = hudctx.yscale(afterburner_gauge_y - 1);
 	const int base_bottom = hudctx.yscale(afterburner_gauge_y);
-	int y = 0;
+	int y{0};
 	for (auto &ab : unchecked_partial_range(table_data, not_afterburner))
 	{
 		const int left = hudctx.xscale(afterburner_gauge_x + ab.l);

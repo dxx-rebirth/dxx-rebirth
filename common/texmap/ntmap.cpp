@@ -48,7 +48,7 @@ namespace dcx {
 
 // Temporary texture map, interface from Matt's 3d system to Mike's texture mapper.
 
-int     Lighting_on=1;                  // initialize to no lighting
+int Lighting_on{1};                  // initialize to no lighting
 unsigned	Current_seg_depth;		// HACK INTERFACE: how far away the current segment (& thus texture) is
 
 // These variables are the interface to assembler.  They get set for each texture map, which is a real waste of time.
@@ -60,7 +60,7 @@ unsigned char *write_buffer;
 fix fx_l, fx_u, fx_v, fx_z, fx_du_dx, fx_dv_dx, fx_dz_dx, fx_dl_dx;
 int fx_xleft, fx_xright, fx_y;
 const color_palette_index *pixptr;
-uint8_t Transparency_on = 0;
+uint8_t Transparency_on{0};
 uint8_t tmap_flat_color;
 
 int	Interpolation_method;	// 0 = choose best method

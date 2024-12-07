@@ -154,7 +154,7 @@ static iff_status_code parse_body(PHYSFS_File *ifile,long len,iff_bitmap_header 
 	unsigned char *data_end;
 	int end_pos;
         #ifndef NDEBUG
-	int row_count=0;
+	int row_count{0};
         #endif
 
         width=0;
@@ -515,7 +515,7 @@ static iff_status_code convert_rgb15(grs_bitmap &bm,iff_bitmap_header &bmheader)
 	if (new_data == nullptr)
 		return iff_status_code::no_mem;
 
-	unsigned newptr = 0;
+	unsigned newptr{0};
 	for (int y=0; y < bm.bm_h; y++) {
 
 		for (int x=0; x < bmheader.w; x++)

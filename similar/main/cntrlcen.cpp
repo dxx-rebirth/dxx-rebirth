@@ -435,7 +435,7 @@ void do_controlcen_frame(const d_robot_info_array &Robot_info, const vmobjptridx
 				multi_send_controlcen_fire(vec_to_goal, best_gun_num, obj);	
 			Laser_create_new_easy(Robot_info, vec_to_goal, obj->ctype.reactor_info.gun_pos[best_gun_num], obj, weapon_id_type::CONTROLCEN_WEAPON_NUM, weapon_sound_flag::audible);
 
-			int count = 0;
+			int count{0};
 #if DXX_BUILD_DESCENT == 1
 			const unsigned scale_divisor = 4;
 			if (d_rand() < 32767/4)
@@ -616,7 +616,7 @@ void control_center_triggers_read(control_center_triggers &cct, const NamedPHYSF
 	auto oi = cct_output_range.begin();
 	auto ii = cct_input_range.begin();
 	const auto ie = cct_input_range.end();
-	uint8_t valid_num_links = 0;
+	uint8_t valid_num_links{0};
 	const auto segment_count = Segments.get_count();
 	for (; ii != ie; ++ii)
 	{

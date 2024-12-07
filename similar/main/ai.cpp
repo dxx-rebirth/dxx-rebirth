@@ -333,7 +333,7 @@ struct robot_to_player_visibility_state
 {
 	vms_vector vec_to_player;
 	player_visibility_state visibility;
-	uint8_t initialized = 0;
+	uint8_t initialized{0};
 };
 
 struct awareness_t : enumerated_array<player_awareness_type_t, MAX_SEGMENTS, segnum_t>
@@ -879,7 +879,7 @@ static int do_silly_animation(const d_robot_info_array &Robot_info, object &objp
 	auto &aip = objp.ctype.ai_info;
 	int				at_goal;
 	int				attack_type;
-	int				flinch_attack_scale = 1;
+	int flinch_attack_scale{1};
 
 	const auto robot_type{get_robot_id(objp)};
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
@@ -1298,8 +1298,8 @@ static void ai_fire_laser_at_player(const d_robot_info_array &Robot_info, const 
 	}
 
 	{
-	fix dot = 0;
-	unsigned count = 0;			//	Don't want to sit in this loop forever...
+	fix dot{0};
+	unsigned count{0};			//	Don't want to sit in this loop forever...
 	const auto m = (NDL - Difficulty_level - 1) * 4;
 	while ((count < 4) && (dot < F1_0/4)) {
 		vms_vector bpp_diff = believed_player_pos;
@@ -2117,7 +2117,7 @@ static imobjptridx_t create_gated_robot(const d_robot_info_array &Robot_info, co
 	const unsigned maximum_gated_robots = 2 * underlying_value(Difficulty_level) + 6;
 #endif
 
-	unsigned count = 0;
+	unsigned count{0};
 	for (auto &obj : vcobjptr)
 	{
 		if (obj.type == OBJ_ROBOT)
@@ -2623,7 +2623,7 @@ static int do_any_robot_dying_frame(const d_robot_info_array &Robot_info, const 
 //		1	this player IS allowed to move this robot.
 int ai_multiplayer_awareness(const vmobjptridx_t objp, int awareness_level)
 {
-	int	rval=1;
+	int rval{1};
 
 	if (Game_mode & GM_MULTI) {
 		if (awareness_level == 0)
@@ -3987,7 +3987,7 @@ _exit_cheat:
 #endif
 
 		case ai_mode::AIM_FOLLOW_PATH: {
-			int anger_level = 65;
+			int anger_level{65};
 
 			if (aip->behavior == ai_behavior::AIB_STATION)
 			{
@@ -4538,7 +4538,7 @@ namespace {
 // ----------------------------------------------------------------------------------
 static unsigned process_awareness_events(fvcsegptridx &vcsegptridx, d_level_unique_robot_awareness_state &LevelUniqueRobotAwarenessState, awareness_t &New_awareness)
 {
-	unsigned result = 0;
+	unsigned result{0};
 	if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS))
 	{
 		const auto Num_awareness_events = std::exchange(LevelUniqueRobotAwarenessState.Num_awareness_events, 0);
@@ -4715,7 +4715,7 @@ int ai_save_state(PHYSFS_File *fp)
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 #endif
 	auto &Objects = LevelUniqueObjectState.Objects;
-	fix tmptime32 = 0;
+	fix tmptime32{0};
 
 	const int Ai_initialized = 0;
 	PHYSFSX_writeBytes(fp, &Ai_initialized, sizeof(int));
@@ -4847,7 +4847,7 @@ namespace {
 static void ai_local_read_swap(ai_local *ail, const physfsx_endian swap, const NamedPHYSFS_File fp)
 {
 	{
-		fix tmptime32 = 0;
+		fix tmptime32{0};
 
 #if DXX_BUILD_DESCENT == 1
 		ail->player_awareness_type = static_cast<player_awareness_type_t>(PHYSFSX_readByte(fp));

@@ -463,7 +463,7 @@ namespace {
 void multi_send_robot_position_sub(const vmobjptridx_t objnum, const multiplayer_data_priority priority)
 {
 	multi_command<multiplayer_command_t::MULTI_ROBOT_POSITION> multibuf;
-	int loc = 0;
+	int loc{0};
 
 	loc += 1;
 	multibuf[loc] = Player_num;                                            loc += 1;
@@ -519,7 +519,7 @@ void multi_send_robot_fire(const vmobjptridx_t obj, const robot_gun_number gun_n
 {
 	multi_command<multiplayer_command_t::MULTI_ROBOT_FIRE> multibuf;
         // Send robot fire event
-        int loc = 0;
+        int loc{0};
 
                                                                         loc += 1;
         multibuf[loc] = Player_num;                                     loc += 1;
@@ -582,7 +582,7 @@ void multi_send_create_robot(const station_number station, const objnum_t objnum
 	multi_command<multiplayer_command_t::MULTI_CREATE_ROBOT> multibuf;
 	// Send create robot information
 
-	int loc = 0;
+	int loc{0};
 
 	loc += 1;
 	multibuf[loc] = Player_num;								loc += 1;
@@ -698,7 +698,7 @@ static void multi_send_create_robot_powerups(const object_base &del_obj)
 	multi_command<multiplayer_command_t::MULTI_CREATE_ROBOT_POWERUPS> multibuf;
 	// Send create robot information
 
-	int loc = 0;
+	int loc{0};
 
 	loc += 1;
 	multibuf[loc] = Player_num;									loc += 1;
@@ -803,7 +803,7 @@ void multi_do_robot_position(const playernum_t pnum, const multiplayer_rspan<mul
 	auto &vmobjptridx = Objects.vmptridx;
 	// Process robot movement sent by another player
 
-	int loc = 1;
+	int loc{1};
 
 	;										loc += 1;
 
@@ -877,7 +877,7 @@ void multi_do_robot_fire(const multiplayer_rspan<multiplayer_command_t::MULTI_RO
 	auto &vmobjptridx = Objects.vmptridx;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	// Send robot fire event
-	int loc = 1;
+	int loc{1};
                                                                                         loc += 1; // pnum
 	const auto remote_botnum{GET_INTEL_SHORT<int16_t>(&buf[loc])};
 	auto botnum = objnum_remote_to_local(remote_botnum, buf[loc+2]);                loc += 3;
@@ -1244,7 +1244,7 @@ void multi_do_create_robot_powerups(const playernum_t pnum, const multiplayer_rs
 	auto &vmobjptr = Objects.vmptr;
 	// Code to drop remote-controlled robot powerups
 
-	int loc = 1;
+	int loc{1};
 	;					loc += 1;
 	const uint8_t untrusted_contains_count{buf[loc]};			loc += 1;
 	if (untrusted_contains_count == 0)

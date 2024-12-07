@@ -178,7 +178,7 @@ static int load_pog(const NamedPHYSFS_File f, int pog_sig, int pog_ver, unsigned
 {
 	int data_ofs;
 	int num_bitmaps;
-	int no_repl = 0;
+	int no_repl{0};
 	DiskBitmapHeader2 bmh;
 
 #ifdef D2TMAP_CONV

@@ -239,7 +239,7 @@ void show_titles(void)
 	show_title_screen((resolution_at_least_640_480 && PHYSFS_exists(logo_hires_pcx)) ? logo_hires_pcx : "logo.pcx", title_load_location::from_hog_only);
 	show_title_screen((resolution_at_least_640_480 && PHYSFS_exists(descent_hires_pcx)) ? descent_hires_pcx : "descent.pcx", title_load_location::from_hog_only);
 #elif DXX_BUILD_DESCENT == 2
-	int song_playing = 0;
+	int song_playing{0};
 
 #define MOVIE_REQUIRED 1	//(!is_D2_OEM && !is_SHAREWARE && !is_MAC_SHARE)	// causes segfault
 
@@ -570,7 +570,7 @@ static void briefing_init(briefing *br, short level_num)
 //	Load Descent briefing text.
 static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &buf)
 {
-	int have_binary = 0;
+	int have_binary{0};
 	auto e = end(filename);
 	auto ext = std::find(begin(filename), e, '.');
 	if (ext == e)
@@ -613,7 +613,7 @@ static int get_new_message_num(const char *&message)
 static const char * get_briefing_message(const briefing *br, int screen_num)
 {
 	const char	*tptr = br->text.get();
-	int	cur_screen=0;
+	int cur_screen{0};
 	int	ch;
 
 	Assert(screen_num >= 0);
@@ -1285,7 +1285,7 @@ static int init_new_page(grs_canvas &canvas, briefing *br)
 #if DXX_BUILD_DESCENT == 2
 static int DefineBriefingBox(const grs_bitmap &cv_bitmap, const char *&buf)
 {
-	int i=0;
+	int i{0};
 	char name[20];
 
 	const auto n = get_new_message_num (buf);

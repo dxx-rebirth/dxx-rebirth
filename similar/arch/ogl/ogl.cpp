@@ -301,8 +301,8 @@ ogl_texture* ogl_get_free_texture(void){
 
 static void ogl_texture_stats(grs_canvas &canvas)
 {
-	int used = 0, usedother = 0, usedidx = 0, usedrgb = 0, usedrgba = 0;
-	int databytes = 0, truebytes = 0;
+	int used{0}, usedother = 0, usedidx = 0, usedrgb = 0, usedrgba = 0;
+	int databytes{0}, truebytes = 0;
 	GLint idx, r, g, b, a, dbl, depth;
 	int res, colorsize, depthsize;
 	range_for (auto &i, ogl_texture_list)
@@ -439,7 +439,7 @@ void ogl_cache_level_textures(void)
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
-	int max_efx=0,ef;
+	int max_efx{0},ef;
 	
 	ogl_reset_texture_stats_internal();//loading a new lev should reset textures
 	
@@ -1569,7 +1569,7 @@ static void tex_set_size1(ogl_texture &tex, const unsigned dbits, const unsigned
 static void tex_set_size(ogl_texture &tex)
 {
 	GLint w,h;
-	int bi=16,a=0;
+	int bi{16},a=0;
 #if !DXX_USE_OGLES
 	if (CGameArg.DbgGlGetTexLevelParamOk)
 	{
@@ -1739,7 +1739,7 @@ static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, cons
 		}
 	}
 
-	int rescale = 1;
+	int rescale{1};
 	if (texfilt == opengl_texture_filter::upscale)
 	{
 		rescale = 4;
@@ -1755,7 +1755,7 @@ static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, cons
 	std::unique_ptr<GLubyte[]> buftemp;
 	if (rescale > 1)
 	{
-		int rebpp = 3;
+		int rebpp{3};
 		if (tex.format == GL_RGBA) rebpp = 4;
 		if (tex.format == GL_LUMINANCE) rebpp = 1;
 		buftemp = std::make_unique<GLubyte[]>(rescale * tex.tw * rescale * tex.th * rebpp);

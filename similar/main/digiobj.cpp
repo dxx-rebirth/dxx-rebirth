@@ -372,7 +372,7 @@ static void digi_unpause_looping_sound()
 }
 
 //hack to not start object when loading level
-int Dont_start_sound_objects = 0;
+int Dont_start_sound_objects{0};
 
 namespace {
 

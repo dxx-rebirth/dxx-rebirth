@@ -34,7 +34,7 @@ namespace {
 
 struct event_poll_state
 {
-	uint8_t clean_uniframe = 1;
+	uint8_t clean_uniframe{1};
 	const window *const front_window = window_get_front();
 	window_event_result highest_result = window_event_result::ignored;
 	void process_event_batch(std::ranges::subrange<const SDL_Event *>);

@@ -185,7 +185,7 @@ static void show_netplayerinfo(grs_canvas &canvas)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
-	int x=0, y=0;
+	int x{0}, y=0;
 	static const char *const eff_strings[]={"trashing","really hurting","seriously affecting","hurting","affecting","tarnishing"};
 
 	gr_set_fontcolor(canvas, 255, -1);
@@ -467,8 +467,8 @@ static void game_draw_hud_stuff(const d_robot_info_array &Robot_info, grs_canvas
 
 #if DXX_BUILD_DESCENT == 2
 
-ubyte RenderingType=0;
-ubyte DemoDoingRight=0,DemoDoingLeft=0;
+ubyte RenderingType{0};
+ubyte DemoDoingRight{0},DemoDoingLeft=0;
 
 namespace {
 
@@ -616,7 +616,7 @@ static void show_extra_views(grs_canvas &canvas)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	int did_missile_view=0;
+	int did_missile_view{0};
 	int save_newdemo_state = Newdemo_state;
 	if (Newdemo_state==ND_STATE_PLAYBACK)
 	{
@@ -772,13 +772,13 @@ static void show_one_extra_view(grs_canvas &canvas, const gauge_inset_window_vie
 
 }
 
-int BigWindowSwitch=0;
+int BigWindowSwitch{0};
 #endif
 
 //render a frame for the game
 void game_render_frame_mono(const d_robot_info_array &Robot_info, const control_info &Controls)
 {
-	int no_draw_hud = 0;
+	int no_draw_hud{0};
 
 	gr_set_current_canvas(Screen_3d_window);
 	{

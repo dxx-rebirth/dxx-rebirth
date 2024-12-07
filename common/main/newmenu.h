@@ -323,7 +323,7 @@ struct newmenu_layout
 	const draw_box_flag draw_box;
 	uint8_t mouse_state;
 	const std::ranges::subrange<newmenu_item *> items;
-	int	scroll_offset = 0;
+	int scroll_offset{0};
 	newmenu_layout(const menu_title title, const menu_subtitle subtitle, const menu_filename filename, grs_canvas &parent_canvas, const tiny_mode_flag tiny_mode, const tab_processing_flag tabs_flag, const adjusted_citem citem_init, const draw_box_flag draw_box) :
 		citem(citem_init.citem),
 		title(title), subtitle(subtitle), filename(filename),
@@ -410,7 +410,7 @@ struct listbox_layout
 		}
 		fix64 lasttime; // to scroll text if string does not fit in box
 		const unsigned maxchars;
-		int pos = 0, scrollback = 0;
+		int pos{0}, scrollback = 0;
 		char text[];	/* flexible array must be last */
 	};
 	listbox_layout(int citem, unsigned nitems, const char **item, menu_title title, grs_canvas &parent_canvas) :
@@ -562,7 +562,7 @@ struct listbox : listbox_layout, window
 {
 	listbox(int citem, unsigned nitems, const char **item, menu_title title, grs_canvas &canvas, uint8_t allow_abort_flag);
 	const uint8_t allow_abort_flag;
-	uint8_t mouse_state = 0;
+	uint8_t mouse_state{0};
 	marquee::ptr marquee;
 	virtual window_event_result event_handler(const d_event &) override;
 	virtual window_event_result callback_handler(const d_event &, window_event_result default_return_value) = 0;

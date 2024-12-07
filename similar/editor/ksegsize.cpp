@@ -40,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	MAX_MODIFIED_VERTICES	32
 namespace {
 static std::array<vertnum_t, MAX_MODIFIED_VERTICES>		Modified_vertices;
-int		Modified_vertex_index = 0;
+int Modified_vertex_index{0};
 }
 
 namespace dsx {

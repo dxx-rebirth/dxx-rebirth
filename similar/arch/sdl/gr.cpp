@@ -50,7 +50,7 @@ void gr_flip()
 // returns possible (fullscreen) resolutions if any.
 uint_fast32_t gr_list_modes(std::array<screen_mode, 50> &gsmodes)
 {
-	int modesnum = 0;
+	int modesnum{0};
 	int sdl_check_flags = sdl_video_flags;
 
 	sdl_check_flags |= SDL_FULLSCREEN; // always use Fullscreen as lead.

@@ -379,7 +379,7 @@ UI_KEYPAD::UI_KEYPAD() :
 
 int ui_pad_read( int n, const char * filename )
 {
-	int linenumber = 0;
+	int linenumber{0};
 	int keycode, functionnumber;
 
 	auto &&[infile, physfserr] = PHYSFSX_openReadBuffered(filename);

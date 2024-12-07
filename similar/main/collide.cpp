@@ -366,7 +366,7 @@ static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hit
 #if DXX_BUILD_DESCENT == 1
 	const int ForceFieldHit = 0;
 #elif DXX_BUILD_DESCENT == 2
-	int ForceFieldHit=0;
+	int ForceFieldHit{0};
 	if (tmi1.flags & tmapinfo_flag::force_field)
 	{
 		vms_vector force;
@@ -586,7 +586,7 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 		const auto tm = get_texture_index(tmap2);			//tm without flags
 		auto &tmi2 = TmapInfo[tm];
 		const auto ec = tmi2.eclip_num;
-		unsigned db = 0;
+		unsigned db{0};
 		if (
 #if DXX_BUILD_DESCENT == 1
 			ec != eclip_none &&
@@ -602,7 +602,7 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 			const auto tmf = get_texture_rotation_high(tmap2);		//tm flags
 			auto &texture2 = Textures[tm];
 			const grs_bitmap *bm = &GameBitmaps[texture2];
-			int x=0,y=0,t;
+			int x{0},y=0,t;
 
 			PIGGY_PAGE_IN(texture2);
 
@@ -1045,7 +1045,7 @@ namespace {
 static void collide_robot_and_player(const d_robot_info_array &Robot_info, const vmobjptridx_t robot, const vmobjptridx_t playerobj, const vms_vector &collision_point)
 {
 #if DXX_BUILD_DESCENT == 2
-	int	steal_attempt = 0;
+	int steal_attempt{0};
 
 	if (robot->flags&OF_EXPLODING)
 		return;
@@ -1836,7 +1836,7 @@ static void collide_hostage_and_player(const d_robot_info_array &, const vmobjpt
 
 static void collide_player_and_player(const d_robot_info_array &Robot_info, const vmobjptridx_t player1, const vmobjptridx_t player2, const vms_vector &collision_point)
 {
-	int damage_flag = 1;
+	int damage_flag{1};
 
 	if (check_collision_delayfunc_exec())
 		digi_link_sound_to_pos(SOUND_ROBOT_HIT_PLAYER, vcsegptridx(player1->segnum), sidenum_t::WLEFT, collision_point, 0, F1_0);

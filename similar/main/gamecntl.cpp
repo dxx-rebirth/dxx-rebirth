@@ -1179,7 +1179,7 @@ static void kill_all_robots(void)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	int	dead_count=0;
+	int dead_count{0};
 	//int	boss_index = -1;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 
@@ -1279,7 +1279,7 @@ static void kill_all_snipers(void)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	int     dead_count=0;
+	int dead_count{0};
 
 	//	Kill all snipers.
 	for (auto &obj : vmobjptr)

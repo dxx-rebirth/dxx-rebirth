@@ -109,7 +109,7 @@ struct cw_removal_predicate
 {
 	fvmsegptr &vmsegptr;
 	wall_array &Walls;
-	unsigned num_cloaking_walls = 0;
+	unsigned num_cloaking_walls{0};
 	bool operator()(cloaking_wall &d);
 };
 

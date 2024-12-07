@@ -224,7 +224,7 @@ int ToggleDrawAllSegments()
     return Draw_all_segments;
 }
 
-int	Big_depth=6;
+int Big_depth{6};
 
 int IncreaseDrawDepth(void)
 {
@@ -281,7 +281,7 @@ int med_keypad_goto()
 	return 0;
 }
 
-int render_3d_in_big_window=0;
+int render_3d_in_big_window{0};
 
 int medlisp_update_screen()
 {

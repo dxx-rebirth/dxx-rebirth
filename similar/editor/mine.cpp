@@ -49,7 +49,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_underlying_value.h"
 #include "partial_range.h"
 
-int	New_file_format_save = 1;
+int New_file_format_save{1};
 
 #if DXX_BUILD_DESCENT == 2
 namespace dsx {
@@ -499,7 +499,7 @@ static void dump_fix_as_short( fix value, int nbits, PHYSFS_File *SaveFile )
 //version of dump for unsigned values
 static void dump_fix_as_ushort( fix value, int nbits, PHYSFS_File *SaveFile )
 {
-        uint int_value=0;
+        uint int_value{0};
 	ushort short_value;
 
 	if (value < 0) {

@@ -153,7 +153,7 @@ static unsigned get_tunnel_length(fvcsegptridx &vcsegptridx, const vcsegptridx_t
 {
 	auto seg = console_seg;
 	auto exit_side = exit_console_side;
-	unsigned tunnel_length = 0;
+	unsigned tunnel_length{0};
 	for (;;)
 	{
 		const auto child = seg->shared_segment::children[exit_side];
@@ -211,7 +211,7 @@ static int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
 	vms_angvec delta_angs,alt_angles,alt_delta_angs;
 	fix total_delta,alt_total_delta;
 	fix frame_turn;
-	int mask=0;
+	int mask{0};
 
 	delta_angs.p = desired_angles->p - cur_angles->p;
 	delta_angs.h = desired_angles->h - cur_angles->h;
@@ -361,10 +361,10 @@ static void generate_starfield(d_unique_endlevel_state::starfield_type &stars)
 
 void draw_stars(grs_canvas &canvas, const d_unique_endlevel_state::starfield_type &stars)
 {
-	int intensity=31;
+	int intensity{31};
 	g3s_point p;
 
-	uint8_t color = 0;
+	uint8_t color{0};
 	for (const auto &&[i, si] : enumerate(stars))
 	{
 		if ((i&63) == 0) {
@@ -547,7 +547,7 @@ void start_endlevel_flythrough(flythrough_data &flydata, object &obj, const fix 
 
 void draw_exit_model(grs_canvas &canvas)
 {
-	int f=15,u=0;	//21;
+	int f{15},u=0;	//21;
 	g3s_lrgb lrgb = { f1_0, f1_0, f1_0 };
 
 	if (mine_destroyed)
@@ -717,7 +717,7 @@ window_event_result start_endlevel_sequence()
 		return PlayerFinishedLevel(next_level_request_secret_flag::only_normal_level);		//done with level
 	}
 #if DXX_BUILD_DESCENT == 2
-	int exit_models_loaded = 0;
+	int exit_models_loaded{0};
 
 	if (Piggy_hamfile_version < pig_hamfile_version::_3)
 		exit_models_loaded = 1; // built-in for PC shareware
@@ -1302,7 +1302,7 @@ void load_endlevel_data(int level_num)
 	d_fname filename;
 	char *p;
 	int var;
-	int have_binary = 0;
+	int have_binary{0};
 
 	endlevel_data_loaded = 0;		//not loaded yet
 

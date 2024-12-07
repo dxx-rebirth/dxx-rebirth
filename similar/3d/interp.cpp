@@ -187,7 +187,7 @@ class g3_poly_get_color_state :
 	public interpreter_base
 {
 public:
-	int color = 0;
+	int color{0};
 	void op_flatpoly(const uint8_t *const p, const uint_fast32_t nv)
 	{
 		if (nv > MAX_POINTS_PER_POLY)
@@ -833,7 +833,7 @@ static uint8_t *new_dest(const chunk &o) // return where chunk is (in aligned st
  */
 static int get_first_chunks_index(chunk *chunk_list, int no_chunks)
 {
-	int first_index = 0;
+	int first_index{0};
 	Assert(no_chunks >= 1);
 	for (int i = 1; i < no_chunks; i++)
 		if (old_dest(chunk_list[i]) < old_dest(chunk_list[first_index]))
@@ -846,10 +846,10 @@ static int get_first_chunks_index(chunk *chunk_list, int no_chunks)
 void align_polygon_model_data(polymodel *pm)
 {
 	int chunk_len;
-	int total_correction = 0;
+	int total_correction{0};
 	chunk cur_ch;
 	chunk ch_list[MAX_CHUNKS];
-	int no_chunks = 0;
+	int no_chunks{0};
 	constexpr unsigned SHIFT_SPACE = 500;	// increase if insufficient
 	int tmp_size = pm->model_data_size + SHIFT_SPACE;
 	// where we build the aligned version of pm->model_data

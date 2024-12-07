@@ -469,7 +469,7 @@ static window_event_result player_menu_keycommand( listbox *lb,const d_event &ev
 		case KEY_CTRLED+KEY_D:
 			if (citem > 0)
 			{
-				int x = 1;
+				int x{1};
 				x = nm_messagebox(menu_title{nullptr}, {TXT_YES, TXT_NO}, "%s %s?", TXT_DELETE_PILOT, items[citem]+((items[citem][0]=='$')?1:0) );
 				if (x==0)	{
 					char plxfile[PATH_MAX], efffile[PATH_MAX], ngpfile[PATH_MAX];
@@ -561,8 +561,8 @@ static void RegisterPlayer()
 {
 	static const std::array<file_extension_t, 1> types{{"plr"}};
 	int NumItems;
-	int citem = 0;
-	uint8_t allow_abort_flag = 1;
+	int citem{0};
+	uint8_t allow_abort_flag{1};
 
 	auto &callsign = InterfaceUniqueState.PilotName;
 	if (!callsign[0u])
@@ -842,7 +842,7 @@ static window_event_result demo_menu_keycommand( listbox *lb,const d_event &even
 		case KEY_CTRLED+KEY_D:
 			if (citem >= 0)
 			{
-				int x = 1;
+				int x{1};
 				x = nm_messagebox(menu_title{nullptr}, {TXT_YES, TXT_NO}, "%s %s?", TXT_DELETE_DEMO, items[citem]+((items[citem][0]=='$')?1:0) );
 				if (x==0)
 				{
@@ -2177,7 +2177,7 @@ struct physfsx_mounted_path
 	 * If the path was already mounted, destruction of this instance
 	 * must not unmount it.
 	 */
-	uint8_t must_unmount = 0;
+	uint8_t must_unmount{0};
 	std::array<char, PATH_MAX> path;
 	uint8_t mount();
 	~physfsx_mounted_path()
@@ -2588,7 +2588,7 @@ struct sound_menu : sound_menu_items, newmenu
 window_event_result sound_menu::event_handler(const d_event &event)
 {
 	const auto &items = m;
-	int replay = 0;
+	int replay{0};
 	switch (event.type)
 	{
 		case event_type::newmenu_changed:
@@ -2886,14 +2886,14 @@ struct polygon_models_viewer_window : window
 
 struct gamebitmaps_viewer_window : window
 {
-	uint16_t view_idx = 0;
+	uint16_t view_idx{0};
 	using window::window;
 	virtual window_event_result event_handler(const d_event &) override;
 };
 
 window_event_result polygon_models_viewer_window::event_handler(const d_event &event)
 {
-	int key = 0;
+	int key{0};
 
 	switch (event.type)
 	{
@@ -2983,7 +2983,7 @@ static void polygon_models_viewer()
 
 window_event_result gamebitmaps_viewer_window::event_handler(const d_event &event)
 {
-	int key = 0;
+	int key{0};
 #if DXX_USE_OGL
 	float scale = 1.0;
 #endif

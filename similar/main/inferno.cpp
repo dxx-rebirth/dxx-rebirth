@@ -121,7 +121,7 @@ int Screen_mode=-1;					//game screen or editor screen?
 
 #if DXX_BUILD_DESCENT == 1
 uint8_t HiresGFXAvailable;
-int MacHog = 0;	// using a Mac hogfile?
+int MacHog{0};	// using a Mac hogfile?
 #endif
 
 namespace {

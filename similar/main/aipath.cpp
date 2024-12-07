@@ -272,12 +272,12 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 	auto &vmobjptr = Objects.vmptr;
 #endif
 	segnum_t		cur_seg;
-	int		qtail = 0, qhead = 0;
+	int qtail{0}, qhead = 0;
 	int		i;
 	std::array<seg_seg, MAX_SEGMENTS> seg_queue;
 	int		cur_depth;
 	point_seg_array_t::iterator	original_psegs = psegs;
-	unsigned l_num_points = 0;
+	unsigned l_num_points{0};
 
 #if PATH_VALIDATION
 	validate_all_paths();
@@ -324,7 +324,7 @@ std::pair<create_path_result, unsigned> create_path_points(const vmobjptridx_t o
 	/* If shuffling is enabled, always shuffle on the first pass of the
 	 * loop.
 	 */
-	unsigned shuffle_random_flag = 0;
+	unsigned shuffle_random_flag{0};
 	std::minstd_rand mrd((random_flag != create_path_random_flag::nonrandom)
 		? d_rand()
 		: std::minstd_rand::default_seed
@@ -1349,8 +1349,8 @@ void ai_path_set_orient_and_vel(const d_robot_info_array &Robot_info, object &ob
 //	Garbage colledion -- Free all unused records in Point_segs and compress all paths.
 void ai_path_garbage_collect()
 {
-	int	free_path_index = 0;
-	int	num_path_objects = 0;
+	int free_path_index{0};
+	int num_path_objects{0};
 	int	objind;
 	obj_path		object_list[MAX_OBJECTS];
 
@@ -1546,10 +1546,10 @@ static void test_create_all_paths(fvmobjptridx &vmobjptridx, fvcsegptridx &vcseg
 	}
 }
 
-short	Player_path_length=0;
+short Player_path_length{0};
 int	Player_hide_index=-1;
-int	Player_cur_path_index=0;
-int	Player_following_path_flag=0;
+int Player_cur_path_index{0};
+int Player_following_path_flag{0};
 
 //	------------------------------------------------------------------------------------------------------------------
 //	Set orientation matrix and velocity for objp based on its desire to get to a point.

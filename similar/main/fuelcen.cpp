@@ -432,7 +432,7 @@ static void robotmaker_proc(const d_robot_info_array &Robot_info, const d_vclip_
 		}
 
 		if (robotcen->Timer > top_time )	{
-			int	count=0;
+			int count{0};
 			const auto biased_matcen_creator = underlying_value(numrobotcen) ^ 0x80;
 
 			//	Make sure this robotmaker hasn't put out its max without having any of them killed.

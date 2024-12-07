@@ -48,17 +48,17 @@ warning_segment_array_t Warning_segs; // List of segment numbers currently selec
 
 found_segment_array_t Found_segs; // List of warning-worthy segments
 
-int Show_axes_flag = 0; // 0 = don't show, !0 = do show coordinate axes in *Cursegp orientation
+int Show_axes_flag{0}; // 0 = don't show, !0 = do show coordinate axes in *Cursegp orientation
 
 // Variables global to this editor.c and the k?????.c files.
 uint        Update_flags = UF_ALL;  //force total redraw
-int         Funky_chase_mode = 0;
+int Funky_chase_mode{0};
 vms_angvec  Seg_orientation = {0,0,0};
-int         mine_changed = 0;
+int mine_changed{0};
 int         ModeFlag;
 editor_view *current_view;
 
-int         SegSizeMode = 1; // Mode = 0/1 = not/is legal to move bound vertices, 
+int SegSizeMode{1}; // Mode = 0/1 = not/is legal to move bound vertices, 
 
 //the view for the different windows.
 editor_view LargeView = {0,1, NULL, i2f(100),IDENTITY_MATRIX,f1_0};
@@ -66,16 +66,16 @@ editor_view LargeView = {0,1, NULL, i2f(100),IDENTITY_MATRIX,f1_0};
 std::array<editor_view *, 1> Views = {{&LargeView,
 	}};
 
-int	Lock_view_to_cursegp = 1;		// !0 means whenever cursegp changes, view it
+int Lock_view_to_cursegp{1};		// !0 means whenever cursegp changes, view it
 
-int	Num_tilings = 1;					// Number of tilings per wall
+int Num_tilings{1};					// Number of tilings per wall
 
 objnum_t Cur_object_index = object_none;
 
 // The current object type and id
-short Cur_object_type = 4;	// OBJ_PLAYER
-short Cur_object_id = 0;
+short Cur_object_type{4};	// OBJ_PLAYER
+short Cur_object_id{0};
 
 //	!0 if a degenerate segment has been found.
-int	Degenerate_segment_found=0;
+int Degenerate_segment_found{0};
 

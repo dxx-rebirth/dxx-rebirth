@@ -276,7 +276,7 @@ namespace dcx {
 //do we draw the kill list on the HUD?
 show_kill_list_mode Show_kill_list = show_kill_list_mode::_1;
 bool Show_reticle_name{true};
-fix Show_kill_list_timer = 0;
+fix Show_kill_list_timer{0};
 
 }
 
@@ -303,7 +303,7 @@ ntstring<MAX_MESSAGE_LEN - 1> Network_message;
 int   Network_message_reciever=-1;
 per_player_array<per_player_array<uint16_t>> kill_matrix;
 per_team_array<int16_t> team_kills;
-int   multi_quit_game = 0;
+int multi_quit_game{0};
 
 }
 
@@ -348,22 +348,22 @@ namespace dcx {
 
 // For rejoin object syncing (used here and all protocols - globally)
 
-int	Network_send_objects = 0;  // Are we in the process of sending objects to a player?
-int	Network_send_object_mode = 0; // What type of objects are we sending, static or dynamic?
+int Network_send_objects{0};  // Are we in the process of sending objects to a player?
+int Network_send_object_mode{0}; // What type of objects are we sending, static or dynamic?
 int 	Network_send_objnum = -1;   // What object are we sending next?
-int     Network_rejoined = 0;       // Did WE rejoin this game?
-int     Network_sending_extras=0;
+int Network_rejoined{0};       // Did WE rejoin this game?
+int Network_sending_extras{0};
 int     VerifyPlayerJoined=-1;      // Player (num) to enter game before any ingame/extra stuff is being sent
 int     Player_joining_extras=-1;  // This is so we know who to send 'latecomer' packets to.
 
-ushort          my_segments_checksum = 0;
+ushort my_segments_checksum{0};
 
 
 per_player_array<std::array<bitmap_index, N_PLAYER_SHIP_TEXTURES>> multi_player_textures;
 
 // Globals for protocol-bound Refuse-functions
 char RefuseThisPlayer=0,WaitForRefuseAnswer=0,RefuseTeam,RefusePlayerName[12];
-fix64 RefuseTimeLimit=0;
+fix64 RefuseTimeLimit{0};
 
 namespace {
 constexpr int message_length[] = {
@@ -718,7 +718,7 @@ int multi_get_kill_list(playernum_array_t &plist)
 {
 	// Returns the number of active net players and their
 	// sorted order of kills
-	int n = 0;
+	int n{0};
 
 	range_for (const auto i, partial_const_range(sorted_kills, N_players))
 		//if (Players[sorted_kills[i]].connected)
@@ -949,7 +949,7 @@ static void multi_compute_kill(const d_robot_info_array &Robot_info, const imobj
 
 	else
 	{
-		short adjust = 1;
+		short adjust{1};
 		/* Dead stores to prevent bogus -Wmaybe-uninitialized warnings
 		 * when the optimization level prevents the compiler from
 		 * recognizing that these are written in a team game and only
@@ -1241,7 +1241,7 @@ namespace {
 static void multi_message_feedback(void)
 {
 	char *colon;
-	int found = 0;
+	int found{0};
 	char feedback_result[200];
 
 	if (!(!(colon = strstr(Network_message.data(), ": ")) || colon == Network_message.data() || colon - Network_message.data() > CALLSIGN_LEN))
@@ -1396,7 +1396,7 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 				return;
 			}
 
-			unsigned name_index=7;
+			unsigned name_index{7};
 			const auto nlen = strlen(Network_message.data());
 			if (nlen > 7)
 				while (Network_message[name_index] == ' ')
@@ -1455,7 +1455,7 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 #endif
 			return;
 		}
-		unsigned name_index=7;
+		unsigned name_index{7};
 		const auto nlen = strlen(Network_message.data());
 		if (nlen > 7)
 			while (Network_message[name_index] == ' ')
@@ -1708,7 +1708,7 @@ static void multi_do_message(const playernum_t pnum, const multiplayer_rspan<mul
 	const auto buf = reinterpret_cast<const char *>(cbuf.data());
 	const char *colon;
 	const char *msgstart;
-	int loc = 2;
+	int loc{2};
 
 	if (((colon = strstr(buf+loc, ": ")) == NULL) || (colon-(buf+loc) < 1) || (colon-(buf+loc) > CALLSIGN_LEN))
 	{
@@ -1757,7 +1757,7 @@ namespace {
 static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_POSITION> buf)
 {
 	const auto &&obj = vmobjptridx(vcplayerptr(pnum)->objnum);
-        int count = 1;
+        int count{1};
 
         quaternionpos qpp{};
 	qpp.orient.w = GET_INTEL_SHORT(&buf[count]);					count += 2;
@@ -1919,7 +1919,7 @@ static void multi_do_player_deres(const d_robot_info_array &Robot_info, object_a
  */
 static void multi_do_kill_host(object_array &Objects, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_KILL_HOST> buf)
 {
-	int count = 1;
+	int count{1};
 
 	if (multi_i_am_master())
 		return;
@@ -1938,7 +1938,7 @@ static void multi_do_kill_client(object_array &Objects, const playernum_t pnum, 
 {
 	if (!multi_i_am_master())
 		return;
-	int count = 1;
+	int count{1};
 	// I am host, I know what's going on so take this packet, add game_mode related info which might be necessary for kill computation and send it to everyone so they can compute their kills correctly
 	{
 		multi_command<multiplayer_command_t::MULTI_KILL_HOST> multibuf;
@@ -2102,7 +2102,7 @@ void multi_disconnect_player(const playernum_t pnum)
 		return;
 	}
 
-	int n = 0;
+	int n{0};
 	range_for (auto &i, partial_const_range(Players, N_players))
 		if (i.connected != player_connection_status::disconnected)
 			if (++n > 1)
@@ -2226,7 +2226,7 @@ static void multi_do_controlcen_fire(const multiplayer_rspan<multiplayer_command
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
 	int gun_num;
-	int count = 1;
+	int count{1};
 
 	const auto to_target = multi_get_vector(buf.subspan<1, 12>());
 	count += 12;
@@ -2243,7 +2243,7 @@ static void multi_do_controlcen_fire(const multiplayer_rspan<multiplayer_command
 static void multi_do_create_powerup(fvmsegptridx &vmsegptridx, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_CREATE_POWERUP> buf)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
-	int count = 1;
+	int count{1};
 	if (Network_status == network_state::endlevel || LevelUniqueControlCenterState.Control_center_destroyed)
 		return;
 
@@ -2410,7 +2410,7 @@ static void multi_do_hostage_door_status(fvmsegptridx &vmsegptridx, wall_array &
 {
 	// Update hit point status of a door
 
-	int count = 1;
+	int count{1};
 
 	const wallnum_t wallnum{GET_INTEL_SHORT(&buf[count])};
 	count += 2;
@@ -2531,7 +2531,7 @@ void multi_process_bigdata(const d_level_shared_robot_info_state &LevelSharedRob
 	// Takes a bunch of messages, check them for validity,
 	// and pass them to multi_process_data.
 
-	uint_fast32_t bytes_processed = 0;
+	uint_fast32_t bytes_processed{0};
 
 	while (bytes_processed < buf.size())
 	{
@@ -2698,7 +2698,7 @@ void multi_send_player_deres(deres_type_t type)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
-	int count = 0;
+	int count{0};
 	if (Network_send_objects)
 	{
 		Network_send_objnum = -1;
@@ -2810,7 +2810,7 @@ namespace dsx {
 
 void multi_send_position(object &obj)
 {
-	int count=1;
+	int count{1};
 
 	const auto qpp{build_quaternionpos(obj)};
 	multi_command<multiplayer_command_t::MULTI_POSITION> multibuf;
@@ -2989,7 +2989,7 @@ void multi_send_create_explosion(const playernum_t pnum)
 {
 	// Send all data needed to create a remote explosion
 
-	int count = 0;
+	int count{0};
 
 	count += 1;
 	multi_command<multiplayer_command_t::MULTI_CREATE_EXPLOSION> multibuf;
@@ -3001,7 +3001,7 @@ void multi_send_create_explosion(const playernum_t pnum)
 
 void multi_send_controlcen_fire(const vms_vector &to_goal, int best_gun_num, objnum_t objnum)
 {
-	int count = 0;
+	int count{0};
 
 	count +=  1;
 	multi_command<multiplayer_command_t::MULTI_CONTROLCEN_FIRE> multibuf;
@@ -3024,7 +3024,7 @@ void multi_send_create_powerup(const powerup_type_t powerup_type, const vcsegidx
 	// placement of used powerups like missiles and cloaking
 	// powerups.
 
-	int count = 0;
+	int count{0};
 
 	multi_send_position(vmobjptridx(get_local_player().objnum));
 
@@ -3086,7 +3086,7 @@ void multi_digi_link_sound_to_pos(const int soundnum, const vcsegptridx_t segnum
 
 void multi_send_play_sound(const int sound_num, const fix volume, const sound_stack once)
 {
-	int count = 0;
+	int count{0};
 	count += 1;
 	multi_command<multiplayer_command_t::MULTI_PLAY_SOUND> multibuf;
 	multibuf[count] = Player_num;                                   count += 1;
@@ -3104,7 +3104,7 @@ void multi_send_score()
 	auto &vmobjptr = Objects.vmptr;
 	// Send my current score to all other players so it will remain
 	// synced.
-	int count = 0;
+	int count{0};
 
 	if (Game_mode & GM_MULTI_COOP) {
 		multi_sort_kill_list();
@@ -3121,7 +3121,7 @@ void multi_send_trigger(const trgnum_t triggernum)
 {
 	// Send an event to trigger something in the mine
 
-	int count = 0;
+	int count{0};
 
 	count += 1;
 	multi_command<multiplayer_command_t::MULTI_TRIGGER> multibuf;
@@ -3142,7 +3142,7 @@ void multi_send_effect_blowup(const vcsegidx_t segnum, const sidenum_t side, con
 	// NOTE: The reason this is now a separate packet is to make sure trigger-connected switches/monitors are in sync with MULTI_TRIGGER.
 	//       If a fire packet is late it might blow up a switch for some clients without the shooter actually registering this hit,
 	//       not sending MULTI_TRIGGER and making puzzles or progress impossible.
-	int count = 0;
+	int count{0};
 
 	multi::dispatch->do_protocol_frame(1, 0); // force packets to be sent, ensuring this packet will be attached to following MULTI_TRIGGER
 	
@@ -3162,7 +3162,7 @@ void multi_send_hostage_door_status(const vcwallptridx_t w)
 	// Tell the other player what the hit point status of a hostage door
 	// should be
 
-	int count = 0;
+	int count{0};
 
 	assert(w->type == WALL_BLASTABLE);
 
@@ -3299,7 +3299,7 @@ public:
 
 class powerup_shuffle_state
 {
-	unsigned count = 0;
+	unsigned count{0};
 	unsigned seed;
 	union {
 		std::array<vmobjptridx_t, MAX_OBJECTS> ptrs;
@@ -3854,7 +3854,7 @@ void multi_send_drop_weapon(const vmobjptridx_t objp, int seed)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	int count=0;
+	int count{0};
 	int ammo_count;
 
 	multi_send_position(vmobjptridx(get_local_player().objnum));
@@ -4027,7 +4027,7 @@ void multi_send_wall_status_specific(const playernum_t pnum, wallnum_t wallnum, 
 {
 	// Send wall states a specific rejoining player
 
-	int count=0;
+	int count{0};
 
 	Assert (Game_mode & GM_NETWORK);
 	//Assert (pnum>-1 && pnum<N_players);
@@ -4072,7 +4072,7 @@ void multi_send_kill_goal_counts()
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
-	int count=1;
+	int count{1};
 
 	multi_command<multiplayer_command_t::MULTI_KILLGOALS> multibuf;
 	range_for (auto &i, Players)
@@ -4089,7 +4089,7 @@ namespace {
 
 static void multi_do_kill_goal_counts(fvmobjptr &vmobjptr, const multiplayer_rspan<multiplayer_command_t::MULTI_KILLGOALS> buf)
 {
-	int count=1;
+	int count{1};
 
 	range_for (auto &i, Players)
 	{
@@ -4139,7 +4139,7 @@ void multi_check_for_killgoal_winner(const d_robot_info_array &Robot_info)
 	 */
 	const auto &local_player = get_local_player();
 	const player *bestplr = nullptr;
-	int highest_kill_goal_count = 0;
+	int highest_kill_goal_count{0};
 	range_for (auto &i, partial_const_range(Players, N_players))
 	{
 		auto &obj = *vcobjptr(i.objnum);
@@ -4169,7 +4169,7 @@ void multi_check_for_killgoal_winner(const d_robot_info_array &Robot_info)
 // Sync our seismic time with other players
 void multi_send_seismic(fix duration)
 {
-	int count=1;
+	int count{1};
 	multi_command<multiplayer_command_t::MULTI_SEISMIC> multibuf;
 	PUT_INTEL_INT(&multibuf[count], duration); count += sizeof(duration);
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
@@ -4188,7 +4188,7 @@ static void multi_do_seismic(multiplayer_rspan<multiplayer_command_t::MULTI_SEIS
 
 void multi_send_light_specific (const playernum_t pnum, const vcsegptridx_t segnum, const sidemask_t val)
 {
-	int count=1;
+	int count{1};
 
 	Assert (Game_mode & GM_NETWORK);
 	//  Assert (pnum>-1 && pnum<N_players);
@@ -4595,7 +4595,7 @@ namespace {
 void multi_send_drop_flag(const vmobjptridx_t objp, int seed)
 {
 	multi_command<multiplayer_command_t::MULTI_DROP_FLAG> multibuf;
-	int count=0;
+	int count{0};
 	count++;
 	multibuf[count++]=static_cast<char>(get_powerup_id(objp));
 
@@ -4942,7 +4942,7 @@ void multi_new_bounty_target_with_sound(const playernum_t pnum, const char *cons
 
 static void multi_do_save_game(const multiplayer_rspan<multiplayer_command_t::MULTI_SAVE_GAME> buf)
 {
-	int count = 1;
+	int count{1};
 	ubyte slot;
 	d_game_unique_state::savegame_description desc;
 
@@ -4962,7 +4962,7 @@ namespace {
 
 static void multi_do_restore_game(const multiplayer_rspan<multiplayer_command_t::MULTI_RESTORE_GAME> buf)
 {
-	int count = 1;
+	int count{1};
 	ubyte slot;
 
 	slot = buf[count];			count += 1;
@@ -4978,7 +4978,7 @@ namespace {
 
 static void multi_send_save_game(const d_game_unique_state::save_slot slot, const unsigned id, const d_game_unique_state::savegame_description &desc)
 {
-	int count = 0;
+	int count{0};
 	
 	count += 1;
 	multi_command<multiplayer_command_t::MULTI_SAVE_GAME> multibuf;
@@ -4991,7 +4991,7 @@ static void multi_send_save_game(const d_game_unique_state::save_slot slot, cons
 
 static void multi_send_restore_game(ubyte slot, uint id)
 {
-	int count = 0;
+	int count{0};
 	
 	count += 1;
 	multi_command<multiplayer_command_t::MULTI_RESTORE_GAME> multibuf;
@@ -5211,7 +5211,7 @@ void multi_send_player_inventory(const multiplayer_data_priority priority)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	multi_command<multiplayer_command_t::MULTI_PLAYER_INV> multibuf;
-	int count = 0;
+	int count{0};
 
 	count++;
 	multibuf[count++] = Player_num;
@@ -5490,7 +5490,7 @@ bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type)
 	if ((Game_mode & GM_MULTI_COOP) || LevelUniqueControlCenterState.Control_center_destroyed || Network_status != network_state::playing)
                 return 0;
 
-        int req_amount = 1; // required amount of item to drop a powerup.
+        int req_amount{1}; // required amount of item to drop a powerup.
 
         if (powerup_type == powerup_type_t::POW_VULCAN_AMMO)
                 req_amount = VULCAN_AMMO_AMOUNT;

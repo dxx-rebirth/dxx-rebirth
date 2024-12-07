@@ -94,7 +94,7 @@ int Gamesave_current_version;
 #define MENU_CURSOR_X_MIN       MENU_X
 #define MENU_CURSOR_X_MAX       MENU_X+6
 
-int Gamesave_num_org_robots = 0;
+int Gamesave_num_org_robots{0};
 //--unused-- grs_bitmap * Gamesave_saved_bitmap = NULL;
 
 #if DXX_USE_EDITOR
@@ -115,7 +115,7 @@ static int is_real_level(const char *filename)
 
 //--unused-- vms_angvec zero_angles={0,0,0};
 
-int Gamesave_num_players=0;
+int Gamesave_num_players{0};
 
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
@@ -1295,7 +1295,7 @@ const char *Level_being_loaded=NULL;
 #endif
 
 #if DXX_BUILD_DESCENT == 2
-int no_old_level_file_error=0;
+int no_old_level_file_error{0};
 #endif
 
 //loads a level (.LVL) file from disk
@@ -1635,7 +1635,7 @@ namespace {
 #if DXX_BUILD_DESCENT == 2
 static unsigned compute_num_delta_light_records(fvcdlindexptr &vcdlindexptr)
 {
-	unsigned total = 0;
+	unsigned total{0};
 	for (auto &i : vcdlindexptr)
 		total += i.count;
 	return total;
@@ -1658,10 +1658,10 @@ static int save_game_data(
 	short game_top_fileinfo_version = Gamesave_current_version >= 5 ? 31 : GAME_VERSION;
 #elif DXX_BUILD_DESCENT == 2
 	short game_top_fileinfo_version = Gamesave_current_version >= 5 ? 31 : 25;
-	int	dl_indices_offset=0, delta_light_offset=0;
+	int dl_indices_offset{0}, delta_light_offset=0;
 #endif
-	int  player_offset=0, object_offset=0, walls_offset=0, doors_offset=0, triggers_offset=0, control_offset=0, matcen_offset=0; //, links_offset;
-	int offset_offset=0, end_offset=0;
+	int player_offset{0}, object_offset=0, walls_offset=0, doors_offset=0, triggers_offset=0, control_offset=0, matcen_offset=0; //, links_offset;
+	int offset_offset{0}, end_offset=0;
 	//===================== SAVE FILE INFO ========================
 
 	PHYSFS_writeSLE16(SaveFile, 0x6705);	// signature
@@ -1688,7 +1688,7 @@ static int save_game_data(
 	WRITE_HEADER_ENTRY(matcen_info, Num_robot_centers);
 
 #if DXX_BUILD_DESCENT == 2
-	unsigned num_delta_lights = 0;
+	unsigned num_delta_lights{0};
 	if (game_top_fileinfo_version >= 29)
 	{
 		auto &Dl_indices = LevelSharedDestructibleLightState.Dl_indices;
@@ -1816,7 +1816,7 @@ static int save_level_sub(
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
-	int minedata_offset=0,gamedata_offset=0;
+	int minedata_offset{0},gamedata_offset=0;
 	std::array<char, PATH_MAX> temp_filename;
 
 //	if ( !compiled_version )
@@ -1887,7 +1887,7 @@ static int save_level_sub(
 	PHYSFS_writeSLE32(SaveFile, minedata_offset);
 	PHYSFS_writeSLE32(SaveFile, gamedata_offset);
 #if DXX_BUILD_DESCENT == 1
-	int hostagetext_offset = 0;
+	int hostagetext_offset{0};
 	PHYSFS_writeSLE32(SaveFile, hostagetext_offset);
 #endif
 

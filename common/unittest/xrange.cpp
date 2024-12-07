@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(xrange_empty_transposed)
  */
 BOOST_AUTO_TEST_CASE(xrange_length)
 {
-	unsigned count = 0;
+	unsigned count{0};
 	constexpr unsigned length = 4u;
 	for (auto &&v : xrange(length))
 	{

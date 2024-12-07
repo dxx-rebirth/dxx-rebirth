@@ -71,7 +71,7 @@ void GetKeyDescription(char (&text)[100], uint_fast32_t keypress)
 
 int DecodeKeyText( const char * text )
 {
-	int code = 0;
+	int code{0};
 
 	if (strstr(text, "{Ctrl}") )
 		code |= KEY_CTRLED;

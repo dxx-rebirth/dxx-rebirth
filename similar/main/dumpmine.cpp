@@ -277,7 +277,7 @@ namespace {
 class key_stat
 {
 	const char *const label;
-	unsigned wall_count = 0, powerup_count = 0;
+	unsigned wall_count{0}, powerup_count = 0;
 	segnum_t seg = segment_none;
 	sidenum_t side{};
 public:
@@ -492,7 +492,7 @@ static void write_matcen_text(PHYSFS_File *my_file)
 			err_printf(my_file, "Error: Matcen %u corresponds to Station %u, which has type %i (%s).", underlying_value(i), underlying_value(fuelcen_num), underlying_value(station.Type), Special_names[station.Type]);
 			continue;
 		}
-		int	trigger_count=0;
+		int trigger_count{0};
 
 		const auto segnum{station.segnum};
 		PHYSFSX_printf(my_file, "FuelCenter[%02i].Segment = %04i  ", underlying_value(i), segnum);
@@ -572,7 +572,7 @@ static void write_wall_text(fvcsegptridx &vcsegptridx, fvcwallptridx &vcwallptri
 // ----------------------------------------------------------------------------
 static void write_player_text(fvcobjptridx &vcobjptridx, PHYSFS_File *my_file)
 {
-	int	num_players=0;
+	int num_players{0};
 
 	PHYSFSX_puts_literal(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_puts_literal(my_file, "Players:\n");
@@ -914,7 +914,7 @@ namespace {
 static void say_used_tmaps(PHYSFS_File *const my_file, const perm_tmap_buffer_type &tb)
 {
 #if DXX_BUILD_DESCENT == 1
-	int	count = 0;
+	int count{0};
 
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	const auto Num_tmaps = LevelUniqueTmapInfoState.Num_tmaps;
@@ -975,7 +975,7 @@ static void say_unused_tmaps(PHYSFS_File *my_file, perm_tmap_buffer_type &perm_t
 	const unsigned bound = MAX_BITMAP_FILES;
 	auto &tmap_name_source = AllBitmaps;
 #endif
-	unsigned count = 0;
+	unsigned count{0};
 	for (auto &&[i, tb, texture, tmap_name] : enumerate(zip(partial_range(perm_tmap_buf, bound), Textures, tmap_name_source)))
 		if (!tb)
 		{
@@ -1013,8 +1013,8 @@ namespace {
 static void say_totals(fvcobjptridx &vcobjptridx, PHYSFS_File *my_file, const char *level_name)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
-	int	total_robots = 0;
-	int	objects_processed = 0;
+	int total_robots{0};
+	int objects_processed{0};
 
 	PHYSFSX_printf(my_file, "\nLevel %s\n", level_name);
 	std::bitset<MAX_OBJECTS> used_objects;

@@ -160,13 +160,13 @@ static RAIINamedPHYSFS_File Piggy_fp;
 #endif
 #define PIGGY_SMALL_BUFFER_SIZE (1400*1024)		// size of buffer when CGameArg.SysLowMem is set
 
-ubyte bogus_bitmap_initialized=0;
+ubyte bogus_bitmap_initialized{0};
 std::array<uint8_t, 64 * 64> bogus_data;
 
 #if DXX_BUILD_DESCENT == 1
 grs_bitmap bogus_bitmap;
-int MacPig = 0;	// using the Macintosh pigfile?
-int PCSharePig = 0; // using PC Shareware pigfile?
+int MacPig{0};	// using the Macintosh pigfile?
+int PCSharePig{0}; // using PC Shareware pigfile?
 namespace {
 static std::array<int, MAX_SOUND_FILES> SoundCompressed;
 }
@@ -445,7 +445,7 @@ static void piggy_close_file()
 #if DXX_BUILD_DESCENT == 1
 properties_init_result properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
-	int sbytes = 0;
+	int sbytes{0};
 	int N_sounds;
 	int size;
 	GameSounds = {};
@@ -733,7 +733,7 @@ void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 {
 	int header_size, N_bitmaps;
 #if DXX_USE_EDITOR
-	int must_rewrite_pig = 0;
+	int must_rewrite_pig{0};
 #endif
 
 	d_strlwr(pigname.data());
@@ -973,8 +973,8 @@ void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	int ham_id;
-	int sound_offset = 0;
-	int shareware = 0;
+	int sound_offset{0};
+	int shareware{0};
 
 	auto ham_fp = PHYSFSX_openReadBuffered(DEFAULT_HAMFILE_REGISTERED).first;
 	
@@ -1035,7 +1035,7 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 		int sound_start;
 		int header_size;
 		int i;
-		int sbytes = 0;
+		int sbytes{0};
 		static int justonce = 1;
 
 		if (!justonce)
@@ -1075,7 +1075,7 @@ void read_sndfile(const int required)
 	int sound_start;
 	int header_size;
 	int i;
-	int sbytes = 0;
+	int sbytes{0};
 
 	const auto filename{DEFAULT_SNDFILE};
 	auto &&[snd_fp, physfserr] = PHYSFSX_openReadBuffered(filename);
@@ -1117,7 +1117,7 @@ void read_sndfile(const int required)
 
 properties_init_result properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
-	int ham_ok=0,snd_ok=0;
+	int ham_ok{0},snd_ok=0;
 	GameSounds = {};
 	for (const uint16_t i : xrange(std::size(GameBitmapXlat)))
 	{
@@ -1887,9 +1887,9 @@ static int get_d1_bm_index(char *filename, const NamedPHYSFS_File d1_pig)
 static void read_d1_tmap_nums_from_hog(const NamedPHYSFS_File d1_pig)
 {
 #define LINEBUF_SIZE 600
-	int reading_textures = 0;
-	short texture_count = 0;
-	int bitmaps_tbl_is_binary = 0;
+	int reading_textures{0};
+	short texture_count{0};
+	int bitmaps_tbl_is_binary{0};
 
 	auto &&[bitmaps, physfserr] = PHYSFSX_openReadBuffered("bitmaps.tbl");
 	if (!bitmaps) {

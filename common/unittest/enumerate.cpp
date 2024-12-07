@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(enumerate_empty)
  */
 BOOST_AUTO_TEST_CASE(enumerate_length)
 {
-	unsigned count = 0;
+	unsigned count{0};
 	std::array<int, 2> a;
 	for (auto &&[idx, v] : enumerate(a))
 	{

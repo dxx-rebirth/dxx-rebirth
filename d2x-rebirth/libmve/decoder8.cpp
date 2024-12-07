@@ -155,7 +155,7 @@ static void patternRow4Pixels2x1(unsigned char *pFrame, const uint8_t pat, const
 static void patternQuadrant4Pixels(const std::size_t width, unsigned char *pFrame, unsigned char pat0, unsigned char pat1, unsigned char pat2, unsigned char pat3, const std::array<uint8_t, 4> &p)
 {
 	unsigned long mask = 0x00000003UL;
-	int shift=0;
+	int shift{0};
 	unsigned long pat = (pat3 << 24) | (pat2 << 16) | (pat1 << 8) | pat0;
 
 	range_for (const int i, xrange(16u))

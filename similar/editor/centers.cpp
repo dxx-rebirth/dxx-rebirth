@@ -106,9 +106,9 @@ int do_centers_dialog()
 static window_event_result centers_dialog_created(centers_dialog *const c)
 {
 #if DXX_BUILD_DESCENT == 1
-	int i = 80;
+	int i{80};
 #elif DXX_BUILD_DESCENT == 2
-	int i = 40;
+	int i{40};
 #endif
 	c->quitButton = ui_add_gadget_button(*c, 20, 252, 48, 40, "Done", nullptr);
 	// These are the checkboxes for each door flag.
@@ -155,7 +155,7 @@ window_event_result centers_dialog::callback_handler(const d_event &event)
 			break;
 	}
 //	int robot_flags;
-	int keypress = 0;
+	int keypress{0};
 	window_event_result rval = window_event_result::ignored;
 
 	Assert(MainWindow != NULL);

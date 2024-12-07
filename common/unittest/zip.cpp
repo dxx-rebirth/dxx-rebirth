@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(zip_empty)
  */
 BOOST_AUTO_TEST_CASE(zip_length)
 {
-	unsigned count = 0;
+	unsigned count{0};
 	std::array<int, 2> a{};
 	short b[4]{};
 	for (auto &&[va, vb] : zip(a, b))
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(zip_length)
 
 BOOST_AUTO_TEST_CASE(zip_length_selection_01s)
 {
-	unsigned count = 0;
+	unsigned count{0};
 	std::array<int, 2> b{};
 	short a[4]{};
 	for (auto &&[va, vb] : zip(zip_sequence_selector<zip_sequence_length_selector{2}>(), a, b))
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(zip_length_selection_01s)
 
 BOOST_AUTO_TEST_CASE(zip_length_selection_01v)
 {
-	unsigned count = 0;
+	unsigned count{0};
 	std::vector<int> b{1, 2};
 	short a[3]{};
 	for (auto &&[va, vb] : zip(zip_sequence_selector<zip_sequence_length_selector{2}>(), a, b))
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(zip_passthrough_modifications)
 
 BOOST_AUTO_TEST_CASE(zip_selection_11_short_first)
 {
-	unsigned count = 0;
+	unsigned count{0};
 	std::vector<int> b{1, 2};
 	short a[3]{4, 5, 6};
 	for (auto &&[vb, va] : zip(zip_sequence_selector<zip_sequence_length_selector{3}>(), b, a))
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(zip_selection_11_short_first)
 
 BOOST_AUTO_TEST_CASE(zip_selection_11_short_second)
 {
-	unsigned count = 0;
+	unsigned count{0};
 	std::vector<int> b{1, 2};
 	short a[3]{4, 5, 6};
 	for (auto &&[va, vb] : zip(zip_sequence_selector<zip_sequence_length_selector{3}>(), a, b))

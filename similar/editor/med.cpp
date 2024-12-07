@@ -141,7 +141,7 @@ static std::unique_ptr<UI_GADGET_ICON>
 //int CurrentBigCanvas = 0;
 //int BigCanvasFirstTime = 1;
 
-int	Found_seg_index=0;				// Index in Found_segs corresponding to Cursegp
+int Found_seg_index{0};				// Index in Found_segs corresponding to Cursegp
 
 static void print_status_bar(const std::array<char, DIAGNOSTIC_MESSAGE_MAX> &message)
 {
@@ -721,7 +721,7 @@ static int med_keypad_goto_8()	{	ui_pad_goto(8);	return 0;	}
 #define	PAD_WIDTH	30
 #define	PAD_WIDTH1	(PAD_WIDTH + 7)
 
-int editor_screen_open = 0;
+int editor_screen_open{0};
 
 //setup the editors windows, canvases, gadgets, etc.
 static void init_editor_screen(grs_canvas &canvas, std::array<RAIIPHYSFS_ComputedPathMount, 4> &&search_path_editor)
@@ -1017,7 +1017,7 @@ window_event_result editor_dialog::callback_handler(const d_event &event)
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	editor_view *new_cv;
-	int keypress = 0;
+	int keypress{0};
 	window_event_result rval = window_event_result::ignored;
 
 	if (event.type == event_type::window_created)

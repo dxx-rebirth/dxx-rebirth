@@ -147,7 +147,7 @@ void hmp_stop(hmp_file *hmp)
 static int get_var_num_hmi(unsigned char *data, int datalen, unsigned long *value) {
 	unsigned char *p;
 	unsigned long v = 0;
-	int shift = 0;
+	int shift{0};
 
 	p = data;
 	while ((datalen > 0) && !(*p & 0x80)) {
@@ -600,7 +600,7 @@ namespace {
 static void hmptrk2mid(ubyte* data, int size, std::vector<uint8_t> &midbuf)
 {
 	uint8_t *dptr = data;
-	ubyte lc1 = 0,last_com = 0;
+	ubyte lc1{0},last_com = 0;
 	int n1;
 
 	while (data < dptr + size)

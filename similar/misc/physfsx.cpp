@@ -234,9 +234,9 @@ RAIIPHYSFS_ComputedPathMount make_PHYSFSX_ComputedPathMount(char *const name1, c
 // checks which archives are supported by PhysFS. Return 0 if some essential (HOG) is not supported
 int PHYSFSX_checkSupportedArchiveTypes()
 {
-	int hog_sup = 0;
+	int hog_sup{0};
 #if DXX_BUILD_DESCENT == 2
-	int mvl_sup = 0;
+	int mvl_sup{0};
 #endif
 
 	con_puts(CON_DEBUG, "PHYSFS: Checking supported archive types.");

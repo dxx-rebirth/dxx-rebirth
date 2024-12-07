@@ -532,7 +532,7 @@ struct scores_menu_items
 	};
 	const int citem;
 	fix64 time_last_color_change = timer_query();
-	uint8_t looper = 0;
+	uint8_t looper{0};
 	std::array<numbered_row, MAX_HIGH_SCORES> scores;
 	row last_game;
 	std::array<char, COOL_MESSAGE_LEN> cool_saying;

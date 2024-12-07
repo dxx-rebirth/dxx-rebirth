@@ -950,7 +950,7 @@ static std::size_t bm_read_eclip(std::size_t texture_count, int skip)
 	Effects[clip_num].flags = 0;
 
 #if DXX_BUILD_DESCENT == 2
-	unsigned dest_bm_num = 0;
+	unsigned dest_bm_num{0};
 	//load the dest bitmap first, so that after this routine, the last-loaded
 	//texture will be the monitor, so that lighting parameter will be applied
 	//to the correct texture
@@ -1493,19 +1493,19 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 	fix			mass = f1_0*4;
 	fix			drag = f1_0/2;
 	weapon_id_type weapon_type = weapon_id_type::LASER_ID_L1;
-	int			contains_count=0, contains_id=0, contains_prob=0, contains_type=0;
+	int contains_count{0}, contains_id=0, contains_prob=0, contains_type=0;
 #if DXX_BUILD_DESCENT == 2
 	weapon_id_type weapon_type2 = weapon_id_type::unspecified;
 	auto behavior = ai_behavior::AIB_NORMAL;
-	int			companion = 0, smart_blobs=0, energy_blobs=0, badass=0, energy_drain=0, kamikaze=0, thief=0, pursuit=0, lightcast=0, death_roll=0;
-	fix			glow=0, aim=F1_0;
+	int companion{0}, smart_blobs=0, energy_blobs=0, badass=0, energy_drain=0, kamikaze=0, thief=0, pursuit=0, lightcast=0, death_roll=0;
+	fix glow{0}, aim=F1_0;
 	int			deathroll_sound = SOUND_BOSS_SHARE_DIE;	//default
 	int			taunt_sound = ROBOT_SEE_SOUND_DEFAULT;
-	ubyte flags=0;
+	ubyte flags{0};
 #endif
-	int			score_value=1000;
-	int			cloak_type=0;		//	Default = this robot does not cloak
-	int			attack_type=0;		//	Default = this robot attacks by firing (1=lunge)
+	int score_value{1000};
+	int cloak_type{0};		//	Default = this robot does not cloak
+	int attack_type{0};		//	Default = this robot attacks by firing (1=lunge)
 	boss_robot_id	boss_flag{};				//	Default = robot is not a boss.
 	int			see_sound = ROBOT_SEE_SOUND_DEFAULT;
 	int			attack_sound = ROBOT_ATTACK_SOUND_DEFAULT;
@@ -1781,7 +1781,7 @@ void bm_read_reactor(void)
 	fix	lighting = F1_0/2;		// Default
 #if DXX_BUILD_DESCENT == 1
 	int type = -1;
-	fix strength=0;
+	fix strength{0};
 #elif DXX_BUILD_DESCENT == 2
 	assert(Num_reactors < Reactors.size());
 #endif
@@ -1921,7 +1921,7 @@ void bm_read_marker()
 void bm_read_exitmodel()
 {
 	char *model_name, *model_name_dead=NULL;
-	int first_bitmap_num=0, first_bitmap_num_dead=0, n_normal_bitmaps;
+	int first_bitmap_num{0}, first_bitmap_num_dead=0, n_normal_bitmaps;
 	char *equal_ptr;
 
 	model_name = strtok( NULL, space_tab );
@@ -1979,7 +1979,7 @@ void bm_read_player_ship(void)
 {
 	char	*model_name_dying=NULL;
 	char	*model_name[MAX_MODEL_VARIANTS];
-	int	n_models=0,i;
+	int n_models{0},i;
 	int	first_bitmap_num[MAX_MODEL_VARIANTS];
 	char *equal_ptr;
 	robot_info ri;
@@ -2213,7 +2213,7 @@ void bm_read_weapon(int skip, int unused_flag)
 #endif
 {
 	int	i,n;
-	int	n_models=0;
+	int n_models{0};
 	char 	*equal_ptr;
 	char	*pof_file_inner=NULL;
 	char	*model_name[MAX_MODEL_VARIANTS];

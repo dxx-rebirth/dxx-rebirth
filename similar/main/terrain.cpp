@@ -250,7 +250,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 			g3_add_delta_vec(last_p,last_p,delta_j);
 	}
 
-	int mine_tiles_drawn = 0;    //flags to tell if all 4 tiles under mine have drawn
+	int mine_tiles_drawn{0};    //flags to tell if all 4 tiles under mine have drawn
 	for (i=low_i;i<viewer_i;i++) {
 
 		g3_add_delta_vec(save_p_low,save_p_low,delta_i);

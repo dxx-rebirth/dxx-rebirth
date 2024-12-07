@@ -146,7 +146,7 @@ UI_GADGET &ui_event_get_gadget(const d_event &event)
 
 window_event_result ui_dialog_do_gadgets(UI_DIALOG &dlg, const d_event &event)
 {
-	int keypress = 0;
+	int keypress{0};
 	UI_GADGET * tmp, * tmp1;
 
 	if (event.type == event_type::key_command)

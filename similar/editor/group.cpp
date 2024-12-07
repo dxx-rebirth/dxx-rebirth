@@ -1136,7 +1136,7 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 {
 	int vertnum;
 	char ErrorMessage[200];
-        int     translate=0;
+        int translate{0};
 	char 	*temptr;
 	segment tseg;
 	auto &&[LoadFile, physfserr] = PHYSFSX_openReadBuffered(filename);

@@ -324,7 +324,7 @@ void read_model_guns(const char *filename, reactor &r)
 	auto &gun_dirs = r.gun_dirs;
 	short version;
 	int len;
-	int n_guns=0;
+	int n_guns{0};
 
 	auto &&[ifile, physfserr] = PHYSFSX_openReadBuffered(filename);
 	if (!ifile)
@@ -418,7 +418,7 @@ void draw_polygon_model(grs_canvas &canvas, const tmap_drawer_type tmap_drawer_p
 			//alt textures might not match, but in the one case we're using this
 			//for on 11/14/94, they do match.  So we leave it in.
 			{
-				int cnt=1;
+				int cnt{1};
 				const auto depth = g3_calc_point_depth(pos);		//gets 3d depth
 				while (po->simpler_model != polygon_simpler_model_index::None && depth > cnt++ * Simple_model_threshhold_scale * po->rad)
 					po = &Polygon_models[build_polygon_model_index_from_polygon_simpler_model_index(po->simpler_model)];

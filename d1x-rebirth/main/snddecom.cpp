@@ -63,8 +63,8 @@ const std::array<int, 89> step_table{{
 }};
 
 void sound_decompress(unsigned char *data, int size, unsigned char *outp) {
-    int newtoken = 1;
-    int predicted = 0, index = 0, step = 7;
+    int newtoken{1};
+    int predicted{0}, index = 0, step = 7;
     int code, diff, out;
     while (size) {
 	if (newtoken)

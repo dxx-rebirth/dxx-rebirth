@@ -35,8 +35,8 @@ public:
 private:
 	class window *prev;				// the previous window in the doubly linked list
 	class window *next = nullptr;				// the next window in the doubly linked list
-	uint8_t w_visible = 1;						// whether it's visible
-	uint8_t w_modal = 1;						// modal = accept all user input exclusively
+	uint8_t w_visible{1};						// whether it's visible
+	uint8_t w_modal{1};						// modal = accept all user input exclusively
 public:
 	explicit window(grs_canvas &src, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 	window(const window &) = delete;

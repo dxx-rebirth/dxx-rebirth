@@ -309,7 +309,7 @@ void gr_bitmap(grs_canvas &canvas, const unsigned x, const unsigned y, grs_bitma
 #if DXX_USE_OGL
 	ogl_ubitmapm_cs(canvas, x, y, opengl_bitmap_use_src_bitmap, opengl_bitmap_use_src_bitmap, bm, ogl_colors::white);
 #else
-	int sx = 0, sy = 0;
+	int sx{0}, sy = 0;
 	if ( dx1 < 0 )
 	{
 		sx = -dx1;
@@ -334,7 +334,7 @@ void gr_bitmapm(grs_canvas &canvas, const unsigned x, const unsigned y, const gr
 {
 	int dx1=x, dx2=x+bm.bm_w-1;
 	int dy1=y, dy2=y+bm.bm_h-1;
-	int sx=0, sy=0;
+	int sx{0}, sy=0;
 
 	if (dx1 >= canvas.cv_bitmap.bm_w || dx2 < 0)
 		return;
@@ -464,7 +464,7 @@ static void gr_bitmap_scale_to(const grs_bitmap &src, grs_bitmap &dst)
 	auto d = dst.get_bitmap_data();
 	int h = src.bm_h;
 	int a = dst.bm_h/h, b = dst.bm_h%h;
-	int c = 0, i;
+	int c{0}, i;
 
 	for (uint_fast32_t y = src.bm_h; y; --y) {
 		i = a;
@@ -521,7 +521,7 @@ void gr_bitblt_find_transparent_area(const grs_bitmap &bm, unsigned &minx, unsig
 	miny = bm.bm_h - 1;
 	maxy = 0;
 
-	unsigned i = 0, count = 0;
+	unsigned i{0}, count = 0;
 	auto check = [&](unsigned x, unsigned y, const color_palette_index c) {
 		if (c == TRANSPARENCY_COLOR) {				// don't look for transparancy color here.
 			count++;

@@ -25,7 +25,7 @@ namespace dsx {
 
 struct d_level_unique_object_state
 {
-	unsigned num_objects = 0;
+	unsigned num_objects{0};
 	/* `accumulated_robots` counts robots present at level entry and
 	 * robots added later via materialization centers / boss gating.  It
 	 * never decreases, so it is not a shortcut for counting the number
@@ -33,7 +33,7 @@ struct d_level_unique_object_state
 	 */
 	unsigned accumulated_robots;
 	unsigned total_hostages;
-	unsigned Debris_object_count = 0;
+	unsigned Debris_object_count{0};
 #if DXX_BUILD_DESCENT == 2
 	d_unique_buddy_state BuddyState;
 	d_thief_unique_state ThiefState;
@@ -45,7 +45,7 @@ struct d_level_unique_object_state
 	d_level_unique_control_center_state ControlCenterState;
 	vms_vector last_console_player_position;
 	d_level_unique_morph_object_state MorphObjectState;
-	uint8_t Level_path_created = 0;
+	uint8_t Level_path_created{0};
 	auto &get_objects()
 	{
 		return Objects;
