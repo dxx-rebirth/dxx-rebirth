@@ -406,8 +406,7 @@ struct zip : std::ranges::subrange<zip_iterator<range_iterator_type, sentinel_ty
 	using iterator = zip_iterator<range_iterator_type, sentinel_type>;
 	template <std::ranges::input_range... rangeN>
 		requires(
-			sizeof...(rangeN) > 0 &&
-			(std::ranges::borrowed_range<rangeN> && ...)
+			zip_input_constraints<sentinel_type::selector::value, rangeN...>
 		)
 		constexpr zip(rangeN &&... rN) :
 			std::ranges::subrange<iterator, sentinel_type>{iterator{std::ranges::begin(rN)...}, sentinel_type{rN...}}
