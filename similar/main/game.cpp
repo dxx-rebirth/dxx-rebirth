@@ -1201,38 +1201,22 @@ static void do_afterburner_stuff(object_array &Objects)
 #define	DIMINISH_RATE 16 // gots to be a power of 2, else change the code in diminish_palette_towards_normal
 
  //adds to rgb values for palette flash
-void PALETTE_FLASH_ADD(int _dr, int _dg, int _db)
+void PALETTE_FLASH_ADD(const int _dr, const int _dg, const int _db)
 {
-	int	maxval;
-
-	PaletteRedAdd += _dr;
-	PaletteGreenAdd += _dg;
-	PaletteBlueAdd += _db;
-
+	const int maxval{
 #if DXX_BUILD_DESCENT == 2
-	if (Flash_effect)
-		maxval = 60;
-	else
+		Flash_effect
+			? 60
+			:
 #endif
-		maxval = MAX_PALETTE_ADD;
-
-	if (PaletteRedAdd > maxval)
-		PaletteRedAdd = maxval;
-
-	if (PaletteGreenAdd > maxval)
-		PaletteGreenAdd = maxval;
-
-	if (PaletteBlueAdd > maxval)
-		PaletteBlueAdd = maxval;
-
-	if (PaletteRedAdd < -maxval)
-		PaletteRedAdd = -maxval;
-
-	if (PaletteGreenAdd < -maxval)
-		PaletteGreenAdd = -maxval;
-
-	if (PaletteBlueAdd < -maxval)
-		PaletteBlueAdd = -maxval;
+			MAX_PALETTE_ADD
+	};
+	const int nr{std::clamp(PaletteRedAdd + _dr, -maxval, maxval)};
+	const int ng{std::clamp(PaletteGreenAdd + _dg, -maxval, maxval)};
+	const int nb{std::clamp(PaletteBlueAdd + _db, -maxval, maxval)};
+	PaletteRedAdd = nr;
+	PaletteGreenAdd = ng;
+	PaletteBlueAdd = nb;
 }
 
 }
