@@ -1209,7 +1209,7 @@ void PALETTE_FLASH_ADD(const int _dr, const int _dg, const int _db)
 			? 60
 			:
 #endif
-			MAX_PALETTE_ADD
+			30
 	};
 	const int nr{std::clamp(PaletteRedAdd + _dr, -maxval, maxval)};
 	const int ng{std::clamp(PaletteGreenAdd + _dg, -maxval, maxval)};

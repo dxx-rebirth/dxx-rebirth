@@ -150,8 +150,6 @@ extern int force_cockpit_redraw;
 void close_game(void);
 void calc_frame_time(void);
 
-#define MAX_PALETTE_ADD 30
-
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
