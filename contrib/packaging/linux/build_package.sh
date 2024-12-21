@@ -10,9 +10,9 @@ curl \
     --show-error \
     --location \
     --output "#1" \
-    https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20240109-1/"{linuxdeploy-x86_64.AppImage}" \
+    https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20240109-1/"{linuxdeploy-$arch.AppImage}" \
     || exit 3
-chmod a+x linuxdeploy-x86_64.AppImage
+chmod a+x "linuxdeploy-$arch.AppImage"
 
 build_appimage() {
     name="$1"
@@ -20,7 +20,7 @@ build_appimage() {
 
     # Package!
     export OUTPUT="${prettyname}.AppImage"
-    ./linuxdeploy-x86_64.AppImage \
+    "./linuxdeploy-$arch.AppImage" \
         --output appimage \
         --appdir="${name}.appdir" \
         --executable="build/${name}/${name}" \
