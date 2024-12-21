@@ -2,6 +2,7 @@
 set -eux -o pipefail
 
 arch=$(uname -m)
+appimage="linuxdeploy-$arch.AppImage"
 
 # Grab AppImage package at specific version
 curl \
@@ -10,9 +11,9 @@ curl \
     --show-error \
     --location \
     --output "#1" \
-    https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20240109-1/"{linuxdeploy-$arch.AppImage}" \
+	https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20240109-1/"{$appimage}" \
     || exit 3
-chmod a+x "linuxdeploy-$arch.AppImage"
+chmod a+x "$appimage"
 
 build_appimage() {
     name="$1"
@@ -20,7 +21,7 @@ build_appimage() {
 
     # Package!
     OUTPUT="${prettyname}.AppImage"	\
-    "./linuxdeploy-$arch.AppImage" \
+    "./$appimage" \
         --output appimage \
         --appdir="${name}.appdir" \
         --executable="build/${name}/${name}" \
