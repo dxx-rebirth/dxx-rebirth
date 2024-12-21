@@ -4590,6 +4590,8 @@ class DXXCommon(LazyObjectConstructor):
 			if value is not None:
 				kw[cc] = value
 		tools = platform_settings.tools + ('textfile',)
+		if user_settings.register_runtime_test_link_targets:
+			tools += 'ar',
 		env = Environment(ENV = os.environ, tools = tools, **kw)
 		CHOST = user_settings.CHOST
 		if CHOST:
@@ -4650,9 +4652,13 @@ class DXXCommon(LazyObjectConstructor):
 		env = self.env
 		user_settings = self.user_settings
 		builddir = env.Dir(user_settings.builddir).Dir(self.srcdir)
+		library = env.Library(builddir.File(f'{env["LIBPREFIX"]}{self.srcdir}{env["LIBSUFFIX"]}'), self.get_library_objects())
 		for test in runtime_test_boost_tests:
 			LIBS = [] if test.nodefaultlibs else env['LIBS'].copy()
-			LIBS.append('boost_unit_test_framework')
+			LIBS.extend((
+				'boost_unit_test_framework',
+				library,
+				))
 			env.Program(target=builddir.File(test.target), source=test.source(self), LIBS=LIBS)
 
 	runtime_test_boost_tests: collections.abc.Sequence[RuntimeTest] = None
@@ -4662,6 +4668,13 @@ class DXXArchive(DXXCommon):
 	_argument_prefix_list = None
 	srcdir: typing.Final[str] = 'common'
 	target: typing.Final[str] = 'dxx-common'
+
+	get_library_objects = DXXCommon.create_lazy_object_getter((
+'common/maths/fixc.cpp',
+'common/maths/tables.cpp',
+'common/maths/vecmat.cpp',
+))
+
 	RuntimeTest = DXXCommon.RuntimeTest
 	runtime_test_boost_tests = (
 		RuntimeTest('test-enumerate', (
@@ -4675,6 +4688,9 @@ class DXXArchive(DXXCommon):
 			)),
 		RuntimeTest('test-valptridx-range', (
 			'common/unittest/valptridx-range.cpp',
+			)),
+		RuntimeTest('test-vecmat', (
+			'common/unittest/vecmat.cpp',
 			)),
 		RuntimeTest('test-xrange', (
 			'common/unittest/xrange.cpp',
@@ -4719,10 +4735,7 @@ class DXXArchive(DXXCommon):
 'common/main/cmd.cpp',
 'common/main/cvar.cpp',
 'common/main/piggy.cpp',
-'common/maths/fixc.cpp',
 'common/maths/rand.cpp',
-'common/maths/tables.cpp',
-'common/maths/vecmat.cpp',
 'common/mem/mem.cpp',
 'common/misc/error.cpp',
 'common/misc/hash.cpp',
@@ -4743,6 +4756,7 @@ class DXXArchive(DXXCommon):
 		):
 		value = list(__get_objects_common(self))
 		extend = value.extend
+		extend(self.get_library_objects())
 		user_settings = self.user_settings
 		if user_settings._enable_adlmidi():
 			extend(__get_objects_use_adlmidi(self))
