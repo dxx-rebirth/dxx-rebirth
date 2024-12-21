@@ -16,12 +16,9 @@
 #include <math.h>
 #include <type_traits>
 
-#include "dxxerror.h"
 #include "maths.h"
 
 namespace dcx {
-
-#define EPSILON (F1_0/100)
 
 namespace {
 
