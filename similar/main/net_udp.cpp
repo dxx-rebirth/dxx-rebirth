@@ -186,6 +186,11 @@ enum class Network_player_added : bool
 
 Network_player_added network_player_added;
 
+static std::pair<const char *, const char *> GetRankStringWithSpace(const netplayer_info::player_rank r)
+{
+	return PlayerCfg.NoRankings ? std::pair{"", ""} : std::pair{RankStrings[r], " "};
+}
+
 }
 
 }

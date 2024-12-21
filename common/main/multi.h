@@ -614,8 +614,6 @@ extern playernum_t Bounty_target;
 
 extern per_player_array<std::array<bitmap_index, N_PLAYER_SHIP_TEXTURES>> multi_player_textures;
 
-#define GetRankStringWithSpace(I)	(PlayerCfg.NoRankings ? std::pair<const char *, const char *>("", "") : std::pair<const char *, const char *>(RankStrings[I], " "))
-
 // Globals for protocol-bound Refuse-functions
 extern char RefuseThisPlayer,WaitForRefuseAnswer,RefuseTeam,RefusePlayerName[12];
 extern fix64 RefuseTimeLimit;
