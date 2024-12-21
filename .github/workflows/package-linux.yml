@@ -25,6 +25,11 @@ jobs:
           libphysfs-dev
           libpng-dev
 
+      - name: Collect architecture
+        id: architecture
+        run: |
+          printf 'uname_m=%s\n' "$(uname -m)" >> "$GITHUB_OUTPUT"
+
       - name: Configure and Build
         run: scons -j`nproc`
         env:
@@ -39,5 +44,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: linux
-          path: '*.zip'
+          name: "DXX-Rebirth-Linux-AppImage-${{ steps.architecture.outputs.uname_m }}.zip"
+          path: 'D*X-Rebirth.AppImage'
