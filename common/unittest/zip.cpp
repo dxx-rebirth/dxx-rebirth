@@ -1,6 +1,7 @@
 #include "d_range.h"
 #include "d_zip.h"
 #include <array>
+#include <forward_list>
 #include <vector>
 
 #define BOOST_TEST_DYN_LINK
@@ -188,3 +189,12 @@ static_assert(d_zip::detail::range_static_extent{1} == d_zip::detail::minimum_st
 static_assert(d_zip::detail::range_static_extent{1} == d_zip::detail::minimum_static_size(d_zip::detail::range_extent_sequence<d_zip::detail::range_static_extent{std::dynamic_extent}, d_zip::detail::range_static_extent{1}>()));
 static_assert(d_zip::detail::range_static_extent{2} == d_zip::detail::minimum_static_size(d_zip::detail::range_extent_sequence<d_zip::detail::range_static_extent{std::dynamic_extent}, d_zip::detail::range_static_extent{2}, d_zip::detail::range_static_extent{3}>()));
 static_assert(d_zip::detail::range_static_extent{2} == d_zip::detail::minimum_static_size(d_zip::detail::range_extent_sequence<d_zip::detail::range_static_extent{std::dynamic_extent}, d_zip::detail::range_static_extent{3}, d_zip::detail::range_static_extent{std::dynamic_extent}, d_zip::detail::range_static_extent{2}>()));
+
+using zip_forward_only = decltype(zip(std::declval<std::array<int, 2> &>(), std::declval<std::forward_list<int> &>()));
+using zip_bidirectional_only = decltype(zip(std::declval<std::array<int, 2> &>(), std::declval<std::list<int> &>()));
+
+static_assert(std::ranges::forward_range<zip_forward_only>);
+static_assert(not std::ranges::bidirectional_range<zip_forward_only>);
+
+static_assert(std::ranges::bidirectional_range<zip_bidirectional_only>);
+static_assert(not std::ranges::random_access_range<zip_bidirectional_only>);
