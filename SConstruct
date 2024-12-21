@@ -216,9 +216,9 @@ class Git(StaticSubprocess):
 			(b'+' if _pcall(['diff', '--quiet', '--cached']).returncode else b'')
 		).decode()
 
-class _ConfigureTests:
+class ConfigureTests:
 	@dataclass(eq=False)
-	class Collector:
+	class _Collector:
 		record: collections.abc.Callable[['ConfigureTest'], None]
 
 		@dataclass(eq=False, slots=True)
@@ -245,8 +245,7 @@ class _ConfigureTests:
 			self.record(self.RecordedTest(f.__name__, desc))
 			return f
 
-class ConfigureTests(_ConfigureTests):
-	class Collector(_ConfigureTests.Collector):
+	class Collector(_Collector):
 		tests: collections.abc.MutableSequence[collections.abc.Callable[['ConfigureTest'], None]]
 		def __init__(self):
 			# An unguarded collector maintains a list of tests, and adds
@@ -255,7 +254,7 @@ class ConfigureTests(_ConfigureTests):
 			self.tests = tests = []
 			super().__init__(tests.append)
 
-	class GuardedCollector(_ConfigureTests.Collector):
+	class GuardedCollector(_Collector):
 		__guard: tuple[collections.abc.Callable[['UserSettings'], bool]]
 		def __init__(self, collector, guard: collections.abc.Callable[['UserSettings'], bool]):
 			# A guarded collector delegates to the list maintained by
