@@ -40,6 +40,8 @@ jobs:
 
       - name: Package
         run: ./contrib/packaging/linux/build_package.sh
+        env:
+          rebirth_uname_m: ${{ steps.architecture.outputs.uname_m }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4

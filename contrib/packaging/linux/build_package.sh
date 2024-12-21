@@ -1,8 +1,10 @@
 #!/bin/bash
 set -eux -o pipefail
 
-arch=$(uname -m)
-appimage="linuxdeploy-$arch.AppImage"
+if ! [[ -v rebirth_uname_m ]]; then
+	rebirth_uname_m="$(uname -m)"
+fi
+appimage="linuxdeploy-$rebirth_uname_m.AppImage"
 
 # Grab AppImage package at specific version
 curl \
