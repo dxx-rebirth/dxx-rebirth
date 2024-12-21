@@ -45,8 +45,8 @@ void gr_uscanline(grs_canvas &canvas, const unsigned x1, const unsigned x2, cons
 			{
 				const auto count = x2 - x1 + 1;
 				const std::span<uint8_t> data{&canvas.cv_bitmap.get_bitmap_data()[canvas.cv_bitmap.bm_rowsize * y + x1], count};
-				if (const auto cv_fade_level{canvas.cv_fade_level}; gr_fade_table.valid_index(cv_fade_level))
-					std::ranges::transform(data, data.begin(), [&t = gr_fade_table[cv_fade_level]](const uint8_t c) { return t[c]; });
+				if (const auto r{gr_fade_table.valid_index(canvas.cv_fade_level)})
+					std::ranges::transform(data, data.begin(), [&t = gr_fade_table[*r]](const uint8_t c) { return t[c]; });
 				else
 					std::ranges::fill(data, color);
 			}
