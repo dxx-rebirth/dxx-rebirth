@@ -5141,7 +5141,7 @@ class DXXProgram(DXXCommon):
 			self.platform_objects = [resfile]
 			env.Prepend(
 				CXXFLAGS = ['-fno-omit-frame-pointer'],
-				RCFLAGS = [f'-D{d}' for d in program.env_CPPDEFINES] + ['-D' f'DXX_VERSION_SEQ={program.DXX_VERSION_SEQ}'],
+				RCFLAGS = [f'-D{d[0]}={d[1]}' for d in program.env_CPPDEFINES] + ['-D' f'DXX_VERSION_SEQ={program.DXX_VERSION_SEQ}'],
 			)
 			env.Append(
 				LIBS = ['wsock32', 'ws2_32', 'winmm', 'mingw32'],
