@@ -506,7 +506,7 @@ void wall_open_door(const vmsegptridx_t seg, const sidenum_t side)
 		auto &vcvertptr = Vertices.vcptr;
 		const auto cp{compute_center_point_on_side(vcvertptr, seg, side)};
 		const auto open_sound = WallAnims[w->clip_num].open_sound;
-		if (open_sound > -1)
+		if (open_sound != sound_effect::None)
 			digi_link_sound_to_pos(open_sound, seg, side, cp, 0, F1_0);
 
 	}
@@ -838,7 +838,7 @@ void wall_close_door(wall_array &Walls, const vmsegptridx_t seg, const sidenum_t
 		auto &vcvertptr = Vertices.vcptr;
 		const auto cp{compute_center_point_on_side(vcvertptr, seg, side)};
 		const auto open_sound = WallAnims[w->clip_num].open_sound;
-		if (open_sound > -1)
+		if (open_sound != sound_effect::None)
 			digi_link_sound_to_pos(open_sound, seg, side, cp, 0, F1_0);
 
 	}
@@ -944,7 +944,7 @@ static bool do_door_close(active_door &d)
 		if (is_door_obstructed(vcobjptridx, vcsegptr, seg0, w0.sidenum))
 		{
 #if DXX_BUILD_DESCENT == 2
-			digi_kill_sound_linked_to_segment(w0.segnum, w0.sidenum, -1);
+			digi_kill_sound_linked_to_segment(w0.segnum, w0.sidenum, sound_effect::None);
 			wall_open_door(seg0, w0.sidenum);		//re-open door
 #endif
 			return false;
@@ -988,7 +988,7 @@ static bool do_door_close(active_door &d)
 				if (d.time == 0)
 				{		//first time
 					const auto close_sound = wa.close_sound;
-					if (close_sound > -1)
+					if (close_sound != sound_effect::None)
 					{
 						auto &vcvertptr = Vertices.vcptr;
 						digi_link_sound_to_pos(close_sound, seg, side, compute_center_point_on_side(vcvertptr, seg, side), 0, F1_0);
@@ -1639,7 +1639,7 @@ struct d1wclip
 	d1wclip(wclip &w) : wc(&w) {}
 };
 
-DEFINE_SERIAL_UDT_TO_MESSAGE(d1wclip, dwc, (dwc.wc->play_time, dwc.wc->num_frames, dwc.wc->d1_frames, dwc.wc->open_sound, dwc.wc->close_sound, dwc.wc->flags, dwc.wc->filename, serial::pad<1>()));
+DEFINE_SERIAL_UDT_TO_MESSAGE(d1wclip, dwc, (dwc.wc->play_time, dwc.wc->num_frames, dwc.wc->d1_frames, dwc.wc->open_sound, serial::pad<1>(), dwc.wc->close_sound, serial::pad<1>(), dwc.wc->flags, dwc.wc->filename, serial::pad<1>()));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(d1wclip, 26 + (sizeof(int16_t) * MAX_CLIP_FRAMES_D1));
 
 }
@@ -1663,7 +1663,7 @@ void blast_nearby_glass(const object &objp, const fix damage)
 
 #endif
 
-DEFINE_SERIAL_UDT_TO_MESSAGE(wclip, wc, (wc.play_time, wc.num_frames, wc.frames, wc.open_sound, wc.close_sound, wc.flags, wc.filename, serial::pad<1>()));
+DEFINE_SERIAL_UDT_TO_MESSAGE(wclip, wc, (wc.play_time, wc.num_frames, wc.frames, wc.open_sound, serial::pad<1>(), wc.close_sound, serial::pad<1>(), wc.flags, wc.filename, serial::pad<1>()));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(wclip, 26 + (sizeof(int16_t) * MAX_CLIP_FRAMES));
 
 namespace dsx {

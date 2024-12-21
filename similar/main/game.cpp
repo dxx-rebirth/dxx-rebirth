@@ -2339,10 +2339,10 @@ bool FireLaser(player_info &player_info, const control_info &Controls)
 
 			if (Fusion_next_sound_time < GameTime64) {
 				if (Fusion_charge > F1_0*2) {
-					digi_play_sample( 11, F1_0 );
+					digi_play_sample(sound_effect::SOUND_BADASS_EXPLOSION, F1_0 );
 #if DXX_BUILD_DESCENT == 1
 					if(Game_mode & GM_MULTI)
-						multi_send_play_sound(11, F1_0, sound_stack::allow_stacking);
+						multi_send_play_sound(sound_effect::SOUND_BADASS_EXPLOSION, F1_0, sound_stack::allow_stacking);
 #endif
 					const auto cobjp = vmobjptridx(ConsoleObject);
 					apply_damage_to_player(cobjp, cobjp, d_rand() * 4, apply_damage_player::always);

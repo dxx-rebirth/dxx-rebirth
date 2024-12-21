@@ -843,8 +843,6 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 	{
 		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
 		{
-			int sn;
-
 #if DXX_BUILD_DESCENT == 2
 			const auto wid = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sidenum);
 			if (!(wid & WALL_IS_DOORWAY_FLAG::render))
@@ -853,7 +851,8 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 			const auto ec = get_eclip_for_tmap(TmapInfo, seg->unique_segment::sides[sidenum]);
 			if (ec != eclip_none)
 			{
-					if ((sn=Effects[ec].sound_num)!=-1) {
+				if (const auto sn{Effects[ec].sound_num}; sn != sound_effect::None)
+				{
 #if DXX_BUILD_DESCENT == 2
 						auto csegnum = seg->children[sidenum];
 
@@ -899,7 +898,7 @@ void create_player_appearance_effect(const d_vclip_array &Vclip, const object_ba
 		effect_obj->orient = player_obj.orient;
 
 		const auto sound_num = Vclip[vclip_index::player_appearance].sound_num;
-		if (sound_num > -1)
+		if (sound_num != sound_effect::None)
 			digi_link_sound_to_pos(sound_num, seg, sidenum_t::WLEFT, effect_obj->pos, 0, F1_0);
 	}
 }

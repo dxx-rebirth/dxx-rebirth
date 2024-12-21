@@ -358,7 +358,7 @@ static auto convert_audio(const std::span<const uint8_t> input, const std::size_
 #if DXX_FEATURE_EXTERNAL_RESAMPLER_SDL_NATIVE
 namespace sdl_native {
 
-static unique_span<uint8_t> convert_audio(const unsigned sound_idx, const std::span<const uint8_t> data, const int freq)
+static unique_span<uint8_t> convert_audio(const sound_effect sound_idx, const std::span<const uint8_t> data, const int freq)
 {
 	SDL_AudioCVT cvt;
 	if (SDL_BuildAudioCVT(&cvt, AUDIO_U8, 1, freq, MIX_OUTPUT_FORMAT, MIX_OUTPUT_CHANNELS, digi_sample_rate) == -1)
@@ -423,7 +423,7 @@ static std::array<RAIIMix_Chunk, MAX_SOUNDS> SoundChunks;
  * Play-time conversion. Performs output conversion only once per sound effect used.
  * Once the sound sample has been converted, it is cached in SoundChunks[]
  */
-static void mixdigi_convert_sound(const unsigned sound_idx, RAIIMix_Chunk &sci, const digi_sound &gs, const uint16_t freq)
+static void mixdigi_convert_sound(const sound_effect sound_idx, RAIIMix_Chunk &sci, const digi_sound &gs, const uint16_t freq)
 {
 	const auto data = gs.span();
 	if (data.empty())
@@ -497,7 +497,7 @@ static void mixdigi_convert_sound(const unsigned sound_idx, RAIIMix_Chunk &sci, 
 	sci.volume = 128; // Max volume = 128
 }
 
-static Mix_Chunk &mixdigi_convert_sound(const unsigned i)
+static Mix_Chunk &mixdigi_convert_sound(const sound_effect i)
 {
 	auto &sci = SoundChunks[i];
 	if (!sci.abuf)
@@ -517,12 +517,12 @@ static Mix_Chunk &mixdigi_convert_sound(const unsigned i)
 }
 
 // Volume 0-F1_0
-sound_channel digi_mixer_start_sound(short soundnum, const fix volume, const sound_pan pan, const int looping, const int loop_start, const int loop_end, sound_object *)
+sound_channel digi_mixer_start_sound(sound_effect soundnum, const fix volume, const sound_pan pan, const int looping, const int loop_start, const int loop_end, sound_object *)
 {
 	if (!digi_initialised)
 		return sound_channel::None;
 
-	if (soundnum < 0)
+	if (soundnum == sound_effect::None)
 		return sound_channel::None;
 
 	const unsigned max_channels = digi_mixer_max_channels;

@@ -840,7 +840,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 			object_create_explosion_without_damage(Vclip, segnum.absolute_sibling(obj->segnum), obj->pos, weapon_info.flash_size, flash_vclip);
 	}
 
-	if (weapon_info.flash_sound > -1)
+	if (weapon_info.flash_sound != sound_effect::None)
 	{
 		if (make_sound != weapon_sound_flag::silent)
 		{

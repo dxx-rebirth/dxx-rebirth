@@ -70,6 +70,6 @@ void digi_mixer_stop_all_channels();
 int digi_mixer_init();
 }
 namespace dsx {
-sound_channel digi_mixer_start_sound(short, fix, sound_pan, int, int, int, sound_object *);
+sound_channel digi_mixer_start_sound(sound_effect, fix, sound_pan, int, int, int, sound_object *);
 }
 #endif

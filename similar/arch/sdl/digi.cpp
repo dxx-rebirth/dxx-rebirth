@@ -68,7 +68,7 @@ struct sound_function_table_t
 	void (*close)();
 	void (*set_channel_volume)(sound_channel, int);
 	void (*set_channel_pan)(sound_channel, sound_pan);
-	sound_channel (*start_sound)(short, fix, sound_pan, int, int, int, sound_object *);
+	sound_channel (*start_sound)(sound_effect, fix, sound_pan, int, int, int, sound_object *);
 	void (*stop_sound)(sound_channel);
 	void (*end_sound)(sound_channel);
 	int  (*is_channel_playing)(sound_channel);
@@ -229,7 +229,7 @@ void digi_set_channel_pan(const sound_channel channel, const sound_pan pan)
 	fptr->set_channel_pan(channel, pan);
 }
 
-sound_channel digi_start_sound(const short soundnum, const fix volume, const sound_pan pan, const int looping, const int loop_start, const int loop_end, sound_object *const soundobj)
+sound_channel digi_start_sound(const sound_effect soundnum, const fix volume, const sound_pan pan, const int looping, const int loop_start, const int loop_end, sound_object *const soundobj)
 {
 	return fptr->start_sound(soundnum, volume, pan, looping, loop_start, loop_end, soundobj);
 }

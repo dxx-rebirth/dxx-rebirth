@@ -26,20 +26,21 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 #include "fwd-powerup.h"
 #include "pack.h"
+#include "sounds.h"
 
+#ifdef DXX_BUILD_DESCENT
 namespace dcx {
 
 struct powerup_type_info : public prohibit_void_ptr<powerup_type_info>
 {
 	vclip_index vclip_num;
-	int hit_sound;
+	sound_effect hit_sound;
 	fix size;       // 3d size of longest dimension
 	fix light;      // amount of light cast by this powerup, set in bitmaps.tbl
 };
 
 }
 
-#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 enum class powerup_type_t : uint8_t

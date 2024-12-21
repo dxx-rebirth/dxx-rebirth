@@ -178,8 +178,18 @@ enum sound_effect : uint8_t
 // I think it would be nice to have a scrape sound...
 //#define SOUND_PLAYER_SCRAPE_WALL                72
 
-extern std::array<uint8_t, ::d2x::MAX_SOUNDS> Sounds, AltSounds;
+extern std::array<sound_effect, ::d2x::MAX_SOUNDS> Sounds, AltSounds;
 }
+
+namespace dsx {
+
+static inline sound_effect build_sound_effect_from_untrusted(const uint8_t u)
+{
+	return u < MAX_SOUNDS ? sound_effect{u} : sound_effect::None;
+}
+
+}
+
 #endif
 
 #endif /* _SOUNDS_H */

@@ -347,7 +347,7 @@ static void do_weapon_n_item_stuff(object_array &Objects, control_info &Controls
 	{
 		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
 		auto &secondary_ammo = player_info.secondary_ammo;
-		int sound;
+		sound_effect sound;
 		if (!secondary_ammo[secondary_weapon_index_t::PROXIMITY_INDEX] && !secondary_ammo[secondary_weapon_index_t::SMART_MINE_INDEX])
 		{
 			HUD_init_message_literal(HM_DEFAULT, "No bombs available!");
@@ -2137,7 +2137,7 @@ static void do_cheat_menu(object &plrobj, grs_canvas &cv_canvas)
 #ifndef NDEBUG
 //	Sounds for testing
 __attribute_used
-static int Test_sound;
+static sound_effect Test_sound;
 
 static void play_test_sound()
 {

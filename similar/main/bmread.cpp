@@ -527,8 +527,8 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 	load_palette_for_pig(DEFAULT_PIG_PALETTE);		//special: tell palette code which pig is loaded
 #endif
 
-	Sounds.fill(255);
-	AltSounds.fill(255);
+	Sounds.fill(sound_effect::None);
+	AltSounds.fill(sound_effect::None);
 
 	DXX_MAKE_VAR_UNDEFINED(TmapInfo);
 	range_for (auto &ti, TmapInfo)
@@ -1335,14 +1335,15 @@ static void bm_read_sound(char *&arg, int skip, int pc_shareware)
 void bm_read_sound(int skip)
 #endif
 {
-	int alt_sound_num;
-
-	const int read_sound_num = get_int();
+	const int read_sound_num{get_int()};
+	const int alt_sound_num{
 #if DXX_BUILD_DESCENT == 1
-	alt_sound_num = pc_shareware ? read_sound_num : get_int();
-#elif DXX_BUILD_DESCENT == 2
-	alt_sound_num = get_int();
+		pc_shareware
+			? read_sound_num
+			:
 #endif
+		get_int()
+	};
 
 	if ( read_sound_num>=MAX_SOUNDS )
 		Error( "Too many sound files.\n" );
@@ -1357,19 +1358,19 @@ void bm_read_sound(int skip)
 
 	arg = strtok(NULL, space_tab);
 
-	Sounds[read_sound_num] = ds_load(skip, arg);
+	Sounds[read_sound_num] = build_sound_effect_from_untrusted(ds_load(skip, arg));
 
 	AltSounds[read_sound_num] = (
 		alt_sound_num == 0
-		? sound_num
+		? build_sound_effect_from_untrusted(sound_num)
 		: (
 			alt_sound_num < 0
-			? 255
-			: alt_sound_num
+			? sound_effect::None
+			: build_sound_effect_from_untrusted(alt_sound_num)
 		)
 	);
 
-	if (Sounds[read_sound_num] == 255)
+	if (Sounds[read_sound_num] == sound_effect::None)
 		Error("Can't load soundfile <%s>",arg);
 }
 
@@ -1502,17 +1503,17 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 	auto behavior = ai_behavior::AIB_NORMAL;
 	int companion{0}, smart_blobs=0, energy_blobs=0, badass=0, energy_drain=0, kamikaze=0, thief=0, pursuit=0, lightcast=0, death_roll=0;
 	fix glow{0}, aim=F1_0;
-	int			deathroll_sound = sound_effect::SOUND_BOSS_SHARE_DIE;	//default
-	int			taunt_sound = sound_effect::ROBOT_SEE_SOUND_DEFAULT;
+	auto deathroll_sound{sound_effect::SOUND_BOSS_SHARE_DIE};	//default
+	auto taunt_sound{sound_effect::ROBOT_SEE_SOUND_DEFAULT};
 	ubyte flags{0};
 #endif
 	int score_value{1000};
 	int cloak_type{0};		//	Default = this robot does not cloak
 	int attack_type{0};		//	Default = this robot attacks by firing (1=lunge)
 	boss_robot_id	boss_flag{};				//	Default = robot is not a boss.
-	int			see_sound = sound_effect::ROBOT_SEE_SOUND_DEFAULT;
-	int			attack_sound = sound_effect::ROBOT_ATTACK_SOUND_DEFAULT;
-	int			claw_sound = sound_effect::ROBOT_CLAW_SOUND_DEFAULT;
+	auto see_sound{sound_effect::ROBOT_SEE_SOUND_DEFAULT};
+	auto attack_sound{sound_effect::ROBOT_ATTACK_SOUND_DEFAULT};
+	auto claw_sound{sound_effect::ROBOT_CLAW_SOUND_DEFAULT};
 
 	assert(LevelSharedRobotInfoState.N_robot_types < MAX_ROBOT_TYPES);
 
@@ -1595,7 +1596,7 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 			} else if (!d_stricmp( arg, "death_roll" )) {
 				death_roll = atoi(equal_ptr);
 			} else if (!d_stricmp( arg, "deathroll_sound" )) {
-				deathroll_sound = atoi(equal_ptr);
+				deathroll_sound = static_cast<sound_effect>(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "thief" )) {
 				thief = atoi(equal_ptr);
 			} else if (!d_stricmp( arg, "kamikaze" )) {
@@ -1622,15 +1623,15 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 			} else if (!d_stricmp( arg, "score_value" )) {
 				score_value = atoi(equal_ptr);
 			} else if (!d_stricmp( arg, "see_sound" )) {
-				see_sound = atoi(equal_ptr);
+				see_sound = static_cast<sound_effect>(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "attack_sound" )) {
-				attack_sound = atoi(equal_ptr);
+				attack_sound = static_cast<sound_effect>(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "claw_sound" )) {
-				claw_sound = atoi(equal_ptr);
+				claw_sound = static_cast<sound_effect>(atoi(equal_ptr));
 			}
 #if DXX_BUILD_DESCENT == 2
 			else if (!d_stricmp( arg, "taunt_sound" )) {
-				taunt_sound = atoi(equal_ptr);
+				taunt_sound = static_cast<sound_effect>(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "aim" )) {
 				aim = fl2f(atof(equal_ptr));
 			} else if (!d_stricmp( arg, "big_radius" )) {
@@ -2393,7 +2394,7 @@ void bm_read_weapon(int skip, int unused_flag)
 			else if (!d_stricmp( arg, "flash_vclip" ))	{
 				Weapon_info[n].flash_vclip = build_vclip_index_from_untrusted(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "flash_sound" ))	{
-				Weapon_info[n].flash_sound = atoi(equal_ptr);
+				Weapon_info[n].flash_sound = static_cast<sound_effect>(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "flash_size" ))	{
 				Weapon_info[n].flash_size = fl2f(atof(equal_ptr));
 			} else if (!d_stricmp( arg, "blob_size" ))	{
@@ -2401,11 +2402,11 @@ void bm_read_weapon(int skip, int unused_flag)
 			} else if (!d_stricmp( arg, "robot_hit_vclip" ))	{
 				Weapon_info[n].robot_hit_vclip = build_vclip_index_from_untrusted(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "robot_hit_sound" ))	{
-				Weapon_info[n].robot_hit_sound = atoi(equal_ptr);
+				Weapon_info[n].robot_hit_sound = static_cast<sound_effect>(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "wall_hit_vclip" ))	{
 				Weapon_info[n].wall_hit_vclip = build_vclip_index_from_untrusted(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "wall_hit_sound" ))	{
-				Weapon_info[n].wall_hit_sound = atoi(equal_ptr);
+				Weapon_info[n].wall_hit_sound = static_cast<sound_effect>(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "impact_size" ))	{
 				Weapon_info[n].impact_size = fl2f(atof(equal_ptr));
 			} else if (!d_stricmp( arg, "lighted" ))	{
@@ -2551,7 +2552,7 @@ void bm_read_powerup(int unused_flag)
 			} else if (!d_stricmp( arg, "light" ))	{
 				pin.light = fl2f(atof(equal_ptr));
 			} else if (!d_stricmp( arg, "hit_sound" ))	{
-				pin.hit_sound = atoi(equal_ptr);
+				pin.hit_sound = static_cast<sound_effect>(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "name" )) {
 #if DXX_USE_EDITOR
 				const auto len = strlen(equal_ptr);

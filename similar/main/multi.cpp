@@ -2284,12 +2284,12 @@ static void multi_do_play_sound(object_array &Objects, const playernum_t pnum, c
 	if (plr.connected == player_connection_status::disconnected)
 		return;
 
-	const unsigned sound_num = buf[2];
+	const uint8_t sound_num{buf[2]};
 	const uint8_t once = buf[3];
 	const fix volume{GET_INTEL_INT<int32_t>(&buf[4])};
 
 	const auto objnum{plr.objnum};
-	digi_link_sound_to_object(sound_num, vcobjptridx(objnum), 0, volume, static_cast<sound_stack>(once));
+	digi_link_sound_to_object(static_cast<sound_effect>(sound_num), vcobjptridx(objnum), 0, volume, static_cast<sound_stack>(once));
 }
 
 }
@@ -3052,7 +3052,7 @@ void multi_send_create_powerup(const powerup_type_t powerup_type, const vcsegidx
 
 namespace {
 
-static void multi_digi_play_sample(const int soundnum, const fix max_volume, const sound_stack once)
+static void multi_digi_play_sample(const sound_effect soundnum, const fix max_volume, const sound_stack once)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
@@ -3063,19 +3063,19 @@ static void multi_digi_play_sample(const int soundnum, const fix max_volume, con
 
 }
 
-void multi_digi_play_sample_once(int soundnum, fix max_volume)
+void multi_digi_play_sample_once(const sound_effect soundnum, const fix max_volume)
 {
 	multi_digi_play_sample(soundnum, max_volume, sound_stack::cancel_previous);
 }
 
-void multi_digi_play_sample(int soundnum, fix max_volume)
+void multi_digi_play_sample(const sound_effect soundnum, const fix max_volume)
 {
 	multi_digi_play_sample(soundnum, max_volume, sound_stack::allow_stacking);
 }
 
 namespace dsx {
 
-void multi_digi_link_sound_to_pos(const int soundnum, const vcsegptridx_t segnum, const sidenum_t sidenum, const vms_vector &pos, const int forever, const fix max_volume)
+void multi_digi_link_sound_to_pos(const sound_effect soundnum, const vcsegptridx_t segnum, const sidenum_t sidenum, const vms_vector &pos, const int forever, const fix max_volume)
 {
 	if (Game_mode & GM_MULTI)
 		multi_send_play_sound(soundnum, max_volume, sound_stack::allow_stacking);
@@ -3084,7 +3084,7 @@ void multi_digi_link_sound_to_pos(const int soundnum, const vcsegptridx_t segnum
 
 }
 
-void multi_send_play_sound(const int sound_num, const fix volume, const sound_stack once)
+void multi_send_play_sound(const sound_effect sound_num, const fix volume, const sound_stack once)
 {
 	int count{0};
 	count += 1;
@@ -4299,8 +4299,8 @@ static void multi_do_sound_function(const playernum_t pnum, const multiplayer_rs
 		digi_kill_sound_linked_to_object(plobj);
 	else if (whichfunc==3)
 	{
-		const int sound = buf[3];
-		digi_link_sound_to_object3(sound, plobj, 1, F1_0, sound_stack::allow_stacking, vm_distance{i2f(256)}, AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END);
+		const uint8_t sound{buf[3]};
+		digi_link_sound_to_object3(static_cast<sound_effect>(sound), plobj, 1, F1_0, sound_stack::allow_stacking, vm_distance{i2f(256)}, AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END);
 	}
 }
 
@@ -5632,7 +5632,7 @@ void init_hoard_data(d_vclip_array &Vclip)
 	vcorb.num_frames = n_orb_frames;
 	vcorb.frame_time = vcorb.play_time / vcorb.num_frames;
 	vcorb.flags = 0;
-	vcorb.sound_num = -1;
+	vcorb.sound_num = sound_effect::None;
 	vcorb.light_value = F1_0;
 	for (auto &i : partial_range(vcorb.frames, n_orb_frames))
 	{
@@ -5647,7 +5647,7 @@ void init_hoard_data(d_vclip_array &Vclip)
 
 	//Create obj powerup
 	Powerup_info[powerup_type_t::POW_HOARD_ORB].vclip_num = orb_vclip;
-	Powerup_info[powerup_type_t::POW_HOARD_ORB].hit_sound = -1;
+	Powerup_info[powerup_type_t::POW_HOARD_ORB].hit_sound = sound_effect::None;
 	Powerup_info[powerup_type_t::POW_HOARD_ORB].size = Powerup_info[powerup_type_t::POW_SHIELD_BOOST].size;
 	Powerup_info[powerup_type_t::POW_HOARD_ORB].light = Powerup_info[powerup_type_t::POW_SHIELD_BOOST].light;
 
@@ -5736,9 +5736,7 @@ void init_hoard_data(d_vclip_array &Vclip)
 			len = PHYSFSX_readInt(ifile);    //get 22k len
 			PHYSFSX_fseek(ifile,len,SEEK_CUR);     //skip over 22k sample
 		}
-
-		Sounds[sound_effect::SOUND_YOU_GOT_ORB+i] = Num_sound_files+i;
-		AltSounds[sound_effect::SOUND_YOU_GOT_ORB+i] = Sounds[sound_effect::SOUND_YOU_GOT_ORB+i];
+		AltSounds[sound_effect::SOUND_YOU_GOT_ORB+i] = Sounds[sound_effect::SOUND_YOU_GOT_ORB+i] = static_cast<sound_effect>(Num_sound_files + i);
 	}
 }
 

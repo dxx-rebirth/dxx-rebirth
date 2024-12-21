@@ -368,7 +368,7 @@ static inline laser_level map_granted_flags_to_laser_level(const packed_spawn_gr
 player_flags map_granted_flags_to_player_flags(packed_spawn_granted_items grant);
 uint_fast32_t map_granted_flags_to_primary_weapon_flags(packed_spawn_granted_items grant);
 uint16_t map_granted_flags_to_vulcan_ammo(packed_spawn_granted_items grant);
-void multi_digi_link_sound_to_pos(int soundnum, vcsegptridx_t segnum, sidenum_t sidenum, const vms_vector &pos, int forever, fix max_volume);
+void multi_digi_link_sound_to_pos(sound_effect soundnum, vcsegptridx_t segnum, sidenum_t sidenum, const vms_vector &pos, int forever, fix max_volume);
 void multi_object_to_object_rw(const object &obj, object_rw *obj_rw);
 void multi_object_rw_to_object(const object_rw *obj_rw, object &obj);
 
@@ -450,8 +450,7 @@ static inline void multi_send_endlevel_start(multi_endlevel_type)
 void multi_send_player_deres(deres_type_t type);
 void multi_send_create_powerup(powerup_type_t powerup_type, vcsegidx_t segnum, vcobjidx_t objnum, const vms_vector &pos);
 }
-void multi_send_play_sound(int sound_num, fix volume, sound_stack once);
-#endif
+void multi_send_play_sound(sound_effect sound_num, fix volume, sound_stack once);
 void multi_send_reappear();
 void multi_send_create_explosion(playernum_t);
 void multi_send_controlcen_fire(const vms_vector &to_target, int gun_num, objnum_t objnum);
@@ -459,11 +458,10 @@ namespace dcx {
 void multi_send_cloak(void);
 void multi_send_decloak(void);
 }
-void multi_digi_play_sample(int sndnum, fix max_volume);
-void multi_digi_play_sample_once(int soundnum, fix max_volume);
+void multi_digi_play_sample(sound_effect sndnum, fix max_volume);
+void multi_digi_play_sample_once(sound_effect soundnum, fix max_volume);
 void multi_send_score(void);
 void multi_send_trigger(trgnum_t trigger);
-#ifdef DXX_BUILD_DESCENT
 #if DXX_BUILD_DESCENT == 2
 namespace dsx {
 void multi_send_flags(playernum_t);

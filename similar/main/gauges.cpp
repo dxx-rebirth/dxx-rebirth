@@ -2061,7 +2061,7 @@ static void common_add_points_to_score(const int points, int &score, const game_
 		get_local_player().lives += current_ship_score - previous_ship_score;
 		const auto &&m = TXT_EXTRA_LIFE;
 		powerup_basic_str(20, 20, 20, 0, {m, strlen(m)});
-		if (const auto snd = Powerup_info[powerup_type_t::POW_EXTRA_LIFE].hit_sound; snd > -1)
+		if (const auto snd{Powerup_info[powerup_type_t::POW_EXTRA_LIFE].hit_sound}; snd != sound_effect::None)
 			digi_play_sample( snd, F1_0 );
 	}
 }

@@ -1236,14 +1236,14 @@ void newdemo_record_viewer_object(const vcobjptridx_t obj)
 }
 }
 
-void newdemo_record_sound( int soundno )
+void newdemo_record_sound(const sound_effect soundno)
 {
 	pause_game_world_time p;
 	nd_write_byte(ND_EVENT_SOUND);
 	nd_write_int( soundno );
 }
 
-void newdemo_record_sound_3d_once(const int soundno, const sound_pan angle, const int volume)
+void newdemo_record_sound_3d_once(const sound_effect soundno, const sound_pan angle, const int volume)
 {
 	pause_game_world_time p;
 	nd_write_byte( ND_EVENT_SOUND_3D_ONCE );
@@ -1252,8 +1252,7 @@ void newdemo_record_sound_3d_once(const int soundno, const sound_pan angle, cons
 	nd_write_int( volume );
 }
 
-
-void newdemo_record_link_sound_to_object3( int soundno, objnum_t objnum, fix max_volume, fix  max_distance, int loop_start, int loop_end )
+void newdemo_record_link_sound_to_object3(const sound_effect soundno, objnum_t objnum, fix max_volume, fix  max_distance, int loop_start, int loop_end)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	pause_game_world_time p;
@@ -2245,7 +2244,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state == ND_STATE_PLAYBACK)
-				digi_play_sample( soundno, F1_0 );
+				digi_play_sample(static_cast<sound_effect>(soundno), F1_0);
 			}
 			break;
 
@@ -2264,7 +2263,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state == ND_STATE_PLAYBACK)
-				digi_play_sample_3d(soundno, sound_pan{angle}, volume);
+				digi_play_sample_3d(static_cast<sound_effect>(soundno), sound_pan{angle}, volume);
 			}
 			break;
 
@@ -2283,7 +2282,7 @@ static int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state == ND_STATE_PLAYBACK)
-				digi_play_sample_3d(soundno, sound_pan{angle}, volume);
+				digi_play_sample_3d(static_cast<sound_effect>(soundno), sound_pan{angle}, volume);
 			}
 			break;
 
@@ -2309,7 +2308,7 @@ static int newdemo_read_frame_information(int rewrite)
 				}
 				auto objnum = newdemo_find_object(object_signature_t{static_cast<uint16_t>(signature)});
 				if ( objnum != object_none && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
-					digi_link_sound_to_object3(soundno, objnum, 1, max_volume, sound_stack::allow_stacking, vm_distance{max_distance}, loop_start, loop_end);
+					digi_link_sound_to_object3(static_cast<sound_effect>(soundno), objnum, 1, max_volume, sound_stack::allow_stacking, vm_distance{max_distance}, loop_start, loop_end);
 				}
 			}
 			break;

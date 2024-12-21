@@ -235,7 +235,7 @@ window_event_result do_countdown_frame()
 	if (f2i(old_time + F1_0 * 7 / 8) != Countdown_seconds_left)
 	{
 		if (Countdown_seconds_left >= 0 && Countdown_seconds_left < 10)
-			digi_play_sample(sound_effect::SOUND_COUNTDOWN_0_SECS + Countdown_seconds_left, F3_0);
+			digi_play_sample(static_cast<sound_effect>(static_cast<unsigned>(sound_effect::SOUND_COUNTDOWN_0_SECS) + Countdown_seconds_left), F3_0);
 		if (Countdown_seconds_left == LevelUniqueControlCenterState.Total_countdown_time - 1)
 			digi_play_sample( sound_effect::SOUND_COUNTDOWN_29_SECS, F3_0 );
 	}						

@@ -2176,7 +2176,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	for (const auto &w : Walls.vcptr)
 	{
 		if (w.type == WALL_OPEN)
-			digi_kill_sound_linked_to_segment(w.segnum,w.sidenum,-1);	//-1 means kill any sound
+			digi_kill_sound_linked_to_segment(w.segnum, w.sidenum, sound_effect::None);	// sound_effect::None means kill any sound
 	}
 
 	//Restore exploding wall info

@@ -285,8 +285,8 @@ struct wclip : public prohibit_void_ptr<wclip>
 		std::array<uint16_t, MAX_CLIP_FRAMES> frames;
 		std::array<uint16_t, MAX_CLIP_FRAMES_D1> d1_frames;
 	};
-	short   open_sound;
-	short   close_sound;
+	sound_effect open_sound;
+	sound_effect close_sound;
 	short   flags;
 	std::array<char, 13> filename;
 };

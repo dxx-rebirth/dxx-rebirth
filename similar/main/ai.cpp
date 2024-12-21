@@ -2533,7 +2533,7 @@ namespace {
 //	General purpose robot-dies-with-death-roll-and-groan code.
 //	Return true if object just died.
 //	scale: F1_0*4 for boss, much smaller for much smaller guys
-static int do_robot_dying_frame(const vmobjptridx_t objp, fix64 start_time, fix roll_duration, sbyte *dying_sound_playing, int death_sound, fix expl_scale, fix sound_scale)
+static int do_robot_dying_frame(const vmobjptridx_t objp, fix64 start_time, fix roll_duration, sbyte *dying_sound_playing, const sound_effect death_sound, fix expl_scale, fix sound_scale)
 {
 	fix	sound_duration;
 

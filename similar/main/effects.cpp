@@ -180,7 +180,7 @@ void restart_effect(int effect_num)
 }
 
 DEFINE_VCLIP_SERIAL_UDT();
-DEFINE_SERIAL_UDT_TO_MESSAGE(eclip, ec, (ec.vc, ec.time_left, ec.frame_count, ec.changing_wall_texture, ec.changing_object_texture, ec.flags, ec.crit_clip, ec.dest_bm_num, ec.dest_vclip, serial::pad<3>(), ec.dest_eclip, ec.dest_size, ec.sound_num, ec.segnum, serial::pad<2>(), ec.sidenum, serial::pad<3>()));
+DEFINE_SERIAL_UDT_TO_MESSAGE(eclip, ec, (ec.vc, ec.time_left, ec.frame_count, ec.changing_wall_texture, ec.changing_object_texture, ec.flags, ec.crit_clip, ec.dest_bm_num, ec.dest_vclip, serial::pad<3>(), ec.dest_eclip, ec.dest_size, ec.sound_num, serial::pad<3>(), ec.segnum, serial::pad<2>(), ec.sidenum, serial::pad<3>()));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(eclip, 130);
 
 /*

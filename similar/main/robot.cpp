@@ -225,10 +225,10 @@ void robot_info_read(const NamedPHYSFS_File fp, robot_info &ri)
 		j = PHYSFSX_readByte(fp);
 
 	ri.exp1_vclip_num = build_vclip_index_from_untrusted(PHYSFSX_readShort(fp));
-	ri.exp1_sound_num = PHYSFSX_readShort(fp);
+	ri.exp1_sound_num = build_sound_effect_from_untrusted(PHYSFSX_readShort(fp));
 
 	ri.exp2_vclip_num = build_vclip_index_from_untrusted(PHYSFSX_readShort(fp));
-	ri.exp2_sound_num = PHYSFSX_readShort(fp);
+	ri.exp2_sound_num = build_sound_effect_from_untrusted(PHYSFSX_readShort(fp));
 
 #if DXX_BUILD_DESCENT == 1
 	ri.weapon_type = static_cast<weapon_id_type>(PHYSFSX_readShort(fp));
@@ -287,11 +287,11 @@ void robot_info_read(const NamedPHYSFS_File fp, robot_info &ri)
 	ri.boss_flag = (boss_flag == static_cast<uint8_t>(boss_robot_id::d1_1) || boss_flag == static_cast<uint8_t>(boss_robot_id::d1_superboss)) ? boss_robot_id{boss_flag} : boss_robot_id::None;
 #endif
 
-	ri.see_sound = PHYSFSX_readByte(fp);
-	ri.attack_sound = PHYSFSX_readByte(fp);
-	ri.claw_sound = PHYSFSX_readByte(fp);
+	ri.see_sound = build_sound_effect_from_untrusted(PHYSFSX_readByte(fp));
+	ri.attack_sound = build_sound_effect_from_untrusted(PHYSFSX_readByte(fp));
+	ri.claw_sound = build_sound_effect_from_untrusted(PHYSFSX_readByte(fp));
 #if DXX_BUILD_DESCENT == 2
-	ri.taunt_sound = PHYSFSX_readByte(fp);
+	ri.taunt_sound = build_sound_effect_from_untrusted(PHYSFSX_readByte(fp));
 
 	const uint8_t boss_flag = PHYSFSX_readByte(fp);
 	ri.boss_flag = (boss_flag == static_cast<uint8_t>(boss_robot_id::d1_1) || boss_flag == static_cast<uint8_t>(boss_robot_id::d1_superboss) || Boss_spew_more.valid_index(build_boss_robot_index_from_boss_robot_id(boss_robot_id{boss_flag}))) ? boss_robot_id{boss_flag} : boss_robot_id::None;
@@ -307,7 +307,7 @@ void robot_info_read(const NamedPHYSFS_File fp, robot_info &ri)
 	ri.flags = PHYSFSX_readByte(fp);
 	PHYSFSX_skipBytes<3>(fp);
 
-	ri.deathroll_sound = PHYSFSX_readByte(fp);
+	ri.deathroll_sound = build_sound_effect_from_untrusted(PHYSFSX_readByte(fp));
 	ri.glow = PHYSFSX_readByte(fp);
 	ri.behavior = static_cast<ai_behavior>(PHYSFSX_readByte(fp));
 	ri.aim = PHYSFSX_readByte(fp);

@@ -1268,8 +1268,6 @@ void init_smega_detonates()
 	LevelUniqueSeismicState.Earthshaker_detonate_times = {};
 }
 
-constexpr std::integral_constant<int, sound_effect::SOUND_SEISMIC_DISTURBANCE_START> Seismic_sound{};
-
 namespace {
 
 static void start_seismic_sound()
@@ -1277,7 +1275,7 @@ static void start_seismic_sound()
 	if (LevelUniqueSeismicState.Next_seismic_sound_time)
 		return;
 	LevelUniqueSeismicState.Next_seismic_sound_time = GameTime64 + d_rand()/2;
-	digi_play_sample_looping(Seismic_sound, F1_0, -1, -1);
+	digi_play_sample_looping(sound_effect::SOUND_SEISMIC_DISTURBANCE_START, F1_0, -1, -1);
 }
 
 static void apply_seismic_effect(const int entry_fc)
@@ -1840,8 +1838,8 @@ void postprocess_udt(auto && /* accessor */, v2_weapon_info &w)
 	w.hires_picture = w.picture;
 }
 
-DEFINE_SERIAL_UDT_TO_MESSAGE(v2_weapon_info, w, (w.render, w.persistent, w.model_num, serial::pad<1>(), w.model_num_inner, serial::pad<1>(), w.flash_vclip, w.robot_hit_vclip, w.flash_sound, w.wall_hit_vclip, w.fire_count, w.robot_hit_sound, w.ammo_usage, w.weapon_vclip, w.wall_hit_sound, w.destroyable, w.matter, w.bounce, w.homing_flag, w.speedvar, w.flags, w.flash, w.afterburner_size, w.energy_usage, w.fire_wait, w.bitmap, w.blob_size, w.flash_size, w.impact_size, w.strength, w.speed, w.mass, w.drag, w.thrust, w.po_len_to_width_ratio, w.light, w.lifetime, w.damage_radius, w.picture));
-DEFINE_SERIAL_UDT_TO_MESSAGE(weapon_info, w, (w.render, w.persistent, w.model_num, serial::pad<1>(), w.model_num_inner, serial::pad<1>(), w.flash_vclip, w.robot_hit_vclip, w.flash_sound, w.wall_hit_vclip, w.fire_count, w.robot_hit_sound, w.ammo_usage, w.weapon_vclip, w.wall_hit_sound, w.destroyable, w.matter, w.bounce, w.homing_flag, w.speedvar, w.flags, w.flash, w.afterburner_size, w.children, w.energy_usage, w.fire_wait, w.multi_damage_scale, w.bitmap, w.blob_size, w.flash_size, w.impact_size, w.strength, w.speed, w.mass, w.drag, w.thrust, w.po_len_to_width_ratio, w.light, w.lifetime, w.damage_radius, w.picture, w.hires_picture));
+DEFINE_SERIAL_UDT_TO_MESSAGE(v2_weapon_info, w, (w.render, w.persistent, w.model_num, serial::pad<1>(), w.model_num_inner, serial::pad<1>(), w.flash_vclip, w.robot_hit_vclip, w.flash_sound, serial::pad<1>(), w.wall_hit_vclip, w.fire_count, w.robot_hit_sound, serial::pad<1>(), w.ammo_usage, w.weapon_vclip, w.wall_hit_sound, serial::pad<1>(), w.destroyable, w.matter, w.bounce, w.homing_flag, w.speedvar, w.flags, w.flash, w.afterburner_size, w.energy_usage, w.fire_wait, w.bitmap, w.blob_size, w.flash_size, w.impact_size, w.strength, w.speed, w.mass, w.drag, w.thrust, w.po_len_to_width_ratio, w.light, w.lifetime, w.damage_radius, w.picture));
+DEFINE_SERIAL_UDT_TO_MESSAGE(weapon_info, w, (w.render, w.persistent, w.model_num, serial::pad<1>(), w.model_num_inner, serial::pad<1>(), w.flash_vclip, w.robot_hit_vclip, w.flash_sound, serial::pad<1>(), w.wall_hit_vclip, w.fire_count, w.robot_hit_sound, serial::pad<1>(), w.ammo_usage, w.weapon_vclip, w.wall_hit_sound, serial::pad<1>(), w.destroyable, w.matter, w.bounce, w.homing_flag, w.speedvar, w.flags, w.flash, w.afterburner_size, w.children, w.energy_usage, w.fire_wait, w.multi_damage_scale, w.bitmap, w.blob_size, w.flash_size, w.impact_size, w.strength, w.speed, w.mass, w.drag, w.thrust, w.po_len_to_width_ratio, w.light, w.lifetime, w.damage_radius, w.picture, w.hires_picture));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(weapon_info, 125);
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(v2_weapon_info, 118);
 #endif

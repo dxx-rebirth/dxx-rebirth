@@ -99,7 +99,7 @@ enumerated_array<polygon_model_index, MAX_POLYGON_MODELS, polygon_model_index> D
 //right now there's only one player ship, but we can have another by
 //adding an array and setting the pointer to the active ship.
 namespace dcx {
-std::array<uint8_t, ::d2x::MAX_SOUNDS> Sounds, AltSounds;
+std::array<sound_effect, ::d2x::MAX_SOUNDS> Sounds, AltSounds;
 player_ship only_player_ship;
 
 //----------------- Miscellaneous bitmap pointers ---------------

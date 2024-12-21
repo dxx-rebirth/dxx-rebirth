@@ -113,7 +113,7 @@ void do_powerup_frame(const d_vclip_array &Vclip, const vmobjptridx_t obj)
 	if (obj->lifeleft <= 0) {
 		object_create_explosion_without_damage(Vclip, vmsegptridx(obj->segnum), obj->pos, F1_0 * 7 / 2, vclip_index::powerup_disappearance);
 
-		if (const auto sound_num = Vclip[vclip_index::powerup_disappearance].sound_num; sound_num > -1)
+		if (const auto sound_num{Vclip[vclip_index::powerup_disappearance].sound_num}; sound_num != sound_effect::None)
 			digi_link_sound_to_object(sound_num, obj, 0, F1_0, sound_stack::allow_stacking);
 	}
 }
@@ -705,7 +705,7 @@ int do_powerup(const vmobjptridx_t obj)
 
 	if (used || special_used)
 	{
-		if (const auto hit_sound = Powerup_info[id].hit_sound; hit_sound > -1)
+		if (const auto hit_sound{Powerup_info[id].hit_sound}; hit_sound != sound_effect::None)
 			multi_digi_play_sample(hit_sound, F1_0);
 		detect_escort_goal_accomplished(obj);
 	}
@@ -715,7 +715,7 @@ int do_powerup(const vmobjptridx_t obj)
 }
 }
 
-DEFINE_SERIAL_UDT_TO_MESSAGE(powerup_type_info, pti, (pti.vclip_num, serial::pad<3>(), pti.hit_sound, pti.size, pti.light));
+DEFINE_SERIAL_UDT_TO_MESSAGE(powerup_type_info, pti, (pti.vclip_num, serial::pad<3>(), pti.hit_sound, serial::pad<3>(), pti.size, pti.light));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(powerup_type_info, 16);
 
 namespace dcx {

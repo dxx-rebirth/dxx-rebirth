@@ -1527,8 +1527,8 @@ void do_explosion_sequence(const d_robot_info_array &Robot_info, object &obj)
 		}
 
 		auto &robptr{Robot_info[get_robot_id(del_obj)]};
-		if (robptr.exp2_sound_num > -1)
-			digi_link_sound_to_pos(robptr.exp2_sound_num, vmsegptridx(del_obj->segnum), sidenum_t::WLEFT, spawn_pos, 0, F1_0);
+		if (const auto exp2_sound_num{robptr.exp2_sound_num}; exp2_sound_num != sound_effect::None)
+			digi_link_sound_to_pos(exp2_sound_num, vmsegptridx(del_obj->segnum), sidenum_t::WLEFT, spawn_pos, 0, F1_0);
 			//PLAY_SOUND_3D( Robot_info[del_obj->id].exp2_sound_num, spawn_pos, del_obj->segnum  );
 
 		obj.ctype.expl_info.spawn_time = -1;

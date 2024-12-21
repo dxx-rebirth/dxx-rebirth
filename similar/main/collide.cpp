@@ -643,8 +643,6 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 			if (force_blowup_flag || (bm->bm_data[y*bm->bm_w+x] != TRANSPARENCY_COLOR))
 #endif
 			{		//not trans, thus on effect
-				int sound_num;
-
 #if DXX_BUILD_DESCENT == 2
 				if ((Game_mode & GM_MULTI) && Netgame.AlwaysLighting)
 					if (!(ec != eclip_none && db != -1 && !(Effects[ec].flags & EF_ONE_SHOT)))
@@ -682,10 +680,10 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 #endif
 				{
 
-					if ((sound_num = Vclip[vc].sound_num) != -1)
+					if (const auto sound_num{Vclip[vc].sound_num}; sound_num != sound_effect::None)
 		  				digi_link_sound_to_pos( sound_num, seg, sidenum_t::WLEFT, pnt,  0, F1_0 );
 
-					if ((sound_num=Effects[ec].sound_num)!=-1)		//kill sound
+					if (const auto sound_num{Effects[ec].sound_num}; sound_num != sound_effect::None)		//kill sound
 						digi_kill_sound_linked_to_segment(seg,side,sound_num);
 
 					if (Effects[ec].dest_eclip!=-1 && Effects[Effects[ec].dest_eclip].segnum == segment_none)
@@ -931,8 +929,8 @@ static window_event_result collide_weapon_and_wall(
 			//if it's not the player's weapon, or it is the player's and there
 			//is no wall, and no blowing up monitor, then play sound
 			if ((weapon->ctype.laser_info.parent_type != OBJ_PLAYER) ||	((hitseg->shared_segment::sides[hitwall].wall_num == wall_none || wall_type == wall_hit_process_t::WHP_NOT_SPECIAL) && !blew_up))
-				if ((Weapon_info[get_weapon_id(weapon)].wall_hit_sound > -1 ) && (!(weapon->flags & OF_SILENT)))
-				digi_link_sound_to_pos(Weapon_info[get_weapon_id(weapon)].wall_hit_sound, vmsegptridx(weapon->segnum), sidenum_t::WLEFT, weapon->pos, 0, F1_0);
+				if (const auto wall_hit_sound{Weapon_info[get_weapon_id(weapon)].wall_hit_sound}; wall_hit_sound != sound_effect::None && !(weapon->flags & OF_SILENT))
+					digi_link_sound_to_pos(wall_hit_sound, vmsegptridx(weapon->segnum), sidenum_t::WLEFT, weapon->pos, 0, F1_0);
 
 			if (const auto wall_hit_vclip = Weapon_info[get_weapon_id(weapon)].wall_hit_vclip; Vclip.valid_index(wall_hit_vclip))
 			{
@@ -985,7 +983,7 @@ static window_event_result collide_weapon_and_wall(
 					case wall_hit_process_t::WHP_BLASTABLE:
 						//play special blastable wall sound (if/when we get it)
 #if DXX_BUILD_DESCENT == 2
-						if ((Weapon_info[get_weapon_id(weapon)].wall_hit_sound > -1 ) && (!(weapon->flags & OF_SILENT)))
+						if (Weapon_info[get_weapon_id(weapon)].wall_hit_sound != sound_effect::None && !(weapon->flags & OF_SILENT))
 #endif
 							digi_link_sound_to_pos(sound_effect::SOUND_WEAPON_HIT_BLASTABLE, vmsegptridx(weapon->segnum), sidenum_t::WLEFT, weapon->pos, 0, F1_0);
 						break;
@@ -1764,8 +1762,8 @@ static void collide_robot_and_weapon(const d_robot_info_array &Robot_info, const
 		if (damage_flag == boss_weapon_collision_result::normal)
 #endif
 		{
-			if (robptr.exp1_sound_num > -1)
-				digi_link_sound_to_pos(robptr.exp1_sound_num, vcsegptridx(robot->segnum), sidenum_t::WLEFT, collision_point, 0, F1_0);
+			if (const auto exp1_sound_num{robptr.exp1_sound_num}; exp1_sound_num != sound_effect::None)
+				digi_link_sound_to_pos(exp1_sound_num, vcsegptridx(robot->segnum), sidenum_t::WLEFT, collision_point, 0, F1_0);
 			fix	damage = weapon->shields;
 
 				damage = fixmul(damage, weapon->ctype.laser_info.multiplier);

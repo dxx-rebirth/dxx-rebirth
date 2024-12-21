@@ -76,7 +76,7 @@ struct sound_object
 	int			volume;			// Volume that this sound is playing at
 	sound_pan	pan;				// Pan value that this sound is playing at
 	sound_channel channel;			// What channel this is playing on, sound_channel::None if not playing
-	short			soundnum;		// The sound number that is playing
+	sound_effect soundnum;		// The sound number that is playing
 	int			loop_start;		// The start point of the loop. -1 means no loop
 	int			loop_end;		// The end point of the loop
 	union link {
@@ -158,37 +158,35 @@ static std::pair<sound_objects_t::iterator, sound_objects_t::iterator> find_soun
 namespace dsx {
 
 /* Find the sound which actually equates to a sound number */
-int digi_xlat_sound(int soundno)
+sound_effect digi_xlat_sound(sound_effect soundno)
 {
-	if (soundno < 0)
-		return -1;
+	if (soundno == sound_effect::None)
+		return sound_effect::None;
 
 	if (CGameArg.SysLowMem)
 	{
 		soundno = AltSounds[soundno];
-		if (soundno == 255)
-			return -1;
+		if (soundno == sound_effect::None)
+			return soundno;
 	}
 
 	//Assert(Sounds[soundno] != 255);	//if hit this, probably using undefined sound
-	if (Sounds[soundno] == 255)
-		return -1;
-
 	return Sounds[soundno];
 }
 
 namespace {
 
-static int digi_unxlat_sound(int soundno)
+static sound_effect digi_unxlat_sound(const sound_effect soundno)
 {
-	if ( soundno < 0 ) return -1;
+	if (soundno == sound_effect::None)
+		return soundno;
 
 	auto &table = (CGameArg.SysLowMem ? AltSounds : Sounds);
 	auto b = std::begin(table);
 	auto e = std::end(table);
 	auto i = std::find(b, e, soundno);
 	if (i != e)
-		return std::distance(b, i);
+		return static_cast<sound_effect>(std::distance(b, i));
 	throw std::invalid_argument("sound not loaded");
 }
 
@@ -232,41 +230,35 @@ static void digi_update_sound_loc(const vms_matrix &listener, const vms_vector &
 
 }
 
-void digi_play_sample_once( int soundno, fix max_volume )
+void digi_play_sample_once(sound_effect soundno, fix max_volume)
 {
 	if ( Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_sound( soundno );
 
 	soundno = digi_xlat_sound(soundno);
 
-	if (soundno < 0 ) return;
-
    // start the sample playing
 	digi_start_sound(soundno, max_volume, sound_pan{0x7fff}, 0, -1, -1, sound_object_none);
 }
 
-void digi_play_sample( int soundno, fix max_volume )
+void digi_play_sample(sound_effect soundno, fix max_volume)
 {
 	if ( Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_sound( soundno );
 
 	soundno = digi_xlat_sound(soundno);
 
-	if (soundno < 0 ) return;
-
    // start the sample playing
 	digi_start_sound(soundno, max_volume, sound_pan{0x7fff}, 0, -1, -1, sound_object_none);
 }
 
-void digi_play_sample_3d(int soundno, const sound_pan angle, int volume)
+void digi_play_sample_3d(sound_effect soundno, const sound_pan angle, int volume)
 {
 	if ( Newdemo_state == ND_STATE_RECORDING )		{
 			newdemo_record_sound_3d_once( soundno, angle, volume );
 	}
 
 	soundno = digi_xlat_sound(soundno);
-
-	if (soundno < 0 ) return;
 
 	if (volume < 10 ) return;
 
@@ -305,7 +297,7 @@ namespace {
 // if loop_start is -1, entire sample loops
 // Returns the channel that sound is playing on, or -1 if can't play.
 // This could happen because of no sound drivers loaded or not enough channels.
-static int digi_looping_sound = -1;
+static sound_effect digi_looping_sound{sound_effect::None};
 static int digi_looping_volume;
 static int digi_looping_start = -1;
 static int digi_looping_end = -1;
@@ -313,17 +305,18 @@ static sound_channel digi_looping_channel = sound_channel::None;
 
 static void digi_play_sample_looping_sub()
 {
-	if ( digi_looping_sound > -1 )
-		digi_looping_channel  = digi_start_sound( digi_looping_sound, digi_looping_volume, sound_pan{0x7fff}, 1, digi_looping_start, digi_looping_end, sound_object_none);
+	if (const auto s{digi_looping_sound}; s != sound_effect::None)
+		digi_looping_channel = digi_start_sound(s, digi_looping_volume, sound_pan{0x7fff}, 1, digi_looping_start, digi_looping_end, sound_object_none);
 }
 
 }
 
-void digi_play_sample_looping( int soundno, fix max_volume,int loop_start, int loop_end )
+void digi_play_sample_looping(sound_effect soundno, fix max_volume,int loop_start, int loop_end)
 {
 	soundno = digi_xlat_sound(soundno);
 
-	if (soundno < 0 ) return;
+	if (soundno == sound_effect::None)
+		return;
 
 	if (digi_looping_channel != sound_channel::None)
 		digi_stop_sound( digi_looping_channel );
@@ -358,7 +351,7 @@ static void digi_pause_looping_sound()
 
 void digi_stop_looping_sound()
 {
-	digi_looping_sound = -1;
+	digi_looping_sound = sound_effect::None;
 	digi_pause_looping_sound();
 }
 
@@ -404,7 +397,7 @@ static void digi_start_sound_object(sound_object &s)
 		N_active_sound_objects++;
 }
 
-static void digi_link_sound_common(const object_base &viewer, sound_object &so, const vms_vector &pos, const int forever, const fix max_volume, const vm_distance max_distance, const int soundnum, const vcsegptridx_t segnum)
+static void digi_link_sound_common(const object_base &viewer, sound_object &so, const vms_vector &pos, const int forever, const fix max_volume, const vm_distance max_distance, const sound_effect soundnum, const vcsegptridx_t segnum)
 {
 	so.signature=next_signature++;
 	if ( forever )
@@ -434,18 +427,16 @@ static void digi_link_sound_common(const object_base &viewer, sound_object &so, 
 
 }
 
-void digi_link_sound_to_object3(const unsigned org_soundnum, const vcobjptridx_t objnum, const uint8_t forever, const fix max_volume, const sound_stack once, const vm_distance max_distance, const int loop_start, const int loop_end)
+void digi_link_sound_to_object3(const sound_effect org_soundnum, const vcobjptridx_t objnum, const uint8_t forever, const fix max_volume, const sound_stack once, const vm_distance max_distance, const int loop_start, const int loop_end)
 {
 	auto &viewer = *Viewer;
-	int soundnum;
-
-	soundnum = digi_xlat_sound(org_soundnum);
+	const auto soundnum{digi_xlat_sound(org_soundnum)};
 
 	if (max_volume < 0)
 		return;
 //	if ( max_volume > F1_0 ) max_volume = F1_0;
 
-	if (soundnum < 0)
+	if (soundnum == sound_effect::None)
 		return;
 	if (!GameSounds[soundnum].data)
 	{
@@ -476,30 +467,28 @@ void digi_link_sound_to_object3(const unsigned org_soundnum, const vcobjptridx_t
 	digi_link_sound_common(viewer, so, objnum->pos, forever, max_volume, max_distance, soundnum, vcsegptridx(objnum->segnum));
 }
 
-void digi_link_sound_to_object2(const unsigned soundnum, const vcobjptridx_t objnum, const uint8_t forever, const fix max_volume, const sound_stack once, const vm_distance max_distance)
+void digi_link_sound_to_object2(const sound_effect soundnum, const vcobjptridx_t objnum, const uint8_t forever, const fix max_volume, const sound_stack once, const vm_distance max_distance)
 {
 	digi_link_sound_to_object3(soundnum, objnum, forever, max_volume, once, max_distance, -1, -1);
 }
 
-void digi_link_sound_to_object(const unsigned soundnum, const vcobjptridx_t objnum, const uint8_t forever, const fix max_volume, const sound_stack once)
+void digi_link_sound_to_object(const sound_effect soundnum, const vcobjptridx_t objnum, const uint8_t forever, const fix max_volume, const sound_stack once)
 {
 	digi_link_sound_to_object2(soundnum, objnum, forever, max_volume, once, vm_distance{256*F1_0});
 }
 
 namespace {
 
-static void digi_link_sound_to_pos2(const int org_soundnum, const vcsegptridx_t segnum, const sidenum_t sidenum, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance)
+static void digi_link_sound_to_pos2(const sound_effect org_soundnum, const vcsegptridx_t segnum, const sidenum_t sidenum, const vms_vector &pos, int forever, fix max_volume, const vm_distance max_distance)
 {
 	auto &viewer = *Viewer;
-	int soundnum;
-
-	soundnum = digi_xlat_sound(org_soundnum);
+	const auto soundnum{digi_xlat_sound(org_soundnum)};
 
 	if (max_volume < 0)
 		return;
 //	if ( max_volume > F1_0 ) max_volume = F1_0;
 
-	if (soundnum < 0)
+	if (soundnum == sound_effect::None)
 		return;
 	if (!GameSounds[soundnum].data)
 	{
@@ -528,20 +517,21 @@ static void digi_link_sound_to_pos2(const int org_soundnum, const vcsegptridx_t 
 
 }
 
-void digi_link_sound_to_pos(const unsigned soundnum, const vcsegptridx_t segnum, const sidenum_t sidenum, const vms_vector &pos, const int forever, const fix max_volume)
+void digi_link_sound_to_pos(const sound_effect soundnum, const vcsegptridx_t segnum, const sidenum_t sidenum, const vms_vector &pos, const int forever, const fix max_volume)
 {
 	digi_link_sound_to_pos2(soundnum, segnum, sidenum, pos, forever, max_volume, vm_distance{F1_0 * 256});
 }
 
 //if soundnum==-1, kill any sound
-void digi_kill_sound_linked_to_segment(const vmsegidx_t segnum, const sidenum_t sidenum, int soundnum)
+void digi_kill_sound_linked_to_segment(const vmsegidx_t segnum, const sidenum_t sidenum, sound_effect soundnum)
 {
-	if (soundnum != -1)
+	if (soundnum != sound_effect::None)
 		soundnum = digi_xlat_sound(soundnum);
 	range_for (auto &i, SoundObjects)
 	{
 		if ( (i.flags & SOF_USED) && (i.flags & SOF_LINK_TO_POS) )	{
-			if ((i.link_type.pos.segnum == segnum) && (i.link_type.pos.sidenum==sidenum) && (soundnum==-1 || i.soundnum==soundnum ))	{
+			if ((i.link_type.pos.segnum == segnum) && (i.link_type.pos.sidenum==sidenum) && (soundnum == sound_effect::None || i.soundnum==soundnum))
+			{
 				digi_kill_sound(i);
 			}
 		}
@@ -764,7 +754,7 @@ namespace {
 struct sound_q
 {
 	fix64 time_added;
-	int soundnum;
+	sound_effect soundnum;
 };
 
 #define MAX_LIFE F1_0*30		// After being queued for 30 seconds, don't play it
@@ -820,13 +810,14 @@ void SoundQ_process()
 }
 }
 
-void digi_start_sound_queued( short soundnum, fix volume )
+void digi_start_sound_queued(sound_effect soundnum, fix volume)
 {
 	int i;
 
 	soundnum = digi_xlat_sound(soundnum);
 
-	if (soundnum < 0 ) return;
+	if (soundnum == sound_effect::None)
+		return;
 
 	i = SoundQ_tail+1;
 	if (i >= SoundQ.size())

@@ -102,19 +102,19 @@ extern int digi_init();
 extern void digi_close();
 
 // Volume is max at F1_0.
-extern void digi_play_sample( int sndnum, fix max_volume );
-extern void digi_play_sample_once( int sndnum, fix max_volume );
+void digi_play_sample(sound_effect sndnum, fix max_volume);
+void digi_play_sample_once(sound_effect sndnum, fix max_volume);
 #ifdef DXX_BUILD_DESCENT
-void digi_link_sound_to_object(unsigned soundnum, vcobjptridx_t objnum, uint8_t forever, fix max_volume, sound_stack once);
-void digi_kill_sound_linked_to_segment(vmsegidx_t segnum, sidenum_t sidenum, int soundnum);
-void digi_link_sound_to_pos(unsigned soundnum, vcsegptridx_t segnum, sidenum_t sidenum, const vms_vector &pos, int forever, fix max_volume);
+void digi_link_sound_to_object(sound_effect soundnum, vcobjptridx_t objnum, uint8_t forever, fix max_volume, sound_stack once);
+void digi_kill_sound_linked_to_segment(vmsegidx_t segnum, sidenum_t sidenum, sound_effect soundnum);
+void digi_link_sound_to_pos(sound_effect soundnum, vcsegptridx_t segnum, sidenum_t sidenum, const vms_vector &pos, int forever, fix max_volume);
 // Same as above, but you pass the max distance sound can be heard.  The old way uses f1_0*256 for max_distance.
-void digi_link_sound_to_object2(unsigned soundnum, vcobjptridx_t objnum, uint8_t forever, fix max_volume, sound_stack once, vm_distance max_distance);
-void digi_link_sound_to_object3(unsigned soundnum, vcobjptridx_t objnum, uint8_t forever, fix max_volume, sound_stack once, vm_distance max_distance, int loop_start, int loop_end);
+void digi_link_sound_to_object2(sound_effect soundnum, vcobjptridx_t objnum, uint8_t forever, fix max_volume, sound_stack once, vm_distance max_distance);
+void digi_link_sound_to_object3(sound_effect soundnum, vcobjptridx_t objnum, uint8_t forever, fix max_volume, sound_stack once, vm_distance max_distance, int loop_start, int loop_end);
 void digi_kill_sound_linked_to_object(vcobjptridx_t);
 #endif
 
-void digi_play_sample_3d(int soundno, sound_pan angle, int volume); // Volume from 0-0x7fff
+void digi_play_sample_3d(sound_effect soundno, sound_pan angle, int volume); // Volume from 0-0x7fff
 
 extern void digi_init_sounds();
 extern void digi_sync_sounds();
@@ -124,13 +124,13 @@ extern void digi_set_digi_volume( int dvolume );
 extern void digi_pause_digi_sounds();
 extern void digi_resume_digi_sounds();
 
-extern int digi_xlat_sound(int soundno);
+sound_effect digi_xlat_sound(sound_effect soundno);
 
 void digi_stop_sound(sound_channel channel);
 
 // Volume 0-F1_0
 constexpr sound_object *sound_object_none = nullptr;
-sound_channel digi_start_sound(short soundnum, fix volume, sound_pan pan, int looping, int loop_start, int loop_end, sound_object *);
+sound_channel digi_start_sound(sound_effect soundnum, fix volume, sound_pan pan, int looping, int loop_start, int loop_end, sound_object *);
 
 // Stops all sounds that are playing
 void digi_stop_all_channels();
@@ -142,12 +142,12 @@ void digi_set_channel_pan(sound_channel channel, sound_pan pan);
 void digi_set_channel_volume(sound_channel channel, int volume);
 int digi_is_channel_playing(sound_channel channel);
 
-extern void digi_play_sample_looping( int soundno, fix max_volume,int loop_start, int loop_end );
+void digi_play_sample_looping(sound_effect soundno, fix max_volume,int loop_start, int loop_end );
 extern void digi_change_looping_volume( fix volume );
 extern void digi_stop_looping_sound();
 
 // Plays a queued voice sound.
-extern void digi_start_sound_queued( short soundnum, fix volume );
+void digi_start_sound_queued(sound_effect soundnum, fix volume);
 
 // Following declarations are for the runtime switching system
 

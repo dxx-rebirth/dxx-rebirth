@@ -96,8 +96,8 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	uint16_t score_value;						//	Score from this robot.
 	vclip_index exp1_vclip_num;
 	vclip_index exp2_vclip_num;
-	short   exp1_sound_num;
-	short   exp2_sound_num;
+	sound_effect exp1_sound_num;
+	sound_effect exp2_sound_num;
 	weapon_id_type weapon_type;
 	uint8_t   n_guns;         // how many different gun positions
 	sbyte   contains_prob;  //  Probability that this instance will contain something in N/16
@@ -130,12 +130,12 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	sbyte   cloak_type;     //  0=never, 1=always, 2=except-when-firing
 	sbyte   attack_type;    //  0=firing, 1=charge (like green guy)
 
-	ubyte   see_sound;      //  sound robot makes when it first sees the player
-	ubyte   attack_sound;   //  sound robot makes when it attacks the player
-	ubyte   claw_sound;     //  sound robot makes as it claws you (attack_type should be 1)
+	sound_effect see_sound;      //  sound robot makes when it first sees the player
+	sound_effect attack_sound;   //  sound robot makes when it attacks the player
+	sound_effect claw_sound;     //  sound robot makes as it claws you (attack_type should be 1)
 	boss_robot_id boss_flag;      //  0 = not boss, 1 = boss.  Is that surprising?
 #if DXX_BUILD_DESCENT == 2
-	ubyte   taunt_sound;    //  sound robot makes after you die
+	sound_effect taunt_sound;    //  sound robot makes after you die
 
 	sbyte   companion;      //  Companion robot, leads you to things.
 	sbyte   smart_blobs;    //  how many smart blobs are emitted when this guy dies!
@@ -149,7 +149,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	//boss_flag, companion, thief, & pursuit probably should also be bits in the flags byte.
 	ubyte   flags;          // misc properties
 
-	ubyte   deathroll_sound;    // if has deathroll, what sound?
+	sound_effect deathroll_sound;    // if has deathroll, what sound?
 	ubyte   glow;               // apply this light to robot itself. stored as 4:4 fixed-point
 	ai_behavior behavior;           //  Default behavior.
 	ubyte   aim;                //  255 = perfect, less = more likely to miss.  0 != random, would look stupid.  0=45 degree spread.  Specify in bitmaps.tbl in range 0.0..1.0
@@ -255,9 +255,9 @@ static inline void boss_link_see_sound(const d_robot_info_array &Robot_info, con
 {
 #if DXX_BUILD_DESCENT == 1
 	(void)Robot_info;
-	constexpr unsigned soundnum = sound_effect::SOUND_BOSS_SHARE_SEE;
+	constexpr auto soundnum{sound_effect::SOUND_BOSS_SHARE_SEE};
 #elif DXX_BUILD_DESCENT == 2
-	const unsigned soundnum = Robot_info[get_robot_id(objp)].see_sound;
+	const auto soundnum{Robot_info[get_robot_id(objp)].see_sound};
 #endif
 	digi_link_sound_to_object2(soundnum, objp, 1, F1_0, sound_stack::allow_stacking, vm_distance{F1_0*512});	//	F1_0*512 means play twice as loud
 }

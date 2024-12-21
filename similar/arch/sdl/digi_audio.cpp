@@ -97,7 +97,7 @@ constexpr uint8_t mix8[] =
 static int digi_initialised = 0;
 
 struct sound_slot {
-	int soundno;
+	sound_effect soundno;
 	bool playing;   // Is there a sample playing on this channel?
 	bool looped;    // Play this sample looped?
 	bool persistent; // This can't be pre-empted
@@ -247,12 +247,12 @@ void digi_audio_stop_all_channels()
 
 
 // Volume 0-F1_0
-sound_channel digi_audio_start_sound(short soundnum, fix volume, sound_pan pan, int looping, int, int, sound_object *const soundobj)
+sound_channel digi_audio_start_sound(sound_effect soundnum, fix volume, sound_pan pan, int looping, int, int, sound_object *const soundobj)
 {
 	if (!digi_initialised)
 		return sound_channel::None;
 
-	if (soundnum < 0)
+	if (soundnum == sound_effect::None)
 		return sound_channel::None;
 
 	RAII_SDL_LockAudio lock_audio{};
