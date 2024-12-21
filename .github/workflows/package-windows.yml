@@ -30,15 +30,23 @@ jobs:
 
       - name: Clone Repository
         uses: actions/checkout@v4
+        path: src
+
+      - name: Collect architecture
+        id: architecture
+        run: |
+          printf 'uname_m=%s\n' "$(uname -m)" >> "$GITHUB_OUTPUT"
 
       - name: Configure and Build
+        working-directory: src
         run: scons -j`nproc`
 
       - name: Package
-        run: ./contrib/packaging/windows/build_package.sh
+        working-directory: src
+        run: ./contrib/packaging/windows/build_package.sh -o .. -z ''
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: windows
-          path: '*.zip'
+          name: "DXX-Rebirth-Windows-${{ steps.architecture.outputs.uname_m }}.zip"
+          path: 'D*X-Rebirth/'

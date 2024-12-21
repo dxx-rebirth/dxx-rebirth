@@ -1,10 +1,23 @@
 #!/bin/bash
 set -eux -o pipefail
 
-arch=$(uname -m)
-outdir="./tmp"
+unset outdir zip_filename
+
+while getopts oz OPTNAME; do
+	case "$OPTNAME" in
+		o)
+			outdir="$OPTARG"
+			;;
+		z)
+			zip_filename="$OPTARG"
+			;;
+	esac
+done
+
+[[ -v outdir ]] || outdir='tmp'
 
 build_app() {
+	local name prettyname
     name="$1"
     prettyname="$2"
     
@@ -31,6 +44,12 @@ build_app() {
 build_app "d1x-rebirth" "D1X-Rebirth"
 build_app "d2x-rebirth" "D2X-Rebirth"
 
-# Consolidate both apps into a single zip file
-cd "${outdir}"
-zip -r -X "../DXX-Rebirth-Win-${arch}.zip" "D1X-Rebirth" "D2X-Rebirth"
+if ! [[ -v zip_filename ]]; then
+	zip_filename="../DXX-Rebirth-Windows-$(uname -m).zip"
+fi
+
+if [[ -n "$zip_filename" ]]; then
+	# Consolidate both apps into a single zip file
+	cd "${outdir}"
+	zip -r -X "$zip_filename" "D1X-Rebirth" "D2X-Rebirth"
+fi
