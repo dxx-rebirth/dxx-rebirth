@@ -120,6 +120,11 @@ public:
 	}
 	[[nodiscard]]
 	difference_type operator-(const xrange_iterator &i) const
+		requires(
+			requires(index_type i) {
+				i - i;
+			}
+		)
 	{
 		return m_idx - i.m_idx;
 	}
@@ -129,17 +134,46 @@ public:
 		return m_idx;
 	}
 	xrange_iterator &operator++()
+		requires(
+			std::same_as<step_type, xrange_ascending> &&
+			requires(index_type i) {
+				++ i;
+			}
+		)
 	{
-		if constexpr (std::is_same<step_type, xrange_ascending>::value)
-			++ m_idx;
-		else if constexpr (std::is_same<step_type, xrange_descending>::value)
-			-- m_idx;
-		else
-			m_idx += step_type::value;
+		++ m_idx;
+		return *this;
+	}
+	xrange_iterator &operator++()
+		requires(
+			std::same_as<step_type, xrange_descending> &&
+			requires(index_type i) {
+				-- i;
+			}
+		)
+	{
+		-- m_idx;
+		return *this;
+	}
+	xrange_iterator &operator++()
+		requires(
+			!std::same_as<step_type, xrange_ascending> &&
+			!std::same_as<step_type, xrange_descending> &&
+			requires(index_type i) {
+				i += step_type::value;
+			}
+		)
+	{
+		m_idx += step_type::value;
 		return *this;
 	}
 	[[nodiscard]]
 	xrange_iterator operator++(int)
+		requires(
+			requires(xrange_iterator i) {
+				++ i;
+			}
+		)
 	{
 		auto r = *this;
 		++ *this;
