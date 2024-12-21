@@ -74,9 +74,9 @@ struct enumerated_array : std::array<T, N>
 		return s < N ? std::optional(static_cast<E>(s)) : std::nullopt;
 	}
 	[[nodiscard]]
-	static constexpr bool valid_index(E e)
+	static constexpr std::optional<E> valid_index(E e)
 	{
-		return static_cast<std::size_t>(e) < N;
+		return static_cast<std::size_t>(e) < N ? std::optional{e} : std::nullopt;
 	}
 };
 
