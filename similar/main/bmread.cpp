@@ -180,12 +180,12 @@ static char 		*dest_bm;		//clip number to play when destroyed
 }
 namespace dcx {
 namespace {
-static short 		sound_num;
+static sound_effect sound_num;
+static sound_effect wall_open_sound, wall_close_sound;
 static float 		play_time;
 static int			hit_sound = -1;
 static int 			abm_flag = 0;
 static int 			rod_flag = 0;
-static short		wall_open_sound, wall_close_sound;
 static float		vlighting=0;
 static int			obj_eclip;
 static vclip_index	dest_vclip;		//what vclip to play when exploding
@@ -685,14 +685,14 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 				dest_size=-1;
 				crit_clip=-1;
 				crit_flag=0;
-				sound_num=sound_none;
+				sound_num = sound_effect::None;
 			}
 			else IFTOK("$WCLIP")
 			{
 				current_bm_type = bm_type::wclip;
 				vlighting = 0;
 				clip_count = 0;
-				wall_open_sound=wall_close_sound=sound_none;
+				wall_open_sound = wall_close_sound = sound_effect::None;
 				wall_explodes_flag = 0;
 				wall_blastable_flag = 0;
 				tmap1_flag=0;
@@ -750,7 +750,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 			else IFTOK("dest_size")			dest_size = fl2f(get_float());
 			else IFTOK("crit_clip")			crit_clip = get_int();
 			else IFTOK("crit_flag")			crit_flag = get_int();
-			else IFTOK("sound_num") 		sound_num = get_int();
+			else IFTOK("sound_num") 		sound_num = static_cast<sound_effect>(get_int());
 			else IFTOK("frames") 			frames = get_int();
 			else IFTOK("time") 				play_time = get_float();
 			else IFTOK("obj_eclip")			obj_eclip = get_int();
@@ -760,8 +760,8 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 			else IFTOK("vlighting")			vlighting = get_float();
 			else IFTOK("rod_flag")			rod_flag = get_int();
 			else IFTOK("superx") 			get_int();
-			else IFTOK("open_sound") 		wall_open_sound = get_int();
-			else IFTOK("close_sound") 		wall_close_sound = get_int();
+			else IFTOK("open_sound") 		wall_open_sound = static_cast<sound_effect>(get_int());
+			else IFTOK("close_sound") 		wall_close_sound = static_cast<sound_effect>(get_int());
 			else IFTOK("explodes")	 		wall_explodes_flag = get_int() ? WCF_EXPLODES : 0;
 			else IFTOK("blastable")	 		wall_blastable_flag = get_int() ? WCF_BLASTABLE : 0;
 			else IFTOK("hidden")	 		wall_hidden_flag = get_int() ? WCF_HIDDEN : 0;
@@ -1485,9 +1485,9 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 	int			first_bitmap_num[MAX_MODEL_VARIANTS];
 	char			*equal_ptr;
 	auto exp1_vclip_num{vclip_index::None};
-	int exp1_sound_num = sound_none;
+	auto exp1_sound_num{sound_effect::None};
 	auto exp2_vclip_num{vclip_index::None};
-	int exp2_sound_num = sound_none;
+	auto exp2_sound_num{sound_effect::None};
 	fix			lighting = F1_0/2;		// Default
 	fix			strength = F1_0*10;		// Default strength
 	fix			mass = f1_0*4;
@@ -1550,9 +1550,9 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 			} else if (!d_stricmp( arg, "exp2_vclip" ))	{
 				exp2_vclip_num = build_vclip_index_from_untrusted(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "exp1_sound" ))	{
-				exp1_sound_num = atoi(equal_ptr);
+				exp1_sound_num = static_cast<sound_effect>(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "exp2_sound" ))	{
-				exp2_sound_num = atoi(equal_ptr);
+				exp2_sound_num = static_cast<sound_effect>(atoi(equal_ptr));
 			} else if (!d_stricmp( arg, "lighting" ))	{
 				lighting = fl2f(atof(equal_ptr));
 				if ( (lighting < 0) || (lighting > F1_0 )) {
@@ -2256,9 +2256,9 @@ void bm_read_weapon(int skip, int unused_flag)
 	Weapon_info[n].flash_sound = sound_effect::SOUND_LASER_FIRED;
 	Weapon_info[n].flash_size = 0;
 	Weapon_info[n].robot_hit_vclip = vclip_index::None;
-	Weapon_info[n].robot_hit_sound = sound_none;
+	Weapon_info[n].robot_hit_sound = sound_effect::None;
 	Weapon_info[n].wall_hit_vclip = vclip_index::None;
-	Weapon_info[n].wall_hit_sound = sound_none;
+	Weapon_info[n].wall_hit_sound = sound_effect::None;
 	Weapon_info[n].impact_size = 0;
 	for (auto &i : Weapon_info[n].strength)
 		i = F1_0;
@@ -2527,7 +2527,7 @@ void bm_read_powerup(int unused_flag)
 	auto &pin = Powerup_info[pn];
 	pin.light = F1_0 / 3;		//	Default lighting value.
 	pin.vclip_num = vclip_index::None;
-	pin.hit_sound = sound_none;
+	pin.hit_sound = sound_effect::None;
 	pin.size = DEFAULT_POWERUP_SIZE;
 #if DXX_USE_EDITOR
 	auto &name = Powerup_names[pn];

@@ -172,6 +172,7 @@ enum sound_effect : uint8_t
 	SOUND_OPPONENT_GOT_ORB = 86,
 	SOUND_OPPONENT_HAS_SCORED = 87,
 	/* endif */
+	None = UINT8_MAX,
 };
 
 // I think it would be nice to have a scrape sound...
@@ -179,8 +180,6 @@ enum sound_effect : uint8_t
 
 extern std::array<uint8_t, ::d2x::MAX_SOUNDS> Sounds, AltSounds;
 }
-
-constexpr std::integral_constant<int, -1> sound_none{};
 #endif
 
 #endif /* _SOUNDS_H */
