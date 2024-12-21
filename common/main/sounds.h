@@ -64,12 +64,11 @@ namespace dcx {
 	 * used only for one game are unnecessarily defined in the other,
 	 * and then ignored.
 	 *
-	 * The values of sound_effect are used to index Sounds.  A uint8_t
-	 * would be sufficient to hold all values, but unsigned is used
-	 * since a uint8_t would need to be zero-extended before it could be
-	 * used in an array lookup.
+	 * The values of sound_effect are used to index Sounds.  Some existing
+	 * structures use a uint8_t to store a value that is interpreted as a
+	 * sound_effect, so use uint8_t as the underlying type for sound_effect.
 	 */
-enum sound_effect : unsigned
+enum sound_effect : uint8_t
 {
 	SOUND_LASER_FIRED = 10,
 	SOUND_BADASS_EXPLOSION = 11,  // need something different for this if possible
