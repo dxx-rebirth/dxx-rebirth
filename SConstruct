@@ -247,6 +247,7 @@ class _ConfigureTests:
 
 class ConfigureTests(_ConfigureTests):
 	class Collector(_ConfigureTests.Collector):
+		tests: collections.abc.MutableSequence[collections.abc.Callable[['ConfigureTest'], None]]
 		def __init__(self):
 			# An unguarded collector maintains a list of tests, and adds
 			# to the list as the decorator is called on individual
@@ -255,7 +256,8 @@ class ConfigureTests(_ConfigureTests):
 			super().__init__(tests.append)
 
 	class GuardedCollector(_ConfigureTests.Collector):
-		def __init__(self,collector,guard):
+		__guard: tuple[collections.abc.Callable[['UserSettings'], bool]]
+		def __init__(self, collector, guard: collections.abc.Callable[['UserSettings'], bool]):
 			# A guarded collector delegates to the list maintained by
 			# the input collector, instead of keeping a list of its own.
 			super().__init__(collector.record)
@@ -273,6 +275,9 @@ class ConfigureTests(_ConfigureTests):
 
 	class CxxRequiredFeature:
 		__slots__ = ('main', 'name', 'text')
+		name: str
+		text: str
+		main: str
 		def __init__(self, name: str, text: str, main: str = ''):
 			self.name = name
 			# Avoid generating consecutive underscores if the input
@@ -284,15 +289,18 @@ class ConfigureTests(_ConfigureTests):
 			self.text = text % name
 			self.main = f'{{{(main % name)}}}\n' if main else ''
 	class Cxx11RequiredFeature(CxxRequiredFeature):
-		std = 11
+		std: int = 11
 	class Cxx14RequiredFeature(CxxRequiredFeature):
-		std = 14
+		std: int = 14
 	class Cxx17RequiredFeature(CxxRequiredFeature):
-		std = 17
+		std: int = 17
 	class Cxx20RequiredFeature(CxxRequiredFeature):
-		std = 20
+		std: int = 20
 	class CxxRequiredFeatures:
 		__slots__ = ('features', 'main', 'text')
+		features: list['CxxRequiredFeature']
+		main: str
+		text: str
 		def __init__(self, features: list['CxxRequiredFeature']):
 			self.features = features
 			s = '/* C++{} {} */\n{}'.format
@@ -2876,9 +2884,10 @@ scons: dylibbundler stderr: {p.err!r}
 
 ConfigureTests.register_preferred_compiler_options()
 
+@dataclass(eq=False, slots=True)
 class LazyObjectConstructor:
 	class LazyObjectState:
-		def __init__(self,sources,transform_env=None,StaticObject_hook=None,transform_target=None):
+		def __init__(self, sources: collections.abc.Sequence[str], transform_env=None, StaticObject_hook=None, transform_target=None):
 			# `sources` must be non-empty, since it would have no use if
 			# it was empty.
 			#
@@ -2900,9 +2909,9 @@ class LazyObjectConstructor:
 		def transform_target(_, name, _splitext=os.path.splitext):
 			return _splitext(name)[0]
 
-	def __lazy_objects(self,source,
+	def __lazy_objects(self, source: collections.abc.Sequence[LazyObjectState],
 			cache={}
-		):
+		) -> tuple['SCons.Environment.StaticObject']:
 		env = self.env
 		# Use id because name needs to be hashable and have a 1-to-1
 		# mapping to source.
@@ -2933,14 +2942,14 @@ class LazyObjectConstructor:
 			cache[name] = value = tuple(value)
 		return value
 
-	def create_lazy_object_states_getter(states,__lazy_objects=__lazy_objects):
+	def create_lazy_object_states_getter(states: collections.abc.Sequence[LazyObjectState], __lazy_objects=__lazy_objects):
 		def get_objects(self):
 			return __lazy_objects(self, states)
 		return get_objects
 
 	@staticmethod
-	def create_lazy_object_getter(sources,LazyObjectState=LazyObjectState,create_lazy_object_states_getter=create_lazy_object_states_getter):
-		return create_lazy_object_states_getter((LazyObjectState(sources=sources),))
+	def create_lazy_object_getter(sources: collections.abc.Sequence[str], __LazyObjectState=LazyObjectState, __create_lazy_object_states_getter=create_lazy_object_states_getter):
+		return __create_lazy_object_states_getter((__LazyObjectState(sources=sources),))
 
 	create_lazy_object_states_getter = staticmethod(create_lazy_object_states_getter)
 
@@ -2970,19 +2979,22 @@ class PCHManager:
 	class ScannedFile:
 		candidates: defaultdict(set)
 
-	syspch_cpp_filename = None
-	ownpch_cpp_filename = None
-	syspch_object_node = None
-	ownpch_object_node = None
-	required_pch_object_node = None
+	syspch_cpp_filename: str | None = None
+	ownpch_cpp_filename: str | None = None
+	syspch_object_node: typing.Union['StaticObject', None] = None
+	ownpch_object_node: typing.Union['StaticObject', None] = None
+	required_pch_object_node: typing.Union['StaticObject', None] = None
 
 	# Compile on first use, so that non-PCH builds skip the compile
-	_re_preproc_match = None
-	_re_include_match = None
-	_re_singleline_comments_sub = None
+	_re_preproc_match: collections.abc.Callable[[bytes], 're.Match'] = None
+	_re_include_match: collections.abc.Callable[[bytes], 're.Match'] = None
+	_re_singleline_comments_sub: collections.abc.Callable[[bytes, bytes], bytes]  = None
 	# Source files are tracked at class scope because all builds share
 	# the same source tree.
 	_cls_scanned_files: dict[str, ScannedFile] = None
+
+	_instance_scanned_files: dict['fs.File', ScannedFile]
+	pch_CXXFLAGS: list[str]
 
 	# Import required modules when the first PCHManager is created.
 	@classmethod
@@ -3487,12 +3499,11 @@ class PCHManager:
 
 class DXXCommon(LazyObjectConstructor):
 	# version number
-	VERSION_MAJOR = 0
-	VERSION_MINOR = 61
-	VERSION_MICRO = 0
-	DXX_VERSION_SEQ = ','.join([str(VERSION_MAJOR), str(VERSION_MINOR), str(VERSION_MICRO)])
+	VERSION_MAJOR: typing.Final[int] = 0
+	VERSION_MINOR: typing.Final[int] = 61
+	VERSION_MICRO: typing.Final[int] = 0
+	DXX_VERSION_SEQ: typing.Final[str] = ','.join([str(VERSION_MAJOR), str(VERSION_MINOR), str(VERSION_MICRO)])
 	pch_manager = None
-	runtime_test_boost_tests = None
 	# dict compilation_database_dict_fn_to_entries:
 	#	key: str: name of JSON file to which the data will be written
 	#	value: tuple: (SCons.Environment, list_of_entries_to_write)
@@ -3508,9 +3519,12 @@ class DXXCommon(LazyObjectConstructor):
 	# compile its source files.
 	compilation_database_dict_fn_to_entries: dict[str, tuple[SCons.Environment, list]] = {}
 
+	@dataclass(eq=False)
 	class RuntimeTest(LazyObjectConstructor):
-		nodefaultlibs = True
-		def __init__(self,target,source):
+		target: str
+		source: collections.abc.Sequence[str]
+		nodefaultlibs: bool = True
+		def __init__(self, target: str, source: collections.abc.Sequence[str]):
 			self.target = target
 			self.source = LazyObjectConstructor.create_lazy_object_getter(source)
 
@@ -3544,12 +3558,12 @@ class DXXCommon(LazyObjectConstructor):
 				except ValueError:
 					raise SCons.Errors.UserError(f'Invalid value for unsigned-integer-only option {key}: {value}.')
 		# Paths for the Videocore libs/includes on the Raspberry Pi
-		RPI_DEFAULT_VC_PATH='/opt/vc'
-		default_OGLES_LIB = 'GLES_CM'
-		default_EGL_LIB = 'EGL'
-		_default_prefix = '/usr/local'
-		__stdout_is_not_a_tty = None
-		__has_git_dir = None
+		RPI_DEFAULT_VC_PATH: str = '/opt/vc'
+		default_OGLES_LIB: str = 'GLES_CM'
+		default_EGL_LIB: str = 'EGL'
+		_default_prefix: str = '/usr/local'
+		__stdout_is_not_a_tty: bool | None = None
+		__has_git_dir: bool | None = None
 		def default_poison(self):
 			return 'overwrite' if self.debug else 'none'
 		def default_builddir(self):
@@ -4641,11 +4655,13 @@ class DXXCommon(LazyObjectConstructor):
 			LIBS.append('boost_unit_test_framework')
 			env.Program(target=builddir.File(test.target), source=test.source(self), LIBS=LIBS)
 
+	runtime_test_boost_tests: collections.abc.Sequence[RuntimeTest] = None
+
 class DXXArchive(DXXCommon):
-	PROGRAM_NAME = 'DXX-Archive'
+	PROGRAM_NAME: typing.Final[str] = 'DXX-Archive'
 	_argument_prefix_list = None
-	srcdir = 'common'
-	target = 'dxx-common'
+	srcdir: typing.Final[str] = 'common'
+	target: typing.Final[str] = 'dxx-common'
 	RuntimeTest = DXXCommon.RuntimeTest
 	runtime_test_boost_tests = (
 		RuntimeTest('test-enumerate', (
@@ -4897,7 +4913,7 @@ SConf test results
 
 class DXXProgram(DXXCommon):
 	LazyObjectState = DXXCommon.LazyObjectState
-	def _generate_kconfig_ui_table(program,env,source,target,kconfig_static_object):
+	def _generate_kconfig_ui_table(program, env, source: typing.Final[str], target, kconfig_static_object: 'StaticObject') -> None:
 			builddir = program.builddir.Dir(program.target)
 			# Bypass ccache, if any, since this is a preprocess only
 			# call.
@@ -5455,11 +5471,12 @@ Failed command list:
 
 class D1XProgram(DXXProgram):
 	LazyObjectState = DXXProgram.LazyObjectState
-	PROGRAM_NAME = 'D1X-Rebirth'
-	target = \
-	srcdir = 'd1x-rebirth'
-	shortname = 'd1x'
-	env_CPPDEFINES = ('DXX_BUILD_DESCENT', 1),
+	PROGRAM_NAME: typing.Final[str] = 'D1X-Rebirth'
+	target: typing.Final[str]
+	srcdir: typing.Final[str] = 'd1x-rebirth'
+	target = srcdir
+	shortname: typing.Final[str] = 'd1x'
+	env_CPPDEFINES: typing.Final[tuple] = ('DXX_BUILD_DESCENT', 1),
 
 	# general source files
 	def get_objects_common(self,
@@ -5484,7 +5501,7 @@ class D1XProgram(DXXProgram):
 		transform_target=DXXProgram._apply_target_name,
 	),
 	))
-		):
+		) -> collections.abc.MutableSequence['StaticObject']:
 		value = __get_dxx_objects_common(self)
 		value.extend(__get_dsx_objects_common(self))
 		return value
@@ -5495,18 +5512,19 @@ class D1XProgram(DXXProgram):
 		__get_dsx_objects_editor=DXXCommon.create_lazy_object_getter((
 'd1x-rebirth/editor/ehostage.cpp',
 ),
-	)):
+	)) -> collections.abc.MutableSequence['StaticObject']:
 		value = list(__get_dxx_objects_editor(self))
 		value.extend(__get_dsx_objects_editor(self))
 		return value
 
 class D2XProgram(DXXProgram):
 	LazyObjectState = DXXProgram.LazyObjectState
-	PROGRAM_NAME = 'D2X-Rebirth'
-	target = \
-	srcdir = 'd2x-rebirth'
-	shortname = 'd2x'
-	env_CPPDEFINES = ('DXX_BUILD_DESCENT', 2),
+	PROGRAM_NAME: typing.Final[str] = 'D2X-Rebirth'
+	target: typing.Final[str]
+	srcdir: typing.Final[str] = 'd2x-rebirth'
+	target = srcdir
+	shortname: typing.Final[str] = 'd2x'
+	env_CPPDEFINES: typing.Final[tuple] = ('DXX_BUILD_DESCENT', 2),
 
 	# general source files
 	def get_objects_common(self,
@@ -5520,7 +5538,7 @@ class D2XProgram(DXXProgram):
 'd2x-rebirth/main/escort.cpp',
 'd2x-rebirth/main/gamepal.cpp',
 'd2x-rebirth/main/movie.cpp',
-	))):
+	))) -> collections.abc.MutableSequence['StaticObject']:
 		value = __get_dxx_objects_common(self)
 		value.extend(__get_dsx_objects_common(self))
 		return value
@@ -5536,12 +5554,12 @@ class D2XProgram(DXXProgram):
 ),
 		transform_target=DXXProgram._apply_target_name,
 		),
-		))):
+		))) -> collections.abc.MutableSequence['StaticObject']:
 		value = list(__get_dxx_objects_editor(self))
 		value.extend(__get_dsx_objects_editor(self))
 		return value
 
-def register_program(program,other_program,variables,filtered_help,append,_itertools_product=itertools.product):
+def register_program(program, other_program, variables, filtered_help, append, _itertools_product=itertools.product) -> None:
 	s = program.shortname
 	l = [v for (k,v) in ARGLIST if k == s or k == 'dxx'] or (other_program.shortname not in ARGUMENTS,)
 	# Legacy case: build one configuration.
