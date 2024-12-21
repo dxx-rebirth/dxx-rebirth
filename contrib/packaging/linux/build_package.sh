@@ -19,7 +19,7 @@ build_appimage() {
     prettyname="$2"
 
     # Package!
-    export OUTPUT="${prettyname}.AppImage"
+    OUTPUT="${prettyname}.AppImage"	\
     "./linuxdeploy-$arch.AppImage" \
         --output appimage \
         --appdir="${name}.appdir" \
