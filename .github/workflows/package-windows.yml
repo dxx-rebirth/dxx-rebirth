@@ -30,7 +30,8 @@ jobs:
 
       - name: Clone Repository
         uses: actions/checkout@v4
-        path: src
+        with:
+          path: src
 
       - name: Collect architecture
         id: architecture
