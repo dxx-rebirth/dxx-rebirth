@@ -1359,12 +1359,15 @@ void bm_read_sound(int skip)
 
 	Sounds[read_sound_num] = ds_load(skip, arg);
 
-	if ( alt_sound_num == 0 )
-		AltSounds[read_sound_num] = sound_num;
-	else if (alt_sound_num < 0 )
-		AltSounds[read_sound_num] = 255;
-	else
-		AltSounds[read_sound_num] = alt_sound_num;
+	AltSounds[read_sound_num] = (
+		alt_sound_num == 0
+		? sound_num
+		: (
+			alt_sound_num < 0
+			? 255
+			: alt_sound_num
+		)
+	);
 
 	if (Sounds[read_sound_num] == 255)
 		Error("Can't load soundfile <%s>",arg);
