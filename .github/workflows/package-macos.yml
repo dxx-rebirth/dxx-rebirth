@@ -12,23 +12,30 @@ jobs:
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4
+        path: src
+
+      - name: Collect architecture
+        id: architecture
+        run: |
+          printf 'uname_m=%s\n' "$(uname -m)" >> "$GITHUB_OUTPUT"
 
       - name: Install Dependencies
+        working-directory: src
         run: brew bundle --verbose
 
       - name: Configure and Build
+        working-directory: src
         run: |
+          set -eu
           # I do not know why, but readline is not found by pkg-config
           # For a idea of a fix see: https://superuser.com/a/1277306
           export PKG_CONFIG_PATH=/usr/local/opt/readline/lib/pkgconfig
           # run build
-          scons -j4 opengl=1 sdl2=1 macos_add_frameworks=0 macos_bundle_libs=1
-
-      - name: Package
-        run: ./contrib/packaging/macos/build_package.sh
+          scons -j4 opengl=1 sdl2=1 macos_add_frameworks=0 macos_bundle_libs=1 build/D{1,2}X-Rebirth.app
+          mv build/D{1,2}X-Rebirth.app ..
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: macos
-          path: '*.zip'
+          name: "DXX-Rebirth-MacOS${{ env.MACOSX_DEPLOYMENT_TARGET }}-${{ steps.architecture.outputs.uname_m }}.zip"
+          path: 'D*X-Rebirth.app'
