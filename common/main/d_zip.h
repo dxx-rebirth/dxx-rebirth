@@ -315,7 +315,11 @@ public:
 		return result;
 	}
 	zip_iterator &operator--()
-		requires(std::derived_from<iterator_category, std::bidirectional_iterator_tag>)
+		requires(
+			requires(range_iterator_tuple i) {
+				for_index_sequence::decrement_iterator(i);
+			}
+		)
 	{
 		for_index_sequence::decrement_iterator(static_cast<range_iterator_tuple &>(*this));
 		return *this;
@@ -332,7 +336,12 @@ public:
 		return result;
 	}
 	auto operator-(const zip_iterator &i) const
-		requires(std::derived_from<iterator_category, std::random_access_iterator_tag>)
+		requires(
+			std::derived_from<iterator_category, std::random_access_iterator_tag> &&
+			requires(range_iterator_tuple i) {
+				std::get<0>(i) - std::get<0>(i);
+			}
+		)
 	{
 		return std::get<0>(static_cast<const range_iterator_tuple &>(*this)) - std::get<0>(static_cast<const range_iterator_tuple &>(i));
 	}
