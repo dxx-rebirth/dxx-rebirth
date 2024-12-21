@@ -2599,7 +2599,7 @@ window_event_result sound_menu::event_handler(const d_event &event)
 				const auto v = items[citem].value;
 				CGameCfg.DigiVolume = v;
 				digi_set_digi_volume((v * 32768) / 8);
-				digi_play_sample_once( SOUND_DROP_BOMB, F1_0 );
+				digi_play_sample_once( sound_effect::SOUND_DROP_BOMB, F1_0 );
 			}
 			else if (citem == opt_sm_musicvol)
 			{

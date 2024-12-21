@@ -1144,7 +1144,7 @@ void play_homing_warning(const player_info &player_info)
 
 		if (GameTime64 - Last_warning_beep_time > beep_delay/2 || Last_warning_beep_time > GameTime64) {
 			Last_warning_beep_time = {GameTime64};
-			digi_play_sample( SOUND_HOMING_WARNING, F1_0 );
+			digi_play_sample( sound_effect::SOUND_HOMING_WARNING, F1_0 );
 		}
 	}
 }

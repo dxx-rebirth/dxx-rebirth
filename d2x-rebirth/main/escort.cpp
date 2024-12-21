@@ -340,7 +340,7 @@ static void record_escort_goal_accomplished()
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	if (ok_for_buddy_to_talk()) {
-		digi_play_sample_once(SOUND_BUDDY_MET_GOAL, F1_0);
+		digi_play_sample_once(sound_effect::SOUND_BUDDY_MET_GOAL, F1_0);
 		BuddyState.Escort_goal_objidx = object_none;
 		BuddyState.Escort_goal_reachable = d_unique_buddy_state::Escort_goal_reachability::unreachable;
 		BuddyState.Looking_for_marker = game_marker_index::None;
@@ -1798,7 +1798,7 @@ static int attempt_to_steal_item_2(object &thief, object &player_num)
 	auto &ThiefUniqueState = LevelUniqueObjectState.ThiefState;
 	const auto rval = attempt_to_steal_item_3(thief, player_num);
 	if (rval) {
-		digi_play_sample_once(SOUND_WEAPON_STOLEN, F1_0);
+		digi_play_sample_once(sound_effect::SOUND_WEAPON_STOLEN, F1_0);
 		auto i = ThiefUniqueState.Stolen_item_index;
 		if (d_rand() > 20000)	//	Occasionally, boost the value again
 			++i;

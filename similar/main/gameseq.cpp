@@ -1618,7 +1618,7 @@ void EnterSecretLevel(void)
 	if (g)
 		g->set_visible(0);
 
-	digi_play_sample( SOUND_SECRET_EXIT, F1_0 );	// after above call which stops all sounds
+	digi_play_sample( sound_effect::SOUND_SECRET_EXIT, F1_0 );	// after above call which stops all sounds
 	
 	Entered_from_level = Current_level_num;
 

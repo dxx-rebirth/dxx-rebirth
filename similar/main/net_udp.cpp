@@ -1970,7 +1970,7 @@ static void net_udp_new_player(const UDP_sequence_addplayer_packet &their, const
 		Netgame.numplayers = N_players;
 	}
 
-	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
+	digi_play_sample(sound_effect::SOUND_HUD_MESSAGE, F1_0);
 
 	const auto &&rankstr = GetRankStringWithSpace(their.rank);
 	HUD_init_message(HM_MULTI, "%s%s'%s' %s", rankstr.first, rankstr.second, their.callsign.operator const char *(), TXT_JOINING);
@@ -2115,7 +2115,7 @@ static void net_udp_welcome_player(const UDP_sequence_request_packet &their, con
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_multi_reconnect(player_num);
 
-		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
+		digi_play_sample(sound_effect::SOUND_HUD_MESSAGE, F1_0);
 
 		const auto &&rankstr = GetRankStringWithSpace(Netgame.players[player_num].rank);
 		HUD_init_message(HM_MULTI, "%s%s'%s' %s", rankstr.first, rankstr.second, static_cast<const char *>(plr.callsign), TXT_REJOIN);
@@ -3719,13 +3719,13 @@ static int net_udp_start_poll(newmenu *, const d_event &event, start_poll_menu_i
 	// A new player
 	if (players_last_poll < Netgame.numplayers)
 	{
-		digi_play_sample (SOUND_HUD_MESSAGE,F1_0);
+		digi_play_sample (sound_effect::SOUND_HUD_MESSAGE,F1_0);
 		if (N_players <= Netgame.max_numplayers)
 			menus[N_players-1].value = 1;
 	} 
 	else	// One got removed...
 	{
-		digi_play_sample (SOUND_HUD_KILL,F1_0);
+		digi_play_sample (sound_effect::SOUND_HUD_KILL,F1_0);
   
 		const auto j = std::min(N_players, static_cast<unsigned>(Netgame.max_numplayers));
 		/* Reset all the user's choices, since there is insufficient
@@ -6042,7 +6042,7 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 			if (Newdemo_state == ND_STATE_RECORDING)
 				newdemo_record_multi_reconnect(TheirPlayernum);
 
-			digi_play_sample( SOUND_HUD_MESSAGE, F1_0);
+			digi_play_sample( sound_effect::SOUND_HUD_MESSAGE, F1_0);
 			const auto &&rankstr = GetRankStringWithSpace(Netgame.players[TheirPlayernum].rank);
 			HUD_init_message(HM_MULTI, "%s%s'%s' %s", rankstr.first, rankstr.second, static_cast<const char *>(vcplayerptr(TheirPlayernum)->callsign), TXT_REJOIN);
 
@@ -6217,9 +6217,9 @@ void net_udp_do_refuse_stuff(const UDP_sequence_request_packet &their, const str
 	if (!WaitForRefuseAnswer)
 	{
 #if DXX_BUILD_DESCENT == 1
-		digi_play_sample (SOUND_CONTROL_CENTER_WARNING_SIREN,F1_0*2);
+		digi_play_sample (sound_effect::SOUND_CONTROL_CENTER_WARNING_SIREN,F1_0*2);
 #elif DXX_BUILD_DESCENT == 2
-		digi_play_sample (SOUND_HUD_JOIN_REQUEST,F1_0*2);
+		digi_play_sample (sound_effect::SOUND_HUD_JOIN_REQUEST,F1_0*2);
 #endif
 	
 		const auto &&rankstr = GetRankStringWithSpace(their.rank);

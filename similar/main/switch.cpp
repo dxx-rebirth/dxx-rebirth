@@ -207,12 +207,12 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 					{
 						ret |= 2;
 						digi_link_sound_to_pos(sound_effect::SOUND_FORCEFIELD_OFF, segp, side, compute_center_point_on_side(vcvertptr, segp, side), 0, F1_0);
-						digi_kill_sound_linked_to_segment(segp,side,SOUND_FORCEFIELD_HUM);
+						digi_kill_sound_linked_to_segment(segp,side,sound_effect::SOUND_FORCEFIELD_HUM);
 						wall0.type = new_wall_type;
 						if (wall1)
 						{
 							wall1->type = new_wall_type;
-							digi_kill_sound_linked_to_segment(csegp, cside, SOUND_FORCEFIELD_HUM);
+							digi_kill_sound_linked_to_segment(csegp, cside, sound_effect::SOUND_FORCEFIELD_HUM);
 						}
 					}
 					else
@@ -420,13 +420,13 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 
 			if (is_SHAREWARE || is_MAC_SHARE) {
 				HUD_init_message_literal(HM_DEFAULT, "Secret Level Teleporter disabled in Descent 2 Demo");
-				digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
+				digi_play_sample( sound_effect::SOUND_BAD_SELECTION, F1_0 );
 				break;
 			}
 
 			if (Game_mode & GM_MULTI) {
 				HUD_init_message_literal(HM_DEFAULT, "Secret Level Teleporter disabled in multiplayer!");
-				digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
+				digi_play_sample( sound_effect::SOUND_BAD_SELECTION, F1_0 );
 				break;
 			}
 
@@ -437,7 +437,7 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 
 			if ((Newdemo_state != ND_STATE_PLAYBACK) && truth) {
 				HUD_init_message_literal(HM_DEFAULT, "Secret Level destroyed.  Exit disabled.");
-				digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
+				digi_play_sample( sound_effect::SOUND_BAD_SELECTION, F1_0 );
 				break;
 			}
 

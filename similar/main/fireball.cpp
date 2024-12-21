@@ -622,7 +622,7 @@ void explode_badass_weapon(const d_robot_info_array &Robot_info, const vmobjptri
 	if (weapon_id == weapon_id_type::EARTHSHAKER_ID || weapon_id == weapon_id_type::ROBOT_EARTHSHAKER_ID)
 		smega_rock_stuff();
 #endif
-	digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, obj, 0, F1_0, sound_stack::allow_stacking);
+	digi_link_sound_to_object(sound_effect::SOUND_BADASS_EXPLOSION, obj, 0, F1_0, sound_stack::allow_stacking);
 
 	const auto Difficulty_level{GameUniqueState.Difficulty_level};
 	object_create_badass_explosion(Robot_info, obj, vmsegptridx(obj->segnum), pos,
@@ -643,7 +643,7 @@ static void explode_badass_object(const d_robot_info_array &Robot_info, fvmsegpt
 					damage, distance, force,
 					objp);
 	if (rval != object_none)
-		digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, rval, 0, F1_0, sound_stack::allow_stacking);
+		digi_link_sound_to_object(sound_effect::SOUND_BADASS_EXPLOSION, rval, 0, F1_0, sound_stack::allow_stacking);
 }
 
 }

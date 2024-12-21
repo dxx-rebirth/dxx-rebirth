@@ -682,7 +682,7 @@ static void put_char_delay(const grs_font &cv_font, briefing *const br, const ch
 
 #if DXX_BUILD_DESCENT == 2
 	if (!EMULATING_D1 && !br->chattering) {
-		br->printing_channel.reset(digi_start_sound(digi_xlat_sound(SOUND_BRIEFING_PRINTING), F1_0, sound_pan{0x7fff}, 1, -1, -1, sound_object_none));
+		br->printing_channel.reset(digi_start_sound(digi_xlat_sound(sound_effect::SOUND_BRIEFING_PRINTING), F1_0, sound_pan{0x7fff}, 1, -1, -1, sound_object_none));
 		br->chattering=1;
 	}
 #endif
@@ -1544,7 +1544,7 @@ static int new_briefing_screen(grs_canvas &canvas, briefing *br, int first)
 
 #if DXX_BUILD_DESCENT == 2
 	if (songs_is_playing() == song_number::None && !br->hum_channel)
-		br->hum_channel.reset(digi_start_sound(digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, sound_pan{0x7fff}, 1, -1, -1, sound_object_none));
+		br->hum_channel.reset(digi_start_sound(digi_xlat_sound(sound_effect::SOUND_BRIEFING_HUM), F1_0/2, sound_pan{0x7fff}, 1, -1, -1, sound_object_none));
 #endif
 
 	return 1;

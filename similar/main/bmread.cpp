@@ -1499,17 +1499,17 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 	auto behavior = ai_behavior::AIB_NORMAL;
 	int companion{0}, smart_blobs=0, energy_blobs=0, badass=0, energy_drain=0, kamikaze=0, thief=0, pursuit=0, lightcast=0, death_roll=0;
 	fix glow{0}, aim=F1_0;
-	int			deathroll_sound = SOUND_BOSS_SHARE_DIE;	//default
-	int			taunt_sound = ROBOT_SEE_SOUND_DEFAULT;
+	int			deathroll_sound = sound_effect::SOUND_BOSS_SHARE_DIE;	//default
+	int			taunt_sound = sound_effect::ROBOT_SEE_SOUND_DEFAULT;
 	ubyte flags{0};
 #endif
 	int score_value{1000};
 	int cloak_type{0};		//	Default = this robot does not cloak
 	int attack_type{0};		//	Default = this robot attacks by firing (1=lunge)
 	boss_robot_id	boss_flag{};				//	Default = robot is not a boss.
-	int			see_sound = ROBOT_SEE_SOUND_DEFAULT;
-	int			attack_sound = ROBOT_ATTACK_SOUND_DEFAULT;
-	int			claw_sound = ROBOT_CLAW_SOUND_DEFAULT;
+	int			see_sound = sound_effect::ROBOT_SEE_SOUND_DEFAULT;
+	int			attack_sound = sound_effect::ROBOT_ATTACK_SOUND_DEFAULT;
+	int			claw_sound = sound_effect::ROBOT_CLAW_SOUND_DEFAULT;
 
 	assert(LevelSharedRobotInfoState.N_robot_types < MAX_ROBOT_TYPES);
 
@@ -2253,7 +2253,7 @@ void bm_read_weapon(int skip, int unused_flag)
 	Weapon_info[n].model_num_inner = polygon_model_index::None;
 	Weapon_info[n].blob_size = 0x1000;									// size of blob
 	Weapon_info[n].flash_vclip = vclip_index::None;
-	Weapon_info[n].flash_sound = SOUND_LASER_FIRED;
+	Weapon_info[n].flash_sound = sound_effect::SOUND_LASER_FIRED;
 	Weapon_info[n].flash_size = 0;
 	Weapon_info[n].robot_hit_vclip = vclip_index::None;
 	Weapon_info[n].robot_hit_sound = sound_none;

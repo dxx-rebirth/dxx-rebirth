@@ -230,14 +230,14 @@ window_event_result do_countdown_frame()
 
 	if (old_time > COUNTDOWN_VOICE_TIME && Countdown_timer <= COUNTDOWN_VOICE_TIME)
 	{
-		digi_play_sample( SOUND_COUNTDOWN_13_SECS, F3_0 );
+		digi_play_sample( sound_effect::SOUND_COUNTDOWN_13_SECS, F3_0 );
 	}
 	if (f2i(old_time + F1_0 * 7 / 8) != Countdown_seconds_left)
 	{
 		if (Countdown_seconds_left >= 0 && Countdown_seconds_left < 10)
-			digi_play_sample(SOUND_COUNTDOWN_0_SECS + Countdown_seconds_left, F3_0);
+			digi_play_sample(sound_effect::SOUND_COUNTDOWN_0_SECS + Countdown_seconds_left, F3_0);
 		if (Countdown_seconds_left == LevelUniqueControlCenterState.Total_countdown_time - 1)
-			digi_play_sample( SOUND_COUNTDOWN_29_SECS, F3_0 );
+			digi_play_sample( sound_effect::SOUND_COUNTDOWN_29_SECS, F3_0 );
 	}						
 
 	if (Countdown_timer > 0) {
@@ -253,13 +253,13 @@ window_event_result do_countdown_frame()
 			//@@	object_create_explosion( Objects[Dead_controlcen_object_num].segnum, &vp, size*10, VCLIP_SMALL_EXPLOSION);
 			//@@}
 
-			digi_play_sample( SOUND_CONTROL_CENTER_WARNING_SIREN, F3_0 );
+			digi_play_sample( sound_effect::SOUND_CONTROL_CENTER_WARNING_SIREN, F3_0 );
 		}
 	}  else {
 		int flash_value;
 
 		if (old_time > 0)
-			digi_play_sample( SOUND_MINE_BLEW_UP, F1_0 );
+			digi_play_sample( sound_effect::SOUND_MINE_BLEW_UP, F1_0 );
 
 		flash_value = f2i(-Countdown_timer * (64 / 4));	// 4 seconds to total whiteness
 		PALETTE_FLASH_SET(flash_value,flash_value,flash_value);

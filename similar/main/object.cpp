@@ -727,7 +727,7 @@ void create_small_fireball_on_object(const vmobjptridx_t objp, fix size_scale, i
 			if (objp->type == OBJ_ROBOT)
 				vol *= 2;
 			if (sound_flag)
-				digi_link_sound_to_object(SOUND_EXPLODING_WALL, objp, 0, vol, sound_stack::allow_stacking);
+				digi_link_sound_to_object(sound_effect::SOUND_EXPLODING_WALL, objp, 0, vol, sound_stack::allow_stacking);
 		}
 	}
 }
@@ -2054,7 +2054,7 @@ static window_event_result object_move_one(const d_level_shared_robot_info_state
 							if (!playing)
 							{
 								playing = 1;
-								const auto sound = (type == volatile_wall_result::lava) ? SOUND_LAVAFALL_HISS : SOUND_SHIP_IN_WATERFALL;
+								const auto sound = (type == volatile_wall_result::lava) ? sound_effect::SOUND_LAVAFALL_HISS : sound_effect::SOUND_SHIP_IN_WATERFALL;
 								digi_link_sound_to_object3(sound, obj, 1, F1_0, sound_stack::allow_stacking, vm_distance{i2f(256)}, -1, -1);
 								break;
 							}

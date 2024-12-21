@@ -591,7 +591,7 @@ fix fuelcen_give_fuel(const shared_segment &segp, fix MaxAmountCanTake)
 		if (last_play_time + FUELCEN_SOUND_DELAY < GameTime64 || last_play_time > GameTime64)
 		{
 			last_play_time = {GameTime64};
-			multi_digi_play_sample(SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2);
+			multi_digi_play_sample(sound_effect::SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2);
 		}
 		return amount;
 	} else {
@@ -624,7 +624,7 @@ fix repaircen_give_shields(const shared_segment &segp, const fix MaxAmountCanTak
 			last_play_time = 0;
 		if (GameTime64 > last_play_time+FUELCEN_SOUND_DELAY) {
 			last_play_time = {GameTime64};
-			multi_digi_play_sample(SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2);
+			multi_digi_play_sample(sound_effect::SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2);
 		}
 		return amount;
 	} else {

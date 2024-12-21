@@ -203,7 +203,7 @@ static void transfer_energy_to_shield(object &plrobj)
 
 	if (GameTime64 > last_play_time+CONVERTER_SOUND_DELAY) {
 		last_play_time = {GameTime64};
-		digi_play_sample_once(SOUND_CONVERT_ENERGY, F1_0);
+		digi_play_sample_once(sound_effect::SOUND_CONVERT_ENERGY, F1_0);
 	}
 }
 #endif
@@ -351,7 +351,7 @@ static void do_weapon_n_item_stuff(object_array &Objects, control_info &Controls
 		if (!secondary_ammo[secondary_weapon_index_t::PROXIMITY_INDEX] && !secondary_ammo[secondary_weapon_index_t::SMART_MINE_INDEX])
 		{
 			HUD_init_message_literal(HM_DEFAULT, "No bombs available!");
-			sound = SOUND_BAD_SELECTION;
+			sound = sound_effect::SOUND_BAD_SELECTION;
 		}
 		else
 		{	
@@ -360,7 +360,7 @@ static void do_weapon_n_item_stuff(object_array &Objects, control_info &Controls
 			if (secondary_ammo[bomb] == 0)
 			{
 				HUD_init_message(HM_DEFAULT, "No %s available!", desc);
-				sound = SOUND_BAD_SELECTION;
+				sound = sound_effect::SOUND_BAD_SELECTION;
 			}
 			else
 			{

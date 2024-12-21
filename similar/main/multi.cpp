@@ -847,7 +847,7 @@ static void multi_compute_kill(const d_robot_info_array &Robot_info, const imobj
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_multi_death(killed_pnum);
 
-	digi_play_sample( SOUND_HUD_KILL, F3_0 );
+	digi_play_sample( sound_effect::SOUND_HUD_KILL, F3_0 );
 
 #if DXX_BUILD_DESCENT == 2
 	if (LevelUniqueControlCenterState.Control_center_destroyed)
@@ -1283,7 +1283,7 @@ static void multi_message_feedback(void)
 		else
 			strcat(feedback_result, ".");
 
-		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
+		digi_play_sample(sound_effect::SOUND_HUD_MESSAGE, F1_0);
 
 		Assert(strlen(feedback_result) < 200);
 
@@ -1743,7 +1743,7 @@ static void multi_do_message(const playernum_t pnum, const multiplayer_rspan<mul
 	}
 	const auto color = get_player_or_team_color(pnum);
 	char xrgb = BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
-	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
+	digi_play_sample(sound_effect::SOUND_HUD_MESSAGE, F1_0);
 	HUD_init_message(HM_MULTI, "%c%c%s:%c%c %s", CC_COLOR, xrgb, static_cast<const char *>(vcplayerptr(pnum)->callsign), CC_COLOR, BM_XRGB(0, 31, 0), msgstart);
 	multi_sending_message[pnum] = msgsend_state::none;
 }
@@ -1983,7 +1983,7 @@ static void multi_do_controlcen_destroy(const d_robot_info_array &Robot_info, fi
 
 static void multi_do_escape(fvmobjptridx &vmobjptridx, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_ENDLEVEL_START> buf)
 {
-	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
+	digi_play_sample(sound_effect::SOUND_HUD_MESSAGE, F1_0);
 	auto &plr = *vmplayerptr(pnum);
 	const auto &&objnum = vmobjptridx(plr.objnum);
 #if DXX_BUILD_DESCENT == 2
@@ -2054,7 +2054,7 @@ void multi_disconnect_player(const playernum_t pnum)
 
 	if (vcplayerptr(pnum)->connected == player_connection_status::playing)
 	{
-		digi_play_sample( SOUND_HUD_MESSAGE, F1_0 );
+		digi_play_sample( sound_effect::SOUND_HUD_MESSAGE, F1_0 );
 		HUD_init_message(HM_MULTI,  "%s %s", static_cast<const char *>(vcplayerptr(pnum)->callsign), TXT_HAS_LEFT_THE_GAME);
 
 		multi_sending_message[pnum] = msgsend_state::none;
@@ -4060,7 +4060,7 @@ static void multi_do_wall_status(fvmwallptr &vmwallptr, const multiplayer_rspan<
 	w.state = wall_state{state};
 
 	if (w.type == WALL_OPEN)
-		digi_kill_sound_linked_to_segment(w.segnum, w.sidenum, SOUND_FORCEFIELD_HUM);
+		digi_kill_sound_linked_to_segment(w.segnum, w.sidenum, sound_effect::SOUND_FORCEFIELD_HUM);
 }
 
 }
@@ -4181,7 +4181,7 @@ static void multi_do_seismic(multiplayer_rspan<multiplayer_command_t::MULTI_SEIS
 {
 	const fix duration{GET_INTEL_INT<int32_t>(&buf[1])};
 	LevelUniqueSeismicState.Seismic_disturbance_end_time = GameTime64 + duration;
-	digi_play_sample (SOUND_SEISMIC_DISTURBANCE_START, F1_0);
+	digi_play_sample (sound_effect::SOUND_SEISMIC_DISTURBANCE_START, F1_0);
 }
 
 }
@@ -4346,10 +4346,10 @@ void multi_do_capture_bonus(const playernum_t pnum)
 		HUD_init_message(HM_MULTI, "%s has Scored!", static_cast<const char *>(vcplayerptr(pnum)->callsign));
 
 	digi_play_sample(pnum == Player_num
-		? SOUND_HUD_YOU_GOT_GOAL
+		? sound_effect::SOUND_HUD_YOU_GOT_GOAL
 		: (get_team(pnum) == team_number::blue
-			? SOUND_HUD_BLUE_GOT_GOAL
-			: SOUND_HUD_RED_GOT_GOAL
+			? sound_effect::SOUND_HUD_BLUE_GOT_GOAL
+			: sound_effect::SOUND_HUD_RED_GOT_GOAL
 		), F1_0*2);
 
 
@@ -4405,13 +4405,13 @@ void multi_do_orb_bonus(const playernum_t pnum, const multiplayer_rspan<multipla
 		HUD_init_message(HM_MULTI, "%s has scored with %d orbs!",static_cast<const char *>(vcplayerptr(pnum)->callsign), buf[2]);
 
 	if (pnum==Player_num)
-		digi_start_sound_queued (SOUND_HUD_YOU_GOT_GOAL,F1_0*2);
+		digi_start_sound_queued (sound_effect::SOUND_HUD_YOU_GOT_GOAL,F1_0*2);
 	else
 		digi_play_sample((Game_mode & GM_TEAM)
 			? (get_team(pnum) == team_number::blue
-				? SOUND_HUD_BLUE_GOT_GOAL
-				: SOUND_HUD_RED_GOT_GOAL
-			) : SOUND_OPPONENT_HAS_SCORED, F1_0*2);
+				? sound_effect::SOUND_HUD_BLUE_GOT_GOAL
+				: sound_effect::SOUND_HUD_RED_GOT_GOAL
+			) : sound_effect::SOUND_OPPONENT_HAS_SCORED, F1_0*2);
 
 	if (bonus > hoard_highest_record_stats.points)
 	{
@@ -4421,7 +4421,7 @@ void multi_do_orb_bonus(const playernum_t pnum, const multiplayer_rspan<multipla
 			HUD_init_message(HM_MULTI, "You have the record with %d points!",bonus);
 		else
 			HUD_init_message(HM_MULTI, "%s has the record with %d points!",static_cast<const char *>(vcplayerptr(pnum)->callsign),bonus);
-		digi_play_sample (SOUND_BUDDY_MET_GOAL,F1_0*2);
+		digi_play_sample (sound_effect::SOUND_BUDDY_MET_GOAL,F1_0*2);
 	}
 
 
@@ -4463,7 +4463,7 @@ void multi_send_got_flag (const playernum_t pnum)
 	multi_command<multiplayer_command_t::MULTI_GOT_FLAG> multibuf;
 	multibuf[1]=pnum;
 
-	digi_start_sound_queued (SOUND_HUD_YOU_GOT_FLAG,F1_0*2);
+	digi_start_sound_queued (sound_effect::SOUND_HUD_YOU_GOT_FLAG,F1_0*2);
 
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
 	multi_send_flags (Player_num);
@@ -4474,7 +4474,7 @@ void multi_send_got_orb (const playernum_t pnum)
 	multi_command<multiplayer_command_t::MULTI_GOT_ORB> multibuf;
 	multibuf[1]=pnum;
 
-	digi_play_sample (SOUND_YOU_GOT_ORB,F1_0*2);
+	digi_play_sample (sound_effect::SOUND_YOU_GOT_ORB,F1_0*2);
 
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
 	multi_send_flags (Player_num);
@@ -4487,10 +4487,10 @@ static void multi_do_got_flag (const playernum_t pnum)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	digi_start_sound_queued(pnum == Player_num
-		? SOUND_HUD_YOU_GOT_FLAG
+		? sound_effect::SOUND_HUD_YOU_GOT_FLAG
 		: (get_team(pnum) == team_number::blue
-			? SOUND_HUD_BLUE_GOT_FLAG
-			: SOUND_HUD_RED_GOT_FLAG
+			? sound_effect::SOUND_HUD_BLUE_GOT_FLAG
+			: sound_effect::SOUND_HUD_RED_GOT_FLAG
 		), F1_0*2);
 	vmobjptr(vcplayerptr(pnum)->objnum)->ctype.player_info.powerup_flags |= PLAYER_FLAGS_FLAG;
 	HUD_init_message(HM_MULTI, "%s picked up a flag!",static_cast<const char *>(vcplayerptr(pnum)->callsign));
@@ -4503,8 +4503,8 @@ static void multi_do_got_orb (const playernum_t pnum)
 	assert(game_mode_hoard(Game_mode));
 
 	digi_play_sample((Game_mode & GM_TEAM) && get_team(pnum) == get_team(Player_num)
-		? SOUND_FRIEND_GOT_ORB
-		: SOUND_OPPONENT_GOT_ORB, F1_0*2);
+		? sound_effect::SOUND_FRIEND_GOT_ORB
+		: sound_effect::SOUND_OPPONENT_GOT_ORB, F1_0*2);
 
 	const auto &&objp = vmobjptr(vcplayerptr(pnum)->objnum);
 	objp->ctype.player_info.powerup_flags |= PLAYER_FLAGS_FLAG;
@@ -4538,7 +4538,7 @@ static void DropOrb ()
 	}
 
 	HUD_init_message_literal(HM_MULTI, "Orb dropped!");
-	digi_play_sample (SOUND_DROP_WEAPON,F1_0);
+	digi_play_sample (sound_effect::SOUND_DROP_WEAPON,F1_0);
 
 	multi_send_drop_flag(objnum, seed);
 	-- proximity;
@@ -4582,7 +4582,7 @@ void DropFlag ()
 	}
 
 	HUD_init_message_literal(HM_MULTI, "Flag dropped!");
-	digi_play_sample (SOUND_DROP_WEAPON,F1_0);
+	digi_play_sample (sound_effect::SOUND_DROP_WEAPON,F1_0);
 
 	if (game_mode_capture_flag(Game_mode))
 		multi_send_drop_flag(objnum,seed);
@@ -4791,9 +4791,9 @@ static void multi_adjust_lifetime_ranking(int &k, const int count)
 		{
 			HUD_init_message(HM_MULTI, "You have been %smoted to %s!", newrank > oldrank ? "pro" : "de", RankStrings[newrank]);
 #if DXX_BUILD_DESCENT == 1
-			digi_play_sample (SOUND_CONTROL_CENTER_WARNING_SIREN,F1_0*2);
+			digi_play_sample (sound_effect::SOUND_CONTROL_CENTER_WARNING_SIREN,F1_0*2);
 #elif DXX_BUILD_DESCENT == 2
-			digi_play_sample (SOUND_BUDDY_MET_GOAL,F1_0*2);
+			digi_play_sample (sound_effect::SOUND_BUDDY_MET_GOAL,F1_0*2);
 #endif
 		}
 	}
@@ -4933,9 +4933,9 @@ static void multi_do_bounty(const multiplayer_rspan<multiplayer_command_t::MULTI
 void multi_new_bounty_target_with_sound(const playernum_t pnum, const char *const callsign)
 {
 #if DXX_BUILD_DESCENT == 1
-	digi_play_sample( SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0 * 3 );
+	digi_play_sample( sound_effect::SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0 * 3 );
 #elif DXX_BUILD_DESCENT == 2
-	digi_play_sample( SOUND_BUDDY_MET_GOAL, F1_0 * 2 );
+	digi_play_sample( sound_effect::SOUND_BUDDY_MET_GOAL, F1_0 * 2 );
 #endif
 	multi_new_bounty_target(pnum, callsign);
 }
@@ -5737,18 +5737,18 @@ void init_hoard_data(d_vclip_array &Vclip)
 			PHYSFSX_fseek(ifile,len,SEEK_CUR);     //skip over 22k sample
 		}
 
-		Sounds[SOUND_YOU_GOT_ORB+i] = Num_sound_files+i;
-		AltSounds[SOUND_YOU_GOT_ORB+i] = Sounds[SOUND_YOU_GOT_ORB+i];
+		Sounds[sound_effect::SOUND_YOU_GOT_ORB+i] = Num_sound_files+i;
+		AltSounds[sound_effect::SOUND_YOU_GOT_ORB+i] = Sounds[sound_effect::SOUND_YOU_GOT_ORB+i];
 	}
 }
 
 #if DXX_USE_EDITOR
 void save_hoard_data(void)
 {
-	static constexpr char sounds[][13] = {"selforb.raw","selforb.r22",          //SOUND_YOU_GOT_ORB
-				"teamorb.raw","teamorb.r22",    //SOUND_FRIEND_GOT_ORB
-				"enemyorb.raw","enemyorb.r22",  //SOUND_OPPONENT_GOT_ORB
-				"OPSCORE1.raw","OPSCORE1.r22"}; //SOUND_OPPONENT_HAS_SCORED
+	static constexpr char sounds[][13] = {"selforb.raw","selforb.r22",          //sound_effect::SOUND_YOU_GOT_ORB
+				"teamorb.raw","teamorb.r22",    //sound_effect::SOUND_FRIEND_GOT_ORB
+				"enemyorb.raw","enemyorb.r22",  //sound_effect::SOUND_OPPONENT_GOT_ORB
+				"OPSCORE1.raw","OPSCORE1.r22"}; //sound_effect::SOUND_OPPONENT_HAS_SCORED
 	auto ofile{PHYSFSX_openWriteBuffered(hoard_ham_basename).first};
 	if (!ofile)
 		return;

@@ -380,7 +380,7 @@ static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hit
 		phys_apply_rot(playerobj, force);
 
 		//make sound
-		multi_digi_link_sound_to_pos(SOUND_FORCEFIELD_BOUNCE_PLAYER, hitseg, sidenum_t::WLEFT, hitpt, 0, f1_0);
+		multi_digi_link_sound_to_pos(sound_effect::SOUND_FORCEFIELD_BOUNCE_PLAYER, hitseg, sidenum_t::WLEFT, hitpt, 0, f1_0);
 		ForceFieldHit=1;
 	}
 	else
@@ -415,7 +415,7 @@ static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hit
 		if ( volume > F1_0 )
 			volume = F1_0;
 		if (volume > 0 && !ForceFieldHit) {  // uhhhgly hack
-			multi_digi_link_sound_to_pos(SOUND_PLAYER_HIT_WALL, hitseg, sidenum_t::WLEFT, hitpt, 0, volume);
+			multi_digi_link_sound_to_pos(sound_effect::SOUND_PLAYER_HIT_WALL, hitseg, sidenum_t::WLEFT, hitpt, 0, volume);
 		}
 
 		auto &player_info = playerobj->ctype.player_info;
@@ -514,10 +514,10 @@ bool scrape_player_on_wall(const vmobjptridx_t obj, const vmsegptridx_t hitseg, 
 			const auto sound =
 #if DXX_BUILD_DESCENT == 2
 				(type != volatile_wall_result::lava)
-				? SOUND_SHIP_IN_WATER
+				? sound_effect::SOUND_SHIP_IN_WATER
 				:
 #endif
-				SOUND_VOLATILE_WALL_HISS;
+				sound_effect::SOUND_VOLATILE_WALL_HISS;
 			multi_digi_link_sound_to_pos(sound, hitseg, sidenum_t::WLEFT, hitpt, 0, F1_0);
 		}
 
@@ -719,7 +719,7 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 					seg->unique_segment::sides[side].tmap_num2 = build_texture2_value(tmi2.destroyed, tmf);
 
 					//assume this is a light, and play light sound
-		  			digi_link_sound_to_pos( SOUND_LIGHT_BLOWNUP, seg, sidenum_t::WLEFT, pnt,  0, F1_0 );
+		  			digi_link_sound_to_pos( sound_effect::SOUND_LIGHT_BLOWNUP, seg, sidenum_t::WLEFT, pnt,  0, F1_0 );
 				}
 #endif
 
@@ -780,7 +780,7 @@ static window_event_result collide_weapon_and_wall(
 		 !(weapon->type == OBJ_WEAPON && Weapon_info[get_weapon_id(weapon)].energy_usage==0)) {
 
 		//make sound
-		multi_digi_link_sound_to_pos(SOUND_FORCEFIELD_BOUNCE_WEAPON, hitseg, sidenum_t::WLEFT, hitpt, 0, f1_0);
+		multi_digi_link_sound_to_pos(sound_effect::SOUND_FORCEFIELD_BOUNCE_WEAPON, hitseg, sidenum_t::WLEFT, hitpt, 0, f1_0);
 		return window_event_result::ignored;	//bail here. physics code will bounce this object
 	}
 #endif
@@ -855,7 +855,7 @@ static window_event_result collide_weapon_and_wall(
 
 		//we've hit a volatile wall
 
-		digi_link_sound_to_pos( SOUND_VOLATILE_WALL_HIT,hitseg, sidenum_t::WLEFT, hitpt, 0, F1_0 );
+		digi_link_sound_to_pos( sound_effect::SOUND_VOLATILE_WALL_HIT,hitseg, sidenum_t::WLEFT, hitpt, 0, F1_0 );
 
 		//	New by MK: If powerful badass, explode as badass, not due to lava, fixes megas being wimpy in lava.
 		if (wi->damage_radius >= VOLATILE_WALL_DAMAGE_RADIUS/2) {
@@ -889,11 +889,11 @@ static window_event_result collide_weapon_and_wall(
 		if (Weapon_info[get_weapon_id(weapon)].matter != weapon_info::matter_flag::energy)
 		{
 
-			digi_link_sound_to_pos( SOUND_MISSILE_HIT_WATER,hitseg, sidenum_t::WLEFT, hitpt, 0, F1_0 );
+			digi_link_sound_to_pos( sound_effect::SOUND_MISSILE_HIT_WATER,hitseg, sidenum_t::WLEFT, hitpt, 0, F1_0 );
 
 			if ( Weapon_info[get_weapon_id(weapon)].damage_radius ) {
 
-				digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, weapon, 0, F1_0, sound_stack::allow_stacking);
+				digi_link_sound_to_object(sound_effect::SOUND_BADASS_EXPLOSION, weapon, 0, F1_0, sound_stack::allow_stacking);
 
 				//	MK: 09/13/95: Badass in water is 1/2 normal intensity.
 				object_create_badass_explosion(Robot_info, weapon, hitseg, hitpt,
@@ -908,7 +908,7 @@ static window_event_result collide_weapon_and_wall(
 				object_create_explosion_without_damage(Vclip, vmsegptridx(weapon->segnum), weapon->pos, wi->impact_size, wi->wall_hit_vclip);
 
 		} else {
-			digi_link_sound_to_pos( SOUND_LASER_HIT_WATER,hitseg, sidenum_t::WLEFT, hitpt, 0, F1_0 );
+			digi_link_sound_to_pos( sound_effect::SOUND_LASER_HIT_WATER,hitseg, sidenum_t::WLEFT, hitpt, 0, F1_0 );
 			object_create_explosion_without_damage(Vclip, vmsegptridx(weapon->segnum), weapon->pos, wi->impact_size, vclip_index::water_hit);
 		}
 
@@ -978,7 +978,7 @@ static window_event_result collide_weapon_and_wall(
 
 					case wall_hit_process_t::WHP_NO_KEY:
 						//play special hit door sound (if/when we get it)
-						multi_digi_link_sound_to_pos(SOUND_WEAPON_HIT_DOOR, vmsegptridx(weapon->segnum), sidenum_t::WLEFT, weapon->pos, 0, F1_0);
+						multi_digi_link_sound_to_pos(sound_effect::SOUND_WEAPON_HIT_DOOR, vmsegptridx(weapon->segnum), sidenum_t::WLEFT, weapon->pos, 0, F1_0);
 
 						break;
 
@@ -987,7 +987,7 @@ static window_event_result collide_weapon_and_wall(
 #if DXX_BUILD_DESCENT == 2
 						if ((Weapon_info[get_weapon_id(weapon)].wall_hit_sound > -1 ) && (!(weapon->flags & OF_SILENT)))
 #endif
-							digi_link_sound_to_pos(SOUND_WEAPON_HIT_BLASTABLE, vmsegptridx(weapon->segnum), sidenum_t::WLEFT, weapon->pos, 0, F1_0);
+							digi_link_sound_to_pos(sound_effect::SOUND_WEAPON_HIT_BLASTABLE, vmsegptridx(weapon->segnum), sidenum_t::WLEFT, weapon->pos, 0, F1_0);
 						break;
 
 					case wall_hit_process_t::WHP_DOOR:
@@ -1099,7 +1099,7 @@ static void collide_robot_and_player(const d_robot_info_array &Robot_info, const
 		//	Changed by MK to make this sound unless the robot stole.
 		if ((!steal_attempt) && !Robot_info[get_robot_id(robot)].energy_drain)
 #endif
-			digi_link_sound_to_pos(SOUND_ROBOT_HIT_PLAYER, player_segp, sidenum_t::WLEFT, collision_point, 0, F1_0);
+			digi_link_sound_to_pos(sound_effect::SOUND_ROBOT_HIT_PLAYER, player_segp, sidenum_t::WLEFT, collision_point, 0, F1_0);
 
 		if (collision_seg != segment_none)
 			object_create_explosion_without_damage(Vclip, collision_seg, collision_point, Weapon_info[0].impact_size, Weapon_info[0].wall_hit_vclip);
@@ -1123,7 +1123,7 @@ void net_destroy_controlcen_object(const d_robot_info_array &Robot_info, const i
 		do_controlcen_destroyed_stuff(controlcen);
 
 		if ((controlcen != object_none) && !(controlcen->flags&(OF_EXPLODING|OF_DESTROYED))) {
-			digi_link_sound_to_pos(SOUND_CONTROL_CENTER_DESTROYED, vmsegptridx(controlcen->segnum), sidenum_t::WLEFT, controlcen->pos, 0, F1_0);
+			digi_link_sound_to_pos(sound_effect::SOUND_CONTROL_CENTER_DESTROYED, vmsegptridx(controlcen->segnum), sidenum_t::WLEFT, controlcen->pos, 0, F1_0);
 			explode_object(LevelUniqueObjectState, Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, controlcen, 0);
 		}
 	}
@@ -1175,7 +1175,7 @@ void apply_damage_to_controlcen(const d_robot_info_array &Robot_info, const vmob
 		else
 			add_points_to_score(ConsoleObject->ctype.player_info, CONTROL_CEN_SCORE, Game_mode);
 
-		digi_link_sound_to_pos(SOUND_CONTROL_CENTER_DESTROYED, vmsegptridx(controlcen->segnum), sidenum_t::WLEFT, controlcen->pos, 0, F1_0);
+		digi_link_sound_to_pos(sound_effect::SOUND_CONTROL_CENTER_DESTROYED, vmsegptridx(controlcen->segnum), sidenum_t::WLEFT, controlcen->pos, 0, F1_0);
 
 		explode_object(LevelUniqueObjectState, Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, controlcen, 0);
 	}
@@ -1192,7 +1192,7 @@ static void collide_player_and_controlcen(const d_robot_info_array &Robot_info, 
 	}
 
 	if (check_collision_delayfunc_exec())
-		digi_link_sound_to_pos(SOUND_ROBOT_HIT_PLAYER, vmsegptridx(playerobj->segnum), sidenum_t::WLEFT, collision_point, 0, F1_0);
+		digi_link_sound_to_pos(sound_effect::SOUND_ROBOT_HIT_PLAYER, vmsegptridx(playerobj->segnum), sidenum_t::WLEFT, collision_point, 0, F1_0);
 
 	bump_two_objects(Robot_info, controlcen, playerobj, 1);
 }
@@ -1221,7 +1221,7 @@ static void collide_player_and_marker(const d_robot_info_array &, const object_b
 	   }
 
 		if (drawn)
-			digi_play_sample( SOUND_MARKER_HIT, F1_0 );
+			digi_play_sample( sound_effect::SOUND_MARKER_HIT, F1_0 );
 
 		detect_escort_goal_accomplished(marker);
    }
@@ -1327,7 +1327,7 @@ static void collide_weapon_and_controlcen(const d_robot_info_array &Robot_info, 
 		else
 			object_create_explosion_without_damage(Vclip, vmsegptridx(controlcen->segnum), collision_point, explosion_size, vclip_index::small_explosion);
 
-		digi_link_sound_to_pos(SOUND_CONTROL_CENTER_HIT, vmsegptridx(controlcen->segnum), sidenum_t::WLEFT, collision_point, 0, F1_0);
+		digi_link_sound_to_pos(sound_effect::SOUND_CONTROL_CENTER_HIT, vmsegptridx(controlcen->segnum), sidenum_t::WLEFT, collision_point, 0, F1_0);
 
 		damage = fixmul(damage, weapon->ctype.laser_info.multiplier);
 
@@ -1345,7 +1345,7 @@ static void collide_weapon_and_clutter(const d_robot_info_array &Robot_info, obj
 	if ( clutter->shields >= 0 )
 		clutter->shields -= weapon.shields;
 
-	digi_link_sound_to_pos(SOUND_LASER_HIT_CLUTTER, vmsegptridx(weapon.segnum), sidenum_t::WLEFT, collision_point, 0, F1_0);
+	digi_link_sound_to_pos(sound_effect::SOUND_LASER_HIT_CLUTTER, vmsegptridx(weapon.segnum), sidenum_t::WLEFT, collision_point, 0, F1_0);
 
 	object_create_explosion_without_damage(Vclip, vmsegptridx(clutter->segnum), collision_point, ((clutter->size / 3) * 3) / 4, vclip_index::small_explosion);
 
@@ -1576,7 +1576,7 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_robot_info_
 		dot = vm_vec_dot(tvec1, robot.orient.fvec);
 		if (dot > Boss_invulnerable_dot()) {
 			if (const auto &&segp = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, collision_point, Segments.vmptridx(robot.segnum)))
-				digi_link_sound_to_pos(SOUND_WEAPON_HIT_DOOR, segp, sidenum_t::WLEFT, collision_point, 0, F1_0);
+				digi_link_sound_to_pos(sound_effect::SOUND_WEAPON_HIT_DOOR, segp, sidenum_t::WLEFT, collision_point, 0, F1_0);
 			if (BuddyState.Buddy_objnum != object_none)
 			{
 				if (BuddyState.Buddy_gave_hint_count) {
@@ -1625,7 +1625,7 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_robot_info_
 			: Boss_invulnerable_energy)[d2_boss_index])
 	{
 		if (const auto &&segp = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, collision_point, Segments.vmptridx(robot.segnum)))
-			digi_link_sound_to_pos(SOUND_WEAPON_HIT_DOOR, segp, sidenum_t::WLEFT, collision_point, 0, F1_0);
+			digi_link_sound_to_pos(sound_effect::SOUND_WEAPON_HIT_DOOR, segp, sidenum_t::WLEFT, collision_point, 0, F1_0);
 		return boss_weapon_collision_result::invulnerable;
 	}
 	return boss_weapon_collision_result::normal;
@@ -1839,7 +1839,7 @@ static void collide_player_and_player(const d_robot_info_array &Robot_info, cons
 	int damage_flag{1};
 
 	if (check_collision_delayfunc_exec())
-		digi_link_sound_to_pos(SOUND_ROBOT_HIT_PLAYER, vcsegptridx(player1->segnum), sidenum_t::WLEFT, collision_point, 0, F1_0);
+		digi_link_sound_to_pos(sound_effect::SOUND_ROBOT_HIT_PLAYER, vcsegptridx(player1->segnum), sidenum_t::WLEFT, collision_point, 0, F1_0);
 
 	// Multi is special - as always. Clients do the bump damage locally but the remote players do their collision result (change velocity) on their own. So after our initial collision, ignore further collision damage till remote players (hopefully) react.
 	if (Game_mode & GM_MULTI)
@@ -2229,7 +2229,7 @@ static void collide_player_and_weapon(const d_robot_info_array &Robot_info, cons
 	if (get_player_id(playerobj) == Player_num)
 	{
 		auto &player_info = playerobj->ctype.player_info;
-		multi_digi_link_sound_to_pos((player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE) ? SOUND_WEAPON_HIT_DOOR : SOUND_PLAYER_GOT_HIT, player_segp, sidenum_t::WLEFT, collision_point, 0, F1_0);
+		multi_digi_link_sound_to_pos((player_info.powerup_flags & PLAYER_FLAGS_INVULNERABLE) ? sound_effect::SOUND_WEAPON_HIT_DOOR : sound_effect::SOUND_PLAYER_GOT_HIT, player_segp, sidenum_t::WLEFT, collision_point, 0, F1_0);
 	}
 
 	object_create_explosion_without_damage(Vclip, player_segp, collision_point, i2f(10) / 2, vclip_index::player_hit);
@@ -2308,7 +2308,7 @@ static vms_vector find_exit_direction(vms_vector result, const object &objp, con
 void collide_player_and_materialization_center(const vmobjptridx_t objp)
 {
 	const auto &&segp = vmsegptridx(objp->segnum);
-	digi_link_sound_to_pos(SOUND_PLAYER_GOT_HIT, segp, sidenum_t::WLEFT, objp->pos, 0, F1_0);
+	digi_link_sound_to_pos(sound_effect::SOUND_PLAYER_GOT_HIT, segp, sidenum_t::WLEFT, objp->pos, 0, F1_0);
 	object_create_explosion_without_damage(Vclip, segp, objp->pos, i2f(10) / 2, vclip_index::player_hit);
 
 	if (get_player_id(objp) != Player_num)
@@ -2333,7 +2333,7 @@ void collide_player_and_materialization_center(const vmobjptridx_t objp)
 void collide_robot_and_materialization_center(const d_robot_info_array &Robot_info, const vmobjptridx_t objp)
 {
 	const auto &&segp = vmsegptridx(objp->segnum);
-	digi_link_sound_to_pos(SOUND_ROBOT_HIT, segp, sidenum_t::WLEFT, objp->pos, 0, F1_0);
+	digi_link_sound_to_pos(sound_effect::SOUND_ROBOT_HIT, segp, sidenum_t::WLEFT, objp->pos, 0, F1_0);
 
 	if (const auto exp1_vclip_num = Robot_info[get_robot_id(objp)].exp1_vclip_num; Vclip.valid_index(exp1_vclip_num))
 		object_create_explosion_without_damage(Vclip, segp, objp->pos, (objp->size / 2 * 3) / 4, exp1_vclip_num);
@@ -2388,7 +2388,7 @@ static void collide_player_and_powerup(const d_robot_info_array &, object &playe
 static void collide_player_and_clutter(const d_robot_info_array &Robot_info, const vmobjptridx_t playerobj, const vmobjptridx_t clutter, const vms_vector &collision_point)
 {
 	if (check_collision_delayfunc_exec())
-		digi_link_sound_to_pos(SOUND_ROBOT_HIT_PLAYER, vcsegptridx(playerobj->segnum), sidenum_t::WLEFT, collision_point, 0, F1_0);
+		digi_link_sound_to_pos(sound_effect::SOUND_ROBOT_HIT_PLAYER, vcsegptridx(playerobj->segnum), sidenum_t::WLEFT, collision_point, 0, F1_0);
 	bump_two_objects(Robot_info, clutter, playerobj, 1);
 }
 
@@ -2477,7 +2477,7 @@ static void collide_weapon_and_debris(const d_robot_info_array &Robot_info, cons
 	}
 #endif
 	if ( (weapon->ctype.laser_info.parent_type==OBJ_PLAYER) && !(debris->flags & OF_EXPLODING) )	{
-		digi_link_sound_to_pos(SOUND_ROBOT_HIT, vcsegptridx(weapon->segnum), sidenum_t::WLEFT, collision_point, 0, F1_0);
+		digi_link_sound_to_pos(sound_effect::SOUND_ROBOT_HIT, vcsegptridx(weapon->segnum), sidenum_t::WLEFT, collision_point, 0, F1_0);
 
 		explode_object(LevelUniqueObjectState, Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, debris, 0);
 		if ( Weapon_info[get_weapon_id(weapon)].damage_radius )

@@ -1097,7 +1097,7 @@ static void do_cloak_stuff()
 			{
 				pl_flags &= ~PLAYER_FLAGS_CLOAKED;
 				if (i == Player_num) {
-					multi_digi_play_sample(SOUND_CLOAK_OFF, F1_0);
+					multi_digi_play_sample(sound_effect::SOUND_CLOAK_OFF, F1_0);
 					maybe_drop_net_powerup(powerup_type_t::POW_CLOAK, 1, 0);
 					if ( Newdemo_state != ND_STATE_PLAYBACK )
 						multi_send_decloak(); // For demo recording
@@ -1121,7 +1121,7 @@ static void do_invulnerable_stuff(player_info &player_info)
 				FakingInvul = 0;
 				return;
 			}
-				multi_digi_play_sample(SOUND_INVULNERABILITY_OFF, F1_0);
+				multi_digi_play_sample(sound_effect::SOUND_INVULNERABILITY_OFF, F1_0);
 				if (Game_mode & GM_MULTI)
 				{
 					maybe_drop_net_powerup(powerup_type_t::POW_INVULNERABILITY, 1, 0);
@@ -1170,15 +1170,15 @@ static void do_afterburner_stuff(object_array &Objects)
 
 	if ((Controls.state.afterburner != Last_afterburner_state && Last_afterburner_charge) || (Last_afterburner_state && Last_afterburner_charge && !Afterburner_charge)) {
 		if (Afterburner_charge && Controls.state.afterburner && have_afterburner) {
-			digi_link_sound_to_object3(SOUND_AFTERBURNER_IGNITE, plobj, 1, F1_0, sound_stack::allow_stacking, vm_distance{i2f(256)}, AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END);
+			digi_link_sound_to_object3(sound_effect::SOUND_AFTERBURNER_IGNITE, plobj, 1, F1_0, sound_stack::allow_stacking, vm_distance{i2f(256)}, AFTERBURNER_LOOP_START, AFTERBURNER_LOOP_END);
 			if (Game_mode & GM_MULTI)
 			{
-				multi_send_sound_function (3,SOUND_AFTERBURNER_IGNITE);
+				multi_send_sound_function (3,sound_effect::SOUND_AFTERBURNER_IGNITE);
 				func_play = 1;
 			}
 		} else {
 			digi_kill_sound_linked_to_object(plobj);
-			digi_link_sound_to_object2(SOUND_AFTERBURNER_PLAY, plobj, 0, F1_0, sound_stack::allow_stacking, vm_distance{i2f(256)});
+			digi_link_sound_to_object2(sound_effect::SOUND_AFTERBURNER_PLAY, plobj, 0, F1_0, sound_stack::allow_stacking, vm_distance{i2f(256)});
 			if (Game_mode & GM_MULTI)
 			{
 			 	multi_send_sound_function (0,0);
@@ -1282,7 +1282,7 @@ static void diminish_palette_towards_normal(void)
 
 		if (Time_flash_last_played + F1_0/8 < GameTime64) {
 			Time_flash_last_played = {GameTime64};
-			digi_play_sample( SOUND_CLOAK_OFF, Flash_effect/4);
+			digi_play_sample( sound_effect::SOUND_CLOAK_OFF, Flash_effect/4);
 		}
 
 		Flash_effect -= FrameTime;
@@ -1917,12 +1917,12 @@ static void do_ambient_sounds(const sound_ambient_flags s2_flags)
 			if (d_rand() & 1)	//both, pick one
 			{
 				case sound_ambient_flags::water:
-					sound = SOUND_AMBIENT_WATER;
+					sound = sound_effect::SOUND_AMBIENT_WATER;
 					break;
 			}
 			[[fallthrough]];
 		case sound_ambient_flags::lava:
-			sound = SOUND_AMBIENT_LAVA;
+			sound = sound_effect::SOUND_AMBIENT_LAVA;
 			break;
 		default:
 			return;
@@ -2348,7 +2348,7 @@ bool FireLaser(player_info &player_info, const control_info &Controls)
 					apply_damage_to_player(cobjp, cobjp, d_rand() * 4, apply_damage_player::always);
 				} else {
 					create_awareness_event(vmobjptr(ConsoleObject), player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION, LevelUniqueRobotAwarenessState);
-					multi_digi_play_sample(SOUND_FUSION_WARMUP, F1_0);
+					multi_digi_play_sample(sound_effect::SOUND_FUSION_WARMUP, F1_0);
 				}
 				Fusion_next_sound_time = GameTime64 + F1_0/8 + d_rand()/4;
 			}

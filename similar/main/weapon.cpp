@@ -667,7 +667,7 @@ void select_primary_weapon(player_info &player_info, const char *const weapon_na
 				 * between the base and super forms of a weapon, so do
 				 * not generate a warning sound in that case.
 				 */
-				digi_play_sample(SOUND_ALREADY_SELECTED, F1_0);
+				digi_play_sample(sound_effect::SOUND_ALREADY_SELECTED, F1_0);
 #endif
 		}
 #if DXX_BUILD_DESCENT == 2
@@ -722,7 +722,7 @@ void select_secondary_weapon(player_info &player_info, const char *const weapon_
 		} else	{
 			if (wait_for_rearm)
 			{
-				digi_play_sample_once( SOUND_ALREADY_SELECTED, F1_0 );
+				digi_play_sample_once( sound_effect::SOUND_ALREADY_SELECTED, F1_0 );
 			}
 
 		}
@@ -793,7 +793,7 @@ void do_primary_weapon_select(player_info &player_info, primary_weapon_index_t w
 	const auto weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
 	if (reject_shareware_weapon_select(weapon_num, weapon_name) || reject_unusable_primary_weapon_select(player_info, weapon_num, weapon_name))
 	{
-		digi_play_sample(SOUND_BAD_SELECTION, F1_0);
+		digi_play_sample(sound_effect::SOUND_BAD_SELECTION, F1_0);
 		return;
 	}
 #elif DXX_BUILD_DESCENT == 2
@@ -839,7 +839,7 @@ void do_primary_weapon_select(player_info &player_info, primary_weapon_index_t w
 				return; 		//no such thing as super laser, so no error
 			HUD_init_message(HM_DEFAULT, "%s %s!", TXT_DONT_HAVE, weapon_name);
 		}
-		digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
+		digi_play_sample( sound_effect::SOUND_BAD_SELECTION, F1_0 );
 		return;
 	}
 
@@ -857,7 +857,7 @@ void do_secondary_weapon_select(player_info &player_info, secondary_weapon_index
 	const auto weapon_name = SECONDARY_WEAPON_NAMES(weapon_num);
 	if (reject_shareware_weapon_select(weapon_num, weapon_name) || reject_unusable_secondary_weapon_select(player_info, weapon_num, weapon_name))
 	{
-		digi_play_sample(SOUND_BAD_SELECTION, F1_0);
+		digi_play_sample(sound_effect::SOUND_BAD_SELECTION, F1_0);
 		return;
 	}
 #elif DXX_BUILD_DESCENT == 2
@@ -898,7 +898,7 @@ void do_secondary_weapon_select(player_info &player_info, secondary_weapon_index
 	if (weapon_status == has_secondary_weapon_result::absent)
 	{
 		HUD_init_message(HM_DEFAULT, "%s %s%s", TXT_HAVE_NO, weapon_name, TXT_SX);
-		digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
+		digi_play_sample( sound_effect::SOUND_BAD_SELECTION, F1_0 );
 		return;
 	}
 
@@ -1268,7 +1268,7 @@ void init_smega_detonates()
 	LevelUniqueSeismicState.Earthshaker_detonate_times = {};
 }
 
-constexpr std::integral_constant<int, SOUND_SEISMIC_DISTURBANCE_START> Seismic_sound{};
+constexpr std::integral_constant<int, sound_effect::SOUND_SEISMIC_DISTURBANCE_START> Seismic_sound{};
 
 namespace {
 
@@ -1611,7 +1611,7 @@ void DropCurrentWeapon (player_info &player_info)
 
 	HUD_init_message(HM_DEFAULT, "%s dropped!", weapon_name);
 #if DXX_BUILD_DESCENT == 2
-	digi_play_sample (SOUND_DROP_WEAPON,F1_0);
+	digi_play_sample (sound_effect::SOUND_DROP_WEAPON,F1_0);
 #endif
 
 	if (weapon_index_uses_vulcan_ammo(Primary_weapon)) {
@@ -1763,7 +1763,7 @@ void DropSecondaryWeapon (player_info &player_info)
 		return;
 	}
 #if DXX_BUILD_DESCENT == 2
-	digi_play_sample(SOUND_DROP_WEAPON, F1_0);
+	digi_play_sample(sound_effect::SOUND_DROP_WEAPON, F1_0);
 #endif
 
 	if (Game_mode & GM_MULTI)

@@ -255,7 +255,7 @@ static inline void boss_link_see_sound(const d_robot_info_array &Robot_info, con
 {
 #if DXX_BUILD_DESCENT == 1
 	(void)Robot_info;
-	constexpr unsigned soundnum = SOUND_BOSS_SHARE_SEE;
+	constexpr unsigned soundnum = sound_effect::SOUND_BOSS_SHARE_SEE;
 #elif DXX_BUILD_DESCENT == 2
 	const unsigned soundnum = Robot_info[get_robot_id(objp)].see_sound;
 #endif
