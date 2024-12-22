@@ -12,6 +12,7 @@
 
 #include <SDL.h>
 
+#include "fwd-game.h"
 #include "maths.h"
 #include "timer.h"
 #include "config.h"

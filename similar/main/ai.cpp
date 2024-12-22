@@ -56,6 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "sounds.h"
 #include "gameseg.h"
 #include "cntrlcen.h"
+#include "mission.h"
 #include "multibot.h"
 #include "multi.h"
 #include "gameseq.h"

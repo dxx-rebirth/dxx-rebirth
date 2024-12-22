@@ -54,6 +54,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "cntrlcen.h"
 #include "makesig.h"
+#include "mission.h"
 #include "interp.h"
 #include "console.h"
 #include "rle.h"

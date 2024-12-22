@@ -39,6 +39,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "ai.h"
 #include "player.h"
+#include "mission.h"
 #include "multi.h"
 #include "fwd-wall.h"
 #include "segment.h"

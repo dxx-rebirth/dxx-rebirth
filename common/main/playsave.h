@@ -89,6 +89,7 @@ struct hli
 #include "fwd-game.h"
 #include "fwd-weapon.h"
 #include "d_array.h"
+#include "mission.h"
 
 namespace dcx {
 
