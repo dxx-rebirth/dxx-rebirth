@@ -300,7 +300,7 @@ static void kmatrix_redraw_coop(grs_canvas &canvas, fvcobjptr &vcobjptr, const f
 			r = g = b = 31;
 		else
 		{
-			auto &color = player_rgb_normal[get_player_color(sorted[i])];
+			auto &color = player_rgb[get_player_color(sorted[i])];
 			r = color.r * 2;
 			g = color.g * 2;
 			b = color.b * 2;

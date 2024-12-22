@@ -122,6 +122,17 @@ enum class kick_player_reason : uint8_t
 	pkttimeout,
 };
 
+/* Stub for mods that remap player colors */
+static inline player_ship_color get_player_color(const playernum_t pnum)
+{
+	return static_cast<player_ship_color>(pnum);
+}
+
+static inline player_ship_color get_team_color(const team_number tnum)
+{
+	return static_cast<player_ship_color>(tnum);
+}
+
 }
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Reset to 0 each time the version of the game changes
@@ -897,6 +908,14 @@ namespace multi
 		}
 	};
 }
+
+static inline player_ship_color get_player_or_team_color(const playernum_t pnum)
+{
+	return Game_mode & GM_TEAM
+		? get_team_color(get_team(pnum))
+		: get_player_color(pnum);
+}
+
 }
 #endif
 
@@ -905,24 +924,6 @@ netplayer_info::player_rank GetMyNetRanking();
 namespace dcx {
 extern const enumerated_array<char[16], 10, netplayer_info::player_rank> RankStrings;
 netplayer_info::player_rank build_rank_from_untrusted(uint8_t untrusted);
-}
-
-/* Stub for mods that remap player colors */
-static inline unsigned get_player_color(const playernum_t pnum)
-{
-	return static_cast<unsigned>(pnum);
-}
-
-static inline unsigned get_team_color(const team_number tnum)
-{
-	return static_cast<unsigned>(tnum);
-}
-
-static inline unsigned get_player_or_team_color(const playernum_t pnum)
-{
-	return Game_mode & GM_TEAM
-		? get_team_color(get_team(pnum))
-		: get_player_color(pnum);
 }
 
 #define PUT_INTEL_SEGNUM(D,S)	( DXX_BEGIN_COMPOUND_STATEMENT {	\

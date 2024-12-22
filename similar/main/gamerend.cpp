@@ -274,11 +274,11 @@ static void show_netplayerinfo(grs_canvas &canvas)
 		gr_string(canvas, game_font, x, y, "team");
 		gr_string(canvas, game_font, x + fspacx8 * 8, y, "score");
 		y += line_spacing;
-		gr_set_fontcolor(canvas, BM_XRGB(player_rgb[0].r, player_rgb[0].g, player_rgb[0].b),-1);
+		gr_set_fontcolor(canvas, BM_XRGB(player_rgb[player_ship_color::blue].r, player_rgb[player_ship_color::blue].g, player_rgb[player_ship_color::blue].b), -1);
 		gr_printf(canvas, game_font, x, y, "%s:", Netgame.team_name[team_number::blue].operator const char *());
 		gr_printf(canvas, game_font, x + fspacx8 * 8, y, "%i", team_kills[team_number::blue]);
 		y += line_spacing;
-		gr_set_fontcolor(canvas, BM_XRGB(player_rgb[1].r, player_rgb[1].g, player_rgb[1].b),-1);
+		gr_set_fontcolor(canvas, BM_XRGB(player_rgb[player_ship_color::red].r, player_rgb[player_ship_color::red].g, player_rgb[player_ship_color::red].b), -1);
 		gr_printf(canvas, game_font, x, y, "%s:", Netgame.team_name[team_number::red].operator const char *());
 		gr_printf(canvas, game_font, x + fspacx8 * 8, y, "%i", team_kills[team_number::red]);
 		y += line_spacing * 2;

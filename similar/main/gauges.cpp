@@ -2567,12 +2567,13 @@ static void draw_player_ship(const hud_draw_context_hs_mr hudctx, const player_i
 		cloak_fade_value = GR_FADE_LEVELS-1;
 	}
 
-	const auto color = get_player_or_team_color(Player_num);
+	const auto color{get_player_or_team_color(Player_num)};
 #if DXX_BUILD_DESCENT == 2
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
 #endif
-	PAGE_IN_GAUGE(GAUGE_SHIPS+color, multires_gauge_graphic);
-	auto &bm = GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIPS+color)];
+	const auto gauge_index{GAUGE_SHIPS + underlying_value(color)};
+	PAGE_IN_GAUGE(gauge_index, multires_gauge_graphic);
+	auto &bm = GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
 	hud_bitblt(hudctx, x, y, bm);
 	auto &canvas = hudctx.canvas;
 	gr_settransblend(canvas, gr_fade_level{static_cast<uint8_t>(cloak_fade_value)}, gr_blend::normal);
@@ -3192,6 +3193,9 @@ static void draw_invulnerable_ship(const hud_draw_context_hs_mr hudctx, const ob
 }
 
 constexpr rgb_array_t player_rgb_normal{{
+	/* These colors are mentioned by approximate name as members of
+	 * `player_ship_color`.
+	 */
 							{15,15,23},
 							{27,0,0},
 							{0,23,0},
@@ -3520,7 +3524,7 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas, const ga
 		}
 		else
 		{
-			color = player_rgb_normal[player_num];
+			color = player_rgb[static_cast<player_ship_color>(player_num)];
 		}
 		fontcolor = BM_XRGB(color.r, color.g, color.b);
 		gr_set_fontcolor(canvas, fontcolor, -1);

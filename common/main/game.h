@@ -211,6 +211,21 @@ enum class cockpit_mode_t : uint8_t
 	letterbox   // half-height window (for cutscenes)
 };
 
+enum class player_ship_color : uint8_t
+{
+	/* These are the colors assigned by `gauges.cpp`:`player_rgb_normal` in the
+	 * unmodified game.
+	 */
+	blue,
+	red,
+	green,
+	purple,
+	orange,
+	dim_orange,
+	dim_green,
+	yellow,
+};
+
 }
 
 #ifdef DXX_BUILD_DESCENT

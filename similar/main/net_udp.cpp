@@ -242,8 +242,8 @@ struct net_udp_select_teams_menu : net_udp_select_teams_menu_items, newmenu
 };
 
 net_udp_select_teams_menu_items::net_udp_select_teams_menu_items(const unsigned num_players) :
-	blue_team_color(BM_XRGB(player_rgb[0].r, player_rgb[0].g, player_rgb[0].b)),
-	red_team_color(BM_XRGB(player_rgb[1].r, player_rgb[1].g, player_rgb[1].b))
+	blue_team_color(BM_XRGB(player_rgb[player_ship_color::blue].r, player_rgb[player_ship_color::blue].g, player_rgb[player_ship_color::blue].b)),
+	red_team_color(BM_XRGB(player_rgb[player_ship_color::red].r, player_rgb[player_ship_color::red].g, player_rgb[player_ship_color::red].b))
 {
 	const auto set_team_name = [](callsign_t &team_name, const auto &&s) {
 		if constexpr (std::is_array<typename std::remove_cvref<decltype(s)>::type>::value)

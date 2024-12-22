@@ -114,9 +114,9 @@ extern const rgb_array_t player_rgb_normal;
 class rgb_array_wrapper
 {
 public:
-	const rgb &operator[](const playernum_t i) const
+	const rgb &operator[](const player_ship_color i) const
 	{
-		return player_rgb_normal[i];
+		return player_rgb_normal[static_cast<std::size_t>(i)];
 	}
 };
 

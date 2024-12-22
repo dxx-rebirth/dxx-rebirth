@@ -4894,7 +4894,8 @@ void multi_new_bounty_target(playernum_t pnum, const char *const callsign)
 	/* Set the target */
 	Bounty_target = pnum;
 	/* Send a message */
-	HUD_init_message(HM_MULTI, "%c%c%s is the new target!", CC_COLOR, BM_XRGB(player_rgb[pnum].r, player_rgb[pnum].g, player_rgb[pnum].b), callsign);
+	const auto ship_color{static_cast<player_ship_color>(pnum)};
+	HUD_init_message(HM_MULTI, "%c%c%s is the new target!", CC_COLOR, BM_XRGB(player_rgb[ship_color].r, player_rgb[ship_color].g, player_rgb[ship_color].b), callsign);
 }
 
 }
