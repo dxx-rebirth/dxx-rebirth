@@ -35,7 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "ntstring.h"
 
-#define MAX_MISSIONS                    5000 // ZICO - changed from 300 to get more levels in list
+constexpr unsigned MAX_MISSIONS{5000}; // ZICO - changed from 300 to get more levels in list
 // KREATOR - increased from 30 (limited by Demo and Multiplayer code)
 constexpr std::integral_constant<uint8_t, 127> MAX_LEVELS_PER_MISSION{};
 constexpr std::integral_constant<uint8_t, 127> MAX_SECRET_LEVELS_PER_MISSION{};	// KREATOR - increased from 6 (limited by Demo and Multiplayer code)
