@@ -1057,7 +1057,7 @@ void state_set_next_autosave(d_game_unique_state &GameUniqueState, const autosav
 
 void state_poll_autosave_game(d_game_unique_state &GameUniqueState, const d_level_unique_object_state &LevelUniqueObjectState)
 {
-	const auto multiplayer = Game_mode & GM_MULTI;
+	const auto multiplayer{Game_mode & GM_MULTI};
 	if (multiplayer && !multi_i_am_master())
 		return;
 	const auto interval = (multiplayer ? static_cast<const d_gameplay_options &>(Netgame.MPGameplayOptions) : PlayerCfg.SPGameplayOptions).AutosaveInterval;

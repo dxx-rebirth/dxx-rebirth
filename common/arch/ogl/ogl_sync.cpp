@@ -43,7 +43,7 @@ void ogl_sync::before_swap()
 		const auto waitsync{glClientWaitSyncFunc};
 		if (method == SYNC_GL_FENCE_SLEEP) {
 			const auto local_wait_timeout{wait_timeout};
-			const auto multiplayer = Game_mode & GM_MULTI;
+			const auto multiplayer{Game_mode & GM_MULTI};
 			while (waitsync(local_fence.get(), GL_SYNC_FLUSH_COMMANDS_BIT, 0ULL) == GL_TIMEOUT_EXPIRED) {
 				if (multiplayer) {
 					multi_do_frame(); // during long wait, keep packets flowing

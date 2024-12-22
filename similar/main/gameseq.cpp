@@ -433,7 +433,7 @@ static void gameseq_init_network_players(const d_robot_info_array &Robot_info, o
 	const auto multiplayer_coop = Game_mode & GM_MULTI_COOP;
 #if DXX_BUILD_DESCENT == 2
 	const auto remove_thief = Netgame.ThiefModifierFlags & ThiefModifier::Absent;
-	const auto multiplayer = Game_mode & GM_MULTI;
+	const auto multiplayer{Game_mode & GM_MULTI};
 	const auto retain_guidebot{Netgame.AllowGuidebot};
 #endif
 	auto &vmobjptridx = Objects.vmptridx;
