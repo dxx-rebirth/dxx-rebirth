@@ -49,5 +49,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: "DXX-Rebirth-Windows-${{ steps.architecture.outputs.uname_m }}.zip"
+          name: "DXX-Rebirth-Windows-${{ steps.architecture.outputs.uname_m }}"
           path: 'D*X-Rebirth/'

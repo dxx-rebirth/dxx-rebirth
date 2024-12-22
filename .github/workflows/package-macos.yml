@@ -38,5 +38,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: "DXX-Rebirth-MacOS${{ env.MACOSX_DEPLOYMENT_TARGET }}-${{ steps.architecture.outputs.uname_m }}.zip"
+          name: "DXX-Rebirth-MacOS${{ env.MACOSX_DEPLOYMENT_TARGET }}-${{ steps.architecture.outputs.uname_m }}"
           path: 'D*X-Rebirth.app'
