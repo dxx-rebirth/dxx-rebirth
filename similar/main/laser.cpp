@@ -1204,7 +1204,7 @@ imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjp
 			if (Game_mode & GM_TEAM)
 			{
 				const auto &&objparent = vcobjptr(tracker->ctype.laser_info.parent_num);
-				if (objparent->type == OBJ_PLAYER && get_team(get_player_id(curobjp)) == get_team(get_player_id(objparent)))
+				if (objparent->type == OBJ_PLAYER && multi_get_team_from_player(Netgame, get_player_id(curobjp)) == multi_get_team_from_player(Netgame, get_player_id(objparent)))
 					continue;
 			}
 		}
@@ -1447,7 +1447,7 @@ static imobjptridx_t Laser_player_fire_spread_delay(const d_robot_info_array &Ro
                                 if (Game_mode & GM_MULTI_COOP)
                                         return true;
                                 if (Game_mode & GM_TEAM)
-					return get_team(Player_num) == get_team(obj_id);
+					return multi_get_team_from_player(Netgame, Player_num) == multi_get_team_from_player(Netgame, obj_id);
                         }
 			return false;
 		};
@@ -2169,7 +2169,7 @@ static void create_smart_children(object_array &Objects, const vmobjptridx_t obj
 				{
 					if (parent.type == OBJ_PLAYER && (Game_mode & GM_MULTI_COOP))
 						continue;
-					if ((Game_mode & GM_TEAM) && get_team(get_player_id(curobjp)) == get_team(get_player_id(vcobjptr(parent.num))))
+					if ((Game_mode & GM_TEAM) && multi_get_team_from_player(Netgame, get_player_id(curobjp)) == multi_get_team_from_player(Netgame, get_player_id(vcobjptr(parent.num))))
 						continue;
 					if (curobjp->ctype.player_info.powerup_flags & PLAYER_FLAGS_CLOAKED)
 						continue;

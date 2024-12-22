@@ -718,7 +718,7 @@ static vmsegptridx_t choose_drop_segment(fvmsegptridx &vmsegptridx, fvcvertptr &
 		/* Build a list of active players, excluding the initiator and
 		 * anyone from the same team as the initiator.
 		 */
-		const auto team_of_drop_player{get_team(drop_pnum)};
+		const auto team_of_drop_player{multi_get_team_from_player(Netgame, drop_pnum)};
 		for (auto &&[pnum, plr] : enumerate(Players))
 		{
 			/* Skip the initiator, so that items will try to jump from
@@ -728,7 +728,7 @@ static vmsegptridx_t choose_drop_segment(fvmsegptridx &vmsegptridx, fvcvertptr &
 				continue;
 			if (plr.connected == player_connection_status::disconnected)
 				continue;
-			if ((Game_mode & GM_TEAM) && get_team(pnum) == team_of_drop_player)
+			if ((Game_mode & GM_TEAM) && multi_get_team_from_player(Netgame, pnum) == team_of_drop_player)
 				continue;
 			*r++ = pnum;
 		}

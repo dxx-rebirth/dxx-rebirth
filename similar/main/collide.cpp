@@ -2057,7 +2057,7 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 
 		if (game_mode_capture_flag(Game_mode) && (player_info.powerup_flags & PLAYER_FLAGS_FLAG))
 		{
-			call_object_create_egg(playerobj, get_team(get_player_id(playerobj)) == team_number::blue ? powerup_type_t::POW_FLAG_RED : powerup_type_t::POW_FLAG_BLUE);
+			call_object_create_egg(playerobj, multi_get_team_from_player(Netgame, get_player_id(playerobj)) == team_number::blue ? powerup_type_t::POW_FLAG_RED : powerup_type_t::POW_FLAG_BLUE);
 		}
 
 

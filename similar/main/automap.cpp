@@ -872,14 +872,14 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 	const unsigned show_all_players{(Game_mode & GM_MULTI_COOP) || underlying_value(Netgame.game_flag & netgame_rule_flags::show_all_players_on_automap)};
 	if (show_all_players || (Game_mode & GM_TEAM))
 	{
-		const auto local_player_team{get_team(Player_num)};
+		const auto local_player_team{multi_get_team_from_player(Netgame, Player_num)};
 		const auto n_players{N_players};
 		for (const auto iu : xrange(n_players))
 		{
 			const auto i{static_cast<playernum_t>(iu)};
 			if (i == Player_num)
 				continue;
-			if (show_all_players || local_player_team == get_team(i))
+			if (show_all_players || local_player_team == multi_get_team_from_player(Netgame, i))
 			{
 				auto &plr{*vcplayerptr(i)};
 				auto &objp{*vcobjptr(plr.objnum)};

@@ -1293,7 +1293,7 @@ static void hud_show_flag(grs_canvas &canvas, const player_info &player_info, co
 		}
 		}
 
-		icon = (get_team(Player_num) == team_number::blue) ? FLAG_ICON_RED : FLAG_ICON_BLUE;
+		icon = (multi_get_team_from_player(Netgame, Player_num) == team_number::blue) ? FLAG_ICON_RED : FLAG_ICON_BLUE;
 		auto &bm = GameBitmaps[GET_GAUGE_INDEX(icon)];
 		PAGE_IN_GAUGE(icon, multires_gauge_graphic);
 		const auto &&hud_scale_ar = HUD_SCALE_AR(grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height(), multires_gauge_graphic);
@@ -3641,7 +3641,7 @@ void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &canvas, co
 
 		const auto &&objp = vcobjptridx(objnum);
 		const auto &pl_flags = objp->ctype.player_info.powerup_flags;
-		const auto is_friend = (Game_mode & GM_MULTI_COOP || (Game_mode & GM_TEAM && get_team(pnum) == get_team(Player_num)));
+		const auto is_friend = (Game_mode & GM_MULTI_COOP || (Game_mode & GM_TEAM && multi_get_team_from_player(Netgame, pnum) == multi_get_team_from_player(Netgame, Player_num)));
 		const auto show_friend_name{Show_reticle_name};
 		const auto is_cloaked = pl_flags & PLAYER_FLAGS_CLOAKED;
 		const auto show_enemy_name = Show_reticle_name && Netgame.ShowEnemyNames && !is_cloaked;
@@ -3736,11 +3736,11 @@ void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &canvas, co
 							} c{};
 #if DXX_BUILD_DESCENT == 2
 						if (game_mode_capture_flag(Game_mode))
-								((get_team(pnum) == team_number::blue) ? c.r : c.b) = 31;
+								((multi_get_team_from_player(Netgame, pnum) == team_number::blue) ? c.r : c.b) = 31;
 						else if (game_mode_hoard(Game_mode))
 						{
 								((Game_mode & GM_TEAM)
-									? ((get_team(pnum) == team_number::blue) ? c.b : c.r)
+									? ((multi_get_team_from_player(Netgame, pnum) == team_number::blue) ? c.b : c.r)
 									: c.g
 								) = 31;
 						}

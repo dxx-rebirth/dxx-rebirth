@@ -515,7 +515,6 @@ void multi_sort_kill_list(void);
 }
 #endif
 void multi_reset_stuff(void);
-team_number get_team(playernum_t pnum);
 void multi_disconnect_player(playernum_t);
 
 #ifdef DXX_BUILD_DESCENT
@@ -601,6 +600,7 @@ extern multi_macro_message_index multi_defining_message;
 
 vms_vector multi_get_vector(std::span<const uint8_t, 12> buf);
 void multi_put_vector(uint8_t *buf, const vms_vector &v);
+team_number multi_get_team_from_player(uint8_t, playernum_t pnum);
 
 }
 extern void multi_send_message_start();
@@ -693,6 +693,7 @@ namespace dsx {
 #define NETGAME_NAME_LEN	25
 
 extern struct netgame_info Netgame;
+
 }
 #endif
 
@@ -909,10 +910,15 @@ namespace multi
 	};
 }
 
+static inline team_number multi_get_team_from_player(const netgame_info &Netgame, playernum_t pnum)
+{
+	return ::dcx::multi_get_team_from_player(Netgame.team_vector, pnum);
+}
+
 static inline player_ship_color get_player_or_team_color(const playernum_t pnum)
 {
 	return Game_mode & GM_TEAM
-		? get_team_color(get_team(pnum))
+		? get_team_color(multi_get_team_from_player(Netgame, pnum))
 		: get_player_color(pnum);
 }
 

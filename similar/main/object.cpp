@@ -1659,7 +1659,7 @@ static void start_player_death_sequence(object &player)
 						return true;
 					if (!(Game_mode & GM_TEAM))
 						return false;
-					return get_team(Player_num) == get_team(get_player_id(killer_objp));
+					return multi_get_team_from_player(Netgame, Player_num) == multi_get_team_from_player(Netgame, get_player_id(killer_objp));
 				};
 				if (!is_bad_kill())
 					++ proximity;

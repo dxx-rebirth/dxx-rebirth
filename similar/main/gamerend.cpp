@@ -594,7 +594,7 @@ static bool choose_missile_viewer()
 			else if (game_mode & GM_TEAM)
 			{
 				/* Allow missiles from same team */
-				if (get_team(Player_num) != get_team(get_player_id(vcobjptr(o.ctype.laser_info.parent_num))))
+				if (multi_get_team_from_player(Netgame, Player_num) != multi_get_team_from_player(Netgame, get_player_id(vcobjptr(o.ctype.laser_info.parent_num))))
 					continue;
 			}
 			else
@@ -734,7 +734,7 @@ static void show_one_extra_view(grs_canvas &canvas, const gauge_inset_window_vie
 
 	         RenderingType=255; // don't handle coop stuff			
 				
-				if (player < Players.size() && vcplayerptr(player)->connected != player_connection_status::disconnected && ((Game_mode & GM_MULTI_COOP) || ((Game_mode & GM_TEAM) && (get_team(player) == get_team(Player_num)))))
+				if (player < Players.size() && vcplayerptr(player)->connected != player_connection_status::disconnected && ((Game_mode & GM_MULTI_COOP) || ((Game_mode & GM_TEAM) && (multi_get_team_from_player(Netgame, player) == multi_get_team_from_player(Netgame, Player_num)))))
 				{
 					auto &p = *vcplayerptr(player);
 					do_cockpit_window_view(canvas, w, *vcobjptr(p.objnum), 0, weapon_box_user::coop, p.callsign);

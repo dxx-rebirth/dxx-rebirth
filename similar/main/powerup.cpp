@@ -328,7 +328,7 @@ static int player_hit_flag_powerup(player_info &player_info, const std::span<con
 	if (!game_mode_capture_flag(Game_mode))
 		return 0;
 	const auto pnum{Player_num};
-	if (get_team(pnum) == TEAM)
+	if (multi_get_team_from_player(Netgame, pnum) == TEAM)
 	{
 		player_info.powerup_flags |= PLAYER_FLAGS_FLAG;
 		powerup_basic_str(15, 0, 15, 0, desc);

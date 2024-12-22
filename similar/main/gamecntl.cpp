@@ -751,7 +751,7 @@ static int select_next_window_function(const gauge_inset_window_view w)
 
 					if (Game_mode & GM_MULTI_COOP)
 						break;
-					else if (get_team(cvp) == get_team(Player_num))
+					else if (multi_get_team_from_player(Netgame, cvp) == multi_get_team_from_player(Netgame, Player_num))
 						break;
 				}
 				break;

@@ -175,7 +175,7 @@ static const char *prepare_kill_name(fvcplayerptr &vcplayerptr, const game_mode_
 	if (Game_mode & GM_TEAM)
 	{
 		const auto r = std::data(buf);
-		snprintf(r, std::size(buf), "%s (%s)", callsign, Netgame.team_name[get_team(pnum)].operator const char *());
+		snprintf(r, std::size(buf), "%s (%s)", callsign, Netgame.team_name[multi_get_team_from_player(Netgame, pnum)].operator const char *());
 		return r;
 	}
 	else
@@ -258,6 +258,14 @@ void multi_put_vector(uint8_t *const buf, const vms_vector &v)
 	PUT_INTEL_INT(&buf[0], lv.x);
 	PUT_INTEL_INT(&buf[4], lv.y);
 	PUT_INTEL_INT(&buf[8], lv.z);
+}
+
+team_number multi_get_team_from_player(uint8_t team_vector, const playernum_t pnum)
+{
+	if (team_vector & (1 << pnum))
+		return team_number::red;
+	else
+		return team_number::blue;
 }
 
 }
@@ -636,14 +644,6 @@ kmatrix_result multi_endlevel_score()
 
 }
 
-team_number get_team(const playernum_t pnum)
-{
-	if (Netgame.team_vector & (1 << pnum))
-		return team_number::red;
-	else
-		return team_number::blue;
-}
-
 void multi_new_game()
 {
 	// Reset variables for a new net game
@@ -860,7 +860,7 @@ static void multi_compute_kill(const d_robot_info_array &Robot_info, const imobj
 	if (killer_type == OBJ_CNTRLCEN)
 	{
 		if (Game_mode & GM_TEAM)
-			-- team_kills[get_team(killed_pnum)];
+			-- team_kills[multi_get_team_from_player(Netgame, killed_pnum)];
 		++ killed.ctype.player_info.net_killed_total;
 		-- killed.ctype.player_info.net_kills_total;
 		-- killed.ctype.player_info.KillGoalCount;
@@ -922,7 +922,7 @@ static void multi_compute_kill(const d_robot_info_array &Robot_info, const imobj
 		{
 			if (Game_mode & GM_TEAM)
 			{
-				team_kills[get_team(killed_pnum)] -= 1;
+				team_kills[multi_get_team_from_player(Netgame, killed_pnum)] -= 1;
 			}
 
 			++ killed.ctype.player_info.net_killed_total;
@@ -961,8 +961,8 @@ static void multi_compute_kill(const d_robot_info_array &Robot_info, const imobj
 		const auto is_team_game = Game_mode & GM_TEAM;
 		if (is_team_game)
 		{
-			killed_team = get_team(killed_pnum);
-			killer_team = get_team(killer_pnum);
+			killed_team = multi_get_team_from_player(Netgame, killed_pnum);
+			killer_team = multi_get_team_from_player(Netgame, killer_pnum);
 			if (killed_team == killer_team)
 				adjust = -1;
 		}
@@ -1026,7 +1026,7 @@ static void multi_compute_kill(const d_robot_info_array &Robot_info, const imobj
 	{
 		const auto TheGoal = Netgame.KillGoal * 5;
 		if (((Game_mode & GM_TEAM)
-				? team_kills[get_team(killer_pnum)]
+				? team_kills[multi_get_team_from_player(Netgame, killer_pnum)]
 				: killer->ctype.player_info.KillGoalCount
 			) >= TheGoal)
 		{
@@ -1726,7 +1726,7 @@ static void multi_do_message(const playernum_t pnum, const multiplayer_rspan<mul
 		 */
 		if ( (!d_strnicmp(static_cast<const char *>(get_local_player().callsign), buf+loc, colon-(buf+loc))) ||
 			((Game_mode & GM_TEAM) && ({
-				const auto local_player_team = get_team(Player_num);
+				const auto local_player_team = multi_get_team_from_player(Netgame, Player_num);
 				(buf + loc + 1 == colon && ({
 					/* The length is correct, so this might or might not be a team number. */
 					const auto o = Netgame.team_name.valid_index(buf[loc] - '1');
@@ -2488,7 +2488,7 @@ static void multi_reset_object_texture(object_base &objp)
 
 	const auto player_id = get_player_id(objp);
 	const auto id = (Game_mode & GM_TEAM)
-		? static_cast<unsigned>(get_team(player_id))
+		? static_cast<unsigned>(multi_get_team_from_player(Netgame, player_id))
 		: player_id;
 
 	auto &pobj_info = objp.rtype.pobj_info;
@@ -4347,13 +4347,13 @@ void multi_do_capture_bonus(const playernum_t pnum)
 
 	digi_play_sample(pnum == Player_num
 		? sound_effect::SOUND_HUD_YOU_GOT_GOAL
-		: (get_team(pnum) == team_number::blue
+		: (multi_get_team_from_player(Netgame, pnum) == team_number::blue
 			? sound_effect::SOUND_HUD_BLUE_GOT_GOAL
 			: sound_effect::SOUND_HUD_RED_GOT_GOAL
 		), F1_0*2);
 
 
-	team_kills[get_team(pnum)] += 5;
+	team_kills[multi_get_team_from_player(Netgame, pnum)] += 5;
 	auto &plr = *vcplayerptr(pnum);
 	auto &player_info = vmobjptr(plr.objnum)->ctype.player_info;
 	player_info.powerup_flags &= ~PLAYER_FLAGS_FLAG;  // Clear capture flag
@@ -4408,7 +4408,7 @@ void multi_do_orb_bonus(const playernum_t pnum, const multiplayer_rspan<multipla
 		digi_start_sound_queued (sound_effect::SOUND_HUD_YOU_GOT_GOAL,F1_0*2);
 	else
 		digi_play_sample((Game_mode & GM_TEAM)
-			? (get_team(pnum) == team_number::blue
+			? (multi_get_team_from_player(Netgame, pnum) == team_number::blue
 				? sound_effect::SOUND_HUD_BLUE_GOT_GOAL
 				: sound_effect::SOUND_HUD_RED_GOT_GOAL
 			) : sound_effect::SOUND_OPPONENT_HAS_SCORED, F1_0*2);
@@ -4425,14 +4425,14 @@ void multi_do_orb_bonus(const playernum_t pnum, const multiplayer_rspan<multipla
 	}
 
 
-	team_kills[get_team(pnum)] += bonus;
+	team_kills[multi_get_team_from_player(Netgame, pnum)] += bonus;
 	auto &plr = *vcplayerptr(pnum);
 	auto &player_info = vmobjptr(plr.objnum)->ctype.player_info;
 	player_info.powerup_flags &= ~PLAYER_FLAGS_FLAG;  // Clear orb flag
 	player_info.net_kills_total += bonus;
 	player_info.KillGoalCount += bonus;
 
-	team_kills[get_team(pnum)]%=1000;
+	team_kills[multi_get_team_from_player(Netgame, pnum)]%=1000;
 	player_info.net_kills_total%=1000;
 	player_info.KillGoalCount %= 1000;
 
@@ -4488,7 +4488,7 @@ static void multi_do_got_flag (const playernum_t pnum)
 	auto &vmobjptr = Objects.vmptr;
 	digi_start_sound_queued(pnum == Player_num
 		? sound_effect::SOUND_HUD_YOU_GOT_FLAG
-		: (get_team(pnum) == team_number::blue
+		: (multi_get_team_from_player(Netgame, pnum) == team_number::blue
 			? sound_effect::SOUND_HUD_BLUE_GOT_FLAG
 			: sound_effect::SOUND_HUD_RED_GOT_FLAG
 		), F1_0*2);
@@ -4502,7 +4502,7 @@ static void multi_do_got_orb (const playernum_t pnum)
 	auto &vmobjptr = Objects.vmptr;
 	assert(game_mode_hoard(Game_mode));
 
-	digi_play_sample((Game_mode & GM_TEAM) && get_team(pnum) == get_team(Player_num)
+	digi_play_sample((Game_mode & GM_TEAM) && multi_get_team_from_player(Netgame, pnum) == multi_get_team_from_player(Netgame, Player_num)
 		? sound_effect::SOUND_FRIEND_GOT_ORB
 		: sound_effect::SOUND_OPPONENT_GOT_ORB, F1_0*2);
 
@@ -4574,7 +4574,7 @@ void DropFlag ()
 		return;
 	}
 	seed = d_rand();
-	const auto &&objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, *ConsoleObject, get_team(Player_num) == team_number::blue ? powerup_type_t::POW_FLAG_RED : powerup_type_t::POW_FLAG_BLUE, seed);
+	const auto &&objnum = spit_powerup(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Vclip, *ConsoleObject, multi_get_team_from_player(Netgame, Player_num) == team_number::blue ? powerup_type_t::POW_FLAG_RED : powerup_type_t::POW_FLAG_BLUE, seed);
 	if (objnum == object_none)
 	{
 		HUD_init_message_literal(HM_MULTI, "Failed to drop flag!");
@@ -4876,7 +4876,7 @@ int multi_maybe_disable_friendly_fire(const object_base *const killer)
 		return is_coop;
 	else if (Game_mode & GM_TEAM) // team mode - find out if killer is in my team
 	{
-		if (get_team(Player_num) == get_team(get_player_id(*killer))) // in my team -> don't harm me!
+		if (multi_get_team_from_player(Netgame, Player_num) == multi_get_team_from_player(Netgame, get_player_id(*killer))) // in my team -> don't harm me!
 			return 1;
 		else // opposite team -> harm me!
 			return 0;
@@ -5439,7 +5439,7 @@ static void MultiLevelInv_CountPlayerInventory()
 						powerup_flags.process(PLAYER_FLAGS_HEADLIGHT, powerup_type_t::POW_HEADLIGHT);
                         if ((Game_mode & GM_CAPTURE) && (player_info.powerup_flags & PLAYER_FLAGS_FLAG))
                         {
-							++Current[(get_team(i) == team_number::blue) ? powerup_type_t::POW_FLAG_RED : powerup_type_t::POW_FLAG_BLUE];
+							++Current[(multi_get_team_from_player(Netgame, i) == team_number::blue) ? powerup_type_t::POW_FLAG_RED : powerup_type_t::POW_FLAG_BLUE];
                         }
 #endif
 		Current[powerup_type_t::POW_VULCAN_AMMO] += player_info.vulcan_ammo;

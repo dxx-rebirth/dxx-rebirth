@@ -748,7 +748,7 @@ void fuelcen_check_for_goal(object &plrobj, const shared_segment &segp)
 		default:
 			return;
 	}
-	if (get_team(Player_num) != check_team)
+	if (multi_get_team_from_player(Netgame, Player_num) != check_team)
 		return;
 	auto &player_info = plrobj.ctype.player_info;
 	if (player_info.powerup_flags & PLAYER_FLAGS_FLAG)

@@ -2215,7 +2215,7 @@ static int newdemo_read_frame_information(int rewrite)
 					int player;
 
 					if (Newdemo_game_mode & GM_TEAM)
-						player = static_cast<unsigned>(get_team(get_player_id(obj)));
+						player = static_cast<unsigned>(multi_get_team_from_player(Netgame, get_player_id(obj)));
 					else
 						player = get_player_id(obj);
 					if (player == 0)
@@ -2965,11 +2965,11 @@ static int newdemo_read_frame_information(int rewrite)
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				player_info.net_kills_total -= kill;
 				if (Newdemo_game_mode & GM_TEAM)
-					team_kills[get_team(pnum)] -= kill;
+					team_kills[multi_get_team_from_player(Netgame, pnum)] -= kill;
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				player_info.net_kills_total += kill;
 				if (Newdemo_game_mode & GM_TEAM)
-					team_kills[get_team(pnum)] += kill;
+					team_kills[multi_get_team_from_player(Netgame, pnum)] += kill;
 			}
 			Game_mode = Newdemo_game_mode;
 			multi_sort_kill_list();
