@@ -228,7 +228,6 @@ int ai_door_is_openable(
 	const shared_segment &segp, sidenum_t sidenum);
 player_visibility_state player_is_visible_from_object(const d_robot_info_array &Robot_info, vmobjptridx_t objp, vms_vector &pos, fix field_of_view, const vms_vector &vec_to_player);
 extern void ai_reset_all_paths(void);   // Reset all paths.  Call at the start of a level.
-int ai_multiplayer_awareness(vmobjptridx_t objp, int awareness_level);
 
 #if DXX_BUILD_DESCENT == 2
 // In escort.c

@@ -2621,7 +2621,7 @@ static int do_any_robot_dying_frame(const d_robot_info_array &Robot_info, const 
 //	Return value:
 //		0	this player IS NOT allowed to move this robot.
 //		1	this player IS allowed to move this robot.
-int ai_multiplayer_awareness(const vmobjptridx_t objp, int awareness_level)
+static int ai_multiplayer_awareness(const vmobjptridx_t objp, int awareness_level)
 {
 	int rval{1};
 
