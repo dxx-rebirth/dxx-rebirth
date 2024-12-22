@@ -64,7 +64,6 @@ enum class cockpit_mode_t : uint8_t;
 #define GM_NETWORK		game_mode_flag::network       // You are in network mode
 #define GM_MULTI_ROBOTS	game_mode_flag::multi_robots       // You are in a multiplayer mode with robots.
 #define GM_MULTI_COOP	game_mode_flag::multi_coop      // You are in a multiplayer mode and can't hurt other players.
-#define GM_UNKNOWN		game_mode_flag::unknown      // You are not in any mode, kind of dangerous...
 #define GM_TEAM			game_mode_flag::team     // Team mode for network play
 #define GM_BOUNTY		game_mode_flag::bounty     // New bounty mode by Matt1360
 #define GM_CAPTURE		game_mode_flag::capture     // Capture the flag mode for D2

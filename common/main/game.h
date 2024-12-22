@@ -43,7 +43,6 @@ enum class game_mode_flag : uint16_t
 	network			= 1u << 2,
 	multi_robots	= 1u << 3,
 	multi_coop		= 1u << 4,
-	unknown			= 1u << 6,
 	team			= 1u << 8,
 	bounty			= 1u << 9,
 	/* if DXX_BUILD_DESCENT == 2 */
