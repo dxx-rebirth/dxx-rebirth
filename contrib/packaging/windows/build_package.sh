@@ -3,7 +3,7 @@ set -eux -o pipefail
 
 unset outdir zip_filename
 
-while getopts oz OPTNAME; do
+while getopts o:z: OPTNAME; do
 	case "$OPTNAME" in
 		o)
 			outdir="$OPTARG"
