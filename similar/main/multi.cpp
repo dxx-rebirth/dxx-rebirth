@@ -1697,12 +1697,6 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 	}
 }
 
-}
-
-}
-
-namespace {
-
 static void multi_do_message(const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_MESSAGE> cbuf)
 {
 	const auto buf = reinterpret_cast<const char *>(cbuf.data());
@@ -1747,12 +1741,6 @@ static void multi_do_message(const playernum_t pnum, const multiplayer_rspan<mul
 	HUD_init_message(HM_MULTI, "%c%c%s:%c%c %s", CC_COLOR, xrgb, static_cast<const char *>(vcplayerptr(pnum)->callsign), CC_COLOR, BM_XRGB(0, 31, 0), msgstart);
 	multi_sending_message[pnum] = msgsend_state::none;
 }
-
-}
-
-namespace dsx {
-
-namespace {
 
 static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_POSITION> buf)
 {
