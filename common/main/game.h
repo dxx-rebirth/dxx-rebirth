@@ -68,7 +68,18 @@ enum class game_mode_flags : uint16_t
 
 static constexpr auto operator&(const game_mode_flags game_mode, const game_mode_flag f)
 {
+#if DXX_USE_MULTIPLAYER
 	return underlying_value(game_mode) & underlying_value(f);
+#else
+	/* `normal` has the value 0, and every flag with a non-zero value is
+	 * related to multiplayer.  A build without the ability to use multiplayer
+	 * will therefore only ever have a `game_mode` of 0, so the test can be
+	 * simplified to always return false.
+	 */
+	(void)game_mode;
+	(void)f;
+	return std::false_type{};
+#endif
 }
 
 /* This must be a signed type.  Some sites, such as `bump_this_object`,

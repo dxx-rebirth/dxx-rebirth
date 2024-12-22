@@ -25,10 +25,38 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <cstddef>
+#include "dxxsconf.h"
+#include "dsx-ns.h"
+#include "game.h"
+#include "window.h"
+
+namespace dcx {
+
+constexpr std::size_t MAX_MESSAGE_LEN{35};
+
+enum class multi_macro_message_index : uint8_t
+{
+	_0,
+	_1,
+	_2,
+	_3,
+	None = UINT8_MAX,
+};
+
+/* Stub for mods that remap player colors */
+static inline player_ship_color get_player_color(const playernum_t pnum)
+{
+	return static_cast<player_ship_color>(pnum);
+}
+
+}
+
+#if DXX_USE_MULTIPLAYER
+
 #include <span>
 #include <type_traits>
 #include <ranges>
-#include "dxxsconf.h"
 #include "fwd-partial_range.h"
 #include "player.h"
 #include "player-callsign.h"
@@ -41,8 +69,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-robot.h"
 #include "fwd-segment.h"
 #include "fwd-wall.h"
-#include "window.h"
-#include "game.h"
 #include "gameplayopt.h"
 
 #ifdef _WIN32
@@ -122,12 +148,6 @@ enum class kick_player_reason : uint8_t
 	pkttimeout,
 };
 
-/* Stub for mods that remap player colors */
-static inline player_ship_color get_player_color(const playernum_t pnum)
-{
-	return static_cast<player_ship_color>(pnum);
-}
-
 static inline player_ship_color get_team_color(const team_number tnum)
 {
 	return static_cast<player_ship_color>(tnum);
@@ -143,8 +163,6 @@ constexpr std::uint16_t MULTI_PROTO_VERSION{16};
 #define DEFAULT_PPS 30
 #define MIN_PPS 5
 #define MAX_PPS 40
-
-#define MAX_MESSAGE_LEN 35
 
 #ifdef DXX_BUILD_DESCENT
 #if DXX_BUILD_DESCENT == 1
@@ -588,14 +606,6 @@ extern std::array<sbyte, MAX_OBJECTS> object_owner;
 extern int multi_quit_game;
 
 extern per_player_array<msgsend_state> multi_sending_message;
-enum class multi_macro_message_index : uint8_t
-{
-	_0,
-	_1,
-	_2,
-	_3,
-	None = UINT8_MAX,
-};
 extern multi_macro_message_index multi_defining_message;
 
 vms_vector multi_get_vector(std::span<const uint8_t, 12> buf);
@@ -765,7 +775,6 @@ struct netplayer_info : prohibit_void_ptr<netplayer_info>
 		Admiral,
 		Demigod
 	};
-#if DXX_USE_UDP
 	union
 	{
 #if DXX_USE_UDP
@@ -775,7 +784,6 @@ struct netplayer_info : prohibit_void_ptr<netplayer_info>
 		} udp;
 #endif
 	} protocol;	
-#endif
 	callsign_t					callsign;
 	player_connection_status connected;
 	player_rank					rank;
@@ -936,3 +944,30 @@ netplayer_info::player_rank build_rank_from_untrusted(uint8_t untrusted);
 	const segnum_t PUT_INTEL_SEGNUM = S;	\
 	PUT_INTEL_SHORT(D, static_cast<uint16_t>(PUT_INTEL_SEGNUM));	\
 	} DXX_END_COMPOUND_STATEMENT )
+
+#else
+
+static inline window_event_result multi_do_frame()
+{
+	return window_event_result::handled;
+}
+
+static inline void multi_send_controlcen_fire(const vms_vector &, int, objnum_t)
+{
+}
+
+#ifdef DXX_BUILD_DESCENT
+namespace dsx {
+
+#if DXX_BUILD_DESCENT == 2
+
+static inline void multi_send_guided_info(const object_base &, char)
+{
+}
+
+#endif
+
+}
+#endif
+
+#endif

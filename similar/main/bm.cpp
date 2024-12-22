@@ -435,7 +435,7 @@ static void bm_free_extra_models(d_level_shared_polygon_model_state &LevelShared
 }
 
 //type==1 means 1.1, type==2 means 1.2 (with weapons)
-void bm_read_extra_robots(const char *fname, Mission::descent_version_type type)
+void bm_read_extra_robots(const char *fname, const Mission::descent_version_type type)
 {
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	int t,version;

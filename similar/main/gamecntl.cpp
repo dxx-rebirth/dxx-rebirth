@@ -1073,11 +1073,13 @@ static window_event_result HandleGameKey(int key, control_info &Controls)
 			if (PlayerCfg.EscortHotKeys)
 			{
 				auto &BuddyState = LevelUniqueObjectState.BuddyState;
+#if DXX_USE_MULTIPLAYER
 				if (Game_mode & GM_MULTI)
 				{
 					if (!check_warn_local_player_can_control_guidebot(Objects.vcptr, BuddyState, Netgame))
 						return window_event_result::handled;
 				}
+#endif
 				set_escort_special_goal(BuddyState, key);
 				game_flush_inputs(Controls);
 				return window_event_result::handled;

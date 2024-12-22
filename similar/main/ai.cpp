@@ -1320,11 +1320,13 @@ player_led: ;
 
 	Laser_create_new_easy(Robot_info, fire_vec, fire_point, obj, weapon_type, weapon_sound_flag::audible);
 
+#if DXX_USE_MULTIPLAYER
 	if (Game_mode & GM_MULTI)
 	{
 		ai_multi_send_robot_position(obj, -1);
 		multi_send_robot_fire(obj, obj->ctype.ai_info.CURRENT_GUN, fire_vec);
 	}
+#endif
 
 	create_awareness_event(obj, player_awareness_type_t::PA_NEARBY_ROBOT_FIRED, LevelUniqueRobotAwarenessState);
 
@@ -2401,8 +2403,10 @@ static void teleport_boss(const d_robot_info_array &Robot_info, const d_vclip_ar
 	rand_segnum = Boss_teleport_segs[rand_index];
 	Assert(rand_segnum <= Highest_segment_index);
 
+#if DXX_USE_MULTIPLAYER
 	if (Game_mode & GM_MULTI)
 		multi_send_boss_teleport(objp, rand_segnum);
+#endif
 
 	const auto &&rand_segp = vmsegptridx(rand_segnum);
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -2625,13 +2629,16 @@ static int do_any_robot_dying_frame(const d_robot_info_array &Robot_info, const 
 static int ai_multiplayer_awareness(const vmobjptridx_t objp, int awareness_level)
 {
 	int rval{1};
-
+#if DXX_USE_MULTIPLAYER
 	if (Game_mode & GM_MULTI) {
 		if (awareness_level == 0)
 			return 0;
 		rval = multi_can_move_robot(objp, awareness_level);
 	}
-
+#else
+	(void)objp;
+	(void)awareness_level;
+#endif
 	return rval;
 }
 
@@ -2694,8 +2701,10 @@ static void do_d1_boss_stuff(const d_robot_info_array &Robot_info, fvmsegptridx 
 					BossUniqueState.Boss_hit_this_frame = 0;
 					BossUniqueState.Boss_cloak_start_time = {GameTime64};
 					objp->ctype.ai_info.CLOAKED = 1;
+#if DXX_USE_MULTIPLAYER
 					if (Game_mode & GM_MULTI)
 						multi_send_boss_cloak(objp);
+#endif
 				}
 			}
 		}
@@ -2716,10 +2725,17 @@ static void do_super_boss_stuff(const d_robot_info_array &Robot_info, fvmsegptri
 	do_d1_boss_stuff(Robot_info, vmsegptridx, objp, player_visibility);
 
 	// Only master player can cause gating to occur.
-	if ((Game_mode & GM_MULTI) && !multi_i_am_master())
+	const auto multiplayer{Game_mode & GM_MULTI};
+#if DXX_USE_MULTIPLAYER
+	if (multiplayer && !multi_i_am_master())
                 return;
+#endif
 
-	if (dist_to_player < BOSS_TO_PLAYER_GATE_DISTANCE || player_is_visible(player_visibility) || (Game_mode & GM_MULTI)) {
+	if (
+		multiplayer ||
+		dist_to_player < BOSS_TO_PLAYER_GATE_DISTANCE ||
+		player_is_visible(player_visibility)
+	) {
 		const auto Gate_interval = GameUniqueState.Boss_gate_interval;
 		if (GameTime64 - BossUniqueState.Last_gate_time > Gate_interval/2) {
 			restart_effect(ECLIP_NUM_BOSS);
@@ -2742,10 +2758,14 @@ static void do_super_boss_stuff(const d_robot_info_array &Robot_info, fvmsegptri
 
 				Assert(randtype < MAX_GATE_INDEX);
 				const auto &&rtval = gate_in_robot(Robot_info, vmsegptridx, Super_boss_gate_list[randtype]);
+#if DXX_USE_MULTIPLAYER
 				if (rtval != object_none && (Game_mode & GM_MULTI))
 				{
 					multi_send_boss_create_robot(objp, rtval);
 				}
+#else
+				(void)rtval;
+#endif
 			}	
 	}
 }
@@ -2795,8 +2815,10 @@ static void do_d2_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 			if (ai_multiplayer_awareness(objp, 95)) {
 				BossUniqueState.Boss_cloak_start_time = {GameTime64};
 				objp->ctype.ai_info.CLOAKED = 1;
+#if DXX_USE_MULTIPLAYER
 				if (Game_mode & GM_MULTI)
 					multi_send_boss_cloak(objp);
+#endif
 			}
 		}
 	}
@@ -2804,11 +2826,15 @@ static void do_d2_boss_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t objp
 }
 #endif
 
-
 static void ai_multi_send_robot_position(object &obj, int force)
 {
+#if DXX_USE_MULTIPLAYER
 	if (Game_mode & GM_MULTI) 
 		multi_send_robot_position(obj, force != -1 ? multi_send_robot_position_priority::_2 : multi_send_robot_position_priority::_1);
+#else
+	(void)obj;
+	(void)force;
+#endif
 	return;
 }
 
@@ -2829,7 +2855,6 @@ static int maybe_ai_do_actual_firing_stuff(object &obj)
 			}
 		}
 	}
-
 	return 0;
 }
 

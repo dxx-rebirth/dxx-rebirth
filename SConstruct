@@ -1421,7 +1421,7 @@ int main(int argc,char**argv)
 		self._result_check_user_setting(context, self.user_settings.use_stereo_render, 'stereoscopic rendering', cpp_defines_with_condition_value=_CPPDEFINES)
 
 	@_custom_test
-	def _check_user_settings_udp(self,context,_CPPDEFINES=('DXX_USE_UDP',)):
+	def _check_user_settings_udp(self,context,_CPPDEFINES=('DXX_USE_MULTIPLAYER', 'DXX_USE_UDP',)):
 		self._result_check_user_setting(context, self.user_settings.use_udp, 'multiplayer over UDP', cpp_defines_with_condition_value=_CPPDEFINES)
 
 	@_custom_test
@@ -5028,8 +5028,6 @@ class DXXProgram(DXXCommon):
 'similar/main/mglobal.cpp',
 'similar/main/mission.cpp',
 'similar/main/morph.cpp',
-'similar/main/multi.cpp',
-'similar/main/multibot.cpp',
 'similar/main/newdemo.cpp',
 'similar/main/newmenu.cpp',
 'similar/main/object.cpp',
@@ -5170,6 +5168,13 @@ class DXXProgram(DXXCommon):
 
 	def get_objects_common(self,
 		__get_objects_common=__get_objects_common,
+		__get_objects_multiplayer=DXXCommon.create_lazy_object_states_getter((LazyObjectState(sources=(
+'similar/main/multi.cpp',
+'similar/main/multibot.cpp',
+),
+		transform_target=_apply_target_name,
+	),
+	)),
 		__get_objects_use_udp=DXXCommon.create_lazy_object_states_getter((LazyObjectState(sources=(
 'similar/main/net_udp.cpp',
 ),
@@ -5181,6 +5186,7 @@ class DXXProgram(DXXCommon):
 		value = list(__get_objects_common(self))
 		extend = value.extend
 		if self.user_settings.use_udp:
+			extend(__get_objects_multiplayer(self))
 			extend(__get_objects_use_udp(self))
 		extend(self.platform_settings.platform_objects)
 		return value

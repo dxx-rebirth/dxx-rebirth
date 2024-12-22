@@ -522,9 +522,12 @@ static void DropMarker(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptridx, con
 		obj_delete(LevelUniqueObjectState, Segments, vmobjptridx(marker_objidx));
 
 	marker_objidx = drop_marker_object(plrobj.pos, vmsegptridx(plrobj.segnum), plrobj.orient, marker_num);
-
+#if DXX_USE_MULTIPLAYER
 	if (Game_mode & GM_MULTI)
 		multi_send_drop_marker(Player_num, plrobj.pos, player_marker_num, MarkerState.message[marker_num]);
+#else
+	(void)player_marker_num;
+#endif
 }
 
 }
@@ -556,7 +559,13 @@ static void DrawMarkers(fvcobjptr &vcobjptr, grs_canvas &canvas, automap &am)
 	static int cyc=10,cycdir=1;
 
 	const auto game_mode{Game_mode};
-	const auto max_numplayers{Netgame.max_numplayers};
+	const auto max_numplayers{
+#if DXX_USE_MULTIPLAYER
+		Netgame.max_numplayers
+#else
+		1u
+#endif
+	};
 	const auto maxdrop{MarkerState.get_markers_per_player(game_mode, max_numplayers)};
 	const auto &&game_marker_range{get_game_marker_range(game_mode, max_numplayers, Player_num, maxdrop)};
 	const auto &&player_marker_range{get_player_marker_range(maxdrop)};
@@ -869,6 +878,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 #endif
 	
 	// Draw player(s)...
+#if DXX_USE_MULTIPLAYER
 	const unsigned show_all_players{(Game_mode & GM_MULTI_COOP) || underlying_value(Netgame.game_flag & netgame_rule_flags::show_all_players_on_automap)};
 	if (show_all_players || (Game_mode & GM_TEAM))
 	{
@@ -891,6 +901,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 			}
 		}
 	}
+#endif
 
 	for (auto &obj : vcobjptr)
 	{
@@ -950,9 +961,10 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 	const auto vsync{CGameCfg.VSync};
 	const auto bound{F1_0 / (vsync ? MAXIMUM_FPS : CGameArg.SysMaxFPS)};
 	const auto may_sleep{!CGameArg.SysNoNiceFPS && !vsync};
+	const auto multiplayer{Game_mode & GM_MULTI};
 	while (am.t2 - am.t1 < bound) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
 	{
-		if (Game_mode & GM_MULTI)
+		if (multiplayer)
 			multi_do_frame(); // during long wait, keep packets flowing
 		if (may_sleep)
 			timer_delay(F1_0>>8);

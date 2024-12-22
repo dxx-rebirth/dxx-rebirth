@@ -639,6 +639,7 @@ void calc_frame_time()
 	const auto vsync{CGameCfg.VSync};
 	const auto bound = f1_0 / (likely(vsync) ? MAXIMUM_FPS : CGameArg.SysMaxFPS);
 	const auto may_sleep = !CGameArg.SysNoNiceFPS && !vsync;
+	const auto multiplayer{Game_mode & GM_MULTI};
 	for (;;)
 	{
 		const auto timer_value = timer_update();
@@ -653,7 +654,7 @@ void calc_frame_time()
 			}
 			break;
 		}
-		if (Game_mode & GM_MULTI)
+		if (multiplayer)
 			multi_do_frame(); // during long wait, keep packets flowing
 		if (may_sleep)
 			timer_delay_ms(1);
@@ -2010,6 +2011,7 @@ window_event_result GameProcessFrame(const d_level_shared_robot_info_state &Leve
 	player_follow_path(vmobjptr(ConsoleObject));
 #endif
 
+#if DXX_USE_MULTIPLAYER
 	if (Game_mode & GM_MULTI)
 	{
 		result = std::max(multi_do_frame(), result);
@@ -2020,6 +2022,7 @@ window_event_result GameProcessFrame(const d_level_shared_robot_info_state &Leve
 			ThisLevelTime += d_time_fix(FrameTime);
 		}
 	}
+#endif
 
 	result = std::max(dead_player_frame(LevelSharedRobotInfoState.Robot_info), result);
 	if (Newdemo_state != ND_STATE_PLAYBACK)

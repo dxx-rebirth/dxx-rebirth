@@ -36,7 +36,9 @@ void detect_escort_goal_fuelcen_accomplished();
 void set_escort_special_goal(d_unique_buddy_state &BuddyState, int key);
 void init_buddy_for_level(void);
 void invalidate_escort_goal(d_unique_buddy_state &);
+#if DXX_USE_MULTIPLAYER
 unsigned check_warn_local_player_can_control_guidebot(fvcobjptr &vcobjptr, const d_unique_buddy_state &, const netgame_info &Netgame);
+#endif
 
 enum escort_goal_t : uint8_t
 {

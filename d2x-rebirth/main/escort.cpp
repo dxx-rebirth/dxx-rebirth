@@ -433,11 +433,13 @@ static uint8_t show_buddy_message()
 	if (BuddyState.Buddy_messages_suppressed)
 		return 0;
 
+#if DXX_USE_MULTIPLAYER
 	if (Game_mode & GM_MULTI)
 	{
 		if (!Netgame.AllowGuidebot)
 			return 0;
 	}
+#endif
 
 	if (BuddyState.Last_buddy_message_time + F1_0 < GameTime64) {
 		if (const auto r = ok_for_buddy_to_talk())
@@ -1693,9 +1695,13 @@ static int maybe_steal_primary_weapon(object &playerobj, const primary_weapon_in
 	}
 	if (is_energy_weapon)
 	{
-		if (((Game_mode & GM_MULTI)
-			? Netgame.ThiefModifierFlags
-			: PlayerCfg.ThiefModifierFlags) & ThiefModifier::NoEnergyWeapons)
+		if ((
+#if DXX_USE_MULTIPLAYER
+				(Game_mode & GM_MULTI)
+				? Netgame.ThiefModifierFlags
+				:
+#endif
+				PlayerCfg.ThiefModifierFlags) & ThiefModifier::NoEnergyWeapons)
 			return 0;
 	}
 	{
@@ -1971,6 +1977,7 @@ void escort_menu::show_escort_menu()
 
 }
 
+#if DXX_USE_MULTIPLAYER
 unsigned check_warn_local_player_can_control_guidebot(fvcobjptr &vcobjptr, const d_unique_buddy_state &BuddyState, const netgame_info &Netgame)
 {
 	if (!Netgame.AllowGuidebot || !(Game_mode & GM_MULTI_COOP))
@@ -1989,6 +1996,7 @@ unsigned check_warn_local_player_can_control_guidebot(fvcobjptr &vcobjptr, const
 	}
 	return 1;
 }
+#endif
 
 void do_escort_menu(void)
 {
@@ -1999,10 +2007,12 @@ void do_escort_menu(void)
 	auto &vmobjptridx = Objects.vmptridx;
 	int	next_goal;
 
+#if DXX_USE_MULTIPLAYER
 	if (Game_mode & GM_MULTI) {
 		if (!check_warn_local_player_can_control_guidebot(vcobjptr, BuddyState, Netgame))
 			return;
 	}
+#endif
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	const auto &&buddy = find_escort(vmobjptridx, Robot_info);
