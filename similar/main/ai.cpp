@@ -3463,13 +3463,13 @@ _exit_cheat:
 		}
 			break;
 	}
-	
+	const auto multiplayer{Game_mode & GM_MULTI};
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - 
 	// Occasionally make non-still robots make a path to the player.  Based on agitation and distance from player.
 #if DXX_BUILD_DESCENT == 1
-	if ((aip->behavior != ai_behavior::AIB_RUN_FROM) && (aip->behavior != ai_behavior::AIB_STILL) && !(Game_mode & GM_MULTI))
+	if ((aip->behavior != ai_behavior::AIB_RUN_FROM) && (aip->behavior != ai_behavior::AIB_STILL) && !multiplayer)
 #elif DXX_BUILD_DESCENT == 2
-	if ((aip->behavior != ai_behavior::AIB_SNIPE) && (aip->behavior != ai_behavior::AIB_RUN_FROM) && (aip->behavior != ai_behavior::AIB_STILL) && !(Game_mode & GM_MULTI) && (robot_is_companion(robptr) != 1) && (robot_is_thief(robptr) != 1))
+	if ((aip->behavior != ai_behavior::AIB_SNIPE) && (aip->behavior != ai_behavior::AIB_RUN_FROM) && (aip->behavior != ai_behavior::AIB_STILL) && !multiplayer && (robot_is_companion(robptr) != 1) && (robot_is_thief(robptr) != 1))
 #endif
 		if (Overall_agitation > 70) {
 			if ((dist_to_player < F1_0*200) && (d_rand() < FrameTime/4)) {
@@ -3486,7 +3486,7 @@ _exit_cheat:
 	// This is largely a hack to speed up physics and deal with stupid
 	// AI.  This is low level communication between systems of a sort
 	// that should not be done.
-	if (ailp.retry_count && !(Game_mode & GM_MULTI))
+	if (ailp.retry_count && !multiplayer)
 	{
 		ailp.consecutive_retries += ailp.retry_count;
 		ailp.retry_count = 0;
@@ -3516,7 +3516,7 @@ _exit_cheat:
 						attempt_to_resume_path(Robot_info, obj);
 					break;
 				case ai_mode::AIM_FOLLOW_PATH:
-					if (Game_mode & GM_MULTI)
+					if (multiplayer)
 						ailp.mode = ai_mode::AIM_STILL;
 					else
 						attempt_to_resume_path(Robot_info, obj);
@@ -3568,7 +3568,7 @@ _exit_cheat:
 
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
 	// If in materialization center, exit
-	if (!(Game_mode & GM_MULTI))
+	if (!multiplayer)
 	{
 		const shared_segment &seg = *vcsegptr(obj->segnum);
 		if (seg.special == segment_special::robotmaker)
@@ -3659,7 +3659,7 @@ _exit_cheat:
 
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
 	// Note: Should only do these two function calls for objects which animate
-	if (dist_to_player < F1_0*100) { // && !(Game_mode & GM_MULTI))
+	if (dist_to_player < F1_0*100) { // && !multiplayer)
 		object_animates = do_silly_animation(Robot_info, obj);
 		if (object_animates)
 			ai_frame_animation(obj);
@@ -3742,7 +3742,7 @@ _exit_cheat:
 
 #if DXX_BUILD_DESCENT == 2
 	if (aip->behavior == ai_behavior::AIB_SNIPE) {
-		if ((Game_mode & GM_MULTI) && !robot_is_thief(robptr)) {
+		if (multiplayer && !robot_is_thief(robptr)) {
 			aip->behavior = ai_behavior::AIB_NORMAL;
 			ailp.mode = ai_mode::AIM_CHASE_OBJECT;
 			return;
@@ -3834,7 +3834,7 @@ _exit_cheat:
 				}
 				create_path_to_believed_player_segment(obj, robptr, 8, create_path_safety_flag::safe);
 				ai_multi_send_robot_position(obj, -1);
-			} else if (!player_is_visible(player_visibility.visibility) && dist_to_player > F1_0 * 80 && !(Game_mode & GM_MULTI))
+			} else if (!player_is_visible(player_visibility.visibility) && dist_to_player > F1_0 * 80 && !multiplayer)
 			{
 				// If pretty far from the player, player cannot be seen
 				// (obstructed) and in chase mode, switch to follow path mode.
@@ -3867,7 +3867,7 @@ _exit_cheat:
 			if (GameTime64 - ailp.time_player_seen > CHASE_TIME_LENGTH)
 			{
 
-				if (Game_mode & GM_MULTI)
+				if (multiplayer)
 				{
 					if (!player_is_visible(player_visibility.visibility) && dist_to_player > F1_0 * 70)
 					{
@@ -3922,7 +3922,7 @@ _exit_cheat:
 				}
 
 			// If in multiplayer, only do if player visible.  If not multiplayer, do always.
-				if (!(Game_mode & GM_MULTI) || player_is_in_line_of_sight)
+				if (!multiplayer || player_is_in_line_of_sight)
 				if (ai_multiplayer_awareness(obj, 75)) {
 					ai_follow_path(Robot_info, obj, player_visibility.visibility, &vec_to_player);
 					ai_multi_send_robot_position(obj, -1);
@@ -3962,7 +3962,7 @@ _exit_cheat:
 					weapon_id_type::PROXIMITY_ID;
 				Laser_create_new_easy(Robot_info, fire_vec, fire_pos, obj, weapon_id, weapon_sound_flag::audible);
 
-				if (Game_mode & GM_MULTI)
+				if (multiplayer)
 				{
 					ai_multi_send_robot_position(obj, -1);
 					const auto gun_num =
@@ -4139,9 +4139,9 @@ _exit_cheat:
 				// turn towards vector if visible this time or last time, or rand
 				// new!
 #if DXX_BUILD_DESCENT == 1
-				if (player_is_visible(player_visibility.visibility) || player_is_visible(previous_visibility) || ((d_rand() > 0x4000) && !(Game_mode & GM_MULTI)))
+				if (player_is_visible(player_visibility.visibility) || player_is_visible(previous_visibility) || ((d_rand() > 0x4000) && !multiplayer))
 #elif DXX_BUILD_DESCENT == 2
-				if (player_visibility.visibility == player_visibility_state::visible_and_in_field_of_view || previous_visibility == player_visibility_state::visible_and_in_field_of_view) // -- MK, 06/09/95:  || ((d_rand() > 0x4000) && !(Game_mode & GM_MULTI)))
+				if (player_visibility.visibility == player_visibility_state::visible_and_in_field_of_view || previous_visibility == player_visibility_state::visible_and_in_field_of_view) // -- MK, 06/09/95:  || ((d_rand() > 0x4000) && !multiplayer))
 #endif
 				{
 					if (!ai_multiplayer_awareness(obj, 71)) {
@@ -4184,7 +4184,7 @@ _exit_cheat:
 						else
 							ai_multi_send_robot_position(obj, -1);
 					}
-				} else if ((obj->segnum != aip->hide_segment) && (dist_to_player > F1_0*80) && (!(Game_mode & GM_MULTI))) {
+				} else if ((obj->segnum != aip->hide_segment) && (dist_to_player > F1_0*80) && (!multiplayer)) {
 					// If pretty far from the player, player cannot be
 					// seen (obstructed) and in chase mode, switch to
 					// follow path mode.
@@ -4342,7 +4342,7 @@ _exit_cheat:
 				{
 					ai_turn_towards_vector(vec_to_player, obj, robptr.turn_time[Difficulty_level]);
 					ai_multi_send_robot_position(obj, -1);
-				} else if (!(Game_mode & GM_MULTI))
+				} else if (!multiplayer)
 					ai_turn_randomly(vec_to_player, obj, robptr.turn_time[Difficulty_level], previous_visibility);
 #elif DXX_BUILD_DESCENT == 2
 				if (player_visibility.visibility == player_visibility_state::visible_and_in_field_of_view)
@@ -4355,7 +4355,7 @@ _exit_cheat:
 			case AIS_LOCK:
 				compute_vis_and_vec(Robot_info, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 
-				if (!(Game_mode & GM_MULTI) || player_is_visible(player_visibility.visibility))
+				if (!multiplayer || player_is_visible(player_visibility.visibility))
 				{
 					if (!ai_multiplayer_awareness(obj, 68))
 						return;
@@ -4366,7 +4366,7 @@ _exit_cheat:
 						ai_turn_towards_vector(vec_to_player, obj, robptr.turn_time[Difficulty_level]);
 						ai_multi_send_robot_position(obj, -1);
 					}
-					else if (!(Game_mode & GM_MULTI))
+					else if (!multiplayer)
 						ai_turn_randomly(vec_to_player, obj, robptr.turn_time[Difficulty_level], previous_visibility);
 #elif DXX_BUILD_DESCENT == 2
 					if (player_visibility.visibility == player_visibility_state::visible_and_in_field_of_view)
@@ -4385,21 +4385,21 @@ _exit_cheat:
 				{
 					if (!ai_multiplayer_awareness(obj, (ROBOT_FIRE_AGITATION-1))) 
 					{
-						if (Game_mode & GM_MULTI) {
+						if (multiplayer) {
 							ai_do_actual_firing_stuff(Robot_info, vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, robot_gun_number::_0);
 							return;
 						}
 					}
 					ai_turn_towards_vector(vec_to_player, obj, robptr.turn_time[Difficulty_level]);
 					ai_multi_send_robot_position(obj, -1);
-				} else if (!(Game_mode & GM_MULTI)) {
+				} else if (!multiplayer) {
 					ai_turn_randomly(vec_to_player, obj, robptr.turn_time[Difficulty_level], previous_visibility);
 				}
 #elif DXX_BUILD_DESCENT == 2
 				if (player_visibility.visibility == player_visibility_state::visible_and_in_field_of_view)
 				{
 					if (!ai_multiplayer_awareness(obj, (ROBOT_FIRE_AGITATION-1))) {
-						if (Game_mode & GM_MULTI) {
+						if (multiplayer) {
 							ai_do_actual_firing_stuff(Robot_info, vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 							return;
 						}
@@ -4424,7 +4424,7 @@ _exit_cheat:
 						ai_turn_towards_vector(vec_to_player, obj, robptr.turn_time[Difficulty_level]);
 						ai_multi_send_robot_position(obj, -1);
 					}
-					else if (!(Game_mode & GM_MULTI)) {
+					else if (!multiplayer) {
 						ai_turn_randomly(vec_to_player, obj, robptr.turn_time[Difficulty_level], previous_visibility);
 					}
 #elif DXX_BUILD_DESCENT == 2
