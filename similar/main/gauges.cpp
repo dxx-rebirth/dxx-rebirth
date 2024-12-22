@@ -2567,7 +2567,7 @@ static void draw_player_ship(const hud_draw_context_hs_mr hudctx, const player_i
 		cloak_fade_value = GR_FADE_LEVELS-1;
 	}
 
-	const auto color{get_player_or_team_color(Player_num)};
+	const auto color{get_player_or_team_color(Netgame, Game_mode, Player_num)};
 #if DXX_BUILD_DESCENT == 2
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
 #endif
@@ -3519,7 +3519,7 @@ static void hud_show_kill_list(fvcobjptr &vcobjptr, grs_canvas &canvas, const ga
 			if (vcplayerptr(player_num)->connected != player_connection_status::playing)
 				color.r = color.g = color.b = 12;
 			else {
-				color = player_rgb[get_player_or_team_color(player_num)];
+				color = player_rgb[get_player_or_team_color(Netgame, Game_mode, player_num)];
 			}
 		}
 		else
@@ -3717,7 +3717,7 @@ void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &canvas, co
 					)
 					{
 						const auto &&[w, h] = gr_get_string_size(*canvas.cv_font, s);
-						const auto color = get_player_or_team_color(pnum);
+						const auto color{get_player_or_team_color(Netgame, Game_mode, pnum)};
 						auto &c = player_rgb[color];
 						gr_set_fontcolor(canvas, BM_XRGB(c.r, c.g, c.b), -1);
 						const int x1 = f2i(x) - w / 2;

@@ -246,7 +246,7 @@ static void show_netplayerinfo(grs_canvas &canvas)
 
 		y += line_spacing;
 
-		const auto color = get_player_or_team_color(i);
+		const auto color{get_player_or_team_color(Netgame, Game_mode, i)};
 		auto &prgb = player_rgb[color];
 		gr_set_fontcolor(canvas, BM_XRGB(prgb.r, prgb.g, prgb.b), -1);
 		gr_string(canvas, game_font, x, y, plr.callsign);

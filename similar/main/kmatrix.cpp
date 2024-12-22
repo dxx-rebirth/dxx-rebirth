@@ -137,7 +137,7 @@ static void kmatrix_draw_names(grs_canvas &canvas, const grs_font &cv_font, cons
 			c = rgb31;
 		else
 		{
-			const auto color = get_player_or_team_color(sj);
+			const auto color{get_player_or_team_color(Netgame, Game_mode, sj)};
 			const auto &rgb = player_rgb[color];
 			c = BM_XRGB(rgb.r, rgb.g, rgb.b);
 		}
@@ -260,7 +260,7 @@ static void kmatrix_redraw(grs_canvas &canvas, kmatrix_window *const km)
 				gr_set_fontcolor(canvas, gr_find_closest_color(31, 31, 31),-1);
 			else
 			{
-				const auto color = get_player_or_team_color(sorted[i]);
+				const auto color{get_player_or_team_color(Netgame, Game_mode, sorted[i])};
 				gr_set_fontcolor(canvas, BM_XRGB(player_rgb[color].r, player_rgb[color].g, player_rgb[color].b),-1);
 			}
 			kmatrix_draw_item(vcobjptr, canvas, game_font, i, sorted, fspacy);

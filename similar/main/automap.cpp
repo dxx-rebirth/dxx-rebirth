@@ -860,7 +860,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 	draw_all_edges(am);
 
 	// Draw player...
-	const auto &self_ship_rgb{player_rgb[get_player_or_team_color(Player_num)]};
+	const auto &self_ship_rgb{player_rgb[get_player_or_team_color(Netgame, Game_mode, Player_num)]};
 	const auto closest_color{BM_XRGB(self_ship_rgb.r, self_ship_rgb.g, self_ship_rgb.b)};
 	draw_player(g3_draw_line_context{canvas, closest_color}, vcobjptr(get_local_player().objnum));
 
@@ -885,7 +885,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 				auto &objp{*vcobjptr(plr.objnum)};
 				if (objp.type == OBJ_PLAYER)
 				{
-					const auto &other_ship_rgb{player_rgb[get_player_or_team_color(i)]};
+					const auto &other_ship_rgb{player_rgb[get_player_or_team_color(Netgame, Game_mode, i)]};
 					draw_player(g3_draw_line_context{canvas, BM_XRGB(other_ship_rgb.r, other_ship_rgb.g, other_ship_rgb.b)}, objp);
 				}
 			}

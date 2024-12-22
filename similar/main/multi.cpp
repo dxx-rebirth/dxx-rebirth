@@ -1741,7 +1741,7 @@ static void multi_do_message(const playernum_t pnum, const multiplayer_rspan<mul
 		else
 			return;
 	}
-	const auto color = get_player_or_team_color(pnum);
+	const auto color{get_player_or_team_color(Netgame, Game_mode, pnum)};
 	char xrgb = BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
 	digi_play_sample(sound_effect::SOUND_HUD_MESSAGE, F1_0);
 	HUD_init_message(HM_MULTI, "%c%c%s:%c%c %s", CC_COLOR, xrgb, static_cast<const char *>(vcplayerptr(pnum)->callsign), CC_COLOR, BM_XRGB(0, 31, 0), msgstart);
