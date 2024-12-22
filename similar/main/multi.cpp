@@ -4976,6 +4976,12 @@ static void multi_do_restore_game(const multiplayer_rspan<multiplayer_command_t:
 namespace dcx {
 namespace {
 
+template <multiplayer_command_t C, std::size_t Extent>
+static constexpr auto multi_subspan_first(const std::span<const uint8_t, Extent> &data)
+{
+	return data.template first<command_length<C>>();
+}
+
 static void multi_send_save_game(const d_game_unique_state::save_slot slot, const unsigned id, const d_game_unique_state::savegame_description &desc)
 {
 	int count{0};

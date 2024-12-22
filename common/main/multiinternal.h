@@ -183,12 +183,6 @@ using multiplayer_command = serial::pad<1, static_cast<uint8_t>(C)>;
 template <multiplayer_command_t C>
 using multiplayer_rspan = std::span<const uint8_t, command_length<C>>;
 
-template <multiplayer_command_t C>
-static constexpr auto multi_subspan_first(const std::span<const uint8_t> &data)
-{
-	return data.first<command_length<C>>();
-}
-
 }
 
 namespace dsx {
