@@ -171,7 +171,6 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 	sbyte   destroyable;        // If !0, this weapon can be destroyed by another weapon.
 
 	sbyte   homing_flag;        // Set if this weapon can home in on a target.
-	sbyte	dum1, dum2, dum3;
 
 	fix energy_usage;           // How much fuel is consumed to fire this weapon.
 	fix fire_wait;              // Time until this weapon can be fired again.

@@ -1821,7 +1821,7 @@ class is_cxx_array<enumerated_array<T, NDL, Difficulty_level_type>> : public is_
 }
 
 #if DXX_BUILD_DESCENT == 1
-DEFINE_SERIAL_UDT_TO_MESSAGE(dsx::weapon_info, w, (w.render, w.model_num, w.model_num_inner, w.persistent, w.flash_vclip, w.flash_sound, serial::pad<1>(), w.robot_hit_vclip, w.robot_hit_sound, serial::pad<1>(), w.wall_hit_vclip, w.wall_hit_sound, serial::pad<1>(), w.fire_count, w.ammo_usage, w.weapon_vclip, w.destroyable, w.matter, w.bounce, w.homing_flag, w.dum1, w.dum2, w.dum3, w.energy_usage, w.fire_wait, w.bitmap, w.blob_size, w.flash_size, w.impact_size, w.strength, w.speed, w.mass, w.drag, w.thrust, w.po_len_to_width_ratio, w.light, w.lifetime, w.damage_radius, w.picture));
+DEFINE_SERIAL_UDT_TO_MESSAGE(dsx::weapon_info, w, (w.render, w.model_num, w.model_num_inner, w.persistent, w.flash_vclip, w.flash_sound, serial::pad<1>(), w.robot_hit_vclip, w.robot_hit_sound, serial::pad<1>(), w.wall_hit_vclip, w.wall_hit_sound, serial::pad<1>(), w.fire_count, w.ammo_usage, w.weapon_vclip, w.destroyable, w.matter, w.bounce, w.homing_flag, serial::pad<3>(), w.energy_usage, w.fire_wait, w.bitmap, w.blob_size, w.flash_size, w.impact_size, w.strength, w.speed, w.mass, w.drag, w.thrust, w.po_len_to_width_ratio, w.light, w.lifetime, w.damage_radius, w.picture));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(dsx::weapon_info, 115);
 #elif DXX_BUILD_DESCENT == 2
 namespace {
