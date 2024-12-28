@@ -154,7 +154,6 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 	matter_flag matter;
 	bounce_type bounce;
 	persistence_flag persistent;         // 0 = dies when it hits something, 1 = continues (eg, fusion cannon)
-#if DXX_BUILD_DESCENT == 1
 	polygon_model_index	model_num;		// Model num if rendertype==2.
 	polygon_model_index	model_num_inner;// Model num of inner part if rendertype==2.
 
@@ -189,27 +188,11 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 	fix light;                  // Amount of light this weapon casts.
 	fix lifetime;               // Lifetime in seconds of this weapon.
 	fix damage_radius;          // Radius of damage caused by weapon, used for missiles (not lasers) to apply to damage to things it did not hit
+#if DXX_BUILD_DESCENT == 1
 //-- unused--   fix damage_force;           // Force of damage caused by weapon, used for missiles (not lasers) to apply to damage to things it did not hit
 // damage_force was a real mess.  Wasn't Difficulty_level based, and was being applied instead of weapon's actual strength.  Now use 2*strength instead. --MK, 01/19/95
 	bitmap_index    picture;    // a picture of the weapon for the cockpit
 #elif DXX_BUILD_DESCENT == 2
-	polygon_model_index   model_num;          // Model num if rendertype==2.
-	polygon_model_index   model_num_inner;    // Model num of inner part if rendertype==2.
-
-	vclip_index flash_vclip;        // What vclip to use for muzzle flash
-	vclip_index robot_hit_vclip;    // What vclip for impact with robot
-	vclip_index wall_hit_vclip;     // What vclip for impact with wall
-	sound_effect flash_sound;        // What sound to play when fired
-	sbyte   fire_count;         // Number of bursts fired from EACH GUN per firing.  For weapons which fire from both sides, 3*fire_count shots will be fired.
-	sound_effect robot_hit_sound;    // What sound for impact with robot
-
-	sbyte   ammo_usage;         // How many units of ammunition it uses.
-	vclip_index weapon_vclip;       // Vclip to render for the weapon, itself.
-	sound_effect wall_hit_sound;     // What sound for impact with wall
-
-	sbyte   destroyable;        // If !0, this weapon can be destroyed by another weapon.
-	sbyte   homing_flag;        // Set if this weapon can home in on a target.
-
 	ubyte   speedvar;           // allowed variance in speed below average, /128: 64 = 50% meaning if speed = 100, can be 50..100
 
 	ubyte   flags;              // see values above
@@ -220,26 +203,9 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 	/* not present in shareware datafiles */
 	weapon_id_type   children;           // ID of weapon to drop if this contains children.  -1 means no children.
 
-	fix energy_usage;           // How much fuel is consumed to fire this weapon.
-	fix fire_wait;              // Time until this weapon can be fired again.
-
 	/* not present in shareware datafiles */
 	fix multi_damage_scale;     // Scale damage by this amount when applying to player in multiplayer.  F1_0 means no change.
 
-	bitmap_index bitmap;        // Pointer to bitmap if rendertype==0 or 1.
-
-	fix blob_size;              // Size of blob if blob type
-	fix flash_size;             // How big to draw the flash
-	fix impact_size;            // How big of an impact
-	enumerated_array<fix, NDL, Difficulty_level_type> strength;          // How much damage it can inflict
-	enumerated_array<fix, NDL, Difficulty_level_type> speed;             // How fast it can move, difficulty level based.
-	fix mass;                   // How much mass it has
-	fix drag;                   // How much drag it has
-	fix thrust;                 // How much thrust it has
-	fix po_len_to_width_ratio;  // For polyobjects, the ratio of len/width. (10 maybe?)
-	fix light;                  // Amount of light this weapon casts.
-	fix lifetime;               // Lifetime in seconds of this weapon.
-	fix damage_radius;          // Radius of damage caused by weapon, used for missiles (not lasers) to apply to damage to things it did not hit
 //-- unused--   fix damage_force;           // Force of damage caused by weapon, used for missiles (not lasers) to apply to damage to things it did not hit
 // damage_force was a real mess.  Wasn't Difficulty_level based, and was being applied instead of weapon's actual strength.  Now use 2*strength instead. --MK, 01/19/95
 	bitmap_index    picture;    // a picture of the weapon for the cockpit
