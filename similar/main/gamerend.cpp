@@ -772,7 +772,7 @@ static void show_one_extra_view(grs_canvas &canvas, const gauge_inset_window_vie
 
 }
 
-int BigWindowSwitch{0};
+uint8_t BigWindowSwitch;
 #endif
 
 //render a frame for the game

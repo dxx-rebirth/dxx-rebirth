@@ -196,7 +196,7 @@ struct d_flickering_light_state;
 
 extern d_flickering_light_state Flickering_light_state;
 
-extern int BigWindowSwitch;
+extern uint8_t BigWindowSwitch;
 void compute_slide_segs();
 
 // turn flickering off (because light has been turned off)
