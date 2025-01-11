@@ -2344,7 +2344,6 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	}
 	if (version>=12) {
 		//read last was super information
-		auto &Primary_last_was_super = player_info.Primary_last_was_super;
 		std::array<uint8_t, MAX_PRIMARY_WEAPONS> last_was_super;
 		/* Descent 2 shipped with Primary_last_was_super and
 		 * Secondary_last_was_super each sized to contain MAX_*_WEAPONS,
@@ -2354,20 +2353,21 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		 * meaningful elements to the live data.
 		 */
 		PHYSFSX_readBytes(fp, &last_was_super, MAX_PRIMARY_WEAPONS);
-		Primary_last_was_super = 0;
+		uint8_t Primary_last_was_super{};
 		for (uint8_t j = static_cast<uint8_t>(primary_weapon_index_t::VULCAN_INDEX); j != static_cast<uint8_t>(primary_weapon_index_t::SUPER_LASER_INDEX); ++j)
 		{
 			if (last_was_super[j])
 				Primary_last_was_super |= HAS_PRIMARY_FLAG(primary_weapon_index_t{j});
 		}
+		player_info.Primary_last_was_super = Primary_last_was_super;
 		PHYSFSX_readBytes(fp, &last_was_super, MAX_SECONDARY_WEAPONS);
-		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
-		Secondary_last_was_super = 0;
+		uint8_t Secondary_last_was_super{};
 		for (uint8_t j = static_cast<uint8_t>(secondary_weapon_index_t::CONCUSSION_INDEX); j != static_cast<uint8_t>(secondary_weapon_index_t::SMISSILE1_INDEX); ++j)
 		{
 			if (last_was_super[j])
 				Secondary_last_was_super |= HAS_SECONDARY_FLAG(secondary_weapon_index_t{j});
 		}
+		player_info.Secondary_last_was_super = Secondary_last_was_super;
 	}
 
 	if (version >= 12) {
