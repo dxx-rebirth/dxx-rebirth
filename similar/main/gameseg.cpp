@@ -181,7 +181,7 @@ sidenum_t find_connect_side(const vcsegidx_t base_seg, const shared_segment &con
 //	Given a side, return the number of faces
 bool get_side_is_quad(const shared_side &sidep)
 {
-	switch (sidep.get_type())
+	switch (sidep.type)
 	{
 		case side_type::quad:
 			return true;
@@ -204,7 +204,7 @@ template <typename V>
 [[nodiscard]]
 static uint_fast32_t create_vertex_lists_from_values(auto &va, const shared_segment &segp, const shared_side &sidep, const V &&f0, const V &&f1, const V &&f2, const V &&f3)
 {
-	const auto type = sidep.get_type();
+	const auto type{sidep.type};
 	if (type == side_type::tri_13)
 	{
 		va[0] = va[5] = f3;
@@ -491,9 +491,8 @@ static int check_norms(const shared_segment &segp, const sidenum_t sidenum, cons
 
 static void invert_shared_side_triangle_type(shared_side &s)
 {
-	const auto t = s.get_type();
 	side_type nt;
-	switch (t)
+	switch (s.type)
 	{
 		case side_type::tri_02:
 			nt = side_type::tri_13;

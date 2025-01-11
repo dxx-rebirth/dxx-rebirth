@@ -945,7 +945,7 @@ static ushort netmisc_calc_checksum()
 	{
 		for (auto &&[sside, uside] : zip(i.s.sides, i.u.sides))
 		{
-			do_checksum_calc(reinterpret_cast<const uint8_t *>(&(sside.get_type())), 1, &sum1, &sum2);
+			do_checksum_calc(reinterpret_cast<const uint8_t *>(&sside.type), 1, &sum1, &sum2);
 			s = INTEL_SHORT(underlying_value(sside.wall_num));
 			do_checksum_calc(reinterpret_cast<uint8_t *>(&s), 2, &sum1, &sum2);
 			s = underlying_value(uside.tmap_num);

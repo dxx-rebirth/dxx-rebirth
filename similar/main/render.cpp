@@ -495,7 +495,7 @@ static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegpt
 	//	deal with it, get the dot product.
 	const auto &sside = segp->shared_segment::sides[sidenum];
 	const unsigned which_vertnum =
-		(sside.get_type() == side_type::tri_13)
+		(sside.type == side_type::tri_13)
 			? 1
 			: 0;
 	const auto tvec = vm_vec_normalized_quick(vm_vec_sub(Viewer_eye, vcvertptr(vertnum_list[which_vertnum])));
@@ -505,7 +505,7 @@ static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegpt
 
 	std::index_sequence<0, 1, 2, 3> is_quad;
 	const auto &uside = segp->unique_segment::sides[sidenum];
-	if (sside.get_type() == side_type::quad)
+	if (sside.type == side_type::quad)
 	{
 		if (v_dot_n0 >= 0) {
 			check_render_face(canvas, is_quad, segp, sidenum, 0, vertnum_list, uside.tmap_num, uside.tmap_num2, uside.uvls, wid_flags);
@@ -535,7 +535,7 @@ static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegpt
 		{
 			check_render_face(canvas, is_quad, segp, sidenum, 0, vertnum_list, uside.tmap_num, uside.tmap_num2, uside.uvls, wid_flags);
 		} else {
-			if (sside.get_type() == side_type::tri_02)
+			if (sside.type == side_type::tri_02)
 			{
 				if (v_dot_n0 >= 0) {
 					check_render_face(canvas, std::index_sequence<0, 1, 2>(), segp, sidenum, 0, vertnum_list, uside.tmap_num, uside.tmap_num2, uside.uvls, wid_flags);
@@ -546,7 +546,7 @@ static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegpt
 					check_render_face(canvas, std::index_sequence<0, 2, 3>(), segp, sidenum, 1, vertnum_list, uside.tmap_num, uside.tmap_num2, uside.uvls, wid_flags);
 				}
 			}
-			else if (sside.get_type() == side_type::tri_13)
+			else if (sside.type == side_type::tri_13)
 			{
 				if (v_dot_n1 >= 0) {
 					// rendering 1,2,3, so just skip 0
@@ -984,7 +984,7 @@ static std::optional<sidenum_t> find_seg_side(const shared_segment &seg, const s
 static bool compare_child(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const shared_segment &seg, const shared_segment &cseg, const sidenum_t edgeside)
 {
 	const auto &cside = cseg.sides[edgeside];
-	const auto &sv = Side_to_verts[edgeside][cside.get_type() == side_type::tri_13 ? side_relative_vertnum::_1 : side_relative_vertnum::_0];
+	const auto &sv = Side_to_verts[edgeside][cside.type == side_type::tri_13 ? side_relative_vertnum::_1 : side_relative_vertnum::_0];
 	const auto &temp{vm_vec_sub(Viewer_eye, vcvertptr(seg.verts[sv]))};
 	const auto &cnormal = cside.normals;
 	return vm_vec_dot(cnormal[0], temp) < 0 || vm_vec_dot(cnormal[1], temp) < 0;

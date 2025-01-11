@@ -975,7 +975,7 @@ static void copy_tmaps_to_segment(segment &dstseg, const segment &srcseg)
 		auto &shared_dst_side = std::get<1>(z);
 		auto &unique_src_side = std::get<2>(z);
 		auto &unique_dst_side = std::get<3>(z);
-		shared_dst_side.type = shared_src_side.get_type();
+		shared_dst_side.type = shared_src_side.type;
 		unique_dst_side.tmap_num = unique_src_side.tmap_num;
 		unique_dst_side.tmap_num2 = unique_src_side.tmap_num2;
 	}
