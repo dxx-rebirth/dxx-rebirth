@@ -162,7 +162,7 @@ using savegame_pof_names_type = enumerated_array<char[FILENAME_LEN], MAX_POLYGON
 
 namespace {
 
-static void verify_object(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const d_vclip_array &Vclip, object &obj, const savegame_pof_names_type &Save_pof_names)
+static void verify_object(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const d_vclip_array &Vclip, object &obj, const std::span<char[FILENAME_LEN]> Save_pof_names)
 {
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	obj.lifeleft = IMMORTAL_TIME;		//all loaded object are immortal, for now
@@ -216,12 +216,15 @@ static void verify_object(const d_level_shared_robot_info_state &LevelSharedRobo
 	else {		//Robots taken care of above
 		if (obj.render_type == render_type::RT_POLYOBJ)
 		{
-			const auto name = Save_pof_names[obj.rtype.pobj_info.model_num];
+			if (const auto model_num{underlying_value(obj.rtype.pobj_info.model_num)}; model_num < Save_pof_names.size())
+			{
+				const auto name{Save_pof_names[model_num]};
 			for (auto &&[i, candidate_name] : enumerate(partial_range(LevelSharedPolygonModelState.Pof_names, LevelSharedPolygonModelState.N_polygon_models)))
 				if (!d_stricmp(candidate_name, name)) {		//found it!	
 					obj.rtype.pobj_info.model_num = i;
 					break;
 				}
+			}
 		}
 	}
 
@@ -967,11 +970,15 @@ static int load_game_data(
 	else
 		Current_level_name.next()[0]=0;
 
-	savegame_pof_names_type Save_pof_names;
+	savegame_pof_names_type Save_pof_name_storage;
+	std::span<char[FILENAME_LEN]> Save_pof_names;
 	if (game_top_fileinfo_version >= 19) {	//load pof names
 		const unsigned N_save_pof_names = PHYSFSX_readShort(LoadFile);
 		if (N_save_pof_names < MAX_POLYGON_MODELS)
-			PHYSFSX_readBytes(LoadFile, Save_pof_names, N_save_pof_names * FILENAME_LEN);
+		{
+			Save_pof_names = std::span(static_cast<savegame_pof_names_type::base_type &>(Save_pof_name_storage)).first(N_save_pof_names);
+			PHYSFSX_readBytes(LoadFile, Save_pof_name_storage, N_save_pof_names * FILENAME_LEN);
+		}
 		else
 			LevelError("Level contains bogus N_save_pof_names %#x; ignoring", N_save_pof_names);
 	}
