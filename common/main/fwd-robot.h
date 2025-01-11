@@ -56,7 +56,6 @@ namespace dsx {
 
 #if DXX_BUILD_DESCENT == 2
 //robot info flags
-#define RIF_BIG_RADIUS  1   //pad the radius to fix robots firing through walls
 #define RIF_THIEF       2   //this guy steals!
 #endif
 

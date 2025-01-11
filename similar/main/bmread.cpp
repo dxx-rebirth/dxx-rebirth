@@ -1635,8 +1635,14 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 			} else if (!d_stricmp( arg, "aim" )) {
 				aim = fl2f(atof(equal_ptr));
 			} else if (!d_stricmp( arg, "big_radius" )) {
-				if (atoi(equal_ptr))
-					flags |= RIF_BIG_RADIUS;
+				/* No longer used.  As of 1996-01-12, this is a write-only
+				 * field, because the code in gamesave.c to read it was
+				 * commented out.
+				 *
+				 * Retain the test for it, so that the `Int3` on the final
+				 * `else` path does not trigger for a robot with this field
+				 * set.
+				 */
 			} else if (!d_stricmp( arg, "behavior" )) {
 				if (!d_stricmp(equal_ptr, "STILL"))
 					behavior = ai_behavior::AIB_STILL;

@@ -197,16 +197,6 @@ static void verify_object(const d_level_shared_robot_info_state &LevelSharedRobo
 			obj.rtype.pobj_info.model_num = ri.model_num;
 			obj.size = Polygon_models[obj.rtype.pobj_info.model_num].rad;
 
-			//@@Took out this ugly hack 1/12/96, because Mike has added code
-			//@@that should fix it in a better way.
-			//@@//this is a super-ugly hack.  Since the baby stripe robots have
-			//@@//their firing point on their bounding sphere, the firing points
-			//@@//can poke through a wall if the robots are very close to it. So
-			//@@//we make their radii bigger so the guns can't get too close to 
-			//@@//the walls
-			//@@if (Robot_info[obj.id].flags & RIF_BIG_RADIUS)
-			//@@	obj.size = (obj.size*3)/2;
-
 			//@@if (obj.control_source==CT_AI && Robot_info[obj.id].attack_type)
 			//@@	obj.size = obj.size*3/4;
 		}
