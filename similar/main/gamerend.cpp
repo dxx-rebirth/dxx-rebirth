@@ -935,20 +935,21 @@ namespace {
 // This actually renders the new cockpit onto the screen.
 static void update_cockpits(grs_canvas &canvas)
 {
-	const auto raw_cockpit_mode = PlayerCfg.CockpitMode[1];
-	auto mode =
+	const auto raw_cockpit_mode{PlayerCfg.CockpitMode[1]};
+	const auto cp_idx{
 #if DXX_BUILD_DESCENT == 2
 		HIRESMODE
-			? static_cast<cockpit_mode_t>(underlying_value(raw_cockpit_mode) + (Num_cockpits / 2))
+			? static_cast<cockpit_bitmap_index>(underlying_value(raw_cockpit_mode) + 3)
 			:
 #endif
-		raw_cockpit_mode;
+		static_cast<cockpit_bitmap_index>(raw_cockpit_mode)
+	};
 
 	switch( PlayerCfg.CockpitMode[1] )	{
 		case cockpit_mode_t::full_cockpit:
 		case cockpit_mode_t::rear_view:
 			{
-				const auto bi = cockpit_bitmap[mode];
+				const auto bi{cockpit_bitmap[cp_idx]};
 				PIGGY_PAGE_IN(bi);
 				grs_bitmap *const bm = &GameBitmaps[bi];
 #if DXX_USE_OGL
@@ -964,7 +965,7 @@ static void update_cockpits(grs_canvas &canvas)
 	
 		case cockpit_mode_t::status_bar:
 			{
-				const auto bi = cockpit_bitmap[mode];
+				const auto bi{cockpit_bitmap[cp_idx]};
 				PIGGY_PAGE_IN(bi);
 				grs_bitmap *const bm = &GameBitmaps[bi];
 #if DXX_USE_OGL

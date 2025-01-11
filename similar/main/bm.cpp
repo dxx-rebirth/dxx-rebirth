@@ -116,7 +116,7 @@ int             First_multi_bitmap_num=-1;
 
 namespace dsx {
 
-enumerated_array<bitmap_index, N_COCKPIT_BITMAPS, cockpit_mode_t> cockpit_bitmap;
+enumerated_array<bitmap_index, N_COCKPIT_BITMAPS, cockpit_bitmap_index> cockpit_bitmap;
 enumerated_array<bitmap_index, MAX_OBJ_BITMAPS, object_bitmap_index> ObjBitmaps;
 std::array<object_bitmap_index, MAX_OBJ_BITMAPS> ObjBitmapPtrs;     // These point back into ObjBitmaps, since some are used twice.
 

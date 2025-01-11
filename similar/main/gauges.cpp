@@ -2243,14 +2243,15 @@ static void draw_wbu_overlay(const hud_draw_context_hs_mr hudctx)
 {
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
 	const auto raw_cockpit_mode = PlayerCfg.CockpitMode[1];
-	const auto cockpit_idx =
+	const auto cockpit_idx{
 #if DXX_BUILD_DESCENT == 2
 		multires_gauge_graphic.is_hires()
-		? static_cast<cockpit_mode_t>(underlying_value(raw_cockpit_mode) + (Num_cockpits / 2))
+		? static_cast<cockpit_bitmap_index>(underlying_value(raw_cockpit_mode) + 3)
 		:
 #endif
-		raw_cockpit_mode;
-	const auto cb = cockpit_bitmap[cockpit_idx];
+		static_cast<cockpit_bitmap_index>(raw_cockpit_mode)
+	};
+	const auto cb{cockpit_bitmap[cockpit_idx]};
 	PIGGY_PAGE_IN(cb);
 	grs_bitmap *const bm = &GameBitmaps[cb];
 

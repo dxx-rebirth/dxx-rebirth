@@ -89,7 +89,6 @@ struct tmap_info : prohibit_void_ptr<tmap_info>
 	fix			lighting;		// 0 to 1
 	fix			damage;			//how much damage being against this does
 	unsigned eclip_num;		//if not -1, the eclip that changes this   
-#define N_COCKPIT_BITMAPS 4
 #elif DXX_BUILD_DESCENT == 2
 	fix     lighting;  //how much light this casts
 	fix     damage;    //how much damage being against this does (for lava)
@@ -102,7 +101,6 @@ struct tmap_info : prohibit_void_ptr<tmap_info>
 	#endif
 
 #define TMAP_INFO_SIZE 20   // how much space it takes up on disk
-#define N_COCKPIT_BITMAPS 6
 #endif
 };
 }
@@ -146,8 +144,6 @@ void bm_close();
 // Initializes the Texture[] array of bmd_bitmap structures.
 void init_textures();
 
-#ifdef DXX_BUILD_DESCENT
-
 namespace dsx {
 
 int gamedata_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState);
@@ -170,11 +166,13 @@ extern std::array<polygon_model_index, MAX_OBJTYPE> ObjId;			// ID of a robot, w
 extern fix	ObjStrength[MAX_OBJTYPE];	// initial strength of each object
 
 constexpr std::integral_constant<unsigned, 210> MAX_OBJ_BITMAPS{};
+constexpr std::size_t N_COCKPIT_BITMAPS{4};
 
 #elif DXX_BUILD_DESCENT == 2
 
 extern int Robot_replacements_loaded;
 constexpr std::integral_constant<unsigned, 610> MAX_OBJ_BITMAPS{};
+constexpr std::size_t N_COCKPIT_BITMAPS{6};
 extern unsigned N_ObjBitmaps;
 #endif
 
@@ -185,15 +183,25 @@ enum class object_bitmap_index : uint16_t
 extern enumerated_array<bitmap_index, MAX_OBJ_BITMAPS, object_bitmap_index> ObjBitmaps;
 extern std::array<object_bitmap_index, MAX_OBJ_BITMAPS> ObjBitmapPtrs;
 
-}
-
+enum class cockpit_bitmap_index : uint8_t
+{
+	full_cockpit,   // normal screen with cockpit
+	rear_view,   // looking back with bitmap
+	status_bar,   // small status bar, w/ reticle
+#if DXX_BUILD_DESCENT == 2
+	hires_full_cockpit,
+	hires_rear_view,
+	hires_status_bar,
 #endif
+};
+
+}
 
 extern int First_multi_bitmap_num;
 void compute_average_rgb(grs_bitmap *bm, std::array<fix, 3> &rgb);
 
 namespace dsx {
-extern enumerated_array<bitmap_index, N_COCKPIT_BITMAPS, cockpit_mode_t> cockpit_bitmap;
+extern enumerated_array<bitmap_index, N_COCKPIT_BITMAPS, cockpit_bitmap_index> cockpit_bitmap;
 void load_robot_replacements(const d_fname &level_name);
 #if DXX_BUILD_DESCENT == 1 || (DXX_BUILD_DESCENT == 2 && DXX_USE_EDITOR)
 // Initializes all bitmaps from BITMAPS.TBL file.

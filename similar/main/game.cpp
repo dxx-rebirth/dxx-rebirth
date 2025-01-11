@@ -285,15 +285,16 @@ void init_cockpit()
 		case cockpit_mode_t::rear_view:
 		{
 			unsigned x1{0}, y1 = 0, x2 = SWIDTH, y2 = (SHEIGHT*2)/3;
-			const auto mode =
+			const auto cp_idx{
 #if DXX_BUILD_DESCENT == 2
 				HIRESMODE
-				? static_cast<cockpit_mode_t>(static_cast<uint8_t>(cockpit_mode_t::rear_view) + (Num_cockpits / 2))
+				? cockpit_bitmap_index::hires_rear_view
 				:
 #endif
-				cockpit_mode_t::rear_view;
+				cockpit_bitmap_index::rear_view
+			};
 
-			const auto cb = cockpit_bitmap[mode];
+			const auto cb{cockpit_bitmap[cp_idx]};
 			PIGGY_PAGE_IN(cb);
 			auto &bm = GameBitmaps[cb];
 			gr_bitblt_find_transparent_area(bm, x1, y1, x2, y2);

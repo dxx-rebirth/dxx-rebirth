@@ -2149,9 +2149,10 @@ std::size_t bm_read_some_file(d_vclip_array &Vclip, std::size_t texture_count, i
 #endif
 	case bm_type::cockpit:	{
 		const auto bitmap = bm_load_sub(skip, arg);
-		if (Num_cockpits >= N_COCKPIT_BITMAPS)
+		if (const auto cp_idx{cockpit_bitmap.valid_index(Num_cockpits++)})
+			cockpit_bitmap[*cp_idx] = bitmap;
+		else
 			throw std::runtime_error("too many cockpit bitmaps");
-		cockpit_bitmap[static_cast<cockpit_mode_t>(Num_cockpits++)] = bitmap;
 		return texture_count;
 		}
 	case bm_type::gauges:
