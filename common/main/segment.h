@@ -139,9 +139,8 @@ enum class wallnum_t : uint16_t
 struct shared_side
 {
 	struct illegal_type;
-	side_type m_type;           // replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
-	const side_type &get_type() const { return m_type; }
-	void set_type(side_type t) { m_type = t; }
+	side_type type;           // replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
+	const side_type &get_type() const { return type; }
 	wallnum_t wall_num;
 	std::array<vms_vector, 2> normals;  // 2 normals, if quadrilateral, both the same.
 };

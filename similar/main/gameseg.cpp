@@ -504,7 +504,7 @@ static void invert_shared_side_triangle_type(shared_side &s)
 		default:
 			return;
 	}
-	s.set_type(nt);
+	s.type = nt;
 }
 #endif
 }
@@ -1243,7 +1243,7 @@ static unsigned check_for_degenerate_segment(fvcvertptr &vcvertptr, const shared
 
 static void add_side_as_quad(shared_side &sidep, const vms_vector &normal)
 {
-	sidep.set_type(side_type::quad);
+	sidep.type = side_type::quad;
 	sidep.normals[0] = normal;
 	sidep.normals[1] = normal;
 	//	If there is a connection here, we only formed the faces for the purpose of determining segment boundaries,
@@ -1326,8 +1326,8 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 		const fix dot{vm_vec_dot(norm, vm_vec_sub(vvs3, vvs1))};
 
 		const vertex *n0v3, *n1v1;
-		//	Now, signifiy whether to triangulate from 0:2 or 1:3
-		sidep->set_type(dot >= 0 ? (n0v3 = &vvs2, n1v1 = &vvs0, side_type::tri_02) : (n0v3 = &vvs3, n1v1 = &vvs1, side_type::tri_13));
+		//	Now, signify whether to triangulate from 0:2 or 1:3
+		sidep->type = (dot >= 0 ? (n0v3 = &vvs2, n1v1 = &vvs0, side_type::tri_02) : (n0v3 = &vvs3, n1v1 = &vvs1, side_type::tri_13));
 
 		//	Now, based on triangulation type, set the normals.
 		sidep->normals[0] = vm_vec_normal(vvs0, vvs1, *n0v3);
@@ -1343,12 +1343,12 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 
 		vertnum_t s0v2, s1v0;
 		if ((vfn.vsorted[0] == v[side_relative_vertnum::_0]) || (vfn.vsorted[0] == v[side_relative_vertnum::_2])) {
-			sidep->set_type(side_type::tri_02);
+			sidep->type = side_type::tri_02;
 			//	Now, get vertices for normal for each triangle based on triangulation type.
 			s0v2 = v[side_relative_vertnum::_2];
 			s1v0 = v[side_relative_vertnum::_0];
 		} else {
-			sidep->set_type(side_type::tri_13);
+			sidep->type = side_type::tri_13;
 			//	Now, get vertices for normal for each triangle based on triangulation type.
 			s0v2 = v[side_relative_vertnum::_3];
 			s1v0 = v[side_relative_vertnum::_1];
