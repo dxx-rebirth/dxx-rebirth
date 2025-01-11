@@ -51,6 +51,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_enumerate.h"
 
 #include "compiler-range_for.h"
+#include "d_bitset.h"
 #include "d_range.h"
 #include "partial_range.h"
 #include "d_underlying_value.h"
@@ -1221,7 +1222,7 @@ void check_wall_validity(void)
 		}
 	}
 
-	enumerated_array<bool, MAX_WALLS, wallnum_t> wall_flags{};
+	enumerated_bitset<MAX_WALLS, wallnum_t> wall_flags{};
 
 	range_for (const auto &&segp, vmsegptridx)
 	{
@@ -1231,7 +1232,9 @@ void check_wall_validity(void)
 				// Check walls
 				auto wall_num = segp->shared_segment::sides[j].wall_num;
 				if (wall_num != wall_none) {
-					if (wall_flags[wall_num] != 0) {
+					auto &&wf = wall_flags[wall_num];
+					if (wf)
+					{
 						if (!Validate_walls)
 							return;
 						Int3();		//	Error! Your mine has been invalidated!
@@ -1254,11 +1257,9 @@ void check_wall_validity(void)
 										//		/Validate_walls = 1
 										//	Then do the usual /eip++;g
 					}
-
-					wall_flags[wall_num] = 1;
+					wf = true;
 				}
 			}
-
 	}
 }
 
