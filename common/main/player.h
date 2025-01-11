@@ -205,7 +205,7 @@ struct player_ship
 	fix     max_thrust,reverse_thrust,brakes;       //low_thrust
 	fix     wiggle;
 	fix     max_rotthrust;
-	enumerated_array<vms_vector, N_PLAYER_GUNS, player_gun_number> gun_points;
+	enumerated_array<vms_vector, /* N_PLAYER_GUNS = */ 8, player_gun_number> gun_points;
 };
 
 }

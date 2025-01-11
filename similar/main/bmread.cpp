@@ -2093,7 +2093,7 @@ void bm_read_player_ship(void)
 		Dying_modelnums[Player_ship->model_num]  = load_polygon_model(model_name_dying,first_bitmap_num[1]-first_bitmap_num[0],first_bitmap_num[0],NULL);
 	}
 
-	Assert(ri.n_guns == N_PLAYER_GUNS);
+	assert(ri.n_guns == MAX_GUNS);
 
 	//calc player gun positions
 

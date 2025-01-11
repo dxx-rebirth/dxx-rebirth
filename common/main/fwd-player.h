@@ -61,7 +61,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <array>
 struct callsign_t;
 
-#define N_PLAYER_GUNS 8
 #define N_PLAYER_SHIP_TEXTURES 32
 
 namespace dcx {
