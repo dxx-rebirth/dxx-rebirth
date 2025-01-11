@@ -54,11 +54,6 @@ struct d_level_shared_robot_joint_state;
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
-#if DXX_BUILD_DESCENT == 2
-//robot info flags
-#define RIF_THIEF       2   //this guy steals!
-#endif
-
 //  Robot information
 struct robot_info;
 
