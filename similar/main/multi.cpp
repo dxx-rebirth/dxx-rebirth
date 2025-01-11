@@ -1664,14 +1664,14 @@ static void multi_do_fire(fvmobjptridx &vmobjptridx, const playernum_t pnum, con
 		multi_make_ghost_player(pnum);
 
 	if (untrusted_raw_weapon == FLARE_ADJUST)
-		Laser_player_fire(LevelSharedRobotInfoState.Robot_info, obj, weapon_id_type::FLARE_ID, gun_num_t::center, weapon_sound_flag::audible, shot_orientation, object_none);
+		Laser_player_fire(LevelSharedRobotInfoState.Robot_info, obj, weapon_id_type::FLARE_ID, player_gun_number::center, weapon_sound_flag::audible, shot_orientation, object_none);
 	else if (const uint8_t untrusted_missile_adjusted_weapon = untrusted_raw_weapon - MISSILE_ADJUST; untrusted_missile_adjusted_weapon < MAX_SECONDARY_WEAPONS)
 	{
 		const auto weapon = secondary_weapon_index_t{untrusted_missile_adjusted_weapon};
 		const auto weapon_id = Secondary_weapon_to_weapon_info[weapon];
 		const auto base_weapon_gun = Secondary_weapon_to_gun_num[weapon];
-		const auto weapon_gun = (base_weapon_gun == gun_num_t::_4)
-			? static_cast<gun_num_t>(static_cast<uint8_t>(base_weapon_gun) + (flags & 1))
+		const auto weapon_gun = (base_weapon_gun == player_gun_number::_4)
+			? static_cast<player_gun_number>(static_cast<uint8_t>(base_weapon_gun) + (flags & 1))
 			: base_weapon_gun;
 
 		const auto &&objnum = Laser_player_fire(LevelSharedRobotInfoState.Robot_info, obj, weapon_id, weapon_gun, weapon_sound_flag::audible, shot_orientation, Network_laser_track);

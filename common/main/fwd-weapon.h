@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kconfig.h"
 #include "weapon_id.h"
 
+#include "fwd-player.h"
 #include "fwd-powerup.h"
 
 #ifdef DXX_BUILD_DESCENT
@@ -134,7 +135,7 @@ static constexpr bool is_super_weapon(const secondary_weapon_index_t i)
 //flags whether the last time we use this weapon, it was the 'super' version
 #endif
 //for each Secondary weapon, which gun it fires out of
-extern const enumerated_array<gun_num_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_weapon_to_gun_num;
+extern const enumerated_array<player_gun_number, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_weapon_to_gun_num;
 }
 
 namespace dcx {

@@ -158,18 +158,18 @@ static T get_alternate_weapon(const T current_weapon, const T base_weapon)
 namespace dsx {
 
 //for each Secondary weapon, which gun it fires out of
-const enumerated_array<gun_num_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_weapon_to_gun_num{{{
-	gun_num_t::_4,
-	gun_num_t::_4,
-	gun_num_t::_7,
-	gun_num_t::_7,
-	gun_num_t::_7,
+const enumerated_array<player_gun_number, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_weapon_to_gun_num{{{
+	player_gun_number::_4,
+	player_gun_number::_4,
+	player_gun_number::_7,
+	player_gun_number::_7,
+	player_gun_number::_7,
 #if DXX_BUILD_DESCENT == 2
-	gun_num_t::_4,
-	gun_num_t::_4,
-	gun_num_t::_7,
-	gun_num_t::_4,
-	gun_num_t::_7
+	player_gun_number::_4,
+	player_gun_number::_4,
+	player_gun_number::_7,
+	player_gun_number::_4,
+	player_gun_number::_7
 #endif
 }}};
 

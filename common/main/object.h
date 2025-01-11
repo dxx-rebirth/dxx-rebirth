@@ -100,17 +100,6 @@ enum class contained_object_type : uint8_t
 	powerup = object_type_t::OBJ_POWERUP,
 };
 
-enum class gun_num_t : uint8_t
-{
-	_0,
-	_1,
-	_2,
-	_3,
-	_4,
-	center = 6,
-	_7,
-};
-
 static inline bool valid_render_type(const uint8_t r)
 {
 	switch (r)

@@ -1344,7 +1344,7 @@ static imobjptridx_t track_track_goal(fvcobjptr &vcobjptr, const imobjptridx_t t
 
 //-------------- Initializes a laser after Fire is pressed -----------------
 
-static imobjptridx_t Laser_player_fire_spread_delay(const d_robot_info_array &Robot_info, fvmsegptridx &vmsegptridx, const vmobjptridx_t obj, const weapon_id_type laser_type, const gun_num_t gun_num, const fix spreadr, const fix spreadu, const fix delay_time, const weapon_sound_flag make_sound, const vms_vector &shot_orientation, const icobjidx_t Network_laser_track)
+static imobjptridx_t Laser_player_fire_spread_delay(const d_robot_info_array &Robot_info, fvmsegptridx &vmsegptridx, const vmobjptridx_t obj, const weapon_id_type laser_type, const player_gun_number gun_num, const fix spreadr, const fix spreadu, const fix delay_time, const weapon_sound_flag make_sound, const vms_vector &shot_orientation, const icobjidx_t Network_laser_track)
 {
 	fvi_info		hit_data;
 	// Find the initial position of the laser
@@ -1487,7 +1487,7 @@ static imobjptridx_t Laser_player_fire_spread_delay(const d_robot_info_array &Ro
 }
 
 //	-----------------------------------------------------------------------------------------------------------
-static imobjptridx_t Laser_player_fire_spread(const d_robot_info_array &Robot_info, const vmobjptridx_t obj, const weapon_id_type laser_type, const gun_num_t gun_num, const fix spreadr, const fix spreadu, const weapon_sound_flag make_sound, const vms_vector &shot_orientation, const icobjidx_t Network_laser_track)
+static imobjptridx_t Laser_player_fire_spread(const d_robot_info_array &Robot_info, const vmobjptridx_t obj, const weapon_id_type laser_type, const player_gun_number gun_num, const fix spreadr, const fix spreadu, const weapon_sound_flag make_sound, const vms_vector &shot_orientation, const icobjidx_t Network_laser_track)
 {
 	return Laser_player_fire_spread_delay(Robot_info, vmsegptridx, obj, laser_type, gun_num, spreadr, spreadu, 0, make_sound, shot_orientation, Network_laser_track);
 }
@@ -1495,7 +1495,7 @@ static imobjptridx_t Laser_player_fire_spread(const d_robot_info_array &Robot_in
 }
 
 //	-----------------------------------------------------------------------------------------------------------
-imobjptridx_t Laser_player_fire(const d_robot_info_array &Robot_info, const vmobjptridx_t obj, const weapon_id_type laser_type, const gun_num_t gun_num, const weapon_sound_flag make_sound, const vms_vector &shot_orientation, const icobjidx_t Network_laser_track)
+imobjptridx_t Laser_player_fire(const d_robot_info_array &Robot_info, const vmobjptridx_t obj, const weapon_id_type laser_type, const player_gun_number gun_num, const weapon_sound_flag make_sound, const vms_vector &shot_orientation, const icobjidx_t Network_laser_track)
 {
 	return Laser_player_fire_spread(Robot_info, obj, laser_type, gun_num, 0, 0, make_sound, shot_orientation, Network_laser_track);
 }
@@ -1514,7 +1514,7 @@ void Flare_create(const vmobjptridx_t obj)
 	if (energy > 0)
 #endif
 	{
-		const auto &&flare = Laser_player_fire(LevelSharedRobotInfoState.Robot_info, obj, weapon_id_type::FLARE_ID, gun_num_t::center, weapon_sound_flag::audible, plrobj.orient.fvec, object_none);
+		const auto &&flare = Laser_player_fire(LevelSharedRobotInfoState.Robot_info, obj, weapon_id_type::FLARE_ID, player_gun_number::center, weapon_sound_flag::audible, plrobj.orient.fvec, object_none);
 		if (flare == object_none)
 			return;
 		const fix next_energy{
@@ -1951,23 +1951,23 @@ int do_laser_firing(vmobjptridx_t objp, const primary_weapon_index_t weapon_num,
 					/* Invalid laser level.  Cancel the shot. */
 					return 0;
 			}
-			if (Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_type, gun_num_t::_0, weapon_sound_flag::audible, shot_orientation, object_none) == object_none)
+			if (Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_type, player_gun_number::_0, weapon_sound_flag::audible, shot_orientation, object_none) == object_none)
 				/* If the first one fails, assume all will fail.  Tell the
 				 * caller that no shots were fired, so that the player is not
 				 * charged for the shot.
 				 */
 				return 0;
-			Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_type, gun_num_t::_1, weapon_sound_flag::silent, shot_orientation, object_none);
+			Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_type, player_gun_number::_1, weapon_sound_flag::silent, shot_orientation, object_none);
 
 			if (flags & LASER_QUAD) {
 				//	hideous system to make quad laser 1.5x powerful as normal laser, make every other quad laser bolt harmless
-				Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_type, gun_num_t::_2, weapon_sound_flag::silent, shot_orientation, object_none);
-				Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_type, gun_num_t::_3, weapon_sound_flag::silent, shot_orientation, object_none);
+				Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_type, player_gun_number::_2, weapon_sound_flag::silent, shot_orientation, object_none);
+				Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_type, player_gun_number::_3, weapon_sound_flag::silent, shot_orientation, object_none);
 			}
 			break;
 		}
 		case primary_weapon_index_t::VULCAN_INDEX: {
-			if (Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::VULCAN_ID, gun_num_t::center, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, weapon_sound_flag::audible, shot_orientation, object_none) == object_none)
+			if (Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::VULCAN_ID, player_gun_number::center, d_rand()/8 - 32767/16, d_rand()/8 - 32767/16, weapon_sound_flag::audible, shot_orientation, object_none) == object_none)
 				return 0;
 			break;
 		}
@@ -1978,22 +1978,22 @@ int do_laser_firing(vmobjptridx_t objp, const primary_weapon_index_t weapon_num,
 					spreadr0 = F1_0 / 16, spreadr1 = -F1_0 / 16, spreadu0 = spreadu1 = 0;
 				else
 					spreadu0 = F1_0 / 16, spreadu1 = -F1_0 / 16, spreadr0 = spreadr1 = 0;
-				if (Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::SPREADFIRE_ID, gun_num_t::center, spreadr0, spreadu0, weapon_sound_flag::silent, shot_orientation, object_none) == object_none)
+				if (Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::SPREADFIRE_ID, player_gun_number::center, spreadr0, spreadu0, weapon_sound_flag::silent, shot_orientation, object_none) == object_none)
 					return 0;
-				Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::SPREADFIRE_ID, gun_num_t::center, spreadr1, spreadu1, weapon_sound_flag::silent, shot_orientation, object_none);
-				Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::SPREADFIRE_ID, gun_num_t::center, 0, 0, weapon_sound_flag::audible, shot_orientation, object_none);
+				Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::SPREADFIRE_ID, player_gun_number::center, spreadr1, spreadu1, weapon_sound_flag::silent, shot_orientation, object_none);
+				Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::SPREADFIRE_ID, player_gun_number::center, 0, 0, weapon_sound_flag::audible, shot_orientation, object_none);
 			}
 			break;
 
 		case primary_weapon_index_t::PLASMA_INDEX:
-			if (Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::PLASMA_ID, gun_num_t::_0, weapon_sound_flag::audible, shot_orientation, object_none) == object_none)
+			if (Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::PLASMA_ID, player_gun_number::_0, weapon_sound_flag::audible, shot_orientation, object_none) == object_none)
 				return 0;
-			Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::PLASMA_ID, gun_num_t::_1, weapon_sound_flag::silent, shot_orientation, object_none);
+			Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::PLASMA_ID, player_gun_number::_1, weapon_sound_flag::silent, shot_orientation, object_none);
 			break;
 
 		case primary_weapon_index_t::FUSION_INDEX: {
-			auto &&weapon_obj = Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::FUSION_ID, gun_num_t::_0, weapon_sound_flag::audible, shot_orientation, object_none);
-			Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::FUSION_ID, gun_num_t::_1, weapon_sound_flag::audible, shot_orientation, object_none);
+			auto &&weapon_obj = Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::FUSION_ID, player_gun_number::_0, weapon_sound_flag::audible, shot_orientation, object_none);
+			Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::FUSION_ID, player_gun_number::_1, weapon_sound_flag::audible, shot_orientation, object_none);
 
 			assert(objp->type == OBJ_PLAYER);
 			auto &Fusion_charge = objp->ctype.player_info.Fusion_charge;
@@ -2026,7 +2026,7 @@ int do_laser_firing(vmobjptridx_t objp, const primary_weapon_index_t weapon_num,
 			break;
 #if DXX_BUILD_DESCENT == 2
 		case primary_weapon_index_t::GAUSS_INDEX: {
-			if (Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::GAUSS_ID, gun_num_t::center, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, weapon_sound_flag::audible, shot_orientation, object_none) == object_none)
+			if (Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::GAUSS_ID, player_gun_number::center, (d_rand()/8 - 32767/16)/5, (d_rand()/8 - 32767/16)/5, weapon_sound_flag::audible, shot_orientation, object_none) == object_none)
 				return 0;
 			break;
 		}
@@ -2045,23 +2045,23 @@ int do_laser_firing(vmobjptridx_t objp, const primary_weapon_index_t weapon_num,
 			if (helix_orient >= spread.size())
 				break;
 			auto &&[spreadr, spreadu] = spread[helix_orient];
-			if (Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::HELIX_ID, gun_num_t::center,  0,  0, weapon_sound_flag::audible, shot_orientation, object_none) == object_none)
+			if (Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::HELIX_ID, player_gun_number::center,  0,  0, weapon_sound_flag::audible, shot_orientation, object_none) == object_none)
 				return 0;
-			Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::HELIX_ID, gun_num_t::center,  spreadr,  spreadu, weapon_sound_flag::silent, shot_orientation, object_none);
-			Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::HELIX_ID, gun_num_t::center, -spreadr, -spreadu, weapon_sound_flag::silent, shot_orientation, object_none);
-			Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::HELIX_ID, gun_num_t::center,  spreadr*2,  spreadu*2, weapon_sound_flag::silent, shot_orientation, object_none);
-			Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::HELIX_ID, gun_num_t::center, -spreadr*2, -spreadu*2, weapon_sound_flag::silent, shot_orientation, object_none);
+			Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::HELIX_ID, player_gun_number::center,  spreadr,  spreadu, weapon_sound_flag::silent, shot_orientation, object_none);
+			Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::HELIX_ID, player_gun_number::center, -spreadr, -spreadu, weapon_sound_flag::silent, shot_orientation, object_none);
+			Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::HELIX_ID, player_gun_number::center,  spreadr*2,  spreadu*2, weapon_sound_flag::silent, shot_orientation, object_none);
+			Laser_player_fire_spread(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::HELIX_ID, player_gun_number::center, -spreadr*2, -spreadu*2, weapon_sound_flag::silent, shot_orientation, object_none);
 			break;
 		}
 
 		case primary_weapon_index_t::PHOENIX_INDEX:
-			if (Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::PHOENIX_ID, gun_num_t::_0, weapon_sound_flag::audible, shot_orientation, object_none) == object_none)
+			if (Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::PHOENIX_ID, player_gun_number::_0, weapon_sound_flag::audible, shot_orientation, object_none) == object_none)
 				return 0;
-			Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::PHOENIX_ID, gun_num_t::_1, weapon_sound_flag::silent, shot_orientation, object_none);
+			Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::PHOENIX_ID, player_gun_number::_1, weapon_sound_flag::silent, shot_orientation, object_none);
 			break;
 
 		case primary_weapon_index_t::OMEGA_INDEX:
-			if (Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::OMEGA_ID, gun_num_t::_1, weapon_sound_flag::audible, shot_orientation, Network_laser_track) == object_none)
+			if (Laser_player_fire(LevelSharedRobotInfoState.Robot_info, objp, weapon_id_type::OMEGA_ID, player_gun_number::_1, weapon_sound_flag::audible, shot_orientation, Network_laser_track) == object_none)
 				return 0;
 			break;
 
@@ -2317,8 +2317,8 @@ void do_missile_firing(const secondary_weapon_index_t weapon, const vmobjptridx_
 		const auto weapon_index{Secondary_weapon_to_weapon_info[weapon]};
 		const auto base_weapon_gun{Secondary_weapon_to_gun_num[weapon]};
 		auto &Missile_gun = plrobj.ctype.player_info.missile_gun;
-		const auto weapon_gun{(base_weapon_gun == gun_num_t::_4)
-			? static_cast<gun_num_t>(static_cast<uint8_t>(base_weapon_gun) + (gun_flag = (Missile_gun & 1)))
+		const auto weapon_gun{(base_weapon_gun == player_gun_number::_4)
+			? static_cast<player_gun_number>(static_cast<uint8_t>(base_weapon_gun) + (gun_flag = (Missile_gun & 1)))
 			: base_weapon_gun
 		};
 		const auto &&objnum = Laser_player_fire(LevelSharedRobotInfoState.Robot_info, plrobjidx, weapon_index, weapon_gun, weapon_sound_flag::audible, plrobj.orient.fvec, object_none);
@@ -2329,7 +2329,7 @@ void do_missile_firing(const secondary_weapon_index_t weapon, const vmobjptridx_
 			return;
 		/* Toggle between the left and right missile guns.
 		 */
-		if (base_weapon_gun == gun_num_t::_4)
+		if (base_weapon_gun == player_gun_number::_4)
 			Missile_gun++;
 		if (!cheats.rapidfire)
 			Next_missile_fire_time = GameTime64 + Weapon_info[weapon_index].fire_wait - fire_frame_overhead;
