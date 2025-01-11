@@ -110,20 +110,26 @@ static Arglist BuildArglistFromIni(const char *filename)
 	return Args;
 }
 
-static std::string &&arg_string(Arglist::iterator &pp, Arglist::const_iterator end)
+static void advance_arg_iterator(Arglist::iterator &pp, Arglist::const_iterator end)
 {
-	auto arg = pp;
+	auto arg{pp};
 	if (++pp == end)
 		throw missing_parameter(std::move(*arg));
+}
+
+static std::string &&arg_string(Arglist::iterator &pp, Arglist::const_iterator end)
+{
+	advance_arg_iterator(pp, std::move(end));
 	return std::move(*pp);
 }
 
 static long arg_integer(Arglist::iterator &pp, Arglist::const_iterator end)
 {
-	auto arg = pp;
-	auto &&value = arg_string(pp, end);
+	const auto arg{pp};
+	advance_arg_iterator(pp, std::move(end));
+	auto &&value{std::move(*pp)};
 	char *p;
-	auto i = strtol(value.c_str(), &p, 10);
+	const auto i{strtol(value.c_str(), &p, 10)};
 	if (*p)
 		throw conversion_failure(std::move(*arg), std::move(value));
 	return i;
@@ -131,7 +137,7 @@ static long arg_integer(Arglist::iterator &pp, Arglist::const_iterator end)
 
 template<typename E> E arg_enum(Arglist::iterator &pp, Arglist::const_iterator end)
 {
-	return static_cast<E>(arg_integer(pp, end));
+	return static_cast<E>(arg_integer(pp, std::move(end)));
 }
 
 #if DXX_USE_UDP
