@@ -2242,14 +2242,13 @@ namespace {
 static void draw_wbu_overlay(const hud_draw_context_hs_mr hudctx)
 {
 	auto &multires_gauge_graphic = hudctx.multires_gauge_graphic;
-	const auto raw_cockpit_mode = PlayerCfg.CockpitMode[1];
 	const auto cockpit_idx{
 #if DXX_BUILD_DESCENT == 2
 		multires_gauge_graphic.is_hires()
-		? static_cast<cockpit_bitmap_index>(underlying_value(raw_cockpit_mode) + 3)
+		? cockpit_bitmap_index::hires_full_cockpit
 		:
 #endif
-		static_cast<cockpit_bitmap_index>(raw_cockpit_mode)
+		cockpit_bitmap_index::full_cockpit
 	};
 	const auto cb{cockpit_bitmap[cockpit_idx]};
 	PIGGY_PAGE_IN(cb);
