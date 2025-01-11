@@ -1633,7 +1633,10 @@ int state_save_all_sub(const char *filename, const char *desc)
 				last_was_super[j] = 1;
 		}
 		PHYSFSX_writeBytes(fp, &last_was_super, MAX_PRIMARY_WEAPONS);
+	}
+	{
 		auto &Secondary_last_was_super = player_info.Secondary_last_was_super;
+		std::array<uint8_t, MAX_SECONDARY_WEAPONS> last_was_super{};
 		for (uint8_t j = static_cast<uint8_t>(secondary_weapon_index_t::CONCUSSION_INDEX); j != static_cast<uint8_t>(secondary_weapon_index_t::SMISSILE1_INDEX); ++j)
 		{
 			if (Secondary_last_was_super & HAS_SECONDARY_FLAG(secondary_weapon_index_t{j}))
