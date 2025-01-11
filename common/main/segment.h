@@ -107,8 +107,10 @@ enum class segment_special : uint8_t
 	repaircen,
 	controlcen,
 	robotmaker,
+	/* if DXX_BUILD_DESCENT == 2 */
 	goal_blue,
 	goal_red,
+	/* endif */
 };
 
 enum class materialization_center_number : uint8_t
