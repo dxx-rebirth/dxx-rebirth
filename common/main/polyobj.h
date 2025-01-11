@@ -38,11 +38,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-enum class polygon_model_index : uint8_t
-{
-	None = UINT8_MAX
-};
-
 enum class polygon_simpler_model_index : uint8_t
 {
 	None = 0,
@@ -52,15 +47,24 @@ enum class polygon_simpler_model_index : uint8_t
 
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {
+
+enum class polygon_model_index : uint8_t
+{
+	None = UINT8_MAX
+};
+
+constexpr std::size_t MAX_POLYGON_MODELS{+
+#if DXX_BUILD_DESCENT == 1
+	85
+#elif DXX_BUILD_DESCENT == 2
+	200
+#endif
+};
+
 struct robot_info;
 struct glow_values_t;
-#if DXX_BUILD_DESCENT == 1
-constexpr std::integral_constant<unsigned, 85> MAX_POLYGON_MODELS{};
-#elif DXX_BUILD_DESCENT == 2
-constexpr std::integral_constant<unsigned, 200> MAX_POLYGON_MODELS{};
-#endif
 
-//for each model, a model number for dying & dead variants, or -1 if none
+//for each model, a model number for dying & dead variants, or polygon_model_index::None if none
 extern enumerated_array<polygon_model_index, MAX_POLYGON_MODELS, polygon_model_index> Dying_modelnums, Dead_modelnums;
 }
 #endif

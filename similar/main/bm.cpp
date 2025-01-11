@@ -491,7 +491,7 @@ void bm_read_extra_robots(const char *fname, const Mission::descent_version_type
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const auto N_polygon_models = LevelSharedPolygonModelState.N_polygon_models = N_D2_POLYGON_MODELS+u;
 	if (N_polygon_models >= MAX_POLYGON_MODELS)
-		Error("Too many polygon models (%d) in <%s>.  Max is %d.",u,fname,MAX_POLYGON_MODELS-N_D2_POLYGON_MODELS);
+		Error("Too many polygon models (%d) in <%s>.  Max is %" DXX_PRI_size_type ".", u, fname, MAX_POLYGON_MODELS - N_D2_POLYGON_MODELS);
 	{
 		const auto &&r = partial_range(Polygon_models, N_D2_POLYGON_MODELS.value, N_polygon_models);
 		range_for (auto &p, r)
