@@ -48,6 +48,12 @@ enum class robot_animation_state : uint8_t
 	flinch,
 };
 
+enum class robot_gun_animation_index : uint8_t
+{
+	/* Valid values are [0, MAX_GUNS]. */
+	None = UINT8_MAX,
+};
+
 enum class robot_id : uint8_t
 {
 	brain = 7,
@@ -155,7 +161,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	ubyte   aim;                //  255 = perfect, less = more likely to miss.  0 != random, would look stupid.  0=45 degree spread.  Specify in bitmaps.tbl in range 0.0..1.0
 #endif
 	//animation info
-	enumerated_array<enumerated_array<jointlist, N_ANIM_STATES, robot_animation_state>, MAX_GUNS + 1, robot_gun_number> anim_states;
+	enumerated_array<enumerated_array<jointlist, N_ANIM_STATES, robot_animation_state>, MAX_GUNS + 1, robot_gun_animation_index> anim_states;
 	int     always_0xabcd;      // debugging
 };
 
@@ -237,7 +243,7 @@ struct d_level_shared_robot_joint_state : ::dcx::d_level_shared_robot_joint_stat
 //  On exit:
 //      Returns number of joints in list.
 //      jp_list_ptr is stuffed with a pointer to a static array of joint positions.  This pointer is valid forever.
-std::ranges::subrange<const jointpos *> robot_get_anim_state(const d_robot_info_array &, const std::array<jointpos, MAX_ROBOT_JOINTS> &, robot_id robot_type, robot_gun_number gun_num, robot_animation_state state);
+std::ranges::subrange<const jointpos *> robot_get_anim_state(const d_robot_info_array &, const std::array<jointpos, MAX_ROBOT_JOINTS> &, robot_id robot_type, robot_gun_animation_index gun_num, robot_animation_state state);
 
 /*
  * reads n robot_info structs from a PHYSFS_File

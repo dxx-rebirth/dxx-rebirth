@@ -907,7 +907,7 @@ static int do_silly_animation(const d_robot_info_array &Robot_info, object &objp
 	{
 		const auto gun_num = robot_gun_number{gun_num_idx};
 		auto &ail = aip.ail;
-		for (auto &jr : robot_get_anim_state(Robot_info, Robot_joints, robot_type, gun_num, robot_state))
+		for (auto &jr : robot_get_anim_state(Robot_info, Robot_joints, robot_type, robot_gun_animation_index{gun_num_idx}, robot_state))
 		{
 			unsigned jointnum = jr.jointnum;
 			auto &jp = jr.angles;
