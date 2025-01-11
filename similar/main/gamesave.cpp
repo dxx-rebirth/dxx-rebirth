@@ -75,6 +75,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_zip.h"
 #include "partial_range.h"
 
+namespace dcx {
+
+namespace {
+
+using savegame_pof_names_type = enumerated_array<char[FILENAME_LEN], MAX_POLYGON_MODELS, polygon_model_index>;
+
+}
+
+}
+
 int Gamesave_current_version;
 
 #if DXX_BUILD_DESCENT == 1
@@ -121,7 +131,6 @@ namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 namespace {
 
-using savegame_pof_names_type = enumerated_array<char[FILENAME_LEN], 167, polygon_model_index>;
 
 static vclip_index convert_vclip(const d_vclip_array &Vclip, const int vc)
 {
@@ -153,10 +162,6 @@ static unsigned convert_polymod(const unsigned N_polygon_models, const unsigned 
 {
     return (polymod >= N_polygon_models) ? polymod % N_polygon_models : polymod;
 }
-}
-#elif DXX_BUILD_DESCENT == 2
-namespace {
-using savegame_pof_names_type = enumerated_array<char[FILENAME_LEN], MAX_POLYGON_MODELS, polygon_model_index>;
 }
 #endif
 
