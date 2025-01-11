@@ -73,7 +73,6 @@ enum class bitmap_index : uint16_t;
 
 #ifdef DXX_BUILD_DESCENT
 #if DXX_BUILD_DESCENT == 1
-extern int MacPig;
 extern int PCSharePig;
 
 extern grs_bitmap bogus_bitmap;
@@ -83,6 +82,9 @@ extern std::array<uint8_t, 64 * 64> bogus_data;
 
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {
+#if DXX_BUILD_DESCENT == 1
+extern bool MacPig;
+#endif
 
 void piggy_close();
 bitmap_index piggy_register_bitmap(grs_bitmap &bmp, std::span<const char> name, int in_file);

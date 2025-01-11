@@ -127,6 +127,9 @@ static std::array<char, FILENAME_LEN> Current_pigfile;
 unsigned Num_bitmap_files;
 
 namespace dsx {
+#if DXX_BUILD_DESCENT == 1
+bool MacPig;	// using the Macintosh pigfile?
+#endif
 std::array<digi_sound, MAX_SOUND_FILES> GameSounds;
 GameBitmaps_array GameBitmaps;
 }
@@ -165,7 +168,6 @@ std::array<uint8_t, 64 * 64> bogus_data;
 
 #if DXX_BUILD_DESCENT == 1
 grs_bitmap bogus_bitmap;
-int MacPig{0};	// using the Macintosh pigfile?
 int PCSharePig{0}; // using PC Shareware pigfile?
 namespace {
 static std::array<int, MAX_SOUND_FILES> SoundCompressed;
@@ -510,7 +512,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 			[[fallthrough]];
 		case descent1_pig_size::d1_mac_pigsize:
 		case descent1_pig_size::d1_mac_share_pigsize:
-			MacPig = 1;
+			MacPig = true;
 			[[fallthrough]];
 		case descent1_pig_size::d1_pigsize:
 		case descent1_pig_size::d1_oem_pigsize:
