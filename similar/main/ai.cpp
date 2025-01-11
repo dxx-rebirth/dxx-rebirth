@@ -4732,7 +4732,7 @@ DEFINE_SERIAL_CONST_UDT_TO_MESSAGE(point_seg_array_t, p, (static_cast<const std:
 
 namespace dsx {
 
-int ai_save_state(PHYSFS_File *fp)
+void ai_save_state(PHYSFS_File *fp)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 #if DXX_BUILD_DESCENT == 2
@@ -4850,8 +4850,6 @@ int ai_save_state(PHYSFS_File *fp)
 	if (Num_boss_teleport_segs)
 		PHYSFSX_writeBytes(fp, Boss_teleport_segs.data(), sizeof(Boss_teleport_segs[0]) * Num_boss_teleport_segs);
 #endif
-
-	return 1;
 }
 
 }
