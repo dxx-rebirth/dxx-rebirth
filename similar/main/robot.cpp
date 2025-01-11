@@ -134,9 +134,8 @@ void robot_set_angles(robot_info &r, polymodel &pm, enumerated_array<std::array<
 		std::fill(gr.begin(), gr.end(), robot_gun_animation_index{r.n_guns});
 	}
 
-	for (auto [g, entry_m] : enumerate(partial_const_range(r.gun_submodels, r.n_guns)))
+	for (const std::size_t bound{std::min(gun_nums.size(), pm.submodel_parents.size())}; auto [g, entry_m] : enumerate(partial_const_range(r.gun_submodels, r.n_guns)))
 	{
-		const std::size_t bound = std::min(std::size(gun_nums), std::size(pm.submodel_parents));
 		auto m = entry_m;
 		while (m != 0 && m < bound)
 		{
