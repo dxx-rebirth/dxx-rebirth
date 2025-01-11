@@ -109,6 +109,9 @@ struct tmap_info : prohibit_void_ptr<tmap_info>
 
 namespace dcx {
 extern int Num_object_types;
+#if DXX_USE_EDITOR
+extern int Num_object_subtypes;     // Number of possible IDs for the current type of object to be placed
+#endif
 
 struct player_ship;
 //right now there's only one player ship, but we can have another by
@@ -185,8 +188,6 @@ extern std::array<object_bitmap_index, MAX_OBJ_BITMAPS> ObjBitmapPtrs;
 }
 
 #endif
-
-extern int  Num_object_subtypes;     // Number of possible IDs for the current type of object to be placed
 
 extern int First_multi_bitmap_num;
 void compute_average_rgb(grs_bitmap *bm, std::array<fix, 3> &rgb);

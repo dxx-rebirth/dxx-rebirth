@@ -72,10 +72,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 unsigned NumTextures;
 
-#if DXX_USE_EDITOR
-int Num_object_subtypes{1};
-#endif
-
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 int Num_total_object_types;
@@ -100,6 +96,11 @@ enumerated_array<polygon_model_index, MAX_POLYGON_MODELS, polygon_model_index> D
 //right now there's only one player ship, but we can have another by
 //adding an array and setting the pointer to the active ship.
 namespace dcx {
+
+#if DXX_USE_EDITOR
+int Num_object_subtypes{1};
+#endif
+
 std::array<sound_effect, ::d2x::MAX_SOUNDS> Sounds, AltSounds;
 player_ship only_player_ship;
 
