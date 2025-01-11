@@ -257,6 +257,13 @@ static void add_song(deferred_physfs_pathname &pathname, const unsigned lineno, 
 	auto &&reverse_input{std::ranges::views::reverse(input)};
 	if (const auto &&ri_dot{std::ranges::find(reverse_input, '.')}; ri_dot == reverse_input.end())
 	{
+		if (entry_input.size() == 1 && *entry_input.begin() == 0x1a)
+			/* Descent v1.5 ships a `descent.hog` that contains a `descent.sng`
+			 * that has a line consisting only of this one byte.  Suppress the
+			 * warning, so that users do not need to override the retail song
+			 * file to silence the diagnostic.
+			 */
+			return;
 		/* Drop filenames that lack a dot. */
 		con_printf(CON_NORMAL, "warning: song file \"%s\"/\"%s\":%u: ignoring filename with no dot (\"%.*s\"%s[%" DXX_PRI_size_type "])", pathname.get_dirname(), pathname.physfs_virtual_path, lineno, clamp_filename_characters_count(input_size), input.data(), get_filename_truncation_hint_text(input_size), input_size);
 		return;
