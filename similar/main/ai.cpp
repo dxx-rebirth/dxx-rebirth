@@ -84,8 +84,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 using std::min;
 
-#define	AI_TURN_SCALE	1
-
 namespace dsx {
 
 const object *Ai_last_missile_camera;
@@ -744,7 +742,7 @@ void ai_turn_towards_vector(const vms_vector &goal_vector, object_base &objp, fi
 	const fix dot = vm_vec_dot(goal_vector, objp.orient.fvec);
 
 	if (dot < (F1_0 - FrameTime/2)) {
-		fix	new_scale = fixdiv(FrameTime * AI_TURN_SCALE, rate);
+		fix	new_scale = fixdiv(FrameTime, rate);
 		vm_vec_scale(new_fvec, new_scale);
 		vm_vec_add2(new_fvec, objp.orient.fvec);
 		auto mag = vm_vec_normalize_quick(new_fvec);
