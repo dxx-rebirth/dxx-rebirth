@@ -1686,9 +1686,7 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 
 	auto &current_robot_info = Robot_info[static_cast<robot_id>(LevelSharedRobotInfoState.N_robot_types)];
 	//clear out anim info
-	range_for (auto &g, current_robot_info.anim_states)
-		range_for (auto &s, g)
-			s.n_joints = 0;
+	current_robot_info.anim_states = {};
 
 	first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 
