@@ -92,7 +92,7 @@ struct gamefont_conf
 	};
 	std::size_t num;
 	font_index cur;
-	enumerated_array<a_gamefont_conf, 10, font_index> font;
+	enumerated_array<a_gamefont_conf, 2, font_index> font;
 };
 
 static enumerated_array<gamefont_conf, MAX_FONTS, gamefont_index> font_conf;
