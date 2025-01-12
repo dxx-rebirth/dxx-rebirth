@@ -854,7 +854,7 @@ void gr_close_font(std::unique_ptr<grs_font> font)
 }
 
 //remap a font, re-reading its data & palette
-static void gr_remap_font(grs_font *font, std::span<const char> fontname);
+static void gr_remap_font(grs_font *font);
 
 //remap (by re-reading) all the color fonts
 void gr_remap_color_fonts()
@@ -862,7 +862,7 @@ void gr_remap_color_fonts()
 	range_for (auto font, open_font)
 	{
 		if (font)
-			gr_remap_font(font, font->ft_filename);
+			gr_remap_font(font);
 	}
 }
 
@@ -1054,9 +1054,9 @@ grs_font_ptr gr_init_font(grs_canvas &canvas, const std::span<const char> fontna
 }
 
 //remap a font by re-reading its data & palette
-void gr_remap_font(grs_font *font, const std::span<const char> fontname)
+void gr_remap_font(grs_font *font)
 {
-	auto n{gr_internal_init_font(fontname)};
+	auto n{gr_internal_init_font(font->ft_filename)};
 	if (!n)
 		return;
 	if (!(n->ft_flags & FT_COLOR))
