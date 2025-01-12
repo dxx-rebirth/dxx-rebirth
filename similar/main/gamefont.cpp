@@ -224,9 +224,3 @@ void gamefont_init()
 	}
 }
 }
-
-void gamefont_close()
-{
-	for (auto &gf : Gamefonts)
-		gf.font.reset();
-}

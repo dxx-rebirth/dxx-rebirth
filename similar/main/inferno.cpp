@@ -773,7 +773,6 @@ static int main(int argc, char *argv[])
 	close_game();
 	texmerge_close();
 	gamedata_close();
-	gamefont_close();
 	Current_mission.reset();
 	PHYSFSX_removeArchiveContent();
 
