@@ -89,20 +89,10 @@ static void gamefont_unloadfont(loaded_game_font &g)
 	}
 }
 
-static void gamefont_loadfont(grs_canvas &canvas, loaded_game_font &g, const gamefont_index gf, const loaded_game_font::font_index fi)
+static void gamefont_loadfont(grs_canvas &canvas, loaded_game_font &g, const loaded_game_font::font_index fi)
 {
-	if (auto &fc{g.fontconf[fi]}; PHYSFS_exists(fc.name.data()))
-	{
-		gamefont_unloadfont(g);
-		g.font = gr_init_font(canvas, fc.name);
-	}else {
-		if (!g.font)
-		{
-			g.cur = loaded_game_font::font_index::None;
-			g.font = gr_init_font(canvas, Gamefont_filenames_l[gf]);
-		}
-		return;
-	}
+	auto &fc{g.fontconf[fi]};
+	g.font = gr_init_font(canvas, fc.name);
 	g.cur=fi;
 }
 
@@ -152,13 +142,13 @@ void gamefont_choose_game_font(int scrx,int scry){
 			FNTScaleY.reset(FNTScaleX.operator float());
 	}
 #endif
-		gamefont_loadfont(*grd_curcanv, fc, gf, m);
+		gamefont_loadfont(*grd_curcanv, fc, m);
 	}
 }
 
 namespace {
 
-static void addfontconf(loaded_game_font &fc, const gamefont_index gf, const uint16_t expected_screen_resolution_x, const uint16_t expected_screen_resolution_y, const font_filename &fn)
+static void addfontconf(loaded_game_font &fc, const uint16_t expected_screen_resolution_x, const uint16_t expected_screen_resolution_y, const font_filename &fn)
 {
 	if (!PHYSFS_exists(fn.data()))
 		return;
@@ -170,7 +160,7 @@ static void addfontconf(loaded_game_font &fc, const gamefont_index gf, const uin
 				gamefont_unloadfont(fc);
 			f.name = fn;
 			if (i == fc.cur)
-				gamefont_loadfont(*grd_curcanv, fc, gf, i);
+				gamefont_loadfont(*grd_curcanv, fc, i);
 			return;
 		}
 	auto &f = fc.fontconf[(loaded_game_font::font_index{fc.total_fonts_loaded})];
@@ -195,13 +185,13 @@ void gamefont_init()
 		gf.font = nullptr;
 
 		if (!CGameArg.GfxSkipHiresFNT)
-			addfontconf(gf, i, 640, 480, Gamefont_filenames_h[i]); // ZICO - addition to use D2 fonts if available
+			addfontconf(gf, 640, 480, Gamefont_filenames_h[i]); // ZICO - addition to use D2 fonts if available
 #if DXX_BUILD_DESCENT == 1
 		if (MacHog && (i != gamefont_index::big))
-			addfontconf(gf, i, 640, 480, Gamefont_filenames_l[i]); // Mac fonts are hires (except for the "big" one)
+			addfontconf(gf, 640, 480, Gamefont_filenames_l[i]); // Mac fonts are hires (except for the "big" one)
 		else
 #endif
-			addfontconf(gf, i, 320, 200, Gamefont_filenames_l[i]);
+			addfontconf(gf, 320, 200, Gamefont_filenames_l[i]);
 	}
 
 	gamefont_choose_game_font(grd_curscreen->sc_canvas.cv_bitmap.bm_w,grd_curscreen->sc_canvas.cv_bitmap.bm_h);
