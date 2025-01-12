@@ -100,7 +100,6 @@ static void gamefont_unloadfont(loaded_game_font &g)
 {
 	if (g.font)
 	{
-		g.cur = loaded_game_font::font_index::None;
 		g.font.reset();
 	}
 }
@@ -109,7 +108,6 @@ static void gamefont_loadfont(grs_canvas &canvas, loaded_game_font &g, const loa
 {
 	auto &fc{g.fontconf[fi]};
 	g.font = gr_init_font(canvas, fc.name);
-	g.cur=fi;
 }
 
 }

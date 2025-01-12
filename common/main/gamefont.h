@@ -77,7 +77,6 @@ struct loaded_game_font
 		std::array<char, 16> name;
 	};
 	uint8_t total_fonts_loaded;
-	font_index cur;
 	enumerated_array<a_gamefont_conf, 2, font_index> fontconf;
 	grs_font_ptr font;
 };
