@@ -367,13 +367,6 @@ static inline void gr_set_font_bg_color(grs_canvas &canvas, color_palette_index 
 		gr_set_font_bg_color(gr_set_fontcolor, B);	\
 		} DXX_END_COMPOUND_STATEMENT )
 
-struct font_delete
-{
-	void operator()(grs_font *p) const
-	{
-		gr_close_font(std::unique_ptr<grs_font>(p));
-	}
-};
 }
 
 static inline void (gr_set_current_canvas)(grs_canvas_ptr &canv DXX_DEBUG_CURRENT_CANVAS_FILE_LINE_COMMA_L_DECL_VARS)

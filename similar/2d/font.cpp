@@ -835,11 +835,6 @@ void (gr_printt)(grs_canvas &canvas, const grs_font &cv_font, const int x, const
 template void gr_printt<gr_string>(grs_canvas &, const grs_font &, int, int, const char *, ...);
 template void gr_printt<gr_ustring>(grs_canvas &, const grs_font &, int, int, const char *, ...);
 
-void gr_close_font(std::unique_ptr<grs_font> font)
-{
-	(void)font;
-}
-
 //remap a font, re-reading its data & palette
 static void gr_remap_font(grs_font *font);
 

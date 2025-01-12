@@ -274,10 +274,8 @@ void gr_scanline(grs_canvas &canvas, int x1, int x2, unsigned y, color_palette_i
 #if !DXX_USE_OGL
 void gr_uscanline(grs_canvas &canvas, unsigned x1, unsigned x2, unsigned y, color_palette_index color);
 #endif
-void gr_close_font(std::unique_ptr<grs_font> font);
 
-struct font_delete;
-typedef std::unique_ptr<grs_font, font_delete> grs_font_ptr;
+using grs_font_ptr = std::unique_ptr<grs_font>;
 
 // Reads in a font file... current font set to this one.
 grs_font_ptr gr_init_font(grs_canvas &canvas, std::span<const char> fontfile);
