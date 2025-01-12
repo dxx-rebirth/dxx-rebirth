@@ -38,13 +38,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "config.h"
 
-#include "d_array.h"
 #include "d_enumerate.h"
 #include "partial_range.h"
 
 namespace dcx {
 
-enumerated_array<grs_font_ptr, MAX_FONTS, gamefont_index> Gamefonts;
+enumerated_array<loaded_game_font, MAX_FONTS, gamefont_index> Gamefonts;
 
 namespace {
 
@@ -99,10 +98,10 @@ static enumerated_array<gamefont_conf, MAX_FONTS, gamefont_index> font_conf;
 
 static void gamefont_unloadfont(gamefont_index gf)
 {
-	if (auto &g{Gamefonts[gf]})
+	if (auto &g{Gamefonts[gf]}; g.font)
 	{
 		font_conf[gf].cur = gamefont_conf::font_index::None;
-		g.reset();
+		g.font.reset();
 	}
 }
 
@@ -111,11 +110,12 @@ static void gamefont_loadfont(grs_canvas &canvas, const gamefont_index gf, const
 	if (PHYSFS_exists(font_conf[gf].font[fi].name.data()))
 	{
 		gamefont_unloadfont(gf);
-		Gamefonts[gf] = gr_init_font(canvas, font_conf[gf].font[fi].name);
+		Gamefonts[gf].font = gr_init_font(canvas, font_conf[gf].font[fi].name);
 	}else {
-		if (!Gamefonts[gf]){
+		if (auto &g{Gamefonts[gf].font}; !g)
+		{
 			font_conf[gf].cur = gamefont_conf::font_index::None;
-			Gamefonts[gf] = gr_init_font(canvas, Gamefont_filenames_l[gf]);
+			g = gr_init_font(canvas, Gamefont_filenames_l[gf]);
 		}
 		return;
 	}
@@ -209,7 +209,7 @@ void gamefont_init()
 
 	for (auto &&[i, gf] : enumerate(Gamefonts))
 	{
-		gf = nullptr;
+		gf.font = nullptr;
 
 		if (!CGameArg.GfxSkipHiresFNT)
 			addfontconf(i,640,480,Gamefont_filenames_h[i]); // ZICO - addition to use D2 fonts if available

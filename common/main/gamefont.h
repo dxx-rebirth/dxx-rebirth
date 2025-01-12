@@ -46,25 +46,30 @@ enum class gamefont_index : uint8_t
 	small,
 };
 
-#define GAME_FONT       (Gamefonts[gamefont_index::small])
-#define MEDIUM1_FONT    (Gamefonts[gamefont_index::medium1])
-#define MEDIUM2_FONT    (Gamefonts[gamefont_index::medium2])
-#define MEDIUM3_FONT    (Gamefonts[gamefont_index::medium3])
+#define GAME_FONT       (Gamefonts[gamefont_index::small].font)
+#define MEDIUM1_FONT    (Gamefonts[gamefont_index::medium1].font)
+#define MEDIUM2_FONT    (Gamefonts[gamefont_index::medium2].font)
+#define MEDIUM3_FONT    (Gamefonts[gamefont_index::medium3].font)
 
 #ifdef DXX_BUILD_DESCENT
 #if DXX_BUILD_DESCENT == 1
 // The Mac data doesn't have this in hires, in the automap the scaled/hires one won't fit
-#define HUGE_FONT       (Gamefonts[MacPig ? gamefont_index::medium1 : gamefont_index::big])
+#define HUGE_FONT       (Gamefonts[MacPig ? gamefont_index::medium1 : gamefont_index::big].font)
 #elif DXX_BUILD_DESCENT == 2
-#define HUGE_FONT       (Gamefonts[gamefont_index::big])
+#define HUGE_FONT       (Gamefonts[gamefont_index::big].font)
 #endif
 #endif
 
 constexpr std::integral_constant<unsigned, 5> MAX_FONTS{};
 
+struct loaded_game_font
+{
+	grs_font_ptr font;
+};
+
 // add (scaled) spacing to given font coordinate
 
-extern enumerated_array<grs_font_ptr, MAX_FONTS, gamefont_index> Gamefonts;
+extern enumerated_array<loaded_game_font, MAX_FONTS, gamefont_index> Gamefonts;
 
 }
 
