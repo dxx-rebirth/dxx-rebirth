@@ -100,21 +100,21 @@ void gamefont_choose_game_font(int scrx,int scry){
 	for (const auto &&[gf, fc] : enumerate(Gamefonts))
 	{
 		int close{-1};
-		auto m{loaded_game_font::font_index::None};
-		for (const auto &&[i, f] : enumerate(partial_range(fc.fontconf, fc.total_fonts_loaded)))
+		const loaded_game_font::a_gamefont_conf *best_gamefont{nullptr};
+		for (const auto &f : partial_range(fc.fontconf, fc.total_fonts_loaded))
 			if ((scrx >= f.expected_screen_resolution_x && close < f.expected_screen_resolution_x) && (scry >= f.expected_screen_resolution_y && close < f.expected_screen_resolution_y))
 			{
 				close = f.expected_screen_resolution_x;
-				m=i;
+				best_gamefont = &f;
 			}
-		if (m == loaded_game_font::font_index::None)
+		if (best_gamefont == nullptr)
 			Error("no gamefont found for %ix%i\n",scrx,scry);
 
 #if DXX_USE_OGL
 	if (!CGameArg.OglFixedFont)
 	{
 		// if there's no texture filtering, scale by int
-		auto &f = fc.fontconf[m];
+		auto &f{*best_gamefont};
 		if (CGameCfg.TexFilt == opengl_texture_filter::classic)
 		{
 			FNTScaleX.reset(scrx / f.expected_screen_resolution_x);
@@ -138,7 +138,7 @@ void gamefont_choose_game_font(int scrx,int scry){
 			FNTScaleY.reset(FNTScaleX.operator float());
 	}
 #endif
-		fc.font = gr_init_font(*grd_curcanv, fc.fontconf[m].name);
+		fc.font = gr_init_font(*grd_curcanv, best_gamefont->name);
 	}
 }
 
