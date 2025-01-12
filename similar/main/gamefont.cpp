@@ -104,12 +104,6 @@ static void gamefont_unloadfont(loaded_game_font &g)
 	}
 }
 
-static void gamefont_loadfont(grs_canvas &canvas, loaded_game_font &g, const loaded_game_font::font_index fi)
-{
-	auto &fc{g.fontconf[fi]};
-	g.font = gr_init_font(canvas, fc.name);
-}
-
 }
 
 void gamefont_choose_game_font(int scrx,int scry){
@@ -156,7 +150,7 @@ void gamefont_choose_game_font(int scrx,int scry){
 			FNTScaleY.reset(FNTScaleX.operator float());
 	}
 #endif
-		gamefont_loadfont(*grd_curcanv, fc, m);
+		fc.font = gr_init_font(*grd_curcanv, fc.fontconf[m].name);
 	}
 }
 
