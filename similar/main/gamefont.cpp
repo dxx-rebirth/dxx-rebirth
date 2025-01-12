@@ -223,8 +223,6 @@ void gamefont_init()
 			addfontconf(gf, high_resolution_x, high_resolution_y, Gamefont_filenames_h[i]);
 		addfontconf(gf, low_resolution_x, low_resolution_y, Gamefont_filenames_l[i]);
 	}
-
-	gamefont_choose_game_font(grd_curscreen->sc_canvas.cv_bitmap.bm_w,grd_curscreen->sc_canvas.cv_bitmap.bm_h);
 }
 }
 
