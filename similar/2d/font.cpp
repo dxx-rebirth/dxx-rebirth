@@ -60,6 +60,19 @@ namespace dcx {
 
 namespace {
 
+struct grs_disk_font
+{
+	const uint16_t ft_w;           // Width in pixels
+	const uint16_t ft_h;           // Height in pixels
+	const int16_t  ft_flags;       // Proportional?
+	const int16_t  ft_baseline;    //
+	const uint8_t  ft_minchar;     // First char defined by this font
+	const uint8_t  ft_maxchar;     // Last char defined by this font
+	const uint32_t ft_data;        // Ptr to raw data.
+	const uint32_t ft_widths;     // Array of widths (required for prop font)
+	const uint32_t ft_kerndata;    // Array of kerning triplet data
+};
+
 static font_x_scale_float FONTSCALE_X()
 {
 	return font_x_scale_float(FNTScaleX.operator float());
@@ -668,6 +681,28 @@ static void ogl_internal_string(grs_canvas &canvas, const grs_font &cv_font, con
 #define gr_internal_color_string ogl_internal_string
 #endif //OGL
 
+static inline int PHYSFSX_readU8_ptr(PHYSFS_File *const file, uint8_t *const b)
+{
+	return PHYSFSX_readBytes(file, b, sizeof(*b)) == sizeof(*b);
+}
+
+static constexpr PHYSFSX_read_helper<uint8_t, PHYSFSX_readU8_ptr> PHYSFSX_readU8{};
+
+static grs_disk_font grs_disk_font_read(NamedPHYSFS_File fp)
+{
+	return grs_disk_font{
+		.ft_w = PHYSFSX_readULE16(fp),
+		.ft_h = PHYSFSX_readULE16(fp),
+		.ft_flags = PHYSFSX_readSLE16(fp),
+		.ft_baseline = PHYSFSX_readSLE16(fp),
+		.ft_minchar = PHYSFSX_readU8(fp),
+		.ft_maxchar = PHYSFSX_readU8(fp),
+		.ft_data = (PHYSFSX_skipBytes<2>(fp), PHYSFSX_readULE32(fp) - GRS_FONT_SIZE),
+		.ft_widths = (PHYSFSX_skipBytes<4>(fp), PHYSFSX_readULE32(fp) - GRS_FONT_SIZE),
+		.ft_kerndata = PHYSFSX_readULE32(fp) - GRS_FONT_SIZE,
+	};
+}
+
 }
 
 void gr_string(grs_canvas &canvas, const grs_font &cv_font, const int x, const int y, const char *const s)
@@ -858,17 +893,16 @@ namespace {
  */
 static void grs_font_read(grs_font *gf, NamedPHYSFS_File fp)
 {
-	gf->ft_w = PHYSFSX_readSLE16(fp);
-	gf->ft_h = PHYSFSX_readSLE16(fp);
-	gf->ft_flags = PHYSFSX_readSLE16(fp);
-	gf->ft_baseline = PHYSFSX_readSLE16(fp);
-	gf->ft_minchar = PHYSFSX_readByte(fp);
-	gf->ft_maxchar = PHYSFSX_readByte(fp);
-	PHYSFSX_skipBytes<2>(fp);
-	gf->ft_data = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(PHYSFSX_readInt(fp)) - GRS_FONT_SIZE);
-	PHYSFSX_skipBytes<4>(fp);
-	gf->ft_widths = reinterpret_cast<uint16_t *>(static_cast<uintptr_t>(PHYSFSX_readInt(fp)) - GRS_FONT_SIZE);
-	gf->ft_kerndata = reinterpret_cast<uint8_t *>(static_cast<uintptr_t>(PHYSFSX_readInt(fp)) - GRS_FONT_SIZE);
+	const auto d{grs_disk_font_read(fp)};
+	gf->ft_w = {d.ft_w};
+	gf->ft_h = {d.ft_h};
+	gf->ft_flags = {d.ft_flags};
+	gf->ft_baseline = {d.ft_baseline};
+	gf->ft_minchar = {d.ft_minchar};
+	gf->ft_maxchar = {d.ft_maxchar};
+	gf->ft_data = reinterpret_cast<uint8_t *>(d.ft_data);
+	gf->ft_widths = reinterpret_cast<uint16_t *>(d.ft_widths);
+	gf->ft_kerndata = reinterpret_cast<uint8_t *>(d.ft_kerndata);
 }
 
 static std::unique_ptr<grs_font> gr_internal_init_font(const std::span<const char> fontname)
