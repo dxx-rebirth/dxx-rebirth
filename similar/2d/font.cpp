@@ -35,6 +35,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <fcntl.h>
 #endif
 
+#include "ui.h"
+#include "editor/editor.h"
 #include "u_mem.h"
 #include "gr.h"
 #include "dxxerror.h"
@@ -68,12 +70,7 @@ static auto FONTSCALE_Y(const int &y)
 	return font_y_scaled_float(FNTScaleY * y);
 }
 
-#define MAX_OPEN_FONTS	50
-
 constexpr std::integral_constant<uint8_t, 255> kerndata_terminator{};
-
-//list of open fonts, for use (for now) for palette remapping
-static std::array<grs_font *, MAX_OPEN_FONTS> open_font;
 
 #define BITS_TO_BYTES(x)    (((x)+7)>>3)
 
@@ -840,17 +837,7 @@ template void gr_printt<gr_ustring>(grs_canvas &, const grs_font &, int, int, co
 
 void gr_close_font(std::unique_ptr<grs_font> font)
 {
-	if (font)
-	{
-		//find font in list
-		if (!(font->ft_flags & FT_COLOR))
-			return;
-		auto e{end(open_font)};
-		auto i{std::find(begin(open_font), e, font.get())};
-		if (i == e)
-			throw std::logic_error("closing non-open font");
-		*i = nullptr;
-	}
+	(void)font;
 }
 
 //remap a font, re-reading its data & palette
@@ -859,10 +846,13 @@ static void gr_remap_font(grs_font *font);
 //remap (by re-reading) all the color fonts
 void gr_remap_color_fonts()
 {
-	range_for (auto font, open_font)
+#if DXX_USE_EDITOR
+	gr_remap_font(ui_small_font.get());
+	gr_remap_font(editor_font.get());
+#endif
+	for (auto &gf : Gamefonts)
 	{
-		if (font)
-			gr_remap_font(font);
+		gr_remap_font(gf.font.get());
 	}
 }
 
@@ -1039,14 +1029,6 @@ grs_font_ptr gr_init_font(grs_canvas &canvas, const std::span<const char> fontna
 	canvas.cv_font        = font.get();
 	canvas.cv_font_fg_color    = 0;
 	canvas.cv_font_bg_color    = 0;
-	if (font->ft_flags & FT_COLOR)
-	{
-		auto e{end(open_font)};
-		auto i{std::find(begin(open_font), e, static_cast<grs_font *>(nullptr))};
-		if (i == e)
-			throw std::logic_error("too many open fonts");
-		*i = font.get();
-	}
 #if DXX_USE_OGL
 	ogl_init_font(font.get());
 #endif
@@ -1056,10 +1038,22 @@ grs_font_ptr gr_init_font(grs_canvas &canvas, const std::span<const char> fontna
 //remap a font by re-reading its data & palette
 void gr_remap_font(grs_font *font)
 {
+	if (!font)
+		/* To simplify callers, allow the caller to pass `nullptr`, and ignore
+		 * an attempt to remap it.
+		 */
+		return;
+	if (!(font->ft_flags & FT_COLOR))
+		/* If the font does not use color, then remapping it will not change
+		 * its content.  Ignore the attempt.
+		 */
+		return;
 	auto n{gr_internal_init_font(font->ft_filename)};
 	if (!n)
-		return;
-	if (!(n->ft_flags & FT_COLOR))
+		/* If the font fails to load, retain the old font, which may have
+		 * incorrect colors in the new palette, but that is still better than
+		 * having no font.
+		 */
 		return;
 	*font = std::move(*n.get());
 #if DXX_USE_OGL
