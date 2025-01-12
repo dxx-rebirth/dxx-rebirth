@@ -64,6 +64,21 @@ constexpr std::integral_constant<unsigned, 5> MAX_FONTS{};
 
 struct loaded_game_font
 {
+	enum class font_index : std::size_t
+	{
+		None = SIZE_MAX,
+	};
+	//code to allow variable GAME_FONT, added 10/7/99 Matt Mueller - updated 11/18/99 to handle all fonts, not just GFONT_SMALL
+	//	take scry into account? how/when?
+	struct a_gamefont_conf
+	{
+		uint16_t expected_screen_resolution_x;
+		uint16_t expected_screen_resolution_y;
+		std::array<char, 16> name;
+	};
+	uint8_t total_fonts_loaded;
+	font_index cur;
+	enumerated_array<a_gamefont_conf, 2, font_index> fontconf;
 	grs_font_ptr font;
 };
 
