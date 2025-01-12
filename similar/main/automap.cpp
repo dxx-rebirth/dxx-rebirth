@@ -82,8 +82,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_zip.h"
 #include <memory>
 
-#define LEAVE_TIME 0x4000
-
 #define EF_USED     1   // This edge is used
 #define EF_DEFINING 2   // A structure defining edge that should always draw.
 #define EF_FRONTIER 4   // An edge between the known and the unknown.
@@ -801,7 +799,7 @@ static void automap_apply_input(automap &am, const vms_matrix &plrorient, const 
 
 static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 {
-	if ( am.leave_mode==0 && am.controls.state.automap && (timer_query()-am.entry_time)>LEAVE_TIME)
+	if ( am.leave_mode==0 && am.controls.state.automap && (timer_query()-am.entry_time)> /* LEAVE_TIME = */ 0x4000)
 		am.leave_mode = 1;
 
 	{

@@ -52,8 +52,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "partial_range.h"
 #include "d_levelstate.h"
 
+namespace dcx {
+
+namespace {
+
 //	Length in segments of avoidance path
-#define	AVOID_SEG_LENGTH	7
+constexpr std::size_t AVOID_SEG_LENGTH{7};
+
+}
+
+}
 
 #ifdef NDEBUG
 #define	PATH_VALIDATION	0

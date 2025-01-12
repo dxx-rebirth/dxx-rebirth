@@ -77,8 +77,6 @@ struct PCXHeader
 } __pack__;
 #endif
 
-#define PCXHEADER_SIZE 128
-
 #if DXX_USE_SDLIMAGE
 static pcx_result pcx_read_bitmap(const char *const filename, grs_main_bitmap &bmp, palette_array_t &palette, RWops_ptr rw)
 {
@@ -251,6 +249,7 @@ pcx_result pcx_read_bitmap_or_default(const char *const filename, grs_main_bitma
 #if !DXX_USE_OGL && DXX_USE_SCREENSHOT_FORMAT_LEGACY
 unsigned pcx_write_bitmap(PHYSFS_File *const PCXfile, const grs_bitmap *const bmp, palette_array_t &palette)
 {
+	static constexpr std::size_t PCXHEADER_SIZE{128};
 	ubyte data;
 	PCXHeader header{};
 

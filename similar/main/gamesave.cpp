@@ -80,6 +80,7 @@ namespace dcx {
 namespace {
 
 using savegame_pof_names_type = enumerated_array<char[FILENAME_LEN], MAX_POLYGON_MODELS, polygon_model_index>;
+constexpr uint16_t GAME_COMPATIBLE_VERSION{22};
 
 }
 
@@ -87,12 +88,25 @@ using savegame_pof_names_type = enumerated_array<char[FILENAME_LEN], MAX_POLYGON
 
 int Gamesave_current_version;
 
+namespace dsx {
+
+namespace {
+
 #if DXX_BUILD_DESCENT == 1
-#define GAME_VERSION					25
-#elif DXX_BUILD_DESCENT == 2
-#define GAME_VERSION            32
+constexpr unsigned GAME_VERSION{25};
+#if DXX_USE_EDITOR
+constexpr unsigned LEVEL_FILE_VERSION{1};
 #endif
-#define GAME_COMPATIBLE_VERSION 22
+#elif DXX_BUILD_DESCENT == 2
+constexpr unsigned GAME_VERSION{32};
+#if DXX_USE_EDITOR
+constexpr unsigned LEVEL_FILE_VERSION{8};
+#endif
+#endif
+
+}
+
+}
 
 //version 28->29  add delta light support
 //version 27->28  controlcen id now is reactor number, not model number
@@ -101,11 +115,7 @@ int Gamesave_current_version;
 //version 30->31  changed trigger structure some more
 //version 31->32  change segment structure, make it 512 bytes w/o editor, add Segment2s array.
 
-#define MENU_CURSOR_X_MIN       MENU_X
-#define MENU_CURSOR_X_MAX       MENU_X+6
-
 int Gamesave_num_org_robots{0};
-//--unused-- grs_bitmap * Gamesave_saved_bitmap = NULL;
 
 #if DXX_USE_EDITOR
 namespace {
@@ -317,12 +327,6 @@ static void verify_object(const d_level_shared_robot_info_state &LevelSharedRobo
 		obj.control_source = object::control_type::powerup;
 	}
 }
-
-//static gs_skip(int len,PHYSFS_File *file)
-//{
-//
-//	PHYSFSX_fseek(file,len,SEEK_CUR);
-//}
 
 //reads one object of the given version from the given file
 static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int version)
@@ -1279,11 +1283,6 @@ static int load_game_data(
 
 // ----------------------------------------------------------------------------
 
-#if DXX_BUILD_DESCENT == 1
-#define LEVEL_FILE_VERSION		1
-#elif DXX_BUILD_DESCENT == 2
-#define LEVEL_FILE_VERSION      8
-#endif
 //1 -> 2  add palette name
 //2 -> 3  add control center explosion time
 //3 -> 4  add reactor strength
@@ -1551,10 +1550,6 @@ int get_level_name()
 	};
 	return run_blocking_newmenu<request_menu>(*grd_curcanv);
 }
-#endif
-
-
-#if DXX_USE_EDITOR
 
 // --------------------------------------------------------------------------------------
 //	Create a new mine, set global variables.

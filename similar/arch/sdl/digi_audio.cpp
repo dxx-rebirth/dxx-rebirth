@@ -33,12 +33,6 @@ namespace dcx {
 
 namespace {
 
-//changed on 980905 by adb to increase number of concurrent sounds
-//end changes by adb
-#define SOUND_BUFFER_SIZE 1024
-
-#define MIN_VOLUME 10
-
 /* This table is used to add two sound values together and pin
  * the value to avoid overflow.  (used with permission from ARDI)
  * DPH: Taken from SDL/src/SDL_mixer.c.
@@ -210,7 +204,7 @@ int digi_audio_init()
 	WaveSpec.format = AUDIO_U8;
 	WaveSpec.channels = 2;
 	//end this section addition/change - SL
-	WaveSpec.samples = SOUND_BUFFER_SIZE;
+	WaveSpec.samples = /* SOUND_BUFFER_SIZE = */ 1024;
 	WaveSpec.callback = audio_mixcallback;
 
 	if ( SDL_OpenAudio(&WaveSpec, NULL) < 0 ) {

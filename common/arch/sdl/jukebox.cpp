@@ -29,7 +29,6 @@
 
 namespace dcx {
 
-#define MUSIC_HUDMSG_MAXLEN 40
 #define JUKEBOX_HUDMSG_PLAYING "Now playing:"
 #define JUKEBOX_HUDMSG_STOPPED "Jukebox stopped"
 
@@ -338,6 +337,7 @@ int jukebox_play()
 
 	// Formatting a pretty message
 	const char *prefix = "...";
+	constexpr std::size_t MUSIC_HUDMSG_MAXLEN{40};
 	if (size_music_filename >= MUSIC_HUDMSG_MAXLEN) {
 		music_filename += size_music_filename - MUSIC_HUDMSG_MAXLEN;
 	} else {

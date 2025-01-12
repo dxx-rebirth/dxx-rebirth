@@ -75,8 +75,6 @@ struct subtitle {
 	const char *msg;
 };
 
-#define MAX_ACTIVE_SUBTITLES 3
-
 struct d_loaded_subtitle_state
 {
 	unsigned Num_subtitles{};
@@ -586,6 +584,7 @@ static int init_subtitles(d_loaded_subtitle_state &SubtitleState, const std::spa
 //draw the subtitles for this frame
 static void draw_subtitles(const d_loaded_subtitle_state &SubtitleState, const int frame_num)
 {
+	static constexpr std::size_t MAX_ACTIVE_SUBTITLES{3};
 	static std::array<uint16_t, MAX_ACTIVE_SUBTITLES> active_subtitles;
 	static int next_subtitle;
 	static unsigned num_active_subtitles;

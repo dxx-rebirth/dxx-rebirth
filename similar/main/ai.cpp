@@ -122,18 +122,17 @@ const vms_vector &robot_gun_point::build(const robot_info &robptr, const object_
 }
 
 #if DXX_BUILD_DESCENT == 1
-#define	BOSS_DEATH_SOUND_DURATION	0x2ae14		//	2.68 seconds
+constexpr fix BOSS_DEATH_SOUND_DURATION{0x2ae14};	//	2.68 seconds
 
 #elif DXX_BUILD_DESCENT == 2
-#define	FIRE_AT_NEARBY_PLAYER_THRESHOLD	(F1_0*40)
-
-#define	FIRE_K	8		//	Controls average accuracy of robot firing.  Smaller numbers make firing worse.  Being power of 2 doesn't matter.
+constexpr fix FIRE_AT_NEARBY_PLAYER_THRESHOLD{F1_0 * 40};
+constexpr int FIRE_K{8};		//	Controls average accuracy of robot firing.  Smaller numbers make firing worse.  Being power of 2 doesn't matter.
 
 // ====================================================================================================================
 
-#define	MIN_LEAD_SPEED		(F1_0*4)
-#define	MAX_LEAD_DISTANCE	(F1_0*200)
-#define	LEAD_RANGE			(F1_0/2)
+constexpr fix MIN_LEAD_SPEED{F1_0 * 4};
+constexpr fix MAX_LEAD_DISTANCE{F1_0 * 200};
+constexpr fix LEAD_RANGE{F1_0 / 2};
 
 /* Invalid robot ID numbers in Spew_bots must be at the end of their row.  The
  * corresponding count in Max_spew_bots will prevent the game from rolling a
@@ -190,23 +189,22 @@ namespace dcx {
 namespace {
 constexpr std::integral_constant<int, F1_0 * 8> CHASE_TIME_LENGTH{};
 constexpr std::integral_constant<int, F1_0> Robot_sound_volume{};
+constexpr fix ANIM_RATE{F1_0 / 16};
+constexpr int DELTA_ANG_SCALE{16};
+constexpr int OVERALL_AGITATION_MAX{100};
+constexpr std::size_t MAX_AI_CLOAK_INFO{8};		//	Must be a power of 2!
+
 enum {
 	Flinch_scale = 4,
 	Attack_scale = 24,
 };
-#define	ANIM_RATE		(F1_0/16)
-#define	DELTA_ANG_SCALE	16
 
 constexpr std::array<robot_animation_state, 8> Mike_to_matt_xlate{{
 	robot_animation_state::rest, robot_animation_state::rest, robot_animation_state::alert, robot_animation_state::alert, robot_animation_state::flinch, robot_animation_state::fire, robot_animation_state::recoil, robot_animation_state::rest
 }};
 
-#define	OVERALL_AGITATION_MAX	100
-
-#define		MAX_AI_CLOAK_INFO	8	//	Must be a power of 2!
-
 #define	BOSS_CLOAK_DURATION	Boss_cloak_duration
-#define	BOSS_DEATH_DURATION	(F1_0*6)
+constexpr fix BOSS_DEATH_DURATION{F1_0 * 6};
 //	Amount of time since the current robot was last processed for things such as movement.
 //	It is not valid to use FrameTime because robots do not get moved every frame.
 
@@ -2711,9 +2709,6 @@ static void do_d1_boss_stuff(const d_robot_info_array &Robot_info, fvmsegptridx 
 
 }
 
-#define	BOSS_TO_PLAYER_GATE_DISTANCE	(F1_0*150)
-
-
 // --------------------------------------------------------------------------------------------------------------------
 //	Do special stuff for a boss.
 static void do_super_boss_stuff(const d_robot_info_array &Robot_info, fvmsegptridx &vmsegptridx, const vmobjptridx_t objp, const fix dist_to_player, const player_visibility_state player_visibility)
@@ -2731,7 +2726,7 @@ static void do_super_boss_stuff(const d_robot_info_array &Robot_info, fvmsegptri
 
 	if (
 		multiplayer ||
-		dist_to_player < BOSS_TO_PLAYER_GATE_DISTANCE ||
+		dist_to_player < /* BOSS_TO_PLAYER_GATE_DISTANCE = */ (F1_0 * 150) ||
 		player_is_visible(player_visibility)
 	) {
 		const auto Gate_interval = GameUniqueState.Boss_gate_interval;
@@ -3090,12 +3085,11 @@ namespace {
 
 // ----------------------------------------------------------------------------
 // Make a robot near the player snipe.
-#define	MNRS_SEG_MAX	70
 static void make_nearby_robot_snipe(fvmsegptr &vmsegptr, const object &robot, const robot_info &robptr, const player_flags powerup_flags)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptridx = Objects.vmptridx;
-	std::array<segnum_t, MNRS_SEG_MAX> bfs_list;
+	std::array<segnum_t, /* MNRS_SEG_MAX = */ 70> bfs_list;
 	/* Passing powerup_flags here seems wrong.  Sniping robots do not
 	 * open doors, so they should not care what doors the player can
 	 * open.  However, passing powerup_flags here maintains the
