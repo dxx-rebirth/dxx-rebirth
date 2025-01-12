@@ -77,18 +77,14 @@ struct loaded_game_font
 	grs_font_ptr font;
 };
 
-// add (scaled) spacing to given font coordinate
-
 extern enumerated_array<loaded_game_font, MAX_FONTS, gamefont_index> Gamefonts;
-
-}
 
 class base_font_scale_proportion
 {
 protected:
-	float f;
+	float f{1.f};
 public:
-	base_font_scale_proportion() = default;
+	constexpr base_font_scale_proportion() = default;
 	explicit constexpr base_font_scale_proportion(const float v) :
 		f{v}
 	{
@@ -121,6 +117,8 @@ using font_y_scale_proportion = font_scale_proportion<'y'>;
 
 extern font_x_scale_proportion FNTScaleX;
 extern font_y_scale_proportion FNTScaleY;
+
+}
 
 static inline float LINE_SPACING(const grs_font &active_font, const grs_font &game_font)
 {

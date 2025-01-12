@@ -87,10 +87,10 @@ constexpr enumerated_array<font_filename, MAX_FONTS, gamefont_index> Gamefont_fi
 
 }
 
-}
+font_x_scale_proportion FNTScaleX;
+font_y_scale_proportion FNTScaleY;
 
-font_x_scale_proportion FNTScaleX(1);
-font_y_scale_proportion FNTScaleY(1);
+}
 
 void gamefont_choose_game_font(int scrx,int scry){
 	for (const auto &&[gf, fc] : enumerate(Gamefonts))
