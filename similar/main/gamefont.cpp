@@ -74,11 +74,11 @@ font_y_scale_proportion FNTScaleY(1);
 
 namespace {
 
-static void gamefont_unloadfont(gamefont_index gf)
+static void gamefont_unloadfont(loaded_game_font &g)
 {
-	if (auto &g{Gamefonts[gf]}; g.font)
+	if (g.font)
 	{
-		Gamefonts[gf].cur = loaded_game_font::font_index::None;
+		g.cur = loaded_game_font::font_index::None;
 		g.font.reset();
 	}
 }
@@ -87,7 +87,7 @@ static void gamefont_loadfont(grs_canvas &canvas, const gamefont_index gf, const
 {
 	if (auto &fc{Gamefonts[gf].fontconf[fi]}; PHYSFS_exists(fc.name.data()))
 	{
-		gamefont_unloadfont(gf);
+		gamefont_unloadfont(Gamefonts[gf]);
 		Gamefonts[gf].font = gr_init_font(canvas, fc.name);
 	}else {
 		if (auto &g{Gamefonts[gf].font}; !g)
@@ -162,7 +162,7 @@ static void addfontconf(const gamefont_index gf, const uint16_t expected_screen_
 		if (f.expected_screen_resolution_x == expected_screen_resolution_x && f.expected_screen_resolution_y == expected_screen_resolution_y)
 		{
 			if (i == fc.cur)
-				gamefont_unloadfont(gf);
+				gamefont_unloadfont(Gamefonts[gf]);
 			f.name = fn;
 			if (i == fc.cur)
 				gamefont_loadfont(*grd_curcanv, gf, i);
@@ -211,6 +211,6 @@ void gamefont_close()
 	for (auto &&[idx, gf] : enumerate(Gamefonts))
 	{
 		(void)gf;
-		gamefont_unloadfont(idx);
+		gamefont_unloadfont(Gamefonts[idx]);
 	}
 }
