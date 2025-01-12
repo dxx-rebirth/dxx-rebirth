@@ -47,7 +47,13 @@ enumerated_array<loaded_game_font, MAX_FONTS, gamefont_index> Gamefonts;
 
 namespace {
 
-constexpr enumerated_array<std::array<char, 16>, MAX_FONTS, gamefont_index> Gamefont_filenames_l{{{
+	/* Low-resolution fonts need 11 characters for the name, plus one for the
+	 * null.  High-resolution fonts need 12 characters for the name, plus one
+	 * for the null.  Round up to 16 for alignment and easy indexing math.
+	 */
+using font_filename = std::array<char, 16>;
+
+constexpr enumerated_array<font_filename, MAX_FONTS, gamefont_index> Gamefont_filenames_l{{{
 	{{"font1-1.fnt"}}, // Font 0
 	{{"font2-1.fnt"}}, // Font 1
 	{{"font2-2.fnt"}}, // Font 2
@@ -55,7 +61,7 @@ constexpr enumerated_array<std::array<char, 16>, MAX_FONTS, gamefont_index> Game
 	{{"font3-1.fnt"}}  // Font 4
 }}};
 
-constexpr enumerated_array<std::array<char, 16>, MAX_FONTS, gamefont_index> Gamefont_filenames_h{{{
+constexpr enumerated_array<font_filename, MAX_FONTS, gamefont_index> Gamefont_filenames_h{{{
 	{{"font1-1h.fnt"}}, // Font 0
 	{{"font2-1h.fnt"}}, // Font 1
 	{{"font2-2h.fnt"}}, // Font 2
@@ -152,7 +158,7 @@ void gamefont_choose_game_font(int scrx,int scry){
 
 namespace {
 
-static void addfontconf(loaded_game_font &fc, const gamefont_index gf, const uint16_t expected_screen_resolution_x, const uint16_t expected_screen_resolution_y, const std::array<char, 16> &fn)
+static void addfontconf(loaded_game_font &fc, const gamefont_index gf, const uint16_t expected_screen_resolution_x, const uint16_t expected_screen_resolution_y, const font_filename &fn)
 {
 	if (!PHYSFS_exists(fn.data()))
 		return;
