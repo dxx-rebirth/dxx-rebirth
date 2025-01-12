@@ -207,9 +207,6 @@ void gamefont_close()
 	if (!Gamefont_installed) return;
 	Gamefont_installed = 0;
 
-	for (auto &&[idx, gf] : enumerate(Gamefonts))
-	{
-		(void)gf;
-		gamefont_unloadfont(Gamefonts[idx]);
-	}
+	for (auto &gf : Gamefonts)
+		gamefont_unloadfont(gf);
 }
