@@ -451,7 +451,7 @@ static void read_special(shared_segment &segp, const sidemask_t bit_mask, const 
 		// Read byte	Segments[segnum].matcen_num
 		segp.matcen_num = build_materialization_center_number_from_untrusted(PHYSFSX_readByte(LoadFile));
 		// Read short	Segments[segnum].value
-		segp.station_idx = build_station_number_from_untrusted(PHYSFSX_readShort(LoadFile));
+		segp.station_idx = build_station_number_from_untrusted(PHYSFSX_readSLE16(LoadFile));
 	} else {
 		segp.special = segment_special::nothing;
 		segp.matcen_num = materialization_center_number::None;
@@ -499,7 +499,7 @@ int load_mine_data_compiled(const NamedPHYSFS_File LoadFile, const char *const G
 
 	DXX_POISON_VAR(Vertices, 0xfc);
 	const unsigned Num_vertices = New_file_format_load
-		? PHYSFSX_readShort(LoadFile)
+		? PHYSFSX_readSLE16(LoadFile)
 		: PHYSFSX_readInt(LoadFile);
 	assert(Num_vertices <= MAX_VERTICES);
 #if DXX_USE_EDITOR
@@ -508,7 +508,7 @@ int load_mine_data_compiled(const NamedPHYSFS_File LoadFile, const char *const G
 
 	DXX_POISON_VAR(Segments, 0xfc);
 	if (New_file_format_load)
-		LevelSharedSegmentState.Num_segments = PHYSFSX_readShort(LoadFile);
+		LevelSharedSegmentState.Num_segments = PHYSFSX_readSLE16(LoadFile);
 	else
 		LevelSharedSegmentState.Num_segments = PHYSFSX_readInt(LoadFile);
 	assert(LevelSharedSegmentState.Num_segments <= MAX_SEGMENTS);
@@ -555,7 +555,7 @@ int load_mine_data_compiled(const NamedPHYSFS_File LoadFile, const char *const G
 
 		if (Gamesave_current_version <= 5) { // descent 1 thru d2 SHAREWARE level
 			// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
-			const uint16_t temp_static_light = PHYSFSX_readShort(LoadFile);
+			const uint16_t temp_static_light = PHYSFSX_readSLE16(LoadFile);
 			segp.u.static_light = static_cast<fix>(temp_static_light) << 4;
 		}
 
@@ -582,7 +582,7 @@ int load_mine_data_compiled(const NamedPHYSFS_File LoadFile, const char *const G
 			auto &uside = segp.u.sides[sidenum];
 			if (segp.s.children[sidenum] == segment_none || segp.s.sides[sidenum].wall_num != wall_none)	{
 				// Read short Segments[segnum].sides[sidenum].tmap_num;
-				const uint16_t temp_tmap1_num = PHYSFSX_readShort(LoadFile);
+				const uint16_t temp_tmap1_num = PHYSFSX_readSLE16(LoadFile);
 #if DXX_BUILD_DESCENT == 1
 				uside.tmap_num = build_texture1_value(convert_tmap(temp_tmap1_num & 0x7fff));
 
@@ -590,7 +590,7 @@ int load_mine_data_compiled(const NamedPHYSFS_File LoadFile, const char *const G
 					uside.tmap_num2 = texture2_value::None;
 				else {
 					// Read short Segments[segnum].sides[sidenum].tmap_num2;
-					const auto tmap_num2 = texture2_value{static_cast<uint16_t>(PHYSFSX_readShort(LoadFile))};
+					const auto tmap_num2 = texture2_value{static_cast<uint16_t>(PHYSFSX_readSLE16(LoadFile))};
 					uside.tmap_num2 = build_texture2_value(convert_tmap(get_texture_index(tmap_num2)), get_texture_rotation_high(tmap_num2));
 				}
 #elif DXX_BUILD_DESCENT == 2
@@ -604,7 +604,7 @@ int load_mine_data_compiled(const NamedPHYSFS_File LoadFile, const char *const G
 					uside.tmap_num2 = texture2_value::None;
 				else {
 					// Read short Segments[segnum].sides[sidenum].tmap_num2;
-					const auto tmap_num2 = static_cast<texture2_value>(PHYSFSX_readShort(LoadFile));
+					const auto tmap_num2 = static_cast<texture2_value>(PHYSFSX_readSLE16(LoadFile));
 					uside.tmap_num2 = (Gamesave_current_version <= 1 && tmap_num2 != texture2_value::None)
 						? build_texture2_value(convert_d1_tmap_num(get_texture_index(tmap_num2)), get_texture_rotation_high(tmap_num2))
 						: tmap_num2;
@@ -613,11 +613,11 @@ int load_mine_data_compiled(const NamedPHYSFS_File LoadFile, const char *const G
 
 				// Read uvl Segments[segnum].sides[sidenum].uvls[4] (u,v>>5, write as short, l>>1 write as short)
 				range_for (auto &i, uside.uvls) {
-					temp_short = PHYSFSX_readShort(LoadFile);
+					temp_short = PHYSFSX_readSLE16(LoadFile);
 					i.u = static_cast<fix>(temp_short) << 5;
-					temp_short = PHYSFSX_readShort(LoadFile);
+					temp_short = PHYSFSX_readSLE16(LoadFile);
 					i.v = static_cast<fix>(temp_short) << 5;
-					const uint16_t temp_light = PHYSFSX_readShort(LoadFile);
+					const uint16_t temp_light = PHYSFSX_readSLE16(LoadFile);
 					i.l = static_cast<fix>(temp_light) << 1;
 				}
 			} else {

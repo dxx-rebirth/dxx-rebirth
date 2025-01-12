@@ -5605,12 +5605,12 @@ void init_hoard_data(d_vclip_array &Vclip)
 	if (!ifile)
 		Error("Failed to open <hoard.ham>: %s", PHYSFS_getErrorByCode(physfserr));
 
-	n_orb_frames = PHYSFSX_readShort(ifile);
-	orb_w = PHYSFSX_readShort(ifile);
-	orb_h = PHYSFSX_readShort(ifile);
+	n_orb_frames = PHYSFSX_readSLE16(ifile);
+	orb_w = PHYSFSX_readSLE16(ifile);
+	orb_h = PHYSFSX_readSLE16(ifile);
 	save_pos = PHYSFS_tell(ifile);
 	PHYSFSX_fseek(ifile,sizeof(palette)+n_orb_frames*orb_w*orb_h,SEEK_CUR);
-	n_goal_frames = PHYSFSX_readShort(ifile);
+	n_goal_frames = PHYSFSX_readSLE16(ifile);
 	PHYSFS_seek(ifile, save_pos);
 
 	//Allocate memory for bitmaps
@@ -5690,10 +5690,10 @@ void init_hoard_data(d_vclip_array &Vclip)
 	//Load and remap bitmap data for HUD icons
 	range_for (auto &i, Orb_icons)
 	{
-		const unsigned icon_w = PHYSFSX_readShort(ifile);
+		const unsigned icon_w = PHYSFSX_readSLE16(ifile);
 		if (icon_w > 32)
 			return;
-		const unsigned icon_h = PHYSFSX_readShort(ifile);
+		const unsigned icon_h = PHYSFSX_readSLE16(ifile);
 		if (icon_h > 32)
 			return;
 		const unsigned extent = icon_w * icon_h;

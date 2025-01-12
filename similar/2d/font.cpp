@@ -858,10 +858,10 @@ namespace {
  */
 static void grs_font_read(grs_font *gf, NamedPHYSFS_File fp)
 {
-	gf->ft_w = PHYSFSX_readShort(fp);
-	gf->ft_h = PHYSFSX_readShort(fp);
-	gf->ft_flags = PHYSFSX_readShort(fp);
-	gf->ft_baseline = PHYSFSX_readShort(fp);
+	gf->ft_w = PHYSFSX_readSLE16(fp);
+	gf->ft_h = PHYSFSX_readSLE16(fp);
+	gf->ft_flags = PHYSFSX_readSLE16(fp);
+	gf->ft_baseline = PHYSFSX_readSLE16(fp);
 	gf->ft_minchar = PHYSFSX_readByte(fp);
 	gf->ft_maxchar = PHYSFSX_readByte(fp);
 	PHYSFSX_skipBytes<2>(fp);

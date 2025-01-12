@@ -185,8 +185,8 @@ static void jointlist_read(const NamedPHYSFS_File fp, std::array<jointlist, N_AN
 {
 	range_for (auto &i, jl)
 	{
-		i.n_joints = PHYSFSX_readShort(fp);
-		i.offset = PHYSFSX_readShort(fp);
+		i.n_joints = PHYSFSX_readSLE16(fp);
+		i.offset = PHYSFSX_readSLE16(fp);
 		if (!i.n_joints)
 			/* The custom campaign `Descent 2: Enemy Vignettes` has
 			 * custom robots with invalid joints.  These joints have
@@ -226,14 +226,14 @@ void robot_info_read(const NamedPHYSFS_File fp, robot_info &ri)
 	range_for (auto &j, ri.gun_submodels)
 		j = PHYSFSX_readByte(fp);
 
-	ri.exp1_vclip_num = build_vclip_index_from_untrusted(PHYSFSX_readShort(fp));
-	ri.exp1_sound_num = build_sound_effect_from_untrusted(PHYSFSX_readShort(fp));
+	ri.exp1_vclip_num = build_vclip_index_from_untrusted(PHYSFSX_readSLE16(fp));
+	ri.exp1_sound_num = build_sound_effect_from_untrusted(PHYSFSX_readSLE16(fp));
 
-	ri.exp2_vclip_num = build_vclip_index_from_untrusted(PHYSFSX_readShort(fp));
-	ri.exp2_sound_num = build_sound_effect_from_untrusted(PHYSFSX_readShort(fp));
+	ri.exp2_vclip_num = build_vclip_index_from_untrusted(PHYSFSX_readSLE16(fp));
+	ri.exp2_sound_num = build_sound_effect_from_untrusted(PHYSFSX_readSLE16(fp));
 
 #if DXX_BUILD_DESCENT == 1
-	ri.weapon_type = static_cast<weapon_id_type>(PHYSFSX_readShort(fp));
+	ri.weapon_type = static_cast<weapon_id_type>(PHYSFSX_readSLE16(fp));
 #elif DXX_BUILD_DESCENT == 2
 	ri.weapon_type = static_cast<weapon_id_type>(PHYSFSX_readByte(fp));
 	ri.weapon_type2 = static_cast<weapon_id_type>(PHYSFSX_readByte(fp));
@@ -249,7 +249,7 @@ void robot_info_read(const NamedPHYSFS_File fp, robot_info &ri)
 #elif DXX_BUILD_DESCENT == 2
 	ri.kamikaze = PHYSFSX_readByte(fp);
 
-	ri.score_value = PHYSFSX_readShort(fp);
+	ri.score_value = PHYSFSX_readSLE16(fp);
 	ri.badass = PHYSFSX_readByte(fp);
 	ri.energy_drain = PHYSFSX_readByte(fp);
 #endif
@@ -327,7 +327,7 @@ void robot_info_read(const NamedPHYSFS_File fp, robot_info &ri)
  */
 void jointpos_read(const NamedPHYSFS_File fp, jointpos &jp)
 {
-	jp.jointnum = PHYSFSX_readShort(fp);
+	jp.jointnum = PHYSFSX_readSLE16(fp);
 	PHYSFSX_readAngleVec(fp, jp.angles);
 }
 

@@ -530,7 +530,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 		properties_read_cmp(LevelSharedRobotInfoState, Vclip, Piggy_fp);	// Note connection to above if!!!
 		range_for (auto &i, GameBitmapXlat)
 		{
-			const auto bi = GameBitmapXlat.valid_index(PHYSFSX_readShort(Piggy_fp));
+			const auto bi = GameBitmapXlat.valid_index(PHYSFSX_readSLE16(Piggy_fp));
 			i = bi ? *bi : bitmap_index::None;
 			if (PHYSFS_eof(Piggy_fp))
 				break;
@@ -1024,7 +1024,7 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 		bm_read_all(LevelSharedRobotInfoState, Vclip, ham_fp);
 		range_for (auto &i, GameBitmapXlat)
 		{
-			const auto bi = GameBitmapXlat.valid_index(PHYSFSX_readShort(ham_fp));
+			const auto bi = GameBitmapXlat.valid_index(PHYSFSX_readSLE16(ham_fp));
 			i = bi ? *bi : bitmap_index::None;
 			if (PHYSFS_eof(ham_fp))
 				break;
@@ -1725,7 +1725,7 @@ void load_bitmap_replacements(const std::span<const char, FILENAME_LEN> level_na
 
 		const auto indices = std::make_unique<uint16_t[]>(n_bitmaps);
 		range_for (auto &i, unchecked_partial_range(indices.get(), n_bitmaps))
-			i = PHYSFSX_readShort(ifile);
+			i = PHYSFSX_readSLE16(ifile);
 
 		bitmap_data_size = PHYSFS_fileLength(ifile) - PHYSFS_tell(ifile) - sizeof(DiskBitmapHeader) * n_bitmaps;
 		Bitmap_replacement_data = std::make_unique<ubyte[]>(bitmap_data_size);
@@ -1858,7 +1858,7 @@ static void bm_read_d1_tmap_nums(const NamedPHYSFS_File d1pig)
 	auto &t = *d1_tmap_nums.get();
 	t.fill(-1);
 	for (i = 0; i < D1_MAX_TEXTURES; i++) {
-		const uint16_t d1_index = PHYSFSX_readShort(d1pig);
+		const uint16_t d1_index = PHYSFSX_readSLE16(d1pig);
 		if (d1_index >= std::size(t))
 			break;
 		t[d1_index] = i;
@@ -2030,7 +2030,7 @@ void load_d1_bitmap_replacements()
 		case descent1_pig_size::d1_mac_share_pigsize:
 		pig_data_start = PHYSFSX_readInt(d1_Piggy_fp );
 		bm_read_d1_tmap_nums(d1_Piggy_fp); //was: bm_read_all_d1(fp);
-		//for (i = 0; i < 1800; i++) GameBitmapXlat[i] = PHYSFSX_readShort(d1_Piggy_fp);
+		//for (i = 0; i < 1800; i++) GameBitmapXlat[i] = PHYSFSX_readSLE16(d1_Piggy_fp);
 		break;
 	}
 
@@ -2170,7 +2170,7 @@ grs_bitmap *read_extra_bitmap_d1_pig(const std::span<const char> name, grs_bitma
  */
 void bitmap_index_read(const NamedPHYSFS_File fp, bitmap_index &bi)
 {
-	const auto i = GameBitmaps.valid_index(PHYSFSX_readShort(fp));
+	const auto i = GameBitmaps.valid_index(PHYSFSX_readSLE16(fp));
 	bi = i ? *i : bitmap_index::None;
 }
 
@@ -2181,7 +2181,7 @@ void bitmap_index_read_n(const NamedPHYSFS_File fp, const std::ranges::subrange<
 {
 	for (auto &bi : r)
 	{
-		const auto i = GameBitmaps.valid_index(PHYSFSX_readShort(fp));
+		const auto i = GameBitmaps.valid_index(PHYSFSX_readSLE16(fp));
 		bi = i ? *i : bitmap_index::None;
 	}
 }

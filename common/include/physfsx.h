@@ -387,7 +387,7 @@ static inline int PHYSFSX_readS8(PHYSFS_File *const file, int8_t *const b)
 }
 
 static constexpr PHYSFSX_read_helper<int8_t, PHYSFSX_readS8> PHYSFSX_readByte{};
-static constexpr PHYSFSX_read_helper<int16_t, PHYSFS_readSLE16> PHYSFSX_readShort{};
+static constexpr PHYSFSX_read_helper<int16_t, PHYSFS_readSLE16> PHYSFSX_readSLE16{};
 static constexpr PHYSFSX_read_helper<uint16_t, PHYSFS_readULE16> PHYSFSX_readULE16{};
 static constexpr PHYSFSX_read_helper<int32_t, PHYSFS_readSLE32> PHYSFSX_readInt{};
 static constexpr PHYSFSX_read_helper<uint32_t, PHYSFS_readULE32> PHYSFSX_readULE32{};

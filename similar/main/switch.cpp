@@ -600,14 +600,14 @@ void v26_trigger_read(const NamedPHYSFS_File fp, trigger &t)
 	}
 	if (PHYSFSX_readByte(fp) & 2)	// one shot
 		t.flags |= TRIGGER_ONE_SHOT;
-	t.num_links = PHYSFSX_readShort(fp);
+	t.num_links = PHYSFSX_readSLE16(fp);
 	t.value = PHYSFSX_readInt(fp);
 	PHYSFSX_skipBytes<4>(fp);
 	for (unsigned i=0; i < MAX_WALLS_PER_LINK; i++ )
 		t.seg[i] = read_untrusted_segnum_le16(fp);
 	for (unsigned i=0; i < MAX_WALLS_PER_LINK; i++ )
 	{
-		auto s = build_sidenum_from_untrusted(PHYSFSX_readShort(fp));
+		auto s = build_sidenum_from_untrusted(PHYSFSX_readSLE16(fp));
 		t.side[i] = s.value_or(sidenum_t::WLEFT);
 	}
 }
@@ -622,15 +622,15 @@ void v29_trigger_read(v29_trigger *t, const NamedPHYSFS_File fp)
 #elif DXX_BUILD_DESCENT == 2
 	t->type = PHYSFSX_readByte(fp);
 #endif
-	t->flags = PHYSFSX_readShort(fp);
+	t->flags = PHYSFSX_readSLE16(fp);
 	t->value = PHYSFSX_readFix(fp);
 	PHYSFSX_skipBytes<5>(fp);
-	t->num_links = PHYSFSX_readShort(fp);
+	t->num_links = PHYSFSX_readSLE16(fp);
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
 		t->seg[i] = read_untrusted_segnum_le16(fp);
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
 	{
-		auto s = build_sidenum_from_untrusted(PHYSFSX_readShort(fp));
+		auto s = build_sidenum_from_untrusted(PHYSFSX_readSLE16(fp));
 		t->side[i] = s.value_or(sidenum_t::WLEFT);
 	}
 }
@@ -641,7 +641,7 @@ void v29_trigger_read(v29_trigger *t, const NamedPHYSFS_File fp)
  */
 void v30_trigger_read(v30_trigger *t, const NamedPHYSFS_File fp)
 {
-	t->flags = PHYSFSX_readShort(fp);
+	t->flags = PHYSFSX_readSLE16(fp);
 	t->num_links = PHYSFSX_readByte(fp);
 	t->pad = PHYSFSX_readByte(fp);
 	t->value = PHYSFSX_readFix(fp);
@@ -649,7 +649,7 @@ void v30_trigger_read(v30_trigger *t, const NamedPHYSFS_File fp)
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
 		t->seg[i] = read_untrusted_segnum_le16(fp);
 	for (unsigned i=0; i<MAX_WALLS_PER_LINK; i++ )
-		t->side[i] = build_sidenum_from_untrusted(PHYSFSX_readShort(fp)).value_or(sidenum_t::WLEFT);
+		t->side[i] = build_sidenum_from_untrusted(PHYSFSX_readSLE16(fp)).value_or(sidenum_t::WLEFT);
 }
 
 namespace {

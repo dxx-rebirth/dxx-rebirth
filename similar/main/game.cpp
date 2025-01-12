@@ -2488,7 +2488,7 @@ namespace dsx {
 void flickering_light_read(flickering_light &fl, const NamedPHYSFS_File fp)
 {
 	fl.segnum = read_untrusted_segnum_le16(fp);
-	const auto sidenum{build_sidenum_from_untrusted(PHYSFSX_readShort(fp))};
+	const auto sidenum{build_sidenum_from_untrusted(PHYSFSX_readSLE16(fp))};
 	fl.mask = PHYSFSX_readInt(fp);
 	fl.timer = PHYSFSX_readFix(fp);
 	fl.delay = PHYSFSX_readFix(fp);

@@ -190,7 +190,7 @@ static int load_pog(const NamedPHYSFS_File f, int pog_sig, int pog_ver, unsigned
 		N_d2tmap = PHYSFSX_readInt(f2);
 		if ((d2tmap = d_malloc(N_d2tmap * sizeof(d2tmap[0]))))
 			for (i = 0; i < N_d2tmap; i++)
-				d2tmap[i] = PHYSFSX_readShort(f2);
+				d2tmap[i] = PHYSFSX_readSLE16(f2);
 		PHYSFS_close(f2);
 	}
 #endif
@@ -210,7 +210,7 @@ static int load_pog(const NamedPHYSFS_File f, int pog_sig, int pog_ver, unsigned
 	if (!no_repl)
 	{
 		for (int i = num_bitmaps; i--;)
-			(cip++)->repl_idx = custom_info::replacement_index{PHYSFSX_readShort(f)};
+			(cip++)->repl_idx = custom_info::replacement_index{PHYSFSX_readSLE16(f)};
 
 		cip = ci.get();
 		data_ofs += num_bitmaps * 2;
@@ -379,10 +379,10 @@ static int read_d2_robot_info(const NamedPHYSFS_File fp, robot_info &ri)
 		PHYSFSX_readVector(fp, j);
 	for (auto &j : ri.gun_submodels)
 		j = PHYSFSX_readByte(fp);
-	ri.exp1_vclip_num = build_vclip_index_from_untrusted(PHYSFSX_readShort(fp));
-	ri.exp1_sound_num = build_sound_effect_from_untrusted(PHYSFSX_readShort(fp));
-	ri.exp2_vclip_num = build_vclip_index_from_untrusted(PHYSFSX_readShort(fp));
-	ri.exp2_sound_num = build_sound_effect_from_untrusted(PHYSFSX_readShort(fp));
+	ri.exp1_vclip_num = build_vclip_index_from_untrusted(PHYSFSX_readSLE16(fp));
+	ri.exp1_sound_num = build_sound_effect_from_untrusted(PHYSFSX_readSLE16(fp));
+	ri.exp2_vclip_num = build_vclip_index_from_untrusted(PHYSFSX_readSLE16(fp));
+	ri.exp2_sound_num = build_sound_effect_from_untrusted(PHYSFSX_readSLE16(fp));
 	const auto weapon_type = PHYSFSX_readByte(fp);
 	ri.weapon_type = weapon_type < N_weapon_types ? static_cast<weapon_id_type>(weapon_type) : weapon_id_type::LASER_ID_L1;
 	/*ri.weapon_type2 =*/ PHYSFSX_skipBytes<1>(fp);
@@ -393,7 +393,7 @@ static int read_d2_robot_info(const NamedPHYSFS_File fp, robot_info &ri)
 	const uint8_t untrusted_contains_type = PHYSFSX_readByte(fp);
 	ri.contains = build_contained_object_parameters_from_untrusted(untrusted_contains_type, untrusted_contains_id, untrusted_contains_count);
 	/*ri.kamikaze =*/ PHYSFSX_skipBytes<1>(fp);
-	ri.score_value = PHYSFSX_readShort(fp);
+	ri.score_value = PHYSFSX_readSLE16(fp);
 	/*ri.badass =*/
 	/*ri.energy_drain =*/ PHYSFSX_skipBytes<2>(fp);
 	ri.lighting = PHYSFSX_readFix(fp);
@@ -450,8 +450,8 @@ static int read_d2_robot_info(const NamedPHYSFS_File fp, robot_info &ri)
 	{
 		for (auto &k : j)
 		{
-			k.n_joints = PHYSFSX_readShort(fp);
-			k.offset = PHYSFSX_readShort(fp);
+			k.n_joints = PHYSFSX_readSLE16(fp);
+			k.offset = PHYSFSX_readSLE16(fp);
 		}
 	}
 	ri.always_0xabcd = PHYSFSX_readInt(fp);
@@ -560,7 +560,7 @@ static void load_hxm(const d_fname &hxmname)
 		for (i = 0; i < n_items; i++)
 		{
 			const auto oi = PHYSFSX_readInt(f);
-			auto v = PHYSFSX_readShort(f);
+			auto v = PHYSFSX_readSLE16(f);
 			if (const auto voi = ObjBitmaps.valid_index(oi))
 				ObjBitmaps[*voi] = bitmap_index{static_cast<uint16_t>(v)};
 		}

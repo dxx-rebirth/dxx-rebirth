@@ -229,7 +229,7 @@ void properties_read_cmp(d_level_shared_robot_info_state &LevelSharedRobotInfoSt
 	bitmap_index_read_n(fp, ObjBitmaps);
 	range_for (auto &i, ObjBitmapPtrs)
 	{
-		if (const auto oi = ObjBitmaps.valid_index(PHYSFSX_readShort(fp)))
+		if (const auto oi = ObjBitmaps.valid_index(PHYSFSX_readSLE16(fp)))
 			i = {*oi};
 		else
 			i = {};
@@ -280,10 +280,10 @@ static void tmap_info_read(tmap_info &ti, const NamedPHYSFS_File fp)
 	PHYSFSX_skipBytes<3>(fp);
 	ti.lighting = PHYSFSX_readFix(fp);
 	ti.damage = PHYSFSX_readFix(fp);
-	ti.eclip_num = PHYSFSX_readShort(fp);
-	ti.destroyed = PHYSFSX_readShort(fp);
-	ti.slide_u = PHYSFSX_readShort(fp);
-	ti.slide_v = PHYSFSX_readShort(fp);
+	ti.eclip_num = PHYSFSX_readSLE16(fp);
+	ti.destroyed = PHYSFSX_readSLE16(fp);
+	ti.slide_u = PHYSFSX_readSLE16(fp);
+	ti.slide_v = PHYSFSX_readSLE16(fp);
 }
 }
 
@@ -377,7 +377,7 @@ void bm_read_all(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_v
 	bitmap_index_read_n(fp, partial_range(ObjBitmaps, N_ObjBitmaps));
 	range_for (auto &i, partial_range(ObjBitmapPtrs, N_ObjBitmaps))
 	{
-		if (const auto oi = ObjBitmaps.valid_index(PHYSFSX_readShort(fp)))
+		if (const auto oi = ObjBitmaps.valid_index(PHYSFSX_readSLE16(fp)))
 			i = {*oi};
 		else
 			i = {};
@@ -516,7 +516,7 @@ void bm_read_extra_robots(const char *fname, const Mission::descent_version_type
 		Error("Too many object bitmap pointers (%d) in <%s>.  Max is %" DXX_PRI_size_type ".", t, fname, ObjBitmapPtrs.size() - N_D2_OBJBITMAPPTRS);
 	range_for (auto &i, partial_range(ObjBitmapPtrs, N_D2_OBJBITMAPPTRS.value, N_D2_OBJBITMAPPTRS + t))
 	{
-		if (const auto oi = ObjBitmaps.valid_index(PHYSFSX_readShort(fp)))
+		if (const auto oi = ObjBitmaps.valid_index(PHYSFSX_readSLE16(fp)))
 			i = {*oi};
 		else
 			i = {};
@@ -599,7 +599,7 @@ void load_robot_replacements(const d_fname &level_name)
 		const unsigned i = PHYSFSX_readInt(fp);		//read objbitmapptr number
 		if (i >= ObjBitmapPtrs.size())
 			Error("Object bitmap pointer (%u) out of range in (%s).  Range = [0..%" DXX_PRI_size_type "].", i, static_cast<const char *>(level_name), ObjBitmapPtrs.size() - 1);
-		const auto foi = PHYSFSX_readShort(fp);
+		const auto foi = PHYSFSX_readSLE16(fp);
 		if (const auto oi = ObjBitmaps.valid_index(foi))
 			ObjBitmapPtrs[i] = *oi;
 		else

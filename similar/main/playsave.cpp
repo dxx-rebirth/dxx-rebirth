@@ -945,8 +945,8 @@ int read_player_file()
 	PHYSFS_readSLE32(file, &id);
 #if DXX_BUILD_DESCENT == 1
 	short saved_game_version, player_struct_version;
-	saved_game_version = PHYSFSX_readShort(file);
-	player_struct_version = PHYSFSX_readShort(file);
+	saved_game_version = PHYSFSX_readSLE16(file);
+	player_struct_version = PHYSFSX_readSLE16(file);
 	PlayerCfg.NHighestLevels = PHYSFSX_readInt(file);
 	{
 		const unsigned u = PHYSFSX_readInt(file);
@@ -954,7 +954,7 @@ int read_player_file()
 	}
 	PlayerCfg.AutoLeveling = PHYSFSX_readInt(file);
 #elif DXX_BUILD_DESCENT == 2
-	player_file_version = PHYSFSX_readShort(file);
+	player_file_version = PHYSFSX_readSLE16(file);
 #endif
 
 	if (id!=SAVE_FILE_ID) {
@@ -1104,7 +1104,7 @@ int read_player_file()
 
 	//read new highest level info
 
-	PlayerCfg.NHighestLevels = PHYSFSX_readShort(file);
+	PlayerCfg.NHighestLevels = PHYSFSX_readSLE16(file);
 	if (swap)
 		PlayerCfg.NHighestLevels = SWAPSHORT(PlayerCfg.NHighestLevels);
 	Assert(PlayerCfg.NHighestLevels <= MAX_MISSIONS);

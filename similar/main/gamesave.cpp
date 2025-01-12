@@ -424,7 +424,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 			PHYSFSX_readVector(f, obj->mtype.phys_info.rotthrust);
 
 			obj->mtype.phys_info.turnroll	= PHYSFSX_readFixAng(f);
-			obj->mtype.phys_info.flags		= PHYSFSX_readShort(f);
+			obj->mtype.phys_info.flags		= PHYSFSX_readSLE16(f);
 
 			break;
 
@@ -465,9 +465,9 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 			obj->ctype.ai_info.REMOTE_OWNER = ai_info_flags[8];
 			obj->ctype.ai_info.REMOTE_SLOT_NUM = ai_info_flags[9];
 			obj->ctype.ai_info.hide_segment = read_untrusted_segnum_le16(f);
-			obj->ctype.ai_info.hide_index			= PHYSFSX_readShort(f);
-			obj->ctype.ai_info.path_length			= PHYSFSX_readShort(f);
-			obj->ctype.ai_info.cur_path_index		= PHYSFSX_readShort(f);
+			obj->ctype.ai_info.hide_index			= PHYSFSX_readSLE16(f);
+			obj->ctype.ai_info.path_length			= PHYSFSX_readSLE16(f);
+			obj->ctype.ai_info.cur_path_index		= PHYSFSX_readSLE16(f);
 
 			if (version <= 25) {
 				//				obj->ctype.ai_info.follow_path_start_seg	= 
@@ -482,7 +482,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 
 			obj->ctype.expl_info.spawn_time		= PHYSFSX_readFix(f);
 			obj->ctype.expl_info.delete_time		= PHYSFSX_readFix(f);
-			obj->ctype.expl_info.delete_objnum	= PHYSFSX_readShort(f);
+			obj->ctype.expl_info.delete_objnum	= PHYSFSX_readSLE16(f);
 			obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = object_none;
 
 			break;
@@ -491,8 +491,8 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 
 			//do I really need to read these?  Are they even saved to disk?
 
-			obj->ctype.laser_info.parent_type		= PHYSFSX_readShort(f);
-			obj->ctype.laser_info.parent_num		= PHYSFSX_readShort(f);
+			obj->ctype.laser_info.parent_type		= PHYSFSX_readSLE16(f);
+			obj->ctype.laser_info.parent_num		= PHYSFSX_readSLE16(f);
 			obj->ctype.laser_info.parent_signature	= object_signature_t{static_cast<uint16_t>(PHYSFSX_readInt(f))};
 #if DXX_BUILD_DESCENT == 2
 			obj->ctype.laser_info.last_afterburner_time = 0;
@@ -917,11 +917,11 @@ static int load_game_data(
 	//===================== READ FILE INFO ========================
 
 	// Check signature
-	if (PHYSFSX_readShort(LoadFile) != 0x6705)
+	if (PHYSFSX_readSLE16(LoadFile) != 0x6705)
 		return -1;
 
 	// Read and check version number
-	game_top_fileinfo_version = PHYSFSX_readShort(LoadFile);
+	game_top_fileinfo_version = PHYSFSX_readSLE16(LoadFile);
 	if (game_top_fileinfo_version < GAME_COMPATIBLE_VERSION )
 		return -1;
 
@@ -978,7 +978,7 @@ static int load_game_data(
 	savegame_pof_names_type Save_pof_name_storage;
 	std::span<char[FILENAME_LEN]> Save_pof_names;
 	if (game_top_fileinfo_version >= 19) {	//load pof names
-		const unsigned N_save_pof_names = PHYSFSX_readShort(LoadFile);
+		const unsigned N_save_pof_names = PHYSFSX_readSLE16(LoadFile);
 		if (N_save_pof_names < MAX_POLYGON_MODELS)
 		{
 			Save_pof_names = std::span(static_cast<savegame_pof_names_type::base_type &>(Save_pof_name_storage)).first(N_save_pof_names);

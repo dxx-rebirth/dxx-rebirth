@@ -119,7 +119,7 @@ void dl_index_read(dl_index *di, const NamedPHYSFS_File fp)
 	di->segnum = read_untrusted_segnum_le16(fp);
 	di->sidenum = build_sidenum_from_untrusted(PHYSFSX_readByte(fp)).value_or(sidenum_t::WLEFT);
 	const auto count = PHYSFSX_readByte(fp);
-	if (const auto i{build_delta_light_index_from_untrusted(PHYSFSX_readShort(fp))}; i)
+	if (const auto i{build_delta_light_index_from_untrusted(PHYSFSX_readSLE16(fp))}; i)
 	{
 		di->count = count;
 		di->index = *i;
