@@ -85,8 +85,6 @@ constexpr enumerated_array<font_filename, MAX_FONTS, gamefont_index> Gamefont_fi
 	{{"font3-1h.fnt"}}  // Font 4
 }}};
 
-static int Gamefont_installed;
-
 }
 
 }
@@ -95,8 +93,6 @@ font_x_scale_proportion FNTScaleX(1);
 font_y_scale_proportion FNTScaleY(1);
 
 void gamefont_choose_game_font(int scrx,int scry){
-	if (!Gamefont_installed) return;
-
 	for (const auto &&[gf, fc] : enumerate(Gamefonts))
 	{
 		int close{-1};
@@ -181,11 +177,6 @@ static DXX_addfontconf_return_type addfontconf(loaded_game_font &fc, const uint1
 
 void gamefont_init()
 {
-	if (Gamefont_installed)
-		return;
-
-	Gamefont_installed = 1;
-
 	for (auto &&[i, gf] : enumerate(Gamefonts))
 	{
 		gf.font = nullptr;
@@ -228,9 +219,6 @@ void gamefont_init()
 
 void gamefont_close()
 {
-	if (!Gamefont_installed) return;
-	Gamefont_installed = 0;
-
 	for (auto &gf : Gamefonts)
 		gf.font.reset();
 }
