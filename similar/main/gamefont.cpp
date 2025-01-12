@@ -97,10 +97,10 @@ font_y_scale_proportion FNTScaleY(1);
 void gamefont_choose_game_font(int scrx,int scry){
 	if (!Gamefont_installed) return;
 
-	int close=-1;
-	auto m{loaded_game_font::font_index::None};
 	for (const auto &&[gf, fc] : enumerate(Gamefonts))
 	{
+		int close{-1};
+		auto m{loaded_game_font::font_index::None};
 		for (const auto &&[i, f] : enumerate(partial_range(fc.fontconf, fc.total_fonts_loaded)))
 			if ((scrx >= f.expected_screen_resolution_x && close < f.expected_screen_resolution_x) && (scry >= f.expected_screen_resolution_y && close < f.expected_screen_resolution_y))
 			{
