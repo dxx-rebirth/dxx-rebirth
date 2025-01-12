@@ -89,7 +89,7 @@ struct gamefont_conf
 	{
 		None = SIZE_MAX,
 	};
-	std::size_t num;
+	uint8_t total_fonts_loaded;
 	font_index cur;
 	enumerated_array<a_gamefont_conf, 2, font_index> font;
 };
@@ -131,7 +131,7 @@ void gamefont_choose_game_font(int scrx,int scry){
 	auto m = gamefont_conf::font_index::None;
 	for (const auto &&[gf, fc] : enumerate(font_conf))
 	{
-		for (const auto &&[i, f] : enumerate(partial_range(fc.font, fc.num)))
+		for (const auto &&[i, f] : enumerate(partial_range(fc.font, fc.total_fonts_loaded)))
 			if ((scrx >= f.expected_screen_resolution_x && close < f.expected_screen_resolution_x) && (scry >= f.expected_screen_resolution_y && close < f.expected_screen_resolution_y))
 			{
 				close = f.expected_screen_resolution_x;
@@ -180,7 +180,7 @@ static void addfontconf(const gamefont_index gf, const uint16_t expected_screen_
 		return;
 
 	auto &fc = font_conf[gf];
-	for (const auto &&[i, f] : enumerate(partial_range(fc.font, fc.num)))
+	for (const auto &&[i, f] : enumerate(partial_range(fc.font, fc.total_fonts_loaded)))
 		if (f.expected_screen_resolution_x == expected_screen_resolution_x && f.expected_screen_resolution_y == expected_screen_resolution_y)
 		{
 			if (i == fc.cur)
@@ -190,8 +190,8 @@ static void addfontconf(const gamefont_index gf, const uint16_t expected_screen_
 				gamefont_loadfont(*grd_curcanv, gf, i);
 			return;
 		}
-	auto &f = fc.font[(gamefont_conf::font_index{fc.num})];
-	++ fc.num;
+	auto &f = fc.font[(gamefont_conf::font_index{fc.total_fonts_loaded})];
+	++ fc.total_fonts_loaded;
 	f.expected_screen_resolution_x = {expected_screen_resolution_x};
 	f.expected_screen_resolution_y = {expected_screen_resolution_y};
 	f.name = fn;
