@@ -79,8 +79,8 @@ namespace {
 //	take scry into account? how/when?
 struct a_gamefont_conf
 {
-	int x;
-	int y;
+	uint16_t expected_screen_resolution_x;
+	uint16_t expected_screen_resolution_y;
 	std::array<char, 16> name;
 };
 
@@ -131,9 +131,9 @@ void gamefont_choose_game_font(int scrx,int scry){
 	for (const auto &&[gf, fc] : enumerate(font_conf))
 	{
 		for (const auto &&[i, f] : enumerate(partial_range(fc.font, fc.num)))
-			if ((scrx >= f.x && close < f.x) && (scry >= f.y && close < f.y))
+			if ((scrx >= f.expected_screen_resolution_x && close < f.expected_screen_resolution_x) && (scry >= f.expected_screen_resolution_y && close < f.expected_screen_resolution_y))
 			{
-				close = f.x;
+				close = f.expected_screen_resolution_x;
 				m=i;
 			}
 		if (m == gamefont_conf::font_index::None)
@@ -146,13 +146,13 @@ void gamefont_choose_game_font(int scrx,int scry){
 		auto &f = fc.font[m];
 		if (CGameCfg.TexFilt == opengl_texture_filter::classic)
 		{
-			FNTScaleX.reset(scrx / f.x);
-			FNTScaleY.reset(scry / f.y);
+			FNTScaleX.reset(scrx / f.expected_screen_resolution_x);
+			FNTScaleY.reset(scry / f.expected_screen_resolution_y);
 		}
 		else
 		{
-			FNTScaleX.reset(static_cast<float>(scrx) / f.x);
-			FNTScaleY.reset(static_cast<float>(scry) / f.y);
+			FNTScaleX.reset(static_cast<float>(scrx) / f.expected_screen_resolution_x);
+			FNTScaleY.reset(static_cast<float>(scry) / f.expected_screen_resolution_y);
 		}
 
 		// keep proportions
@@ -173,14 +173,14 @@ void gamefont_choose_game_font(int scrx,int scry){
 
 namespace {
 
-static void addfontconf(const gamefont_index gf, int x, int y, const std::array<char, 16> &fn)
+static void addfontconf(const gamefont_index gf, const uint16_t expected_screen_resolution_x, const uint16_t expected_screen_resolution_y, const std::array<char, 16> &fn)
 {
 	if (!PHYSFS_exists(fn.data()))
 		return;
 
 	auto &fc = font_conf[gf];
 	for (const auto &&[i, f] : enumerate(partial_range(fc.font, fc.num)))
-		if (f.x == x && f.y == y)
+		if (f.expected_screen_resolution_x == expected_screen_resolution_x && f.expected_screen_resolution_y == expected_screen_resolution_y)
 		{
 			if (i == fc.cur)
 				gamefont_unloadfont(gf);
@@ -191,8 +191,8 @@ static void addfontconf(const gamefont_index gf, int x, int y, const std::array<
 		}
 	auto &f = fc.font[(gamefont_conf::font_index{fc.num})];
 	++ fc.num;
-	f.x = x;
-	f.y = y;
+	f.expected_screen_resolution_x = {expected_screen_resolution_x};
+	f.expected_screen_resolution_y = {expected_screen_resolution_y};
 	f.name = fn;
 }
 
