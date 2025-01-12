@@ -146,7 +146,7 @@ void gamefont_choose_game_font(int scrx,int scry){
 			FNTScaleY.reset(FNTScaleX.operator float());
 	}
 #endif
-		gamefont_loadfont(*grd_curcanv, Gamefonts[gf], gf, m);
+		gamefont_loadfont(*grd_curcanv, fc, gf, m);
 	}
 }
 
