@@ -99,9 +99,10 @@ static enumerated_array<gamefont_conf, MAX_FONTS, gamefont_index> font_conf;
 
 static void gamefont_unloadfont(gamefont_index gf)
 {
-	if (Gamefonts[gf]){
+	if (auto &g{Gamefonts[gf]})
+	{
 		font_conf[gf].cur = gamefont_conf::font_index::None;
-		Gamefonts[gf].reset();
+		g.reset();
 	}
 }
 
