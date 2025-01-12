@@ -37,6 +37,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 #include "config.h"
+#include "console.h"
 
 #include "d_enumerate.h"
 #include "partial_range.h"
@@ -104,7 +105,13 @@ void gamefont_choose_game_font(int scrx,int scry){
 				best_gamefont = &f;
 			}
 		if (best_gamefont == nullptr)
-			Error("no gamefont found for %ix%i\n",scrx,scry);
+		{
+			FNTScaleX = {};
+			FNTScaleY = {};
+			con_printf(CON_CRITICAL, "No suitable font file found for font %u for window dimensions %ix%i; using default scaling", static_cast<unsigned>(gf), scrx, scry);
+		}
+		else
+		{
 
 #if DXX_USE_OGL
 	if (!CGameArg.OglFixedFont)
@@ -134,6 +141,7 @@ void gamefont_choose_game_font(int scrx,int scry){
 			FNTScaleY.reset(FNTScaleX.operator float());
 	}
 #endif
+		}
 		fc.font = gr_init_font(*grd_curcanv, best_gamefont->name);
 	}
 }
