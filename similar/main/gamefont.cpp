@@ -161,7 +161,7 @@ static DXX_addfontconf_return_type addfontconf(loaded_game_font &fc, const uint1
 		/* File not found - load failed */
 		return DXX_addfontconf_return_value(false);
 
-	auto &f = fc.fontconf[(loaded_game_font::font_index{fc.total_fonts_loaded})];
+	auto &f{fc.fontconf[fc.total_fonts_loaded]};
 	++ fc.total_fonts_loaded;
 	f.expected_screen_resolution_x = {expected_screen_resolution_x};
 	f.expected_screen_resolution_y = {expected_screen_resolution_y};
