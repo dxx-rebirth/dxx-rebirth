@@ -175,7 +175,6 @@ extern int Large_view_index;
 extern std::unique_ptr<UI_GADGET_USERBOX> LargeViewBox, GameViewBox, GroupViewBox;
 extern int Found_seg_index;				// Index in Found_segs corresponding to Cursegp
 extern editor_gamestate gamestate;
-extern grs_font_ptr editor_font;
 
 extern	vms_vector Ed_view_target;		// what editor is looking at
 
@@ -184,6 +183,7 @@ extern	class window *Pad_info;		// Keypad text
 extern	int		Show_axes_flag;		// 0 = don't show, !0 = do show coordinate axes in *Cursegp orientation
 
 namespace dcx {
+extern grs_font_ptr editor_font;
 extern   int		Autosave_count;		// Current counter for which autosave mine we are "on"
 extern	int		Autosave_flag;			// Whether or not Autosave is on.
 extern	struct tm Editor_time_of_day;

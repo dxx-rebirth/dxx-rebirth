@@ -101,6 +101,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define COMPRESS_INTERVAL	5			// seconds
 
+namespace dcx {
+
+grs_font_ptr editor_font;
+
+}
+
 static void med_show_warning(std::span<const char> s);
 
 //char *undo_status[128];
@@ -115,8 +121,6 @@ grs_canvas *Canv_editor;			//the editor screen
 grs_subcanvas *const Canv_editor_game = &_canv_editor_game; //the game on the editor screen
 
 window *Pad_info;		// Keypad text
-
-grs_font_ptr editor_font;
 
 //where the editor is looking
 vms_vector Ed_view_target;
