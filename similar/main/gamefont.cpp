@@ -152,20 +152,19 @@ void gamefont_choose_game_font(int scrx,int scry){
 
 namespace {
 
-static void addfontconf(const gamefont_index gf, const uint16_t expected_screen_resolution_x, const uint16_t expected_screen_resolution_y, const std::array<char, 16> &fn)
+static void addfontconf(loaded_game_font &fc, const gamefont_index gf, const uint16_t expected_screen_resolution_x, const uint16_t expected_screen_resolution_y, const std::array<char, 16> &fn)
 {
 	if (!PHYSFS_exists(fn.data()))
 		return;
 
-	auto &fc = Gamefonts[gf];
 	for (const auto &&[i, f] : enumerate(partial_range(fc.fontconf, fc.total_fonts_loaded)))
 		if (f.expected_screen_resolution_x == expected_screen_resolution_x && f.expected_screen_resolution_y == expected_screen_resolution_y)
 		{
 			if (i == fc.cur)
-				gamefont_unloadfont(Gamefonts[gf]);
+				gamefont_unloadfont(fc);
 			f.name = fn;
 			if (i == fc.cur)
-				gamefont_loadfont(*grd_curcanv, Gamefonts[gf], gf, i);
+				gamefont_loadfont(*grd_curcanv, fc, gf, i);
 			return;
 		}
 	auto &f = fc.fontconf[(loaded_game_font::font_index{fc.total_fonts_loaded})];
@@ -190,13 +189,13 @@ void gamefont_init()
 		gf.font = nullptr;
 
 		if (!CGameArg.GfxSkipHiresFNT)
-			addfontconf(i,640,480,Gamefont_filenames_h[i]); // ZICO - addition to use D2 fonts if available
+			addfontconf(gf, i, 640, 480, Gamefont_filenames_h[i]); // ZICO - addition to use D2 fonts if available
 #if DXX_BUILD_DESCENT == 1
 		if (MacHog && (i != gamefont_index::big))
-			addfontconf(i,640,480,Gamefont_filenames_l[i]); // Mac fonts are hires (except for the "big" one)
+			addfontconf(gf, i, 640, 480, Gamefont_filenames_l[i]); // Mac fonts are hires (except for the "big" one)
 		else
 #endif
-			addfontconf(i,320,200,Gamefont_filenames_l[i]);
+			addfontconf(gf, i, 320, 200, Gamefont_filenames_l[i]);
 	}
 
 	gamefont_choose_game_font(grd_curscreen->sc_canvas.cv_bitmap.bm_w,grd_curscreen->sc_canvas.cv_bitmap.bm_h);
