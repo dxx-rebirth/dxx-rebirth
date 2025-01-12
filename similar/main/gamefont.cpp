@@ -94,18 +94,6 @@ static int Gamefont_installed;
 font_x_scale_proportion FNTScaleX(1);
 font_y_scale_proportion FNTScaleY(1);
 
-namespace {
-
-static void gamefont_unloadfont(loaded_game_font &g)
-{
-	if (g.font)
-	{
-		g.font.reset();
-	}
-}
-
-}
-
 void gamefont_choose_game_font(int scrx,int scry){
 	if (!Gamefont_installed) return;
 
@@ -246,5 +234,5 @@ void gamefont_close()
 	Gamefont_installed = 0;
 
 	for (auto &gf : Gamefonts)
-		gamefont_unloadfont(gf);
+		gf.font.reset();
 }
