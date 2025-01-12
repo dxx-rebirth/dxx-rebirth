@@ -42,29 +42,34 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_enumerate.h"
 #include "partial_range.h"
 
+namespace dcx {
+
+enumerated_array<grs_font_ptr, MAX_FONTS, gamefont_index> Gamefonts;
+
 namespace {
 
-constexpr std::array<std::array<char, 16>, 5> Gamefont_filenames_l{{
-	{"font1-1.fnt"}, // Font 0
-	{"font2-1.fnt"}, // Font 1
-	{"font2-2.fnt"}, // Font 2
-	{"font2-3.fnt"}, // Font 3
-	{"font3-1.fnt"}  // Font 4
-}};
+constexpr enumerated_array<std::array<char, 16>, MAX_FONTS, gamefont_index> Gamefont_filenames_l{{{
+	{{"font1-1.fnt"}}, // Font 0
+	{{"font2-1.fnt"}}, // Font 1
+	{{"font2-2.fnt"}}, // Font 2
+	{{"font2-3.fnt"}}, // Font 3
+	{{"font3-1.fnt"}}  // Font 4
+}}};
 
-constexpr std::array<std::array<char, 16>, 5> Gamefont_filenames_h{{
-	{"font1-1h.fnt"}, // Font 0
-	{"font2-1h.fnt"}, // Font 1
-	{"font2-2h.fnt"}, // Font 2
-	{"font2-3h.fnt"}, // Font 3
-	{"font3-1h.fnt"}  // Font 4
-}};
+constexpr enumerated_array<std::array<char, 16>, MAX_FONTS, gamefont_index> Gamefont_filenames_h{{{
+	{{"font1-1h.fnt"}}, // Font 0
+	{{"font2-1h.fnt"}}, // Font 1
+	{{"font2-2h.fnt"}}, // Font 2
+	{{"font2-3h.fnt"}}, // Font 3
+	{{"font3-1h.fnt"}}  // Font 4
+}}};
 
 static int Gamefont_installed;
 
 }
 
-std::array<grs_font_ptr, MAX_FONTS> Gamefonts;
+}
+
 font_x_scale_proportion FNTScaleX(1);
 font_y_scale_proportion FNTScaleY(1);
 
@@ -90,9 +95,9 @@ struct gamefont_conf
 	enumerated_array<a_gamefont_conf, 10, font_index> font;
 };
 
-static std::array<gamefont_conf, MAX_FONTS> font_conf;
+static enumerated_array<gamefont_conf, MAX_FONTS, gamefont_index> font_conf;
 
-static void gamefont_unloadfont(int gf)
+static void gamefont_unloadfont(gamefont_index gf)
 {
 	if (Gamefonts[gf]){
 		font_conf[gf].cur = gamefont_conf::font_index::None;
@@ -100,7 +105,7 @@ static void gamefont_unloadfont(int gf)
 	}
 }
 
-static void gamefont_loadfont(grs_canvas &canvas, const int gf, const gamefont_conf::font_index fi)
+static void gamefont_loadfont(grs_canvas &canvas, const gamefont_index gf, const gamefont_conf::font_index fi)
 {
 	if (PHYSFS_exists(font_conf[gf].font[fi].name.data()))
 	{
@@ -168,7 +173,7 @@ void gamefont_choose_game_font(int scrx,int scry){
 
 namespace {
 
-static void addfontconf(int gf, int x, int y, const std::array<char, 16> &fn)
+static void addfontconf(const gamefont_index gf, int x, int y, const std::array<char, 16> &fn)
 {
 	if (!PHYSFS_exists(fn.data()))
 		return;
@@ -208,7 +213,7 @@ void gamefont_init()
 		if (!CGameArg.GfxSkipHiresFNT)
 			addfontconf(i,640,480,Gamefont_filenames_h[i]); // ZICO - addition to use D2 fonts if available
 #if DXX_BUILD_DESCENT == 1
-		if (MacHog && (i != 0))
+		if (MacHog && (i != gamefont_index::big))
 			addfontconf(i,640,480,Gamefont_filenames_l[i]); // Mac fonts are hires (except for the "big" one)
 		else
 #endif

@@ -25,8 +25,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
-#ifdef __cplusplus
+#include "dsx-ns.h"
 #include "gr.h"
+#include "fwd-d_array.h"
 
 // When adding a new font, don't forget to change the filename in
 // gamefont.c!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -34,29 +35,38 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // We are interleaving low & high resolution fonts, so to access a
 // font you say fontnum+flag where flag is 0 for lowres, 1 for hires
 
+namespace dcx {
+
+enum class gamefont_index : uint8_t
+{
+	big,
+	medium1,
+	medium2,
+	medium3,
+	small,
+};
+
+#define GAME_FONT       (Gamefonts[gamefont_index::small])
+#define MEDIUM1_FONT    (Gamefonts[gamefont_index::medium1])
+#define MEDIUM2_FONT    (Gamefonts[gamefont_index::medium2])
+#define MEDIUM3_FONT    (Gamefonts[gamefont_index::medium3])
+
 #ifdef DXX_BUILD_DESCENT
 #if DXX_BUILD_DESCENT == 1
-#define GFONT_BIG_1     MacPig	// the Mac data doesn't have this in hires, in the automap the scaled/hires one won't fit
+// The Mac data doesn't have this in hires, in the automap the scaled/hires one won't fit
+#define HUGE_FONT       (Gamefonts[MacPig ? gamefont_index::medium1 : gamefont_index::big])
 #elif DXX_BUILD_DESCENT == 2
-#define GFONT_BIG_1     0
+#define HUGE_FONT       (Gamefonts[gamefont_index::big])
 #endif
 #endif
-#define GFONT_MEDIUM_1  1
-#define GFONT_MEDIUM_2  2
-#define GFONT_MEDIUM_3  3
-#define GFONT_SMALL     4
-
-#define GAME_FONT       (Gamefonts[GFONT_SMALL])
-#define MEDIUM1_FONT    (Gamefonts[GFONT_MEDIUM_1])
-#define MEDIUM2_FONT    (Gamefonts[GFONT_MEDIUM_2])
-#define MEDIUM3_FONT    (Gamefonts[GFONT_MEDIUM_3])
-#define HUGE_FONT       (Gamefonts[GFONT_BIG_1])
 
 constexpr std::integral_constant<unsigned, 5> MAX_FONTS{};
 
 // add (scaled) spacing to given font coordinate
 
-extern std::array<grs_font_ptr, MAX_FONTS> Gamefonts;
+extern enumerated_array<grs_font_ptr, MAX_FONTS, gamefont_index> Gamefonts;
+
+}
 
 class base_font_scale_proportion
 {
@@ -177,5 +187,3 @@ void gamefont_init();
 #endif
 void gamefont_close();
 void gamefont_choose_game_font(int scrx,int scry);
-
-#endif
