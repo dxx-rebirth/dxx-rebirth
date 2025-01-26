@@ -702,9 +702,11 @@ g3s_codes rotate_list(fvcvertptr &vcvertptr, const std::span<const vertnum_t> po
 	g3s_codes cc;
 	const auto current_generation{s_current_generation};
 	const auto cheats_acid{cheats.acid};
-	const float f = likely(!cheats_acid)
-		? 0.0f /* unused */
-		: 2.0f * (static_cast<float>(timer_query()) / F1_0);
+	const float f{
+		likely(!cheats_acid)
+			? 0.f /* unused */
+			: (static_cast<float>(timer_query()) / F0_5)
+	};
 
 	for (const auto pnum : pointnumlist)
 	{
