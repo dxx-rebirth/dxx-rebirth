@@ -472,7 +472,6 @@ class ConfigureTests:
 	custom_tests = _custom_test.tests
 	comment_not_supported = '/* not supported */'
 	__python_import_struct = None
-	_cxx_conformance_cxx20 = 20
 	__cxx_std_required_features = CxxRequiredFeatures([
 		# As of this writing, <gcc-12 is already unsupported, but some
 		# platforms, such as Ubuntu 22.04, still try to use gcc-11 by default.
@@ -1122,22 +1121,18 @@ void test_virtual_function_supported::a() {}
 					return 'C++ compiler works with blank $CXXFLAGS.  C++ compiler does not work with specified $CXXFLAGS.'
 			return 'C++ compiler does not work.'
 	implicit_tests.append(_implicit_test.RecordedTest('check_cxx20', "assume C++ compiler supports C++20"))
-	__cxx_conformance_CXXFLAGS = [None]
-	def _check_cxx_conformance_level(self,context,_levels=(
-			# List standards in descending order of preference.
-			#
-			# C++20 is required, so list it last.
-			_cxx_conformance_cxx20,
-		), _CXXFLAGS=__cxx_conformance_CXXFLAGS,
-		_successflags={'CXXFLAGS' : __cxx_conformance_CXXFLAGS}
-		):
+	def _check_cxx_conformance_level(self, context):
 		# Testing the compiler option parser only needs Compile, even when LTO
 		# is enabled.
 		Compile = self._Compile
-		for level in _levels:
+		for level in (
+			# List standards in descending order of preference.
+			#
+			# C++20 is required, so list it last.
+			20,
+		):
 			opt = f'-std=gnu++{level}'
-			_CXXFLAGS[0] = opt
-			if Compile(context, text='', msg=f'whether C++ compiler accepts {opt}', successflags=_successflags, calling_function=f'cxx{level}'):
+			if Compile(context, text='', msg=f'whether C++ compiler accepts {opt}', successflags={'CXXFLAGS': (opt,)}, calling_function=f'cxx{level}'):
 				return
 		raise SCons.Errors.StopError('C++ compiler does not accept any supported C++ -std option.')
 	def _Test(self,context,text,msg,action,main='',ext='.cpp',testflags={},successflags={},skipped=None,successmsg=None,failuremsg=None,expect_failure=False,calling_function=None,__flags_Werror = {'CXXFLAGS' : ['-Werror']}):
