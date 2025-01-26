@@ -94,8 +94,8 @@ static constexpr clipping_code operator~(const clipping_code a)
 //Stucture to store clipping codes in a word
 struct g3s_codes {
 	//or is low byte, and is high byte
-	clipping_code uor = clipping_code{0};
-	clipping_code uand = clipping_code{0xff};
+	clipping_code uor{0};
+	clipping_code uand{0xff};
 };
 
 enum class projection_flag : uint8_t
