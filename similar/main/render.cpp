@@ -715,13 +715,12 @@ g3s_codes rotate_list(fvcvertptr &vcvertptr, const std::span<const vertnum_t> po
 		{
 			pnt.p3_last_generation = current_generation;
 			auto &v = *vcvertptr(pnum);
-			vertex tmpv;
 			g3_rotate_point(pnt, likely(!cheats_acid) ? v : (
-				tmpv = v,
-				tmpv.x += fl2f(sinf(f + f2fl(tmpv.x))),
-				tmpv.y += fl2f(sinf(f * 1.5f + f2fl(tmpv.y))),
-				tmpv.z += fl2f(sinf(f * 2.5f + f2fl(tmpv.z))),
-				tmpv
+				vertex{
+					v.x + fl2f(sinf(f + f2fl(v.x))),
+					v.y + fl2f(sinf(f * 1.5f + f2fl(v.y))),
+					v.z + fl2f(sinf(f * 2.5f + f2fl(v.z))),
+				}
 			));
 		}
 		cc.uand &= pnt.p3_codes;
