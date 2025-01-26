@@ -165,19 +165,19 @@ class Git(StaticSubprocess):
 	# __pcall_found_git (depending on whether $GIT is blank), but never
 	# both in the same run.
 	@classmethod
-	def __pcall_missing_git(cls,args,stderr=None,_missing_git=StaticSubprocess.CachedCall(None, None, 1)):
+	def __pcall_missing_git(cls, args: list[str], stderr=None, _missing_git=StaticSubprocess.CachedCall(None, None, 1)):
 		return _missing_git
 	@classmethod
-	def __pcall_found_git(cls,args,stderr=None,_pcall=StaticSubprocess.pcall):
+	def __pcall_found_git(cls, args: list[str], stderr=None, _pcall=StaticSubprocess.pcall):
 		return _pcall(cls.__path_git + args, stderr=stderr)
 	@classmethod
-	def pcall(cls,args,stderr=None):
+	def pcall(cls, args: list[str], stderr=None):
 		git = cls.__path_git
 		if git is None:
 			cls.__path_git = git = cls.shlex_split(os.environ.get('GIT', 'git'))
 		cls.pcall = f = cls.__pcall_found_git if git else cls.__pcall_missing_git
 		return f(args, stderr)
-	def spcall(cls,args,stderr=None):
+	def spcall(cls, args: list[str], stderr=None):
 		g = cls.pcall(args, stderr)
 		if g.returncode:
 			return None
@@ -265,7 +265,7 @@ class ConfigureTests:
 			# tuple.
 			self.__guard = guard,
 			self.__RecordedTest = collector.RecordedTest
-		def RecordedTest(self, name, desc, predicate=()):
+		def RecordedTest(self, name: str, desc: str, predicate=()):
 			# Record a test with both the guard of this GuardedCollector
 			# and any guards from the input collector objects, which may
 			# in turn be instances of GuardedCollector with predicates
@@ -352,7 +352,7 @@ class ConfigureTests:
 				except KeyError:
 					pass
 	class pkgconfig:
-		def _get_pkg_config_exec_path(context,msgprefix,pkgconfig):
+		def _get_pkg_config_exec_path(context, msgprefix: str, pkgconfig: str):
 			Display = context.Display
 			if not pkgconfig:
 				Display(f'{msgprefix}: pkg-config disabled by user settings\n')
@@ -394,10 +394,9 @@ class ConfigureTests:
 				_cache[pkgconfig] = path = _get_pkg_config_exec_path(context, message, pkgconfig)
 			return path
 		@staticmethod
-		def merge(context,message,user_settings,pkgconfig_name,display_name,
-				guess_flags,
+		def merge(context, message: str, user_settings, pkgconfig_name: str, display_name: str, guess_flags: dict,
 				__get_pkg_config_path=__get_pkg_config_path,
-				_cache={}):
+				_cache: dict = {}) -> dict:
 			Display = context.Display
 			Display(f'{message}: checking {display_name} pkg-config {pkgconfig_name}\n')
 			pkgconfig = __get_pkg_config_path(context, message, user_settings, display_name)
@@ -854,9 +853,9 @@ I%(N)s a%(N)s()
 		# Force all tests to be Link tests when LTO is enabled.
 		self.Compile = self.Link if user_settings.lto else self._Compile
 		self.custom_tests = tuple(t for t in self.custom_tests if all(predicate(user_settings) for predicate in t.predicate))
-	def _quote_macro_value(v):
+	def _quote_macro_value(v: str) -> str:
 		return v.strip().replace('\n', ' \\\n')
-	def _check_sconf_forced(self,calling_function):
+	def _check_sconf_forced(self, calling_function: str) -> tuple:
 		return self._check_forced(calling_function), self._check_expected(calling_function)
 	@staticmethod
 	def _find_calling_sconf_function():
@@ -873,7 +872,7 @@ I%(N)s a%(N)s()
 		# (calling_function=None), but no function in the call stack appears to
 		# be a checking function.
 		assert False, "SConf caller not specified and no acceptable caller in stack."
-	def _check_forced(self,name):
+	def _check_forced(self, name: str) -> str:
 		# This getattr will raise AttributeError if called for a function which
 		# is not a registered test.  Tests must be registered as an implicit
 		# test (in implicit_tests, usually by applying the @_implicit_test
@@ -883,7 +882,7 @@ I%(N)s a%(N)s()
 		# Unregistered tests are never documented and cannot be overridden by
 		# the user.
 		return getattr(self.user_settings, f'sconf_{name}')
-	def _check_expected(self,name):
+	def _check_expected(self, name: str):
 		# The remarks for _check_forced apply here too.
 		r = getattr(self.user_settings, f'expect_sconf_{name}')
 		if r is not None:
@@ -892,14 +891,14 @@ I%(N)s a%(N)s()
 			if r == self.expect_sconf_failure:
 				return 0
 		return r
-	def _check_macro(self,context,macro_name,macro_value,test,_comment_not_supported=comment_not_supported,**kwargs):
+	def _check_macro(self, context, macro_name: str, macro_value: str, test: str, _comment_not_supported: str = comment_not_supported, **kwargs):
 		self._define_macro(context, macro_name, macro_value if (
 			self.Compile(context, text=f'''
 #define {macro_name} {macro_value}
 {test}
 ''', **kwargs)
 			) else _comment_not_supported)
-	def _define_macro(self,context,macro_name,macro_value):
+	def _define_macro(self, context, macro_name: str, macro_value: str) -> None:
 		context.sconf.Define(macro_name, macro_value)
 		self.__defined_macros += f'#define {macro_name} {macro_value}\n'
 	implicit_tests.append(_implicit_test.RecordedTest('check_ccache_distcc_ld_works', "assume ccache, distcc, C++ compiler, and C++ linker work"))
@@ -960,7 +959,7 @@ help:assume C++ compiler works
 		# some tests in _check_cxx_works rely on its original value.
 		cenv['CXXCOM'] = cenv._dxx_cxxcom_no_prefix
 		self._check_cxx_conformance_level(context)
-	def _show_tool_version(self,context,tool,desc,save_tool_version=True):
+	def _show_tool_version(self, context, tool: str, desc: str, save_tool_version: bool = True):
 		# These version results are not used for anything, but are
 		# collected here so that users who post only a build log will
 		# still supply at least some useful information.
@@ -980,7 +979,7 @@ help:assume C++ compiler works
 		if save_tool_version:
 			self.__tool_versions.append((tool, v))
 		Display(f'{v!r}\n')
-	def _show_indirect_tool_version(self,context,CXX,tool,desc):
+	def _show_indirect_tool_version(self,context, CXX: str, tool: str, desc: str):
 		Display = context.Display
 		Display(f'{self.msgprefix}: checking path to {desc} ... ')
 		tool, name = ToolchainInformation.get_tool_path(context.env, tool)
