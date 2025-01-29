@@ -10,9 +10,15 @@ on:
         description: Pre-release?
         default: true
         type: boolean
+  workflow_call:
+    inputs:
+      tag_name:
+        description: Tag Name (new or existing)
+        required: true
+        type: string
   push:
     tags:
-      - "v*.*"
+      - "v[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
   package:
