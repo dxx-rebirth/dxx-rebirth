@@ -1824,7 +1824,7 @@ help:assume compiler supports __attribute__((error))
 		self._check_function_dce_attribute(context, 'error')
 		context.sconf.config_h_text += '''
 #ifndef DXX_SCONF_NO_INCLUDES
-__attribute_error("must never be called")
+dxx_compiler_attribute_error("must never be called")
 void DXX_ALWAYS_ERROR_FUNCTION(const char *);
 #endif
 '''
@@ -1833,7 +1833,7 @@ void DXX_ALWAYS_ERROR_FUNCTION(const char *);
 		f = f'''
 void a()__attribute__(({__attribute__}("a called")));
 '''
-		macro_name = f'__attribute_{attribute}(M)'
+		macro_name = f'dxx_compiler_attribute_{attribute}(M)'
 		Compile = self.Compile
 		Define = context.sconf.Define
 		if Compile(context, text=f, main='if("0"[0]==\'1\')a();', msg=f'whether compiler optimizes function __attribute__(({__attribute__}))'):
