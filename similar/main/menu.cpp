@@ -246,7 +246,7 @@ enum class select_dir_flag : bool
 	directories_or_files,
 };
 
-__attribute_nonnull()
+dxx_compiler_attribute_nonnull()
 static int select_file_recursive(const menu_title title, const std::array<char, PATH_MAX> &orig_path, const std::ranges::subrange<const file_extension_t *> &ext_list, select_dir_flag select_dir, ntstring<PATH_MAX - 1> &userdata);
 
 static window_event_result get_absolute_path(ntstring<PATH_MAX - 1> &full_path, const char *rel_path)

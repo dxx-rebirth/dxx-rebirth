@@ -17,7 +17,7 @@ public:
 	using array_t = std::array<char, L + 1>;
 	typedef char elements_t[L + 1];
 	using array_t::operator[];
-	__attribute_nonnull()
+	dxx_compiler_attribute_nonnull()
 	std::size_t _copy_n(std::size_t offset, const char *ib, std::size_t N)
 	{
 		if (offset >= this->size())
@@ -32,7 +32,7 @@ public:
 		return r;
 	}
 	template <std::size_t N>
-		__attribute_nonnull()
+		dxx_compiler_attribute_nonnull()
 		std::size_t _copy(std::size_t offset, const char *i)
 		{
 			static_assert(N <= L, "string too long");
@@ -68,7 +68,7 @@ public:
 			static_assert(N <= L + 1, "string too long");
 			return copy_if(out_offset, i, N);
 		}
-	__attribute_nonnull()
+	dxx_compiler_attribute_nonnull()
 	std::size_t copy_if(std::size_t offset, const char *i, std::size_t N)
 	{
 		const std::size_t d =

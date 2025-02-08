@@ -34,7 +34,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-void Warning_puts(const char *str) __attribute_nonnull();
+void Warning_puts(const char *str) dxx_compiler_attribute_nonnull();
 void Warning(const char *fmt) = delete;
 void Warning(const char *fmt,...) dxx_compiler_attribute_format_printf(1, 2);				//print out warning message to user
 #if DXX_USE_EDITOR
@@ -44,12 +44,12 @@ void clear_warn_func();//say this function no longer valid
 #endif
 #endif
 [[noreturn]]
-__attribute_nonnull()
+dxx_compiler_attribute_nonnull()
 void Error_puts(const char *file, unsigned line, const char *func, const char *str);
 #define Error_puts(F)	Error_puts(__FILE__, __LINE__, __func__, F)
 [[noreturn]]
 dxx_compiler_attribute_format_printf(4, 5)
-__attribute_nonnull()
+dxx_compiler_attribute_nonnull()
 void Error(const char *file, unsigned line, const char *func, const char *fmt,...);				//exit with error code=1, print message
 #define Error(F,...)	dxx_call_printf_checked(Error,(Error_puts),(__FILE__, __LINE__, __func__),(F),##__VA_ARGS__)
 

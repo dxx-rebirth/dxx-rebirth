@@ -579,7 +579,7 @@ static inline void nm_set_item_menu(newmenu_item &ni, const char *text)
 	ni.text = const_cast<char *>(text);
 }
 
-__attribute_nonnull()
+dxx_compiler_attribute_nonnull()
 static inline void nm_set_item_input(newmenu_item &ni, unsigned len, char *text, const char *const allowed_chars)
 {
 	ni.type = nm_type::input;
@@ -595,7 +595,7 @@ static inline void nm_set_item_input(newmenu_item &ni, std::array<char, len> &te
 	nm_set_item_input(ni, len, text.data(), allowed_chars);
 }
 
-__attribute_nonnull()
+dxx_compiler_attribute_nonnull()
 static inline void nm_set_item_checkbox(newmenu_item &ni, const char *text, unsigned checked)
 {
 	ni.type = nm_type::check;
@@ -603,14 +603,14 @@ static inline void nm_set_item_checkbox(newmenu_item &ni, const char *text, unsi
 	ni.value = checked;
 }
 
-__attribute_nonnull()
+dxx_compiler_attribute_nonnull()
 static inline void nm_set_item_text(newmenu_item &ni, const char *text)
 {
 	ni.type = nm_type::text;
 	ni.text = const_cast<char *>(text);
 }
 
-__attribute_nonnull()
+dxx_compiler_attribute_nonnull()
 static inline void nm_set_item_radio(newmenu_item &ni, const char *text, unsigned checked, unsigned grp)
 {
 	ni.type = nm_type::radio;
@@ -620,7 +620,7 @@ static inline void nm_set_item_radio(newmenu_item &ni, const char *text, unsigne
 	radio.group = grp;
 }
 
-__attribute_nonnull()
+dxx_compiler_attribute_nonnull()
 static inline void nm_set_item_number(newmenu_item &ni, const char *text, unsigned now, unsigned low, unsigned high)
 {
 	ni.type = nm_type::number;
@@ -631,7 +631,7 @@ static inline void nm_set_item_number(newmenu_item &ni, const char *text, unsign
 	number.max_value = high;
 }
 
-__attribute_nonnull()
+dxx_compiler_attribute_nonnull()
 static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsigned now, const int low, const int high, ntstring<NM_MAX_TEXT_LEN> &saved_text)
 {
 	ni.type = nm_type::slider;

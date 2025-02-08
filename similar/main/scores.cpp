@@ -495,7 +495,7 @@ namespace dcx {
 
 namespace {
 
-__attribute_nonnull()
+dxx_compiler_attribute_nonnull()
 static void scores_rputs(grs_canvas &canvas, const grs_font &cv_font, const font_x_scaled_float x, const font_y_scaled_float y, const char *const buffer)
 {
 	const auto &&[w, h] = gr_get_string_size(cv_font, buffer);

@@ -264,14 +264,14 @@ class PHYSFSX_fgets_t
 public:
 	template <std::size_t n>
 		[[nodiscard]]
-		__attribute_nonnull()
+		dxx_compiler_attribute_nonnull()
 		auto operator()(PHYSFSX_gets_line_t<n> &buf, PHYSFS_File *const fp, const std::size_t offset = 0) const
 		{
 			return get(buf.next(), offset, fp);
 		}
 	template <std::size_t n>
 		[[nodiscard]]
-		__attribute_nonnull()
+		dxx_compiler_attribute_nonnull()
 		auto operator()(ntstring<n> &buf, PHYSFS_File *const fp, const std::size_t offset = 0) const
 		{
 			auto r = get(std::span(buf), offset, fp);
@@ -463,7 +463,7 @@ public:
 typedef char file_extension_t[5];
 
 [[nodiscard]]
-__attribute_nonnull()
+dxx_compiler_attribute_nonnull()
 const file_extension_t *PHYSFSX_checkMatchingExtension(const char *filename, const std::ranges::subrange<const file_extension_t *> range);
 
 enum class physfs_search_path : bool

@@ -2124,11 +2124,11 @@ int *a()dxx_compiler_attribute_malloc();
 		"""
 help:assume compiler supports __attribute__((nonnull))
 """
-		macro_name = '__attribute_nonnull(...)'
+		macro_name = 'dxx_compiler_attribute_nonnull(...)'
 		macro_value = '__attribute__((nonnull __VA_ARGS__))'
 		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
-int a(int*)__attribute_nonnull();
-int b(int*)__attribute_nonnull((1));
+int a(int*)dxx_compiler_attribute_nonnull();
+int b(int*)dxx_compiler_attribute_nonnull((1));
 """, msg='for function __attribute__((nonnull))')
 
 	@_custom_test

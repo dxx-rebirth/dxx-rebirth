@@ -33,9 +33,9 @@ static inline int d_strnicmp(const char *s1, const char *s2, size_t n)
 	return strncasecmp(s1, s2, n);
 }
 #else
-__attribute_nonnull()
+dxx_compiler_attribute_nonnull()
 extern int d_stricmp( const char *s1, const char *s2 );
-__attribute_nonnull()
+dxx_compiler_attribute_nonnull()
 int d_strnicmp(const char *s1, const char *s2, uint_fast32_t n);
 #endif
 extern void d_strlwr( char *s1 );

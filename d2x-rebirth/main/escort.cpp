@@ -450,7 +450,7 @@ static uint8_t show_buddy_message()
 	return 0;
 }
 
-__attribute_nonnull()
+dxx_compiler_attribute_nonnull()
 static void buddy_message_force_str(const char *str)
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
@@ -504,7 +504,7 @@ void buddy_message_str(const char *str)
 namespace {
 
 //	-----------------------------------------------------------------------------
-static void thief_message_str(const char * str) __attribute_nonnull();
+static void thief_message_str(const char * str) dxx_compiler_attribute_nonnull();
 static void thief_message_str(const char * str)
 {
 	HUD_init_message(HM_DEFAULT, "%c%cTHIEF:%c%c %s", 1, BM_XRGB(28, 0, 0), 1, BM_XRGB(0, 31, 0), str);

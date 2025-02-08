@@ -276,7 +276,7 @@ std::size_t create_bfs_list(const object &robot, const robot_info &robptr, vcseg
 extern void init_thief_for_level();
 
 void start_robot_death_sequence(object &objp);
-void buddy_message_str(const char * str) __attribute_nonnull();
+void buddy_message_str(const char * str) dxx_compiler_attribute_nonnull();
 void buddy_message(const char *) = delete;
 void buddy_message(const char * format, ... ) dxx_compiler_attribute_format_printf(1, 2);
 

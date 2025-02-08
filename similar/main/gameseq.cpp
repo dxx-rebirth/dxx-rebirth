@@ -1380,7 +1380,7 @@ int p_secret_level_destroyed(void)
 
 namespace {
 
-static void do_screen_message(const char *msg) __attribute_nonnull();
+static void do_screen_message(const char *msg) dxx_compiler_attribute_nonnull();
 static void do_screen_message(const char *msg)
 {
 	

@@ -158,7 +158,7 @@ static int ogl_texture_list_cur;
 /* some function prototypes */
 
 #define GL_TEXTURE0_ARB 0x84C0
-static int ogl_loadtexture(const palette_array_t &, const uint8_t *data, int dxo, int dyo, ogl_texture &tex, int bm_flags, int data_format, opengl_texture_filter texfilt, bool texanis, bool edgepad) __attribute_nonnull();
+static int ogl_loadtexture(const palette_array_t &, const uint8_t *data, int dxo, int dyo, ogl_texture &tex, int bm_flags, int data_format, opengl_texture_filter texfilt, bool texanis, bool edgepad) dxx_compiler_attribute_nonnull();
 static void ogl_freetexture(ogl_texture &gltexture);
 
 static void ogl_loadbmtexture(grs_bitmap &bm, bool edgepad)
