@@ -2147,10 +2147,10 @@ static void a(){}
 		"""
 help:assume compiler supports __attribute__((unused))
 """
-		macro_name = '__attribute_unused'
+		macro_name = 'dxx_compiler_attribute_unused'
 		macro_value = '__attribute__((unused))'
 		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
-__attribute_unused
+dxx_compiler_attribute_unused
 static void a(){}
 """, msg='for function __attribute__((unused))', successflags={'CXXFLAGS' : get_Werror_sequence(context.env['CXXFLAGS'], ('-Wunused',))})
 

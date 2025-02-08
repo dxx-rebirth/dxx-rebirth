@@ -206,7 +206,7 @@ public:
 
 template <typename managed_type>
 template <typename handle_index_mismatch>
-void valptridx<managed_type>::check_index_match(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_reference_type r, index_type i, const array_managed_type &a __attribute_unused)
+void valptridx<managed_type>::check_index_match(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_reference_type r, index_type i, const array_managed_type &a dxx_compiler_attribute_unused)
 {
 	const auto pi = &a[i];
 	DXX_VALPTRIDX_CHECK(pi == &r, handle_index_mismatch, &a, i, pi, &r);
@@ -254,7 +254,7 @@ void valptridx<managed_type>::check_null_pointer_conversion(DXX_VALPTRIDX_REPORT
 
 template <typename managed_type>
 template <typename handle_null_pointer>
-void valptridx<managed_type>::check_null_pointer(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_pointer_type p, const array_managed_type &a __attribute_unused)
+void valptridx<managed_type>::check_null_pointer(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_pointer_type p, const array_managed_type &a dxx_compiler_attribute_unused)
 {
 	DXX_VALPTRIDX_CHECK(p, handle_null_pointer, &a);
 }
@@ -1359,7 +1359,7 @@ public:
 };
 
 #define DXX_VALPTRIDX_DEFINE_FACTORY(MANAGED_TYPE, GLOBAL_FACTORY, GLOBAL_ARRAY, MEMBER_FACTORY)	\
-	__attribute_unused static auto &GLOBAL_FACTORY = GLOBAL_ARRAY.MEMBER_FACTORY
+	dxx_compiler_attribute_unused static auto &GLOBAL_FACTORY = GLOBAL_ARRAY.MEMBER_FACTORY
 
 #define DXX_VALPTRIDX_DEFINE_GLOBAL_FACTORY(MANAGED_TYPE, DERIVED_TYPE_PREFIX, GLOBAL_ARRAY, PISUFFIX, IVPREFIX, MCPREFIX)	\
 	DXX_VALPTRIDX_DEFINE_FACTORY(MANAGED_TYPE, IVPREFIX ## MCPREFIX ## DERIVED_TYPE_PREFIX ## PISUFFIX, GLOBAL_ARRAY, IVPREFIX ## MCPREFIX ## PISUFFIX)
