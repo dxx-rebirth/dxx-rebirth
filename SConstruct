@@ -2109,7 +2109,7 @@ help:assume compiler supports __attribute__((format(printf)))
 int a(char*,...)__attribute_format_printf(1,2);
 int b(char*)__attribute_format_printf(1,0);
 """, msg='for function __attribute__((format(printf)))')
-	@_custom_test
+	@GuardedCollector(_custom_test, lambda user_settings: user_settings.memdebug)
 	def check_attribute_malloc(self,context):
 		"""
 help:assume compiler supports __attribute__((malloc))
