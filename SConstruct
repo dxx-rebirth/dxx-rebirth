@@ -2155,10 +2155,6 @@ static void a(){}
 """, msg='for function __attribute__((unused))', successflags={'CXXFLAGS' : get_Werror_sequence(context.env['CXXFLAGS'], ('-Wunused',))})
 
 	@_custom_test
-	def check_attribute_warning(self,context,_check_function_dce_attribute=_check_function_dce_attribute):
-		_check_function_dce_attribute(self, context, 'warning')
-
-	@_custom_test
 	def check_cxx11_static_assert(self,context,_f='''
 static_assert(%(expr)s, "global");
 struct A
