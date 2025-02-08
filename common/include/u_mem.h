@@ -43,11 +43,11 @@ namespace dcx {
 void mem_init(void);
 
 void mem_display_blocks();
-__attribute_alloc_size(1)
+dxx_compiler_attribute_alloc_size(1)
 dxx_compiler_attribute_malloc()
 void *mem_malloc(size_t size, const char *var, const char *file, unsigned line);
-void * mem_calloc( size_t nmemb, size_t size, const char * var, const char * filename, unsigned line) __attribute_alloc_size(1,2) dxx_compiler_attribute_malloc();
-__attribute_alloc_size(2)
+void * mem_calloc( size_t nmemb, size_t size, const char * var, const char * filename, unsigned line) dxx_compiler_attribute_alloc_size(1,2) dxx_compiler_attribute_malloc();
+dxx_compiler_attribute_alloc_size(2)
 void *mem_realloc(void *buffer, size_t size, const char *var, const char *file, unsigned line);
 extern void mem_free( void * buffer );
 

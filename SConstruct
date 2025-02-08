@@ -2070,11 +2070,11 @@ help:assume compiler supports [[gnu::always_inline]]
 		"""
 help:assume compiler supports __attribute__((alloc_size))
 """
-		macro_name = '__attribute_alloc_size(A,...)'
+		macro_name = 'dxx_compiler_attribute_alloc_size(A,...)'
 		macro_value = '__attribute__((alloc_size(A, ## __VA_ARGS__)))'
 		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
-char*a(int)__attribute_alloc_size(1);
-char*b(int,int)__attribute_alloc_size(1,2);
+char*a(int)dxx_compiler_attribute_alloc_size(1);
+char*b(int,int)dxx_compiler_attribute_alloc_size(1,2);
 """, msg='for function __attribute__((alloc_size))')
 	@_custom_test
 	def check_attribute_cold(self,context):
