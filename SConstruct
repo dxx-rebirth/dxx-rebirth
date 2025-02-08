@@ -2065,7 +2065,7 @@ help:assume compiler supports [[gnu::always_inline]]
 		macro_value = '[[gnu::always_inline]]'
 		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test=f'{macro_name} static inline void a(){{}}', main='a();', msg='for C++ function attribute [[gnu::always_inline]]')
 
-	@_custom_test
+	@GuardedCollector(_custom_test, lambda user_settings: user_settings.memdebug)
 	def check_attribute_alloc_size(self,context):
 		"""
 help:assume compiler supports __attribute__((alloc_size))
