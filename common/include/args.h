@@ -172,7 +172,7 @@ bool InitArgs(std::span<char *> argv);
 namespace dcx {
 #define PLAYER_DIRECTORY_TEXT	"Players/"
 
-__attribute_format_arg(1)
+dxx_compiler_attribute_format_arg(1)
 static inline const char *PLAYER_DIRECTORY_STRING(const char *s);
 static inline const char *PLAYER_DIRECTORY_STRING(const char *s)
 {

@@ -2093,10 +2093,10 @@ dxx_compiler_attribute_cold char*a(int);
 		"""
 help:assume compiler supports __attribute__((format_arg))
 """
-		macro_name = '__attribute_format_arg(A)'
+		macro_name = 'dxx_compiler_attribute_format_arg(A)'
 		macro_value = '__attribute__((format_arg(A)))'
 		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
-char*a(char*)__attribute_format_arg(1);
+char*a(char*)dxx_compiler_attribute_format_arg(1);
 """, msg='for function __attribute__((format_arg))')
 	@_custom_test
 	def check_attribute_format_printf(self,context):

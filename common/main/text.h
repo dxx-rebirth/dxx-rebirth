@@ -1245,7 +1245,7 @@ extern std::array<const char *, N_TEXT_STRINGS> Text_string;
  */
 #define dxx_gettext(A,B)	({ unsigned dxx_gettext = A;(void)dxx_gettext; B; })
 #else
-__attribute_format_arg(2)
+dxx_compiler_attribute_format_arg(2)
 static constexpr const char *dxx_gettext(unsigned expr, const char *)
 {
 	return Text_string[expr];
