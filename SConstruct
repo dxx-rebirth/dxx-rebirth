@@ -2114,10 +2114,10 @@ int b(char*)dxx_compiler_attribute_format_printf(1,0);
 		"""
 help:assume compiler supports __attribute__((malloc))
 """
-		macro_name = '__attribute_malloc()'
+		macro_name = 'dxx_compiler_attribute_malloc()'
 		macro_value = '__attribute__((malloc))'
 		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
-int *a()__attribute_malloc();
+int *a()dxx_compiler_attribute_malloc();
 """, msg='for function __attribute__((malloc))')
 	@_custom_test
 	def check_attribute_nonnull(self,context):
