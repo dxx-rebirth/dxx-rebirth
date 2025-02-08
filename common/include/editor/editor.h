@@ -424,7 +424,7 @@ segnum_t get_free_segment_number(segment_array &);
 
 //      Editor status message.
 void editor_status_fmt(const char *) = delete;
-extern void editor_status_fmt(const char *format, ... ) __attribute_format_printf(1, 2);
+extern void editor_status_fmt(const char *format, ... ) dxx_compiler_attribute_format_printf(1, 2);
 
 // Variables in editor.c that the k*.c files need
 

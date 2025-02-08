@@ -2103,11 +2103,11 @@ char*a(char*)dxx_compiler_attribute_format_arg(1);
 		"""
 help:assume compiler supports __attribute__((format(printf)))
 """
-		macro_name = '__attribute_format_printf(A,B)'
+		macro_name = 'dxx_compiler_attribute_format_printf(A,B)'
 		macro_value = '__attribute__((format(printf,A,B)))'
 		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
-int a(char*,...)__attribute_format_printf(1,2);
-int b(char*)__attribute_format_printf(1,0);
+int a(char*,...)dxx_compiler_attribute_format_printf(1,2);
+int b(char*)dxx_compiler_attribute_format_printf(1,0);
 """, msg='for function __attribute__((format(printf)))')
 	@GuardedCollector(_custom_test, lambda user_settings: user_settings.memdebug)
 	def check_attribute_malloc(self,context):
@@ -2377,7 +2377,7 @@ help:always wipe certain freed memory
 	def _check_size_type_format_modifier(self,context,_text_format='''
 #include <cstddef>
 #define DXX_PRI_size_type {}
-__attribute_format_printf(1, 2)
+dxx_compiler_attribute_format_printf(1, 2)
 void f(const char *, ...);
 void f(const char *, ...)
 {{

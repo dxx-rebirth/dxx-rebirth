@@ -132,7 +132,7 @@ static void _powerup_basic_nonhud(int redadd, int greenadd, int blueadd, int sco
 	add_points_to_score(ConsoleObject->ctype.player_info, score, Game_mode);
 }
 
-__attribute_format_printf(5, 6)
+dxx_compiler_attribute_format_printf(5, 6)
 void (powerup_basic)(int redadd, int greenadd, int blueadd, int score, const char *format, ...)
 {
 	va_list	args;

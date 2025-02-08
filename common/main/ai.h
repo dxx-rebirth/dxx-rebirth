@@ -278,7 +278,7 @@ extern void init_thief_for_level();
 void start_robot_death_sequence(object &objp);
 void buddy_message_str(const char * str) __attribute_nonnull();
 void buddy_message(const char *) = delete;
-void buddy_message(const char * format, ... ) __attribute_format_printf(1, 2);
+void buddy_message(const char * format, ... ) dxx_compiler_attribute_format_printf(1, 2);
 
 extern void special_reactor_stuff(void);
 #endif

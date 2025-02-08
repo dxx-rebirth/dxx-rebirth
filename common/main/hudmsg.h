@@ -30,6 +30,6 @@ namespace dsx {
 void HUD_render_message_frame(grs_canvas &);
 }
 #endif
-int HUD_init_message(int class_flag, const char * format, ... ) __attribute_format_printf(2, 3);
-int HUD_init_message_va(int class_flag, const char * format, va_list args) __attribute_format_printf(2, 0);
+int HUD_init_message(int class_flag, const char * format, ... ) dxx_compiler_attribute_format_printf(2, 3);
+int HUD_init_message_va(int class_flag, const char * format, va_list args) dxx_compiler_attribute_format_printf(2, 0);
 int HUD_init_message_literal(int class_flag, std::span<const char> str);

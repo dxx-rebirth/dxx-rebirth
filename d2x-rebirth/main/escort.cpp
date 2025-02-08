@@ -458,7 +458,7 @@ static void buddy_message_force_str(const char *str)
 	HUD_init_message(HM_DEFAULT, "%c%c%s:%c%c %s", CC_COLOR, BM_XRGB(28, 0, 0), static_cast<const char *>(PlayerCfg.GuidebotName), CC_COLOR, BM_XRGB(0, 31, 0), str);
 }
 
-__attribute_format_printf(1, 0)
+dxx_compiler_attribute_format_printf(1, 0)
 static void buddy_message_force_va(const char *const fmt, va_list vl)
 {
 	char buf[128];
@@ -466,7 +466,7 @@ static void buddy_message_force_va(const char *const fmt, va_list vl)
 	buddy_message_force_str(buf);
 }
 
-__attribute_format_printf(1, 2)
+dxx_compiler_attribute_format_printf(1, 2)
 static void buddy_message_ignore_time(const char *const fmt, ...)
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
@@ -511,7 +511,7 @@ static void thief_message_str(const char * str)
 }
 
 static void thief_message(const char *) = delete;
-__attribute_format_printf(1, 2)
+dxx_compiler_attribute_format_printf(1, 2)
 static void thief_message(const char * format, ... )
 {
 

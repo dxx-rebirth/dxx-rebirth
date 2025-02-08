@@ -161,7 +161,7 @@ static void err_puts_literal(PHYSFS_File *f, const char (&str)[len])
 
 void err_printf(PHYSFS_File *my_file, const char * format) = delete;
 
-__attribute_format_printf(2, 3)
+dxx_compiler_attribute_format_printf(2, 3)
 static void err_printf(PHYSFS_File *my_file, const char * format, ... )
 {
 	va_list	args;
@@ -181,7 +181,7 @@ static void warning_puts(PHYSFS_File *f, const std::span<const char> str)
 
 void warning_printf(PHYSFS_File *my_file, const char *format) = delete;
 
-static void warning_printf(PHYSFS_File *my_file, const char * format, ... ) __attribute_format_printf(2, 3);
+static void warning_printf(PHYSFS_File *my_file, const char * format, ... ) dxx_compiler_attribute_format_printf(2, 3);
 static void warning_printf(PHYSFS_File *my_file, const char * format, ... )
 {
 	va_list	args;

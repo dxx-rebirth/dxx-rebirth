@@ -1407,7 +1407,7 @@ namespace dsx {
 namespace {
 void do_screen_message_fmt(const char *) = delete;
 
-__attribute_format_printf(1, 2)
+dxx_compiler_attribute_format_printf(1, 2)
 static void do_screen_message_fmt(const char *fmt, ...)
 {
 	va_list arglist;

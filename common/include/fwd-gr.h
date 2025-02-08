@@ -307,7 +307,7 @@ void gr_string(grs_canvas &, const grs_font &, int x, int y, const char *s, int 
 void gr_string(grs_canvas &, const grs_font &, int x, int y, const char *s);
 void gr_ustring(grs_canvas &, const grs_font &, int x, int y, const char *s);
 template <void (&)(grs_canvas &, const grs_font &, int, int, const char *)>
-void gr_printt(grs_canvas &, const grs_font &, int x, int y, const char *format, ...) __attribute_format_printf(5, 6);
+void gr_printt(grs_canvas &, const grs_font &, int x, int y, const char *format, ...) dxx_compiler_attribute_format_printf(5, 6);
 template <auto>
 void gr_printt(grs_canvas &, const grs_font &, int x, int y, const char *) = delete;
 #define gr_printf	gr_printt<gr_string>

@@ -308,7 +308,7 @@ std::unique_ptr<UI_GADGET_SCROLLBAR> ui_add_gadget_scrollbar(UI_DIALOG &dlg, sho
 
 void ui_dputs_at( UI_DIALOG * dlg, short x, short y, const char * str );
 void ui_dprintf_at(UI_DIALOG * dlg, short x, short y, const char *) = delete;
-extern void ui_dprintf_at( UI_DIALOG * dlg, short x, short y, const char * format, ... ) __attribute_format_printf(4, 5);
+extern void ui_dprintf_at( UI_DIALOG * dlg, short x, short y, const char * format, ... ) dxx_compiler_attribute_format_printf(4, 5);
 
 [[nodiscard]]
 std::unique_ptr<UI_GADGET_RADIO> ui_add_gadget_radio(UI_DIALOG &dlg, short x, short y, short w, short h, short group, const char *text);

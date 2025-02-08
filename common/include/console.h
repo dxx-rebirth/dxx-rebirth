@@ -57,7 +57,7 @@ void con_init(void);
 void con_puts(con_priority_wrapper level, std::span<char> str);
 void con_puts(con_priority_wrapper level, std::span<const char> str);
 
-void con_printf(con_priority_wrapper level, const char *fmt, ...) __attribute_format_printf(2, 3);
+void con_printf(con_priority_wrapper level, const char *fmt, ...) dxx_compiler_attribute_format_printf(2, 3);
 #ifdef DXX_CONSTANT_TRUE
 #define DXX_CON_PRINTF_CHECK_TRAILING_NEWLINE(F)	\
 	(DXX_CONSTANT_TRUE(sizeof((F)) > 1 && (F)[sizeof((F)) - 2] == '\n') &&	\

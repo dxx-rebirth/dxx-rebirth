@@ -521,7 +521,7 @@ int newmenu_get_citem(newmenu *menu);
 //int nm_messagebox(const char *title, int nchoices, ...);
 using nm_messagebox_tie = cstring_tie<4>;
 
-int nm_messagebox(menu_title title, const nm_messagebox_tie &tie, const char *format, ...) __attribute_format_printf(3, 4);
+int nm_messagebox(menu_title title, const nm_messagebox_tie &tie, const char *format, ...) dxx_compiler_attribute_format_printf(3, 4);
 
 void nm_draw_background(grs_canvas &, int x1, int y1, int x2, int y2);
 

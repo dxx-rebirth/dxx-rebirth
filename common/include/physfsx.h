@@ -300,7 +300,7 @@ constexpr PHYSFSX_fgets_t PHYSFSX_fgets{};
 
 int PHYSFSX_printf(PHYSFS_File *file, const char *format) = delete;
 
-__attribute_format_printf(2, 3)
+dxx_compiler_attribute_format_printf(2, 3)
 static inline int PHYSFSX_printf(PHYSFS_File *file, const char *format, ...)
 {
 	char buffer[1024];
