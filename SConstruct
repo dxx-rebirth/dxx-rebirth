@@ -2136,10 +2136,10 @@ int b(int*)__attribute_nonnull((1));
 		"""
 help:assume compiler supports __attribute__((used))
 """
-		macro_name = '__attribute_used'
+		macro_name = 'dxx_compiler_attribute_used'
 		macro_value = '__attribute__((used))'
 		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
-static void a()__attribute_used;
+static void a()dxx_compiler_attribute_used;
 static void a(){}
 """, msg='for function __attribute__((used))')
 	@_custom_test

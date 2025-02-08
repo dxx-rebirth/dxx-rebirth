@@ -94,7 +94,7 @@ std::ranges::subrange<const jointpos *> robot_get_anim_state(const d_robot_info_
 
 #ifndef NDEBUG
 //for test, set a robot to a specific state
-__attribute_used
+dxx_compiler_attribute_used
 static void set_robot_state(object_base &obj, const robot_animation_state state)
 {
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;

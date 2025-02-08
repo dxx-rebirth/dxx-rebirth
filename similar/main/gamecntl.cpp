@@ -1276,7 +1276,7 @@ static void kill_and_so_forth(const d_robot_info_array &Robot_info, fvmobjptridx
 
 #ifndef RELEASE
 #if DXX_BUILD_DESCENT == 2
-static void kill_all_snipers(void) __attribute_used;
+static void kill_all_snipers(void) dxx_compiler_attribute_used;
 static void kill_all_snipers(void)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1297,7 +1297,7 @@ static void kill_all_snipers(void)
 	HUD_init_message(HM_DEFAULT, "%i sniper robots toasted!", dead_count);
 }
 
-static void kill_thief(void) __attribute_used;
+static void kill_thief(void) dxx_compiler_attribute_used;
 static void kill_thief(void)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1316,7 +1316,7 @@ static void kill_thief(void)
 	}
 }
 
-static void kill_buddy(void) __attribute_used;
+static void kill_buddy(void) dxx_compiler_attribute_used;
 static void kill_buddy(void)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -2138,7 +2138,7 @@ static void do_cheat_menu(object &plrobj, grs_canvas &cv_canvas)
 
 #ifndef NDEBUG
 //	Sounds for testing
-__attribute_used
+dxx_compiler_attribute_used
 static sound_effect Test_sound;
 
 static void play_test_sound()

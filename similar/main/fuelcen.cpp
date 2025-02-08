@@ -101,7 +101,7 @@ void fuelcen_reset()
 }
 
 #ifndef NDEBUG		//this is sometimes called by people from the debugger
-__attribute_used
+dxx_compiler_attribute_used
 static void reset_all_robot_centers()
 {
 	// Remove all materialization centers

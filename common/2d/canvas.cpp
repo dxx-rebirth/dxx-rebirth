@@ -77,9 +77,9 @@ grs_main_canvas::~grs_main_canvas()
 /* `g_cc_file`, `g_cc_line` are write-only for the program and are meant
  * to be read back by a debugger.
  */
-__attribute_used
+dxx_compiler_attribute_used
 static const char *g_cc_file[DXX_DEBUG_CURRENT_CANVAS_ORIGIN];
-__attribute_used
+dxx_compiler_attribute_used
 static unsigned g_cc_line[DXX_DEBUG_CURRENT_CANVAS_ORIGIN];
 static unsigned g_cc_which;
 #endif

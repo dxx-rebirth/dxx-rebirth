@@ -25,7 +25,7 @@ constexpr char g_descent_build_datetime[21] = DXX_VERSID_BUILD_DATE " " DXX_VERS
 
 #ifdef DXX_RBE
 #define RECORD_BUILD_VARIABLE(X)	extern const char g_descent_##X[];	\
-	constexpr char g_descent_##X[] __attribute_used = {DESCENT_##X};
+	constexpr char g_descent_##X[] dxx_compiler_attribute_used = {DESCENT_##X};
 
 DXX_RBE(RECORD_BUILD_VARIABLE);
 #endif

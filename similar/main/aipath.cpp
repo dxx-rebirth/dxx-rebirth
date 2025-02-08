@@ -1507,7 +1507,7 @@ void attempt_to_resume_path(const d_robot_info_array &Robot_info, const vmobjptr
 #if DXX_USE_EDITOR
 namespace {
 
-__attribute_used
+dxx_compiler_attribute_used
 static void test_create_path_many(fvmobjptridx &vmobjptridx, const d_level_shared_segment_state &LevelSharedSegmentState, const unsigned long seed)
 {
 	auto &SSegments = LevelSharedSegmentState.get_segments();
@@ -1523,7 +1523,7 @@ static void test_create_path_many(fvmobjptridx &vmobjptridx, const d_level_share
 	}
 }
 
-__attribute_used
+dxx_compiler_attribute_used
 static void test_create_path(fvmobjptridx &vmobjptridx)
 {
 	std::array<point_seg, 200> point_segs;
@@ -1532,7 +1532,7 @@ static void test_create_path(fvmobjptridx &vmobjptridx)
 }
 
 //	For all segments in mine, create paths to all segments in mine, print results.
-__attribute_used
+dxx_compiler_attribute_used
 static void test_create_all_paths(fvmobjptridx &vmobjptridx, fvcsegptridx &vcsegptridx)
 {
 	Point_segs_free_ptr = Point_segs.begin();

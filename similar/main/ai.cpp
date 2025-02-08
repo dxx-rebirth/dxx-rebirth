@@ -3188,7 +3188,7 @@ static bool is_break_object(vcobjidx_t)
 	return false;
 }
 #else
-__attribute_used
+dxx_compiler_attribute_used
 static objnum_t Break_on_object = object_none;
 
 static bool is_break_object(const vcobjidx_t robot)
