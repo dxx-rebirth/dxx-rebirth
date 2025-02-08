@@ -2079,19 +2079,15 @@ char*b(int,int)__attribute_alloc_size(1,2);
 	@_custom_test
 	def check_attribute_cold(self,context):
 		"""
-Test whether the compiler accepts gcc's function attribute
-[__attribute__((cold))][1].  Use this to annotate functions which are
+Test whether the compiler accepts the C++ function attribute
+[[gnu::cold]].  Use this to annotate functions which are
 rarely called, such as error reporting functions.
-
-[1]: https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-g_t_0040code_007bcold_007d-function-attribute-3090
-
-help:assume compiler supports __attribute__((cold))
 """
 		macro_name = 'dxx_compiler_attribute_cold'
-		macro_value = '__attribute__((cold))'
+		macro_value = '[[gnu::cold]]'
 		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
 dxx_compiler_attribute_cold char*a(int);
-""", msg='for function __attribute__((cold))')
+""", msg='for C++ function attribute [[gnu::cold]]')
 	@_custom_test
 	def check_attribute_format_arg(self,context):
 		"""
