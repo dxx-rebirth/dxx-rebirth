@@ -2061,7 +2061,7 @@ available.
 		"""
 help:assume compiler supports __attribute__((always_inline))
 """
-		macro_name = '__attribute_always_inline()'
+		macro_name = 'dxx_compiler_attribute_always_inline()'
 		macro_value = '__attribute__((__always_inline__))'
 		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test=f'{macro_name} static inline void a(){{}}', main='a();', msg='for function __attribute__((always_inline))')
 

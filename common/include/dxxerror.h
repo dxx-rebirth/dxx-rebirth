@@ -116,7 +116,7 @@ namespace dcx {
 // Encourage optimizer to treat d_debugbreak paths as unlikely
 dxx_compiler_attribute_cold
 // Requested by btb to force Xcode to stay in the calling function
-__attribute_always_inline()
+dxx_compiler_attribute_always_inline()
 static inline void d_debugbreak()
 {
 	/* Allow explicit activation in NDEBUG builds */

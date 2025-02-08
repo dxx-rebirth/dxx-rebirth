@@ -173,7 +173,7 @@ struct partial_range_t<range_iterator, range_index_type>::partial_range_error
 namespace partial_range_detail {
 
 template <typename range_exception, std::size_t required_buffer_size>
-__attribute_always_inline()
+dxx_compiler_attribute_always_inline()
 inline void check_range_bounds(const char *file, unsigned line, const char *estr, const uintptr_t t, const std::size_t index_begin, const std::size_t index_end, const std::size_t d)
 {
 #ifdef DXX_CONSTANT_TRUE
@@ -216,7 +216,7 @@ inline void check_range_bounds(const char *file, unsigned line, const char *estr
 
 #if DXX_HAVE_BUILTIN_OBJECT_SIZE
 template <typename range_exception, std::size_t required_buffer_size, typename P>
-__attribute_always_inline()
+dxx_compiler_attribute_always_inline()
 inline void check_range_object_size(const char *file, unsigned line, const char *estr, P &ref, const std::size_t index_begin, const std::size_t index_end)
 {
 	const auto ptr{std::addressof(ref)};
@@ -339,7 +339,7 @@ template <
 	std::input_or_output_iterator iterator_type = decltype(std::ranges::begin(std::declval<range_type &>()))
 	>
 [[nodiscard]]
-__attribute_always_inline()
+dxx_compiler_attribute_always_inline()
 inline auto (unchecked_partial_range)(
 #if DXX_HAVE_BUILTIN_OBJECT_SIZE
 	const char *const file, const unsigned line, const char *const estr,

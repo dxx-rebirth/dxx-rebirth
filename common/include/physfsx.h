@@ -47,7 +47,7 @@
 namespace dcx {
 
 template <typename V>
-__attribute_always_inline()
+dxx_compiler_attribute_always_inline()
 static inline PHYSFS_sint64 PHYSFSX_check_readBytes(PHYSFS_File *const file, V *const buffer, const PHYSFS_uint64 len)
 {
 	static_assert(std::is_standard_layout<V>::value && std::is_trivial<V>::value, "non-POD value read");
@@ -59,7 +59,7 @@ static inline PHYSFS_sint64 PHYSFSX_check_readBytes(PHYSFS_File *const file, V *
 }
 
 template <typename V, std::size_t N>
-__attribute_always_inline()
+dxx_compiler_attribute_always_inline()
 static inline PHYSFS_sint64 PHYSFSX_check_readBytes(PHYSFS_File *const file, std::array<V, N> &buffer, const PHYSFS_uint64 len)
 {
 	static_assert(std::is_standard_layout<V>::value && std::is_trivial<V>::value, "C++ array of non-POD elements read");
@@ -71,14 +71,14 @@ static inline PHYSFS_sint64 PHYSFSX_check_readBytes(PHYSFS_File *const file, std
 }
 
 template <typename V, typename D>
-__attribute_always_inline()
+dxx_compiler_attribute_always_inline()
 static inline PHYSFS_sint64 PHYSFSX_check_readBytes(PHYSFS_File *const file, const std::unique_ptr<V, D> &v, const PHYSFS_uint64 len)
 {
 	return {PHYSFSX_check_readBytes(file, v.get(), {len})};
 }
 
 template <typename V>
-__attribute_always_inline()
+dxx_compiler_attribute_always_inline()
 static inline PHYSFS_sint64 PHYSFSX_check_writeBytes(PHYSFS_File *file, const V *const buffer, const PHYSFS_uint64 len)
 {
 	static_assert(std::is_standard_layout<V>::value && std::is_trivial<V>::value, "non-POD value written");
@@ -90,7 +90,7 @@ static inline PHYSFS_sint64 PHYSFSX_check_writeBytes(PHYSFS_File *file, const V 
 }
 
 template <typename V, std::size_t N>
-__attribute_always_inline()
+dxx_compiler_attribute_always_inline()
 static inline PHYSFS_sint64 PHYSFSX_check_writeBytes(PHYSFS_File *file, const std::array<V, N> &buffer, const PHYSFS_uint64 len)
 {
 	static_assert(std::is_standard_layout<V>::value && std::is_trivial<V>::value, "C++ array of non-POD elements written");
@@ -102,7 +102,7 @@ static inline PHYSFS_sint64 PHYSFSX_check_writeBytes(PHYSFS_File *file, const st
 }
 
 template <typename T, typename D>
-__attribute_always_inline()
+dxx_compiler_attribute_always_inline()
 static inline PHYSFS_sint64 PHYSFSX_check_writeBytes(PHYSFS_File *file, const std::unique_ptr<T, D> &p, const PHYSFS_uint64 len)
 {
 	return {PHYSFSX_check_writeBytes(file, p.get(), len)};
