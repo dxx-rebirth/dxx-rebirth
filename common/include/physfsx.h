@@ -337,7 +337,7 @@ struct NamedPHYSFS_File
 };
 
 [[noreturn]]
-__attribute_cold
+dxx_compiler_attribute_cold
 void PHYSFSX_read_helper_report_error(const char *filename, unsigned line, const char *func, NamedPHYSFS_File file);
 
 template <typename T, auto F>

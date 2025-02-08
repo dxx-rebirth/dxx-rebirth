@@ -66,7 +66,7 @@ template <std::size_t N>
 	 * it as cold.  In a program with no bugs, which is given no
 	 * ill-formed data on input, these exceptions never happen.
 	 */
-__attribute_cold
+dxx_compiler_attribute_cold
 std::string prepare_error_string(const unsigned long d, const char *const estr, const char *const file, const unsigned line, const char *const desc, const unsigned long expr, const uintptr_t t)
 {
 	std::array<char, N> buf;
@@ -163,7 +163,7 @@ struct partial_range_t<range_iterator, range_index_type>::partial_range_error
 	using std::out_of_range::out_of_range;
 	template <std::size_t N>
 		[[noreturn]]
-		__attribute_cold
+		dxx_compiler_attribute_cold
 	static void report(const char *file, unsigned line, const char *estr, const char *desc, unsigned long expr, const uintptr_t t, unsigned long d)
 	{
 		throw partial_range_error(partial_range_detail::prepare_error_string<N>(d, estr, file, line, desc, expr, t));

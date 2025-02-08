@@ -78,7 +78,7 @@ struct sound_function_table_t
 
 #if DXX_SOUND_TABLE_STYLE == DXX_STS_MIXER_WITH_POINTER
 [[noreturn]]
-__attribute_cold
+dxx_compiler_attribute_cold
 void report_invalid_table()
 {
 	/* Out of line due to length of generated code */

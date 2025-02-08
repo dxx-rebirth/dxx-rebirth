@@ -135,7 +135,7 @@ static vms_vector compute_segment_center(fvcvertptr &vcvertptr, const std::array
 }
 
 [[noreturn]]
-__attribute_cold
+dxx_compiler_attribute_cold
 static void create_vertex_list_from_invalid_side(const shared_segment &segp, const shared_side &sidep)
 {
 	throw shared_side::illegal_type(segp, sidep);

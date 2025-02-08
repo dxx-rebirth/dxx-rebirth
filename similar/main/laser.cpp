@@ -273,7 +273,7 @@ static void do_muzzle_stuff(segnum_t segnum, const vms_vector &pos)
 }
 
 [[noreturn]]
-__attribute_cold
+dxx_compiler_attribute_cold
 static void report_invalid_weapon_render_type(const int weapon_type, const weapon_info::render_type render)
 {
 	char buf[96];

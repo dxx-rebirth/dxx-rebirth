@@ -114,7 +114,7 @@ void UserError(const char *fmt, ...) __attribute_format_printf(1, 2);
 namespace dcx {
 
 // Encourage optimizer to treat d_debugbreak paths as unlikely
-__attribute_cold
+dxx_compiler_attribute_cold
 // Requested by btb to force Xcode to stay in the calling function
 __attribute_always_inline()
 static inline void d_debugbreak()

@@ -90,7 +90,7 @@ constexpr std::integral_constant<std::size_t, array_size_value> valptridx_detail
 class valptridx_detail::untyped_utilities::report_error_undefined
 {
 public:
-	__attribute_cold
+	dxx_compiler_attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
 	static void report(...)
 	{
@@ -104,7 +104,7 @@ public:
 	 * as dead any values that exist only as arguments to `report()`.
 	 */
 	[[noreturn]]
-	__attribute_cold
+	dxx_compiler_attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
 	static void report(...)
 	{
@@ -116,7 +116,7 @@ class valptridx_detail::untyped_utilities::index_mismatch_trap_verbose
 {
 public:
 	[[noreturn]]
-	__attribute_cold
+	dxx_compiler_attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const void *const array, const unsigned long supplied_index, const void *const expected_pointer, const void *const actual_pointer)
 	{
@@ -134,7 +134,7 @@ class valptridx_detail::untyped_utilities::index_range_trap_verbose
 {
 public:
 	[[noreturn]]
-	__attribute_cold
+	dxx_compiler_attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const void *const array, const unsigned long supplied_index)
 	{
@@ -147,7 +147,7 @@ class valptridx_detail::untyped_utilities::null_pointer_trap_verbose
 {
 public:
 	[[noreturn]]
-	__attribute_cold
+	dxx_compiler_attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DEFN_VARS)
 	{
@@ -155,7 +155,7 @@ public:
 		__builtin_trap();
 	}
 	[[noreturn]]
-	__attribute_cold
+	dxx_compiler_attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const void *const array)
 	{
@@ -171,7 +171,7 @@ class valptridx<P>::index_mismatch_exception :
 	using std::logic_error::logic_error;
 public:
 	[[noreturn]]
-	__attribute_cold
+	dxx_compiler_attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const array_managed_type *, index_type, const_pointer_type, const_pointer_type);
 };
@@ -183,7 +183,7 @@ class valptridx<P>::index_range_exception :
 	using std::out_of_range::out_of_range;
 public:
 	[[noreturn]]
-	__attribute_cold
+	dxx_compiler_attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const array_managed_type *, long);
 };
@@ -195,11 +195,11 @@ class valptridx<P>::null_pointer_exception :
 	using std::logic_error::logic_error;
 public:
 	[[noreturn]]
-	__attribute_cold
+	dxx_compiler_attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DEFN_VARS);
 	[[noreturn]]
-	__attribute_cold
+	dxx_compiler_attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
 	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const array_managed_type *);
 };
@@ -956,7 +956,7 @@ class valptridx<managed_type>::guarded
 	};
 	mutable state m_state;
 public:
-	__attribute_cold
+	dxx_compiler_attribute_cold
 	guarded(std::nullptr_t) :
 		m_dummy{}, m_state{empty}
 	{

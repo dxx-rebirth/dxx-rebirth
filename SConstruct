@@ -2087,10 +2087,10 @@ rarely called, such as error reporting functions.
 
 help:assume compiler supports __attribute__((cold))
 """
-		macro_name = '__attribute_cold'
+		macro_name = 'dxx_compiler_attribute_cold'
 		macro_value = '__attribute__((cold))'
 		self._check_macro(context,macro_name=macro_name,macro_value=macro_value,test="""
-__attribute_cold char*a(int);
+dxx_compiler_attribute_cold char*a(int);
 """, msg='for function __attribute__((cold))')
 	@_custom_test
 	def check_attribute_format_arg(self,context):
