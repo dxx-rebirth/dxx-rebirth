@@ -22,7 +22,7 @@
 
 namespace serial {
 
-template <std::size_t Expected, std::size_t Actual>
+template <std::uint64_t Expected, std::uint64_t Actual>
 concept check_equal_value = (Expected == Actual);
 
 template <typename... Args>
