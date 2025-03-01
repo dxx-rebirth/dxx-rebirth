@@ -793,7 +793,7 @@ void songs_play_level_song(int levelnum, int offset)
 				 */
 				if (const auto size{BIMSecretSongs.size()})
 				{
-					const song_number secretsongnum{static_cast<unsigned>((-levelnum - 1) % size)};
+					const auto secretsongnum{static_cast<song_number>((-levelnum - 1) % size)};
 					if (songs_play_file(BIMSecretSongs[secretsongnum].filename.data(), 1, nullptr))
 						Song_playing = secretsongnum;
 				}
