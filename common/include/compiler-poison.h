@@ -59,18 +59,28 @@ static inline void DXX_CHECK_MEM_IS_DEFINED(const std::span<const T, Extent> s)
 template <typename T>
 static void DXX_CHECK_VAR_IS_DEFINED(const T &b)
 {
-	const auto sb = std::as_bytes(std::span<const T, 1>(std::addressof(b), 1));
+	const auto sb{std::as_bytes(std::span<const T, 1>(std::addressof(b), 1))};
 	DXX_CHECK_MEM_IS_DEFINED(sb);
+	constexpr bool sanitize_read_range{
 #ifdef __SANITIZE_ADDRESS__
-	constexpr bool sanitize_read_range = true;
+		true
 #else
-	constexpr bool sanitize_read_range = false;
+		false
 #endif
+	};
 	if constexpr (DXX_HAVE_POISON && sanitize_read_range)
 	{
+		/* If the type has a size that is known to be the same as a supported
+		 * integer type, use a single `asm` statement to read it.
+		 * Otherwise, use a loop over the span, which will be less efficient.
+		 */
 #define DXX_READ_BUILTIN_TYPE_IF_SIZE(TYPE)	\
 	if constexpr (sizeof(T) == sizeof(TYPE))	\
 	{	\
+		/* Tell the compiler to load the value into a register or memory
+		 * location, so that this line reads the value and triggers any
+		 * instrumentation that monitors reads.
+		 */	\
 		asm("" :: "rm" (*reinterpret_cast<const TYPE *>(sb.data())));	\
 	}	\
 	else	\
@@ -82,6 +92,9 @@ static void DXX_CHECK_VAR_IS_DEFINED(const T &b)
 	DXX_READ_BUILTIN_TYPE_IF_SIZE(uint8_t)
 #undef DXX_READ_BUILTIN_TYPE_IF_SIZE
 	{
+		/* As a fallback for unsupported types, read each byte of the value
+		 * individually.
+		 */
 		for (const auto &i : sb)
 			asm("" :: "rm" (i));
 	}
