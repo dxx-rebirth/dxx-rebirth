@@ -523,9 +523,11 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 	HiresGFXAvailable = MacPig;	// for now at least
 
 	properties_init_result retval;
+	static char bitmaps_bin_basename[]{"bitmaps.bin"};
+
 	if (PCSharePig)
 		retval = properties_init_result::shareware;	// run gamedata_read_tbl in shareware mode
-	else if (GameArg.EdiNoBm || (!PHYSFS_exists("BITMAPS.TBL") && !PHYSFS_exists("BITMAPS.BIN")))
+	else if (GameArg.EdiNoBm || (!PHYSFS_exists("BITMAPS.TBL") && !PHYSFSX_exists_ignorecase(bitmaps_bin_basename)))
 	{
 		properties_read_cmp(LevelSharedRobotInfoState, Vclip, Piggy_fp);	// Note connection to above if!!!
 		range_for (auto &i, GameBitmapXlat)
