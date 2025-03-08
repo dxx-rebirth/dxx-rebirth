@@ -186,8 +186,12 @@ struct g3s_reusable_point : g3s_point
 
 #if DXX_USE_OGL
 typedef const g3s_point cg3s_point;
+using g3_draw_line_point = const g3_rotated_point;
+using g3_draw_sphere_point = const g3_rotated_point;
 #else
 typedef g3s_point cg3s_point;
+using g3_draw_line_point = g3s_point;
+using g3_draw_sphere_point = g3s_point;
 #endif
 
 //start the frame
@@ -276,10 +280,10 @@ constexpr std::integral_constant<std::size_t, 64> MAX_POINTS_PER_POLY{};
 
 //draw a sortof sphere - i.e., the 2d radius is proportional to the 3d
 //radius, but not to the distance from the eye
-void g3_draw_sphere(grs_canvas &, cg3s_point &pnt, fix rad, uint8_t color);
+void g3_draw_sphere(grs_canvas &, g3_draw_sphere_point &pnt, fix rad, uint8_t color);
 
 #if !DXX_USE_OGL
-static inline void g3_draw_sphere(grs_canvas &canvas, g3s_point &&pnt, fix rad, uint8_t color)
+static inline void g3_draw_sphere(grs_canvas &canvas, g3_draw_sphere_point &&pnt, fix rad, uint8_t color)
 {
 	g3_draw_sphere(canvas, pnt, rad, color);
 }
@@ -307,11 +311,6 @@ static inline void g3_check_and_draw_poly(grs_canvas &canvas, const std::array<c
 	if (do_facing_check(pointlist))
 		g3_draw_poly(canvas, pointlist.size(), pointlist, color);
 }
-
-//draws a line. takes two points.
-#if !DXX_USE_OGL
-struct temporary_points_t;
-#endif
 
 //draws a bitmap with the specified 3d width & height
 //returns 1 if off screen, 0 if drew
@@ -357,8 +356,13 @@ enum class tmap_drawer_type : bool
 
 using tmap_drawer_type::draw_tmap_flat;
 using tmap_drawer_type::draw_tmap;
+
 #else
-void g3_draw_line(const g3_draw_line_context &, cg3s_point &p0, cg3s_point &p1, temporary_points_t &);
+struct temporary_points_t;
+
+//draws a line. takes two points.
+void g3_draw_line(const g3_draw_line_context &, g3_draw_line_point &p0, g3_draw_line_point &p1, temporary_points_t &);
+
 constexpr std::integral_constant<std::size_t, 100> MAX_POINTS_IN_POLY{};
 
 using tmap_drawer_type = void (*)(grs_canvas &, const grs_bitmap &bm, std::span<const g3s_point *const> vertlist);
@@ -367,6 +371,8 @@ using tmap_drawer_type = void (*)(grs_canvas &, const grs_bitmap &bm, std::span<
 //	(ie, avoids cracking) edge/delta computation.
 void gr_upoly_tmap(grs_canvas &, uint_fast32_t nverts, const std::array<fix, MAX_POINTS_IN_POLY * 2> &vert, uint8_t color);
 #endif
+
+void g3_draw_line(const g3_draw_line_context &context, g3_draw_line_point &p0, g3_draw_line_point &p1);
 
 //draw a bitmap object that is always facing you
 void g3_draw_rod_tmap(grs_canvas &, grs_bitmap &bitmap, const g3s_point &bot_point, fix bot_width, const g3s_point &top_point, fix top_width, g3s_lrgb light, tmap_drawer_type tmap_drawer_ptr);
@@ -406,7 +412,5 @@ static inline void g3_check_and_draw_tmap(grs_canvas &canvas, const std::array<c
 {
 	g3_check_and_draw_tmap(canvas, N, pointlist, uvl_list, light_rgb, bm, tmap_drawer_ptr);
 }
-
-void g3_draw_line(const g3_draw_line_context &context, cg3s_point &p0, cg3s_point &p1);
 
 }

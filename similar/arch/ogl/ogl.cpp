@@ -564,7 +564,7 @@ void ogl_cache_level_textures(void)
 
 namespace dcx {
 
-void g3_draw_line(const g3_draw_line_context &context, const g3s_point &p0, const g3s_point &p1)
+void g3_draw_line(const g3_draw_line_context &context, const g3_draw_line_point &p0, const g3_draw_line_point &p1)
 {
 	ogl_client_states<int, GL_VERTEX_ARRAY, GL_COLOR_ARRAY> cs;
 	OGL_DISABLE(TEXTURE_2D);
@@ -787,7 +787,7 @@ void ogl_draw_vertex_reticle(grs_canvas &canvas, int cross, int primary, int sec
 /*
  * Stars on heaven in exit sequence, automap objects
  */
-void g3_draw_sphere(grs_canvas &canvas, cg3s_point &pnt, fix rad, const uint8_t c)
+void g3_draw_sphere(grs_canvas &canvas, const g3_draw_sphere_point &pnt, fix rad, const uint8_t c)
 {
 	int i;
 	const float scale = (static_cast<float>(canvas.cv_bitmap.bm_w) / canvas.cv_bitmap.bm_h);

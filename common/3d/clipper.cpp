@@ -109,7 +109,7 @@ static g3s_point &clip_edge(const clipping_code plane_flag, g3s_point *on_pnt, g
 }
 
 //clips a line to the viewing pyramid.
-void clip_line(g3s_point *&p0, g3s_point *&p1, const clipping_code codes_or, temporary_points_t &tp)
+void clip_line(g3_draw_line_point *&p0, g3_draw_line_point *&p1, const clipping_code codes_or, temporary_points_t &tp)
 {
 	//might have these left over
 	p0->p3_flags &= ~(projection_flag::uvs|projection_flag::ls);

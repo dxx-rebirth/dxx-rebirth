@@ -51,7 +51,7 @@ g3_draw_line_colors::g3_draw_line_colors(const color_palette_index color) :
 namespace {
 
 //deal with a clipped line
-static void must_clip_line(const g3_draw_line_context &context, g3s_point *p0, g3s_point *p1, const clipping_code codes_or, temporary_points_t &tp)
+static void must_clip_line(const g3_draw_line_context &context, g3_draw_line_point *p0, g3_draw_line_point *p1, const clipping_code codes_or, temporary_points_t &tp)
 {
 	if ((p0->p3_flags&projection_flag::temp_point) || (p1->p3_flags&projection_flag::temp_point))
 		;		//line has already been clipped, so give up
@@ -72,13 +72,13 @@ static void must_clip_line(const g3_draw_line_context &context, g3s_point *p0, g
 }
 
 //draws a line. takes two points.  returns true if drew
-void g3_draw_line(const g3_draw_line_context &context, g3s_point &p0, g3s_point &p1)
+void g3_draw_line(const g3_draw_line_context &context, g3_draw_line_point &p0, g3_draw_line_point &p1)
 {
 	temporary_points_t tp;
 	g3_draw_line(context, p0, p1, tp);
 }
 
-void g3_draw_line(const g3_draw_line_context &context, g3s_point &p0, g3s_point &p1, temporary_points_t &tp)
+void g3_draw_line(const g3_draw_line_context &context, g3_draw_line_point &p0, g3_draw_line_point &p1, temporary_points_t &tp)
 {
 	if ((p0.p3_codes & p1.p3_codes) != clipping_code::None)
 		return;
@@ -272,7 +272,7 @@ free_points:
 
 //draw a sortof sphere - i.e., the 2d radius is proportional to the 3d
 //radius, but not to the distance from the eye
-void g3_draw_sphere(grs_canvas &canvas, cg3s_point &pnt, const fix rad, const uint8_t color)
+void g3_draw_sphere(grs_canvas &canvas, g3_draw_sphere_point &pnt, const fix rad, const uint8_t color)
 {
 	if ((pnt.p3_codes & clipping_code::behind) == clipping_code::None)
 	{
