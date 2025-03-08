@@ -120,7 +120,7 @@ void g3_draw_rod_tmap(grs_canvas &canvas, grs_bitmap &bitmap, const g3_rotated_p
 		light,
 	}};
 
-	g3_draw_tmap(canvas, std::array<cg3s_point *, 4>{{
+	g3_draw_tmap(canvas, std::array<g3_draw_tmap_point *, 4>{{
 		&rod.points[0],
 		&rod.points[1],
 		&rod.points[2],

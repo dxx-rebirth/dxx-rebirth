@@ -155,7 +155,7 @@ int toggle_outline_mode(void)
 
 namespace {
 
-static void draw_outline(const g3_draw_line_context &context, const std::span<cg3s_point *> pointlist)
+static void draw_outline(const g3_draw_line_context &context, const std::span<g3_draw_line_point *> pointlist)
 {
 	const auto e{pointlist.size() - 1u};
 	range_for (const unsigned i, xrange(e))
@@ -236,7 +236,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const si
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	grs_bitmap  *bm;
 
-	std::array<cg3s_point *, 4> pointlist;
+	std::array<g3_draw_tmap_point *, 4> pointlist;
 
 	Assert(nv <= pointlist.size());
 
@@ -389,7 +389,7 @@ static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const sidenu
 #if DXX_USE_EDITOR
 	if (_search_mode) {
 		std::array<g3s_lrgb, 4> dyn_light{};
-		std::array<cg3s_point *, 4> pointlist;
+		std::array<g3_draw_tmap_point *, 4> pointlist;
 #if DXX_USE_OGL
 		(void)tmap1;
 		(void)tmap2;

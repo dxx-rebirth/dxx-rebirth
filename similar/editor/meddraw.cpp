@@ -160,7 +160,7 @@ static void check_segment(const vmsegptridx_t seg)
 
 		range_for (auto &fn, Side_to_verts)
 		{
-			std::array<cg3s_point *, 3> vert_list;
+			std::array<g3_draw_tmap_point *, 3> vert_list;
 			vert_list[0] = &Segment_points[seg->verts[fn[side_relative_vertnum::_0]]];
 			vert_list[1] = &Segment_points[seg->verts[fn[side_relative_vertnum::_1]]];
 			vert_list[2] = &Segment_points[seg->verts[fn[side_relative_vertnum::_2]]];

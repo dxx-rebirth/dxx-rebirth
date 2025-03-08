@@ -789,7 +789,7 @@ static void ntexture_map_lighted_linear(const grs_bitmap &srcb, const g3ds_tmap 
 // -------------------------------------------------------------------------------------
 // Interface from Matt's data structures to Mike's texture mapper.
 // -------------------------------------------------------------------------------------
-void draw_tmap(grs_canvas &canvas, const grs_bitmap &rbp, const std::span<const g3s_point *const> vertbuf)
+void draw_tmap(grs_canvas &canvas, const grs_bitmap &rbp, const std::span<const g3_draw_tmap_point *const> vertbuf)
 {
 	//	These variables are used in system which renders texture maps which lie on one scanline as a line.
 	// fix	div_numerator;

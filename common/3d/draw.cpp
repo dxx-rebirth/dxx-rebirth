@@ -101,7 +101,7 @@ bool g3_check_normal_facing(const vms_vector &v,const vms_vector &norm)
 	return (vm_vec_dot(vm_vec_sub(View_position,v),norm) > 0);
 }
 
-bool do_facing_check(const std::array<cg3s_point *, 3> &vertlist)
+bool do_facing_check(const std::array<g3_draw_tmap_point *, 3> &vertlist)
 {
 	//normal not specified, so must compute
 		//get three points (rotated) and compute normal
@@ -147,7 +147,7 @@ free_points:
 
 //draw a flat-shaded face.
 //returns 1 if off screen, 0 if drew
-void _g3_draw_poly(grs_canvas &canvas, const std::span<cg3s_point *const> pointlist, const uint8_t color)
+void _g3_draw_poly(grs_canvas &canvas, const std::span<g3_draw_tmap_point *const> pointlist, const uint8_t color)
 {
 	g3s_codes cc;
 
@@ -191,7 +191,7 @@ void _g3_draw_poly(grs_canvas &canvas, const std::span<cg3s_point *const> pointl
 }
 
 //draw a texture-mapped face.
-void _g3_draw_tmap(grs_canvas &canvas, const std::span<cg3s_point *const> pointlist, const g3s_uvl *const uvl_list, const g3s_lrgb *const light_rgb, grs_bitmap &bm, const tmap_drawer_type tmap_drawer_ptr)
+void _g3_draw_tmap(grs_canvas &canvas, const std::span<g3_draw_tmap_point *const> pointlist, const g3s_uvl *const uvl_list, const g3s_lrgb *const light_rgb, grs_bitmap &bm, const tmap_drawer_type tmap_drawer_ptr)
 {
 	g3s_codes cc;
 

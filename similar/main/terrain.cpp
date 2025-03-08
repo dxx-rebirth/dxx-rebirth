@@ -77,9 +77,9 @@ static void build_light_table();
 namespace {
 
 // ------------------------------------------------------------------------
-static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const int i, const int j, cg3s_point &p0, cg3s_point &p1, cg3s_point &p2, cg3s_point &p3, int &mine_tiles_drawn)
+static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const int i, const int j, g3_draw_tmap_point &p0, g3_draw_tmap_point &p1, g3_draw_tmap_point &p2, g3_draw_tmap_point &p3, int &mine_tiles_drawn)
 {
-	std::array<cg3s_point *, 3> pointlist{{
+	std::array<g3_draw_tmap_point *, 3> pointlist{{
 		&p0,
 		&p1,
 		&p3,

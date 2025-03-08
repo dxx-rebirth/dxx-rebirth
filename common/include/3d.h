@@ -203,10 +203,12 @@ struct g3s_reusable_point : g3s_point
 typedef const g3s_point cg3s_point;
 using g3_draw_line_point = const g3_rotated_point;
 using g3_draw_sphere_point = const g3_rotated_point;
+using g3_draw_tmap_point = const g3_rotated_point;	// also applies to g3_draw_poly
 #else
 typedef g3s_point cg3s_point;
 using g3_draw_line_point = g3s_point;
 using g3_draw_sphere_point = g3s_point;
+using g3_draw_tmap_point = g3s_point;	// also applies to g3_draw_poly
 #endif
 
 //start the frame
@@ -284,9 +286,9 @@ void g3_add_delta_vec(g3s_point &dest, const g3_rotated_point &src, const vms_ve
 //Drawing functions:
 
 //draw a flat-shaded face.
-void _g3_draw_poly(grs_canvas &, std::span<cg3s_point *const> pointlist, uint8_t color);
+void _g3_draw_poly(grs_canvas &, std::span<g3_draw_tmap_point *const> pointlist, uint8_t color);
 template <std::size_t N>
-static inline void g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, const std::array<cg3s_point *, N> &pointlist, const uint8_t color)
+static inline void g3_draw_poly(grs_canvas &canvas, const uint_fast32_t nv, const std::array<g3_draw_tmap_point *, N> &pointlist, const uint8_t color)
 {
 	_g3_draw_poly(canvas, std::span(pointlist).first(nv), color);
 }
@@ -313,7 +315,7 @@ static inline void g3_draw_sphere(grs_canvas &canvas, g3_draw_sphere_point &&pnt
 //is passed, this function works like g3_check_normal_facing() plus
 //g3_draw_poly().
 //returns -1 if not facing, 1 if off screen, 0 if drew
-bool do_facing_check(const std::array<cg3s_point *, 3> &vertlist);
+bool do_facing_check(const std::array<g3_draw_tmap_point *, 3> &vertlist);
 
 //like g3_draw_poly(), but checks to see if facing.  If surface normal is
 //NULL, this routine must compute it, which will be slow.  It is better to 
@@ -321,7 +323,7 @@ bool do_facing_check(const std::array<cg3s_point *, 3> &vertlist);
 //is passed, this function works like g3_check_normal_facing() plus
 //g3_draw_poly().
 //returns -1 if not facing, 1 if off screen, 0 if drew
-static inline void g3_check_and_draw_poly(grs_canvas &canvas, const std::array<cg3s_point *, 3> &pointlist, const uint8_t color)
+static inline void g3_check_and_draw_poly(grs_canvas &canvas, const std::array<g3_draw_tmap_point *, 3> &pointlist, const uint8_t color)
 {
 	if (do_facing_check(pointlist))
 		g3_draw_poly(canvas, pointlist.size(), pointlist, color);
@@ -380,7 +382,7 @@ void g3_draw_line(const g3_draw_line_context &, g3_draw_line_point &p0, g3_draw_
 
 constexpr std::integral_constant<std::size_t, 100> MAX_POINTS_IN_POLY{};
 
-using tmap_drawer_type = void (*)(grs_canvas &, const grs_bitmap &bm, std::span<const g3s_point *const> vertlist);
+using tmap_drawer_type = void (*)(grs_canvas &, const grs_bitmap &bm, std::span<const g3_draw_tmap_point *const> vertlist);
 
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
 //	(ie, avoids cracking) edge/delta computation.
@@ -393,10 +395,10 @@ void g3_draw_line(const g3_draw_line_context &context, g3_draw_line_point &p0, g
 void g3_draw_rod_tmap(grs_canvas &, grs_bitmap &bitmap, const g3_rotated_point &bot_point, fix bot_width, const g3_rotated_point &top_point, fix top_width, g3s_lrgb light, tmap_drawer_type tmap_drawer_ptr);
 
 //draw a texture-mapped face.
-void _g3_draw_tmap(grs_canvas &canvas, std::span<cg3s_point *const> pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm, const tmap_drawer_type tmap_drawer_ptr);
+void _g3_draw_tmap(grs_canvas &canvas, std::span<g3_draw_tmap_point *const> pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm, const tmap_drawer_type tmap_drawer_ptr);
 
 template <std::size_t N>
-static inline void g3_draw_tmap(grs_canvas &canvas, unsigned nv, const std::array<cg3s_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm, const tmap_drawer_type tmap_drawer_ptr)
+static inline void g3_draw_tmap(grs_canvas &canvas, unsigned nv, const std::array<g3_draw_tmap_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm, const tmap_drawer_type tmap_drawer_ptr)
 {
 	static_assert(N <= MAX_POINTS_PER_POLY, "too many points in tmap");
 #ifdef DXX_CONSTANT_TRUE
@@ -410,20 +412,20 @@ static inline void g3_draw_tmap(grs_canvas &canvas, unsigned nv, const std::arra
 
 template <std::size_t N>
 requires(N <= MAX_POINTS_PER_POLY)
-static inline void g3_draw_tmap(grs_canvas &canvas, const std::array<cg3s_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm, const tmap_drawer_type tmap_drawer_ptr)
+static inline void g3_draw_tmap(grs_canvas &canvas, const std::array<g3_draw_tmap_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm, const tmap_drawer_type tmap_drawer_ptr)
 {
 	_g3_draw_tmap(canvas, pointlist, uvl_list.data(), light_rgb.data(), bm, tmap_drawer_ptr);
 }
 
 template <std::size_t N>
-static inline void g3_check_and_draw_tmap(grs_canvas &canvas, unsigned nv, const std::array<cg3s_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm, const tmap_drawer_type tmap_drawer_ptr)
+static inline void g3_check_and_draw_tmap(grs_canvas &canvas, unsigned nv, const std::array<g3_draw_tmap_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm, const tmap_drawer_type tmap_drawer_ptr)
 {
 	if (do_facing_check(pointlist))
 		g3_draw_tmap(canvas, nv, pointlist, uvl_list, light_rgb, bm, tmap_drawer_ptr);
 }
 
 template <std::size_t N>
-static inline void g3_check_and_draw_tmap(grs_canvas &canvas, const std::array<cg3s_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm, const tmap_drawer_type tmap_drawer_ptr)
+static inline void g3_check_and_draw_tmap(grs_canvas &canvas, const std::array<g3_draw_tmap_point *, N> &pointlist, const std::array<g3s_uvl, N> &uvl_list, const std::array<g3s_lrgb, N> &light_rgb, grs_bitmap &bm, const tmap_drawer_type tmap_drawer_ptr)
 {
 	g3_check_and_draw_tmap(canvas, N, pointlist, uvl_list, light_rgb, bm, tmap_drawer_ptr);
 }

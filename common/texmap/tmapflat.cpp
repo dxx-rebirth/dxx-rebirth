@@ -187,7 +187,7 @@ struct pnt2d {
 }
 
 //this takes the same partms as draw_tmap, but draws a flat-shaded polygon
-void draw_tmap_flat(grs_canvas &canvas, const grs_bitmap &bp, const std::span<const g3s_point *const> vertbuf)
+void draw_tmap_flat(grs_canvas &canvas, const grs_bitmap &bp, const std::span<const g3_draw_tmap_point *const> vertbuf)
 {
 	union {
 		std::array<pnt2d, MAX_TMAP_VERTS> points;

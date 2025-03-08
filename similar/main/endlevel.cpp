@@ -339,7 +339,7 @@ static void draw_mine_exit_cover(grs_canvas &canvas)
 		g3_rotate_point(p2, vm_vec_sub(vd, mrd));
 		g3_rotate_point(p3, vm_vec_add(vd, mrd));
 	}
-	const std::array<cg3s_point *, 4> pointlist{{
+	const std::array<g3_draw_tmap_point *, 4> pointlist{{
 		&p0,
 		&p1,
 		&p2,

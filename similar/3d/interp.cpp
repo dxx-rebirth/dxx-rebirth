@@ -236,9 +236,9 @@ private:
 	}
 protected:
 	template <std::size_t N>
-		std::array<cg3s_point *, N> prepare_point_list(const uint_fast32_t nv, const uint8_t *const p)
+		std::array<g3_draw_tmap_point *, N> prepare_point_list(const uint_fast32_t nv, const uint8_t *const p)
 		{
-			std::array<cg3s_point *, N> point_list;
+			std::array<g3_draw_tmap_point *, N> point_list;
 			for (uint_fast32_t i = 0; i < nv; ++i)
 				point_list[i] = &Interp_point_list[wp(p + 30)[i]];
 			return point_list;
