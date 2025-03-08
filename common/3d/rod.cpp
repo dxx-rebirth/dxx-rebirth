@@ -100,7 +100,7 @@ static rod_corners_result calc_rod_corners(const g3_rotated_point &bot_point, co
 
 //draw a bitmap object that is always facing you
 //returns 1 if off screen, 0 if drew
-void g3_draw_rod_tmap(grs_canvas &canvas, grs_bitmap &bitmap, const g3s_point &bot_point, fix bot_width, const g3s_point &top_point, fix top_width, g3s_lrgb light, const tmap_drawer_type tmap_drawer_ptr)
+void g3_draw_rod_tmap(grs_canvas &canvas, grs_bitmap &bitmap, const g3_rotated_point &bot_point, fix bot_width, const g3_rotated_point &top_point, fix top_width, g3s_lrgb light, const tmap_drawer_type tmap_drawer_ptr)
 {
 	rod_corners_result rod{calc_rod_corners(bot_point, bot_width, top_point, top_width)};
 	if (rod.cc != clipping_code::None)

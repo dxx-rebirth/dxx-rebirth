@@ -390,7 +390,7 @@ void gr_upoly_tmap(grs_canvas &, uint_fast32_t nverts, const std::array<fix, MAX
 void g3_draw_line(const g3_draw_line_context &context, g3_draw_line_point &p0, g3_draw_line_point &p1);
 
 //draw a bitmap object that is always facing you
-void g3_draw_rod_tmap(grs_canvas &, grs_bitmap &bitmap, const g3s_point &bot_point, fix bot_width, const g3s_point &top_point, fix top_width, g3s_lrgb light, tmap_drawer_type tmap_drawer_ptr);
+void g3_draw_rod_tmap(grs_canvas &, grs_bitmap &bitmap, const g3_rotated_point &bot_point, fix bot_width, const g3_rotated_point &top_point, fix top_width, g3s_lrgb light, tmap_drawer_type tmap_drawer_ptr);
 
 //draw a texture-mapped face.
 void _g3_draw_tmap(grs_canvas &canvas, std::span<cg3s_point *const> pointlist, const g3s_uvl *uvl_list, const g3s_lrgb *light_rgb, grs_bitmap &bm, const tmap_drawer_type tmap_drawer_ptr);
