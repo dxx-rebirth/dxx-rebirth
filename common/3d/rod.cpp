@@ -24,15 +24,17 @@ namespace dcx {
 
 namespace {
 
-struct rod_4point
+struct rod_corners_result
 {
 	std::array<cg3s_point *, 4> point_list;
 	std::array<g3s_point, 4> points;
+	clipping_code cc;
 };
 
 //compute the corners of a rod.  fills in vertbuf.
-static clipping_code calc_rod_corners(rod_4point &rod_point_group, const g3_rotated_point &bot_point, const fix bot_width, const g3_rotated_point &top_point, const fix top_width)
+static rod_corners_result calc_rod_corners(const g3_rotated_point &bot_point, const fix bot_width, const g3_rotated_point &top_point, const fix top_width)
 {
+	rod_corners_result rod_point_group;
 	//compute vector from one point to other, do cross product with vector
 	//from eye to get perpendiclar
 
@@ -95,7 +97,8 @@ static clipping_code calc_rod_corners(rod_4point &rod_point_group, const g3_rota
 	//clear flags for new points (not projected)
 		i.p3_flags = {};
 	}
-	return codes_and;
+	rod_point_group.cc = codes_and;
+	return rod_point_group;
 }
 
 }
@@ -104,8 +107,8 @@ static clipping_code calc_rod_corners(rod_4point &rod_point_group, const g3_rota
 //returns 1 if off screen, 0 if drew
 void g3_draw_rod_tmap(grs_canvas &canvas, grs_bitmap &bitmap, const g3s_point &bot_point, fix bot_width, const g3s_point &top_point, fix top_width, g3s_lrgb light, const tmap_drawer_type tmap_drawer_ptr)
 {
-	rod_4point rod;
-	if (calc_rod_corners(rod, bot_point, bot_width, top_point, top_width) != clipping_code::None)
+	rod_corners_result rod{calc_rod_corners(bot_point, bot_width, top_point, top_width)};
+	if (rod.cc != clipping_code::None)
 		return;
 
 	const fix average_light = static_cast<unsigned>(light.r+light.g+light.b)/3;
