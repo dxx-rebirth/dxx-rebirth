@@ -280,10 +280,7 @@ protected:
 	{
 		const auto &&rod_bot_p = g3_rotate_point(*vp(p + 20));
 		const auto &&rod_top_p = g3_rotate_point(*vp(p + 4));
-		const g3s_lrgb rodbm_light{
-			f1_0, f1_0, f1_0
-		};
-		g3_draw_rod_tmap(canvas, *model_bitmaps[w(p + 2)], rod_bot_p, w(p + 16), rod_top_p, w(p + 32), rodbm_light, tmap_drawer_ptr);
+		g3_draw_rod_tmap(canvas, *model_bitmaps[w(p + 2)], rod_bot_p, w(p + 16), rod_top_p, w(p + 32), g3s_lrgb{F1_0, F1_0, F1_0}, tmap_drawer_ptr);
 	}
 	void op_subcall(const uint8_t *const p, const glow_values_t *const glow_values)
 	{

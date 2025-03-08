@@ -264,7 +264,6 @@ void draw_object_blob(GameBitmaps_array &GameBitmaps, const object_base &Viewer,
 //draw an object that is a texture-mapped rod
 void draw_object_tmap_rod(grs_canvas &canvas, const d_level_unique_light_state *const LevelUniqueLightState, const vcobjptridx_t obj, const bitmap_index bitmapi)
 {
-	g3s_lrgb light;
 	PIGGY_PAGE_IN(bitmapi);
 
 	auto &bitmap = GameBitmaps[bitmapi];
@@ -276,15 +275,7 @@ void draw_object_tmap_rod(grs_canvas &canvas, const d_level_unique_light_state *
 	const auto top_p = g3_rotate_point(top_v);
 	const auto bot_p{g3_rotate_point(vm_vec_sub(obj->pos, delta))};
 
-	if (LevelUniqueLightState)
-	{
-		light = compute_object_light(*LevelUniqueLightState, obj);
-	}
-	else
-	{
-		light.r = light.g = light.b = f1_0;
-	}
-	g3_draw_rod_tmap(canvas, bitmap, bot_p, obj->size, top_p, obj->size, light, draw_tmap);
+	g3_draw_rod_tmap(canvas, bitmap, bot_p, obj->size, top_p, obj->size, (LevelUniqueLightState ? compute_object_light(*LevelUniqueLightState, obj) : g3s_lrgb{F1_0, F1_0, F1_0}), draw_tmap);
 }
 
 //used for robot engine glow

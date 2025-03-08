@@ -573,7 +573,6 @@ static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas,
 #if DXX_USE_OGL
 	int orig_Render_depth = Render_depth;
 #endif
-	g3s_lrgb lrgb = { f1_0, f1_0, f1_0 };
 
 	auto Viewer_eye = Viewer->pos;
 
@@ -606,7 +605,7 @@ static void render_external_scene(fvcobjptridx &vcobjptridx, grs_canvas &canvas,
 			if (! (p.p3_flags & projection_flag::overflow)) {
 				push_interpolation_method save_im(0);
 				//gr_bitmapm(f2i(p.p3_sx)-32,f2i(p.p3_sy)-32,satellite_bitmap);
-				g3_draw_rod_tmap(canvas, *satellite_bitmap, p, SATELLITE_WIDTH, top_pnt, SATELLITE_WIDTH, lrgb, draw_tmap);
+				g3_draw_rod_tmap(canvas, *satellite_bitmap, p, SATELLITE_WIDTH, top_pnt, SATELLITE_WIDTH, g3s_lrgb{F1_0, F1_0, F1_0}, draw_tmap);
 			}
 		}
 	}
