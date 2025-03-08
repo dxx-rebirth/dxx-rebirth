@@ -62,9 +62,8 @@ See [COPYING.txt](COPYING.txt) and [GPL-3.txt](GPL-3.txt)
 
 ## 5. Contact:
 
-- https://www.dxx-rebirth.com/
-- zico [at] dxx-rebirth [dot] com
-   
+- https://github.com/dxx-rebirth/dxx-rebirth/
+
 ## 6. Issue Reporting
 
 Use GitHub issues tab report a [new issue](https://github.com/dxx-rebirth/dxx-rebirth/issues/new), be sure to add as much detail as possible in the template provided.
