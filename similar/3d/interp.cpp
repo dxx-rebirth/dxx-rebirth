@@ -335,8 +335,7 @@ public:
 					? 255
 					: gr_find_closest_color_15bpp(packed_color_r5g5b5{w(p + 28)});
 #endif
-				const auto point_list = prepare_point_list<MAX_POINTS_PER_POLY>(nv, p);
-				g3_draw_poly(canvas, nv, point_list, color);
+				g3_draw_poly(canvas, nv, prepare_point_list<MAX_POINTS_PER_POLY>(nv, p), color);
 		}
 	}
 	static g3s_lrgb get_glow_light(const fix c)
@@ -363,8 +362,7 @@ public:
 			uvl_list[i] = (reinterpret_cast<const g3s_uvl *>(p+30+((nv&~1)+1)*2))[i];
 			uvl_list[i].l = average_light;
 		}
-		const auto point_list = prepare_point_list<MAX_POINTS_PER_POLY>(nv, p);
-		g3_draw_tmap(canvas, nv, point_list, uvl_list, lrgb_list, *model_bitmaps[w(p + 28)], tmap_drawer_ptr);
+		g3_draw_tmap(canvas, nv, prepare_point_list<MAX_POINTS_PER_POLY>(nv, p), uvl_list, lrgb_list, *model_bitmaps[w(p + 28)], tmap_drawer_ptr);
 	}
 	void op_sortnorm(const uint8_t *const p)
 	{
@@ -427,8 +425,7 @@ public:
 		lrgb_list.fill(get_noglow_light(p));
 		range_for (const uint_fast32_t i, xrange(nv))
 			uvl_list[i] = (reinterpret_cast<const g3s_uvl *>(p+30+((nv&~1)+1)*2))[i];
-		const auto point_list = prepare_point_list<MAX_POINTS_PER_POLY>(nv, p);
-		g3_draw_tmap(canvas, nv, point_list, uvl_list, lrgb_list, *model_bitmaps[w(p + 28)], tmap_drawer_ptr);
+		g3_draw_tmap(canvas, nv, prepare_point_list<MAX_POINTS_PER_POLY>(nv, p), uvl_list, lrgb_list, *model_bitmaps[w(p + 28)], tmap_drawer_ptr);
 	}
 	void op_sortnorm(const uint8_t *const p)
 	{
