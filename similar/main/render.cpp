@@ -1421,7 +1421,7 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 						auto codes_and_2d = codes_and_3d;
 						range_for (const auto i, Side_to_verts[siden])
 						{
-							g3s_point *pnt = &Segment_points[seg->verts[i]];
+							const g3_projected_point *const pnt{&Segment_points[seg->verts[i]]};
 
 							if (! (pnt->p3_flags&projection_flag::projected)) {no_proj_flag=1; break;}
 
