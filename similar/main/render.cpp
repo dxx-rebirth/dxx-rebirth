@@ -152,17 +152,17 @@ int toggle_outline_mode(void)
 {
 	return Outline_mode = !Outline_mode;
 }
-#endif
 
-#ifndef NDEBUG
 namespace {
-static void draw_outline(const g3_draw_line_context &context, const unsigned nverts, cg3s_point *const *const pointlist)
+
+static void draw_outline(const g3_draw_line_context &context, const std::span<cg3s_point *> pointlist)
 {
-	const unsigned e = nverts - 1;
+	const auto e{pointlist.size() - 1u};
 	range_for (const unsigned i, xrange(e))
 		g3_draw_line(context, *pointlist[i], *pointlist[i + 1]);
 	g3_draw_line(context, *pointlist[e], *pointlist[0]);
 }
+
 }
 #endif
 
@@ -373,7 +373,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const si
 	{
 		const uint8_t color = BM_XRGB(63, 63, 63);
 		g3_draw_line_context context{canvas, color};
-		draw_outline(context, nv, pointlist.data());
+		draw_outline(context, std::span(pointlist).first(nv));
 	}
 #endif
 }
