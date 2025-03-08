@@ -26,7 +26,6 @@ namespace {
 
 struct rod_corners_result
 {
-	std::array<cg3s_point *, 4> point_list;
 	std::array<g3s_point, 4> points;
 	clipping_code cc;
 };
@@ -72,10 +71,6 @@ static rod_corners_result calc_rod_corners(const g3_rotated_point &bot_point, co
 	auto tempv{vm_vec_copy_scale(rod_norm, top_width)};
 	tempv.z = 0;
 
-	rod_point_group.point_list[0] = &rod_point_group.points[0];
-	rod_point_group.point_list[1] = &rod_point_group.points[1];
-	rod_point_group.point_list[2] = &rod_point_group.points[2];
-	rod_point_group.point_list[3] = &rod_point_group.points[3];
 	vm_vec_add(rod_points[0].p3_vec,top_point.p3_vec,tempv);
 	vm_vec_sub(rod_points[1].p3_vec,top_point.p3_vec,tempv);
 	}
@@ -125,7 +120,12 @@ void g3_draw_rod_tmap(grs_canvas &canvas, grs_bitmap &bitmap, const g3s_point &b
 		light,
 	}};
 
-	g3_draw_tmap(canvas, rod.point_list, uvl_list, lrgb_list, bitmap, tmap_drawer_ptr);
+	g3_draw_tmap(canvas, std::array<cg3s_point *, 4>{{
+		&rod.points[0],
+		&rod.points[1],
+		&rod.points[2],
+		&rod.points[3],
+	}}, uvl_list, lrgb_list, bitmap, tmap_drawer_ptr);
 }
 
 #if !DXX_USE_OGL
