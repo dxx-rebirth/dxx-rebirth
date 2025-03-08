@@ -31,7 +31,7 @@ struct rod_4point
 };
 
 //compute the corners of a rod.  fills in vertbuf.
-static clipping_code calc_rod_corners(rod_4point &rod_point_group, const g3s_point &bot_point,fix bot_width,const g3s_point &top_point,fix top_width)
+static clipping_code calc_rod_corners(rod_4point &rod_point_group, const g3_rotated_point &bot_point, const fix bot_width, const g3_rotated_point &top_point, const fix top_width)
 {
 	//compute vector from one point to other, do cross product with vector
 	//from eye to get perpendiclar
