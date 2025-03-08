@@ -96,6 +96,59 @@ std::optional<int32_t> checkmuldiv(const fix a, const fix b, const fix c)
 	}
 }
 
+g3_projected_point g3_projected_point::build(const g3_rotated_point &rp)
+{
+	g3_projected_point result;
+	result.p3_codes = build_g3_clipping_code_from_viewer_relative_position(rp.p3_vec);
+	if ((result.p3_codes & clipping_code::behind) != clipping_code::None)
+		/* If the point is behind the viewer, then skip computing any details
+		 * about its position.  It is invisible, so its exact position does not
+		 * matter.
+		 *
+		 * This saves the time that would be spent initializing them, and has
+		 * the useful side effect that the values are left uninitialized, which
+		 * may cause debugging tools to report any inappropriate accesses.
+		 */
+		return result;
+	const auto pz{rp.p3_vec.z};
+	if (const auto otx{checkmuldiv(rp.p3_vec.x, Canv_w2, pz)}, oty{checkmuldiv(rp.p3_vec.y, Canv_h2, pz)}; otx && oty)
+	{
+		result.p3_sx = Canv_w2 + *otx;
+		result.p3_sy = Canv_h2 - *oty;
+		result.p3_flags = projection_flag::projected;
+	}
+	else
+		result.p3_flags = projection_flag::overflow;
+	return result;
+}
+
+g3_rotated_point::g3_rotated_point(const g3_instance_context &viewer, const vms_vector &absolute_position) :
+	p3_vec{vm_vec_rotate(vm_vec_sub(absolute_position, viewer.position), viewer.matrix)}
+{
+}
+
+g3_projected_point::g3_projected_point(const g3_instance_context &viewer, const vms_vector &absolute_position) :
+	g3_projected_point{g3_rotated_point{viewer, absolute_position}}
+{
+}
+
+g3_projected_point::g3_projected_point(const g3_rotated_point &p) :
+	g3_projected_point{build(p)}
+{
+}
+
+g3s_point::g3s_point(const g3_rotated_point &p) :
+	g3_rotated_point{p},
+	g3_projected_point{p}
+{
+}
+
+g3s_point::g3s_point(const g3_instance_context &viewer, const vms_vector &absolute_position) :
+	g3_rotated_point{viewer, absolute_position},
+	g3_projected_point{static_cast<g3_rotated_point &>(*this)}
+{
+}
+
 //projects a point
 void g3_project_point(g3s_point &p)
 {

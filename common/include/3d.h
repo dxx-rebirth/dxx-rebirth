@@ -143,20 +143,24 @@ struct g3_instance_context
 	const vms_vector position;
 };
 
+/*
+ * This stores a point that has been rotated about the Viewer's orientation
+ * matrix.
+ */
 struct g3_rotated_point
 {
-	vms_vector p3_vec;
+	vms_vector p3_vec;	/* viewer relative position */
+	g3_rotated_point(const g3_instance_context &viewer, const vms_vector &absolute_position);
 protected:
 	g3_rotated_point() = default;
 };
 
 /*
- * This stores a point that has been rotated about the Viewer's orientation
- * matrix.  p3_flags tracks whether the point has been projected into screen
+ * p3_flags tracks whether the point has been projected into screen
  * coordinates (`projected`) and, if so, whether the resulting coordinates are
  * outside the screen's viewable area (`overflow`).
  */
-struct g3s_point : g3_rotated_point
+struct g3_projected_point
 {
 #if !DXX_USE_OGL
 	fix p3_u, p3_v, p3_l; //u,v,l coords
@@ -164,6 +168,17 @@ struct g3s_point : g3_rotated_point
 	fix p3_sx, p3_sy;    //screen x&y
 	clipping_code p3_codes;     //clipping codes
 	projection_flag p3_flags;     //projected?
+	g3_projected_point(const g3_instance_context &viewer, const vms_vector &absolute_position);
+	explicit g3_projected_point(const g3_rotated_point &p);
+protected:
+	static g3_projected_point build(const g3_rotated_point &p);
+	g3_projected_point() = default;
+};
+
+struct g3s_point : g3_rotated_point, g3_projected_point
+{
+	g3s_point(const g3_instance_context &viewer, const vms_vector &absolute_position);
+	explicit g3s_point(const g3_rotated_point &);
 	g3s_point() = default;
 };
 

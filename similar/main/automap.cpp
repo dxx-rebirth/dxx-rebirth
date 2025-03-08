@@ -499,16 +499,14 @@ static void DrawMarkerNumber(grs_canvas &canvas, const automap &am, const game_m
 		const auto ay0{i.y0 * MarkerScale};
 		const auto ax1{i.x1 * MarkerScale};
 		const auto ay1{i.y1 * MarkerScale};
-		auto FromPoint{BasePoint};
-		auto ToPoint{BasePoint};
-		FromPoint.p3_vec.x += fixmul(fl2f(ax0), scale_x);
-		FromPoint.p3_vec.y += fixmul(fl2f(ay0), scale_y);
-		ToPoint.p3_vec.x += fixmul(fl2f(ax1), scale_x);
-		ToPoint.p3_vec.y += fixmul(fl2f(ay1), scale_y);
-		g3_code_point(FromPoint);
-		g3_code_point(ToPoint);
-		g3_project_point(FromPoint);
-		g3_project_point(ToPoint);
+		const auto build_displaced_point{[](const g3_rotated_point &BasePoint, const fix x, const fix y) {
+			auto result{BasePoint};
+			result.p3_vec.x += x;
+			result.p3_vec.y += y;
+			return result;
+		}};
+		g3_draw_line_point FromPoint{build_displaced_point(BasePoint, fixmul(fl2f(ax0), scale_x), fixmul(fl2f(ay0), scale_y))};
+		g3_draw_line_point ToPoint{build_displaced_point(BasePoint, fixmul(fl2f(ax1), scale_x), fixmul(fl2f(ay1), scale_y))};
 		g3_draw_line(text_line_context, FromPoint, ToPoint);
 	}
 }
@@ -646,30 +644,30 @@ void automap_clear_visited(d_level_unique_automap_state &LevelUniqueAutomapState
 
 namespace {
 
-static void draw_player(const g3_draw_line_context &context, const object_base &obj)
+static void draw_player(const g3_instance_context &viewer_context, const g3_draw_line_context &context, const object_base &obj)
 {
 	// Draw Console player -- shaped like a ellipse with an arrow.
-	auto sphere_point{g3_rotate_point(obj.pos)};
+	g3_draw_sphere_point sphere_point{viewer_context, obj.pos};
 	const auto obj_size{obj.size};
 	g3_draw_sphere(context.canvas, sphere_point, obj_size, context.color);
 
 	// Draw shaft of arrow
 	const auto head_pos{vm_vec_scale_add(obj.pos, obj.orient.fvec, obj_size * 2)};
 	{
-	auto &&arrow_point{g3_rotate_point(vm_vec_scale_add(obj.pos, obj.orient.fvec, obj_size * 3))};
+		g3_draw_line_point arrow_point{viewer_context, vm_vec_scale_add(obj.pos, obj.orient.fvec, obj_size * 3)};
 	g3_draw_line(context, sphere_point, arrow_point);
 
 	// Draw right head of arrow
-		auto lhead_point = g3_rotate_point(/* rhead_pos = */ vm_vec_scale_add(head_pos, obj.orient.rvec, obj_size));
+		g3_draw_line_point lhead_point{viewer_context, /* rhead_pos = */ vm_vec_scale_add(head_pos, obj.orient.rvec, obj_size)};
 		g3_draw_line(context, arrow_point, lhead_point);
 
 	// Draw left head of arrow
-		auto rhead_point = g3_rotate_point(/* lhead_pos = */ vm_vec_scale_add(head_pos, obj.orient.rvec, -obj_size));
+		g3_draw_line_point rhead_point{viewer_context, /* lhead_pos = */ vm_vec_scale_add(head_pos, obj.orient.rvec, -obj_size)};
 		g3_draw_line(context, arrow_point, rhead_point);
 	}
 
 	// Draw player's up vector
-	auto arrow_point = g3_rotate_point(/* arrow_pos = */ vm_vec_scale_add(obj.pos, obj.orient.uvec, obj_size * 2));
+	g3_draw_line_point arrow_point{viewer_context, /* arrow_pos = */ vm_vec_scale_add(obj.pos, obj.orient.uvec, obj_size * 2)};
 	g3_draw_line(context, sphere_point, arrow_point);
 }
 
@@ -869,7 +867,8 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 	// Draw player...
 	const auto &self_ship_rgb{player_rgb[get_player_or_team_color(Netgame, Game_mode, Player_num)]};
 	const auto closest_color{BM_XRGB(self_ship_rgb.r, self_ship_rgb.g, self_ship_rgb.b)};
-	draw_player(g3_draw_line_context{canvas, closest_color}, vcobjptr(get_local_player().objnum));
+	const g3_instance_context viewer_context{View_matrix, View_position};
+	draw_player(viewer_context, g3_draw_line_context{canvas, closest_color}, vcobjptr(get_local_player().objnum));
 
 #if DXX_BUILD_DESCENT == 2
 	DrawMarkers(vcobjptr, canvas, am);
@@ -894,7 +893,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 				if (objp.type == OBJ_PLAYER)
 				{
 					const auto &other_ship_rgb{player_rgb[get_player_or_team_color(Netgame, Game_mode, i)]};
-					draw_player(g3_draw_line_context{canvas, BM_XRGB(other_ship_rgb.r, other_ship_rgb.g, other_ship_rgb.b)}, objp);
+					draw_player(viewer_context, g3_draw_line_context{canvas, BM_XRGB(other_ship_rgb.r, other_ship_rgb.g, other_ship_rgb.b)}, objp);
 				}
 			}
 		}
