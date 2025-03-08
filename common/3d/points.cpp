@@ -208,7 +208,7 @@ vms_vector g3_rotate_delta_vec(const vms_vector &src)
 	return vm_vec_rotate(src, View_matrix);
 }
 
-void g3_add_delta_vec(g3s_point &dest,const g3s_point &src,const vms_vector &deltav)
+void g3_add_delta_vec(g3s_point &dest, const g3_rotated_point &src, const vms_vector &deltav)
 {
 	vm_vec_add(dest.p3_vec,src.p3_vec,deltav);
 	dest.p3_flags = {};		//not projected
