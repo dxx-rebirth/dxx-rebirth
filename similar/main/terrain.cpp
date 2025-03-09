@@ -464,7 +464,6 @@ static void build_light_table()
 {
 	std::size_t alloc = grid_w*grid_h;
 	light_array = std::make_unique<uint8_t[]>(alloc);
-	memset(light_array.get(), 0, alloc);
 	int i,j;
 	fix l, l2, min_l = INT32_MAX, max_l = 0;
 	for (i=1;i<grid_w;i++)
