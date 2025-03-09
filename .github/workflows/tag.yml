@@ -1,0 +1,30 @@
+name: Create tagged release
+on:
+  push:
+    branches:
+      - master
+      - main
+
+jobs:
+  tag:
+    name: Create new tag
+    outputs:
+      new_tag: ${{ steps.tag_version.outputs.new_tag }}
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  release:
+    name: Create release
+    needs: tag
+    permissions:
+      contents: write
+    uses: ./.github/workflows/release.yml
+    with:
+      tag_name: ${{ needs.tag.outputs.new_tag }}
