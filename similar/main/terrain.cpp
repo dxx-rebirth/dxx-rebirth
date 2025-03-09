@@ -465,29 +465,26 @@ static std::unique_ptr<uint8_t[]> build_light_table(const std::size_t grid_w, co
 	std::size_t alloc = grid_w*grid_h;
 	std::unique_ptr<uint8_t[]> light_array{std::make_unique<uint8_t[]>(alloc)};
 	int i,j;
-	fix l, l2, min_l = INT32_MAX, max_l = 0;
+	fix min_l = INT32_MAX, max_l = 0;
 	for (i=1;i<grid_w;i++)
 		for (j=1;j<grid_h;j++) {
-			l = get_avg_light(i,j);
-
+			const auto l{get_avg_light(i, j)};
 			if (l > max_l)
 				max_l = l;
-
 			if (l < min_l)
 				min_l = l;
 		}
 
 	for (i=1;i<grid_w;i++)
 		for (j=1;j<grid_h;j++) {
-
-			l = get_avg_light(i,j);
+			const auto l{get_avg_light(i, j)};
 
 			if (min_l == max_l) {
 				LIGHT(i,j) = l>>8;
 				continue;
 			}
 
-			l2 = fixdiv((l-min_l),(max_l-min_l));
+			auto l2{fixdiv((l - min_l), (max_l - min_l))};
 
 			if (l2==f1_0)
 				l2--;
