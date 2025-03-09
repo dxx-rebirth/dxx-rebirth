@@ -68,7 +68,8 @@ static std::unique_ptr<uint8_t[]> light_array;
 
 static grs_bitmap *terrain_bm;
 static int org_i,org_j;
-static void build_light_table();
+[[nodiscard]]
+static std::unique_ptr<uint8_t[]> build_light_table(std::size_t grid_w, std::size_t grid_h);
 
 }
 
@@ -410,8 +411,7 @@ void load_terrain(const char *filename)
 //	d_free(height_bitmap.bm_data);
 
 	terrain_bm = terrain_bitmap;
-
-	build_light_table();
+	light_array = build_light_table(grid_w, grid_h);
 }
 
 namespace dcx {
@@ -460,10 +460,10 @@ static fix get_avg_light(int i,int j)
 	return sum/6;
 }
 
-static void build_light_table()
+static std::unique_ptr<uint8_t[]> build_light_table(const std::size_t grid_w, const std::size_t grid_h)
 {
 	std::size_t alloc = grid_w*grid_h;
-	light_array = std::make_unique<uint8_t[]>(alloc);
+	std::unique_ptr<uint8_t[]> light_array{std::make_unique<uint8_t[]>(alloc)};
 	int i,j;
 	fix l, l2, min_l = INT32_MAX, max_l = 0;
 	for (i=1;i<grid_w;i++)
@@ -495,6 +495,7 @@ static void build_light_table()
 			LIGHT(i,j) = l2>>8;
 
 		}
+	return light_array;
 }
 
 }
