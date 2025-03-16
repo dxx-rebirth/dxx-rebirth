@@ -576,8 +576,7 @@ int SetPlayerFromCursegMinusOne()
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
-	std::array<g3s_point, 4> corner_p;
-	fix max,view_dist=f1_0*10;
+	fix view_dist=f1_0*10;
 	static side_relative_vertnum edgenum;
 	const auto view_vec = vm_vec_negated(Cursegp->shared_segment::sides[Curside].normals[0]);
 
@@ -597,16 +596,21 @@ int SetPlayerFromCursegMinusOne()
 	g3_start_frame(*grd_curcanv);
 	g3_set_view_matrix(ConsoleObject->pos,ConsoleObject->orient,Render_zoom);
 
-	max = 0;
-	for (auto &&[corner, vert] : zip(corner_p, sv))
-	{
-		g3_rotate_point(corner, vcvertptr(verts[vert]));
-		if (labs(corner.p3_vec.x) > max) max = labs(corner.p3_vec.x);
-		if (labs(corner.p3_vec.y) > max) max = labs(corner.p3_vec.y);
-	}
+	const auto adjusted_view_dist{[&sv, &vcvertptr, &verts](const fix view_dist) -> fix {
+		std::array<g3s_point, 4> corner_p;
+		fix max{0};
+		for (auto &&[corner, vert] : zip(corner_p, sv))
+		{
+			g3_rotate_point(corner, vcvertptr(verts[vert]));
+			if (const auto absolute_x{labs(corner.p3_vec.x)}; max < absolute_x)
+				max = absolute_x;
+			if (const auto absolute_y{labs(corner.p3_vec.y)}; max < absolute_y)
+				max = absolute_y;
+		}
+		return fixmul(view_dist, fixdiv(fixdiv(max, SIDE_VIEW_FRAC), corner_p[0].p3_vec.z));
+	}(view_dist)};
 
-	view_dist = fixmul(view_dist,fixdiv(fixdiv(max,SIDE_VIEW_FRAC),corner_p[0].p3_vec.z));
-	const auto view_vec3{vm_vec_copy_scale(view_vec, view_dist)};
+	const auto view_vec3{vm_vec_copy_scale(view_vec, adjusted_view_dist)};
 	vm_vec_sub(ConsoleObject->pos,side_center,view_vec3);
 
 	//obj_relink(ConsoleObject-Objects, SEG_PTR_2_NUM(Cursegp) );
