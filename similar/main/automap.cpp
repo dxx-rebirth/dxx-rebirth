@@ -1265,7 +1265,6 @@ void draw_all_edges(automap &am)
 	auto &LevelSharedVertexState{LevelSharedSegmentState.get_vertex_state()};
 	auto &Vertices{LevelSharedVertexState.get_vertices()};
 	unsigned nbright{0};
-	fix distance;
 	fix min_distance{INT32_MAX};
 
 	auto &vcvertptr{Vertices.vcptr};
@@ -1280,9 +1279,7 @@ void draw_all_edges(automap &am)
 			if ((!(e->flags & EF_SECRET)) && (e->color == am.wall_normal_color))
 				continue; 	// If a line isn't secret and is normal color, then don't draw it
 		}
-		distance = Segment_points[e->verts[1]].p3_vec.z;
-
-		if (min_distance>distance )
+		if (const fix distance{Segment_points[e->verts[1]].p3_vec.z}; min_distance > distance)
 			min_distance = distance;
 
 		if (rotate_list(vcvertptr, e->verts).uand == clipping_code::None)
