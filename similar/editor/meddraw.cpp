@@ -160,13 +160,14 @@ static void check_segment(const vmsegptridx_t seg)
 
 		range_for (auto &fn, Side_to_verts)
 		{
-			std::array<g3_draw_tmap_point *, 3> vert_list;
-			vert_list[0] = &Segment_points[seg->verts[fn[side_relative_vertnum::_0]]];
-			vert_list[1] = &Segment_points[seg->verts[fn[side_relative_vertnum::_1]]];
-			vert_list[2] = &Segment_points[seg->verts[fn[side_relative_vertnum::_2]]];
+			std::array<g3_draw_tmap_point *, 3> vert_list{{
+				&Segment_points[seg->verts[fn[side_relative_vertnum::_0]]],
+				&Segment_points[seg->verts[fn[side_relative_vertnum::_1]]],
+				&Segment_points[seg->verts[fn[side_relative_vertnum::_2]]],
+			}};
 			g3_check_and_draw_poly(*grd_curcanv, vert_list, color);
 
-			vert_list[1] = &Segment_points[seg->verts[fn[side_relative_vertnum::_2]]];
+			vert_list[1] = vert_list[2];
 			vert_list[2] = &Segment_points[seg->verts[fn[side_relative_vertnum::_3]]];
 			g3_check_and_draw_poly(*grd_curcanv, vert_list, color);
 		}
