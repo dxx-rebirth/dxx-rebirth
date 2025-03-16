@@ -31,7 +31,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/medmisc.h"
 #include "gameseg.h"
 #include "kdefs.h"
-#include "compiler-range_for.h"
 #include "d_range.h"
 
 [[nodiscard]]

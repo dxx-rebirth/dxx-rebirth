@@ -22,7 +22,6 @@
 #include "custom.h"
 #include "physfsx.h"
 
-#include "compiler-range_for.h"
 #include "d_zip.h"
 #include "partial_range.h"
 #include <iterator>

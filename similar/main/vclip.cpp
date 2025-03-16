@@ -33,7 +33,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "render.h"
 #include "weapon.h"
 #include "object.h"
-#include "compiler-range_for.h"
 
 //----------------- Variables for video clips -------------------
 namespace dcx {

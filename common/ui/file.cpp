@@ -34,7 +34,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "physfs_list.h"
 
-#include "compiler-range_for.h"
 #include "d_range.h"
 #include <memory>
 
