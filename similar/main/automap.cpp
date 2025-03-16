@@ -425,7 +425,7 @@ namespace {
 
 static void draw_all_edges(automap &am);
 #if DXX_BUILD_DESCENT == 2
-static void DrawMarkerNumber(grs_canvas &canvas, const automap &am, const game_marker_index gmi, const player_marker_index pmi, const g3s_point &BasePoint)
+static void DrawMarkerNumber(grs_canvas &canvas, const automap &am, const game_marker_index gmi, const player_marker_index pmi, const g3_draw_sphere_point &BasePoint)
 {
 	struct xy
 	{
@@ -550,7 +550,7 @@ namespace {
 
 #define MARKER_SPHERE_SIZE 0x58000
 
-static void DrawMarkers(fvcobjptr &vcobjptr, grs_canvas &canvas, automap &am)
+static void DrawMarkers(const g3_instance_context &viewer_context, fvcobjptr &vcobjptr, grs_canvas &canvas, automap &am)
 {
 	static int cyc=10,cycdir=1;
 
@@ -597,10 +597,7 @@ static void DrawMarkers(fvcobjptr &vcobjptr, grs_canvas &canvas, automap &am)
 		auto &&[gmi, pmi, objidx]{*iter};
 		if (objidx != object_none)
 		{
-			/* Use cg3s_point so that the type is const for OpenGL and
-			 * mutable for SDL-only.
-			 */
-			cg3s_point &&sphere_point{g3_rotate_point(vcobjptr(objidx)->pos)};
+			g3_draw_sphere_point sphere_point{viewer_context, vcobjptr(objidx)->pos};
 			g3_draw_sphere(canvas, sphere_point, MARKER_SPHERE_SIZE, colors[0]);
 			g3_draw_sphere(canvas, sphere_point, MARKER_SPHERE_SIZE / 2, colors[1]);
 			g3_draw_sphere(canvas, sphere_point, MARKER_SPHERE_SIZE / 4, colors[2]);
@@ -871,7 +868,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am)
 	draw_player(viewer_context, g3_draw_line_context{canvas, closest_color}, vcobjptr(get_local_player().objnum));
 
 #if DXX_BUILD_DESCENT == 2
-	DrawMarkers(vcobjptr, canvas, am);
+	DrawMarkers(viewer_context, vcobjptr, canvas, am);
 #endif
 	
 	// Draw player(s)...

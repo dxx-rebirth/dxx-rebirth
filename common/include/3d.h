@@ -200,12 +200,10 @@ struct g3s_reusable_point : g3s_point
 };
 
 #if DXX_USE_OGL
-typedef const g3s_point cg3s_point;
 using g3_draw_line_point = const g3_rotated_point;
 using g3_draw_sphere_point = const g3_rotated_point;
 using g3_draw_tmap_point = const g3_rotated_point;	// also applies to g3_draw_poly
 #else
-typedef g3s_point cg3s_point;
 using g3_draw_line_point = g3s_point;
 using g3_draw_sphere_point = g3s_point;
 using g3_draw_tmap_point = g3s_point;	// also applies to g3_draw_poly
