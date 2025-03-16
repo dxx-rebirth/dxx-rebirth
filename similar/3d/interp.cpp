@@ -278,9 +278,8 @@ protected:
 	}
 	void op_rodbm(const uint8_t *const p)
 	{
-		const auto &&rod_bot_p = g3_rotate_point(*vp(p + 20));
-		const auto &&rod_top_p = g3_rotate_point(*vp(p + 4));
-		g3_draw_rod_tmap(canvas, *model_bitmaps[w(p + 2)], rod_bot_p, w(p + 16), rod_top_p, w(p + 32), g3s_lrgb{F1_0, F1_0, F1_0}, tmap_drawer_ptr);
+		const g3_instance_context viewer_context{View_matrix, View_position};
+		g3_draw_rod_tmap(canvas, *model_bitmaps[w(p + 2)], /* bot_point = */ g3_rotated_point{viewer_context, *vp(p + 20)}, w(p + 16), /* top_point = */ g3_rotated_point{viewer_context, *vp(p + 4)}, w(p + 32), g3s_lrgb{F1_0, F1_0, F1_0}, tmap_drawer_ptr);
 	}
 	void op_subcall(const uint8_t *const p, const glow_values_t *const glow_values)
 	{
