@@ -548,8 +548,6 @@ void DropBuddyMarker(object &objp)
 
 namespace {
 
-#define MARKER_SPHERE_SIZE 0x58000
-
 static void DrawMarkers(const g3_instance_context &viewer_context, fvcobjptr &vcobjptr, grs_canvas &canvas, automap &am)
 {
 	static int cyc=10,cycdir=1;
@@ -598,6 +596,7 @@ static void DrawMarkers(const g3_instance_context &viewer_context, fvcobjptr &vc
 		if (objidx != object_none)
 		{
 			g3_draw_sphere_point sphere_point{viewer_context, vcobjptr(objidx)->pos};
+			static constexpr fix MARKER_SPHERE_SIZE{0x58000};
 			g3_draw_sphere(canvas, sphere_point, MARKER_SPHERE_SIZE, colors[0]);
 			g3_draw_sphere(canvas, sphere_point, MARKER_SPHERE_SIZE / 2, colors[1]);
 			g3_draw_sphere(canvas, sphere_point, MARKER_SPHERE_SIZE / 4, colors[2]);
