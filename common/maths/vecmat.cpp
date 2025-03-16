@@ -514,12 +514,9 @@ vms_vector vm_vec_rotate(const vms_vector &src, const vms_matrix &m)
 }
 
 //rotates a vector through a matrix. returns ptr to dest vector
-//dest CANNOT equal source
 void vm_vec_rotate(vms_vector &dest,const vms_vector &src,const vms_matrix &m)
 {
-	dest.x = vm_vec_dot(src,m.rvec);
-	dest.y = vm_vec_dot(src,m.uvec);
-	dest.z = vm_vec_dot(src,m.fvec);
+	dest = vm_vec_rotate(src, m);
 }
 
 //mulitply 2 matrices, fill in dest.  returns ptr to dest
