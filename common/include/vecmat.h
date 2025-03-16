@@ -300,13 +300,6 @@ static inline vms_matrix vm_vector_to_matrix_u(const vms_vector &fvec, const vms
 	return vm_vector_to_matrix_u(m, fvec, uvec), m;
 }
 
-[[nodiscard]]
-static inline vms_vector vm_vec_rotate (const vms_vector &src, const vms_matrix &m)
-{
-	vms_vector dest;
-	return vm_vec_rotate(dest, src, m), dest;
-}
-
 //transpose a matrix in place. returns ptr to matrix
 static inline void vm_transpose_matrix(vms_matrix &m)
 {

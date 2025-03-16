@@ -504,6 +504,14 @@ void vm_vector_to_matrix_u(vms_matrix &m, const vms_vector &fvec, const vms_vect
 	m.uvec = vm_vec_cross(m.fvec, m.rvec);
 }
 
+vms_vector vm_vec_rotate(const vms_vector &src, const vms_matrix &m)
+{
+	return {
+		.x = vm_vec_dot(src, m.rvec),
+		.y = vm_vec_dot(src, m.uvec),
+		.z = vm_vec_dot(src, m.fvec)
+	};
+}
 
 //rotates a vector through a matrix. returns ptr to dest vector
 //dest CANNOT equal source
