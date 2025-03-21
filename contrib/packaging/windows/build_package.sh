@@ -20,7 +20,7 @@ build_app() {
 	local name prettyname
     name="$1"
     prettyname="$2"
-    
+
     # Create a subdirectory for each app at the top level
     mkdir -p "${outdir}/${prettyname}/Demos"
     mkdir -p "${outdir}/${prettyname}/Missions"
@@ -30,7 +30,15 @@ build_app() {
     cp --link "build/${name}/${name}.exe" "${outdir}/${prettyname}/"
 
     # Copy libraries to the respective app directory
-    ldd "${outdir}/${prettyname}/${name}.exe" | grep mingw64 | sort | cut -d' ' -f3 | while read dll; do cp "${dll}" "${outdir}/${prettyname}/"; done
+    copy_lib() {
+        ldd "$1" | grep mingw64 | sort | cut -d' ' -f3 | while read dll; do cp "${dll}" "${outdir}/${prettyname}/"; done
+    }
+    copy_lib "${outdir}/${prettyname}/${name}.exe"
+
+    # ogg support is dynamically loaded, so manually copy this (and its libs) too
+    # TODO FLAC support? Missing libflac-8.dll but unable to find mingw64 package
+    cp "/mingw64/bin/libvorbisfile-3.dll" "${outdir}/${prettyname}/"
+    copy_lib "/mingw64/bin/libvorbisfile-3.dll"
 
     # Copy other resources to the respective app directory
     cp --link "${name}/"*.ini "${outdir}/${prettyname}/"

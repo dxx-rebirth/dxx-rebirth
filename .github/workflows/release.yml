@@ -33,10 +33,13 @@ jobs:
       - name: Display Artifacts
         run: ls -R
 
+      - name: Compress Artifacts
+        run: ls . | while read dir; do cd ${dir}; zip -r ../${dir}.zip *; cd ..; done
+
       - name: Create Release
         uses: softprops/action-gh-release@9d7c94cfd0a1f3ed45544c887983e9fa900f0564
         with:
           tag_name: ${{ inputs.tag_name || github.ref_name }}
           prerelease: ${{ inputs.prerelease || contains(github.ref_name, '-') }}
           generate_release_notes: true
-          files: '*/*.zip'
+          files: '*.zip'
