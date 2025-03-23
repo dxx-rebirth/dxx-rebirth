@@ -149,8 +149,14 @@ struct g3_instance_context
  */
 struct g3_rotated_point
 {
+	struct from_relative_position {};
 	vms_vector p3_vec;	/* viewer relative position */
 	g3_rotated_point(const g3_instance_context &viewer, const vms_vector &absolute_position);
+	/* For use by rod.cpp */
+	g3_rotated_point(const vms_vector &relative_position, from_relative_position) :
+		p3_vec{relative_position}
+	{
+	}
 protected:
 	g3_rotated_point() = default;
 };
@@ -173,6 +179,9 @@ struct g3_projected_point
 protected:
 	static g3_projected_point build(const g3_rotated_point &p);
 	g3_projected_point() = default;
+#if !DXX_USE_OGL
+	g3_projected_point(const vms_vector &relative_position, g3_rotated_point::from_relative_position rel);
+#endif
 };
 
 struct g3s_point : g3_rotated_point, g3_projected_point
@@ -180,6 +189,9 @@ struct g3s_point : g3_rotated_point, g3_projected_point
 	g3s_point(const g3_instance_context &viewer, const vms_vector &absolute_position);
 	explicit g3s_point(const g3_rotated_point &);
 	g3s_point() = default;
+#if !DXX_USE_OGL
+	g3s_point(const vms_vector &relative_position, from_relative_position rel);
+#endif
 };
 
 /* Store the frame count at which this point was last updated.  If the stored
