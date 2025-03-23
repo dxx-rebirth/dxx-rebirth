@@ -61,6 +61,7 @@ static rod_corners_result calc_rod_corners(const g3_rotated_point &bot_point, co
 
 	rod_norm.x = fixmul(rod_norm.x,Matrix_scale.x);
 	rod_norm.y = fixmul(rod_norm.y,Matrix_scale.y);
+	rod_norm.z = {};
 
 	//now we have the usable edge.  generate four points
 
@@ -69,7 +70,6 @@ static rod_corners_result calc_rod_corners(const g3_rotated_point &bot_point, co
 	auto &rod_points = rod_point_group.points;
 	{
 	auto tempv{vm_vec_copy_scale(rod_norm, top_width)};
-	tempv.z = 0;
 
 	vm_vec_add(rod_points[0].p3_vec,top_point.p3_vec,tempv);
 	vm_vec_sub(rod_points[1].p3_vec,top_point.p3_vec,tempv);
@@ -77,7 +77,6 @@ static rod_corners_result calc_rod_corners(const g3_rotated_point &bot_point, co
 
 	{
 	auto tempv{vm_vec_copy_scale(rod_norm, bot_width)};
-	tempv.z = 0;
 
 	vm_vec_sub(rod_points[2].p3_vec,bot_point.p3_vec,tempv);
 	vm_vec_add(rod_points[3].p3_vec,bot_point.p3_vec,tempv);
