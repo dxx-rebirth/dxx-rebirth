@@ -88,7 +88,9 @@ static rod_corners_result calc_rod_corners(const g3_rotated_point &bot_point, co
 	clipping_code codes_and{0xff};
 	range_for (auto &i, rod_points)
 	{
-		codes_and &= g3_code_point(i);
+		const auto p3_codes{build_g3_clipping_code_from_viewer_relative_position(i.p3_vec)};
+		i.p3_codes = p3_codes;
+		codes_and &= p3_codes;
 	//clear flags for new points (not projected)
 		i.p3_flags = {};
 	}

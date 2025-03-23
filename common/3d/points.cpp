@@ -16,8 +16,6 @@
 
 namespace dcx {
 
-namespace {
-
 clipping_code build_g3_clipping_code_from_viewer_relative_position(const vms_vector &viewer_relative_position)
 {
 	clipping_code cc{};
@@ -37,8 +35,6 @@ clipping_code build_g3_clipping_code_from_viewer_relative_position(const vms_vec
 	if (viewer_relative_position.z < 0)
 		cc |= clipping_code::behind;
 	return cc;
-}
-
 }
 
 clipping_code g3_code_point(g3s_point &p)

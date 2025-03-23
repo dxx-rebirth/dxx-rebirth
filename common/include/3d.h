@@ -272,6 +272,8 @@ fix g3_calc_point_depth(const vms_vector &pnt);
 vms_vector g3_point_2_vec(short sx, short sy);
 #endif
 
+clipping_code build_g3_clipping_code_from_viewer_relative_position(const vms_vector &viewer_relative_position);
+
 //code a point.  fills in the p3_codes field of the point, and returns the codes
 clipping_code g3_code_point(g3s_point &point);
 
