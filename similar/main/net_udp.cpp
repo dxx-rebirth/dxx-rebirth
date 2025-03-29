@@ -5353,19 +5353,29 @@ void dispatch_table::send_data(const std::span<const uint8_t> buf, const multipl
 #endif
 	char check;
 
-	if ((UDP_MData.mbuf_size+len) > UPID_MDATA_BUF_SIZE )
+	/* Build a span describing the region of UDP_MData.mbuf that is available
+	 * to be written, by skipping over any bytes already queued.
+	 */
+	auto outspan{std::span{UDP_MData.mbuf}.subspan(UDP_MData.mbuf_size)};
+	if (outspan.size() < len)
 	{
+		/* The remaining space is too small to write the new message.  Force an
+		 * early send, which should clear the buffer.
+		 */
 		check = ptr[0];
 		net_udp_send_mdata(0, timer_query());
 		if (UDP_MData.mbuf_size != 0)
 			Int3();
 		Assert(check == ptr[0]);
 		(void)check;
+		outspan = {UDP_MData.mbuf /* mbuf_size == 0, so no need to call subspan() to adjust the pointer */};
 	}
-
-	Assert(UDP_MData.mbuf_size+len <= UPID_MDATA_BUF_SIZE);
-
-	memcpy( &UDP_MData.mbuf[UDP_MData.mbuf_size], ptr, len );
+	/* Build a subspan of `outspan` for the side effect of causing the standard
+	 * library to check that `len <= outspan.size()` is satisfied.  Debugging
+	 * implementations may report an assertion failure if the check is
+	 * unsatisfied, which is better than allowing memory corruption.
+	 */
+	std::ranges::copy(buf, outspan.subspan(0, len).data());
 	UDP_MData.mbuf_size += len;
 
 	if (priority != multiplayer_data_priority::_0)
