@@ -1420,7 +1420,7 @@ int main(int argc,char**argv)
 
 	@_custom_test
 	def _check_user_settings_tracker(self,context,_CPPDEFINES=('DXX_USE_TRACKER',)):
-		use_tracker = self.user_settings.use_tracker
+		use_tracker = self.user_settings.use_udp and self.user_settings.use_tracker
 		self._result_check_user_setting(context, use_tracker, 'UDP game tracker', cpp_defines_with_condition_value=_CPPDEFINES)
 
 	@_implicit_test
