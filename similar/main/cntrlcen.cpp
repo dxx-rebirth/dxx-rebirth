@@ -432,8 +432,10 @@ void do_controlcen_frame(const d_robot_info_array &Robot_info, const vmobjptridx
 				return;
 			}
 	
+#if DXX_USE_MULTIPLAYER
 			if (Game_mode & GM_MULTI)
 				multi_send_controlcen_fire(vec_to_goal, best_gun_num, obj);	
+#endif
 			Laser_create_new_easy(Robot_info, vec_to_goal, obj->ctype.reactor_info.gun_pos[best_gun_num], obj, weapon_id_type::CONTROLCEN_WEAPON_NUM, weapon_sound_flag::audible);
 
 			int count{0};
@@ -450,8 +452,10 @@ void do_controlcen_frame(const d_robot_info_array &Robot_info, const vmobjptridx
 			{
 				vm_vec_scale_add2(vec_to_goal, make_random_vector(), F1_0/scale_divisor);
 				vm_vec_normalize_quick(vec_to_goal);
+#if DXX_USE_MULTIPLAYER
 				if (Game_mode & GM_MULTI)
 					multi_send_controlcen_fire(vec_to_goal, best_gun_num, obj);
+#endif
 				Laser_create_new_easy(Robot_info, vec_to_goal, obj->ctype.reactor_info.gun_pos[best_gun_num], obj, weapon_id_type::CONTROLCEN_WEAPON_NUM, count == 0 ? weapon_sound_flag::audible : weapon_sound_flag::silent);
 				count++;
 			}
