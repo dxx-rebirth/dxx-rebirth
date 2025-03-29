@@ -1558,12 +1558,16 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_robot_info_
 					if (spew != object_none)
 					{
 						BossUniqueState.Last_gate_time = GameTime64 - GameUniqueState.Boss_gate_interval - 1;	//	Force allowing spew of another bot.
-						multi_send_boss_create_robot(robotptridx, spew);
+						if (Game_mode & GM_MULTI)
+							multi_send_boss_create_robot(robotptridx, spew);
 					}
 				}
 			const auto &&spew = boss_spew_robot(Robot_info, robot, collision_point);
 			if (spew != object_none)
-				multi_send_boss_create_robot(robotptridx, spew);
+			{
+				if (Game_mode & GM_MULTI)
+					multi_send_boss_create_robot(robotptridx, spew);
+			}
 		}
 
 	if (Boss_invulnerable_spot[d2_boss_index]) {
