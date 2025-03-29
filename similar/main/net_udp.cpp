@@ -5349,7 +5349,7 @@ void dispatch_table::send_data(const std::span<const uint8_t> buf, const multipl
 	const auto ptr = buf.data();
 	const auto len = buf.size();
 #if DXX_HAVE_POISON_VALGRIND
-	VALGRIND_CHECK_MEM_IS_DEFINED(ptr, len);
+	DXX_CHECK_MEM_IS_DEFINED(buf);
 #endif
 	char check;
 
