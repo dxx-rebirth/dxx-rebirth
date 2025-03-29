@@ -2733,14 +2733,20 @@ static void do_super_boss_stuff(const d_robot_info_array &Robot_info, fvmsegptri
 		if (GameTime64 - BossUniqueState.Last_gate_time > Gate_interval/2) {
 			restart_effect(ECLIP_NUM_BOSS);
 			if (eclip_state == 0) {
-				multi_send_boss_start_gate(objp);
+#if DXX_USE_MULTIPLAYER
+				if (multiplayer)
+					multi_send_boss_start_gate(objp);
+#endif
 				eclip_state = 1;
 			}
 		}
 		else {
 			stop_effect(ECLIP_NUM_BOSS);
 			if (eclip_state == 1) {
-				multi_send_boss_stop_gate(objp);
+#if DXX_USE_MULTIPLAYER
+				if (multiplayer)
+					multi_send_boss_stop_gate(objp);
+#endif
 				eclip_state = 0;
 			}
 		}
@@ -2752,7 +2758,7 @@ static void do_super_boss_stuff(const d_robot_info_array &Robot_info, fvmsegptri
 				Assert(randtype < MAX_GATE_INDEX);
 				const auto &&rtval = gate_in_robot(Robot_info, vmsegptridx, Super_boss_gate_list[randtype]);
 #if DXX_USE_MULTIPLAYER
-				if (rtval != object_none && (Game_mode & GM_MULTI))
+				if (rtval != object_none && multiplayer)
 				{
 					multi_send_boss_create_robot(objp, rtval);
 				}
