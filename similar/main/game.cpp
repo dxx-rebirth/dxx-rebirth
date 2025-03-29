@@ -1100,9 +1100,13 @@ static void do_cloak_stuff()
 				pl_flags &= ~PLAYER_FLAGS_CLOAKED;
 				if (i == Player_num) {
 					multi_digi_play_sample(sound_effect::SOUND_CLOAK_OFF, F1_0);
+#if DXX_USE_MULTIPLAYER
+					if (!(Game_mode & GM_MULTI))
+						continue;
 					maybe_drop_net_powerup(powerup_type_t::POW_CLOAK, 1, 0);
 					if ( Newdemo_state != ND_STATE_PLAYBACK )
 						multi_send_decloak(); // For demo recording
+#endif
 				}
 			}
 		}
