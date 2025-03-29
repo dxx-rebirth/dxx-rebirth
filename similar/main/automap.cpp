@@ -1180,7 +1180,10 @@ window_event_result automap::event_handler(const d_event &event)
 			gr_set_default_canvas();
 			Game_wind->set_visible(1);
 			Automap_active = 0;
-			multi_send_msgsend_state(msgsend_state::none);
+#if DXX_USE_MULTIPLAYER
+			if (Game_mode & GM_MULTI)
+				multi_send_msgsend_state(msgsend_state::none);
+#endif
 			return window_event_result::ignored;	// continue closing
 
 		case event_type::loop_begin_loop:
@@ -1254,7 +1257,10 @@ void do_automap()
 
 	gr_palette_load( gr_palette );
 	Automap_active = 1;
-	multi_send_msgsend_state(msgsend_state::automap);
+#if DXX_USE_MULTIPLAYER
+	if (Game_mode & GM_MULTI)
+		multi_send_msgsend_state(msgsend_state::automap);
+#endif
 }
 
 namespace {
