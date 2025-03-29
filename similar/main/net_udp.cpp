@@ -5346,12 +5346,10 @@ namespace udp {
 void dispatch_table::send_data(const std::span<const uint8_t> buf, const multiplayer_data_priority priority) const
 {
 	assert(Game_mode & GM_MULTI);
-	const auto ptr = buf.data();
 	const auto len = buf.size();
 #if DXX_HAVE_POISON_VALGRIND
 	DXX_CHECK_MEM_IS_DEFINED(buf);
 #endif
-	char check;
 
 	/* Build a span describing the region of UDP_MData.mbuf that is available
 	 * to be written, by skipping over any bytes already queued.
@@ -5362,12 +5360,15 @@ void dispatch_table::send_data(const std::span<const uint8_t> buf, const multipl
 		/* The remaining space is too small to write the new message.  Force an
 		 * early send, which should clear the buffer.
 		 */
-		check = ptr[0];
+#ifndef NDEBUG
+		const auto check{buf[0]};
+#endif
 		net_udp_send_mdata(0, timer_query());
 		if (UDP_MData.mbuf_size != 0)
 			Int3();
-		Assert(check == ptr[0]);
-		(void)check;
+#ifndef NDEBUG
+		assert(check == buf[0]);
+#endif
 		outspan = {UDP_MData.mbuf /* mbuf_size == 0, so no need to call subspan() to adjust the pointer */};
 	}
 	/* Build a subspan of `outspan` for the side effect of causing the standard
