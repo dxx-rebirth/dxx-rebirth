@@ -5829,7 +5829,7 @@ void net_udp_send_mdata(int needack, fix64 time)
 														len++;
 	buf[len] = Player_num;											len++;
 	if (needack)												len += 4; // we place the pkt_num later since it changes per player
-	memcpy(std::span(buf).subspan(len, UDP_MData.mbuf_size).data(), UDP_MData.mbuf.data(), UDP_MData.mbuf_size);
+	std::ranges::copy(std::span(std::as_const(UDP_MData.mbuf)).subspan(0, UDP_MData.mbuf_size), std::span(buf).subspan(len, UDP_MData.mbuf_size).data());
 	len += UDP_MData.mbuf_size;
 
 	player_acknowledgement_mask player_ack;
