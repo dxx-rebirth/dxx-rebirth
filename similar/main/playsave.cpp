@@ -1655,6 +1655,7 @@ static void convert_duplicate_powerup_integer(packed_netduplicate_items &d, auto
 }
 }
 
+#if DXX_USE_MULTIPLAYER
 // read stored values from ngp file to netgame_info
 void read_netgame_profile(netgame_info *ng)
 {
@@ -1774,7 +1775,7 @@ void read_netgame_profile(netgame_info *ng)
 }
 
 // write values from netgame_info to ngp file
-void write_netgame_profile(netgame_info *ng)
+void write_netgame_profile(const netgame_info *ng)
 {
 	char filename[PATH_MAX];
 	snprintf(filename, sizeof(filename), PLAYER_DIRECTORY_STRING("%.8s.ngp"), static_cast<const char *>(InterfaceUniqueState.PilotName));
@@ -1819,5 +1820,6 @@ void write_netgame_profile(netgame_info *ng)
 #endif
 	PHYSFSX_puts_literal(file, NGPVersionStr "=" DXX_VERSION_STR "\n");
 }
+#endif
 
 }

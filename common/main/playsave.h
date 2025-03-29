@@ -269,10 +269,12 @@ void set_highest_level(uint8_t levelnum);
 // gets the player's highest level from the file for this mission
 int get_highest_level(void);
 
+#if DXX_USE_MULTIPLAYER
 namespace dsx {
 struct netgame_info;
-void read_netgame_profile(struct netgame_info *ng);
-void write_netgame_profile(struct netgame_info *ng);
+void read_netgame_profile(netgame_info *ng);
+void write_netgame_profile(const netgame_info *ng);
 }
+#endif
 
 #endif

@@ -28,7 +28,6 @@ static inline void detect_escort_goal_accomplished(const vmobjptridx_t &)
 }
 #elif DXX_BUILD_DESCENT == 2
 #define GUIDEBOT_NAME_LEN 9
-struct netgame_info;
 extern void change_guidebot_name(void);
 extern void do_escort_menu(void);
 void detect_escort_goal_accomplished(vmobjptridx_t index);
@@ -37,6 +36,7 @@ void set_escort_special_goal(d_unique_buddy_state &BuddyState, int key);
 void init_buddy_for_level(void);
 void invalidate_escort_goal(d_unique_buddy_state &);
 #if DXX_USE_MULTIPLAYER
+struct netgame_info;
 unsigned check_warn_local_player_can_control_guidebot(fvcobjptr &vcobjptr, const d_unique_buddy_state &, const netgame_info &Netgame);
 #endif
 
