@@ -5345,6 +5345,7 @@ namespace udp {
 
 void dispatch_table::send_data(const std::span<const uint8_t> buf, const multiplayer_data_priority priority) const
 {
+	assert(Game_mode & GM_MULTI);
 	const auto ptr = buf.data();
 	const auto len = buf.size();
 #if DXX_HAVE_POISON_VALGRIND
