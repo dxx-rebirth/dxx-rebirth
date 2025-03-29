@@ -613,7 +613,10 @@ void set_escort_special_goal(d_unique_buddy_state &BuddyState, const int raw_spe
 
 	say_escort_goal(BuddyState.Escort_special_goal);
 	BuddyState.Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
-	multi_send_escort_goal(BuddyState);
+#if DXX_USE_MULTIPLAYER
+	if (Game_mode & GM_MULTI)
+		multi_send_escort_goal(BuddyState);
+#endif
 }
 
 namespace {
