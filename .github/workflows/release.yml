@@ -34,7 +34,7 @@ jobs:
         run: ls -R
 
       - name: Compress Artifacts
-        run: ls . | while read dir; do cd ${dir}; zip -r ../${dir}.zip *; cd ..; done
+        run: for dir in */; do (cd "$dir" && zip -r "../${dir%/}.zip" .); done
 
       - name: Create Release
         uses: softprops/action-gh-release@9d7c94cfd0a1f3ed45544c887983e9fa900f0564
