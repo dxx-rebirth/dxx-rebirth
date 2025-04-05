@@ -500,7 +500,8 @@ extern std::array<const char *, 10> undo_status;
 
 #ifdef DXX_BUILD_DESCENT
 void med_extract_right_vector_from_segment_side(const shared_segment &sp, sidenum_t sidenum, vms_vector &vp);
-void med_extract_up_vector_from_segment_side(const shared_segment &sp, sidenum_t sidenum, vms_vector &vp);
+[[nodiscard]]
+vms_vector med_extract_up_vector_from_segment_side(const shared_segment &sp, sidenum_t sidenum);
 #endif
 }
 
