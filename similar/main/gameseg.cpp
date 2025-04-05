@@ -287,10 +287,6 @@ uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const share
 }
 #endif
 
-}
-
-namespace dsx {
-
 // -----------------------------------------------------------------------------------
 // Like create all vertex lists, but returns the vertnums (relative to
 // the side) for each of the faces that make up the side. 
@@ -301,6 +297,10 @@ void create_all_vertnum_lists(vertex_vertnum_array_list &vertnums, const shared_
 {
 	create_vertex_lists_by_predicate(vertnums, segp, sidep, all_vertnum_lists_predicate(segp, sidenum));
 }
+
+}
+
+namespace dsx {
 
 // -----
 // like create_all_vertex_lists(), but generate absolute point numbers
