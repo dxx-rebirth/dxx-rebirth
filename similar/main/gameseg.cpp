@@ -526,12 +526,8 @@ static void invert_shared_side_triangle_type(shared_side &s)
 
 }
 
-}
-
-namespace dsx {
-
 //heavy-duty error checking
-int check_segment_connections(void)
+int check_segment_connections()
 {
 	int errors{0};
 
@@ -624,6 +620,10 @@ int check_segment_connections(void)
 	}
 	return errors;
 }
+
+}
+
+namespace dsx {
 
 // Used to become a constant based on editor, but I wanted to be able to set
 // this for omega blob find_point_seg calls.

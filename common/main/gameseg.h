@@ -153,6 +153,7 @@ bool get_side_is_quad(const shared_side &sidep);
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields
 segmasks get_seg_masks(fvcvertptr &, const vms_vector &checkp, const shared_segment &segnum, fix rad);
+int check_segment_connections();
 
 }
 
@@ -214,7 +215,6 @@ void validate_segment_side(fvcvertptr &, vmsegptridx_t sp, sidenum_t sidenum);
 [[nodiscard]]
 vms_vector pick_random_point_in_seg(fvcvertptr &vcvertptr, const shared_segment &sp, std::minstd_rand r);
 
-int check_segment_connections(void);
 unsigned set_segment_depths(vcsegidx_t start_seg, const std::array<uint8_t, MAX_SEGMENTS> *limit, segment_depth_array_t &depths);
 #if DXX_BUILD_DESCENT == 1
 static inline void flush_fcd_cache() {}
