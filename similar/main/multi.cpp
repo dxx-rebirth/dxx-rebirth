@@ -3959,8 +3959,7 @@ DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_GUIDED, multi_gui
 [[nodiscard]]
 shortpos create_shortpos_little(const d_level_shared_segment_state &LevelSharedSegmentState, const object_base &objp)
 {
-	shortpos spp;
-	create_shortpos_native(LevelSharedSegmentState, spp, objp);
+	auto spp{create_shortpos_native(LevelSharedSegmentState, objp)};
 // swap the short values for the big-endian machines.
 
 	if constexpr (words_bigendian)

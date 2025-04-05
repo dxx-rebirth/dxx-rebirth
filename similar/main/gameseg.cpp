@@ -1013,8 +1013,9 @@ namespace dsx {
 //	Extract the matrix into byte values.
 //	Create a position relative to vertex 0 with 1/256 normal "fix" precision.
 //	Stuff segment in a short.
-void create_shortpos_native(const d_level_shared_segment_state &LevelSharedSegmentState, shortpos &spp, const object_base &objp)
+shortpos create_shortpos_native(const d_level_shared_segment_state &LevelSharedSegmentState, const object_base &objp)
 {
+	shortpos spp;
 	auto &vcsegptr = LevelSharedSegmentState.get_segments().vcptr;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -1039,6 +1040,7 @@ void create_shortpos_native(const d_level_shared_segment_state &LevelSharedSegme
 	spp.velx = (objp.mtype.phys_info.velocity.x) >> VEL_PRECISION;
 	spp.vely = (objp.mtype.phys_info.velocity.y) >> VEL_PRECISION;
 	spp.velz = (objp.mtype.phys_info.velocity.z) >> VEL_PRECISION;
+	return spp;
 }
 
 #if DXX_USE_MULTIPLAYER

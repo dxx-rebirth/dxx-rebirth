@@ -391,8 +391,7 @@ static void nd_write_angvec(const vms_angvec &v)
 
 static void nd_write_shortpos(const object_base &obj)
 {
-	shortpos sp;
-	create_shortpos_native(LevelSharedSegmentState, sp, obj);
+	auto sp{create_shortpos_native(LevelSharedSegmentState, obj)};
 
 	const auto rtype = obj.render_type;
 	if ((rtype == render_type::RT_POLYOBJ || rtype == render_type::RT_HOSTAGE || rtype == render_type::RT_MORPH) || obj.type == OBJ_CAMERA)
