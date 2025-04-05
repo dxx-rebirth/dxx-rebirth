@@ -71,12 +71,22 @@ struct enumerated_array : std::array<T, N>
 		 * The narrowing rule is stateless, and therefore does not observe that
 		 * the cast is on a path where `s < N` ensures no narrowing can occur.
 		 */
-		return s < N ? std::optional(static_cast<E>(s)) : std::nullopt;
+		if (s < N)
+		{
+			[[likely]];
+			return std::optional(static_cast<E>(s));
+		}
+		return std::nullopt;
 	}
 	[[nodiscard]]
-	static constexpr std::optional<E> valid_index(E e)
+	static constexpr std::optional<E> valid_index(const E e)
 	{
-		return static_cast<std::size_t>(e) < N ? std::optional{e} : std::nullopt;
+		if (static_cast<std::size_t>(e) < N)
+		{
+			[[likely]];
+			return std::optional{e};
+		}
+		return std::nullopt;
 	}
 };
 
