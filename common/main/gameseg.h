@@ -115,14 +115,6 @@ static inline vertex_vertnum_array_list create_all_vertnum_lists(const shared_se
 	return create_all_vertnum_lists(r, segnum, sidep, sidenum), r;
 }
 
-}
-
-#ifdef DXX_BUILD_DESCENT
-namespace dsx {
-#if DXX_BUILD_DESCENT == 2 || DXX_USE_EDITOR
-extern int	Doing_lighting_hack_flag;
-#endif
-
 //like create_all_vertex_lists(), but generate absolute point numbers
 uint_fast32_t create_abs_vertex_lists(vertnum_array_list_t &vertices, const shared_segment &segnum, const shared_side &sidep, sidenum_t sidenum);
 
@@ -139,6 +131,14 @@ static inline std::pair<uint_fast32_t, vertnum_array_list_t> create_abs_vertex_l
 {
 	return create_abs_vertex_lists(segp, segp.sides[sidenum], sidenum);
 }
+
+}
+
+#ifdef DXX_BUILD_DESCENT
+namespace dsx {
+#if DXX_BUILD_DESCENT == 2 || DXX_USE_EDITOR
+extern int	Doing_lighting_hack_flag;
+#endif
 
 }
 

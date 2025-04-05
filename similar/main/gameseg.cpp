@@ -298,16 +298,16 @@ void create_all_vertnum_lists(vertex_vertnum_array_list &vertnums, const shared_
 	create_vertex_lists_by_predicate(vertnums, segp, sidep, all_vertnum_lists_predicate(segp, sidenum));
 }
 
-}
-
-namespace dsx {
-
 // -----
 // like create_all_vertex_lists(), but generate absolute point numbers
 uint_fast32_t create_abs_vertex_lists(vertnum_array_list_t &vertices, const shared_segment &segp, const shared_side &sidep, const sidenum_t sidenum)
 {
 	return create_vertex_lists_by_predicate(vertices, segp, sidep, abs_vertex_lists_predicate(segp, sidenum));
 }
+
+}
+
+namespace dsx {
 
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields  
