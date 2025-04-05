@@ -1096,7 +1096,6 @@ void multi_object_warp_to_shortpos(const vmobjptridx_t objp, const shortpos *spp
 	obj_relink(vmobjptr, vmsegptr, objp, segp);
 }
 #endif
-#endif
 
 void extract_quaternionpos(fvmobjptr &vmobjptr, const vmobjptridx_t objp, quaternionpos &qpp)
 {
@@ -1110,6 +1109,7 @@ void extract_quaternionpos(fvmobjptr &vmobjptr, const vmobjptridx_t objp, quater
 	Assert(segnum <= Highest_segment_index);
 	obj_relink(vmobjptr, vmsegptr, objp, vmsegptridx(segnum));
 }
+#endif
 
 
 //	-----------------------------------------------------------------------------

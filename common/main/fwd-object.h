@@ -258,10 +258,10 @@ void create_shortpos_native(const d_level_shared_segment_state &, shortpos &spp,
 // (matrix), objp->pos, objp->segnum
 void multi_object_warp_to_shortpos(vmobjptridx_t objp, const shortpos *spp);
 #endif
-#endif
 
 // reset object position from quaternion structure
 void extract_quaternionpos(fvmobjptr &vmobjptr, vmobjptridx_t objp, quaternionpos &qpp);
+#endif
 
 // delete objects, such as weapons & explosions, that shouldn't stay
 // between levels if clear_all is set, clear even proximity bombs
