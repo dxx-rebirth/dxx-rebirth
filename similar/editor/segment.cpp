@@ -1396,10 +1396,9 @@ void med_create_new_segment_from_cursegp(void)
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	vms_vector	scalevec;
-	vms_vector	rvec;
 
 	const auto uvec{med_extract_up_vector_from_segment_side(Cursegp, Curside)};
-	med_extract_right_vector_from_segment_side(Cursegp, Curside, rvec);
+	const auto rvec{med_extract_right_vector_from_segment_side(Cursegp, Curside)};
 	auto &vcvertptr = Vertices.vcptr;
 	const auto fvec{extract_forward_vector_from_segment(vcvertptr, Cursegp)};
 
