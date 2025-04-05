@@ -43,6 +43,31 @@ static std::array<vertnum_t, MAX_MODIFIED_VERTICES>		Modified_vertices;
 int Modified_vertex_index{0};
 }
 
+namespace dcx {
+
+namespace {
+
+// ------------------------------------------------------------------------------------------
+//	Extract a vector from a segment.  The vector goes from the start face to the end face.
+//	The point on each face is the average of the four points forming the face.
+static void extract_vector_from_segment_side(const shared_segment &sp, const sidenum_t side, vms_vector &vp, const side_relative_vertnum vla, const side_relative_vertnum vlb, const side_relative_vertnum vra, const side_relative_vertnum vrb)
+{
+	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
+	auto &Vertices = LevelSharedVertexState.get_vertices();
+	auto &sv = Side_to_verts[side];
+	auto &verts = sp.verts;
+	auto &vcvertptr = Vertices.vcptr;
+	vm_vec_add(vp,
+		vm_vec_sub(vcvertptr(verts[sv[vra]]), vcvertptr(verts[sv[vla]])),
+		vm_vec_sub(vcvertptr(verts[sv[vrb]]), vcvertptr(verts[sv[vlb]]))
+	);
+	vm_vec_scale(vp, F1_0/2);
+}
+
+}
+
+}
+
 namespace dsx {
 
 namespace {
@@ -181,23 +206,6 @@ static void med_scale_segment_new(const shared_segment &sp, const int dimension,
 	scale_free_verts(sp, *vec, side1, +amount);
 
 	validate_modified_segments();
-}
-
-// ------------------------------------------------------------------------------------------
-//	Extract a vector from a segment.  The vector goes from the start face to the end face.
-//	The point on each face is the average of the four points forming the face.
-static void extract_vector_from_segment_side(const shared_segment &sp, const sidenum_t side, vms_vector &vp, const side_relative_vertnum vla, const side_relative_vertnum vlb, const side_relative_vertnum vra, const side_relative_vertnum vrb)
-{
-	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
-	auto &Vertices = LevelSharedVertexState.get_vertices();
-	auto &sv = Side_to_verts[side];
-	auto &verts = sp.verts;
-	auto &vcvertptr = Vertices.vcptr;
-	vm_vec_add(vp,
-		vm_vec_sub(vcvertptr(verts[sv[vra]]), vcvertptr(verts[sv[vla]])),
-		vm_vec_sub(vcvertptr(verts[sv[vrb]]), vcvertptr(verts[sv[vlb]]))
-	);
-	vm_vec_scale(vp, F1_0/2);
 }
 
 }
