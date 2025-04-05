@@ -50,8 +50,10 @@ namespace {
 // ------------------------------------------------------------------------------------------
 //	Extract a vector from a segment.  The vector goes from the start face to the end face.
 //	The point on each face is the average of the four points forming the face.
-static void extract_vector_from_segment_side(const shared_segment &sp, const sidenum_t side, vms_vector &vp, const side_relative_vertnum vla, const side_relative_vertnum vlb, const side_relative_vertnum vra, const side_relative_vertnum vrb)
+[[nodiscard]]
+static vms_vector extract_vector_from_segment_side(const shared_segment &sp, const sidenum_t side, const side_relative_vertnum vla, const side_relative_vertnum vlb, const side_relative_vertnum vra, const side_relative_vertnum vrb)
 {
+	vms_vector vp;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &sv = Side_to_verts[side];
@@ -62,6 +64,7 @@ static void extract_vector_from_segment_side(const shared_segment &sp, const sid
 		vm_vec_sub(vcvertptr(verts[sv[vrb]]), vcvertptr(verts[sv[vlb]]))
 	);
 	vm_vec_scale(vp, F1_0/2);
+	return vp;
 }
 
 }
@@ -72,9 +75,7 @@ static void extract_vector_from_segment_side(const shared_segment &sp, const sid
 // to the center of the right face of the segment.
 vms_vector med_extract_right_vector_from_segment_side(const shared_segment &sp, const sidenum_t sidenum)
 {
-	vms_vector vp;
-	extract_vector_from_segment_side(sp, sidenum, vp, side_relative_vertnum::_3, side_relative_vertnum::_2, side_relative_vertnum::_0, side_relative_vertnum::_1);
-	return vp;
+	return extract_vector_from_segment_side(sp, sidenum, side_relative_vertnum::_3, side_relative_vertnum::_2, side_relative_vertnum::_0, side_relative_vertnum::_1);
 }
 
 // ------------------------------------------------------------------------------------------
@@ -83,9 +84,7 @@ vms_vector med_extract_right_vector_from_segment_side(const shared_segment &sp, 
 // to the center of the top face of the segment.
 vms_vector med_extract_up_vector_from_segment_side(const shared_segment &sp, const sidenum_t sidenum)
 {
-	vms_vector vp;
-	extract_vector_from_segment_side(sp, sidenum, vp, side_relative_vertnum::_1, side_relative_vertnum::_2, side_relative_vertnum::_0, side_relative_vertnum::_3);
-	return vp;
+	return extract_vector_from_segment_side(sp, sidenum, side_relative_vertnum::_1, side_relative_vertnum::_2, side_relative_vertnum::_0, side_relative_vertnum::_3);
 }
 
 }
