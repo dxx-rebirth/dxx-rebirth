@@ -62,9 +62,7 @@ void phys_apply_rot(object &obj, const vms_vector &force_vec);
 // (hopefully) maintain the object's current velocity
 namespace dcx {
 void set_thrust_from_velocity(object_base &obj);
-}
 void check_and_fix_matrix(vms_matrix &m);
-namespace dcx {
 void physics_turn_towards_vector(const vms_vector &goal_vector, object_base &obj, fix rate);
 }
 #endif

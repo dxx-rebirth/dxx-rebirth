@@ -56,12 +56,6 @@ constexpr fix ROLL_RATE{0x2000};
 constexpr fixang DAMP_ANG{0x400};	//min angle to bank
 constexpr fix TURNROLL_SCALE{0x4ec4/2};
 
-//make sure matrix is orthogonal
-void check_and_fix_matrix(vms_matrix &m)
-{
-	vm_vector_to_matrix_u(m, m.fvec, m.uvec);
-}
-
 namespace {
 
 [[nodiscard]]
@@ -767,6 +761,12 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 }
 
 namespace dcx {
+
+//make sure matrix is orthogonal
+void check_and_fix_matrix(vms_matrix &m)
+{
+	vm_vector_to_matrix_u(m, m.fvec, m.uvec);
+}
 
 //Applies an instantaneous force on an object, resulting in an instantaneous
 //change in velocity.
