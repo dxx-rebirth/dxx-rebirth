@@ -860,7 +860,7 @@ void multi_do_robot_position(const playernum_t pnum, const multiplayer_rspan<mul
 	qpp.vel = multi_get_vector(buf.subspan<5 + 8 + 12 + 2, 12>());
 	loc += 12;
 	qpp.rotvel = multi_get_vector(buf.subspan<5 + 8 + 12 + 2 + 12, 12>());
-	extract_quaternionpos(robot, qpp);
+	extract_quaternionpos(Objects.vmptr, robot, qpp);
 }
 
 }

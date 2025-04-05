@@ -6091,7 +6091,7 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 	if (vcplayerptr(Player_num)->connected == player_connection_status::disconnected || vcplayerptr(Player_num)->connected == player_connection_status::waiting)
                 return;
 	//------------ Read the player's ship's object info ----------------------
-	extract_quaternionpos(TheirObj, pd->qpp);
+	extract_quaternionpos(Objects.vmptr, TheirObj, pd->qpp);
 	if (TheirObj->movement_source == object::movement_type::physics)
 		set_thrust_from_velocity(TheirObj);
 }

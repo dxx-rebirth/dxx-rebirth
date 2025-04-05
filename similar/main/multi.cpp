@@ -1742,8 +1742,9 @@ static void multi_do_message(const playernum_t pnum, const multiplayer_rspan<mul
 	multi_sending_message[pnum] = msgsend_state::none;
 }
 
-static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_POSITION> buf)
+static void multi_do_position(object_array &Objects, const playernum_t pnum, const multiplayer_rspan<multiplayer_command_t::MULTI_POSITION> buf)
 {
+	auto &vmobjptridx{Objects.vmptridx};
 	const auto &&obj = vmobjptridx(vcplayerptr(pnum)->objnum);
         int count{1};
 
@@ -1765,7 +1766,7 @@ static void multi_do_position(fvmobjptridx &vmobjptridx, const playernum_t pnum,
 	count += 12;
 	qpp.rotvel = multi_get_vector(buf.subspan<9 + 12 + 2 + 12, 12>());
 	count += 12;
-	extract_quaternionpos(obj, qpp);
+	extract_quaternionpos(Objects.vmptr, obj, qpp);
 
 	if (obj->movement_source == object::movement_type::physics)
 		set_thrust_from_velocity(obj);
@@ -5814,7 +5815,7 @@ static void multi_process_data(const d_level_shared_robot_info_state &LevelShare
 	switch (type)
 	{
 		case multiplayer_command_t::MULTI_POSITION:
-			multi_do_position(vmobjptridx, pnum, multi_subspan_first<multiplayer_command_t::MULTI_POSITION>(data));
+			multi_do_position(Objects, pnum, multi_subspan_first<multiplayer_command_t::MULTI_POSITION>(data));
 			break;
 		case multiplayer_command_t::MULTI_REAPPEAR:
 			multi_do_reappear(pnum, multi_subspan_first<multiplayer_command_t::MULTI_REAPPEAR>(data));
