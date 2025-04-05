@@ -78,6 +78,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 #include "segiter.h"
+#include "d_construct.h"
 #include "d_enumerate.h"
 #include "d_levelstate.h"
 #include <utility>
@@ -2413,7 +2414,7 @@ static void teleport_boss(const d_robot_info_array &Robot_info, const d_vclip_ar
 	BossUniqueState.Last_teleport_time = {GameTime64};
 
 	//	make boss point right at player
-	vm_vector_to_matrix(objp->orient, vm_vec_sub(target_pos, objp->pos));
+	reconstruct_at(objp->orient, vm_vector_to_matrix, vm_vec_sub(target_pos, objp->pos));
 
 	digi_link_sound_to_pos(Vclip[vclip_index::morphing_robot].sound_num, rand_segp, sidenum_t::WLEFT, objp->pos, 0, F1_0);
 	digi_kill_sound_linked_to_object( objp);

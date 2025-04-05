@@ -55,6 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 
 #include "compiler-range_for.h"
+#include "d_construct.h"
 #include "d_levelstate.h"
 #include "d_underlying_value.h"
 #include "partial_range.h"
@@ -1559,7 +1560,7 @@ static void homing_missile_turn_towards_velocity(object_base &obj, vms_vector ne
 {
 	vm_vec_scale(new_fvec, ft * HOMING_MISSILE_SCALE);
 	vm_vec_add2(new_fvec, obj.orient.fvec);
-	vm_vector_to_matrix(obj.orient, vm_vec_normalized_quick(new_fvec));
+	reconstruct_at(obj.orient, vm_vector_to_matrix, vm_vec_normalized_quick(new_fvec));
 }
 
 }

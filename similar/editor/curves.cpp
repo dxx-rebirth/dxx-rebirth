@@ -239,8 +239,7 @@ int generate_curve(const fix r1scale, const fix r4scale)
 			vec_dir = tdest;
 
 			{
-				vms_matrix rotmat2;
-				vm_vector_to_matrix(rotmat2, vec_dir);
+				auto rotmat2{vm_vector_to_matrix(vec_dir)};
             med_rotate_segment( Cursegp, rotmat2 );
 			}
 			prev_point = coord;

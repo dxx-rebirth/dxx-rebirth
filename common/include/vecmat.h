@@ -280,13 +280,6 @@ static inline vms_matrix vm_angles_2_matrix (const vms_angvec &a)
 }
 
 [[nodiscard]]
-static inline vms_matrix vm_vector_to_matrix(const vms_vector &fvec)
-{
-	vms_matrix m;
-	return vm_vector_to_matrix(m, fvec), m;
-}
-
-[[nodiscard]]
 static inline vms_matrix vm_vector_to_matrix_r(const vms_vector &fvec, const vms_vector &rvec)
 {
 	vms_matrix m;

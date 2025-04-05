@@ -55,6 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "escort.h"
 
 #include "compiler-range_for.h"
+#include "d_construct.h"
 #include "d_levelstate.h"
 #include "partial_range.h"
 
@@ -1129,7 +1130,7 @@ void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_
 	BossUniqueState.Last_teleport_time = {GameTime64};
 
 	const auto boss_dir{vm_vec_sub(vcobjptr(vcplayerptr(pnum)->objnum)->pos, boss_obj->pos)};
-	vm_vector_to_matrix(boss_obj->orient, boss_dir);
+	reconstruct_at(boss_obj->orient, vm_vector_to_matrix, boss_dir);
 
 	digi_link_sound_to_pos(Vclip[vclip_index::morphing_robot].sound_num, teleport_segnum, sidenum_t::WLEFT, boss_obj->pos, 0, F1_0);
 	digi_kill_sound_linked_to_object( boss_obj);

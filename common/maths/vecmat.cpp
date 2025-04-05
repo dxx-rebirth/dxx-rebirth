@@ -458,14 +458,16 @@ void vm_vec_ang_2_matrix(vms_matrix &m,const vms_vector &v,fixang a)
 //the up vector is used.  If only the forward vector is passed, a bank of
 //zero is assumed
 //returns ptr to matrix
-void vm_vector_to_matrix(vms_matrix &m, const vms_vector &fvec)
+vms_matrix vm_vector_to_matrix(const vms_vector &fvec)
 {
+	vms_matrix m;
 	if (!vm_vec_copy_normalize(m.fvec, fvec))
 	{
 		Int3();		//forward vec should not be zero-length
-		return;
 	}
-	vm_vector_to_matrix_f(m);
+	else
+		vm_vector_to_matrix_f(m);
+	return m;
 }
 
 void vm_vector_to_matrix_r(vms_matrix &m, const vms_vector &fvec, const vms_vector &rvec)

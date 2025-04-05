@@ -112,6 +112,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/esegment.h"
 #endif
 
+#include "d_construct.h"
 #include "d_enumerate.h"
 #include "d_levelstate.h"
 #include "d_range.h"
@@ -690,7 +691,7 @@ void move_player_2_segment(const vmsegptridx_t seg, const sidenum_t side)
 	console->pos = compute_segment_center(vcvertptr, seg);
 	auto vp{compute_center_point_on_side(vcvertptr, seg, side)};
 	vm_vec_sub2(vp, console->pos);
-	vm_vector_to_matrix(console->orient, vp);
+	reconstruct_at(console->orient, vm_vector_to_matrix, vp);
 	obj_relink(vmobjptr, vmsegptr, console, seg);
 }
 #endif
