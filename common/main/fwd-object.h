@@ -248,7 +248,7 @@ void create_shortpos_native(const d_level_shared_segment_state &, shortpos &spp,
 
 // Extract information from a shortpos, stuff in objp->orient
 // (matrix), objp->pos, objp->segnum
-void extract_shortpos_little(vmobjptridx_t objp, const shortpos *spp);
+void multi_object_warp_to_shortpos(vmobjptridx_t objp, const shortpos *spp);
 
 // create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
 [[nodiscard]]

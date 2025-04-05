@@ -3985,7 +3985,7 @@ static void multi_do_guided(d_level_unique_object_state &LevelUniqueObjectState,
 	if (gimobj == nullptr)
 		return;
 	const vmobjptridx_t guided_missile = gimobj;
-	extract_shortpos_little(guided_missile, &b.sp);
+	multi_object_warp_to_shortpos(guided_missile, &b.sp);
 	update_object_seg(vmobjptr, LevelSharedSegmentState, LevelUniqueSegmentState, guided_missile);
 }
 

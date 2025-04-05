@@ -1045,7 +1045,7 @@ void create_shortpos_little(const d_level_shared_segment_state &LevelSharedSegme
 	}
 }
 
-void extract_shortpos_little(const vmobjptridx_t objp, const shortpos *spp)
+void multi_object_warp_to_shortpos(const vmobjptridx_t objp, const shortpos *spp)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
