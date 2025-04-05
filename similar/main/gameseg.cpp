@@ -280,8 +280,9 @@ static vms_vector extract_vector_from_segment(fvcvertptr &vcvertptr, const share
 vertex_array_list_t create_all_vertex_lists(const shared_segment &segp, const shared_side &sidep, const sidenum_t sidenum)
 {
 	vertex_array_list_t vertices;
-	assert(Side_to_verts.valid_index(sidenum));
-	auto &sv = Side_to_verts[sidenum];
+	const auto valid_side{Side_to_verts.valid_index(sidenum)};
+	assert(valid_side);
+	auto &sv = Side_to_verts[*valid_side];
 	vertices.side_type = create_vertex_lists_by_predicate(vertices, segp, sidep, [&sv](const side_relative_vertnum vv) {
 		return sv[vv];
 	});
