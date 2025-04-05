@@ -80,14 +80,6 @@ static inline side_vertnum_list_t get_side_verts(const shared_segment &segnum, c
 
 enum class wall_is_doorway_mask : uint8_t;
 
-}
-
-#ifdef DXX_BUILD_DESCENT
-namespace dsx {
-#if DXX_BUILD_DESCENT == 2 || DXX_USE_EDITOR
-extern int	Doing_lighting_hack_flag;
-#endif
-
 #if DXX_USE_EDITOR
 //      Create all vertex lists (1 or 2) for faces on a side.
 //      Sets:
@@ -97,7 +89,7 @@ extern int	Doing_lighting_hack_flag;
 //      If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //      face #1 is stored in vertices 3,4,5.
 // Note: these are not absolute vertex numbers, but are relative to the segment
-// Note:  for triagulated sides, the middle vertex of each trianle is the one NOT
+// Note:  for triangulated sides, the middle vertex of each trianle is the one NOT
 //   adjacent on the diagonal edge
 uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const shared_segment &seg, const shared_side &sidep, sidenum_t sidenum);
 [[nodiscard]]
@@ -107,6 +99,14 @@ static inline std::pair<uint_fast32_t, vertex_array_list_t> create_all_vertex_li
 	const auto &&n = create_all_vertex_lists(r, segnum, sidep, sidenum);
 	return {n, r};
 }
+#endif
+
+}
+
+#ifdef DXX_BUILD_DESCENT
+namespace dsx {
+#if DXX_BUILD_DESCENT == 2 || DXX_USE_EDITOR
+extern int	Doing_lighting_hack_flag;
 #endif
 
 //like create_all_vertex_lists(), but generate absolute point numbers

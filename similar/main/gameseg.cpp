@@ -265,10 +265,6 @@ static vms_vector extract_vector_from_segment(fvcvertptr &vcvertptr, const share
 
 }
 
-}
-
-namespace dsx {
-
 #if DXX_USE_EDITOR
 // -----------------------------------------------------------------------------------
 //	Create all vertex lists (1 or 2) for faces on a side.
@@ -290,6 +286,10 @@ uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const share
 	});
 }
 #endif
+
+}
+
+namespace dsx {
 
 // -----------------------------------------------------------------------------------
 // Like create all vertex lists, but returns the vertnums (relative to
