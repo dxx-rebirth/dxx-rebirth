@@ -401,6 +401,7 @@ segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const sh
 }
 
 namespace {
+
 //this was converted from get_seg_masks()...it fills in an array of 6
 //elements for the distance behind each side, or zero if not behind
 //only gets centermask, and assumes zero rad
@@ -491,16 +492,7 @@ static sidemask_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp
 	}
 
 	return mask;
-
 }
-
-}
-
-}
-
-namespace dsx {
-
-namespace {
 
 #ifndef NDEBUG
 //returns true if errors detected
@@ -531,7 +523,12 @@ static void invert_shared_side_triangle_type(shared_side &s)
 	s.type = nt;
 }
 #endif
+
 }
+
+}
+
+namespace dsx {
 
 //heavy-duty error checking
 int check_segment_connections(void)
