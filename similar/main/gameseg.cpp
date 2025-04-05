@@ -244,6 +244,25 @@ static inline uint_fast32_t create_vertex_lists_by_predicate(auto &&va, const sh
 	return create_vertex_lists_from_values(va, segp, sidep, f(side_relative_vertnum::_0), f(side_relative_vertnum::_1), f(side_relative_vertnum::_2), f(side_relative_vertnum::_3));
 }
 
+// ------------------------------------------------------------------------------------------
+//	Extract a vector from a segment.  The vector goes from the start face to the end face.
+//	The point on each face is the average of the four points forming the face.
+[[nodiscard]]
+static vms_vector extract_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp, const sidenum_t istart, const sidenum_t iend)
+{
+	vms_vector vp{};
+	auto &start = Side_to_verts[istart];
+	auto &end = Side_to_verts[iend];
+	auto &verts = sp.verts;
+	for (const auto &&[vs, ve] : zip(start, end))
+	{
+		vm_vec_sub2(vp, vcvertptr(verts[vs]));
+		vm_vec_add2(vp, vcvertptr(verts[ve]));
+	}
+	vm_vec_scale(vp,F1_0/4);
+	return vp;
+}
+
 }
 
 }
@@ -1101,27 +1120,6 @@ void extract_quaternionpos(fvmobjptr &vmobjptr, const vmobjptridx_t objp, quater
 //	Segment validation functions.
 //	Moved from editor to game so we can compute surface normals at load time.
 // -------------------------------------------------------------------------------
-
-namespace {
-// ------------------------------------------------------------------------------------------
-//	Extract a vector from a segment.  The vector goes from the start face to the end face.
-//	The point on each face is the average of the four points forming the face.
-[[nodiscard]]
-static vms_vector extract_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp, const sidenum_t istart, const sidenum_t iend)
-{
-	vms_vector vp{};
-	auto &start = Side_to_verts[istart];
-	auto &end = Side_to_verts[iend];
-	auto &verts = sp.verts;
-	for (const auto &&[vs, ve] : zip(start, end))
-	{
-		vm_vec_sub2(vp, vcvertptr(verts[vs]));
-		vm_vec_add2(vp, vcvertptr(verts[ve]));
-	}
-	vm_vec_scale(vp,F1_0/4);
-	return vp;
-}
-}
 
 //create a matrix that describes the orientation of the given segment
 void extract_orient_from_segment(fvcvertptr &vcvertptr, vms_matrix &m, const shared_segment &seg)
