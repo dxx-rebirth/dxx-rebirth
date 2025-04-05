@@ -79,16 +79,6 @@ public:
 	}
 };
 
-class all_vertnum_lists_predicate : public abs_vertex_lists_predicate
-{
-public:
-	using abs_vertex_lists_predicate::abs_vertex_lists_predicate;
-	vertex_vertnum_pair operator()(const side_relative_vertnum vv) const
-	{
-		return {this->abs_vertex_lists_predicate::operator()(vv), vv};
-	}
-};
-
 struct verts_for_normal
 {
 	std::array<vertnum_t, 4> vsorted;
@@ -298,7 +288,16 @@ vertex_array_list_t create_all_vertex_lists(const shared_segment &segp, const sh
 //	face #1 is stored in vertices 3,4,5.
 void create_all_vertnum_lists(vertex_vertnum_array_list &vertnums, const shared_segment &segp, const shared_side &sidep, const sidenum_t sidenum)
 {
-	create_vertex_lists_by_predicate(vertnums, segp, sidep, all_vertnum_lists_predicate(segp, sidenum));
+	class predicate : abs_vertex_lists_predicate
+	{
+	public:
+		using abs_vertex_lists_predicate::abs_vertex_lists_predicate;
+		vertex_vertnum_pair operator()(const side_relative_vertnum vv) const
+		{
+			return {this->abs_vertex_lists_predicate::operator()(vv), vv};
+		}
+	};
+	create_vertex_lists_by_predicate(vertnums, segp, sidep, predicate{segp, sidenum});
 }
 
 // -----
