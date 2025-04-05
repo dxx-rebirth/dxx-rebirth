@@ -357,12 +357,8 @@ static void add_edges(const shared_segment &seg)
 
 		for (auto &&[idx, sidep] : enumerate(seg.sides))
 		{
-			int	num_vertices;
 			const auto &&[vertex_side_type, vertex_list] = create_all_vertex_lists(seg, sidep, idx);
-			if (vertex_side_type == vertex_array_side_type::quad)
-				num_vertices = 4;
-			else
-				num_vertices = 3;
+			const unsigned num_vertices{vertex_side_type == vertex_array_side_type::quad ? 4u : 3u};
 
 			const unsigned num_faces{vertex_side_type == vertex_array_side_type::quad ? 1u : 2u};
 			for (fn=0; fn<num_faces; fn++) {
