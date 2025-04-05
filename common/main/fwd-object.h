@@ -249,7 +249,6 @@ void dead_player_end();
 // Extract information from an object (objp->orient, objp->pos,
 // objp->segnum), stuff in a shortpos structure.  See typedef
 // shortpos.
-void create_shortpos_little(const d_level_shared_segment_state &, shortpos &spp, const object_base &objp);
 void create_shortpos_native(const d_level_shared_segment_state &, shortpos &spp, const object_base &objp);
 
 #if DXX_USE_MULTIPLAYER

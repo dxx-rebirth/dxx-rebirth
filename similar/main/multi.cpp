@@ -3956,6 +3956,23 @@ struct multi_guided_info
 
 DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_GUIDED, multi_guided_info, g, (g.pnum, g.release, g.sp));
 
+void create_shortpos_little(const d_level_shared_segment_state &LevelSharedSegmentState, shortpos &spp, const object_base &objp)
+{
+	create_shortpos_native(LevelSharedSegmentState, spp, objp);
+// swap the short values for the big-endian machines.
+
+	if constexpr (words_bigendian)
+	{
+		spp.xo = INTEL_SHORT(spp.xo);
+		spp.yo = INTEL_SHORT(spp.yo);
+		spp.zo = INTEL_SHORT(spp.zo);
+		spp.segment = segnum_t{INTEL_SHORT(underlying_value(spp.segment))};
+		spp.velx = INTEL_SHORT(spp.velx);
+		spp.vely = INTEL_SHORT(spp.vely);
+		spp.velz = INTEL_SHORT(spp.velz);
+	}
+}
+
 }
 
 void multi_send_guided_info(const object_base &miss, const char done)

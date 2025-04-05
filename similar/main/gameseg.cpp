@@ -1041,23 +1041,6 @@ void create_shortpos_native(const d_level_shared_segment_state &LevelSharedSegme
 	spp.velz = (objp.mtype.phys_info.velocity.z) >> VEL_PRECISION;
 }
 
-void create_shortpos_little(const d_level_shared_segment_state &LevelSharedSegmentState, shortpos &spp, const object_base &objp)
-{
-	create_shortpos_native(LevelSharedSegmentState, spp, objp);
-// swap the short values for the big-endian machines.
-
-	if constexpr (words_bigendian)
-	{
-		spp.xo = INTEL_SHORT(spp.xo);
-		spp.yo = INTEL_SHORT(spp.yo);
-		spp.zo = INTEL_SHORT(spp.zo);
-		spp.segment = segnum_t{INTEL_SHORT(underlying_value(spp.segment))};
-		spp.velx = INTEL_SHORT(spp.velx);
-		spp.vely = INTEL_SHORT(spp.vely);
-		spp.velz = INTEL_SHORT(spp.velz);
-	}
-}
-
 #if DXX_USE_MULTIPLAYER
 #if DXX_BUILD_DESCENT == 2
 void multi_object_warp_to_shortpos(const vmobjptridx_t objp, const shortpos *spp)
