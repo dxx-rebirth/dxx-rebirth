@@ -333,7 +333,7 @@ segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const sh
 		//then a point is on the back of the side if it is behind BOTH faces,
 		//but if the side pokes in, a point is on the back if behind EITHER face.
 
-		if (num_faces==vertex_array_side_type::triangle) {
+		if (num_faces!=vertex_array_side_type::quad) {
 			int	side_count,center_count;
 
 			const auto vertnum = min(vertex_list[0],vertex_list[2]);
@@ -429,7 +429,7 @@ static sidemask_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp
 		//then a point is on the back of the side if it is behind BOTH faces,
 		//but if the side pokes in, a point is on the back if behind EITHER face.
 
-		if (num_faces==vertex_array_side_type::triangle) {
+		if (num_faces!=vertex_array_side_type::quad) {
 			int	center_count;
 
 			const auto vertnum = min(vertex_list[0],vertex_list[2]);
@@ -1398,7 +1398,7 @@ void create_walls_on_side(fvcvertptr &vcvertptr, shared_segment &sp, const siden
 			int			s0,s1;
 
 			const auto &&[num_faces, vertex_list] = create_abs_vertex_lists(sp, s, sidenum);
-			assert(num_faces == vertex_array_side_type::triangle);
+			assert(num_faces != vertex_array_side_type::quad);
 			(void)num_faces;
 
 			auto &vvn = *vcvertptr(min(vertex_list[0],vertex_list[2]));

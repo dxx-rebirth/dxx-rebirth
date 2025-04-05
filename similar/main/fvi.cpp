@@ -229,7 +229,7 @@ static intersection_type check_line_to_face(vms_vector &newp, const vms_vector &
 
 	//use lowest point number
 	const auto vertnum{
-		(num_faces == vertex_array_side_type::triangle)
+		(num_faces != vertex_array_side_type::quad)
 			? std::min(vertex_list[0], vertex_list[2])
 			: *std::ranges::min_element(std::span(vertex_list).first<4>())
 	};
