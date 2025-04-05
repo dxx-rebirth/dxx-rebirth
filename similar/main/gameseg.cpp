@@ -400,13 +400,9 @@ segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const sh
 	return masks;
 }
 
-}
-
-namespace dsx {
-
 namespace {
 //this was converted from get_seg_masks()...it fills in an array of 6
-//elements for the distace behind each side, or zero if not behind
+//elements for the distance behind each side, or zero if not behind
 //only gets centermask, and assumes zero rad
 static sidemask_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, const shared_segment &segnum, per_side_array<fix> &side_dists)
 {
@@ -497,6 +493,14 @@ static sidemask_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp
 	return mask;
 
 }
+
+}
+
+}
+
+namespace dsx {
+
+namespace {
 
 #ifndef NDEBUG
 //returns true if errors detected
