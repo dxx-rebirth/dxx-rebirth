@@ -50,6 +50,12 @@ struct segment_depth_array_t : public enumerated_array<uint8_t, MAX_SEGMENTS, se
 
 struct side_vertnum_list_t : std::array<vertnum_t, 4> {};
 
+enum class vertex_array_side_type : bool
+{
+	quad,
+	triangle,
+};
+
 struct vertnum_array_list_t : std::array<vertnum_t, 6> {};
 struct vertex_array_list_t : std::array<segment_relative_vertnum, 6> {};
 struct vertex_vertnum_pair
@@ -91,9 +97,9 @@ enum class wall_is_doorway_mask : uint8_t;
 // Note: these are not absolute vertex numbers, but are relative to the segment
 // Note:  for triangulated sides, the middle vertex of each trianle is the one NOT
 //   adjacent on the diagonal edge
-uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const shared_segment &seg, const shared_side &sidep, sidenum_t sidenum);
+vertex_array_side_type create_all_vertex_lists(vertex_array_list_t &vertices, const shared_segment &seg, const shared_side &sidep, sidenum_t sidenum);
 [[nodiscard]]
-static inline std::pair<uint_fast32_t, vertex_array_list_t> create_all_vertex_lists(const shared_segment &segnum, const shared_side &sidep, const sidenum_t sidenum)
+static inline std::pair<vertex_array_side_type, vertex_array_list_t> create_all_vertex_lists(const shared_segment &segnum, const shared_side &sidep, const sidenum_t sidenum)
 {
 	vertex_array_list_t r;
 	const auto &&n = create_all_vertex_lists(r, segnum, sidep, sidenum);
@@ -116,10 +122,10 @@ static inline vertex_vertnum_array_list create_all_vertnum_lists(const shared_se
 }
 
 //like create_all_vertex_lists(), but generate absolute point numbers
-uint_fast32_t create_abs_vertex_lists(vertnum_array_list_t &vertices, const shared_segment &segnum, const shared_side &sidep, sidenum_t sidenum);
+vertex_array_side_type create_abs_vertex_lists(vertnum_array_list_t &vertices, const shared_segment &segnum, const shared_side &sidep, sidenum_t sidenum);
 
 [[nodiscard]]
-static inline std::pair<uint_fast32_t, vertnum_array_list_t> create_abs_vertex_lists(const shared_segment &segnum, const shared_side &sidep, const sidenum_t sidenum)
+static inline std::pair<vertex_array_side_type, vertnum_array_list_t> create_abs_vertex_lists(const shared_segment &segnum, const shared_side &sidep, const sidenum_t sidenum)
 {
 	vertnum_array_list_t r;
 	const auto &&n = create_abs_vertex_lists(r, segnum, sidep, sidenum);
@@ -127,7 +133,7 @@ static inline std::pair<uint_fast32_t, vertnum_array_list_t> create_abs_vertex_l
 }
 
 [[nodiscard]]
-static inline std::pair<uint_fast32_t, vertnum_array_list_t> create_abs_vertex_lists(const shared_segment &segp, const sidenum_t sidenum)
+static inline std::pair<vertex_array_side_type, vertnum_array_list_t> create_abs_vertex_lists(const shared_segment &segp, const sidenum_t sidenum)
 {
 	return create_abs_vertex_lists(segp, segp.sides[sidenum], sidenum);
 }

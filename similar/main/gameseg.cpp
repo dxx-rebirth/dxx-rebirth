@@ -202,7 +202,7 @@ namespace {
 
 template <typename V>
 [[nodiscard]]
-static uint_fast32_t create_vertex_lists_from_values(auto &va, const shared_segment &segp, const shared_side &sidep, const V &&f0, const V &&f1, const V &&f2, const V &&f3)
+static vertex_array_side_type create_vertex_lists_from_values(auto &va, const shared_segment &segp, const shared_side &sidep, const V &&f0, const V &&f1, const V &&f2, const V &&f3)
 {
 	const auto type{sidep.type};
 	if (type == side_type::tri_13)
@@ -211,7 +211,7 @@ static uint_fast32_t create_vertex_lists_from_values(auto &va, const shared_segm
 		va[1] = f0;
 		va[2] = va[3] = f1;
 		va[4] = f2;
-		return 2;
+		return vertex_array_side_type::triangle;
 	}
 	va[0] = f0;
 	va[1] = f1;
@@ -225,7 +225,7 @@ static uint_fast32_t create_vertex_lists_from_values(auto &va, const shared_segm
 			 */
 			va[4] = va[5] = {};
 			DXX_MAKE_MEM_UNDEFINED(std::span(va).template subspan<4, 2>());
-			return 1;
+			return vertex_array_side_type::quad;
 		case side_type::tri_02:
 			va[3] = f2;
 			va[4] = f3;
@@ -233,13 +233,13 @@ static uint_fast32_t create_vertex_lists_from_values(auto &va, const shared_segm
 
 			//IMPORTANT: DON'T CHANGE THIS CODE WITHOUT CHANGING GET_SEG_MASKS()
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
-			return 2;
+			return vertex_array_side_type::triangle;
 		default:
 			create_vertex_list_from_invalid_side(segp, sidep);
 	}
 }
 
-static inline uint_fast32_t create_vertex_lists_by_predicate(auto &&va, const shared_segment &segp, const shared_side &sidep, const auto &&f)
+static inline vertex_array_side_type create_vertex_lists_by_predicate(auto &&va, const shared_segment &segp, const shared_side &sidep, const auto &&f)
 {
 	return create_vertex_lists_from_values(va, segp, sidep, f(side_relative_vertnum::_0), f(side_relative_vertnum::_1), f(side_relative_vertnum::_2), f(side_relative_vertnum::_3));
 }
@@ -277,7 +277,7 @@ static vms_vector extract_vector_from_segment(fvcvertptr &vcvertptr, const share
 // Note: these are not absolute vertex numbers, but are relative to the segment
 // Note:  for triagulated sides, the middle vertex of each trianle is the one NOT
 //   adjacent on the diagonal edge
-uint_fast32_t create_all_vertex_lists(vertex_array_list_t &vertices, const shared_segment &segp, const shared_side &sidep, const sidenum_t sidenum)
+vertex_array_side_type create_all_vertex_lists(vertex_array_list_t &vertices, const shared_segment &segp, const shared_side &sidep, const sidenum_t sidenum)
 {
 	assert(Side_to_verts.valid_index(sidenum));
 	auto &sv = Side_to_verts[sidenum];
@@ -300,7 +300,7 @@ void create_all_vertnum_lists(vertex_vertnum_array_list &vertnums, const shared_
 
 // -----
 // like create_all_vertex_lists(), but generate absolute point numbers
-uint_fast32_t create_abs_vertex_lists(vertnum_array_list_t &vertices, const shared_segment &segp, const shared_side &sidep, const sidenum_t sidenum)
+vertex_array_side_type create_abs_vertex_lists(vertnum_array_list_t &vertices, const shared_segment &segp, const shared_side &sidep, const sidenum_t sidenum)
 {
 	return create_vertex_lists_by_predicate(vertices, segp, sidep, abs_vertex_lists_predicate(segp, sidenum));
 }
@@ -333,7 +333,7 @@ segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const sh
 		//then a point is on the back of the side if it is behind BOTH faces,
 		//but if the side pokes in, a point is on the back if behind EITHER face.
 
-		if (num_faces==2) {
+		if (num_faces==vertex_array_side_type::triangle) {
 			int	side_count,center_count;
 
 			const auto vertnum = min(vertex_list[0],vertex_list[2]);
@@ -429,7 +429,7 @@ static sidemask_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp
 		//then a point is on the back of the side if it is behind BOTH faces,
 		//but if the side pokes in, a point is on the back if behind EITHER face.
 
-		if (num_faces==2) {
+		if (num_faces==vertex_array_side_type::triangle) {
 			int	center_count;
 
 			const auto vertnum = min(vertex_list[0],vertex_list[2]);
@@ -562,11 +562,11 @@ int check_segment_connections(void)
 				const auto &&[con_num_faces, con_vertex_list] = create_abs_vertex_lists(cseg, csidenum);
 
 				if (con_num_faces != num_faces) {
-					LevelError("Segment #%u side %u: wrong faces: con_num_faces=%" PRIuFAST32 " num_faces=%" PRIuFAST32 ".", seg.get_unchecked_index(), underlying_value(sidenum), con_num_faces, num_faces);
+					LevelError("Segment #%u side %u: wrong faces: con_num_faces=%" PRIuFAST32 " num_faces=%" PRIuFAST32 ".", seg.get_unchecked_index(), underlying_value(sidenum), static_cast<uint_fast32_t>(con_num_faces), static_cast<uint_fast32_t>(num_faces));
 					errors = 1;
 				}
 				else
-					if (num_faces == 1) {
+					if (num_faces == vertex_array_side_type::quad) {
 						int t;
 
 						for (t=0;t<4 && con_vertex_list[t]!=vertex_list[0];t++);
@@ -1398,7 +1398,7 @@ void create_walls_on_side(fvcvertptr &vcvertptr, shared_segment &sp, const siden
 			int			s0,s1;
 
 			const auto &&[num_faces, vertex_list] = create_abs_vertex_lists(sp, s, sidenum);
-			assert(num_faces == 2);
+			assert(num_faces == vertex_array_side_type::triangle);
 			(void)num_faces;
 
 			auto &vvn = *vcvertptr(min(vertex_list[0],vertex_list[2]));

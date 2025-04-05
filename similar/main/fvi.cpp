@@ -229,7 +229,7 @@ static intersection_type check_line_to_face(vms_vector &newp, const vms_vector &
 
 	//use lowest point number
 	const auto vertnum{
-		(num_faces == 2)
+		(num_faces == vertex_array_side_type::triangle)
 			? std::min(vertex_list[0], vertex_list[2])
 			: *std::ranges::min_element(std::span(vertex_list).first<4>())
 	};
@@ -1230,7 +1230,7 @@ static sphere_intersects_wall_result sphere_intersects_wall(fvcsegptridx &vcsegp
 
 					//in what way did we hit the face?
 					const auto face_hit_type = check_sphere_to_face(pnt, sidep.normals[face],
-										face,((num_faces==1)?4:3),rad,vertex_list);
+										face, ((num_faces == vertex_array_side_type::quad) ? 4 : 3), rad, vertex_list);
 
 					if (face_hit_type != intersection_type::None)
 					{            //through this wall/door
