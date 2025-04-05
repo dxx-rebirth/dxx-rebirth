@@ -500,6 +500,7 @@ extern std::array<const char *, 10> undo_status;
 
 #ifdef DXX_BUILD_DESCENT
 void med_extract_right_vector_from_segment_side(const shared_segment &sp, sidenum_t sidenum, vms_vector &vp);
+void med_extract_up_vector_from_segment_side(const shared_segment &sp, sidenum_t sidenum, vms_vector &vp);
 #endif
 }
 
@@ -549,8 +550,6 @@ namespace dsx {
 //    From eobject.c
 int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_polygon_model_state &LevelSharedPolygonModelState, const d_robot_info_array &Robot_info, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, vmsegptridx_t segp, const vms_vector &object_pos, short object_type, uint8_t object_id);
 
-// from ksegsize.c
-void med_extract_up_vector_from_segment_side(const shared_segment &sp, sidenum_t sidenum, vms_vector &vp);
 }
 #endif
 

@@ -75,6 +75,15 @@ void med_extract_right_vector_from_segment_side(const shared_segment &sp, const 
 	extract_vector_from_segment_side(sp, sidenum, vp, side_relative_vertnum::_3, side_relative_vertnum::_2, side_relative_vertnum::_0, side_relative_vertnum::_1);
 }
 
+// ------------------------------------------------------------------------------------------
+//	Extract the up vector from segment *sp, return in *vp.
+//	The forward vector is defined to be the vector from the the center of the bottom face of the segment
+// to the center of the top face of the segment.
+void med_extract_up_vector_from_segment_side(const shared_segment &sp, const sidenum_t sidenum, vms_vector &vp)
+{
+	extract_vector_from_segment_side(sp, sidenum, vp, side_relative_vertnum::_1, side_relative_vertnum::_2, side_relative_vertnum::_0, side_relative_vertnum::_3);
+}
+
 }
 
 namespace dsx {
@@ -217,15 +226,6 @@ static void med_scale_segment_new(const shared_segment &sp, const int dimension,
 	validate_modified_segments();
 }
 
-}
-
-// ------------------------------------------------------------------------------------------
-//	Extract the up vector from segment *sp, return in *vp.
-//	The forward vector is defined to be the vector from the the center of the bottom face of the segment
-// to the center of the top face of the segment.
-void med_extract_up_vector_from_segment_side(const shared_segment &sp, const sidenum_t sidenum, vms_vector &vp)
-{
-	extract_vector_from_segment_side(sp, sidenum, vp, side_relative_vertnum::_1, side_relative_vertnum::_2, side_relative_vertnum::_0, side_relative_vertnum::_3);
 }
 
 namespace {
