@@ -307,10 +307,6 @@ vertex_array_side_type create_abs_vertex_lists(vertnum_array_list_t &vertices, c
 	return create_vertex_lists_by_predicate(vertices, segp, sidep, abs_vertex_lists_predicate(segp, sidenum));
 }
 
-}
-
-namespace dsx {
-
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields  
 segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const shared_segment &seg, const fix rad)
@@ -403,6 +399,10 @@ segmasks get_seg_masks(fvcvertptr &vcvertptr, const vms_vector &checkp, const sh
 	}
 	return masks;
 }
+
+}
+
+namespace dsx {
 
 namespace {
 //this was converted from get_seg_masks()...it fills in an array of 6

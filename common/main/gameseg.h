@@ -149,13 +149,14 @@ extern int	Doing_lighting_hack_flag;
 namespace dcx {
 //      Given a side, return the number of faces
 bool get_side_is_quad(const shared_side &sidep);
-}
 
-namespace dsx {
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields
 segmasks get_seg_masks(fvcvertptr &, const vms_vector &checkp, const shared_segment &segnum, fix rad);
 
+}
+
+namespace dsx {
 //this macro returns true if the segnum for an object is correct
 #define check_obj_seg(vcvertptr, obj) (get_seg_masks(vcvertptr, (obj)->pos, vcsegptr((obj)->segnum), 0).centermask == 0)
 
