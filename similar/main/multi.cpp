@@ -3956,8 +3956,10 @@ struct multi_guided_info
 
 DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_GUIDED, multi_guided_info, g, (g.pnum, g.release, g.sp));
 
-void create_shortpos_little(const d_level_shared_segment_state &LevelSharedSegmentState, shortpos &spp, const object_base &objp)
+[[nodiscard]]
+shortpos create_shortpos_little(const d_level_shared_segment_state &LevelSharedSegmentState, const object_base &objp)
 {
+	shortpos spp;
 	create_shortpos_native(LevelSharedSegmentState, spp, objp);
 // swap the short values for the big-endian machines.
 
@@ -3971,6 +3973,7 @@ void create_shortpos_little(const d_level_shared_segment_state &LevelSharedSegme
 		spp.vely = INTEL_SHORT(spp.vely);
 		spp.velz = INTEL_SHORT(spp.velz);
 	}
+	return spp;
 }
 
 }
@@ -3980,7 +3983,7 @@ void multi_send_guided_info(const object_base &miss, const char done)
 	multi_guided_info gi;
 	gi.pnum = static_cast<uint8_t>(Player_num);
 	gi.release = done;
-	create_shortpos_little(LevelSharedSegmentState, gi.sp, miss);
+	gi.sp = create_shortpos_little(LevelSharedSegmentState, miss);
 	multi_serialize_write(multiplayer_data_priority::_0, gi);
 }
 
