@@ -246,9 +246,13 @@ void dead_player_end();
 void create_shortpos_little(const d_level_shared_segment_state &, shortpos &spp, const object_base &objp);
 void create_shortpos_native(const d_level_shared_segment_state &, shortpos &spp, const object_base &objp);
 
+#if DXX_USE_MULTIPLAYER
+#if DXX_BUILD_DESCENT == 2
 // Extract information from a shortpos, stuff in objp->orient
 // (matrix), objp->pos, objp->segnum
 void multi_object_warp_to_shortpos(vmobjptridx_t objp, const shortpos *spp);
+#endif
+#endif
 
 // create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
 [[nodiscard]]

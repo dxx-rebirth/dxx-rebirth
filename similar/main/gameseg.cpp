@@ -1045,6 +1045,8 @@ void create_shortpos_little(const d_level_shared_segment_state &LevelSharedSegme
 	}
 }
 
+#if DXX_USE_MULTIPLAYER
+#if DXX_BUILD_DESCENT == 2
 void multi_object_warp_to_shortpos(const vmobjptridx_t objp, const shortpos *spp)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -1080,6 +1082,8 @@ void multi_object_warp_to_shortpos(const vmobjptridx_t objp, const shortpos *spp
 
 	obj_relink(vmobjptr, vmsegptr, objp, segp);
 }
+#endif
+#endif
 
 // create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead of orientation matrix
 quaternionpos build_quaternionpos(const object_base &objp)
