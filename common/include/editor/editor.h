@@ -498,6 +498,9 @@ extern void set_editor_time_of_day();
 extern int undo(void);
 extern std::array<const char *, 10> undo_status;
 
+#ifdef DXX_BUILD_DESCENT
+void med_extract_right_vector_from_segment_side(const shared_segment &sp, sidenum_t sidenum, vms_vector &vp);
+#endif
 }
 
 //	group.c
@@ -548,7 +551,6 @@ int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_le
 
 // from ksegsize.c
 void med_extract_up_vector_from_segment_side(const shared_segment &sp, sidenum_t sidenum, vms_vector &vp);
-void med_extract_right_vector_from_segment_side(const shared_segment &sp, sidenum_t sidenum, vms_vector &vp);
 }
 #endif
 
