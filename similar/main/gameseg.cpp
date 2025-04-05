@@ -990,6 +990,19 @@ static sbyte convert_to_byte(fix f)
 }
 
 }
+
+// create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead of orientation matrix
+quaternionpos build_quaternionpos(const object_base &objp)
+{
+	return quaternionpos{
+		.orient = vms_quaternion_from_matrix(objp.orient),
+		.pos = objp.pos,
+		.segment = objp.segnum,
+		.vel = objp.mtype.phys_info.velocity,
+		.rotvel = objp.mtype.phys_info.rotvel
+	};
+}
+
 }
 
 #define VEL_PRECISION 12
@@ -1084,18 +1097,6 @@ void multi_object_warp_to_shortpos(const vmobjptridx_t objp, const shortpos *spp
 }
 #endif
 #endif
-
-// create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead of orientation matrix
-quaternionpos build_quaternionpos(const object_base &objp)
-{
-	return quaternionpos{
-		.orient = vms_quaternion_from_matrix(objp.orient),
-		.pos = objp.pos,
-		.segment = objp.segnum,
-		.vel = objp.mtype.phys_info.velocity,
-		.rotvel = objp.mtype.phys_info.rotvel
-	};
-}
 
 void extract_quaternionpos(const vmobjptridx_t objp, quaternionpos &qpp)
 {

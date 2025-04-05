@@ -172,8 +172,14 @@ enum class player_dead_state : uint8_t
 };
 
 namespace dcx {
+
 extern player_dead_state Player_dead_state;          // !0 means player is dead!
 extern objnum_t Player_fired_laser_this_frame;
+
+// create quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
+[[nodiscard]]
+quaternionpos build_quaternionpos(const object_base &objp);
+
 }
 
 #ifdef DXX_BUILD_DESCENT
@@ -254,9 +260,7 @@ void multi_object_warp_to_shortpos(vmobjptridx_t objp, const shortpos *spp);
 #endif
 #endif
 
-// create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
-[[nodiscard]]
-quaternionpos build_quaternionpos(const object_base &objp);
+// reset object position from quaternion structure
 void extract_quaternionpos(vmobjptridx_t objp, quaternionpos &qpp);
 
 // delete objects, such as weapons & explosions, that shouldn't stay
