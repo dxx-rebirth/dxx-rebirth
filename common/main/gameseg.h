@@ -57,7 +57,11 @@ enum class vertex_array_side_type : bool
 };
 
 struct vertnum_array_list_t : std::array<vertnum_t, 6> {};
-struct vertex_array_list_t : std::array<segment_relative_vertnum, 6> {};
+struct vertex_array_list_t : std::array<segment_relative_vertnum, 6>
+{
+	vertex_array_side_type side_type;
+};
+
 struct vertex_vertnum_pair
 {
 	vertnum_t vertex;
@@ -97,14 +101,8 @@ enum class wall_is_doorway_mask : uint8_t;
 // Note: these are not absolute vertex numbers, but are relative to the segment
 // Note:  for triangulated sides, the middle vertex of each trianle is the one NOT
 //   adjacent on the diagonal edge
-vertex_array_side_type create_all_vertex_lists(vertex_array_list_t &vertices, const shared_segment &seg, const shared_side &sidep, sidenum_t sidenum);
 [[nodiscard]]
-static inline std::pair<vertex_array_side_type, vertex_array_list_t> create_all_vertex_lists(const shared_segment &segnum, const shared_side &sidep, const sidenum_t sidenum)
-{
-	vertex_array_list_t r;
-	const auto &&n = create_all_vertex_lists(r, segnum, sidep, sidenum);
-	return {n, r};
-}
+vertex_array_list_t create_all_vertex_lists(const shared_segment &segnum, const shared_side &sidep, const sidenum_t sidenum);
 #endif
 
 // -----------------------------------------------------------------------------------

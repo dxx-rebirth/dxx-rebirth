@@ -277,13 +277,15 @@ static vms_vector extract_vector_from_segment(fvcvertptr &vcvertptr, const share
 // Note: these are not absolute vertex numbers, but are relative to the segment
 // Note:  for triagulated sides, the middle vertex of each trianle is the one NOT
 //   adjacent on the diagonal edge
-vertex_array_side_type create_all_vertex_lists(vertex_array_list_t &vertices, const shared_segment &segp, const shared_side &sidep, const sidenum_t sidenum)
+vertex_array_list_t create_all_vertex_lists(const shared_segment &segp, const shared_side &sidep, const sidenum_t sidenum)
 {
+	vertex_array_list_t vertices;
 	assert(Side_to_verts.valid_index(sidenum));
 	auto &sv = Side_to_verts[sidenum];
-	return create_vertex_lists_by_predicate(vertices, segp, sidep, [&sv](const side_relative_vertnum vv) {
+	vertices.side_type = create_vertex_lists_by_predicate(vertices, segp, sidep, [&sv](const side_relative_vertnum vv) {
 		return sv[vv];
 	});
+	return vertices;
 }
 #endif
 
