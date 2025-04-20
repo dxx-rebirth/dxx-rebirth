@@ -272,13 +272,6 @@ vms_vector vm_vec_normal(const vms_vector &p0, const vms_vector &p1, const vms_v
 [[nodiscard]]
 vms_vector vm_vec_perp (const vms_vector &p0, const vms_vector &p1, const vms_vector &p2);
 
-[[nodiscard]]
-static inline vms_matrix vm_angles_2_matrix (const vms_angvec &a)
-{
-	vms_matrix m;
-	return vm_angles_2_matrix(m, a), m;
-}
-
 //transpose a matrix in place. returns ptr to matrix
 static inline void vm_transpose_matrix(vms_matrix &m)
 {

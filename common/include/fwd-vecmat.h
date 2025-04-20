@@ -77,7 +77,8 @@ fixang vm_vec_delta_ang (const vms_vector &v0, const vms_vector &v1, const vms_v
 [[nodiscard]]
 fixang vm_vec_delta_ang_norm (const vms_vector &v0, const vms_vector &v1, const vms_vector &fvec);
 
-void vm_angles_2_matrix (vms_matrix &m, const vms_angvec &a);
+[[nodiscard]]
+vms_matrix vm_angles_2_matrix(const vms_angvec &a);
 
 #if DXX_USE_EDITOR
 [[nodiscard]]
