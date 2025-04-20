@@ -49,6 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "d_array.h"
+#include "d_construct.h"
 #include "d_levelstate.h"
 #include "d_range.h"
 #include "d_zip.h"
@@ -1107,7 +1108,7 @@ void multi_object_warp_to_shortpos(const vmobjptridx_t objp, const shortpos *spp
 
 void extract_quaternionpos(fvmobjptr &vmobjptr, const vmobjptridx_t objp, quaternionpos &qpp)
 {
-	vms_matrix_from_quaternion(objp->orient, qpp.orient);
+	reconstruct_at(objp->orient, vms_matrix_from_quaternion, qpp.orient);
 
 	objp->pos = qpp.pos;
 	objp->mtype.phys_info.velocity = qpp.vel;

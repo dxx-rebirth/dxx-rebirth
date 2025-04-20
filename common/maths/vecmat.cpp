@@ -663,8 +663,9 @@ vms_quaternion vms_quaternion_from_matrix(const vms_matrix &m)
 }
 
 // convert vms_quaternion to vms_matrix
-void vms_matrix_from_quaternion(vms_matrix &m, const vms_quaternion &q)
+vms_matrix vms_matrix_from_quaternion(const vms_quaternion &q)
 {
+	vms_matrix m;
 	const fix qw2{q.w * 2};
 	const fix qx2{q.x * 2};
 	const fix qy2{q.y * 2};
@@ -693,6 +694,7 @@ void vms_matrix_from_quaternion(vms_matrix &m, const vms_quaternion &q)
 	const fix qxw{fixmul({qx2}, {qw2})};
 	m.fvec.y = fixmul(fixmul(fl2f(2.0), {qyz + qxw}), {invs});
 	m.uvec.z = fixmul(fixmul(fl2f(2.0), {qyz - qxw}), {invs});
+	return m;
 }
 
 }

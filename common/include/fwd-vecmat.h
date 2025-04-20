@@ -105,6 +105,7 @@ fix vm_dist_to_plane (const vms_vector &checkp, const vms_vector &norm, const vm
 
 [[nodiscard]]
 vms_quaternion vms_quaternion_from_matrix(const vms_matrix &m);
-void vms_matrix_from_quaternion(vms_matrix &m, const vms_quaternion &q);
+[[nodiscard]]
+vms_matrix vms_matrix_from_quaternion(const vms_quaternion &q);
 
 }
