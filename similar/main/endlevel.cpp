@@ -1001,7 +1001,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 
 			auto cam_angles{vm_extract_angles_matrix(endlevel_camera->orient)};
 			cam_angles.b += fixmul(bank_rate,FrameTime);
-			vm_angles_2_matrix(endlevel_camera->orient,cam_angles);
+			reconstruct_at(endlevel_camera->orient, vm_angles_2_matrix, cam_angles);
 
 			timer -= FrameTime;
 
@@ -1022,7 +1022,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 
 			player_dest_angles = get_angs_to_object(station_pos, ConsoleObject->pos);
 			chase_angles(&player_angles,&player_dest_angles);
-			vm_angles_2_matrix(ConsoleObject->orient,player_angles);
+			reconstruct_at(ConsoleObject->orient, vm_angles_2_matrix, player_angles);
 
 			vm_vec_scale_add2(ConsoleObject->pos,ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
 
@@ -1060,13 +1060,13 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 
 			player_dest_angles = get_angs_to_object(station_pos, ConsoleObject->pos);
 			chase_angles(&player_angles,&player_dest_angles);
-			vm_angles_2_matrix(ConsoleObject->orient,player_angles);
+			reconstruct_at(ConsoleObject->orient, vm_angles_2_matrix, player_angles);
 			vm_vec_scale_add2(ConsoleObject->pos,ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
 
 
 			camera_desired_angles = get_angs_to_object(ConsoleObject->pos, endlevel_camera->pos);
 			mask = chase_angles(&camera_cur_angles,&camera_desired_angles);
-			vm_angles_2_matrix(endlevel_camera->orient,camera_cur_angles);
+			reconstruct_at(endlevel_camera->orient, vm_angles_2_matrix, camera_cur_angles);
 
 			if ((mask&5) == 5) {
 
@@ -1090,7 +1090,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 			camera_desired_angles = get_angs_to_object(ConsoleObject->pos, endlevel_camera->pos);
 			chase_angles(&camera_cur_angles,&camera_desired_angles);
 
-			vm_angles_2_matrix(endlevel_camera->orient,camera_cur_angles);
+			reconstruct_at(endlevel_camera->orient, vm_angles_2_matrix, camera_cur_angles);
 
 			d = vm_vec_dist_quick(ConsoleObject->pos,endlevel_camera->pos);
 
@@ -1099,7 +1099,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 
 			player_dest_angles = get_angs_to_object(station_pos, ConsoleObject->pos);
 			chase_angles(&player_angles,&player_dest_angles);
-			vm_angles_2_matrix(ConsoleObject->orient,player_angles);
+			reconstruct_at(ConsoleObject->orient, vm_angles_2_matrix, player_angles);
 
 			vm_vec_scale_add2(ConsoleObject->pos,ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
 			vm_vec_scale_add2(endlevel_camera->pos,endlevel_camera->orient.fvec,fixmul(FrameTime,fixmul(speed_scale,cur_fly_speed)));
@@ -1193,7 +1193,7 @@ void do_endlevel_flythrough(d_level_unique_object_state &LevelUniqueObjectState,
 		vm_vec_scale_add2(obj->pos,flydata->step,FrameTime);
 		angvec_add2_scale(flydata->angles,flydata->angstep,FrameTime);
 
-		vm_angles_2_matrix(obj->orient,flydata->angles);
+		reconstruct_at(obj->orient, vm_angles_2_matrix, flydata->angles);
 	}
 
 	//check new player seg
