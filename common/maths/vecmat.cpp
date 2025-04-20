@@ -28,7 +28,8 @@ constexpr vms_vector vmd_zero_vector{};
 
 namespace {
 
-vms_vector vm_vec_divide(const vms_vector &src, const fix m)
+[[nodiscard]]
+vms_vector vm_vec_build_divide(const vms_vector &src, const fix m)
 {
 	return vms_vector{
 		.x = fixdiv({src.x}, {m}),
@@ -255,7 +256,7 @@ vm_magnitude vm_vec_copy_normalize(vms_vector &dest,const vms_vector &src)
 {
 	const auto m{vm_vec_mag(src)};
 	if (likely(m)) {
-		dest = vm_vec_divide(src, m);
+		dest = vm_vec_build_divide(src, m);
 	}
 	return m;
 }
@@ -271,7 +272,7 @@ vm_magnitude vm_vec_copy_normalize_quick(vms_vector &dest,const vms_vector &src)
 {
 	const auto m{vm_vec_mag_quick(src)};
 	if (likely(m)) {
-		dest = vm_vec_divide(src, m);
+		dest = vm_vec_build_divide(src, m);
 	}
 	return m;
 }
