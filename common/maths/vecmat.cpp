@@ -69,14 +69,18 @@ static void vm_vector_to_matrix_f(vms_matrix &m)
 //ok for dest to equal either source, but should use vm_vec_add2() if so
 vms_vector &vm_vec_add(vms_vector &dest,const vms_vector &src0,const vms_vector &src1)
 {
-	dest = vms_vector{
+	dest = vm_vec_build_add(src0, src1);
+	return dest;
+}
+
+vms_vector vm_vec_build_add(const vms_vector &src0, const vms_vector &src1)
+{
+	return vms_vector{
 		.x = src0.x + src1.x,
 		.y = src0.y + src1.y,
 		.z = src0.z + src1.z,
 	};
-	return dest;
 }
-
 
 //subs two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_sub2() if so
