@@ -125,17 +125,15 @@ static void do_physics_align_object(object_base &obj)
 			obj.orient = vm_matrix_x_matrix(obj.orient, rotmat);
 		}
 	}
-
 }
 
-static void set_object_turnroll(object_base &obj, const fix frametime)
+[[nodiscard]]
+static fixang set_object_turnroll(object_base &obj, const fix frametime)
 {
 	const fixang desired_bank{multiply_with_clamp_to_fixang({-obj.mtype.phys_info.rotvel.y}, {TURNROLL_SCALE})};
-	if (obj.mtype.phys_info.turnroll != desired_bank)
+	if (const fixang delta_ang = (desired_bank - obj.mtype.phys_info.turnroll))
 	{
-		fixang delta_ang;
 		const fixang raw_max_roll{multiply_with_clamp_to_fixang(ROLL_RATE, frametime)};
-		delta_ang = desired_bank - obj.mtype.phys_info.turnroll;
 		const fixang max_roll{
 			std::abs(delta_ang) < raw_max_roll
 				? delta_ang
@@ -143,6 +141,7 @@ static void set_object_turnroll(object_base &obj, const fix frametime)
 		};
 		obj.mtype.phys_info.turnroll += max_roll;
 	}
+	return obj.mtype.phys_info.turnroll;
 }
 
 }
@@ -208,12 +207,13 @@ static void do_physics_sim_rot(object_base &obj)
 	//now rotate object
 
 	//unrotate object for bank caused by turn
-	if (const auto turnroll{obj.mtype.phys_info.turnroll})
+	const fixang old_turnroll{obj.mtype.phys_info.turnroll};
+	if (old_turnroll)
 	{
 		const auto &&rotmat{vm_angles_2_matrix(
 			vms_angvec{
 				.p = fixang{0},
-				.b = static_cast<fixang>(-turnroll),
+				.b = static_cast<fixang>(-old_turnroll),
 				.h = fixang{0}
 			})};
 		obj.orient = vm_matrix_x_matrix(obj.orient, rotmat);
@@ -228,15 +228,12 @@ static void do_physics_sim_rot(object_base &obj)
 				.h = multiply_with_clamp_to_fixang(obj.mtype.phys_info.rotvel.y, frametime)
 			}));
 
-	if (obj.mtype.phys_info.flags & PF_TURNROLL)
-		set_object_turnroll(obj, frametime);
-
 	//re-rotate object for bank caused by turn
 	/* The call to `set_object_turnroll` may have changed
-	 * `.phys_info.turnroll`, so it must be reread here.  The value loaded
-	 * above is stale.
+	 * `.phys_info.turnroll`, so use the returned turnroll, which may differ
+	 * from `old_turnroll`.
 	 */
-	if (const auto turnroll{obj.mtype.phys_info.turnroll})
+	if (const fixang turnroll{(obj.mtype.phys_info.flags & PF_TURNROLL) ? set_object_turnroll(obj, frametime) : old_turnroll})
 	{
 		obj.orient = vm_matrix_x_matrix(obj.orient, vm_angles_2_matrix(
 				vms_angvec{
