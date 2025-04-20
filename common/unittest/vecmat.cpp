@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(vm_vec_avg_positive)
 	const auto a2{a};
 	vms_vector b{.x = 100, .y = 205, .z = 300};
 	const auto b2{b};
-	vms_vector d{vm_vec_avg(a, b)};
+	vms_vector d{vm_vec_build_avg(a, b)};
 	BOOST_CHECK_EQUAL(a.x, a2.x);
 	BOOST_CHECK_EQUAL(a.y, a2.y);
 	BOOST_CHECK_EQUAL(a.z, a2.z);
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(vm_vec_avg_negative)
 {
 	vms_vector a{.x = 10, .y = 20, .z = 30};
 	vms_vector b{.x = -100, .y = -205, .z = -300};
-	vms_vector d{vm_vec_avg(a, b)};
+	vms_vector d{vm_vec_build_avg(a, b)};
 	BOOST_CHECK_EQUAL(d.x, -45);
 	BOOST_CHECK_EQUAL(d.y, -92);	/* Integer division */
 	BOOST_CHECK_EQUAL(d.z, -135);

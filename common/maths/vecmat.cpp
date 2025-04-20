@@ -114,8 +114,7 @@ static inline fix avg_fix(fix64 a, fix64 b)
 }
 
 //averages two vectors. returns ptr to dest
-//dest can equal either source
-vms_vector vm_vec_avg(const vms_vector &src0, const vms_vector &src1)
+vms_vector vm_vec_build_avg(const vms_vector &src0, const vms_vector &src1)
 {
 	return vms_vector{
 		.x = avg_fix({src0.x}, {src1.x}),

@@ -233,7 +233,7 @@ static inline vms_vector vm_vec_sub (const vms_vector &src0, const vms_vector &s
 
 //averages two vectors. returns average
 [[nodiscard]]
-vms_vector vm_vec_avg(const vms_vector &src0, const vms_vector &src1);
+vms_vector vm_vec_build_avg(const vms_vector &src0, const vms_vector &src1);
 
 //scales a vector.  returns scaled result
 [[nodiscard]]

@@ -3367,7 +3367,7 @@ void update_item_state::process_powerup(const d_vclip_array &Vclip, fvmsegptridx
 	{
 		assert(o.movement_source == object::movement_type::None);
 		assert(o.render_type == render_type::RT_POWERUP);
-		const auto &&no = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, underlying_value(id), segp, vm_vec_avg(o.pos, vcvertptr(seg_verts[static_cast<segment_relative_vertnum>(i % seg_verts.size())])), &vmd_identity_matrix, o.size, object::control_type::powerup, object::movement_type::None, render_type::RT_POWERUP);
+		const auto &&no = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_POWERUP, underlying_value(id), segp, vm_vec_build_avg(o.pos, vcvertptr(seg_verts[static_cast<segment_relative_vertnum>(i % seg_verts.size())])), &vmd_identity_matrix, o.size, object::control_type::powerup, object::movement_type::None, render_type::RT_POWERUP);
 		if (no == object_none)
 			return;
 		m_modified.set(no);

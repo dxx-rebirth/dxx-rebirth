@@ -96,7 +96,7 @@ static void do_physics_align_object(object_base &obj)
 		return;
 	const vms_vector desired_upvec{
 		get_side_is_quad(*best_side)
-			? vm_vec_normalized(vm_vec_avg(best_side->normals[0], best_side->normals[1]))
+			? vm_vec_normalized(vm_vec_build_avg(best_side->normals[0], best_side->normals[1]))
 			: best_side->normals[0]
 	};
 

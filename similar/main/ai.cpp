@@ -2240,7 +2240,7 @@ static const shared_segment *boss_intersects_wall(fvcvertptr &vcvertptr, const o
 		if (ri == re)
 			return seg;
 		auto &vertex_pos = *vcvertptr(*ri);
-		pos = vm_vec_avg(vertex_pos, segcenter);
+		pos = vm_vec_build_avg(vertex_pos, segcenter);
 	}
 }
 
