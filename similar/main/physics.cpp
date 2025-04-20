@@ -145,7 +145,10 @@ static fixang set_object_turnroll(object_base &obj, const fix frametime)
 		 *   so the conversion does not change the value.
 		 */
 		const auto max_roll{static_cast<fixang>(std::clamp<fix>(delta_ang, -raw_max_roll, raw_max_roll))};
-		obj.mtype.phys_info.turnroll += max_roll;
+		const auto updated_turnroll{obj.mtype.phys_info.turnroll + max_roll};
+		static constexpr fix minfixang{std::numeric_limits<fixang>::min()};
+		static constexpr fix maxfixang{std::numeric_limits<fixang>::max()};
+		obj.mtype.phys_info.turnroll = {static_cast<fixang>(std::clamp<fix>(updated_turnroll, minfixang, maxfixang))};
 	}
 	return obj.mtype.phys_info.turnroll;
 }
