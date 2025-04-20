@@ -131,7 +131,7 @@ static void do_physics_align_object(object_base &obj)
 static fixang set_object_turnroll(object_base &obj, const fix frametime)
 {
 	const fixang desired_bank{multiply_with_clamp_to_fixang({-obj.mtype.phys_info.rotvel.y}, {TURNROLL_SCALE})};
-	if (const fixang delta_ang = (desired_bank - obj.mtype.phys_info.turnroll))
+	if (const fix delta_ang{desired_bank - obj.mtype.phys_info.turnroll})
 	{
 		const fixang raw_max_roll{multiply_with_clamp_to_fixang(ROLL_RATE, frametime)};
 		/* Casting to `fixang` is safe:
