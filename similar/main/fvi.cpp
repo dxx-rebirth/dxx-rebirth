@@ -65,16 +65,19 @@ struct intersection_result
 
 //find the point on the specified plane where the line intersects
 //returns true if point found, false if line parallel to plane
-//new_pnt is the found point on the plane
 //plane_pnt & plane_norm describe the plane
 //p0 & p1 are the ends of the line
 [[nodiscard]]
-static int find_plane_line_intersection(vms_vector &new_pnt, const vms_vector &plane_pnt, const vms_vector &plane_norm, const vms_vector &p0, const vms_vector &p1, const fix rad)
+static intersection_result find_plane_line_intersection(const vms_vector &plane_pnt, const vms_vector &plane_norm, const vms_vector &p0, const vms_vector &p1, const fix rad)
 {
+	intersection_result result;
 	auto d{vm_vec_build_sub(p1, p0)};
 	const fix den{-vm_vec_dot(plane_norm, d)};
 	if (unlikely(!den)) // moving parallel to wall, so can't hit it
-		return 0;
+	{
+		result.hit_type = intersection_type::None;
+		return result;
+	}
 
 	const auto w{vm_vec_build_sub(p0, plane_pnt)};
 	fix num{vm_vec_dot(plane_norm,w) - rad}; //move point out by rad
@@ -83,16 +86,28 @@ static int find_plane_line_intersection(vms_vector &new_pnt, const vms_vector &p
 	if (den > 0 && (-num>>15) >= den) //will overflow (large negative)
 		num = (f1_0-f0_5)*den;
 	if (den > 0 && num > den) //frac greater than one
-		return 0;
+	{
+		result.hit_type = intersection_type::None;
+		return result;
+	}
 	if (den < 0 && num < den) //frac greater than one
-		return 0;
+	{
+		result.hit_type = intersection_type::None;
+		return result;
+	}
 	if (labs (num) / (f1_0 / 2) >= labs (den))
-		return 0;
+	{
+		result.hit_type = intersection_type::None;
+		return result;
+	}
 
 	vm_vec_scale2(d,num,den);
-	vm_vec_add(new_pnt,p0,d);
-
-	return 1;
+	vm_vec_add(result.hit_point, p0, d);
+	/* The caller only checks for `== intersection_type::None`, so any value
+	 * other than `None` can be used here.
+	 */
+	result.hit_type = intersection_type::Face;
+	return result;
 }
 
 struct vec2d {
@@ -230,7 +245,6 @@ static intersection_type check_sphere_to_face(const vms_vector &pnt, const vms_v
 [[nodiscard]]
 static intersection_result check_line_to_face(const vms_vector &p0, const vms_vector &p1, const shared_segment &seg, const sidenum_t side, const unsigned facenum, const unsigned nv, const fix rad)
 {
-	intersection_result result;
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &s = seg.sides[side];
@@ -246,11 +260,14 @@ static intersection_result check_line_to_face(const vms_vector &p0, const vms_ve
 	};
 
 	auto &vcvertptr = Vertices.vcptr;
-	if (!find_plane_line_intersection(result.hit_point, vcvertptr(vertnum), norm, p0, p1, rad))
-	{
-		result.hit_type = intersection_type::None;
+	auto result{find_plane_line_intersection(vcvertptr(vertnum), norm, p0, p1, rad)};
+	/* If `hit_type == None`, then `hit_point` is undefined, because no hit
+	 * occurred.
+	 *
+	 * Otherwise, `hit_point` is defined, and can be used in the next check.
+	 */
+	if (result.hit_type == intersection_type::None)
 		return result;
-	}
 
 	auto checkp = result.hit_point;
 
