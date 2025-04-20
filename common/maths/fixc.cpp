@@ -44,14 +44,20 @@ fix64 fixmul64(fix a, fix b)
 fix fixdiv(fix a, fix b)
 {
 	if (!b)
+	{
+		[[unlikely]];
 		return 1;
+	}
 	return static_cast<fix>((fix64{a} * 65536) / b);
 }
 
 fix fixmuldiv(fix a, fix b, fix c)
 {
 	if (!c)
+	{
+		[[unlikely]];
 		return 1;
+	}
 	return static_cast<fix>((fix64{a} * b) / c);
 }
 
