@@ -53,6 +53,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multibot.h"
 #include "escort.h"
 #include "compiler-poison.h"
+#include "d_construct.h"
 #include "d_enumerate.h"
 #include "compiler-range_for.h"
 #include "d_levelstate.h"
@@ -476,7 +477,7 @@ static void robotmaker_proc(const d_robot_info_array &Robot_info, const d_vclip_
 			auto obj = object_create_explosion_without_damage(Vclip, robotcen_segp, cur_object_loc, i2f(10), vclip_index::morphing_robot);
 
 			if (obj != object_none)
-				extract_orient_from_segment(vcvertptr, obj->orient, robotcen_segp);
+				reconstruct_at(obj->orient, extract_orient_from_segment, vcvertptr, robotcen_segp);
 
 			digi_link_sound_to_pos(Vclip[vclip_index::morphing_robot].sound_num, robotcen_segp, sidenum_t::WLEFT, cur_object_loc, 0, F1_0);
 			robotcen->Flag	= 1;

@@ -83,6 +83,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-range_for.h"
+#include "d_construct.h"
 #include "d_enumerate.h"
 #include "d_levelstate.h"
 #include "d_range.h"
@@ -1471,7 +1472,7 @@ try_again:
 	const auto &&exit_seg = vmsegptr(exit_segnum);
 	auto &vcvertptr = Vertices.vcptr;
 	mine_exit_point = compute_segment_center(vcvertptr, exit_seg);
-	extract_orient_from_segment(vcvertptr, mine_exit_orient, exit_seg);
+	reconstruct_at(mine_exit_orient, extract_orient_from_segment, vcvertptr, exit_seg);
 	mine_side_exit_point = compute_center_point_on_side(vcvertptr, exit_seg, exit_side);
 
 	mine_ground_exit_point = vm_vec_scale_add(mine_exit_point, mine_exit_orient.uvec, -i2f(20));

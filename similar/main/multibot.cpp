@@ -1056,7 +1056,7 @@ void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_a
 	auto &vcvertptr = Vertices.vcptr;
 	const auto cur_object_loc{compute_segment_center(vcvertptr, robotcen_segp)};
 	if (const auto &&obj = object_create_explosion_without_damage(Vclip, robotcen_segp, cur_object_loc, i2f(10), vclip_index::morphing_robot))
-		extract_orient_from_segment(vcvertptr, obj->orient, robotcen_segp);
+		reconstruct_at(obj->orient, extract_orient_from_segment, vcvertptr, robotcen_segp);
 	digi_link_sound_to_pos(Vclip[vclip_index::morphing_robot].sound_num, robotcen_segp, sidenum_t::WLEFT, cur_object_loc, 0, F1_0);
 
 	const auto &&obj = create_morph_robot(Robot_info, robotcen_segp, cur_object_loc, trusted_robot_type);
@@ -1064,7 +1064,6 @@ void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_a
 		return; // Cannot create object!
 	
 	obj->matcen_creator = untrusted_fuelcen_num | 0x80;
-//	extract_orient_from_segment(&obj->orient, &Segments[robotcen->segnum]);
 	const auto direction{vm_vec_sub(ConsoleObject->pos, obj->pos)};
 	vm_vector_to_matrix_u(obj->orient, direction, obj->orient.uvec);
 	morph_start(LevelUniqueMorphObjectState, LevelSharedPolygonModelState, obj);

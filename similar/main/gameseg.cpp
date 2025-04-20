@@ -1126,13 +1126,15 @@ void extract_quaternionpos(fvmobjptr &vmobjptr, const vmobjptridx_t objp, quater
 // -------------------------------------------------------------------------------
 
 //create a matrix that describes the orientation of the given segment
-void extract_orient_from_segment(fvcvertptr &vcvertptr, vms_matrix &m, const shared_segment &seg)
+vms_matrix extract_orient_from_segment(fvcvertptr &vcvertptr, const shared_segment &seg)
 {
+	vms_matrix m;
 	const auto fvec{extract_vector_from_segment(vcvertptr, seg, sidenum_t::WFRONT, sidenum_t::WBACK)};
 	const auto uvec{extract_vector_from_segment(vcvertptr, seg, sidenum_t::WBOTTOM, sidenum_t::WTOP)};
 
 	//vector to matrix does normalizations and orthogonalizations
 	vm_vector_to_matrix_u(m, fvec, uvec);
+	return m;
 }
 
 #if DXX_USE_EDITOR
