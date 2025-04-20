@@ -212,9 +212,9 @@ BOOST_AUTO_TEST_CASE(vm_vec_dot_0)
 {
 	const vms_vector a{.x = 10 << 16, .y = 20 << 16, .z = 30 << 16};
 	const vms_vector b{.x = 30 << 16, .y = 70 << 16, .z = 300 << 16};
-	BOOST_CHECK_EQUAL(vm_vec_dot(a, b), ((10 * 30) + (20 * 70) + (30 * 300)) << 16);
+	BOOST_CHECK_EQUAL(vm_vec_build_dot(a, b), ((10 * 30) + (20 * 70) + (30 * 300)) << 16);
 	const vms_vector c{.x = 30 << 16, .y = -70 << 16, .z = 300 << 16};
-	BOOST_CHECK_EQUAL(vm_vec_dot(a, c), ((10 * 30) + (20 * -70) + (30 * 300)) << 16);
+	BOOST_CHECK_EQUAL(vm_vec_build_dot(a, c), ((10 * 30) + (20 * -70) + (30 * 300)) << 16);
 }
 
 BOOST_AUTO_TEST_CASE(vm_vec_mag2_0)

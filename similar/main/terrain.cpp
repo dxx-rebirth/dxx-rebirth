@@ -234,8 +234,8 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 
 	{
 		const auto tv{vm_vec_build_sub(Viewer->pos, start_point)};
-	viewer_i = vm_vec_dot(tv,surface_orient.rvec) / GRID_SCALE;
-	viewer_j = vm_vec_dot(tv,surface_orient.fvec) / GRID_SCALE;
+	viewer_i = vm_vec_build_dot(tv,surface_orient.rvec) / GRID_SCALE;
+	viewer_j = vm_vec_build_dot(tv,surface_orient.fvec) / GRID_SCALE;
 	}
 
 	auto last_p = g3_rotate_point(start_point);
@@ -436,7 +436,7 @@ constexpr vms_vector light{0x2e14,0xe8f5,0x5eb8};
 static fix get_face_light(const vms_vector &p0,const vms_vector &p1,const vms_vector &p2)
 {
 	const auto norm{vm_vec_normal(p0, p1, p2)};
-	return -vm_vec_dot(norm,light);
+	return -vm_vec_build_dot(norm,light);
 }
 
 static fix get_avg_light(int i,int j)

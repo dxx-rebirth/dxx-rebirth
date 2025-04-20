@@ -128,7 +128,7 @@ static int calc_best_gun(const unsigned num_guns, const object &objreactor, cons
 	for (i=0; i<num_guns; i++) {
 		fix			dot;
 		const auto gun_vec = vm_vec_normalized_quick(vm_vec_build_sub(objpos, gun_pos[i]));
-		dot = vm_vec_dot(gun_dir[i], gun_vec);
+		dot = vm_vec_build_dot(gun_dir[i], gun_vec);
 
 		if (dot > best_dot) {
 			best_dot = dot;

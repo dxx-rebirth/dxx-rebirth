@@ -303,7 +303,7 @@ static sidenum_t find_exit_side(const d_level_shared_segment_state &LevelSharedS
 		{
 			auto sidevec{compute_center_point_on_side(vcvertptr, pseg, i)};
 			vm_vec_normalized_dir_quick(sidevec,sidevec,segcenter);
-			d = vm_vec_dot(sidevec,prefvec);
+			d = vm_vec_build_dot(sidevec,prefvec);
 
 			if (labs(d) < MIN_D) d=0;
 
@@ -830,7 +830,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 
 		if (Endlevel_sequence==EL_OUTSIDE) {
 			const auto tvec{vm_vec_build_sub(ConsoleObject->pos, mine_side_exit_point)};
-			if (vm_vec_dot(tvec,mine_exit_orient.fvec) > 0) {
+			if (vm_vec_build_dot(tvec,mine_exit_orient.fvec) > 0) {
 				vms_vector mov_vec;
 
 				outside_mine = 1;
@@ -1219,7 +1219,7 @@ void do_endlevel_flythrough(d_level_unique_object_state &LevelUniqueObjectState,
 			fix d,largest_d=-f1_0;
 			for (const auto i : MAX_SIDES_PER_SEGMENT)
 			{
-				d = vm_vec_dot(pseg.sides[i].normals[0], flydata->obj->orient.uvec);
+				d = vm_vec_build_dot(pseg.sides[i].normals[0], flydata->obj->orient.uvec);
 				if (d > largest_d) {largest_d = d; up_side=i;}
 			}
 		}

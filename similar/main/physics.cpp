@@ -83,7 +83,7 @@ static void do_physics_align_object(object_base &obj)
 
 	range_for (auto &i, vcsegptr(obj.segnum)->shared_segment::sides)
 	{
-		const auto d{vm_vec_dot(i.normals[0], obj.orient.uvec)};
+		const auto d{vm_vec_build_dot(i.normals[0], obj.orient.uvec)};
 		if (largest_d < d)
 		{
 			largest_d = d;
@@ -100,7 +100,7 @@ static void do_physics_align_object(object_base &obj)
 			: best_side->normals[0]
 	};
 
-	if (labs(vm_vec_dot(desired_upvec, obj.orient.fvec)) < f1_0 / 2)
+	if (labs(vm_vec_build_dot(desired_upvec, obj.orient.fvec)) < f1_0 / 2)
 	{
 		const auto temp_matrix{vm_vector_to_matrix_u(obj.orient.fvec, desired_upvec)};
 
@@ -502,7 +502,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 			vms_vector moved_vec_n;
 			const auto actual_dist{vm_vec_normalized_dir(moved_vec_n, obj->pos, save_pos)};
 
-			if (fate == fvi_hit_type::Wall && vm_vec_dot(moved_vec_n,frame_vec) < 0)
+			if (fate == fvi_hit_type::Wall && vm_vec_build_dot(moved_vec_n,frame_vec) < 0)
 			{		//moved backwards
 
 				//don't change position or sim_time
@@ -540,7 +540,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 				// Find hit speed	
 
 				const auto moved_v{vm_vec_build_sub(obj->pos, save_pos)};
-				auto wall_part{vm_vec_dot(moved_v,hit_info.hit_wallnorm)};
+				auto wall_part{vm_vec_build_dot(moved_v,hit_info.hit_wallnorm)};
 
 				if ((wall_part != 0 && moved_time>0 && (hit_speed=-fixdiv(wall_part,moved_time))>0) || obj->type == OBJ_WEAPON || obj->type == OBJ_DEBRIS)
 					result = collide_object_with_wall(
@@ -589,7 +589,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 					}
 					else {					// Slide object along wall
 
-						wall_part = vm_vec_dot(hit_info.hit_wallnorm,obj->mtype.phys_info.velocity);
+						wall_part = vm_vec_build_dot(hit_info.hit_wallnorm,obj->mtype.phys_info.velocity);
 
 						// if wall_part, make sure the value is sane enough to get usable velocity computed
 						if (wall_part < 0 && wall_part > -f1_0) wall_part = -f1_0;

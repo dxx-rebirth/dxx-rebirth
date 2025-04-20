@@ -195,7 +195,7 @@ static fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector &v)
 	return p >> 16;
 }
 
-fix vm_vec_dot(const vms_vector &v0,const vms_vector &v1)
+fix vm_vec_build_dot(const vms_vector &v0,const vms_vector &v1)
 {
 	return vm_vec_dot3({v0.x}, {v0.y}, {v0.z}, v1);
 }
@@ -405,8 +405,8 @@ fixang vm_vec_delta_ang(const vms_vector &v0,const vms_vector &v1,const vms_vect
 //computes the delta angle between two normalized vectors. 
 fixang vm_vec_delta_ang_norm(const vms_vector &v0,const vms_vector &v1,const vms_vector &fvec)
 {
-	fixang a{fix_acos(vm_vec_dot(v0, v1))};
-	if (vm_vec_dot(vm_vec_cross(v0, v1), fvec) < 0)
+	fixang a{fix_acos(vm_vec_build_dot(v0, v1))};
+	if (vm_vec_build_dot(vm_vec_cross(v0, v1), fvec) < 0)
 			a = -a;
 	return a;
 }
@@ -518,9 +518,9 @@ vms_matrix vm_vector_to_matrix_u(const vms_vector &fvec, const vms_vector &uvec)
 vms_vector vm_vec_build_rotated(const vms_vector &src, const vms_matrix &m)
 {
 	return {
-		.x = vm_vec_dot(src, m.rvec),
-		.y = vm_vec_dot(src, m.uvec),
-		.z = vm_vec_dot(src, m.fvec)
+		.x = vm_vec_build_dot(src, m.rvec),
+		.y = vm_vec_build_dot(src, m.uvec),
+		.z = vm_vec_build_dot(src, m.fvec)
 	};
 }
 
@@ -615,7 +615,7 @@ vms_angvec vm_extract_angles_vector(const vms_vector &v)
 //distance is signed, so negative dist is on the back of the plane
 fix vm_dist_to_plane(const vms_vector &checkp,const vms_vector &norm,const vms_vector &planep)
 {
-	return vm_vec_dot(vm_vec_build_sub(checkp, planep), norm);
+	return vm_vec_build_dot(vm_vec_build_sub(checkp, planep), norm);
 }
 
 // convert vms_matrix to vms_quaternion

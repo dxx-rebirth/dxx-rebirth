@@ -500,7 +500,7 @@ static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegpt
 			: 0;
 	const auto tvec = vm_vec_normalized_quick(vm_vec_build_sub(Viewer_eye, vcvertptr(vertnum_list[which_vertnum])));
 	auto &normals = sside.normals;
-	const auto v_dot_n0 = vm_vec_dot(tvec, normals[0]);
+	const auto v_dot_n0 = vm_vec_build_dot(tvec, normals[0]);
 	//	========== Mark: Here is the change...beginning here: ==========
 
 	std::index_sequence<0, 1, 2, 3> is_quad;
@@ -517,7 +517,7 @@ static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegpt
 		//	to render it as a single quadrilateral.  This is a function of how far away the viewer is, how non-planar
 		//	the face is, how normal to the surfaces the view is.
 		//	Now, if both dot products are close to 1.0, then render two triangles as a single quad.
-		const auto v_dot_n1 = vm_vec_dot(tvec, normals[1]);
+		const auto v_dot_n1 = vm_vec_build_dot(tvec, normals[1]);
 
 		if (v_dot_n0 < v_dot_n1) {
 			min_dot = v_dot_n0;
@@ -530,7 +530,7 @@ static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegpt
 		//	Determine whether to detriangulate side: (speed hack, assumes Tulate_min_ratio == F1_0*2, should fixmul(min_dot, Tulate_min_ratio))
 		if (DETRIANGULATION && (min_dot + F1_0 / 256 > max_dot || (Viewer->segnum != segp && min_dot > Tulate_min_dot && max_dot < min_dot * 2)) &&
 			//	The other detriangulation code doesn't deal well with badly non-planar sides.
-			vm_vec_dot(normals[0], normals[1]) >= Min_n0_n1_dot
+			vm_vec_build_dot(normals[0], normals[1]) >= Min_n0_n1_dot
 			)
 		{
 			check_render_face(canvas, is_quad, segp, sidenum, 0, vertnum_list, uside.tmap_num, uside.tmap_num2, uside.uvls, wid_flags);
@@ -988,7 +988,7 @@ static bool compare_child(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, c
 	const auto &sv = Side_to_verts[edgeside][cside.type == side_type::tri_13 ? side_relative_vertnum::_1 : side_relative_vertnum::_0];
 	const auto &temp{vm_vec_build_sub(Viewer_eye, vcvertptr(seg.verts[sv]))};
 	const auto &cnormal = cside.normals;
-	return vm_vec_dot(cnormal[0], temp) < 0 || vm_vec_dot(cnormal[1], temp) < 0;
+	return vm_vec_build_dot(cnormal[0], temp) < 0 || vm_vec_build_dot(cnormal[1], temp) < 0;
 }
 
 //see if the order matters for these two children.

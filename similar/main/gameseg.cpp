@@ -1193,7 +1193,7 @@ static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_se
 	vm_vec_normalized_dir(vec1, vert1, vcvertptr(sp.verts[vp[side_relative_vertnum::_0]]));
 	vm_vec_normalized_dir(vec2, vert2, vert1);
 
-	if (vm_vec_dot(vec_to_center, vm_vec_cross(vec1, vec2)) <= 0)
+	if (vm_vec_build_dot(vec_to_center, vm_vec_cross(vec1, vec2)) <= 0)
 		return 1;
 
 	//vm_vec_sub(&vec1, &Vertices[sp->verts[vp[2]]], &Vertices[sp->verts[vp[1]]]);
@@ -1203,7 +1203,7 @@ static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_se
 	vm_vec_normalized_dir(vec1, vert2, vert1);
 	vm_vec_normalized_dir(vec2, vcvertptr(sp.verts[vp[side_relative_vertnum::_3]]), vert2);
 
-	if (vm_vec_dot(vec_to_center, vm_vec_cross(vec1, vec2)) <= 0)
+	if (vm_vec_build_dot(vec_to_center, vm_vec_cross(vec1, vec2)) <= 0)
 		return 1;
 	return 0;
 }
@@ -1214,7 +1214,7 @@ static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_se
 [[nodiscard]]
 static unsigned check_for_degenerate_segment(fvcvertptr &vcvertptr, const shared_segment &sp)
 {
-	if (vm_vec_dot(
+	if (vm_vec_build_dot(
 			vm_vec_cross(
 				vm_vec_normalized(extract_forward_vector_from_segment(vcvertptr, sp)),
 				vm_vec_normalized(extract_right_vector_from_segment(vcvertptr, sp))),
@@ -1313,7 +1313,7 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 		auto &vvs2 = *vcvertptr(verts[vs[side_relative_vertnum::_2]]);
 		auto &vvs3 = *vcvertptr(verts[vs[side_relative_vertnum::_3]]);
 		const auto norm{vm_vec_normal(vvs0, vvs1, vvs2)};
-		const fix dot{vm_vec_dot(norm, vm_vec_build_sub(vvs3, vvs1))};
+		const fix dot{vm_vec_build_dot(norm, vm_vec_build_sub(vvs3, vvs1))};
 
 		const vertex *n0v3, *n1v1;
 		//	Now, signify whether to triangulate from 0:2 or 1:3

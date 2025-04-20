@@ -880,7 +880,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 	//	Find out if moving backwards.
 	if (is_proximity_bomb_or_player_smart_mine(weapon_type)) {
 		parent_speed = vm_vec_mag_quick(parent->mtype.phys_info.velocity);
-		if (vm_vec_dot(parent->mtype.phys_info.velocity, parent->orient.fvec) < 0)
+		if (vm_vec_build_dot(parent->mtype.phys_info.velocity, parent->orient.fvec) < 0)
 			parent_speed = -parent_speed;
 	} else
 		parent_speed = 0;
@@ -1069,12 +1069,12 @@ static int object_is_trackable(const imobjptridx_t objp, const vmobjptridx_t tra
 #endif
 	}
 	auto vector_to_goal{vm_vec_normalized_quick(vm_vec_build_sub(objp->pos, tracker->pos))};
-	*dot = vm_vec_dot(vector_to_goal, tracker->orient.fvec);
+	*dot = vm_vec_build_dot(vector_to_goal, tracker->orient.fvec);
 
 #if DXX_BUILD_DESCENT == 2
 	if ((*dot < get_scaled_min_trackable_dot()) && (*dot > F1_0*9/10)) {
 		vm_vec_normalize(vector_to_goal);
-		*dot = vm_vec_dot(vector_to_goal, tracker->orient.fvec);
+		*dot = vm_vec_build_dot(vector_to_goal, tracker->orient.fvec);
 	}
 #endif
 
@@ -1228,7 +1228,7 @@ imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjp
 
 		if (build_vm_distance_squared(dist) < max_trackable_dist) {
 			vm_vec_normalize(vec_to_curobj);
-			fix dot{vm_vec_dot(vec_to_curobj, tracker->orient.fvec)};
+			fix dot{vm_vec_build_dot(vec_to_curobj, tracker->orient.fvec)};
 			if (is_proximity)
 				dot = ((dot << 3) + dot) >> 3;		//	I suspect Watcom would be too stupid to figure out the obvious...
 
@@ -1650,7 +1650,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 							speed = max_speed;
 					}
 #if DXX_BUILD_DESCENT == 1
-					dot = vm_vec_dot(temp_vec, vector_to_object);
+					dot = vm_vec_build_dot(temp_vec, vector_to_object);
 #endif
 					vm_vec_add2(temp_vec, vector_to_object);
 					//	The boss' smart children track better...
@@ -1711,7 +1711,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 						speed = max_speed;
 				}
 #if DXX_BUILD_DESCENT == 1
-				dot = vm_vec_dot(temp_vec, vector_to_object);
+				dot = vm_vec_build_dot(temp_vec, vector_to_object);
 #endif
 				vm_vec_add2(temp_vec, vector_to_object);
 				//	The boss' smart children track better...

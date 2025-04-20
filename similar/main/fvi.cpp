@@ -72,7 +72,7 @@ static intersection_result find_plane_line_intersection(const vms_vector &plane_
 {
 	intersection_result result;
 	auto d{vm_vec_build_sub(p1, p0)};
-	const fix den{-vm_vec_dot(plane_norm, d)};
+	const fix den{-vm_vec_build_dot(plane_norm, d)};
 	if (unlikely(!den)) // moving parallel to wall, so can't hit it
 	{
 		result.hit_type = intersection_type::None;
@@ -80,7 +80,7 @@ static intersection_result find_plane_line_intersection(const vms_vector &plane_
 	}
 
 	const auto w{vm_vec_build_sub(p0, plane_pnt)};
-	fix num{vm_vec_dot(plane_norm,w) - rad}; //move point out by rad
+	fix num{vm_vec_build_dot(plane_norm,w) - rad}; //move point out by rad
 
 	//check for various bad values
 	if (den > 0 && (-num>>15) >= den) //will overflow (large negative)
@@ -213,7 +213,7 @@ static intersection_type check_sphere_to_face(const vms_vector &pnt, const vms_v
 		
 		//find point dist from planes of ends of edge
 
-		const auto d = vm_vec_dot(edgevec, vm_vec_build_sub(checkp, v0));
+		const auto d = vm_vec_build_dot(edgevec, vm_vec_build_sub(checkp, v0));
 		if (d < 0)
 			return intersection_type::None;
 		else if (d > edgelen)
@@ -300,7 +300,7 @@ static std::optional<std::pair<fix, fix>> check_line_to_line(const vms_vector &p
 	std::pair<vms_vector, vms_vector> rfvec;
 	auto &detf = rfvec.second;
 	detf = vm_vec_cross(v1, v2);
-	const auto cross_mag2{vm_vec_dot(detf, detf)};
+	const auto cross_mag2{vm_vec_build_dot(detf, detf)};
 
 	if (cross_mag2 == 0)
 		return std::nullopt;			//lines are parallel
@@ -444,7 +444,7 @@ static vm_distance_squared check_vector_to_sphere_1(vms_vector &intp,const vms_v
 		return vm_distance_squared::minimum_value;
 	}
 
-	const fix w_dist{vm_vec_dot(dn, w)};
+	const fix w_dist{vm_vec_build_dot(dn, w)};
 
 	if (w_dist < 0)		//moving away from object
 		return vm_distance_squared::minimum_value;
@@ -564,7 +564,7 @@ static vm_distance_squared check_vector_to_sphere_1(vms_vector &intp,const vms_v
 //$$		fix k;                                  //portion of p0p1 we want
 //$$//@@		fix dist2,rad2,shorten,mag_w2;
 //$$
-//$$//@@		mag_w2 = vm_vec_dot(&w,&w);     //the square of the magnitude
+//$$//@@		mag_w2 = vm_vec_build_dot(&w,&w);     //the square of the magnitude
 //$$//@@		//WHAT ABOUT OVERFLOW???
 //$$//@@		dist2 = fixmul(dist,dist);
 //$$//@@		rad2 = fixmul(sphere_rad,sphere_rad);

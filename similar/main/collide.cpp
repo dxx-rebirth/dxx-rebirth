@@ -765,7 +765,7 @@ static window_event_result collide_weapon_and_wall(
 	if (get_weapon_id(weapon) == weapon_id_type::GUIDEDMISS_ID) {
 		fix	dot;
 
-		dot = vm_vec_dot(weapon->orient.fvec, hitseg->shared_segment::sides[hitwall].normals[0]);
+		dot = vm_vec_build_dot(weapon->orient.fvec, hitseg->shared_segment::sides[hitwall].normals[0]);
 		if (dot < -F1_0/6) {
 			weapon->mtype.phys_info.flags &= ~PF_BOUNCE;
 		}
@@ -1575,7 +1575,7 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_robot_info_
 		//	Boss only vulnerable in back.  See if hit there.
 		//	Note, if BOSS_INVULNERABLE_DOT is close to F1_0 (in magnitude), then should probably use non-quick version.
 		const auto tvec1 = vm_vec_normalized_quick(vm_vec_build_sub(collision_point, robot.pos));
-		dot = vm_vec_dot(tvec1, robot.orient.fvec);
+		dot = vm_vec_build_dot(tvec1, robot.orient.fvec);
 		if (dot > Boss_invulnerable_dot()) {
 			if (const auto &&segp = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, collision_point, Segments.vmptridx(robot.segnum)))
 				digi_link_sound_to_pos(sound_effect::SOUND_WEAPON_HIT_DOOR, segp, sidenum_t::WLEFT, collision_point, 0, F1_0);

@@ -395,8 +395,8 @@ static void assign_uvs_to_side(fvcvertptr &vcvertptr, const vmsegptridx_t segp, 
 			vv3v0
 		};
 		const auto build_uvl = [&](const vms_vector &tvec, const uvl &uvi) {
-			const auto drt = vm_vec_dot(fr.rvec, tvec);
-			const auto dft = vm_vec_dot(fr.fvec, tvec);
+			const auto drt = vm_vec_build_dot(fr.rvec, tvec);
+			const auto dft = vm_vec_build_dot(fr.fvec, tvec);
 			return uvl{
 				uvi.u +
 					fixdiv(fixmul(ruvmag.u, drt), mag01) +
@@ -980,7 +980,7 @@ static void cast_light_from_side(const vmsegptridx_t segp, const sidenum_t light
 
 							//	Hack: In oblong segments, it's possible to get a very small dot product
 							//	but the light source is very nearby (eg, illuminating light itself!).
-							fix light_dot = vm_vec_dot(vector_to_light, side_normalp);
+							fix light_dot = vm_vec_build_dot(vector_to_light, side_normalp);
 							if (distance_to_point < F1_0)
 								if (light_dot > 0)
 									light_dot = (light_dot + F1_0)/2;

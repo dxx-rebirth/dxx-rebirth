@@ -246,7 +246,7 @@ protected:
 	g3s_lrgb get_noglow_light(const uint8_t *const p) const
 	{
 		g3s_lrgb light;
-		const auto negdot = -vm_vec_dot(View_matrix.fvec, *vp(p + 16));
+		const auto negdot = -vm_vec_build_dot(View_matrix.fvec, *vp(p + 16));
 		const auto color = (f1_0 / 4) + ((negdot * 3) / 4);
 		set_color_by_model_light(&g3s_lrgb::r, light, color);
 		set_color_by_model_light(&g3s_lrgb::g, light, color);

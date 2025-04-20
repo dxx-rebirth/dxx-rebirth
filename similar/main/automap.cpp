@@ -1665,7 +1665,7 @@ void automap_build_edge_list(automap &am, int add_all_edges)
 				const auto e2segnum{e->segnum[e2]};
 				if (e1segnum == e2segnum)
 					continue;
-				if (vm_vec_dot(e1siden0, vcsegptr(e2segnum)->shared_segment::sides[e->sides[e2]].normals[0]) > (F1_0 - (F1_0 / 10)))
+				if (vm_vec_build_dot(e1siden0, vcsegptr(e2segnum)->shared_segment::sides[e->sides[e2]].normals[0]) > (F1_0 - (F1_0 / 10)))
 				{
 					e->flags &= (~EF_DEFINING);
 					break;
