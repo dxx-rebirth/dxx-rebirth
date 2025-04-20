@@ -82,6 +82,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 
 #include "compiler-range_for.h"
+#include "d_construct.h"
 #include "d_levelstate.h"
 #include "partial_range.h"
 #include <utility>
@@ -3700,7 +3701,7 @@ static window_event_result interpolate_frame(fix d_play, fix d_recorded)
 							vm_vec_scale(rvec2, factor);
 							vm_vec_add2(rvec1, rvec2);
 							vm_vec_normalize_quick(rvec1); // Note: Doesn't matter if this is null, if null, vm_vector_to_matrix will just use fvec1
-							vm_vector_to_matrix_r(i.orient, fvec1, rvec1);
+							reconstruct_at(i.orient, vm_vector_to_matrix_r, fvec1, rvec1);
 						}
 					}
 

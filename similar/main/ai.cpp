@@ -760,7 +760,14 @@ void ai_turn_towards_vector(const vms_vector &goal_vector, object_base &objp, fi
 	}
 #endif
 
-	vm_vector_to_matrix_r(objp.orient, new_fvec, objp.orient.rvec);
+	{
+		/* Copy `objp.orient.rvec` into a temporary and pass the temporary,
+		 * since it is undefined behavior to access `objp.orient` after the old
+		 * object is destroyed until the new value is constructed.
+		 */
+		const auto old_rvec{objp.orient.rvec};
+		reconstruct_at(objp.orient, vm_vector_to_matrix_r, new_fvec, old_rvec);
+	}
 }
 
 #if DXX_BUILD_DESCENT == 1
