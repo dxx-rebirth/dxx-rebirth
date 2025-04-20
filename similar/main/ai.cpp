@@ -3979,7 +3979,7 @@ _exit_cheat:
 				if (!ai_multiplayer_awareness(obj, 75))
 					return;
 
-				const auto fire_vec = vm_vec_negated(obj->orient.fvec);
+				const auto fire_vec{vm_vec_negated(obj->orient.fvec)};
 				const auto fire_pos = vm_vec_add(obj->pos, fire_vec);
 
 #if DXX_BUILD_DESCENT == 1
