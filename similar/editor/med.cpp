@@ -559,7 +559,7 @@ static void move_player_2_segment_and_rotate(const vmsegptridx_t seg, const side
 	auto &sv = Side_to_verts[Curside];
 	auto &verts = Cursegp->verts;
 	const auto en = std::exchange(edgenum, next_side_vertex(edgenum));
-	reconstruct_at(ConsoleObject->orient, vm_vector_to_matrix_u, vp, vm_vec_sub(vcvertptr(verts[sv[en]]), vcvertptr(verts[sv[next_side_vertex(en, 3)]])));
+	reconstruct_at(ConsoleObject->orient, vm_vector_to_matrix_u, vp, vm_vec_build_sub(vcvertptr(verts[sv[en]]), vcvertptr(verts[sv[next_side_vertex(en, 3)]])));
 	obj_relink(vmobjptr, vmsegptr, vmobjptridx(ConsoleObject), seg);
 }
 
@@ -591,7 +591,7 @@ int SetPlayerFromCursegMinusOne()
 	auto &sv = Side_to_verts[Curside];
 	auto &verts = Cursegp->verts;
 	const auto en = std::exchange(edgenum, next_side_vertex(edgenum));
-	reconstruct_at(ConsoleObject->orient, vm_vector_to_matrix_u, view_vec, vm_vec_sub(vcvertptr(verts[sv[en]]), vcvertptr(verts[sv[next_side_vertex(en, 3)]])));
+	reconstruct_at(ConsoleObject->orient, vm_vector_to_matrix_u, view_vec, vm_vec_build_sub(vcvertptr(verts[sv[en]]), vcvertptr(verts[sv[next_side_vertex(en, 3)]])));
 
 	gr_set_current_canvas(*Canv_editor_game);
 	g3_start_frame(*grd_curcanv);

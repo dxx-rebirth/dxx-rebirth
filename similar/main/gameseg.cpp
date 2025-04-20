@@ -1180,7 +1180,7 @@ static unsigned check_for_degenerate_side(fvcvertptr &vcvertptr, const shared_se
 
 	const auto segc{compute_segment_center(vcvertptr, sp)};
 	const auto sidec{compute_center_point_on_side(vcvertptr, sp, sidenum)};
-	const auto vec_to_center{vm_vec_sub(segc, sidec)};
+	const auto vec_to_center{vm_vec_build_sub(segc, sidec)};
 
 	//vm_vec_sub(&vec1, &Vertices[sp->verts[vp[1]]], &Vertices[sp->verts[vp[0]]]);
 	//vm_vec_sub(&vec2, &Vertices[sp->verts[vp[2]]], &Vertices[sp->verts[vp[1]]]);
@@ -1313,7 +1313,7 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 		auto &vvs2 = *vcvertptr(verts[vs[side_relative_vertnum::_2]]);
 		auto &vvs3 = *vcvertptr(verts[vs[side_relative_vertnum::_3]]);
 		const auto norm{vm_vec_normal(vvs0, vvs1, vvs2)};
-		const fix dot{vm_vec_dot(norm, vm_vec_sub(vvs3, vvs1))};
+		const fix dot{vm_vec_dot(norm, vm_vec_build_sub(vvs3, vvs1))};
 
 		const vertex *n0v3, *n1v1;
 		//	Now, signify whether to triangulate from 0:2 or 1:3
@@ -1555,7 +1555,7 @@ vms_vector pick_random_point_in_seg(fvcvertptr &vcvertptr, const shared_segment 
 {
 	auto new_pos{compute_segment_center(vcvertptr, sp)};
 	const auto vnum = segment_relative_vertnum{std::uniform_int_distribution<uint8_t>(0, MAX_VERTICES_PER_SEGMENT - 1)(r)};
-	auto &&vec2{vm_vec_sub(vcvertptr(sp.verts[vnum]), new_pos)};
+	auto &&vec2{vm_vec_build_sub(vcvertptr(sp.verts[vnum]), new_pos)};
 	vm_vec_scale(vec2, std::uniform_int_distribution<fix>(0, f0_5 - 1)(r));          // always in 0..1/2 fix
 	vm_vec_add2(new_pos, vec2);
 	return new_pos;

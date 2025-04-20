@@ -366,7 +366,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 		for (auto &&[side, displacement] : zip(displacement_sides, vec_displacement))
 		{
 			const auto center_on_side{compute_center_point_on_side(vcvertptr, seg, side)};
-			displacement = vm_vec_sub(center_on_side, old_player_init.pos);
+			displacement = vm_vec_build_sub(center_on_side, old_player_init.pos);
 		}
 		const auto displace_player = [&](const unsigned plridx, object_base &plrobj, const unsigned displacement_direction) {
 			vms_vector disp{};

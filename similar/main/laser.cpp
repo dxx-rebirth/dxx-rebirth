@@ -434,7 +434,7 @@ namespace {
 // ---------------------------------------------------------------------------------
 static bool create_omega_blobs(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const weapon_info_array &Weapon_info, const Difficulty_level_type Difficulty_level, const imsegptridx_t firing_segnum, const vms_vector &firing_pos, const vms_vector &goal_pos, const vmobjptridx_t parent_objp)
 {
-	const auto &&[magnitude_to_goal, vec_to_goal] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(goal_pos, firing_pos));
+	const auto &&[magnitude_to_goal, vec_to_goal] = vm_vec_normalize_quick_with_magnitude(vm_vec_build_sub(goal_pos, firing_pos));
 	const fix dist_to_goal{magnitude_to_goal};
 	const auto &&[omega_blob_dist, num_omega_blobs] = [](const unsigned dist_to_goal) -> std::pair<fix, unsigned> {
 		if (dist_to_goal < MIN_OMEGA_BLOBS * MIN_OMEGA_DIST)
@@ -1068,7 +1068,7 @@ static int object_is_trackable(const imobjptridx_t objp, const vmobjptridx_t tra
 				return 0;
 #endif
 	}
-	auto vector_to_goal{vm_vec_normalized_quick(vm_vec_sub(objp->pos, tracker->pos))};
+	auto vector_to_goal{vm_vec_normalized_quick(vm_vec_build_sub(objp->pos, tracker->pos))};
 	*dot = vm_vec_dot(vector_to_goal, tracker->orient.fvec);
 
 #if DXX_BUILD_DESCENT == 2
@@ -1223,7 +1223,7 @@ imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjp
 #endif
 		}
 
-		auto vec_to_curobj{vm_vec_sub(curobjp->pos, curpos)};
+		auto vec_to_curobj{vm_vec_build_sub(curobjp->pos, curpos)};
 		auto dist{vm_vec_mag2(vec_to_curobj)};
 
 		if (build_vm_distance_squared(dist) < max_trackable_dist) {
@@ -1639,7 +1639,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 
 				if (track_goal != object_none)
 				{
-					auto vector_to_object{vm_vec_sub(track_goal->pos, obj->pos)};
+					auto vector_to_object{vm_vec_build_sub(track_goal->pos, obj->pos)};
 					vm_vec_normalize_quick(vector_to_object);
 					auto &&[speed_magnitude, temp_vec] = vm_vec_normalize_quick_with_magnitude(obj->mtype.phys_info.velocity);
 					fix speed{speed_magnitude};
@@ -1700,7 +1700,7 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 
 			if (track_goal != object_none)
 			{
-				auto vector_to_object{vm_vec_sub(track_goal->pos, obj->pos)};
+				auto vector_to_object{vm_vec_build_sub(track_goal->pos, obj->pos)};
 				vm_vec_normalize_quick(vector_to_object);
 				temp_vec = obj->mtype.phys_info.velocity;
 				speed = vm_vec_normalize_quick(temp_vec);

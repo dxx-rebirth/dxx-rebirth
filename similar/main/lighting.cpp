@@ -176,7 +176,7 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 								objnum,
 							}, obj_seg, 0, hit_data);
 							if (fate != fvi_hit_type::None)
-								max_headlight_dist = vm_vec_mag_quick(vm_vec_sub(hit_data.hit_pnt, obj.pos)) + F1_0*4;
+								max_headlight_dist = vm_vec_mag_quick(vm_vec_build_sub(hit_data.hit_pnt, obj.pos)) + F1_0*4;
 						}
 					}
 			}
@@ -211,7 +211,7 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 					{
 						fix dot;
 						// MK, Optimization note: You compute distance about 15 lines up, this is partially redundant
-						const auto vec_to_point = vm_vec_normalized_quick(vm_vec_sub(vertpos, obj_pos));
+						const auto vec_to_point = vm_vec_normalized_quick(vm_vec_build_sub(vertpos, obj_pos));
 						dot = vm_vec_dot(vec_to_point, objnum->orient.fvec);
 						if (dot < F1_0/2)
 						{
@@ -592,7 +592,7 @@ static fix compute_headlight_light_on_object(const d_level_unique_headlight_stat
 
 	range_for (const object_base *const light_objp, partial_const_range(LevelUniqueHeadlightState.Headlights, LevelUniqueHeadlightState.Num_headlights))
 	{
-		const auto &&[dist, vec_to_obj] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(objp.pos, light_objp->pos));
+		const auto &&[dist, vec_to_obj] = vm_vec_normalize_quick_with_magnitude(vm_vec_build_sub(objp.pos, light_objp->pos));
 		if (dist > 0) {
 			const fix dot = vm_vec_dot(light_objp->orient.fvec, vec_to_obj);
 

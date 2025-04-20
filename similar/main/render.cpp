@@ -498,7 +498,7 @@ static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegpt
 		(sside.type == side_type::tri_13)
 			? 1
 			: 0;
-	const auto tvec = vm_vec_normalized_quick(vm_vec_sub(Viewer_eye, vcvertptr(vertnum_list[which_vertnum])));
+	const auto tvec = vm_vec_normalized_quick(vm_vec_build_sub(Viewer_eye, vcvertptr(vertnum_list[which_vertnum])));
 	auto &normals = sside.normals;
 	const auto v_dot_n0 = vm_vec_dot(tvec, normals[0]);
 	//	========== Mark: Here is the change...beginning here: ==========
@@ -986,7 +986,7 @@ static bool compare_child(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, c
 {
 	const auto &cside = cseg.sides[edgeside];
 	const auto &sv = Side_to_verts[edgeside][cside.type == side_type::tri_13 ? side_relative_vertnum::_1 : side_relative_vertnum::_0];
-	const auto &temp{vm_vec_sub(Viewer_eye, vcvertptr(seg.verts[sv]))};
+	const auto &temp{vm_vec_build_sub(Viewer_eye, vcvertptr(seg.verts[sv]))};
 	const auto &cnormal = cside.normals;
 	return vm_vec_dot(cnormal[0], temp) < 0 || vm_vec_dot(cnormal[1], temp) < 0;
 }

@@ -539,7 +539,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 
 				// Find hit speed	
 
-				const auto moved_v{vm_vec_sub(obj->pos, save_pos)};
+				const auto moved_v{vm_vec_build_sub(obj->pos, save_pos)};
 				auto wall_part{vm_vec_dot(moved_v,hit_info.hit_wallnorm)};
 
 				if ((wall_part != 0 && moved_time>0 && (hit_speed=-fixdiv(wall_part,moved_time))>0) || obj->type == OBJ_WEAPON || obj->type == OBJ_DEBRIS)
@@ -658,7 +658,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 					const fix size0{hit->size};
 					const fix size1{obj->size};
 					Assert(size0+size1 != 0);	// Error, both sizes are 0, so how did they collide, anyway?!?
-					auto pos_hit{vm_vec_scale_add(ppos0, vm_vec_sub(ppos1, ppos0), fixdiv(size0, size0 + size1))};
+					auto pos_hit{vm_vec_scale_add(ppos0, vm_vec_build_sub(ppos1, ppos0), fixdiv(size0, size0 + size1))};
 
 					collide_two_objects(Robot_info, obj, hit, pos_hit);
 				}
@@ -709,7 +709,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 		&& (fate == fvi_hit_type::Wall || fate == fvi_hit_type::Object || fate == fvi_hit_type::BadP0)
 		)
 	{	
-		const auto moved_vec{vm_vec_sub(obj->pos, start_pos)};
+		const auto moved_vec{vm_vec_build_sub(obj->pos, start_pos)};
 		obj->mtype.phys_info.velocity = vm_vec_copy_scale(moved_vec, fixdiv(F1_0, FrameTime));
 	}
 

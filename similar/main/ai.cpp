@@ -1096,7 +1096,7 @@ static int lead_player(const object_base &objp, const vms_vector &fire_point, co
 	if (player_speed < MIN_LEAD_SPEED)
 		return 0;
 
-	const auto &&[dist_to_player, vec_to_player] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(believed_player_pos, fire_point));
+	const auto &&[dist_to_player, vec_to_player] = vm_vec_normalize_quick_with_magnitude(vm_vec_build_sub(believed_player_pos, fire_point));
 	if (dist_to_player > MAX_LEAD_DISTANCE)
 		return 0;
 
@@ -1539,7 +1539,7 @@ static void ai_move_relative_to_player(const d_robot_info_array &Robot_info, con
 
 			const fix field_of_view = robptr.field_of_view[Difficulty_level];
 
-			const auto &&[dist_to_laser, vec_to_laser] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(dobjp->pos, objp->pos));
+			const auto &&[dist_to_laser, vec_to_laser] = vm_vec_normalize_quick_with_magnitude(vm_vec_build_sub(dobjp->pos, objp->pos));
 			const fix dot = vm_vec_dot(vec_to_laser, objp->orient.fvec);
 
 			if (dot > field_of_view || robot_is_companion(robptr))
@@ -1553,7 +1553,7 @@ static void ai_move_relative_to_player(const d_robot_info_array &Robot_info, con
 				else {		//	Not a polyobj, get velocity and normalize.
 					laser_fvec = vm_vec_normalized_quick(dobjp->mtype.phys_info.velocity);	//dobjp->orient.fvec;
 				}
-				const auto laser_vec_to_robot = vm_vec_normalized_quick(vm_vec_sub(objp->pos, dobjp->pos));
+				const auto laser_vec_to_robot = vm_vec_normalized_quick(vm_vec_build_sub(objp->pos, dobjp->pos));
 				laser_robot_dot = vm_vec_dot(laser_fvec, laser_vec_to_robot);
 
 				if ((laser_robot_dot > F1_0*7/8) && (dist_to_laser < F1_0*80)) {
@@ -2421,7 +2421,7 @@ static void teleport_boss(const d_robot_info_array &Robot_info, const d_vclip_ar
 	BossUniqueState.Last_teleport_time = {GameTime64};
 
 	//	make boss point right at player
-	reconstruct_at(objp->orient, vm_vector_to_matrix, vm_vec_sub(target_pos, objp->pos));
+	reconstruct_at(objp->orient, vm_vector_to_matrix, vm_vec_build_sub(target_pos, objp->pos));
 
 	digi_link_sound_to_pos(Vclip[vclip_index::morphing_robot].sound_num, rand_segp, sidenum_t::WLEFT, objp->pos, 0, F1_0);
 	digi_kill_sound_linked_to_object( objp);
@@ -4148,7 +4148,7 @@ _exit_cheat:
 				vm_vec_scale(goal_vector, 2*(ConsoleObject->size + obj->size + (((objnum*4 + d_tick_count) & 63) << 12)));
 				auto goal_point = vm_vec_build_add(ConsoleObject->pos, goal_vector);
 				vm_vec_scale_add2(goal_point, make_random_vector(), F1_0*8);
-				const auto vec_to_goal = vm_vec_normalized_quick(vm_vec_sub(goal_point, obj->pos));
+				const auto vec_to_goal = vm_vec_normalized_quick(vm_vec_build_sub(goal_point, obj->pos));
 				move_towards_vector(robptr, obj, vec_to_goal, 0);
 				ai_turn_towards_vector(vec_to_player, obj, robptr.turn_time[Difficulty_level]);
 				ai_do_actual_firing_stuff(Robot_info, vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
@@ -4237,7 +4237,7 @@ _exit_cheat:
 				return;
 			auto &vcvertptr = Vertices.vcptr;
 			const auto center_point{compute_center_point_on_side(vcvertptr, vcsegptr(obj->segnum), aip->GOALSIDE)};
-			const auto goal_vector = vm_vec_normalized_quick(vm_vec_sub(center_point, obj->pos));
+			const auto goal_vector = vm_vec_normalized_quick(vm_vec_build_sub(center_point, obj->pos));
 			ai_turn_towards_vector(goal_vector, obj, robptr.turn_time[Difficulty_level]);
 			move_towards_vector(robptr, obj, goal_vector, 0);
 			ai_multi_send_robot_position(obj, -1);

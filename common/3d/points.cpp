@@ -45,7 +45,7 @@ clipping_code g3_code_point(g3s_point &p)
 //rotates a point. returns codes.  does not check if already rotated
 clipping_code g3_rotate_point(g3s_point &dest,const vms_vector &src)
 {
-	vm_vec_rotate(dest.p3_vec, vm_vec_sub(src, View_position), View_matrix);
+	vm_vec_rotate(dest.p3_vec, vm_vec_build_sub(src, View_position), View_matrix);
 	dest.p3_flags = {};	//no projected
 	return g3_code_point(dest);
 }
@@ -119,7 +119,7 @@ g3_projected_point g3_projected_point::build(const g3_rotated_point &rp)
 }
 
 g3_rotated_point::g3_rotated_point(const g3_instance_context &viewer, const vms_vector &absolute_position) :
-	p3_vec{vm_vec_build_rotated(vm_vec_sub(absolute_position, viewer.position), viewer.matrix)}
+	p3_vec{vm_vec_build_rotated(vm_vec_build_sub(absolute_position, viewer.position), viewer.matrix)}
 {
 }
 

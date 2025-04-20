@@ -212,12 +212,12 @@ vm_magnitude vm_vec_mag(const vms_vector &v)
 //computes the distance between two points. (does sub and mag)
 vm_distance vm_vec_dist(const vms_vector &v0,const vms_vector &v1)
 {
-	return vm_vec_mag(vm_vec_sub(v0,v1));
+	return vm_vec_mag(vm_vec_build_sub(v0, v1));
 }
 
 vm_distance_squared vm_vec_dist2(const vms_vector &v0,const vms_vector &v1)
 {
-	return build_vm_distance_squared(vm_vec_mag2(vm_vec_sub(v0,v1)));
+	return build_vm_distance_squared(vm_vec_mag2(vm_vec_build_sub(v0, v1)));
 }
 
 //computes an approximation of the magnitude of the vector
@@ -247,7 +247,7 @@ vm_magnitude vm_vec_mag_quick(const vms_vector &v)
 //uses dist = largest + next_largest*3/8 + smallest*3/16
 vm_distance vm_vec_dist_quick(const vms_vector &v0,const vms_vector &v1)
 {
-	return vm_vec_mag_quick(vm_vec_sub(v0,v1));
+	return vm_vec_mag_quick(vm_vec_build_sub(v0, v1));
 }
 
 //normalize a vector. returns mag of source vec
@@ -378,8 +378,8 @@ vms_vector vm_vec_cross(const vms_vector &src0, const vms_vector &src1)
 //computes non-normalized surface normal from three points. 
 vms_vector vm_vec_perp(const vms_vector &p0, const vms_vector &p1, const vms_vector &p2)
 {
-	auto t0{check_vec(vm_vec_sub(p1, p0))};
-	auto t1{check_vec(vm_vec_sub(p2, p1))};
+	auto t0{check_vec(vm_vec_build_sub(p1, p0))};
+	auto t1{check_vec(vm_vec_build_sub(p2, p1))};
 	return vm_vec_cross(t0, t1);
 }
 
@@ -611,7 +611,7 @@ vms_angvec vm_extract_angles_vector(const vms_vector &v)
 //distance is signed, so negative dist is on the back of the plane
 fix vm_dist_to_plane(const vms_vector &checkp,const vms_vector &norm,const vms_vector &planep)
 {
-	return vm_vec_dot(vm_vec_sub(checkp,planep),norm);
+	return vm_vec_dot(vm_vec_build_sub(checkp, planep), norm);
 }
 
 // convert vms_matrix to vms_quaternion

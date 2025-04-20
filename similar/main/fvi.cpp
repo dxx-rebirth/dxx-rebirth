@@ -57,12 +57,12 @@ namespace {
 [[nodiscard]]
 static int find_plane_line_intersection(vms_vector &new_pnt, const vms_vector &plane_pnt, const vms_vector &plane_norm, const vms_vector &p0, const vms_vector &p1, const fix rad)
 {
-	auto d{vm_vec_sub(p1, p0)};
+	auto d{vm_vec_build_sub(p1, p0)};
 	const fix den{-vm_vec_dot(plane_norm, d)};
 	if (unlikely(!den)) // moving parallel to wall, so can't hit it
 		return 0;
 
-	const auto w{vm_vec_sub(p0, plane_pnt)};
+	const auto w{vm_vec_build_sub(p0, plane_pnt)};
 	fix num{vm_vec_dot(plane_norm,w) - rad}; //move point out by rad
 
 	//check for various bad values
@@ -192,7 +192,7 @@ static intersection_type check_sphere_to_face(const vms_vector &pnt, const vms_v
 		
 		//find point dist from planes of ends of edge
 
-		const auto d = vm_vec_dot(edgevec, vm_vec_sub(checkp, v0));
+		const auto d = vm_vec_dot(edgevec, vm_vec_build_sub(checkp, v0));
 		if (d < 0)
 			return intersection_type::None;
 		else if (d > edgelen)
@@ -312,7 +312,7 @@ static intersection_type special_check_line_to_face(vms_vector &newp, const vms_
 	auto &edge_v0 = *vcvertptr(vertex_list[facenum * 3 + edgenum]);
 	auto &edge_v1 = *vcvertptr(vertex_list[facenum * 3 + ((edgenum + 1) % nv)]);
 
-	auto edge_vec{vm_vec_sub(edge_v1, edge_v0)};
+	auto edge_vec{vm_vec_build_sub(edge_v1, edge_v0)};
 
 	//is the start point already touching the edge?
 
@@ -321,7 +321,7 @@ static intersection_type special_check_line_to_face(vms_vector &newp, const vms_
 	//first, find point of closest approach of vec & edge
 
 	const auto edge_len{vm_vec_normalize(edge_vec)};
-	auto move_vec{vm_vec_sub(p1, p0)};
+	auto move_vec{vm_vec_build_sub(p1, p0)};
 	const auto move_len{vm_vec_normalize(move_vec)};
 
 	const auto &cll = check_line_to_line(edge_v0,edge_vec,p0,move_vec);
@@ -389,8 +389,8 @@ static vm_distance_squared check_vector_to_sphere_1(vms_vector &intp,const vms_v
 
 	//this routine could be optimized if it's taking too much time!
 
-	const auto d{vm_vec_sub(p1, p0)};
-	const auto w{vm_vec_sub(sphere_pos, p0)};
+	const auto d{vm_vec_build_sub(p1, p0)};
+	const auto w{vm_vec_build_sub(sphere_pos, p0)};
 
 	const auto mag_d{vm_vec_copy_normalize(dn, d)};
 

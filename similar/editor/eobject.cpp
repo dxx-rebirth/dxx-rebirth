@@ -864,7 +864,7 @@ int	ObjectMoveNearer(void)
 
 //	move_object_to_mouse_click_delta(-4*F1_0);		//	Move four units closer to eye
 
-	const auto &&result = vm_vec_normalized(vm_vec_sub(vcobjptr(Cur_object_index)->pos, Viewer->pos));
+	const auto &&result = vm_vec_normalized(vm_vec_build_sub(vcobjptr(Cur_object_index)->pos, Viewer->pos));
 	move_object_to_vector(result, -4*F1_0);
 
 	return 1;	
@@ -881,7 +881,7 @@ int	ObjectMoveFurther(void)
 
 //	move_object_to_mouse_click_delta(+4*F1_0);		//	Move four units further from eye
 
-	const auto &&result = vm_vec_normalized(vm_vec_sub(vcobjptr(Cur_object_index)->pos, Viewer->pos));
+	const auto &&result = vm_vec_normalized(vm_vec_build_sub(vcobjptr(Cur_object_index)->pos, Viewer->pos));
 	move_object_to_vector(result, 4*F1_0);
 
 	return 1;	

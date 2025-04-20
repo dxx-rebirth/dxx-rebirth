@@ -274,7 +274,7 @@ static int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
 //find the angle between the player's heading & the station
 static vms_angvec get_angs_to_object(const vms_vector &targ_pos, const vms_vector &cur_pos)
 {
-	return vm_extract_angles_vector(vm_vec_sub(targ_pos, cur_pos));
+	return vm_extract_angles_vector(vm_vec_build_sub(targ_pos, cur_pos));
 }
 
 #define MIN_D 0x100
@@ -332,12 +332,12 @@ static void draw_mine_exit_cover(grs_canvas &canvas)
 		auto mru{mrd};
 		vm_vec_scale(mru, ur);
 		g3_rotate_point(p0, vm_vec_build_add(vu, mru));
-		g3_rotate_point(p1, vm_vec_sub(vu, mru));
+		g3_rotate_point(p1, vm_vec_build_sub(vu, mru));
 	}
 	{
 		const auto vd{vm_vec_scale_add(v, mine_exit_orient.uvec, -d)};
 		vm_vec_scale(mrd, dr);
-		g3_rotate_point(p2, vm_vec_sub(vd, mrd));
+		g3_rotate_point(p2, vm_vec_build_sub(vd, mrd));
 		g3_rotate_point(p3, vm_vec_build_add(vd, mrd));
 	}
 	const std::array<g3_draw_tmap_point *, 4> pointlist{{
@@ -829,7 +829,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 	if (!outside_mine) {
 
 		if (Endlevel_sequence==EL_OUTSIDE) {
-			const auto tvec{vm_vec_sub(ConsoleObject->pos, mine_side_exit_point)};
+			const auto tvec{vm_vec_build_sub(ConsoleObject->pos, mine_side_exit_point)};
 			if (vm_vec_dot(tvec,mine_exit_orient.fvec) > 0) {
 				vms_vector mov_vec;
 

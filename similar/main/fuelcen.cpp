@@ -230,7 +230,7 @@ void trigger_matcen(const vmsegptridx_t segp)
 	//	Create a bright object in the segment.
 	auto &vcvertptr = Vertices.vcptr;
 	auto pos{compute_segment_center(vcvertptr, segp)};
-	const auto &&delta{vm_vec_sub(vcvertptr(segp->verts.front()), pos)};
+	const auto &&delta{vm_vec_build_sub(vcvertptr(segp->verts.front()), pos)};
 	vm_vec_scale_add2(pos, delta, F1_0/2);
 	const auto &&objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, OBJ_LIGHT, 0, segp, pos, nullptr, 0, object::control_type::light, object::movement_type::None, render_type::RT_NONE);
 	if (objnum != object_none) {
@@ -531,7 +531,7 @@ static void robotmaker_proc(const d_robot_info_array &Robot_info, const d_vclip_
 					{
 					// Make object faces player...
 						auto old_uvec{obj->orient.uvec};
-						reconstruct_at(obj->orient, vm_vector_to_matrix_u, vm_vec_sub(ConsoleObject->pos, obj->pos), std::move(old_uvec));
+						reconstruct_at(obj->orient, vm_vector_to_matrix_u, vm_vec_build_sub(ConsoleObject->pos, obj->pos), std::move(old_uvec));
 					}
 	
 					morph_start(LevelUniqueMorphObjectState, LevelSharedPolygonModelState, obj);

@@ -225,7 +225,7 @@ static inline vms_vector &vm_vec_sub(vms_vector &dest, const vms_vector &src0, c
 }
 
 [[nodiscard]]
-static inline vms_vector vm_vec_sub (const vms_vector &src0, const vms_vector &src1)
+static inline vms_vector vm_vec_build_sub(const vms_vector &src0, const vms_vector &src1)
 {
 	vms_vector dest;
 	return vm_vec_sub(dest, src0, src1), dest;

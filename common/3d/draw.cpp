@@ -98,7 +98,7 @@ void g3_draw_line(const g3_draw_line_context &context, g3_draw_line_point &p0, g
 //normal of the plane, and a point on it.  The normal need not be normalized
 bool g3_check_normal_facing(const vms_vector &v,const vms_vector &norm)
 {
-	return (vm_vec_dot(vm_vec_sub(View_position,v),norm) > 0);
+	return (vm_vec_dot(vm_vec_build_sub(View_position, v), norm) > 0);
 }
 
 bool do_facing_check(const std::array<g3_draw_tmap_point *, 3> &vertlist)

@@ -1118,7 +1118,7 @@ static int maybe_buddy_fire_mega(const vmobjptridx_t objp, const vcobjptridx_t B
 {
 	auto &BuddyState = LevelUniqueObjectState.BuddyState;
 	auto &Objects = LevelUniqueObjectState.Objects;
-	const auto &&[dist, vec_to_robot] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(Buddy_objp->pos, objp->pos));
+	const auto &&[dist, vec_to_robot] = vm_vec_normalize_quick_with_magnitude(vm_vec_build_sub(Buddy_objp->pos, objp->pos));
 
 	if (dist > F1_0*100)
 		return 0;

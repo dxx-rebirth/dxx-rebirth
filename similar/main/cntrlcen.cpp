@@ -127,7 +127,7 @@ static int calc_best_gun(const unsigned num_guns, const object &objreactor, cons
 
 	for (i=0; i<num_guns; i++) {
 		fix			dot;
-		const auto gun_vec = vm_vec_normalized_quick(vm_vec_sub(objpos, gun_pos[i]));
+		const auto gun_vec = vm_vec_normalized_quick(vm_vec_build_sub(objpos, gun_pos[i]));
 		dot = vm_vec_dot(gun_dir[i], gun_vec);
 
 		if (dot > best_dot) {
@@ -372,7 +372,7 @@ void do_controlcen_frame(const d_robot_info_array &Robot_info, const vmobjptridx
 			if (std::none_of(children.begin(), children.end(), IS_CHILD))
 				return;
 
-			const auto &&[dist_to_player, vec_to_player] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(ConsoleObject->pos, obj->pos));
+			const auto &&[dist_to_player, vec_to_player] = vm_vec_normalize_quick_with_magnitude(vm_vec_build_sub(ConsoleObject->pos, obj->pos));
 			if (dist_to_player < F1_0*200) {
 				LevelUniqueControlCenterState.Control_center_player_been_seen = player_is_visible_from_object(Robot_info, obj, obj->pos, 0, vec_to_player);
 				LevelUniqueControlCenterState.Frametime_until_next_fire = 0;
@@ -389,7 +389,7 @@ void do_controlcen_frame(const d_robot_info_array &Robot_info, const vmobjptridx
 		if (LevelUniqueControlCenterState.Last_time_cc_vis_check + F1_0 * 5 < GameTime64 || LevelUniqueControlCenterState.Last_time_cc_vis_check > GameTime64)
 		{
 			LevelUniqueControlCenterState.Last_time_cc_vis_check = {GameTime64};
-			const auto &&[dist_to_player, vec_to_player] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(ConsoleObject->pos, obj->pos));
+			const auto &&[dist_to_player, vec_to_player] = vm_vec_normalize_quick_with_magnitude(vm_vec_build_sub(ConsoleObject->pos, obj->pos));
 			if (dist_to_player < F1_0*120) {
 				LevelUniqueControlCenterState.Control_center_player_been_seen = player_is_visible_from_object(Robot_info, obj, obj->pos, 0, vec_to_player);
 				if (!player_is_visible(LevelUniqueControlCenterState.Control_center_player_been_seen))
@@ -423,7 +423,7 @@ void do_controlcen_frame(const d_robot_info_array &Robot_info, const vmobjptridx
 		if (best_gun_num != -1) {
 			fix			delta_fire_time;
 
-			auto &&[dist_to_player, vec_to_goal] = vm_vec_normalize_quick_with_magnitude(vm_vec_sub(player_pos, obj->ctype.reactor_info.gun_pos[best_gun_num]));
+			auto &&[dist_to_player, vec_to_goal] = vm_vec_normalize_quick_with_magnitude(vm_vec_build_sub(player_pos, obj->ctype.reactor_info.gun_pos[best_gun_num]));
 
 			if (dist_to_player > F1_0*300)
 			{

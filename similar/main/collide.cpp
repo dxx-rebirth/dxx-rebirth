@@ -340,7 +340,7 @@ static void bump_two_objects(const d_robot_info_array &Robot_info, const vmobjpt
 		return;
 	}
 
-	auto force{vm_vec_sub(obj0->mtype.phys_info.velocity, obj1->mtype.phys_info.velocity)};
+	auto force{vm_vec_build_sub(obj0->mtype.phys_info.velocity, obj1->mtype.phys_info.velocity)};
 	vm_vec_scale2(force,2*fixmul(obj0->mtype.phys_info.mass,obj1->mtype.phys_info.mass),(obj0->mtype.phys_info.mass+obj1->mtype.phys_info.mass));
 
 	bump_this_object(Robot_info, obj1, obj0, force, damage_flag);
@@ -1030,7 +1030,7 @@ static void collide_robot_and_controlcen(const d_robot_info_array &, object_base
 {
 	assert(obj_cc.type == OBJ_CNTRLCEN);
 	assert(obj_robot.type == OBJ_ROBOT);
-	const auto &&hitvec = vm_vec_normalized(vm_vec_sub(obj_cc.pos, obj_robot.pos));
+	const auto &&hitvec = vm_vec_normalized(vm_vec_build_sub(obj_cc.pos, obj_robot.pos));
 	bump_one_object(obj_robot, hitvec, 0);
 }
 
@@ -1309,7 +1309,7 @@ static void collide_weapon_and_controlcen(const d_robot_info_array &Robot_info, 
 
 		if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
 		{
-			const auto obj2weapon{vm_vec_sub(collision_point, controlcen->pos)};
+			const auto obj2weapon{vm_vec_build_sub(collision_point, controlcen->pos)};
 			const auto mag = vm_vec_mag(obj2weapon);
 			if(mag < controlcen->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 			{
@@ -1574,7 +1574,7 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_robot_info_
 		fix			dot;
 		//	Boss only vulnerable in back.  See if hit there.
 		//	Note, if BOSS_INVULNERABLE_DOT is close to F1_0 (in magnitude), then should probably use non-quick version.
-		const auto tvec1 = vm_vec_normalized_quick(vm_vec_sub(collision_point, robot.pos));
+		const auto tvec1 = vm_vec_normalized_quick(vm_vec_build_sub(collision_point, robot.pos));
 		dot = vm_vec_dot(tvec1, robot.orient.fvec);
 		if (dot > Boss_invulnerable_dot()) {
 			if (const auto &&segp = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, collision_point, Segments.vmptridx(robot.segnum)))
@@ -1612,7 +1612,7 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_robot_info_
 			//	Cause weapon to bounce.
 			if (Weapon_info[get_weapon_id(weapon)].matter == weapon_info::matter_flag::energy)
 			{
-					auto vec_to_point = vm_vec_normalized_quick(vm_vec_sub(collision_point, robot.pos));
+					auto vec_to_point = vm_vec_normalized_quick(vm_vec_build_sub(collision_point, robot.pos));
 					const auto &&[speed, weap_vec] = vm_vec_normalize_quick_with_magnitude(weapon.mtype.phys_info.velocity);
 					vm_vec_scale_add2(vec_to_point, weap_vec, -F1_0*2);
 					vm_vec_scale(vec_to_point, speed/4);
@@ -1709,7 +1709,7 @@ static void collide_robot_and_weapon(const d_robot_info_array &Robot_info, const
 	weapon_info *wi = &Weapon_info[get_weapon_id(weapon)];
 	if ( wi->damage_radius )
 	{
-		const auto obj2weapon{vm_vec_sub(collision_point, robot->pos)};
+		const auto obj2weapon{vm_vec_build_sub(collision_point, robot->pos)};
 		const auto mag = vm_vec_mag(obj2weapon);
 		if(mag < robot->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 		{
@@ -2237,7 +2237,7 @@ static void collide_player_and_weapon(const d_robot_info_array &Robot_info, cons
 	object_create_explosion_without_damage(Vclip, player_segp, collision_point, i2f(10) / 2, vclip_index::player_hit);
 	if ( Weapon_info[get_weapon_id(weapon)].damage_radius )
 	{
-		const auto obj2weapon{vm_vec_sub(collision_point, playerobj->pos)};
+		const auto obj2weapon{vm_vec_build_sub(collision_point, playerobj->pos)};
 		const auto mag = vm_vec_mag(obj2weapon);
 		if(mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 		{
@@ -2299,7 +2299,7 @@ static vms_vector find_exit_direction(vms_vector result, const object &objp, con
 		if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, side) & WALL_IS_DOORWAY_FLAG::fly)
 		{
 			const auto exit_point{compute_center_point_on_side(vcvertptr, segp, side)};
-			vm_vec_add2(result, vm_vec_normalized_quick(vm_vec_sub(exit_point, objp.pos)));
+			vm_vec_add2(result, vm_vec_normalized_quick(vm_vec_build_sub(exit_point, objp.pos)));
 			break;
 		}
 	return result;
