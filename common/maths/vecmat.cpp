@@ -489,22 +489,23 @@ vms_matrix vm_vector_to_matrix_r(const vms_vector &fvec, const vms_vector &rvec)
 	return m;
 }
 
-void vm_vector_to_matrix_u(vms_matrix &m, const vms_vector &fvec, const vms_vector &uvec)
+vms_matrix vm_vector_to_matrix_u(const vms_vector &fvec, const vms_vector &uvec)
 {
+	vms_matrix m;
 	if (!vm_vec_copy_normalize(m.fvec, fvec))
 	{
 		Int3();		//forward vec should not be zero-length
-		return;
 	}
-	if (!vm_vec_copy_normalize(m.uvec, uvec) ||
+	else if (!vm_vec_copy_normalize(m.uvec, uvec) ||
 		//normalize new perpendicular vector
 		!vm_vec_normalize(m.rvec = vm_vec_cross(m.uvec, m.fvec)))
 	{
 		vm_vector_to_matrix_f(m);
-		return;
 	}
+	else
 	//now recompute up vector, in case it wasn't entirely perpendicular
-	m.uvec = vm_vec_cross(m.fvec, m.rvec);
+		m.uvec = vm_vec_cross(m.fvec, m.rvec);
+	return m;
 }
 
 vms_vector vm_vec_rotate(const vms_vector &src, const vms_matrix &m)

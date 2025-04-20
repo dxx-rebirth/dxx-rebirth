@@ -524,8 +524,15 @@ static void robotmaker_proc(const d_robot_info_array &Robot_info, const d_vclip_
 						multi_send_create_robot(numrobotcen, obj, type);
 					obj->matcen_creator = underlying_value(numrobotcen) | 0x80;
 
+					/* Copy `objp.orient.uvec` into a temporary and pass the temporary,
+					 * since it is undefined behavior to access `objp.orient` after the old
+					 * object is destroyed until the new value is constructed.
+					 */
+					{
 					// Make object faces player...
-					vm_vector_to_matrix_u(obj->orient, vm_vec_sub(ConsoleObject->pos, obj->pos), obj->orient.uvec);
+						auto old_uvec{obj->orient.uvec};
+						reconstruct_at(obj->orient, vm_vector_to_matrix_u, vm_vec_sub(ConsoleObject->pos, obj->pos), std::move(old_uvec));
+					}
 	
 					morph_start(LevelUniqueMorphObjectState, LevelSharedPolygonModelState, obj);
 					//robotcen->last_created_obj = obj;

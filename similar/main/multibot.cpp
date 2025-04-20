@@ -1065,7 +1065,14 @@ void multi_do_create_robot(const d_robot_info_array &Robot_info, const d_vclip_a
 	
 	obj->matcen_creator = untrusted_fuelcen_num | 0x80;
 	const auto direction{vm_vec_sub(ConsoleObject->pos, obj->pos)};
-	vm_vector_to_matrix_u(obj->orient, direction, obj->orient.uvec);
+	{
+		/* Copy `objp.orient.uvec` into a temporary and pass the temporary,
+		 * since it is undefined behavior to access `objp.orient` after the old
+		 * object is destroyed until the new value is constructed.
+		 */
+		auto old_uvec{obj->orient.uvec};
+		reconstruct_at(obj->orient, vm_vector_to_matrix_u, direction, std::move(old_uvec));
+	}
 	morph_start(LevelUniqueMorphObjectState, LevelSharedPolygonModelState, obj);
 
 	map_objnum_local_to_remote(obj, objnum, pnum);

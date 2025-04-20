@@ -354,14 +354,9 @@ vms_matrix med_extract_matrix_from_segment(const shared_segment &sp)
 	const auto forwardvec{extract_forward_vector_from_segment(vcvertptr, sp)};
 	const auto upvec{extract_up_vector_from_segment(vcvertptr, sp)};
 
-	vms_matrix rotmat;
-	if (forwardvec == vms_vector{} || upvec == vms_vector{})
-	{
-		rotmat = vmd_identity_matrix;
-	}
-	else
-		vm_vector_to_matrix_u(rotmat, forwardvec, upvec);
-	return rotmat;
+	return (forwardvec == vms_vector{} || upvec == vms_vector{})
+		? vmd_identity_matrix
+		: vm_vector_to_matrix_u(forwardvec, upvec);
 }
 
 }

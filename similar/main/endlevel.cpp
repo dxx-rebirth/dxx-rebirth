@@ -1075,7 +1075,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 				Endlevel_sequence = EL_CHASING;
 
 				vm_vec_normalized_dir_quick(tvec,station_pos,ConsoleObject->pos);
-				vm_vector_to_matrix_u(ConsoleObject->orient, tvec, surface_orient.uvec);
+				reconstruct_at(ConsoleObject->orient, vm_vector_to_matrix_u, tvec, surface_orient.uvec);
 
 				desired_fly_speed *= 2;
 			}

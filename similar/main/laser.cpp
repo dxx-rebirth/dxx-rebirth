@@ -717,7 +717,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 	//	not apply to the Omega Cannon.
 	if (weapon_type == weapon_id_type::OMEGA_ID) {
 		// Create orientation matrix for tracking purposes.
-		vm_vector_to_matrix_u(obj->orient, direction, parent->orient.uvec);
+		reconstruct_at(obj->orient, vm_vector_to_matrix_u, direction, parent->orient.uvec);
 
 		if (parent != Viewer && parent->type != OBJ_WEAPON) {
 			// Muzzle flash
@@ -833,7 +833,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 	// Create orientation matrix so we can look from this pov
 	//	Homing missiles also need an orientation matrix so they know if they can make a turn.
 	if ((weapon_info.homing_flag && (obj->ctype.laser_info.track_goal = object_none, true)) || obj->render_type == render_type::RT_POLYOBJ)
-		vm_vector_to_matrix_u(obj->orient, direction, parent->orient.uvec);
+		reconstruct_at(obj->orient, vm_vector_to_matrix_u, direction, parent->orient.uvec);
 
 	if (( parent != Viewer ) && (parent->type != OBJ_WEAPON))	{
 		// Muzzle flash

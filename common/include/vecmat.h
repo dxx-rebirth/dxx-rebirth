@@ -279,13 +279,6 @@ static inline vms_matrix vm_angles_2_matrix (const vms_angvec &a)
 	return vm_angles_2_matrix(m, a), m;
 }
 
-[[nodiscard]]
-static inline vms_matrix vm_vector_to_matrix_u(const vms_vector &fvec, const vms_vector &uvec)
-{
-	vms_matrix m;
-	return vm_vector_to_matrix_u(m, fvec, uvec), m;
-}
-
 //transpose a matrix in place. returns ptr to matrix
 static inline void vm_transpose_matrix(vms_matrix &m)
 {

@@ -47,6 +47,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_OBJECT_VEL	i2f(100)
 #endif
 
+#include "d_construct.h"
 #include "d_levelstate.h"
 #include "compiler-range_for.h"
 
@@ -620,7 +621,14 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 						}
 
 						if (bounced && obj->type == OBJ_WEAPON)
-							vm_vector_to_matrix_u(obj->orient, obj->mtype.phys_info.velocity, obj->orient.uvec);
+						{
+							/* Copy `objp.orient.uvec` into a temporary and pass the temporary,
+							 * since it is undefined behavior to access `objp.orient` after the old
+							 * object is destroyed until the new value is constructed.
+							 */
+							auto old_uvec{obj->orient.uvec};
+							reconstruct_at(obj->orient, vm_vector_to_matrix_u, obj->mtype.phys_info.velocity, std::move(old_uvec));
+						}
 #endif
 
 						try_again = 1;
@@ -765,7 +773,13 @@ namespace dcx {
 //make sure matrix is orthogonal
 void check_and_fix_matrix(vms_matrix &m)
 {
-	vm_vector_to_matrix_u(m, m.fvec, m.uvec);
+	/* Copy `m.fvec`, `m.uvec` into temporaries and pass the temporaries, since
+	 * it is undefined behavior to access `m` after the old object is destroyed
+	 * until the new value is constructed.
+	 */
+	auto old_fvec{m.fvec};
+	auto old_uvec{m.uvec};
+	reconstruct_at(m, vm_vector_to_matrix_u, std::move(old_fvec), std::move(old_uvec));
 }
 
 //Applies an instantaneous force on an object, resulting in an instantaneous
