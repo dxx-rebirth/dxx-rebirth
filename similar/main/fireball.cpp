@@ -203,7 +203,7 @@ static void init_debris_object(object_base &debris, const object_base &parent, c
 	debris.rtype.pobj_info.tmap_override = parent.rtype.pobj_info.tmap_override;
 
 	//Set physics data for this object
-	debris.mtype.phys_info.velocity = /* added_scaled_random_velocity = */ vm_vec_add(
+	debris.mtype.phys_info.velocity = /* added_scaled_random_velocity = */ vm_vec_build_add(
 		/* scaled_random_velocity = */ vm_vec_copy_scale(
 			/* normalized_random_velocity = */ vm_vec_normalized_quick(
 				/* random_velocity = */ vms_vector{

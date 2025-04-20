@@ -204,7 +204,7 @@ static inline vms_vector vm_vec_build_negated(vms_vector v)
 //adds two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_add2() if so
 [[nodiscard]]
-static inline vms_vector vm_vec_add (const vms_vector &src0, const vms_vector &src1)
+static inline vms_vector vm_vec_build_add(const vms_vector &src0, const vms_vector &src1)
 {
 	vms_vector dest;
 	return vm_vec_add(dest, src0, src1), dest;

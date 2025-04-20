@@ -544,7 +544,7 @@ static void polyobj_find_min_max(polymodel &pm)
 		range_for (auto &v, unchecked_partial_range(vp, nverts))
 		{
 			assign_minmax(mn, mx, v);
-			assign_minmax(big_mn, big_mx, vm_vec_add(v, ofs));
+			assign_minmax(big_mn, big_mx, vm_vec_build_add(v, ofs));
 		}
 	}
 }

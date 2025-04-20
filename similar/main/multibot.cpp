@@ -913,7 +913,7 @@ void multi_do_robot_fire(const multiplayer_rspan<multiplayer_command_t::MULTI_RO
 		|| gun_num == underlying_value(robot_gun_number::smart_mine)
 #endif
 		)
-		? pt_weapon(vm_vec_add(botp->pos, fire), 
+		? pt_weapon(vm_vec_build_add(botp->pos, fire), 
 #if DXX_BUILD_DESCENT == 2
 			gun_num != underlying_value(robot_gun_number::proximity) ? weapon_id_type::SUPERPROX_ID :
 #endif

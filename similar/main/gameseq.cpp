@@ -388,7 +388,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 				return;
 			vm_vec_normalize(disp);
 			vm_vec_scale(disp, fixmul(old_player_obj.size, size_scalar >> 1));
-			const auto target_position = vm_vec_add(Player_init[plridx].pos, disp);
+			const auto target_position = vm_vec_build_add(Player_init[plridx].pos, disp);
 			if (const auto sidemask = get_seg_masks(vcvertptr, target_position, vcsegptr(plrobj.segnum), 1).sidemask; sidemask != sidemask_t{})
 			{
 				con_printf(CON_NORMAL, "Cannot displace player %u at {%i, %i, %i} to {%i, %i, %i}: would be outside segment for sides %x.", plridx, plrobj.pos.x, plrobj.pos.y, plrobj.pos.z, target_position.x, target_position.y, target_position.z, underlying_value(sidemask));

@@ -1999,7 +1999,7 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 			for (int rthresh = 30000; mines && d_rand() < rthresh; rthresh /= 2)
 		{
 			const auto randvec = make_random_vector();
-			const auto tvec = vm_vec_add(playerobj->pos, randvec);
+			const auto tvec = vm_vec_build_add(playerobj->pos, randvec);
 			const auto &&newseg = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, tvec, Segments.vmptridx(playerobj->segnum));
 			if (newseg != segment_none)
 			{

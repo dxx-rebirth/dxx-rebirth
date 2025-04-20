@@ -548,7 +548,7 @@ static int ObjectMovePos(const vmobjptridx_t obj, vms_vector &&vec, int scale)
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
 	vm_vec_normalize(vec);
-	const auto &&newpos = vm_vec_add(obj->pos, vm_vec_scale(vec, scale));
+	const auto &&newpos = vm_vec_build_add(obj->pos, vm_vec_scale(vec, scale));
 	auto &vcvertptr = Vertices.vcptr;
 	if (!verify_object_seg(vmobjptr, Segments, vcvertptr, obj, newpos))
 		obj->pos = newpos;

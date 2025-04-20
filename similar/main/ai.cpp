@@ -3980,7 +3980,7 @@ _exit_cheat:
 					return;
 
 				const auto fire_vec{vm_vec_build_negated(obj->orient.fvec)};
-				const auto fire_pos = vm_vec_add(obj->pos, fire_vec);
+				const auto fire_pos = vm_vec_build_add(obj->pos, fire_vec);
 
 #if DXX_BUILD_DESCENT == 1
 				ailp.next_fire = F1_0*5;		//	Drop a proximity bomb every 5 seconds.
@@ -4146,7 +4146,7 @@ _exit_cheat:
 				}
 
 				vm_vec_scale(goal_vector, 2*(ConsoleObject->size + obj->size + (((objnum*4 + d_tick_count) & 63) << 12)));
-				auto goal_point = vm_vec_add(ConsoleObject->pos, goal_vector);
+				auto goal_point = vm_vec_build_add(ConsoleObject->pos, goal_vector);
 				vm_vec_scale_add2(goal_point, make_random_vector(), F1_0*8);
 				const auto vec_to_goal = vm_vec_normalized_quick(vm_vec_sub(goal_point, obj->pos));
 				move_towards_vector(robptr, obj, vec_to_goal, 0);

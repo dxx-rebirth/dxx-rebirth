@@ -405,7 +405,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 		//	If retry count is getting large, then we are trying to do something stupid.
 		if (count > 8) break; // in original code this was 3 for all non-player objects. still leave us some limit in case fvi goes apeshit.
 
-		const auto new_pos = vm_vec_add(obj->pos,frame_vec);
+		const auto new_pos = vm_vec_build_add(obj->pos,frame_vec);
 		int flags{0};
 		if (obj->type == OBJ_WEAPON)
 			flags |= FQ_TRANSPOINT;

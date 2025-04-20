@@ -48,10 +48,10 @@ struct rod_corners_result
 	static clipping_code build_clipping_code(const std::array<g3_rod_corner_point, 4> &points);
 	rod_corners_result(const g3_rotated_point &top_point, const vms_vector &scaled_rod_top_width, const g3_rotated_point &bot_point, const vms_vector &scaled_rod_bot_width) :
 		points{{
-			g3_rod_corner_point{vm_vec_add(top_point.p3_vec, scaled_rod_top_width), g3_rotated_point::from_relative_position{}},
+			g3_rod_corner_point{vm_vec_build_add(top_point.p3_vec, scaled_rod_top_width), g3_rotated_point::from_relative_position{}},
 			g3_rod_corner_point{vm_vec_sub(top_point.p3_vec, scaled_rod_top_width), g3_rotated_point::from_relative_position{}},
 			g3_rod_corner_point{vm_vec_sub(bot_point.p3_vec, scaled_rod_bot_width), g3_rotated_point::from_relative_position{}},
-			g3_rod_corner_point{vm_vec_add(bot_point.p3_vec, scaled_rod_bot_width), g3_rotated_point::from_relative_position{}}
+			g3_rod_corner_point{vm_vec_build_add(bot_point.p3_vec, scaled_rod_bot_width), g3_rotated_point::from_relative_position{}}
 		}},
 		cc{build_clipping_code(points)}
 	{

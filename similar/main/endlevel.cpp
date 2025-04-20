@@ -331,14 +331,14 @@ static void draw_mine_exit_cover(grs_canvas &canvas)
 		const auto vu{vm_vec_scale_add(v, mine_exit_orient.uvec, u)};
 		auto mru{mrd};
 		vm_vec_scale(mru, ur);
-		g3_rotate_point(p0, vm_vec_add(vu, mru));
+		g3_rotate_point(p0, vm_vec_build_add(vu, mru));
 		g3_rotate_point(p1, vm_vec_sub(vu, mru));
 	}
 	{
 		const auto vd{vm_vec_scale_add(v, mine_exit_orient.uvec, -d)};
 		vm_vec_scale(mrd, dr);
 		g3_rotate_point(p2, vm_vec_sub(vd, mrd));
-		g3_rotate_point(p3, vm_vec_add(vd, mrd));
+		g3_rotate_point(p3, vm_vec_build_add(vd, mrd));
 	}
 	const std::array<g3_draw_tmap_point *, 4> pointlist{{
 		&p0,

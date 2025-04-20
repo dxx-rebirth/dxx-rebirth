@@ -271,7 +271,7 @@ void draw_object_tmap_rod(grs_canvas &canvas, const d_level_unique_light_state *
 
 	const auto delta{vm_vec_copy_scale(obj->orient.uvec, obj->size)};
 
-	const auto top_v = vm_vec_add(obj->pos,delta);
+	const auto top_v = vm_vec_build_add(obj->pos, delta);
 
 	const auto top_p = g3_rotate_point(top_v);
 	const auto bot_p{g3_rotate_point(vm_vec_sub(obj->pos, delta))};
@@ -1458,9 +1458,9 @@ static void set_camera_pos(vms_vector &camera_pos, const vcobjptridx_t objp)
 			vm_vec_normalize_quick(player_camera_vec);
 			vm_vec_scale(player_camera_vec, Camera_to_player_dist_goal);
 
-			const auto closer_p1 = vm_vec_add(objp->pos, player_camera_vec);		//	This is the actual point we want to put the camera at.
+			const auto closer_p1 = vm_vec_build_add(objp->pos, player_camera_vec);		//	This is the actual point we want to put the camera at.
 			vm_vec_scale(player_camera_vec, far_scale);						//	...but find a point 50% further away...
-			const auto local_p1 = vm_vec_add(objp->pos, player_camera_vec);		//	...so we won't have to do as many cuts.
+			const auto local_p1 = vm_vec_build_add(objp->pos, player_camera_vec);		//	...so we won't have to do as many cuts.
 
 			hit_type = find_vector_intersection(fvi_query{
 				objp->pos,
