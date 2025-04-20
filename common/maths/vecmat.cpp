@@ -443,13 +443,15 @@ void vm_angles_2_matrix(vms_matrix &m,const vms_angvec &a)
 
 #if DXX_USE_EDITOR
 //computes a matrix from a forward vector and an angle
-void vm_vec_ang_2_matrix(vms_matrix &m,const vms_vector &v,fixang a)
+vms_matrix vm_vec_ang_2_matrix(const vms_vector &v, const fixang a)
 {
+	vms_matrix m;
 	const fix sinp{-v.y};
 	const fix cosp{fix_sqrt(F1_0 - fixmul(sinp, sinp))};
 	const fix sinh{fixdiv(v.x, cosp)};
 	const fix cosh{fixdiv(v.z, cosp)};
 	sincos_2_matrix(m, a, {sinp, cosp}, {sinh, cosh});
+	return m;
 }
 #endif
 

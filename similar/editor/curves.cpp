@@ -284,13 +284,6 @@ int generate_curve(const fix r1scale, const fix r4scale)
         else return 0;
 }
 
-[[nodiscard]]
-static inline vms_matrix vm_vec_ang_2_matrix (const vms_vector &v, fixang a)
-{
-	vms_matrix m;
-	return vm_vec_ang_2_matrix(m, v, a), m;
-}
-
 void generate_banked_curve(const fix maxscale, vms_equation coeffs)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
@@ -352,7 +345,7 @@ void generate_banked_curve(const fix maxscale, vms_equation coeffs)
 				auto rotmat{med_extract_matrix_from_segment(cursegp)};                   // rotmat := matrix describing orientation of Cursegp
 			const auto tdest{vm_vec_build_rotated(vec_dir, rotmat)};	// tdest := vec_dir in reference frame of Cursegp
 			vec_dir = tdest;
-            const auto rotmat2 = vm_vec_ang_2_matrix(vec_dir,scaled_ang);
+            const auto rotmat2{vm_vec_ang_2_matrix(vec_dir, scaled_ang)};
 
 			med_rotate_segment( Cursegp, rotmat2 );
 			prev_point = coord;
