@@ -1764,7 +1764,7 @@ static void spin_object(object_base &obj)
 	rotangs.h = fixmul(obj.mtype.spin_rate.y, frametime);
 	rotangs.b = fixmul(obj.mtype.spin_rate.z, frametime);
 
-	const auto &&rotmat = vm_angles_2_matrix(rotangs);
+	const auto &&rotmat{vm_angles_2_matrix(rotangs)};
 	obj.orient = vm_matrix_x_matrix(obj.orient, rotmat);
 	check_and_fix_matrix(obj.orient);
 }

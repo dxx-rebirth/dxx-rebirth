@@ -129,7 +129,7 @@ static int do_slew_movement(const vmobjptridx_t obj, int check_keys, const contr
 
 	moved = rotang.p | rotang.b | rotang.h;
 
-	const auto &&rotmat = vm_angles_2_matrix(rotang);
+	const auto &&rotmat{vm_angles_2_matrix(rotang)};
 	const auto new_pm = vm_transposed_matrix(obj->orient = vm_matrix_x_matrix(obj->orient,rotmat));		//make those columns rows
 
 	moved |= obj->mtype.phys_info.velocity.x | obj->mtype.phys_info.velocity.y | obj->mtype.phys_info.velocity.z;

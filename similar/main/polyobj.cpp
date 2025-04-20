@@ -613,7 +613,7 @@ void draw_model_picture(grs_canvas &canvas, const polymodel &mn, const vms_angve
 	else
 		temp_pos.z = DEFAULT_VIEW_DIST;
 
-	const auto &&temp_orient = vm_angles_2_matrix(orient_angles);
+	const auto &&temp_orient{vm_angles_2_matrix(orient_angles)};
 	draw_polygon_model(canvas, draw_tmap, temp_pos, temp_orient, nullptr, mn, 0, lrgb, nullptr, alternate_textures{});
 	g3_end_frame();
 }

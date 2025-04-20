@@ -349,7 +349,7 @@ static void med_create_group_rotation_matrix(vms_matrix &result_mat, const unsig
 	 	vm_matrix_x_matrix(rotmat4,rotmat,orient_matrix);			// this is the desired orientation of the new segment
 
 		pbh.b = orientation*16384;
-		vm_angles_2_matrix(rotmat3,pbh);
+		auto rotmat3{vm_angles_2_matrix(pbh)};
 		rotmat4 = rotmat = vm_matrix_x_matrix(rotmat4, rotmat3);
 		rotmat3 = med_extract_matrix_from_segment(first_seg);		// get rotation matrix describing current orientation of first seg
  
@@ -952,7 +952,7 @@ int rotate_segment_new(const vms_angvec &pbh)
 
 	auto tm1{med_extract_matrix_from_segment(newseg)};
 	tm1 = vmd_identity_matrix;
-	const auto tm2 = vm_angles_2_matrix(pbh);
+	const auto &&tm2{vm_angles_2_matrix(pbh)};
 	const auto orient_matrix = vm_matrix_x_matrix(tm1,tm2);
 
 	basesegp->children[baseseg_side] = segment_none;

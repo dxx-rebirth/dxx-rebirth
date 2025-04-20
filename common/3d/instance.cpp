@@ -42,7 +42,7 @@ g3_instance_context g3_start_instance_matrix(const vms_vector &pos, const vms_ma
 //if angles==NULL, don't modify matrix.  This will be like doing an offset
 g3_instance_context g3_start_instance_angles(const vms_vector &pos, const vms_angvec &angles)
 {
-	const auto &&tm = vm_angles_2_matrix(angles);
+	const auto &&tm{vm_angles_2_matrix(angles)};
 	return g3_start_instance_matrix(pos, tm);
 }
 

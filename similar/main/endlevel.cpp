@@ -1434,7 +1434,7 @@ try_again:
 				ta.p = -i2f(pitch)/360;
 				ta.b = 0;
 
-				const auto &&tm = vm_angles_2_matrix(ta);
+				const auto &&tm{vm_angles_2_matrix(ta)};
 
 				if (var==5)
 					satellite_pos = tm.fvec;
@@ -1479,7 +1479,7 @@ try_again:
 
 	//compute orientation of surface
 	{
-		auto &&exit_orient = vm_angles_2_matrix(exit_angles);
+		auto &&exit_orient{vm_angles_2_matrix(exit_angles)};
 		vm_transpose_matrix(exit_orient);
 		vm_matrix_x_matrix(surface_orient,mine_exit_orient,exit_orient);
 

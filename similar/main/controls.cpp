@@ -88,7 +88,7 @@ void read_flying_controls(object &obj, control_info &Controls)
 		rotangs.b = Controls.bank_time / 2 + Seismic_tremor_magnitude/16;
 		rotangs.h = Controls.heading_time / 2 + Seismic_tremor_magnitude/64;
 
-		const auto &&rotmat = vm_angles_2_matrix(rotangs);
+		const auto &&rotmat{vm_angles_2_matrix(rotangs)};
 		gmobj.orient = vm_matrix_x_matrix(gmobj.orient, rotmat);
 
 		gmobj.mtype.phys_info.velocity = vm_vec_copy_scale(gmobj.orient.fvec, speed);

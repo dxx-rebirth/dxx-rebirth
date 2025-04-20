@@ -648,9 +648,8 @@ static int rotate_object(const vmobjptridx_t obj, int p, int b, int h)
 	ang.b = b;
 	ang.h = h;
 
-	const auto rotmat = vm_angles_2_matrix(ang);
+	const auto &&rotmat{vm_angles_2_matrix(ang)};
 	obj->orient = vm_matrix_x_matrix(obj->orient, rotmat);
-//   vm_angles_2_matrix(&obj->orient, &ang);
 
 	Update_flags |= UF_WORLD_CHANGED;
 

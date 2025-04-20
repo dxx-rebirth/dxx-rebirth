@@ -776,7 +776,7 @@ int med_attach_segment(const vmsegptridx_t destseg, const csmusegment newseg, co
 	const auto ocursegp{Cursegp};
 
 	vms_angvec	tang = {0,0,0};
-	const auto &&rotmat = vm_angles_2_matrix(tang);
+	const auto &&rotmat{vm_angles_2_matrix(tang)};
 	rval = med_attach_segment_rotated(destseg,newseg,destside,newside,rotmat);
 	med_propagate_tmaps_to_segments(ocursegp,Cursegp,0);
 	med_propagate_tmaps_to_back_side(Cursegp, Side_opposite[newside],0);
