@@ -134,11 +134,17 @@ static fixang set_object_turnroll(object_base &obj, const fix frametime)
 	if (const fixang delta_ang = (desired_bank - obj.mtype.phys_info.turnroll))
 	{
 		const fixang raw_max_roll{multiply_with_clamp_to_fixang(ROLL_RATE, frametime)};
-		const fixang max_roll{
-			std::abs(delta_ang) < raw_max_roll
-				? delta_ang
-				: (delta_ang < 0 ? static_cast<fixang>(-raw_max_roll) : raw_max_roll)
-		};
+		/* Casting to `fixang` is safe:
+		 * - `raw_max_roll` is a positive `fixang`, since `ROLL_RATE` is
+		 *   positive and `frametime` is positive, so `raw_max_roll` is in the
+		 *   range [`1`, `INT16_MAX`].
+		 * - `-raw_max_roll` is then in the range [`-INT16_MAX`, `-1`].
+		 * - Therefore, [`-raw_max_roll`, `raw_max_roll`] is at worst
+		 *   [`-INT16_MAX`, `INT16_MAX`].
+		 * - `fixang` can represent all values in [`-INT16_MAX`, `INT16_MAX`],
+		 *   so the conversion does not change the value.
+		 */
+		const auto max_roll{static_cast<fixang>(std::clamp<fix>(delta_ang, -raw_max_roll, raw_max_roll))};
 		obj.mtype.phys_info.turnroll += max_roll;
 	}
 	return obj.mtype.phys_info.turnroll;
