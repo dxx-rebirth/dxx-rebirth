@@ -57,11 +57,16 @@ enum class vertex_array_side_type : bool
 	triangle,
 };
 
+#if DXX_BUILD_DESCENT == 2 || DXX_USE_EDITOR
+#define DXX_internal_feature_lighting_hack	1
 enum class lighting_hack : bool
 {
 	normal,
 	ignore_out_of_mine_location,
 };
+#else
+#define DXX_internal_feature_lighting_hack	0
+#endif
 
 struct vertnum_array_list_t : std::array<vertnum_t, 6> {};
 struct vertex_array_list_t : std::array<segment_relative_vertnum, 6>
@@ -146,13 +151,6 @@ static inline std::pair<vertex_array_side_type, vertnum_array_list_t> create_abs
 }
 
 #ifdef DXX_BUILD_DESCENT
-namespace dsx {
-#if DXX_BUILD_DESCENT == 2 || DXX_USE_EDITOR
-extern lighting_hack Doing_lighting_hack_flag;
-#endif
-
-}
-
 namespace dcx {
 //      Given a side, return the number of faces
 bool get_side_is_quad(const shared_side &sidep);
@@ -165,6 +163,11 @@ int check_segment_connections();
 }
 
 namespace dsx {
+
+#if DXX_internal_feature_lighting_hack
+extern lighting_hack Doing_lighting_hack_flag;
+#endif
+
 //this macro returns true if the segnum for an object is correct
 #define check_obj_seg(vcvertptr, obj) (get_seg_masks(vcvertptr, (obj)->pos, vcsegptr((obj)->segnum), 0).centermask == 0)
 
