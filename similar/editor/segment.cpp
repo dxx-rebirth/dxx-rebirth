@@ -336,12 +336,16 @@ void make_orthogonal(vms_matrix *rmat,vms_matrix *smat)
 
 #endif
 
+}
+
+namespace dcx {
+
 // ------------------------------------------------------------------------------------------
 // Given a segment, extract the rotation matrix which defines it.
 // Do this by extracting the forward, right, up vectors and then making them orthogonal.
 // In the process of making the vectors orthogonal, favor them in the order forward, up, right.
 // This means that the forward vector will remain unchanged.
-void med_extract_matrix_from_segment(const shared_segment &sp, vms_matrix &rotmat)
+vms_matrix med_extract_matrix_from_segment(const shared_segment &sp)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 
@@ -350,12 +354,14 @@ void med_extract_matrix_from_segment(const shared_segment &sp, vms_matrix &rotma
 	const auto forwardvec{extract_forward_vector_from_segment(vcvertptr, sp)};
 	const auto upvec{extract_up_vector_from_segment(vcvertptr, sp)};
 
+	vms_matrix rotmat;
 	if (forwardvec == vms_vector{} || upvec == vms_vector{})
 	{
 		rotmat = vmd_identity_matrix;
-		return;
 	}
-	vm_vector_to_matrix_u(rotmat, forwardvec, upvec);
+	else
+		vm_vector_to_matrix_u(rotmat, forwardvec, upvec);
+	return rotmat;
 }
 
 }
@@ -658,7 +664,7 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const csmuseg
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	vms_matrix	rotmat,rotmat2,rotmat3;
+	vms_matrix	rotmat2;
 	vms_vector	forvec,upvec;
 
 	// Return if already a face attached on this side.
@@ -711,11 +717,11 @@ static int med_attach_segment_rotated(const vmsegptridx_t destseg, const csmuseg
 	// to back of the original *newseg.
 
 	// Do lots of hideous matrix stuff, about 3/4 of which could probably be simplified out.
-	med_extract_matrix_from_segment(destseg, rotmat);		// get orientation matrix for destseg (orthogonal rotation matrix)
+	auto rotmat{med_extract_matrix_from_segment(destseg)};		// get orientation matrix for destseg (orthogonal rotation matrix)
 	update_matrix_based_on_side(rotmat,destside);
 	const auto rotmat1{vm_vector_to_matrix_u(forvec, upvec)};
 	const auto rotmat4 = vm_matrix_x_matrix(rotmat,rotmat1);			// this is the desired orientation of the new segment
-	med_extract_matrix_from_segment(newseg, rotmat3);		// this is the current orientation of the new segment
+	auto rotmat3{med_extract_matrix_from_segment(newseg)};		// this is the current orientation of the new segment
 	vm_transpose_matrix(rotmat3);								// get the inverse of the current orientation matrix
 	vm_matrix_x_matrix(rotmat2,rotmat4,rotmat3);			// now rotmat2 takes the current segment to the desired orientation
 
@@ -1425,10 +1431,9 @@ void create_coordinate_axes_from_segment(const shared_segment &sp, std::array<ve
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	vms_matrix	rotmat;
 	vms_vector t;
 
-	med_extract_matrix_from_segment(sp, rotmat);
+	auto rotmat{med_extract_matrix_from_segment(sp)};
 
 	auto &vcvertptr = Vertices.vcptr;
 	auto &vmvertptr = Vertices.vmptr;

@@ -325,14 +325,14 @@ namespace {
 //		1	unable to rotate group
 static void med_create_group_rotation_matrix(vms_matrix &result_mat, const unsigned delta_flag, const shared_segment &first_seg, const sidenum_t first_side, const shared_segment &base_seg, const sidenum_t base_side, const vms_matrix &orient_matrix, const int orientation)
 {
-	vms_matrix	rotmat2,rotmat,rotmat3,rotmat4;
+	vms_matrix	rotmat2,rotmat3;
 	vms_angvec	pbh = {0,0,0};
 
 	//	Determine whether this rotation is a delta rotation, meaning to just rotate in place, or an absolute rotation,
 	//	which means that the destination rotation is specified, not as a delta, but as an absolute
 	if (delta_flag) {
 	 	//	Create rotation matrix describing rotation.
-		med_extract_matrix_from_segment(first_seg, rotmat4);		// get rotation matrix describing current orientation of first seg
+		auto rotmat4{med_extract_matrix_from_segment(first_seg)};		// get rotation matrix describing current orientation of first seg
 		update_matrix_based_on_side(rotmat4, first_side);
 		rotmat3 = vm_transposed_matrix(orient_matrix);
 		const auto vm_desired_orientation = vm_matrix_x_matrix(rotmat4,rotmat3);			// this is the desired orientation of the new segment
@@ -341,16 +341,17 @@ static void med_create_group_rotation_matrix(vms_matrix &result_mat, const unsig
 	} else {
 	 	//	Create rotation matrix describing rotation.
  
-		med_extract_matrix_from_segment(base_seg, rotmat);		// get rotation matrix describing desired orientation
+		auto rotmat{med_extract_matrix_from_segment(base_seg)};		// get rotation matrix describing desired orientation
 	 	update_matrix_based_on_side(rotmat, base_side);				// modify rotation matrix for desired side
  
 	 	//	If the new segment is to be attached without rotation, then its orientation is the same as the base_segment
+		vms_matrix rotmat4;
 	 	vm_matrix_x_matrix(rotmat4,rotmat,orient_matrix);			// this is the desired orientation of the new segment
 
 		pbh.b = orientation*16384;
 		vm_angles_2_matrix(rotmat3,pbh);
 		rotmat4 = rotmat = vm_matrix_x_matrix(rotmat4, rotmat3);
-		med_extract_matrix_from_segment(first_seg, rotmat3);		// get rotation matrix describing current orientation of first seg
+		rotmat3 = med_extract_matrix_from_segment(first_seg);		// get rotation matrix describing current orientation of first seg
  
 	 	// It is curious that the following statement has no analogue in the med_attach_segment_rotated code.
 	 	//	Perhaps it is because segments are always attached at their front side.  If the back side is the side
@@ -912,7 +913,6 @@ void add_segment_to_group(segnum_t segment_num, int group_num)
 //	-----------------------------------------------------------------------------
 int rotate_segment_new(const vms_angvec &pbh)
 {
-	vms_matrix	tm1;
 	group::segment_array_type_t selected_segs_save;
 	int			current_group_save;
 
@@ -950,7 +950,7 @@ int rotate_segment_new(const vms_angvec &pbh)
 	const auto &&basesegp = vmsegptridx(baseseg);
 	const auto &&baseseg_side = find_connect_side(newseg, basesegp);
 
-	med_extract_matrix_from_segment(newseg, tm1);
+	auto tm1{med_extract_matrix_from_segment(newseg)};
 	tm1 = vmd_identity_matrix;
 	const auto tm2 = vm_angles_2_matrix(pbh);
 	const auto orient_matrix = vm_matrix_x_matrix(tm1,tm2);

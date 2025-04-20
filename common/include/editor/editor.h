@@ -332,7 +332,6 @@ extern void delete_curve();
 
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {
-void med_extract_matrix_from_segment(const shared_segment &sp, vms_matrix &rotmat);
 
 //	Assign default u,v coordinates to all sides of a segment.
 //	This routine should only be used for segments which are not connected to anything else,
@@ -471,6 +470,9 @@ extern	int	Degenerate_segment_found;
 namespace dcx {
 
 #ifdef DXX_BUILD_DESCENT
+[[nodiscard]]
+vms_matrix med_extract_matrix_from_segment(const shared_segment &sp);
+
 //	Returns true if vertex vi is contained in exactly one segment, else returns false.
 int is_free_vertex(const fvcsegptr &vcsegptr, vertnum_t vi);
 #endif

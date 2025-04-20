@@ -52,6 +52,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "cntrlcen.h"
 
+#include "d_construct.h"
 #include "d_levelstate.h"
 
 #define	OBJ_SCALE		(F1_0/2)
@@ -108,9 +109,7 @@ namespace dsx {
 //	------------------------------------------------------------------------------------
 int place_object(d_level_unique_object_state &LevelUniqueObjectState, const d_level_shared_polygon_model_state &LevelSharedPolygonModelState, const d_robot_info_array &Robot_info, const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const vmsegptridx_t segp, const vms_vector &object_pos, short object_type, const uint8_t object_id)
 {
-	vms_matrix seg_matrix;
-
-	med_extract_matrix_from_segment(segp, seg_matrix);
+	auto seg_matrix{med_extract_matrix_from_segment(segp)};
 
 	imobjptridx_t objnum = object_none;
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
@@ -660,7 +659,7 @@ static int rotate_object(const vmobjptridx_t obj, int p, int b, int h)
 
 static void reset_object(const vmobjptridx_t obj)
 {
-	med_extract_matrix_from_segment(vcsegptr(obj->segnum), obj->orient);
+	reconstruct_at(obj->orient, med_extract_matrix_from_segment, *vcsegptr(obj->segnum));
 }
 
 int ObjectResetObject()

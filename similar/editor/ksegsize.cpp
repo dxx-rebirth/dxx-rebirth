@@ -196,11 +196,9 @@ static void scale_free_verts(const shared_segment &sp, const vms_vector &vp, con
 //	Make segment *sp bigger in dimension dimension by amount amount.
 static void med_scale_segment_new(const shared_segment &sp, const int dimension, const fix amount)
 {
-	vms_matrix	mat;
-
 	Modified_vertex_index = 0;
 
-	med_extract_matrix_from_segment(sp, mat);
+	auto mat{med_extract_matrix_from_segment(sp)};
 
 	const vms_vector *vec;
 	sidenum_t side0, side1;
