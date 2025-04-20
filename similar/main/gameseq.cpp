@@ -379,7 +379,7 @@ static unsigned generate_extra_starts_by_displacement_within_segment(const unsig
 					continue;
 				}
 				const auto &v = vec_displacement[i];
-				const auto &va{(displacement_direction & (1 << i)) ? v : vm_vec_negated(v)};
+				const auto &va{(displacement_direction & (1 << i)) ? v : vm_vec_build_negated(v)};
 				con_printf(CON_NORMAL, "Add displacement of {%i, %i, %i} for dimension %u for player %u.", va.x, va.y, va.z, underlying_value(side), plridx);
 				++ dimensions;
 				vm_vec_add2(disp, va);

@@ -344,7 +344,7 @@ static void bump_two_objects(const d_robot_info_array &Robot_info, const vmobjpt
 	vm_vec_scale2(force,2*fixmul(obj0->mtype.phys_info.mass,obj1->mtype.phys_info.mass),(obj0->mtype.phys_info.mass+obj1->mtype.phys_info.mass));
 
 	bump_this_object(Robot_info, obj1, obj0, force, damage_flag);
-	bump_this_object(Robot_info, obj0, obj1, vm_vec_negated(force), damage_flag);
+	bump_this_object(Robot_info, obj0, obj1, vm_vec_build_negated(force), damage_flag);
 }
 
 static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hitspeed, const vmsegptridx_t hitseg, const sidenum_t hitwall, const vms_vector &hitpt)

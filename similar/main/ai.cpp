@@ -3979,7 +3979,7 @@ _exit_cheat:
 				if (!ai_multiplayer_awareness(obj, 75))
 					return;
 
-				const auto fire_vec{vm_vec_negated(obj->orient.fvec)};
+				const auto fire_vec{vm_vec_build_negated(obj->orient.fvec)};
 				const auto fire_pos = vm_vec_add(obj->pos, fire_vec);
 
 #if DXX_BUILD_DESCENT == 1
@@ -4126,7 +4126,7 @@ _exit_cheat:
 
 				dot = vm_vec_dot(ConsoleObject->orient.fvec, vec_to_player);
 				if (dot > 0) {          // Remember, we're interested in the rear vector dot being < 0.
-					goal_vector = vm_vec_negated(ConsoleObject->orient.fvec);
+					goal_vector = vm_vec_build_negated(ConsoleObject->orient.fvec);
 				} else {
 					auto &orient = ConsoleObject->orient;
 					constexpr unsigned choice_count = 15;

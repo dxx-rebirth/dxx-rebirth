@@ -194,7 +194,7 @@ static inline void vm_vec_negate(vms_vector &v)
 }
 
 [[nodiscard]]
-static inline vms_vector vm_vec_negated(vms_vector v)
+static inline vms_vector vm_vec_build_negated(vms_vector v)
 {
 	return vm_vec_negate(v), v;
 }

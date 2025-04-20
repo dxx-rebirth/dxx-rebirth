@@ -579,7 +579,7 @@ int SetPlayerFromCursegMinusOne()
 	auto &vmobjptridx = Objects.vmptridx;
 	fix view_dist=f1_0*10;
 	static side_relative_vertnum edgenum;
-	const auto view_vec{vm_vec_negated(Cursegp->shared_segment::sides[Curside].normals[0])};
+	const auto view_vec{vm_vec_build_negated(Cursegp->shared_segment::sides[Curside].normals[0])};
 
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
