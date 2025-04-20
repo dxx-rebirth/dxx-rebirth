@@ -478,7 +478,7 @@ static bool create_omega_blobs(d_level_unique_object_state &LevelUniqueObjectSta
 	auto perturb_vec{make_random_vector()};
 	vm_vec_scale_add2(perturb_vec, parent_objp->orient.uvec, -F1_0/2);
 
-	Doing_lighting_hack_flag = 1;	//	Ugly, but prevents blobs which are probably outside the mine from killing framerate.
+	Doing_lighting_hack_flag = lighting_hack::ignore_out_of_mine_location;	//	Ugly, but prevents blobs which are probably outside the mine from killing framerate.
 
 	imobjptridx_t last_created_objnum{object_none};
 	for (const auto i : xrange(num_omega_blobs))
@@ -523,7 +523,7 @@ static bool create_omega_blobs(d_level_unique_object_state &LevelUniqueObjectSta
 		vm_vec_add2(blob_pos, omega_delta_vector);
 	}
 
-	Doing_lighting_hack_flag = 0;
+	Doing_lighting_hack_flag = lighting_hack::normal;
 
 	//	Make last one move faster, but it's already moving at speed = F1_0*4.
 	if (last_created_objnum != object_none) {

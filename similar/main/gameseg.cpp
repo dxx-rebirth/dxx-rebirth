@@ -629,9 +629,9 @@ namespace dsx {
 // this for omega blob find_point_seg calls.
 // Would be better to pass a paremeter to the routine...--MK, 01/17/96
 #if DXX_BUILD_DESCENT == 2 || DXX_USE_EDITOR
-int Doing_lighting_hack_flag{0};
+lighting_hack Doing_lighting_hack_flag{lighting_hack::normal};
 #else
-#define Doing_lighting_hack_flag 0
+#define Doing_lighting_hack_flag lighting_hack::normal
 #endif
 
 namespace {
@@ -708,7 +708,7 @@ icsegptridx_t find_point_seg(const d_level_shared_segment_state &LevelSharedSegm
 	//	This Doing_lighting_hack_flag thing added by mk because the hundreds of scrolling messages were
 	//	slowing down lighting, and in about 98% of cases, it would just return -1 anyway.
 	//	Matt: This really should be fixed, though.  We're probably screwing up our lighting in a few places.
-	if (!Doing_lighting_hack_flag) {
+	if (Doing_lighting_hack_flag == lighting_hack::normal) {
 		auto &Segments = LevelSharedSegmentState.get_segments();
 		auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 		auto &Vertices = LevelSharedVertexState.get_vertices();

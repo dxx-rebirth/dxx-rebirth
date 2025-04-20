@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_array.h"
 
 namespace dcx {
+
 struct segmasks
 {
    short facemask;     //which faces sphere pokes through (12 bits)
@@ -54,6 +55,12 @@ enum class vertex_array_side_type : bool
 {
 	quad,
 	triangle,
+};
+
+enum class lighting_hack : bool
+{
+	normal,
+	ignore_out_of_mine_location,
 };
 
 struct vertnum_array_list_t : std::array<vertnum_t, 6> {};
@@ -141,7 +148,7 @@ static inline std::pair<vertex_array_side_type, vertnum_array_list_t> create_abs
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {
 #if DXX_BUILD_DESCENT == 2 || DXX_USE_EDITOR
-extern int	Doing_lighting_hack_flag;
+extern lighting_hack Doing_lighting_hack_flag;
 #endif
 
 }

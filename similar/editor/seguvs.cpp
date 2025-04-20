@@ -176,9 +176,9 @@ int set_average_light_on_curside(void)
 
 int set_average_light_on_all(void)
 {
-	Doing_lighting_hack_flag = 1;
+	Doing_lighting_hack_flag = lighting_hack::ignore_out_of_mine_location;
 	cast_all_light_in_mine(0);
-	Doing_lighting_hack_flag = 0;
+	Doing_lighting_hack_flag = lighting_hack::normal;
 	Update_flags |= UF_WORLD_CHANGED;
 
 //	int seg, side;
