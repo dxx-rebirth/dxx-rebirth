@@ -407,8 +407,10 @@ fixang vm_vec_delta_ang_norm(const vms_vector &v0,const vms_vector &v1,const vms
 	return a;
 }
 
-static void sincos_2_matrix(vms_matrix &m, const fixang bank, const fix_sincos_result p, const fix_sincos_result h)
+[[nodiscard]]
+static vms_matrix sincos_2_matrix(const fixang bank, const fix_sincos_result p, const fix_sincos_result h)
 {
+	vms_matrix m;
 #define DXX_S2M_DECL(V)	\
 	const auto &sin##V = V.sin;	\
 	const auto &cos##V = V.cos
@@ -432,28 +434,25 @@ static void sincos_2_matrix(vms_matrix &m, const fixang bank, const fix_sincos_r
 	const auto cbsh{fixmul(cosb, sinh)};
 	m.uvec.x = fixmul(sinp,cbsh) - sbch;		//m2
 	m.rvec.z = fixmul(sinp,sbch) - cbsh;		//m7
+	return m;
 }
 
 //computes a matrix from a set of three angles.  returns ptr to matrix
 vms_matrix vm_angles_2_matrix(const vms_angvec &a)
 {
-	vms_matrix m;
 	const auto al{a};
-	sincos_2_matrix(m, al.b, fix_sincos(al.p), fix_sincos(al.h));
-	return m;
+	return sincos_2_matrix(al.b, fix_sincos(al.p), fix_sincos(al.h));
 }
 
 #if DXX_USE_EDITOR
 //computes a matrix from a forward vector and an angle
 vms_matrix vm_vec_ang_2_matrix(const vms_vector &v, const fixang a)
 {
-	vms_matrix m;
 	const fix sinp{-v.y};
 	const fix cosp{fix_sqrt(F1_0 - fixmul(sinp, sinp))};
 	const fix sinh{fixdiv(v.x, cosp)};
 	const fix cosh{fixdiv(v.z, cosp)};
-	sincos_2_matrix(m, a, {sinp, cosp}, {sinh, cosh});
-	return m;
+	return sincos_2_matrix(a, {sinp, cosp}, {sinh, cosh});
 }
 #endif
 
