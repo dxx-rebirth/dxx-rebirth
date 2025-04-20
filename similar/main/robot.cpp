@@ -70,7 +70,7 @@ void calc_gun_point(const robot_info &r, vms_vector &gun_point, const object_bas
 	for (unsigned mn = r.gun_submodels[gun_num]; mn != 0; mn = pm.submodel_parents[mn])
 	{
 		const auto &&m = vm_transposed_matrix(vm_angles_2_matrix(anim_angles[mn]));
-		const auto tpnt = vm_vec_rotate(pnt,m);
+		const auto tpnt{vm_vec_build_rotated(pnt, m)};
 
 		vm_vec_add(pnt, tpnt, pm.submodel_offsets[mn]);
 	}

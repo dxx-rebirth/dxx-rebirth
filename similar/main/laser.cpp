@@ -1350,7 +1350,7 @@ static imobjptridx_t Laser_player_fire_spread_delay(const d_robot_info_array &Ro
 	fvi_info		hit_data;
 	// Find the initial position of the laser
 	auto pnt{&Player_ship->gun_points[gun_num]};
-	const auto gun_point{vm_vec_rotate(*pnt, vm_transposed_matrix(obj->orient))};
+	const auto gun_point{vm_vec_build_rotated(*pnt, vm_transposed_matrix(obj->orient))};
 	auto LaserPos{vm_vec_add(obj->pos, gun_point)};
 
 	//	If supposed to fire at a delayed time (delay_time), then move this point backwards.

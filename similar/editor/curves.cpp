@@ -234,7 +234,7 @@ int generate_curve(const fix r1scale, const fix r4scale)
 			if (!med_attach_segment(Cursegp, vmsegptr(&New_segment), Curside, AttachSide))
 		{
 			auto rotmat{med_extract_matrix_from_segment(cursegp)};                   // rotmat := matrix describing orientation of Cursegp
-			const auto tdest = vm_vec_rotate(vec_dir,rotmat);	// tdest := vec_dir in reference frame of Cursegp
+			const auto tdest{vm_vec_build_rotated(vec_dir, rotmat)};	// tdest := vec_dir in reference frame of Cursegp
 			vec_dir = tdest;
 
 			{
@@ -350,7 +350,7 @@ void generate_banked_curve(const fix maxscale, vms_equation coeffs)
 			if (!med_attach_segment(Cursegp, vmsegptr(&New_segment), Curside, AttachSide))
 			{
 				auto rotmat{med_extract_matrix_from_segment(cursegp)};                   // rotmat := matrix describing orientation of Cursegp
-			const auto tdest = vm_vec_rotate(vec_dir,rotmat);	// tdest := vec_dir in reference frame of Cursegp
+			const auto tdest{vm_vec_build_rotated(vec_dir, rotmat)};	// tdest := vec_dir in reference frame of Cursegp
 			vec_dir = tdest;
             const auto rotmat2 = vm_vec_ang_2_matrix(vec_dir,scaled_ang);
 

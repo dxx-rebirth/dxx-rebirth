@@ -136,7 +136,7 @@ static int do_slew_movement(const vmobjptridx_t obj, int check_keys, const contr
 
 	svel = obj->mtype.phys_info.velocity;
 	vm_vec_scale(svel,FrameTime);		//movement in this frame
-	const auto movement = vm_vec_rotate(svel,new_pm);
+	const auto movement{vm_vec_build_rotated(svel, new_pm)};
 
 	vm_vec_add2(obj->pos,movement);
 

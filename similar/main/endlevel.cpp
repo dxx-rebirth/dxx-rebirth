@@ -1484,10 +1484,10 @@ try_again:
 		vm_matrix_x_matrix(surface_orient,mine_exit_orient,exit_orient);
 
 		vms_matrix tm = vm_transposed_matrix(surface_orient);
-		const auto tv0 = vm_vec_rotate(station_pos,tm);
+		const auto tv0{vm_vec_build_rotated(station_pos, tm)};
 		station_pos = vm_vec_scale_add(mine_exit_point, tv0, STATION_DIST);
 
-		const auto tv = vm_vec_rotate(satellite_pos,tm);
+		const auto tv{vm_vec_build_rotated(satellite_pos, tm)};
 		satellite_pos = vm_vec_scale_add(mine_exit_point, tv, SATELLITE_DIST);
 
 		const auto tm2{vm_vector_to_matrix_u(tv, surface_orient.uvec)};

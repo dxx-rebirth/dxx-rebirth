@@ -119,7 +119,7 @@ g3_projected_point g3_projected_point::build(const g3_rotated_point &rp)
 }
 
 g3_rotated_point::g3_rotated_point(const g3_instance_context &viewer, const vms_vector &absolute_position) :
-	p3_vec{vm_vec_rotate(vm_vec_sub(absolute_position, viewer.position), viewer.matrix)}
+	p3_vec{vm_vec_build_rotated(vm_vec_sub(absolute_position, viewer.position), viewer.matrix)}
 {
 }
 
@@ -186,7 +186,7 @@ void g3_project_point(g3s_point &p)
 //from a 2d point, compute the vector through that point
 vms_vector g3_point_2_vec(short sx,short sy)
 {
-	return vm_vec_rotate(vm_vec_normalized(
+	return vm_vec_build_rotated(vm_vec_normalized(
 			vms_vector{
 				.x =  fixmuldiv(fixdiv((sx << 16) - Canv_w2, Canv_w2), Matrix_scale.z, Matrix_scale.x),
 				.y = -fixmuldiv(fixdiv((sy << 16) - Canv_h2, Canv_h2), Matrix_scale.z, Matrix_scale.y),
@@ -199,7 +199,7 @@ vms_vector g3_point_2_vec(short sx,short sy)
 
 vms_vector g3_rotate_delta_vec(const vms_vector &src)
 {
-	return vm_vec_rotate(src, View_matrix);
+	return vm_vec_build_rotated(src, View_matrix);
 }
 
 void g3_add_delta_vec(g3s_point &dest, const g3_rotated_point &src, const vms_vector &deltav)

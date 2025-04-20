@@ -1100,7 +1100,7 @@ void g3_draw_bitmap(grs_canvas &canvas, const vms_vector &pos, const fix iwidth,
 	std::array<fvertex_t, point_count> vertices;
 	std::array<fcolor_t, point_count> color_array;
 	std::array<ftexcoord_t, point_count> texcoord_array;
-	const auto &&rpv{vm_vec_rotate(vm_vec_sub(pos, View_position), View_matrix)};
+	const auto &&rpv{vm_vec_build_rotated(vm_vec_sub(pos, View_position), View_matrix)};
 	const auto bmglu = bm.gltexture->u;
 	const auto bmglv = bm.gltexture->v;
 	const auto alpha = canvas.cv_fade_level >= GR_FADE_OFF ? 1.0 : (1.0 - static_cast<float>(canvas.cv_fade_level) / (static_cast<float>(GR_FADE_LEVELS) - 1.0));

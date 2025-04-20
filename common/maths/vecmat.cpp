@@ -508,7 +508,7 @@ vms_matrix vm_vector_to_matrix_u(const vms_vector &fvec, const vms_vector &uvec)
 	return m;
 }
 
-vms_vector vm_vec_rotate(const vms_vector &src, const vms_matrix &m)
+vms_vector vm_vec_build_rotated(const vms_vector &src, const vms_matrix &m)
 {
 	return {
 		.x = vm_vec_dot(src, m.rvec),
@@ -517,10 +517,10 @@ vms_vector vm_vec_rotate(const vms_vector &src, const vms_matrix &m)
 	};
 }
 
-//rotates a vector through a matrix. returns ptr to dest vector
+//rotates a vector through a matrix.
 void vm_vec_rotate(vms_vector &dest,const vms_vector &src,const vms_matrix &m)
 {
-	dest = vm_vec_rotate(src, m);
+	dest = vm_vec_build_rotated(src, m);
 }
 
 //mulitply 2 matrices, fill in dest.  returns ptr to dest
