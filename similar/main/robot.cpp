@@ -128,11 +128,10 @@ void robot_set_angles(robot_info &r, const polymodel &pm, const enumerated_array
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	std::array<robot_gun_animation_index, MAX_SUBMODELS> gun_nums;			//which gun each submodel is part of
 	gun_nums[0] = robot_gun_animation_index::None;		//body never animates, at least for now
-	{
-		auto &&gr = partial_range(gun_nums, 1u, pm.n_models);
-		//assume part of body...
-		std::fill(gr.begin(), gr.end(), robot_gun_animation_index{r.n_guns});
-	}
+	/* Mark all other positions as part of the body initially.  These markings
+	 * may be overridden in the loop below.
+	 */
+	std::ranges::fill(partial_range(gun_nums, 1u, pm.n_models), robot_gun_animation_index{r.n_guns});
 
 	for (const std::size_t bound{std::min(gun_nums.size(), pm.submodel_parents.size())}; auto [g, entry_m] : enumerate(partial_const_range(r.gun_submodels, r.n_guns)))
 	{
