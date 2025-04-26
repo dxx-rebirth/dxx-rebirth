@@ -128,13 +128,16 @@ static vms_vector pof_read_vec(const std::span<const uint8_t> bufp, std::size_t 
 	return vec;
 }
 
-static void pof_read_ang(vms_angvec &ang, const std::span<const uint8_t> bufp, std::size_t &Pof_addr)
+[[nodiscard]]
+static vms_angvec pof_read_ang(const std::span<const uint8_t> bufp, std::size_t &Pof_addr)
 {
+	vms_angvec ang;
 	ang.p = pof_read_short(bufp, Pof_addr);
 	ang.b = pof_read_short(bufp, Pof_addr);
 	ang.h = pof_read_short(bufp, Pof_addr);
 	if (Pof_addr > MODEL_BUF_SIZE)
 		Int3();
+	return ang;
 }
 
 #define ID_OHDR 0x5244484f // 'RDHO'  //Object header
@@ -277,7 +280,7 @@ static void read_model_file(polymodel &pm, const char *const filename, robot_inf
 
 					for (int m = 0; m < pm.n_models; ++m)
 						range_for (auto &f, partial_range(anim_angs, n_frames))
-							pof_read_ang(f[m], model_buf, Pof_addr);
+							reconstruct_at(f[m], pof_read_ang, model_buf, Pof_addr);
 
 					robot_set_angles(*r, pm, anim_angs);
 				}
