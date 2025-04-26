@@ -87,8 +87,7 @@ static void calc_controlcen_gun_point(reactor &r, object &obj, const uint_fast32
 	auto &gun_point = obj.ctype.reactor_info.gun_pos[gun_num];
 	auto &gun_dir = obj.ctype.reactor_info.gun_dir[gun_num];
 	const auto &&m = vm_transposed_matrix(obj.orient);
-	vm_vec_rotate(gun_point, r.gun_points[gun_num], m);
-	vm_vec_add2(gun_point, obj.pos);
+	reconstruct_at(gun_point, vm_vec_build_add, obj.pos, vm_vec_build_rotated(r.gun_points[gun_num], m));
 	reconstruct_at(gun_dir, vm_vec_build_rotated, r.gun_dirs[gun_num], m);
 }
 
