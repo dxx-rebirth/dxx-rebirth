@@ -70,6 +70,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_range.h"
 #include "vclip.h"
 #include "compiler-range_for.h"
+#include "d_construct.h"
 #include "d_levelstate.h"
 #include "d_underlying_value.h"
 #include "d_zip.h"
@@ -1086,7 +1087,7 @@ static int load_game_data(
 
 	//================ READ CONTROL CENTER TRIGGER INFO ===============
 
-	control_center_triggers_read(ControlCenterTriggers, LoadFile);
+	reconstruct_at(ControlCenterTriggers, control_center_triggers_read, LoadFile);
 
 	//================ READ MATERIALOGRIFIZATIONATORS INFO ===============
 

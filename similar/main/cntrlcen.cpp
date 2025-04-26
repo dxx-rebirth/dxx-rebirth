@@ -607,13 +607,13 @@ v1_control_center_triggers::v1_control_center_triggers(const control_center_trig
 /*
  * reads n control_center_triggers structs from a PHYSFS_File and swaps if specified
  */
-void control_center_triggers_read(control_center_triggers &cct, const NamedPHYSFS_File fp)
+control_center_triggers control_center_triggers_read(const NamedPHYSFS_File fp)
 {
 	const v1_control_center_triggers v1cct{fp};
-	cct = {};
 	const std::size_t num_links{v1cct.num_links};
+	control_center_triggers cct{};
 	if (unlikely(!num_links))
-		return;
+		return cct;
 	/* num_links is derived from level data, which may be invalid.
 	 */
 	constexpr std::size_t maximum_allowed_links{std::size(v1cct.seg)};
@@ -660,6 +660,7 @@ void control_center_triggers_read(control_center_triggers &cct, const NamedPHYSF
 		++ valid_num_links;
 	}
 	cct.num_links = valid_num_links;
+	return cct;
 }
 
 void control_center_triggers_write(const control_center_triggers &cct, PHYSFS_File *fp)

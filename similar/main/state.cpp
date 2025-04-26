@@ -77,6 +77,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "compiler-range_for.h"
+#include "d_construct.h"
 #include "d_levelstate.h"
 #include "d_range.h"
 #include "d_enumerate.h"
@@ -2243,7 +2244,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 #elif DXX_BUILD_DESCENT == 2
 		matcen_info_read(fp, r);
 #endif
-	control_center_triggers_read(ControlCenterTriggers, fp);
+	reconstruct_at(ControlCenterTriggers, control_center_triggers_read, fp);
 	const unsigned Num_fuelcenters = PHYSFSX_readSXE32(fp, swap);
 	LevelUniqueFuelcenterState.Num_fuelcenters = Num_fuelcenters;
 	range_for (auto &s, partial_range(Station, Num_fuelcenters))
