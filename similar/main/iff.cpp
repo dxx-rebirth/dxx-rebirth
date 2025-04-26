@@ -60,6 +60,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define mskHasMask	1
 #define mskHasTransparentColor 2
 
+namespace {
+
 //structure of the header in the file
 struct iff_bitmap_header : prohibit_void_ptr<iff_bitmap_header>
 {
@@ -75,6 +77,8 @@ struct iff_bitmap_header : prohibit_void_ptr<iff_bitmap_header>
 	short row_size;				//offset to next row
 	RAIIdmem<uint8_t[]> raw_data;				//ptr to array of data
 };
+
+}
 
 ubyte iff_transparent_color;
 ubyte iff_has_transparency;	// 0=no transparency, 1=iff_transparent_color is valid
