@@ -577,7 +577,8 @@ void reactor_read_n(const NamedPHYSFS_File fp, std::ranges::subrange<reactor *> 
 	range_for (auto &i, r)
 	{
 		i.model_num = build_polygon_model_index_from_untrusted(PHYSFSX_readInt(fp));
-		i.n_guns = PHYSFSX_readInt(fp);
+		const std::size_t n_guns{PHYSFSX_readULE32(fp)};
+		i.n_guns = std::min(n_guns, MAX_CONTROLCEN_GUNS);
 		range_for (auto &j, i.gun_points)
 			PHYSFSX_readVector(fp, j);
 		range_for (auto &j, i.gun_dirs)

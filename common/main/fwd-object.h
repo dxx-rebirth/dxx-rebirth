@@ -134,9 +134,9 @@ enum class collision_result : bool
 namespace dsx {
 
 #if DXX_BUILD_DESCENT == 1
-constexpr std::integral_constant<unsigned, 4> MAX_CONTROLCEN_GUNS{};
+constexpr std::size_t MAX_CONTROLCEN_GUNS{4};
 #elif DXX_BUILD_DESCENT == 2
-constexpr std::integral_constant<unsigned, 8> MAX_CONTROLCEN_GUNS{};
+constexpr std::size_t MAX_CONTROLCEN_GUNS{8};
 struct d_unique_buddy_state;
 #endif
 
