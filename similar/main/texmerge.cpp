@@ -43,9 +43,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if DXX_USE_OGL
 #include "ogl_init.h"
 #endif
-#define MAX_NUM_CACHE_BITMAPS 10
-
-//static grs_bitmap * cache_bitmaps[MAX_NUM_CACHE_BITMAPS];                     
 
 namespace {
 
@@ -164,7 +161,7 @@ static void merge_textures(const texture2_rotation_high orient, const grs_bitmap
 	}
 }
 
-static std::array<TEXTURE_CACHE, MAX_NUM_CACHE_BITMAPS> Cache;
+static std::array<TEXTURE_CACHE, /* MAX_NUM_CACHE_BITMAPS = */ 10> Cache;
 
 static int cache_hits = 0;
 static int cache_misses = 0;
