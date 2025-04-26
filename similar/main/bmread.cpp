@@ -76,6 +76,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-cf_assert.h"
 #include "compiler-range_for.h"
 #include "partial_range.h"
+#include "d_construct.h"
 #include "d_enumerate.h"
 #include "d_range.h"
 #include "d_zip.h"
@@ -1859,7 +1860,7 @@ void bm_read_reactor(void)
 
 #if DXX_BUILD_DESCENT == 1
 	if (type == OL_CONTROL_CENTER)
-		read_model_guns(model_name, Reactors[0]);
+		reconstruct_at(Reactors[0], read_model_guns, model_name);
 #endif
 	if ( model_name_dead )
 		Dead_modelnums[model_num]  = load_polygon_model(model_name_dead,N_ObjBitmapPtrs-first_bitmap_num_dead,first_bitmap_num_dead,NULL);
@@ -1881,8 +1882,8 @@ void bm_read_reactor(void)
 		destroyed_exit_modelnum = Dead_modelnums[model_num];
 	}
 #elif DXX_BUILD_DESCENT == 2
+	reconstruct_at(Reactors[Num_reactors], read_model_guns, model_name);
 	Reactors[Num_reactors].model_num = model_num;
-	read_model_guns(model_name, Reactors[Num_reactors]);
 
 	Num_reactors++;
 #endif

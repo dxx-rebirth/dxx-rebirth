@@ -86,7 +86,8 @@ struct reactor {
 };
 
 // fills in arrays gun_points & gun_dirs, returns the number of guns read
-void read_model_guns(const char *filename, reactor &);
+[[nodiscard]]
+reactor read_model_guns(const char *filename);
 
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 1> MAX_REACTORS{};

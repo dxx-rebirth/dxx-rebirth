@@ -318,10 +318,9 @@ namespace dsx {
 
 //reads the gun information for a model
 //fills in arrays gun_points & gun_dirs, returns the number of guns read
-void read_model_guns(const char *filename, reactor &r)
+reactor read_model_guns(const char *filename)
 {
-	auto &gun_points = r.gun_points;
-	auto &gun_dirs = r.gun_dirs;
+	reactor r;
 	short version;
 	int len;
 	int n_guns{0};
@@ -366,8 +365,8 @@ void read_model_guns(const char *filename, reactor &r)
 				sm = pof_read_short(model_buf, Pof_addr);
 				if (sm!=0)
 					Error("Invalid gun submodel in file <%s>",filename);
-				pof_read_vec(gun_points[gun_id], model_buf, Pof_addr);
-				pof_read_vec(gun_dirs[gun_id], model_buf, Pof_addr);
+				pof_read_vec(r.gun_points[gun_id], model_buf, Pof_addr);
+				pof_read_vec(r.gun_dirs[gun_id], model_buf, Pof_addr);
 			}
 
 		}
@@ -376,6 +375,7 @@ void read_model_guns(const char *filename, reactor &r)
 
 	}
 	r.n_guns = n_guns;
+	return r;
 }
 
 }
