@@ -1766,7 +1766,7 @@ static void multi_do_position(object_array &Objects, const playernum_t pnum, con
 	count += 12;
 	qpp.rotvel = multi_get_vector(buf.subspan<9 + 12 + 2 + 12, 12>());
 	count += 12;
-	extract_quaternionpos(Objects.vmptr, obj, qpp);
+	extract_quaternionpos(Objects.vmptr, vmsegptr, obj, qpp);
 
 	if (obj->movement_source == object::movement_type::physics)
 		set_thrust_from_velocity(obj);

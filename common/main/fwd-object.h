@@ -260,7 +260,7 @@ void multi_object_warp_to_shortpos(vmobjptridx_t objp, const shortpos *spp);
 #endif
 
 // reset object position from quaternion structure
-void extract_quaternionpos(fvmobjptr &vmobjptr, vmobjptridx_t objp, quaternionpos &qpp);
+void extract_quaternionpos(fvmobjptr &vmobjptr, fvmsegptr &vmsegptr, vmobjptridx_t objp, quaternionpos &qpp);
 #endif
 
 // delete objects, such as weapons & explosions, that shouldn't stay

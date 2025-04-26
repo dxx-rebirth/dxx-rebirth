@@ -1106,7 +1106,7 @@ void multi_object_warp_to_shortpos(const vmobjptridx_t objp, const shortpos *spp
 }
 #endif
 
-void extract_quaternionpos(fvmobjptr &vmobjptr, const vmobjptridx_t objp, quaternionpos &qpp)
+void extract_quaternionpos(fvmobjptr &vmobjptr, fvmsegptr &vmsegptr, const vmobjptridx_t objp, quaternionpos &qpp)
 {
 	reconstruct_at(objp->orient, vms_matrix_from_quaternion, qpp.orient);
 
