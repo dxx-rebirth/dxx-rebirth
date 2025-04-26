@@ -53,6 +53,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "compiler-range_for.h"
 #include "d_array.h"
+#include "d_construct.h"
 #include "d_levelstate.h"
 #include "partial_range.h"
 #include "d_zip.h"
@@ -88,7 +89,7 @@ static void calc_controlcen_gun_point(reactor &r, object &obj, const uint_fast32
 	const auto &&m = vm_transposed_matrix(obj.orient);
 	vm_vec_rotate(gun_point, r.gun_points[gun_num], m);
 	vm_vec_add2(gun_point, obj.pos);
-	vm_vec_rotate(gun_dir, r.gun_dirs[gun_num], m);
+	reconstruct_at(gun_dir, vm_vec_build_rotated, r.gun_dirs[gun_num], m);
 }
 
 }
