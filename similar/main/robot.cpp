@@ -123,7 +123,7 @@ static void set_robot_state(object_base &obj, const robot_animation_state state)
 
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.
-void robot_set_angles(robot_info &r, polymodel &pm, enumerated_array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES, robot_animation_state> &angs)
+void robot_set_angles(robot_info &r, const polymodel &pm, const enumerated_array<std::array<vms_angvec, MAX_SUBMODELS>, N_ANIM_STATES, robot_animation_state> &angs)
 {
 	auto &Robot_joints = LevelSharedRobotJointState.Robot_joints;
 	std::array<robot_gun_animation_index, MAX_SUBMODELS> gun_nums;			//which gun each submodel is part of
