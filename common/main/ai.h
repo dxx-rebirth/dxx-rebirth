@@ -142,6 +142,16 @@ namespace dcx {
 
 struct d_level_shared_boss_state
 {
+	/* Descent 1 bosses use a compile-time constant interval between each cloak
+	 * iteration and a constant, but different, interval between teach teleport
+	 * iteration.
+	 *
+	 * Descent 2 bosses use a level-dependent interval between each cloak and
+	 * each teleport.  Record the Descent 1 constant intervals for static use
+	 * in Descent 1, and for use by Descent 2 when emulating Descent 1.
+	 */
+	using D1_Boss_cloak_interval = std::integral_constant<fix, F1_0 * 10>;
+	using D1_Boss_teleport_interval = std::integral_constant<fix, F1_0 * 8>;
 	struct special_segment_array_t : public count_array_t<vcsegidx_t, 100> {};
 	struct gate_segment_array_t : public special_segment_array_t {};
 	struct teleport_segment_array_t : public special_segment_array_t {};
@@ -158,9 +168,9 @@ namespace dsx {
 
 struct d_level_shared_boss_state : ::dcx::d_level_shared_boss_state
 {
-	// Time between cloaks
-	using D1_Boss_cloak_interval = std::integral_constant<fix, F1_0 * 10>;
-	using D1_Boss_teleport_interval = std::integral_constant<fix, F1_0 * 8>;
+	/* Time in `fix`-seconds between successive uses of the cloak/teleport
+	 * abilities.
+	 */
 #if DXX_BUILD_DESCENT == 1
 	static constexpr D1_Boss_cloak_interval Boss_cloak_interval{};
 	static constexpr D1_Boss_teleport_interval Boss_teleport_interval{};
