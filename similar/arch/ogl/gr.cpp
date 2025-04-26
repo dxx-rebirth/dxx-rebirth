@@ -1143,17 +1143,16 @@ void gr_palette_load( palette_array_t &pal )
 	reset_computed_colors();
 }
 
-struct TGA_header
-{
-      unsigned char TGAheader[12];
-      unsigned char header[6];
-};
-
 //writes out an uncompressed RGB .tga file
 //if we got really spiffy, we could optionally link in libpng or something, and use that.
 #if DXX_USE_SCREENSHOT_FORMAT_LEGACY
 void write_bmp(PHYSFS_File *const TGAFile, const unsigned w, const unsigned h)
 {
+	struct TGA_header
+	{
+		unsigned char TGAheader[12];
+		unsigned char header[6];
+	};
 	TGA_header TGA;
 	GLbyte HeightH,HeightL,WidthH,WidthL;
 	const unsigned buffer_size_TGA = w * h * 3;
