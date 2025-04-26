@@ -89,7 +89,6 @@ void read_model_guns(const char *filename, reactor &);
 
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 1> MAX_REACTORS{};
-constexpr std::integral_constant<unsigned, 1> Num_reactors{};
 #elif DXX_BUILD_DESCENT == 2
 constexpr std::integral_constant<unsigned, 7> MAX_REACTORS{};
 #define DEFAULT_CONTROL_CENTER_EXPLOSION_TIME 30    // Note: Usually uses Alan_pavlish_reactor_times, but can be overridden in editor.

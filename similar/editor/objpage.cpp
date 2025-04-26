@@ -67,6 +67,14 @@ public:
 
 }
 
+#if DXX_BUILD_DESCENT == 1
+namespace dsx {
+namespace {
+static constexpr std::size_t Num_reactors{1};
+}
+}
+#endif
+
 static object_dialog objpage_dialog;
 
 static void draw_model_picture(const enumerated_array<polymodel, MAX_POLYGON_MODELS, polygon_model_index> &Polygon_models, grs_canvas &canvas, const polygon_model_index model_num, const vms_angvec &orient_angles)
