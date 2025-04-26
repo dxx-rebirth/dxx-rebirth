@@ -411,8 +411,10 @@ fixang vm_vec_delta_ang_norm(const vms_vector &v0,const vms_vector &v1,const vms
 	return a;
 }
 
+namespace {
+
 [[nodiscard]]
-static vms_matrix sincos_2_matrix(const fixang bank, const fix_sincos_result p, const fix_sincos_result h)
+static vms_matrix vm_matrix_build_from_sincos(const fixang bank, const fix_sincos_result p, const fix_sincos_result h)
 {
 	vms_matrix m;
 #define DXX_S2M_DECL(V)	\
@@ -441,11 +443,13 @@ static vms_matrix sincos_2_matrix(const fixang bank, const fix_sincos_result p, 
 	return m;
 }
 
+}
+
 //computes a matrix from a set of three angles.  returns ptr to matrix
 vms_matrix vm_angles_2_matrix(const vms_angvec &a)
 {
 	const auto al{a};
-	return sincos_2_matrix(al.b, fix_sincos(al.p), fix_sincos(al.h));
+	return vm_matrix_build_from_sincos(al.b, fix_sincos(al.p), fix_sincos(al.h));
 }
 
 #if DXX_USE_EDITOR
@@ -456,7 +460,7 @@ vms_matrix vm_vec_ang_2_matrix(const vms_vector &v, const fixang a)
 	const fix cosp{fix_sqrt(F1_0 - fixmul(sinp, sinp))};
 	const fix sinh{fixdiv(v.x, cosp)};
 	const fix cosh{fixdiv(v.z, cosp)};
-	return sincos_2_matrix(a, {sinp, cosp}, {sinh, cosh});
+	return vm_matrix_build_from_sincos(a, {sinp, cosp}, {sinh, cosh});
 }
 #endif
 
