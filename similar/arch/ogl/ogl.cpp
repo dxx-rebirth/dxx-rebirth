@@ -83,21 +83,6 @@ using std::max;
 
 namespace {
 
-static constexpr float PAL2Tr(const color_palette_index c)
-{
-	return PAL2T(c).r / 63.0f;
-}
-
-static constexpr float PAL2Tg(const color_palette_index c)
-{
-	return PAL2T(c).g / 63.0f;
-}
-
-static constexpr float PAL2Tb(const color_palette_index c)
-{
-	return PAL2T(c).b / 63.0f;
-}
-
 template <unsigned G>
 struct enable_ogl_client_state
 {
@@ -614,10 +599,11 @@ void ogl_draw_vertex_reticle(grs_canvas &canvas, int cross, int primary, int sec
 {
 	int size=270+(size_offs*20);
 	float scale = (static_cast<float>(SWIDTH)/SHEIGHT);
+	auto &&rgb{PAL2T(color)};
 	const std::array<float, 4> ret_rgba{{
-		PAL2Tr(color),
-		PAL2Tg(color),
-		PAL2Tb(color),
+		rgb.r / 63.0f,
+		rgb.g / 63.0f,
+		rgb.b / 63.0f,
 		float{1.0f - (static_cast<float>(alpha) / (static_cast<float>(GR_FADE_LEVELS)))}
 	}}, ret_dark_rgba{{
 		ret_rgba[0] / 2,
@@ -878,9 +864,10 @@ void _g3_draw_poly(grs_canvas &canvas, const std::span<g3_draw_tmap_point *const
 	r_polyc++;
 	ogl_client_states<int, GL_VERTEX_ARRAY, GL_COLOR_ARRAY> cs;
 	OGL_DISABLE(TEXTURE_2D);
-	const auto color_r{PAL2Tr(palette_color_index)};
-	const auto color_g{PAL2Tg(palette_color_index)};
-	const auto color_b{PAL2Tb(palette_color_index)};
+	auto &&rgb{PAL2T(palette_color_index)};
+	const auto color_r{rgb.r / 63.0f};
+	const auto color_g{rgb.g / 63.0f};
+	const auto color_b{rgb.b / 63.0f};
 
 	const float color_a = (canvas.cv_fade_level >= GR_FADE_OFF)
 		? 1.0
