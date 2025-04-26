@@ -78,7 +78,7 @@ struct reactor {
 #if DXX_BUILD_DESCENT == 2
 	polygon_model_index model_num;
 #endif
-	int n_guns;
+	uint8_t n_guns;
 	/* Location of the gun on the reactor model */
 	std::array<vms_vector, MAX_CONTROLCEN_GUNS> gun_points;
 	/* Orientation of the gun on the reactor model */
