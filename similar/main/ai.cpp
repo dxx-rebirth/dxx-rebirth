@@ -4849,12 +4849,60 @@ void ai_save_state(PHYSFS_File *fp)
 	PHYSFSX_writeBytes(fp, &Num_boss_teleport_segs, sizeof(Num_boss_teleport_segs));
 	unsigned Num_boss_gate_segs = Boss_gate_segs.size();
 	PHYSFSX_writeBytes(fp, &Num_boss_gate_segs, sizeof(Num_boss_gate_segs));
+	/* Boss special segment arrays are an array of
+	 * `valptridx<segment>::idx<vc>`, which is not POD because it is not
+	 * default-constructible.  Starting in gcc-15, this causes such arrays to
+	 * fail the `std::is_trivial` test in `PHYSFSX_check_writeBytes`.  To avoid
+	 * this failure, copy the elements individually into a POD std::array, then
+	 * write that std::array to the file.  This extra copy is small, and
+	 * happens only when a save file is written, so the overhead is not worth
+	 * finding a clever way to perform the write directly from the special
+	 * segment array.  Further, gcc will normally optimize the call of
+	 * `std::ranges::copy_n` into a call to `memcpy`.
+	 */
+	const auto build_pod_segs{[](const d_level_shared_boss_state::special_segment_array_t &src, const std::size_t count) {
+		std::array<uint16_t, 100> pod_gate_segs;
+#ifndef __clang__
+		/* clang-17 cannot perform constant evaluation on `src.max_size()`,
+		 * even though `max_size()` does not depend on what instance `src`
+		 * references.
+		 *
+		 * <clang-17: untested
+		 * clang-17: fails
+		 * >clang-17: untested
+		 * <gcc-12: untested
+		 * gcc-12, gcc-13, gcc-14, gcc-15: works
+		 * >gcc-15: untested
+```
+similar/main/ai.cpp:4867:17: error: static assertion expression is not an integral constant expression
+ 4867 |         static_assert(pod_gate_segs.max_size() == src.max_size());
+      |                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+similar/main/ai.cpp:4867:45: note: function parameter 'src' with unknown value cannot be used in a constant expression
+ 4867 |         static_assert(pod_gate_segs.max_size() == src.max_size());
+      |                                                   ^
+```
+		 */
+		static_assert(pod_gate_segs.max_size() == src.max_size());
+#endif
+		/* Construct a temporary `std::span` from the output for the side
+		 * effect of provoking a debug version of the standard library to check
+		 * that the output array is at least `count` elements long.
+		 */
+		std::ranges::copy_n(src.begin(), count, std::span(pod_gate_segs).first(count).begin());
+		return pod_gate_segs;
+	}};
 
 	if (Num_boss_gate_segs)
-		PHYSFSX_writeBytes(fp, Boss_gate_segs.data(), sizeof(Boss_gate_segs[0]) * Num_boss_gate_segs);
+	{
+		const auto pod_segs{build_pod_segs(Boss_gate_segs, Num_boss_gate_segs)};
+		PHYSFSX_writeBytes(fp, pod_segs.data(), sizeof(uint16_t) * Num_boss_gate_segs);
+	}
 
 	if (Num_boss_teleport_segs)
-		PHYSFSX_writeBytes(fp, Boss_teleport_segs.data(), sizeof(Boss_teleport_segs[0]) * Num_boss_teleport_segs);
+	{
+		const auto pod_segs{build_pod_segs(Boss_teleport_segs, Num_boss_teleport_segs)};
+		PHYSFSX_writeBytes(fp, pod_segs.data(), sizeof(uint16_t) * Num_boss_teleport_segs);
+	}
 #endif
 }
 
