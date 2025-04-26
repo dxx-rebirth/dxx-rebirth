@@ -356,6 +356,7 @@ void multi_delete_controlled_robot(const vmobjptridx_t objnum)
 }
 }
 
+namespace {
 struct multi_claim_robot
 {
 	uint8_t pnum;
@@ -363,6 +364,7 @@ struct multi_claim_robot
 	uint16_t robjnum;
 };
 DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_ROBOT_CLAIM, multi_claim_robot, b, (b.pnum, b.owner, b.robjnum));
+}
 
 void multi_send_claim_robot(const vmobjptridx_t objnum)
 {
@@ -556,12 +558,14 @@ void multi_send_robot_fire(const vmobjptridx_t obj, const robot_gun_number gun_n
                 multi_send_data(multibuf, multiplayer_data_priority::_1); // Not our robot, send ASAP
 }
 
+namespace {
 struct multi_explode_robot
 {
 	int16_t robj_killer, robj_killed;
 	int8_t owner_killer, owner_killed;
 };
 DEFINE_MULTIPLAYER_SERIAL_MESSAGE(multiplayer_command_t::MULTI_ROBOT_EXPLODE, multi_explode_robot, b, (b.robj_killer, b.robj_killed, b.owner_killer, b.owner_killed));
+}
 
 void multi_send_robot_explode(const imobjptridx_t objnum, objnum_t killer)
 {
