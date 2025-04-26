@@ -110,14 +110,6 @@ public:
 		m_idx(i)
 	{
 	}
-	/* This is a temporary constructor to facilitate conversion to sentinel
-	 * usage in calling algorithms.
-	 */
-	template <typename end_index_type>
-		constexpr xrange_iterator(xrange_endpoint<end_index_type, false> i) :
-			m_idx(i)
-	{
-	}
 	[[nodiscard]]
 	difference_type operator-(const xrange_iterator &i) const
 		requires(
