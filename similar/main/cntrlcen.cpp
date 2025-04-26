@@ -54,6 +54,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "d_array.h"
 #include "d_construct.h"
+#include "d_enumerate.h"
 #include "d_levelstate.h"
 #include "partial_range.h"
 #include "d_zip.h"
@@ -116,36 +117,39 @@ constexpr enumerated_array<uint8_t, NDL, Difficulty_level_type> D2_Alan_pavlish_
 #endif
 
 //	-----------------------------------------------------------------------------
-//	Look at control center guns, find best one to fire at *objp.
+//	Look at control center guns, find best one to fire at the position `objpos`.
 //	Return best gun number (one whose direction dotted with vector to player is largest).
-//	If best gun has negative dot, return -1, meaning no gun is good.
-static int calc_best_gun(const unsigned num_guns, const object &objreactor, const vms_vector &objpos)
+//	If best gun has negative dot, return an empty std::optional, meaning no gun is good.
+static std::optional<std::size_t> calc_best_gun(const std::size_t num_guns, const object &objreactor, const vms_vector &objpos)
 {
-	int	i;
-	fix	best_dot;
-	int	best_gun;
-	auto &gun_pos = objreactor.ctype.reactor_info.gun_pos;
-	auto &gun_dir = objreactor.ctype.reactor_info.gun_dir;
-
-	best_dot = -F1_0*2;
-	best_gun = -1;
-
-	for (i=0; i<num_guns; i++) {
-		fix			dot;
-		const auto gun_vec = vm_vec_normalized_quick(vm_vec_build_sub(objpos, gun_pos[i]));
-		dot = vm_vec_build_dot(gun_dir[i], gun_vec);
-
-		if (dot > best_dot) {
+	constexpr std::size_t invalid_best_gun{SIZE_MAX};
+	fix	best_dot{-F1_0*2};
+	std::size_t best_gun{invalid_best_gun};
+	for (const auto &&[i, gun_dir, gun_pos] : enumerate(zip(std::span(objreactor.ctype.reactor_info.gun_dir).first(num_guns), objreactor.ctype.reactor_info.gun_pos)))
+	{
+		const auto gun_vec{vm_vec_normalized_quick(vm_vec_build_sub(objpos, gun_pos))};
+		const fix dot{vm_vec_build_dot(gun_dir, gun_vec)};
+		if (best_dot < dot)
+		{
 			best_dot = dot;
 			best_gun = i;
 		}
 	}
 
-	Assert(best_gun != -1);		// Contact Mike.  This is impossible.  Or maybe you're getting an unnormalized vector somewhere.
+	assert(best_gun != invalid_best_gun);		// Contact Mike.  This is impossible.  Or maybe you're getting an unnormalized vector somewhere.
 
 	if (best_dot < 0)
-		return -1;
+	{
+		[[unlikely]];
+		return std::nullopt;
+	}
 	else
+		/* On this path, `best_gun` must be a valid index into `gun_dir`.  If
+		 * the loop never found a good `dot`, then `best_dot` is unchanged from
+		 * its initial value, and the `if` branch will be taken.  If the loop
+		 * found any good `dot`, then `best_gun` is set to the valid index
+		 * which was declared good.
+		 */
 		return best_gun;
 }
 
@@ -339,7 +343,6 @@ void do_controlcen_destroyed_stuff(const imobjidx_t objp)
 void do_controlcen_frame(const d_robot_info_array &Robot_info, const vmobjptridx_t obj)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
-	int			best_gun_num;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 
@@ -419,13 +422,9 @@ void do_controlcen_frame(const d_robot_info_array &Robot_info, const vmobjptridx
 	{
 		auto &player_info = plrobj.ctype.player_info;
 		const auto &player_pos = (player_info.powerup_flags & PLAYER_FLAGS_CLOAKED) ? Believed_player_pos : ConsoleObject->pos;
-		best_gun_num = calc_best_gun(
-			get_reactor_definition(get_reactor_id(obj)).n_guns,
-			obj,
-			player_pos
-		);
-
-		if (best_gun_num != -1) {
+		if (const auto opt_best_gun{calc_best_gun(get_reactor_definition(get_reactor_id(obj)).n_guns, obj, player_pos)})
+		{
+			const auto best_gun_num{*opt_best_gun};
 			fix			delta_fire_time;
 
 			auto &&[dist_to_player, vec_to_goal] = vm_vec_normalize_quick_with_magnitude(vm_vec_build_sub(player_pos, obj->ctype.reactor_info.gun_pos[best_gun_num]));
