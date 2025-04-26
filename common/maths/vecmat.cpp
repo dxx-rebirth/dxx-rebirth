@@ -63,6 +63,11 @@ static void vm_vector_to_matrix_f(vms_matrix &m)
 	}
 }
 
+static constexpr fix avg_fix(fix64 a, fix64 b)
+{
+	return (a + b) / 2;
+}
+
 }
 
 //adds two vectors, fills in dest, returns ptr to dest
@@ -110,11 +115,6 @@ void vm_vec_sub2(vms_vector &dest,const vms_vector &src)
 	dest.x -= src.x;
 	dest.y -= src.y;
 	dest.z -= src.z;
-}
-
-static inline fix avg_fix(fix64 a, fix64 b)
-{
-	return (a + b) / 2;
 }
 
 //averages two vectors. returns ptr to dest
