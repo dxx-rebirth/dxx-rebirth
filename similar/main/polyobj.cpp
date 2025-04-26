@@ -53,6 +53,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "bm.h"
 
+#include "d_construct.h"
 #include "d_zip.h"
 #include "partial_range.h"
 #include <memory>
@@ -115,13 +116,16 @@ static void pof_skip_string(int max_char, const std::span<const uint8_t> bufp, s
 	}
 }
 
-static void pof_read_vec(vms_vector &vec, const std::span<const uint8_t> bufp, std::size_t &Pof_addr)
+[[nodiscard]]
+static vms_vector pof_read_vec(const std::span<const uint8_t> bufp, std::size_t &Pof_addr)
 {
+	vms_vector vec;
 	vec.x = pof_read_int(bufp, Pof_addr);
 	vec.y = pof_read_int(bufp, Pof_addr);
 	vec.z = pof_read_int(bufp, Pof_addr);
 	if (Pof_addr > MODEL_BUF_SIZE)
 		Int3();
+	return vec;
 }
 
 static void pof_read_ang(vms_angvec &ang, const std::span<const uint8_t> bufp, std::size_t &Pof_addr)
@@ -179,16 +183,19 @@ static void read_model_file(polymodel &pm, const char *const filename, robot_inf
 		switch (pof_id)
 		{
 			case ID_OHDR: {		//Object header
-				vms_vector pmmin,pmmax;
-
 				pm.n_models = pof_read_int(model_buf, Pof_addr);
 				pm.rad = pof_read_int(model_buf, Pof_addr);
 
 				assert(pm.n_models <= MAX_SUBMODELS);
 
-				pof_read_vec(pmmin, model_buf, Pof_addr);
-				pof_read_vec(pmmax, model_buf, Pof_addr);
-
+				{
+					const auto pmmin{pof_read_vec(model_buf, Pof_addr)};
+					static_cast<void>(pmmin);
+				}
+				{
+					const auto pmmax{pof_read_vec(model_buf, Pof_addr)};
+					static_cast<void>(pmmax);
+				}
 				break;
 			}
 			
@@ -207,9 +214,9 @@ static void read_model_file(polymodel &pm, const char *const filename, robot_inf
 
 				pm.submodel_parents[n] = pof_read_short(model_buf, Pof_addr);
 
-				pof_read_vec(pm.submodel_norms[n], model_buf, Pof_addr);
-				pof_read_vec(pm.submodel_pnts[n], model_buf, Pof_addr);
-				pof_read_vec(pm.submodel_offsets[n], model_buf, Pof_addr);
+				reconstruct_at(pm.submodel_norms[n], pof_read_vec, model_buf, Pof_addr);
+				reconstruct_at(pm.submodel_pnts[n], pof_read_vec, model_buf, Pof_addr);
+				reconstruct_at(pm.submodel_offsets[n], pof_read_vec, model_buf, Pof_addr);
 
 				pm.submodel_rads[sn] = pof_read_int(model_buf, Pof_addr);		//radius
 				pm.submodel_ptrs[n] = pof_read_int(model_buf, Pof_addr);	//offset
@@ -222,8 +229,6 @@ static void read_model_file(polymodel &pm, const char *const filename, robot_inf
 			case ID_GUNS: {		//List of guns on this object
 
 				if (r) {
-					vms_vector gun_dir;
-
 					const uint8_t n_guns = pof_read_int(model_buf, Pof_addr);
 					r->n_guns = std::min<uint8_t>(n_guns, MAX_GUNS);
 					for (const auto i : xrange(n_guns))
@@ -235,8 +240,7 @@ static void read_model_file(polymodel &pm, const char *const filename, robot_inf
 						 * is wrong, but it will not cause memory corruption.
 						 */
 						const auto submodel = pof_read_short(model_buf, Pof_addr);
-						vms_vector v;
-						pof_read_vec(v, model_buf, Pof_addr);
+						const auto v{pof_read_vec(model_buf, Pof_addr)};
 						Assert(submodel != 0xff);
 						if (gun_id < std::size(r->gun_submodels))
 						{
@@ -250,7 +254,10 @@ static void read_model_file(polymodel &pm, const char *const filename, robot_inf
 						}
 
 						if (version >= 7)
-							pof_read_vec(gun_dir, model_buf, Pof_addr);
+						{
+							const auto gun_dir{pof_read_vec(model_buf, Pof_addr)};
+							static_cast<void>(gun_dir);
+						}
 					}
 				}
 				else
@@ -365,8 +372,8 @@ reactor read_model_guns(const char *filename)
 				sm = pof_read_short(model_buf, Pof_addr);
 				if (sm!=0)
 					Error("Invalid gun submodel in file <%s>",filename);
-				pof_read_vec(r.gun_points[gun_id], model_buf, Pof_addr);
-				pof_read_vec(r.gun_dirs[gun_id], model_buf, Pof_addr);
+				reconstruct_at(r.gun_points[gun_id], pof_read_vec, model_buf, Pof_addr);
+				reconstruct_at(r.gun_dirs[gun_id], pof_read_vec, model_buf, Pof_addr);
 			}
 
 		}
