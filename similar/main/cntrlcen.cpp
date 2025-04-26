@@ -78,19 +78,6 @@ namespace {
 
 static window_event_result do_countdown_frame();
 
-//	-----------------------------------------------------------------------------
-//return the position & orientation of a gun on the control center object
-static void calc_controlcen_gun_point(reactor &r, object &obj, const uint_fast32_t gun_num)
-{
-	//instance gun position & orientation
-
-	auto &gun_point = obj.ctype.reactor_info.gun_pos[gun_num];
-	auto &gun_dir = obj.ctype.reactor_info.gun_dir[gun_num];
-	const auto &&m = vm_transposed_matrix(obj.orient);
-	reconstruct_at(gun_point, vm_vec_build_add, obj.pos, vm_vec_build_rotated(r.gun_points[gun_num], m));
-	reconstruct_at(gun_dir, vm_vec_build_rotated, r.gun_dirs[gun_num], m);
-}
-
 }
 
 void calc_controlcen_gun_point(object &obj)
@@ -99,7 +86,15 @@ void calc_controlcen_gun_point(object &obj)
 	assert(obj.render_type == render_type::RT_POLYOBJ);
 	auto &reactor = get_reactor_definition(get_reactor_id(obj));
 	for (uint_fast32_t i = reactor.n_guns; i--;)
-		calc_controlcen_gun_point(reactor, obj, i);
+	{
+		/* Set the position and direction of reactor gun number `gun_num` based
+		 * on the definition of a reactor, the current position of an object
+		 * that is of type OBJ_CNTRLCEN, and the orientation of that object.
+		 */
+		const auto &&m{vm_transposed_matrix(obj.orient)};
+		reconstruct_at(obj.ctype.reactor_info.gun_pos[i], vm_vec_build_add, obj.pos, vm_vec_build_rotated(reactor.gun_points[i], m));
+		reconstruct_at(obj.ctype.reactor_info.gun_dir[i], vm_vec_build_rotated, reactor.gun_dirs[i], m);
+	}
 }
 
 namespace {
