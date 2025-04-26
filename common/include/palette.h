@@ -65,9 +65,11 @@ extern palette_array_t gr_palette;
 
 using color_palette_index = uint8_t;
 
+#if DXX_USE_OGL
 static constexpr const rgb_t &PAL2T(const color_palette_index c)
 {
 	return gr_palette[static_cast<std::size_t>(c)];
 }
+#endif
 
 }
