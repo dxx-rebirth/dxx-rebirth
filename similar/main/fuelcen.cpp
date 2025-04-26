@@ -693,6 +693,8 @@ void init_all_matcens(void)
 
 }
 
+namespace {
+
 struct d1mi_v25
 {
 	matcen_info *m;
@@ -710,8 +712,13 @@ DEFINE_SERIAL_UDT_TO_MESSAGE(d1mi_v25, p, D1_MATCEN_V25_MEMBERLIST);
 DEFINE_SERIAL_UDT_TO_MESSAGE(d1cmi_v25, p, D1_MATCEN_V25_MEMBERLIST);
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(d1mi_v25, 16);
 
+}
+
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
+
+namespace {
+
 struct d1mi_v26
 {
 	matcen_info *m;
@@ -728,6 +735,8 @@ struct d1cmi_v26
 DEFINE_SERIAL_UDT_TO_MESSAGE(d1mi_v26, p, D1_MATCEN_V26_MEMBERLIST);
 DEFINE_SERIAL_UDT_TO_MESSAGE(d1cmi_v26, p, D1_MATCEN_V26_MEMBERLIST);
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(d1mi_v26, 20);
+
+}
 
 void matcen_info_read(const NamedPHYSFS_File fp, matcen_info &mi, int version)
 {
