@@ -563,6 +563,8 @@ void g3_draw_line(const g3_draw_line_context &context, const g3_draw_line_point 
 	glDrawArrays(GL_LINES, 0, 2);
 }
 
+namespace {
+
 static void ogl_drawcircle(const unsigned nsides, const unsigned type, GLfloat *const vertices)
 {
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -573,7 +575,7 @@ static void ogl_drawcircle(const unsigned nsides, const unsigned type, GLfloat *
 
 static std::unique_ptr<GLfloat[]> circle_array_init(const unsigned nsides)
 {
-	auto vertices = std::make_unique<GLfloat[]>(nsides * 2);
+	auto vertices = std::make_unique_for_overwrite<GLfloat[]>(nsides * 2);
 	for (unsigned i = 0; i < nsides; i++)
 	{
 		const float ang = 2.0 * M_PI * i / nsides;
@@ -585,7 +587,7 @@ static std::unique_ptr<GLfloat[]> circle_array_init(const unsigned nsides)
 
 static std::unique_ptr<GLfloat[]> circle_array_init_2(const unsigned nsides, const float xsc, const float xo, const float ysc, const float yo)
 {
-	auto vertices = std::make_unique<GLfloat[]>(nsides * 2);
+	auto vertices = std::make_unique_for_overwrite<GLfloat[]>(nsides * 2);
 	for (unsigned i = 0; i < nsides; i++)
 	{
 		const float ang = 2.0 * M_PI * i / nsides;
@@ -593,6 +595,8 @@ static std::unique_ptr<GLfloat[]> circle_array_init_2(const unsigned nsides, con
 		vertices[i * 2 + 1] = sinf(ang) * ysc + yo;
 	}
 	return vertices;
+}
+
 }
 
 void ogl_draw_vertex_reticle(grs_canvas &canvas, int cross, int primary, int secondary, int color, int alpha, int size_offs)
