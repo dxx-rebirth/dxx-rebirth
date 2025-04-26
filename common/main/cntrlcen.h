@@ -120,16 +120,6 @@ static inline polygon_model_index get_reactor_model_number(const uint8_t id)
 #endif
 }
 
-static inline reactor &get_reactor_definition(int id)
-{
-#if DXX_BUILD_DESCENT == 1
-	(void)id;
-	return Reactors[0];
-#elif DXX_BUILD_DESCENT == 2
-	return Reactors[id];
-#endif
-}
-
 // Initialize control center for a level.
 // Call when a new level is started.
 void init_controlcen_for_level(const d_robot_info_array &Robot_info);

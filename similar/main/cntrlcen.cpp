@@ -78,6 +78,16 @@ namespace {
 
 static window_event_result do_countdown_frame();
 
+static inline const reactor &get_reactor_definition(const std::size_t id)
+{
+#if DXX_BUILD_DESCENT == 1
+	(void)id;
+	return Reactors[0];
+#elif DXX_BUILD_DESCENT == 2
+	return Reactors[id];
+#endif
+}
+
 }
 
 void calc_controlcen_gun_point(object &obj)
