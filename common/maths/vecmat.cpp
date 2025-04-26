@@ -448,8 +448,7 @@ static vms_matrix vm_matrix_build_from_sincos(const fixang bank, const fix_sinco
 //computes a matrix from a set of three angles.  returns ptr to matrix
 vms_matrix vm_angles_2_matrix(const vms_angvec &a)
 {
-	const auto al{a};
-	return vm_matrix_build_from_sincos(al.b, fix_sincos(al.p), fix_sincos(al.h));
+	return vm_matrix_build_from_sincos(a.b, fix_sincos(a.p), fix_sincos(a.h));
 }
 
 #if DXX_USE_EDITOR
