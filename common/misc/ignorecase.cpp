@@ -59,7 +59,7 @@ static std::optional<std::size_t> caseInsensitiveStringCompare(const char *x, co
 
 static PHYSFSX_case_search_result locateOneElement(char *const sptr, char *const ptr, const char *buf)
 {
-    if (const auto r = PHYSFS_exists(buf))
+    if (PHYSFS_exists(buf))
         return PHYSFSX_case_search_result::success;  /* quick rejection: exists in current case. */
 
 	struct search_result : PHYSFSX_uncounted_list
