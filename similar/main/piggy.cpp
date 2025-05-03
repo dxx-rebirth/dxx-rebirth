@@ -2019,7 +2019,6 @@ static bitmap_index d2_index_for_d1_index(short d1_index)
 
 }
 
-#define D1_BITMAPS_SIZE 300000
 void load_d1_bitmap_replacements()
 {
 	int pig_data_start, bitmap_header_start, bitmap_data_start;
@@ -2077,6 +2076,13 @@ void load_d1_bitmap_replacements()
 		bitmap_data_start = bitmap_header_start + header_size;
 	}
 
+	/* This size is sufficient for all official releases of Descent 1 bitmaps,
+	 * when decoded using the standard palette.
+	 *
+	 * Custom bitmap files, or custom palette files, may exhaust this space,
+	 * causing `bitmap_read_d1` to fail to read all bitmaps.
+	 */
+	static constexpr std::size_t D1_BITMAPS_SIZE{300000};
 	Bitmap_replacement_data = std::make_unique<ubyte[]>(D1_BITMAPS_SIZE);
 	if (!Bitmap_replacement_data) {
 		Warning_puts(D1_PIG_LOAD_FAILED);
