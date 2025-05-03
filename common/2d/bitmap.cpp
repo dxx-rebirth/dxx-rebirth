@@ -187,18 +187,19 @@ static void gr_set_super_transparent(grs_bitmap &bm, bool bOpaque)
 
 }
 
-void build_colormap_good(const palette_array_t &palette, std::array<color_palette_index, 256> &colormap)
+std::array<color_palette_index, 256> build_colormap_good(const palette_array_t &palette)
 {
+	std::array<color_palette_index, 256> colormap;
 	const auto a = [](const rgb_t &p) {
 		return gr_find_closest_color(p.r, p.g, p.b);
 	};
 	std::transform(palette.begin(), palette.end(), colormap.begin(), a);
+	return colormap;
 }
 
 void gr_remap_bitmap_good(grs_bitmap &bmp, palette_array_t &palette, uint_fast32_t transparent_color, uint_fast32_t super_transparent_color)
 {
-	std::array<color_palette_index, 256> colormap;
-	build_colormap_good(palette, colormap);
+	auto colormap{build_colormap_good(palette)};
 
 	if (super_transparent_color < colormap.size())
 		colormap[super_transparent_color] = color_palette_index{254};

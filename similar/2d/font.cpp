@@ -1013,7 +1013,6 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const std::span<const cha
 
 	if (font->ft_flags & FT_COLOR) {		//remap palette
 		palette_array_t palette;
-		std::array<color_palette_index, 256> colormap;
 		/* `freq` exists so that decode_data can write to it, but it is
 		 * otherwise unused.  `decode_data` is not guaranteed to write
 		 * to every element, but the bitset constructor will initialize
@@ -1025,7 +1024,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const std::span<const cha
 		if (constexpr std::size_t buffer_size{sizeof(palette[0]) * palette.size()}; PHYSFSX_readBytes(fontfile, palette, buffer_size) != buffer_size)		//read the palette
 			return nullptr;
 
-		build_colormap_good(palette, colormap);
+		auto colormap{build_colormap_good(palette)};
 
 		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;              // changed from colormap[255] = 255 to this for macintosh
 

@@ -56,6 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "console.h"
 #include "compiler-cf_assert.h"
 #include "compiler-range_for.h"
+#include "d_construct.h"
 #include "d_range.h"
 #include "d_zip.h"
 #include "partial_range.h"
@@ -1776,7 +1777,7 @@ static int get_d1_colormap(palette_array_t &d1_palette, std::array<color_palette
 	if (!palette_file || PHYSFS_fileLength(palette_file) != 9472)
 		return -1;
 	PHYSFSX_readBytes(palette_file, d1_palette, sizeof(d1_palette[0]) * std::size(d1_palette));
-	build_colormap_good(d1_palette, colormap);
+	reconstruct_at(colormap, build_colormap_good, d1_palette);
 	// don't change transparencies:
 	colormap[254] = color_palette_index{254};
 	colormap[255] = TRANSPARENCY_COLOR;

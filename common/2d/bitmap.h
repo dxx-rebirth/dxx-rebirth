@@ -14,6 +14,7 @@
 #include <span>
 
 namespace dcx {
-void build_colormap_good(const palette_array_t &palette, std::array<color_palette_index, 256> &colormap);
+[[nodiscard]]
+std::array<color_palette_index, 256> build_colormap_good(const palette_array_t &palette);
 void decode_data(std::span<color_palette_index> data, const std::array<color_palette_index, 256> &colormap, std::bitset<256> &used);
 }
