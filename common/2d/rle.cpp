@@ -591,7 +591,6 @@ void rle_swap_0_255(grs_bitmap &bmp)
 void rle_remap(grs_bitmap &bmp, const std::array<color_palette_index, 256> &colormap)
 {
 	int len, rle_big;
-	unsigned short line_size;
 
 	rle_big = bmp.get_flag_mask(BM_FLAG_RLE_BIG);
 
@@ -605,10 +604,11 @@ void rle_remap(grs_bitmap &bmp, const std::array<color_palette_index, 256> &colo
 	for (int i{0}; i < bmp.bm_h; ++i)
 	{
 		auto start{ptr2};
-		if (rle_big)
-			line_size = GET_INTEL_SHORT(&src_line_size_ptr.rle_big[i]);
-		else
-			line_size = src_line_size_ptr.rle_little[i];
+		const uint16_t line_size{
+			rle_big
+				? GET_INTEL_SHORT(&src_line_size_ptr.rle_big[i])
+				: uint16_t{src_line_size_ptr.rle_little[i]}
+		};
 		for (int j{0}; j < line_size; j++) {
 			const uint8_t v{ptr[j]};
 			if (!IS_RLE_CODE(v))
