@@ -539,7 +539,7 @@ int check_segment_connections()
 		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
 		{
 #ifndef NDEBUG
-			const auto &&[num_faces, vertex_list] = create_abs_vertex_lists(seg, sidenum);
+			const auto &&[num_faces, vertex_list]{create_abs_vertex_lists(seg, seg->shared_segment::sides[sidenum], sidenum)};
 #endif
 			const auto csegnum = seg->shared_segment::children[sidenum];
 			if (!IS_CHILD(csegnum))
@@ -561,7 +561,7 @@ int check_segment_connections()
 				}
 
 #ifndef NDEBUG
-				const auto &&[con_num_faces, con_vertex_list] = create_abs_vertex_lists(cseg, csidenum);
+				const auto &&[con_num_faces, con_vertex_list]{create_abs_vertex_lists(cseg, cseg->shared_segment::sides[csidenum], csidenum)};
 
 				if (con_num_faces != num_faces) {
 					LevelError("Segment #%u side %u: wrong faces: con_num_faces=%" PRIuFAST32 " num_faces=%" PRIuFAST32 ".", seg.get_unchecked_index(), underlying_value(sidenum), static_cast<uint_fast32_t>(con_num_faces), static_cast<uint_fast32_t>(num_faces));

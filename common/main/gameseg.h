@@ -137,11 +137,6 @@ static inline std::pair<vertex_array_side_type, vertnum_array_list_t> create_abs
 	return {n, r};
 }
 
-[[nodiscard]]
-static inline std::pair<vertex_array_side_type, vertnum_array_list_t> create_abs_vertex_lists(const shared_segment &segp, const sidenum_t sidenum)
-{
-	return create_abs_vertex_lists(segp, segp.sides[sidenum], sidenum);
-}
 
 }
 
