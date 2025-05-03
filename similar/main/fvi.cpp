@@ -234,16 +234,15 @@ static intersection_type check_sphere_to_face(const vms_vector &pnt, const vms_v
 	}
 }
 
-/* Return hit_type indicating whether line intersects with face.  If the line
- * intersects, then `intersection_result::hit_point` tells where on the plane
- * the intersection occurred.  If `intersection_result::hit_type` is
- * `intersection_type::None`, then `intersection_result::hit_point` is
- * undefined.
+/* Return `std::optional<vms_vector>` indicating whether line intersects with
+ * face.  If the line intersects, then the optional contains a `vms_vector`
+ * that tells where on the plane the intersection occurred.  If the line does
+ * not intersect, then the optional does not contain a value.
  */
 //facenum determines which of four possible faces we have
 //note: the seg parm is temporary, until the face itself has a point field
 [[nodiscard]]
-static intersection_result check_line_to_face(const vms_vector &p0, const vms_vector &p1, const shared_segment &seg, const sidenum_t side, const unsigned facenum, const unsigned nv, const fix rad)
+static std::optional<vms_vector> check_line_to_face(const vms_vector &p0, const vms_vector &p1, const shared_segment &seg, const sidenum_t side, const unsigned facenum, const unsigned nv, const fix rad)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -267,7 +266,7 @@ static intersection_result check_line_to_face(const vms_vector &p0, const vms_ve
 	 * Otherwise, `hit_point` is defined, and can be used in the next check.
 	 */
 	if (result.hit_type == intersection_type::None)
-		return result;
+		return std::nullopt;
 
 	auto checkp = result.hit_point;
 
@@ -276,8 +275,9 @@ static intersection_result check_line_to_face(const vms_vector &p0, const vms_ve
 	if (rad!=0)
 		vm_vec_scale_add2(checkp,norm,-rad);
 
-	result.hit_type = check_sphere_to_face(checkp, s.normals[facenum], facenum, nv, rad, vertex_list);
-	return result;
+	if (check_sphere_to_face(checkp, s.normals[facenum], facenum, nv, rad, vertex_list) == intersection_type::None)
+		return std::nullopt;
+	return result.hit_point;
 }
 
 //returns the value of a determinant
@@ -319,7 +319,7 @@ static std::optional<std::pair<fix, fix>> check_line_to_line(const vms_vector &p
 //the plane of a side.  In this case, we must do checks against the edge
 //of faces
 [[nodiscard]]
-static intersection_result special_check_line_to_face(const vms_vector &p0, const vms_vector &p1, const shared_segment &seg, const sidenum_t side, const unsigned facenum, const unsigned nv, const fix rad)
+static std::optional<vms_vector> special_check_line_to_face(const vms_vector &p0, const vms_vector &p1, const shared_segment &seg, const sidenum_t side, const unsigned facenum, const unsigned nv, const fix rad)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
@@ -357,20 +357,13 @@ static intersection_result special_check_line_to_face(const vms_vector &p0, cons
 	const auto move_len{vm_vec_normalize(move_vec)};
 
 	const auto &cll = check_line_to_line(edge_v0,edge_vec,p0,move_vec);
-	intersection_result result;
 	if (!cll)
-	{
-		result.hit_type = intersection_type::None;
-		return result;
-	}
+		return std::nullopt;
 	auto &&[edge_t, move_t] = *cll;
 
 	//make sure t values are in valid range
 	if (move_t<0 || move_t>move_len+rad)
-	{
-		result.hit_type = intersection_type::None;
-		return result;
-	}
+		return std::nullopt;
 
 	const fix move_t2{
 		(move_t > move_len)
@@ -407,12 +400,10 @@ static intersection_result special_check_line_to_face(const vms_vector &p0, cons
 	if (underlying_value(closest_dist) < fudge_rad || closest_dist < fudge_rad * fudge_rad)		//we hit.  figure out where
 	{
 		//now figure out where we hit
-		result.hit_point = vm_vec_scale_add(p0, move_vec, move_t - rad);
-		result.hit_type = intersection_type::Edge;
+		return vm_vec_scale_add(p0, move_vec, move_t - rad);
 	}
 	else
-		result.hit_type = intersection_type::None;			//no hit
-	return result;
+		return std::nullopt;			//no hit
 }
 
 //maybe this routine should just return the distance and let the caller
@@ -936,14 +927,15 @@ static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &int
 					//did we go through this wall/door?
 
 					// face_hit_type: in what way did we hit the face?
-					const auto &&[hit_point, face_hit_type]{
+					const auto &&opt_hit_point{
 						(startmask & bit)		//start was also through.  Do extra check
 							? special_check_line_to_face(fq.p0, fq.p1, startseg, side, face, nv, rad)
 							: check_line_to_face(fq.p0, fq.p1, startseg, side, face, nv, rad)
 					};
 
-					if (face_hit_type != intersection_type::None)
+					if (opt_hit_point)
 					{            //through this wall/door
+						auto &hit_point = *opt_hit_point;
 						auto &Walls = LevelUniqueWallSubsystemState.Walls;
 						auto &vcwallptr = Walls.vcptr;
 						auto wid_flag = WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, startseg, side);
