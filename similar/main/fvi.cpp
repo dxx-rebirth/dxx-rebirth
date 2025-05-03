@@ -259,7 +259,7 @@ static std::optional<vms_vector> check_line_to_face(const vms_vector &p0, const 
 	};
 
 	auto &vcvertptr = Vertices.vcptr;
-	auto result{find_plane_line_intersection(vcvertptr(vertnum), norm, p0, p1, rad)};
+	const auto result{find_plane_line_intersection(vcvertptr(vertnum), norm, p0, p1, rad)};
 	/* If `hit_type == None`, then `hit_point` is undefined, because no hit
 	 * occurred.
 	 *
@@ -268,13 +268,16 @@ static std::optional<vms_vector> check_line_to_face(const vms_vector &p0, const 
 	if (result.hit_type == intersection_type::None)
 		return std::nullopt;
 
-	auto checkp = result.hit_point;
-
-	//if rad != 0, project the point down onto the plane of the polygon
-
-	if (rad!=0)
-		vm_vec_scale_add2(checkp,norm,-rad);
-
+	vms_vector projected_point;
+	auto &checkp{
+		/* If `rad == 0`, then use the point as it was.
+		 * If `rad != 0`, then copy the point into a local, project the copy
+		 * down onto the plane of the polygon, and check that projected point.
+		 */
+		rad == 0
+			? result.hit_point
+			: (vm_vec_scale_add2(projected_point = result.hit_point, norm, -rad), projected_point)
+	};
 	if (check_sphere_to_face(checkp, s.normals[facenum], facenum, nv, rad, vertex_list) == intersection_type::None)
 		return std::nullopt;
 	return result.hit_point;
