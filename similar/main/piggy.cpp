@@ -1790,7 +1790,7 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
                      const DiskBitmapHeader *const bmh, /* header info for bitmap */
                      uint8_t **next_bitmap, /* where to write it (if 0, use malloc) */
 					 palette_array_t &d1_palette, /* what palette the bitmap has */
-					 std::array<color_palette_index, 256> &colormap) /* how to translate bitmap's colors */
+					 const std::array<color_palette_index, 256> &colormap) /* how to translate bitmap's colors */
 {
 	int zsize;
 	uint8_t *data;
