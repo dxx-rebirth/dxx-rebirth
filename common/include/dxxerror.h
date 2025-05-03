@@ -34,8 +34,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
+dxx_compiler_attribute_cold
 void Warning_puts(const char *str) dxx_compiler_attribute_nonnull();
 void Warning(const char *fmt) = delete;
+dxx_compiler_attribute_cold
 void Warning(const char *fmt,...) dxx_compiler_attribute_format_printf(1, 2);				//print out warning message to user
 #if DXX_USE_EDITOR
 void set_warn_func(void (*f)(std::span<const char> s));	//specifies the function to call with warning messages
