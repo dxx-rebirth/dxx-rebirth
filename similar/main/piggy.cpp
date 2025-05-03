@@ -1790,7 +1790,7 @@ static std::span<uint8_t> bitmap_read_d1(grs_bitmap *bitmap, /* read into this b
                      int bitmap_data_start, /* specific to file */
                      const DiskBitmapHeader *const bmh, /* header info for bitmap */
                      std::span<uint8_t> next_bitmap, /* where to write it (if points to nullptr, use malloc) */
-					 palette_array_t &d1_palette, /* what palette the bitmap has */
+					 const palette_array_t &d1_palette, /* what palette the bitmap has */
 					 const std::array<color_palette_index, 256> &colormap) /* how to translate bitmap's colors */
 {
 	uint8_t *data;
