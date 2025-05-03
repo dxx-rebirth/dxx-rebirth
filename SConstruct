@@ -4022,7 +4022,6 @@ class DXXCommon(LazyObjectConstructor):
 			{
 				'variable': self._generic_variable,
 				'arguments': (
-					('DESTDIR', None, 'installation stage directory'),
 					('program_name', None, 'name of built program'),
 				),
 			},
@@ -5414,7 +5413,7 @@ Failed command list:
 	def _register_install(self,dxxstr,exe_node):
 		env = self.env
 		if self.user_settings.host_platform != 'darwin':
-				install_dir = f'{self.user_settings.DESTDIR or ""}{self.user_settings.BIN_DIR}'
+				install_dir = self.user_settings.BIN_DIR
 				env.Install(install_dir, exe_node)
 				env.Alias('install', install_dir)
 		else:

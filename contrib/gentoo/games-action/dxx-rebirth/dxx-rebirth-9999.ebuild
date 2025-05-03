@@ -228,7 +228,7 @@ src_compile() {
 src_install() {
 	# Use upstream install target to handle the various combinations of
 	# enabled/disabled engines and optional editor support.
-	dxx_scons register_compile_target=0 register_install_target=1 DESTDIR="$D" "$D"
+	dxx_scons register_compile_target=0 register_install_target=1 --install-sandbox="$D" "$D"
 	local DV
 	for DV in 1 2; do
 		if ! use d${DV}x; then

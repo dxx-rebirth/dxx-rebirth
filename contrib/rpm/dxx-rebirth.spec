@@ -156,7 +156,7 @@ build_with_use() {
 %endif
 		sdlmixer=1	\
 		"prefix=%{_prefix}"	\
-		"DESTDIR=%{buildroot}"	\
+		"--install-sandbox=%{buildroot}"	\
 		verbosebuild=1	\
 		install
 }
