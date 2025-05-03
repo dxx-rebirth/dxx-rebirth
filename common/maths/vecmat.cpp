@@ -15,6 +15,7 @@
 #include <stdint.h>
 #include <math.h>           // for sqrt
 
+#include "d_construct.h"
 #include "maths.h"
 #include "vecmat.h"
 #include "dxxerror.h"
@@ -59,7 +60,7 @@ static void vm_vector_to_matrix_f(vms_matrix &m)
 			.z = -m.fvec.x
 		};
 		vm_vec_normalize(m.rvec);
-		m.uvec = vm_vec_cross(m.fvec, m.rvec);
+		reconstruct_at(m.uvec, vm_vec_cross, m.fvec, m.rvec);
 	}
 }
 
@@ -489,13 +490,13 @@ vms_matrix vm_vector_to_matrix_r(const vms_vector &fvec, const vms_vector &rvec)
 	}
 	else if (!vm_vec_copy_normalize(m.rvec, rvec) ||
 		//normalize new perpendicular vector
-		!vm_vec_normalize(m.uvec = vm_vec_cross(m.fvec, m.rvec)))
+		(reconstruct_at(m.uvec, vm_vec_cross, m.fvec, m.rvec), !vm_vec_normalize(m.uvec)))
 	{
 		vm_vector_to_matrix_f(m);
 	}
 	else
 	//now recompute right vector, in case it wasn't entirely perpendicular
-		m.rvec = vm_vec_cross(m.uvec, m.fvec);
+		reconstruct_at(m.rvec, vm_vec_cross, m.uvec, m.fvec);
 	return m;
 }
 
@@ -508,13 +509,13 @@ vms_matrix vm_vector_to_matrix_u(const vms_vector &fvec, const vms_vector &uvec)
 	}
 	else if (!vm_vec_copy_normalize(m.uvec, uvec) ||
 		//normalize new perpendicular vector
-		!vm_vec_normalize(m.rvec = vm_vec_cross(m.uvec, m.fvec)))
+		(reconstruct_at(m.rvec, vm_vec_cross, m.uvec, m.fvec), !vm_vec_normalize(m.rvec)))
 	{
 		vm_vector_to_matrix_f(m);
 	}
 	else
 	//now recompute up vector, in case it wasn't entirely perpendicular
-		m.uvec = vm_vec_cross(m.fvec, m.rvec);
+		reconstruct_at(m.uvec, vm_vec_cross, m.fvec, m.rvec);
 	return m;
 }
 
