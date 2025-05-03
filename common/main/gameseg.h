@@ -81,6 +81,12 @@ struct vertex_vertnum_pair
 };
 using vertex_vertnum_array_list = std::array<vertex_vertnum_pair, 6>;
 
+struct abs_vertex_list_result
+{
+	vertex_array_side_type num_faces;
+	vertnum_array_list_t vertex_list;
+};
+
 #ifdef DXX_BUILD_DESCENT
 [[nodiscard]]
 sidenum_t find_connect_side(vcsegidx_t base_seg, const shared_segment &con_seg);
@@ -127,16 +133,8 @@ vertex_array_list_t create_all_vertex_lists(const shared_segment &segnum, const 
 vertex_vertnum_array_list create_all_vertnum_lists(const shared_segment &seg, const shared_side &sidep, sidenum_t sidenum);
 
 //like create_all_vertex_lists(), but generate absolute point numbers
-vertex_array_side_type create_abs_vertex_lists(vertnum_array_list_t &vertices, const shared_segment &segnum, const shared_side &sidep, sidenum_t sidenum);
-
 [[nodiscard]]
-static inline std::pair<vertex_array_side_type, vertnum_array_list_t> create_abs_vertex_lists(const shared_segment &segnum, const shared_side &sidep, const sidenum_t sidenum)
-{
-	vertnum_array_list_t r;
-	const auto &&n = create_abs_vertex_lists(r, segnum, sidep, sidenum);
-	return {n, r};
-}
-
+abs_vertex_list_result create_abs_vertex_lists(const shared_segment &segnum, const shared_side &sidep, sidenum_t sidenum);
 
 }
 

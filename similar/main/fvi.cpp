@@ -329,7 +329,7 @@ static intersection_result special_check_line_to_face(const vms_vector &p0, cons
 
 	//calc some basic stuff
 
-	const auto &&vertex_list = create_abs_vertex_lists(seg, s, side).second;
+	const auto &&vertex_list = create_abs_vertex_lists(seg, s, side).vertex_list;
 
 	//figure out which edge(s) to check against
 

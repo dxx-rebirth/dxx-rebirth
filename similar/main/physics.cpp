@@ -734,7 +734,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 				//bump object back
 
 				auto &s = orig_segp.s.sides[sidenum];
-				const auto &&vertex_list = create_abs_vertex_lists(orig_segp, s, sidenum).second;
+				const auto &&vertex_list{create_abs_vertex_lists(orig_segp, s, sidenum).vertex_list};
 
 				//let's pretend this wall is not triangulated
 				const auto b{begin(vertex_list)};

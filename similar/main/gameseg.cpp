@@ -305,9 +305,11 @@ vertex_vertnum_array_list create_all_vertnum_lists(const shared_segment &segp, c
 
 // -----
 // like create_all_vertex_lists(), but generate absolute point numbers
-vertex_array_side_type create_abs_vertex_lists(vertnum_array_list_t &vertices, const shared_segment &segp, const shared_side &sidep, const sidenum_t sidenum)
+abs_vertex_list_result create_abs_vertex_lists(const shared_segment &segp, const shared_side &sidep, const sidenum_t sidenum)
 {
-	return create_vertex_lists_by_predicate(vertices, segp, sidep, abs_vertex_lists_predicate(segp, sidenum));
+	abs_vertex_list_result r;
+	r.num_faces = create_vertex_lists_by_predicate(r.vertex_list, segp, sidep, abs_vertex_lists_predicate{segp, sidenum});
+	return r;
 }
 
 //returns 3 different bitmasks with info telling if this sphere is in
