@@ -590,10 +590,9 @@ void rle_swap_0_255(grs_bitmap &bmp)
  */
 void rle_remap(grs_bitmap &bmp, const std::array<color_palette_index, 256> &colormap)
 {
-	int len, rle_big;
+	int len;
 
-	rle_big = bmp.get_flag_mask(BM_FLAG_RLE_BIG);
-
+	const auto rle_big{bmp.get_flag_mask(BM_FLAG_RLE_BIG)};
 	const auto temp{std::make_unique_for_overwrite<color_palette_index[]>(MAX_BMP_SIZE(bmp.bm_w, bmp.bm_h) + 30000)};
 
 	const std::size_t pointer_offset{rle_big ? 4u + 2u * unsigned{bmp.bm_h} : 4u + unsigned{bmp.bm_h}};
