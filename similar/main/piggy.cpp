@@ -1785,11 +1785,11 @@ static int get_d1_colormap(palette_array_t &d1_palette, std::array<color_palette
 }
 
 #define JUST_IN_CASE 132 /* is enough for d1 pc registered */
-static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
+static std::span<uint8_t> bitmap_read_d1(grs_bitmap *bitmap, /* read into this bitmap */
                      const NamedPHYSFS_File d1_Piggy_fp, /* read from this file */
                      int bitmap_data_start, /* specific to file */
                      const DiskBitmapHeader *const bmh, /* header info for bitmap */
-                     uint8_t **next_bitmap, /* where to write it (if 0, use malloc) */
+                     std::span<uint8_t> next_bitmap, /* where to write it (if points to nullptr, use malloc) */
 					 palette_array_t &d1_palette, /* what palette the bitmap has */
 					 const std::array<color_palette_index, 256> &colormap) /* how to translate bitmap's colors */
 {
@@ -1812,13 +1812,34 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 			: (bitmap->bm_h * bitmap->bm_w)
 	};
 
-	if (next_bitmap) {
-		data = *next_bitmap;
-		*next_bitmap += zsize;
+	if (next_bitmap.data())
+	{
+		/* Advise `std::span` how much space will be written, so that a debug
+		 * version can trap here if that would exceed the available buffer.  If
+		 * `std::span` does not trap, and there is insufficient space, return
+		 * without reading the bitmap.  This is an improvement over the
+		 * previous implementation, which would write off the end of the buffer
+		 * and cause heap corruption.
+		 *
+		 * This trap and return should be unreachable, assuming an official
+		 * palette file and official bitmaps.  This error path _can_ be
+		 * triggered by corrupt input data.  Fixing that is left as an exercise
+		 * to the reader, since no one has filed a bug report about the
+		 * heap corruption bug, even though the bug appears to date to when the
+		 * D1-textures-in-D2 feature was added in 2003 with commit
+		 * 168cf918a43dce2b1cd697fbb45bea7468efbfd6 ("fix loading of d1 texture
+		 * replacements for non-animated textures"), though equivalent logic
+		 * may have been present even earlier.  Therefore, it seems no one
+		 * needs this to succeed, so converting it from corruption to a
+		 * trap+return is sufficient for now.
+		 */
+		data = next_bitmap.first(zsize).data();
+		if (next_bitmap.size() < zsize)
+			return next_bitmap;
 	} else {
 		MALLOC(data, ubyte, zsize + JUST_IN_CASE);
+		if (!data) return next_bitmap;
 	}
-	if (!data) return;
 
 	/* If a 32-bit unsigned little endian was read from the data file above for
 	 * the initialization of `zsize`, then store it into the buffer and read
@@ -1846,17 +1867,18 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 		rle_remap(*bitmap, colormap);
 	else
 		gr_remap_bitmap_good(*bitmap, d1_palette, TRANSPARENCY_COLOR, -1);
+	uint32_t advance_next_bitmap{zsize};
 	if (bmh->flags & BM_FLAG_RLE) { // size of bitmap could have changed!
 		int new_size;
 		memcpy(&new_size, bitmap->bm_data, 4);
-		if (next_bitmap) {
-			*next_bitmap += new_size - zsize;
-		} else {
+		advance_next_bitmap = new_size;
+		if (!next_bitmap.data()) {
 			Assert( zsize + JUST_IN_CASE >= new_size );
 			bitmap->bm_mdata = reinterpret_cast<uint8_t *>(d_realloc(bitmap->bm_mdata, new_size));
 			Assert(bitmap->bm_data);
 		}
 	}
+	return next_bitmap.data() ? next_bitmap.subspan(advance_next_bitmap) : next_bitmap;
 }
 
 #define D1_MAX_TEXTURES 800
@@ -2003,7 +2025,6 @@ void load_d1_bitmap_replacements()
 	int pig_data_start, bitmap_header_start, bitmap_data_start;
 	int N_bitmaps;
 	short d1_index;
-	uint8_t * next_bitmap;
 	palette_array_t d1_palette;
 	char *p;
 
@@ -2062,8 +2083,7 @@ void load_d1_bitmap_replacements()
 		return;
 	}
 
-	next_bitmap = Bitmap_replacement_data.get();
-
+	std::span<uint8_t> next_bitmap{Bitmap_replacement_data.get(), D1_BITMAPS_SIZE};
 	for (d1_index = 1; d1_index <= N_bitmaps; d1_index++ ) {
 		const auto d2_index = d2_index_for_d1_index(d1_index);
 		// only change bitmaps which are unique to d1
@@ -2072,8 +2092,7 @@ void load_d1_bitmap_replacements()
 			PHYSFS_seek(d1_Piggy_fp, bitmap_header_start + (d1_index - 1) * DISKBITMAPHEADER_D1_SIZE);
 			const auto bmh{DiskBitmapHeader_d1_read(d1_Piggy_fp)};
 
-			bitmap_read_d1( &GameBitmaps[d2_index], d1_Piggy_fp, bitmap_data_start, &bmh, &next_bitmap, d1_palette, colormap );
-			Assert(next_bitmap - Bitmap_replacement_data.get() < D1_BITMAPS_SIZE);
+			next_bitmap = bitmap_read_d1(&GameBitmaps[d2_index], d1_Piggy_fp, bitmap_data_start, &bmh, next_bitmap, d1_palette, colormap);
 			GameBitmapOffset[d2_index] = pig_bitmap_offset::None; // don't try to read bitmap from current d2 pigfile
 			GameBitmapFlags[d2_index] = bmh.flags;
 
@@ -2164,7 +2183,7 @@ grs_bitmap *read_extra_bitmap_d1_pig(const std::span<const char> name, grs_bitma
 			const auto bmh{DiskBitmapHeader_d1_read(d1_Piggy_fp)};
 			if (!d_strnicmp(bmh.name, name.data(), std::min<std::size_t>(8u, name.size())))
 			{
-				bitmap_read_d1(&n, d1_Piggy_fp, bitmap_data_start, &bmh, 0, d1_palette, colormap);
+				bitmap_read_d1(&n, d1_Piggy_fp, bitmap_data_start, &bmh, std::span<uint8_t>{}, d1_palette, colormap);
 				break;
 			}
 		}
