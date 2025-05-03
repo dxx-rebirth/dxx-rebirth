@@ -287,8 +287,9 @@ vertex_array_list_t create_all_vertex_lists(const shared_segment &segp, const sh
 //	If there is one face, it has 4 vertices.
 //	If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //	face #1 is stored in vertices 3,4,5.
-void create_all_vertnum_lists(vertex_vertnum_array_list &vertnums, const shared_segment &segp, const shared_side &sidep, const sidenum_t sidenum)
+vertex_vertnum_array_list create_all_vertnum_lists(const shared_segment &segp, const shared_side &sidep, const sidenum_t sidenum)
 {
+	vertex_vertnum_array_list vertnums;
 	class predicate : abs_vertex_lists_predicate
 	{
 	public:
@@ -299,6 +300,7 @@ void create_all_vertnum_lists(vertex_vertnum_array_list &vertnums, const shared_
 		}
 	};
 	create_vertex_lists_by_predicate(vertnums, segp, sidep, predicate{segp, sidenum});
+	return vertnums;
 }
 
 // -----

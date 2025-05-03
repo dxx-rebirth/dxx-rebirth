@@ -123,13 +123,8 @@ vertex_array_list_t create_all_vertex_lists(const shared_segment &segnum, const 
 //      If there is one face, it has 4 vertices.
 //      If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //      face #1 is stored in vertices 3,4,5.
-void create_all_vertnum_lists(vertex_vertnum_array_list &vertnums, const shared_segment &seg, const shared_side &sidep, sidenum_t sidenum);
 [[nodiscard]]
-static inline vertex_vertnum_array_list create_all_vertnum_lists(const shared_segment &segnum, const shared_side &sidep, const sidenum_t sidenum)
-{
-	vertex_vertnum_array_list r;
-	return create_all_vertnum_lists(r, segnum, sidep, sidenum), r;
-}
+vertex_vertnum_array_list create_all_vertnum_lists(const shared_segment &seg, const shared_side &sidep, sidenum_t sidenum);
 
 //like create_all_vertex_lists(), but generate absolute point numbers
 vertex_array_side_type create_abs_vertex_lists(vertnum_array_list_t &vertices, const shared_segment &segnum, const shared_side &sidep, sidenum_t sidenum);
