@@ -1475,7 +1475,7 @@ static void set_camera_pos(vms_vector &camera_pos, const vcobjptridx_t objp)
 			{
 				camera_pos = closer_p1;
 			} else {
-				make_random_vector(player_camera_vec);
+				reconstruct_at(player_camera_vec, make_random_vector);
 				far_scale = 3*F1_0/2;
 			}
 		}

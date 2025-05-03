@@ -1637,12 +1637,14 @@ namespace dcx {
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Compute a somewhat random, normalized vector.
-void make_random_vector(vms_vector &vec)
+vms_vector make_random_vector()
 {
+	vms_vector vec;
 	vec.x = (d_rand() - 16384) | 1;	// make sure we don't create null vector
 	vec.y = d_rand() - 16384;
 	vec.z = d_rand() - 16384;
 	vm_vec_normalize_quick(vec);
+	return vec;
 }
 
 }

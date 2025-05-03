@@ -67,6 +67,9 @@ struct d_level_unique_robot_awareness_state
 extern d_level_unique_robot_awareness_state LevelUniqueRobotAwarenessState;
 #endif
 
+[[nodiscard]]
+vms_vector make_random_vector();
+
 }
 struct PHYSFS_File;
 
@@ -204,20 +207,6 @@ void ai_turn_towards_vector(const vms_vector &vec_to_player, object_base &obj, f
 void init_ai_objects(const d_robot_info_array &Robot_info);
 void create_n_segment_path(vmobjptridx_t objp, const robot_info &robptr, unsigned path_length, imsegidx_t avoid_seg);
 void create_n_segment_path_to_door(vmobjptridx_t objp, const robot_info &robptr, unsigned path_length);
-}
-#endif
-namespace dcx {
-void make_random_vector(vms_vector &vec);
-[[nodiscard]]
-static inline vms_vector make_random_vector()
-{
-	vms_vector v;
-	return make_random_vector(v), v;
-}
-
-}
-#ifdef DXX_BUILD_DESCENT
-namespace dsx {
 void init_robots_for_level();
 #if DXX_BUILD_DESCENT == 2
 int polish_path(vmobjptridx_t objp, point_seg *psegs, int num_points);
