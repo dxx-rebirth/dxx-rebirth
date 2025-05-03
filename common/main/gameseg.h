@@ -98,12 +98,7 @@ vms_vector compute_center_point_on_side(fvcvertptr &vcvertptr, const shared_segm
 vms_vector compute_segment_center(fvcvertptr &vcvertptr, const shared_segment &sp);
 
 // Fill in array with four absolute point numbers for a given side
-void get_side_verts(side_vertnum_list_t &vertlist, const shared_segment &seg, sidenum_t sidenum);
-static inline side_vertnum_list_t get_side_verts(const shared_segment &segnum, const sidenum_t sidenum)
-{
-	side_vertnum_list_t r;
-	return get_side_verts(r, segnum, sidenum), r;
-}
+side_vertnum_list_t get_side_verts(const shared_segment &segnum, sidenum_t sidenum);
 #endif
 
 enum class wall_is_doorway_mask : uint8_t;

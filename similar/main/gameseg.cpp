@@ -133,11 +133,14 @@ static void create_vertex_list_from_invalid_side(const shared_segment &segp, con
 }
 
 // Fill in array with four absolute point numbers for a given side
-static void get_side_verts(side_vertnum_list_t &vertlist, const enumerated_array<vertnum_t, MAX_VERTICES_PER_SEGMENT, segment_relative_vertnum> &vp, const sidenum_t sidenum)
+[[nodiscard]]
+static side_vertnum_list_t get_side_verts(const enumerated_array<vertnum_t, MAX_VERTICES_PER_SEGMENT, segment_relative_vertnum> &vp, const sidenum_t sidenum)
 {
+	side_vertnum_list_t vertlist;
 	auto &sv = Side_to_verts[sidenum];
 	for (auto &&[ovl, isv] : zip(vertlist, sv))
 		ovl = vp[isv];
+	return vertlist;
 }
 
 }
@@ -184,9 +187,9 @@ bool get_side_is_quad(const shared_side &sidep)
 	}
 }
 
-void get_side_verts(side_vertnum_list_t &vertlist, const shared_segment &segp, const sidenum_t sidenum)
+side_vertnum_list_t get_side_verts(const shared_segment &segp, const sidenum_t sidenum)
 {
-	get_side_verts(vertlist, segp.verts, sidenum);
+	return get_side_verts(segp.verts, sidenum);
 }
 
 namespace {
