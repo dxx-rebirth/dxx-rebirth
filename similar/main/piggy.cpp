@@ -1793,7 +1793,6 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 					 palette_array_t &d1_palette, /* what palette the bitmap has */
 					 const std::array<color_palette_index, 256> &colormap) /* how to translate bitmap's colors */
 {
-	int zsize;
 	uint8_t *data;
 	int width;
 
@@ -1806,11 +1805,12 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 	gr_set_bitmap_flags(*bitmap, bmh->flags & BM_FLAGS_TO_COPY);
 
 	PHYSFS_seek(d1_Piggy_fp, bitmap_data_start + bmh->offset);
-	if (bmh->flags & BM_FLAG_RLE) {
-		zsize = PHYSFSX_readInt(d1_Piggy_fp);
-		PHYSFSX_fseek(d1_Piggy_fp, -4, SEEK_CUR);
-	} else
-		zsize = bitmap->bm_h * bitmap->bm_w;
+	const auto is_rle{bmh->flags & BM_FLAG_RLE};
+	const uint32_t zsize{
+		is_rle
+			? PHYSFSX_readULE32(d1_Piggy_fp)
+			: (bitmap->bm_h * bitmap->bm_w)
+	};
 
 	if (next_bitmap) {
 		data = *next_bitmap;
@@ -1820,7 +1820,16 @@ static void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 	}
 	if (!data) return;
 
-	PHYSFSX_readBytes(d1_Piggy_fp, data, zsize);
+	/* If a 32-bit unsigned little endian was read from the data file above for
+	 * the initialization of `zsize`, then store it into the buffer and read
+	 * from the file into the location following that stored 32-bit value.
+	 *
+	 * If no value was read above, then begin reading at the head of the buffer.
+	 *
+	 * This effectively emulates a "peek" to initialize `zsize` above, without
+	 * requiring a separate seek here.
+	 */
+	PHYSFSX_readBytes(d1_Piggy_fp, (is_rle ? (PUT_INTEL_INT(data, zsize), data + sizeof(uint32_t)) : data), zsize);
 	gr_set_bitmap_data(*bitmap, data);
 	switch (descent1_pig_size{PHYSFS_fileLength(d1_Piggy_fp)})
 	{
