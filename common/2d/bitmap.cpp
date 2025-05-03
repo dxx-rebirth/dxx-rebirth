@@ -193,7 +193,7 @@ std::array<color_palette_index, 256> build_colormap_good(const palette_array_t &
 	const auto a = [](const rgb_t &p) {
 		return gr_find_closest_color(p.r, p.g, p.b);
 	};
-	std::transform(palette.begin(), palette.end(), colormap.begin(), a);
+	std::ranges::transform(palette, colormap.begin(), a);
 	return colormap;
 }
 
