@@ -1363,13 +1363,11 @@ void draw_all_edges(automap &am)
 		
 	if ( min_distance < 0 ) min_distance = 0;
 
-	// Sort the bright ones using a shell sort
+	/* Sort the bright ones using a projection to extract the z coordinate of
+	 * the rotated point.
+	 */
 	const auto &&range{unchecked_partial_range(am.drawingListBright.get(), nbright)};
-	std::sort(range.begin(), range.end(), [](const Edge_info *const a, const Edge_info *const b) {
-		const auto &v1{a->verts[0]};
-		const auto &v2{b->verts[0]};
-		return Segment_points[v1].p3_vec.z < Segment_points[v2].p3_vec.z;
-	});
+	std::ranges::sort(range, {}, [](const Edge_info *const a) { return Segment_points[a->verts[0]].p3_vec.z; });
 	// Draw the bright ones
 	range_for (const auto e, range)
 	{
