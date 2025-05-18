@@ -147,6 +147,49 @@ struct automap : ::dcx::window
 	color_t			green_31;
 };
 
+//	----------------------------------------------------------------------------------------------------------
+//	Set the segment depth of all segments from start_seg in `depth`.
+//	Returns maximum depth value.
+[[nodiscard]]
+unsigned set_segment_depths(vcsegidx_t start_seg, const std::array<uint8_t, MAX_SEGMENTS> *const limit, segment_depth_array_t &depth)
+{
+	std::array<segnum_t, MAX_SEGMENTS> queue;
+	int	head, tail;
+
+	head = 0;
+	tail = 0;
+
+	visited_segment_bitarray_t visited;
+
+	queue[tail++] = start_seg;
+	visited[start_seg] = true;
+	depth[start_seg] = 1;
+
+	unsigned parent_depth;
+	do {
+		const auto curseg = queue[head++];
+		auto &children = vcsegptr(curseg)->shared_segment::children;
+		parent_depth = depth[curseg];
+
+		for (const auto childnum : children)
+		{
+			if (childnum != segment_none && childnum != segment_exit)
+				if (!limit || (*limit)[childnum])
+				{
+					auto &&v = visited[childnum];
+					if (!v)
+					{
+						v = true;
+						depth[childnum] = std::min(static_cast<unsigned>(std::numeric_limits<segment_depth_array_t::value_type>::max()), parent_depth + 1);
+						queue[tail++] = childnum;
+					}
+				}
+		}
+	} while (head < tail);
+
+	return parent_depth+1;
+}
+
 }
 
 }

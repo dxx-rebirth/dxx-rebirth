@@ -211,7 +211,6 @@ icsegptridx_t find_point_seg(const d_level_shared_segment_state &, const vms_vec
 //      Return the distance.
 vm_distance find_connected_distance(const vms_vector &p0, vcsegptridx_t seg0, const vms_vector &p1, vcsegptridx_t seg1, int max_depth, wall_is_doorway_mask wid_flag);
 
-unsigned set_segment_depths(vcsegidx_t start_seg, const std::array<uint8_t, MAX_SEGMENTS> *limit, segment_depth_array_t &depths);
 #if DXX_BUILD_DESCENT == 1
 static inline void flush_fcd_cache() {}
 #elif DXX_BUILD_DESCENT == 2
