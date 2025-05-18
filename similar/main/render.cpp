@@ -982,17 +982,19 @@ static std::optional<sidenum_t> find_seg_side(const shared_segment &seg, const s
 }
 
 [[nodiscard]]
-static bool compare_child(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const shared_segment &seg, const shared_segment &cseg, const sidenum_t edgeside)
+static fix compare_child(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const shared_segment &seg, const shared_segment &cseg, const sidenum_t edgeside)
 {
 	const auto &cside = cseg.sides[edgeside];
 	const auto &sv = Side_to_verts[edgeside][cside.type == side_type::tri_13 ? side_relative_vertnum::_1 : side_relative_vertnum::_0];
 	const auto &temp{vm_vec_build_sub(Viewer_eye, vcvertptr(seg.verts[sv]))};
 	const auto &cnormal = cside.normals;
-	return vm_vec_build_dot(cnormal[0], temp) < 0 || vm_vec_build_dot(cnormal[1], temp) < 0;
+	const auto d0{vm_vec_build_dot(cnormal[0], temp)};
+	if (d0 < 0)
+		return d0;
+	return vm_vec_build_dot(cnormal[1], temp);
 }
 
 //see if the order matters for these two children.
-//returns 0 if order doesn't matter, 1 if c0 before c1, -1 if c1 before c0
 [[nodiscard]]
 static bool compare_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const vcsegptridx_t seg, const sidenum_t s0, const sidenum_t s1)
 {
@@ -1012,14 +1014,14 @@ static bool compare_children(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye
 	const auto edgeside0 = find_seg_side(seg0, edge_verts, find_connect_side(seg, seg0));
 	if (!edgeside0)
 		return false;
-	const auto r0 = compare_child(vcvertptr, Viewer_eye, seg, seg0, *edgeside0);
+	const auto r0{compare_child(vcvertptr, Viewer_eye, seg, seg0, *edgeside0) < 0};
 	if (!r0)
 		return r0;
 	const auto &&seg1 = seg.absolute_sibling(sseg.children[s1]);
 	const auto edgeside1 = find_seg_side(seg1, edge_verts, find_connect_side(seg, seg1));
 	if (!edgeside1)
 		return false;
-	return !compare_child(vcvertptr, Viewer_eye, seg, seg1, *edgeside1);
+	return !(compare_child(vcvertptr, Viewer_eye, seg, seg1, *edgeside1) < 0);
 }
 
 //short the children of segment to render in the correct order
