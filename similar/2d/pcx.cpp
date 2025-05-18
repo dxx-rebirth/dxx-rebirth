@@ -44,6 +44,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if DXX_USE_SDLIMAGE
 #include "physfsrwops.h"
 #include <SDL_image.h>
+#include "d_uspan.h"
 #endif
 
 namespace dcx {
@@ -157,43 +158,39 @@ namespace dsx {
 namespace {
 
 #if DXX_USE_SDLIMAGE
-static std::pair<std::unique_ptr<uint8_t[]>, std::size_t> load_physfs_blob(const char *const filename)
+static auto load_physfs_blob(const char *const filename)
 {
-	auto &&[file, physfserr] = PHYSFSX_openReadBuffered(filename);
-	if (!file)
+	unique_span<uint8_t> result;
+	if (auto &&[file, physfserr]{PHYSFSX_openReadBuffered(filename)}; !file)
 	{
 		con_printf(CON_VERBOSE, "%s:%u: failed to open \"%s\": %s", __FILE__, __LINE__, filename, PHYSFS_getErrorByCode(physfserr));
-		return {};
 	}
-	const std::size_t fsize = PHYSFS_fileLength(file);
-	if (fsize > 0x100000)
+	else if (const std::size_t fsize = PHYSFS_fileLength(file); fsize > 0x100000u)
 	{
 		con_printf(CON_VERBOSE, "%s:%u: file too large \"%s\"", __FILE__, __LINE__, filename);
-		return {};
 	}
-	auto encoded_buffer = std::make_unique<uint8_t[]>(fsize);
-	if (PHYSFSX_readBytes(file, encoded_buffer.get(), fsize) != fsize)
+	else if (PHYSFSX_readBytes(file, (result = {fsize}).get(), fsize) != fsize)
 	{
+		result.reset();
 		con_printf(CON_VERBOSE, "%s:%u: failed to read \"%s\"", __FILE__, __LINE__, filename);
-		return {};
 	}
-	return {std::move(encoded_buffer), fsize};
+	return result;
 }
 
-static std::pair<std::unique_ptr<uint8_t[]>, std::size_t> load_decoded_physfs_blob(const char *const filename)
+static auto load_decoded_physfs_blob(const char *const filename)
 {
-	auto encoded_blob = load_physfs_blob(filename);
-	auto &&[encoded_buffer, fsize] = encoded_blob;
-	if (!encoded_buffer)
-		return encoded_blob;
-	const std::size_t data_size = fsize - 1;
-	auto &&transform_predicate = [xor_value = encoded_buffer[data_size]](uint8_t c) mutable {
+	unique_span<uint8_t> decoded_buffer;
+	auto encoded_blob{load_physfs_blob(filename)};
+	const auto b{encoded_blob.get()};
+	if (!b)
+		return decoded_buffer;
+	const std::size_t data_size = encoded_blob.size() - 1;
+	auto &&transform_predicate{[xor_value = b[data_size]](const uint8_t c) mutable {
 		return c ^ --xor_value;
-	};
-	auto &&decoded_buffer = std::make_unique<uint8_t[]>(data_size);
-	const auto b = encoded_buffer.get();
+	}};
+	decoded_buffer = {data_size};
 	std::transform(std::make_reverse_iterator(std::next(b, data_size)), std::make_reverse_iterator(b), decoded_buffer.get(), transform_predicate);
-	return {std::move(decoded_buffer), data_size};
+	return decoded_buffer;
 }
 #endif
 
@@ -202,11 +199,12 @@ static std::pair<std::unique_ptr<uint8_t[]>, std::size_t> load_decoded_physfs_bl
 pcx_result bald_guy_load(const char *const filename, grs_main_bitmap &bmp, palette_array_t &palette)
 {
 #if DXX_USE_SDLIMAGE
-	const auto &&[bguy_data, data_size] = load_decoded_physfs_blob(filename);
-	if (!bguy_data)
+	const auto &&bguy_data{load_decoded_physfs_blob(filename)};
+	const auto b{bguy_data.get()};
+	if (!b)
 		return pcx_result::ERROR_OPENING;
 
-	RWops_ptr rw(SDL_RWFromConstMem(bguy_data.get(), data_size));
+	RWops_ptr rw(SDL_RWFromConstMem(b, bguy_data.size()));
 	return pcx_read_bitmap(filename, bmp, palette, std::move(rw));
 #else
 	return pcx_support_not_compiled(filename, bmp, palette);

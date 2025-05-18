@@ -67,6 +67,13 @@ public:
 	{
 		return extent;
 	}
+	/* Inherit the zero-argument form of reset(), for clearing an allocation.
+	 * Override and delete the one-argument form, so that the object cannot be
+	 * given new contents, with a potentially different length, using
+	 * `reset(other_pointer);`
+	 */
+	using base_type::reset;
+	void reset(auto) = delete;
 };
 
 }
