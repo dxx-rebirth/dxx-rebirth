@@ -273,16 +273,23 @@ static void update_bounds(std::ranges::min_max_result<vms_vector> &minmaxv, cons
 	assign_min(minmaxv.min.*p, v.*p);
 }
 
-//takes pm, fills in min & max
+/* Take a `polymodel` as input.  Return both the minimum and maximum extents of
+ * the `vms_vector` members that make up the `polymodel`.
+ */
+[[nodiscard]]
 static std::ranges::min_max_result<vms_vector> find_min_max(const polymodel &pm, const unsigned submodel_num)
 {
 	const auto &&sd{parse_model_data_header(pm, submodel_num)};
+	std::ranges::min_max_result<vms_vector> result{};
 	const auto nverts{sd.nverts};
 	if (!nverts)
-		return {};
+	{
+		[[unlikely]];
+		return result;
+	}
 	const auto vp{reinterpret_cast<const vms_vector *>(sd.body)};
 
-	std::ranges::min_max_result<vms_vector> result{
+	result = {
 		.min = *vp,
 		.max = *vp
 	};
