@@ -1526,10 +1526,6 @@ void validate_segment_all(d_level_shared_segment_state &LevelSharedSegmentState)
 	#endif
 }
 
-}
-
-namespace dsx {
-
 //	------------------------------------------------------------------------------------------------------
 //	Picks a random point in a segment like so:
 //		From center, go up to 50% of way towards any of the 8 vertices.
@@ -1542,6 +1538,10 @@ vms_vector pick_random_point_in_seg(fvcvertptr &vcvertptr, const shared_segment 
 	vm_vec_add2(new_pos, vec2);
 	return new_pos;
 }
+
+}
+
+namespace dsx {
 
 //	----------------------------------------------------------------------------------------------------------
 //	Set the segment depth of all segments from start_seg in *segbuf.
