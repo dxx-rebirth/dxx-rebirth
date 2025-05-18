@@ -141,7 +141,12 @@ ASSERT_SERIAL_UDT_MESSAGE_SIZE(stats_info, stats_info::disk_size);
 void scores_view(grs_canvas &canvas, const stats_info *last_game, int citem);
 
 [[nodiscard]]
-static all_scores build_builtin_placeholder_scores()
+static auto build_builtin_placeholder_scores() ->
+#ifdef USE_BUILTIN_ENGLISH_TEXT_STRINGS
+	const all_scores &
+#else
+	all_scores
+#endif
 {
 	static constexpr all_scores builtin_scores{
 		.cool_saying =
