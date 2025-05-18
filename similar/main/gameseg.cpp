@@ -198,7 +198,6 @@ static auto build_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, co
 		per_side_array<fix> distances;
 	} result{};
 	//check point against each side of segment. return bitmask
-	int facebit{1};
 	for (const auto sn : MAX_SIDES_PER_SEGMENT)
 	{
 		const auto sidebit = build_sidemask(sn);
@@ -226,7 +225,7 @@ static auto build_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, co
 
 			unsigned center_count{0};
 			fix rdist{};
-			for (int fn=0;fn<2;fn++,facebit<<=1) {
+			for (int fn=0;fn<2;fn++) {
 				const auto dist = vm_dist_to_plane(checkp, s.normals[fn], mvert);
 				if (dist < -PLANE_DIST_TOLERANCE) {	//in front of face
 					center_count++;
@@ -264,10 +263,7 @@ static auto build_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, co
 				result.centermask |= sidebit;
 				result.distances[sn] = dist;
 			}
-
-			facebit <<= 2;
 		}
-
 	}
 	return result;
 }
