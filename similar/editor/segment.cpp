@@ -1579,18 +1579,14 @@ std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_adjacent_segment_sid
 //	If no segment is found, return an empty `std::optional`.
 std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_closest_threshold_segment_side(const vmsegptridx_t sp, sidenum_t side, const fix threshold)
 {
-	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
-	auto &Vertices = LevelSharedVertexState.get_vertices();
-
+	std::optional<std::pair<vmsegptridx_t, sidenum_t>> result;
 	if (IS_CHILD(sp->children[side]))
-		return std::nullopt;
-
-	auto &vcvertptr = Vertices.vcptr;
+		return result;
+	auto &vcvertptr{LevelSharedSegmentState.get_vertex_state().get_vertices().vcptr};
 	const auto vsc{compute_center_point_on_side(vcvertptr, sp, side)};
 
 	fix closest_seg_dist{threshold};
 
-	std::optional<std::pair<vmsegptridx_t, sidenum_t>> result;
 	//	Scan all segments, looking for a segment which contains the four abs_verts
 	range_for (const auto &&segp, vmsegptridx)
 	{
