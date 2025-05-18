@@ -1019,7 +1019,7 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	segnum_t		cur_seg;
 	int qtail{0}, qhead = 0;
-	seg_seg	seg_queue[MAX_SEGMENTS];
+	std::array<seg_seg, MAX_SEGMENTS> seg_queue;
 	int		cur_depth;
 	int		num_points;
 	struct point_seg
