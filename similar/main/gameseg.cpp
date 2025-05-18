@@ -1359,9 +1359,6 @@ static int sign(fix v)
 }
 
 }
-}
-
-namespace dsx {
 
 #if !DXX_USE_EDITOR
 namespace {
@@ -1540,6 +1537,9 @@ void validate_segment_all(d_level_shared_segment_state &LevelSharedSegmentState)
 	#endif
 }
 
+}
+
+namespace dsx {
 
 //	------------------------------------------------------------------------------------------------------
 //	Picks a random point in a segment like so:

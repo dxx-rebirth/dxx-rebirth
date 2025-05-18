@@ -155,6 +155,20 @@ vms_vector extract_right_vector_from_segment(fvcvertptr &, const shared_segment 
 vms_vector extract_up_vector_from_segment(fvcvertptr &, const shared_segment &sp);
 #endif
 
+void validate_segment_all(d_level_shared_segment_state &);
+
+#if DXX_USE_EDITOR
+//      In segment.c
+//      Make a just-modified segment valid.
+//              check all sides to see how many faces they each should have (0,1,2)
+//              create new vector normals
+void validate_segment(fvcvertptr &vcvertptr, vmsegptridx_t sp);
+
+void create_walls_on_side(fvcvertptr &, shared_segment &sp, sidenum_t sidenum);
+
+void validate_segment_side(fvcvertptr &, vmsegptridx_t sp, sidenum_t sidenum);
+#endif
+
 }
 
 #ifdef DXX_BUILD_DESCENT
@@ -193,20 +207,6 @@ icsegptridx_t find_point_seg(const d_level_shared_segment_state &, const vms_vec
 //      Search up to a maximum depth of max_depth.
 //      Return the distance.
 vm_distance find_connected_distance(const vms_vector &p0, vcsegptridx_t seg0, const vms_vector &p1, vcsegptridx_t seg1, int max_depth, wall_is_doorway_mask wid_flag);
-
-void validate_segment_all(d_level_shared_segment_state &);
-
-#if DXX_USE_EDITOR
-//      In segment.c
-//      Make a just-modified segment valid.
-//              check all sides to see how many faces they each should have (0,1,2)
-//              create new vector normals
-void validate_segment(fvcvertptr &vcvertptr, vmsegptridx_t sp);
-
-void create_walls_on_side(fvcvertptr &, shared_segment &sp, sidenum_t sidenum);
-
-void validate_segment_side(fvcvertptr &, vmsegptridx_t sp, sidenum_t sidenum);
-#endif
 
 [[nodiscard]]
 vms_vector pick_random_point_in_seg(fvcvertptr &vcvertptr, const shared_segment &sp, std::minstd_rand r);
