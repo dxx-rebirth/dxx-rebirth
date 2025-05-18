@@ -1236,19 +1236,6 @@ static unsigned check_for_degenerate_segment(fvcvertptr &vcvertptr, const shared
 }
 #endif
 
-static void add_side_as_quad(shared_side &sidep, const vms_vector &normal)
-{
-	sidep.type = side_type::quad;
-	sidep.normals[0] = normal;
-	sidep.normals[1] = normal;
-	//	If there is a connection here, we only formed the faces for the purpose of determining segment boundaries,
-	//	so don't generate polys, else they will get rendered.
-//	if (sp->children[sidenum] != -1)
-//		sidep->render_flag = 0;
-//	else
-//		sidep->render_flag = 1;
-}
-
 }
 
 }
@@ -1408,7 +1395,9 @@ void create_walls_on_side(fvcvertptr &vcvertptr, shared_segment &sp, const siden
 			return;
 		//detriangulate!
 	}
-	add_side_as_quad(s, vn);
+	s.type = side_type::quad;
+	s.normals[0] = vn;
+	s.normals[1] = vn;
 }
 
 // -------------------------------------------------------------------------------
