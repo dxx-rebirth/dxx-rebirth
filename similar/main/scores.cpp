@@ -119,9 +119,11 @@ struct all_scores
 };
 #if DXX_BUILD_DESCENT == 1
 #define DXX_SCORE_STATS_INFO_PAD(AMOUNT)	/* In Descent 1, stats are stored with no padding, so discard the amount field. */
+#define TXT_REGISTER_DESCENT    "CD-Enhanced Descent Coming Summer '95!"
 #elif DXX_BUILD_DESCENT == 2
 #define DXX_SCORE_STATS_INFO_PAD(AMOUNT)	/* In Descent 2, stats are stored with padding determined by the ABI of the original DOS compiler, so propagate the amount field to `serial::pad`. */	\
 	serial::pad<AMOUNT, 0>(),
+#define TXT_REGISTER_DESCENT    "D2 Strategy Guide available at 1-800-531-2343!"
 #endif
 
 DEFINE_SERIAL_UDT_TO_MESSAGE(stats_info, s, (
@@ -151,7 +153,7 @@ static auto build_builtin_placeholder_scores() ->
 	static constexpr all_scores builtin_scores{
 		.cool_saying =
 #ifdef USE_BUILTIN_ENGLISH_TEXT_STRINGS
-			TXT_REGISTER_DESCENT,
+			{TXT_REGISTER_DESCENT},
 #else
 			{},	/* For !USE_BUILTIN_ENGLISH_TEXT_STRINGS, this requires data from an external file, so it cannot be set here. */
 #endif
@@ -262,7 +264,7 @@ static auto build_builtin_placeholder_scores() ->
 	return builtin_scores;
 #else
 	auto scores{builtin_scores};
-	strcpy(scores.cool_saying, TXT_REGISTER_DESCENT);
+	strcpy(scores.cool_saying, dxx_gettext(56, TXT_REGISTER_DESCENT));
 	return scores;
 #endif
 }
@@ -270,35 +272,34 @@ static auto build_builtin_placeholder_scores() ->
 [[nodiscard]]
 static all_scores scores_read()
 {
-	RAIIPHYSFS_File fp{PHYSFS_openRead(SCORES_FILENAME)};
-	if (!fp)
+	all_scores scores;
+	if (RAIIPHYSFS_File fp{PHYSFS_openRead(SCORES_FILENAME)}; !fp)
 	{
 	 	// No error message needed, code will work without a scores file
-		return build_builtin_placeholder_scores();
+		[[unlikely]];
 	}
-
-	const auto fsize{PHYSFS_fileLength(fp)};
-	if (fsize != all_scores::disk_size)
+	else if (const auto fsize{PHYSFS_fileLength(fp)}; fsize != all_scores::disk_size)
 	{
+		[[unlikely]];
 		con_printf(CON_NORMAL, "Ignoring high scores file \"" SCORES_FILENAME "\" due to unexpected size %" DXX_PRI_size_type, static_cast<std::size_t>(fsize));
-		return build_builtin_placeholder_scores();
 	}
-	std::array<uint8_t, all_scores::disk_size> buf;
 	// Read 'em in...
-	if (PHYSFSX_readBytes(fp, std::data(buf), std::size(buf)) != all_scores::disk_size)
+	else if (std::array<uint8_t, all_scores::disk_size> buf; PHYSFSX_readBytes(fp, buf.data(), buf.size()) != all_scores::disk_size)
 	{
+		[[unlikely]];
 		con_puts(CON_NORMAL, "Failed to read high scores file \"" SCORES_FILENAME "\"");
-		return build_builtin_placeholder_scores();
 	}
-	if (buf[0] != 'D' ||	// Descent
+	else if (buf[0] != 'D' ||	// Descent
 		buf[1] != 'H' ||	// High
 		buf[2] != 'S' ||	// Scores
 		buf[3] != high_score_version)
 	{
+		[[unlikely]];
 		con_printf(CON_NORMAL, "Ignoring high scores file \"" SCORES_FILENAME "\" due to invalid header %.2x%.2x%.2x%.2x", buf[0], buf[1], buf[2], buf[3]);
-		return build_builtin_placeholder_scores();
 	}
-	all_scores scores{};
+	else
+	{
+		scores = {};
 	/* Skip the last byte, so that the value-initialized null at the end of
 	 * `all_scores::cool_saying` is retained.  On a well-formed file, this
 	 * produces the same result as including the last byte.  On an ill-formed
@@ -313,6 +314,9 @@ static all_scores scores_read()
 		serial::reader::ne_bytebuffer b{stats_static_span.subspan(idx * stats_info::disk_size, stats_info::disk_size).data()};
 		serial::process_buffer(b, stats);
 	}
+		return scores;
+	}
+	scores = build_builtin_placeholder_scores();
 	return scores;
 }
 

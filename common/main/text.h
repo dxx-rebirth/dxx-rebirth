@@ -139,7 +139,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef DXX_BUILD_DESCENT
 #if DXX_BUILD_DESCENT == 1
 #define TXT_COPYRIGHT           dxx_gettext(11, "Copyright (C) 1994, 1995 Parallax Software Corporation")
-#define TXT_REGISTER_DESCENT    dxx_gettext(56, "CD-Enhanced Descent Coming Summer '95!")
 #define TXT_W_C_MISSILE			dxx_gettext(109, "Concussion Missile")
 #define TXT_W_H_MISSILE			dxx_gettext(110, "Homing Missile")
 #define TXT_W_P_BOMB			dxx_gettext(111, "Proximity Bomb")
@@ -640,7 +639,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #elif DXX_BUILD_DESCENT == 2
 #define TXT_COPYRIGHT           dxx_gettext(11, "Copyright (C) 1994-1996 Parallax Software Corporation")
-#define TXT_REGISTER_DESCENT    dxx_gettext(56, "D2 Strategy Guide available at 1-800-531-2343!")
 #define TXT_HELP_F4             dxx_gettext(93, "F4\t  Drop marker")
 #define TXT_W_SLASER            dxx_gettext(109, "Super Laser Cannon")
 #define TXT_W_SVULCAN           dxx_gettext(110, "Gauss Cannon")
@@ -1243,7 +1241,7 @@ extern std::array<const char *, N_TEXT_STRINGS> Text_string;
  * cause the string to be considered a non-literal, even if the input B
  * is a literal.
  */
-#define dxx_gettext(A,B)	({ unsigned dxx_gettext = A;(void)dxx_gettext; B; })
+#define dxx_gettext(A,B)	(static_cast<void>(unsigned{A}), B)
 #else
 dxx_compiler_attribute_format_arg(2)
 static constexpr const char *dxx_gettext(unsigned expr, const char *)
