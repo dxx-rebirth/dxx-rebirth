@@ -57,13 +57,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 using std::min;
 
+namespace dcx {
 namespace {
-
-	/* The array can be of any type that can hold values in the range
-	 * [0, AMBIENT_SEGMENT_DEPTH].
-	 */
-struct segment_lava_depth_array : enumerated_array<uint8_t, MAX_SEGMENTS, segnum_t> {};
-struct segment_water_depth_array : enumerated_array<uint8_t, MAX_SEGMENTS, segnum_t> {};
 
 class abs_vertex_lists_predicate
 {
@@ -88,21 +83,6 @@ struct verts_for_normal
 	{
 	}
 };
-
-constexpr vm_distance fcd_abort_cache_value{F1_0 * 1000};
-constexpr vm_distance fcd_abort_return_value{-1};
-
-#if DXX_BUILD_DESCENT == 2
-static constexpr sidemask_t &operator&=(sidemask_t &a, const sidemask_t b)
-{
-	return a = static_cast<sidemask_t>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
-}
-#endif
-
-}
-
-namespace dcx {
-namespace {
 
 // How far a point can be from a plane, and still be "in" the plane
 #define PLANE_DIST_TOLERANCE	250
@@ -682,6 +662,12 @@ static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 }
 
 namespace dsx {
+namespace {
+
+constexpr vm_distance fcd_abort_cache_value{F1_0 * 1000};
+constexpr vm_distance fcd_abort_return_value{-1};
+
+}
 
 // Used to become a constant based on editor, but I wanted to be able to set
 // this for omega blob find_point_seg calls.
@@ -815,10 +801,18 @@ static inline void add_to_fcd_cache(segnum_t seg0, segnum_t seg1, vm_distance di
 #define	MIN_CACHE_FCD_DIST	(F1_0*80)	//	Must be this far apart for cache lookup to succeed.  Recognizes small changes in distance matter at small distances.
 namespace {
 
-struct fcd_data {
+struct fcd_data
+{
 	segnum_t	seg0, seg1;
 	vm_distance dist;
 };
+
+#if DXX_BUILD_DESCENT == 2
+static constexpr sidemask_t &operator&=(sidemask_t &a, const sidemask_t b)
+{
+	return a = static_cast<sidemask_t>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
+}
+#endif
 
 fix64	Last_fcd_flush_time;
 unsigned Fcd_index;
@@ -1549,6 +1543,12 @@ namespace dsx {
 #define	Magical_light_constant  (F1_0*16)
 
 namespace {
+
+	/* The array can be of any type that can hold values in the range
+	 * [0, AMBIENT_SEGMENT_DEPTH].
+	 */
+struct segment_lava_depth_array : enumerated_array<uint8_t, MAX_SEGMENTS, segnum_t> {};
+struct segment_water_depth_array : enumerated_array<uint8_t, MAX_SEGMENTS, segnum_t> {};
 
 //	------------------------------------------------------------------------------------------
 //cast static light from a segment to nearby segments
