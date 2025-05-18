@@ -985,11 +985,18 @@ static std::optional<sidenum_t> find_seg_side(const shared_segment &seg, const s
 static fix compare_child(fvcvertptr &vcvertptr, const vms_vector &Viewer_eye, const shared_segment &seg, const shared_segment &cseg, const sidenum_t edgeside)
 {
 	const auto &cside = cseg.sides[edgeside];
-	const auto &sv = Side_to_verts[edgeside][cside.type == side_type::tri_13 ? side_relative_vertnum::_1 : side_relative_vertnum::_0];
+	const auto ctype{cside.type};
+	const auto &sv = Side_to_verts[edgeside][ctype == side_type::tri_13 ? side_relative_vertnum::_1 : side_relative_vertnum::_0];
 	const auto &temp{vm_vec_build_sub(Viewer_eye, vcvertptr(seg.verts[sv]))};
 	const auto &cnormal = cside.normals;
 	const auto d0{vm_vec_build_dot(cnormal[0], temp)};
 	if (d0 < 0)
+		return d0;
+	if (ctype == side_type::quad)
+		/* For a quad side, both normals are the same, so the result computed
+		 * below would have the same value as `d0`.  Skip computing that result
+		 * and just return `d0`.
+		 */
 		return d0;
 	return vm_vec_build_dot(cnormal[1], temp);
 }
