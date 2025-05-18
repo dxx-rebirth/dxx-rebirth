@@ -211,6 +211,7 @@ namespace dcx {
 // A compressed form for sending crucial data
 struct shortpos : prohibit_void_ptr<shortpos>
 {
+	static constexpr unsigned velocity_precision_shift{12};
 	std::array<int8_t, 9> bytemat;
 	int16_t xo, yo, zo;
 	segnum_t segment;

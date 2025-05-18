@@ -1036,8 +1036,6 @@ quaternionpos build_quaternionpos(const object_base &objp)
 	};
 }
 
-#define VEL_PRECISION 12
-
 //	Create a shortpos struct from an object.
 //	Extract the matrix into byte values.
 //	Create a position relative to vertex 0 with 1/256 normal "fix" precision.
@@ -1066,9 +1064,9 @@ shortpos create_shortpos_native(const d_level_shared_segment_state &LevelSharedS
 	spp.yo = (objp.pos.y - vert.y) >> RELPOS_PRECISION;
 	spp.zo = (objp.pos.z - vert.z) >> RELPOS_PRECISION;
 
-	spp.velx = (objp.mtype.phys_info.velocity.x) >> VEL_PRECISION;
-	spp.vely = (objp.mtype.phys_info.velocity.y) >> VEL_PRECISION;
-	spp.velz = (objp.mtype.phys_info.velocity.z) >> VEL_PRECISION;
+	spp.velx = (objp.mtype.phys_info.velocity.x) >> spp.velocity_precision_shift;
+	spp.vely = (objp.mtype.phys_info.velocity.y) >> spp.velocity_precision_shift;
+	spp.velz = (objp.mtype.phys_info.velocity.z) >> spp.velocity_precision_shift;
 	return spp;
 }
 
@@ -1107,9 +1105,9 @@ void multi_object_warp_to_shortpos(const vmobjptridx_t objp, const shortpos &spp
 	objp->pos.y = (INTEL_SHORT(spp.yo) << RELPOS_PRECISION) + vp.y;
 	objp->pos.z = (INTEL_SHORT(spp.zo) << RELPOS_PRECISION) + vp.z;
 
-	objp->mtype.phys_info.velocity.x = (INTEL_SHORT(spp.velx) << VEL_PRECISION);
-	objp->mtype.phys_info.velocity.y = (INTEL_SHORT(spp.vely) << VEL_PRECISION);
-	objp->mtype.phys_info.velocity.z = (INTEL_SHORT(spp.velz) << VEL_PRECISION);
+	objp->mtype.phys_info.velocity.x = (INTEL_SHORT(spp.velx) << spp.velocity_precision_shift);
+	objp->mtype.phys_info.velocity.y = (INTEL_SHORT(spp.vely) << spp.velocity_precision_shift);
+	objp->mtype.phys_info.velocity.z = (INTEL_SHORT(spp.velz) << spp.velocity_precision_shift);
 
 	obj_relink(vmobjptr, vmsegptr, objp, segp);
 }
