@@ -629,18 +629,8 @@ int check_segment_connections()
 	return errors;
 }
 
-}
-
-namespace dsx {
-
-// Used to become a constant based on editor, but I wanted to be able to set
-// this for omega blob find_point_seg calls.
-// Would be better to pass a paremeter to the routine...--MK, 01/17/96
-#if DXX_internal_feature_lighting_hack
-lighting_hack Doing_lighting_hack_flag{lighting_hack::normal};
-#endif
-
 namespace {
+
 // figure out what seg the given point is in, tracing through segments
 // returns segment number, or -1 if can't find segment
 static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedSegmentState, const vms_vector &p0, const vcsegptridx_t oldsegnum, const unsigned recursion_count, visited_segment_bitarray_t &visited)
@@ -686,7 +676,19 @@ static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 	}
 	return segment_none;		//we haven't found a segment
 }
+
 }
+
+}
+
+namespace dsx {
+
+// Used to become a constant based on editor, but I wanted to be able to set
+// this for omega blob find_point_seg calls.
+// Would be better to pass a paremeter to the routine...--MK, 01/17/96
+#if DXX_internal_feature_lighting_hack
+lighting_hack Doing_lighting_hack_flag{lighting_hack::normal};
+#endif
 
 imsegptridx_t find_point_seg(const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &, const vms_vector &p, const imsegptridx_t segnum)
 {
