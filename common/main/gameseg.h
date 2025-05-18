@@ -131,6 +131,30 @@ vertex_vertnum_array_list create_all_vertnum_lists(const shared_segment &seg, co
 [[nodiscard]]
 abs_vertex_list_result create_abs_vertex_lists(const shared_segment &segnum, const shared_side &sidep, sidenum_t sidenum);
 
+//create a matrix that describes the orientation of the given segment
+[[nodiscard]]
+vms_matrix extract_orient_from_segment(fvcvertptr &vcvertptr, const shared_segment &seg);
+
+#if DXX_USE_EDITOR
+//      Extract the forward vector from segment *sp, return it by value.
+//      The forward vector is defined to be the vector from the center of the front face of the segment
+// to the center of the back face of the segment.
+[[nodiscard]]
+vms_vector extract_forward_vector_from_segment(fvcvertptr &, const shared_segment &sp);
+
+//      Extract the right vector from segment *sp, return it by value.
+//      The forward vector is defined to be the vector from the center of the left face of the segment
+// to the center of the right face of the segment.
+[[nodiscard]]
+vms_vector extract_right_vector_from_segment(fvcvertptr &, const shared_segment &sp);
+
+//      Extract the up vector from segment *sp, return it by value.
+//      The forward vector is defined to be the vector from the center of the bottom face of the segment
+// to the center of the top face of the segment.
+[[nodiscard]]
+vms_vector extract_up_vector_from_segment(fvcvertptr &, const shared_segment &sp);
+#endif
+
 }
 
 #ifdef DXX_BUILD_DESCENT
@@ -170,10 +194,6 @@ icsegptridx_t find_point_seg(const d_level_shared_segment_state &, const vms_vec
 //      Return the distance.
 vm_distance find_connected_distance(const vms_vector &p0, vcsegptridx_t seg0, const vms_vector &p1, vcsegptridx_t seg1, int max_depth, wall_is_doorway_mask wid_flag);
 
-//create a matrix that describes the orientation of the given segment
-[[nodiscard]]
-vms_matrix extract_orient_from_segment(fvcvertptr &vcvertptr, const shared_segment &seg);
-
 void validate_segment_all(d_level_shared_segment_state &);
 
 #if DXX_USE_EDITOR
@@ -182,24 +202,6 @@ void validate_segment_all(d_level_shared_segment_state &);
 //              check all sides to see how many faces they each should have (0,1,2)
 //              create new vector normals
 void validate_segment(fvcvertptr &vcvertptr, vmsegptridx_t sp);
-
-//      Extract the forward vector from segment *sp, return it by value.
-//      The forward vector is defined to be the vector from the center of the front face of the segment
-// to the center of the back face of the segment.
-[[nodiscard]]
-vms_vector extract_forward_vector_from_segment(fvcvertptr &, const shared_segment &sp);
-
-//      Extract the right vector from segment *sp, return it by value.
-//      The forward vector is defined to be the vector from the center of the left face of the segment
-// to the center of the right face of the segment.
-[[nodiscard]]
-vms_vector extract_right_vector_from_segment(fvcvertptr &, const shared_segment &sp);
-
-//      Extract the up vector from segment *sp, return it by value.
-//      The forward vector is defined to be the vector from the center of the bottom face of the segment
-// to the center of the top face of the segment.
-[[nodiscard]]
-vms_vector extract_up_vector_from_segment(fvcvertptr &, const shared_segment &sp);
 
 void create_walls_on_side(fvcvertptr &, shared_segment &sp, sidenum_t sidenum);
 

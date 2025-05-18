@@ -1070,6 +1070,51 @@ shortpos create_shortpos_native(const d_level_shared_segment_state &LevelSharedS
 	return spp;
 }
 
+//	-----------------------------------------------------------------------------
+//	Segment validation functions.
+//	Moved from editor to game so we can compute surface normals at load time.
+// -------------------------------------------------------------------------------
+
+//create a matrix that describes the orientation of the given segment
+vms_matrix extract_orient_from_segment(fvcvertptr &vcvertptr, const shared_segment &seg)
+{
+	const auto fvec{extract_vector_from_segment(vcvertptr, seg, sidenum_t::WFRONT, sidenum_t::WBACK)};
+	const auto uvec{extract_vector_from_segment(vcvertptr, seg, sidenum_t::WBOTTOM, sidenum_t::WTOP)};
+	//vector to matrix does normalizations and orthogonalizations
+	return vm_vector_to_matrix_u(fvec, uvec);
+}
+
+#if DXX_USE_EDITOR
+
+// ------------------------------------------------------------------------------------------
+//	Extract the forward vector from segment *sp, return in *vp.
+//	The forward vector is defined to be the vector from the the center of the front face of the segment
+// to the center of the back face of the segment.
+vms_vector extract_forward_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp)
+{
+	return extract_vector_from_segment(vcvertptr, sp, sidenum_t::WFRONT, sidenum_t::WBACK);
+}
+
+// ------------------------------------------------------------------------------------------
+//	Extract the right vector from segment *sp, return in *vp.
+//	The forward vector is defined to be the vector from the the center of the left face of the segment
+// to the center of the right face of the segment.
+vms_vector extract_right_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp)
+{
+	return extract_vector_from_segment(vcvertptr, sp, sidenum_t::WLEFT, sidenum_t::WRIGHT);
+}
+
+// ------------------------------------------------------------------------------------------
+//	Extract the up vector from segment *sp, return in *vp.
+//	The forward vector is defined to be the vector from the the center of the bottom face of the segment
+// to the center of the top face of the segment.
+vms_vector extract_up_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp)
+{
+	return extract_vector_from_segment(vcvertptr, sp, sidenum_t::WBOTTOM, sidenum_t::WTOP);
+}
+
+#endif
+
 }
 
 namespace dsx {
@@ -1125,53 +1170,6 @@ void extract_quaternionpos(fvmobjptr &vmobjptr, fvmsegptr &vmsegptr, const vmobj
 	Assert(segnum <= Highest_segment_index);
 	obj_relink(vmobjptr, vmsegptr, objp, vmsegptridx(segnum));
 }
-#endif
-
-
-//	-----------------------------------------------------------------------------
-//	Segment validation functions.
-//	Moved from editor to game so we can compute surface normals at load time.
-// -------------------------------------------------------------------------------
-
-//create a matrix that describes the orientation of the given segment
-vms_matrix extract_orient_from_segment(fvcvertptr &vcvertptr, const shared_segment &seg)
-{
-	const auto fvec{extract_vector_from_segment(vcvertptr, seg, sidenum_t::WFRONT, sidenum_t::WBACK)};
-	const auto uvec{extract_vector_from_segment(vcvertptr, seg, sidenum_t::WBOTTOM, sidenum_t::WTOP)};
-
-	//vector to matrix does normalizations and orthogonalizations
-	return vm_vector_to_matrix_u(fvec, uvec);
-}
-
-#if DXX_USE_EDITOR
-
-// ------------------------------------------------------------------------------------------
-//	Extract the forward vector from segment *sp, return in *vp.
-//	The forward vector is defined to be the vector from the the center of the front face of the segment
-// to the center of the back face of the segment.
-vms_vector extract_forward_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp)
-{
-	return extract_vector_from_segment(vcvertptr, sp, sidenum_t::WFRONT, sidenum_t::WBACK);
-}
-
-// ------------------------------------------------------------------------------------------
-//	Extract the right vector from segment *sp, return in *vp.
-//	The forward vector is defined to be the vector from the the center of the left face of the segment
-// to the center of the right face of the segment.
-vms_vector extract_right_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp)
-{
-	return extract_vector_from_segment(vcvertptr, sp, sidenum_t::WLEFT, sidenum_t::WRIGHT);
-}
-
-// ------------------------------------------------------------------------------------------
-//	Extract the up vector from segment *sp, return in *vp.
-//	The forward vector is defined to be the vector from the the center of the bottom face of the segment
-// to the center of the top face of the segment.
-vms_vector extract_up_vector_from_segment(fvcvertptr &vcvertptr, const shared_segment &sp)
-{
-	return extract_vector_from_segment(vcvertptr, sp, sidenum_t::WBOTTOM, sidenum_t::WTOP);
-}
-
 #endif
 
 namespace {
