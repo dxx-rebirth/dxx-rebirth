@@ -916,6 +916,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const std::span<const cha
 
 	auto &&[fontfile, physfserr]{PHYSFSX_openReadBuffered(fontname.data())};
 	if (!fontfile) {
+		[[unlikely]];
 		con_printf(CON_VERBOSE, "Failed to open font file \"%s\": %s", fontname.data(), PHYSFS_getErrorByCode(physfserr));
 		return {};
 	}
@@ -925,6 +926,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const std::span<const cha
 		memcmp(file_header.magic.data(), "PSFN", 4) ||
 		(file_header.datasize = INTEL_INT(file_header.datasize)) < GRS_FONT_SIZE)
 	{
+		[[unlikely]];
 		con_printf(CON_NORMAL, "Invalid header in font file %s", fontname.data());
 		return {};
 	}
@@ -944,6 +946,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const std::span<const cha
 	const auto font_data{&ft_allocdata[ft_chars_storage]};
 	if (PHYSFSX_readBytes(fontfile, font_data, datasize) != datasize)
 	{
+		[[unlikely]];
 		con_printf(CON_URGENT, "Insufficient data in font file %s", fontname.data());
 		return {};
 	}
@@ -953,6 +956,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const std::span<const cha
 		auto w{reinterpret_cast<uint16_t *>(&font_data[offset_widths])};
 		if (offset_widths >= datasize || offset_widths + (nchars * sizeof(*w)) >= datasize)
 		{
+			[[unlikely]];
 			con_printf(CON_URGENT, "Missing widths in font file %s", fontname.data());
 			return {};
 		}
@@ -960,6 +964,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const std::span<const cha
 		const auto offset_data{reinterpret_cast<uintptr_t>(font->ft_data)};
 		if (offset_data >= datasize)
 		{
+			[[unlikely]];
 			con_printf(CON_URGENT, "Missing data in font file %s", fontname.data());
 			return {};
 		}
@@ -979,9 +984,8 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const std::span<const cha
 			return r;
 		});
 	} else  {
-
 		font->ft_data   = ft_data = font_data;
-		font->ft_widths = NULL;
+		font->ft_widths = nullptr;
 
 		ptr = ft_data + (nchars * font->ft_w * font->ft_h);
 	}
@@ -991,6 +995,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const std::span<const cha
 		const auto offset_kerndata{reinterpret_cast<uintptr_t>(font->ft_kerndata)};
 		if (datasize <= offset_kerndata)
 		{
+			[[unlikely]];
 			con_printf(CON_URGENT, "Missing kerndata in font file %s", fontname.data());
 			return {};
 		}
@@ -1000,6 +1005,7 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const std::span<const cha
 		{
 			if (cur_kerndata == end_font_data)
 			{
+				[[unlikely]];
 				con_printf(CON_URGENT, "Unterminated kerndata in font file %s", fontname.data());
 				return {};
 			}
@@ -1022,7 +1028,10 @@ static std::unique_ptr<grs_font> gr_internal_init_font(const std::span<const cha
 		std::bitset<256> freq;
 
 		if (constexpr std::size_t buffer_size{sizeof(palette[0]) * palette.size()}; PHYSFSX_readBytes(fontfile, palette, buffer_size) != buffer_size)		//read the palette
-			return nullptr;
+		{
+			[[unlikely]];
+			return {};
+		}
 
 		auto colormap{build_colormap_good(palette)};
 
