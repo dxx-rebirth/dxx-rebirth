@@ -690,16 +690,19 @@ LoadedMovie::~LoadedMovie()
 
 std::unique_ptr<LoadedMovieWithResolution> init_extra_robot_movie(const char *movielib)
 {
+	std::unique_ptr<LoadedMovieWithResolution> r;
 	if (GameArg.SysNoMovies)
-		return nullptr;
-	auto r{std::make_unique<LoadedMovieWithResolution>()};
-	if (const auto &&[code, resolution]{init_movie(movielib, 0, *r)}; code != PHYSFS_ERR_OK)
-		return nullptr;
-	else
 	{
-		r->resolution = resolution;
-		return r;
+		[[unlikely]];
 	}
+	else if (const auto &&[code, resolution]{init_movie(movielib, 0, *(r = std::make_unique_for_overwrite<LoadedMovieWithResolution>()))}; code != PHYSFS_ERR_OK)
+	{
+		[[unlikely]];
+		r.reset();
+	}
+	else
+		r->resolution = resolution;
+	return r;
 }
 
 }
