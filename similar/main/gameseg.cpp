@@ -1292,12 +1292,6 @@ static vms_vector assign_side_normal(fvcvertptr &vcvertptr, const vertnum_t v0, 
 	return n;
 }
 
-}
-}
-
-namespace dsx {
-namespace {
-
 // -------------------------------------------------------------------------------
 static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, const sidenum_t sidenum)
 {
@@ -1352,12 +1346,6 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 		sidep->normals[1] = assign_side_normal(vcvertptr, s1v0, v[side_relative_vertnum::_2], v[side_relative_vertnum::_3]);
 	}
 }
-
-}
-}
-
-namespace dcx {
-namespace {
 
 static int sign(fix v)
 {
