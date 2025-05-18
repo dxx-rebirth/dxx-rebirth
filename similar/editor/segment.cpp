@@ -1573,18 +1573,14 @@ std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_adjacent_segment_sid
 	return std::nullopt;
 }
 
-
-#define JOINT_THRESHOLD	10000*F1_0 		// (Huge threshold)
-
 // -------------------------------------------------------------------------------
 //	Find segment closest to sp:side.
-//	Return true if segment found and fill in segment in adj_sp and side in adj_side.
-//	Return false if unable to find, in which case adj_sp and adj_side are undefined.
+//	If a segment is found, return a `std::optional` that contains the found segment and side.
+//	If no segment is found, return an empty `std::optional`.
 std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_closest_threshold_segment_side(const vmsegptridx_t sp, sidenum_t side, const fix threshold)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	fix			closest_seg_dist;
 
 	if (IS_CHILD(sp->children[side]))
 		return std::nullopt;
@@ -1592,7 +1588,7 @@ std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_closest_threshold_se
 	auto &vcvertptr = Vertices.vcptr;
 	const auto vsc{compute_center_point_on_side(vcvertptr, sp, side)};
 
-	closest_seg_dist = JOINT_THRESHOLD;
+	fix closest_seg_dist{threshold};
 
 	std::optional<std::pair<vmsegptridx_t, sidenum_t>> result;
 	//	Scan all segments, looking for a segment which contains the four abs_verts
@@ -1613,11 +1609,7 @@ std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_closest_threshold_se
 				}
 			}	
 	}
-
-	if (closest_seg_dist < threshold)
-		return result;
-	else
-		return std::nullopt;
+	return result;
 }
 
 }
