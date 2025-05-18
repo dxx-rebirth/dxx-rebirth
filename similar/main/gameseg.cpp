@@ -215,7 +215,6 @@ static auto build_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, co
 		//but if the side pokes in, a point is on the back if behind EITHER face.
 
 		if (num_faces!=vertex_array_side_type::quad) {
-			int	center_count;
 
 			const auto vertnum = min(vertex_list[0],vertex_list[2]);
 			auto &mvert = *vcvertptr(vertnum);
@@ -225,7 +224,7 @@ static auto build_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, co
 				: std::make_pair(vertex_list[1], &s.normals[1]);
 			const auto mdist = vm_dist_to_plane(vcvertptr(a.first), *a.second, mvert);
 
-			center_count = 0;
+			unsigned center_count{0};
 			fix rdist{};
 			for (int fn=0;fn<2;fn++,facebit<<=1) {
 				const auto dist = vm_dist_to_plane(checkp, s.normals[fn], mvert);
@@ -239,6 +238,8 @@ static auto build_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, co
 					result.centermask |= sidebit;
 					rdist /= 2;		//get average
 				}
+				else
+					continue;
 			}
 			else {							//must be behind at least one face
 				if (center_count) {
@@ -246,6 +247,8 @@ static auto build_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, co
 					if (center_count==2)
 						rdist /= 2;		//get average
 				}
+				else
+					continue;
 			}
 			result.distances[sn] = rdist;
 		}
@@ -324,9 +327,13 @@ static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 		fix biggest_val{0};
 		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
 		{
-			const auto bit = build_sidemask(sidenum);
-			if ((side_dists.centermask & bit) && IS_CHILD(children[sidenum])
-			    && side_dists.distances[sidenum] < biggest_val) {
+			/* Any side for which `centermask` is unset also has
+			 * `.distances[sidenum]` still set to its value-initialized default
+			 * of 0, which will cause it to be not less than `biggest_val`.
+			 * Therefore, there is no need to check `centermask` for each side.
+			 */
+			if (side_dists.distances[sidenum] < biggest_val && IS_CHILD(children[sidenum]))
+			{
 				biggest_val = side_dists.distances[sidenum];
 				biggest_side = sidenum;
 			}
@@ -335,6 +342,7 @@ static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 		if (!biggest_side)
 			break;
 
+		/* Clear the distance, so that this side cannot be considered again later. */
 		side_dists.distances[*biggest_side] = 0;
 		// trace into adjacent segment:
 		const auto &&check = trace_segs(LevelSharedSegmentState, p0, oldsegnum.absolute_sibling(children[*biggest_side]), recursion_count + 1, visited);
