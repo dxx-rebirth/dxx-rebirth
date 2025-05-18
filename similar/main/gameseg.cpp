@@ -189,18 +189,20 @@ static vms_vector extract_vector_from_segment(fvcvertptr &vcvertptr, const share
 //this was converted from get_seg_masks()...it fills in an array of 6
 //elements for the distance behind each side, or zero if not behind
 //only gets centermask, and assumes zero rad
-static sidemask_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, const shared_segment &segnum, per_side_array<fix> &side_dists)
+[[nodiscard]]
+static auto build_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, const shared_segment &segnum)
 {
-	sidemask_t mask{};
-	auto &sides = segnum.sides;
-
+	struct
+	{
+		sidemask_t centermask;
+		per_side_array<fix> distances;
+	} result{};
 	//check point against each side of segment. return bitmask
-	side_dists = {};
 	int facebit{1};
 	for (const auto sn : MAX_SIDES_PER_SEGMENT)
 	{
 		const auto sidebit = build_sidemask(sn);
-		auto &s = sides[sn];
+		auto &s{segnum.sides[sn]};
 
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
@@ -231,7 +233,7 @@ static sidemask_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp
 
 				if (dist < -PLANE_DIST_TOLERANCE) {	//in front of face
 					center_count++;
-					side_dists[sn] += dist;
+					result.distances[sn] += dist;
 				}
 
 			}
@@ -239,17 +241,17 @@ static sidemask_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp
 			if (!(mdist > PLANE_DIST_TOLERANCE)) {		//must be behind both faces
 
 				if (center_count==2) {
-					mask |= sidebit;
-					side_dists[sn] /= 2;		//get average
+					result.centermask |= sidebit;
+					result.distances[sn] /= 2;		//get average
 				}
 
 			}
 			else {							//must be behind at least one face
 
 				if (center_count) {
-					mask |= sidebit;
+					result.centermask |= sidebit;
 					if (center_count==2)
-						side_dists[sn] /= 2;		//get average
+						result.distances[sn] /= 2;		//get average
 
 				}
 			}
@@ -265,16 +267,15 @@ static sidemask_t get_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp
 			const auto dist = vm_dist_to_plane(checkp, s.normals[0], vcvertptr(vertnum));
 
 			if (dist < -PLANE_DIST_TOLERANCE) {
-				mask |= sidebit;
-				side_dists[sn] = dist;
+				result.centermask |= sidebit;
+				result.distances[sn] = dist;
 			}
 
 			facebit <<= 2;
 		}
 
 	}
-
-	return mask;
+	return result;
 }
 
 #ifndef NDEBUG
@@ -322,9 +323,8 @@ static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	per_side_array<fix> side_dists;
-	const auto centermask = get_side_dists(Vertices.vcptr, p0, oldsegnum, side_dists);		//check old segment
-	if (centermask == sidemask_t{}) // we are in the old segment
+	auto &&side_dists{build_side_dists(Vertices.vcptr, p0, oldsegnum)};		//check old segment
+	if (side_dists.centermask == sidemask_t{}) // we are in the old segment
 		return oldsegnum; //..say so
 
 	auto &children = oldsegnum->shared_segment::children;
@@ -334,9 +334,9 @@ static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
 		{
 			const auto bit = build_sidemask(sidenum);
-			if ((centermask & bit) && IS_CHILD(children[sidenum])
-			    && side_dists[sidenum] < biggest_val) {
-				biggest_val = side_dists[sidenum];
+			if ((side_dists.centermask & bit) && IS_CHILD(children[sidenum])
+			    && side_dists.distances[sidenum] < biggest_val) {
+				biggest_val = side_dists.distances[sidenum];
 				biggest_side = sidenum;
 			}
 		}
@@ -344,7 +344,7 @@ static icsegptridx_t trace_segs(const d_level_shared_segment_state &LevelSharedS
 		if (!biggest_side)
 			break;
 
-		side_dists[*biggest_side] = 0;
+		side_dists.distances[*biggest_side] = 0;
 		// trace into adjacent segment:
 		const auto &&check = trace_segs(LevelSharedSegmentState, p0, oldsegnum.absolute_sibling(children[*biggest_side]), recursion_count + 1, visited);
 		if (check != segment_none)		//we've found a segment
