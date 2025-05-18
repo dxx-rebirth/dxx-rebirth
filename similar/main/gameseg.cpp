@@ -1036,11 +1036,7 @@ quaternionpos build_quaternionpos(const object_base &objp)
 	};
 }
 
-}
-
 #define VEL_PRECISION 12
-
-namespace dsx {
 
 //	Create a shortpos struct from an object.
 //	Extract the matrix into byte values.
@@ -1075,6 +1071,10 @@ shortpos create_shortpos_native(const d_level_shared_segment_state &LevelSharedS
 	spp.velz = (objp.mtype.phys_info.velocity.z) >> VEL_PRECISION;
 	return spp;
 }
+
+}
+
+namespace dsx {
 
 #if DXX_USE_MULTIPLAYER
 #if DXX_BUILD_DESCENT == 2

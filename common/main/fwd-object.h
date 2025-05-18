@@ -180,6 +180,12 @@ extern objnum_t Player_fired_laser_this_frame;
 [[nodiscard]]
 quaternionpos build_quaternionpos(const object_base &objp);
 
+// Extract information from an object (objp->orient, objp->pos,
+// objp->segnum), stuff in a shortpos structure.  See typedef
+// shortpos.
+[[nodiscard]]
+shortpos create_shortpos_native(const d_level_shared_segment_state &, const object_base &objp);
+
 }
 
 #ifdef DXX_BUILD_DESCENT
@@ -245,12 +251,6 @@ imsegptridx_t find_object_seg(const d_level_shared_segment_state &, d_level_uniq
 void fix_object_segs();
 
 void dead_player_end();
-
-// Extract information from an object (objp->orient, objp->pos,
-// objp->segnum), stuff in a shortpos structure.  See typedef
-// shortpos.
-[[nodiscard]]
-shortpos create_shortpos_native(const d_level_shared_segment_state &, const object_base &objp);
 
 #if DXX_USE_MULTIPLAYER
 #if DXX_BUILD_DESCENT == 2
