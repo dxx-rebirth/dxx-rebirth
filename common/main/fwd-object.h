@@ -256,7 +256,7 @@ void dead_player_end();
 #if DXX_BUILD_DESCENT == 2
 // Extract information from a shortpos, stuff in objp->orient
 // (matrix), objp->pos, objp->segnum
-void multi_object_warp_to_shortpos(vmobjptridx_t objp, const shortpos *spp);
+void multi_object_warp_to_shortpos(vmobjptridx_t objp, const shortpos &spp);
 #endif
 
 // reset object position from quaternion structure

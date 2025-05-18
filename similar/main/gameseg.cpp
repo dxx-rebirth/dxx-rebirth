@@ -1078,13 +1078,13 @@ namespace dsx {
 
 #if DXX_USE_MULTIPLAYER
 #if DXX_BUILD_DESCENT == 2
-void multi_object_warp_to_shortpos(const vmobjptridx_t objp, const shortpos *spp)
+void multi_object_warp_to_shortpos(const vmobjptridx_t objp, const shortpos &spp)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vmobjptr = Objects.vmptr;
-	auto sp = spp->bytemat.data();
+	auto sp{spp.bytemat.data()};
 
 	objp->orient.rvec.x = *sp++ << MATRIX_PRECISION;
 	objp->orient.uvec.x = *sp++ << MATRIX_PRECISION;
@@ -1096,20 +1096,20 @@ void multi_object_warp_to_shortpos(const vmobjptridx_t objp, const shortpos *spp
 	objp->orient.uvec.z = *sp++ << MATRIX_PRECISION;
 	objp->orient.fvec.z = *sp++ << MATRIX_PRECISION;
 
-	const auto segnum = segnum_t{INTEL_SHORT(underlying_value(spp->segment))};
+	const auto segnum = segnum_t{INTEL_SHORT(underlying_value(spp.segment))};
 
 	Assert(segnum <= Highest_segment_index);
 
 	const auto &&segp = vmsegptridx(segnum);
 	auto &vcvertptr = Vertices.vcptr;
 	auto &vp = *vcvertptr(segp->verts[segment_relative_vertnum::_0]);
-	objp->pos.x = (INTEL_SHORT(spp->xo) << RELPOS_PRECISION) + vp.x;
-	objp->pos.y = (INTEL_SHORT(spp->yo) << RELPOS_PRECISION) + vp.y;
-	objp->pos.z = (INTEL_SHORT(spp->zo) << RELPOS_PRECISION) + vp.z;
+	objp->pos.x = (INTEL_SHORT(spp.xo) << RELPOS_PRECISION) + vp.x;
+	objp->pos.y = (INTEL_SHORT(spp.yo) << RELPOS_PRECISION) + vp.y;
+	objp->pos.z = (INTEL_SHORT(spp.zo) << RELPOS_PRECISION) + vp.z;
 
-	objp->mtype.phys_info.velocity.x = (INTEL_SHORT(spp->velx) << VEL_PRECISION);
-	objp->mtype.phys_info.velocity.y = (INTEL_SHORT(spp->vely) << VEL_PRECISION);
-	objp->mtype.phys_info.velocity.z = (INTEL_SHORT(spp->velz) << VEL_PRECISION);
+	objp->mtype.phys_info.velocity.x = (INTEL_SHORT(spp.velx) << VEL_PRECISION);
+	objp->mtype.phys_info.velocity.y = (INTEL_SHORT(spp.vely) << VEL_PRECISION);
+	objp->mtype.phys_info.velocity.z = (INTEL_SHORT(spp.velz) << VEL_PRECISION);
 
 	obj_relink(vmobjptr, vmsegptr, objp, segp);
 }
