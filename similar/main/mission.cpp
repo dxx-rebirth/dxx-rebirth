@@ -774,16 +774,18 @@ static void add_missions_to_list(mission_list_type &mission_list, mission_candid
 namespace {
 
 /* move <mission_name> to <place> on mission list, increment <place> */
-static void promote (mission_list_type &mission_list, const char *const name, std::size_t &top_place)
+[[nodiscard]]
+static std::size_t promote(mission_list_type &mission_list, const char *const name, const std::size_t top_place)
 {
 	range_for (auto &i, partial_range(mission_list, top_place, mission_list.size()))
 		if (!d_stricmp(&*i.filename, name)) {
 			//swap mission positions
-			auto &j = mission_list[top_place++];
+			auto &j = mission_list[top_place];
 			if (&j != &i)
 				std::swap(j, i);
-			break;
+			return top_place + 1;
 		}
+	return top_place;
 }
 
 }
@@ -836,10 +838,10 @@ static mission_list_type build_mission_list(const mission_filter_mode mission_fi
 	// move original missions (in story-chronological order)
 	// to top of mission list
 	std::size_t top_place{};
-	promote(mission_list, D1_MISSION_FILENAME, top_place); // original descent 1 mission
+	top_place = promote(mission_list, D1_MISSION_FILENAME, top_place);	// original descent 1 mission
 #if DXX_BUILD_DESCENT == 2
-	promote(mission_list, builtin_mission_filename, top_place); // d2 or d2demo
-	promote(mission_list, "d2x", top_place); // vertigo
+	top_place = promote(mission_list, builtin_mission_filename, top_place);	// d2 or d2demo
+	top_place = promote(mission_list, "d2x", top_place);	// vertigo
 #endif
 
 	if (mission_list.size() > top_place)
