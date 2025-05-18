@@ -423,8 +423,8 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 		sidep->type = (dot >= 0 ? (n0v3 = &vvs2, n1v1 = &vvs0, side_type::tri_02) : (n0v3 = &vvs3, n1v1 = &vvs1, side_type::tri_13));
 
 		//	Now, based on triangulation type, set the normals.
-		sidep->normals[0] = vm_vec_normal(vvs0, vvs1, *n0v3);
-		sidep->normals[1] = vm_vec_normal(*n1v1, vvs2, vvs3);
+		reconstruct_at(sidep->normals[0], vm_vec_normal, vvs0, vvs1, *n0v3);
+		reconstruct_at(sidep->normals[1], vm_vec_normal, *n1v1, vvs2, vvs3);
 	} else {
 		enumerated_array<vertnum_t, 4, side_relative_vertnum> v;
 
