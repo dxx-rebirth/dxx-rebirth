@@ -226,37 +226,28 @@ static auto build_side_dists(fvcvertptr &vcvertptr, const vms_vector &checkp, co
 			const auto mdist = vm_dist_to_plane(vcvertptr(a.first), *a.second, mvert);
 
 			center_count = 0;
-
+			fix rdist{};
 			for (int fn=0;fn<2;fn++,facebit<<=1) {
-
 				const auto dist = vm_dist_to_plane(checkp, s.normals[fn], mvert);
-
 				if (dist < -PLANE_DIST_TOLERANCE) {	//in front of face
 					center_count++;
-					result.distances[sn] += dist;
+					rdist += dist;
 				}
-
 			}
-
 			if (!(mdist > PLANE_DIST_TOLERANCE)) {		//must be behind both faces
-
 				if (center_count==2) {
 					result.centermask |= sidebit;
-					result.distances[sn] /= 2;		//get average
+					rdist /= 2;		//get average
 				}
-
 			}
 			else {							//must be behind at least one face
-
 				if (center_count) {
 					result.centermask |= sidebit;
 					if (center_count==2)
-						result.distances[sn] /= 2;		//get average
-
+						rdist /= 2;		//get average
 				}
 			}
-
-
+			result.distances[sn] = rdist;
 		}
 		else {				//only one face on this side
 			//use lowest point number
