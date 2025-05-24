@@ -699,11 +699,10 @@ static std::pair<icsegidx_t, d_unique_buddy_state::Escort_goal_reachability> exi
 	auto &robptr = Robot_info[get_robot_id(Buddy_objp)];
 	const auto length = create_bfs_list(Buddy_objp, robptr, start_seg, powerup_flags, bfs_list);
 	{
-		const auto &&predicate = [](const segnum_t &s) {
-			return vcsegptr(s)->special == segment_special::fuelcen;
-		};
 		const auto &&rb = partial_const_range(bfs_list, length);
-		const auto &&i{std::ranges::find_if(rb, predicate)};
+		const auto &&i{std::ranges::find(rb, segment_special::fuelcen, [](const segnum_t &s) {
+			return vcsegptr(s)->special;
+		})};
 		if (i != rb.end())
 			return {*i, d_unique_buddy_state::Escort_goal_reachability::reachable};
 	}
