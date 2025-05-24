@@ -1551,7 +1551,7 @@ class blast_nearby_glass_context
 {
 	using TmapInfo_array = d_level_unique_tmap_info_state::TmapInfo_array;
 	const object &obj;
-	const fix damage;
+	const fix half_damage;
 	const d_eclip_array &Effects;
 	const GameBitmaps_array &GameBitmaps;
 	const Textures_array &Textures;
@@ -1563,7 +1563,7 @@ class blast_nearby_glass_context
 	unsigned can_blast(texture2_value tmap_num2) const;
 public:
 	blast_nearby_glass_context(const object &obj, const fix damage, const d_eclip_array &Effects, const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, const TmapInfo_array &TmapInfo, const d_vclip_array &Vclip, fvcvertptr &vcvertptr, fvcwallptr &vcwallptr) :
-		obj(obj), damage(damage), Effects(Effects), GameBitmaps(GameBitmaps),
+		obj{obj}, half_damage{damage / 2}, Effects{Effects}, GameBitmaps{GameBitmaps},
 		Textures(Textures), TmapInfo(TmapInfo), Vclip(Vclip),
 		vcvertptr(vcvertptr), vcwallptr(vcwallptr), visited{}
 	{
@@ -1605,9 +1605,9 @@ void blast_nearby_glass_context::process_segment(const vmsegptridx_t segp, const
 			{
 				const auto pnt{compute_center_point_on_side(vcvertptr, segp, sidenum)};
 				dist = vm_vec_dist_quick(pnt, objp.pos);
-				if (dist < damage/2) {
+				if (dist < half_damage) {
 					dist = find_connected_distance(pnt, segp, objp.pos, segp.absolute_sibling(objp.segnum), MAX_BLAST_GLASS_DEPTH, wall_is_doorway_mask::rendpast);
-					if ((dist > 0) && (dist < damage/2))
+					if (dist > 0 && dist < half_damage)
 					{
 						assert(objp.type == OBJ_WEAPON);
 						check_effect_blowup(LevelSharedSegmentState.DestructibleLights, Vclip, segp, sidenum, pnt, objp.ctype.laser_info, 1, 0);
