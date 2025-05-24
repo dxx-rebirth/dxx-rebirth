@@ -1596,22 +1596,29 @@ void blast_nearby_glass_context::process_segment(const vmsegptridx_t segp, const
 	const auto &objp = obj;
 	for (const auto &&[sidenum, uside] : enumerate(segp->unique_segment::sides))
 	{
-		fix			dist;
-
 		//	Process only walls which have glass.
 		if (const auto tmap_num2 = uside.tmap_num2; tmap_num2 != texture2_value::None)
 		{
 			if (can_blast(tmap_num2))
 			{
 				const auto pnt{compute_center_point_on_side(vcvertptr, segp, sidenum)};
-				dist = vm_vec_dist_quick(pnt, objp.pos);
-				if (dist < half_damage) {
-					dist = find_connected_distance(pnt, segp, objp.pos, segp.absolute_sibling(objp.segnum), MAX_BLAST_GLASS_DEPTH, wall_is_doorway_mask::rendpast);
-					if (dist > 0 && dist < half_damage)
-					{
+				if (!(vm_vec_dist_quick(pnt, objp.pos) < half_damage))
+					/* If the distance in abstract space is too great, then the
+					 * connected distance will also be too great, so skip
+					 * measuring connected distance.
+					 */
+					continue;
+				/* The distance in abstract space is close enough, so check the
+				 * connected distance.  This allows closed doors and other
+				 * solid barriers to stop the blast propagation, since such
+				 * barriers will either return that the distance is unreachable
+				 * or, if a detour through a nearby open passage exists, return
+				 * the distance of that detour.
+				 */
+				if (const auto dist{find_connected_distance(pnt, segp, objp.pos, segp.absolute_sibling(objp.segnum), MAX_BLAST_GLASS_DEPTH, wall_is_doorway_mask::rendpast)}; dist > 0 && dist < half_damage)
+				{
 						assert(objp.type == OBJ_WEAPON);
 						check_effect_blowup(LevelSharedSegmentState.DestructibleLights, Vclip, segp, sidenum, pnt, objp.ctype.laser_info, 1, 0);
-					}
 				}
 			}
 		}
