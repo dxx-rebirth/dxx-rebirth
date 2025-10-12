@@ -284,6 +284,17 @@ static DiskSoundHeader DiskSoundHeader_read(const NamedPHYSFS_File fp)
 	return dsh;
 }
 
+void initialize_array_bogus_data()
+{
+	bogus_data.fill(gr_find_closest_color(0, 0, 63));	// blue
+	// Make a big red X !
+	for (const auto c{gr_find_closest_color(63, 0, 0)}; const auto i : constant_xrange<std::size_t, 0, 64u>{})
+	{
+		bogus_data[i*64+i] = c;
+		bogus_data[i*64+(63-i)] = c;
+	}
+}
+
 }
 
 }
@@ -462,17 +473,8 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 	}
 
 	if ( !bogus_bitmap_initialized )	{
-		ubyte c;
 		bogus_bitmap_initialized = 1;
-		c = gr_find_closest_color( 0, 0, 63 );
-		bogus_data.fill(c);
-		c = gr_find_closest_color( 63, 0, 0 );
-		// Make a big red X !
-		range_for (const unsigned i, xrange(64u))
-		{
-			bogus_data[i*64+i] = c;
-			bogus_data[i*64+(63-i)] = c;
-		}
+		initialize_array_bogus_data();
 		gr_init_bitmap(bogus_bitmap, bm_mode::linear, 0, 0, 64, 64, 64, bogus_data.data());
 		piggy_register_bitmap(bogus_bitmap, "bogus", 1);
 #ifdef ALLEGRO
@@ -1131,18 +1133,8 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 	}
 
 	if ( !bogus_bitmap_initialized )        {
-		ubyte c;
-
 		bogus_bitmap_initialized = 1;
-		c = gr_find_closest_color( 0, 0, 63 );
-		bogus_data.fill(c);
-		c = gr_find_closest_color( 63, 0, 0 );
-		// Make a big red X !
-		range_for (const unsigned i, xrange(64u))
-		{
-			bogus_data[i*64+i] = c;
-			bogus_data[i*64+(63-i)] = c;
-		}
+		initialize_array_bogus_data();
 		const bitmap_index bi{static_cast<uint16_t>(Num_bitmap_files)};
 		gr_init_bitmap(GameBitmaps[bi], bm_mode::linear, 0, 0, 64, 64, 64, bogus_data.data());
 		piggy_register_bitmap(GameBitmaps[bi], "bogus", 1);
