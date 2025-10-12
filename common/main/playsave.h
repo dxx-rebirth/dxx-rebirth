@@ -191,7 +191,7 @@ struct player_config : prohibit_void_ptr<player_config>
 	int MouseFSIndicator;
 	std::array<cockpit_mode_t, 2> CockpitMode; // 0 saves the "real" cockpit, 1 also saves letterbox and rear. Used to properly switch between modes and restore the real one.
 #if DXX_BUILD_DESCENT == 2
-	enumerated_array<cockpit_3d_view, 2, gauge_inset_window_view> Cockpit3DView = {{{
+	per_gauge_inset_window_view_array<cockpit_3d_view> Cockpit3DView{{{
 		cockpit_3d_view::None,
 		cockpit_3d_view::None,
 	}}};

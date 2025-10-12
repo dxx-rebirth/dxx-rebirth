@@ -60,6 +60,9 @@ enum class game_mode_flag : uint16_t;
 enum class game_mode_flags : uint16_t;
 enum class cockpit_mode_t : uint8_t;
 
+template <typename T>
+	using per_gauge_inset_window_view_array = enumerated_array<T, 2, gauge_inset_window_view>;     // left & right
+
 // The following bits define the game modes.
 #define GM_NETWORK		game_mode_flag::network       // You are in network mode
 #define GM_MULTI_ROBOTS	game_mode_flag::multi_robots       // You are in a multiplayer mode with robots.
@@ -230,8 +233,8 @@ playernum_t get_marker_owner(game_mode_flags, game_marker_index, unsigned max_nu
 extern struct object *Missile_viewer;
 extern object_signature_t Missile_viewer_sig;
 
-extern enumerated_array<unsigned, 2, gauge_inset_window_view> Coop_view_player;     // left & right
-extern enumerated_array<game_marker_index, 2, gauge_inset_window_view> Marker_viewer_num;    // left & right
+extern per_gauge_inset_window_view_array<unsigned> Coop_view_player;
+extern per_gauge_inset_window_view_array<game_marker_index> Marker_viewer_num;
 #endif
 
 #if DXX_USE_EDITOR

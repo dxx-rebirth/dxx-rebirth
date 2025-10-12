@@ -1889,13 +1889,13 @@ namespace dsx {
 object *Missile_viewer=NULL;
 object_signature_t Missile_viewer_sig;
 
-enumerated_array<game_marker_index, 2, gauge_inset_window_view> Marker_viewer_num{
+per_gauge_inset_window_view_array<game_marker_index> Marker_viewer_num{
 	{{
 		game_marker_index::None,
 		game_marker_index::None,
 	}}
 };
-enumerated_array<unsigned, 2, gauge_inset_window_view> Coop_view_player{
+per_gauge_inset_window_view_array<unsigned> Coop_view_player{
 	{{
 		 UINT_MAX,
 		 UINT_MAX

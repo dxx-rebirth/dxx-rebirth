@@ -678,9 +678,9 @@ enum class gauge_hud_type : uint_fast32_t
 };
 
 constexpr enumerated_array<
-		enumerated_array<
-			enumerated_array<gauge_box, 2, gauge_hud_type>,
-		2, gauge_inset_window_view>,
+		per_gauge_inset_window_view_array<
+			enumerated_array<gauge_box, 2, gauge_hud_type>
+		>,
 	2, gauge_screen_resolution> gauge_boxes = {{{
 	{{{
 	{{{
@@ -887,7 +887,7 @@ struct gauge_inset_window
 #endif
 };
 
-enumerated_array<gauge_inset_window, 2, gauge_inset_window_view> inset_window;
+per_gauge_inset_window_view_array<gauge_inset_window> inset_window;
 
 static inline void hud_bitblt_free(grs_canvas &canvas, const unsigned x, const unsigned y, const unsigned w, const unsigned h, grs_bitmap &bm)
 {
