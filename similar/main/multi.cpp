@@ -391,7 +391,7 @@ multi_level_inv MultiLevelInv;
 }
 
 namespace dcx {
-const enumerated_array<char[16], 10, netplayer_info::player_rank> RankStrings{{{
+constexpr rank_strings_type RankStrings{{{
 	"(unpatched)",
 	"Cadet",
 	"Ensign",

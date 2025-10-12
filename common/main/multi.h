@@ -936,7 +936,9 @@ static inline player_ship_color get_player_or_team_color(const netgame_info &Net
 netplayer_info::player_rank GetMyNetRanking();
 
 namespace dcx {
-extern const enumerated_array<char[16], 10, netplayer_info::player_rank> RankStrings;
+using rank_strings_type = enumerated_array<char[16], 10, netplayer_info::player_rank>;
+extern const rank_strings_type RankStrings;
+
 netplayer_info::player_rank build_rank_from_untrusted(uint8_t untrusted);
 }
 
