@@ -59,7 +59,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //	Convert primary weapons to indices in Weapon_info array.
 #if DXX_BUILD_DESCENT == 1
 namespace dsx {
-const enumerated_array<weapon_id_type, MAX_PRIMARY_WEAPONS, primary_weapon_index_t> Primary_weapon_to_weapon_info{{
+constexpr per_primary_weapon_array<weapon_id_type> Primary_weapon_to_weapon_info{{
 	{
 		weapon_id_type::LASER_ID,
 		weapon_id_type::VULCAN_ID,
@@ -83,7 +83,7 @@ const enumerated_array<weapon_id_type, MAX_SECONDARY_WEAPONS, secondary_weapon_i
 #include "fvi.h"
 
 namespace dsx {
-const enumerated_array<weapon_id_type, MAX_PRIMARY_WEAPONS, primary_weapon_index_t> Primary_weapon_to_weapon_info{{
+constexpr per_primary_weapon_array<weapon_id_type> Primary_weapon_to_weapon_info{{
 	{
 		weapon_id_type::LASER_ID,
 		weapon_id_type::VULCAN_ID,
@@ -183,7 +183,7 @@ const enumerated_array<uint8_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t>
 }};
 
 //for each primary weapon, what kind of powerup gives weapon
-const enumerated_array<powerup_type_t, MAX_PRIMARY_WEAPONS, primary_weapon_index_t> Primary_weapon_to_powerup{{
+constexpr per_primary_weapon_array<powerup_type_t> Primary_weapon_to_powerup{{
 	{
 		powerup_type_t::POW_LASER,
 		powerup_type_t::POW_VULCAN_WEAPON,

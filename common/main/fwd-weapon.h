@@ -86,9 +86,11 @@ extern pig_hamfile_version Piggy_hamfile_version;
 enum class primary_weapon_index_t : uint8_t;
 enum class secondary_weapon_index_t : uint8_t;
 
-extern const enumerated_array<weapon_id_type, MAX_PRIMARY_WEAPONS, primary_weapon_index_t> Primary_weapon_to_weapon_info;
+template <typename T>
+	using per_primary_weapon_array = enumerated_array<T, MAX_PRIMARY_WEAPONS, primary_weapon_index_t>;
+extern const per_primary_weapon_array<weapon_id_type> Primary_weapon_to_weapon_info;
 //for each primary weapon, what kind of powerup gives weapon
-extern const enumerated_array<powerup_type_t, MAX_PRIMARY_WEAPONS, primary_weapon_index_t> Primary_weapon_to_powerup;
+extern const per_primary_weapon_array<powerup_type_t> Primary_weapon_to_powerup;
 extern const enumerated_array<weapon_id_type, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_weapon_to_weapon_info;
 //for each Secondary weapon, what kind of powerup gives weapon
 extern const enumerated_array<powerup_type_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_weapon_to_powerup;
