@@ -80,6 +80,9 @@ enum class submodel_index : uint8_t
 	/* Valid values are [0 .. (MAX_SUBMODELS - 1)]. */
 };
 
+template <typename T>
+using per_submodel_array = enumerated_array<T, MAX_SUBMODELS, submodel_index>;
+
 //used to describe a polygon model
 struct polymodel : prohibit_void_ptr<polymodel>
 {
@@ -90,7 +93,7 @@ struct polymodel : prohibit_void_ptr<polymodel>
 	std::array<vms_vector, MAX_SUBMODELS> submodel_offsets;
 	std::array<vms_vector, MAX_SUBMODELS> submodel_norms;   // norm for sep plane
 	std::array<vms_vector, MAX_SUBMODELS> submodel_pnts;    // point on sep plane
-	enumerated_array<fix, MAX_SUBMODELS, submodel_index> submodel_rads;       // radius for each submodel
+	per_submodel_array<fix> submodel_rads;       // radius for each submodel
 	std::array<ubyte, MAX_SUBMODELS> submodel_parents;    // what is parent for each submodel
 	std::array<vms_vector, MAX_SUBMODELS> submodel_mins;
 	std::array<vms_vector, MAX_SUBMODELS> submodel_maxs;
