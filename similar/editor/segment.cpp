@@ -1527,7 +1527,7 @@ void warn_if_concave_segment(const vmsegptridx_t s)
 //	If not found, return an empty optional.
 std::optional<std::pair<vmsegptridx_t, sidenum_t>> med_find_adjacent_segment_side(const vmsegptridx_t sp, sidenum_t side)
 {
-	enumerated_array<vertnum_t, 4, side_relative_vertnum> abs_verts;
+	per_side_relative_vertnum_array<vertnum_t> abs_verts;
 
 	//	Stuff abs_verts[4] array with absolute vertex indices
 	for (const auto v : MAX_VERTICES_PER_SIDE)

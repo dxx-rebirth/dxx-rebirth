@@ -282,7 +282,7 @@ struct unique_side
 {
 	texture1_value tmap_num;
 	texture2_value tmap_num2;
-	enumerated_array<uvl, 4, side_relative_vertnum>     uvls;
+	per_side_relative_vertnum_array<uvl> uvls;
 };
 
 #ifdef DXX_BUILD_DESCENT
@@ -414,7 +414,7 @@ struct delta_light : prohibit_void_ptr<delta_light>
 {
 	segnum_t   segnum;
 	sidenum_t  sidenum;
-	enumerated_array<uint8_t, 4, side_relative_vertnum> vert_light;
+	per_side_relative_vertnum_array<uint8_t> vert_light;
 };
 
 // Light at segnum:sidenum casts light on count sides beginning at index (in array Delta_lights)

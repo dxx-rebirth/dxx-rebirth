@@ -333,7 +333,7 @@ static void assign_uvs_to_side(fvcvertptr &vcvertptr, const vmsegptridx_t segp, 
 	}
 
 	assert(next_side_vertex(vlo) == vhi);	// If we are on an edge, then uvhi is one more than uvlo (mod 4)
-	enumerated_array<uvl, 4, side_relative_vertnum> uvls;
+	per_side_relative_vertnum_array<uvl> uvls;
 	uvls[vlo] = *uvlo;
 	uvls[vhi] = *uvhi;
 

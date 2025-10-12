@@ -63,7 +63,7 @@ namespace {
 class abs_vertex_lists_predicate
 {
 	const enumerated_array<vertnum_t, MAX_VERTICES_PER_SEGMENT, segment_relative_vertnum> &m_vp;
-	const enumerated_array<segment_relative_vertnum, 4, side_relative_vertnum> &m_sv;
+	const per_side_relative_vertnum_array<segment_relative_vertnum> &m_sv;
 public:
 	abs_vertex_lists_predicate(const shared_segment &seg, const sidenum_t sidenum) :
 		m_vp(seg.verts), m_sv(Side_to_verts[sidenum])
@@ -426,7 +426,7 @@ static void add_side_as_2_triangles(fvcvertptr &vcvertptr, shared_segment &sp, c
 		reconstruct_at(sidep->normals[0], vm_vec_normal, vvs0, vvs1, *n0v3);
 		reconstruct_at(sidep->normals[1], vm_vec_normal, *n1v1, vvs2, vvs3);
 	} else {
-		enumerated_array<vertnum_t, 4, side_relative_vertnum> v;
+		per_side_relative_vertnum_array<vertnum_t> v;
 
 		for (const auto i : MAX_VERTICES_PER_SIDE)
 			v[i] = sp.verts[vs[i]];

@@ -112,6 +112,9 @@ enum class segment_special : uint8_t;
 constexpr constant_xrange<side_relative_vertnum, side_relative_vertnum{0}, side_relative_vertnum{4}> MAX_VERTICES_PER_SIDE{};
 
 template <typename T>
+using per_side_relative_vertnum_array = enumerated_array<T, 4, side_relative_vertnum>;
+
+template <typename T>
 using per_segment_array = enumerated_array<T, MAX_SEGMENTS, segnum_t>;
 
 template <typename T>
@@ -150,7 +153,7 @@ struct d_level_unique_segment_state;
 
 template <typename T>
 	using per_side_array = enumerated_array<T, static_cast<std::size_t>(MAX_SIDES_PER_SEGMENT.value), sidenum_t>;
-extern const per_side_array<enumerated_array<segment_relative_vertnum, 4, side_relative_vertnum>>  Side_to_verts; // Side_to_verts[my_side] is list of vertices forming side my_side.
+extern const per_side_array<per_side_relative_vertnum_array<segment_relative_vertnum>>  Side_to_verts; // Side_to_verts[my_side] is list of vertices forming side my_side.
 extern const per_side_array<sidenum_t> Side_opposite; // Side_opposite[my_side] returns side opposite cube from my_side.
 
 void segment_side_wall_tmap_write(PHYSFS_File *fp, const shared_side &sside, const unique_side &uside);
