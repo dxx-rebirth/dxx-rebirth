@@ -101,7 +101,10 @@ constexpr std::integral_constant<unsigned, 2620> MAX_BITMAP_FILES{};
 #endif
 #define MAX_SOUND_FILES     MAX_SOUNDS
 
-using GameBitmaps_array = enumerated_array<grs_bitmap, MAX_BITMAP_FILES, bitmap_index>;
+template <typename T>
+	using per_bitmap_index_array = enumerated_array<T, MAX_BITMAP_FILES, bitmap_index>;
+
+using GameBitmaps_array = per_bitmap_index_array<grs_bitmap>;
 extern std::array<digi_sound, MAX_SOUND_FILES> GameSounds;
 extern GameBitmaps_array GameBitmaps;
 void piggy_bitmap_page_in(GameBitmaps_array &, bitmap_index bmp);
@@ -152,7 +155,7 @@ extern ubyte bogus_bitmap_initialized;
 extern hashtable AllBitmapsNames;
 extern hashtable AllDigiSndNames;
 #elif DXX_BUILD_DESCENT == 2
-extern enumerated_array<BitmapFile, MAX_BITMAP_FILES, bitmap_index> AllBitmaps;
+extern per_bitmap_index_array<BitmapFile> AllBitmaps;
 #endif
 #endif
 

@@ -73,8 +73,8 @@ using perm_tmap_buffer_type = enumerated_array<int, MAX_TEXTURES, bitmap_index>;
 using level_tmap_buffer_type = enumerated_array<int8_t, MAX_TEXTURES, bitmap_index>;
 using wall_buffer_type = std::array<int, MAX_WALL_ANIMS>;
 #elif DXX_BUILD_DESCENT == 2
-using perm_tmap_buffer_type = enumerated_array<int, MAX_BITMAP_FILES, bitmap_index>;
-using level_tmap_buffer_type = enumerated_array<int8_t, MAX_BITMAP_FILES, bitmap_index>;
+using perm_tmap_buffer_type = per_bitmap_index_array<int>;
+using level_tmap_buffer_type = per_bitmap_index_array<int8_t>;
 using wall_buffer_type = std::array<int, MAX_BITMAP_FILES>;
 #endif
 }

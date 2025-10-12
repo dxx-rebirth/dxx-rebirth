@@ -118,7 +118,7 @@ namespace {
 #endif
 hashtable AllBitmapsNames;
 hashtable AllDigiSndNames;
-enumerated_array<pig_bitmap_offset, MAX_BITMAP_FILES, bitmap_index> GameBitmapOffset;
+per_bitmap_index_array<pig_bitmap_offset> GameBitmapOffset;
 #if DXX_BUILD_DESCENT == 2
 static std::unique_ptr<uint8_t[]> Bitmap_replacement_data;
 static std::array<char, FILENAME_LEN> Current_pigfile;
@@ -142,7 +142,7 @@ GameBitmaps_array GameBitmaps;
 static char default_pigfile_registered[]{DEFAULT_PIGFILE_REGISTERED};
 static
 #endif
-enumerated_array<BitmapFile, MAX_BITMAP_FILES, bitmap_index> AllBitmaps;
+per_bitmap_index_array<BitmapFile> AllBitmaps;
 namespace {
 static std::array<SoundFile, MAX_SOUND_FILES> AllSounds;
 
@@ -151,8 +151,8 @@ static std::array<SoundFile, MAX_SOUND_FILES> AllSounds;
 static int Piggy_bitmap_cache_size;
 static int Piggy_bitmap_cache_next;
 static uint8_t *Piggy_bitmap_cache_data;
-static enumerated_array<uint8_t, MAX_BITMAP_FILES, bitmap_index> GameBitmapFlags;
-static enumerated_array<bitmap_index, MAX_BITMAP_FILES, bitmap_index> GameBitmapXlat;
+static per_bitmap_index_array<uint8_t> GameBitmapFlags;
+static per_bitmap_index_array<bitmap_index> GameBitmapXlat;
 static RAIINamedPHYSFS_File Piggy_fp;
 }
 

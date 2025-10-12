@@ -102,7 +102,7 @@ struct bitmap_original
 
 constexpr std::integral_constant<uint8_t, 0x80> BM_FLAG_CUSTOMIZED{};
 
-static enumerated_array<bitmap_original, MAX_BITMAP_FILES, bitmap_index> BitmapOriginal;
+static per_bitmap_index_array<bitmap_original> BitmapOriginal;
 static std::array<snd_info, MAX_SOUND_FILES> SoundOriginal;
 
 static int load_pig1(const NamedPHYSFS_File f, unsigned num_bitmaps, unsigned num_sounds, unsigned &num_custom, std::unique_ptr<custom_info[]> &ci)
