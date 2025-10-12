@@ -98,7 +98,6 @@ namespace dcx {
 
 int Endlevel_sequence;
 grs_bitmap *terrain_bitmap;	//!!*exit_bitmap,
-polygon_model_index exit_modelnum, destroyed_exit_modelnum;
 vms_matrix surface_orient;
 
 namespace {
@@ -459,6 +458,8 @@ void free_endlevel_data()
 }
 
 namespace dsx {
+
+polygon_model_index exit_modelnum, destroyed_exit_modelnum;
 
 namespace {
 

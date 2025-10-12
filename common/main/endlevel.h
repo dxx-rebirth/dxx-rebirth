@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-robot.h"
 #include "gr.h"
 #include "fwd-window.h"
+#include "polyobj.h"
 
 namespace dcx {
 
@@ -41,7 +42,6 @@ struct d_unique_endlevel_state
 };
 
 extern grs_bitmap *terrain_bitmap;  //*satellite_bitmap,*station_bitmap,
-extern polygon_model_index exit_modelnum, destroyed_exit_modelnum;
 extern int Endlevel_sequence;
 extern vms_matrix surface_orient;
 
@@ -51,6 +51,7 @@ void free_endlevel_data();
 
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {
+extern polygon_model_index exit_modelnum, destroyed_exit_modelnum;
 window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoState);
 window_event_result stop_endlevel_sequence();
 window_event_result start_endlevel_sequence();
