@@ -504,7 +504,7 @@ struct d_level_shared_segment_state
 
 struct d_level_unique_automap_state
 {
-	enumerated_array<uint8_t, MAX_SEGMENTS, segnum_t> Automap_visited;
+	per_segment_array<uint8_t> Automap_visited;
 };
 
 struct d_level_unique_segment_state

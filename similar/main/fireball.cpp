@@ -153,7 +153,7 @@ struct connected_segment_raw_distances
 		fvcwallptr &vcwallptr;
 		const segment_distance_count_type max_depth;
 		depth_count_array &count_segments_at_depth;
-		enumerated_array<biased_distance, MAX_SEGMENTS, segnum_t> &depth_by_segment;
+		per_segment_array<biased_distance> &depth_by_segment;
 		/* Segments that are farther away than max_depth do not have a
 		 * specific distance computed, and are only known to be too far
 		 * away.
@@ -175,7 +175,7 @@ struct connected_segment_raw_distances
 	 * in the traversal.
 	 */
 	static_assert(static_cast<unsigned>(biased_distance::indeterminate) == 0, "`indeterminate` must be 0 so that zero-initialization assigns the value `indeterminate` to every element in the array");
-	enumerated_array<biased_distance, MAX_SEGMENTS, segnum_t> depth_by_segment{};
+	per_segment_array<biased_distance> depth_by_segment{};
 	/* Prefer that the maximum depth be passed as a
 	 * std::integral_constant so that it can be checked at compile time.
 	 * Allow use of non-integral_constant expressions if the caller uses

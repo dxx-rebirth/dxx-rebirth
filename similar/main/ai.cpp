@@ -334,7 +334,7 @@ struct robot_to_player_visibility_state
 	uint8_t initialized{0};
 };
 
-struct awareness_t : enumerated_array<player_awareness_type_t, MAX_SEGMENTS, segnum_t>
+struct awareness_t : per_segment_array<player_awareness_type_t>
 {
 };
 

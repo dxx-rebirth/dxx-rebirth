@@ -1520,8 +1520,8 @@ namespace {
 	/* The array can be of any type that can hold values in the range
 	 * [0, AMBIENT_SEGMENT_DEPTH].
 	 */
-struct segment_lava_depth_array : enumerated_array<uint8_t, MAX_SEGMENTS, segnum_t> {};
-struct segment_water_depth_array : enumerated_array<uint8_t, MAX_SEGMENTS, segnum_t> {};
+struct segment_lava_depth_array : per_segment_array<uint8_t> {};
+struct segment_water_depth_array : per_segment_array<uint8_t> {};
 
 //	------------------------------------------------------------------------------------------
 //cast static light from a segment to nearby segments

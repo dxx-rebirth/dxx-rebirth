@@ -110,6 +110,9 @@ enum class side_relative_vertnum : uint8_t;
 enum class segment_relative_vertnum : uint8_t;
 enum class segment_special : uint8_t;
 constexpr constant_xrange<side_relative_vertnum, side_relative_vertnum{0}, side_relative_vertnum{4}> MAX_VERTICES_PER_SIDE{};
+
+template <typename T>
+using per_segment_array = enumerated_array<T, MAX_SEGMENTS, segnum_t>;
 }
 
 /* `vertex` has only integer members, so wild reads are unlikely to

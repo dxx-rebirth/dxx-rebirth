@@ -94,6 +94,10 @@ namespace dcx {
 
 namespace {
 
+struct segment_depth_array_t : public per_segment_array<uint8_t>
+{
+};
+
 struct Edge_info
 {
 	std::array<vertnum_t, 2> verts;     // 8  bytes
