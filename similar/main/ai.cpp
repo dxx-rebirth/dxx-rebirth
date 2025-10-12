@@ -394,6 +394,14 @@ static void move_toward_vector_component_add(fix vms_vector::*const p, const vms
 	velocity.*p += fixmul(vec_goal.*p, frametime64) * difficulty_scale / 4;
 }
 
+/* Cast from `robot_gun_number` to `robot_gun_goal_index`.  This is out of line
+ * so that source types other than `robot_gun_number` trigger a type mismatch.
+ */
+static robot_gun_goal_index build_robot_gun_goal_index(const robot_gun_number r)
+{
+	return static_cast<robot_gun_goal_index>(r);
+}
+
 }
 
 }
@@ -935,11 +943,13 @@ static int do_silly_animation(const d_robot_info_array &Robot_info, object &objp
 
 		if (at_goal) {
 			//ai_static	*aip = &objp->ctype.ai_info;
-			ail.achieved_state[gun_num] = ail.goal_state[gun_num];
-			if (ail.achieved_state[gun_num] == AIS_RECO)
-				ail.goal_state[gun_num] = AIS_FIRE;
-			else if (ail.achieved_state[gun_num] == AIS_FLIN)
-				ail.goal_state[gun_num] = AIS_LOCK;
+			auto &achieved_state = ail.achieved_state[build_robot_gun_goal_index(gun_num)];
+			auto &goal_state = ail.goal_state[build_robot_gun_goal_index(gun_num)];
+			achieved_state = goal_state;
+			if (achieved_state == AIS_RECO)
+				goal_state = AIS_FIRE;
+			else if (achieved_state == AIS_FLIN)
+				goal_state = AIS_LOCK;
 		}
 	}
 
@@ -2908,14 +2918,14 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 				}
 
 				aip->GOAL_STATE = AIS_RECO;
-				ailp.goal_state[aip->CURRENT_GUN] = AIS_RECO;
+				ailp.goal_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] = AIS_RECO;
 				// Switch to next gun for next fire.
 				aip->CURRENT_GUN = robot_advance_current_gun(robptr, aip->CURRENT_GUN);
 			}
 		}
 	} else if (Weapon_info[robptr.weapon_type].homing_flag) {
 		//	Robots which fire homing weapons might fire even if they don't have a bead on the player.
-		if ((!object_animates || ailp.achieved_state[aip->CURRENT_GUN] == AIS_FIRE)
+		if ((!object_animates || ailp.achieved_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] == AIS_FIRE)
 			&& ready_to_fire_weapon1(ailp, 0)
 			&& (vm_vec_dist_quick(Hit_pos, obj->pos) > F1_0*40)) {
 			if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
@@ -2923,7 +2933,7 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 			ai_fire_laser_at_player(Robot_info, LevelSharedSegmentState, obj, player_info, gun_point, robot_gun_number::_0);
 
 			aip->GOAL_STATE = AIS_RECO;
-			ailp.goal_state[aip->CURRENT_GUN] = AIS_RECO;
+			ailp.goal_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] = AIS_RECO;
 		}
 			// Switch to next gun for next fire.
 		aip->CURRENT_GUN = robot_advance_current_gun(robptr, aip->CURRENT_GUN);
@@ -3000,7 +3010,7 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 				}
 
 				aip->GOAL_STATE = AIS_RECO;
-				ailp.goal_state[aip->CURRENT_GUN] = AIS_RECO;
+				ailp.goal_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] = AIS_RECO;
 
 				// Switch to next gun for next fire.  If has 2 gun types, select gun #1, if exists.
 				aip->CURRENT_GUN = robot_advance_current_gun_prefer_second(robptr, aip->CURRENT_GUN);
@@ -3010,7 +3020,7 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 	else if ((!robptr.attack_type && Weapon_info[Robot_info[get_robot_id(obj)].weapon_type].homing_flag) || ((Robot_info[get_robot_id(obj)].weapon_type2 != weapon_none && Weapon_info[Robot_info[get_robot_id(obj)].weapon_type2].homing_flag)))
 	{
 		//	Robots which fire homing weapons might fire even if they don't have a bead on the player.
-		if ((!object_animates || ailp.achieved_state[aip->CURRENT_GUN] == AIS_FIRE)
+		if ((!object_animates || ailp.achieved_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] == AIS_FIRE)
 			&& (
 				(aip->CURRENT_GUN != robot_gun_number::_0 && ready_to_fire_weapon1(ailp, 0)) ||
 				(aip->CURRENT_GUN == robot_gun_number::_0 && ready_to_fire_weapon2(robptr, ailp, 0)))
@@ -3021,7 +3031,7 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 			ai_fire_laser_at_player(Robot_info, LevelSharedSegmentState, obj, player_info, gun_point, gun_num, Believed_player_pos);
 
 			aip->GOAL_STATE = AIS_RECO;
-			ailp.goal_state[aip->CURRENT_GUN] = AIS_RECO;
+			ailp.goal_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] = AIS_RECO;
 		}
 			// Switch to next gun for next fire.
 		aip->CURRENT_GUN = robot_advance_current_gun(robptr, aip->CURRENT_GUN);
@@ -3070,7 +3080,7 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 						ailp.mode = ai_mode::AIM_CHASE_OBJECT;
 				}
 				aip->GOAL_STATE = AIS_RECO;
-				ailp.goal_state[aip->CURRENT_GUN] = AIS_RECO;
+				ailp.goal_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] = AIS_RECO;
 
 				// Switch to next gun for next fire.
 				aip->CURRENT_GUN = robot_advance_current_gun_prefer_second(robptr, aip->CURRENT_GUN);
@@ -3428,13 +3438,14 @@ _exit_cheat:
 	{
 		// Since we passed ready_to_fire_any_weapon(), either next_fire or next_fire2 <= 0.  calc_gun_point from relevant one.
 		// If both are <= 0, we will deal with the mess in ai_do_actual_firing_stuff
-		const auto gun_num =
+		const auto gun_num{
 #if DXX_BUILD_DESCENT == 2
 			(!ready_to_fire_weapon1(ailp, 0))
 			? robot_gun_number::_0
 			:
 #endif
-			aip->CURRENT_GUN;
+			aip->CURRENT_GUN
+		};
 		vis_vec_pos = gun_point.build(robptr, obj, gun_num);
 	} else {
 		vis_vec_pos = obj->pos;
@@ -4707,8 +4718,8 @@ static void state_ai_local_to_ai_local_rw(const ai_local *ail, ai_local_rw *ail_
 		ail_rw->delta_angles[i].p  = ail->delta_angles[i].p;
 		ail_rw->delta_angles[i].b  = ail->delta_angles[i].b;
 		ail_rw->delta_angles[i].h  = ail->delta_angles[i].h;
-		ail_rw->goal_state[i]      = ail->goal_state[(robot_gun_number{i})];
-		ail_rw->achieved_state[i]  = ail->achieved_state[(robot_gun_number{i})];
+		ail_rw->goal_state[i]      = ail->goal_state[(robot_gun_goal_index{i})];
+		ail_rw->achieved_state[i]  = ail->achieved_state[(robot_gun_goal_index{i})];
 	}
 }
 
