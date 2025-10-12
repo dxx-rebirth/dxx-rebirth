@@ -1814,7 +1814,7 @@ void do_seismic_stuff(void)
 namespace serial {
 
 template <typename T>
-class is_cxx_array<enumerated_array<T, NDL, Difficulty_level_type>> : public is_cxx_array<std::array<T, NDL>>
+class is_cxx_array<per_difficulty_level_array<T>> : public is_cxx_array<std::array<T, NDL>>
 {
 };
 

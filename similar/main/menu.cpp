@@ -932,7 +932,7 @@ int select_demo()
 
 static int do_difficulty_menu()
 {
-	using items_type = enumerated_array<newmenu_item, NDL, Difficulty_level_type>;
+	using items_type = per_difficulty_level_array<newmenu_item>;
 	struct difficulty_prompt_menu : items_type, passive_newmenu
 	{
 		difficulty_prompt_menu(const Difficulty_level_type Difficulty_level) :

@@ -62,7 +62,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dcx {
 namespace {
 
-constexpr enumerated_array<uint8_t, NDL, Difficulty_level_type> D1_Alan_pavlish_reactor_times = {{{
+constexpr per_difficulty_level_array<uint8_t> D1_Alan_pavlish_reactor_times{{{
 	50, 45, 40, 35, 30
 }}};
 
@@ -111,7 +111,7 @@ void calc_controlcen_gun_point(object &obj)
 namespace {
 
 #if DXX_BUILD_DESCENT == 2
-constexpr enumerated_array<uint8_t, NDL, Difficulty_level_type> D2_Alan_pavlish_reactor_times = {{{
+constexpr per_difficulty_level_array<uint8_t> D2_Alan_pavlish_reactor_times{{{
 	90, 60, 45, 35, 30
 }}};
 #endif

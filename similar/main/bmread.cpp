@@ -1263,7 +1263,7 @@ namespace dcx {
 namespace {
 
 // ------------------------------------------------------------------------------
-static void get4fix(enumerated_array<fix, NDL, Difficulty_level_type> &fixp)
+static void get4fix(per_difficulty_level_array<fix> &fixp)
 {
 	char	*curtext;
 	range_for (auto &i, fixp)
@@ -1274,7 +1274,7 @@ static void get4fix(enumerated_array<fix, NDL, Difficulty_level_type> &fixp)
 }
 
 // ------------------------------------------------------------------------------
-static void get4byte(enumerated_array<int8_t, NDL, Difficulty_level_type> &bytep)
+static void get4byte(per_difficulty_level_array<int8_t> &bytep)
 {
 	char	*curtext;
 	range_for (auto &i, bytep)
@@ -1286,7 +1286,7 @@ static void get4byte(enumerated_array<int8_t, NDL, Difficulty_level_type> &bytep
 
 // ------------------------------------------------------------------------------
 //	Convert field of view from an angle in 0..360 to cosine.
-static void adjust_field_of_view(enumerated_array<fix, NDL, Difficulty_level_type> &fovp)
+static void adjust_field_of_view(per_difficulty_level_array<fix> &fovp)
 {
 	fixang	tt;
 	float		ff;
@@ -1414,7 +1414,7 @@ void bm_read_robot_ai(d_robot_info_array &Robot_info, const int skip)
 	get4byte(robptr.rapidfire_count);
 	get4fix(robptr.turn_time);
 #if DXX_BUILD_DESCENT == 1
-	enumerated_array<fix, NDL, Difficulty_level_type>		fire_power,						//	damage done by a hit from this robot
+	per_difficulty_level_array<fix>		fire_power,						//	damage done by a hit from this robot
 		shield;							//	shield strength of this robot
 	get4fix(fire_power);
 	get4fix(shield);

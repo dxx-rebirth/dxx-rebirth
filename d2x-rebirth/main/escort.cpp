@@ -1452,7 +1452,7 @@ void recreate_thief(const d_robot_info_array &Robot_info, const robot_id thief_i
 
 //	----------------------------------------------------------------------------
 
-constexpr enumerated_array<fix, NDL, Difficulty_level_type> Thief_wait_times = {{{
+constexpr per_difficulty_level_array<fix> Thief_wait_times{{{
 	F1_0*30, F1_0*25, F1_0*20, F1_0*15, F1_0*10
 }}};
 

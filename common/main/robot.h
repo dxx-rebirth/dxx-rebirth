@@ -122,7 +122,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 	fix     mass;           // how heavy is this thing?
 	fix     drag;           // how much drag does it have?
 
-	enumerated_array<fix, NDL, Difficulty_level_type>     field_of_view, // compare this value with forward_vector.dot.vector_to_player, if field_of_view <, then robot can see player
+	per_difficulty_level_array<fix>     field_of_view, // compare this value with forward_vector.dot.vector_to_player, if field_of_view <, then robot can see player
 		firing_wait,   //  time in seconds between shots
 #if DXX_BUILD_DESCENT == 2
 		firing_wait2,  //  time in seconds between shots
@@ -131,7 +131,7 @@ struct robot_info : prohibit_void_ptr<robot_info>
 		max_speed,         //  maximum speed attainable by this robot
 		circle_distance;   //  distance at which robot circles player
 
-	enumerated_array<int8_t, NDL, Difficulty_level_type>   rapidfire_count,   //  number of shots fired rapidly
+	per_difficulty_level_array<int8_t>   rapidfire_count,   //  number of shots fired rapidly
 		evade_speed;       //  rate at which robot can evade shots, 0=none, 4=very fast
 	sbyte   cloak_type;     //  0=never, 1=always, 2=except-when-firing
 	sbyte   attack_type;    //  0=firing, 1=charge (like green guy)

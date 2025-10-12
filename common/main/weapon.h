@@ -179,8 +179,8 @@ struct weapon_info : prohibit_void_ptr<weapon_info>
 	fix blob_size;              // Size of blob if blob type
 	fix flash_size;             // How big to draw the flash
 	fix impact_size;            // How big of an impact
-	enumerated_array<fix, NDL, Difficulty_level_type> strength;          // How much damage it can inflict
-	enumerated_array<fix, NDL, Difficulty_level_type> speed;             // How fast it can move, difficulty level based.
+	per_difficulty_level_array<fix> strength;          // How much damage it can inflict
+	per_difficulty_level_array<fix> speed;             // How fast it can move, difficulty level based.
 	fix mass;                   // How much mass it has
 	fix drag;                   // How much drag it has
 	fix thrust;                 // How much thrust it has

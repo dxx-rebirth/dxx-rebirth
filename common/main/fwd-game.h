@@ -87,6 +87,9 @@ extern int Game_suspended;          // if non-zero, nothing moves but player
  */
 enum class Difficulty_level_type : signed int;
 
+template <typename T>
+	using per_difficulty_level_array = enumerated_array<T, NDL, Difficulty_level_type>;
+
 struct d_game_shared_state;
 struct d_game_unique_state;
 
