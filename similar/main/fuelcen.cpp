@@ -74,7 +74,7 @@ constexpr std::integral_constant<int, 15> Num_extry_robots{};
 }
 namespace dsx {
 #if DXX_USE_EDITOR
-const enumerated_array<char[11], MAX_CENTER_TYPES, segment_special> Special_names = {{{
+constexpr per_segment_special_array<char[11]> Special_names = {{{
 	{"NOTHING"},
 	{"FUELCEN"},
 	{"REPAIRCEN"},

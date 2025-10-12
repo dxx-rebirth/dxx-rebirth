@@ -141,7 +141,9 @@ void matcen_info_read(NamedPHYSFS_File fp, matcen_info &ps);
 #endif
 
 #if DXX_USE_EDITOR
-extern const enumerated_array<char[11], MAX_CENTER_TYPES, segment_special> Special_names;
+template <typename T>
+using per_segment_special_array = enumerated_array<T, MAX_CENTER_TYPES, segment_special>;
+extern const per_segment_special_array<char[11]> Special_names;
 #endif
 
 struct d_level_shared_robotcenter_state

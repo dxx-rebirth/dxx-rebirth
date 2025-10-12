@@ -65,7 +65,7 @@ struct centers_dialog : UI_DIALOG
 {
 	using UI_DIALOG::UI_DIALOG;
 	std::unique_ptr<UI_GADGET_BUTTON> quitButton;
-	enumerated_array<std::unique_ptr<UI_GADGET_RADIO>, MAX_CENTER_TYPES, segment_special> centerFlag;
+	per_segment_special_array<std::unique_ptr<UI_GADGET_RADIO>> centerFlag;
 	std::array<std::unique_ptr<UI_GADGET_CHECKBOX>, MAX_ROBOT_TYPES> robotMatFlag;
 	int old_seg_num;
 	virtual window_event_result callback_handler(const d_event &) override;
