@@ -78,9 +78,13 @@ struct morph_data : prohibit_void_ptr<morph_data>
 	std::array<int, MAX_SUBMODELS>
 		n_morphing_points,       // how many active points in each part
 		submodel_startpoints;    // first point for each submodel
+	[[nodiscard]]
 	static ptr create(object_base &, const polymodel &, polygon_model_index);
+	[[nodiscard]]
 	std::span<fix> get_morph_times();
+	[[nodiscard]]
 	std::span<vms_vector> get_morph_vecs();
+	[[nodiscard]]
 	std::span<vms_vector> get_morph_deltas();
 private:
 	/* Advise gcc to inline this `operator new` because if it is not inline,
@@ -97,7 +101,9 @@ private:
 
 struct d_level_unique_morph_object_state;
 
+[[nodiscard]]
 morph_data::ptr *find_morph_data(d_level_unique_morph_object_state &LevelUniqueMorphObjectState, object_base &obj);
+
 }
 
 namespace dsx {

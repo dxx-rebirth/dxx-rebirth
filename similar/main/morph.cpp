@@ -106,6 +106,7 @@ struct submodel_data
 	const unsigned startpoint;
 };
 
+[[nodiscard]]
 submodel_data parse_model_data_header(const polymodel &pm, const unsigned submodel_num)
 {
 	auto data{reinterpret_cast<const uint16_t *>(&pm.model_data[pm.submodel_ptrs[submodel_num]])};
@@ -123,6 +124,7 @@ submodel_data parse_model_data_header(const polymodel &pm, const unsigned submod
 	return {data, type, nverts, startpoint};
 }
 
+[[nodiscard]]
 std::size_t count_submodel_points(const polymodel &pm, const polygon_model_index model_idx, const unsigned submodel_num)
 {
 	/* Return the minimum array size that will not cause this submodel
@@ -135,6 +137,7 @@ std::size_t count_submodel_points(const polymodel &pm, const polygon_model_index
 	return count;
 }
 
+[[nodiscard]]
 std::size_t count_model_points(const polymodel &pm, const polygon_model_index model_idx)
 {
 	/* Return the minimum array size that will not cause any used
@@ -306,6 +309,7 @@ static std::ranges::min_max_result<vms_vector> find_min_max(const polymodel &pm,
 constexpr fix morph_rate{F1_0 * 3};
 constexpr fix indeterminate_box_extent{INT32_MAX};
 
+[[nodiscard]]
 static fix update_bounding_box_extent(const vms_vector &vp, const vms_vector &box_size, fix vms_vector::*const p, const fix entry_extent)
 {
 	if (!(vp.*p))
@@ -317,6 +321,7 @@ static fix update_bounding_box_extent(const vms_vector &vp, const vms_vector &bo
 	return std::min(entry_extent, fixdiv(box_size_p, abs_vp_p));
 }
 
+[[nodiscard]]
 static fix compute_bounding_box_extents(const vms_vector &vp, const vms_vector *const box_size)
 {
 	return box_size
