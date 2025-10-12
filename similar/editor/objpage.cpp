@@ -77,7 +77,7 @@ static constexpr std::size_t Num_reactors{1};
 
 static object_dialog objpage_dialog;
 
-static void draw_model_picture(const enumerated_array<polymodel, MAX_POLYGON_MODELS, polygon_model_index> &Polygon_models, grs_canvas &canvas, const polygon_model_index model_num, const vms_angvec &orient_angles)
+static void draw_model_picture(const per_polygon_model_array<polymodel> &Polygon_models, grs_canvas &canvas, const polygon_model_index model_num, const vms_angvec &orient_angles)
 {
 	draw_model_picture(canvas, Polygon_models[model_num], orient_angles);
 }

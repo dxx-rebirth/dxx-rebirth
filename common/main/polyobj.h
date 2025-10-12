@@ -64,8 +64,11 @@ constexpr std::size_t MAX_POLYGON_MODELS{+
 struct robot_info;
 struct glow_values_t;
 
+template <typename T>
+using per_polygon_model_array = enumerated_array<T, MAX_POLYGON_MODELS, polygon_model_index>;
+
 //for each model, a model number for dying & dead variants, or polygon_model_index::None if none
-extern enumerated_array<polygon_model_index, MAX_POLYGON_MODELS, polygon_model_index> Dying_modelnums, Dead_modelnums;
+extern per_polygon_model_array<polygon_model_index> Dying_modelnums, Dead_modelnums;
 }
 #endif
 
@@ -137,9 +140,9 @@ namespace dsx {
  */
 struct d_level_shared_polygon_model_state : ::dcx::d_level_shared_polygon_model_state
 {
-	enumerated_array<polymodel, MAX_POLYGON_MODELS, polygon_model_index> Polygon_models;
+	per_polygon_model_array<polymodel> Polygon_models;
 	// array of names of currently-loaded models
-	enumerated_array<char[FILENAME_LEN], MAX_POLYGON_MODELS, polygon_model_index> Pof_names;
+	per_polygon_model_array<char[FILENAME_LEN]> Pof_names;
 #if DXX_BUILD_DESCENT == 2
 	//the model number of the marker object
 	polygon_model_index Marker_model_num = polygon_model_index::None;
@@ -176,7 +179,7 @@ public:
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {
 // draw a polygon model
-void draw_polygon_model(const enumerated_array<polymodel, MAX_POLYGON_MODELS, polygon_model_index> &, grs_canvas &, tmap_drawer_type tmap_drawer_ptr, const vms_vector &pos, const vms_matrix &orient, submodel_angles anim_angles, const polygon_model_index model_num, unsigned flags, g3s_lrgb light, const glow_values_t *glow_values, alternate_textures);
+void draw_polygon_model(const per_polygon_model_array<polymodel> &, grs_canvas &, tmap_drawer_type tmap_drawer_ptr, const vms_vector &pos, const vms_matrix &orient, submodel_angles anim_angles, const polygon_model_index model_num, unsigned flags, g3s_lrgb light, const glow_values_t *glow_values, alternate_textures);
 void draw_polygon_model(grs_canvas &, tmap_drawer_type tmap_drawer_ptr, const vms_vector &pos, const vms_matrix &orient, submodel_angles anim_angles, const polymodel &model_num, unsigned flags, g3s_lrgb light, const glow_values_t *glow_values, alternate_textures);
 }
 #endif

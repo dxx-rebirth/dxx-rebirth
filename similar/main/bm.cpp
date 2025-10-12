@@ -89,8 +89,8 @@ static void bm_free_extra_objbitmaps();
 #endif
 
 Textures_array Textures;		// All textures.
-//for each model, a model number for dying & dead variants, or -1 if none
-enumerated_array<polygon_model_index, MAX_POLYGON_MODELS, polygon_model_index> Dying_modelnums, Dead_modelnums;
+//for each model, a model number for dying & dead variants, or polygon_model_index::None if none
+per_polygon_model_array<polygon_model_index> Dying_modelnums, Dead_modelnums;
 }
 
 //right now there's only one player ship, but we can have another by

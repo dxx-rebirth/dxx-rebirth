@@ -80,7 +80,7 @@ namespace dcx {
 
 namespace {
 
-using savegame_pof_names_type = enumerated_array<char[FILENAME_LEN], MAX_POLYGON_MODELS, polygon_model_index>;
+using savegame_pof_names_type = per_polygon_model_array<char[FILENAME_LEN]>;
 constexpr uint16_t GAME_COMPATIBLE_VERSION{22};
 
 }

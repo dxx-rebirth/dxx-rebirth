@@ -1241,7 +1241,7 @@ static void init_spinning_robot(grs_canvas &canvas, briefing &br) //(int x,int y
 	br.robot_canv = create_spinning_robot_sub_canvas(canvas);
 }
 
-static void show_spinning_robot_frame(const enumerated_array<polymodel, MAX_POLYGON_MODELS, polygon_model_index> &Polygon_models, const d_robot_info_array &Robot_info, briefing &br, const robot_id robot_num)
+static void show_spinning_robot_frame(const per_polygon_model_array<polymodel> &Polygon_models, const d_robot_info_array &Robot_info, briefing &br, const robot_id robot_num)
 {
 	br.robot_angles.p = br.robot_angles.b = 0;
 	br.robot_angles.h += 150;

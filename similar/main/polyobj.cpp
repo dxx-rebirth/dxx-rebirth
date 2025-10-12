@@ -407,7 +407,7 @@ void free_model(polymodel &po)
 
 namespace dsx {
 
-void draw_polygon_model(const enumerated_array<polymodel, MAX_POLYGON_MODELS, polygon_model_index> &Polygon_models, grs_canvas &canvas, const tmap_drawer_type tmap_drawer_ptr, const vms_vector &pos, const vms_matrix &orient, const submodel_angles anim_angles, const polygon_model_index model_num, const unsigned flags, const g3s_lrgb light, const glow_values_t *const glow_values, const alternate_textures alt_textures)
+void draw_polygon_model(const per_polygon_model_array<polymodel> &Polygon_models, grs_canvas &canvas, const tmap_drawer_type tmap_drawer_ptr, const vms_vector &pos, const vms_matrix &orient, const submodel_angles anim_angles, const polygon_model_index model_num, const unsigned flags, const g3s_lrgb light, const glow_values_t *const glow_values, const alternate_textures alt_textures)
 {
 	draw_polygon_model(canvas, tmap_drawer_ptr, pos, orient, anim_angles, Polygon_models[model_num], flags, light, glow_values, alt_textures);
 }
