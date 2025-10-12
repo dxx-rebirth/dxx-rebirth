@@ -297,10 +297,10 @@ class ConfigureTests:
 		std: int = 20
 	class CxxRequiredFeatures:
 		__slots__ = ('features', 'main', 'text')
-		features: list['CxxRequiredFeature']
+		features: tuple['CxxRequiredFeature']
 		main: str
 		text: str
-		def __init__(self, features: list['CxxRequiredFeature']):
+		def __init__(self, features: tuple['CxxRequiredFeature']):
 			self.features = features
 			s = '/* C++{} {} */\n{}'.format
 			self.main = '\n'.join((s(f.std, f.name, f.main) for f in features if f.main))
@@ -471,7 +471,7 @@ class ConfigureTests:
 	custom_tests = _custom_test.tests
 	comment_not_supported = '/* not supported */'
 	__python_import_struct = None
-	__cxx_std_required_features = CxxRequiredFeatures([
+	__cxx_std_required_features = CxxRequiredFeatures((
 		# As of this writing, <gcc-12 is already unsupported, but some
 		# platforms, such as Ubuntu 22.04, still try to use gcc-11 by default.
 		# Use this test both to verify that Class Template Argument Deduction
@@ -837,7 +837,7 @@ I%(N)s a%(N)s()
 	(void)i;
 '''
 ),
-])
+))
 	def __init__(self,msgprefix,user_settings,platform_settings):
 		self.msgprefix = msgprefix
 		self.user_settings = user_settings
