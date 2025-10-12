@@ -57,7 +57,7 @@ enum class vertex_array_side_type : bool
 	triangle,
 };
 
-#if DXX_BUILD_DESCENT == 2 || DXX_USE_EDITOR
+#if (defined(DXX_BUILD_DESCENT) && DXX_BUILD_DESCENT == 2) || DXX_USE_EDITOR
 #define DXX_internal_feature_lighting_hack	1
 enum class lighting_hack : bool
 {
@@ -103,6 +103,7 @@ side_vertnum_list_t get_side_verts(const shared_segment &segnum, sidenum_t siden
 
 enum class wall_is_doorway_mask : uint8_t;
 
+#ifdef DXX_BUILD_DESCENT
 #if DXX_USE_EDITOR
 //      Create all vertex lists (1 or 2) for faces on a side.
 //      Sets:
@@ -171,6 +172,7 @@ void validate_segment_side(fvcvertptr &, vmsegptridx_t sp, sidenum_t sidenum);
 
 [[nodiscard]]
 vms_vector pick_random_point_in_seg(fvcvertptr &vcvertptr, const shared_segment &sp, std::minstd_rand r);
+#endif
 
 }
 
