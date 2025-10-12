@@ -1089,7 +1089,7 @@ static void collide_robot_and_player(const d_robot_info_array &Robot_info, const
 	if (check_collision_delayfunc_exec())
 	{
 		const auto &&player_segp = Segments.vmptridx(playerobj->segnum);
-		const auto &&collision_seg = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, collision_point, player_segp);
+		const auto &&collision_seg{find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, collision_point, player_segp DXX_lighting_hack_pass_parameter)};
 
 #if DXX_BUILD_DESCENT == 2
 		// added this if to remove the bump sound if it's the thief.
@@ -1577,7 +1577,7 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_robot_info_
 		const auto tvec1 = vm_vec_normalized_quick(vm_vec_build_sub(collision_point, robot.pos));
 		dot = vm_vec_build_dot(tvec1, robot.orient.fvec);
 		if (dot > Boss_invulnerable_dot()) {
-			if (const auto &&segp = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, collision_point, Segments.vmptridx(robot.segnum)))
+			if (const auto &&segp{find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, collision_point, Segments.vmptridx(robot.segnum) DXX_lighting_hack_pass_parameter)})
 				digi_link_sound_to_pos(sound_effect::SOUND_WEAPON_HIT_DOOR, segp, sidenum_t::WLEFT, collision_point, 0, F1_0);
 			if (BuddyState.Buddy_objnum != object_none)
 			{
@@ -1626,7 +1626,7 @@ static boss_weapon_collision_result do_boss_weapon_collision(const d_robot_info_
 			? Boss_invulnerable_matter
 			: Boss_invulnerable_energy)[d2_boss_index])
 	{
-		if (const auto &&segp = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, collision_point, Segments.vmptridx(robot.segnum)))
+		if (const auto &&segp{find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, collision_point, Segments.vmptridx(robot.segnum) DXX_lighting_hack_pass_parameter)})
 			digi_link_sound_to_pos(sound_effect::SOUND_WEAPON_HIT_DOOR, segp, sidenum_t::WLEFT, collision_point, 0, F1_0);
 		return boss_weapon_collision_result::invulnerable;
 	}
@@ -2000,7 +2000,7 @@ void drop_player_eggs(const vmobjptridx_t playerobj)
 		{
 			const auto randvec = make_random_vector();
 			const auto tvec = vm_vec_build_add(playerobj->pos, randvec);
-			const auto &&newseg = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, tvec, Segments.vmptridx(playerobj->segnum));
+			const auto &&newseg{find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, tvec, Segments.vmptridx(playerobj->segnum) DXX_lighting_hack_pass_parameter)};
 			if (newseg != segment_none)
 			{
 				-- mines;

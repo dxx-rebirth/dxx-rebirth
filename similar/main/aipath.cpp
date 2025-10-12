@@ -113,10 +113,10 @@ static uint_fast32_t insert_center_points(segment_array &segments, point_seg *ps
 		vm_vec_sub(psegs[2*i-1].point, center_point, new_point);
 #if DXX_BUILD_DESCENT == 2
 		const auto &&segp = segments.imptridx(psegs[2*i].segnum);
-		const auto &&temp_segnum = find_point_seg(LevelSharedSegmentState, psegs[2*i-1].point, segp);
+		const auto &&temp_segnum{find_point_seg(LevelSharedSegmentState, psegs[2*i-1].point, segp DXX_lighting_hack_pass_parameter)};
 		if (temp_segnum == segment_none) {
 			psegs[2*i-1].point = center_point;
-			find_point_seg(LevelSharedSegmentState, psegs[2*i-1].point, segp);
+			find_point_seg(LevelSharedSegmentState, psegs[2*i-1].point, segp DXX_lighting_hack_pass_parameter);
 		}
 #endif
 
@@ -163,7 +163,7 @@ static void move_towards_outside(const d_level_shared_segment_state &LevelShared
 		segnum_t			segnum;
 		vms_vector	e;
 		int			count;
-		const auto &&temp_segnum = find_point_seg(LevelSharedSegmentState, psegs[i].point, Segments.vcptridx(psegs[i].segnum));
+		const auto &&temp_segnum{find_point_seg(LevelSharedSegmentState, psegs[i].point, Segments.vcptridx(psegs[i].segnum) DXX_lighting_hack_pass_parameter)};
 		Assert(temp_segnum != segment_none);
 		psegs[i].segnum = temp_segnum;
 		segnum = psegs[i].segnum;
@@ -243,7 +243,7 @@ static void move_towards_outside(const d_level_shared_segment_state &LevelShared
 		}
 
 		//	Only move towards outside if remained inside segment.
-		const auto &&new_segnum = find_point_seg(LevelSharedSegmentState, goal_pos, Segments.vcptridx(psegs[i].segnum));
+		const auto &&new_segnum{find_point_seg(LevelSharedSegmentState, goal_pos, Segments.vcptridx(psegs[i].segnum) DXX_lighting_hack_pass_parameter)};
 		if (new_segnum == psegs[i].segnum) {
 			new_psegs[i].point = goal_pos;
 			new_psegs[i].segnum = new_segnum;

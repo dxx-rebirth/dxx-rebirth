@@ -832,7 +832,7 @@ player_visibility_state player_is_visible_from_object(const d_robot_info_array &
 	if (pos.x != obj.pos.x || pos.y != obj.pos.y || pos.z != obj.pos.z)
 	{
 		auto &Segments = LevelSharedSegmentState.get_segments();
-		const auto &&segnum = find_point_seg(LevelSharedSegmentState, pos, Segments.vcptridx(obj.segnum));
+		const auto &&segnum{find_point_seg(LevelSharedSegmentState, pos, Segments.vcptridx(obj.segnum) DXX_lighting_hack_pass_parameter)};
 		if (segnum == segment_none) {
 			startseg = obj.segnum;
 			pos = obj.pos;
@@ -1252,7 +1252,7 @@ static void ai_fire_laser_at_player(const d_robot_info_array &Robot_info, const 
 		//	See if these segments are connected, which should almost always be the case.
 		auto &Segments = LevelSharedSegmentState.get_segments();
 		const auto &&csegp = Segments.vcptridx(obj->segnum);
-		const auto &&gun_segnum = find_point_seg(LevelSharedSegmentState, fire_point, csegp);
+		const auto &&gun_segnum{find_point_seg(LevelSharedSegmentState, fire_point, csegp DXX_lighting_hack_pass_parameter)};
 		const auto conn_side = find_connect_side(gun_segnum, csegp);
 		if (conn_side != side_none)
 		{
@@ -2499,7 +2499,7 @@ imobjptridx_t boss_spew_robot(const d_robot_info_array &Robot_info, const object
 	assert(Boss_spew_more.valid_index(boss_index));
 
 	auto &Segments = LevelUniqueSegmentState.get_segments();
-	const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos, Segments.vmptridx(objp.segnum));
+	const auto &&segnum{find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos, Segments.vmptridx(objp.segnum) DXX_lighting_hack_pass_parameter)};
 	if (segnum == segment_none) {
 		return object_none;
 	}	

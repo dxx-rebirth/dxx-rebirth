@@ -139,7 +139,7 @@ int SaveGameData()
 
 			ConsoleObject->pos = save_pos;
 			const auto &&save_segp = vmsegptridx(save_segnum);
-			auto found_save_segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, save_pos, save_segp);
+			auto found_save_segnum{find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, save_pos, save_segp DXX_lighting_hack_pass_parameter)};
 			if (found_save_segnum == segment_none) {
 				found_save_segnum = save_segp;
 				auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();

@@ -481,7 +481,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 			if (n == segment_none)
 			{
 				//Int3();
-				if (obj->type == OBJ_PLAYER && (n = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, obj_previous_position, obj_segp)) != segment_none)
+				if (obj->type == OBJ_PLAYER && (n = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, obj_previous_position, obj_segp DXX_lighting_hack_pass_parameter)) != segment_none)
 				{
 					obj->pos = obj_previous_position;
 					obj_relink(vmobjptr, Segments.vmptr, obj, n);
@@ -755,7 +755,7 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 		{
 			segnum_t n;
 			const auto &&obj_segp = Segments.vmptridx(obj->segnum);
-			if (obj->type == OBJ_PLAYER && (n = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, obj_previous_position, obj_segp)) != segment_none)
+			if (obj->type == OBJ_PLAYER && (n = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, obj_previous_position, obj_segp DXX_lighting_hack_pass_parameter)) != segment_none)
 			{
 				obj->pos = obj_previous_position;
 				obj_relink(vmobjptr, Segments.vmptr, obj, Segments.vmptridx(n));

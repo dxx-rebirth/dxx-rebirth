@@ -708,7 +708,7 @@ void create_small_fireball_on_object(const vmobjptridx_t objp, fix size_scale, i
 	size = fixmul(size_scale, F1_0/2 + d_rand()*4/2);
 #endif
 
-	const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos, Segments.vmptridx(objp->segnum));
+	const auto &&segnum{find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos, Segments.vmptridx(objp->segnum) DXX_lighting_hack_pass_parameter)};
 	if (segnum != segment_none) {
 		const auto &&expl_obj = object_create_explosion_without_damage(Vclip, segnum, pos, size, vclip_index::small_explosion);
 		if (!expl_obj)
@@ -1197,7 +1197,7 @@ imobjptridx_t obj_create(d_level_unique_object_state &LevelUniqueObjectState, co
 	auto &vcvertptr = Vertices.vcptr;
 	if (get_seg_masks(vcvertptr, pos, segnum, 0).centermask != sidemask_t{})
 	{
-		const auto &&p = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos, segnum);
+		const auto &&p{find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos, segnum DXX_lighting_hack_pass_parameter)};
 		if (p == segment_none) {
 			return object_none;		//don't create this object
 		}
@@ -1263,7 +1263,7 @@ imobjptridx_t obj_create(d_level_unique_object_state &LevelUniqueObjectState, co
 	obj->shields 				= 20*F1_0;
 
 	{
-		const auto &&p = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos, segnum);		//find correct segment
+		const auto &&p{find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos, segnum DXX_lighting_hack_pass_parameter)};		//find correct segment
 		// Previously this was only an assert check.  Now it is also
 		// checked at runtime.
 		segnum = p;
@@ -2263,7 +2263,7 @@ void reset_objects(d_level_unique_object_state &LevelUniqueObjectState, const un
 imsegptridx_t find_object_seg(const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &LevelUniqueSegmentState, const object_base &obj)
 {
 	auto &Segments = LevelUniqueSegmentState.get_segments();
-	return find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, obj.pos, Segments.vmptridx(obj.segnum));
+	return find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, obj.pos, Segments.vmptridx(obj.segnum) DXX_lighting_hack_pass_parameter);
 }
 
 

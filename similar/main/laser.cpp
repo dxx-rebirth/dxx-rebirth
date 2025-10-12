@@ -494,7 +494,7 @@ static bool create_omega_blobs(d_level_unique_object_state &LevelUniqueObjectSta
 
 		const auto temp_pos{vm_vec_scale_add(blob_pos, perturb_vec, perturb_array[i])};
 
-		const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, temp_pos, last_segnum);
+		const auto &&segnum{find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, temp_pos, last_segnum DXX_lighting_hack_pass_parameter)};
 		if (segnum != segment_none) {
 			last_segnum = segnum;
 			const auto &&objp = obj_weapon_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, Weapon_info, weapon_id_type::OMEGA_ID, segnum, temp_pos, 0, render_type::RT_WEAPON_VCLIP);
@@ -612,7 +612,7 @@ static void do_omega_stuff(fvmsegptridx &vmsegptridx, const vmobjptridx_t parent
 
 	const auto &&lock_objnum = find_homing_object(firing_pos, weapon_objp);
 
-	const auto &&firing_segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, firing_pos, Segments.vmptridx(parent_objp->segnum));
+	const auto &&firing_segnum{find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, firing_pos, Segments.vmptridx(parent_objp->segnum) DXX_lighting_hack_pass_parameter)};
 
 	// -- if ((Last_omega_muzzle_flash_time + F1_0/4 < GameTime) || (Last_omega_muzzle_flash_time > GameTime)) {
 	// -- 	do_muzzle_stuff(firing_segnum, firing_pos);
@@ -866,7 +866,7 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 #endif
 	{
 	 	const auto end_pos{vm_vec_scale_add(obj->pos, direction, (laser_length / 2))};
-		const auto &&end_segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, end_pos, Segments.vmptridx(obj->segnum));
+		const auto &&end_segnum{find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, end_pos, Segments.vmptridx(obj->segnum) DXX_lighting_hack_pass_parameter)};
 		if (end_segnum != obj->segnum) {
 			if (end_segnum != segment_none) {
 				obj->pos = end_pos;

@@ -864,7 +864,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 			vm_vec_scale_add2(tpnt,ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*15);
 			vm_vec_scale_add2(tpnt,ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*15);
 
-			const auto &&segnum = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, tpnt, Segments.vmptridx(ConsoleObject->segnum));
+			const auto &&segnum{find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, tpnt, Segments.vmptridx(ConsoleObject->segnum) DXX_lighting_hack_pass_parameter)};
 
 			if (segnum != segment_none) {
 				object_create_explosion_without_damage(Vclip, segnum, tpnt, i2f(20), vclip_index::big_player_explosion);
@@ -1140,7 +1140,7 @@ static void endlevel_render_mine(const d_level_shared_segment_state &LevelShared
 		start_seg_num = PlayerUniqueEndlevelState.exit_segnum;
 	}
 	else {
-		start_seg_num = find_point_seg(LevelSharedSegmentState, Viewer_eye, Segments.vcptridx(Viewer->segnum));
+		start_seg_num = find_point_seg(LevelSharedSegmentState, Viewer_eye, Segments.vcptridx(Viewer->segnum) DXX_lighting_hack_pass_parameter);
 
 		if (start_seg_num==segment_none)
 			start_seg_num = Viewer->segnum;

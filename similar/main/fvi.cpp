@@ -666,7 +666,7 @@ fvi_hit_type find_vector_intersection(const fvi_query fq, const segnum_t startse
 	if (hit_seg2 != segment_none && get_seg_masks(vcvertptr, hit_pnt, vcsegptr(hit_seg2), 0).centermask == sidemask_t{})
 		hit_seg = hit_seg2;
 	else
-		hit_seg = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, hit_pnt, imsegptridx(startseg));
+		hit_seg = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, hit_pnt, imsegptridx(startseg) DXX_lighting_hack_pass_parameter);
 
 //MATT: TAKE OUT THIS HACK AND FIX THE BUGS!
 	if (hit_type == fvi_hit_type::Wall && hit_seg == segment_none)

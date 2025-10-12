@@ -187,7 +187,12 @@ int check_segment_connections();
 namespace dsx {
 
 #if DXX_internal_feature_lighting_hack
+#define DXX_lighting_hack_decl_parameter	, const lighting_hack Doing_lighting_hack_flag
+#define DXX_lighting_hack_pass_parameter	, Doing_lighting_hack_flag
 extern lighting_hack Doing_lighting_hack_flag;
+#else
+#define DXX_lighting_hack_decl_parameter	/* empty */
+#define DXX_lighting_hack_pass_parameter	/* empty */
 #endif
 
 //this macro returns true if the segnum for an object is correct
@@ -197,9 +202,9 @@ extern lighting_hack Doing_lighting_hack_flag;
 // 1. Check the given segment
 // 2. Recursively trace through attached segments
 // 3. Check all the segmentns
-//Returns segnum if found, or -1
-imsegptridx_t find_point_seg(const d_level_shared_segment_state &, d_level_unique_segment_state &, const vms_vector &p, imsegptridx_t segnum);
-icsegptridx_t find_point_seg(const d_level_shared_segment_state &, const vms_vector &p, icsegptridx_t segnum);
+//Returns segnum if found, or segment_none
+imsegptridx_t find_point_seg(const d_level_shared_segment_state &, d_level_unique_segment_state &, const vms_vector &p, imsegptridx_t segnum DXX_lighting_hack_decl_parameter);
+icsegptridx_t find_point_seg(const d_level_shared_segment_state &, const vms_vector &p, icsegptridx_t segnum DXX_lighting_hack_decl_parameter);
 
 //      ----------------------------------------------------------------------------------------------------------
 //      Determine whether seg0 and seg1 are reachable using wid_flag to go through walls.

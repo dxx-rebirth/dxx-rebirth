@@ -1282,7 +1282,7 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
 	#endif
 
 	const auto &&viewer_segp = Segments.vmptridx(Viewer->segnum);
-	auto start_seg_num = find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, Viewer_eye, viewer_segp);
+	auto start_seg_num{find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, Viewer_eye, viewer_segp DXX_lighting_hack_pass_parameter)};
 
 	if (start_seg_num==segment_none)
 		start_seg_num = viewer_segp;

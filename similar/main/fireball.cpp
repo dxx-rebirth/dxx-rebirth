@@ -1704,13 +1704,13 @@ void drop_afterburner_blobs(object &obj, int count, fix size_scale, fix lifetime
 
 	const auto &&objseg{Segments.vmptridx(obj.segnum)};
 	{
-		const auto &&segnum{find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos_left, objseg)};
+		const auto &&segnum{find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos_left, objseg DXX_lighting_hack_pass_parameter)};
 	if (segnum != segment_none)
 		object_create_explosion_without_damage(Vclip, segnum, pos_left, size_scale, vclip_index::afterburner_blob);
 	}
 
 	if (count > 1) {
-		const auto &&segnum{find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos_right, objseg)};
+		const auto &&segnum{find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, pos_right, objseg DXX_lighting_hack_pass_parameter)};
 		if (segnum != segment_none) {
 			const auto &&blob_obj{object_create_explosion_without_damage(Vclip, segnum, pos_right, size_scale, vclip_index::afterburner_blob)};
 			if (lifetime != -1 && blob_obj != object_none)

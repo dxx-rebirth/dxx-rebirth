@@ -834,9 +834,9 @@ constexpr vm_distance fcd_abort_return_value{-1};
 lighting_hack Doing_lighting_hack_flag{lighting_hack::normal};
 #endif
 
-imsegptridx_t find_point_seg(const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &, const vms_vector &p, const imsegptridx_t segnum)
+imsegptridx_t find_point_seg(const d_level_shared_segment_state &LevelSharedSegmentState, d_level_unique_segment_state &, const vms_vector &p, const imsegptridx_t segnum DXX_lighting_hack_decl_parameter)
 {
-	return segnum.rebind_policy(find_point_seg(LevelSharedSegmentState, p, segnum));
+	return segnum.rebind_policy(find_point_seg(LevelSharedSegmentState, p, segnum DXX_lighting_hack_pass_parameter));
 }
 
 //Tries to find a segment for a point, in the following way:
@@ -844,7 +844,7 @@ imsegptridx_t find_point_seg(const d_level_shared_segment_state &LevelSharedSegm
 // 2. Recursively trace through attached segments
 // 3. Check all the segments
 //Returns segnum if found, or -1
-icsegptridx_t find_point_seg(const d_level_shared_segment_state &LevelSharedSegmentState, const vms_vector &p, const icsegptridx_t segnum)
+icsegptridx_t find_point_seg(const d_level_shared_segment_state &LevelSharedSegmentState, const vms_vector &p, const icsegptridx_t segnum DXX_lighting_hack_decl_parameter)
 {
 	//allow segnum==-1, meaning we have no idea what segment point is in
 	if (segnum != segment_none) {
