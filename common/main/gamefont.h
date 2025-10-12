@@ -77,7 +77,9 @@ struct loaded_game_font
 	grs_font_ptr font;
 };
 
-extern enumerated_array<loaded_game_font, MAX_FONTS, gamefont_index> Gamefonts;
+template <typename T>
+using per_gamefont_index_array = enumerated_array<T, MAX_FONTS, gamefont_index>;
+extern per_gamefont_index_array<loaded_game_font> Gamefonts;
 
 class base_font_scale_proportion
 {

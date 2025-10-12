@@ -44,7 +44,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-enumerated_array<loaded_game_font, MAX_FONTS, gamefont_index> Gamefonts;
+per_gamefont_index_array<loaded_game_font> Gamefonts;
 
 namespace {
 
@@ -59,7 +59,7 @@ using font_filename = std::array<char, 16>;
  * For Descent 1 Mac, `font1-1.fnt` is low-resolution, and the rest are high
  * resolution.
  */
-constexpr enumerated_array<font_filename, MAX_FONTS, gamefont_index> Gamefont_filenames_l{{{
+constexpr per_gamefont_index_array<font_filename> Gamefont_filenames_l{{{
 	{{"font1-1.fnt"}}, // Font 0
 	{{"font2-1.fnt"}}, // Font 1
 	{{"font2-2.fnt"}}, // Font 2
@@ -78,7 +78,7 @@ constexpr enumerated_array<font_filename, MAX_FONTS, gamefont_index> Gamefont_fi
  * In both games, the user can choose not to load these files, via
  * `CGameArg.GfxSkipHiresFNT`.
  */
-constexpr enumerated_array<font_filename, MAX_FONTS, gamefont_index> Gamefont_filenames_h{{{
+constexpr per_gamefont_index_array<font_filename> Gamefont_filenames_h{{{
 	{{"font1-1h.fnt"}}, // Font 0
 	{{"font2-1h.fnt"}}, // Font 1
 	{{"font2-2h.fnt"}}, // Font 2
