@@ -173,7 +173,7 @@ struct player_info
 	player_selected_weapon<primary_weapon_index_t> Primary_weapon;
 	player_selected_weapon<secondary_weapon_index_t> Secondary_weapon;
 	enum laser_level laser_level;
-	enumerated_array<uint8_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t>  secondary_ammo; // How much ammo of each type.
+	per_secondary_weapon_array<uint8_t>  secondary_ammo; // How much ammo of each type.
 	uint8_t Spreadfire_toggle;
 #if DXX_BUILD_DESCENT == 2
 	static constexpr uint8_t max_hoard_orbs{12};

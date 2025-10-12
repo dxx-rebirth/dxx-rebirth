@@ -88,13 +88,15 @@ enum class secondary_weapon_index_t : uint8_t;
 
 template <typename T>
 	using per_primary_weapon_array = enumerated_array<T, MAX_PRIMARY_WEAPONS, primary_weapon_index_t>;
+template <typename T>
+	using per_secondary_weapon_array = enumerated_array<T, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t>;
 extern const per_primary_weapon_array<weapon_id_type> Primary_weapon_to_weapon_info;
 //for each primary weapon, what kind of powerup gives weapon
 extern const per_primary_weapon_array<powerup_type_t> Primary_weapon_to_powerup;
-extern const enumerated_array<weapon_id_type, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_weapon_to_weapon_info;
+extern const per_secondary_weapon_array<weapon_id_type> Secondary_weapon_to_weapon_info;
 //for each Secondary weapon, what kind of powerup gives weapon
-extern const enumerated_array<powerup_type_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_weapon_to_powerup;
-extern const enumerated_array<uint8_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t>    Secondary_ammo_max;
+extern const per_secondary_weapon_array<powerup_type_t> Secondary_weapon_to_powerup;
+extern const per_secondary_weapon_array<uint8_t>    Secondary_ammo_max;
 /*
  * reads n weapon_info structs from a PHYSFS_File
  */
@@ -137,7 +139,7 @@ static constexpr bool is_super_weapon(const secondary_weapon_index_t i)
 //flags whether the last time we use this weapon, it was the 'super' version
 #endif
 //for each Secondary weapon, which gun it fires out of
-extern const enumerated_array<player_gun_number, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_weapon_to_gun_num;
+extern const per_secondary_weapon_array<player_gun_number> Secondary_weapon_to_gun_num;
 }
 
 namespace dcx {

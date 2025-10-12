@@ -68,7 +68,7 @@ constexpr per_primary_weapon_array<weapon_id_type> Primary_weapon_to_weapon_info
 		weapon_id_type::FUSION_ID
 	}
 }};
-const enumerated_array<weapon_id_type, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_weapon_to_weapon_info{{
+constexpr per_secondary_weapon_array<weapon_id_type> Secondary_weapon_to_weapon_info{{
 	{
 		weapon_id_type::CONCUSSION_ID,
 		weapon_id_type::HOMING_ID,
@@ -97,7 +97,7 @@ constexpr per_primary_weapon_array<weapon_id_type> Primary_weapon_to_weapon_info
 		weapon_id_type::OMEGA_ID
 	}
 }};
-const enumerated_array<weapon_id_type, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_weapon_to_weapon_info{{
+constexpr per_secondary_weapon_array<weapon_id_type> Secondary_weapon_to_weapon_info{{
 	{
 		weapon_id_type::CONCUSSION_ID,
 		weapon_id_type::HOMING_ID,
@@ -158,7 +158,7 @@ static T get_alternate_weapon(const T current_weapon, const T base_weapon)
 namespace dsx {
 
 //for each Secondary weapon, which gun it fires out of
-const enumerated_array<player_gun_number, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_weapon_to_gun_num{{{
+constexpr per_secondary_weapon_array<player_gun_number> Secondary_weapon_to_gun_num{{{
 	player_gun_number::_4,
 	player_gun_number::_4,
 	player_gun_number::_7,
@@ -173,7 +173,7 @@ const enumerated_array<player_gun_number, MAX_SECONDARY_WEAPONS, secondary_weapo
 #endif
 }}};
 
-const enumerated_array<uint8_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_ammo_max{{
+constexpr per_secondary_weapon_array<uint8_t> Secondary_ammo_max{{
 	{
 		20, 10, 10, 5, 5,
 #if DXX_BUILD_DESCENT == 2
@@ -201,7 +201,7 @@ constexpr per_primary_weapon_array<powerup_type_t> Primary_weapon_to_powerup{{
 }};
 
 //for each Secondary weapon, what kind of powerup gives weapon
-const enumerated_array<powerup_type_t, MAX_SECONDARY_WEAPONS, secondary_weapon_index_t> Secondary_weapon_to_powerup{{
+constexpr per_secondary_weapon_array<powerup_type_t> Secondary_weapon_to_powerup{{
 	{
 		powerup_type_t::POW_MISSILE_1,
 		powerup_type_t::POW_HOMING_AMMO_1,
