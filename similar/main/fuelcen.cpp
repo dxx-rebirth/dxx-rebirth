@@ -138,9 +138,13 @@ void fuelcen_create(const vmsegptridx_t segp)
 			Error("Invalid station type %d in fuelcen.c\n", underlying_value(station_type));
 	}
 
-	const auto next_fuelcenter_idx = static_cast<station_number>(LevelUniqueFuelcenterState.Num_fuelcenters++);
-	segp->station_idx = next_fuelcenter_idx;
-	auto &station = Station.at(next_fuelcenter_idx);
+	const auto opt_next_fuelcenter_idx{Station.valid_index(LevelUniqueFuelcenterState.Num_fuelcenters)};
+	if (!opt_next_fuelcenter_idx)
+		return;
+	++ LevelUniqueFuelcenterState.Num_fuelcenters;
+	const auto next_fuelcenter_idx{*opt_next_fuelcenter_idx};
+	segp->station_idx = static_cast<station_number>(next_fuelcenter_idx);
+	auto &station{Station[next_fuelcenter_idx]};
 	station.Type = station_type;
 	station.Capacity = Fuelcen_max_amount;
 	station.segnum = segp;
@@ -157,13 +161,18 @@ static void matcen_create(const vmsegptridx_t segp)
 {
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Station = LevelUniqueFuelcenterState.Station;
+	const auto opt_next_fuelcenter_idx{Station.valid_index(LevelUniqueFuelcenterState.Num_fuelcenters)};
+	if (!opt_next_fuelcenter_idx)
+		return;
+	++ LevelUniqueFuelcenterState.Num_fuelcenters;
 	const auto station_type = segp->special;
 
 	assert(station_type == segment_special::robotmaker);
 
-	const auto next_fuelcenter_idx = static_cast<station_number>(LevelUniqueFuelcenterState.Num_fuelcenters++);
-	segp->station_idx = next_fuelcenter_idx;
-	auto &station = Station.at(next_fuelcenter_idx);
+	const auto next_fuelcenter_idx{*opt_next_fuelcenter_idx};
+	const auto next_station_idx{static_cast<station_number>(next_fuelcenter_idx)};
+	auto &station{Station[next_fuelcenter_idx]};
+	segp->station_idx = next_station_idx;
 
 	station.Type = station_type;
 	station.Capacity = i2f(underlying_value(GameUniqueState.Difficulty_level) + 3);
@@ -174,7 +183,7 @@ static void matcen_create(const vmsegptridx_t segp)
 	const auto next_robot_center_idx = static_cast<materialization_center_number>(LevelSharedRobotcenterState.Num_robot_centers++);
 	segp->matcen_num = next_robot_center_idx;
 	auto &robotcenter = RobotCenters[next_robot_center_idx];
-	robotcenter.fuelcen_num = next_fuelcenter_idx;
+	robotcenter.fuelcen_num = next_station_idx;
 	robotcenter.segnum = segp;
 }
 
