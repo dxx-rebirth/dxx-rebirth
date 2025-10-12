@@ -39,7 +39,7 @@ namespace dcx {
 
 struct d_level_unique_light_state
 {
-	enumerated_array<g3s_lrgb, MAX_VERTICES, vertnum_t> Dynamic_light;
+	per_vertex_array<g3s_lrgb> Dynamic_light;
 };
 
 }

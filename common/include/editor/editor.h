@@ -202,7 +202,7 @@ extern void init_all_vertices(void);
 }
 #endif
 
-void med_combine_duplicate_vertices(enumerated_array<uint8_t, MAX_VERTICES, vertnum_t> &);
+void med_combine_duplicate_vertices(per_vertex_array<uint8_t> &);
 
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {

@@ -581,7 +581,7 @@ static void compress_segments(void)
 //	Combine duplicate vertices.
 //	If two vertices have the same coordinates, within some small tolerance, then assign
 //	the same vertex number to the two vertices, freeing up one of the vertices.
-void med_combine_duplicate_vertices(enumerated_array<uint8_t, MAX_VERTICES, vertnum_t> &vlp)
+void med_combine_duplicate_vertices(per_vertex_array<uint8_t> &vlp)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();

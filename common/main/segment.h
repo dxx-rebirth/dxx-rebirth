@@ -457,7 +457,7 @@ struct d_level_shared_vertex_state
 private:
 	vertex_array Vertices;
 #if DXX_USE_EDITOR
-	enumerated_array<uint8_t, MAX_VERTICES, vertnum_t> Vertex_active; // !0 means vertex is in use, 0 means not in use.
+	per_vertex_array<uint8_t> Vertex_active; // !0 means vertex is in use, 0 means not in use.
 #endif
 public:
 	auto &get_vertices()

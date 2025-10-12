@@ -613,7 +613,7 @@ static fix compute_headlight_light_on_object(const d_level_unique_headlight_stat
 namespace {
 
 //compute the average dynamic light in a segment.  Takes the segment number
-static g3s_lrgb compute_seg_dynamic_light(const enumerated_array<g3s_lrgb, MAX_VERTICES, vertnum_t> &Dynamic_light, const shared_segment &seg)
+static g3s_lrgb compute_seg_dynamic_light(const per_vertex_array<g3s_lrgb> &Dynamic_light, const shared_segment &seg)
 {
 	const auto &&op = [&Dynamic_light](g3s_lrgb r, const vertnum_t v) {
 		r.r += Dynamic_light[v].r;

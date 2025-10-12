@@ -113,6 +113,9 @@ constexpr constant_xrange<side_relative_vertnum, side_relative_vertnum{0}, side_
 
 template <typename T>
 using per_segment_array = enumerated_array<T, MAX_SEGMENTS, segnum_t>;
+
+template <typename T>
+using per_vertex_array = enumerated_array<T, MAX_VERTICES, vertnum_t>;
 }
 
 /* `vertex` has only integer members, so wild reads are unlikely to
