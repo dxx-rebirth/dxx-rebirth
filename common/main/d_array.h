@@ -42,16 +42,8 @@ struct enumerated_array : std::array<T, N>
 	using index_type = E;
 	using typename base_type::reference;
 	using typename base_type::const_reference;
-	[[nodiscard]]
-	constexpr reference at(E position)
-	{
-		return this->base_type::at(static_cast<std::size_t>(position));
-	}
-	[[nodiscard]]
-	constexpr const_reference at(E position) const
-	{
-		return this->base_type::at(static_cast<std::size_t>(position));
-	}
+	constexpr reference at(index_type position) = delete;
+	constexpr const_reference at(index_type position) const = delete;
 	[[nodiscard]]
 	constexpr reference operator[](E position)
 	{
