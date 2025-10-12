@@ -215,7 +215,7 @@ morph_data::morph_data(object_base &o, const max_vectors m) :
 	obj(&o), Morph_sig(o.signature), max_vecs(m)
 {
 	DXX_POISON_VAR(submodel_active, 0xcc);
-	DXX_POISON_MEMORY(get_morph_times(), 0xcc);
+	std::ranges::fill(get_morph_times(), fix{});
 	DXX_POISON_MEMORY(get_morph_vecs(), 0xcc);
 	DXX_POISON_MEMORY(get_morph_deltas(), 0xcc);
 	DXX_POISON_VAR(n_morphing_points, 0xcc);
@@ -498,9 +498,6 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 		.z = max(-pmmin.z, pmmax.z) / 2
 	};
 
-	//clear all points
-	const auto morph_times{md->get_morph_times()};
-	std::fill(morph_times.begin(), morph_times.end(), fix{});
 	//clear all parts
 	md->submodel_active = {};
 
