@@ -3383,7 +3383,7 @@ void update_item_state::process_powerup(const d_vclip_array &Vclip, fvmsegptridx
 class accumulate_object_count
 {
 protected:
-	using array_reference = enumerated_array<uint32_t, MAX_POWERUP_TYPES, powerup_type_t> &;
+	using array_reference = per_powerup_type_array<uint32_t> &;
 	array_reference current;
 	accumulate_object_count(array_reference a) : current(a)
 	{

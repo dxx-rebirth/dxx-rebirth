@@ -59,8 +59,11 @@ constexpr std::integral_constant<unsigned, 392> GAUSS_WEAPON_AMMO_AMOUNT{};
 constexpr std::integral_constant<unsigned, 50> MAX_POWERUP_TYPES{};
 #endif
 
+template <typename T>
+	using per_powerup_type_array = enumerated_array<T, MAX_POWERUP_TYPES, powerup_type_t>;
+
 #if DXX_USE_EDITOR
-using powerup_names_array = enumerated_array<std::array<char, POWERUP_NAME_LENGTH>, MAX_POWERUP_TYPES, powerup_type_t>;
+using powerup_names_array = per_powerup_type_array<std::array<char, POWERUP_NAME_LENGTH>>;
 extern powerup_names_array Powerup_names;
 #endif
 

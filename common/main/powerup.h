@@ -105,7 +105,7 @@ enum class powerup_type_t : uint8_t
 #endif
 };
 
-using d_powerup_info_array = enumerated_array<powerup_type_info, MAX_POWERUP_TYPES, powerup_type_t>;
+using d_powerup_info_array = per_powerup_type_array<powerup_type_info>;
 extern d_powerup_info_array Powerup_info;
 }
 #endif
