@@ -118,12 +118,11 @@ constexpr std::integral_constant<std::size_t, 20> MAX_CLIP_FRAMES_D1{};
 #if DXX_BUILD_DESCENT == 2
 namespace dsx {
 struct cloaking_wall;
-constexpr std::integral_constant<std::size_t, 10> MAX_CLOAKING_WALLS{};
 enum class clwallnum_t : uint8_t
 {
 };
 }
-DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::, cloaking_wall, clwallnum_t, dsx::MAX_CLOAKING_WALLS);
+DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::, cloaking_wall, clwallnum_t, /* MAX_CLOAKING_WALLS = */ 10);
 namespace dsx {
 DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(cloaking_wall, clwall);
 }
