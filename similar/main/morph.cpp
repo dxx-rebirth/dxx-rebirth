@@ -212,7 +212,10 @@ morph_data::ptr morph_data::create(object_base &o, const polymodel &pm, const po
 }
 
 morph_data::morph_data(object_base &o, const max_vectors m) :
-	obj{&o}, Morph_sig{o.signature}, max_vecs{m}
+	obj{&o}, Morph_sig{o.signature},
+	morph_save_control_type{o.control_source},
+	morph_save_movement_type{o.movement_source}, max_vecs{m},
+	morph_save_phys_info{o.mtype.phys_info}
 {
 	std::ranges::fill(get_morph_times(), fix{});
 	DXX_POISON_MEMORY(get_morph_vecs(), 0xcc);
@@ -476,11 +479,6 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 	morph_data *const md{moi->get()};
 
 	assert(obj.render_type == render_type::RT_POLYOBJ);
-
-	md->morph_save_control_type = obj.control_source;
-	md->morph_save_movement_type = obj.movement_source;
-	md->morph_save_phys_info = obj.mtype.phys_info;
-
 	assert(obj.control_source == object::control_type::ai);		//morph objects are also AI objects
 
 	obj.control_source = object::control_type::morph;
@@ -496,8 +494,6 @@ void morph_start(d_level_unique_morph_object_state &LevelUniqueMorphObjectState,
 		.y = max(-pmmin.y, pmmax.y) / 2,
 		.z = max(-pmmin.z, pmmax.z) / 2
 	};
-
-	md->n_submodels_active = 1;
 
 	//now, project points onto surface of box
 
