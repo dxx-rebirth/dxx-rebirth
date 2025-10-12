@@ -100,8 +100,11 @@ public:
 
 struct submodel_data
 {
-	const uint16_t *body;
-	const unsigned type;
+	const uint16_t *const body;
+	/* `nverts` and `startpoint` could be stored as `uint16_t` due to the
+	 * limited range of the input data.  However, for code generation reasons
+	 * and to avoid spurious narrowing, use a full `unsigned`.
+	 */
 	const unsigned nverts;
 	const unsigned startpoint;
 };
@@ -121,7 +124,11 @@ submodel_data parse_model_data_header(const polymodel &pm, const unsigned submod
 		: throw invalid_morph_model_type(type)
 	};
 	const uint16_t nverts{*pnverts};
-	return {data, type, nverts, startpoint};
+	return {
+		.body = data,
+		.nverts = nverts,
+		.startpoint = startpoint
+	};
 }
 
 [[nodiscard]]
