@@ -293,7 +293,7 @@ struct shared_segment
 	short   group;      // group number to which the segment belongs.
 #endif
 	per_side_array<segnum_t> children;    // indices of 6 children segments, front, left, top, right, bottom, back
-	enumerated_array<vertnum_t, MAX_VERTICES_PER_SEGMENT, segment_relative_vertnum> verts;    // vertex ids of 4 front and 4 back vertices
+	per_segment_relative_vertnum_array<vertnum_t> verts;    // vertex ids of 4 front and 4 back vertices
 	segment_special special;    // what type of center this is
 	materialization_center_number matcen_num; // which center segment is associated with.
 	station_number station_idx;

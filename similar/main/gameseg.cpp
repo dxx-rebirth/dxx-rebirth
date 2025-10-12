@@ -62,7 +62,7 @@ namespace {
 
 class abs_vertex_lists_predicate
 {
-	const enumerated_array<vertnum_t, MAX_VERTICES_PER_SEGMENT, segment_relative_vertnum> &m_vp;
+	const per_segment_relative_vertnum_array<vertnum_t> &m_vp;
 	const per_side_relative_vertnum_array<segment_relative_vertnum> &m_sv;
 public:
 	abs_vertex_lists_predicate(const shared_segment &seg, const sidenum_t sidenum) :
@@ -87,7 +87,7 @@ struct verts_for_normal
 // How far a point can be from a plane, and still be "in" the plane
 #define PLANE_DIST_TOLERANCE	250
 
-static vms_vector compute_center_point_on_side(fvcvertptr &vcvertptr, const enumerated_array<vertnum_t, MAX_VERTICES_PER_SEGMENT, segment_relative_vertnum> &verts, const sidenum_t side)
+static vms_vector compute_center_point_on_side(fvcvertptr &vcvertptr, const per_segment_relative_vertnum_array<vertnum_t> &verts, const sidenum_t side)
 {
 	vms_vector vp{};
 	range_for (auto &v, Side_to_verts[side])
@@ -114,7 +114,7 @@ static void create_vertex_list_from_invalid_side(const shared_segment &segp, con
 
 // Fill in array with four absolute point numbers for a given side
 [[nodiscard]]
-static side_vertnum_list_t get_side_verts(const enumerated_array<vertnum_t, MAX_VERTICES_PER_SEGMENT, segment_relative_vertnum> &vp, const sidenum_t sidenum)
+static side_vertnum_list_t get_side_verts(const per_segment_relative_vertnum_array<vertnum_t> &vp, const sidenum_t sidenum)
 {
 	side_vertnum_list_t vertlist;
 	auto &sv = Side_to_verts[sidenum];

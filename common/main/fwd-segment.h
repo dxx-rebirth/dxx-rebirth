@@ -112,6 +112,9 @@ enum class segment_special : uint8_t;
 constexpr constant_xrange<side_relative_vertnum, side_relative_vertnum{0}, side_relative_vertnum{4}> MAX_VERTICES_PER_SIDE{};
 
 template <typename T>
+using per_segment_relative_vertnum_array = enumerated_array<T, MAX_VERTICES_PER_SEGMENT, segment_relative_vertnum>;
+
+template <typename T>
 using per_side_relative_vertnum_array = enumerated_array<T, 4, side_relative_vertnum>;
 
 template <typename T>
