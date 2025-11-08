@@ -45,13 +45,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "terrain.h"
 #include <memory>
 
-#define GRID_MAX_SIZE   64
-#define GRID_SCALE      i2f(2*20)
-#define HEIGHT_SCALE    f1_0
-
 namespace dcx {
 
 namespace {
+
+constexpr std::size_t GRID_MAX_SIZE{64};
+constexpr fix GRID_SCALE{i2f(2 * 20)};
+constexpr fix HEIGHT_SCALE{f1_0};
 
 static int grid_w,grid_h;
 
@@ -60,9 +60,6 @@ static std::unique_ptr<uint8_t[]> light_array;
 
 #define HEIGHT(_i,_j) (height_array[(_i)*grid_w+(_j)])
 #define LIGHT(_i,_j) light_array[(_i)*grid_w+(_j)]
-
-//!!#define HEIGHT(_i,_j)   height_array[(grid_h-1-j)*grid_w+(_i)]
-//!!#define LIGHT(_i,_j)    light_array[(grid_h-1-j)*grid_w+(_i)]
 
 #define LIGHTVAL(_i,_j) (static_cast<fix>(LIGHT(_i, _j)) << 8)
 
