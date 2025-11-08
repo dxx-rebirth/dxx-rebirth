@@ -53,7 +53,9 @@ constexpr std::size_t GRID_MAX_SIZE{64};
 constexpr fix GRID_SCALE{i2f(2 * 20)};
 constexpr fix HEIGHT_SCALE{f1_0};
 
-static int grid_w,grid_h;
+// Valid values: [0 .. GRID_MAX_SIZE]
+static int grid_w;
+uint8_t g_grid_h;
 
 static RAIIdmem<ubyte[]> height_array;
 static std::unique_ptr<uint8_t[]> light_array;
@@ -210,6 +212,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 	const auto org_i{org_2dy};
 	const auto org_j{org_2dx};
 
+	const std::size_t grid_h{g_grid_h};
 	low_i = 0;  high_i = grid_w-1;
 	low_j = 0;  high_j = grid_h-1;
 
@@ -379,12 +382,16 @@ void load_terrain(const char *filename)
 		Error("File %s - IFF error: %s",filename,iff_errormsg(iff_error));
 	}
 	grid_w = height_bitmap.bm_w;
-	grid_h = height_bitmap.bm_h;
+	const std::size_t grid_h{height_bitmap.bm_h};
 
 	Assert(grid_w <= GRID_MAX_SIZE);
 	Assert(grid_h <= GRID_MAX_SIZE);
 
 	height_array.reset(height_bitmap.get_bitmap_data());
+
+	if (!(grid_h <= GRID_MAX_SIZE)) [[unlikely]]
+		return;
+	g_grid_h = grid_h;
 
 	max_h=0; min_h=255;
 	for (i=0;i<grid_w;i++)
@@ -414,7 +421,7 @@ namespace dcx {
 
 namespace {
 
-static vms_vector get_pnt(int i, int j)
+static vms_vector get_pnt(int i, int j, const std::size_t grid_h)
 {
 	// added on 02/20/99 by adb to prevent overflow
 	if (i >= grid_h) i = grid_h - 1;
@@ -435,19 +442,19 @@ static fix get_face_light(const vms_vector &p0,const vms_vector &p1,const vms_ve
 	return -vm_vec_build_dot(norm,light);
 }
 
-static fix get_avg_light(int i,int j)
+static fix get_avg_light(int i,int j, const std::size_t grid_h)
 {
 	fix sum;
 	int f;
 
-	const auto pp = get_pnt(i, j);
+	const auto pp = get_pnt(i, j, grid_h);
 	const std::array<vms_vector, 6> p{{
-		get_pnt(i - 1, j),
-		get_pnt(i, j - 1),
-		get_pnt(i + 1, j - 1),
-		get_pnt(i + 1, j),
-		get_pnt(i, j + 1),
-		get_pnt(i - 1, j + 1),
+		get_pnt(i - 1, j, grid_h),
+		get_pnt(i, j - 1, grid_h),
+		get_pnt(i + 1, j - 1, grid_h),
+		get_pnt(i + 1, j, grid_h),
+		get_pnt(i, j + 1, grid_h),
+		get_pnt(i - 1, j + 1, grid_h),
 	}};
 
 	for (f=0,sum=0;f<6;f++)
@@ -464,7 +471,7 @@ static std::unique_ptr<uint8_t[]> build_light_table(const std::size_t grid_w, co
 	fix min_l = INT32_MAX, max_l = 0;
 	for (i=1;i<grid_w;i++)
 		for (j=1;j<grid_h;j++) {
-			const auto l{get_avg_light(i, j)};
+			const auto l{get_avg_light(i, j, grid_h)};
 			if (l > max_l)
 				max_l = l;
 			if (l < min_l)
@@ -473,7 +480,7 @@ static std::unique_ptr<uint8_t[]> build_light_table(const std::size_t grid_w, co
 
 	for (i=1;i<grid_w;i++)
 		for (j=1;j<grid_h;j++) {
-			const auto l{get_avg_light(i, j)};
+			const auto l{get_avg_light(i, j, grid_h)};
 
 			if (min_l == max_l) {
 				LIGHT(i,j) = l>>8;
