@@ -171,11 +171,14 @@ class Git(StaticSubprocess):
 	def __pcall_found_git(cls, args: list[str], stderr=None, _pcall=StaticSubprocess.pcall):
 		return _pcall(cls.__path_git + args, stderr=stderr)
 	@classmethod
-	def pcall(cls, args: list[str], stderr=None):
+	def build_path(cls):
 		git = cls.__path_git
 		if git is None:
 			cls.__path_git = git = cls.shlex_split(os.environ.get('GIT', 'git'))
-		cls.pcall = f = cls.__pcall_found_git if git else cls.__pcall_missing_git
+		return git
+	@classmethod
+	def pcall(cls, args: list[str], stderr=None):
+		cls.pcall = f = cls.__pcall_found_git if cls.build_path() else cls.__pcall_missing_git
 		return f(args, stderr)
 	def spcall(cls, args: list[str], stderr=None):
 		g = cls.pcall(args, stderr)
@@ -959,6 +962,22 @@ help:assume C++ compiler works
 		# some tests in _check_cxx_works rely on its original value.
 		cenv['CXXCOM'] = cenv._dxx_cxxcom_no_prefix
 		self._check_cxx_conformance_level(context)
+	def _show_git_version(self, context):
+		if not self.user_settings.git_describe_version:
+			return
+		Display = context.Display
+		tool = Git.build_path()
+		if not tool:
+			Display(f'{self.msgprefix}: checking version of git {tool!r} ... check disabled by blank $GIT\n')
+			return
+		Display(f'{self.msgprefix}: checking version of git {tool!r} ... ')
+		try:
+			v = Git.pcall(['--version'], stderr=subprocess.STDOUT)
+		except OSError as e:
+			if e.errno == errno.ENOENT or e.errno == errno.EACCES:
+				Display(f'error: {e.strerror}\n')
+			return
+		Display(f'failed, error code {v.returncode}\n' if v.returncode else f'{v.out.splitlines()[0]!r}\n')
 	def _show_tool_version(self, context, tool: str, desc: str, save_tool_version: bool = True):
 		# These version results are not used for anything, but are
 		# collected here so that users who post only a build log will
@@ -1029,6 +1048,7 @@ struct test_virtual_function_supported
 void test_virtual_function_supported::a() {}
 '''
 		if user_settings.show_tool_version:
+			self._show_git_version(context)
 			CXX = cenv['CXX']
 			self._show_tool_version(context, CXX, 'C++ compiler')
 			if user_settings.show_assembler_version:
