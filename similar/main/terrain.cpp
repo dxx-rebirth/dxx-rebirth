@@ -226,7 +226,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 	Interpolation_method = 1;
 #endif
 
-	auto delta_i{g3_rotate_delta_vec(vm_vec_copy_scale(surface_orient.rvec, GRID_SCALE))};
+	const auto delta_i{g3_rotate_delta_vec(vm_vec_copy_scale(surface_orient.rvec, GRID_SCALE))};
 	const auto delta_j{g3_rotate_delta_vec(vm_vec_copy_scale(surface_orient.fvec, GRID_SCALE))};
 
 	auto start_point{vm_vec_scale_add(org_point, surface_orient.rvec, -(org_i - low_i) * GRID_SCALE)};
@@ -300,7 +300,8 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 
 	//now do i from other end
 
-	vm_vec_negate(delta_i);		//going the other way now...
+	//going the other way now...
+	const auto neg_delta_i{vm_vec_build_negated(delta_i)};
 
 	//@@start_point.x += (high_i-low_i)*GRID_SCALE;
 	vm_vec_scale_add2(start_point,surface_orient.rvec,(high_i-low_i)*GRID_SCALE);
@@ -317,7 +318,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 
 	for (i=high_i-1;i>=viewer_i;i--) {
 
-		g3_add_delta_vec(save_p_low,save_p_low,delta_i);
+		g3_add_delta_vec(save_p_low, save_p_low, neg_delta_i);
 		last_p = save_p_low;
 		g3_add_delta_vec(last_p2,last_p,get_dy_vec(HEIGHT(i,low_j)));
 		
@@ -335,7 +336,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 
 		}
 
-		g3_add_delta_vec(save_p_high,save_p_high,delta_i);
+		g3_add_delta_vec(save_p_high, save_p_high, neg_delta_i);
 		last_p = save_p_high;
 		g3_add_delta_vec(last_p2,last_p,get_dy_vec(HEIGHT(i,high_j)));
 		
