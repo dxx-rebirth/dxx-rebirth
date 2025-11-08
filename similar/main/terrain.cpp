@@ -446,7 +446,10 @@ static fix get_face_light(const vms_vector &p0,const vms_vector &p1,const vms_ve
 	return -vm_vec_build_dot(norm,light);
 }
 
-static fix get_avg_light(int i,int j, const std::size_t grid_w, const std::size_t grid_h)
+/* `i` and `j` must never be below 1 on entry, to avoid underflow when calling
+ * `get_pnt`.
+ */
+static fix get_avg_light(const std::size_t i, const std::size_t j, const std::size_t grid_w, const std::size_t grid_h)
 {
 	const auto pp{get_pnt(i, j, grid_w, grid_h)};
 	const std::array<vms_vector, 6> p{{
