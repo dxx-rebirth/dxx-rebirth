@@ -468,10 +468,12 @@ static std::unique_ptr<uint8_t[]> build_light_table(const std::size_t grid_w, co
 {
 	std::size_t alloc = grid_w*grid_h;
 	std::unique_ptr<uint8_t[]> light_array{std::make_unique<uint8_t[]>(alloc)};
-	int i,j;
 	fix min_l = INT32_MAX, max_l = 0;
-	for (i=1;i<grid_w;i++)
-		for (j=1;j<grid_h;j++) {
+	const xrange<std::size_t, std::integral_constant<std::size_t, 1>> xgrid_w{grid_w},
+		xgrid_h{grid_h};
+	for (const auto i : xgrid_w)
+		for (const auto j : xgrid_h)
+		{
 			const auto l{get_avg_light(i, j, grid_w, grid_h)};
 			if (l > max_l)
 				max_l = l;
@@ -479,8 +481,9 @@ static std::unique_ptr<uint8_t[]> build_light_table(const std::size_t grid_w, co
 				min_l = l;
 		}
 
-	for (i=1;i<grid_w;i++)
-		for (j=1;j<grid_h;j++) {
+	for (const auto i : xgrid_w)
+		for (const auto j : xgrid_h)
+		{
 			const auto l{get_avg_light(i, j, grid_w, grid_h)};
 
 			if (min_l == max_l) {
