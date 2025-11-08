@@ -218,6 +218,12 @@ class Main:
 		else:
 			result.append(f'\n/* {array_name} - enum blank */')
 		if label:
+			# This must be a `#define` because the weapon labels use macros as
+			# members of `label`, and these macros are defined after
+			# DXX_KCONFIG_UI_LABEL_ is defined, but before it is expanded.  If
+			# this is switched to a `static constexpr char[]`, then compilation
+			# fails because the weapon name macros are not visible when this
+			# line is parsed.
 			result.append(f'\n#define DXX_KCONFIG_UI_LABEL_{array_name}{"".join(label)}\n')
 		return result
 
