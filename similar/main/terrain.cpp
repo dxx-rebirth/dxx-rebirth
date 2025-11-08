@@ -54,7 +54,7 @@ constexpr fix GRID_SCALE{i2f(2 * 20)};
 constexpr fix HEIGHT_SCALE{f1_0};
 
 // Valid values: [0 .. GRID_MAX_SIZE]
-static int grid_w;
+uint8_t g_grid_w;
 uint8_t g_grid_h;
 
 static RAIIdmem<ubyte[]> height_array;
@@ -76,7 +76,7 @@ static std::unique_ptr<uint8_t[]> build_light_table(std::size_t grid_w, std::siz
 namespace {
 
 // ------------------------------------------------------------------------
-static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const int i, const int j, g3_draw_tmap_point &p0, g3_draw_tmap_point &p1, g3_draw_tmap_point &p2, g3_draw_tmap_point &p3, int &mine_tiles_drawn, const int org_i, const int org_j)
+static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const int i, const int j, g3_draw_tmap_point &p0, g3_draw_tmap_point &p1, g3_draw_tmap_point &p2, g3_draw_tmap_point &p3, int &mine_tiles_drawn, const int org_i, const int org_j, const std::size_t grid_w)
 {
 	std::array<g3_draw_tmap_point *, 3> pointlist{{
 		&p0,
@@ -212,6 +212,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 	const auto org_i{org_2dy};
 	const auto org_j{org_2dx};
 
+	const std::size_t grid_w{g_grid_w};
 	const std::size_t grid_h{g_grid_h};
 	low_i = 0;  high_i = grid_w-1;
 	low_j = 0;  high_j = grid_h-1;
@@ -263,7 +264,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 			g3_add_delta_vec(p,last_p,delta_j);
 			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i+1,j+1)));
 
-			draw_cell(canvas, Viewer_eye, i, j, save_row[j], save_row[j+1], p2, last_p2, mine_tiles_drawn, org_i, org_j);
+			draw_cell(canvas, Viewer_eye, i, j, save_row[j], save_row[j+1], p2, last_p2, mine_tiles_drawn, org_i, org_j, grid_w);
 
 			last_p = p;
 			save_row[j] = last_p2;
@@ -283,7 +284,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 			g3_add_delta_vec(p,last_p,delta_j);
 			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i+1,j)));
 
-			draw_cell(canvas, Viewer_eye, i, j, save_row[j], save_row[j+1], last_p2, p2, mine_tiles_drawn, org_i, org_j);
+			draw_cell(canvas, Viewer_eye, i, j, save_row[j], save_row[j+1], last_p2, p2, mine_tiles_drawn, org_i, org_j, grid_w);
 
 			last_p = p;
 			save_row[j+1] = last_p2;
@@ -326,7 +327,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 			g3_add_delta_vec(p,last_p,delta_j);
 			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i,j+1)));
 
-			draw_cell(canvas, Viewer_eye, i, j, last_p2, p2, save_row[j+1], save_row[j], mine_tiles_drawn, org_i, org_j);
+			draw_cell(canvas, Viewer_eye, i, j, last_p2, p2, save_row[j+1], save_row[j], mine_tiles_drawn, org_i, org_j, grid_w);
 
 			last_p = p;
 			save_row[j] = last_p2;
@@ -346,7 +347,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 			g3_add_delta_vec(p,last_p,delta_j);
 			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i,j)));
 
-			draw_cell(canvas, Viewer_eye, i, j, p2, last_p2, save_row[j+1], save_row[j], mine_tiles_drawn, org_i, org_j);
+			draw_cell(canvas, Viewer_eye, i, j, p2, last_p2, save_row[j+1], save_row[j], mine_tiles_drawn, org_i, org_j, grid_w);
 
 			last_p = p;
 			save_row[j+1] = last_p2;
@@ -381,7 +382,7 @@ void load_terrain(const char *filename)
 	{
 		Error("File %s - IFF error: %s",filename,iff_errormsg(iff_error));
 	}
-	grid_w = height_bitmap.bm_w;
+	const std::size_t grid_w{height_bitmap.bm_w};
 	const std::size_t grid_h{height_bitmap.bm_h};
 
 	Assert(grid_w <= GRID_MAX_SIZE);
@@ -389,8 +390,11 @@ void load_terrain(const char *filename)
 
 	height_array.reset(height_bitmap.get_bitmap_data());
 
+	if (!(grid_w <= GRID_MAX_SIZE)) [[unlikely]]
+		return;
 	if (!(grid_h <= GRID_MAX_SIZE)) [[unlikely]]
 		return;
+	g_grid_w = grid_w;
 	g_grid_h = grid_h;
 
 	max_h=0; min_h=255;
@@ -421,7 +425,7 @@ namespace dcx {
 
 namespace {
 
-static vms_vector get_pnt(int i, int j, const std::size_t grid_h)
+static vms_vector get_pnt(int i, int j, const std::size_t grid_w, const std::size_t grid_h)
 {
 	// added on 02/20/99 by adb to prevent overflow
 	if (i >= grid_h) i = grid_h - 1;
@@ -442,19 +446,16 @@ static fix get_face_light(const vms_vector &p0,const vms_vector &p1,const vms_ve
 	return -vm_vec_build_dot(norm,light);
 }
 
-static fix get_avg_light(int i,int j, const std::size_t grid_h)
+static fix get_avg_light(int i,int j, const std::size_t grid_w, const std::size_t grid_h)
 {
-	fix sum;
-	int f;
-
-	const auto pp = get_pnt(i, j, grid_h);
+	const auto pp{get_pnt(i, j, grid_w, grid_h)};
 	const std::array<vms_vector, 6> p{{
-		get_pnt(i - 1, j, grid_h),
-		get_pnt(i, j - 1, grid_h),
-		get_pnt(i + 1, j - 1, grid_h),
-		get_pnt(i + 1, j, grid_h),
-		get_pnt(i, j + 1, grid_h),
-		get_pnt(i - 1, j + 1, grid_h),
+		get_pnt(i - 1, j, grid_w, grid_h),
+		get_pnt(i, j - 1, grid_w, grid_h),
+		get_pnt(i + 1, j - 1, grid_w, grid_h),
+		get_pnt(i + 1, j, grid_w, grid_h),
+		get_pnt(i, j + 1, grid_w, grid_h),
+		get_pnt(i - 1, j + 1, grid_w, grid_h),
 	}};
 
 	for (f=0,sum=0;f<6;f++)
@@ -471,7 +472,7 @@ static std::unique_ptr<uint8_t[]> build_light_table(const std::size_t grid_w, co
 	fix min_l = INT32_MAX, max_l = 0;
 	for (i=1;i<grid_w;i++)
 		for (j=1;j<grid_h;j++) {
-			const auto l{get_avg_light(i, j, grid_h)};
+			const auto l{get_avg_light(i, j, grid_w, grid_h)};
 			if (l > max_l)
 				max_l = l;
 			if (l < min_l)
@@ -480,7 +481,7 @@ static std::unique_ptr<uint8_t[]> build_light_table(const std::size_t grid_w, co
 
 	for (i=1;i<grid_w;i++)
 		for (j=1;j<grid_h;j++) {
-			const auto l{get_avg_light(i, j, grid_h)};
+			const auto l{get_avg_light(i, j, grid_w, grid_h)};
 
 			if (min_l == max_l) {
 				LIGHT(i,j) = l>>8;
