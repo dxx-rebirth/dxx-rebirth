@@ -2872,7 +2872,7 @@ ConfigureTests.register_preferred_compiler_options()
 @dataclass(eq=False, slots=True)
 class LazyObjectConstructor:
 	class LazyObjectState:
-		def __init__(self, sources: collections.abc.Sequence[str], transform_env=None, StaticObject_hook=None, transform_target=None):
+		def __init__(self, sources: collections.abc.Sequence[str], transform_env=None, StaticObject_wrapper: collections.abc.Callable = None, transform_target: collections.abc.Callable[['cls', str], str] = None):
 			# `sources` must be non-empty, since it would have no use if
 			# it was empty.
 			#
@@ -2883,7 +2883,7 @@ class LazyObjectConstructor:
 			assert([s.encode for s in sources]), "sources must be a non-empty list of strings"
 			self.sources = sources
 			self.transform_env = transform_env
-			self.StaticObject_hook = StaticObject_hook
+			self.StaticObject_wrapper = StaticObject_wrapper
 			# If transform_target is not used, let references to
 			# `self.transform_target` fall through to
 			# `cls.transform_target`.
@@ -2891,7 +2891,7 @@ class LazyObjectConstructor:
 				self.transform_target = transform_target
 
 		@staticmethod
-		def transform_target(_, name, _splitext=os.path.splitext):
+		def transform_target(_, name: str, _splitext: collections.abc.Callable[[str], str] = os.path.splitext) -> str:
 			return _splitext(name)[0]
 
 	def __lazy_objects(self, source: collections.abc.Sequence[LazyObjectState],
@@ -2912,16 +2912,21 @@ class LazyObjectConstructor:
 			for s in source:
 				transform_target = s.transform_target
 				transform_env = s.transform_env
-				StaticObject_hook = s.StaticObject_hook
+				StaticObject_wrapper = s.StaticObject_wrapper
 				StaticObject_kwargs = {} if transform_env is None else transform_env(self, env)
+				if StaticObject_wrapper is not None:
+					# Currently, only one caller uses StaticObject_wrapper, and
+					# that caller does not use transform_env.  Therefore,
+					# transform_env is ignored for users of
+					# StaticObject_wrapper.  This assert will trip if future
+					# changes add a caller that uses both.
+					assert transform_env is None
 				for srcname in s.sources:
 					target = builddir.File(prepare_target_name(transform_target(self, srcname), OBJSUFFIX))
 					s = StaticObject(target=target, source=srcname,
 							**StaticObject_kwargs
-							)
+							) if StaticObject_wrapper is None else StaticObject_wrapper(self, env, StaticObject, target, srcname)
 					append(s)
-					if StaticObject_hook is not None:
-						StaticObject_hook(self, env, srcname, target, s)
 			# Convert to a tuple so that attempting to modify a cached
 			# result raises an error.
 			cache[name] = value = tuple(value)
@@ -4911,7 +4916,7 @@ SConf test results
 
 class DXXProgram(DXXCommon):
 	LazyObjectState = DXXCommon.LazyObjectState
-	def _generate_kconfig_ui_table(program, env, source: typing.Final[str], target, kconfig_static_object: 'StaticObject') -> None:
+	def _generate_kconfig_ui_table(program, env, StaticObject, target, source) -> 'StaticObject':
 			builddir = program.builddir.Dir(program.target)
 			# Bypass ccache, if any, since this is a preprocess only
 			# call.
@@ -4930,20 +4935,32 @@ class DXXProgram(DXXCommon):
 					# file.
 					('kc_item', 'kc_item'),
 					))
-			cpp_kconfig_udlr = env._rebirth_nopch_StaticObject(target=str(target)[:-1] + 'ui-table.i', source=source[:-3] + 'ui-table.cpp', CPPDEFINES=CPPDEFINES, CXXCOM=env._dxx_cxxcom_no_ccache_prefix, CXXFLAGS=CXXFLAGS)
+			cpp_kconfig_udlr = env._rebirth_nopch_StaticObject(target=builddir.File('kconfig.ui-table.i'), source=source[:-3] + 'ui-table.cpp', CPPDEFINES=CPPDEFINES, CXXCOM=env._dxx_cxxcom_no_ccache_prefix, CXXFLAGS=CXXFLAGS)
 			generated_udlr_header = builddir.File('kconfig.udlr.h')
 			generate_kconfig_udlr = env.File('similar/main/generate-kconfig-udlr.py')
 			env.Command(generated_udlr_header, [cpp_kconfig_udlr, generate_kconfig_udlr], [[sys.executable, generate_kconfig_udlr, '$SOURCE', '$TARGET']])
+			CPPFLAGS = env['CPPFLAGS']
+			CPPFLAGS = CPPFLAGS.copy() if CPPFLAGS else []
+			CPPFLAGS.extend((
+				'-include',
+				str(generated_udlr_header)
+				))
+			kconfig_static_object = StaticObject(target=target, source=source, CPPFLAGS=CPPFLAGS)
 			env.Depends(kconfig_static_object, generated_udlr_header)
+			return kconfig_static_object
 
 	static_archive_construction = {}
 
-	def _apply_target_name(self,name):
+	def _apply_target_name(self, name: str) -> str:
 		return os.path.join(os.path.dirname(name), f'.{self.target}.{os.path.splitext(os.path.basename(name))[0]}')
 
-	def _apply_env_version_seq(self,env,_empty={}):
+	def _apply_env_version_seq(self, env, _empty: dict[str, collections.abc.Sequence[tuple]] = {}) -> dict[str, collections.abc.Sequence[tuple]]:
 		if self.user_settings.pch:
+			# When PCH is used, DXX_VERSION_SEQ is defined in a header file and
+			# visible everywhere.
 			return _empty
+		# When PCH is not used, DXX_VERSION_SEQ is defined on the command
+		# line of the files that need it.
 		CPPDEFINES = env['CPPDEFINES']
 		CPPDEFINES = CPPDEFINES.copy() if CPPDEFINES else []
 		CPPDEFINES.append(('DXX_VERSION_SEQ', self.DXX_VERSION_SEQ))
@@ -5050,7 +5067,7 @@ class DXXProgram(DXXCommon):
 	), LazyObjectState(sources=(
 'similar/main/kconfig.cpp',
 ),
-		StaticObject_hook=_generate_kconfig_ui_table,
+		StaticObject_wrapper=_generate_kconfig_ui_table,
 		transform_target=_apply_target_name,
 	), LazyObjectState(sources=(
 'similar/misc/physfsx.cpp',
