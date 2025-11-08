@@ -64,7 +64,6 @@ static std::unique_ptr<uint8_t[]> light_array;
 #define LIGHTVAL(_i,_j) (static_cast<fix>(LIGHT(_i, _j)) << 8)
 
 static grs_bitmap *terrain_bm;
-static int org_i,org_j;
 [[nodiscard]]
 static std::unique_ptr<uint8_t[]> build_light_table(std::size_t grid_w, std::size_t grid_h);
 
@@ -75,7 +74,7 @@ static std::unique_ptr<uint8_t[]> build_light_table(std::size_t grid_w, std::siz
 namespace {
 
 // ------------------------------------------------------------------------
-static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const int i, const int j, g3_draw_tmap_point &p0, g3_draw_tmap_point &p1, g3_draw_tmap_point &p2, g3_draw_tmap_point &p3, int &mine_tiles_drawn)
+static void draw_cell(grs_canvas &canvas, const vms_vector &Viewer_eye, const int i, const int j, g3_draw_tmap_point &p0, g3_draw_tmap_point &p1, g3_draw_tmap_point &p2, g3_draw_tmap_point &p3, int &mine_tiles_drawn, const int org_i, const int org_j)
 {
 	std::array<g3_draw_tmap_point *, 3> pointlist{{
 		&p0,
@@ -208,8 +207,8 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 	int i,j;
 	int low_i,high_i,low_j,high_j;
 	int viewer_i,viewer_j;
-	org_i = org_2dy;
-	org_j = org_2dx;
+	const auto org_i{org_2dy};
+	const auto org_j{org_2dx};
 
 	low_i = 0;  high_i = grid_w-1;
 	low_j = 0;  high_j = grid_h-1;
@@ -261,7 +260,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 			g3_add_delta_vec(p,last_p,delta_j);
 			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i+1,j+1)));
 
-			draw_cell(canvas, Viewer_eye, i, j, save_row[j], save_row[j+1], p2, last_p2, mine_tiles_drawn);
+			draw_cell(canvas, Viewer_eye, i, j, save_row[j], save_row[j+1], p2, last_p2, mine_tiles_drawn, org_i, org_j);
 
 			last_p = p;
 			save_row[j] = last_p2;
@@ -281,7 +280,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 			g3_add_delta_vec(p,last_p,delta_j);
 			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i+1,j)));
 
-			draw_cell(canvas, Viewer_eye, i, j, save_row[j], save_row[j+1], last_p2, p2, mine_tiles_drawn);
+			draw_cell(canvas, Viewer_eye, i, j, save_row[j], save_row[j+1], last_p2, p2, mine_tiles_drawn, org_i, org_j);
 
 			last_p = p;
 			save_row[j+1] = last_p2;
@@ -324,7 +323,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 			g3_add_delta_vec(p,last_p,delta_j);
 			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i,j+1)));
 
-			draw_cell(canvas, Viewer_eye, i, j, last_p2, p2, save_row[j+1], save_row[j], mine_tiles_drawn);
+			draw_cell(canvas, Viewer_eye, i, j, last_p2, p2, save_row[j+1], save_row[j], mine_tiles_drawn, org_i, org_j);
 
 			last_p = p;
 			save_row[j] = last_p2;
@@ -344,7 +343,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 			g3_add_delta_vec(p,last_p,delta_j);
 			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i,j)));
 
-			draw_cell(canvas, Viewer_eye, i, j, p2, last_p2, save_row[j+1], save_row[j], mine_tiles_drawn);
+			draw_cell(canvas, Viewer_eye, i, j, p2, last_p2, save_row[j+1], save_row[j], mine_tiles_drawn, org_i, org_j);
 
 			last_p = p;
 			save_row[j+1] = last_p2;
