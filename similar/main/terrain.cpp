@@ -425,16 +425,29 @@ namespace dcx {
 
 namespace {
 
-static vms_vector get_pnt(int i, int j, const std::size_t grid_w, const std::size_t grid_h)
+static vms_vector get_pnt(const std::size_t entry_i, const std::size_t entry_j, const std::size_t grid_w, const std::size_t grid_h)
 {
-	// added on 02/20/99 by adb to prevent overflow
-	if (i >= grid_h) i = grid_h - 1;
-	if (i == grid_h - 1 && j >= grid_w) j = grid_w - 1;
-	// end additions by adb
+	/* On 1999-02-20, adb added logic to clamp the inputs to avoid reading off
+	 * the end of the height_array.  The clamp logic was later rewritten, but
+	 * the intent remains.
+	 */
+	/* Despite the type, `grid_w` and `grid_h` are constrained by calling code
+	 * to be not above `GRID_MAX_SIZE`.  Therefore, the clamped values can be
+	 * stored in `uint8_t`.
+	 */
+	uint8_t clamped_i, clamped_j;
+	if (entry_i >= grid_h) [[unlikely]]
+		clamped_i = grid_h - 1;
+	else
+		clamped_i = entry_i;
+	if (clamped_i == grid_h - 1 && entry_j >= grid_w) [[unlikely]]
+		clamped_j = grid_w - 1;
+	else
+		clamped_j = entry_j;
 	return {
-		.x = GRID_SCALE * i,
-		.y = HEIGHT(i, j) * HEIGHT_SCALE,
-		.z = GRID_SCALE * j,
+		.x = GRID_SCALE * clamped_i,
+		.y = HEIGHT(clamped_i, clamped_j) * HEIGHT_SCALE,
+		.z = GRID_SCALE * clamped_j,
 	};
 }
 
