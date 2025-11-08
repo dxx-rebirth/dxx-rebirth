@@ -227,7 +227,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 #endif
 
 	auto delta_i{g3_rotate_delta_vec(vm_vec_copy_scale(surface_orient.rvec, GRID_SCALE))};
-	auto delta_j{g3_rotate_delta_vec(vm_vec_copy_scale(surface_orient.fvec, GRID_SCALE))};
+	const auto delta_j{g3_rotate_delta_vec(vm_vec_copy_scale(surface_orient.fvec, GRID_SCALE))};
 
 	auto start_point{vm_vec_scale_add(org_point, surface_orient.rvec, -(org_i - low_i) * GRID_SCALE)};
 	vm_vec_scale_add2(start_point,surface_orient.fvec,-(org_j - low_j)*GRID_SCALE);
@@ -251,6 +251,11 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 			g3_add_delta_vec(last_p,last_p,delta_j);
 	}
 
+	/* There is no g3_sub_delta_vec, so prepare a negated version of delta_j
+	 * for use with g3_add_delta_vec in the cases where g3_sub_delta_vec would
+	 * be used.
+	 */
+	const auto neg_delta_j{vm_vec_build_negated(delta_j)};
 	int mine_tiles_drawn{0};    //flags to tell if all 4 tiles under mine have drawn
 	for (i=low_i;i<viewer_i;i++) {
 
@@ -272,8 +277,6 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 
 		}
 
-		vm_vec_negate(delta_j);			//don't have a delta sub...
-
 		g3_add_delta_vec(save_p_high,save_p_high,delta_i);
 		last_p = save_p_high;
 		g3_add_delta_vec(last_p2,last_p,get_dy_vec(HEIGHT(i+1,high_j)));
@@ -281,7 +284,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 		for (j=high_j-1;j>=viewer_j;j--) {
 			g3s_point p2;
 
-			g3_add_delta_vec(p,last_p,delta_j);
+			g3_add_delta_vec(p, last_p, neg_delta_j);
 			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i+1,j)));
 
 			draw_cell(canvas, Viewer_eye, i, j, save_row[j], save_row[j+1], last_p2, p2, mine_tiles_drawn, org_i, org_j, grid_w);
@@ -293,9 +296,6 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 		}
 
 		save_row[j+1] = last_p2;
-
-		vm_vec_negate(delta_j);		//restore sign of j
-
 	}
 
 	//now do i from other end
@@ -335,8 +335,6 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 
 		}
 
-		vm_vec_negate(delta_j);			//don't have a delta sub...
-
 		g3_add_delta_vec(save_p_high,save_p_high,delta_i);
 		last_p = save_p_high;
 		g3_add_delta_vec(last_p2,last_p,get_dy_vec(HEIGHT(i,high_j)));
@@ -344,7 +342,7 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 		for (j=high_j-1;j>=viewer_j;j--) {
 			g3s_point p2;
 
-			g3_add_delta_vec(p,last_p,delta_j);
+			g3_add_delta_vec(p, last_p, neg_delta_j);
 			g3_add_delta_vec(p2,p,get_dy_vec(HEIGHT(i,j)));
 
 			draw_cell(canvas, Viewer_eye, i, j, p2, last_p2, save_row[j+1], save_row[j], mine_tiles_drawn, org_i, org_j, grid_w);
@@ -354,13 +352,8 @@ void render_terrain(grs_canvas &canvas, const vms_vector &Viewer_eye, const vms_
 			last_p2 = p2;
 
 		}
-
 		save_row[j+1] = last_p2;
-
-		vm_vec_negate(delta_j);		//restore sign of j
-
 	}
-
 }
 
 namespace dcx {
