@@ -375,9 +375,6 @@ void free_height_array()
 void load_terrain(const char *filename)
 {
 	grs_bitmap height_bitmap;
-	int i,j;
-	ubyte h,min_h;
-
 	if (const auto iff_error{iff_read_bitmap(filename, height_bitmap, NULL)}; iff_error != iff_status_code::no_error)
 	{
 		Error("File %s - IFF error: %s",filename,iff_errormsg(iff_error));
@@ -397,22 +394,19 @@ void load_terrain(const char *filename)
 	g_grid_w = grid_w;
 	g_grid_h = grid_h;
 
-	min_h=255;
-	for (i=0;i<grid_w;i++)
-		for (j=0;j<grid_h;j++) {
-
-			h = HEIGHT(i,j);
-
+	uint8_t min_h{UINT8_MAX};
+	const xrange xgrid_w{grid_w}, xgrid_h{grid_h};
+	for (const auto i : xgrid_w)
+		for (const auto j : xgrid_h)
+		{
+			const uint8_t h{HEIGHT(i,j)};
 			if (h < min_h)
 				min_h = h;
 		}
 
-	for (i=0;i<grid_w;i++)
-		for (j=0;j<grid_h;j++)
+	for (const auto i : xgrid_w)
+		for (const auto j : xgrid_h)
 			HEIGHT(i,j) -= min_h;
-	
-
-//	d_free(height_bitmap.bm_data);
 
 	terrain_bm = terrain_bitmap;
 	light_array = build_light_table(grid_w, grid_h);
