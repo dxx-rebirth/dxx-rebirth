@@ -461,8 +461,9 @@ static fix get_avg_light(const std::size_t i, const std::size_t j, const std::si
 		get_pnt(i - 1, j + 1, grid_w, grid_h),
 	}};
 
-	for (f=0,sum=0;f<6;f++)
-		sum += get_face_light(pp,p[f],p[(f+1)%5]);
+	fix sum{0};
+	for (const auto f : constant_xrange<std::size_t, 0, 6>{})
+		sum += get_face_light(pp, p[f], p[(f + 1) % 5]);
 
 	return sum/6;
 }
