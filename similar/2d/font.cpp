@@ -60,6 +60,8 @@ namespace dcx {
 
 namespace {
 
+constexpr unsigned GRS_FONT_SIZE{28};		// how much space it takes up on disk
+
 struct grs_disk_font
 {
 	const uint16_t ft_w;           // Width in pixels

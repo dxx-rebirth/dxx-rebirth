@@ -113,7 +113,6 @@ namespace dcx {
 
 struct grs_bitmap;
 struct grs_canvas;
-#define GRS_FONT_SIZE 28    // how much space it takes up on disk
 struct grs_point;
 
 union screen_mode;
