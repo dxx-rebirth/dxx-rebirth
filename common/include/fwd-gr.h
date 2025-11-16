@@ -82,9 +82,7 @@ extern uint8_t HiresGFXAvailable;
 
 //now have string versions of these control characters (can concat inside a string)
 
-#define CC_COLOR_S      "\x1"   //next char is new foreground color
 #define CC_LSPACING_S   "\x2"   //next char specifies line spacing
-#define CC_UNDERLINE_S  "\x3"   //next char is underlined
 
 namespace dcx {
 
