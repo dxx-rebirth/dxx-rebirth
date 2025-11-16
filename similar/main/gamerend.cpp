@@ -1007,6 +1007,7 @@ void game_render_frame(const d_robot_info_array &Robot_info, const control_info 
 void show_boxed_message(grs_canvas &canvas, const char *msg)
 {
 	int x,y;
+	int center = 0x8000;
 	
 	gr_set_fontcolor(canvas, BM_XRGB(31, 31, 31), -1);
 	auto &medium1_font = *MEDIUM1_FONT;
@@ -1015,7 +1016,17 @@ void show_boxed_message(grs_canvas &canvas, const char *msg)
 	x = (SWIDTH-w)/2;
 	y = (SHEIGHT-h)/2;
 	
+#if DXX_USE_STEREOSCOPIC_RENDER
+	if (VR_stereo != StereoFormat::None) {
+		int dw = w, dh = h;
+		gr_stereo_viewport_window(VR_stereo, x, y, dw, dh);
+		gr_stereo_viewport_offset(VR_stereo, x, y);
+		x -= (w - dw) / 2;
+		center = x;
+	}
+#endif
+
 	nm_draw_background(canvas, x - BORDERX, y - BORDERY, x + w + BORDERX, y + h + BORDERY);
 	
-	gr_string(canvas, medium1_font, 0x8000, y, msg, w, h);
+	gr_string(canvas, medium1_font, center, y, msg, w, h);
 }

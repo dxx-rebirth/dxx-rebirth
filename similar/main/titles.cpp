@@ -332,8 +332,8 @@ struct briefing_screen {
 	char    bs_name[13];                //  filename, eg merc01.  Assumes .lbm suffix.
 	sbyte   level_num;
 	sbyte   message_num;
-	short   text_ulx, text_uly;         //  upper left x,y of text window
-	short   text_width, text_height;    //  width and height of text window
+	int     text_ulx, text_uly;         //  upper left x,y of text window
+	int     text_width, text_height;    //  width and height of text window
 };
 
 #define	ENDING_LEVEL_NUM_OEMSHARE 0x7f
@@ -1282,6 +1282,23 @@ static int init_new_page(grs_canvas &canvas, briefing *br)
 	return r;
 }
 
+#if DXX_USE_STEREOSCOPIC_RENDER
+static inline void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
+{
+	gr_stereo_viewport_window(VR_stereo, x, y, w, h);
+	gr_stereo_viewport_offset(VR_stereo, x, y, -1);
+}
+
+static inline void stereo_viewport_copy(grs_canvas &canvas, int x, int y, int w, int h)
+{
+	int dx = x, dy = y;
+	gr_stereo_viewport_offset(VR_stereo, dx, dy, 1);
+#if DXX_USE_OGL
+	ogl_ubitblt_cs(canvas, w, h, dx, dy, x, y);
+#endif
+}
+#endif
+
 #if DXX_BUILD_DESCENT == 2
 static int DefineBriefingBox(const grs_bitmap &cv_bitmap, const char *&buf)
 {
@@ -1312,6 +1329,12 @@ static int DefineBriefingBox(const grs_bitmap &cv_bitmap, const char *&buf)
 	Briefing_screens[n].text_uly = rescale_y(cv_bitmap, Briefing_screens[n].text_uly);
 	Briefing_screens[n].text_width = rescale_x(cv_bitmap, Briefing_screens[n].text_width);
 	Briefing_screens[n].text_height = rescale_y(cv_bitmap, Briefing_screens[n].text_height);
+
+#if DXX_USE_STEREOSCOPIC_RENDER
+	if (VR_stereo != StereoFormat::None)
+		stereo_viewport_adjust(Briefing_screens[n].text_ulx, Briefing_screens[n].text_uly,
+					Briefing_screens[n].text_width, Briefing_screens[n].text_height);
+#endif
 
 	return (n);
 }
@@ -1390,6 +1413,11 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 	br->screen->text_uly = rescale_y(canvas.cv_bitmap, br->screen->text_uly);
 	br->screen->text_width = rescale_x(canvas.cv_bitmap, br->screen->text_width);
 	br->screen->text_height = rescale_y(canvas.cv_bitmap, br->screen->text_height);
+#if DXX_USE_STEREOSCOPIC_RENDER
+	if (VR_stereo != StereoFormat::None)
+		stereo_viewport_adjust(br->screen->text_ulx, br->screen->text_uly,
+					br->screen->text_width, br->screen->text_height);
+#endif
 	init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 #elif DXX_BUILD_DESCENT == 2
 	free_briefing_screen(br);
@@ -1422,6 +1450,11 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 		br->screen->text_uly = rescale_y(canvas.cv_bitmap, br->screen->text_uly);
 		br->screen->text_width = rescale_x(canvas.cv_bitmap, br->screen->text_width);
 		br->screen->text_height = rescale_y(canvas.cv_bitmap, br->screen->text_height);
+#if DXX_USE_STEREOSCOPIC_RENDER
+		if (VR_stereo != StereoFormat::None)
+			stereo_viewport_adjust(br->screen->text_ulx, br->screen->text_uly,
+						br->screen->text_width, br->screen->text_height);
+#endif
 		init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 	}
 
@@ -1688,6 +1721,12 @@ window_event_result briefing::event_handler(const d_event &event)
 				flash_cursor(canvas, game_font, this, this->flashing_cursor);
 			else if (this->flashing_cursor)
 				gr_string(canvas, game_font, this->text_x, this->text_y, "_");
+
+#if DXX_USE_STEREOSCOPIC_RENDER
+			if (VR_stereo != StereoFormat::None)
+				stereo_viewport_copy(canvas, this->screen->text_ulx, this->screen->text_uly,
+							this->screen->text_width, this->screen->text_height);
+#endif
 			break;
 		}
 		case event_type::window_close:
