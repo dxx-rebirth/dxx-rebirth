@@ -125,8 +125,7 @@ static void prepare_slider_text(std::array<char, NM_MAX_TEXT_LEN + 1> &text, con
 #if DXX_USE_STEREOSCOPIC_RENDER
 void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
 {
-	int sw = SWIDTH, sh = SHEIGHT;
-	gr_stereo_viewport_resize(VR_stereo, sw, sh);
+	const auto &&[sw, sh]{gr_build_stereo_viewport_size(VR_stereo, SWIDTH, SHEIGHT)};
 	if (w > sw)
 		w -= (w - sw);
 	if (h > sh)

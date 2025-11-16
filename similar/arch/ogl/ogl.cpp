@@ -2040,7 +2040,9 @@ bool ogl_ubitmapm_cs(grs_canvas &canvas, int x0, int y0, int dw, int dh, grs_bit
 		int w = (dw < 0) ? canvas.cv_bitmap.bm_w : (dw == 0) ? bm.bm_w : dw;
 		int h = (dh < 0) ? canvas.cv_bitmap.bm_h : (dh == 0) ? bm.bm_h : dh;
 		if (fill) {
-			gr_stereo_viewport_resize(VR_stereo, w, h);
+			const auto &&[rw, rh]{gr_build_stereo_viewport_size(VR_stereo, w, h)};
+			w = rw;
+			h = rh;
 			gr_stereo_viewport_offset(VR_stereo, x, y, -1);
 		}
 #if !DXX_USE_OGLES

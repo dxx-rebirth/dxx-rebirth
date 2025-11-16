@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "d_underlying_value.h"
 #include <optional>
+#include <utility>
 
 namespace dcx {
 
@@ -162,12 +163,14 @@ enum class StereoFormat : uint8_t
 };
 
 // stereo viewport adjustments
-inline void gr_stereo_viewport_resize(const StereoFormat stereo, int &w, int &h)
+[[nodiscard]]
+constexpr std::pair<unsigned, unsigned> gr_build_stereo_viewport_size(const StereoFormat stereo, unsigned w, unsigned h)
 {
 	switch (stereo) {
 		case StereoFormat::None:
 		case StereoFormat::QuadBuffers:
-			return;
+		default:
+			break;
 		case StereoFormat::AboveBelowSync:
 			h -= VR_sync_width;
 			[[fallthrough]];
@@ -181,6 +184,7 @@ inline void gr_stereo_viewport_resize(const StereoFormat stereo, int &w, int &h)
 			w /= 2;
 			break;
 	}
+	return {w, h};
 }
 
 inline void gr_stereo_viewport_offset(const StereoFormat stereo, int &x, int &y, const int eye = 0)
