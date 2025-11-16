@@ -213,6 +213,15 @@ void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
 	gr_stereo_viewport_window(VR_stereo, x, y, w, h);
 	gr_stereo_viewport_offset(VR_stereo, x, y, -1);
 }
+
+void stereo_viewport_copy(grs_canvas &canvas, int x, int y, int w, int h)
+{
+	int dx = x, dy = y;
+	gr_stereo_viewport_offset(VR_stereo, dx, dy, 1);
+#if DXX_USE_OGL
+	ogl_ubitblt_cs(canvas, w, h, dx, dy, x, y);
+#endif
+}
 #endif
 
 }
@@ -1289,17 +1298,6 @@ static int init_new_page(grs_canvas &canvas, briefing *br)
 	br->delay_count = KEY_DELAY_DEFAULT;
 	return r;
 }
-
-#if DXX_USE_STEREOSCOPIC_RENDER
-static inline void stereo_viewport_copy(grs_canvas &canvas, int x, int y, int w, int h)
-{
-	int dx = x, dy = y;
-	gr_stereo_viewport_offset(VR_stereo, dx, dy, 1);
-#if DXX_USE_OGL
-	ogl_ubitblt_cs(canvas, w, h, dx, dy, x, y);
-#endif
-}
-#endif
 
 #if DXX_BUILD_DESCENT == 2
 static int DefineBriefingBox(const grs_bitmap &cv_bitmap, const char *&buf)
