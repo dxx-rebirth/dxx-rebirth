@@ -99,6 +99,18 @@ static int sdl_no_modeswitch;
 enum { sdl_no_modeswitch = 0 };
 #endif
 
+namespace {
+
+#if DXX_USE_STEREOSCOPIC_RENDER
+void gr_set_stereo_mode_sync()
+{
+	// calc stereo mode sync interval for above/below format
+	VR_sync_width = (VR_sync_param * SHEIGHT) / 480; // normalized for 640x480
+}
+#endif
+
+}
+
 }
 
 namespace dsx {
@@ -694,14 +706,6 @@ static int gr_check_mode(const screen_mode mode)
 		// just tell the caller that any mode is valid...
 		return 32;
 	}
-}
-#endif
-
-#if DXX_USE_STEREOSCOPIC_RENDER
-static inline void gr_set_stereo_mode_sync(void)
-{
-	// calc stereo mode sync interval for above/below format
-	VR_sync_width = (VR_sync_param * SHEIGHT) / 480; // normalized for 640x480
 }
 #endif
 
