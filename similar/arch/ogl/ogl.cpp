@@ -2043,7 +2043,7 @@ bool ogl_ubitmapm_cs(grs_canvas &canvas, int x0, int y0, int dw, int dh, grs_bit
 			const auto &&[rw, rh]{gr_build_stereo_viewport_size(VR_stereo, w, h)};
 			w = rw;
 			h = rh;
-			gr_stereo_viewport_offset(VR_stereo, x, y, -1);
+			y = gr_build_stereo_viewport_offset_left_eye(VR_stereo, y);
 		}
 #if !DXX_USE_OGLES
 		if (VR_stereo == StereoFormat::QuadBuffers)

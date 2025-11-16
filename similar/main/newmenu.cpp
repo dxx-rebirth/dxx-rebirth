@@ -133,7 +133,7 @@ void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
 	// re-center popup on downsized viewport
 	x = (sw - w) / 2;
 	y = (sh - h) / 2;
-	gr_stereo_viewport_offset(VR_stereo, x, y, -1);
+	y = gr_build_stereo_viewport_offset_left_eye(VR_stereo, y);
 }
 
 void stereo_viewport_copy(grs_canvas &canvas, int x, int y, int w, int h)

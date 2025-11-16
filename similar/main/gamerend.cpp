@@ -1020,7 +1020,7 @@ void show_boxed_message(grs_canvas &canvas, const char *msg)
 	if (VR_stereo != StereoFormat::None) {
 		int dw = w, dh = h;
 		gr_stereo_viewport_window(VR_stereo, x, y, dw, dh);
-		gr_stereo_viewport_offset(VR_stereo, x, y);
+		y = gr_build_stereo_viewport_offset_left_eye(VR_stereo, y);
 		x -= (w - dw) / 2;
 		center = x;
 	}

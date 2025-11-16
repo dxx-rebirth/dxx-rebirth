@@ -187,6 +187,24 @@ constexpr std::pair<unsigned, unsigned> gr_build_stereo_viewport_size(const Ster
 	return {w, h};
 }
 
+/* The left eye always retains its original x coordinate.  The y coordinate can
+ * change in one stereo mode, and is otherwise retained unmodified.
+ */
+[[nodiscard]]
+static inline int gr_build_stereo_viewport_offset_left_eye(const StereoFormat stereo, const int y)
+{
+	if (stereo == StereoFormat::SideBySideHalfHeight) [[unlikely]]
+	{
+		/* This function should never be called when the screen is not
+		 * available.  However, check it is available before loading the screen
+		 * height.
+		 */
+		if (grd_curscreen) [[likely]]
+			return y + (SHEIGHT / 4);
+	}
+	return y;
+}
+
 inline void gr_stereo_viewport_offset(const StereoFormat stereo, int &x, int &y, const int eye = 0)
 {
 	if (!grd_curscreen)
@@ -194,8 +212,7 @@ inline void gr_stereo_viewport_offset(const StereoFormat stereo, int &x, int &y,
 
 	// left eye viewport origin
 	if (eye <= 0) {
-		if (stereo == StereoFormat::SideBySideHalfHeight)
-			y += SHEIGHT/4;
+		y = gr_build_stereo_viewport_offset_left_eye(stereo, y);
 		return;
 	}
 
