@@ -205,22 +205,28 @@ static inline int gr_build_stereo_viewport_offset_left_eye(const StereoFormat st
 	return y;
 }
 
-inline void gr_stereo_viewport_offset(const StereoFormat stereo, int &x, int &y, const int eye = 0)
+[[nodiscard]]
+static inline std::pair<int, int> gr_build_stereo_viewport_offset_right_eye(const StereoFormat stereo, int x, int y, const int eye)
 {
-	if (!grd_curscreen)
-		return;
-
-	// left eye viewport origin
-	if (eye <= 0) {
-		y = gr_build_stereo_viewport_offset_left_eye(stereo, y);
-		return;
-	}
-
-	// right eye viewport origin
 	switch (stereo) {
 		case StereoFormat::None:
 		case StereoFormat::QuadBuffers:
-			return;
+		default:
+			[[likely]];
+			return {x, y};
+		case StereoFormat::AboveBelowSync:
+		case StereoFormat::AboveBelow:
+		case StereoFormat::SideBySideHalfHeight:
+		case StereoFormat::SideBySideFullHeight:
+			if (!grd_curscreen) [[unlikely]]
+				return {x, y};
+	}
+	switch (stereo) {
+		case StereoFormat::None:
+		case StereoFormat::QuadBuffers:
+		default:
+			// unreachable due to first switch
+			break;
 		case StereoFormat::AboveBelowSync:
 			y += VR_sync_width/2;
 			[[fallthrough]];
@@ -235,6 +241,20 @@ inline void gr_stereo_viewport_offset(const StereoFormat stereo, int &x, int &y,
 			x += SWIDTH/2;
 			break;
 	}
+	return {x, y};
+}
+
+inline void gr_stereo_viewport_offset(const StereoFormat stereo, int &x, int &y, const int eye = 0)
+{
+	// left eye viewport origin
+	if (eye <= 0) {
+		y = gr_build_stereo_viewport_offset_left_eye(stereo, y);
+		return;
+	}
+
+	const auto &&[vx, vy]{gr_build_stereo_viewport_offset_right_eye(stereo, x, y, eye)};
+	x = vx;
+	y = vy;
 }
 
 inline void gr_stereo_viewport_window(const StereoFormat stereo, int &x, int &y, int &w, int &h)

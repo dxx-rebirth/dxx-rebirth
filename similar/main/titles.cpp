@@ -216,8 +216,7 @@ void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
 
 void stereo_viewport_copy(grs_canvas &canvas, int x, int y, int w, int h)
 {
-	int dx = x, dy = y;
-	gr_stereo_viewport_offset(VR_stereo, dx, dy, 1);
+	const auto &&[dx, dy]{gr_build_stereo_viewport_offset_right_eye(VR_stereo, x, y, 1)};
 #if DXX_USE_OGL
 	ogl_ubitblt_cs(canvas, w, h, dx, dy, x, y);
 #endif
