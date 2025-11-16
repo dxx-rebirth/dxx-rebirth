@@ -207,6 +207,14 @@ static void show_first_found_title_screen(const char *oem, const char *share, co
 		show_title_screen(filename, title_load_location::from_hog_only);
 }
 
+#if DXX_USE_STEREOSCOPIC_RENDER
+void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
+{
+	gr_stereo_viewport_window(VR_stereo, x, y, w, h);
+	gr_stereo_viewport_offset(VR_stereo, x, y, -1);
+}
+#endif
+
 }
 
 }
@@ -1283,12 +1291,6 @@ static int init_new_page(grs_canvas &canvas, briefing *br)
 }
 
 #if DXX_USE_STEREOSCOPIC_RENDER
-static inline void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
-{
-	gr_stereo_viewport_window(VR_stereo, x, y, w, h);
-	gr_stereo_viewport_offset(VR_stereo, x, y, -1);
-}
-
 static inline void stereo_viewport_copy(grs_canvas &canvas, int x, int y, int w, int h)
 {
 	int dx = x, dy = y;
