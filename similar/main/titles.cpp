@@ -210,7 +210,11 @@ static void show_first_found_title_screen(const char *oem, const char *share, co
 #if DXX_USE_STEREOSCOPIC_RENDER
 void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
 {
-	gr_stereo_viewport_window(VR_stereo, x, y, w, h);
+	const auto &&[vx, vy, vw, vh]{gr_build_stereo_viewport_window(VR_stereo, x, y, w, h)};
+	x = vx;
+	y = vy;
+	w = vw;
+	h = vh;
 	y = gr_build_stereo_viewport_offset_left_eye(VR_stereo, y);
 }
 

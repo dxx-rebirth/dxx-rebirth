@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "d_underlying_value.h"
 #include <optional>
+#include <tuple>
 #include <utility>
 
 namespace dcx {
@@ -244,12 +245,14 @@ static inline std::pair<int, int> gr_build_stereo_viewport_offset_right_eye(cons
 	return {x, y};
 }
 
-inline void gr_stereo_viewport_window(const StereoFormat stereo, int &x, int &y, int &w, int &h)
+[[nodiscard]]
+constexpr std::tuple<int /* x */, int /* y */, unsigned /* w */, unsigned /* h */> gr_build_stereo_viewport_window(const StereoFormat stereo, int x, int y, unsigned w, unsigned h)
 {
 	switch (stereo) {
 		case StereoFormat::None:
 		case StereoFormat::QuadBuffers:
-			return;
+			[[likely]];
+			break;
 		case StereoFormat::AboveBelowSync:
 			h -= VR_sync_width / 2;
 			[[fallthrough]];
@@ -266,6 +269,7 @@ inline void gr_stereo_viewport_window(const StereoFormat stereo, int &x, int &y,
 			w -= w / 2;
 			break;
 	}
+	return {x, y, w, h};
 }
 #endif	// DXX_USE_STEREOSCOPIC_RENDER
 

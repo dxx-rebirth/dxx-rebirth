@@ -218,8 +218,7 @@ static void init_automap_subcanvas(grs_subcanvas &view, grs_canvas &container)
 {
 #if DXX_USE_STEREOSCOPIC_RENDER
 	if (VR_stereo != StereoFormat::None) {
-		int x = (SWIDTH/23), y = (SHEIGHT/6), w = (SWIDTH/1.1), h = (SHEIGHT/1.45);
-		gr_stereo_viewport_window(VR_stereo, x, y, w, h);
+		const auto &&[x, y, w, h]{gr_build_stereo_viewport_window(VR_stereo, (SWIDTH / 23), (SHEIGHT / 6), (SWIDTH / 1.1), (SHEIGHT / 1.45))};
 		gr_init_sub_canvas(view, container, x, y, w, h);
 		return;
 	}

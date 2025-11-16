@@ -1018,8 +1018,10 @@ void show_boxed_message(grs_canvas &canvas, const char *msg)
 	
 #if DXX_USE_STEREOSCOPIC_RENDER
 	if (VR_stereo != StereoFormat::None) {
-		int dw = w, dh = h;
-		gr_stereo_viewport_window(VR_stereo, x, y, dw, dh);
+		const auto &&[vx, vy, dw, dh]{gr_build_stereo_viewport_window(VR_stereo, x, y, w, h)};
+		x = vx;
+		y = vy;
+		(void)dh;
 		y = gr_build_stereo_viewport_offset_left_eye(VR_stereo, y);
 		x -= (w - dw) / 2;
 		center = x;

@@ -4079,7 +4079,13 @@ void do_cockpit_window_view(grs_canvas &canvas, const gauge_inset_window_view wi
 
 #if DXX_USE_STEREOSCOPIC_RENDER
 		if (VR_stereo != StereoFormat::None)
-			gr_stereo_viewport_window(VR_stereo, window_x, window_y, w, h);
+		{
+			const auto &&[vx, vy, vw, vh]{gr_build_stereo_viewport_window(VR_stereo, window_x, window_y, w, h)};
+			window_x = vx;
+			window_y = vy;
+			w = vw;
+			h = vh;
+		}
 #endif
 
 		gr_init_sub_canvas(window_canv, canvas, window_x, window_y, w, h);
