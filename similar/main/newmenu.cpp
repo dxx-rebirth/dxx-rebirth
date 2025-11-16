@@ -122,6 +122,22 @@ static void prepare_slider_text(std::array<char, NM_MAX_TEXT_LEN + 1> &text, con
 	std::fill_n(&text[offset + 1], steps, SLIDER_MIDDLE[0]);
 }
 
+#if DXX_USE_STEREOSCOPIC_RENDER
+void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
+{
+	int sw = SWIDTH, sh = SHEIGHT;
+	gr_stereo_viewport_resize(VR_stereo, sw, sh);
+	if (w > sw)
+		w -= (w - sw);
+	if (h > sh)
+		h -= (h - sh);
+	// re-center popup on downsized viewport
+	x = (sw - w) / 2;
+	y = (sh - h) / 2;
+	gr_stereo_viewport_offset(VR_stereo, x, y, -1);
+}
+#endif
+
 }
 
 void newmenu_free_background()	{
@@ -1304,20 +1320,6 @@ namespace dsx {
 namespace {
 
 #if DXX_USE_STEREOSCOPIC_RENDER
-static inline void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
-{
-		int sw = SWIDTH, sh = SHEIGHT;
-		gr_stereo_viewport_resize(VR_stereo, sw, sh);
-		if (w > sw)
-			w -= (w - sw);
-		if (h > sh)
-			h -= (h - sh);
-		// re-center popup on downsized viewport
-		x = (sw - w) / 2;
-		y = (sh - h) / 2;
-		gr_stereo_viewport_offset(VR_stereo, x, y, -1);
-}
-
 static inline void stereo_viewport_copy(grs_canvas &canvas, int x, int y, int w, int h)
 {
 		int dx = x, dy = y;
