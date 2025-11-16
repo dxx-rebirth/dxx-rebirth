@@ -851,11 +851,14 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am, fix eye = 0)
 #if DXX_USE_STEREOSCOPIC_RENDER
 	int sw = SWIDTH;
 	int sh = SHEIGHT;
-	int dx = 0, dy = 0;
+	const auto &&[dx, dy]{[](const StereoFormat stereo, const int eye) -> std::pair<int, int> {
+		// left eye viewport origin
+		if (eye <= 0) {
+			return {0, gr_build_stereo_viewport_offset_left_eye(stereo, 0)};
+		}
+		return gr_build_stereo_viewport_offset_right_eye(stereo, 0, 0, eye);
+	}(VR_stereo, eye)};
 	const auto &&[dw, dh]{gr_build_stereo_viewport_size(VR_stereo, sw, sh)};
-	if (VR_stereo != StereoFormat::None) {
-		gr_stereo_viewport_offset(VR_stereo, dx, dy, eye);
-	}
 	#define SCREEN_SIZE_STEREO 	grd_curscreen->set_screen_width_height(dw, dh)
 	#define SCREEN_SIZE_NORMAL 	grd_curscreen->set_screen_width_height(sw, sh)
 #else

@@ -244,19 +244,6 @@ static inline std::pair<int, int> gr_build_stereo_viewport_offset_right_eye(cons
 	return {x, y};
 }
 
-inline void gr_stereo_viewport_offset(const StereoFormat stereo, int &x, int &y, const int eye = 0)
-{
-	// left eye viewport origin
-	if (eye <= 0) {
-		y = gr_build_stereo_viewport_offset_left_eye(stereo, y);
-		return;
-	}
-
-	const auto &&[vx, vy]{gr_build_stereo_viewport_offset_right_eye(stereo, x, y, eye)};
-	x = vx;
-	y = vy;
-}
-
 inline void gr_stereo_viewport_window(const StereoFormat stereo, int &x, int &y, int &w, int &h)
 {
 	switch (stereo) {
