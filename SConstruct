@@ -5702,6 +5702,8 @@ def main(register_program,_d1xp=D1XProgram,_d2xp=D2XProgram):
 	unknown.pop('dxx', None)
 	unknown.pop('site', None)
 	ignore_unknown_variables = unknown.pop('ignore_unknown_variables', '0')
+	argument_keys = ARGUMENTS.keys()
+	unknown = {k for k in unknown if k in argument_keys}
 	if unknown:
 		# Protect user from misspelled options by reporting an error.
 		# Provide a way for the user to override the check, which might
@@ -5713,7 +5715,7 @@ def main(register_program,_d1xp=D1XProgram,_d2xp=D2XProgram):
 			ignore_unknown_variables = False
 		j = f'''Unknown values specified on command line.{
 	''.join((f"""
-	{k}""" for k in unknown.keys()))
+	{k}""" for k in unknown))
 }'''
 		if not ignore_unknown_variables:
 			raise SCons.Errors.StopError(j +
