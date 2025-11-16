@@ -136,6 +136,15 @@ void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
 	y = (sh - h) / 2;
 	gr_stereo_viewport_offset(VR_stereo, x, y, -1);
 }
+
+void stereo_viewport_copy(grs_canvas &canvas, int x, int y, int w, int h)
+{
+	int dx = x, dy = y;
+	gr_stereo_viewport_offset(VR_stereo, dx, dy, 1);
+#if DXX_USE_OGL
+	ogl_ubitblt_cs(canvas, w, h, dx, dy, x, y);
+#endif
+}
 #endif
 
 }
@@ -1318,17 +1327,6 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 namespace dsx {
 
 namespace {
-
-#if DXX_USE_STEREOSCOPIC_RENDER
-static inline void stereo_viewport_copy(grs_canvas &canvas, int x, int y, int w, int h)
-{
-		int dx = x, dy = y;
-		gr_stereo_viewport_offset(VR_stereo, dx, dy, 1);
-#if DXX_USE_OGL
-		ogl_ubitblt_cs(canvas, w, h, dx, dy, x, y);
-#endif
-}
-#endif
 
 static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_font)
 {
