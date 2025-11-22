@@ -53,7 +53,7 @@ constexpr std::integral_constant<uint8_t, 127> MAX_SECRET_LEVELS_PER_MISSION{};	
 #define D1_SHAREWARE_MISSION_NAME       "Descent Demo"
 
 #ifdef DXX_BUILD_DESCENT
-namespace dsx {
+namespace dcx {
 
 enum class descent_hog_size : int
 {
@@ -67,15 +67,17 @@ enum class descent_hog_size : int
 	pc_shareware_v14 = 2339773, // v1.4
 	pc_shareware_v10 = 2365676, // v1.0 - 1.2
 	mac_shareware = 3370339,
-#if DXX_BUILD_DESCENT == 2
-#define SHAREWARE_MISSION_FILENAME  "d2demo"
-#define SHAREWARE_MISSION_NAME      "Descent 2 Demo"
+	/* if DXX_BUILD_DESCENT == 2 */
 	d2_shareware = 2292566, // v1.0 (d2demo.hog)
 	d2_mac_shareware = 4292746,
 	d2_oem_v11 = 6132957, // v1.1
 	d2_full = 7595079, // v1.1 - 1.2
 	d2_full_v10 = 7107354, // v1.0
 	d2_mac_full = 7110007, // v1.1 - 1.2
+	/* endif */
+#if DXX_BUILD_DESCENT == 2
+#define SHAREWARE_MISSION_FILENAME  "d2demo"
+#define SHAREWARE_MISSION_NAME      "Descent 2 Demo"
 
 #define OEM_MISSION_FILENAME        "d2"
 #define OEM_MISSION_NAME            "D2 Destination:Quartzon"
