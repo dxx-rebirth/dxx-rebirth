@@ -348,6 +348,15 @@ namespace dcx {
 namespace {
 
 //-----------------------------------------------------------------------------
+
+struct msgstream
+{
+	int x;
+	int y;
+	color_t color;
+	std::array<char, 2> ch;
+};
+
 struct briefing_screen {
 	char    bs_name[13];                //  filename, eg merc01.  Assumes .lbm suffix.
 	sbyte   level_num;
@@ -478,14 +487,6 @@ constexpr briefing_screen D1_Briefing_screens_share[] = {
 	{ "merc01.pcx",    6, 10,  10, 15, 300, 200 }, // level 6
 	{ "merc01.pcx",    7, 11,  10, 15, 300, 200 }, // level 7
 	{ "end01.pcx",   ENDING_LEVEL_NUM_OEMSHARE,  1,  23, 40, 320, 200 }, // shareware end
-};
-
-struct msgstream
-{
-	int x;
-	int y;
-	color_t color;
-	std::array<char, 2> ch;
 };
 
 constexpr const briefing_screen *get_d1_briefing_screens(const descent_hog_size size)
