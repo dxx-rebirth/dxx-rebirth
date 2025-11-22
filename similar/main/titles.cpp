@@ -514,6 +514,17 @@ static int redraw_messagestream(grs_canvas &canvas, const grs_font &cv_font, con
 	return nextcolor;
 }
 
+//-----------------------------------------------------------------------------
+static void show_briefing_bitmap_res(grs_canvas &canvas, grs_bitmap *bmp, const bool hiresmode)
+{
+	const auto w = static_cast<float>(SWIDTH) / (hiresmode ? 640 : 320);
+	const auto h = static_cast<float>(SHEIGHT) / (hiresmode ? 480 : 200);
+	const float scale = (w < h) ? w : h;
+
+	auto bitmap_canv = gr_create_sub_canvas(canvas, rescale_x(canvas.cv_bitmap, 220), rescale_y(canvas.cv_bitmap, 55), bmp->bm_w*scale, bmp->bm_h*scale);
+	show_fullscr(*bitmap_canv, *bmp);
+}
+
 }
 
 }
@@ -1221,29 +1232,12 @@ static void show_animated_bitmap(grs_canvas &canvas, briefing *br)
 	}
 }
 
-}
-
-}
-
-namespace {
-
-//-----------------------------------------------------------------------------
 static void show_briefing_bitmap(grs_canvas &canvas, grs_bitmap *bmp)
 {
-	const bool hiresmode = HIRESMODE;
-	const auto w = static_cast<float>(SWIDTH) / (hiresmode ? 640 : 320);
-	const auto h = static_cast<float>(SHEIGHT) / (hiresmode ? 480 : 200);
-	const float scale = (w < h) ? w : h;
-
-	auto bitmap_canv = gr_create_sub_canvas(canvas, rescale_x(canvas.cv_bitmap, 220), rescale_y(canvas.cv_bitmap, 55), bmp->bm_w*scale, bmp->bm_h*scale);
-	show_fullscr(*bitmap_canv, *bmp);
-}
-
+	show_briefing_bitmap_res(canvas, bmp, HIRESMODE);
 }
 
 //-----------------------------------------------------------------------------
-namespace dsx {
-namespace {
 static void init_spinning_robot(grs_canvas &canvas, briefing &br) //(int x,int y,int w,int h)
 {
 	br.robot_canv = create_spinning_robot_sub_canvas(canvas);
