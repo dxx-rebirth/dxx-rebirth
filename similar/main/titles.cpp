@@ -477,6 +477,13 @@ static std::array<char, 32> get_message_name(const char *&message, const char *c
 	return result;
 }
 
+constexpr const briefing_screen *get_d1_briefing_screens(const descent_hog_size size)
+{
+	if (size == descent_hog_size::pc_shareware_v14 || size == descent_hog_size::pc_shareware_v10)
+		return D1_Briefing_screens_share;
+	return D1_Briefing_screens_full;
+}
+
 }
 
 }
@@ -489,13 +496,6 @@ static std::array<briefing_screen, 60> Briefing_screens{{
 	{"brief03.pcx",0,3,8,8,257,177}
 }}; // default=0!!!
 #endif
-
-constexpr const briefing_screen *get_d1_briefing_screens(const descent_hog_size size)
-{
-	if (size == descent_hog_size::pc_shareware_v14 || size == descent_hog_size::pc_shareware_v10)
-		return D1_Briefing_screens_share;
-	return D1_Briefing_screens_full;
-}
 
 #if DXX_BUILD_DESCENT == 1
 using briefing_screen_deleter = std::default_delete<briefing_screen>;
