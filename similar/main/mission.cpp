@@ -383,6 +383,8 @@ static void load_mission_d1()
 }
 
 #if DXX_BUILD_DESCENT == 2
+#define SHAREWARE_MISSION_NAME      "Descent 2 Demo"
+#define OEM_MISSION_NAME            "D2 Destination:Quartzon"
 //
 //  Special versions of mission routines for shareware
 //
@@ -673,10 +675,10 @@ static void add_builtin_mission_to_list(mission_list_type &mission_list, d_fname
 	switch (size) {
 		case descent_hog_size::d2_shareware:
 		case descent_hog_size::d2_mac_shareware:
-			mission = set_hardcoded_mission(mission_list, SHAREWARE_MISSION_FILENAME, SHAREWARE_MISSION_NAME, size);
+			mission = set_hardcoded_mission(mission_list, /* SHAREWARE_MISSION_FILENAME = */ "d2demo", SHAREWARE_MISSION_NAME, size);
 			break;
 		case descent_hog_size::d2_oem_v11:
-			mission = set_hardcoded_mission(mission_list, OEM_MISSION_FILENAME, OEM_MISSION_NAME, size);
+			mission = set_hardcoded_mission(mission_list, /* OEM_MISSION_FILENAME = */ "d2", OEM_MISSION_NAME, size);
 			break;
 	default:
 			Warning("Unknown hogsize %d, trying %s", underlying_value(size), FULL_MISSION_FILENAME MISSION_EXTENSION_DESCENT_II);

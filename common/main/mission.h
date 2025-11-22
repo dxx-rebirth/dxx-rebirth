@@ -76,12 +76,6 @@ enum class descent_hog_size : int
 	d2_mac_full = 7110007, // v1.1 - 1.2
 	/* endif */
 #if DXX_BUILD_DESCENT == 2
-#define SHAREWARE_MISSION_FILENAME  "d2demo"
-#define SHAREWARE_MISSION_NAME      "Descent 2 Demo"
-
-#define OEM_MISSION_FILENAME        "d2"
-#define OEM_MISSION_NAME            "D2 Destination:Quartzon"
-
 #define FULL_MISSION_FILENAME       "d2"
 #endif
 };
