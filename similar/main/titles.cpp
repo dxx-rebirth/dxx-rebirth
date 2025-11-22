@@ -208,14 +208,13 @@ static void show_first_found_title_screen(const char *oem, const char *share, co
 }
 
 #if DXX_USE_STEREOSCOPIC_RENDER
-void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
+[[nodiscard]]
+std::tuple<int /* x */, int /* y */, unsigned /* w */, unsigned /* h */> build_stereo_viewport_adjust(const StereoFormat stereo, const int x, const int y, const int w, const int h)
 {
-	const auto &&[vx, vy, vw, vh]{gr_build_stereo_viewport_window(VR_stereo, x, y, w, h)};
-	x = vx;
-	y = vy;
-	w = vw;
-	h = vh;
-	y = gr_build_stereo_viewport_offset_left_eye(VR_stereo, y);
+	auto v{gr_build_stereo_viewport_window(stereo, x, y, w, h)};
+	auto &ry{std::get<1>(v)};
+	ry = gr_build_stereo_viewport_offset_left_eye(stereo, ry);
+	return v;
 }
 
 void stereo_viewport_copy(grs_canvas &canvas, int x, int y, int w, int h)
@@ -1317,8 +1316,13 @@ static int DefineBriefingBox(const grs_bitmap &cv_bitmap, const char *&buf)
 
 #if DXX_USE_STEREOSCOPIC_RENDER
 	if (VR_stereo != StereoFormat::None)
-		stereo_viewport_adjust(Briefing_screens[n].text_ulx, Briefing_screens[n].text_uly,
-					Briefing_screens[n].text_width, Briefing_screens[n].text_height);
+	{
+		auto &&[vx, vy, vw, vh]{build_stereo_viewport_adjust(VR_stereo, Briefing_screens[n].text_ulx, Briefing_screens[n].text_uly, Briefing_screens[n].text_width, Briefing_screens[n].text_height)};
+		Briefing_screens[n].text_ulx = vx;
+		Briefing_screens[n].text_uly = vy;
+		Briefing_screens[n].text_width = vw;
+		Briefing_screens[n].text_height = vh;
+	}
 #endif
 
 	return (n);
@@ -1394,15 +1398,24 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 	set_briefing_fontcolor();
 
 	br->screen = std::make_unique<briefing_screen>(get_d1_briefing_screens(descent_hog_size)[br->cur_screen]);
-	br->screen->text_ulx = rescale_x(canvas.cv_bitmap, br->screen->text_ulx);
-	br->screen->text_uly = rescale_y(canvas.cv_bitmap, br->screen->text_uly);
-	br->screen->text_width = rescale_x(canvas.cv_bitmap, br->screen->text_width);
-	br->screen->text_height = rescale_y(canvas.cv_bitmap, br->screen->text_height);
+	auto text_ulx{rescale_x(canvas.cv_bitmap, br->screen->text_ulx)};
+	auto text_uly{rescale_y(canvas.cv_bitmap, br->screen->text_uly)};
+	auto text_width{rescale_x(canvas.cv_bitmap, br->screen->text_width)};
+	auto text_height{rescale_y(canvas.cv_bitmap, br->screen->text_height)};
 #if DXX_USE_STEREOSCOPIC_RENDER
 	if (VR_stereo != StereoFormat::None)
-		stereo_viewport_adjust(br->screen->text_ulx, br->screen->text_uly,
-					br->screen->text_width, br->screen->text_height);
+	{
+		auto &&[vx, vy, vw, vh]{build_stereo_viewport_adjust(VR_stereo, text_ulx, text_uly, text_width, text_height)};
+		text_ulx = vx;
+		text_uly = vy;
+		text_width = vw;
+		text_height = vh;
+	}
 #endif
+	br->screen->text_ulx = text_ulx;
+	br->screen->text_uly = text_uly;
+	br->screen->text_width = text_width;
+	br->screen->text_height = text_height;
 	init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 #elif DXX_BUILD_DESCENT == 2
 	free_briefing_screen(br);
@@ -1431,15 +1444,24 @@ static int load_briefing_screen(grs_canvas &canvas, briefing *const br, const ch
 	{
 		br->got_z = 1;
 		br->screen = std::make_unique<briefing_screen>(Briefing_screens[br->cur_screen]);
-		br->screen->text_ulx = rescale_x(canvas.cv_bitmap, br->screen->text_ulx);
-		br->screen->text_uly = rescale_y(canvas.cv_bitmap, br->screen->text_uly);
-		br->screen->text_width = rescale_x(canvas.cv_bitmap, br->screen->text_width);
-		br->screen->text_height = rescale_y(canvas.cv_bitmap, br->screen->text_height);
+		auto text_ulx{rescale_x(canvas.cv_bitmap, br->screen->text_ulx)};
+		auto text_uly{rescale_y(canvas.cv_bitmap, br->screen->text_uly)};
+		auto text_width{rescale_x(canvas.cv_bitmap, br->screen->text_width)};
+		auto text_height{rescale_y(canvas.cv_bitmap, br->screen->text_height)};
 #if DXX_USE_STEREOSCOPIC_RENDER
 		if (VR_stereo != StereoFormat::None)
-			stereo_viewport_adjust(br->screen->text_ulx, br->screen->text_uly,
-						br->screen->text_width, br->screen->text_height);
+		{
+			auto &&[vx, vy, vw, vh]{build_stereo_viewport_adjust(VR_stereo, text_ulx, text_uly, text_width, text_height)};
+			text_ulx = vx;
+			text_uly = vy;
+			text_width = vw;
+			text_height = vh;
+		}
 #endif
+		br->screen->text_ulx = text_ulx;
+		br->screen->text_uly = text_uly;
+		br->screen->text_width = text_width;
+		br->screen->text_height = text_height;
 		init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 	}
 
