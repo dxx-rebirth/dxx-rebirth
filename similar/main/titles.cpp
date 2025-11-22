@@ -534,15 +534,15 @@ struct briefing : window
 	virtual window_event_result event_handler(const d_event &) override;
 	unsigned streamcount;
 	short	level_num;
-	short	cur_screen;
+	short	cur_screen{0};
 	std::unique_ptr<briefing_screen, briefing_screen_deleter> screen;
 	grs_main_bitmap background;
-	animating_bitmap_type animating_bitmap;
+	animating_bitmap_type animating_bitmap{animating_bitmap_type::loop};
 	uint8_t flashing_cursor;
 	uint8_t new_screen;
 	uint8_t new_page;
-	door_direction door_dir;
-	uint8_t door_div_count;
+	door_direction door_dir{door_direction::forward};
+	uint8_t door_div_count{0};
 	int8_t prev_ch;
 #if DXX_BUILD_DESCENT == 2
 	uint8_t got_z;
@@ -559,9 +559,9 @@ struct briefing : window
 	short	tab_stop;
 	fix64		start_time;
 	fix64		delay_count;
-	int		robot_num;
+	int		robot_num{0};
 	grs_subcanvas_ptr	robot_canv;
-	vms_angvec	robot_angles;
+	vms_angvec	robot_angles{};
 	std::array<char, 32> bitmap_name;
 	grs_main_bitmap  guy_bitmap;
 	std::array<char, 16> background_name;
@@ -574,15 +574,9 @@ static void briefing_init(briefing *br, short level_num)
 	if (EMULATING_D1 && (br->level_num == 1))
 		br->level_num = 0;	// for start of game stuff
 
-	br->cur_screen = 0;
 	br->background_name.back() = 0;
 	strncpy(br->background_name.data(), DEFAULT_BRIEFING_BKG, br->background_name.size() - 1);
-	br->robot_num = 0;
-	br->robot_angles = {};
 	br->bitmap_name[0] = '\0';
-	br->door_dir = briefing::door_direction::forward;
-	br->door_div_count = 0;
-	br->animating_bitmap = briefing::animating_bitmap_type::loop;
 }
 
 //-----------------------------------------------------------------------------
