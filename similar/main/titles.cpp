@@ -577,9 +577,6 @@ static void briefing_init(briefing *br, short level_num)
 	br->cur_screen = 0;
 	br->background_name.back() = 0;
 	strncpy(br->background_name.data(), DEFAULT_BRIEFING_BKG, br->background_name.size() - 1);
-#if DXX_BUILD_DESCENT == 2
-	br->RoboFile = {};
-#endif
 	br->robot_num = 0;
 	br->robot_angles = {};
 	br->bitmap_name[0] = '\0';
