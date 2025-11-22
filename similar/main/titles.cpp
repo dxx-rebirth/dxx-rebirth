@@ -527,8 +527,9 @@ struct briefing : window
 		backward = -1,
 		forward = 1,
 	};
-	briefing(grs_canvas &src) :
-		window(src, 0, 0, src.cv_bitmap.bm_w, src.cv_bitmap.bm_h)
+	briefing(grs_canvas &src, std::unique_ptr<char[]> text) :
+		window{src, 0, 0, src.cv_bitmap.bm_w, src.cv_bitmap.bm_h},
+		text{std::move(text)}
 	{
 	}
 	virtual window_event_result event_handler(const d_event &) override;
@@ -581,19 +582,20 @@ static void briefing_init(briefing *br, short level_num)
 
 //-----------------------------------------------------------------------------
 //	Load Descent briefing text.
-static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &buf)
+static std::unique_ptr<char[]> load_screen_text(const d_fname &filename)
 {
 	int have_binary{0};
 	auto e = end(filename);
 	auto ext = std::find(begin(filename), e, '.');
+	std::unique_ptr<char[]> buf;
 	if (ext == e)
-		return (0);
+		return buf;
 	if (!d_stricmp(&*ext, ".txb"))
 		have_binary = 1;
 	
 	auto tfile = PHYSFSX_openReadBuffered(filename).first;
 	if (!tfile)
-		return (0);
+		return buf;
 
 	const auto len{PHYSFS_fileLength(tfile)};
 	buf = std::make_unique<char[]>(len + 1);
@@ -608,7 +610,7 @@ static int load_screen_text(const d_fname &filename, std::unique_ptr<char[]> &bu
 	if (have_binary)
 		decode_text(std::span(buf.get(), len));
 
-	return (1);
+	return buf;
 }
 
 #if DXX_BUILD_DESCENT == 2
@@ -1743,13 +1745,15 @@ void do_briefing_screens(const d_fname &filename, int level_num)
 	if (!*static_cast<const char *>(filename))
 		return;
 
-	auto br = window_create<briefing>(grd_curscreen->sc_canvas);
-	briefing_init(br, level_num);
-
-	if (!load_screen_text(filename, br->text))
+	auto briefing_screen_text{load_screen_text(filename)};
+	if (!briefing_screen_text)
 	{
+		[[unlikely]];
 		return;
 	}
+
+	auto br{window_create<briefing>(grd_curscreen->sc_canvas, std::move(briefing_screen_text))};
+	briefing_init(br, level_num);
 
 #if DXX_BUILD_DESCENT == 2
 	if (!(EMULATING_D1 || is_SHAREWARE || is_MAC_SHARE || is_D2_OEM || !PLAYING_BUILTIN_MISSION))
