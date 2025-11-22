@@ -3644,6 +3644,8 @@ class DXXCommon(LazyObjectConstructor):
 				return True
 			return False
 		def default_use_stereo_render(self):
+			if self.host_platform != 'linux':
+				return False
 			return self.opengl and not self.opengles
 		def selected_OGLES_LIB(self):
 			if self.raspberrypi == 'yes':
