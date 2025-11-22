@@ -505,6 +505,15 @@ static const char *get_briefing_message_from_text(const char *tptr, int screen_n
 	return tptr;
 }
 
+static int redraw_messagestream(grs_canvas &canvas, const grs_font &cv_font, const msgstream &stream, const int lastcolor)
+{
+	const auto nextcolor{stream.color};
+	if (lastcolor != nextcolor)
+		gr_set_fontcolor(canvas, nextcolor, -1);
+	gr_string(canvas, cv_font, stream.x + 1, stream.y, stream.ch.data());
+	return nextcolor;
+}
+
 }
 
 }
@@ -1087,25 +1096,7 @@ static void set_briefing_fontcolor(briefing &br)
 
 	Erase_color = gr_find_closest_color_current(0, 0, 0);
 }
-}
 
-}
-
-namespace {
-
-static int redraw_messagestream(grs_canvas &canvas, const grs_font &cv_font, const msgstream &stream, const int lastcolor)
-{
-	const auto nextcolor{stream.color};
-	if (lastcolor != nextcolor)
-		gr_set_fontcolor(canvas, nextcolor, -1);
-	gr_string(canvas, cv_font, stream.x + 1, stream.y, stream.ch.data());
-	return nextcolor;
-}
-
-}
-
-namespace dsx {
-namespace {
 static void flash_cursor(grs_canvas &canvas, const grs_font &cv_font, briefing *const br, const int cursor_flag)
 {
 	if (cursor_flag == 0)
