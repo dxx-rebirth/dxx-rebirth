@@ -484,6 +484,27 @@ constexpr const briefing_screen *get_d1_briefing_screens(const descent_hog_size 
 	return D1_Briefing_screens_full;
 }
 
+// Return a pointer to the start of text for screen #screen_num.
+static const char *get_briefing_message_from_text(const char *tptr, int screen_num)
+{
+	int cur_screen{0};
+	int	ch;
+
+	Assert(screen_num >= 0);
+
+	while ( (*tptr != 0 ) && (screen_num != cur_screen)) {
+		ch = *tptr++;
+		if (ch == '$') {
+			ch = *tptr++;
+			if (ch == 'S')
+				cur_screen = get_message_num(tptr);
+		}
+	}
+	if (screen_num != cur_screen)
+		return nullptr;
+	return tptr;
+}
+
 }
 
 }
@@ -624,28 +645,9 @@ static int get_new_message_num(const char *&message)
 }
 #endif
 
-// Return a pointer to the start of text for screen #screen_num.
-static const char * get_briefing_message(const briefing *br, int screen_num)
+static const char *get_briefing_message(const briefing *const br, int screen_num)
 {
-	const char	*tptr = br->text.get();
-	int cur_screen{0};
-	int	ch;
-
-	Assert(screen_num >= 0);
-
-	while ( (*tptr != 0 ) && (screen_num != cur_screen)) {
-		ch = *tptr++;
-		if (ch == '$') {
-			ch = *tptr++;
-			if (ch == 'S')
-				cur_screen = get_message_num(tptr);
-		}
-	}
-
-	if (screen_num!=cur_screen)
-		return (NULL);
-
-	return tptr;
+	return get_briefing_message_from_text(br->text.get(), screen_num);
 }
 
 static void init_char_pos(briefing *br, int x, int y)
