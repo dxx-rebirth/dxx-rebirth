@@ -368,6 +368,22 @@ struct briefing_screen {
 #define	ENDING_LEVEL_NUM_OEMSHARE 0x7f
 #define	ENDING_LEVEL_NUM_REGISTER 0x7e
 
+constexpr briefing_screen D1_Briefing_screens_share[] = {
+	{ "brief01.pcx",   0,  1,  13, 140, 290,  59 },
+	{ "brief02.pcx",   0,  2,  27,  34, 257, 177 },
+	{ "brief03.pcx",   0,  3,  20,  22, 257, 177 },
+	{ "brief02.pcx",   0,  4,  27,  34, 257, 177 },
+	{ "moon01.pcx",    1,  5,  10,  10, 300, 170 }, // level 1
+	{ "moon01.pcx",    2,  6,  10,  10, 300, 170 }, // level 2
+	{ "moon01.pcx",    3,  7,  10,  10, 300, 170 }, // level 3
+	{ "venus01.pcx",   4,  8,  15, 15, 300,  200 }, // level 4
+	{ "venus01.pcx",   5,  9,  15, 15, 300,  200 }, // level 5
+	{ "brief03.pcx",   6, 10,  20,  22, 257, 177 },
+	{ "merc01.pcx",    6, 10,  10, 15, 300, 200 }, // level 6
+	{ "merc01.pcx",    7, 11,  10, 15, 300, 200 }, // level 7
+	{ "end01.pcx",   ENDING_LEVEL_NUM_OEMSHARE,  1,  23, 40, 320, 200 }, // shareware end
+};
+
 static grs_subcanvas_ptr create_spinning_robot_sub_canvas(grs_canvas &canvas)
 {
 	return gr_create_sub_canvas(canvas, rescale_x(canvas.cv_bitmap, 138), rescale_y(canvas.cv_bitmap, 55), rescale_x(canvas.cv_bitmap, 166), rescale_y(canvas.cv_bitmap, 138));
@@ -413,14 +429,15 @@ static std::array<char, 32> get_message_name(const char *&message, const char *c
 	strcpy(i, trailer);
 	return result;
 }
+
 }
+
 }
 
 namespace dsx {
 namespace {
 
 #if DXX_BUILD_DESCENT == 2
-
 static std::array<briefing_screen, 60> Briefing_screens{{
 	{"brief03.pcx",0,3,8,8,257,177}
 }}; // default=0!!!
@@ -471,22 +488,6 @@ constexpr briefing_screen D1_Briefing_screens_full[] = {
 	{ "end02.pcx",   ENDING_LEVEL_NUM_REGISTER,  1,  5, 5, 300, 200 },    // registered end
 	{ "end01.pcx",   ENDING_LEVEL_NUM_REGISTER,  2,  23, 40, 320, 200 },  // registered end
 	{ "end03.pcx",   ENDING_LEVEL_NUM_REGISTER,  3,  5, 5, 300, 200 },    // registered end
-};
-
-constexpr briefing_screen D1_Briefing_screens_share[] = {
-	{ "brief01.pcx",   0,  1,  13, 140, 290,  59 },
-	{ "brief02.pcx",   0,  2,  27,  34, 257, 177 },
-	{ "brief03.pcx",   0,  3,  20,  22, 257, 177 },
-	{ "brief02.pcx",   0,  4,  27,  34, 257, 177 },
-	{ "moon01.pcx",    1,  5,  10,  10, 300, 170 }, // level 1
-	{ "moon01.pcx",    2,  6,  10,  10, 300, 170 }, // level 2
-	{ "moon01.pcx",    3,  7,  10,  10, 300, 170 }, // level 3
-	{ "venus01.pcx",   4,  8,  15, 15, 300,  200 }, // level 4
-	{ "venus01.pcx",   5,  9,  15, 15, 300,  200 }, // level 5
-	{ "brief03.pcx",   6, 10,  20,  22, 257, 177 },
-	{ "merc01.pcx",    6, 10,  10, 15, 300, 200 }, // level 6
-	{ "merc01.pcx",    7, 11,  10, 15, 300, 200 }, // level 7
-	{ "end01.pcx",   ENDING_LEVEL_NUM_OEMSHARE,  1,  23, 40, 320, 200 }, // shareware end
 };
 
 constexpr const briefing_screen *get_d1_briefing_screens(const descent_hog_size size)
