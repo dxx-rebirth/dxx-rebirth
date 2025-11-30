@@ -235,12 +235,8 @@ void texmerge_close()
 
 grs_bitmap &texmerge_get_cached_bitmap(const texture1_value tmap_bottom, const texture2_value tmap_top)
 {
-	grs_bitmap *bitmap_top, *bitmap_bottom;
-
 	auto &texture_top = Textures[get_texture_index(tmap_top)];
-	bitmap_top = &GameBitmaps[texture_top];
 	auto &texture_bottom = Textures[get_texture_index(tmap_bottom)];
-	bitmap_bottom = &GameBitmaps[texture_bottom];
 	
 	const auto orient{get_texture_rotation_low(tmap_top)};
 
@@ -265,32 +261,34 @@ grs_bitmap &texmerge_get_cached_bitmap(const texture1_value tmap_bottom, const t
 
 	// Make sure the bitmaps are paged in...
 
+	const auto &bitmap_top{GameBitmaps[texture_top]};
+	const auto &bitmap_bottom{GameBitmaps[texture_bottom]};
 	PIGGY_PAGE_IN(texture_top);
 	PIGGY_PAGE_IN(texture_bottom);
-	if (bitmap_bottom->bm_w != bitmap_bottom->bm_h || bitmap_top->bm_w != bitmap_top->bm_h)
-		Error("Texture width != texture height!\nbottom tmap = %u; bottom bitmap = %u; bottom width = %u; bottom height = %u\ntop tmap = %hu; top bitmap = %u; top width=%u; top height=%u", underlying_value(tmap_bottom), underlying_value(texture_bottom), bitmap_bottom->bm_w, bitmap_bottom->bm_h, underlying_value(tmap_top), underlying_value(texture_top), bitmap_top->bm_w, bitmap_top->bm_h);
-	if (bitmap_bottom->bm_w != bitmap_top->bm_w || bitmap_bottom->bm_h != bitmap_top->bm_h)
-		Error("Top and Bottom textures have different size!\nbottom tmap = %u; bottom bitmap = %u; bottom width = %u; bottom height = %u\ntop tmap = %hu; top bitmap = %u; top width=%u; top height=%u", underlying_value(tmap_bottom), underlying_value(texture_bottom), bitmap_bottom->bm_w, bitmap_bottom->bm_h, underlying_value(tmap_top), underlying_value(texture_top), bitmap_top->bm_w, bitmap_top->bm_h);
+	if (bitmap_bottom.bm_w != bitmap_bottom.bm_h || bitmap_top.bm_w != bitmap_top.bm_h)
+		Error("Texture width != texture height!\nbottom tmap = %u; bottom bitmap = %u; bottom width = %u; bottom height = %u\ntop tmap = %hu; top bitmap = %u; top width=%u; top height=%u", underlying_value(tmap_bottom), underlying_value(texture_bottom), bitmap_bottom.bm_w, bitmap_bottom.bm_h, underlying_value(tmap_top), underlying_value(texture_top), bitmap_top.bm_w, bitmap_top.bm_h);
+	if (bitmap_bottom.bm_w != bitmap_top.bm_w || bitmap_bottom.bm_h != bitmap_top.bm_h)
+		Error("Top and Bottom textures have different size!\nbottom tmap = %u; bottom bitmap = %u; bottom width = %u; bottom height = %u\ntop tmap = %hu; top bitmap = %u; top width=%u; top height=%u", underlying_value(tmap_bottom), underlying_value(texture_bottom), bitmap_bottom.bm_w, bitmap_bottom.bm_h, underlying_value(tmap_top), underlying_value(texture_top), bitmap_top.bm_w, bitmap_top.bm_h);
 
-	least_recently_used->bitmap = gr_create_bitmap(bitmap_bottom->bm_w,  bitmap_bottom->bm_h);
+	least_recently_used->bitmap = gr_create_bitmap(bitmap_bottom.bm_w, bitmap_bottom.bm_h);
 #if DXX_USE_OGL
 	ogl_freebmtexture(*least_recently_used->bitmap.get());
 #endif
 
-	auto &expanded_top_bmp = *rle_expand_texture(*bitmap_top);
-	auto &expanded_bottom_bmp = *rle_expand_texture(*bitmap_bottom);
-	if (bitmap_top->get_flag_mask(BM_FLAG_SUPER_TRANSPARENT))
+	auto &expanded_top_bmp{*rle_expand_texture(bitmap_top)};
+	auto &expanded_bottom_bmp{*rle_expand_texture(bitmap_bottom)};
+	if (bitmap_top.get_flag_mask(BM_FLAG_SUPER_TRANSPARENT))
 	{
 		merge_textures<merge_transform_super_xparent>(expanded_bottom_bmp.bm_w, expanded_top_bmp.bm_data, expanded_bottom_bmp.bm_data, least_recently_used->bitmap->get_bitmap_data(), orient);
 		gr_set_bitmap_flags(*least_recently_used->bitmap.get(), BM_FLAG_TRANSPARENT);
 #if !DXX_USE_OGL
-		least_recently_used->bitmap->avg_color = bitmap_top->avg_color;
+		least_recently_used->bitmap->avg_color = bitmap_top.avg_color;
 #endif
 	} else	{
 		merge_textures<merge_transform_new>(expanded_bottom_bmp.bm_w, expanded_top_bmp.bm_data, expanded_bottom_bmp.bm_data, least_recently_used->bitmap->get_bitmap_data(), orient);
-		least_recently_used->bitmap->set_flags(bitmap_bottom->get_flag_mask(~BM_FLAG_RLE));
+		least_recently_used->bitmap->set_flags(bitmap_bottom.get_flag_mask(~BM_FLAG_RLE));
 #if !DXX_USE_OGL
-		least_recently_used->bitmap->avg_color = bitmap_bottom->avg_color;
+		least_recently_used->bitmap->avg_color = bitmap_bottom.avg_color;
 #endif
 	}
 
