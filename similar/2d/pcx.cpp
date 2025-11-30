@@ -204,8 +204,7 @@ pcx_result bald_guy_load(const char *const filename, grs_main_bitmap &bmp, palet
 	if (!b)
 		return pcx_result::ERROR_OPENING;
 
-	RWops_ptr rw(SDL_RWFromConstMem(b, bguy_data.size()));
-	return pcx_read_bitmap(filename, bmp, palette, std::move(rw));
+	return pcx_read_bitmap(filename, bmp, palette, RWops_ptr{SDL_RWFromConstMem(b, bguy_data.size())});
 #else
 	return pcx_support_not_compiled(filename, bmp, palette);
 #endif
