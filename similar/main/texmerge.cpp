@@ -183,6 +183,11 @@ static void merge_textures(const unsigned wh, const uint8_t *const top_data, con
 {
 	switch (orient)
 	{
+		default:
+			/* The default label should be unreachable.  Define it equal to
+			 * `Normal` so that the compiler is free to let that path run the
+			 * normal case instead of needing a jump to bypass all cases.
+			 */
 		case texture2_rotation_low::Normal:
 			merge_textures_case<texture_transform, merge_texture_0>(wh, top_data, bottom_data, dest_data);
 			break;
