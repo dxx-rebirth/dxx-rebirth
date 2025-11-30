@@ -4721,6 +4721,7 @@ class DXXArchive(DXXCommon):
 'common/2d/canvas.cpp',
 'common/2d/circle.cpp',
 'common/2d/disc.cpp',
+'common/2d/font.cpp',
 'common/2d/gpixel.cpp',
 'common/2d/line.cpp',
 'common/2d/palette.cpp',
@@ -5015,7 +5016,6 @@ class DXXProgram(DXXCommon):
 	),
 	))
 	__get_objects_common = DXXCommon.create_lazy_object_states_getter((LazyObjectState(sources=(
-'similar/2d/font.cpp',
 'similar/2d/palette.cpp',
 'similar/2d/pcx.cpp',
 'similar/3d/interp.cpp',
