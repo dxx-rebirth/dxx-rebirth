@@ -210,11 +210,11 @@ void g3_add_delta_vec(g3s_point &dest, const g3_rotated_point &src, const vms_ve
 }
 
 //calculate the depth of a point - returns the z coord of the rotated point
-fix g3_calc_point_depth(const vms_vector &pnt)
+fix g3_calc_point_depth(const vms_vector &pnt, const vms_vector &View_position, const vms_vector &View_matrix_f)
 {
-	const auto q0{fixmulaccum({}, pnt.x - View_position.x, View_matrix.fvec.x)};
-	const auto q1{fixmulaccum(q0, pnt.y - View_position.y, View_matrix.fvec.y)};
-	const auto q2{fixmulaccum(q1, pnt.z - View_position.z, View_matrix.fvec.z)};
+	const auto q0{fixmulaccum({}, pnt.x - View_position.x, View_matrix_f.x)};
+	const auto q1{fixmulaccum(q0, pnt.y - View_position.y, View_matrix_f.y)};
+	const auto q2{fixmulaccum(q1, pnt.z - View_position.z, View_matrix_f.z)};
 	return fixquadadjust(q2);
 }
 

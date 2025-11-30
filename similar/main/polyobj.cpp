@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "cntrlcen.h"
 #include "interp.h"
+#include "common/3d/globvars.h"
 #include "dxxerror.h"
 #include "u_mem.h"
 #include "physfs-serial.h"
@@ -429,7 +430,7 @@ void draw_polygon_model(grs_canvas &canvas, const tmap_drawer_type tmap_drawer_p
 			//for on 11/14/94, they do match.  So we leave it in.
 			{
 				int cnt{1};
-				const auto depth = g3_calc_point_depth(pos);		//gets 3d depth
+				const auto depth{g3_calc_point_depth(pos, View_position, View_matrix.fvec)};		//gets 3d depth
 				while (po->simpler_model != polygon_simpler_model_index::None && depth > cnt++ * Simple_model_threshhold_scale * po->rad)
 					po = &Polygon_models[build_polygon_model_index_from_polygon_simpler_model_index(po->simpler_model)];
 			}
