@@ -179,11 +179,8 @@ static void merge_textures_case(const unsigned wh, const uint8_t *const top_data
  * for each byte processed.
  */
 template <typename texture_transform>
-static void merge_textures(const texture2_rotation_low orient, const grs_bitmap &expanded_bottom_bmp, const grs_bitmap &expanded_top_bmp, uint8_t *const dest_data)
+static void merge_textures(const unsigned wh, const uint8_t *const top_data, const uint8_t *const bottom_data, uint8_t *const dest_data, const texture2_rotation_low orient)
 {
-	const auto &top_data = expanded_top_bmp.bm_data;
-	const auto &bottom_data = expanded_bottom_bmp.bm_data;
-	const auto wh = expanded_bottom_bmp.bm_w;
 	switch (orient)
 	{
 		case texture2_rotation_low::Normal:
@@ -279,13 +276,13 @@ grs_bitmap &texmerge_get_cached_bitmap(const texture1_value tmap_bottom, const t
 	auto &expanded_bottom_bmp = *rle_expand_texture(*bitmap_bottom);
 	if (bitmap_top->get_flag_mask(BM_FLAG_SUPER_TRANSPARENT))
 	{
-		merge_textures<merge_transform_super_xparent>(orient, expanded_bottom_bmp, expanded_top_bmp, least_recently_used->bitmap->get_bitmap_data());
+		merge_textures<merge_transform_super_xparent>(expanded_bottom_bmp.bm_w, expanded_top_bmp.bm_data, expanded_bottom_bmp.bm_data, least_recently_used->bitmap->get_bitmap_data(), orient);
 		gr_set_bitmap_flags(*least_recently_used->bitmap.get(), BM_FLAG_TRANSPARENT);
 #if !DXX_USE_OGL
 		least_recently_used->bitmap->avg_color = bitmap_top->avg_color;
 #endif
 	} else	{
-		merge_textures<merge_transform_new>(orient, expanded_bottom_bmp, expanded_top_bmp, least_recently_used->bitmap->get_bitmap_data());
+		merge_textures<merge_transform_new>(expanded_bottom_bmp.bm_w, expanded_top_bmp.bm_data, expanded_bottom_bmp.bm_data, least_recently_used->bitmap->get_bitmap_data(), orient);
 		least_recently_used->bitmap->set_flags(bitmap_bottom->get_flag_mask(~BM_FLAG_RLE));
 #if !DXX_USE_OGL
 		least_recently_used->bitmap->avg_color = bitmap_bottom->avg_color;
