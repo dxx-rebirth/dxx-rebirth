@@ -129,6 +129,7 @@ unsigned Num_bitmap_files;
 
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
+grs_bitmap bogus_bitmap;
 bool MacPig;	// using the Macintosh pigfile?
 bool PCSharePig; // using PC Shareware pigfile?
 #endif
@@ -169,7 +170,6 @@ ubyte bogus_bitmap_initialized{0};
 std::array<uint8_t, 64 * 64> bogus_data;
 
 #if DXX_BUILD_DESCENT == 1
-grs_bitmap bogus_bitmap;
 namespace {
 static std::array<int, MAX_SOUND_FILES> SoundCompressed;
 }

@@ -71,17 +71,12 @@ extern uint8_t Pigfile_initialized;
 // an index into the bitmap collection of the piggy file
 enum class bitmap_index : uint16_t;
 
-#ifdef DXX_BUILD_DESCENT
-#if DXX_BUILD_DESCENT == 1
-
-extern grs_bitmap bogus_bitmap;
-#endif
-#endif
 extern std::array<uint8_t, 64 * 64> bogus_data;
 
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
+extern grs_bitmap bogus_bitmap;
 extern bool MacPig;
 extern bool PCSharePig;
 #endif
