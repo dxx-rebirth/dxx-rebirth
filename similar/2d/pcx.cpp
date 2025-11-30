@@ -160,16 +160,19 @@ namespace {
 static auto load_physfs_blob(const char *const filename)
 {
 	unique_span<uint8_t> result;
-	if (auto &&[file, physfserr]{PHYSFSX_openReadBuffered(filename)}; !file)
+	if (RAIIPHYSFS_File file{PHYSFS_openRead(filename)}; !file)
 	{
-		con_printf(CON_VERBOSE, "%s:%u: failed to open \"%s\": %s", __FILE__, __LINE__, filename, PHYSFS_getErrorByCode(physfserr));
+		[[unlikely]];
+		con_printf(CON_VERBOSE, "%s:%u: failed to open \"%s\": %s", __FILE__, __LINE__, filename, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
 	}
 	else if (const std::size_t fsize = PHYSFS_fileLength(file); fsize > 0x100000u)
 	{
+		[[unlikely]];
 		con_printf(CON_VERBOSE, "%s:%u: file too large \"%s\"", __FILE__, __LINE__, filename);
 	}
 	else if (PHYSFSX_readBytes(file, (result = {fsize}).get(), fsize) != fsize)
 	{
+		[[unlikely]];
 		result.reset();
 		con_printf(CON_VERBOSE, "%s:%u: failed to read \"%s\"", __FILE__, __LINE__, filename);
 	}
