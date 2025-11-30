@@ -77,6 +77,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define DEFAULT_SNDFILE ((Piggy_hamfile_version < pig_hamfile_version::_3) ? DEFAULT_HAMFILE_SHAREWARE : (GameArg.SndDigiSampleRate == sound_sample_rate::_22k) ? "descent2.s22" : "descent2.s11")
 
+namespace dsx {
+
+namespace {
+
 enum class pigfile_size : uint32_t
 {
 	mac_alien1_pigsize = 5013035,
@@ -87,7 +91,7 @@ enum class pigfile_size : uint32_t
 	mac_water_pigsize = 4832403,
 };
 
-namespace dsx {
+}
 
 #if DXX_USE_EDITOR
 unsigned Num_aliases;
