@@ -60,7 +60,6 @@ typedef std::unique_ptr<SDL_RWops, RWops_delete> RWops_ptr;
  *           of the error can be gleaned from PHYSFS_getLastError().
  */
 std::pair<RWops_ptr, PHYSFS_ErrorCode> PHYSFSRWOPS_openRead(const char *fname);
-std::pair<RWops_ptr, PHYSFS_ErrorCode> PHYSFSRWOPS_openReadBuffered(const char *fname, PHYSFS_uint64);
 
 #endif
 

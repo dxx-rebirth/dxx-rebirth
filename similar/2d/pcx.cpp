@@ -79,6 +79,28 @@ struct PCXHeader
 #endif
 
 #if DXX_USE_SDLIMAGE
+static auto load_physfs_blob(const char *const filename)
+{
+	unique_span<uint8_t> result;
+	if (RAIIPHYSFS_File file{PHYSFS_openRead(filename)}; !file)
+	{
+		[[unlikely]];
+		con_printf(CON_VERBOSE, "%s:%u: failed to open \"%s\": %s", __FILE__, __LINE__, filename, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
+	}
+	else if (const std::size_t fsize = PHYSFS_fileLength(file); fsize > 0x100000u)
+	{
+		[[unlikely]];
+		con_printf(CON_VERBOSE, "%s:%u: file too large \"%s\"", __FILE__, __LINE__, filename);
+	}
+	else if (PHYSFSX_readBytes(file, (result = {fsize}).get(), fsize) != fsize)
+	{
+		[[unlikely]];
+		result.reset();
+		con_printf(CON_VERBOSE, "%s:%u: failed to read \"%s\"", __FILE__, __LINE__, filename);
+	}
+	return result;
+}
+
 static pcx_result pcx_read_bitmap(const char *const filename, grs_main_bitmap &bmp, palette_array_t &palette, RWops_ptr rw)
 {
 	RAII_SDL_Surface surface(IMG_LoadPCX_RW(rw.get()));
@@ -157,28 +179,6 @@ namespace dsx {
 namespace {
 
 #if DXX_USE_SDLIMAGE
-static auto load_physfs_blob(const char *const filename)
-{
-	unique_span<uint8_t> result;
-	if (RAIIPHYSFS_File file{PHYSFS_openRead(filename)}; !file)
-	{
-		[[unlikely]];
-		con_printf(CON_VERBOSE, "%s:%u: failed to open \"%s\": %s", __FILE__, __LINE__, filename, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
-	}
-	else if (const std::size_t fsize = PHYSFS_fileLength(file); fsize > 0x100000u)
-	{
-		[[unlikely]];
-		con_printf(CON_VERBOSE, "%s:%u: file too large \"%s\"", __FILE__, __LINE__, filename);
-	}
-	else if (PHYSFSX_readBytes(file, (result = {fsize}).get(), fsize) != fsize)
-	{
-		[[unlikely]];
-		result.reset();
-		con_printf(CON_VERBOSE, "%s:%u: failed to read \"%s\"", __FILE__, __LINE__, filename);
-	}
-	return result;
-}
-
 static auto load_decoded_physfs_blob(const char *const filename)
 {
 	unique_span<uint8_t> decoded_buffer;
@@ -220,18 +220,15 @@ namespace dcx {
 pcx_result pcx_read_bitmap(const char *const filename, grs_main_bitmap &bmp, palette_array_t &palette)
 {
 #if DXX_USE_SDLIMAGE
-	/* Try to enable buffering on the PHYSFS file.  On Windows,
-	 * unbuffered access to the file causes SDL_image to be slow enough
-	 * for users to detect the latency and report it as an issue.  On
-	 * Linux, unbuffered access is still fast.
-	 */
-	auto &&[rw, physfserr] = PHYSFSRWOPS_openReadBuffered(filename, 1024 * 1024);
-	if (!rw)
+	auto blob{load_physfs_blob(filename)};
+	const auto b{blob.get()};
+	if (!b)
 	{
-		con_printf(CON_NORMAL, "%s:%u: failed to open \"%s\": %s", __FILE__, __LINE__, filename, PHYSFS_getErrorByCode(physfserr));
+		[[unlikely]];
+		con_printf(CON_NORMAL, "%s:%u: failed to open \"%s\": %s", __FILE__, __LINE__, filename, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
 		return pcx_result::ERROR_OPENING;
 	}
-	return pcx_read_bitmap(filename, bmp, palette, std::move(rw));
+	return pcx_read_bitmap(filename, bmp, palette, RWops_ptr{SDL_RWFromConstMem(b, blob.size())});
 #else
 	return pcx_support_not_compiled(filename, bmp, palette);
 #endif
