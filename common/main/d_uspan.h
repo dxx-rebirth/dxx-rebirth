@@ -58,11 +58,7 @@ public:
 		return {get(), extent};
 	}
 	std::span<const T> span() const && = delete;
-	auto release()
-	{
-		extent = 0;
-		return this->base_type::release();
-	}
+	using base_type::release;
 	std::size_t size() const
 	{
 		return extent;
