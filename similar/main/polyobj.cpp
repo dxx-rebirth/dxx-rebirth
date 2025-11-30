@@ -188,11 +188,11 @@ static void read_model_file(polymodel &pm, const char *const filename, robot_inf
 		switch (pof_id)
 		{
 			case ID_OHDR: {		//Object header
-				pm.n_models = pof_read_int(model_buf, Pof_addr);
+				const auto n_models{pof_read_int(model_buf, Pof_addr)};
+				if (!(n_models <= MAX_SUBMODELS))
+					Error("Invalid model file <%s>: too many submodels in object header: %u", filename, n_models);
+				pm.n_models = n_models;
 				pm.rad = pof_read_int(model_buf, Pof_addr);
-
-				assert(pm.n_models <= MAX_SUBMODELS);
-
 				{
 					const auto pmmin{pof_read_vec(model_buf, Pof_addr)};
 					static_cast<void>(pmmin);
@@ -632,7 +632,7 @@ void draw_model_picture(grs_canvas &canvas, const polymodel &mn, const vms_angve
 namespace dcx {
 
 DEFINE_SERIAL_VMS_VECTOR_TO_MESSAGE();
-DEFINE_SERIAL_UDT_TO_MESSAGE(polymodel, p, (p.n_models, p.model_data_size, serial::pad<4>(), p.submodel_ptrs, p.submodel_offsets, p.submodel_norms, p.submodel_pnts, p.submodel_rads, p.submodel_parents, p.submodel_mins, p.submodel_maxs, p.mins, p.maxs, p.rad, p.n_textures, p.first_texture, p.simpler_model));
+DEFINE_SERIAL_UDT_TO_MESSAGE(polymodel, p, (p.n_models, serial::pad<3, 0>(), p.model_data_size, serial::pad<4>(), p.submodel_ptrs, p.submodel_offsets, p.submodel_norms, p.submodel_pnts, p.submodel_rads, p.submodel_parents, p.submodel_mins, p.submodel_maxs, p.mins, p.maxs, p.rad, p.n_textures, p.first_texture, p.simpler_model));
 ASSERT_SERIAL_UDT_MESSAGE_SIZE(polymodel, 12 + (10 * 4) + (10 * 3 * sizeof(vms_vector)) + (10 * sizeof(fix)) + 10 + (10 * 2 * sizeof(vms_vector)) + (2 * sizeof(vms_vector)) + 8);
 
 /*

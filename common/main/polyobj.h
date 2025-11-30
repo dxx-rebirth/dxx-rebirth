@@ -86,7 +86,6 @@ using per_submodel_array = enumerated_array<T, MAX_SUBMODELS, submodel_index>;
 //used to describe a polygon model
 struct polymodel : prohibit_void_ptr<polymodel>
 {
-	unsigned n_models;
 	unsigned model_data_size;
 	std::unique_ptr<uint8_t[]>   model_data;
 	std::array<int, MAX_SUBMODELS> submodel_ptrs;
@@ -101,6 +100,7 @@ struct polymodel : prohibit_void_ptr<polymodel>
 	fix     rad;
 	ushort  first_texture;
 	ubyte   n_textures;
+	uint8_t n_models;
 	polygon_simpler_model_index simpler_model;                      // alternate model with less detail (0 if none, model_num+1 else)
 	//vms_vector min,max;
 };
