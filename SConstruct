@@ -4973,8 +4973,13 @@ class DXXProgram(DXXCommon):
 
 	static_archive_construction = {}
 
-	def _apply_target_name(self, name: str) -> str:
-		return os.path.join(os.path.dirname(name), f'.{self.target}.{os.path.splitext(os.path.basename(name))[0]}')
+	# Take a pathname as input.  Return a pathname referring to the same
+	# directory, but with the value of `self.target` and a dot prefixed to the
+	# filename in that directory.  This is used for object files that will be
+	# built for both games, so that the D1 and D2 versions get unique names.
+	def _apply_target_name(self, name: str, os_path_split = os.path.split, os_path_join = os.path.join, os_path_splitext = os.path.splitext) -> str:
+		p = os_path_split(name)
+		return os_path_join(p[0], f'{self.target}.{os_path_splitext(p[1])[0]}')
 
 	def _apply_env_version_seq(self, env, _empty: dict[str, collections.abc.Sequence[tuple]] = {}) -> dict[str, collections.abc.Sequence[tuple]]:
 		if self.user_settings.pch:
