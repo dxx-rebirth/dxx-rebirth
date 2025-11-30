@@ -91,7 +91,7 @@ struct TEXTURE_CACHE {
 	}
 	cache_key key{};
 	grs_bitmap_ptr bitmap;
-	fix64		last_time_used;
+	fix64		last_time_used{};
 };
 
 /* Helper classes merge_texture_0 through merge_texture_3 correspond to
@@ -214,7 +214,7 @@ void texmerge_flush()
 {
 	range_for (auto &i, Cache)
 	{
-		i.last_time_used = -1;
+		i.last_time_used = {};
 		i.key = {};
 	}
 }
@@ -234,7 +234,6 @@ void texmerge_close()
 grs_bitmap &texmerge_get_cached_bitmap(const texture1_value tmap_bottom, const texture2_value tmap_top)
 {
 	grs_bitmap *bitmap_top, *bitmap_bottom;
-	int lowest_time_used;
 
 	auto &texture_top = Textures[get_texture_index(tmap_top)];
 	bitmap_top = &GameBitmaps[texture_top];
@@ -243,8 +242,8 @@ grs_bitmap &texmerge_get_cached_bitmap(const texture1_value tmap_bottom, const t
 	
 	const auto orient{get_texture_rotation_low(tmap_top)};
 
-	lowest_time_used = Cache[0].last_time_used;
 	auto least_recently_used = &Cache.front();
+	auto lowest_time_used{least_recently_used->last_time_used};
 	const auto cache_lookup_key{TEXTURE_CACHE::build_cache_key(texture_bottom, texture_top, orient)};
 	range_for (auto &i, Cache)
 	{
@@ -254,7 +253,7 @@ grs_bitmap &texmerge_get_cached_bitmap(const texture1_value tmap_bottom, const t
 			return *i.bitmap.get();
 		}	
 		if ( i.last_time_used < lowest_time_used )	{
-			lowest_time_used = i.last_time_used;
+			lowest_time_used = {i.last_time_used};
 			least_recently_used = &i;
 		}
 	}
