@@ -47,10 +47,50 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace {
 
 struct TEXTURE_CACHE {
+	enum class cache_key : uint32_t
+	{
+	};
+	static constexpr cache_key build_cache_key(const bitmap_index bottom, const bitmap_index top, const texture2_rotation_low orient)
+	{
+		/* All valid values for `bottom` and `top` are below
+		 * `MAX_BITMAP_FILES`, so each of them can be packed into a field
+		 * `std::bit_width(MAX_BITMAP_FILES)` bits wide.  If an invalid value
+		 * were passed for `bottom` or `top`, then that value could influence
+		 * bits outside its slice of the cache key.  However, if an invalid
+		 * value were passed, the caller would suffer undefined behavior when
+		 * it indexed outside GameBitmaps, and likely crash soon after.
+		 * Therefore, there is no need to check for invalid values or clamp the
+		 * inputs to valid values.
+		 *
+		 * `std::bit_width(d1x::MAX_BITMAP_FILES)` = 11
+		 * `std::bit_width(d2x::MAX_BITMAP_FILES)` = 12
+		 * Use 12u in both games, since 11u does not save enough space to allow
+		 * use of a smaller integer for the key.
+		 */
+		constexpr unsigned bitmap_shift_width{12u};
+		static_assert(MAX_BITMAP_FILES < (1u << bitmap_shift_width));
+		return cache_key{
+			uint32_t{underlying_value(bottom)} |
+			(uint32_t{underlying_value(top)} << bitmap_shift_width) |
+			(uint32_t{underlying_value(orient)} << (2 * bitmap_shift_width)) |
+			/* There are 4 valid values for `texture2_rotation_low`, so
+			 * allocate 2 bits for it.
+			 *
+			 * Enable a fixed `1` here, so that `build_cache_key(0, 0, 0)` is
+			 * distinct from `cache_key{}`.  Construction will have set all
+			 * cache keys to `cache_key{}`.  The program should not try to
+			 * composite `bitmap_index{0}` with itself, but if it did and this
+			 * line were absent, then the cache system would consider a
+			 * value-initialized record to match, and would return it.  Avoid
+			 * that by ensuring that no combination of inputs to
+			 * `build_cache_key` can generate a result that compares equal to
+			 * `cache_key{}`.
+			 */
+			(uint32_t{1} << (2 + (2 * bitmap_shift_width)))
+		};
+	}
+	cache_key key{};
 	grs_bitmap_ptr bitmap;
-	grs_bitmap * bottom_bmp;
-	grs_bitmap * top_bmp;
-	texture2_rotation_low orient;
 	fix64		last_time_used;
 };
 
@@ -175,8 +215,7 @@ void texmerge_flush()
 	range_for (auto &i, Cache)
 	{
 		i.last_time_used = -1;
-		i.top_bmp = NULL;
-		i.bottom_bmp = NULL;
+		i.key = {};
 	}
 }
 
@@ -206,9 +245,10 @@ grs_bitmap &texmerge_get_cached_bitmap(const texture1_value tmap_bottom, const t
 
 	lowest_time_used = Cache[0].last_time_used;
 	auto least_recently_used = &Cache.front();
+	const auto cache_lookup_key{TEXTURE_CACHE::build_cache_key(texture_bottom, texture_top, orient)};
 	range_for (auto &i, Cache)
 	{
-		if ( (i.last_time_used > -1) && (i.top_bmp==bitmap_top) && (i.bottom_bmp==bitmap_bottom) && (i.orient==orient ))	{
+		if (i.key == cache_lookup_key)	{
 			cache_hits++;
 			i.last_time_used = timer_query();
 			return *i.bitmap.get();
@@ -253,9 +293,7 @@ grs_bitmap &texmerge_get_cached_bitmap(const texture1_value tmap_bottom, const t
 #endif
 	}
 
-	least_recently_used->top_bmp = bitmap_top;
-	least_recently_used->bottom_bmp = bitmap_bottom;
+	least_recently_used->key = cache_lookup_key;
 	least_recently_used->last_time_used = timer_query();
-	least_recently_used->orient = orient;
 	return *least_recently_used->bitmap.get();
 }
