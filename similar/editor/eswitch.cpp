@@ -487,7 +487,7 @@ window_event_result trigger_dialog::callback_handler(const d_event &event)
 			auto &us = markedseg.u.sides[Markedside];
 			if (us.tmap_num2 != texture2_value::None) 
 			{
-				gr_ubitmap(canvas, texmerge_get_cached_bitmap(us.tmap_num, us.tmap_num2));
+				gr_ubitmap(canvas, texmerge_get_cached_bitmap(GameBitmaps, Textures, us.tmap_num, us.tmap_num2));
 			} else {
 				const auto tmap_num = us.tmap_num;
 				if (tmap_num != texture1_value::None)

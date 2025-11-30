@@ -283,7 +283,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const si
 			if (bm2->get_flag_mask(BM_FLAG_SUPER_TRANSPARENT))
 			{
 				bm2 = nullptr;
-			bm = &texmerge_get_cached_bitmap( tmap1, tmap2 );
+				bm = &texmerge_get_cached_bitmap(GameBitmaps, Textures, tmap1, tmap2);
 			}
 		}
 	}else
@@ -291,7 +291,7 @@ static void render_face(grs_canvas &canvas, const shared_segment &segp, const si
 		// New code for overlapping textures...
 		if (tmap2 != texture2_value::None)
 		{
-			bm = &texmerge_get_cached_bitmap( tmap1, tmap2 );
+			bm = &texmerge_get_cached_bitmap(GameBitmaps, Textures, tmap1, tmap2);
 		} else {
 			const auto texture1 = Textures[get_texture_index(tmap1)];
 			bm = &GameBitmaps[texture1];
@@ -395,7 +395,7 @@ static void check_face(grs_canvas &canvas, const vmsegidx_t segnum, const sidenu
 		(void)tmap2;
 #else
 		grs_bitmap *const bm = (tmap2 != texture2_value::None)
-			? &texmerge_get_cached_bitmap( tmap1, tmap2 )
+			? &texmerge_get_cached_bitmap(GameBitmaps, Textures, tmap1, tmap2)
 			: &GameBitmaps[Textures[get_texture_index(tmap1)]];
 #endif
 		range_for (const uint_fast32_t i, xrange(nv))

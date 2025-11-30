@@ -1177,7 +1177,7 @@ int check_trans_wall(const vms_vector &pnt, const vcsegptridx_t seg, const siden
 
 	const auto tmap_num{side.tmap_num};
 	const grs_bitmap &rbm = (side.tmap_num2 != texture2_value::None)
-		? texmerge_get_cached_bitmap(tmap_num, side.tmap_num2)
+		? texmerge_get_cached_bitmap(GameBitmaps, Textures, tmap_num, side.tmap_num2)
 		/* gcc-13 issues a -Wdangling-reference warning if this lambda returns
 		 * a `const grs_bitmap &`, but no warning if the lambda returns a
 		 * `const grs_bitmap *` to the same storage, and then converts it into

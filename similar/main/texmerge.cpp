@@ -233,7 +233,9 @@ void texmerge_close()
 
 //--unused-- int info_printed = 0;
 
-grs_bitmap &texmerge_get_cached_bitmap(const texture1_value tmap_bottom, const texture2_value tmap_top)
+namespace dsx {
+
+grs_bitmap &texmerge_get_cached_bitmap(GameBitmaps_array &GameBitmaps, const Textures_array &Textures, const texture1_value tmap_bottom, const texture2_value tmap_top)
 {
 	const auto texture_top{Textures[get_texture_index(tmap_top)]};
 	const auto texture_bottom{Textures[get_texture_index(tmap_bottom)]};
@@ -297,4 +299,6 @@ grs_bitmap &texmerge_get_cached_bitmap(const texture1_value tmap_bottom, const t
 	least_recently_used->bitmap = std::move(merged_bitmap);
 	least_recently_used->last_time_used = timer_query();
 	return mb;
+}
+
 }

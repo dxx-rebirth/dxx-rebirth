@@ -621,7 +621,7 @@ window_event_result wall_dialog::callback_handler(const d_event &event)
 					auto &curside = Cursegp->unique_segment::sides[Curside];
 					const auto tmap_num = curside.tmap_num;
 					if (curside.tmap_num2 != texture2_value::None)
-						gr_ubitmap(*grd_curcanv, texmerge_get_cached_bitmap(tmap_num, curside.tmap_num2));
+						gr_ubitmap(*grd_curcanv, texmerge_get_cached_bitmap(GameBitmaps, Textures, tmap_num, curside.tmap_num2));
 					else	{
 						const auto texture1 = Textures[get_texture_index(tmap_num)];
 						PIGGY_PAGE_IN(texture1);

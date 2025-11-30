@@ -469,7 +469,7 @@ void ogl_cache_level_textures(void)
 					PIGGY_PAGE_IN(texture2);
 					auto &bm2 = GameBitmaps[texture2];
 					if (CGameArg.DbgUseOldTextureMerge || bm2.get_flag_mask(BM_FLAG_SUPER_TRANSPARENT))
-						bm = &texmerge_get_cached_bitmap( tmap1, tmap2 );
+						bm = &texmerge_get_cached_bitmap(GameBitmaps, Textures, tmap1, tmap2);
 					else {
 						ogl_loadbmtexture(bm2, 1);
 					}

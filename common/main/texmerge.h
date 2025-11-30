@@ -27,14 +27,23 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _TEXMERGE_H
 #define _TEXMERGE_H
 
+#include "dsx-ns.h"
+#include "fwd-piggy.h"	// GameBitmaps_array
 #include "fwd-segment.h"
+#include "textures.h"	// Textures_array
 
 namespace dcx {
 struct grs_bitmap;
 }
 
-grs_bitmap &texmerge_get_cached_bitmap(texture1_value tmap_bottom, texture2_value tmap_top);
 void texmerge_close();
 void texmerge_flush();
+
+namespace dsx {
+
+[[nodiscard]]
+grs_bitmap &texmerge_get_cached_bitmap(GameBitmaps_array &GameBitmaps, const Textures_array &Textures, texture1_value tmap_bottom, texture2_value tmap_top);
+
+}
 
 #endif /* _TEXMERGE_H */
