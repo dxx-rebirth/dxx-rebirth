@@ -84,7 +84,7 @@ static sound_channel digi_mixer_find_channel(const enumerated_bitset<64, sound_c
 
 struct RAIIMix_Chunk : public Mix_Chunk
 {
-	RAIIMix_Chunk() = default;
+	constexpr RAIIMix_Chunk() : Mix_Chunk{} {}
 	~RAIIMix_Chunk()
 	{
 		delete [] abuf;
