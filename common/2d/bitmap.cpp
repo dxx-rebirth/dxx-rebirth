@@ -122,9 +122,8 @@ void gr_init_bitmap_alloc(grs_main_bitmap &bm, const bm_mode mode, const uint16_
 	gr_init_main_bitmap(bm, mode, x, y, w, h, bytesperline, std::move(d));
 }
 
-grs_main_bitmap::grs_main_bitmap()
+grs_main_bitmap::grs_main_bitmap() : grs_bitmap{}
 {
-	static_cast<grs_bitmap &>(*this) = {};
 }
 
 grs_subbitmap_ptr gr_create_sub_bitmap(grs_bitmap &bm, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
