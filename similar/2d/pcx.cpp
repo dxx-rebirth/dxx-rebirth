@@ -103,16 +103,15 @@ static pcx_result pcx_read_bitmap(const char *const filename, grs_main_bitmap &b
 	DXX_CHECK_MEM_IS_DEFINED(std::span(static_cast<const std::byte *>(s.pixels), xsize * ysize));
 	gr_init_bitmap_alloc(bmp, bm_mode::linear, 0, 0, xsize, ysize, xsize);
 	std::copy_n(reinterpret_cast<const uint8_t *>(s.pixels), xsize * ysize, &bmp.get_bitmap_data()[0]);
-	{
-		const auto a = [](const SDL_Color &c) {
+	std::ranges::transform(std::span(fpal->colors, fpal->colors + palette.size()), palette.begin(),
+		[](const SDL_Color &c) {
 			return rgb_t{
 				static_cast<uint8_t>(c.r >> 2),
 				static_cast<uint8_t>(c.g >> 2),
 				static_cast<uint8_t>(c.b >> 2)
 			};
-		};
-		std::transform(fpal->colors, fpal->colors + palette.size(), palette.begin(), a);
-	}
+		}
+	);
 	return pcx_result::SUCCESS;
 }
 #endif
