@@ -689,9 +689,6 @@ static int main(int argc, char *argv[])
 	if (CGameArg.DbgNoRun)
 		return(0);
 
-	con_puts(CON_DEBUG, "Initializing texture caching system...");
-	texmerge_init();		// 10 cache bitmaps
-
 #if DXX_BUILD_DESCENT == 2
 	piggy_init_pigfile("groupa.pig");	//get correct pigfile
 #endif

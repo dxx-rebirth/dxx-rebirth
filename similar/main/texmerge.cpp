@@ -170,19 +170,6 @@ static int cache_misses = 0;
 
 //----------------------------------------------------------------------
 
-int texmerge_init()
-{
-	range_for (auto &i, Cache)
-	{
-		i.bitmap = NULL;
-		i.last_time_used = -1;
-		i.top_bmp = NULL;
-		i.bottom_bmp = NULL;
-	}
-
-	return 1;
-}
-
 void texmerge_flush()
 {
 	range_for (auto &i, Cache)
