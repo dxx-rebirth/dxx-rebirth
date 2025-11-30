@@ -91,6 +91,8 @@ enum class pigfile_size : uint32_t
 	mac_water_pigsize = 4832403,
 };
 
+uint8_t Pigfile_initialized;
+
 }
 
 #if DXX_USE_EDITOR
@@ -99,7 +101,6 @@ std::array<alias, MAX_ALIASES> alias_list;
 #endif
 
 pig_hamfile_version Piggy_hamfile_version;
-uint8_t Pigfile_initialized;
 
 char descent_pig_basename[]{D1_PIGFILE};
 

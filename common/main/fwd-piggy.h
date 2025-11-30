@@ -62,8 +62,6 @@ struct alias;
 extern std::array<alias, MAX_ALIASES> alias_list;
 extern unsigned Num_aliases;
 #endif
-
-extern uint8_t Pigfile_initialized;
 }
 #endif
 #endif
