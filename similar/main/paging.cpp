@@ -288,7 +288,6 @@ static void paging_touch_side(const d_eclip_array &Effects, const Textures_array
 	paging_touch_wall_effects(Effects, Textures, Vclip, get_texture_index(tmap1));
 	if (const auto tmap2 = uside.tmap_num2; tmap2 != texture2_value::None)
 	{
-		texmerge_get_cached_bitmap( tmap1, tmap2 );
 		paging_touch_wall_effects(Effects, Textures, Vclip, get_texture_index(tmap2));
 	} else	{
 		PIGGY_PAGE_IN(Textures[get_texture_index(tmap1)]);
