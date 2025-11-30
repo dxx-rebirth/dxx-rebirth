@@ -50,7 +50,7 @@ struct TEXTURE_CACHE {
 	grs_bitmap_ptr bitmap;
 	grs_bitmap * bottom_bmp;
 	grs_bitmap * top_bmp;
-	texture2_rotation_high orient;
+	texture2_rotation_low orient;
 	fix64		last_time_used;
 };
 
@@ -139,23 +139,23 @@ static void merge_textures_case(const unsigned wh, const uint8_t *const top_data
  * for each byte processed.
  */
 template <typename texture_transform>
-static void merge_textures(const texture2_rotation_high orient, const grs_bitmap &expanded_bottom_bmp, const grs_bitmap &expanded_top_bmp, uint8_t *const dest_data)
+static void merge_textures(const texture2_rotation_low orient, const grs_bitmap &expanded_bottom_bmp, const grs_bitmap &expanded_top_bmp, uint8_t *const dest_data)
 {
 	const auto &top_data = expanded_top_bmp.bm_data;
 	const auto &bottom_data = expanded_bottom_bmp.bm_data;
 	const auto wh = expanded_bottom_bmp.bm_w;
 	switch (orient)
 	{
-		case texture2_rotation_high::Normal:
+		case texture2_rotation_low::Normal:
 			merge_textures_case<texture_transform, merge_texture_0>(wh, top_data, bottom_data, dest_data);
 			break;
-		case texture2_rotation_high::_1:
+		case texture2_rotation_low::_1:
 			merge_textures_case<texture_transform, merge_texture_1>(wh, top_data, bottom_data, dest_data);
 			break;
-		case texture2_rotation_high::_2:
+		case texture2_rotation_low::_2:
 			merge_textures_case<texture_transform, merge_texture_2>(wh, top_data, bottom_data, dest_data);
 			break;
-		case texture2_rotation_high::_3:
+		case texture2_rotation_low::_3:
 			merge_textures_case<texture_transform, merge_texture_3>(wh, top_data, bottom_data, dest_data);
 			break;
 	}
@@ -202,7 +202,7 @@ grs_bitmap &texmerge_get_cached_bitmap(const texture1_value tmap_bottom, const t
 	auto &texture_bottom = Textures[get_texture_index(tmap_bottom)];
 	bitmap_bottom = &GameBitmaps[texture_bottom];
 	
-	const auto orient = get_texture_rotation_high(tmap_top);
+	const auto orient{get_texture_rotation_low(tmap_top)};
 
 	lowest_time_used = Cache[0].last_time_used;
 	auto least_recently_used = &Cache.front();
