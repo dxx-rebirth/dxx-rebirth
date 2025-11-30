@@ -235,8 +235,8 @@ void texmerge_close()
 
 grs_bitmap &texmerge_get_cached_bitmap(const texture1_value tmap_bottom, const texture2_value tmap_top)
 {
-	auto &texture_top = Textures[get_texture_index(tmap_top)];
-	auto &texture_bottom = Textures[get_texture_index(tmap_bottom)];
+	const auto texture_top{Textures[get_texture_index(tmap_top)]};
+	const auto texture_bottom{Textures[get_texture_index(tmap_bottom)]};
 	
 	const auto orient{get_texture_rotation_low(tmap_top)};
 
