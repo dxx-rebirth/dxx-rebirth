@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 
+#include <algorithm>
 #include <span>
 #include <stdio.h>
 #include <stdlib.h>
@@ -442,8 +443,7 @@ void draw_polygon_model(grs_canvas &canvas, const tmap_drawer_type tmap_drawer_p
 		auto &&tlir = partial_range(texture_list_index, n_textures);
 		if (const std::span<const bitmap_index> a{alt_textures}; !a.empty())
 		{
-			for (auto &&[at, tli] : zip(a.first(n_textures), tlir))
-				tli = at;
+			std::ranges::copy(a.first(n_textures), tlir.begin());
 		}
 		else
 		{
