@@ -82,7 +82,14 @@ namespace dsx {
 static inline void _piggy_page_in(GameBitmaps_array &GameBitmaps, bitmap_index bmp)
 {
 	if (GameBitmaps[bmp].get_flag_mask(BM_FLAG_PAGED_OUT))
+	{
+		/* Bitmaps are initially in the BM_FLAG_PAGED_OUT state, but once paged
+		 * in, they will be accessed repeatedly before being paged out.
+		 * Therefore, the block is unlikely in the common case.
+		 */
+		[[unlikely]];
         piggy_bitmap_page_in(GameBitmaps, bmp);
+	}
 }
 
 #if DXX_BUILD_DESCENT == 1
