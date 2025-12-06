@@ -3570,14 +3570,75 @@ class DXXCommon(LazyObjectConstructor):
 		default_OGLES_LIB: str = 'GLES_CM'
 		default_EGL_LIB: str = 'EGL'
 		_default_prefix: str = '/usr/local'
+		_lto_builddir_decoration: bool | None = None
 		__stdout_is_not_a_tty: bool | None = None
 		__has_git_dir: bool | None = None
+		def convert_user_lto(self) -> None:
+			if self._lto_builddir_decoration is not None:
+				# This function was already called on this object.  Reuse the
+				# previous results.
+				return
+			if self.lto is not None:
+				if self.lto == 'assume-enabled':
+					self._lto_builddir_decoration = True
+					return
+				elif self.lto == 'assume-disabled':
+					self._lto_builddir_decoration = False
+					self.lto = 0
+					return
+				try:
+					self.lto = int(self.lto)
+					if self.lto < 0:
+						# Delegate to the ValueError exception handler, to avoid
+						# repeating the error text.
+						raise ValueError
+				except ValueError:
+					raise SCons.Errors.UserError(f'Invalid value for option lto: {self.lto}.  Valid values are one of: "assume-enabled", "assume-disabled", 0 to direct SConstruct to disable LTO, or a positive integer to direct SConstruct to enable LTO.')
+			else:
+				# Otherwise, the user did not make a choice for the `lto` setting.
+				# Scan CXXFLAGS to try to guess whether the user has enabled LTO.
+				_lto_effective = None
+				if self.CXXFLAGS:
+					for cxxflag in shlex.split(self.CXXFLAGS):
+						if cxxflag == '-fno-lto':
+							_lto_effective = False
+						elif cxxflag == '-flto' or cxxflag.startswith('-flto='):
+							_lto_effective = True
+					if _lto_effective is not None:
+						# CXXFLAGS explicitly set whether to use lto or not.  Record
+						# that for decorative purposes, and respect the user's choice.
+						self._lto_builddir_decoration = _lto_effective
+						return
+				# Otherwise, the user did not set lto via the setting or via
+				# CXXFLAGS.  Pick a default for the user.
+				# Since clang rejects the `=N` syntax, prefer the safe path of only
+				# setting a bare `-flto`.  Users who want `=N` can set it
+				# explicitly via the setting or via CXXFLAGS.
+				self.lto = 1
+			self._lto_builddir_decoration = self.lto > 0
+			# clang does not support `=N` syntax, so use the bare form `-flto`
+			# for `user_settings.lto=1`.  This allows `lto=1` to do the right
+			# thing for clang users.  gcc effectively treats `-flto` as
+			# `-flto=1`.
+			#
+			# Users who set `user_settings.lto=2` (or higher) need a compiler that
+			# understands the `=N` syntax.  This script makes no attempt to
+			# detect whether the compiler understands that syntax.
+			lto_option = (f' -flto={self.lto}' if self.lto > 1 else ' -flto') if self.lto else ' -fno-lto'
+			if self.CXXFLAGS:
+				self.CXXFLAGS += lto_option
+			else:
+				self.CXXFLAGS = lto_option[1:]
 		def default_poison(self):
 			return 'overwrite' if self.debug else 'none'
 		def default_builddir(self):
 			builddir_prefix = self.builddir_prefix
 			builddir_suffix = self.builddir_suffix
 			if builddir_prefix is not None or builddir_suffix is not None:
+				# The choice of whether to use LTO influences the generated
+				# build directory name, so the user's choice must be examined
+				# here.
+				self.convert_user_lto()
 				fields = [
 					self.host_platform,
 					os.path.basename(self.CXX) if self.CXX else None,
@@ -3602,7 +3663,7 @@ class DXXCommon(LazyObjectConstructor):
 				fields.append(''.join(a[1] if getattr(self, a[0]) else (a[2] if len(a) > 2 else '')
 				for a in (
 					('debug', 'dbg'),
-					('lto', 'lto'),
+					('_lto_builddir_decoration', 'lto'),
 					('editor', 'ed'),
 					('opengl', 'ogl', 'sdl'),
 					('opengles', 'es'),
@@ -3762,12 +3823,12 @@ class DXXCommon(LazyObjectConstructor):
 					('egl_lib', self.selected_EGL_LIB, 'name of the OpenGL ES Graphics Library to link against'),
 					('prefix', self._default_prefix, 'installation prefix directory (Linux only)'),
 					('sharepath', self.__default_DATA_DIR, 'directory for shared game data'),
+					('lto', None, 'enable link time optimization (choices: "assume-enabled", "assume-disabled", 0 to explicitly disable LTO, positive integer to explicitly enable LTO, or unset to detect based on effective CXXFLAGS)'),
 				),
 			},
 			{
 				'variable': self.UIntVariable,
 				'arguments': (
-					('lto', 0, 'enable gcc link time optimization'),
 					('pch', None, 'pre-compile own headers used at least this many times'),
 					('syspch', None, 'pre-compile system headers used at least this many times'),
 					('max_joysticks', 8, 'maximum number of usable joysticks'),
@@ -4518,19 +4579,6 @@ class DXXCommon(LazyObjectConstructor):
 			'-Wmissing-declarations',
 			'-Wvla',
 			]
-		if self.user_settings.lto:
-			# clang does not support `=N` syntax, so use the bare form `-flto`
-			# for `user_settings.lto=1`.  This allows `lto=1` to do the right
-			# thing for clang users.  gcc effectively treats `-flto` as
-			# `-flto=1`.
-			#
-			# Users who set `user_settings.lto=2` (or higher) need a compiler that
-			# understands the `=N` syntax.  This script makes no attempt to
-			# detect whether the compiler understands that syntax.
-			#
-			# The list of flags is prepended to the compiler options, so a
-			# user-specified CXXFLAGS can override `-flto` later, if needed.
-			cxxflags.append(f'-flto={self.user_settings.lto}' if self.user_settings.lto > 1 else '-flto')
 		env.Prepend(CXXFLAGS = cxxflags)
 		env.Append(
 			CXXFLAGS = ['-funsigned-char'],
@@ -4556,6 +4604,10 @@ class DXXCommon(LazyObjectConstructor):
 		if user_settings.editor:
 			add_flags['CPPPATH'].append('common/include/editor')
 		CLVar = SCons.Util.CLVar
+		# If the user did not use a generated build directory name, then
+		# convert_user_lto has not yet been called.  Call it now, to update
+		# CXXFLAGS if needed.
+		self.user_settings.convert_user_lto()
 		for flags in ('CPPFLAGS', 'CXXFLAGS', 'LIBS', 'LINKFLAGS'):
 			value = getattr(self.user_settings, flags)
 			if value is not None:
