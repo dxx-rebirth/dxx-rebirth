@@ -2732,8 +2732,8 @@ unsigned g(unsigned i)
 		# Support for option '-fstrict-flex-arrays':
 		# <=gcc-12: no
 		# >=gcc-13: yes
-		# <=clang-16: no
-		# >=clang-17: untested
+		# <=clang-20: no
+		# >=clang-21: untested
 		'-fstrict-flex-arrays',
 		'-fvisibility=hidden',
 		'-Wduplicated-branches',
