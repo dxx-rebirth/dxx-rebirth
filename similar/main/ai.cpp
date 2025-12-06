@@ -1057,11 +1057,19 @@ void do_ai_robot_hit_attack(const d_robot_info_array &Robot_info, const vmobjptr
 				{
 					collide_player_and_nasty_robot(Robot_info, playerobj, robot, collision_point);
 #if DXX_BUILD_DESCENT == 2
-					auto &energy = player_info.energy;
-					if (robptr.energy_drain && energy) {
-						energy -= robptr.energy_drain * F1_0;
-						if (energy < 0)
-							energy = 0;
+					if (robptr.energy_drain) {
+						/* Most melee robots do not have the energy drain ability. */
+						[[unlikely]];
+						if (auto &energy{player_info.energy})
+						{
+							/* Players usually have sufficient energy to drain. */
+							[[likely]];
+							const fix drain_amount{robptr.energy_drain * F1_0};
+							if (energy > drain_amount) [[likely]]
+								energy -= drain_amount;
+							else
+								energy = 0;
+						}
 					}
 #endif
 				}
