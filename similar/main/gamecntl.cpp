@@ -179,19 +179,26 @@ static void transfer_energy_to_shield(object &plrobj)
 
 	auto &player_info = plrobj.ctype.player_info;
 	auto &shields = plrobj.shields;
+	if (shields >= MAX_SHIELDS)
+	{
+		/* Usually, players will only invoke the transfer if it will succeed,
+		 * so reporting that it is unusable is unlikely.
+		 */
+		[[unlikely]];
+		HUD_init_message_literal(HM_DEFAULT, "No transfer: Shields already at max");
+		return;
+	}
 	auto &energy = player_info.energy;
+	if (energy <= INITIAL_ENERGY)
+	{
+		[[unlikely]];
+		HUD_init_message(HM_DEFAULT, "No transfer: Need more than %i energy to enable transfer", f2i(INITIAL_ENERGY));
+		return;
+	}
 	//how much energy gets transfered
 	const fix e = min(min(FrameTime*CONVERTER_RATE, energy - INITIAL_ENERGY), (MAX_SHIELDS - shields) * CONVERTER_SCALE);
-
 	if (e <= 0) {
-
-		if (energy <= INITIAL_ENERGY) {
-			HUD_init_message(HM_DEFAULT, "Need more than %i energy to enable transfer", f2i(INITIAL_ENERGY));
-		}
-		else if (shields >= MAX_SHIELDS)
-		{
-			HUD_init_message_literal(HM_DEFAULT, "No transfer: Shields already at max");
-		}
+		[[unlikely]];
 		return;
 	}
 
