@@ -412,9 +412,11 @@ has_primary_weapon_result player_has_primary_weapon(const player_info &player_in
 
 has_secondary_weapon_result player_has_secondary_weapon(const player_info &player_info, const secondary_weapon_index_t weapon_num)
 {
-	const auto secondary_ammo = player_info.secondary_ammo[weapon_num];
-	const auto weapon_index = Secondary_weapon_to_weapon_info[weapon_num];
-	if (secondary_ammo && Weapon_info[weapon_index].ammo_usage <= secondary_ammo)
+	const auto opt_weapon_num{Secondary_weapon_to_weapon_info.valid_index(weapon_num)};
+	if (!opt_weapon_num) [[unlikely]]
+		return has_secondary_weapon_result::absent;
+	const auto secondary_ammo{player_info.secondary_ammo[*opt_weapon_num]};
+	if (secondary_ammo > 0 && Weapon_info[Secondary_weapon_to_weapon_info[*opt_weapon_num]].ammo_usage <= secondary_ammo)
 		return has_secondary_weapon_result::present;
 	return has_secondary_weapon_result::absent;
 }
