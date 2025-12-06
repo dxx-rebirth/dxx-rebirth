@@ -361,48 +361,50 @@ static primary_weapon_index_t get_mapped_weapon_index(const player_info &player_
 namespace dsx {
 has_primary_weapon_result player_has_primary_weapon(const player_info &player_info, primary_weapon_index_t weapon_num)
 {
-	auto &energy = player_info.energy;
-
-	const auto weapon_index = Primary_weapon_to_weapon_info[weapon_num];
-
 	if (!(player_info.primary_weapon_flags & HAS_PRIMARY_FLAG(weapon_num)))
 	{
+		/* If the weapon is absent, return no bits set. */
 		return has_primary_weapon_result{};
 	}
+	/* Otherwise, return a result indicating the player has the weapon, and
+	 * whether the player can fire that weapon.
+	 */
 
-		// Special case: Gauss cannon uses vulcan ammo.
-		if (weapon_index_uses_vulcan_ammo(weapon_num)) {
-			if (Weapon_info[weapon_index].ammo_usage <= player_info.vulcan_ammo)
-				return has_primary_weapon_result::weapon | has_primary_weapon_result::ammo | has_primary_weapon_result::energy;
-			return has_primary_weapon_result::weapon | has_primary_weapon_result::energy;
-		}
 	/* reject_unusable_primary_weapon_select checks
 	 * has_primary_weapon_result::ammo for all weapons.  Report ammo as present
 	 * for energy weapons to prevent a spurious "You don't have ammo for the"
 	 * error message. */
-	auto return_value = has_primary_weapon_result::weapon | has_primary_weapon_result::ammo;
+	constexpr auto result_has_weapon_ammo{has_primary_weapon_result::weapon | has_primary_weapon_result::ammo};
 
+	auto &energy{player_info.energy};
 #if DXX_BUILD_DESCENT == 1
 		//added on 1/21/99 by Victor Rachels... yet another hack
 		//fusion has 0 energy usage, HAS_ENERGY_FLAG was always true
 		if(weapon_num == primary_weapon_index_t::FUSION_INDEX)
 		{
 			if (energy >= F1_0*2)
-				return_value |= has_primary_weapon_result::energy;
+				return result_has_weapon_ammo | has_primary_weapon_result::energy;
+			return result_has_weapon_ammo;
 		}
 #elif DXX_BUILD_DESCENT == 2
 		if (weapon_num == primary_weapon_index_t::OMEGA_INDEX) {	// Hack: Make sure player has energy to omega
 			if (energy > 0 || player_info.Omega_charge)
-				return_value |= has_primary_weapon_result::energy;
+				return result_has_weapon_ammo | has_primary_weapon_result::energy;
+			return result_has_weapon_ammo;
 		}
 #endif
-		else
-		{
-			const auto energy_usage = Weapon_info[weapon_index].energy_usage;
-			if (energy_usage <= energy)
-				return_value |= has_primary_weapon_result::energy;
-		}
-	return return_value;
+	const auto &weapon_info{Weapon_info[Primary_weapon_to_weapon_info[weapon_num]]};
+
+	// Special case: Gauss cannon uses vulcan ammo.
+	if (weapon_index_uses_vulcan_ammo(weapon_num))
+	{
+		if (weapon_info.ammo_usage <= player_info.vulcan_ammo) [[likely]]
+			return result_has_weapon_ammo | has_primary_weapon_result::energy;
+		return has_primary_weapon_result::weapon | has_primary_weapon_result::energy;
+	}
+	if (weapon_info.energy_usage <= energy) [[likely]]
+		return result_has_weapon_ammo | has_primary_weapon_result::energy;
+	return result_has_weapon_ammo;
 }
 
 has_secondary_weapon_result player_has_secondary_weapon(const player_info &player_info, const secondary_weapon_index_t weapon_num)
