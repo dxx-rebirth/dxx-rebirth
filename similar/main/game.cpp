@@ -2336,7 +2336,7 @@ bool FireLaser(player_info &player_info, const control_info &Controls)
 
 	if (Primary_weapon == primary_weapon_index_t::FUSION_INDEX)
 	{
-		auto &energy = player_info.energy;
+		auto energy{player_info.energy};
 		auto &Auto_fire_fusion_cannon_time = player_info.Auto_fire_fusion_cannon_time;
 		if (energy < F1_0 * 2 && Auto_fire_fusion_cannon_time == 0)
 		{
@@ -2356,6 +2356,7 @@ bool FireLaser(player_info &player_info, const control_info &Controls)
 				Auto_fire_fusion_cannon_time = GameTime64 -1;	//	Fire now!
 			} else
 				Auto_fire_fusion_cannon_time = GameTime64 + FrameTime/2 + 1;		//	Fire the fusion cannon at this time in the future.
+			player_info.energy = energy;
 
 			{
 				int dg, db;
