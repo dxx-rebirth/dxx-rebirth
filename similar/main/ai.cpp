@@ -426,47 +426,47 @@ constexpr std::array<
 	{{{
 		// Event = AIE_FIRE, a nearby object fired
 		// none     rest      srch      lock      flin      fire      reco        // CURRENT is rows, GOAL is columns
-		{{{AIS_ERR_, AIS_LOCK, AIS_LOCK, AIS_LOCK, AIS_FLIN, AIS_FIRE, AIS_RECO}}}, // none
-		{{{AIS_ERR_, AIS_LOCK, AIS_LOCK, AIS_LOCK, AIS_FLIN, AIS_FIRE, AIS_RECO}}}, // rest
-		{{{AIS_ERR_, AIS_LOCK, AIS_LOCK, AIS_LOCK, AIS_FLIN, AIS_FIRE, AIS_RECO}}}, // search
-		{{{AIS_ERR_, AIS_LOCK, AIS_LOCK, AIS_LOCK, AIS_FLIN, AIS_FIRE, AIS_RECO}}}, // lock
-		{{{AIS_ERR_, AIS_REST, AIS_LOCK, AIS_LOCK, AIS_LOCK, AIS_FIRE, AIS_RECO}}}, // flinch
-		{{{AIS_ERR_, AIS_FIRE, AIS_FIRE, AIS_FIRE, AIS_FLIN, AIS_FIRE, AIS_RECO}}}, // fire
-		{{{AIS_ERR_, AIS_LOCK, AIS_LOCK, AIS_LOCK, AIS_FLIN, AIS_FIRE, AIS_FIRE}}},  // recoil
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_FLIN, ai_static_state::AIS_FIRE, ai_static_state::AIS_RECO}}}, // none
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_FLIN, ai_static_state::AIS_FIRE, ai_static_state::AIS_RECO}}}, // rest
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_FLIN, ai_static_state::AIS_FIRE, ai_static_state::AIS_RECO}}}, // search
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_FLIN, ai_static_state::AIS_FIRE, ai_static_state::AIS_RECO}}}, // lock
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_REST, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_FIRE, ai_static_state::AIS_RECO}}}, // flinch
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_FIRE, ai_static_state::AIS_FIRE, ai_static_state::AIS_FIRE, ai_static_state::AIS_FLIN, ai_static_state::AIS_FIRE, ai_static_state::AIS_RECO}}}, // fire
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_FLIN, ai_static_state::AIS_FIRE, ai_static_state::AIS_FIRE}}},  // recoil
 	}}},
 
 	// Event = AIE_HITT, a nearby object was hit (or a wall was hit)
 	{{{
-		{{{AIS_ERR_, AIS_LOCK, AIS_LOCK, AIS_LOCK, AIS_FLIN, AIS_FIRE, AIS_RECO}}},
-		{{{AIS_ERR_, AIS_LOCK, AIS_LOCK, AIS_LOCK, AIS_FLIN, AIS_FIRE, AIS_RECO}}},
-		{{{AIS_ERR_, AIS_LOCK, AIS_LOCK, AIS_LOCK, AIS_FLIN, AIS_FIRE, AIS_RECO}}},
-		{{{AIS_ERR_, AIS_LOCK, AIS_LOCK, AIS_LOCK, AIS_FLIN, AIS_FIRE, AIS_RECO}}},
-		{{{AIS_ERR_, AIS_LOCK, AIS_LOCK, AIS_LOCK, AIS_LOCK, AIS_FLIN, AIS_FLIN}}},
-		{{{AIS_ERR_, AIS_REST, AIS_LOCK, AIS_LOCK, AIS_LOCK, AIS_FIRE, AIS_RECO}}},
-		{{{AIS_ERR_, AIS_LOCK, AIS_LOCK, AIS_LOCK, AIS_FLIN, AIS_FIRE, AIS_FIRE}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_FLIN, ai_static_state::AIS_FIRE, ai_static_state::AIS_RECO}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_FLIN, ai_static_state::AIS_FIRE, ai_static_state::AIS_RECO}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_FLIN, ai_static_state::AIS_FIRE, ai_static_state::AIS_RECO}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_FLIN, ai_static_state::AIS_FIRE, ai_static_state::AIS_RECO}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_REST, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_FIRE, ai_static_state::AIS_RECO}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_FLIN, ai_static_state::AIS_FIRE, ai_static_state::AIS_FIRE}}},
 	}}},
 
 	// Event = AIE_COLL, player collided with robot
 	{{{
-		{{{AIS_ERR_, AIS_LOCK, AIS_LOCK, AIS_LOCK, AIS_FLIN, AIS_FIRE, AIS_RECO}}},
-		{{{AIS_ERR_, AIS_LOCK, AIS_LOCK, AIS_LOCK, AIS_FLIN, AIS_FIRE, AIS_RECO}}},
-		{{{AIS_ERR_, AIS_LOCK, AIS_LOCK, AIS_LOCK, AIS_FLIN, AIS_FIRE, AIS_RECO}}},
-		{{{AIS_ERR_, AIS_LOCK, AIS_LOCK, AIS_LOCK, AIS_FLIN, AIS_FIRE, AIS_RECO}}},
-		{{{AIS_ERR_, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_LOCK, AIS_FLIN, AIS_FLIN}}},
-		{{{AIS_ERR_, AIS_REST, AIS_LOCK, AIS_LOCK, AIS_LOCK, AIS_FIRE, AIS_RECO}}},
-		{{{AIS_ERR_, AIS_LOCK, AIS_LOCK, AIS_LOCK, AIS_FLIN, AIS_FIRE, AIS_FIRE}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_FLIN, ai_static_state::AIS_FIRE, ai_static_state::AIS_RECO}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_FLIN, ai_static_state::AIS_FIRE, ai_static_state::AIS_RECO}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_FLIN, ai_static_state::AIS_FIRE, ai_static_state::AIS_RECO}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_FLIN, ai_static_state::AIS_FIRE, ai_static_state::AIS_RECO}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_LOCK, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_REST, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_FIRE, ai_static_state::AIS_RECO}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_LOCK, ai_static_state::AIS_FLIN, ai_static_state::AIS_FIRE, ai_static_state::AIS_FIRE}}},
 	}}},
 
 	// Event = AIE_HURT, player hurt robot (by firing at and hitting it)
 	// Note, this doesn't necessarily mean the robot JUST got hit, only that that is the most recent thing that happened.
 	{{{
-		{{{AIS_ERR_, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN}}},
-		{{{AIS_ERR_, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN}}},
-		{{{AIS_ERR_, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN}}},
-		{{{AIS_ERR_, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN}}},
-		{{{AIS_ERR_, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN}}},
-		{{{AIS_ERR_, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN}}},
-		{{{AIS_ERR_, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN, AIS_FLIN}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN}}},
+		{{{ai_static_state::AIS_ERR_, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN, ai_static_state::AIS_FLIN}}},
 	}}}
 }};
 
@@ -627,7 +627,7 @@ void init_ai_object(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 	obj.mtype.phys_info.velocity = {};
 	ailp->player_awareness_time = 0;
 	ailp->player_awareness_type = player_awareness_type_t::PA_NONE;
-	aip->GOAL_STATE = AIS_SRCH;
+	aip->GOAL_STATE = ai_static_state::AIS_SRCH;
 	if constexpr (DXX_HAVE_POISON || static_cast<uint8_t>(robot_gun_number::_0) != 0)
 		/* If memory poisoning is enabled, then CURRENT_GUN is undefined.  Set
 		 * it to a reasonable value here, because nothing else will assign it
@@ -639,7 +639,7 @@ void init_ai_object(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 		 * 0, then avoid actually writing it.
 		 */
 		aip->CURRENT_GUN = robot_gun_number::_0;
-	aip->CURRENT_STATE = AIS_REST;
+	aip->CURRENT_STATE = ai_static_state::AIS_REST;
 	ailp->time_player_seen = {GameTime64};
 	ailp->next_misc_sound_time = {GameTime64};
 	ailp->time_player_sound_attacked = {GameTime64};
@@ -946,10 +946,10 @@ static int do_silly_animation(const d_robot_info_array &Robot_info, object &objp
 			auto &achieved_state = ail.achieved_state[build_robot_gun_goal_index(gun_num)];
 			auto &goal_state = ail.goal_state[build_robot_gun_goal_index(gun_num)];
 			achieved_state = goal_state;
-			if (achieved_state == AIS_RECO)
-				goal_state = AIS_FIRE;
-			else if (achieved_state == AIS_FLIN)
-				goal_state = AIS_LOCK;
+			if (achieved_state == ai_static_state::AIS_RECO)
+				goal_state = ai_static_state::AIS_FIRE;
+			else if (achieved_state == ai_static_state::AIS_FLIN)
+				goal_state = ai_static_state::AIS_LOCK;
 		}
 	}
 
@@ -1066,7 +1066,7 @@ void do_ai_robot_hit_attack(const d_robot_info_array &Robot_info, const vmobjptr
 #endif
 				}
 
-			robot->ctype.ai_info.GOAL_STATE = AIS_RECO;
+			robot->ctype.ai_info.GOAL_STATE = ai_static_state::AIS_RECO;
 			set_next_fire_time(robot, ailp, robptr, robot_gun_number::_1);	//	1 = gun_num: 0 is special (uses next_fire2)
 		}
 	}
@@ -1678,11 +1678,11 @@ static void do_firing_stuff(object &obj, const player_flags powerup_flags, const
 			ai_local *const ailp = &obj.ctype.ai_info.ail;
 
 			switch (aip->GOAL_STATE) {
-				case AIS_NONE:
-				case AIS_REST:
-				case AIS_SRCH:
-				case AIS_LOCK:
-					aip->GOAL_STATE = AIS_FIRE;
+				case ai_static_state::AIS_NONE:
+				case ai_static_state::AIS_REST:
+				case ai_static_state::AIS_SRCH:
+				case ai_static_state::AIS_LOCK:
+					aip->GOAL_STATE = ai_static_state::AIS_FIRE;
 					if (ailp->player_awareness_type <= player_awareness_type_t::PA_NEARBY_ROBOT_FIRED) {
 						ailp->player_awareness_type = player_awareness_type_t::PA_NEARBY_ROBOT_FIRED;
 						ailp->player_awareness_time = PLAYER_AWARENESS_INITIAL_TIME;
@@ -1697,10 +1697,10 @@ static void do_firing_stuff(object &obj, const player_flags powerup_flags, const
 		} else if (dot >= F1_0/2) {
 			ai_static *const aip = &obj.ctype.ai_info;
 			switch (aip->GOAL_STATE) {
-				case AIS_NONE:
-				case AIS_REST:
-				case AIS_SRCH:
-					aip->GOAL_STATE = AIS_LOCK;
+				case ai_static_state::AIS_NONE:
+				case ai_static_state::AIS_REST:
+				case ai_static_state::AIS_SRCH:
+					aip->GOAL_STATE = ai_static_state::AIS_LOCK;
 					break;
 				case ai_static_state::AIS_LOCK:
 				case ai_static_state::AIS_FLIN:
@@ -1812,9 +1812,9 @@ static void compute_vis_and_vec(const d_robot_info_array &Robot_info, const vmob
 			{
 				ai_static	*aip = &objp->ctype.ai_info;
 			if (player_visibility.visibility == player_visibility_state::visible_and_in_field_of_view && ailp.previous_visibility != player_visibility_state::visible_and_in_field_of_view)
-				if ((aip->GOAL_STATE == AIS_REST) || (aip->CURRENT_STATE == AIS_REST)) {
-					aip->GOAL_STATE = AIS_FIRE;
-					aip->CURRENT_STATE = AIS_FIRE;
+				if ((aip->GOAL_STATE == ai_static_state::AIS_REST) || (aip->CURRENT_STATE == ai_static_state::AIS_REST)) {
+					aip->GOAL_STATE = ai_static_state::AIS_FIRE;
+					aip->CURRENT_STATE = ai_static_state::AIS_FIRE;
 				}
 			}
 
@@ -2864,12 +2864,12 @@ static int maybe_ai_do_actual_firing_stuff(object &obj)
 	if (Game_mode & GM_MULTI)
 	{
 		auto &aip = obj.ctype.ai_info;
-		if (aip.GOAL_STATE != AIS_FLIN && get_robot_id(obj) != robot_id::brain)
+		if (aip.GOAL_STATE != ai_static_state::AIS_FLIN && get_robot_id(obj) != robot_id::brain)
 		{
 			const auto s = aip.CURRENT_STATE;
-			if (s == AIS_FIRE)
+			if (s == ai_static_state::AIS_FIRE)
 			{
-				static_assert(AIS_FIRE != 0, "AIS_FIRE must be nonzero for this shortcut to work properly.");
+				static_assert(ai_static_state::AIS_FIRE != 0, "ai_static_state::AIS_FIRE must be nonzero for this shortcut to work properly.");
 				return s;
 			}
 		}
@@ -2886,7 +2886,7 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 	if (player_visibility.visibility == player_visibility_state::visible_and_in_field_of_view)
 	{
 		//	Changed by mk, 01/04/94, onearm would take about 9 seconds until he can fire at you.
-		// if (((!object_animates) || (ailp->achieved_state[aip->CURRENT_GUN] == AIS_FIRE)) && (ailp->next_fire <= 0))
+		// if (((!object_animates) || (ailp->achieved_state[aip->CURRENT_GUN] == ai_static_state::AIS_FIRE)) && (ailp->next_fire <= 0))
 		if (!object_animates || ready_to_fire_any_weapon(robptr, ailp, 0)) {
 			dot = vm_vec_build_dot(obj->orient.fvec, vec_to_player);
 			if (dot >= 7*F1_0/8) {
@@ -2917,23 +2917,23 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 						ailp.mode = ai_mode::AIM_CHASE_OBJECT;
 				}
 
-				aip->GOAL_STATE = AIS_RECO;
-				ailp.goal_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] = AIS_RECO;
+				aip->GOAL_STATE = ai_static_state::AIS_RECO;
+				ailp.goal_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] = ai_static_state::AIS_RECO;
 				// Switch to next gun for next fire.
 				aip->CURRENT_GUN = robot_advance_current_gun(robptr, aip->CURRENT_GUN);
 			}
 		}
 	} else if (Weapon_info[robptr.weapon_type].homing_flag) {
 		//	Robots which fire homing weapons might fire even if they don't have a bead on the player.
-		if ((!object_animates || ailp.achieved_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] == AIS_FIRE)
+		if ((!object_animates || ailp.achieved_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] == ai_static_state::AIS_FIRE)
 			&& ready_to_fire_weapon1(ailp, 0)
 			&& (vm_vec_dist_quick(Hit_pos, obj->pos) > F1_0*40)) {
 			if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 				return;
 			ai_fire_laser_at_player(Robot_info, LevelSharedSegmentState, obj, player_info, gun_point, robot_gun_number::_0);
 
-			aip->GOAL_STATE = AIS_RECO;
-			ailp.goal_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] = AIS_RECO;
+			aip->GOAL_STATE = ai_static_state::AIS_RECO;
+			ailp.goal_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] = ai_static_state::AIS_RECO;
 		}
 			// Switch to next gun for next fire.
 		aip->CURRENT_GUN = robot_advance_current_gun(robptr, aip->CURRENT_GUN);
@@ -3009,8 +3009,8 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 						ailp.mode = ai_mode::AIM_CHASE_OBJECT;
 				}
 
-				aip->GOAL_STATE = AIS_RECO;
-				ailp.goal_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] = AIS_RECO;
+				aip->GOAL_STATE = ai_static_state::AIS_RECO;
+				ailp.goal_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] = ai_static_state::AIS_RECO;
 
 				// Switch to next gun for next fire.  If has 2 gun types, select gun #1, if exists.
 				aip->CURRENT_GUN = robot_advance_current_gun_prefer_second(robptr, aip->CURRENT_GUN);
@@ -3020,7 +3020,7 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 	else if ((!robptr.attack_type && Weapon_info[Robot_info[get_robot_id(obj)].weapon_type].homing_flag) || ((Robot_info[get_robot_id(obj)].weapon_type2 != weapon_none && Weapon_info[Robot_info[get_robot_id(obj)].weapon_type2].homing_flag)))
 	{
 		//	Robots which fire homing weapons might fire even if they don't have a bead on the player.
-		if ((!object_animates || ailp.achieved_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] == AIS_FIRE)
+		if ((!object_animates || ailp.achieved_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] == ai_static_state::AIS_FIRE)
 			&& (
 				(aip->CURRENT_GUN != robot_gun_number::_0 && ready_to_fire_weapon1(ailp, 0)) ||
 				(aip->CURRENT_GUN == robot_gun_number::_0 && ready_to_fire_weapon2(robptr, ailp, 0)))
@@ -3030,8 +3030,8 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 			robot_gun_point gun_point;
 			ai_fire_laser_at_player(Robot_info, LevelSharedSegmentState, obj, player_info, gun_point, gun_num, Believed_player_pos);
 
-			aip->GOAL_STATE = AIS_RECO;
-			ailp.goal_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] = AIS_RECO;
+			aip->GOAL_STATE = ai_static_state::AIS_RECO;
+			ailp.goal_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] = ai_static_state::AIS_RECO;
 		}
 			// Switch to next gun for next fire.
 		aip->CURRENT_GUN = robot_advance_current_gun(robptr, aip->CURRENT_GUN);
@@ -3079,8 +3079,8 @@ static void ai_do_actual_firing_stuff(const d_robot_info_array &Robot_info, fvmo
 					if (aip->behavior != ai_behavior::AIB_RUN_FROM && aip->behavior != ai_behavior::AIB_STILL && aip->behavior != ai_behavior::AIB_SNIPE && aip->behavior != ai_behavior::AIB_FOLLOW && (ailp.mode == ai_mode::AIM_FOLLOW_PATH || ailp.mode == ai_mode::AIM_STILL))
 						ailp.mode = ai_mode::AIM_CHASE_OBJECT;
 				}
-				aip->GOAL_STATE = AIS_RECO;
-				ailp.goal_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] = AIS_RECO;
+				aip->GOAL_STATE = ai_static_state::AIS_RECO;
+				ailp.goal_state[build_robot_gun_goal_index(aip->CURRENT_GUN)] = ai_static_state::AIS_RECO;
 
 				// Switch to next gun for next fire.
 				aip->CURRENT_GUN = robot_advance_current_gun_prefer_second(robptr, aip->CURRENT_GUN);
@@ -3314,8 +3314,8 @@ void do_ai_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoStat
 	// Kind of a hack.  If a robot is flinching, but it is time for it to fire, unflinch it.
 	// Else, you can turn a big nasty robot into a wimp by firing flares at it.
 	// This also allows the player to see the cool flinch effect for mechs without unbalancing the game.
-	if ((aip->GOAL_STATE == AIS_FLIN) && ready_to_fire_any_weapon(robptr, ailp, 0)) {
-		aip->GOAL_STATE = AIS_FIRE;
+	if ((aip->GOAL_STATE == ai_static_state::AIS_FLIN) && ready_to_fire_any_weapon(robptr, ailp, 0)) {
+		aip->GOAL_STATE = ai_static_state::AIS_FIRE;
 	}
 
 #ifndef NDEBUG
@@ -3456,10 +3456,10 @@ _exit_cheat:
 			break;
 			
 		case boss_robot_id::d1_superboss:
-			if (aip->GOAL_STATE == AIS_FLIN)
-				aip->GOAL_STATE = AIS_FIRE;
-			if (aip->CURRENT_STATE == AIS_FLIN)
-				aip->CURRENT_STATE = AIS_FIRE;
+			if (aip->GOAL_STATE == ai_static_state::AIS_FLIN)
+				aip->GOAL_STATE = ai_static_state::AIS_FIRE;
+			if (aip->CURRENT_STATE == ai_static_state::AIS_FLIN)
+				aip->CURRENT_STATE = ai_static_state::AIS_FIRE;
 			compute_vis_and_vec(Robot_info, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 			
 			{
@@ -3484,10 +3484,10 @@ _exit_cheat:
 #endif
 		case boss_robot_id::d1_1:
 		{
-			if (aip->GOAL_STATE == AIS_FLIN)
-				aip->GOAL_STATE = AIS_FIRE;
-			if (aip->CURRENT_STATE == AIS_FLIN)
-				aip->CURRENT_STATE = AIS_FIRE;
+			if (aip->GOAL_STATE == ai_static_state::AIS_FLIN)
+				aip->GOAL_STATE = ai_static_state::AIS_FIRE;
+			if (aip->CURRENT_STATE == ai_static_state::AIS_FLIN)
+				aip->CURRENT_STATE = ai_static_state::AIS_FIRE;
 			
 			compute_vis_and_vec(Robot_info, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 			
@@ -3643,10 +3643,10 @@ _exit_cheat:
 		} else {
 			ailp.player_awareness_time = F1_0*2;
 			ailp.player_awareness_type = static_cast<player_awareness_type_t>(static_cast<unsigned>(ailp.player_awareness_type) - 1);
-			//aip->GOAL_STATE = AIS_REST;
+			//aip->GOAL_STATE = ai_static_state::AIS_REST;
 		}
 	} else
-		aip->GOAL_STATE = AIS_REST;                     //new: 12/13/94
+		aip->GOAL_STATE = ai_static_state::AIS_REST;                     //new: 12/13/94
 
 
 	if (Player_dead_state != player_dead_state::no &&
@@ -3699,8 +3699,8 @@ _exit_cheat:
 #endif
 
 	//	- -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -
-	if ((aip->GOAL_STATE == AIS_FLIN) && (aip->CURRENT_STATE == AIS_FLIN))
-		aip->GOAL_STATE = AIS_LOCK;
+	if ((aip->GOAL_STATE == ai_static_state::AIS_FLIN) && (aip->CURRENT_STATE == ai_static_state::AIS_FLIN))
+		aip->GOAL_STATE = ai_static_state::AIS_LOCK;
 
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
 	// Note: Should only do these two function calls for objects which animate
@@ -3895,7 +3895,7 @@ _exit_cheat:
 				break;
 			}
 
-			if ((aip->CURRENT_STATE == AIS_REST) && (aip->GOAL_STATE == AIS_REST)) {
+			if ((aip->CURRENT_STATE == ai_static_state::AIS_REST) && (aip->GOAL_STATE == ai_static_state::AIS_REST)) {
 				const auto pv = player_visibility.visibility;
 				if (player_is_visible(pv))
 				{
@@ -3903,8 +3903,8 @@ _exit_cheat:
 					if (d_rand() < FrameTime * upv)
 						if (dist_to_player/256 < static_cast<fix>(d_rand() * upv))
 						{
-							aip->GOAL_STATE = AIS_SRCH;
-							aip->CURRENT_STATE = AIS_SRCH;
+							aip->GOAL_STATE = ai_static_state::AIS_SRCH;
+							aip->CURRENT_STATE = ai_static_state::AIS_SRCH;
 						}
 				}
 			}
@@ -3930,7 +3930,7 @@ _exit_cheat:
 				create_path_to_believed_player_segment(obj, robptr, 10, create_path_safety_flag::safe);
 				ai_multi_send_robot_position(obj, -1);
 #endif
-			} else if ((aip->CURRENT_STATE != AIS_REST) && (aip->GOAL_STATE != AIS_REST)) {
+			} else if ((aip->CURRENT_STATE != ai_static_state::AIS_REST) && (aip->GOAL_STATE != ai_static_state::AIS_REST)) {
 				if (!ai_multiplayer_awareness(obj, 70)) {
 					if (maybe_ai_do_actual_firing_stuff(obj))
 						ai_do_actual_firing_stuff(Robot_info, vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
@@ -3938,7 +3938,7 @@ _exit_cheat:
 				}
 				ai_move_relative_to_player(Robot_info, obj, ailp, dist_to_player, circle_distance, 0, player_visibility, player_info);
 
-				if ((obj_ref & 1) && ((aip->GOAL_STATE == AIS_SRCH) || (aip->GOAL_STATE == AIS_LOCK))) {
+				if ((obj_ref & 1) && ((aip->GOAL_STATE == ai_static_state::AIS_SRCH) || (aip->GOAL_STATE == ai_static_state::AIS_LOCK))) {
 					if (player_is_visible(player_visibility.visibility))
 						ai_turn_towards_vector(vec_to_player, obj, robptr.turn_time[Difficulty_level]);
 #if DXX_BUILD_DESCENT == 1
@@ -3973,10 +3973,10 @@ _exit_cheat:
 					ai_multi_send_robot_position(obj, -1);
 				}
 
-			if (aip->GOAL_STATE != AIS_FLIN)
-				aip->GOAL_STATE = AIS_LOCK;
-			else if (aip->CURRENT_STATE == AIS_FLIN)
-				aip->GOAL_STATE = AIS_LOCK;
+			if (aip->GOAL_STATE != ai_static_state::AIS_FLIN)
+				aip->GOAL_STATE = ai_static_state::AIS_LOCK;
+			else if (aip->CURRENT_STATE == ai_static_state::AIS_FLIN)
+				aip->GOAL_STATE = ai_static_state::AIS_LOCK;
 
 			// Bad to let run_from robot fire at player because it
 			// will cause a war in which it turns towards the player
@@ -4054,10 +4054,10 @@ _exit_cheat:
 
 			ai_follow_path(Robot_info, obj, player_visibility.visibility, &vec_to_player);
 
-			if (aip->GOAL_STATE != AIS_FLIN)
-				aip->GOAL_STATE = AIS_LOCK;
-			else if (aip->CURRENT_STATE == AIS_FLIN)
-				aip->GOAL_STATE = AIS_LOCK;
+			if (aip->GOAL_STATE != ai_static_state::AIS_FLIN)
+				aip->GOAL_STATE = ai_static_state::AIS_LOCK;
+			else if (aip->CURRENT_STATE == ai_static_state::AIS_FLIN)
+				aip->GOAL_STATE = ai_static_state::AIS_LOCK;
 
 #if DXX_BUILD_DESCENT == 1
 			if ((aip->behavior != ai_behavior::AIB_FOLLOW_PATH) && (aip->behavior != ai_behavior::AIB_RUN_FROM))
@@ -4168,10 +4168,10 @@ _exit_cheat:
 			}
 #endif
 
-			if (aip->GOAL_STATE != AIS_FLIN)
-				aip->GOAL_STATE = AIS_LOCK;
-			else if (aip->CURRENT_STATE == AIS_FLIN)
-				aip->GOAL_STATE = AIS_LOCK;
+			if (aip->GOAL_STATE != ai_static_state::AIS_FLIN)
+				aip->GOAL_STATE = ai_static_state::AIS_LOCK;
+			else if (aip->CURRENT_STATE == ai_static_state::AIS_FLIN)
+				aip->GOAL_STATE = ai_static_state::AIS_LOCK;
 
 			ai_multi_send_robot_position(obj, -1);
 			break;
@@ -4331,12 +4331,12 @@ _exit_cheat:
 
 		auto new_goal_state = (i < Ai_transition_table.size())
 			? Ai_transition_table[i][aip->CURRENT_STATE][aip->GOAL_STATE]
-			: AIS_REST;
-		if (new_goal_state == AIS_ERR_)
-			new_goal_state = AIS_REST;
+			: ai_static_state::AIS_REST;
+		if (new_goal_state == ai_static_state::AIS_ERR_)
+			new_goal_state = ai_static_state::AIS_REST;
 
-		if (aip->CURRENT_STATE == AIS_NONE)
-			aip->CURRENT_STATE = AIS_REST;
+		if (aip->CURRENT_STATE == ai_static_state::AIS_NONE)
+			aip->CURRENT_STATE = ai_static_state::AIS_REST;
 
 		aip->GOAL_STATE = new_goal_state;
 
@@ -4344,39 +4344,39 @@ _exit_cheat:
 
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
 	// If new state = fire, then set all gun states to fire.
-	if (aip->GOAL_STATE == AIS_FIRE)
+	if (aip->GOAL_STATE == ai_static_state::AIS_FIRE)
 	{
-		std::fill_n(ailp.goal_state.begin(), robptr.n_guns, AIS_FIRE);
+		std::fill_n(ailp.goal_state.begin(), robptr.n_guns, ai_static_state::AIS_FIRE);
 	}
 
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
 	// Hack by mk on 01/04/94, if a guy hasn't animated to the firing state, but his next_fire says ok to fire, bash him there
-	if (ready_to_fire_any_weapon(robptr, ailp, 0) && (aip->GOAL_STATE == AIS_FIRE))
-		aip->CURRENT_STATE = AIS_FIRE;
+	if (ready_to_fire_any_weapon(robptr, ailp, 0) && (aip->GOAL_STATE == ai_static_state::AIS_FIRE))
+		aip->CURRENT_STATE = ai_static_state::AIS_FIRE;
 
-	if (aip->GOAL_STATE != AIS_FLIN && get_robot_id(obj) != robot_id::brain)
+	if (aip->GOAL_STATE != ai_static_state::AIS_FLIN && get_robot_id(obj) != robot_id::brain)
 	{
 		switch (aip->CURRENT_STATE) {
-			case AIS_NONE:
+			case ai_static_state::AIS_NONE:
 				compute_vis_and_vec(Robot_info, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 
 				{
 				const fix dot = vm_vec_build_dot(obj->orient.fvec, vec_to_player);
 				if (dot >= F1_0/2)
-					if (aip->GOAL_STATE == AIS_REST)
-						aip->GOAL_STATE = AIS_SRCH;
+					if (aip->GOAL_STATE == ai_static_state::AIS_REST)
+						aip->GOAL_STATE = ai_static_state::AIS_SRCH;
 				}
 				break;
-			case AIS_REST:
-				if (aip->GOAL_STATE == AIS_REST) {
+			case ai_static_state::AIS_REST:
+				if (aip->GOAL_STATE == ai_static_state::AIS_REST) {
 					compute_vis_and_vec(Robot_info, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 					if (ready_to_fire_any_weapon(robptr, ailp, 0) && player_is_visible(player_visibility.visibility))
 					{
-						aip->GOAL_STATE = AIS_FIRE;
+						aip->GOAL_STATE = ai_static_state::AIS_FIRE;
 					}
 				}
 				break;
-			case AIS_SRCH:
+			case ai_static_state::AIS_SRCH:
 				if (!ai_multiplayer_awareness(obj, 60))
 					return;
 
@@ -4397,7 +4397,7 @@ _exit_cheat:
 				}
 #endif
 				break;
-			case AIS_LOCK:
+			case ai_static_state::AIS_LOCK:
 				compute_vis_and_vec(Robot_info, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 
 				if (!multiplayer || player_is_visible(player_visibility.visibility))
@@ -4422,7 +4422,7 @@ _exit_cheat:
 #endif
 				}
 				break;
-			case AIS_FIRE:
+			case ai_static_state::AIS_FIRE:
 				compute_vis_and_vec(Robot_info, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 
 #if DXX_BUILD_DESCENT == 1
@@ -4458,7 +4458,7 @@ _exit_cheat:
 				ai_do_actual_firing_stuff(Robot_info, vmobjptridx, obj, aip, ailp, robptr, dist_to_player, gun_point, player_visibility, object_animates, player_info, aip->CURRENT_GUN);
 
 				break;
-			case AIS_RECO:
+			case ai_static_state::AIS_RECO:
 				if (!(obj_ref & 3)) {
 					compute_vis_and_vec(Robot_info, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 #if DXX_BUILD_DESCENT == 1
@@ -4483,14 +4483,14 @@ _exit_cheat:
 #endif
 				}
 				break;
-			case AIS_FLIN:
+			case ai_static_state::AIS_FLIN:
 				break;
 			default:
-				aip->GOAL_STATE = AIS_REST;
-				aip->CURRENT_STATE = AIS_REST;
+				aip->GOAL_STATE = ai_static_state::AIS_REST;
+				aip->CURRENT_STATE = ai_static_state::AIS_REST;
 				break;
 		}
-	} // end of: if (aip->GOAL_STATE != AIS_FLIN)
+	} // end of: if (aip->GOAL_STATE != ai_static_state::AIS_FLIN)
 
 	// Switch to next gun for next fire.
 	if (!player_is_visible(player_visibility.visibility))

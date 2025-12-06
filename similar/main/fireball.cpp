@@ -1253,8 +1253,8 @@ static bool drop_robot_egg(const d_robot_info_array &Robot_info, const contained
 				ai_local *const ailp{&obj.ctype.ai_info.ail};
 				ailp->player_awareness_type = player_awareness_type_t::PA_WEAPON_ROBOT_COLLISION;
 				ailp->player_awareness_time = F1_0*3;
-				obj.ctype.ai_info.CURRENT_STATE = AIS_LOCK;
-				obj.ctype.ai_info.GOAL_STATE = AIS_LOCK;
+				obj.ctype.ai_info.CURRENT_STATE = ai_static_state::AIS_LOCK;
+				obj.ctype.ai_info.GOAL_STATE = ai_static_state::AIS_LOCK;
 				obj.ctype.ai_info.REMOTE_OWNER = -1;
 			}
 
