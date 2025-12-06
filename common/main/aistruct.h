@@ -43,10 +43,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #endif
 
-#define GREEN_GUY   1
-
-#define MAX_SEGMENTS_PER_PATH       20
-
 namespace dcx {
 
 enum class contained_object_type : uint8_t;
@@ -183,22 +179,6 @@ enum class ai_mode : uint8_t
 #define AIE_HITT        1
 #define AIE_COLL        2
 #define AIE_HURT        3
-
-//typedef struct opath {
-//	sbyte   path_index;     // current index of path
-//	sbyte   path_direction; // current path direction
-//	sbyte   path_length;    // length of current path
-//	sbyte   nothing;
-//	short   path[MAX_SEGMENTS_PER_PATH];
-//	short   always_0xabc;   // If this is ever not 0xabc, then someone overwrote
-//} opath;
-//
-//typedef struct oai_state {
-//	short   mode;               //
-//	short   counter;            // kind of a hack, frame countdown until switch modes
-//	opath   paths[2];
-//	vms_vector movement_vector; // movement vector for one second
-//} oai_state;
 
 #ifdef DXX_BUILD_DESCENT
 #if DXX_BUILD_DESCENT == 2
