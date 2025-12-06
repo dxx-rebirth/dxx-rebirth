@@ -856,8 +856,6 @@ I%(N)s a%(N)s()
 		# Force all tests to be Link tests when LTO is enabled.
 		self.Compile = self.Link if user_settings.lto else self._Compile
 		self.custom_tests = tuple(t for t in self.custom_tests if all(predicate(user_settings) for predicate in t.predicate))
-	def _quote_macro_value(v: str) -> str:
-		return v.strip().replace('\n', ' \\\n')
 	def _check_sconf_forced(self, calling_function: str) -> tuple:
 		return self._check_forced(calling_function), self._check_expected(calling_function)
 	@staticmethod
