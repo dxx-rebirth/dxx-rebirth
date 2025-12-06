@@ -1123,16 +1123,14 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 						create_n_segment_path(objp, robptr, 16 + d_rand() * 16, segment_none);
 						aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 						Assert(aip->path_length != 0);
-						ailp->mode = ai_mode::AIM_WANDER;	//	Special buddy mode.
 						//--Int3_if(((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length)));
-						return;
 					} else {
-						ailp->mode = ai_mode::AIM_WANDER;	//	Special buddy mode.
 						obj.mtype.phys_info.velocity = {};
 						obj.mtype.phys_info.rotvel = {};
 						//!!Assert((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length));
-						return;
 					}
+					ailp->mode = ai_mode::AIM_WANDER;	//	Special buddy mode.
+					return;
 				}
 			}
 #endif
