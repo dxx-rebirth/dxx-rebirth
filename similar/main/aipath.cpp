@@ -1254,18 +1254,6 @@ struct obj_path {
 	objnum_t objnum;
 };
 
-static int path_index_compare(const void *const v1, const void *const v2)
-{
-	const auto i1 = reinterpret_cast<const obj_path *>(v1);
-	const auto i2 = reinterpret_cast<const obj_path *>(v2);
-	if (i1->path_start < i2->path_start)
-		return -1;
-	else if (i1->path_start == i2->path_start)
-		return 0;
-	else
-		return 1;
-}
-
 }
 
 namespace dsx {
@@ -1386,9 +1374,7 @@ void ai_path_garbage_collect()
 			}
 		}
 	}
-
-	qsort(object_list, num_path_objects, sizeof(object_list[0]),
-			path_index_compare);
+	std::ranges::sort(std::span(object_list).first(num_path_objects), {}, &obj_path::path_start);
 
 	for (objind=0; objind < num_path_objects; objind++) {
 		ai_static	*aip;
