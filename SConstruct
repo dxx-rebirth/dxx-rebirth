@@ -5236,9 +5236,9 @@ class DXXProgram(DXXCommon):
 	# Run `init()`, but decorate any exception that occurs with a description
 	# of the profile for this instance.  This allows the user to see which
 	# profile triggered the exception.
-	def init_with_decoration(self, substenv):
+	def init_with_decoration(self, substenv) -> str:
 		try:
-			self.init(substenv)
+			return self.init(substenv)
 		except Exception as e:
 			# Patch the exception's arguments instead of using Python exception
 			# chaining.  Using `raise Exception('') from e` causes SCons not to
@@ -5247,7 +5247,7 @@ class DXXProgram(DXXCommon):
 			e.args = (f'Failed to initialize profile {self._argument_prefix_list!r}{f": {a[0]}" if a else ""}',) + a[1:]
 			raise
 
-	def init(self,substenv):
+	def init(self,substenv) -> str:
 		user_settings = self.user_settings
 		user_settings.read_variables(self, self.variables, substenv)
 		archive = DXXProgram.static_archive_construction.get(user_settings.builddir, None)
