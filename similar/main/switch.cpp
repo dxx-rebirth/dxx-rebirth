@@ -350,7 +350,11 @@ window_event_result check_trigger_sub(object &plrobj, const trgnum_t trigger_num
 		}
 
 		if (trigger.flags & TRIGGER_ENERGY_DRAIN) {
-			player_info.energy -= trigger.value;
+			const fix drain_amount{trigger.value};
+			if (player_info.energy > drain_amount) [[likely]]
+				player_info.energy -= drain_amount;
+			else
+				player_info.energy = 0;
 		}
 	}
 
