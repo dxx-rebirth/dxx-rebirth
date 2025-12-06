@@ -1348,7 +1348,7 @@ void ai_path_garbage_collect()
 	int free_path_index{0};
 	int num_path_objects{0};
 	int	objind;
-	obj_path		object_list[MAX_OBJECTS];
+	std::array<obj_path, MAX_OBJECTS>		object_list;
 
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
@@ -1369,8 +1369,10 @@ void ai_path_garbage_collect()
 										  )) {
 			const auto &aip = objp->ctype.ai_info;
 			if (aip.path_length) {
-				object_list[num_path_objects].path_start = aip.hide_index;
-				object_list[num_path_objects++].objnum = objp;
+				auto &ol{object_list[num_path_objects]};
+				++ num_path_objects;
+				ol.path_start = aip.hide_index;
+				ol.objnum = objp;
 			}
 		}
 	}
