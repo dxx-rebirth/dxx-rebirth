@@ -6306,15 +6306,15 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 				const uint8_t gun_num = obj_rw->ctype.ai_info.flags[0];
 				obj.ctype.ai_info.CURRENT_GUN = (gun_num < MAX_GUNS) ? robot_gun_number{gun_num} : robot_gun_number{};
 			}
-			obj.ctype.ai_info.CURRENT_STATE = build_ai_state_from_untrusted(obj_rw->ctype.ai_info.flags[1]).value();
-			obj.ctype.ai_info.GOAL_STATE = build_ai_state_from_untrusted(obj_rw->ctype.ai_info.flags[2]).value();
+			obj.ctype.ai_info.CURRENT_STATE = build_ai_state_from_untrusted(obj_rw->ctype.ai_info.flags[1]).value_or(ai_static_state::AIS_NONE);
+			obj.ctype.ai_info.GOAL_STATE = build_ai_state_from_untrusted(obj_rw->ctype.ai_info.flags[2]).value_or(ai_static_state::AIS_NONE);
 			obj.ctype.ai_info.PATH_DIR = obj_rw->ctype.ai_info.flags[3];
 #if DXX_BUILD_DESCENT == 1
 			obj.ctype.ai_info.SUBMODE = obj_rw->ctype.ai_info.flags[4];
 #elif DXX_BUILD_DESCENT == 2
 			obj.ctype.ai_info.SUB_FLAGS = obj_rw->ctype.ai_info.flags[4];
 #endif
-			obj.ctype.ai_info.GOALSIDE = build_sidenum_from_untrusted(obj_rw->ctype.ai_info.flags[5]).value();
+			obj.ctype.ai_info.GOALSIDE = build_sidenum_from_untrusted(obj_rw->ctype.ai_info.flags[5]).value_or(sidenum_t::WLEFT);
 			obj.ctype.ai_info.CLOAKED = obj_rw->ctype.ai_info.flags[6];
 			obj.ctype.ai_info.SKIP_AI_COUNT = obj_rw->ctype.ai_info.flags[7];
 			obj.ctype.ai_info.REMOTE_OWNER = obj_rw->ctype.ai_info.flags[8];
