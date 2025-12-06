@@ -200,9 +200,9 @@ enum {
 	Attack_scale = 24,
 };
 
-constexpr std::array<robot_animation_state, 8> Mike_to_matt_xlate{{
+constexpr enumerated_array<robot_animation_state, 8, ai_static_state> Mike_to_matt_xlate{{{
 	robot_animation_state::rest, robot_animation_state::rest, robot_animation_state::alert, robot_animation_state::alert, robot_animation_state::flinch, robot_animation_state::fire, robot_animation_state::recoil, robot_animation_state::rest
-}};
+}}};
 
 #define	BOSS_CLOAK_DURATION	Boss_cloak_duration
 constexpr fix BOSS_DEATH_DURATION{F1_0 * 6};
@@ -2869,8 +2869,8 @@ static int maybe_ai_do_actual_firing_stuff(object &obj)
 			const auto s = aip.CURRENT_STATE;
 			if (s == ai_static_state::AIS_FIRE)
 			{
-				static_assert(ai_static_state::AIS_FIRE != 0, "ai_static_state::AIS_FIRE must be nonzero for this shortcut to work properly.");
-				return s;
+				static_assert(static_cast<uint8_t>(ai_static_state::AIS_FIRE) != 0, "ai_static_state::AIS_FIRE must be nonzero for this shortcut to work properly.");
+				return underlying_value(s);
 			}
 		}
 	}
@@ -4316,8 +4316,8 @@ _exit_cheat:
 	}
 
 	assert(static_cast<unsigned>(ailp.player_awareness_type) <= AIE_MAX);
-	Assert(aip->CURRENT_STATE < AIS_MAX);
-	Assert(aip->GOAL_STATE < AIS_MAX);
+	assert(underlying_value(aip->CURRENT_STATE) < AIS_MAX);
+	assert(underlying_value(aip->GOAL_STATE) < AIS_MAX);
 
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
 	if (ailp.player_awareness_type != player_awareness_type_t::PA_NONE) {
@@ -4718,8 +4718,8 @@ static void state_ai_local_to_ai_local_rw(const ai_local *ail, ai_local_rw *ail_
 		ail_rw->delta_angles[i].p  = ail->delta_angles[i].p;
 		ail_rw->delta_angles[i].b  = ail->delta_angles[i].b;
 		ail_rw->delta_angles[i].h  = ail->delta_angles[i].h;
-		ail_rw->goal_state[i]      = ail->goal_state[(robot_gun_goal_index{i})];
-		ail_rw->achieved_state[i]  = ail->achieved_state[(robot_gun_goal_index{i})];
+		ail_rw->goal_state[i]      = underlying_value(ail->goal_state[(robot_gun_goal_index{i})]);
+		ail_rw->achieved_state[i]  = underlying_value(ail->achieved_state[(robot_gun_goal_index{i})]);
 	}
 }
 

@@ -726,8 +726,8 @@ static void write_object(const object &obj, short version, PHYSFS_File *f)
 
 			std::array<int8_t, 11> ai_info_flags{};
 			ai_info_flags[0] = underlying_value(obj.ctype.ai_info.CURRENT_GUN);
-			ai_info_flags[1] = obj.ctype.ai_info.CURRENT_STATE;
-			ai_info_flags[2] = obj.ctype.ai_info.GOAL_STATE;
+			ai_info_flags[1] = underlying_value(obj.ctype.ai_info.CURRENT_STATE);
+			ai_info_flags[2] = underlying_value(obj.ctype.ai_info.GOAL_STATE);
 			ai_info_flags[3] = obj.ctype.ai_info.PATH_DIR;
 #if DXX_BUILD_DESCENT == 1
 			ai_info_flags[4] = obj.ctype.ai_info.SUBMODE;

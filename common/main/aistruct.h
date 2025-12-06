@@ -64,7 +64,7 @@ enum class player_visibility_state : int8_t
 	visible_and_in_field_of_view,
 };
 
-enum ai_static_state : uint8_t
+enum class ai_static_state : uint8_t
 {
 	AIS_NONE = 0,
 	AIS_REST = 1,

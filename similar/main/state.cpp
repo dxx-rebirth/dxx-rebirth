@@ -417,8 +417,8 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 		{
 			obj_rw->ctype.ai_info.behavior               = static_cast<uint8_t>(obj.ctype.ai_info.behavior);
 			obj_rw->ctype.ai_info.flags[0] = underlying_value(obj.ctype.ai_info.CURRENT_GUN);
-			obj_rw->ctype.ai_info.flags[1] = obj.ctype.ai_info.CURRENT_STATE;
-			obj_rw->ctype.ai_info.flags[2] = obj.ctype.ai_info.GOAL_STATE;
+			obj_rw->ctype.ai_info.flags[1] = underlying_value(obj.ctype.ai_info.CURRENT_STATE);
+			obj_rw->ctype.ai_info.flags[2] = underlying_value(obj.ctype.ai_info.GOAL_STATE);
 			obj_rw->ctype.ai_info.flags[3] = obj.ctype.ai_info.PATH_DIR;
 #if DXX_BUILD_DESCENT == 1
 			obj_rw->ctype.ai_info.flags[4] = obj.ctype.ai_info.SUBMODE;
