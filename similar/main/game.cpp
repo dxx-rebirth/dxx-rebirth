@@ -1993,23 +1993,42 @@ window_event_result GameProcessFrame(const d_level_shared_robot_info_state &Leve
 	auto &pl_flags = player_info.powerup_flags;
 	if (pl_flags & PLAYER_FLAGS_HEADLIGHT_ON)
 	{
-		static int turned_off=0;
-		auto &energy = player_info.energy;
+		/* The headlight consumes energy every frame.  If the player's energy
+		 * drops to less than 10, turn off the headlight to try to avoid
+		 * draining energy down to 0.  However, if the headlight has already
+		 * been forced off, and the player turns it back on, let it stay on
+		 * until energy reaches 0, because the player apparently wants light
+		 * despite the low energy level.
+		 *
+		 * If the headlight was previously forced off, and the player's energy
+		 * is no longer less than 10, clear
+		 * `player_headlight_forcibly_turned_off` so that the next time the
+		 * player drops to less than 10, the headlight can be forced off again,
+		 * without conflicting with the above allowance that the player can
+		 * override the automatic disable.
+		 */
+		static int8_t player_headlight_forcibly_turned_off{};
+		fix energy{player_info.energy};
 		energy -= (FrameTime*3/8);
+		bool headlight_should_turn_off{false};
 		if (energy < i2f(10)) {
-			if (!turned_off) {
-				pl_flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
-				turned_off = 1;
-				if (Game_mode & GM_MULTI)
-					multi_send_flags(Player_num);
+			if (!player_headlight_forcibly_turned_off)
+			{
+				headlight_should_turn_off = true;
+				player_headlight_forcibly_turned_off = 1;
 			}
 		}
 		else
-			turned_off = 0;
+			player_headlight_forcibly_turned_off = 0;
 
 		if (energy <= 0)
 		{
 			energy = 0;
+			headlight_should_turn_off = true;
+		}
+		player_info.energy = energy;
+		if (headlight_should_turn_off)
+		{
 			pl_flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
 			if (Game_mode & GM_MULTI)
 				multi_send_flags(Player_num);
