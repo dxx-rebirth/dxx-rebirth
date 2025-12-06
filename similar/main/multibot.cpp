@@ -172,13 +172,13 @@ void multi_check_robot_timeout()
 		lastcheck = {GameTime64};
 		for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++) 
 		{
-			if (robot_controlled[i] != object_none && robot_last_send_time[i] + ROBOT_TIMEOUT < GameTime64)
+			if (const auto robot_controlled_i{robot_controlled[i]}; robot_controlled_i != object_none && robot_last_send_time[i] + ROBOT_TIMEOUT < GameTime64)
 			{
-				const auto &&robot_objp = vmobjptridx(robot_controlled[i]);
+				const auto &&robot_objp{vmobjptridx(robot_controlled_i)};
 				if (robot_objp->ctype.ai_info.REMOTE_OWNER != Player_num)
 				{		
-					robot_controlled[i] = object_none;
 					Int3(); // Non-terminal but Rob is interesting, step over please...
+					robot_controlled[i] = object_none;
 					return;
 				}
 				if (robot_send_pending[i] != multi_send_robot_position_priority::_0)
