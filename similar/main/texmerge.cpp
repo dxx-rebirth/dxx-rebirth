@@ -44,6 +44,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
+namespace dcx {
+
 namespace {
 
 struct TEXTURE_CACHE {
@@ -231,7 +233,7 @@ void texmerge_close()
 	}
 }
 
-//--unused-- int info_printed = 0;
+}
 
 namespace dsx {
 
