@@ -561,6 +561,8 @@ static CockpitWeaponBoxFrameBitmaps WinBoxOverlay;
 
 }
 
+namespace dsx {
+
 #if DXX_BUILD_DESCENT == 1
 #define PAGE_IN_GAUGE(x,g)	PAGE_IN_GAUGE(x)
 std::array<bitmap_index, MAX_GAUGE_BMS_MAC> Gauges; // Array of all gauge bitmaps.
@@ -570,7 +572,6 @@ std::array<bitmap_index, MAX_GAUGE_BMS> Gauges,   // Array of all gauge bitmaps.
 	Gauges_hires;   // hires gauges
 #endif
 
-namespace dsx {
 namespace {
 static inline void PAGE_IN_GAUGE(int x, const local_multires_gauge_graphic multires_gauge_graphic)
 {

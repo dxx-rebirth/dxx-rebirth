@@ -60,22 +60,21 @@ enum class reticle_type : uint8_t
 }
 
 #ifdef DXX_BUILD_DESCENT
+namespace dsx {
 #if DXX_BUILD_DESCENT == 1
-#define MAX_GAUGE_BMS_PC 80u		//	increased from 56 to 80 by a very unhappy MK on 10/24/94.
-#define MAX_GAUGE_BMS_MAC 85u
+constexpr unsigned MAX_GAUGE_BMS_PC{80};		//	increased from 56 to 80 by a very unhappy MK on 10/24/94.
+constexpr unsigned MAX_GAUGE_BMS_MAC{85};
 #define MAX_GAUGE_BMS (MacPig ? MAX_GAUGE_BMS_MAC : MAX_GAUGE_BMS_PC)
 
 extern std::array<bitmap_index, MAX_GAUGE_BMS_MAC> Gauges;   // Array of all gauge bitmaps.
 #elif DXX_BUILD_DESCENT == 2
-#define MAX_GAUGE_BMS 100u   // increased from 56 to 80 by a very unhappy MK on 10/24/94.
-
+constexpr unsigned MAX_GAUGE_BMS{100};
 extern std::array<bitmap_index, MAX_GAUGE_BMS> Gauges;      // Array of all gauge bitmaps.
 extern std::array<bitmap_index, MAX_GAUGE_BMS> Gauges_hires;    // hires gauges
 #endif
 
 // Flags for gauges/hud stuff
 
-namespace dsx {
 void add_points_to_score(player_info &, unsigned points, game_mode_flags);
 void add_bonus_points_to_score(player_info &, unsigned points, game_mode_flags);
 void render_gauges(grs_canvas &, game_mode_flags game_mode);
