@@ -393,7 +393,10 @@ has_primary_weapon_result player_has_primary_weapon(const player_info &player_in
 			return result_has_weapon_ammo;
 		}
 #endif
-	const auto &weapon_info{Weapon_info[Primary_weapon_to_weapon_info[weapon_num]]};
+	const auto opt_weapon_num{Primary_weapon_to_weapon_info.valid_index(weapon_num)};
+	if (!opt_weapon_num) [[unlikely]]
+		return has_primary_weapon_result{};
+	const auto &weapon_info{Weapon_info[Primary_weapon_to_weapon_info[*opt_weapon_num]]};
 
 	// Special case: Gauss cannon uses vulcan ammo.
 	if (weapon_index_uses_vulcan_ammo(weapon_num))
