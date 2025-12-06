@@ -361,8 +361,6 @@ static primary_weapon_index_t get_mapped_weapon_index(const player_info &player_
 namespace dsx {
 has_primary_weapon_result player_has_primary_weapon(const player_info &player_info, primary_weapon_index_t weapon_num)
 {
-	//	Hack! If energy goes negative, you can't fire a weapon that doesn't require energy.
-	//	But energy should not go negative (but it does), so find out why it does!
 	auto &energy = player_info.energy;
 
 	const auto weapon_index = Primary_weapon_to_weapon_info[weapon_num];
@@ -401,12 +399,7 @@ has_primary_weapon_result player_has_primary_weapon(const player_info &player_in
 		else
 		{
 			const auto energy_usage = Weapon_info[weapon_index].energy_usage;
-			/* The test for `energy_usage <= 0` should not be needed.
-			 * However, a Parallax comment suggests that players
-			 * sometimes get negative energy.  Use this test in
-			 * preference to coercing negative player energy to zero.
-			 */
-			if (energy_usage <= 0 || energy_usage <= energy)
+			if (energy_usage <= energy)
 				return_value |= has_primary_weapon_result::energy;
 		}
 	return return_value;
