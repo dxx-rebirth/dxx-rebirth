@@ -192,6 +192,10 @@ enum class sound_ambient_flags : uint8_t
 	water_and_lava = water | lava,
 };
 
+enum texture_index : uint16_t
+{
+};
+
 enum class texture1_value : uint16_t
 {
 	None,

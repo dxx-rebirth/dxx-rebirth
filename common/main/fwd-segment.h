@@ -79,7 +79,7 @@ std::optional<sidenum_t> build_sidenum_from_untrusted(uint8_t untrusted);
 constexpr constant_xrange<sidenum_t, sidenum_t{0}, sidenum_t{6}> MAX_SIDES_PER_SEGMENT{};
 constexpr std::integral_constant<sidenum_t, MAX_SIDES_PER_SEGMENT.value> side_none{};
 
-using texture_index = uint16_t;
+enum texture_index : uint16_t;
 enum class texture1_value : uint16_t;
 enum class texture2_value : uint16_t;
 enum class texture2_rotation_low : uint8_t;

@@ -571,8 +571,6 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 
 		case render_type::RT_MORPH:
 		case render_type::RT_POLYOBJ: {
-			int tmo;
-
 			obj->rtype.pobj_info.model_num = build_polygon_model_index_from_untrusted(
 #if DXX_BUILD_DESCENT == 1
 				convert_polymod(LevelSharedPolygonModelState.N_polygon_models, PHYSFSX_readInt(f))
@@ -586,11 +584,17 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 
 			obj->rtype.pobj_info.subobj_flags	= PHYSFSX_readInt(f);
 
-			tmo = PHYSFSX_readInt(f);
+			const auto tmo{PHYSFSX_readInt(f)};
 
 #if !DXX_USE_EDITOR
 #if DXX_BUILD_DESCENT == 1
-			obj->rtype.pobj_info.tmap_override	= convert_tmap(tmo);
+			/* This static_cast can only change the value of an invalid
+			 * texture.  Invalid textures get remapped to a valid one by
+			 * `convert_tmap`, so the cast will at worst cause a different
+			 * valid texture to be chosen than would have been chosen if
+			 * `convert_tmap` were passed the full `int`.
+			 */
+			obj->rtype.pobj_info.tmap_override	= convert_tmap(static_cast<texture_index>(tmo));
 #elif DXX_BUILD_DESCENT == 2
 			obj->rtype.pobj_info.tmap_override	= tmo;
 #endif
