@@ -84,7 +84,6 @@ constexpr std::integral_constant<unsigned, 1200> MAX_TEXTURES{};
 struct tmap_info : prohibit_void_ptr<tmap_info>
 {
 #if DXX_BUILD_DESCENT == 1
-	d_fname filename;
 	tmapinfo_flags flags;
 	fix			lighting;		// 0 to 1
 	fix			damage;			//how much damage being against this does
@@ -96,9 +95,12 @@ struct tmap_info : prohibit_void_ptr<tmap_info>
 	texture_index destroyed; //bitmap to show when destroyed, or -1
 	short   slide_u,slide_v;    //slide rates of texture, stored in 8:8 fix
 	tmapinfo_flags flags;
-#if DXX_USE_EDITOR
-	d_fname filename;       //used by editor to remap textures
-	#endif
+#endif
+#if DXX_BUILD_DESCENT == 1 || (DXX_BUILD_DESCENT == 2 && DXX_USE_EDITOR)
+	/* Descent 1 always uses this.  In Descent 2, it is only used by the
+	 * editor, for texture remapping.
+	 */
+	d_fname filename;
 #endif
 };
 }
