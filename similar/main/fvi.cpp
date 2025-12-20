@@ -877,7 +877,7 @@ static fvi_hit_type fvi_sub(const fvi_query &fq, vms_vector &intp, segnum_t &int
 	//now, check segment walls
 
 	auto &vcvertptr = Vertices.vcptr;
-	int startmask{get_seg_masks(vcvertptr, fq.p0, startseg, rad).facemask};
+	const auto startmask{get_seg_masks(vcvertptr, fq.p0, startseg, rad).facemask};
 
 	const auto &&masks = get_seg_masks(vcvertptr, fq.p1, startseg, rad);    //on back of which faces?
 	const auto centermask{masks.centermask};			//where the center point is
@@ -1218,7 +1218,7 @@ static sphere_intersects_wall_result sphere_intersects_wall(fvcsegptridx &vcsegp
 	++visited.count;
 
 	const shared_segment &sseg = seg;
-	const int facemask{get_seg_masks(vcvertptr, pnt, sseg, rad).facemask};
+	const auto facemask{get_seg_masks(vcvertptr, pnt, sseg, rad).facemask};
 	if (facemask != 0) {				//on the back of at least one face
 		//for each face we are on the back of, check if intersected
 
