@@ -867,15 +867,6 @@ void multi_do_robot_position(const playernum_t pnum, const multiplayer_rspan<mul
 	extract_quaternionpos(Objects.vmptr, vmsegptr, robot, qpp);
 }
 
-}
-
-static inline vms_vector calc_gun_point(const robot_info &robptr, const object_base &obj, const robot_gun_number gun_num)
-{
-	vms_vector v;
-	return calc_gun_point(robptr, v, obj, gun_num), v;
-}
-
-namespace dsx {
 void multi_do_robot_fire(const multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_FIRE> buf)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;

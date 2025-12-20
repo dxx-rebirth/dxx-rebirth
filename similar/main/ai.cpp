@@ -115,9 +115,7 @@ const vms_vector &robot_gun_point::build(const robot_info &robptr, const object_
 {
 	if (!has_value())
 	{
-		vms_vector gun_point;
-		calc_gun_point(robptr, gun_point, obj, gun_num);
-		emplace(gun_point);
+		emplace(calc_gun_point(robptr, obj, gun_num));
 	}
 	return **this;
 }

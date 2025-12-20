@@ -51,7 +51,7 @@ namespace dsx {
 
 //given an object and a gun number, return position in 3-space of gun
 //fills in gun_point
-void calc_gun_point(const robot_info &r, vms_vector &gun_point, const object_base &obj, const robot_gun_number entry_gun_num)
+vms_vector calc_gun_point(const robot_info &r, const object_base &obj, const robot_gun_number entry_gun_num)
 {
 	assert(obj.render_type == render_type::RT_POLYOBJ || obj.render_type == render_type::RT_MORPH);
 	assert(underlying_value(get_robot_id(obj)) < LevelSharedRobotInfoState.N_robot_types);
@@ -78,8 +78,10 @@ void calc_gun_point(const robot_info &r, vms_vector &gun_point, const object_bas
 	//now instance for the entire object
 
 	const auto &&m = vm_transposed_matrix(obj.orient);
-	vm_vec_rotate(gun_point,pnt,m);
-	vm_vec_add2(gun_point, obj.pos);
+	return vm_vec_build_add(
+		obj.pos,
+		vm_vec_build_rotated(pnt, m)
+	);
 }
 
 //fills in ptr to list of joints, and returns the number of joints in list

@@ -84,8 +84,8 @@ struct d_level_shared_robot_joint_state;
 extern d_level_shared_robot_joint_state LevelSharedRobotJointState;
 
 //given an object and a gun number, return position in 3-space of gun
-//fills in gun_point
-void calc_gun_point(const robot_info &, vms_vector &gun_point, const object_base &obj, robot_gun_number gun_num);
+[[nodiscard]]
+vms_vector calc_gun_point(const robot_info &, const object_base &obj, robot_gun_number gun_num);
 
 /*
  * reads n robot_info structs from a PHYSFS_File
