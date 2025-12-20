@@ -137,246 +137,246 @@ static texture_index convert_d1_tmap_num_unrotated(const texture_index d1_tmap_n
 	switch (d1_tmap_num) {
 	case 0: case 2: case 4: case 5:
 		// all refer to grey rock001 (exception to bijectivity rule)
-		return  d1_pig_present ? 137 : 43; // (devil:95)
-	case   1: return 0;
-	case   3: return 1; // rock021
-	case   6:  return  270; // blue rock002
-	case   7:  return  271; // yellow rock265
-	case   8: return 2; // rock004
-	case   9:  return  d1_pig_present ? 138 : 62; // purple (devil:179)
-	case  10:  return  272; // red rock006
-	case  11:  return  d1_pig_present ? 139 : 117;
-	case  12:  return  d1_pig_present ? 140 : 12; //devil:43
-	case  13: return 3; // rock014
-	case  14: return 4; // rock019
-	case  15: return 5; // rock020
-	case  16: return 6;
-	case  17:  return  d1_pig_present ? 141 : 52;
-	case  18:  return  129;
-	case  19: return 7;
-	case  20:  return  d1_pig_present ? 142 : 22;
-	case  21:  return  d1_pig_present ? 143 : 9;
-	case  22: return 8;
-	case  23: return 9;
-	case  24: return 10;
-	case  25:  return  d1_pig_present ? 144 : 12; //devil:35
-	case  26: return 11;
-	case  27: return 12;
-	case  28:  return  d1_pig_present ? 145 : 11; //devil:43
+		return  d1_pig_present ? texture_index{137} : texture_index{43}; // (devil:95)
+	case   1: return texture_index{0};
+	case   3: return texture_index{1}; // rock021
+	case   6:  return  texture_index{270}; // blue rock002
+	case   7:  return  texture_index{271}; // yellow rock265
+	case   8: return texture_index{2}; // rock004
+	case   9:  return  d1_pig_present ? texture_index{138} : texture_index{62}; // purple (devil:179)
+	case  10:  return  texture_index{272}; // red rock006
+	case  11:  return  d1_pig_present ? texture_index{139} : texture_index{117};
+	case  12:  return  d1_pig_present ? texture_index{140} : texture_index{12}; //devil:43
+	case  13: return texture_index{3}; // rock014
+	case  14: return texture_index{4}; // rock019
+	case  15: return texture_index{5}; // rock020
+	case  16: return texture_index{6};
+	case  17:  return  d1_pig_present ? texture_index{141} : texture_index{52};
+	case  18:  return  texture_index{129};
+	case  19: return texture_index{7};
+	case  20:  return  d1_pig_present ? texture_index{142} : texture_index{22};
+	case  21:  return  d1_pig_present ? texture_index{143} : texture_index{9};
+	case  22: return texture_index{8};
+	case  23: return texture_index{9};
+	case  24: return texture_index{10};
+	case  25:  return  d1_pig_present ? texture_index{144} : texture_index{12}; //devil:35
+	case  26: return texture_index{11};
+	case  27: return texture_index{12};
+	case  28:  return  d1_pig_present ? texture_index{145} : texture_index{11}; //devil:43
 	//range handled by default case, returns 13..21 (- 16)
-	case  38:  return  163; //devil:27
-	case  39:  return  147; //31
-	case  40: return 22;
-	case  41:  return  266;
-	case  42: return 23;
-	case  43: return 24;
-	case  44:  return  136; //devil:135
-	case  45: return 25;
-	case  46: return 26;
-	case  47: return 27;
-	case  48: return 28;
-	case  49:  return  d1_pig_present ? 146 : 43; //devil:60
-	case  50:  return  131; //devil:138
-	case  51: return 29;
-	case  52: return 30;
-	case  53: return 31;
-	case  54: return 32;
-	case  55:  return  165; //devil:193
-	case  56: return 33;
-	case  57:  return  132; //devil:119
+	case  38:  return  texture_index{163}; //devil:27
+	case  39:  return  texture_index{147}; //31
+	case  40: return texture_index{22};
+	case  41:  return  texture_index{266};
+	case  42: return texture_index{23};
+	case  43: return texture_index{24};
+	case  44:  return  texture_index{136}; //devil:135
+	case  45: return texture_index{25};
+	case  46: return texture_index{26};
+	case  47: return texture_index{27};
+	case  48: return texture_index{28};
+	case  49:  return  d1_pig_present ? texture_index{146} : texture_index{43}; //devil:60
+	case  50:  return  texture_index{131}; //devil:138
+	case  51: return texture_index{29};
+	case  52: return texture_index{30};
+	case  53: return texture_index{31};
+	case  54: return texture_index{32};
+	case  55:  return  texture_index{165}; //devil:193
+	case  56: return texture_index{33};
+	case  57:  return  texture_index{132}; //devil:119
 	// range handled by default case, returns 34..63 (- 24)
-	case  88:  return  197; //devil:15
+	case  88:  return  texture_index{197}; //devil:15
 	// range handled by default case, returns 64..106 (- 25)
-	case 132:  return  167;
+	case 132:  return  texture_index{167};
         // range handled by default case, returns 107..114 (- 26)
-	case 141:  return  d1_pig_present ? 148 : 110; //devil:106
-	case 142: return 115;
-	case 143: return 116;
-	case 144: return 117;
-	case 145: return 118;
-	case 146: return 119;
-	case 147:  return  d1_pig_present ? 149 : 93;
-	case 148: return 120;
-	case 149: return 121;
-	case 150: return 122;
-	case 151: return 123;
-	case 152: return 124;
-	case 153: return 125; // rock263
-	case 154:  return  d1_pig_present ? 150 : 27;
-	case 155:  return  126; // rock269
-	case 156: return 200; // metl002
-	case 157: return 201; // metl003
-	case 158:  return  186; //devil:227
-	case 159:  return  190; //devil:246
-	case 160:  return  d1_pig_present ? 151 : 206;
-	case 161:  return  d1_pig_present ? 152 : 114; //devil:206
-	case 162: return 202;
-	case 163: return 203;
-	case 164: return 204;
-	case 165: return 205;
-	case 166: return 206;
-	case 167:  return  d1_pig_present ? 153 : 206;
-	case 168:  return  d1_pig_present ? 154 : 206;
-	case 169:  return  d1_pig_present ? 155 : 206;
-	case 170:  return  d1_pig_present ? 156 : 227;//206;
-	case 171:  return  d1_pig_present ? 157 : 206;//227;
-	case 172: return 207;
-	case 173: return 208;
-	case 174:  return  d1_pig_present ? 158 : 202;
-	case 175:  return  d1_pig_present ? 159 : 206;
+	case 141:  return  d1_pig_present ? texture_index{148} : texture_index{110}; //devil:106
+	case 142: return texture_index{115};
+	case 143: return texture_index{116};
+	case 144: return texture_index{117};
+	case 145: return texture_index{118};
+	case 146: return texture_index{119};
+	case 147:  return  d1_pig_present ? texture_index{149} : texture_index{93};
+	case 148: return texture_index{120};
+	case 149: return texture_index{121};
+	case 150: return texture_index{122};
+	case 151: return texture_index{123};
+	case 152: return texture_index{124};
+	case 153: return texture_index{125}; // rock263
+	case 154:  return  d1_pig_present ? texture_index{150} : texture_index{27};
+	case 155:  return  texture_index{126}; // rock269
+	case 156: return texture_index{200}; // metl002
+	case 157: return texture_index{201}; // metl003
+	case 158:  return  texture_index{186}; //devil:227
+	case 159:  return  texture_index{190}; //devil:246
+	case 160:  return  d1_pig_present ? texture_index{151} : texture_index{206};
+	case 161:  return  d1_pig_present ? texture_index{152} : texture_index{114}; //devil:206
+	case 162: return texture_index{202};
+	case 163: return texture_index{203};
+	case 164: return texture_index{204};
+	case 165: return texture_index{205};
+	case 166: return texture_index{206};
+	case 167:  return  d1_pig_present ? texture_index{153} : texture_index{206};
+	case 168:  return  d1_pig_present ? texture_index{154} : texture_index{206};
+	case 169:  return  d1_pig_present ? texture_index{155} : texture_index{206};
+	case 170:  return  d1_pig_present ? texture_index{156} : texture_index{227};//206;
+	case 171:  return  d1_pig_present ? texture_index{157} : texture_index{206};//227;
+	case 172: return texture_index{207};
+	case 173: return texture_index{208};
+	case 174:  return  d1_pig_present ? texture_index{158} : texture_index{202};
+	case 175:  return  d1_pig_present ? texture_index{159} : texture_index{206};
 	// range handled by default case, returns 209..217 (+ 33)
-	case 185:  return  d1_pig_present ? 160 : 217;
+	case 185:  return  d1_pig_present ? texture_index{160} : texture_index{217};
 	// range handled by default case, returns 218..224 (+ 32)
-	case 193:  return  d1_pig_present ? 161 : 206;
-	case 194:  return  d1_pig_present ? 162 : 203;//206;
-	case 195:  return  d1_pig_present ? 166 : 234;
-	case 196: return 225;
-	case 197: return 226;
-	case 198:  return  d1_pig_present ? 193 : 225;
-	case 199:  return  d1_pig_present ? 168 : 206; //devil:204
-	case 200:  return  d1_pig_present ? 169 : 206; //devil:204
-	case 201: return 227;
-	case 202:  return  d1_pig_present ? 170 : 206; //devil:227
+	case 193:  return  d1_pig_present ? texture_index{161} : texture_index{206};
+	case 194:  return  d1_pig_present ? texture_index{162} : texture_index{203};//206;
+	case 195:  return  d1_pig_present ? texture_index{166} : texture_index{234};
+	case 196: return texture_index{225};
+	case 197: return texture_index{226};
+	case 198:  return  d1_pig_present ? texture_index{193} : texture_index{225};
+	case 199:  return  d1_pig_present ? texture_index{168} : texture_index{206}; //devil:204
+	case 200:  return  d1_pig_present ? texture_index{169} : texture_index{206}; //devil:204
+	case 201: return texture_index{227};
+	case 202:  return  d1_pig_present ? texture_index{170} : texture_index{206}; //devil:227
 	// range handled by default case, returns 228..234 (+ 25)
-	case 210:  return  d1_pig_present ? 171 : 234; //devil:242
-	case 211:  return  d1_pig_present ? 172 : 206; //devil:240
+	case 210:  return  d1_pig_present ? texture_index{171} : texture_index{234}; //devil:242
+	case 211:  return  d1_pig_present ? texture_index{172} : texture_index{206}; //devil:240
 	// range handled by default case, returns 235..242 (+ 23)
-	case 220:  return  d1_pig_present ? 173 : 242; //devil:240
-	case 221: return 243;
-	case 222: return 244;
-	case 223:  return  d1_pig_present ? 174 : 313;
-	case 224: return 245;
-	case 225: return 246;
-	case 226:  return  164;//247; matching names but not matching textures
-	case 227:  return  179; //devil:181
-	case 228:  return  196;//248; matching names but not matching textures
-	case 229:  return  d1_pig_present ? 175 : 15; //devil:66
-	case 230:  return  d1_pig_present ? 176 : 15; //devil:66
+	case 220:  return  d1_pig_present ? texture_index{173} : texture_index{242}; //devil:240
+	case 221: return texture_index{243};
+	case 222: return texture_index{244};
+	case 223:  return  d1_pig_present ? texture_index{174} : texture_index{313};
+	case 224: return texture_index{245};
+	case 225: return texture_index{246};
+	case 226:  return  texture_index{164};//247; matching names but not matching textures
+	case 227:  return  texture_index{179}; //devil:181
+	case 228:  return  texture_index{196};//248; matching names but not matching textures
+	case 229:  return  d1_pig_present ? texture_index{175} : texture_index{15}; //devil:66
+	case 230:  return  d1_pig_present ? texture_index{176} : texture_index{15}; //devil:66
 	// range handled by default case, returns 249..257 (+ 18)
-	case 240:  return  d1_pig_present ? 177 : 6; //devil:132
-	case 241:  return  130; //devil:131
-	case 242:  return  d1_pig_present ? 178 : 78; //devil:15
-	case 243:  return  d1_pig_present ? 180 : 33; //devil:38
-	case 244: return 258;
-	case 245: return 259;
-	case 246:  return  d1_pig_present ? 181 : 321; // grate metl127
-	case 247: return 260;
-	case 248: return 261;
-	case 249: return 262;
-	case 250:  return  340; //  white doorframe metl126
-	case 251:  return  412; //    red doorframe metl133
-	case 252:  return  410; //   blue doorframe metl134
-	case 253:  return  411; // yellow doorframe metl135
-	case 254: return 263; // metl136
-	case 255: return 264; // metl139
-	case 256: return 265; // metl140
-	case 257:  return  d1_pig_present ? 182 : 249;//246; brig001
-	case 258:  return  d1_pig_present ? 183 : 251;//246; brig002
-	case 259:  return  d1_pig_present ? 184 : 252;//246; brig003
-	case 260:  return  d1_pig_present ? 185 : 256;//246; brig004
-	case 261: return 273; // exit01
-	case 262: return 274; // exit02
-	case 263:  return  d1_pig_present ? 187 : 281; // ceil001
-	case 264: return 275; // ceil002
-	case 265: return 276; // ceil003
-	case 266:  return  d1_pig_present ? 188 : 279; //devil:291
+	case 240:  return  d1_pig_present ? texture_index{177} : texture_index{6}; //devil:132
+	case 241:  return  texture_index{130}; //devil:131
+	case 242:  return  d1_pig_present ? texture_index{178} : texture_index{78}; //devil:15
+	case 243:  return  d1_pig_present ? texture_index{180} : texture_index{33}; //devil:38
+	case 244: return texture_index{258};
+	case 245: return texture_index{259};
+	case 246:  return  d1_pig_present ? texture_index{181} : texture_index{321}; // grate metl127
+	case 247: return texture_index{260};
+	case 248: return texture_index{261};
+	case 249: return texture_index{262};
+	case 250:  return  texture_index{340}; //  white doorframe metl126
+	case 251:  return  texture_index{412}; //    red doorframe metl133
+	case 252:  return  texture_index{410}; //   blue doorframe metl134
+	case 253:  return  texture_index{411}; // yellow doorframe metl135
+	case 254: return texture_index{263}; // metl136
+	case 255: return texture_index{264}; // metl139
+	case 256: return texture_index{265}; // metl140
+	case 257:  return  d1_pig_present ? texture_index{182} : texture_index{249};//246; brig001
+	case 258:  return  d1_pig_present ? texture_index{183} : texture_index{251};//246; brig002
+	case 259:  return  d1_pig_present ? texture_index{184} : texture_index{252};//246; brig003
+	case 260:  return  d1_pig_present ? texture_index{185} : texture_index{256};//246; brig004
+	case 261: return texture_index{273}; // exit01
+	case 262: return texture_index{274}; // exit02
+	case 263:  return  d1_pig_present ? texture_index{187} : texture_index{281}; // ceil001
+	case 264: return texture_index{275}; // ceil002
+	case 265: return texture_index{276}; // ceil003
+	case 266:  return  d1_pig_present ? texture_index{188} : texture_index{279}; //devil:291
 	// range handled by default case, returns 277..291 (+ 10)
-	case 282: return 293;
-	case 283:  return  d1_pig_present ? 189 : 295;
-	case 284: return 295;
-	case 285: return 296;
-	case 286: return 298;
+	case 282: return texture_index{293};
+	case 283:  return  d1_pig_present ? texture_index{189} : texture_index{295};
+	case 284: return texture_index{295};
+	case 285: return texture_index{296};
+	case 286: return texture_index{298};
 	// range handled by default case, returns 300..310 (+ 13)
-	case 298:  return  d1_pig_present ? 191 : 364; // devil:374 misc010
+	case 298:  return  d1_pig_present ? texture_index{191} : texture_index{364}; // devil:374 misc010
 	// range handled by default case, returns 311..326 (+ 12)
-	case 315:  return  d1_pig_present ? 192 : 361; // bad producer misc044
+	case 315:  return  d1_pig_present ? texture_index{192} : texture_index{361}; // bad producer misc044
 	// range handled by default case,  returns  327..337 (+ 11)
-	case 327: return 352; // arw01
-	case 328: return 353; // misc17
-	case 329: return 354; // fan01
-	case 330:  return  380; // mntr04
-	case 331:  return  379;//373; matching names but not matching textures
-	case 332:  return  355;//344; matching names but not matching textures
- 	case 333:  return  409; // lava misc11 //devil:404
-	case 334: return 356; // ctrl04
-	case 335: return 357; // ctrl01
-	case 336: return 358; // ctrl02
-	case 337: return 359; // ctrl03
-	case 338: return 360; // misc14
-	case 339: return 361; // producer misc16
-	case 340: return 362; // misc049
-	case 341: return 364; // misc060
-	case 342: return 363; // blown01
-	case 343: return 366; // misc061
-	case 344: return 365;
-	case 345: return 368;
-	case 346: return 376;
-	case 347: return 370;
-	case 348: return 367;
-	case 349:  return  372;
-	case 350: return 369;
-	case 351:  return  374;//429; matching names but not matching textures
-	case 352:  return  375;//387; matching names but not matching textures
-	case 353:  return  371;
-	case 354:  return  377;//425; matching names but not matching textures
-	case 355:  return  408;
-	case 356: return 378; // lava02
-	case 357:  return  383;//384; matching names but not matching textures
-	case 358:  return  384;//385; matching names but not matching textures
-	case 359:  return  385;//386; matching names but not matching textures
-	case 360: return 386;
-	case 361: return 387;
-	case 362:  return  d1_pig_present ? 194 : 388; // mntr04b (devil: -1)
-	case 363: return 388;
-	case 364: return 391;
-	case 365: return 392;
-	case 366: return 393;
-	case 367: return 394;
-	case 368: return 395;
-	case 369: return 396;
-	case 370:  return  d1_pig_present ? 195 : 392; // mntr04d (devil: -1)
-	case 570: return 635;
+	case 327: return texture_index{352}; // arw01
+	case 328: return texture_index{353}; // misc17
+	case 329: return texture_index{354}; // fan01
+	case 330:  return  texture_index{380}; // mntr04
+	case 331:  return  texture_index{379};//373; matching names but not matching textures
+	case 332:  return  texture_index{355};//344; matching names but not matching textures
+ 	case 333:  return  texture_index{409}; // lava misc11 //devil:404
+	case 334: return texture_index{356}; // ctrl04
+	case 335: return texture_index{357}; // ctrl01
+	case 336: return texture_index{358}; // ctrl02
+	case 337: return texture_index{359}; // ctrl03
+	case 338: return texture_index{360}; // misc14
+	case 339: return texture_index{361}; // producer misc16
+	case 340: return texture_index{362}; // misc049
+	case 341: return texture_index{364}; // misc060
+	case 342: return texture_index{363}; // blown01
+	case 343: return texture_index{366}; // misc061
+	case 344: return texture_index{365};
+	case 345: return texture_index{368};
+	case 346: return texture_index{376};
+	case 347: return texture_index{370};
+	case 348: return texture_index{367};
+	case 349:  return  texture_index{372};
+	case 350: return texture_index{369};
+	case 351:  return  texture_index{374};//429; matching names but not matching textures
+	case 352:  return  texture_index{375};//387; matching names but not matching textures
+	case 353:  return  texture_index{371};
+	case 354:  return  texture_index{377};//425; matching names but not matching textures
+	case 355:  return  texture_index{408};
+	case 356: return texture_index{378}; // lava02
+	case 357:  return  texture_index{383};//384; matching names but not matching textures
+	case 358:  return  texture_index{384};//385; matching names but not matching textures
+	case 359:  return  texture_index{385};//386; matching names but not matching textures
+	case 360: return texture_index{386};
+	case 361: return texture_index{387};
+	case 362:  return  d1_pig_present ? texture_index{194} : texture_index{388}; // mntr04b (devil: -1)
+	case 363: return texture_index{388};
+	case 364: return texture_index{391};
+	case 365: return texture_index{392};
+	case 366: return texture_index{393};
+	case 367: return texture_index{394};
+	case 368: return texture_index{395};
+	case 369: return texture_index{396};
+	case 370:  return  d1_pig_present ? texture_index{195} : texture_index{392}; // mntr04d (devil: -1)
+	case 570: return texture_index{635};
 	// range 371..584 handled by default case (wall01 and door frames)
 	default:
 		// ranges:
 		if (d1_tmap_num >= 29 && d1_tmap_num <= 37)
-			return d1_tmap_num - 16;
+			return static_cast<texture_index>(d1_tmap_num - 16);
 		if (d1_tmap_num >= 58 && d1_tmap_num <= 87)
-			return d1_tmap_num - 24;
+			return static_cast<texture_index>(d1_tmap_num - 24);
 		if (d1_tmap_num >= 89 && d1_tmap_num <= 131)
-			return d1_tmap_num - 25;
+			return static_cast<texture_index>(d1_tmap_num - 25);
 		if (d1_tmap_num >= 133 && d1_tmap_num <= 140)
-			return d1_tmap_num - 26;
+			return static_cast<texture_index>(d1_tmap_num - 26);
 		if (d1_tmap_num >= 176 && d1_tmap_num <= 184)
-			return d1_tmap_num + 33;
+			return static_cast<texture_index>(d1_tmap_num + 33);
 		if (d1_tmap_num >= 186 && d1_tmap_num <= 192)
-			return d1_tmap_num + 32;
+			return static_cast<texture_index>(d1_tmap_num + 32);
 		if (d1_tmap_num >= 203 && d1_tmap_num <= 209)
-			return d1_tmap_num + 25;
+			return static_cast<texture_index>(d1_tmap_num + 25);
 		if (d1_tmap_num >= 212 && d1_tmap_num <= 219)
-			return d1_tmap_num + 23;
+			return static_cast<texture_index>(d1_tmap_num + 23);
 		if (d1_tmap_num >= 231 && d1_tmap_num <= 239)
-			return d1_tmap_num + 18;
+			return static_cast<texture_index>(d1_tmap_num + 18);
 		if (d1_tmap_num >= 267 && d1_tmap_num <= 281)
-			return d1_tmap_num + 10;
+			return static_cast<texture_index>(d1_tmap_num + 10);
 		if (d1_tmap_num >= 287 && d1_tmap_num <= 297)
-			return d1_tmap_num + 13;
+			return static_cast<texture_index>(d1_tmap_num + 13);
 		if (d1_tmap_num >= 299 && d1_tmap_num <= 314)
-			return d1_tmap_num + 12;
+			return static_cast<texture_index>(d1_tmap_num + 12);
 		if (d1_tmap_num >= 316 && d1_tmap_num <= 326)
-			 return  d1_tmap_num + 11; // matching names but not matching textures
+			 return  static_cast<texture_index>(d1_tmap_num + 11); // matching names but not matching textures
 		// wall01 and door frames:
 		if (d1_tmap_num > 370 && d1_tmap_num < 584) {
-			if (New_file_format_load) return d1_tmap_num + 64;
+			if (New_file_format_load) return static_cast<texture_index>(d1_tmap_num + 64);
 			// d1 shareware needs special treatment:
-			if (d1_tmap_num < 410) return d1_tmap_num + 68;
-			if (d1_tmap_num < 417) return d1_tmap_num + 73;
-			if (d1_tmap_num < 446) return d1_tmap_num + 91;
-			if (d1_tmap_num < 453) return d1_tmap_num + 104;
-			if (d1_tmap_num < 462) return d1_tmap_num + 111;
-			if (d1_tmap_num < 486) return d1_tmap_num + 117;
-			if (d1_tmap_num < 494) return d1_tmap_num + 141;
-			if (d1_tmap_num < 584) return d1_tmap_num + 147;
+			if (d1_tmap_num < 410) return static_cast<texture_index>(d1_tmap_num + 68);
+			if (d1_tmap_num < 417) return static_cast<texture_index>(d1_tmap_num + 73);
+			if (d1_tmap_num < 446) return static_cast<texture_index>(d1_tmap_num + 91);
+			if (d1_tmap_num < 453) return static_cast<texture_index>(d1_tmap_num + 104);
+			if (d1_tmap_num < 462) return static_cast<texture_index>(d1_tmap_num + 111);
+			if (d1_tmap_num < 486) return static_cast<texture_index>(d1_tmap_num + 117);
+			if (d1_tmap_num < 494) return static_cast<texture_index>(d1_tmap_num + 141);
+			if (d1_tmap_num < 584) return static_cast<texture_index>(d1_tmap_num + 147);
 		}
 				Warning("Failed to convert unknown Descent 1 texture #%d.", d1_tmap_num);
 				return d1_tmap_num;
@@ -391,7 +391,7 @@ texture_index convert_d1_tmap_num(const texture_index d1_tmap_num)
 	/* Mask off the rotation bits, if any.  Convert the base texture number.
 	 * Restore the masked rotation bits.
 	 */
-	return convert_d1_tmap_num_unrotated(d1_tmap_num & TMAP_NUM_MASK) | (d1_tmap_num & ~TMAP_NUM_MASK);
+	return static_cast<texture_index>(convert_d1_tmap_num_unrotated(static_cast<texture_index>(d1_tmap_num & TMAP_NUM_MASK)) | (d1_tmap_num & ~TMAP_NUM_MASK));
 }
 #endif
 
@@ -584,7 +584,7 @@ int load_mine_data_compiled(const NamedPHYSFS_File LoadFile, const char *const G
 				// Read short Segments[segnum].sides[sidenum].tmap_num;
 				const uint16_t temp_tmap1_num = PHYSFSX_readSLE16(LoadFile);
 #if DXX_BUILD_DESCENT == 1
-				uside.tmap_num = build_texture1_value(convert_tmap(temp_tmap1_num & 0x7fff));
+				uside.tmap_num = build_texture1_value(convert_tmap(static_cast<texture_index>(temp_tmap1_num & 0x7fff)));
 
 				if (New_file_format_load && !(temp_tmap1_num & 0x8000))
 					uside.tmap_num2 = texture2_value::None;
@@ -595,7 +595,7 @@ int load_mine_data_compiled(const NamedPHYSFS_File LoadFile, const char *const G
 				}
 #elif DXX_BUILD_DESCENT == 2
 				const uint16_t masked_temp_tmap1_num = New_file_format_load ? (temp_tmap1_num & 0x7fff) : temp_tmap1_num;
-				uside.tmap_num = build_texture1_value(masked_temp_tmap1_num);
+				uside.tmap_num = build_texture1_value(masked_temp_tmap1_num < Textures.size() ? texture_index{masked_temp_tmap1_num} : texture_index{UINT16_MAX});
 
 				if (Gamesave_current_version <= 1)
 					uside.tmap_num = build_texture1_value(convert_d1_tmap_num(get_texture_index(uside.tmap_num)));

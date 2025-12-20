@@ -282,8 +282,8 @@ struct wclip : public prohibit_void_ptr<wclip>
 	fix     play_time;
 	uint16_t num_frames;
 	union {
-		std::array<uint16_t, MAX_CLIP_FRAMES> frames;
-		std::array<uint16_t, MAX_CLIP_FRAMES_D1> d1_frames;
+		std::array<texture_index, MAX_CLIP_FRAMES> frames;
+		std::array<texture_index, MAX_CLIP_FRAMES_D1> d1_frames;
 	};
 	sound_effect open_sound;
 	sound_effect close_sound;

@@ -1580,12 +1580,12 @@ unsigned blast_nearby_glass_context::can_blast(const texture2_value tmap_num2) c
 	const auto ec = ti.eclip_num;
 	if (ec == eclip_none)
 	{
-		return ti.destroyed != -1;
+		return ti.destroyed != texture_index{UINT16_MAX};
 	}
 	else
 	{
 		auto &e = Effects[ec];
-		return e.dest_bm_num != ~0u && !(e.flags & EF_ONE_SHOT);
+		return e.dest_bm_num != texture_index{UINT16_MAX} && !(e.flags & EF_ONE_SHOT);
 	}
 }
 

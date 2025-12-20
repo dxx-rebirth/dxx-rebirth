@@ -39,7 +39,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	NUM_REGISTERED_LEVELS	23
 
 namespace dsx {
-int convert_tmap(int tmap);	// for gamemine.c
+texture_index convert_tmap(texture_index tmap);	// for gamemine.c
 }
 #define DXX_LEVEL_FILE_EXTENSION	D1X_LEVEL_FILE_EXTENSION
 #elif DXX_BUILD_DESCENT == 2

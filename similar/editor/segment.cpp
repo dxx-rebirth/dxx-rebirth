@@ -1374,7 +1374,7 @@ void med_create_new_segment(const vms_vector &scale)
 		child = segment_none;
 		ss.wall_num = wall_none;
 		create_walls_on_side(vcvertptr, sp, static_cast<sidenum_t>(s));
-		us.tmap_num = build_texture1_value(1);					// assign some stupid old tmap to this side.
+		us.tmap_num = build_texture1_value(texture_index{1});					// assign some stupid old tmap to this side.
 		us.tmap_num2 = texture2_value::None;
 	}
 

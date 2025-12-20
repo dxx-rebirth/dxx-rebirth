@@ -242,7 +242,7 @@ int texpage_do(const d_event &event)
 	for (int i=0; i<TMAPS_PER_PAGE; i++ ) {
 		if (GADGET_PRESSED(TmapBox[i].get()) && (i + TexturePage*TMAPS_PER_PAGE < NumTextures))
 		{
-			CurrentTexture = i + TexturePage*TMAPS_PER_PAGE;
+			CurrentTexture = static_cast<texture_index>(i + TexturePage*TMAPS_PER_PAGE);
 			texpage_show_current();
 
 			if (keyd_pressed[KEY_LSHIFT]) {

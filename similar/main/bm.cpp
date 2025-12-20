@@ -267,7 +267,7 @@ void properties_read_cmp(d_level_shared_robot_info_state &LevelSharedRobotInfoSt
 #if DXX_USE_EDITOR
         //Build tmaplist
 	auto &&effect_range = partial_const_range(Effects, Num_effects);
-	LevelUniqueTmapInfoState.Num_tmaps = TextureEffects + std::count_if(effect_range.begin(), effect_range.end(), [](const eclip &e) { return e.changing_wall_texture >= 0; });
+	LevelUniqueTmapInfoState.Num_tmaps = TextureEffects + std::count_if(effect_range.begin(), effect_range.end(), [](const eclip &e) { return e.changing_wall_texture < MAX_TEXTURES; });
         #endif
 }
 #elif DXX_BUILD_DESCENT == 2
@@ -281,7 +281,8 @@ static void tmap_info_read(tmap_info &ti, const NamedPHYSFS_File fp)
 	ti.lighting = PHYSFSX_readFix(fp);
 	ti.damage = PHYSFSX_readFix(fp);
 	ti.eclip_num = PHYSFSX_readSLE16(fp);
-	ti.destroyed = PHYSFSX_readSLE16(fp);
+	const auto destroyed{PHYSFSX_readULE16(fp)};
+	ti.destroyed = (destroyed < Textures.size()) ? texture_index{destroyed} : texture_index{UINT16_MAX};
 	ti.slide_u = PHYSFSX_readSLE16(fp);
 	ti.slide_v = PHYSFSX_readSLE16(fp);
 }

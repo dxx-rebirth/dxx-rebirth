@@ -586,17 +586,17 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 		const auto tm = get_texture_index(tmap2);			//tm without flags
 		auto &tmi2 = TmapInfo[tm];
 		const auto ec = tmi2.eclip_num;
-		unsigned db{0};
+		texture_index db{};
 		if (
 #if DXX_BUILD_DESCENT == 1
 			ec != eclip_none &&
 #elif DXX_BUILD_DESCENT == 2
 		//check if it's an animation (monitor) or casts light
 			ec == eclip_none
-			? tmi2.destroyed != -1
+			? tmi2.destroyed != texture_index{UINT16_MAX}
 			:
 #endif
-			(db = Effects[ec].dest_bm_num) != ~0u && !(Effects[ec].flags & EF_ONE_SHOT)
+			(db = Effects[ec].dest_bm_num) != texture_index{UINT16_MAX} && !(Effects[ec].flags & EF_ONE_SHOT)
 		)
 		{
 			const auto tmf = get_texture_rotation_high(tmap2);		//tm flags
@@ -645,7 +645,7 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 			{		//not trans, thus on effect
 #if DXX_BUILD_DESCENT == 2
 				if ((Game_mode & GM_MULTI) && Netgame.AlwaysLighting)
-					if (!(ec != eclip_none && db != -1 && !(Effects[ec].flags & EF_ONE_SHOT)))
+					if (!(ec != eclip_none && db != texture_index{UINT16_MAX} && !(Effects[ec].flags & EF_ONE_SHOT)))
 						return 0;
 
 				//note: this must get called before the texture changes,
@@ -676,7 +676,7 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 				object_create_explosion_without_damage(Vclip, seg, pnt, dest_size, vc);
 
 #if DXX_BUILD_DESCENT == 2
-				if (ec != eclip_none && db != -1 && !(Effects[ec].flags & EF_ONE_SHOT))
+				if (ec != eclip_none && db != texture_index{UINT16_MAX} && !(Effects[ec].flags & EF_ONE_SHOT))
 #endif
 				{
 
@@ -688,11 +688,10 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 
 					if (Effects[ec].dest_eclip!=-1 && Effects[Effects[ec].dest_eclip].segnum == segment_none)
 					{
-						int bm_num;
 						eclip *new_ec;
 
 						new_ec = &Effects[Effects[ec].dest_eclip];
-						bm_num = new_ec->changing_wall_texture;
+						const auto bm_num{new_ec->changing_wall_texture};
 
 						new_ec->time_left = new_ec->vc.frame_time;
 						new_ec->frame_count = 0;

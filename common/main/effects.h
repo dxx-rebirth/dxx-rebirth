@@ -60,11 +60,11 @@ struct eclip : public prohibit_void_ptr<eclip>
 	vclip   vc;             //imbedded vclip
 	fix     time_left;      //for sequencing
 	uint32_t frame_count;    //for sequencing
-	short   changing_wall_texture;      //Which element of Textures array to replace.
+	texture_index changing_wall_texture;      //Which element of Textures array to replace.
 	object_bitmap_index changing_object_texture;    //Which element of ObjBitmapPtrs array to replace.
 	int     flags;          //see above
 	int     crit_clip;      //use this clip instead of above one when mine critical
-	unsigned dest_bm_num;    //use this bitmap when monitor destroyed
+	texture_index dest_bm_num;    //use this bitmap when monitor destroyed
 	vclip_index dest_vclip;     //what vclip to play when exploding
 	int     dest_eclip;     //what eclip to play when exploding
 	fix     dest_size;      //3d size of explosion

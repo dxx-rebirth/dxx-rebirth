@@ -3573,7 +3573,7 @@ texture_index find_goal_texture(const d_level_unique_tmap_info_state &LevelUniqu
 		return (i.flags & tmi_flag);
 	};
 	const auto begin = r.begin();
-	return std::distance(begin, std::ranges::find_if(begin, r.end(), predicate));
+	return static_cast<texture_index>(std::distance(begin, std::ranges::find_if(begin, r.end(), predicate)));
 }
 
 const tmap_info &find_required_goal_texture(const d_level_unique_tmap_info_state &LevelUniqueTmapInfoState, const tmapinfo_flag tmi_flag)
@@ -5670,7 +5670,7 @@ void init_hoard_data(d_vclip_array &Vclip)
 	const auto goal_eclip = Num_effects++;
 	assert(goal_eclip < Effects.size());
 	Effects[goal_eclip] = Effects[94];        //copy from blue goal
-	Effects[goal_eclip].changing_wall_texture = NumTextures;
+	Effects[goal_eclip].changing_wall_texture = static_cast<texture_index>(NumTextures);
 	Effects[goal_eclip].vc.num_frames=n_goal_frames;
 
 	TmapInfo[NumTextures] = find_required_goal_texture(LevelUniqueTmapInfoState, tmapinfo_flag::goal_blue);

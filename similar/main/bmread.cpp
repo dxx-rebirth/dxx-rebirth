@@ -114,7 +114,7 @@ uint8_t tmap1_flag;		//flag if this is used as tmap_num (not tmap_num2)
 struct get_texture_result
 {
 	std::size_t texture_count;
-	std::size_t idx_updated_texture;
+	texture_index idx_updated_texture;
 	bool reuse_texture;
 };
 
@@ -474,17 +474,18 @@ static get_texture_result get_texture(d_level_unique_tmap_info_state::TmapInfo_a
 		if (!d_stricmp(ti.filename, short_name))
 			return {
 				.texture_count = texture_count,
-				.idx_updated_texture = i,
+				.idx_updated_texture = static_cast<texture_index>(i),
 				.reuse_texture = true
 			};
 	}
+	const auto tt{static_cast<texture_index>(t)};
 	Textures[t] = bm_load_sub(skip, name);
-	TmapInfo[t].filename.copy_if(short_name);
+	TmapInfo[tt].filename.copy_if(short_name);
 	++texture_count;
 	NumTextures = texture_count;
 	return {
 		.texture_count = texture_count,
-		.idx_updated_texture = t,
+		.idx_updated_texture = tt,
 		.reuse_texture = false
 	};
 }
@@ -538,7 +539,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 		ti.flags = {};
 #if DXX_BUILD_DESCENT == 2
 		ti.slide_u = ti.slide_v = 0;
-		ti.destroyed = -1;
+		ti.destroyed = texture_index{UINT16_MAX};
 #endif
 	}
 
@@ -553,7 +554,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 	range_for (auto &ec, Effects)
 	{
 		//Effects[i].bm_ptr = (grs_bitmap **) -1;
-		ec.changing_wall_texture = -1;
+		ec.changing_wall_texture = texture_index{UINT16_MAX};
 		ec.changing_object_texture = object_bitmap_index::None;
 		ec.segnum = segment_none;
 		ec.vc.num_frames = -1;		//another mark of being unused
@@ -838,7 +839,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 	//check for refereced but unused clip count
 	for (auto &&[idx, e] : enumerate(Effects))
 	{
-		if ((e.changing_wall_texture != -1 || e.changing_object_texture != object_bitmap_index::None) && e.vc.num_frames == ~0u)
+		if ((e.changing_wall_texture != texture_index{UINT16_MAX} || e.changing_object_texture != object_bitmap_index::None) && e.vc.num_frames == ~0u)
 			Error("EClip %" DXX_PRI_size_type " referenced (by polygon object?), but not defined", idx);
 	}
 
@@ -951,7 +952,7 @@ static std::size_t bm_read_eclip(std::size_t texture_count, int skip)
 	Effects[clip_num].flags = 0;
 
 #if DXX_BUILD_DESCENT == 2
-	unsigned dest_bm_num{0};
+	auto dest_bm_num{texture_index{UINT16_MAX}};
 	//load the dest bitmap first, so that after this routine, the last-loaded
 	//texture will be the monitor, so that lighting parameter will be applied
 	//to the correct texture
@@ -983,7 +984,7 @@ static std::size_t bm_read_eclip(std::size_t texture_count, int skip)
 		Assert(crit_flag==0);
 
 		if (clip_count == 0) {
-			Effects[clip_num].changing_wall_texture = texture_count;
+			Effects[clip_num].changing_wall_texture = static_cast<texture_index>(texture_count);
 			Assert(tmap_count < MAX_TEXTURES);
 	  		tmap_count++;
 			Textures[texture_count] = bitmap;
@@ -1010,7 +1011,7 @@ static std::size_t bm_read_eclip(std::size_t texture_count, int skip)
 		Effects[clip_num].vc.frames[clip_count] = bm[clip_count];
 
 		if (!obj_eclip && !crit_flag) {
-			Effects[clip_num].changing_wall_texture = texture_count;
+			Effects[clip_num].changing_wall_texture = static_cast<texture_index>(texture_count);
 			Assert(tmap_count < MAX_TEXTURES);
   			tmap_count++;
 			Textures[texture_count] = bm[clip_count];
@@ -1071,7 +1072,7 @@ static std::size_t bm_read_eclip(std::size_t texture_count, int skip)
 		Effects[clip_num].dest_eclip = dest_eclip;
 	}
 	else {
-		Effects[clip_num].dest_bm_num = ~0u;
+		Effects[clip_num].dest_bm_num = texture_index{UINT16_MAX};
 		Effects[clip_num].dest_eclip = eclip_none;
 	}
 
@@ -1147,7 +1148,7 @@ static std::size_t bm_read_wclip(std::size_t texture_count, int skip)
 		wa.num_frames = frames;
 		//WallAnims[clip_num].frame_time = fl2f(play_time)/frames;
 		Assert(clip_count < frames);
-		wa.frames[clip_count++] = texture_count;
+		wa.frames[clip_count++] = static_cast<texture_index>(texture_count);
 		wa.open_sound = wall_open_sound;
 		wa.close_sound = wall_close_sound;
 		Textures[texture_count] = bitmap;
@@ -1183,7 +1184,7 @@ static std::size_t bm_read_wclip(std::size_t texture_count, int skip)
 		for (clip_count=0;clip_count < wa.num_frames; clip_count++)	{
 			Textures[texture_count] = bm[clip_count];
 			set_lighting_flag(GameBitmaps[bm[clip_count]]);
-			wa.frames[clip_count] = texture_count;
+			wa.frames[clip_count] = static_cast<texture_index>(texture_count);
 			REMOVE_DOTS(arg);
 			snprintf(&TmapInfo[texture_count].filename[0u], TmapInfo[texture_count].filename.size(), "%s#%d", arg, clip_count);
 			Assert(texture_count < MAX_TEXTURES);

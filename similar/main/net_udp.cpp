@@ -2228,8 +2228,8 @@ static void net_udp_process_monitor_vector(uint32_t vector)
 			const auto ec = TmapInfo[get_texture_index(tm)].eclip_num;
 			if (ec == eclip_none)
 				continue;
-			const int bm = Effects[ec].dest_bm_num;
-			if (bm == ~0u)
+			const auto bm{Effects[ec].dest_bm_num};
+			if (bm >= Textures.size())
 				continue;
 			{
 				if (vector & 1)
@@ -2296,7 +2296,7 @@ static unsigned net_udp_create_monitor_vector(void)
 			const unsigned ec = TmapInfo[masked_tm2].eclip_num;
 			{
 				if (ec != eclip_none &&
-					Effects[ec].dest_bm_num != ~0u)
+					Effects[ec].dest_bm_num != texture_index{UINT16_MAX})
 				{
 				}
 				else if (blown_bitmaps.exists(masked_tm2))

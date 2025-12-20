@@ -161,11 +161,13 @@ static int convert_wclip(int wc) {
 
 }
 
-int convert_tmap(int tmap)
+texture_index convert_tmap(texture_index tmap)
 {
-	if (tmap == -1)
+	if (tmap == texture_index{UINT16_MAX})
 		return tmap;
-    return (tmap >= NumTextures) ? tmap % NumTextures : tmap;
+	if (tmap >= NumTextures) [[unlikely]]
+		return static_cast<texture_index>(tmap % NumTextures);
+	return tmap;
 }
 
 namespace {

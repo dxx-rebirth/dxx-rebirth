@@ -1438,7 +1438,7 @@ Levels 9-end: unchecked
 	if (const auto old_tmap_idx = get_texture_index(old_tmap_num); old_tmap_idx >= NumTextures)
 		uside.tmap_num = build_texture1_value((
 			LevelErrorV(PLAYING_BUILTIN_MISSION ? CON_VERBOSE : CON_URGENT, "segment #%hu side #%i has invalid tmap %u (NumTextures=%u).", sp.get_unchecked_index(), underlying_value(sidenum), old_tmap_idx, NumTextures),
-			(sside.wall_num == wall_none)
+			(sside.wall_num == wall_none) ? texture_index{1} : texture_index{0}
 		));
 
 	//	Set render_flag.

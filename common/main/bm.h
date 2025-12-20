@@ -93,7 +93,7 @@ struct tmap_info : prohibit_void_ptr<tmap_info>
 	fix     lighting;  //how much light this casts
 	fix     damage;    //how much damage being against this does (for lava)
 	uint16_t eclip_num; //the eclip that changes this, or -1
-	short   destroyed; //bitmap to show when destroyed, or -1
+	texture_index destroyed; //bitmap to show when destroyed, or -1
 	short   slide_u,slide_v;    //slide rates of texture, stored in 8:8 fix
 	tmapinfo_flags flags;
 #if DXX_USE_EDITOR
