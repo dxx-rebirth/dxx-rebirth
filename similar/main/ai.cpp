@@ -490,19 +490,14 @@ static int ready_to_fire_weapon1(const ai_local &ailp, fix threshold)
 	return ailp.next_fire <= threshold;
 }
 
+#if DXX_BUILD_DESCENT == 2
 static int ready_to_fire_weapon2(const robot_info &robptr, const ai_local &ailp, fix threshold)
 {
-#if DXX_BUILD_DESCENT == 1
-	(void)robptr;
-	(void)ailp;
-	(void)threshold;
-	return 0;
-#elif DXX_BUILD_DESCENT == 2
 	if (robptr.weapon_type2 == weapon_none)
 		return 0;
 	return ailp.next_fire2 <= threshold;
-#endif
 }
+#endif
 
 // ----------------------------------------------------------------------------
 // Return firing status.
@@ -510,7 +505,14 @@ static int ready_to_fire_weapon2(const robot_info &robptr, const ai_local &ailp,
 // Ready to fire a weapon if next_fire <= 0 or next_fire2 <= 0.
 static int ready_to_fire_any_weapon(const robot_info &robptr, const ai_local &ailp, fix threshold)
 {
-	return ready_to_fire_weapon1(ailp, threshold) || ready_to_fire_weapon2(robptr, ailp, threshold);
+	const auto r1{ready_to_fire_weapon1(ailp, threshold)};
+#if DXX_BUILD_DESCENT == 1
+	(void)robptr;
+#elif DXX_BUILD_DESCENT == 2
+	if (!r1)
+		return ready_to_fire_weapon2(robptr, ailp, threshold);
+#endif
+	return r1;
 }
 
 }
