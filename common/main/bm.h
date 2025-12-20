@@ -83,13 +83,11 @@ constexpr std::integral_constant<unsigned, 1200> MAX_TEXTURES{};
 
 struct tmap_info : prohibit_void_ptr<tmap_info>
 {
-#if DXX_BUILD_DESCENT == 1
-	fix			lighting;		// 0 to 1
-	fix			damage;			//how much damage being against this does
-	unsigned eclip_num;		//if not -1, the eclip that changes this   
-#elif DXX_BUILD_DESCENT == 2
 	fix     lighting;  //how much light this casts
 	fix     damage;    //how much damage being against this does (for lava)
+#if DXX_BUILD_DESCENT == 1
+	unsigned eclip_num;		//if not -1, the eclip that changes this   
+#elif DXX_BUILD_DESCENT == 2
 	uint16_t eclip_num; //the eclip that changes this, or -1
 	texture_index destroyed; //bitmap to show when destroyed, or -1
 	short   slide_u,slide_v;    //slide rates of texture, stored in 8:8 fix
