@@ -399,8 +399,6 @@ void init_automap_colors(automap &am)
 
 // Map movement defines
 #define PITCH_DEFAULT 9000
-#define ZOOM_MIN_VALUE i2f(20*5)
-#define ZOOM_MAX_VALUE i2f(20*100)
 
 }
 
@@ -821,7 +819,12 @@ static void automap_apply_input(automap &am, const vms_matrix &plrorient, const 
 			am.controls.state.fire_primary = 0;
 		}
 
-		am.viewDist -= am.controls.forward_thrust_time * ZOOM_SPEED_FACTOR;
+		if (am.controls.forward_thrust_time)
+		{
+			constexpr fix ZOOM_MIN_VALUE{i2f(20*5)};
+			constexpr fix ZOOM_MAX_VALUE{i2f(20*100)};
+			am.viewDist = std::clamp(am.viewDist - (am.controls.forward_thrust_time * ZOOM_SPEED_FACTOR), ZOOM_MIN_VALUE, ZOOM_MAX_VALUE);
+		}
 		am.tangles.p += fixdiv(am.controls.pitch_time, ROT_SPEED_DIVISOR);
 		am.tangles.h += fixdiv(am.controls.heading_time, ROT_SPEED_DIVISOR);
 		am.tangles.b += fixdiv(am.controls.bank_time, ROT_SPEED_DIVISOR * 2);
@@ -840,8 +843,6 @@ static void automap_apply_input(automap &am, const vms_matrix &plrorient, const 
 
 		const auto &&tempm{vm_angles_2_matrix(am.tangles)};
 		vm_matrix_x_matrix(am.viewMatrix, plrorient, tempm);
-
-		clamp_fix_lh(am.viewDist, ZOOM_MIN_VALUE, ZOOM_MAX_VALUE);
 	}
 }
 
