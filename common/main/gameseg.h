@@ -40,7 +40,7 @@ namespace dcx {
 
 struct segmasks
 {
-   short facemask;     //which faces sphere pokes through (12 bits)
+   uint16_t facemask;     //which faces sphere pokes through (12 bits)
    sidemask_t sidemask;     //which sides sphere pokes through (6 bits)
    sidemask_t centermask;   //which sides center point is on back of (6 bits)
 };
