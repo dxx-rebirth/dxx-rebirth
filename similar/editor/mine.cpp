@@ -352,11 +352,6 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 	int  newsegment_offset;
 	med_compress_mine();
 	warn_if_concave_segments();
-	
-	std::array<d_fname, MAX_TEXTURES> current_tmap_list;
-	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
-	for (int i=0;i<NumTextures;i++)
-		current_tmap_list[i] = TmapInfo[i].filename;
 
 	//=================== Calculate offsets into file ==================
 
@@ -439,8 +434,9 @@ static int save_mine_data(PHYSFS_File * SaveFile)
 
 	if (texture_offset != PHYSFS_tell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
-	range_for (auto &i, partial_const_range(current_tmap_list, NumTextures))
-		PHYSFSX_writeBytes(SaveFile, i.data(), i.size());
+
+	for (const auto &ti : std::span(LevelUniqueTmapInfoState.TmapInfo).first(NumTextures))
+		PHYSFSX_writeBytes(SaveFile, ti.filename.data(), ti.filename.size());
 	
 	//===================== SAVE VERTEX INFO ==========================
 
