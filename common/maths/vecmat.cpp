@@ -69,6 +69,21 @@ static constexpr fix avg_fix(fix64 a, fix64 b)
 	return (a + b) / 2;
 }
 
+[[nodiscard]]
+static fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector &v)
+{
+	/* Promote all the inputs up to 64-bit to avoid overflow. */
+	const int64_t x0{x};
+	const int64_t x1{v.x};
+	const int64_t y0{y};
+	const int64_t y1{v.y};
+	const int64_t z0{z};
+	const int64_t z1{v.z};
+	const int64_t p{(x0 * x1) + (y0 * y1) + (z0 * z1)};
+	/* Convert back to fix and return. */
+	return p >> 16;
+}
+
 }
 
 //adds two vectors, fills in dest, returns ptr to dest
@@ -180,20 +195,6 @@ void vm_vec_scale2(vms_vector &dest,fix n,fix d)
 		.y = fixmuldiv({dest.y}, {n}, {d}),
 		.z = fixmuldiv({dest.z}, {n}, {d}),
 	};
-}
-
-[[nodiscard]]
-static fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector &v)
-{
-	const int64_t x0{x};
-	const int64_t x1{v.x};
-	const int64_t y0{y};
-	const int64_t y1{v.y};
-	const int64_t z0{z};
-	const int64_t z1{v.z};
-	const int64_t p{(x0 * x1) + (y0 * y1) + (z0 * z1)};
-	/* Convert back to fix and return. */
-	return p >> 16;
 }
 
 fix vm_vec_build_dot(const vms_vector &v0,const vms_vector &v1)
