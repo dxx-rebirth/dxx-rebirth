@@ -794,16 +794,26 @@ static void automap_apply_input(automap &am, const vms_matrix &plrorient, const 
 			check_and_fix_matrix(am.viewMatrix);
 		}
 		
-		if (am.controls.forward_thrust_time || am.controls.vertical_thrust_time || am.controls.sideways_thrust_time)
+		if (const auto forward_thrust_time{am.controls.forward_thrust_time}, vertical_thrust_time{am.controls.vertical_thrust_time}, sideways_thrust_time{am.controls.sideways_thrust_time}; forward_thrust_time || vertical_thrust_time || sideways_thrust_time)
 		{
-			vm_vec_scale_add2(am.view_position, am.viewMatrix.fvec, am.controls.forward_thrust_time * ZOOM_SPEED_FACTOR);
-			vm_vec_scale_add2(am.view_position, am.viewMatrix.uvec, am.controls.vertical_thrust_time * SLIDE_SPEED);
-			vm_vec_scale_add2(am.view_position, am.viewMatrix.rvec, am.controls.sideways_thrust_time * SLIDE_SPEED);
+			auto view_position{am.view_position};
+			/* If the thrust time is 0, then `vm_vec_scale_add2` degrades to
+			 * multiplying the second term by 0 and adding the 0 result to the
+			 * first term.  Avoid the wasted multiply+write by checking for a
+			 * zero thrust time.
+			 */
+			if (forward_thrust_time)
+				vm_vec_scale_add2(view_position, am.viewMatrix.fvec, forward_thrust_time * ZOOM_SPEED_FACTOR);
+			if (vertical_thrust_time)
+				vm_vec_scale_add2(view_position, am.viewMatrix.uvec, vertical_thrust_time * SLIDE_SPEED);
+			if (sideways_thrust_time)
+				vm_vec_scale_add2(view_position, am.viewMatrix.rvec, sideways_thrust_time * SLIDE_SPEED);
 			
 			// Crude wrapping check
-			clamp_fix_symmetric(am.view_position.x, F1_0*32000);
-			clamp_fix_symmetric(am.view_position.y, F1_0*32000);
-			clamp_fix_symmetric(am.view_position.z, F1_0*32000);
+			constexpr fix upper_bound{F1_0 * 32000}, lower_bound{-upper_bound};
+			am.view_position.x = std::clamp(view_position.x, lower_bound, upper_bound);
+			am.view_position.y = std::clamp(view_position.y, lower_bound, upper_bound);
+			am.view_position.z = std::clamp(view_position.z, lower_bound, upper_bound);
 		}
 	}
 	else
