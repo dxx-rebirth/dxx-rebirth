@@ -28,11 +28,6 @@ DXX_VALPTRIDX_DECLARE_SUBTYPE(dcx::, active_door, actdoornum_t, MAX_DOORS);
 
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {
-#if DXX_BUILD_DESCENT == 1
-constexpr std::integral_constant<std::size_t, 30> MAX_WALL_ANIMS{};		// Maximum different types of doors
-#elif DXX_BUILD_DESCENT == 2
-constexpr std::integral_constant<std::size_t, 60> MAX_WALL_ANIMS{};  // Maximum different types of doors
-#endif
 
 enum wall_type_t : uint8_t
 {
@@ -131,6 +126,11 @@ DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(cloaking_wall, clwall);
 DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::, wall, wallnum_t, dcx::MAX_WALLS);
 namespace dsx {
 DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(wall, wall);
+#if DXX_BUILD_DESCENT == 1
+constexpr std::size_t MAX_WALL_ANIMS{30};	// D1: Maximum different types of doors
+#elif DXX_BUILD_DESCENT == 2
+constexpr std::size_t MAX_WALL_ANIMS{60};	// D2: Maximum different types of doors
+#endif
 using wall_animations_array = std::array<wclip, MAX_WALL_ANIMS>;
 constexpr valptridx<wall>::magic_constant<wallnum_t{0xffffu}> wall_none{};
 }
