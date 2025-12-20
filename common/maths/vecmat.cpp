@@ -415,29 +415,22 @@ namespace {
 static vms_matrix vm_matrix_build_from_sincos(const fixang bank, const fix_sincos_result p, const fix_sincos_result h)
 {
 	vms_matrix m;
-#define DXX_S2M_DECL(V)	\
-	const auto &sin##V = V.sin;	\
-	const auto &cos##V = V.cos
-	DXX_S2M_DECL(p);
-	DXX_S2M_DECL(h);
-	m.fvec.y = -sinp;								//m6
-	m.fvec.x = fixmul(sinh,cosp);				//m3
-	m.fvec.z = fixmul(cosh,cosp);				//m9
-	const auto &&b = fix_sincos(bank);
-	DXX_S2M_DECL(b);
-#undef DXX_S2M_DECL
-	m.rvec.y = fixmul(sinb,cosp);				//m4
-	m.uvec.y = fixmul(cosb,cosp);				//m5
+	m.fvec.y = -p.sin;								//m6
+	m.fvec.x = fixmul(h.sin,p.cos);				//m3
+	m.fvec.z = fixmul(h.cos,p.cos);				//m9
+	const auto &&[sinb, cosb]{fix_sincos(bank)};
+	m.rvec.y = fixmul(sinb,p.cos);				//m4
+	m.uvec.y = fixmul(cosb,p.cos);				//m5
 
-	const auto cbch{fixmul(cosb, cosh)};
-	const auto sbsh{fixmul(sinb, sinh)};
-	m.rvec.x = cbch + fixmul(sinp,sbsh);		//m1
-	m.uvec.z = sbsh + fixmul(sinp,cbch);		//m8
+	const auto cbch{fixmul(cosb, h.cos)};
+	const auto sbsh{fixmul(sinb, h.sin)};
+	m.rvec.x = cbch + fixmul(p.sin,sbsh);		//m1
+	m.uvec.z = sbsh + fixmul(p.sin,cbch);		//m8
 
-	const auto sbch{fixmul(sinb, cosh)};
-	const auto cbsh{fixmul(cosb, sinh)};
-	m.uvec.x = fixmul(sinp,cbsh) - sbch;		//m2
-	m.rvec.z = fixmul(sinp,sbch) - cbsh;		//m7
+	const auto sbch{fixmul(sinb, h.cos)};
+	const auto cbsh{fixmul(cosb, h.sin)};
+	m.uvec.x = fixmul(p.sin,cbsh) - sbch;		//m2
+	m.rvec.z = fixmul(p.sin,sbch) - cbsh;		//m7
 	return m;
 }
 
