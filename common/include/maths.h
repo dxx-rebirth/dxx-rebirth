@@ -116,7 +116,7 @@ fix fixmuldiv (fix a, fix b, fix c);
 
 //multiply two fixes, and add 64-bit product to a quadint
 [[nodiscard]]
-static inline quadint fixmulaccum(const quadint q, const fix &a, const fix &b)
+constexpr quadint fixmulaccum(const quadint q, const auto a, const auto b)
 {
 	return quadint{static_cast<int64_t>(q) + (int64_t{a} * int64_t{b})};
 }
