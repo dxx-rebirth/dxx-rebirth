@@ -196,9 +196,6 @@ extern lighting_hack Doing_lighting_hack_flag;
 #define DXX_lighting_hack_pass_parameter	/* empty */
 #endif
 
-//this macro returns true if the segnum for an object is correct
-#define check_obj_seg(vcvertptr, obj) (get_seg_masks(vcvertptr, (obj)->pos, vcsegptr((obj)->segnum), 0).centermask == 0)
-
 //Tries to find a segment for a point, in the following way:
 // 1. Check the given segment
 // 2. Recursively trace through attached segments
