@@ -110,6 +110,7 @@ struct Edge_info
 
 struct automap : ::dcx::window
 {
+	static constexpr fix ZOOM_DEFAULT{i2f(20 * 10)};
 	using ::dcx::window::window;
 	fix64			entry_time;
 	fix64			t1, t2;
@@ -139,7 +140,7 @@ struct automap : ::dcx::window
 	vms_vector		view_position;
 	fix			farthest_dist{(F1_0 * 20 * 50)}; // 50 segments away
 	vms_matrix		viewMatrix;
-	fix			viewDist{};
+	fix viewDist{ZOOM_DEFAULT};
 
 	segment_depth_array_t depth_array;
 	color_t			wall_normal_color;
@@ -398,7 +399,6 @@ void init_automap_colors(automap &am)
 
 // Map movement defines
 #define PITCH_DEFAULT 9000
-#define ZOOM_DEFAULT i2f(20*10)
 #define ZOOM_MIN_VALUE i2f(20*5)
 #define ZOOM_MAX_VALUE i2f(20*100)
 
@@ -780,7 +780,7 @@ static void automap_apply_input(automap &am, const vms_matrix &plrorient, const 
 			// Reset orientation
 			am.controls.state.fire_primary = 0;
 			am.viewMatrix = plrorient;
-			am.view_position = vm_vec_scale_add(plrpos, am.viewMatrix.fvec, -ZOOM_DEFAULT);
+			am.view_position = vm_vec_scale_add(plrpos, am.viewMatrix.fvec, -am.ZOOM_DEFAULT);
 		}
 		
 		if (am.controls.pitch_time || am.controls.heading_time || am.controls.bank_time)
@@ -813,7 +813,7 @@ static void automap_apply_input(automap &am, const vms_matrix &plrorient, const 
 		if (am.controls.state.fire_primary)
 		{
 			// Reset orientation
-			am.viewDist = ZOOM_DEFAULT;
+			am.viewDist = am.ZOOM_DEFAULT;
 			am.tangles.p = PITCH_DEFAULT;
 			am.tangles.h  = 0;
 			am.tangles.b  = 0;
@@ -1321,9 +1321,6 @@ void do_automap()
 
 	gr_set_default_canvas();
 
-	if ( am->viewDist==0 )
-		am->viewDist = ZOOM_DEFAULT;
-
 	auto &plrobj{get_local_plrobj()};
 	am->viewMatrix = plrobj.orient;
 	am->tangles.p = PITCH_DEFAULT;
@@ -1332,7 +1329,7 @@ void do_automap()
 	am->view_target = plrobj.pos;
 	
 	if (PlayerCfg.AutomapFreeFlight)
-		am->view_position = vm_vec_scale_add(plrobj.pos, am->viewMatrix.fvec, -ZOOM_DEFAULT);
+		am->view_position = vm_vec_scale_add(plrobj.pos, am->viewMatrix.fvec, -am->ZOOM_DEFAULT);
 
 	am->t1 = am->entry_time = timer_query();
 	am->t2 = am->t1;
