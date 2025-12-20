@@ -129,6 +129,29 @@ static vms_vector check_vec(vms_vector v)
 	return v;
 }
 
+[[nodiscard]]
+static vms_matrix vm_matrix_build_from_sincos(const fixang bank, const fix_sincos_result p, const fix_sincos_result h)
+{
+	vms_matrix m;
+	m.fvec.y = -p.sin;								//m6
+	m.fvec.x = fixmul(h.sin,p.cos);				//m3
+	m.fvec.z = fixmul(h.cos,p.cos);				//m9
+	const auto &&[sinb, cosb]{fix_sincos(bank)};
+	m.rvec.y = fixmul(sinb,p.cos);				//m4
+	m.uvec.y = fixmul(cosb,p.cos);				//m5
+
+	const auto cbch{fixmul(cosb, h.cos)};
+	const auto sbsh{fixmul(sinb, h.sin)};
+	m.rvec.x = cbch + fixmul(p.sin,sbsh);		//m1
+	m.uvec.z = sbsh + fixmul(p.sin,cbch);		//m8
+
+	const auto sbch{fixmul(sinb, h.cos)};
+	const auto cbsh{fixmul(cosb, h.sin)};
+	m.uvec.x = fixmul(p.sin,cbsh) - sbch;		//m2
+	m.rvec.z = fixmul(p.sin,sbch) - cbsh;		//m7
+	return m;
+}
+
 }
 
 //adds two vectors, fills in dest, returns ptr to dest
@@ -407,33 +430,6 @@ fixang vm_vec_delta_ang_norm(const vms_vector &v0,const vms_vector &v1,const vms
 	if (vm_vec_build_dot(vm_vec_cross(v0, v1), fvec) < 0)
 			a = -a;
 	return a;
-}
-
-namespace {
-
-[[nodiscard]]
-static vms_matrix vm_matrix_build_from_sincos(const fixang bank, const fix_sincos_result p, const fix_sincos_result h)
-{
-	vms_matrix m;
-	m.fvec.y = -p.sin;								//m6
-	m.fvec.x = fixmul(h.sin,p.cos);				//m3
-	m.fvec.z = fixmul(h.cos,p.cos);				//m9
-	const auto &&[sinb, cosb]{fix_sincos(bank)};
-	m.rvec.y = fixmul(sinb,p.cos);				//m4
-	m.uvec.y = fixmul(cosb,p.cos);				//m5
-
-	const auto cbch{fixmul(cosb, h.cos)};
-	const auto sbsh{fixmul(sinb, h.sin)};
-	m.rvec.x = cbch + fixmul(p.sin,sbsh);		//m1
-	m.uvec.z = sbsh + fixmul(p.sin,cbch);		//m8
-
-	const auto sbch{fixmul(sinb, h.cos)};
-	const auto cbsh{fixmul(cosb, h.sin)};
-	m.uvec.x = fixmul(p.sin,cbsh) - sbch;		//m2
-	m.rvec.z = fixmul(p.sin,sbch) - cbsh;		//m7
-	return m;
-}
-
 }
 
 //computes a matrix from a set of three angles.  returns ptr to matrix
