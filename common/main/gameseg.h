@@ -179,6 +179,7 @@ bool get_side_is_quad(const shared_side &sidep);
 
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields
+[[nodiscard]]
 segmasks get_seg_masks(fvcvertptr &, const vms_vector &checkp, const shared_segment &segnum, fix rad);
 int check_segment_connections();
 
