@@ -84,6 +84,51 @@ static fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector &v)
 	return p >> 16;
 }
 
+//make sure a vector is reasonably sized to go into a cross product
+[[nodiscard]]
+static vms_vector check_vec(vms_vector v)
+{
+	if (unlikely(v == vms_vector{}))
+		return v;
+	int cnt{0};
+
+	fix check = labs(v.x) | labs(v.y) | labs(v.z);
+	if (check & 0xfffc0000) {		//too big
+
+		while (check & 0xfff00000) {
+			cnt += 4;
+			check >>= 4;
+		}
+
+		while (check & 0xfffc0000) {
+			cnt += 2;
+			check >>= 2;
+		}
+
+		v.x >>= cnt;
+		v.y >>= cnt;
+		v.z >>= cnt;
+	}
+	else												//maybe too small
+		if ((check & 0xffff8000) == 0) {		//yep, too small
+
+			while ((check & 0xfffff000) == 0) {
+				cnt += 4;
+				check <<= 4;
+			}
+
+			while ((check & 0xffff8000) == 0) {
+				cnt += 2;
+				check <<= 2;
+			}
+
+			v.x >>= cnt;
+			v.y >>= cnt;
+			v.z >>= cnt;
+		}
+	return v;
+}
+
 }
 
 //adds two vectors, fills in dest, returns ptr to dest
@@ -308,55 +353,6 @@ vm_magnitude vm_vec_normalized_dir(vms_vector &dest,const vms_vector &end,const 
 vms_vector vm_vec_normal(const vms_vector &p0, const vms_vector &p1, const vms_vector &p2)
 {
 	return vm_vec_normalized(vm_vec_perp(p0, p1, p2));
-}
-
-namespace {
-
-//make sure a vector is reasonably sized to go into a cross product
-[[nodiscard]]
-static vms_vector check_vec(vms_vector v)
-{
-	if (unlikely(v == vms_vector{}))
-		return v;
-	int cnt{0};
-
-	fix check = labs(v.x) | labs(v.y) | labs(v.z);
-	if (check & 0xfffc0000) {		//too big
-
-		while (check & 0xfff00000) {
-			cnt += 4;
-			check >>= 4;
-		}
-
-		while (check & 0xfffc0000) {
-			cnt += 2;
-			check >>= 2;
-		}
-
-		v.x >>= cnt;
-		v.y >>= cnt;
-		v.z >>= cnt;
-	}
-	else												//maybe too small
-		if ((check & 0xffff8000) == 0) {		//yep, too small
-
-			while ((check & 0xfffff000) == 0) {
-				cnt += 4;
-				check <<= 4;
-			}
-
-			while ((check & 0xffff8000) == 0) {
-				cnt += 2;
-				check <<= 2;
-			}
-
-			v.x >>= cnt;
-			v.y >>= cnt;
-			v.z >>= cnt;
-		}
-	return v;
-}
-
 }
 
 //computes cross product of two vectors. 
