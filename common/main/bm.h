@@ -99,8 +99,6 @@ struct tmap_info : prohibit_void_ptr<tmap_info>
 #if DXX_USE_EDITOR
 	d_fname filename;       //used by editor to remap textures
 	#endif
-
-#define TMAP_INFO_SIZE 20   // how much space it takes up on disk
 #endif
 };
 }
