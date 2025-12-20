@@ -965,12 +965,10 @@ struct fcd_data
 	vm_distance dist;
 };
 
-#if DXX_BUILD_DESCENT == 2
 static constexpr sidemask_t &operator&=(sidemask_t &a, const sidemask_t b)
 {
 	return a = static_cast<sidemask_t>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
 }
-#endif
 
 fix64	Last_fcd_flush_time;
 unsigned Fcd_index;
