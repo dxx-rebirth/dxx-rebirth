@@ -123,7 +123,7 @@ static inline quadint fixmulaccum(const quadint q, const fix &a, const fix &b)
 
 //extract a fix from a quadint product
 [[nodiscard]]
-static inline fix fixquadadjust(const quadint q)
+constexpr fix fixquadadjust(const quadint q)
 {
 	return static_cast<fix>(static_cast<int64_t>(q) >> 16);
 }
