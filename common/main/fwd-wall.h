@@ -61,11 +61,6 @@ constexpr fix DOOR_WAIT_TIME = i2f(5);      // How long before auto door closes
 
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {
-#if DXX_BUILD_DESCENT == 1
-constexpr std::integral_constant<std::size_t, 20> MAX_CLIP_FRAMES{};
-#elif DXX_BUILD_DESCENT == 2
-constexpr std::integral_constant<std::size_t, 50> MAX_CLIP_FRAMES{};
-#endif
 }
 
 namespace dcx {
@@ -127,8 +122,10 @@ DXX_VALPTRIDX_DECLARE_SUBTYPE(dsx::, wall, wallnum_t, dcx::MAX_WALLS);
 namespace dsx {
 DXX_VALPTRIDX_DEFINE_SUBTYPE_TYPEDEFS(wall, wall);
 #if DXX_BUILD_DESCENT == 1
+constexpr std::size_t MAX_CLIP_FRAMES{20};	// D1
 constexpr std::size_t MAX_WALL_ANIMS{30};	// D1: Maximum different types of doors
 #elif DXX_BUILD_DESCENT == 2
+constexpr std::size_t MAX_CLIP_FRAMES{50};	// D2
 constexpr std::size_t MAX_WALL_ANIMS{60};	// D2: Maximum different types of doors
 #endif
 using wall_animations_array = std::array<wclip, MAX_WALL_ANIMS>;
