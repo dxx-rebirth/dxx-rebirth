@@ -458,15 +458,15 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 				const uint8_t gun_num = ai_info_flags[0];
 				obj->ctype.ai_info.CURRENT_GUN = (gun_num < MAX_GUNS) ? robot_gun_number{gun_num} : robot_gun_number{};
 			}
-			obj->ctype.ai_info.CURRENT_STATE = build_ai_state_from_untrusted(ai_info_flags[1]).value();
-			obj->ctype.ai_info.GOAL_STATE = build_ai_state_from_untrusted(ai_info_flags[2]).value();
+			obj->ctype.ai_info.CURRENT_STATE = build_ai_state_from_untrusted(ai_info_flags[1]).value_or(ai_static_state::AIS_REST);
+			obj->ctype.ai_info.GOAL_STATE = build_ai_state_from_untrusted(ai_info_flags[2]).value_or(ai_static_state::AIS_REST);
 			obj->ctype.ai_info.PATH_DIR = ai_info_flags[3];
 #if DXX_BUILD_DESCENT == 1
 			obj->ctype.ai_info.SUBMODE = ai_info_flags[4];
 #elif DXX_BUILD_DESCENT == 2
 			obj->ctype.ai_info.SUB_FLAGS = ai_info_flags[4];
 #endif
-			obj->ctype.ai_info.GOALSIDE = build_sidenum_from_untrusted(ai_info_flags[5]).value();
+			obj->ctype.ai_info.GOALSIDE = build_sidenum_from_untrusted(ai_info_flags[5]).value_or(static_cast<sidenum_t>(0));
 			obj->ctype.ai_info.CLOAKED = ai_info_flags[6];
 			obj->ctype.ai_info.SKIP_AI_COUNT = ai_info_flags[7];
 			obj->ctype.ai_info.REMOTE_OWNER = ai_info_flags[8];
