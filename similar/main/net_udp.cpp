@@ -633,7 +633,6 @@ public:
 	bool operator!=(auto &&) const = delete;
 };
 
-#ifdef DXX_HAVE_GETADDRINFO
 struct addrinfo_deleter
 {
 	void operator()(addrinfo *p) const
@@ -656,7 +655,6 @@ public:
 	using base_type::get;
 	using base_type::operator->;
 };
-#endif
 
 struct sockaddr_ref
 {
@@ -1012,7 +1010,6 @@ static void udp_traffic_stat()
 // Resolve address
 int udp_dns_filladdr(sockaddr_ref addr, const char *host, uint16_t port, bool numeric_only, bool silent)
 {
-#ifdef DXX_HAVE_GETADDRINFO
 	// Variables
 	addrinfo hints{};
 	char sPort[6];
@@ -1067,27 +1064,6 @@ int udp_dns_filladdr(sockaddr_ref addr, const char *host, uint16_t port, bool nu
 	 *
 	 * -- Matt
 	 */
-	
-	// Free memory
-#else
-	(void)numeric_only;
-	sockaddr_in &sai = reinterpret_cast<sockaddr_in &>(addr.sa);
-	if (addr.len < sizeof(sai))
-		return -1;
-	const auto he = gethostbyname(host);
-	if (!he)
-	{
-		con_printf(CON_URGENT, "udp_dns_filladdr (gethostbyname) failed for host %s", host);
-		if (!silent)
-			nm_messagebox(menu_title{TXT_ERROR}, {TXT_OK}, "Could not resolve IPv4 address\n%s", host);
-		addr.sa.sa_family = AF_UNSPEC;
-		return -1;
-	}
-	sai = {};
-	sai.sin_family = ai_family;
-	sai.sin_port = htons(port);
-	sai.sin_addr = *reinterpret_cast<const in_addr *>(he->h_addr);
-#endif
 	return 0;
 }
 

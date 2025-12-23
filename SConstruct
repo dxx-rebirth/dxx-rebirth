@@ -2556,8 +2556,8 @@ where the cast is useless.
 		self.Compile(context, text='#include <cstring>', main=main, msg='for strcasecmp', successflags=_successflags)
 
 	@_custom_test
-	def check_getaddrinfo_present(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_GETADDRINFO']}):
-		self.Compile(context, text='''
+	def check_getaddrinfo_present(self,context,_successflags={'LIBS': ['ws2_32']}):
+		if not self.Link(context, text='''
 #ifdef WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -2580,7 +2580,8 @@ where the cast is useless.
 	(void)i;
 	freeaddrinfo(res);
 	return 0;
-''', msg='for getaddrinfo', successflags=_successflags)
+''', msg='for getaddrinfo', successflags=_successflags):
+			raise SCons.Errors.StopError("getaddrinfo support is required, but was not found: upgrade headers and libraries to support getaddrinfo.")
 
 	@_guarded_test_windows
 	def check_inet_ntop_present(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_INET_NTOP']}):
