@@ -4926,6 +4926,7 @@ class DXXArchive(DXXCommon):
 			clean=False,
 			help=False
 		)
+		message(self, f'SConf log will be written to {log_file!s}')
 		self.configure_added_environment_flags = tests.successful_flags
 		self.configure_pch_flags = None
 		if not conf.env:
