@@ -3856,7 +3856,7 @@ class DXXCommon(LazyObjectConstructor):
 					# be left enabled.
 					('sdlimage', True, None),
 					('sdlmixer', True, 'build with SDL_Mixer support for sound and music (includes external music support)'),
-					('ipv6', False, 'enable UDP/IPv6 for multiplayer'),
+					('ipv6', True, 'enable UDP/IPv6 for multiplayer'),
 					('use_udp', True, 'enable UDP support'),
 					('use_tracker', True, 'enable Tracker support (requires UDP)'),
 					('verbosebuild', self.default_verbosebuild, 'print out all compiler/linker messages during building'),
