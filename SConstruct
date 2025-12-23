@@ -2592,7 +2592,7 @@ where the cast is useless.
 #include <winsock2.h>
 #include <ws2tcpip.h>
 ''', main='''
-	struct sockaddr_in sai;
+	struct sockaddr_in sai{};
 	char dbuf[64];
 	return inet_ntop(AF_INET, &sai.sin_addr, dbuf, sizeof(dbuf)) ? 0 : 1;
 ''', msg='for inet_ntop', successflags=_successflags):
