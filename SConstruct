@@ -1057,6 +1057,8 @@ void test_virtual_function_supported::a() {}
 				self._show_tool_version(context, use_distcc, 'distcc', False)
 			if use_ccache:
 				self._show_tool_version(context, use_ccache, 'ccache', False)
+			if user_settings.host_platform == 'win32':
+				self._show_tool_version(context, cenv['RC'], 'Windows Resource Compiler', False)
 		# Use C++ single line comment so that it is guaranteed to extend
 		# to the end of the line.  repr ensures that embedded newlines
 		# will be escaped and that the final character will not be a
