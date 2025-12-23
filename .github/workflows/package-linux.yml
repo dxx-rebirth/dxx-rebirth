@@ -35,6 +35,13 @@ jobs:
         env:
           CXX: g++-12
 
+      - name: Upload SConf log
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: "SConf-Linux-${{ steps.architecture.outputs.uname_m }}"
+          path: 'build/sconf.log'
+
       - name: Install AppImage Requirements
         run: sudo apt-get install -y libfuse2 wget curl
 

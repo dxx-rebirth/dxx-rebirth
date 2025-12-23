@@ -35,6 +35,13 @@ jobs:
           scons -j4 opengl=1 sdl2=1 macos_add_frameworks=0 macos_bundle_libs=1 build/D{1,2}X-Rebirth.app
           mv build/D{1,2}X-Rebirth.app ..
 
+      - name: Upload SConf log
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: "SConf-MacOS${{ env.MACOSX_DEPLOYMENT_TARGET }}-${{ steps.architecture.outputs.uname_m }}"
+          path: 'build/sconf.log'
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
