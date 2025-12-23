@@ -2584,11 +2584,11 @@ where the cast is useless.
 			raise SCons.Errors.StopError("getaddrinfo support is required, but was not found: upgrade headers and libraries to support getaddrinfo.")
 
 	@_guarded_test_windows
-	def check_inet_ntop_present(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_INET_NTOP']}):
+	def check_inet_ntop_present(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_INET_NTOP'], 'LIBS': ['ws2_32']}):
 		# Linux and OS X have working inet_ntop on all supported
 		# platforms.  Only Windows sometimes lacks support for this
 		# function.
-		if self.Compile(context, text='''
+		if self.Link(context, text='''
 #include <winsock2.h>
 #include <ws2tcpip.h>
 ''', main='''
@@ -2598,7 +2598,7 @@ where the cast is useless.
 ''', msg='for inet_ntop', successflags=_successflags):
 			return
 		if self.user_settings.ipv6:
-			raise SCons.Errors.StopError("IPv6 enabled and inet_ntop not available: disable IPv6 or upgrade headers to support inet_ntop.")
+			raise SCons.Errors.StopError("IPv6 enabled and inet_ntop not available: disable IPv6 or upgrade headers and libraries to support inet_ntop.")
 
 	@_custom_test
 	def check_timespec_present(self,context,_successflags={'CPPDEFINES' : ['DXX_HAVE_STRUCT_TIMESPEC']}):
