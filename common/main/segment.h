@@ -179,6 +179,7 @@ static constexpr sidemask_t &operator|=(sidemask_t &a, const sidemask_t b)
 	return a = static_cast<sidemask_t>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
 }
 
+[[nodiscard]]
 static constexpr sidemask_t build_sidemask(const sidenum_t s)
 {
 	return static_cast<sidemask_t>(1u << static_cast<uint8_t>(s));
@@ -238,36 +239,43 @@ static constexpr texture2_rotation_high &operator++(texture2_rotation_high &t)
 	return (t = static_cast<texture2_rotation_high>(static_cast<uint32_t>(t) + (1u << TEXTURE2_ROTATION_SHIFT)));
 }
 
+[[nodiscard]]
 static constexpr texture_index get_texture_index(const texture1_value t)
 {
 	return static_cast<texture_index>(t);
 }
 
+[[nodiscard]]
 static constexpr texture_index get_texture_index(const texture2_value t)
 {
 	return static_cast<texture_index>(static_cast<uint16_t>(t) & TEXTURE2_ROTATION_INDEX_MASK);
 }
 
+[[nodiscard]]
 static constexpr texture2_rotation_high get_texture_rotation_high(const texture2_value t)
 {
 	return static_cast<texture2_rotation_high>(static_cast<uint16_t>(t) & ~TEXTURE2_ROTATION_INDEX_MASK);
 }
 
+[[nodiscard]]
 static constexpr texture2_rotation_low get_texture_rotation_low(const texture2_rotation_high t)
 {
 	return static_cast<texture2_rotation_low>(static_cast<uint16_t>(t) >> TEXTURE2_ROTATION_SHIFT);
 }
 
+[[nodiscard]]
 static constexpr texture2_rotation_low get_texture_rotation_low(const texture2_value t)
 {
 	return get_texture_rotation_low(get_texture_rotation_high(t));
 }
 
+[[nodiscard]]
 static constexpr texture1_value build_texture1_value(const texture_index t)
 {
 	return static_cast<texture1_value>(t);
 }
 
+[[nodiscard]]
 static constexpr texture2_value build_texture2_value(const texture_index t, const texture2_rotation_high rotation)
 {
 	return static_cast<texture2_value>(static_cast<uint16_t>(t) | static_cast<uint16_t>(rotation));
@@ -558,6 +566,7 @@ class visited_segment_mask_t
 	struct maskproxy_shift_count_type
 	{
 		const unsigned shift;
+		[[nodiscard]]
 		typename array_t::value_type mask() const
 		{
 			return bitmask_low_aligned << shift;
@@ -576,6 +585,7 @@ class visited_segment_mask_t
 			maskproxy_shift_count_type{s}, byte{byte}
 		{
 		}
+		[[nodiscard]]
 		constexpr operator uint8_t() const
 		{
 			return (byte >> shift) & bitmask_low_aligned;
@@ -623,10 +633,12 @@ class visited_segment_mask_t
 		return maskproxy_assignable_type{{segnum % divisor}, a.at({segnum / divisor})};
 	}
 public:
+	[[nodiscard]]
 	auto operator[](const segnum_t segnum)
 	{
 		return make_maskproxy(a, segnum);
 	}
+	[[nodiscard]]
 	auto operator[](const segnum_t segnum) const
 	{
 		return make_maskproxy(a, segnum);
