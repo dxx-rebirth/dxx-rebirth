@@ -486,8 +486,14 @@ int load_mine_data_compiled(const NamedPHYSFS_File LoadFile, const char *const G
 	// Although in a cloud of arrogant glee, he forgot to ifdef it on EDITOR!
 	// (Matt told me to write that!)
 #if DXX_USE_EDITOR
-	for (int i=0; i<MAX_TEXTURES; i++)
-		tmap_xlate_table[i] = i;
+	{
+		constexpr std::size_t e{tmap_xlate_table.size()};
+		for (std::size_t i{0}; i != e; ++i)
+			/* Storing size_t into texture_index is a narrowing conversion, but
+			 * the limited range of `i` ensures that the value is unchanged.
+			 */
+			tmap_xlate_table[i] = static_cast<texture_index>(i);
+	}
 #endif
 
 //	memset( Segments, 0, sizeof(segment)*MAX_SEGMENTS );

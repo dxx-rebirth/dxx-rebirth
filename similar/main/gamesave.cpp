@@ -602,10 +602,12 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 			if (tmo==-1)
 				obj->rtype.pobj_info.tmap_override	= -1;
 			else {
-				int xlated_tmo = tmap_xlate_table[tmo];
-				if (xlated_tmo < 0)	{
-					Int3();
-					xlated_tmo = 0;
+				auto xlated_tmo{tmap_xlate_table[tmo]};
+				if (xlated_tmo >= Textures.size())
+				{
+					[[unlikely]];
+					con_printf(CON_URGENT, "Invalid texture override on object: tmo=%i, xlated_tmo=%hu; setting xlated_tmo=0", tmo, underlying_value(xlated_tmo));
+					xlated_tmo = {};
 				}
 				obj->rtype.pobj_info.tmap_override	= xlated_tmo;
 			}

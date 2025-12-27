@@ -118,7 +118,7 @@ extern unsigned Num_cockpits;
 
 namespace dsx {
 #if DXX_USE_EDITOR
-using tmap_xlate_table_array = std::array<short, MAX_TEXTURES>;
+using tmap_xlate_table_array = std::array<texture_index, MAX_TEXTURES>;
 extern tmap_xlate_table_array tmap_xlate_table;
 #endif
 

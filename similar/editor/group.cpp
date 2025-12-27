@@ -1127,7 +1127,6 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 }
 
 static std::array<d_fname, MAX_TEXTURES> old_tmap_list;
-// static short tmap_xlate_table[MAX_TEXTURES]; // ZICO - FIXME
 
 // -----------------------------------------------------------------------------
 // Load group will:
@@ -1346,9 +1345,8 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 		temptr = strchr(&old_tmap_list[j][0u], '.');
 		if (temptr) *temptr = '\0';
 
-		tmap_xlate_table[j] = hashtable_search( &ht, static_cast<const char *>(old_tmap_list[j]));
-		if (tmap_xlate_table[j]	< 0 )
-			tmap_xlate_table[j] = 0;
+		const auto s{hashtable_search( &ht, static_cast<const char *>(old_tmap_list[j]))};
+		tmap_xlate_table[j] = (s < 0 || s >= tmap_xlate_table.size()) ? 0 : s;
 		if (tmap_xlate_table[j] != j ) translate = 1;
 	}
 }
