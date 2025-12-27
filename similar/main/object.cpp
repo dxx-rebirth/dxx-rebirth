@@ -471,11 +471,11 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 #endif
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	if (obj->rtype.pobj_info.tmap_override != texture_index{UINT16_MAX}) {
+	if (const auto tmap_override{obj->rtype.pobj_info.tmap_override}; tmap_override < Textures.size()) {
 		std::array<bitmap_index, 12> bm_ptrs;
 
 		//fill whole array, in case simple model needs more
-		bm_ptrs.fill(Textures[obj->rtype.pobj_info.tmap_override]);
+		bm_ptrs.fill(Textures[tmap_override]);
 		draw_polygon_model(Polygon_models, canvas, draw_tmap, obj->pos,
 				   obj->orient,
 				   obj->rtype.pobj_info.anim_angles,

@@ -460,12 +460,24 @@ void ogl_cache_level_textures(void)
 					//				tmap1=0;
 					continue;
 				}
-				const auto texture1 = Textures[tmap1idx];
+				if (tmap1idx >= Textures.size()) [[unlikely]]
+					/* This should be impossible, since
+					 * `NumTextures <= Textures.size()` should always be true.
+					 */
+					continue;
+				const auto texture1{Textures[tmap1idx]};
+				if (!GameBitmaps.valid_index(texture1)) [[unlikely]]
+					continue;
 				PIGGY_PAGE_IN(texture1);
 				grs_bitmap *bm = &GameBitmaps[texture1];
 				if (tmap2 != texture2_value::None)
 				{
-					const auto texture2 = Textures[get_texture_index(tmap2)];
+					const auto tmap2idx{get_texture_index(tmap2)};
+					if (tmap2idx >= Textures.size()) [[unlikely]]
+						continue;
+					const auto texture2{Textures[tmap2idx]};
+					if (!GameBitmaps.valid_index(texture2))
+						continue;
 					PIGGY_PAGE_IN(texture2);
 					auto &bm2 = GameBitmaps[texture2];
 					if (CGameArg.DbgUseOldTextureMerge || bm2.get_flag_mask(BM_FLAG_SUPER_TRANSPARENT))
@@ -532,13 +544,15 @@ void ogl_cache_level_textures(void)
 					ogl_cache_vclipn_textures(Vclip, ri.exp2_vclip_num);
 					ogl_cache_weapon_textures(Vclip, Weapon_info, ri.weapon_type);
 				}
-				if (const auto tmap_override{objp->rtype.pobj_info.tmap_override}; tmap_override != texture_index{UINT16_MAX})
+				if (const auto tmap_override{objp->rtype.pobj_info.tmap_override}; tmap_override < Textures.size())
 				{
 					const auto t{Textures[tmap_override]};
+					if (!GameBitmaps.valid_index(t)) [[unlikely]]
+						continue;
 					PIGGY_PAGE_IN(t);
 					ogl_loadbmtexture(GameBitmaps[t], 1);
 				}
-				else
+				else if (tmap_override == texture_index{UINT16_MAX}) [[likely]]
 					ogl_cache_polymodel_textures(objp->rtype.pobj_info.model_num);
 			}
 		}

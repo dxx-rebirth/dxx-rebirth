@@ -356,7 +356,10 @@ static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hit
 	if (get_player_id(playerobj) != Player_num) // Execute only for local player
 		return;
 
-	auto &tmi1 = TmapInfo[get_texture_index(hitseg->unique_segment::sides[hitwall].tmap_num)];
+	const auto texture1_index{get_texture_index(hitseg->unique_segment::sides[hitwall].tmap_num)};
+	if (texture1_index >= TmapInfo.size()) [[unlikely]]
+		return;
+	auto &tmi1{TmapInfo[texture1_index]};
 
 	//	If this wall does damage, don't make *BONK* sound, we'll be making another sound.
 	if (tmi1.damage > 0)
@@ -404,8 +407,14 @@ static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hit
 			if (tmi1.flags & tmi_no_damage)
 				return 0;
 			const auto tmap_num2{hitseg->unique_segment::sides[hitwall].tmap_num2};
-			if (tmap_num2 != texture2_value::None && (TmapInfo[get_texture_index(tmap_num2)].flags & tmi_no_damage))
-				return 0;
+			if (tmap_num2 != texture2_value::None)
+			{
+				const auto texture2_index{get_texture_index(tmap_num2)};
+				if (texture2_index >= TmapInfo.size()) [[unlikely]]
+					return 0;
+				if (TmapInfo[texture2_index].flags & tmi_no_damage)
+					return 0;
+			}
 	// Note: Does quad damage if hit a force field - JL
 			return (hitspeed / WALL_DAMAGE_SCALE) * (ForceFieldHit*8 + 1);
 		}()
@@ -457,7 +466,10 @@ volatile_wall_result check_volatile_wall(const vmobjptridx_t obj, const unique_s
 	Assert(obj->type==OBJ_PLAYER);
 
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
-	const auto &tmi1 = TmapInfo[get_texture_index(side.tmap_num)];
+	const auto texture1_index{get_texture_index(side.tmap_num)};
+	if (texture1_index >= TmapInfo.size()) [[unlikely]]
+		return volatile_wall_result::none;
+	const auto &tmi1{TmapInfo[texture1_index]};
 	const fix d = tmi1.damage;
 	if (d > 0
 #if DXX_BUILD_DESCENT == 2
@@ -590,6 +602,8 @@ int check_effect_blowup(const d_level_shared_destructible_light_state &LevelShar
 	if (const auto tmap2 = seg->unique_segment::sides[side].tmap_num2; tmap2 != texture2_value::None)
 	{
 		const auto tm = get_texture_index(tmap2);			//tm without flags
+		if (tm >= TmapInfo.size()) [[unlikely]]
+			return 0;
 		auto &tmi2 = TmapInfo[tm];
 		const auto ec = tmi2.eclip_num;
 		texture_index db{};
@@ -777,7 +791,10 @@ static window_event_result collide_weapon_and_wall(
 	}
 
 	auto &uhitside = hitseg->unique_segment::sides[hitwall];
-	auto &tmi1 = TmapInfo[get_texture_index(uhitside.tmap_num)];
+	const auto texture1_index{get_texture_index(uhitside.tmap_num)};
+	if (texture1_index >= TmapInfo.size()) [[unlikely]]
+		return window_event_result::ignored;
+	auto &tmi1{TmapInfo[texture1_index]};
 	//if an energy weapon hits a forcefield, let it bounce
 	if ((tmi1.flags & tmapinfo_flag::force_field) &&
 		 !(weapon->type == OBJ_WEAPON && Weapon_info[get_weapon_id(weapon)].energy_usage==0)) {

@@ -826,7 +826,10 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 	const auto get_eclip_for_tmap = [](const d_level_unique_tmap_info_state::TmapInfo_array &TmapInfo, const unique_side &side) {
 		if (const auto tm2 = side.tmap_num2; tm2 != texture2_value::None)
 		{
-			const auto ec = TmapInfo[get_texture_index(tm2)].eclip_num;
+			const auto texture2_index{get_texture_index(tm2)};
+			if (texture2_index >= TmapInfo.size()) [[unlikely]]
+				return eclip_none;
+			const auto ec{TmapInfo[texture2_index].eclip_num};
 #if DXX_BUILD_DESCENT == 2
 			if (ec != eclip_none)
 #endif
@@ -835,7 +838,10 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 #if DXX_BUILD_DESCENT == 1
 		return eclip_none;
 #elif DXX_BUILD_DESCENT == 2
-		return TmapInfo[get_texture_index(side.tmap_num)].eclip_num;
+		const auto texture1_index{get_texture_index(side.tmap_num)};
+		if (texture1_index >= TmapInfo.size()) [[unlikely]]
+			return eclip_none;
+		return TmapInfo[texture1_index].eclip_num;
 #endif
 	};
 

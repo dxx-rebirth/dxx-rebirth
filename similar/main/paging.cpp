@@ -237,8 +237,11 @@ static void paging_touch_object(const d_robot_info_array &Robot_info, const Text
 		case render_type::RT_NONE:	break;		//doesn't render, like the player
 
 		case render_type::RT_POLYOBJ:
-			if (obj.rtype.pobj_info.tmap_override != texture_index{UINT16_MAX})
-				PIGGY_PAGE_IN(Textures[obj.rtype.pobj_info.tmap_override]);
+			if (const auto tmap_override{obj.rtype.pobj_info.tmap_override}; tmap_override != texture_index{UINT16_MAX})
+			{
+				if (tmap_override < Textures.size()) [[likely]]
+					PIGGY_PAGE_IN(Textures[tmap_override]);
+			}
 			else
 				paging_touch_model(obj.rtype.pobj_info.model_num);
 			break;
@@ -290,7 +293,8 @@ static void paging_touch_side(const d_eclip_array &Effects, const Textures_array
 	{
 		paging_touch_wall_effects(Effects, Textures, Vclip, get_texture_index(tmap2));
 	} else	{
-		PIGGY_PAGE_IN(Textures[get_texture_index(tmap1)]);
+		if (const auto ti{get_texture_index(tmap1)}; ti < Textures.size()) [[likely]]
+			PIGGY_PAGE_IN(Textures[ti]);
 	}
 }
 
@@ -347,7 +351,11 @@ static void paging_touch_walls(const Textures_array &Textures, const wall_animat
 		{
 			const auto &anim = WallAnims[w.clip_num];
 			range_for (auto &j, partial_range(anim.frames, anim.num_frames))
+			{
+				if (j >= Textures.size()) [[unlikely]]
+					continue;
 				PIGGY_PAGE_IN(Textures[j]);
+			}
 		}
 	}
 }

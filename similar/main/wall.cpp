@@ -129,9 +129,9 @@ struct find_cloaked_wall_predicate
 
 namespace {
 
-static std::pair<uint_fast32_t, uint_fast32_t> get_transparency_check_values(const unique_side &side)
+static std::pair<texture_index, uint_fast32_t> get_transparency_check_values(const unique_side &side)
 {
-	if (const auto masked_tmap_num2 = static_cast<uint_fast32_t>(get_texture_index(side.tmap_num2)))
+	if (const auto masked_tmap_num2{get_texture_index(side.tmap_num2)}; masked_tmap_num2 != texture_index{})
 		return {masked_tmap_num2, BM_FLAG_SUPER_TRANSPARENT};
 	return {get_texture_index(side.tmap_num), BM_FLAG_TRANSPARENT};
 }
@@ -141,8 +141,10 @@ static std::pair<uint_fast32_t, uint_fast32_t> get_transparency_check_values(con
 //		0 = NO
 static uint_fast32_t check_transparency(const GameBitmaps_array &GameBitmaps, const Textures_array &Textures, const unique_side &side)
 {
-	const auto &&v = get_transparency_check_values(side);
-	return GameBitmaps[Textures[v.first]].get_flag_mask(v.second);
+	const auto &&[texture_index, flag_mask]{get_transparency_check_values(side)};
+	if (texture_index >= Textures.size()) [[unlikely]]
+		return 0;
+	return GameBitmaps[Textures[texture_index]].get_flag_mask(flag_mask);
 }
 
 }
@@ -1575,8 +1577,10 @@ public:
 
 unsigned blast_nearby_glass_context::can_blast(const texture2_value tmap_num2) const
 {
-	const auto tm = get_texture_index(tmap_num2);			//tm without flags
-	auto &ti = TmapInfo[tm];
+	const auto texture2_index{get_texture_index(tmap_num2)};
+	if (texture2_index >= TmapInfo.size()) [[unlikely]]
+		return 0;
+	auto &ti{TmapInfo[texture2_index]};
 	const auto ec = ti.eclip_num;
 	if (ec == eclip_none)
 	{

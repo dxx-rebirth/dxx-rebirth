@@ -1587,7 +1587,13 @@ static void change_segment_light(const vmsegptridx_t segp, const sidenum_t siden
 	if (WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, segp, sidenum) & WALL_IS_DOORWAY_FLAG::render)
 	{
 		auto &sidep = segp->unique_segment::sides[sidenum];
-		const auto light_intensity = TmapInfo[get_texture_index(sidep.tmap_num)].lighting + TmapInfo[get_texture_index(sidep.tmap_num2)].lighting;
+		const auto texture1_index{get_texture_index(sidep.tmap_num)};
+		if (texture1_index >= TmapInfo.size()) [[unlikely]]
+			return;
+		const auto texture2_index{get_texture_index(sidep.tmap_num2)};
+		if (texture2_index >= TmapInfo.size()) [[unlikely]]
+			return;
+		const auto light_intensity{TmapInfo[texture1_index].lighting + TmapInfo[texture2_index].lighting};
 		if (light_intensity) {
 			auto &vcvertptr = Vertices.vcptr;
 			const auto segment_center{compute_segment_center(vcvertptr, segp)};
