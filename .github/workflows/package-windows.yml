@@ -40,7 +40,10 @@ jobs:
 
       - name: Configure and Build
         working-directory: src
-        run: scons -j`nproc` CHOST=x86_64-w64-mingw32
+        run: >-
+          scons -j`nproc`
+          CHOST=x86_64-w64-mingw32
+          RC=windres
 
       - name: Upload SConf log
         if: ${{ !cancelled() }}
