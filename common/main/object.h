@@ -352,8 +352,8 @@ namespace dcx {
 struct vclip_info : prohibit_void_ptr<vclip_info>
 {
 	vclip_index vclip_num;
-	fix     frametime;
 	uint8_t framenum;
+	fix     frametime;
 };
 
 struct vclip_info_rw
