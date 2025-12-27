@@ -352,7 +352,6 @@ static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hit
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
-	fix damage;
 
 	if (get_player_id(playerobj) != Player_num) // Execute only for local player
 		return;
@@ -392,19 +391,26 @@ static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hit
 
 	//	** Damage from hitting wall **
 	//	If the player has less than 10% shields, don't take damage from bump
+	const fix damage{
 #if DXX_BUILD_DESCENT == 1
-	damage = hitspeed / WALL_DAMAGE_SCALE;
+		hitspeed / WALL_DAMAGE_SCALE
 #elif DXX_BUILD_DESCENT == 2
+		[&]() -> fix {
+			/* If the wall is lava or is water, then there is no damage from
+			 * the impact.  Lava walls will deal damage separately.  Water
+			 * walls will not deal damage, and so are a free hit.
+			 */
+			constexpr auto tmi_no_damage{(tmapinfo_flag::water | tmapinfo_flag::lava)};
+			if (tmi1.flags & tmi_no_damage)
+				return 0;
+			const auto tmap_num2{hitseg->unique_segment::sides[hitwall].tmap_num2};
+			if (tmap_num2 != texture2_value::None && (TmapInfo[get_texture_index(tmap_num2)].flags & tmi_no_damage))
+				return 0;
 	// Note: Does quad damage if hit a force field - JL
-	damage = (hitspeed / WALL_DAMAGE_SCALE) * (ForceFieldHit*8 + 1);
-
-	const auto tmap_num2 = hitseg->unique_segment::sides[hitwall].tmap_num2;
-
-	//don't do wall damage and sound if hit lava or water
-	constexpr auto tmi_no_damage = (tmapinfo_flag::water | tmapinfo_flag::lava);
-	if ((tmi1.flags & tmi_no_damage) || (tmap_num2 != texture2_value::None && (TmapInfo[get_texture_index(tmap_num2)].flags & tmi_no_damage)))
-		damage = 0;
+			return (hitspeed / WALL_DAMAGE_SCALE) * (ForceFieldHit*8 + 1);
+		}()
 #endif
+	};
 
 	if (damage >= WALL_DAMAGE_THRESHOLD) {
 		int	volume;
