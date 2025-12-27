@@ -833,7 +833,7 @@ static void set_sound_sources(fvcsegptridx &vcsegptridx, fvcvertptr &vcvertptr)
 				return ec;
 		}
 #if DXX_BUILD_DESCENT == 1
-		return eclip_none.value;
+		return eclip_none;
 #elif DXX_BUILD_DESCENT == 2
 		return TmapInfo[get_texture_index(side.tmap_num)].eclip_num;
 #endif

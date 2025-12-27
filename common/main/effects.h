@@ -35,10 +35,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dsx {
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 60> MAX_EFFECTS{};
-constexpr std::integral_constant<uint32_t, UINT32_MAX> eclip_none{};
+constexpr uint32_t eclip_none{UINT32_MAX};
 #elif DXX_BUILD_DESCENT == 2
 constexpr std::integral_constant<unsigned, 110> MAX_EFFECTS{};
-constexpr std::integral_constant<uint16_t, UINT16_MAX> eclip_none{};
+constexpr uint16_t eclip_none{UINT16_MAX};
 #endif
 }
 
