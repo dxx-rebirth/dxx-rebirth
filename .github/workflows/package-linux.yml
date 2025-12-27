@@ -5,8 +5,8 @@ on:
 
 jobs:
   package:
-    name: GCC 12
-    runs-on: ubuntu-22.04
+    name: GCC 14
+    runs-on: ubuntu-24.04
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4
@@ -16,7 +16,7 @@ jobs:
           sudo apt-get update
 
           sudo apt install -y
-          gcc-12 g++-12
+          gcc-14 g++-14
           python3
           scons
           libsdl1.2-dev
@@ -31,9 +31,9 @@ jobs:
           printf 'uname_m=%s\n' "$(uname -m)" >> "$GITHUB_OUTPUT"
 
       - name: Configure and Build
-        run: scons -j`nproc`
-        env:
-          CXX: g++-12
+        run: >
+          scons -j`nproc`
+          CXX=g++-14
 
       - name: Upload SConf log
         if: ${{ !cancelled() }}
