@@ -32,8 +32,12 @@ jobs:
 
       - name: Configure and Build
         run: >
-          scons -j`nproc`
+          nproc="$(nproc)"
+
+          scons
+          "-j$nproc"
           CXX=g++-14
+          "CXXFLAGS=-flto=$(( $nproc + 1 / 2 ))"
 
       - name: Upload SConf log
         if: ${{ !cancelled() }}
