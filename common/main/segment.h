@@ -188,9 +188,11 @@ static constexpr sidemask_t build_sidemask(const sidenum_t s)
 enum class sound_ambient_flags : uint8_t
 {
 	None = 0,
-	water = 1,
 	lava = 2,
+	/* if DXX_BUILD_DESCENT == 2 */
+	water = 1,
 	water_and_lava = water | lava,
+	/* endif */
 };
 
 enum texture_index : uint16_t
