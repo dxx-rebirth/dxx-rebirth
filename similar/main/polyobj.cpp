@@ -409,9 +409,9 @@ void free_model(polymodel &po)
 
 namespace dsx {
 
-void draw_polygon_model(const per_polygon_model_array<polymodel> &Polygon_models, grs_canvas &canvas, const tmap_drawer_type tmap_drawer_ptr, const vms_vector &pos, const vms_matrix &orient, const submodel_angles anim_angles, const polygon_model_index model_num, const unsigned flags, const g3s_lrgb light, const glow_values_t *const glow_values, const alternate_textures alt_textures)
+void draw_polygon_model(const per_polygon_model_array<polymodel> &Polygon_models, grs_canvas &canvas, const tmap_drawer_type tmap_drawer_ptr, const vms_vector &pos, const vms_matrix &orient, const submodel_angles anim_angles, const polygon_model_index model_num, const uint16_t subobj_flags, const g3s_lrgb light, const glow_values_t *const glow_values, const alternate_textures alt_textures)
 {
-	draw_polygon_model(canvas, tmap_drawer_ptr, pos, orient, anim_angles, Polygon_models[model_num], flags, light, glow_values, alt_textures);
+	draw_polygon_model(canvas, tmap_drawer_ptr, pos, orient, anim_angles, Polygon_models[model_num], subobj_flags, light, glow_values, alt_textures);
 }
 
 static polygon_model_index build_polygon_model_index_from_polygon_simpler_model_index(const polygon_simpler_model_index i)
@@ -419,14 +419,14 @@ static polygon_model_index build_polygon_model_index_from_polygon_simpler_model_
 	return static_cast<polygon_model_index>(underlying_value(i) - 1);
 }
 
-void draw_polygon_model(grs_canvas &canvas, const tmap_drawer_type tmap_drawer_ptr, const vms_vector &pos, const vms_matrix &orient, const submodel_angles anim_angles, const polymodel &pm, unsigned flags, const g3s_lrgb light, const glow_values_t *const glow_values, const alternate_textures alt_textures)
+void draw_polygon_model(grs_canvas &canvas, const tmap_drawer_type tmap_drawer_ptr, const vms_vector &pos, const vms_matrix &orient, const submodel_angles anim_angles, const polymodel &pm, const uint16_t subobj_flags, const g3s_lrgb light, const glow_values_t *const glow_values, const alternate_textures alt_textures)
 {
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	const polymodel *po = &pm;
 
 	//check if should use simple model
 	if (po->simpler_model != polygon_simpler_model_index::None)	//must have a simpler model
-		if (flags==0)							//can't switch if this is debris
+		if (subobj_flags == 0)							//can't switch if this is debris
 			//alt textures might not match, but in the one case we're using this
 			//for on 11/14/94, they do match.  So we leave it in.
 			{
@@ -467,10 +467,11 @@ void draw_polygon_model(grs_canvas &canvas, const tmap_drawer_type tmap_drawer_p
 
 	polygon_model_points robot_points;
 
-	if (flags == 0)		//draw entire object
+	if (subobj_flags == 0)		//draw entire object
 		g3_draw_polygon_model(texture_list.data(), robot_points, canvas, tmap_drawer_ptr, anim_angles, light, glow_values, po->model_data.get());
 
 	else {
+		auto flags{subobj_flags};
 		for (int i=0;flags;flags>>=1,i++)
 			if (flags & 1) {
 				Assert(i < po->n_models);

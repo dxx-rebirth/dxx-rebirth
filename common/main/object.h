@@ -369,7 +369,7 @@ struct polyobj_info : prohibit_void_ptr<polyobj_info>
 {
 	polygon_model_index model_num{};// which polygon model
 	std::array<vms_angvec, MAX_SUBMODELS> anim_angles{}; // angles for each subobject
-	int subobj_flags{0};       // specify which subobjs to draw
+	uint16_t subobj_flags{0};       // specify which subobjs to draw
 	int tmap_override{0};      // if this is not -1, map all face to this
 	int alt_textures{0};       // if not -1, use these textures instead
 };

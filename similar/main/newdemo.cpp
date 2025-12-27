@@ -794,7 +794,8 @@ static void nd_read_object(const vmobjptridx_t obj)
 			int i;
 			nd_read_int(&i);
 			obj->rtype.pobj_info.model_num = static_cast<polygon_model_index>(i);
-			nd_read_int(&(obj->rtype.pobj_info.subobj_flags));
+			nd_read_int(&i);
+			obj->rtype.pobj_info.subobj_flags = i;
 		}
 
 		if ((obj->type != OBJ_PLAYER) && (obj->type != OBJ_DEBRIS))
