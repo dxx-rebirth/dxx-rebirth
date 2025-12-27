@@ -584,34 +584,39 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 
 			obj->rtype.pobj_info.subobj_flags	= PHYSFSX_readInt(f);
 
-			const auto tmo{PHYSFSX_readInt(f)};
-
-#if !DXX_USE_EDITOR
-#if DXX_BUILD_DESCENT == 1
-			/* This static_cast can only change the value of an invalid
-			 * texture.  Invalid textures get remapped to a valid one by
-			 * `convert_tmap`, so the cast will at worst cause a different
-			 * valid texture to be chosen than would have been chosen if
-			 * `convert_tmap` were passed the full `int`.
-			 */
-			obj->rtype.pobj_info.tmap_override	= convert_tmap(static_cast<texture_index>(tmo));
-#elif DXX_BUILD_DESCENT == 2
-			obj->rtype.pobj_info.tmap_override = static_cast<texture_index>(tmo);
-#endif
-			#else
-			if (tmo==-1)
-				obj->rtype.pobj_info.tmap_override = texture_index{UINT16_MAX};
-			else {
-				auto xlated_tmo{tmap_xlate_table[tmo]};
-				if (xlated_tmo >= Textures.size())
+			obj->rtype.pobj_info.tmap_override = [raw_tmap_override = PHYSFSX_readInt(f)]() -> texture_index {
+				if (raw_tmap_override == -1) [[likely]]
+					/* Most objects do not use a texture override. */
+					return texture_index{UINT16_MAX};
+				const std::size_t unsigned_tmap_override = raw_tmap_override;
+#if DXX_USE_EDITOR
+				if (unsigned_tmap_override >= tmap_xlate_table.size()) [[unlikely]]
 				{
-					[[unlikely]];
-					con_printf(CON_URGENT, "Invalid texture override on object: tmo=%i, xlated_tmo=%hu; setting xlated_tmo=0", tmo, underlying_value(xlated_tmo));
-					xlated_tmo = {};
+					/* Most overrides are a valid index.  Only ill-formed
+					 * inputs should reach this block.
+					 */
+					con_printf(CON_URGENT, "Invalid texture override on object: tmo=%i; setting xlated_tmo=None", raw_tmap_override);
+					return texture_index{UINT16_MAX};
 				}
-				obj->rtype.pobj_info.tmap_override	= xlated_tmo;
-			}
-			#endif
+				const auto xlated_tmo{tmap_xlate_table[unsigned_tmap_override]};
+				if (xlated_tmo < Textures.size()) [[unlikely]]
+				{
+					con_printf(CON_URGENT, "Invalid texture override on object: tmo=%i, xlated_tmo=%hu; setting xlated_tmo=None", raw_tmap_override, underlying_value(xlated_tmo));
+					return texture_index{UINT16_MAX};
+				}
+				return xlated_tmo;
+#else
+				if (unsigned_tmap_override >= Textures.size()) [[unlikely]]
+				{
+					/* Most overrides are a valid index.  Only ill-formed
+					 * inputs should reach this block.
+					 */
+					con_printf(CON_URGENT, "Invalid texture override on object: tmo=%i; ignoring", raw_tmap_override);
+					return texture_index{UINT16_MAX};
+				}
+				return static_cast<texture_index>(unsigned_tmap_override);
+#endif
+			}();
 
 			obj->rtype.pobj_info.alt_textures	= 0;
 
