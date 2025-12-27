@@ -6387,7 +6387,10 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 				obj.rtype.pobj_info.anim_angles[i] = build_native_endian_angvec_from_little_endian(obj_rw->rtype.pobj_info.anim_angles[i]);
 			}
 			obj.rtype.pobj_info.subobj_flags             = INTEL_INT(obj_rw->rtype.pobj_info.subobj_flags);
-			obj.rtype.pobj_info.tmap_override            = INTEL_INT(obj_rw->rtype.pobj_info.tmap_override);
+			{
+				const auto t{INTEL_INT(obj_rw->rtype.pobj_info.tmap_override)};
+				obj.rtype.pobj_info.tmap_override = t < Textures.size() ? static_cast<texture_index>(t) : texture_index{UINT16_MAX};
+			}
 			obj.rtype.pobj_info.alt_textures             = INTEL_INT(obj_rw->rtype.pobj_info.alt_textures);
 			break;
 		}

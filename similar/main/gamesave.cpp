@@ -596,11 +596,11 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 			 */
 			obj->rtype.pobj_info.tmap_override	= convert_tmap(static_cast<texture_index>(tmo));
 #elif DXX_BUILD_DESCENT == 2
-			obj->rtype.pobj_info.tmap_override	= tmo;
+			obj->rtype.pobj_info.tmap_override = static_cast<texture_index>(tmo);
 #endif
 			#else
 			if (tmo==-1)
-				obj->rtype.pobj_info.tmap_override	= -1;
+				obj->rtype.pobj_info.tmap_override = texture_index{UINT16_MAX};
 			else {
 				auto xlated_tmo{tmap_xlate_table[tmo]};
 				if (xlated_tmo >= Textures.size())

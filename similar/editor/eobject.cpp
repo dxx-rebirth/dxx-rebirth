@@ -326,7 +326,7 @@ int ObjectPlaceObject(void)
 	const auto rval = place_object(LevelUniqueObjectState, LevelSharedPolygonModelState, LevelSharedRobotInfoState.Robot_info, LevelSharedSegmentState, LevelUniqueSegmentState, Cursegp, cur_object_loc, Cur_object_type, Cur_object_id);
 
 	if (old_cur_object_index != Cur_object_index)
-		vmobjptr(Cur_object_index)->rtype.pobj_info.tmap_override = -1;
+		vmobjptr(Cur_object_index)->rtype.pobj_info.tmap_override = texture_index{UINT16_MAX};
 
 	return rval;
 

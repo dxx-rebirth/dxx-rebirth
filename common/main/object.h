@@ -370,7 +370,12 @@ struct polyobj_info : prohibit_void_ptr<polyobj_info>
 	polygon_model_index model_num{};// which polygon model
 	std::array<vms_angvec, MAX_SUBMODELS> anim_angles{}; // angles for each subobject
 	uint16_t subobj_flags{0};       // specify which subobjs to draw
-	int tmap_override{0};      // if this is not -1, map all face to this
+	/* If this is not texture_index{UINT16_MAX}, then use this texture on all faces.
+	 * Initialize to 0 instead, so that global scope instances can be in bss.
+	 * The object loading and generation code will assign an appropriate value,
+	 * so the 0 here should have no effect on properly loaded objects.
+	 */
+	texture_index tmap_override{0};
 	int alt_textures{0};       // if not -1, use these textures instead
 };
 

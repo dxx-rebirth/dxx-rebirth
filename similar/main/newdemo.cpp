@@ -809,10 +809,10 @@ static void nd_read_object(const vmobjptridx_t obj)
 		nd_read_int(&tmo);
 
 #if !DXX_USE_EDITOR
-		obj->rtype.pobj_info.tmap_override = tmo;
+		obj->rtype.pobj_info.tmap_override = static_cast<texture_index>(tmo);
 #else
 		if (tmo==-1)
-			obj->rtype.pobj_info.tmap_override = -1;
+			obj->rtype.pobj_info.tmap_override = texture_index{UINT16_MAX};
 		else {
 			auto xlated_tmo{tmap_xlate_table[tmo]};
 			if (xlated_tmo >= Textures.size())

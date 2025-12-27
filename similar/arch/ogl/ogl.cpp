@@ -532,9 +532,9 @@ void ogl_cache_level_textures(void)
 					ogl_cache_vclipn_textures(Vclip, ri.exp2_vclip_num);
 					ogl_cache_weapon_textures(Vclip, Weapon_info, ri.weapon_type);
 				}
-				if (objp->rtype.pobj_info.tmap_override != -1)
+				if (const auto tmap_override{objp->rtype.pobj_info.tmap_override}; tmap_override != texture_index{UINT16_MAX})
 				{
-					const auto t = Textures[objp->rtype.pobj_info.tmap_override];
+					const auto t{Textures[tmap_override]};
 					PIGGY_PAGE_IN(t);
 					ogl_loadbmtexture(GameBitmaps[t], 1);
 				}

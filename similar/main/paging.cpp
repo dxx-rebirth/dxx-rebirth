@@ -237,7 +237,7 @@ static void paging_touch_object(const d_robot_info_array &Robot_info, const Text
 		case render_type::RT_NONE:	break;		//doesn't render, like the player
 
 		case render_type::RT_POLYOBJ:
-			if (obj.rtype.pobj_info.tmap_override != -1)
+			if (obj.rtype.pobj_info.tmap_override != texture_index{UINT16_MAX})
 				PIGGY_PAGE_IN(Textures[obj.rtype.pobj_info.tmap_override]);
 			else
 				paging_touch_model(obj.rtype.pobj_info.model_num);

@@ -471,7 +471,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 #endif
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
-	if (obj->rtype.pobj_info.tmap_override != -1) {
+	if (obj->rtype.pobj_info.tmap_override != texture_index{UINT16_MAX}) {
 		std::array<bitmap_index, 12> bm_ptrs;
 
 		//fill whole array, in case simple model needs more
@@ -907,7 +907,7 @@ void reset_player_object(object_base &ConsoleObject)
 	ConsoleObject.render_type = render_type::RT_POLYOBJ;
 	ConsoleObject.rtype.pobj_info.model_num = Player_ship->model_num;		//what model is this?
 	ConsoleObject.rtype.pobj_info.subobj_flags = 0;		//zero the flags
-	ConsoleObject.rtype.pobj_info.tmap_override = -1;		//no tmap override!
+	ConsoleObject.rtype.pobj_info.tmap_override = texture_index{UINT16_MAX};		//no tmap override!
 	ConsoleObject.rtype.pobj_info.anim_angles = {};
 
 	// Clear misc
@@ -1256,7 +1256,7 @@ imobjptridx_t obj_create(d_level_unique_object_state &LevelUniqueObjectState, co
 	if (obj->render_type == render_type::RT_POLYOBJ)
         {
                 obj->rtype.pobj_info.subobj_flags = 0;
-		obj->rtype.pobj_info.tmap_override = -1;
+		obj->rtype.pobj_info.tmap_override = texture_index{UINT16_MAX};
                 obj->rtype.pobj_info.alt_textures = 0;
         }
 
