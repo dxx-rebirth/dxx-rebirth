@@ -40,11 +40,13 @@ void texmerge_flush();
 
 }
 
+#ifdef DXX_BUILD_DESCENT
 namespace dsx {
 
 [[nodiscard]]
 grs_bitmap &texmerge_get_cached_bitmap(GameBitmaps_array &GameBitmaps, const Textures_array &Textures, texture1_value tmap_bottom, texture2_value tmap_top);
 
 }
+#endif
 
 #endif /* _TEXMERGE_H */
