@@ -50,7 +50,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: "SConf-Windows-${{ steps.architecture.outputs.uname_m }}"
-          path: 'build/sconf.log'
+          path: 'src/build/sconf.log'
 
       - name: Package
         working-directory: src
