@@ -593,8 +593,12 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 			 * `convert_tmap`, so the cast will at worst cause a different
 			 * valid texture to be chosen than would have been chosen if
 			 * `convert_tmap` were passed the full `int`.
+			 * A `tmap_override` of -1 specifies no-override, but
+			 * `convert_map` returns UINT16_MAX for such cases.
 			 */
 			obj->rtype.pobj_info.tmap_override	= convert_tmap(static_cast<texture_index>(tmo));
+			if (obj->rtype.pobj_info.tmap_override == UINT16_MAX)
+				obj->rtype.pobj_info.tmap_override = -1;
 #elif DXX_BUILD_DESCENT == 2
 			obj->rtype.pobj_info.tmap_override	= tmo;
 #endif
