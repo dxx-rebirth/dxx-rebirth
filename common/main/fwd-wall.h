@@ -96,7 +96,7 @@ typedef unsigned wall_clip_flag_t;
 constexpr std::integral_constant<wall_clip_flag_t, 1> WCF_EXPLODES{};       //door explodes when opening
 constexpr std::integral_constant<wall_clip_flag_t, 2> WCF_BLASTABLE{};       //this is a blastable wall
 constexpr std::integral_constant<wall_clip_flag_t, 4> WCF_TMAP1{};       //this uses primary tmap, not tmap2
-constexpr std::integral_constant<wall_clip_flag_t, 8> WCF_HIDDEN{};       //this uses primary tmap, not tmap2
+constexpr std::integral_constant<wall_clip_flag_t, 8> WCF_HIDDEN{};      // This door is hidden from the buddy and is not drawn as a door on the map.
 }
 
 namespace dsx {
