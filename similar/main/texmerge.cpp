@@ -303,4 +303,20 @@ grs_bitmap &texmerge_get_cached_bitmap(GameBitmaps_array &GameBitmaps, const Tex
 	return mb;
 }
 
+tmapinfo_flags get_side_combined_tmapinfo_flags(const d_level_unique_tmap_info_state::TmapInfo_array &TmapInfo, const unique_side &uside)
+{
+	const auto texture1_index{get_texture_index(uside.tmap_num)};
+	const auto tmap1_flags{TmapInfo[texture1_index].flags};
+	if (const auto tmap_num2{uside.tmap_num2}; tmap_num2 != texture2_value::None)
+	{
+		const auto texture2_index{get_texture_index(tmap_num2)};
+		/* No other call site needs to combine two sets of tmapinfo_flags, so there
+		 * is no overloaded operator to handle this.  Use the casts to allow it
+		 * here.
+		 */
+		return static_cast<tmapinfo_flags>(underlying_value(tmap1_flags) | underlying_value(TmapInfo[texture2_index].flags));
+	}
+	return tmap1_flags;
+}
+
 }

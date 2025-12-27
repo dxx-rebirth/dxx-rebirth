@@ -846,13 +846,8 @@ static window_event_result collide_weapon_and_wall(
 	const auto wall_type = wall_hit_process(player_info.powerup_flags, hitseg, hitwall, weapon->shields, playernum, weapon);
 
 	const auto Difficulty_level = GameUniqueState.Difficulty_level;
-#if DXX_BUILD_DESCENT == 1
-	auto &tmi1 = TmapInfo[get_texture_index(uhitside.tmap_num)];
-#endif
 	// Wall is volatile if either tmap 1 or 2 is volatile
-	if ((tmi1.flags & tmapinfo_flag::lava) ||
-		(uhitside.tmap_num2 != texture2_value::None && (TmapInfo[get_texture_index(uhitside.tmap_num2)].flags & tmapinfo_flag::lava))
-		)
+	if (const auto texture_flags{get_side_combined_tmapinfo_flags(TmapInfo, uhitside)}; texture_flags & tmapinfo_flag::lava)
 	{
 		weapon_info *wi = &Weapon_info[get_weapon_id(weapon)];
 
@@ -877,12 +872,9 @@ static window_event_result collide_weapon_and_wall(
 		}
 
 		weapon->flags |= OF_SHOULD_BE_DEAD;		//make flares die in lava
-
 	}
 #if DXX_BUILD_DESCENT == 2
-	else if ((tmi1.flags & tmapinfo_flag::water) ||
-			(uhitside.tmap_num2 != texture2_value::None && (TmapInfo[get_texture_index(uhitside.tmap_num2)].flags & tmapinfo_flag::water))
-			)
+	else if (texture_flags & tmapinfo_flag::water)
 	{
 		weapon_info *wi = &Weapon_info[get_weapon_id(weapon)];
 

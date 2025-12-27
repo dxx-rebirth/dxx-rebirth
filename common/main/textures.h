@@ -34,5 +34,8 @@ extern unsigned NumTextures;
 namespace dsx {
 using Textures_array = std::array<bitmap_index, MAX_TEXTURES>;
 extern Textures_array Textures; // Array of all texture tmaps.
+
+[[nodiscard]]
+tmapinfo_flags get_side_combined_tmapinfo_flags(const d_level_unique_tmap_info_state::TmapInfo_array &TmapInfo, const unique_side &uside);
 }
 #endif
