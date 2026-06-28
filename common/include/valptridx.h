@@ -60,13 +60,32 @@ protected:
 		DXX_VALPTRIDX_FOR_EACH_PPI_TYPE(DXX_VALPTRIDX_DEFINE_MEMBER_FACTORIES, managed_type,,);
 #undef DXX_VALPTRIDX_DEFINE_MEMBER_FACTORIES
 	};
-#if __GNUC__ >= 13
-	constexpr array_base_count_type() = default;	// requires fix for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=98423 (>=gcc-13)
-#else
-	constexpr array_base_count_type() :
-		count{}
+#if defined(__clang__)
+	/* CWG2084 - https://cplusplus.github.io/CWG/issues/2084.html
+	 * Prior to the resolution of CWG2084, if a union contains any variant
+	 * member that cannot be default-constructed and the union does not have a
+	 * user-defined default constructor, then the union's default constructor
+	 * is implicitly deleted.  This is overly restrictive.  After resolution of
+	 * CWG2084, if a variant member has a non-static data member initializer,
+	 * then the compiler can generate a well-defined default constructor.
+	 * Defining a user-defined default constructor is legal both before and
+	 * after implementation of CWG2084.
+	 *
+	 * gcc-13 and later implement CWG2084, and can generate a correct default
+	 * constructor. <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=98423>
+	 *
+	 * clang-21 does not implement CWG2084, and rejects the `= default` syntax.
+	 * Other versions of clang were not tested.  Use the user-defined default
+	 * constructor for all versions of clang.  This can be revisited when all
+	 * supported versions of clang implement CWG2084.  clang tracks this in
+	 * issue 81774 <https://github.com/llvm/llvm-project/issues/81774> and in
+	 * pull request 82407 <https://github.com/llvm/llvm-project/pull/82407>.
+	 */
+	constexpr array_base_count_type()
 	{
 	}
+#else
+	constexpr array_base_count_type() = default;
 #endif
 public:
 	count_type get_count() const
