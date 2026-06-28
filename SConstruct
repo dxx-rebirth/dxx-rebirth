@@ -317,6 +317,8 @@ class ConfigureTests:
 		std: int = 17
 	class Cxx20RequiredFeature(CxxRequiredFeature):
 		std: int = 20
+	class Cxx23RequiredFeature(CxxRequiredFeature):
+		std: int = 23
 	class CxxRequiredFeatures:
 		__slots__ = ('features', 'main', 'text')
 		features: tuple['CxxRequiredFeature']
@@ -494,6 +496,49 @@ class ConfigureTests:
 	comment_not_supported = '/* not supported */'
 	__python_import_struct = None
 	__cxx_std_required_features = CxxRequiredFeatures((
+		Cxx23RequiredFeature('explicit object member function', '''
+struct %(N)s_base
+{
+	const signed int r;
+	template <typename Self>
+		constexpr auto f1(this Self &self, int a) -> decltype(self.r) { return self.r + a; }
+	constexpr auto f2(this auto &self, int b) -> decltype(self.r) { return self.r + b; }
+};
+
+struct %(N)s_derived : %(N)s_base
+{
+	const unsigned long r;
+};
+
+template <typename actual_type, typename expected_type>
+struct %(N)s_require_same_type;
+
+template <typename T>
+struct %(N)s_require_same_type<T, T> {};
+''',
+'''
+	constexpr %(N)s_base cb{1};
+	static_assert(cb.f1(1) == 2);
+	static_assert(cb.f2(2) == 3);
+	static_cast<void>(sizeof(%(N)s_require_same_type<decltype(cb.f1(1)), signed int>));
+	static_cast<void>(sizeof(%(N)s_require_same_type<decltype(cb.f2(2)), signed int>));
+	%(N)s_base mb{3};
+	static_cast<void>(sizeof(%(N)s_require_same_type<decltype(mb.f1(1)), signed int>));
+	static_cast<void>(sizeof(%(N)s_require_same_type<decltype(mb.f2(2)), signed int>));
+	constexpr %(N)s_derived cd{{5}, 9};
+/* Check that the explicit object parameter type deduces to `%(N)s_derived`, as
+ * the standard requires.  If it deduces correctly, then the called method will
+ * use `%(N)s_derived::r`, rather than `%(N)s_base::r`, resulting in (9 + 1)
+ * and (9 + 2) as return values.
+ */
+	static_assert(cd.f1(1) == 10);
+	static_assert(cd.f2(2) == 11);
+	static_cast<void>(sizeof(%(N)s_require_same_type<decltype(cd.f1(1)), unsigned long>));
+	static_cast<void>(sizeof(%(N)s_require_same_type<decltype(cd.f2(2)), unsigned long>));
+	%(N)s_derived md{{3}, 11};
+	static_cast<void>(sizeof(%(N)s_require_same_type<decltype(md.f1(1)), unsigned long>));
+	static_cast<void>(sizeof(%(N)s_require_same_type<decltype(md.f2(2)), unsigned long>));
+'''),
 		# As of this writing, <gcc-12 is already unsupported, but some
 		# platforms, such as Ubuntu 22.04, still try to use gcc-11 by default.
 		# Use this test both to verify that Class Template Argument Deduction
