@@ -101,12 +101,9 @@ static void draw_ammo_info(grs_canvas &, unsigned x, unsigned y, unsigned ammo_c
 
 union weapon_index
 {
-	primary_weapon_index primary;
+	primary_weapon_index primary{UINT8_MAX};
 	secondary_weapon_index secondary;
-	constexpr weapon_index() :
-		primary(static_cast<primary_weapon_index>(~0u))
-	{
-	}
+	constexpr weapon_index() = default;
 	constexpr weapon_index(const primary_weapon_index p) :
 		primary(p)
 	{
