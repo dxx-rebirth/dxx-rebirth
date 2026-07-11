@@ -3998,7 +3998,7 @@ static void multi_do_guided(d_level_unique_object_state &LevelUniqueObjectState,
 		return;
 	}
 
-	const auto &&gimobj = LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(LevelUniqueObjectState.get_objects().vmptridx, pnum);
+	const auto &&gimobj = LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(LevelUniqueObjectState.Objects.vmptridx, pnum);
 	if (gimobj == nullptr)
 		return;
 	const vmobjptridx_t guided_missile = gimobj;

@@ -93,7 +93,7 @@ void HUD_render_message_frame(grs_canvas &canvas)
 		const auto &&line_spacing = LINE_SPACING(game_font, game_font);
 #if DXX_BUILD_DESCENT == 2
 		if (PlayerCfg.GuidedInBigWindow &&
-			LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(LevelUniqueObjectState.get_objects().vmptr, Player_num) != nullptr)
+			LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(LevelUniqueObjectState.Objects.vmptr, Player_num) != nullptr)
 			y += line_spacing;
 #endif
 

@@ -788,7 +788,7 @@ void game_render_frame_mono(const d_robot_info_array &Robot_info, const control_
 	auto &vmobjptr = Objects.vmptr;
 	if (const auto &&gimobj = (
 			PlayerCfg.GuidedInBigWindow
-			? LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(LevelUniqueObjectState.get_objects().vmptr, Player_num)
+			? LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(LevelUniqueObjectState.Objects.vmptr, Player_num)
 			: nullptr))
 	{
 		const auto viewer_save{Viewer};

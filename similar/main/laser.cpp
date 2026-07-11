@@ -1554,7 +1554,7 @@ static bool is_active_guided_missile(d_level_unique_object_state &LevelUniqueObj
 {
 	if (obj->ctype.laser_info.parent_type != object_type::OBJ_PLAYER)
 		return false;
-	auto &vcobjptr = LevelUniqueObjectState.get_objects().vcptr;
+	auto &vcobjptr = LevelUniqueObjectState.Objects.vcptr;
 	auto &parent_obj = *vcobjptr(obj->ctype.laser_info.parent_num);
 	if (parent_obj.type != object_type::OBJ_PLAYER)
 		return false;
@@ -2310,7 +2310,7 @@ void do_missile_firing(const secondary_weapon_index weapon, const vmobjptridx_t 
 		fire_frame_overhead = GameTime64 - Next_missile_fire_time;
 
 #if DXX_BUILD_DESCENT == 2
-	const auto &&gimobj = LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(LevelUniqueObjectState.get_objects().vmptr, Player_num);
+	const auto &&gimobj = LevelUniqueObjectState.Guided_missile.get_player_active_guided_missile(LevelUniqueObjectState.Objects.vmptr, Player_num);
 	if (gimobj != nullptr)
 	{
 		release_local_guided_missile(LevelUniqueObjectState, Player_num, *gimobj);

@@ -46,14 +46,6 @@ struct d_level_unique_object_state
 	vms_vector last_console_player_position;
 	d_level_unique_morph_object_state MorphObjectState;
 	uint8_t Level_path_created{0};
-	auto &get_objects()
-	{
-		return Objects;
-	}
-	const auto &get_objects() const
-	{
-		return Objects;
-	}
 };
 
 extern d_level_unique_object_state LevelUniqueObjectState;

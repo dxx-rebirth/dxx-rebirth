@@ -1035,7 +1035,7 @@ void special_reset_objects(d_level_unique_object_state &LevelUniqueObjectState, 
 {
 	unsigned num_objects = MAX_OBJECTS;
 
-	auto &Objects = LevelUniqueObjectState.get_objects();
+	auto &Objects = LevelUniqueObjectState.Objects;
 	Objects.set_count(1);
 	assert(Objects.front().type != object_type::OBJ_NONE);		//0 should be used
 
@@ -1144,7 +1144,7 @@ static void obj_free(d_level_unique_object_state &LevelUniqueObjectState, const 
 	const auto num_objects = -- LevelUniqueObjectState.num_objects;
 	assert(num_objects < LevelUniqueObjectState.free_obj_list.size());
 	LevelUniqueObjectState.free_obj_list[num_objects] = objnum;
-	auto &Objects = LevelUniqueObjectState.get_objects();
+	auto &Objects = LevelUniqueObjectState.Objects;
 
 	objnum_t o = objnum;
 	if (o == Highest_object_index)
@@ -1402,7 +1402,7 @@ imobjptridx_t obj_create_copy(const object &srcobj, const vmsegptridx_t newsegnu
 //remove object from the world
 void obj_delete(d_level_unique_object_state &LevelUniqueObjectState, segment_array &Segments, const vmobjptridx_t obj)
 {
-	auto &Objects = LevelUniqueObjectState.get_objects();
+	auto &Objects = LevelUniqueObjectState.Objects;
 	Assert(obj->type != object_type::OBJ_NONE);
 	Assert(obj != ConsoleObject);
 
@@ -2318,7 +2318,7 @@ void reset_objects(d_level_unique_object_state &LevelUniqueObjectState, const un
 	LevelUniqueObjectState.Debris_object_count = 0;
 	LevelUniqueObjectState.num_objects = n_objs;
 	assert(LevelUniqueObjectState.num_objects > 0);
-	auto &Objects = LevelUniqueObjectState.get_objects();
+	auto &Objects = LevelUniqueObjectState.Objects;
 	assert(LevelUniqueObjectState.num_objects < Objects.size());
 	Objects.set_count(n_objs);
 #if DXX_BUILD_DESCENT == 2
