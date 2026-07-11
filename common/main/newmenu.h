@@ -759,28 +759,24 @@ static constexpr menu_bit_wrapper_t<bit_value, mask_type> menu_bit_wrapper(mask_
 	return {t};
 }
 
-template <unsigned B, typename T>
+template <unsigned bias, typename T>
 class menu_number_bias_wrapper_t
 {
-	std::tuple<T &, std::integral_constant<unsigned, B>> m_data;
-#define m_value	std::get<0>(m_data)
-#define m_bias	std::get<1>(m_data)
+	T &value;
 public:
 	constexpr menu_number_bias_wrapper_t(T &t) :
-		m_data(t, {})
+		value{t}
 	{
 	}
 	constexpr operator T() const
 	{
-		return m_value + m_bias;
+		return value + bias;
 	}
 	menu_number_bias_wrapper_t &operator=(const T n)
 	{
-		m_value = n - m_bias;
+		value = n - bias;
 		return *this;
 	}
-#undef m_bias
-#undef m_value
 };
 
 template <unsigned B, typename T>
