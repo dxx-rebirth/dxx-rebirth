@@ -59,7 +59,18 @@ struct Music_delete
 	}
 };
 
+struct music_storage_buffer
+{
+	std::vector<uint8_t> musicbuf;
+};
+
 class current_music_t :
+	/* Inherit from `music_storage_buffer` first, so that `musicbuf` is
+	 * destroyed after all other members of `current_music_t`.  This ensures
+	 * that a `Mix_Music` or `SDL_RWops` that refers to the buffer is destroyed
+	 * before the buffer is freed.
+	 */
+	public music_storage_buffer,
 #if !DXX_USE_SDL_RWOPS_MANAGEMENT
 	/* If the memory management is not delegated to SDL, then an additional
 	 * `std::unique_ptr` is needed to track and free the memory.  Based on code
@@ -157,7 +168,6 @@ uintptr_t current_music_t::reset(RWops_ptr rw)
 }
 
 static current_music_t current_music;
-static std::vector<uint8_t> current_music_hndlbuf;
 
 static void mix_set_music_type_sdlmixer(int loop, void (*const hook_finished_track)())
 {
@@ -237,10 +247,12 @@ int mix_play_file(const char *filename, int loop, void (*const entry_hook_finish
 	{
 		if (auto &&[v, hoe] = hmp2mid(filename); hoe == hmp_open_error::None)
 		{
-			current_music_hndlbuf = std::move(v);
-			current_music_type = load_mus_data(filename, current_music_hndlbuf, loop, hook_finished_track);
+			current_music_type = load_mus_data(filename, v, loop, hook_finished_track);
 			if (current_music_type != CurrentMusicType::None)
+			{
+				current_music.musicbuf = std::move(v);
 				return 1;
+			}
 		}
 		else
 			/* hmp2mid printed an error message, so there is no need for another one here */
@@ -275,9 +287,31 @@ int mix_play_file(const char *filename, int loop, void (*const entry_hook_finish
 		if (RAIIPHYSFS_File filehandle{PHYSFS_openRead(filename)})
 		{
 			const auto len{PHYSFS_fileLength(filehandle)};
-			current_music_hndlbuf.resize(len);
-			const auto bufsize{PHYSFSX_readBytes(filehandle, current_music_hndlbuf.data(), len)};
-			current_music_type = load_mus_data(filename, std::span(current_music_hndlbuf).first(bufsize), loop, hook_finished_track);
+			/* Set an arbitrary cap on how large a single music file can be.
+			 * This should be high enough that no normal music file can trigger
+			 * it.  The cap is intended to prevent creating a very large
+			 * allocation.
+			 */
+			if (len > 1024u * 1024u * 256u)
+			{
+				con_printf(CON_NORMAL, "error: music PhysFS file \"%s\" exceeds size limit of 256MB", filename);
+				current_music_type = CurrentMusicType::None;
+				return 1;
+			}
+			/* `current_music.musicbuf` is unused after the `mix_free_music`
+			 * above.  The contents of the memory managed by `musicbuf` are
+			 * undefined, but the vector may have `capacity() > 0`.  Use that
+			 * potentially allocated buffer here, which may save a new
+			 * allocation.
+			 */
+			current_music.musicbuf.resize(len);
+			const auto bufsize{PHYSFSX_readBytes(filehandle, current_music.musicbuf.data(), len)};
+			/* Adjust size to match what is actually used by the loaded data.
+			 * This should be the same length as was used above, but set it to
+			 * be thorough.
+			 */
+			current_music.musicbuf.resize(bufsize);
+			current_music_type = load_mus_data(filename, current_music.musicbuf, loop, hook_finished_track);
 			if (current_music_type != CurrentMusicType::None)
 				return 1;
 		}
@@ -305,7 +339,18 @@ void mix_free_music()
 	Mix_HookMusic(nullptr, nullptr);
 #endif
 	current_music.reset();
-	current_music_hndlbuf.clear();
+#if DXX_HAVE_POISON_VALGRIND || !defined(NDEBUG)
+	/* In a debug build, destroy the storage buffer, so that any underlying
+	 * allocation is freed and any stale pointers become dangling.  This may
+	 * help analysis tools recognize those pointers as dangling.
+	 *
+	 * In a non-debug build, let the buffer remain as it was.  There should not
+	 * be any dangling pointers, but if there are, they will be less likely to
+	 * crash if the buffer remains intact.  Also, letting the buffer remain may
+	 * avoid a new allocation on the next music load.
+	 */
+	current_music.musicbuf = {};
+#endif
 	current_music_type = CurrentMusicType::None;
 }
 
@@ -318,7 +363,6 @@ void mix_set_music_volume(int vol)
 void mix_stop_music()
 {
 	Mix_HaltMusic();
-	current_music_hndlbuf.clear();
 }
 
 void mix_pause_music()
