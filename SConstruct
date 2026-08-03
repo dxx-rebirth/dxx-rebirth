@@ -3637,10 +3637,10 @@ class DXXCommon(LazyObjectConstructor):
 	class RuntimeTest(LazyObjectConstructor):
 		target: str
 		source: collections.abc.Sequence[str]
-		nodefaultlibs: bool = True
-		def __init__(self, target: str, source: collections.abc.Sequence[str]):
+		def __init__(self, target: str, source: collections.abc.Sequence[str], nodefaultlibs: bool = True):
 			self.target = target
 			self.source = LazyObjectConstructor.create_lazy_object_getter(source)
+			self.nodefaultlibs = nodefaultlibs
 
 	@cached_property
 	def program_message_prefix(self):
@@ -4930,6 +4930,9 @@ class DXXArchive(DXXCommon):
 		RuntimeTest('test-enumerate', (
 			'common/unittest/enumerate.cpp',
 			)),
+		RuntimeTest('test-mve-audio-stream', (
+			'd2x-rebirth/unittest/mve_audio_stream.cpp',
+			), nodefaultlibs=False),
 		RuntimeTest('test-serial', (
 			'common/unittest/serial.cpp',
 			)),
