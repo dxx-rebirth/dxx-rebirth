@@ -133,6 +133,7 @@ struct MVESTREAM
 	unsigned char *vBackBuf1{};
 	unsigned char *vBackBuf2{};
 	std::array<::dcx::unique_span<int16_t>, 64> mve_audio_buffers;
+	bool queue_mve_audio_buffer(::dcx::unique_span<int16_t> &&buffer);
 
 	handle_result handle_mve_segment_endofstream();
 	handle_result handle_mve_segment_endofchunk();

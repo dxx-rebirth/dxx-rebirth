@@ -296,6 +296,21 @@ static void mve_audio_callback(void *const vstream, unsigned char *stream, int l
 	//con_printf(CON_CRITICAL, "- <%d (%d), %d, %d>", mvestream.mve_audio_bufhead, mvestream.mve_audio_curbuf_curpos, mvestream.mve_audio_buftail, len);
 }
 
+bool MVESTREAM::queue_mve_audio_buffer(::dcx::unique_span<int16_t> &&buffer)
+{
+	auto next = mve_audio_buftail + 1;
+	if (next == mve_audio_buffers.size())
+		next = 0;
+	if (next == mve_audio_bufhead)
+	{
+		con_printf(CON_CRITICAL, "d'oh!  buffer ring overrun (%d)", mve_audio_bufhead);
+		return false;
+	}
+	mve_audio_buffers[mve_audio_buftail] = std::move(buffer);
+	mve_audio_buftail = next;
+	return true;
+}
+
 MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initaudiobuffers(unsigned char minor, const unsigned char *data)
 {
 	if (mve_audio_enabled == MVE_play_sounds::silent)
@@ -477,13 +492,7 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_audioframedata(const mve_
 				}
 			}
 #endif
-			mve_audio_buffers[mve_audio_buftail] = std::move(p);
-
-			if (++mve_audio_buftail == mve_audio_buffers.size())
-				mve_audio_buftail = 0;
-
-			if (mve_audio_buftail == mve_audio_bufhead)
-				con_printf(CON_CRITICAL, "d'oh!  buffer ring overrun (%d)", mve_audio_bufhead);
+			queue_mve_audio_buffer(std::move(p));
 		}
 	}
 
