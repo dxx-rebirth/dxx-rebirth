@@ -14,6 +14,7 @@
 
 #include <array>
 #include <cstdint>
+#include <mutex>
 #include <span>
 #include <vector>
 #include "dxxsconf.h"
@@ -22,6 +23,18 @@
 #include "physfsrwops.h"
 
 namespace dsx {
+
+#if DXX_USE_SDLMIXER && SDL_MAJOR_VERSION == 2
+struct MVE_audio_stream_deleter
+{
+	void operator()(SDL_AudioStream *const stream) const
+	{
+		SDL_FreeAudioStream(stream);
+	}
+};
+
+using MVE_audio_stream_ptr = std::unique_ptr<SDL_AudioStream, MVE_audio_stream_deleter>;
+#endif
 
 enum class mve_opcode : uint8_t
 {
@@ -113,6 +126,9 @@ struct MVESTREAM
 	std::span<const uint8_t> pCurMap{};
 	std::vector<unsigned char> vBuffers{};
 	std::unique_ptr<SDL_AudioSpec> mve_audio_spec;
+#if DXX_USE_SDLMIXER && SDL_MAJOR_VERSION == 2
+	MVE_audio_stream_ptr mve_audio_stream;
+#endif
 	const MVE_play_sounds mve_audio_enabled;
 	bool mve_audio_playing{};
 	uint8_t timer_created{};
@@ -130,10 +146,14 @@ struct MVESTREAM
 	int mve_audio_bufhead{};
 	int mve_audio_buftail{};
 	int mve_audio_curbuf_curpos{};
+	std::mutex mve_audio_mutex;
 	unsigned char *vBackBuf1{};
 	unsigned char *vBackBuf2{};
 	std::array<::dcx::unique_span<int16_t>, 64> mve_audio_buffers;
 	bool queue_mve_audio_buffer(::dcx::unique_span<int16_t> &&buffer);
+#if DXX_USE_SDLMIXER && SDL_MAJOR_VERSION == 2
+	bool drain_mve_audio_stream();
+#endif
 
 	handle_result handle_mve_segment_endofstream();
 	handle_result handle_mve_segment_endofchunk();
