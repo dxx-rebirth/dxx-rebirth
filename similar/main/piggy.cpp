@@ -57,6 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-cf_assert.h"
 #include "compiler-range_for.h"
 #include "d_construct.h"
+#include "d_enumerate.h"
 #include "d_range.h"
 #include "d_zip.h"
 #include "partial_range.h"
@@ -274,6 +275,7 @@ BitmapNameFromHeader::BitmapNameFromHeader(const DiskBitmapHeader &bmh) :
 {
 }
 
+[[nodiscard]]
 static int piggy_is_needed(const int soundnum)
 {
 	if (!CGameArg.SysLowMem)
@@ -490,6 +492,59 @@ static void piggy_close_file()
 #endif
 	}
 }
+
+void load_sound_bytes_from_file(const NamedPHYSFS_File fp
+#if DXX_BUILD_DESCENT == 1
+	, const int pc_shareware
+#endif
+	)
+{
+#if DXX_BUILD_DESCENT == 1
+	std::vector<uint8_t> lastbuf;
+#endif
+	auto ptr{SoundBits.get()};
+	for (const auto &&[i, snd] : enumerate(partial_range(GameSounds, Num_sound_files)))
+	{
+		auto &d{snd.data.get_deleter()};
+		/* If `d.must_free_buffer()` is true, then `snd` is a freestanding
+		 * allocation and `snd.data.offset` does not provide a valid index in
+		 * the sound file.
+		 *
+		 * Otherwise, this is a placeholder for a sound that will be loaded
+		 * from the sound file, and `snd.data.offset` specifies where in the sound
+		 * file to find the bytes for this sound.
+		 */
+		if (d.must_free_buffer())
+			continue;
+		if (piggy_is_needed(i))
+		{
+			const auto current_sound_offset{d.offset};
+			const auto sound_offset{underlying_value(current_sound_offset)};
+			PHYSFS_seek(fp, sound_offset);
+
+			// Read in the sound data!!!
+			snd.data = digi_sound::allocated_data::build_with_borrowed_pointer(ptr, current_sound_offset);
+			ptr += snd.length;
+#if DXX_BUILD_DESCENT == 1
+			//Arne's decompress for shareware on all soundcards - Tim@Rikers.org
+			if (pc_shareware)
+			{
+				const auto compressed_length = SoundCompressed[i];
+				lastbuf.resize(compressed_length);
+				PHYSFSX_readBytes(Piggy_fp, lastbuf.data(), compressed_length);
+				sound_decompress(lastbuf.data(), compressed_length, snd.data.get());
+				continue;
+			}
+#endif
+			PHYSFSX_readBytes(fp, snd.data.get(), snd.length);
+		}
+#if DXX_BUILD_DESCENT == 2
+		else
+			snd.data.reset();
+#endif
+	}
+}
+
 }
 
 #if DXX_BUILD_DESCENT == 1
@@ -1152,7 +1207,6 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 #if DXX_BUILD_DESCENT == 1
 void piggy_read_sounds(int pc_shareware)
 {
-	uint8_t * ptr;
 	int i;
 
 	if (MacPig)
@@ -1186,69 +1240,17 @@ void piggy_read_sounds(int pc_shareware)
 
 		return;
 	}
-
-	ptr = SoundBits.get();
-
-	std::vector<uint8_t> lastbuf;
-	for (i=0; i<Num_sound_files; i++ )
-	{
-		auto &snd = GameSounds[i];
-		auto &d = snd.data.get_deleter();
-		if (!d.must_free_buffer())
-		{
-			if ( piggy_is_needed(i) )
-			{
-				const auto current_sound_offset{d.offset};
-				const auto sound_offset = underlying_value(current_sound_offset);
-				PHYSFS_seek(Piggy_fp, sound_offset);
-
-				// Read in the sound data!!!
-				snd.data = digi_sound::allocated_data::build_with_borrowed_pointer(ptr, current_sound_offset);
-				ptr += snd.length;
-		//Arne's decompress for shareware on all soundcards - Tim@Rikers.org
-				if (pc_shareware)
-				{
-					const auto compressed_length = SoundCompressed[i];
-					lastbuf.resize(compressed_length);
-					PHYSFSX_readBytes(Piggy_fp, lastbuf.data(), compressed_length);
-					sound_decompress(lastbuf.data(), compressed_length, snd.data.get());
-				}
-				else
-					PHYSFSX_readBytes(Piggy_fp, snd.data.get(), snd.length);
-			}
-		}
-	}
+	load_sound_bytes_from_file(Piggy_fp, pc_shareware);
 }
+
 #elif DXX_BUILD_DESCENT == 2
 void piggy_read_sounds(void)
 {
-	uint8_t * ptr;
-	int i;
-
-	ptr = SoundBits.get();
 	auto fp = PHYSFSX_openReadBuffered(DEFAULT_SNDFILE).first;
 	if (!fp)
 		return;
 
-	for (i=0; i<Num_sound_files; i++ )      {
-		auto &snd = GameSounds[i];
-		auto &d = snd.data.get_deleter();
-		if (!d.must_free_buffer())
-		{
-			if ( piggy_is_needed(i) )       {
-				const auto current_sound_offset = snd.data.get_deleter().offset;
-				const auto sound_offset = underlying_value(current_sound_offset);
-				PHYSFS_seek(fp, sound_offset);
-
-				// Read in the sound data!!!
-				snd.data = digi_sound::allocated_data::build_with_borrowed_pointer(ptr, current_sound_offset);
-				ptr += snd.length;
-				PHYSFSX_readBytes(fp, snd.data.get(), snd.length);
-			}
-			else
-				snd.data.reset();
-		}
-	}
+	load_sound_bytes_from_file(fp);
 }
 #endif
 
