@@ -234,9 +234,8 @@ struct digi_sound
 			base_type{p, o}
 		{
 		}
-		/* This is only used in the Descent 1 build. */
-		explicit allocated_data(std::unique_ptr<uint8_t[]> p, const game_sound_offset o) :
-			allocated_data{p.release(), o}
+		constexpr explicit allocated_data(std::unique_ptr<uint8_t[]> p) :
+			base_type{p.release(), game_sound_offset{}}
 		{
 		}
 		/* Define reset() instead of inheriting via `using base_type::reset`,

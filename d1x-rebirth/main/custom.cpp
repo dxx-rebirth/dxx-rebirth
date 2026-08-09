@@ -359,10 +359,10 @@ static int load_pigpog(const d_fname &pogname)
 			}
 
 				snd->length = j;
-			snd->data = digi_sound::allocated_data{std::move(p), game_sound_offset{}};
 
 			if (PHYSFSX_readBytes(f, p.get(), j) != j)
 				return rc;
+			snd->data = digi_sound::allocated_data{std::move(p)};
 		}
 		cip++;
 	}

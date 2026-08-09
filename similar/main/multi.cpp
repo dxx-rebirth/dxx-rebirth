@@ -5742,7 +5742,7 @@ void init_hoard_data(d_vclip_array &Vclip)
 
 		auto &gs = GameSounds[Num_sound_files+i];
 		gs.length = len;
-		gs.data = digi_sound::allocated_data{std::make_unique<uint8_t[]>(len), game_sound_offset{}};
+		gs.data = digi_sound::allocated_data{std::make_unique<uint8_t[]>(len)};
 		PHYSFSX_readBytes(ifile, gs.data.get(), len);
 
 		if (SndDigiSampleRate == sound_sample_rate::_11k)
