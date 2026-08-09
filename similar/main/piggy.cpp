@@ -211,10 +211,11 @@ static_assert(sizeof(DiskBitmapHeader) == 0x12, "sizeof(DiskBitmapHeader) must b
 struct DiskSoundHeader
 {
 	char name[8];
-	int length;
-	int data_length;
-	int offset;
-} __pack__;
+	uint32_t length;
+	uint32_t data_length;
+	uint32_t offset;
+};
+static_assert(sizeof(DiskSoundHeader) == 8 + 4 + 4 + 4, "sizeof(DiskSoundHeader) must be 20");
 
 }
 
@@ -293,9 +294,9 @@ static DiskSoundHeader DiskSoundHeader_read(const NamedPHYSFS_File fp)
 {
 	DiskSoundHeader dsh{};
 	PHYSFSX_readBytes(fp, dsh.name, 8);
-	dsh.length = PHYSFSX_readInt(fp);
-	dsh.data_length = PHYSFSX_readInt(fp);
-	dsh.offset = PHYSFSX_readInt(fp);
+	dsh.length = PHYSFSX_readULE32(fp);
+	dsh.data_length = PHYSFSX_readULE32(fp);
+	dsh.offset = PHYSFSX_readULE32(fp);
 	return dsh;
 }
 
@@ -603,16 +604,14 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 	{
 	for (unsigned i = 0; i < N_sounds; ++i)
 	{
-		const auto sndh = DiskSoundHeader_read(Piggy_fp);
-		
-		//size -= sizeof(DiskSoundHeader);
+		const auto sndh{DiskSoundHeader_read(Piggy_fp)};
 		digi_sound temp_sound;
 		temp_sound.length = sndh.length;
 
 //added on 11/13/99 by Victor Rachels to ready for changing freq
 		temp_sound.freq = sound_sample_rate::_11k;
 //end this section addition - VR
-		const game_sound_offset sound_offset{static_cast<int>(sndh.offset + header_size + (sizeof(int)*2)+Pigdata_start)};
+		const game_sound_offset sound_offset{sndh.offset + header_size + uint32_t{sizeof(int) * 2} + Pigdata_start};
 		temp_sound.data = digi_sound::allocated_data::build_deferred_borrowed_pointer(sound_offset);
 		if (PCSharePig)
 			SoundCompressed[Num_sound_files] = sndh.data_length;
@@ -1077,7 +1076,7 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 		//Read sounds
 
 		for (i=0; i<N_sounds; i++ ) {
-			const auto sndh = DiskSoundHeader_read(ham_fp);
+			const auto sndh{DiskSoundHeader_read(ham_fp)};
 			digi_sound temp_sound;
 			temp_sound.length = sndh.length;
 			const game_sound_offset sound_offset{sndh.offset + header_size + sound_start};
@@ -1126,7 +1125,7 @@ void read_sndfile(const int required)
 	//Read sounds
 
 	for (i=0; i<N_sounds; i++ ) {
-		const auto sndh = DiskSoundHeader_read(snd_fp);
+		const auto sndh{DiskSoundHeader_read(snd_fp)};
 		digi_sound temp_sound;
 		temp_sound.length = sndh.length;
 		const game_sound_offset sound_offset{sndh.offset + header_size + sound_start};

@@ -36,7 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-enum class game_sound_offset : int
+enum class game_sound_offset : uint32_t
 {
 };
 
