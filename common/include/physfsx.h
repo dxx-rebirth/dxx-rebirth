@@ -51,9 +51,13 @@ dxx_compiler_attribute_always_inline()
 static inline PHYSFS_sint64 PHYSFSX_check_readBytes(PHYSFS_File *const file, V *const buffer, const PHYSFS_uint64 len)
 {
 	static_assert(std::is_standard_layout<V>::value && std::is_trivial<V>::value, "non-POD value read");
-#if defined(DXX_HAVE_BUILTIN_OBJECT_SIZE) && defined(DXX_CONSTANT_TRUE)
+#if defined(DXX_CONSTANT_TRUE)
+	if (DXX_CONSTANT_TRUE(buffer == nullptr))
+		DXX_ALWAYS_ERROR_FUNCTION("read to nullptr");
+#if defined(DXX_HAVE_BUILTIN_OBJECT_SIZE)
 	if (const size_t compiler_determined_buffer_size{__builtin_object_size(buffer, 1)}; compiler_determined_buffer_size != static_cast<size_t>(-1) && DXX_CONSTANT_TRUE(len > compiler_determined_buffer_size))
 		DXX_ALWAYS_ERROR_FUNCTION("read size exceeds element size");
+#endif
 #endif
 	return {PHYSFS_readBytes(file, buffer, {len})};
 }
@@ -82,9 +86,13 @@ dxx_compiler_attribute_always_inline()
 static inline PHYSFS_sint64 PHYSFSX_check_writeBytes(PHYSFS_File *file, const V *const buffer, const PHYSFS_uint64 len)
 {
 	static_assert(std::is_standard_layout<V>::value && std::is_trivial<V>::value, "non-POD value written");
+#if defined(DXX_CONSTANT_TRUE)
+	if (DXX_CONSTANT_TRUE(buffer == nullptr))
+		DXX_ALWAYS_ERROR_FUNCTION("write from nullptr");
 #if defined(DXX_HAVE_BUILTIN_OBJECT_SIZE) && defined(DXX_CONSTANT_TRUE)
 	if (const size_t compiler_determined_buffer_size{__builtin_object_size(buffer, 1)}; compiler_determined_buffer_size != static_cast<size_t>(-1) && DXX_CONSTANT_TRUE(len > compiler_determined_buffer_size))
 		DXX_ALWAYS_ERROR_FUNCTION("write size exceeds element size");
+#endif
 #endif
 	return {PHYSFS_writeBytes(file, buffer, len)};
 }
