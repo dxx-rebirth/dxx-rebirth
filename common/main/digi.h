@@ -229,10 +229,7 @@ struct digi_sound
 		using base_type::get;
 		using base_type::get_deleter;
 		using base_type::operator bool;
-		constexpr allocated_data() :
-			base_type{}
-		{
-		}
+		constexpr allocated_data() = default;
 		allocated_data(const base_type::pointer p, const game_sound_offset o) :
 			base_type{p, o}
 		{
