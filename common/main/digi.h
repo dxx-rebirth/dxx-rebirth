@@ -230,10 +230,18 @@ struct digi_sound
 		using base_type::get_deleter;
 		using base_type::operator bool;
 		constexpr allocated_data() = default;
-		allocated_data(const base_type::pointer p, const game_sound_offset o) :
-			base_type{p, o}
-		{
-		}
+		/* Some call sites create an `allocated_data` to record the offset
+		 * within the pig file, but do not have a data pointer available at
+		 * construction time.  These sites are later overwritten with a valid
+		 * pointer.  Use `build_deferred_borrowed_pointer` when the pointer
+		 * will be known later.
+		 */
+		static constexpr allocated_data build_deferred_borrowed_pointer(const game_sound_offset o);
+		/* Build an `allocated_data` that points at borrowed data.
+		 * The caller is responsible for supplying a `game_sound_offset` that
+		 * informs the deleter that the pointer is borrowed.
+		 */
+		static constexpr allocated_data build_with_borrowed_pointer(const base_type::pointer p, const game_sound_offset o);
 		constexpr explicit allocated_data(std::unique_ptr<uint8_t[]> p) :
 			base_type{p.release(), game_sound_offset{}}
 		{
@@ -267,6 +275,11 @@ struct digi_sound
 			/* Change this pointer to share ownership with the other object. */
 			this->base_type::reset(rhs.get());
 			return *this;
+		}
+	private:
+		constexpr allocated_data(const base_type::pointer p, const game_sound_offset o) :
+			base_type{p, o}
+		{
 		}
 	};
 	uint32_t length;

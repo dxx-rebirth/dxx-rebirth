@@ -245,6 +245,16 @@ static void write_int(int i,PHYSFS_File *file);
 
 namespace dcx {
 
+constexpr digi_sound::allocated_data digi_sound::allocated_data::build_deferred_borrowed_pointer(const game_sound_offset o)
+{
+	return allocated_data{nullptr, o};
+}
+
+constexpr digi_sound::allocated_data digi_sound::allocated_data::build_with_borrowed_pointer(const base_type::pointer p, const game_sound_offset o)
+{
+	return allocated_data{p, o};
+}
+
 namespace {
 
 struct BitmapNameFromHeader
@@ -477,7 +487,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 		gr_init_bitmap(bogus_bitmap, bm_mode::linear, 0, 0, 64, 64, 64, bogus_data.data());
 		piggy_register_bitmap(bogus_bitmap, "bogus", 1);
         bogus_sound.length = 64*64;
-		bogus_sound.data = digi_sound::allocated_data{bogus_data.data(), game_sound_offset{INT_MAX}};
+		bogus_sound.data = digi_sound::allocated_data::build_with_borrowed_pointer(bogus_data.data(), game_sound_offset{INT_MAX});
 //added on 11/13/99 by Victor Rachels to ready for changing freq
 		bogus_sound.freq = sound_sample_rate::_11k;
 //end this section addition - VR
@@ -603,7 +613,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 		temp_sound.freq = sound_sample_rate::_11k;
 //end this section addition - VR
 		const game_sound_offset sound_offset{static_cast<int>(sndh.offset + header_size + (sizeof(int)*2)+Pigdata_start)};
-		temp_sound.data = digi_sound::allocated_data{nullptr, sound_offset};
+		temp_sound.data = digi_sound::allocated_data::build_deferred_borrowed_pointer(sound_offset);
 		if (PCSharePig)
 			SoundCompressed[Num_sound_files] = sndh.data_length;
 		piggy_register_sound(std::move(temp_sound), std::span(sndh.name).first<8>());
@@ -1071,7 +1081,7 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 			digi_sound temp_sound;
 			temp_sound.length = sndh.length;
 			const game_sound_offset sound_offset{sndh.offset + header_size + sound_start};
-			temp_sound.data = digi_sound::allocated_data{nullptr, sound_offset};
+			temp_sound.data = digi_sound::allocated_data::build_deferred_borrowed_pointer(sound_offset);
 			piggy_register_sound(std::move(temp_sound), std::span(sndh.name).first<8>());
 			if (piggy_is_needed(i))
 				sbytes += sndh.length;
@@ -1120,7 +1130,7 @@ void read_sndfile(const int required)
 		digi_sound temp_sound;
 		temp_sound.length = sndh.length;
 		const game_sound_offset sound_offset{sndh.offset + header_size + sound_start};
-		temp_sound.data = digi_sound::allocated_data{nullptr, sound_offset};
+		temp_sound.data = digi_sound::allocated_data::build_deferred_borrowed_pointer(sound_offset);
 		piggy_register_sound(std::move(temp_sound), std::span(sndh.name).first<8>());
 		if (piggy_is_needed(i))
 			sbytes += sndh.length;
@@ -1144,7 +1154,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 		gr_init_bitmap(GameBitmaps[bi], bm_mode::linear, 0, 0, 64, 64, 64, bogus_data.data());
 		piggy_register_bitmap(GameBitmaps[bi], "bogus", 1);
 		bogus_sound.length = 64*64;
-		bogus_sound.data = digi_sound::allocated_data{bogus_data.data(), game_sound_offset{INT_MAX}};
+		bogus_sound.data = digi_sound::allocated_data::build_with_borrowed_pointer(bogus_data.data(), game_sound_offset{INT_MAX});
 		GameBitmapOffset[(bitmap_index{0})] = pig_bitmap_offset::None;
 	}
 
@@ -1213,7 +1223,7 @@ void piggy_read_sounds(int pc_shareware)
 				PHYSFS_seek(Piggy_fp, sound_offset);
 
 				// Read in the sound data!!!
-				snd.data = digi_sound::allocated_data{ptr, current_sound_offset};
+				snd.data = digi_sound::allocated_data::build_with_borrowed_pointer(ptr, current_sound_offset);
 				ptr += snd.length;
 		//Arne's decompress for shareware on all soundcards - Tim@Rikers.org
 				if (pc_shareware)
@@ -1251,7 +1261,7 @@ void piggy_read_sounds(void)
 				PHYSFS_seek(fp, sound_offset);
 
 				// Read in the sound data!!!
-				snd.data = digi_sound::allocated_data{ptr, current_sound_offset};
+				snd.data = digi_sound::allocated_data::build_with_borrowed_pointer(ptr, current_sound_offset);
 				ptr += snd.length;
 				PHYSFSX_readBytes(fp, snd.data.get(), snd.length);
 			}
