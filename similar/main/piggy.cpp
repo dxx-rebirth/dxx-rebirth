@@ -391,12 +391,6 @@ int piggy_register_sound(digi_sound &snd, const std::span<const char> name)
 	hashtable_insert(&AllDigiSndNames, asn.data(), Num_sound_files);
 	auto &gs = GameSounds[Num_sound_files];
 	gs = std::move(snd);
-#if DXX_BUILD_DESCENT == 1
-//added/moved on 11/13/99 by Victor Rachels to ready for changing freq
-//#ifdef ALLEGRO
-        GameSounds[Num_sound_files].freq = snd.freq;
-
-#endif
 	i = Num_sound_files;
 	Num_sound_files++;
 	return i;
