@@ -400,9 +400,18 @@ int ds_load(int skip, const char * filename )	{
 	char rawname[100];
 
 	if (skip) {
-		// We tell piggy_register_sound it's in the pig file, when in actual fact it's in no file
-		// This just tells piggy_close not to attempt to free it
-		return piggy_register_sound(bogus_sound, "bogus");
+		/* The data in `bogus_sound` is marked so that it is not owned by any
+		 * particular instance of `digi_sound`.  Therefore, it is safe to move
+		 * `bogus_sound` into `piggy_register_sound`.  Assert that the move
+		 * does not change the data pointer.  If the assertion fails, that
+		 * indicates that the pointer in `bogus_sound` was cleared.
+		 */
+#ifndef NDEBUG
+		const auto bogus_sound_span{bogus_sound.span()};
+#endif
+		const auto r{piggy_register_sound(std::move(bogus_sound), "bogus")};
+		assert(bogus_sound_span.data() == bogus_sound.span().data());
+		return r;
 	}
 
 	const auto &&fname = removeext(filename);
@@ -423,7 +432,7 @@ int ds_load(int skip, const char * filename )	{
 		n.data = digi_sound::allocated_data{std::make_unique<uint8_t[]>(n.length), game_sound_offset{}};
 		PHYSFSX_readBytes(cfp, n.data.get(), n.length);
 		n.freq = 11025;
-		return piggy_register_sound(n, fname);
+		return piggy_register_sound(std::move(n), fname);
 	} else {
 		return 255;
 	}

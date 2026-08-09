@@ -379,7 +379,7 @@ bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const std::span<const char> 
 	return temp;
 }
 
-int piggy_register_sound(digi_sound &snd, const std::span<const char> name)
+int piggy_register_sound(digi_sound &&snd, const std::span<const char> name)
 {
 	int i;
 
@@ -609,7 +609,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 		temp_sound.data = digi_sound::allocated_data{nullptr, sound_offset};
 		if (PCSharePig)
 			SoundCompressed[Num_sound_files] = sndh.data_length;
-		piggy_register_sound(temp_sound, std::span(sndh.name).first<8>());
+		piggy_register_sound(std::move(temp_sound), std::span(sndh.name).first<8>());
                 sbytes += sndh.length;
 	}
 
@@ -1075,7 +1075,7 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 			temp_sound.length = sndh.length;
 			const game_sound_offset sound_offset{sndh.offset + header_size + sound_start};
 			temp_sound.data = digi_sound::allocated_data{nullptr, sound_offset};
-			piggy_register_sound(temp_sound, std::span(sndh.name).first<8>());
+			piggy_register_sound(std::move(temp_sound), std::span(sndh.name).first<8>());
 			if (piggy_is_needed(i))
 				sbytes += sndh.length;
 		}
@@ -1124,7 +1124,7 @@ void read_sndfile(const int required)
 		temp_sound.length = sndh.length;
 		const game_sound_offset sound_offset{sndh.offset + header_size + sound_start};
 		temp_sound.data = digi_sound::allocated_data{nullptr, sound_offset};
-		piggy_register_sound(temp_sound, std::span(sndh.name).first<8>());
+		piggy_register_sound(std::move(temp_sound), std::span(sndh.name).first<8>());
 		if (piggy_is_needed(i))
 			sbytes += sndh.length;
 	}
