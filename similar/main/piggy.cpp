@@ -476,11 +476,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 		initialize_array_bogus_data();
 		gr_init_bitmap(bogus_bitmap, bm_mode::linear, 0, 0, 64, 64, 64, bogus_data.data());
 		piggy_register_bitmap(bogus_bitmap, "bogus", 1);
-#ifdef ALLEGRO
-		bogus_sound.len = 64*64;
-#else
         bogus_sound.length = 64*64;
-#endif
 		bogus_sound.data = digi_sound::allocated_data{bogus_data.data(), game_sound_offset{INT_MAX}};
 //added on 11/13/99 by Victor Rachels to ready for changing freq
 		bogus_sound.freq = sound_sample_rate::_11k;
