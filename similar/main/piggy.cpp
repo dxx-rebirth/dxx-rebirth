@@ -292,11 +292,16 @@ static int piggy_is_needed(const int soundnum)
  */
 static DiskSoundHeader DiskSoundHeader_read(const NamedPHYSFS_File fp)
 {
-	DiskSoundHeader dsh{};
-	PHYSFSX_readBytes(fp, dsh.name, 8);
-	dsh.length = PHYSFSX_readULE32(fp);
-	dsh.data_length = PHYSFSX_readULE32(fp);
-	dsh.offset = PHYSFSX_readULE32(fp);
+	std::array<std::byte, 20> buf;
+	if (const auto size{buf.size()}; PHYSFS_readBytes(fp, buf.data(), size) != size) [[unlikely]]
+		PHYSFSX_read_helper_report_error(__FILE__, __LINE__, __FUNCTION__, fp);
+	DiskSoundHeader dsh{
+		.name{},
+		.length{GET_INTEL_INT(&buf[8])},
+		.data_length{GET_INTEL_INT(&buf[12])},
+		.offset{GET_INTEL_INT(&buf[16])},
+	};
+	memcpy(dsh.name, buf.data(), 8);
 	return dsh;
 }
 
