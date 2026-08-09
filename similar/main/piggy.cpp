@@ -359,6 +359,27 @@ static DiskBitmapHeader DiskBitmapHeader_d1_read(const NamedPHYSFS_File fp)
 	dbh.offset = PHYSFSX_readInt(fp);
 	return dbh;
 }
+
+static void build_sound_allocation(const NamedPHYSFS_File fp)
+{
+	const unsigned N_sounds{PHYSFSX_readULE32(fp)};
+	const unsigned sound_headers_start = PHYSFS_tell(fp);
+	const unsigned sound_headers_size = N_sounds * sizeof(DiskSoundHeader);
+	const unsigned offset_adjustment{sound_headers_start + sound_headers_size};
+	unsigned required_allocation_size{0};
+	for (const auto i : xrange(N_sounds))
+	{
+		const auto sndh{DiskSoundHeader_read(fp)};
+		digi_sound temp_sound;
+		temp_sound.length = sndh.length;
+		const game_sound_offset sound_offset{sndh.offset + offset_adjustment};
+		temp_sound.data = digi_sound::allocated_data::build_deferred_borrowed_pointer(sound_offset);
+		piggy_register_sound(std::move(temp_sound), std::span(sndh.name).first<8>());
+		if (piggy_is_needed(i))
+			required_allocation_size += sndh.length;
+	}
+	SoundBits = std::make_unique<uint8_t[]>(required_allocation_size + 16);
+}
 #endif
 
 }
@@ -1057,10 +1078,6 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 	#endif
 
 	if (Piggy_hamfile_version < pig_hamfile_version::_3) {
-		int sound_start;
-		int header_size;
-		int i;
-		int sbytes{0};
 		static int justonce = 1;
 
 		if (!justonce)
@@ -1070,25 +1087,8 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 		justonce = 0;
 
 		PHYSFS_seek(ham_fp, sound_offset);
-		const unsigned N_sounds{PHYSFSX_readULE32(ham_fp)};
-
-		sound_start = PHYSFS_tell(ham_fp);
-
-		header_size = N_sounds * sizeof(DiskSoundHeader);
-
 		//Read sounds
-
-		for (i=0; i<N_sounds; i++ ) {
-			const auto sndh{DiskSoundHeader_read(ham_fp)};
-			digi_sound temp_sound;
-			temp_sound.length = sndh.length;
-			const game_sound_offset sound_offset{sndh.offset + header_size + sound_start};
-			temp_sound.data = digi_sound::allocated_data::build_deferred_borrowed_pointer(sound_offset);
-			piggy_register_sound(std::move(temp_sound), std::span(sndh.name).first<8>());
-			if (piggy_is_needed(i))
-				sbytes += sndh.length;
-		}
-		SoundBits = std::make_unique<ubyte[]>(sbytes + 16);
+		build_sound_allocation(ham_fp);
 	}
 	return 1;
 }
@@ -1096,10 +1096,6 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 void read_sndfile(const int required)
 {
 	int snd_id,snd_version;
-	int sound_start;
-	int header_size;
-	int i;
-	int sbytes{0};
 
 	const auto filename{DEFAULT_SNDFILE};
 	auto &&[snd_fp, physfserr] = PHYSFSX_openReadBuffered(filename);
@@ -1118,25 +1114,8 @@ void read_sndfile(const int required)
 			Error("Cannot load sound file: expected (id=%.8lx version=%.8x), found (id=%.8x version=%.8x) in \"%s\"", SNDFILE_ID, SNDFILE_VERSION, snd_id, snd_version, filename);
 		return;
 	}
-
-	const unsigned N_sounds{PHYSFSX_readULE32(snd_fp)};
-
-	sound_start = PHYSFS_tell(snd_fp);
-	header_size = N_sounds*sizeof(DiskSoundHeader);
-
 	//Read sounds
-
-	for (i=0; i<N_sounds; i++ ) {
-		const auto sndh{DiskSoundHeader_read(snd_fp)};
-		digi_sound temp_sound;
-		temp_sound.length = sndh.length;
-		const game_sound_offset sound_offset{sndh.offset + header_size + sound_start};
-		temp_sound.data = digi_sound::allocated_data::build_deferred_borrowed_pointer(sound_offset);
-		piggy_register_sound(std::move(temp_sound), std::span(sndh.name).first<8>());
-		if (piggy_is_needed(i))
-			sbytes += sndh.length;
-	}
-	SoundBits = std::make_unique<ubyte[]>(sbytes + 16);
+	build_sound_allocation(snd_fp);
 }
 
 properties_init_result properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
