@@ -273,7 +273,7 @@ struct digi_sound
 			return *this;
 		}
 	};
-	std::size_t length;
+	uint32_t length;
 	sound_sample_rate freq;
 	allocated_data data;
 	std::span<const uint8_t> span() const
