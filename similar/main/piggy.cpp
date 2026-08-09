@@ -475,7 +475,6 @@ static void piggy_close_file()
 properties_init_result properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	int sbytes{0};
-	int N_sounds;
 	int size;
 	GameSounds = {};
 
@@ -562,7 +561,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 
 	const unsigned N_bitmaps = PHYSFSX_readInt(Piggy_fp);
 	size -= sizeof(int);
-	N_sounds = PHYSFSX_readInt(Piggy_fp);
+	const unsigned N_sounds{PHYSFSX_readULE32(Piggy_fp)};
 	size -= sizeof(int);
 
 	const unsigned header_size = (N_bitmaps * sizeof(DiskBitmapHeader)) + (N_sounds * sizeof(DiskSoundHeader));
@@ -1058,7 +1057,6 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 	#endif
 
 	if (Piggy_hamfile_version < pig_hamfile_version::_3) {
-		int N_sounds;
 		int sound_start;
 		int header_size;
 		int i;
@@ -1072,7 +1070,7 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 		justonce = 0;
 
 		PHYSFS_seek(ham_fp, sound_offset);
-		N_sounds = PHYSFSX_readInt(ham_fp);
+		const unsigned N_sounds{PHYSFSX_readULE32(ham_fp)};
 
 		sound_start = PHYSFS_tell(ham_fp);
 
@@ -1098,7 +1096,6 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 void read_sndfile(const int required)
 {
 	int snd_id,snd_version;
-	int N_sounds;
 	int sound_start;
 	int header_size;
 	int i;
@@ -1122,7 +1119,7 @@ void read_sndfile(const int required)
 		return;
 	}
 
-	N_sounds = PHYSFSX_readInt(snd_fp);
+	const unsigned N_sounds{PHYSFSX_readULE32(snd_fp)};
 
 	sound_start = PHYSFS_tell(snd_fp);
 	header_size = N_sounds*sizeof(DiskSoundHeader);
@@ -2115,7 +2112,7 @@ void load_d1_bitmap_replacements()
 	PHYSFS_seek(d1_Piggy_fp, pig_data_start);
 	N_bitmaps = PHYSFSX_readInt(d1_Piggy_fp);
 	{
-		int N_sounds = PHYSFSX_readInt(d1_Piggy_fp);
+		const unsigned N_sounds{PHYSFSX_readULE32(d1_Piggy_fp)};
 		int header_size = N_bitmaps * DISKBITMAPHEADER_D1_SIZE
 			+ N_sounds * sizeof(DiskSoundHeader);
 		bitmap_header_start = pig_data_start + 2 * sizeof(int);
@@ -2215,7 +2212,7 @@ grs_bitmap *read_extra_bitmap_d1_pig(const std::span<const char> name, grs_bitma
 		PHYSFS_seek(d1_Piggy_fp, pig_data_start);
 		N_bitmaps = PHYSFSX_readInt(d1_Piggy_fp);
 		{
-			int N_sounds = PHYSFSX_readInt(d1_Piggy_fp);
+			const unsigned N_sounds{PHYSFSX_readULE32(d1_Piggy_fp)};
 			int header_size = N_bitmaps * DISKBITMAPHEADER_D1_SIZE
 				+ N_sounds * sizeof(DiskSoundHeader);
 			bitmap_header_start = pig_data_start + 2 * sizeof(int);
