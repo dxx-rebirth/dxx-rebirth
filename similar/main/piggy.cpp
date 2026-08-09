@@ -493,7 +493,8 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 	}
 
 	unsigned Pigdata_start;
-	switch (descent1_pig_size{PHYSFS_fileLength(Piggy_fp)}) {
+	const auto piggy_size{PHYSFS_fileLength(Piggy_fp)};
+	switch (descent1_pig_size{piggy_size}) {
 		case descent1_pig_size::d1_share_big_pigsize:
 		case descent1_pig_size::d1_share_10_pigsize:
 		case descent1_pig_size::d1_share_pigsize:
@@ -541,7 +542,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 		retval = properties_init_result::use_gamedata_read_tbl;	// run gamedata_read_tbl
 
 	PHYSFS_seek(Piggy_fp, Pigdata_start);
-	size = PHYSFS_fileLength(Piggy_fp) - Pigdata_start;
+	size = piggy_size - Pigdata_start;
 
 	const unsigned N_bitmaps = PHYSFSX_readInt(Piggy_fp);
 	size -= sizeof(int);
