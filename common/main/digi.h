@@ -49,6 +49,18 @@ void digi_win32_set_midi_volume(int mvolume);
 int digi_win32_play_midi_song(const char * filename, int loop);
 #endif
 
+/* These values must be equal to the sample rate of the relevant sounds.
+ * Instances of `sound_sample_rate` are cast to the underlying integer type and
+ * passed to functions that expect to receive a standard sound sample rate.
+ * Renumbering these constants will break those calls.
+ */
+enum class sound_sample_rate : uint16_t
+{
+	_11k = 11025,
+	_22k = 22050,
+	_44k = 44100,
+};
+
 }
 
 #ifdef DXX_BUILD_DESCENT
@@ -70,13 +82,6 @@ enum class sound_stack : bool
 {
 	allow_stacking,
 	cancel_previous,
-};
-
-enum class sound_sample_rate : uint16_t
-{
-	_11k = 11025,
-	_22k = 22050,
-	_44k = 44100,
 };
 
 extern sound_channel SoundQ_channel;
@@ -269,7 +274,7 @@ struct digi_sound
 		}
 	};
 	std::size_t length;
-	int freq;
+	sound_sample_rate freq;
 	allocated_data data;
 	std::span<const uint8_t> span() const
 	{

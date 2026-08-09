@@ -358,8 +358,9 @@ static auto convert_audio(const std::span<const uint8_t> input, const std::size_
 #if DXX_FEATURE_EXTERNAL_RESAMPLER_SDL_NATIVE
 namespace sdl_native {
 
-static unique_span<uint8_t> convert_audio(const sound_effect sound_idx, const std::span<const uint8_t> data, const int freq)
+static unique_span<uint8_t> convert_audio(const sound_effect sound_idx, const std::span<const uint8_t> data, const sound_sample_rate ssfreq)
 {
+	const int freq{underlying_value(ssfreq)};
 	SDL_AudioCVT cvt;
 	if (SDL_BuildAudioCVT(&cvt, AUDIO_U8, 1, freq, MIX_OUTPUT_FORMAT, MIX_OUTPUT_CHANNELS, digi_sample_rate) == -1)
 	{
@@ -423,7 +424,7 @@ static std::array<RAIIMix_Chunk, MAX_SOUNDS> SoundChunks;
  * Play-time conversion. Performs output conversion only once per sound effect used.
  * Once the sound sample has been converted, it is cached in SoundChunks[]
  */
-static void mixdigi_convert_sound(const sound_effect sound_idx, RAIIMix_Chunk &sci, const digi_sound &gs, const uint16_t freq)
+static void mixdigi_convert_sound(const sound_effect sound_idx, RAIIMix_Chunk &sci, const digi_sound &gs, const sound_sample_rate freq)
 {
 	const auto data = gs.span();
 	if (data.empty())
@@ -451,10 +452,10 @@ static void mixdigi_convert_sound(const sound_effect sound_idx, RAIIMix_Chunk &s
 				 */
 				const auto upFactor = ({
 					upscale_factor r;
-					if (freq == underlying_value(sound_sample_rate::_11k))
+					if (freq == sound_sample_rate::_11k)
 						r = upscale_factor::from_11khz_to_44khz;
 #if DXX_BUILD_DESCENT == 2
-					else if (freq == underlying_value(sound_sample_rate::_22k))
+					else if (freq == sound_sample_rate::_22k)
 						r = upscale_factor::from_22khz_to_44khz;
 #endif
 					else
@@ -506,7 +507,7 @@ static Mix_Chunk &mixdigi_convert_sound(const sound_effect i)
 #if DXX_BUILD_DESCENT == 1
 		const auto freq{gs.freq};
 #elif DXX_BUILD_DESCENT == 2
-		const auto freq = underlying_value(GameArg.SndDigiSampleRate);
+		const auto freq{GameArg.SndDigiSampleRate};
 #endif
 		//proceed only if not converted yet
 		mixdigi_convert_sound(i, sci, gs, freq);

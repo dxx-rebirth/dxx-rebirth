@@ -483,7 +483,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 #endif
 		bogus_sound.data = digi_sound::allocated_data{bogus_data.data(), game_sound_offset{INT_MAX}};
 //added on 11/13/99 by Victor Rachels to ready for changing freq
-                bogus_sound.freq = 11025;
+		bogus_sound.freq = sound_sample_rate::_11k;
 //end this section addition - VR
 		GameBitmapOffset[(bitmap_index{0})] = pig_bitmap_offset::None;
 	}
@@ -603,7 +603,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 		temp_sound.length = sndh.length;
 
 //added on 11/13/99 by Victor Rachels to ready for changing freq
-                temp_sound.freq = 11025;
+		temp_sound.freq = sound_sample_rate::_11k;
 //end this section addition - VR
 		const game_sound_offset sound_offset{static_cast<int>(sndh.offset + header_size + (sizeof(int)*2)+Pigdata_start)};
 		temp_sound.data = digi_sound::allocated_data{nullptr, sound_offset};
