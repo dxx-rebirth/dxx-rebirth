@@ -992,7 +992,7 @@ void save_screen_shot(int automap_flag)
 	unsigned tm_year;
 	const auto t = time(nullptr);
 	struct tm *tm = nullptr;
-	if (t == static_cast<time_t>(-1) || !(tm = gmtime(&t)))
+	if (t == time_t{-1} || !(tm = gmtime(&t)))
 		tm_year = tm_mon = tm_mday = tm_hour = tm_min = tm_sec = 0;
 	else
 	{
