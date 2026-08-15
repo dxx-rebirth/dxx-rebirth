@@ -1286,9 +1286,10 @@ template <typename Pc, typename Pm>
 class valptridx<managed_type>::basic_vval_member_factory :
 	public basic_ival_member_factory<Pc, Pm>
 {
+	using base_type = basic_ival_member_factory<Pc, Pm>;
 protected:
-	using basic_ival_member_factory<Pc, Pm>::get_array;
-	using basic_ival_member_factory<Pc, Pm>::call_operator;
+	using base_type::get_array;
+	using base_type::call_operator;
 	template <typename P>
 		using iterator = factory_range_iterator<P>;
 	template <typename P, typename policy, typename A>
@@ -1330,17 +1331,11 @@ public:
 	{
 		return get_array().size();
 	}
-	template <typename T>
+	template <typename Self, typename T>
 		[[nodiscard]]
-		Pc operator()(T &&t DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) const
+		auto operator()(this Self &self, T &&t DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
 		{
-			return this->template call_operator<Pc>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<T &&>(t), get_array());
-		}
-	template <typename T>
-		[[nodiscard]]
-		Pm operator()(T &&t DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
-		{
-			return this->template call_operator<Pm>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<T &&>(t), get_array());
+			return self.template call_operator<typename base_type::template propagate_const<Self, Pm, Pc>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<T &&>(t), self.get_array());
 		}
 	[[nodiscard]]
 	iterator<Pc> begin() const
