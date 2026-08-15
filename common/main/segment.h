@@ -627,16 +627,12 @@ class visited_segment_mask_t
 	 */
 	template <typename byte_type>
 		maskproxy_assignable_type(unsigned, byte_type &) -> maskproxy_assignable_type<byte_type>;
-	static constexpr auto make_maskproxy(auto &a, const segnum_t s)
-	{
-		const auto segnum{static_cast<std::underlying_type_t<segnum_t>>(s)};
-		return maskproxy_assignable_type{{segnum % divisor}, a.at({segnum / divisor})};
-	}
 public:
 	[[nodiscard]]
 	constexpr auto operator[](this auto &self, const segnum_t segnum)
 	{
-		return make_maskproxy(self.a, segnum);
+		const auto underlying_segment_number{static_cast<std::underlying_type_t<segnum_t>>(segnum)};
+		return maskproxy_assignable_type{{underlying_segment_number % divisor}, self.a.at({underlying_segment_number / divisor})};
 	}
 };
 
