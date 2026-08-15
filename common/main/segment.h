@@ -634,14 +634,9 @@ class visited_segment_mask_t
 	}
 public:
 	[[nodiscard]]
-	auto operator[](const segnum_t segnum)
+	constexpr auto operator[](this auto &self, const segnum_t segnum)
 	{
-		return make_maskproxy(a, segnum);
-	}
-	[[nodiscard]]
-	auto operator[](const segnum_t segnum) const
-	{
-		return make_maskproxy(a, segnum);
+		return make_maskproxy(self.a, segnum);
 	}
 };
 
