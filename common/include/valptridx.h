@@ -1337,16 +1337,13 @@ public:
 		{
 			return self.template call_operator<typename base_type::template propagate_const<Self, Pm, Pc>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<T &&>(t), self.get_array());
 		}
-	[[nodiscard]]
-	iterator<Pc> begin() const
-	{
-		return Pc(valptridx<managed_type>::magic_constant<index_type{}>(), get_array());
-	}
-	[[nodiscard]]
-	iterator<Pm> begin()
-	{
-		return Pm(valptridx<managed_type>::magic_constant<index_type{}>(), get_array());
-	}
+	template <typename Self>
+		[[nodiscard]]
+		auto begin(this Self &self)
+		{
+			using P = typename base_type::template propagate_const<Self, Pm, Pc>;
+			return iterator<P>{P{valptridx<managed_type>::magic_constant<index_type{}>(), self.get_array()}};
+		}
 	[[nodiscard]]
 	iterator<Pc> end(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS) const
 	{
