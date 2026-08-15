@@ -1112,16 +1112,6 @@ protected:
 		{
 			return static_cast<propagate_const<Self, array_managed_type> &>(reinterpret_cast<propagate_const<Self, array_base_count_type> &>(self));
 		}
-	template <typename P>
-		static guarded<P> check_untrusted_internal(const index_type i, auto &a)
-		{
-			if (P::check_nothrow_index(i))
-				return P{i, a, assume_nothrow_index{}};
-			else
-				return nullptr;
-		}
-	template <typename P, typename index_type, typename array_type>
-		static guarded<P> check_untrusted_internal(index_type &&, array_type &) = delete;
 	template <typename P, typename index_type, typename array_type>
 		requires(
 			std::constructible_from<typename P::index_type, index_type>
@@ -1154,18 +1144,22 @@ public:
 	basic_ival_member_factory(const basic_ival_member_factory &) = delete;
 	basic_ival_member_factory &operator=(const basic_ival_member_factory &) = delete;
 	void *operator &() const = delete;
-	template <typename Self, typename I>
+	template <typename Self>
 		[[nodiscard]]
-		auto check_untrusted(this Self &self, I &&i)
+		auto check_untrusted(this Self &self, index_type i)
 		{
+			using P = Pmc<Self>;
+			if (!P::check_nothrow_index(i))
+				return guarded<P>{nullptr};
 			/* The deduced type may be a derived class, but `get_array` is
 			 * protected, so it can only be called through a reference to the
 			 * base class.  Construct a base class reference with appropriate
 			 * const qualification.
 			 */
 			propagate_const<Self, basic_ival_member_factory> &base{self};
-			return base.template check_untrusted_internal<Pmc<Self>>(static_cast<I &&>(i), base.get_array());
+			return guarded<P>{P{i, base.get_array(), assume_nothrow_index{}}};
 		}
+	void check_untrusted(this auto &self, auto &&i) = delete;
 	template <typename Self, typename I>
 		[[nodiscard]]
 		auto operator()(this Self &self, I &&i DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
