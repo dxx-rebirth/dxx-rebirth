@@ -1344,16 +1344,13 @@ public:
 			using P = typename base_type::template propagate_const<Self, Pm, Pc>;
 			return iterator<P>{P{valptridx<managed_type>::magic_constant<index_type{}>(), self.get_array()}};
 		}
-	[[nodiscard]]
-	iterator<Pc> end(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS) const
-	{
-		return this->template end_internal<Pc>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS get_array());
-	}
-	[[nodiscard]]
-	iterator<Pm> end(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS)
-	{
-		return this->template end_internal<Pm>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS get_array());
-	}
+	template <typename Self>
+		[[nodiscard]]
+		auto end(this Self &self, DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS)
+		{
+			using P = typename base_type::template propagate_const<Self, Pm, Pc>;
+			return self.template end_internal<P>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS self.get_array());
+		}
 };
 
 #define DXX_VALPTRIDX_DEFINE_FACTORY(MANAGED_TYPE, GLOBAL_FACTORY, GLOBAL_ARRAY, MEMBER_FACTORY)	\
