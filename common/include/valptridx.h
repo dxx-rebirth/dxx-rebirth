@@ -1063,17 +1063,11 @@ public:
 	using array_base_count_type::IVPREFIX ## MCPREFIX ## PISUFFIX
 	DXX_VALPTRIDX_FOR_EACH_PPI_TYPE(DXX_VALPTRIDX_ACCESS_SUBTYPE_MEMBER_FACTORIES,,,);
 #undef DXX_VALPTRIDX_ACCESS_SUBTYPE_MEMBER_FACTORIES
-	using typename array_base_storage_type::reference;
-	using typename array_base_storage_type::const_reference;
-	reference operator[](const index_type n)
-		{
-			return array_base_storage_type::operator[](n);
-		}
-	const_reference operator[](const index_type n) const
-		{
-			return array_base_storage_type::operator[](n);
-		}
-	reference operator[](auto) const = delete;
+	decltype(auto) operator[](this auto &self, const index_type n)
+	{
+		return self.array_base_storage_type::operator[](n);
+	}
+	void operator[](this auto &, auto) = delete;
 #if DXX_HAVE_POISON_UNDEFINED
 	array_managed_type();
 #else
