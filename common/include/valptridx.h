@@ -1166,17 +1166,15 @@ public:
 			propagate_const<Self, basic_ival_member_factory> &base{self};
 			return base.template check_untrusted_internal<Pmc<Self>>(static_cast<I &&>(i), base.get_array());
 		}
-	template <typename T>
+	template <typename Self, typename I>
 		[[nodiscard]]
-		Pc operator()(T &&t DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS) const
+		auto operator()(this Self &self, I &&i DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
 		{
-			return this->template call_operator<Pc>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<T &&>(t), get_array());
-		}
-	template <typename T>
-		[[nodiscard]]
-		Pm operator()(T &&t DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
-		{
-			return this->template call_operator<Pm>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<T &&>(t), get_array());
+			/* The derived class shadows this function, so `Self` always
+			 * deduces to `const basic_ival_member_factory` or
+			 * `basic_ival_member_factory` here.
+			 */
+			return self.template call_operator<Pmc<Self>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<I &&>(i), self.get_array());
 		}
 };
 
