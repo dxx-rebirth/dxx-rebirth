@@ -1085,6 +1085,8 @@ class valptridx<managed_type>::basic_ival_member_factory
 protected:
 	template <typename maybe_const, typename mutable_type, typename const_type = const mutable_type>
 		using propagate_const = std::conditional_t<std::is_const_v<maybe_const>, const_type, mutable_type>;
+	template <typename maybe_const>
+		using Pmc = propagate_const<maybe_const, Pm, Pc>;
 	/*
 	 * These casts are well-defined:
 	 * - The reinterpret_cast is defined because
@@ -1152,17 +1154,17 @@ public:
 	basic_ival_member_factory(const basic_ival_member_factory &) = delete;
 	basic_ival_member_factory &operator=(const basic_ival_member_factory &) = delete;
 	void *operator &() const = delete;
-	template <typename T>
+	template <typename Self, typename I>
 		[[nodiscard]]
-		guarded<Pc> check_untrusted(T &&t) const
+		auto check_untrusted(this Self &self, I &&i)
 		{
-			return this->template check_untrusted_internal<Pc>(static_cast<T &&>(t), get_array());
-		}
-	template <typename T>
-		[[nodiscard]]
-		guarded<Pm> check_untrusted(T &&t)
-		{
-			return this->template check_untrusted_internal<Pm>(static_cast<T &&>(t), get_array());
+			/* The deduced type may be a derived class, but `get_array` is
+			 * protected, so it can only be called through a reference to the
+			 * base class.  Construct a base class reference with appropriate
+			 * const qualification.
+			 */
+			propagate_const<Self, basic_ival_member_factory> &base{self};
+			return base.template check_untrusted_internal<Pmc<Self>>(static_cast<I &&>(i), base.get_array());
 		}
 	template <typename T>
 		[[nodiscard]]
