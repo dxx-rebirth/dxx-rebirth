@@ -1315,11 +1315,6 @@ protected:
 		{
 			return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS p, a);
 		}
-	template <typename P, typename A>
-		static iterator<P> end_internal(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS A &a)
-		{
-			return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<index_type>(a.get_count()), a, allow_end_construction{});
-		}
 public:
 	[[nodiscard]]
 	typename array_base_storage_type::size_type count() const
@@ -1349,7 +1344,8 @@ public:
 		auto end(this Self &self, DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_DECL_VARS)
 		{
 			using P = typename base_type::template propagate_const<Self, Pm, Pc>;
-			return self.template end_internal<P>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS self.get_array());
+			auto &a{self.get_array()};
+			return iterator<P>{P{DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<index_type>(a.get_count()), a, allow_end_construction{}}};
 		}
 };
 
