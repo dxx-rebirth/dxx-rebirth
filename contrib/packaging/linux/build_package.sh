@@ -13,7 +13,7 @@ curl \
     --show-error \
     --location \
     --output "#1" \
-	https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20240109-1/"{$appimage}" \
+	https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20251107-1/"{$appimage}" \
     || exit 3
 chmod a+x "$appimage"
 
