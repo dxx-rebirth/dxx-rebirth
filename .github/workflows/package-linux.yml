@@ -21,6 +21,7 @@ jobs:
           sudo apt-get update
 
           sudo apt install -y
+          bubblewrap
           gcc-15 g++-15
           python3
           scons
@@ -46,8 +47,21 @@ jobs:
 
       - name: Configure and Build
         run: >
+          mkdir -p build
+
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
           nproc="$(nproc)"
 
+          bwrap
+          --unshare-net
+          --unshare-pid
+          --unshare-user
+          --ro-bind / /
+          --dev /dev
+          --bind /tmp /tmp
+          --bind "$PWD/build" "$PWD/build"
+          --
           scons
           "-j$nproc"
           -k
@@ -66,6 +80,28 @@ jobs:
         run: sudo apt-get install -y libfuse2 wget curl
 
       - name: Package
+      # No bubblewrap sandbox for this step, since:
+      # - as an unprivileged user, `--unshare-user` is a prerequisite for any
+      # other `--unshare-NS`
+      #
+      # - `--unshare-net` would prevent `build_package.sh` downloading the tool
+      # to create the AppImage.  The download of the AppImage helper tool could
+      # be split out and run outside the `--unshare-net` sandbox.  However, due
+      # to the next point, this does not help.
+      #
+      # - the downloaded tool uses FUSE to mount its embedded libraries, and
+      # using FUSE requires running the setuid `fusermount`.  `fusermount` does
+      # not elevate properly inside the unprivileged user namespace.  Thus,
+      # FUSE would fail under `--unshare-user`, causing the downloaded tool to
+      # fail.
+      #
+      # - `--unshare-pid` is not significant on its own.
+      #
+      # - Binding the build directory as read-only causes the AppImage tool to
+      # fail to create its directory structure.  This might be possible to fix
+      # with a different invocation of the tool, but was not attempted, since
+      # unprivileged `bwrap` breaks FUSE, and privileged `bwrap` without a user
+      # namespace would run the process as root inside the sandbox.
         run: ./contrib/packaging/linux/build_package.sh
         env:
           rebirth_uname_m: ${{ steps.architecture.outputs.uname_m }}
@@ -80,6 +116,15 @@ jobs:
         run: >
           nproc="$(nproc)"
 
+          bwrap
+          --unshare-net
+          --unshare-pid
+          --unshare-user
+          --ro-bind / /
+          --dev /dev
+          --bind /tmp /tmp
+          --bind "$PWD/build" "$PWD/build"
+          --
           scons
           "-j$nproc"
           -k
