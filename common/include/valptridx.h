@@ -1083,6 +1083,8 @@ class valptridx<managed_type>::basic_ival_member_factory
 {
 	using containing_type = valptridx<managed_type>;
 protected:
+	template <typename maybe_const, typename mutable_type, typename const_type = const mutable_type>
+		using propagate_const = std::conditional_t<std::is_const_v<maybe_const>, const_type, mutable_type>;
 	/*
 	 * These casts are well-defined:
 	 * - The reinterpret_cast is defined because
@@ -1103,14 +1105,11 @@ protected:
 	 *   instance of `array_base_count_type` must be safe to downcast to
 	 *   `array_managed_type`.
 	 */
-	constexpr const array_managed_type &get_array() const
-	{
-		return static_cast<const array_managed_type &>(reinterpret_cast<const array_base_count_type &>(*this));
-	}
-	array_managed_type &get_array()
-	{
-		return static_cast<array_managed_type &>(reinterpret_cast<array_base_count_type &>(*this));
-	}
+	template <typename Self>
+		constexpr auto &get_array(this Self &self)
+		{
+			return static_cast<propagate_const<Self, array_managed_type> &>(reinterpret_cast<propagate_const<Self, array_base_count_type> &>(self));
+		}
 	template <typename P>
 		static guarded<P> check_untrusted_internal(const index_type i, auto &a)
 		{
