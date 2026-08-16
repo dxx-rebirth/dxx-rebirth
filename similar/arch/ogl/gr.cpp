@@ -601,10 +601,6 @@ static void ogl_init_state(void)
 	ogl_init_pixel_buffers(grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height());
 }
 
-}
-
-namespace dsx {
-
 static void ogl_tune_for_current(void)
 {
 #if !DXX_USE_OGLES
@@ -649,10 +645,6 @@ static void ogl_tune_for_current(void)
 	}
 #endif
 }
-
-}
-
-namespace dcx {
 
 #if SDL_MAJOR_VERSION == 1
 // returns possible (fullscreen) resolutions if any.
