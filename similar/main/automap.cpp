@@ -755,7 +755,7 @@ static void name_frame(grs_canvas &canvas, automap &am, int dx = 0, int dy = 0)
 		snprintf(name_level_left, sizeof(name_level_left), "Secret Level %i",-Current_level_num);
 
 	const char *const current_level_name{Current_level_name};
-	if (PLAYING_BUILTIN_MISSION && Current_level_num > 0)
+	if (PLAYING_BUILTIN_MISSION && Current_level_num > 0 && Current_mission->descent_version == Mission::descent_version_type::descent2)
 		snprintf(name_level_right, sizeof(name_level_right), "%s %d: %s", system_name[(Current_level_num-1)/4], ((Current_level_num - 1) % 4) + 1, current_level_name);
 	else
 		snprintf(name_level_right, sizeof(name_level_right), " %s", current_level_name);
