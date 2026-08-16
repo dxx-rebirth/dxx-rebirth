@@ -375,15 +375,16 @@ static void build_sound_allocation(const NamedPHYSFS_File fp)
 		PHYSFSX_read_helper_report_error(__FILE__, __LINE__, __FUNCTION__, fp);
 	const unsigned offset_adjustment{sound_headers_start + sound_headers_size};
 	unsigned required_allocation_size{0};
+	const auto freq{GameArg.SndDigiSampleRate};
 	for (const auto i : xrange(N_sounds))
 	{
 		const auto sndh{DiskSoundHeader_read(sbuf.first<sizeof(DiskSoundHeader)>())};
 		sbuf = sbuf.subspan<sizeof(DiskSoundHeader)>();
-		digi_sound temp_sound;
-		temp_sound.length = sndh.length;
-		const game_sound_offset sound_offset{sndh.offset + offset_adjustment};
-		temp_sound.data = digi_sound::allocated_data::build_deferred_borrowed_pointer(sound_offset);
-		piggy_register_sound(std::move(temp_sound), std::span(sndh.name).first<8>());
+		piggy_register_sound(digi_sound{
+			.length{sndh.length},
+			.freq{freq},
+			.data{digi_sound::allocated_data::build_deferred_borrowed_pointer(game_sound_offset{sndh.offset + offset_adjustment})}
+			}, std::span(sndh.name).first<8>());
 		if (piggy_is_needed(i))
 			required_allocation_size += sndh.length;
 	}
@@ -696,17 +697,13 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 		for (; !sbuf.empty(); sbuf = sbuf.subspan<sizeof(DiskSoundHeader)>())
 		{
 			const auto sndh{DiskSoundHeader_read(sbuf.first<sizeof(DiskSoundHeader)>())};
-		digi_sound temp_sound;
-		temp_sound.length = sndh.length;
-
-//added on 11/13/99 by Victor Rachels to ready for changing freq
-		temp_sound.freq = sound_sample_rate::_11k;
-//end this section addition - VR
-		const game_sound_offset sound_offset{sndh.offset + header_size + uint32_t{sizeof(int) * 2} + Pigdata_start};
-		temp_sound.data = digi_sound::allocated_data::build_deferred_borrowed_pointer(sound_offset);
+			piggy_register_sound(digi_sound{
+				.length{sndh.length},
+				.freq{sound_sample_rate::_11k},
+				.data{digi_sound::allocated_data::build_deferred_borrowed_pointer(game_sound_offset{sndh.offset + header_size + uint32_t{sizeof(int) * 2} + Pigdata_start})}
+				}, std::span(sndh.name).first<8>());
 		if (PCSharePig)
 			SoundCompressed[Num_sound_files] = sndh.data_length;
-		piggy_register_sound(std::move(temp_sound), std::span(sndh.name).first<8>());
                 sbytes += sndh.length;
 	}
 
