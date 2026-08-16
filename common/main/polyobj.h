@@ -97,7 +97,7 @@ template <typename T>
 using per_submodel_array = enumerated_array<T, MAX_SUBMODELS, submodel_index>;
 
 //used to describe a polygon model
-struct polymodel : prohibit_void_ptr<polymodel>
+struct polymodel : prohibit_void_ptr<>
 {
 	unsigned model_data_size;
 	std::unique_ptr<uint8_t[]>   model_data;

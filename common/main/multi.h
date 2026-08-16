@@ -751,7 +751,7 @@ void save_hoard_data(void);
  * Contains protocol-specific data with designated prefixes and general player-related data.
  * Note that not all of these infos will be sent to other users - some are used and/or set locally, only.
  */
-struct netplayer_info : prohibit_void_ptr<netplayer_info>
+struct netplayer_info : prohibit_void_ptr<>
 {
 	enum class player_rank : uint8_t
 	{
@@ -799,7 +799,7 @@ namespace dsx {
  * Contains protocol-specific data with designated prefixes and general game-related data.
  * Note that not all of these infos will be sent to clients - some are used and/or set locally, only.
  */
-struct netgame_info : prohibit_void_ptr<netgame_info>
+struct netgame_info : prohibit_void_ptr<>
 {
 	static constexpr std::integral_constant<netflag_flag, static_cast<netflag_flag>(0 for_each_netflag_value(define_netflag_powerup_mask))> MaskAllKnownAllowedItems{};
 #undef define_netflag_powerup_mask

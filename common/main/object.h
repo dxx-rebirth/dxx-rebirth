@@ -215,7 +215,7 @@ struct player_info
 namespace dcx {
 
 // A compressed form for sending crucial data
-struct shortpos : prohibit_void_ptr<shortpos>
+struct shortpos : prohibit_void_ptr<>
 {
 	static constexpr unsigned velocity_precision_shift{12};
 	std::array<int8_t, 9> bytemat;
@@ -244,7 +244,7 @@ struct laser_parent
 	object_signature_t parent_signature{};   // The object's parent's signature...
 };
 
-struct laser_info : prohibit_void_ptr<laser_info>, laser_parent
+struct laser_info : prohibit_void_ptr<>, laser_parent
 {
 	fix64 creation_time{0};      // Absolute time of creation.
 	/* hitobj_pos specifies the next position to which a value should be
@@ -300,7 +300,7 @@ struct laser_info_rw
 	fix     multiplier;         // Power if this is a fusion bolt (or other super weapon to be added).
 } __pack__;
 
-struct explosion_info : prohibit_void_ptr<explosion_info>
+struct explosion_info : prohibit_void_ptr<>
 {
     fix     spawn_time;         // when lifeleft is < this, spawn another
     fix     delete_time;        // when to delete object
@@ -320,7 +320,7 @@ struct explosion_info_rw
     short   next_attach;        // next explosion in attach list
 } __pack__;
 
-struct light_info : prohibit_void_ptr<light_info>
+struct light_info : prohibit_void_ptr<>
 {
     fix     intensity;          // how bright the light is
 };
@@ -330,7 +330,7 @@ struct light_info_rw
     fix     intensity;          // how bright the light is
 } __pack__;
 
-struct powerup_info : prohibit_void_ptr<powerup_info>
+struct powerup_info : prohibit_void_ptr<>
 {
 	int     count;          // how many/much we pick up (vulcan cannon only?)
 	int     flags;          // spat by player?
@@ -355,7 +355,7 @@ struct powerup_info_rw
 
 namespace dcx {
 
-struct vclip_info : prohibit_void_ptr<vclip_info>
+struct vclip_info : prohibit_void_ptr<>
 {
 	vclip_index vclip_num;
 	uint8_t framenum;
@@ -371,7 +371,7 @@ struct vclip_info_rw
 
 // structures for different kinds of rendering
 
-struct polyobj_info : prohibit_void_ptr<polyobj_info>
+struct polyobj_info : prohibit_void_ptr<>
 {
 	union {
 		::d1x::polygon_model_index d1x;// which polygon model

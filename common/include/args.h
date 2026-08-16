@@ -66,7 +66,7 @@ namespace dcx {
 enum class sound_sample_rate : uint16_t;
 enum class digi_mixer_method : uint8_t;
 
-struct CArg : prohibit_void_ptr<CArg>
+struct CArg : prohibit_void_ptr<>
 {
 	bool CtlNoCursor;
 	bool CtlNoMouse;
@@ -148,7 +148,7 @@ extern CArg CGameArg;
 
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {
-struct Arg : prohibit_void_ptr<Arg>
+struct Arg : prohibit_void_ptr<>
 {
 #if DXX_BUILD_DESCENT == 1
 	bool EdiNoBm;

@@ -99,7 +99,7 @@ inline constexpr bool enable_bit_enum_or<trigger_behavior_flags, trigger_behavio
 
 //old trigger structs
 
-struct v29_trigger : prohibit_void_ptr<v29_trigger>
+struct v29_trigger : prohibit_void_ptr<>
 {
 	sbyte   type;
 	short   flags;
@@ -110,7 +110,7 @@ struct v29_trigger : prohibit_void_ptr<v29_trigger>
 	std::array<sidenum_t, MAX_WALLS_PER_LINK>  side;
 };
 
-struct v30_trigger : prohibit_void_ptr<v30_trigger>
+struct v30_trigger : prohibit_void_ptr<>
 {
 	short   flags;
 	sbyte   num_links;
@@ -166,7 +166,7 @@ enum class trgnum_t : uint8_t
 
 namespace dsx {
 
-struct trigger : public prohibit_void_ptr<trigger>
+struct trigger : public prohibit_void_ptr<>
 {
 #if DXX_BUILD_DESCENT == 1
 	uint16_t flags;

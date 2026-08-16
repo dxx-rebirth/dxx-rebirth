@@ -193,7 +193,7 @@ enum class ai_mode : uint8_t
 namespace dsx {
 
 // Rather temporal AI stuff.
-struct ai_local : public prohibit_void_ptr<ai_local>
+struct ai_local : public prohibit_void_ptr<>
 {
 // These used to be bytes, changed to ints so I could set watchpoints on them.
 	player_awareness_type_t player_awareness_type = player_awareness_type_t::PA_NONE;           // type of awareness of player
@@ -219,7 +219,7 @@ struct ai_local : public prohibit_void_ptr<ai_local>
 	enumerated_array<ai_static_state, MAX_SUBMODELS, robot_gun_goal_index> achieved_state{}; // Last achieved state
 };
 
-struct ai_static : public prohibit_void_ptr<ai_static>
+struct ai_static : public prohibit_void_ptr<>
 {
 	ai_behavior behavior{};               //
 	robot_gun_number CURRENT_GUN;
@@ -316,7 +316,7 @@ struct ai_local_rw
 	sbyte      achieved_state[MAX_SUBMODELS]; // Last achieved state
 };
 
-struct ai_cloak_info : public prohibit_void_ptr<ai_cloak_info>
+struct ai_cloak_info : public prohibit_void_ptr<>
 {
 	fix64       last_time;
 #if DXX_BUILD_DESCENT == 2
@@ -355,7 +355,8 @@ void drop_stolen_items_local(d_level_unique_object_state &LevelUniqueObjectState
 
 namespace dcx {
 
-struct point_seg : prohibit_void_ptr<point_seg> {
+struct point_seg : prohibit_void_ptr<>
+{
 	segnum_t         segnum;
 	vms_vector  point;
 };

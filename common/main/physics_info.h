@@ -15,7 +15,7 @@
 namespace dcx {
 
 // information for physics sim for an object
-struct physics_info : prohibit_void_ptr<physics_info>
+struct physics_info : prohibit_void_ptr<>
 {
 	vms_vector  velocity;   // velocity vector of this object
 	vms_vector  thrust;     // constant force applied to this object

@@ -10,8 +10,8 @@
 
 template <std::size_t L>
 class ntstring :
-	public prohibit_void_ptr<ntstring<L>>,
-	public std::array<char, L + 1>
+	public std::array<char, L + 1>,
+	public prohibit_void_ptr<>
 {
 public:
 	using array_t = std::array<char, L + 1>;

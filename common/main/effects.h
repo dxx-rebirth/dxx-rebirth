@@ -60,7 +60,7 @@ enum class effect_index : uint8_t
 
 namespace dcx {
 
-struct eclip : public prohibit_void_ptr<eclip>
+struct eclip : public prohibit_void_ptr<>
 {
 	vclip   vc;             //imbedded vclip
 	fix     time_left;      //for sequencing

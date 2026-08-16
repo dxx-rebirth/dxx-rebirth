@@ -89,7 +89,7 @@ static inline wall_is_doorway_result &operator|=(wall_is_doorway_result &r, cons
 	return r = static_cast<wall_is_doorway_result>(static_cast<uint8_t>(r) | static_cast<uint8_t>(f));
 }
 
-struct stuckobj : public prohibit_void_ptr<stuckobj>
+struct stuckobj : public prohibit_void_ptr<>
 {
 	objnum_t objnum = object_none;
 	wallnum_t wallnum = wall_none;
@@ -98,7 +98,7 @@ struct stuckobj : public prohibit_void_ptr<stuckobj>
 
 //Start old wall structures
 
-struct v16_wall : public prohibit_void_ptr<v16_wall>
+struct v16_wall : public prohibit_void_ptr<>
 {
 	sbyte   type;               // What kind of special wall.
 	sbyte   flags;              // Flags for the wall.
@@ -108,7 +108,7 @@ struct v16_wall : public prohibit_void_ptr<v16_wall>
 	sbyte   keys;
 };
 
-struct v19_wall : public prohibit_void_ptr<v19_wall>
+struct v19_wall : public prohibit_void_ptr<>
 {
 	segnum_t     segnum;
 	sbyte   type;               // What kind of special wall.
@@ -197,7 +197,7 @@ public:
 
 extern d_level_unique_stuck_object_state LevelUniqueStuckObjectState;
 
-struct wall : public prohibit_void_ptr<wall>
+struct wall : public prohibit_void_ptr<>
 {
 	segnum_t segnum;
 	sidenum_t sidenum;     // Seg & side for this wall
@@ -221,7 +221,7 @@ struct wall : public prohibit_void_ptr<wall>
 
 namespace dcx {
 
-struct active_door : public prohibit_void_ptr<active_door>
+struct active_door : public prohibit_void_ptr<>
 {
 	unsigned n_parts;            // for linked walls
 	std::array<wallnum_t, 2>   front_wallnum;   // front wall numbers for this door
@@ -238,7 +238,7 @@ struct d_level_unique_active_door_state
 
 namespace dsx {
 #if DXX_BUILD_DESCENT == 2
-struct cloaking_wall : public prohibit_void_ptr<cloaking_wall>
+struct cloaking_wall : public prohibit_void_ptr<>
 {
 	wallnum_t       front_wallnum;  // front wall numbers for this door
 	wallnum_t       back_wallnum;   // back wall numbers for this door
@@ -270,7 +270,7 @@ struct d_level_unique_wall_subsystem_state :
 
 extern d_level_unique_wall_subsystem_state LevelUniqueWallSubsystemState;
 
-struct wclip : public prohibit_void_ptr<wclip>
+struct wclip : public prohibit_void_ptr<>
 {
 	fix     play_time;
 	uint16_t num_frames;

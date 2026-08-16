@@ -46,7 +46,7 @@ enum class fvi_hit_type : uint8_t
 #define MAX_FVI_SEGS 100
 
 //this data structure gets filled in by find_vector_intersection()
-struct fvi_info : prohibit_void_ptr<fvi_info>
+struct fvi_info : prohibit_void_ptr<>
 {
 	struct segment_array_t : public count_array_t<segnum_t, MAX_FVI_SEGS> {};
 	vms_vector hit_pnt;			//where we hit

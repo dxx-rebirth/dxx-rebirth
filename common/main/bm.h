@@ -98,7 +98,7 @@ constexpr std::integral_constant<unsigned, 1200> MAX_TEXTURES{};
 
 enum class effect_index : uint8_t;
 
-struct tmap_info : prohibit_void_ptr<tmap_info>
+struct tmap_info : prohibit_void_ptr<>
 {
 	fix     lighting;  //how much light this casts
 	fix     damage;    //how much damage being against this does (for lava)

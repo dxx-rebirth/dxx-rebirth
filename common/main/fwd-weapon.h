@@ -138,7 +138,7 @@ extern const per_secondary_weapon_array<player_gun_number> Secondary_weapon_to_g
 namespace dcx {
 extern unsigned N_weapon_types;
 template <typename T>
-class player_selected_weapon : public prohibit_void_ptr<player_selected_weapon<T>>
+class player_selected_weapon : public prohibit_void_ptr<>
 {
 	T active, delayed;
 public:

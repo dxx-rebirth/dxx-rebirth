@@ -90,7 +90,7 @@ void fuelcen_update_all(const d_robot_info_array &Robot_info);
 namespace dcx {
 
 // An array of pointers to segments with fuel centers.
-struct FuelCenter : public prohibit_void_ptr<FuelCenter>
+struct FuelCenter : public prohibit_void_ptr<>
 {
 	segnum_t     segnum;
 	segment_special     Type;
@@ -103,7 +103,7 @@ struct FuelCenter : public prohibit_void_ptr<FuelCenter>
 };
 
 // The max number of robot centers per mine.
-struct d1_matcen_info : public prohibit_void_ptr<d1_matcen_info>
+struct d1_matcen_info : public prohibit_void_ptr<>
 {
 	std::array<unsigned, 1>     robot_flags;    // Up to 32 different robots
 	segnum_t   segnum;         // Segment this is attached to.
@@ -135,7 +135,7 @@ void matcen_info_read(NamedPHYSFS_File fp, matcen_info &ps, int version);
 
 }
 #elif DXX_BUILD_DESCENT == 2
-struct matcen_info : public prohibit_void_ptr<matcen_info>
+struct matcen_info : public prohibit_void_ptr<>
 {
 	std::array<unsigned, 2>     robot_flags; // Up to 64 different robots
 	segnum_t   segnum;         // Segment this is attached to.

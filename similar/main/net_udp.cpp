@@ -200,7 +200,7 @@ namespace {
 void net_udp_send_netgame_update();
 
 // player position packet structure
-struct UDP_frame_info : prohibit_void_ptr<UDP_frame_info>
+struct UDP_frame_info : prohibit_void_ptr<>
 {
 	ubyte				type;
 	ubyte				Player_num;

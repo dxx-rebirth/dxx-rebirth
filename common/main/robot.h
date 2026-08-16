@@ -65,7 +65,7 @@ enum class robot_id : uint8_t
 enum class boss_robot_id : uint8_t;
 
 //describes the position of a certain joint
-struct jointpos : prohibit_void_ptr<jointpos>
+struct jointpos : prohibit_void_ptr<>
 {
 	uint16_t jointnum;
 	vms_angvec angles;
@@ -90,7 +90,7 @@ namespace dsx {
 constexpr auto weapon_none{weapon_id_type::unspecified};
 
 //  Robot information
-struct robot_info : prohibit_void_ptr<robot_info>
+struct robot_info : prohibit_void_ptr<>
 {
 	polygon_model_index model_num;                  // which polygon model?
 	enumerated_array<vms_vector, MAX_GUNS, robot_gun_number>  gun_points;   // where each gun model is

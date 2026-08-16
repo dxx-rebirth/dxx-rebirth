@@ -156,7 +156,7 @@ enum class player_config_joystick_index : std::size_t
 
 namespace dsx {
 
-struct player_config : prohibit_void_ptr<player_config>
+struct player_config : prohibit_void_ptr<>
 {
 	ubyte ControlType;
 	HudType HudMode;

@@ -422,7 +422,7 @@ enum class delta_light_index : uint16_t
 
 // New stuff, 10/14/95: For shooting out lights and monitors.
 // Light cast upon vert_light vertices in segnum:sidenum by some light
-struct delta_light : prohibit_void_ptr<delta_light>
+struct delta_light : prohibit_void_ptr<>
 {
 	segnum_t   segnum;
 	sidenum_t  sidenum;

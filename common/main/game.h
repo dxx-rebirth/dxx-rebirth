@@ -408,7 +408,7 @@ struct d_flickering_light_state
 #endif
 
 //Cheats
-struct game_cheats : prohibit_void_ptr<game_cheats>
+struct game_cheats : prohibit_void_ptr<>
 {
 	int8_t enabled;
 	int8_t wowie;

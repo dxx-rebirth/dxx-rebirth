@@ -63,7 +63,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace {
 
 //structure of the header in the file
-struct iff_bitmap_header : prohibit_void_ptr<iff_bitmap_header>
+struct iff_bitmap_header : prohibit_void_ptr<>
 {
 	short w,h;						//width and height of this bitmap
 	short x,y;						//generally unused

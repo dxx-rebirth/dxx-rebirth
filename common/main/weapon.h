@@ -114,7 +114,7 @@ static inline laser_level &operator--(laser_level &a)
 	return (a = static_cast<laser_level>(static_cast<uint8_t>(a) - 1u));
 }
 
-struct weapon_info : prohibit_void_ptr<weapon_info>
+struct weapon_info : prohibit_void_ptr<>
 {
 	enum class render_type : uint8_t
 	{

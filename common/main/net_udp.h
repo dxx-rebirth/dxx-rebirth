@@ -93,7 +93,7 @@ constexpr std::integral_constant<unsigned, 12> UDP_NETGAMES_PPAGE{}; // Netgames
 
 // Structure keeping lite game infos (for netlist, etc.)
 #ifdef DXX_BUILD_DESCENT
-struct UDP_netgame_info_lite : public prohibit_void_ptr<UDP_netgame_info_lite>
+struct UDP_netgame_info_lite : public prohibit_void_ptr<>
 {
 	struct _sockaddr                game_addr;
 	std::array<short, 3>                 program_iver;
@@ -125,7 +125,7 @@ public:
 #endif
 
 // packet structure for multi-buffer
-struct UDP_mdata_info : prohibit_void_ptr<UDP_mdata_info>
+struct UDP_mdata_info : prohibit_void_ptr<>
 {
 	ubyte				type;
 	ubyte				Player_num;
@@ -136,7 +136,7 @@ struct UDP_mdata_info : prohibit_void_ptr<UDP_mdata_info>
 
 #ifdef DXX_BUILD_DESCENT
 // structure to store MDATA to maybe resend
-struct UDP_mdata_store : prohibit_void_ptr<UDP_mdata_store>
+struct UDP_mdata_store : prohibit_void_ptr<>
 {
 	fix64				pkt_initial_timestamp;			// initial timestamp to see if packet is outdated
 	per_player_array<fix64>		pkt_timestamp;		// Packet timestamp
@@ -150,7 +150,7 @@ struct UDP_mdata_store : prohibit_void_ptr<UDP_mdata_store>
 #endif
 
 // structure to keep track of MDATA packets we already got, which we expect from another player and the pkt_num for the next packet we want to send to another player
-struct UDP_mdata_check : public prohibit_void_ptr<UDP_mdata_check>
+struct UDP_mdata_check : public prohibit_void_ptr<>
 {
 	std::array<uint32_t, UDP_MDATA_STOR_QUEUE_SIZE>			pkt_num; 	// all those we got just recently, so we can ignore them if we get them again
 	int				cur_slot; 				// index we can use for a new pkt_num

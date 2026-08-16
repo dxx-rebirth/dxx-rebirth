@@ -42,7 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-struct morph_data : prohibit_void_ptr<morph_data>
+struct morph_data : prohibit_void_ptr<>
 {
 	using ptr = std::unique_ptr<morph_data>;
 	enum

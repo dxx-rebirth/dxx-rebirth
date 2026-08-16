@@ -40,7 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-struct control_center_triggers : public prohibit_void_ptr<control_center_triggers>
+struct control_center_triggers : public prohibit_void_ptr<>
 {
 	static constexpr std::integral_constant<std::size_t, 10> max_links{};
 	uint8_t num_links;

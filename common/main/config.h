@@ -51,7 +51,7 @@ enum class LevelMusicPlayOrder : uint8_t
 	Random,
 };
 
-struct CCfg : prohibit_void_ptr<CCfg>
+struct CCfg : prohibit_void_ptr<>
 {
 	uint16_t ResolutionX;
 	uint16_t ResolutionY;
@@ -90,7 +90,7 @@ extern struct CCfg CGameCfg;
 
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {
-struct Cfg : prohibit_void_ptr<Cfg>
+struct Cfg : prohibit_void_ptr<>
 {
 #if DXX_BUILD_DESCENT == 2
 	bool MovieSubtitles;

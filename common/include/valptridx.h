@@ -807,7 +807,7 @@ struct strong_typedef : T
 template <typename managed_type>
 template <typename policy>
 class valptridx<managed_type>::ptridx :
-	public prohibit_void_ptr<ptridx<policy>>,
+	public prohibit_void_ptr<>,
 	public ptr<policy>,
 	public idx<policy>
 {

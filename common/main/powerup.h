@@ -31,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef DXX_BUILD_DESCENT
 namespace dcx {
 
-struct powerup_type_info : public prohibit_void_ptr<powerup_type_info>
+struct powerup_type_info : public prohibit_void_ptr<>
 {
 	vclip_index vclip_num;
 	sound_effect hit_sound;

@@ -151,7 +151,7 @@ public:
 	}
 };
 
-struct grs_canvas : prohibit_void_ptr<grs_canvas>
+struct grs_canvas : prohibit_void_ptr<>
 {
 	grs_canvas(const grs_canvas &) = delete;
 	grs_canvas &operator=(const grs_canvas &) = delete;
@@ -229,9 +229,8 @@ static inline uint16_t SM_H(const screen_mode &s)
 // Makes a new canvas. allocates memory for the canvas and its bitmap,
 // including the raw pixel buffer.
 
-struct grs_main_canvas : grs_canvas, prohibit_void_ptr<grs_main_canvas>
+struct grs_main_canvas : grs_canvas
 {
-	using prohibit_void_ptr<grs_main_canvas>::operator &;
 	grs_main_canvas &operator=(grs_main_canvas &) = delete;
 	grs_main_canvas &operator=(grs_main_canvas &&) = default;
 	~grs_main_canvas();
@@ -240,9 +239,8 @@ struct grs_main_canvas : grs_canvas, prohibit_void_ptr<grs_main_canvas>
 // Creates a canvas that is part of another canvas.  This can be used to make
 // a window on the screen.  The address of the raw pixel data is inherited from
 // the parent canvas.
-struct grs_subcanvas : grs_canvas, prohibit_void_ptr<grs_subcanvas>
+struct grs_subcanvas : grs_canvas
 {
-	using prohibit_void_ptr<grs_subcanvas>::operator &;
 };
 
 #if DXX_USE_SDLIMAGE || !DXX_USE_OGL
@@ -266,7 +264,7 @@ struct RAII_SDL_Surface
 };
 #endif
 
-class grs_screen : prohibit_void_ptr<grs_screen>
+class grs_screen : prohibit_void_ptr<>
 {    // This is a video screen
 	screen_mode sc_mode;
 public:
@@ -315,7 +313,7 @@ class grs_subbitmap : public grs_bitmap
 };
 
 //font structure
-struct grs_font : public prohibit_void_ptr<grs_font>
+struct grs_font : public prohibit_void_ptr<>
 {
 	uint16_t    ft_w;           // Width in pixels
 	uint16_t    ft_h;           // Height in pixels

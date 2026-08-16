@@ -84,7 +84,7 @@ extern d_player_unique_endlevel_state PlayerUniqueEndlevelState;
 
 // When this structure changes, increment the constant
 // SAVE_FILE_VERSION in playsave.c
-struct player : public prohibit_void_ptr<player>
+struct player : public prohibit_void_ptr<>
 {
 	// Who am I data
 	callsign_t callsign;   // The callsign of this player, for net purposes.
