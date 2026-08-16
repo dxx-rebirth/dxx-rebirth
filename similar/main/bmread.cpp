@@ -433,10 +433,12 @@ int ds_load(int skip, const char * filename )	{
 	}
 	if (auto cfp{PHYSFSX_openReadBuffered_updateCase(rawname).first})
 	{
+		const uint32_t length = PHYSFS_fileLength(cfp);
 		digi_sound n;
-		n.length	= PHYSFS_fileLength( cfp );
-		n.data = digi_sound::allocated_data{std::make_unique<uint8_t[]>(n.length)};
-		PHYSFSX_readBytes(cfp, n.data.get(), n.length);
+		n.length = length;
+		n.data = digi_sound::allocated_data{std::make_unique_for_overwrite<uint8_t[]>(n.length)};
+		if (PHYSFSX_readBytes(cfp, n.data.get(), length) != length) [[unlikely]]
+			return 255;
 		n.freq = sound_sample_rate::_11k;
 		return piggy_register_sound(std::move(n), fname);
 	} else {
