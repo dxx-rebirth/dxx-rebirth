@@ -632,7 +632,7 @@ public:
 	constexpr auto operator[](this auto &self, const segnum_t segnum)
 	{
 		const auto underlying_segment_number{static_cast<std::underlying_type_t<segnum_t>>(segnum)};
-		return maskproxy_assignable_type{{underlying_segment_number % divisor}, self.a.at({underlying_segment_number / divisor})};
+		return maskproxy_assignable_type{{underlying_segment_number % divisor}, self.a[underlying_segment_number / divisor]};
 	}
 };
 
