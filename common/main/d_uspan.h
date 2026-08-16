@@ -48,14 +48,9 @@ public:
 	 * span was destroyed, which would leave the span dangling.
 	 */
 	[[nodiscard]]
-	std::span<T> span() &
+	auto span(this auto &self)
 	{
-		return {get(), extent};
-	}
-	[[nodiscard]]
-	std::span<const T> span() const &
-	{
-		return {get(), extent};
+		return std::span{self.get(), self.extent};
 	}
 	std::span<const T> span() const && = delete;
 	using base_type::release;
