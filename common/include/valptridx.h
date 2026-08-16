@@ -1112,33 +1112,6 @@ protected:
 		{
 			return static_cast<propagate_const<Self, array_managed_type> &>(reinterpret_cast<propagate_const<Self, array_base_count_type> &>(self));
 		}
-	template <typename P, typename index_type, typename array_type>
-		requires(
-			std::constructible_from<typename P::index_type, index_type>
-		)
-		[[nodiscard]]
-		/* C++ does not allow `static operator()()` until C++23, so name it
-		 * `call_operator` instead.
-		 */
-		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const index_type i, array_type &a)
-		{
-			return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, a);
-		}
-	template <typename P, containing_type::index_type v>
-		[[nodiscard]]
-		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const containing_type::magic_constant<v> &m, auto &a)
-		{
-			/*
-			 * All call_operator definitions must have the macro which
-			 * defines filename/lineno, but the magic_constant overload
-			 * has no need for them.
-			 *
-			 * Cast them to void to silence the warning about unused
-			 * parameters.
-			 */
-			DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_N_VOID_VARS();
-			return P(m, a);
-		}
 	basic_ival_member_factory() = default;
 public:
 	basic_ival_member_factory(const basic_ival_member_factory &) = delete;
@@ -1160,15 +1133,22 @@ public:
 			return guarded<P>{P{i, base.get_array(), assume_nothrow_index{}}};
 		}
 	void check_untrusted(this auto &self, auto &&i) = delete;
-	template <typename Self, typename I>
+	template <typename Self, typename index_type, typename P = Pmc<Self>>
+		requires(
+			std::constructible_from<typename P::index_type, index_type>
+		)
 		[[nodiscard]]
-		auto operator()(this Self &self, I &&i DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
+		auto operator()(this Self &self, index_type &&i DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
 		{
-			/* The derived class shadows this function, so `Self` always
-			 * deduces to `const basic_ival_member_factory` or
-			 * `basic_ival_member_factory` here.
-			 */
-			return self.template call_operator<Pmc<Self>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<I &&>(i), self.get_array());
+			propagate_const<Self, basic_ival_member_factory> &base{self};
+			return P{DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<index_type &&>(i), base.get_array()};
+		}
+	template <typename Self, containing_type::index_type v>
+		[[nodiscard]]
+		auto operator()(this Self &self, const containing_type::magic_constant<v> m)
+		{
+			propagate_const<Self, basic_ival_member_factory> &base{self};
+			return Pmc<Self>{m, base.get_array()};
 		}
 };
 
@@ -1287,35 +1267,14 @@ class valptridx<managed_type>::basic_vval_member_factory :
 	public basic_ival_member_factory<Pc, Pm>
 {
 	using base_type = basic_ival_member_factory<Pc, Pm>;
+	template <typename maybe_const>
+		using Pmc = typename base_type::template Pmc<maybe_const>;
 protected:
 	using base_type::get_array;
-	using base_type::call_operator;
 	template <typename P>
 		using iterator = factory_range_iterator<P>;
-	template <typename P, typename policy, typename A>
-		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const typename valptridx<managed_type>::template wrapper<valptridx<managed_type>::idx<policy>> i, A &a)
-		{
-			return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, a);
-		}
-	template <typename P>
-		[[nodiscard]]
-		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const typename P::mutable_pointer_type p, typename P::array_managed_type &a)
-		{
-			return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS p, a);
-		}
-	/*
-	 * When P is a const type, require a const array, so that attempts to
-	 * provide a mutable array fail.  This provides a slightly clearer error
-	 * when trying to pass a const pointer to a mutable factory.
-	 */
-	template <typename P>
-		requires(std::same_as<const array_managed_type, typename P::array_managed_type>)
-		[[nodiscard]]
-		static P call_operator(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const typename P::const_pointer_type p, const array_managed_type &a)
-		{
-			return P(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS p, a);
-		}
 public:
+	using base_type::operator();
 	[[nodiscard]]
 	typename array_base_storage_type::size_type count() const
 	{
@@ -1326,11 +1285,29 @@ public:
 	{
 		return get_array().size();
 	}
-	template <typename Self, typename T>
+	template <typename Self, typename policy>
 		[[nodiscard]]
-		auto operator()(this Self &self, T &&t DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
+		auto operator()(this Self &self, const typename valptridx<managed_type>::template wrapper<valptridx<managed_type>::idx<policy>> i DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
 		{
-			return self.template call_operator<typename base_type::template propagate_const<Self, Pm, Pc>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<T &&>(t), self.get_array());
+			return Pmc<Self>{DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, self.get_array()};
+		}
+	template <typename Self, typename P = Pmc<Self>>
+		[[nodiscard]]
+		auto operator()(this Self &self, const typename P::mutable_pointer_type p DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
+		{
+			return P{DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS p, self.get_array()};
+		}
+	/*
+	 * When P is a const type, require a const array, so that attempts to
+	 * provide a mutable array fail.  This provides a slightly clearer error
+	 * when trying to pass a const pointer to a mutable factory.
+	 */
+	template <typename Self, typename P = Pmc<Self>>
+		requires(std::same_as<const array_managed_type, typename P::array_managed_type>)
+		[[nodiscard]]
+		auto operator()(this Self &self, const typename P::const_pointer_type p DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
+		{
+			return P{DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS p, self.get_array()};
 		}
 	template <typename Self>
 		[[nodiscard]]
