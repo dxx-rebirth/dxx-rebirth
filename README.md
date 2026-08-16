@@ -3,9 +3,6 @@
 __________/ DXX-Rebirth /
 ```
 
-https://www.dxx-rebirth.com
-
-
 ## 0. Introduction:
 
 DXX-Rebirth is based on the late D1X and D2X source ports (which, in turn, were based on the original Descent source and LDescent). The Rebirth Team has spent a lot of time working to improve the source code by fixing old bugs and adding some improvements, while always staying true to our philosophy: Keep it Descent!
