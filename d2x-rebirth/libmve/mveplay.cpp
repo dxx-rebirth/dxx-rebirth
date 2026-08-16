@@ -32,7 +32,6 @@
 #endif
 
 #include "config.h"
-#include "d_sdl_audio.h"
 #include "mvelib.h"
 #include "mve_audio.h"
 #include "byteutil.h"
@@ -237,6 +236,7 @@ static void mve_audio_callback(void *userdata, unsigned char *stream, int len);
 static void mve_audio_callback(void *const vstream, unsigned char *stream, int len)
 {
 	auto &mvestream = *reinterpret_cast<MVESTREAM *>(vstream);
+	const std::lock_guard lock{mvestream.mve_audio_mutex};
 #ifdef DXX_REPORT_TOTAL_LENGTH
 	int total{0};
 #endif
@@ -296,6 +296,51 @@ static void mve_audio_callback(void *const vstream, unsigned char *stream, int l
 	//con_printf(CON_CRITICAL, "- <%d (%d), %d, %d>", mvestream.mve_audio_bufhead, mvestream.mve_audio_curbuf_curpos, mvestream.mve_audio_buftail, len);
 }
 
+bool MVESTREAM::queue_mve_audio_buffer(::dcx::unique_span<int16_t> &&buffer)
+{
+	const std::lock_guard lock{mve_audio_mutex};
+	auto next = mve_audio_buftail + 1;
+	if (next == mve_audio_buffers.size())
+		next = 0;
+	if (next == mve_audio_bufhead)
+	{
+		con_printf(CON_CRITICAL, "d'oh!  buffer ring overrun (%d)", mve_audio_bufhead);
+		return false;
+	}
+	mve_audio_buffers[mve_audio_buftail] = std::move(buffer);
+	mve_audio_buftail = next;
+	return true;
+}
+
+#if DXX_USE_SDLMIXER && SDL_MAJOR_VERSION == 2
+bool MVESTREAM::drain_mve_audio_stream()
+{
+	const auto available = SDL_AudioStreamAvailable(mve_audio_stream.get());
+	if (available < 0)
+	{
+		con_printf(CON_URGENT, "%s:%u: SDL_AudioStreamAvailable failed: %s", __FILE__, __LINE__, SDL_GetError());
+		return false;
+	}
+	if (!available)
+		return true;
+	auto output = std::make_unique<int16_t[]>((available + 1) / 2);
+	const auto converted = SDL_AudioStreamGet(mve_audio_stream.get(), output.get(), available);
+	if (converted < 0)
+	{
+		con_printf(CON_URGENT, "%s:%u: SDL_AudioStreamGet failed: %s", __FILE__, __LINE__, SDL_GetError());
+		return false;
+	}
+	if (converted & 1)
+	{
+		con_printf(CON_URGENT, "%s:%u: SDL_AudioStreamGet returned odd byte count: %d", __FILE__, __LINE__, converted);
+		return false;
+	}
+	if (!converted)
+		return true;
+	return queue_mve_audio_buffer(::dcx::unique_span<int16_t>{std::move(output), static_cast<std::size_t>(converted) / sizeof(int16_t)});
+}
+#endif
+
 MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initaudiobuffers(unsigned char minor, const unsigned char *data)
 {
 	if (mve_audio_enabled == MVE_play_sounds::silent)
@@ -312,6 +357,7 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initaudiobuffers(unsigned
 	if (!minor)
 		flags &= ~MVE_AUDIO_FLAGS_COMPRESSED;
 	mve_audio_flags = flags;
+	mve_audio_buffers = {};
 
 	const unsigned format = (bitsize)
 		? (words_bigendian ? AUDIO_S16MSB : AUDIO_S16LSB)
@@ -350,27 +396,53 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_initaudiobuffers(unsigned
 
 #if DXX_USE_SDLMIXER
 	else {
-		// MD2211: using the same old SDL audio callback as a postmixer in SDL_mixer
-		Mix_SetPostMix(s.callback, s.userdata);
+#if SDL_MAJOR_VERSION == 2
+		int output_frequency;
+		Uint16 output_format;
+		int output_channels;
+		if (!Mix_QuerySpec(&output_frequency, &output_format, &output_channels))
+		{
+			con_printf(CON_URGENT, "Mix_QuerySpec failed while preparing movie audio: %s", Mix_GetError());
+			mve_audio_spec = {};
+		}
+		else if (!(mve_audio_stream = MVE_audio_stream_ptr{SDL_NewAudioStream(
+			s.format, s.channels, s.freq, output_format, output_channels, output_frequency)}))
+		{
+			con_printf(CON_URGENT, "SDL_NewAudioStream failed while preparing movie audio: %s", SDL_GetError());
+			mve_audio_spec = {};
+		}
+		else
+#endif
+		{
+			// MD2211: using the same old SDL audio callback as a postmixer in SDL_mixer
+			Mix_SetPostMix(s.callback, s.userdata);
+		}
 	}
 #endif
 	}
 
-	mve_audio_buffers = {};
 	return MVESTREAM::handle_result::step_again;
 }
 
 MVESTREAM::handle_result MVESTREAM::handle_mve_segment_startstopaudio()
 {
-	if (mve_audio_spec && !mve_audio_playing && mve_audio_bufhead != mve_audio_buftail)
+	if (mve_audio_spec && !mve_audio_playing)
 	{
-		if (CGameArg.SndDisableSdlMixer)
-			SDL_PauseAudio(0);
+		bool have_queued_audio;
+		{
+			const std::lock_guard lock{mve_audio_mutex};
+			have_queued_audio = mve_audio_bufhead != mve_audio_buftail;
+		}
+		if (have_queued_audio)
+		{
+			if (CGameArg.SndDisableSdlMixer)
+				SDL_PauseAudio(0);
 #if DXX_USE_SDLMIXER
-		else
-			Mix_Pause(0);
+			else
+				Mix_Pause(0);
 #endif
-		mve_audio_playing = 1;
+			mve_audio_playing = 1;
+		}
 	}
 	return MVESTREAM::handle_result::step_again;
 }
@@ -397,10 +469,6 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_audioframedata(const mve_
 	static const int selected_chan=1;
 	if (const auto mve_audio_spec = this->mve_audio_spec.get())
 	{
-		std::optional<RAII_SDL_LockAudio> lock_audio{
-			mve_audio_playing ? std::optional<RAII_SDL_LockAudio>(std::in_place) : std::nullopt
-		};
-
 		const auto chan = get_ushort(data + 2);
 		unsigned nsamp = get_ushort(data + 4);
 		if (chan & selected_chan)
@@ -444,9 +512,18 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_audioframedata(const mve_
 				p = {nsamp / 2};
 			}
 
-			// MD2211: the following block does on-the-fly audio conversion for SDL_mixer
+			// Convert movie audio to the SDL_mixer output format.  SDL2 keeps one
+			// stream for the entire movie so resampler state is preserved across
+			// MVE segment boundaries.
 #if DXX_USE_SDLMIXER
 			if (!CGameArg.SndDisableSdlMixer) {
+#if SDL_MAJOR_VERSION == 2
+				if (SDL_AudioStreamPut(mve_audio_stream.get(), p.get(), nsamp))
+					con_printf(CON_URGENT, "%s:%u: SDL_AudioStreamPut failed: %s", __FILE__, __LINE__, SDL_GetError());
+				else
+					drain_mve_audio_stream();
+				p = {};
+#else
 				// build converter: in = MVE format, out = SDL_mixer output
 				int out_freq;
 				Uint16 out_format;
@@ -475,15 +552,11 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_audioframedata(const mve_
 					p = {converted_buffer_size / 2};
 					memcpy(p.get(), cvt.buf, converted_buffer_size);
 				}
+#endif
 			}
 #endif
-			mve_audio_buffers[mve_audio_buftail] = std::move(p);
-
-			if (++mve_audio_buftail == mve_audio_buffers.size())
-				mve_audio_buftail = 0;
-
-			if (mve_audio_buftail == mve_audio_bufhead)
-				con_printf(CON_CRITICAL, "d'oh!  buffer ring overrun (%d)", mve_audio_bufhead);
+			if (p.get())
+				queue_mve_audio_buffer(std::move(p));
 		}
 	}
 
@@ -674,7 +747,11 @@ void MVE_rmEndMovie(std::unique_ptr<MVESTREAM> stream)
 		}
 #if DXX_USE_SDLMIXER
 		else
+		{
 			Mix_SetPostMix(nullptr, nullptr);
+			/* Wait for any callback that began before it was unregistered. */
+			const std::lock_guard lock{stream->mve_audio_mutex};
+		}
 #endif
 	}
 }
