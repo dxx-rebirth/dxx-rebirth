@@ -292,16 +292,13 @@ static int piggy_is_needed(const int soundnum)
 /*
  * reads a DiskSoundHeader structure from a PHYSFS_File
  */
-static DiskSoundHeader DiskSoundHeader_read(const NamedPHYSFS_File fp)
+static DiskSoundHeader DiskSoundHeader_read(const std::span<std::byte, sizeof(DiskSoundHeader)> buf)
 {
-	std::array<std::byte, 20> buf;
-	if (const auto size{buf.size()}; PHYSFS_readBytes(fp, buf.data(), size) != size) [[unlikely]]
-		PHYSFSX_read_helper_report_error(__FILE__, __LINE__, __FUNCTION__, fp);
 	DiskSoundHeader dsh{
 		.name{},
-		.length{GET_INTEL_INT(&buf[8])},
-		.data_length{GET_INTEL_INT(&buf[12])},
-		.offset{GET_INTEL_INT(&buf[16])},
+		.length{GET_INTEL_INT(buf.subspan<8, 4>().data())},
+		.data_length{GET_INTEL_INT(buf.subspan<12, 4>().data())},
+		.offset{GET_INTEL_INT(buf.subspan<16, 4>().data())},
 	};
 	memcpy(dsh.name, buf.data(), 8);
 	return dsh;
@@ -365,13 +362,23 @@ static DiskBitmapHeader DiskBitmapHeader_d1_read(const NamedPHYSFS_File fp)
 static void build_sound_allocation(const NamedPHYSFS_File fp)
 {
 	const unsigned N_sounds{PHYSFSX_readULE32(fp)};
+	if (!(N_sounds <= MAX_SOUNDS)) [[unlikely]]
+		/* Ill-formed input file.  This should never happen with well-formed
+		 * game data files.
+		 */
+		return;
 	const unsigned sound_headers_start = PHYSFS_tell(fp);
 	const unsigned sound_headers_size = N_sounds * sizeof(DiskSoundHeader);
+	std::array<std::byte, MAX_SOUNDS * sizeof(DiskSoundHeader)> buf;
+	auto sbuf{std::span(buf).first(sound_headers_size)};
+	if (PHYSFS_readBytes(fp, sbuf.data(), sbuf.size()) != sbuf.size()) [[unlikely]]
+		PHYSFSX_read_helper_report_error(__FILE__, __LINE__, __FUNCTION__, fp);
 	const unsigned offset_adjustment{sound_headers_start + sound_headers_size};
 	unsigned required_allocation_size{0};
 	for (const auto i : xrange(N_sounds))
 	{
-		const auto sndh{DiskSoundHeader_read(fp)};
+		const auto sndh{DiskSoundHeader_read(sbuf.first<sizeof(DiskSoundHeader)>())};
+		sbuf = sbuf.subspan<sizeof(DiskSoundHeader)>();
 		digi_sound temp_sound;
 		temp_sound.length = sndh.length;
 		const game_sound_offset sound_offset{sndh.offset + offset_adjustment};
@@ -680,11 +687,15 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 		piggy_register_bitmap(temp_bitmap, temp_name, 1);
 	}
 
-	if (!MacPig)
+	if (!MacPig && N_sounds <= MAX_SOUNDS)
 	{
-	for (unsigned i = 0; i < N_sounds; ++i)
-	{
-		const auto sndh{DiskSoundHeader_read(Piggy_fp)};
+		std::array<std::byte, MAX_SOUNDS * sizeof(DiskSoundHeader)> buf;
+		auto sbuf{std::span(buf).first(N_sounds * sizeof(DiskSoundHeader))};
+		if (const NamedPHYSFS_File fp = Piggy_fp; PHYSFS_readBytes(fp, sbuf.data(), sbuf.size()) != sbuf.size()) [[unlikely]]
+			PHYSFSX_read_helper_report_error(__FILE__, __LINE__, __FUNCTION__, fp);
+		for (; !sbuf.empty(); sbuf = sbuf.subspan<sizeof(DiskSoundHeader)>())
+		{
+			const auto sndh{DiskSoundHeader_read(sbuf.first<sizeof(DiskSoundHeader)>())};
 		digi_sound temp_sound;
 		temp_sound.length = sndh.length;
 
