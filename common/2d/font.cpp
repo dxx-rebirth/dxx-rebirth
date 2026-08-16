@@ -683,25 +683,23 @@ static void ogl_internal_string(grs_canvas &canvas, const grs_font &cv_font, con
 #define gr_internal_color_string ogl_internal_string
 #endif //OGL
 
-static inline int PHYSFSX_readU8_ptr(PHYSFS_File *const file, uint8_t *const b)
-{
-	return PHYSFSX_readBytes(file, b, sizeof(*b)) == sizeof(*b);
-}
-
-static constexpr PHYSFSX_read_helper<uint8_t, PHYSFSX_readU8_ptr> PHYSFSX_readU8{};
-
 static grs_disk_font grs_disk_font_read(NamedPHYSFS_File fp)
 {
+	std::array<std::byte, 28> sbuf;
+	if (PHYSFS_readBytes(fp, sbuf.data(), sbuf.size()) != sbuf.size()) [[unlikely]]
+		PHYSFSX_read_helper_report_error(__FILE__, __LINE__, __FUNCTION__, fp);
 	return grs_disk_font{
-		.ft_w = PHYSFSX_readULE16(fp),
-		.ft_h = PHYSFSX_readULE16(fp),
-		.ft_flags = PHYSFSX_readSLE16(fp),
-		.ft_baseline = PHYSFSX_readSLE16(fp),
-		.ft_minchar = PHYSFSX_readU8(fp),
-		.ft_maxchar = PHYSFSX_readU8(fp),
-		.ft_data = (PHYSFSX_skipBytes<2>(fp), PHYSFSX_readULE32(fp) - GRS_FONT_SIZE),
-		.ft_widths = (PHYSFSX_skipBytes<4>(fp), PHYSFSX_readULE32(fp) - GRS_FONT_SIZE),
-		.ft_kerndata = PHYSFSX_readULE32(fp) - GRS_FONT_SIZE,
+		.ft_w = GET_INTEL_SHORT(&sbuf[0]),
+		.ft_h = GET_INTEL_SHORT(&sbuf[2]),
+		.ft_flags = GET_INTEL_SHORT<int16_t>(&sbuf[4]),
+		.ft_baseline = GET_INTEL_SHORT<int16_t>(&sbuf[6]),
+		.ft_minchar = static_cast<uint8_t>(sbuf[8]),
+		.ft_maxchar = static_cast<uint8_t>(sbuf[9]),
+		/* Skip 2 bytes, for historical reasons. */
+		.ft_data = (GET_INTEL_INT(&sbuf[12]) - GRS_FONT_SIZE),
+		/* Skip 4 bytes, for historical reasons. */
+		.ft_widths = (GET_INTEL_INT(&sbuf[20]) - GRS_FONT_SIZE),
+		.ft_kerndata = GET_INTEL_INT(&sbuf[24]) - GRS_FONT_SIZE,
 	};
 }
 
