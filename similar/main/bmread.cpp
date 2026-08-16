@@ -121,21 +121,17 @@ struct get_texture_result
 
 // remove extension from filename, doesn't work with paths.
 [[nodiscard]]
-static std::array<char, 20> removeext(const char *const filename)
+static std::span<const char> build_file_basename_span(const char *const filename)
 {
-	auto i = filename;
-	auto p = i;
-	for (; const char c = *i; ++i)
+	auto iter{filename};
+	auto most_recent_cut_point{iter};
+	for (; const char c{*iter}; ++iter)
 	{
 		if (c == '.')
-			p = i;
+			most_recent_cut_point = iter;
 		/* No break - find the last '.', not the first. */
 	}
-	const std::size_t rawlen = p - filename;
-	std::array<char, 20> out{};
-	const std::size_t copy_len = rawlen < out.size() ? rawlen : 0;
-	memcpy(out.data(), filename, copy_len);
-	return out;
+	return std::span<const char>{filename, most_recent_cut_point};
 }
 
 }
@@ -146,6 +142,16 @@ namespace dsx {
 namespace {
 #if DXX_BUILD_DESCENT == 1
 static short		N_ObjBitmaps=0;
+
+[[nodiscard]]
+static auto build_file_basename_copy(const char *const filename)
+{
+	std::array<char, 20> result{};
+	auto basename_span{build_file_basename_span(filename)};
+	if (const std::size_t rawlen{basename_span.size()}; rawlen < result.size()) [[likely]]
+		memcpy(result.data(), filename, rawlen);
+	return result;
+}
 #endif
 }
 
@@ -294,7 +300,7 @@ static bitmap_index bm_load_sub(const int skip, const char *const filename)
 	}
 
 #if DXX_BUILD_DESCENT == 1
-	const auto &&fname = removeext(filename);
+	const auto fname{build_file_basename_copy(filename)};
 #elif DXX_BUILD_DESCENT == 2
 	std::array<char, 20> fname{};
 	const auto path = d_splitpath(filename);
@@ -337,7 +343,7 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 
 
 #if DXX_BUILD_DESCENT == 1
-	const auto &&fname = removeext(filename);
+	const auto fname{build_file_basename_span(filename)};
 #elif DXX_BUILD_DESCENT == 2
 	const auto path = d_splitpath(filename);
 #endif
@@ -347,7 +353,7 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 	for (i=0; i<MAX_BITMAPS_PER_BRUSH; i++ )	{
 		std::array<char, 24> tempname;
 #if DXX_BUILD_DESCENT == 1
-		const auto len = snprintf(tempname.data(), tempname.size(), "%.16s#%d", fname.data(), i);
+		const auto len{snprintf(tempname.data(), tempname.size(), "%.*s#%d", std::min<int>(16u, fname.size()), fname.data(), i)};
 #elif DXX_BUILD_DESCENT == 2
 		const auto len = snprintf(tempname.data(), tempname.size(), "%.*s#%d", DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start, i);
 #endif
@@ -382,7 +388,7 @@ static void ab_load(int skip, const char * filename, std::array<bitmap_index, MA
 		std::array<char, 24> tempname;
 		cf_assert(i < bm.size());
 #if DXX_BUILD_DESCENT == 1
-		snprintf(tempname.data(), tempname.size(), "%s#%" PRIuFAST32, fname.data(), i);
+		snprintf(tempname.data(), tempname.size(), "%.*s#%" PRIuFAST32, static_cast<int>(fname.size()), fname.data(), i);
 #elif DXX_BUILD_DESCENT == 2
 		snprintf(tempname.data(), tempname.size(), "%.*s#%" PRIuFAST32, DXX_ptrdiff_cast_int(path.base_end - path.base_start), path.base_start, i );
 #endif
@@ -414,11 +420,11 @@ int ds_load(int skip, const char * filename )	{
 		return r;
 	}
 
-	const auto &&fname = removeext(filename);
+	const auto fname{build_file_basename_span(filename)};
 #if DXX_BUILD_DESCENT == 1
-	snprintf(rawname, sizeof(rawname), "Sounds/%s.raw", fname.data());
+	snprintf(rawname, sizeof(rawname), "Sounds/%.*s.raw", static_cast<int>(fname.size()), fname.data());
 #elif DXX_BUILD_DESCENT == 2
-	snprintf(rawname, sizeof(rawname), "Sounds/%s.r%s", fname.data(), (GameArg.SndDigiSampleRate == sound_sample_rate::_22k) ? "22" : "aw");
+	snprintf(rawname, sizeof(rawname), "Sounds/%.*s.r%s", static_cast<int>(fname.size()), fname.data(), (GameArg.SndDigiSampleRate == sound_sample_rate::_22k) ? "22" : "aw");
 #endif
 
 	const auto i = piggy_find_sound(fname);
