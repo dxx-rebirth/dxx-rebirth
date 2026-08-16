@@ -76,14 +76,9 @@ struct enumerated_array :
 	constexpr reference at(index_type position) = delete;
 	constexpr const_reference at(index_type position) const = delete;
 	[[nodiscard]]
-	constexpr reference operator[](E position)
+	constexpr decltype(auto) operator[](this auto &self, E position)
 	{
-		return this->base_type::operator[](static_cast<std::size_t>(position));
-	}
-	[[nodiscard]]
-	constexpr const_reference operator[](E position) const
-	{
-		return this->base_type::operator[](static_cast<std::size_t>(position));
+		return self.base_type::operator[](static_cast<std::size_t>(position));
 	}
 	/* Reject implicit conversions from integer types to `E`.  Some
 	 * instantiations use an `E` that cannot be implicitly constructed from an
