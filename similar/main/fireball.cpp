@@ -100,13 +100,9 @@ struct biased_index_array : std::array<T, N>
 	 */
 	constexpr reference at(size_type position) = delete;
 	constexpr reference at(size_type position) const = delete;
-	constexpr reference operator[](size_type pos)
+	constexpr decltype(auto) operator[](this auto &self, size_type pos)
 	{
-		return this->base_type::operator[](pos - Bias);
-	}
-	constexpr const_reference operator[](size_type pos) const
-	{
-		return this->base_type::operator[](pos - Bias);
+		return self.base_type::operator[](pos - Bias);
 	}
 	[[nodiscard]]
 	static constexpr bool valid_index(size_type pos)
