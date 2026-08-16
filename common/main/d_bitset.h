@@ -21,13 +21,10 @@ class enumerated_bitset : std::bitset<N>
 public:
 	using base_type::base_type;
 	using base_type::size;
-	constexpr typename base_type::reference operator[](E position)
+	[[nodiscard]]
+	constexpr decltype(auto) operator[](this auto &self, E position)
 	{
-		return this->base_type::operator[](static_cast<std::size_t>(position));
-	}
-	constexpr bool operator[](E position) const
-	{
-		return this->base_type::operator[](static_cast<std::size_t>(position));
+		return self.base_type::operator[](static_cast<std::size_t>(position));
 	}
 	enumerated_bitset &reset()
 	{
