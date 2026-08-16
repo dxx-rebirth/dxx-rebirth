@@ -1285,12 +1285,6 @@ public:
 	{
 		return get_array().size();
 	}
-	template <typename Self, typename policy>
-		[[nodiscard]]
-		auto operator()(this Self &self, const typename valptridx<managed_type>::template wrapper<valptridx<managed_type>::idx<policy>> i DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
-		{
-			return Pmc<Self>{DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS i, self.get_array()};
-		}
 	template <typename Self, typename P = Pmc<Self>>
 		[[nodiscard]]
 		auto operator()(this Self &self, const typename P::mutable_pointer_type p DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_L_DECL_VARS)
