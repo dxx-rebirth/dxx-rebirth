@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <type_traits>
 
 template <typename T>
@@ -35,7 +36,8 @@ class prohibit_void_ptr
 public:
 	// Return a proxy when the address is taken
 	[[nodiscard]]
-	constexpr exact_type<T> operator&() { return static_cast<T*>(this); }
-	[[nodiscard]]
-	constexpr exact_type<T const> operator&() const { return static_cast<T const*>(this); }
+	constexpr auto operator&(this auto &self)
+	{
+		return exact_type{std::addressof(self)};
+	}
 };
