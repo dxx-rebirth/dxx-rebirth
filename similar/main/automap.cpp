@@ -736,11 +736,12 @@ static void name_frame(grs_canvas &canvas, automap &am, int dx = 0, int dy = 0)
 	char		name_level_left[128];
 
 	auto &game_font{*GAME_FONT};
+	const auto current_level_num{Current_level_num};
 #if DXX_BUILD_DESCENT == 1
 	const char *name_level;
-	if (Current_level_num > 0)
+	if (current_level_num > 0)
 	{
-		snprintf(name_level_left, sizeof(name_level_left), "%s %i: %s",TXT_LEVEL, Current_level_num, static_cast<const char *>(Current_level_name));
+		snprintf(name_level_left, sizeof(name_level_left), "%s %i: %s", TXT_LEVEL, current_level_num, static_cast<const char *>(Current_level_name));
 		name_level = name_level_left;
 	}
 	else
@@ -749,14 +750,14 @@ static void name_frame(grs_canvas &canvas, automap &am, int dx = 0, int dy = 0)
 	gr_string(canvas, game_font, dx + (SWIDTH / 64), dy + (SHEIGHT / 48), name_level);
 #elif DXX_BUILD_DESCENT == 2
 	char	name_level_right[128];
-	if (Current_level_num > 0)
-		snprintf(name_level_left, sizeof(name_level_left), "%s %i",TXT_LEVEL, Current_level_num);
+	if (current_level_num > 0)
+		snprintf(name_level_left, sizeof(name_level_left), "%s %i", TXT_LEVEL, current_level_num);
 	else
-		snprintf(name_level_left, sizeof(name_level_left), "Secret Level %i",-Current_level_num);
+		snprintf(name_level_left, sizeof(name_level_left), "Secret Level %i", -current_level_num);
 
 	const char *const current_level_name{Current_level_name};
-	if (PLAYING_BUILTIN_MISSION && Current_level_num > 0 && Current_mission->descent_version == Mission::descent_version_type::descent2)
-		snprintf(name_level_right, sizeof(name_level_right), "%s %d: %s", system_name[(Current_level_num-1)/4], ((Current_level_num - 1) % 4) + 1, current_level_name);
+	if (PLAYING_BUILTIN_MISSION && current_level_num > 0 && Current_mission->descent_version == Mission::descent_version_type::descent2)
+		snprintf(name_level_right, sizeof(name_level_right), "%s %d: %s", system_name[(current_level_num - 1) / 4], ((current_level_num - 1) % 4) + 1, current_level_name);
 	else
 		snprintf(name_level_right, sizeof(name_level_right), " %s", current_level_name);
 
