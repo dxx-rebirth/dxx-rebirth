@@ -514,6 +514,7 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_audioframedata(const mve_
 #if DXX_USE_SDLMIXER
 			if (!CGameArg.SndDisableSdlMixer) {
 #if SDL_MAJOR_VERSION == 2
+				static_cast<void>(mve_audio_spec);
 				if (SDL_AudioStreamPut(mve_audio_stream.get(), p.get(), nsamp))
 					con_printf(CON_URGENT, "%s:%u: SDL_AudioStreamPut failed: %s", __FILE__, __LINE__, SDL_GetError());
 				else
