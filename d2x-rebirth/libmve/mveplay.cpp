@@ -219,10 +219,6 @@ template <typename T>
 struct MVE_audio_clamp
 {
 	const unsigned scale;
-	MVE_audio_clamp(const unsigned DigiVolume) :
-		scale(DigiVolume)
-	{
-	}
 	T operator()(const T &i) const
 	{
 		return (static_cast<int32_t>(i) * scale) / 8;
@@ -497,12 +493,12 @@ MVESTREAM::handle_result MVESTREAM::handle_mve_segment_audioframedata(const mve_
 					if (flags & MVE_AUDIO_FLAGS_16BIT)
 					{
 						int16_t *const p16 = p.get();
-						std::transform(p16, reinterpret_cast<int16_t *>(reinterpret_cast<uint8_t *>(p16) + nsamp), p16, MVE_audio_clamp<int16_t>(DigiVolume));
+						std::transform(p16, reinterpret_cast<int16_t *>(reinterpret_cast<uint8_t *>(p16) + nsamp), p16, MVE_audio_clamp<int16_t>{DigiVolume});
 					}
 					else
 					{
 						int8_t *const p8 = reinterpret_cast<int8_t *>(p.get());
-						std::transform(p8, p8 + nsamp, p8, MVE_audio_clamp<int8_t>(DigiVolume));
+						std::transform(p8, p8 + nsamp, p8, MVE_audio_clamp<int8_t>{DigiVolume});
 					}
 				}
 			} else {
