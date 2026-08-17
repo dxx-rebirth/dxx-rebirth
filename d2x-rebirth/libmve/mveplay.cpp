@@ -221,7 +221,7 @@ struct MVE_audio_clamp
 	const unsigned scale;
 	T operator()(const T &i) const
 	{
-		return (static_cast<int32_t>(i) * scale) / 8;
+		return (int32_t{i} * scale) / 8;
 	}
 };
 
