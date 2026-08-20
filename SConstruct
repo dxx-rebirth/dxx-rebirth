@@ -5945,7 +5945,7 @@ def main(register_program,_d1xp=D1XProgram,_d2xp=D2XProgram):
 	dxx = []
 	register_program(_d1xp, _d2xp, variables, filtered_help, dxx.append)
 	register_program(_d2xp, _d1xp, variables, filtered_help, dxx.append)
-	substenv = SCons.Environment.SubstitutionEnvironment()
+	substenv = SCons.Environment.Base()
 	variables.FormatVariableHelpText = filtered_help.FormatVariableHelpText
 	variables.Update(substenv)
 # show some help when running scons -h
