@@ -989,22 +989,20 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, co
 			{
 				const auto [mx, my, mz] = mouse_get_pos();
 				const int line_spacing = static_cast<int>(LINE_SPACING(*canvas.cv_font, *GAME_FONT));
-				for (int i = menu->scroll_offset; i < menu->max_on_menu + menu->scroll_offset; ++i)
+				auto &iitem = *std::next(menu->items.begin(), menu->citem);
+				x1 = canvas.cv_bitmap.bm_x + iitem.x - fspacx(13);
+				x2 = x1 + iitem.w + fspacx(13);
+				y1 = canvas.cv_bitmap.bm_y + iitem.y - (line_spacing * menu->scroll_offset);
+				y2 = y1 + iitem.h;
+				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)))
 				{
-					auto &iitem = *std::next(menu->items.begin(), i);
-					x1 = canvas.cv_bitmap.bm_x + iitem.x - fspacx(13);
-					x2 = x1 + iitem.w + fspacx(13);
-					y1 = canvas.cv_bitmap.bm_y + iitem.y - (line_spacing * menu->scroll_offset);
-					y2 = y1 + iitem.h;
-					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
-							// Tell callback, allow staying in menu
-							if (const auto r{menu->event_handler(d_select_event{menu->citem, d_event::source::mouse})}; r == window_event_result::handled)
-								return r;
+					// Tell callback, allow staying in menu
+					if (const auto r{menu->event_handler(d_select_event{menu->citem, d_event::source::mouse})}; r == window_event_result::handled)
+						return r;
 
-							if (menu->rval)
-								*menu->rval = menu->citem;
-							return window_event_result::close;
-					}
+					if (menu->rval)
+						*menu->rval = menu->citem;
+					return window_event_result::close;
 				}
 			}
 
