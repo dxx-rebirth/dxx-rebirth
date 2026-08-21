@@ -4986,9 +4986,9 @@ static void ai_local_read_swap(ai_local *ail, const physfsx_endian swap, const N
 		range_for (auto &j, ail->delta_angles)
 			PHYSFSX_readAngleVecX(fp, j, swap);
 		range_for (auto &j, ail->goal_state)
-			j = build_ai_state_from_untrusted(PHYSFSX_readByte(fp)).value();
+			j = build_ai_state_from_untrusted(PHYSFSX_readByte(fp)).value_or(ai_static_state::AIS_NONE);
 		range_for (auto &j, ail->achieved_state)
-			j = build_ai_state_from_untrusted(PHYSFSX_readByte(fp)).value();
+			j = build_ai_state_from_untrusted(PHYSFSX_readByte(fp)).value_or(ai_static_state::AIS_NONE);
 	}
 }
 
