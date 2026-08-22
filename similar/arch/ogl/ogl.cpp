@@ -1916,7 +1916,7 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, const opengl_texture_filter texfilt, b
 	{
 		decodebuf = {};
 		buf = decodebuf.data();
-		if (!bm_rle_expand(*bm).loop(bm_w, bm_rle_expand_range(begin(decodebuf), end(decodebuf))))
+		if (!bm_rle_expand{*bm}.loop(bm_w, bm_rle_expand_range{decodebuf}))
 		{
 			con_printf(CON_URGENT, "error: insufficient space to decode %ux%hu bitmap.  Please report this as a bug.", bm_w, bm->bm_h);
 		}
