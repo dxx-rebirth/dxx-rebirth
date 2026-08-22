@@ -39,6 +39,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ai.h"
 #include "escort.h"
 #include "laser.h"
+#include "digi.h"
 #include "fvi.h"
 #include "physfsx.h"
 #include "physfs-serial.h"

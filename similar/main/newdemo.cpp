@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <type_traits>
 #include "d_range.h"
 
+#include "digi.h"
 #include "u_mem.h"
 #include "inferno.h"
 #include "game.h"

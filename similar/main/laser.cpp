@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "game.h"
 #include "bm.h"
+#include "digi.h"
 #include "object.h"
 #include "laser.h"
 #include "segment.h"

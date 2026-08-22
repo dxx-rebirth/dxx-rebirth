@@ -26,10 +26,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
-#include "game.h"
-#include "window.h"
 
 namespace dcx {
 
@@ -44,33 +43,15 @@ enum class multi_macro_message_index : uint8_t
 	None = UINT8_MAX,
 };
 
-/* Stub for mods that remap player colors */
-static inline player_ship_color get_player_color(const playernum_t pnum)
-{
-	return static_cast<player_ship_color>(pnum);
-}
-
 }
 
 #if DXX_USE_MULTIPLAYER
 
-#include <span>
-#include <type_traits>
+#include <array>
+#include <optional>
 #include <ranges>
-#include "d_bit_enum.h"
-#include "fwd-partial_range.h"
-#include "player.h"
-#include "player-callsign.h"
-#include "player-flags.h"
-#include "fwd-weapon.h"
-#include "mission.h"
-#include "powerup.h"
-#include "fwd-object.h"
-#include "fwd-piggy.h"
-#include "fwd-robot.h"
-#include "fwd-segment.h"
-#include "fwd-wall.h"
-#include "gameplayopt.h"
+#include <span>
+#include "objnum.h"
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -79,20 +60,23 @@ static inline player_ship_color get_player_color(const playernum_t pnum)
 #else
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <stdint.h>
-#include <sys/time.h>
 #endif
 
-#include <stdexcept>
-#include "digi.h"
 #include "pack.h"
 #include "ntstring.h"
-#include <array>
+
+#ifdef DXX_BUILD_DESCENT
+#include "fwd-wall.h"
+#include "game.h"
+#include "gameplayopt.h"
+#include "mission.h"
+#include "player.h"
+#endif
 
 namespace dcx {
+
+enum class wall_flags : uint8_t;
+enum class sound_stack : bool;
 
 struct _sockaddr
 {
@@ -148,6 +132,8 @@ enum class kick_player_reason : uint8_t
 	kicked,
 	pkttimeout,
 };
+
+enum class player_ship_color : uint8_t;
 
 static inline player_ship_color get_team_color(const team_number tnum)
 {
@@ -409,6 +395,13 @@ extern const enumerated_array<char[8], MULTI_GAME_TYPE_COUNT, network_game_type>
 }
 
 namespace dcx {
+
+/* Stub for mods that remap player colors */
+static constexpr player_ship_color get_player_color(const playernum_t pnum)
+{
+	return static_cast<player_ship_color>(pnum);
+}
+
 extern std::array<objnum_t, MAX_NET_CREATE_OBJECTS> Net_create_objnums;
 extern unsigned Net_create_loc;
 int multi_maybe_disable_friendly_fire(const object_base *attacker);

@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "inferno.h"
 #include "cntrlcen.h"
+#include "digi.h"
 #include "game.h"
 #include "laser.h"
 #include "gameseq.h"

@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ranges>
 
 #include "pstypes.h"
+#include "digi.h"
 #include "inferno.h"
 #include "segment.h"
 #include "textures.h"

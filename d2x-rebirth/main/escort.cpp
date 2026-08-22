@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>		// for rand() and qsort()
 #include <string.h>		// for memset()
 
+#include "digi.h"
 #include "window.h"
 #include "console.h"
 #include "vecmat.h"

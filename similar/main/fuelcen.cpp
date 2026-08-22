@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ranges>
 
+#include "digi.h"
 #include "fuelcen.h"
 #include "gameseg.h"
 #include "game.h"		// For FrameTime

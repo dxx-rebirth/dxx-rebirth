@@ -16,6 +16,7 @@
 #include "maths.h"
 #include "timer.h"
 #include "config.h"
+#include "game.h"
 #include "multi.h"
 
 namespace dcx {

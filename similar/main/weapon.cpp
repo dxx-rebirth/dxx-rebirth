@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <type_traits>
 
+#include "digi.h"
 #include "hudmsg.h"
 #include "game.h"
 #include "laser.h"

@@ -21,6 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "text.h"
 #include "fireball.h"
+#include "digi.h"
 #include "textures.h"
 #include "newdemo.h"
 #include "multi.h"

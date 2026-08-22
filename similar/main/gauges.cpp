@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <ranges>
 
+#include "digi.h"
 #include "hudmsg.h"
 #include "inferno.h"
 #include "game.h"

@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 
+#include "digi.h"
 #include "maths.h"
 #include "vecmat.h"
 #include "gr.h"

@@ -11,13 +11,15 @@
  */
 
 #include "dxxsconf.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <random>
 #include <ranges>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "pstypes.h"
+#include "digi.h"
 #include "window.h"
 #include "strutil.h"
 #include "args.h"
@@ -65,6 +67,12 @@
 #include "partial_range.h"
 #include <array>
 #include <utility>
+
+#if !defined(WIN32)
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <sys/socket.h>
+#endif
 
 #if DXX_BUILD_DESCENT == 1
 #define UDP_REQ_ID "D1XR" // ID string for a request packet

@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ranges>
 #include <SDL.h>
 
+#include "digi.h"
 #include "menu.h"
 #include "inferno.h"
 #include "game.h"
