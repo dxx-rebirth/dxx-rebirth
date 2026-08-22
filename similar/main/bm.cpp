@@ -841,15 +841,15 @@ int load_exit_models()
 
 }
 
-void compute_average_rgb(grs_bitmap *bm, std::array<fix, 3> &rgb)
+std::array<fix, 3> compute_average_rgb(const grs_bitmap *bm)
 {
-	rgb = {};
+	std::array<fix, 3> rgb{};
 	if (unlikely(!bm->get_bitmap_data()))
-		return;
+		return rgb;
 	const uint_fast32_t bm_h = bm->bm_h;
 	const uint_fast32_t bm_w = bm->bm_w;
 	if (unlikely(!bm_h) || unlikely(!bm_w))
-		return;
+		return rgb;
 
 	const auto process_one = [&rgb](uint8_t color) {
 		if (color == TRANSPARENCY_COLOR)
@@ -880,4 +880,5 @@ void compute_average_rgb(grs_bitmap *bm, std::array<fix, 3> &rgb)
 		range_for (const auto color, unchecked_partial_range(bm->bm_data, bm_w * bm_h))
 			process_one(color);
 	}
+	return rgb;
 }

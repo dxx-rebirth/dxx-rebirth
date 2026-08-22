@@ -1397,7 +1397,7 @@ void piggy_bitmap_page_in(GameBitmaps_array &GameBitmaps, const bitmap_index ent
 		//@@#endif
 		//@@}
 
-		compute_average_rgb(bmp, bmp->avg_color_rgb);
+		reconstruct_at(bmp->avg_color_rgb, compute_average_rgb, bmp);
 
 	}
 

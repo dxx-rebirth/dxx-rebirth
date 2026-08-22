@@ -212,7 +212,7 @@ extern cockpit_bitmap_array cockpit_bitmap;
 }
 
 extern int First_multi_bitmap_num;
-void compute_average_rgb(grs_bitmap *bm, std::array<fix, 3> &rgb);
+std::array<fix, 3> compute_average_rgb(const grs_bitmap *bm);
 
 namespace dsx {
 void load_robot_replacements(const d_fname &level_name);
