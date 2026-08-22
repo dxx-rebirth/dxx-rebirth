@@ -1225,24 +1225,19 @@ void decode_text(std::span<char> text);  // decryption for briefings, etc.
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void load_text(void);
-#ifndef USE_BUILTIN_ENGLISH_TEXT_STRINGS
-//Array of pointers to text
-extern std::array<const char *, N_TEXT_STRINGS> Text_string;
-#endif
 
-#ifdef USE_BUILTIN_ENGLISH_TEXT_STRINGS
+#ifdef DXX_USE_BUILTIN_ENGLISH_TEXT_STRINGS
 /* Verify that A is convertible to the right type, then discard it.
  *
- * This path requires compiler support for statement expressions, since
- * the expression must evaluate to the target string.  For optimal
- * format string checking, the target string must not be behind a
- * function call, since that will convert the expression from
- * `const char[]` to `const char *` and, for some versions of gcc,
- * cause the string to be considered a non-literal, even if the input B
- * is a literal.
+ * For optimal format string checking, the target string must not be behind a
+ * function call, since that will convert the expression from `const char[]` to
+ * `const char *` and, for some versions of gcc, cause the string to be
+ * considered a non-literal, even if the input B is a literal.
  */
 #define dxx_gettext(A,B)	(static_cast<void>(unsigned{A}), B)
 #else
+//Array of pointers to text
+extern std::array<const char *, N_TEXT_STRINGS> Text_string;
 dxx_compiler_attribute_format_arg(2)
 static constexpr const char *dxx_gettext(unsigned expr, const char *)
 {

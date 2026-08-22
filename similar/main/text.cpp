@@ -352,7 +352,7 @@ void decode_text(std::span<char> ptr)
 //load all the text strings for Descent
 namespace dsx {
 
-#ifdef USE_BUILTIN_ENGLISH_TEXT_STRINGS
+#ifdef DXX_USE_BUILTIN_ENGLISH_TEXT_STRINGS
 static
 #endif
 std::array<const char *, N_TEXT_STRINGS> Text_string;

@@ -248,7 +248,7 @@ net_udp_select_teams_menu_items::net_udp_select_teams_menu_items(const unsigned 
 	const auto set_team_name = [](callsign_t &team_name, const auto &&s) {
 		if constexpr (std::is_array<typename std::remove_cvref<decltype(s)>::type>::value)
 			/* When the input is an array (due to
-			 * -D'USE_BUILTIN_ENGLISH_TEXT_STRINGS'), construct a std::span
+			 * -D'DXX_USE_BUILTIN_ENGLISH_TEXT_STRINGS'), construct a std::span
 			 *  implicitly with the correct length.
 			 */
 			team_name.copy(s);

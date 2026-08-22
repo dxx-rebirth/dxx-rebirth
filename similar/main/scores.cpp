@@ -144,7 +144,16 @@ void scores_view(grs_canvas &canvas, const stats_info *last_game, int citem);
 
 [[nodiscard]]
 static auto build_builtin_placeholder_scores() ->
-#ifdef USE_BUILTIN_ENGLISH_TEXT_STRINGS
+#ifdef DXX_USE_BUILTIN_ENGLISH_TEXT_STRINGS
+	/* When using builtin strings, the entire `all_scores` object can be
+	 * statically constructed, and this function returns a `const all_scores &`
+	 * to that static instance.
+	 *
+	 * When not using builtin strings, one member of the `all_scores` must be
+	 * set from dynamic data.  A baseline instance will be statically
+	 * constructed from all static data, then copied into a local that can be
+	 * updated with the dynamic data.  Return that local by-value.
+	 */
 	const all_scores &
 #else
 	all_scores
@@ -152,10 +161,10 @@ static auto build_builtin_placeholder_scores() ->
 {
 	static constexpr all_scores builtin_scores{
 		.cool_saying =
-#ifdef USE_BUILTIN_ENGLISH_TEXT_STRINGS
+#ifdef DXX_USE_BUILTIN_ENGLISH_TEXT_STRINGS
 			{TXT_REGISTER_DESCENT},
 #else
-			{},	/* For !USE_BUILTIN_ENGLISH_TEXT_STRINGS, this requires data from an external file, so it cannot be set here. */
+			{},	/* For !DXX_USE_BUILTIN_ENGLISH_TEXT_STRINGS, this requires data from an external file, so it cannot be set here. */
 #endif
 		.stats = {{
 			{
@@ -260,7 +269,7 @@ static auto build_builtin_placeholder_scores() ->
 			},
 		}}
 	};
-#ifdef USE_BUILTIN_ENGLISH_TEXT_STRINGS
+#ifdef DXX_USE_BUILTIN_ENGLISH_TEXT_STRINGS
 	return builtin_scores;
 #else
 	auto scores{builtin_scores};
