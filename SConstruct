@@ -4230,6 +4230,7 @@ class DXXCommon(LazyObjectConstructor):
 					value = getattr(self, name)
 					setattr(clone, name, value)
 			clone._enumerated_host_platform = self._enumerated_host_platform
+			clone._lto_builddir_decoration = self._lto_builddir_decoration
 			return clone
 	class UserInstallSettings:
 		def _options(self):
