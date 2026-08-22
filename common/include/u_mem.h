@@ -21,8 +21,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <type_traits>
-
-#ifdef __cplusplus
 #include <memory>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
@@ -109,6 +107,12 @@ static inline void d_free(T *&ptr)
 }
 
 template <typename T>
+requires(
+	/* Disallow C-style arrays of known bound.  Use RAIIdmem<std::array<T, N>>
+	 * for this case.
+	 */
+	!std::is_bounded_array_v<T>
+)
 class RAIIdmem_deleter
 {
 public:
@@ -134,16 +138,6 @@ public:
 	using base_ptr::base_ptr;
 };
 
-/* Disallow C-style arrays of known bound.  Use RAIIdmem<std::array<T, N>>
- * for this case.
- */
-template <typename T, std::size_t N>
-class RAIIdmem<T[N]>
-{
-public:
-	RAIIdmem() = delete;
-};
-
 template <typename T>
 RAIIdmem<T> &MALLOC(RAIIdmem<T> &r, std::size_t count, const char *var, const char *file, unsigned line)
 {
@@ -154,5 +148,3 @@ RAIIdmem<T> &MALLOC(RAIIdmem<T> &r, std::size_t count, const char *var, const ch
 #define MALLOC( var, type, count )	(MALLOC<type>(var, (count),#var, __FILE__,__LINE__ ))
 
 }
-
-#endif
