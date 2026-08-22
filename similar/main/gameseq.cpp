@@ -2082,7 +2082,7 @@ window_event_result StartNewLevelSub(const d_robot_info_array &Robot_info, const
 		filter_objects_from_level(Powerup_info, Vclip, vmobjptr);
 #endif
 
-	if (!(Game_mode & GM_MULTI) && !cheats.enabled)
+	if (Current_level_num > 0 && !(Game_mode & GM_MULTI) && !cheats.enabled)
 		set_highest_level(Current_level_num);
 	else
 		read_player_file();		//get window sizes
