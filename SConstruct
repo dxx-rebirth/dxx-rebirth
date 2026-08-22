@@ -1210,7 +1210,6 @@ void test_virtual_function_supported::a() {}
 				if self._Compile(context, text=text, msg='whether C++ compiler works with blank $CXXFLAGS', calling_function='cxx_blank_cxxflags_works'):
 					return 'C++ compiler works with blank $CXXFLAGS.  C++ compiler does not work with specified $CXXFLAGS.'
 			return 'C++ compiler does not work.'
-	implicit_tests.append(_implicit_test.RecordedTest('check_cxx20', "assume C++ compiler supports C++20"))
 	implicit_tests.append(_implicit_test.RecordedTest('check_cxx23', "assume C++ compiler supports C++23"))
 	def _check_cxx_conformance_level(self, context):
 		# Testing the compiler option parser only needs Compile, even when LTO
@@ -1219,9 +1218,8 @@ void test_virtual_function_supported::a() {}
 		for level in (
 			# List standards in descending order of preference.
 			#
-			# C++20 is required, so list it last.
+			# C++23 is required, so list it last.
 			23,
-			20,
 		):
 			opt = f'-std=gnu++{level}'
 			if Compile(context, text='', msg=f'whether C++ compiler accepts {opt}', successflags={'CXXFLAGS': (opt,)}, calling_function=f'cxx{level}'):
