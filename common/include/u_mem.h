@@ -136,12 +136,7 @@ public:
 };
 
 template <typename T>
-class RAIIdmem : public std::unique_ptr<T, RAIIdmem_deleter<T>>
-{
-	typedef std::unique_ptr<T, RAIIdmem_deleter<T>> base_ptr;
-public:
-	using base_ptr::base_ptr;
-};
+using RAIIdmem = std::unique_ptr<T, RAIIdmem_deleter<T>>;
 
 template <typename T>
 RAIIdmem<T> &MALLOC(RAIIdmem<T> &r, std::size_t count, const char *var, const char *file, unsigned line)
