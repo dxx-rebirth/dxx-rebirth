@@ -25,7 +25,7 @@ namespace {
 
 struct audio_stream_deleter
 {
-	void operator()(SDL_AudioStream *const stream) const
+	static void operator()(SDL_AudioStream *const stream)
 	{
 		SDL_FreeAudioStream(stream);
 	}

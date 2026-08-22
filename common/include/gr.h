@@ -248,7 +248,7 @@ struct RAII_SDL_Surface
 {
 	struct deleter
 	{
-		void operator()(SDL_Surface *s) const
+		static void operator()(SDL_Surface *s)
 		{
 			SDL_FreeSurface(s);
 		}

@@ -27,7 +27,7 @@ namespace dsx {
 #if DXX_USE_SDLMIXER && SDL_MAJOR_VERSION == 2
 struct MVE_audio_stream_deleter
 {
-	void operator()(SDL_AudioStream *const stream) const
+	static void operator()(SDL_AudioStream *const stream)
 	{
 		SDL_FreeAudioStream(stream);
 	}
@@ -171,7 +171,7 @@ struct MVESTREAM
 
 struct MVESTREAM_deleter_t
 {
-	void operator()(MVESTREAM *p) const
+	static void operator()(MVESTREAM *p)
 	{
 		MVE_rmEndMovie(std::unique_ptr<MVESTREAM>(p));
 	}

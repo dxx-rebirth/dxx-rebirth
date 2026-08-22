@@ -539,6 +539,14 @@ struct %(N)s_require_same_type<T, T> {};
 	static_cast<void>(sizeof(%(N)s_require_same_type<decltype(md.f1(1)), unsigned long>));
 	static_cast<void>(sizeof(%(N)s_require_same_type<decltype(md.f2(2)), unsigned long>));
 '''),
+		Cxx23RequiredFeature('static operator()', '''
+struct %(N)s
+{
+	static void operator()()
+	{
+	}
+};
+'''),
 		# As of this writing, <gcc-12 is already unsupported, but some
 		# platforms, such as Ubuntu 22.04, still try to use gcc-11 by default.
 		# Use this test both to verify that Class Template Argument Deduction

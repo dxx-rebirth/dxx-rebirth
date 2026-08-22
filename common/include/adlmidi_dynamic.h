@@ -66,7 +66,7 @@ extern int (*adl_playFormat)(ADL_MIDIPlayer *device, int sampleCount, uint8_t *l
 
 struct ADLMIDI_delete
 {
-	void operator()(ADL_MIDIPlayer *x)
+	static void operator()(ADL_MIDIPlayer *x)
 	{
 		adl_close(x);
 	}

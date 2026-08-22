@@ -57,7 +57,7 @@ namespace {
 
 struct SDL_GameController_deleter
 {
-	void operator()(SDL_GameController *gc) const
+	static void operator()(SDL_GameController *gc)
 	{
 		SDL_GameControllerClose(gc);
 	}

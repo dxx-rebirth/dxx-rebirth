@@ -122,7 +122,7 @@ requires(
 class RAIIdmem_deleter
 {
 public:
-	void operator()(T *v) const
+	static void operator()(T *v)
 	{
 		d_free(v);
 	}

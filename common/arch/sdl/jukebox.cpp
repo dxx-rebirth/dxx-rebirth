@@ -44,7 +44,7 @@ struct m3u_bytes
 class FILE_deleter
 {
 public:
-	void operator()(FILE *const p) const
+	static void operator()(FILE *const p)
 	{
 		fclose(p);
 	}

@@ -53,7 +53,7 @@ namespace {
 
 struct Music_delete
 {
-	void operator()(Mix_Music *m) const
+	static void operator()(Mix_Music *m)
 	{
 		Mix_FreeMusic(m);
 	}

@@ -65,7 +65,7 @@ struct d_event_joystick_moved : d_event, d_event_joystick_axis_value
 class SDL_Joystick_deleter
 {
 public:
-	void operator()(SDL_Joystick *j) const
+	static void operator()(SDL_Joystick *j)
 	{
 		SDL_JoystickClose(j);
 	}

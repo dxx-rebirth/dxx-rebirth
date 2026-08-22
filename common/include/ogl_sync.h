@@ -30,7 +30,7 @@ class ogl_sync {
 	{
 	public:
 		typedef GLsync pointer;
-		void operator()(pointer p) const;
+		static void operator()(pointer p);
 	};
 	private:
 		SyncGLMethod method{SYNC_GL_NONE};

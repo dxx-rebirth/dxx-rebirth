@@ -40,7 +40,7 @@
 
 struct RWops_delete
 {
-	void operator()(SDL_RWops *o) const
+	static void operator()(SDL_RWops *o)
 	{
 		SDL_RWclose(o);
 	}

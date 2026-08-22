@@ -420,7 +420,7 @@ static auto PHYSFSX_skipBytes(PHYSFS_File *const fp)
 class PHYSFS_File_deleter
 {
 public:
-	int operator()(PHYSFS_File *fp) const
+	static int operator()(PHYSFS_File *fp)
 	{
 		return PHYSFS_close(fp);
 	}

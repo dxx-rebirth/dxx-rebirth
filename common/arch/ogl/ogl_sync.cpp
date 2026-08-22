@@ -30,7 +30,7 @@ ogl_sync::~ogl_sync()
 		con_puts(CON_URGENT, "DXX-Rebirth: OpenGL: fence sync object was never destroyed!");
 }
 
-void ogl_sync::sync_deleter::operator()(GLsync fence_func) const
+void ogl_sync::sync_deleter::operator()(GLsync fence_func)
 {
 	glDeleteSyncFunc(fence_func);
 }

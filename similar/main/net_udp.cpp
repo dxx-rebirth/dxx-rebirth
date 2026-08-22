@@ -635,7 +635,7 @@ public:
 
 struct addrinfo_deleter
 {
-	void operator()(addrinfo *p) const
+	static void operator()(addrinfo *p)
 	{
 		freeaddrinfo(p);
 	}
