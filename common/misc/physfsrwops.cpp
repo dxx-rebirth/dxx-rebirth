@@ -172,9 +172,11 @@ static int physfsrwops_close(SDL_RWops *rw)
     return(0);
 } /* physfsrwops_close */
 
+}
 
-static std::pair<RWops_ptr, PHYSFS_ErrorCode> create_rwops(RAIIPHYSFS_File handle)
+std::pair<RWops_ptr, PHYSFS_ErrorCode> PHYSFSRWOPS_openRead(const char *fname)
 {
+	RAIIPHYSFS_File handle{PHYSFS_openRead(fname)};
     if (!handle)
 	{
 		const auto err = PHYSFS_getLastErrorCode();
@@ -196,13 +198,6 @@ static std::pair<RWops_ptr, PHYSFS_ErrorCode> create_rwops(RAIIPHYSFS_File handl
 			return {nullptr, PHYSFS_ERR_OTHER_ERROR};
 		return {std::move(retval), PHYSFS_ERR_OK};
     } /* else */
-} /* create_rwops */
-
-}
-
-std::pair<RWops_ptr, PHYSFS_ErrorCode> PHYSFSRWOPS_openRead(const char *fname)
-{
-    return(create_rwops(RAIIPHYSFS_File{PHYSFS_openRead(fname)}));
 } /* PHYSFSRWOPS_openRead */
 
 /* end of physfsrwops.c ... */
