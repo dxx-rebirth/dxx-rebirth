@@ -29,10 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dsx-ns.h"
 #ifdef DXX_BUILD_DESCENT
 
-#include "pstypes.h"
-#include "vecmat.h"
 #include "aistruct.h"
-#include "polyobj.h"
 
 #include <cassert>
 #include <cstdint>
