@@ -52,7 +52,7 @@ static PHYSFSX_counted_list file_getdirlist(const std::span<const char, PATH_MAX
 	if (!list)
 		return {};
 	const auto predicate = [&](char *i) -> bool {
-		if (path.copy_if(dlen, i) && PHYSFS_isDirectory(path))
+		if (PHYSFS_Stat st; path.copy_if(dlen, i) && PHYSFS_stat(path, (st = {}, &st)) && st.filetype == PHYSFS_FILETYPE_DIRECTORY)
 			return false;
 		free(i);
 		return true;
@@ -182,12 +182,14 @@ window_event_result ui_file_browser::callback_handler(const d_event &event)
 			if (*p == '/')
 				p++;
 		}
-		
+
 		if (*filename && *p)
 			strncat(filename, "/", PATH_MAX - strlen(filename));
 		strncat(filename, p, PATH_MAX - strlen(filename));
-		
-		if (!PHYSFS_isDirectory(filename))
+
+		if (PHYSFS_Stat st{}; !PHYSFS_stat(filename, &st))
+			return window_event_result::handled;
+		else if (st.filetype == PHYSFS_FILETYPE_REGULAR || st.filetype == PHYSFS_FILETYPE_SYMLINK)
 		{
 			if (RAIIPHYSFS_File{PHYSFS_openRead(filename)})
 			{
@@ -204,7 +206,7 @@ window_event_result ui_file_browser::callback_handler(const d_event &event)
 				return window_event_result::close;
 			}
 		}
-		else
+		else if (st.filetype == PHYSFS_FILETYPE_DIRECTORY)
 		{
 			if (auto &last = filename[strlen(filename) - 1]; last == '/')	// user typed a separator on the end
 				last = 0;

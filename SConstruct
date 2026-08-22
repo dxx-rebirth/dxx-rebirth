@@ -1679,7 +1679,10 @@ static void terminate_handler()
 		const char *r = PHYSFS_getRealDir("");
 		(void)r;
 	}
-	PHYSFS_isDirectory("");
+	if (PHYSFS_Stat st{}; PHYSFS_stat("", &st))
+	{
+		(void)st;
+	}
 	{
 		const char *sep = PHYSFS_getDirSeparator();
 		(void)sep;

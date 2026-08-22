@@ -725,7 +725,7 @@ static void add_missions_to_list(mission_list_type &mission_list, mission_candid
 
 		auto j = std::copy_n(i, il, rel_path);
 		const char *ext;
-		if (PHYSFS_isDirectory(path.data()))
+		if (PHYSFS_Stat st{}; PHYSFS_stat(path.data(), &st) && st.filetype == PHYSFS_FILETYPE_DIRECTORY)
 		{
 			const auto null = std::prev(j);
 			*j = 0;
