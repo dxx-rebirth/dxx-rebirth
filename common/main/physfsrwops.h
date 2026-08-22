@@ -35,7 +35,6 @@
 #endif
 #include <SDL.h>
 
-#ifdef __cplusplus
 #include <memory>
 #include <utility>
 
@@ -56,12 +55,9 @@ typedef std::unique_ptr<SDL_RWops, RWops_delete> RWops_ptr;
  *  opening files through this method.
  *
  *   @param filename File to open in platform-independent notation.
- *  @return A valid SDL_RWops structure on success, NULL on error. Specifics
- *           of the error can be gleaned from PHYSFS_getLastError().
+ *  @return A pair containing: (1) valid SDL_RWops structure on success or nullptr on error and (2) PHYSFS_ERR_OK on success or a specific error code on error.
  */
 std::pair<RWops_ptr, PHYSFS_ErrorCode> PHYSFSRWOPS_openRead(const char *fname);
-
-#endif
 
 /* end of physfsrwops.h ... */
 
