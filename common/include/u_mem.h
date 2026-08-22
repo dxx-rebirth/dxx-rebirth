@@ -102,7 +102,13 @@ T *MALLOC(T *&r, std::size_t count, const char *var, const char *file, unsigned 
 template <typename T>
 static inline void d_free(T *&ptr)
 {
-	static_assert((std::is_same<T, void>::value || std::is_integral<T>::value), "d_free cannot free non-integral");
+	/* To be precise, `d_free` cannot be used with types that have a
+	 * non-trivial destructor, since it does not call the destructor.  Use the
+	 * stricter check of `is_integral_v` here, and prefer direct use of
+	 * standard C++ smart pointers for all user-defined types, whether or not
+	 * they have a destructor.
+	 */
+	static_assert(std::is_integral_v<T>, "d_free cannot free non-integral");
 	mem_free(std::exchange(ptr, nullptr));
 }
 
