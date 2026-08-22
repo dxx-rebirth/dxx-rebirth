@@ -1914,31 +1914,9 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, const opengl_texture_filter texfilt, b
 	std::array<uint8_t, 300*1024> decodebuf;
 	if (bm->get_flag_mask(BM_FLAG_RLE))
 	{
-		class bm_rle_expand_state
-		{
-			uint8_t *dbits;
-			uint8_t *const ebits;
-		public:
-			bm_rle_expand_state(uint8_t *const b, uint8_t *const e) :
-				dbits(b), ebits(e)
-			{
-			}
-			uint8_t *get_begin_dbits() const
-			{
-				return dbits;
-			}
-			uint8_t *get_end_dbits() const
-			{
-				return ebits;
-			}
-			void consume_dbits(const unsigned w)
-			{
-				dbits += w;
-			}
-		};
 		decodebuf = {};
 		buf = decodebuf.data();
-		if (!bm_rle_expand(*bm).loop(bm_w, bm_rle_expand_state(begin(decodebuf), end(decodebuf))))
+		if (!bm_rle_expand(*bm).loop(bm_w, bm_rle_expand_range(begin(decodebuf), end(decodebuf))))
 		{
 			con_printf(CON_URGENT, "error: insufficient space to decode %ux%hu bitmap.  Please report this as a bug.", bm_w, bm->bm_h);
 		}
