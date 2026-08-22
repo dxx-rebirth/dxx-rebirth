@@ -3705,7 +3705,7 @@ class DXXCommon(LazyObjectConstructor):
 				# Scan CXXFLAGS to try to guess whether the user has enabled LTO.
 				_lto_effective = None
 				if self.CXXFLAGS:
-					for cxxflag in shlex.split(self.CXXFLAGS):
+					for cxxflag in shlex.split(str(self.CXXFLAGS)):
 						if cxxflag == '-fno-lto':
 							_lto_effective = False
 						elif cxxflag == '-flto' or cxxflag.startswith('-flto='):
