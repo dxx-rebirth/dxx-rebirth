@@ -140,7 +140,6 @@ class RAIIdmem : public std::unique_ptr<T, RAIIdmem_deleter<T>>
 {
 	typedef std::unique_ptr<T, RAIIdmem_deleter<T>> base_ptr;
 public:
-	static_assert(std::is_integral<typename base_ptr::element_type>::value, "RAIIdmem cannot manage non-integral");
 	using base_ptr::base_ptr;
 };
 
