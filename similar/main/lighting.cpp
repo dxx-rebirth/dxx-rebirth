@@ -238,13 +238,13 @@ static void apply_light(fvmsegptridx &vmsegptridx, const g3s_lrgb obj_light_emis
 }
 }
 
-#define FLASH_LEN_FIXED_SECONDS (F1_0/3)
-#define FLASH_SCALE             (3*F1_0/FLASH_LEN_FIXED_SECONDS)
 namespace {
 
 // ----------------------------------------------------------------------------------------------
 static void cast_muzzle_flash_light(fvmsegptridx &vmsegptridx, int n_render_vertices, std::array<vertnum_t, MAX_VERTICES> &render_vertices, const std::array<segnum_t, MAX_VERTICES> &vert_segnum_list)
 {
+	static constexpr fix FLASH_LEN_FIXED_SECONDS{F1_0 / 3};
+	static constexpr fix FLASH_SCALE{3 * F1_0 / FLASH_LEN_FIXED_SECONDS};
 	fix64 current_time;
 	short time_since_flash;
 
