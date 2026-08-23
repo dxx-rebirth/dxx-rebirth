@@ -27,6 +27,7 @@
  */
 
 #include <stdio.h>  /* used for SEEK_SET, SEEK_CUR, SEEK_END ... */
+#include <limits>
 #include "physfsrwops.h"
 #include "physfsx.h"
 
@@ -41,6 +42,17 @@
 #endif
 
 namespace {
+
+#if SDL_MAJOR_VERSION == 2
+static Sint64 physfsrwops_size(SDL_RWops *rw)
+{
+    PHYSFS_File *handle = reinterpret_cast<PHYSFS_File *>(rw->hidden.unknown.data1);
+	const auto len{PHYSFS_fileLength(handle)};
+	if (len == -1)
+		SDL_SetError("Can't find end of file: %s", PHYSFS_getLastError());
+	return len;
+} /* physfsrwops_size */
+#endif
 
 static SDL_RWops_callback_seek_position physfsrwops_seek(SDL_RWops *rw, const SDL_RWops_callback_seek_position offset, const int whence)
 {
@@ -133,29 +145,62 @@ static SDL_RWops_callback_seek_position physfsrwops_seek(SDL_RWops *rw, const SD
     return(pos);
 } /* physfsrwops_seek */
 
+template <typename T>
+static bool physfsrwops_calculate_byte_count(const T size, const T number, PHYSFS_uint64 &count)
+{
+	if (!size || !number)
+	{
+		count = 0;
+		return true;
+	}
+	const auto object_size{static_cast<PHYSFS_uint64>(size)};
+	const auto object_count{static_cast<PHYSFS_uint64>(number)};
+	constexpr auto maximum_count{static_cast<PHYSFS_uint64>(std::numeric_limits<PHYSFS_sint64>::max())};
+	if (object_size > maximum_count || object_count > maximum_count / object_size)
+	{
+		SDL_SetError("I/O request is too large.");
+		return false;
+	}
+	count = object_size * object_count;
+	return true;
+}
 
 static SDL_RWops_callback_read_position physfsrwops_read(SDL_RWops *const rw, void *const ptr, const SDL_RWops_callback_read_position size, const SDL_RWops_callback_read_position maxnum)
 {
     PHYSFS_File *handle = reinterpret_cast<PHYSFS_File *>(rw->hidden.unknown.data1);
-	const auto count{size * maxnum};
+	PHYSFS_uint64 count;
+	if (!physfsrwops_calculate_byte_count(size, maxnum, count) || !count)
+		return 0;
 	const auto rc{PHYSFS_readBytes(handle, ptr, count)};
-	if (rc != count)
+	if (rc < 0)
+	{
+		SDL_SetError("PhysicsFS error: %s", PHYSFS_getLastError());
+		return 0;
+	}
+	if (rc != static_cast<PHYSFS_sint64>(count))
     {
         if (!PHYSFS_eof(handle)) /* not EOF? Must be an error. */
             SDL_SetError("PhysicsFS error: %s", PHYSFS_getLastError());
     } /* if */
-	return rc;
+	return rc / size;
 } /* physfsrwops_read */
 
 
 static SDL_RWops_callback_write_position physfsrwops_write(SDL_RWops *const rw, const void *const ptr, const SDL_RWops_callback_write_position size, const SDL_RWops_callback_write_position num)
 {
     PHYSFS_File *handle = reinterpret_cast<PHYSFS_File *>(rw->hidden.unknown.data1);
-	const auto count{size * num};
+	PHYSFS_uint64 count;
+	if (!physfsrwops_calculate_byte_count(size, num, count) || !count)
+		return 0;
 	const auto rc{PHYSFS_writeBytes(handle, reinterpret_cast<const uint8_t *>(ptr), count)};
-    if (rc != count)
+	if (rc < 0)
+	{
+		SDL_SetError("PhysicsFS error: %s", PHYSFS_getLastError());
+		return 0;
+	}
+	if (rc != static_cast<PHYSFS_sint64>(count))
         SDL_SetError("PhysicsFS error: %s", PHYSFS_getLastError());
-	return rc;
+	return rc / size;
 } /* physfsrwops_write */
 
 
@@ -188,6 +233,9 @@ std::pair<RWops_ptr, PHYSFS_ErrorCode> PHYSFSRWOPS_openRead(const char *fname)
 		RWops_ptr retval{SDL_AllocRW()};
 		if (retval)
         {
+#if SDL_MAJOR_VERSION == 2
+            retval->size  = physfsrwops_size;
+#endif
             retval->seek  = physfsrwops_seek;
             retval->read  = physfsrwops_read;
             retval->write = physfsrwops_write;
@@ -201,4 +249,3 @@ std::pair<RWops_ptr, PHYSFS_ErrorCode> PHYSFSRWOPS_openRead(const char *fname)
 } /* PHYSFSRWOPS_openRead */
 
 /* end of physfsrwops.c ... */
-
