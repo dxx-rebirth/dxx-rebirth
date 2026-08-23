@@ -51,7 +51,12 @@ enum class multi_macro_message_index : uint8_t
 #include <optional>
 #include <ranges>
 #include <span>
+#include "fwd-event.h"
+#include "fwd-game.h"
+#include "fwd-piggy.h"
+#include "fwd-vecmat.h"
 #include "objnum.h"
+#include "player-callsign.h"
 
 #ifdef _WIN32
 #include <winsock2.h>
