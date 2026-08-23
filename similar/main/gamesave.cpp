@@ -1156,6 +1156,17 @@ static int load_game_data(
 			little_endian::delta_light_read(&i, LoadFile);
 	}
 #endif
+	/* Clear any muzzle glow from a prior level.  Muzzle data refers to segments
+	 * which are invalidated by loading a new level.  Even in the case that the
+	 * old and new levels are the same mine, retaining muzzle data from a
+	 * pre-load battle into a post-load mine is wrong.  Resetting
+	 * `Muzzle_queue_index` is not necessary, since the only reader of
+	 * `Muzzle_data` always visits every element.
+	 *
+	 * A future iteration of the save game format might save and restore muzzle
+	 * data.
+	 */
+	Muzzle_data = {};
 
 	//========================= UPDATE VARIABLES ======================
 
