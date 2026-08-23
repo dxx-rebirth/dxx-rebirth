@@ -4943,6 +4943,10 @@ class DXXArchive(DXXCommon):
 		RuntimeTest('test-mve-audio-stream', (
 			'd2x-rebirth/unittest/mve_audio_stream.cpp',
 			), nodefaultlibs=False),
+		RuntimeTest('test-physfsrwops', (
+			'common/unittest/physfsrwops.cpp',
+			'common/misc/physfsrwops.cpp',
+			), nodefaultlibs=False),
 		RuntimeTest('test-serial', (
 			'common/unittest/serial.cpp',
 			)),
