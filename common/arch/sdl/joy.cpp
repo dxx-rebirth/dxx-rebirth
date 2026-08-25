@@ -506,12 +506,14 @@ bool joy_translate_menu_key(const d_event &event) {
 	if (event.type != event_type::joystick_button_down)
 		return false;
 	auto &e = static_cast<const d_event_joystickbutton &>(event);
-	assert(e.button < joy_key_map.size());
-	auto key = joy_key_map[e.button];
-	if (key)
+	if (e.button < joy_key_map.size())
 	{
-		event_keycommand_send(key);
-		return true;
+		auto key = joy_key_map[e.button];
+		if (key)
+		{
+			event_keycommand_send(key);
+			return true;
+		}
 	}
 #if SDL_MAJOR_VERSION == 2
 	return gamecontroller_translate_menu_key(e.button);
