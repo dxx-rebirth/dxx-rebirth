@@ -22,13 +22,17 @@ std::array<int64_t, 3> consume(dcx::mouse_delta_state &state)
 
 }
 
-BOOST_AUTO_TEST_CASE(latest_motion_replaces_previous_motion)
+BOOST_AUTO_TEST_CASE(motion_is_independent_of_event_partitioning)
 {
-	dcx::mouse_delta_state state;
-	state.update({{1, -2, 0}});
-	state.update({{5, -7, 2}});
-	const std::array<int64_t, 3> expected{{5, -7, 2}};
-	BOOST_TEST(consume(state) == expected, boost::test_tools::per_element());
+	dcx::mouse_delta_state single_event;
+	single_event.update({{8, -12, 3}});
+
+	dcx::mouse_delta_state partitioned_events;
+	partitioned_events.update({{1, -2, 0}});
+	partitioned_events.update({{2, -3, 1}});
+	partitioned_events.update({{5, -7, 2}});
+
+	BOOST_TEST(consume(single_event) == consume(partitioned_events), boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(consume_clears_pending_motion)
@@ -53,5 +57,23 @@ BOOST_AUTO_TEST_CASE(zero_motion_is_a_pending_event)
 	dcx::mouse_delta_state state;
 	state.update({{0, 0, 0}});
 	const std::array<int64_t, 3> expected{};
+	BOOST_TEST(consume(state) == expected, boost::test_tools::per_element());
+}
+
+BOOST_AUTO_TEST_CASE(trailing_zero_event_does_not_discard_motion)
+{
+	dcx::mouse_delta_state state;
+	state.update({{4, -6, 2}});
+	state.update({{0, 0, 0}});
+	const std::array<int64_t, 3> expected{{4, -6, 2}};
+	BOOST_TEST(consume(state) == expected, boost::test_tools::per_element());
+}
+
+BOOST_AUTO_TEST_CASE(opposing_events_produce_net_motion)
+{
+	dcx::mouse_delta_state state;
+	state.update({{7, -3, 1}});
+	state.update({{-5, 8, -1}});
+	const std::array<int64_t, 3> expected{{2, 5, 0}};
 	BOOST_TEST(consume(state) == expected, boost::test_tools::per_element());
 }
