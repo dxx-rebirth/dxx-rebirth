@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <type_traits>
 #include "joy.h"
 #include "dxxsconf.h"
+#include "mouse_delta.h"
 
 #include "maths.h"
 #include <vector>
@@ -85,6 +86,7 @@ struct control_info
 	};
 #endif
 	ramp_controls_t<float> down_time; // to scale movement depending on how long the key is pressed
+	mouse_delta_state pending_mouse_delta;
 	fix pitch_time, vertical_thrust_time, heading_time, sideways_thrust_time, bank_time, forward_thrust_time;
         fix excess_pitch_time, excess_vertical_thrust_time, excess_heading_time, excess_sideways_thrust_time, excess_bank_time, excess_forward_thrust_time;
 };
