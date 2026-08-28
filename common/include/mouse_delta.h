@@ -29,7 +29,7 @@ public:
 	void update(const std::array<int, 3> &delta)
 	{
 		for (std::size_t i = 0; i != m_delta.size(); ++i)
-			m_delta[i] = delta[i];
+			m_delta[i] += delta[i];
 		m_pending = true;
 	}
 
