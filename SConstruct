@@ -4932,12 +4932,16 @@ class DXXArchive(DXXCommon):
 
 	get_library_objects = DXXCommon.create_lazy_object_getter((
 'common/maths/fixc.cpp',
+'common/maths/homing.cpp',
 'common/maths/tables.cpp',
 'common/maths/vecmat.cpp',
 ))
 
 	RuntimeTest = DXXCommon.RuntimeTest
 	runtime_test_boost_tests = (
+		RuntimeTest('test-homing', (
+			'common/unittest/homing.cpp',
+			)),
 		RuntimeTest('test-enumerate', (
 			'common/unittest/enumerate.cpp',
 			)),
