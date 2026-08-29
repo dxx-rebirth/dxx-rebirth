@@ -60,6 +60,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_levelstate.h"
 #include "d_underlying_value.h"
 #include "partial_range.h"
+#include "homing.h"
 
 namespace {
 #ifdef NEWHOMER
@@ -1568,9 +1569,7 @@ static bool is_active_guided_missile(d_level_unique_object_state &LevelUniqueObj
 //	Set object *objp's orientation to (or towards if I'm ambitious) its velocity.
 static void homing_missile_turn_towards_velocity(object_base &obj, vms_vector new_fvec, fix ft)
 {
-	vm_vec_scale(new_fvec, ft * HOMING_MISSILE_SCALE);
-	vm_vec_add2(new_fvec, obj.orient.fvec);
-	reconstruct_at(obj.orient, vm_vector_to_matrix, vm_vec_normalized_quick(new_fvec));
+	obj.orient = homing_turn_orientation(obj.orient, new_fvec, ft, HOMING_MISSILE_SCALE);
 }
 
 }
@@ -1649,31 +1648,12 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 
 				if (track_goal != object_none)
 				{
-					auto vector_to_object{vm_vec_build_sub(track_goal->pos, obj->pos)};
-					vm_vec_normalize_quick(vector_to_object);
-					auto &&[speed_magnitude, temp_vec] = vm_vec_normalize_quick_with_magnitude(obj->mtype.phys_info.velocity);
-					fix speed{speed_magnitude};
 					const auto max_speed{Weapon_info[get_weapon_id(obj)].speed[Difficulty_level]};
-					if (speed+F1_0 < max_speed) {
-						speed += fixmul(max_speed, HOMING_TURN_TIME/2);
-						if (speed > max_speed)
-							speed = max_speed;
-					}
+					const auto turn_result{homing_turn_velocity(obj->mtype.phys_info.velocity, vm_vec_build_sub(track_goal->pos, obj->pos), max_speed, HOMING_TURN_TIME, Weapon_info[get_weapon_id(obj)].render != weapon_info::render_type::polymodel)};
 #if DXX_BUILD_DESCENT == 1
-					dot = vm_vec_build_dot(temp_vec, vector_to_object);
+					dot = turn_result.velocity_target_dot;
 #endif
-					vm_vec_add2(temp_vec, vector_to_object);
-					//	The boss' smart children track better...
-					if (Weapon_info[get_weapon_id(obj)].render != weapon_info::render_type::polymodel)
-						vm_vec_add2(temp_vec, vector_to_object);
-					vm_vec_normalize_quick(temp_vec);
-#if DXX_BUILD_DESCENT == 1
-					vm_vec_scale(temp_vec, speed);
-					obj->mtype.phys_info.velocity = temp_vec;
-#elif DXX_BUILD_DESCENT == 2
-					obj->mtype.phys_info.velocity = temp_vec;
-					vm_vec_scale(obj->mtype.phys_info.velocity, speed);
-#endif
+					obj->mtype.phys_info.velocity = turn_result.velocity;
 
 					//	Subtract off life proportional to amount turned.
 					//	For hardest turn, it will lose 2 seconds per second.
@@ -1692,7 +1672,13 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 
 					//	Only polygon objects have visible orientation, so only they should turn.
 					if (Weapon_info[get_weapon_id(obj)].render == weapon_info::render_type::polymodel)
-						homing_missile_turn_towards_velocity(obj, temp_vec, HOMING_TURN_TIME);		//	temp_vec is normalized velocity.
+						homing_missile_turn_towards_velocity(obj,
+#if DXX_BUILD_DESCENT == 1
+							turn_result.velocity,
+#elif DXX_BUILD_DESCENT == 2
+							turn_result.normalized_velocity,
+#endif
+							HOMING_TURN_TIME);
                                 }
                         }
 #else // old FPS-dependent homers - NOTE: I know this is very redundant but I want to keep the historical code 100% preserved to compare against potential changes in the above.
