@@ -3646,10 +3646,11 @@ class DXXCommon(LazyObjectConstructor):
 	class RuntimeTest(LazyObjectConstructor):
 		target: str
 		source: collections.abc.Sequence[str]
-		def __init__(self, target: str, source: collections.abc.Sequence[str], nodefaultlibs: bool = True):
+		use_default_libs: bool
+		def __init__(self, target: str, source: collections.abc.Sequence[str], use_default_libs: bool = False):
 			self.target = target
 			self.source = LazyObjectConstructor.create_lazy_object_getter(source)
-			self.nodefaultlibs = nodefaultlibs
+			self.use_default_libs = use_default_libs
 
 	@cached_property
 	def program_message_prefix(self):
@@ -4914,7 +4915,7 @@ class DXXCommon(LazyObjectConstructor):
 		builddir = env.Dir(user_settings.builddir).Dir(self.srcdir)
 		library = env.Library(builddir.File(f'{env["LIBPREFIX"]}{self.srcdir}{env["LIBSUFFIX"]}'), self.get_library_objects())
 		for test in runtime_test_boost_tests:
-			LIBS = [] if test.nodefaultlibs else env['LIBS'].copy()
+			LIBS = [] if not test.use_default_libs else env['LIBS'].copy()
 			LIBS.extend((
 				'boost_unit_test_framework',
 				library,
@@ -4942,11 +4943,11 @@ class DXXArchive(DXXCommon):
 			)),
 		RuntimeTest('test-mve-audio-stream', (
 			'd2x-rebirth/unittest/mve_audio_stream.cpp',
-			), nodefaultlibs=False),
+			), use_default_libs=True),
 		RuntimeTest('test-physfsrwops', (
 			'common/unittest/physfsrwops.cpp',
 			'common/misc/physfsrwops.cpp',
-			), nodefaultlibs=False),
+			), use_default_libs=True),
 		RuntimeTest('test-serial', (
 			'common/unittest/serial.cpp',
 			)),
