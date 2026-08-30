@@ -251,14 +251,38 @@ std::pair<RWops_ptr, PHYSFS_ErrorCode> PHYSFSRWOPS_openRead(const char *fname)
 		if (retval)
         {
 			[[likely]];
-#if SDL_MAJOR_VERSION == 2
-            retval->size  = physfsrwops_size;
+			*retval = {
+#if SDL_MAJOR_VERSION >= 2
+				.size{physfsrwops_size},
 #endif
-            retval->seek  = physfsrwops_seek;
-            retval->read  = physfsrwops_read;
-            retval->write = physfsrwops_write;
-            retval->close = physfsrwops_close;
-            retval->hidden.unknown.data1 = handle.release();
+				.seek{physfsrwops_seek},
+				.read{physfsrwops_read},
+				.write{physfsrwops_write},
+				.close{physfsrwops_close},
+				.type{
+#if SDL_MAJOR_VERSION >= 2
+					/* SDL2 added this `#define`.  For SDL1, use
+					 * value-initialization.
+					 *
+					 * Rebirth never reads the member.  This is only set so
+					 * that all members are initialized.
+					 */
+					SDL_RWOPS_UNKNOWN
+#endif
+				},
+				.hidden{
+					.unknown{
+						.data1{handle.release()},
+#if SDL_MAJOR_VERSION >= 2
+						/* SDL2 added this member.  In SDL1, union `hidden` was
+						 * (at least) 3 pointers long, but the struct `unknown`
+						 * only had one member, `data1`.
+						 */
+						.data2{},
+#endif
+					}
+				}
+			};
         } /* if */
 		else
 			return {nullptr, PHYSFS_ERR_OTHER_ERROR};
