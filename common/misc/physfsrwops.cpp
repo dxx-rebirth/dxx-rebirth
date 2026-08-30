@@ -69,6 +69,7 @@ static SDL_RWops_callback_seek_position physfsrwops_seek(SDL_RWops *rw, const SD
         PHYSFS_sint64 current = PHYSFS_tell(handle);
         if (current == -1)
         {
+			[[unlikely]];
             SDL_SetError("Can't find position in file: %s",
                           PHYSFS_getLastError());
             return(-1);
@@ -76,6 +77,7 @@ static SDL_RWops_callback_seek_position physfsrwops_seek(SDL_RWops *rw, const SD
 
 		if (!std::in_range<SDL_RWops_callback_seek_position>(current))
         {
+			[[unlikely]];
             SDL_SetError("Can't fit current file position in an int!");
             return(-1);
         } /* if */
@@ -110,12 +112,14 @@ static SDL_RWops_callback_seek_position physfsrwops_seek(SDL_RWops *rw, const SD
         PHYSFS_sint64 len = PHYSFS_fileLength(handle);
         if (len == -1)
         {
+			[[unlikely]];
             SDL_SetError("Can't find end of file: %s", PHYSFS_getLastError());
             return(-1);
         } /* if */
 
 		if (!std::in_range<SDL_RWops_callback_seek_position>(len))
         {
+			[[unlikely]];
             SDL_SetError("Can't fit end-of-file position in an int!");
             return(-1);
         } /* if */
@@ -126,18 +130,21 @@ static SDL_RWops_callback_seek_position physfsrwops_seek(SDL_RWops *rw, const SD
 
     else
     {
+		[[unlikely]];
         SDL_SetError("Invalid 'whence' parameter.");
         return(-1);
     } /* else */
 
     if ( pos < 0 )
     {
+		[[unlikely]];
         SDL_SetError("Attempt to seek past start of file.");
         return(-1);
     } /* if */
     
     if (!PHYSFS_seek(handle, static_cast<PHYSFS_uint64>(pos)))
     {
+		[[unlikely]];
         SDL_SetError("PhysicsFS error: %s", PHYSFS_getLastError());
         return(-1);
     } /* if */
@@ -179,8 +186,12 @@ static SDL_RWops_callback_read_position physfsrwops_read(SDL_RWops *const rw, vo
 	}
 	if (rc != static_cast<PHYSFS_sint64>(count))
     {
+		[[unlikely]];
         if (!PHYSFS_eof(handle)) /* not EOF? Must be an error. */
+		{
+			[[unlikely]];
             SDL_SetError("PhysicsFS error: %s", PHYSFS_getLastError());
+		}
     } /* if */
 	return rc / size;
 } /* physfsrwops_read */
@@ -195,11 +206,15 @@ static SDL_RWops_callback_write_position physfsrwops_write(SDL_RWops *const rw, 
 	const auto rc{PHYSFS_writeBytes(handle, reinterpret_cast<const uint8_t *>(ptr), count)};
 	if (rc < 0)
 	{
+		[[unlikely]];
 		SDL_SetError("PhysicsFS error: %s", PHYSFS_getLastError());
 		return 0;
 	}
 	if (rc != static_cast<PHYSFS_sint64>(count))
+	{
+		[[unlikely]];
         SDL_SetError("PhysicsFS error: %s", PHYSFS_getLastError());
+	}
 	return rc / size;
 } /* physfsrwops_write */
 
@@ -209,6 +224,7 @@ static int physfsrwops_close(SDL_RWops *rw)
     PHYSFS_File *handle = reinterpret_cast<PHYSFS_File *>(rw->hidden.unknown.data1);
     if (!PHYSFS_close(handle))
     {
+		[[unlikely]];
         SDL_SetError("PhysicsFS error: %s", PHYSFS_getLastError());
         return(-1);
     } /* if */
@@ -224,6 +240,7 @@ std::pair<RWops_ptr, PHYSFS_ErrorCode> PHYSFSRWOPS_openRead(const char *fname)
 	RAIIPHYSFS_File handle{PHYSFS_openRead(fname)};
     if (!handle)
 	{
+		[[unlikely]];
 		const auto err = PHYSFS_getLastErrorCode();
         SDL_SetError("PhysicsFS error: %s", PHYSFS_getErrorByCode(err));
 		return {nullptr, err};
@@ -233,6 +250,7 @@ std::pair<RWops_ptr, PHYSFS_ErrorCode> PHYSFSRWOPS_openRead(const char *fname)
 		RWops_ptr retval{SDL_AllocRW()};
 		if (retval)
         {
+			[[likely]];
 #if SDL_MAJOR_VERSION == 2
             retval->size  = physfsrwops_size;
 #endif
