@@ -4,6 +4,7 @@
  * project's Git history.  See COPYING.txt at the top level for license
  * terms and a link to the Git history.
  */
+#include <algorithm>
 #include <ranges>
 #include "mve_audio.h"
 #include "dxxsconf.h"
@@ -37,7 +38,7 @@ static void processSwath(std::span<int16_t> fout, const uint8_t *const data, std
     {
 		auto &o = offsets[i & 1];
 		o += audio_exp_table[d];
-		fout.front() = o;
+		fout.front() = std::ranges::clamp(o, int32_t{INT16_MIN}, int32_t{INT16_MAX});
 		fout = fout.subspan<1>();
     }
 }
