@@ -27,53 +27,78 @@
 
 namespace {
 
-class physfsrwops_test_fixture
+struct RAIItemporary_filesystem_directory
+{
+	std::filesystem::path directory;
+	RAIItemporary_filesystem_directory(std::string &&directory_name_prefix) :
+		directory{
+			std::filesystem::temp_directory_path().append(
+				(directory_name_prefix.append(std::to_string(/* unique time-based value to minimize chance of accidental collision */ std::chrono::steady_clock::now().time_since_epoch().count())), std::move(directory_name_prefix))
+			)
+		}
+	{
+		/* There are three possible results from calling `create_directory`:
+		 * - true: directory created
+		 * - false: directory already existed
+		 * - exception: error trying to create directory
+		 */
+		if (!std::filesystem::create_directory(directory))
+			/* No exception was thrown, but the directory was not created
+			 * because it already existed.  Existence is very unlikely here
+			 * due to the timestamp included in the path.
+			 *
+			 * Throw so that the directory will not be destroyed.
+			 */
+			throw std::runtime_error("Failed to create temporary directory " + directory.string());
+	}
+	~RAIItemporary_filesystem_directory()
+	{
+		std::filesystem::remove_all(directory);
+	}
+};
+
+struct RAIIphysfs_init
+{
+	RAIIphysfs_init()
+	{
+		const auto argv0{boost::unit_test::framework::master_test_suite().argv[0]};
+		if (!PHYSFS_init(argv0))
+			throw std::runtime_error(PHYSFS_getLastError());
+	}
+	~RAIIphysfs_init()
+	{
+		PHYSFS_deinit();
+	}
+};
+
+struct RAIItemporary_physfs_mounted_directory : RAIItemporary_filesystem_directory
+{
+	RAIItemporary_physfs_mounted_directory(std::string &&directory_name_prefix) :
+		RAIItemporary_filesystem_directory{std::move(directory_name_prefix)}
+	{
+		if (!PHYSFS_mount(directory.string().c_str(), nullptr, 1))
+			throw std::runtime_error(PHYSFS_getLastError());
+	}
+
+	~RAIItemporary_physfs_mounted_directory()
+	{
+		PHYSFS_unmount(directory.string().c_str());
+	}
+};
+
+class physfsrwops_test_fixture : RAIIphysfs_init, RAIItemporary_physfs_mounted_directory
 {
 	static constexpr std::array<uint8_t, 7> payload{{1, 2, 3, 4, 5, 6, 7}};
 	static constexpr char filename[]{"physfsrwops-test-data"};
-	std::filesystem::path directory;
-	bool physfs_initialized{};
-	bool directory_mounted{};
-
-	void cleanup()
-	{
-		if (directory_mounted)
-			PHYSFS_unmount(directory.string().c_str());
-		if (physfs_initialized)
-			PHYSFS_deinit();
-		std::filesystem::remove_all(directory);
-	}
-
 public:
-	physfsrwops_test_fixture()
+	physfsrwops_test_fixture() :
+		RAIItemporary_physfs_mounted_directory{"dxx-rebirth-physfsrwops-"}
 	{
-		try {
-			const auto unique{std::chrono::steady_clock::now().time_since_epoch().count()};
-			directory = std::filesystem::temp_directory_path() / ("dxx-rebirth-physfsrwops-" + std::to_string(unique));
-			if (!std::filesystem::create_directory(directory))
-				throw std::runtime_error("Failed to create temporary directory");
-			{
-				std::ofstream output{directory / filename, std::ios::binary};
-				output.write(reinterpret_cast<const char *>(payload.data()), payload.size());
-				if (!output)
-					throw std::runtime_error("Failed to create test input");
-			}
-			const auto argv0{boost::unit_test::framework::master_test_suite().argv[0]};
-			if (!PHYSFS_init(argv0))
-				throw std::runtime_error(PHYSFS_getLastError());
-			physfs_initialized = true;
-			if (!PHYSFS_mount(directory.string().c_str(), nullptr, 1))
-				throw std::runtime_error(PHYSFS_getLastError());
-			directory_mounted = true;
-		} catch (...) {
-			cleanup();
-			throw;
-		}
-	}
-
-	~physfsrwops_test_fixture()
-	{
-		cleanup();
+		std::string pathname{directory / filename};
+		std::ofstream output{pathname, std::ios::binary};
+		output.write(reinterpret_cast<const char *>(payload.data()), payload.size());
+		if (!output)
+			throw std::runtime_error("Failed to create test input " + pathname);
 	}
 
 	static RWops_ptr open()
