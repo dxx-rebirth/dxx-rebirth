@@ -3065,13 +3065,13 @@ class LazyObjectConstructor:
 			cache[name] = value = tuple(value)
 		return value
 
-	def create_lazy_object_states_getter(states: collections.abc.Sequence[LazyObjectState], __lazy_objects=__lazy_objects):
+	def create_lazy_object_states_getter(states: collections.abc.Sequence[LazyObjectState], __lazy_objects: collections.abc.Callable[[LazyObjectConstructor, collections.abc.Sequence[LazyObjectState]], tuple['SCons.Environment.StaticObject']] = __lazy_objects) -> collections.abc.Callable[[LazyObjectConstructor], tuple['SCons.Environment.StaticObject']]:
 		def get_objects(self):
 			return __lazy_objects(self, states)
 		return get_objects
 
 	@staticmethod
-	def create_lazy_object_getter(sources: collections.abc.Sequence[str], __LazyObjectState=LazyObjectState, __create_lazy_object_states_getter=create_lazy_object_states_getter):
+	def create_lazy_object_getter(sources: collections.abc.Sequence[str], __LazyObjectState=LazyObjectState, __create_lazy_object_states_getter=create_lazy_object_states_getter) -> collections.abc.Callable[[LazyObjectConstructor], tuple['SCons.Environment.StaticObject']]:
 		return __create_lazy_object_states_getter((__LazyObjectState(sources=sources),))
 
 	create_lazy_object_states_getter = staticmethod(create_lazy_object_states_getter)
@@ -3645,7 +3645,7 @@ class DXXCommon(LazyObjectConstructor):
 	@dataclass(eq=False)
 	class RuntimeTest(LazyObjectConstructor):
 		target: str
-		source: collections.abc.Sequence[str]
+		source: tuple['SCons.Environment.StaticObject']
 		use_default_libs: bool
 		def __init__(self, target: str, source: collections.abc.Sequence[str], use_default_libs: bool = False):
 			self.target = target
