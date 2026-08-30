@@ -187,12 +187,31 @@ public:
 
 static std::array<d_physical_joystick, DXX_MAX_JOYSTICKS> SDL_Joysticks;
 
+static d_physical_joystick *find_joystick(const decltype(SDL_JoyButtonEvent::which) which)
+{
+#if SDL_MAJOR_VERSION == 1
+	if (which >= num_joysticks)
+		return nullptr;
+	return &SDL_Joysticks[which];
+#else
+	for (auto &joystick : partial_range(SDL_Joysticks, static_cast<unsigned>(num_joysticks)))
+	{
+		if (SDL_JoystickInstanceID(joystick.handle().get()) == which)
+			return &joystick;
+	}
+	return nullptr;
+#endif
+}
+
 }
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK
 window_event_result joy_button_handler(const SDL_JoyButtonEvent *const jbe)
 {
-	const unsigned button = SDL_Joysticks[jbe->which].button_map()[jbe->button];
+	auto *const joystick = find_joystick(jbe->which);
+	if (!joystick)
+		return window_event_result::ignored;
+	const unsigned button = joystick->button_map()[jbe->button];
 
 	Joystick.button_state[button] = jbe->state;
 
@@ -208,7 +227,10 @@ window_event_result joy_button_handler(const SDL_JoyButtonEvent *const jbe)
 #if DXX_MAX_HATS_PER_JOYSTICK
 window_event_result joy_hat_handler(const SDL_JoyHatEvent *const jhe)
 {
-	int hat = SDL_Joysticks[jhe->which].hat_map()[jhe->hat];
+	auto *const joystick = find_joystick(jhe->which);
+	if (!joystick)
+		return window_event_result::ignored;
+	int hat = joystick->hat_map()[jhe->hat];
 	window_event_result highest_result(window_event_result::ignored);
 	//Save last state of the hat-button
 
@@ -268,9 +290,11 @@ static window_event_result send_axis_button_event(unsigned button, event_type e)
 
 window_event_result joy_axisbutton_handler(const SDL_JoyAxisEvent *const jae)
 {
-	auto &js = SDL_Joysticks[jae->which];
-	auto axis_value = js.axis_value()[jae->axis];
-	auto button = js.axis_button_map()[jae->axis];
+	auto *const js = find_joystick(jae->which);
+	if (!js)
+		return window_event_result::ignored;
+	auto axis_value = js->axis_value()[jae->axis];
+	auto button = js->axis_button_map()[jae->axis];
 	window_event_result highest_result(window_event_result::ignored);
 
 	// We have to hardcode a deadzone here. It's not mapped into the settings.
@@ -301,9 +325,11 @@ window_event_result joy_axisbutton_handler(const SDL_JoyAxisEvent *const jae)
 
 window_event_result joy_axis_handler(const SDL_JoyAxisEvent *const jae)
 {
-	auto &js = SDL_Joysticks[jae->which];
-	const auto axis = js.axis_map()[jae->axis];
-	auto &axis_value = js.axis_value()[jae->axis];
+	auto *const js = find_joystick(jae->which);
+	if (!js)
+		return window_event_result::ignored;
+	const auto axis = js->axis_map()[jae->axis];
+	auto &axis_value = js->axis_value()[jae->axis];
 	// inaccurate stick is inaccurate. SDL might send SDL_JoyAxisEvent even if the value is the same as before.
 	if (axis_value == jae->value/256)
 		return window_event_result::ignored;
@@ -506,12 +532,14 @@ bool joy_translate_menu_key(const d_event &event) {
 	if (event.type != event_type::joystick_button_down)
 		return false;
 	auto &e = static_cast<const d_event_joystickbutton &>(event);
-	assert(e.button < joy_key_map.size());
-	auto key = joy_key_map[e.button];
-	if (key)
+	if (e.button < joy_key_map.size())
 	{
-		event_keycommand_send(key);
-		return true;
+		auto key = joy_key_map[e.button];
+		if (key)
+		{
+			event_keycommand_send(key);
+			return true;
+		}
 	}
 #if SDL_MAJOR_VERSION == 2
 	return gamecontroller_translate_menu_key(e.button);
