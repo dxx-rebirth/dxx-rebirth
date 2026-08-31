@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <cstddef>
 #include <stdexcept>
 #include <functional>
+#include <limits>
 
 #include "dxxerror.h"
 #include "pstypes.h"
@@ -112,6 +113,7 @@ constexpr enumerated_array<uint8_t, MAX_DXX_REBIRTH_CONTROLS, dxx_kconfig_ui_kc_
 void kconfig_begin_loop(control_info &Controls)
 {
 	Controls.pitch_time = Controls.vertical_thrust_time = Controls.heading_time = Controls.sideways_thrust_time = Controls.bank_time = Controls.forward_thrust_time = 0;
+	Controls.pending_mouse_delta.reset();
 }
 
 namespace {
@@ -1821,10 +1823,7 @@ void kconfig_read_controls(control_info &Controls, const d_event &event, int aut
 			}
 			else
 			{
-				Controls.raw_mouse_axis = event_mouse_get_delta(event);
-				Controls.mouse_axis[0] = (Controls.raw_mouse_axis[0] * frametime) / 8;
-				Controls.mouse_axis[1] = (Controls.raw_mouse_axis[1] * frametime) / 8;
-				Controls.mouse_axis[2] = (Controls.raw_mouse_axis[2] * frametime);
+				Controls.pending_mouse_delta.update(event_mouse_get_delta(event));
 				mouse_delta_time = timer_query() + DESIGNATED_GAME_FRAMETIME;
 			}
 			break;
@@ -1844,6 +1843,16 @@ void kconfig_end_loop(control_info &Controls, const fix frametime)
 {
 	static constexpr unsigned FREE_PITCH_FACTOR{1};
 	static constexpr unsigned LOCKED_PITCH_FACTOR{2};
+	if (const auto delta = Controls.pending_mouse_delta.consume())
+	{
+		for (auto &&[raw_mouse_axis, d] : zip(Controls.raw_mouse_axis, *delta))
+			raw_mouse_axis = static_cast<fix>(std::clamp(d,
+				static_cast<int64_t>(std::numeric_limits<fix>::min()),
+				static_cast<int64_t>(std::numeric_limits<fix>::max())));
+		Controls.mouse_axis[0] = (Controls.raw_mouse_axis[0] * frametime) / 8;
+		Controls.mouse_axis[1] = (Controls.raw_mouse_axis[1] * frametime) / 8;
+		Controls.mouse_axis[2] = (Controls.raw_mouse_axis[2] * frametime);
+	}
 #if DXX_MAX_AXES_PER_JOYSTICK
 	std::array<fix, JOY_MAX_AXES> joy_axis{};
 	for (auto &&[i, o, raw_joy_axis] : enumerate(zip(joy_axis, Controls.raw_joy_axis)))
