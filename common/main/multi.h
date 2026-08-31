@@ -450,6 +450,7 @@ owned_remote_objnum objnum_local_to_remote(objnum_t local);
 void map_objnum_local_to_remote(objnum_t local, int remote, int owner);
 void map_objnum_local_to_local(objnum_t objnum);
 void reset_network_objects();
+bool restore_network_object_mappings(std::span<const owned_remote_objnum> mappings, std::span<const bool> object_live, std::span<const int8_t, MAX_PLAYERS> saved_to_current_player);
 void multi_do_ping_frame();
 
 void multi_init_objects(void);
