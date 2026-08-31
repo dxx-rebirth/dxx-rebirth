@@ -18,6 +18,18 @@ struct homing_target_types
 };
 
 [[nodiscard]]
+constexpr bool homing_target_is_alive_and_visible(const int target_type, const int player_type, const int ghost_type, const bool player_cloaked)
+{
+	return target_type != ghost_type && (target_type != player_type || !player_cloaked);
+}
+
+[[nodiscard]]
+constexpr bool homing_weapon_needs_initial_target(const bool homing, const int direct_parent_type, const int robot_type)
+{
+	return homing && direct_parent_type == robot_type;
+}
+
+[[nodiscard]]
 constexpr homing_target_types get_homing_target_types(const bool multiplayer, const bool cooperative, const bool multiplayer_robots, const bool fired_by_player, const bool robots_kill_robots, const int player_type, const int robot_type)
 {
 	if (!fired_by_player)

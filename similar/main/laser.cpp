@@ -843,7 +843,14 @@ imobjptridx_t Laser_create_new(const vms_vector &direction, const vms_vector &po
 
 	// Create orientation matrix so we can look from this pov
 	//	Homing missiles also need an orientation matrix so they know if they can make a turn.
-	if ((weapon_info.homing_flag && (obj->ctype.laser_info.track_goal = object_none, true)) || obj->render_type == render_type::RT_POLYOBJ)
+	if (weapon_info.homing_flag)
+	{
+		obj->ctype.laser_info.track_goal = object_none;
+		reconstruct_at(obj->orient, vm_vector_to_matrix_u, direction, parent->orient.uvec);
+		if (homing_weapon_needs_initial_target(weapon_info.homing_flag, parent->type, object_type::OBJ_ROBOT))
+			obj->ctype.laser_info.track_goal = find_homing_object(obj->pos, obj);
+	}
+	else if (obj->render_type == render_type::RT_POLYOBJ)
 		reconstruct_at(obj->orient, vm_vector_to_matrix_u, direction, parent->orient.uvec);
 
 	if (( parent != Viewer ) && (parent->type != object_type::OBJ_WEAPON))	{
@@ -1059,10 +1066,11 @@ static int object_is_trackable(const imobjptridx_t objp, const vmobjptridx_t tra
 {
 	if (objp == object_none)
 		return 0;
-	if (+(Game_mode & GM_MULTI_COOP))
+	const auto target_type{objp->type};
+	const bool target_is_cloaked_player{target_type == object_type::OBJ_PLAYER && +(objp->ctype.player_info.powerup_flags & player_flag::cloaked)};
+	if (!homing_target_is_alive_and_visible(target_type, object_type::OBJ_PLAYER, object_type::OBJ_GHOST, target_is_cloaked_player))
 		return 0;
-	//	Don't track player if he's cloaked.
-	if ((objp == get_local_player().objnum) && +(objp->ctype.player_info.powerup_flags & player_flag::cloaked))
+	if (+(Game_mode & GM_MULTI_COOP) && tracker->ctype.laser_info.parent_type == object_type::OBJ_PLAYER)
 		return 0;
 #if DXX_BUILD_DESCENT == 2
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
@@ -1209,9 +1217,16 @@ imobjptridx_t find_homing_object_complete(const vms_vector &curpos, const vmobjp
 			// Don't track teammates in team games
 			if (+(Game_mode & GM_TEAM))
 			{
-				const auto &&objparent = vcobjptr(tracker->ctype.laser_info.parent_num);
-				if (objparent->type == object_type::OBJ_PLAYER && multi_get_team_from_player(Netgame, get_player_id(curobjp)) == multi_get_team_from_player(Netgame, get_player_id(objparent)))
-					continue;
+				const auto &laser_info = tracker->ctype.laser_info;
+				if (laser_info.parent_type == object_type::OBJ_PLAYER)
+				{
+					const auto &&objparent = vcobjptr(laser_info.parent_num);
+					if (!laser_parent_is_player(vcobjptr, laser_info, *objparent))
+						continue;
+					const auto parent_player = objparent->type == object_type::OBJ_PLAYER ? get_player_id(objparent) : get_ghost_id(objparent);
+					if (multi_get_team_from_player(Netgame, get_player_id(curobjp)) == multi_get_team_from_player(Netgame, parent_player))
+						continue;
+				}
 			}
 		}
 
@@ -1285,7 +1300,7 @@ namespace {
 //	See if legal to keep tracking currently tracked object.  If not, see if another object is trackable.  If not, return -1,
 //	else return object number of tracking object.
 //	Computes and returns a fairly precise dot product.
-static imobjptridx_t track_track_goal(fvcobjptr &vcobjptr, const imobjptridx_t track_goal, const vmobjptridx_t tracker, fix *dot, fix tick_count)
+static imobjptridx_t track_track_goal(const imobjptridx_t track_goal, const vmobjptridx_t tracker, fix *dot, fix tick_count)
 {
 #if DXX_BUILD_DESCENT == 1
 	if (object_is_trackable(track_goal, tracker, dot))
@@ -1297,50 +1312,22 @@ static imobjptridx_t track_track_goal(fvcobjptr &vcobjptr, const imobjptridx_t t
 		return track_goal;
 	} else if (((tracker ^ tick_count) % 4) == 0)
 	{
-		int	goal_type, goal2_type;
-		//	If player fired missile, then search for an object, if not, then give up.
-		if (vcobjptr(tracker->ctype.laser_info.parent_num)->type == object_type::OBJ_PLAYER)
+		const bool track_goal_is_none_or_ghost{track_goal == object_none || track_goal->type == object_type::OBJ_GHOST};
+		if (track_goal_is_none_or_ghost)
+			return find_homing_object(tracker->pos, tracker);
+		int goal2_type{-1};
+		const auto goal_type{track_goal->type};
+		if (tracker->ctype.laser_info.parent_type == object_type::OBJ_PLAYER)
 		{
-			if (track_goal == object_none)
-			{
-				if (+(Game_mode & GM_MULTI))
-				{
-					if (+(Game_mode & GM_MULTI_COOP))
-						goal_type = object_type::OBJ_ROBOT, goal2_type = -1;
-					else
-					{
-						goal_type = object_type::OBJ_PLAYER;
-						goal2_type = +(Game_mode & GM_MULTI_ROBOTS)
-							? object_type::OBJ_ROBOT	//	Not cooperative, if robots, track either robot or player
-							: -1;		//	Not cooperative and no robots, track only a player
-					}
-				}
-				else
-					goal_type = object_type::OBJ_PLAYER, goal2_type = object_type::OBJ_ROBOT;
-			}
-			else
-			{
-				goal_type = vcobjptr(tracker->ctype.laser_info.track_goal)->type;
-				if ((goal_type == object_type::OBJ_PLAYER) || (goal_type == object_type::OBJ_ROBOT))
-					goal2_type = -1;
-				else
-					return object_none;
-			}
+			if ((goal_type != object_type::OBJ_PLAYER) && (goal_type != object_type::OBJ_ROBOT))
+				return object_none;
 		}
-		else {
-			goal2_type = -1;
-
+		else
+		{
 #if DXX_BUILD_DESCENT == 2
 			if (cheats.robotskillrobots)
 				goal2_type = object_type::OBJ_ROBOT;
 #endif
-
-			if (track_goal == object_none)
-				goal_type = object_type::OBJ_PLAYER;
-			else {
-				goal_type = vcobjptr(tracker->ctype.laser_info.track_goal)->type;
-				assert(goal_type != object_type::OBJ_GHOST);
-			}
 		}
 		return find_homing_object_complete(tracker->pos, tracker, goal_type, goal2_type);
 	}
@@ -1574,7 +1561,9 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &imobjptridx = Objects.imptridx;
+#if DXX_BUILD_DESCENT == 2
 	auto &vcobjptr = Objects.vcptr;
+#endif
 	auto &vmobjptr = Objects.vmptr;
 	assert(obj->control_source == object::control_type::weapon);
 
@@ -1631,7 +1620,9 @@ void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, const vmobjp
 #ifdef NEWHOMER
 			if (d_homer_tick_step)
 			{
-				const auto &&track_goal = track_track_goal(vcobjptr, imobjptridx(obj->ctype.laser_info.track_goal), obj, &dot, d_homer_tick_count);
+				auto &stored_track_goal = obj->ctype.laser_info.track_goal;
+				const auto &&track_goal = track_track_goal(imobjptridx(stored_track_goal), obj, &dot, d_homer_tick_count);
+				stored_track_goal = track_goal;
 
 				if (track_goal == get_local_player().objnum) {
 					const fix dist_to_player{vm_vec_dist_quick(obj->pos, track_goal->pos)};
