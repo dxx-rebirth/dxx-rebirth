@@ -9,6 +9,28 @@ namespace {
 using namespace dcx;
 
 static constexpr fix homing_turn_time{F1_0 / 30};
+
+BOOST_AUTO_TEST_CASE(target_types_follow_firing_object_and_game_mode)
+{
+	static constexpr int player_type{4};
+	static constexpr int robot_type{2};
+	static constexpr int ghost_type{12};
+	const auto check = [](const homing_target_types &types, const int primary, const int secondary) {
+		BOOST_CHECK_EQUAL(types.primary, primary);
+		BOOST_CHECK_EQUAL(types.secondary, secondary);
+		BOOST_CHECK_NE(types.primary, ghost_type);
+		BOOST_CHECK_NE(types.secondary, ghost_type);
+	};
+
+	check(get_homing_target_types(false, false, false, true, false, player_type, robot_type), robot_type, -1);
+	check(get_homing_target_types(false, false, false, false, false, player_type, robot_type), player_type, -1);
+	check(get_homing_target_types(true, true, true, true, false, player_type, robot_type), robot_type, -1);
+	check(get_homing_target_types(true, false, false, true, false, player_type, robot_type), player_type, -1);
+	check(get_homing_target_types(true, false, true, true, false, player_type, robot_type), player_type, robot_type);
+	check(get_homing_target_types(true, false, true, false, false, player_type, robot_type), player_type, -1);
+	check(get_homing_target_types(true, false, true, false, true, player_type, robot_type), player_type, robot_type);
+}
+
 BOOST_AUTO_TEST_CASE(d2_polygon_turn_matches_original_30hz_kernel)
 {
 	const auto result{homing_turn_velocity(

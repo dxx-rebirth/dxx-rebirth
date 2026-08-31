@@ -11,6 +11,22 @@
 
 namespace dcx {
 
+struct homing_target_types
+{
+	int primary;
+	int secondary;
+};
+
+[[nodiscard]]
+constexpr homing_target_types get_homing_target_types(const bool multiplayer, const bool cooperative, const bool multiplayer_robots, const bool fired_by_player, const bool robots_kill_robots, const int player_type, const int robot_type)
+{
+	if (!fired_by_player)
+		return {player_type, robots_kill_robots ? robot_type : -1};
+	if (!multiplayer || cooperative)
+		return {robot_type, -1};
+	return {player_type, multiplayer_robots ? robot_type : -1};
+}
+
 struct homing_turn_result
 {
 	vms_vector velocity;
