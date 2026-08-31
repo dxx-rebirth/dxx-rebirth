@@ -1100,27 +1100,21 @@ static int object_is_trackable(const imobjptridx_t objp, const vmobjptridx_t tra
 //	--------------------------------------------------------------------------------------------
 static imobjptridx_t call_find_homing_object_complete(const vms_vector &curpos, const vmobjptridx_t tracker)
 {
-	if (+(Game_mode & GM_MULTI)) {
-		if (tracker->ctype.laser_info.parent_type == object_type::OBJ_PLAYER) {
-			//	It's fired by a player, so if robots present, track robot, else track player.
-			if (+(Game_mode & GM_MULTI_COOP))
-				return find_homing_object_complete( curpos, tracker, object_type::OBJ_ROBOT, -1);
-			else
-				return find_homing_object_complete( curpos, tracker, object_type::OBJ_PLAYER, object_type::OBJ_ROBOT);
-		} else {
-			int	goal2_type{
+	const auto parent_type{tracker->ctype.laser_info.parent_type};
+	assert(parent_type == object_type::OBJ_PLAYER || parent_type == object_type::OBJ_ROBOT);
+	const auto target_types{get_homing_target_types(
+		+(Game_mode & GM_MULTI),
+		+(Game_mode & GM_MULTI_COOP),
+		+(Game_mode & GM_MULTI_ROBOTS),
+		parent_type == object_type::OBJ_PLAYER,
 #if DXX_BUILD_DESCENT == 2
-				(cheats.robotskillrobots)
-				? object_type::OBJ_ROBOT
-				:
+		cheats.robotskillrobots,
+#else
+		false,
 #endif
-				-1
-			};
-			assert(tracker->ctype.laser_info.parent_type == object_type::OBJ_ROBOT);
-			return find_homing_object_complete(curpos, tracker, object_type::OBJ_PLAYER, goal2_type);
-		}
-	} else
-		return find_homing_object_complete( curpos, tracker, object_type::OBJ_ROBOT, -1);
+		object_type::OBJ_PLAYER,
+		object_type::OBJ_ROBOT)};
+	return find_homing_object_complete(curpos, tracker, target_types.primary, target_types.secondary);
 }
 
 //	--------------------------------------------------------------------------------------------
