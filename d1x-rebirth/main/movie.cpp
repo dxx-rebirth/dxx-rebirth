@@ -378,7 +378,8 @@ movie_play_status RunMovie(const char *const filename, const int hires_flag, con
 
 	Screen_mode=-1;  //force reset of screen mode
 #if DXX_USE_OGL
-	gr_copy_palette(gr_palette, pal_save);
+	gr_palette = pal_save;
+	reset_computed_colors();
 	gr_palette_load(pal_save);
 #endif
 

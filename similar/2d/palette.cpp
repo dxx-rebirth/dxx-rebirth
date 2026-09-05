@@ -174,13 +174,6 @@ RAIIPHYSFS_File gr_open_palette_file(const char *const filename)
 
 }
 
-void gr_copy_palette(palette_array_t &gr_palette, const palette_array_t &pal)
-{
-	gr_palette = pal;
-
-	        Num_computed_colors = 0;
-}
-
 void gr_use_palette_table(const char * filename )
 {
 	gr_read_palette_file(gr_open_palette_file(filename));
