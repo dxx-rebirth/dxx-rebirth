@@ -341,9 +341,6 @@ window_event_result movie::event_handler(const d_event &event)
 //returns status.  see movie.h
 movie_play_status RunMovie(const char *const filename, const int hires_flag, const play_movie_warn_missing warn_missing, const MVE_play_sounds audio_enabled, const int dx, const int dy)
 {
-#if DXX_USE_OGL
-	palette_array_t pal_save;
-#endif
 
 	// Open Movie file.  If it doesn't exist, no movie, just return.
 
@@ -363,7 +360,7 @@ movie_play_status RunMovie(const char *const filename, const int hires_flag, con
 
 #if DXX_USE_OGL
 	set_screen_mode(SCREEN_MOVIE);
-	gr_copy_palette(pal_save, gr_palette);
+	const palette_array_t pal_save{gr_palette};
 	gr_palette_load(gr_palette);
 	(void)hires_flag;
 #else
