@@ -1159,7 +1159,7 @@ void gr_palette_step_up(int r, int g, int b)
 	}
 }
 
-void gr_palette_load( palette_array_t &pal )
+void gr_palette_load(const palette_array_t &pal)
 {
 	copy_bound_palette(gr_current_pal, pal);
 
