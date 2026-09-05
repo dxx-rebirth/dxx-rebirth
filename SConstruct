@@ -4914,8 +4914,9 @@ class DXXCommon(LazyObjectConstructor):
 		user_settings = self.user_settings
 		builddir = env.Dir(user_settings.builddir).Dir(self.srcdir)
 		library = env.Library(builddir.File(f'{env["LIBPREFIX"]}{self.srcdir}{env["LIBSUFFIX"]}'), self.get_library_objects())
+		env_LIBS = env.get('LIBS')
 		for test in runtime_test_boost_tests:
-			LIBS = [] if not test.use_default_libs else env['LIBS'].copy()
+			LIBS = [] if (env_LIBS is None or not test.use_default_libs) else env_LIBS.copy()
 			LIBS.extend((
 				'boost_unit_test_framework',
 				library,
