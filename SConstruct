@@ -4128,7 +4128,7 @@ class DXXCommon(LazyObjectConstructor):
 			{
 				'variable': EnumVariable,
 				'arguments': (
-					('host_endian', None, 'endianness of host platform', {'allowed_values' : ('little', 'big')}),
+					('host_endian', None, 'endianness of host platform (default: assume same as build platform)', {'allowed_values' : ('little', 'big')}),
 					('adlmidi', 'none', 'include ADL MIDI support (none: disabled; runtime: dynamically load at runtime)', {'allowed_values' : ('none', 'runtime')}),
 					('screenshot', 'png', 'screenshot file format', {'allowed_values' : ('none', 'legacy', 'png')}),
 				),
