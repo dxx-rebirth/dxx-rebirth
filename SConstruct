@@ -5745,9 +5745,7 @@ Failed command list:
 	def _register_install(self,dxxstr,exe_node):
 		env = self.env
 		if self.user_settings._enumerated_host_platform != host_platform.darwin:
-				install_dir = self.user_settings.BIN_DIR
-				env.Install(install_dir, exe_node)
-				env.Alias('install', install_dir)
+			env.Alias('install', env.Install(self.user_settings.BIN_DIR, exe_node))
 		else:
 			syspath = sys.path.copy()
 			cocoa = 'common/arch/cocoa'
