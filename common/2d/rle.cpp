@@ -62,8 +62,6 @@ constexpr uint8_t RLE_CODE{0xe0};
 constexpr uint8_t NOT_RLE_CODE{0x1f};
 static_assert((RLE_CODE | NOT_RLE_CODE) == 0xff, "RLE mask error");
 
-static int rle_next;
-
 static rle_cache_state rle_cache;
 
 static inline int IS_RLE_CODE(const uint8_t &x)
@@ -433,11 +431,8 @@ grs_bitmap *_rle_expand_texture(const grs_bitmap &bmp)
 	else
 		++rle_cache.texture_expansion_counter;
 
-	auto least_recently_used{&rle_cache.elements[rle_next]};
+	auto least_recently_used{&rle_cache.elements.front()};
 	unsigned lowest_count{least_recently_used->last_used};
-	rle_next++;
-	if (rle_next >= rle_cache.elements.size())
-		rle_next = 0;
 
 	for (auto &i : rle_cache.elements)
 	{
