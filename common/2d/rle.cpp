@@ -384,12 +384,6 @@ void gr_bitmap_rle_compress(grs_bitmap &bmp)
 	bmp.add_flags(BM_FLAG_RLE | large_rle);
 }
 
-void rle_cache_close(void)
-{
-		for (auto &i : rle_cache.elements)
-			i.expanded_bitmap.reset();
-}
-
 void rle_cache_flush()
 {
 	rle_cache.texture_expansion_counter = 0;

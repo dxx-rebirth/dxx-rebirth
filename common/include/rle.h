@@ -71,7 +71,6 @@ static inline const grs_bitmap *rle_expand_texture(const grs_bitmap &bmp)
 	return &bmp;
 }
 
-void rle_cache_close();
 void rle_cache_flush();
 void rle_swap_0_255(grs_bitmap &bmp);
 void rle_remap(grs_bitmap &bmp, const std::array<color_palette_index, 256> &colormap);

@@ -127,7 +127,6 @@ void gamedata_close()
 	bm_free_extra_objbitmaps();
 #endif
 	free_endlevel_data();
-	rle_cache_close();
 	piggy_close();
 }
 
