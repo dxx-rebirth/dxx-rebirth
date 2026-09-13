@@ -31,7 +31,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "dsx-ns.h"
 #include "compiler-poison.h"
+
+#ifndef DXX_DELEGATE_RLE_RANGE_TO_STD_SUBRANGE
+#define DXX_DELEGATE_RLE_RANGE_TO_STD_SUBRANGE	0
+#endif
+
+#if DXX_DELEGATE_RLE_RANGE_TO_STD_SUBRANGE
+#include <ranges>
+#else
 #include <iterator>
+#endif
 
 struct rle_position_t
 {
@@ -80,33 +89,50 @@ void rle_remap(grs_bitmap &bmp, const std::array<color_palette_index, 256> &colo
 void gr_rle_expand_scanline_generic(grs_canvas &, grs_bitmap &dest, int dx, int dy, const ubyte *src, int x1, int x2 );
 #endif
 
+#if DXX_DELEGATE_RLE_RANGE_TO_STD_SUBRANGE
+/* `bm_rle_expand_range` can always delegate to `std::ranges::subrange`, but
+ * the debugging code from `subrange` is unnecessary for the limited purpose
+ * where `bm_rle_expand_range` is used.  To reduce code size in normal builds,
+ * only delegate to `std::ranges::subrange` if debugging is explicitly enabled.
+ */
+class bm_rle_expand_range : std::ranges::subrange<uint8_t *>
+{
+	using base_type = std::ranges::subrange<uint8_t *>;
+public:
+	using base_type::base_type;
+	using base_type::begin;
+	using base_type::end;
+	using base_type::advance;
+};
+#else
 class bm_rle_expand_range
 {
 	uint8_t *iter_dbits;
 	uint8_t *const end_dbits;
 public:
 	bm_rle_expand_range(uint8_t *const i, uint8_t *const e) :
-		iter_dbits(i), end_dbits(e)
+		iter_dbits{i}, end_dbits{e}
 	{
 	}
 	template <std::size_t N>
 		bm_rle_expand_range(std::array<uint8_t, N> &a) :
-			iter_dbits(a.data()), end_dbits(std::next(iter_dbits, N))
+			iter_dbits{a.data()}, end_dbits{std::next(iter_dbits, N)}
 	{
 	}
-	uint8_t *get_begin_dbits() const
+	uint8_t *begin() const
 	{
 		return iter_dbits;
 	}
-	uint8_t *get_end_dbits() const
+	uint8_t *end() const
 	{
 		return end_dbits;
 	}
-	void consume_dbits(const unsigned w)
+	void advance(const unsigned w)
 	{
 		iter_dbits += w;
 	}
 };
+#endif
 
 class bm_rle_src_stride
 {
@@ -197,7 +223,7 @@ public:
 	 *
 	 * Use `const auto &` to ensure that t is only modified by the caller
 	 * and that the caller does not accidentally provide an
-	 * implementation of `get_begin_dbits` that moves the
+	 * implementation of `begin` that moves the
 	 * destination pointer.
 	 */
 	step_result step(const auto &t)
@@ -205,8 +231,8 @@ public:
 		/* Poison the memory first, so that it is undefined even if
 		 * the source is exhausted.
 		 */
-		const auto b = t.get_begin_dbits();
-		const auto e = t.get_end_dbits();
+		const auto b{t.begin()};
+		const auto e{t.end()};
 		DXX_MAKE_MEM_UNDEFINED(std::span(b, e));
 		/* Check for source exhaustion, so that empty bitmaps are
 		 * not read at all.  This allows callers to treat
@@ -236,7 +262,7 @@ public:
 					/* Step succeeded.  Notify `t` to update its
 					 * dbits position, then loop around.
 					 */
-					t.consume_dbits(bm_w);
+					t.advance(bm_w);
 					break;
 				case src_exhausted:
 					/* Success: source buffer exhausted and no error
