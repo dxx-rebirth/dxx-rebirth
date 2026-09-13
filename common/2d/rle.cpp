@@ -47,7 +47,9 @@ struct rle_cache_element
 {
 	const grs_bitmap *rle_bitmap;
 	grs_bitmap_ptr expanded_bitmap;
-	int last_used;
+	/* Value of `rle_counter` as of when this element was written or
+	 * reused. */
+	unsigned last_used;
 };
 
 constexpr uint8_t RLE_CODE{0xe0};
@@ -55,7 +57,7 @@ constexpr uint8_t NOT_RLE_CODE{0x1f};
 static_assert((RLE_CODE | NOT_RLE_CODE) == 0xff, "RLE mask error");
 
 static uint8_t rle_cache_initialized;
-static int rle_counter;
+static unsigned rle_counter;
 static int rle_next;
 
 static std::array<rle_cache_element, 32> rle_cache;
@@ -429,24 +431,21 @@ static void rle_expand_texture_sub(const grs_bitmap &bmp, grs_bitmap &rle_temp_b
 
 grs_bitmap *_rle_expand_texture(const grs_bitmap &bmp)
 {
-	int lowest_count, lc;
-
 	if (!rle_cache_initialized) rle_cache_init();
 
 	Assert(!(bmp.get_flag_mask(BM_FLAG_PAGED_OUT)));
 
-	lc = rle_counter;
-	rle_counter++;
-
-	if (rle_counter < 0)
+	if (rle_counter == UINT_MAX)
+	{
+		[[unlikely]];
 		rle_counter = 0;
-	
-	if ( rle_counter < lc )	{
 		rle_cache_flush();
 	}
+	else
+		++rle_counter;
 
-	lowest_count = rle_cache[rle_next].last_used;
 	auto least_recently_used{&rle_cache[rle_next]};
+	unsigned lowest_count{least_recently_used->last_used};
 	rle_next++;
 	if (rle_next >= rle_cache.size())
 		rle_next = 0;
@@ -458,7 +457,7 @@ grs_bitmap *_rle_expand_texture(const grs_bitmap &bmp)
 			i.last_used = rle_counter;
 			return i.expanded_bitmap.get();
 		}
-		if (i.last_used < lowest_count)
+		if (lowest_count > i.last_used)
 		{
 			lowest_count = (least_recently_used = &i)->last_used;
 		}
