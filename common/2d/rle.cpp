@@ -52,6 +52,11 @@ struct rle_cache_element
 	unsigned last_used;
 };
 
+struct rle_cache_state
+{
+	std::array<rle_cache_element, 32> elements;
+};
+
 constexpr uint8_t RLE_CODE{0xe0};
 constexpr uint8_t NOT_RLE_CODE{0x1f};
 static_assert((RLE_CODE | NOT_RLE_CODE) == 0xff, "RLE mask error");
@@ -59,7 +64,7 @@ static_assert((RLE_CODE | NOT_RLE_CODE) == 0xff, "RLE mask error");
 static unsigned rle_counter;
 static int rle_next;
 
-static std::array<rle_cache_element, 32> rle_cache;
+static rle_cache_state rle_cache;
 
 static inline int IS_RLE_CODE(const uint8_t &x)
 {
@@ -383,13 +388,13 @@ void gr_bitmap_rle_compress(grs_bitmap &bmp)
 
 void rle_cache_close(void)
 {
-		range_for (auto &i, rle_cache)
+		for (auto &i : rle_cache.elements)
 			i.expanded_bitmap.reset();
 }
 
 void rle_cache_flush()
 {
-	range_for (auto &i, rle_cache)
+	for (auto &i : rle_cache.elements)
 	{
 		i.rle_bitmap = NULL;
 		i.last_used = 0;
@@ -428,13 +433,13 @@ grs_bitmap *_rle_expand_texture(const grs_bitmap &bmp)
 	else
 		++rle_counter;
 
-	auto least_recently_used{&rle_cache[rle_next]};
+	auto least_recently_used{&rle_cache.elements[rle_next]};
 	unsigned lowest_count{least_recently_used->last_used};
 	rle_next++;
-	if (rle_next >= rle_cache.size())
+	if (rle_next >= rle_cache.elements.size())
 		rle_next = 0;
 
-	range_for (auto &i, rle_cache)
+	for (auto &i : rle_cache.elements)
 	{
 		if (i.rle_bitmap == &bmp)
 		{
