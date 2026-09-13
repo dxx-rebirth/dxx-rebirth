@@ -392,6 +392,7 @@ void rle_cache_close(void)
 
 void rle_cache_flush()
 {
+	rle_cache.texture_expansion_counter = 0;
 	for (auto &i : rle_cache.elements)
 	{
 		i.rle_bitmap = NULL;
@@ -428,7 +429,6 @@ grs_bitmap *_rle_expand_texture(const grs_bitmap &bmp)
 	if (rle_cache.texture_expansion_counter == UINT_MAX)
 	{
 		[[unlikely]];
-		rle_cache.texture_expansion_counter = 0;
 		rle_cache_flush();
 	}
 	else
