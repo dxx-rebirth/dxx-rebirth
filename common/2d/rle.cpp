@@ -401,8 +401,10 @@ void rle_cache_flush()
 
 namespace {
 
-static void rle_expand_texture_sub(const grs_bitmap &bmp, grs_bitmap &rle_temp_bitmap_1)
+static auto rle_build_expanded_texture(const grs_bitmap &bmp)
 {
+	auto expanded_bitmap{gr_create_bitmap(bmp.bm_w, bmp.bm_h)};
+	grs_bitmap &rle_temp_bitmap_1{*expanded_bitmap.get()};
 	auto sbits{&bmp.get_bitmap_data()[4 + bmp.bm_h]};
 	auto dbits{rle_temp_bitmap_1.get_bitmap_data()};
 
@@ -414,6 +416,7 @@ static void rle_expand_texture_sub(const grs_bitmap &bmp, grs_bitmap &rle_temp_b
 		sbits += static_cast<int>(bmp.bm_data[4+i]);
 		dbits += bmp.bm_w;
 	}
+	return expanded_bitmap;
 }
 
 }
@@ -446,9 +449,7 @@ grs_bitmap *_rle_expand_texture(const grs_bitmap &bmp)
 			lowest_count = (least_recently_used = &i)->last_used;
 		}
 	}
-
-	least_recently_used->expanded_bitmap = gr_create_bitmap(bmp.bm_w, bmp.bm_h);
-	rle_expand_texture_sub(bmp, *least_recently_used->expanded_bitmap.get());
+	least_recently_used->expanded_bitmap = rle_build_expanded_texture(bmp);
 	least_recently_used->rle_bitmap = &bmp;
 	least_recently_used->last_used = rle_cache.texture_expansion_counter;
 	return least_recently_used->expanded_bitmap.get();
