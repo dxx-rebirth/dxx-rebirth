@@ -395,8 +395,9 @@ void rle_cache_flush()
 	rle_cache.texture_expansion_counter = 0;
 	for (auto &i : rle_cache.elements)
 	{
-		i.rle_bitmap = NULL;
+		i.rle_bitmap = nullptr;
 		i.last_used = 0;
+		i.expanded_bitmap.reset();
 	}
 }
 
