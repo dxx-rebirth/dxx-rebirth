@@ -56,7 +56,6 @@ constexpr uint8_t RLE_CODE{0xe0};
 constexpr uint8_t NOT_RLE_CODE{0x1f};
 static_assert((RLE_CODE | NOT_RLE_CODE) == 0xff, "RLE mask error");
 
-static uint8_t rle_cache_initialized;
 static unsigned rle_counter;
 static int rle_next;
 
@@ -382,23 +381,10 @@ void gr_bitmap_rle_compress(grs_bitmap &bmp)
 	bmp.add_flags(BM_FLAG_RLE | large_rle);
 }
 
-namespace {
-
-static void rle_cache_init()
-{
-	rle_cache = {};
-	rle_cache_initialized = 1;
-}
-
-}
-
 void rle_cache_close(void)
 {
-	if (rle_cache_initialized)	{
-		rle_cache_initialized = 0;
 		range_for (auto &i, rle_cache)
 			i.expanded_bitmap.reset();
-	}
 }
 
 void rle_cache_flush()
@@ -431,8 +417,6 @@ static void rle_expand_texture_sub(const grs_bitmap &bmp, grs_bitmap &rle_temp_b
 
 grs_bitmap *_rle_expand_texture(const grs_bitmap &bmp)
 {
-	if (!rle_cache_initialized) rle_cache_init();
-
 	Assert(!(bmp.get_flag_mask(BM_FLAG_PAGED_OUT)));
 
 	if (rle_counter == UINT_MAX)
