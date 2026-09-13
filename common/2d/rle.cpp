@@ -417,8 +417,9 @@ static void rle_expand_texture_sub(const grs_bitmap &bmp, grs_bitmap &rle_temp_b
 
 	rle_temp_bitmap_1.set_flags(bmp.get_flags() & (~BM_FLAG_RLE));
 
+	const rle_position_t rle_end{end(bmp), std::next(rle_temp_bitmap_1.bm_mdata, rle_temp_bitmap_1.bm_h * rle_temp_bitmap_1.bm_w)};
 	for (int i{0}; i < bmp.bm_h; i++ ) {
-		gr_rle_decode(sbits, dbits, rle_end(bmp, rle_temp_bitmap_1));
+		gr_rle_decode(sbits, dbits, rle_end);
 		sbits += static_cast<int>(bmp.bm_data[4+i]);
 		dbits += bmp.bm_w;
 	}

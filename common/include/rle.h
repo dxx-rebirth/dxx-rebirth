@@ -42,6 +42,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <iterator>
 #endif
 
+namespace dcx {
+
 struct rle_position_t
 {
 	const uint8_t *src;
@@ -53,17 +55,6 @@ static inline const uint8_t *end(const grs_bitmap &b)
 	return &b.bm_data[b.bm_h * b.bm_w];
 }
 
-static inline uint8_t *end(grs_bitmap &b)
-{
-	return &b.get_bitmap_data()[b.bm_h * b.bm_w];
-}
-
-static inline rle_position_t rle_end(const auto &src, auto &dst)
-{
-	return {end(src), end(dst)};
-}
-
-namespace dcx {
 uint8_t *gr_rle_decode(const uint8_t *sb, uint8_t *db, rle_position_t e);
 void gr_bitmap_rle_compress(grs_bitmap &bmp);
 #if !DXX_USE_OGL

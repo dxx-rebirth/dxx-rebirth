@@ -44,7 +44,7 @@ static void decode_row(const grs_bitmap &bmp, std::array<color_palette_index, 64
 
 	for (const uint_fast32_t b : std::span(&bmp.bm_data[4u], y))
 		offset += b;
-	gr_rle_decode(&bmp.bm_data[offset], scale_rle_data.data(), rle_end(bmp, scale_rle_data));
+	gr_rle_decode(&bmp.bm_data[offset], scale_rle_data.data(), rle_position_t{end(bmp), end(scale_rle_data)});
 }
 
 static void scale_up_bitmap(const grs_bitmap &source_bmp, grs_bitmap &dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0,  fix u1, fix v1, int orientation  )
