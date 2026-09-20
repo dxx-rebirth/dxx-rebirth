@@ -35,7 +35,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dcx {
 struct grs_bitmap;
 
-void texmerge_close();
 void texmerge_flush();
 
 }

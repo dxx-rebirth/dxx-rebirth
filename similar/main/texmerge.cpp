@@ -223,16 +223,6 @@ void texmerge_flush()
 	}
 }
 
-
-//-------------------------------------------------------------------------
-void texmerge_close()
-{
-	range_for (auto &i, Cache)
-	{
-		i.bitmap.reset();
-	}
-}
-
 }
 
 namespace dsx {

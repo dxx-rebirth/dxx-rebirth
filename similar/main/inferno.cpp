@@ -764,7 +764,6 @@ static int main(int argc, char *argv[])
 
 	con_puts(CON_DEBUG, "Cleanup...");
 	close_game();
-	texmerge_close();
 	gamedata_close();
 	Current_mission.reset();
 	PHYSFSX_removeArchiveContent();
