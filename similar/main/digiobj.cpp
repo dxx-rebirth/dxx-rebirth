@@ -60,8 +60,6 @@ constexpr std::integral_constant<unsigned, 8> SOF_LINK_TO_POS{};		// Sound is li
 constexpr std::integral_constant<unsigned, 16> SOF_PLAY_FOREVER{};		// Play forever (or until level is stopped), otherwise plays once
 constexpr std::integral_constant<unsigned, 32> SOF_PERMANENT{};		// Part of the level, like a waterfall or fan
 
-constexpr std::integral_constant<unsigned, 150> MAX_SOUND_OBJECTS{};
-
 }
 
 sound_channel SoundQ_channel;
@@ -98,7 +96,7 @@ struct sound_object
 
 namespace {
 
-using sound_objects_t = std::array<sound_object, MAX_SOUND_OBJECTS>;
+using sound_objects_t = std::array<sound_object, /* MAX_SOUND_OBJECTS = */ 150u>;
 static sound_objects_t SoundObjects;
 static short next_signature=0;
 
