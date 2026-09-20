@@ -117,13 +117,11 @@ static vms_vector mine_exit_point;
 static vms_vector mine_ground_exit_point;
 static vms_vector mine_side_exit_point;
 static vms_matrix mine_exit_orient;
-static int outside_mine;
 
 static grs_main_bitmap terrain_bm_instance, satellite_bm_instance;
 
-static int ext_expl_playing,mine_destroyed;
 static vms_angvec exit_angles = {-0xa00, 0, 0};
-static int endlevel_data_loaded;
+static uint8_t outside_mine, ext_expl_playing, mine_destroyed, endlevel_data_loaded;
 
 static vms_angvec player_angles,player_dest_angles;
 #ifndef SHORT_SEQUENCE
