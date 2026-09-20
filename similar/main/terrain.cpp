@@ -506,9 +506,4 @@ static std::unique_ptr<uint8_t[]> build_light_table(const std::size_t grid_w, co
 
 }
 
-void free_light_table()
-{
-	light_array.reset();
-}
-
 }
