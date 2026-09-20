@@ -153,7 +153,6 @@ extern int force_cockpit_redraw;
 #define PALETTE_FLASH_SET(_r,_g,_b) (static_cast<void>(PaletteRedAdd = {_r}), static_cast<void>(PaletteGreenAdd = {_g}), static_cast<void>(PaletteBlueAdd = {_b}))
 
 // from game.c
-void close_game(void);
 void calc_frame_time(void);
 
 #ifdef DXX_BUILD_DESCENT

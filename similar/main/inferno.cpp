@@ -763,7 +763,6 @@ static int main(int argc, char *argv[])
 	WriteConfigFile(CGameCfg, GameCfg);
 
 	con_puts(CON_DEBUG, "Cleanup...");
-	close_game();
 	gamedata_close();
 	Current_mission.reset();
 	PHYSFSX_removeArchiveContent();

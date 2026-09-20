@@ -1885,11 +1885,6 @@ void game()
 
 }
 
-//called at the end of the program
-void close_game()
-{
-}
-
 #if DXX_BUILD_DESCENT == 2
 namespace dsx {
 object *Missile_viewer=NULL;
