@@ -37,10 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 namespace dcx {
 
 #define MEMSTATS 0
-#define FULL_MEM_CHECKING 1
-
 #if DXX_USE_DEBUG_MEMORY_ALLOCATOR
-#if defined(FULL_MEM_CHECKING)
 
 #define CHECKSIZE 16
 #define CHECKBYTE 0xFC
@@ -337,61 +334,6 @@ void mem_validate_heap()
 			mem_check_integrity( i );
 }
 
-#else
-
-static int Initialized = 0;
-static unsigned int SmallestAddress = 0xFFFFFFF;
-static unsigned int LargestAddress = 0x0;
-static unsigned int BytesMalloced = 0;
-
-void mem_init()
-{
-	Initialized = 1;
-
-	SmallestAddress = 0xFFFFFFF;
-	LargestAddress = 0x0;
-
-	atexit(mem_display_blocks);
-}
-
-void mem_display_blocks()
-{
-	if (Initialized==0) return;
-
-#if MEMSTATS
-	{	
-		if (sMemStatsFileInitialized)
-		{
-			unsigned long	theFreeMem = 0;
-
-			theFreeMem = FreeMem();
-		
-			fprintf(sMemStatsFile,
-					"\n%9u bytes free before closing MEMSTATS file.", theFreeMem);
-			fprintf(sMemStatsFile, "\nMemory Stats File Closed.");
-			fclose(sMemStatsFile);
-		}
-	}
-#endif	// end of ifdef memstats
-
-	if (BytesMalloced != 0 )	{
-		con_printf(CON_CRITICAL, "\nMEM_LEAKAGE: %d bytes of memory have not been freed.", BytesMalloced );
-	}
-
-	if (CGameArg.DbgShowMemInfo)	{
-		con_printf(CON_CRITICAL, "\n\nMEMORY USAGE:" );
-		con_printf(CON_CRITICAL, "  %u Kbytes dynamic data", (LargestAddress-SmallestAddress+512)/1024 );
-		con_printf(CON_CRITICAL, "  %u Kbytes code/static data.", (SmallestAddress-(4*1024*1024)+512)/1024 );
-		con_printf(CON_CRITICAL, "  ---------------------------" );
-		con_printf(CON_CRITICAL, "  %u Kbytes required.", 	(LargestAddress-(4*1024*1024)+512)/1024 );
-	}
-}
-
-void mem_validate_heap()
-{
-}
-
-#endif
 #endif
 
 }
