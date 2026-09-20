@@ -95,7 +95,9 @@ void reset_special_effects();
 extern void do_special_effects();
 
 // Restore bitmap
-extern void restore_effect_bitmap_icons();
+#if DXX_USE_EDITOR
+void restore_effect_bitmap_icons();
+#endif
 
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {

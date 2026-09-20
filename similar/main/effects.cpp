@@ -134,6 +134,7 @@ void do_special_effects()
 	}
 }
 
+#if DXX_USE_EDITOR
 void restore_effect_bitmap_icons()
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
@@ -148,6 +149,7 @@ void restore_effect_bitmap_icons()
 		}
 	}
 }
+#endif
 
 namespace dsx {
 
