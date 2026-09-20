@@ -44,6 +44,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "config.h"
 
 #include "compiler-range_for.h"
+#include "d_bit_enum.h"
 #include "d_levelstate.h"
 #include <iterator>
 #include <utility>
@@ -54,20 +55,33 @@ namespace dcx {
 
 namespace {
 
-constexpr std::integral_constant<unsigned, 1> SOF_USED{};		// Set if this sample is used
-constexpr std::integral_constant<unsigned, 4> SOF_LINK_TO_OBJ{};		// Sound is linked to a moving object. If object dies, then finishes play and quits.
-constexpr std::integral_constant<unsigned, 8> SOF_LINK_TO_POS{};		// Sound is linked to segment, pos
-constexpr std::integral_constant<unsigned, 16> SOF_PLAY_FOREVER{};		// Play forever (or until level is stopped), otherwise plays once
-constexpr std::integral_constant<unsigned, 32> SOF_PERMANENT{};		// Part of the level, like a waterfall or fan
+enum class sound_object_flag : uint8_t
+{
+	None,
+	used = 1,	// Set if this sample is used
+	link_to_object = 4,	// Sound is linked to a moving object. If object dies, then finishes play and quits.
+	link_to_position = 8,	// Sound is linked to segment, pos
+	play_forever = 16,	// Play forever (or until level is stopped), otherwise plays once
+	permanent = 32,	// Part of the level, like a waterfall or fan
+};
 
 }
+
+template <>
+inline constexpr bool enable_bit_enum_boolnot<sound_object_flag>{true};
+
+template <>
+inline constexpr bool enable_bit_enum_or<sound_object_flag, sound_object_flag>{true};
+
+template <>
+inline constexpr bool enable_bit_enum_and<sound_object_flag, sound_object_flag>{true};
 
 sound_channel SoundQ_channel;
 
 struct sound_object
 {
 	short			signature;		// A unique signature to this sound
-	ubyte			flags;			// Used to tell if this slot is used and/or currently playing, and how long.
+	sound_object_flag			flags;	// Used to tell if this slot is used and/or currently playing, and how long.
 	ubyte			pad;				//	Keep alignment
 	fix			max_volume;		// Max volume that this sound is playing at
 	vm_distance max_distance;	// The max distance that this sound can be heard at...
@@ -80,12 +94,12 @@ struct sound_object
 	union link {
 		constexpr link() = default;
 		struct {
-			segnum_t			segnum;				// Used if SOF_LINK_TO_POS field is used
+			segnum_t			segnum;				// Used if sound_object_flag::link_to_position field is used
 			sidenum_t sidenum;
 			vms_vector	position;
 		} pos{};
 		struct {
-			objnum_t			objnum;				// Used if SOF_LINK_TO_OBJ field is used
+			objnum_t			objnum;				// Used if sound_object_flag::link_to_object field is used
 			object_signature_t			objsignature;
 		} obj;
 	} link_type;
@@ -101,7 +115,7 @@ static int N_active_sound_objects;
 
 static void digi_kill_sound(sound_object &s)
 {
-	s.flags = 0;	// Mark as dead, so some other sound can use this sound
+	s.flags = sound_object_flag::None;	// Mark as dead, so some other sound can use this sound
 	if (s.channel != sound_channel::None)
 	{
 		N_active_sound_objects--;
@@ -111,9 +125,8 @@ static void digi_kill_sound(sound_object &s)
 
 static std::pair<sound_objects_t::iterator, sound_objects_t::iterator> find_sound_object_flags0(sound_objects_t &SoundObjects)
 {
-	const auto eso = SoundObjects.end();
-	const auto &&i{std::ranges::find(SoundObjects.begin(), eso, 0, &sound_object::flags)};
-	return {i, eso};
+	const auto eso{SoundObjects.end()};
+	return {std::ranges::find(SoundObjects.begin(), eso, sound_object_flag::None, &sound_object::flags), eso};
 }
 
 static std::pair<sound_objects_t::iterator, sound_objects_t::iterator> find_sound_object(sound_objects_t &SoundObjects, const unsigned soundnum, const vcobjidx_t obj, const sound_stack once)
@@ -124,10 +137,10 @@ static std::pair<sound_objects_t::iterator, sound_objects_t::iterator> find_soun
 	sound_objects_t::iterator free_sound_object = eso;
 	for (auto i = SoundObjects.begin(); i != eso; ++i)
 	{
-		constexpr uint8_t used_obj = SOF_USED | SOF_LINK_TO_OBJ;
+		constexpr auto used_obj{sound_object_flag::used | sound_object_flag::link_to_object};
 		auto &so = *i;
 		const auto flags{so.flags};
-		if (flags == 0)
+		if (flags == sound_object_flag::None)
 			free_sound_object = i;
 		else if (so.soundnum == soundnum && (flags & used_obj) == used_obj)
 		{
@@ -279,7 +292,7 @@ void digi_init_sounds()
 	range_for (auto &i, SoundObjects)
 	{
 		i.channel = sound_channel::None;
-		i.flags = 0;	// Mark as dead, so some other sound can use this sound
+		i.flags = sound_object_flag::None;	// Mark as dead, so some other sound can use this sound
 	}
 	N_active_sound_objects = 0;
 }
@@ -376,7 +389,7 @@ static void digi_start_sound_object(sound_object &s)
 		return;
 
 	// only use up to half the sound channels for "permanent" sounts
-	if ((s.flags & SOF_PERMANENT) && (N_active_sound_objects >= max(1, digi_max_channels / 4)))
+	if (+(s.flags & sound_object_flag::permanent) && (N_active_sound_objects >= max(1, digi_max_channels / 4)))
 		return;
 
 	// start the sample playing
@@ -384,7 +397,7 @@ static void digi_start_sound_object(sound_object &s)
 	s.channel = digi_start_sound( s.soundnum,
 										s.volume,
 										s.pan,
-										s.flags & SOF_PLAY_FOREVER,
+										+(s.flags & sound_object_flag::play_forever),
 										s.loop_start,
 										s.loop_end, &s);
 
@@ -396,14 +409,14 @@ static void digi_link_sound_common(const object_base &viewer, sound_object &so, 
 {
 	so.signature=next_signature++;
 	if ( forever )
-		so.flags |= SOF_PLAY_FOREVER;
+		so.flags |= sound_object_flag::play_forever;
 	so.soundnum = soundnum;
 	so.max_volume = max_volume;
 	so.max_distance = max_distance;
 	so.volume = 0;
 	so.pan = {};
 	if (Dont_start_sound_objects) {		//started at level start
-		so.flags |= SOF_PERMANENT;
+		so.flags |= sound_object_flag::permanent;
 		so.channel = sound_channel::None;
 	}
 	else
@@ -412,9 +425,9 @@ static void digi_link_sound_common(const object_base &viewer, sound_object &so, 
 		digi_start_sound_object(so);
 		// If it's a one-shot sound effect, and it can't start right away, then
 		// just cancel it and be done with it.
-		if (so.channel == sound_channel::None && !(so.flags & SOF_PLAY_FOREVER))
+		if (so.channel == sound_channel::None && !(so.flags & sound_object_flag::play_forever))
 		{
-			so.flags = 0;
+			so.flags = sound_object_flag::None;
 			return;
 		}
 	}
@@ -454,7 +467,7 @@ void digi_link_sound_to_object3(const sound_effect org_soundnum, const vcobjptri
 	if (f.first == f.second)
 		return;
 	auto &so = *f.first;
-	so.flags = SOF_USED | SOF_LINK_TO_OBJ;
+	so.flags = sound_object_flag::used | sound_object_flag::link_to_object;
 	so.link_type.obj.objnum = objnum;
 	so.link_type.obj.objsignature = objnum->signature;
 	so.loop_start = loop_start;
@@ -502,7 +515,7 @@ static void digi_link_sound_to_pos2(const sound_effect org_soundnum, const vcseg
 	if (f.first == f.second)
 		return;
 	auto &so = *f.first;
-	so.flags = SOF_USED | SOF_LINK_TO_POS;
+	so.flags = sound_object_flag::used | sound_object_flag::link_to_position;
 	so.link_type.pos.segnum = segnum;
 	so.link_type.pos.sidenum = sidenum;
 	so.link_type.pos.position = pos;
@@ -522,7 +535,7 @@ void digi_kill_sound_linked_to_segment(const vmsegidx_t segnum, const sidenum_t 
 {
 	if (soundnum != sound_effect::None)
 		soundnum = digi_xlat_sound(soundnum);
-	constexpr uint8_t mask{SOF_USED | SOF_LINK_TO_POS};
+	constexpr auto mask{sound_object_flag::used | sound_object_flag::link_to_position};
 	range_for (auto &i, SoundObjects)
 	{
 		if ((i.flags & mask) == mask)
@@ -540,7 +553,7 @@ void digi_kill_sound_linked_to_object(const vcobjptridx_t objnum)
 	if ( Newdemo_state == ND_STATE_RECORDING )		{
 		newdemo_record_kill_sound_linked_to_object( objnum );
 	}
-	constexpr uint8_t mask{SOF_USED | SOF_LINK_TO_OBJ};
+	constexpr auto mask{sound_object_flag::used | sound_object_flag::link_to_object};
 	range_for (auto &i, SoundObjects)
 	{
 		if ((i.flags & mask) == mask)
@@ -557,7 +570,7 @@ namespace {
 //	John's new function, 2/22/96.
 static void digi_record_sound_objects()
 {
-	constexpr uint8_t mask{SOF_USED | SOF_LINK_TO_OBJ | SOF_PLAY_FOREVER};
+	constexpr auto mask{sound_object_flag::used | sound_object_flag::link_to_object | sound_object_flag::play_forever};
 	range_for (auto &s, SoundObjects)
 	{
 		if ((s.flags & mask) == mask)
@@ -593,27 +606,30 @@ void digi_sync_sounds()
 	const auto viewer{Viewer};
 	range_for (auto &s, SoundObjects)
 	{
-		if (s.flags & SOF_USED)
+		if (+(s.flags & sound_object_flag::used))
 		{
 			oldvolume = s.volume;
 			const auto oldpan{s.pan};
 
-			if ( !(s.flags & SOF_PLAY_FOREVER) )	{
+			if ( !(s.flags & sound_object_flag::play_forever) )	{
 			 	// Check if its done.
 				if (s.channel != sound_channel::None)
 				{
 					if ( !digi_is_channel_playing(s.channel) )	{
 						digi_end_sound( s.channel );
-						s.flags = 0;	// Mark as dead, so some other sound can use this sound
+						s.flags = {};	// Mark as dead, so some other sound can use this sound
 						N_active_sound_objects--;
 						continue;		// Go on to next sound...
 					}
 				}
 			}
 
-			if ( s.flags & SOF_LINK_TO_POS )	{
+			if (+(s.flags & sound_object_flag::link_to_position))
+			{
 				digi_update_sound_loc(viewer->orient, viewer->pos, vcsegptridx(viewer->segnum), s.link_type.pos.position, vcsegptridx(s.link_type.pos.segnum), s);
-			} else if ( s.flags & SOF_LINK_TO_OBJ )	{
+			}
+			else if (+(s.flags & sound_object_flag::link_to_object))
+			{
 				auto &objp{[&vcobjptr, &s]() -> const object & {
 					if (Newdemo_state != ND_STATE_PLAYBACK)
 						return vcobjptr(s.link_type.obj.objnum);
@@ -627,13 +643,13 @@ void digi_sync_sounds()
 					// The object that this is linked to is dead, so just end this sound if it is looping.
 					if (s.channel != sound_channel::None)
 					{
-						if (s.flags & SOF_PLAY_FOREVER)
+						if (+(s.flags & sound_object_flag::play_forever))
 							digi_stop_sound( s.channel );
 						else
 							digi_end_sound( s.channel );
 						N_active_sound_objects--;
 					}
-					s.flags = 0;	// Mark as dead, so some other sound can use this sound
+					s.flags = {};	// Mark as dead, so some other sound can use this sound
 					continue;		// Go on to next sound...
 				} else {
 					digi_update_sound_loc(viewer->orient, viewer->pos, vcsegptridx(viewer->segnum), objp.pos, vcsegptridx(objp.segnum), s);
@@ -648,15 +664,15 @@ void digi_sync_sounds()
 					if (c != sound_channel::None)
 					{
 						s.channel = sound_channel::None;
-						if (s.flags & SOF_PLAY_FOREVER)
+						if (+(s.flags & sound_object_flag::play_forever))
 							digi_stop_sound(c);
 						else
 							digi_end_sound(c);
 						N_active_sound_objects--;
 					}
 
-					if (! (s.flags & SOF_PLAY_FOREVER)) {
-						s.flags = 0;	// Mark as dead, so some other sound can use this sound
+					if (! (s.flags & sound_object_flag::play_forever)) {
+						s.flags = {};	// Mark as dead, so some other sound can use this sound
 						continue;
 					}
 
@@ -684,14 +700,14 @@ void digi_pause_digi_sounds()
 	digi_pause_looping_sound();
 	range_for (auto &s, SoundObjects)
 	{
-		if (!(s.flags & SOF_USED))
+		if (!(s.flags & sound_object_flag::used))
 			continue;
 		const auto c{s.channel};
 		if (c != sound_channel::None)
 		{
 			s.channel = sound_channel::None;
-			if (! (s.flags & SOF_PLAY_FOREVER))
-				s.flags = 0;	// Mark as dead, so some other sound can use this sound
+			if (! (s.flags & sound_object_flag::play_forever))
+				s.flags = {};	// Mark as dead, so some other sound can use this sound
 			N_active_sound_objects--;
 			digi_stop_sound(c);
 		}
@@ -711,7 +727,7 @@ void digi_resume_digi_sounds()
 // slot because the sound was done playing.
 void digi_end_soundobj(sound_object &s)
 {
-	Assert(s.flags & SOF_USED);
+	Assert(s.flags & sound_object_flag::used);
 	assert(s.channel != sound_channel::None);
 
 	N_active_sound_objects--;
@@ -723,14 +739,14 @@ void digi_stop_digi_sounds()
 	digi_stop_looping_sound();
 	range_for (auto &s, SoundObjects)
 	{
-		if (s.flags & SOF_USED)
+		if (+(s.flags & sound_object_flag::used))
 		{
 			if (s.channel != sound_channel::None)
 			{
 				digi_stop_sound( s.channel );
 				N_active_sound_objects--;
 			}
-			s.flags = 0;	// Mark as dead, so some other sound can use this sound
+			s.flags = {};	// Mark as dead, so some other sound can use this sound
 		}
 	}
 
@@ -742,7 +758,7 @@ void digi_stop_digi_sounds()
 void verify_sound_channel_free(const sound_channel channel)
 {
 	const auto predicate = [channel](const sound_object &s) {
-		return (s.flags & SOF_USED) && s.channel == channel;
+		return +(s.flags & sound_object_flag::used) && s.channel == channel;
 	};
 	if (std::any_of(SoundObjects.begin(), SoundObjects.end(), predicate))
 		throw std::runtime_error("sound busy");
