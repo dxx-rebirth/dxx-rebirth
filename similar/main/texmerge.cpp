@@ -219,6 +219,7 @@ void texmerge_flush()
 	range_for (auto &i, Cache)
 	{
 		i.last_time_used = {};
+		i.bitmap.reset();
 		i.key = {};
 	}
 }
