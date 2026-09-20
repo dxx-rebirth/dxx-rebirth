@@ -522,9 +522,11 @@ void digi_kill_sound_linked_to_segment(const vmsegidx_t segnum, const sidenum_t 
 {
 	if (soundnum != sound_effect::None)
 		soundnum = digi_xlat_sound(soundnum);
+	constexpr uint8_t mask{SOF_USED | SOF_LINK_TO_POS};
 	range_for (auto &i, SoundObjects)
 	{
-		if ( (i.flags & SOF_USED) && (i.flags & SOF_LINK_TO_POS) )	{
+		if ((i.flags & mask) == mask)
+		{
 			if ((i.link_type.pos.segnum == segnum) && (i.link_type.pos.sidenum==sidenum) && (soundnum == sound_effect::None || i.soundnum==soundnum))
 			{
 				digi_kill_sound(i);
@@ -538,9 +540,11 @@ void digi_kill_sound_linked_to_object(const vcobjptridx_t objnum)
 	if ( Newdemo_state == ND_STATE_RECORDING )		{
 		newdemo_record_kill_sound_linked_to_object( objnum );
 	}
+	constexpr uint8_t mask{SOF_USED | SOF_LINK_TO_OBJ};
 	range_for (auto &i, SoundObjects)
 	{
-		if ( (i.flags & SOF_USED) && (i.flags & SOF_LINK_TO_OBJ ) )	{
+		if ((i.flags & mask) == mask)
+		{
 			if (i.link_type.obj.objnum == objnum)	{
 				digi_kill_sound(i);
 			}
@@ -553,9 +557,10 @@ namespace {
 //	John's new function, 2/22/96.
 static void digi_record_sound_objects()
 {
+	constexpr uint8_t mask{SOF_USED | SOF_LINK_TO_OBJ | SOF_PLAY_FOREVER};
 	range_for (auto &s, SoundObjects)
 	{
-		if ((s.flags & SOF_USED) && (s.flags & SOF_LINK_TO_OBJ) && (s.flags & SOF_PLAY_FOREVER))
+		if ((s.flags & mask) == mask)
 		{
 			newdemo_record_link_sound_to_object3( digi_unxlat_sound(s.soundnum), s.link_type.obj.objnum,
 				s.max_volume, s.max_distance, s.loop_start, s.loop_end );
