@@ -90,7 +90,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 using std::min;
 using std::max;
 
-#define SHORT_SEQUENCE	1		//if defined, end sequence when panning starts
+#define DXX_ENDLEVEL_ENABLE_SHORT_SEQUENCE	1		//if defined, end sequence when panning starts
 
 namespace dcx {
 
@@ -124,7 +124,7 @@ static vms_angvec exit_angles = {-0xa00, 0, 0};
 static uint8_t outside_mine, ext_expl_playing, mine_destroyed, endlevel_data_loaded;
 
 static vms_angvec player_angles,player_dest_angles;
-#ifndef SHORT_SEQUENCE
+#ifndef DXX_ENDLEVEL_ENABLE_SHORT_SEQUENCE
 static vms_angvec camera_desired_angles,camera_cur_angles;
 #endif
 
@@ -1061,7 +1061,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 			if (timer < 0) {
 
 
-				#ifdef SHORT_SEQUENCE
+#ifdef DXX_ENDLEVEL_ENABLE_SHORT_SEQUENCE
 
 				result = std::max(stop_endlevel_sequence(), result);
 
@@ -1078,13 +1078,13 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 					return result;
 				}
 
-				#endif		//SHORT_SEQUENCE
+#endif		//DXX_ENDLEVEL_ENABLE_SHORT_SEQUENCE
 
 			}
 			break;
 		}
 
-		#ifndef SHORT_SEQUENCE
+#ifndef DXX_ENDLEVEL_ENABLE_SHORT_SEQUENCE
 		case EL_PANNING: {
 			int mask;
 
@@ -1140,7 +1140,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 			break;
 
 		}
-		#endif		//ifdef SHORT_SEQUENCE
+#endif		//ifdef DXX_ENDLEVEL_ENABLE_SHORT_SEQUENCE
 
 	}
 
