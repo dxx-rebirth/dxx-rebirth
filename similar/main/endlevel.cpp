@@ -1073,7 +1073,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 
 				timer = i2f(3);
 
-				if (Game_mode & GM_MULTI) { // try to skip part of the seq if multiplayer
+				if (+(Game_mode & GM_MULTI)) { // try to skip part of the seq if multiplayer
 					result = std::max(stop_endlevel_sequence(), result);
 					return result;
 				}
