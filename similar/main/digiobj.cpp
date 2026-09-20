@@ -78,15 +78,12 @@ struct sound_object
 	int			loop_start;		// The start point of the loop. -1 means no loop
 	int			loop_end;		// The end point of the loop
 	union link {
-		constexpr link() :
-			pos{}
-		{
-		}
+		constexpr link() = default;
 		struct {
 			segnum_t			segnum;				// Used if SOF_LINK_TO_POS field is used
 			sidenum_t sidenum;
 			vms_vector	position;
-		} pos;
+		} pos{};
 		struct {
 			objnum_t			objnum;				// Used if SOF_LINK_TO_OBJ field is used
 			object_signature_t			objsignature;
