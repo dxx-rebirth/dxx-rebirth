@@ -36,7 +36,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-#define MEMSTATS 0
 #if DXX_USE_DEBUG_MEMORY_ALLOCATOR
 
 #define CHECKSIZE 16
@@ -95,22 +94,6 @@ void *mem_malloc(size_t size, const char * var, const char * filename, unsigned 
 
 	if (Initialized==0)
 		mem_init();
-
-#if MEMSTATS
-	{
-		unsigned long	theFreeMem = 0;
-	
-		if (sMemStatsFileInitialized)
-		{
-			theFreeMem = FreeMem();
-		
-			fprintf(sMemStatsFile,
-					"\n%9u bytes free before attempting: MALLOC %9u bytes.",
-					theFreeMem,
-					size);
-		}
-	}
-#endif	// end of ifdef memstats
 
 	if ( num_blocks >= MAX_INDEX )	{
 		con_printf(CON_CRITICAL,"\nMEM_OUT_OF_SLOTS: Not enough space in mem.c to hold all the mallocs." );		
@@ -214,20 +197,6 @@ void mem_free( void * buffer )
 	if (Initialized==0)
 		mem_init();
 
-#if MEMSTATS
-	{
-		unsigned long	theFreeMem = 0;
-	
-		if (sMemStatsFileInitialized)
-		{
-			theFreeMem = FreeMem();
-		
-			fprintf(sMemStatsFile,
-					"\n%9u bytes free before attempting: FREE", theFreeMem);
-		}
-	}
-#endif	// end of ifdef memstats
-
 	if (buffer==NULL  &&  (!out_of_memory))
 	{
 		con_printf(CON_CRITICAL, "\nMEM_FREE_NULL: An attempt was made to free the null pointer." );
@@ -291,22 +260,6 @@ void mem_display_blocks()
 
 	if (Initialized==0) return;
 	
-#if MEMSTATS
-	{	
-		if (sMemStatsFileInitialized)
-		{
-			unsigned long	theFreeMem = 0;
-
-			theFreeMem = FreeMem();
-		
-			fprintf(sMemStatsFile,
-					"\n%9u bytes free before closing MEMSTATS file.", theFreeMem);
-			fprintf(sMemStatsFile, "\nMemory Stats File Closed.");
-			fclose(sMemStatsFile);
-		}
-	}
-#endif	// end of ifdef memstats
-
 	numleft = 0;
 	for (int i=0; i<=LargestIndex; i++ )
 	{
