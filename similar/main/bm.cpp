@@ -122,7 +122,6 @@ std::array<object_bitmap_index, MAX_OBJ_BITMAPS> ObjBitmapPtrs;     // These poi
 
 void gamedata_close()
 {
-	free_polygon_models(LevelSharedPolygonModelState);
 #if DXX_BUILD_DESCENT == 2
 	bm_free_extra_objbitmaps();
 #endif
