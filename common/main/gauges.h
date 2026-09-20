@@ -80,11 +80,6 @@ void add_bonus_points_to_score(player_info &, unsigned points, game_mode_flags);
 void render_gauges(grs_canvas &, game_mode_flags game_mode);
 void init_gauges(void);
 void draw_hud(const d_robot_info_array &Robot_info, grs_canvas &, const object &, const control_info &Controls, game_mode_flags);     // draw all the HUD stuff
-}
-#endif
-void close_gauges(void);
-#ifdef DXX_BUILD_DESCENT
-namespace dsx {
 void show_reticle(grs_canvas &canvas, const player_info &, reticle_type, int secondary_display);
 void show_HUD_names(const d_robot_info_array &Robot_info, grs_canvas &, game_mode_flags);
 }

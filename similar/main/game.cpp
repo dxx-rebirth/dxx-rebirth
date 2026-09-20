@@ -1888,7 +1888,6 @@ void game()
 //called at the end of the program
 void close_game()
 {
-	close_gauges();
 	restore_effect_bitmap_icons();
 }
 

@@ -2307,14 +2307,7 @@ static void draw_wbu_overlay(const hud_draw_context_hs_mr hudctx)
 		hud_bitblt(hudctx, SECONDARY_W_BOX_LEFT - 2, SECONDARY_W_BOX_TOP - 2, *WinBoxOverlay[1].get());
 }
 }
-}
 
-void close_gauges()
-{
-	WinBoxOverlay = {};
-}
-
-namespace dsx {
 void init_gauges()
 {
 	inset_window = {};
