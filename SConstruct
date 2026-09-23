@@ -4949,6 +4949,9 @@ class DXXArchive(DXXCommon):
 		RuntimeTest('test-mouse-delta', (
 			'common/unittest/mouse_delta.cpp',
 			)),
+		RuntimeTest('test-network-object-mapping', (
+			'common/unittest/network-object-mapping.cpp',
+			)),
 		RuntimeTest('test-mve-audio-stream', (
 			'd2x-rebirth/unittest/mve_audio_stream.cpp',
 			), use_default_libs=True),

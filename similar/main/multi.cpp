@@ -40,6 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 #include "game.h"
 #include "multi.h"
+#include "network-object-mapping.h"
 #include "multiinternal.h"
 #include "object.h"
 #include "player.h"
@@ -540,6 +541,27 @@ void reset_network_objects()
 	range_for (auto &i, remote_to_local)
 		i.fill(object_none);
 	object_owner.fill(-1);
+}
+
+bool restore_network_object_mappings(const std::span<const owned_remote_objnum> mappings, const std::span<const bool> object_live, const std::span<const int8_t, MAX_PLAYERS> saved_to_current_player)
+{
+	if (object_live.size() != mappings.size() || !validate_network_object_mappings<MAX_PLAYERS, MAX_OBJECTS>(mappings, saved_to_current_player, Player_num, N_players, [object_live](const std::size_t local_object) {
+		return object_live[local_object];
+	}))
+		return false;
+	reset_network_objects();
+	for (const auto &&[local_objnum, mapping] : enumerate(mappings))
+	{
+		if (mapping.owner == owner_none)
+			continue;
+		const auto owner = saved_to_current_player[mapping.owner];
+		const objnum_t local{static_cast<objnum_t>(local_objnum)};
+		if (owner == Player_num)
+			map_objnum_local_to_local(local);
+		else
+			map_objnum_local_to_remote(local, mapping.objnum, owner);
+	}
+	return true;
 }
 
 namespace dsx {
@@ -5150,11 +5172,18 @@ void multi_restore_game(const unsigned slot, const unsigned id)
 #if DXX_BUILD_DESCENT == 2
 	auto &LevelSharedDestructibleLightState = LevelSharedSegmentState.DestructibleLights;
 #endif
-	state_restore_all_sub(
+	if (!state_restore_all_sub(
 #if DXX_BUILD_DESCENT == 2
 		LevelSharedDestructibleLightState, secret_restore::none,
 #endif
-		filename.data());
+		filename.data()))
+	{
+		nm_messagebox_str(menu_title{TXT_ERROR}, nm_messagebox_tie(TXT_OK), menu_subtitle{"Unable to restore cooperative savegame."});
+		multi_quit_game = 1;
+		game_leave_menus();
+		multi_reset_stuff();
+		return;
+	}
 	multi_send_score(); // send my restored scores. I sent 0 when I loaded the level anyways...
 }
 
