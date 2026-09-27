@@ -3642,6 +3642,8 @@ class DXXCommon(LazyObjectConstructor):
 	# compile its source files.
 	compilation_database_dict_fn_to_entries: dict[str, tuple[SCons.Environment, list]] = {}
 
+	runnable_runtime_test_aliases: list[SCons.Script.Alias] = []
+
 	@dataclass(eq=False)
 	class RuntimeTest(LazyObjectConstructor):
 		target: str
@@ -3898,6 +3900,8 @@ class DXXCommon(LazyObjectConstructor):
 					if sys_platform.startswith(platform):
 						sys_platform = platform
 						break
+			platform_map = {'msys': host_platform.win32}
+			platform_allowed_values = tuple(host_platform.__members__.keys())
 			return (
 			{
 				'variable': EnumVariable,
@@ -3922,12 +3926,20 @@ class DXXCommon(LazyObjectConstructor):
 			{
 				'variable': EnumVariable,
 				'arguments': (
+					('build_platform',
+						sys_platform,
+						'platform on which the build tools run',
+						{
+							'map': platform_map,
+							'allowed_values' : platform_allowed_values,
+							}
+						),
 					('host_platform',
 						sys_platform,
 						'cross-compile to specified platform',
 						{
-							'map': {'msys': host_platform.win32},
-							'allowed_values' : tuple(host_platform.__members__.keys()),
+							'map': platform_map,
+							'allowed_values' : platform_allowed_values,
 							}
 						),
 					('raspberrypi', None, 'build for Raspberry Pi (automatically selects opengles)', {'ignorecase': 2, 'map': {'1':'yes', 'true':'yes', '0':'no', 'false':'no'}, 'allowed_values': ('yes', 'no', 'mesa')}),
@@ -4231,6 +4243,9 @@ class DXXCommon(LazyObjectConstructor):
 				setattr(self, cname, value)
 			if self.builddir != '' and self.builddir[-1:] != '/':
 				self.builddir += '/'
+			# Store the `enum` form of the platform to avoid using string
+			# comparisons when checking for particular platforms.
+			self._enumerated_build_platform = host_platform[self.build_platform]
 			self._enumerated_host_platform = host_platform[self.host_platform]
 		def clone(self):
 			clone = DXXCommon.UserBuildSettings(None)
@@ -4239,6 +4254,7 @@ class DXXCommon(LazyObjectConstructor):
 					name = o[0]
 					value = getattr(self, name)
 					setattr(clone, name, value)
+			clone._enumerated_build_platform = self._enumerated_build_platform
 			clone._enumerated_host_platform = self._enumerated_host_platform
 			clone._lto_builddir_decoration = self._lto_builddir_decoration
 			return clone
@@ -4906,22 +4922,61 @@ class DXXCommon(LazyObjectConstructor):
 				LIBS = ['bcm_host'],
 			)
 
-	def _register_runtime_test_link_targets(self):
+	def _register_runtime_test_link_targets(self, _check_action = [['$SOURCE']]):
 		runtime_test_boost_tests = self.runtime_test_boost_tests
 		if not runtime_test_boost_tests:
 			return
 		env = self.env
 		user_settings = self.user_settings
-		builddir = env.Dir(user_settings.builddir).Dir(self.srcdir)
+		top_builddir = env.Dir(user_settings.builddir)
+		builddir = top_builddir.Dir(self.srcdir)
 		library = env.Library(builddir.File(f'{env["LIBPREFIX"]}{self.srcdir}{env["LIBSUFFIX"]}'), self.get_library_objects())
 		env_LIBS = env.get('LIBS')
+		check_commands = []
+		# The `check` target will try to run programs in the list
+		# `runnable_runtime_tests`.  Only native programs, or programs for
+		# which transparent emulation is available, can be run from SCons.  For
+		# simplicity, only register native programs here.  There are a few
+		# cases where transparent emulation could work, but they are not worth
+		# detecting:
+		# - On 64-bit Linux with multilib, a 32-bit test could be run.
+		# - On 64-bit Windows, a 32-bit test could be run.
+		# - On Linux, if the user has externally configured qemu with the
+		#   required user target (not system target), and has registered the
+		#   file format with binfmt_misc, then the kernel can transparently
+		#   start a qemu process to emulate a non-native program.
+		#
+		# In all of these cases, the caller can still run the runtime test
+		# manually from a shell.  The only capability lost for non-native tests
+		# is that the `check` target will not attempt to run them.
+		runnable_runtime_tests = [] if user_settings._enumerated_build_platform == user_settings._enumerated_host_platform else None
 		for test in runtime_test_boost_tests:
 			LIBS = [] if (env_LIBS is None or not test.use_default_libs) else env_LIBS.copy()
 			LIBS.extend((
 				'boost_unit_test_framework',
 				library,
 				))
-			env.Program(target=builddir.File(test.target), source=test.source(self), LIBS=LIBS)
+			program = env.Program(target=builddir.File(test.target), source=test.source(self), LIBS=LIBS)
+			if runnable_runtime_tests is not None:
+				# SCons requires a unique value for `target` here, so derive
+				# one from the name of the input program.  The file named by
+				# `target` is never created.
+				run_test_program = env.Command(target='${SOURCE}.check', source=program, action=_check_action)
+				# Make the node be out-of-date regardless of whether the named
+				# file exists, to guard against the user creating this file.
+				env.AlwaysBuild(run_test_program)
+				# The named file is never created, so do not try to delete it.
+				env.NoClean(run_test_program)
+				# Prevent SCons trying to build this target implicitly.  It
+				# should only run if the user requests it by name or by
+				# invoking an alias that collects test targets.
+				env.Ignore(builddir, run_test_program)
+				runnable_runtime_tests.append(run_test_program)
+		if runnable_runtime_tests:
+			# Provide an alias that runs the tests of one directory.
+			top_builddir_alias = env.Alias(f'{top_builddir!s}/check', runnable_runtime_tests)
+			env.AlwaysBuild(top_builddir_alias)
+			DXXCommon.runnable_runtime_test_aliases.append(top_builddir_alias)
 
 	runtime_test_boost_tests: collections.abc.Sequence[RuntimeTest] = None
 
@@ -5987,6 +6042,21 @@ def main(register_program,_d1xp=D1XProgram,_d2xp=D2XProgram):
 	)
 	if not dxx:
 		return
+	runnable_runtime_test_aliases = DXXCommon.runnable_runtime_test_aliases
+	if runnable_runtime_test_aliases:
+		# Provide an alias that runs all the check aliases.
+		check_action = substenv.Alias('check', runnable_runtime_test_aliases)
+	else:
+		# If the user requested tests, and none exist, show an explicit error,
+		# rather than reporting:
+		# ```
+		# scons: Nothing to be done for `check'.
+		# ```
+		def failure(target, source, env):
+			print('error: no native targets registered runtime tests, so `check` cannot run any tests.  Enable `register_runtime_test_link_targets` for a native target or do not run the SCons target `check`.', file=sys.stderr)
+			return 1
+		check_action = substenv.Alias('check', (), failure)
+	substenv.AlwaysBuild(check_action)
 	compilation_database_dict_fn_to_entries = DXXCommon.compilation_database_dict_fn_to_entries
 	if compilation_database_dict_fn_to_entries:
 		import json
