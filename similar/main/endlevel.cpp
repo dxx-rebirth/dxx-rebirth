@@ -460,11 +460,11 @@ struct flythrough_data
 {
 	object		*obj;
 	vms_angvec	angles;			//orientation in angles
+	bool		first_time;		//flag for if first time through
 	vms_vector	step;				//how far in a second
 	vms_vector	angstep;			//rotation per second
 	fix			speed;			//how fast object is moving
 	vms_vector 	headvec;			//where we want to be pointing
-	int			first_time;		//flag for if first time through
 	fix			offset_frac;	//how far off-center as portion of way
 	fix			offset_dist;	//how far currently off-center
 };
