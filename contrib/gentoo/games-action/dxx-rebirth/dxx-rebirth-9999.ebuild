@@ -47,7 +47,7 @@ SLOT="0"
 
 # Default to building both game engines.  The total size is relatively
 # small.
-IUSE="+d1x +d2x +data debug editor +flac ipv6 +joystick l10n_de +midi +mp3 +music +opengl opl3-musicpack +png sc55-musicpack sdl2 tracker valgrind +vorbis"
+IUSE="+d1x +d2x +data debug editor +flac ipv6 +joystick l10n_de +midi +mp3 +music +opengl opl3-musicpack +png sc55-musicpack sdl2 test tracker valgrind +vorbis"
 
 # Game data is stored in HOG files.
 # Game movies are in MVL files.
@@ -60,6 +60,7 @@ DEPEND=">=dev-games/physfs-3[hog,mvl,zip]
 		virtual/opengl
 		virtual/glu )
 	png? ( media-libs/libpng )
+	test? ( dev-libs/boost )
 "
 
 # As of this writing, there is no Portage shorthand syntax to express:
@@ -222,7 +223,28 @@ dxx_scons() {
 
 src_compile() {
 	tc-export CXX PKG_CONFIG
-	dxx_scons register_install_target=0 build
+	local mysconsargs=(
+		register_install_target=0
+		build	# This is the name of the directory in which artifacts are placed, not a special target name.
+	)
+	if use test; then
+		# Some test programs perform basic static_assert checks at
+		# compile-time.  Since those are evaluated by the compiler, they
+		# work even in a cross-compile environment.
+		mysconsargs+=( \
+			register_runtime_test_link_targets=1
+		)
+	fi
+	dxx_scons "${mysconsargs[@]}"
+}
+
+src_test() {
+	if ! tc-is-cross-compiler; then
+		# Test programs are binaries native to $CHOST, so they cannot be
+		# run during a cross-compile.
+		tc-export CXX PKG_CONFIG
+		dxx_scons register_install_target=0 register_runtime_test_link_targets=1 check
+	fi
 }
 
 src_install() {
