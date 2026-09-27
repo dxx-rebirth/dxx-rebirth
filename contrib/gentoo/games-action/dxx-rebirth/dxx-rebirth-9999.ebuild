@@ -14,7 +14,7 @@ DESCRIPTION="Descent Rebirth - enhanced Descent 1 & 2 engine"
 # components.
 PYTHON_COMPAT=( python3_14 )
 
-inherit desktop eutils python-any-r1 scons-utils toolchain-funcs xdg
+inherit desktop python-any-r1 scons-utils toolchain-funcs xdg
 if [[ "$PV" = 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/dxx-rebirth/dxx-rebirth"
