@@ -1140,7 +1140,7 @@ void play_homing_warning(const player_info &player_info)
 	fix beep_delay;
 	static fix64 Last_warning_beep_time = 0; // Time we last played homing missile warning beep.
 
-	if (Endlevel_sequence || Player_dead_state != player_dead_state::no)
+	if (Endlevel_sequence != endlevel_sequence::off || Player_dead_state != player_dead_state::no)
 		return;
 
 	const auto homing_object_dist = player_info.homing_object_dist;
@@ -1166,7 +1166,7 @@ namespace {
 static void show_homing_warning(const hud_draw_context_hs_mr hudctx, const int homing_object_dist)
 {
 	unsigned gauge;
-	if (Endlevel_sequence)
+	if (Endlevel_sequence != endlevel_sequence::off)
 	{
 		gauge = GAUGE_HOMING_WARNING_OFF;
 	}

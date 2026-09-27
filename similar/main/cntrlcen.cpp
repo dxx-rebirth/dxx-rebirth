@@ -191,7 +191,7 @@ window_event_result do_controlcen_dead_frame()
 #endif
 			create_small_fireball_on_object(vmobjptridx(Dead_controlcen_object_num), CC_FIREBALL_SCALE, 1);
 
-	if (LevelUniqueControlCenterState.Control_center_destroyed && !Endlevel_sequence)
+	if (LevelUniqueControlCenterState.Control_center_destroyed && Endlevel_sequence == endlevel_sequence::off)
 		return do_countdown_frame();
 
 	return window_event_result::ignored;

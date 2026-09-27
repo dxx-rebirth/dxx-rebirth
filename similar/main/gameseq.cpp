@@ -1867,7 +1867,7 @@ window_event_result DoPlayerDead()
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	const bool pause{!((+(Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && (!Endlevel_sequence))};
+	const bool pause{!((+(Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && Endlevel_sequence == endlevel_sequence::off)};
 	auto result = window_event_result::handled;
 
 	if (pause)

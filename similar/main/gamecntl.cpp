@@ -2246,7 +2246,7 @@ window_event_result ReadControls(const d_level_shared_robot_info_state &LevelSha
 		}
 #endif
 
-		if (Endlevel_sequence)
+		if (Endlevel_sequence != endlevel_sequence::off)
 		{
 			auto result = HandleEndlevelKey(key);
 			if (result != window_event_result::ignored)
@@ -2282,7 +2282,7 @@ window_event_result ReadControls(const d_level_shared_robot_info_state &LevelSha
 			return result;
 	}
 
-	if (!Endlevel_sequence && Newdemo_state != ND_STATE_PLAYBACK)
+	if (Endlevel_sequence == endlevel_sequence::off && Newdemo_state != ND_STATE_PLAYBACK)
 	{
 		kconfig_read_controls(Controls, event, 0);
 		const auto Player_is_dead{Player_dead_state};

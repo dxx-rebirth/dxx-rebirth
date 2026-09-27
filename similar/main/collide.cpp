@@ -2189,7 +2189,7 @@ void apply_damage_to_player(object &playerobj, const icobjptridx_t killer, const
 	if (possibly_friendly != apply_damage_player::always && multi_maybe_disable_friendly_fire(static_cast<const object *>(killer)))
 		return;
 
-	if (Endlevel_sequence)
+	if (Endlevel_sequence != endlevel_sequence::off)
 		return;
 
 	//for the player, the 'real' shields are maintained in the Players[]
@@ -2400,7 +2400,7 @@ namespace {
 
 static void collide_player_and_powerup(const d_robot_info_array &, object &playerobj, const vmobjptridx_t powerup, const vms_vector &)
 {
-	if (!Endlevel_sequence &&
+	if (Endlevel_sequence == endlevel_sequence::off &&
 		Player_dead_state == player_dead_state::no &&
 		get_player_id(playerobj) == Player_num)
 	{

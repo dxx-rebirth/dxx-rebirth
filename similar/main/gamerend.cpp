@@ -390,7 +390,7 @@ static void render_countdown_gauge(grs_canvas &canvas)
 {
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	int Countdown_seconds_left;
-	if (!Endlevel_sequence && LevelUniqueControlCenterState.Control_center_destroyed && (Countdown_seconds_left = LevelUniqueControlCenterState.Countdown_seconds_left) > -1)
+	if (Endlevel_sequence == endlevel_sequence::off && LevelUniqueControlCenterState.Control_center_destroyed && (Countdown_seconds_left = LevelUniqueControlCenterState.Countdown_seconds_left) > -1)
 	{ // && (Countdown_seconds_left<127))
 #if DXX_BUILD_DESCENT == 2
 		if (!is_D2_OEM && !is_MAC_SHARE && !is_SHAREWARE)    // no countdown on registered only

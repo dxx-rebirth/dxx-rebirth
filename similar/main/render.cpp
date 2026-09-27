@@ -179,7 +179,7 @@ void flash_frame()
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	static fixang flash_ang=0;
 
-	if (Endlevel_sequence)
+	if (Endlevel_sequence != endlevel_sequence::off)
 		return;
 
 	if (PaletteBlueAdd > 10 )		//whiting out
@@ -1264,7 +1264,7 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
-	if (Endlevel_sequence) {
+	if (Endlevel_sequence != endlevel_sequence::off) {
 		render_endlevel_frame(canvas, eye_offset);
 		return;
 	}

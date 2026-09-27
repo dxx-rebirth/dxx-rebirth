@@ -90,11 +90,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 using std::min;
 using std::max;
 
-#define DXX_ENDLEVEL_ENABLE_SHORT_SEQUENCE	1		//if defined, end sequence when panning starts
-
 namespace dcx {
 
-int Endlevel_sequence;
+endlevel_sequence Endlevel_sequence;
 grs_bitmap *terrain_bitmap;	//!!*exit_bitmap,
 vms_matrix surface_orient;
 
@@ -124,7 +122,7 @@ static vms_angvec exit_angles = {-0xa00, 0, 0};
 static uint8_t outside_mine, ext_expl_playing, mine_destroyed, endlevel_data_loaded;
 
 static vms_angvec player_angles,player_dest_angles;
-#ifndef DXX_ENDLEVEL_ENABLE_SHORT_SEQUENCE
+#if !DXX_ENDLEVEL_ENABLE_SHORT_SEQUENCE
 static vms_angvec camera_desired_angles,camera_cur_angles;
 #endif
 
@@ -473,16 +471,6 @@ struct flythrough_data
 
 static std::array<flythrough_data, MAX_FLY_OBJECTS> fly_objects;
 
-//endlevel sequence states
-
-#define EL_OFF				0		//not in endlevel
-#define EL_FLYTHROUGH	1		//auto-flythrough in tunnel
-#define EL_LOOKBACK		2		//looking back at player
-#define EL_OUTSIDE		3		//flying outside for a while
-#define EL_STOPPED		4		//stopped, watching explosion
-#define EL_PANNING		5		//panning around, watching player
-#define EL_CHASING		6		//chasing player to station
-
 static object *endlevel_camera;
 static object *external_explosion;
 
@@ -782,7 +770,7 @@ window_event_result start_endlevel_sequence()
 	}
 	songs_play_song(song_number::endlevel, 0);
 
-	Endlevel_sequence = EL_FLYTHROUGH;
+	Endlevel_sequence = endlevel_sequence::flythrough;
 
 	ConsoleObject->movement_source = object::movement_type::None;			//movement handled by flythrough
 	ConsoleObject->control_source = object::control_type::None;
@@ -817,7 +805,7 @@ window_event_result stop_endlevel_sequence()
 
 	select_cockpit(PlayerCfg.CockpitMode[0]);
 
-	Endlevel_sequence = EL_OFF;
+	Endlevel_sequence = endlevel_sequence::off;
 	return PlayerFinishedLevel(next_level_request_secret_flag::only_normal_level);
 }
 
@@ -860,7 +848,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 	//do big explosions
 	if (!outside_mine) {
 
-		if (Endlevel_sequence==EL_OUTSIDE) {
+		if (Endlevel_sequence==endlevel_sequence::outside) {
 			const auto tvec{vm_vec_build_sub(ConsoleObject->pos, mine_side_exit_point)};
 			if (vm_vec_build_dot(tvec,mine_exit_orient.fvec) > 0) {
 				vms_vector mov_vec;
@@ -911,7 +899,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 	}
 
 	//do little explosions on walls
-	if (Endlevel_sequence >= EL_FLYTHROUGH && Endlevel_sequence < EL_OUTSIDE)
+	if (Endlevel_sequence >= endlevel_sequence::flythrough && Endlevel_sequence < endlevel_sequence::outside)
 		if ((explosion_wait2-=FrameTime) < 0) {
 			fvi_info hit_data;
 
@@ -921,7 +909,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 			vm_vec_scale_add2(tpnt,ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*100);
 			vm_vec_add2(tpnt,ConsoleObject->pos);
 
-			if (Endlevel_sequence == EL_FLYTHROUGH)
+			if (Endlevel_sequence == endlevel_sequence::flythrough)
 				vm_vec_scale_add2(tpnt,ConsoleObject->orient.fvec,d_rand()*200);
 			else
 				vm_vec_scale_add2(tpnt,ConsoleObject->orient.fvec,d_rand()*60);
@@ -946,9 +934,9 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 
 	switch (Endlevel_sequence) {
 
-		case EL_OFF: return result;
+		case endlevel_sequence::off: return result;
 
-		case EL_FLYTHROUGH: {
+		case endlevel_sequence::flythrough: {
 
 			do_endlevel_flythrough(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, &fly_objects[0]);
 
@@ -961,7 +949,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 
 					//songs_play_song(song_number::endlevel, 0);
 
-					Endlevel_sequence = EL_LOOKBACK;
+					Endlevel_sequence = endlevel_sequence::lookback;
 
 					const auto &&objnum = obj_create(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, object_type::OBJ_CAMERA, 0,
 					                    vmsegptridx(ConsoleObject->segnum), ConsoleObject->pos, &ConsoleObject->orient, 0, 
@@ -991,7 +979,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 		}
 
 
-		case EL_LOOKBACK: {
+		case endlevel_sequence::lookback: {
 
 			do_endlevel_flythrough(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, &fly_objects[0]);
 			do_endlevel_flythrough(LevelUniqueObjectState, LevelSharedSegmentState, LevelUniqueSegmentState, &fly_objects[1]);
@@ -1006,7 +994,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 
 			if (endlevel_camera->segnum == PlayerUniqueEndlevelState.exit_segnum)
 			{
-				Endlevel_sequence = EL_OUTSIDE;
+				Endlevel_sequence = endlevel_sequence::outside;
 
 				timer = i2f(2);
 
@@ -1024,7 +1012,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 			break;
 		}
 
-		case EL_OUTSIDE: {
+		case endlevel_sequence::outside: {
 			vm_vec_scale_add2(ConsoleObject->pos,ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
 			vm_vec_scale_add2(endlevel_camera->pos,endlevel_camera->orient.fvec,fixmul(FrameTime,-2*cur_fly_speed));
 			vm_vec_scale_add2(endlevel_camera->pos,endlevel_camera->orient.uvec,fixmul(FrameTime,-cur_fly_speed/10));
@@ -1037,7 +1025,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 
 			if (timer < 0) {
 
-				Endlevel_sequence = EL_STOPPED;
+				Endlevel_sequence = endlevel_sequence::stopped;
 
 				player_angles = vm_extract_angles_matrix(ConsoleObject->orient);
 
@@ -1048,7 +1036,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 			break;
 		}
 
-		case EL_STOPPED: {
+		case endlevel_sequence::stopped: {
 
 			player_dest_angles = get_angs_to_object(station_pos, ConsoleObject->pos);
 			chase_angles(&player_angles,&player_dest_angles);
@@ -1061,12 +1049,12 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 			if (timer < 0) {
 
 
-#ifdef DXX_ENDLEVEL_ENABLE_SHORT_SEQUENCE
+#if DXX_ENDLEVEL_ENABLE_SHORT_SEQUENCE
 
 				result = std::max(stop_endlevel_sequence(), result);
 
-				#else
-				Endlevel_sequence = EL_PANNING;
+#else
+				Endlevel_sequence = endlevel_sequence::panning;
 
 				camera_cur_angles = vm_extract_angles_matrix(endlevel_camera->orient);
 
@@ -1084,8 +1072,8 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 			break;
 		}
 
-#ifndef DXX_ENDLEVEL_ENABLE_SHORT_SEQUENCE
-		case EL_PANNING: {
+#if !DXX_ENDLEVEL_ENABLE_SHORT_SEQUENCE
+		case endlevel_sequence::panning: {
 			int mask;
 
 			player_dest_angles = get_angs_to_object(station_pos, ConsoleObject->pos);
@@ -1102,7 +1090,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 
 				vms_vector tvec;
 
-				Endlevel_sequence = EL_CHASING;
+				Endlevel_sequence = endlevel_sequence::chasing;
 
 				vm_vec_normalized_dir_quick(tvec,station_pos,ConsoleObject->pos);
 				reconstruct_at(ConsoleObject->orient, vm_vector_to_matrix_u, tvec, surface_orient.uvec);
@@ -1113,7 +1101,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 			break;
 		}
 
-		case EL_CHASING: {
+		case endlevel_sequence::chasing: {
 			fix d,speed_scale;
 
 
@@ -1140,7 +1128,7 @@ window_event_result do_endlevel_frame(const d_level_shared_robot_info_state &Lev
 			break;
 
 		}
-#endif		//ifdef DXX_ENDLEVEL_ENABLE_SHORT_SEQUENCE
+#endif		//DXX_ENDLEVEL_ENABLE_SHORT_SEQUENCE
 
 	}
 
@@ -1165,7 +1153,7 @@ static void endlevel_render_mine(const d_level_shared_segment_state &LevelShared
 	#endif
 
 	segnum_t start_seg_num;
-	if (Endlevel_sequence >= EL_OUTSIDE) {
+	if (Endlevel_sequence >= endlevel_sequence::outside) {
 		start_seg_num = PlayerUniqueEndlevelState.exit_segnum;
 	}
 	else {
@@ -1175,7 +1163,7 @@ static void endlevel_render_mine(const d_level_shared_segment_state &LevelShared
 			start_seg_num = Viewer->segnum;
 	}
 
-	g3_set_view_matrix(Viewer_eye, Endlevel_sequence == EL_LOOKBACK
+	g3_set_view_matrix(Viewer_eye, Endlevel_sequence == endlevel_sequence::lookback
 		? vm_matrix_x_matrix(Viewer->orient, vm_angles_2_matrix(vms_angvec{0, 0, INT16_MAX}))
 		: Viewer->orient, Render_zoom);
 
@@ -1191,7 +1179,7 @@ void render_endlevel_frame(grs_canvas &canvas, fix eye_offset)
 	auto &vcobjptridx = Objects.vcptridx;
 	g3_start_frame(canvas);
 
-	if (Endlevel_sequence < EL_OUTSIDE)
+	if (Endlevel_sequence < endlevel_sequence::outside)
 		endlevel_render_mine(LevelSharedSegmentState, canvas, eye_offset);
 	else
 		render_external_scene(vcobjptridx, canvas, LevelUniqueLightState, eye_offset);

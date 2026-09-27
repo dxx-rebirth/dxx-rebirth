@@ -505,7 +505,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 		if (o.type != object_type::OBJ_PLAYER) [[likely]]
 			/* Most objects are not players. */
 			return base_headlight_value;
-		if (Endlevel_sequence) [[unlikely]]
+		if (Endlevel_sequence != endlevel_sequence::off) [[unlikely]]
 			/* The player will spend far more time in the mine than in an
 			 * end-level sequence.
 			 */

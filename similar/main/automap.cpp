@@ -1321,7 +1321,7 @@ void do_automap()
 	am->drawingListBright = std::make_unique<Edge_info *[]>(max_edges);
 
 	init_automap_colors(*am);
-	am->pause_game = !(+(Game_mode & GM_MULTI) && (!Endlevel_sequence)); // Set to 1 if everything is paused during automap...No pause during net.
+	am->pause_game = !(+(Game_mode & GM_MULTI) && (Endlevel_sequence == endlevel_sequence::off)); // Set to 1 if everything is paused during automap...No pause during net.
 
 	if (am->pause_game) {
 		Game_wind->set_visible(0);

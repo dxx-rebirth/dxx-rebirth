@@ -1173,7 +1173,7 @@ static void do_afterburner_stuff(object_array &Objects)
 		Afterburner_charge = 0;
 
 	const auto plobj = vcobjptridx(get_local_player().objnum);
-	if (Endlevel_sequence || Player_dead_state != player_dead_state::no)
+	if (Endlevel_sequence != endlevel_sequence::off || Player_dead_state != player_dead_state::no)
 	{
 		digi_kill_sound_linked_to_object(plobj);
 		if (+(Game_mode & GM_MULTI) && func_play)
@@ -1735,7 +1735,7 @@ game_window *game_setup()
 
 	PlayerCfg.CockpitMode[1] = PlayerCfg.CockpitMode[0];
 	last_drawn_cockpit = cockpit_mode_t{UINT8_MAX};	// Force cockpit to redraw next time a frame renders.
-	Endlevel_sequence = 0;
+	Endlevel_sequence = endlevel_sequence::off;
 
 	auto game_wind = window_create<game_window>(grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT);
 	reset_palette_add();
@@ -1793,7 +1793,7 @@ window_event_result game_window::event_handler(const d_event &event)
 			break;
 
 		case event_type::window_deactivated:
-			if (!((+(Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && (!Endlevel_sequence)) )
+			if (!((+(Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && Endlevel_sequence == endlevel_sequence::off) )
 				stop_time();
 
 			if (!(+(Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
@@ -2064,7 +2064,8 @@ window_event_result GameProcessFrame(const d_level_shared_robot_info_state &Leve
 
 	digi_sync_sounds();
 
-	if (Endlevel_sequence) {
+	if (Endlevel_sequence != endlevel_sequence::off)
+	{
 		result = std::max(do_endlevel_frame(LevelSharedRobotInfoState), result);
 		powerup_grab_cheat_all();
 		do_special_effects();
@@ -2101,7 +2102,7 @@ window_event_result GameProcessFrame(const d_level_shared_robot_info_state &Leve
 		result = std::max(game_move_all_objects(LevelSharedRobotInfoState), result);
 		powerup_grab_cheat_all();
 
-		if (Endlevel_sequence)	//might have been started during move
+		if (Endlevel_sequence != endlevel_sequence::off)	//might have been started during move
 			return result;
 
 		fuelcen_update_all(LevelSharedRobotInfoState.Robot_info);
@@ -2156,7 +2157,7 @@ window_event_result GameProcessFrame(const d_level_shared_robot_info_state &Leve
 	// Check if we have to close in-game menus for multiplayer
 	if (+(Game_mode & GM_MULTI) && get_local_player().connected == player_connection_status::playing)
 	{
-		if (Endlevel_sequence || Player_dead_state != player_was_dead || local_player_shields_ref < player_shields || (LevelUniqueControlCenterState.Control_center_destroyed && LevelUniqueControlCenterState.Countdown_seconds_left < 10))
+		if (Endlevel_sequence != endlevel_sequence::off || Player_dead_state != player_was_dead || local_player_shields_ref < player_shields || (LevelUniqueControlCenterState.Control_center_destroyed && LevelUniqueControlCenterState.Countdown_seconds_left < 10))
                         game_leave_menus();
 	}
 
@@ -2431,7 +2432,7 @@ void powerup_grab_cheat_all(void)
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	auto &vmobjptridx = Objects.vmptridx;
-	if (Endlevel_sequence)
+	if (Endlevel_sequence != endlevel_sequence::off)
 		return;
 	if (Player_dead_state != player_dead_state::no)
 		return;

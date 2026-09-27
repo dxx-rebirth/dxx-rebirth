@@ -33,7 +33,22 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-window.h"
 #include "polyobj.h"
 
+#define DXX_ENDLEVEL_ENABLE_SHORT_SEQUENCE	1		//if enabled, end sequence when panning starts
+
 namespace dcx {
+
+enum class endlevel_sequence : uint8_t
+{
+	off = 0,	//not in endlevel
+	flythrough = 1,	//auto-flythrough in tunnel
+	lookback = 2,	//looking back at player
+	outside = 3,	//flying outside for a while
+	stopped = 4,	//stopped, watching explosion
+#if !DXX_ENDLEVEL_ENABLE_SHORT_SEQUENCE
+	panning = 5,	//panning around, watching player
+	chasing = 6,	//chasing player to station
+#endif
+};
 
 struct d_unique_endlevel_state
 {
@@ -42,7 +57,7 @@ struct d_unique_endlevel_state
 };
 
 extern grs_bitmap *terrain_bitmap;  //*satellite_bitmap,*station_bitmap,
-extern int Endlevel_sequence;
+extern endlevel_sequence Endlevel_sequence;
 extern vms_matrix surface_orient;
 
 void free_endlevel_data();
