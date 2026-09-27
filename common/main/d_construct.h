@@ -85,6 +85,24 @@ static inline void reconstruct_at(result_type &result, Invocable &&invocable, Ar
 {
 	/* Destroy the old object, since its storage will be reused. */
 	result.~result_type();
+#ifndef NDEBUG
+	if constexpr (std::is_trivially_destructible_v<result_type> && std::is_default_constructible_v<result_type>)
+	{
+		/* For debug builds, clear the object.  This is not as thorough as
+		 * writing poison bytes to the object, but may catch simple bugs where
+		 * the caller passed `args` that allow `invocable` to read from
+		 * `result`.  Such a read is ill-formed since `result` has been
+		 * destroyed, and `invocable` may have begun to construct the return
+		 * value into `result`.
+		 *
+		 * For release builds, do nothing.
+		 *
+		 * In a well-formed program, clearing the object should have no
+		 * observable effect.
+		 */
+		result = {};
+	}
+#endif
 	/* Construct a new `result_type` in the location `result`, using a
 	 * constructor that takes the result of `std::invoke(...)`.  Since the
 	 * above `requires` clause requires that `std::invoke` return a
