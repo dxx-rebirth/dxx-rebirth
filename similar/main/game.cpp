@@ -119,6 +119,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compiler-range_for.h"
 #include "partial_range.h"
 #include "segiter.h"
+#include "ffb.h"
 
 d_time_fix ThisLevelTime;
 
@@ -1782,6 +1783,7 @@ window_event_result game_window::event_handler(const d_event &event)
 
 			if (time_paused)
 				start_time();
+			tactile::EnableForces();
 
 			if (!(+(Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 			{
@@ -1793,6 +1795,7 @@ window_event_result game_window::event_handler(const d_event &event)
 			break;
 
 		case event_type::window_deactivated:
+			tactile::DisableForces();
 			if (!((+(Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && Endlevel_sequence == endlevel_sequence::off) )
 				stop_time();
 
@@ -1982,6 +1985,7 @@ window_event_result GameProcessFrame(const d_level_shared_robot_info_state &Leve
 	do_afterburner_stuff(Objects);
 	do_cloak_stuff();
 	do_invulnerable_stuff(player_info);
+	tactile::frame(PlayerCfg.TactileEnabled, PlayerCfg.TactileStrength * 10, PlayerCfg.TactileCentering * 10, Controls.state.fire_primary && Player_dead_state == player_dead_state::no && Newdemo_state != ND_STATE_PLAYBACK);
 #if DXX_BUILD_DESCENT == 2
 	init_ai_frame(player_info.powerup_flags, Controls);
 	result = do_final_boss_frame();

@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 
 #include "digi.h"
+#include "ffb.h"
 #include "inferno.h"
 #include "game.h"
 #include "gr.h"
@@ -1629,6 +1630,7 @@ window_event_result dead_player_frame(const d_robot_info_array &Robot_info)
 					HUD_init_message_literal(HM_DEFAULT, hostages_lost == 1 ? ( { const auto &&m = TXT_SHIP_DESTROYED_1; std::span<const char>(m, strlen(m)); } ) : ( { const auto &&m = TXT_SHIP_DESTROYED_0; std::span<const char>(m, strlen(m)); } ));
 
 				Player_dead_state = player_dead_state::exploded;
+				tactile::ClearForces();
 				
 				const auto cobjp = vmobjptridx(ConsoleObject);
 				drop_player_eggs(cobjp);
@@ -1741,6 +1743,7 @@ static void start_player_death_sequence(object &player)
 	
 	PaletteRedAdd = 40;
 	Player_dead_state = player_dead_state::yes;
+	tactile::Buffeting(70);
 
 	player.mtype.phys_info.rotthrust = {};
 	player.mtype.phys_info.thrust = {};
