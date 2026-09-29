@@ -10,6 +10,7 @@
 
 #include <SDL_version.h>
 #include "fwd-event.h"
+#include "fwd-window.h"
 #include "maths.h"
 
 #if SDL_MAJOR_VERSION == 2
@@ -153,7 +154,11 @@ fix event_get_idle_seconds();
 // without its own event loop
 static inline void event_process_all(void)
 {
-	while (event_process() != window_event_result::deleted) {}
+	while (event_process() != window_event_result::deleted)
+	{
+		if (!window_get_front())
+			break;
+	}
 }
 
 }
