@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 
 #include "joy.h"
+#include "ffb.h"
 #include "dxxerror.h"
 
 #include "inferno.h"
@@ -681,6 +682,8 @@ window_event_result do_physics_sim(const d_robot_info_array &Robot_info, const v
 				break;
 			}	
 			case fvi_hit_type::None:
+				if (obj == ConsoleObject)
+					tactile::Tactile_Xvibrate_clear();
 				break;
 
 			case fvi_hit_type::BadP0:
@@ -802,6 +805,9 @@ void phys_apply_force(object_base &obj, const vms_vector &force_vec)
 	//	in collision with crazy reactor robot thing on d2levf-s.
 	if (obj.mtype.phys_info.mass == 0)
 		return;
+
+	if (&obj == ConsoleObject)
+		tactile::Tactile_apply_force(force_vec, obj.orient);
 
 	//Add in acceleration due to force
 	vm_vec_scale_add2(obj.mtype.phys_info.velocity, force_vec, fixdiv(f1_0, obj.mtype.phys_info.mass));
