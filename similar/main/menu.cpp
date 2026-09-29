@@ -1294,9 +1294,9 @@ window_event_result screen_resolution_menu::event_handler(const d_event &event)
 void screen_resolution_menu::handle_close_event() const
 {
 	// check which resolution field was selected
-#if SDL_MAJOR_VERSION == 1
 	if (m[convert_fixed_field_to_ni(fixed_field_index::opt_checkbox_fullscreen)].value != gr_check_fullscreen())
 		gr_toggle_fullscreen();
+#if SDL_MAJOR_VERSION == 1
 	if (!m[convert_fixed_field_to_ni(fixed_field_index::opt_radio_custom_values)].value)
 	{
 		/* If the radio item for "Use custom resolution" is not set,
