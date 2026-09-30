@@ -2,6 +2,8 @@
 # vim: set fenc=utf-8 sw=4 ts=4 :
 # $Format:%H$
 
+from __future__ import annotations
+
 # needed imports
 from collections import (defaultdict, Counter as collections_counter)
 import collections.abc
