@@ -1,7 +1,19 @@
 name: Package - MacOS
 on:
   workflow_dispatch:
+    inputs:
+      publish_artifacts:
+        description: Package and upload build artifacts
+        required: true
+        type: boolean
+        default: true
   workflow_call:
+    inputs:
+      publish_artifacts:
+        description: Package and upload build artifacts
+        required: false
+        type: boolean
+        default: true
 
 concurrency:
   group: macos-${{ github.workflow_ref }}-${{ github.ref }}
@@ -37,6 +49,32 @@ jobs:
           || true
 
       - name: Configure and Build
+        if: ${{ !inputs.publish_artifacts }}
+        working-directory: src
+        run: >
+          set -eu
+
+          # I do not know why, but readline is not found by pkg-config
+
+          # For a idea of a fix see: https://superuser.com/a/1277306
+
+          export PKG_CONFIG_PATH=/usr/local/opt/readline/lib/pkgconfig
+
+          # run build
+
+          scons
+          -j4
+          -k
+          opengl=1
+          sdl2=1
+          macos_add_frameworks=0
+          macos_bundle_libs=0
+          register_install_target=0
+          build/d1x-rebirth/d1x-rebirth
+          build/d2x-rebirth/d2x-rebirth
+
+      - name: Configure, Build, and Stage Application Bundles
+        if: ${{ inputs.publish_artifacts }}
         working-directory: src
         run: >
           set -eu
@@ -69,13 +107,14 @@ jobs:
           mv build/D{1,2}X-Rebirth.app ..
 
       - name: Upload SConf log
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && inputs.publish_artifacts }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: "SConf-MacOS${{ env.MACOSX_DEPLOYMENT_TARGET }}-${{ steps.architecture.outputs.uname_m }}"
           path: 'src/build/config.log'
 
       - name: Upload Artifact
+        if: ${{ inputs.publish_artifacts }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: "DXX-Rebirth-MacOS${{ env.MACOSX_DEPLOYMENT_TARGET }}-${{ steps.architecture.outputs.uname_m }}"

@@ -6,8 +6,7 @@ The DXX-Rebirth maintainers have no control over the sites linked below.  The ma
 
 ## Prerequisites
 
-* [Python 3.x](https://www.python.org/) to run [scons](https://www.scons.org/), the processor for SConstruct scripts.
-[Python 3.13](https://www.python.org/downloads/release/python-31313/) is recommended.
+* [Python 3.14](https://www.python.org/downloads/release/python-3148/) to run [scons](https://www.scons.org/), the processor for SConstruct scripts.
 * C++ compiler with support for selected C++23 features.  One of:
     * [gcc](https://gcc.gnu.org/) 14, 15, or 16
     * [clang](https://clang.llvm.org/) 21.0 or later
@@ -49,8 +48,8 @@ Where possible, Windows users should try to obtain a compiled package, rather th
 
 If you are not sure whether your system is Windows x86 or Windows x64, use the packages for Windows x86.  Systems running Windows x64 support running Windows x86 programs, but Windows x86 systems do not run Windows x64 programs.
 
-* [Python x86 installer](https://www.python.org/ftp/python/3.13.13/python-3.13.13.exe) |
-[Python x64 installer](https://www.python.org/ftp/python/3.13.13/python-3.13.13-amd64.exe)
+* [Python x86 installer](https://www.python.org/ftp/python/3.14.8/python-3.14.8.exe) |
+[Python x64 installer](https://www.python.org/ftp/python/3.14.8/python-3.14.8-amd64.exe)
 * [SCons](https://github.com/SCons/scons/archive/refs/tags/4.10.1.zip)
 * C++ compiler
     * mingw-gcc: [Getting Started](http://www.mingw.org/wiki/Getting_Started) |

@@ -1,7 +1,19 @@
 name: Package - Windows
 on:
   workflow_dispatch:
+    inputs:
+      publish_artifacts:
+        description: Package and upload build artifacts
+        required: true
+        type: boolean
+        default: true
   workflow_call:
+    inputs:
+      publish_artifacts:
+        description: Package and upload build artifacts
+        required: false
+        type: boolean
+        default: true
 
 concurrency:
   group: windows-${{ github.workflow_ref }}-${{ github.ref }}
@@ -60,17 +72,19 @@ jobs:
           sdl2=1
 
       - name: Upload SConf log
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && inputs.publish_artifacts }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: "SConf-Windows-${{ steps.architecture.outputs.uname_m }}"
           path: 'src/build/config.log'
 
       - name: Package
+        if: ${{ inputs.publish_artifacts }}
         working-directory: src
         run: ./contrib/packaging/windows/build_package.sh -o .. -z ''
 
       - name: Upload Artifact
+        if: ${{ inputs.publish_artifacts }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: "DXX-Rebirth-Windows-${{ steps.architecture.outputs.uname_m }}"

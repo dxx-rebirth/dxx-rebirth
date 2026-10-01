@@ -1,7 +1,19 @@
 name: Package - Linux
 on:
   workflow_dispatch:
+    inputs:
+      publish_artifacts:
+        description: Package and upload build artifacts
+        required: true
+        type: boolean
+        default: true
   workflow_call:
+    inputs:
+      publish_artifacts:
+        description: Package and upload build artifacts
+        required: false
+        type: boolean
+        default: true
 
 concurrency:
   group: linux-${{ github.workflow_ref }}-${{ github.ref }}
@@ -70,16 +82,18 @@ jobs:
           "CXXFLAGS=-flto=$(( $nproc + 1 / 2 ))"
 
       - name: Upload SConf log
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && inputs.publish_artifacts }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: "SConf-Linux-${{ steps.architecture.outputs.uname_m }}"
           path: 'build/config.log'
 
       - name: Install AppImage Requirements
+        if: ${{ inputs.publish_artifacts }}
         run: sudo apt-get install -y libfuse2 wget curl
 
       - name: Package
+        if: ${{ inputs.publish_artifacts }}
       # No bubblewrap sandbox for this step, since:
       # - as an unprivileged user, `--unshare-user` is a prerequisite for any
       # other `--unshare-NS`
@@ -107,6 +121,7 @@ jobs:
           rebirth_uname_m: ${{ steps.architecture.outputs.uname_m }}
 
       - name: Upload Artifact
+        if: ${{ inputs.publish_artifacts }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: "DXX-Rebirth-Linux-AppImage-${{ steps.architecture.outputs.uname_m }}"
