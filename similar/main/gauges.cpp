@@ -507,7 +507,7 @@ constexpr hud_ar_scale_float HUD_SCALE_AR(const unsigned screen_width, const uns
 
 struct base_hud_scale_float
 {
-	constexpr long operator()(const unsigned i) const
+	static constexpr long operator()(const unsigned i)
 	{
 		return i;
 	}

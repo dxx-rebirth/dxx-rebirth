@@ -273,14 +273,14 @@ public:
 	template <std::size_t n>
 		[[nodiscard]]
 		dxx_compiler_attribute_nonnull()
-		auto operator()(PHYSFSX_gets_line_t<n> &buf, PHYSFS_File *const fp, const std::size_t offset = 0) const
+		static auto operator()(PHYSFSX_gets_line_t<n> &buf, PHYSFS_File *const fp, const std::size_t offset = 0)
 		{
 			return get(buf.next(), offset, fp);
 		}
 	template <std::size_t n>
 		[[nodiscard]]
 		dxx_compiler_attribute_nonnull()
-		auto operator()(ntstring<n> &buf, PHYSFS_File *const fp, const std::size_t offset = 0) const
+		static auto operator()(ntstring<n> &buf, PHYSFS_File *const fp, const std::size_t offset = 0)
 		{
 			auto r = get(std::span(buf), offset, fp);
 			buf.back() = 0;
@@ -351,12 +351,12 @@ void PHYSFSX_read_helper_report_error(const char *filename, unsigned line, const
 template <typename T, auto F>
 struct PHYSFSX_read_helper
 {
-	T operator()(NamedPHYSFS_File file, const char *filename = __builtin_FILE(), unsigned line = __builtin_LINE(), const char *func = __builtin_FUNCTION()) const;
+	static T operator()(NamedPHYSFS_File file, const char *filename = __builtin_FILE(), unsigned line = __builtin_LINE(), const char *func = __builtin_FUNCTION());
 };
 
 template <typename T, auto F>
 [[nodiscard]]
-T PHYSFSX_read_helper<T, F>::operator()(const NamedPHYSFS_File file, const char *const filename, const unsigned line, const char *const func) const
+T PHYSFSX_read_helper<T, F>::operator()(const NamedPHYSFS_File file, const char *const filename, const unsigned line, const char *const func)
 {
 	T i;
 	if (!F(file.fp, &i))
@@ -368,7 +368,7 @@ template <typename T, T (*swap_value)(const T &)>
 struct PHYSFSX_read_swap_helper
 {
 	[[nodiscard]]
-	T operator()(PHYSFS_File *const file, physfsx_endian swap) const
+	static T operator()(PHYSFS_File *const file, const physfsx_endian swap)
 	{
 		T val{};
 		PHYSFSX_readBytes(file, &val, sizeof(val));
@@ -379,11 +379,11 @@ struct PHYSFSX_read_swap_helper
 template <typename T1, int (*F)(PHYSFS_File *, T1 *), typename T2, T1 T2::* ... m>
 struct PHYSFSX_read_sequence_helper
 {
-	void operator()(const NamedPHYSFS_File file, T2 &i, const char *filename = __builtin_FILE(), unsigned line = __builtin_LINE(), const char *func = __builtin_FUNCTION()) const;
+	static void operator()(const NamedPHYSFS_File file, T2 &i, const char *filename = __builtin_FILE(), unsigned line = __builtin_LINE(), const char *func = __builtin_FUNCTION());
 };
 
 template <typename T1, int (*F)(PHYSFS_File *, T1 *), typename T2, T1 T2::* ... m>
-void PHYSFSX_read_sequence_helper<T1, F, T2, m...>::operator()(const NamedPHYSFS_File file, T2 &i, const char *const filename, const unsigned line, const char *const func) const
+void PHYSFSX_read_sequence_helper<T1, F, T2, m...>::operator()(const NamedPHYSFS_File file, T2 &i, const char *const filename, const unsigned line, const char *const func)
 {
 	if (unlikely(!F(file.fp, &(i.*m)) || ...))
 		PHYSFSX_read_helper_report_error(filename, line, func, file);
@@ -497,7 +497,7 @@ int PHYSFSX_getRealPath(const char *stdPath, std::array<char, PATH_MAX> &realPat
 class PHYSFS_unowned_storage_mount_deleter
 {
 public:
-	void operator()(const char *const p) const noexcept
+	static void operator()(const char *const p) noexcept
 	{
 		PHYSFS_unmount(p);
 	}

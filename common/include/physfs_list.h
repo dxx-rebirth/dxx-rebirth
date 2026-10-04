@@ -26,7 +26,7 @@ namespace dcx {
 class PHYSFS_list_deleter
 {
 public:
-	void operator()(char **list) const
+	static void operator()(char **list)
 	{
 		PHYSFS_freeList(list);
 	}

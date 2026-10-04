@@ -27,7 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 namespace dcx {
 
-bool hashtable::compare_t::operator()(const char *l, const char *r) const
+bool hashtable::compare_t::operator()(const char *l, const char *r)
 {
 	for (;; ++l, ++r)
 	{

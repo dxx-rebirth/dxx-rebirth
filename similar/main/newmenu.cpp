@@ -86,7 +86,7 @@ struct callback_newmenu : newmenu
 struct step_down
 {
 	template <typename T>
-		T operator()(T &t) const
+		static T operator()(T &t)
 		{
 			return ++t;
 		}
@@ -95,7 +95,7 @@ struct step_down
 struct step_up
 {
 	template <typename T>
-		T operator()(T &t) const
+		static T operator()(T &t)
 		{
 			return --t;
 		}

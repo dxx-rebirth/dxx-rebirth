@@ -372,7 +372,7 @@ namespace dsx {
  */
 struct test_game_mode_d2x_flag
 {
-	constexpr std::false_type operator()(game_mode_flags) const	// C++23 static
+	static constexpr std::false_type operator()(game_mode_flags)
 	{
 		return {};
 	}

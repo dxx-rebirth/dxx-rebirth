@@ -28,7 +28,7 @@ struct hashtable
 {
 	struct compare_t
 	{
-		bool operator()(const char *l, const char *r) const;
+		static bool operator()(const char *l, const char *r);
 	};
 	std::map<const char *, int, compare_t> m;
 };
