@@ -20,7 +20,6 @@ import typing
 import os
 import SCons.Util
 import SCons.Script
-from functools import cached_property
 
 # Disable injecting tools into default namespace
 SCons.Defaults.DefaultEnvironment(tools = [])
@@ -3623,6 +3622,7 @@ class PCHManager:
 		env.Command(node, v, self.write_pch_inclusion_file)
 
 class DXXCommon(LazyObjectConstructor):
+	from functools import cached_property
 	# version number
 	VERSION_MAJOR: typing.Final[int] = 0
 	VERSION_MINOR: typing.Final[int] = 61
