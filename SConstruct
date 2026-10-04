@@ -8,7 +8,6 @@ from __future__ import annotations
 from collections import (defaultdict, Counter as collections_counter)
 import collections.abc
 from dataclasses import dataclass
-import base64
 import binascii
 import errno
 import enum
@@ -3622,6 +3621,7 @@ class PCHManager:
 		env.Command(node, v, self.write_pch_inclusion_file)
 
 class DXXCommon(LazyObjectConstructor):
+	import base64
 	from functools import cached_property
 	# version number
 	VERSION_MAJOR: typing.Final[int] = 0
