@@ -51,6 +51,7 @@ jobs:
           printf 'uname_m=%s\n' "$(uname -m)" >> "$GITHUB_OUTPUT"
 
       - name: Update gamecontrollerdb.txt
+        if: ${{ inputs.publish_artifacts }}
         run: >-
           curl --fail --silent --show-error --location
           --output contrib/gamecontrollerdb.txt
