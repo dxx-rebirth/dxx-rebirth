@@ -41,6 +41,7 @@ jobs:
         run: brew bundle --verbose
 
       - name: Update gamecontrollerdb.txt
+        if: ${{ inputs.publish_artifacts }}
         working-directory: src
         run: >-
           curl --fail --silent --show-error --location
