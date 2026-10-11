@@ -68,6 +68,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hudmsg.h"
 #include "state.h"
 #include "multi.h"
+#include "network-object-mapping.h"
 #include "gr.h"
 #if DXX_USE_OGL
 #include "ogl_init.h"
@@ -87,12 +88,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <utility>
 
 #if DXX_BUILD_DESCENT == 1
-#define STATE_VERSION 7
+#define STATE_VERSION 8
 #define STATE_MATCEN_VERSION 25 // specific version of metcen info written into D1 savegames. Currenlty equal to GAME_VERSION (see gamesave.cpp). If changed, then only along with STATE_VERSION.
 #define STATE_COMPATIBLE_VERSION 6
+#define STATE_NETWORK_OBJECT_MAPPING_VERSION 8
 #elif DXX_BUILD_DESCENT == 2
-#define STATE_VERSION 22
+#define STATE_VERSION 23
 #define STATE_COMPATIBLE_VERSION 20
+#define STATE_NETWORK_OBJECT_MAPPING_VERSION 23
 #endif
 // 0 - Put DGSS (Descent Game State Save) id at tof.
 // 1 - Added Difficulty level save
@@ -114,6 +117,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // 19- Saved cheats.enabled flag
 // 20- First_secret_visit
 // 22- Omega_charge
+// D1 8 / D2 23- Cooperative network object mappings
 
 #define THUMBNAIL_W 100
 #define THUMBNAIL_H 50
@@ -1727,6 +1731,14 @@ int state_save_all_sub(const char *filename, const char *desc)
 		PHYSFSX_writeBytes(fp, &Netgame.max_numplayers, sizeof(ubyte));
 		PHYSFSX_writeBytes(fp, &Netgame.numconnected, sizeof(ubyte));
 		PHYSFSX_writeBytes(fp, &Netgame.level_time, sizeof(int));
+		for (const auto &&objp : Objects.vcptridx)
+		{
+			const auto mapping = objp->type == object_type::OBJ_NONE
+				? owned_remote_objnum{-1, 0xffff}
+				: objnum_local_to_remote(objp);
+			PHYSFSX_writeU8(fp, static_cast<uint8_t>(mapping.owner));
+			PHYSFSX_writeBytes(fp, &mapping.objnum, sizeof(mapping.objnum));
+		}
 	}
 	return 1;
 }
@@ -1854,6 +1866,10 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 	auto &RobotCenters = LevelSharedRobotcenterState.RobotCenters;
 	auto &Station = LevelUniqueFuelcenterState.Station;
 	int coop_player_got[MAX_PLAYERS], coop_org_objnum = get_local_player().objnum;
+	std::array<int8_t, MAX_PLAYERS> coop_saved_to_current_player;
+	std::array<owned_remote_objnum, MAX_OBJECTS> coop_network_object_mappings{};
+	std::array<bool, MAX_OBJECTS> coop_network_object_live{};
+	coop_saved_to_current_player.fill(-1);
 	std::array<per_side_array<texture1_value>, MAX_SEGMENTS> TempTmapNum;
 	std::array<per_side_array<texture2_value>, MAX_SEGMENTS> TempTmapNum2;
 
@@ -2503,6 +2519,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 					auto &p = *vmplayerptr(i);
 					p = restore_players[j];
 					coop_player_got[i] = 1;
+					coop_saved_to_current_player[j] = i;
 
 					const auto &&obj = vmobjptridx(vcplayerptr(i)->objnum);
 					// since a player always uses the same object, we just have to copy the saved object properties to the existing one. i hate you...
@@ -2526,6 +2543,10 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 				}
 			}
 		}
+		/* Preserve disconnected creator slots as distinct object-owner
+		 * namespaces after remapping the participating players. */
+		if (!complete_player_slot_mapping(coop_saved_to_current_player))
+			return 0;
 		{
 			std::array<char, MISSION_NAME_LEN + 1> a;
 			PHYSFSX_readBytes(fp, a, a.size());
@@ -2543,6 +2564,16 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 		PHYSFSX_readBytes(fp, &Netgame.max_numplayers, sizeof(ubyte));
 		PHYSFSX_readBytes(fp, &Netgame.numconnected, sizeof(ubyte));
 		Netgame.level_time = {PHYSFSX_readSXE32(fp, swap)};
+		if (version >= STATE_NETWORK_OBJECT_MAPPING_VERSION)
+		{
+			for (auto &mapping : partial_range(coop_network_object_mappings, Objects.get_count()))
+			{
+				if (PHYSFSX_readBytes(fp, &mapping.owner, sizeof(mapping.owner)) != sizeof(mapping.owner) || PHYSFSX_readBytes(fp, &mapping.objnum, sizeof(mapping.objnum)) != sizeof(mapping.objnum))
+					return 0;
+				if (swap != physfsx_endian::native)
+					mapping.objnum = SWAPSHORT(mapping.objnum);
+			}
+		}
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++)
 		{
 			const auto &&objp = vmobjptr(vcplayerptr(i)->objnum);
@@ -2556,6 +2587,10 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 				multi_disconnect_player(i);
 		Viewer = ConsoleObject = &get_local_plrobj(); // make sure Viewer and ConsoleObject are set up (which we skipped by not using InitPlayerObject but we need since objects changed while loading)
 		special_reset_objects(LevelUniqueObjectState, LevelSharedRobotInfoState.Robot_info); // since we juggled around with objects to remap coop players rebuild the index of free objects
+		for (const auto &&[objnum, obj] : enumerate(vmobjptr))
+			coop_network_object_live[objnum] = obj.type != object_type::OBJ_NONE;
+		if (version >= STATE_NETWORK_OBJECT_MAPPING_VERSION && !restore_network_object_mappings(partial_const_range(coop_network_object_mappings, Objects.get_count()), std::span<const bool>{coop_network_object_live}.first(Objects.get_count()), coop_saved_to_current_player))
+			return 0;
 		state_set_next_autosave(GameUniqueState, Netgame.MPGameplayOptions.AutosaveInterval);
 	}
 	else
