@@ -289,9 +289,10 @@ struct start_new_game_menu_items
 		}()},
 		info_text{[last_level, clamped_player_highest_level]() {
 			std::array<char, 68> r;
-			std::snprintf(r.data(), r.size(), "This mission has %u levels.\n\nHighest level achieved: %d.",
+			char buf[28];
+			std::snprintf(r.data(), r.size(), "This mission has %u levels.\n\nYou have %s.",
 				last_level,
-				clamped_player_highest_level
+				(clamped_player_highest_level ? (std::snprintf(buf, std::size(buf), "reached level %d", clamped_player_highest_level), buf) : "not played any level")
 			);
 			return r;
 		}()},
