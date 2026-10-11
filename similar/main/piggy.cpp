@@ -480,7 +480,12 @@ bitmap_index piggy_find_bitmap(const std::span<const char> entry_name)
 
 int piggy_find_sound(const std::span<const char> name)
 {
-	const auto i = hashtable_search(&AllDigiSndNames, name.data());
+	/* `name` need not be null-terminated (bmread passes the basename of
+	 * "laser03.raw"), but hashtable_search reads a C string.
+	 */
+	std::array<char, 32> key{};
+	std::memcpy(key.data(), name.data(), std::min(key.size() - 1, name.size()));
+	const auto i = hashtable_search(&AllDigiSndNames, key.data());
 	if ( i < 0 )
 		return 255;
 	return i;
