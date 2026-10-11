@@ -1,7 +1,20 @@
 name: Continuous Integration
 on:
   workflow_dispatch:
+    inputs:
+      publish_artifacts:
+        description: Package and upload build artifacts
+        required: true
+        type: boolean
+        default: true
   workflow_call:
+    inputs:
+      publish_artifacts:
+        description: Package and upload build artifacts
+        required: false
+        type: boolean
+        default: true
+  pull_request:
   push:
     branches:
       - master
@@ -11,6 +24,9 @@ on:
       - 'contrib/gentoo/**'
       - 'contrib/rpm/**'
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow_ref }}-${{ github.ref }}
   cancel-in-progress: true
@@ -18,11 +34,42 @@ jobs:
   linux:
     name: Package Linux
     uses: ./.github/workflows/package-linux.yml
+    with:
+      publish_artifacts: ${{ github.event_name == 'push' || (github.event_name != 'pull_request' && inputs.publish_artifacts) }}
 
   windows:
     name: Package Windows
     uses: ./.github/workflows/package-windows.yml
+    with:
+      publish_artifacts: ${{ github.event_name == 'push' || (github.event_name != 'pull_request' && inputs.publish_artifacts) }}
 
   macos:
    name: Package MacOS
    uses: ./.github/workflows/package-macos.yml
+   with:
+     publish_artifacts: ${{ github.event_name == 'push' || (github.event_name != 'pull_request' && inputs.publish_artifacts) }}
+
+  python:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-26.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - '3.13'
+          - '3.14'
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install SCons
+        run: python -m pip install --disable-pip-version-check 'scons==4.8.1'
+      - name: Report versions
+        run: |
+          python --version
+          python -m SCons --version
+      - name: Read SConstruct
+        run: python -m SCons -Q -h dxx=0
