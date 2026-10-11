@@ -117,12 +117,48 @@ struct title_screen : window
 {
 	grs_main_bitmap title_bm;
 	fix64 timer;
+#if DXX_BUILD_DESCENT == 1
+	fix64 presentation_start;
+#endif
 	title_screen(grs_canvas &canvas) :
 		window(canvas, 0, 0, canvas.cv_bitmap.bm_w, canvas.cv_bitmap.bm_h)
 	{
 	}
 	virtual window_event_result event_handler(const d_event &) override;
 };
+
+#if DXX_BUILD_DESCENT == 1
+/* The original game faded each title card for about 0.4 seconds, held it for
+ * three seconds, faded it out, then left a short black transition.  Keeping
+ * these as event-driven phases preserves input handling during the sequence.
+ */
+constexpr fix64 d1_title_fade_duration{F1_0 * 2 / 5};
+constexpr fix64 d1_title_hold_duration{F1_0 * 3};
+constexpr fix64 d1_title_black_duration{F1_0 * 2 / 5};
+constexpr fix64 d1_title_fade_out_start{d1_title_fade_duration + d1_title_hold_duration};
+constexpr fix64 d1_title_black_start{d1_title_fade_out_start + d1_title_fade_duration};
+constexpr fix64 d1_title_total_duration{d1_title_black_start + d1_title_black_duration};
+
+static void draw_d1_title_screen(title_screen &ts)
+{
+	show_fullscr(ts.w_canv, ts.title_bm);
+
+	const auto elapsed{timer_query() - ts.presentation_start};
+	uint8_t visible_fade_level;
+	if (elapsed < d1_title_fade_duration)
+		visible_fade_level = static_cast<uint8_t>(elapsed * (GR_FADE_LEVELS - 1) / d1_title_fade_duration);
+	else if (elapsed < d1_title_fade_out_start)
+		return;
+	else if (elapsed < d1_title_black_start)
+		visible_fade_level = static_cast<uint8_t>((d1_title_black_start - elapsed) * (GR_FADE_LEVELS - 1) / d1_title_fade_duration);
+	else
+		visible_fade_level = 0;
+
+	gr_settransblend(ts.w_canv, gr_fade_level{visible_fade_level}, gr_blend::normal);
+	gr_rect(ts.w_canv, 0, 0, ts.w_canv.cv_bitmap.bm_w - 1, ts.w_canv.cv_bitmap.bm_h - 1, BM_XRGB(0, 0, 0));
+	gr_settransblend(ts.w_canv, GR_FADE_OFF, gr_blend::normal);
+}
+#endif
 
 window_event_result title_screen::event_handler(const d_event &event)
 {
@@ -161,7 +197,11 @@ window_event_result title_screen::event_handler(const d_event &event)
 			break;
 
 		case event_type::window_draw:
+#if DXX_BUILD_DESCENT == 1
+			draw_d1_title_screen(*this);
+#else
 			show_fullscr(w_canv, title_bm);
+#endif
 			break;
 
 		case event_type::window_close:
@@ -182,7 +222,9 @@ static void show_title_screen(const char *filename)
 	strcat(new_filename,filename);
 	filename = new_filename;
 
+#if DXX_BUILD_DESCENT == 2
 	ts->timer = timer_query() + i2f(3);
+#endif
 	const auto pcx_error = pcx_read_bitmap_or_default(filename, ts->title_bm, gr_palette);
 	if (pcx_error != pcx_result::SUCCESS)
 	{
@@ -190,6 +232,10 @@ static void show_title_screen(const char *filename)
 	}
 
 	gr_palette_load( gr_palette );
+#if DXX_BUILD_DESCENT == 1
+	ts->presentation_start = timer_query();
+	ts->timer = ts->presentation_start + d1_title_total_duration;
+#endif
 	event_process_all();
 }
 
@@ -242,16 +288,31 @@ static int DefineBriefingBox(const grs_bitmap &, const char *&buf);
 void show_titles(void)
 {
 #if DXX_BUILD_DESCENT == 1
+	const auto ensure_title_song = [] {
+		if (songs_is_playing() != song_number::title)
+			songs_play_song(song_number::title, 1);
+	};
+	const auto play_optional_movie = [](const char *const filename) {
+		/* PlayMovie stops music before trying to open its input.  Avoid calling
+		 * it for an absent optional movie, so a static title sequence can keep
+		 * one continuous title-song playback.
+		 */
+		return PHYSFS_exists(filename)
+			? PlayMovie({}, filename, play_movie_warn_missing::verbose)
+			: movie_play_status::skipped;
+	};
+
 	if (CGameArg.SysNoTitles)
 	{
-		songs_play_song(song_number::title, 1);
+		ensure_title_song();
 		return;
 	}
 
 	// Try to play PSX intro movies if present (from extra1-h.mvl)
-	if (PlayMovie({}, "starta.mve", play_movie_warn_missing::verbose) == movie_play_status::skipped)
+	if (play_optional_movie("starta.mve") == movie_play_status::skipped)
 	{
 		// No movie, fall back to static title screens
+		ensure_title_song();
 		show_first_found_title_screen(
 			"macplay.pcx",	// Mac Shareware
 			"mplaycd.pcx",	// Mac Registered
@@ -259,15 +320,16 @@ void show_titles(void)
 		);
 	}
 
-	if (PlayMovie({}, "startb.mve", play_movie_warn_missing::verbose) == movie_play_status::skipped)
+	if (play_optional_movie("startb.mve") == movie_play_status::skipped)
 	{
+		ensure_title_song();
 		const bool resolution_at_least_640_480 = (SWIDTH >= 640 && SHEIGHT >= 480);
 		auto &logo_hires_pcx = "logoh.pcx";
 		auto &descent_hires_pcx = "descenth.pcx";
 		show_title_screen((resolution_at_least_640_480 && PHYSFS_exists(logo_hires_pcx)) ? logo_hires_pcx : "logo.pcx", title_load_location::from_hog_only);
 		show_title_screen((resolution_at_least_640_480 && PHYSFS_exists(descent_hires_pcx)) ? descent_hires_pcx : "descent.pcx", title_load_location::from_hog_only);
 	}
-	songs_play_song(song_number::title, 1);
+	ensure_title_song();
 #elif DXX_BUILD_DESCENT == 2
 	int song_playing{0};
 
