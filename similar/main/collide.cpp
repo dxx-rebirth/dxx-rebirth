@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <type_traits>
 
 #include "digi.h"
+#include "ffb.h"
 #include "rle.h"
 #include "inferno.h"
 #include "game.h"
@@ -414,6 +415,7 @@ static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hit
 		force.y = 40*(d_rand() - 16384);
 		force.z = 40*(d_rand() - 16384);
 		phys_apply_rot(playerobj, force);
+		tactile::Tactile_apply_force(force, playerobj->orient);
 
 		//make sound
 		multi_digi_link_sound_to_pos(sound_effect::SOUND_FORCEFIELD_BOUNCE_PLAYER, hitseg, sidenum_t::WLEFT, hitpt, 0, f1_0);
@@ -422,6 +424,11 @@ static void collide_player_and_wall(const vmobjptridx_t playerobj, const fix hit
 	else
 #endif
 	{
+		/* Against the direction of travel, as strong as the impact.
+		 * Optional: the original game gave no feedback here.
+		 */
+		if (PlayerCfg.TactileWallHits)
+			tactile::Tactile_do_collide(vm_vec_copy_scale(vm_vec_normalized_quick(vm_vec_build_negated(playerobj->mtype.phys_info.velocity)), hitspeed), playerobj->orient);
 		auto &player_info = get_local_plrobj().ctype.player_info;
 		wall_hit_process(player_info.powerup_flags, hitseg, hitwall, 20, get_player_id(playerobj), playerobj);
 	}
@@ -531,6 +538,8 @@ volatile_wall_result check_volatile_wall(const vmobjptridx_t obj, const unique_s
 #endif
 
 				apply_damage_to_player(obj, obj, damage, apply_damage_player::always);
+				if (get_player_id(obj) == Player_num)
+					tactile::Tactile_Xvibrate(50, 25);
 				PALETTE_FLASH_ADD(f2i(damage*4), 0, 0);	//flash red
 			}
 
@@ -548,6 +557,8 @@ volatile_wall_result check_volatile_wall(const vmobjptridx_t obj, const unique_s
 	}
 	else
 	 {
+		if (get_player_id(obj) == Player_num)
+			tactile::Tactile_Xvibrate_clear();
 		return volatile_wall_result::none;
 	 }
 }

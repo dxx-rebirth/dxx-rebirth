@@ -184,6 +184,10 @@ struct player_config : prohibit_void_ptr<>
 	enumerated_array<int, 6, player_config_joystick_index> JoystickDead;
 	enumerated_array<int, 6, player_config_joystick_index> JoystickLinear;
 	enumerated_array<int, 6, player_config_joystick_index> JoystickSpeed;
+	uint8_t TactileEnabled;		// force feedback / rumble
+	uint8_t TactileStrength;	// 0-10, in steps of 10%
+	uint8_t TactileWallHits;	// jolt on wall hits (not in the original game)
+	uint8_t TactileCentering;	// centering spring 0-10 (0 = off, as in the original)
 	ubyte MouseFlightSim;
 	enumerated_array<int, 6, player_config_mouse_index> MouseSens;
 	enumerated_array<int, 6, player_config_mouse_index> MouseOverrun;

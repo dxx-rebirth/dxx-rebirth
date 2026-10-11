@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include "dxxsconf.h"
+#include <algorithm>
 #include <stdexcept>
 #include <stdio.h>
 #include <string.h>
@@ -142,6 +143,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SPEED_VALUE_TEXT	"%d"
 #define DEADZONE_NAME_TEXT	"deadzone"
 #define DEADZONE_VALUE_TEXT	"%d"
+#define TACTILE_NAME_TEXT	"forcefeedback"
+#define TACTILE_STRENGTH_NAME_TEXT	"forcefeedbackstrength"
+#define TACTILE_WALLHITS_NAME_TEXT	"forcefeedbackwallhits"
+#define TACTILE_CENTERING_NAME_TEXT	"forcefeedbackcentering"
 #define JOYSTICK_HEADER_TEXT	"[joystick]"
 #define MOUSE_HEADER_TEXT	"[mouse]"
 #define MOUSE_FLIGHTSIM_NAME_TEXT	"flightsim"
@@ -292,6 +297,10 @@ void new_player_config()
 		auto &j = PlayerCfg.JoystickSpeed;
 		j[player_config_joystick_index::turn_lr] = j[player_config_joystick_index::pitch_ud] = j[player_config_joystick_index::slide_lr] = j[player_config_joystick_index::slide_ud] = j[player_config_joystick_index::bank_lr] = j[player_config_joystick_index::throttle] = 16;
 	}
+	PlayerCfg.TactileEnabled = 1;
+	PlayerCfg.TactileStrength = 8;
+	PlayerCfg.TactileWallHits = 0;
+	PlayerCfg.TactileCentering = 0;
 	PlayerCfg.MouseFlightSim = 0;
 	{
 		auto &m = PlayerCfg.MouseSens;
@@ -432,6 +441,14 @@ static void read_player_dxx(const char *filename)
 				const char *value=splitword(line,'=');
 				if (!value)
 					continue;
+				if (!strcmp(line, TACTILE_NAME_TEXT))
+					PlayerCfg.TactileEnabled = !!atoi(value);
+				else if (!strcmp(line, TACTILE_STRENGTH_NAME_TEXT))
+					PlayerCfg.TactileStrength = std::clamp(atoi(value), 0, 10);
+				else if (!strcmp(line, TACTILE_WALLHITS_NAME_TEXT))
+					PlayerCfg.TactileWallHits = !!atoi(value);
+				else if (!strcmp(line, TACTILE_CENTERING_NAME_TEXT))
+					PlayerCfg.TactileCentering = std::clamp(atoi(value), 0, 10);
 				convert_pattern_array(SENSITIVITY_NAME_TEXT, PlayerCfg.JoystickSens, line, value) ||
 				convert_pattern_array(LINEAR_NAME_TEXT, PlayerCfg.JoystickLinear, line, value) ||
 				convert_pattern_array(SPEED_NAME_TEXT, PlayerCfg.JoystickSpeed, line, value) ||
@@ -842,6 +859,7 @@ static int write_player_dxx(const char *filename)
 		print_pattern_array(fout, LINEAR_NAME_TEXT, PlayerCfg.JoystickLinear);
 		print_pattern_array(fout, SPEED_NAME_TEXT, PlayerCfg.JoystickSpeed);
 		print_pattern_array(fout, DEADZONE_NAME_TEXT, PlayerCfg.JoystickDead);
+		PHYSFSX_printf(fout, TACTILE_NAME_TEXT "=%d\n" TACTILE_STRENGTH_NAME_TEXT "=%d\n" TACTILE_WALLHITS_NAME_TEXT "=%d\n" TACTILE_CENTERING_NAME_TEXT "=%d\n", PlayerCfg.TactileEnabled, PlayerCfg.TactileStrength, PlayerCfg.TactileWallHits, PlayerCfg.TactileCentering);
 		PHYSFSX_puts_literal(fout,
 							END_TEXT "\n"
 							MOUSE_HEADER_TEXT "\n"

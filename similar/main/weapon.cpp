@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <type_traits>
 
 #include "digi.h"
+#include "ffb.h"
 #include "hudmsg.h"
 #include "game.h"
 #include "laser.h"
@@ -525,6 +526,7 @@ public:
 			const auto &&m = TXT_NO_PRIMARY;
 			HUD_init_message_literal(HM_DEFAULT, {m, strlen(m)});
 		}
+		tactile::ButtonReflexClear();
 		if (pl_info.Primary_weapon == primary_weapon_index::laser)
 			return;
 		select_primary_weapon(pl_info, nullptr, primary_weapon_index::laser, 1);
@@ -685,6 +687,9 @@ void select_primary_weapon(player_info &player_info, const char *const weapon_na
 		set_weapon_last_was_super(player_info.Primary_last_was_super, weapon_num);
 #endif
 	}
+	auto &vmobjptr = LevelUniqueObjectState.Objects.vmptr;
+	if (&player_info == &get_local_plrobj().ctype.player_info)
+		tactile::tactile_set_button_jolt(static_cast<unsigned>(weapon_num));
 	if (weapon_name)
 	{
 #if DXX_BUILD_DESCENT == 2

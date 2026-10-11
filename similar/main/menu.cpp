@@ -41,6 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "screens.h"
 #include "joy.h"
+#include "ffb.h"
 #include "player.h"
 #include "vecmat.h"
 #include "game.h"
@@ -1660,10 +1661,21 @@ class input_config_menu_items
 #define DXX_INPUT_CONFIG_JOYSTICK_AXIS_ITEM(I)
 #endif
 
+#if DXX_USE_FFB
+#define DXX_INPUT_CONFIG_TACTILE_ITEM(I)	I
+#else
+#define DXX_INPUT_CONFIG_TACTILE_ITEM(I)
+#endif
+
 #define DXX_INPUT_CONFIG_MENU(VERB)	\
 	DXX_INPUT_CONFIG_JOYSTICK_ITEM(DXX_MENUITEM(VERB, CHECK, "Use joystick", opt_ic_usejoy, PlayerCfg.ControlType & CONTROL_USING_JOYSTICK))	\
 	DXX_MENUITEM(VERB, CHECK, "Use mouse", opt_ic_usemouse, PlayerCfg.ControlType & CONTROL_USING_MOUSE)	\
 	DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_use)	\
+	DXX_INPUT_CONFIG_TACTILE_ITEM(DXX_MENUITEM(VERB, CHECK, "Force feedback / rumble", opt_ic_tactile, PlayerCfg.TactileEnabled))	\
+	DXX_INPUT_CONFIG_TACTILE_ITEM(DXX_MENUITEM(VERB, SLIDER, "Force feedback strength", opt_ic_tactile_strength, PlayerCfg.TactileStrength, 0, 10))	\
+	DXX_INPUT_CONFIG_TACTILE_ITEM(DXX_MENUITEM(VERB, SLIDER, "Centering spring", opt_ic_tactile_centering, PlayerCfg.TactileCentering, 0, 10))	\
+	DXX_INPUT_CONFIG_TACTILE_ITEM(DXX_MENUITEM(VERB, CHECK, "Force feedback on wall hits", opt_ic_tactile_wallhits, PlayerCfg.TactileWallHits))	\
+	DXX_INPUT_CONFIG_TACTILE_ITEM(DXX_MENUITEM(VERB, TEXT, "", opt_label_blank_tactile))	\
 	DXX_MENUITEM(VERB, MENU, TXT_CUST_KEYBOARD, opt_ic_confkey)	\
 	DXX_INPUT_CONFIG_JOYSTICK_ITEM(DXX_MENUITEM(VERB, MENU, "Customize Joystick", opt_ic_confjoy))	\
 	DXX_MENUITEM(VERB, MENU, "Customize Mouse", opt_ic_confmouse)	\
@@ -1708,12 +1720,14 @@ public:
 	{
 		DXX_INPUT_CONFIG_MENU(ENUM)
 	};
+	DXX_INPUT_CONFIG_MENU(DECL);
 	std::array<newmenu_item, DXX_INPUT_CONFIG_MENU(COUNT)> m;
 	input_config_menu_items()
 	{
 		DXX_INPUT_CONFIG_MENU(ADD);
 	}
 #undef DXX_INPUT_CONFIG_MENU
+#undef DXX_INPUT_CONFIG_TACTILE_ITEM
 #undef DXX_INPUT_CONFIG_JOYSTICK_AXIS_ITEM
 #undef DXX_INPUT_CONFIG_JOYSTICK_ITEM
 };
@@ -1760,6 +1774,25 @@ window_event_result input_config_menu::event_handler(const d_event &event)
 				else
 					PlayerCfg.ControlType &= ~flag;
 			}
+#if DXX_USE_FFB
+			if (citem == opt_ic_tactile || citem == opt_ic_tactile_strength || citem == opt_ic_tactile_centering)
+			{
+				if (citem == opt_ic_tactile)
+					PlayerCfg.TactileEnabled = items[citem].value;
+				else if (citem == opt_ic_tactile_strength)
+					PlayerCfg.TactileStrength = items[citem].value;
+				else
+					PlayerCfg.TactileCentering = items[citem].value;
+				/* Let the player feel the new setting.  The centering
+				 * spring is held while in menus, so it needs no test jolt.
+				 */
+				tactile::frame(PlayerCfg.TactileEnabled, PlayerCfg.TactileStrength * 10, PlayerCfg.TactileCentering * 10, false);
+				if (PlayerCfg.TactileEnabled && citem != opt_ic_tactile_centering)
+					tactile::test_jolt();
+			}
+			if (citem == opt_ic_tactile_wallhits)
+				PlayerCfg.TactileWallHits = items[citem].value;
+#endif
 			if (citem == opt_mouse_control_normal)
 				PlayerCfg.MouseFlightSim = 0;
 			if (citem == opt_mouse_control_flightsim)

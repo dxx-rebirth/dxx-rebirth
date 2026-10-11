@@ -5090,6 +5090,7 @@ class DXXArchive(DXXCommon):
 'common/arch/sdl/rbaudio.cpp',
 )),
 		__get_objects_use_joystick_sdl2=DXXCommon.create_lazy_object_getter((
+'common/arch/sdl/ffb.cpp',
 'common/arch/sdl/gamecontroller.cpp',
 ))
 		):

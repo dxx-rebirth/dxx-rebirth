@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include "dxxsconf.h"
+#include "ffb.h"
 #include <cctype>
 #include <utility>
 #include <stdio.h>
@@ -658,6 +659,8 @@ static void init_player_stats_level(player &plr, object &plrobj, const secret_re
 
 	digi_kill_sound_linked_to_object(vcobjptridx(plr.objnum));
 #endif
+	tactile::ClearForces();
+	tactile::tactile_set_button_jolt(static_cast<unsigned>(player_info.Primary_weapon.get_active()));
 	init_gauges();
 #if DXX_BUILD_DESCENT == 2
 	Missile_viewer = NULL;
@@ -754,6 +757,7 @@ void init_player_stats_new_ship(const playernum_t pnum)
 		set_secondary_weapon_to_concussion(player_info);
 		dead_player_end(); //player no longer dead
 		Player_dead_state = player_dead_state::no;
+		tactile::tactile_set_button_jolt(static_cast<unsigned>(player_info.Primary_weapon.get_active()));
 		player_info.Player_eggs_dropped = false;
 		Dead_player_camera = 0;
 #if DXX_BUILD_DESCENT == 2
@@ -1203,6 +1207,7 @@ namespace {
 //	Call with dead_flag = 1 if player died, but deserves some portion of bonus (only skill points), anyway.
 static void DoEndLevelScoreGlitz()
 {
+	tactile::ClearForces();
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	int level_points, skill_points, energy_points, shield_points, hostage_points;
