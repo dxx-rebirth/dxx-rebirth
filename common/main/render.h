@@ -69,7 +69,7 @@ struct window_rendered_data
 extern int Render_depth; //how many segments deep to render
 constexpr std::integral_constant<unsigned, 8> Max_perspective_depth{}; //	Deepest segment at which perspective extern interpolation will be used.
 constexpr std::integral_constant<unsigned, 20> Max_linear_depth_objects{};
-constexpr std::integral_constant<unsigned, 50> Simple_model_threshhold_scale{}; // switch to simpler model when the object has depth greater than this value times its radius.
+constexpr std::integral_constant<int, 50> Simple_model_threshhold_scale{}; // switch to simpler model when the object has depth greater than this value times its radius.
 constexpr std::integral_constant<unsigned, 15> Max_debris_objects{}; // How many debris objects to create
 
 #if DXX_USE_OGL
