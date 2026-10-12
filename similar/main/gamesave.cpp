@@ -155,9 +155,18 @@ static vclip_index convert_vclip(const d_vclip_array &Vclip, const int vc)
 	return vclip_index{0};
 }
 
-static int convert_wclip(int wc) {
-	return (wc < Num_wall_anims) ? wc : wc % Num_wall_anims;
+static constexpr int convert_wclip(const int wc, const unsigned wall_animation_count = Num_wall_anims)
+{
+	if (wc < 0 || !wall_animation_count)
+		return -1;
+	return std::cmp_less(wc, wall_animation_count) ? wc : wc % wall_animation_count;
 }
+
+static_assert(convert_wclip(-1, 10) == -1);
+static_assert(convert_wclip(-2, 10) == -1);
+static_assert(convert_wclip(4, 10) == 4);
+static_assert(convert_wclip(14, 10) == 4);
+static_assert(convert_wclip(0, 0) == -1);
 
 }
 
