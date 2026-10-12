@@ -26,6 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <memory>
 #include <stdlib.h>
 #include <stdio.h>
+#include <utility>
 #include "inferno.h"
 #include "editor.h"			// For TMAP_CURBOX??????
 #include "gr.h"				// For canves, font stuff
@@ -85,7 +86,7 @@ static void draw_model_picture(const per_polygon_model_array<polymodel> &Polygon
 //canvas set
 void draw_object_picture(grs_canvas &canvas, const unsigned id, const vms_angvec &orient_angles, const unsigned type)
 {
-	if (id >= Num_object_subtypes)
+	if (std::cmp_greater_equal(id, Num_object_subtypes))
 		return;
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
@@ -151,9 +152,9 @@ static void gr_label_box( int i)
 int objpage_goto_first()
 {
 	ObjectPage=0;
-	for (int i=0;  i<OBJS_PER_PAGE; i++ ) {
+	for (unsigned i=0; i<OBJS_PER_PAGE; ++i) {
 		gr_set_current_canvas(ObjBox[i]->canvas);
-		if (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes ) {
+		if (std::cmp_less(i + ObjectPage * OBJS_PER_PAGE, Num_object_subtypes)) {
 			//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
 			gr_label_box(i+ObjectPage*OBJS_PER_PAGE );
 		} else
@@ -166,10 +167,10 @@ int objpage_goto_first()
 static int objpage_goto_last()
 {
 	ObjectPage=(Num_object_subtypes)/OBJS_PER_PAGE;
-	for (int i=0;  i<OBJS_PER_PAGE; i++ )
+	for (unsigned i=0; i<OBJS_PER_PAGE; ++i)
 	{
 		gr_set_current_canvas(ObjBox[i]->canvas);
-		if (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes )
+		if (std::cmp_less(i + ObjectPage * OBJS_PER_PAGE, Num_object_subtypes))
 		{
 			//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
 			gr_label_box(i+ObjectPage*OBJS_PER_PAGE );
@@ -184,10 +185,10 @@ static int objpage_goto_prev()
 {
 	if (ObjectPage > 0) {
 		ObjectPage--;
-		for (int i=0;  i<OBJS_PER_PAGE; i++ )
+		for (unsigned i=0; i<OBJS_PER_PAGE; ++i)
 		{
 			gr_set_current_canvas(ObjBox[i]->canvas);
-			if (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes)
+			if (std::cmp_less(i + ObjectPage * OBJS_PER_PAGE, Num_object_subtypes))
 			{
 				//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
 				gr_label_box(i+ObjectPage*OBJS_PER_PAGE );
@@ -201,12 +202,12 @@ static int objpage_goto_prev()
 
 static int objpage_goto_next()
 {
-	if ((ObjectPage+1)*OBJS_PER_PAGE < Num_object_subtypes) {
+	if (std::cmp_less((ObjectPage + 1) * OBJS_PER_PAGE, Num_object_subtypes)) {
 		ObjectPage++;
-		for (int i=0;  i<OBJS_PER_PAGE; i++ )
+		for (unsigned i=0; i<OBJS_PER_PAGE; ++i)
 		{
 			gr_set_current_canvas(ObjBox[i]->canvas);
-			if (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes)
+			if (std::cmp_less(i + ObjectPage * OBJS_PER_PAGE, Num_object_subtypes))
 			{
 				//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
 				gr_label_box(i+ObjectPage*OBJS_PER_PAGE );
@@ -220,15 +221,15 @@ static int objpage_goto_next()
 
 int objpage_grab_current(int n)
 {
-	if ((n < 0) || (n >= Num_object_subtypes)) return 0;
+	if ((n < 0) || std::cmp_greater_equal(n, Num_object_subtypes)) return 0;
 	
 	ObjectPage = n / OBJS_PER_PAGE;
 	
-	if (ObjectPage*OBJS_PER_PAGE < Num_object_subtypes) {
-		for (int i=0;  i<OBJS_PER_PAGE; i++ )
+	if (std::cmp_less(ObjectPage * OBJS_PER_PAGE, Num_object_subtypes)) {
+		for (unsigned i=0; i<OBJS_PER_PAGE; ++i)
 		{
 			gr_set_current_canvas(ObjBox[i]->canvas);
-			if (i + ObjectPage*OBJS_PER_PAGE < Num_object_subtypes)
+			if (std::cmp_less(i + ObjectPage * OBJS_PER_PAGE, Num_object_subtypes))
 			{
 				//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
 				gr_label_box(i+ObjectPage*OBJS_PER_PAGE );
@@ -356,7 +357,7 @@ void objpage_init( UI_DIALOG *dlg )
 	o.dec_z = ui_add_gadget_button(*dlg, OBJCURBOX_X + 50, OBJCURBOX_Y + 62, 22, 13, "Z-", objpage_decrease_z);
 	o.reset_orient = ui_add_gadget_button(*dlg, OBJCURBOX_X + 25, OBJCURBOX_Y + 76, 22, 13, "R", objpage_reset_orient);
 
-	for (int i=0;i<OBJS_PER_PAGE;i++)
+	for (unsigned i=0; i<OBJS_PER_PAGE; ++i)
 		ObjBox[i] = ui_add_gadget_userbox(*dlg, OBJBOX_X + (i / 2) * (2 + OBJBOX_W), OBJBOX_Y + (i % 2) * (2 + OBJBOX_H), OBJBOX_W, OBJBOX_H);
 	ObjCurrent = ui_add_gadget_userbox(*dlg, OBJCURBOX_X, OBJCURBOX_Y - 5, 64, 64);
 	objpage_reset_orient();
@@ -374,10 +375,10 @@ int objpage_do(const d_event &event)
 {
 	if (event.type == event_type::ui_dialog_draw)
 	{
-		for (int i=0;  i<OBJS_PER_PAGE; i++ )
+		for (unsigned i=0; i<OBJS_PER_PAGE; ++i)
 		{
 			gr_set_current_canvas(ObjBox[i]->canvas);
-			if (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes)
+			if (std::cmp_less(i + ObjectPage * OBJS_PER_PAGE, Num_object_subtypes))
 			{
 				//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
 				gr_label_box(i+ObjectPage*OBJS_PER_PAGE );
@@ -401,9 +402,9 @@ int objpage_do(const d_event &event)
 		return 1;
 	}
 
-	for (int i=0; i<OBJS_PER_PAGE; i++ )
+	for (unsigned i=0; i<OBJS_PER_PAGE; ++i)
 	{
-		if (GADGET_PRESSED(ObjBox[i].get()) && (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes))
+		if (GADGET_PRESSED(ObjBox[i].get()) && std::cmp_less(i + ObjectPage * OBJS_PER_PAGE, Num_object_subtypes))
 		{
 			Cur_object_id = i+ObjectPage*OBJS_PER_PAGE;
 			gr_set_current_canvas(ObjCurrent->canvas);

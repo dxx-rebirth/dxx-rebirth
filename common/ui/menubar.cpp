@@ -748,7 +748,8 @@ window_event_result menubar_window::event_handler(const d_event &event)
 
 static void CommaParse(uint_fast32_t n, char * dest, const PHYSFSX_gets_line_t<200>::line_t &source)
 {
-	int i{0}, j=0, cn = 0;
+	int i{0}, j=0;
+	uint_fast32_t cn = 0;
 
 	// Go to the n'th comma
 	while (cn < n )

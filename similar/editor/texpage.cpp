@@ -88,7 +88,7 @@ static void texpage_print_name(d_fname name)
 //Redraw the list of textures, based on TexturePage
 static void texpage_redraw()
 {
-	for (int i = 0;  i < TMAPS_PER_PAGE; i++)
+	for (unsigned i = 0; i < TMAPS_PER_PAGE; ++i)
 	{
 		gr_set_current_canvas(TmapBox[i]->canvas);
 		if (i + TexturePage*TMAPS_PER_PAGE < NumTextures)
@@ -194,7 +194,7 @@ void texpage_init( UI_DIALOG * dlg )
 	t.light_texture = ui_add_gadget_button(*dlg, TMAPCURBOX_X + 34, TMAPCURBOX_Y - 48, 15, 20, "L", texpage_goto_lights);
 	t.effects_texture = ui_add_gadget_button(*dlg, TMAPCURBOX_X + 51, TMAPCURBOX_Y - 48, 15, 20, "E", texpage_goto_effects);
 
-	for (int i=0;i<TMAPS_PER_PAGE;i++)
+	for (unsigned i=0; i<TMAPS_PER_PAGE; ++i)
 		TmapBox[i] = ui_add_gadget_userbox(*dlg, TMAPBOX_X + (i / 3) * (2 + TMAPBOX_W), TMAPBOX_Y + (i % 3) * (2 + TMAPBOX_H), TMAPBOX_W, TMAPBOX_H);
 
 	TmapCurrent = ui_add_gadget_userbox(*dlg, TMAPCURBOX_X, TMAPCURBOX_Y, 64, 64);
@@ -239,7 +239,7 @@ int texpage_do(const d_event &event)
 		return 1;
 	}
 
-	for (int i=0; i<TMAPS_PER_PAGE; i++ ) {
+	for (unsigned i=0; i<TMAPS_PER_PAGE; ++i) {
 		if (GADGET_PRESSED(TmapBox[i].get()) && (i + TexturePage*TMAPS_PER_PAGE < NumTextures))
 		{
 			CurrentTexture = static_cast<texture_index>(i + TexturePage*TMAPS_PER_PAGE);

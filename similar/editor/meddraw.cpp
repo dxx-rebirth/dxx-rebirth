@@ -349,7 +349,8 @@ static void add_edges(const shared_segment &seg)
 	auto &vcvertptr = Vertices.vcptr;
 	if (rotate_list(vcvertptr, svp).uand == clipping_code::None)
 	{		//all off screen?
-		int	i,fn,vn;
+		int i;
+		unsigned fn, vn;
 		int	flag;
 		std::array<uint8_t, std::size(edges)> edge_flags;
 		for (i=0;i<N_NORMAL_EDGES;i++) edge_flags[i]=ET_NOTUSED;
