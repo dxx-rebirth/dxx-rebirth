@@ -2211,7 +2211,7 @@ static window_event_result object_move_all(const d_level_shared_robot_info_state
 	auto &vmobjptridx = Objects.vmptridx;
 	auto result = window_event_result::ignored;
 
-	if (Highest_object_index > MAX_USED_OBJECTS)
+	if (std::cmp_greater(Highest_object_index, +MAX_USED_OBJECTS))
 		free_object_slots(MAX_USED_OBJECTS);		//	Free all possible object slots.
 
 	obj_delete_all_that_should_be_dead();

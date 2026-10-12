@@ -1309,7 +1309,7 @@ static void DoEndLevelScoreGlitz()
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i\n", TXT_TOTAL_BONUS, shield_points + energy_points + hostage_points + skill_points + all_hostage_points + endgame_points);
 	snprintf(m_str[c++], sizeof(m_str[0]), "%s%i", TXT_TOTAL_SCORE, player_info.mission.score);
 
-	for (i=0; i<c; i++) {
+	for (i = 0; std::cmp_less(i, c); ++i) {
 		nm_set_item_text(m[i], m_str[i]);
 	}
 
@@ -2331,7 +2331,7 @@ static void InitPlayerPosition(fvmobjptridx &vmobjptridx, fvmsegptridx &vmsegptr
 		return;
 	}
 	Assert(NewPlayer >= 0);
-	Assert(NewPlayer < NumNetPlayerPositions);
+	Assert(std::cmp_less(NewPlayer, NumNetPlayerPositions));
 	ConsoleObject->pos = Player_init[NewPlayer].pos;
 	ConsoleObject->orient = Player_init[NewPlayer].orient;
 	obj_relink(vmobjptr, vmsegptr, vmobjptridx(ConsoleObject), vmsegptridx(Player_init[NewPlayer].segnum));

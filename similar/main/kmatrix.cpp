@@ -255,7 +255,7 @@ static void kmatrix_redraw(grs_canvas &canvas, kmatrix_window *const km)
 		multi_get_kill_list(sorted);
 		kmatrix_draw_names(canvas, game_font, sorted, fspacy);
 
-		for (int i=0; i<N_players; i++ )
+		for (unsigned i = 0; i < N_players; ++i)
 		{
 			if (vcplayerptr(sorted[i])->connected == player_connection_status::disconnected)
 				gr_set_fontcolor(canvas, gr_find_closest_color(31, 31, 31),-1);

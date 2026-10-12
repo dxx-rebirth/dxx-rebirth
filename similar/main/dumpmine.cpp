@@ -590,7 +590,7 @@ static void write_player_text(fvcobjptridx &vcobjptridx, PHYSFS_File *my_file)
 	if (num_players != MAX_PLAYERS)
 		err_printf(my_file, "Error: %i player objects.  %i are required.", num_players, MAX_PLAYERS);
 #endif
-	if (num_players > MAX_MULTI_PLAYERS)
+	if (std::cmp_greater(num_players, MAX_MULTI_PLAYERS))
 		err_printf(my_file, "Error: %i player objects.  %i are required.", num_players, MAX_PLAYERS);
 }
 
@@ -1001,7 +1001,7 @@ static void say_unused_tmaps(PHYSFS_File *my_file, perm_tmap_buffer_type &perm_t
 static void say_unused_walls(PHYSFS_File *my_file, const wall_buffer_type &tb)
 {
 	int	i;
-	for (i=0; i<Num_wall_anims; i++)
+	for (i = 0; std::cmp_less(i, Num_wall_anims); ++i)
 		if (!tb[i])
 			PHYSFSX_printf(my_file, "Wall %3i is unused.\n", i);
 }

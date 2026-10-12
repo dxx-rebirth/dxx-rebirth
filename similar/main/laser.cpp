@@ -477,7 +477,7 @@ static bool create_omega_blobs(d_level_unique_object_state &LevelUniqueObjectSta
 		perturb_array = {};
 	} else {
 		vm_vec_scale_add2(blob_pos, omega_delta_vector, F1_0/2);	//	Put first blob half way out.
-		for (int i=0; i<num_omega_blobs/2; i++) {
+		for (unsigned i = 0; i < num_omega_blobs / 2; ++i) {
 			perturb_array[i] = F1_0*i + F1_0/4;
 			perturb_array[num_omega_blobs-1-i] = F1_0*i;
 		}

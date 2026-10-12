@@ -1303,7 +1303,7 @@ static int load_game_data(
 	}
 	fix_object_segs();
 
-	if (game_top_fileinfo_version < GAME_VERSION
+	if (std::cmp_less(game_top_fileinfo_version, GAME_VERSION)
 #if DXX_BUILD_DESCENT == 2
 	    && !(game_top_fileinfo_version == 25 && GAME_VERSION == 26)
 #endif

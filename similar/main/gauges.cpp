@@ -2618,7 +2618,7 @@ static void draw_player_ship(const hud_draw_context_hs_mr hudctx, const player_i
 	gr_rect(canvas, hudctx.xscale(x - 3), hudctx.yscale(y - 3), hudctx.xscale(x + bm.bm_w + 3), hudctx.yscale(y + bm.bm_h + 3), 0);
 	gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal);
         // Show Cloak Timer if enabled
-	if (cloak_fade_value < GR_FADE_LEVELS/2 && show_cloak_invul_timer())
+	if (std::cmp_less(cloak_fade_value, GR_FADE_LEVELS / 2) && show_cloak_invul_timer())
 		show_cockpit_cloak_invul_timer(canvas, player_info.cloak_time + CLOAK_TIME_MAX - GameTime64, hudctx.yscale(y + (bm.bm_h / 2)));
 }
 

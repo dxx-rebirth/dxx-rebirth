@@ -157,7 +157,7 @@ static void move_towards_outside(const d_level_shared_segment_state &LevelShared
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &vcvertptr = Vertices.vcptr;
-	for (i = 1; i < num_points - 1; ++i)
+	for (i = 1; std::cmp_less(i, num_points - 1); ++i)
 	{
 		fix			segment_size;
 		segnum_t			segnum;
@@ -254,7 +254,7 @@ static void move_towards_outside(const d_level_shared_segment_state &LevelShared
 
 	}
 
-	for (i = 1; i < num_points - 1; ++i)
+	for (i = 1; std::cmp_less(i, num_points - 1); ++i)
 		psegs[i] = new_psegs[i];
 }
 #endif
@@ -481,7 +481,7 @@ cpp_done1: ;
 #endif
 
 	//	Now, reverse point_segs in place.
-	for (i=0; i< l_num_points/2; i++) {
+	for (i = 0; std::cmp_less(i, l_num_points / 2); ++i) {
 		point_seg		temp_point_seg = *(original_psegs + i);
 		*(original_psegs + i) = *(original_psegs + l_num_points - i - 1);
 		*(original_psegs + l_num_points - i - 1) = temp_point_seg;
@@ -980,7 +980,7 @@ void ai_follow_path(const d_robot_info_array &Robot_info, const vmobjptridx_t ob
 		}
 	}
 
-	if ((aip->hide_index + aip->path_length > Point_segs_free_ptr - Point_segs) && (aip->path_length>0)) {
+	if (std::cmp_greater(aip->hide_index + aip->path_length, Point_segs_free_ptr - Point_segs) && aip->path_length > 0) {
 #if DXX_BUILD_DESCENT == 2
 		Int3();	//	Contact Mike: Bad.  Path goes into what is believed to be free space.
 		//	This is debugging code.  Figure out why garbage collection
@@ -1401,7 +1401,7 @@ void ai_path_garbage_collect()
 		const auto &aip = obj.ctype.ai_info;
 
 		if (obj.type == object_type::OBJ_ROBOT && obj.control_source == object::control_type::ai)
-			if ((aip.hide_index + aip.path_length > Point_segs_free_ptr - Point_segs) && (aip.path_length>0))
+			if (std::cmp_greater(aip.hide_index + aip.path_length, Point_segs_free_ptr - Point_segs) && aip.path_length > 0)
 				Int3();		//	Contact Mike: Debug trap for nasty, elusive bug.
 	}
 

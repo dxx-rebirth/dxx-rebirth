@@ -717,7 +717,7 @@ static int main(int argc, char *argv[])
 				c = facet.tolower(static_cast<uint8_t>(c));
 			}
 			auto j = p - filename;
-			if (j < sizeof(filename) - 4 && (j <= 4 || strcmp(&filename[j - 4], ".plr"))) // if player hasn't specified .plr extension in argument, add it
+			if (std::cmp_less(j, sizeof(filename) - 4) && (j <= 4 || strcmp(&filename[j - 4], ".plr"))) // if player hasn't specified .plr extension in argument, add it
 			{
 				strcpy(&filename[j], ".plr");
 				j += 4;
