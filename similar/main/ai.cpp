@@ -2384,7 +2384,7 @@ static void init_boss_segments(const segment_array &segments, const object &boss
 						seg_queue[head++] = csegnum;
 						head &= QUEUE_SIZE-1;
 						if (head > tail) {
-							if (head == tail + QUEUE_SIZE-1)
+							if (std::cmp_equal(head, tail + QUEUE_SIZE - 1))
 								Int3();	//	queue overflow.  Make it bigger!
 						} else
 							if (head+QUEUE_SIZE == tail + QUEUE_SIZE-1)
@@ -3909,7 +3909,7 @@ _exit_cheat:
 				if (player_is_visible(pv))
 				{
 					const auto upv = static_cast<unsigned>(pv);
-					if (d_rand() < FrameTime * upv)
+					if (std::cmp_less(d_rand(), FrameTime * upv))
 						if (dist_to_player/256 < static_cast<fix>(d_rand() * upv))
 						{
 							aip->GOAL_STATE = ai_static_state::AIS_SRCH;

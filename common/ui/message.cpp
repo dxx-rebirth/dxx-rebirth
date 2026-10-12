@@ -20,6 +20,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <utility>
 
 #include "maths.h"
 #include "pstypes.h"
@@ -120,8 +121,8 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 	{
 		const auto &&[width, height] = ui_get_button_size(cv_font, Button.string(i));
 
-		if ( width > button_width ) button_width = width;
-		if ( height > button_height ) button_height = height;
+		if (std::cmp_greater(width, button_width)) button_width = width;
+		if (std::cmp_greater(height, button_height)) button_height = height;
 	}
 
 	const auto avg = cv_font.ft_w;
@@ -165,7 +166,7 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 		x = 0;
 	}
 
-	if ( (x+width-1) >= w ) {
+	if (std::cmp_greater_equal(x + width - 1, w)) {
 		x = w - width;
 	}
 
@@ -173,7 +174,7 @@ int (ui_messagebox)( short xc, short yc, const char * text, const ui_messagebox_
 		y = 0;
 	}
 
-	if ( (y+height-1) >= h ) {
+	if (std::cmp_greater_equal(y + height - 1, h)) {
 		y = h - height;
 	}
 

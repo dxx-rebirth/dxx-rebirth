@@ -593,7 +593,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 			if (is_weapon_with_inner_model != polygon_model_index::None)
 			{
 				gr_settransblend(canvas, GR_FADE_OFF, gr_blend::additive_a);
-				draw_simple_model = static_cast<fix>(vm_vec_dist_quick(Viewer->pos, obj->pos)) < Simple_model_threshhold_scale * F1_0*2;
+				draw_simple_model = vm_vec_dist_quick(Viewer->pos, obj->pos) < static_cast<fix>(Simple_model_threshhold_scale * F1_0 * 2);
 				if (draw_simple_model)
 					draw_polygon_model(Polygon_models, canvas, draw_tmap, obj->pos,
 							   obj->orient,
@@ -2211,7 +2211,7 @@ static window_event_result object_move_all(const d_level_shared_robot_info_state
 	auto &vmobjptridx = Objects.vmptridx;
 	auto result = window_event_result::ignored;
 
-	if (Highest_object_index > MAX_USED_OBJECTS)
+	if (std::cmp_greater(Highest_object_index, +MAX_USED_OBJECTS))
 		free_object_slots(MAX_USED_OBJECTS);		//	Free all possible object slots.
 
 	obj_delete_all_that_should_be_dead();

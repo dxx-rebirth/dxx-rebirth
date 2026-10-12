@@ -416,7 +416,7 @@ static void robotmaker_proc(const d_robot_info_array &Robot_info, const d_vclip_
    //	  <<<<<<<<<<<<<<<< Num robots in mine >>>>>>>>>>>>>>>>>>>>>>>>>>    <<<<<<<<<<<< Max robots in mine >>>>>>>>>>>>>>>
 	{
 		auto &plr = get_local_player();
-		if (LevelUniqueObjectState.accumulated_robots - plr.num_kills_level >= Gamesave_num_org_robots + Num_extry_robots)
+		if (std::cmp_greater_equal(LevelUniqueObjectState.accumulated_robots - plr.num_kills_level, Gamesave_num_org_robots + Num_extry_robots))
 		{
 		return;
 		}
@@ -466,7 +466,7 @@ static void robotmaker_proc(const d_robot_info_array &Robot_info, const d_vclip_
 			range_for (const auto objp, objects_in(csegp, vmobjptridx, vmsegptr))
 			{
 				count++;
-				if ( count > MAX_OBJECTS )	{
+				if (std::cmp_greater(count, +MAX_OBJECTS))	{
 					Int3();
 					return;
 				}

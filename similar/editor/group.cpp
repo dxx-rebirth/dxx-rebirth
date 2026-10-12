@@ -26,6 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 #include <ranges>
+#include <utility>
 
 #include "gr.h"
 #include "ui.h"
@@ -1525,8 +1526,6 @@ int Degroup( void )
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	int i;
-
 //	GroupList[current_group].num_segments = 0;
 //	Groupsegp[current_group] = 0;
 
@@ -1537,7 +1536,7 @@ int Degroup( void )
 
 	  //	delete_segment_from_group( &Segments[GroupList[current_group].segments[i]]-Segments, current_group );
 
-	for (i=current_group;i<num_groups-1;i++)
+	for (auto i = static_cast<unsigned>(current_group); i + 1 < num_groups; ++i)
 		{
 		GroupList[i] = GroupList[i+1];
 		Groupsegp[i] = Groupsegp[i+1];
@@ -1548,10 +1547,10 @@ int Degroup( void )
 	GroupList[num_groups].segments.clear();
 	Groupsegp[num_groups] = 0;
 	
-	if (current_group > num_groups-1) current_group--;
-
 	if (num_groups == 0)
 		current_group = -1;
+	else if (std::cmp_greater_equal(current_group, num_groups))
+		--current_group;
 
    if (Lock_view_to_cursegp)
 	{
@@ -1571,7 +1570,7 @@ int NextGroup( void )
 	if (num_groups > 0)
 		{
 		current_group++;
-		if (current_group >= num_groups ) current_group = 0;
+		if (std::cmp_greater_equal(current_group, num_groups)) current_group = 0;
 		
 		Update_flags |= UF_ED_STATE_CHANGED;
 		mine_changed = 1;
@@ -1788,8 +1787,6 @@ int DeleteGroup( void )
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	int i;
-
 	autosave_mine(mine_filename);
 		
 	if (num_groups==0) return 0;
@@ -1801,7 +1798,7 @@ int DeleteGroup( void )
 		med_delete_segment(segp);
 	}
 
-	for (i=current_group;i<num_groups-1;i++) {
+	for (auto i = static_cast<unsigned>(current_group); i + 1 < num_groups; ++i) {
 		GroupList[i] = GroupList[i+1];
 		Groupsegp[i] = Groupsegp[i+1];
 	}
@@ -1810,10 +1807,10 @@ int DeleteGroup( void )
 	GroupList[num_groups].clear();
 	Groupsegp[num_groups] = 0;
 
-	if (current_group > num_groups-1) current_group--;
-
 	if (num_groups==0)
 		current_group = -1;
+	else if (std::cmp_greater_equal(current_group, num_groups))
+		--current_group;
 
 	undo_status[Autosave_count] = "Delete Group UNDONE.";
    if (Lock_view_to_cursegp)

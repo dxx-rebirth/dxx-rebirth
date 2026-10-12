@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ctype.h>
 #include <functional>
 #include <ranges>
+#include <utility>
 
 #include "pstypes.h"
 #include "dxxerror.h"
@@ -126,9 +127,9 @@ static void prepare_slider_text(std::array<char, NM_MAX_TEXT_LEN + 1> &text, con
 void stereo_viewport_adjust(int &x, int &y, int &w, int &h)
 {
 	const auto &&[sw, sh]{gr_build_stereo_viewport_size(VR_stereo, SWIDTH, SHEIGHT)};
-	if (w > sw)
+	if (std::cmp_greater(w, sw))
 		w -= (w - sw);
-	if (h > sh)
+	if (std::cmp_greater(h, sh))
 		h -= (h - sh);
 	// re-center popup on downsized viewport
 	x = (sw - w) / 2;
@@ -161,16 +162,16 @@ newmenu_layout::adjusted_citem newmenu_layout::adjusted_citem::create(const std:
 	if (citem < 0)
 		citem = 0;
 	const std::size_t nitems = items.size();
-	if (citem > nitems - 1)
-		citem = nitems - 1;
-	uint_fast32_t i{0};
+	if (std::cmp_greater_equal(citem, nitems))
+		citem = static_cast<int>(nitems) - 1;
+	std::size_t i{0};
 	const auto begin = items.begin();
 	uint8_t all_text{0};
 	while (std::next(begin, citem)->type == nm_type::text)
 	{
-		if (++ citem >= nitems)
+		if (std::cmp_greater_equal(++citem, nitems))
 			citem = 0;
-		if (++ i > nitems)
+		if (++i > nitems)
 		{
 			citem = 0;
 			all_text = 1;
@@ -632,7 +633,7 @@ void reorder_newmenu::event_key_command(const d_event &event)
 			}
 			break;
 		case KEY_SHIFTED+KEY_DOWN:
-			if (const auto ci{citem}; ci < items.size() - 1)
+			if (const auto ci{citem}; std::cmp_less(ci + 1, items.size()))
 			{
 				const auto ni = ++ citem;
 				const auto begin = items.begin();
@@ -702,8 +703,8 @@ static void newmenu_scroll(newmenu *const menu, const int amount)
 		if (menu->scroll_offset < 0)
 			menu->scroll_offset = 0;
 		const auto nitems = menu->items.size();
-		if (menu->max_on_menu+menu->scroll_offset > nitems)
-			menu->scroll_offset = nitems - menu->max_on_menu;
+		if (std::cmp_greater(menu->max_on_menu + menu->scroll_offset, nitems))
+			menu->scroll_offset = static_cast<int>(nitems) - menu->max_on_menu;
 		return;
 	}
 	/* Otherwise, at least one element is not of type text.  Find that element.
@@ -750,7 +751,7 @@ static void newmenu_scroll(newmenu *const menu, const int amount)
 	{
 		const auto nitems = menu->items.size();
 		const auto overflow = [menu, nitems](int icitem) {
-			return icitem + 4 >= menu->max_on_menu + menu->scroll_offset && menu->scroll_offset < nitems - menu->max_on_menu;
+			return icitem + 4 >= menu->max_on_menu + menu->scroll_offset && std::cmp_less(menu->max_on_menu + menu->scroll_offset, nitems);
 		};
 		update_menu_position(*menu, last, amount, step_down(), overflow);
 	}
@@ -826,7 +827,7 @@ static void check_apply_mouse_scroll(newmenu *const menu, const grs_canvas &canv
 			 */
 			return;
 		const auto y2 = y1 + arrow_height;
-		if (my < y2)
+		if (std::cmp_less(my, y2))
 		{
 			if (check_mouse_scroll_allowed_by_timer())
 				newmenu_scroll(menu, -1);
@@ -836,13 +837,13 @@ static void check_apply_mouse_scroll(newmenu *const menu, const grs_canvas &canv
 			return;
 		}
 	}
-	if (scroll_offset + menu->max_displayable < menu->items.size())
+	if (std::cmp_less(scroll_offset + menu->max_displayable, menu->items.size()))
 	{
 		const auto y1 = canvas.cv_bitmap.bm_y + std::next(menu->items.begin(), scroll_offset + menu->max_displayable - 1)->y - (line_spacing * scroll_offset);
 		if (my <= y1)
 			return;
 		const auto y2 = y1 + arrow_height;
-		if (my < y2)
+		if (std::cmp_less(my, y2))
 		{
 			if (check_mouse_scroll_allowed_by_timer())
 				newmenu_scroll(menu, 1);
@@ -942,9 +943,9 @@ static window_event_result newmenu_mouse(const d_event &event, newmenu *menu, co
 								s1 = p+1;
 							}
 							if (p) {
-								const auto slider_width = gr_get_string_size(*canvas.cv_font, s1).width;
-								const auto sleft_width = gr_get_string_size(*canvas.cv_font, SLIDER_LEFT).width;
-								const auto sright_width = gr_get_string_size(*canvas.cv_font, SLIDER_RIGHT).width;
+								const auto slider_width = static_cast<int>(gr_get_string_size(*canvas.cv_font, s1).width);
+								const auto sleft_width = static_cast<int>(gr_get_string_size(*canvas.cv_font, SLIDER_LEFT).width);
+								const auto sright_width = static_cast<int>(gr_get_string_size(*canvas.cv_font, SLIDER_RIGHT).width);
 
 								x1 = canvas.cv_bitmap.bm_x + citem.x + citem.w - slider_width;
 								x2 = x1 + slider_width + sright_width;
@@ -1230,7 +1231,7 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 					changed = 1;
 				rval = window_event_result::handled;
 			}
-			else if (const auto im = citem.input_or_menu(); citem.value < im->text_len || citem.value == -1)
+			else if (const auto im = citem.input_or_menu(); (citem.value >= 0 && std::cmp_less(citem.value, im->text_len)) || citem.value == -1)
 			{
 				auto ascii = key_ascii();
 				if (ascii < 255)
@@ -1258,7 +1259,7 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 				ascii = toupper(ascii);
 				do {
 					choice1++;
-					if (choice1 >= menu->items.size())
+					if (std::cmp_greater_equal(choice1, menu->items.size()))
 						choice1=0;
 
 					unsigned ch;
@@ -1278,7 +1279,7 @@ static window_event_result newmenu_key_command(const d_event &event, newmenu *co
 						menu->citem = choice1;
 					}
 
-					while (menu->citem + 4 >= menu->max_on_menu + menu->scroll_offset && menu->scroll_offset < menu->items.size() - menu->max_on_menu)
+					while (menu->citem + 4 >= menu->max_on_menu + menu->scroll_offset && std::cmp_less(menu->max_on_menu + menu->scroll_offset, menu->items.size()))
 						menu->scroll_offset++;
 					while (menu->citem-4<menu->scroll_offset && menu->scroll_offset > 0)
 						menu->scroll_offset--;
@@ -1448,8 +1449,8 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 		if (menu.citem > menu.max_on_menu - 4)
 		{
 			menu.scroll_offset = menu.citem - (menu.max_on_menu - 4);
-			if (menu.scroll_offset + menu.max_on_menu > menu.items.size())
-				menu.scroll_offset = menu.items.size() - menu.max_on_menu;
+			if (std::cmp_greater(menu.scroll_offset + menu.max_on_menu, menu.items.size()))
+				menu.scroll_offset = static_cast<int>(menu.items.size()) - menu.max_on_menu;
 		}
 	}
 	menu.h = iterative_layout_max_height;
@@ -1466,7 +1467,7 @@ static void newmenu_create_structure(newmenu_layout &menu, const grs_font &cv_fo
 	menu.w = iterative_layout_body_width + right_offset;
 
 	int twidth{0};
-	if (menu.w < iterative_layout_max_width)
+	if (std::cmp_less(menu.w, iterative_layout_max_width))
 	{
 		twidth = (iterative_layout_max_width - menu.w) / 2;
 		menu.w = iterative_layout_max_width;
@@ -1579,7 +1580,7 @@ static window_event_result newmenu_draw(newmenu *menu)
 		 * "current" index to an impossible value so that the all_text
 		 * test does not need to be run at every step.
 		 */
-		const auto current_index = menu->all_text ? ~0u : menu->citem;
+		const int current_index = menu->all_text ? -1 : menu->citem;
 		const auto tabs_flag = menu->tabs_flag;
 		const auto scroll_offset = menu->scroll_offset;
 		for (auto i = scroll_offset; i < menu->max_displayable + scroll_offset; ++i)
@@ -1609,7 +1610,7 @@ static window_event_result newmenu_draw(newmenu *menu)
 		sy = std::next(begin, scroll_offset + menu->max_displayable - 1)->y - (line_spacing * scroll_offset);
 		sx = BORDERX - fspacx(12);
 
-		gr_string(menu_canvas, cv_font, sx, sy, (scroll_offset + menu->max_displayable < menu->items.size()) ? DOWN_ARROW_MARKER(cv_font, game_font) : "  ");
+		gr_string(menu_canvas, cv_font, sx, sy, std::cmp_less(scroll_offset + menu->max_displayable, menu->items.size()) ? DOWN_ARROW_MARKER(cv_font, game_font) : "  ");
 	}
 	menu->event_handler(d_event{event_type::newmenu_draw});
 
@@ -1760,16 +1761,16 @@ void listbox_delete_item(listbox &lb, int item)
 	Assert(item >= 0);
 
 	const auto nitems{lb.nitems};
-	if (nitems <= 0)
+	if (!nitems)
 		return;
-	if (item < nitems - 1)
+	if (item >= 0 && std::cmp_less(item + 1, nitems))
 	{
 		auto &items = lb.item;
 		std::rotate(&items[item], &items[item + 1], &items[nitems]);
 	}
 	-- lb.nitems;
-	if (lb.citem >= lb.nitems)
-		lb.citem = lb.nitems ? lb.nitems - 1 : 0;
+	if (std::cmp_greater_equal(lb.citem, lb.nitems))
+		lb.citem = lb.nitems ? static_cast<int>(lb.nitems) - 1 : 0;
 }
 
 }
@@ -1781,16 +1782,17 @@ static void update_scroll_position(listbox_layout &lb)
 	if (lb.citem < 0)
 		lb.citem = 0;
 
-	if (lb.citem >= lb.nitems)
-		lb.citem = lb.nitems-1;
+	if (std::cmp_greater_equal(lb.citem, lb.nitems))
+		lb.citem = static_cast<int>(lb.nitems) - 1;
 
 	if (lb.citem < lb.first_item)
 		lb.first_item = lb.citem;
 
-	if (lb.citem >= lb.items_on_screen)
+	if (std::cmp_greater_equal(lb.citem, lb.items_on_screen))
 	{
-		if (lb.first_item < lb.citem - lb.items_on_screen + 1)
-			lb.first_item = lb.citem - lb.items_on_screen + 1;
+		const auto first_item = lb.citem - static_cast<int>(lb.items_on_screen) + 1;
+		if (lb.first_item < first_item)
+			lb.first_item = first_item;
 	}
 
 	if (lb.nitems <= lb.items_on_screen)
@@ -1798,8 +1800,8 @@ static void update_scroll_position(listbox_layout &lb)
 
 	if (lb.nitems >= lb.items_on_screen)
 	{
-		if (lb.first_item > lb.nitems - lb.items_on_screen)
-			lb.first_item = lb.nitems - lb.items_on_screen;
+		if (std::cmp_greater(lb.first_item, lb.nitems - lb.items_on_screen))
+			lb.first_item = static_cast<int>(lb.nitems - lb.items_on_screen);
 	}
 	if (lb.first_item < 0)
 		lb.first_item = 0;
@@ -1830,15 +1832,17 @@ static window_event_result listbox_mouse(const d_event &event, listbox *lb, cons
 				const int idx_relative_first_visible_item = my_relative_by / line_spacing;
 				const auto first_visible_item = lb->first_item;
 				const auto nitems = lb->nitems;
-				const auto last_visible_item = std::min(first_visible_item + lb->items_on_screen, nitems);
-				if (idx_relative_first_visible_item >= last_visible_item)
+				if (!std::cmp_less(first_visible_item, nitems))
+					break;
+				const auto visible_item_count = std::min(lb->items_on_screen, nitems - static_cast<unsigned>(first_visible_item));
+				if (std::cmp_greater_equal(idx_relative_first_visible_item, visible_item_count))
 					break;
 				const int px_within_item = my_relative_by % static_cast<int>(line_spacing);
 				const auto h = gr_get_string_height(*MEDIUM3_FONT, 1);
-				if (px_within_item >= h)
+				if (std::cmp_greater_equal(px_within_item, h))
 					break;
 				const int idx_absolute_item = idx_relative_first_visible_item + first_visible_item;
-				if (idx_absolute_item >= nitems)
+				if (std::cmp_greater_equal(idx_absolute_item, nitems))
 					break;
 				lb->citem = idx_absolute_item;
 			}
@@ -1946,7 +1950,7 @@ static window_event_result listbox_key_command(const d_event &event, listbox *lb
 				{
 					if (cc >= nitems)
 						cc = 0;
-					if (toupper(static_cast<unsigned>(lb->item[cc][0])) == upper_ascii)
+					if (std::cmp_equal(toupper(static_cast<unsigned>(lb->item[cc][0])), upper_ascii))
 					{
 						lb->citem = cc;
 						break;
@@ -2021,14 +2025,14 @@ void listbox_layout::create_structure()
 			if (marquee_maxchars > mmc)
 				marquee_maxchars = mmc;
 		}
-		if (box_w < w)
-			box_w = w;
+		if (std::cmp_less(box_w, w))
+			box_w = static_cast<int>(w);
 	}
 
 	{
 		const auto &&[w, h] = gr_get_string_size(medium3_font, title);
-		if (box_w < w)
-			box_w = w;
+		if (std::cmp_less(box_w, w))
+			box_w = static_cast<int>(w);
 		title_height = h+FSPACY(5);
 	}
 
@@ -2073,7 +2077,7 @@ void listbox_layout::create_structure()
 
 	if (citem < 0)
 		citem = 0;
-	else if (citem >= nitems)
+	else if (std::cmp_greater_equal(citem, nitems))
 		citem = 0;
 
 	first_item = 0;
@@ -2100,7 +2104,8 @@ static window_event_result listbox_draw(listbox *lb)
 	gr_string(canvas, medium3_font, lb->box_x, lb->box_y - lb->title_height, lb->title);
 
 	const auto &&line_spacing = LINE_SPACING(medium3_font, *GAME_FONT);
-	for (int i = lb->first_item; i < lb->first_item + lb->items_on_screen; ++i)
+	const auto last_item = lb->first_item + static_cast<int>(lb->items_on_screen);
+	for (int i = lb->first_item; i < last_item; ++i)
 	{
 		int y = (i - lb->first_item) * line_spacing + lb->box_y;
 		const auto &&fspacx = FSPACX();
@@ -2108,7 +2113,7 @@ static window_event_result listbox_draw(listbox *lb)
 		const uint8_t color5 = BM_XRGB(5, 5, 5);
 		const uint8_t color2 = BM_XRGB(2, 2, 2);
 		const uint8_t color0 = BM_XRGB(0, 0, 0);
-		if ( i >= lb->nitems )	{
+		if (std::cmp_greater_equal(i, lb->nitems))	{
 			gr_rect(canvas, lb->box_x + lb->box_w - fspacx(1), y - fspacy(1), lb->box_x + lb->box_w, y + line_spacing, color5);
 			gr_rect(canvas, lb->box_x - fspacx(1), y - fspacy(1), lb->box_x, y + line_spacing, color2);
 			gr_rect(canvas, lb->box_x, y - fspacy(1), lb->box_x + lb->box_w - fspacx(1), y + line_spacing, color0);

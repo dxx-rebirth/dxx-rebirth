@@ -70,7 +70,7 @@ void cvar_cmd_set(unsigned long argc, const char *const *const argv)
 	}
 	
 	size_t position = ret;
-	for (int i = 3; i < argc; i++) {
+	for (unsigned long i = 3; i < argc; i++) {
 		ret = snprintf(&buf[position], CVAR_MAX_LENGTH - position, " %s", argv[i]);
 		position += ret;
 		if (position >= CVAR_MAX_LENGTH)

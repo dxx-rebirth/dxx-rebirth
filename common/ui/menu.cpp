@@ -19,6 +19,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #include <stdlib.h>
+#include <utility>
 
 #include "u_mem.h"
 #include "maths.h"
@@ -88,8 +89,8 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 	{
 		const auto &&[width, height] = ui_get_button_size(*grd_curcanv->cv_font, text[i]);
 
-		if ( width > button_width ) button_width = width;
-		if ( height > button_height ) button_height = height;
+		if (std::cmp_greater(width, button_width)) button_width = width;
+		if (std::cmp_greater(height, button_height)) button_height = height;
 	}
 
 	unsigned width, height;
@@ -111,7 +112,7 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 		x = 0;
 	}
 
-	if ( (x+width-1) >= w ) {
+	if (std::cmp_greater_equal(x + width - 1, w)) {
 		x = w - width;
 	}
 
@@ -119,7 +120,7 @@ int MenuX( int x, int y, int NumButtons, const char *const text[] )
 		y = 0;
 	}
 
-	if ( (y+height-1) >= h ) {
+	if (std::cmp_greater_equal(y + height - 1, h)) {
 		y = h - height;
 	}
 

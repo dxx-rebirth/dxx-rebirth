@@ -304,7 +304,7 @@ static bitmap_index bm_load_sub(const int skip, const char *const filename)
 #elif DXX_BUILD_DESCENT == 2
 	std::array<char, 20> fname{};
 	const auto path = d_splitpath(filename);
-	if (path.base_end - path.base_start >= fname.size())
+	if (std::cmp_greater_equal(path.base_end - path.base_start, fname.size()))
 		Error("File <%s> - bitmap error, filename too long", filename);
 	memcpy(fname.data(), path.base_start, path.base_end - path.base_start);
 #endif
@@ -850,7 +850,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 	Textures[NumTextures++] = {};		//entry for bogus tmap
 	InfoFile.reset();
 #endif
-	assert(LevelSharedRobotInfoState.N_robot_types == Num_robot_ais);		//should be one ai info per robot
+	assert(std::cmp_equal(LevelSharedRobotInfoState.N_robot_types, Num_robot_ais));		//should be one ai info per robot
 
 	verify_textures();
 
@@ -865,7 +865,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 	#ifndef NDEBUG
 	{
 		//make sure all alt sounds refer to valid main sounds
-		for (unsigned i = 0; i < num_sounds; ++i)
+		for (unsigned i = 0; std::cmp_less(i, num_sounds); ++i)
 		{
 			int alt = AltSounds[i];
 			Assert(alt==0 || alt==-1 || Sounds[alt]!=255);
@@ -966,7 +966,7 @@ static std::size_t bm_read_eclip(std::size_t texture_count, int skip)
 	if (!opt_eclip_num)
 		return texture_count;
 
-	if (clip_num+1 > Num_effects)
+	if (std::cmp_greater(clip_num + 1, Num_effects))
 		Num_effects = clip_num+1;
 
 	auto &e{Effects[*opt_eclip_num]};
@@ -1006,7 +1006,7 @@ static std::size_t bm_read_eclip(std::size_t texture_count, int skip)
 
 		if (clip_count == 0) {
 			e.changing_wall_texture = static_cast<texture_index>(texture_count);
-			Assert(tmap_count < MAX_TEXTURES);
+			Assert(std::cmp_less(tmap_count, +MAX_TEXTURES));
 	  		tmap_count++;
 			Textures[texture_count] = bitmap;
 			set_texture_name(LevelUniqueTmapInfoState.TmapInfo, texture_count, arg);
@@ -1034,7 +1034,7 @@ static std::size_t bm_read_eclip(std::size_t texture_count, int skip)
 
 		if (!obj_eclip && !crit_flag) {
 			e.changing_wall_texture = static_cast<texture_index>(texture_count);
-			Assert(tmap_count < MAX_TEXTURES);
+			Assert(std::cmp_less(tmap_count, +MAX_TEXTURES));
   			tmap_count++;
 			Textures[texture_count] = bm[clip_count];
 			set_texture_name(LevelUniqueTmapInfoState.TmapInfo, texture_count, arg);
@@ -1058,7 +1058,7 @@ static std::size_t bm_read_eclip(std::size_t texture_count, int skip)
 
 		//if for an object, Effects_bm_ptrs set in object load
 
-		for(clip_count=1;clip_count < e.vc.num_frames; clip_count++) {
+		for (clip_count = 1; std::cmp_less(clip_count, e.vc.num_frames); ++clip_count) {
 			set_lighting_flag(GameBitmaps[bm[clip_count]]);
 			e.vc.frames[clip_count] = bm[clip_count];
 		}
@@ -1120,7 +1120,7 @@ static void bm_read_gauges(int skip)
 
 	if (!abm_flag)	{
 		const auto bitmap = bm_load_sub(skip, arg);
-		Assert(clip_count < MAX_GAUGE_BMS);
+		Assert(std::cmp_less(clip_count, MAX_GAUGE_BMS));
 		Gauges[clip_count] = bitmap;
 		clip_count++;
 	} else {
@@ -1144,7 +1144,7 @@ static void bm_read_gauges_hires()
 
 	if (!abm_flag)	{
 		const auto bitmap = bm_load_sub(0, arg);
-		Assert(clip_count < MAX_GAUGE_BMS);
+		Assert(std::cmp_less(clip_count, MAX_GAUGE_BMS));
 		Gauges_hires[clip_count] = bitmap;
 		clip_count++;
 	} else {
@@ -1164,7 +1164,8 @@ static std::size_t bm_read_wclip(std::size_t texture_count, int skip)
 {
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	auto &WallAnims = GameSharedState.WallAnims;
-	Assert(clip_num < MAX_WALL_ANIMS);
+	if (std::cmp_less(clip_num, 0) || std::cmp_greater_equal(clip_num, MAX_WALL_ANIMS))
+		Error("Invalid wall clip number %i", clip_num);
 
 	auto &wa = WallAnims[clip_num];
 	wa.flags = wall_explodes_flag | wall_blastable_flag | wall_hidden_flag | tmap1_flag;
@@ -1186,7 +1187,7 @@ static std::size_t bm_read_wclip(std::size_t texture_count, int skip)
 		Assert(texture_count < MAX_TEXTURES);
 		texture_count++;
 		NumTextures = texture_count;
-		if (clip_num >= Num_wall_anims) Num_wall_anims = clip_num+1;
+		if (std::cmp_greater_equal(clip_num, Num_wall_anims)) Num_wall_anims = clip_num + 1;
 	} else {
 		std::array<bitmap_index, MAX_BITMAPS_PER_BRUSH> bm;
 		unsigned nframes;
@@ -1206,7 +1207,7 @@ static std::size_t bm_read_wclip(std::size_t texture_count, int skip)
 		strcpy(&wa.filename[0], arg);
 		REMOVE_DOTS(&wa.filename[0]);
 
-		if (clip_num >= Num_wall_anims) Num_wall_anims = clip_num+1;
+		if (std::cmp_greater_equal(clip_num, Num_wall_anims)) Num_wall_anims = clip_num + 1;
 
 		set_lighting_flag(GameBitmaps[bm[clip_count]]);
 
@@ -1277,7 +1278,7 @@ static void bm_read_vclip(d_vclip_array &Vclip, int skip)
 		vc.sound_num = sound_num;
 		set_lighting_flag(GameBitmaps[bm[clip_count]]);
 
-		for (clip_count = 0; clip_count < vc.num_frames; ++clip_count)
+		for (clip_count = 0; std::cmp_less(clip_count, vc.num_frames); ++clip_count)
 		{
 			set_lighting_flag(GameBitmaps[bm[clip_count]]);
 			vc.frames[clip_count] = bm[clip_count];
@@ -1335,7 +1336,7 @@ static void adjust_field_of_view(per_difficulty_level_array<fix> &fovp)
 static polygon_simpler_model_index build_polygon_simpler_model_index_from_polygon_model_index(const polygon_model_index i)
 {
 	const auto ii = underlying_value(i) + 1;
-	if (ii > MAX_POLYGON_MODELS)
+	if (ii < 0 || std::cmp_greater(ii, MAX_POLYGON_MODELS))
 		return polygon_simpler_model_index::None;
 	return static_cast<polygon_simpler_model_index>(ii);
 }
@@ -1376,7 +1377,7 @@ void bm_read_sound(int skip)
 		get_int()
 	};
 
-	if ( read_sound_num>=MAX_SOUNDS )
+	if (read_sound_num < 0 || std::cmp_greater_equal(read_sound_num, +MAX_SOUNDS))
 		Error( "Too many sound files.\n" );
 
 	if (read_sound_num >= num_sounds)
@@ -1422,7 +1423,7 @@ void bm_read_robot_ai(d_robot_info_array &Robot_info, const int skip)
 	const auto robotnum = *o;
 	auto &robptr = Robot_info[robotnum];
 
-	assert(l == Num_robot_ais);		//make sure valid number
+	assert(std::cmp_equal(l, Num_robot_ais));		//make sure valid number
 
 	if (skip) {
 		Num_robot_ais++;
@@ -1467,7 +1468,7 @@ void bm_read_robot_ai(d_robot_info_array &Robot_info, const int skip)
 static grs_bitmap *load_polymodel_bitmap(int skip, const char *name)
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
-	assert(N_ObjBitmaps < ObjBitmaps.size());
+	assert(std::cmp_greater_equal(N_ObjBitmaps, 0) && std::cmp_less(N_ObjBitmaps, ObjBitmaps.size()));
 
 //	Assert( N_ObjBitmaps == N_ObjBitmapPtrs );
 
@@ -1483,7 +1484,7 @@ static grs_bitmap *load_polymodel_bitmap(int skip, const char *name)
 		ObjBitmapPtrs[N_ObjBitmapPtrs++] = changing_object_texture;
 #if DXX_BUILD_DESCENT == 2
 		assert(N_ObjBitmaps < ObjBitmaps.size());
-		assert(N_ObjBitmapPtrs < ObjBitmapPtrs.size());
+		assert(N_ObjBitmapPtrs >= 0 && std::cmp_less(N_ObjBitmapPtrs, ObjBitmapPtrs.size()));
 #endif
 		return NULL;
 	}
@@ -1501,7 +1502,7 @@ static grs_bitmap *load_polymodel_bitmap(int skip, const char *name)
 		N_ObjBitmaps++;
 #if DXX_BUILD_DESCENT == 2
 		assert(N_ObjBitmaps < ObjBitmaps.size());
-		assert(N_ObjBitmapPtrs < ObjBitmapPtrs.size());
+		assert(N_ObjBitmapPtrs >= 0 && std::cmp_less(N_ObjBitmapPtrs, ObjBitmapPtrs.size()));
 #endif
 		return &GameBitmaps[ob];
 	}
@@ -2225,7 +2226,7 @@ std::size_t bm_read_some_file(d_vclip_array &Vclip, std::size_t texture_count, i
 		return texture_count;
 	case bm_type::textures:			{
 		const auto bitmap = bm_load_sub(skip, arg);
-		Assert(tmap_count < MAX_TEXTURES);
+		Assert(std::cmp_less(tmap_count, +MAX_TEXTURES));
   		tmap_count++;
 		Textures[texture_count] = bitmap;
 		set_texture_name(LevelUniqueTmapInfoState.TmapInfo, texture_count, arg);

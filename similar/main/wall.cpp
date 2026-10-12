@@ -1285,7 +1285,7 @@ static void scale_cloaking_wall_light_to_wall(std::array<uvl, 4> &back_uvls, std
 
 static cwresult do_cloaking_wall_frame(const bool initial, cloaking_wall &d, const cwframe front, const cwframe back)
 {
-	if (d.time > CLOAKING_WALL_TIME) {
+	if (std::cmp_greater(d.time, +CLOAKING_WALL_TIME)) {
 		front.w.type = back.w.type = WALL_OPEN;
 		front.w.state = back.w.state = wall_state::closed;		//why closed? why not?
 		return {
@@ -1293,7 +1293,7 @@ static cwresult do_cloaking_wall_frame(const bool initial, cloaking_wall &d, con
 			.record = initial,
 		};
 	}
-	else if (d.time > CLOAKING_WALL_TIME/2) {
+	else if (std::cmp_greater(d.time, +CLOAKING_WALL_TIME / 2)) {
 		const int8_t cloak_value = ((d.time - CLOAKING_WALL_TIME / 2) * (GR_FADE_LEVELS - 2)) / (CLOAKING_WALL_TIME / 2);
 		bool record = initial;
 		if (front.w.cloak_value != cloak_value)
@@ -1325,7 +1325,7 @@ static cwresult do_cloaking_wall_frame(const bool initial, cloaking_wall &d, con
 
 static cwresult do_decloaking_wall_frame(const bool initial, cloaking_wall &d, const cwframe front, const cwframe back)
 {
-	if (d.time > CLOAKING_WALL_TIME) {
+	if (std::cmp_greater(d.time, +CLOAKING_WALL_TIME)) {
 
 		back.w.state = wall_state::closed;
 		front.w.state = wall_state::closed;
@@ -1335,7 +1335,7 @@ static cwresult do_decloaking_wall_frame(const bool initial, cloaking_wall &d, c
 			.record = initial,
 		};
 	}
-	else if (d.time > CLOAKING_WALL_TIME/2) {		//fading in
+	else if (std::cmp_greater(d.time, +CLOAKING_WALL_TIME / 2)) {		//fading in
 		fix light_scale;
 		front.w.type = back.w.type = WALL_CLOSED;
 

@@ -383,7 +383,7 @@ static int read_d2_robot_info(const NamedPHYSFS_File fp, robot_info &ri)
 	ri.exp2_vclip_num = build_vclip_index_from_untrusted(PHYSFSX_readSLE16(fp));
 	ri.exp2_sound_num = build_sound_effect_from_untrusted(PHYSFSX_readSLE16(fp));
 	const auto weapon_type = PHYSFSX_readByte(fp);
-	ri.weapon_type = weapon_type < N_weapon_types ? static_cast<weapon_id_type>(weapon_type) : weapon_id_type::LASER_ID_L1;
+	ri.weapon_type = weapon_type >= 0 && std::cmp_less(weapon_type, N_weapon_types) ? static_cast<weapon_id_type>(weapon_type) : weapon_id_type::LASER_ID_L1;
 	/*ri.weapon_type2 =*/ PHYSFSX_skipBytes<1>(fp);
 	ri.n_guns = PHYSFSX_readByte(fp);
 	const uint8_t untrusted_contains_id = PHYSFSX_readByte(fp);
@@ -601,7 +601,7 @@ static void custom_remove()
 				bmp.set_flags(bmp.get_flags() & ~BM_FLAG_CUSTOMIZED);
 			}
 		}
-	for (i = 0; i < MAX_SOUND_FILES; i++)
+	for (i = 0; std::cmp_less(i, +MAX_SOUND_FILES); ++i)
 		if (SoundOriginal[i].length & 0x80000000)
 		{
 			GameSounds[i].data = std::move(SoundOriginal[i].data);

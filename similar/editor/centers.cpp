@@ -128,8 +128,8 @@ static window_event_result centers_dialog_created(centers_dialog *const c)
 	const unsigned d = 6;
 #endif
 	const auto N_robot_types = LevelSharedRobotInfoState.N_robot_types;
-	for (i=0; i < N_robot_types; i++)
-		c->robotMatFlag[i] = ui_add_gadget_checkbox(*c, 128 + (i % d) * 92, 20 + (i / d) * 24, 16, 16, 0, Robot_names[static_cast<robot_id>(i)].data());
+	for (unsigned robot_index = 0; robot_index < N_robot_types; ++robot_index)
+		c->robotMatFlag[robot_index] = ui_add_gadget_checkbox(*c, 128 + (robot_index % d) * 92, 20 + (robot_index / d) * 24, 16, 16, 0, Robot_names[static_cast<robot_id>(robot_index)].data());
 	c->old_seg_num = -2;		// Set to some dummy value so everything works ok on the first frame.
 	return window_event_result::handled;
 }

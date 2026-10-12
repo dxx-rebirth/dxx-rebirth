@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 #include <ranges>
+#include <utility>
 
 #include "pstypes.h"
 #include "strutil.h"
@@ -371,7 +372,7 @@ static void build_sound_allocation(const NamedPHYSFS_File fp)
 	const unsigned sound_headers_size = N_sounds * sizeof(DiskSoundHeader);
 	std::array<std::byte, MAX_SOUNDS * sizeof(DiskSoundHeader)> buf;
 	auto sbuf{std::span(buf).first(sound_headers_size)};
-	if (PHYSFS_readBytes(fp, sbuf.data(), sbuf.size()) != sbuf.size()) [[unlikely]]
+	if (!std::cmp_equal(PHYSFS_readBytes(fp, sbuf.data(), sbuf.size()), sbuf.size())) [[unlikely]]
 		PHYSFSX_read_helper_report_error(__FILE__, __LINE__, __FUNCTION__, fp);
 	const unsigned offset_adjustment{sound_headers_start + sound_headers_size};
 	unsigned required_allocation_size{0};
@@ -657,7 +658,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 		GameBitmapFlags[bi] = bmh.flags & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT | BM_FLAG_NO_LIGHTING | BM_FLAG_RLE);
 
 		GameBitmapOffset[bi] = static_cast<pig_bitmap_offset>(bmh.offset + header_size + (sizeof(int)*2) + Pigdata_start);
-		Assert( (i+1) == Num_bitmap_files );
+		Assert(std::cmp_equal(i + 1, Num_bitmap_files));
 
 		//size -= sizeof(DiskBitmapHeader);
 		const BitmapNameFromHeader bitmap_name(bmh);
@@ -692,7 +693,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 	{
 		std::array<std::byte, MAX_SOUNDS * sizeof(DiskSoundHeader)> buf;
 		auto sbuf{std::span(buf).first(N_sounds * sizeof(DiskSoundHeader))};
-		if (const NamedPHYSFS_File fp = Piggy_fp; PHYSFS_readBytes(fp, sbuf.data(), sbuf.size()) != sbuf.size()) [[unlikely]]
+		if (const NamedPHYSFS_File fp = Piggy_fp; !std::cmp_equal(PHYSFS_readBytes(fp, sbuf.data(), sbuf.size()), sbuf.size())) [[unlikely]]
 			PHYSFSX_read_helper_report_error(__FILE__, __LINE__, __FUNCTION__, fp);
 		for (; !sbuf.empty(); sbuf = sbuf.subspan<sizeof(DiskSoundHeader)>())
 		{
@@ -813,7 +814,7 @@ void piggy_init_pigfile(const std::span<const char> filename)
 
 		GameBitmapFlags[bi] = bmh.flags & BM_FLAGS_TO_COPY;
 		GameBitmapOffset[bi] = pig_bitmap_offset{bmh.offset + data_start};
-		Assert( (i+1) == Num_bitmap_files );
+		Assert(std::cmp_equal(i + 1, Num_bitmap_files));
 		piggy_register_bitmap(*bm, temp_name, 1);
 	}
 
@@ -905,12 +906,14 @@ void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 			}
 		}
 		N_bitmaps = PHYSFSX_readInt(fp);
+		if (N_bitmaps < 0 || std::cmp_greater_equal(N_bitmaps, GameBitmaps.size()))
+			UserError("Cannot load PIG file: invalid bitmap count %i in \"%s\"", N_bitmaps, fp.filename);
 
 		header_size = N_bitmaps * sizeof(DiskBitmapHeader);
 
 		const unsigned data_start = header_size + PHYSFS_tell(fp);
 
-		for (unsigned i = 1; i <= N_bitmaps; ++i)
+		for (int i = 1; i <= N_bitmaps; ++i)
 		{
 			const bitmap_index bi{static_cast<uint16_t>(i)};
 			grs_bitmap *const bm = &GameBitmaps[bi];
@@ -953,7 +956,7 @@ void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 
 	#else
 
-	if (must_rewrite_pig || (N_bitmaps < Num_bitmap_files-1)) {
+	if (must_rewrite_pig || std::cmp_less(N_bitmaps, Num_bitmap_files - 1)) {
 		int size;
 
 		//re-read the bitmaps that aren't in this pig
@@ -1239,7 +1242,7 @@ void piggy_read_sounds(int pc_shareware)
 			return;
 		}
 
-		for (i = 0; i < MAX_SOUND_FILES; i++)
+		for (i = 0; std::cmp_less(i, +MAX_SOUND_FILES); ++i)
 		{
 			snprintf(soundfile, sizeof(soundfile), "SND%04d.raw", i);
 			if (ds_load(0, soundfile) == 255)
@@ -1910,9 +1913,11 @@ static std::span<uint8_t> bitmap_read_d1(grs_bitmap *bitmap, /* read into this b
 	if (bmh->flags & BM_FLAG_RLE) { // size of bitmap could have changed!
 		int new_size;
 		memcpy(&new_size, bitmap->bm_data, 4);
+		if (new_size < 0)
+			Error("Invalid negative RLE bitmap size %i", new_size);
 		advance_next_bitmap = new_size;
 		if (!next_bitmap.data()) {
-			Assert( zsize + JUST_IN_CASE >= new_size );
+			Assert(new_size >= 0 && std::cmp_greater_equal(zsize + JUST_IN_CASE, new_size));
 			bitmap->bm_mdata = reinterpret_cast<uint8_t *>(d_realloc(bitmap->bm_mdata, new_size));
 			Assert(bitmap->bm_data);
 		}
@@ -2045,8 +2050,8 @@ static bitmap_index d2_index_for_d1_index(short d1_index)
 	if (!d1_tmap_nums)
 		return bitmap_index::None;
 	auto &t = *d1_tmap_nums.get();
-	assert(d1_index < std::size(t));
-	if (d1_index >= std::size(t))
+	assert(d1_index >= 0 && std::cmp_less(d1_index, std::size(t)));
+	if (d1_index < 0 || std::cmp_greater_equal(d1_index, std::size(t)))
 		return bitmap_index::None;
 	const auto i = t[d1_index];
 	if (i == texture_index{UINT16_MAX} || !d1_tmap_num_unique(i))
@@ -2200,6 +2205,11 @@ grs_bitmap *read_extra_bitmap_d1_pig(const std::span<const char> name, grs_bitma
 
 		PHYSFS_seek(d1_Piggy_fp, pig_data_start);
 		N_bitmaps = PHYSFSX_readInt(d1_Piggy_fp);
+		if (N_bitmaps < 0 || std::cmp_greater_equal(N_bitmaps, GameBitmaps.size()))
+		{
+			Warning("Invalid bitmap count %i in " D1_PIGFILE, N_bitmaps);
+			return nullptr;
+		}
 		{
 			const unsigned N_sounds{PHYSFSX_readULE32(d1_Piggy_fp)};
 			int header_size = N_bitmaps * DISKBITMAPHEADER_D1_SIZE
@@ -2212,7 +2222,7 @@ grs_bitmap *read_extra_bitmap_d1_pig(const std::span<const char> name, grs_bitma
 
 		for (unsigned i = 1;; ++i)
 		{
-			if (i > N_bitmaps)
+			if (std::cmp_greater(i, N_bitmaps))
 			{
 				con_printf(CON_DEBUG, "Failed to find bitmap: %s", name.data());
 				return nullptr;

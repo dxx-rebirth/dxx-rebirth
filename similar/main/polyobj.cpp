@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <algorithm>
 #include <span>
+#include <utility>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -190,8 +191,8 @@ static void read_model_file(polymodel &pm, const char *const filename, robot_inf
 		{
 			case ID_OHDR: {		//Object header
 				const auto n_models{pof_read_int(model_buf, Pof_addr)};
-				if (!(n_models <= MAX_SUBMODELS))
-					Error("Invalid model file <%s>: too many submodels in object header: %u", filename, n_models);
+				if (n_models < 0 || std::cmp_greater(n_models, MAX_SUBMODELS))
+					Error("Invalid model file <%s>: too many submodels in object header: %u", filename, static_cast<unsigned>(n_models));
 				pm.n_models = n_models;
 				pm.rad = pof_read_int(model_buf, Pof_addr);
 				{
@@ -431,9 +432,9 @@ void draw_polygon_model(grs_canvas &canvas, const tmap_drawer_type tmap_drawer_p
 			//alt textures might not match, but in the one case we're using this
 			//for on 11/14/94, they do match.  So we leave it in.
 			{
-				int cnt{1};
+				unsigned cnt{1};
 				const auto depth{g3_calc_point_depth(pos, View_position, View_matrix.fvec)};		//gets 3d depth
-				while (po->simpler_model != polygon_simpler_model_index::None && depth > cnt++ * Simple_model_threshhold_scale * po->rad)
+				while (po->simpler_model != polygon_simpler_model_index::None && depth > static_cast<fix64>(cnt++) * static_cast<fix64>(Simple_model_threshhold_scale) * po->rad)
 					po = &Polygon_models[build_polygon_model_index_from_polygon_simpler_model_index(po->simpler_model)];
 			}
 

@@ -320,13 +320,13 @@ window_event_result net_udp_select_teams_menu::event_handler(const d_event &even
 		case event_type::newmenu_selected:
 			{
 				const auto citem = static_cast<const d_select_event &>(event).citem;
-				if (citem == idx_item_accept)
+				if (std::cmp_equal(citem, +idx_item_accept))
 				{
 					Netgame.team_vector = team_vector;
 					Netgame.team_name = team_names;
 					return window_event_result::close;
 				}
-				else if (citem == idx_label_blue_team || citem == idx_label_red_team)
+				else if (std::cmp_equal(citem, +idx_label_blue_team) || std::cmp_equal(citem, +idx_label_red_team))
 					/* No handling required, but use this return code to
 					 * reuse the `handled` exit path.
 					 */
@@ -345,7 +345,7 @@ window_event_result net_udp_select_teams_menu::event_handler(const d_event &even
 				 * setup_team_sensitive_entries, so this test is not
 				 * redundant relative to the label handling above.
 				 */
-				if (citem != idx_label_red_team)
+				if (!std::cmp_equal(citem, +idx_label_red_team))
 					/* If the selection after the change is not pointing
 					 * at the label for "Red", then no special handling
 					 * is needed.  The selection will now point at a
@@ -354,7 +354,7 @@ window_event_result net_udp_select_teams_menu::event_handler(const d_event &even
 					 */
 					return window_event_result::handled;
 				/* If the selection is now on the label "Red" ... */
-				if (citem < idx_item_accept - 1 && (citem == idx_label_blue_team + 1 || prior_team != prior_team_color::blue))
+				if (std::cmp_less(citem, +idx_item_accept - 1) && (std::cmp_equal(citem, +idx_label_blue_team + 1) || prior_team != prior_team_color::blue))
 					/* If the red team is not empty, and either the blue
 					 * team is now empty or the previous team was not
 					 * blue, increment the position to point to
@@ -1150,7 +1150,7 @@ static ssize_t udp_receive_packet(RAIIsocket &sock, const socket_data_buffer msg
 		if (msglen < 0)
 			return 0;
 
-	if (msglen < msg.size())
+	if (std::cmp_less(msglen, msg.size()))
 		msg[msglen] = 0;
 	return msglen;
 }
@@ -1631,7 +1631,7 @@ window_event_result netgame_list_game_menu::event_handler(const d_event &event)
 	num_active_udp_changed = 0;
 
 	// Copy the active games data into the menu options
-	for (int i = 0; i < UDP_NETGAMES_PPAGE; i++)
+	for (unsigned i = 0; i < UDP_NETGAMES_PPAGE; ++i)
 	{
 		const auto &augi = Active_udp_games[(i + (NLPage * UDP_NETGAMES_PPAGE))];
 		int nplayers{0};
@@ -1902,7 +1902,7 @@ void dispatch_table::disconnect_player(int playernum) const
 	// A player has disconnected from the net game, take whatever steps are
 	// necessary 
 
-	if (playernum == Player_num) 
+	if (std::cmp_equal(playernum, Player_num))
 	{
 		Int3(); // Weird, see Rob
 		return;
@@ -3701,7 +3701,7 @@ static int net_udp_start_poll(newmenu *, const d_event &event, start_poll_menu_i
 
 	net_udp_listen();
 
-	for (int i=0; i<N_players; i++ ) // fill this in always in case players change but not their numbers
+	for (unsigned i = 0; i < N_players; ++i) // fill this in always in case players change but not their numbers
 	{
 		const auto &&rankstr = GetRankStringWithSpace(Netgame.players[i].rank);
 		snprintf(menus[i].text, 45, "%d. %s%s%-20s", i+1, rankstr.first, rankstr.second, static_cast<const char *>(Netgame.players[i].callsign));
@@ -4813,7 +4813,7 @@ static int net_udp_select_players()
 	net_udp_add_player(UDP_sequence_request_packet{GetMyNetRanking(), InterfaceUniqueState.PilotName, 0}, {});
 	start_poll_menu_items spd;
 		
-	for (int i=0; i< MAX_PLAYERS+4; i++ ) {
+	for (unsigned i = 0; i < MAX_PLAYERS + 4; ++i) {
 		snprintf(text[i], sizeof(text[i]), "%d. ", i + 1);
 		nm_set_item_checkbox(spd.m[i], text[i], 0);
 	}
@@ -4882,11 +4882,11 @@ abort:
 // Let host join without Client available. Let's see if our players like that
 	// Remove players that aren't marked.
 	N_players = 0;
-	for (int i=0; i<save_nplayers; i++ )
+	for (unsigned i = 0; i < save_nplayers; ++i)
 	{
 		if (spd.m[i].value) 
 		{
-			if (i > N_players)
+		if (std::cmp_greater(i, N_players))
 			{
 				Netgame.players[N_players].callsign = Netgame.players[i].callsign;
 				Netgame.players[N_players].rank=Netgame.players[i].rank;
@@ -5015,7 +5015,7 @@ static int net_udp_request_poll( newmenu *,const d_event &event, const unused_ne
 			num_ready++;
 	}
 
-	if (num_ready == N_players) // All players have checked in or are disconnected
+	if (std::cmp_equal(num_ready, N_players)) // All players have checked in or are disconnected
 	{
 		timer_delay_ms(50);
 		return -2;
@@ -5248,7 +5248,7 @@ void dispatch_table::leave_game() const
 		Netgame.numplayers = 0;
 		nsave=N_players;
 		N_players=0;
-		for (unsigned i = 1; i < nsave; ++i)
+		for (unsigned i = 1; std::cmp_less(i, nsave); ++i)
 		{
 			if (vcplayerptr(i)->connected == player_connection_status::disconnected)
 				continue;
@@ -5506,7 +5506,7 @@ static void net_udp_noloss_add_queue_pkt(fix64 time, const std::span<const uint8
 		con_printf(CON_VERBOSE, "P#%u: MData store list is full!", Player_num);
 		if (multi_i_am_master()) // I am host. I will kick everyone who did not ACK the first packet and then remove it.
 		{
-			for ( int i=1; i<N_players; i++ )
+			for (unsigned i = 1; i < N_players; ++i)
 				if (UDP_mdata_queue[0].player_ack[i] == 0)
 					multi::udp::dispatch->kick_player(Netgame.players[i].protocol.udp.addr, kick_player_reason::pkttimeout);
 			std::move(std::next(UDP_mdata_queue.begin()), UDP_mdata_queue.end(), UDP_mdata_queue.begin());
@@ -5593,7 +5593,7 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, co
 	dxx_sendto(UDP_Socket[0], buf, 0, sender_addr);
 
 	UDP_mdata_trace[sender_pnum].cur_slot++;
-	if (UDP_mdata_trace[sender_pnum].cur_slot >= UDP_MDATA_STOR_QUEUE_SIZE)
+	if (std::cmp_greater_equal(UDP_mdata_trace[sender_pnum].cur_slot, UDP_MDATA_STOR_QUEUE_SIZE))
 		UDP_mdata_trace[sender_pnum].cur_slot = 0;
 	UDP_mdata_trace[sender_pnum].pkt_num[UDP_mdata_trace[sender_pnum].cur_slot] = pkt_num;
 	UDP_mdata_trace[sender_pnum].pkt_num_torecv++;
@@ -5613,7 +5613,7 @@ void net_udp_noloss_got_ack(const std::span<const uint8_t> data)
 	dest_pnum = data[len];												len++;
 	const uint32_t pkt_num{GET_INTEL_INT(&data[len])};										len += 4;
 
-	for (int i = 0; i < UDP_mdata_queue_highest; i++)
+	for (unsigned i = 0; i < UDP_mdata_queue_highest; ++i)
 	{
 		if ((pkt_num == UDP_mdata_queue[i].pkt_num[sender_pnum]) && (dest_pnum == UDP_mdata_queue[i].Player_num))
 		{
@@ -5630,7 +5630,7 @@ void net_udp_noloss_init_mdata_queue(void)
 	UDP_mdata_queue_highest=0;
 	con_printf(CON_VERBOSE, "P#%u: Clearing MData store/trace list",Player_num);
 	UDP_mdata_queue = {};
-	for (int i = 0; i < MAX_PLAYERS; i++)
+	for (unsigned i = 0; i < MAX_PLAYERS; ++i)
 		net_udp_noloss_clear_mdata_trace(i);
 }
 
@@ -5658,7 +5658,7 @@ void net_udp_noloss_process_queue(fix64 time)
 	if (!Netgame.PacketLossPrevention)
 		return;
 
-	for (int queuec = 0; queuec < UDP_mdata_queue_highest; queuec++)
+	for (unsigned queuec = 0; queuec < UDP_mdata_queue_highest; ++queuec)
 	{
 		int needack{0};
 
@@ -5703,7 +5703,7 @@ void net_udp_noloss_process_queue(fix64 time)
 			{
 				if (multi_i_am_master()) // We are host, so we kick the remaining players.
 				{
-					for ( int plc=1; plc<N_players; plc++ )
+					for (unsigned plc = 1; plc < N_players; ++plc)
 						if (UDP_mdata_queue[queuec].player_ack[plc] == 0)
 							multi::udp::dispatch->kick_player(Netgame.players[plc].protocol.udp.addr, kick_player_reason::pkttimeout);
 				}
@@ -6033,7 +6033,7 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 	if (multi_i_am_master())
 	{
 		// latecoming player seems to successfully have synced
-		if ( VerifyPlayerJoined != -1 && TheirPlayernum == VerifyPlayerJoined )
+		if (VerifyPlayerJoined != -1 && std::cmp_equal(TheirPlayernum, VerifyPlayerJoined))
 			VerifyPlayerJoined=-1;
 		// we say that guy is disconnected so we do not want him/her in game
 		if (tplr.connected == player_connection_status::disconnected)
@@ -6588,7 +6588,7 @@ static int udp_tracker_process_game(const std::span<const uint8_t> buf, const _s
 	p0 +=2;
 	if ((p1 = strstr(p0, "/")) == NULL)
 		return -1;
-	if (p1-p0 < 1 || p1-p0 > sizeof(sIP))
+	if (p1 - p0 < 1 || std::cmp_greater_equal(p1 - p0, sizeof(sIP)))
 		return -1;
 	memcpy(sIP, p0, p1-p0);
 
@@ -6597,7 +6597,7 @@ static int udp_tracker_process_game(const std::span<const uint8_t> buf, const _s
 	const auto p2 = strstr(p1, "c=");
 	if (p2 == nullptr)
 		return -1;
-	if (p2-p1-1 < 1 || p2-p1-1 > sizeof(sPort))
+	if (p2 - p1 - 1 < 1 || std::cmp_greater_equal(p2 - p1 - 1, sizeof(sPort)))
 		return -1;
 	memcpy(&sPort, p1, p2-p1-1);
 	if (!convert_text_portstring(sPort, iPort, true, true))
@@ -6607,7 +6607,7 @@ static int udp_tracker_process_game(const std::span<const uint8_t> buf, const _s
 	struct _sockaddr sAddr;
 	if(udp_dns_filladdr(sAddr, sIP, iPort, true, true) < 0)
 		return -1;
-	if (data_len < p2 - reinterpret_cast<const char *>(data) + 2)
+	if (std::cmp_less(data_len, p2 - reinterpret_cast<const char *>(data) + 2))
 		return -1;
 	if ((p3 = strstr(reinterpret_cast<const char *>(data), "z=")) == NULL)
 		return -1;

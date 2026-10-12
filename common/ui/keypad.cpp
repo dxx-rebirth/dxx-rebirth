@@ -22,6 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include <string.h>
 #include <ranges>
+#include <utility>
 #include "physfsx.h"
 #include "maths.h"
 #include "pstypes.h"
@@ -304,14 +305,14 @@ static void ui_pad_set_active( int n )
 		Pad[i]->dim_if_no_function = 1;
 		Pad[i]->hotkey = -1;
 				
-		for (int j=0; j< KeyPad[n]->numkeys; j++ )
+		for (unsigned j = 0; j < KeyPad[n]->numkeys; ++j)
 		{
-			if (HotKey[i] == KeyPad[n]->keycode[j] )
+			if (std::cmp_equal(HotKey[i], KeyPad[n]->keycode[j]))
 			{
 				Pad[i]->hotkey =  HotKey[i];
 				Pad[i]->user_function = func_nget( KeyPad[n]->function_number[j], &np, &name );
 			}
-			if (HotKey1[i] == KeyPad[n]->keycode[j] )
+			if (std::cmp_equal(HotKey1[i], KeyPad[n]->keycode[j]))
 			{
 				Pad[i]->hotkey1 =  HotKey1[i];
 				Pad[i]->user_function1 = func_nget( KeyPad[n]->function_number[j], &np, &name );
