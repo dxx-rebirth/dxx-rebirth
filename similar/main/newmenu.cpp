@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ctype.h>
 #include <functional>
 #include <ranges>
+#include <utility>
 
 #include "pstypes.h"
 #include "dxxerror.h"
@@ -1830,15 +1831,17 @@ static window_event_result listbox_mouse(const d_event &event, listbox *lb, cons
 				const int idx_relative_first_visible_item = my_relative_by / line_spacing;
 				const auto first_visible_item = lb->first_item;
 				const auto nitems = lb->nitems;
-				const auto last_visible_item = std::min(first_visible_item + lb->items_on_screen, nitems);
-				if (idx_relative_first_visible_item >= last_visible_item)
+				if (!std::cmp_less(first_visible_item, nitems))
+					break;
+				const auto visible_item_count = std::min(lb->items_on_screen, nitems - static_cast<unsigned>(first_visible_item));
+				if (std::cmp_greater_equal(idx_relative_first_visible_item, visible_item_count))
 					break;
 				const int px_within_item = my_relative_by % static_cast<int>(line_spacing);
 				const auto h = gr_get_string_height(*MEDIUM3_FONT, 1);
-				if (px_within_item >= h)
+				if (std::cmp_greater_equal(px_within_item, h))
 					break;
 				const int idx_absolute_item = idx_relative_first_visible_item + first_visible_item;
-				if (idx_absolute_item >= nitems)
+				if (std::cmp_greater_equal(idx_absolute_item, nitems))
 					break;
 				lb->citem = idx_absolute_item;
 			}
