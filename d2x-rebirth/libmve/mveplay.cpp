@@ -8,6 +8,7 @@
 
 #include "dxxsconf.h"
 #include <vector>
+#include <utility>
 #include <string.h>
 #include <time.h>
 #include <sys/time.h>
@@ -243,7 +244,7 @@ static void mve_audio_callback(void *const vstream, unsigned char *stream, int l
 
 	std::span<const std::byte> audio_buffer;
 	while (mvestream.mve_audio_bufhead != mvestream.mve_audio_buftail                                           /* while we have more buffers  */
-		   && len > (audio_buffer = std::as_bytes(mvestream.mve_audio_buffers[mvestream.mve_audio_bufhead].span()).subspan(mvestream.mve_audio_curbuf_curpos)).size())        /* and while we need more data */
+		   && std::cmp_greater(len, (audio_buffer = std::as_bytes(mvestream.mve_audio_buffers[mvestream.mve_audio_bufhead].span()).subspan(mvestream.mve_audio_curbuf_curpos)).size()))        /* and while we need more data */
 	{
 		const auto length = audio_buffer.size();
 		memcpy(stream,                                                                  /* cur output position */
@@ -257,7 +258,7 @@ static void mve_audio_callback(void *const vstream, unsigned char *stream, int l
 		len -= length;                                                                  /* decrement avail ospace */
 		mvestream.mve_audio_buffers[mvestream.mve_audio_bufhead] = {};                                 /* free the buffer */
 
-		if (++mvestream.mve_audio_bufhead == mvestream.mve_audio_buffers.size())                                 /* next buffer */
+		if (std::cmp_equal(++mvestream.mve_audio_bufhead, mvestream.mve_audio_buffers.size()))                                 /* next buffer */
 			mvestream.mve_audio_bufhead = 0;
 		mvestream.mve_audio_curbuf_curpos = 0;
 	}
@@ -279,11 +280,11 @@ static void mve_audio_callback(void *const vstream, unsigned char *stream, int l
 		len -= len;                                                                     /* advance output (unnecessary) */
 
 		auto &a = mvestream.mve_audio_buffers[mvestream.mve_audio_bufhead];
-		if (mvestream.mve_audio_curbuf_curpos >= a.span().size_bytes())            /* if this ends the current chunk */
+		if (std::cmp_greater_equal(mvestream.mve_audio_curbuf_curpos, a.span().size_bytes()))            /* if this ends the current chunk */
 		{
 			a = {};                             /* free buffer */
 
-			if (++mvestream.mve_audio_bufhead == mvestream.mve_audio_buffers.size())                             /* next buffer */
+			if (std::cmp_equal(++mvestream.mve_audio_bufhead, mvestream.mve_audio_buffers.size()))                             /* next buffer */
 				mvestream.mve_audio_bufhead = 0;
 			mvestream.mve_audio_curbuf_curpos = 0;
 		}
@@ -296,7 +297,7 @@ bool MVESTREAM::queue_mve_audio_buffer(::dcx::unique_span<int16_t> &&buffer)
 {
 	const std::lock_guard lock{mve_audio_mutex};
 	auto next = mve_audio_buftail + 1;
-	if (next == mve_audio_buffers.size())
+	if (std::cmp_equal(next, mve_audio_buffers.size()))
 		next = 0;
 	if (next == mve_audio_bufhead)
 	{
