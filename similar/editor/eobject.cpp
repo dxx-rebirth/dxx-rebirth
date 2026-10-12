@@ -28,6 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <math.h>
 #include <string.h>
+#include <utility>
 
 #include "inferno.h"
 #include "segment.h"
@@ -309,8 +310,8 @@ int ObjectPlaceObject(void)
 	if (Cur_object_type == object_type::OBJ_PLAYER)
 	{
 		int num_players = compute_num_players();
-		Assert(num_players <= MAX_MULTI_PLAYERS);
-		if (num_players > MAX_PLAYERS)
+		Assert(std::cmp_less_equal(num_players, MAX_MULTI_PLAYERS));
+		if (std::cmp_greater(num_players, MAX_PLAYERS))
 			editor_status("You just placed a cooperative player object");
 		if (num_players == MAX_MULTI_PLAYERS) {
 			editor_status_fmt("Can't place player object.  Already %i players.", MAX_MULTI_PLAYERS);
@@ -391,12 +392,12 @@ int ObjectSelectNextinSegment(void)
 
 //Moves to next object in the mine, skipping the player
 int ObjectSelectNextInMine()
-{	int i;
+{	unsigned i;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	for (i=0;i<MAX_OBJECTS;i++) {
 		Cur_object_index++;
-		if (Cur_object_index>= MAX_OBJECTS ) Cur_object_index= 0;
+		if (std::cmp_greater_equal(Cur_object_index, +MAX_OBJECTS)) Cur_object_index= 0;
 
 		const auto &&objp = vcobjptr(Cur_object_index);
 		if (objp->type != object_type::OBJ_NONE && objp != ConsoleObject)
@@ -416,12 +417,12 @@ int ObjectSelectNextInMine()
 
 //Moves to next object in the mine, skipping the player
 int ObjectSelectPrevInMine()
-{	int i;
+{	unsigned i;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	for (i=0;i<MAX_OBJECTS;i++) {
 		if (!(Cur_object_index --))
-			Cur_object_index = MAX_OBJECTS-1;
+			Cur_object_index = static_cast<int>(MAX_OBJECTS) - 1;
 
 		const auto &&objp = vcobjptr(Cur_object_index);
 		if (objp->type != object_type::OBJ_NONE && objp != ConsoleObject)

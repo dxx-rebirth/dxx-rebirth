@@ -18,6 +18,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #include <span>
+#include <utility>
 #include <stdlib.h>
 #include <string.h>
 
@@ -246,7 +247,7 @@ int ui_get_filename(std::array<char, PATH_MAX> &filename, const char *const file
 	if (const auto p = strrchr(filename.data(), '/'))
 	{
 		const auto count = std::distance(filename.begin(), p);
-		if (count >= view_dir.size())
+		if (std::cmp_greater_equal(count, view_dir.size()))
 			/* This should never happen. */
 			return 0;
 		std::copy(std::begin(filename), p, std::begin(view_dir));
