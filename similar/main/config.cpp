@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <memory>
+#include <utility>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -184,7 +185,7 @@ static bool cfg_file_unchanged(const descent_cfg_file_prepared_text &current_cfg
 		return false;
 	}
 	const auto existing_file_size{PHYSFS_fileLength(f)};
-	if (existing_file_size != current_cfg_text.written)
+	if (!std::cmp_equal(existing_file_size, current_cfg_text.written))
 	{
 		/* The file is of a different length, so its contents must be
 		 * different.  A new file must be written.

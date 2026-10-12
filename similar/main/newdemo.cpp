@@ -1204,7 +1204,7 @@ void newdemo_record_start_frame(fix frame_time )
 		pause_game_world_time p;
 #if DXX_BUILD_DESCENT == 2
 
-		for (int i=0;i<MAX_OBJECTS;i++)
+		for (std::size_t i = 0; i < MAX_OBJECTS; ++i)
 		{
 			nd_record_v_objs[i]=0;
 			nd_record_v_viewobjs[i]=0;
@@ -4410,7 +4410,7 @@ int newdemo_swap_endian(const char *filename)
 	newdemo_write_end();	// and write it
 
 	swap_endian = 0;
-	complete = nd_playback_v_demosize == Newdemo_num_written;
+	complete = std::cmp_equal(nd_playback_v_demosize, Newdemo_num_written);
 	infile.reset();
 	outfile.reset();
 
