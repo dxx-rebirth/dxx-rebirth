@@ -4418,7 +4418,7 @@ void multi_do_orb_bonus(const playernum_t pnum, const multiplayer_rspan<multipla
 				: sound_effect::SOUND_HUD_RED_GOT_GOAL
 			) : sound_effect::SOUND_OPPONENT_HAS_SCORED, F1_0*2);
 
-	if (bonus > hoard_highest_record_stats.points)
+	if (std::cmp_greater(bonus, hoard_highest_record_stats.points))
 	{
 		hoard_highest_record_stats.player = pnum;
 		hoard_highest_record_stats.points = bonus;
@@ -5141,7 +5141,7 @@ void multi_restore_game(const unsigned slot, const unsigned id)
 				i.connected = player_connection_status::waiting;
    
 	const auto thisid = state_get_game_id(filename);
-	if (thisid!=id)
+	if (!std::cmp_equal(thisid, id))
 	{
 		nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{"A multi-save game was restored\nthat you are missing or does not\nmatch that of the others.\nYou must rejoin if you wish to\ncontinue."});
 		return;

@@ -6588,7 +6588,7 @@ static int udp_tracker_process_game(const std::span<const uint8_t> buf, const _s
 	p0 +=2;
 	if ((p1 = strstr(p0, "/")) == NULL)
 		return -1;
-	if (p1-p0 < 1 || p1-p0 > sizeof(sIP))
+	if (p1 - p0 < 1 || std::cmp_greater_equal(p1 - p0, sizeof(sIP)))
 		return -1;
 	memcpy(sIP, p0, p1-p0);
 
@@ -6597,7 +6597,7 @@ static int udp_tracker_process_game(const std::span<const uint8_t> buf, const _s
 	const auto p2 = strstr(p1, "c=");
 	if (p2 == nullptr)
 		return -1;
-	if (p2-p1-1 < 1 || p2-p1-1 > sizeof(sPort))
+	if (p2 - p1 - 1 < 1 || std::cmp_greater_equal(p2 - p1 - 1, sizeof(sPort)))
 		return -1;
 	memcpy(&sPort, p1, p2-p1-1);
 	if (!convert_text_portstring(sPort, iPort, true, true))
@@ -6607,7 +6607,7 @@ static int udp_tracker_process_game(const std::span<const uint8_t> buf, const _s
 	struct _sockaddr sAddr;
 	if(udp_dns_filladdr(sAddr, sIP, iPort, true, true) < 0)
 		return -1;
-	if (data_len < p2 - reinterpret_cast<const char *>(data) + 2)
+	if (std::cmp_less(data_len, p2 - reinterpret_cast<const char *>(data) + 2))
 		return -1;
 	if ((p3 = strstr(reinterpret_cast<const char *>(data), "z=")) == NULL)
 		return -1;
