@@ -472,7 +472,7 @@ objnum_t objnum_remote_to_local(const uint16_t remote_objnum, const int8_t owner
 	if (owner == owner_none)
 		return(remote_objnum);
 	// Map a remote object number from owner to a local object number
-	if ((owner >= N_players) || (owner < -1)) {
+	if (std::cmp_greater_equal(owner, N_players) || owner < -1) {
 		Int3(); // Illegal!
 		return(remote_objnum);
 	}
@@ -498,7 +498,7 @@ owned_remote_objnum objnum_local_to_remote(objnum_t local_objnum)
 	auto result = local_to_remote[local_objnum];
 	const char *emsg;
 	if (
-		((owner >= N_players || owner < -1) && (emsg = "illegal object owner", true)) ||
+		((std::cmp_greater_equal(owner, N_players) || owner < -1) && (emsg = "illegal object owner", true)) ||
 		(result >= MAX_OBJECTS && (emsg = "illegal object remote number", true))	// See Rob, object has no remote number!
 	)
 		throw std::runtime_error(emsg);
@@ -510,9 +510,9 @@ void map_objnum_local_to_remote(const objnum_t local_objnum, const int remote_ob
 	// Add a mapping from a network remote object number to a local one
 	Assert(local_objnum < MAX_OBJECTS);
 	Assert(remote_objnum > -1);
-	Assert(remote_objnum < MAX_OBJECTS);
+	Assert(std::cmp_less(remote_objnum, +MAX_OBJECTS));
 	Assert(owner > -1);
-	Assert(owner != Player_num);
+	Assert(!std::cmp_equal(owner, Player_num));
 
 	object_owner[local_objnum] = owner;
 
@@ -1475,7 +1475,7 @@ static void multi_send_message_end(const d_robot_info_array &Robot_info, fvmobjp
 
 			if (Show_kill_list == show_kill_list_mode::_1 || Show_kill_list == show_kill_list_mode::efficiency)
 			{
-				if (listpos == 0 || listpos >= N_players) {
+				if (listpos == 0 || std::cmp_greater_equal(listpos, N_players)) {
 					HUD_init_message_literal(HM_MULTI, "Invalid player number for kick.");
 					multi_message_index = 0;
 					multi_sending_message[Player_num] = msgsend_state::none;
@@ -2749,7 +2749,7 @@ void multi_send_player_deres(deres_type_t type)
 
 	Net_create_loc = 0;
 
-	if (count > command_length<multiplayer_command_t::MULTI_PLAYER_DERES>)
+	if (std::cmp_greater(count, command_length<multiplayer_command_t::MULTI_PLAYER_DERES>))
 	{
 		Int3(); // See Rob
 	}
@@ -4418,7 +4418,7 @@ void multi_do_orb_bonus(const playernum_t pnum, const multiplayer_rspan<multipla
 				: sound_effect::SOUND_HUD_RED_GOT_GOAL
 			) : sound_effect::SOUND_OPPONENT_HAS_SCORED, F1_0*2);
 
-	if (bonus > hoard_highest_record_stats.points)
+	if (std::cmp_greater(bonus, hoard_highest_record_stats.points))
 	{
 		hoard_highest_record_stats.player = pnum;
 		hoard_highest_record_stats.points = bonus;
@@ -5515,7 +5515,7 @@ bool MultiLevelInv_AllowSpawn(powerup_type_t powerup_type)
 
         if (MultiLevelInv.Initial[powerup_type] == 0 || MultiLevelInv.Current[powerup_type] > MultiLevelInv.Initial[powerup_type]) // Item does not exist in level or we have too many.
                 return 0;
-        else if (MultiLevelInv.Initial[powerup_type] - MultiLevelInv.Current[powerup_type] >= req_amount)
+	else if (std::cmp_greater_equal(MultiLevelInv.Initial[powerup_type] - MultiLevelInv.Current[powerup_type], req_amount))
                 return 1;
         return 0;
 }
@@ -6194,9 +6194,8 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 		case render_type::RT_MORPH:
 		case render_type::RT_POLYOBJ:
 		{
-			int i;
 			obj_rw->rtype.pobj_info.model_num = INTEL_INT(underlying_value(obj.rtype.pobj_info.model_num.dsx));
-			for (i=0;i<MAX_SUBMODELS;i++)
+			for (std::size_t i = 0; i < MAX_SUBMODELS; ++i)
 				obj_rw->rtype.pobj_info.anim_angles[i] = build_little_endian_angvec_from_native_endian(obj.rtype.pobj_info.anim_angles[i]);
 			obj_rw->rtype.pobj_info.subobj_flags             = INTEL_INT(obj.rtype.pobj_info.subobj_flags);
 			obj_rw->rtype.pobj_info.tmap_override            = INTEL_INT(obj.rtype.pobj_info.tmap_override);
@@ -6379,16 +6378,15 @@ void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 		case render_type::RT_MORPH:
 		case render_type::RT_POLYOBJ:
 		{
-			int i;
 			obj.rtype.pobj_info.model_num.dsx                = build_polygon_model_index_from_untrusted(INTEL_INT(obj_rw->rtype.pobj_info.model_num));
-			for (i=0;i<MAX_SUBMODELS;i++)
+			for (std::size_t i = 0; i < MAX_SUBMODELS; ++i)
 			{
 				obj.rtype.pobj_info.anim_angles[i] = build_native_endian_angvec_from_little_endian(obj_rw->rtype.pobj_info.anim_angles[i]);
 			}
 			obj.rtype.pobj_info.subobj_flags             = INTEL_INT(obj_rw->rtype.pobj_info.subobj_flags);
 			{
 				const auto t{INTEL_INT(obj_rw->rtype.pobj_info.tmap_override)};
-				obj.rtype.pobj_info.tmap_override = t < Textures.size() ? static_cast<texture_index>(t) : texture_index{UINT16_MAX};
+				obj.rtype.pobj_info.tmap_override = t >= 0 && std::cmp_less(t, Textures.size()) ? static_cast<texture_index>(t) : texture_index{UINT16_MAX};
 			}
 			obj.rtype.pobj_info.alt_textures             = INTEL_INT(obj_rw->rtype.pobj_info.alt_textures);
 			break;
