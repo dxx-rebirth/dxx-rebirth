@@ -2589,7 +2589,7 @@ deny_save_result deny_save_game(fvcobjptr &vcobjptr, const d_level_unique_contro
 
 namespace dcx {
 
-int state_get_game_id(const d_game_unique_state::savegame_file_path &filename)
+unsigned state_get_game_id(const d_game_unique_state::savegame_file_path &filename)
 {
 	callsign_t saved_callsign;
 
