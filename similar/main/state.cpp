@@ -488,9 +488,8 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 		case render_type::RT_MORPH:
 		case render_type::RT_POLYOBJ:
 		{
-			int i;
 			obj_rw->rtype.pobj_info.model_num                = underlying_value(obj.rtype.pobj_info.model_num.dsx);
-			for (i=0;i<MAX_SUBMODELS;i++)
+			for (std::size_t i = 0; i < MAX_SUBMODELS; ++i)
 			{
 				obj_rw->rtype.pobj_info.anim_angles[i].p = obj.rtype.pobj_info.anim_angles[i].p;
 				obj_rw->rtype.pobj_info.anim_angles[i].b = obj.rtype.pobj_info.anim_angles[i].b;
@@ -723,9 +722,8 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 		case render_type::RT_MORPH:
 		case render_type::RT_POLYOBJ:
 		{
-			int i;
 			obj.rtype.pobj_info.model_num.dsx            = build_polygon_model_index_from_untrusted(obj_rw->rtype.pobj_info.model_num);
-			for (i=0;i<MAX_SUBMODELS;i++)
+			for (std::size_t i = 0; i < MAX_SUBMODELS; ++i)
 			{
 				obj.rtype.pobj_info.anim_angles[i].p = obj_rw->rtype.pobj_info.anim_angles[i].p;
 				obj.rtype.pobj_info.anim_angles[i].b = obj_rw->rtype.pobj_info.anim_angles[i].b;
@@ -734,7 +732,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 			obj.rtype.pobj_info.subobj_flags             = obj_rw->rtype.pobj_info.subobj_flags;
 			{
 				const auto t{obj_rw->rtype.pobj_info.tmap_override};
-				obj.rtype.pobj_info.tmap_override = t < Textures.size() ? static_cast<texture_index>(t) : texture_index{UINT16_MAX};
+				obj.rtype.pobj_info.tmap_override = t >= 0 && std::cmp_less(t, Textures.size()) ? static_cast<texture_index>(t) : texture_index{UINT16_MAX};
 			}
 			obj.rtype.pobj_info.alt_textures             = obj_rw->rtype.pobj_info.alt_textures;
 			break;
@@ -976,7 +974,7 @@ uint8_t read_savegame_properties(const std::size_t savegame_index, d_game_unique
 	d_game_unique_state::savegame_description desc_storage;
 	d_game_unique_state::savegame_description &desc = dsc ? *dsc : desc_storage;
 	// Read description
-	if (const std::size_t buffer_size{std::size(desc)}; PHYSFSX_readBytes(fp, std::data(desc), buffer_size) != buffer_size)
+	if (const std::size_t buffer_size{std::size(desc)}; !std::cmp_equal(PHYSFSX_readBytes(fp, std::data(desc), buffer_size), buffer_size))
 		return 0;
 	desc.back() = 0;
 	if (sc_bmp)
@@ -1683,7 +1681,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		 * than that, then write as many entries as needed for the
 		 * level.
 		 */
-		const unsigned count = (Highest_segment_index + 1 > MAX_SEGMENTS_ORIGINAL)
+		const unsigned count = std::cmp_greater(Highest_segment_index + 1, MAX_SEGMENTS_ORIGINAL)
 			/* Every written element will be filled by the loop, so
 			 * there is no need to initialize the storage area.
 			 */
@@ -2405,7 +2403,7 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 
 	//	Load Light_subtracted
 	if (version >= 16) {
-		if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
+		if (std::cmp_greater(Highest_segment_index + 1, MAX_SEGMENTS_ORIGINAL))
 		{
 			for (unique_segment &useg : vmsegptr)
 			{

@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 #include <ranges>
+#include <utility>
 #include <ctype.h>
 #include <limits.h>
 
@@ -706,7 +707,7 @@ static void add_missions_to_list(mission_list_type &mission_list, mission_candid
 	 * recurse into subdirectories and to open individual missions will
 	 * not work correctly.
 	 */
-	assert(std::distance(path.begin(), rel_path) < path.size() - 1);
+	assert(std::cmp_less(std::distance(path.begin(), rel_path), path.size() - 1));
 	assert(!*rel_path);
 	assert(path.begin() == rel_path || *std::prev(rel_path) == '/');
 	const std::size_t space_remaining = std::distance(rel_path, path.end());

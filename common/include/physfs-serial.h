@@ -7,6 +7,7 @@
 #pragma once
 
 #include <stdexcept>
+#include <utility>
 #include "physfsx.h"
 #include "serial.h"
 
@@ -33,14 +34,14 @@ public:
 template <typename exception_type>
 void PHYSFSX_serialize_read_bytes(const NamedPHYSFS_File fp, uint8_t *const buf, const std::size_t size)
 {
-	if (PHYSFSX_readBytes(fp, buf, size) != size) [[unlikely]]
+	if (!std::cmp_equal(PHYSFSX_readBytes(fp, buf, size), size)) [[unlikely]]
 		throw exception_type{fp};
 }
 
 template <typename exception_type>
 void PHYSFSX_serialize_write_bytes(PHYSFS_File *fp, const uint8_t *const buf, const std::size_t size)
 {
-	if (PHYSFS_writeBytes(fp, buf, size) != size) [[unlikely]]
+	if (!std::cmp_equal(PHYSFS_writeBytes(fp, buf, size), size)) [[unlikely]]
 		throw exception_type{fp};
 }
 

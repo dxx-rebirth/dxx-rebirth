@@ -372,7 +372,7 @@ static void build_sound_allocation(const NamedPHYSFS_File fp)
 	const unsigned sound_headers_size = N_sounds * sizeof(DiskSoundHeader);
 	std::array<std::byte, MAX_SOUNDS * sizeof(DiskSoundHeader)> buf;
 	auto sbuf{std::span(buf).first(sound_headers_size)};
-	if (PHYSFS_readBytes(fp, sbuf.data(), sbuf.size()) != sbuf.size()) [[unlikely]]
+	if (!std::cmp_equal(PHYSFS_readBytes(fp, sbuf.data(), sbuf.size()), sbuf.size())) [[unlikely]]
 		PHYSFSX_read_helper_report_error(__FILE__, __LINE__, __FUNCTION__, fp);
 	const unsigned offset_adjustment{sound_headers_start + sound_headers_size};
 	unsigned required_allocation_size{0};
@@ -658,7 +658,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 		GameBitmapFlags[bi] = bmh.flags & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT | BM_FLAG_NO_LIGHTING | BM_FLAG_RLE);
 
 		GameBitmapOffset[bi] = static_cast<pig_bitmap_offset>(bmh.offset + header_size + (sizeof(int)*2) + Pigdata_start);
-		Assert( (i+1) == Num_bitmap_files );
+		Assert(std::cmp_equal(i + 1, Num_bitmap_files));
 
 		//size -= sizeof(DiskBitmapHeader);
 		const BitmapNameFromHeader bitmap_name(bmh);
@@ -693,7 +693,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 	{
 		std::array<std::byte, MAX_SOUNDS * sizeof(DiskSoundHeader)> buf;
 		auto sbuf{std::span(buf).first(N_sounds * sizeof(DiskSoundHeader))};
-		if (const NamedPHYSFS_File fp = Piggy_fp; PHYSFS_readBytes(fp, sbuf.data(), sbuf.size()) != sbuf.size()) [[unlikely]]
+		if (const NamedPHYSFS_File fp = Piggy_fp; !std::cmp_equal(PHYSFS_readBytes(fp, sbuf.data(), sbuf.size()), sbuf.size())) [[unlikely]]
 			PHYSFSX_read_helper_report_error(__FILE__, __LINE__, __FUNCTION__, fp);
 		for (; !sbuf.empty(); sbuf = sbuf.subspan<sizeof(DiskSoundHeader)>())
 		{
@@ -814,7 +814,7 @@ void piggy_init_pigfile(const std::span<const char> filename)
 
 		GameBitmapFlags[bi] = bmh.flags & BM_FLAGS_TO_COPY;
 		GameBitmapOffset[bi] = pig_bitmap_offset{bmh.offset + data_start};
-		Assert( (i+1) == Num_bitmap_files );
+		Assert(std::cmp_equal(i + 1, Num_bitmap_files));
 		piggy_register_bitmap(*bm, temp_name, 1);
 	}
 
@@ -1242,7 +1242,7 @@ void piggy_read_sounds(int pc_shareware)
 			return;
 		}
 
-		for (i = 0; i < MAX_SOUND_FILES; i++)
+		for (i = 0; std::cmp_less(i, +MAX_SOUND_FILES); ++i)
 		{
 			snprintf(soundfile, sizeof(soundfile), "SND%04d.raw", i);
 			if (ds_load(0, soundfile) == 255)
