@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <algorithm>
 #include <span>
+#include <utility>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -190,8 +191,8 @@ static void read_model_file(polymodel &pm, const char *const filename, robot_inf
 		{
 			case ID_OHDR: {		//Object header
 				const auto n_models{pof_read_int(model_buf, Pof_addr)};
-				if (!(n_models <= MAX_SUBMODELS))
-					Error("Invalid model file <%s>: too many submodels in object header: %u", filename, n_models);
+				if (n_models < 0 || std::cmp_greater(n_models, MAX_SUBMODELS))
+					Error("Invalid model file <%s>: too many submodels in object header: %u", filename, static_cast<unsigned>(n_models));
 				pm.n_models = n_models;
 				pm.rad = pof_read_int(model_buf, Pof_addr);
 				{

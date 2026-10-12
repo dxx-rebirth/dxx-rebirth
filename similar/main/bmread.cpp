@@ -1164,7 +1164,8 @@ static std::size_t bm_read_wclip(std::size_t texture_count, int skip)
 {
 	auto &TmapInfo = LevelUniqueTmapInfoState.TmapInfo;
 	auto &WallAnims = GameSharedState.WallAnims;
-	Assert(clip_num < MAX_WALL_ANIMS);
+	if (std::cmp_less(clip_num, 0) || std::cmp_greater_equal(clip_num, MAX_WALL_ANIMS))
+		Error("Invalid wall clip number %i", clip_num);
 
 	auto &wa = WallAnims[clip_num];
 	wa.flags = wall_explodes_flag | wall_blastable_flag | wall_hidden_flag | tmap1_flag;
@@ -1186,7 +1187,7 @@ static std::size_t bm_read_wclip(std::size_t texture_count, int skip)
 		Assert(texture_count < MAX_TEXTURES);
 		texture_count++;
 		NumTextures = texture_count;
-		if (clip_num >= Num_wall_anims) Num_wall_anims = clip_num+1;
+		if (std::cmp_greater_equal(clip_num, Num_wall_anims)) Num_wall_anims = clip_num + 1;
 	} else {
 		std::array<bitmap_index, MAX_BITMAPS_PER_BRUSH> bm;
 		unsigned nframes;
@@ -1206,7 +1207,7 @@ static std::size_t bm_read_wclip(std::size_t texture_count, int skip)
 		strcpy(&wa.filename[0], arg);
 		REMOVE_DOTS(&wa.filename[0]);
 
-		if (clip_num >= Num_wall_anims) Num_wall_anims = clip_num+1;
+		if (std::cmp_greater_equal(clip_num, Num_wall_anims)) Num_wall_anims = clip_num + 1;
 
 		set_lighting_flag(GameBitmaps[bm[clip_count]]);
 
@@ -1335,7 +1336,7 @@ static void adjust_field_of_view(per_difficulty_level_array<fix> &fovp)
 static polygon_simpler_model_index build_polygon_simpler_model_index_from_polygon_model_index(const polygon_model_index i)
 {
 	const auto ii = underlying_value(i) + 1;
-	if (ii > MAX_POLYGON_MODELS)
+	if (ii < 0 || std::cmp_greater(ii, MAX_POLYGON_MODELS))
 		return polygon_simpler_model_index::None;
 	return static_cast<polygon_simpler_model_index>(ii);
 }
@@ -1376,7 +1377,7 @@ void bm_read_sound(int skip)
 		get_int()
 	};
 
-	if ( read_sound_num>=MAX_SOUNDS )
+	if (read_sound_num < 0 || std::cmp_greater_equal(read_sound_num, +MAX_SOUNDS))
 		Error( "Too many sound files.\n" );
 
 	if (read_sound_num >= num_sounds)
@@ -1467,7 +1468,7 @@ void bm_read_robot_ai(d_robot_info_array &Robot_info, const int skip)
 static grs_bitmap *load_polymodel_bitmap(int skip, const char *name)
 {
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
-	assert(N_ObjBitmaps < ObjBitmaps.size());
+	assert(std::cmp_greater_equal(N_ObjBitmaps, 0) && std::cmp_less(N_ObjBitmaps, ObjBitmaps.size()));
 
 //	Assert( N_ObjBitmaps == N_ObjBitmapPtrs );
 
