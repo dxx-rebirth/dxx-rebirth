@@ -268,7 +268,7 @@ void jukebox_load()
 	if (num_songs)
 	{
 		con_printf(CON_DEBUG,"Jukebox: %" DXX_PRI_size_type " music file(s) found in %s", num_songs, cfgpath.data());
-		if (CGameCfg.CMLevelMusicTrack[1] != num_songs)
+		if (!std::cmp_equal(CGameCfg.CMLevelMusicTrack[1], num_songs))
 		{
 			CGameCfg.CMLevelMusicTrack[1] = num_songs;
 			CGameCfg.CMLevelMusicTrack[0] = 0; // number of songs changed so start from beginning.
