@@ -226,7 +226,7 @@ private:
 	savegame_chooser_newmenu(menu_subtitle caption, grs_canvas &src, d_game_unique_state::savegame_description *, d_game_unique_state::savegame_file_path &);
 	d_game_unique_state::save_slot build_save_slot_from_citem() const
 	{
-		if (citem < decorative_item_count)
+		if (std::cmp_less(citem, decorative_item_count))
 			return d_game_unique_state::save_slot::None;
 		return static_cast<d_game_unique_state::save_slot>(citem - decorative_item_count);
 	}
