@@ -1482,7 +1482,7 @@ static std::pair<Edge_info &, std::size_t> automap_find_edge(automap &am, const 
 
 static void add_one_edge(automap &am, vertnum_t va, vertnum_t vb, const uint8_t color, const sidenum_t side, const segnum_t segnum, const uint8_t flags)
 {
-	if (am.num_edges >= am.max_edges)
+	if (std::cmp_greater_equal(am.num_edges, am.max_edges))
 	{
 		// GET JOHN! (And tell him that his
 		// MAX_EDGES_FROM_VERTS formula is hosed.)
