@@ -7,6 +7,7 @@
 /* 8 bit decoding routines */
 
 #include <algorithm>
+#include <utility>
 #include <cstdint>
 #include <stdio.h>
 #include <string.h>
@@ -318,11 +319,11 @@ static void dispatchDecoder(const uint8_t *const vBackBuf1, const uint8_t *const
 		{
 			(void)i;
 			*pFrame += 16;
-			if (++*curXb == (width >> 3))
+			if (std::cmp_equal(++*curXb, width >> 3))
 			{
 				*pFrame += 7 * width;
 				*curXb = 0;
-				if (++*curYb == (height >> 3))
+				if (std::cmp_equal(++*curYb, height >> 3))
 					return;
 			}
 		}

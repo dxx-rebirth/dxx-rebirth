@@ -646,7 +646,7 @@ static void render_object_search(grs_canvas &canvas, const d_level_unique_light_
 
 static void do_render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const vmobjptridx_t obj, window_rendered_data &window)
 {
-	int count{0};
+	std::size_t count{0};
 
 	#ifndef NDEBUG
 	if (object_rendered[obj]) {		//already rendered this...
@@ -1435,7 +1435,7 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 			 * control-flow assertion encourages it to prune the bad path
 			 * before warning about it.
 			 */
-			cf_assert(std::distance(child_begin, child_iter) <= std::size(Side_to_verts));
+			cf_assert(std::cmp_less_equal(std::distance(child_begin, child_iter), std::size(Side_to_verts)));
 
 			//now order the sides in some magical way
 			const auto &&child_range{std::ranges::subrange(child_begin, child_iter)};
@@ -1511,7 +1511,7 @@ static void build_segment_list(render_state_t &rstate, const vms_vector &Viewer_
 								chrsm.render_window = nw;
 							}
 							lcnt++;
-							if (lcnt >= MAX_RENDER_SEGS) {goto done_list;}
+							if (std::cmp_greater_equal(lcnt, +MAX_RENDER_SEGS)) {goto done_list;}
 							visited[ch] = 1;
 no_add:
 	;

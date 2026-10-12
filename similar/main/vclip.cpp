@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #include <stdlib.h>
+#include <utility>
 #include "dxxerror.h"
 #include "inferno.h"
 #include "laser.h"
@@ -55,7 +56,7 @@ void draw_vclip_object(grs_canvas &canvas, const vcobjptridx_t obj, const fix ti
 	const auto nf = vc.num_frames;
 	int bitmapnum = (nf - f2i(fixdiv((nf - 1) * timeleft, vc.play_time))) - 1;
 
-	if (bitmapnum >= vc.num_frames)
+	if (bitmapnum < 0 || std::cmp_greater_equal(bitmapnum, vc.num_frames))
 		bitmapnum = vc.num_frames - 1;
 
 	if (bitmapnum >= 0 )	{
