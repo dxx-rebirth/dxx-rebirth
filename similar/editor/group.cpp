@@ -39,7 +39,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "bm.h"				// For MAX_TEXTURES.
 #include "textures.h"
-#include "hash.h"
 #include "kdefs.h"
 #include "fwd-wall.h"
 #include "medwall.h"
@@ -1136,7 +1135,6 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 	int vertnum;
 	char ErrorMessage[200];
         int translate{0};
-	char 	*temptr;
 	segment tseg;
 	auto &&[LoadFile, physfserr] = PHYSFSX_openReadBuffered(filename);
 	if (!LoadFile)
@@ -1327,26 +1325,23 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 	
 	Assert (NumTextures < MAX_TEXTURES);
 {
-	hashtable ht;
+	icase_filename_map<12> ht;
 	// Remove all the file extensions in the textures list
 
 	for (unsigned i = 0; i < NumTextures; ++i)
 	{
-		temptr = strchr(&TmapInfo[i].filename[0u], '.');
-		if (temptr) *temptr = '\0';
-		hashtable_insert( &ht, &TmapInfo[i].filename[0u], i );
+		const std::span s{TmapInfo[i].filename};
+		ht.emplace({s.begin(), std::ranges::find(s, '.')}, i);
 	}
 
 	// For every texture, search through the texture list
 	// to find a matching name.
 	for (unsigned j = 0; j < group_fileinfo.texture_howmany; ++j)
 	{
-		// Remove this texture name's extension
-		temptr = strchr(&old_tmap_list[j][0u], '.');
-		if (temptr) *temptr = '\0';
-
-		const auto s{hashtable_search( &ht, static_cast<const char *>(old_tmap_list[j]))};
-		tmap_xlate_table[j] = (s < 0 || s >= tmap_xlate_table.size()) ? 0 : s;
+		// Use only the basename of the texture, ignoring any extension.
+		const std::span s{old_tmap_list[j]};
+		const auto s{ht.find({s.begin(), std::ranges::find(s, '.')})};
+		tmap_xlate_table[j] = (!s || *s >= tmap_xlate_table.size()) ? 0 : *s;
 		if (tmap_xlate_table[j] != j ) translate = 1;
 	}
 }
