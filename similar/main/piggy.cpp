@@ -120,10 +120,6 @@ namespace {
 static std::unique_ptr<ubyte[]> BitmapBits;
 static std::unique_ptr<ubyte[]> SoundBits;
 
-struct SoundFile
-{
-	std::array<char, 15> name;
-};
 }
 
 #if DXX_BUILD_DESCENT == 2
@@ -157,7 +153,6 @@ GameBitmaps_array GameBitmaps;
 static char default_pigfile_registered[]{DEFAULT_PIGFILE_REGISTERED};
 #endif
 namespace {
-static std::array<SoundFile, MAX_SOUND_FILES> AllSounds;
 
 #define DBM_FLAG_ABM    64 // animated bitmap
 
@@ -438,9 +433,6 @@ int piggy_register_sound(digi_sound &&snd, const std::span<const char> name)
 
 	Assert( Num_sound_files < MAX_SOUND_FILES );
 
-	auto &asn = AllSounds[Num_sound_files].name;
-	std::memcpy(asn.data(), name.data(), std::min(asn.size() - 1, name.size()));
-	asn.back() = 0;
 	AllDigiSndNames.emplace(name, Num_sound_files);
 	auto &gs = GameSounds[Num_sound_files];
 	gs = std::move(snd);
