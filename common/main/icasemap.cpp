@@ -76,5 +76,6 @@ std::optional<int> icase_filename_map<maximum_filename_bytes>::find(const std::s
 }
 
 template struct icase_filename_map<14>;	// digi_sound_filename_map
+template struct icase_filename_map<12>;	// bitmap_filename_map
 
 }

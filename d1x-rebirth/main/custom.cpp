@@ -146,7 +146,7 @@ static int load_pig1(const NamedPHYSFS_File f, unsigned num_bitmaps, unsigned nu
 		snprintf(name, sizeof(name), "%.8s%c%d", bmh.name, (bmh.dflags & DBM_FLAG_ABM) ? '#' : 0, bmh.dflags & 63);
 
 		cip->offset = bmh.offset + data_ofs;
-		cip->repl_idx = custom_info::replacement_index{hashtable_search(&AllBitmapsNames, name)};
+		cip->repl_idx = custom_info::replacement_index{AllBitmapsNames.find(name).value_or(-1)};
 		cip->flags = bmh.flags & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT | BM_FLAG_NO_LIGHTING | BM_FLAG_RLE);
 		cip->width = bmh.width + ((bmh.dflags & DBM_FLAG_LARGE) ? 256 : 0);
 		cip->height = bmh.height;

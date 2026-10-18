@@ -38,7 +38,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "sounds.h"
 #include "digi.h"
 #include "bm.h"
-#include "hash.h"
 #include "common/2d/bitmap.h"
 #include "args.h"
 #include "palette.h"
@@ -125,7 +124,7 @@ static std::unique_ptr<ubyte[]> SoundBits;
 #if DXX_BUILD_DESCENT == 2
 namespace {
 #endif
-hashtable AllBitmapsNames;
+bitmap_filename_map AllBitmapsNames;
 per_bitmap_index_array<pig_bitmap_offset> GameBitmapOffset;
 #if DXX_BUILD_DESCENT == 2
 static std::unique_ptr<uint8_t[]> Bitmap_replacement_data;
@@ -414,7 +413,7 @@ bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const std::span<const char> 
 	auto &abn = AllBitmaps[temp].name;
 	std::memcpy(abn.data(), name.data(), std::min(abn.size() - 1, name.size()));
 	abn.back() = 0;
-	hashtable_insert(&AllBitmapsNames, AllBitmaps[temp].name.data(), Num_bitmap_files);
+	AllBitmapsNames.emplace(name, Num_bitmap_files);
 #if DXX_BUILD_DESCENT == 1
 	GameBitmaps[temp] = bmp;
 #endif
@@ -467,11 +466,9 @@ bitmap_index piggy_find_bitmap(const std::span<const char> entry_name)
 		}
 #endif
 
-	const auto i = hashtable_search(&AllBitmapsNames, name.data());
-	Assert( i != 0 );
-	if ( i < 0 )
-		return bitmap_index{};
-	return bitmap_index{static_cast<uint16_t>(i)};
+	if (const auto i{AllBitmapsNames.find(name)}) [[likely]]
+		return bitmap_index{static_cast<uint16_t>(*i)};
+	return bitmap_index{};
 }
 
 namespace {
@@ -823,9 +820,7 @@ void piggy_init_pigfile(const std::span<const char> filename)
 void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 {
 	int header_size, N_bitmaps;
-#if DXX_USE_EDITOR
-	int must_rewrite_pig{0};
-#endif
+	bool must_rewrite_pig{false};
 
 	d_strlwr(pigname.data());
 
@@ -896,6 +891,22 @@ void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 
 		const unsigned data_start = header_size + PHYSFS_tell(fp);
 
+		/* At this point, the program had previously loaded one PIG file, and
+		 * is now replacing it with a different one.  Both the old and new PIG
+		 * file must supply the same bitmap names, in the same order.  Previous
+		 * releases of Descent did not check this, and copied the bitmap names
+		 * into the backing store of the hash table, without updating the
+		 * control information of the hash table.  If the new name would hash
+		 * differently than the one it overwrote, then the hash table would
+		 * misbehave.  Editor-enabled builds would try to detect this, and
+		 * would rebuild the PIG file to try to recover.
+		 *
+		 * No one ever reported a failure caused by the hash table backing data
+		 * being overwritten, so it seems likely that all release-quality data
+		 * files follow the rule that all the PIG files from the release keep
+		 * the names synchronized.  For completeness, verify that the names are
+		 * correct, and rebuild `AllBitmapsNames` if they are not.
+		 */
 		for (unsigned i = 1; i <= N_bitmaps; ++i)
 		{
 			const bitmap_index bi{static_cast<uint16_t>(i)};
@@ -904,18 +915,61 @@ void piggy_new_pigfile(const std::span<char, FILENAME_LEN> pigname)
 			
 			const auto bmh = DiskBitmapHeader_read(fp);
 			const BitmapNameFromHeader bitmap_name(bmh);
-			const auto &temp_name = bitmap_name.name;
-			auto &abn = AllBitmaps[bi];
-#if DXX_USE_EDITOR
-			//Make sure name matches
-			if (strcmp(temp_name.data(), abn.name.data()))
+			auto &bitmap_name_map{AllBitmapsNames.m};
+			/* Build the key first because it is always needed.  If rewrite is
+			 * not in progress from a prior iteration of the loop, then the key
+			 * is needed as part of the search to confirm that this element
+			 * does not trigger a rewrite.  If rewrite is in progress, then the
+			 * key is needed as part of constructing a new entry.
+			 */
+			const decltype(AllBitmapsNames.m)::key_type bitmap_lookup_key{bitmap_filename_map::icase_key_pair{bitmap_name.name, {}}};
+			if (!must_rewrite_pig) [[likely]]
 			{
-				//Int3();       //this pig is out of date.  Delete it
-				must_rewrite_pig=1;
+				const auto bitmap_name_end{bitmap_name_map.end()};
+				/* Check that the new name is present in the map, and that the
+				 * node in the map has the same value as would be used if the
+				 * name were emplaced now.  If both those conditions are true,
+				 * then the content in the map is current and no changes are
+				 * needed.  Otherwise, the loaded map differs from the map that
+				 * would be built if the current PIG were loaded first.  The
+				 * map must be modified to make it equivalent to the one that
+				 * would be built.
+				 * - Entries less than the current node were checked on prior
+				 *   passes of the bitmap iteration loop, and were determined
+				 *   then to be correct.  Leave them as-is in the map.
+				 * - Erase all nodes with values greater-or-equal to the
+				 *   current node.  Some of the erased nodes might be correct
+				 *   as-is, but erasing everything and rebuilding them is
+				 *   cheaper than repeatedly searching the map for every
+				 *   incorrect bitmap.
+				 * - Set `must_rewrite_pig = true` to flag that all future PIG
+				 *   entries processed by the bitmap iteration loop need to be
+				 *   emplaced into the map.
+				 */
+				if (const auto lookup_iter{bitmap_name_map.find(bitmap_lookup_key)}; lookup_iter == bitmap_name_end || lookup_iter->second != i)
+				{
+					[[unlikely]];
+					must_rewrite_pig = true;
+					for (auto erasure_iter{bitmap_name_map.begin()}; erasure_iter != bitmap_name_end;)
+					{
+						if (erasure_iter->second >= i)
+							erasure_iter = bitmap_name_map.erase(erasure_iter);
+						else
+							++ erasure_iter;
+					}
+				}
 			}
-#endif
-			abn = {};
-			std::copy(temp_name.begin(), temp_name.end(), abn.name.begin());
+			/* This cannot be an `else` to the above `if`, because the above
+			 * `if` may set `must_rewrite_pig = true`.  If that happens, then
+			 * both the `if (!must_rewrite_pig)` and `if (must_rewrite_pig)`
+			 * branches will run.
+			 *
+			 * If `must_rewrite_pig` is true, then the map is being rebuilt.
+			 * Emplace this bitmap into the map, with the value it would have
+			 * had if this PIG were the first one loaded by the game.
+			 */
+			if (must_rewrite_pig) [[unlikely]]
+				bitmap_name_map.emplace(bitmap_lookup_key, i);
 
 			width = bmh.width + (static_cast<short>(bmh.wh_extra & 0x0f) << 8);
 			gr_set_bitmap_data(*bm, NULL);	// free ogl texture

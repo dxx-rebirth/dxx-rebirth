@@ -154,9 +154,9 @@ extern ubyte bogus_bitmap_initialized;
 #define space_tab " \t"
 #define equal_space " \t="
 #ifdef DXX_BUILD_DESCENT
+using bitmap_filename_map = icase_filename_map<12>;
 #if DXX_BUILD_DESCENT == 1
-#include "hash.h"
-extern hashtable AllBitmapsNames;
+extern bitmap_filename_map AllBitmapsNames;
 #endif
 #endif
 
