@@ -143,16 +143,6 @@ namespace dsx {
 namespace {
 #if DXX_BUILD_DESCENT == 1
 static short		N_ObjBitmaps=0;
-
-[[nodiscard]]
-static auto build_file_basename_copy(const char *const filename)
-{
-	std::array<char, 20> result{};
-	auto basename_span{build_file_basename_span(filename)};
-	if (const std::size_t rawlen{basename_span.size()}; rawlen < result.size()) [[likely]]
-		memcpy(result.data(), filename, rawlen);
-	return result;
-}
 #endif
 }
 
@@ -301,7 +291,7 @@ static bitmap_index bm_load_sub(const int skip, const char *const filename)
 	}
 
 #if DXX_BUILD_DESCENT == 1
-	const auto fname{build_file_basename_copy(filename)};
+	const auto fname{build_file_basename_span(filename)};
 #elif DXX_BUILD_DESCENT == 2
 	std::array<char, 20> fname{};
 	const auto path = d_splitpath(filename);
