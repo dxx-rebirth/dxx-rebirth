@@ -316,7 +316,6 @@
 		14F8A9851A2D6320003AA93A /* func.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = func.h; sourceTree = "<group>"; };
 		14F8A9871A2D6320003AA93A /* gr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gr.h; sourceTree = "<group>"; };
 		14F8A9881A2D6320003AA93A /* grdef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = grdef.h; sourceTree = "<group>"; };
-		14F8A9891A2D6320003AA93A /* hash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hash.h; sourceTree = "<group>"; };
 		14F8A98B1A2D6320003AA93A /* hmp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hmp.h; sourceTree = "<group>"; };
 		14F8A98C1A2D6320003AA93A /* iff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iff.h; sourceTree = "<group>"; };
 		14F8A98D1A2D6320003AA93A /* ignorecase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ignorecase.h; sourceTree = "<group>"; };
@@ -945,7 +944,6 @@
 				EB46A1E31C67542600C2C377 /* fwd-window.h */,
 				14F8A9871A2D6320003AA93A /* gr.h */,
 				14F8A9881A2D6320003AA93A /* grdef.h */,
-				14F8A9891A2D6320003AA93A /* hash.h */,
 				14F8A98B1A2D6320003AA93A /* hmp.h */,
 				14F8A98C1A2D6320003AA93A /* iff.h */,
 				14F8A98D1A2D6320003AA93A /* ignorecase.h */,

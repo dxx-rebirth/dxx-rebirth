@@ -44,7 +44,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "newmenu.h"
 #include "fuelcen.h"
-#include "hash.h"
 #include "piggy.h"
 #include "player.h"
 #include "playsave.h"

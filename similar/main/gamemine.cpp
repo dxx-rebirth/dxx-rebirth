@@ -42,7 +42,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "switch.h"
 #include "game.h"
 #include "fuelcen.h"
-#include "hash.h"
 #include "piggy.h"
 #include "gamesave.h"
 #include "compiler-poison.h"

@@ -5072,7 +5072,6 @@ class DXXArchive(DXXCommon):
 'common/maths/rand.cpp',
 'common/mem/mem.cpp',
 'common/misc/error.cpp',
-'common/misc/hash.cpp',
 'common/misc/hmp.cpp',
 'common/misc/ignorecase.cpp',
 'common/misc/physfsrwops.cpp',
