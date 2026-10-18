@@ -474,18 +474,6 @@ bitmap_index piggy_find_bitmap(const std::span<const char> entry_name)
 	return bitmap_index{static_cast<uint16_t>(i)};
 }
 
-}
-
-int piggy_find_sound(const std::span<const char> name)
-{
-	if (const auto i{AllDigiSndNames.find(name)}) [[likely]]
-		return *i;
-	else
-		return 255;
-}
-
-namespace dsx {
-
 namespace {
 
 static void piggy_close_file()

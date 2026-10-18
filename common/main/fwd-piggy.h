@@ -144,10 +144,6 @@ void bitmap_index_read_n(NamedPHYSFS_File fp, std::ranges::subrange<bitmap_index
 
 }
 
-int piggy_find_sound(std::span<const char> name);
-
-void piggy_read_bitmap_data(grs_bitmap * bmp);
-
 #define REMOVE_EOL(s)		remove_char((s),'\n')
 #define REMOVE_COMMENTS(s)	remove_char((s),';')
 #define REMOVE_DOTS(s)  	remove_char((s),'.')

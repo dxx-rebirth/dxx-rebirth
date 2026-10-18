@@ -49,6 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "textures.h"
 #include "game.h"
 #include "iff.h"
+#include "icasemap.h"
 #include "hostage.h"
 #include "powerup.h"
 #include "sounds.h"
@@ -421,16 +422,14 @@ int ds_load(int skip, const char * filename )	{
 	}
 
 	const auto fname{build_file_basename_span(filename)};
+	if (const auto i{AllDigiSndNames.find(fname)}) [[likely]]
+		return *i;
 #if DXX_BUILD_DESCENT == 1
 	snprintf(rawname, sizeof(rawname), "Sounds/%.*s.raw", static_cast<int>(fname.size()), fname.data());
 #elif DXX_BUILD_DESCENT == 2
 	snprintf(rawname, sizeof(rawname), "Sounds/%.*s.r%s", static_cast<int>(fname.size()), fname.data(), (GameArg.SndDigiSampleRate == sound_sample_rate::_22k) ? "22" : "aw");
 #endif
 
-	const auto i = piggy_find_sound(fname);
-	if (i!=255)	{
-		return i;
-	}
 	if (auto cfp{PHYSFSX_openReadBuffered_updateCase(rawname).first})
 	{
 		const uint32_t length = PHYSFS_fileLength(cfp);
