@@ -104,6 +104,7 @@ std::array<alias, MAX_ALIASES> alias_list;
 pig_hamfile_version Piggy_hamfile_version;
 
 char descent_pig_basename[]{D1_PIGFILE};
+per_bitmap_index_array<BitmapFile> AllBitmaps;
 
 }
 #endif
@@ -139,9 +140,7 @@ namespace dsx {
 grs_bitmap bogus_bitmap;
 bool MacPig;	// using the Macintosh pigfile?
 bool PCSharePig; // using PC Shareware pigfile?
-static
 #endif
-per_bitmap_index_array<BitmapFile> AllBitmaps;
 std::array<digi_sound, MAX_SOUND_FILES> GameSounds;
 GameBitmaps_array GameBitmaps;
 }
@@ -396,7 +395,8 @@ static void build_sound_allocation(const NamedPHYSFS_File fp)
 
 bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const std::span<const char> name, const int in_file)
 {
-	assert(Num_bitmap_files < AllBitmaps.size());
+	if (Num_bitmap_files >= GameBitmapOffset.size())
+		return {};
 	const bitmap_index temp{static_cast<uint16_t>(Num_bitmap_files)};
 
 	if (!in_file) {
@@ -410,9 +410,11 @@ bitmap_index piggy_register_bitmap(grs_bitmap &bmp, const std::span<const char> 
 			gr_bitmap_rle_compress(bmp);
 	}
 
+#if DXX_BUILD_DESCENT == 2
 	auto &abn = AllBitmaps[temp].name;
 	std::memcpy(abn.data(), name.data(), std::min(abn.size() - 1, name.size()));
 	abn.back() = 0;
+#endif
 	AllBitmapsNames.emplace(name, Num_bitmap_files);
 #if DXX_BUILD_DESCENT == 1
 	GameBitmaps[temp] = bmp;
