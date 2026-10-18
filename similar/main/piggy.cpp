@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "gr.h"
 #include "u_mem.h"
+#include "icasemap.h"
 #include "iff.h"
 #include "dxxerror.h"
 #include "sounds.h"
@@ -108,6 +109,12 @@ char descent_pig_basename[]{D1_PIGFILE};
 }
 #endif
 
+namespace dcx {
+
+digi_sound_filename_map AllDigiSndNames;
+
+}
+
 namespace {
 
 static std::unique_ptr<ubyte[]> BitmapBits;
@@ -123,7 +130,6 @@ struct SoundFile
 namespace {
 #endif
 hashtable AllBitmapsNames;
-hashtable AllDigiSndNames;
 per_bitmap_index_array<pig_bitmap_offset> GameBitmapOffset;
 #if DXX_BUILD_DESCENT == 2
 static std::unique_ptr<uint8_t[]> Bitmap_replacement_data;
@@ -384,7 +390,7 @@ static void build_sound_allocation(const NamedPHYSFS_File fp)
 			.length{sndh.length},
 			.freq{freq},
 			.data{digi_sound::allocated_data::build_deferred_borrowed_pointer(game_sound_offset{sndh.offset + offset_adjustment})}
-			}, std::span(sndh.name).first<8>());
+			}, sndh.name);
 		if (piggy_is_needed(i))
 			required_allocation_size += sndh.length;
 	}
@@ -435,7 +441,7 @@ int piggy_register_sound(digi_sound &&snd, const std::span<const char> name)
 	auto &asn = AllSounds[Num_sound_files].name;
 	std::memcpy(asn.data(), name.data(), std::min(asn.size() - 1, name.size()));
 	asn.back() = 0;
-	hashtable_insert(&AllDigiSndNames, asn.data(), Num_sound_files);
+	AllDigiSndNames.emplace(name, Num_sound_files);
 	auto &gs = GameSounds[Num_sound_files];
 	gs = std::move(snd);
 	i = Num_sound_files;
@@ -480,10 +486,10 @@ bitmap_index piggy_find_bitmap(const std::span<const char> entry_name)
 
 int piggy_find_sound(const std::span<const char> name)
 {
-	const auto i = hashtable_search(&AllDigiSndNames, name.data());
-	if ( i < 0 )
+	if (const auto i{AllDigiSndNames.find(name)}) [[likely]]
+		return *i;
+	else
 		return 255;
-	return i;
 }
 
 namespace dsx {
@@ -701,7 +707,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 				.length{sndh.length},
 				.freq{sound_sample_rate::_11k},
 				.data{digi_sound::allocated_data::build_deferred_borrowed_pointer(game_sound_offset{sndh.offset + header_size + uint32_t{sizeof(int) * 2} + Pigdata_start})}
-				}, std::span(sndh.name).first<8>());
+				}, sndh.name);
 		if (PCSharePig)
 			SoundCompressed[Num_sound_files] = sndh.data_length;
                 sbytes += sndh.length;

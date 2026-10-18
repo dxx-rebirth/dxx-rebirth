@@ -17,7 +17,7 @@
 #include "ai.h"
 #include "weapon.h"
 #include "digi.h"
-#include "hash.h"
+#include "icasemap.h"
 #include "u_mem.h"
 #include "custom.h"
 #include "physfsx.h"
@@ -160,10 +160,8 @@ static int load_pig1(const NamedPHYSFS_File f, unsigned num_bitmaps, unsigned nu
 		if (PHYSFSX_readBytes(f, &sndh, sizeof(DiskSoundHeader)) != sizeof(DiskSoundHeader))
 			return -1;
 
-		memcpy(name, sndh.name, 8);
-		name[8] = 0;
 		cip->offset = sndh.offset + data_ofs;
-		cip->repl_idx = custom_info::replacement_index{hashtable_search(&AllDigiSndNames, name) | INT32_MIN};
+		cip->repl_idx = custom_info::replacement_index{AllDigiSndNames.find(sndh.name).value_or(-1) | INT32_MIN};
 		cip->width = sndh.length;
 		cip++;
 	}

@@ -48,6 +48,13 @@ struct BitmapFile;
 void swap_0_255(grs_bitmap &bmp);
 void remove_char(char * s, char c);	// in piggy.cpp
 
+#ifdef DXX_BUILD_DESCENT
+template <std::size_t maximum_filename_length>
+struct icase_filename_map;
+using digi_sound_filename_map = icase_filename_map<14>;
+extern digi_sound_filename_map AllDigiSndNames;
+#endif
+
 }
 
 #ifdef DXX_BUILD_DESCENT
@@ -154,7 +161,6 @@ extern ubyte bogus_bitmap_initialized;
 #if DXX_BUILD_DESCENT == 1
 #include "hash.h"
 extern hashtable AllBitmapsNames;
-extern hashtable AllDigiSndNames;
 #endif
 #endif
 
