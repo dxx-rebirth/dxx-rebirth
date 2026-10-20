@@ -173,7 +173,7 @@ static char 		*arg;
 static short 		clip_count = 0;
 static short 		clip_num;
 static short 		frames;
-static char 		*dest_bm;		//clip number to play when destroyed
+static std::string dest_bm;		//clip number to play when destroyed
 #endif
 }
 }
@@ -687,7 +687,7 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 #if DXX_BUILD_DESCENT == 1
 				dest_bm.clear();
 #elif DXX_BUILD_DESCENT == 2
-				dest_bm=NULL;
+				dest_bm.clear();
 #endif
 				dest_vclip = vclip_index::None;
 				dest_eclip = INT_MAX;
@@ -752,7 +752,13 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 					dest_bm.clear();
 			}
 #elif DXX_BUILD_DESCENT == 2
-			else IFTOK("dest_bm")			dest_bm = strtok( NULL, space_tab );
+			else IFTOK("dest_bm")
+			{
+				if (const auto p = strtok(NULL, space_tab))
+					dest_bm = p;
+				else
+					dest_bm.clear();
+			}
 #endif
 			else IFTOK("dest_vclip")		dest_vclip = build_vclip_index_from_untrusted(get_int());
 			else IFTOK("dest_eclip")		dest_eclip = get_int();
@@ -966,14 +972,14 @@ static std::size_t bm_read_eclip(std::size_t texture_count, int skip)
 	//load the dest bitmap first, so that after this routine, the last-loaded
 	//texture will be the monitor, so that lighting parameter will be applied
 	//to the correct texture
-	if (dest_bm) {			//deal with bitmap for blown up clip
-		const auto &&r = get_texture(LevelUniqueTmapInfoState.TmapInfo, skip, dest_bm, texture_count);
+	if (!dest_bm.empty()) {			//deal with bitmap for blown up clip
+		const auto &&r = get_texture(LevelUniqueTmapInfoState.TmapInfo, skip, dest_bm.c_str(), texture_count);
 		texture_count = r.texture_count;
 		if (!r.reuse_texture)
 		{
 		}
 		else if (auto &t = Textures[r.idx_updated_texture]; t == bitmap_index{})		//was found, but registered out
-			t = bm_load_sub(skip, dest_bm);
+			t = bm_load_sub(skip, dest_bm.c_str());
 		dest_bm_num = r.idx_updated_texture;
 	}
 #endif
@@ -1063,7 +1069,7 @@ static std::size_t bm_read_eclip(std::size_t texture_count, int skip)
 #if DXX_BUILD_DESCENT == 1
 	if (!dest_bm.empty())
 #elif DXX_BUILD_DESCENT == 2
-	if (dest_bm)
+	if (!dest_bm.empty())
 #endif
 	{			//deal with bitmap for blown up clip
 #if DXX_BUILD_DESCENT == 1
