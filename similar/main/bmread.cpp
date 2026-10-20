@@ -1718,6 +1718,7 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 	first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
+	auto previous_model_num = polygon_model_index::None;
 	for (i=0;i<n_models;i++) {
 		int n_textures;
 
@@ -1728,7 +1729,8 @@ void bm_read_robot(d_level_shared_robot_info_state &LevelSharedRobotInfoState, i
 		if (i==0)
 			current_robot_info.model_num = model_num;
 		else
-			Polygon_models.front().simpler_model = build_polygon_simpler_model_index_from_polygon_model_index(model_num);
+			Polygon_models[previous_model_num].simpler_model = build_polygon_simpler_model_index_from_polygon_model_index(model_num);
+		previous_model_num = model_num;
 	}
 
 #if DXX_BUILD_DESCENT == 1
@@ -2109,6 +2111,7 @@ void bm_read_player_ship(void)
 	Assert(last_multi_bitmap_num-First_multi_bitmap_num == (MAX_PLAYERS-1)*2);
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
+	auto previous_model_num = polygon_model_index::None;
 	for (i=0;i<n_models;i++) {
 		int n_textures;
 
@@ -2118,7 +2121,8 @@ void bm_read_player_ship(void)
 		if (i==0)
 			Player_ship->model_num.dsx = model_num;
 		else
-			Polygon_models.front().simpler_model = build_polygon_simpler_model_index_from_polygon_model_index(model_num);
+			Polygon_models[previous_model_num].simpler_model = build_polygon_simpler_model_index_from_polygon_model_index(model_num);
+		previous_model_num = model_num;
 	}
 
 	if ( model_name_dying ) {
@@ -2515,6 +2519,7 @@ void bm_read_weapon(int skip, int unused_flag)
 	first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
+	auto previous_model_num = polygon_model_index::None;
 	for (i=0;i<n_models;i++) {
 		int n_textures;
 
@@ -2527,7 +2532,8 @@ void bm_read_weapon(int skip, int unused_flag)
 			wi.model_num = model_num;
 		}
 		else
-			Polygon_models.front().simpler_model = build_polygon_simpler_model_index_from_polygon_model_index(model_num);
+			Polygon_models[previous_model_num].simpler_model = build_polygon_simpler_model_index_from_polygon_model_index(model_num);
+		previous_model_num = model_num;
 	}
 
 	if ( pof_file_inner )	{
