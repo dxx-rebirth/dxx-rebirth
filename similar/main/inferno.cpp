@@ -671,7 +671,11 @@ static int main(int argc, char *argv[])
 #endif
 
 	con_puts(CON_DEBUG, "Doing gamedata_init...");
+#if DXX_BUILD_DESCENT == 2
+	const auto pigfile_initialized = gamedata_init(LevelSharedRobotInfoState);
+#else
 	gamedata_init(LevelSharedRobotInfoState);
+#endif
 
 #if DXX_BUILD_DESCENT == 2
 #if DXX_USE_EDITOR
@@ -686,7 +690,8 @@ static int main(int argc, char *argv[])
 		return(0);
 
 #if DXX_BUILD_DESCENT == 2
-	piggy_init_pigfile("groupa.pig");	//get correct pigfile
+	if (!pigfile_initialized)
+		piggy_init_pigfile("groupa.pig");	//get correct pigfile
 #endif
 
 	con_puts(CON_DEBUG, "Running game...");

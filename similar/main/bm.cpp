@@ -309,17 +309,24 @@ int gamedata_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	init_polygon_models(LevelSharedPolygonModelState);
 
+	const auto properties_result = properties_init(LevelSharedRobotInfoState);
 #if DXX_USE_EDITOR
 	// The pc_shareware argument is currently unused for Descent 2,
 	// but *may* be useful for loading Descent 1 Shareware texture properties.
-	if (!gamedata_read_tbl(LevelSharedRobotInfoState, Vclip, 0))
+	if (properties_result == properties_init_result::use_gamedata_read_tbl)
+		gamedata_read_tbl(LevelSharedRobotInfoState, Vclip, 0);
+	else
 #endif
-		if (properties_init(LevelSharedRobotInfoState) == properties_init_result::failure)				// This calls properties_read_cmp
-				Error("Cannot open ham file\n");
+		if (properties_result == properties_init_result::failure)
+			Error("Cannot open ham file\n");
 
 	piggy_read_sounds();
 
+#if DXX_USE_EDITOR
+	return properties_result == properties_init_result::use_gamedata_read_tbl;
+#else
 	return 0;
+#endif
 }
 
 void bm_read_all(d_level_shared_robot_info_state &LevelSharedRobotInfoState, d_vclip_array &Vclip, const NamedPHYSFS_File fp)

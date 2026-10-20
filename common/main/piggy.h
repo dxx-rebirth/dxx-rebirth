@@ -109,10 +109,13 @@ struct properties_init_result
 	std::array<int, MAX_SOUND_FILES> SoundCompressed;
 };
 #elif DXX_BUILD_DESCENT == 2
-enum class properties_init_result : bool
+enum class properties_init_result : int8_t
 {
 	failure,
 	success,
+#if DXX_USE_EDITOR
+	use_gamedata_read_tbl,
+#endif
 };
 #endif
 
