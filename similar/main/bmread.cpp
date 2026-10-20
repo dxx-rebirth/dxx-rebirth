@@ -862,8 +862,8 @@ int gamedata_read_tbl(d_level_shared_robot_info_state &LevelSharedRobotInfoState
 		//make sure all alt sounds refer to valid main sounds
 		for (unsigned i = 0; i < num_sounds; ++i)
 		{
-			int alt = AltSounds[i];
-			Assert(alt==0 || alt==-1 || Sounds[alt]!=255);
+			const auto alt = underlying_value(AltSounds[i]);
+			Assert(alt == 0 || alt == underlying_value(sound_effect::None) || (alt < Sounds.size() && Sounds[alt] != sound_effect::None));
 		}
 	}
 	#endif
