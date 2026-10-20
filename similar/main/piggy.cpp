@@ -81,6 +81,7 @@ namespace dsx {
 namespace {
 
 const char *Current_soundfile = DEFAULT_HAMFILE_SHAREWARE;
+bool GameData_uses_external_table;
 
 static const char *get_registered_soundfile()
 {
@@ -1261,6 +1262,7 @@ void read_sndfile(const int required)
 
 properties_init_result properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
+	GameData_uses_external_table = false;
 	GameSounds = {};
 	for (const uint16_t i : xrange(std::size(GameBitmapXlat)))
 	{
@@ -1285,6 +1287,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 		Piggy_hamfile_version = pig_hamfile_version::_3;
 		piggy_init_pigfile(DEFAULT_PIGFILE_REGISTERED);
 		read_sndfile(1, get_registered_soundfile());
+		GameData_uses_external_table = true;
 		return properties_init_result::use_gamedata_read_tbl;
 	}
 #endif
@@ -1297,6 +1300,11 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 	}
 
 	return ham_ok ? properties_init_result::success : properties_init_result::failure;               //read ok
+}
+
+bool gamedata_uses_external_table()
+{
+	return GameData_uses_external_table;
 }
 #endif
 

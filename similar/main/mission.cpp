@@ -858,7 +858,8 @@ static mission_list_type build_mission_list(const mission_filter_mode mission_fi
 
 int load_mission_ham()
 {
-	read_hamfile(LevelSharedRobotInfoState); // intentionally can also read from the HOG
+	if (!gamedata_uses_external_table())
+		read_hamfile(LevelSharedRobotInfoState); // intentionally can also read from the HOG
 
 	if (Piggy_hamfile_version >= pig_hamfile_version::_3)
 	{
@@ -1170,8 +1171,9 @@ static const char *load_mission(const mle *const mission)
 	}
 
 #if DXX_BUILD_DESCENT == 2
-	// re-read default HAM file, in case this mission brings it's own version of it
-	free_polygon_models(LevelSharedPolygonModelState);
+	// Restore the base game data before loading any mission-specific extension.
+	if (!gamedata_uses_external_table())
+		free_polygon_models(LevelSharedPolygonModelState);
 
 	if (load_mission_ham())
 		Current_mission->extra_robot_movie = init_extra_robot_movie(&*Current_mission->filename);

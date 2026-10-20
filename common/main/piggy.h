@@ -122,6 +122,7 @@ enum class properties_init_result : int8_t
 properties_init_result properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState);
 
 #if DXX_BUILD_DESCENT == 2
+bool gamedata_uses_external_table();
 enum class pig_hamfile_version : uint8_t
 {
 	_0,
