@@ -167,7 +167,7 @@ struct savegame_newmenu_items
 	d_game_unique_state::savegame_description *const caller_savegame_description;
 	d_game_unique_state::savegame_file_path &savegame_file_path;
 	enumerated_array<d_game_unique_state::savegame_file_path, NUM_SAVES, d_game_unique_state::save_slot> savegame_file_paths;
-	enumerated_array<d_game_unique_state::savegame_description, NUM_SAVES, d_game_unique_state::save_slot> savegame_descriptions;
+	enumerated_array<d_game_unique_state::savegame_description, NUM_SAVES, d_game_unique_state::save_slot> savegame_descriptions{};
 	enumerated_array<grs_bitmap_ptr, NUM_SAVES, d_game_unique_state::save_slot> sc_bmp;
 	std::array<newmenu_item, NUM_SAVES + decorative_item_count> m;
 	/* For saving a game, savegame_description is a
@@ -323,6 +323,9 @@ window_event_result savegame_chooser_newmenu::event_handler(const d_event &event
 
 static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw)
 {
+	/* Avoid writing uninitialized bytes from inactive union members. */
+	*obj_rw = {};
+	DXX_POISON_DEFINED_VAR(*obj_rw, 0xfd);
 	const auto otype{obj.type};
 	obj_rw->type = otype;
 	obj_rw->signature     = static_cast<uint16_t>(obj.signature);
