@@ -15,25 +15,23 @@
 #define BOOST_TEST_MODULE Rebirth valptridx
 #include <boost/test/unit_test.hpp>
 
-/* Convenience macro to prevent the compiler optimizer from performing
- * constant propagation of the input.  This ensures that build-time
- * tests are suppressed, allowing the runtime test to be emitted and
- * executed.
- */
-#define OPTIMIZER_HIDE_VARIABLE(V)	asm("" : "=rm" (V) : "0" (V) : "memory")
-
-/* Convenience function to pass an anonymous value (such as an integer
- * constant) through OPTIMIZER_HIDE_VARIABLE, then return it.  This is
- * needed for contexts where a bare asm() statement would not be legal.
- *
- * It also has the useful secondary effect of casting the input to a
- * type, if the caller explicitly sets the typename T.
+/* Prevent constant propagation of deliberately invalid runtime test inputs
+ * while keeping the production compile-time diagnostics enabled in this
+ * translation unit.
  */
 template <typename T>
 static inline T optimizer_hidden_variable(T v)
 {
-	OPTIMIZER_HIDE_VARIABLE(v);
+	asm volatile("" : "+r" (v) : : "memory");
 	return v;
+}
+
+template <typename T>
+static inline T &optimizer_hidden_reference(T &v)
+{
+	auto *p = &v;
+	asm volatile("" : "+r" (p) : : "memory");
+	return *p;
 }
 
 /* Convenience macro to ignore the result of an expression in a way that
@@ -131,8 +129,8 @@ BOOST_AUTO_TEST_CASE(iter_exception_if_beyond_end)
 
 BOOST_AUTO_TEST_CASE(guarded_in_range)
 {
-	auto &&g = Objects.vmptr.check_untrusted(optimizer_hidden_variable<objnum_t>(0));
-	optimizer_hidden_variable(g);
+	auto &&g0 = Objects.vmptr.check_untrusted(optimizer_hidden_variable<objnum_t>(0));
+	auto &&g = optimizer_hidden_reference(g0);
 	/* Test that a `guarded` returned by `check_untrusted` on a valid
 	 * index throws if accessed without testing its validity.  A runtime
 	 * check on validity is mandatory.
@@ -149,8 +147,8 @@ BOOST_AUTO_TEST_CASE(guarded_in_range)
 
 BOOST_AUTO_TEST_CASE(guarded_out_of_range)
 {
-	auto &&g = Objects.vmptr.check_untrusted(optimizer_hidden_variable<objnum_t>(MAX_OBJECTS));
-	optimizer_hidden_variable(g);
+	auto &&g0 = Objects.vmptr.check_untrusted(optimizer_hidden_variable<objnum_t>(MAX_OBJECTS));
+	auto &&g = optimizer_hidden_reference(g0);
 	/* Test that a `guarded` returned by `check_untrusted` on an invalid
 	 * index throws if accessed without testing its validity.
 	 *
@@ -173,7 +171,7 @@ BOOST_AUTO_TEST_CASE(idx_convert_check)
 			}))
 	);
 	typename vo::imidx i_none0(static_cast<objnum_t>(~0));
-	auto i_none = optimizer_hidden_variable(i_none0);
+	auto &&i_none = optimizer_hidden_reference(i_none0);
 	if (!valptridx_access_override::report_error_uses_exception::value)
 		return;
 	BOOST_CHECK_THROW(
@@ -192,7 +190,7 @@ BOOST_AUTO_TEST_CASE(ptr_convert_check)
 {
 	using vo = valptridx<object>;
 	typename vo::imptr i_none0(nullptr);
-	auto i_none = optimizer_hidden_variable(i_none0);
+	auto &&i_none = optimizer_hidden_reference(i_none0);
 	auto &&i_zero = Objects.imptr(optimizer_hidden_variable<objnum_t>(0));
 	BOOST_CHECK_NO_THROW(
 		DXX_TEST_VALPTRIDX_IGNORE_RETURN(({
