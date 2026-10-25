@@ -31,14 +31,14 @@ build_app() {
 
     # Copy libraries to the respective app directory
     copy_lib() {
-        ldd "$1" | grep mingw64 | sort | cut -d' ' -f3 | while read dll; do cp "${dll}" "${outdir}/${prettyname}/"; done
+        ldd "$1" | grep -F "${MINGW_PREFIX}/" | sort | cut -d' ' -f3 | while read dll; do cp "${dll}" "${outdir}/${prettyname}/"; done
     }
     copy_lib "${outdir}/${prettyname}/${name}.exe"
 
     # ogg support is dynamically loaded, so manually copy this (and its libs) too
     # TODO FLAC support? Missing libflac-8.dll but unable to find mingw64 package
-    cp "/mingw64/bin/libvorbisfile-3.dll" "${outdir}/${prettyname}/"
-    copy_lib "/mingw64/bin/libvorbisfile-3.dll"
+    cp "${MINGW_PREFIX}/bin/libvorbisfile-3.dll" "${outdir}/${prettyname}/"
+    copy_lib "${MINGW_PREFIX}/bin/libvorbisfile-3.dll"
 
     # Copy other resources to the respective app directory
     cp --link "${name}/"*.ini "${outdir}/${prettyname}/"
