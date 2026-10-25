@@ -49,9 +49,9 @@ void mveaudio_uncompress(std::span<int16_t> buffer, const uint8_t *data)
 	 * caller provided that value as the extent of `buffer`.
 	 */
 	data += 6;
-	const uint16_t c0 = data[0] | (data[1] << 8);
+	const int16_t c0 = data[0] | (data[1] << 8);
 	data += 2;
-	const uint16_t c1 = data[0] | (data[1] << 8);
+	const int16_t c1 = data[0] | (data[1] << 8);
 	data += 2;
 	buffer.front() = c0;
 	buffer = buffer.subspan<1>();
