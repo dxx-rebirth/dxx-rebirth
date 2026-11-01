@@ -160,10 +160,10 @@ static void tmap_info_read(tmap_info &ti, const NamedPHYSFS_File fp)
 int gamedata_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
 	init_polygon_models(LevelSharedPolygonModelState);
-	const auto retval = properties_init(LevelSharedRobotInfoState);				// This calls properties_read_cmp if appropriate
-	if (retval != properties_init_result::skip_gamedata_read_tbl)
-		gamedata_read_tbl(LevelSharedRobotInfoState, Vclip, retval == properties_init_result::shareware);
-	piggy_read_sounds(retval == properties_init_result::shareware);
+	const auto retval{properties_init(LevelSharedRobotInfoState)};				// This calls properties_read_cmp if appropriate
+	if (retval.method != properties_init_result::load_method::skip_gamedata_read_tbl)
+		gamedata_read_tbl(LevelSharedRobotInfoState, Vclip, retval.method == properties_init_result::load_method::shareware);
+	piggy_read_sounds(retval);
 	
 	return 0;
 }

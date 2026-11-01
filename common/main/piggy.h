@@ -97,11 +97,16 @@ static inline void _piggy_page_in(GameBitmaps_array &GameBitmaps, bitmap_index b
 }
 
 #if DXX_BUILD_DESCENT == 1
-enum class properties_init_result : int8_t
+struct properties_init_result
 {
-	skip_gamedata_read_tbl,
-	use_gamedata_read_tbl,
-	shareware,
+	enum class load_method : int8_t
+	{
+		skip_gamedata_read_tbl,
+		use_gamedata_read_tbl,
+		shareware,
+	};
+	load_method method;
+	std::array<int, MAX_SOUND_FILES> SoundCompressed;
 };
 #elif DXX_BUILD_DESCENT == 2
 enum class properties_init_result : bool

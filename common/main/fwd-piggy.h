@@ -110,7 +110,8 @@ extern GameBitmaps_array GameBitmaps;
 void piggy_bitmap_page_in(GameBitmaps_array &, bitmap_index bmp);
 
 #if DXX_BUILD_DESCENT == 1
-void piggy_read_sounds(int pc_shareware);
+struct properties_init_result;
+void piggy_read_sounds(const properties_init_result &);
 #elif DXX_BUILD_DESCENT == 2
 extern per_bitmap_index_array<BitmapFile> AllBitmaps;
 

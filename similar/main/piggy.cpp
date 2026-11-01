@@ -175,9 +175,6 @@ ubyte bogus_bitmap_initialized{0};
 std::array<uint8_t, 64 * 64> bogus_data;
 
 #if DXX_BUILD_DESCENT == 1
-namespace {
-static std::array<int, MAX_SOUND_FILES> SoundCompressed;
-}
 #elif DXX_BUILD_DESCENT == 2
 #define BM_FLAGS_TO_COPY (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT \
                          | BM_FLAG_NO_LIGHTING | BM_FLAG_RLE | BM_FLAG_RLE_BIG)
@@ -500,7 +497,7 @@ static void piggy_close_file()
 
 void load_sound_bytes_from_file(const NamedPHYSFS_File fp
 #if DXX_BUILD_DESCENT == 1
-	, const int pc_shareware
+	, const properties_init_result &init_result
 #endif
 	)
 {
@@ -532,9 +529,9 @@ void load_sound_bytes_from_file(const NamedPHYSFS_File fp
 			ptr += snd.length;
 #if DXX_BUILD_DESCENT == 1
 			//Arne's decompress for shareware on all soundcards - Tim@Rikers.org
-			if (pc_shareware)
+			if (init_result.method == properties_init_result::load_method::shareware)
 			{
-				const auto compressed_length = SoundCompressed[i];
+				const auto compressed_length{init_result.SoundCompressed[i]};
 				lastbuf.resize(compressed_length);
 				PHYSFSX_readBytes(Piggy_fp, lastbuf.data(), compressed_length);
 				sound_decompress(lastbuf, snd.data.get());
@@ -555,6 +552,7 @@ void load_sound_bytes_from_file(const NamedPHYSFS_File fp
 #if DXX_BUILD_DESCENT == 1
 properties_init_result properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
+	properties_init_result retval;
 	int sbytes{0};
 	int size;
 	GameSounds = {};
@@ -585,7 +583,8 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 	{
 		if (!PHYSFS_exists("BITMAPS.TBL") && !PHYSFS_exists("BITMAPS.BIN"))
 			Error("Cannot find " DEFAULT_PIGFILE_REGISTERED " or BITMAPS.TBL");
-		return properties_init_result::use_gamedata_read_tbl;	// need to run gamedata_read_tbl
+		retval.method = properties_init_result::load_method::use_gamedata_read_tbl;	// need to run gamedata_read_tbl
+		return retval;
 	}
 
 	unsigned Pigdata_start;
@@ -617,11 +616,13 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 	
 	HiresGFXAvailable = MacPig;	// for now at least
 
-	properties_init_result retval;
 	static char bitmaps_bin_basename[]{"bitmaps.bin"};
 
 	if (PCSharePig)
-		retval = properties_init_result::shareware;	// run gamedata_read_tbl in shareware mode
+	{
+		retval.method = properties_init_result::load_method::shareware;	// run gamedata_read_tbl in shareware mode
+		retval.SoundCompressed = {};
+	}
 	else if (GameArg.EdiNoBm || (!PHYSFS_exists("BITMAPS.TBL") && !PHYSFSX_exists_ignorecase(bitmaps_bin_basename)))
 	{
 		properties_read_cmp(LevelSharedRobotInfoState, Vclip, Piggy_fp);	// Note connection to above if!!!
@@ -632,10 +633,10 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 			if (PHYSFS_eof(Piggy_fp))
 				break;
 		}
-		retval = properties_init_result::skip_gamedata_read_tbl;	// don't run gamedata_read_tbl
+		retval.method = properties_init_result::load_method::skip_gamedata_read_tbl;	// don't run gamedata_read_tbl
 	}
 	else
-		retval = properties_init_result::use_gamedata_read_tbl;	// run gamedata_read_tbl
+		retval.method = properties_init_result::load_method::use_gamedata_read_tbl;	// run gamedata_read_tbl
 
 	PHYSFS_seek(Piggy_fp, Pigdata_start);
 	size = piggy_size - Pigdata_start;
@@ -697,7 +698,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 			auto sndh{DiskSoundHeader_read(sbuf.first<sizeof(DiskSoundHeader)>())};
 			if (PCSharePig)
 			{
-				SoundCompressed[Num_sound_files] = sndh.data_length;
+				retval.SoundCompressed[Num_sound_files] = sndh.data_length;
 				/* Compressed sounds always decompress to twice their on-disk
 				 * size.  Some sounds in the PC shareware data have an
 				 * incorrectly low value for `sndh.length`, causing
@@ -1279,7 +1280,7 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 #endif
 
 #if DXX_BUILD_DESCENT == 1
-void piggy_read_sounds(int pc_shareware)
+void piggy_read_sounds(const properties_init_result &init_result)
 {
 	int i;
 
@@ -1314,7 +1315,7 @@ void piggy_read_sounds(int pc_shareware)
 
 		return;
 	}
-	load_sound_bytes_from_file(Piggy_fp, pc_shareware);
+	load_sound_bytes_from_file(Piggy_fp, init_result);
 }
 
 #elif DXX_BUILD_DESCENT == 2
