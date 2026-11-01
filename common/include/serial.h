@@ -454,20 +454,19 @@ template <typename... Args>
 class message
 {
 	static_assert(sizeof...(Args) > 0, "message must have at least one template argument");
-	using tuple_type = std::tuple<typename detail::capture_type<Args &&>::type...>;
 	template <typename T1>
 		static void check_type()
 		{
 			static_assert(message_type<T1>::maximum_size > 0, "empty field in message");
 		}
-	tuple_type t;
+	std::tuple<typename detail::capture_type<Args &&>::type...> t;
 public:
 	message(Args &&... args) :
 		t{detail::capture_value<Args>(std::forward<Args>(args))...}
 	{
 		(check_type<Args>(), ...);
 	}
-	const tuple_type &get_tuple() const
+	const auto &get_tuple() const
 	{
 		return t;
 	}
