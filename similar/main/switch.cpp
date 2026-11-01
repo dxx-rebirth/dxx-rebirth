@@ -754,10 +754,6 @@ template <typename array_type>
 struct serialize_wide_trigger_side_numbers
 {
 	array_type &side;
-	serialize_wide_trigger_side_numbers(array_type &t) :
-		side(t)
-	{
-	}
 };
 
 template <typename array_type>
