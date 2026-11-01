@@ -661,13 +661,14 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 		if (MacPig)
 		{
 			// HACK HACK HACK!!!!!
-			if (!d_strnicmp(bmh.name, "cockpit") || !d_strnicmp(bmh.name, "status") || !d_strnicmp(bmh.name, "rearview")) {
+			if (const auto is_cockpit_or_rearview{!d_strnicmp(bmh.name, "cockpit") || !d_strnicmp(bmh.name, "rearview")}; is_cockpit_or_rearview || !d_strnicmp(bmh.name, "status"))
+			{
+				if (is_cockpit_or_rearview)
+					temp_bitmap.bm_h = 480;
 				temp_bitmap.bm_w = temp_bitmap.bm_rowsize = 640;
 				if (auto &f = GameBitmapFlags[bi]; f & BM_FLAG_RLE)
 					f |= BM_FLAG_RLE_BIG;
 			}
-			if (!d_strnicmp(bmh.name, "cockpit") || !d_strnicmp(bmh.name, "rearview"))
-				temp_bitmap.bm_h = 480;
 		}
 		
 		piggy_register_bitmap(temp_bitmap, temp_name, 1);
