@@ -34,6 +34,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dsx-ns.h"
 #include <array>
 #include <memory>
+#include "d_enumerate.h"
+#include "partial_range.h"
 
 namespace dcx {
 
@@ -86,15 +88,18 @@ window_event_result messagebox::callback_handler(const d_event &event)
 		return window_event_result::handled;
 	}
 
-	for (uint_fast32_t i=0; i < button->count(); i++ )
+	if (event.type == event_type::ui_gadget_pressed)
 	{
-		if (GADGET_PRESSED(button_g[i].get()))
+		const auto gadget_pressed{&ui_event_get_gadget(event)};
+		for (auto &&[idx, check_gadget] : enumerate(partial_range(button_g, button->count())))
 		{
-			*(choice) = i+1;
-			return window_event_result::handled;
+			if (check_gadget.get() == gadget_pressed)
+			{
+				*choice = idx + 1;
+				return window_event_result::handled;
+			}
 		}
 	}
-	
 	return window_event_result::ignored;
 }
 
