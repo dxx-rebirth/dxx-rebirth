@@ -43,10 +43,14 @@
 #include "snddecom.h"
 #include <array>
 
-const std::array<int, 16> index_table{{
+namespace d1x {
+
+namespace {
+
+constexpr std::array<int, 16> index_table{{
 	-1, -1, -1, -1, 2, 4, 6, 8, -1, -1, -1, -1, 2, 4, 6, 8
 }};
-const std::array<int, 89> step_table{{
+constexpr std::array<int, 89> step_table{{
 	7, 8, 9, 10, 11, 12, 13, 14,
 		      16,  17,	19,  21,  23,  25,  28,
 		      31,  34,	37,  41,  45,  50,  55,
@@ -62,16 +66,19 @@ const std::array<int, 89> step_table{{
 		      18500,20350,22385,24623,27086,29794,32767
 }};
 
-void sound_decompress(unsigned char *data, int size, unsigned char *outp) {
+}
+
+void sound_decompress(std::span<const uint8_t> data, uint8_t *outp)
+{
     int newtoken{1};
     int predicted{0}, index = 0, step = 7;
     int code, diff, out;
-    while (size) {
+    while (!data.empty()) {
 	if (newtoken)
-	    code = (*data) & 15;
+	    code = data.front() & 15;
 	else {
-	    code = (*(data++)) >> 4;
-	    size--;
+	    code = data.front() >> 4;
+	    data = data.template subspan<1>();
 	}
 	newtoken ^= 1;
 	diff = 0;
@@ -98,4 +105,6 @@ void sound_decompress(unsigned char *data, int size, unsigned char *outp) {
 	    index = 88;
 	step = step_table[index];
     }
+}
+
 }

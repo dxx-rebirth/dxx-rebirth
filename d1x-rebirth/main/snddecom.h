@@ -4,13 +4,13 @@
  * project's Git history.  See COPYING.txt at the top level for license
  * terms and a link to the Git history.
  */
-#ifndef _SNDDECOM_H
-#define _SNDDECOM_H
+#pragma once
 
-#ifdef __cplusplus
+#include <cstdint>
+#include <span>
 
-void sound_decompress(unsigned char *data, int size, unsigned char *outp);
+namespace d1x {
 
-#endif
+void sound_decompress(std::span<const uint8_t> data, uint8_t *outp);
 
-#endif
+}

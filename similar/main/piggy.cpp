@@ -537,7 +537,7 @@ void load_sound_bytes_from_file(const NamedPHYSFS_File fp
 				const auto compressed_length = SoundCompressed[i];
 				lastbuf.resize(compressed_length);
 				PHYSFSX_readBytes(Piggy_fp, lastbuf.data(), compressed_length);
-				sound_decompress(lastbuf.data(), compressed_length, snd.data.get());
+				sound_decompress(lastbuf, snd.data.get());
 				continue;
 			}
 #endif
