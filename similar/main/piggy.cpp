@@ -683,14 +683,14 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 		for (; !sbuf.empty(); sbuf = sbuf.subspan<sizeof(DiskSoundHeader)>())
 		{
 			const auto sndh{DiskSoundHeader_read(sbuf.first<sizeof(DiskSoundHeader)>())};
+			if (PCSharePig)
+				SoundCompressed[Num_sound_files] = sndh.data_length;
+			sbytes += sndh.length;
 			piggy_register_sound(digi_sound{
 				.length{sndh.length},
 				.freq{sound_sample_rate::_11k},
 				.data{digi_sound::allocated_data::build_deferred_borrowed_pointer(game_sound_offset{sndh.offset + header_size + uint32_t{sizeof(int) * 2} + Pigdata_start})}
 				}, sndh.name);
-		if (PCSharePig)
-			SoundCompressed[Num_sound_files] = sndh.data_length;
-                sbytes += sndh.length;
 	}
 
 		SoundBits = std::make_unique<ubyte[]>(sbytes + 16);
