@@ -1125,8 +1125,6 @@ static int med_save_group( const char *filename, const group::vertex_array_type_
 	return 0;
 }
 
-static std::array<d_fname, MAX_TEXTURES> old_tmap_list;
-
 // -----------------------------------------------------------------------------
 // Load group will:
 //int med_load_group(char * filename)
@@ -1304,6 +1302,8 @@ static int med_load_group( const char *filename, group::vertex_array_type_t &ver
 	}
 	
 	//===================== READ TEXTURE INFO ==========================
+
+	std::array<d_fname, MAX_TEXTURES> old_tmap_list;
 
 	if ( (group_fileinfo.texture_offset > -1) && (group_fileinfo.texture_howmany > 0))
 	{
