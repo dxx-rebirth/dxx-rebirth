@@ -542,20 +542,27 @@ using le_bytebuffer = bytebuffer<std::endian::little>;
 using ne_bytebuffer = bytebuffer<std::endian::native>;
 
 template <typename A1, std::size_t BYTES>
-static inline void unaligned_copy(const uint8_t *src, unaligned_storage<A1, BYTES> &dst)
+static constexpr auto build_unaligned_storage(const uint8_t *src)
 {
 	if constexpr (BYTES == 1)
-		dst.u[0] = {*src};
+	{
+		return unaligned_storage<A1, BYTES>{
+			.u{*src}
+		};
+	}
 	else
-		std::copy_n(src, sizeof(dst.u), dst.u);
+	{
+		unaligned_storage<A1, BYTES> dst;
+		std::ranges::copy_n(src, sizeof(dst.u), dst.u);
+		return dst;
+	}
 }
 
 template <typename Accessor, typename A1>
 static inline void process_integer(Accessor &buffer, A1 &a1)
 {
 	using std::advance;
-	unaligned_storage<A1, message_type<A1>::maximum_size> u;
-	unaligned_copy(buffer, u);
+	auto u{build_unaligned_storage<A1, message_type<A1>::maximum_size>(buffer)};
 	if (!endian_skip_byteswap(buffer.endian()))
 		u.i = {bswap(u.i)};
 	a1 = u.a;
