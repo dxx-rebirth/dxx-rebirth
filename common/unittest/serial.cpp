@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE(write_sign_extend)
 {
 	uint8_t buf[2]{};
 	serial::writer::le_bytebuffer b{buf};
-	constexpr int8_t value = 0x100 - 5;
+	constexpr int8_t value{-5};
 	process_buffer(b, serial::sign_extend<int16_t>(value));
 	BOOST_TEST(buf[0] == 0xfb);
 	BOOST_TEST(buf[1] == 0xff);
