@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "console.h"
 #include "u_mem.h"
 #include <array>
+#include <limits>
 
 namespace dcx {
 
@@ -85,6 +86,15 @@ static void PrintInfo( int id )
 	con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %d.", Varname[id], Filename[id], LineNum[id] );
 }
 
+[[noreturn]]
+static void mem_out_of_memory(const char *var, const char *filename, const unsigned line)
+{
+	out_of_memory = 1;
+	con_printf(CON_CRITICAL, "\nMEM_OUT_OF_MEMORY: Allocation failed" );
+	con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %u.", var, filename, line);
+	Error( "MEM_OUT_OF_MEMORY" );
+}
+
 
 void *mem_malloc(size_t size, const char * var, const char * filename, unsigned line)
 {
@@ -94,6 +104,10 @@ void *mem_malloc(size_t size, const char * var, const char * filename, unsigned 
 
 	if (Initialized==0)
 		mem_init();
+
+	constexpr std::size_t overhead = DXX_DEBUG_BIAS_MEMORY_ALLOCATION + CHECKSIZE;
+	if (size > std::numeric_limits<std::size_t>::max() - overhead)
+		mem_out_of_memory(var, filename, line);
 
 	if ( num_blocks >= MAX_INDEX )	{
 		con_printf(CON_CRITICAL,"\nMEM_OUT_OF_SLOTS: Not enough space in mem.c to hold all the mallocs." );		
@@ -111,15 +125,10 @@ void *mem_malloc(size_t size, const char * var, const char * filename, unsigned 
 		//con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %d.", Varname[id], Filename[id], LineNum[id] );
 		Error( "MEM_OUT_OF_SLOTS" );
 	}
-	ptr = malloc(size + DXX_DEBUG_BIAS_MEMORY_ALLOCATION + CHECKSIZE);
+	ptr = malloc(size + overhead);
 
 	if (ptr==NULL)
-	{
-		out_of_memory = 1;
-		con_printf(CON_CRITICAL, "\nMEM_OUT_OF_MEMORY: Malloc returned NULL" );
-		con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %d.", Varname[id], Filename[id], LineNum[id] );
-		Error( "MEM_OUT_OF_MEMORY" );
-	}
+		mem_out_of_memory(var, filename, line);
 	ptr = reinterpret_cast<char *>(ptr) + DXX_DEBUG_BIAS_MEMORY_ALLOCATION;
 	MallocBase[id] = ptr;
 	MallocSize[id] = size;
@@ -140,13 +149,9 @@ void *mem_malloc(size_t size, const char * var, const char * filename, unsigned 
 
 void *(mem_calloc)( size_t nmemb, size_t size, const char * var, const char * filename, unsigned line)
 {
-	size_t threshold = 1, request = nmemb * size;
-	threshold <<= (4 * sizeof(threshold));
-	if ((nmemb | size) >= threshold) {
-		/* possible overflow condition */
-		if (request / size != nmemb)
-			request = ~std::size_t{0};
-	}
+	if (size && nmemb > std::numeric_limits<std::size_t>::max() / size)
+		mem_out_of_memory(var, filename, line);
+	const auto request = nmemb * size;
 	void *ptr = mem_malloc(request, var, filename, line);
 	if (ptr)
 		memset( ptr, 0, request );
