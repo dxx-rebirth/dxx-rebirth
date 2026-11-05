@@ -276,13 +276,6 @@ void mem_display_blocks()
 
 }
 
-void mem_validate_heap()
-{
-	for (std::size_t i=0; i<LargestIndex; i++  )
-		if (Present[i]==1 )
-			mem_check_integrity( i );
-}
-
 #endif
 
 }

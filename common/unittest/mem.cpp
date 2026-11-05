@@ -97,6 +97,22 @@ void (Error)(const char *, unsigned, const char *, const char *message, ...)
 
 }
 
+BOOST_AUTO_TEST_CASE(free_checks_the_allocation_guard)
+{
+	auto p = allocate(7);
+	/* Keep deliberate guard access out of alloc_size constant checks. */
+	volatile std::size_t guard_offset = 7;
+	const auto offset = guard_offset;
+	/* If free misses the corruption, it releases the block.  Stop at the
+	 * failed assertion without touching or freeing that block again. */
+	auto *const raw = p.release();
+	const auto guard = raw[offset];
+	raw[offset] = 0;
+	BOOST_REQUIRE_THROW(::dcx::mem_free(raw), allocation_diagnostic);
+	raw[offset] = guard;
+	p.reset(raw);
+}
+
 BOOST_AUTO_TEST_CASE(calloc_and_realloc_preserve_the_payload)
 {
 	allocation_ptr p{static_cast<uint8_t *>((::dcx::mem_calloc)(4, 1, "test", __FILE__, __LINE__))};
@@ -108,7 +124,6 @@ BOOST_AUTO_TEST_CASE(calloc_and_realloc_preserve_the_payload)
 	BOOST_CHECK_EQUAL_COLLECTIONS(p.get(), p.get() + 4, payload.begin(), payload.end());
 	p.reset(static_cast<uint8_t *>(::dcx::mem_realloc(p.release(), 2, "test", __FILE__, __LINE__)));
 	BOOST_CHECK_EQUAL_COLLECTIONS(p.get(), p.get() + 2, payload.begin(), payload.begin() + 2);
-	BOOST_CHECK_NO_THROW(::dcx::mem_validate_heap());
 }
 
 BOOST_AUTO_TEST_CASE(zero_sized_allocation_and_reallocation)
@@ -125,7 +140,6 @@ BOOST_AUTO_TEST_CASE(calloc_with_a_zero_dimension)
 	const auto empty = zero, maximum = limit;
 	allocation_ptr no_elements{static_cast<uint8_t *>((::dcx::mem_calloc)(empty, maximum, "test", __FILE__, __LINE__))};
 	allocation_ptr no_size{static_cast<uint8_t *>((::dcx::mem_calloc)(maximum, empty, "test", __FILE__, __LINE__))};
-	BOOST_CHECK_NO_THROW(::dcx::mem_validate_heap());
 }
 
 BOOST_AUTO_TEST_CASE(freed_tracking_slots_are_reused)
@@ -135,7 +149,6 @@ BOOST_AUTO_TEST_CASE(freed_tracking_slots_are_reused)
 		auto p = allocate(1);
 		*p = 42;
 	}
-	BOOST_CHECK_NO_THROW(::dcx::mem_validate_heap());
 }
 
 BOOST_AUTO_TEST_CASE(invalid_reallocation_does_not_allocate_or_use_a_missing_slot)
