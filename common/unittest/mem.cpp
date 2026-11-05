@@ -34,8 +34,12 @@ public:
 	using runtime_error::runtime_error;
 };
 
+static unsigned leaked_blocks;
+
 static void observe_diagnostic(const std::string_view message)
 {
+	if (message.find("MEM_LEAKAGE") != message.npos)
+		++leaked_blocks;
 	/* Stop at the diagnostic, before the allocator's debug trap. */
 	if (message.find("MEM_OVERWRITE") != message.npos ||
 		message.find("_NOMALLOC") != message.npos ||
@@ -53,6 +57,7 @@ static allocation_ptr allocate(const std::size_t size)
 {
 	return allocation_ptr{static_cast<uint8_t *>(::dcx::mem_malloc(size, "test", __FILE__, __LINE__))};
 }
+
 
 }
 
@@ -133,6 +138,16 @@ BOOST_AUTO_TEST_CASE(freed_tracking_slots_are_reused)
 	BOOST_CHECK_NO_THROW(::dcx::mem_validate_heap());
 }
 
+BOOST_AUTO_TEST_CASE(invalid_reallocation_does_not_allocate_or_use_a_missing_slot)
+{
+	uint8_t untracked{};
+	BOOST_CHECK_THROW(::dcx::mem_realloc(&untracked, 1, "test", __FILE__, __LINE__), allocation_diagnostic);
+	leaked_blocks = 0;
+	::dcx::CGameArg.DbgShowMemInfo = true;
+	::dcx::mem_display_blocks();
+	::dcx::CGameArg.DbgShowMemInfo = false;
+	BOOST_CHECK_EQUAL(leaked_blocks, 0);
+}
 #else
 BOOST_AUTO_TEST_CASE(debug_memory_allocator_is_disabled)
 {

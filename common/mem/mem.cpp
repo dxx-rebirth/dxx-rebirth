@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,30 +35,30 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include <array>
 #include <limits>
+#include <optional>
 
 namespace dcx {
 
 #if DXX_USE_DEBUG_MEMORY_ALLOCATOR
 
-#define CHECKSIZE 16
-#define CHECKBYTE 0xFC
+constexpr std::size_t CHECKSIZE{16};
+constexpr uint8_t CHECKBYTE{0xfc};
 
-#define MAX_INDEX 10000
+constexpr std::size_t MAX_INDEX{10000};
 
 static std::array<void *, MAX_INDEX> MallocBase;
-static std::array<unsigned int, MAX_INDEX> MallocSize;
+static std::array<std::size_t, MAX_INDEX> MallocSize;
 static std::array<unsigned char, MAX_INDEX> Present;
 static std::array<const char *, MAX_INDEX> Filename;
 static std::array<const char *, MAX_INDEX> Varname;
-static std::array<int, MAX_INDEX> LineNum;
-static int BytesMalloced = 0;
+static std::array<unsigned, MAX_INDEX> LineNum;
 
-static int free_list[MAX_INDEX];
+static std::array<std::size_t, MAX_INDEX> free_list;
 
-static int num_blocks = 0;
+static std::size_t num_blocks = 0;
 
 static int Initialized = 0;
-static int LargestIndex = 0;
+static std::size_t LargestIndex = 0;
 static int out_of_memory = 0;
 
 void mem_init()
@@ -70,7 +71,7 @@ void mem_init()
 	Filename = {};
 	Varname = {};
 	LineNum = {};
-	for (int i=0; i<MAX_INDEX; i++ )
+	for (std::size_t i=0; i<MAX_INDEX; i++ )
 	{
 		free_list[i] = i;
 	}
@@ -81,9 +82,9 @@ void mem_init()
 	atexit(mem_display_blocks);
 }
 
-static void PrintInfo( int id )
+static void PrintInfo(const std::size_t id)
 {
-	con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %d.", Varname[id], Filename[id], LineNum[id] );
+	con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %u.", Varname[id], Filename[id], LineNum[id] );
 }
 
 [[noreturn]]
@@ -98,9 +99,7 @@ static void mem_out_of_memory(const char *var, const char *filename, const unsig
 
 void *mem_malloc(size_t size, const char * var, const char * filename, unsigned line)
 {
-	int id;
 	void *ptr;
-	char * pc;
 
 	if (Initialized==0)
 		mem_init();
@@ -111,20 +110,14 @@ void *mem_malloc(size_t size, const char * var, const char * filename, unsigned 
 
 	if ( num_blocks >= MAX_INDEX )	{
 		con_printf(CON_CRITICAL,"\nMEM_OUT_OF_SLOTS: Not enough space in mem.c to hold all the mallocs." );		
-		con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %d.", var, filename, line );
+		con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %u.", var, filename, line );
 		Error( "MEM_OUT_OF_SLOTS" );
 	}
 
-	id = free_list[ num_blocks++ ];
+	const auto id = free_list[ num_blocks++ ];
 
 	if (id > LargestIndex ) LargestIndex = id;
 
-	if (id==-1)
-	{
-		con_printf(CON_CRITICAL,"\nMEM_OUT_OF_SLOTS: Not enough space in mem.c to hold all the mallocs." );		
-		//con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %d.", Varname[id], Filename[id], LineNum[id] );
-		Error( "MEM_OUT_OF_SLOTS" );
-	}
 	ptr = malloc(size + overhead);
 
 	if (ptr==NULL)
@@ -137,11 +130,9 @@ void *mem_malloc(size_t size, const char * var, const char * filename, unsigned 
 	LineNum[id] = line;
 	Present[id]    = 1;
 
-	pc = reinterpret_cast<char *>(ptr);
+	auto *const pc = reinterpret_cast<uint8_t *>(ptr);
 
-	BytesMalloced += size;
-
-	for (int i=0; i<CHECKSIZE; i++ )
+	for (std::size_t i=0; i<CHECKSIZE; i++ )
 		pc[size+i] = CHECKBYTE;
 
 	return ptr;
@@ -158,27 +149,27 @@ void *(mem_calloc)( size_t nmemb, size_t size, const char * var, const char * fi
 	return ptr;
 }
 
-static int mem_find_id( void * buffer )
+static std::optional<std::size_t> mem_find_id(const void *buffer)
 {
-	for (int i=0; i<=LargestIndex; i++ )
+	for (std::size_t i=0; i<=LargestIndex; i++ )
 	  if (Present[i]==1)
 	    if (MallocBase[i] == buffer )
 	      return i;
 
 	// Didn't find id.
-	return -1;
+	return std::nullopt;
 }
 
-static int mem_check_integrity( int block_number )
+static unsigned mem_check_integrity(const std::size_t block_number)
 {
-	int ErrorCount;
+	unsigned ErrorCount;
 	uint8_t * CheckData;
 
-	CheckData = reinterpret_cast<uint8_t *>(reinterpret_cast<char *>(MallocBase[block_number]) + MallocSize[block_number]);
+	CheckData = reinterpret_cast<uint8_t *>(MallocBase[block_number]) + MallocSize[block_number];
 
 	ErrorCount = 0;
 			
-	for (int i=0; i<CHECKSIZE; i++ )
+	for (std::size_t i=0; i<CHECKSIZE; i++ )
 		if (CheckData[i] != CHECKBYTE ) {
 			ErrorCount++;
 			con_printf(CON_CRITICAL, "OA: %p ", &CheckData[i] );
@@ -187,7 +178,7 @@ static int mem_check_integrity( int block_number )
 	if (ErrorCount &&  (!out_of_memory))	{
 		con_printf(CON_CRITICAL, "\nMEM_OVERWRITE: Memory after the end of allocated block overwritten." );
 		PrintInfo( block_number );
-		con_printf(CON_CRITICAL, "\t%d/%d check bytes were overwritten.", ErrorCount, CHECKSIZE );
+		con_printf(CON_CRITICAL, "\t%u/%" DXX_PRI_size_type " check bytes were overwritten.", ErrorCount, CHECKSIZE );
 		Int3();
 	}
 
@@ -197,8 +188,6 @@ static int mem_check_integrity( int block_number )
 
 void mem_free( void * buffer )
 {
-	int id;
-
 	if (Initialized==0)
 		mem_init();
 
@@ -209,20 +198,22 @@ void mem_free( void * buffer )
 		Int3();
 		return;
 	}
-	id = mem_find_id( buffer );
+	const auto found_id = mem_find_id(buffer);
 
-	if (id==-1 &&  (!out_of_memory))
+	if (!found_id)
 	{
-		con_printf(CON_CRITICAL, "\nMEM_FREE_NOMALLOC: An attempt was made to free a ptr that wasn't\nallocated with mem.h included." );
-		Warning("MEM: Freeing a non-malloced pointer: %p!", buffer);
-		Int3();
+		if (!out_of_memory)
+		{
+			con_printf(CON_CRITICAL, "\nMEM_FREE_NOMALLOC: An attempt was made to free a ptr that wasn't\nallocated with mem.h included." );
+			Warning("MEM: Freeing a non-malloced pointer: %p!", buffer);
+			Int3();
+		}
 		return;
 	}
+	const auto id = *found_id;
 	
 	mem_check_integrity( id );
 	
-	BytesMalloced -= MallocSize[id];
-
 	buffer = reinterpret_cast<char *>(buffer) - DXX_DEBUG_BIAS_MEMORY_ALLOCATION;
 	free( buffer );
 
@@ -235,38 +226,38 @@ void mem_free( void * buffer )
 
 void *mem_realloc(void *buffer, size_t size, const char *var, const char *filename, unsigned line)
 {
-	void *newbuffer;
-	int id;
-
 	if (Initialized==0)
 		mem_init();
 
 	if (size == 0) {
 		mem_free(buffer);
-		newbuffer = NULL;
-	} else if (buffer == NULL) {
-		newbuffer = mem_malloc(size, var, filename, line);
-	} else {
-		newbuffer = mem_malloc(size, var, filename, line);
-		if (newbuffer != NULL) {
-			id = mem_find_id(buffer);
-			if (MallocSize[id] < size)
-				size = MallocSize[id];
-			memcpy(newbuffer, buffer, size);
-			mem_free(buffer);
-		}
+		return nullptr;
 	}
+	if (buffer == nullptr)
+		return mem_malloc(size, var, filename, line);
+
+	const auto id = mem_find_id(buffer);
+	if (!id)
+	{
+		con_printf(CON_CRITICAL, "\nMEM_REALLOC_NOMALLOC: An attempt was made to resize a ptr that wasn't\nallocated with mem.h included.");
+		Warning("MEM: Resizing a non-malloced pointer: %p!", buffer);
+		Int3();
+		return nullptr;
+	}
+	auto *const newbuffer = mem_malloc(size, var, filename, line);
+	memcpy(newbuffer, buffer, std::min(size, MallocSize[*id]));
+	mem_free(buffer);
 	return newbuffer;
 }
 
 void mem_display_blocks()
 {
-	int numleft;
+	std::size_t numleft;
 
 	if (Initialized==0) return;
 	
 	numleft = 0;
-	for (int i=0; i<=LargestIndex; i++ )
+	for (std::size_t i=0; i<=LargestIndex; i++ )
 	{
 		if (Present[i]==1 &&  (!out_of_memory))
 		{
@@ -280,14 +271,14 @@ void mem_display_blocks()
 
 	if (numleft &&  (!out_of_memory))
 	{
-		Warning( "MEM: %d blocks were left allocated!\n", numleft );
+		Warning( "MEM: %" DXX_PRI_size_type " blocks were left allocated!\n", numleft );
 	}
 
 }
 
 void mem_validate_heap()
 {
-	for (int i=0; i<LargestIndex; i++  )
+	for (std::size_t i=0; i<LargestIndex; i++  )
 		if (Present[i]==1 )
 			mem_check_integrity( i );
 }
