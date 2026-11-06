@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <ranges>
+#include <span>
+#include <utility>
 
 #include "hudmsg.h"
 #include "songs.h"
@@ -141,12 +143,15 @@ static m3u_bytes read_m3u_bytes_from_disk(const char *const cfgpath)
 	if (!f)
 		return {};
 	const auto fp = f.get();
-	fseek(fp, -1, SEEK_END);
-	const std::size_t length = ftell(fp) + 1;
-	const auto juke_max_songs = JukeboxSongs.max_songs;
-	if (length >= PATH_MAX * juke_max_songs)
+	if (fseek(fp, 0, SEEK_END))
 		return {};
-	fseek(fp, 0, SEEK_SET);
+	const auto file_length = ftell(fp);
+	const auto juke_max_songs = JukeboxSongs.max_songs;
+	if (file_length <= 0 || std::cmp_greater_equal(file_length, PATH_MAX * juke_max_songs))
+		return {};
+	const auto length = static_cast<std::size_t>(file_length);
+	if (fseek(fp, 0, SEEK_SET))
+		return {};
 	/* A file consisting only of single character records and newline
 	 * separators, with no junk newlines, comments, or final terminator,
 	 * will need one pointer per two bytes of file, rounded up.  Any
@@ -211,7 +216,7 @@ static std::size_t read_m3u(void)
 		if (buf == range.end())
 			break;
 	}
-	return std::distance(ib, pp);
+	return std::span(ib, pp).size();
 }
 
 /* Loads music file names from a given directory or M3U playlist */
