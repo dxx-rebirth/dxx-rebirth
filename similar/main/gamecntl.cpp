@@ -1056,12 +1056,12 @@ static window_event_result HandleSystemKey(const int key, const d_event::source 
 		case KEY_MINUS + KEY_ALTED:
 		case KEY_ALTED + KEY_SHIFTED + KEY_F11:
 		KEY_MAC(case KEY_COMMAND+KEY_LEFT:)
-			songs_play_level_song( Current_level_num, -1 );
+			songs_play_level_song(Current_level_num, level_music_request::previous);
 			break;
 		case KEY_EQUAL + KEY_ALTED:
 		case KEY_ALTED + KEY_SHIFTED + KEY_F12:
 		KEY_MAC(case KEY_COMMAND+KEY_RIGHT:)
-			songs_play_level_song( Current_level_num, 1 );
+			songs_play_level_song(Current_level_num, level_music_request::next);
 			break;
 
 		default:

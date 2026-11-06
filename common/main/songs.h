@@ -13,7 +13,7 @@
 #pragma once
 
 #include <array>
-#include <climits>
+#include <optional>
 #include <SDL_version.h>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
@@ -25,9 +25,8 @@ struct bim_song_info
 	std::array<char, 16> filename;
 };
 
-enum class song_number : unsigned
+enum class song_number : std::size_t
 {
-	None = UINT_MAX,
 	title = 0,
 	briefing = 1,
 	endlevel = 2,
@@ -37,9 +36,16 @@ enum class song_number : unsigned
 	/* additional values define songs for levels 2..N */
 };
 
-// Return which song is playing, or song_number::None if not playing anything
+enum class level_music_request
+{
+	follow_level,
+	next,
+	previous,
+};
+
+// Return the logical song identity, if music is playing.
 [[nodiscard]]
-song_number songs_is_playing();
+std::optional<song_number> songs_is_playing();
 
 }
 
@@ -65,7 +71,7 @@ int songs_play_file(char *filename, int repeat, void (*hook_finished_track)());
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {
 void songs_play_song(song_number songnum, int repeat);
-void songs_play_level_song(int levelnum, int offset);
+void songs_play_level_song(int levelnum, level_music_request request);
 
 //stop any songs - midi, redbook or jukebox - that are currently playing
 }

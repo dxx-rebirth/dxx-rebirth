@@ -38,7 +38,7 @@ namespace dcx {
 
 enum class opengl_texture_filter : uint8_t;
 enum class music_type : uint8_t;
-enum class song_number : unsigned;
+enum class song_number : std::size_t;
 
 // play-order definitions for custom music
 /* These values are written to a file as integers, so they must not be
@@ -49,6 +49,12 @@ enum class LevelMusicPlayOrder : uint8_t
 	Continuous,
 	Level,
 	Random,
+};
+
+struct playlist_position
+{
+	std::size_t current{};
+	std::size_t count{};
 };
 
 struct CCfg : prohibit_void_ptr<>
@@ -79,7 +85,7 @@ struct CCfg : prohibit_void_ptr<>
 	uint8_t MusicVolume;
 	music_type MusicType;
 	LevelMusicPlayOrder CMLevelMusicPlayOrder;
-	std::array<int, 2> CMLevelMusicTrack;
+	playlist_position CMLevelMusicTrack;
 	ntstring<MISSION_NAME_LEN> LastMission;
 	ntstring<PATH_MAX - 1> CMLevelMusicPath;
 	enumerated_array<ntstring<PATH_MAX - 1>, 5, song_number> CMMiscMusic;

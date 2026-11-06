@@ -1731,7 +1731,7 @@ static int new_briefing_screen(grs_canvas &canvas, briefing *br, int first)
 	br->prev_ch = -1;
 
 #if DXX_BUILD_DESCENT == 2
-	if (songs_is_playing() == song_number::None && !br->hum_channel)
+	if (!songs_is_playing() && !br->hum_channel)
 		br->hum_channel.reset(digi_start_sound(digi_xlat_sound(sound_effect::SOUND_BRIEFING_HUM), F1_0/2, sound_pan{0x7fff}, 1, -1, -1, sound_object_none));
 #endif
 

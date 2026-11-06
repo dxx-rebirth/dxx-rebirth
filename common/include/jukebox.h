@@ -11,10 +11,13 @@
 
 namespace dcx {
 
+enum class level_music_request;
+
 extern const std::array<file_extension_t, 5> jukebox_exts;
 
 void jukebox_unload();
 void jukebox_load();
 int jukebox_play();
+void jukebox_select_track(level_music_request request);
 
 }
