@@ -26,10 +26,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <memory>
 #include <utility>
+#include <charconv>
+#include <string_view>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
+#include <cctype>
 
 #include "config.h"
 #include "pstypes.h"
@@ -116,6 +118,51 @@ Cfg GameCfg;
 
 namespace {
 
+template <std::integral T>
+static std::optional<T> parse_config_number(std::string_view text)
+{
+	if constexpr (std::is_same_v<T, bool>)
+	{
+		const auto value = parse_config_number<uint8_t>(text);
+		return value && *value <= 1 ? std::optional<bool>{*value != 0} : std::nullopt;
+	}
+	else
+	{
+		while (!text.empty() && std::isspace(static_cast<unsigned char>(text.front())))
+			text.remove_prefix(1);
+		if (text.empty())
+			return std::nullopt;
+		if (text.front() == '+')
+		{
+			text.remove_prefix(1);
+			if (text.empty() || text.front() == '-')
+				return std::nullopt;
+		}
+		bool negative_zero = false;
+		if constexpr (std::is_unsigned_v<T>)
+		{
+			if (text.front() == '-')
+			{
+				negative_zero = true;
+				text.remove_prefix(1);
+			}
+		}
+		T value{};
+		const auto end = text.data() + text.size();
+		const auto result = std::from_chars(text.data(), end, value);
+		if (result.ec != std::errc{} || result.ptr != end || (negative_zero && value != 0))
+			return std::nullopt;
+		return value;
+	}
+}
+
+template <std::integral T>
+static void read_config_number(T &value, const std::string_view text)
+{
+	if (const auto parsed = parse_config_number<T>(text))
+		value = *parsed;
+}
+
 #if DXX_BUILD_DESCENT == 1
 #define D2X_DESCENT_CFG_TEXT(VERB_d)	/* For Descent 1, expand to nothing */
 
@@ -132,7 +179,7 @@ namespace {
 	VERB_d(ReverseStereoStr, CGameCfg.ReverseStereo)	\
 	VERB_d(OrigTrackOrderStr, CGameCfg.OrigTrackOrder)	\
 	VERB_d(MusicTypeStr, underlying_value(CGameCfg.MusicType))	\
-	VERB_d(CMLevelMusicPlayOrderStr, static_cast<int>(CGameCfg.CMLevelMusicPlayOrder))	\
+	VERB_d(CMLevelMusicPlayOrderStr, underlying_value(CGameCfg.CMLevelMusicPlayOrder))	\
 	VERB_d(CMLevelMusicTrack0Str, CGameCfg.CMLevelMusicTrack[0])	\
 	VERB_d(CMLevelMusicTrack1Str, CGameCfg.CMLevelMusicTrack[1])	\
 	VERB_s(CMLevelMusicPathStr, CGameCfg.CMLevelMusicPath)	\
@@ -217,27 +264,41 @@ static bool cfg_file_unchanged(const descent_cfg_file_prepared_text &current_cfg
 	return true;
 }
 
-static auto build_cfg_file_text(const CCfg &CGameCfg, const Cfg &GameCfg)
+static std::optional<descent_cfg_file_prepared_text> build_cfg_file_text(const CCfg &CGameCfg, const Cfg &GameCfg)
 {
 #if DXX_BUILD_DESCENT == 1
 	(void)GameCfg;	/* Only Descent 2 uses this variable. */
 #endif
 	descent_cfg_file_prepared_text result;
-	const auto written{std::snprintf(result.buf.data(), result.buf.size(),
-#define DXX_DESCENT_CFG_FIELD_FORMAT_d(unused_name, unused_value)	"%s=%d\n"
-#define DXX_DESCENT_CFG_FIELD_FORMAT_s(unused_name, unused_value)	"%s=%s\n"
-		DXX_DESCENT_CFG_TEXT(DXX_DESCENT_CFG_FIELD_FORMAT_d, DXX_DESCENT_CFG_FIELD_FORMAT_s)
-#undef DXX_DESCENT_CFG_FIELD_FORMAT_s
-#undef DXX_DESCENT_CFG_FIELD_FORMAT_d
-#define DXX_DESCENT_CFG_FIELD_VALUE_d(NAME, VALUE)	, NAME, VALUE
-#define DXX_DESCENT_CFG_FIELD_VALUE_s(NAME, VALUE)	, NAME, (VALUE).data()
-		DXX_DESCENT_CFG_TEXT(DXX_DESCENT_CFG_FIELD_VALUE_d, DXX_DESCENT_CFG_FIELD_VALUE_s)
-#undef DXX_DESCENT_CFG_FIELD_VALUE_s
-#undef DXX_DESCENT_CFG_FIELD_VALUE_d
-	)};
-	if (static_cast<std::size_t>(written) >= result.buf.size())
-		result.buf[0] = 0;
-	result.written = written;
+	std::span<char> output{result.buf};
+	const auto append = [&output](const std::string_view text) {
+		if (text.size() > output.size())
+			return false;
+		std::ranges::copy(text, output.begin());
+		output = output.subspan(text.size());
+		return true;
+	};
+	const auto number = [&output, &append](const auto value) {
+		if constexpr (std::is_same_v<decltype(value), const bool>)
+			return append(value ? "1" : "0");
+		else
+		{
+			const auto end = output.data() + output.size();
+			const auto converted = std::to_chars(output.data(), end, value);
+			if (converted.ec != std::errc{})
+				return false;
+			output = std::span(converted.ptr, end);
+			return true;
+		}
+	};
+#define DXX_DESCENT_CFG_WRITE_d(NAME, VALUE) \
+	if (!append(NAME "=") || !number(VALUE) || !append("\n")) return std::nullopt;
+#define DXX_DESCENT_CFG_WRITE_s(NAME, VALUE) \
+	if (!append(NAME "=") || !append((VALUE).data()) || !append("\n")) return std::nullopt;
+	DXX_DESCENT_CFG_TEXT(DXX_DESCENT_CFG_WRITE_d, DXX_DESCENT_CFG_WRITE_s)
+#undef DXX_DESCENT_CFG_WRITE_s
+#undef DXX_DESCENT_CFG_WRITE_d
+	result.written = result.buf.size() - output.size();
 	return result;
 }
 
@@ -317,25 +378,26 @@ void ReadConfigFile(CCfg &CGameCfg, Cfg &GameCfg)
 		if (eq == eol)
 			continue;
 		const auto value{std::next(eq)};
+		const std::string_view numeric_value{value, eol};
 		if (const std::ranges::subrange name{lb, eq}; compare_nonterminated_name(name, DigiVolumeStr))
 		{
-			if (const auto r = convert_integer<uint8_t>(value))
+			if (const auto r = parse_config_number<uint8_t>(numeric_value))
 				if (const auto v = *r; v < 8)
 					CGameCfg.DigiVolume = v;
 		}
 		else if (compare_nonterminated_name(name, MusicVolumeStr))
 		{
-			if (const auto r = convert_integer<uint8_t>(value))
+			if (const auto r = parse_config_number<uint8_t>(numeric_value))
 				if (const auto v = *r; v < 8)
 					CGameCfg.MusicVolume = v;
 		}
 		else if (compare_nonterminated_name(name, ReverseStereoStr))
-			convert_integer(CGameCfg.ReverseStereo, value);
+			read_config_number(CGameCfg.ReverseStereo, numeric_value);
 		else if (compare_nonterminated_name(name, OrigTrackOrderStr))
-			convert_integer(CGameCfg.OrigTrackOrder, value);
+			read_config_number(CGameCfg.OrigTrackOrder, numeric_value);
 		else if (compare_nonterminated_name(name, MusicTypeStr))
 		{
-			if (const auto r = convert_integer<uint8_t>(value))
+			if (const auto r = parse_config_number<uint8_t>(numeric_value))
 				switch (const music_type v{*r})
 				{
 					case music_type::None:
@@ -350,14 +412,14 @@ void ReadConfigFile(CCfg &CGameCfg, Cfg &GameCfg)
 		}
 		else if (compare_nonterminated_name(name, CMLevelMusicPlayOrderStr))
 		{
-			if (auto r = convert_integer<uint8_t>(value))
-				if (auto CMLevelMusicPlayOrder = *r; CMLevelMusicPlayOrder <= static_cast<uint8_t>(LevelMusicPlayOrder::Random))
+			if (auto r = parse_config_number<uint8_t>(numeric_value))
+				if (auto CMLevelMusicPlayOrder = *r; CMLevelMusicPlayOrder <= underlying_value(LevelMusicPlayOrder::Random))
 					CGameCfg.CMLevelMusicPlayOrder = LevelMusicPlayOrder{CMLevelMusicPlayOrder};
 		}
 		else if (compare_nonterminated_name(name, CMLevelMusicTrack0Str))
-			convert_integer(CGameCfg.CMLevelMusicTrack[0], value);
+			read_config_number(CGameCfg.CMLevelMusicTrack[0], numeric_value);
 		else if (compare_nonterminated_name(name, CMLevelMusicTrack1Str))
-			convert_integer(CGameCfg.CMLevelMusicTrack[1], value);
+			read_config_number(CGameCfg.CMLevelMusicTrack[1], numeric_value);
 		else if (compare_nonterminated_name(name, CMLevelMusicPathStr))
 			convert_string(CGameCfg.CMLevelMusicPath, value, eol);
 		else if (compare_nonterminated_name(name, CMMiscMusic0Str))
@@ -372,7 +434,7 @@ void ReadConfigFile(CCfg &CGameCfg, Cfg &GameCfg)
 			convert_string(CGameCfg.CMMiscMusic[song_number::credits], value, eol);
 		else if (compare_nonterminated_name(name, GammaLevelStr))
 		{
-			convert_integer(CGameCfg.GammaLevel, value);
+			read_config_number(CGameCfg.GammaLevel, numeric_value);
 			gr_palette_set_gamma(CGameCfg.GammaLevel);
 		}
 		else if (compare_nonterminated_name(name, LastPlayerStr))
@@ -380,18 +442,18 @@ void ReadConfigFile(CCfg &CGameCfg, Cfg &GameCfg)
 		else if (compare_nonterminated_name(name, LastMissionStr))
 			convert_string(CGameCfg.LastMission, value, eol);
 		else if (compare_nonterminated_name(name, ResolutionXStr))
-			convert_integer(CGameCfg.ResolutionX, value);
+			read_config_number(CGameCfg.ResolutionX, numeric_value);
 		else if (compare_nonterminated_name(name, ResolutionYStr))
-			convert_integer(CGameCfg.ResolutionY, value);
+			read_config_number(CGameCfg.ResolutionY, numeric_value);
 		else if (compare_nonterminated_name(name, AspectXStr))
-			convert_integer(CGameCfg.AspectX, value);
+			read_config_number(CGameCfg.AspectX, numeric_value);
 		else if (compare_nonterminated_name(name, AspectYStr))
-			convert_integer(CGameCfg.AspectY, value);
+			read_config_number(CGameCfg.AspectY, numeric_value);
 		else if (compare_nonterminated_name(name, WindowModeStr))
-			convert_integer(CGameCfg.WindowMode, value);
+			read_config_number(CGameCfg.WindowMode, numeric_value);
 		else if (compare_nonterminated_name(name, TexFiltStr))
 		{
-			if (auto r = convert_integer<uint8_t>(value))
+			if (auto r = parse_config_number<uint8_t>(numeric_value))
 			{
 				switch (const auto TexFilt = *r)
 				{
@@ -414,29 +476,29 @@ void ReadConfigFile(CCfg &CGameCfg, Cfg &GameCfg)
 			}
 		}
 		else if (compare_nonterminated_name(name, TexAnisStr))
-			convert_integer(CGameCfg.TexAnisotropy, value);
+			read_config_number(CGameCfg.TexAnisotropy, numeric_value);
 #if DXX_BUILD_DESCENT == 2
 		else if (compare_nonterminated_name(name, MovieTexFiltStr))
-			convert_integer(GameCfg.MovieTexFilt, value);
+			read_config_number(GameCfg.MovieTexFilt, numeric_value);
 		else if (compare_nonterminated_name(name, MovieSubtitlesStr))
-			convert_integer(GameCfg.MovieSubtitles, value);
+			read_config_number(GameCfg.MovieSubtitles, numeric_value);
 #endif
 #if DXX_USE_ADLMIDI
 		else if (compare_nonterminated_name(name, ADLMIDINumChipsStr))
-			convert_integer(CGameCfg.ADLMIDI_num_chips, value);
+			read_config_number(CGameCfg.ADLMIDI_num_chips, numeric_value);
 		else if (compare_nonterminated_name(name, ADLMIDIBankStr))
-			convert_integer(CGameCfg.ADLMIDI_bank, value);
+			read_config_number(CGameCfg.ADLMIDI_bank, numeric_value);
 		else if (compare_nonterminated_name(name, ADLMIDIEnabledStr))
-			convert_integer(CGameCfg.ADLMIDI_enabled, value);
+			read_config_number(CGameCfg.ADLMIDI_enabled, numeric_value);
 #endif
 		else if (compare_nonterminated_name(name, VSyncStr))
-			convert_integer(CGameCfg.VSync, value);
+			read_config_number(CGameCfg.VSync, numeric_value);
 		else if (compare_nonterminated_name(name, MultisampleStr))
-			convert_integer(CGameCfg.Multisample, value);
+			read_config_number(CGameCfg.Multisample, numeric_value);
 		else if (compare_nonterminated_name(name, FPSIndicatorStr))
-			convert_integer(CGameCfg.FPSIndicator, value);
+			read_config_number(CGameCfg.FPSIndicator, numeric_value);
 		else if (compare_nonterminated_name(name, GrabinputStr))
-			convert_integer(CGameCfg.Grabinput, value);
+			read_config_number(CGameCfg.Grabinput, numeric_value);
 	}
 
 	if (CGameCfg.ResolutionX >= 320 && CGameCfg.ResolutionY >= 200)
@@ -449,7 +511,12 @@ void ReadConfigFile(CCfg &CGameCfg, Cfg &GameCfg)
 int WriteConfigFile(const CCfg &CGameCfg, const Cfg &GameCfg)
 {
 	const auto current_cfg_text{build_cfg_file_text(CGameCfg, GameCfg)};
-	if (cfg_file_unchanged(current_cfg_text))
+	if (!current_cfg_text)
+	{
+		con_puts(CON_NORMAL, "Failed to prepare configuration text");
+		return 1;
+	}
+	if (cfg_file_unchanged(*current_cfg_text))
 		return 0;
 	auto &&[outfile, physfserr]{PHYSFSX_openWriteBuffered(DXX_DESCENT_CFG_NAME)};
 	if (!outfile)
@@ -457,7 +524,7 @@ int WriteConfigFile(const CCfg &CGameCfg, const Cfg &GameCfg)
 		con_printf(CON_NORMAL, "Failed to write \"" DXX_DESCENT_CFG_NAME "\": %s", PHYSFS_getErrorByCode(physfserr));
 		return 1;
 	}
-	PHYSFSX_writeBytes(outfile, current_cfg_text.buf.data(), current_cfg_text.written);
+	PHYSFSX_writeBytes(outfile, current_cfg_text->buf.data(), current_cfg_text->written);
 	return 0;
 }
 
