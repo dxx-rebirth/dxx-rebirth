@@ -1066,11 +1066,7 @@ static std::size_t bm_read_eclip(std::size_t texture_count, int skip)
 		e.crit_clip = effect_index::None;
 	e.sound_num = sound_num;
 
-#if DXX_BUILD_DESCENT == 1
 	if (!dest_bm.empty())
-#elif DXX_BUILD_DESCENT == 2
-	if (!dest_bm.empty())
-#endif
 	{			//deal with bitmap for blown up clip
 #if DXX_BUILD_DESCENT == 1
 		{
