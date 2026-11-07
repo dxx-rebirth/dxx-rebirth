@@ -897,6 +897,9 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 					case powerup_type_t::POW_VULCAN_AMMO:
 					case powerup_type_t::POW_TURBO:
 					case powerup_type_t::POW_MEGAWOW:
+#if DXX_BUILD_DESCENT == 1
+						break;
+#endif
 						/* For Descent 1, the below powerups do not exist, so they
 						 * are `[[unlikely]]`.
 						 * For Descent 2, use an ordinary break.
