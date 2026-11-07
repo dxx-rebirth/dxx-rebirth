@@ -110,7 +110,7 @@ uint8_t *gr_rle_decode(const color_palette_index *sb, color_palette_index *db, c
 // dest, from source pixels x1 to x2.
 void gr_rle_expand_scanline_masked(uint8_t *dest, const uint8_t *src, const uint_fast32_t x1, const uint_fast32_t x2)
 {
-	int i{0};
+	uint_fast32_t i{0};
 	ubyte count;
 	uint8_t color{0};
 
@@ -168,7 +168,7 @@ void gr_rle_expand_scanline_masked(uint8_t *dest, const uint8_t *src, const uint
 
 void gr_rle_expand_scanline(uint8_t *dest, const uint8_t *src, const uint_fast32_t x1, const uint_fast32_t x2)
 {
-	int i{0};
+	uint_fast32_t i{0};
 	ubyte count;
 	uint8_t color{0};
 

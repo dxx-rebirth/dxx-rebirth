@@ -223,6 +223,14 @@ BOOST_AUTO_TEST_CASE(vm_vec_mag2_0)
 	BOOST_CHECK_EQUAL(static_cast<int64_t>(vm_vec_mag2(vms_vector{.x = 10, .y = -20, .z = 30})), (10 * 10) + (20 * 20) + (30 * 30));
 }
 
+BOOST_AUTO_TEST_CASE(vm_magnitude_squared_compares_signed_radius_mathematically)
+{
+	const auto magnitude{vm_magnitude_squared{4}};
+	BOOST_CHECK(!(magnitude < -1));
+	BOOST_CHECK(!(magnitude < 0));
+	BOOST_CHECK(magnitude < 5);
+}
+
 BOOST_AUTO_TEST_CASE(vm_vec_mag_0)
 {
 	BOOST_CHECK_EQUAL(static_cast<int32_t>(vm_vec_mag(vms_vector{.x = 10, .y = 20, .z = 30})), 37);

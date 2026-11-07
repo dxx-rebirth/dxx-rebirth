@@ -795,7 +795,7 @@ void SoundQ_end()
 {
 	// Current playing sound is stopped, so take it off the Queue
 	SoundQ_head = (SoundQ_head+1);
-	if (SoundQ_head >= SoundQ.size())
+	if (std::cmp_greater_equal(SoundQ_head, SoundQ.size()))
 		SoundQ_head = 0;
 	SoundQ_num--;
 	SoundQ_channel = sound_channel::None;
@@ -836,7 +836,7 @@ void digi_start_sound_queued(sound_effect soundnum, fix volume)
 		return;
 
 	i = SoundQ_tail+1;
-	if (i >= SoundQ.size())
+	if (std::cmp_greater_equal(i, SoundQ.size()))
 		i = 0;
 
 	// Make sure its loud so it doesn't get cancelled!

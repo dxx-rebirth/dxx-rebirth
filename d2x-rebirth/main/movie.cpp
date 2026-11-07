@@ -603,8 +603,8 @@ static void draw_subtitles(const d_loaded_subtitle_state &SubtitleState, const i
 {
 	static constexpr std::size_t MAX_ACTIVE_SUBTITLES{3};
 	static std::array<uint16_t, MAX_ACTIVE_SUBTITLES> active_subtitles;
-	static int next_subtitle;
-	static unsigned num_active_subtitles;
+	static unsigned next_subtitle;
+	static std::size_t num_active_subtitles;
 	int y;
 	uint8_t must_erase{};
 
@@ -617,9 +617,9 @@ static void draw_subtitles(const d_loaded_subtitle_state &SubtitleState, const i
 
 	//get rid of any subtitles that have expired
 	auto &Subtitles{SubtitleState.Subtitles};
-	for (int t{}; t < num_active_subtitles;)
-		if (frame_num > Subtitles[active_subtitles[t]].last_frame) {
-			int t2;
+	for (std::size_t t{}; t < num_active_subtitles;)
+		if (std::cmp_greater(frame_num, Subtitles[active_subtitles[t]].last_frame)) {
+			std::size_t t2;
 			for (t2=t;t2<num_active_subtitles-1;t2++)
 				active_subtitles[t2] = active_subtitles[t2+1];
 			num_active_subtitles--;
@@ -629,7 +629,7 @@ static void draw_subtitles(const d_loaded_subtitle_state &SubtitleState, const i
 			t++;
 
 	//get any subtitles new for this frame
-	while (next_subtitle < SubtitleState.Num_subtitles && frame_num >= Subtitles[next_subtitle].first_frame) {
+	while (next_subtitle < SubtitleState.Num_subtitles && std::cmp_greater_equal(frame_num, Subtitles[next_subtitle].first_frame)) {
 		if (num_active_subtitles >= MAX_ACTIVE_SUBTITLES)
 			Error("Too many active subtitles!");
 		active_subtitles[num_active_subtitles++] = next_subtitle;

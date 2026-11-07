@@ -121,7 +121,7 @@ static void maintain_vertex_count(valptridx<vertex>::array_managed_type &Vertice
 vertnum_t med_add_vertex(const vertex &vp)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
-	int	count;					// number of used vertices found, for loops exits when count == Num_vertices
+	unsigned count;					// number of used vertices found, for loops exits when count == Num_vertices
 
 //	set_vertex_counts();
 
@@ -1123,7 +1123,8 @@ int med_form_joint(const vmsegptridx_t seg1, const sidenum_t side1, const vmsegp
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
-	int		bfi,s1;
+	int bfi;
+	uint_fast32_t s1;
 	std::array<segnum_t, MAX_VALIDATIONS> validation_list;
 	uint_fast32_t nv;
 

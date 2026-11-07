@@ -435,15 +435,15 @@ static unsigned get_font_total_width(const grs_font &font)
 static std::pair<unsigned, unsigned> ogl_font_choose_size(const grs_font *const font, const uint8_t gap)
 {
 	const auto nchars{font->ft_maxchar - font->ft_minchar + 1u};
-	int nc{}, smallest{999999};
-	int smallprop{10000};
+	unsigned nc{}, smallest{999999};
+	unsigned smallprop{10000};
 	std::optional<std::pair<unsigned, unsigned>> rwh;
 	for (unsigned h{32}; h <= 256; h *= 2)
 	{
 		if (font->ft_h>h)continue;
 		const auto r{h / (font->ft_h + gap)};
 		auto w{std::bit_ceil((get_font_total_width(*font) + (nchars - r) * gap) / r)};
-		int tries{};
+		unsigned tries{};
 		do {
 			if (tries)
 				w = std::bit_ceil(w + 1u);
@@ -451,9 +451,9 @@ static std::pair<unsigned, unsigned> ogl_font_choose_size(const grs_font *const 
 				break;
 			}
 			nc=0;
-			int y{};
+			unsigned y{};
 			while(y+font->ft_h<=h){
-				int x{};
+				unsigned x{};
 				while (x<w){
 					if (nc==nchars)
 						break;
