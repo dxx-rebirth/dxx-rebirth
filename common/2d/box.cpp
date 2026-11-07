@@ -56,10 +56,10 @@ static void gr_ubox12(grs_canvas &canvas, const int left, const int top, const i
 static void gr_box0(grs_canvas &canvas, const uint_fast32_t left, const uint_fast32_t top, uint_fast32_t right, uint_fast32_t bot, const color_palette_index color)
 {
 	const auto maxy = canvas.cv_bitmap.bm_h - 1;
-	if (maxy < 0 || std::cmp_greater(top, maxy))
+	if (std::cmp_greater(top, maxy))
 		return;
 	const auto maxx = canvas.cv_bitmap.bm_w - 1;
-	if (maxx < 0 || std::cmp_greater(left, maxx))
+	if (std::cmp_greater(left, maxx))
 		return;
 	if (std::cmp_greater(bot, maxy))
 		bot = maxy;
@@ -71,10 +71,10 @@ static void gr_box0(grs_canvas &canvas, const uint_fast32_t left, const uint_fas
 static void gr_box12(grs_canvas &canvas, const uint_fast32_t left, const uint_fast32_t top, uint_fast32_t right, uint_fast32_t bot, const color_palette_index color)
 {
 	const auto maxy = canvas.cv_bitmap.bm_h - 1;
-	if (maxy < 0 || std::cmp_greater(top, maxy))
+	if (std::cmp_greater(top, maxy))
 		return;
 	const auto maxx = canvas.cv_bitmap.bm_w - 1;
-	if (maxx < 0 || std::cmp_greater(left, maxx))
+	if (std::cmp_greater(left, maxx))
 		return;
 	if (std::cmp_greater(bot, maxy))
 		bot = maxy;

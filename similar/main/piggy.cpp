@@ -1984,7 +1984,7 @@ static std::span<uint8_t> bitmap_read_d1(grs_bitmap *bitmap, /* read into this b
 			Error("Invalid negative RLE bitmap size %i", new_size);
 		advance_next_bitmap = new_size;
 		if (!next_bitmap.data()) {
-			Assert(new_size >= 0 && std::cmp_greater_equal(zsize + JUST_IN_CASE, new_size));
+			Assert(std::cmp_greater_equal(zsize + JUST_IN_CASE, new_size));
 			bitmap->bm_mdata = reinterpret_cast<uint8_t *>(d_realloc(bitmap->bm_mdata, new_size));
 			Assert(bitmap->bm_data);
 		}

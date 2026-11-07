@@ -6033,7 +6033,7 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 	if (multi_i_am_master())
 	{
 		// latecoming player seems to successfully have synced
-		if (VerifyPlayerJoined != -1 && std::cmp_equal(TheirPlayernum, VerifyPlayerJoined))
+		if (std::cmp_equal(TheirPlayernum, VerifyPlayerJoined))
 			VerifyPlayerJoined=-1;
 		// we say that guy is disconnected so we do not want him/her in game
 		if (tplr.connected == player_connection_status::disconnected)
