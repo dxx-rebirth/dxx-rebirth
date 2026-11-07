@@ -76,11 +76,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define D1_PALETTE "palette.256"
 
-#define DEFAULT_SNDFILE ((Piggy_hamfile_version < pig_hamfile_version::_3) ? DEFAULT_HAMFILE_SHAREWARE : (GameArg.SndDigiSampleRate == sound_sample_rate::_22k) ? "descent2.s22" : "descent2.s11")
-
 namespace dsx {
 
 namespace {
+
+const char *Current_soundfile = DEFAULT_HAMFILE_SHAREWARE;
+bool GameData_uses_external_table;
+
+static const char *get_registered_soundfile()
+{
+	return GameArg.SndDigiSampleRate == sound_sample_rate::_22k ? "descent2.s22" : "descent2.s11";
+}
 
 enum class pigfile_size : uint32_t
 {
@@ -1180,6 +1186,7 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 	 * so clamp any version higher than 3 to just 3.
 	 */
 	Piggy_hamfile_version = static_cast<pig_hamfile_version>(std::clamp(PHYSFSX_readInt(ham_fp), 0, 3));
+	Current_soundfile = Piggy_hamfile_version < pig_hamfile_version::_3 ? DEFAULT_HAMFILE_SHAREWARE : get_registered_soundfile();
 	if (ham_id != HAMFILE_ID)
 		Error("Failed to load ham file " DEFAULT_HAMFILE_REGISTERED ": expected ham_id=%.8lx, found ham_id=%.8x version=%.8x\n", HAMFILE_ID, ham_id, underlying_value(Piggy_hamfile_version));
 
@@ -1223,11 +1230,10 @@ int read_hamfile(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 	return 1;
 }
 
-void read_sndfile(const int required)
+static void read_sndfile(const int required, const char *const filename)
 {
 	int snd_id,snd_version;
 
-	const auto filename{DEFAULT_SNDFILE};
 	auto &&[snd_fp, physfserr] = PHYSFSX_openReadBuffered(filename);
 	if (!snd_fp)
 	{
@@ -1244,12 +1250,19 @@ void read_sndfile(const int required)
 			Error("Cannot load sound file: expected (id=%.8lx version=%.8x), found (id=%.8x version=%.8x) in \"%s\"", SNDFILE_ID, SNDFILE_VERSION, snd_id, snd_version, filename);
 		return;
 	}
+	Current_soundfile = filename;
 	//Read sounds
 	build_sound_allocation(snd_fp);
 }
 
+void read_sndfile(const int required)
+{
+	read_sndfile(required, get_registered_soundfile());
+}
+
 properties_init_result properties_init(d_level_shared_robot_info_state &LevelSharedRobotInfoState)
 {
+	GameData_uses_external_table = false;
 	GameSounds = {};
 	for (const uint16_t i : xrange(std::size(GameBitmapXlat)))
 	{
@@ -1268,6 +1281,17 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 		GameBitmapOffset[(bitmap_index{0})] = pig_bitmap_offset::None;
 	}
 
+#if DXX_USE_EDITOR
+	if (PHYSFS_exists("BITMAPS.TBL") || PHYSFS_exists("BITMAPS.BIN"))
+	{
+		Piggy_hamfile_version = pig_hamfile_version::_3;
+		piggy_init_pigfile(DEFAULT_PIGFILE_REGISTERED);
+		read_sndfile(1, get_registered_soundfile());
+		GameData_uses_external_table = true;
+		return properties_init_result::use_gamedata_read_tbl;
+	}
+#endif
+
 	const auto ham_ok{read_hamfile(LevelSharedRobotInfoState)};
 
 	if (Piggy_hamfile_version >= pig_hamfile_version::_3)
@@ -1276,6 +1300,11 @@ properties_init_result properties_init(d_level_shared_robot_info_state &LevelSha
 	}
 
 	return ham_ok ? properties_init_result::success : properties_init_result::failure;               //read ok
+}
+
+bool gamedata_uses_external_table()
+{
+	return GameData_uses_external_table;
 }
 #endif
 
@@ -1321,7 +1350,7 @@ void piggy_read_sounds(const properties_init_result &init_result)
 #elif DXX_BUILD_DESCENT == 2
 void piggy_read_sounds(void)
 {
-	auto fp = PHYSFSX_openReadBuffered(DEFAULT_SNDFILE).first;
+	auto fp = PHYSFSX_openReadBuffered(Current_soundfile).first;
 	if (!fp)
 		return;
 
