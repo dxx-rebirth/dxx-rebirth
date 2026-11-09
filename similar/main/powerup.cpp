@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 
+#include <algorithm>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -69,6 +70,15 @@ uint8_t N_powerup_types;
 namespace dsx {
 d_powerup_info_array Powerup_info;
 
+namespace {
+
+unsigned powerup_frame_count(const vclip &vc)
+{
+	return std::min<unsigned>(vc.num_frames, vc.frames.size());
+}
+
+}
+
 //process this powerup for this frame
 void do_powerup_frame(const d_vclip_array &Vclip, const vmobjptridx_t obj)
 {
@@ -82,17 +92,18 @@ void do_powerup_frame(const d_vclip_array &Vclip, const vmobjptridx_t obj)
 #endif
 	
 	auto &vc = Vclip[vci->vclip_num];
+	const auto frame_count = powerup_frame_count(vc);
+	if (vci->framenum >= frame_count)
+		vci->framenum = 0;
 	const auto vc_frame_time = vc.frame_time;
-	if (vc_frame_time > 0)
+	if (frame_count && vc_frame_time > 0)
 	{
-	const auto vc_num_frames1 = vc.num_frames - 1;
+	const auto vc_num_frames1 = frame_count - 1;
 	vci->frametime -= FrameTime+fudge;
 	
 	while (vci->frametime < 0 ) {
 
 		vci->frametime += vc_frame_time;
-		if (vci->framenum > vc_num_frames1)
-			vci->framenum=0;
 
 #if DXX_BUILD_DESCENT == 2
 		if (objnum&1)
@@ -121,8 +132,14 @@ void do_powerup_frame(const d_vclip_array &Vclip, const vmobjptridx_t obj)
 
 void draw_powerup(const d_vclip_array &Vclip, grs_canvas &canvas, const object_base &obj)
 {
-	auto &vci = obj.rtype.vclip_info;
-	draw_object_blob(GameBitmaps, *Viewer, canvas, obj, Vclip[vci.vclip_num].frames[vci.framenum]);
+	const auto &vci = obj.rtype.vclip_info;
+	const auto &vc = Vclip[vci.vclip_num];
+	const auto frame_count = powerup_frame_count(vc);
+	if (!frame_count)
+		return;
+	// A restored object can render before its animation has been updated.
+	const auto frame = vci.framenum < frame_count ? vci.framenum : 0u;
+	draw_object_blob(GameBitmaps, *Viewer, canvas, obj, vc.frames[frame]);
 }
 
 namespace {
