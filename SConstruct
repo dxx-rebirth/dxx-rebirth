@@ -5006,6 +5006,9 @@ class DXXArchive(DXXCommon):
 		RuntimeTest('test-mouse-delta', (
 			'common/unittest/mouse_delta.cpp',
 			)),
+		RuntimeTest('test-ntstring', (
+			'common/unittest/ntstring.cpp',
+			)),
 		RuntimeTest('test-mve-audio', (
 			'd2x-rebirth/unittest/mve_audio.cpp',
 			)),

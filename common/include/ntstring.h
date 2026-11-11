@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <span>
+#include <string_view>
 #include "dxxsconf.h"
 #include "pack.h"
 #include <array>
@@ -22,13 +23,10 @@ public:
 	{
 		if (offset >= this->size())
 			return 0;
-		auto eb = ib;
-		std::size_t r = (offset + N) <= L ? N : 0;
-		if (r)
-			eb += N;
-		auto ob = std::next(this->begin(), offset);
-		auto oc = std::copy(ib, eb, ob);
-		std::fill(oc, this->end(), 0);
+		const auto r = N <= L - offset ? N : 0;
+		const auto dst = std::span{*this}.subspan(offset);
+		const auto oc = std::copy_n(ib, r, dst.begin());
+		std::fill(oc, dst.end(), 0);
 		return r;
 	}
 	template <std::size_t N>
@@ -71,32 +69,28 @@ public:
 	dxx_compiler_attribute_nonnull()
 	std::size_t copy_if(std::size_t offset, const char *i, std::size_t N)
 	{
-		const std::size_t d =
+		const auto end =
 #ifdef DXX_CONSTANT_TRUE
-			(DXX_CONSTANT_TRUE(!i[N - 1])) ? N - 1 :
+			(N && DXX_CONSTANT_TRUE(!i[N - 1])) ? N - 1 :
 #endif
-			std::distance(i, std::find(i, i + N, 0));
-		return _copy_n(offset, i, d);
+			std::string_view{i, N}.find('\0');
+		return _copy_n(offset, i, end == std::string_view::npos ? N : end);
 	}
 	[[nodiscard]]
 	std::size_t copy_out(const std::span<uint8_t> dst) const
 	{
 		if (dst.empty())
 			return 0;
-		const auto ie = std::prev(this->end());
-		const auto ib = this->begin();
-		auto ii = std::find(ib, ie, 0);
-		if (ii != ie)
-			/* Only copy null if string is short  */
-			++ ii;
-		const std::size_t r = std::distance(ib, ii);
+		const auto end = std::string_view{this->data(), L}.find('\0');
+		/* Only copy null if string is short. */
+		const auto r = end == std::string_view::npos ? L : end + 1;
 		if (r > dst.size())
 		{
 			/* This output does not fit */
 			dst[0] = 0;
 			return 1;
 		}
-		std::copy(ib, ii, dst.begin());
+		std::copy_n(this->data(), r, dst.begin());
 		return r;
 	}
 	operator bool() const = delete;
