@@ -144,8 +144,7 @@ BOOST_AUTO_TEST_CASE(calloc_with_a_zero_dimension)
 
 BOOST_AUTO_TEST_CASE(freed_tracking_slots_are_reused)
 {
-	for (unsigned i = 0; i != 10001; ++i)
-	{
+	for (unsigned i = 0; i != 10001; ++i) {
 		auto p = allocate(1);
 		*p = 42;
 	}
