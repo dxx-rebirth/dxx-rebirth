@@ -23,7 +23,7 @@ public:
 		if (offset >= this->size())
 			return 0;
 		auto eb = ib;
-		std::size_t r = (offset + N) <= L ? N : 0;
+		std::size_t r = N <= L - offset ? N : 0;
 		if (r)
 			eb += N;
 		auto ob = std::next(this->begin(), offset);
@@ -73,7 +73,7 @@ public:
 	{
 		const std::size_t d =
 #ifdef DXX_CONSTANT_TRUE
-			(DXX_CONSTANT_TRUE(!i[N - 1])) ? N - 1 :
+			(N && DXX_CONSTANT_TRUE(!i[N - 1])) ? N - 1 :
 #endif
 			std::distance(i, std::find(i, i + N, 0));
 		return _copy_n(offset, i, d);
