@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cstddef>
 #include <cstring>
 #include <memory>
@@ -306,18 +307,20 @@ private:
 
 constexpr PHYSFSX_fgets_t PHYSFSX_fgets{};
 
-int PHYSFSX_printf(PHYSFS_File *file, const char *format) = delete;
+PHYSFS_sint64 PHYSFSX_printf(PHYSFS_File *file, const char *format) = delete;
 
 dxx_compiler_attribute_format_printf(2, 3)
-static inline int PHYSFSX_printf(PHYSFS_File *file, const char *format, ...)
+static inline PHYSFS_sint64 PHYSFSX_printf(PHYSFS_File *file, const char *format, ...)
 {
 	char buffer[1024];
 	va_list args;
 
 	va_start(args, format);
-	const std::size_t len = std::max(vsnprintf(buffer, sizeof(buffer), format, args), 0);
+	const auto required = vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
 
+	constexpr int capacity = sizeof(buffer) - 1;
+	const auto len = static_cast<std::size_t>(std::clamp(required, 0, capacity));
 	return PHYSFSX_puts(file, {buffer, len});
 }
 
