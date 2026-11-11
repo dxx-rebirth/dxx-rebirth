@@ -71,8 +71,7 @@ void mem_init()
 	Filename = {};
 	Varname = {};
 	LineNum = {};
-	for (std::size_t i=0; i<MAX_INDEX; i++ )
-	{
+	for (std::size_t i = 0; i < MAX_INDEX; i++) {
 		free_list[i] = i;
 	}
 
@@ -132,7 +131,7 @@ void *mem_malloc(size_t size, const char * var, const char * filename, unsigned 
 
 	auto *const pc = reinterpret_cast<uint8_t *>(ptr);
 
-	for (std::size_t i=0; i<CHECKSIZE; i++ )
+	for (std::size_t i = 0; i < CHECKSIZE; i++)
 		pc[size+i] = CHECKBYTE;
 
 	return ptr;
@@ -151,7 +150,7 @@ void *(mem_calloc)( size_t nmemb, size_t size, const char * var, const char * fi
 
 static std::optional<std::size_t> mem_find_id(const void *buffer)
 {
-	for (std::size_t i=0; i<=LargestIndex; i++ )
+	for (std::size_t i = 0; i <= LargestIndex; i++)
 	  if (Present[i]==1)
 	    if (MallocBase[i] == buffer )
 	      return i;
@@ -169,7 +168,7 @@ static unsigned mem_check_integrity(const std::size_t block_number)
 
 	ErrorCount = 0;
 			
-	for (std::size_t i=0; i<CHECKSIZE; i++ )
+	for (std::size_t i = 0; i < CHECKSIZE; i++)
 		if (CheckData[i] != CHECKBYTE ) {
 			ErrorCount++;
 			con_printf(CON_CRITICAL, "OA: %p ", &CheckData[i] );
@@ -200,10 +199,8 @@ void mem_free( void * buffer )
 	}
 	const auto found_id = mem_find_id(buffer);
 
-	if (!found_id)
-	{
-		if (!out_of_memory)
-		{
+	if (!found_id) {
+		if (!out_of_memory) {
 			con_printf(CON_CRITICAL, "\nMEM_FREE_NOMALLOC: An attempt was made to free a ptr that wasn't\nallocated with mem.h included." );
 			Warning("MEM: Freeing a non-malloced pointer: %p!", buffer);
 			Int3();
@@ -237,8 +234,7 @@ void *mem_realloc(void *buffer, size_t size, const char *var, const char *filena
 		return mem_malloc(size, var, filename, line);
 
 	const auto id = mem_find_id(buffer);
-	if (!id)
-	{
+	if (!id) {
 		con_printf(CON_CRITICAL, "\nMEM_REALLOC_NOMALLOC: An attempt was made to resize a ptr that wasn't\nallocated with mem.h included.");
 		Warning("MEM: Resizing a non-malloced pointer: %p!", buffer);
 		Int3();
@@ -257,8 +253,7 @@ void mem_display_blocks()
 	if (Initialized==0) return;
 	
 	numleft = 0;
-	for (std::size_t i=0; i<=LargestIndex; i++ )
-	{
+	for (std::size_t i = 0; i <= LargestIndex; i++) {
 		if (Present[i]==1 &&  (!out_of_memory))
 		{
 			numleft++;
