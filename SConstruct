@@ -5003,6 +5003,10 @@ class DXXArchive(DXXCommon):
 		RuntimeTest('test-enumerate', (
 			'common/unittest/enumerate.cpp',
 			)),
+		RuntimeTest('test-mem', (
+			'common/unittest/mem.cpp',
+			'common/mem/mem.cpp',
+			)),
 		RuntimeTest('test-mouse-delta', (
 			'common/unittest/mouse_delta.cpp',
 			)),
