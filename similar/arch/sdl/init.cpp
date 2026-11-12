@@ -12,6 +12,7 @@
 #include "digi.h"
 #include "mouse.h"
 #include "joy.h"
+#include "ffb.h"
 #include "gr.h"
 #include "dxxerror.h"
 #include "text.h"
@@ -34,6 +35,7 @@ static void arch_close(void)
 #if DXX_MAX_JOYSTICKS
 	if (!CGameArg.CtlNoJoystick)
 	{
+		tactile::close();
 		joy_close();
 #if SDL_MAJOR_VERSION == 2
 		gamecontroller_close();

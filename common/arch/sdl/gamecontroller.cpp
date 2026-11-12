@@ -31,6 +31,7 @@
 #include "d_range.h"
 #include "partial_range.h"
 #include "physfsrwops.h"
+#include "ffb.h"
 
 /* Allow the build system to pick whether to search the SDL base directory. */
 #ifndef DXX_ENABLE_GAMECONTROLLER_SEARCH_SDL_BASE_DIRECTORY
@@ -435,12 +436,14 @@ window_event_result gc_device_added(const SDL_ControllerDeviceEvent *const cde)
 {
 	con_printf(CON_NORMAL, "gamecontroller: device added (index %d)", cde->which);
 	gc_open_controller(cde->which);
+	tactile::device_added();
 	return window_event_result::handled;
 }
 
 window_event_result gc_device_removed(const SDL_ControllerDeviceEvent *const cde)
 {
 	con_printf(CON_NORMAL, "gamecontroller: device removed (instance %d)", cde->which);
+	tactile::device_removed(cde->which);
 	gc_close_controller(cde->which);
 	return window_event_result::handled;
 }
