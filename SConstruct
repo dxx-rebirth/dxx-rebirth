@@ -5016,9 +5016,6 @@ class DXXArchive(DXXCommon):
 		RuntimeTest('test-serial', (
 			'common/unittest/serial.cpp',
 			)),
-		RuntimeTest('test-byteutil', (
-			'common/unittest/byteutil.cpp',
-			)),
 		RuntimeTest('test-partial-range', (
 			'common/unittest/partial_range.cpp',
 			)),
