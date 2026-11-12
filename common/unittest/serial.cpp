@@ -1,10 +1,16 @@
 #include "dxxsconf.h"
 
+#include "byteutil.h"
 #include "serial.h"
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE Rebirth serial
 #include <boost/test/unit_test.hpp>
+
+static_assert(std::same_as<decltype(SWAPSHORT(int16_t{})), int16_t>);
+static_assert(std::same_as<decltype(SWAPSHORT(uint16_t{})), uint16_t>);
+static_assert(std::same_as<decltype(SWAPINT(int32_t{})), int32_t>);
+static_assert(std::same_as<decltype(SWAPINT(uint32_t{})), uint32_t>);
 
 static_assert(!serial::is_message<int>::value, "");
 static_assert(serial::is_message<serial::message<int>>::value, "");
@@ -195,4 +201,25 @@ BOOST_AUTO_TEST_CASE(write_pad)
 	process_buffer(b, serial::pad<2, 0x85>());
 	BOOST_TEST(buf[0] == 0x85);
 	BOOST_TEST(buf[1] == 0x85);
+}
+
+BOOST_AUTO_TEST_CASE(byteutil_word_promotion_preserves_little_endian_encoding)
+{
+	alignas(uint32_t) std::array<uint8_t, 6> bytes{};
+	PUT_INTEL_INT(bytes.data() + 1, int16_t{-2});
+	const std::array<uint8_t, 6> negative{{0, 0xfe, 0xff, 0xff, 0xff, 0}};
+	BOOST_TEST(bytes == negative, boost::test_tools::per_element());
+	BOOST_TEST(GET_INTEL_INT<int32_t>(bytes.data() + 1) == -2);
+	PUT_INTEL_INT(bytes.data() + 1, uint16_t{0xabcd});
+	const std::array<uint8_t, 6> positive{{0, 0xcd, 0xab, 0, 0, 0}};
+	BOOST_TEST(bytes == positive, boost::test_tools::per_element());
+}
+
+BOOST_AUTO_TEST_CASE(byteutil_short_preserves_unaligned_little_endian_encoding)
+{
+	alignas(uint16_t) std::array<uint8_t, 4> bytes{};
+	PUT_INTEL_SHORT(bytes.data() + 1, int16_t{-2});
+	const std::array<uint8_t, 4> expected{{0, 0xfe, 0xff, 0}};
+	BOOST_TEST(bytes == expected, boost::test_tools::per_element());
+	BOOST_TEST(GET_INTEL_SHORT<int16_t>(bytes.data() + 1) == -2);
 }
