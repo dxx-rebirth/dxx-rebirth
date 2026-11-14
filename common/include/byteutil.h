@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <bit>
 #include <concepts>
 #include <cstdint>
 #include <string.h>    // for memcpy
@@ -42,33 +43,25 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 [[nodiscard]]
 static constexpr uint16_t SWAPSHORT(const uint16_t &x)
 {
-#ifdef DXX_HAVE_BUILTIN_BSWAP
-	return __builtin_bswap16(x);
-#else
-	return (x << 8) | (x >> 8);
-#endif
+	return std::byteswap(x);
 }
 
 [[nodiscard]]
 static constexpr int16_t SWAPSHORT(const int16_t &i)
 {
-	return SWAPSHORT(static_cast<uint16_t>(i));
+	return std::byteswap(i);
 }
 
 [[nodiscard]]
 static constexpr uint32_t SWAPINT(const uint32_t &x)
 {
-#ifdef DXX_HAVE_BUILTIN_BSWAP
-	return __builtin_bswap32(x);
-#else
-	return (x << 24) | (x >> 24) | ((x & 0xff00) << 8) | ((x >> 8) & 0xff00);
-#endif
+	return std::byteswap(x);
 }
 
 [[nodiscard]]
 static constexpr int32_t SWAPINT(const int32_t &i)
 {
-	return SWAPINT(static_cast<uint32_t>(i));
+	return std::byteswap(i);
 }
 
 #if !DXX_WORDS_BIGENDIAN
@@ -77,12 +70,6 @@ static constexpr int32_t SWAPINT(const int32_t &i)
 #define byteutil_choose_endian(F,a)	(F(a))
 #endif // ! WORDS_BIGENDIAN
 constexpr std::integral_constant<int, DXX_WORDS_BIGENDIAN> words_bigendian{};
-
-#if DXX_WORDS_NEED_ALIGNMENT
-#define byteutil_unaligned_copy(dt, d, s)	( DXX_BEGIN_COMPOUND_STATEMENT { dt &destination_reference = d; memcpy(&destination_reference, (s), sizeof(d)); } DXX_END_COMPOUND_STATEMENT )
-#else // WORDS_NEED_ALIGNMENT
-#define byteutil_unaligned_copy(dt, d, s)	( DXX_BEGIN_COMPOUND_STATEMENT { dt &destination_reference = d; destination_reference = *reinterpret_cast<const dt *>(s); } DXX_END_COMPOUND_STATEMENT )
-#endif // WORDS_NEED_ALIGNMENT
 
 [[nodiscard]]
 static constexpr uint16_t INTEL_SHORT(const uint16_t &x)
@@ -117,7 +104,7 @@ requires(
 static inline result_type GET_INTEL_INT(const auto *p)
 {
 	result_type u;
-	byteutil_unaligned_copy(result_type, u, p);
+	memcpy(&u, p, sizeof(u));
 	return INTEL_INT(u);
 }
 
@@ -129,7 +116,7 @@ requires(
 static inline result_type GET_INTEL_SHORT(const auto *p)
 {
 	result_type u;
-	byteutil_unaligned_copy(result_type, u, p);
+	memcpy(&u, p, sizeof(u));
 	return INTEL_SHORT(u);
 }
 
@@ -140,13 +127,19 @@ requires(
 )
 static inline void PUT_INTEL_SHORT(uint16_t *d, const T s)
 {
-	const uint16_t u = INTEL_SHORT(s);
-	byteutil_unaligned_copy(uint16_t, *d, &u);
+	const auto u = INTEL_SHORT(s);
+	memcpy(d, &u, sizeof(u));
 }
 
-static inline void PUT_INTEL_SHORT(uint8_t *d, const auto s)
+template <typename T>
+requires(
+	std::same_as<T, int16_t> ||
+	requires(T t) { uint16_t{t}; }
+)
+static inline void PUT_INTEL_SHORT(uint8_t *d, const T s)
 {
-	PUT_INTEL_SHORT(reinterpret_cast<uint16_t *>(d), s);
+	const auto u = INTEL_SHORT(s);
+	memcpy(d, &u, sizeof(u));
 }
 
 template <typename T>
@@ -157,13 +150,18 @@ requires(
 )
 static inline void PUT_INTEL_INT(uint32_t *d, const T s)
 {
-	const uint32_t u = INTEL_INT(s);
-	byteutil_unaligned_copy(uint32_t, *d, &u);
+	const auto u = INTEL_INT(s);
+	memcpy(d, &u, sizeof(u));
 }
 
-static inline void PUT_INTEL_INT(uint8_t *d, const auto s)
+template <typename T>
+requires(
+	std::same_as<T, int16_t> ||
+	std::same_as<T, int32_t> ||
+	requires(T t) { uint32_t{t}; }
+)
+static inline void PUT_INTEL_INT(uint8_t *d, const T s)
 {
-	PUT_INTEL_INT(reinterpret_cast<uint32_t *>(d), s);
+	const auto u = INTEL_INT(s);
+	memcpy(d, &u, sizeof(u));
 }
-
-#undef byteutil_unaligned_copy

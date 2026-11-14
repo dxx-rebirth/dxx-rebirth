@@ -475,45 +475,8 @@ public:
 template <typename... Args>
 message(Args &&... args) -> message<Args && ...>;
 
-template <typename T>
-static constexpr T bswap(const T u)
-{
-	if constexpr (std::is_same<T, int8_t>::value || std::is_same<T, uint8_t>::value)
-		/* Swapping a byte-sized value is a no-op.  This is permitted here so
-		 * that callers can swap without checking the size of the value.
-		 */
-		return u;
-	if constexpr (std::is_same<T, int16_t>::value || std::is_same<T, uint16_t>::value)
-	{
-#ifdef DXX_HAVE_BUILTIN_BSWAP
-		return __builtin_bswap16(u);
-#else
-		return (static_cast<T>(static_cast<uint8_t>(u)) << 8) | static_cast<T>(static_cast<uint8_t>(u >> 8));
-#endif
-	}
-	if constexpr (std::is_same<T, int32_t>::value || std::is_same<T, uint32_t>::value)
-	{
-#ifdef DXX_HAVE_BUILTIN_BSWAP
-		return __builtin_bswap32(u);
-#else
-		return (static_cast<T>(bswap(static_cast<uint16_t>(u))) << 16) | static_cast<T>(bswap(static_cast<uint16_t>(u >> 16)));
-#endif
-	}
-	if constexpr (std::is_same<T, int64_t>::value || std::is_same<T, uint64_t>::value)
-	{
-#ifdef DXX_HAVE_BUILTIN_BSWAP
-		return __builtin_bswap64(u);
-#else
-		return (static_cast<T>(bswap(static_cast<uint32_t>(u))) << 32) | static_cast<T>(bswap(static_cast<uint32_t>(u >> 32)));
-#endif
-	}
-	/* Unsupported type.  Fall off the end of the function and trigger a
-	 * compile error due to the missing `return` statement.
-	 */
-}
-
 template <typename T, T Expected, T input>
-concept check_bswap = check_equal_value<Expected, bswap(input)>;
+concept check_bswap = check_equal_value<Expected, std::byteswap(input)>;
 
 static_assert(check_bswap<uint8_t, 1, 1>);
 
@@ -563,7 +526,7 @@ static inline void process_integer(Accessor &buffer, A1 &a1)
 	using std::advance;
 	auto u{build_unaligned_storage<A1, message_type<A1>::maximum_size>(buffer)};
 	if (!endian_skip_byteswap(buffer.endian()))
-		u.i = {bswap(u.i)};
+		u.i = {std::byteswap(u.i)};
 	a1 = u.a;
 	advance(buffer, sizeof(u.u));
 }
@@ -622,7 +585,7 @@ static inline void process_integer(Accessor &buffer, const A1 &a1)
 	using std::advance;
 	unaligned_storage<A1, message_type<A1>::maximum_size> u{a1};
 	if (!endian_skip_byteswap(buffer.endian()))
-		u.i = {bswap(u.i)};
+		u.i = {std::byteswap(u.i)};
 	unaligned_copy(u, buffer);
 	advance(buffer, sizeof(u.u));
 }
