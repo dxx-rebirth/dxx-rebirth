@@ -650,7 +650,7 @@ static void ogl_tune_for_current(void)
 // returns possible (fullscreen) resolutions if any.
 uint_fast32_t gr_list_modes(std::array<screen_mode, 50> &gsmodes)
 {
-	int modesnum{0};
+	uint_fast32_t modesnum{0};
 	constexpr Uint32 sdl_check_flags{ // always use Fullscreen as lead.
 		DXX_USE_OGLES
 			? SDL_FULLSCREEN
