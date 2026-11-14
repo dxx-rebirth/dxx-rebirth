@@ -1,6 +1,3 @@
-# This should already be tapped, but just in case
-tap "homebrew/core"
-
 # Install dependencies
 brew "scons"
 brew "sdl2"
