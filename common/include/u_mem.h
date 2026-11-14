@@ -51,9 +51,6 @@ extern void mem_free( void * buffer );
 
 /* DPH: Changed malloc, etc. to d_malloc. Overloading system calls is very evil and error prone */
 
-// Checks to see if any blocks are overwritten
-void mem_validate_heap();
-
 #define mem_calloc(nmemb,size,var,file,line)	((mem_calloc)((size) ? (nmemb) : 0, (size), (var), (file), (line)))
 
 #else
