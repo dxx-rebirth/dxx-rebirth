@@ -2475,7 +2475,7 @@ static int mark_player_path_to_segment(const d_vclip_array &Vclip, fvmobjptridx 
 		return 0;
 	}
 
-	for (int i=1; i<player_path_length; i++) {
+	for (unsigned i = 1; i < player_path_length; ++i) {
 		vms_vector	seg_center;
 
 		seg_center = Point_segs[player_hide_index+i].point;

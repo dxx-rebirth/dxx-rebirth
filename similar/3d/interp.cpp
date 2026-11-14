@@ -11,7 +11,9 @@
  *
  */
 
+#include <iterator>
 #include <stdexcept>
+#include <utility>
 #include <stdlib.h>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
@@ -130,7 +132,9 @@ public:
 	{
 		const std::ptrdiff_t offset_from_base = p - model.data();
 		const std::ptrdiff_t offset_of_value = offset_from_base + d;
-		if (const auto model_length = model.size(); offset_of_value >= model_length || offset_of_value + size >= model_length)
+		const auto model_length = std::ssize(model);
+		const auto invalid_offset = offset_of_value < 0 || offset_of_value >= model_length;
+		if (invalid_offset || std::cmp_greater_equal(size, model_length - offset_of_value))
 		{
 			auto &opref = *wp(p);
 			const auto badop{opref};

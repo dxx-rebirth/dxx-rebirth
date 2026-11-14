@@ -1027,7 +1027,7 @@ vm_distance find_connected_distance(const vms_vector &p0, const vcsegptridx_t se
 	if (max_depth == -1) max_depth = 200;
 #endif	
 
-	if (const auto s = std::size(point_segs) - 2u; max_depth > s)
+	if (const auto s = std::size(point_segs) - 2u; max_depth < 0 || std::cmp_greater(max_depth, s))
 		max_depth = s;
 
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;

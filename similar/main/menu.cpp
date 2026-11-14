@@ -1061,7 +1061,7 @@ window_event_result do_new_game_menu(const d_select_event &select_event)
 							if (use_text_level_input)
 							{
 								const auto new_level_num{strtoul(text_buffer.user_entered_level_number.data(), nullptr, 10)};
-								if (new_level_num == 0 || new_level_num > last_level)
+								if (new_level_num == 0 || std::cmp_greater(new_level_num, last_level))
 								{
 									nm_messagebox(menu_title{TXT_INVALID_LEVEL}, {TXT_OK}, "You must enter a\npositive level number\nless than or\nequal to %u.\n", static_cast<unsigned>(last_level));
 									/* Prevent closing the input dialog. */

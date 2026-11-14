@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 #include <type_traits>
+#include <utility>
 #include "multiinternal.h"
 
 #include <string.h>
@@ -131,11 +132,11 @@ int multi_can_move_robot(const vmobjptridx_t objnum, int agitation)
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	if (Robot_info[get_robot_id(objrobot)].boss_flag != boss_robot_id::None && BossUniqueState.Boss_dying)
 		return 0;
-	else if (objrobot.ctype.ai_info.REMOTE_OWNER == Player_num) // Already my robot!
+	else if (std::cmp_equal(objrobot.ctype.ai_info.REMOTE_OWNER, Player_num)) // Already my robot!
 	{
 		const auto slot_num = objrobot.ctype.ai_info.REMOTE_SLOT_NUM;
 
-      if ((slot_num < 0) || (slot_num >= MAX_ROBOTS_CONTROLLED))
+      if ((slot_num < 0) || std::cmp_greater_equal(slot_num, +MAX_ROBOTS_CONTROLLED))
 		 {
 			return 0;
 		 }
@@ -174,12 +175,12 @@ void multi_check_robot_timeout()
 	if (GameTime64 > lastcheck + F1_0 || lastcheck > GameTime64)
 	{
 		lastcheck = {GameTime64};
-		for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++) 
+		for (i = 0; std::cmp_less(i, +MAX_ROBOTS_CONTROLLED); i++)
 		{
 			if (const auto robot_controlled_i{robot_controlled[i]}; robot_controlled_i != object_none && robot_last_send_time[i] + ROBOT_TIMEOUT < GameTime64)
 			{
 				const auto &&robot_objp{vmobjptridx(robot_controlled_i)};
-				if (robot_objp->ctype.ai_info.REMOTE_OWNER != Player_num)
+				if (!std::cmp_equal(robot_objp->ctype.ai_info.REMOTE_OWNER, Player_num))
 				{		
 					Int3(); // Non-terminal but Rob is interesting, step over please...
 					robot_controlled[i] = object_none;
@@ -204,7 +205,7 @@ void multi_strip_robots(const int playernum)
 	// (player died or exited the game)
 	if (+(Game_mode & GM_MULTI_ROBOTS)) {
 	
-		if (playernum == Player_num)
+		if (std::cmp_equal(playernum, Player_num))
 		{
 			range_for (const auto r, robot_controlled)
 				if (r != object_none)
@@ -239,7 +240,7 @@ void multi_strip_robots(const int playernum)
 			{
 				assert(obj.control_source == object::control_type::ai || obj.control_source == object::control_type::None || obj.control_source == object::control_type::morph);
 				obj.ctype.ai_info.REMOTE_OWNER = -1;
-				if (playernum == Player_num)
+				if (std::cmp_equal(playernum, Player_num))
 					obj.ctype.ai_info.REMOTE_SLOT_NUM = HANDS_OFF_PERIOD;
 				else
 					obj.ctype.ai_info.REMOTE_SLOT_NUM = 0;
@@ -278,7 +279,7 @@ int multi_add_controlled_robot(const vmobjptridx_t objnum, int agitation)
 		return 0;
 	}
 
-	for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
+	for (i = 0; std::cmp_less(i, +MAX_ROBOTS_CONTROLLED); i++)
 	{
 		if (robot_controlled[i] == object_none || vcobjptr(robot_controlled[i])->type != object_type::OBJ_ROBOT) {
 			first_free_robot = i;
@@ -337,11 +338,11 @@ void multi_delete_controlled_robot(const vmobjptridx_t objnum)
 
 	// Delete robot object number objnum from list of controlled robots because it is dead
 
-	for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
+	for (i = 0; std::cmp_less(i, +MAX_ROBOTS_CONTROLLED); i++)
 		if (robot_controlled[i] == objnum)
 			break;
 
-	if (i == MAX_ROBOTS_CONTROLLED)
+	if (std::cmp_equal(i, +MAX_ROBOTS_CONTROLLED))
 		return;
 
 	auto &objrobot = *objnum;
@@ -413,7 +414,7 @@ void multi_send_robot_frame()
 	int i;
 
 	const unsigned sent = 0;
-	for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
+	for (i = 0; std::cmp_less(i, +MAX_ROBOTS_CONTROLLED); i++)
 	{
 		int sending = (last_sent+1+i)%MAX_ROBOTS_CONTROLLED;
 		if (robot_controlled[sending] != object_none && (underlying_value(robot_send_pending[sending]) > sent || robot_fired[sending] > sent))
@@ -432,7 +433,7 @@ void multi_send_robot_frame()
 			last_sent = sending;
 		}
 	}
-	Assert((last_sent >= 0) && (last_sent <= MAX_ROBOTS_CONTROLLED));
+	Assert(last_sent >= 0 && std::cmp_less_equal(last_sent, +MAX_ROBOTS_CONTROLLED));
 }
 
 namespace dsx {
@@ -456,7 +457,7 @@ void multi_send_thief_frame()
                 {
 			if (robot_is_thief(Robot_info[get_robot_id(objp)]))
                         {
-				if ((multi_i_am_master() && objp->ctype.ai_info.REMOTE_OWNER == -1) || objp->ctype.ai_info.REMOTE_OWNER == Player_num)
+				if ((multi_i_am_master() && objp->ctype.ai_info.REMOTE_OWNER == -1) || std::cmp_equal(objp->ctype.ai_info.REMOTE_OWNER, Player_num))
 					multi_send_robot_position_sub(objp, multiplayer_data_priority::_1);
                                 return;
                         }
@@ -511,7 +512,7 @@ void multi_send_robot_position(object &obj, const multi_send_robot_position_prio
 		return;
 	}
 
-	if (obj.ctype.ai_info.REMOTE_OWNER != Player_num)
+	if (!std::cmp_equal(obj.ctype.ai_info.REMOTE_OWNER, Player_num))
 		return;
 
 //	Objects[objnum].phys_info.drag = Robot_info[Objects[objnum].id].drag; // Set drag to normal
@@ -540,10 +541,10 @@ void multi_send_robot_fire(const vmobjptridx_t obj, const robot_gun_number gun_n
                                                                         // --------------------------
                                                                         //      Total = 18
 
-        if (obj->ctype.ai_info.REMOTE_OWNER == Player_num)
+	if (std::cmp_equal(obj->ctype.ai_info.REMOTE_OWNER, Player_num))
         {
                 const auto slot = obj->ctype.ai_info.REMOTE_SLOT_NUM;
-                if (slot<0 || slot>=MAX_ROBOTS_CONTROLLED)
+				if (slot < 0 || std::cmp_greater_equal(slot, +MAX_ROBOTS_CONTROLLED))
                 {
                         return;
                 }
@@ -667,7 +668,7 @@ namespace dsx {
 void multi_send_boss_teleport(const vmobjptridx_t bossobj, const vcsegidx_t where)
 {
 	// Boss is up for grabs after teleporting
-	Assert((bossobj->ctype.ai_info.REMOTE_SLOT_NUM >= 0) && (bossobj->ctype.ai_info.REMOTE_SLOT_NUM < MAX_ROBOTS_CONTROLLED));
+	Assert(bossobj->ctype.ai_info.REMOTE_SLOT_NUM >= 0 && std::cmp_less(bossobj->ctype.ai_info.REMOTE_SLOT_NUM, +MAX_ROBOTS_CONTROLLED));
 	multi_delete_controlled_robot(bossobj);
 #if DXX_BUILD_DESCENT == 1
 	bossobj->ctype.ai_info.REMOTE_SLOT_NUM = HANDS_OFF_PERIOD; // Hands-off period!
@@ -767,7 +768,7 @@ void multi_do_claim_robot(const playernum_t pnum, const multiplayer_rspan<multip
 	
 	// Perform the requested change
 
-	if (botp->ctype.ai_info.REMOTE_OWNER == Player_num)
+	if (std::cmp_equal(botp->ctype.ai_info.REMOTE_OWNER, Player_num))
 	{
 		multi_delete_controlled_robot(botp);
 	}
@@ -795,7 +796,7 @@ void multi_do_release_robot(const playernum_t pnum, const multiplayer_rspan<mult
 		return;
 	}
 	
-	if (botp->ctype.ai_info.REMOTE_OWNER != pnum)
+	if (!std::cmp_equal(botp->ctype.ai_info.REMOTE_OWNER, pnum))
 	{
 		return;
 	}
@@ -830,12 +831,12 @@ void multi_do_robot_position(const playernum_t pnum, const multiplayer_rspan<mul
 		return;
 	}
 
-	if (robot->ctype.ai_info.REMOTE_OWNER != pnum)
+	if (!std::cmp_equal(robot->ctype.ai_info.REMOTE_OWNER, pnum))
 	{	
 		if (robot->ctype.ai_info.REMOTE_OWNER == -1)
 		{
 			// Robot claim packet must have gotten lost, let this player claim it.
-			if (robot->ctype.ai_info.REMOTE_SLOT_NUM >= MAX_ROBOTS_CONTROLLED) { // == HANDS_OFF_PERIOD should do the same trick
+			if (std::cmp_greater_equal(robot->ctype.ai_info.REMOTE_SLOT_NUM, +MAX_ROBOTS_CONTROLLED)) { // == HANDS_OFF_PERIOD should do the same trick
 				robot->ctype.ai_info.REMOTE_OWNER = pnum;
 				robot->ctype.ai_info.REMOTE_SLOT_NUM = 0;
 			}
@@ -945,7 +946,7 @@ int multi_explode_robot_sub(const d_robot_info_array &Robot_info, const vmobjptr
 	{
 		object_create_robot_egg(Robot_info, objrobot);
 	}
-	else if (objrobot.ctype.ai_info.REMOTE_OWNER == Player_num)
+	else if (std::cmp_equal(objrobot.ctype.ai_info.REMOTE_OWNER, Player_num))
 	{
 		multi_drop_robot_powerups(robot);
 		multi_delete_controlled_robot(robot);
@@ -1143,7 +1144,7 @@ void multi_do_boss_teleport(const d_robot_info_array &Robot_info, const d_vclip_
 	ai_local		*ailp = &boss_obj->ctype.ai_info.ail;
 	ailp->next_fire = 0;
 
-	if (boss_obj->ctype.ai_info.REMOTE_OWNER == Player_num)
+	if (std::cmp_equal(boss_obj->ctype.ai_info.REMOTE_OWNER, Player_num))
 	{
 		multi_delete_controlled_robot(boss_obj);
 	}
@@ -1360,7 +1361,7 @@ void multi_robot_request_change(const vmobjptridx_t robot, int player_num)
 		return;
 	auto &objrobot = *robot;
 #if DXX_BUILD_DESCENT == 1
-	if (objrobot.ctype.ai_info.REMOTE_OWNER != Player_num)
+	if (!std::cmp_equal(objrobot.ctype.ai_info.REMOTE_OWNER, Player_num))
 		return;
 #endif
 
@@ -1371,7 +1372,7 @@ void multi_robot_request_change(const vmobjptridx_t robot, int player_num)
 		con_printf(CON_DEBUG, "Suppressing debugger trap for hands off robot %hu with player %i", robot.get_unchecked_index(), player_num);
 		return;
 	}
-	if ((slot < 0) || (slot >= MAX_ROBOTS_CONTROLLED)) {
+	if ((slot < 0) || std::cmp_greater_equal(slot, +MAX_ROBOTS_CONTROLLED)) {
 		Int3();
 		return;
 	}

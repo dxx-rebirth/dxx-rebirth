@@ -80,7 +80,7 @@ enum class deny_save_result : bool
 	denied,
 };
 
-int state_get_game_id(const d_game_unique_state::savegame_file_path &filename);
+unsigned state_get_game_id(const d_game_unique_state::savegame_file_path &filename);
 
 }
 

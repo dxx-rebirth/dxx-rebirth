@@ -56,9 +56,9 @@ namespace {
 #define DXX_CONSOLE_SHOW_TIME_STDOUT	0
 #endif
 
-constexpr unsigned CON_LINES_ONSCREEN = 18;
+constexpr int CON_LINES_ONSCREEN = 18;
 constexpr auto CON_SCROLL_OFFSET = CON_LINES_ONSCREEN - 3;
-constexpr unsigned CON_LINES_MAX = 128;
+constexpr int CON_LINES_MAX = 128;
 
 enum class con_state : int8_t
 {

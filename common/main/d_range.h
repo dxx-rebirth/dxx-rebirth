@@ -216,9 +216,9 @@ protected:
 			else
 			{
 #ifdef DXX_CONSTANT_TRUE
-				(DXX_CONSTANT_TRUE(!(e < b)) && (DXX_ALWAYS_ERROR_FUNCTION("end never less than begin"), 0));
+				(DXX_CONSTANT_TRUE(!std::cmp_less(+e, +b)) && (DXX_ALWAYS_ERROR_FUNCTION("end never less than begin"), 0));
 #endif
-				if (!(e < b))
+				if (!std::cmp_less(+e, +b))
 					return e;
 			}
 		}

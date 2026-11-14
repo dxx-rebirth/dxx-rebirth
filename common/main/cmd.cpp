@@ -127,7 +127,7 @@ static void cmd_execute(unsigned long argc, const char *const *const argv)
 	if (argc < 31)
 	{  // set value of cvar
 		const char *new_argv[32];
-		int i;
+		unsigned long i;
 		
 		new_argv[0] = "set";
 		for (i = 0; i < argc; i++)
@@ -333,7 +333,7 @@ static void cmd_alias(unsigned long argc, const char *const *const argv)
 		return;
 	}
 	
-	for (int i = 2; i < argc; i++) {
+	for (unsigned long i = 2; i < argc; i++) {
 		if (i > 2)
 			strncat(buf, " ", sizeof(buf) - strlen(buf) - 1);
 		strncat(buf, argv[i], sizeof(buf) - strlen(buf) - 1);
@@ -371,7 +371,7 @@ static void cmd_unalias(unsigned long argc, const char *const *const argv)
 static void cmd_echo(unsigned long argc, const char *const *const argv)
 {
 	char buf[CMD_MAX_LENGTH] = "";
-	int i;
+	unsigned long i;
 
 	for (i = 1; i < argc; i++) {
 		if (i > 1)

@@ -254,7 +254,7 @@ static int do_change_walls(const trigger &t, const uint8_t new_wall_type)
 
 static int (print_trigger_message)(int pnum, const trigger &t, int shot)
  {
-	if (shot && pnum == Player_num && !(t.flags & trigger_behavior_flags::no_message))
+	if (shot && std::cmp_equal(pnum, Player_num) && !(t.flags & trigger_behavior_flags::no_message))
 		return 1;
 	return 0;
  }

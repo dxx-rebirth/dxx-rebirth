@@ -140,7 +140,7 @@ static int r_polyc,r_tpolyc,r_bitmapc,r_ubitbltc;
 
 /* I assume this ought to be >= MAX_BITMAP_FILES in piggy.h? */
 static std::array<ogl_texture, 20000> ogl_texture_list;
-static int ogl_texture_list_cur;
+static std::size_t ogl_texture_list_cur;
 
 /* some function prototypes */
 
@@ -434,7 +434,7 @@ void ogl_cache_level_textures(void)
 	auto &Effects = LevelUniqueEffectsClipState.Effects;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
-	int max_efx{0},ef;
+	unsigned max_efx{0}, ef;
 	
 	ogl_reset_texture_stats_internal();//loading a new lev should reset textures
 	
@@ -446,7 +446,7 @@ void ogl_cache_level_textures(void)
 		if (ec.vc.num_frames>max_efx)
 			max_efx=ec.vc.num_frames;
 	}
-	glmprintf((CON_DEBUG, "max_efx:%i", max_efx));
+	glmprintf((CON_DEBUG, "max_efx:%u", max_efx));
 	for (ef=0;ef<max_efx;ef++){
 		range_for (eclip &ec, partial_range(Effects, Num_effects))
 		{
@@ -1673,7 +1673,7 @@ static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, cons
 				
 				tw = tex.tw * h;
 				h = tw - w;
-				for (; dyo < tex.h; dyo++, data += tex.lw) {
+				for (; dyo >= 0 && std::cmp_less(dyo, tex.h); dyo++, data += tex.lw) {
 					memcpy (bufP, data, w);
 					bufP += w;
 					memset (bufP, 0, h);
@@ -1789,10 +1789,10 @@ static int ogl_loadtexture(const palette_array_t &pal, const uint8_t *data, cons
 		if (tex.format == GL_RGBA) rebpp = 4;
 		if (tex.format == GL_LUMINANCE) rebpp = 1;
 		buftemp = std::make_unique<GLubyte[]>(rescale * tex.tw * rescale * tex.th * rebpp);
-		int x,y;
+		std::size_t x, y;
 		GLubyte *p = buftemp.get();
-		int len = tex.tw*rebpp*rescale;
-		int bppscale = (rebpp*rescale);
+		const std::size_t len = tex.tw * rebpp * rescale;
+		const std::size_t bppscale = rebpp * rescale;
 
 		for (y = 0; y < tex.th; y++)
 		{

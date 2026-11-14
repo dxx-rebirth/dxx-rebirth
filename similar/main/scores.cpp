@@ -576,7 +576,7 @@ void scores_menu_items::prepare_row(row &r, const stats_info &stats, std::ostrin
 		const auto bb = buffer.begin();
 		const auto be = buffer.end();
 		auto ri = r.score.begin();
-		if (std::distance(bb, be) < r.score.size() - 1)
+		if (buffer.size() < r.score.size() - 1)
 			ri = std::replace_copy(bb, be, ri, '1', '\x84');
 		*ri = 0;
 	}
@@ -756,7 +756,7 @@ window_event_result scores_menu::event_handler(const d_event &event)
 
 			for (const auto &&[idx, stat] : enumerate(scores))
 			{
-				const auto shade = (idx == citem)
+				const auto shade = std::cmp_equal(idx, citem)
 					? get_update_looper()
 					: 28 - idx * 2;
 				const unsigned y = compute_score_y_coordinate(idx);

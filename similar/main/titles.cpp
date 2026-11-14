@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <utility>
 
 #if DXX_USE_OGL
 #include "ogl_init.h"
@@ -885,7 +886,7 @@ static int briefing_process_char(grs_canvas &canvas, briefing *const br)
 			auto cc = get_message_num(br->message) - 1;
 			if (cc < 0)
 				cc = 0;
-			else if (cc > Briefing_text_colors.size() - 1)
+			else if (std::cmp_greater(cc, Briefing_text_colors.size() - 1))
 				cc = Briefing_text_colors.size() - 1;
 			Current_color = &Briefing_text_colors[cc];
 			br->prev_ch = 10;
@@ -1426,7 +1427,8 @@ static int DefineBriefingBox(const grs_bitmap &cv_bitmap, const char *&buf)
 
 	const auto n = get_new_message_num (buf);
 
-	assert(n < Briefing_screens.size());
+	if (n < 0 || std::cmp_greater_equal(n, Briefing_screens.size()))
+		Error("Invalid briefing screen index %i", n);
 
 	while (*buf != ' ')
 	{
@@ -1641,10 +1643,10 @@ static int new_briefing_screen(grs_canvas &canvas, briefing *br, int first)
 		br->cur_screen++;
 
 	auto &&d1_briefing_screens = get_d1_briefing_screens(descent_hog_size);
-	while (br->cur_screen < num_d1_briefing_screens && d1_briefing_screens[br->cur_screen].level_num != br->level_num)
+	while (br->cur_screen >= 0 && std::cmp_less(br->cur_screen, num_d1_briefing_screens) && d1_briefing_screens[br->cur_screen].level_num != br->level_num)
 	{
 		br->cur_screen++;
-		if (br->cur_screen == num_d1_briefing_screens && br->level_num == 0)
+		if (std::cmp_equal(br->cur_screen, num_d1_briefing_screens) && br->level_num == 0)
 		{
 			// Showed the pre-game briefing, now show level 1 briefing
 			br->level_num++;
@@ -1652,7 +1654,7 @@ static int new_briefing_screen(grs_canvas &canvas, briefing *br, int first)
 		}
 	}
 
-	if (br->cur_screen == num_d1_briefing_screens)
+	if (br->cur_screen < 0 || std::cmp_equal(br->cur_screen, num_d1_briefing_screens))
 		return 0;		// finished
 
 	if (!load_briefing_screen(canvas, br, d1_briefing_screens[br->cur_screen].bs_name))
@@ -1676,13 +1678,13 @@ static int new_briefing_screen(grs_canvas &canvas, briefing *br, int first)
 		if (!first)
 			br->cur_screen++;
 		else
-			for (int i = 0; i < num_d1_briefing_screens; i++)
+			for (std::size_t i = 0; i < num_d1_briefing_screens; i++)
 				Briefing_screens[i] = d1_briefing_screens[i];
 
-		while (br->cur_screen < num_d1_briefing_screens && Briefing_screens[br->cur_screen].level_num != br->level_num)
+		while (br->cur_screen >= 0 && std::cmp_less(br->cur_screen, num_d1_briefing_screens) && Briefing_screens[br->cur_screen].level_num != br->level_num)
 		{
 			br->cur_screen++;
-			if (br->cur_screen == num_d1_briefing_screens && br->level_num == 0)
+			if (std::cmp_equal(br->cur_screen, num_d1_briefing_screens) && br->level_num == 0)
 			{
 				// Showed the pre-game briefing, now show level 1 briefing
 				br->level_num++;
@@ -1690,7 +1692,7 @@ static int new_briefing_screen(grs_canvas &canvas, briefing *br, int first)
 			}
 		}
 
-		if (br->cur_screen == num_d1_briefing_screens)
+		if (br->cur_screen < 0 || std::cmp_equal(br->cur_screen, num_d1_briefing_screens))
 			return 0;		// finished
 
 		if (!load_briefing_screen(canvas, br, Briefing_screens[br->cur_screen].bs_name))

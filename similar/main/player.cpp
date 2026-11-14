@@ -44,7 +44,7 @@ void player_rw_swap(player_rw *p, const physfsx_endian swap)
 	p->primary_weapon_flags = SWAPSHORT(p->primary_weapon_flags);
 #endif
 	p->vulcan_ammo = SWAPSHORT(p->vulcan_ammo);
-	for (int i = 0; i < MAX_SECONDARY_WEAPONS; i++)
+	for (unsigned i = 0; i < MAX_SECONDARY_WEAPONS; ++i)
 		p->secondary_ammo[i] = SWAPSHORT(p->secondary_ammo[i]);
 	p->last_score = SWAPINT(p->last_score);
 	p->score = SWAPINT(p->score);

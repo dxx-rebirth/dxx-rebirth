@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 #include <ranges>
+#include <utility>
 #if !defined(_MSC_VER) && !defined(macintosh)
 #include <unistd.h>
 #endif
@@ -781,11 +782,11 @@ void plyr_save_stats(const char *const callsign, int kills, int deaths)
 			edeaths.i, edeaths.buf1.data(), edeaths.i, edeaths.buf2.data()
 		)
 	};
-	if (content_length >= file_contents.size())
+	if (content_length < 0 || std::cmp_greater_equal(content_length, file_contents.size()))
 		return;
 	std::array<char, sizeof(PLAYER_DIRECTORY_TEXT ".eff") + CALLSIGN_LEN> filename;
 	const auto plr_filename_length{std::snprintf(filename.data(), filename.size(), PLAYER_DIRECTORY_STRING("%.8s.eff"), callsign)};
-	if (plr_filename_length >= filename.size())
+	if (plr_filename_length < 0 || std::cmp_greater_equal(plr_filename_length, filename.size()))
 		return;
 	if (RAIIPHYSFS_File f{PHYSFS_openWrite(filename.data())})
 		PHYSFS_writeBytes(f, file_contents.data(), content_length);
@@ -952,7 +953,7 @@ int read_player_file()
 
 	std::array<char, sizeof(PLAYER_DIRECTORY_TEXT ".plr") + CALLSIGN_LEN> filename;
 	const auto plr_filename_length{std::snprintf(filename.data(), filename.size(), PLAYER_DIRECTORY_STRING("%.8s.plr"), static_cast<const char *>(InterfaceUniqueState.PilotName))};
-	if (plr_filename_length >= filename.size())
+	if (plr_filename_length < 0 || std::cmp_greater_equal(plr_filename_length, filename.size()))
 		return -1;
 	auto &&[file, physfserr]{PHYSFSX_openReadBuffered(filename.data())};
 	if (!file)
@@ -1087,7 +1088,7 @@ int read_player_file()
 		
 	}
 	else {	//read new highest level info
-		if (const std::size_t buffer_size{sizeof(hli) * PlayerCfg.NHighestLevels}; PHYSFSX_readBytes(file, PlayerCfg.HighestLevels, buffer_size) != buffer_size)
+		if (const std::size_t buffer_size{sizeof(hli) * PlayerCfg.NHighestLevels}; !std::cmp_equal(PHYSFSX_readBytes(file, PlayerCfg.HighestLevels, buffer_size), buffer_size))
 			goto read_player_file_failed;
 	}
 
@@ -1147,7 +1148,7 @@ int read_player_file()
 		PlayerCfg.NHighestLevels = SWAPSHORT(PlayerCfg.NHighestLevels);
 	Assert(PlayerCfg.NHighestLevels <= MAX_MISSIONS);
 
-	if (const std::size_t buffer_size{sizeof(hli) * PlayerCfg.NHighestLevels}; PHYSFSX_readBytes(file, PlayerCfg.HighestLevels, buffer_size) != buffer_size)
+	if (const std::size_t buffer_size{sizeof(hli) * PlayerCfg.NHighestLevels}; !std::cmp_equal(PHYSFSX_readBytes(file, PlayerCfg.HighestLevels, buffer_size), buffer_size))
 		goto read_player_file_failed;
 #endif
 
@@ -1221,9 +1222,9 @@ int read_player_file()
 				view_primary = SWAPINT(view_primary);
 				view_secondary = SWAPINT(view_secondary);
 			}
-			if (view_primary <= static_cast<unsigned>(cockpit_3d_view::Marker))
+			if (view_primary >= 0 && std::cmp_less_equal(view_primary, static_cast<unsigned>(cockpit_3d_view::Marker)))
 				PlayerCfg.Cockpit3DView[gauge_inset_window_view::primary] = static_cast<cockpit_3d_view>(view_primary);
-			if (view_secondary <= static_cast<unsigned>(cockpit_3d_view::Marker))
+			if (view_secondary >= 0 && std::cmp_less_equal(view_secondary, static_cast<unsigned>(cockpit_3d_view::Marker)))
 				PlayerCfg.Cockpit3DView[gauge_inset_window_view::secondary] = static_cast<cockpit_3d_view>(view_secondary);
 		}
 #endif
@@ -1336,7 +1337,7 @@ static std::array<std::array<hli, MAX_MISSIONS>::pointer, 2> find_hli_entry(cons
 {
 	const auto mission_filename{m.filename};
 	const auto mission_length = std::distance(mission_filename, m.path.end());
-	if (mission_length >= sizeof(hli::Shortname))
+	if (mission_length < 0 || std::cmp_greater_equal(mission_length, sizeof(hli::Shortname)))
 	{
 		/* Name is too long to store, so there will never be a match
 		 * and it is never stored.
@@ -1515,7 +1516,7 @@ void write_player_file()
 	errno_ret = EZERO;
 
 	//write higest level info
-	if (const auto count{PlayerCfg.NHighestLevels * sizeof(hli)}; PHYSFSX_writeBytes(file, PlayerCfg.HighestLevels, count) != count)
+	if (const auto count{PlayerCfg.NHighestLevels * sizeof(hli)}; !std::cmp_equal(PHYSFSX_writeBytes(file, PlayerCfg.HighestLevels, count), count))
 	{
 		errno_ret = errno;
 		return;
@@ -1528,7 +1529,7 @@ void write_player_file()
 	}
 
 	range_for (auto &i, PlayerCfg.NetworkMessageMacro)
-		if (PHYSFSX_writeBytes(file, i.data(), i.size()) != i.size())
+		if (!std::cmp_equal(PHYSFSX_writeBytes(file, i.data(), i.size()), i.size()))
 		{
 		errno_ret = errno;
 		return;
@@ -1591,11 +1592,11 @@ void write_player_file()
 
 	//write higest level info
 	PHYSFS_writeULE16(file, PlayerCfg.NHighestLevels);
-	if (const auto count{sizeof(hli) * PlayerCfg.NHighestLevels}; PHYSFSX_writeBytes(file, PlayerCfg.HighestLevels, count) != count)
+	if (const auto count{sizeof(hli) * PlayerCfg.NHighestLevels}; !std::cmp_equal(PHYSFSX_writeBytes(file, PlayerCfg.HighestLevels, count), count))
 		goto write_player_file_failed;
 
 	range_for (auto &i, PlayerCfg.NetworkMessageMacro)
-		if (PHYSFSX_writeBytes(file, i.data(), i.size()) != i.size())
+		if (!std::cmp_equal(PHYSFSX_writeBytes(file, i.data(), i.size()), i.size()))
 		goto write_player_file_failed;
 
 	//write kconfig info

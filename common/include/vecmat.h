@@ -159,7 +159,7 @@ constexpr vm_distance_squared operator*(const vm_distance lhs, const vm_distance
 [[nodiscard]]
 constexpr bool operator<(const vm_magnitude_squared a, const fix &b)
 {
-	return static_cast<uint64_t>(a) < b;
+	return std::cmp_less(static_cast<uint64_t>(a), b);
 }
 
 #define DEFINE_SERIAL_VMS_VECTOR_TO_MESSAGE()	\

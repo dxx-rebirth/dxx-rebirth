@@ -463,9 +463,9 @@ namespace {
 
 static void PostProcessGameArg()
 {
-	if (CGameArg.SysMaxFPS < MINIMUM_FPS)
+	if (std::cmp_less(CGameArg.SysMaxFPS, +MINIMUM_FPS))
 		CGameArg.SysMaxFPS = MINIMUM_FPS;
-	else if (CGameArg.SysMaxFPS > MAXIMUM_FPS)
+	else if (std::cmp_greater(CGameArg.SysMaxFPS, +MAXIMUM_FPS))
 		CGameArg.SysMaxFPS = MAXIMUM_FPS;
 #if PHYSFS_VER_MAJOR >= 2
 	if (!CGameArg.SysMissionDir.empty())

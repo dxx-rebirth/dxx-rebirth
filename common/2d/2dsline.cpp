@@ -62,8 +62,7 @@ void gr_uscanline(grs_canvas &canvas, const unsigned x1, const unsigned x2, cons
 
 void gr_scanline(grs_canvas &canvas, int x1, int x2, const unsigned y, const uint8_t color)
 {
-	const auto maxy = (canvas.cv_bitmap.bm_h - 1);
-	if (y >= maxy)
+	if (y >= canvas.cv_bitmap.bm_h)
 		return;
 
 	if (x2 < x1)

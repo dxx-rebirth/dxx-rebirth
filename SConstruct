@@ -4799,7 +4799,7 @@ class DXXCommon(LazyObjectConstructor):
 		env.Append(
 			CXXFLAGS = ['-funsigned-char'],
 			CPPPATH = ['common/include', 'common/main', '.'],
-			CPPFLAGS = SCons.Util.CLVar('-Wno-sign-compare'),
+			CPPFLAGS = SCons.Util.CLVar(''),
 			CPPDEFINES = [
 			# PhysFS 2.1 and later deprecate functions PHYSFS_read,
 			# PHYSFS_write, which Rebirth uses extensively.  PhysFS 2.0

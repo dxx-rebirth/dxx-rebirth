@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <cstdlib>
 #include <ctime>
+#include <limits>
 #include <stdio.h>
 #include <stdarg.h>
 #include <errno.h>
@@ -281,16 +282,44 @@ static void my_extract_shortpos(object_base &objp, const shortpos *const spp)
 	objp.mtype.phys_info.velocity.z = (spp->velz << VEL_PRECISION);
 }
 
-static int _newdemo_read(void *const buffer, const std::size_t elsize, const std::size_t nelem)
+struct newdemo_read_result
 {
-	const auto num_read{(PHYSFS_readBytes)(infile, buffer, elsize * nelem)};
-	if (num_read < nelem || PHYSFS_eof(infile))
-		nd_playback_v_bad_read = -1;
+	std::size_t elements;
+	bool complete;
+};
 
-	return num_read;
+static constexpr newdemo_read_result interpret_newdemo_read_result(const PHYSFS_sint64 bytes_read, const std::size_t element_size, const std::size_t requested_elements)
+{
+	const auto requested_bytes{element_size * requested_elements};
+	return {
+		bytes_read > 0 ? static_cast<std::size_t>(bytes_read) / element_size : 0,
+		std::cmp_equal(bytes_read, requested_bytes),
+	};
 }
 
-static int newdemo_read(std::integral auto *const buffer, const std::size_t elsize, const std::size_t nelem)
+static_assert(interpret_newdemo_read_result(4, 4, 1).elements == 1);
+static_assert(interpret_newdemo_read_result(4, 4, 1).complete);
+static_assert(interpret_newdemo_read_result(3, 4, 1).elements == 0);
+static_assert(!interpret_newdemo_read_result(3, 4, 1).complete);
+static_assert(!interpret_newdemo_read_result(-1, 4, 1).complete);
+
+static std::size_t _newdemo_read(void *const buffer, const std::size_t elsize, const std::size_t nelem)
+{
+	if (!elsize || (nelem && elsize > std::numeric_limits<std::size_t>::max() / nelem))
+	{
+		nd_playback_v_bad_read = -1;
+		return 0;
+	}
+	const auto requested_bytes{elsize * nelem};
+	const auto num_read{(PHYSFS_readBytes)(infile, buffer, requested_bytes)};
+	const auto result{interpret_newdemo_read_result(num_read, elsize, nelem)};
+	if (!result.complete || PHYSFS_eof(infile))
+		nd_playback_v_bad_read = -1;
+
+	return result.elements;
+}
+
+static std::size_t newdemo_read(std::integral auto *const buffer, const std::size_t elsize, const std::size_t nelem)
 {
 	return _newdemo_read(buffer, {elsize}, {nelem});
 }
@@ -1175,7 +1204,7 @@ void newdemo_record_start_frame(fix frame_time )
 		pause_game_world_time p;
 #if DXX_BUILD_DESCENT == 2
 
-		for (int i=0;i<MAX_OBJECTS;i++)
+		for (std::size_t i = 0; i < MAX_OBJECTS; ++i)
 		{
 			nd_record_v_objs[i]=0;
 			nd_record_v_viewobjs[i]=0;
@@ -4381,7 +4410,7 @@ int newdemo_swap_endian(const char *filename)
 	newdemo_write_end();	// and write it
 
 	swap_endian = 0;
-	complete = nd_playback_v_demosize == Newdemo_num_written;
+	complete = std::cmp_equal(nd_playback_v_demosize, Newdemo_num_written);
 	infile.reset();
 	outfile.reset();
 

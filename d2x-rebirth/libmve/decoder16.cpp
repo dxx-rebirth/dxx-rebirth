@@ -373,11 +373,11 @@ static void dispatchDecoder16(const uint16_t *const backBuf1, const uint16_t *co
 		for (i=0; i<2; i++)
 		{
 			*pFrame += 16;
-			if (++*curXb == (width >> 3))
+			if (std::cmp_equal(++*curXb, width >> 3))
 			{
 				*pFrame += 7*width;
 				*curXb = 0;
-				if (++*curYb == (height >> 3))
+				if (std::cmp_equal(++*curYb, height >> 3))
 					return;
 			}
 		}

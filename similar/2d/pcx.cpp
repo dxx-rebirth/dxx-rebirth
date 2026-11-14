@@ -23,6 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <span>
+#include <utility>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -92,7 +93,7 @@ static auto load_physfs_blob(const char *const filename)
 		[[unlikely]];
 		con_printf(CON_VERBOSE, "%s:%u: file too large \"%s\"", __FILE__, __LINE__, filename);
 	}
-	else if (PHYSFSX_readBytes(file, (result = {fsize}).get(), fsize) != fsize)
+	else if (!std::cmp_equal(PHYSFSX_readBytes(file, (result = {fsize}).get(), fsize), fsize))
 	{
 		[[unlikely]];
 		result.reset();
@@ -114,7 +115,7 @@ static pcx_result pcx_read_bitmap(const char *const filename, grs_main_bitmap &b
 	if (!fmt || fmt->BitsPerPixel != 8)
 		return pcx_result::ERROR_WRONG_VERSION;
 	const auto fpal = fmt->palette;
-	if (!fpal || fpal->ncolors != palette.size())
+	if (!fpal || !std::cmp_equal(fpal->ncolors, palette.size()))
 		return pcx_result::ERROR_NO_PALETTE;
 	const unsigned xsize = s.w;
 	const unsigned ysize = s.h;
