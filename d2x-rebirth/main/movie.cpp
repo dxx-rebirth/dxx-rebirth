@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <string.h>
+#include <utility>
 #ifndef macintosh
 # include <sys/types.h>
 # include <sys/stat.h>
@@ -130,7 +131,7 @@ unsigned MovieFileRead(SDL_RWops *const handle, const std::span<uint8_t> buf)
 {
 	const auto count{buf.size()};
 	const auto numread{SDL_RWread(handle, buf.data(), 1, count)};
-	return (numread == count);
+	return std::cmp_equal(numread, count);
 }
 
 //-----------------------------------------------------------------------
