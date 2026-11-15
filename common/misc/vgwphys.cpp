@@ -1,15 +1,25 @@
 #define DXX_VG_DECLARE_EXTERN_C(F)	\
 	decltype(F) __real_##F, __wrap_##F
 
+#ifdef __clang__
+#define DXX_VG_gnu_noclone	/* clang does not implement `[[gnu::noclone]]`, and instead issues a fatal warning if it is used */
+#else
+#define DXX_VG_gnu_noclone	[[gnu::noclone]]
+#endif
+
 #define DXX_VG_DEFINE_READ(F,V)	\
-	__attribute__((__used__,__noinline__,__noclone__))	\
+	[[gnu::used]]	\
+	[[gnu::noinline]]	\
+	DXX_VG_gnu_noclone	\
 	int __wrap_##F(PHYSFS_File *const file, V *const val) {	\
 		dxx_vg_wrap_poison_value(*val);	\
 		return __real_##F(file, val);	\
 	}
 
 #define DXX_VG_DEFINE_WRITE(F,V)	\
-	__attribute__((__used__,__noinline__,__noclone__))	\
+	[[gnu::used]]	\
+	[[gnu::noinline]]	\
+	DXX_VG_gnu_noclone	\
 	int __wrap_##F(PHYSFS_File *const file, V val) {	\
 		dxx_vg_wrap_check_value(__builtin_return_address(0), &val, sizeof(val));	\
 		return __real_##F(file, val);	\
@@ -78,7 +88,11 @@ static void dxx_vg_wrap_poison_value(auto &val)
 	DXX_POISON_VAR(val, 0xbd);
 }
 
-__attribute__((__used__,__noinline__,__noclone__))
+#ifndef __clang__
+[[gnu::noclone]]
+#endif
+[[gnu::noinline]]
+[[gnu::used]]
 PHYSFS_sint64 __wrap_PHYSFS_readBytes(PHYSFS_File *const handle, void *const buffer, const PHYSFS_uint64 len)
 {
 	{
@@ -99,7 +113,11 @@ static void dxx_vg_wrap_check_value(const void *const ret, const void *const val
 		con_printf(CON_URGENT, DXX_STRINGIZE_FL(__FILE__, __LINE__, "BUG: ret=%p VALGRIND_CHECK_MEM_IS_DEFINED(%p, %lu)=%p (offset=%p)"), ret, val, vlen, reinterpret_cast<void *>(o), reinterpret_cast<void *>(o - reinterpret_cast<uintptr_t>(val)));
 }
 
-__attribute__((__used__,__noinline__,__noclone__))
+#ifndef __clang__
+[[gnu::noclone]]
+#endif
+[[gnu::noinline]]
+[[gnu::used]]
 PHYSFS_sint64 __wrap_PHYSFS_writeBytes(PHYSFS_File *const handle, const void *const buffer, const PHYSFS_uint64 len)
 {
 	auto p = reinterpret_cast<const uint8_t *>(buffer);
