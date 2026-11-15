@@ -2330,12 +2330,19 @@ static void draw_energy_bar(grs_canvas &canvas, const hud_draw_context_hs_mr hud
 
 	if (energy < 100)
 	{
+		const auto yscale_energy_gauge_h{hudctx.yscale(LEFT_ENERGY_GAUGE_H)};
+		const long yscale_energy_gauge_h_int{yscale_energy_gauge_h};
+		if (yscale_energy_gauge_h_int > 0) [[likely]]
+		{
+			/* yscale_energy_gauge_h_int should always be positive.  This check
+			 * exists to make the narrowing conversion safe.
+			 */
+			const auto yscale_energy_gauge_h_uint{static_cast<unsigned long>(yscale_energy_gauge_h_int)};
 		const auto xscale_energy_gauge_x = hudctx.xscale(LEFT_ENERGY_GAUGE_X);
 		const auto xscale_energy_gauge_w = hudctx.xscale(LEFT_ENERGY_GAUGE_W);
 		const auto xscale_energy_gauge_h2 = hudctx.xscale(LEFT_ENERGY_GAUGE_H - 2);
 		const auto yscale_energy_gauge_y = hudctx.yscale(LEFT_ENERGY_GAUGE_Y);
-		const auto yscale_energy_gauge_h = hudctx.yscale(LEFT_ENERGY_GAUGE_H);
-		for (unsigned y = 0; y < yscale_energy_gauge_h; ++y)
+		for (unsigned y = 0; y < yscale_energy_gauge_h_uint; ++y)
 		{
 			const auto bound = xscale_energy_gauge_w - (y * aplitscale) / 3;
 			const auto x1 = xscale_energy_gauge_h2 - y * aplitscale;
@@ -2347,6 +2354,7 @@ static void draw_energy_bar(grs_canvas &canvas, const hud_draw_context_hs_mr hud
 				gr_uline(canvas, i2f(x1 + xscale_energy_gauge_x), ly, i2f(x2 + xscale_energy_gauge_x), ly, color);
 			}
 		}
+		}
 	}
 
 	// Draw right energy bar
@@ -2354,11 +2362,18 @@ static void draw_energy_bar(grs_canvas &canvas, const hud_draw_context_hs_mr hud
 
 	if (energy < 100)
 	{
+		const auto yscale_energy_gauge_h{hudctx.yscale(RIGHT_ENERGY_GAUGE_H)};
+		const long yscale_energy_gauge_h_int{yscale_energy_gauge_h};
+		if (yscale_energy_gauge_h_int > 0) [[likely]]
+		{
+			/* yscale_energy_gauge_h_int should always be positive.  This check
+			 * exists to make the narrowing conversion safe.
+			 */
+			const auto yscale_energy_gauge_h_uint{static_cast<unsigned long>(yscale_energy_gauge_h_int)};
 		const auto xscale_energy_gauge_x = hudctx.xscale(RIGHT_ENERGY_GAUGE_X);
 		const auto yscale_energy_gauge_y = hudctx.yscale(RIGHT_ENERGY_GAUGE_Y);
-		const auto yscale_energy_gauge_h = hudctx.yscale(RIGHT_ENERGY_GAUGE_H);
 		const auto xscale_right_energy = hudctx.xscale(RIGHT_ENERGY_GAUGE_W - RIGHT_ENERGY_GAUGE_H + 2);
-		for (unsigned y = 0; y < yscale_energy_gauge_h; ++y)
+		for (unsigned y = 0; y < yscale_energy_gauge_h_uint; ++y)
 		{
 			const auto bound = (y * aplitscale) / 3;
 			const auto x2 = xscale_right_energy + y * aplitscale;
@@ -2372,6 +2387,7 @@ static void draw_energy_bar(grs_canvas &canvas, const hud_draw_context_hs_mr hud
 				const auto ly = i2f(y + yscale_energy_gauge_y);
 				gr_uline(canvas, i2f(x1 + xscale_energy_gauge_x), ly, i2f(x2 + xscale_energy_gauge_x), ly, color);
 			}
+		}
 		}
 	}
 }
