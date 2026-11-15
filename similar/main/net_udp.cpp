@@ -1050,7 +1050,7 @@ int udp_dns_filladdr(sockaddr_ref addr, const char *host, uint16_t port, bool nu
 		return -1;
 	}
 	
-	if (result->ai_addrlen > addr.len)
+	if (std::cmp_greater(result->ai_addrlen, addr.len))
 	{
 		con_printf(CON_URGENT, "Address too big for host %s", host);
 		if (!silent)
