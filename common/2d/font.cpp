@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <utility>
 #ifndef macintosh
 #include <fcntl.h>
 #endif
@@ -686,7 +687,7 @@ static void ogl_internal_string(grs_canvas &canvas, const grs_font &cv_font, con
 static grs_disk_font grs_disk_font_read(NamedPHYSFS_File fp)
 {
 	std::array<std::byte, 28> sbuf;
-	if (PHYSFS_readBytes(fp, sbuf.data(), sbuf.size()) != sbuf.size()) [[unlikely]]
+	if (std::cmp_not_equal(PHYSFS_readBytes(fp, sbuf.data(), sbuf.size()), sbuf.size())) [[unlikely]]
 		PHYSFSX_read_helper_report_error(__FILE__, __LINE__, __FUNCTION__, fp);
 	return grs_disk_font{
 		.ft_w = GET_INTEL_SHORT(&sbuf[0]),
