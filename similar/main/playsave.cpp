@@ -1553,7 +1553,7 @@ void write_player_file()
 			errno_ret=errno;
 		{
 			std::array<uint8_t, MAX_CONTROLS> cyberman{};
-			if (PHYSFSX_writeBytes(file, cyberman.data(), cyberman.size()) != cyberman.size())	// Skip obsolete Cyberman map field
+			if (std::cmp_not_equal(PHYSFSX_writeBytes(file, cyberman.data(), cyberman.size()), cyberman.size()))	// Skip obsolete Cyberman map field
 				errno_ret=errno;
 		}
 	
