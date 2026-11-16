@@ -355,7 +355,7 @@ static int _newdemo_write(const void *buffer, int elsize, int nelem )
 	Assert(outfile);
 	num_written = (PHYSFS_writeBytes)(outfile, buffer, elsize * nelem);
 
-	if (likely(num_written == nelem))
+	if (likely(num_written == total_size))
 		return num_written;
 
 	nd_record_v_no_space=2;
@@ -1825,13 +1825,12 @@ static int newdemo_read_demo_start(const purpose_type purpose)
 	int recorded_demo_game_mode;
 	nd_read_int(&recorded_demo_game_mode);
 	Newdemo_game_mode = static_cast<game_mode_flags>(recorded_demo_game_mode);
-#if DXX_BUILD_DESCENT == 2
 	if (purpose == purpose_type::rewrite)
 	{
 		nd_write_fix(nd_GameTime32);
 		nd_write_int(underlying_value(Newdemo_game_mode));
 	}
-
+#if DXX_BUILD_DESCENT == 2
 	BossUniqueState.Boss_cloak_start_time = {GameTime64};
 #endif
 
