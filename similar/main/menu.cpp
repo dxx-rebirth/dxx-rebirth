@@ -2771,7 +2771,7 @@ window_event_result sound_menu::event_handler(const d_event &event)
 			{
 				songs_uninit();
 				if (Game_wind)
-					songs_play_level_song(Current_level_num, 0);
+					songs_play_level_song(Current_level_num, level_music_request::follow_level);
 				else
 					songs_play_song(song_number::title, 1);
 			}
@@ -2787,7 +2787,7 @@ window_event_result sound_menu::event_handler(const d_event &event)
 		songs_uninit();
 
 		if (Game_wind)
-			songs_play_level_song( Current_level_num, 0 );
+			songs_play_level_song(Current_level_num, level_music_request::follow_level);
 		else
 			songs_play_song(song_number::title, 1);
 	}
