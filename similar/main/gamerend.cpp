@@ -81,7 +81,7 @@ static void game_draw_marker_message(grs_canvas &canvas)
 {
 	if (MarkerState.DefiningMarkerMessage())
 	{
-		gr_set_fontcolor(canvas, BM_XRGB(0, 63, 0),-1);
+		gr_set_fontcolor(canvas, BM_XRGB(0, 63, 0), TRANSPARENCY_COLOR);
 		auto &game_font = *GAME_FONT;
 		gr_printf(canvas, game_font, 0x8000, (LINE_SPACING(game_font, game_font) * 5) + FSPACY(1), "Marker: %s%c", Marker_input.data(), Marker_input[Marker_input.size() - 2] ? 0 : '_');
 	}
@@ -109,7 +109,7 @@ static void game_draw_multi_message(grs_canvas &canvas)
 		std::snprintf(std::data(buffer), std::size(buffer), "%s #%d: %s_", TXT_MACRO, 1 + underlying_value(defining), Network_message.data());
 	else
 		return;
-	gr_set_fontcolor(canvas, BM_XRGB(0, 63, 0),-1);
+	gr_set_fontcolor(canvas, BM_XRGB(0, 63, 0), TRANSPARENCY_COLOR);
 	auto &game_font = *GAME_FONT;
 	const auto &&y = (LINE_SPACING(game_font, game_font) * 5) + FSPACY(1);
 	gr_string(canvas, game_font, 0x8000, y, std::data(buffer));
@@ -162,7 +162,7 @@ static void show_framerate(grs_canvas &canvas)
 			return;
 	}
 	const auto &game_font = *GAME_FONT;
-	gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0),-1);
+	gr_set_fontcolor(canvas, BM_XRGB(0, 31, 0), TRANSPARENCY_COLOR);
 	char buf[16];
 	if (CGameArg.DbgVerbose)
 		snprintf(buf, sizeof(buf), "%iFPS (%.2fms)", fps_rate, (FrameTime * 1000.) / F1_0);
@@ -188,7 +188,7 @@ static void show_netplayerinfo(grs_canvas &canvas)
 	int x{0}, y=0;
 	static const char *const eff_strings[]={"trashing","really hurting","seriously affecting","hurting","affecting","tarnishing"};
 
-	gr_set_fontcolor(canvas, 255, -1);
+	gr_set_fontcolor(canvas, 255, TRANSPARENCY_COLOR);
 
 	const auto &&fspacx = FSPACX();
 	const auto &&fspacx120 = fspacx(120);
@@ -248,7 +248,7 @@ static void show_netplayerinfo(grs_canvas &canvas)
 
 		const auto color{get_player_or_team_color(Netgame, Game_mode, i)};
 		auto &prgb = player_rgb[color];
-		gr_set_fontcolor(canvas, BM_XRGB(prgb.r, prgb.g, prgb.b), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(prgb.r, prgb.g, prgb.b), TRANSPARENCY_COLOR);
 		gr_string(canvas, game_font, x, y, plr.callsign);
 		{
 			auto &plrobj = *vcobjptr(plr.objnum);
@@ -270,15 +270,15 @@ static void show_netplayerinfo(grs_canvas &canvas)
 	// printf team scores
 	if (+(Game_mode & GM_TEAM))
 	{
-		gr_set_fontcolor(canvas, 255, -1);
+		gr_set_fontcolor(canvas, 255, TRANSPARENCY_COLOR);
 		gr_string(canvas, game_font, x, y, "team");
 		gr_string(canvas, game_font, x + fspacx8 * 8, y, "score");
 		y += line_spacing;
-		gr_set_fontcolor(canvas, BM_XRGB(player_rgb[player_ship_color::blue].r, player_rgb[player_ship_color::blue].g, player_rgb[player_ship_color::blue].b), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(player_rgb[player_ship_color::blue].r, player_rgb[player_ship_color::blue].g, player_rgb[player_ship_color::blue].b), TRANSPARENCY_COLOR);
 		gr_printf(canvas, game_font, x, y, "%s:", Netgame.team_name[team_number::blue].operator const char *());
 		gr_printf(canvas, game_font, x + fspacx8 * 8, y, "%i", team_kills[team_number::blue]);
 		y += line_spacing;
-		gr_set_fontcolor(canvas, BM_XRGB(player_rgb[player_ship_color::red].r, player_rgb[player_ship_color::red].g, player_rgb[player_ship_color::red].b), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(player_rgb[player_ship_color::red].r, player_rgb[player_ship_color::red].g, player_rgb[player_ship_color::red].b), TRANSPARENCY_COLOR);
 		gr_printf(canvas, game_font, x, y, "%s:", Netgame.team_name[team_number::red].operator const char *());
 		gr_printf(canvas, game_font, x + fspacx8 * 8, y, "%i", team_kills[team_number::red]);
 		y += line_spacing * 2;
@@ -286,7 +286,7 @@ static void show_netplayerinfo(grs_canvas &canvas)
 	else
 		y += line_spacing * 4;
 
-	gr_set_fontcolor(canvas, 255, -1);
+	gr_set_fontcolor(canvas, 255, TRANSPARENCY_COLOR);
 
 	// additional information about game - hoard, ranking
 
@@ -372,7 +372,7 @@ static void draw_window_label(object_array &Objects, grs_canvas &canvas)
 			default:					control_name = "Unknown"; break;
 		}
 
-		gr_set_fontcolor(canvas, BM_XRGB(31, 0, 0),-1);
+		gr_set_fontcolor(canvas, BM_XRGB(31, 0, 0), TRANSPARENCY_COLOR);
 		auto &game_font = *GAME_FONT;
 		gr_printf(canvas, game_font, 0x8000, (SHEIGHT / 10), "%hu: %s [%s] View - %s", vcobjptridx(Viewer).get_unchecked_index(), viewer_name, viewer_id, control_name);
 
@@ -405,7 +405,7 @@ static void render_countdown_gauge(grs_canvas &canvas)
 			}
 		}
 #endif
-		gr_set_fontcolor(canvas, BM_XRGB(0, 63, 0),-1);
+		gr_set_fontcolor(canvas, BM_XRGB(0, 63, 0), TRANSPARENCY_COLOR);
 		auto &game_font = *GAME_FONT;
 		gr_printf(canvas, game_font, 0x8000, (LINE_SPACING(game_font, game_font) * 6) + FSPACY(1), "T-%d s", Countdown_seconds_left);
 	}
@@ -429,7 +429,7 @@ static void game_draw_hud_stuff(const d_robot_info_array &Robot_info, grs_canvas
 
 		auto &game_font = *GAME_FONT;
 		gr_set_curfont(canvas, game_font);
-		gr_set_fontcolor(canvas, BM_XRGB(27, 0, 0), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(27, 0, 0), TRANSPARENCY_COLOR);
 
 		y = canvas.cv_bitmap.bm_h - (LINE_SPACING(*canvas.cv_font, *GAME_FONT) * 2);
 
@@ -822,7 +822,7 @@ void game_render_frame_mono(const d_robot_info_array &Robot_info, const control_
 		Viewer = viewer_save;
 
 		auto &game_font = *GAME_FONT;
-		gr_set_fontcolor(canvas, BM_XRGB(27, 0, 0), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(27, 0, 0), TRANSPARENCY_COLOR);
 
 		gr_string(canvas, game_font, 0x8000, FSPACY(1), "Guided Missile View");
 
@@ -1009,7 +1009,7 @@ void show_boxed_message(grs_canvas &canvas, const char *msg)
 	int x,y;
 	int center = 0x8000;
 	
-	gr_set_fontcolor(canvas, BM_XRGB(31, 31, 31), -1);
+	gr_set_fontcolor(canvas, BM_XRGB(31, 31, 31), TRANSPARENCY_COLOR);
 	auto &medium1_font = *MEDIUM1_FONT;
 	const auto &&[w, h] = gr_get_string_size(medium1_font, msg);
 	

@@ -329,7 +329,7 @@ static void ogl_texture_stats(grs_canvas &canvas)
 	dbl += 1;
 	glGetIntegerv(GL_DEPTH_BITS, &depth);
 	const auto &game_font = *GAME_FONT;
-	gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), -1);
+	gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), TRANSPARENCY_COLOR);
 	colorsize = (idx * res * dbl) / 8;
 	depthsize = res * depth / 8;
 	const auto &&fspacx2 = FSPACX(2);

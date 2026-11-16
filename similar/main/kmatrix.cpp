@@ -92,18 +92,18 @@ static void kmatrix_draw_item(fvcobjptr &vcobjptr, grs_canvas &canvas, const grs
 		{
 			if (kmij == 0)
 			{
-				gr_set_fontcolor(canvas, rgb10, -1);
+				gr_set_fontcolor(canvas, rgb10, TRANSPARENCY_COLOR);
 				gr_string(canvas, cv_font, x, y, "0");
 			}
 			else
 			{
-				gr_set_fontcolor(canvas, rgb25, -1);
+				gr_set_fontcolor(canvas, rgb25, TRANSPARENCY_COLOR);
 				gr_printf(canvas, cv_font, x, y, "-%hu", kmij);
 			}
 		}
 		else
 		{
-			gr_set_fontcolor(canvas, kmij <= 0 ? rgb10 : rgb25, -1);
+			gr_set_fontcolor(canvas, kmij <= 0 ? rgb10 : rgb25, TRANSPARENCY_COLOR);
 			gr_printf(canvas, cv_font, x, y, "%hu", kmij);
 		}
 	}
@@ -118,7 +118,7 @@ static void kmatrix_draw_item(fvcobjptr &vcobjptr, grs_canvas &canvas, const grs
 			);
 
 	const auto x = fspacx(60 + CENTERING_OFFSET(N_players) + N_players * 25);
-	gr_set_fontcolor(canvas, rgb25, -1);
+	gr_set_fontcolor(canvas, rgb25, TRANSPARENCY_COLOR);
 	gr_printf(canvas, cv_font, x, y, "%4d/%i%%", player_info.net_kills_total, eff <= 0 ? 0 : eff);
 }
 
@@ -142,11 +142,11 @@ static void kmatrix_draw_names(grs_canvas &canvas, const grs_font &cv_font, cons
 			const auto &rgb = player_rgb[color];
 			c = BM_XRGB(rgb.r, rgb.g, rgb.b);
 		}
-		gr_set_fontcolor(canvas, c, -1);
+		gr_set_fontcolor(canvas, c, TRANSPARENCY_COLOR);
 		gr_printf(canvas, cv_font, x, fspacy_header, "%c", p.callsign[0u]);
 	}
 	const auto x = fspacx(72 + CENTERING_OFFSET(N_players) + N_players * 25);
-	gr_set_fontcolor(canvas, rgb31, -1);
+	gr_set_fontcolor(canvas, rgb31, TRANSPARENCY_COLOR);
 	gr_string(canvas, cv_font, x, fspacy_header, "K/E");
 	if (const auto m = Current_mission.get())
 	{
@@ -158,7 +158,7 @@ static void kmatrix_draw_names(grs_canvas &canvas, const grs_font &cv_font, cons
 
 static void kmatrix_draw_coop_names(grs_canvas &canvas, const grs_font &cv_font, const font_y_scale_float fspacy)
 {
-	gr_set_fontcolor(canvas, BM_XRGB(63, 31, 31),-1);
+	gr_set_fontcolor(canvas, BM_XRGB(63, 31, 31), TRANSPARENCY_COLOR);
 	const auto centerscreen{CENTERSCREEN};
 	if (const auto m = Current_mission.get())
 	{
@@ -173,7 +173,7 @@ static void kmatrix_draw_coop_names(grs_canvas &canvas, const grs_font &cv_font,
 
 static void kmatrix_status_msg(grs_canvas &canvas, const fix time, const kmatrix_status_mode message_mode)
 {
-	gr_set_fontcolor(canvas, gr_find_closest_color(255, 255, 255),-1);
+	gr_set_fontcolor(canvas, gr_find_closest_color(255, 255, 255), TRANSPARENCY_COLOR);
 	auto &game_font = *GAME_FONT;
 	gr_printf(canvas, game_font, 0x8000, SHEIGHT - LINE_SPACING(game_font, game_font),
 		message_mode == kmatrix_status_mode::reactor_countdown_running
@@ -258,11 +258,11 @@ static void kmatrix_redraw(grs_canvas &canvas, kmatrix_window *const km)
 		for (unsigned i = 0; i < N_players; ++i)
 		{
 			if (vcplayerptr(sorted[i])->connected == player_connection_status::disconnected)
-				gr_set_fontcolor(canvas, gr_find_closest_color(31, 31, 31),-1);
+				gr_set_fontcolor(canvas, gr_find_closest_color(31, 31, 31), TRANSPARENCY_COLOR);
 			else
 			{
 				const auto color{get_player_or_team_color(Netgame, Game_mode, sorted[i])};
-				gr_set_fontcolor(canvas, BM_XRGB(player_rgb[color].r, player_rgb[color].g, player_rgb[color].b),-1);
+				gr_set_fontcolor(canvas, BM_XRGB(player_rgb[color].r, player_rgb[color].g, player_rgb[color].b), TRANSPARENCY_COLOR);
 			}
 			kmatrix_draw_item(vcobjptr, canvas, game_font, i, sorted, fspacy);
 		}
@@ -306,11 +306,11 @@ static void kmatrix_redraw_coop(grs_canvas &canvas, fvcobjptr &vcobjptr, const f
 			g = color.g * 2;
 			b = color.b * 2;
 		}
-		gr_set_fontcolor(canvas, gr_find_closest_color(r, g, b), -1);
+		gr_set_fontcolor(canvas, gr_find_closest_color(r, g, b), TRANSPARENCY_COLOR);
 
 		const auto &&y = fspacy(80 + i * 9);
 		gr_string(canvas, game_font, x_callsign, y, static_cast<const char *>(plr.callsign));
-		gr_set_fontcolor(canvas, rgb60_40_10, -1);
+		gr_set_fontcolor(canvas, rgb60_40_10, TRANSPARENCY_COLOR);
 		auto &player_info = vcobjptr(plr.objnum)->ctype.player_info;
 		gr_printf(canvas, game_font, x_centerscreen, y, "%d", player_info.mission.score);
 		gr_printf(canvas, game_font, x_centerscreen + fspacx50, y, "%d", player_info.net_killed_total);

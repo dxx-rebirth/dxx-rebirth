@@ -160,7 +160,7 @@ static void kc_drawquestion(grs_canvas &canvas, const grs_font &cv_font, uint8_t
 	const auto &&fspacx_item_xinput = fspacx(item_xinput);
 	const auto &&fspacy_item_y = fspacy(item_y);
 	gr_urect(canvas, fspacx_item_xinput, fspacy(item_y - 1), fspacx(item_xinput + item_w2), fspacy_item_y + h, color);
-	gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
+	gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), TRANSPARENCY_COLOR);
 	const auto x = fspacx_item_xinput + ((fspacx(item_w2) - w) / 2);
 	gr_string(canvas, cv_font, x, fspacy_item_y, "?", w, h);
 }
@@ -898,7 +898,7 @@ static void kconfig_draw(kc_menu &menu)
 	gr_string(canvas, medium3_font, 0x8000, fspacy(8), menu.title);
 
 	auto &game_font = *GAME_FONT;
-	gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
+	gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), TRANSPARENCY_COLOR);
 	gr_string(canvas, game_font, 0x8000, fspacy(21),
 #if DXX_MAX_JOYSTICKS
 #if SDL_MAJOR_VERSION == 2
@@ -912,7 +912,7 @@ static void kconfig_draw(kc_menu &menu)
 
 	if (menu.items == kc_keyboard)
 	{
-		gr_set_fontcolor(canvas, BM_XRGB(31, 27, 6), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(31, 27, 6), TRANSPARENCY_COLOR);
 		const uint8_t color = BM_XRGB(31,27,6);
 		const auto &&fspacx98 = fspacx(98);
 		const auto &&fspacx128 = fspacx(128);
@@ -936,15 +936,15 @@ static void kconfig_draw(kc_menu &menu)
 	else if (menu.items == kc_joystick)
 	{
 		const uint8_t color = BM_XRGB(31, 27, 6);
-		gr_set_fontcolor(canvas, color, -1);
+		gr_set_fontcolor(canvas, color, TRANSPARENCY_COLOR);
 #if DXX_MAX_AXES_PER_JOYSTICK
 		constexpr auto kconfig_axis_labels_top_y = DXX_KCONFIG_UI_JOYSTICK_AXES_TOP_Y + 8;
 		const auto &&fspacy_lower_label2 = fspacy(kconfig_axis_labels_top_y);
 		gr_string(canvas, game_font, 0x8000, fspacy(DXX_KCONFIG_UI_JOYSTICK_AXES_TOP_Y), TXT_AXES);
-		gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), TRANSPARENCY_COLOR);
 		kc_gr_2y_string(canvas, game_font, TXT_AXIS, fspacy_lower_label2, fspacx(81), fspacx(230));
 		kc_gr_2y_string(canvas, game_font, TXT_INVERT, fspacy_lower_label2, fspacx(111), fspacx(260));
-		gr_set_fontcolor(canvas, color, -1);
+		gr_set_fontcolor(canvas, color, TRANSPARENCY_COLOR);
 #endif
 
 #if DXX_MAX_BUTTONS_PER_JOYSTICK || DXX_MAX_HATS_PER_JOYSTICK
@@ -973,17 +973,17 @@ static void kconfig_draw(kc_menu &menu)
 #endif
 	else if (menu.items == kc_mouse)
 	{
-		gr_set_fontcolor(canvas, BM_XRGB(31, 27, 6), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(31, 27, 6), TRANSPARENCY_COLOR);
 		gr_string(canvas, game_font, 0x8000, fspacy(37), TXT_BUTTONS);
 		gr_string(canvas, game_font, 0x8000, fspacy(137), TXT_AXES);
-		gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), TRANSPARENCY_COLOR);
 		const auto &&fspacy145 = fspacy(145);
 		kc_gr_2y_string(canvas, game_font, TXT_AXIS, fspacy145, fspacx( 87), fspacx(242));
 		kc_gr_2y_string(canvas, game_font, TXT_INVERT, fspacy145, fspacx(120), fspacx(274));
 	}
 	else if (menu.items == kc_rebirth)
 	{
-		gr_set_fontcolor(canvas, BM_XRGB(31, 27, 6), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(31, 27, 6), TRANSPARENCY_COLOR);
 
 		const auto &&fspacy60 = fspacy(60);
 		gr_string(canvas, game_font, fspacx(152), fspacy60, "KEYBOARD");
@@ -1009,7 +1009,7 @@ static void kconfig_draw(kc_menu &menu)
 	}
 	kc_drawinput(canvas, game_font, menu.items[citem], menu.mitems[citem], 1, current_label);
 	
-	gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
+	gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), TRANSPARENCY_COLOR);
 	if (menu.changing)
 	{
 		const char *s;
@@ -1423,7 +1423,7 @@ static void kc_drawinput(grs_canvas &canvas, const grs_font &cv_font, const kc_i
 			r = 20 * 2, g = 20 * 2, b = 29 * 2;
 		else
 			r = 15 * 2, g = 15 * 2, b = 24 * 2;
-		gr_set_fontcolor(canvas, gr_find_closest_color(r, g, b), -1);
+		gr_set_fontcolor(canvas, gr_find_closest_color(r, g, b), TRANSPARENCY_COLOR);
 		gr_string(canvas, cv_font, fspacx(item.x), fspacy(item.y), label);
 	}
 
@@ -1447,7 +1447,7 @@ static void kc_drawinput(grs_canvas &canvas, const grs_font &cv_font, const kc_i
 			r = b = 28 * 2;
 		else
 			r = b = 0;
-		gr_set_fontcolor(canvas, gr_find_closest_color(r, 28 * 2, b), -1);
+		gr_set_fontcolor(canvas, gr_find_closest_color(r, 28 * 2, b), TRANSPARENCY_COLOR);
 
 		x = fspacx_item_xinput + ((fspacx(item.w2) - w) / 2);
 	

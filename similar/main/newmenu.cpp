@@ -463,7 +463,7 @@ static void draw_item(grs_canvas &canvas, const grs_font &cv_font, newmenu_item 
 			r = 57, g = 49, b = 20;
 		else
 			r = g = 29, b = 47;
-		gr_set_fontcolor(canvas, gr_find_closest_color_current(r, g, b), -1);
+		gr_set_fontcolor(canvas, gr_find_closest_color_current(r, g, b), TRANSPARENCY_COLOR);
 	}
 
 	const int line_spacing = static_cast<int>(LINE_SPACING(cv_font, *GAME_FONT));
@@ -1554,7 +1554,7 @@ static window_event_result newmenu_draw(newmenu *menu)
 
 	if (const auto title = menu->title)
 	{
-		gr_set_fontcolor(menu_canvas, BM_XRGB(31, 31, 31), -1);
+		gr_set_fontcolor(menu_canvas, BM_XRGB(31, 31, 31), TRANSPARENCY_COLOR);
 		auto &huge_font = *HUGE_FONT;
 		auto &&[string_width, string_height] = gr_get_string_size(huge_font, title);
 		th = string_height;
@@ -1563,7 +1563,7 @@ static window_event_result newmenu_draw(newmenu *menu)
 
 	if (const auto subtitle = menu->subtitle)
 	{
-		gr_set_fontcolor(menu_canvas, BM_XRGB(21, 21, 21), -1);
+		gr_set_fontcolor(menu_canvas, BM_XRGB(21, 21, 21), TRANSPARENCY_COLOR);
 		auto &medium3_font = *MEDIUM3_FONT;
 		gr_string(menu_canvas, medium3_font, 0x8000, ty + th, subtitle);
 	}

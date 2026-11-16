@@ -79,16 +79,16 @@ void ui_draw_listbox(UI_DIALOG &dlg, UI_GADGET_LISTBOX &listbox)
 		if (i != listbox.current_item)
 		{
 			if (listbox.current_item == -1 && dlg.keyboard_focus_gadget == &listbox && i == listbox.first_item)
-				gr_set_fontcolor(canvas, CRED, -1);
+				gr_set_fontcolor(canvas, CRED, TRANSPARENCY_COLOR);
 			else
-				gr_set_fontcolor(canvas, CWHITE, -1);
+				gr_set_fontcolor(canvas, CWHITE, TRANSPARENCY_COLOR);
 		}
 		else
 		{
 			if (dlg.keyboard_focus_gadget == &listbox)
-				gr_set_fontcolor(canvas, CRED, -1);
+				gr_set_fontcolor(canvas, CRED, TRANSPARENCY_COLOR);
 			else
-				gr_set_fontcolor(canvas, CBLACK, -1);
+				gr_set_fontcolor(canvas, CBLACK, TRANSPARENCY_COLOR);
 		}
 		const auto &&[w, h] = gr_get_string_size(*canvas.cv_font, listbox.list[i]);
 		gr_string(canvas, *canvas.cv_font, x + 2, y, listbox.list[i], w, h);

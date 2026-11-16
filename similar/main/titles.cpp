@@ -582,7 +582,7 @@ static int redraw_messagestream(grs_canvas &canvas, const grs_font &cv_font, con
 {
 	const auto nextcolor{stream.color};
 	if (lastcolor != nextcolor)
-		gr_set_fontcolor(canvas, nextcolor, -1);
+		gr_set_fontcolor(canvas, nextcolor, TRANSPARENCY_COLOR);
 	gr_string(canvas, cv_font, stream.x + 1, stream.y, stream.ch.data());
 	return nextcolor;
 }
@@ -1247,7 +1247,7 @@ static void flash_cursor(grs_canvas &canvas, const grs_font &cv_font, briefing *
 {
 	if (cursor_flag == 0)
 		return;
-	gr_set_fontcolor(canvas, (timer_query() % (F1_0 / 2)) > F1_0 / 4 ? *Current_color : Erase_color, -1);
+	gr_set_fontcolor(canvas, (timer_query() % (F1_0 / 2)) > F1_0 / 4 ? *Current_color : Erase_color, TRANSPARENCY_COLOR);
 	gr_string(canvas, cv_font, br->text_x, br->text_y, "_");
 }
 
@@ -1882,7 +1882,7 @@ window_event_result briefing::event_handler(const d_event &event)
 			auto &game_font = *GAME_FONT;
 
 			auto lastcolor = *Current_color;
-			gr_set_fontcolor(canvas, lastcolor, -1);
+			gr_set_fontcolor(canvas, lastcolor, TRANSPARENCY_COLOR);
 			for (const auto b : partial_const_range(this->messagestream, this->streamcount))
 				lastcolor = redraw_messagestream(canvas, game_font, b, lastcolor);
 
