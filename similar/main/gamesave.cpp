@@ -345,8 +345,8 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 {
 	DXX_POISON_MEMORY(std::span<object>(&*obj, 1), 0xfd);
 	obj->signature = object_signature_t{0};
-	obj->type = build_valid_object_type_from_untrusted(PHYSFSX_readByte(f));
-	obj->id             = PHYSFSX_readByte(f);
+	obj->type = build_valid_object_type_from_untrusted(PHYSFSX_readU8(f));
+	obj->id             = PHYSFSX_readU8(f);
 
 	if (obj->type == object_type::OBJ_ROBOT)
 	{
@@ -357,7 +357,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 		obj->matcen_creator = 0;
 	}
 	{
-		uint8_t ctype = PHYSFSX_readByte(f);
+		uint8_t ctype = PHYSFSX_readU8(f);
 		switch (typename object::control_type{ctype})
 		{
 			case object::control_type::None:
@@ -382,7 +382,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 		obj->control_source = typename object::control_type{ctype};
 	}
 	{
-		uint8_t mtype = PHYSFSX_readByte(f);
+		uint8_t mtype = PHYSFSX_readU8(f);
 		switch (typename object::movement_type{mtype})
 		{
 			case object::movement_type::None:
@@ -395,14 +395,14 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 		}
 		obj->movement_source = typename object::movement_type{mtype};
 	}
-	if (const uint8_t rtype = PHYSFSX_readByte(f); valid_render_type(rtype))
+	if (const uint8_t rtype = PHYSFSX_readU8(f); valid_render_type(rtype))
 		obj->render_type = render_type{rtype};
 	else
 	{
 		LevelError("Level contains bogus render type %#x for object %p; using none instead", rtype, &*obj);
 		obj->render_type = render_type::RT_NONE;
 	}
-	obj->flags          = PHYSFSX_readByte(f);
+	obj->flags          = PHYSFSX_readU8(f);
 
 	obj->segnum = read_untrusted_segnum_le16(f);
 	obj->attached_obj   = object_none;
@@ -420,9 +420,9 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 		PHYSFSX_readVector(f, last_pos);
 	}
 
-	const uint8_t untrusted_contains_type = PHYSFSX_readByte(f);
-	const uint8_t untrusted_contains_id = PHYSFSX_readByte(f);
-	const uint8_t untrusted_contains_count = PHYSFSX_readByte(f);
+	const uint8_t untrusted_contains_type = PHYSFSX_readU8(f);
+	const uint8_t untrusted_contains_id = PHYSFSX_readU8(f);
+	const uint8_t untrusted_contains_count = PHYSFSX_readU8(f);
 	obj->contains = build_contained_object_parameters_from_untrusted(untrusted_contains_type, untrusted_contains_id, untrusted_contains_count);
 
 	switch (obj->movement_source) {
@@ -459,7 +459,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 	switch (obj->control_source) {
 
 		case object::control_type::ai: {
-			obj->ctype.ai_info.behavior				= static_cast<ai_behavior>(PHYSFSX_readByte(f));
+			obj->ctype.ai_info.behavior				= static_cast<ai_behavior>(PHYSFSX_readU8(f));
 
 			std::array<int8_t, 11> ai_info_flags{};
 			PHYSFSX_readBytes(f, ai_info_flags.data(), 11);
@@ -643,7 +643,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 			obj->rtype.vclip_info.vclip_num	= build_vclip_index_from_untrusted(PHYSFSX_readInt(f));
 #endif
 			obj->rtype.vclip_info.frametime	= PHYSFSX_readFix(f);
-			obj->rtype.vclip_info.framenum	= PHYSFSX_readByte(f);
+			obj->rtype.vclip_info.framenum	= PHYSFSX_readU8(f);
 
 			break;
 

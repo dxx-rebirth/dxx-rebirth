@@ -345,14 +345,14 @@ static DiskBitmapHeader DiskBitmapHeader_read(const NamedPHYSFS_File fp)
 {
 	DiskBitmapHeader dbh{};
 	PHYSFSX_readBytes(fp, dbh.name, 8);
-	dbh.dflags = PHYSFSX_readByte(fp);
-	dbh.width = PHYSFSX_readByte(fp);
-	dbh.height = PHYSFSX_readByte(fp);
+	dbh.dflags = PHYSFSX_readU8(fp);
+	dbh.width = PHYSFSX_readU8(fp);
+	dbh.height = PHYSFSX_readU8(fp);
 #if DXX_BUILD_DESCENT == 2
-	dbh.wh_extra = PHYSFSX_readByte(fp);
+	dbh.wh_extra = PHYSFSX_readU8(fp);
 #endif
-	dbh.flags = PHYSFSX_readByte(fp);
-	dbh.avg_color = PHYSFSX_readByte(fp);
+	dbh.flags = PHYSFSX_readU8(fp);
+	dbh.avg_color = PHYSFSX_readU8(fp);
 	dbh.offset = PHYSFSX_readInt(fp);
 	return dbh;
 }
@@ -365,11 +365,11 @@ static DiskBitmapHeader DiskBitmapHeader_d1_read(const NamedPHYSFS_File fp)
 {
 	DiskBitmapHeader dbh{};
 	PHYSFSX_readBytes(fp, dbh.name, 8);
-	dbh.dflags = PHYSFSX_readByte(fp);
-	dbh.width = PHYSFSX_readByte(fp);
-	dbh.height = PHYSFSX_readByte(fp);
-	dbh.flags = PHYSFSX_readByte(fp);
-	dbh.avg_color = PHYSFSX_readByte(fp);
+	dbh.dflags = PHYSFSX_readU8(fp);
+	dbh.width = PHYSFSX_readU8(fp);
+	dbh.height = PHYSFSX_readU8(fp);
+	dbh.flags = PHYSFSX_readU8(fp);
+	dbh.avg_color = PHYSFSX_readU8(fp);
 	dbh.offset = PHYSFSX_readInt(fp);
 	return dbh;
 }

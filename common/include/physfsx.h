@@ -392,12 +392,15 @@ void PHYSFSX_read_sequence_helper<T1, F, T2, m...>::operator()(const NamedPHYSFS
 		PHYSFSX_read_helper_report_error(filename, line, func, file);
 }
 
-static inline int PHYSFSX_readS8(PHYSFS_File *const file, int8_t *const b)
+template <typename T>
+requires(std::is_same_v<T, int8_t> || std::is_same_v<T, uint8_t>)
+static inline int PHYSFSX_read8(PHYSFS_File *const file, T *const b)
 {
 	return PHYSFSX_readBytes(file, b, sizeof(*b)) == sizeof(*b);
 }
 
-static constexpr PHYSFSX_read_helper<int8_t, PHYSFSX_readS8> PHYSFSX_readByte{};
+static constexpr PHYSFSX_read_helper<int8_t, PHYSFSX_read8<int8_t>> PHYSFSX_readByte{};
+static constexpr PHYSFSX_read_helper<uint8_t, PHYSFSX_read8<uint8_t>> PHYSFSX_readU8{};
 static constexpr PHYSFSX_read_helper<int16_t, PHYSFS_readSLE16> PHYSFSX_readSLE16{};
 static constexpr PHYSFSX_read_helper<uint16_t, PHYSFS_readULE16> PHYSFSX_readULE16{};
 static constexpr PHYSFSX_read_helper<int32_t, PHYSFS_readSLE32> PHYSFSX_readInt{};

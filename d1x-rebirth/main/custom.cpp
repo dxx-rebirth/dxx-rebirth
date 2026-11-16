@@ -375,7 +375,7 @@ static int read_d2_robot_info(const NamedPHYSFS_File fp, robot_info &ri)
 	for (auto &j : ri.gun_points)
 		PHYSFSX_readVector(fp, j);
 	for (auto &j : ri.gun_submodels)
-		j = PHYSFSX_readByte(fp);
+		j = PHYSFSX_readU8(fp);
 	ri.exp1_vclip_num = build_vclip_index_from_untrusted(PHYSFSX_readSLE16(fp));
 	ri.exp1_sound_num = build_sound_effect_from_untrusted(PHYSFSX_readSLE16(fp));
 	ri.exp2_vclip_num = build_vclip_index_from_untrusted(PHYSFSX_readSLE16(fp));
@@ -383,11 +383,11 @@ static int read_d2_robot_info(const NamedPHYSFS_File fp, robot_info &ri)
 	const auto weapon_type = PHYSFSX_readByte(fp);
 	ri.weapon_type = weapon_type >= 0 && std::cmp_less(weapon_type, N_weapon_types) ? static_cast<weapon_id_type>(weapon_type) : weapon_id_type::LASER_ID_L1;
 	/*ri.weapon_type2 =*/ PHYSFSX_skipBytes<1>(fp);
-	ri.n_guns = PHYSFSX_readByte(fp);
-	const uint8_t untrusted_contains_id = PHYSFSX_readByte(fp);
-	const uint8_t untrusted_contains_count = PHYSFSX_readByte(fp);
+	ri.n_guns = PHYSFSX_readU8(fp);
+	const uint8_t untrusted_contains_id = PHYSFSX_readU8(fp);
+	const uint8_t untrusted_contains_count = PHYSFSX_readU8(fp);
 	ri.contains_prob = PHYSFSX_readByte(fp);
-	const uint8_t untrusted_contains_type = PHYSFSX_readByte(fp);
+	const uint8_t untrusted_contains_type = PHYSFSX_readU8(fp);
 	ri.contains = build_contained_object_parameters_from_untrusted(untrusted_contains_type, untrusted_contains_id, untrusted_contains_count);
 	/*ri.kamikaze =*/ PHYSFSX_skipBytes<1>(fp);
 	ri.score_value = PHYSFSX_readSLE16(fp);
@@ -420,11 +420,11 @@ static int read_d2_robot_info(const NamedPHYSFS_File fp, robot_info &ri)
 		j = PHYSFSX_readByte(fp);
 	ri.cloak_type = PHYSFSX_readByte(fp);
 	ri.attack_type = PHYSFSX_readByte(fp);
-	ri.see_sound = build_sound_effect_from_untrusted(PHYSFSX_readByte(fp));
-	ri.attack_sound = build_sound_effect_from_untrusted(PHYSFSX_readByte(fp));
-	ri.claw_sound = build_sound_effect_from_untrusted(PHYSFSX_readByte(fp));
+	ri.see_sound = build_sound_effect_from_untrusted(PHYSFSX_readU8(fp));
+	ri.attack_sound = build_sound_effect_from_untrusted(PHYSFSX_readU8(fp));
+	ri.claw_sound = build_sound_effect_from_untrusted(PHYSFSX_readU8(fp));
 	/*ri.taunt_sound =*/ PHYSFSX_skipBytes<1>(fp);
-	const uint8_t boss_flag = PHYSFSX_readByte(fp);
+	const uint8_t boss_flag = PHYSFSX_readU8(fp);
 	ri.boss_flag = (boss_flag == static_cast<uint8_t>(boss_robot_id::d1_1) || boss_flag == static_cast<uint8_t>(boss_robot_id::d1_superboss)) ? boss_robot_id{boss_flag} : boss_robot_id::None;
 	/*ri.companion =*/
 	/*ri.smart_blobs =*/
