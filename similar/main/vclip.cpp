@@ -51,7 +51,7 @@ namespace dsx {
 d_vclip_array Vclip;		// General purpose vclips.
 
 //draw an object which renders as a vclip
-void draw_vclip_object(grs_canvas &canvas, const vcobjptridx_t obj, const fix timeleft, const vclip &vc)
+void draw_vclip_object(grs_canvas &canvas, const vms_vector &viewer_pos, const vcobjptridx_t obj, const fix timeleft, const vclip &vc)
 {
 	const auto nf = vc.num_frames;
 	int bitmapnum = (nf - f2i(fixdiv((nf - 1) * timeleft, vc.play_time))) - 1;
@@ -63,12 +63,12 @@ void draw_vclip_object(grs_canvas &canvas, const vcobjptridx_t obj, const fix ti
 		if (vc.flags & VF_ROD)
 			draw_object_tmap_rod(canvas, nullptr, obj, vc.frames[bitmapnum]);
 		else {
-			draw_object_blob(GameBitmaps, *Viewer, canvas, obj, vc.frames[bitmapnum]);
+			draw_object_blob(GameBitmaps, viewer_pos, canvas, obj, vc.frames[bitmapnum]);
 		}
 	}
 }
 
-void draw_weapon_vclip(const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, grs_canvas &canvas, const vcobjptridx_t obj)
+void draw_weapon_vclip(const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, grs_canvas &canvas, const vms_vector &viewer_pos, const vcobjptridx_t obj)
 {
 	Assert(obj->type == object_type::OBJ_WEAPON);
 
@@ -91,7 +91,7 @@ void draw_weapon_vclip(const d_vclip_array &Vclip, const weapon_info_array &Weap
 
 	}
 
-	draw_vclip_object(canvas, obj, modtime, Vclip[vclip_num]);
+	draw_vclip_object(canvas, viewer_pos, obj, modtime, Vclip[vclip_num]);
 }
 
 }

@@ -3290,7 +3290,8 @@ const std::array<xy, 4> cross_offsets{{
 
 //draw the reticle
 namespace dsx {
-void show_reticle(grs_canvas &canvas, const player_info &player_info, enum reticle_type reticle_type, int secondary_display)
+namespace {
+static void show_reticle_from_view(grs_canvas &canvas, const player_info &player_info, enum reticle_type reticle_type, int secondary_display, [[maybe_unused]] const object_type viewer_type)
 {
 	int x,y,size;
 	int laser_ready,missile_ready;
@@ -3298,7 +3299,7 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, enum retic
 	int gauge_index;
 
 #if DXX_BUILD_DESCENT == 2
-	if (Newdemo_state==ND_STATE_PLAYBACK && Viewer->type != object_type::OBJ_PLAYER)
+	if (Newdemo_state==ND_STATE_PLAYBACK && viewer_type != object_type::OBJ_PLAYER)
 		 return;
 #endif
 
@@ -3471,6 +3472,12 @@ void show_reticle(grs_canvas &canvas, const player_info &player_info, enum retic
 	gr_uline(canvas, x0, y0, x1, y1, color);
 	}();
 	gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal);
+}
+}
+
+void show_reticle(grs_canvas &canvas, const player_info &player_info, enum reticle_type reticle_type, int secondary_display)
+{
+	show_reticle_from_view(canvas, player_info, reticle_type, secondary_display, Viewer->type);
 }
 }
 
@@ -4121,16 +4128,26 @@ void do_cockpit_window_view(const gauge_inset_window_view win, const weapon_box_
 
 void do_cockpit_window_view(grs_canvas &canvas, const gauge_inset_window_view win, const object &viewer, const int rear_view_flag, const weapon_box_user user, const char *const label, const player_info *const player_info)
 {
+	do_cockpit_window_view(canvas, win, render_view{viewer}, rear_view_flag, user, label, player_info);
+}
+
+void do_cockpit_window_view(grs_canvas &canvas, const gauge_inset_window_view win, const render_view &view, const int rear_view_flag, const weapon_box_user user, const char *const label, const player_info *const player_info)
+{
 	grs_subcanvas window_canv;
-	const auto viewer_save{Viewer};
 	static int window_x,window_y;
 	int rear_view_save = Rear_view;
 
 	window_rendered_data window;
 
+	const auto render_window = [&view, &window_canv, &window](const fix eye_offset) {
+		if (const auto source = view.source_object())
+			render_frame(window_canv, *source, eye_offset, window);
+		else
+			render_frame(window_canv, view, eye_offset, window);
+	};
+
 	inset_window[win].user = user;						//say who's using window
 
-	Viewer = &viewer;
 	Rear_view = rear_view_flag;
 
 	const local_multires_gauge_graphic multires_gauge_graphic{};
@@ -4172,18 +4189,18 @@ void do_cockpit_window_view(grs_canvas &canvas, const gauge_inset_window_view wi
 
 #if DXX_USE_STEREOSCOPIC_RENDER
 	if (VR_stereo != StereoFormat::None) {
-		render_frame(window_canv, -VR_eye_width, window);
-		render_frame(window_canv,  VR_eye_width, window);
+		render_window(-VR_eye_width);
+		render_window(VR_eye_width);
 		goto abort;
 	}
 	else
 #endif
-		render_frame(window_canv, 0, window);
+		render_window(0);
 
 	//	HACK! If guided missile, wake up robots as necessary.
-	if (viewer.type == object_type::OBJ_WEAPON) {
+	if (const auto viewer = view.source_object(); viewer && view.type == object_type::OBJ_WEAPON) {
 		// -- Used to require to be GUIDED -- if (viewer->id == GUIDEDMISS_ID)
-		wake_up_rendered_objects(viewer, window);
+		wake_up_rendered_objects(*viewer, window);
 	}
 
 	if (label) {
@@ -4195,7 +4212,7 @@ void do_cockpit_window_view(grs_canvas &canvas, const gauge_inset_window_view wi
 	}
 
 	if (player_info)	// only non-nullptr for weapon_box_user::guided
-		show_reticle(window_canv, *player_info, reticle_type::cross_v1, 0);
+		show_reticle_from_view(window_canv, *player_info, reticle_type::cross_v1, 0, view.type);
 
 	if (PlayerCfg.CockpitMode[1] == cockpit_mode_t::full_screen)
 	{
@@ -4241,8 +4258,6 @@ void do_cockpit_window_view(grs_canvas &canvas, const gauge_inset_window_view wi
 	inset_window[win].old_weapon = {};
 
 abort:;
-
-	Viewer = viewer_save;
 
 	Rear_view = rear_view_save;
 	/* grd_curcanv may point to `window_canv`; if so, grd_curcanv

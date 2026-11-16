@@ -632,13 +632,20 @@ static std::array<g3s_lrgb, MAX_OBJECTS> object_light;
 static std::array<object_signature_t, MAX_OBJECTS> object_sig;
 static int reset_lighting_hack;
 }
-const object *old_viewer;
+namespace {
+render_view_identity old_viewer;
+}
 #define LIGHT_RATE i2f(4) //how fast the light ramps up
 
-void start_lighting_frame(const object &viewer)
+void reset_lighting_cache()
 {
-	reset_lighting_hack = (&viewer != old_viewer);
-	old_viewer = &viewer;
+	old_viewer = {};
+}
+
+void start_lighting_frame(const render_view_identity &viewer)
+{
+	reset_lighting_hack = (viewer != old_viewer);
+	old_viewer = viewer;
 }
 
 namespace dsx {

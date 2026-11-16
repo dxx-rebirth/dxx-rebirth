@@ -213,7 +213,7 @@ shortpos create_shortpos_native(const d_level_shared_segment_state &, const obje
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {
 // Draw a blob-type object, like a fireball
-void draw_object_blob(GameBitmaps_array &GameBitmaps, const object_base &Viewer, grs_canvas &, const object_base &obj, bitmap_index bitmap);
+void draw_object_blob(GameBitmaps_array &GameBitmaps, const vms_vector &viewer_pos, grs_canvas &, const object_base &obj, bitmap_index bitmap);
 
 // do whatever setup needs to be done
 void init_objects();

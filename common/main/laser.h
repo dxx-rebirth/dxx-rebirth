@@ -86,7 +86,7 @@ namespace dsx {
 #ifdef NEWHOMER
 void calc_d_homer_tick();
 #endif
-void Laser_render(grs_canvas &, const object_base &obj);
+void Laser_render(grs_canvas &, const vms_vector &viewer_pos, const object_base &obj);
 imobjptridx_t Laser_player_fire(const d_robot_info_array &Robot_info, vmobjptridx_t obj, weapon_id_type laser_type, player_gun_number gun_num, weapon_sound_flag make_sound, const vms_vector &shot_orientation, icobjidx_t Network_laser_track);
 void Laser_do_weapon_sequence(const d_robot_info_array &Robot_info, vmobjptridx_t obj);
 void Flare_create(vmobjptridx_t obj);

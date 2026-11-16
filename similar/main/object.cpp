@@ -275,7 +275,7 @@ contained_object_parameters build_contained_object_parameters_from_untrusted(con
 namespace dsx {
 
 //draw an object that has one bitmap & doesn't rotate
-void draw_object_blob(GameBitmaps_array &GameBitmaps, const object_base &Viewer, grs_canvas &canvas, const object_base &obj, const bitmap_index bmi)
+void draw_object_blob(GameBitmaps_array &GameBitmaps, const vms_vector &viewer_pos, grs_canvas &canvas, const object_base &obj, const bitmap_index bmi)
 {
 	auto &bm = GameBitmaps[bmi];
 	PIGGY_PAGE_IN( bmi );
@@ -286,7 +286,7 @@ void draw_object_blob(GameBitmaps_array &GameBitmaps, const object_base &Viewer,
 	if (obj.type == object_type::OBJ_FIREBALL && get_fireball_id(obj) == vclip_index::volatile_wall_hit)
 	{
 		vms_vector offs_vec;
-		vm_vec_normalized_dir_quick(offs_vec, Viewer.pos, pos);
+		vm_vec_normalized_dir_quick(offs_vec, viewer_pos, pos);
 		vm_vec_scale_add2(pos,offs_vec,F1_0);
 	}
 
@@ -436,7 +436,7 @@ static void draw_cloaked_object(grs_canvas &canvas, const object_base &obj, cons
 }
 
 //draw an object which renders as a polygon model
-static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const vcobjptridx_t obj)
+static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const vms_vector &viewer_pos, const vcobjptridx_t obj)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
@@ -593,7 +593,7 @@ static void draw_polygon_object(grs_canvas &canvas, const d_level_unique_light_s
 			if (is_weapon_with_inner_model != polygon_model_index::None)
 			{
 				gr_settransblend(canvas, GR_FADE_OFF, gr_blend::additive_a);
-				draw_simple_model = vm_vec_dist_quick(Viewer->pos, obj->pos) < Simple_model_threshhold_scale * F1_0 * 2;
+				draw_simple_model = vm_vec_dist_quick(viewer_pos, obj->pos) < Simple_model_threshhold_scale * F1_0 * 2;
 				if (draw_simple_model)
 					draw_polygon_model(Polygon_models, canvas, draw_tmap, obj->pos,
 							   obj->orient,
@@ -800,9 +800,14 @@ void create_small_fireball_on_object(const vmobjptridx_t objp, fix size_scale, i
 
 // -----------------------------------------------------------------------------
 //	Render an object.  Calls one of several routines based on type
-void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const vmobjptridx_t obj)
+void render_object(grs_canvas &canvas, const d_level_unique_light_state &light, const vmobjptridx_t obj)
 {
-	if (unlikely(obj == Viewer))
+	render_object(canvas, light, render_view{*Viewer}, obj);
+}
+
+void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const render_view &view, const vmobjptridx_t obj)
+{
+	if (unlikely(obj == view.source_object()))
 		return;
 	if (unlikely(obj->type==object_type::OBJ_NONE))
 	{
@@ -828,7 +833,7 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 				gr_settransblend(canvas, gr_fade_level{10}, gr_blend::additive_a);
 			}
 #endif
-			draw_polygon_object(canvas, LevelUniqueLightState, obj);
+			draw_polygon_object(canvas, LevelUniqueLightState, view.pos, obj);
 
 			if (obj->type == object_type::OBJ_ROBOT) //"warn" robot if being shot at
 				set_robot_location_info(obj);
@@ -845,7 +850,7 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 				gr_settransblend(canvas, GR_FADE_OFF, gr_blend::additive_c);
 			}
 
-			draw_fireball(Vclip, canvas, obj);
+			draw_fireball(Vclip, canvas, view.pos, obj);
 			break;
 
 		case render_type::RT_WEAPON_VCLIP:
@@ -856,7 +861,7 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 				gr_settransblend(canvas, gr_fade_level{7}, gr_blend::additive_a);
 			}
 
-			draw_weapon_vclip(Vclip, Weapon_info, canvas, obj);
+			draw_weapon_vclip(Vclip, Weapon_info, canvas, view.pos, obj);
 			break;
 
 		case render_type::RT_HOSTAGE:
@@ -936,7 +941,7 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 #endif
 				}
 
-			draw_powerup(Vclip, canvas, obj);
+			draw_powerup(Vclip, canvas, view.pos, obj);
 			break;
 
 		case render_type::RT_LASER:
@@ -946,7 +951,7 @@ void render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUn
 				gr_settransblend(canvas, gr_fade_level{7}, gr_blend::additive_a);
 			}
 
-			Laser_render(canvas, obj);
+			Laser_render(canvas, view.pos, obj);
 			break;
 
 		default:
@@ -1296,7 +1301,7 @@ imobjptridx_t obj_create(d_level_unique_object_state &LevelUniqueObjectState, co
 	 * test reports a problem.
 	 */
 	DXX_CHECK_VAR_IS_DEFINED(obj->signature);
-	*obj = {};
+	obj->reset();
 	// Tell Valgrind to warn on any uninitialized fields.
 	DXX_POISON_VAR(*obj, 0xfd);
 

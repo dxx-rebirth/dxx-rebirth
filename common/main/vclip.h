@@ -71,8 +71,8 @@ struct vclip : public prohibit_void_ptr<vclip>
 
 namespace dsx {
 // draw an object which renders as a vclip.
-void draw_vclip_object(grs_canvas &, vcobjptridx_t obj, fix timeleft, const vclip &);
-void draw_weapon_vclip(const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, grs_canvas &, vcobjptridx_t obj);
+void draw_vclip_object(grs_canvas &, const vms_vector &viewer_pos, vcobjptridx_t obj, fix timeleft, const vclip &);
+void draw_weapon_vclip(const d_vclip_array &Vclip, const weapon_info_array &Weapon_info, grs_canvas &, const vms_vector &viewer_pos, vcobjptridx_t obj);
 }
 
 namespace dcx {

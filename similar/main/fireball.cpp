@@ -665,11 +665,11 @@ static void object_create_debris(fvmsegptridx &vmsegptridx, const object_base &p
 
 }
 
-void draw_fireball(const d_vclip_array &Vclip, grs_canvas &canvas, const vcobjptridx_t obj)
+void draw_fireball(const d_vclip_array &Vclip, grs_canvas &canvas, const vms_vector &viewer_pos, const vcobjptridx_t obj)
 {
 	const auto lifeleft{obj->lifeleft};
 	if (lifeleft > 0)
-		draw_vclip_object(canvas, obj, lifeleft, Vclip[get_fireball_id(obj)]);
+		draw_vclip_object(canvas, viewer_pos, obj, lifeleft, Vclip[get_fireball_id(obj)]);
 }
 
 namespace {
