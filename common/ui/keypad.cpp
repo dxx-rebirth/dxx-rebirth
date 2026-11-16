@@ -45,7 +45,7 @@ namespace {
 
 static std::array<std::unique_ptr<UI_GADGET_BUTTON>, 17> Pad;
 static std::array<std::unique_ptr<UI_KEYPAD>, MAX_NUM_PADS> KeyPad;
-static int active_pad;
+static std::size_t active_pad;
 
 static int desc_x, desc_y;
 
@@ -53,7 +53,7 @@ static std::array<int, 17> HotKey, HotKey1;
 
 }
 
-int ui_pad_get_current()
+std::size_t ui_pad_get_current()
 {
 	return active_pad;
 }
@@ -266,20 +266,20 @@ void ui_pad_draw(UI_DIALOG *dlg, int x, int y)
 
 namespace {
 
-static void ui_pad_set_active( int n )
+static void ui_pad_set_active(const std::size_t n)
 {
 	int np;
 	const char * name;
 	
 
-	range_for (const int i, xrange(17u))
+	for (const auto i : xrange(Pad.size()))
 	{
 		Pad[i]->text = KeyPad[n]->buttontext[i].data();
 		Pad[i]->user_function = NULL;
 		Pad[i]->dim_if_no_function = 1;
 		Pad[i]->hotkey = -1;
 				
-		for (unsigned j = 0; j < KeyPad[n]->numkeys; ++j)
+		for (std::size_t j = 0; j < KeyPad[n]->numkeys; ++j)
 		{
 			if (std::cmp_equal(HotKey[i], KeyPad[n]->keycode[j]))
 			{
@@ -299,49 +299,39 @@ static void ui_pad_set_active( int n )
 
 }
 
-void ui_pad_goto(int n)
+void ui_pad_goto(const std::size_t n)
 {
-	if ( KeyPad[n] != NULL )
+	if (n < KeyPad.size() && KeyPad[n])
 		ui_pad_set_active(n);
 }
 
 void ui_pad_goto_next()
 {
-	int i, si;
-
-	i = active_pad + 1;
-	si = i;
-	
-	while( KeyPad[i]==NULL )
+	auto i = active_pad;
+	do
 	{
-		i++;
-		if (i >= MAX_NUM_PADS)
+		if (++i == KeyPad.size())
 			i = 0;
-		if (i == si )
-			break;
-	}
-	ui_pad_set_active(i);
+		if (KeyPad[i])
+		{
+			ui_pad_set_active(i);
+			return;
+		}
+	} while (i != active_pad);
 }
 
 void ui_pad_goto_prev()
 {
-	int i;
-
-	if (active_pad == -1 ) 
-		active_pad = MAX_NUM_PADS;
-	
-	i = active_pad - 1;
-	if (i<0) i= MAX_NUM_PADS - 1;
-	
-	while( KeyPad[i]==NULL )
+	auto i = active_pad;
+	do
 	{
-		i--;
-		if (i < 0)
-			i = MAX_NUM_PADS-1;
-		if (i == active_pad )
-			break;
-	}
-	ui_pad_set_active(i);
+		i = i ? i - 1 : KeyPad.size() - 1;
+		if (KeyPad[i])
+		{
+			ui_pad_set_active(i);
+			return;
+		}
+	} while (i != active_pad);
 }
 
 UI_KEYPAD::UI_KEYPAD() :
@@ -352,10 +342,12 @@ UI_KEYPAD::UI_KEYPAD() :
 		i[0] = 0;
 }
 
-int ui_pad_read( int n, const char * filename )
+int ui_pad_read(const std::size_t n, const char *filename)
 {
 	int linenumber{0};
-	int keycode, functionnumber;
+	int keycode;
+	if (n >= KeyPad.size())
+		return 0;
 
 	auto &&[infile, physfserr] = PHYSFSX_openReadBuffered(filename);
 	if (!infile) {
@@ -445,8 +437,8 @@ int ui_pad_read( int n, const char * filename )
 		PHYSFSX_gets_line_t<100> text;
 		sscanf(line_buffer, " %99s %99s ", text.next().data(), buffer.next().data());
 		keycode = DecodeKeyText(text);
-		functionnumber = func_get_index(buffer);
-		if (functionnumber==-1)
+		const auto functionnumber = func_get_index(buffer);
+		if (!functionnumber)
 		{
 			UserError( "Unknown function, %s, in %s\n", static_cast<const char *>(buffer), filename );
 		} else if (keycode==-1)
@@ -455,8 +447,10 @@ int ui_pad_read( int n, const char * filename )
 			//ui_messagebox( -2, -2, 1, buffer, "Ok" );
 
 		} else {
+			if (kpn.numkeys == kpn.keycode.size())
+				UserError("Too many key bindings in %s", filename);
 			kpn.keycode[kpn.numkeys] = keycode;
-			kpn.function_number[kpn.numkeys] = functionnumber;
+			kpn.function_number[kpn.numkeys] = *functionnumber;
 			kpn.numkeys++;
 		}
 	}
