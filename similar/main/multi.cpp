@@ -6222,7 +6222,7 @@ void multi_object_to_object_rw(const object &obj, object_rw *obj_rw)
 // turn object_rw to object after receiving
 void multi_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 {
-	obj = {};
+	obj.reset();
 	DXX_POISON_VAR(obj, 0xfd);
 	obj.type = build_valid_object_type_from_untrusted({obj_rw->type});
 	if (obj.type == object_type::OBJ_NONE)

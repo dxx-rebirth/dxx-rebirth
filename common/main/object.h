@@ -475,6 +475,12 @@ struct laser_info : public ::dcx::laser_info
 
 struct object : public ::dcx::object_base
 {
+private:
+	object() = default;
+	object(const object &) = default;
+	friend std::array<object, MAX_OBJECTS>;
+public:
+	object &operator=(const object &) = default;
 	/* Reset an existing managed slot without constructing a temporary object. */
 	void reset()
 	{
@@ -497,6 +503,11 @@ struct object : public ::dcx::object_base
 		struct player_info     player_info;
 	} ctype;
 };
+
+static_assert(!std::is_default_constructible_v<object>);
+static_assert(!std::is_copy_constructible_v<object>);
+static_assert(!std::is_move_constructible_v<object>);
+static_assert(std::is_copy_assignable_v<object>);
 
 // Same as above but structure Savegames/Multiplayer objects expect
 struct object_rw
