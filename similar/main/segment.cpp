@@ -104,12 +104,12 @@ namespace little_endian {
 void delta_light_read(delta_light *dl, const NamedPHYSFS_File fp)
 {
 	dl->segnum = read_untrusted_segnum_le16(fp);
-	dl->sidenum = build_sidenum_from_untrusted(PHYSFSX_readByte(fp)).value_or(sidenum_t::WLEFT);
+	dl->sidenum = build_sidenum_from_untrusted(PHYSFSX_readU8(fp)).value_or(sidenum_t::WLEFT);
 	PHYSFSX_skipBytes<1>(fp);
-	dl->vert_light[side_relative_vertnum::_0] = PHYSFSX_readByte(fp);
-	dl->vert_light[side_relative_vertnum::_1] = PHYSFSX_readByte(fp);
-	dl->vert_light[side_relative_vertnum::_2] = PHYSFSX_readByte(fp);
-	dl->vert_light[side_relative_vertnum::_3] = PHYSFSX_readByte(fp);
+	dl->vert_light[side_relative_vertnum::_0] = PHYSFSX_readU8(fp);
+	dl->vert_light[side_relative_vertnum::_1] = PHYSFSX_readU8(fp);
+	dl->vert_light[side_relative_vertnum::_2] = PHYSFSX_readU8(fp);
+	dl->vert_light[side_relative_vertnum::_3] = PHYSFSX_readU8(fp);
 }
 
 /*
@@ -118,8 +118,8 @@ void delta_light_read(delta_light *dl, const NamedPHYSFS_File fp)
 void dl_index_read(dl_index *di, const NamedPHYSFS_File fp)
 {
 	di->segnum = read_untrusted_segnum_le16(fp);
-	di->sidenum = build_sidenum_from_untrusted(PHYSFSX_readByte(fp)).value_or(sidenum_t::WLEFT);
-	const auto count = PHYSFSX_readByte(fp);
+	di->sidenum = build_sidenum_from_untrusted(PHYSFSX_readU8(fp)).value_or(sidenum_t::WLEFT);
+	const auto count = PHYSFSX_readU8(fp);
 	if (const auto i{build_delta_light_index_from_untrusted(PHYSFSX_readSLE16(fp))}; i)
 	{
 		di->count = count;

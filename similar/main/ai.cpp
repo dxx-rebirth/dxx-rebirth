@@ -4950,12 +4950,12 @@ static void ai_local_read_swap(ai_local *ail, const physfsx_endian swap, const N
 		fix tmptime32{0};
 
 #if DXX_BUILD_DESCENT == 1
-		ail->player_awareness_type = static_cast<player_awareness_type_t>(PHYSFSX_readByte(fp));
-		ail->retry_count = PHYSFSX_readByte(fp);
-		ail->consecutive_retries = PHYSFSX_readByte(fp);
-		ail->mode = static_cast<ai_mode>(PHYSFSX_readByte(fp));
+		ail->player_awareness_type = static_cast<player_awareness_type_t>(PHYSFSX_readU8(fp));
+		ail->retry_count = PHYSFSX_readU8(fp);
+		ail->consecutive_retries = PHYSFSX_readU8(fp);
+		ail->mode = static_cast<ai_mode>(PHYSFSX_readU8(fp));
 		ail->previous_visibility = static_cast<player_visibility_state>(PHYSFSX_readByte(fp));
-		ail->rapidfire_count = PHYSFSX_readByte(fp);
+		ail->rapidfire_count = PHYSFSX_readU8(fp);
 		ail->goal_segment = read_untrusted_segnum_xe16(fp, swap);
 		PHYSFSX_skipBytes<8>(fp);
 		ail->next_action_time = {PHYSFSX_readSXE32(fp, swap)};
@@ -4986,9 +4986,9 @@ static void ai_local_read_swap(ai_local *ail, const physfsx_endian swap, const N
 		range_for (auto &j, ail->delta_angles)
 			PHYSFSX_readAngleVecX(fp, j, swap);
 		range_for (auto &j, ail->goal_state)
-			j = build_ai_state_from_untrusted(PHYSFSX_readByte(fp)).value_or(ai_static_state::AIS_NONE);
+			j = build_ai_state_from_untrusted(PHYSFSX_readU8(fp)).value_or(ai_static_state::AIS_NONE);
 		range_for (auto &j, ail->achieved_state)
-			j = build_ai_state_from_untrusted(PHYSFSX_readByte(fp)).value_or(ai_static_state::AIS_NONE);
+			j = build_ai_state_from_untrusted(PHYSFSX_readU8(fp)).value_or(ai_static_state::AIS_NONE);
 	}
 }
 

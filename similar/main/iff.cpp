@@ -287,17 +287,17 @@ static iff_status_code parse_delta(const NamedPHYSFS_File ifile, long len, iff_b
 		int cnt = bmheader->w;
 		ubyte code;
 
-		n_items = PHYSFSX_readByte(ifile);
+		n_items = PHYSFSX_readU8(ifile);
 
 		while (n_items--) {
 
-			code = PHYSFSX_readByte(ifile);
+			code = PHYSFSX_readU8(ifile);
 
 			if (code==0) {				//repeat
 				ubyte rep,val;
 
-				rep = PHYSFSX_readByte(ifile);
-				val = PHYSFSX_readByte(ifile);
+				rep = PHYSFSX_readU8(ifile);
+				val = PHYSFSX_readU8(ifile);
 
 				cnt -= rep;
 				if (cnt==-1)
@@ -317,7 +317,7 @@ static iff_status_code parse_delta(const NamedPHYSFS_File ifile, long len, iff_b
 					code--;
 
 				while (code--)
-					*p++ = PHYSFSX_readByte(ifile);
+					*p++ = PHYSFSX_readU8(ifile);
 
 				if (cnt==-1)
 					PHYSFSX_skipBytes<1>(ifile);
