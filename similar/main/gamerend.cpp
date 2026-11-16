@@ -627,7 +627,7 @@ static void show_extra_views(grs_canvas &canvas)
 			if (DemoDoLeft==3)
 				do_cockpit_window_view(canvas, gauge_inset_window_view::primary, *ConsoleObject, 1, weapon_box_user::rear, "REAR");
 			else
-				do_cockpit_window_view(canvas, gauge_inset_window_view::primary, DemoLeftExtra, DemoRearCheck[DemoDoLeft], DemoWBUType[DemoDoLeft], DemoExtraMessage[DemoDoLeft], DemoDoLeft == 1 ? &get_local_plrobj().ctype.player_info : nullptr);
+				do_cockpit_window_view(canvas, gauge_inset_window_view::primary, newdemo_get_extra_viewer(gauge_inset_window_view::primary), DemoRearCheck[DemoDoLeft], DemoWBUType[DemoDoLeft], DemoExtraMessage[DemoDoLeft], DemoDoLeft == 1 ? &get_local_plrobj().ctype.player_info : nullptr);
 		}
 		else
 			do_cockpit_window_view(gauge_inset_window_view::primary, weapon_box_user::weapon);
@@ -639,7 +639,7 @@ static void show_extra_views(grs_canvas &canvas)
 			if (DemoDoRight==3)
 				do_cockpit_window_view(canvas, gauge_inset_window_view::secondary, *ConsoleObject, 1, weapon_box_user::rear, "REAR");
 			else
-				do_cockpit_window_view(canvas, gauge_inset_window_view::secondary, DemoRightExtra, DemoRearCheck[DemoDoRight], DemoWBUType[DemoDoRight], DemoExtraMessage[DemoDoRight], DemoDoLeft == 1 ? &get_local_plrobj().ctype.player_info : nullptr);
+				do_cockpit_window_view(canvas, gauge_inset_window_view::secondary, newdemo_get_extra_viewer(gauge_inset_window_view::secondary), DemoRearCheck[DemoDoRight], DemoWBUType[DemoDoRight], DemoExtraMessage[DemoDoRight], DemoDoLeft == 1 ? &get_local_plrobj().ctype.player_info : nullptr);
 		}
 		else
 			do_cockpit_window_view(gauge_inset_window_view::secondary, weapon_box_user::weapon);
