@@ -475,6 +475,12 @@ struct laser_info : public ::dcx::laser_info
 
 struct object : public ::dcx::object_base
 {
+	/* Reset an existing managed slot without constructing a temporary object. */
+	void reset()
+	{
+		static_cast<::dcx::object_base &>(*this) = {};
+		ctype = {};
+	}
 	// control info, determined by CONTROL_TYPE
 	union control_info {
 		constexpr control_info() :
