@@ -537,6 +537,12 @@ static void udp_tracker_process_ack(const uint8_t *data, int data_len, const _so
 static void udp_tracker_verify_ack_timeout();
 static void udp_tracker_request_holepunch(tracker_game_id TrackerGameID);
 static void udp_tracker_process_holepunch(uint8_t *data, unsigned data_len, const _sockaddr &sender_addr);
+
+static bool udp_tracker_enabled()
+{
+	// Preserve the saved preference when the command line disables tracking.
+	return Netgame.Tracker && !CGameArg.MplTrackerAddr.empty();
+}
 #endif
 }
 
@@ -4570,13 +4576,6 @@ menu_subtitle{"Rebirth now supports automatic\n"
 		net_udp_close();
 
 	write_netgame_profile(&Netgame);
-#if DXX_USE_TRACKER
-	/* Force off _after_ writing profile, so that command line does not
-	 * change ngp file.
-	 */
-	if (CGameArg.MplTrackerAddr.empty())
-		Netgame.Tracker = 0;
-#endif
 
 	return (i >= 0) ? window_event_result::close : window_event_result::handled;
 }
@@ -4826,7 +4825,7 @@ static int net_udp_select_players()
 	snprintf(subtitle, sizeof(subtitle), "%s %d %s", TXT_TEAM_SELECT, Netgame.max_numplayers, TXT_TEAM_PRESS_ENTER);
 
 #if DXX_USE_TRACKER
-	if( Netgame.Tracker )
+	if (udp_tracker_enabled())
 	{
 		TrackerAckStatus = TrackerAckState::TACK_NOCONNECTION;
 		TrackerAckTime = timer_query();
@@ -4859,7 +4858,7 @@ abort:
 
 		Network_status = network_state::menu;
 #if DXX_USE_TRACKER
-		if( Netgame.Tracker )
+		if (udp_tracker_enabled())
 			udp_tracker_unregister();
 #endif
 		return(0);
@@ -5258,7 +5257,7 @@ void dispatch_table::leave_game() const
 		net_udp_broadcast_game_info(upid::game_info_lite);
 		N_players=nsave;
 #if DXX_USE_TRACKER
-		if( Netgame.Tracker )
+		if (udp_tracker_enabled())
 			udp_tracker_unregister();
 #endif
 	}
@@ -5459,7 +5458,7 @@ void dispatch_table::do_protocol_frame(int force, int listen) const
 		last_bcast_time = time;
 		net_udp_broadcast_game_info(upid::game_info_lite);
 #if DXX_USE_TRACKER
-		if ( Netgame.Tracker )
+		if (udp_tracker_enabled())
 			udp_tracker_register();
 #endif
 	}
@@ -6623,7 +6622,7 @@ static int udp_tracker_process_game(const std::span<const uint8_t> buf, const _s
 /* Process ACK's from tracker. We will get up to 5, each internal and external */
 static void udp_tracker_process_ack(const uint8_t *const data, int data_len, const _sockaddr &sender_addr)
 {
-	if(!Netgame.Tracker)
+	if (!udp_tracker_enabled())
 		return;
 	if (data_len != 2)
 		return;
@@ -6651,7 +6650,7 @@ static void udp_tracker_process_ack(const uint8_t *const data, int data_len, con
 /* 10 seconds passed since we registered our game. If we have not received all ACK's, yet, tell user about that! */
 static void udp_tracker_verify_ack_timeout()
 {
-	if (!Netgame.Tracker || !multi_i_am_master() || TrackerAckTime + F1_0*10 > timer_query() || TrackerAckStatus == TrackerAckState::TACK_SEQCOMPL)
+	if (!udp_tracker_enabled() || !multi_i_am_master() || TrackerAckTime + F1_0*10 > timer_query() || TrackerAckStatus == TrackerAckState::TACK_SEQCOMPL)
 		return;
 	if (TrackerAckStatus == TrackerAckState::TACK_NOCONNECTION)
 	{
@@ -6692,7 +6691,7 @@ static void udp_tracker_process_holepunch(uint8_t *const data, const unsigned da
 		con_puts(CON_VERBOSE, "[Tracker] Received hole-punch pong from a host.");
 		return;
 	}
-	if (!Netgame.Tracker || !sender_is_tracker(sender_addr, TrackerSocket) || !multi_i_am_master())
+	if (!udp_tracker_enabled() || !sender_is_tracker(sender_addr, TrackerSocket) || !multi_i_am_master())
 		return;
 	if (Netgame.TrackerNATWarned != TrackerNATHolePunchWarn::UserEnabledHP)
 	{
