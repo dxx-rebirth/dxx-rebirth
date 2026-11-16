@@ -1725,7 +1725,7 @@ namespace {
 static void net_udp_send_sequence_packet(const UDP_sequence_request_packet &seq, const _sockaddr &recv_addr)
 {
 	std::array<uint8_t, upid_length<upid::request>> buf;
-	int len{0};
+	std::size_t len{0};
 	buf[0] = underlying_value(seq.type);						len++;
 	memcpy(&buf[len], seq.callsign.operator const char *(), CALLSIGN_LEN+1);		len += CALLSIGN_LEN+1;
 	buf[len] = seq.Current_level_num;				len++;
@@ -1736,7 +1736,7 @@ static void net_udp_send_sequence_packet(const UDP_sequence_request_packet &seq,
 static void net_udp_send_sequence_packet(const UDP_sequence_addplayer_packet &seq, const _sockaddr &recv_addr)
 {
 	std::array<uint8_t, upid_length<upid::addplayer>> buf;
-	int len{0};
+	std::size_t len{0};
 	buf[0] = underlying_value(seq.type);						len++;
 	memcpy(&buf[len], seq.callsign.operator const char *(), CALLSIGN_LEN+1);		len += CALLSIGN_LEN+1;
 	buf[len] = seq.player_num;				len++;
@@ -2326,7 +2326,8 @@ void net_udp_send_objects(const Network_player_added network_player_added)
 	auto &vmobjptr = Objects.vmptr;
 	uint8_t player_num = UDP_sync_player.player_num;
 	static int obj_count = 0;
-	unsigned loc{0}, obj_count_frame = 0;
+	std::size_t loc{0};
+	unsigned obj_count_frame = 0;
 	static fix64 last_send_time = 0;
 	
 	if (last_send_time + (F1_0/50) > timer_query())
@@ -2481,7 +2482,7 @@ static void net_udp_read_object_packet(const d_level_shared_robot_info_state &Le
 	// Object from another net player we need to sync with
 	sbyte obj_owner;
 	static int mode = 0, object_count = 0, my_pnum = 0;
-	unsigned loc{5};
+	std::size_t loc{5};
 	const int nobj{GET_INTEL_INT<int32_t>(&data[1])};
 
 	for (int i = 0; i < nobj; i++)
@@ -2804,7 +2805,7 @@ void dispatch_table::send_endlevel_packet() const
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptr = Objects.vcptr;
 	auto &vmobjptr = Objects.vmptr;
-	int len{0};
+	std::size_t len{0};
 
 	if (multi_i_am_master())
 	{
@@ -3560,7 +3561,7 @@ void net_udp_read_endlevel_packet(const uint8_t *data, const _sockaddr &sender_a
 	auto &LevelUniqueControlCenterState = LevelUniqueObjectState.ControlCenterState;
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
-	int len{0};
+	std::size_t len{0};
 	ubyte tmpvar{0};
 	
 	if (multi_i_am_master())
@@ -5556,7 +5557,7 @@ static void net_udp_noloss_add_queue_pkt(fix64 time, const std::span<const uint8
 static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, const _sockaddr &sender_addr)
 {
 	ubyte pkt_sender_pnum = sender_pnum;
-	int len{0};
+	std::size_t len{0};
 
 	// If we are a client, we get all our packets from the host.
 	if (!multi_i_am_master())
@@ -5605,7 +5606,7 @@ static int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, co
 /* We got an ACK by a player. Set this player slot to positive! */
 void net_udp_noloss_got_ack(const std::span<const uint8_t> data)
 {
-	int len{0};
+	std::size_t len{0};
 	ubyte sender_pnum{0}, dest_pnum = 0;
 
 															len++;
@@ -5650,7 +5651,7 @@ void net_udp_noloss_clear_mdata_trace(ubyte player_num)
  */
 void net_udp_noloss_process_queue(fix64 time)
 {
-	int total_len{0};
+	std::size_t total_len{0};
 
 	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
@@ -5682,7 +5683,7 @@ void net_udp_noloss_process_queue(fix64 time)
 					UDP_mdata_queue[queuec].pkt_timestamp[plc] = time;
 					std::array<uint8_t, sizeof(UDP_mdata_info)> buf{};
 
-					unsigned len{0};
+					std::size_t len{0};
 					// Prepare the packet and send it
 					buf[len] = underlying_value(upid::mdata_pneedack);													len++;
 					buf[len] = UDP_mdata_queue[queuec].Player_num;								len++;
@@ -5767,7 +5768,7 @@ void dispatch_table::send_data_direct(const std::span<const uint8_t> data, const
 		needack = 0;
 
 	std::array<uint8_t, sizeof(UDP_mdata_info)> buf{};
-	unsigned len{0};
+	std::size_t len{0};
 	buf[0] = needack
 		? underlying_value(upid::mdata_pneedack)
 		: underlying_value(upid::mdata_pnorm);
@@ -5813,7 +5814,7 @@ void net_udp_send_mdata(int needack, fix64 time)
 
 	std::array<uint8_t, sizeof(UDP_mdata_info)> buf{};
 
-	unsigned len{0};
+	std::size_t len{0};
 	buf[0] = needack
 		? underlying_value(upid::mdata_pneedack)
 		: underlying_value(upid::mdata_pnorm);
@@ -5925,7 +5926,7 @@ void net_udp_send_pdata()
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	std::array<uint8_t, 3 + quaternionpos::packed_size::value> buf;
-	int len{0};
+	std::size_t len{0};
 
 	if (!(Game_mode&GM_NETWORK) || !UDP_Socket[0])
 		return;
@@ -5968,7 +5969,7 @@ void net_udp_send_pdata()
 void net_udp_process_pdata(const std::span<const uint8_t> data, const _sockaddr &sender_addr)
 {
 	UDP_frame_info pd;
-	int len{0};
+	std::size_t len{0};
 
 	if (!(+(Game_mode & GM_NETWORK) && (Network_status == network_state::playing || Network_status == network_state::endlevel)))
 		return;
@@ -6136,7 +6137,7 @@ void net_udp_ping_frame(fix64 time)
 	if ((PingTime + F1_0) < time)
 	{
 		std::array<uint8_t, upid_length<upid::ping>> buf{};
-		int len{0};
+		std::size_t len{0};
 		
 		buf[0] = underlying_value(upid::ping);							len++;
 		memcpy(&buf[len], &time, 8);						len += 8;
@@ -6159,7 +6160,7 @@ void net_udp_ping_frame(fix64 time)
 void net_udp_process_ping(const upid_rspan<upid::ping> data, const _sockaddr &sender_addr)
 {
 	std::array<uint8_t, upid_length<upid::pong>> buf;
-	int len{0};
+	std::size_t len{0};
 
 	if (Netgame.players[0].protocol.udp.addr != sender_addr)
 		return;
