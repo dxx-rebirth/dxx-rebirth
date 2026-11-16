@@ -137,7 +137,7 @@ public:
 	[[noreturn]]
 	dxx_compiler_attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
-	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const void *const array, const unsigned long supplied_index, const void *const expected_pointer, const void *const actual_pointer)
+	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const void *const array, const std::size_t supplied_index, const void *const expected_pointer, const void *const actual_pointer)
 	{
 		/* Load each of the arguments into storage before executing the trap,
 		 * so that inspection of those locations in the core dump can readily
@@ -155,7 +155,7 @@ public:
 	[[noreturn]]
 	dxx_compiler_attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
-	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const void *const array, const unsigned long supplied_index)
+	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const void *const array, const auto supplied_index)
 	{
 		__asm__ __volatile__("" :: DXX_VALPTRIDX_REPORT_STANDARD_ASM_LOAD_COMMA_R_VARS "rm" (array), "rm" (supplied_index));
 		__builtin_trap();
@@ -204,7 +204,11 @@ public:
 	[[noreturn]]
 	dxx_compiler_attribute_cold
 	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
-	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const array_managed_type *, long);
+	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const array_managed_type *, std::size_t);
+	[[noreturn]]
+	dxx_compiler_attribute_cold
+	DXX_VALPTRIDX_WARN_CALL_NOT_OPTIMIZED_OUT
+	static void report(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const array_managed_type *, std::ptrdiff_t);
 };
 
 template <typename P>
@@ -265,6 +269,17 @@ typename valptridx<managed_type>::index_type valptridx<managed_type>::check_inde
 }
 
 template <typename managed_type>
+template <typename handle_index_range_error>
+typename valptridx<managed_type>::index_type valptridx<managed_type>::check_index_range_offset(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const std::ptrdiff_t offset, const array_managed_type *const a)
+{
+	DXX_VALPTRIDX_CHECK(offset >= 0 && std::cmp_less(offset, array_size.value), handle_index_range_error, a, offset);
+	/* The signed pointer difference is narrowed only after proving it
+	 * names an element of the managed array.
+	 */
+	return static_cast<index_type>(offset);
+}
+
+template <typename managed_type>
 template <typename handle_null_pointer>
 void valptridx<managed_type>::check_null_pointer_conversion(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const_pointer_type p)
 {
@@ -282,7 +297,8 @@ template <typename managed_type>
 template <typename handle_index_mismatch, typename handle_index_range_error>
 void valptridx<managed_type>::check_implicit_index_range_ref(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS const managed_type &r, const array_managed_type &a)
 {
-	check_explicit_index_range_ref<handle_index_mismatch, handle_index_range_error>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS r, static_cast<const_pointer_type>(&r) - static_cast<const_pointer_type>(&a.front()), a);
+	const auto i = check_index_range_offset<handle_index_range_error>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS static_cast<const_pointer_type>(&r) - static_cast<const_pointer_type>(&a.front()), &a);
+	check_index_match<handle_index_mismatch>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS r, i, a);
 }
 
 template <typename managed_type>
@@ -485,7 +501,7 @@ protected:
 	{
 	}
 	idx(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_DEFN_VARS typename policy::pointer p, array_managed_type &a) :
-		m_idx{check_index_range_size<index_range_error_type<array_managed_type>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS p - &a.front(), &a)}
+		m_idx{check_index_range_offset<index_range_error_type<array_managed_type>>(DXX_VALPTRIDX_REPORT_STANDARD_LEADER_COMMA_R_PASS_VARS p - &a.front(), &a)}
 	{
 	}
 public:
