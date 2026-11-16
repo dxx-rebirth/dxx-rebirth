@@ -390,7 +390,7 @@ window_event_result net_udp_select_teams_menu::event_handler(const d_event &even
 				 */
 				const auto draw_player_number = [&canv = this->w_canv, &game_font = *GAME_FONT, team_vector = this->team_vector, blue_team_color = this->blue_team_color, red_team_color = this->red_team_color](const newmenu_item &mi) {
 					const unsigned height = mi.h - 8;
-					gr_set_fontcolor(canv, (1 << mi.value) & team_vector ? red_team_color : blue_team_color, -1);
+					gr_set_fontcolor(canv, (1 << mi.value) & team_vector ? red_team_color : blue_team_color, TRANSPARENCY_COLOR);
 					gr_uprintf(canv, game_font, mi.x - 12 - height, mi.y, "%d", 1 + mi.value);
 				};
 				for (auto &mi : partial_range(m, idx_label_blue_team + 1, idx_label_red_team))
@@ -1714,7 +1714,7 @@ void net_udp_list_join_game(grs_canvas &canvas)
 	net_udp_flush(UDP_Socket);
 	net_udp_listen();  // Throw out old info
 
-	gr_set_fontcolor(canvas, BM_XRGB(15, 15, 23),-1);
+	gr_set_fontcolor(canvas, BM_XRGB(15, 15, 23), TRANSPARENCY_COLOR);
 
 	auto menu = window_create<netgame_list_game_menu>(canvas);
 	(void)menu;

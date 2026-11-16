@@ -50,14 +50,14 @@ void ui_draw_inputbox(UI_DIALOG &dlg, UI_GADGET_INPUTBOX &inputbox)
 		{
 			if (inputbox.first_time)
 			{
-				gr_set_fontcolor(canvas, CBLACK, -1);
+				gr_set_fontcolor(canvas, CBLACK, TRANSPARENCY_COLOR);
 				gr_rect(canvas, 2, 2, 2 + w, 2 + h, CRED);
 			}
 			else
-				gr_set_fontcolor(canvas, CRED, -1);
+				gr_set_fontcolor(canvas, CRED, TRANSPARENCY_COLOR);
 		}
 		else
-			gr_set_fontcolor(canvas, CWHITE, -1);
+			gr_set_fontcolor(canvas, CWHITE, TRANSPARENCY_COLOR);
 
 		gr_string(canvas, *canvas.cv_font, 2, 2, inputbox.text.get(), w, h);
 

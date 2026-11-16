@@ -327,7 +327,7 @@ static void con_draw(grs_canvas &canvas)
 	gr_settransblend(canvas, GR_FADE_OFF, gr_blend::normal);
 	i+=con_scroll_offset;
 
-	gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), -1);
+	gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), TRANSPARENCY_COLOR);
 	y = cli_draw(y, line_spacing);
 
 	const auto &&fspacx = FSPACX();
@@ -335,7 +335,7 @@ static void con_draw(grs_canvas &canvas)
 	for (;;)
 	{
 		auto &b = con_buffer[CON_LINES_MAX - 1 - i];
-		gr_set_fontcolor(canvas, get_console_color_by_priority(b.priority), -1);
+		gr_set_fontcolor(canvas, get_console_color_by_priority(b.priority), TRANSPARENCY_COLOR);
 		const auto &&[w, h] = gr_get_string_size(game_font, b.line.data());
 		y -= h + fspacy1;
 		gr_string(canvas, game_font, fspacx1, y, b.line.data(), w, h);
@@ -345,7 +345,7 @@ static void con_draw(grs_canvas &canvas)
 			break;
 	}
 	gr_rect(canvas, 0, 0, SWIDTH, line_spacing, color);
-	gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255),-1);
+	gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), TRANSPARENCY_COLOR);
 	gr_printf(canvas, game_font, fspacx1, fspacy1, "%s LOG", DESCENT_VERSION);
 	gr_string(canvas, game_font, SWIDTH - fspacx(110), fspacy1, "PAGE-UP/DOWN TO SCROLL");
 }

@@ -76,7 +76,7 @@ void ui_draw_icon(UI_GADGET_ICON &icon)
 			ui_draw_box_out(canvas, 0, 0, icon.width, icon.height);
 		}
 	
-		gr_set_fontcolor(canvas, CBLACK, -1);
+		gr_set_fontcolor(canvas, CBLACK, TRANSPARENCY_COLOR);
 		gr_ustring(canvas, *canvas.cv_font, x, y, icon.text.get());
 	}
 }

@@ -86,7 +86,7 @@ void HUD_render_message_frame(grs_canvas &canvas)
 	{
 		if (HUD_color == -1)
 			HUD_color = BM_XRGB(0,28,0);
-		gr_set_fontcolor(canvas, HUD_color, -1);
+		gr_set_fontcolor(canvas, HUD_color, TRANSPARENCY_COLOR);
 		y = FSPACY(1);
 
 		auto &game_font = *GAME_FONT;
@@ -247,7 +247,7 @@ void player_dead_message(grs_canvas &canvas)
 	
 		if (HUD_color == -1)
 			HUD_color = BM_XRGB(0,28,0);
-		gr_set_fontcolor(canvas, HUD_color, -1);
+		gr_set_fontcolor(canvas, HUD_color, TRANSPARENCY_COLOR);
 		auto &game_font = *GAME_FONT;
 		gr_string(canvas, game_font, 0x8000, canvas.cv_bitmap.bm_h - LINE_SPACING(game_font, game_font), PlayerCfg.RespawnMode == RespawnPress::Any ? TXT_PRESS_ANY_KEY : "Press fire key or button to continue...");
 	}

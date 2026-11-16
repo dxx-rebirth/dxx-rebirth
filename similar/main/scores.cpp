@@ -660,7 +660,7 @@ struct scores_menu : scores_menu_items, window
 
 static void scores_draw_item(grs_canvas &canvas, const grs_font &cv_font, const score_items_context &shared_item_context, const unsigned shade, const font_y_scaled_float fspacy_y, const scores_menu_items::row &stats)
 {
-	gr_set_fontcolor(canvas, BM_XRGB(shade, shade, shade), -1);
+	gr_set_fontcolor(canvas, BM_XRGB(shade, shade, shade), TRANSPARENCY_COLOR);
 	if (!stats.name[0u])
 	{
 		gr_string(canvas, cv_font, shared_item_context.name, fspacy_y, TXT_EMPTY);
@@ -738,11 +738,11 @@ window_event_result scores_menu::event_handler(const d_event &event)
 			const auto border_y{BORDERY};
 			gr_string(canvas, medium3_font, 0x8000, border_y, TXT_HIGH_SCORES);
 			auto &game_font = *GAME_FONT;
-			gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), -1);
+			gr_set_fontcolor(canvas, BM_XRGB(28, 28, 28), TRANSPARENCY_COLOR);
 			gr_printf(canvas, game_font, 0x8000, fspacy(16) + border_y, "\"%s\"  - %s", cool_saying.data(), static_cast<const char *>(scores[0].name));
 			const font_x_scaled_float fspacx_line_number{fspacx(34) + border_x};
 			const score_items_context shared_item_context(fspacx, border_x);
-			gr_set_fontcolor(canvas, BM_XRGB(31, 26, 5), -1);
+			gr_set_fontcolor(canvas, BM_XRGB(31, 26, 5), TRANSPARENCY_COLOR);
 			const auto x_header = fspacx(48) + border_x;
 			const auto fspacy_column_labels = fspacy(35) + border_y;
 			gr_string(canvas, game_font, x_header, fspacy_column_labels, TXT_NAME);
