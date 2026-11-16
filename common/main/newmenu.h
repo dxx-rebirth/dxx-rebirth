@@ -607,7 +607,7 @@ static inline void nm_set_item_input(newmenu_item &ni, std::array<char, len> &te
 }
 
 dxx_compiler_attribute_nonnull()
-static inline void nm_set_item_checkbox(newmenu_item &ni, const char *text, unsigned checked)
+static inline void nm_set_item_checkbox(newmenu_item &ni, const char *text, bool checked)
 {
 	ni.type = nm_type::check;
 	ni.text = const_cast<char *>(text);
@@ -622,7 +622,7 @@ static inline void nm_set_item_text(newmenu_item &ni, const char *text)
 }
 
 dxx_compiler_attribute_nonnull()
-static inline void nm_set_item_radio(newmenu_item &ni, const char *text, unsigned checked, unsigned grp)
+static inline void nm_set_item_radio(newmenu_item &ni, const char *text, bool checked, int grp)
 {
 	ni.type = nm_type::radio;
 	ni.text = const_cast<char *>(text);
@@ -632,7 +632,7 @@ static inline void nm_set_item_radio(newmenu_item &ni, const char *text, unsigne
 }
 
 dxx_compiler_attribute_nonnull()
-static inline void nm_set_item_number(newmenu_item &ni, const char *text, unsigned now, unsigned low, unsigned high)
+static inline void nm_set_item_number(newmenu_item &ni, const char *text, int now, int low, int high)
 {
 	ni.type = nm_type::number;
 	ni.text = const_cast<char *>(text);
@@ -643,7 +643,7 @@ static inline void nm_set_item_number(newmenu_item &ni, const char *text, unsign
 }
 
 dxx_compiler_attribute_nonnull()
-static inline void nm_set_item_slider(newmenu_item &ni, const char *text, unsigned now, const int low, const int high, ntstring<NM_MAX_TEXT_LEN> &saved_text)
+static inline void nm_set_item_slider(newmenu_item &ni, const char *text, int now, const int low, const int high, ntstring<NM_MAX_TEXT_LEN> &saved_text)
 {
 	ni.type = nm_type::slider;
 	ni.text = const_cast<char *>(text);
@@ -714,7 +714,7 @@ struct passive_messagebox : std::array<newmenu_item, 1>, newmenu
 #define DXX_MENUITEM_V_ADD_T_INPUT(S,OPT)	\
 	nm_set_item_input(((DXX_NEWMENU_VARIABLE)[(OPT)]),(S));
 #define DXX_MENUITEM_V_READ_T_CHECK(S,OPT,V)	\
-	(V) = (DXX_NEWMENU_VARIABLE)[(OPT)].value;
+	(V) = (DXX_NEWMENU_VARIABLE)[(OPT)].value != 0;
 #define DXX_MENUITEM_V_READ_T_FCHECK(S,OPT,V,F)	\
 	( DXX_BEGIN_COMPOUND_STATEMENT {	\
 		auto &dxx_menuitem_read_fcheck_v = (V);	\
