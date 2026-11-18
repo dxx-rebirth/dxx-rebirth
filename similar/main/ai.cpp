@@ -3165,24 +3165,16 @@ static int openable_door_on_near_path(fvcsegptr &vcsegptr, fvcwallptr &vcwallptr
 		return r;
 	if (path_length < 2)
 		return 0;
-	size_t idx;
-	idx = aip.hide_index + aip.cur_path_index + aip.PATH_DIR;
-	/* Hack: Point_segs[idx].segnum should never be none here, but
-	 * sometimes the guidebot has a none.  Guard against the bogus none
-	 * until someone can track down why the guidebot does this.
-	 */
-	if (idx < Point_segs.size() && Point_segs[idx].segnum != segment_none)
-	{
-		if (const auto r = openable_doors_in_segment(vcwallptr, vcsegptr(Point_segs[idx].segnum)).has_value())
-			return r;
-	}
-	if (path_length < 3)
-		return 0;
-	idx = aip.hide_index + aip.cur_path_index + 2*aip.PATH_DIR;
-	if (idx < Point_segs.size() && Point_segs[idx].segnum != segment_none)
-	{
-		if (const auto r = openable_doors_in_segment(vcwallptr, vcsegptr(Point_segs[idx].segnum)).has_value())
-			return r;
+	int path_index{aip.cur_path_index};
+	for (unsigned lookahead = 0; lookahead != 2; ++lookahead) {
+		path_index += aip.PATH_DIR;
+		if (path_index < 0 || path_index >= path_length)
+			break;
+		const auto idx{static_cast<std::size_t>(aip.hide_index + path_index)};
+		if (idx < Point_segs.size() && Point_segs[idx].segnum != segment_none) {
+			if (const auto r = openable_doors_in_segment(vcwallptr, vcsegptr(Point_segs[idx].segnum)).has_value())
+				return r;
+		}
 	}
 	return 0;
 }
