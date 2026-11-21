@@ -1361,10 +1361,8 @@ void multi_robot_request_change(const vmobjptridx_t robot, int player_num)
 	if (!(Game_mode & GM_MULTI_ROBOTS))
 		return;
 	auto &objrobot = *robot;
-#if DXX_BUILD_DESCENT == 1
 	if (!std::cmp_equal(objrobot.ctype.ai_info.REMOTE_OWNER, Player_num))
 		return;
-#endif
 
 	const auto slot = objrobot.ctype.ai_info.REMOTE_SLOT_NUM;
 
