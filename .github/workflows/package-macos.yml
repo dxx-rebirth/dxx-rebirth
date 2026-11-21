@@ -59,7 +59,7 @@ jobs:
 
           # For a idea of a fix see: https://superuser.com/a/1277306
 
-          export PKG_CONFIG_PATH=/usr/local/opt/readline/lib/pkgconfig
+          export PKG_CONFIG_PATH="$(brew --prefix readline)/lib/pkgconfig"
 
           # run build
 
@@ -84,7 +84,7 @@ jobs:
 
           # For a idea of a fix see: https://superuser.com/a/1277306
 
-          export PKG_CONFIG_PATH=/usr/local/opt/readline/lib/pkgconfig
+          export PKG_CONFIG_PATH="$(brew --prefix readline)/lib/pkgconfig"
 
           # run build
 
@@ -126,7 +126,7 @@ jobs:
         run: >
           set -eu
 
-          export PKG_CONFIG_PATH=/usr/local/opt/readline/lib/pkgconfig
+          export PKG_CONFIG_PATH="$(brew --prefix readline)/lib/pkgconfig"
 
           scons
           -j4
