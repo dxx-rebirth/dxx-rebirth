@@ -732,7 +732,7 @@ constexpr char system_name[][17] = {
 
 static void name_frame(grs_canvas &canvas, automap &am, int dx = 0, int dy = 0)
 {
-	gr_set_fontcolor(canvas, am.green_31, -1);
+	gr_set_fontcolor(canvas, am.green_31, TRANSPARENCY_COLOR);
 	char		name_level_left[128];
 
 	auto &game_font{*GAME_FONT};
@@ -888,7 +888,7 @@ static void draw_automap(fvcobjptr &vcobjptr, automap &am, fix eye = 0)
 		auto &canvas{am.w_canv};
 		if (eye <= 0)
 			show_fullscr(canvas, am.automap_background);
-		gr_set_fontcolor(canvas, BM_XRGB(20, 20, 20), -1);
+		gr_set_fontcolor(canvas, BM_XRGB(20, 20, 20), TRANSPARENCY_COLOR);
 		SCREEN_SIZE_STEREO;
 	{
 		int x, y;

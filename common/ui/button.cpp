@@ -69,7 +69,7 @@ void ui_draw_button(UI_DIALOG &dlg, UI_GADGET_BUTTON &button)
 			: (!button.user_function && button.dim_if_no_function
 				? CGREY
 				: CBLACK
-			), -1);
+			), TRANSPARENCY_COLOR);
 
 		if (!button.text.empty())
 		{

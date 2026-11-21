@@ -46,7 +46,7 @@ void ui_draw_checkbox(UI_DIALOG &dlg, UI_GADGET_CHECKBOX &checkbox)
 		auto &canvas = *grd_curcanv;
 		gr_set_fontcolor(canvas, dlg.keyboard_focus_gadget == &checkbox
 			? CRED
-			: CBLACK, -1);
+			: CBLACK, TRANSPARENCY_COLOR);
 
 		unsigned offset;
 		if (checkbox.position == 0)

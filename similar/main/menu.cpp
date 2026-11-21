@@ -709,11 +709,11 @@ static void input_config();
 // Draw Copyright and Version strings
 static void draw_copyright(grs_canvas &canvas, grs_font &game_font)
 {
-	gr_set_fontcolor(canvas, BM_XRGB(6, 6, 6), -1);
+	gr_set_fontcolor(canvas, BM_XRGB(6, 6, 6), TRANSPARENCY_COLOR);
 	const auto &&line_spacing = LINE_SPACING(game_font, game_font);
 	const auto bm_h = canvas.cv_bitmap.bm_h;
 	gr_string(canvas, game_font, 0x8000, bm_h - line_spacing, TXT_COPYRIGHT);
-	gr_set_fontcolor(canvas, BM_XRGB(25, 0, 0), -1);
+	gr_set_fontcolor(canvas, BM_XRGB(25, 0, 0), TRANSPARENCY_COLOR);
 	gr_string(canvas, game_font, 0x8000, bm_h - (line_spacing * 2), DESCENT_VERSION);
 }
 
@@ -3024,7 +3024,7 @@ window_event_result polygon_models_viewer_window::event_handler(const d_event &e
 				auto &canvas = *grd_curcanv;
 				auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 				draw_model_picture(canvas, Polygon_models[view_idx], ang);
-				gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), -1);
+				gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), TRANSPARENCY_COLOR);
 				auto &game_font = *GAME_FONT;
 				gr_printf(canvas, game_font, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev model (%i/%i)\nA/D: rotate y\nW/S: rotate x\nQ/E: rotate z\nR: reset orientation", underlying_value(view_idx), LevelSharedPolygonModelState.N_polygon_models - 1);
 			}
@@ -3095,7 +3095,7 @@ window_event_result gamebitmaps_viewer_window::event_handler(const d_event &even
 #else
 				gr_bitmap(canvas, (SWIDTH / 2) - (bm->bm_w / 2), (SHEIGHT / 2) - (bm->bm_h / 2), *bm);
 #endif
-				gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), -1);
+				gr_set_fontcolor(canvas, BM_XRGB(255, 255, 255), TRANSPARENCY_COLOR);
 				auto &game_font = *GAME_FONT;
 				gr_printf(canvas, game_font, FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev bitmap (%i/%i)", view_idx, Num_bitmap_files-1);
 			}

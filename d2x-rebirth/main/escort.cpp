@@ -256,7 +256,7 @@ escort_menu::escort_menu(const escort_goal_t next_goal, const char *Buddy_messag
 	escort_menu_items(next_goal, Buddy_messages_suppressed, src, text_size),
 	window(src, ((src.cv_bitmap.bm_w - text_size.width) / 2) - border_x, ((src.cv_bitmap.bm_h - text_size.height) / 2) - border_y, text_size.width + (border_x * 2), text_size.height + (border_y * 2))
 {
-	gr_set_fontcolor(w_canv, BM_XRGB(0, 28, 0), -1);
+	gr_set_fontcolor(w_canv, BM_XRGB(0, 28, 0), TRANSPARENCY_COLOR);
 }
 
 window_event_result escort_menu::event_key_command(const d_event &event)

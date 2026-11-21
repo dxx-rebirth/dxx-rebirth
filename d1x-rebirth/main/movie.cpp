@@ -251,7 +251,7 @@ window_event_result movie_pause_window::event_handler(const d_event &event)
 
 			const auto y{(grd_curscreen->get_screen_height() - h) / 2};
 
-			gr_set_fontcolor(canvas, 255, -1);
+			gr_set_fontcolor(canvas, 255, TRANSPARENCY_COLOR);
 
 			gr_ustring(canvas, game_font, 0x8000, y, msg);
 			break;

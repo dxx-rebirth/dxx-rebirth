@@ -49,7 +49,7 @@ void ui_draw_radio(UI_DIALOG &dlg, UI_GADGET_RADIO &radio)
 	{
 		gr_set_current_canvas(radio.canvas);
 		auto &canvas = *grd_curcanv;
-		gr_set_fontcolor(canvas, dlg.keyboard_focus_gadget == &radio ? CRED : CBLACK, -1);
+		gr_set_fontcolor(canvas, dlg.keyboard_focus_gadget == &radio ? CRED : CBLACK, TRANSPARENCY_COLOR);
 
 		unsigned bias;
 		if (radio.position == 0)
