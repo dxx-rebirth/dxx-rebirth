@@ -5134,8 +5134,6 @@ void multi_restore_game(const unsigned slot, const unsigned id)
 	auto &plr = get_local_player();
 	snprintf(filename.data(), filename.size(), PLAYER_DIRECTORY_STRING("%s.mg%x"), static_cast<const char *>(plr.callsign), slot);
    
-	for (unsigned i = 0, n = N_players; i < n; ++i)
-		multi_strip_robots(i);
 	if (multi_i_am_master()) // put all players to wait-state again so we can sync up properly
 		range_for (auto &i, Players)
 			if (i.connected == player_connection_status::playing && &i != &plr)
@@ -5151,11 +5149,14 @@ void multi_restore_game(const unsigned slot, const unsigned id)
 #if DXX_BUILD_DESCENT == 2
 	auto &LevelSharedDestructibleLightState = LevelSharedSegmentState.DestructibleLights;
 #endif
-	state_restore_all_sub(
+	if (!state_restore_all_sub(
 #if DXX_BUILD_DESCENT == 2
 		LevelSharedDestructibleLightState, secret_restore::none,
 #endif
-		filename.data());
+		filename.data()))
+		return;
+	for (playernum_t pnum = 0; pnum < MAX_PLAYERS; ++pnum)
+		multi_strip_robots(pnum);
 	multi_send_score(); // send my restored scores. I sent 0 when I loaded the level anyways...
 }
 
