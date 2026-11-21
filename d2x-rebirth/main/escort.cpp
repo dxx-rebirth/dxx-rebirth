@@ -1682,11 +1682,9 @@ void do_thief_frame(const vmobjptridx_t objp, const robot_info &robptr, const fi
 								create_n_segment_path(objp, robptr, 10, segment_none);
 							}
 						}
-
-						ailp->mode = ai_mode::AIM_THIEF_RETREAT;
 					}
-				} else
-					ailp->mode = ai_mode::AIM_THIEF_RETREAT;
+				}
+				ailp->mode = ai_mode::AIM_THIEF_RETREAT;
 
 			}
 
