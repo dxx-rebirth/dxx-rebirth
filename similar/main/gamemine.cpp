@@ -103,12 +103,12 @@ static station_number build_station_number_from_untrusted(uint8_t untrusted)
  */
 static void segment2_read(const msmusegment s2, const NamedPHYSFS_File fp)
 {
-	s2.s.special = build_segment_special_from_untrusted(PHYSFSX_readByte(fp));
-	s2.s.matcen_num = build_materialization_center_number_from_untrusted(PHYSFSX_readByte(fp));
+	s2.s.special = build_segment_special_from_untrusted(PHYSFSX_readU8(fp));
+	s2.s.matcen_num = build_materialization_center_number_from_untrusted(PHYSFSX_readU8(fp));
 	/* station_idx is overwritten by the caller in some cases, but set
 	 * it here for compatibility with how the game previously worked */
-	s2.s.station_idx = build_station_number_from_untrusted(PHYSFSX_readByte(fp));
-	const auto s2_flags = PHYSFSX_readByte(fp);
+	s2.s.station_idx = build_station_number_from_untrusted(PHYSFSX_readU8(fp));
+	const auto s2_flags = PHYSFSX_readU8(fp);
 	/* Ambient sounds are recomputed by the level load code.  Ignore the value
 	 * read from the file.
 	 */
@@ -446,9 +446,9 @@ static void read_special(shared_segment &segp, const sidemask_t bit_mask, const 
 	if (+(bit_mask & build_sidemask(MAX_SIDES_PER_SEGMENT)))
 	{
 		// Read ubyte	Segments[segnum].special
-		segp.special = build_segment_special_from_untrusted(PHYSFSX_readByte(LoadFile));
+		segp.special = build_segment_special_from_untrusted(PHYSFSX_readU8(LoadFile));
 		// Read byte	Segments[segnum].matcen_num
-		segp.matcen_num = build_materialization_center_number_from_untrusted(PHYSFSX_readByte(LoadFile));
+		segp.matcen_num = build_materialization_center_number_from_untrusted(PHYSFSX_readU8(LoadFile));
 		// Read short	Segments[segnum].value
 		segp.station_idx = build_station_number_from_untrusted(PHYSFSX_readSLE16(LoadFile));
 	} else {
@@ -499,7 +499,7 @@ int load_mine_data_compiled(const NamedPHYSFS_File LoadFile, const char *const G
 	fuelcen_reset();
 
 	//=============================== Reading part ==============================
-	compiled_version = PHYSFSX_readByte(LoadFile);
+	compiled_version = PHYSFSX_readU8(LoadFile);
 	(void)compiled_version;
 
 	DXX_POISON_VAR(Vertices, 0xfc);
@@ -541,7 +541,7 @@ int load_mine_data_compiled(const NamedPHYSFS_File LoadFile, const char *const G
 		#endif
 
 		const sidemask_t children_mask = New_file_format_load
-			? static_cast<sidemask_t>(PHYSFSX_readByte(LoadFile))
+			? static_cast<sidemask_t>(PHYSFSX_readU8(LoadFile))
 			: sidemask_t{0x7f};	// read all six children and special stuff...
 
 		if (Gamesave_current_version == 5) { // d2 SHAREWARE level
@@ -566,14 +566,14 @@ int load_mine_data_compiled(const NamedPHYSFS_File LoadFile, const char *const G
 
 		// Read the walls as a 6 byte array
 		const sidemask_t wall_mask = New_file_format_load
-			? static_cast<sidemask_t>(PHYSFSX_readByte(LoadFile))
+			? static_cast<sidemask_t>(PHYSFSX_readU8(LoadFile))
 			: sidemask_t{0x3f}; // read all six sides
 		for (const auto sidenum : MAX_SIDES_PER_SEGMENT)
 		{
 			auto &sside = segp.s.sides[sidenum];
 			if (+(wall_mask & build_sidemask(sidenum)))
 			{
-				const uint8_t byte_wallnum = PHYSFSX_readByte(LoadFile);
+				const uint8_t byte_wallnum = PHYSFSX_readU8(LoadFile);
 				if ( byte_wallnum == 255 )
 					sside.wall_num = wall_none;
 				else
