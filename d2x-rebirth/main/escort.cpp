@@ -1955,6 +1955,13 @@ static int attempt_to_steal_item_3(object &thief, object &player_num)
 static int attempt_to_steal_item_2(object &thief, object &player_num)
 {
 	auto &ThiefUniqueState = LevelUniqueObjectState.ThiefState;
+	const auto old_item_index = ThiefUniqueState.Stolen_item_index;
+	auto &item_index = ThiefUniqueState.Stolen_item_index;
+	const auto &items = ThiefUniqueState.Stolen_items;
+	for (std::size_t n = 0; n != items.size() && items[item_index] != ThiefUniqueState.stolen_item_type_none; ++n) {
+		if (++item_index == items.size())
+			item_index = 0;
+	}
 	const auto rval = attempt_to_steal_item_3(thief, player_num);
 	if (rval) {
 		digi_play_sample_once(sound_effect::SOUND_WEAPON_STOLEN, F1_0);
@@ -1965,6 +1972,8 @@ static int attempt_to_steal_item_2(object &thief, object &player_num)
 		if (++ i >= size)
 			i -= size;
 		ThiefUniqueState.Stolen_item_index = i;
+	} else {
+		item_index = old_item_index;
 	}
 	return rval;
 }
