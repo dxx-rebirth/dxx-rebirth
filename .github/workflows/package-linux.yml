@@ -35,6 +35,7 @@ jobs:
           sudo apt install -y
           bubblewrap
           gcc-15 g++-15
+          libboost-test-dev
           python3
           scons
           libsdl2-dev
@@ -81,6 +82,8 @@ jobs:
           CXX=g++-15
           sdl2=1
           "CXXFLAGS=-flto=$(( $nproc + 1 / 2 ))"
+          register_runtime_test_link_targets=1
+          . check
 
       - name: Upload SConf log
         if: ${{ !cancelled() }}
@@ -147,5 +150,6 @@ jobs:
           CXX=g++-15
           sdl2=1
           "CXXFLAGS=-flto=$(( $nproc + 1 / 2 ))"
+          register_runtime_test_link_targets=1
           check_header_includes=1
           build/{common,d1x-rebirth,d2x-rebirth}/check_header_includes
