@@ -4508,6 +4508,13 @@ void newdemo_stop_playback()
 	nd_playback_v_guided = 0;
 #endif
 	Newdemo_game_mode = Game_mode = {};
+	// Camera-only demo attachments have no live parent.  Make them standalone
+	// before returning the objects to the editor's normal deletion paths.
+	for (auto &obj : LevelUniqueObjectState.Objects.vmptr)
+	{
+		if (obj.type != object_type::OBJ_NONE && obj.control_source == object::control_type::explosion && (obj.flags & OF_ATTACHED) && obj.ctype.expl_info.attach_parent == object_none)
+			obj.flags &= ~OF_ATTACHED;
+	}
 	// Required for the editor
 	obj_relink_all();
 }
