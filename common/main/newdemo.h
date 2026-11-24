@@ -66,13 +66,16 @@ extern int Auto_demo;
 extern int Newdemo_num_written;
 
 namespace dcx {
+enum class gauge_inset_window_view : unsigned;
 enum class sound_pan : int;
 }
 
 #ifdef DXX_BUILD_DESCENT
 #if DXX_BUILD_DESCENT == 2
 extern ubyte DemoDoRight,DemoDoLeft;
-extern struct object DemoRightExtra,DemoLeftExtra;
+namespace dsx { struct render_view; }
+::dsx::render_view newdemo_get_extra_viewer(::dcx::gauge_inset_window_view);
+
 #endif
 
 // Functions called during recording process...

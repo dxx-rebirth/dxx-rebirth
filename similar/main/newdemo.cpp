@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <errno.h>
 #include <ctype.h>
 #include <type_traits>
+#include <variant>
 #include "d_range.h"
 
 #include "digi.h"
@@ -47,6 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "object.h"
 #include "render.h"
+#include "render_view.h"
 #include "wall.h"
 #include "vclip.h"
 #include "robot.h"
@@ -183,9 +185,21 @@ sbyte Newdemo_do_interpolate{1};
 int Newdemo_num_written;
 #if DXX_BUILD_DESCENT == 2
 ubyte DemoDoRight{0},DemoDoLeft=0;
-object DemoRightExtra,DemoLeftExtra;
 
-static void nd_render_extras (ubyte which,const object &obj);
+/* Demo extra views use only the type to select render behavior and the
+ * segment, position, and orientation to place the camera.  Rendering consumes
+ * this compact value without borrowing a managed object slot.
+ */
+struct demo_extra_viewer_snapshot
+{
+	object_type type;
+	segnum_t segnum;
+	vms_vector pos;
+	vms_matrix orient;
+};
+static demo_extra_viewer_snapshot DemoRightExtra, DemoLeftExtra;
+
+static void nd_render_extras (ubyte which, const object_base &obj);
 #endif
 
 // local var used for swapping endian demos
@@ -472,7 +486,7 @@ static void nd_read_short(uint16_t *const s)
 
 static void nd_read_segnum16(segnum_t &s)
 {
-	uint16_t i;
+	uint16_t i{};
 	nd_read_short(&i);
 	s = segnum_t{i};
 }
@@ -573,6 +587,8 @@ static void nd_read_shortpos(object_base &obj)
 	nd_read_short(&sp.vely);
 	nd_read_short(&sp.velz);
 
+	if (nd_playback_v_bad_read)
+		return;
 	my_extract_shortpos(obj, &sp);
 	if (obj.type == object_type::OBJ_FIREBALL && get_fireball_id(obj) == vclip_index::morphing_robot && rtype == render_type::RT_FIREBALL && obj.control_source == object::control_type::explosion)
 	{
@@ -580,7 +596,11 @@ static void nd_read_shortpos(object_base &obj)
 	}
 }
 
-object *prev_obj=NULL;      //ptr to last object read in
+// Attachment ownership follows world records.  A camera-only group remains
+// hidden like the legacy scratch-parent group, without naming a live slot.
+struct demo_camera_attachment_group {};
+using demo_attachment_parent = std::variant<object *, demo_camera_attachment_group>;
+static demo_attachment_parent prev_obj{static_cast<object *>(nullptr)};
 
 }
 
@@ -588,25 +608,42 @@ namespace dsx {
 
 namespace {
 
-static uint16_t nd_get_object_signature(const vcobjptridx_t objp)
+static uint16_t nd_get_object_signature(const object_signature_t signature, const objnum_t index)
 {
-	return (static_cast<uint16_t>(objp->signature) << 9) ^ objp.get_unchecked_index();  // It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
+	return (static_cast<uint16_t>(signature) << 9) ^ index;
 }
 
-static void nd_read_object(const vmobjptridx_t obj)
+static uint16_t nd_get_object_signature(const vcobjptridx_t objp)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptr = Objects.vmptr;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-	short shortsig{0};
-	const auto &pl_info = get_local_plrobj().ctype.player_info;
-	const auto saved = (&pl_info == &obj->ctype.player_info)
-		? std::pair<fix, player_info>(obj->shields, pl_info)
-		: std::pair<fix, player_info>(0, {});
+	return nd_get_object_signature(objp->signature, objp.get_unchecked_index());
+}
 
-	*obj = {};
-	obj->shields = saved.first;
-	obj->ctype.player_info = saved.second;
+// Demo records carry decoded fields, not a live object's identity or player
+// state.  The control payload contains only fields encoded by this format.
+struct demo_control_payload
+{
+	fix spawn_time{}, delete_time{}, light_intensity{};
+	objnum_t delete_objnum{object_none};
+	int8_t cloaked{};
+};
+
+struct decoded_demo_object
+{
+	object_base fields{};
+	demo_control_payload control{};
+
+	bool has_body() const
+	{
+		return fields.render_type != render_type::RT_NONE || fields.type == object_type::OBJ_CAMERA;
+	}
+};
+
+static decoded_demo_object nd_read_object_data()
+{
+	decoded_demo_object record;
+	auto *const obj = &record.fields;
+	const auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
+	short shortsig{0};
 	obj->next = obj->prev = object_none;
 	obj->segnum = segment_none;
 
@@ -617,37 +654,43 @@ static void nd_read_object(const vmobjptridx_t obj)
 	{
 		uint8_t rtype;
 		nd_read_byte(&rtype);
+		if (nd_playback_v_bad_read)
+			return record;
 		if (valid_render_type(rtype))
 			obj->render_type = render_type{rtype};
 		else
 		{
-			con_printf(CON_URGENT, "demo used bogus render type %#x for object %p; using none instead", rtype, &*obj);
+			con_printf(CON_URGENT, "demo used bogus render type %#x for object %p; using none instead", rtype, obj);
 			obj->render_type = render_type::RT_NONE;
 		}
 	}
 	{
 		uint8_t t;
 		nd_read_byte(&t);
+		if (nd_playback_v_bad_read)
+			return record;
 		obj->type = build_valid_object_type_from_untrusted({t});
 	}
 	if (obj->render_type == render_type::RT_NONE && obj->type != object_type::OBJ_CAMERA)
-		return;
+		return record;
 
 	nd_read_byte(&obj->id);
 	nd_read_byte(&obj->flags);
 	nd_read_short(&shortsig);
 	// It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
 	obj->signature = object_signature_t{static_cast<uint16_t>(shortsig)};
-	nd_read_shortpos(obj);
+	nd_read_shortpos(*obj);
+	if (nd_playback_v_bad_read)
+		return record;
 
 #if DXX_BUILD_DESCENT == 2
-	if (obj->type == object_type::OBJ_ROBOT && get_robot_id(obj) == robot_id::special_reactor)
+	if (obj->type == object_type::OBJ_ROBOT && get_robot_id(*obj) == robot_id::special_reactor)
 		Int3();
 #endif
 
 	obj->attached_obj = object_none;
 
-	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
+	const auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	switch(obj->type) {
 
 	case object_type::OBJ_HOSTAGE:
@@ -661,25 +704,25 @@ static void nd_read_object(const vmobjptridx_t obj)
 		// (MarkA and MikeK said we should not do the crazy last secret stuff with multiple reactors...
 		// This necessary code is our vindication. --MK, 2/15/96)
 #if DXX_BUILD_DESCENT == 2
-		if (get_robot_id(obj) == robot_id::special_reactor)
+		if (get_robot_id(*obj) == robot_id::special_reactor)
 			obj->movement_source = object::movement_type::None;
 		else
 #endif
 			obj->movement_source = object::movement_type::physics;
-		obj->size = Polygon_models[Robot_info[get_robot_id(obj)].model_num].rad;
-		obj->rtype.pobj_info.model_num.dsx = Robot_info[get_robot_id(obj)].model_num;
+		obj->size = Polygon_models[Robot_info[get_robot_id(*obj)].model_num].rad;
+		obj->rtype.pobj_info.model_num.dsx = Robot_info[get_robot_id(*obj)].model_num;
 		obj->rtype.pobj_info.subobj_flags = 0;
-		obj->ctype.ai_info.CLOAKED = (Robot_info[get_robot_id(obj)].cloak_type?1:0);
+		record.control.cloaked = (Robot_info[get_robot_id(*obj)].cloak_type?1:0);
 		break;
 
 	case object_type::OBJ_POWERUP:
 		obj->control_source = object::control_type::powerup;
 		{
-			uint8_t movement_type;
+			uint8_t movement_type{};
 			nd_read_byte(&movement_type);        // might have physics movement
 			obj->movement_source = typename object::movement_type{movement_type};
 		}
-		obj->size = Powerup_info[get_powerup_id(obj)].size;
+		obj->size = Powerup_info[get_powerup_id(*obj)].size;
 		break;
 
 	case object_type::OBJ_PLAYER:
@@ -703,12 +746,12 @@ static void nd_read_object(const vmobjptridx_t obj)
 
 	default:
 		{
-			uint8_t control_type;
+			uint8_t control_type{};
 			nd_read_byte(&control_type);
 			obj->control_source = typename object::control_type{control_type};
 		}
 		{
-			uint8_t movement_type;
+			uint8_t movement_type{};
 			nd_read_byte(&movement_type);
 			obj->movement_source = typename object::movement_type{movement_type};
 		}
@@ -724,7 +767,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 	if (obj->type == object_type::OBJ_WEAPON && obj->render_type == render_type::RT_WEAPON_VCLIP)
 		nd_read_fix(&(obj->lifeleft));
 	else {
-		sbyte b;
+		sbyte b{};
 
 		// MWA old way -- won't work with big endian machines       nd_read_byte((uint8_t *)&(obj->lifeleft));
 		nd_read_byte(&b);
@@ -736,12 +779,12 @@ static void nd_read_object(const vmobjptridx_t obj)
 	}
 
 	if ((obj->type == object_type::OBJ_ROBOT) && !shareware) {
-		if (Robot_info[get_robot_id(obj)].boss_flag != boss_robot_id::None)
+		if (Robot_info[get_robot_id(*obj)].boss_flag != boss_robot_id::None)
 		{
-			sbyte cloaked;
+			sbyte cloaked{};
 
 			nd_read_byte(&cloaked);
-			obj->ctype.ai_info.CLOAKED = cloaked;
+			record.control.cloaked = cloaked;
 		}
 	}
 
@@ -767,29 +810,14 @@ static void nd_read_object(const vmobjptridx_t obj)
 
 	case object::control_type::explosion:
 
-		nd_read_fix(&(obj->ctype.expl_info.spawn_time));
-		nd_read_fix(&(obj->ctype.expl_info.delete_time));
-		nd_read_objnum16(obj->ctype.expl_info.delete_objnum);
-
-		obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = object_none;
-
-		if (obj->flags & OF_ATTACHED) {     //attach to previous object
-			Assert(prev_obj!=NULL);
-			if (prev_obj->control_source == object::control_type::explosion)
-			{
-				if (prev_obj->flags & OF_ATTACHED && prev_obj->ctype.expl_info.attach_parent!=object_none)
-					obj_attach(Objects, Objects.vmptridx(prev_obj->ctype.expl_info.attach_parent), obj);
-				else
-					obj->flags &= ~OF_ATTACHED;
-			}
-			else
-				obj_attach(Objects, Objects.vmptridx(prev_obj), obj);
-		}
+		nd_read_fix(&(record.control.spawn_time));
+		nd_read_fix(&(record.control.delete_time));
+		nd_read_objnum16(record.control.delete_objnum);
 
 		break;
 
 	case object::control_type::light:
-		nd_read_fix(&(obj->ctype.light_info.intensity));
+		nd_read_fix(&(record.control.light_intensity));
 		break;
 
 	case object::control_type::ai:
@@ -818,11 +846,13 @@ static void nd_read_object(const vmobjptridx_t obj)
 
 		case render_type::RT_MORPH:
 		case render_type::RT_POLYOBJ: {
-		int tmo;
+		int tmo{};
 
 		if ((obj->type != object_type::OBJ_ROBOT) && (obj->type != object_type::OBJ_PLAYER) && (obj->type != object_type::OBJ_CLUTTER)) {
-			int i;
+			int i{};
 			nd_read_int(&i);
+			if (nd_playback_v_bad_read)
+				return record;
 			obj->rtype.pobj_info.model_num.dsx = static_cast<polygon_model_index>(i);
 			nd_read_int(&i);
 			obj->rtype.pobj_info.subobj_flags = i;
@@ -837,6 +867,8 @@ static void nd_read_object(const vmobjptridx_t obj)
 			nd_read_angvec(i);
 
 		nd_read_int(&tmo);
+		if (nd_playback_v_bad_read)
+			return record;
 
 #if !DXX_USE_EDITOR
 		obj->rtype.pobj_info.tmap_override = static_cast<texture_index>(tmo);
@@ -863,7 +895,7 @@ static void nd_read_object(const vmobjptridx_t obj)
 		case render_type::RT_FIREBALL:
 		case render_type::RT_HOSTAGE:
 		{
-			int vclip_num;
+			int vclip_num{};
 			nd_read_int(&vclip_num);
 			obj->rtype.vclip_info.vclip_num = static_cast<vclip_index>(vclip_num);
 		}
@@ -879,16 +911,78 @@ static void nd_read_object(const vmobjptridx_t obj)
 
 	}
 
-	prev_obj = obj;
+	return record;
 }
 
-static void nd_write_object(const vcobjptridx_t objp)
+static void nd_apply_object(const vmobjptridx_t obj, const decoded_demo_object &record)
+{
+	auto &Objects = LevelUniqueObjectState.Objects;
+	auto &vmobjptr = Objects.vmptr;
+	const auto &pl_info = get_local_plrobj().ctype.player_info;
+	const auto saved = (&pl_info == &obj->ctype.player_info)
+		? std::pair<fix, player_info>(obj->shields, pl_info)
+		: std::pair<fix, player_info>(0, {});
+	obj->reset();
+	static_cast<object_base &>(*obj) = record.fields;
+	obj->shields = saved.first;
+	obj->ctype.player_info = saved.second;
+	if (!record.has_body())
+		return;
+
+	bool camera_attachment = false;
+	switch (obj->control_source) {
+		case object::control_type::ai:
+			obj->ctype.ai_info.CLOAKED = record.control.cloaked;
+			break;
+		case object::control_type::light:
+			obj->ctype.light_info.intensity = record.control.light_intensity;
+			break;
+		case object::control_type::explosion:
+			obj->ctype.expl_info.spawn_time = record.control.spawn_time;
+			obj->ctype.expl_info.delete_time = record.control.delete_time;
+			obj->ctype.expl_info.delete_objnum = record.control.delete_objnum;
+			obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = object_none;
+			if (obj->flags & OF_ATTACHED) {
+				if (std::holds_alternative<demo_camera_attachment_group>(prev_obj))
+					camera_attachment = true;
+				else {
+					const auto previous = std::get<object *>(prev_obj);
+					if (!previous) {
+						nd_playback_v_bad_read = 1;
+						return;
+					}
+					if (previous->control_source == object::control_type::explosion) {
+						if (previous->flags & OF_ATTACHED && previous->ctype.expl_info.attach_parent != object_none)
+							obj_attach(Objects, Objects.vmptridx(previous->ctype.expl_info.attach_parent), obj);
+						else
+							obj->flags &= ~OF_ATTACHED;
+					}
+					else
+						obj_attach(Objects, Objects.vmptridx(previous), obj);
+				}
+			}
+			break;
+		default:
+			break;
+	}
+	if (camera_attachment)
+		prev_obj = demo_camera_attachment_group{};
+	else
+		prev_obj = &*obj;
+}
+
+static void nd_read_object(const vmobjptridx_t obj)
+{
+	const auto record = nd_read_object_data();
+	if (!nd_playback_v_bad_read)
+		nd_apply_object(obj, record);
+}
+
+static void nd_write_object_data(const object_base &obj, const demo_control_payload &control, const short shortsig)
 {
 	auto &BossUniqueState = LevelUniqueObjectState.BossState;
-	auto &obj = *objp;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
 	int life;
-	short shortsig{0};
 
 #if DXX_BUILD_DESCENT == 2
 	if (obj.type == object_type::OBJ_ROBOT && get_robot_id(obj) == robot_id::special_reactor)
@@ -906,7 +1000,6 @@ static void nd_write_object(const vcobjptridx_t objp)
 
 	nd_write_byte(obj.id);
 	nd_write_byte(obj.flags);
-	shortsig = nd_get_object_signature(objp);
 	nd_write_short(shortsig);
 	nd_write_shortpos(obj);
 
@@ -967,9 +1060,9 @@ static void nd_write_object(const vcobjptridx_t objp)
 		break;
 
 		case object::control_type::explosion:
-		nd_write_fix(obj.ctype.expl_info.spawn_time);
-		nd_write_fix(obj.ctype.expl_info.delete_time);
-		nd_write_short(obj.ctype.expl_info.delete_objnum);
+		nd_write_fix(control.spawn_time);
+		nd_write_fix(control.delete_time);
+		nd_write_short(control.delete_objnum);
 		break;
 
 		case object::control_type::weapon:
@@ -977,7 +1070,7 @@ static void nd_write_object(const vcobjptridx_t objp)
 
 		case object::control_type::light:
 
-		nd_write_fix(obj.ctype.light_info.intensity);
+		nd_write_fix(control.light_intensity);
 		break;
 
 		case object::control_type::None:
@@ -1036,6 +1129,20 @@ static void nd_write_object(const vcobjptridx_t objp)
 
 	}
 
+}
+
+static void nd_write_object(const vcobjptridx_t objp)
+{
+	const auto &obj = *objp;
+	demo_control_payload control;
+	if (obj.control_source == object::control_type::explosion) {
+		control.spawn_time = obj.ctype.expl_info.spawn_time;
+		control.delete_time = obj.ctype.expl_info.delete_time;
+		control.delete_objnum = obj.ctype.expl_info.delete_objnum;
+	}
+	else if (obj.control_source == object::control_type::light)
+		control.light_intensity = obj.ctype.light_info.intensity;
+	nd_write_object_data(obj, control, nd_get_object_signature(objp));
 }
 
 }
@@ -2129,7 +2236,7 @@ static int newdemo_read_frame_information(int rewrite)
 	auto &plrobj = get_local_plrobj();
 	plrobj.ctype.player_info.homing_object_dist = -1;
 
-	prev_obj = NULL;
+	prev_obj = static_cast<object *>(nullptr);
 
 	auto &Polygon_models = LevelSharedPolygonModelState.Polygon_models;
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
@@ -2176,21 +2283,22 @@ static int newdemo_read_frame_information(int rewrite)
 				nd_write_byte(WhichWindow);
 			if (WhichWindow&15)
 			{
-				const auto &&obj = vmobjptridx(static_cast<objnum_t>(MAX_OBJECTS - 1));
-				nd_read_object(obj);
-				if (nd_playback_v_bad_read)
-				{
+				const auto record = nd_read_object_data();
+				if (nd_playback_v_bad_read) {
 					done = -1;
 					break;
 				}
-				if (rewrite)
-				{
-					nd_write_object(obj);
+				if (record.has_body())
+					prev_obj = demo_camera_attachment_group{};
+				if (rewrite) {
+					// Keep the historical camera signature transform as wire
+					// metadata; it no longer names runtime object storage.
+					constexpr objnum_t legacy_camera_wire_index{349};
+					nd_write_object_data(record.fields, record.control,
+						nd_get_object_signature(record.fields.signature, legacy_camera_wire_index));
 					break;
 				}
-				// offset to compensate inaccuracy between object and viewer
-				obj->pos = vm_vec_scale_add(obj->pos, obj->orient.fvec, F1_0 * 5);
-				nd_render_extras (WhichWindow,obj);
+				nd_render_extras(WhichWindow, record.fields);
 			}
 			else
 #endif
@@ -3677,6 +3785,17 @@ static window_event_result newdemo_back_frames(int frames)
 
 static window_event_result interpolate_frame(fix d_play, fix d_recorded)
 {
+	/* Interpolation modifies only the camera-space object pose.  Preserve the
+	 * signature for matching and the render type for deciding whether an
+	 * orientation matrix is meaningful.
+	 */
+	struct interpolation_object_snapshot
+	{
+		object_signature_t signature;
+		vms_vector pos;
+		vms_matrix orient;
+		render_type render;
+	};
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vmobjptr = Objects.vmptr;
 	fix factor;
@@ -3690,7 +3809,10 @@ static window_event_result interpolate_frame(fix d_play, fix d_recorded)
 		factor = F1_0;
 
 	const auto num_cur_objs = Objects.get_count();
-	std::vector<object> cur_objs(Objects.begin(), Objects.begin() + num_cur_objs);
+	std::vector<interpolation_object_snapshot> cur_objs;
+	cur_objs.reserve(num_cur_objs);
+	for (const auto &obj : partial_const_range(Objects, num_cur_objs))
+		cur_objs.emplace_back(interpolation_object_snapshot{obj.signature, obj.pos, obj.orient, obj.render_type});
 
 	Newdemo_vcr_state = ND_STATE_PAUSED;
 	if (newdemo_read_frame_information(0) == -1) {
@@ -3708,7 +3830,7 @@ static window_event_result interpolate_frame(fix d_play, fix d_recorded)
 			{
 				if (i.signature == obj.signature)
 				{
-					const auto rtype = i.render_type;
+					const auto rtype = i.render;
 					fix delta_x, delta_y, delta_z;
 
 					//  Extract the angles from the object orientation matrix.
@@ -3770,8 +3892,22 @@ static window_event_result interpolate_frame(fix d_play, fix d_recorded)
 	}
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
 
-	std::copy(cur_objs.begin(), cur_objs.begin() + num_cur_objs, Objects.begin());
-	Objects.set_count(num_cur_objs);
+	/* Reading the current frame again reconstructs all object state.  Apply
+	 * only the position and orientation adjusted above instead of replacing
+	 * those managed objects with off-array copies.
+	 */
+	for (const auto &i : cur_objs)
+	{
+		for (auto &obj : vmobjptr)
+		{
+			if (i.signature == obj.signature)
+			{
+				obj.pos = i.pos;
+				obj.orient = i.orient;
+				break;
+			}
+		}
+	}
 
 	return result;
 }
@@ -3908,10 +4044,21 @@ window_event_result newdemo_playback_one_frame()
 				d_recorded = nd_recorded_total - nd_playback_total;
 
 				while (nd_recorded_total - nd_playback_total < FrameTime) {
-					unsigned num_objs;
-
-					num_objs = Highest_object_index;
-					std::vector<object> cur_objs(Objects.begin(), Objects.begin() + num_objs + 1);
+					/* Frame skipping carries forward only the interpolated
+					 * position and orientation of objects with matching
+					 * signatures.
+					 */
+					struct preserved_object_pose
+					{
+						object_signature_t signature;
+						vms_vector pos;
+						vms_matrix orient;
+					};
+					const auto num_objs = Objects.get_count();
+					std::vector<preserved_object_pose> cur_objs;
+					cur_objs.reserve(num_objs);
+					for (const auto &obj : partial_const_range(Objects, num_objs))
+						cur_objs.emplace_back(preserved_object_pose{obj.signature, obj.pos, obj.orient});
 
 					const int level = Current_level_num;
 					if (newdemo_read_frame_information(0) == -1) {
@@ -3929,10 +4076,10 @@ window_event_result newdemo_playback_one_frame()
 
 					//  for each new object in the frame just read in, determine if there is
 					//  a corresponding object that we have been interpolating.  If so, then
-					//  copy that interpolated object to the new Objects array so that the
+					//  copy that interpolated pose to the new Objects array so that the
 					//  interpolated position and orientation can be preserved.
 
-					range_for (auto &i, partial_const_range(cur_objs, 1 + num_objs)) {
+					range_for (auto &i, cur_objs) {
 						for (auto &obj : vmobjptr)
 						{
 							if (i.signature == obj.signature)
@@ -4361,6 +4508,13 @@ void newdemo_stop_playback()
 	nd_playback_v_guided = 0;
 #endif
 	Newdemo_game_mode = Game_mode = {};
+	// Camera-only demo attachments have no live parent.  Make them standalone
+	// before returning the objects to the editor's normal deletion paths.
+	for (auto &obj : LevelUniqueObjectState.Objects.vmptr)
+	{
+		if (obj.type != object_type::OBJ_NONE && obj.control_source == object::control_type::explosion && (obj.flags & OF_ATTACHED) && obj.ctype.expl_info.attach_parent == object_none)
+			obj.flags &= ~OF_ATTACHED;
+	}
 	// Required for the editor
 	obj_relink_all();
 }
@@ -4432,10 +4586,11 @@ read_error:
 }
 
 #if DXX_BUILD_DESCENT == 2
-static void nd_render_extras (ubyte which,const object &obj)
+static void nd_render_extras (ubyte which, const object_base &obj)
 {
 	ubyte w=which>>4;
 	ubyte type=which&15;
+	const demo_extra_viewer_snapshot snapshot{obj.type, obj.segnum, vm_vec_scale_add(obj.pos, obj.orient.fvec, F1_0 * 5), obj.orient};
 
 	if (which==255)
 	{
@@ -4445,12 +4600,19 @@ static void nd_render_extras (ubyte which,const object &obj)
 
 	if (w)
 	{
-		DemoRightExtra = obj;  DemoDoRight=type;
+		DemoRightExtra = snapshot;  DemoDoRight=type;
 	}
 	else
 	{
-		DemoLeftExtra = obj; DemoDoLeft=type;
+		DemoLeftExtra = snapshot; DemoDoLeft=type;
 	}
 
 }
+
+dsx::render_view newdemo_get_extra_viewer(const ::dcx::gauge_inset_window_view which)
+{
+	const auto &snapshot = which == gauge_inset_window_view::primary ? DemoLeftExtra : DemoRightExtra;
+	return {snapshot.type, snapshot.segnum, snapshot.pos, snapshot.orient, which};
+}
+
 #endif

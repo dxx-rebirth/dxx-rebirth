@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-segment.h"
 #include "fwd-vclip.h"
 #include "lighting.h"
+#include "render_view.h"
 #include "d_array.h"
 
 #if DXX_USE_EDITOR
@@ -133,10 +134,14 @@ g3s_codes rotate_list(fvcvertptr &vcvertptr, std::span<const vertnum_t> pointnum
 
 #ifdef DXX_BUILD_DESCENT
 namespace dsx {
+void render_frame(grs_canvas &, const object &, fix eye_offset, window_rendered_data &);
+void render_frame(grs_canvas &, const render_view &, fix eye_offset, window_rendered_data &);
 void render_frame(grs_canvas &, fix eye_offset, window_rendered_data &);  //draws the world into the current canvas
+void render_mine(grs_canvas &, const render_view &, const vms_vector &, vcsegidx_t start_seg_num, fix eye_offset, window_rendered_data &);
 void render_mine(grs_canvas &, const vms_vector &, vcsegidx_t start_seg_num, fix eye_offset, window_rendered_data &);
 
 // Render an object.  Calls one of several routines based on type
+void render_object(grs_canvas &, const d_level_unique_light_state &LevelUniqueLightState, const render_view &, vmobjptridx_t obj);
 void render_object(grs_canvas &, const d_level_unique_light_state &LevelUniqueLightState, vmobjptridx_t obj);
 
 // draw an object that is a texture-mapped rod

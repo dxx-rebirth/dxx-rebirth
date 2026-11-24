@@ -32,6 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fwd-segment.h"
 #include "3d.h"
 #include "d_array.h"
+#include "render_view.h"
 
 #define MIN_LIGHT_DIST  (F1_0*4)
 
@@ -63,7 +64,7 @@ struct d_level_unique_light_state :
 
 extern d_level_unique_light_state LevelUniqueLightState;
 }
-extern const object *old_viewer;
+void reset_lighting_cache();
 
 namespace dsx {
 // compute the lighting for an object.  Takes a pointer to the object,
@@ -76,5 +77,5 @@ g3s_lrgb compute_object_light(const d_level_unique_light_state &LevelUniqueLight
 void toggle_headlight_active(object &);
 #endif
 }
-void start_lighting_frame(const object &viewer);
+void start_lighting_frame(const dsx::render_view_identity &viewer);
 #endif

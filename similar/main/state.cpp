@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <optional>
 #include <ranges>
 
 #include "pstypes.h"
@@ -521,7 +522,7 @@ static void state_object_to_object_rw(const object &obj, object_rw *const obj_rw
 // turn object_rw to object after reading from Savegame
 static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj)
 {
-	obj = {};
+	obj.reset();
 	DXX_POISON_VAR(obj, 0xfd);
 	obj.type = build_valid_object_type_from_untrusted({obj_rw->type});
 	if (obj.type == object_type::OBJ_NONE)
@@ -2465,8 +2466,26 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 // Read Coop Info
 	if (+(Game_mode & GM_MULTI_COOP))
 	{
+		/* These are the object fields that cooperative restore applies to
+		 * the current player object.  Keep this distinct from `object` so
+		 * that temporary restore data cannot masquerade as a live object.
+		 */
+		struct restored_player_object
+		{
+			object::control_type control_source;
+			object::movement_type movement_source;
+			render_type render;
+			ubyte flags;
+			vms_vector pos;
+			vms_matrix orient;
+			fix size;
+			fix shields;
+			fix lifeleft;
+			physics_info phys_info;
+			polyobj_info pobj_info;
+		};
 		player restore_players[MAX_PLAYERS];
-		object restore_objects[MAX_PLAYERS];
+		std::array<std::optional<restored_player_object>, MAX_PLAYERS> restore_objects;
 
 		for (playernum_t i = 0; i < MAX_PLAYERS; i++) 
 		{
@@ -2482,12 +2501,29 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 			state_read_player(fp, restore_players[i], swap, pl_info, rpd);
 			
 			// make all (previous) player objects to ghosts but store them first for later remapping
-			const auto &&obj = vmobjptr(restore_players[i].objnum);
-			if (restore_players[i].connected == player_connection_status::playing && obj->type == object_type::OBJ_PLAYER)
+			if (restore_players[i].connected == player_connection_status::playing)
 			{
+				const auto &&guarded_obj = vmobjptr.check_untrusted(restore_players[i].objnum);
+				if (!guarded_obj)
+					return 0;
+				const auto &&obj = *guarded_obj;
+				if (obj->type != object_type::OBJ_PLAYER)
+					return 0;
 				obj->ctype.player_info = pl_info;
 				obj->shields = rpd.shields;
-				restore_objects[i] = *obj;
+				restore_objects[i].emplace(restored_player_object{
+					obj->control_source,
+					obj->movement_source,
+					obj->render_type,
+					obj->flags,
+					obj->pos,
+					obj->orient,
+					obj->size,
+					obj->shields,
+					obj->lifeleft,
+					obj->mtype.phys_info,
+					obj->rtype.pobj_info,
+				});
 				obj->type = object_type::OBJ_GHOST;
 				multi_reset_player_object(obj);
 			}
@@ -2497,25 +2533,26 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 			for (unsigned j = 0; j < MAX_PLAYERS; j++)
 			{
 				// map stored players to current players depending on their unique (which we made sure) callsign
-				if (vcplayerptr(i)->connected == player_connection_status::playing && restore_players[j].connected == player_connection_status::playing && vcplayerptr(i)->callsign == restore_players[j].callsign)
+				if (vcplayerptr(i)->connected == player_connection_status::playing && restore_players[j].connected == player_connection_status::playing && restore_objects[j] && vcplayerptr(i)->callsign == restore_players[j].callsign)
 				{
+					const auto &restore_object = *restore_objects[j];
 					auto &p = *vmplayerptr(i);
 					p = restore_players[j];
 					coop_player_got[i] = 1;
 
 					const auto &&obj = vmobjptridx(vcplayerptr(i)->objnum);
 					// since a player always uses the same object, we just have to copy the saved object properties to the existing one. i hate you...
-					obj->control_source = restore_objects[j].control_source;
-					obj->movement_source = restore_objects[j].movement_source;
-					obj->render_type = restore_objects[j].render_type;
-					obj->flags = restore_objects[j].flags;
-					obj->pos = restore_objects[j].pos;
-					obj->orient = restore_objects[j].orient;
-					obj->size = restore_objects[j].size;
-					obj->shields = restore_objects[j].shields;
-					obj->lifeleft = restore_objects[j].lifeleft;
-					obj->mtype.phys_info = restore_objects[j].mtype.phys_info;
-					obj->rtype.pobj_info = restore_objects[j].rtype.pobj_info;
+					obj->control_source = restore_object.control_source;
+					obj->movement_source = restore_object.movement_source;
+					obj->render_type = restore_object.render;
+					obj->flags = restore_object.flags;
+					obj->pos = restore_object.pos;
+					obj->orient = restore_object.orient;
+					obj->size = restore_object.size;
+					obj->shields = restore_object.shields;
+					obj->lifeleft = restore_object.lifeleft;
+					obj->mtype.phys_info = restore_object.phys_info;
+					obj->rtype.pobj_info = restore_object.pobj_info;
 					// make this restored player object an actual player again
 					assert(obj->type == object_type::OBJ_GHOST);
 					obj->type = object_type::OBJ_PLAYER;

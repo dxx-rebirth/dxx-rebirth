@@ -68,7 +68,7 @@ void explode_object(d_level_unique_object_state &LevelUniqueObjectState, const d
 void do_explosion_sequence(const d_robot_info_array &Robot_info, object &obj);
 void do_debris_frame(const d_robot_info_array &Robot_info, vmobjptridx_t obj);      // deal with debris for this frame
 
-void draw_fireball(const d_vclip_array &Vclip, grs_canvas &, vcobjptridx_t obj);
+void draw_fireball(const d_vclip_array &Vclip, grs_canvas &, const vms_vector &viewer_pos, vcobjptridx_t obj);
 
 void explode_wall(fvcvertptr &, vcsegptridx_t, sidenum_t sidenum, wall &);
 unsigned do_exploding_wall_frame(const d_robot_info_array &Robot_info, wall &);

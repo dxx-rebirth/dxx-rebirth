@@ -82,7 +82,7 @@ static imobjptridx_t find_homing_object(const vms_vector &curpos, vmobjptridx_t 
 // Called by render code.... determines if the laser is from a robot or the
 // player and calls the appropriate routine.
 
-void Laser_render(grs_canvas &canvas, const object_base &obj)
+void Laser_render(grs_canvas &canvas, const vms_vector &viewer_pos, const object_base &obj)
 {
 	auto &wi = Weapon_info[get_weapon_id(obj)];
 	switch(wi.render)
@@ -100,7 +100,7 @@ void Laser_render(grs_canvas &canvas, const object_base &obj)
 		[[unlikely]];
 		break;
 	case weapon_info::render_type::blob:
-		draw_object_blob(GameBitmaps, *Viewer, canvas, obj, wi.bitmap);
+		draw_object_blob(GameBitmaps, viewer_pos, canvas, obj, wi.bitmap);
 		break;
 	case weapon_info::render_type::polymodel:
 		break;

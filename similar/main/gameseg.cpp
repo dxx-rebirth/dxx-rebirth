@@ -1600,7 +1600,7 @@ static void change_segment_light(const vmsegptridx_t segp, const sidenum_t siden
 
 	//this is a horrible hack to get around the horrible hack used to
 	//smooth lighting values when an object moves between segments
-	old_viewer = NULL;
+	reset_lighting_cache();
 
 }
 

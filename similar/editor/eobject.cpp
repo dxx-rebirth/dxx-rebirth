@@ -746,15 +746,17 @@ static void move_object_to_position(const vmobjptridx_t objp, const vms_vector &
 		if (verify_object_seg(vmobjptr, Segments, vcvertptr, objp, newpos)) {
 			fvi_info	hit_info;
 
-			auto temp_viewer_obj = *Viewer;
+			const auto viewer_pos = Viewer->pos;
+			const auto viewer_size = Viewer->size;
 			auto viewer_segnum = find_object_seg(LevelSharedSegmentState, LevelUniqueSegmentState, *Viewer);
-			temp_viewer_obj.segnum = viewer_segnum;
 
 			//	If the viewer is outside the mine, get him in the mine!
 			if (viewer_segnum == segment_none) {
 				editor_status("Unable to move object, viewer not in mine.  Aborting");
 				return;
 #if 0
+				auto temp_viewer_obj = *Viewer;
+				temp_viewer_obj.segnum = viewer_segnum;
 				vms_vector	last_outside_pos;
 				//	While outside mine, move towards object
 				count = 0;
@@ -795,14 +797,14 @@ static void move_object_to_position(const vmobjptridx_t objp, const vms_vector &
 			}
 
 			const auto fate = find_vector_intersection(fvi_query{
-				temp_viewer_obj.pos,
+				viewer_pos,
 				newpos,
 				fvi_query::unused_ignore_obj_list,
 				fvi_query::unused_LevelUniqueObjectState,
 				fvi_query::unused_Robot_info,
 				0,
 				object_none,
-			}, temp_viewer_obj.segnum, temp_viewer_obj.size, hit_info);
+			}, viewer_segnum, viewer_size, hit_info);
 			if (fate == fvi_hit_type::Wall)
 			{
 				objp->pos = hit_info.hit_pnt;

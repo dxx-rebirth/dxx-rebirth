@@ -506,7 +506,7 @@ constexpr std::integral_constant<fix, (F1_0*15/16)> Min_n0_n1_dot{};
 //	Check for normal facing.  If so, render faces on side dictated by sidep->type.
 namespace dsx {
 namespace {
-static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegptridx_t segp, const sidenum_t sidenum, const wall_is_doorway_result wid_flags, const vms_vector &Viewer_eye)
+static void render_side(const render_view &view, fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegptridx_t segp, const sidenum_t sidenum, const wall_is_doorway_result wid_flags, const vms_vector &Viewer_eye)
 {
 	fix		min_dot, max_dot;
 
@@ -552,7 +552,7 @@ static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegpt
 		}
 
 		//	Determine whether to detriangulate side: (speed hack, assumes Tulate_min_ratio == F1_0*2, should fixmul(min_dot, Tulate_min_ratio))
-		if (DETRIANGULATION && (min_dot + F1_0 / 256 > max_dot || (Viewer->segnum != segp && min_dot > Tulate_min_dot && max_dot < min_dot * 2)) &&
+		if (DETRIANGULATION && (min_dot + F1_0 / 256 > max_dot || (view.segnum != segp && min_dot > Tulate_min_dot && max_dot < min_dot * 2)) &&
 			//	The other detriangulation code doesn't deal well with badly non-planar sides.
 			vm_vec_build_dot(normals[0], normals[1]) >= Min_n0_n1_dot
 			)
@@ -590,7 +590,7 @@ static void render_side(fvcvertptr &vcvertptr, grs_canvas &canvas, const vcsegpt
 }
 
 #if DXX_USE_EDITOR
-static void render_object_search(grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const vmobjptridx_t obj)
+static void render_object_search(const render_view &view, grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const vmobjptridx_t obj)
 {
 	int changed{0};
 
@@ -617,7 +617,7 @@ static void render_object_search(grs_canvas &canvas, const d_level_unique_light_
 	gr_pixel(canvas.cv_bitmap, _search_x, _search_y, color);
 #endif
 	}
-	render_object(canvas, LevelUniqueLightState, obj);
+	render_object(canvas, LevelUniqueLightState, view, obj);
 	if (gr_ugpixel(canvas.cv_bitmap,_search_x,_search_y) != 0)
 		changed=1;
 
@@ -631,7 +631,7 @@ static void render_object_search(grs_canvas &canvas, const d_level_unique_light_
 	gr_pixel(canvas.cv_bitmap, _search_x, _search_y, color);
 #endif
 	}
-	render_object(canvas, LevelUniqueLightState, obj);
+	render_object(canvas, LevelUniqueLightState, view, obj);
 	if (gr_ugpixel(canvas.cv_bitmap,_search_x,_search_y) != 1)
 		changed=1;
 
@@ -644,7 +644,7 @@ static void render_object_search(grs_canvas &canvas, const d_level_unique_light_
 }
 #endif
 
-static void do_render_object(grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const vmobjptridx_t obj, window_rendered_data &window)
+static void do_render_object(const render_view &view, grs_canvas &canvas, const d_level_unique_light_state &LevelUniqueLightState, const vmobjptridx_t obj, window_rendered_data &window)
 {
 	std::size_t count{0};
 
@@ -688,11 +688,11 @@ static void do_render_object(grs_canvas &canvas, const d_level_unique_light_stat
 
 #if DXX_USE_EDITOR
 	if (_search_mode)
-		render_object_search(canvas, LevelUniqueLightState, obj);
+		render_object_search(view, canvas, LevelUniqueLightState, obj);
 	else
 	#endif
 		//NOTE LINK TO ABOVE
-		render_object(canvas, LevelUniqueLightState, obj);
+		render_object(canvas, LevelUniqueLightState, view, obj);
 
 	for (auto n = obj->attached_obj; n != object_none;)
 	{
@@ -702,7 +702,7 @@ static void do_render_object(grs_canvas &canvas, const d_level_unique_light_stat
 		Assert(o->flags & OF_ATTACHED);
 		n = o->ctype.expl_info.next_attach;
 
-		render_object(canvas, LevelUniqueLightState, o);
+		render_object(canvas, LevelUniqueLightState, view, o);
 	}
 }
 }
@@ -773,20 +773,20 @@ static void project_list(const std::array<vertnum_t, 8> &pointnumlist)
 #if !DXX_USE_OGL
 namespace dsx {
 namespace {
-static void render_segment(fvcvertptr &vcvertptr, fvcwallptr &vcwallptr, const vms_vector &Viewer_eye, grs_canvas &canvas, const vcsegptridx_t seg)
+static void render_segment(const render_view &view, fvcvertptr &vcvertptr, fvcwallptr &vcwallptr, const vms_vector &Viewer_eye, grs_canvas &canvas, const vcsegptridx_t seg)
 {
 	if (rotate_list(vcvertptr, seg->verts).uand == clipping_code::None)
 	{		//all off screen?
 
 #if DXX_BUILD_DESCENT == 2
-		if (Viewer->type != object_type::OBJ_ROBOT)
+		if (view.type != object_type::OBJ_ROBOT)
 #endif
 		{
 			LevelUniqueAutomapState.Automap_visited[seg] = 1;
 		}
 
 		for (const auto sn : MAX_SIDES_PER_SEGMENT)
-			render_side(vcvertptr, canvas, seg, sn, WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sn), Viewer_eye);
+			render_side(view, vcvertptr, canvas, seg, sn, WALL_IS_DOORWAY(GameBitmaps, Textures, vcwallptr, seg, sn), Viewer_eye);
 	}
 
 	//draw any objects that happen to be in this segment
@@ -1167,9 +1167,9 @@ static void sort_segment_object_list(fvcobjptr &vcobjptr, const vms_vector &View
 namespace dsx {
 namespace {
 
-static void build_object_lists(object_array &Objects, fvcsegptr &vcsegptr, const vms_vector &Viewer_eye, render_state_t &rstate)
+static void build_object_lists(const render_view &view, object_array &Objects, fvcsegptr &vcsegptr, const vms_vector &Viewer_eye, render_state_t &rstate)
 {
-	const auto viewer{Viewer};
+	const auto viewer{view.source_object()};
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Vertices = LevelSharedVertexState.get_vertices();
 	auto &Walls = LevelUniqueWallSubsystemState.Walls;
@@ -1262,10 +1262,17 @@ namespace dsx {
 //renders onto current canvas
 void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &window)
 {
+	render_frame(canvas, *Viewer, eye_offset, window);
+}
+
+void render_frame(grs_canvas &canvas, const object &viewer, fix eye_offset, window_rendered_data &window)
+{
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &vcobjptridx = Objects.vcptridx;
 	if (Endlevel_sequence != endlevel_sequence::off) {
+		const auto viewer_save = std::exchange(Viewer, &viewer);
 		render_endlevel_frame(canvas, eye_offset);
+		Viewer = viewer_save;
 		return;
 	}
 
@@ -1274,12 +1281,14 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
       if (RenderingType==0)
    		newdemo_record_start_frame(FrameTime );
       if (RenderingType!=255)
-   		newdemo_record_viewer_object(vcobjptridx(Viewer));
+			newdemo_record_viewer_object(vcobjptridx(&viewer));
 	}
-  
-   //Here:
+	render_frame(canvas, render_view{viewer}, eye_offset, window);
+}
 
-	start_lighting_frame(*Viewer);		//this is for ugly light-smoothing hack
+void render_frame(grs_canvas &canvas, const render_view &view, fix eye_offset, window_rendered_data &window)
+{
+	start_lighting_frame(view.identity);		//this is for ugly light-smoothing hack
   
 	g3_start_frame(canvas);
 
@@ -1289,30 +1298,27 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
 		g3_stereo_frame(eye_offset, VR_eye_offset);
 #endif
 
-	auto Viewer_eye = Viewer->pos;
-
-//	if (Viewer->type == object_type::OBJ_PLAYER && (PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW))
-//		vm_vec_scale_add2(&Viewer_eye,&Viewer->orient.fvec,(Viewer->size*3)/4);
+	auto Viewer_eye = view.pos;
 
 	if (eye_offset)	{
-		vm_vec_scale_add2(Viewer_eye,Viewer->orient.rvec,eye_offset);
+		vm_vec_scale_add2(Viewer_eye,view.orient.rvec,eye_offset);
 	}
 
 #if DXX_USE_EDITOR
 	if (EditorWindow)
-		Viewer_eye = Viewer->pos;
+		Viewer_eye = view.pos;
 	#endif
 
-	const auto &&viewer_segp = Segments.vmptridx(Viewer->segnum);
+	const auto &&viewer_segp = Segments.vmptridx(view.segnum);
 	auto start_seg_num{find_point_seg(LevelSharedSegmentState, LevelUniqueSegmentState, Viewer_eye, viewer_segp DXX_lighting_hack_pass_parameter)};
 
 	if (start_seg_num==segment_none)
 		start_seg_num = viewer_segp;
 
 	g3_set_view_matrix(Viewer_eye,
-		(Rear_view && Viewer == ConsoleObject)
-		? vm_matrix_x_matrix(Viewer->orient, vm_angles_2_matrix(vms_angvec{0, 0, INT16_MAX}))
-		: Viewer->orient, /* Render_zoom = */ {
+		(Rear_view && view.source_object() == ConsoleObject)
+		? vm_matrix_x_matrix(view.orient, vm_angles_2_matrix(vms_angvec{0, 0, INT16_MAX}))
+		: view.orient, /* Render_zoom = */ {
 		+(Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)
 			/* In competitive multiplayer, ignore command line adjustment, for fairness.
 			 * In all other game modes, allow the adjustment.
@@ -1333,7 +1339,7 @@ void render_frame(grs_canvas &canvas, fix eye_offset, window_rendered_data &wind
 		gr_clear_canvas(canvas, Clear_window_color);
 	}
 
-	render_mine(canvas, Viewer_eye, start_seg_num, eye_offset, window);
+	render_mine(canvas, view, Viewer_eye, start_seg_num, eye_offset, window);
 
 	g3_end_frame();
 
@@ -1535,7 +1541,12 @@ done_list:
 }
 
 //renders onto current canvas
-void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegidx_t start_seg_num, const fix eye_offset, window_rendered_data &window)
+void render_mine(grs_canvas &canvas, const vms_vector &eye, const vcsegidx_t start, const fix offset, window_rendered_data &window)
+{
+	render_mine(canvas, render_view{*Viewer}, eye, start, offset, window);
+}
+
+void render_mine(grs_canvas &canvas, const render_view &view, const vms_vector &Viewer_eye, const vcsegidx_t start_seg_num, const fix eye_offset, window_rendered_data &window)
 {
 	auto &LevelSharedVertexState = LevelSharedSegmentState.get_vertex_state();
 	auto &Objects = LevelUniqueObjectState.Objects;
@@ -1580,7 +1591,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 	//render away
 
 	//if (!(_search_mode))
-		build_object_lists(Objects, vcsegptr, Viewer_eye, rstate);
+		build_object_lists(view, Objects, vcsegptr, Viewer_eye, rstate);
 
 	if (eye_offset<=0) // Do for left eye or zero.
 		set_dynamic_light(LevelSharedRobotInfoState.Robot_info, rstate);
@@ -1632,7 +1643,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 				Window_clip_bot   = rw.bot;
 			}
 
-			render_segment(vcvertptr, vcwallptr, Viewer_eye, *grd_curcanv, vcsegptridx(segnum));
+			render_segment(view, vcvertptr, vcwallptr, Viewer_eye, *grd_curcanv, vcsegptridx(segnum));
 			visited[segnum]=3;
 			if (srsm.objects.empty())
 				continue;
@@ -1648,7 +1659,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 				const auto save_linear_depth = std::exchange(Max_linear_depth, Max_linear_depth_objects);
 				range_for (auto &v, srsm.objects)
 				{
-					do_render_object(canvas, LevelUniqueLightState, vmobjptridx(v.objnum), window);	// note link to above else
+					do_render_object(view, canvas, LevelUniqueLightState, vmobjptridx(v.objnum), window);	// note link to above else
 				}
 				Max_linear_depth = save_linear_depth;
 			}
@@ -1686,7 +1697,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 				if (rotate_list(vcvertptr, seg->verts).uand == clipping_code::None)
 				{		//all off screen?
 
-					if (Viewer->type!=object_type::OBJ_ROBOT)
+					if (view.type!=object_type::OBJ_ROBOT)
 						LevelUniqueAutomapState.Automap_visited[segnum] = 1;
 
 					for (const auto sn : MAX_SIDES_PER_SEGMENT)
@@ -1710,11 +1721,11 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 									continue;
 							}
 							glAlphaFunc(GL_GEQUAL,0.8); // prevent ugly outlines if an object (which is rendered later) is shown behind a grate, door, etc. if texture filtering is enabled. These sides are rendered later again with normal AlphaFunc
-							render_side(vcvertptr, canvas, seg, sn, wid, Viewer_eye);
+							render_side(view, vcvertptr, canvas, seg, sn, wid, Viewer_eye);
 							glAlphaFunc(GL_GEQUAL,0.02);
 						}
 						else
-							render_side(vcvertptr, canvas, seg, sn, wid, Viewer_eye);
+							render_side(view, vcvertptr, canvas, seg, sn, wid, Viewer_eye);
 					}
 				}
 			}
@@ -1744,7 +1755,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 				if (rotate_list(vcvertptr, seg->verts).uand == clipping_code::None)
 				{		//all off screen?
 
-					if (Viewer->type!=object_type::OBJ_ROBOT)
+					if (view.type!=object_type::OBJ_ROBOT)
 						LevelUniqueAutomapState.Automap_visited[segnum] = 1;
 
 					for (const auto sn : MAX_SIDES_PER_SEGMENT)
@@ -1756,7 +1767,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 #endif
 							)
 						{
-							render_side(vcvertptr, canvas, seg, sn, wid, Viewer_eye);
+							render_side(view, vcvertptr, canvas, seg, sn, wid, Viewer_eye);
 						}
 					}
 				}
@@ -1773,7 +1784,7 @@ void render_mine(grs_canvas &canvas, const vms_vector &Viewer_eye, const vcsegid
 			{
 				range_for (auto &v, srsm.objects)
 				{
-					do_render_object(canvas, LevelUniqueLightState, vmobjptridx(v.objnum), window);	// note link to above else
+					do_render_object(view, canvas, LevelUniqueLightState, vmobjptridx(v.objnum), window);	// note link to above else
 				}
 			}
 		}
