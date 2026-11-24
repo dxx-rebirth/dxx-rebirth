@@ -725,6 +725,7 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 		case render_type::RT_POLYOBJ:
 		{
 			obj.rtype.pobj_info.model_num.dsx            = build_polygon_model_index_from_untrusted(obj_rw->rtype.pobj_info.model_num);
+			obj.rtype.pobj_info.alt_textures = 0;
 			for (std::size_t i = 0; i < MAX_SUBMODELS; ++i)
 			{
 				obj.rtype.pobj_info.anim_angles[i].p = obj_rw->rtype.pobj_info.anim_angles[i].p;
@@ -736,7 +737,6 @@ static void state_object_rw_to_object(const object_rw *const obj_rw, object &obj
 				const auto t{obj_rw->rtype.pobj_info.tmap_override};
 				obj.rtype.pobj_info.tmap_override = t >= 0 && std::cmp_less(t, Textures.size()) ? static_cast<texture_index>(t) : texture_index{UINT16_MAX};
 			}
-			obj.rtype.pobj_info.alt_textures             = obj_rw->rtype.pobj_info.alt_textures;
 			break;
 		}
 			
@@ -2127,7 +2127,6 @@ int state_restore_all_sub(const d_level_shared_destructible_light_state &LevelSh
 
 	range_for (const auto &&obj, vmobjptridx)
 	{
-		obj->rtype.pobj_info.alt_textures = -1;
 		if ( obj->type != object_type::OBJ_NONE )	{
 			const auto segnum = obj->segnum;
 			obj_link_unchecked(Objects.vmptr, obj, Segments.vmptridx(segnum));
