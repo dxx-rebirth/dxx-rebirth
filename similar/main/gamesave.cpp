@@ -608,7 +608,7 @@ static void read_object(const vmobjptr_t obj, const NamedPHYSFS_File f, int vers
 					return texture_index{UINT16_MAX};
 				}
 				const auto xlated_tmo{tmap_xlate_table[unsigned_tmap_override]};
-				if (xlated_tmo < Textures.size()) [[unlikely]]
+				if (xlated_tmo >= Textures.size()) [[unlikely]]
 				{
 					con_printf(CON_URGENT, "Invalid texture override on object: tmo=%i, xlated_tmo=%hu; setting xlated_tmo=None", raw_tmap_override, underlying_value(xlated_tmo));
 					return texture_index{UINT16_MAX};
