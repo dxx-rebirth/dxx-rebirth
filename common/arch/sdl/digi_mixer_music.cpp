@@ -30,11 +30,6 @@
 #include "physfsrwops.h"
 
 #if SDL_MIXER_MAJOR_VERSION == 1
-/* SDL_mixer-1 is inconsistent in its memory management.  On success, it takes
- * ownership.  On failure, it may free the resource immediately or may leave it
- * allocated, with no indication which was done.  Therefore, for simplicity,
- * always manage the object in Rebirth code.
- */
 #define DXX_USE_SDL_RWOPS_MANAGEMENT	0
 #else
 /* SDL_mixer-2 (and possibly later versions, though that has not been checked)
@@ -72,24 +67,29 @@ class current_music_t :
 	 */
 	public music_storage_buffer,
 #if !DXX_USE_SDL_RWOPS_MANAGEMENT
-	/* If the memory management is not delegated to SDL, then an additional
-	 * `std::unique_ptr` is needed to track and free the memory.  Based on code
-	 * inspection, SDL_mixer does not appear to access the `SDL_RWops`
-	 * structure while processing the `Mix_FreeMusic` call.  However, since
-	 * logically the `Mix_Music` depends on the `SDL_RWops`, it seems safer to
-	 * assume that `Mix_FreeMusic` might access the `SDL_RWops`, and arrange
-	 * for the lifetime of `SDL_RWops` to exceed the lifetime of the
-	 * `Mix_Music`.  Therefore, the `SDL_RWops` is stored earlier in the class
-	 * than the `Mix_Music`, and is destroyed later.
-	 *
-	 * If the memory management is delegated to SDL, then no additional storage
-	 * is needed.
-	 */
 	RWops_ptr,
 #endif
 	std::unique_ptr<Mix_Music, Music_delete>
 {
 	using music_pointer = std::unique_ptr<Mix_Music, Music_delete>;
+#if !DXX_USE_SDL_RWOPS_MANAGEMENT
+	using rwops_close_function = decltype(SDL_RWops::close);
+	rwops_close_function m_rwops_close{};
+
+	static int SDLCALL defer_rwops_close(SDL_RWops *)
+	{
+		return 0;
+	}
+
+	void reset_rwops()
+	{
+		if (const auto rw = RWops_ptr::get()) {
+			rw->close = m_rwops_close;
+			RWops_ptr::reset();
+		}
+		m_rwops_close = nullptr;
+	}
+#endif
 public:
 #if DXX_USE_SDL_RWOPS_MANAGEMENT
 	/* Inherit the zero-argument form of `reset`, since the `reset()` method on
@@ -103,7 +103,11 @@ public:
 	void reset()
 	{
 		music_pointer::reset();
-		RWops_ptr::reset();
+		reset_rwops();
+	}
+	~current_music_t()
+	{
+		reset();
 	}
 #endif
 	[[nodiscard]]
@@ -125,6 +129,10 @@ uintptr_t current_music_t::reset(RWops_ptr rw)
 		reset();
 		return 0;
 	}
+#if !DXX_USE_SDL_RWOPS_MANAGEMENT
+	const auto rwops_close = rw->close;
+	rw->close = defer_rwops_close;
+#endif
 	const auto music{Mix_LoadMUSType_RW(rw.get(), MUS_NONE, DXX_USE_SDL_RWOPS_MANAGEMENT)};
 	music_pointer::reset(music);
 #if DXX_USE_SDL_RWOPS_MANAGEMENT
@@ -137,28 +145,12 @@ uintptr_t current_music_t::reset(RWops_ptr rw)
 	 */
 	rw.release();
 #else
-	if (music)
-	{
-		/* The `SDL_RWops` remains owned by Rebirth, but must remain alive
-		 * until the `Mix_Music` is destroyed, so transfer the `SDL_RWops` into
-		 * the class to extend its lifetime.
-		 *
-		 * The previous `Mix_Music`, if any, was freed by the
-		 * `music_pointer::reset` above, so the previous `SDL_RWops`, if any,
-		 * can now be freed safely.
-		 */
+	reset_rwops();
+	if (music) {
+		m_rwops_close = rwops_close;
 		RWops_ptr::operator=(std::move(rw));
-	}
-	else
-	{
-		/* If `!music`, the SDL_RWops is owned by Rebirth, but not needed since
-		 * there is no music to use it.  Allow it to expire at the end of the
-		 * function.
-		 *
-		 * Clear the prior RWops_ptr, if any, since it corresponds to the prior
-		 * music that was freed above.
-		 */
-		RWops_ptr::reset();
+	} else {
+		rw->close = rwops_close;
 	}
 #endif
 	/* Return the pointer as an integer, because callers should only check for
