@@ -148,7 +148,7 @@ static inline player_ship_color get_team_color(const team_number tnum)
 }
 
 // What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Reset to 0 each time the version of the game changes
-constexpr std::uint16_t MULTI_PROTO_VERSION{16};
+constexpr std::uint16_t MULTI_PROTO_VERSION{17};
 // PROTOCOL VARIABLES AND DEFINES - END
 
 // limits for Packets (i.e. positional updates) per sec

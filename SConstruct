@@ -4971,6 +4971,9 @@ class DXXArchive(DXXCommon):
 		RuntimeTest('test-homing', (
 			'common/unittest/homing.cpp',
 			)),
+		RuntimeTest('test-thief-state', (
+			'common/unittest/thief_state.cpp',
+			)),
 		RuntimeTest('test-enumerate', (
 			'common/unittest/enumerate.cpp',
 			)),

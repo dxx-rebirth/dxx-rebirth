@@ -4,6 +4,29 @@
 #define BOOST_TEST_MODULE Rebirth vecmat
 #include <boost/test/unit_test.hpp>
 
+namespace {
+
+struct unrelated_equality_type {};
+
+// Windows headers supply an unrelated global GUID equality overload.
+[[maybe_unused]] constexpr bool operator==(const unrelated_equality_type &, const unrelated_equality_type &)
+{
+	return false;
+}
+
+}
+
+BOOST_AUTO_TEST_CASE(distance_equality_uses_the_distance_domain)
+{
+	const dcx::vm_distance a{F1_0};
+	const dcx::vm_distance b{F1_0};
+	const dcx::vm_distance c{F1_0 * 2};
+	BOOST_CHECK(a == b);
+	BOOST_CHECK(!(a == c));
+	BOOST_CHECK(a != c);
+	BOOST_CHECK(!(a != b));
+}
+
 BOOST_AUTO_TEST_CASE(vm_vec_add_0)
 {
 	vms_vector a{.x = 10, .y = 20, .z = 30};

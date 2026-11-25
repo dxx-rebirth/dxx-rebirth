@@ -1098,8 +1098,11 @@ static void collide_robot_and_player(const d_robot_info_array &Robot_info, const
 		if (robot_is_thief(robptr)) {
 			static fix64 Last_thief_hit_time;
 			ai_local		*ailp = &robot->ctype.ai_info.ail;
-			if (ailp->mode == ai_mode::AIM_THIEF_ATTACK)
-			{
+			if (ailp->mode == ai_mode::AIM_THIEF_ATTACK
+#if DXX_USE_MULTIPLAYER
+				&& (!(Game_mode & GM_MULTI_ROBOTS) || std::cmp_equal(robot->ctype.ai_info.REMOTE_OWNER, Player_num))
+#endif
+			) {
 				Last_thief_hit_time = {GameTime64};
 				attempt_to_steal_item(robot, robptr, playerobj);
 				steal_attempt = 1;

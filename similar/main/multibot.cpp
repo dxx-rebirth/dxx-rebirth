@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 #include <cstddef>
+#include <optional>
 #include <type_traits>
 #include <utility>
 #include "multiinternal.h"
@@ -55,6 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h" 
 #include "byteutil.h"
 #include "escort.h"
+#include "thief_state.h"
 
 #include "compiler-range_for.h"
 #include "d_construct.h"
@@ -131,6 +133,10 @@ int multi_can_move_robot(const vmobjptridx_t objnum, int agitation)
 	}
 
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
+#if DXX_BUILD_DESCENT == 2
+	if (robot_is_thief(Robot_info[get_robot_id(objrobot)]))
+		agitation = ROBOT_FIRE_AGITATION + 1;
+#endif
 	if (Robot_info[get_robot_id(objrobot)].boss_flag != boss_robot_id::None && BossUniqueState.Boss_dying)
 		return 0;
 	else if (std::cmp_equal(objrobot.ctype.ai_info.REMOTE_OWNER, Player_num)) // Already my robot!
@@ -384,6 +390,19 @@ void multi_send_claim_robot(const vmobjptridx_t objnum)
 namespace dsx {
 namespace {
 
+#if DXX_BUILD_DESCENT == 2
+void multi_write_thief_state(const object &robot, const std::span<uint8_t, thief_state_size> buf)
+{
+	if (robot_is_thief(LevelSharedRobotInfoState.Robot_info[get_robot_id(robot)])) {
+		const auto &ail = robot.ctype.ai_info.ail;
+		write_thief_state({ail.mode, ail.next_action_time}, buf);
+	} else {
+		for (auto &i : buf)
+			i = 0;
+	}
+}
+#endif
+
 void multi_send_release_robot(const vmobjptridx_t objnum)
 {
 	multi_command<multiplayer_command_t::MULTI_ROBOT_RELEASE> multibuf;
@@ -393,12 +412,15 @@ void multi_send_release_robot(const vmobjptridx_t objnum)
 		return;
 	}
 
-	multi_delete_controlled_robot(objnum);
-
 	multibuf[1] = Player_num;
 	const auto &&[obj_owner, remote_objnum] = objnum_local_to_remote(objnum);
 	multibuf[4] = obj_owner;
 	PUT_INTEL_SHORT(&multibuf[2], remote_objnum);
+
+#if DXX_BUILD_DESCENT == 2
+	multi_write_thief_state(objnum, std::span{multibuf}.last<thief_state_size>());
+#endif
+	multi_delete_controlled_robot(objnum);
 
 	multi_send_data(multibuf, multiplayer_data_priority::_2);
 }
@@ -439,31 +461,50 @@ void multi_send_robot_frame()
 
 namespace dsx {
 #if DXX_BUILD_DESCENT == 2
-/*
- * The thief bot moves around even when not controlled by a player. Due to its erratic and random behaviour, it's movement will diverge heavily between players and cause it to teleport when a player takes over.
- * To counter this, let host update positions when no one controls it OR the client which does.
- * Seperated this function to allow the positions being updated more frequently then multi_send_robot_frame (see dispatch_table::do_protocol_frame()).
- */
-void multi_send_thief_frame()
+bool multi_can_move_thief(const vmobjptridx_t thief)
 {
-	auto &Objects = LevelUniqueObjectState.Objects;
-	auto &vmobjptridx = Objects.vmptridx;
-	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
-        if (!(Game_mode & GM_MULTI_ROBOTS))
-                return;
+	auto &aip = thief->ctype.ai_info;
+	const auto local_owner = std::cmp_equal(aip.REMOTE_OWNER, Player_num);
 
-        range_for (const auto &&objp, vmobjptridx)
-        {
-		if (objp->type == object_type::OBJ_ROBOT)
-                {
-			if (robot_is_thief(Robot_info[get_robot_id(objp)]))
-                        {
-				if ((multi_i_am_master() && objp->ctype.ai_info.REMOTE_OWNER == -1) || std::cmp_equal(objp->ctype.ai_info.REMOTE_OWNER, Player_num))
-					multi_send_robot_position_sub(objp, multiplayer_data_priority::_1);
-                                return;
-                        }
-                }
-        }
+	std::optional<playernum_t> controller;
+	vm_distance nearest_distance{F1_0 * 500};
+	auto &Objects = LevelUniqueObjectState.Objects;
+	for (playernum_t pnum = 0; std::cmp_less(pnum, N_players); ++pnum) {
+		const auto &plr = Players[pnum];
+		if (plr.connected != player_connection_status::playing || plr.objnum == object_none)
+			continue;
+		const auto &player = *Objects.vcptr(plr.objnum);
+		if (player.type != object_type::OBJ_PLAYER
+			|| (pnum == Player_num && Player_dead_state != player_dead_state::no))
+			continue;
+		// Keep distant thief AI running when no player is within the interest range.
+		if (!controller)
+			controller = pnum;
+		const auto distance = vm_vec_dist_quick(thief->pos, player.pos);
+		if (distance < nearest_distance
+			|| (distance == nearest_distance && std::cmp_equal(aip.REMOTE_OWNER, pnum))) {
+			nearest_distance = distance;
+			controller = pnum;
+		}
+	}
+
+	if (!controller || *controller != Player_num) {
+		if (local_owner)
+			multi_send_release_robot(thief);
+		return false;
+	}
+	if (aip.REMOTE_OWNER != -1 && !local_owner)
+		return false;
+	const auto acquiring = aip.REMOTE_OWNER == -1;
+	if (!multi_can_move_robot(thief, ROBOT_FIRE_AGITATION + 1))
+		return false;
+	if (acquiring) {
+		aip.hide_index = -1;
+		aip.path_length = 0;
+		aip.cur_path_index = 0;
+		aip.PATH_DIR = 1;
+	}
+	return true;
 }
 
 #endif
@@ -491,7 +532,10 @@ void multi_send_robot_position_sub(const vmobjptridx_t objnum, const multiplayer
 	multi_put_vector(&multibuf[loc], qpp.vel);
 	loc += 12;
 	multi_put_vector(&multibuf[loc], qpp.rotvel);
-	// 46 + 5 = 51
+
+#if DXX_BUILD_DESCENT == 2
+	multi_write_thief_state(objnum, std::span{multibuf}.last<thief_state_size>());
+#endif
 
 	multi_send_data(multibuf, priority);
 }
@@ -801,6 +845,17 @@ void multi_do_release_robot(const playernum_t pnum, const multiplayer_rspan<mult
 	{
 		return;
 	}
+
+#if DXX_BUILD_DESCENT == 2
+	if (robot_is_thief(LevelSharedRobotInfoState.Robot_info[get_robot_id(botp)])) {
+		const auto state = read_thief_state(buf.last<thief_state_size>());
+		if (!state)
+			return;
+		auto &ail = botp->ctype.ai_info.ail;
+		ail.mode = state->mode;
+		ail.next_action_time = state->next_action_time;
+	}
+#endif
 	
 	// Perform the requested change
 
@@ -831,6 +886,15 @@ void multi_do_robot_position(const playernum_t pnum, const multiplayer_rspan<mul
 	if ((robot->type != object_type::OBJ_ROBOT) || (robot->flags & OF_EXPLODING)) {
 		return;
 	}
+
+#if DXX_BUILD_DESCENT == 2
+	std::optional<thief_state> state;
+	if (robot_is_thief(LevelSharedRobotInfoState.Robot_info[get_robot_id(robot)])) {
+		state = read_thief_state(buf.last<thief_state_size>());
+		if (!state)
+			return;
+	}
+#endif
 
 	if (!std::cmp_equal(robot->ctype.ai_info.REMOTE_OWNER, pnum))
 	{	
@@ -871,6 +935,13 @@ void multi_do_robot_position(const playernum_t pnum, const multiplayer_rspan<mul
 	loc += 12;
 	qpp.rotvel = multi_get_vector(buf.subspan<5 + 8 + 12 + 2 + 12, 12>());
 	extract_quaternionpos(Objects.vmptr, vmsegptr, robot, qpp);
+#if DXX_BUILD_DESCENT == 2
+	if (state && std::cmp_equal(robot->ctype.ai_info.REMOTE_OWNER, pnum)) {
+		auto &ail = robot->ctype.ai_info.ail;
+		ail.mode = state->mode;
+		ail.next_action_time = state->next_action_time;
+	}
+#endif
 }
 
 void multi_do_robot_fire(const multiplayer_rspan<multiplayer_command_t::MULTI_ROBOT_FIRE> buf)
@@ -1361,10 +1432,8 @@ void multi_robot_request_change(const vmobjptridx_t robot, int player_num)
 	if (!(Game_mode & GM_MULTI_ROBOTS))
 		return;
 	auto &objrobot = *robot;
-#if DXX_BUILD_DESCENT == 1
 	if (!std::cmp_equal(objrobot.ctype.ai_info.REMOTE_OWNER, Player_num))
 		return;
-#endif
 
 	const auto slot = objrobot.ctype.ai_info.REMOTE_SLOT_NUM;
 

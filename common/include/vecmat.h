@@ -93,6 +93,11 @@ public:
 	{
 		return d < rhs.d;
 	}
+	[[nodiscard]]
+	constexpr bool operator==(const vm_distance &rhs) const
+	{
+		return d == rhs.d;
+	}
 	/* Clang chokes using a template operator> to swap the arguments.
 	 * Use a non-template operator> for the one needed type.
 	 */

@@ -11,6 +11,7 @@
  */
 
 #include "dxxsconf.h"
+#include <algorithm>
 #include <random>
 #include <ranges>
 #include <stdio.h>
@@ -57,6 +58,9 @@
 #include "vers_id.h"
 #include "u_mem.h"
 #include "weapon.h"
+#if DXX_BUILD_DESCENT == 2
+#include "thief_state.h"
+#endif
 
 #include "compiler-cf_assert.h"
 #include "compiler-range_for.h"
@@ -463,6 +467,13 @@ const dispatch_table dispatch{};
 }
 }
 namespace {
+#if DXX_BUILD_DESCENT == 1
+constexpr std::size_t udp_object_state_size{0};
+#elif DXX_BUILD_DESCENT == 2
+constexpr std::size_t udp_object_state_size{thief_state_size};
+#endif
+constexpr std::size_t udp_object_size{sizeof(object_rw) + udp_object_state_size};
+
 static int net_udp_do_join_game();
 static void net_udp_update_netgame();
 static void net_udp_send_objects(Network_player_added network_player_added);
@@ -2388,7 +2399,7 @@ void net_udp_send_objects(const Network_player_added network_player_added)
 		if ((Network_send_object_mode == 1) && ((object_owner[i] == -1) || (object_owner[i] == player_num)))
 			continue;
 
-		if ( loc + sizeof(object_rw) + 9 > UPID_MAX_SIZE-1 )
+		if (loc + udp_object_size + 9 > UPID_MAX_SIZE - 1)
 			break; // Not enough room for another object
 
 		obj_count_frame++;
@@ -2403,6 +2414,16 @@ void net_udp_send_objects(const Network_player_added network_player_added)
 		// use object_rw to send objects for now. if object sometime contains some day contains something useful the client should know about, we should use it. but by now it's also easier to use object_rw because then we also do not need fix64 timer values.
 		multi_object_to_object_rw(vmobjptr(i), reinterpret_cast<object_rw *>(&object_buffer[loc]));
 		loc += sizeof(object_rw);
+#if DXX_BUILD_DESCENT == 2
+		const std::span<uint8_t, thief_state_size> state_buffer{&object_buffer[loc], thief_state_size};
+		if (objp->type == object_type::OBJ_ROBOT && robot_is_thief(LevelSharedRobotInfoState.Robot_info[get_robot_id(objp)])) {
+			const auto &ail = objp->ctype.ai_info.ail;
+			write_thief_state({ail.mode, ail.next_action_time}, state_buffer);
+		} else {
+			std::ranges::fill(state_buffer, 0);
+		}
+		loc += udp_object_state_size;
+#endif
 	}
 
 	if (obj_count_frame) // Send any objects we've buffered
@@ -2480,7 +2501,7 @@ static int net_udp_verify_objects(int remote, int local)
 	return(1);
 }
 
-static void net_udp_read_object_packet(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const uint8_t *const data)
+static void net_udp_read_object_packet(const d_level_shared_robot_info_state &LevelSharedRobotInfoState, const std::span<const uint8_t> data)
 {
 	auto &Objects = LevelUniqueObjectState.Objects;
 	auto &Robot_info = LevelSharedRobotInfoState.Robot_info;
@@ -2489,10 +2510,14 @@ static void net_udp_read_object_packet(const d_level_shared_robot_info_state &Le
 	sbyte obj_owner;
 	static int mode = 0, object_count = 0, my_pnum = 0;
 	std::size_t loc{5};
+	if (data.size() < loc)
+		return;
 	const int nobj{GET_INTEL_INT<int32_t>(&data[1])};
 
 	for (int i = 0; i < nobj; i++)
 	{
+		if (data.size() - loc < 9)
+			return;
 		const unsigned uobjnum{GET_INTEL_INT(&data[loc])};
 		objnum_t objnum = uobjnum;                         loc += 4;
 		obj_owner = data[loc];                                      loc += 1;
@@ -2529,7 +2554,11 @@ static void net_udp_read_object_packet(const d_level_shared_robot_info_state &Le
 		}
 		else 
 		{
+			if (data.size() - loc < ::dsx::udp_object_size)
+				return;
 			object_count++;
+			const auto object_data = &data[loc];
+			loc += ::dsx::udp_object_size;
 			if ((obj_owner == my_pnum) || (obj_owner == -1)) 
 			{
 				if (mode != 1)
@@ -2552,8 +2581,21 @@ static void net_udp_read_object_packet(const d_level_shared_robot_info_state &Le
 					Assert(obj->segnum == segment_none);
 				}
 				Assert(objnum < MAX_OBJECTS);
-				multi_object_rw_to_object(reinterpret_cast<const object_rw *>(&data[loc]), obj);
-				loc += sizeof(object_rw);
+				multi_object_rw_to_object(reinterpret_cast<const object_rw *>(object_data), obj);
+#if DXX_BUILD_DESCENT == 2
+				if (obj->type == object_type::OBJ_ROBOT && robot_is_thief(Robot_info[get_robot_id(obj)])) {
+					const std::span<const uint8_t, thief_state_size> state_buffer{object_data + sizeof(object_rw), thief_state_size};
+					const auto state = read_thief_state(state_buffer);
+					if (!state) {
+						nm_messagebox_str(menu_title{nullptr}, nm_messagebox_tie(TXT_OK), menu_subtitle{TXT_NET_SYNC_FAILED});
+						Network_status = network_state::menu;
+						return;
+					}
+					auto &ail = obj->ctype.ai_info.ail;
+					ail.mode = state->mode;
+					ail.next_action_time = state->next_action_time;
+				}
+#endif
 				auto segnum = obj->segnum;
 				if (segnum != segment_none)
 				{
@@ -3504,7 +3546,7 @@ static void net_udp_process_packet(const d_level_shared_robot_info_state &LevelS
 		case upid::object_data:
 			if (multi_i_am_master() || length > UPID_MAX_SIZE || Network_status != network_state::waiting)
 				break;
-			net_udp_read_object_packet(LevelSharedRobotInfoState, data);
+			net_udp_read_object_packet(LevelSharedRobotInfoState, buf);
 			break;
 		case upid::ping:
 			if (multi_i_am_master())
@@ -5427,9 +5469,6 @@ void dispatch_table::do_protocol_frame(int force, int listen) const
 	{
 		last_pdata_time = time;
 		net_udp_send_pdata();
-#if DXX_BUILD_DESCENT == 2
-                multi_send_thief_frame();
-#endif
 	}
 	
 	if (force || (time >= (last_mdata_time+(F1_0/10))))

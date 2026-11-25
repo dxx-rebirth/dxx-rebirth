@@ -69,7 +69,7 @@ namespace dsx {
 int multi_explode_robot_sub(const d_robot_info_array &Robot_info, vmobjptridx_t botnum);
 void multi_robot_request_change(vmobjptridx_t robot, int playernum);
 #if DXX_BUILD_DESCENT == 2
-void multi_send_thief_frame();
+bool multi_can_move_thief(vmobjptridx_t thief);
 #endif
 }
 #endif

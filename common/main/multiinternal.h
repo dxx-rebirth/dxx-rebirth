@@ -13,6 +13,7 @@
 #include "object.h"
 #include "powerup.h"
 #include "serial.h"
+#include "thief_state.h"
 #include "fwd-player.h"
 
 #define _UNPACK_MULTIPLAYER_SERIAL_MESSAGE(A,...)	A, ## __VA_ARGS__
@@ -41,11 +42,11 @@
 	VALUE(MULTI_CONTROLCEN_FIRE      , 16)	\
 	VALUE(MULTI_CREATE_POWERUP       , 19)	\
 	VALUE(MULTI_DECLOAK              , 2)	\
-	VALUE(MULTI_ROBOT_POSITION       , 5 + quaternionpos::packed_size::value)	\
+	VALUE(MULTI_ROBOT_POSITION       , 5 + quaternionpos::packed_size::value + DXX_MP_SIZE_THIEF_STATE)	\
 	VALUE(MULTI_PLAYER_DERES         , DXX_MP_SIZE_PLAYER_RELATED)	\
 	VALUE(MULTI_DOOR_OPEN            , DXX_MP_SIZE_DOOR_OPEN)	\
 	VALUE(MULTI_ROBOT_EXPLODE        , 7)	\
-	VALUE(MULTI_ROBOT_RELEASE        , 5)	\
+	VALUE(MULTI_ROBOT_RELEASE        , 5 + DXX_MP_SIZE_THIEF_STATE)	\
 	VALUE(MULTI_ROBOT_FIRE           , 18)	\
 	VALUE(MULTI_SCORE                , 6)	\
 	VALUE(MULTI_CREATE_ROBOT         , 6)	\
@@ -78,6 +79,7 @@
 #define DXX_MP_SIZE_PLAYER_INVENTORY	15
 #define DXX_MP_SIZE_BEGIN_SYNC	37
 #define DXX_MP_SIZE_DOOR_OPEN	4
+#define DXX_MP_SIZE_THIEF_STATE	0
 #define D2X_MP_COMMANDS(VALUE)
 #elif DXX_BUILD_DESCENT == 2
 #define DXX_MP_SIZE_ENDLEVEL_START	2
@@ -85,6 +87,8 @@
 #define DXX_MP_SIZE_PLAYER_INVENTORY	21
 #define DXX_MP_SIZE_BEGIN_SYNC	41
 #define DXX_MP_SIZE_DOOR_OPEN	5
+#define DXX_MP_SIZE_THIEF_STATE	5
+ASSERT_SERIAL_UDT_MESSAGE_SIZE(dsx::thief_state, DXX_MP_SIZE_THIEF_STATE);
 #define D2X_MP_COMMANDS(VALUE)	\
 	VALUE(MULTI_MARKER               , 55)	\
 	VALUE(MULTI_GUIDED               , 26)	\

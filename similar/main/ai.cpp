@@ -693,8 +693,27 @@ void init_ai_objects(const d_robot_info_array &Robot_info)
 	range_for (const auto &&o, vmobjptridx)
 	{
 		auto &obj = *o;
-		if (obj.type == object_type::OBJ_ROBOT && obj.control_source == object::control_type::ai)
+		if (obj.type == object_type::OBJ_ROBOT && obj.control_source == object::control_type::ai) {
+#if DXX_BUILD_DESCENT == 2 && DXX_USE_MULTIPLAYER
+			if (+(Game_mode & GM_MULTI_ROBOTS) && Network_rejoined && robot_is_thief(Robot_info[get_robot_id(obj)])) {
+				auto &aip = obj.ctype.ai_info;
+				const auto mode = aip.ail.mode;
+				const auto next_action_time = aip.ail.next_action_time;
+				const auto owner = aip.REMOTE_OWNER;
+				const auto velocity = obj.mtype.phys_info.velocity;
+				init_ai_object(Robot_info, o, aip.behavior, aip.hide_segment);
+				aip.ail.mode = mode;
+				aip.ail.next_action_time = next_action_time;
+				aip.REMOTE_OWNER = owner;
+				if (std::cmp_equal(owner, Player_num))
+					aip.REMOTE_OWNER = -1;
+				aip.REMOTE_SLOT_NUM = 0;
+				obj.mtype.phys_info.velocity = velocity;
+				continue;
+			}
+#endif
 			init_ai_object(Robot_info, o, obj.ctype.ai_info.behavior, obj.ctype.ai_info.hide_segment);
+		}
 	}
 
 	BossUniqueState.Boss_dying_sound_playing = 0;
@@ -3320,6 +3339,11 @@ void do_ai_frame(const d_level_shared_robot_info_state &LevelSharedRobotInfoStat
 	if (do_any_robot_dying_frame(Robot_info, obj))
 		return;
 
+#if DXX_BUILD_DESCENT == 2 && DXX_USE_MULTIPLAYER
+	if (robot_is_thief(robptr) && +(Game_mode & GM_MULTI_ROBOTS) && !multi_can_move_thief(obj))
+		return;
+#endif
+
 	// Kind of a hack.  If a robot is flinching, but it is time for it to fire, unflinch it.
 	// Else, you can turn a big nasty robot into a wimp by firing flares at it.
 	// This also allows the player to see the cool flinch effect for mechs without unbalancing the game.
@@ -3852,6 +3876,7 @@ _exit_cheat:
 
 		compute_vis_and_vec(Robot_info, obj, player_info, vis_vec_pos, ailp, player_visibility, robptr);
 		do_thief_frame(obj, robptr, dist_to_player, player_visibility.visibility, vec_to_player);
+		ai_multi_send_robot_position(obj, -1);
 
 		if (ready_to_fire_any_weapon(robptr, ailp, 0)) {
 			if (openable_door_on_near_path(vmsegptr, vcwallptr, *obj, *aip))
