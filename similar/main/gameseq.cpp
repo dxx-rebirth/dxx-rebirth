@@ -1112,7 +1112,7 @@ void LoadLevel(int level_num,int page_in_textures)
 #if DXX_USE_EDITOR
 	if (!EditorWindow)
 #endif
-		songs_play_level_song( Current_level_num, 0 );
+		songs_play_level_song(Current_level_num, level_music_request::follow_level);
 
 	gr_palette_load(gr_palette);		//actually load the palette
 #if DXX_BUILD_DESCENT == 1

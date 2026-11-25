@@ -13,7 +13,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <ranges>
+#include <random>
+#include <span>
+#include <cstdint>
+#include <utility>
 
+#include <SDL_timer.h>
 #include "hudmsg.h"
 #include "songs.h"
 #include "jukebox.h"
@@ -141,12 +146,15 @@ static m3u_bytes read_m3u_bytes_from_disk(const char *const cfgpath)
 	if (!f)
 		return {};
 	const auto fp = f.get();
-	fseek(fp, -1, SEEK_END);
-	const std::size_t length = ftell(fp) + 1;
-	const auto juke_max_songs = JukeboxSongs.max_songs;
-	if (length >= PATH_MAX * juke_max_songs)
+	if (fseek(fp, 0, SEEK_END))
 		return {};
-	fseek(fp, 0, SEEK_SET);
+	const auto file_length = ftell(fp);
+	const auto juke_max_songs = JukeboxSongs.max_songs;
+	if (file_length <= 0 || std::cmp_greater_equal(file_length, PATH_MAX * juke_max_songs))
+		return {};
+	const auto length = static_cast<std::size_t>(file_length);
+	if (fseek(fp, 0, SEEK_SET))
+		return {};
 	/* A file consisting only of single character records and newline
 	 * separators, with no junk newlines, comments, or final terminator,
 	 * will need one pointer per two bytes of file, rounded up.  Any
@@ -211,7 +219,7 @@ static std::size_t read_m3u(void)
 		if (buf == range.end())
 			break;
 	}
-	return std::distance(ib, pp);
+	return std::span(ib, pp).size();
 }
 
 /* Loads music file names from a given directory or M3U playlist */
@@ -265,51 +273,58 @@ void jukebox_load()
 		num_songs = count;
 	}
 
-	if (num_songs)
+	if (num_songs && std::in_range<int>(num_songs))
 	{
 		con_printf(CON_DEBUG,"Jukebox: %" DXX_PRI_size_type " music file(s) found in %s", num_songs, cfgpath.data());
-		if (!std::cmp_equal(CGameCfg.CMLevelMusicTrack[1], num_songs))
+		if (CGameCfg.CMLevelMusicTrack.count != num_songs || CGameCfg.CMLevelMusicTrack.current >= num_songs)
 		{
-			CGameCfg.CMLevelMusicTrack[1] = num_songs;
-			CGameCfg.CMLevelMusicTrack[0] = 0; // number of songs changed so start from beginning.
+			CGameCfg.CMLevelMusicTrack = {0, num_songs};
 		}
 	}
 	else
 	{
-		CGameCfg.CMLevelMusicTrack[0] = -1;
-		CGameCfg.CMLevelMusicTrack[1] = -1;
-		con_puts(CON_DEBUG,"Jukebox music could not be found!");
+		jukebox_unload();
+		CGameCfg.CMLevelMusicTrack = {};
+		con_puts(CON_DEBUG,"Jukebox playlist could not be loaded.");
 	}
 }
 
-// To proceed tru our playlist. Usually used for continous play, but can loop as well.
+void jukebox_select_track(const level_music_request request)
+{
+	auto &[track, count] = CGameCfg.CMLevelMusicTrack;
+	if (!JukeboxSongs.list || !count)
+		return;
+	if (CGameCfg.CMLevelMusicPlayOrder == LevelMusicPlayOrder::Random)
+	{
+		static std::minstd_rand random{SDL_GetTicks()};
+		track = std::uniform_int_distribution<std::size_t>{0, count - 1}(random);
+	}
+	else
+	{
+		if (request == level_music_request::next)
+			track = track + 1 == count ? 0 : track + 1;
+		else if (request == level_music_request::previous)
+			track = track ? track - 1 : count - 1;
+	}
+}
+
+// Advance through the playlist after a track finishes.
 static void jukebox_hook_next()
 {
-	if (!JukeboxSongs.list || CGameCfg.CMLevelMusicTrack[0] == -1)
+	if (!JukeboxSongs.list || !CGameCfg.CMLevelMusicTrack.count)
 		return;
-
-	if (CGameCfg.CMLevelMusicPlayOrder == LevelMusicPlayOrder::Random)
-		CGameCfg.CMLevelMusicTrack[0] = d_rand() % CGameCfg.CMLevelMusicTrack[1]; // simply a random selection - no check if this song has already been played. But that's how I roll!
-	else
-		CGameCfg.CMLevelMusicTrack[0]++;
-	if (CGameCfg.CMLevelMusicTrack[0] + 1 > CGameCfg.CMLevelMusicTrack[1])
-		CGameCfg.CMLevelMusicTrack[0] = 0;
-
+	jukebox_select_track(level_music_request::next);
 	jukebox_play();
 }
 
-// Play tracks from Jukebox directory. Play track specified in GameCfg.CMLevelMusicTrack[0] and loop depending on CGameCfg.CMLevelMusicPlayOrder
+// Play the selected track, looping according to CGameCfg.CMLevelMusicPlayOrder.
 int jukebox_play()
 {
 
 	if (!JukeboxSongs.list)
 		return 0;
 
-	if (CGameCfg.CMLevelMusicTrack[0] < 0 ||
-		CGameCfg.CMLevelMusicTrack[0] + 1 > CGameCfg.CMLevelMusicTrack[1])
-		return 0;
-
-	auto music_filename{JukeboxSongs.list[CGameCfg.CMLevelMusicTrack[0]]};
+	auto music_filename{JukeboxSongs.list[CGameCfg.CMLevelMusicTrack.current]};
 	if (!music_filename)
 		return 0;
 
