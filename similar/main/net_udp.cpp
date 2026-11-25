@@ -3778,8 +3778,8 @@ static int net_udp_start_poll(newmenu *, const d_event &event, start_poll_menu_i
 
 #endif
 
-constexpr std::integral_constant<unsigned, F1_0 * 60> reactor_invul_time_mini_scale{};
-constexpr std::integral_constant<unsigned, 5 * reactor_invul_time_mini_scale> reactor_invul_time_scale{};
+constexpr std::integral_constant<int, F1_0 * 60> reactor_invul_time_mini_scale{};
+constexpr std::integral_constant<int, 5 * reactor_invul_time_mini_scale> reactor_invul_time_scale{};
 
 #if DXX_BUILD_DESCENT == 1
 #define D2X_DUPLICATE_POWERUP_OPTIONS(VERB)	                           \
@@ -3996,9 +3996,9 @@ public:
 	{
 		snprintf(portstring.data(), portstring.size(), "%hu", UDP_MyPort);
 	}
-	void update_reactor_life_string(unsigned t)
+	void update_reactor_life_string(int t)
 	{
-		snprintf(srinvul, sizeof(srinvul), "%s: %u %s", TXT_REACTOR_LIFE, t, TXT_MINUTES_ABBREV);
+		snprintf(srinvul, sizeof(srinvul), "%s: %d %s", TXT_REACTOR_LIFE, t, TXT_MINUTES_ABBREV);
 	}
 	void update_max_play_time_string()
 	{
@@ -4049,7 +4049,7 @@ public:
 #if DXX_USE_TRACKER
 		const unsigned TrackerNATWarned = Netgame.TrackerNATWarned == TrackerNATHolePunchWarn::UserEnabledHP;
 #endif
-		const unsigned PlayTimeAllowed = std::chrono::duration_cast<std::chrono::duration<int, netgame_info::play_time_allowed_abi_ratio>>(Netgame.PlayTimeAllowed).count();
+		const auto PlayTimeAllowed = std::chrono::duration_cast<std::chrono::duration<int, netgame_info::play_time_allowed_abi_ratio>>(Netgame.PlayTimeAllowed).count();
 		const auto game_flag_show_all_players_on_automap{underlying_value(Netgame.game_flag & netgame_rule_flags::show_all_players_on_automap)};
 		DXX_UDP_MENU_OPTIONS(ADD);
 #if DXX_USE_TRACKER
@@ -4077,7 +4077,7 @@ public:
 #if DXX_USE_TRACKER
 		unsigned TrackerNATWarned;
 #endif
-		unsigned PlayTimeAllowed;
+		int PlayTimeAllowed;
 		uint8_t game_flag_show_all_players_on_automap;
 		DXX_UDP_MENU_OPTIONS(READ);
 		Netgame.difficulty = cast_clamp_difficulty(difficulty);
