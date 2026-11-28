@@ -328,7 +328,7 @@ static void medkey_init()
 	}
 }
 
-static int padnum=0;
+static std::size_t padnum = 0;
 //@@short camera_objnum;			//a camera for viewing. Who knows, might become handy
 
 static void init_editor_screen(grs_canvas &canvas, std::array<RAIIPHYSFS_ComputedPathMount, 4> &&search_path_editor);

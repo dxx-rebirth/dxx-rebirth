@@ -277,7 +277,9 @@ int med_keypad_goto_next()
 
 int med_keypad_goto()
 {
-	ui_pad_goto(func_get_param(0));
+	const auto n = func_get_param(0);
+	if (n >= 0)
+		ui_pad_goto(static_cast<std::size_t>(n));
 	return 0;
 }
 

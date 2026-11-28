@@ -21,6 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dsx-ns.h"
 #include <cstddef>
+#include <optional>
 
 namespace dcx {
 
@@ -35,6 +36,6 @@ struct FUNCTION
 int func_get_param( int n );
 FUNCTION::callable func_get(const char *name, int *numparams);
 FUNCTION::callable func_nget(std::size_t func_number, int *numparams, const char **name);
-int func_get_index(const char *name);
+std::optional<std::size_t> func_get_index(const char *name);
 
 }

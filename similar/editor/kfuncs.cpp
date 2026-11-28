@@ -394,14 +394,14 @@ FUNCTION::callable func_get(const char *name, int *numparams)
 	return NULL;
 }
 
-int func_get_index(const char *name)
+std::optional<std::size_t> func_get_index(const char *name)
 {
 	for (auto &&[i, f] : enumerate(med_functions))
 		if (!d_stricmp(name, f.name))
 		{
 			return i;
 		}
-	return -1;
+	return {};
 }
 
 FUNCTION::callable func_nget(std::size_t func_number, int *numparams, const char **name)

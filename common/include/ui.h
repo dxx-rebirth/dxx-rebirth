@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #pragma once
 
+#include <cstddef>
 #include <type_traits>
 #include "dxxsconf.h"
 #include "dsx-ns.h"
@@ -50,10 +51,10 @@ struct UI_KEYPAD {
 	using buttontext_element_t = std::array<char, 100>;
 	using buttontext_t = std::array<buttontext_element_t, 17>;
 	UI_KEYPAD();
-	unsigned numkeys;
+	std::size_t numkeys;
 	ntstring<99> description;
 	std::array<short, 100> keycode;
-	std::array<int, 100> function_number;
+	std::array<std::size_t, 100> function_number;
 	buttontext_t buttontext;
 };
 
@@ -373,13 +374,13 @@ extern void menubar_show();
 
 void ui_pad_init();
 void ui_pad_close();
-void ui_pad_activate(UI_DIALOG &dlg, uint_fast32_t x, uint_fast32_t y);
+void ui_pad_activate(UI_DIALOG &dlg, int x, int y);
 void ui_pad_deactivate();
-void ui_pad_goto(int n);
+void ui_pad_goto(std::size_t n);
 void ui_pad_goto_next();
 void ui_pad_goto_prev();
-int ui_pad_read( int n, const char * filename );
-int ui_pad_get_current();
+int ui_pad_read(std::size_t n, const char *filename);
+std::size_t ui_pad_get_current();
 void ui_pad_draw(UI_DIALOG *dlg, int x, int y);
 
 void ui_barbox_open( const char * text, int length );

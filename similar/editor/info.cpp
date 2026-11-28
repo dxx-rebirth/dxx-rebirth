@@ -24,6 +24,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <cinttypes>
+#include <optional>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -282,8 +283,7 @@ static void info_display_default(grs_canvas &canvas, const grs_font &cv_font)
 //	------------------------------------------------------------------------------------
 window_event_result info_dialog_window::event_handler(const d_event &event)
 {
-	static int old_padnum = -1;
-	int        padnum;		// always redraw
+	static std::optional<std::size_t> old_padnum;
 	grs_canvas *save_canvas = grd_curcanv;
 
 	switch (event.type)
@@ -293,7 +293,7 @@ window_event_result info_dialog_window::event_handler(const d_event &event)
 			gr_set_current_canvas(w_canv);
 			auto &canvas = *grd_curcanv;
 
-			padnum = ui_pad_get_current();
+			const auto padnum = ui_pad_get_current();
 			Assert(padnum <= MAX_PAD_ID);
 
 			if (padnum != old_padnum) {
