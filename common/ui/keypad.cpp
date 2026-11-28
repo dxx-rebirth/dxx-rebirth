@@ -191,8 +191,7 @@ void ui_pad_activate(UI_DIALOG &dlg, const int x, const int y)
 	desc_x = x + 2;
 	desc_y = y - 17;
 
-	for (auto &&[n, button] : enumerate(button_layout))
-	{
+	for (auto &&[n, button] : enumerate(button_layout)) {
 		auto gadget = ui_add_gadget_button(dlg, x5 + bw * button.col, y20 + bh * button.row, bw * button.width, bh * button.height, nullptr, nullptr);
 		gadget->canvas->cv_font = &font;
 		Pad[n] = std::move(gadget);
@@ -272,15 +271,13 @@ static void ui_pad_set_active(const std::size_t n)
 	const char * name;
 	
 
-	for (const auto i : xrange(Pad.size()))
-	{
+	for (const auto i : xrange(Pad.size())) {
 		Pad[i]->text = KeyPad[n]->buttontext[i].data();
 		Pad[i]->user_function = NULL;
 		Pad[i]->dim_if_no_function = 1;
 		Pad[i]->hotkey = -1;
 				
-		for (std::size_t j = 0; j < KeyPad[n]->numkeys; ++j)
-		{
+		for (std::size_t j = 0; j < KeyPad[n]->numkeys; ++j) {
 			if (std::cmp_equal(HotKey[i], KeyPad[n]->keycode[j]))
 			{
 				Pad[i]->hotkey =  HotKey[i];
@@ -308,12 +305,10 @@ void ui_pad_goto(const std::size_t n)
 void ui_pad_goto_next()
 {
 	auto i = active_pad;
-	do
-	{
+	do {
 		if (++i == KeyPad.size())
 			i = 0;
-		if (KeyPad[i])
-		{
+		if (KeyPad[i]) {
 			ui_pad_set_active(i);
 			return;
 		}
@@ -323,11 +318,9 @@ void ui_pad_goto_next()
 void ui_pad_goto_prev()
 {
 	auto i = active_pad;
-	do
-	{
+	do {
 		i = i ? i - 1 : KeyPad.size() - 1;
-		if (KeyPad[i])
-		{
+		if (KeyPad[i]) {
 			ui_pad_set_active(i);
 			return;
 		}
@@ -438,8 +431,7 @@ int ui_pad_read(const std::size_t n, const char *filename)
 		sscanf(line_buffer, " %99s %99s ", text.next().data(), buffer.next().data());
 		keycode = DecodeKeyText(text);
 		const auto functionnumber = func_get_index(buffer);
-		if (!functionnumber)
-		{
+		if (!functionnumber) {
 			UserError( "Unknown function, %s, in %s\n", static_cast<const char *>(buffer), filename );
 		} else if (keycode==-1)
 		{
